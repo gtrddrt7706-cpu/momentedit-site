@@ -273,7 +273,12 @@ chk 'FLOW_NO_GUEST' order-preview.html 1
 #   집은 축배·케이크 하나(축배/케이크/둘 다 세 갈래). 사이 순서는 와인 세리머니로 좁혔다.
 #   옛 초안(S.valley==='cake')은 그대로 뜬다 — 고르는 자리에서만 뺐다.
 chk 'CAKE_ONE_HOME' order-preview.html 3
-chk '_cakeDup' order-preview.html 3                # 옛 초안 이중 커팅 경고는 유지(정의1+호출2)
+# ★[CAKE_DUP_GONE 2026-08-16] 이중 커팅 경고를 **걷었다** — 지키던 것을 뒤집었으니 마커도 뒤집는다.
+#   [WINE_RETIRED] 로 사이 순서가 사라져 inSeq('valley') 가 영영 false 다 → 경고가 닿을 조합이 0.
+#   실측: scripts/audit/ritual-guard-scan.mjs [E] 가 «한 번도 안 걸렸다»로 잡았다.
+#   ★죽은 가드를 남기면 다음 사람이 「이중 예약은 막혀 있다」고 믿는다 — 이제는 **구조**가 막는다
+#     (케이크를 고를 수 있는 자리가 「축배·케이크」 하나뿐이다). 되살아나면 그건 사이 순서가 돌아온 것이다.
+nochk '_cakeDup' order-preview.html
 nochk 'c.flow.forEach' order-preview.html          # ★카드가 flow 를 다시 읽으면 같은 드리프트가 재발한다
 chk "k:'_close'" assets/ritual-data.js 6           # 폐식은 코스마다 자기 상세를 갖는다(기록형은 축배와 뭉쳐 있었다)
 # ★★[ORD_ADD_ALL 2026-08-14 사용자 지시 "위에 없는 다른 순서 더하기, 여기에 다 추가해 줘"]
@@ -1328,7 +1333,7 @@ fi
 
 # ── 2026-07-26 나레이션 더빙 확정안 반영 마커 (문안·기본값·정합 검사)
 chk 'COURSE_DEF_MAP' order-preview.html 4          # 코스별 기본값 단일 원천 — applyCourse·기본 배지·추천이 같은 맵을 봄
-chk 'CAKE_DUP_GUARD' order-preview.html 3          # 사이 순서+축배 케이크 이중 예약 알림(막지 않고 알림)
+nochk 'cakeDupNote' order-preview.html             # [CAKE_DUP_GONE] 위와 같은 이유 — 경고 함수 자체가 없다
 chk 'XM_MIRROR_9KEY' assets/ritual-data.js 1       # 소요분 9키 정합 — 빌더가 기준
 chk 'XM_MIRROR_9KEY' scripts/check-ritual-mirror.js 1
 chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <-> 원천 문안 전수 대조
@@ -3335,6 +3340,15 @@ chk 'export function blockFit' scripts/lib/sent-bounds.mjs 1
 chk 'blockFit' scripts/check-audio-sents.mjs 2
 chk 'blockFit' scripts/build-listen-all.mjs 3
 chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
+# ── [RETIRED_OFF_SCREEN] 폐지한 자리는 실청 목록에서 뺀다 (2026-08-16 사용자 지적) ──
+# *"축가는 뺄거야 축가는 생략이라고 전에 계속 얘기했는데 계속 등장하네?"*
+# 큐 엔진은 이미 축가를 안 낸다(SONG_RETIRED). 그런데 실청 화면은 대장 105클립을 그대로 늘어놨다.
+# 안 나가는 소리를 사람이 계속 확인하게 만들면 확인 시간을 뺏고 신뢰가 깎인다.
+# ★조용히 빼지 않는다 — 무엇을 왜 뺐는지 화면과 콘솔에 적는다(그래야 「사라졌다」로 잘못 복구되지 않는다).
+# ★폐지 명단은 ritual-cue.js 의 RETIRED 가 정본이다 — 여기 다시 적지 않는다.
+chk 'RETIRED_OFF_SCREEN' scripts/build-listen-all.mjs 4
+chk 'Cue.RETIRED' scripts/build-listen-all.mjs 1
+chk 'RETIRED_ROWS' scripts/build-listen-all.mjs 3
 # [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
@@ -3363,7 +3377,12 @@ chk 'IN_ORDER_COVER' scripts/audit/asr-transcribe.py 1
 chk 'IN_ORDER_COVER' scripts/check-audio-text.mjs 1
 chk 'rev' scripts/check-audio-text.mjs 3          # 대본에 «없는 말»이 붙은 자리도 본다(12_narr-welcome-out)
 chk 'check-audio-text' .github/workflows/nightly-screen.yml 1
-chk "valley: \[{ valley: 'wine' }, { valley: 'cake' }, { valley: 'both' }\]" scripts/check-text-audio.mjs 1
+# [WINE_RETIRED 2026-08-16] valley 를 훑을 이유가 사라졌다(팔레트에서 뺐다) — 대신 **뺐다는 사실**을 못박는다.
+chk 'WINE_RETIRED' scripts/check-text-audio.mjs 1
+chk 'WINE_RETIRED' assets/ritual-cue.js 3
+chk 'WINE_RETIRED' order-preview.html 2
+# ★팔레트(GADD)에만 못 박는다 — OFFKEY·_PAL_COST 의 valley:1 은 옛 초안 처리용이라 남는다.
+nochk "GADD={welcome:1,bless:1,valley:1" order-preview.html
 chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
 chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 # [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다
@@ -3652,6 +3671,26 @@ chk 'PHOTO_SCENE' mypage.html 5
 chk 'PHOTO_FX_LINK' mypage.html 2   # [PHOTO_WISH]로 카드가 사라지며 배지 렌더 줄 1개가 정당히 없어졌다(연동 자체는 요청 안내로 남음)
 if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/dev/null \
   || { echo 'FAIL photo-scene: 단체 사진의 식순 연동 이름이 빌더 블록 이름과 다릅니다 — node scripts/check-photo-scene.mjs'; fail=1; }; fi
+
+# ── [RETIRED_SCENE] 폐지한 순서가 고객 화면·AI 지식에 남아 있나 (2026-08-16 · 코워크 요청 적대검증) ──
+# 코워크: *"폐지를 사방에 흩뿌렸다 … 한 군데라도 빠뜨렸으면 그 자리만 살아남는다.
+#   특히 mypage.html · admin.html · Admin.html · api/_ritual-kb.js 쪽은 내가 안 봤다."*
+# 실제로 둘 새어 있었다 —
+#   ① mypage `PHOTO_SCENE` 에 「와인 세리머니」·「케이크 커팅」·「축가」 (엔진은 valley 큐를 0개 낸다 · 실측)
+#   ② api/_ritual-kb.js 가 AI 상담사에게 와인·축가를 «고를 수 있는 순간»으로 알려 주고,
+#      D-14 준비 목록에서 「축가 부탁」까지 시키고 있었다(SONG_RETIRED 는 8/9 · 이레 동안).
+# ★옆의 check-photo-scene 은 이걸 못 본다 — 「이름이 파일에 있나」를 볼 뿐인데
+#   폐지 순서는 클립 번호 때문에 **일부러 파일에 남긴다**. 그래서 왼쪽을 「고를 수 있나」로 옮긴 검사를 따로 둔다.
+chk 'RETIRED_SCENE' scripts/check-retired-scene.mjs 2
+chk 'WINE_RETIRED' mypage.html 1
+chk 'WINE_RETIRED' api/_ritual-kb.js 3
+chk 'SONG_RETIRED' api/_ritual-kb.js 3
+chk '링 워밍 · 폐지' api/_ritual-kb.js 1     # 절 머리에도 폐지를 적는다 — 아래 POLICY 끝에만 있어 이 절만 읽으면 소개로 보였다
+nochk "{n:'와인 세리머니'" mypage.html        # ★되살리기 금지 — 고를 길이 없는 장면을 약속하게 된다
+nochk "{n:'축가',      " mypage.html
+nochk '축가 부탁' api/_ritual-kb.js           # ★없어진 순서를 «부탁하라»고 시키던 D-14 줄
+if command -v node >/dev/null 2>&1; then node scripts/check-retired-scene.mjs >/dev/null \
+  || { echo 'FAIL retired-scene: 폐지한 순서가 고객 화면이나 AI 지식에 살아 있습니다 — node scripts/check-retired-scene.mjs'; fail=1; }; fi
 # [MP_PHOTOSHARE_WHAT 2026-08-16 사용자 질문 "구글드라이브 주소를 주면되는거야?"] 무엇을 넣는지를 첫 줄에.
 #   주의 셋(접근범위·프로필·링크 수명)은 지운 게 아니라 접었다 — 문장이 사라지면 안 된다.
 chk 'MP_PHOTOSHARE_WHAT' mypage.html 1

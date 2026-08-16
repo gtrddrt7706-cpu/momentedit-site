@@ -912,12 +912,7 @@ var COURSES={
    "tribute",
    "declare"
   ],
-  "opt": [
-   {
-    "k": "valley",
-    "at": 9
-   }
-  ],
+  "opt": [],
   "one": "눈물 예식을 원하는 두 분께 · 편지와 서약이 정점",
   "feel": "감정 표현이 풍부하고 친구 하객도 함께하는 두 분께 · 첫인사부터 편지까지 감정이 차오르는 벅찬 예식이에요.",
   "flow": [
@@ -1625,7 +1620,17 @@ var STEPS=[], CEREMONY=[];
      나머지는 전부 다 조정가능하게 … 추가변경제거는 전부 할수있게 공통되게할거야"*
      ★축가 폐지(SONG_RETIRED)의 이주로가 이 칸이다 — 이게 막혀 있으면 '옮기는 것'이 거짓말이 된다.
        실제로 그 커밋을 쓸 때 이 칸이 5개 코스에서 안 열린다는 걸 몰랐다. */
-var GADD={welcome:1,bless:1,valley:1,letter:1,tribute:1,toast:1,free:1};   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거 · [OPEN_PALETTE] free 추가
+/* ★★[WINE_RETIRED 2026-08-16 사용자 지시(세 번째) *"와인세리머니도 축배랑 통합한다고 몇번이나 얘기했는데 계속 중복되고있어"*]
+   사이 순서(valley)를 팔레트에서 뺐다 — 남는 갈래가 「없음」뿐이라 자리 자체가 사라진다.
+   ★2026-07-27 에 코드와 큐 문구를 근거로 「와인+축배는 중복이 아니라 확장」이라 닫았던 판단을 **뒤집는다.**
+     그때 회신에 스스로 적어 뒀다 — *"두 순간이 붙었을 때 하객이 어떻게 느끼는지는 실측이 아니다."*
+     식을 실제로 진행하는 사람이 세 번 같은 말을 했으면, 글로 세운 근거보다 그쪽이 실측이다.
+   ★2026-08-14 [CAKE_ONE_HOME] 은 케이크만 축배로 옮기고 와인을 남긴 **절반짜리**였다.
+     그래서 「잔을 드는 자리」가 목록에 계속 둘로 보였다. 여기서 마저 닫는다.
+   ★클립·큐 함수·문안은 **그대로 둔다** — 번호가 인덱스+1이라 지우면 뒤 클립이 전부 개명된다.
+     팔레트에서만 닫힌 상태가 정상이다(SONG_RETIRED · RINGWARM_RETIRED 와 같은 처방).
+   ★되살리지 말 것. 리뷰가 '유실된 기능'으로 보고 복원하기 쉬운 모양이다. */
+var GADD={welcome:1,bless:1,letter:1,tribute:1,toast:1,free:1};   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거 · [WINE_RETIRED] valley 제거 · [OPEN_PALETTE] free 추가
 var RANK={guest:0,entry:10,welcome:20,bless:25,vow:30,ringwarm:35,ring:40,declare:50,letter:60,tribute:65,valley:70,free:75,song:80,toast:85};   /* ★[FREE_RANK 2026-08-10 점검] free:75 가 여기만 빠져 있었다 — 원천 assets/ritual-cue.js 의 RANK 에는 처음부터 있다. 2026-08-09 OPEN_PALETTE 로 free 를 전 코스에 열면서 이 사본을 안 고쳤다. 없으면 gr=99 로 떨어져 「자유 한 칸」이 제자리(계곡~축가 사이)가 아니라 **맨 끝 축배 뒤**에 끼워졌다(실측). 바로 위 주석의 「한쪽만 고치지 말 것」이 가리키는 그 사고다. */   // 새로 더한 순간을 넣을 표준 자리(기존 순서는 안 건드리고 이 순간만 제자리에 끼움 · 폐식은 목록 밖이라 최고 rank는 자연히 맨 끝=폐식 직전)
 function isGAdd(k){ return !!GADD[k] && COURSES[S.course].seq.indexOf(k)<0 && !(COURSES[S.course].opt||[]).some(function(o){return o.k===k;}); }   // 코스 밖에서 더한(=옵션 취급) 순간
 function paletteCand(){   // 이 코스 순서에 아직 없는(=더할 수 있는) 팔레트 순간들
@@ -2557,21 +2562,9 @@ function renderStep(k){
     });
   }
   else if(k==='valley'){
-    h+=oc('valley','none','없음 · 담백하게','군더더기 없이 편지로 이어져요','',null,null,null,true);
-    h+=oc('valley','wine','와인 세리머니','두 잔을 하나로 모으는 짧은 상징 · 실물 준비 순서라 추가 비용은 미리 안내드려요','지금, 두 사람이 각자의 잔을 하나로 모읍니다. 서로 다른 길을 걸어온 두 사람이, 오늘 같은 잔을 함께 채웁니다.',OUT_VALLEY);
-    /* ★★[CAKE_ONE_HOME 2026-08-14 사용자 지적 "축배 케이크랑 사이 순서 중복 아니야?"]
-       케이크 커팅이 **두 순간에 다 살고 있었다** — 사이 순서의 한 갈래이자 축배·케이크의 한 갈래.
-       그래서 목록에서 두 카드가 같은 것을 파는 것처럼 읽혔고(설명문 둘 다 케이크를 말했다),
-       둘 다 고르면 한 예식에서 케이크를 두 번 자르게 됐다(CAKE_DUP_GUARD 가 그때서야 경고).
-       ★집을 하나로 정한다 — **케이크는 축배·케이크의 것**이다(거기 문안이 카운트까지 있는 본편이고,
-         축배/케이크/둘 다 세 갈래로 이미 다 고를 수 있다). 사이 순서는 **와인 세리머니** 하나로 좁힌다.
-       ★고르는 자리에서만 뺀다 — 옛 초안이 S.valley==='cake' 를 쥐고 있으면 화면·소리는 그대로 나온다
-         (LEGACY_LABEL 과 같은 방식 · rowVal·clip·CAKE_DUP_GUARD 경로 전부 유지).
-       ★되살리지 말 것: 되살리면 같은 것을 두 자리에서 파는 화면으로 돌아간다. */
-    if(S.valley==='cake'){   // [LEGACY_LABEL] 옛 초안만 이 자리에 온다 — 새로 고를 길은 없앴다
-      h+=oc('valley','cake','케이크 커팅','예전에 고르신 갈래예요 · 케이크는 이제 「축배 · 케이크」에서 골라요','오늘의 첫 순간을 함께 나눕니다. 두 사람이 마주 서서, 같은 곳을 향해 첫 조각을 자릅니다.',OUT_VALLEY);
-      if(_cakeDup()) h+=cakeDupNote();   // CAKE_DUP_GUARD
-    }
+    /* [WINE_RETIRED 2026-08-16] 고르는 카드를 전부 걷었다 — 팔레트에서 뺐으므로 새로 올 길이 없다.
+       옛 초안이 S.valley 를 쥐고 여기 오면 «왜 비었나»를 적어 준다. 빈 화면은 고장으로 보인다. */
+    h+='<p class="sub" style="text-align:center">이 자리는 「축배 · 케이크」로 합쳤어요.<br>잔을 드는 순간은 그 한 자리에서 고르시면 됩니다.</p>';
   }
   else if(k==='letter'){
     h+=clip('letter');
@@ -2623,7 +2616,6 @@ function renderStep(k){
       var _tn=(S.toast===v)?(TOAST[v].nar+(TOAST[v].nar2?' '+TOAST[v].nar2:'')):null;
       h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
     });
-    if(_cakeDup()) h+=cakeDupNote();   // CAKE_DUP_GUARD
   }
   else if(k==='write'){
     // 글 적어두기 = 2차 확인 — 각 순간에서 1차로 적고, 여기선 적음/비움을 한눈에 점검·마저 채움 (2026-07-22 사용자 지시 · WRITE_2CHECK)
@@ -2892,8 +2884,12 @@ function inSeq(k){ return curSeq().indexOf(k)>-1; }
 // ★CAKE_DUP_GUARD — 사이 순서와 축배 두 곳에서 케이크가 함께 잡히면 한 예식에 커팅이 두 번 들어간다.
 //   막지 않고 알리기만 한다(이 빌더의 기존 방식 · 선택은 고객 몫). 선택 시점이 아니라 렌더 시점 판정 —
 //   S.valley는 pick 말고 quickOff·extraTgl로도 바뀌어 진입점이 셋이다.
-function _cakeDup(){ return inSeq('valley') && S.valley==='cake' && inSeq('toast') && (S.toast==='cake'||S.toast==='both'); }
-function cakeDupNote(){ return '<div class="reassure" style="margin-top:12px">사이 순서와 축배 두 곳에서 케이크를 자르게 돼요 · 한 곳만 두시면 흐름이 또렷해요</div>'; }
+/* ★[CAKE_DUP_GONE 2026-08-16] 이중 커팅 경고 함수 둘을 걷었다.
+   [WINE_RETIRED] 로 사이 순서가 사라져 `inSeq('valley')` 가 영영 false 다 — 경고가 닿을 조합이 0이 됐다
+   (실측: scripts/audit/ritual-guard-scan.mjs [E] 가 «한 번도 안 걸렸다»로 잡았다).
+   ★죽은 가드를 남기면 다음 사람이 «케이크 이중 예약은 막혀 있다»고 믿는다 — 막는 것이 없는데.
+     경고가 아니라 **구조**가 막는다: 케이크를 고를 수 있는 자리가 「축배·케이크」 하나뿐이다.
+   ★되살리지 말 것 — 되살리려면 사이 순서부터 되돌려야 하고 그건 사용자 지시에 반한다. */
 function estMin(){
   /* ★[BASE_MIRROR] 아래 base 는 assets/ritual-data.js 의 MIN.base 사본이다. 한쪽만 고치지 말 것
      (check-ritual-mirror.js 가 키·값을 대조한다 · XM 과 같은 방식).

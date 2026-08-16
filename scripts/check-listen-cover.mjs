@@ -74,11 +74,14 @@ for (const k of keys) for (const v of AX[k]) states.push({ ...base, [k]: v });
 for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
   for (const a of AX[keys[i]]) for (const b of AX[keys[j]]) states.push({ ...base, [keys[i]]: a, [keys[j]]: b });
 /* ★[EXTRA_CROSS 2026-08-16 CC 적대검증] extra 를 **켜는 값 하나**와만 곱하면 셋이 만나는 자리가 빠진다.
-   실측: `18_narr-valley-cake` 는 `valley:'cake'` + `extra.valley` 가 **동시에** 있어야 나온다.
-   EXTRA_ON 이 valley 를 'wine' 으로만 켜서, 두 축 흔들기로도 이 자리에 못 닿았다(80 → 81).
-   ★그래서 extra 는 «그 축의 모든 값»과 곱한다. 축 이름이 extra 키와 같은 것만 곱하면 되므로 비용도 작다. */
-const EXTRA_ON = { bless: { bless: 'on' }, valley: { valley: 'wine' } };
-for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
+   실측(그때): `18_narr-valley-cake` 는 `valley:'cake'` + `extra.valley` 가 **동시에** 있어야 나왔다.
+   EXTRA_ON 이 valley 를 'wine' 으로만 켜서, 두 축 흔들기로도 그 자리에 못 닿았다(80 → 81).
+   ★[WINE_RETIRED 2026-08-16] 그 valley 축 자체가 그날 폐지됐다 — 위 실측 사례는 이제 «없는 자리»다.
+     ★그래도 **곱하는 규칙은 남긴다.** 고친 것은 valley 하나가 아니라 「extra 를 한 값과만 곱한다」는
+       버릇이기 때문이다. 다음에 축이 하나 늘면 같은 구멍이 그대로 다시 난다.
+       (사례가 사라졌다고 처방을 걷으면, 사례가 다시 생겼을 때 아무도 모른다) */
+const EXTRA_ON = { bless: { bless: 'on' } };   // [WINE_RETIRED 2026-08-16] valley 제거 — 팔레트에서 빠져 켤 길이 없다
+for (const k of ['bless', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
   const on = EXTRA_ON[k] || {};
   states.push({ ...base, ...on, extra: e });

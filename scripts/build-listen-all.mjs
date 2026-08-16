@@ -25,6 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { sentBounds, durOf, blockFit } from './lib/sent-bounds.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -46,6 +47,20 @@ const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt'
 const srcOf = (c) => ['narration', 'cast']
   .map((d) => path.join(ROOT, 'assets/audio', d, `${c.no}_${c.file}.mp3`)).find((p) => fs.existsSync(p)) || '';
 
+/* ★★[RETIRED_OFF_SCREEN 2026-08-16] 폐지한 자리는 **목록에서 뺀다**
+   ─ 사용자: *"축가는 뺄거야 축가는 생략이라고 전에 계속 얘기했는데 계속 등장하네?"*
+   ─ 옳은 지적이다. 큐 엔진은 이미 축가를 안 낸다(SONG_RETIRED · 2026-08-09 팔레트 폐지).
+     그런데 이 화면은 **대장(manifest)의 105클립을 그대로** 늘어놓았다. 폐지한 mp3 는
+     번호가 밀리지 않게 파일을 남겨 두는 것이 원칙이라, 대장에는 그대로 있다.
+     그 결과 「식장에서 안 나는 소리」를 사람이 계속 듣고 확인하게 만들었다.
+   ─ 이 화면의 쓰임은 «당일 나갈 소리를 확인하는 것»이다. 안 나가는 소리가 섞이면
+     확인 시간을 뺏고, 「뺐다고 했는데 왜 있지」로 신뢰가 깎인다.
+   ★그렇다고 조용히 빼지 않는다 — **몇 개를 왜 뺐는지 화면 아래에 적는다.**
+     조용히 빼면 다음에 「축가 클립이 사라졌다」로 잘못 복구된다.
+   ★폐지 명단을 여기 다시 적지 않는다 — ritual-cue.js 의 RETIRED 가 정본이다 [ONE_SPEC]. */
+const Cue = createRequire(import.meta.url)(path.join(ROOT, 'assets/ritual-cue.js'));
+const RETIRED = Cue.RETIRED || {};
+
 /* ★★[EXPORT_MAN_ORDER 2026-08-16] 화면 차례와 **대본 차례는 다르다.**
    화면은 예식 순서(파트 → 클립 번호)로 보는 것이 편하다 — 사람이 식 흐름대로 듣기 때문이다.
    그런데 「다시」로 모은 **대본**은 그대로 타입캐스트에 붙여 넣고, 받은 wav 를 조립기에 준다.
@@ -54,7 +69,8 @@ const srcOf = (c) => ['narration', 'cast']
    ★그래서 대장 배열 차례(mi)를 클립마다 들고 다니다가, 대본을 낼 때만 그것으로 다시 세운다.
      화면은 그대로 예식 순서다 — 보는 차례와 붙이는 차례는 쓰임이 다르니 따로 둔다.
    ★이 저장소가 같은 병을 두 번 앓았다(--redub 의 클립번호 정렬 · 여기). 고치는 자리도 하나로 맞춘다. */
-const OLDC = man.clips.map((c, mi) => ({ c, mi }))
+const RETIRED_ROWS = man.clips.filter((c) => RETIRED[c.file]).map((c) => `${c.no}_${c.file}`);
+const OLDC = man.clips.map((c, mi) => ({ c, mi })).filter(({ c }) => !RETIRED[c.file])
   .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part)) || (+a.c.no - +b.c.no))
   .map(({ c, mi }) => ({ id: `${c.no}_${c.file}`, no: c.no, mi, ko: c.label || c.file, part: c.part,
     role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
@@ -75,6 +91,7 @@ let bOk = 0, bNo = 0;
 const sylOf = (t) => (String(t).match(/[가-힣]/g) || []).length;
 man.clips.forEach((c) => {
   const id = `${c.no}_${c.file}`, f = srcOf(c);
+  if (RETIRED[c.file]) return;                    // [RETIRED_OFF_SCREEN] 폐지한 자리는 재지도 않는다
   if (!f || !(c.sents || []).length) return;
   const b = sentBounds(f, c.sents);
   if (b && b.length === c.sents.length) { BOUNDS[id] = b; bOk++; } else bNo++;
@@ -96,6 +113,7 @@ if (Object.keys(SHORT).length) console.log(`  ★소리가 글보다 짧은 클�
 if (Object.keys(MISS).length) console.log(`  ★★소리에 문장이 빠진 것으로 보이는 클립 ${Object.keys(MISS).length}개 [SENT_MISSING]: ` +
   Object.entries(MISS).map(([k, v]) => `${k}(대본 ${v.n} · 덩어리 ${v.b}${v.at ? ' · ' + v.at.join('·') + '번째' : ' · 자리 못 정함'})`).join(' · '));
 
+if (RETIRED_ROWS.length) console.log(`  · [RETIRED_OFF_SCREEN] 폐지한 자리 ${RETIRED_ROWS.length}개는 목록에서 뺐습니다(식장에서 안 납니다): ${RETIRED_ROWS.join(' · ')}`);
 const missing = OLDC.filter((c) => !c.has && !c.mix);
 if (missing.length) console.log(`  · 소리 없는 기존 클립 ${missing.length}개(합성/미녹음): ${missing.map((c) => c.id).join(' · ')}`);
 
@@ -225,6 +243,7 @@ border:1px solid var(--border);border-radius:9px;background:#fff}
 <h1>전체 실청 점검</h1>
 <p class="sub">[LISTEN_ALL] 지금 나가는 기존 <b>${OLDC.length}클립</b>(문장 ${oldSents}) + 새 어조 <b>${NEWC.length}클립</b>(문장 ${newSents})
 &nbsp;·&nbsp; 예식 순서대로 늘어놓았습니다</p>
+${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_SCREEN] 폐지한 자리 <b>${RETIRED_ROWS.length}개</b>는 목록에 없습니다 &mdash; 식장에서 나지 않습니다: ${RETIRED_ROWS.join(' · ')}<br>(파일은 남겨 둡니다 &mdash; 지우면 뒤 클립 번호가 전부 밀립니다)</p>` : ''}
 
 <div class="note">
   <b>기존 클립</b>은 이미 예식에 나가는 완성본입니다 — 무음·음량까지 들어간 <b>실제로 들릴 소리</b>라 클립 통째로 들려 드립니다.<br>
