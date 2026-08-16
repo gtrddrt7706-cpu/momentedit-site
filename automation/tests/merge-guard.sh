@@ -3973,3 +3973,4 @@ chk '오픈채팅 → 1:1 채팅방' mypage.html 1
 chk 'SHARE_KIND' mypage.html 3
 chk 'function photoShareKind' mypage.html 1
 
+
