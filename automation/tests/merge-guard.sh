@@ -4023,3 +4023,4 @@ chk 'GUIDE_DEFAULT_TRUTH' guide.html 1                # 기본값은 '전체 공
 
 
 
+
