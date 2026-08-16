@@ -1908,9 +1908,12 @@ chk 'PHOTOCUE' assets/ritual-data.js 3
 chk 'PHOTOCUE_NO_CLIP' assets/ritual-data.js 1        # 안내가 없는 것이 정체인 연출 둘 — 클립을 만들지 말 것
 chk '스태프가 차례로 안내' assets/ritual-cue.js 0      # 옛 문안(사회자 전제)이 되살아나면 실패
 
-# [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 갈래(gather)와 상한은 5차 리서치 실측에 매여 있다.
+# [PHOTO_LIST_V2] 단체사진 구도 목록 v2 — 순서(subtractive)와 상한은 5차 리서치 실측에 매여 있다.
 #   11개로 되돌리면 30분에 안 들어간다(전체컷 6분 + 11×3 = 39분).
-chk 'PHOTO_LIST_V2' mypage.html 2
+#   ★2→1 (2026-08-16 [PHOTO_GATHER_OFF]) — 두 번째 마커는 렌더에서 갈래(gather) 배지를 그리던 줄이었고,
+#     그 갈래가 사용자 지시로 폐지되면서 함께 사라졌다. 기능을 정당히 없앤 경우라 목록도 같은 커밋에서 낮춘다
+#     (규칙: 마커가 정당하게 사라지면 가드 목록을 함께 갱신 · 남은 1은 목록 데이터 쪽 주석이라 여전히 유효).
+chk 'PHOTO_LIST_V2' mypage.html 1
 chk 'var PHOTO_MAX=5' mypage.html 1              # [PHOTO_CAP] 다 함께 30~39분에 맞춘 값 · 6으로 되돌리면 밀도의 함정
 chk 'var PHOTO_FX_MAX=2' mypage.html 1
 chk 'var PHOTO_MAX=11' mypage.html 0                # 옛 상한이 되살아나면 실패
@@ -3502,3 +3505,19 @@ chk 'SEAT_DRINK_SAVE' automation/platform/80_production.gs 1
 chk "_dv === 'C' || _dv === 'R' || _dv === 'N'" automation/platform/80_production.gs 1
 chk 'SEAT_DRINK_SAVE' scripts/audit/data-roundtrip.mjs 3
 chk "drinks: \['C', 'R', 'N'\]" scripts/audit/data-roundtrip.mjs 1
+# [PHOTO_GATHER_OFF 2026-08-16 사용자 지시 "자리에서는 무엇이지?"] 단체 사진 구도의 「불러 모아요/자리에서」
+#   두 갈래 배지 폐지 — 전 구도가 모여서 한 컷이다. 「자리에서」는 고객에게 "제대로 모여 찍지 않는다"로
+#   읽혔다(가장 갖고 싶어 하는 친구·가족 컷에서). 리뷰가 '유실된 기능'으로 되살리지 못하게 막는다.
+chk 'PHOTO_GATHER_OFF' mypage.html 4
+nochk "ph-fix\" style=\"opacity:.6\">자리에서" mypage.html
+nochk 'gather:true' mypage.html
+# [PHOTO_SCENE 2026-08-16] 식순에서 고른 순간 → 그날 남는 사진(읽기 전용 칸). 이름은 식순 블록 이름
+#   리터럴이라 빌더가 바꾸면 조용히 안 맞는다 → check-photo-scene.mjs 가 양쪽을 실제로 읽어 대조한다.
+chk 'PHOTO_SCENE' mypage.html 5
+chk 'PHOTO_FX_LINK' mypage.html 3
+if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/dev/null \
+  || { echo 'FAIL photo-scene: 단체 사진의 식순 연동 이름이 빌더 블록 이름과 다릅니다 — node scripts/check-photo-scene.mjs'; fail=1; }; fi
+# [MP_PHOTOSHARE_WHAT 2026-08-16 사용자 질문 "구글드라이브 주소를 주면되는거야?"] 무엇을 넣는지를 첫 줄에.
+#   주의 셋(접근범위·프로필·링크 수명)은 지운 게 아니라 접었다 — 문장이 사라지면 안 된다.
+chk 'MP_PHOTOSHARE_WHAT' mypage.html 1
+chk '예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 닫혀요' mypage.html 1
