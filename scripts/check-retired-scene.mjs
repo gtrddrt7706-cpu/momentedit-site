@@ -93,23 +93,49 @@ for (const k of retired) {
      자가검사에서 축가의 폐지 표시를 떼어 봤더니 **안 붉어졌다** — 창이 바로 윗줄
      「(폐지) 와인 세리머니…」의 '폐지'를 제 것으로 셌기 때문이다.
      그래서 줄 단위로, 모든 등장을 본다. 창으로 보면 옆 줄이 알리바이를 대 준다. */
-const kb = rd('api/_ritual-kb.js');
+/* ★[KB_ALL_THREE 2026-08-16 재점검] 처음엔 `api/_ritual-kb.js` **한 파일만** 봤다.
+   그런데 고객이 읽는 AI 지식은 셋이다 — 그중 `assets/advisor-kb.js` 는 **공개 홈페이지**(index.html)에
+   실린다. 계약 전 사람이 보는 자리라 셋 중 제일 넓은데 그 파일을 안 보고 「전수」라고 말할 뻔했다.
+   ★검사의 «오른쪽»을 좁게 잡으면, 왼쪽을 아무리 잘 골라도 그만큼만 본다. */
+const KB_FILES = ['api/_ritual-kb.js', 'assets/advisor-kb.js', 'api/_kb.js'];
 /* ★[COMMENT_BLANK] 주석을 «줄 첫 글자»로 가리려 했더니 블록 주석의 **이어지는 줄**을 놓쳤다
    (`   ★문안 자체는 남긴다 …` 처럼 별표로 시작하는 줄). 실측으로 붉어져서 알았다.
    그러니 짐작하지 말고 주석 구간을 통째로 비운다 — 줄 번호는 살려 둬야 안내가 쓸모 있다. */
-const kbScan = kb
+const blankComments = (src) => src
   .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
   .replace(/^[ \t]*\/\/.*$/gm, (m) => m.replace(/[^\n]/g, ' '));
-const kbLines = kbScan.split('\n');
-for (const k of retired) {
-  for (const n of nameOf(k)) {
-    for (let i = 0; i < kbLines.length; i++) {
-      const ln = kbLines[i];
-      if (!ln.includes(n)) continue;                      // (주석은 위에서 이미 비웠다)
-      if (/폐지|RETIRED/.test(ln)) continue;               // 그 줄이 스스로 폐지라고 말한다
-      no(`api/_ritual-kb.js:${i + 1} 가 「${n}」 을 말하는데 그 줄에 '폐지' 표시가 없다 — AI 가 고를 수 있는 순간으로 읽고 권한다\n     ${ln.trim().slice(0, 90)}`);
+for (const f of KB_FILES) {
+  const kbLines = blankComments(rd(f)).split('\n');
+  for (const k of retired) {
+    for (const n of nameOf(k)) {
+      for (let i = 0; i < kbLines.length; i++) {
+        const ln = kbLines[i];
+        if (!ln.includes(n)) continue;                    // (주석은 위에서 이미 비웠다)
+        if (/폐지|RETIRED|자유 한 칸/.test(ln)) continue;   // 그 줄이 스스로 폐지라고 말하거나 옮겨 간 자리를 가리킨다
+        no(`${f}:${i + 1} 가 「${n}」 을 말하는데 그 줄에 '폐지' 표시가 없다 — AI 가 고를 수 있는 순간으로 읽고 권한다\n     ${ln.trim().slice(0, 90)}`);
+      }
     }
   }
+}
+
+/* ★[MUSIC_GONE 2026-08-03 사용자 지시 *"노래선정부분 완전삭제"*] 없는 «입력칸»을 있다고 말하지 않는다.
+   폐지된 것은 순서만이 아니다 — 곡 선정 칸도 지웠고, 빌더 주석이 스스로 적어 뒀다: *"음악은 저희가 고른다"*.
+   실측(2026-08-16): mypage 에 '음악' 이라는 글자가 0곳 · 빌더에 곡 입력칸 0곳.
+   그런데 지식서 셋이 «마이페이지에서 입퇴장 음악·축가를 입력하실 수 있다»고 열사흘 동안 말하고 있었다.
+   ★없는 칸을 있다고 하면 두 분이 그 칸을 찾다가 상담으로 온다. 그건 우리가 만든 질문이다. */
+{
+  const hasField = /음악/.test(rd('mypage.html')) || /name=['"][^'"]*[Mm]usic/.test(rd('order-preview.html'));
+  for (const f of KB_FILES) {
+    const lines = blankComments(rd(f)).split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const ln = lines[i];
+      if (!/마이페이지/.test(ln)) continue;
+      if (!/(음악|축가|곡)/.test(ln)) continue;
+      if (/입력|넣으|적으/.test(ln) && !hasField)
+        no(`${f}:${i + 1} 가 「마이페이지에서 음악·축가를 입력」이라 말하는데 그 칸이 없다 [MUSIC_GONE]\n     ${ln.trim().slice(0, 90)}`);
+    }
+  }
+  if (hasField) console.log('  ※ 곡 입력칸이 다시 생겼다 — MUSIC_GONE 이 뒤집혔다면 이 검사도 같은 커밋에서 고칠 것');
 }
 
 if (bad) { console.error(`\n폐지한 순서가 ${bad}자리에서 살아 있습니다. 되살리지 말고 그 자리를 지우세요.`); process.exit(1); }
