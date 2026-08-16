@@ -263,6 +263,33 @@ if (!groups.length) {
 const durCache = new Map();
 const durOf = (f) => { if (!durCache.has(f)) durCache.set(f, dur(f)); return durCache.get(f); };
 
+/* ★★[FLAT_AUTOSPLIT 2026-08-16] 받은 zip 을 **폴더로 나누는 일을 사람에게 시키지 않는다**
+   ─ 사용자 지시: *"2폴더 나누는 법은 뭐야 너가 최대한 알아서해봐 어려운거 시키지말고"*
+   ─ 지금까지: 붙여넣기 대본 한 장이 여러 파트에 걸치면, 받은 wav 를 사람이 파트별 폴더로
+     갈라 줘야 했다. 조립기가 「폴더 하나 = 파트 하나」로 보기 때문이다(PART_AUTOMATCH).
+     ★그런데 그 가르는 일에는 **순서를 틀릴 자리가 있다.** 실제로 틀렸다(2026-08-16 · PASTE_MAN_ORDER):
+       손으로 가르다 6_예식뒤 안에서 두 클립이 뒤바뀌었고, 길이 상관 r=0.578 이 겨우 막았다.
+     ★사람이 틀릴 수 있는 단계는, 기계가 할 수 있으면 기계가 한다.
+   ─ 어떻게: 묶음이 **하나뿐**이고 그 개수가 어느 한 파트와도 안 맞는데 **고른 파트들의 합**과 같으면,
+     대장 배열 차례로 파트별 문장 수만큼 앞에서부터 잘라 나눈다.
+     붙여넣기 대본이 그 차례로 뽑히기 때문이다([PASTE_MAN_ORDER] · check-text-audio --redub).
+   ★가른 뒤에도 길이 상관 검증은 그대로 돈다 — 자동으로 갈랐다고 검사를 건너뛰지 않는다. */
+if (groups.length === 1 && parts.length > 1) {
+  const g = groups[0], tot = parts.reduce((a, P) => a + needOf(P), 0);
+  const oneMatches = parts.some((P) => needOf(P) === g.files.length);
+  if (!oneMatches && tot === g.files.length) {
+    const cut = [];
+    let at = 0;
+    for (const P of parts) { const n = needOf(P);
+      cut.push({ name: P.file.replace(/\.txt$/, '') + '/ (자동)', files: g.files.slice(at, at + n), hint: P.n });
+      at += n; }
+    groups.length = 0; groups.push(...cut);
+    console.log(`★받은 것이 한 묶음(${tot}개)인데 고른 파트가 ${parts.length}개입니다 — 대장 차례로 자동으로 갈랐습니다 [FLAT_AUTOSPLIT]`);
+    for (const c of cut) console.log(`    ${c.name.padEnd(22)} ${String(c.files.length).padStart(3)}개`);
+    console.log('  ★이 뒤에도 길이 상관 검증은 그대로 돕니다 — 어긋나면 멎습니다.');
+  }
+}
+
 // 개수가 맞는 파트만 후보로 두고, 길이 상관으로 점수를 매겨 높은 것부터 짝을 짓는다.
 const pairs = [];
 for (const g of groups) {

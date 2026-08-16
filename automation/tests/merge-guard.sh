@@ -2914,6 +2914,13 @@ chk '못 잰 줄' scripts/check-paste-format.mjs 2
 # 파일도 파트도 맞는데 "파트를 못 찾았다"고 멎었다. 상관은 후보를 가리는 도구지 검증이 아니다.
 # ★순서 검증(--force 로만 넘어감)은 그대로 남는다 — 그게 진짜 안전망이다.
 chk 'ONE_CANDIDATE' scripts/assemble-narration.mjs 1
+# ── [FLAT_AUTOSPLIT] 받은 zip 을 파트별 폴더로 «사람이» 가르지 않는다 (2026-08-16 사용자 지시) ──
+# *"2폴더 나누는 법은 뭐야 너가 최대한 알아서해봐 어려운거 시키지말고"*
+# 손으로 가르는 단계에 순서를 틀릴 자리가 있었고 실제로 틀렸다(PASTE_MAN_ORDER · r=0.578 이 겨우 막았다).
+# 한 묶음의 개수가 고른 파트들의 **합**과 같으면 대장 배열 차례로 잘라 나눈다.
+# ★자동으로 갈랐다고 검사를 건너뛰지 않는다 — 길이 상관 검증은 그대로 돈다.
+chk 'FLAT_AUTOSPLIT' scripts/assemble-narration.mjs 2
+chk '길이 상관 검증은 그대로 돕니다' scripts/assemble-narration.mjs 1
 chk '후보가 둘 이상이면 종전대로' scripts/assemble-narration.mjs 1
 
 # ── [CORR_CLAIM] 조립기 '길이 상관' 주석이 실제 계산과 맞는지 (2026-08-09 · 적대 검증) ──
