@@ -118,12 +118,19 @@ for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
 //   2026-08-07 실사고: [THREE_COURSES]로 담백 seq 에서 덕담·와인케이크가 빠지자
 //   이 두 자리가 검사에서 통째로 사라졌고, 검사는 "이제 글과 소리가 맞는다"고 보고했다.
 //   ★화면 쪽 같은 표는 order-preview.html 의 EXTRA_ON 이다. 늘어나면 둘 다 고칠 것.
-const EXTRA_ON = { bless: { bless: 'on' }, valley: { valley: 'wine' } };
+/* ★★[EXTRA_ENABLE_ALL 2026-08-16] 한 자리에 값이 여럿이면 **전부** 켠다 — 하나만 켜면 나머지가 사각지대다.
+   실측: 옛 표는 valley 를 켤 때 'wine' 만 켰다. 그래서 `18_narr-valley-cake` 는
+   **닿을 수 있는 자리인데도** 이 검사가 한 번도 안 봤다(2026-08-16 · check-listen-cover 가 짚었다).
+   와인·케이크는 고객이 실제로 고르는 두 갈래다. 한쪽만 보는 검사는 다른 쪽에 대해 아무 말도 안 하면서
+   「어긋남 0」이라고 말한다 — 이 저장소가 EXTRA_ENABLE 로 한 번 겪은 병의 같은 뿌리다. */
+const EXTRA_ON = { bless: [{ bless: 'on' }],
+  valley: [{ valley: 'wine' }, { valley: 'cake' }, { valley: 'both' }] };
 for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
-  const on = EXTRA_ON[k] || {};
-  states.push({ ...base, ...on, extra: e });
-  states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
+  for (const on of (EXTRA_ON[k] || [{}])) {
+    states.push({ ...base, ...on, extra: e });
+    states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
+  }
 }
 
 const seen = new Map();   // 자리키 → {ok, screen, heard, why}

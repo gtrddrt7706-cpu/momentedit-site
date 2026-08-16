@@ -3317,6 +3317,31 @@ chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
 chk 'GUESS_TIE' scripts/check-audio-sents.mjs 1
+# ── [LISTEN_COVER] 실청 화면에 «식장에서 날 소리»가 전부 있는가 (2026-08-16 사용자 지시) ──
+# 왼쪽을 대장(manifest)이 아니라 **큐 엔진**에 둔다 — 대장과 화면은 같은 생성기에서 나와 늘 맞는다.
+# ★castLive(배역 상황극)를 보는 첫 검사다. check-text-audio 는 그것을 일부러 뺀다(화면 글과 짝이 아니라서).
+#   그 사정과 「들어 있나」는 별개인데, 여태 아무도 그 별개를 안 봤다.
+chk 'LISTEN_COVER' scripts/check-listen-cover.mjs 1
+chk 'castLiveOf' scripts/check-listen-cover.mjs 1
+chk 'UNREACHED_TEXT' scripts/check-listen-cover.mjs 1
+chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
+# [EXTRA_ENABLE_ALL] 한 자리에 값이 여럿이면 전부 켠다 — valley 를 wine 만 켜서
+# 18_narr-valley-cake 가 대조에서 통째로 빠져 있었다(대조 자리 69 → 70).
+chk 'EXTRA_ENABLE_ALL' scripts/check-text-audio.mjs 1
+# ── ★★[ASR_TRUTH] 소리를 «받아 적어» 대장과 맞댄다 (2026-08-16 사용자 지시) ──
+# *"지금 실제 멘트랑 적혀있는 나레이션 문구랑 안 맞는게 많아 점검해봐"*
+# 그 시점 모든 검사가 초록이었다 — check-text-audio 70곳 어긋남 0 · check-audio-sents 91클립 문장 수 맞음.
+# ★원인: _recorded.json 의 **첫 값이 그 시점 manifest 복사본**이라 옛 클립은 A=A 였다.
+#   RECORDED_TRUTH·NOAUDIO_REAL·CONSOLE_TEXT 에 이어 네 번째다. 앞의 셋은 «대조 대상을 넓혀» 고쳤는데,
+#   넓히는 것으로는 안 낫는다 — **한쪽 끝이 실물에 닿아 있지 않으면** 글의 세계 안에서만 맴돈다.
+# 실측 8클립이 어긋나 있었다(13·15·26·12 는 옛 문안 그대로 · 27·28·29 는 마지막 문장 없음).
+chk 'ASR_TRUTH' scripts/check-audio-text.mjs 1
+chk 'ASR_TRUTH' scripts/audit/asr-transcribe.py 1
+chk 'IN_ORDER_COVER' scripts/audit/asr-transcribe.py 1
+chk 'IN_ORDER_COVER' scripts/check-audio-text.mjs 1
+chk 'rev' scripts/check-audio-text.mjs 3          # 대본에 «없는 말»이 붙은 자리도 본다(12_narr-welcome-out)
+chk 'check-audio-text' .github/workflows/nightly-screen.yml 1
+chk "valley: \[{ valley: 'wine' }, { valley: 'cake' }, { valley: 'both' }\]" scripts/check-text-audio.mjs 1
 chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
 chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 # [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다
