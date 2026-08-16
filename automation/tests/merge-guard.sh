@@ -3896,3 +3896,10 @@ chk 'cf-info' mypage.html 2
 chk 'ALLERGY_ASK_OFF' mypage.html 1
 nochk '땅콩 알레르기' mypage.html
 nochk '알레르기, 거동이 불편한 분' mypage.html
+# ★★[CF_DRINK_ONE 2026-08-16 사용자 지시 "너가 직접보면서 확인점검해봐" — 화면을 보고 잡은 중복]
+#   음료 집계가 「좌석 · 음료」와 「좌석 배치」 두 줄에 각각 있었다(병렬 세션 둘이 같은 날 다른 자리에 넣음).
+#   표기까지 갈려 한 화면이 같은 사실을 두 번, 다른 말로 적었다. 음료는 **줄 이름이 음료인 줄** 하나에만.
+#   ★수를 세는 진짜 검사는 seat-onecard.mjs 가 한다(확인서 HTML 에서 '샴페인 N' 이 1회인지) — 여기선 마커만.
+chk 'CF_DRINK_ONE' mypage.html 3
+chk 'CF_DRINK_ONE' scripts/audit/seat-onecard.mjs 2
+nochk "음료 · '+escapeHtml(_cp" mypage.html          # 좌석 배치 줄에 집계를 되살리지 말 것
