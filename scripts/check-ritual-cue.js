@@ -196,7 +196,8 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   const WANT = {
     'entry-A': 'move', 'narr-ring-in': 'move', 'ringwarm-family': 'move',
     'narr-welcome-in': 'say', 'narr-vow-in': 'say', 'letter-parent': 'say', 'narr-bless-mid': 'say',
-    'narr-valley-wine': 'move', 'tribute-in': 'move', 'narr-song': 'sing'
+    /* [WINE_RETIRED 2026-08-16] narr-valley-wine 제외 — 사이 순서 폐지로 어떤 조합에서도 안 나온다. */
+    'tribute-in': 'move', 'narr-song': 'sing'
   };
   const seen = {};
   for (const course of AX.course)

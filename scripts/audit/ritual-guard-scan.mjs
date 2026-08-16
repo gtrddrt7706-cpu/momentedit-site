@@ -38,7 +38,8 @@ const DEFAULT_TARGET = path.join(REPO, 'order-preview.html');
 // (미러를 새로 쓰지 않는다 — 미러는 원본과 갈리는 순간 거짓말을 시작한다).
 export const GUARD_DECLS = [
   ['function inSeq(', false],
-  ['function _cakeDup(', false],
+  /* [CAKE_DUP_GONE 2026-08-16] _cakeDup 삭제 — WINE_RETIRED 로 사이 순서가 사라져 닿을 조합이 0이었다.
+     ★심볼이 없어지면 여기서도 빼야 한다. 안 빼면 grab 이 못 찾고 스캐너가 통째로 죽는다(실측). */
   ['function estMin(', false],
   ['function prep(', false],
   ['var MMIN={', false],
@@ -51,7 +52,7 @@ export function loadGuards(file) {
   const guardParts = GUARD_DECLS.map(([n, o]) => grab(src, n, o)).filter(Boolean);
   const body = orderParts.join('\n') + '\n' + guardParts.join('\n') + `
     return { COURSES, GADD, isGAdd, isOptK, ordNow, curSeq, OFFTGL, momOn,
-             inSeq, _cakeDup, estMin, prep, _mm, MMIN };
+             inSeq, estMin, prep, _mm, MMIN };
   `;
   const S = {};
   return { S, eng: new Function('S', body)(S), guardParts };
@@ -87,7 +88,7 @@ export const GUARDS = {
   _mm:       ['letter', 'ringwarm', 'toast'],
   prep:      ['bless', 'letter', 'welcome', 'declareWho', 'song',
               'growth', 'growthLink', 'entryVoice', 'guestVoice', 'ring'],
-  _cakeDup:  ['valley', 'toast'],
+  /* [CAKE_DUP_GONE 2026-08-16] _cakeDup 은 사라졌다 — WINE_RETIRED 로 사이 순서가 없어져 닿을 조합이 0이다. */
   blocker:   ['vowText', 'letterText', 'welcomeText', 'welcome'],
 };
 
@@ -152,7 +153,6 @@ export function guardScan(file = DEFAULT_TARGET) {
           if (name === 'estMin')        outp = eng.estMin();
           else if (name === '_mm')      outp = String(chipSum(eng, S));
           else if (name === 'prep')     outp = prepTag(eng.prep());
-          else if (name === '_cakeDup') outp = String(eng._cakeDup());
           else {                        // 작성 블로커 1490~1492 등가
             const b = [];
             if (eng.inSeq('vow') && !S.vowText) b.push('서약문');
@@ -172,7 +172,6 @@ export function guardScan(file = DEFAULT_TARGET) {
             const rows = eng.prep().map(r => r.join('|'));
             if (new Set(rows).size !== rows.length) out.prepDup.push({ course, profileKey, combo: { ...combo } });
           }
-          if (name === '_cakeDup' && eng._cakeDup()) out.cakeDup++;
         }
       }
     }
@@ -255,8 +254,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (!r.prepDup.length) console.log('  ✅ 없음');
   else { fail++; console.log('  ❌ ' + r.prepDup.length + '조합'); }
 
-  console.log('\n[E] _cakeDup 발화 ' + r.cakeDup + '조합 (막지 않고 알리기만 하는 가드 · 0이면 오히려 이상)');
-  if (!r.cakeDup) { fail++; console.log('  ❌ 한 번도 안 걸렸다 — 가드가 닿지 않는다'); }
+  /* [CAKE_DUP_GONE 2026-08-16] [E] 이중 커팅 가드 판정 삭제 — 가드 자체가 없어졌다.
+     ★남겨 두면 «0조합이라 실패»로 영영 붉는다. 검사가 지키던 것이 사라지면 검사도 같이 걷는다.
+       (초록으로 만들려고 문턱을 낮추는 것과는 다르다 — 지킬 대상이 없어진 것이다.) */
 
   console.log('\n[F] 어떤 열거기도 안 흔드는 S.* 필드 (순서 축 + 이 파일 FIELDS 양쪽에 없는 것)');
   if (!r.uncovered.length) console.log('  ✅ 없음 — 파일이 읽는 모든 상태 필드가 어느 한쪽 축에는 들어 있다');

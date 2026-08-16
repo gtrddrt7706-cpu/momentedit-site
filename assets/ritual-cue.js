@@ -198,6 +198,9 @@
      "소리가 없으니 녹음하라"고 하고, 폐지한 것을 다시 녹음하게 된다(실제로 한 번 그렇게 나왔다).
      ★되살리려면 여기서 빼는 것만으로는 안 된다. GADD 부터 되돌려야 하고 그건 사용자 지시에 반한다. */
   var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
+    /* [WINE_RETIRED 2026-08-16] 사이 순서 폐지 — 잔을 드는 순간의 집은 「축배·케이크」 하나다.
+       이미 녹음된 mp3 는 지우지 않는다(번호 보존 · SONG_RETIRED 와 같은 이유). */
+    'narr-valley-wine': 1, 'narr-valley-cake': 1, 'narr-valley-out': 1,
     /* [SONG_RETIRED 2026-08-09] 축가 팔레트 폐지 — 자리는 남기고 '녹음 안 함'으로 표시한다.
        ★이미 녹음된 mp3 는 지우지 않는다. 지우면 번호가 밀리고, 되살릴 일이 생겼을 때
          다시 녹음해야 한다. 폐지의 실체는 '새로 넣을 길이 없다'는 것이지 파일 삭제가 아니다. */
@@ -214,7 +217,17 @@
         큐 함수·문안·클립(narr-song · narr-song-out)은 **그대로 둔다**: 번호가 인덱스+1이라
         지우면 뒤 클립이 전부 개명된다. 팔레트에서만 닫힌 상태가 정상이다.
    */
-  var GADD = { welcome: 1, bless: 1, valley: 1, letter: 1, tribute: 1, toast: 1, free: 1 };   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거
+  /* ★★[WINE_RETIRED 2026-08-16 사용자 지시(세 번째) *"와인세리머니도 축배랑 통합한다고 몇번이나 얘기했는데 계속 중복되고있어"*]
+     사이 순서(valley)를 팔레트에서 뺐다 — 남는 갈래가 「없음」뿐이라 자리 자체가 사라진다.
+     ★2026-07-27 에 코드와 큐 문구를 근거로 「와인+축배는 중복이 아니라 확장」이라 닫았던 판단을 **뒤집는다.**
+       그때 회신에 스스로 적어 뒀다 — *"두 순간이 붙었을 때 하객이 어떻게 느끼는지는 실측이 아니다."*
+       식을 실제로 진행하는 사람이 세 번 같은 말을 했으면, 글로 세운 근거보다 그쪽이 실측이다.
+     ★2026-08-14 [CAKE_ONE_HOME] 은 케이크만 축배로 옮기고 와인을 남긴 **절반짜리**였다.
+       그래서 「잔을 드는 자리」가 목록에 계속 둘로 보였다. 여기서 마저 닫는다.
+     ★클립·큐 함수·문안은 **그대로 둔다** — 번호가 인덱스+1이라 지우면 뒤 클립이 전부 개명된다.
+       팔레트에서만 닫힌 상태가 정상이다(SONG_RETIRED · RINGWARM_RETIRED 와 같은 처방).
+     ★되살리지 말 것. 리뷰가 '유실된 기능'으로 보고 복원하기 쉬운 모양이다. */
+  var GADD = { welcome: 1, bless: 1, letter: 1, tribute: 1, toast: 1, free: 1 };   // [RINGWARM_RETIRED] ringwarm 제거 · [SONG_RETIRED] song 제거 · [WINE_RETIRED] valley 제거
   var RANK = { guest: 0, entry: 10, welcome: 20, bless: 25, vow: 30, ringwarm: 35, ring: 40, declare: 50, letter: 60, tribute: 65, valley: 70, free: 75, song: 80, toast: 85 };
   function isGAdd(S, k) {
     var c = D.COURSES[S.course];

@@ -123,9 +123,9 @@ for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
    **닿을 수 있는 자리인데도** 이 검사가 한 번도 안 봤다(2026-08-16 · check-listen-cover 가 짚었다).
    와인·케이크는 고객이 실제로 고르는 두 갈래다. 한쪽만 보는 검사는 다른 쪽에 대해 아무 말도 안 하면서
    「어긋남 0」이라고 말한다 — 이 저장소가 EXTRA_ENABLE 로 한 번 겪은 병의 같은 뿌리다. */
-const EXTRA_ON = { bless: [{ bless: 'on' }],
-  valley: [{ valley: 'wine' }, { valley: 'cake' }, { valley: 'both' }] };
-for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
+const EXTRA_ON = { bless: [{ bless: 'on' }] };   // [WINE_RETIRED 2026-08-16] valley 제거 — 팔레트에서 빠져 켤 길이 없다
+// [WINE_RETIRED 2026-08-16] valley 뺌 — 팔레트에서 빠져 켤 길이 없다
+for (const k of ['bless', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
   for (const on of (EXTRA_ON[k] || [{}])) {
     states.push({ ...base, ...on, extra: e });

@@ -273,7 +273,12 @@ chk 'FLOW_NO_GUEST' order-preview.html 1
 #   집은 축배·케이크 하나(축배/케이크/둘 다 세 갈래). 사이 순서는 와인 세리머니로 좁혔다.
 #   옛 초안(S.valley==='cake')은 그대로 뜬다 — 고르는 자리에서만 뺐다.
 chk 'CAKE_ONE_HOME' order-preview.html 3
-chk '_cakeDup' order-preview.html 3                # 옛 초안 이중 커팅 경고는 유지(정의1+호출2)
+# ★[CAKE_DUP_GONE 2026-08-16] 이중 커팅 경고를 **걷었다** — 지키던 것을 뒤집었으니 마커도 뒤집는다.
+#   [WINE_RETIRED] 로 사이 순서가 사라져 inSeq('valley') 가 영영 false 다 → 경고가 닿을 조합이 0.
+#   실측: scripts/audit/ritual-guard-scan.mjs [E] 가 «한 번도 안 걸렸다»로 잡았다.
+#   ★죽은 가드를 남기면 다음 사람이 「이중 예약은 막혀 있다」고 믿는다 — 이제는 **구조**가 막는다
+#     (케이크를 고를 수 있는 자리가 「축배·케이크」 하나뿐이다). 되살아나면 그건 사이 순서가 돌아온 것이다.
+nochk '_cakeDup' order-preview.html
 nochk 'c.flow.forEach' order-preview.html          # ★카드가 flow 를 다시 읽으면 같은 드리프트가 재발한다
 chk "k:'_close'" assets/ritual-data.js 6           # 폐식은 코스마다 자기 상세를 갖는다(기록형은 축배와 뭉쳐 있었다)
 # ★★[ORD_ADD_ALL 2026-08-14 사용자 지시 "위에 없는 다른 순서 더하기, 여기에 다 추가해 줘"]
@@ -1326,7 +1331,7 @@ fi
 
 # ── 2026-07-26 나레이션 더빙 확정안 반영 마커 (문안·기본값·정합 검사)
 chk 'COURSE_DEF_MAP' order-preview.html 4          # 코스별 기본값 단일 원천 — applyCourse·기본 배지·추천이 같은 맵을 봄
-chk 'CAKE_DUP_GUARD' order-preview.html 3          # 사이 순서+축배 케이크 이중 예약 알림(막지 않고 알림)
+nochk 'cakeDupNote' order-preview.html             # [CAKE_DUP_GONE] 위와 같은 이유 — 경고 함수 자체가 없다
 chk 'XM_MIRROR_9KEY' assets/ritual-data.js 1       # 소요분 9키 정합 — 빌더가 기준
 chk 'XM_MIRROR_9KEY' scripts/check-ritual-mirror.js 1
 chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <-> 원천 문안 전수 대조
@@ -3370,7 +3375,12 @@ chk 'IN_ORDER_COVER' scripts/audit/asr-transcribe.py 1
 chk 'IN_ORDER_COVER' scripts/check-audio-text.mjs 1
 chk 'rev' scripts/check-audio-text.mjs 3          # 대본에 «없는 말»이 붙은 자리도 본다(12_narr-welcome-out)
 chk 'check-audio-text' .github/workflows/nightly-screen.yml 1
-chk "valley: \[{ valley: 'wine' }, { valley: 'cake' }, { valley: 'both' }\]" scripts/check-text-audio.mjs 1
+# [WINE_RETIRED 2026-08-16] valley 를 훑을 이유가 사라졌다(팔레트에서 뺐다) — 대신 **뺐다는 사실**을 못박는다.
+chk 'WINE_RETIRED' scripts/check-text-audio.mjs 1
+chk 'WINE_RETIRED' assets/ritual-cue.js 3
+chk 'WINE_RETIRED' order-preview.html 2
+# ★팔레트(GADD)에만 못 박는다 — OFFKEY·_PAL_COST 의 valley:1 은 옛 초안 처리용이라 남는다.
+nochk "GADD={welcome:1,bless:1,valley:1" order-preview.html
 chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
 chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 # [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다
