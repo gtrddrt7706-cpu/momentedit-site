@@ -130,7 +130,9 @@ jobs:
           #   모든(기존에 있던 나레이션 전부 포함 대역 상황극까지) 알맞게 들어가있는지"
           #   왼쪽을 **대장이 아니라 엔진**에 둔다. 배역 상황극(castLive)·촬영 신호까지 훑고,
           #   엔진이 안 부르는 자리(수동 큐·폴백·폐지)는 대장↔실녹음으로 따로 맞댄다.
-          node scripts/build-listen-all.mjs --out /tmp/실청_야간.html --embed >/dev/null 2>&1
+          # ★[BUILD_SAYS 2026-08-16] 만든 쪽이 «몇 개를 심었는지» 스스로 적는다 — 그 말을 아래 게이트가 읽는다.
+          #   버리면(>/dev/null) 게이트가 기대값을 어디서도 못 얻어 결국 리터럴을 박게 된다(내가 그렇게 했다).
+          node scripts/build-listen-all.mjs --out /tmp/실청_야간.html --embed >/tmp/실청_빌드.log 2>&1
           node scripts/check-listen-cover.mjs --file /tmp/실청_야간.html; note "check-listen-cover" $?
           # ★★[ASR_TRUTH] 소리를 받아 적어 대장과 맞댄다 — 글끼리 맞대는 검사가 전부 초록인데
           #   스피커에서 다른 말이 나던 자리를 잡는다. 받아쓰기 파일이 없으면 2(재지 못함)로 남는다.
@@ -165,18 +167,34 @@ jobs:
       #   ★한 파일 안에 소리가 다 들어 있어(--embed) 내려받아 열기만 하면 된다.
       #   ★검사가 붉어도 남긴다(if: always()) — 틀린 자리를 들어 보려고 받는 것이기도 하다.
       # ★★[LISTEN_HAS_SOUND 2026-08-16 · 코워크 지적] 「없으면 조용히 안 올리기」를 만들지 않는다.
-      #   이 저장소가 네 번 앓은 병이 그거다(RECORDED_TRUTH · NOAUDIO_REAL · CONSOLE_TEXT · ASR_TRUTH).
-      #   파일이 없거나 소리가 안 심겼으면 **붉어야 한다.** 조용히 넘어가면 사람은
-      #   「오늘도 판이 나왔겠지」로 읽고, 안 나온 날을 영영 모른다.
-      #   정상값은 data:audio/mpeg 283개 — 100 미만이면 속 빈 판이다.
+      #   이 저장소가 네 번 앓은 병이다(RECORDED_TRUTH · NOAUDIO_REAL · CONSOLE_TEXT · ASR_TRUTH).
+      #   파일이 없거나 소리가 안 심겼으면 **붉어야 한다.**
+      #
+      #   ★★[NUM_FROM_HERE 2026-08-16] 기대값을 **리터럴로 박지 않는다.** 첫 판은 「정상 283」이라 적었다가
+      #     실제 CI 에서 97 이 나와 붉었다. 283 은 코워크의 «로컬» 수치다 — 어조 186문장은 `_dub_stage`
+      #     에서 오는데 그 폴더는 .gitignore 라 **CI 에는 아예 없다.** 한 곳에서 잰 수를 다른 곳에
+      #     단언한 것이고, 이 저장소가 반복해 앓은 그 병(STAGE_ABSENT)과 같은 꼴이다.
+      #   ★그래서 기대값을 «만든 쪽이 스스로 적은 수»에서 읽는다. 두 수가 어긋날 때만 붉는다 —
+      #     그게 「심었다고 말했는데 안 심긴」 진짜 사고다.
+      #   ★어조가 0 인 것은 «결함»이 아니라 «재지 못함»이다. 조용히 넘기지 말고 그렇다고 적는다.
       - name: 실청 판에 소리가 들어 있나
         if: always()
         run: |
           f=/tmp/실청_야간.html
-          [ -f "$f" ] || { echo "✗ 실청 판이 아예 안 만들어졌다 — build-listen-all 이 멎었다(위 표의 종료 코드를 보라)"; exit 1; }
+          [ -f "$f" ] || { echo "✗ 실청 판이 아예 안 만들어졌다 — build-listen-all 이 멎었다"; cat /tmp/실청_빌드.log || true; exit 1; }
+          say=$(grep -o '소리 심음 — 기존 [0-9]*클립 · 새 [0-9]*문장' /tmp/실청_빌드.log || true)
+          [ -n "$say" ] || { echo "✗ 만든 쪽이 몇 개를 심었는지 안 적었다 — 그 줄이 없으면 이 검사는 기대값이 없다"; cat /tmp/실청_빌드.log; exit 1; }
+          old=$(echo "$say" | grep -o '기존 [0-9]*' | grep -o '[0-9]*')
+          new=$(echo "$say" | grep -o '새 [0-9]*'  | grep -o '[0-9]*')
           n=$(grep -o 'data:audio/mpeg' "$f" | wc -l)
-          echo "심긴 소리 $n개 ($(du -h "$f" | cut -f1))"
-          [ "$n" -ge 100 ] || { echo "✗ 소리가 $n개뿐이다(정상 283) — 속 빈 판이라 올리지 않는다"; exit 1; }
+          echo "$say"
+          echo "판에 실제로 박힌 소리 $n개 ($(du -h "$f" | cut -f1))"
+          [ "$n" -eq $((old + new)) ] || { echo "✗ 심었다고 말한 $((old + new))개와 판에 박힌 $n개가 다르다 — 심는 중에 조용히 샜다"; exit 1; }
+          [ "$old" -ge 90 ] || { echo "✗ 저장소에 있는 클립이 $old개뿐이다 — 속 빈 판이라 올리지 않는다"; exit 1; }
+          if [ "$new" -eq 0 ]; then
+            echo "※ 어조 문장 소리는 0개다 — 재지 못한 것이지 결함이 아니다(_dub_stage 는 .gitignore 라 CI 에 없다)."
+            echo "   어조까지 들으려면 그 폴더가 있는 세션에서 만들어야 한다."
+          fi
 
       - name: 실청 판 남기기
         if: always()

@@ -3377,7 +3377,20 @@ chk 'name: 실청_전체' .github/workflows/nightly-screen.yml 1
 chk 'FFMPEG_HERE' .github/workflows/nightly-screen.yml 1
 chk 'apt-get install -y ffmpeg' .github/workflows/nightly-screen.yml 1
 chk 'LISTEN_HAS_SOUND' .github/workflows/nightly-screen.yml 1
-chk 'data:audio/mpeg' .github/workflows/nightly-screen.yml 2
+chk 'data:audio/mpeg' .github/workflows/nightly-screen.yml 1
+# ★★[NUM_FROM_HERE 2026-08-16] 기대값을 **리터럴로 박지 않는다.**
+#   첫 판은 「정상 283」이라 적었다가 CI 에서 97 이 나와 붉었다. 283 은 코워크의 «로컬» 수치다 —
+#   어조 186문장은 _dub_stage 에서 오는데 그 폴더는 .gitignore 라 CI 에는 아예 없다(STAGE_ABSENT 와 같은 병).
+#   ★한 곳에서 잰 수를 다른 곳에 단언한 것이다. 그래서 기대값을 «만든 쪽이 스스로 적은 수»에서 읽는다.
+#   자가검사 4종 실측 — CI값(97/0/97) 통과 · 코워크 로컬값(97/186/283) 통과
+#                      말한 수 ≠ 박힌 수 rc1 · 클립 0개 rc1
+chk 'NUM_FROM_HERE' .github/workflows/nightly-screen.yml 1
+chk 'BUILD_SAYS' .github/workflows/nightly-screen.yml 1
+chk '실청_빌드.log' .github/workflows/nightly-screen.yml 4
+# ★리터럴 기대값 복원 금지 — 잰 자리와 단언한 자리가 달랐다.
+# ★[NOCHK_SHAPE] 이름('정상 283')이 아니라 **코드 모양**을 잡는다 — 처음엔 이름으로 잡았다가
+#   바로 위 «내가 왜 틀렸는지» 설명 주석을 스스로 물었다(자가덫 8번째). 설명은 남아야 하고 코드는 안 된다.
+nochk '"$n" -ge 100' .github/workflows/nightly-screen.yml
 # [EXTRA_ENABLE_ALL] 한 자리에 값이 여럿이면 전부 켠다 — valley 를 wine 만 켜서
 # 18_narr-valley-cake 가 대조에서 통째로 빠져 있었다(대조 자리 69 → 70).
 chk 'EXTRA_ENABLE_ALL' scripts/check-text-audio.mjs 1
