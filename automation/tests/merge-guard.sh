@@ -3257,6 +3257,16 @@ chk 'EXTRACT_SENT' scripts/extract-existing-sent.mjs 1
 #   실사고: 이스케이프 한 단계가 덜 먹어 SyntaxError → 판정 화면이 통째로 백지였다.
 # [EXPORT_TRUTH] 화자 이름은 manifest.voice 에서만 가져온다 — 지어내면 없는 사람이 대본에 실린다.
 chk 'LISTEN_ALL' scripts/build-listen-all.mjs 1
+# [SENT_SEEK] 기존 클립도 문장별로 들린다 — 소리를 더 넣지 않고 그 구간만 재생한다
+# [RATE_VETO] 경계를 골라도 사람이 못 내는 속도(>10음절/초)면 거부한다 — 고르는 자와 거부하는 자를 나눈다
+# [TOO_SHORT] 소리가 글보다 짧은 클립을 화면에 띄운다(못 듣는 내가 «틀렸다»고 하지 않고 «먼저 들어 보라»고 한다)
+chk 'SENT_SEEK' scripts/build-listen-all.mjs 1
+chk 'TOO_SHORT' scripts/build-listen-all.mjs 1
+chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
+chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
+# [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다
+chk 'ONLINE_ALREADY_ENDED' assets/ritual-cue.js 2
+nochk "S.digital ? 'end-1b-farewell-online'" assets/ritual-cue.js
 chk 'SELF_PARSE' scripts/build-listen-all.mjs 1
 chk 'EXPORT_TRUTH' scripts/build-listen-all.mjs 1
 chk 'USE_EXISTING' scripts/build-listen-tone.mjs 1
@@ -3433,3 +3443,13 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/price-gen-switch.mjs
 #   (실측 10분+ · CI 면 타임아웃까지). 아래 개수엔 이 검사 줄 자신도 포함된다(자기 세기).
 chk 'CHK_DASH_SAFE' automation/tests/merge-guard.sh 2
 chk 'grep -c -e "$1" --' automation/tests/merge-guard.sh 3
+# [PRICE_LABEL_VALUE 2026-08-16] 드롭다운은 value 와 라벨이 한 쌍이다 — 어긋나면 고른 사람이 본 금액과
+#   계약서 금액이 달라진다(실사고: value 2500000 인데 라벨 「240만」). 세대 라벨도 값과 같이 적는다.
+chk 'PRICE_LABEL_VALUE' automation/admin/Admin.html 1
+chk 'value="2500000">평일 — 250만' automation/admin/Admin.html 1
+chk 'value="2400000">평일 — 240만' automation/admin/Admin.html 1
+# [PRICE_OLD_TWO 2026-08-16] 구가가 둘이라 240 도 훑는다 — 안 훑으면 메타·AI 지식이 옛 금액으로 남는다.
+chk 'PRICE_OLD_TWO' scripts/check-price-sync.mjs 1
+chk '2800000, 2100000, 2400000' scripts/check-price-sync.mjs 1
+nochk '240만' api/_kb.js
+nochk '240만' assets/advisor-kb.js
