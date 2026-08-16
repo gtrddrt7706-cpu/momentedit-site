@@ -3476,6 +3476,12 @@ chk '140분, 또렷이 남도록 설계한 호흡입니다' index.html 1
 #     남겨도 초록이 된다. 링크는 클래스+목적지를 함께 봐야 '어디로 가는 입구'인지가 지켜진다.
 chk '그 밖은 미리 밝힙니다' index.html 1
 chk 'class="core-price-link" href="#invest"' index.html 1
+# [JOURNAL_ROW_EVEN 2026-08-16] 에세이 두 칸의 구분선·READ 는 본문이 남는 세로를 먹어 바닥에 선다.
+#   ★.journal-card-btn 의 margin-top:auto 는 5,700줄 뒤 탭 타깃 규칙(margin-top:-16px)에 덮여 죽어 있다 —
+#     되살리지 말고 이 규칙을 쓸 것(되살리면 펼친 상태 간격이 16px 벌어진다).
+# [ESSAY_CLOSE_ANCHOR 2026-08-16] CLOSE 때 카드가 화면 위로 783px 벗어나던 것 — 스크롤 보정 + 되돌아오기.
+chk 'ESSAY_CLOSE_ANCHOR' index.html 1
+chk '_essayJump' index.html 2
 # ── [SEAT_ONE_CARD · ALC_ONE 2026-08-16 사용자 지시] 좌석·음료 편집기 개편 ──
 #   ①"이름부분을 클릭하면 음료랑 이름적는게 동시에" → 한 창(이름칸+음료)으로 통합
 #   ②"논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인" → 알콜은 행사 전체 한 종류

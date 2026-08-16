@@ -7034,12 +7034,37 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
   }, { threshold: 0.3 });
   if (wrap) startObs.observe(wrap);
 })();
+/* ★★[ESSAY_CLOSE_ANCHOR 2026-08-16 사용자 지적 "클로즈 누르면 화면이 이상하게 내려가는 현상"]
+   실측(1180×900) — 에세이를 펼쳐 끝까지 읽고 CLOSE 를 누르면 카드가 1307→472px 로 줄면서
+   **카드가 화면 위로 783px 벗어났다.** 사용자는 두 섹션 아래(FAQ) 를 보고 있었다.
+   방금 닫은 글이 어디 갔는지 모른 채 낯선 자리에 떨어지는 셈이다(390px 에서도 788px 동일).
+   ★열 때는 멀쩡했다 — 내용이 카드 **아래로** 자라 카드 머리가 그대로 있는다(실측 top 52 → 52).
+     문제는 닫을 때뿐이다. 그래서 닫는 쪽만 손본다.
+
+   처방 둘
+     ① 레이아웃이 바뀐 만큼 스크롤을 즉시 되돌려 **카드 머리를 제자리에** 둔다.
+        형제 칸의 min-height 가 함께 바뀌므로 동기화를 **다음 프레임이 아니라 지금** 돌린 뒤 잰다
+        (getBoundingClientRect 가 레이아웃을 강제하니 class 를 바꾼 직후에 재도 값은 정확하다).
+     ② 그래도 카드가 nav 아래(70px) 위로 벗어나 있으면 다시 데려온다.
+   ★`scrollIntoView` 를 쓰는 이유 — CSS 의 `scroll-padding-top:70px`(nav 높이)와
+     `scroll-behavior`(reduced-motion 이면 auto 로 꺼짐)를 그대로 따른다. 숫자를 다시 적지 않는다.
+   ★보정 스크롤은 반드시 **즉시**여야 한다. 부드럽게 하면 되돌리는 과정이 눈에 보여
+     그것대로 '화면이 흐르는' 현상이 된다. */
+function _essayJump(y){
+  var el = document.documentElement, prev = el.style.scrollBehavior;
+  el.style.scrollBehavior = 'auto';   // behavior:'instant' 는 구형 사파리에서 무시된다
+  window.scrollTo(0, y);
+  el.style.scrollBehavior = prev;
+}
 function toggleEssay(btn){
-  btn.closest('.journal-card').classList.toggle('open');
-  if (window._syncJournalCards) {
-    // display 전환이 반영된 다음 프레임에 측정
-    requestAnimationFrame(window._syncJournalCards);
-  }
+  var card = btn.closest('.journal-card');
+  var opening = !card.classList.contains('open');
+  var before = card.getBoundingClientRect().top;
+  card.classList.toggle('open');
+  if (window._syncJournalCards) window._syncJournalCards();
+  var after = card.getBoundingClientRect().top;
+  if (after !== before) _essayJump(window.scrollY + (after - before));   // ① 카드 머리 고정
+  if (!opening && card.getBoundingClientRect().top < 70) card.scrollIntoView({ block: 'start' });   // ② 되돌아오기
 }
 (function(){
   const grid = document.querySelector('[data-archive-grid]');
