@@ -200,10 +200,15 @@ try {
     let h = ''; try { h = String(prodConfirmHtml(p, {}) || ''); } catch (e) { h = 'ERR ' + e.message; }
     const plain = h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     return { drink: /유아 1\(유아용 의자\)/.test(plain) && /어린이 1/.test(plain),
+      /* ★[CF_DRINK_ONE 2026-08-16] 집계는 **한 번만** 실려야 한다. 병렬 세션 둘이 같은 날 각각 넣어
+         「좌석 · 음료」와 「좌석 배치」 두 줄에 서로 다른 말로 겹쳐 있었다(사용자가 화면에서 발견).
+         자리를 옮겨도 이 수는 1이어야 한다 — 두 곳에 두는 순간 다시 2가 되어 붉어진다. */
+      drinkOnce: (plain.match(/샴페인 \d/g) || []).length,
       note: /새우 알레르기 한 분/.test(plain),
       falseWarn: /미리 알려주실 것 미완료/.test(plain) };
   });
   ok(cf.drink, '확인서에 음료 집계(유아·어린이 포함)가 실린다 [CF_SEAT_DRINK]');
+  ok(cf.drinkOnce === 1, '음료 집계는 확인서에 한 번만 실린다 [CF_DRINK_ONE]', '샴페인 집계 ' + cf.drinkOnce + '회');
   ok(cf.note, '확인서에 「미리 알려주실 것」이 실린다 [SEAT_NOTE]');
   const cf2 = await page.evaluate(() => {
     const p = { tracks: { seat: '완료', final: '완료' }, seatDraft: { tables: [{ seats: ['김희준'], drinks: ['C'] }] }, finalDraft: { headcount: '1' }, guideinfoDraft: {} };
