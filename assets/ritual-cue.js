@@ -659,7 +659,17 @@
          25명이 30초 만에 모인다는 보장이 없고, 안 모였는데 "모두 모이셨습니다"가
          나가면 거짓말이 된다. live 를 주면 다음 큐가 manual 로 내려와 디렉터가 보고 누른다.
          ★[CUE_FIRE_RULE] 이 전환은 규칙이 자동으로 계산한다 — 손으로 적지 않는다. */
-      live: { t: '하객이 앞으로 모임 · 두 분을 가운데로', est: 60, self: true, doing: 'move' },
+      /* ★[POST_LIVE_DUCK 2026-08-16 · 코워크 요청 판정] `duck` 을 여기 명시한다 — 없으면 자동으로 채워진다.
+         코워크 물음: *"post 가 올린 -8 을 live 가 1.2초 만에 -12 로 되돌린다. 의도인가 사고인가."*
+         ★사고다. 세어서 확정했다 — post 로 음량을 «올리면서» live 가 있는 큐는 코스·모드 통틀어 12개고,
+           그중 11개(entry-A~F)가 전부 `live: { …, duck: 0 }` 을 **명시**해 post 목표값을 그대로 지킨다.
+           narr-close 하나만 명시가 없어 :284 의 자동 채움(`c.live.duck = c.duck`)이 -12 를 넣고,
+           runPost 가 2,000ms 를 다 기다린 뒤(console.html runPost 는 st.ms 만큼 실제로 기다린다)
+           live 진입에서 -12 로 1,200ms 만에 도로 내려간다. -8 에 «한 순간» 닿고 마는 셈이다.
+         ★집 안에 이미 규칙이 있었다 — 올릴 거면 live 에도 같은 값을 적는다. 이 자리만 그 규칙을 빠뜨렸다.
+           의도였다면 note 가 «가장 느리게»(2,000ms · entry 의 600ms 보다 느리다)라고 적을 이유가 없다.
+         ★check-ritual-cue 의 [POST_LIVE_DUCK] 이 이 모양을 이제 전부 잡는다. */
+      live: { t: '하객이 앞으로 모임 · 두 분을 가운데로', est: 60, self: true, doing: 'move', duck: PARAM.duckMusic },
       post: [{ music: 'to', v: PARAM.duckMusic, ms: 2000 }]
     }));
 
