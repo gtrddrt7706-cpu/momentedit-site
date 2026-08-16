@@ -3838,3 +3838,4 @@ nochk '0명 배치' mypage.html                      # [SEAT_NAME_PENDING] 테�
 chk 'FIN_DRINK_NOALC' mypage.html 1
 chk "hasN?'N':'C'" mypage.html 1
 chk 'FIN_SAVE_LOUD' mypage.html 2
+
