@@ -3702,3 +3702,14 @@ chk "K:'유아 · 물'" mypage.html 1
 chk "_dv === 'K'" automation/platform/80_production.gs 1
 chk '유아용 의자' admin.html 2                    # 스태프 A4 합계 줄 + 관리자 상세(당일 준비물)
 chk 'KID_SEAT' scripts/audit/seat-onecard.mjs 1
+# [CF_SEAL·CF_ASK·CF_GATE_ONE 2026-08-16 사용자 지시 "고객이 확인했습니다 버튼 … 날짜랑 내가 이때
+#   이것으로 확정했다라는 책임의 부분이 느껴지게" + "모든걸 완료하면 한번에"]
+#   예식 확인서의 확정 = **이 한 곳뿐**이다. 섹션마다 확인 버튼을 만들지 말 것(사용자가 명시로 거절).
+#   ★확정 판(mpConfirm)을 빼고 즉시 저장으로 되돌리지 말 것 — 오터치 한 번이 곧 확정 기록이 된다.
+#   ★게이트는 ritual·seat·final 셋 — 하나라도 빼면 서버(ritual+final)와 어긋나 죽은 버튼이 돌아온다.
+chk 'CF_SEAL' mypage.html 4
+chk 'CF_ASK' mypage.html 1
+chk 'CF_GATE_ONE' mypage.html 1
+chk 'cfWhenText' mypage.html 2
+chk 'cf-seal-mk' mypage.html 2
+chk "_need.push('좌석 · 음료')" mypage.html 1

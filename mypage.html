@@ -1240,6 +1240,24 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* (구).cf-edit 마감 입력칸 CSS 삭제 — 입력이 다이닝 위저드·좌석 편집기로 이동하며 마크업 소멸(2026-07-17 리뷰) */
     .cf-ok{margin-top:12px;background:var(--gold-bg,#faf6ef);border:1px solid var(--gold);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--gold-deeper,#7a5f37);text-align:left}
     .cf-warn{margin-top:12px;background:#FBF3F1;border:1px solid var(--seal);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--seal);text-align:left}
+    /* ★★[CF_SEAL 2026-08-16 사용자 지시 "고객이 확인했습니다 버튼 … 날짜랑 내가 이때 이것으로 확정했다라는 책임의 부분이 느껴지게"]
+       확인 기록은 원래 회색 한 줄이었다("이 내용대로 진행을 확인하셨어요 · 2026-08-16 15:20").
+       서버에는 스냅샷·시각·핵심수치(core)까지 남는데 **화면이 그 무게를 하나도 보여주지 않았다** —
+       고객은 자기가 무엇을 언제 확정했는지 다시 볼 데가 없고, 우리는 "확인하셨잖아요"라고 말할 근거를
+       고객 화면에서 가리킬 수 없었다. 기록이 있는데 안 보이면 없는 것과 같다.
+       ★진사(--seal)는 이 브랜드에서 '확정'을 뜻하는 유일한 색이다. 다만 넓은 면적 금지라
+         왼쪽 3px 선 + 작은 인장 배지에만 쓴다(면적은 흰 카드).
+       ★날짜는 반드시 사람 말로 적는다 — '2026-08-16 15:20'은 로그이고,
+         '2026년 8월 16일 (일) 오후 3시 20분'이 기록이다. 저장값은 종전 그대로 두고 화면에서만 푼다.
+       ★섹션마다 확인 버튼을 두지 않는다(2026-08-16 사용자 지시 "예식섹션 하나완료할때마다
+         내용확인이 나오면 피곤하니깐 모든걸 완료하면 한번에"). 확정은 이 한 곳뿐이다. */
+    .cf-seal{margin-top:12px;background:var(--card-white,#fff);border:1px solid var(--hairline,#E6E1D8);border-left:3px solid var(--seal);border-radius:9px;padding:13px 15px;text-align:left}
+    .cf-seal-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .cf-seal-mk{flex:0 0 auto;background:var(--seal);color:#FAFAF8;font-size:11px;font-weight:600;letter-spacing:.04em;border-radius:4px;padding:3px 7px}
+    .cf-seal-at{font-family:var(--serif-ko);font-size:14px;color:var(--accent);word-break:keep-all}
+    .cf-seal-b{font-size:13px;color:var(--sub);line-height:1.7;margin-top:8px;word-break:keep-all}
+    .cf-seal-b b{color:var(--accent);font-weight:500}
+    .cf-seal-n{font-size:11px;color:var(--light);line-height:1.6;margin-top:7px;word-break:keep-all}
     .gi-tg input{margin-top:2px;flex:0 0 auto}
     .gi-tg b{color:var(--accent);font-weight:500}
     .gi-tg-s{display:block;font-size:11px;color:var(--light)}
@@ -4816,7 +4834,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   // TRK_BTN_SAME(2026-07-25): _coreDone(필수 준비 완료 = 청첩장·식순) 정의 제거 — 유일한 사용처였던 '확인서 강조'가 폐지됨.
   //   접힘 게이트를 되살릴 때 필요하면 (ist==='완료')&&((t.ritual||'')==='완료') 로 재정의할 것(아래 참고용 주석과 짝).
   var _bm=String((p.confirm&&p.confirm.at)||'').match(/^\d{4}-(\d{2})-(\d{2})/);
-  var cfLabel=_cfOk?('확인함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확인 필요':'내용 확인');
+  /* [CF_SEAL] 행 라벨도 패널과 같은 말을 쓴다 — 패널이 「확정」이라 부르는 일을 행이 「확인」이라 부르면
+     고객은 서로 다른 두 가지로 읽는다. 날짜는 종전대로 붙인다(무엇을 언제 했는지가 행에서도 보이게). */
+  var cfLabel=_cfOk?('확정함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확정 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
   var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=(_gpB2.photoFx||[]).length;
@@ -6543,6 +6563,22 @@ function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자�
   (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else if(dv==='K')c.K++; else c.U++; }); });
   return c;
 }
+/* ★[CF_SEAL] 'yyyy-MM-dd HH:mm'(KST 저장값) → '2026년 8월 16일 (일) 오후 3시 20분'.
+   ★파싱은 정규식으로만 한다 — `new Date('2026-08-16 15:20')` 은 브라우저 현지시각으로 읽혀
+     해외·시차 기기에서 **저장된 KST 와 다른 날짜**를 찍는다(기록이 어긋나면 기록이 아니다).
+     요일만 Date 로 구하는데, 그건 연·월·일 세 수로만 만들어 시차의 영향을 받지 않는다. */
+function cfWhenText(at){
+  var m=String(at||'').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  if(!m) return String(at||'');
+  var y=+m[1], mo=+m[2], d=+m[3], H=+m[4], mi=+m[5];
+  var w=['일','월','화','수','목','금','토'][new Date(y,mo-1,d).getDay()];
+  return y+'년 '+mo+'월 '+d+'일 ('+w+') '+((H<12)?'오전':'오후')+' '+((H%12)||12)+'시'+(mi?(' '+mi+'분'):'');
+}
+/* 오늘(KST) — 확정 판이 "오늘 며칠로 남는지"를 미리 말해 주기 위한 값. 기기 시계가 어느 지역이든 같은 날짜가 나온다. */
+function cfTodayKST(){
+  var n=new Date(), k=new Date(n.getTime()+(n.getTimezoneOffset()*60000)+(9*3600000));
+  return k.getFullYear()+'년 '+(k.getMonth()+1)+'월 '+k.getDate()+'일';
+}
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
@@ -6613,12 +6649,31 @@ function prodConfirmHtml(p, inv){
   // 확인 상태·버튼 — 판정은 _cfOk 하나로. 마감 입력은 각 소속 화면으로 이동(예약=다이닝 위저드 · 자리 찾기=좌석 편집기 · 2026-07-17 사용자 지시) → 확인서는 순수 요약+확인만
   var C='';
   if(_cfOk){
-    C='<div class="cf-ok">이 내용대로 진행을 확인하셨어요 · '+escapeHtml(String(p.confirm.at))+'</div>';
+    /* [CF_SEAL] 확정 기록 — 언제·누가·무엇을. 저장값(p.confirm.at)은 'yyyy-MM-dd HH:mm'(KST) 그대로 두고 화면에서만 사람 말로 푼다 */
+    var _nm=[String((_bw.groomKo||'')).trim(), String((_bw.brideKo||'')).trim()].filter(Boolean).join(' · ');
+    var _wdT=_wm?(_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'):'';
+    C='<div class="cf-seal">'
+      +'<div class="cf-seal-h"><span class="cf-seal-mk">확정</span><span class="cf-seal-at">'+escapeHtml(cfWhenText(p.confirm.at))+'</span></div>'
+      +'<div class="cf-seal-b">'+(_nm?('<b>'+escapeHtml(_nm)+'</b> 두 분이 '):'')+'위 내용으로 확정하셨어요.'
+        +(_wdT?('<br>'+escapeHtml(_wdT)+' 예식은 이 내용 그대로 준비해요.'):'')+'</div>'
+      +'<div class="cf-seal-n">내용을 고치면 확정이 풀려요 · 그때는 여기에서 다시 확정해 주세요.</div>'
+      +'</div>';
   } else {
-    if(p.confirmStale) C+='<div class="cf-warn">확인 후 내용이 바뀌었어요 · 아래에서 다시 확인해 주세요.</div>';
-    if(_rDone && _sDone) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용대로 예식 진행을 확인합니다</button>'
-      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">확인한 내용과 시각이 기록되고, 이후 수정하면 확인이 해제돼요 · 저희는 확인된 내용 기준으로 예식을 준비해요.</span></div>';
-    else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">식순과 좌석·음료를 완료하면 확인할 수 있어요.</span></div>';
+    if(p.confirmStale) C+='<div class="cf-warn">확정한 뒤에 내용이 바뀌었어요 · 아래에서 다시 확정해 주세요.</div>';
+    /* ★[CF_GATE_ONE 2026-08-16] 열림 조건은 **행과 같은 진실**을 쓰되 서버 조건까지 함께 만족해야 한다.
+       옛 조건은 `_rDone && _sDone`(식순·좌석배치)이었는데 서버는 `ritual && final`(식순·인원)을 본다.
+       자리·음료만 정하고 **이름을 아직 안 적으면** seat 은 완료인데 final 이 미완료라(_seatFinSave done:n>0),
+       버튼은 서고 누르면 서버가 거절했다 — 죽은 버튼이다. 셋을 다 보면 그 창이 없어진다(화면이 서버보다 엄격).
+       ★남은 것은 **행 이름 그대로** 부른다 — 확인서의 요약 줄 이름(좌석·음료 / 좌석 배치)이 아니라
+         고객이 눌러야 할 행(「좌석 · 음료」)을 가리켜야 어디로 갈지가 읽힌다. */
+    var _need=[]; if(!_rDone) _need.push('식순'); if(!_sDone||!_fDone) _need.push('좌석 · 음료');
+    if(!_need.length) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용으로 확정합니다</button>'
+      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">누르신 날짜와 시각이 함께 기록돼요 · 저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span></div>';
+    /* 이름을 「」로 감싸 붙인다 — 「좌석 · 음료」 자체에 가운뎃점이 들어 있어, 맨 이름을 나열하면
+       '식순 · 좌석 · 음료'가 세 항목으로 읽힌다. 조사(을/를·이/가)도 함께 피할 수 있다. */
+    else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">아직 남은 것 · '+_need.map(function(n){ return '<b>「'+n+'」</b>'; }).join(' ')
+      +'<br>다 마치면 여기에서 한 번에 확정하실 수 있어요 · 섹션마다 따로 확인하지 않으셔도 돼요.'
+      +((_sDone&&!_fDone)?'<br>「좌석 · 음료」는 자리에 이름을 넣으면 인원이 정해지며 완료돼요.':'')+'</span></div>';
   }
   return '<div id="cf_wrap">'+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 }
@@ -6632,18 +6687,30 @@ function wireProdConfirm(box, p){
       snap.push({k:String(k).trim(), v:String(v).replace(/\s+/g,' ').trim()});
     });
     if(!snap.length) return;
-    var t0=btn.textContent;   // 실패 복구용 원 라벨 캡처 — 문구 수정 시 렌더 한 곳만 고치면 됨
-    btn.disabled=true; btn.textContent='확인 저장 중…';
-    var _pl={action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true};
-    if(p&&p.rev!=null) _pl.rev=p.rev;   // 상태 지문 — 배우자 다른 탭이 먼저 수정했으면 서버가 옛 화면 확인을 거부
-    apiTrackSave(_pl).then(function(r){
-      if(r&&r.ok){ _cfOpenNext=true; window._cfScroll=true; _mpRefresh(); }   // 재렌더 후 패널 유지+배너로 스크롤 — 재렌더가 맨 위로 가 '확인하셨어요' 배너(맨 아래)가 안 보이던 것 복원(2026-07-18 · 중복블록 정리 2026-07-22)
-      else {
-        btn.disabled=false; btn.textContent=t0;
-        var _stale=!!(r&&r.error&&String(r.error).indexOf('갱신')!==-1);   // 지문 불일치 — 안내 확인 후 최신 내용으로 재렌더
-        mpAlert((r&&r.error)||'확인 저장이 안 됐어요. 한 번 더 시도해 주세요.').then(function(){ if(_stale){ _mpRefresh(); } });
-      }
-    }).catch(function(){ btn.disabled=false; btn.textContent=t0; mpAlert('확인 저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); });
+    /* ★★[CF_ASK 2026-08-16 사용자 지시 "날짜랑 … 내가 이때 이것으로 확정했다라는 책임의 부분이 느껴지게"]
+       옛 판은 **누르는 즉시 저장**이었다. 기록이 남는 행위인데 되물음이 없으면, 고객에게는
+       그냥 눌린 버튼이고 우리에게는 근거가 약한 기록이다(오터치와 확정이 같은 한 번의 탭이었다).
+       ★판이 말해야 하는 것 셋 — ①오늘 며칠로 남는지 ②우리가 그 내용대로 준비한다는 것
+         ③고치면 풀린다는 것(그래서 지금 확정해도 갇히지 않는다).
+       ★dismissNull 을 빠뜨리지 말 것(WIZ_EXIT_ONE) — 빠지면 Esc·바깥클릭이 곧 '확정합니다'가 된다.
+         여기서 그 사고는 **고객이 누른 적 없는 확정 기록**을 만든다. */
+    mpConfirm({ title:'이 내용으로 확정할까요?',
+      body:'오늘 '+cfTodayKST()+' 날짜와 시각이 확정 기록으로 남아요.\n저희는 확정하신 내용 그대로 예식을 준비해요.\n이후에 내용을 고치시면 확정이 풀리고, 여기에서 다시 확정해 주셔야 해요.',
+      yes:'확정합니다', no:'조금 더 볼게요', confirmSeal:true, dismissNull:true }).then(function(ok){
+      if(ok!==true) return;
+      var t0=btn.textContent;   // 실패 복구용 원 라벨 캡처 — 문구 수정 시 렌더 한 곳만 고치면 됨
+      btn.disabled=true; btn.textContent='확정 기록 중…';
+      var _pl={action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true};
+      if(p&&p.rev!=null) _pl.rev=p.rev;   // 상태 지문 — 배우자 다른 탭이 먼저 수정했으면 서버가 옛 화면 확인을 거부
+      apiTrackSave(_pl).then(function(r){
+        if(r&&r.ok){ _cfOpenNext=true; window._cfScroll=true; _mpRefresh(); }   // 재렌더 후 패널 유지+배너로 스크롤 — 재렌더가 맨 위로 가 확정 기록(맨 아래)이 안 보이던 것 복원(2026-07-18 · 중복블록 정리 2026-07-22)
+        else {
+          btn.disabled=false; btn.textContent=t0;
+          var _stale=!!(r&&r.error&&String(r.error).indexOf('갱신')!==-1);   // 지문 불일치 — 안내 확인 후 최신 내용으로 재렌더
+          mpAlert((r&&r.error)||'확정이 저장되지 않았어요. 한 번 더 시도해 주세요.').then(function(){ if(_stale){ _mpRefresh(); } });
+        }
+      }).catch(function(){ btn.disabled=false; btn.textContent=t0; mpAlert('확정이 저장되지 않았어요. 잠시 후 다시 시도해 주세요.'); });
+    });
   });
 }
 // [하객 안내 허브] 제작 섹션 노출 최소화(2026-07-17 사용자 지시) — 접힌 한 블록에 링크·QR·설정을 모두 수납.
