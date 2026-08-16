@@ -396,7 +396,9 @@ chk '스냅 기획 (촬영 전)' admin.html 1             # 관리자 상세 스
 # ── 2026-07-19 단체사진 동작·하객 사진 모으기(QR 갤러리)·전체화면 오버레이 전환
 chk '함께 하는 동작' mypage.html 1                 # 단체컷 동작 섹션(2026-07-20 '다 함께 하는 동작'→예시 카드형 개편)
 chk 'PHOTO_WISH_EX' mypage.html 4                  # [PHOTO_WISH] 구 PHOTO_FX_CARDS — 이제 '고르는 카드'가 아니라 예시·이어받기·확인서 대조의 근거
-chk 'pfx-card' mypage.html 2                       # 동작 예시 카드 CSS + 렌더 마크업(무드단어 클릭 → 구도 보이는 카드)
+# ★[PFX_CSS_GONE 2026-08-16] 'pfx-card' 마커 폐지 — 고르는 카드 UI 자체가 [PHOTO_WISH]로 없어졌고,
+#   남아 있던 CSS 10개도 실측 사용 0건이라 지웠다. 기능을 정당히 폐지한 경우라 같은 커밋에서 목록을 지운다.
+#   그 자리를 지키는 것은 아래 PFX_CSS_GONE·nochk('.pfx-grid{') 다(되살아나면 잡힌다).
 chk 'photoShareNorm' mypage.html 3                 # 하객 사진 모으기 링크 정규화(QR 갤러리 파일럿)
 chk 'photoShareHtml' guide.html 2                  # 하객 안내 '사진 올리기' 버튼 섹션
 chk 'photoShareUrl' automation/platform/80_production.gs 2   # guideinfo 정규화+guideView 출력
@@ -3839,3 +3841,17 @@ chk 'FIN_DRINK_NOALC' mypage.html 1
 chk "hasN?'N':'C'" mypage.html 1
 chk 'FIN_SAVE_LOUD' mypage.html 2
 
+
+# ★★[WISH_FX_MIRROR 2026-08-16 점검에서 잡은 실사고] photoFx 를 비우면 GAS 재배포 전 저장 한 번에
+#   고객 선택이 통째로 사라진다(트랙 통째 교체 + photoWish 는 아직 화이트리스트 밖). 거울로 보낸다.
+chk 'WISH_FX_MIRROR' mypage.html 2
+chk 'WISH_FX_MIRROR' admin.html 1
+nochk 'photoFx:\[\], photoWish' mypage.html          # 비우는 판 복원 금지(유실 창이 다시 열린다)
+# [PFX_CSS_GONE] 고르는 카드 CSS 10개 제거 — 카드 UI 자체가 폐지돼 실측 사용 0건이었다
+chk 'PFX_CSS_GONE' mypage.html 1
+nochk '.pfx-grid{' mypage.html
+# [WISH_TAP44] 상자 안 보조 칩도 44px — 낮출 것은 높이가 아니라 글자 크기와 색
+chk 'WISH_TAP44' mypage.html 1
+chk 'min-height:44px;padding:9px 11px' mypage.html 1
+# [WISH_IN_TIME] 요청 개수를 시간 줄에 — 분은 더하지 않는다(별도 컷인지 얹는 동작인지 미리 못 가른다)
+chk 'WISH_IN_TIME' mypage.html 1
