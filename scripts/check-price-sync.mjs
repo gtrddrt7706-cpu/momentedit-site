@@ -45,6 +45,16 @@ const MUST = [
     `주말·공휴일 ${comma(deposit(WE))}원 / 평일 ${comma(deposit(WD))}원`]],
   ['inquiry.html', [`&#8361;${comma(WE)}`, `&#8361;${comma(WD)}`, `주말 ₩${comma(WE)} / 평일 ₩${comma(WD)}`]],
   ['automation/consultation/ScreenA_apply.html', [`&#8361;${comma(WE)}`, `&#8361;${comma(WD)}`]],
+  /* ★[PRICE_STAGE_TABLE 2026-08-16] 계약서 제4조② 단계별 지급 표 — 총액만 보고 표를 안 보면 어긋난다.
+     실사고: v1.8(평일 250만) 문서인데 평일 열이 24만+96만+120만 = **240만** 그대로였다.
+     서명하는 사람이 보는 숫자라 총액보다 이쪽이 더 중요하다. 10%·40%·50% 를 계산해 대조한다. */
+  ['contract/v1-1.html', [
+    `<td data-label="평일">${comma(Math.round(WD * 0.1))}원</td>`,
+    `<td data-label="평일">${comma(Math.round(WD * 0.4))}원</td>`,
+    `<td data-label="평일">${comma(Math.round(WD * 0.5))}원</td>`,
+    `<td data-label="주말·공휴일">${comma(Math.round(WE * 0.1))}원</td>`,
+    `<td data-label="주말·공휴일">${comma(Math.round(WE * 0.4))}원</td>`,
+    `<td data-label="주말·공휴일">${comma(Math.round(WE * 0.5))}원</td>`]],
   ['contract/v1-1.html', [`주말·공휴일 ${man(WE)}만원 / 평일 ${man(WD)}만원`,
     `<strong>${comma(WE)}원</strong>`, `<strong>${comma(WD)}원</strong>`,
     `주말·공휴일 ${comma(deposit(WE))}원 · 평일 ${comma(deposit(WD))}원`]],

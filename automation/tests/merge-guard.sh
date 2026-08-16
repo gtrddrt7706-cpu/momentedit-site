@@ -3545,3 +3545,16 @@ chk 'ORD_RESET_MID' order-preview.html 4
 chk 'prog-reset' order-preview.html 3
 chk '_paintReset' order-preview.html 3
 chk "id=\"pReset\"" order-preview.html 1
+# [INDEX_FACT_2026_08_16] 메인 전수 점검으로 잡은 사실 오류·고지 공백.
+#   ★계약서 제3조·제7조가 정본이다. 화면이 계약서보다 큰 약속을 하면 그대로 이행 의무가 된다.
+nochk '다섯 코스에서 골라' index.html                    # 코스는 셋([THREE_COURSES 2026-08-07])
+nochk '촬영·예식·다이닝·디지털 참석이 통합된' index.html   # 다이닝은 파트너사 직결제(제3조②)
+nochk '본식영상 데이터 + 수정본' index.html               # 계약서 용어는 '편집본'
+chk '25명 초과 스탠딩' index.html 1                       # 제3조⑥ 1인 50,000원·최대 30명(값이 비어 있었다)
+chk '총 30명으로 진행하실 수 있습니다' index.html 2        # 30명 상한 고지(화면에 0건이었다)
+chk '드레스를 시착하신 경우에만' index.html 1              # 제4조⑧ — '전액 환불' 단서 없던 자리
+chk '예식 150일 전까지 위약금 없이 전액 환급' index.html 1  # 제7조② — 23스크린 접힘 안에만 있던 것
+chk '디지털 참석 페이지' index.html 1                     # 제3조⑥ 포함 칸(별도 칸에 있었다)
+# [PRICE_STAGE_TABLE 2026-08-16] 계약서 단계별 지급 표가 총액과 따로 놀지 않게(평일 열이 240만이었다)
+chk 'PRICE_STAGE_TABLE' scripts/check-price-sync.mjs 1
+nochk '<td data-label="평일">240,000원</td>' contract/v1-1.html
