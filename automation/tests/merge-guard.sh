@@ -3363,6 +3363,12 @@ chk 'LISTEN_COVER' scripts/check-listen-cover.mjs 1
 chk 'castLiveOf' scripts/check-listen-cover.mjs 1
 chk 'UNREACHED_TEXT' scripts/check-listen-cover.mjs 1
 chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
+# ★[LISTEN_KEEP 2026-08-16] 만든 실청 판을 버리지 않는다 — 사용자가 내려받아 «들을» 판이다.
+#   전에는 /tmp 에 만들어 검사만 하고 버려서, 들으려면 ffmpeg 이 있는 세션이 매번 새로 만들어
+#   사람 손으로 넘겨야 했다. 실청은 사람만 할 수 있는 마지막 검사인데 그 판을 얻는 길이 심부름이었다.
+chk 'LISTEN_KEEP' .github/workflows/nightly-screen.yml 1
+chk 'upload-artifact' .github/workflows/nightly-screen.yml 1
+chk 'name: 실청_전체' .github/workflows/nightly-screen.yml 1
 # [EXTRA_ENABLE_ALL] 한 자리에 값이 여럿이면 전부 켠다 — valley 를 wine 만 켜서
 # 18_narr-valley-cake 가 대조에서 통째로 빠져 있었다(대조 자리 69 → 70).
 chk 'EXTRA_ENABLE_ALL' scripts/check-text-audio.mjs 1
