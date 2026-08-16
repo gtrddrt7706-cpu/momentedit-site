@@ -3650,3 +3650,10 @@ nochk '본식영상' index.html
 #   소리 가진 기계에서만 초록이 되고 CI 는 붉는다 · [STAGE_ABSENT] 와 같은 병).
 chk 'DUB_FROZEN_FILE' scripts/build-dub-onefile.mjs 1
 chk 'frozen' "docs/plans/식순연구/타입캐스트/더빙_번호계약.json" 1
+# [EXTRA_CROSS 2026-08-16 CC 적대검증 ④] extra 는 «그 축의 모든 값»과 곱한다 —
+#   'wine' 하나로만 켜서 18_narr-valley-cake(valley:'cake' + extra.valley 동시)가 통째로 빠져 있었다(91→92곳).
+chk 'EXTRA_CROSS' scripts/check-listen-cover.mjs 1
+# [AUDIO_PATH_REAL 2026-08-16 CC 적대검증 ⑤] 손으로 박은 mp3 경로가 실물에 닿는가.
+#   ★지금 rc 1 이 정상이다 — preview-bed.mp3 가 없다(고칠지는 사용자가 정한다). 게이트는 «세는 것»만 건다.
+chk 'AUDIO_PATH_REAL' scripts/audit/audio-paths.mjs 1
+chk 'PREVIEW_BED' console.html 6

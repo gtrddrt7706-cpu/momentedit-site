@@ -73,12 +73,21 @@ states.push({ ...base });
 for (const k of keys) for (const v of AX[k]) states.push({ ...base, [k]: v });
 for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
   for (const a of AX[keys[i]]) for (const b of AX[keys[j]]) states.push({ ...base, [keys[i]]: a, [keys[j]]: b });
+/* ★[EXTRA_CROSS 2026-08-16 CC 적대검증] extra 를 **켜는 값 하나**와만 곱하면 셋이 만나는 자리가 빠진다.
+   실측: `18_narr-valley-cake` 는 `valley:'cake'` + `extra.valley` 가 **동시에** 있어야 나온다.
+   EXTRA_ON 이 valley 를 'wine' 으로만 켜서, 두 축 흔들기로도 이 자리에 못 닿았다(80 → 81).
+   ★그래서 extra 는 «그 축의 모든 값»과 곱한다. 축 이름이 extra 키와 같은 것만 곱하면 되므로 비용도 작다. */
 const EXTRA_ON = { bless: { bless: 'on' }, valley: { valley: 'wine' } };
 for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
   const on = EXTRA_ON[k] || {};
   states.push({ ...base, ...on, extra: e });
   states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
+  if (AX[k]) for (const v of AX[k]) {                       // [EXTRA_CROSS] 같은 이름 축의 모든 값과 교차
+    states.push({ ...base, [k]: v, extra: e });
+    for (const co of AX.course) states.push({ course: co, [k]: v, extra: e });
+  }
+  for (const co of AX.course) states.push({ course: co, ...on, extra: e });
 }
 
 const want = new Map();   // id → {kind, where:Set}
