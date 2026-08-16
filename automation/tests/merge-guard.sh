@@ -3303,6 +3303,20 @@ chk 'TOO_SHORT' scripts/build-listen-all.mjs 1
 #   야간 잡이 돌린다. 여기서는 검사가 살아 있는지만 본다.
 chk 'AUDIO_SENTS' scripts/check-audio-sents.mjs 1
 chk 'CANT_HEAR' scripts/check-audio-sents.mjs 2
+# ── [BLOCK_FIT] 덩어리마다 말속도를 본다 (2026-08-16 · 사용자가 또 귀로 잡았다) ──
+# 옛 잣대는 클립 **전체** 말속도만 봤다. 13_narr-vow-in 은 3문장 중 2문장만 들어 있는데
+# 전체가 초당 7.7음절(상한 9.5 밑)이라 통과했다 — 시간이 남은 것은 문장이 빠졌기 때문인데
+# 평균이 그 사실을 지웠다. 이제 소리 덩어리마다 따로 재고, 어떤 배분도 사람 속도가 안 되면 붉힌다.
+# ★재는 자는 lib/sent-bounds.mjs 한 곳뿐이다 — check-audio-sents 와 실청 화면이 같은 것을 쓴다.
+chk 'BLOCK_FIT' scripts/lib/sent-bounds.mjs 1
+chk 'export function blockFit' scripts/lib/sent-bounds.mjs 1
+chk 'blockFit' scripts/check-audio-sents.mjs 2
+chk 'blockFit' scripts/build-listen-all.mjs 3
+chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
+# [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
+# 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
+chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
+chk 'GUESS_TIE' scripts/check-audio-sents.mjs 1
 chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
 chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 # [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다

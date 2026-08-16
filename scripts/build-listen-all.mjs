@@ -25,7 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { sentBounds, durOf } from './lib/sent-bounds.mjs';
+import { sentBounds, durOf, blockFit } from './lib/sent-bounds.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
@@ -65,7 +65,7 @@ const OLDC = man.clips.map((c, mi) => ({ c, mi }))
      문장 wav 를 따로 잘라 넣으면 파일이 두 배가 되는데, 들리는 소리는 똑같다.
    ★경계는 [GAP_MATCH] 단일 구현(lib/sent-bounds.mjs)에서 받는다. 못 정하면 null →
      그 클립만 문장별 듣기를 안 붙이고 **왜 없는지 화면에 적는다**(조용히 빠지면 또 「안 들린다」가 된다). */
-const BOUNDS = {}, SHORT = {};
+const BOUNDS = {}, SHORT = {}, MISS = {};
 let bOk = 0, bNo = 0;
 /* ★[TOO_SHORT 2026-08-16] 소리가 글보다 짧은 클립을 표시한다.
    실측: 전 클립 말속도 중앙값 **초당 6.8음절**인데 11_narr-welcome-in 은 **14.3**이다.
@@ -80,10 +80,21 @@ man.clips.forEach((c) => {
   if (b && b.length === c.sents.length) { BOUNDS[id] = b; bOk++; } else bNo++;
   const d = durOf(f), sy = c.sents.reduce((a, x) => a + sylOf(x.text), 0);
   if (isFinite(d) && d > 0 && sy >= 6 && sy / d > 8.5) SHORT[id] = +(sy / d).toFixed(1);
+  /* ★★[SENT_MISSING 2026-08-16] 소리에 **문장이 통째로 빠진** 클립을 그 자리에 띄운다.
+     ─ 사용자가 귀로 잡았다: *"근데 나레이션 멘트랑 문구가 다른데 왜 그래?"* (13_narr-vow-in)
+     ─ 재는 자는 check-audio-sents 와 **같은 것**이다(lib/sent-bounds 의 blockFit) — 자를 두 벌 두지 않는다.
+     ─ ★화면에 띄우는 이유: 나는 소리를 못 듣는다. 「여기부터 들어 보세요」를 짚어 주는 것까지가
+       기계가 할 수 있는 일이고, 그 표시가 없으면 105클립을 처음부터 다 들어야 한다. */
+  const bf = blockFit(f, c.sents);
+  if (bf && !bf.ok) MISS[id] = bf.guess && bf.guess.drop
+    ? { at: bf.guess.drop.map((k) => k + 1), n: c.sents.length, b: bf.blocks.length }
+    : { at: null, n: c.sents.length, b: bf.blocks.length };
 });
 console.log(`  문장 구간 — 찾음 ${bOk}클립 · 못 정함 ${bNo}클립(그 클립은 통째로만 듣는다)`);
 if (Object.keys(SHORT).length) console.log(`  ★소리가 글보다 짧은 클립 ${Object.keys(SHORT).length}개: ` +
   Object.entries(SHORT).map(([k, v]) => `${k}(${v}음절/초)`).join(' · '));
+if (Object.keys(MISS).length) console.log(`  ★★소리에 문장이 빠진 것으로 보이는 클립 ${Object.keys(MISS).length}개 [SENT_MISSING]: ` +
+  Object.entries(MISS).map(([k, v]) => `${k}(대본 ${v.n} · 덩어리 ${v.b}${v.at ? ' · ' + v.at.join('·') + '번째' : ' · 자리 못 정함'})`).join(' · '));
 
 const missing = OLDC.filter((c) => !c.has && !c.mix);
 if (missing.length) console.log(`  · 소리 없는 기존 클립 ${missing.length}개(합성/미녹음): ${missing.map((c) => c.id).join(' · ')}`);
@@ -141,7 +152,7 @@ if (EMBED) {
 /* ── ④ 화면 데이터 ───────────────────────────────────────────────────────── */
 const DATA = {
   old: OLDC.map((c) => ({ id: c.id, no: c.no, mi: c.mi, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
-    r: c.role, mix: c.mix, has: c.has, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0 })),
+    r: c.role, mix: c.mix, has: c.has, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0, miss: MISS[c.id] || null })),
   neu: NEWC.map((c) => ({ s: c.slug, k: c.ko, g: c.묶음,
     n: c.idx.map((i) => ({ i, t: sents[i], v: voices[i], lock: sents[i] === USE_EXISTING,
       old: OLDSENT.get(sents[i]) || '' })) })),
@@ -314,6 +325,8 @@ function draw() {
         + '<span class="tag">' + esc(c.id) + '</span>' + (c.r ? '<span class="tag">' + esc(c.r) + '</span>' : '')
         + (re ? '<span class="tag re">다시 ' + re + '</span>' : '')
         + (c.short ? '<span class="tag re" title="말속도 ' + c.short + '음절/초 · 보통 6~7">★소리가 글보다 짧음</span>' : '')
+        + (c.miss ? '<span class="tag re" title="대본 ' + c.miss.n + '문장인데 소리 덩어리는 ' + c.miss.b + '개 [SENT_MISSING]">★문장이 빠진 듯 — '
+            + (c.miss.at ? c.miss.at.join('·') + '번째' : '자리 못 정함') + '</span>' : '')
         + (c.has ? '<button class="btn sm play" style="margin-left:auto" data-u="' + c.id + '">클립 듣기</button>'
                  : '<span class="tag" style="margin-left:auto">소리 없음</span>') + '</div>';
       c.s.forEach(function (t, j) {

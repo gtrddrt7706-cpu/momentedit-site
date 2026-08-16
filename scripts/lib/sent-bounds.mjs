@@ -76,3 +76,74 @@ export function sentBounds(file, sents) {
   }
   return out;
 }
+
+/* ★★[BLOCK_FIT 2026-08-16] 「소리 덩어리」에 대본 문장이 다 들어갈 수 있는가
+   ─ 왜 여기 두나: 이 판단이 두 곳에서 쓰인다(check-audio-sents 가 붉히고, 실청 화면이 표시한다).
+     자를 두 벌 만들면 언젠가 둘이 다른 말을 한다 — 문장 경계를 여기 하나로 모은 것과 같은 이유다.
+   ─ 무엇을 재나: 무음으로 잘린 덩어리마다 «초당 음절»을 따로 낸다. 클립 전체 평균이 아니다.
+     평균은 「문장 하나가 통째로 빠져 시간이 남는 것」을 «여유 있게 읽었다»로 덮는다 — 실제로 덮었다
+     (13_narr-vow-in · 전체 초당 7.7 로 상한 9.5 밑이라 통과했는데 3문장 중 2문장만 들어 있었다).
+   ─ 무엇을 돌려주나: { ok, blocks, sy, guess }
+       ok=true  → 사람 속도로 설명되는 배분이 하나라도 있다(붙여 읽은 것일 수 있다 · 통과)
+       ok=false → 그 소리로는 대본을 다 읽을 수 없다 = 문장이 빠진 것이다
+       guess    → {drop:[0-based], rates} 가장 그럴듯한 «빠진 자리». 1·2등이 붙으면 {tie:[...]} 만 준다.
+   ★[CANT_HEAR] 어느 말인지는 여전히 모른다 — 자리와 개수까지가 기계의 말이다. */
+export const RATE_LO = 3.5, RATE_HI = 9.0, RATE_MID = 6.8, GUESS_TIE = 0.5;
+
+export function blockFit(file, sents) {
+  const n = (sents || []).length;
+  const d = durOf(file);
+  if (n < 2 || !isFinite(d)) return null;
+  const seg = silences(file, d);
+  const head = (seg.length && seg[0][0] <= 0.05) ? seg[0][1] : 0;
+  const tail = (seg.length && seg[seg.length - 1][1] >= d - 0.06) ? seg[seg.length - 1][0] : d;
+  const inner = seg.filter(([s, e]) => s > head + 0.01 && e < tail - 0.01);
+  const designed = sents.slice(0, -1).map((x, k) => (x.after || 0) + (sents[k + 1].before || 0));
+  const minGap = Math.min(...designed);
+  if (!(minGap > 0)) return null;                       // 붙여 읽는 클립은 셀 수 없다
+  const cuts = inner.filter(([s, e]) => (e - s) >= minGap * 0.7);
+  const blocks = []; { let at = head;
+    for (const [s, e] of cuts) { blocks.push([at, s]); at = e; } blocks.push([at, tail]); }
+  const spoken = blocks.map(([a, b]) => (b - a) - inner
+    .filter(([s, e]) => s >= a && e <= b).reduce((x, [s, e]) => x + (e - s), 0));
+  if (spoken.some((x) => !(x > 0))) return null;
+  const sylOf = (t) => (String(t).match(/[가-힣]/g) || []).length;
+  const sy = sents.map((x) => sylOf(x.text));
+  const B = spoken.length;
+  if (B >= n) return { ok: true, blocks: spoken, sy, guess: null };
+
+  /* n문장을 B덩어리에 차례대로 나누는 배분 중 «전부 사람 속도»인 것이 하나라도 있나 */
+  let any = false;
+  (function walk(i, k) {
+    if (any) return;
+    if (k === B) { if (i === n) any = true; return; }
+    for (let take = 1; take <= n - i - (B - k - 1); take++) {
+      const r = sy.slice(i, i + take).reduce((a, b) => a + b, 0) / spoken[k];
+      if (r >= RATE_LO && r <= RATE_HI) walk(i + take, k + 1);
+    }
+  })(0, 0);
+  if (any) return { ok: true, blocks: spoken, sy, guess: null };
+
+  /* 어느 자리가 빠졌나 — n-B 개를 빼고 나머지를 1:1 로 놓아 또래 속도(6.8)에 가장 가까운 것 */
+  const cand = [];
+  (function walk(i, picked) {
+    if (picked.length === n - B) {
+      const keep = []; for (let k = 0; k < n; k++) if (!picked.includes(k)) keep.push(k);
+      let cost = 0, all = true;
+      keep.forEach((k, j) => { const r = sy[k] / spoken[j];
+        if (r < RATE_LO || r > RATE_HI) all = false; cost += Math.abs(r - RATE_MID); });
+      if (all) cand.push({ drop: picked.slice(), cost, rates: keep.map((k, j) => +(sy[k] / spoken[j]).toFixed(1)) });
+      return;
+    }
+    for (let k = i; k < n; k++) { picked.push(k); walk(k + 1, picked); picked.pop(); }
+  })(0, []);
+  cand.sort((a, b) => a.cost - b.cost);
+  /* ★[GUESS_TIE] 1등과 2등이 이만큼도 안 벌어지면 지목하지 않는다 — [GAP_MATCH] 와 같은 처방.
+     실측 27_letter-parent: 3번째를 빼면 1.90 · 4번째를 빼면 1.94 (차이 0.04). 기계는 못 가린다.
+     형제 클립 28·29 는 둘 다 「편지를 펼치고, 천천히 읽으시면 됩니다.」를 가리킨다 — 그 판단은 사람 몫이다. */
+  const guess = !cand.length ? null
+    : (cand.length > 1 && cand[1].cost - cand[0].cost < GUESS_TIE)
+      ? { tie: cand.slice(0, 2).map((x) => x.drop.slice()) }
+      : cand[0];
+  return { ok: false, blocks: spoken, sy, guess };
+}
