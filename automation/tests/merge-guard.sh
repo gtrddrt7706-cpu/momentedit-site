@@ -3955,3 +3955,4 @@ chk '_dnFavSaved' mypage.html 6                    # 찜·공개 토글도 실�
 # 실패를 주입해 **실제로 눌러 보는** 게이트 — 정적 읽기로는 'undefined 가 검사를 통과하는' 모양을 놓친다
 chk 'SAVE_FALSE_OK' scripts/audit/save-honesty.mjs 4
 chk 'apiTrackSave=fail' scripts/audit/save-honesty.mjs 1
+
