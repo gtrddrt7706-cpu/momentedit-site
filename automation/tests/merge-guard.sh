@@ -3491,7 +3491,16 @@ nochk 'data-seat-next' mypage.html               # ★'다음 자리 →' 단추
 nochk 'function _seatGoNext' mypage.html         # ★엔터 연쇄 이동도 함께 걷어냈다(주석의 이름 언급은 남겨 둔다 — 그래서 'function ~'로 잡는다)
 nochk 'class="rs-edit" data-ed' mypage.html     # ★캔버스 자리 알약 안 입력칸 복원 금지(이름·음료가 다시 갈라진다)
 chk 'data-alc-all' mypage.html 3                # 알콜 1종 통일·전환
-chk 'data-alc-fill' mypage.html 3               # 미정 자리 일괄 채우기(이미 고른 자리는 안 건드림)
+# ★★[SEAT_NO_UNDEC 2026-08-16 사용자 지시 "음료 미정은 없에자"] 이름이 붙으면 음료가 반드시 하나 붙는다.
+#   기본값은 행사 알콜(없으면 샴페인) — 불러오기·그리기·저장 세 길 모두 _seatFillDefaults 를 지난다.
+chk 'SEAT_NO_UNDEC' mypage.html 6
+chk 'function _seatFillDefaults' mypage.html 1
+chk '_seatFillDefaults()' mypage.html 2          # 그리기 직전 + 저장 직전(화면을 안 거치는 자동저장까지 덮는다)
+nochk 'data-alc-fill="' mypage.html               # ★'미정 일괄 채우기' 복원 금지 — 채울 미정이 없다(폐지 주석의 이름 언급은 남긴다)
+nochk 'class="sdb-clear"' mypage.html            # ★'미정으로 되돌리기' 복원 금지
+nochk 'rs-dk rs-dk-none' mypage.html             # ★미정 빈 골드 링 복원 금지
+nochk "_dkPill('dk-U'" mypage.html               # ★요약의 미정 알약 복원 금지
+nochk "음료 미정 '+" mypage.html                   # ★완료 전 '음료 미정 n명' 확인 복원 금지(폐지 주석은 남긴다)
 # [SEAT_KBD] 창 안에 이름칸이 생겨 키보드가 창을 덮는다 — bottom 에 --kbd 를 실어 '키보드 위'에서 가운데
 chk 'SEAT_KBD' mypage.html 3
 chk 'bottom:var(--kbd,0px)' mypage.html 1
