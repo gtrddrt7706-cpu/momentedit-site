@@ -6522,7 +6522,11 @@ function renderPhoto(box){
   h+='<div class="cc-note" style="text-align:left;margin-top:6px">하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요 · QR은 테이블 카드용이에요.</div>';
   /* [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다 — 부부가 엉뚱한 것을 넣고도 모르는 일이 없게. */
   var _sk=photoShareKind(_psu);
-  if(_sk==='kakao')  h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">1:1 오픈채팅 · 하객끼리 서로 안 보여요 · 사진은 <b>30일 뒤 만료</b>되니 예식 뒤에 받아 두세요.</div>';
+  /* ★★[SHARE_1TO1_ASK 2026-08-16 시뮬에서 잡은 거짓 단정] `open.kakao.com/o/…` 는 **그룹과 1:1 이 같은 형식**이다.
+     URL 로는 구분할 수 없는데 옛 판은 「하객끼리 서로 안 보여요」라고 **단정**했다 —
+     부부가 그룹으로 만들면 화면이 거짓말을 하고, 하객끼리 사진이 다 보이는데 아무도 모른다.
+     ★단정 대신 **확인을 부탁한다.** 우리가 못 보는 것을 아는 척하지 않는다(책임질 수 없는 안심 금지). */
+  if(_sk==='kakao')  h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">오픈채팅 링크예요 · <b>1:1 채팅방</b>으로 만드셨는지 확인해 주세요(그룹이면 하객끼리 서로 보여요) · 사진은 <b>30일 뒤 만료</b>되니 예식 뒤에 받아 두세요.</div>';
   if(_sk==='gphoto') h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">공유 앨범 · <b>링크를 아는 하객끼리 서로 사진이 보여요</b>.</div>';
   if(_sk==='etc')    h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">오픈채팅·공유 앨범이 아니에요 · 하객이 <b>가입 없이 올릴 수 있는지</b> 확인해 주세요.</div>';
   h+='<details class="cc-more" style="margin-top:6px"><summary>다른 방법도 되나요 · 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b>도 돼요 · 만들 때 「공동작업」을 켜야 하객이 올릴 수 있고, <b>링크를 아는 하객끼리 서로 보여요</b>. 압축이 없는 건 이쪽이에요.<br><br>어느 쪽이든 링크를 아는 분은 누구나 들어갈 수 있어요 · <b>예식 뒤 정리하시면 안내 페이지 버튼도 닫혀요</b>.</div></details>';
