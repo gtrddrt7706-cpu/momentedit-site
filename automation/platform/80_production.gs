@@ -426,8 +426,14 @@ function handleSaveProductionTrack(body) {
       var _os = [], _od = [];
       for (var si = 0; si < _seats.length && _os.length < 12; si++) {
         _os.push(String(_seats[si] || '').slice(0, 24));
-        var _dv = String(_drk[si] || '');   // 자리별 음료: '' · N(논알콜) · A(알콜) · J(주스)
-        _od.push((_dv === 'N' || _dv === 'A' || _dv === 'J') ? _dv : '');
+        /* ★★[SEAT_DRINK_SAVE 2026-08-16] 화이트리스트가 옛 코드(N·A·J)에 멈춰 있어 **샴페인(C)·레드와인(R)이 저장 때마다 통째로 지워졌다.**
+             2026-07-19에 자리별 음료가 C·R·N 로 바뀌었는데(mypage SEAT_DRINK_LABEL) 이 줄만 따라오지 않았다.
+             증상이 조용하다 — 프런트는 '저장됐어요'를 띄우고(에코 검사는 빈 값을 '정규화'로 보고 넘어간다),
+             다시 열면 색점만 사라져 있다. 읽는 쪽(_seatDrinkSrv 819줄 주석)은 진작부터 'C|R|N'을 전제한다.
+           A(구 알콜)·J(구 주스)는 프런트 _seatNormDrinks 가 이미 빈 값으로 정리해 보내므로 여기서 되살리지 않는다.
+           ★이 목록은 mypage.html SEAT_DRINK_LABEL 과 한 벌 — 음료 코드를 늘리면 두 곳을 함께 고칠 것. */
+        var _dv = String(_drk[si] || '');   // 자리별 음료: '' 미정 · C 샴페인 · R 레드와인 · N 논알콜 스파클링
+        _od.push((_dv === 'C' || _dv === 'R' || _dv === 'N') ? _dv : '');
       }
       outT.push({
         name: String(_t.name || '').slice(0, 24),
