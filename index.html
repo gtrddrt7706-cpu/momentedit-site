@@ -2615,6 +2615,23 @@ a.ig-handle:hover {
   margin-bottom: 24px;
   word-break: keep-all;
 }
+/* ★★[JOURNAL_ROW_EVEN 2026-08-16 사용자 지적 "read 높이가 다르니깐 이상하게 연속성 개선"]
+   두 에세이 칸의 「READ →」가 서로 다른 높이에 서 있었다(1180·1000px 실측 51~52px 차이).
+   칸 키는 syncJournalHeights 가 min-height 로 맞춰 두는데, 그 안에서 구분선·READ 가
+   **본문 끝에 붙어** 있어 본문 길이를 그대로 따라갔다.
+
+   ★진짜 원인은 조용한 덮어쓰기였다 — `.journal-card-btn` 은 `margin-top:auto`(바닥에 붙어라)로
+     설계돼 있었는데, 5,700줄 뒤 탭 타깃 보정 규칙이 `margin-top:-16px` 로 **같은 속성을 덮었다.**
+     의도는 padding 과 상쇄해 '보이는 것은 그대로 두고 누르는 넓이만 넓히기'였고 그 목적은
+     이뤘지만, 함께 죽은 `auto` 는 아무도 몰랐다(둘 다 초록이라 검사도 안 걸렸다).
+   ★그래서 밀어내는 일을 **본문에게** 맡긴다. 본문 상자는 테두리·배경이 없어 늘어나도 보이지
+     않고, 구분선(margin 18px)과 버튼(margin -16px)의 관계는 1px 도 건드리지 않는다.
+     버튼의 auto 를 되살리는 쪽은 펼친 상태에서 간격이 16px 벌어져 지금 모습이 달라진다.
+   ★`flex-basis` 는 auto 로 둔다 — 글 높이가 계산에 들어가야 긴 글에서 잘리지 않는다. */
+.journal-card-preview,
+.journal-card-full {
+  flex: 1 1 auto;
+}
 .journal-card-preview p,
 .journal-card-full p {
   margin: 0 0 16px;
