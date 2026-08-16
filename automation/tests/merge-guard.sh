@@ -3972,3 +3972,4 @@ chk '오픈채팅 → 1:1 채팅방' mypage.html 1
 # [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다(막지 않는다) — 엉뚱한 주소를 넣고도 모르는 일이 없게
 chk 'SHARE_KIND' mypage.html 3
 chk 'function photoShareKind' mypage.html 1
+
