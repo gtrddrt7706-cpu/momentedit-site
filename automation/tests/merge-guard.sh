@@ -3682,6 +3682,17 @@ if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/de
 # ★옆의 check-photo-scene 은 이걸 못 본다 — 「이름이 파일에 있나」를 볼 뿐인데
 #   폐지 순서는 클립 번호 때문에 **일부러 파일에 남긴다**. 그래서 왼쪽을 「고를 수 있나」로 옮긴 검사를 따로 둔다.
 chk 'RETIRED_SCENE' scripts/check-retired-scene.mjs 2
+# ★[재점검 2026-08-16] 첫 판은 지식서를 **한 파일만** 봤다(api/_ritual-kb.js).
+#   고객이 읽는 AI 지식은 셋이고 그중 assets/advisor-kb.js 는 **공개 홈페이지**에 실린다 —
+#   계약 전 사람이 보는 제일 넓은 자리인데 그걸 안 보고 「전수」라 말할 뻔했다.
+#   거기서 실제로 나왔다: [MUSIC_GONE 2026-08-03] 으로 곡 입력칸을 지웠는데
+#   지식서 셋이 열사흘 동안 「마이페이지에서 입퇴장 음악·축가를 입력」이라 말하고 있었다.
+chk 'KB_ALL_THREE' scripts/check-retired-scene.mjs 1
+chk 'MUSIC_GONE' scripts/check-retired-scene.mjs 3
+chk 'MUSIC_GONE' assets/advisor-kb.js 1
+chk 'MUSIC_GONE' api/_kb.js 1
+chk '자유 한 칸' assets/advisor-kb.js 3       # 축가는 없앤 게 아니라 옮긴 것 — 어디로 옮겼는지를 고객에게 적는다
+nochk '입퇴장 음악·축가 등 구성을 직접 입력' assets/advisor-kb.js   # ★없는 칸을 있다고 하던 줄
 chk 'WINE_RETIRED' mypage.html 1
 chk 'WINE_RETIRED' api/_ritual-kb.js 3
 chk 'SONG_RETIRED' api/_ritual-kb.js 3
