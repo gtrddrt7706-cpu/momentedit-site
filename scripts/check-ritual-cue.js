@@ -36,7 +36,9 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //     그 뒤에 있던 fx-count 가 78 → 83 으로 밀리고 이미 녹음된 78_fx-count.mp3 가 제 번호를 잃었다.
 //     새 클립이 78 을 가져가 **한 번호에 두 소리**가 됐다. 위 두 줄이 경고하던 바로 그 사고다.
 //   ★「목록 끝」은 「비슷한 것 옆」이 아니라 **파일의 마지막 줄**이다. 다음 사람도 여기서 읽고 가길.
-const N_FILES = 83;
+// [PHOTO_ASK 2026-08-16] 사진 부탁 2개 추가(84_narr-photo-ask · 85_narr-photo-send) → 85.
+//   ★맨 끝에 붙였다 — 위 ENTRY_OUT_TONE 이 실제로 당한 그 사고를 안 되풀이한다.
+const N_FILES = 85;
 if (C.FILES.length !== N_FILES) no(`FILES ${N_FILES}개가 아니다 (${C.FILES.length})`);
 else if (new Set(C.FILES).size !== N_FILES) no('FILES에 중복 슬러그가 있다');
 else ok(`FILES ${N_FILES}개 · 중복 없음`);

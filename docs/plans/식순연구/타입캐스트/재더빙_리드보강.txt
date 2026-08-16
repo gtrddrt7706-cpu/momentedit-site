@@ -3,4 +3,8 @@
 # 목소리는 클립마다 다릅니다 — 줄 앞의 이름 그대로 배정하세요 [REDUB_VOICE].
 # ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가
 #   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.
-# 대기 0클립
+# 대기 2클립
+
+[84] narr-photo-ask   (신규)
+
+[85] narr-photo-send   (신규)

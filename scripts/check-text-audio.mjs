@@ -336,8 +336,18 @@ if (process.argv.includes('--redub')) {
     if (seen.has(twinKey(r))) continue; seen.add(twinKey(r));   // [REDUB_TWIN] 슬러그가 아니라 녹음으로
     /* ★대장에 없는 슬러그는 맨 뒤로 민다(Infinity). 조립기도 그런 클립은 못 만든다 —
        숨기지 않고 아래 화면에 「대장에 없음」으로 적어 사람이 보게 한다. */
+    /* ★★[NEW_CLIP_SENTS 2026-08-16] 문장을 «화면 글»에서만 읽으면 **새 클립이 0문장**이 된다.
+       실측(사진 부탁 84·85): 아직 어느 화면에도 안 실린 새 나레이션이라 screen 이 비어 있고,
+       그래서 붙여넣기 줄이 0개 → 파일이 안 써지고 → check-paste-format 이 「없다」고 붉었다.
+       ★그때 화면에는 「재더빙_붙여넣기.txt (2클립 · 0문장)」이라고 **썼다고 적혀 있었다.**
+         말과 한 일이 달랐고, 검사는 「--redub 로 다시 뽑으세요」라고 안내했다 — 돌려도 같은 결과라
+         **끝나지 않는 고리**가 된다. 이 저장소가 반복해 앓은 그 병의 또 한 얼굴이다.
+       ★그러니 화면이 비면 **대장(manifest)** 에서 읽는다. 새 클립은 화면보다 대장이 먼저 안다. */
+    const mc = IDX_OF.has(id) ? man.clips[IDX_OF.get(id)] : null;
+    let sents = sentsOf(r.screen);
+    if (!sents.length && mc && mc.sents) sents = mc.sents.map((x) => x.text);
     ordered.push({ no, idx: IDX_OF.has(id) ? IDX_OF.get(id) : Infinity, part: PART_OF.get(id) || '',
-      slug: r.slug, sents: sentsOf(r.screen), voice: r.ids ? voiceOfRow(r) : voiceOf(r.slug) });
+      slug: r.slug, sents: sents, voice: r.ids ? voiceOfRow(r) : voiceOf(r.slug) });
   }
   ordered.sort((a, b) => (a.idx - b.idx) || (a.no - b.no));
   /* ★[PASTE_VOICE 2026-08-09] 화자 이름을 **붙인다** — 사용자 요청 *"파일붙이면 우성도 자동으로 나오게"*.
@@ -355,6 +365,14 @@ if (process.argv.includes('--redub')) {
      없는 것이 없다고 말하는 가장 정확한 방법은 파일이 없는 것이다. */
   if (pl.length) fs.writeFileSync(PASTE, pl.join('\n') + '\n');
   else if (fs.existsSync(PASTE)) fs.unlinkSync(PASTE);
+  /* ★[SAY_WHAT_DID 2026-08-16] 대기 클립은 있는데 붙여넣을 줄이 0이면 **모순**이다.
+     그대로 두면 아래 줄이 「썼다」고 말하면서 파일은 없다. 그 상태를 조용히 넘기지 않는다. */
+  if (!pl.length && ordered.length) {
+    console.error(`\n✗ 대기 클립이 ${ordered.length}개인데 붙여넣을 문장이 0줄입니다 — 파일을 쓰지 않았습니다.`);
+    console.error(`   대장에도 화면에도 그 클립의 문장이 없다는 뜻입니다: ${ordered.map((c) => c.slug).join(' · ')}`);
+    console.error(`   node scripts/build-typecast-import.mjs 로 대장을 먼저 다시 뽑으세요.`);
+    process.exitCode = 1;
+  }
 
   console.log('\n→ 대기 명단: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
   console.log('→ 붙여넣기용(문장만 · 대장 배열 순): ' + path.relative(root, PASTE)

@@ -88,7 +88,13 @@
        ★다음에 늘릴 때도 「비슷한 것 옆」이 아니라 **파일 맨 끝**에 붙일 것.
          옆에 두면 읽기 좋지만, 읽기 좋으라고 번호를 밀면 이미 녹음된 소리가 이름을 잃는다.
        A 는 늘리지 않는다 — 종전 문안 그대로라 52_narr-entry-out.mp3 를 그대로 쓴다. */
-    'narr-entry-out-B', 'narr-entry-out-C', 'narr-entry-out-D', 'narr-entry-out-E', 'narr-entry-out-F'
+    'narr-entry-out-B', 'narr-entry-out-C', 'narr-entry-out-D', 'narr-entry-out-E', 'narr-entry-out-F',
+    /* ★[PHOTO_ASK 2026-08-16 사용자 확정 *"추천대로 진행해 우선 내가 실청테스트하면서 거를거니깐"*]
+       하객에게 사진을 부탁하는 두 자리. **맨 끝에 붙인다** — 위 경고 그대로다.
+       84 = 예식 직전(04_guest-4-1min 뒤) · 85 = 배웅(45_end-1a-farewell 뒤).
+       ★두 클립 다 `S.photoShare` 가 참일 때만 나온다 — 링크를 안 넣은 두 분에게
+         「보내 주세요」라고 하면 없는 버튼을 안내하는 셈이다. */
+    'narr-photo-ask', 'narr-photo-send'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -106,6 +112,13 @@
        ★자세 다듬기(앞줄 앉기·어깨 돌리기)는 디렉터의 골라 트는 판(D.PHOTOCUE.fx)이 맡는다 —
          여기서 겹쳐 말하면 같은 지시가 두 번 나간다. 여는 말은 열기만 하고 넘긴다.
        ★"신호를 드립니다"가 78 fx-count(「찍겠습니다. 하나, 둘, 셋.」)로 이어진다. */
+    /* ★[PHOTO_ASK] 04번 마지막 문장이 「휴대폰은 진동으로 바꿔 주시면 감사하겠습니다」다.
+       바로 뒤에 「사진 찍어 달라」가 오면 어긋나 보여 **「그리고」로 이어 붙인다** —
+       소리를 줄이는 것과 사진을 남기는 것은 다른 부탁이라는 걸 접속사가 표시한다. */
+    'narr-photo-ask': '그리고 오늘, 사진은 마음껏 남겨 주세요. 여러분의 자리에서 본 오늘은, 여러분만 담을 수 있습니다.',
+    /* ★[PHOTO_ASK] 버튼 이름을 낫표로 인용하지 않는다 — 타입캐스트가 괄호·낫표를 읽는다.
+       이름을 부르는 대신 «보내 주시면 전해집니다»로 행동만 말한다. */
+    'narr-photo-send': '오늘 찍으신 사진은, 받으신 안내 페이지로 보내 주시면 두 사람에게 그대로 전해집니다. 두 사람이 미처 보지 못한 오늘까지, 함께 간직하겠습니다.',
     'end-0-photo': '이제 다 함께 한 장 남기겠습니다. 두 분을 가운데 두고 편하게 서 주세요. 자리를 잡으시면 제가 신호를 드립니다.',
     'end-1a-farewell': '오늘의 기록이 모두 담겼습니다. 이제 두 사람이 문 앞에서 여러분을 기다립니다. 서두르지 마시고, 나가시는 길에 두 사람과 인사 나눠 주시기 바랍니다. 두고 오신 물건이 없는지 한 번만 살펴 주시면 감사하겠습니다.',
     /* ★[ONLINE_ALREADY_ENDED 2026-08-16] 이 문안은 **더 이상 쓰이지 않는다.**
@@ -317,6 +330,13 @@
           pick: own ? '두 분 목소리로 녹음' : ''
         }));
       }
+      /* ★[PHOTO_ASK] 04번 «안»에 문장을 더하지 않고 별도 클립으로 뺀다.
+         안에 넣으면 링크 없는 두 분에게도 나가거나, 04 를 두 벌로 만들어야 한다. */
+      if (S.photoShare) out.push(cue({
+        k: 'guest', blockN: '하객 맞이', slug: 'narr-photo-ask', name: '사진 부탁 · 예식 직전',
+        text: EXTRA['narr-photo-ask'], duck: PARAM.duckSpeech, fire: 'chain',
+        note: '하객 안내 페이지에 사진 링크가 있을 때만 나간다'
+      }));
       return out;
     },
 
@@ -763,6 +783,13 @@
         name: '촬영 종료 · 배웅 전환', text: EXTRA['end-1a-farewell'], duck: -14,
         hint: '단체촬영이 끝나면',
         live: { t: '하객 배웅 · 문 앞에서 인사', est: 480 }
+      }));
+      /* ★[PHOTO_ASK] 배웅에 두는 이유 — 단체촬영·인사 사진이 **다 끝난 뒤**다.
+         그때가 하객 손에 사진이 가장 많다. 링크가 없으면 통째로 빠진다. */
+      if (S.photoShare) cues.push(cue({
+        k: '_farewell', blockN: '배웅', slug: 'narr-photo-send', name: '사진 보내기 안내',
+        text: EXTRA['narr-photo-send'], duck: -14, fire: 'chain',
+        note: '하객 안내 페이지에 사진 링크가 있을 때만 나간다'
       }));
       cues.push(cue({
         k: '_goodbye', blockN: '배웅', slug: 'end-2-goodbye', name: '배웅 마무리 · 귀가 인사', text: EXTRA['end-2-goodbye'], duck: -14,

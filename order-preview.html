@@ -2992,7 +2992,7 @@ function renderDone(){
        (완성 직후 가장 하고 싶은 일이라 크게), 대본 둘이 그 아래 반씩 나눈다. */
   h+='<div class="play-acts">';   /* ★이름 주의 — 화면 맨 아래 .done-acts 와 다른 덩어리다(그쪽은 나가는 동작) */
   /* [PREVIEW_LINK_V1] 주소가 없으면(코스 없음) 미리듣기는 빠지고 아래 둘만 남는다 — flex 라 그대로 정렬된다 */
-  if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG}))
+  if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO}))
     h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리듣기</button>';
   /* ★★[REHEARSE_MERGED 2026-08-12 사용자 지시 "연습공간 없에고 미리듣기로 통합하자"]
      ★「연습 공간 열기」 단추 **폐지 — 되살리지 말 것.**
@@ -3074,7 +3074,7 @@ function renderDone(){
      (마이페이지 식순 행에도 같은 진입점이 있고, 거기는 서버 초안에서 조립한다 · mypage.html openRitualPreview) */
 function openRitualPreview(){
   var src='';
-  try{ src=(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG}))||''; }catch(e){}   // [PREVIEW_DIGITAL] 배웅 장면이 여기서 갈린다
+  try{ src=(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO}))||''; }catch(e){}   // [PREVIEW_DIGITAL] 배웅 장면이 여기서 갈린다
   if(!src){ try{ toast('아직 들려드릴 순서가 없어요'); }catch(e){} return null; }
   try{ _stopAud(); }catch(e){}   // 빌더에서 듣던 견본 음성이 있으면 먼저 끊는다 — 두 소리가 겹치면 둘 다 안 들린다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
@@ -3370,6 +3370,10 @@ var CUST=null;   // 임베드 신원 번들(orderFill로 수신 · 독립 열람
    ★이 선언은 첫 render() 아래에 있다(var 호이스팅). 그래서 첫 렌더 순간엔 undefined 다 —
      부르는 쪽이 !!CUSTDIG 로 못 박아 false 로 읽는다. orderFill 이 오면 값이 서고 다시 렌더된다. */
 var CUSTDIG=false;
+/* ★[PHOTO_ASK 2026-08-16] 사진 링크 «유무». CUSTDIG 와 같은 부류다 — 식순 초안에 없고
+   밖(안내 트랙)에서 정해진 것이라, 미리듣기 주소를 조립하는 한 순간에만 얹는다.
+   ★주소가 아니라 boolean 이다. 독립 열람(임베드 아님)은 false — 데모에는 사진 부탁이 안 나간다. */
+var CUSTPHOTO=false;
 /* ★★[PREVIEW_UPTO 2026-08-12 사용자 지시 · 두 번째 요청] 저장할 때 **어디까지 걸어왔는지**를 함께 보낸다.
    ★무엇이 문제였나 — 코스를 고르는 순간 모든 순간이 기본값으로 채워진다. 그래서 3번째 단계에서
      「저장 후 나가기」를 해도 미리듣기는 **폐식까지** 흐른다. 화면은 「고르신 순서 그대로」라고
@@ -3501,6 +3505,7 @@ if(EMBED){
     if(ev.data.type==='momentedit:orderFill'){
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       if(typeof ev.data.digital==='boolean') CUSTDIG=ev.data.digital;   // [PREVIEW_DIGITAL] 구버전 mypage(미전송)면 false 유지 — 종전 동작 그대로
+      if(typeof ev.data.photoShare==='boolean') CUSTPHOTO=ev.data.photoShare;   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
       // ORDER_OWNER: 계정 대조 — 복원된 초안이 현 로그인 계정 소유가 아니면(다른 계정·소유 미표기 옛 초안 포함) 즉시 폐기·초기화.
       //   같은 기기 계정 전환 시 이전 계정의 서약문·편지가 보이거나 새 계정 서버로 저장되는 누출 차단. 이 계정의 진실은 아래 서버 초안(d).
       if(CUST&&CUST.code&&_restored&&_who!==String(CUST.code)){
