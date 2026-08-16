@@ -56,7 +56,7 @@ try {
     measure('좌석 · 음료');
     SEATFLOW.active = false; box.classList.remove('mp-fs');
 
-    startPhotoFlow({ photo: ['양가 가족 전체', '신부 측 가족', '친구들과'], photoFx: ['잔 부딪히기'], photoShareUrl: 'https://photos.app.goo.gl/verylongsharelinkexample123456' }); await w(220);
+    startPhotoFlow({ photo: ['양가 가족 전체', '신부 측 가족', '친구들과'], photoWish: [{what:'잔 부딪히기 · 옆사람과 잔을 부딪히는 순간', who:'전체 하객', ref:'https://pinterest.com/pin/verylongreferencelinkexample1234567890'}], photoShareUrl: 'https://photos.app.goo.gl/verylongsharelinkexample123456' }); await w(220);
     measure('단체 사진', document.getElementById('mp_photoBody'));
     _photoTearDown();
     startSnapFlow({ people: ['두 분 중심'], mustHaves: ['반지·손 클로즈업'], moodNote: '조용하고 따뜻하게' }); await w(220);

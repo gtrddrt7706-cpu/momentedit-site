@@ -458,8 +458,30 @@ function handleSaveProductionTrack(body) {
     var _photo = (Object.prototype.toString.call(gir.photo) === '[object Array]') ? gir.photo.map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 11) : [];
     if (_photo.length) body.draft.photo = _photo;
     // 단체 사진 연출/이벤트(예: 폰 플래시 흔들기·플라워 샤워) — 사진작가·디렉터 전달용. 다중 선택+직접 추가. 최대 8개·각 24자. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
+    //   ★[PHOTO_WISH 2026-08-16] 고객 화면에서 '고르는 카드'는 폐지됐다(아래 photoWish 로 대체). 여기 정규화는 **지우지 말 것** —
+    //     새 화면을 아직 안 연 부부의 저장분이 이 키에 남아 있고, 관리자 화면·확인서가 그것을 읽는다.
     var _pfx = (Object.prototype.toString.call(gir.photoFx) === '[object Array]') ? gir.photoFx.map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 8) : [];
     if (_pfx.length) body.draft.photoFx = _pfx;
+    /* ★★[PHOTO_WISH 2026-08-16 사용자 지시] 꼭 담고 싶은 사진 — 요청 목록. 카드 고르기를 대신한다.
+       요청 하나 = { what 어떤 사진(80자) · who 누구와(40자) · ref 참고 링크(http(s)·300자) } · 최대 2개.
+       ★what 이 비면 요청이 아니다 — 링크만 남은 줄은 작가가 무엇을 하라는 건지 알 수 없어 통째로 버린다.
+       ★ref 는 반드시 http(s) 검사를 통과한 것만 싣는다(하객 사진 링크와 같은 규칙) — 관리자 화면이
+         이 값을 그대로 <a href> 로 여는 자리라, javascript: 같은 것이 들어오면 안 된다.
+       ★이 블록이 없으면 화이트리스트가 photoWish 를 통째로 버린다 — 화면엔 '저장됐어요'인데 요청이 사라진다.
+         (마이페이지의 에코 검사가 그 상태를 '일부 미저장'으로 잡아 주지만, 애초에 막는 것이 맞다) */
+    var _pw = [];
+    if (Object.prototype.toString.call(gir.photoWish) === '[object Array]') {
+      gir.photoWish.slice(0, 2).forEach(function (w) {
+        if (!w || typeof w !== 'object') return;
+        var what = String(w.what || '').slice(0, 80).trim();
+        if (!what) return;
+        var one = { what: what, who: String(w.who || '').slice(0, 40).trim() };
+        var ref = String(w.ref || '').trim().slice(0, 300);
+        if (/^https?:\/\//i.test(ref)) one.ref = ref;
+        _pw.push(one);
+      });
+    }
+    if (_pw.length) body.draft.photoWish = _pw;   // 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 위 photo·photoFx 와 같은 규칙)
     // 하객 사진 모으기 링크(선택) — 부부가 만든 외부 공유 앨범/오픈채팅. http(s)만·최대 300자. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
     var _psu = String(gir.photoShareUrl || '').trim().slice(0, 300);
     if (/^https?:\/\//i.test(_psu)) body.draft.photoShareUrl = _psu;

@@ -36,7 +36,7 @@ try {
     meas('애프터 웨딩 2/2(짧음)', box, box.firstElementChild);
     TRKFLOW.active = false; _prodFsSync();
     // 단체 사진 · 스냅 — 자체 오버레이
-    startPhotoFlow({ photo: ['양가 가족 전체'], photoFx: [], photoShareUrl: '' }); await w(220);
+    startPhotoFlow({ photo: ['양가 가족 전체'], photoWish: [], photoShareUrl: '' }); await w(220);
     meas('단체 사진', document.getElementById('mp_photoBody'), document.getElementById('mp_photoBody').firstElementChild);
     _photoTearDown();
     startSnapFlow({}); await w(220);

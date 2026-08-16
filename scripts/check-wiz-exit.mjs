@@ -126,7 +126,7 @@ try {
 
     // ── 단체 사진 · 스냅 ──
     await step('photo: 손잡이 둘 · 자동저장 안내 없음', async () => {
-      startPhotoFlow({ photo: ['양가 가족 전체'], photoFx: [], photoShareUrl: '' }); await w(150);
+      startPhotoFlow({ photo: ['양가 가족 전체'], photoWish: [], photoShareUrl: '' }); await w(150);
       const ov = document.getElementById('mp_photoOverlay');
       const txt = ov.innerText;
       return { save: !!ov.querySelector('[data-wiz-save]'), exit: !!ov.querySelector('[data-wiz-exit]'), autoNote: /나갈 때 자동으로 저장/.test(txt) };
@@ -136,7 +136,7 @@ try {
       return { modal: document.getElementById('mpModal').classList.contains('open'), gone: !document.getElementById('mp_photoOverlay') };
     });
     await step('photo: 바꾸고 나가기 = 판 뜸', async () => {
-      startPhotoFlow({ photo: ['양가 가족 전체'], photoFx: [], photoShareUrl: '' }); await w(150);
+      startPhotoFlow({ photo: ['양가 가족 전체'], photoWish: [], photoShareUrl: '' }); await w(150);
       PHOTOFLOW.sel.push('친구들과');
       _wizExit(); await w(200);
       const open = document.getElementById('mpModal').classList.contains('open');

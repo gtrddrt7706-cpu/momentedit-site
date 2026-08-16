@@ -519,6 +519,18 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-qr img,.ph-qr canvas{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
 .ph-chip{font-family:var(--serif-ko);font-size:13px;color:var(--gold-deeper);background:#fff;border:1px dashed var(--gold-btn,#C9B48F);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:44px}
 .ph-chip:active{background:rgba(184,154,117,.08)}
+/* ★[PHOTO_WISH 2026-08-16] 「꼭 담고 싶은 사진」 요청 카드 — 고르는 카드(.pfx-*)를 대신한다.
+   한 요청 = 한 상자(어떤 사진·누구와·참고 링크)라, 상자 경계가 곧 '이 셋은 한 덩어리'라는 뜻이다.
+   ★.pfx-* 규칙은 남겨 뒀다 — 예시 칩과 옛 저장분 표시가 아직 .ph-chip 을 쓰고, 상자 안 간격이 그 톤을 따른다. */
+.wsh-list{margin:8px 0 0;display:flex;flex-direction:column;gap:10px}
+.wsh-item{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px 12px 12px}
+.wsh-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.wsh-no{width:22px;height:22px;border-radius:50%;background:var(--gold-deep);color:#fff;font-family:var(--serif-ko);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.wsh-item .cc-input{margin:6px 0 0}
+.wsh-what{min-height:58px}
+.wsh-ref-ok{margin-top:5px;font-size:11px}
+.wsh-ref-ok a{color:var(--gold-deep);text-decoration:none}
+.wsh-pick{min-height:36px;padding:5px 11px;font-size:12px}   /* 상자 안 보조 칩 — 본문 칩(44px)보다 한 단 낮춘다(누르는 것이 아니라 '채우는' 것) */
 /* 단체컷 '함께 하는 동작' 예시 카드(무드단어 클릭 → 구도가 보이는 카드 개편 2026-07-20 · marker: pfx-card) */
 .pfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:8px 0 0}
 .pfx-card{position:relative;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column}
@@ -4839,7 +4851,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var cfLabel=_cfOk?('확정함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확정 필요':'내용 확인');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
-  var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=(_gpB2.photoFx||[]).length;
+  var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=((_gpB2.photoWish||[]).length||(_gpB2.photoFx||[]).length);   // [PHOTO_WISH] 요청 우선 · 옛 저장분(photoFx)도 완료로 센다
   // TRK_BTN_SAME(2026-07-25 사용자 지시): '지금 할 차례' 강조 폐지 → 강조 대상 계산(_cfPrimary·_firstTodo)도 함께 제거. ★복원 금지
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   // MPD4_H4 완료 행 접기(§9-5-②) — ★11차 판정: 2026-07-19 금지(카드 전체 아코디언·var allDone=false)와 별개.
@@ -4875,7 +4887,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
           (_seatDone?'완료 · 수정':(((t.seat||'')==='진행중')?'이어하기':'시작하기')),
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
-    { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _fx=_gp.photoFx||[]; var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_fx.length?'연출 '+_fx.length+'개':'구도 고르기'); return row('단체 사진', (_ph.length||_fx.length)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) */
+    { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _wc=((_gp.photoWish||[]).length||(_gp.photoFx||[]).length); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_wc?('요청 '+_wc+'개'):'구도 고르기'); return row('단체 사진', (_ph.length||_wc)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) */
   ];
   /* ★★[TRK_NO_FOLD 2026-08-09 사용자 지시] 완료 행 접기 폐지 — 언제나 전부 보인다.
      > 사용자 원문: *"접히게 하지말자 완료된것들 접히는데 그냥 전체볼수잇게 접히게말고"*
@@ -5005,7 +5017,7 @@ var WIZ_ADAPT={
         exitBare:function(){ bkKill(SEATFLOW); SEATFLOW.active=false; _mpRefresh(); },
         own:function(){ return SEATFLOW; } },
   photo:{ on:function(){ return typeof PHOTOFLOW!=='undefined' && PHOTOFLOW.active; },
-        data:function(){ return {s:PHOTOFLOW.sel, f:PHOTOFLOW.fx, u:PHOTOFLOW.share}; },
+        data:function(){ return {s:PHOTOFLOW.sel, w:PHOTOFLOW.wish, u:PHOTOFLOW.share}; },   // [PHOTO_WISH] 연출 배열 → 요청 목록(더러움 판정도 같은 값을 봐야 '저장 안 함'이 새지 않는다)
         save:function(){ return savePhoto(); },
         exitSave:function(){ exitPhotoFlow(); },
         exitBare:function(){ _photoTearDown(); _mpRefresh(); },
@@ -6065,7 +6077,7 @@ function photoMeta(n){ for(var i=0;i<PHOTO_PRESETS.length;i++) if(PHOTO_PRESETS[
 /* ★[PHOTO_MIN] 예상 시간 — 5차 리서치 실측. 20명 이상 한 컷 6~10분(25명은 하단값 6분) ·
    작은 그룹은 그룹당 2~3분. 상한만 두면 고객은 다 채운다. **분이 늘어나는 게 보여야 스스로 조절한다.** */
 function photoMins(sel){ return 6 + (sel||[]).length * 3; }
-// 단체컷 '함께 하는 동작' 예시 카드 — 무드단어 클릭에서 '구도가 보이는 카드'로 개편(2026-07-20 회의: 디렉터·UX·브랜드 3관점 + 예비부부 2인 점검 반영 · marker: PHOTO_FX_CARDS).
+// 단체컷 '함께 하는 동작' 예시 카드 — 무드단어 클릭에서 '구도가 보이는 카드'로 개편(2026-07-20 회의: 디렉터·UX·브랜드 3관점 + 예비부부 2인 점검 반영 · marker: PHOTO_WISH_EX · 구 PHOTO_FX_CARDS).
 //   변경: 부부 둘러싸고 위에서 → '살짝 높은 곳에서 다 함께'(실내 천장고·소음·안전으로 드론/부감 비현실 → 준부감) · 셀카는 '부부가 폰, 넓은 컷은 촬영감독' 재정의 · '다 함께 부부를 바라보기' 추가 · '다 함께 박수·환호' → '박수로 맺는 한 컷'(환호는 진행 순간으로) · '폰 플래시 흔들기'·'다 함께 활짝 웃기' 제외(원하면 직접 추가). 저장값은 카드 제목 문자열(photoFx) — 스토리지·표시(guide/admin/GAS) 무변경. 그림은 currentColor 구도 예시(실촬영과 다름 · 실사진 교체 예정). 꽃가루·컨페티·폭죽은 청소 리스크로 계속 제외
 /* ★★[PHOTO_FX_V2 2026-08-08] 연출 카드 재작성 — 5차 리서치 + 사용자 결정.
    ★그림(인라인 SVG)을 **전부 뺐다.** 2026-07-20 에 '무드단어 → 구도가 보이는 카드'로 개편하며
@@ -6090,7 +6102,32 @@ function photoMins(sel){ return 6 + (sel||[]).length * 3; }
       축배를 고르셨으면 잔은 이미 손에 있고, 안 고르셨으면 잔부터 챙겨야 한다.
       `link.when` 은 식순 초안 summary.flow 에 실리는 **블록 이름 그대로**여야 한다
       (scripts/check-photo-scene.mjs 가 order-preview.html 과 대조한다). */
-var PHOTO_FX_CARDS=[
+/* ★★★[PHOTO_WISH 2026-08-16 사용자 지시] **고르는 카드를 없앴다.** 이 목록은 이제 «예시»다.
+   사용자 원문: *"어차피 식순이벤트에서 정해져있는 포토가 있고 그또한 고객한테 안내하는걸로
+   바꿨으니깐 고르게 하지말고 꼭 넣고싶은 사진이있다 그럴땐 첨부참고링크를 첨부할수있게 하고
+   구체적으로 어떤 식의 사진을 원하는건지 적으룻있게 하자 구성원까지도 전달할수있게 하고"*
+
+   ■ 왜 고르게 하면 안 되나
+     바로 위에 「예식 순서에서 남는 사진」 칸이 생기면서, 이 화면은 이미 **무엇이 담기는지**를 말한다.
+     그 아래에 또 열 장을 늘어놓고 고르라 하면 고객은 «남는 사진» 위에 «골라야 할 숙제»를 하나 더 받는다.
+     그리고 열 장은 우리가 정한 열 장이라, 정작 그 부부에게 **하나뿐인 사진**은 목록에 없다
+     (돌아가신 분의 자리·반려견·오래된 친구 넷). 고르기는 그걸 담을 칸을 주지 않는다.
+
+   ■ 그래서 셋을 한 덩어리로 받는다 — {어떤 사진 · 누구와 · 참고 링크}
+     ★따로 두면 안 된다. 스냅 기획(snap)이 refs(링크)와 mustHaves(문장)를 **서로 떨어진 목록**으로 두는데,
+       링크 셋·문장 셋이 되는 순간 «어느 링크가 어느 요청인지» 아무도 모른다. 단체 사진은 '누구와'까지
+       있어 더 심하다. 한 요청 안에 셋을 묶으면 작가가 그 줄만 보고 바로 준비할 수 있다.
+     ★이 형태가 스냅보다 낫다 — 나중에 스냅도 이쪽으로 맞출 것.
+
+   ■ 이 목록(PHOTO_WISH_EX)이 남은 이유 셋
+     ① **백지를 막는다.** 자유 서술의 최대 적은 빈 칸이다. 눌러서 문장을 가져다 쓰는 출발점으로 둔다.
+        ★고르기가 아니다 — 눌러도 «선택»되지 않고 입력칸에 글자가 들어갈 뿐이고, 그 뒤엔 고쳐 쓸 수 있다.
+     ② **옛 저장분(photoFx)의 이름이 여기 있다.** 그 이름으로 골라 둔 부부가 이미 있고,
+        화면을 열면 이 목록을 근거로 요청으로 이어받는다(아래 _wishFromFx).
+     ③ **확인서 대조(PHOTO_FX_STALE)의 근거**가 link 필드다 — 축배를 뺐는데 잔이 필요한 요청이
+        남아 있는지 본다. 근거를 두 곳에 적지 않으려고 한 목록으로 겸한다.
+   ★`need`·`link` 를 지우지 말 것 — ②③이 여기 매여 있다. */
+var PHOTO_WISH_EX=[
  {n:'앉은 줄 + 선 줄', c:'의자에 앉은 줄 뒤로 선 줄', need:'의자 몇 개 · 어르신 대기용으로 두는 그 의자를 그대로 써요'},
  {n:'V자로 어깨만 안쪽으로', c:'두 분 쪽으로 살짝 돌려 서요 · 한 마디면 됩니다', need:''},
  {n:'잔 부딪히기', c:'옆사람과 잔을 부딪히는 순간 · 시선이 서로에게 가요', need:'잔',
@@ -6104,6 +6141,26 @@ var PHOTO_FX_CARDS=[
  {n:'다 함께 셀카', c:'두 분이 폰을 들고 · 넓은 컷은 작가가 함께', need:'두 분 휴대폰'},
  {n:'그냥 대화하게 두기', c:'정렬을 풀고 이야기하는 그대로 · 아무것도 안 하는 것도 선택이에요', need:''}
 ];
+/* [PHOTO_WISH] 요청 하나 = {what 어떤 사진 · who 누구와 · ref 참고 링크}. what 만 있으면 성립한다.
+   ★who 는 자유 입력이되 위 구도 목록을 칩으로 권한다 — '누구와'가 안 적히면 작가가 그 요청을
+     **부를 수가 없다**(단체 사진에서 가장 자주 비는 칸이 이것이다).
+   ★ref 는 http(s) 만. 우리는 그 그림을 못 보고 링크를 열 뿐이라, 만료되는 링크(스토리·카톡)는 안내로 막는다. */
+var PHOTO_WISH_MAX=2;      // [PHOTO_CAP] 마지막 토막 4~5분 · 요청 하나에 1분 남짓 — 옛 연출 상한과 같은 근거
+var WISH_WHAT_MAX=80, WISH_WHO_MAX=40, WISH_REF_MAX=300;
+function wishNorm(w){ w=w||{};
+  return { what:String(w.what||'').replace(/[<>]/g,'').trim().slice(0,WISH_WHAT_MAX),
+           who:String(w.who||'').replace(/[<>]/g,'').trim().slice(0,WISH_WHO_MAX),
+           ref:photoShareNorm(w.ref) }; }   // ref 정규화는 하객 사진 링크와 같은 규칙(http(s)·300자)을 그대로 쓴다
+function wishClean(list){ return (list||[]).map(wishNorm).filter(function(w){ return w.what; }).slice(0,PHOTO_WISH_MAX); }
+/* ★[WISH_FROM_FX] 옛 저장분 이어받기 — photoFx(카드 이름 배열)로 골라 둔 부부가 이미 있다.
+   카드를 없앴다고 그 선택을 버리면 **고객이 적어 둔 것이 조용히 사라진다**(이 저장소에서 가장 나쁜 사고 유형).
+   화면을 열 때 요청으로 옮겨 보여 주고, 예시 목록에 있는 이름이면 설명(c)까지 붙여 문장으로 만든다. */
+function _wishFromFx(fx){
+  return (fx||[]).slice(0,PHOTO_WISH_MAX).map(function(n){
+    var e=null; for(var i=0;i<PHOTO_WISH_EX.length;i++) if(PHOTO_WISH_EX[i].n===n) e=PHOTO_WISH_EX[i];
+    return wishNorm({ what: e?(e.n+' · '+e.c):n, who:'', ref:'' });
+  }).filter(function(w){ return w.what; });
+}
 /* ★★[PHOTO_SCENE 2026-08-16 사용자 지시] 식순에서 고른 순간 → 그날 남는 사진.
    ★고르는 칸이 아니다. 이미 담기는 것을 **보여 주기만** 한다 — 체크박스도 상한도 없다.
      고르게 만드는 순간 "안 고르면 안 찍히나"라는 반대 뜻이 생긴다.
@@ -6142,7 +6199,7 @@ function photoSceneList(rd){
   var on=PHOTO_SCENE.filter(function(x){ return flow.indexOf(x.n)>-1; });
   return on.length?on:null;
 }
-var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터·호환용 이름 목록
+// [PHOTO_WISH] 옛 `PHOTO_FX`(이름 목록)는 카드 선택을 거르던 배열이라 함께 없앴다 — 고르는 것이 사라졌으므로 거를 것도 없다
 /* ★[PHOTO_LIMIT 2026-08-08] 11 → 6. 5차 리서치 실측으로 11개는 물리적으로 불가능해졌다 —
    전체컷 6분 + 11컷 × 3분 = 39분인데 배정 시간이 30분이다. 6개면 6+18=24분으로 들어간다. */
 /* ★★[PHOTO_CAP 2026-08-09 · DAY_PLAN] 상한은 「다 함께」 길이에서 나온다 — 취향이 아니다.
@@ -6153,7 +6210,7 @@ var PHOTO_FX=PHOTO_FX_CARDS.map(function(c){ return c.n; });   // 저장·필터
    구도 6 → 5 (photoMins 24 → 21분) · 연출 3 → 2 (약 1분) · 경고선 24 → 19분.
    ★다 함께 길이를 또 바꾸면 이 셋을 함께 옮길 것. assets/ritual-data.js 의 DAY 가 원천이다. */
 var PHOTO_MAX=5;    // 전체 하객 제외 추가 구도 상한(총 6컷)
-var PHOTO_FX_MAX=2;   // 연출 상한 — 마지막 토막이 4~5분이고 연출 하나에 1분 남짓
+// [PHOTO_WISH] 옛 `PHOTO_FX_MAX`(연출 상한 2)는 PHOTO_WISH_MAX 로 이름만 옮겼다 — 근거(마지막 토막 4~5분)는 같다
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
@@ -6161,7 +6218,10 @@ function photoShareNorm(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//
 function startPhotoFlow(gi, rd){   // rd = 식순 초안(읽기 전용 · [PHOTO_SCENE] 장면 목록에만 쓴다 · savePhoto 는 건드리지 않는다)
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
   if(typeof SNAPFLOW!=='undefined'){ bkKill(SNAPFLOW); SNAPFLOW.active=false; var _so=$('mp_snapOverlay'); if(_so&&_so.parentNode) _so.parentNode.removeChild(_so); }
-  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), fx:(((gi||{}).photoFx)||[]).slice(), share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null) };
+  /* [PHOTO_WISH] 요청 목록 — 저장본에 photoWish 가 있으면 그것, 없고 옛 photoFx 만 있으면 이어받는다.
+     ★둘 다 있으면 photoWish 가 이긴다(이미 새 화면에서 고쳐 쓴 것이므로 옛 값으로 되돌리지 않는다). */
+  var _sv=(((gi||{}).photoWish)||[]), _wish=_sv.length?wishClean(_sv):_wishFromFx(((gi||{}).photoFx)||[]);
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), wish:_wish, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null) };
   // 식순·스냅과 동일한 전체화면 오버레이(진행바·다른 카드를 덮어 집중도 향상 · marker: PROD_OVERLAY 2026-07-19 사용자 지시). 별도 fixed div라 renderProduction과 독립(pull-refresh 무관)
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','단체 사진');
@@ -6177,7 +6237,7 @@ function startPhotoFlow(gi, rd){   // rd = 식순 초안(읽기 전용 · [PHOTO
   body.scrollTop=0;
 }
 function renderPhoto(box){
-  if(!box) return; var sel=PHOTOFLOW.sel, fx=PHOTOFLOW.fx=(PHOTOFLOW.fx||[]);
+  if(!box) return; var sel=PHOTOFLOW.sel, wish=PHOTOFLOW.wish=(PHOTOFLOW.wish||[]);
   var h='<div class="consult-card" style="text-align:left">';
   h+='<div class="inv-head"><span class="inv-step-n">단체 사진 · 촬영 구도</span>'+wizActs()+'</div>';
   /* [WIZ_EXIT_ONE] '고른 내용은 나갈 때 자동으로 저장돼요' 줄 삭제 — 나가기는 더 이상 몰래 저장하지 않는다.
@@ -6226,32 +6286,44 @@ function renderPhoto(box){
   } else {
     h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">식순을 정하시면, 그날 어떤 장면이 사진으로 남는지 여기에 함께 보여 드려요 · <b>먼저 정하지 않으셔도 아래는 그대로 고르실 수 있어요</b>.</div>';   // [PHOTO_SCENE] 빈 칸이 '식순부터 해야 하나'로 읽히지 않게 — 두 트랙은 서로 독립이다
   }
-  // 단체컷 '함께 하는 동작' — [PHOTO_FX_V2 2026-08-08] 그림을 빼고 이름·한 줄·필요한 것 세 줄로. 사진작가·디렉터 전달용
-  /* [PHOTO_SCENE_VOICE] 「여기에 더할」은 **여기가 어디인지**가 없었다(위 장면인가 단체 사진인가).
-     이름에 대상을 넣고, 안내는 두 마디로 줄인다 — 위 칸이 이미 "저건 그대로 담긴다"를 말했으므로
-     여기서 또 말하면 같은 안심이 세 번(칸 이름·안내·아래 메아리 줄) 반복된다. */
-  h+='<div class="ph-sec">단체 사진에 더할 동작 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 전달돼요</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">모여 선 단체 사진에서 다 같이 하는 동작이에요 · <b>두 개까지</b> 고르실 수 있고, 개수로 비용은 바뀌지 않아요. <b>「준비할 것」이 적힌 카드</b>만 미리 챙기시면 돼요.</div>';
-  h+='<div class="pfx-grid">';
-  var _flow=((PHOTOFLOW.rd||{}).summary||{}).flow||null;   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 아예 안 그린다(넘겨짚지 않는다)
-  PHOTO_FX_CARDS.forEach(function(c){ var on=fx.indexOf(c.n)>-1;
-    /* [PHOTO_FX_LINK] 연동이 '이미 손에 있다'고 말하는 카드에서는 「준비할 것」을 접는다 —
-       축배를 고르신 분에게 '준비할 것 · 잔'과 '축배 때 든 잔 그대로'가 같이 뜨면, 있는 것을
-       또 챙기라는 말이 된다. 없다고 말할 때(off)는 반대로 준비물이 남아야 한다. */
-    var _lk='', _need=c.need;
-    if(c.link && _flow){ var _has=_flow.indexOf(c.link.when)>-1, _t=_has?c.link.on:c.link.off;
-      if(_t) _lk='<div class="pfx-link">'+escapeHtml(_t)+'</div>';
-      if(_has && c.link.on) _need=''; }
-    h+='<div class="pfx-card'+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-pfx="'+escapeHtml(c.n)+'">'
-      +'<span class="pfx-ck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span>'
-      +'<div class="pfx-meta"><div class="pfx-ttl">'+escapeHtml(c.n)+'</div><div class="pfx-cap">'+escapeHtml(c.c)+'</div>'
-      +(_need?('<div class="pfx-need">준비할 것 · '+escapeHtml(_need)+'</div>'):'')+_lk+'</div></div>'; });
-  h+='</div>';
-  var _fxExtra=fx.filter(function(n){ return PHOTO_FX.indexOf(n)<0; });   // 예전에 고른/직접 추가한 동작(프리셋에 없는 것) — 무음 유실 방지 위해 계속 노출
-  if(_fxExtra.length){ h+='<div class="ph-chips" style="margin-top:8px">'; _fxExtra.forEach(function(n){ h+='<span class="ph-chip fxon" data-pfx="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; }); h+='</div>'; }
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_fxAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 파도타기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_fxAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
-  h+='<div class="pfx-echo">'+(fx.length?('고른 동작 <b>'+fx.length+'가지</b>로 준비할게요 · 언제든 바꿀 수 있어요'):'아직 고른 동작이 없어요 · <b>위 장면과 전체 하객 단체컷은 그대로 담겨요</b>')+'</div>';
-  h+='<details class="cc-more" style="margin-top:8px"><summary>동작은 어떻게 찍히나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">모여 선 단체컷에서 다 같이 하는 동작이에요. 여기서 고르지 않아도 <b>눈물·웃음·포옹·환호</b>처럼 흐름 속에 나오는 순간은 사진작가가 그대로 담아요 · 억지로 만들지 않아요.</div></details>';   // MPD_E10 설명 접기 강등
+  /* ★★★[PHOTO_WISH] 「꼭 담고 싶은 사진」 — 고르는 카드 열 장을 없애고 **적는 칸**으로 바꿨다.
+     위 칸이 이미 무엇이 담기는지를 말하므로, 여기서 물을 것은 하나뿐이다: 그것 말고 더 있나요.
+     ★셋을 한 요청 안에 묶는다(어떤 사진·누구와·참고 링크) — 따로 두면 어느 링크가 어느 요청인지 모른다. */
+  var _flow=((PHOTOFLOW.rd||{}).summary||{}).flow||null;   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 안 그린다(넘겨짚지 않는다)
+  h+='<div class="ph-sec">꼭 담고 싶은 사진 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 그대로 전달돼요</span></div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">위에 없는데 <b>이건 꼭 남기고 싶다</b> 하는 사진이 있으면 적어 주세요 · <b>'+PHOTO_WISH_MAX+'개까지</b>, 개수로 비용은 바뀌지 않아요. 어떤 사진인지와 <b>누구와 함께인지</b>를 같이 적어 주시면 그날 부를 수 있어요.</div>';
+  if(wish.length){
+    h+='<div class="wsh-list">';
+    wish.forEach(function(w,i){
+      h+='<div class="wsh-item"><div class="wsh-hd"><span class="wsh-no">'+(i+1)+'</span><button type="button" class="ph-del" data-wdel="'+i+'" aria-label="이 요청 빼기">✕</button></div>';
+      h+='<textarea class="cc-input wsh-what" data-wf="what" data-wi="'+i+'" maxlength="'+WISH_WHAT_MAX+'" placeholder="어떤 사진인가요 (예: 할머니 앉으신 옆에 두 분이 쪼그려 앉아 눈높이 맞춘 컷)">'+escapeHtml(w.what||'')+'</textarea>';
+      h+='<input class="cc-input wsh-who" data-wf="who" data-wi="'+i+'" maxlength="'+WISH_WHO_MAX+'" autocomplete="off" placeholder="누구와 (예: 신부 측 할머니·이모님)" value="'+escapeHtml(w.who||'')+'">';
+      // 누구와 — 위에서 고른 구도를 그대로 권한다(가장 자주 비는 칸이라 한 번 눌러 채우게)
+      var _who=['두 분만','전체 하객'].concat(PHOTOFLOW.sel.slice(0,4));
+      h+='<div class="ph-chips" style="margin-top:6px">'+_who.map(function(n){ return '<span class="ph-chip wsh-pick" data-wwho="'+escapeHtml(n)+'" data-wi="'+i+'">'+escapeHtml(n)+'</span>'; }).join('')+'</div>';
+      h+='<input class="cc-input wsh-ref" data-wf="ref" data-wi="'+i+'" type="url" inputmode="url" maxlength="'+WISH_REF_MAX+'" autocomplete="off" placeholder="참고 사진 링크 (선택 · https://...)" value="'+escapeHtml(w.ref||'')+'">';
+      if(w.ref) h+='<div class="wsh-ref-ok"><a href="'+escapeHtml(safeUrl(w.ref))+'" target="_blank" rel="noopener">링크 열어 확인하기</a></div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  if(wish.length<PHOTO_WISH_MAX) h+='<button type="button" class="cc-btn-ghost" id="mp_wishAdd" style="width:100%;margin-top:8px">'+(wish.length?'하나 더 적기':'꼭 담고 싶은 사진 적기')+'</button>';
+  /* ★[WISH_QUIET] 아래 두 안내는 **요청이 하나라도 있을 때만** 뜬다.
+     빈 화면에서 참고 링크 규칙과 「식순에 축배가 없어요」를 먼저 읽히면, 아직 적지도 않은 요청에 대한
+     주의부터 받는 셈이라 '적지 말라'는 말로 읽힌다. 적기 시작한 순간에 필요한 말이다. */
+  if(wish.length) h+='<div class="cc-note" style="text-align:left;margin-top:8px">참고 링크는 <b>핀터레스트·인스타 게시물</b>처럼 나중에도 열리는 주소로 주세요 · 스토리·카톡 링크는 며칠 뒤 만료돼 저희가 못 열어요. 똑같이 따라 찍는 게 아니라 <b>구도와 분위기를 읽는 용도</b>예요.</div>';
+  /* [PHOTO_FX_LINK] 식순 연동은 카드가 사라져도 남는다 — 다만 이제 '카드 배지'가 아니라
+     **적는 중에 알려 주는 한 줄**이다(잔이 필요한 요청을 적을 때 축배가 없으면 그때 알아야 한다). */
+  if(_flow && wish.length){
+    var _lkNote=[];
+    PHOTO_WISH_EX.forEach(function(c){ if(!c.link||!c.link.off) return;
+      if(_flow.indexOf(c.link.when)<0) _lkNote.push('식순에 <b>'+escapeHtml(c.link.when)+'</b>가 없어요 · '+escapeHtml(c.n)+' 같은 요청은 '+escapeHtml(c.need||'준비물')+'을 저희가 따로 챙겨 드려요'); });
+    if(_lkNote.length) h+='<div class="cc-note" style="text-align:left;margin-top:6px">'+_lkNote.join('<br>')+'</div>';
+  }
+  /* [PHOTO_WISH] 예시 — **고르기가 아니라 쓰기의 출발점**이다. 누르면 입력칸에 문장이 들어가고,
+     그 뒤엔 고쳐 쓸 수 있다. 백지 앞에서 막히는 것이 자유 서술의 가장 큰 함정이라 접어서 둔다. */
+  h+='<details class="cc-more" style="margin-top:8px"><summary>어떻게 적으면 되나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">눌러서 가져다 쓰고, 두 분 말로 고치시면 돼요. 아무것도 안 적으셔도 <b>위 장면과 전체 하객 단체컷은 그대로 담겨요</b>.</div><div class="ph-chips" style="margin-top:8px">'
+    +PHOTO_WISH_EX.map(function(c){ return '<span class="ph-chip" data-wex="'+escapeHtml(c.n+' · '+c.c)+'">'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리)
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
@@ -6293,16 +6365,31 @@ function renderPhoto(box){
     sel.push(v); inp.value=''; rerender(); }
   if(btn) btn.addEventListener('click', add);
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
-  // 이벤트/연출 — 다중 선택(토글) + 직접 추가
-  function fxToggle(n){ var i=fx.indexOf(n); if(i>-1){ fx.splice(i,1); } else { if(fx.length>=PHOTO_FX_MAX){ mpAlert('동작이 많아요. 대표적인 것 위주로 골라 주세요.'); return; } fx.push(n); } rerender(); }
-  Array.prototype.forEach.call(box.querySelectorAll('[data-pfx]'), function(el){ _kbChip(el, function(){ fxToggle(el.getAttribute('data-pfx')); }); });   // MPD4_F3 fxon 스팬도 role·tabindex 확보(카드는 기대응)
-  var fxi=$('mp_fxAdd'), fxb=$('mp_fxAddBtn');
-  function fxAdd(){ if(!fxi) return; var v=(fxi.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
-    if(fx.indexOf(v)>-1){ fxi.value=''; mpAlert('이미 담긴 동작이에요.'); return; }
-    if(fx.length>=PHOTO_FX_MAX){ mpAlert('동작이 많아요. 대표적인 것 위주로 골라 주세요.'); return; }
-    fx.push(v); fxi.value=''; rerender(); }
-  if(fxb) fxb.addEventListener('click', fxAdd);
-  if(fxi) fxi.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); fxAdd(); } });
+  /* ★[PHOTO_WISH] 요청 칸 — 글자를 칠 때마다 **모델에만** 담고 다시 그리지 않는다.
+     ★재렌더하면 그 순간 커서가 날아가고 폰 키보드가 접힌다. 좌석 이름칸에서 한 번 겪은 사고와 같은 형태다
+       (SEAT_DIRTY_KEEP). 다시 그려야 하는 것은 추가·삭제·칩 채우기뿐이다. */
+  function wishSet(i,f,v){ if(!wish[i]) return; wish[i][f]=v; }
+  Array.prototype.forEach.call(box.querySelectorAll('[data-wf]'), function(el){
+    var i=+el.getAttribute('data-wi'), f=el.getAttribute('data-wf');
+    el.addEventListener('input', function(){ wishSet(i,f,el.value); });
+  });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-wdel]'), function(el){
+    el.addEventListener('click', function(){ wish.splice(+el.getAttribute('data-wdel'),1); rerender(); }); });
+  // '누구와' 칩 — 비어 있으면 채우고, 이미 있으면 ' · '로 잇는다(할머니와 이모님처럼 둘인 경우가 흔하다)
+  Array.prototype.forEach.call(box.querySelectorAll('[data-wwho]'), function(el){
+    _kbChip(el, function(){ var i=+el.getAttribute('data-wi'), n=el.getAttribute('data-wwho'); if(!wish[i]) return;
+      var cur=String(wish[i].who||'').trim();
+      if(cur.split(' · ').indexOf(n)>-1) return;                       // 같은 것을 두 번 넣지 않는다
+      wish[i].who=(cur?(cur+' · '):'')+n; rerender(); }); });
+  var wab=$('mp_wishAdd');
+  if(wab) wab.addEventListener('click', function(){ if(wish.length>=PHOTO_WISH_MAX) return; wish.push({what:'',who:'',ref:''}); rerender(); });
+  // 예시 — 고르기가 아니라 **가져다 쓰기**. 빈 요청이 있으면 거기에, 없으면 새로 하나 만들어 넣는다
+  Array.prototype.forEach.call(box.querySelectorAll('[data-wex]'), function(el){
+    _kbChip(el, function(){ var t=el.getAttribute('data-wex');
+      var slot=-1; for(var i=0;i<wish.length;i++) if(!String(wish[i].what||'').trim()){ slot=i; break; }
+      if(slot<0){ if(wish.length>=PHOTO_WISH_MAX){ mpAlert('요청은 '+PHOTO_WISH_MAX+'개까지예요. 하나를 지우고 다시 눌러 주세요.'); return; }
+        wish.push({what:'',who:'',ref:''}); slot=wish.length-1; }
+      wish[slot].what=String(t).slice(0,WISH_WHAT_MAX); rerender(); }); });
   // 하객 사진 모으기 링크 — 입력 즉시 모델 반영(포커스 유지 위해 전체 재렌더 없이 QR만 갱신)
   function photoShareQrRender(){
     var u=photoShareNorm(PHOTOFLOW.share), qbox=$('mp_photoShareQr'), sv=$('mp_photoShareQrSave'); if(!qbox) return;
@@ -6317,7 +6404,10 @@ function renderPhoto(box){
 function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설정·예약값도 함께 실어 photo만 저장하다 그것들이 지워지지 않게
   var gi=PHOTOFLOW.gi||{};
   return _wizWatch('photo', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:{
-    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:(PHOTOFLOW.fx||[]).slice(), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
+    /* [PHOTO_WISH] photoFx 는 **빈 배열로 보낸다** — 화면을 열 때 요청(photoWish)으로 이어받았으므로
+       그대로 두면 관리자 화면에 같은 내용이 두 줄로 뜬다. 서버는 빈 값 키를 생략하므로 열이 정리된다.
+       ★키 자체를 빼면 안 된다 — 옛 값이 서버에 남아 이어받기가 매번 되살아난다(요청을 지워도 돌아온다). */
+    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:[], photoWish:wishClean(PHOTOFLOW.wish), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
   }, done:true}));
 }
 var _flowBusyT=0, _flowBusyEl=null, _flowBusyKill=0;
@@ -6625,19 +6715,32 @@ function prodConfirmHtml(p, inv){
   L+=line('좌석 배치', sv);
   // 단체 사진 — 본식 뒤 단체 기록 구도(전체 하객 외 추가분이 있을 때만 표기 · 2026-07-19)
   var _phL=(gi.photo&&gi.photo.length)?gi.photo:null, _phFx=(gi.photoFx&&gi.photoFx.length)?gi.photoFx:null;
-  if(_phL||_phFx){ var _pv=''; if(_phL) _pv='전체 하객 · '+_phL.map(escapeHtml).join(' · ')+' <span class="cc-mini">('+(_phL.length+1)+'컷)</span>'; if(_phFx) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">연출 · '+_phFx.map(escapeHtml).join(' · ')+'</span>'; L+=line('단체 사진', _pv); }
+  /* [PHOTO_WISH] 요청은 확인서에서도 **적은 그대로** 보여야 한다 — 이름 목록이 아니라 문장이라
+     한 줄로 뭉개면 무엇을 부탁했는지가 사라진다. 누구와·링크가 있으면 아래 작은 줄로 붙인다. */
+  var _phW=(gi.photoWish&&gi.photoWish.length)?gi.photoWish:null;
+  if(_phL||_phFx||_phW){ var _pv='';
+    if(_phL) _pv='전체 하객 · '+_phL.map(escapeHtml).join(' · ')+' <span class="cc-mini">('+(_phL.length+1)+'컷)</span>';
+    if(_phW) _phW.forEach(function(w){ var _sub=[]; if(w&&w.who) _sub.push('누구와 · '+escapeHtml(String(w.who))); if(w&&w.ref) _sub.push('<a href="'+escapeHtml(safeUrl(String(w.ref)))+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">참고 링크</a>');
+      _pv+=(_pv?'<br>':'')+'<span class="cc-mini">꼭 담고 싶은 사진 · '+escapeHtml(String((w&&w.what)||''))+(_sub.length?('<br>　'+_sub.join(' · ')):'')+'</span>'; });
+    if(_phFx) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">연출 · '+_phFx.map(escapeHtml).join(' · ')+'</span>';   // 옛 저장분(새 화면을 아직 안 연 부부)
+    L+=line('단체 사진', _pv); }
   /* ★★[PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 **그 화면을 열 때** 계산된다 —
      그래서 순서를 뒤집으면 조용히 어긋난다: 축배가 있을 때 「잔 부딪히기」를 골라 두고 **나중에 식순에서 축배를 빼면**,
      저장된 photoFx 는 그대로 남고 단체 사진 화면을 다시 열어야만 그 사실이 보인다. 안 열면 당일까지 아무도 모른다.
      ★그래서 확인서에서 한 번 더 대조한다 — 좌석 배치 인원 ↔ 확정 인원 대조와 같은 자리·같은 이유(마지막에 한 번 더 본다).
-     ★판정 근거는 PHOTO_FX_CARDS 의 link 하나뿐이다. 여기에 조건을 손으로 또 적으면 두 곳이 갈리고,
+     ★판정 근거는 PHOTO_WISH_EX 의 link 하나뿐이다. 여기에 조건을 손으로 또 적으면 두 곳이 갈리고,
        그날 화면과 확인서가 서로 다른 말을 한다(그게 이 대조가 막으려는 바로 그 사고다).
      ★막지 않는다 — 잔은 우리가 챙기면 되는 일이라 '틀렸다'가 아니라 '이렇게 진행된다'로 적는다. */
-  if(_phFx && rd && (rd.summary||{}).flow && (rd.summary.flow||[]).length){
+  if((_phFx||_phW) && rd && (rd.summary||{}).flow && (rd.summary.flow||[]).length){
     var _rf=rd.summary.flow;
-    (typeof PHOTO_FX_CARDS!=='undefined'?PHOTO_FX_CARDS:[]).forEach(function(c){
+    /* [PHOTO_WISH] 대조 대상이 둘이다 — 옛 이름 목록(photoFx)과, 요청의 글(photoWish[].what).
+       요청은 자유 서술이라 이름이 그 안에 **들어 있기만 해도** 잡는다(이어받기가 '이름 · 설명' 꼴로 넣으므로).
+       ★두 곳을 각각 세지 않고 한 줄로 합친 것은 같은 요청이 두 번 경고되지 않게 하려는 것이다. */
+    var _hay=[].concat(_phFx||[], (_phW||[]).map(function(w){ return String((w&&w.what)||''); }));
+    (typeof PHOTO_WISH_EX!=='undefined'?PHOTO_WISH_EX:[]).forEach(function(c){
       if(!c.link || !c.link.off) return;
-      if(_phFx.indexOf(c.n)>-1 && _rf.indexOf(c.link.when)<0) L+='<div class="cf-warn">'+escapeHtml('「'+c.n+'」 · '+c.link.off)+'</div>';
+      var hit=_hay.some(function(t){ return t===c.n || t.indexOf(c.n)>-1; });
+      if(hit && _rf.indexOf(c.link.when)<0) L+='<div class="cf-warn">'+escapeHtml('「'+c.n+'」 · '+c.link.off)+'</div>';
     });
   }
   // 좌석 배치 인원 ↔ 최종 확정 인원 대조(표시만 · 값 안 건드림) — 좌석은 마지막 주에 그리므로 확정과 어긋난 채 예식을 맞는 것 방지(2026-07-18 검토 반영)
@@ -6725,7 +6828,8 @@ function wireGuideInfoEditor(box, gi){
       reserveTime: String(gi.reserveTime||''),   // (이동 2026-07-17) 예약 정보 입력은 다이닝 위저드로 — 여기선 구 저장분 보존만(하객 화면은 다이닝 값 우선·지움 존중)
       reserveName: String(gi.reserveName||''),
       photo: (gi.photo||[]).slice(),   // 단체 사진 구도 통과 — 좌석 공개설정 저장이 photo를 지우지 않게(guideinfo 트랙 전체 교체 · 2026-07-19)
-      photoFx: (gi.photoFx||[]).slice(),   // 단체 사진 이벤트/연출도 함께 통과(2026-07-19)
+      photoFx: (gi.photoFx||[]).slice(),   // 단체 사진 이벤트/연출도 함께 통과(2026-07-19) · 옛 저장분 보존용
+      photoWish: (gi.photoWish||[]).slice(),   // ★[PHOTO_WISH] 꼭 담고 싶은 사진 요청도 함께 통과 — 좌석 공개설정만 바꿔도 guideinfo 트랙이 통째로 교체되므로, 여기 빠지면 요청이 조용히 지워진다
       photoShareUrl: photoShareNorm(gi.photoShareUrl)   // 하객 사진 모으기 링크도 통과(2026-07-19)
     };
   }

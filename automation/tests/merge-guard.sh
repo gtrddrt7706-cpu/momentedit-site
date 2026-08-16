@@ -359,7 +359,9 @@ chk 'dn-showtgl' mypage.html 3                     # 토글 CSS·마크업
 chk 'v.show === true' automation/platform/80_production.gs 2   # 서버 하객 노출=최종 선택(show)만 필터
 # ── 2026-07-19 단체 사진 전용화면(PHOTOFLOW·구도+연출 photoFx) — 병렬 세션 기능을 통합 브랜치에 포트(역전 방지)
 chk 'startPhotoFlow' mypage.html 2                  # 단체사진 전용화면 진입 함수+배선
-chk 'PHOTO_FX_MAX' mypage.html 3                    # 연출/이벤트 프리셋(photoFx) 상한+사용
+# ★[PHOTO_WISH 2026-08-16] 연출 카드 선택 폐지로 PHOTO_FX_MAX 는 PHOTO_WISH_MAX 로 대체됐다(근거는 같음 · 마지막 토막 4~5분).
+#   기능을 정당히 없앤 경우라 옛 마커를 지우고 새 이름을 센다 — 아래 PHOTO_WISH 블록이 그 자리를 지킨다.
+chk 'PHOTO_WISH_MAX' mypage.html 4                  # 요청 상한 정의 + 안내 문구 + 추가·예시 상한 판정
 chk 'photoFx:' mypage.html 2                        # 저장(savePhoto·guideinfo collect)에 연출 포함 — 공개 방식 저장이 연출 지우지 않게
 chk 'renderPhoto(box)' mypage.html 3                # PHOTOFLOW 렌더 디스패치(가드1)+정의+재렌더 (전용 오버레이 전환으로 start는 renderPhoto(inner) · 2026-07-19 4→3 갱신)
 # 음수 마커 — 통합 역전 시 분리된 옛 좌석 행 부활 감지(bd0ee33 4차 역전류 조기 감지)
@@ -388,7 +390,7 @@ chk "track !== 'snap'" automation/platform/80_production.gs 2      # snap 화이
 chk '스냅 기획 (촬영 전)' admin.html 1             # 관리자 상세 스냅 기획 블록
 # ── 2026-07-19 단체사진 동작·하객 사진 모으기(QR 갤러리)·전체화면 오버레이 전환
 chk '함께 하는 동작' mypage.html 1                 # 단체컷 동작 섹션(2026-07-20 '다 함께 하는 동작'→예시 카드형 개편)
-chk 'PHOTO_FX_CARDS' mypage.html 3                 # 동작 예시 카드 데이터(제목·의도·구도 SVG) + 렌더 + 이름 파생
+chk 'PHOTO_WISH_EX' mypage.html 4                  # [PHOTO_WISH] 구 PHOTO_FX_CARDS — 이제 '고르는 카드'가 아니라 예시·이어받기·확인서 대조의 근거
 chk 'pfx-card' mypage.html 2                       # 동작 예시 카드 CSS + 렌더 마크업(무드단어 클릭 → 구도 보이는 카드)
 chk 'photoShareNorm' mypage.html 3                 # 하객 사진 모으기 링크 정규화(QR 갤러리 파일럿)
 chk 'photoShareHtml' guide.html 2                  # 하객 안내 '사진 올리기' 버튼 섹션
@@ -1835,7 +1837,7 @@ chk "c.blockN === '배웅'" scripts/check-ritual-cue.js 1
 # [PHOTO_CAP] 다 함께가 짧아지면 사진 세팅 상한도 함께 내려간다(밀도의 함정 방지).
 chk 'PHOTO_CAP' mypage.html 2
 chk 'PHOTO_MAX=5' mypage.html 1
-chk 'PHOTO_FX_MAX=2' mypage.html 1
+chk 'PHOTO_WISH_MAX=2' mypage.html 1
 # [CONTRACT_V15] 계약서 v1.4 서명자는 보존본으로 열람
 chk 'archive/v1-4.html' admin.html 1
 chk 'archive/v1-4.html' mypage.html 1
@@ -1915,7 +1917,7 @@ chk '스태프가 차례로 안내' assets/ritual-cue.js 0      # 옛 문안(사
 #     (규칙: 마커가 정당하게 사라지면 가드 목록을 함께 갱신 · 남은 1은 목록 데이터 쪽 주석이라 여전히 유효).
 chk 'PHOTO_LIST_V2' mypage.html 1
 chk 'var PHOTO_MAX=5' mypage.html 1              # [PHOTO_CAP] 다 함께 30~39분에 맞춘 값 · 6으로 되돌리면 밀도의 함정
-chk 'var PHOTO_FX_MAX=2' mypage.html 1
+chk 'var PHOTO_WISH_MAX=2' mypage.html 1   # [PHOTO_WISH] 구 var PHOTO_FX_MAX=2 · 같은 근거(다 함께 마지막 토막)
 chk 'var PHOTO_MAX=11' mypage.html 0                # 옛 상한이 되살아나면 실패
 
 # [RINGWARM_RETIRED] 링 워밍 폐지(2026-08-07 사용자 "유치하고 별로") — 팔레트(GADD)에 되살리지 말 것.
@@ -3639,7 +3641,7 @@ nochk 'gather:true' mypage.html
 # [PHOTO_SCENE 2026-08-16] 식순에서 고른 순간 → 그날 남는 사진(읽기 전용 칸). 이름은 식순 블록 이름
 #   리터럴이라 빌더가 바꾸면 조용히 안 맞는다 → check-photo-scene.mjs 가 양쪽을 실제로 읽어 대조한다.
 chk 'PHOTO_SCENE' mypage.html 5
-chk 'PHOTO_FX_LINK' mypage.html 3
+chk 'PHOTO_FX_LINK' mypage.html 2   # [PHOTO_WISH]로 카드가 사라지며 배지 렌더 줄 1개가 정당히 없어졌다(연동 자체는 요청 안내로 남음)
 if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/dev/null \
   || { echo 'FAIL photo-scene: 단체 사진의 식순 연동 이름이 빌더 블록 이름과 다릅니다 — node scripts/check-photo-scene.mjs'; fail=1; }; fi
 # [MP_PHOTOSHARE_WHAT 2026-08-16 사용자 질문 "구글드라이브 주소를 주면되는거야?"] 무엇을 넣는지를 첫 줄에.
@@ -3649,9 +3651,8 @@ chk '예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 �
 # [PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 화면을 열 때 계산된다 —
 #   축배가 있을 때 「잔 부딪히기」를 골라 두고 나중에 식순에서 축배를 빼면, 화면을 다시 열지 않는 한
 #   어긋난 채로 당일을 맞는다. 확인서에서 한 번 더 대조한다(좌석 인원 대조와 같은 자리).
-#   ★판정 근거는 PHOTO_FX_CARDS 의 link 하나 — 조건을 손으로 또 적으면 화면과 확인서가 다른 말을 한다.
+#   ★판정 근거는 PHOTO_WISH_EX 의 link 하나 — 조건을 손으로 또 적으면 화면과 확인서가 다른 말을 한다.
 chk 'PHOTO_FX_STALE' mypage.html 1
-chk 'c.link.when) <0' mypage.html 0                 # 손으로 적은 조건이 아니라 link 를 도는지(아래 줄이 진짜 판정)
 chk '_rf.indexOf(c.link.when)<0' mypage.html 1
 # [ORD_RESET_MID 2026-08-16 사용자 지시 "처음부터 다시 만들기 코스 진행하는 중간에도 클릭할 수 있게"]
 #   식순 빌더 진행 줄(2행 오른쪽)의 「처음부터 다시 만들기」 — 완성 화면에만 있던 것을 걷는 동안에도 둔다.
@@ -3720,3 +3721,22 @@ chk 'CF_GATE_ONE' mypage.html 1
 chk 'cfWhenText' mypage.html 2
 chk 'cf-seal-mk' mypage.html 2
 chk "_need.push('좌석 · 음료')" mypage.html 1
+
+# ★★[PHOTO_WISH 2026-08-16 사용자 지시 "고르게 하지말고 꼭 넣고싶은 사진"] 연출 카드 10장 선택 폐지 →
+#   요청 적기({어떤 사진·누구와·참고 링크} 한 덩어리 · 최대 2). 리뷰가 '유실된 선택 UI'로 되살리지 못하게 막는다.
+#   ★셋을 한 요청에 묶는 것이 핵심 — 따로 두면 어느 링크가 어느 요청인지 모른다(스냅의 refs/mustHaves 가 그 상태).
+chk 'PHOTO_WISH' mypage.html 12
+chk 'var PHOTO_WISH_EX=' mypage.html 1
+chk 'var PHOTO_WISH_MAX=2' mypage.html 1
+nochk 'var PHOTO_FX_CARDS=' mypage.html          # 고르는 카드 배열 복원 금지
+nochk 'function fxToggle' mypage.html            # 카드 토글 복원 금지
+nochk 'class="pfx-grid"' mypage.html             # 카드 그리드 복원 금지
+# [WISH_FROM_FX] 옛 저장분 이어받기 — 카드로 골라 둔 부부의 선택을 버리지 않는다(유실이 이 저장소 최악의 사고 유형)
+chk 'WISH_FROM_FX' mypage.html 1
+chk 'function _wishFromFx' mypage.html 1
+# [PHOTO_WISH] 서버 화이트리스트 — 없으면 새 키가 통째로 버려진다(화면엔 '저장됐어요'). ★GAS 새 버전 재배포 필요
+chk 'PHOTO_WISH' automation/platform/80_production.gs 2
+chk 'body.draft.photoWish = _pw' automation/platform/80_production.gs 1
+chk 'photoWish' admin.html 1                     # 관리자 화면이 요청을 읽는다
+# [PHOTO_WISH] 좌석 공개설정만 바꿔도 guideinfo 트랙이 통째로 교체된다 — 통과 목록에서 빠지면 요청이 조용히 지워진다
+chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1
