@@ -272,10 +272,11 @@ function counts() {
   return { need: need, done: done, re: re };
 }
 
-/* ★[NEW_TONE_PLAY 2026-08-16 CC] 인자 이름이 playUrl 이라 «주소를 넣어야 나온다»고 읽혔고,
-   새 어조 쪽이 null 을 넘겨 **174문장에 듣기 단추가 없었다** — 소리는 파일 안에 다 들어 있는데
-   누를 것이 없어 못 들었다(들으라고 만든 화면인데 정작 판정 대상을 못 듣는다).
-   ★들려줄 수 있느냐(canPlay)로 이름을 바꾼다 — 주소는 data-u 로 이미 넘긴다. */
+/* ★[NEW_TONE_PLAY 2026-08-16 CC 지적] 둘째 인자는 «주소»가 아니라 **「들을 수 있나」**다.
+   내가 ops(k, null) 로만 불러서 **새 어조 174문장에 듣기 단추가 안 그려졌다**(소리는 AN 에 다 있었다).
+   기존 클립 줄은 구간 재생이라 자기 자리에서 따로 단추를 그리므로 여기선 false 로 부른다.
+   ★이름을 playUrl 로 둔 것이 화근이었다 — 「주소를 안 주면 못 튼다」로 읽혀 null 을 넣게 된다.
+     canPlay 로 바꿔 «무엇을 묻는 인자인지»가 이름에 드러나게 한다. */
 function ops(k, canPlay) {
   var v = V[k];
   return '<div class="ops">'
@@ -335,7 +336,7 @@ function draw() {
         h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '"><div class="tx"><div>' + esc(s.t) + '</div>'
           + '<div class="mi">' + esc(s.v) + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다(판정 안 함)</b>'
               : (s.old ? (' · 기존에도 있음 · ' + esc(s.old)) : '')) + '</div></div>'
-          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, true))   /* [NEW_TONE_PLAY] 새 어조도 문장마다 듣는다 */
+          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, true))
           + '</div>';
       });
       h += '</div>';
