@@ -54,7 +54,12 @@
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
     'letter',                                  // 편지 낭독 대상
     'bless', 'blessProxy',                     // 부모님 덕담 · 나레이션 대독
-    'digital'                                  // 디지털 참석(배웅 장면이 갈린다) — ★INJECT · 식순 S 에는 없다
+    'digital',                                 // 디지털 참석(배웅 장면이 갈린다) — ★INJECT · 식순 S 에는 없다
+    /* ★[PHOTO_ASK 2026-08-16] 하객 사진 부탁 멘트 두 자리의 스위치 — ★INJECT · 식순 S 에는 없다.
+       값은 **유무 boolean 뿐이다.** URL 은 절대 싣지 않는다 — 미리듣기 주소는 하객이 볼 수도 있는
+       공개 링크이고, 이 저장소는 주소·큐에 고객 데이터를 안 싣는다(PREVIEW_KEYS 와 같은 규칙).
+       원천은 사진 트랙의 `guideinfo.photoShareUrl` 이다(마이페이지가 저장 · guide 가 버튼으로 씀). */
+    'photoShare'                               // 하객 사진 링크 유무 — ★INJECT · 식순 S 에는 없다
   ];
 
   /* ★INJECT = 엔진은 읽는데 식순 초안 S 에는 없는 키 [PREVIEW_DIGITAL]
@@ -65,7 +70,7 @@
      이 목록이 있어야 [PREVIEW_KEYS] 검사가 "엔진은 읽는데 아무도 값을 안 만드는 키"를 잡을 수 있다.
      (2026-08-02 실제 사고: digital 이 KEYS 에만 있고 값을 넣는 곳이 없어, 디지털 참석 예식도 미리듣기는
       늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
-  var INJECT = ['digital'];
+  var INJECT = ['digital', 'photoShare'];   // [PHOTO_ASK] 사진 링크 유무도 밖에서 받아 얹는다
 
   // 고를 것만 골라 담는다. undefined·null 은 넣지 않는다 — 미리듣기 쪽 기본값이 그대로 서게(병합 주입).
   function pick(S) {
@@ -87,6 +92,15 @@
          ② inv.published.urls.live — 발행된 청첩장의 라이브 주소(''이면 디지털 참석 없음)
        ①이 없는 화면(GAS 재배포 전)에서는 ②로 내려앉는다 — 미발행이면 false, 즉 오늘까지의 동작 그대로다.
        조용히 틀리는 대신 조용히 예전대로 도는 쪽을 고른 것이다(고치는 방향이 둘일 때 덜 나쁜 쪽). */
+  /* ★[PHOTO_ASK 2026-08-16] 사진 링크가 «있나»만 읽는다 — 주소는 안 옮긴다.
+     규칙의 원문은 마이페이지 한 곳이다(photoShareNorm: http(s) 만 · 300자).
+     여기서 그 정규화를 옮겨 적지 않는다 — 옮겨 적으면 규칙이 바뀌는 날 이 사본만 옛 규칙을 지킨다.
+     서버가 이미 걸러 넣은 값이 http(s) 로 시작하는지만 본다(80_production.gs 도 같은 조건으로 저장한다). */
+  function photoShareOf(gi) {
+    var u = gi && (gi.photoShareUrl || gi.photoShare);
+    return /^https?:\/\//i.test(String(u || ''));
+  }
+
   function digitalOf(inv) {
     if (!inv) return false;
     if (typeof inv.digital === 'boolean') return inv.digital;
@@ -120,5 +134,5 @@
     return url(rd.S, extra);
   }
 
-  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf };
+  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf };
 })(window);

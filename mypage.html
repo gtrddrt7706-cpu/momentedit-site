@@ -1703,7 +1703,9 @@ function openRitualBuilder(p, inv){
       //   빌더는 청첩장 트랙을 전혀 못 본다(오직 식순 S 만 쥔다). 새 규약을 만들지 않고 이미 있는 orderFill 에 한 칸만 더한다.
       //   ★빌더는 이 값을 S 에 넣지 않는다 — 넣으면 _embedSave() 가 서버 초안에 굳혀 청첩장이 바뀌어도 안 따라온다.
       var _dig=false; try{ _dig=!!(window.RitualPreviewLink && RitualPreviewLink.digitalOf(inv)); }catch(e3){}
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig}, location.origin);   // ORDERFILL_DONE
+      // [PHOTO_ASK 2026-08-16] 사진 링크 «유무»만 — 주소는 안 보낸다(빌더는 하객이 볼 수도 있는 판이다)
+      var _pho=false; try{ _pho=!!(window.RitualPreviewLink && RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)); }catch(e4){}
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -1789,7 +1791,13 @@ function openRitualPreview(p, inv){
   var src='';
   //   ★디지털 참석(inv)은 식순 초안에 없다 — 청첩장 트랙이 이미 정한 것이라 조립하는 이 순간에만 얹는다.
   //     이 값이 배웅 장면을 가른다(end-1a 오프라인 · end-1b 온라인) + 온라인 하객 맞이 큐. [PREVIEW_DIGITAL]
-  try{ src=(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(p&&p.ritualDraft, {digital:RitualPreviewLink.digitalOf(inv)}))||''; }catch(e){}
+  /* ★[PHOTO_ASK 2026-08-16] 사진 부탁 멘트도 같은 방식으로 «밖에서» 얹는다 — 사진 링크는
+     식순 초안이 아니라 안내 트랙(guideinfoDraft.photoShareUrl)에 있다. 유무만 넘기고 주소는 안 넘긴다.
+     ★S 에 써 넣지 않는다 — _embedSave 가 S 를 서버 초안에 굳혀, 링크를 나중에 지워도 옛 값이 남는다. */
+  try{ src=(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(p&&p.ritualDraft, {
+    digital:RitualPreviewLink.digitalOf(inv),
+    photoShare:RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)
+  }))||''; }catch(e){}
   if(!src){ _miniToast('식순을 먼저 만들면 미리 들어볼 수 있어요'); return null; }   // 버튼이 안 떠 있어야 정상이지만, 떠 있었다면 빈 화면 대신 이유를 말한다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
      떼기만 하면 done() 이 안 돌아 잠금 카운트가 새고 안 보이는 iframe 에서 소리가 계속 난다.

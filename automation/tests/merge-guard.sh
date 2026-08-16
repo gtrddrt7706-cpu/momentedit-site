@@ -3731,6 +3731,32 @@ if command -v node >/dev/null 2>&1; then node scripts/check-photo-scene.mjs >/de
 chk 'POST_LIVE_DUCK' assets/ritual-cue.js 2
 chk 'POST_LIVE_DUCK' scripts/check-ritual-cue.js 3
 chk "doing: 'move', duck: PARAM.duckMusic" assets/ritual-cue.js 1
+# ── [PHOTO_ASK 2026-08-16 사용자 확정] 하객에게 사진을 부탁하는 두 자리(84·85) ──
+# *"추천대로 진행해 우선 내가 실청테스트하면서 거를거니깐"*
+# ★번호는 Cue.FILES **맨 끝**(84·85) — 중간에 끼우면 이미 녹음된 83개가 전부 개명된다.
+# ★두 클립 다 S.photoShare 가 참일 때만 나온다. 링크를 안 넣은 두 분에게 「보내 주세요」라고 하면
+#   없는 버튼을 안내하는 셈이다. 그래서 04·45 «안»에 문장을 더하지 않고 별도 클립으로 뺐다.
+# ★photoShare 는 digital 과 같은 ★INJECT 키다 — 값은 **유무 boolean 뿐**이고 URL 은 안 싣는다
+#   (미리듣기 주소는 하객이 볼 수도 있는 공개 링크다).
+# ★화자는 사람이 정하지 않는다 — 파트(1_안내)의 role 에서 대장이 읽는다(→ 잔희). 코워크가 손으로
+#   적은 판은 '우성'이었고 그건 틀렸다. 기계가 읽은 값이 맞았다.
+chk 'PHOTO_ASK' assets/ritual-cue.js 5
+chk 'PHOTO_ASK' assets/ritual-preview-link.js 3
+chk 'PHOTO_ASK' mypage.html 3
+chk 'PHOTO_ASK' order-preview.html 2
+chk 'photoShare' scripts/check-listen-cover.mjs 1     # ★축을 안 흔들면 84·85 가 「엔진이 안 부르는 줄」로 잡힌다(실측 89→91)
+chk "INJECT = \['digital', 'photoShare'\]" assets/ritual-preview-link.js 1
+# ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
+# ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
+#   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
+#   읽는 것은 괜찮다. 안 되는 것은 «담을 것 목록에 넣는 것»이다.
+nochk "'photoShareUrl'" assets/ritual-preview-link.js
+# ★[NEW_CLIP_SENTS · SAY_WHAT_DID] --redub 가 «썼다»고 말하면서 파일을 안 쓰던 자리.
+#   새 클립은 화면 글이 없어 0문장으로 계산됐고, 그래서 붙여넣기 파일이 안 써졌는데
+#   화면에는 「(2클립 · 0문장)」이라고 썼다고 적혔다. check-paste-format 은 「--redub 로 다시 뽑으세요」라고
+#   안내했고 — 돌려도 같은 결과라 **끝나지 않는 고리**였다. 대장에서 문장을 읽어 고쳤다(0문장 → 4문장).
+chk 'NEW_CLIP_SENTS' scripts/check-text-audio.mjs 1
+chk 'SAY_WHAT_DID' scripts/check-text-audio.mjs 1
 chk 'RETIRED_SCENE' scripts/check-retired-scene.mjs 2
 # ★[재점검 2026-08-16] 첫 판은 지식서를 **한 파일만** 봤다(api/_ritual-kb.js).
 #   고객이 읽는 AI 지식은 셋이고 그중 assets/advisor-kb.js 는 **공개 홈페이지**에 실린다 —
