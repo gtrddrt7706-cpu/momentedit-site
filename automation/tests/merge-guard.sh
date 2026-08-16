@@ -2919,9 +2919,22 @@ chk 'ONE_CANDIDATE' scripts/assemble-narration.mjs 1
 # 손으로 가르는 단계에 순서를 틀릴 자리가 있었고 실제로 틀렸다(PASTE_MAN_ORDER · r=0.578 이 겨우 막았다).
 # 한 묶음의 개수가 고른 파트들의 **합**과 같으면 대장 배열 차례로 잘라 나눈다.
 # ★자동으로 갈랐다고 검사를 건너뛰지 않는다 — 길이 상관 검증은 그대로 돈다.
-chk 'FLAT_AUTOSPLIT' scripts/assemble-narration.mjs 2
+chk 'FLAT_AUTOSPLIT' scripts/assemble-narration.mjs 3
 chk '길이 상관 검증은 그대로 돕니다' scripts/assemble-narration.mjs 1
 chk '후보가 둘 이상이면 종전대로' scripts/assemble-narration.mjs 1
+# ── [CORR_NAN_SAY] 못 본 자리를 「r = NaN」으로 적지 않는다 (2026-08-16 · 코워크 요청 적대검증) ──
+# 코워크: *"이것도 깨 봐 달라 — 합이 «우연히» 맞는 다른 조합이 있으면 조용히 엉뚱하게 갈린다."*
+# 실제 조립기를 149번 돌려 재 봤다. 가른 «자리»는 튼튼했다(경계 한 칸 밀림 r 0.397·-0.204 → 멎음).
+# 구멍은 **문장이 1개인 파트**였다 — n=1 이면 corr 이 0/0 → NaN, `NaN < 0.85` 는 false 라 무조건 통과.
+# 6_예식뒤 의 1문장 클립 8개(54·68~74)는 서로 아무거나 바꿔치기해도 안 멎었다(잡음과 무관·산수).
+# ★막지 않는다 — 74_fx-clap 한 자리만 다시 받는 일은 정당하다. 대신 «검사하지 않았다»고 적는다.
+#   그래야 사람이 그 자리만 귀로 확인한다. 문턱(0.85)은 건드리지 않았다.
+chk 'CORR_NAN_SAY' scripts/assemble-narration.mjs 3
+chk '못 봤습니다' scripts/assemble-narration.mjs 1
+chk '못 잼' scripts/assemble-narration.mjs 1
+chk 'CORR_NAN_SAY' scripts/check-corr-claim.mjs 5
+# ★옛 판(못 본 것을 잰 것처럼 찍던 줄)이 되살아나면 잡는다 — 이름이 아니라 **줄의 모양**을 본다
+nochk "r = \${r.toFixed(3)}\${r < 0.85 ? '   ✗' : ''}" scripts/assemble-narration.mjs
 
 # ── [CORR_CLAIM] 조립기 '길이 상관' 주석이 실제 계산과 맞는지 (2026-08-09 · 적대 검증) ──
 # ONE_CANDIDATE 완화의 근거로 "예상 길이가 같아 분산 0 · 상관계수 미정의"라 적혀 있었는데

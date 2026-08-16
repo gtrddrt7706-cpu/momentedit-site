@@ -287,6 +287,9 @@ if (groups.length === 1 && parts.length > 1) {
     console.log(`★받은 것이 한 묶음(${tot}개)인데 고른 파트가 ${parts.length}개입니다 — 대장 차례로 자동으로 갈랐습니다 [FLAT_AUTOSPLIT]`);
     for (const c of cut) console.log(`    ${c.name.padEnd(22)} ${String(c.files.length).padStart(3)}개`);
     console.log('  ★이 뒤에도 길이 상관 검증은 그대로 돕니다 — 어긋나면 멎습니다.');
+    // ★[CORR_NAN_SAY] 다만 **1개짜리 조각**은 그 검증이 아무것도 못 본다(n=1 → 상관 미정의). 여기서 미리 말한다.
+    const oneCut = cut.filter((c) => c.files.length === 1);
+    if (oneCut.length) console.log(`  ★단, ${oneCut.map((c) => c.name.replace('/ (자동)', '')).join(' · ')} 는 문장이 1개라 순서를 못 봅니다 — 그 자리는 귀로 확인해 주세요.`);
   }
 }
 
@@ -338,7 +341,7 @@ for (const g of groups) {
   //   "이름은 2026인데" 라고 하면 아무 잘못 없는 폴더에 경고를 붙이는 셈이다.
   const claims = !isNaN(g.hint) && g.hint >= 1 && g.hint <= parts.length;
   const mis = (claims && g.hint !== g.P.n) ? ` · 폴더 이름은 ${g.hint}번인데 내용은 ${g.P.n}번입니다(내용을 따릅니다)` : '';
-  console.log(`  ${g.name.padEnd(26)} ${String(g.files.length).padStart(3)}개 → ${g.P.file}  r=${g.r.toFixed(3)}${mis}`);
+  console.log(`  ${g.name.padEnd(26)} ${String(g.files.length).padStart(3)}개 → ${g.P.file}  r=${Number.isFinite(g.r) ? g.r.toFixed(3) : '못 잼(문장 ' + g.files.length + '개)'}${mis}`);
 }
 if (orphan.length) {
   console.error(`\n✗ 어느 파트인지 못 정한 묶음이 ${orphan.length}개 있습니다.`);
@@ -372,14 +375,37 @@ if (missing) console.log(`  (${missing}개 파트는 나중에 다시 돌리면 
 //    전체를 한 번에 보면 한 파트가 통째로 밀려도 나머지가 상관을 떠받쳐 통과할 수 있다.
 //    ★판별에서 이미 r을 봤는데 여기서 또 본다 — 판별은 '어느 파트인가'를, 이건 '순서가 맞나'를 묻는다.
 //      후보가 하나뿐이라 사실상 무사통과한 묶음도 여기서 다시 걸린다.
-let bad = false;
+/* ★★[CORR_NAN_SAY 2026-08-16 · 코드 적대검증] 못 본 것을 「봤다」고 적지 않는다.
+   코워크 요청("[FLAT_AUTOSPLIT] 이것도 깨 봐 달라")으로 실제 조립기를 149번 돌려 재 봤다.
+   ─ 가른 자리(경계)는 잘 지킨다: 파트 경계가 한 칸만 밀려도 r 이 0.40 · -0.20 으로 무너져 멎었다.
+     같은 파트 안에서 4문장 클립 둘을 뒤바꿔도 0.579 로 멎었다. **자동으로 가르는 것 자체는 안전하다.**
+   ─ 구멍은 가르는 데 있지 않고 **문장이 1개뿐인 파트**에 있다. n=1 이면 corr 이 0/0 → NaN 이고
+     `NaN < 0.85` 는 **false** 라 조용히 통과한다. 잡음을 아무리 키워도 그대로 통과한다(모형 무관·산수).
+     실측: 6_예식뒤 의 1문장 클립 8개(54·68~74)는 서로 **아무거나 바꿔치기해도** 안 멎는다.
+     ★그런데 화면에는 `순서 검증 · 6_예식뒤.txt r = NaN` 이라고 **검증한 것처럼** 한 줄이 찍혔다.
+     ★이건 이 파일이 이미 이름 붙여 둔 병이다 — [NAN_NOT_ZERO] "NaN 은 던지지 않고 비교를 조용히
+       무력화한다". 길이를 읽는 자리에서는 막았는데, **재고 판정하는 자리**에는 남아 있었다.
+   ─ 그래서 여기서 하는 일은 «막는 것»이 아니라 «말하는 것»이다. 1문장 파트를 세우는 것은
+     정당한 작업이고(74_fx-clap 한 자리만 다시 받는 일은 실제로 있었다), 멎게 하면 그 길이 막힌다.
+     대신 **검사하지 않았다고 적는다.** 그래야 사람이 그 자리만 귀로 확인한다.
+   ─ n=2·3 도 이 파일이 스스로 적어 둔 대로([CORR_PERMISSIVE]) 「예/아니오 한두 문항」뿐이다.
+     실측에서도 2문장 자리에 다른 클립 5개가, 3문장 자리에 2개가 그대로 통과했다. 약하다고 적는다.
+   ★문턱(0.85)은 건드리지 않는다 — 초록으로 만들려는 손질이 아니다. */
+let bad = false; const blind = [];
 for (const w of work) {
   const flat = [];
   for (const c of w.clips) for (const s of c.sents) flat.push({ c, s });
   const real = w.real || (w.real = w.files.map(dur));
   const est = flat.map((x) => estSec(x.s.text));
   const r = corr(real, est);
-  console.log(`순서 검증 · ${w.P.file.padEnd(18)} r = ${r.toFixed(3)}${r < 0.85 ? '   ✗' : ''}`);
+  if (!Number.isFinite(r)) {
+    blind.push(`${w.P.file} (문장 ${flat.length}개)`);
+    console.log(`순서 검증 · ${w.P.file.padEnd(18)} ★못 봤습니다 — 문장이 ${flat.length}개뿐이라 순서를 잴 수 없습니다`);
+    console.log(`    이 파트는 «개수만» 맞은 것입니다. 다른 클립이 들어와도 여기서는 안 걸립니다 — 귀로 한 번 들어 주세요.`);
+    continue;
+  }
+  const weak = flat.length <= 3 ? `   (문장 ${flat.length}개 · 이 잣대는 순서 한두 문항만 봅니다)` : '';
+  console.log(`순서 검증 · ${w.P.file.padEnd(18)} r = ${r.toFixed(3)}${r < 0.85 ? '   ✗' : weak}`);
   if (r < 0.85) {
     bad = true;
     const worst = flat.map((x, i) => ({ i, d: Math.abs(real[i] - est[i]), t: x.s.text, no: x.c.no }))
@@ -645,4 +671,11 @@ if (Math.abs(trimStat.net) > 0.05) console.log(`  문장 사이 여백 조정 ${
   + ` — 귀에 들리는 문장 사이 ≈ ${(SENT_CAP + EDGE_KEEP * 2 + GAP_ADD - (GAP_NET_ON ? EDGE_KEEP * 2 : 0)).toFixed(2)}초`);
 if ([...outDirs].some((d) => /cast$/.test(d)))
   console.log(`  ★assets/audio/cast/ 는 미리듣기 전용입니다. 당일 콘솔은 이 클립을 재생하지 않습니다.`);
+/* ★[CORR_NAN_SAY] 「못 본 자리」는 맨 끝에 한 번 더 적는다 — 조립은 몇 분이 걸리고,
+   그 사이 위쪽 줄은 스크롤 밖으로 밀린다. 사람이 실제로 읽는 자리는 마지막 화면이다. */
+if (blind.length) {
+  console.log(`  ★순서를 못 본 파트 ${blind.length}개 — ${blind.join(' · ')}`);
+  console.log(`    문장이 하나뿐이면 순서라는 것이 없어 이 검사가 아무것도 못 봅니다(개수만 맞은 것).`);
+  console.log(`    다른 클립이 잘못 들어와도 안 걸립니다 — 이 자리들은 **귀로** 확인해 주세요.`);
+}
 console.log(`  마지막으로 식장 스피커로 실청하세요. 헤드폰에서 괜찮아도 홀 울림에서 BGM에 묻힐 수 있습니다.`);
