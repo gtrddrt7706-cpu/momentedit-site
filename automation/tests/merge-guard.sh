@@ -3472,3 +3472,27 @@ chk '140분, 또렷이 남도록 설계한 호흡입니다' index.html 1
 #     남겨도 초록이 된다. 링크는 클래스+목적지를 함께 봐야 '어디로 가는 입구'인지가 지켜진다.
 chk '포함과 별도를 항목마다 적어 두었습니다' index.html 1
 chk 'class="core-price-link" href="#invest"' index.html 1
+# ── [SEAT_ONE_CARD · ALC_ONE 2026-08-16 사용자 지시] 좌석·음료 편집기 개편 ──
+#   ①"이름부분을 클릭하면 음료랑 이름적는게 동시에" → 한 창(이름칸+음료)으로 통합
+#   ②"논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인" → 알콜은 행사 전체 한 종류
+chk 'SEAT_ONE_CARD' mypage.html 8
+chk 'ALC_ONE' mypage.html 6
+chk 'ALC_ONE' index.html 1
+chk 'sdb-nm' mypage.html 4                      # 이름칸이 자리 창 안에 있다(캔버스 알약 안이 아니라)
+chk 'data-seat-next' mypage.html 2              # '다음 자리' — 스물다섯 명을 창 왕복 없이 이어 적는 길
+nochk 'class="rs-edit" data-ed' mypage.html     # ★캔버스 자리 알약 안 입력칸 복원 금지(이름·음료가 다시 갈라진다)
+chk 'data-alc-all' mypage.html 3                # 알콜 1종 통일·전환
+chk 'data-alc-fill' mypage.html 3               # 미정 자리 일괄 채우기(이미 고른 자리는 안 건드림)
+# [SEAT_KBD] 창 안에 이름칸이 생겨 키보드가 창을 덮는다 — bottom 에 --kbd 를 실어 '키보드 위'에서 가운데
+chk 'SEAT_KBD' mypage.html 3
+chk 'bottom:var(--kbd,0px)' mypage.html 1
+# ★★[SEAT_DIRTY_KEEP] 더러움 판정이 편집을 닫으면 좌석 이름이 통째로 사라진다(f515438 이후 실사고 · 2026-08-16 실측).
+#   판정에 필요한 건 '입력값을 모델에 반영'뿐이다 — 닫는 것은 그 일이 아니다.
+chk 'SEAT_DIRTY_KEEP' mypage.html 1
+nochk "if(SEATFLOW.edit && typeof commitSeatEdit==='function' && bx) commitSeatEdit(bx)" mypage.html
+# ★★[SEAT_DRINK_SAVE] 저장 화이트리스트가 옛 코드(N·A·J)에 멈춰 샴페인(C)·레드와인(R)이 조용히 지워지던 사고.
+#   읽는 쪽은 진작 C|R|N 을 전제했다 — 두 쪽을 한 벌로 본다. 왕복 게이트(data-roundtrip ①-a)가 이 경로를 붙잡는다.
+chk 'SEAT_DRINK_SAVE' automation/platform/80_production.gs 1
+chk "_dv === 'C' || _dv === 'R' || _dv === 'N'" automation/platform/80_production.gs 1
+chk 'SEAT_DRINK_SAVE' scripts/audit/data-roundtrip.mjs 3
+chk "drinks: \['C', 'R', 'N'\]" scripts/audit/data-roundtrip.mjs 1
