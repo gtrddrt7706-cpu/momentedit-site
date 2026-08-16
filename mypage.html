@@ -1084,7 +1084,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rt-no{position:absolute;left:calc(50% - var(--rt,150px)*0.22);top:calc(50% - var(--rt,150px)*0.22);width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;z-index:2}
     .rt-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:none;background:transparent;font-family:var(--serif-ko);font-size:calc(var(--rt,150px)*0.155);font-weight:500;color:#6B2A24;line-height:1;padding:0;pointer-events:none;z-index:1}   /* 테이블 번호 — 크림 원판 위 진사 숫자(또렷한 명조체 숫자) */
     .rt-c.rt-cbtn{pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}   /* 번호를 탭하면 테이블 이름 편집 — 구 커스텀 이름 확인·수정 경로(seat.html·관리자에 노출되는 값) */
-    .rt-cnm{font-size:11px;font-weight:400;color:var(--sub);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+    /* [SEAT_FIT] .rt-cnm(원 안 커스텀 이름) 폐지 → .rt-cap(원 아래 한 줄). 원 안에 두면 좌우 자리 알약과 겹친다. 되돌리지 말 것 */
+    .rt-capwrap{display:flex;justify-content:center;margin-top:2px;max-width:100%}
+    .rt-cap{border:0;background:transparent;padding:0 4px;font-family:var(--serif-ko);font-size:11px;color:var(--gold-deep);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;cursor:pointer}
+    .rt-cap:active{color:var(--accent)}
     .rt-cin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;border:1px solid var(--gold-deep);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:11px;text-align:center;color:var(--accent);padding:2px;z-index:2}
     .rt-cin:focus{outline:none}
     .rs-slot{position:absolute;transform:translate(-50%,-50%)}
@@ -1099,6 +1102,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .dk-N{background:#5F9E86}   /* 논알콜 스파클링 · 세이지그린 */
     .dk-C{background:#C9A227}   /* 샴페인 · 골드 */
     .dk-R{background:#9B4A57}   /* 레드와인 · 와인 */
+    .dk-K{background:#8FA9BF}   /* [KID_SEAT] 유아 · 물 — 물빛(따뜻한 셋과 확실히 구분되는 유일한 한색) */
     .dk-U{background:#C9C2B6}   /* (구)미정 · 그레이 — 자리 편집기에선 쓰지 않는다(SEAT_NO_UNDEC). guide·관리자가 옛 데이터를 그릴 때만 */
     .dk-A{background:#9B4A57}   /* (구)알콜 · 와인 — 구 데이터 호환 */
     .dk-J{background:#E0912F}   /* (구)주스 · 앰버 — 구 데이터 호환 */
@@ -1169,7 +1173,8 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
     .sdb-nm:focus{outline:none;border-color:var(--gold-deep)}
     .sdb-nm::placeholder{color:var(--light);font-size:14px}
-    .sdb-opts.n2{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE] 알콜이 이미 한 종류로 정해지면 고를 것은 둘(그 알콜·논알콜) — 빈 칸을 남기지 않는다 */
+    .sdb-opts.n3{grid-template-columns:repeat(3,1fr)}   /* [ALC_ONE] 알콜이 정해지면 셋(그 알콜·논알콜·유아) */
+    .sdb-opts.n4{grid-template-columns:repeat(2,1fr)}   /* 아직 알콜을 안 골랐을 때만 넷(샴페인·레드와인·논알콜·유아) — 2열 2줄로 나눠 한 줄에 넉 자가 끼지 않게 */
     .sdb-note{font-family:var(--serif-ko);font-size:11px;line-height:1.5;color:var(--label-soft);text-align:center;margin-top:9px;word-break:keep-all}
     .sdb-ok{display:block;width:100%;margin-top:10px;padding:12px;border:0;border-radius:8px;background:#4E3F31;color:#fff;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer}
     .sdb-ok:active{background:#3A2D22}
@@ -1197,7 +1202,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .seat-addtbl{width:100%;max-width:200px;border:1px dashed var(--border);background:transparent;border-radius:10px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);padding:9px;cursor:pointer}
     /* 모바일(≤480px) 최대 컴팩트: ①테이블(--rt) 96px로 최대 축소(원·자리 비율 유지·이상하지 않은 선) ②지그재그 강하게(--zig 30). 지그재그는 테이블(.rt)에만 걸려 컨트롤은 열 중앙 정렬 → 통로에서 안 겹침 ③상하 최소동선(gap 4·컨트롤 여백 2). 컨트롤 버튼 크기 유지(탭 편의) */
     @media(max-width:480px){
-      .seat-room{--zig:26px}   /* 실효 이동: 통로쪽 26 · 바깥(가운데 테이블) 49(=26×1.9). 360~480px 넘침 없는 최대치 */
+      .seat-room{--zig:20px}   /* [SEAT_FIT] 26→20. 실효 이동: 통로쪽 20 · 바깥(가운데 테이블) 23(=20×1.15). 이름이 긴 하객이 있어도 알약이 카드 안에 남는 값(360·390 실측) */
       .rt{--rt:96px}
       .seat-col{gap:2px}
       .rt-ctl{margin-top:1px}
@@ -5673,12 +5678,17 @@ function _seatNormDrinks(t){
   if(!t) return;
   if(Object.prototype.toString.call(t.seats)!=='[object Array]') t.seats=[];
   var d=(Object.prototype.toString.call(t.drinks)==='[object Array]')?t.drinks:[];
-  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='C'||v==='R'||v==='N')?v:''); }
+  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='C'||v==='R'||v==='N'||v==='K')?v:''); }   // [KID_SEAT] K=유아 · 물
   t.drinks=out;
 }
 // [자리별 3음료 · 2026-07-19 사용자 지시] 상단 대표음료 입력 폐지 → 자리마다 샴페인/레드와인/논알콜 스파클링 직접 선택.
-var SEAT_DRINKS=[{c:'C',t:'샴페인'},{c:'R',t:'레드와인'},{c:'N',t:'논알콜 스파클링'}];
-var SEAT_DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링'};
+var SEAT_DRINKS=[{c:'C',t:'샴페인'},{c:'R',t:'레드와인'},{c:'N',t:'논알콜 스파클링'},{c:'K',t:'유아 · 물'}];
+/* ★★[KID_SEAT 2026-08-16 사용자 지시 "애기들도 있을수있으니깐 … 음료는 물로 한다든지"]
+   유아(K) = 물 + 유아용 의자. 음료 한 칸으로 받는 이유 — 두 분이 자리마다 한 번 고르면
+   ①그 아이 음료(물)와 ②스태프의 하이체어 준비 수량이 **한 번에** 정해진다. 항목을 둘로 나누면 두 번 묻게 된다.
+   ★알콜 1종 규칙(ALC_ONE)과 무관하다 — 유아는 알콜이 아니므로 _seatAlc 가 세지 않는다.
+   ★코드 K 는 mypage·guide·admin·80_production 네 곳이 한 벌 — 하나만 고치면 저장 때 조용히 지워진다(SEAT_DRINK_SAVE 사고와 같은 모양). */
+var SEAT_DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'유아 · 물'};
 /* ★★[ALC_ONE 2026-08-16 사용자 지시 "논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인"]
    알콜은 **행사 전체에서 한 종류**만 준비된다 — 샴페인이면 샴페인, 레드와인이면 레드와인.
    논알콜 스파클링은 그와 무관하게 자리별로 언제나 고를 수 있다(안 마시는 하객·아이 배려).
@@ -6528,9 +6538,9 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
   box.innerHTML=h; box.style.display='block';
   var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}); });
 }
-function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·U미정
-  var c={C:0,R:0,N:0,U:0};
-  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else c.U++; }); });
+function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·K유아(물)·U미정(옛 데이터에서만)
+  var c={C:0,R:0,N:0,K:0,U:0};
+  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else if(dv==='K')c.K++; else c.U++; }); });
   return c;
 }
 function prodConfirmHtml(p, inv){
@@ -6670,7 +6680,12 @@ function wireGuideInfoEditor(box, gi){
 }
 // 원형 테이블 좌석 위치(자리 i / n개). 인원수와 무관하게 반 칸(180/n) 회전 → 맨 위(단상 쪽)는 항상 '빈 공간', 맨 아래(단상 정면)에 자리가 오게. 짝수=대각, 홀수(3·5)=위 비고 아래 중앙 채움. 아무도 단상에 등지지 않게(양가 부모님 맨 앞 테이블 배려).
 function _seatPos(n, i, r){ var off=180/(n||1); var a=(-90 + off + i*(360/(n||1)))*Math.PI/180; return { x:(Math.cos(a)*r), y:(Math.sin(a)*r) }; }
-function _seatZig(row, side){ var even=(row%2===0); var s=even?1:-1; var mag=even?1:1.9; var base=s*mag; return (side==='R'? -base : base); }   // 지그재그 배율(부호포함): 짝수행=통로쪽 1배, 홀수행(가운데 테이블)=바깥쪽 1.9배(바깥 끝까지). 실제 폭은 CSS --zig × 이 값
+/* ★[SEAT_FIT 2026-08-16] 지그재그 배율을 1.9 → 1.15 로 낮췄다. 실측(390px·이름 세 글자 이상)에서
+   바깥쪽으로 밀린 테이블의 자리 알약이 **카드 밖으로 30px 넘게 삐져나왔다**(하객 이름이 카드 경계에 잘려 보임).
+   1.9 는 테이블 원끼리 안 부딪히는 최대치로 잡은 값이라, 알약(최대 74px)이 원 밖으로 더 나간다는 걸 못 봤다.
+   1.15 로 낮추면 지그재그는 눈에 남으면서 넘침이 0 이 된다(통로 건너 좌우 알약이 부딪히던 것도 함께 줄었다).
+   ★고칠 때는 scripts/audit/seat-onecard.mjs 의 '카드 밖 넘침' 검사를 함께 볼 것 — 숫자만 키우면 다시 잘린다. */
+function _seatZig(row, side){ var even=(row%2===0); var s=even?1:-1; var mag=even?1:1.15; var base=s*mag; return (side==='R'? -base : base); }   // 지그재그 배율(부호포함): 짝수행=통로쪽 1배, 홀수행(가운데 테이블)=바깥쪽 1.15배. 실제 폭은 CSS --zig × 이 값
 function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태는 유지) — 음료 칩 선택 시 이름 보존용
   box=box||$('mp_production'); if(!box) return;
   var inp=box.querySelector('[data-ed]'); var ed=SEATFLOW.edit; if(!inp||!ed) return;
@@ -6735,7 +6750,7 @@ function renderSeat(box){
          ②화면 가운데 음료 창(뒤가 어두워짐)이 **동시에** 켜졌다. 눈이 갈 곳이 둘이고,
          키보드를 내리기 전엔 음료 창의 아래쪽이 가려졌다. 한 자리에 할 일이 둘이면 창도 하나여야 한다.
          ★자리 알약 안 입력칸(rs-edit)으로 되돌리지 말 것 — 테이블 이름 편집(rt-cin)만 캔버스에 남는다. */
-      { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N');
+      { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N'||dk==='K');   // [KID_SEAT] 유아 색점도 캔버스에 찍힌다
         var dot=_hasDk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점=자리별 음료 · [SEAT_NO_UNDEC] 이름이 있으면 음료가 반드시 있으니 '미정 빈 링'은 그릴 일이 없다(빈자리는 표시 없음)
         var _selNow=!!(sel && sel.ti===ti && sel.si===si);   // [SEAT_ONE_CARD] 지금 창을 열어 둔 자리 — 창이 캔버스를 덮어도 어디를 고쳤는지 남게
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+(_selNow?' sel':'')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add" aria-hidden="true">＋</span>')+dot+'</button></div>'; }   /* ★[SEAT_ADD_PLUS 2026-08-11 사용자 지시 "이름은 빼고 플러스만 나오게 하자 너무 지져분하다"]
@@ -6747,12 +6762,17 @@ function renderSeat(box){
     }
     // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
     var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));
+    /* ★[SEAT_FIT 2026-08-16] 커스텀 이름을 원 **안**에서 원 **아래 한 줄**로 내렸다.
+       원 안에 두면 '양가 부모님'처럼 서너 글자만 넘어가도 좌우 자리 알약과 가로로 29px 겹쳐 글자끼리 붙어 보였다(390px 실측).
+       번호를 누르면 이름을 고치는 길은 그대로다 — 아래 줄도 같은 편집을 연다. */
     var center = isEd(ti,'name')
       ? '<input class="rt-cin" data-ed data-edk="'+ti+':name" value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
-      : '<button type="button" class="rt-c rt-cbtn" data-seat-edit data-ti="'+ti+'" data-si="name" title="테이블 이름 정하기">'+(dispNo||(ti+1))+(_hasCn?'<span class="rt-cnm">'+escapeHtml(_cn)+'</span>':'')+'</button>';
+      : '<button type="button" class="rt-c rt-cbtn" data-seat-edit data-ti="'+ti+'" data-si="name" title="테이블 이름 정하기">'+(dispNo||(ti+1))+'</button>';
+    var capHtml = (_hasCn && !isEd(ti,'name')) ? '<button type="button" class="rt-cap" data-seat-edit data-ti="'+ti+'" data-si="name">'+escapeHtml(_cn)+'</button>' : '';
     var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
     return '<div class="rt-wrap" style="'+tx+'">'
       +'<div class="rt" style="transform:translateX(var(--tx,0))">'+seats+center+'</div>'
+      + (capHtml?'<div class="rt-capwrap" style="transform:translateX(var(--tx,0))">'+capHtml+'</div>':'')
       +'<div class="rt-ctl" style="transform:translateX(var(--tx,0))">'
         +'<button type="button" class="rt-mini" data-seat-add="'+ti+'" title="자리 추가">＋</button>'
         +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
@@ -6770,7 +6790,7 @@ function renderSeat(box){
   var _named=_seatNamedCount();   // 최종 인원=이름 있는 자리 수(별도 입력 폐지)
   var _dc=seatDrinkCounts(s.tables);   // 이름 있는 자리만 · C샴페인/R레드와인/N논알콜 스파클링/U미정
   var _lp=[]; var _dkPill=function(cls,label,n){ return '<span class="ss-dk"><i class="s-dot '+cls+'"></i>'+label+' '+n+'</span>'; };
-  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알콜 스파클링',_dc.N));   // [SEAT_NO_UNDEC] 미정 알약 없음 — 이름 있는 자리는 전부 음료가 있다
+  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알콜 스파클링',_dc.N)); if(_dc.K)_lp.push(_dkPill('dk-K','유아 · 물',_dc.K));   // [SEAT_NO_UNDEC] 미정 알약 없음 · [KID_SEAT] 유아는 하이체어 준비 수량이기도 하다
   var drinksInner=_lp.length ? '<div class="ss-drinks">'+_lp.join('')+'</div>' : '';   // 음료 집계 — 요약 카드 하단 줄(인원·요금과 한 카드로 · 2026-07-19 디자이너 개편)
   // [디자이너 개편 2026-07-19 사용자 지시: "아래 인원수와 음료 표시가 따로 놀지 않게 조화롭게"] 인원·요금 + 음료 집계를 한 요약 카드로 묶어 공개 방식 카드와 같은 폭으로 정렬.
   /* [ALC_ONE] 요약 카드에 '알콜은 무엇으로 정해져 있는지'를 한 줄로 세운다.
@@ -6795,7 +6815,7 @@ function renderSeat(box){
      ★[SEAT_ONE_CARD] 이제 그 창이 이름칸까지 안는다 — 한 자리를 마치는 데 필요한 것이 한 상자에 모인다. */
   var barHtml='';
   if(sel){
-    var et=s.tables[sel.ti]; var cur=(et&&et.drinks&&et.drinks[sel.si])||''; if(cur!=='C'&&cur!=='R'&&cur!=='N')cur='';   // 미정·구코드(A/J)=선택 없음
+    var et=s.tables[sel.ti]; var cur=(et&&et.drinks&&et.drinks[sel.si])||''; if(cur!=='C'&&cur!=='R'&&cur!=='N'&&cur!=='K')cur='';   // 구코드(A/J)=선택 없음 · [KID_SEAT] K 포함
     var edNo=num[sel.ti]||(sel.ti+1);
     var chip=function(v,label,cls){ return '<button type="button" class="dk-chip'+(cur===v?' on':'')+'" data-drink="'+(v||'X')+'" aria-pressed="'+(cur===v?'true':'false')+'"><span class="dot '+cls+'"></span>'+label+'</button>'; };
     /* ★[DRINK_SHEET] 머리줄에 '어느 자리인지'를 적는다 — 이름을 넣었으면 이름까지.
@@ -6807,14 +6827,16 @@ function renderSeat(box){
        섞인 옛 데이터일 때는 셋을 다 보여 준다(무엇으로 되어 있는지 보이지 않으면 고칠 수도 없다). */
     var _alcPick=_alc||((cur==='C'||cur==='R')?cur:'');
     var opts, alcNote='';
-    if(_mix){ opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N'); alcNote='알콜이 두 종류로 섞여 있어요 · 아래에서 맞춰 주세요'; }
-    else if(_alcPick){ opts=chip(_alcPick,SEAT_DRINK_LABEL[_alcPick],'dk-'+_alcPick)+chip('N','논알콜 스파클링','dk-N'); alcNote='알콜은 '+SEAT_DRINK_LABEL[_alcPick]+' 한 종류로 준비돼요'; }
-    else { opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N'); alcNote='알콜은 한 종류만 준비돼요 · 처음 고른 쪽으로 맞춰져요'; }
+    var _kid=chip('K','유아 · 물','dk-K');   // [KID_SEAT] 아이 자리 — 물 + 유아용 의자. 알콜 규칙과 무관하게 언제나 고를 수 있다
+    var _n4=false;
+    if(_mix){ opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N')+_kid; _n4=true; alcNote='알콜이 두 종류로 섞여 있어요 · 아래에서 맞춰 주세요'; }
+    else if(_alcPick){ opts=chip(_alcPick,SEAT_DRINK_LABEL[_alcPick],'dk-'+_alcPick)+chip('N','논알콜 스파클링','dk-N')+_kid; alcNote='알콜은 '+SEAT_DRINK_LABEL[_alcPick]+' 한 종류로 준비돼요 · 아이 자리는 물과 유아용 의자를 준비해요'; }
+    else { opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N')+_kid; _n4=true; alcNote='알콜은 한 종류만 준비돼요 · 처음 고른 쪽으로 맞춰져요'; }
     barHtml='<div class="seat-drinkbar" role="dialog" aria-modal="false" aria-label="'+escapeHtml(_tShow)+' '+(sel.si+1)+'번 자리 이름과 음료">'
       +'<div class="sdb-h"><span class="sdb-label">'+escapeHtml(_tShow)+' · '+(sel.si+1)+'번 자리</span>'
         +'<button type="button" class="sdb-x" data-seat-selclose aria-label="닫기">×</button></div>'
       +'<input class="sdb-nm" data-ed data-edk="'+sel.ti+':'+sel.si+'" value="'+escapeHtml(_edNm)+'" maxlength="24" autocomplete="off" placeholder="하객 성함" aria-label="하객 성함">'
-      +'<div class="sdb-opts'+(_mix||!_alcPick?'':' n2')+'">'+opts+'</div>'
+      +'<div class="sdb-opts'+(_n4?' n4':' n3')+'">'+opts+'</div>'
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')
       +'<button type="button" class="sdb-ok" data-seat-selclose>확인</button>'   // [SEAT_NO_CHAIN] 이 자리만 마치고 닫는다 — 다음 자리로 끌고 가지 않는다
       +'</div>';   // 자리별 음료(★복원 금지: 상단 대표음료·자리별 알콜 혼용으로 되돌리지 말 것)
@@ -6910,7 +6932,7 @@ function bindSeat(box){
         .then(function(ok){ if(ok){ _seatAlcSetAll(_ac); renderSeat(box); } });
       return; }
     // ★[SEAT_NO_UNDEC] '미정 일괄 채우기'(data-alc-fill) 폐지 — 2026-08-16 사용자 지시로 미정 상태 자체가 없어졌다. 복원 금지.
-    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv!=='C'&&dv!=='R'&&dv!=='N') return;   // [SEAT_NO_UNDEC] 빈 값('미정')으로 되돌리는 경로 없음 — 셋 중 하나만 받는다
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv!=='C'&&dv!=='R'&&dv!=='N'&&dv!=='K') return;   // [SEAT_NO_UNDEC] 빈 값('미정')으로 되돌리는 경로 없음 · [KID_SEAT] K(유아)까지 넷만 받는다
         /* [ALC_ONE] 이미 정해진 알콜과 다른 알콜을 고르면 — 이 자리만 예외로 두지 않는다.
            한 종류만 준비되므로 '전부 바꿀지'를 묻고, 아니라면 아무것도 바꾸지 않는다. */
         var _al=_seatAlc();

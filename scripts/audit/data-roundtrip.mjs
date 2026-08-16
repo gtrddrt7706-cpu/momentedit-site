@@ -38,7 +38,7 @@ const TRACKS = {
   /* [SEAT_DRINK_SAVE] 음료 프로브가 'N' 하나뿐이던 시절, 저장 화이트리스트가 옛 코드(N·A·J)에 멈춰
      C(샴페인)·R(레드와인)을 조용히 지우는 사고를 이 게이트가 초록인 채로 통과시켰다(2026-08-16 발견).
      ★쓰는 코드를 전부 태울 것 — 하나만 태우면 나머지가 사라져도 초록이다. */
-  seat:      () => ({ tables: [{ seats: [P('seat').slice(0, 24), '나', '다'], drinks: ['C', 'R', 'N'] }] }),   // 좌석명 24자 컷
+  seat:      () => ({ tables: [{ seats: [P('seat').slice(0, 24), '나', '다', '아기'], drinks: ['C', 'R', 'N', 'K'] }] }),   // 좌석명 24자 컷 · K=[KID_SEAT] 유아(물)
   guideinfo: () => ({ seatMode: 'mine', reserveTime: '17:30 · 홀 A', reserveName: P('gi').slice(0, 30), photo: ['가족 <전체>', '친구"들"'] }),
   snap:      () => ({ mustPeople: P('snap') }),                                    // 120자 컷 필드
   final:     () => ({ headcount: '20', drink: '스파클링', note: P('final') }),      // fdr 패스스루
@@ -63,10 +63,10 @@ for (const [t, mk] of Object.entries(TRACKS)) {
 {
   let cell = {}; try { cell = JSON.parse(String(w.C['제작_seat'] || '{}')); } catch (e) {}
   const got = ((((cell.tables || [])[0]) || {}).drinks || []).join(',');
-  (got === 'C,R,N') ? ok('①-a 자리별 음료 C·R·N 전부 셀에 남음 [SEAT_DRINK_SAVE]') : no(`①-a 자리별 음료 유실: '${got}' (기대 C,R,N) [SEAT_DRINK_SAVE]`);
+  (got === 'C,R,N,K') ? ok('①-a 자리별 음료 C·R·N·K 전부 셀에 남음 [SEAT_DRINK_SAVE][KID_SEAT]') : no(`①-a 자리별 음료 유실: '${got}' (기대 C,R,N,K) [SEAT_DRINK_SAVE]`);
   let back = {}; try { back = G._prodLoad(rowRef) || {}; } catch (e) {}
   const bg = (((((back.seatDraft || {}).tables || [])[0]) || {}).drinks || []).join(',');
-  (bg === 'C,R,N') ? ok('  되읽기(_prodLoad)에도 음료 셋 다 살아있다') : no(`①-a 되읽기 음료 유실: '${bg}' [SEAT_DRINK_SAVE]`);
+  (bg === 'C,R,N,K') ? ok('  되읽기(_prodLoad)에도 음료 넷 다 살아있다') : no(`①-a 되읽기 음료 유실: '${bg}' [SEAT_DRINK_SAVE]`);
 }
 
 /* ── ①-b 청첩장(별도 핸들러) — 원문 저장 ── */

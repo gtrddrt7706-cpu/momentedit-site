@@ -680,19 +680,20 @@ function _seatChartDoc(d){
   var prod=(d&&d.mirror&&d.mirror.production)||{}, sd=prod.seatDraft||{};
   var tables=(Object.prototype.toString.call(sd.tables)==='[object Array]')?sd.tables:[];
   var names=esc(d.names||''), code=esc(d.code||''), wdate=(d.pin&&d.pin['예식일'])?esc(fmtDate(d.pin['예식일'])):'';
-  var DL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링'};   // 자리별 3음료(2026-07-19 · 상단 대표음료 폐지) · 미정(''·구 A/J)은 '미정'
+  var DL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'유아 · 물'};   // 자리별 음료(2026-07-19 · 상단 대표음료 폐지) · [KID_SEAT 2026-08-16] K=유아(물+유아용 의자) · 미정(''·구 A/J)은 '미정'
   // 편집기와 동일한 번호(위→아래 행 순서·각 행 좌→우)
   var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String((t&&t.side)||'L')==='R'?Rs:Ls).push(i); });
   var num={},nn=1,mr=Math.max(Ls.length,Rs.length); for(var rr=0;rr<mr;rr++){ if(rr<Ls.length)num[Ls[rr]]=nn++; if(rr<Rs.length)num[Rs[rr]]=nn++; }
-  var cC=0,cR=0,cN=0,cU=0,cT=0;
-  tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=((t.drinks||[])[i])||''; if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else cU++; }); });
+  var cC=0,cR=0,cN=0,cK=0,cU=0,cT=0;
+  tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=((t.drinks||[])[i])||''; if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else if(dv==='K')cK++; else cU++; }); });
   function tbl(t,no){ var seats=(t&&t.seats)||[]; var n=seats.length,inner=''; for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); var dk=nm?(((t.drinks||[])[i])||''):''; var u=_seatChartPos(n,i,46); var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; inner+='<span class="pseat'+(nm?'':' e')+'" style="left:calc(50% + '+u.x.toFixed(1)+'px);top:calc(50% + '+u.y.toFixed(1)+'px)">'+(nm?esc(nm):'·')+dot+'</span>'; } return '<div class="ptbl"><span class="ptno">'+no+'</span>'+inner+'</div>'; }   // 색점은 이름 있는 자리만(고아 음료가 빈자리에 찍혀 합계와 어긋나는 것 방지)
   var L='',R='';
   tables.forEach(function(t,i){ var no=num[i]||(i+1); if(String((t&&t.side)||'L')==='R') R+=tbl(t,no); else L+=tbl(t,no); });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
   ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
     if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join(' |  ')+'</div>'; });
-  var totLine='음료 합계 · 샴페인 '+cC+' · 레드와인 '+cR+' · 논알콜 스파클링 '+cN+(cU?(' · 미정 '+cU):'')+' · 총 '+cT+'명';   // 자리별 3음료 집계(2026-07-19)
+  var totLine='음료 합계 · 샴페인 '+cC+' · 레드와인 '+cR+' · 논알콜 스파클링 '+cN+(cK?(' · 유아(물) '+cK):'')+(cU?(' · 미정 '+cU):'')+' · 총 '+cT+'명'
+    + (cK?('  ★유아용 의자 '+cK+'개 준비'):'');   // [KID_SEAT] 당일 준비물이라 합계 줄에 바로 — 스태프가 명단을 훑지 않아도 개수가 보인다
   var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
     +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
     +'.ptot{font-size:13px;font-weight:600;background:#f5f1ea;border:1px solid #e3dccf;border-radius:8px;padding:8px 11px;margin-bottom:6px}'
@@ -706,12 +707,12 @@ function _seatChartDoc(d){
     +'.pseat{position:absolute;transform:translate(-50%,-50%);max-width:78px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #ddd8d1;background:#fff;border-radius:11px;font-size:11px;padding:3px 8px}'
     +'.pseat.e{color:#b3ad9f;border-style:dashed;background:#f7f5f0}'
     +'.pd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px;vertical-align:middle}'
-    +'.pd-N,.dN{background:#5F9E86}.pd-C,.dC{background:#C9A227}.pd-R,.dR{background:#9B4A57}.pd-A,.dA{background:#9B4A57}.pd-J,.dJ{background:#E0912F}'
+    +'.pd-N,.dN{background:#5F9E86}.pd-C,.dC{background:#C9A227}.pd-R,.dR{background:#9B4A57}.pd-K,.dK{background:#8FA9BF}.pd-A,.dA{background:#9B4A57}.pd-J,.dJ{background:#E0912F}'
     +'.proster{margin-top:16px;border-top:1px solid #e3dccf;padding-top:10px}.proster h2{font-size:13px;margin:0 0 6px;color:#6b6257}'
     +'.pr{font-size:12.5px;line-height:1.9;padding:2px 0;border-bottom:1px dotted #ece6da}.pr b{color:#6B2A24;margin-right:6px}'
     +'@page{size:A4;margin:12mm}@media print{body{padding:0}.ptbl,.pseat{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
   var body='<h1>좌석 배치도</h1><div class="psub">'+(names||'')+(wdate?(' · 예식 '+wdate):'')+(code?(' · '+code):'')+'</div>'
-    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dC"></i>샴페인<i class="dR"></i>레드와인<i class="dN"></i>논알콜 스파클링</span></div>'
+    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dC"></i>샴페인<i class="dR"></i>레드와인<i class="dN"></i>논알콜 스파클링<i class="dK"></i>유아 · 물</span></div>'
     +'<div class="pstage">◈ 단상 · 신랑 신부</div>'
     +'<div class="proom"><div class="pcol">'+(L||'<div style="color:#b3ad9f;font-size:12px">좌측 테이블 없음</div>')+'</div>'
     +'<div class="paisle">버진로드</div><div class="pcol">'+(R||'<div style="color:#b3ad9f;font-size:12px">우측 테이블 없음</div>')+'</div></div>'
@@ -2267,8 +2268,8 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
     for(var _sr=0;_sr<_sMr;_sr++){ if(_sr<_sLs.length)_sNum[_sLs[_sr]]=_sNn++; if(_sr<_sRs.length)_sNum[_sRs[_sr]]=_sNn++; }
     sd.tables.map(function(tb,i){ return {tb:tb,no:_sNum[i]||(i+1)}; }).sort(function(a,b){ return a.no-b.no; }).forEach(function(o){ var tb=o.tb; var _def=/^테이블\s*\d+$/.test(String(tb.name||'').trim()); var _nm=(tb.name&&!_def)?tb.name:('테이블 '+o.no); var seats=(tb.seats||[]).map(function(s){ return String(s||'').trim(); }).filter(Boolean); h+=row(o.no+'. '+_nm+' ('+(String(tb.side||'L')==='R'?'우측':'좌측')+')', seats.length?seats.join(', '):'빈 테이블'); });
     // 자리별 음료 집계(케이터링 준비용) — 이름 있는 자리만
-    var _cC=0,_cR=0,_cN=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='C')_cC++; else if(dv==='R')_cR++; else if(dv==='N')_cN++; else _cU++; }); });
-    if(_cC+_cR+_cN+_cU>0){ var _dp=[]; if(_cC)_dp.push('샴페인 '+_cC); if(_cR)_dp.push('레드와인 '+_cR); if(_cN)_dp.push('논알콜 스파클링 '+_cN); if(_cU)_dp.push('미정 '+_cU); h+=row('음료(자리별)',_dp.join(' · ')); }   // 자리별 3음료 집계(2026-07-19) · A4 프린트·mypage 집계와 같은 기준(row가 esc 처리)
+    var _cC=0,_cR=0,_cN=0,_cK=0,_cU=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v,si){ if(!String(v||'').trim())return; var dv=((tb.drinks||[])[si])||''; if(dv==='C')_cC++; else if(dv==='R')_cR++; else if(dv==='N')_cN++; else if(dv==='K')_cK++; else _cU++; }); });   // [KID_SEAT] K=유아(물+유아용 의자)
+    if(_cC+_cR+_cN+_cK+_cU>0){ var _dp=[]; if(_cC)_dp.push('샴페인 '+_cC); if(_cR)_dp.push('레드와인 '+_cR); if(_cN)_dp.push('논알콜 스파클링 '+_cN); if(_cK)_dp.push('유아 · 물 '+_cK+' (유아용 의자)'); if(_cU)_dp.push('미정 '+_cU); h+=row('음료(자리별)',_dp.join(' · ')); }   // 자리별 3음료 집계(2026-07-19) · A4 프린트·mypage 집계와 같은 기준(row가 esc 처리)
     // 좌석 배치 인원  최종 확정 인원 불일치 경고 — 당일 홀 세팅 기준(자리 없이 서는 하객이 있을 수 있음). 고객 확인서 경고와 같은 기준(2026-07-19 점검: 세팅하는 쪽에도 노출)
     var _plc=0; sd.tables.forEach(function(tb){ (tb.seats||[]).forEach(function(v){ if(String(v||'').trim())_plc++; }); });
     var _hn=parseInt((fd&&fd.headcount)||'',10)||0;
