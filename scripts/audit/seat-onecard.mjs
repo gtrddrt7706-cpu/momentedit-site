@@ -48,7 +48,7 @@ try {
     chips: [...document.querySelectorAll('.dk-chip')].map((b) => b.textContent.trim()),
     label: (document.querySelector('.sdb-label') || {}).textContent || '',
     selRing: document.querySelectorAll('.rs.sel').length,
-    next: (document.querySelector('.sdb-next') || {}).textContent || '',
+    next: (document.querySelector('.sdb-ok') || {}).textContent || '',
   }));
   ok(one.bars === 1, '자리를 탭하면 창은 하나만 뜬다', String(one.bars));
   ok(one.nmInBar, '이름칸이 그 창 안에 있다');
@@ -56,29 +56,33 @@ try {
   ok(one.focused === 'sdb-nm', '창을 열면 이름칸에 바로 커서가 간다', String(one.focused));
   ok(one.selRing === 1, '열어 둔 자리에 표시(.rs.sel)가 남는다', String(one.selRing));
   ok(one.chips.length === 3, '아직 알콜을 아무도 안 골랐으면 셋 다 보인다', one.chips.join(' / '));
-  ok(/다음 자리/.test(one.next), "'다음 자리' 단추가 있다", one.next);
+  ok(one.next.trim() === '확인', "단추는 '확인' 하나 · 다음 자리로 끌고 가지 않는다 [SEAT_NO_CHAIN]", one.next);
   await page.screenshot({ path: path.join(OUT, 'seat-1-한창-390.png'), fullPage: false });
 
   /* [SEAT_DIRTY_KEEP] 여기는 fill(값 한 번에 대입)이 아니라 **한 글자씩 실타이핑**이어야 한다 —
      f515438 이후 라이브에서 이름이 통째로 사라지던 사고가 '글자를 치는 동안 편집이 닫히는' 경로였고,
      fill 은 그 경로를 지나가지 않는다. 이 검사가 그 회귀를 붙잡는 자리다. */
-  console.log('\n[이름 적고 엔터 = 다음 자리]');
+  console.log('\n[이름 적고 엔터 = 이 자리만 마치고 닫힘]');
   await page.click('.sdb-nm');
   await page.keyboard.type('김희준', { delay: 40 });
   await new Promise((r) => setTimeout(r, 120));
   const typed = await page.evaluate(() => ({ n: SEATFLOW.tables[0].seats[0], e: JSON.stringify(SEATFLOW.edit) }));
   ok(typed.n === '김희준', '치는 동안 이름이 모델에 들어간다(편집이 닫히지 않는다)', typed.n + ' edit=' + typed.e);
   await page.press('.sdb-nm', 'Enter');
-  await new Promise((r) => setTimeout(r, 160));
+  await new Promise((r) => setTimeout(r, 260));
   const afterEnter = await page.evaluate(() => ({
     sel: JSON.stringify(SEATFLOW.sel), name0: SEATFLOW.tables[0].seats[0],
-    val: (document.querySelector('.sdb-nm') || {}).value,
-    focused: document.activeElement && document.activeElement.className,
+    bars: document.querySelectorAll('.seat-drinkbar').length,
+    shown: [...document.querySelectorAll('.rs-nm')].map((e) => e.textContent).join(','),
   }));
   ok(afterEnter.name0 === '김희준', '적은 이름이 모델에 남는다', afterEnter.name0);
-  ok(afterEnter.sel === '{"ti":0,"si":1}', '엔터를 누르면 다음 자리로 넘어간다', afterEnter.sel);
-  ok(afterEnter.val === '', '넘어간 자리의 이름칸은 비어 있다(앞 이름이 복제되지 않는다)', afterEnter.val);
-  ok(afterEnter.focused === 'sdb-nm', '넘어간 자리에서도 커서가 이름칸에 있다', String(afterEnter.focused));
+  ok(afterEnter.sel === 'null' && afterEnter.bars === 0, '엔터를 누르면 그 자리만 마치고 창이 닫힌다 [SEAT_NO_CHAIN]', afterEnter.sel + ' bars=' + afterEnter.bars);
+  ok(afterEnter.shown === '김희준', '캔버스에 그 이름이 보인다', afterEnter.shown);
+
+  // 다음 자리는 '눌러서' 연다 — 자동으로 열리지 않는다
+  await tap(page, '[data-seat-edit][data-ti="0"][data-si="1"]');
+  const opened = await page.evaluate(() => ({ sel: JSON.stringify(SEATFLOW.sel), val: (document.querySelector('.sdb-nm') || {}).value }));
+  ok(opened.sel === '{"ti":0,"si":1}' && opened.val === '', '다음 자리는 눌렀을 때만 열린다(빈 칸으로)', opened.sel + ' val=' + opened.val);
 
   console.log('\n[알콜 1종 규칙]');
   await page.fill('.sdb-nm', '이미쿠');
@@ -96,8 +100,8 @@ try {
   ok(/샴페인/.test(afterC.alcLine), '요약 카드가 행사 알콜을 알려 준다', afterC.alcLine.replace(/\s+/g, ' ').slice(0, 60));
   await page.screenshot({ path: path.join(OUT, 'seat-1b-알콜정해짐-390.png'), fullPage: false });
 
-  // 다음 자리 → 논알콜은 언제나 고를 수 있다(고정)
-  await tap(page, '.sdb-next');
+  // 논알콜은 언제나 고를 수 있다(고정) — 자리를 눌러서 연다
+  await tap(page, '[data-seat-edit][data-ti="0"][data-si="2"]');
   await page.fill('.sdb-nm', '아이');
   await tap(page, '.sdb-opts .dk-chip:last-child');   // 논알콜
   const afterN = await page.evaluate(() => ({ d: SEATFLOW.tables[0].drinks[2], counts: (document.querySelector('.ss-drinks') || {}).textContent || '' }));
