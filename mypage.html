@@ -6043,7 +6043,7 @@ function guideHubHtml(p, inv){
   var closed=!!tok && _guideLinkClosed(p.base);
   // 설명은 행 아래(.trk-sub)가 담당 — 패널에 같은 말을 또 쓰지 않는다(2026-07-25 사용자 지시로 행 설명 유지 결정)
   return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
-    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객에게 보여요.</div>';
+    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객분들께 보여요.</div>';
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 // 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
 //   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
@@ -7226,7 +7226,7 @@ function renderSeat(box){
   }
   // 공개 방식(전체 공개 / 내 자리만 검색) — 캔버스 아래 별도 카드(2026-07-19 사용자 선택). 상단 크램프 체크박스 폐지. ★상단 복원 금지.
   var _mine=(s.gi&&s.gi.seatMode==='mine'), _giDis=(s.gi&&s.gi._saving)?' style="opacity:.5;pointer-events:none"':'';
-  var privacyHtml='<div class="seat-privacy"'+_giDis+'><div class="sp-q">하객에게 어떻게 보여드릴까요?</div>'
+  var privacyHtml='<div class="seat-privacy"'+_giDis+'><div class="sp-q">하객분들께 어떻게 보여드릴까요?</div>'
     +'<label class="sp-opt'+(_mine?'':' on')+'"><input type="radio" name="seatmode" value="all"'+(_mine?'':' checked')+'><span class="sp-t">전체 공개 <span class="sp-tag">좌석표</span></span><span class="sp-d">성함이 보이는 좌석표 · 하객이 검색 없이 자기 자리를 바로 봐요</span></label>'
     +'<label class="sp-opt'+(_mine?' on':'')+'"><input type="radio" name="seatmode" value="mine"'+(_mine?' checked':'')+'><span class="sp-t">내 자리만 검색</span><span class="sp-d">각자 이름을 검색해 자기 자리만 · 다른 분 성함은 안 보여요</span></label>'
     +'<div class="sp-note">고르면 바로 저장돼요</div></div>'
@@ -7924,7 +7924,7 @@ function renderDining(box){
         if(!repInFav) rep='';   // 대표가 식당 목록에 없으면 미지정
         if(!rep && restos.length===1){ rep=restos[0].n; d.venuePick=rep; }   // 식당 한 곳만 담았으면 자동 대표(불필요한 클릭 생략)
         // [하객 공개 토글] 담기(비교)와 노출 분리 — 켠 곳만 하객 안내에 뜸(대표=여기로 예약은 항상 공개) · 2026-07-19 사용자 지시
-        var _showBtn=function(v){ var on=v.show===true; return '<button type="button" class="dn-showtgl'+(on?' on':'')+'" data-favshow="'+escapeHtml(v.n)+'">'+(on?'✓ 하객에게 보여주는 중':'하객에게도 보여주기')+'</button>'; };
+        var _showBtn=function(v){ var on=v.show===true; return '<button type="button" class="dn-showtgl'+(on?' on':'')+'" data-favshow="'+escapeHtml(v.n)+'">'+(on?'✓ 하객분들께 보여주는 중':'하객분들께도 보여주기')+'</button>'; };
         var favHtml=restos.map(function(v){
           var isRep=(v.n===rep), r=_dnFind(v.n), tel=String((r&&r.tel)||v.tel||'').replace(/[^0-9]/g,'');
           var mUrl=(v.url&&/^https?:\/\//i.test(v.url))?v.url:_dnMapUrl(v.n);
@@ -7943,7 +7943,7 @@ function renderDining(box){
             return '<div class="dn-fav dn-spot"><button type="button" class="x" data-favdel="'+escapeHtml(v.n)+'" aria-label="빼기">✕</button>'
               +'<div class="n">'+escapeHtml(v.n)+'</div>'+(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
               +'<div class="a"><a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도 · 길찾기</a></div>'+_showBtn(v)+'</div>'; }).join('')
-          +'<div class="dn-fine" style="margin-top:4px">‘하객에게도 보여주기’를 켠 곳만 하객 안내에 떠요. 운영시간·입장은 방문 전 확인해 주세요.</div></div>'):'';
+          +'<div class="dn-fine" style="margin-top:4px">‘하객분들께도 보여주기’를 켠 곳만 하객 안내에 떠요. 운영시간·입장은 방문 전 확인해 주세요.</div></div>'):'';
         var repNote= restos.length ? (rep
           ? '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래 <b>'+escapeHtml(rep)+'</b>로 예약만 마치면 준비가 끝나요. 다른 곳으로 바꾸려면 그 카드의 \'여기로 예약할래요\'를 누르세요.</div>'
           : '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">두 분이 함께 보고, <b>예약할 한 곳</b>에서 \'여기로 예약할래요\'를 눌러 주세요. 나머지는 후보로 남겨 둬도 괜찮아요.</div>')
@@ -7951,7 +7951,7 @@ function renderDining(box){
         var body2=repNote+favHtml+spotHtml
           +'<button type="button" class="cc-btn-ghost dn-favshare" id="dn_favShare" style="margin-top:4px">카카오톡·문자로 목록 보내기</button>'
           +'<div class="dn-fine" style="margin-top:8px">✕로 목록에서 뺄 수 있어요.'+(restos.length?' 예약 전 식당에 전화로 한 번 확인해 주세요.':'')+'</div>'
-          +((restos.length>1||spots.length)?'<div class="dn-fine" style="margin-top:4px">대표 예약처는 늘 하객에게 공개돼요. 추가로 <b>‘하객에게도 보여주기’</b>를 켠 식당·카페·가볼 곳만 함께 안내돼요(2차 등).</div>':'')
+          +((restos.length>1||spots.length)?'<div class="dn-fine" style="margin-top:4px">대표 예약처는 늘 하객분들께 공개돼요. 추가로 <b>‘하객분들께도 보여주기’</b>를 켠 식당·카페·가볼 곳만 함께 안내돼요(2차 등).</div>':'')
           +(restos.length?_dnRsvHtml(d):'');
         box.innerHTML=trkShell(2,'담은 곳 · '+favs.length+'곳 모아보기',null,body2,true,'저장하고 닫기');
         bindTrk(box,renderDining,collect,{ last:true });

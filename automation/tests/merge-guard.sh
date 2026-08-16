@@ -3623,6 +3623,13 @@ chk '하객분들께 직접 감사 인사를 전해요' assets/ritual-data.js 4
 chk '하객분들께 직접 감사 인사를 전해요' order-preview.html 4
 nochk '하객에게 직접 감사 인사' assets/ritual-data.js
 nochk '하객에게 직접 감사 인사' order-preview.html
+#   ★mypage 표시 문구도 같은 기준(좌석 공개 질문·다이닝 노출 토글). 실렌더로 확인하고 넣었다 —
+#     startSeatFlow·startTrkFlow 로 그 화면을 직접 띄울 수 있다(scripts/audit/page-probe.mjs).
+#   ★단, 계약 동의문 「하객에게는 안내 음성과 식순지…」는 **그대로 둔다** —
+#     contract/v1-1.html 및 서명 완료된 보존본(archive/v1-6·v1-7)과 글자 그대로 대조되는 문장이다.
+chk '하객분들께 어떻게 보여드릴까요' mypage.html 1
+chk '하객분들께도 보여주기' mypage.html 3
+chk '하객에게는 안내 음성과 식순지' mypage.html 1
 # ── [SEAT_ONE_CARD · ALC_ONE 2026-08-16 사용자 지시] 좌석·음료 편집기 개편 ──
 #   ①"이름부분을 클릭하면 음료랑 이름적는게 동시에" → 한 창(이름칸+음료)으로 통합
 #   ②"논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인" → 알콜은 행사 전체 한 종류
