@@ -114,6 +114,9 @@ jobs:
           # ★[LISTEN_EXPORT_REAL] 실청 페이지가 낸 대본을 **진짜 붙여넣기 검사에 그대로 넣는다.**
           #   「기존 파이프라인에 물린다」는 말을 매일 실행으로 다시 확인하는 자리다.
           node scripts/check-listen-export.mjs; note "check-listen-export" $?
+          # [AUDIO_SENTS] 소리에 대본만큼의 문장이 실제로 있는가 — 91클립을 ffmpeg 로 재느라
+          #   merge-guard 에 못 넣는다(3분+). 야간에 돌린다. 실사고: 4클립이 둘째 문장을 통째로 잃었다.
+          node scripts/check-audio-sents.mjs; note "check-audio-sents" $?
           # ★[MYPAGE_UNSEEN] 이 검사는 **일부러 절대 0 을 내지 않는다.** 로그인 뒤가 사각지대라는
           #   사실을 매일 다시 알리는 것이 목적이다. 2 로 나오는 것이 정상이고, 사람이 로그인해
           #   확인하기 전까지 계속 2 다. 초록으로 만들려고 이 검사를 고치지 말 것.

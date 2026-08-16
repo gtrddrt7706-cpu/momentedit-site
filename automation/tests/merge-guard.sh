@@ -3269,6 +3269,13 @@ chk 'LISTEN_ALL' scripts/build-listen-all.mjs 1
 # [TOO_SHORT] 소리가 글보다 짧은 클립을 화면에 띄운다(못 듣는 내가 «틀렸다»고 하지 않고 «먼저 들어 보라»고 한다)
 chk 'SENT_SEEK' scripts/build-listen-all.mjs 1
 chk 'TOO_SHORT' scripts/build-listen-all.mjs 1
+# ── [AUDIO_SENTS 2026-08-16] 소리에 대본만큼의 문장이 실제로 있는가 ──
+# ★실사고: 4클립이 대본 2문장인데 소리엔 1문장뿐이었다(둘째가 통째로 빠짐).
+#   check-text-audio 는 글↔글만 봐서 초록이었다 — 「A=B」를 아무리 봐도 둘 다 실물과 다르면 소용없다.
+# [NO_GATE] merge-guard 에서 돌리지 않는다 — 91클립을 ffmpeg 로 재느라 3분 넘게 걸린다.
+#   야간 잡이 돌린다. 여기서는 검사가 살아 있는지만 본다.
+chk 'AUDIO_SENTS' scripts/check-audio-sents.mjs 1
+chk 'CANT_HEAR' scripts/check-audio-sents.mjs 2
 chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
 chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 # [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다
