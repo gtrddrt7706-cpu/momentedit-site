@@ -1095,11 +1095,11 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .rs.sel{border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(184,154,117,.38)}   /* [SEAT_ONE_CARD] 창을 열어 둔 자리 — 창이 화면 가운데를 덮어도 '어디를 고치는 중'인지 캔버스에 남는다 */
     /* 자리별 음료 표시 — 화면 깔끔하게: 자리엔 작은 색점만(모서리), 상세·선택은 탭했을 때 상단 바에서 */
     .rs-dk{position:absolute;top:-1px;right:-1px;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--bg);box-shadow:0 0 0 .5px rgba(58,45,34,.14);pointer-events:none}   /* 모서리 배지(안쪽으로 붙임) — 5석·긴이름 시 360px 가로 넘침 방지 */
-    .rs-dk.rs-dk-none{background:#fff;box-shadow:0 0 0 1px var(--gold-deep)}   /* [음료 미정 표시 2026-07-22] 이름은 있는데 음료 안 고른 자리 = 빈 골드 링. 누가 아직 안 정했는지 캔버스에서 한눈에 보이게(색점 있는 자리와 구분) */
+    /* ★[SEAT_NO_UNDEC] 빈 골드 링(.rs-dk-none)·미정 되돌리기 단추(.sdb-clear) CSS 삭제 — 2026-08-16 사용자 지시로 미정 상태가 없어졌다. 복원 금지. */
     .dk-N{background:#5F9E86}   /* 논알콜 스파클링 · 세이지그린 */
     .dk-C{background:#C9A227}   /* 샴페인 · 골드 */
     .dk-R{background:#9B4A57}   /* 레드와인 · 와인 */
-    .dk-U{background:#C9C2B6}   /* 미정 · 그레이(2026-07-19 자리별 3음료) */
+    .dk-U{background:#C9C2B6}   /* (구)미정 · 그레이 — 자리 편집기에선 쓰지 않는다(SEAT_NO_UNDEC). guide·관리자가 옛 데이터를 그릴 때만 */
     .dk-A{background:#9B4A57}   /* (구)알콜 · 와인 — 구 데이터 호환 */
     .dk-J{background:#E0912F}   /* (구)주스 · 앰버 — 구 데이터 호환 */
     /* (.seat-drsum 폐지 2026-07-19 — 음료 집계는 요약 카드 .seat-summary .ss-drinks로 통합) */
@@ -1165,7 +1165,6 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .sdb-x{width:44px;height:44px;margin:-11px -12px -11px 0;border:0;background:transparent;color:var(--light);font-size:17px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:none}
     .sdb-x:active{color:var(--accent)}
     /* 골랐던 것을 되돌리는 길 — 옛 판엔 없어서 한 번 고르면 '미정'으로 못 돌아갔다(×는 창을 닫을 뿐이다) */
-    .sdb-clear{display:block;width:100%;margin-top:8px;padding:8px;border:0;background:transparent;font-family:var(--serif-ko);font-size:11.5px;color:var(--label-soft);cursor:pointer;text-align:center}
     /* [SEAT_ONE_CARD] 이름칸이 창 안으로 들어왔다 — 캔버스의 70px 칸과 달리 넓게 서고, 포커스 크기 16px(iOS 확대 방지·MPD_B9와 같은 이유) */
     .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
     .sdb-nm:focus{outline:none;border-color:var(--gold-deep)}
@@ -5695,6 +5694,21 @@ function _seatAlcMixed(){   // 옛 데이터 방어 — 샴페인·레드와인�
   ((SEATFLOW&&SEATFLOW.tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(v==='C')hasC=true; else if(v==='R')hasR=true; }); });
   return hasC&&hasR;
 }
+/* ★★[SEAT_NO_UNDEC 2026-08-16 사용자 지시 "음료 미정은 없에자"]
+   이름이 적힌 자리에는 **음료가 반드시 하나 붙는다.** '미정'이라는 상태를 만들지 않는다.
+   기본값은 행사에 이미 정해진 알콜(없으면 샴페인) — 알콜은 어차피 한 종류라(ALC_ONE) 고를 것이 없고,
+   다른 것을 드실 분만 그 자리에서 논알콜로 바꾸면 된다.
+   ★'미정으로 되돌리기' 단추·미정 집계·미정 일괄 채우기·완료 전 미정 확인은 되살리지 말 것 —
+     상태가 없어졌으니 그 넷은 전부 가리킬 것이 없다. */
+function _seatDrinkDefault(){ return _seatAlc() || 'C'; }
+function _seatFillDefaults(){   // 이름 있는데 음료가 빈 자리를 기본값으로 메운다(불러오기·그리기·저장 직전 모두 이걸 지난다)
+  var dv=_seatDrinkDefault(), n=0;
+  ((SEATFLOW&&SEATFLOW.tables)||[]).forEach(function(t){
+    var s=(t&&t.seats)||[]; if(!t) return; t.drinks=t.drinks||[];
+    for(var i=0;i<s.length;i++){ if(String(s[i]||'').trim() && !t.drinks[i]){ t.drinks[i]=dv; n++; } }
+  });
+  return n;
+}
 function _seatAlcCount(code){ var n=0; ((SEATFLOW&&SEATFLOW.tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(v===code)n++; }); }); return n; }
 function _seatAlcSetAll(code){   // 알콜 종류 통일 — 알콜로 고른 자리를 전부 code로. 논알콜(N)·미정('')은 건드리지 않는다
   ((SEATFLOW&&SEATFLOW.tables)||[]).forEach(function(t){ var d=(t&&t.drinks)||[]; for(var i=0;i<d.length;i++){ if(d[i]==='C'||d[i]==='R') d[i]=code; } });
@@ -5882,6 +5896,7 @@ function saveSeat(done){
   // 고아 음료(이름 없는 자리) 정리는 '배치 완료'(done) 페이로드에만 — 임시저장은 그대로 둬 이어하기에서 음료 먼저 흐름이 살아남게. 표시·집계·하객 화면은 어차피 이름 있는 자리만 노출.
   var _tbls; try{ _tbls=JSON.parse(JSON.stringify(SEATFLOW.tables)); }catch(e){ _tbls=SEATFLOW.tables; }
   if(done) _tbls.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
+  _tbls.forEach(function(t){ var dv=_seatDrinkDefault(); (t.seats||[]).forEach(function(nm,i){ if(String(nm||'').trim() && !((t.drinks&&t.drinks[i])||'')){ t.drinks=t.drinks||[]; t.drinks[i]=dv; } }); });   // [SEAT_NO_UNDEC] 보내는 값에도 미정이 없게 — 화면을 안 거치고 저장되는 길(자동저장·나가기)까지 덮는다
   _seatFinSave();   // 최종 인원=이름 있는 자리 수로 파생 저장(별도 인원 입력 폐지 2026-07-19) — 좌석 저장과 함께
   return _wizWatch('seat', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done}));
 }
@@ -6674,6 +6689,7 @@ function renderSeat(box){
      창이 화면 가운데를 덮으므로, 내가 무엇을 열어 뒀는지 캔버스에서도 보이게 하는 표시다. */
   var sel=s.sel||null;
   if(sel && (sel.si==='name' || !s.tables[sel.ti] || sel.si>=((s.tables[sel.ti].seats)||[]).length)){ sel=null; s.sel=null; }
+  _seatFillDefaults();   // [SEAT_NO_UNDEC] 그리기 전에 한 번 — 이름 있는 자리에 음료가 비어 있는 상태를 화면에 내보내지 않는다(옛 데이터 포함)
   function tableEl(t, ti, row, dispNo){
     var n=t.seats.length, seats='';
     for(var si=0; si<n; si++){
@@ -6686,7 +6702,7 @@ function renderSeat(box){
          키보드를 내리기 전엔 음료 창의 아래쪽이 가려졌다. 한 자리에 할 일이 둘이면 창도 하나여야 한다.
          ★자리 알약 안 입력칸(rs-edit)으로 되돌리지 말 것 — 테이블 이름 편집(rt-cin)만 캔버스에 남는다. */
       { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N');
-        var dot=_hasDk?'<i class="rs-dk dk-'+dk+'"></i>':(f?'<i class="rs-dk rs-dk-none" title="음료 미정"></i>':'');   // 색점=자리별 음료 · 이름 있는데 미정이면 빈 골드 링(누가 안 정했는지 보이게 2026-07-22) · 빈자리는 표시 없음
+        var dot=_hasDk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점=자리별 음료 · [SEAT_NO_UNDEC] 이름이 있으면 음료가 반드시 있으니 '미정 빈 링'은 그릴 일이 없다(빈자리는 표시 없음)
         var _selNow=!!(sel && sel.ti===ti && sel.si===si);   // [SEAT_ONE_CARD] 지금 창을 열어 둔 자리 — 창이 캔버스를 덮어도 어디를 고쳤는지 남게
         seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+(_selNow?' sel':'')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add" aria-hidden="true">＋</span>')+dot+'</button></div>'; }   /* ★[SEAT_ADD_PLUS 2026-08-11 사용자 지시 "이름은 빼고 플러스만 나오게 하자 너무 지져분하다"]
         빈 자리 알약에서 '이름' 글자를 뺐다. 6테이블×5자리면 그 두 글자가 화면에 서른 번 반복되고,
@@ -6720,7 +6736,7 @@ function renderSeat(box){
   var _named=_seatNamedCount();   // 최종 인원=이름 있는 자리 수(별도 입력 폐지)
   var _dc=seatDrinkCounts(s.tables);   // 이름 있는 자리만 · C샴페인/R레드와인/N논알콜 스파클링/U미정
   var _lp=[]; var _dkPill=function(cls,label,n){ return '<span class="ss-dk"><i class="s-dot '+cls+'"></i>'+label+' '+n+'</span>'; };
-  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알콜 스파클링',_dc.N)); if(_dc.U)_lp.push(_dkPill('dk-U','미정',_dc.U));
+  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알콜 스파클링',_dc.N));   // [SEAT_NO_UNDEC] 미정 알약 없음 — 이름 있는 자리는 전부 음료가 있다
   var drinksInner=_lp.length ? '<div class="ss-drinks">'+_lp.join('')+'</div>' : '';   // 음료 집계 — 요약 카드 하단 줄(인원·요금과 한 카드로 · 2026-07-19 디자이너 개편)
   // [디자이너 개편 2026-07-19 사용자 지시: "아래 인원수와 음료 표시가 따로 놀지 않게 조화롭게"] 인원·요금 + 음료 집계를 한 요약 카드로 묶어 공개 방식 카드와 같은 폭으로 정렬.
   /* [ALC_ONE] 요약 카드에 '알콜은 무엇으로 정해져 있는지'를 한 줄로 세운다.
@@ -6734,7 +6750,6 @@ function renderSeat(box){
     var _oth=(_alc==='C')?'R':'C';
     alcLine='<div class="ss-alc"><span>알콜은 <b>'+SEAT_DRINK_LABEL[_alc]+'</b>으로 준비해요 · 한 종류만 가능해요</span>'
       +'<span class="ss-alc-btns">'
-      +(_dc.U?'<button type="button" class="ss-alc-b" data-alc-fill="'+_alc+'">미정 '+_dc.U+'자리도 '+SEAT_DRINK_LABEL[_alc]+'으로</button>':'')
       +'<button type="button" class="ss-alc-b" data-alc-all="'+_oth+'">'+SEAT_DRINK_LABEL[_oth]+'으로 바꾸기</button>'
       +'</span></div>';
   }
@@ -6767,7 +6782,6 @@ function renderSeat(box){
       +'<input class="sdb-nm" data-ed data-edk="'+sel.ti+':'+sel.si+'" value="'+escapeHtml(_edNm)+'" maxlength="24" autocomplete="off" placeholder="하객 성함" aria-label="하객 성함">'
       +'<div class="sdb-opts'+(_mix||!_alcPick?'':' n2')+'">'+opts+'</div>'
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')
-      +(cur?'<button type="button" class="sdb-clear" data-drink="X">음료 선택 지우기 · 미정으로</button>':'')
       +'<button type="button" class="sdb-ok" data-seat-selclose>확인</button>'   // [SEAT_NO_CHAIN] 이 자리만 마치고 닫는다 — 다음 자리로 끌고 가지 않는다
       +'</div>';   // 자리별 음료(★복원 금지: 상단 대표음료·자리별 알콜 혼용으로 되돌리지 말 것)
   }
@@ -6832,7 +6846,7 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-done],[data-drink],[data-seat-selclose],[data-alc-all],[data-alc-fill]'):null;   // data-drink=자리별 음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지 · [ALC_ONE] data-alc-*=행사 전체 알콜 1종 조작
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-done],[data-drink],[data-seat-selclose],[data-alc-all]'):null;   // data-drink=자리별 음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지 · [ALC_ONE] data-alc-*=행사 전체 알콜 1종 조작
     // 배경(입력창·창 안·액션 버튼이 아닌 곳) 클릭 → 이름 확정 + 열려 있던 자리 창 닫기 [SEAT_ONE_CARD]
     if((SEATFLOW.edit||SEATFLOW.sel) && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed],.seat-drinkbar'))){ commitSeatEdit(box); SEATFLOW.sel=null; renderSeat(box); return; }
     if(!el) return;
@@ -6858,19 +6872,11 @@ function bindSeat(box){
     if(el.hasAttribute('data-alc-all')){ commitSeatEdit(box); var _ac=el.getAttribute('data-alc-all'); if(_ac!=='C'&&_ac!=='R') return;
       var _chg=_seatAlcCount(_ac==='C'?'R':'C');
       if(!_chg){ _seatAlcSetAll(_ac); renderSeat(box); return; }
-      mpConfirm({ title:SEAT_DRINK_LABEL[_ac]+'으로 통일', body:'알콜을 고른 자리 '+_chg+'곳이 '+SEAT_DRINK_LABEL[_ac]+'으로 바뀌어요.\n논알콜 스파클링·미정 자리는 그대로예요.', yes:'바꾸기', no:'취소' })
+      mpConfirm({ title:SEAT_DRINK_LABEL[_ac]+'으로 통일', body:'알콜을 고른 자리 '+_chg+'곳이 '+SEAT_DRINK_LABEL[_ac]+'으로 바뀌어요.\n논알콜 스파클링 자리는 그대로예요.', yes:'바꾸기', no:'취소' })
         .then(function(ok){ if(ok){ _seatAlcSetAll(_ac); renderSeat(box); } });
       return; }
-    /* [ALC_ONE] 미정 자리 일괄 채우기 — 스물다섯 명 중 대부분이 같은 알콜인 게 보통이라,
-       한 자리씩 스물다섯 번 누르는 대신 '안 마시는 분만' 따로 고르게 한다. 이미 고른 자리는 절대 덮지 않는다. */
-    if(el.hasAttribute('data-alc-fill')){ commitSeatEdit(box); var _fc=el.getAttribute('data-alc-fill'); if(_fc!=='C'&&_fc!=='R') return;
-      var _u=seatDrinkCounts(SEATFLOW.tables).U; if(!_u){ renderSeat(box); return; }
-      mpConfirm({ title:'미정 '+_u+'자리 채우기', body:'음료를 아직 안 고른 '+_u+'자리를 '+SEAT_DRINK_LABEL[_fc]+'으로 채울까요?\n이미 고른 자리는 그대로예요.', yes:'채우기', no:'취소' })
-        .then(function(ok){ if(!ok) return;
-          SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(String(nm||'').trim() && !((t.drinks&&t.drinks[i])||'')){ t.drinks=t.drinks||[]; t.drinks[i]=_fc; } }); });
-          renderSeat(box); });
-      return; }
-    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv==='X')dv='';
+    // ★[SEAT_NO_UNDEC] '미정 일괄 채우기'(data-alc-fill) 폐지 — 2026-08-16 사용자 지시로 미정 상태 자체가 없어졌다. 복원 금지.
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv!=='C'&&dv!=='R'&&dv!=='N') return;   // [SEAT_NO_UNDEC] 빈 값('미정')으로 되돌리는 경로 없음 — 셋 중 하나만 받는다
         /* [ALC_ONE] 이미 정해진 알콜과 다른 알콜을 고르면 — 이 자리만 예외로 두지 않는다.
            한 종류만 준비되므로 '전부 바꿀지'를 묻고, 아니라면 아무것도 바꾸지 않는다. */
         var _al=_seatAlc();
@@ -6883,8 +6889,8 @@ function bindSeat(box){
         var td=SEATFLOW.tables[edd.ti]; if(td){ td.drinks=td.drinks||[]; td.drinks[edd.si]=dv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }   // 자리별 음료 칩 복원 2026-07-19 · _edLast 폴백: blur 직후 지연 재렌더(200ms) 창에서 칩 탭 무시 방지
     // ★상단 대표음료 칩(data-fedrink) 핸들러 폐지 — 2026-07-19 사용자 지시("고르고 인원 정하는 탭 전부 제거"). 음료는 자리별(data-drink)로만. 복원 금지.
     if(el.hasAttribute('data-seat-done')){ commitSeatEdit(box); _seatErr('');
-      var names=0, undec=0;   // 이름 수 + 이름 있는데 음료 미정 수(2026-07-22 완료 전 순한 확인용)
-      SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v,i){ if(String(v||'').trim()){ names++; var d=(t.drinks&&t.drinks[i])||''; if(d!=='C'&&d!=='R'&&d!=='N') undec++; } }); });
+      var names=0;   // [SEAT_NO_UNDEC] '음료 미정 n명' 완료 전 확인 폐지 — 미정 상태가 없어졌다(2026-08-16 사용자 지시). 복원 금지
+      SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) names++; }); });
       if(!names){ _seatErr('한 자리 이상 이름을 채워 주세요.'); return; }
       var _done=el;
       function _proceed(){
@@ -6893,7 +6899,6 @@ function bindSeat(box){
         saveSeat(true).then(function(r){ if(r&&r.ok){ _flowBusy(false); SEATFLOW._exiting=false; SEATFLOW.token=r.seatToken||SEATFLOW.token; SEATFLOW.active=false; bkKill(SEATFLOW); _mpRefresh(); } else { _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; b2.removeAttribute('aria-busy'); _seatErr((r&&r.error)||'저장에 실패했어요.'); } })
           .catch(function(){ _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; b2.removeAttribute('aria-busy'); _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
       }
-      if(undec>0){ mpConfirm({ title:'음료 미정 '+undec+'명 있어요', body:'음료를 아직 안 고른 자리가 '+undec+'명 있어요.\n지금은 미정으로 두고 나중에 이어서 정할 수도 있어요.', yes:'이대로 완료', no:'더 고를게요' }).then(function(ok){ if(ok) _proceed(); }); return; }
       _proceed();
       return;
     }

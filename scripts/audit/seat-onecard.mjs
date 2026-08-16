@@ -112,31 +112,49 @@ try {
   await tap(page, '[data-alc-all="R"]');
   await new Promise((r) => setTimeout(r, 200));
   const confirmTxt = await page.evaluate(() => (document.querySelector('.mp-modal') || {}).innerText || '');
-  ok(/레드와인/.test(confirmTxt) && /1곳|1 곳/.test(confirmTxt), '무엇이 몇 곳 바뀌는지 먼저 묻는다', confirmTxt.replace(/\s+/g, ' ').slice(0, 80));
+  ok(/레드와인/.test(confirmTxt) && /\d+곳/.test(confirmTxt) && !/미정/.test(confirmTxt), '무엇이 몇 곳 바뀌는지 먼저 묻는다(미정 언급 없이)', confirmTxt.replace(/\s+/g, ' ').slice(0, 80));
   await page.evaluate(() => { const b = [...document.querySelectorAll('.mp-modal button')].find((x) => /바꾸기/.test(x.textContent)); if (b) b.click(); });
   await new Promise((r) => setTimeout(r, 250));
   const afterSwap = await page.evaluate(() => ({ d: SEATFLOW.tables[0].drinks.slice(0, 3).join(',') }));
-  ok(afterSwap.d === ',R,N', '알콜만 통째로 바뀌고 논알콜·미정은 그대로다', afterSwap.d);
+  ok(afterSwap.d === 'R,R,N', '알콜만 통째로 바뀌고 논알콜은 그대로다', afterSwap.d);
 
-  console.log('\n[미정 일괄 채우기]');
+  /* [SEAT_NO_UNDEC] '미정'이라는 상태를 만들지 않는다 — 이름이 붙는 순간 음료가 하나 붙는다.
+     되돌리는 길(창의 '미정으로' 단추)도, 미정을 세는 자리(요약 알약)도 없어야 한다. */
+  console.log('\n[미정이 생기지 않는다]');
   await page.evaluate(() => {
     SEATFLOW.tables[0].seats = ['가', '나', '다', '라'];
-    SEATFLOW.tables[0].drinks = ['', 'R', 'N', ''];
+    SEATFLOW.tables[0].drinks = ['', 'R', 'N', ''];   // 옛 데이터 모양(이름은 있는데 음료가 빈 자리)
+    SEATFLOW.sel = null; SEATFLOW.edit = null;
     renderSeat(document.getElementById('mp_production'));
   });
-  const fillBtn = await page.evaluate(() => (document.querySelector('[data-alc-fill]') || {}).textContent || '');
-  ok(/미정 2자리/.test(fillBtn), '미정이 몇 자리인지 단추에 적혀 있다', fillBtn);
-  await tap(page, '[data-alc-fill]');
-  await new Promise((r) => setTimeout(r, 200));
-  await page.evaluate(() => { const b = [...document.querySelectorAll('.mp-modal button')].find((x) => /채우기/.test(x.textContent)); if (b) b.click(); });
-  await new Promise((r) => setTimeout(r, 250));
-  const afterFill = await page.evaluate(() => SEATFLOW.tables[0].drinks.join(','));
-  ok(afterFill === 'R,R,N,R', '미정만 채우고 이미 고른 자리는 건드리지 않는다', afterFill);
+  const noUndec = await page.evaluate(() => ({
+    d: SEATFLOW.tables[0].drinks.join(','),
+    pills: (document.querySelector('.ss-drinks') || {}).textContent || '',
+    rings: document.querySelectorAll('.rs-dk-none').length,
+    fill: document.querySelectorAll('[data-alc-fill]').length,
+  }));
+  ok(noUndec.d === 'R,R,N,R', '이름 있는데 빈 자리는 열자마자 기본값(행사 알콜)으로 채워진다', noUndec.d);
+  ok(!/미정/.test(noUndec.pills), '요약 집계에 미정 알약이 없다', noUndec.pills.replace(/\s+/g, ' '));
+  ok(noUndec.rings === 0, '캔버스에 미정 빈 링이 없다', String(noUndec.rings));
+  ok(noUndec.fill === 0, "'미정 일괄 채우기' 단추가 없다", String(noUndec.fill));
+
+  // 새 이름을 적으면 그 자리도 곧바로 음료가 붙는다 + 창에 '미정으로' 되돌리는 길이 없다
+  await tap(page, '[data-seat-edit][data-ti="1"][data-si="0"]');
+  await page.click('.sdb-nm');
+  await page.keyboard.type('새하객', { delay: 30 });
+  await new Promise((r) => setTimeout(r, 120));
+  const fresh = await page.evaluate(() => {
+    renderSeat(document.getElementById('mp_production'));
+    return { d: SEATFLOW.tables[1].drinks[0], clear: document.querySelectorAll('.sdb-clear').length, on: [...document.querySelectorAll('.dk-chip.on')].map((b) => b.textContent.trim()).join(',') };
+  });
+  ok(fresh.d === 'R', '이름을 적으면 그 자리에 음료가 곧바로 붙는다', String(fresh.d));
+  ok(fresh.clear === 0, "창에 '미정으로 되돌리기' 단추가 없다", String(fresh.clear));
+  ok(/레드와인/.test(fresh.on), '붙은 음료가 창에서 선택된 상태로 보인다', fresh.on);
   await page.screenshot({ path: path.join(OUT, 'seat-2-요약-390.png'), fullPage: false });
 
   console.log('\n[섞인 옛 데이터]');
   await openSeat(page, [
-    { name: '테이블 1', side: 'L', seats: ['가', '나', '다', '라'], drinks: ['C', 'R', 'N', ''] },
+    { name: '테이블 1', side: 'L', seats: ['가', '나', '다', '라'], drinks: ['C', 'R', 'N', ''] },   // '' 는 기본값으로 메워지고, C·R 섞임만 남는다
     { name: '테이블 2', side: 'R', seats: ['', '', '', ''], drinks: ['', '', '', ''] },
   ]);
   await tap(page, '[data-seat-edit][data-ti="0"][data-si="0"]');
