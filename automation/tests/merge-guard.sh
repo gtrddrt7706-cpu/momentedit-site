@@ -3502,8 +3502,8 @@ nochk '240만' api/_kb.js
 nochk '240만' assets/advisor-kb.js
 # [NEW_TONE_PLAY 2026-08-16] 새 어조 문장에도 듣기 단추가 붙는다 — 소리를 다 심어 놓고 174문장에
 #   단추가 없어 못 듣던 실사고(ops 의 인자 이름이 playUrl 이라 null 을 넘겼다). 이름을 canPlay 로.
-chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 2
-nochk 'ops(k, null)' scripts/build-listen-all.mjs
+chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 1
+nochk ': ops(k, null))' scripts/build-listen-all.mjs   # ★모양으로 겨눈다(이름만 쓰면 설명 주석을 문다)
 # [DINING_NOT_INCLUDED 2026-08-16 사용자 지적 "우리는 다이닝 별도인데 틀린정보가 있네"]
 #   계약 제3조② — '을'은 소개·조율만 하고 식사비는 파트너사 직결제다. 「견적에 포함」으로 쓰지 말 것.
 #   실사고: 핵심 구성 카드와 JSON-LD 상품설명 2곳이 「다이닝 포함」·「하나의 견적에」라 계약과 정면 충돌.
