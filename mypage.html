@@ -6257,6 +6257,13 @@ function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
 function photoShareNorm(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자(GAS 정규화와 동일 규칙)
+/* ★[SHARE_KIND 2026-08-16] 넣은 링크가 **어떤 성격인지** 알아본다. 종류마다 하객이 겪는 것이 다르기 때문이다 —
+   1:1 오픈채팅은 서로 안 보이고, 공유 앨범은 링크를 아는 사람끼리 다 본다. 그 차이를 부부가 넣는 즉시 알아야 한다.
+   ★막는 장치가 아니다(무엇을 넣든 저장된다) — 넣은 것이 뜻하는 바를 되읽어 주는 거울일 뿐이다. */
+function photoShareKind(u){ u=String(u||'');
+  if(/^https?:\/\/open\.kakao\.com\//i.test(u)) return 'kakao';
+  if(/^https?:\/\/(photos\.app\.goo\.gl|photos\.google\.com)\//i.test(u)) return 'gphoto';
+  return u?'etc':''; }
 function startPhotoFlow(gi, rd){   // rd = 식순 초안(읽기 전용 · [PHOTO_SCENE] 장면 목록에만 쓴다 · savePhoto 는 건드리지 않는다)
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
   if(typeof SNAPFLOW!=='undefined'){ bkKill(SNAPFLOW); SNAPFLOW.active=false; var _so=$('mp_snapOverlay'); if(_so&&_so.parentNode) _so.parentNode.removeChild(_so); }
@@ -6286,7 +6293,7 @@ function renderPhoto(box){
      상태는 위 「저장」 버튼이 스스로 말한다(저장/저장 중…/저장됨/다시 저장). 되살리지 말 것. */
   /* [PHOTO_GATHER_OFF] 「불러 모아요/자리에서」 두 갈래 설명을 걷어내고 **한 문장**으로.
      대신 순서가 왜 중요한지를 적는다 — 두 분은 가운데 그대로, 둘레 사람만 바뀐다(subtractive). */
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>인사 사진</b> 시간에, 함께 모여 담는 구도예요. 전체 하객이 늘 첫 컷이고, 그다음부터는 <b>고르신 순서대로</b> 이어져요. 두 분은 가운데 그대로 계시고 둘레 사람만 바뀌니, 큰 모임을 앞에 두시면 진행이 빨라요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>인사 사진</b> 시간에, 함께 모여 담는 구도예요 · 전체 하객이 늘 첫 컷이고 그다음은 <b>고르신 순서대로</b>예요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객<span class="ph-sub">오신 분들 모두 · 늘 첫 컷이에요</span></span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
@@ -6306,8 +6313,12 @@ function renderPhoto(box){
        「V자로 어깨만」처럼 기존 컷에 얹는 **동작**일 수도 있어 우리가 미리 못 가른다.
        모르는 것에 숫자를 붙이면 그건 근거 없는 수치 약속이 된다(문구 규칙). 개수만 보이고,
        실제 배분은 그날 디렉터가 요청 글을 읽고 정한다. */
+  /* [WISH_MINIMAL] 상단에 있던 「두 분은 가운데 그대로…」 순서 팁을 여기로 내렸다 —
+     화면 맨 위에서는 읽을 이유가 없고(아직 아무것도 안 골랐다), 순서를 실제로 만지는 이 자리에서 쓸모가 있다.
+     두 개 이상 골랐을 때만 뜬다(하나면 순서라는 게 없다). */
   h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
     +(wish.length?(' · <b>요청 '+wish.length+'개</b>'):'')
+    +(sel.length>1?'<br>두 분은 가운데 그대로 계시고 둘레 사람만 바뀌어요 · 큰 모임을 앞에 두시면 빨라요.':'')
     +(_pm>19?' <span style="color:var(--gold-deeper)">· 인사 사진 시간이 빠듯해져요</span>':'')   // [PHOTO_CAP] 다 함께 30~39분 기준+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
@@ -6384,44 +6395,49 @@ function renderPhoto(box){
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택 · 하객이 찍은 사진을 한곳에</span></div>';
-  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="링크 붙여넣기 (구글 포토 앨범 · 오픈채팅)" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';   // 예시는 플레이스홀더로 올림 · 단일라인 잘림 방지(2026-07-21)
-  /* ★[MP_PHOTOSHARE_WHAT 2026-08-16 사용자 질문] *"질문 사진부분은 구글드라이브 주소를 주면되는거야?"*
-     ★옛 문구는 「공유 앨범·오픈채팅 링크를 넣어 주세요」라고만 했다. 그 말은 **이미 아는 사람에게만** 통한다 —
-       무엇을 만들어 와야 하는지, 지금 가진 구글 드라이브 주소를 써도 되는지가 안 적혀 있었다.
-     ★그래서 「무엇을 넣나」를 첫 줄로 올리고 드라이브를 직접 언급한다. 드라이브 폴더도 되긴 하지만
-       하객이 올리려면 **편집자 권한**을 열어야 하고, 그러면 남의 사진까지 지울 수 있게 된다.
-       "안 된다"가 아니라 "되는데 이래서 번거롭다"로 적는 것이 사실이다.
-     ★나머지 주의 셋(접근 범위·프로필 노출·링크 수명 · 구 [MP_PHOTOSHARE_INFO] 2026-07-26)은
-       **지우지 않고 접었다** — 고르기 전에 필요한 건 한 줄이고, 나머지는 고른 뒤에 읽는 것이다.
-       접힌 안이라도 문장은 그대로 남는다. 사진은 우리가 아니라 그 서비스에 쌓이므로
-       보관·삭제도 그쪽 규칙을 따른다 · 우리가 대신 보증하지 않는다. */
-  /* ★[PHOTOSHARE_TRUE 2026-08-16] 첫 판은 「링크만 있으면 하객이 바로 올릴 수 있어요」라고 썼는데 **사실이 아니다.**
-     구글 포토 공유 앨범은 링크만으로는 보기 전용이고, 만들 때 「공동작업」을 켜야 하객이 넣을 수 있다.
-     이 한 줄이 빠지면 링크를 넣고 안심한 고객이 **당일 밤에야** 아무것도 안 올라온 것을 알게 된다. 지우지 말 것.
-
-     ★★[PHOTOSHARE_ONE 2026-08-16 사용자 지적 "설명이 너무 긴데"] 선택지를 **하나로 줄였다.**
-       ★설명이 길었던 진짜 이유는 문장이 아니라 **선택지가 셋이었던 것**이다(오픈채팅·공유 앨범·드라이브).
-         셋을 나란히 두면 각각의 함정을 다 적어야 하고, 그래서 세 문단이 됐다. 문장을 다듬어도 안 줄어든다.
-       ★왜 공유 앨범 하나인가 — **카톡은 사진을 압축한다.** 사진이 상품인 스튜디오가
-         화질을 떨어뜨리는 통로를 권하는 것은 그 자체로 모순이다(사용자 지적: 업체가 오픈채팅을
-         안내하면 전문성이 없어 보인다 — 근거가 취향이 아니라 화질에 있다).
-         대화 사이에 사진이 흘러가 나중에 찾기 어려운 것도 같은 이유로 우리 쓰임에 안 맞는다.
-       ★오픈채팅·드라이브는 **지우지 않고 접었다** — 이미 만들어 둔 부부가 있고, 되는 건 사실이다.
-         권하지 않을 뿐이라 「다른 방법도 되나요?」 안에서 사실만 말한다. */
+  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="링크 붙여넣기 (1:1 오픈채팅방)" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';   // 예시는 플레이스홀더로 올림 · 단일라인 잘림 방지(2026-07-21)
   /* ★★★[PHOTOSHARE_DIRECT 2026-08-16 사용자 결정] 하객 사진은 **우리를 안 거치고 부부에게 바로 간다.**
      사용자 원문: *"우리를 안거치고 부부한테 바로가는걸원해"*
-     ★조사 결과(2026-08-16): 구글 드라이브·구글 폼은 **로그인 없이 업로드를 못 받는다.**
-       그래서 「우리 드라이브 폴더 링크를 하객에게 준다」는 방식은 애초에 성립하지 않는다.
-       우리가 받으려면 우리 서버(GAS)가 대신 써 주는 업로드 배관을 만들어야 하는데, 그 길을 **안 가기로 했다.**
-     ★되살리지 말 것 — 앞으로 리뷰가 「우리 안내 페이지에서 직접 받게 하자」를 개선안으로 들고 올 수 있다.
-       그건 기능이 부족해서 안 한 것이 아니라 **결정**이다. 우리가 받는 순간 하객 사진의 보관·파기·위탁 고지가
-       전부 우리 책임이 되고(처리방침 갱신 · 개인정보 부담), 부부에게 넘기는 단계가 하나 더 생긴다.
-       바로 가면 그 셋이 통째로 없다.
-     ★그래서 이 칸의 성격은 「부부가 만든 곳으로 하객을 보내 주는 것」이다 —
-       우리가 하는 일은 링크를 받아 **QR과 하객 안내 페이지 버튼으로 완성해 주는 것**까지다. */
-  h+='<div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b>을 하나 만들어 링크를 넣어 주세요 · 만들 때 <b>「공동작업」을 켜 주셔야</b> 하객이 사진을 넣을 수 있어요.</div>';
+     ★조사(2026-08-16): 구글 드라이브·구글 폼은 **로그인 없이 업로드를 못 받는다.** 그래서 「우리 폴더 링크를
+       하객에게 준다」는 애초에 성립하지 않고, 우리가 받으려면 GAS 업로드 배관을 만들어야 하는데 **안 가기로 했다.**
+     ★되살리지 말 것 — 「우리 안내 페이지에서 직접 받자」는 기능 부족이 아니라 **결정**이다. 우리가 받는 순간
+       하객 사진의 보관·파기·위탁 고지가 전부 우리 책임이 되고, 부부에게 넘기는 단계가 하나 더 생긴다.
+     ★그래서 이 칸이 하는 일은 「부부가 만든 곳으로 하객을 보내 주는 것」까지다 — 링크를 받아 QR·버튼으로 완성.
+
+     ★[PHOTOSHARE_ONE 2026-08-16 사용자 지적 "설명이 너무 긴데"] 선택지는 **하나만** 세운다.
+       설명이 길었던 이유는 문장이 아니라 **선택지가 셋이었던 것**이다 — 셋을 나란히 두면 각각의 함정을
+       다 적어야 해서 세 문단이 된다. 문장을 다듬어도 안 줄어든다. 권하는 하나만 세우고 나머지는 접는다.
+       ★[PHOTOSHARE_ONE] 그때 고른 하나는 구글 포토였고, 지금은 아래 결정으로 1:1 오픈채팅이 됐다.
+         바뀐 것은 **무엇을 세우느냐**이고, 「하나만 세운다」는 규칙 자체는 그대로다. */
+  /* ★★★[SHARE_KAKAO_1TO1 2026-08-16 사용자 결정] 하객 사진은 **카톡 1:1 오픈채팅방**으로 받는다.
+     사용자 원문: *"1:1 오픈톡방으로 링크를 유도 하고 개인적으로 보낼수있게"* ·
+     *"임의의 톡방으로 주인공이 미리만들어서 그링크를 올려놓는거지"*
+
+     ■ 왜 여기로 왔나 — 세 판을 거쳤다
+       ① 오픈채팅(그룹) → 뺐다. 하객끼리 실명·프로필이 드러난다.
+       ② 구글 포토 공유 앨범 → 기본이었다. 프로필은 안 드러나지만 **링크를 아는 하객끼리 사진이 다 보인다.**
+       ③ 드롭박스 파일 요청 → 서로 안 보이지만 하객에게 **이름·이메일**을 묻고 무료 2GB에 갇힌다.
+       ★1:1 오픈채팅이 셋의 문제를 한 번에 푼다 — 서로 안 보이고, 프로필도 안 드러나고,
+         하객은 카톡만 있으면 되고(마찰 0), 용량 제한이 없다. 부부 번호도 오픈프로필이라 안 드러난다.
+       ★핵심 사실(2026-08-16 확인): **링크 하나로 여러 개의 1:1 방이 각각 생긴다.**
+         그래서 우리가 발급하는 QR·버튼은 종전대로 **링크 하나**면 된다.
+
+     ■ 대가는 둘이고, 둘 다 적어 둔다(감추지 않는다)
+       ★카톡은 사진을 압축한다 → 하객 안내 페이지가 「원본」을 눌러 달라고 말한다(guide.html SHARE_KAKAO_1TO1).
+       ★카톡 사진은 30일쯤 지나면 서버에서 내려간다 → 부부에게 미리 받아 두시라고 적는다.
+         ★「저희가 알려 드릴게요」라고 쓰지 않는다 — 그 알림을 아직 안 만들었다.
+           못 지킬 약속을 문구로 하지 않는다(문구 규칙: 책임질 수 없는 안심 금지).
+           알림은 결정 대기함에 올려 두었다.
+
+     ■ 공유 앨범은 지우지 않고 접었다 — 이미 만들어 둔 부부가 있고, 되는 것은 사실이다. */
+  h+='<div class="cc-note" style="text-align:left;margin-top:8px">카톡에서 <b>오픈채팅 → 1:1 채팅방</b>을 하나 만들어 링크를 넣어 주세요 · 하객마다 <b>두 분과 단둘이</b> 열려서 하객끼리는 서로 안 보이고, 두 분 번호도 안 드러나요.</div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:6px">넣으시면 하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요 · 아래 QR을 테이블 카드에 두시면 더 많이 올라와요.</div>';
-  h+='<details class="cc-more" style="margin-top:6px"><summary>다른 방법도 되나요 · 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px"><b>카톡 오픈채팅</b>도 되지만 사진이 압축되고 대화 사이에 섞여 나중에 찾기 어려워요 · 참여자끼리 프로필도 보여요. <b>구글 드라이브 폴더</b>는 「편집자」 권한을 열어야 해서 하객이 남의 사진까지 지울 수 있어요.<br><br>어느 쪽이든 링크를 아는 분은 누구나 들어갈 수 있어요. 사진은 그 서비스에 쌓이니 <b>예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 닫혀요</b> · 사진을 먼저 옮겨 두세요.</div></details>';   // [PHOTOSHARE_ONE] 권하지 않는 방법도 '되는 건 사실'이라 지우지 않고 접는다
+  /* [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다 — 부부가 엉뚱한 것을 넣고도 모르는 일이 없게. */
+  var _sk=photoShareKind(_psu);
+  if(_sk==='kakao')  h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">1:1 오픈채팅 링크예요 · 하객끼리 서로 안 보여요. 사진은 <b>보낸 지 30일쯤 지나면 저장이 안 되니</b> 예식 뒤 며칠 안에 받아 두세요.</div>';
+  if(_sk==='gphoto') h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">공유 앨범 링크예요 · <b>링크를 아는 하객끼리 서로 사진이 보여요</b>. 그래도 괜찮으시면 그대로 두셔도 돼요.</div>';
+  if(_sk==='etc')    h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">오픈채팅·공유 앨범 링크가 아니에요 · 하객이 <b>가입 없이 올릴 수 있는 주소</b>인지 한 번 확인해 주세요.</div>';
+  h+='<details class="cc-more" style="margin-top:6px"><summary>다른 방법도 되나요 · 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b>도 돼요 · 만들 때 「공동작업」을 켜 주셔야 하객이 올릴 수 있고, <b>링크를 아는 하객끼리 서로 사진이 보여요</b>. 사진이 압축되지 않는 건 이쪽이 나아요.<br><br>어느 쪽이든 링크를 아는 분은 누구나 들어갈 수 있어요. 사진은 그 서비스에 쌓이니 <b>예식 뒤 정리하시면 안내 페이지의 버튼도 함께 닫혀요</b> · 사진을 먼저 옮겨 두세요.</div></details>';
   h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
   h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
   h+='</div>';
@@ -6465,7 +6481,10 @@ function renderPhoto(box){
     qbox.style.display='block'; ensureQR(function(){ renderQRInto('mp_photoShareQr','mp_photoShareQrSave',u,'moment-edit-photo-qr.png'); });
   }
   var psi=$('mp_photoShare');
-  if(psi) psi.addEventListener('input', function(){ PHOTOFLOW.share=psi.value; photoShareQrRender(); });
+  /* [SHARE_KIND] 링크를 다 치면 종류 안내가 갱신돼야 한다 — 입력 중 재렌더는 커서를 날리므로 blur 에서 한 번만.
+     (입력 중에는 QR 만 갱신한다 · 그건 화면 아래라 커서와 무관하다) */
+  if(psi){ psi.addEventListener('input', function(){ PHOTOFLOW.share=psi.value; photoShareQrRender(); });
+           psi.addEventListener('blur', function(){ if(photoShareKind(photoShareNorm(psi.value))!==_sk) rerender(); }); }
   photoShareQrRender();
   /* [WIZ_EXIT_ONE] 나가기·저장은 전역 위임(data-wiz-exit·data-wiz-save)이 받는다 — 전용 리스너 폐지 */
 }

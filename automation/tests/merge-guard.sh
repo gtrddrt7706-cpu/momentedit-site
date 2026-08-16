@@ -1163,7 +1163,11 @@ chk 'GUIDE_EMPTY_SEC' guide.html 1             # dining.on만 켜고 담은 곳�
 chk 'GUIDE_DATE_GUARD' guide.html 1            # 2027-13-45가 롤오버돼 '13월 45일 (월)'로 자신 있게 틀린 요일까지 붙던 것
 chk 'GUIDE_SAFEAREA' guide.html 1              # viewport-fit=cover만 켜고 env(safe-area-inset-*)은 안 쓰던 것 — 노치폰 가로에서 잘림
 chk 'GUIDE_PHOTO_INFO' guide.html 2            # 외부 공간으로 나가는 버튼인데 하객이 누르기 전에 알 수 없던 것(CSS 1 + JS 1)
-chk 'MP_PHOTOSHARE_INFO' mypage.html 1         # 부부 쪽 짝 안내 — 접근 범위·프로필 노출·앨범을 지우면 버튼도 닫힘
+# ★[SHARE_KAKAO_1TO1 2026-08-16] 'MP_PHOTOSHARE_INFO' 마커 폐지 — 그 블록을 1:1 오픈채팅 기준으로 다시 썼다.
+#   ★마커는 없어져도 **지키려던 세 가지는 그대로 있어야 한다**(접근 범위·프로필 노출·정리하면 버튼도 닫힘).
+#     그래서 마커 대신 문장을 직접 센다 — 이름이 아니라 내용을 지키는 쪽이 원래 의도에 맞다.
+chk '링크를 아는 분은 누구나 들어갈 수 있어요' mypage.html 1
+chk '안내 페이지의 버튼도 함께 닫혀요' mypage.html 1
 # ── 2026-07-26 guide.html 3라운드(예식장 현장 조건 — 느린 회선·실패·확대)
 chk 'GUIDE_FONT_NOBLOCK' guide.html 1          # 폰트 CSS가 렌더 블로킹이라 FCP 3056ms·백지였다. media=print+onload로 뺐다 → FCP 60ms
 chk 'media="print"' guide.html 1               # ★위 처방의 본체. rel=stylesheet만 남기면 다시 렌더 블로킹이 되고 흰 화면이 돌아온다
@@ -3748,10 +3752,8 @@ nochk "{n:'축가',      " mypage.html
 nochk '축가 부탁' api/_ritual-kb.js           # ★없어진 순서를 «부탁하라»고 시키던 D-14 줄
 if command -v node >/dev/null 2>&1; then node scripts/check-retired-scene.mjs >/dev/null \
   || { echo 'FAIL retired-scene: 폐지한 순서가 고객 화면이나 AI 지식에 살아 있습니다 — node scripts/check-retired-scene.mjs'; fail=1; }; fi
-# [MP_PHOTOSHARE_WHAT 2026-08-16 사용자 질문 "구글드라이브 주소를 주면되는거야?"] 무엇을 넣는지를 첫 줄에.
-#   주의 셋(접근범위·프로필·링크 수명)은 지운 게 아니라 접었다 — 문장이 사라지면 안 된다.
-chk 'MP_PHOTOSHARE_WHAT' mypage.html 1
-chk '예식 뒤 앨범을 정리하시면 안내 페이지의 버튼도 함께 닫혀요' mypage.html 1
+# ★[SHARE_KAKAO_1TO1 2026-08-16] 'MP_PHOTOSHARE_WHAT' 마커 폐지 — 「무엇을 넣나」를 첫 줄에 둔다는 그 취지는
+#   1:1 오픈채팅 안내가 그대로 이어받았다(만드는 법이 첫 줄이다). 지키는 문장은 위 두 줄이 센다.
 # [PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 화면을 열 때 계산된다 —
 #   축배가 있을 때 「잔 부딪히기」를 골라 두고 나중에 식순에서 축배를 빼면, 화면을 다시 열지 않는 한
 #   어긋난 채로 당일을 맞는다. 확인서에서 한 번 더 대조한다(좌석 인원 대조와 같은 자리).
@@ -3958,3 +3960,15 @@ chk 'apiTrackSave=fail' scripts/audit/save-honesty.mjs 1
 
 
 
+
+# ★★★[SHARE_KAKAO_1TO1 2026-08-16 사용자 결정 "1:1 오픈톡방으로"] 하객 사진은 카톡 1:1 오픈채팅방으로 받는다.
+#   링크 하나로 하객마다 별도 1:1 방이 열린다 — 서로 안 보이고 프로필도 안 드러나며 마찰이 0이다.
+#   ★guide.html 의 「원본」 안내를 지우지 말 것 — 카톡은 기본으로 사진을 줄이고, 그 버튼을 **누르는 사람은 하객**이다.
+#     부부에게 말해 봐야 소용이 없다. 이 줄이 사라지면 사진이 조용히 압축된다.
+chk 'SHARE_KAKAO_1TO1' mypage.html 1
+chk 'SHARE_KAKAO_1TO1' guide.html 1
+chk '원본' guide.html 1
+chk '오픈채팅 → 1:1 채팅방' mypage.html 1
+# [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다(막지 않는다) — 엉뚱한 주소를 넣고도 모르는 일이 없게
+chk 'SHARE_KIND' mypage.html 3
+chk 'function photoShareKind' mypage.html 1

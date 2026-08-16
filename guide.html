@@ -432,7 +432,15 @@ function photoShareHtml(url){
   return '<div class="sec"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'
     +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
     +'<a class="ps-btn" href="'+esc(url)+'" target="_blank" rel="noopener" aria-label="사진 올리기 · 새 탭에서 열려요">사진 올리기<span class="ps-ext" aria-hidden="true">↗</span></a>'
-    +'<div class="privacy">두 분이 준비한 외부 공간이에요 · 이름이 함께 보일 수 있어요.</div></div>';
+    /* ★★[SHARE_KAKAO_1TO1 2026-08-16] 링크가 **1:1 오픈채팅**이면 하객이 겪는 것이 완전히 다르다 —
+       방에 다른 하객이 없으므로 「이름이 보일 수 있어요」는 틀린 말이 된다(두 분에게만 보인다).
+       ★그리고 여기가 **화질을 지킬 수 있는 유일한 자리**다. 카톡은 기본으로 사진을 줄이는데,
+         고르는 화면에서 「원본」을 켜면 원본으로 간다. 그 한 번을 아는 사람이 거의 없어서,
+         부부에게 "원본으로 받으세요"라고 말해 봐야 소용이 없다 — **누르는 사람은 하객**이다.
+         우리가 하객 화면을 갖고 있으니 여기서 말한다. 이 줄을 지우면 사진이 조용히 압축된다. */
+    +(/^https?:\/\/open\.kakao\.com\//i.test(String(url||''))
+        ? '<div class="privacy">두 분과 <b>단둘이</b> 열리는 채팅방이에요 · 다른 하객에게는 안 보여요.<br>사진을 고른 뒤 <b>원본</b>을 눌러 주시면 화질 그대로 전해져요.</div>'
+        : '<div class="privacy">두 분이 준비한 외부 공간이에요 · 이름이 함께 보일 수 있어요.</div>')+'</div>';
 }
 // ★라이브 섹션(liveHtml) 복원 금지 — 2026-07-17 사용자 지시로 삭제. 멀리 계신 분 안내는 온라인 청첩장(live.html 링크 포함)이 담당
 // 내 자리 찾기 — seatToken이 있으면 seatView(기존 엔드포인트) 재사용.
