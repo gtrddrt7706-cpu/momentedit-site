@@ -210,9 +210,19 @@ body.guest .now .txt.big{color:var(--text)}
    피부까지 같이 쓰자는 뜻이 아니었다. 파일은 그대로 두고 `.guest` 에서만 토큰을 갈아입힌다.
    ★디렉터 화면(embed 없음)은 건드리지 않는다 — 어두워야 하는 이유가 따로 있다.
    ★색은 order-preview·index 와 같은 브랜드 팔레트를 그대로 가져왔다. 새 색을 만들지 않는다. */
+/* ★★[GUEST_DIM_AA 2026-08-16] `--dim` 만 브랜드 팔레트 밖 값이었다.
+   위 약속("새 색을 만들지 않는다")을 지킨 다른 토큰과 달리, 이 한 값(#8A8478)은
+   **어두운 디렉터 스킨의 dim 을 밝은 화면에 그대로 옮겨 온 것**이었다. 밝은 바탕에서는
+   3.55:1(크림) · 3.71:1(카드 흰색) 로 AA(4.5) 미달이다 — axe 로 8곳이 잡혔다:
+     상단 눈썹(약속 · 미리듣기) · 진행 시간 0:10/0:09 · 레일의 '다음'·'그다음' 라벨 ·
+     남은 시간 · **그다음 순서 이름(14.5px)** 까지. 전부 고객이 읽는 글자다.
+   → 브랜드가 정해 둔 텍스트 하한선 `--light`(#75705F · 4.74:1 크림 / 4.87:1 흰색)로 바꾼다.
+   ★위계는 그대로다 — 본문 --sub(7.08:1) 보다 여전히 옅고, '다음'과 '그다음'의 층도 남는다.
+     더 옅게 하고 싶으면 색이 아니라 **크기와 자간**으로 낮출 것(디자인 규칙과 같다).
+   ★디렉터 스킨(29행)의 --dim:#6E6860 은 건드리지 않는다 — 검은 바탕에서는 그 값이 맞다. */
 body.guest{
   --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6;
-  --text:#1C1B19; --sub:#5A554C; --dim:#8A8478;
+  --text:#1C1B19; --sub:#5A554C; --dim:#75705F;
   --line:#DDD8D1;
   --gold:#B89A75; --gold-text:#7A5F37;
   --seal:#6B2A24;
@@ -238,6 +248,10 @@ body.guest .go{max-width:420px;margin-left:auto;margin-right:auto}
 #gIntro h1{font-family:var(--serif-ko);font-size:25px;font-weight:600;margin:0 0 12px;letter-spacing:-.02em;line-height:1.35}
 #gIntro p{color:var(--sub);font-size:14.5px;line-height:1.85;margin:0 0 12px}
 #gIntro .len{color:var(--gold-text);font-size:13px;margin:0 0 8px}
+/* [PREVIEW_SOUND_CUE] 소리 예고 — 길이 줄보다 한 단 아래. 실무 안내라 조용히 두되 읽히기는 해야 한다.
+   ★--dim 은 GUEST_DIM_AA 로 4.74:1(크림)이 된 뒤라 본문 크기에서도 AA 를 넘는다.
+     그 전 값(#8A8478 · 3.55:1)이었다면 이 줄부터 새 위반이 됐을 것이다. */
+#gIntro .cue{color:var(--dim);font-size:12.5px;line-height:1.7;margin:0 0 4px}
 
 /* ★PREVIEW_BED — 배경 음악 성격 고지. 음악이 실제로 흐를 때만 선다.
    소리가 안 나는데 "배경 음악은 예시예요"라고 쓰면 그 줄이 거짓말이 된다. */
@@ -351,6 +365,12 @@ body.guest .main{
 }
 body.guest .main small{opacity:.72;font-size:11.5px;margin-top:4px}
 body.guest .main.wait{background:var(--bg3);color:var(--sub)}   /* 다 들은 뒤 '다시 듣기'는 물러난다 */
+/* ★[GUEST_DIM_AA] 끝 화면 '처음부터 한 번 더' — 진사 버튼 위에서는 흰 글자에 0.72 를 걸어도
+   대비가 넉넉하지만, 물러난 회색 버튼(--bg3) 위에서는 --sub 가 0.72 로 흐려져 **3.34:1**로
+   떨어졌다(axe 적발). **opacity 로 위계를 내면 대비가 깨진다** — 이 저장소가 이미 두 번
+   같은 자리에서 물린 패턴이다(CTA_EYEBROW · 청첩장 16종 헌법 ①).
+   위계는 크기(16 → 11.5px)와 굵기(600 → 400)가 이미 내고 있으니 흐리기는 뺀다. */
+body.guest .main.wait small{opacity:1}
 
 /* ⑨ 이전 순서 [GUEST_PREV] — 짙은 색은 여전히 「다음으로」 하나뿐이다.
    되돌아가는 길은 **있되 앞서지 않는다**: 테두리만 있는 조용한 칸으로 두고,
@@ -552,6 +572,15 @@ body.guest .now .hint{font-size:12.5px}
          한쪽만 고치면 한 화면이 서로 다른 말을 한다. -->
   <p class="len" id="giUpto" style="display:none"></p>
   <p class="len" id="giLen"></p>
+  <!-- ★★[PREVIEW_SOUND_CUE 2026-08-16] 이 화면은 **누르는 순간 소리가 난다.** 그런데 그 사실을
+       어디에도 적지 않았다. 고객이 겪는 두 가지가 둘 다 우리가 미리 말해 줄 수 있는 것이다:
+         ① 지하철·카페에서 눌렀다가 소리가 새는 것
+         ② 아이폰 무음 스위치가 켜져 있으면 웹 소리가 아예 안 난다 —
+            카드만 넘어가니 "고장 났나" 로 읽힌다. 실제로 25개 클립이 재생되는 화면이라
+            (실측: mp3 요청 성공 25건) 안 들리면 원인이 폰 쪽일 가능성이 크다.
+       ★한 줄로 둘 다 덮는다. 명령조("풀어 주세요")가 아니라 사실을 적는다 —
+         무음을 풀지 말지는 고객이 정할 일이고, 우리는 왜 안 들리는지만 알려 주면 된다. -->
+  <p class="cue">소리가 나와요. 이어폰을 쓰시면 좋고, 폰이 무음이면 들리지 않아요.</p>
   <button class="go" id="giGo">듣기 시작</button>
 </section>
 

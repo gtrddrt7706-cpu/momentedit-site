@@ -3585,6 +3585,13 @@ chk 'class="core-price-link" href="#invest"' index.html 1
 # [ESSAY_CLOSE_ANCHOR 2026-08-16] CLOSE 때 카드가 화면 위로 783px 벗어나던 것 — 스크롤 보정 + 되돌아오기.
 chk 'ESSAY_CLOSE_ANCHOR' index.html 1
 chk '_essayJump' index.html 2
+# [GUEST_DIM_AA 2026-08-16] 고객 미리듣기의 --dim 은 브랜드 텍스트 하한선(#75705F · 4.74:1)이다.
+#   ★디렉터 스킨의 #8A8478 을 다시 옮겨 오지 말 것 — 밝은 바탕에서 3.55:1 로 떨어져 axe 8곳이 잡혔던 값이다.
+#   ★끝 화면 부제의 opacity 도 되살리지 말 것(회색 버튼 위에서 3.34:1). 위계는 크기·굵기가 낸다.
+chk '--dim:#75705F' console.html 1
+chk 'body.guest .main.wait small{opacity:1}' console.html 1
+# [PREVIEW_SOUND_CUE 2026-08-16] 누르면 소리가 난다는 사실을 먼저 말한다(이어폰·무음 스위치).
+chk '폰이 무음이면 들리지 않아요' console.html 1
 # ── [SEAT_ONE_CARD · ALC_ONE 2026-08-16 사용자 지시] 좌석·음료 편집기 개편 ──
 #   ①"이름부분을 클릭하면 음료랑 이름적는게 동시에" → 한 창(이름칸+음료)으로 통합
 #   ②"논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인" → 알콜은 행사 전체 한 종류
