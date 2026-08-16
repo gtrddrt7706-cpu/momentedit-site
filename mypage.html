@@ -4159,6 +4159,7 @@ function renderProduction(p, inv){
   box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null, p);
   box.style.display='block';
   wireProdConfirm(box, p);
+  _seatFinHeal(p);   // [SEAT_FIN_HEAL] 파생 저장이 샌 흔적을 화면이 스스로 메운다(아래 함수 주석)
   // 확인 직후·재확인 필요 최초 1회 — 자동 펼침된 확인서 패널(리스트 맨 끝)로 스크롤: 재렌더가 맨 위로 가 배너가 폴드 아래 숨던 것 보정(백그라운드 갱신마다 튕기지 않게 1회성 · 2026-07-18 리뷰)
   try{
     var _cfWant = window._cfScroll || (p.confirmStale && !window._cfStaleSeen);
@@ -5950,8 +5951,11 @@ function saveSeat(done){
   var _tbls; try{ _tbls=JSON.parse(JSON.stringify(SEATFLOW.tables)); }catch(e){ _tbls=SEATFLOW.tables; }
   if(done) _tbls.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
   _tbls.forEach(function(t){ var dv=_seatDrinkDefault(); (t.seats||[]).forEach(function(nm,i){ if(String(nm||'').trim() && !((t.drinks&&t.drinks[i])||'')){ t.drinks=t.drinks||[]; t.drinks[i]=dv; } }); });   // [SEAT_NO_UNDEC] 보내는 값에도 미정이 없게 — 화면을 안 거치고 저장되는 길(자동저장·나가기)까지 덮는다
-  _seatFinSave();   // 최종 인원=이름 있는 자리 수로 파생 저장(별도 인원 입력 폐지 2026-07-19) — 좌석 저장과 함께
-  return _wizWatch('seat', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done}));
+  /* [SEAT_FIN_SEQ] 좌석 → (성공하면) 최종 인원 파생 저장 **순서대로**. 겹쳐 보내면 GAS 락에서 한쪽이 떨어진다.
+     ★반환값은 종전대로 **좌석 저장 결과**다 — 나가기·실패 재시도 흐름이 이 값을 읽는다(파생 저장 실패로 되돌리지 않는다).
+     ★좌석이 실패했으면 파생 저장도 보내지 않는다(없는 배치로 인원을 만들지 않게). */
+  return _wizWatch('seat', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'seat', draft:{tables:_tbls}, done:!!done})
+    .then(function(r){ if(!r || r.ok===false) return r; return _seatFinSave().then(function(){ return r; }); }));
 }
 function exitSeatFlow(){ _mpHoldScroll();   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
@@ -6736,11 +6740,40 @@ function prodConfirmHtml(p, inv){
     } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';
   }
   L+=line('애프터 웨딩', dv);
+  /* ★★[SEAT_TRUTH_ONE 2026-08-16 사용자 제보 "좌석 배치완료했는데도 불구하고 좌석 완료하라고 되어있네"]
+     같은 화면이 한 항목을 두 가지로 말하고 있었다 — 행은 「좌석 · 음료 ✓ 완료」인데
+     확인서 줄은 「미완료」였다. 근거가 다르기 때문이다:
+       행     = `t.seat`(사람이 「배치 완료」를 누른 것)
+       확인서 = `t.final` + `finalDraft.headcount`(**파생 저장**이 성공했을 때만 생긴다)
+     `final` 은 사람이 끝내는 트랙이 아니다. `_seatFinSave()` 가 좌석 저장과 **동시에** 따로 보내고,
+     실패하면 `.catch(function(){})` 로 삼킨다 — 한 번 새면 화면 어디에도 흔적이 없다.
+     ★그래서 이 줄의 진실원을 **좌석 초안(이름 있는 자리)** 으로 옮긴다. 고객이 실제로 한 일이 그것이고,
+       바로 아랫줄(좌석 배치)이 이미 같은 데이터를 보여 주고 있다. 파생 저장은 그 사실의 **사본**일 뿐이다.
+     ★저장된 finalDraft 가 있으면 그것을 먼저 쓴다(관리자·잔금이 그 값을 본다). 없을 때만 좌석에서 만든다.
+     ★음료는 늘 좌석에서 센다 — `fd.drink` 는 자리별 선택 이전의 '대표 음료' 한 칸이라 지금 화면과 어긋난다. */
+  var _named=_seatPlacedCount(sd.tables);
+  var _fHas=!!(_fDone && fd.headcount);           // 서버에 파생 저장이 남아 있는 정상 상태
+  var _fLive=_fHas || (_sDone && _named>0);       // 좌석·음료가 실제로 정해졌는가(화면의 진실)
   var fv='';
-  if(_fDone && fd.headcount){ fv='하객 '+escapeHtml(String(fd.headcount))+'명'+((Number(fd.standing)||0)>0?(' · 스탠딩 '+fd.standing+'명 · <b style="color:var(--seal)">추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원</b>(잔금과 함께)'):'')+(fd.drink?(' · '+escapeHtml(fd.drink)):'')+((Number(fd.softCount)||0)>0?(' · 논알콜 '+fd.softCount+'잔'):''); }
+  if(_fLive){
+    var _P=(typeof MP_FINAL_POLICY!=='undefined')?MP_FINAL_POLICY:{seats:25,unit:50000};
+    var _hn=_fHas?String(fd.headcount):String(_named);
+    var _stn=_fHas?(Number(fd.standing)||0):Math.max(0,_named-_P.seats);
+    var _fee=_fHas?(Number(fd.extraFee)||0):(_stn*_P.unit);
+    fv='하객 '+escapeHtml(_hn)+'명'+(_stn>0?(' · 스탠딩 '+_stn+'명 · <b style="color:var(--seal)">추가 '+_fee.toLocaleString()+'원</b>(잔금과 함께)'):'');
+    var _dc=(_named&&typeof seatDrinkCounts==='function')?seatDrinkCounts(sd.tables):null, _dl=[];
+    if(_dc){ if(_dc.C)_dl.push('샴페인 '+_dc.C); if(_dc.R)_dl.push('레드와인 '+_dc.R); if(_dc.N)_dl.push('논알콜 스파클링 '+_dc.N); if(_dc.K)_dl.push('유아 · 물 '+_dc.K); }
+    if(_dl.length) fv+='<br><span class="cc-mini">'+escapeHtml(_dl.join(' · '))+'</span>';
+    else if(fd.drink) fv+=' · '+escapeHtml(fd.drink)+((Number(fd.softCount)||0)>0?(' · 논알콜 '+fd.softCount+'잔'):'');   // 자리별 음료 이전 세대의 저장분
+  }
+  /* ★[SEAT_NAME_PENDING 2026-08-16 · 1,296조합 매트릭스가 잡은 모순 96건] 이름 없이 「배치 완료」를 누른 상태 —
+     행은 ✓(t.seat)인데 이 줄은 그냥 「미완료」라, 같은 카드가 한 항목을 두 가지로 말했다.
+     행을 내리지 않는다(SEAT_ROW_TRUTH: 이름 없이 끝낸 고객을 다시 가두지 말 것) — 대신 **무엇이 남았는지** 적는다.
+     인원은 돈(스탠딩 추가요금)과 당일 준비의 기준이라, 이름이 없으면 정말로 아직 못 정한 것이 맞다. */
+  else if(_sDone) fv='자리 배치는 저장됐어요<span class="cc-mini" style="display:block;margin-top:2px">자리에 이름을 넣으면 인원·음료가 정해져요</span>';
   L+=line('좌석 · 음료', fv);
   var sv='';
-  if(_sDone && sd.tables){ sv=sd.tables.length+'개 테이블 · '+_seatPlacedCount(sd.tables)+'명 배치';
+  if(_sDone && sd.tables){ sv=sd.tables.length+'개 테이블 · '+(_named?(_named+'명 배치'):'이름은 아직 안 적음');   // [SEAT_NAME_PENDING] 이름이 0이면 배치를 안 한 것처럼 읽힌다 — 테이블은 이미 놓았다(가드가 옛 문구 재유입을 막는다)
     sv+=' · '+((gi.seatMode==='mine')?'내 자리만 검색':'전체 배치도 공개');   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인(기본=전체 공개 · 2026-07-17)
   }
   L+=line('좌석 배치', sv);
@@ -6800,16 +6833,56 @@ function prodConfirmHtml(p, inv){
        버튼은 서고 누르면 서버가 거절했다 — 죽은 버튼이다. 셋을 다 보면 그 창이 없어진다(화면이 서버보다 엄격).
        ★남은 것은 **행 이름 그대로** 부른다 — 확인서의 요약 줄 이름(좌석·음료 / 좌석 배치)이 아니라
          고객이 눌러야 할 행(「좌석 · 음료」)을 가리켜야 어디로 갈지가 읽힌다. */
-    var _need=[]; if(!_rDone) _need.push('식순'); if(!_sDone||!_fDone) _need.push('좌석 · 음료');
+    /* ★★[CF_GATE_SERVER 2026-08-16] 버튼 게이트는 **서버가 받아 주는 조건**(`ritual && final`)을 그대로 쓴다.
+       표시(`_fLive`)로 게이트를 열면 [CF_GATE_ONE]이 없앤 죽은 버튼이 그대로 되살아난다 —
+       시뮬레이션으로 확인했다: `_fLive`면 버튼이 서는데 서버는 「식순과 최종 확정을 완료한 뒤…」로 거절.
+       ★[FIN_DRINK_FILL]이 들어간 뒤로는 파생 저장이 실제로 통과하므로 `_fDone`이 정상적으로 선다.
+         그래도 두 가지 창은 남는다 — ①치유 저장이 오가는 몇 초 ②30명 초과(서버가 정말로 거절).
+         그 둘은 아래에서 **다른 말로** 안내한다. 「좌석·음료를 마치세요」는 그 경우 거짓말이다. */
+    var _need=[]; if(!_rDone) _need.push('식순'); if(!_fDone) _need.push('좌석 · 음료');
+    var _over=(_named>MP_FINAL_POLICY.max);
     if(!_need.length) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용으로 확정합니다</button>'
       +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">누르신 날짜와 시각이 함께 기록돼요 · 저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span></div>';
     /* 이름을 「」로 감싸 붙인다 — 「좌석 · 음료」 자체에 가운뎃점이 들어 있어, 맨 이름을 나열하면
        '식순 · 좌석 · 음료'가 세 항목으로 읽힌다. 조사(을/를·이/가)도 함께 피할 수 있다. */
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">아직 남은 것 · '+_need.map(function(n){ return '<b>「'+n+'」</b>'; }).join(' ')
       +'<br>다 마치면 여기에서 한 번에 확정하실 수 있어요 · 섹션마다 따로 확인하지 않으셔도 돼요.'
-      +((_sDone&&!_fDone)?'<br>「좌석 · 음료」는 자리에 이름을 넣으면 인원이 정해지며 완료돼요.':'')+'</span></div>';
+      /* 좌석·음료가 남았을 때의 이유는 **세 가지가 다르다.** 한 문장으로 뭉뜽그리면 그중 둘에게 거짓말이 된다. */
+      +((!_fDone&&_over)?'<br>하객이 '+MP_FINAL_POLICY.max+'명을 넘어요 · 디렉터와 함께 조정한 뒤 확정할 수 있어요.'
+        :(!_fDone&&_fLive)?'<br>「좌석 · 음료」 내용을 저장하는 중이에요 · 잠시 뒤 새로고침하면 확정하실 수 있어요.'
+        :(!_fDone&&_sDone)?'<br>「좌석 · 음료」는 자리에 이름을 넣으면 인원이 정해지며 완료돼요.':'')+'</span></div>';
   }
   return '<div id="cf_wrap">'+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
+}
+/* ★★[SEAT_FIN_HEAL 2026-08-16 사용자 제보 "좌석 배치완료했는데도 … 좌석 완료하라고 되어있네"]
+   화면 표시는 [SEAT_TRUTH_ONE]이 좌석 초안에서 되살리지만, **서버 게이트는 여전히 `final==='완료'`** 다
+   (80_production.gs saveProductionTrack — track==='confirm' 분기). 그래서 표시만 고치면
+   버튼은 서고 누르면 거절되는 옛 사고로 되돌아간다. 여기서 그 사본을 다시 만들어 준다.
+   ★거는 조건은 좁게 — ①좌석이 완료 ②이름 있는 자리가 1개 이상 ③그런데 final 사본이 없거나 인원이 비었을 때.
+   ★**이미 확정(confirm)한 고객은 건드리지 않는다.** 저장 내용이 달라지면 서버가 확정을 해제하므로
+     (`_prodConfirmVoid`), 고쳐 주려다 고객의 확정 기록을 푸는 사고가 된다. 그 상태는 어차피 안 막힌다.
+   ★한 세션에 한 번만 — 실패해도 다시 두드리지 않는다(조용한 재시도 루프 금지).
+   ★값은 좌석 화면과 **같은 식**으로 만든다(_seatFinSave 와 동일: 인원=이름 있는 자리 수 · 스탠딩·추가요금 파생).
+     여기서 다른 식을 쓰면 화면과 관리자 메일이 또 갈린다. */
+var _finHealed=false;
+function _seatFinHeal(p){
+  try{
+    if(_finHealed || !p || p.confirm) return;
+    var t=p.tracks||{}, sd=p.seatDraft||{}, fd=p.finalDraft||{};
+    if((t.seat||'')!=='완료') return;
+    var n=_seatPlacedCount(sd.tables); if(!n) return;
+    if((t.final||'')==='완료' && fd.headcount) return;
+    if(n>MP_FINAL_POLICY.max) return;   // 30명 초과는 서버가 거절한다(디렉터 조정이 먼저) — 두드려도 안 열린다
+    _finHealed=true;
+    var P=MP_FINAL_POLICY, st=Math.max(0,n-P.seats), nf={};
+    for(var k in fd){ if(Object.prototype.hasOwnProperty.call(fd,k)) nf[k]=fd[k]; }
+    nf.headcount=String(n); nf.standing=st; nf.extraFee=st*P.unit;
+    /* [FIN_DRINK_FILL] 여기선 SEATFLOW 가 없거나 낡았다 — 서버가 준 좌석 초안에서 파생한다.
+       ★기존 키를 전부 복사한 **뒤에** 붙인다(키 순서가 달라지면 확정이 풀린다). 값이 있으면 손대지 않는다. */
+    if(!String(nf.drink||'').trim()) nf.drink=_finDrinkFrom(sd.tables);
+    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:nf, done:true})
+      .then(function(r){ if(r&&r.ok) _mpRefresh(); }).catch(function(){});
+  }catch(e){}
 }
 function wireProdConfirm(box, p){
   var btn=$('cf_go'); if(!btn) return;
@@ -6932,9 +7005,36 @@ function _seatFeeHtml(n){
    ★n===0 일 때 headcount 를 **지우지 않는다.** 예전엔 빈 문자열로 덮어써서, 자리·음료를 먼저 정하고
      이름을 나중에 적는 순서(코드가 곳곳에서 지키는 그 순서)로 가면 적어 둔 인원이 사라졌다.
      파생값이 없을 땐 손대지 않는 것이 옳다 — 없는 근거로 있는 값을 지우지 않는다. */
-function _seatFinSave(){ try{ if(!SEATFLOW) return; var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={});
+/* ★★[SEAT_FIN_SEQ 2026-08-16] 이 저장은 좌석 저장과 **동시에 나가면 안 된다.**
+   옛 판은 `saveSeat()` 이 이걸 부르고 곧바로 seat 저장을 보냈다 — 두 요청이 겹쳐 GAS 스크립트 락
+   (waitLock 15초)을 서로 기다리다 한쪽이 「잠시 후 다시 시도해 주세요」로 떨어지면,
+   그 실패가 `.catch(function(){})` 로 삼켜져 **좌석은 완료 · 좌석·음료는 미완료**가 됐다(사용자 제보).
+   ★그래서 ①프라미스를 돌려주고(호출부가 이어 붙일 수 있게) ②saveSeat 이 seat 저장 뒤에 부른다.
+   ★그래도 새는 날을 대비해 [SEAT_FIN_HEAL] 이 다음 화면 진입 때 사본을 다시 만든다. 둘 다 필요하다 —
+     이건 새는 것을 줄이고, 저건 이미 샌 고객을 건진다. 한쪽만 남기지 말 것. */
+/* ★★★[FIN_DRINK_FILL 2026-08-16 · 두 갈래 시뮬레이션이 같은 곳을 가리켰다] 이 저장이 **서버에서 늘 거절되고 있었다.**
+     automation/platform/80_production.gs:409
+       if (!String(fdr.drink || '').trim()) return { ok:false, error:'건배·웰컴 음료를 골라 주세요.' };
+   그런데 `drink`(상단 대표 음료)를 **채울 수 있는 화면이 없다** — 2026-07-19 사용자 지시로 폐지됐고
+   음료는 자리별(tables[].drinks = C·R·N·K)로만 정한다. 그래서 그 뒤 들어온 고객은 **전원**
+   `finalDraft.drink` 가 빈 값이고, `tracks.final` 이 **구조적으로 영영 '완료'가 안 됐다.**
+   증상은 조용했다: 실패가 `.catch` 로 삼켜지고 `_wizWatch` 는 seat 만 보므로 화면은 「저장됨」이었다.
+   그 대가 — 확인서 「좌석 · 음료 미완료」(사용자 제보) · 확정 불가 · 잔금 추가요금 미합산 ·
+   관리자 최종확정 메일 미발송 · 관리자 화면 하객 인원 빈칸.
+   ★고침은 여기 한 줄이다 — **비어 있을 때만** 자리별 알콜에서 대표 음료를 파생해 채운다.
+     ①이미 값이 있으면 절대 덮지 않는다(덮으면 초안이 바뀌어 확정이 풀린다 · _prodConfirmVoid)
+     ②키를 **마지막에** 붙인다 — _prodUiStrip 이 JSON 문자열을 비교해서, 값이 같아도 키 순서가 다르면
+       확정이 풀린다(시뮬레이션으로 확인된 함정)
+     ③알콜을 아직 아무 자리도 안 골랐으면 기본은 샴페인 — 자리 기본값(_seatDrinkDefault)과 같은 쪽이다
+   ★GAS :409 를 지우는 쪽이 더 근본이지만 재배포가 필요하다. 이 줄은 오늘 바로 닿는다. */
+function _finDrinkFrom(tables){
+  var code=''; ((tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(!code && (v==='C'||v==='R')) code=v; }); });
+  return SEAT_DRINK_LABEL[code||'C'];
+}
+function _seatFinSave(){ try{ if(!SEATFLOW) return Promise.resolve(null); var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={});
   if(n){ fd.headcount=String(n); fd.standing=Math.max(0,n-P.seats); fd.extraFee=fd.standing*P.unit; }
-  apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0}).catch(function(){}); }catch(e){} }
+  if(n && !String(fd.drink||'').trim()) fd.drink=_finDrinkFrom(SEATFLOW.tables);   // [FIN_DRINK_FILL] 비었을 때만 · 마지막 키로
+  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'final', draft:fd, done:n>0}).catch(function(){ return null; }); }catch(e){ return Promise.resolve(null); } }
 // TRK_NO_SUB: 좌석 화면 상단 안내 한 줄 — 기한(예식 N일 전·임박 시 D-n)과 좌석 안내 링크 생성을 여기서 알린다(목록 행에서 이관).
 function _seatLeadNote(){
   try{

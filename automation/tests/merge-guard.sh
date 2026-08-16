@@ -3808,3 +3808,16 @@ chk 'PHOTOSHARE_DIRECT' mypage.html 1
 # [PHOTOSHARE_ONE] 선택지 하나(구글 포토 공유 앨범) — 카톡은 사진을 압축해 사진이 상품인 우리와 안 맞는다
 chk 'PHOTOSHARE_ONE' mypage.html 2
 chk '「공동작업」을 켜 주셔야' mypage.html 1
+# ★★[FIN_DRINK_FILL 2026-08-16 사용자 제보 "좌석 배치완료했는데도 좌석 완료하라고 되어있네"]
+#   GAS 80_production.gs:409 가 final 저장에 `drink`(대표 음료)를 요구하는데 그 입력 UI 는 2026-07-19 폐지됐다
+#   → 그 뒤 고객 전원이 tracks.final 을 못 만들었다(확인서 미완료·잔금 미합산·관리자 메일 미발송).
+#   ★자리별 음료에서 파생해 **비었을 때만** 채운다. 덮어쓰면 초안이 바뀌어 확정이 풀린다(_prodConfirmVoid).
+#   ★키는 반드시 **마지막**에 붙인다 — _prodUiStrip 이 JSON 문자열 비교라 키 순서만 달라도 확정이 풀린다(시뮬레이션 확인).
+chk 'FIN_DRINK_FILL' mypage.html 4
+chk '_finDrinkFrom' mypage.html 3
+chk 'SEAT_FIN_HEAL' mypage.html 3
+chk 'SEAT_FIN_SEQ' mypage.html 2
+chk 'SEAT_TRUTH_ONE' mypage.html 2
+chk 'CF_GATE_SERVER' mypage.html 1
+chk 'SEAT_NAME_PENDING' mypage.html 2
+nochk '0명 배치' mypage.html                      # [SEAT_NAME_PENDING] 테이블만 놓은 상태를 '0명 배치'로 부르지 않는다
