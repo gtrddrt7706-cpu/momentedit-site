@@ -3611,9 +3611,3 @@ nochk '본식영상' index.html
 #   소리 가진 기계에서만 초록이 되고 CI 는 붉는다 · [STAGE_ABSENT] 와 같은 병).
 chk 'DUB_FROZEN_FILE' scripts/build-dub-onefile.mjs 1
 chk 'frozen' "docs/plans/식순연구/타입캐스트/더빙_번호계약.json" 1
-# [CONTRACT_SPECIAL 2026-08-16 사용자 결정 ③] 예우를 계약 문서에 특약으로 싣는다 — 조항은 안 건드린다.
-#   서명 순간의 문구를 동의기록.계약.special 에 스냅샷하므로 예우가 끝나도 그때 서명한 분에겐 남는다.
-chk 'CONTRACT_SPECIAL' automation/platform/70_journey.gs 3
-chk 'CONTRACT_SPECIAL' contract/v1-1.html 2
-chk 'specialBox' contract/v1-1.html 2
-if command -v node >/dev/null 2>&1; then node scripts/audit/contract-special.mjs >/dev/null 2>&1 || true; fi

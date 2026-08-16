@@ -200,18 +200,6 @@ function handleGetSignature(body) {
 // 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.
 var CONTRACT = {
   version: '계약서명-v1',
-  /* ★[CONTRACT_SPECIAL 2026-08-16 사용자 결정 ③ '계약 발송 시 특약으로 적기']
-     홈페이지가 「보정 셀렉트 컷 +10장」을 약속하고 있었는데 계약서·AI 지식 어디에도 근거가 없었다.
-     그 조건으로 계약한 분이 20장을 요구해도 문서로 증명이 안 되고, 반대로 우리는 표시광고로 이행 의무를 진다.
-     ★계약서 본문(조항)은 건드리지 않는다 — 조항을 고치면 문서 버전이 올라가고 보존본이 또 갈린다.
-       대신 «특약사항»으로 실어 보내고, **서명 순간의 문구를 동의기록에 통째로 스냅샷**한다.
-       그래야 뒷날 예우가 끝나도 그때 서명한 분에게는 그대로 남는다(문서 버전과 같은 원리).
-     ★기간이 끝나면 items 를 비운다. 비우면 계약서에서 특약 칸 자체가 사라진다(빈 칸을 그리지 않는다). */
-  special: {
-    title: 'Archive Opening Honor',
-    period: '2027 상반기 한정',
-    items: ['보정 셀렉트 컷 10장에 더하여 10장을 추가로 제공한다(합계 20장). 추가 제공분의 보정 기준·전달 시기는 포함분과 같다.']
-  },
   docVersion: 'v1.8',               // 계약서 '문서' 버전(시그니처) — v1.8(2026-08-15): 평일 금액 인상(240→250만 · 계약 시 납입 14만→15만 · 주말 330만 무변경 · PRICE_2026_08_15 · 조항 무변경). v1.7(2026-08-14): 금액 인상(주말 280→330만·평일 210→240만 · 계약 시 납입 잔액 18만→23만·11만→14만 · PRICE_2026_08 · 조항 무변경). v1.6(2026-08-13): 서명란에 AI 음성 안내 확인 줄 신설(★AI고지_부부 승인 자리 · CONTRACT_V16 · 조항 무변경). v1.5(2026-08-09): 3조① Private Snap 45분(캔들존 20·이동 5·화이트존 20)·본식 16~25분·Group Record 30~39분(합 55분 고정). v1.4(2026-08-08): 본식 16~25·GR 36~44(합 60). v1.3(2026-06-12): 예약금 100,000·계약금 잔액 납입·시착 2벌/5만. 서명 시 동의기록.계약.docVersion 스냅샷, 열람은 그 버전 문서로
   snapDocVersion: 'snap-v1.2',      // 웨딩스냅 계약서 문서 버전 — snap-v1.2(2026-06-12): 추가 착용 1벌당 50,000원. 구버전 서명자는 archive 보존본으로 열람
   서명기한시간: 72,                 // 발송 +72h 안에 서명
@@ -264,9 +252,6 @@ function handleSignContract(body) {
       type: '계약서명',
       version: CONTRACT.version,
       docVersion: (String(cust.get('상품타입') || '').trim() === '웨딩스냅') ? CONTRACT.snapDocVersion : CONTRACT.docVersion,   // 서명한 계약서 문서 버전(16조③ 버전 고정의 데이터 짝)
-      special: (CONTRACT.special && CONTRACT.special.items && CONTRACT.special.items.length)
-        ? { title: CONTRACT.special.title, period: CONTRACT.special.period, items: CONTRACT.special.items.slice() }
-        : null,   // [CONTRACT_SPECIAL] 서명 순간의 특약 원문 — 예우가 끝나도 그때 서명한 분에겐 그대로 남는다
       signedAt: now,
       code: code,
       sentAt: String(cust.get('계약서발송일시') || ''),
@@ -585,10 +570,7 @@ function buildContractState(r) {
     weddingTimeLabel: (WEDDING_SLOT.LABELS && WEDDING_SLOT.LABELS[_ci.weddingTime]) || '',
     total: _wonNum(r.get('계약총액')),   // 문자 금액('3,500,000') 방어 — 계약 프리필이 0원으로 보이던 것 수정
     docVersion: signed ? (((_rec && _rec.계약) || {}).docVersion || (_isSnapR ? 'snap-v1.0' : 'v1.1'))
-                       : (_isSnapR ? CONTRACT.snapDocVersion : CONTRACT.docVersion),
-    /* [CONTRACT_SPECIAL] 서명한 분은 «서명 당시» 특약을, 아직 안 한 분은 «지금» 특약을 본다(문서 버전과 같은 규칙) */
-    special: signed ? (((_rec && _rec.계약) || {}).special || null)
-                    : ((CONTRACT.special && CONTRACT.special.items && CONTRACT.special.items.length) ? CONTRACT.special : null)   // 서명자=서명 당시 문서(기록 없는 구서명자는 각 v1.1/snap-v1.0 보존본), 미서명=현행
+                       : (_isSnapR ? CONTRACT.snapDocVersion : CONTRACT.docVersion)   // 서명자=서명 당시 문서(기록 없는 구서명자는 각 v1.1/snap-v1.0 보존본), 미서명=현행
     // 서명상태(signed/체결일/손글씨)는 마이페이지가 기존 c.signed·c.signedAt·getSignature로 직접 채움 → 여기서 안 보냄(부하↓)
   };
   return out;

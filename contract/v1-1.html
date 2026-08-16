@@ -151,11 +151,6 @@ td strong{color:var(--accent);font-weight:600}
 .sign-cell .sc-line{display:flex;flex-direction:column;gap:8px}
 .sign-cell .sc-name{font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .sign-cell .sc-sign{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--light)}
-.special-box{margin-top:22px;padding:16px 18px;border:1px solid var(--line,#DDD8D1);border-radius:8px;background:#FAFAF8}
-.special-h{font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent,#3A2D22)}
-.special-p{font-weight:400;font-size:12px;color:var(--light,#75705F);margin-left:6px}
-.special-list{margin:9px 0 0;padding-left:19px;font-size:13.5px;line-height:1.8}
-.special-note{margin:10px 0 0;font-size:12px;color:var(--light,#75705F)}
 .date-line{margin-top:18px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);font-weight:500}
 @media(max-width:560px){.sign-grid{grid-template-columns:1fr}}
 
@@ -605,16 +600,6 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       <div class="check-line"><span class="box" aria-hidden="true"></span><span>예식 진행 안내 음성(나레이션)은 AI 음성으로 미리 제작되며, 하객에게는 안내 음성과 식순지 표기로 안내됨을 확인했습니다.</span></div>
     </div>
 
-    <!-- ★[CONTRACT_SPECIAL 2026-08-16] 특약사항 — 서버(70_journey.gs CONTRACT.special)가 실어 보낼 때만 선다.
-         조항 본문을 고치지 않는 이유: 조항을 건드리면 문서 버전이 올라가고 보존본이 또 갈린다.
-         서명 순간의 문구는 동의기록.계약.special 에 스냅샷되므로, 예우가 끝나도 그때 서명한 분에겐 그대로 남는다.
-         ★내용이 없으면 이 칸은 화면에 아예 나오지 않는다(빈 칸을 그리지 않는다). -->
-    <div class="special-box" id="specialBox" hidden>
-      <div class="special-h">특약사항 <span class="special-p" id="specialPeriod"></span></div>
-      <ol class="special-list" id="specialList"></ol>
-      <p class="special-note">본 특약은 본 계약의 일부를 구성하며, 본문 조항과 충돌하는 경우 본 특약을 우선한다.</p>
-    </div>
-
     <div class="date-line">계약 체결일 : <span data-fill="signDate">____________________</span></div>
 
     <div class="sign-grid">
@@ -646,20 +631,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       var k=els[i].getAttribute('data-fill'), v=d[k];
       if(v!=null && String(v)!=='') els[i].textContent=String(v);
     }
-    if(d.docTitle){ try{ document.title=String(d.docTitle); }catch(e){} }
-    /* [CONTRACT_SPECIAL] 특약 그리기 — 항목이 하나라도 있을 때만 칸을 세운다 */
-    try{
-      var sp=d.special, box=document.getElementById('specialBox');
-      if(box){
-        var it=(sp&&sp.items&&sp.items.length)?sp.items:null;
-        box.hidden=!it;
-        if(it){
-          document.getElementById('specialPeriod').textContent=(sp.title?sp.title:'')+(sp.period?(' · '+sp.period):'');
-          var ol=document.getElementById('specialList'); ol.innerHTML='';
-          for(var si=0;si<it.length;si++){ var li=document.createElement('li'); li.textContent=String(it[si]); ol.appendChild(li); }
-        }
-      }
-    }catch(e){}   // 인쇄·저장 시 파일명 = 상품명_이름_예식일
+    if(d.docTitle){ try{ document.title=String(d.docTitle); }catch(e){} }   // 인쇄·저장 시 파일명 = 상품명_이름_예식일
     var amt=Number(d.total)||0;   // 개인화 · 제4조·요약 카드 공통(예식일·적용 총액)
     /* [PRICE_2026_08] 신가(330/250만)와 구가(330/240만 · 280/210만)를 함께 알아본다 — 인상 전 총액으로 계약한 분이
        현행 문서를 열어도 '기준'이 빈칸이 되지 않게. 구가 서명자의 계약서 본문은 보존본(archive/v1-6)이 연다. */
