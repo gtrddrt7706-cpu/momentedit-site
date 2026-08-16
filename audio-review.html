@@ -208,8 +208,10 @@ function load(){
   return Promise.all(P).then(function(a){
     var man = a[0], recN = a[1].clips || {}, recC = a[2].clips || {};
     var voice = man.voice || {};
-    var byFile = {};
-    (man.clips || []).forEach(function(c){ byFile[c.dir + '|' + c.file] = c; });
+    var byFile = {}, miOf = {};
+    /* ★[EXPORT_MAN_ORDER] 대장 배열에서 **몇 번째인지**도 함께 들고 온다 — 대본 차례가 그것으로 정해진다.
+       조립기는 클립 번호가 아니라 man.clips 배열 차례로 자리를 매긴다(아래 mkScript 주석). */
+    (man.clips || []).forEach(function(c, i){ byFile[c.dir + '|' + c.file] = c; miOf[c.dir + '|' + c.file] = i; });
     var out = [];
     [['assets/audio/narration', recN], ['assets/audio/cast', recC]].forEach(function(pair){
       var dir = pair[0], rec = pair[1];
@@ -228,6 +230,7 @@ function load(){
         var roles = String(c.role || '').split('|').filter(Boolean);
         out.push({
           id: id, dir: dir, file: file, no: (id.match(/^\d+/) || ['00'])[0],
+          mi: (miOf[dir + '|' + file] != null ? miOf[dir + '|' + file] : 9999),   // [EXPORT_MAN_ORDER]
           label: c.label || file, role: c.role || '', part: c.part || '',
           voice: roles.map(function(r){ return voice[r] || r; }).join(' · '),
           voices: roles.map(function(r){ return voice[r] || r; }),
@@ -442,7 +445,16 @@ function mkScript(){
   var ng = CLIPS.filter(function(c){ return V[c.id] && V[c.id].v === 'ng'; });
   if (!ng.length) return '(다시 표시한 클립이 없습니다)';
   /* 붙여넣기 형식 = 재더빙_붙여넣기.txt 와 같다: `화자: 한 문장` · 한 줄 한 문장 · 머리말 없음.
-     조립기가 정렬 순서로 자리를 매기므로 클립 번호 순서를 지킨다. */
+     ★★[EXPORT_MAN_ORDER 2026-08-16] 차례는 **대장(manifest) 배열 차례**다 — 클립 번호가 아니다.
+       여기 적혀 있던 옛 말("클립 번호 순서를 지킨다")이 **틀렸다.** 조립기(assemble-narration)는
+       `man.clips.filter(c => c.part === P.file)` 로 클립을 집는다 — 배열에 적힌 그 차례다.
+       둘이 갈리는 자리가 실제로 있다: 6_예식뒤 에서 no=80(배열 54번째) 이 no=63(배열 68번째) 보다 앞이고,
+       1_안내 의 no=44 는 배열 4번째인데 4_혼주편지 의 no=43 은 51번째다.
+       ★화면 차례(예식 흐름)와 대본 차례는 **쓰임이 다르다.** 듣기는 식 순서로 보는 것이 맞고,
+         붙여넣기는 조립기가 읽을 순서여야 한다. 그래서 화면은 그대로 두고 여기서만 다시 세운다.
+       ★실사고(2026-08-16) — 재더빙 11문장 중 6개가 서로의 자리에 붙을 뻔했다. 조립기의 길이 상관
+         r=0.578 이 멎어 준 것이지 검사가 잡은 것이 아니다. 이제 check-paste-format 이 차례를 본다. */
+  ng = ng.slice().sort(function(a, b){ return (a.mi - b.mi) || ((+a.no) - (+b.no)); });
   var lines = [], skipped = [];
   ng.forEach(function(c){
     if (c.mix) { skipped.push(c); return; }   // [EXPORT_TRUTH ②] 합성 클립은 직접 녹음할 수 없다

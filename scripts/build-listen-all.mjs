@@ -25,7 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { sentBounds, durOf } from './lib/sent-bounds.mjs';
+import { sentBounds, durOf, blockFit } from './lib/sent-bounds.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
@@ -46,9 +46,17 @@ const PART_ORDER = ['1_안내.txt', '2_진행_전반.txt', '3_진행_후반.txt'
 const srcOf = (c) => ['narration', 'cast']
   .map((d) => path.join(ROOT, 'assets/audio', d, `${c.no}_${c.file}.mp3`)).find((p) => fs.existsSync(p)) || '';
 
-const OLDC = man.clips.slice()
-  .sort((a, b) => (PART_ORDER.indexOf(a.part) - PART_ORDER.indexOf(b.part)) || (+a.no - +b.no))
-  .map((c) => ({ id: `${c.no}_${c.file}`, no: c.no, ko: c.label || c.file, part: c.part,
+/* ★★[EXPORT_MAN_ORDER 2026-08-16] 화면 차례와 **대본 차례는 다르다.**
+   화면은 예식 순서(파트 → 클립 번호)로 보는 것이 편하다 — 사람이 식 흐름대로 듣기 때문이다.
+   그런데 「다시」로 모은 **대본**은 그대로 타입캐스트에 붙여 넣고, 받은 wav 를 조립기에 준다.
+   조립기(assemble-narration)는 `man.clips.filter(...)` — **대장 배열 차례**로 자리를 매긴다.
+   둘이 갈리는 자리가 실제로 있다: 6_예식뒤 에서 no=80(배열 54번째) 이 no=63(배열 68번째) 보다 앞이다.
+   ★그래서 대장 배열 차례(mi)를 클립마다 들고 다니다가, 대본을 낼 때만 그것으로 다시 세운다.
+     화면은 그대로 예식 순서다 — 보는 차례와 붙이는 차례는 쓰임이 다르니 따로 둔다.
+   ★이 저장소가 같은 병을 두 번 앓았다(--redub 의 클립번호 정렬 · 여기). 고치는 자리도 하나로 맞춘다. */
+const OLDC = man.clips.map((c, mi) => ({ c, mi }))
+  .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part)) || (+a.c.no - +b.c.no))
+  .map(({ c, mi }) => ({ id: `${c.no}_${c.file}`, no: c.no, mi, ko: c.label || c.file, part: c.part,
     role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
     sents: (c.sents || []).map((s) => String(s.text || '').trim()).filter(Boolean) }));
 /* ★[SENT_SEEK 2026-08-16 사용자 지적 "아래쪽 대사는 나레이션이 안 입혀졌나 오디오가 안 들리는데?"]
@@ -57,7 +65,7 @@ const OLDC = man.clips.slice()
      문장 wav 를 따로 잘라 넣으면 파일이 두 배가 되는데, 들리는 소리는 똑같다.
    ★경계는 [GAP_MATCH] 단일 구현(lib/sent-bounds.mjs)에서 받는다. 못 정하면 null →
      그 클립만 문장별 듣기를 안 붙이고 **왜 없는지 화면에 적는다**(조용히 빠지면 또 「안 들린다」가 된다). */
-const BOUNDS = {}, SHORT = {};
+const BOUNDS = {}, SHORT = {}, MISS = {};
 let bOk = 0, bNo = 0;
 /* ★[TOO_SHORT 2026-08-16] 소리가 글보다 짧은 클립을 표시한다.
    실측: 전 클립 말속도 중앙값 **초당 6.8음절**인데 11_narr-welcome-in 은 **14.3**이다.
@@ -72,10 +80,21 @@ man.clips.forEach((c) => {
   if (b && b.length === c.sents.length) { BOUNDS[id] = b; bOk++; } else bNo++;
   const d = durOf(f), sy = c.sents.reduce((a, x) => a + sylOf(x.text), 0);
   if (isFinite(d) && d > 0 && sy >= 6 && sy / d > 8.5) SHORT[id] = +(sy / d).toFixed(1);
+  /* ★★[SENT_MISSING 2026-08-16] 소리에 **문장이 통째로 빠진** 클립을 그 자리에 띄운다.
+     ─ 사용자가 귀로 잡았다: *"근데 나레이션 멘트랑 문구가 다른데 왜 그래?"* (13_narr-vow-in)
+     ─ 재는 자는 check-audio-sents 와 **같은 것**이다(lib/sent-bounds 의 blockFit) — 자를 두 벌 두지 않는다.
+     ─ ★화면에 띄우는 이유: 나는 소리를 못 듣는다. 「여기부터 들어 보세요」를 짚어 주는 것까지가
+       기계가 할 수 있는 일이고, 그 표시가 없으면 105클립을 처음부터 다 들어야 한다. */
+  const bf = blockFit(f, c.sents);
+  if (bf && !bf.ok) MISS[id] = bf.guess && bf.guess.drop
+    ? { at: bf.guess.drop.map((k) => k + 1), n: c.sents.length, b: bf.blocks.length }
+    : { at: null, n: c.sents.length, b: bf.blocks.length };
 });
 console.log(`  문장 구간 — 찾음 ${bOk}클립 · 못 정함 ${bNo}클립(그 클립은 통째로만 듣는다)`);
 if (Object.keys(SHORT).length) console.log(`  ★소리가 글보다 짧은 클립 ${Object.keys(SHORT).length}개: ` +
   Object.entries(SHORT).map(([k, v]) => `${k}(${v}음절/초)`).join(' · '));
+if (Object.keys(MISS).length) console.log(`  ★★소리에 문장이 빠진 것으로 보이는 클립 ${Object.keys(MISS).length}개 [SENT_MISSING]: ` +
+  Object.entries(MISS).map(([k, v]) => `${k}(대본 ${v.n} · 덩어리 ${v.b}${v.at ? ' · ' + v.at.join('·') + '번째' : ' · 자리 못 정함'})`).join(' · '));
 
 const missing = OLDC.filter((c) => !c.has && !c.mix);
 if (missing.length) console.log(`  · 소리 없는 기존 클립 ${missing.length}개(합성/미녹음): ${missing.map((c) => c.id).join(' · ')}`);
@@ -132,8 +151,8 @@ if (EMBED) {
 
 /* ── ④ 화면 데이터 ───────────────────────────────────────────────────────── */
 const DATA = {
-  old: OLDC.map((c) => ({ id: c.id, no: c.no, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
-    r: c.role, mix: c.mix, has: c.has, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0 })),
+  old: OLDC.map((c) => ({ id: c.id, no: c.no, mi: c.mi, k: c.ko, p: PART_KO[c.part] || c.part || '기타',
+    r: c.role, mix: c.mix, has: c.has, s: c.sents, b: BOUNDS[c.id] || null, short: SHORT[c.id] || 0, miss: MISS[c.id] || null })),
   neu: NEWC.map((c) => ({ s: c.slug, k: c.ko, g: c.묶음,
     n: c.idx.map((i) => ({ i, t: sents[i], v: voices[i], lock: sents[i] === USE_EXISTING,
       old: OLDSENT.get(sents[i]) || '' })) })),
@@ -272,10 +291,11 @@ function counts() {
   return { need: need, done: done, re: re };
 }
 
-/* ★[NEW_TONE_PLAY 2026-08-16 CC] 인자 이름이 playUrl 이라 «주소를 넣어야 나온다»고 읽혔고,
-   새 어조 쪽이 null 을 넘겨 **174문장에 듣기 단추가 없었다** — 소리는 파일 안에 다 들어 있는데
-   누를 것이 없어 못 들었다(들으라고 만든 화면인데 정작 판정 대상을 못 듣는다).
-   ★들려줄 수 있느냐(canPlay)로 이름을 바꾼다 — 주소는 data-u 로 이미 넘긴다. */
+/* ★[NEW_TONE_PLAY 2026-08-16 CC 지적] 둘째 인자는 «주소»가 아니라 **「들을 수 있나」**다.
+   내가 ops(k, null) 로만 불러서 **새 어조 174문장에 듣기 단추가 안 그려졌다**(소리는 AN 에 다 있었다).
+   기존 클립 줄은 구간 재생이라 자기 자리에서 따로 단추를 그리므로 여기선 false 로 부른다.
+   ★이름을 playUrl 로 둔 것이 화근이었다 — 「주소를 안 주면 못 튼다」로 읽혀 null 을 넣게 된다.
+     canPlay 로 바꿔 «무엇을 묻는 인자인지»가 이름에 드러나게 한다. */
 function ops(k, canPlay) {
   var v = V[k];
   return '<div class="ops">'
@@ -305,6 +325,8 @@ function draw() {
         + '<span class="tag">' + esc(c.id) + '</span>' + (c.r ? '<span class="tag">' + esc(c.r) + '</span>' : '')
         + (re ? '<span class="tag re">다시 ' + re + '</span>' : '')
         + (c.short ? '<span class="tag re" title="말속도 ' + c.short + '음절/초 · 보통 6~7">★소리가 글보다 짧음</span>' : '')
+        + (c.miss ? '<span class="tag re" title="대본 ' + c.miss.n + '문장인데 소리 덩어리는 ' + c.miss.b + '개 [SENT_MISSING]">★문장이 빠진 듯 — '
+            + (c.miss.at ? c.miss.at.join('·') + '번째' : '자리 못 정함') + '</span>' : '')
         + (c.has ? '<button class="btn sm play" style="margin-left:auto" data-u="' + c.id + '">클립 듣기</button>'
                  : '<span class="tag" style="margin-left:auto">소리 없음</span>') + '</div>';
       c.s.forEach(function (t, j) {
@@ -335,7 +357,7 @@ function draw() {
         h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '"><div class="tx"><div>' + esc(s.t) + '</div>'
           + '<div class="mi">' + esc(s.v) + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다(판정 안 함)</b>'
               : (s.old ? (' · 기존에도 있음 · ' + esc(s.old)) : '')) + '</div></div>'
-          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, true))   /* [NEW_TONE_PLAY] 새 어조도 문장마다 듣는다 */
+          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, true))
           + '</div>';
       });
       h += '</div>';
@@ -355,11 +377,16 @@ $('onlyLeft').onchange = draw; $('onlyRe').onchange = draw;
 $('mkOut').onclick = function () {
   var out = [];
   var bad = [];
+  /* [EXPORT_MAN_ORDER] 화면은 예식 순서지만 **대본은 대장 배열 차례(mi)**로 낸다 —
+     조립기가 그 차례로 자리를 매기기 때문이다. 여기서 안 세우면 받은 wav 가 서로의 자리에 붙는다. */
+  var picked = [];
   D.old.forEach(function (c) { c.s.forEach(function (t, j) {
     if (V[c.id + '#' + j] !== 're') return;
     var vn = D.voice[c.r];                       /* [EXPORT_TRUTH] manifest 표에서만 가져온다 */
     if (!vn) { bad.push(c.id + ' (' + (c.r || '역할없음') + ')'); return; }
-    out.push(vn + ': ' + t); }); });
+    picked.push({ mi: c.mi, j: j, line: vn + ': ' + t }); }); });
+  picked.sort(function (a, b) { return (a.mi - b.mi) || (a.j - b.j); });
+  picked.forEach(function (x) { out.push(x.line); });
   if (bad.length) alert('화자를 못 정한 클립이 있어 대본에서 뺐습니다:\\n' + bad.join('\\n') + '\\n\\n(합창처럼 여럿이 말하는 자리입니다 · 따로 알려 주세요)');
   D.neu.forEach(function (c) { c.n.forEach(function (s) { if (V['n' + s.i] === 're') out.push(s.v + ': ' + s.t); }); });
   $('outWrap').className = out.length ? '' : 'hide';

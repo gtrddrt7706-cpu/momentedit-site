@@ -2882,12 +2882,59 @@ if command -v node >/dev/null 2>&1; then node scripts/check-paste-format.mjs >/d
 # RECORDED_TRUTH·NOAUDIO_REAL 과 같은 병이다 — '없으면 통과'는 늘 조용한 거짓말이 된다.
 chk 'PASTE_MISSING' scripts/check-paste-format.mjs 1
 chk '대기 수를 셀 수 없어' scripts/check-paste-format.mjs 1
+
+# ── [PASTE_MAN_ORDER] 붙여넣기 **차례**가 조립기가 읽을 차례와 같은가 (2026-08-16 · 실사고) ──
+# --redub 는 붙여넣기를 **클립 번호 오름차순**으로 뽑았는데, 조립기(assemble-narration)는
+#   clipsOf(P) = man.clips.filter(...) — 즉 **대장 배열 차례**로 자리를 매긴다. 둘이 갈렸다:
+#   6_예식뒤 에서 no=80(배열 54번째) 이 no=63(배열 68번째) 보다 앞이다. 붙여넣기는 63을 먼저 놨다.
+# 실측 — 11문장 재더빙 wav 중 6개가 통째로 서로의 자리에 붙을 뻔했다(조립 r=0.578 로 멎어 살았다).
+# ★상관계수가 살려 준 것이지 검사가 잡은 것이 아니다 — 길이가 엇비슷했으면 조용히 완성됐다.
+#   그래서 ①뽑는 쪽을 대장 배열 차례로 맞추고 ②붙여넣기 파일의 차례를 검사로 못박는다.
+chk 'PASTE_MAN_ORDER' scripts/check-text-audio.mjs 2
+chk 'PASTE_MAN_ORDER' scripts/check-paste-format.mjs 2
+chk 'IDX_OF' scripts/check-text-audio.mjs 3           # 대장 배열 차례를 쓰는 자리 — 클립 번호로 되돌아가지 않게
+chk 'a.idx - b.idx' scripts/check-text-audio.mjs 1
+chk 'PASTE_PART_SPLIT' scripts/check-text-audio.mjs 1  # 파트 경계를 사람이 손으로 가르지 않게
+# 같은 병이 **두 곳**에 있었다 — 실청 페이지의 「다시 받을 것 대본」도 클립 번호 순으로 냈다.
+# 화면은 예식 순서로 보는 것이 맞다. 그러나 **대본**은 조립기가 읽을 차례여야 한다 — 그래서 낼 때만 다시 세운다.
+chk 'EXPORT_MAN_ORDER' audio-review.html 3
+chk 'EXPORT_MAN_ORDER' scripts/build-listen-all.mjs 2
+chk 'a.mi - b.mi' audio-review.html 1
+chk 'a.mi - b.mi' scripts/build-listen-all.mjs 1
+# ★틀린 옛 주석이 되살아나는 것을 막는다 — 그 말이 있으면 다음 사람이 그 말대로 다시 짠다.
+#   패턴은 옛 문장 **앞부분**이다. 뒷부분("클립 번호 순서를 지킨다")은 새 주석이 인용으로 안고 있어
+#   그것으로 세면 자기 자신에 걸린다(실측 — 1>0 으로 붉었다).
+nochk '조립기가 정렬 순서로 자리를 매기므로' audio-review.html
+# [CANT_PLACE] 대장에 없는 글은 「틀렸다」가 아니라 「못 쟀다」 — 붉히지 않되 화면에 적는다.
+# 클립 통째 재녹음 대본은 _recorded.json(녹음된 글)에서 나오고, 그 글은 대장과 다를 수 있다.
+chk 'CANT_PLACE' scripts/check-paste-format.mjs 2
+chk '못 잰 줄' scripts/check-paste-format.mjs 2
 # ── [ONE_CANDIDATE] 후보 파트가 하나면 상관계수로 거르지 않는다 (2026-08-09) ──
 # 셔터 신호 2문장은 예상 길이가 서로 같아 기댓값 분산이 0 → 상관계수가 늘 0.85 미만.
 # 파일도 파트도 맞는데 "파트를 못 찾았다"고 멎었다. 상관은 후보를 가리는 도구지 검증이 아니다.
 # ★순서 검증(--force 로만 넘어감)은 그대로 남는다 — 그게 진짜 안전망이다.
 chk 'ONE_CANDIDATE' scripts/assemble-narration.mjs 1
+# ── [FLAT_AUTOSPLIT] 받은 zip 을 파트별 폴더로 «사람이» 가르지 않는다 (2026-08-16 사용자 지시) ──
+# *"2폴더 나누는 법은 뭐야 너가 최대한 알아서해봐 어려운거 시키지말고"*
+# 손으로 가르는 단계에 순서를 틀릴 자리가 있었고 실제로 틀렸다(PASTE_MAN_ORDER · r=0.578 이 겨우 막았다).
+# 한 묶음의 개수가 고른 파트들의 **합**과 같으면 대장 배열 차례로 잘라 나눈다.
+# ★자동으로 갈랐다고 검사를 건너뛰지 않는다 — 길이 상관 검증은 그대로 돈다.
+chk 'FLAT_AUTOSPLIT' scripts/assemble-narration.mjs 3
+chk '길이 상관 검증은 그대로 돕니다' scripts/assemble-narration.mjs 1
 chk '후보가 둘 이상이면 종전대로' scripts/assemble-narration.mjs 1
+# ── [CORR_NAN_SAY] 못 본 자리를 「r = NaN」으로 적지 않는다 (2026-08-16 · 코워크 요청 적대검증) ──
+# 코워크: *"이것도 깨 봐 달라 — 합이 «우연히» 맞는 다른 조합이 있으면 조용히 엉뚱하게 갈린다."*
+# 실제 조립기를 149번 돌려 재 봤다. 가른 «자리»는 튼튼했다(경계 한 칸 밀림 r 0.397·-0.204 → 멎음).
+# 구멍은 **문장이 1개인 파트**였다 — n=1 이면 corr 이 0/0 → NaN, `NaN < 0.85` 는 false 라 무조건 통과.
+# 6_예식뒤 의 1문장 클립 8개(54·68~74)는 서로 아무거나 바꿔치기해도 안 멎었다(잡음과 무관·산수).
+# ★막지 않는다 — 74_fx-clap 한 자리만 다시 받는 일은 정당하다. 대신 «검사하지 않았다»고 적는다.
+#   그래야 사람이 그 자리만 귀로 확인한다. 문턱(0.85)은 건드리지 않았다.
+chk 'CORR_NAN_SAY' scripts/assemble-narration.mjs 3
+chk '못 봤습니다' scripts/assemble-narration.mjs 1
+chk '못 잼' scripts/assemble-narration.mjs 1
+chk 'CORR_NAN_SAY' scripts/check-corr-claim.mjs 5
+# ★옛 판(못 본 것을 잰 것처럼 찍던 줄)이 되살아나면 잡는다 — 이름이 아니라 **줄의 모양**을 본다
+nochk "r = \${r.toFixed(3)}\${r < 0.85 ? '   ✗' : ''}" scripts/assemble-narration.mjs
 
 # ── [CORR_CLAIM] 조립기 '길이 상관' 주석이 실제 계산과 맞는지 (2026-08-09 · 적대 검증) ──
 # ONE_CANDIDATE 완화의 근거로 "예상 길이가 같아 분산 0 · 상관계수 미정의"라 적혀 있었는데
@@ -3243,6 +3290,10 @@ chk 'DUB_ONEFILE' scripts/split-dub-onefile.mjs 1
 #   (재더빙 붙여넣기는 클립번호 오름차순 · 명단은 발견순) 「순서가 같은가」를 물으면 안 된다.
 #   실측 차이: 붙여넣기 38·63·80 / 명단 63·80·38. 이 주석을 지우면 다음 사람이 또 같게 만든다.
 chk 'PASTE_IS_ORDER' scripts/build-dub-onefile.mjs 1
+# ★[DUB_FROZEN 2026-08-16] 소리를 받은 뒤에는 번호가 계약이다 — 다시 매기지 않는다.
+#   재더빙 대기가 3→4클립이 되며 꼬리 번호가 밀렸고, 그대로 두면 받아 둔 wav 9개가
+#   조용히 다른 자리로 간다(파일명엔 번호뿐이라 되돌릴 수도 없다). 가드가 실제로 잡았다.
+chk 'DUB_FROZEN' scripts/build-dub-onefile.mjs 1
 # [ORDER_CORR] 자르기 전에 길이 상관으로 순서를 확인한다 — 못 재면 통과가 아니라 멈춤(rc 2)
 chk 'ORDER_CORR' scripts/split-dub-onefile.mjs 1
 
@@ -3265,10 +3316,62 @@ chk 'LISTEN_ALL' scripts/build-listen-all.mjs 1
 # [TOO_SHORT] 소리가 글보다 짧은 클립을 화면에 띄운다(못 듣는 내가 «틀렸다»고 하지 않고 «먼저 들어 보라»고 한다)
 chk 'SENT_SEEK' scripts/build-listen-all.mjs 1
 chk 'TOO_SHORT' scripts/build-listen-all.mjs 1
+# ── [AUDIO_SENTS 2026-08-16] 소리에 대본만큼의 문장이 실제로 있는가 ──
+# ★실사고: 4클립이 대본 2문장인데 소리엔 1문장뿐이었다(둘째가 통째로 빠짐).
+#   check-text-audio 는 글↔글만 봐서 초록이었다 — 「A=B」를 아무리 봐도 둘 다 실물과 다르면 소용없다.
+# [NO_GATE] merge-guard 에서 돌리지 않는다 — 91클립을 ffmpeg 로 재느라 3분 넘게 걸린다.
+#   야간 잡이 돌린다. 여기서는 검사가 살아 있는지만 본다.
+chk 'AUDIO_SENTS' scripts/check-audio-sents.mjs 1
+chk 'CANT_HEAR' scripts/check-audio-sents.mjs 2
+# ── [BLOCK_FIT] 덩어리마다 말속도를 본다 (2026-08-16 · 사용자가 또 귀로 잡았다) ──
+# 옛 잣대는 클립 **전체** 말속도만 봤다. 13_narr-vow-in 은 3문장 중 2문장만 들어 있는데
+# 전체가 초당 7.7음절(상한 9.5 밑)이라 통과했다 — 시간이 남은 것은 문장이 빠졌기 때문인데
+# 평균이 그 사실을 지웠다. 이제 소리 덩어리마다 따로 재고, 어떤 배분도 사람 속도가 안 되면 붉힌다.
+# ★재는 자는 lib/sent-bounds.mjs 한 곳뿐이다 — check-audio-sents 와 실청 화면이 같은 것을 쓴다.
+chk 'BLOCK_FIT' scripts/lib/sent-bounds.mjs 1
+chk 'export function blockFit' scripts/lib/sent-bounds.mjs 1
+chk 'blockFit' scripts/check-audio-sents.mjs 2
+chk 'blockFit' scripts/build-listen-all.mjs 3
+chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
+# [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
+# 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
+chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
+chk 'GUESS_TIE' scripts/check-audio-sents.mjs 1
+# ── [LISTEN_COVER] 실청 화면에 «식장에서 날 소리»가 전부 있는가 (2026-08-16 사용자 지시) ──
+# 왼쪽을 대장(manifest)이 아니라 **큐 엔진**에 둔다 — 대장과 화면은 같은 생성기에서 나와 늘 맞는다.
+# ★castLive(배역 상황극)를 보는 첫 검사다. check-text-audio 는 그것을 일부러 뺀다(화면 글과 짝이 아니라서).
+#   그 사정과 「들어 있나」는 별개인데, 여태 아무도 그 별개를 안 봤다.
+chk 'LISTEN_COVER' scripts/check-listen-cover.mjs 1
+chk 'castLiveOf' scripts/check-listen-cover.mjs 1
+chk 'UNREACHED_TEXT' scripts/check-listen-cover.mjs 1
+chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
+# [EXTRA_ENABLE_ALL] 한 자리에 값이 여럿이면 전부 켠다 — valley 를 wine 만 켜서
+# 18_narr-valley-cake 가 대조에서 통째로 빠져 있었다(대조 자리 69 → 70).
+chk 'EXTRA_ENABLE_ALL' scripts/check-text-audio.mjs 1
+# ── ★★[ASR_TRUTH] 소리를 «받아 적어» 대장과 맞댄다 (2026-08-16 사용자 지시) ──
+# *"지금 실제 멘트랑 적혀있는 나레이션 문구랑 안 맞는게 많아 점검해봐"*
+# 그 시점 모든 검사가 초록이었다 — check-text-audio 70곳 어긋남 0 · check-audio-sents 91클립 문장 수 맞음.
+# ★원인: _recorded.json 의 **첫 값이 그 시점 manifest 복사본**이라 옛 클립은 A=A 였다.
+#   RECORDED_TRUTH·NOAUDIO_REAL·CONSOLE_TEXT 에 이어 네 번째다. 앞의 셋은 «대조 대상을 넓혀» 고쳤는데,
+#   넓히는 것으로는 안 낫는다 — **한쪽 끝이 실물에 닿아 있지 않으면** 글의 세계 안에서만 맴돈다.
+# 실측 8클립이 어긋나 있었다(13·15·26·12 는 옛 문안 그대로 · 27·28·29 는 마지막 문장 없음).
+chk 'ASR_TRUTH' scripts/check-audio-text.mjs 1
+chk 'ASR_TRUTH' scripts/audit/asr-transcribe.py 1
+chk 'IN_ORDER_COVER' scripts/audit/asr-transcribe.py 1
+chk 'IN_ORDER_COVER' scripts/check-audio-text.mjs 1
+chk 'rev' scripts/check-audio-text.mjs 3          # 대본에 «없는 말»이 붙은 자리도 본다(12_narr-welcome-out)
+chk 'check-audio-text' .github/workflows/nightly-screen.yml 1
+chk "valley: \[{ valley: 'wine' }, { valley: 'cake' }, { valley: 'both' }\]" scripts/check-text-audio.mjs 1
 chk 'GAP_MATCH' scripts/lib/sent-bounds.mjs 1
 chk 'RATE_VETO' scripts/lib/sent-bounds.mjs 1
 # [ONLINE_ALREADY_ENDED] 배웅에서 온라인을 갈라 말하지 않는다 — 라이브는 온라인 인사에서 끝난다
 chk 'ONLINE_ALREADY_ENDED' assets/ritual-cue.js 2
+# [MIC_PIN 2026-08-16] 주인공=핀 · 하객(혼주 포함)=핸드. 「마이크가 전해지면」은 핸드를 건네는 그림이라
+#   신랑·신부 자리에서 지웠다. 부모님(bless) 자리는 그대로 둔다 — 혼주는 건네받는 것이 맞다.
+chk 'MIC_PIN' docs/plans/식순연구/개편_진행판.md 1
+nochk '마이크가 전해지면, 편하게' assets/ritual-data.js
+nochk '마이크가 전해지면, 편하게' order-preview.html
+chk '마이크가 전해지면, 편히' assets/ritual-data.js 2
 nochk "S.digital ? 'end-1b-farewell-online'" assets/ritual-cue.js
 chk 'SELF_PARSE' scripts/build-listen-all.mjs 1
 chk 'EXPORT_TRUTH' scripts/build-listen-all.mjs 1
@@ -3458,8 +3561,8 @@ nochk '240만' api/_kb.js
 nochk '240만' assets/advisor-kb.js
 # [NEW_TONE_PLAY 2026-08-16] 새 어조 문장에도 듣기 단추가 붙는다 — 소리를 다 심어 놓고 174문장에
 #   단추가 없어 못 듣던 실사고(ops 의 인자 이름이 playUrl 이라 null 을 넘겼다). 이름을 canPlay 로.
-chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 2
-nochk 'ops(k, null)' scripts/build-listen-all.mjs
+chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 1
+nochk ': ops(k, null))' scripts/build-listen-all.mjs   # ★모양으로 겨눈다(이름만 쓰면 설명 주석을 문다)
 # [DINING_NOT_INCLUDED 2026-08-16 사용자 지적 "우리는 다이닝 별도인데 틀린정보가 있네"]
 #   계약 제3조② — '을'은 소개·조율만 하고 식사비는 파트너사 직결제다. 「견적에 포함」으로 쓰지 말 것.
 #   실사고: 핵심 구성 카드와 JSON-LD 상품설명 2곳이 「다이닝 포함」·「하나의 견적에」라 계약과 정면 충돌.
@@ -3551,3 +3654,32 @@ chk 'ORD_RESET_MID' order-preview.html 4
 chk 'prog-reset' order-preview.html 3
 chk '_paintReset' order-preview.html 3
 chk "id=\"pReset\"" order-preview.html 1
+# [INDEX_FACT_2026_08_16] 메인 전수 점검으로 잡은 사실 오류·고지 공백.
+#   ★계약서 제3조·제7조가 정본이다. 화면이 계약서보다 큰 약속을 하면 그대로 이행 의무가 된다.
+nochk '다섯 코스에서 골라' index.html                    # 코스는 셋([THREE_COURSES 2026-08-07])
+nochk '촬영·예식·다이닝·디지털 참석이 통합된' index.html   # 다이닝은 파트너사 직결제(제3조②)
+nochk '본식영상 데이터 + 수정본' index.html               # 계약서 용어는 '편집본'
+chk '25명 초과 스탠딩' index.html 1                       # 제3조⑥ 1인 50,000원·최대 30명(값이 비어 있었다)
+chk '총 30명으로 진행하실 수 있습니다' index.html 2        # 30명 상한 고지(화면에 0건이었다)
+chk '드레스를 시착하신 경우에만' index.html 1              # 제4조⑧ — '전액 환불' 단서 없던 자리
+chk '예식 150일 전까지 위약금 없이 전액 환급' index.html 1  # 제7조② — 23스크린 접힘 안에만 있던 것
+chk '디지털 참석 페이지' index.html 1                     # 제3조⑥ 포함 칸(별도 칸에 있었다)
+# [PRICE_STAGE_TABLE 2026-08-16] 계약서 단계별 지급 표가 총액과 따로 놀지 않게(평일 열이 240만이었다)
+chk 'PRICE_STAGE_TABLE' scripts/check-price-sync.mjs 1
+nochk '<td data-label="평일">240,000원</td>' contract/v1-1.html
+# [TERM_VIDEO 2026-08-16] 화면 용어는 「예식 영상」이다 — 「본식 영상」은 2026-07-25 사용자 지시로
+#   폐기(§6-B 표준 용어 G10). 계약서는 법률 문서라 「본식영상(편집본)」을 그대로 두고, 화면만 통일한다.
+#   ★되살리지 말 것 — 계약서와 다르다는 이유로 화면을 되돌리면 폐기 지시를 뒤집는 것이 된다.
+chk '예식 영상' index.html 8
+nochk '본식영상' index.html
+# [DUB_FROZEN_FILE 2026-08-16] 번호 계약은 저장소에 적는다(_dub_stage 는 gitignore 라 그것만 보면
+#   소리 가진 기계에서만 초록이 되고 CI 는 붉는다 · [STAGE_ABSENT] 와 같은 병).
+chk 'DUB_FROZEN_FILE' scripts/build-dub-onefile.mjs 1
+chk 'frozen' "docs/plans/식순연구/타입캐스트/더빙_번호계약.json" 1
+# [EXTRA_CROSS 2026-08-16 CC 적대검증 ④] extra 는 «그 축의 모든 값»과 곱한다 —
+#   'wine' 하나로만 켜서 18_narr-valley-cake(valley:'cake' + extra.valley 동시)가 통째로 빠져 있었다(91→92곳).
+chk 'EXTRA_CROSS' scripts/check-listen-cover.mjs 1
+# [AUDIO_PATH_REAL 2026-08-16 CC 적대검증 ⑤] 손으로 박은 mp3 경로가 실물에 닿는가.
+#   ★지금 rc 1 이 정상이다 — preview-bed.mp3 가 없다(고칠지는 사용자가 정한다). 게이트는 «세는 것»만 건다.
+chk 'AUDIO_PATH_REAL' scripts/audit/audio-paths.mjs 1
+chk 'PREVIEW_BED' console.html 6

@@ -94,6 +94,54 @@ if (!fs.existsSync(PASTE)) {
   }
 }
 
+/* 4) 줄 **차례**가 조립기가 읽을 차례와 같은가 [PASTE_MAN_ORDER 2026-08-16]
+   ★왜 — 형식·화자를 다 봐도 **순서**는 아무도 안 봤다. 그리고 순서가 틀렸다.
+     실측(2026-08-16 · 11문장 재더빙): 붙여넣기는 클립 번호 오름차순이라 [63] → [80] 인데
+     조립기는 대장 배열 차례로 집는다 — 거기서는 80(54번째) 이 63(68번째) 보다 **먼저**다.
+     받은 wav 6개가 통째로 서로의 자리에 붙을 뻔했다. 길이 상관 r=0.578 이 그 자리에서
+     멎어 준 것이지, 검사가 잡은 것이 아니다. 길이가 엇비슷했으면 조용히 완성됐다.
+   ★어떻게 보나 — 앞으로만 훑는다(greedy forward).
+     대장 문장을 차례로 늘어놓고 커서를 두고, 붙여넣기 줄을 하나씩 **커서 뒤에서** 찾는다.
+     뒤에 없고 앞에만 있으면 그 줄은 이미 지나온 자리다 = 차례가 어긋난 것이다.
+   ★한계를 밝혀 둔다 — 같은 문장이 여러 클립에 있으면(「두 분, 잠시 서로를 바라보아 주세요.」는
+     5곳) 커서가 그중 **앞쪽** 자리에 붙을 수 있다. 그래서 이 검사는 「어긋났다」는 말은 믿을 수
+     있어도 「완벽히 맞다」는 말까지는 못 한다. 못 잡는 쪽으로 틀리게 두었다 — 헛경보가 나면
+     사람이 검사를 끄기 때문이다. 최종 방어는 조립기의 길이 상관(r<0.85)이 그대로 남는다.
+   ★★[CANT_PLACE] 대장에 **없는** 문장은 「틀렸다」가 아니라 **「이 줄은 못 쟀다」**이다 — 붉히지 않는다.
+     붙여넣기가 늘 대장의 글인 것은 아니다. 실청 페이지에서 클립을 통째로 「다시」 하면 대본은
+     _recorded.json(실제로 녹음된 글)에서 나오고, 그 글은 대장과 다를 수 있다 — 실제로 다르다:
+       36_ringwarm-family · 37_ringwarm-all — 대장 「**다시** 두 사람에게 돌아옵니다」 / 녹음 「**곧** …」
+     조립기는 글이 아니라 **자리와 개수**로 붙이므로 이 줄들도 조립에는 지장이 없다.
+     ★그렇다고 조용히 넘기지도 않는다 — 몇 줄인지, 어느 줄인지 **화면에 적고** 커서만 건너뛴다.
+       (이 어긋남 자체는 여기서 고칠 일이 아니다 — 대장을 고칠지 다시 녹음할지는 사람이 정한다.) */
+{
+  const MANP = path.join(DIR, 'manifest.json');
+  if (fs.existsSync(PASTE) && fs.existsSync(MANP)) {
+    const man = JSON.parse(fs.readFileSync(MANP, 'utf8'));
+    const flat = [];
+    (man.clips || []).forEach((c, ci) => (c.sents || []).forEach((s, si) =>
+      flat.push({ ci, si, id: `${c.no}_${c.file}`, text: String(s.text).trim() })));
+    const texts = fs.readFileSync(PASTE, 'utf8').split('\n').filter((l) => l.trim())
+      .map((l) => l.replace(/^[^:]+:\s*/, '').trim());
+    let cur = 0, back = null, gone = [];
+    for (let k = 0; k < texts.length && !back; k++) {
+      const at = flat.findIndex((x, i) => i >= cur && x.text === texts[k]);
+      if (at >= 0) { cur = at + 1; continue; }
+      const before = flat.findIndex((x) => x.text === texts[k]);
+      if (before >= 0) back = { k, line: k + 1, at: flat[before], from: flat[cur - 1] };
+      else gone.push(`${k + 1}행 "${texts[k].slice(0, 30)}"`);
+    }
+    if (back) no(`붙여넣기 ${back.line}행이 대장 차례보다 **뒤로** 갑니다 [PASTE_MAN_ORDER]\n`
+      + `    "${back.at.text.slice(0, 34)}" 는 대장에서 ${back.at.id} 자리인데,\n`
+      + `    앞줄까지 이미 ${back.from ? back.from.id : '?'} 까지 왔습니다 — 클립 번호 순으로 뽑은 것은 아닌가요.\n`
+      + `    조립기는 클립 번호가 아니라 **manifest 배열 차례**로 자리를 매깁니다.`);
+    else if (gone.length) {   // [CANT_PLACE] 못 잰 줄 — 붉히지 않되 반드시 적는다
+      console.log(`ok 줄 차례 — 잰 ${texts.length - gone.length}줄이 대장 배열 차례와 같은 방향입니다`);
+      console.log(`· 못 잰 줄 ${gone.length}개(대장에 없는 글 — 녹음 글로 뽑은 자리일 수 있습니다): ${gone.slice(0, 4).join(' · ')}${gone.length > 4 ? ' …' : ''}`);
+    } else console.log(`ok 줄 차례 — ${texts.length}줄이 대장 배열 차례와 같은 방향입니다`);
+  }
+}
+
 /* ── 결론은 여기 한 곳에서만 [EXIT_AT_END] ── */
 if (bad) { console.error('\nnode scripts/check-text-audio.mjs --redub 로 다시 뽑으세요.'); process.exit(1); }
 console.log('PASTE FORMAT OK');

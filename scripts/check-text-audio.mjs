@@ -118,12 +118,19 @@ for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
 //   2026-08-07 실사고: [THREE_COURSES]로 담백 seq 에서 덕담·와인케이크가 빠지자
 //   이 두 자리가 검사에서 통째로 사라졌고, 검사는 "이제 글과 소리가 맞는다"고 보고했다.
 //   ★화면 쪽 같은 표는 order-preview.html 의 EXTRA_ON 이다. 늘어나면 둘 다 고칠 것.
-const EXTRA_ON = { bless: { bless: 'on' }, valley: { valley: 'wine' } };
+/* ★★[EXTRA_ENABLE_ALL 2026-08-16] 한 자리에 값이 여럿이면 **전부** 켠다 — 하나만 켜면 나머지가 사각지대다.
+   실측: 옛 표는 valley 를 켤 때 'wine' 만 켰다. 그래서 `18_narr-valley-cake` 는
+   **닿을 수 있는 자리인데도** 이 검사가 한 번도 안 봤다(2026-08-16 · check-listen-cover 가 짚었다).
+   와인·케이크는 고객이 실제로 고르는 두 갈래다. 한쪽만 보는 검사는 다른 쪽에 대해 아무 말도 안 하면서
+   「어긋남 0」이라고 말한다 — 이 저장소가 EXTRA_ENABLE 로 한 번 겪은 병의 같은 뿌리다. */
+const EXTRA_ON = { bless: [{ bless: 'on' }],
+  valley: [{ valley: 'wine' }, { valley: 'cake' }, { valley: 'both' }] };
 for (const k of ['bless', 'valley', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
   const e = {}; e[k] = true;
-  const on = EXTRA_ON[k] || {};
-  states.push({ ...base, ...on, extra: e });
-  states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
+  for (const on of (EXTRA_ON[k] || [{}])) {
+    states.push({ ...base, ...on, extra: e });
+    states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
+  }
 }
 
 const seen = new Map();   // 자리키 → {ok, screen, heard, why}
@@ -303,17 +310,36 @@ if (process.argv.includes('--redub')) {
      타입캐스트는 그것까지 **소리 내어 읽는다.** 대괄호 번호를 읽은 클립이 섞여 들어온다.
      ★그렇다고 위 파일에서 머리말을 걷어내면 안 된다 — 그 파일은 「재더빙 대기 명단」이라
        검사가 양방향으로 대조한다. 명단과 붙여넣기용은 **쓰임이 다르니 파일도 나눈다.**
-     ★순서는 **클립 번호 오름차순**이다. 조립기가 받은 파일을 정렬해 대장의 문장 순서에
-       하나씩 대응시키기 때문이다(어긋나면 길이 상관계수 r<0.85 로 멎는다). 순서를 섞지 말 것. */
+
+     ★★[PASTE_MAN_ORDER 2026-08-16] 순서는 **manifest 배열 순서**다. 클립 번호가 아니다.
+       ─ 여기 적혀 있던 옛 설명("순서는 클립 번호 오름차순이다")이 **틀렸다.**
+       조립기(assemble-narration)는 `clipsOf(P) = man.clips.filter(c => c.part === P.file)` 로
+       클립을 집는다 — 즉 **대장에 적힌 배열 차례**다. 클립 번호를 다시 정렬하지 않는다.
+       둘은 대개 같아서 여태 안 들켰는데, 6_예식뒤 에서 갈렸다:
+         대장 배열   … 54번째 no=80 narr-entry-out-C … 68번째 no=63 narr-final-warn
+         옛 붙여넣기  [63] 먼저 → [80] 나중  (번호 오름차순)
+       실제로 어긋났다(2026-08-16 · 11문장 재더빙). 조립 때 길이 상관 r=0.578 로 멎어 살았다.
+       ★r 이 살려 준 것이지 검사가 잡은 것이 아니다 — 문장 길이가 엇비슷했으면 그대로 붙었다.
+         「우성이 다른 자리에서 다른 말을 하는」 mp3 가 조용히 완성됐을 자리다.
+       ★그래서 **차례를 정하는 자를 조립기와 하나로 맞춘다.** 파트도 대장 안에서 이어 붙어 있어
+         배열 차례로 세우면 파트별로 저절로 묶인다(1_안내@0 · 2_전반@12 · 3_후반@34 · 6_예식뒤@52 · 5_배역@82).
+         파트 경계는 아래에서 화면에 적는다 — 조립기가 폴더 하나를 한 파트로 보기 때문이다. */
   const PASTE = path.join(root, 'docs/plans/식순연구/타입캐스트/재더빙_붙여넣기.txt');
+  /* 대장 배열 차례 — 조립기가 쓰는 것과 **같은 순서**. 키는 재생이 부르는 이름(NN_슬러그) 그대로. */
+  const IDX_OF = new Map(), PART_OF = new Map();
+  man.clips.forEach((c, i) => { const k = pad2(c.no) + '_' + c.file; IDX_OF.set(k, i); PART_OF.set(k, c.part || ''); });
   const all = [...bad, ...noAudio.filter((r) => !bad.some((b) => b.slug === r.slug))];
   const seen = new Set(), ordered = [];
   for (const r of all) {
-    const no = +String(r.ids && r.ids[0] || r.no || '').split('_')[0] || 0;
+    const id = String((r.ids && r.ids[0]) || (pad2(+r.no || 0) + '_' + r.slug));
+    const no = +id.split('_')[0] || 0;
     if (seen.has(twinKey(r))) continue; seen.add(twinKey(r));   // [REDUB_TWIN] 슬러그가 아니라 녹음으로
-    ordered.push({ no, slug: r.slug, sents: sentsOf(r.screen), voice: r.ids ? voiceOfRow(r) : voiceOf(r.slug) });
+    /* ★대장에 없는 슬러그는 맨 뒤로 민다(Infinity). 조립기도 그런 클립은 못 만든다 —
+       숨기지 않고 아래 화면에 「대장에 없음」으로 적어 사람이 보게 한다. */
+    ordered.push({ no, idx: IDX_OF.has(id) ? IDX_OF.get(id) : Infinity, part: PART_OF.get(id) || '',
+      slug: r.slug, sents: sentsOf(r.screen), voice: r.ids ? voiceOfRow(r) : voiceOf(r.slug) });
   }
-  ordered.sort((a, b) => a.no - b.no);
+  ordered.sort((a, b) => (a.idx - b.idx) || (a.no - b.no));
   /* ★[PASTE_VOICE 2026-08-09] 화자 이름을 **붙인다** — 사용자 요청 *"파일붙이면 우성도 자동으로 나오게"*.
      ★1차에는 이걸 뗐다. 그게 틀렸다 — 사용자가 "이상하게 나온다"고 한 원인은 화자가 아니라
        머리말(`# …`)과 클립 머리(`[77] narr-cake-out (수정)`)였다. 타입캐스트가 그것까지 읽었다.
@@ -331,9 +357,25 @@ if (process.argv.includes('--redub')) {
   else if (fs.existsSync(PASTE)) fs.unlinkSync(PASTE);
 
   console.log('\n→ 대기 명단: ' + path.relative(root, REDUB) + ' (' + bad.length + '클립)');
-  console.log('→ 붙여넣기용(문장만 · 클립 번호 순): ' + path.relative(root, PASTE)
+  console.log('→ 붙여넣기용(문장만 · 대장 배열 순): ' + path.relative(root, PASTE)
     + ' (' + ordered.length + '클립 · ' + ordered.reduce((n, c) => n + c.sents.length, 0) + '문장)');
-  console.log('  ★순서를 섞지 마세요 — 조립기가 정렬 순서대로 자리를 매깁니다.');
+  console.log('  ★순서를 섞지 마세요 — 조립기가 정렬 순서대로 자리를 매깁니다 [PASTE_MAN_ORDER].');
+  /* ★[PASTE_PART_SPLIT 2026-08-16] 파트 경계를 **줄 번호로** 적는다.
+     조립기는 「폴더 하나 = 파트 하나」로 보고 개수로 파트를 짚는다(PART_AUTOMATCH).
+     그런데 이 파일은 여러 파트를 한 장에 담는다 — 그대로 한 폴더에 부으면 개수가 어느
+     파트와도 안 맞아 "어느 파트인지 못 정한 묶음"으로 멎는다.
+     ★실제로 그랬다(2026-08-16 · 11문장) — 사람이 손으로 3폴더에 나눠야 했고,
+       나누는 김에 순서까지 사람 손에 맡겨졌다. 나눌 자리를 기계가 적어 준다. */
+  if (ordered.length) {
+    const grp = [];
+    ordered.forEach((c) => { const k = c.part || '(대장에 없음)';
+      const g = grp.length && grp[grp.length - 1].k === k ? grp[grp.length - 1] : (grp.push({ k, n: 0, clips: [] }), grp[grp.length - 1]);
+      g.n += c.sents.length; g.clips.push(c.no + '_' + c.slug); });
+    console.log('  ── 받은 wav 는 이대로 폴더를 나눠 주세요 (조립기는 폴더 하나를 한 파트로 봅니다)');
+    let at = 1;
+    for (const g of grp) { console.log(`     ${String(at).padStart(3)}~${String(at + g.n - 1).padStart(3)}번 줄 → ${g.k.replace(/\.txt$/, '')}/  (${g.n}문장 · ${g.clips.join(' · ')})`); at += g.n; }
+    if (grp.some((g) => g.k === '(대장에 없음)')) console.log('     ★「대장에 없음」은 조립기가 만들 수 없습니다 — build-typecast-import.mjs 를 먼저 도세요.');
+  }
   process.exit(0);
 }
 
