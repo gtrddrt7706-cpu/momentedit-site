@@ -3333,6 +3333,15 @@ chk 'export function blockFit' scripts/lib/sent-bounds.mjs 1
 chk 'blockFit' scripts/check-audio-sents.mjs 2
 chk 'blockFit' scripts/build-listen-all.mjs 3
 chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
+# ── [RETIRED_OFF_SCREEN] 폐지한 자리는 실청 목록에서 뺀다 (2026-08-16 사용자 지적) ──
+# *"축가는 뺄거야 축가는 생략이라고 전에 계속 얘기했는데 계속 등장하네?"*
+# 큐 엔진은 이미 축가를 안 낸다(SONG_RETIRED). 그런데 실청 화면은 대장 105클립을 그대로 늘어놨다.
+# 안 나가는 소리를 사람이 계속 확인하게 만들면 확인 시간을 뺏고 신뢰가 깎인다.
+# ★조용히 빼지 않는다 — 무엇을 왜 뺐는지 화면과 콘솔에 적는다(그래야 「사라졌다」로 잘못 복구되지 않는다).
+# ★폐지 명단은 ritual-cue.js 의 RETIRED 가 정본이다 — 여기 다시 적지 않는다.
+chk 'RETIRED_OFF_SCREEN' scripts/build-listen-all.mjs 4
+chk 'Cue.RETIRED' scripts/build-listen-all.mjs 1
+chk 'RETIRED_ROWS' scripts/build-listen-all.mjs 3
 # [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
