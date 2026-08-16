@@ -1644,7 +1644,7 @@ for _f in i-family/family-01.html i-family/family-02.html i-family/family-03.htm
 done
 chk 'LD_FILL' shared/hydrate.js 1                      # JSON-LD 런타임 채움 · 빼면 커버 8종 구조화 데이터가 " ·  결혼식"/빈 날짜로 회귀
 chk 'INV_EM_HINT' mypage.html 1                        # 별표 힌트 '강조' 문구 · '금색'으로 되돌리면 디자인 5종에서 거짓 안내
-chk 'SEAT_DRINK_SRV' automation/platform/80_production.gs 3        # seatView 음료 3곳(전체공개 tables · 슬림 보존 · 내자리만 hits[0].drink) · 하나만 빠져도 한쪽 모드에서 음료가 사라진다
+chk 'SEAT_DRINK_SRV' automation/platform/80_production.gs 2   # 전체 배치도 쪽 1건은 [SEAT_DRINK_NOSEND 2026-08-16]로 정당히 제거 — 검색 경로(본인 1자리)만 남는다        # seatView 음료 3곳(전체공개 tables · 슬림 보존 · 내자리만 hits[0].drink) · 하나만 빠져도 한쪽 모드에서 음료가 사라진다
 chk 'PC_TALL' invitation-gallery.html 1                # PC 미리보기 프레임 높이 재배분 · 빼면 1440x900에서 551px로 되돌아간다
 chk 'INV_COVER_COPY' mypage.html 1                     # 표지 이름 안내 — '영문만'은 01(병기)·06(한글 주도)에서 거짓
 chk 'lp-cta-preview' live.html 2                        # 프리뷰 CTA 뮤트 배경(opacity 금지) · 되돌리면 흰 글자가 3.31:1로 무너진다
@@ -4006,3 +4006,17 @@ chk 'MODAL_ONE' mypage.html 1
 chk '_mpModalBusy' mypage.html 3
 chk 'TRK_INFLIGHT' scripts/audit/save-honesty.mjs 3
 chk 'MODAL_ONE' scripts/audit/save-honesty.mjs 2
+# ★★[노출 점검 2026-08-16 3라운드] 남에게 보이면 안 되는 것이 나가던 자리.
+#   ①전체 배치도 응답에 **하객 전원의 음료 코드**가 실려 나갔다 — 그리는 화면이 하나도 없는데(순수 과다전송),
+#     논알콜(N)·유아(K)는 실명과 나란히 건강·종교를 추론하게 하는 값이다. guide.html 주석은
+#     «남의 음료는 절대 노출하지 않는다»라고 적어 두었는데 서버가 그 약속을 깨고 있었다.
+#   ②좌석 검색 «두 글자부터»가 클라이언트에만 있어, 요청을 직접 보내면 한 글자로 성씨 훑기가 됐다.
+#   ③관리자 로그아웃이 토큰만 지워 「최근 본 고객」의 실명·개인코드가 공용 PC에 남았다.
+chk 'SEAT_DRINK_NOSEND' automation/platform/80_production.gs 1
+nochk 'if (_drk.length) row.drinks' automation/platform/80_production.gs   # 전체 배치도에 음료를 다시 싣지 말 것
+chk 'SEAT_Q_MIN' automation/platform/80_production.gs 1
+chk 'SEAT_Q_MIN' automation/tests/guide.test.js 4   # 한 글자 거절 + 두 글자 질의로 고친 자리들
+chk 'q.length < 2' automation/platform/80_production.gs 1
+chk 'ADM_LOGOUT_WIPE' admin.html 1
+chk 'removeItem(RECENT_KEY)' admin.html 1
+chk 'GUIDE_DEFAULT_TRUTH' guide.html 1                # 기본값은 '전체 공개' — 주석이 반대로 적혀 있었다

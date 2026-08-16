@@ -758,11 +758,18 @@ function handleSeatView(body) {
     t = t || {};
     var seats = (Object.prototype.toString.call(t.seats) === '[object Array]') ? t.seats : [];
     var row = { name: String(t.name || ''), side: (String(t.side || 'L') === 'R') ? 'R' : 'L', seats: seats.map(function (s) { return String(s || ''); }) };
-    /* [SEAT_DRINK_SRV] 자리별 음료 — guide.html [GUIDE_DRINK]의 '서버가 보낼 때만 그린다' 계약의 서버쪽 절반(2026-08-02 연동 점검에서 누락 확정).
-       seats와 평행 배열 · 코드 2자 상한(라벨 해석은 클라이언트 화이트리스트가 함) ·
-       검색 경로(_seatFindSlim)는 지금처럼 계속 제외한다(타인 조회 응답 최소화 원칙 유지). */
-    var _drk = (Object.prototype.toString.call(t.drinks) === '[object Array]') ? t.drinks : [];
-    if (_drk.length) row.drinks = seats.map(function (s, i) { return String(_drk[i] || '').trim().slice(0, 2); });
+    /* ★★[SEAT_DRINK_NOSEND 2026-08-16 노출 점검] 전체 배치도 응답에서 **자리별 음료를 빼 둔다.**
+       종전엔 하객 전원의 음료 코드를 함께 실어 보냈다. 그런데 그 값을 그리는 화면이 없다 —
+       seat.html 에는 drink 라는 낱말이 아예 없고, guide.html 의 drinkHtml 을 부르는 findSeat 는
+       **홍보용 데모 블록에서만** 불린다(실사용 전체 배치도는 renderFullMap 이고 이름만 쓴다).
+       즉 아무도 안 쓰는데 서버만 보내고 있었고, 개발자도구 Network 에는 그대로 보였다.
+       ★이건 취향이 아니라 건강·종교를 추론하게 하는 값이다 — 논알콜(N)·유아(K)·어린이(Y)가
+         실명과 나란히 내려갔다. guide.html [GUIDE_DRINK] 주석은 «남의 음료는 절대 노출하지 않는다»
+         라고 적어 두었는데 이 줄이 그 약속을 깨고 있었다(주석과 코드가 반대였다).
+       ★본인 음료는 '내 자리만' 검색 응답(_seatFindByToken 의 완전일치 1자리)이 그대로 전달한다 —
+         필요한 사람에게만 자기 것 하나가 간다. 그 경로는 손대지 않았다.
+       ★전체 배치도에 음료를 다시 실으려면, 먼저 «누가 그것을 화면에 그리는가»를 정하고
+         본인 자리만 보내는 방법부터 만들 것. 통째로 보내는 것은 되돌리지 말 것. */
     return row;
   });
   var _resp = {
@@ -804,7 +811,12 @@ function _seatFindSlim(t) {   // 검색에 필요한 최소만 — 이 객체는
 }
 function _seatFindByToken(token, q) {
   q = _seatNorm(q);   // seat.html·guide.html과 동일 정규화(_seatNorm 단일 출처)
-  if (!q || q.length > 30) return { ok: false, error: '성함을 입력해 주세요.' };
+  /* ★★[SEAT_Q_MIN 2026-08-16 노출 점검] 두 글자 미만은 서버에서 거절한다.
+     «두 글자부터» 규칙이 seat.html·guide.html 클라이언트에만 있어, 요청을 직접 보내면
+     한 글자('김')로도 검색이 돌았다 — 한 글자는 명단을 성씨 단위로 훑는 열쇠가 된다.
+     ★프런트에만 있는 규칙은 규칙이 아니다. 화면과 같은 값(2)을 서버에도 둔다.
+     ★상한 30자는 종전대로. */
+  if (!q || q.length < 2 || q.length > 30) return { ok: false, error: '성함을 두 글자 이상 입력해 주세요.' };
   var _svc = null, _fresh = false, tables = null;
   try { _svc = CacheService.getScriptCache(); } catch (e) {}
   if (_svc) {
