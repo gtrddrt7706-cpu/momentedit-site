@@ -3683,3 +3683,11 @@ chk 'EXTRA_CROSS' scripts/check-listen-cover.mjs 1
 #   ★지금 rc 1 이 정상이다 — preview-bed.mp3 가 없다(고칠지는 사용자가 정한다). 게이트는 «세는 것»만 건다.
 chk 'AUDIO_PATH_REAL' scripts/audit/audio-paths.mjs 1
 chk 'PREVIEW_BED' console.html 6
+# ★[SEAT_FIT 2026-08-16] 이름이 세 글자만 넘어가도 자리 알약이 카드 밖으로 30px 넘게 나갔다(390px 실측).
+#   지그재그 배율 1.9→1.15 · --zig 26→20 으로 잡고, 테이블 커스텀 이름은 원 안에서 원 아래 한 줄로 내렸다.
+#   scripts/audit/seat-onecard.mjs 의 '긴 이름이 카드 밖으로 안 나간다' 절이 이 값을 지킨다.
+chk 'SEAT_FIT' mypage.html 4
+chk 'mag=even?1:1.15' mypage.html 1
+chk 'rt-cap' mypage.html 4
+nochk 'class="rt-cnm"' mypage.html                # ★원 안 커스텀 이름 복원 금지(좌우 자리 알약과 겹친다 · 폐지 주석의 이름 언급은 남긴다)
+chk 'SEAT_FIT' scripts/audit/seat-onecard.mjs 3

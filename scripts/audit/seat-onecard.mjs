@@ -167,6 +167,38 @@ try {
   ok(/섞여/.test(mixed.warn), '요약 카드가 섞인 상태를 알려 준다', mixed.warn.replace(/\s+/g, ' ').slice(0, 60));
   ok(/섞여/.test(mixed.note), '자리 창도 같은 사실을 말한다', mixed.note);
 
+  /* ★[SEAT_FIT] 이름이 세 글자만 넘어가도 자리 알약이 카드 밖으로 30px 넘게 나가던 것(390px 실측).
+     지그재그 배율(_seatZig 1.9→1.15)과 --zig(26→20)로 잡았다 — 숫자를 도로 키우면 여기서 붉게 진다. */
+  console.log('\n[긴 이름이 카드 밖으로 안 나간다]');
+  await openSeat(page, [
+    { name: '양가 부모님', side: 'L', seats: ['김희준', '이미쿠', '아버님', '어머님'], drinks: ['C', 'C', 'C', 'C'] },
+    { name: '', side: 'R', seats: ['고모', '이모', '삼촌', '사촌형'], drinks: ['C', 'N', 'C', 'C'] },
+    { name: '친구', side: 'L', seats: ['친구A', '친구B', '친구C', '친구D'], drinks: ['C', 'C', 'N', 'C'] },
+    { name: '회사', side: 'R', seats: ['회사동료', '선배', '후배', '최고참'], drinks: ['C', 'C', 'C', 'C'] },
+  ]);
+  const fit = await page.evaluate(() => {
+    const card = document.getElementById('mp_production').querySelector('.seat-card').getBoundingClientRect();
+    let worst = 0, who = '', clash = 0;
+    document.querySelectorAll('#mp_production .rs').forEach((b) => {
+      const r = b.getBoundingClientRect();
+      const o = Math.max(Math.round(card.left - r.left), Math.round(r.right - card.right));
+      if (o > worst) { worst = o; who = (b.textContent || '').trim(); }
+    });
+    document.querySelectorAll('#mp_production .rt-wrap').forEach((w) => {
+      const cap = w.querySelector('.rt-cap'); if (!cap) return;
+      const c = cap.getBoundingClientRect();
+      w.querySelectorAll('.rs').forEach((b) => {
+        const r = b.getBoundingClientRect();
+        if (Math.min(c.right, r.right) - Math.max(c.left, r.left) > 0 && Math.min(c.bottom, r.bottom) - Math.max(c.top, r.top) > 0) clash++;
+      });
+    });
+    return { worst, who, clash, caps: document.querySelectorAll('#mp_production .rt-cap').length };
+  });
+  ok(fit.worst <= 2, '390px에서 자리 알약이 카드 테두리를 넘지 않는다 [SEAT_FIT]', fit.worst + 'px ' + fit.who);
+  ok(fit.caps === 3, '테이블 이름은 원 아래 한 줄로 나온다', String(fit.caps));
+  ok(fit.clash === 0, '테이블 이름이 자리 알약과 겹치지 않는다 [SEAT_FIT]', String(fit.clash));
+  await page.screenshot({ path: path.join(OUT, 'seat-5-긴이름-390.png'), fullPage: false });
+
   console.log('\n[문구 · 넘침]');
   const txt = await page.evaluate(() => document.getElementById('mp_production').innerText || '');
   ok(txt.indexOf('—') === -1, '전각 줄표(—) 없음', (txt.match(/.{0,24}—.{0,24}/) || [''])[0]);
@@ -178,6 +210,7 @@ try {
   console.log('\n[1280px]');
   await page.setViewportSize({ width: 1280, height: 900 });
   await new Promise((r) => setTimeout(r, 250));
+  await tap(page, '[data-seat-edit][data-ti="0"][data-si="0"]');   // 창을 열어 둔 상태에서 잰다(앞 절에서 닫혔을 수 있다)
   const w = await page.evaluate(() => { const b = document.querySelector('.seat-drinkbar'); const r = b.getBoundingClientRect(); return { w: Math.round(r.width), cx: Math.round(r.left + r.width / 2), mid: Math.round(window.innerWidth / 2) }; });
   ok(w.w <= 360 && Math.abs(w.cx - w.mid) <= 2, '넓은 화면에서도 창은 360px 고정 · 가운데', JSON.stringify(w));
   await page.screenshot({ path: path.join(OUT, 'seat-4-한창-1280.png'), fullPage: false });
