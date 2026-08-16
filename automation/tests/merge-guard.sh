@@ -4021,3 +4021,4 @@ chk 'ADM_LOGOUT_WIPE' admin.html 1
 chk 'removeItem(RECENT_KEY)' admin.html 1
 chk 'GUIDE_DEFAULT_TRUTH' guide.html 1                # 기본값은 '전체 공개' — 주석이 반대로 적혀 있었다
 
+
