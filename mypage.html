@@ -1161,8 +1161,8 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .sdb-nm::placeholder{color:var(--light);font-size:14px}
     .sdb-opts.n2{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE] 알콜이 이미 한 종류로 정해지면 고를 것은 둘(그 알콜·논알콜) — 빈 칸을 남기지 않는다 */
     .sdb-note{font-family:var(--serif-ko);font-size:11px;line-height:1.5;color:var(--label-soft);text-align:center;margin-top:9px;word-break:keep-all}
-    .sdb-next{display:block;width:100%;margin-top:10px;padding:12px;border:0;border-radius:8px;background:#4E3F31;color:#fff;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer}
-    .sdb-next:active{background:#3A2D22}
+    .sdb-ok{display:block;width:100%;margin-top:10px;padding:12px;border:0;border-radius:8px;background:#4E3F31;color:#fff;font-family:var(--serif-ko);font-size:13px;letter-spacing:.02em;cursor:pointer}
+    .sdb-ok:active{background:#3A2D22}
     /* [ALC_ONE] 요약 카드의 알콜 한 줄 — 행사 전체의 약속이라 자리 창이 아니라 전체를 보여 주는 카드에 둔다 */
     .ss-alc{margin-top:9px;padding-top:9px;border-top:1px solid var(--border);font-family:var(--serif-ko);font-size:11.5px;line-height:1.6;color:var(--sub);text-align:center;word-break:keep-all}
     .ss-alc b{color:var(--accent);font-weight:600}
@@ -5688,31 +5688,11 @@ function _seatAlcCount(code){ var n=0; ((SEATFLOW&&SEATFLOW.tables)||[]).forEach
 function _seatAlcSetAll(code){   // 알콜 종류 통일 — 알콜로 고른 자리를 전부 code로. 논알콜(N)·미정('')은 건드리지 않는다
   ((SEATFLOW&&SEATFLOW.tables)||[]).forEach(function(t){ var d=(t&&t.drinks)||[]; for(var i=0;i<d.length;i++){ if(d[i]==='C'||d[i]==='R') d[i]=code; } });
 }
-// 화면 번호 순서(1번 자리 → 2번 …)로 늘어놓은 자리 목록 — '다음 자리'가 눈에 보이는 순서대로 가게(테이블 배열 순서가 아니라)
-function _seatOrder(){
-  var s=SEATFLOW, Ls=[], Rs=[], out=[];
-  (s.tables||[]).forEach(function(t,i){ (t.side==='R'?Rs:Ls).push(i); });
-  var mr=Math.max(Ls.length, Rs.length);
-  for(var rr=0; rr<mr; rr++){
-    if(rr<Ls.length) out.push(Ls[rr]);
-    if(rr<Rs.length) out.push(Rs[rr]);
-  }
-  var seq=[]; out.forEach(function(ti){ var t=s.tables[ti]; for(var si=0; si<((t&&t.seats)||[]).length; si++) seq.push({ti:ti,si:si}); });
-  return seq;
-}
-function _seatNextRef(ti,si){   // 지금 자리 다음 자리(화면 순서) · 마지막이면 null
-  var seq=_seatOrder();
-  for(var i=0;i<seq.length;i++){ if(seq[i].ti===ti && seq[i].si===si) return seq[i+1]||null; }
-  return null;
-}
-// [SEAT_ONE_CARD] 이 자리를 마치고 다음 자리로 — 창을 닫았다 다시 여는 왕복 없이 이어서 적는다(마지막 자리면 닫는다)
-function _seatGoNext(box, ti, si){
-  commitSeatEdit(box);
-  var nx=_seatNextRef(ti,si);
-  if(nx){ SEATFLOW.sel={ti:nx.ti,si:nx.si}; SEATFLOW.edit={ti:nx.ti,si:nx.si}; SEATFLOW._edNew=true; }
-  else { SEATFLOW.sel=null; SEATFLOW.edit=null; }
-  renderSeat(box);
-}
+/* ★★[SEAT_NO_CHAIN 2026-08-16 사용자 지시 "쭉쭉 이어지게 하지말고 클릭하면 그때 적을수있게만하자"]
+   자리를 마치면 **다음 자리로 자동으로 넘어가지 않는다.** 한 자리를 적고 창은 닫힌다.
+   다음 자리는 두 분이 그 자리를 눌러서 연다 — 어디를 적고 있는지 항상 두 분이 정한다.
+   ★'다음 자리 →' 단추·엔터 연쇄 이동(_seatGoNext·_seatNextRef·_seatOrder)을 되살리지 말 것.
+     한 번 만들었다가 사용자 지시로 걷어낸 것이다(제거 지시 보존 규칙). */
 /* ★[SEAT_KBD 2026-08-16] 창 안에 이름칸이 들어오면서 생긴 문제 하나 — iOS 키보드.
    position:fixed 는 레이아웃 뷰포트를 기준으로 서니, 키보드가 올라와도 창은 '원래 화면'의 한가운데에 그대로 있다
    (= 키보드 뒤로 숨는다). visualViewport 로 키보드 높이를 재서 --kbd 로 넘기면, 창의 bottom 이 그만큼 올라와
@@ -6677,7 +6657,6 @@ function renderSeat(box){
     if(_mix){ opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N'); alcNote='알콜이 두 종류로 섞여 있어요 · 아래에서 맞춰 주세요'; }
     else if(_alcPick){ opts=chip(_alcPick,SEAT_DRINK_LABEL[_alcPick],'dk-'+_alcPick)+chip('N','논알콜 스파클링','dk-N'); alcNote='알콜은 '+SEAT_DRINK_LABEL[_alcPick]+' 한 종류로 준비돼요'; }
     else { opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알콜 스파클링','dk-N'); alcNote='알콜은 한 종류만 준비돼요 · 처음 고른 쪽으로 맞춰져요'; }
-    var _nx=_seatNextRef(sel.ti, sel.si);
     barHtml='<div class="seat-drinkbar" role="dialog" aria-modal="false" aria-label="'+escapeHtml(_tShow)+' '+(sel.si+1)+'번 자리 이름과 음료">'
       +'<div class="sdb-h"><span class="sdb-label">'+escapeHtml(_tShow)+' · '+(sel.si+1)+'번 자리</span>'
         +'<button type="button" class="sdb-x" data-seat-selclose aria-label="닫기">×</button></div>'
@@ -6685,7 +6664,7 @@ function renderSeat(box){
       +'<div class="sdb-opts'+(_mix||!_alcPick?'':' n2')+'">'+opts+'</div>'
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')
       +(cur?'<button type="button" class="sdb-clear" data-drink="X">음료 선택 지우기 · 미정으로</button>':'')
-      +'<button type="button" class="sdb-next" data-seat-next="'+sel.ti+':'+sel.si+'">'+(_nx?'다음 자리 →':'이 자리까지 · 닫기')+'</button>'
+      +'<button type="button" class="sdb-ok" data-seat-selclose>확인</button>'   // [SEAT_NO_CHAIN] 이 자리만 마치고 닫는다 — 다음 자리로 끌고 가지 않는다
       +'</div>';   // 자리별 음료(★복원 금지: 상단 대표음료·자리별 알콜 혼용으로 되돌리지 말 것)
   }
   // 공개 방식(전체 공개 / 내 자리만 검색) — 캔버스 아래 별도 카드(2026-07-19 사용자 선택). 상단 크램프 체크박스 폐지. ★상단 복원 금지.
@@ -6738,12 +6717,9 @@ function renderSeat(box){
        그때 edit 이 비어 있으면 _seatWriteEdit 이 아무것도 기록하지 않아 방금 친 이름이 통째로 사라진다.
        포커스가 오는 순간 edit 을 그 자리로 되살려 둔다(렌더는 하지 않는다 — 키보드가 막 뜬 참이다). */
     ei.addEventListener('focus',function(){ var _fk=String(ei.getAttribute('data-edk')||'').split(':'); if(_fk.length===2 && _fk[1]!=='name' && !SEATFLOW.edit) SEATFLOW.edit={ ti:+_fk[0], si:+_fk[1] }; });
-    ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing&&ev.keyCode!==229){ ev.preventDefault();
-        // [SEAT_ONE_CARD] 자리 이름칸에서 엔터 = 다음 자리로. 스물다섯 명을 연달아 적는 화면이라 '확정하고 닫기'보다 이쪽이 훨씬 빠르다(테이블 이름칸은 종전대로 확정만)
-        var _k=ei.getAttribute('data-edk')||'', _p=_k.split(':');
-        if(_p.length===2 && _p[1]!=='name'){ _seatGoNext(box, +_p[0], +_p[1]); return; }
-        commitSeatEdit(box); renderSeat(box);
-      } else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; SEATFLOW.sel=null; renderSeat(box); } });   // Enter=다음 자리(한글 조합 중엔 무시·229 백스톱) · Esc=닫기
+    // [SEAT_NO_CHAIN] 엔터 = 이 자리 확정하고 닫기. ★다음 자리로 넘어가지 않는다(2026-08-16 사용자 지시)
+    ei.addEventListener('keydown',function(ev){ if(ev.key==='Enter'&&!ev.isComposing&&ev.keyCode!==229){ ev.preventDefault(); commitSeatEdit(box); SEATFLOW.sel=null; renderSeat(box); }
+      else if(ev.key==='Escape'){ ev.preventDefault(); SEATFLOW.edit=null; SEATFLOW.sel=null; renderSeat(box); } });   // Enter=확정·닫기(한글 조합 중엔 무시·229 백스톱) · Esc=닫기
     // blur=확정. 단, 재렌더는 200ms 지연 + '아직 아무도 재렌더 안 했을 때만'(ei.isConnected) — 0ms 즉시 렌더가 mousedown~mouseup 사이 DOM을 갈아치워 다른 버튼의 첫 탭을 삼키던 문제 방지
     ei.addEventListener('blur',function(){ if(SEATFLOW._rendering||!ei.isConnected) return; commitSeatEdit(box); setTimeout(function(){ if(SEATFLOW.active && !SEATFLOW.edit && ei.isConnected) renderSeat(box); },200); });   // 재렌더로 제거되며 발사되는 blur는 무시(유령 커밋 방지)
   }
@@ -6752,7 +6728,7 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-done],[data-drink],[data-seat-selclose],[data-seat-next],[data-alc-all],[data-alc-fill]'):null;   // data-drink=자리별 음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지 · [ALC_ONE] data-alc-*=행사 전체 알콜 1종 조작
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-done],[data-drink],[data-seat-selclose],[data-alc-all],[data-alc-fill]'):null;   // data-drink=자리별 음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지 · [ALC_ONE] data-alc-*=행사 전체 알콜 1종 조작
     // 배경(입력창·창 안·액션 버튼이 아닌 곳) 클릭 → 이름 확정 + 열려 있던 자리 창 닫기 [SEAT_ONE_CARD]
     if((SEATFLOW.edit||SEATFLOW.sel) && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed],.seat-drinkbar'))){ commitSeatEdit(box); SEATFLOW.sel=null; renderSeat(box); return; }
     if(!el) return;
@@ -6773,7 +6749,6 @@ function bindSeat(box){
       return; }
     if(el.hasAttribute('data-seat-newtbl')){ commitSeatEdit(box); if(SEATFLOW.tables.length<6){ var side=el.getAttribute('data-seat-newtbl'); SEATFLOW.tables.push({ name:'테이블 '+(SEATFLOW.tables.length+1), side:(side==='R')?'R':'L', seats:['','','','',''], drinks:['','','','',''] }); } renderSeat(box); return; }
     if(el.hasAttribute('data-seat-selclose')){ commitSeatEdit(box); SEATFLOW.sel=null; renderSeat(box); return; }   // [SEAT_DRINK_SEL] 바 닫기 — 하단 고정이라 '배치 완료'를 가릴 때 치울 수 있어야 한다
-    if(el.hasAttribute('data-seat-next')){ var _nr=String(el.getAttribute('data-seat-next')||'').split(':'); if(_nr.length===2) _seatGoNext(box, +_nr[0], +_nr[1]); return; }   // [SEAT_ONE_CARD] 이 자리 마치고 다음 자리(마지막이면 닫기)
     /* [ALC_ONE] 행사 전체 알콜을 한 종류로 바꾼다 — 논알콜·미정은 건드리지 않는다.
        되돌리기 싼 변경이지만 한 번에 여러 자리를 바꾸므로 무엇이 바뀌는지 세어서 먼저 보여 준다. */
     if(el.hasAttribute('data-alc-all')){ commitSeatEdit(box); var _ac=el.getAttribute('data-alc-all'); if(_ac!=='C'&&_ac!=='R') return;

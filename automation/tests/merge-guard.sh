@@ -3479,7 +3479,12 @@ chk 'SEAT_ONE_CARD' mypage.html 8
 chk 'ALC_ONE' mypage.html 6
 chk 'ALC_ONE' index.html 1
 chk 'sdb-nm' mypage.html 4                      # 이름칸이 자리 창 안에 있다(캔버스 알약 안이 아니라)
-chk 'data-seat-next' mypage.html 2              # '다음 자리' — 스물다섯 명을 창 왕복 없이 이어 적는 길
+# ★[SEAT_NO_CHAIN 2026-08-16 사용자 지시 "쭉쭉 이어지게 하지말고 클릭하면 그때 적을수있게만하자"]
+#   한 자리를 마치면 창이 닫힌다. 다음 자리로 자동으로 끌고 가지 않는다 — 어디를 적을지는 두 분이 누른다.
+chk 'SEAT_NO_CHAIN' mypage.html 3
+chk 'class="sdb-ok" data-seat-selclose' mypage.html 1
+nochk 'data-seat-next' mypage.html               # ★'다음 자리 →' 단추 복원 금지(한 번 만들었다가 걷어낸 것)
+nochk 'function _seatGoNext' mypage.html         # ★엔터 연쇄 이동도 함께 걷어냈다(주석의 이름 언급은 남겨 둔다 — 그래서 'function ~'로 잡는다)
 nochk 'class="rs-edit" data-ed' mypage.html     # ★캔버스 자리 알약 안 입력칸 복원 금지(이름·음료가 다시 갈라진다)
 chk 'data-alc-all' mypage.html 3                # 알콜 1종 통일·전환
 chk 'data-alc-fill' mypage.html 3               # 미정 자리 일괄 채우기(이미 고른 자리는 안 건드림)
