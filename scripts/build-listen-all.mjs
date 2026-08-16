@@ -272,10 +272,14 @@ function counts() {
   return { need: need, done: done, re: re };
 }
 
-function ops(k, playUrl) {
+/* ★[NEW_TONE_PLAY 2026-08-16 CC] 인자 이름이 playUrl 이라 «주소를 넣어야 나온다»고 읽혔고,
+   새 어조 쪽이 null 을 넘겨 **174문장에 듣기 단추가 없었다** — 소리는 파일 안에 다 들어 있는데
+   누를 것이 없어 못 들었다(들으라고 만든 화면인데 정작 판정 대상을 못 듣는다).
+   ★들려줄 수 있느냐(canPlay)로 이름을 바꾼다 — 주소는 data-u 로 이미 넘긴다. */
+function ops(k, canPlay) {
   var v = V[k];
   return '<div class="ops">'
-    + (playUrl !== null ? '<button class="btn sm play" data-u="' + k + '">듣기</button>' : '')
+    + (canPlay ? '<button class="btn sm play" data-u="' + k + '">듣기</button>' : '')
     + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="' + k + '">좋아요</button>'
     + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + k + '">다시</button></div>';
 }
@@ -331,7 +335,7 @@ function draw() {
         h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '"><div class="tx"><div>' + esc(s.t) + '</div>'
           + '<div class="mi">' + esc(s.v) + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다(판정 안 함)</b>'
               : (s.old ? (' · 기존에도 있음 · ' + esc(s.old)) : '')) + '</div></div>'
-          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, null))
+          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, true))   /* [NEW_TONE_PLAY] 새 어조도 문장마다 듣는다 */
           + '</div>';
       });
       h += '</div>';

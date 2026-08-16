@@ -3453,3 +3453,16 @@ chk 'PRICE_OLD_TWO' scripts/check-price-sync.mjs 1
 chk '2800000, 2100000, 2400000' scripts/check-price-sync.mjs 1
 nochk '240만' api/_kb.js
 nochk '240만' assets/advisor-kb.js
+# [NEW_TONE_PLAY 2026-08-16] 새 어조 문장에도 듣기 단추가 붙는다 — 소리를 다 심어 놓고 174문장에
+#   단추가 없어 못 듣던 실사고(ops 의 인자 이름이 playUrl 이라 null 을 넘겼다). 이름을 canPlay 로.
+chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 2
+nochk 'ops(k, null)' scripts/build-listen-all.mjs
+# [DINING_NOT_INCLUDED 2026-08-16 사용자 지적 "우리는 다이닝 별도인데 틀린정보가 있네"]
+#   계약 제3조② — '을'은 소개·조율만 하고 식사비는 파트너사 직결제다. 「견적에 포함」으로 쓰지 말 것.
+#   실사고: 핵심 구성 카드와 JSON-LD 상품설명 2곳이 「다이닝 포함」·「하나의 견적에」라 계약과 정면 충돌.
+nochk '다이닝 포함' index.html
+nochk '다이닝을 하나의 견적' index.html
+chk '다이닝 식사비는 파트너사 직접 결제' index.html 2
+# [CORE_TRIM 2026-08-16] 핵심 구성 3칸은 위 REALITY 3칸(본문 37~39자)과 호흡을 맞춘다(전 86~97자).
+chk '140분, 또렷이 남도록 설계한 호흡입니다' index.html 1
+chk '그 밖은 미리 밝힙니다' index.html 1
