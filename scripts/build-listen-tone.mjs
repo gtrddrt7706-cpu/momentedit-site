@@ -173,6 +173,15 @@ if (EMBEDAT) {
         '--clip', from, '--sent', USE_EXISTING, '--out', o], { encoding: 'utf8' });
       if (r.status !== 0 || !fs.existsSync(o)) { no(`기존 소리 잘라내기 실패: ${c.slug} ← ${from}`); return; }
       B64[i] = fs.readFileSync(o).toString('base64');   // 새 더빙 자리를 덮는다
+      /* ★화면의 «길이»도 같이 갈아 끼운다 [SHOW_WHAT_PLAYS]
+         안 그러면 나는 소리는 2.34초인데 옆에 1.65초(새 더빙 실측)라 적힌다 —
+         「적힌 것과 나는 것이 다르다」는 바로 이 사고로 사용자를 한 번 헛돌게 했다. 두 번은 없다. */
+      const rd = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', o], { encoding: 'utf8' });
+      const dd = parseFloat(String(rd.stdout || '').trim());
+      if (isFinite(dd) && dd > 0) {
+        const dn = DATA.clips.find((x) => x.s === c.slug); const sn = dn && dn.n.find((x) => x.i === i);
+        if (sn) sn.m = { d: +dd.toFixed(2), h: 0, t: 0, i: 0, ex: 1 };
+      }
       cut++;
     });
   });
@@ -264,6 +273,7 @@ border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--tex
   <b>쉼(무음)은 여기서 판정하지 마세요.</b> 문장 사이 쉼은 조립할 때 <b>숫자로</b> 넣습니다(wav 에 없습니다).
   이 화면이 주는 쉼은 듣기 편하라고 브라우저가 임시로 넣는 것이라 실제 결과물과 다릅니다.<br>
   여기서 볼 것은 <b>억양 · 강세 · 발음 · 속도</b>입니다.<br>
+  <b>단추 둘의 차이</b> — 「듣기」는 <b>이 문장 하나</b>, 「옛 클립 통째」는 그 문장이 들어 있던 <b>기존 클립 전체</b>(앞뒤 문장까지 붙은 실제 결과물)입니다.<br>
   <b>「기존에도 있음」</b>이 붙은 자리는 이미 녹음된 문장입니다 — 그 옛 클립과 <b>결이 맞는지</b> 견줘 들어 주세요.
   (실측 한 건: 「하나, 둘, 셋.」은 기존이 4.8초에 사이 쉼 0.45초씩인데 새 take 는 1.65초입니다. 사진 카운트다운이라 반응할 틈이 필요합니다.)
 </div>
@@ -373,14 +383,14 @@ function draw() {
       h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '">'
         + '<div class="tx"><div class="q">' + esc(s.t) + '</div>'
         + '<div class="mi">' + esc(s.v) + ' · audio_' + s.i
-        + (s.m ? (' · ' + s.m.d + 's') : '')
+        + (s.m ? (' · ' + (s.m.ex ? '기존 ' : '') + s.m.d + 's') : '')
         + (s.f ? (' · <b style="color:var(--gold-text)">' + esc(s.f) + '</b>') : '')
-        + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다 (판정 안 함)</b>' : '')
+        + (s.lock ? ' · <b style="color:var(--green)">이 「듣기」가 기존 녹음입니다 — 당일 나갈 소리 (판정 안 함)</b>' : '')
         + '</div></div>'
         + '<div class="ops">'
         + '<button class="btn sm" data-p="' + s.i + '">듣기</button>'
         + ((function(){ var mm = /기존에도 있음 · (\\S+)/.exec(s.f || ''); return (mm && OLDA[mm[1]])
-            ? '<button class="btn sm" data-old="' + mm[1] + '">기존 듣기</button>' : ''; })())
+            ? '<button class="btn sm" data-old="' + mm[1] + '" title="옛 클립을 처음부터 끝까지 — 앞뒤 문장까지 붙은 실제 결과물">옛 클립 통째 ' + mm[1].replace(/^\\d+_/, '') + '</button>' : ''; })())
         + (s.lock ? '' :
             '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-i="' + s.i + '">좋아요</button>'
           + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-i="' + s.i + '">다시</button>')
