@@ -3622,7 +3622,7 @@ nochk "if(SEATFLOW.edit && typeof commitSeatEdit==='function' && bx) commitSeatE
 chk 'SEAT_DRINK_SAVE' automation/platform/80_production.gs 1
 chk "_dv === 'C' || _dv === 'R' || _dv === 'N'" automation/platform/80_production.gs 1
 chk 'SEAT_DRINK_SAVE' scripts/audit/data-roundtrip.mjs 3
-chk "drinks: \['C', 'R', 'N'\]" scripts/audit/data-roundtrip.mjs 1
+chk "drinks: \['C', 'R', 'N', 'K'\]" scripts/audit/data-roundtrip.mjs 1
 # [PHOTO_GATHER_OFF 2026-08-16 사용자 지시 "자리에서는 무엇이지?"] 단체 사진 구도의 「불러 모아요/자리에서」
 #   두 갈래 배지 폐지 — 전 구도가 모여서 한 컷이다. 「자리에서」는 고객에게 "제대로 모여 찍지 않는다"로
 #   읽혔다(가장 갖고 싶어 하는 친구·가족 컷에서). 리뷰가 '유실된 기능'으로 되살리지 못하게 막는다.
@@ -3691,3 +3691,14 @@ chk 'mag=even?1:1.15' mypage.html 1
 chk 'rt-cap' mypage.html 4
 nochk 'class="rt-cnm"' mypage.html                # ★원 안 커스텀 이름 복원 금지(좌우 자리 알약과 겹친다 · 폐지 주석의 이름 언급은 남긴다)
 chk 'SEAT_FIT' scripts/audit/seat-onecard.mjs 3
+# ★★[KID_SEAT 2026-08-16 사용자 지시 "애기들도 있을수있으니깐 … 음료는 물로"] 유아 자리 = 음료 한 칸(K).
+#   물 + 유아용 의자를 한 번에 정한다. 코드 K 는 네 파일이 한 벌 — 하나만 빠지면 저장 때 조용히 지워진다.
+chk 'KID_SEAT' mypage.html 6
+chk 'KID_SEAT' guide.html 1
+chk 'KID_SEAT' admin.html 2
+chk 'KID_SEAT' automation/platform/80_production.gs 1
+chk 'KID_SEAT' scripts/audit/data-roundtrip.mjs 2   # 저장 왕복에 K 를 태워 둔다(화이트리스트가 다시 빠지면 붉게)
+chk "K:'유아 · 물'" mypage.html 1
+chk "_dv === 'K'" automation/platform/80_production.gs 1
+chk '유아용 의자' admin.html 2                    # 스태프 A4 합계 줄 + 관리자 상세(당일 준비물)
+chk 'KID_SEAT' scripts/audit/seat-onecard.mjs 1
