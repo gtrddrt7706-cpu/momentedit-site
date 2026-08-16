@@ -3363,6 +3363,21 @@ chk 'LISTEN_COVER' scripts/check-listen-cover.mjs 1
 chk 'castLiveOf' scripts/check-listen-cover.mjs 1
 chk 'UNREACHED_TEXT' scripts/check-listen-cover.mjs 1
 chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
+# ★[LISTEN_KEEP 2026-08-16] 만든 실청 판을 버리지 않는다 — 사용자가 내려받아 «들을» 판이다.
+#   전에는 /tmp 에 만들어 검사만 하고 버려서, 들으려면 ffmpeg 이 있는 세션이 매번 새로 만들어
+#   사람 손으로 넘겨야 했다. 실청은 사람만 할 수 있는 마지막 검사인데 그 판을 얻는 길이 심부름이었다.
+chk 'LISTEN_KEEP' .github/workflows/nightly-screen.yml 1
+chk 'upload-artifact' .github/workflows/nightly-screen.yml 1
+chk 'name: 실청_전체' .github/workflows/nightly-screen.yml 1
+# ★★[FFMPEG_HERE · LISTEN_HAS_SOUND 2026-08-16 · 코워크가 잡은 것] 이 잡에 ffmpeg 이 없었다.
+#   --embed 가 rc1 로 죽어 **파일을 안 썼고**, 그래서 내가 붙인 artifact 는 올릴 것이 없어
+#   «조용히 아무것도 안 남기고» 있었다. 「붉어도 남긴다」고 적어 놨는데 남길 게 없었다.
+#   ★그리고 올리기 전에 소리를 «센다» — 「없으면 조용히 안 올리기」는 이 저장소가 네 번 앓은 병이다.
+#     정상 283개 · 100 미만이면 속 빈 판이라 붉힌다. 실측: 파일 없음도 소리 0도 둘 다 rc=1.
+chk 'FFMPEG_HERE' .github/workflows/nightly-screen.yml 1
+chk 'apt-get install -y ffmpeg' .github/workflows/nightly-screen.yml 1
+chk 'LISTEN_HAS_SOUND' .github/workflows/nightly-screen.yml 1
+chk 'data:audio/mpeg' .github/workflows/nightly-screen.yml 2
 # [EXTRA_ENABLE_ALL] 한 자리에 값이 여럿이면 전부 켠다 — valley 를 wine 만 켜서
 # 18_narr-valley-cake 가 대조에서 통째로 빠져 있었다(대조 자리 69 → 70).
 chk 'EXTRA_ENABLE_ALL' scripts/check-text-audio.mjs 1
