@@ -1249,9 +1249,21 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .cf-l{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--hairline,#E6E1D8);text-align:left}
     .cf-k{font-size:12px;color:var(--gold-deep);padding-top:1px}
     .cf-v{font-size:13px;color:var(--accent);line-height:1.6;word-break:keep-all}
+    /* [CF_LINK_TAP] 확인서 안 「전화」·「지도」 — 보이는 크기는 그대로, 누르는 자리만 44px */
+    .cf-links{display:inline-flex;gap:12px;margin-left:8px;vertical-align:baseline}
+    .cf-links a{display:inline-block;color:var(--gold-deep);text-decoration:underline;text-underline-offset:3px;
+      text-decoration-color:var(--gold-soft,#DDD8D1);padding:12px 4px;margin:-12px -4px;-webkit-tap-highlight-color:transparent}
+    .cf-links a:hover,.cf-links a:active{color:var(--seal);text-decoration-color:var(--seal)}
     /* (구).cf-edit 마감 입력칸 CSS 삭제 — 입력이 다이닝 위저드·좌석 편집기로 이동하며 마크업 소멸(2026-07-17 리뷰) */
     .cf-ok{margin-top:12px;background:var(--gold-bg,#faf6ef);border:1px solid var(--gold);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--gold-deeper,#7a5f37);text-align:left}
     .cf-warn{margin-top:12px;background:#FBF3F1;border:1px solid var(--seal);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--seal);text-align:left}
+    /* ★[CF_INFO_TONE 2026-08-16 사용자 지시 "디테일한 부분들 체크"] 확인서 안 알림이 **한 가지 무게**뿐이었다.
+       진사 테두리 상자(.cf-warn)에 세 종류가 같이 들어 있었다 —
+         ①확정이 풀렸어요(손이 필요) ②인원이 안 맞아요(확인이 필요) ③잔은 저희가 챙겨 드려요(**알아 두시면 되는 것**)
+       진사는 이 브랜드에서 '확정·중요'를 뜻하는 유일한 색이라, ③까지 그 색으로 서면
+       화면에서 가장 센 글자가 「우리가 알아서 하는 일」이 된다(강조는 줄당 하나).
+       ③은 조용한 정보 상자로 내린다 — 테두리는 헤어라인, 글자는 본문 보조색. 뜻은 그대로 남는다. */
+    .cf-info{margin-top:12px;background:var(--bg2,#F5F3EF);border:1px solid var(--hairline,#E6E1D8);border-radius:9px;padding:11px 13px;font-size:12px;color:var(--sub);line-height:1.65;text-align:left;word-break:keep-all}
     /* ★★[CF_SEAL 2026-08-16 사용자 지시 "고객이 확인했습니다 버튼 … 날짜랑 내가 이때 이것으로 확정했다라는 책임의 부분이 느껴지게"]
        확인 기록은 원래 회색 한 줄이었다("이 내용대로 진행을 확인하셨어요 · 2026-08-16 15:20").
        서버에는 스냅샷·시각·핵심수치(core)까지 남는데 **화면이 그 무게를 하나도 보여주지 않았다** —
@@ -4847,9 +4859,20 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   // TRK_BTN_SAME(2026-07-25): _coreDone(필수 준비 완료 = 청첩장·식순) 정의 제거 — 유일한 사용처였던 '확인서 강조'가 폐지됨.
   //   접힘 게이트를 되살릴 때 필요하면 (ist==='완료')&&((t.ritual||'')==='완료') 로 재정의할 것(아래 참고용 주석과 짝).
   var _bm=String((p.confirm&&p.confirm.at)||'').match(/^\d{4}-(\d{2})-(\d{2})/);
-  /* [CF_SEAL] 행 라벨도 패널과 같은 말을 쓴다 — 패널이 「확정」이라 부르는 일을 행이 「확인」이라 부르면
-     고객은 서로 다른 두 가지로 읽는다. 날짜는 종전대로 붙인다(무엇을 언제 했는지가 행에서도 보이게). */
-  var cfLabel=_cfOk?('확정함'+(_bm?(' · '+Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'')):(p.confirmStale?'재확정 필요':'내용 확인');
+  /* ★★[TRK_ACT_ALIGN 2026-08-16 사용자 지적 "버튼 사이즈도 다른것도 거슬리고"] 날짜를 **버튼에서 뺀다.**
+     실측(390px): 다른 행 버튼 여섯이 전부 122px 인데 「확정함 · 8월 16일」만 **132px** 이라
+     그 줄만 왼쪽으로 10px 삐져나왔다 — 오른끝은 맞고 왼끝만 어긋나 계단으로 보인다
+     (TRK_ACT_ALIGN 주석이 예고한 「라벨이 더 길어지면 다시 삐져나온다」가 그대로 났다).
+     ★버튼은 **누를 것의 이름**만 갖는다. 날짜는 사실이지 동작이 아니므로 행 설명줄(.trk-sub)로 내린다 —
+       거기서는 길어져도 열을 깨지 않고, 오히려 문장으로 읽혀 뜻이 더 산다.
+     ★라벨을 다시 늘리지 말 것(같은 실수가 두 번째다). 늘려야 하면 122px 값을 함께 올릴 것. */
+  var cfLabel=p.confirmStale?'다시 확정':'내용 확인';
+  var _cfDay=_bm?(Number(_bm[1])+'월 '+Number(_bm[2])+'일'):'';
+  /* 한 줄에 담기게 짧게 — '다시 볼 수 있다'는 오른쪽 버튼(「내용 확인」)이 이미 말한다.
+     390px 실측에서 긴 문장은 '있어요' 세 글자만 둘째 줄로 떨어져 고아 줄이 됐다. */
+  var cfSub=_cfOk?((_cfDay?_cfDay+'에 ':'')+'확정하셨어요')
+    :(p.confirmStale?'확정한 뒤에 내용이 바뀌었어요 · 다시 확정해 주세요'
+      :'지금까지 준비한 내용을 한 장으로 최종 확인해요');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'준비 전';
   var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=((_gpB2.photoWish||[]).length||(_gpB2.photoFx||[]).length);   // [PHOTO_WISH] 요청 우선 · 옛 저장분(photoFx)도 완료로 센다
@@ -4909,7 +4932,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
             ? '청첩장에 자동으로 들어가는 안내예요'
             : '식사·자리를 담는 하객 안내 페이지예요'))   // TRK_NO_SUB 예외(2026-07-25 사용자 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): '확인·전달' 그룹 2행은 설명 유지 — 그룹 안에서는 둘 다 있어 리듬이 맞음   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
-      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, '지금까지 준비한 내용을 한 장으로 최종 확인해요')   // TRK_NO_SUB 예외(2026-07-25 사용자 지시): '확인·전달' 그룹은 설명 유지   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
+      + row('예식 확인서', _cfOk?'완료':'', 'mp_cfOpen', cfLabel, cfSub)   // [TRK_ACT_ALIGN] 상태·날짜는 설명줄(cfSub)이 말한다 — 버튼은 누를 것의 이름만   // TRK_NO_SUB 예외(2026-07-25 사용자 지시): '확인·전달' 그룹은 설명 유지   // '지금 할 차례' 강조 — 확인 버튼은 최종 확정 후에만 열리므로(_fDone 게이트) 그 전엔 강조하지 않음: 눌러도 확인 못 하는 죽은 CTA 방지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_cfPanel"'+(_cfPanelOpen?'':' style="display:none"')+'>'+prodConfirmHtml(p, inv)+'</div>'
     + '</div>'
     + '';   // 좌석 안내는 행 서브라인이 담당(별도 하단 뭉치 없음)
@@ -6747,7 +6770,11 @@ function prodConfirmHtml(p, inv){
     var _nm=dd.venue||((DN_PLACEHOLDER.indexOf(String(dd.venuePick||''))===-1)?dd.venuePick:'');
     if(_nm){ dv='<b>'+escapeHtml(_nm)+'</b>'+(dd.headcount?(' · '+escapeHtml(String(dd.headcount))+'명'):'');
       var _R=(typeof _dnFind==='function')?_dnFind(_nm):null, _tel=(_R&&_R.tel)?String(_R.tel).replace(/[^0-9]/g,''):'';
-      dv+=' <span style="display:inline-flex;gap:8px;margin-left:6px">'+(_tel?('<a href="tel:'+_tel+'" style="color:var(--gold-deep);text-decoration:none">전화</a>'):'')+'<a href="'+_dnMapUrl(_nm)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">지도</a></span>';
+      /* ★[CF_LINK_TAP 2026-08-16 디자인 실측] 「전화」·「지도」가 26×21px 이었다 — 손가락 자리가 절반이고
+         둘 사이가 8px 이라 예식 전날 급히 누를 때 옆 것이 눌린다. 보이는 크기는 그대로 두고
+         패딩으로 44px 세로 히트영역을 만든다(음수 마진으로 줄 높이는 되돌린다 · [MP_TAP44] 와 같은 수법).
+         밑줄을 넣는다 — 같은 줄의 식당 이름(굵은 글자)과 색만으로 갈리면 누를 것인지 안 읽힌다. */
+      dv+=' <span class="cf-links">'+(_tel?('<a href="tel:'+_tel+'">전화</a>'):'')+'<a href="'+_dnMapUrl(_nm)+'" target="_blank" rel="noopener">지도</a></span>';
       var _rvT=String((dd.reserveTime!=null)?dd.reserveTime:(gi.reserveTime||'')), _rvN=String((dd.reserveName!=null)?dd.reserveName:(gi.reserveName||''));   // 다이닝 값 우선 · 키 없을 때만 구 저장분 폴백(빈 값='지움' 존중 — GAS와 동일 규칙)
       if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvT+(_rvT&&_rvN?' · ':'')+_rvN))+'</span>';
     } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';
@@ -6830,7 +6857,8 @@ function prodConfirmHtml(p, inv){
     (typeof PHOTO_WISH_EX!=='undefined'?PHOTO_WISH_EX:[]).forEach(function(c){
       if(!c.link || !c.link.off) return;
       var hit=_hay.some(function(t){ return t===c.n || t.indexOf(c.n)>-1; });
-      if(hit && _rf.indexOf(c.link.when)<0) L+='<div class="cf-warn">'+escapeHtml('「'+c.n+'」 · '+c.link.off)+'</div>';
+      /* [CF_INFO_TONE] 막는 것이 아니라 「이렇게 진행된다」는 안내다(윗 블록 주석과 같은 취지) — 조용한 상자로 */
+      if(hit && _rf.indexOf(c.link.when)<0) L+='<div class="cf-info">'+escapeHtml('「'+c.n+'」 · '+c.link.off)+'</div>';
     });
   }
   // 좌석 배치 인원 ↔ 최종 확정 인원 대조(표시만 · 값 안 건드림) — 좌석은 마지막 주에 그리므로 확정과 어긋난 채 예식을 맞는 것 방지(2026-07-18 검토 반영)
@@ -7235,10 +7263,18 @@ function renderSeat(box){
        그 뒤로 관리자 화면(admin.html '알레르기·특이사항')·관리자 메일(Admin.html)·서버 재통지(80_production 643)는
        계속 이 값을 읽고 있었는데 **고객에게는 적을 곳이 없었다** — 배관 한쪽이 끊긴 채 반년을 돈 셈이다.
        ★폐지 지시(2026-07-19)의 대상은 '별도 인원 입력·대표음료 라디오'였지 특이사항이 아니다. 지우지 말 것.
-       ★칩(유아/어린이)으로는 못 적는 것을 여기서 받는다 — 알레르기·거동 불편·아기 나이. */
+       ★칩(유아/어린이)으로는 못 적는 것을 여기서 받는다 — 거동 불편·아기 나이 같은 **자리 준비**.
+       ★★[ALLERGY_ASK_OFF 2026-08-16 사용자 지시 "알레르기까지는 체크할순없어서 빼자 ·
+         어차피 핑거푸드라서 크게 문제는 없을 것 같아"] 알레르기를 **묻지 않는다 — 되살리지 말 것.**
+         설명과 예시에서 알레르기를 뺐다. 우리가 식단을 개별 조절해 드릴 수 없는데 물으면,
+         적어 낸 쪽은 조치를 기대하게 된다 — 묻는 것 자체가 약속이 된다(책임질 수 없는 안심 금지).
+         ★칸 자체는 남긴다. 거동 불편·아기 나이처럼 **당일 자리 준비가 실제로 달라지는 것**은
+           여전히 받아야 한다(그게 이 칸이 생긴 이유다).
+         ★계약서 ⑧(갑의 중대한 알레르기 고지 의무)은 그대로다 — 고객이 알리면 받는 길은 이 칸에 열려 있다.
+           우리가 먼저 묻지 않을 뿐이다. 조항을 근거로 예시를 되살리지 말 것. */
     + '<div class="seat-privacy seat-note-card"'+_giDis+'><div class="sp-q">미리 알려주실 것이 있나요?</div>'
-    +   '<div class="seat-note-d">알레르기, 거동이 불편한 분, 유아 나이처럼 <b>당일 준비가 달라지는 것</b>을 적어 주세요. 디렉터와 다이닝 팀이 함께 봐요.</div>'
-    +   '<textarea class="seat-note-ta" data-seat-note maxlength="300" rows="3" placeholder="예) 3번 테이블 아기 8개월 · 땅콩 알레르기 한 분"'
+    +   '<div class="seat-note-d">거동이 불편한 분, 유아 나이처럼 <b>당일 자리 준비가 달라지는 것</b>을 적어 주세요. 디렉터와 다이닝 팀이 함께 봐요.</div>'
+    +   '<textarea class="seat-note-ta" data-seat-note maxlength="300" rows="3" placeholder="예) 3번 테이블 아기 8개월 · 어머님 휠체어"'
     +     ' aria-label="미리 알려주실 것">'+escapeHtml(String((SEATFLOW.fd&&SEATFLOW.fd.allergy)||''))+'</textarea>'
     +   '<div class="sp-note" data-seat-note-st>적으시면 바로 저장돼요</div></div>';
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
