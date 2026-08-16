@@ -3904,3 +3904,4 @@ chk 'CF_DRINK_ONE' mypage.html 3
 chk 'CF_DRINK_ONE' scripts/audit/seat-onecard.mjs 2
 nochk "음료 · '+escapeHtml(_cp" mypage.html          # 좌석 배치 줄에 집계를 되살리지 말 것
 
+
