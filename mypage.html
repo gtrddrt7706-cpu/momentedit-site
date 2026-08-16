@@ -525,15 +525,21 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    한 요청 = 한 상자(어떤 사진·누구와·참고 링크)라, 상자 경계가 곧 '이 셋은 한 덩어리'라는 뜻이다.
    ★.pfx-* 규칙은 남겨 뒀다 — 예시 칩과 옛 저장분 표시가 아직 .ph-chip 을 쓰고, 상자 안 간격이 그 톤을 따른다. */
 .wsh-list{margin:8px 0 0;display:flex;flex-direction:column;gap:10px}
-.wsh-item{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px 12px 12px}
-.wsh-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+/* ★[WISH_BOX_QUIET 2026-08-16 디자이너 점검] 머리 행을 통째로 없앴다.
+   ① **번호 배지(.wsh-no) 폐지** — 요청은 최대 2개이고 **순서에 뜻이 없다**(구도와 달리 촬영 순번이 아니다).
+      뜻 없는 번호를 골드 원형으로 찍으면 상자에서 가장 진한 것이 가장 안 중요한 것이 된다.
+   ② **✕ 가 오른쪽 끝에 혼자 뜨던 것** — 번호와 ✕ 사이가 space-between 이라 가운데 빈 골짜기가 생겼고,
+      그 순간 상자가 '표'로 읽혔다([ADV_INDEX] 가 같은 지적을 남겨 뒀다).
+   → 머리 행이 사라지고 ✕ 만 상자 우상단에 얹는다. 상자가 한 줄만큼 낮아지고 조용해진다.
+   ★번호를 되살리지 말 것 — 되살리면 ①②가 함께 돌아온다. */
+.wsh-item{position:relative;border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px}
 /* [WISH_TAP44] 요청 빼기는 **적어 둔 글을 지우는** 단추라 구도 행의 ✕(28px)와 무게가 다르다 —
-   한 번 잘못 누르면 다시 쳐야 한다. 그래서 이 자리만 44px 로 키운다(구도 행은 종전대로 · 칩은 한 번에 되돌린다).
-   음수 마진으로 상자 모서리까지 표적을 넓히되 보이는 모양은 그대로 둔다. */
-.wsh-hd .ph-del{width:44px;height:44px;border:none;background:none;margin:-8px -10px -8px 0}
-.wsh-hd .ph-del:active{color:var(--gold-deep);background:var(--bg2,#F5F3EF);border-radius:8px}
-.wsh-no{width:22px;height:22px;border-radius:50%;background:var(--gold-deep);color:#fff;font-family:var(--serif-ko);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
-.wsh-item .cc-input{margin:6px 0 0}
+   한 번 잘못 누르면 다시 쳐야 한다. 그래서 이 자리만 44px 로 키운다(구도 행은 종전대로 · 칩은 한 번에 되돌린다). */
+.wsh-item .ph-del{position:absolute;top:2px;right:2px;width:44px;height:44px;border:none;background:none;z-index:1}
+.wsh-item .ph-del:active{color:var(--gold-deep)}
+.wsh-item .cc-input{margin:0}
+.wsh-item .cc-input+.cc-input{margin-top:8px}
+.wsh-what{padding-right:34px}   /* 첫 줄 글자가 ✕ 밑으로 들어가지 않게 */
 .wsh-what{min-height:58px}
 .wsh-ref-ok{margin-top:5px;font-size:11px}
 .wsh-ref-ok a{color:var(--gold-deep);text-decoration:none}
@@ -6439,8 +6445,8 @@ function renderPhoto(box){
   if(wish.length){
     h+='<div class="wsh-list">';
     wish.forEach(function(w,i){
-      h+='<div class="wsh-item"><div class="wsh-hd"><span class="wsh-no">'+(i+1)+'</span><button type="button" class="ph-del" data-wdel="'+i+'" aria-label="이 요청 빼기">✕</button></div>';
-      h+='<textarea class="cc-input wsh-what" data-wf="what" data-wi="'+i+'" maxlength="'+WISH_WHAT_MAX+'" aria-label="어떤 사진인지" placeholder="어떤 사진인지 · 누구와 함께인지 편하게 적어 주세요&#10;(예: 할머니 앉으신 옆에 쪼그려 앉아서 · 신부 측 할머니와 이모님)">'+escapeHtml(w.what||'')+'</textarea>';
+      h+='<div class="wsh-item"><button type="button" class="ph-del" data-wdel="'+i+'" aria-label="'+(i+1)+'번째 요청 빼기">✕</button>';
+      h+='<textarea class="cc-input wsh-what" data-wf="what" data-wi="'+i+'" maxlength="'+WISH_WHAT_MAX+'" aria-label="어떤 사진인지" placeholder="어떤 사진인지 · 누구와 함께인지 (예: 할머니와 나란히)">'+escapeHtml(w.what||'')+'</textarea>';
       h+='<input class="cc-input wsh-ref" data-wf="ref" data-wi="'+i+'" type="url" inputmode="url" maxlength="'+WISH_REF_MAX+'" autocomplete="off" aria-label="참고 사진 링크" placeholder="참고 사진 링크 (선택)" value="'+escapeHtml(w.ref||'')+'">';
       if(w.ref) h+='<div class="wsh-ref-ok"><a href="'+escapeHtml(safeUrl(w.ref))+'" target="_blank" rel="noopener">링크 열어 확인하기</a></div>';
       h+='</div>';
@@ -6536,8 +6542,19 @@ function renderPhoto(box){
     var i=+el.getAttribute('data-wi'), f=el.getAttribute('data-wf');
     el.addEventListener('input', function(){ wishSet(i,f,el.value); });
   });
+  /* ★[WISH_DEL_ASK 2026-08-16 디자이너 점검] 적은 글이 있으면 **한 번 묻는다.**
+     ✕ 표적이 44px 이라 글칸 오른쪽 여백과 겹친다 — 글자를 가리진 않지만 그 구석을 탭하면 삭제가 먹는다.
+     ★픽셀로 싸우는 대신 여기서 막는다. 표적을 줄이면 「지우는 단추」의 44px 근거가 무너지고,
+       칸을 아래로 밀면 없앤 머리 행이 높이로 되살아난다. 둘 다 손해다.
+     ★빈 요청은 안 묻는다 — 잃을 것이 없는데 묻는 것은 그 자체로 방해다. */
   Array.prototype.forEach.call(box.querySelectorAll('[data-wdel]'), function(el){
-    el.addEventListener('click', function(){ wish.splice(+el.getAttribute('data-wdel'),1); rerender(); }); });
+    el.addEventListener('click', function(){
+      var i=+el.getAttribute('data-wdel'), w=wish[i]||{};
+      var has=String(w.what||'').trim()||String(w.ref||'').trim();
+      if(!has){ wish.splice(i,1); rerender(); return; }
+      mpConfirm({ title:'이 요청을 뺄까요?', body:String(w.what||'').slice(0,60)||'적어 두신 요청', yes:'빼기', no:'그대로 두기', dismissNull:true })
+        .then(function(ok){ if(ok===true){ wish.splice(i,1); rerender(); } });
+    }); });
   /* [WISH_MINIMAL] '누구와' 칩 핸들러 폐지 — 칸 자체를 서술 한 칸으로 합쳤다. 되살리지 말 것(칩 5개가 정신없다는 지적의 절반이었다). */
   var wab=$('mp_wishAdd');
   if(wab) wab.addEventListener('click', function(){ if(wish.length>=PHOTO_WISH_MAX) return; wish.push({what:'',who:'',ref:''}); rerender(); });
@@ -6551,8 +6568,13 @@ function renderPhoto(box){
   // 하객 사진 모으기 링크 — 입력 즉시 모델 반영(포커스 유지 위해 전체 재렌더 없이 QR만 갱신)
   function photoShareQrRender(){
     var u=photoShareNorm(PHOTOFLOW.share), qbox=$('mp_photoShareQr'), sv=$('mp_photoShareQrSave'); if(!qbox) return;
+    /* ★[QR_CENTER 2026-08-16 사용자 지적 "qr이 좌측에 쏠려있는데?"] 인라인 display 로 되살리면 **가운데 정렬이 죽는다.**
+       .ph-qr 는 CSS 에서 `display:flex; justify-content:center` 인데, 여기서 'block' 을 박으면
+       인라인이 이겨서 flex 가 아니게 되고 justify-content 가 아무 일도 안 한다 — QR 이 왼쪽에 붙는다.
+       ★빈 문자열로 지워 **스타일시트 값으로 되돌린다.** 켜는 코드가 끄는 방법을 정하면 안 된다.
+       ★'block'·'flex' 를 다시 박지 말 것 — 'flex' 라고 적어도 CSS 가 바뀌면 또 갈린다. */
     if(!u){ qbox.style.display='none'; qbox.innerHTML=''; if(sv) sv.style.display='none'; return; }
-    qbox.style.display='block'; ensureQR(function(){ renderQRInto('mp_photoShareQr','mp_photoShareQrSave',u,'moment-edit-photo-qr.png'); });
+    qbox.style.display=''; ensureQR(function(){ renderQRInto('mp_photoShareQr','mp_photoShareQrSave',u,'moment-edit-photo-qr.png'); });
   }
   var psi=$('mp_photoShare');
   /* [SHARE_KIND] 링크를 다 치면 종류 안내가 갱신돼야 한다 — 입력 중 재렌더는 커서를 날리므로 blur 에서 한 번만.
