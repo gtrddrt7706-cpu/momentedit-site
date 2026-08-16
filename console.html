@@ -281,9 +281,46 @@ body.guest .pill.p::before{background:#3A2E4A}      /* 고를 수 있는 자리 
 body.guest .pill.l::before{background:var(--live)}  /* 사람이 말하는 자리 */
 
 /* ③ 지금 카드 — 회색 박스가 회색 바탕에 겹쳐 흐릿했다. 흰 종이 한 장 + 실선 한 줄로 */
-body.guest .now{background:#fff;border-color:var(--line);border-radius:14px;padding:20px 18px 18px;box-shadow:0 1px 2px rgba(58,45,34,.04)}
+
+/* ★★[GUEST_FRAME 2026-08-16 사용자 지시 "사이즈가 같이 고정이면 좀 더 차분할 거 같아"]
+   미리듣기는 **한 장면당 한 번씩 틀이 다시 그려지고 있었다.** 실측(23장면 전수):
+     · 1280×860 — 카드 폭 8종(316 · 442 · 461 · 625 · 634 · 647 · 665 · 672px) · 카드 top 12종(124~265)
+     · 390×844  — 카드 top 19종(56~261) · 360×640 — top 11종
+   글이 짧은 장면일수록 카드가 쪼그라들고 위아래로 떠다녔다 — 소리는 이어지는데 틀이 매번
+   바뀌니 '요란'하게 읽힌다. 아래 셋으로 **틀을 고정**한다(내용만 바뀌고 틀은 그대로).
+     ① 폭 — 카드 · 다음/그다음 레일 · 아래 버튼바가 **같은 기둥**(GUEST_PC_BAL 의 원래 뜻)
+     ② 자리 — 카드가 남는 세로를 채운다. 제목은 늘 같은 높이, 카드 아래 레일도 늘 같은 자리
+     ③ 바닥 — 진행 막대가 카드 바닥에 붙는다(본문이 남는 세로를 먹는다). 재생기처럼 읽힌다
+   적용 후 실측: 1280×860 카드 폭 1종 · top 1종 · 높이 1종(720×579 @280,64) · 390×844 도 1종씩.
+
+   ★`.txt` 를 `flex:1 1 auto`(basis auto)로 두는 것이 핵심이다. `1 1 0` 으로 두면 본문이
+     카드 높이 계산에 0으로 들어가, **작은 화면에서 글이 카드 안에 잘린다**(360×640 실측:
+     23장면 중 10장면이 39~134px 잘림 · 안쪽 스크롤은 있는지 보이지도 않는다).
+     basis auto 면 남을 땐 늘어나 채우고, 모자라면 카드가 커져 화면이 스크롤된다 — 잘림 0.
+   ★--cardmin/--cardmax 는 바닥·천장이다. 바닥은 '짧은 장면이 명함처럼 쪼그라들지 않게',
+     천장은 1920×1080 같은 큰 창에서 **가운데가 통째로 빈 흰 널판**이 되지 않게
+     (2026-08-10 GUEST_PC ② 에서 사용자가 이미 한 번 물린 모양이다 · 되풀이하지 않는다). */
+body.guest{--cardmin:min(360px,52vh)}
+body.guest .now{
+  background:#fff;border-color:var(--line);border-radius:14px;padding:20px 18px 18px;
+  box-shadow:0 1px 2px rgba(58,45,34,.04);
+  display:flex;flex-direction:column;flex:1 1 auto;
+  min-height:var(--cardmin);max-height:var(--cardmax,none);
+}
 body.guest .now h2{margin:0 0 12px;letter-spacing:-.015em}
 body.guest .now .txt{font-size:15.5px;line-height:1.9}
+/* [GUEST_FRAME ③] 남는 세로는 **맨 아래 글 밑의 마진**이 먹는다 → 진행 막대가 늘 카드 바닥.
+   ★늘어나는 것은 마진이지 글상자가 아니다. 글상자(`flex:1`)를 늘렸더니 `.safe` 의 왼쪽 초록 선이
+     빈 데까지 250px 따라 늘어났다(1280 실렌더). 마진은 자리만 밀어내고 아무것도 그리지 않는다.
+   ★`flex-basis` 는 auto 로 둔다 — 글 높이가 카드 높이 계산에 그대로 들어가야
+     작은 화면에서 글이 잘리지 않고 카드가 커진다(360×640 에서 잘림 10장면 → 0). */
+body.guest .now .txt{flex:0 0 auto;min-height:0;max-height:none;margin-bottom:auto}
+body.guest .now .hint,body.guest .now .safe{margin-bottom:auto}
+/* 팁·안심이 서 있으면 그 아래가 '맨 아래'다 — 여백은 늘 한 곳에만 생겨야 눈이 덩어리를 헷갈리지 않는다.
+   ★`:has()` 를 못 읽는 옛 브라우저에서는 본문 밑 마진이 살아 팁이 막대 쪽으로 내려간다(깨지지 않는다). */
+body.guest .now:has(.hint:not([hidden])) .txt,
+body.guest .now:has(.safe:not([hidden])) .txt,
+body.guest .now:has(.safe:not([hidden])) .hint{margin-bottom:0}
 
 /* ④ 진행 막대 — 6px 금색 띠 → 실선. 금색을 통으로 칠하는 자리는 여기 한 줄뿐 */
 body.guest .prog{height:3px;margin-top:18px}
@@ -291,6 +328,7 @@ body.guest .tm{font-size:11px;margin-top:7px}
 
 /* ⑤ 다음·그다음 — 박스를 벗기고 줄로. 목록은 목록처럼 보이면 된다 */
 body.guest .up{margin-top:16px;gap:0;border-top:1px solid var(--line)}
+body.guest .up.blank{visibility:hidden}   /* [GUEST_FRAME] 끝 화면 — 자리는 지키고 글자만 뺀다(높이 무변경) */
 body.guest .upc{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:13px 18px}   /* [GUEST_PC_BAL] 카드 본문(18px 들여쓰기)과 같은 선 */
 body.guest .upc.dim{opacity:1}
 /* [GUEST_PC_BAL] 마지막 줄의 밑줄은 뺀다 — 아래 바의 윗줄과 12px 사이로 겹쳐 선이 두 겹으로 보였다 */
@@ -303,7 +341,14 @@ body.guest .upc .es{font-size:11.5px;color:var(--dim)}
 /* ⑥ 다음으로 — 짙은 색을 통으로 쓰는 유일한 자리.
    ★옛 판은 연회색(--bg3)이라 **눌리지 않는 것처럼** 보였다(390px 실렌더). */
 body.guest .ctl{border-top:1px solid var(--line);padding:12px 16px calc(14px + env(safe-area-inset-bottom))}
-body.guest .main{background:var(--seal);color:#fff;font-size:16px;font-weight:600;padding:17px 16px;border-radius:12px}
+/* ★[GUEST_FRAME 2026-08-16] 버튼 키를 고정한다. 부제(<small>)가 붙는 장면에서만 바가 19px
+   두꺼워져(55 ↔ 74px · 실측) 마지막 세 장면에서 아래 바 전체가 한 번 들썩였다.
+   두 줄짜리 키(74px)를 바닥으로 깔고 한 줄일 때는 가운데에 세운다 — 두 칸(이전·멈춤)은
+   `.inner` 가 stretch 라 따라온다. 값을 줄이려면 '다시 듣기 / 처음부터 한 번 더'를 실측할 것. */
+body.guest .main{
+  background:var(--seal);color:#fff;font-size:16px;font-weight:600;padding:12px 16px;border-radius:12px;
+  min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
 body.guest .main small{opacity:.72;font-size:11.5px;margin-top:4px}
 body.guest .main.wait{background:var(--bg3);color:var(--sub)}   /* 다 들은 뒤 '다시 듣기'는 물러난다 */
 
@@ -347,7 +392,11 @@ body.guest .now .hint{font-size:12.5px}
    ★≥900px 는 아래 미디어쿼리가 grid 로 쓰므로 여기서 건드리지 않는다(폭을 나눠 쓴다). */
 @media (max-width:899px){
   body.guest .stage{display:flex;flex-direction:column;padding:16px 16px 4px}
-  body.guest .stage>div:first-child{flex:1 1 auto;display:flex;align-items:center}   /* 짧은 문안이면 카드가 남는 공간의 한가운데로 — 위로 쏠려 아래가 뻥 뚫리던 것 */
+  /* ★[GUEST_FRAME ② 2026-08-16] 세로 가운데 정렬 → 남는 세로를 카드가 채운다.
+     가운데로 모으면 짧은 장면과 긴 장면에서 **제목의 높이가 매번 달라진다**(390px 실측 19종).
+     빈자리를 없애려던 옛 뜻은 그대로다 — 이제 그 자리를 카드가 채우므로 카드와 레일 사이에
+     빈 골짜기가 생기지 않는다(390×844 실측: 카드 358×556 @16,56 로 전 장면 동일). */
+  body.guest .stage>div:first-child{flex:1 1 auto;display:flex;align-items:stretch}
   body.guest .now{width:100%}
   body.guest .up{padding-top:6px}
 }
@@ -373,13 +422,31 @@ body.guest .now .hint{font-size:12.5px}
        ③ 버튼 부제("하객 맞이 · 시작 10분 전")가 레일 첫 줄과 같은 말인데 화면 반대편에 있었다.
      세로로 세우면 '지금 → 다음 → 그리로 가는 문'이 읽는 순서 그대로 한 줄에 선다(모바일 ⑧의 뜻).
      ★카드 폭은 계속 묶는다 — 1080px 를 통으로 쓰면 한 줄이 너무 길어 눈이 다음 줄 머리를 놓친다(①). */
+  /* ★★[GUEST_FRAME ① 2026-08-16] 폭이 장면마다 흔들리던 진범이 이 블록에 있었다.
+       `.stage` 는 `#run`(세로 flex)의 **flex 아이템**인데 좌우 마진이 auto 였다.
+       flex 규격상 **가로 마진이 auto 면 stretch 가 꺼진다** → 아이템이 내용 폭(fit-content)으로
+       줄어든다. 그래서 문안이 짧은 장면에서 기둥 자체가 316px 까지 쪼그라들었고,
+       그 안에 든 카드·레일·진행 막대가 통째로 따라 줄었다(버튼바는 `.ctl` 의 블록 자식이라
+       같은 `margin:0 auto` 여도 안 줄어 720 그대로 — 그래서 둘만 어긋나 보였다).
+     ★고침은 `width:100%` 한 줄이다. 폭이 확정값이 되면 auto 마진은 가운데 정렬만 한다.
+       **지우지 말 것** — 지우면 장면마다 폭이 다시 흔들린다.
+     ★max-width 를 `+48px` 로 올린 이유: `.stage` 는 좌우 24px 패딩을 쓴다. 옛 720 은
+       **패딩 포함** 값이라 내용 폭이 672 였고, 버튼바(720)보다 좌우 24px 씩 좁았다.
+       기둥 하나로 세우려면 내용 폭이 720 이어야 한다. */
   body.guest .stage{
-    max-width:var(--col);margin:0 auto;
+    width:100%;max-width:calc(var(--col) + 48px);margin:0 auto;
     display:flex;flex-direction:column;gap:0;padding:24px 24px 12px;
   }
-  body.guest .stage>div:first-child{flex:1 1 auto;display:flex;align-items:center;justify-content:center}
-  body.guest .now{flex:none;display:block;width:100%;max-width:var(--col)}
-  body.guest .now .txt{flex:none}
+  body.guest .stage>div:first-child{flex:1 1 auto;display:flex;align-items:stretch;justify-content:center}   /* [GUEST_FRAME ②] 카드가 남는 세로를 채운다 */
+  /* [GUEST_FRAME] 천장 — 큰 창(1920×1080)에서는 카드가 쓸 수 있는 세로가 800px 를 넘는다.
+     그대로 채우면 GUEST_PC ② 가 물렸던 '가운데가 통째로 빈 흰 널판'이 된다. 여기서 멈춘다.
+     ★잘림 걱정은 없다 — 720px 폭에서는 줄바꿈이 적어 가장 긴 장면도 460px 였다(23장면 실측). */
+  body.guest{--cardmax:560px}
+  body.guest .now{display:flex;width:100%;max-width:var(--col)}
+  /* [GUEST_FRAME ③] 옛 `flex:none` 은 카드가 display:block 이던 시절 디렉터 규칙(`.now .txt{flex:1}`)을
+     막으려던 방어였다. 지금은 위 기본 규칙(마진이 남는 세로를 먹는다)이 그 일을 대신하므로
+     여기서는 **디렉터 규칙만 되받아 끄면 된다** — 늘리지 않는다. */
+  body.guest .now .txt{flex:0 0 auto;min-height:0;max-height:none}
   body.guest .now .prog{margin-top:18px}
   body.guest .ctl .inner{max-width:var(--col)}   /* [GUEST_PC_BAL] 아래 바도 같은 기둥 폭 — 카드는 좁은데 버튼만 1080 이면 딴 살림처럼 보인다 */
   body.guest .up{width:100%;max-width:var(--col);margin:18px auto 0;align-content:start}
@@ -1090,7 +1157,15 @@ function render(){
       ? '들으신 순서 그대로 당일에 흘러요. 사람이 말하는 부분만 두 분과 가족의 목소리로 바뀝니다.'
       : (MODE === 'preview' ? '들으신 순서가 실제 예식에서 그대로 흐릅니다.'
                             : '수고하셨습니다. 정리 후 나가기를 눌러 주세요.');
-    $('#nHint').hidden = true; $('#nSafe').hidden = true; $('#nBlk').hidden = true;
+    /* ★[END_NEXT 2026-08-16] 끝 화면이 '들었다'로만 끝나고 **다음 할 일을 말하지 않았다.**
+       여기까지 온 분은 방금 자기 예식을 통째로 들은 참이라, 마음에 걸리는 자리가 하나쯤 생긴다.
+       그때 무엇을 하면 되는지는 이 화면만 안다 — 미리듣기는 마이페이지의 식순 초안에서 열린 것이고
+       (openRitualPreview ← p.ritualDraft), 고치면 다음 미리듣기에 그대로 반영된다.
+       ★버튼 이름('닫기'·'✕')을 적지 않는다 — 그 버튼은 마이페이지가 얹은 것이라
+         주소로 바로 연 화면에는 없다. 화면마다 다른 것을 문구가 단정하면 그 순간 거짓이 된다. */
+    $('#nHint').hidden = !GUEST;
+    $('#nHint').textContent = GUEST ? '고치고 싶은 자리가 있으면 식순에서 바꾼 뒤 다시 들어 보세요.' : '';
+    $('#nSafe').hidden = true; $('#nBlk').hidden = true;
     $('#nProg').firstElementChild.style.width = '100%';
     $('#mBtn').innerHTML = GUEST ? '다시 듣기 <small>처음부터 한 번 더</small>' : '처음으로 <small>다시 진행합니다</small>';
     $('#mBtn').className = 'main wait';
@@ -1122,22 +1197,39 @@ function render(){
     var gb = gCastBadge(c);                                              // §2-C 배지 ① (§2-B 안전장치 1)
     if (gb) pill('l', gb);
 
+    /* ★★[BLOCK_FX 2026-08-16 사용자 지시 "빈칸 쪽에 꼭 필요한 팁 같은 게 있으면 좋겠다"]
+       대목 설명은 두 문장으로 쓰여 있다 — `how`(무엇을 하는지)와 `fx`(그래서 어떤 순간이 되는지).
+       옛 판은 **둘을 붙여 대목 첫 큐에 한꺼번에** 뿌렸다. 그 결과
+         · 첫 큐: 제목 위에 회색 두 문장이 벽처럼 서고(위계 ⑦ '문장보다 세지 않게'를 스스로 어긴다)
+         · 마무리 큐: 화면이 통째로 빈다(390px 실측 344~403px · 8장면이 전부 여기다)
+       `fx` 를 **그 대목의 마지막 큐로 옮긴다.** 자리가 뜻과 맞는다 — 「혼인 서약 마무리」에서
+       "모두가 조용히 숨죽이는, 가장 깊고 진한 순간이에요"를 듣는다.
+       ★새로 지어낸 문장이 하나도 없다. 이미 ritual-data.js 에 있는, 사용자가 쓴 말을 옮겼을 뿐이다
+         (예식 안무를 내가 상상해 적으면 그 순간 화면이 거짓말을 한다). */
     var blk = blkFresh ? gBlock(c.blockN) : null;
-    var bhow = blk ? [blk.how, blk.fx].filter(Boolean).join(' ') : '';
+    var bhow = blk ? (blk.how || blk.fx || '') : '';   // how 가 없는 대목이면 fx 가 첫 큐를 맡는다(빈 머리말 금지)
     nb.hidden = !bhow;
     nb.firstElementChild.textContent = bhow ? (c.blockN || '') : '';
     nb.lastElementChild.textContent = bhow;
+    //   대목의 마지막 큐인가 — 다음 큐의 블록이 달라지거나(대목이 넘어감) 다음이 없으면(끝) 여기가 마지막이다
+    var blkEnd = (c.blockN && (!n1 || (n1.blockN || '') !== c.blockN)) ? gBlock(c.blockN) : null;
+    var bfx = (blkEnd && blkEnd.how) ? (blkEnd.fx || '') : '';   // how 를 첫 큐에서 못 봤으면(how 없음) 되풀이하지 않는다
+    /* ★한 큐가 화면을 두 번 그린다 — 소리가 흐를 때(clip) 한 번, 사람 구간으로 넘어가서(live) 또 한 번.
+       그냥 두면 같은 문장이 연달아 두 장면에 뜬다(실측: 「폐식·단체촬영 전환」→「하객분들 · 움직이는 시간」).
+       사람 구간이 있는 큐면 **뒤에 오는 live 쪽에만** 싣는다 — 그 대목의 마지막 인상이 거기다. */
+    if (c.live && phase !== 'live') bfx = '';
 
     var sc = (phase === 'live') ? gScene(c) : null;
     if (sc) {
       $('#nName').textContent = gLiveTitle(c, sc);
       tx.className = 'txt big'; tx.textContent = sc.scene || '';
-      h.hidden = !sc.tip;   h.textContent = sc.tip || '';
+      // 장면 팁이 있으면 그쪽이 먼저다 — 사람이 할 일이 대목 감상보다 급하다
+      h.hidden = !(sc.tip || bfx);   h.textContent = sc.tip || bfx || '';
       sf.hidden = !sc.safe; sf.textContent = sc.safe || '';
     } else {
       $('#nName').textContent = c.name;
       tx.className = 'txt'; tx.textContent = c.text || '';
-      h.hidden = true; h.textContent = '';
+      h.hidden = !bfx; h.textContent = bfx;
       sf.hidden = true; sf.textContent = '';
     }
     $('#nProg').className = 'prog' + (phase === 'live' ? ' live' : '');
@@ -1211,6 +1303,11 @@ function up(n1, n2){
     el.querySelector('.es').textContent = fmt(c.est) + (c.live ? ' +' + fmt(c.live.est) : '');
   }
   set('u1', n1, '다음'); set('u2', n2, '그다음');
+  /* ★[GUEST_FRAME 2026-08-16] 다 들은 뒤에는 레일이 「다음 마무리 / 그다음 마무리」로 같은 말을
+     두 번 했다(끝 화면 실렌더). 카드는 '다 들으셨어요'라 말하는데 그 아래에서 아직 다음이
+     있는 것처럼 읽힌다. 자리는 그대로 두고 **글자만 감춘다** — 지우면 레일 높이가 줄어
+     카드가 그만큼 커지고, 방금 고정한 틀이 마지막 한 장면에서만 달라진다. */
+  if (GUEST) $('.up').classList.toggle('blank', !n1 && !n2);
 }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]; }); }
 
