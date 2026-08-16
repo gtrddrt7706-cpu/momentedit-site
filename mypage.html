@@ -525,29 +525,22 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .wsh-list{margin:8px 0 0;display:flex;flex-direction:column;gap:10px}
 .wsh-item{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px 12px 12px}
 .wsh-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+/* [WISH_TAP44] 요청 빼기는 **적어 둔 글을 지우는** 단추라 구도 행의 ✕(28px)와 무게가 다르다 —
+   한 번 잘못 누르면 다시 쳐야 한다. 그래서 이 자리만 44px 로 키운다(구도 행은 종전대로 · 칩은 한 번에 되돌린다).
+   음수 마진으로 상자 모서리까지 표적을 넓히되 보이는 모양은 그대로 둔다. */
+.wsh-hd .ph-del{width:44px;height:44px;border:none;background:none;margin:-8px -10px -8px 0}
+.wsh-hd .ph-del:active{color:var(--gold-deep);background:var(--bg2,#F5F3EF);border-radius:8px}
 .wsh-no{width:22px;height:22px;border-radius:50%;background:var(--gold-deep);color:#fff;font-family:var(--serif-ko);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
 .wsh-item .cc-input{margin:6px 0 0}
 .wsh-what{min-height:58px}
 .wsh-ref-ok{margin-top:5px;font-size:11px}
 .wsh-ref-ok a{color:var(--gold-deep);text-decoration:none}
-.wsh-pick{min-height:36px;padding:5px 11px;font-size:12px}   /* 상자 안 보조 칩 — 본문 칩(44px)보다 한 단 낮춘다(누르는 것이 아니라 '채우는' 것) */
-/* 단체컷 '함께 하는 동작' 예시 카드(무드단어 클릭 → 구도가 보이는 카드 개편 2026-07-20 · marker: pfx-card) */
-.pfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:8px 0 0}
-.pfx-card{position:relative;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column}
-.pfx-card:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
-.pfx-card.on{border-color:var(--gold-deep);box-shadow:0 0 0 1.5px var(--gold-deep)}
-.pfx-thumb{aspect-ratio:4/3;width:100%;display:block;background:var(--bg2,#F5F3EF);color:var(--label-soft,#6F695D)}
-.pfx-card.on .pfx-thumb{color:var(--gold-deep)}
-.pfx-meta{padding:8px 10px 10px;flex:1}
-.pfx-ttl{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--ink,#2B2823);line-height:1.3;word-break:keep-all}
-.pfx-cap{font-size:11px;color:var(--label-soft,#6F695D);margin-top:2px;line-height:1.4;word-break:keep-all}
-    .pfx-need{font-size:10.5px;color:var(--gold-deeper);margin-top:5px;line-height:1.4;word-break:keep-all}   /* [PHOTO_FX_V2] 그림 대신 들어간 줄 — 고객에겐 '우리 자리에서 되나', 스태프에겐 준비물 */
-/* [PHOTO_FX_LINK 2026-08-16] 그 동작이 두 분 식순의 어느 순간에서 이어지는지 — 「없어요」열 자리를 대신 쓴다 */
-.pfx-link{font-size:10.5px;color:var(--sub);margin-top:5px;line-height:1.4;word-break:keep-all}
-.pfx-ck{position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.9);border:1px solid var(--border);display:none;align-items:center;justify-content:center}
-.pfx-card.on .pfx-ck{display:flex;background:var(--gold-deep);border-color:var(--gold-deep)}
-.pfx-ck svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.6}
-.pfx-echo{font-size:12px;color:var(--label,#6B6153);margin-top:9px;padding:9px 12px;background:var(--bg2,#F5F3EF);border-radius:9px;line-height:1.5}
+/* [WISH_TAP44] 상자 안 보조 칩도 **44px 를 지킨다** — 처음엔 36px 로 한 단 낮췄는데(보조라는 뜻으로),
+   실측해 보니 그냥 작은 손가락 표적이었다. 낮춰야 하는 것은 높이가 아니라 **글자 크기와 색**이다. */
+.wsh-pick{min-height:44px;padding:9px 11px;font-size:12px}
+/* ★[PFX_CSS_GONE 2026-08-16] 고르는 카드(.pfx-*) 규칙 10개를 지웠다 — [PHOTO_WISH]로 카드가 없어져
+   실측 사용 0건이었다. 되살리려면 카드 UI 자체를 되살려야 하는데 그건 사용자 결정으로 폐지된 것이다.
+   카드 대신 쓰는 요청 상자 규칙은 위 .wsh-* 다. */
 /* ★스냅 무드 색 타일(.smt*) CSS 폐지 — 2026-07-20 사용자 지시("느낌이 안 오고 별로 · 어떤 작가여도 도움되는 정보 위주로"). 추상 색 스와치 대신 인물·관계·각도 등 실무 브리핑으로 전환. 리뷰·복구에서 되살리지 말 것. */
 .trk-sub{font-size:12px;color:var(--label-soft);text-align:left;padding:3px 2px 11px;margin-top:0;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all}
 .trk-panel{text-align:left;padding:12px 2px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:0 0 8px 8px;padding-left:12px;padding-right:12px}   /* 행 버튼으로 여닫는 내용 패널(확인서·하객 안내) — 행과 같은 리듬, 살짝 다른 바탕으로 소속 표시 */
@@ -6278,7 +6271,13 @@ function renderPhoto(box){
   h+='</div>';
   /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
   var _pm=photoMins(sel);
+  /* ★[WISH_IN_TIME] 요청은 이 줄에 안 보이면 없는 것이 된다 — 개수만 함께 적는다.
+     ★분(分)은 더하지 않는다. 요청은 「할머니 옆 한 컷」처럼 **별도 컷**일 수도,
+       「V자로 어깨만」처럼 기존 컷에 얹는 **동작**일 수도 있어 우리가 미리 못 가른다.
+       모르는 것에 숫자를 붙이면 그건 근거 없는 수치 약속이 된다(문구 규칙). 개수만 보이고,
+       실제 배분은 그날 디렉터가 요청 글을 읽고 정한다. */
   h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
+    +(wish.length?(' · <b>요청 '+wish.length+'개</b>'):'')
     +(_pm>19?' <span style="color:var(--gold-deeper)">· 인사 사진 시간이 빠듯해져요</span>':'')   // [PHOTO_CAP] 다 함께 30~39분 기준+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
@@ -6439,10 +6438,24 @@ function renderPhoto(box){
 function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설정·예약값도 함께 실어 photo만 저장하다 그것들이 지워지지 않게
   var gi=PHOTOFLOW.gi||{};
   return _wizWatch('photo', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:{
-    /* [PHOTO_WISH] photoFx 는 **빈 배열로 보낸다** — 화면을 열 때 요청(photoWish)으로 이어받았으므로
-       그대로 두면 관리자 화면에 같은 내용이 두 줄로 뜬다. 서버는 빈 값 키를 생략하므로 열이 정리된다.
-       ★키 자체를 빼면 안 된다 — 옛 값이 서버에 남아 이어받기가 매번 되살아난다(요청을 지워도 돌아온다). */
-    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(), photoFx:[], photoWish:wishClean(PHOTOFLOW.wish), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
+    /* ★★★[WISH_FX_MIRROR 2026-08-16 점검에서 잡은 실사고] photoFx 를 **비우면 안 된다.**
+       ■ 무엇이 잘못됐었나 — 서버 배포 전 저장 한 번이면 고객 데이터가 통째로 사라진다
+         옛 판은 photoFx:[] 를 보냈다. 그런데 guideinfo 는 **트랙 통째 교체**이고,
+         photoWish 는 아직 서버 화이트리스트에 없다(GAS 재배포 전). 그래서 그 순간:
+           photoFx=[]   → 빈 값이라 키 생략 → 서버에 있던 **옛 선택이 지워진다**
+           photoWish=[] → 화이트리스트 밖이라 **버려진다**
+         둘 다 없어진다. 카드로 골라 둔 부부가 새 화면을 열고 저장만 해도 선택이 증발한다.
+         ★에코 검사(_echoLostPaths)는 「일부 미저장」을 띄우지만 **쓰기는 이미 끝난 뒤**다 — 경고는 복구가 아니다.
+       ■ 처방 — 거울로 보낸다(비우지 않는다)
+         photoFx 에 요청의 what 을 실어 보낸다. 옛 서버는 이걸 받아 두므로 **유실 창이 아예 없고**,
+         새 서버는 photoWish 까지 받는다. 화면을 다시 열면 photoWish 가 이기므로(_sv.length 분기)
+         거울은 조용히 뒤로 물러난다 — 배포가 끝나면 저절로 안 쓰이는 값이 된다.
+       ★24자는 옛 서버가 자르는 길이다. 우리가 정한 게 아니라 **이미 배포된 코드의 규칙**이라 못 늘린다.
+         잘려도 남는 것이, 통째로 사라지는 것보다 낫다.
+       ★비우는 판으로 되돌리지 말 것 — 「관리자 화면에 두 줄로 뜬다」가 옛 판의 이유였는데,
+         그건 admin·확인서에서 **요청이 있으면 구 줄을 숨기는 것**으로 푼다(같은 커밋). */
+    seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(),
+    photoFx:wishClean(PHOTOFLOW.wish).map(function(w){ return String(w.what).slice(0,24); }), photoWish:wishClean(PHOTOFLOW.wish), photoShareUrl:photoShareNorm(PHOTOFLOW.share)
   }, done:true}));
 }
 var _flowBusyT=0, _flowBusyEl=null, _flowBusyKill=0;
@@ -6786,7 +6799,7 @@ function prodConfirmHtml(p, inv){
     if(_phL) _pv='전체 하객 · '+_phL.map(escapeHtml).join(' · ')+' <span class="cc-mini">('+(_phL.length+1)+'컷)</span>';
     if(_phW) _phW.forEach(function(w){ var _sub=[]; if(w&&w.who) _sub.push('누구와 · '+escapeHtml(String(w.who))); if(w&&w.ref) _sub.push('<a href="'+escapeHtml(safeUrl(String(w.ref)))+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">참고 링크</a>');
       _pv+=(_pv?'<br>':'')+'<span class="cc-mini">꼭 담고 싶은 사진 · '+escapeHtml(String((w&&w.what)||''))+(_sub.length?('<br>　'+_sub.join(' · ')):'')+'</span>'; });
-    if(_phFx) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">연출 · '+_phFx.map(escapeHtml).join(' · ')+'</span>';   // 옛 저장분(새 화면을 아직 안 연 부부)
+    if(_phFx && !_phW) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">연출 · '+_phFx.map(escapeHtml).join(' · ')+'</span>';   // [WISH_FX_MIRROR] 요청이 있으면 photoFx 는 그 거울이라 같은 내용이 두 번 뜬다 — 요청 쪽만 보인다
     L+=line('단체 사진', _pv); }
   /* ★★[PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 **그 화면을 열 때** 계산된다 —
      그래서 순서를 뒤집으면 조용히 어긋난다: 축배가 있을 때 「잔 부딪히기」를 골라 두고 **나중에 식순에서 축배를 빼면**,

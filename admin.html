@@ -2250,7 +2250,10 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
     return t+(sub.length?('<br><span style="opacity:.8">　'+sub.join(' · ')+'</span>'):'');
   }).join('<br>'):'';
   var _psu=(gi&&/^https?:\/\//i.test(String(gi.photoShareUrl||'')))?String(gi.photoShareUrl):'';   // 하객 사진 모으기 링크(부부 외부 앨범/오픈채팅)
-  if(_pho||_pfx||_pwh||_psu) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] · [PHOTO_WISH] 요청을 위에, 옛 카드 선택은 '(구)'로 아래 — 둘이 함께 있는 부부는 없지만 세대가 보이게 */
+  /* [WISH_FX_MIRROR] 요청이 있으면 photoFx 는 그 **거울**(서버 배포 전 유실 방지용)이라 같은 내용이 두 번 뜬다 —
+     그때는 구 줄을 숨긴다. 요청이 없는 옛 저장분에서만 '함께 하는 동작(구)'가 보인다. */
+  if(_pwh) _pfx='';
+  if(_pho||_pfx||_pwh||_psu) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
   // 스냅 기획(촬영 전) — 부부가 남긴 무드·레퍼런스·원하는 컷·톤·요청. 강제 컷 목록이 아니라 영감·성향(디렉터가 현장에서 살림)
   if(sn){
     var _snMood=[]; if((sn.moodCandle||[]).length)_snMood.push('캔들존 '+sn.moodCandle.join('·')); if((sn.moodWhite||[]).length)_snMood.push('화이트존 '+sn.moodWhite.join('·'));
