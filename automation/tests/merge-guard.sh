@@ -3806,7 +3806,7 @@ chk 'KID_SEAT' scripts/audit/seat-onecard.mjs 1
 #   예식 확인서의 확정 = **이 한 곳뿐**이다. 섹션마다 확인 버튼을 만들지 말 것(사용자가 명시로 거절).
 #   ★확정 판(mpConfirm)을 빼고 즉시 저장으로 되돌리지 말 것 — 오터치 한 번이 곧 확정 기록이 된다.
 #   ★게이트는 ritual·seat·final 셋 — 하나라도 빼면 서버(ritual+final)와 어긋나 죽은 버튼이 돌아온다.
-chk 'CF_SEAL' mypage.html 4
+chk 'CF_SEAL' mypage.html 3   # 4→3: 행 라벨 주석이 [TRK_ACT_ALIGN]으로 대체됨(2026-08-16 · 기능은 그대로)
 chk 'CF_ASK' mypage.html 1
 chk 'CF_GATE_ONE' mypage.html 1
 chk 'cfWhenText' mypage.html 2
@@ -3871,3 +3871,19 @@ chk 'WISH_TAP44' mypage.html 1
 chk 'min-height:44px;padding:9px 11px' mypage.html 1
 # [WISH_IN_TIME] 요청 개수를 시간 줄에 — 분은 더하지 않는다(별도 컷인지 얹는 동작인지 미리 못 가른다)
 chk 'WISH_IN_TIME' mypage.html 1
+# ★[TRK_ACT_ALIGN·CF_LINK_TAP·CF_INFO_TONE 2026-08-16 사용자 지시 "버튼 사이즈도 다른것도 거슬리고 디테일한부분들 체크"]
+#   ①확인서 행 버튼에 날짜를 다시 넣지 말 것 — 실측 132px 로 혼자 삐져나와 오른쪽 열이 계단이 된다(다른 여섯은 122px).
+#     날짜·상태는 행 설명줄(cfSub)이 말한다.
+#   ②확인서 안 「전화」·「지도」는 보이는 크기 그대로 44px 히트영역(실측 26×21 → 34×45).
+#   ③「이렇게 진행된다」류 안내는 조용한 상자(.cf-info) — 진사(.cf-warn)는 손이 필요한 것에만.
+chk 'TRK_ACT_ALIGN' mypage.html 4
+chk 'cfSub' mypage.html 2
+chk 'CF_LINK_TAP' mypage.html 2
+chk 'CF_INFO_TONE' mypage.html 2
+chk 'cf-info' mypage.html 2
+# ★[ALLERGY_ASK_OFF 2026-08-16 사용자 지시 "알레르기까지는 체크할순없어서 빼자 · 어차피 핑거푸드라서"]
+#   알레르기를 **묻지 않는다.** 설명·플레이스홀더에서 뺐다 — 되살리지 말 것(묻는 것 자체가 조치 약속이 된다).
+#   칸(미리 알려주실 것)과 저장 키(allergy)는 그대로다 — 거동 불편·아기 나이는 계속 받아야 한다.
+chk 'ALLERGY_ASK_OFF' mypage.html 1
+nochk '땅콩 알레르기' mypage.html
+nochk '알레르기, 거동이 불편한 분' mypage.html
