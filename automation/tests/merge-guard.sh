@@ -4066,3 +4066,4 @@ nochk 'class="wsh-hd"' mypage.html                # 머리 행 복원 금지
 chk 'WISH_DEL_ASK' mypage.html 1
 chk '이 요청을 뺄까요' mypage.html 1
 
+
