@@ -3453,3 +3453,7 @@ chk 'PRICE_OLD_TWO' scripts/check-price-sync.mjs 1
 chk '2800000, 2100000, 2400000' scripts/check-price-sync.mjs 1
 nochk '240만' api/_kb.js
 nochk '240만' assets/advisor-kb.js
+# [NEW_TONE_PLAY 2026-08-16] 새 어조 문장에도 듣기 단추가 붙는다 — 소리를 다 심어 놓고 174문장에
+#   단추가 없어 못 듣던 실사고(ops 의 인자 이름이 playUrl 이라 null 을 넘겼다). 이름을 canPlay 로.
+chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 2
+nochk 'ops(k, null)' scripts/build-listen-all.mjs
