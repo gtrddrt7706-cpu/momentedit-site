@@ -998,9 +998,13 @@ function doCloseFitting(code,names){ openModal({ title:'시착 동의를 닫을�
 function openSendContract(code,names,d){
   var preset = (d.priceSuggest && d.priceSuggest.total) ? String(d.priceSuggest.total) : (snap(d.product)?'600000':'3300000');   // 예식일 평일/주말 자동선택(오선택 방지)
   var extra='<div class="field"><label>계약 총액</label><select id="ctSel">'+
-    '<option value="3300000">주말·공휴일 — 330만</option><option value="2500000">평일 — 240만</option><option value="600000">스냅 — 60만</option>'+
-    /* [PRICE_2026_08] 인상 전 항목 유지 — 2026-08-14 전 예약금 납부 고객은 구가로 계약한다 */
-    '<option value="2800000">주말·공휴일 — 280만 (인상 전)</option><option value="2100000">평일 — 210만 (인상 전)</option>'+
+    '<option value="3300000">주말·공휴일 — 330만</option><option value="2500000">평일 — 250만</option><option value="600000">스냅 — 60만</option>'+
+    /* ★[PRICE_LABEL_VALUE 2026-08-16] 값과 라벨이 어긋나 있었다 — value="2500000" 인데 라벨은 「240만」.
+       고르는 사람은 라벨을 보고 «240만»으로 알고 보내는데 계약서엔 250만이 찍힌다(돈이 틀린다).
+       ★인상 때는 value 와 라벨을 **한 쌍으로** 고칠 것. 한쪽만 고치면 조용히 어긋난다.
+       [PRICE_2026_08] 인상 전 항목 유지 — 예약금 납부 시점 기준으로 고른다(경계가 둘: 8/15 · 8/14) */
+    '<option value="2400000">평일 — 240만 (8/15 인상 전)</option>'+
+    '<option value="2800000">주말·공휴일 — 280만 (8/14 인상 전)</option><option value="2100000">평일 — 210만 (8/14 인상 전)</option>'+
     '<option value="__etc">직접 입력</option></select></div>'+
     '<div class="field" id="ctEtcWrap" style="display:none"><label>총액 직접 입력 (원)</label><input type="text" id="ctEtc" inputmode="numeric" placeholder="예: 3300000"></div>'+
     (snap(d.product)?'':('<div class="field"><label>예식 시간 · 140분</label><select id="ctSlot"><option value="">선택 안 함 (고객 요청 유지)</option>'+['09:00','12:20','15:40'].map(function(t){ var wt=(d.contractReq&&d.contractReq.weddingTime)||''; return '<option value="'+t+'"'+(wt===t?' selected':'')+'>'+wedTimeKo(t)+'</option>'; }).join('')+'</select></div>'))+

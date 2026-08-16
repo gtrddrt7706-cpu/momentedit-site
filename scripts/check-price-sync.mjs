@@ -57,7 +57,11 @@ for (const [f, needles] of MUST) {
 }
 
 /* ── 구가가 남아 있으면 안 되는 곳 (보존본·'(인상 전)' 항목은 예외) ── */
-const OLD = [2800000, 2100000].filter((v) => v !== WE && v !== WD);
+/* ★[PRICE_OLD_TWO 2026-08-16] 인상이 두 번이라 구가도 둘이다 — 240 을 빼 두면 아무도 안 본다.
+   실사고: ScreenA_apply 의 meta 셋(description·og·twitter)이 ₩2,400,000 인 채 남았는데
+   게이트는 초록이었다. 그 파일은 엔티티 표기(&#8361;…)만 대조하고 있었고, 구가 목록엔 240 이 없었다.
+   메타는 검색 결과·링크 미리보기로 나가는 «고객 노출 문구»다(문구 규칙이 '메타'를 명시). */
+const OLD = [2800000, 2100000, 2400000].filter((v) => v !== WE && v !== WD);
 const SCAN = ['index.html', 'inquiry.html', 'contract/v1-1.html', 'api/_kb.js', 'assets/advisor-kb.js',
   'automation/consultation/ScreenA_apply.html', 'docs/smartstore/상세페이지_원본.html'];
 for (const f of SCAN) {

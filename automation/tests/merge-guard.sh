@@ -3443,3 +3443,13 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/price-gen-switch.mjs
 #   (실측 10분+ · CI 면 타임아웃까지). 아래 개수엔 이 검사 줄 자신도 포함된다(자기 세기).
 chk 'CHK_DASH_SAFE' automation/tests/merge-guard.sh 2
 chk 'grep -c -e "$1" --' automation/tests/merge-guard.sh 3
+# [PRICE_LABEL_VALUE 2026-08-16] 드롭다운은 value 와 라벨이 한 쌍이다 — 어긋나면 고른 사람이 본 금액과
+#   계약서 금액이 달라진다(실사고: value 2500000 인데 라벨 「240만」). 세대 라벨도 값과 같이 적는다.
+chk 'PRICE_LABEL_VALUE' automation/admin/Admin.html 1
+chk 'value="2500000">평일 — 250만' automation/admin/Admin.html 1
+chk 'value="2400000">평일 — 240만' automation/admin/Admin.html 1
+# [PRICE_OLD_TWO 2026-08-16] 구가가 둘이라 240 도 훑는다 — 안 훑으면 메타·AI 지식이 옛 금액으로 남는다.
+chk 'PRICE_OLD_TWO' scripts/check-price-sync.mjs 1
+chk '2800000, 2100000, 2400000' scripts/check-price-sync.mjs 1
+nochk '240만' api/_kb.js
+nochk '240만' assets/advisor-kb.js
