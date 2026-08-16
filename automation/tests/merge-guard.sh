@@ -3776,7 +3776,16 @@ chk 'SEAT_NOTE' mypage.html 4
 chk 'data-seat-note' mypage.html 3
 chk 'fd.allergy' mypage.html 1
 chk 'SEAT_NOTE' scripts/audit/data-roundtrip.mjs 3
-chk 'SEAT_NOTE' scripts/audit/seat-onecard.mjs 1
+chk 'SEAT_NOTE' scripts/audit/seat-onecard.mjs 2
+# ★★[SEAT_NOTE_TRUTH 2026-08-16 자체 적대점검] 저장 실패를 '저장됐어요'로 덮지 않는다.
+#   여기 적히는 것은 알레르기다 — 안 닿았는데 닿았다고 말하면 두 분은 말한 줄 알고 당일을 맞는다.
+chk 'SEAT_NOTE_TRUTH' mypage.html 1   # (#529 가 _seatFinSave 를 더 낫게 고쳐 그쪽 주석이 이 자리를 대신한다 · 규칙 설명은 wireSeatNote 머리에)
+chk 'SEAT_NOTE_TRUTH' scripts/audit/seat-onecard.mjs 2
+nochk "_seatFinSave(); if(st) st.textContent='저장됐어요'" mypage.html   # 결과를 안 보고 성공이라 말하던 첫 판
+chk "v==='N'||v==='K'||v==='Y'" mypage.html 1        # [KID_CHAIR] 아이만 있는 자리가 '샴페인'으로 떨어지지 않게(FIN_DRINK_NOALC 와 한 짝)
+# ★★[CF_SEAT_DRINK 2026-08-16] 확인서에 음료 집계 — 두 분이 도장 찍는 자리에 유아 수(=유아용 의자 수량)가 보여야 한다.
+chk 'CF_SEAT_DRINK' mypage.html 1
+chk 'CF_SEAT_DRINK' scripts/audit/seat-onecard.mjs 2
 chk 'KID_SEAT' guide.html 1
 chk 'KID_SEAT' admin.html 2
 chk 'KID_SEAT' automation/platform/80_production.gs 1

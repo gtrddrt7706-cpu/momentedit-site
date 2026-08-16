@@ -169,6 +169,47 @@ try {
   ok(noteSent.head !== '', '같은 저장에 인원도 함께 실린다(파생값을 지우지 않는다) [SEAT_ROW_TRUTH]', noteSent.head);
   ok(noteSent.max === '300', '길이 상한이 걸려 있다', String(noteSent.max));
 
+  /* ★[SEAT_NOTE_TRUTH] 저장이 실패했는데 '저장됐어요'라고 말하지 않는가.
+     첫 판이 그랬다 — 서버가 끊겨도 초록 글씨가 떴다. 여기 적히는 것은 알레르기라,
+     안 닿았는데 닿았다고 말하면 두 분은 말한 줄 알고 당일을 맞는다. */
+  console.log('\n[저장 실패를 실패라고 말하는가]');
+  const lie = await page.evaluate(async () => {
+    const orig = window.apiTrackSave;
+    window.apiTrackSave = () => Promise.reject(new Error('네트워크 끊김'));
+    const ta = document.querySelector('[data-seat-note]');
+    ta.value = '새우 알레르기 한 분';
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    ta.dispatchEvent(new Event('blur', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 400));
+    const st = (document.querySelector('[data-seat-note-st]') || {}).textContent || '';
+    window.apiTrackSave = orig;
+    return st;
+  });
+  ok(!/저장됐어요/.test(lie), "서버가 끊기면 '저장됐어요'라고 하지 않는다 [SEAT_NOTE_TRUTH]", lie);
+  ok(/안 됐어요/.test(lie), '실패했다고 분명히 말한다', lie);
+
+  /* ★[CF_SEAT_DRINK] 확인서 — 두 분이 도장을 찍는 자리에 음료 집계와 특이사항이 실리는가.
+     유아 수 = 당일 유아용 의자 수량이라, 여기서 눈에 걸려야 틀린 채로 확정되지 않는다. */
+  console.log('\n[확인서에 실리는가]');
+  const cf = await page.evaluate(() => {
+    const p = { tracks: { seat: '완료', final: '완료' },
+      seatDraft: { tables: [{ name: '테이블 1', side: 'L', seats: ['김희준', '이미쿠', '아기', '큰애'], drinks: ['C', 'N', 'K', 'Y'] }] },
+      finalDraft: { headcount: '4', allergy: '8개월 아기 · 새우 알레르기 한 분' }, guideinfoDraft: { seatMode: 'all' } };
+    let h = ''; try { h = String(prodConfirmHtml(p, {}) || ''); } catch (e) { h = 'ERR ' + e.message; }
+    const plain = h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    return { drink: /유아 1\(유아용 의자\)/.test(plain) && /어린이 1/.test(plain),
+      note: /새우 알레르기 한 분/.test(plain),
+      falseWarn: /미리 알려주실 것 미완료/.test(plain) };
+  });
+  ok(cf.drink, '확인서에 음료 집계(유아·어린이 포함)가 실린다 [CF_SEAT_DRINK]');
+  ok(cf.note, '확인서에 「미리 알려주실 것」이 실린다 [SEAT_NOTE]');
+  const cf2 = await page.evaluate(() => {
+    const p = { tracks: { seat: '완료', final: '완료' }, seatDraft: { tables: [{ seats: ['김희준'], drinks: ['C'] }] }, finalDraft: { headcount: '1' }, guideinfoDraft: {} };
+    let h = ''; try { h = String(prodConfirmHtml(p, {}) || ''); } catch (e) {}
+    return /미리 알려주실 것/.test(h.replace(/<[^>]+>/g, ' '));
+  });
+  ok(!cf2, "안 적었으면 그 줄 자체가 없다(빈 값을 '미완료'로 겁주지 않는다)", String(cf2));
+
   console.log('\n[알콜 종류 통째로 바꾸기]');
   await page.evaluate(() => { SEATFLOW.sel = null; SEATFLOW.edit = null; renderSeat(document.getElementById('mp_production')); });
   await tap(page, '[data-alc-all="R"]');

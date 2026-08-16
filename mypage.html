@@ -6788,8 +6788,21 @@ function prodConfirmHtml(p, inv){
   var sv='';
   if(_sDone && sd.tables){ sv=sd.tables.length+'개 테이블 · '+(_named?(_named+'명 배치'):'이름은 아직 안 적음');   // [SEAT_NAME_PENDING] 이름이 0이면 배치를 안 한 것처럼 읽힌다 — 테이블은 이미 놓았다(가드가 옛 문구 재유입을 막는다)
     sv+=' · '+((gi.seatMode==='mine')?'내 자리만 검색':'전체 배치도 공개');   // 공개 범위도 확인서에 찍혀 부부가 그 선택까지 확인(기본=전체 공개 · 2026-07-17)
+    /* ★★[CF_SEAT_DRINK 2026-08-16 자체 점검] 확인서에 **음료 집계**를 싣는다.
+       여기는 두 분이 '이대로 진행합니다' 하고 도장을 찍는 자리인데, 자리마다 고른 음료가
+       한 번도 요약되어 나오지 않았다(윗줄 fd.drink 는 2026-07-19 에 폐지된 옛 대표음료 필드라 늘 비어 있다).
+       유아 수 = 당일 유아용 의자 수량이라, 여기서 눈에 걸려야 틀린 채로 확정되지 않는다. */
+    try{
+      var _cf=seatDrinkCounts(sd.tables), _cp=[];
+      if(_cf.C)_cp.push('샴페인 '+_cf.C); if(_cf.R)_cp.push('레드와인 '+_cf.R); if(_cf.N)_cp.push('논알콜 '+_cf.N);
+      if(_cf.K)_cp.push('유아 '+_cf.K+'(유아용 의자)'); if(_cf.Y)_cp.push('어린이 '+_cf.Y);
+      if(_cp.length) sv+='<br><span class="cc-mini">음료 · '+escapeHtml(_cp.join(' · '))+'</span>';
+    }catch(e){}
   }
   L+=line('좌석 배치', sv);
+  /* [SEAT_NOTE] 두 분이 적은 「미리 알려주실 것」도 확인서에 — 적어 두고 잊는 것을 막고,
+     확인서를 함께 보는 디렉터·다이닝 팀이 같은 화면에서 본다. 비어 있으면 줄을 만들지 않는다. */
+  if(String(fd.allergy||'').trim()) L+=line('미리 알려주실 것', escapeHtml(String(fd.allergy)));   // ★적은 것이 있을 때만 줄을 만든다 — line() 은 빈 값을 '미완료'로 그리는데, 이 칸은 안 적어도 되는 것이라 '미완료'는 거짓 경고가 된다
   // 단체 사진 — 본식 뒤 단체 기록 구도(전체 하객 외 추가분이 있을 때만 표기 · 2026-07-19)
   var _phL=(gi.photo&&gi.photo.length)?gi.photo:null, _phFx=(gi.photoFx&&gi.photoFx.length)?gi.photoFx:null;
   /* [PHOTO_WISH] 요청은 확인서에서도 **적은 그대로** 보여야 한다 — 이름 목록이 아니라 문장이라
@@ -6985,8 +6998,24 @@ function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태�
   }
 }
 /* [SEAT_NOTE] 저장은 조용히 · 손을 떼고 0.8초 뒤 한 번. 자리 편집과 같은 트랙(final)이라
-   _seatFinSave 를 그대로 쓴다 — 인원·요금과 함께 실려 관리자 화면에서 한 덩어리로 보인다. */
+   같은 페이로드(_seatFinPayload)를 쓴다 — 인원·요금과 함께 실려 관리자 화면에서 한 덩어리로 보인다.
+   ★★[SEAT_NOTE_TRUTH 2026-08-16 자체 적대점검에서 잡음] 결과를 보고 말한다.
+     첫 판은 저장 성공 여부와 무관하게 '저장됐어요'를 찍었다 — 서버가 끊겨도 그렇게 나왔다.
+     여기 적히는 것은 알레르기다. 안 닿았는데 닿았다고 말하면 두 분은 말한 줄 알고 당일을 맞는다.
+     ★'저장됐어요'는 서버가 ok 를 준 뒤에만. 실패하면 그렇게 적고 토스트로 알린다(seatMode 라디오와 같은 규칙). */
 var _seatNoteT=null;
+function _seatNoteSave(st){
+  var p=_seatFinSave(); if(!p||!p.then){ if(st) st.textContent='적으시면 바로 저장돼요'; return; }
+  if(st) st.textContent='저장 중이에요';
+  p.then(function(r){
+    if(r&&r.ok){ if(st) st.textContent='저장됐어요'; return; }
+    if(st) st.textContent='저장이 안 됐어요 · 다시 적어 주세요';
+    try{ mpToast('미리 알려주실 것이 저장되지 않았어요'); }catch(e){}
+  }).catch(function(){
+    if(st) st.textContent='저장이 안 됐어요 · 다시 적어 주세요';
+    try{ mpToast('미리 알려주실 것이 저장되지 않았어요'); }catch(e){}
+  });
+}
 function wireSeatNote(box){
   var ta=box&&box.querySelector('[data-seat-note]'); if(!ta||ta._wired) return; ta._wired=true;
   var st=box.querySelector('[data-seat-note-st]');
@@ -6995,10 +7024,10 @@ function wireSeatNote(box){
     SEATFLOW.fd.allergy=String(ta.value||'').slice(0,300);
     if(st) st.textContent='적는 중이에요';
     if(_seatNoteT) clearTimeout(_seatNoteT);
-    _seatNoteT=setTimeout(function(){ _seatFinSave(); if(st) st.textContent='저장됐어요'; }, 800);
+    _seatNoteT=setTimeout(function(){ _seatNoteT=null; _seatNoteSave(st); }, 800);
   });
   ta.addEventListener('blur', function(){   // 화면을 떠나기 전에 한 번 더 — 0.8초를 못 채우고 나가도 남게
-    if(_seatNoteT){ clearTimeout(_seatNoteT); _seatNoteT=null; _seatFinSave(); if(st) st.textContent='저장됐어요'; }
+    if(_seatNoteT){ clearTimeout(_seatNoteT); _seatNoteT=null; _seatNoteSave(st); }
   });
 }
 function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._edLast=SEATFLOW.edit; SEATFLOW.edit=null; }   // _edLast: blur 직후 ~200ms 창에서 음료 칩 탭이 무시되지 않게. edit 있을 때만 갱신 — blur가 캡처·직접 핸들러로 2번 커밋해 2번째가 null로 덮던 것 방지
@@ -7049,9 +7078,14 @@ function _seatFeeHtml(n){
    ★자리가 아무 음료도 없을 때만 샴페인으로 떨어진다(자리 기본값 _seatDrinkDefault 와 같은 쪽).
    ★이미 저장된 값은 **절대 덮지 않는다**(윗줄 호출부) — 덮으면 확정이 풀린다. 옛 값이 지금 자리와 달라도
      고객 화면은 [SEAT_TRUTH_ONE]이 자리에서 세어 보여 주고, 스태프 A4 도 자리별 색점을 쓴다. */
+/* ★[KID_CHAIR 2026-08-16] 아이(K 유아 · Y 어린이)도 '알콜 아님' 쪽에 세운다.
+   위 규칙의 취지가 «안 드시는 자리에 술을 세팅하지 않는다»인데, 아이만 있는 자리는
+   code 도 hasN 도 비어 마지막 fallback 인 샴페인으로 떨어졌다 — 같은 사고의 다른 입구다.
+   ★아이는 물을 마신다. 여기 적히는 '논알콜'은 «준비할 술이 없다»는 뜻이고, 자리별 진실은
+     확인서·스태프 A4 의 자리별 집계(유아 n · 어린이 n)가 따로 말해 준다. */
 function _finDrinkFrom(tables){
   var code='', hasN=false;
-  ((tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(!code && (v==='C'||v==='R')) code=v; if(v==='N') hasN=true; }); });
+  ((tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(!code && (v==='C'||v==='R')) code=v; if(v==='N'||v==='K'||v==='Y') hasN=true; }); });
   return SEAT_DRINK_LABEL[code || (hasN?'N':'C')];
 }
 function _seatFinSave(){ try{ if(!SEATFLOW) return Promise.resolve(null); var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={});
