@@ -3981,3 +3981,28 @@ chk 'function photoShareKind' mypage.html 1
 #   꼬리(· 설명)는 아래 본문과 같은 말을 하면 뺀다 · 390px 에서 두 줄로 꺾이면 그것도 뺀다.
 chk 'SEC_RANK' mypage.html 3
 chk '.ph-sec{font-family:var(--serif-ko);font-size:14px' mypage.html 1
+# ★★[SAVE_FALSE_OK · 2라운드 2026-08-16] 관리자 화면 + 위저드 뿌리.
+#   ①_wizWatch 가 실패도 기록한다 — 저장 버튼을 안 거친 배경 저장이 실패해도 손잡이가 '다시 저장'이 된다
+#   ②좌석 파생(인원·스탠딩·추가요금) 실패를 화면에 싣는다 — 자리는 저장·요금은 미저장인데 '저장했어요'가 뜨던 것
+#   ③관리자 인계 목록: 응답 형태가 어긋나면 '대기 건이 없어요(AI가 다 처리 중)'라는 **안심 문구**가 뜨던 것
+#   ④서명 진본을 못 가져오면 말한다 — 조용히 실패하면 '서명완료' 계약서가 서명칸만 빈 채로 인쇄된다
+#   ⑤교육·회귀셋 켜기/끄기/삭제 넷: 결과를 보고 실패하면 말한다(_eduDone)
+chk 'SAVE_FALSE_OK' admin.html 3
+chk '_eduDone' admin.html 5                       # 정의 1 + 호출 4 (★정의는 rEdu·loadReg 를 함께 감싸는 공용 스코프에)
+nochk "\.then(loadEdu);" admin.html               # 결과를 안 보고 목록만 다시 읽던 첫 판
+chk '대기 건이 없다는 뜻이 아니에요' admin.html 1
+chk '서명칸이 빈 채로' admin.html 1   # ★chk 는 '줄 수'를 센다 — 실패 분기(else)와 catch 둘 다 같은 한 줄 안에 있어 1
+chk '_seatOk:true' mypage.html 1                  # 좌석은 저장됐고 파생만 실패한 상태를 구분해서 말한다
+chk 'mark(!!(r&&r.ok))' mypage.html 1             # _wizWatch 가 실패도 기록
+# ★★[TRK_INFLIGHT · MODAL_ONE 2026-08-16 전수점검 2라운드 — 실측으로 재현한 경합 사고 셋]
+#   ①같은 트랙을 겹쳐 저장하면 rev 가드가 **자기 자신**을 때려 «다른 기기에서 먼저 저장됐어요»가 떴다
+#     (그 판에서 '최신 불러오기'를 고르면 방금 담은 것이 사라진다 — 가드가 데이터를 지운다)
+#   ②판(모달)이 겹쳐 열리면 첫 약속이 영영 안 풀려 '저장 중…' 베일이 안 걷히고 화면이 멈췄다
+#   ③청첩장은 rev 가드가 없는 유일한 트랙 — 늦게 온 옛 초안이 고른 디자인을 덮었다
+#   ★큐(_saveQueued)·모달 직렬화를 '바로 보내기'로 되돌리지 말 것. 되돌리면 셋 다 그대로 돌아온다.
+chk 'TRK_INFLIGHT' mypage.html 2
+chk '_saveQueued' mypage.html 4   # 정의 1 + 재귀 1 + 트랙 1 + 청첩장 1
+chk 'MODAL_ONE' mypage.html 1
+chk '_mpModalBusy' mypage.html 3
+chk 'TRK_INFLIGHT' scripts/audit/save-honesty.mjs 3
+chk 'MODAL_ONE' scripts/audit/save-honesty.mjs 2
