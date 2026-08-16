@@ -535,9 +535,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .wsh-what{min-height:58px}
 .wsh-ref-ok{margin-top:5px;font-size:11px}
 .wsh-ref-ok a{color:var(--gold-deep);text-decoration:none}
-/* [WISH_TAP44] 상자 안 보조 칩도 **44px 를 지킨다** — 처음엔 36px 로 한 단 낮췄는데(보조라는 뜻으로),
-   실측해 보니 그냥 작은 손가락 표적이었다. 낮춰야 하는 것은 높이가 아니라 **글자 크기와 색**이다. */
-.wsh-pick{min-height:44px;padding:9px 11px;font-size:12px}
+/* [WISH_MINIMAL] 상자 안 보조 칩(.wsh-pick) 규칙 삭제 — '누구와' 칸과 함께 없앴다(칩 5개가 정신없음의 절반).
+   구성원은 서술칸 자리표시 글이 유도한다. 되살리려면 칸부터 되살려야 하는데 그건 사용자 지시로 없앤 것이다. */
 /* ★[PFX_CSS_GONE 2026-08-16] 고르는 카드(.pfx-*) 규칙 10개를 지웠다 — [PHOTO_WISH]로 카드가 없어져
    실측 사용 0건이었다. 되살리려면 카드 UI 자체를 되살려야 하는데 그건 사용자 결정으로 폐지된 것이다.
    카드 대신 쓰는 요청 상자 규칙은 위 .wsh-* 다. */
@@ -6332,41 +6331,50 @@ function renderPhoto(box){
   }
   /* ★★★[PHOTO_WISH] 「꼭 담고 싶은 사진」 — 고르는 카드 열 장을 없애고 **적는 칸**으로 바꿨다.
      위 칸이 이미 무엇이 담기는지를 말하므로, 여기서 물을 것은 하나뿐이다: 그것 말고 더 있나요.
-     ★셋을 한 요청 안에 묶는다(어떤 사진·누구와·참고 링크) — 따로 두면 어느 링크가 어느 요청인지 모른다. */
+
+     ★★★[WISH_MINIMAL 2026-08-16 사용자 지적 "너무 정신없는데 미니멀하게 심플하게"] 두 가지를 고쳤다.
+     ① **쉬는 상태는 단추 한 줄이다.** 옛 판은 요청 상자를 펼친 채로 뒀는데,
+        상자 하나가 「서술칸 + 누구와칸 + 칩 5개 + 링크칸」 여덟 덩어리였다. 두 개면 열여섯이다.
+        ★정말 선택인 칸이 화면을 가장 많이 먹고 있었다 — 안 적어도 되는 것이 제일 크게 외치면
+          그 자체가 "적어야 하나?"라는 압박이 된다. 이제 필요할 때 눌러서 연다.
+     ② **칸을 둘로 줄였다(자유 서술 + 링크).** '누구와'를 따로 묻던 칸과 그 칩 5개를 없애고
+        서술 한 칸에 합쳤다 — 사용자 원문 *"자유롭게 요청하는 식으로"*.
+        ★구성원은 여전히 받는다(원래 요구였다). 다만 **묻는 칸이 아니라 예시로** 유도한다 —
+          자리표시 글이 "누구와 함께인지"까지 적게 이끌면 칸을 하나 더 세울 이유가 없다.
+        ★who 필드는 데이터에 남겨 둔다(옛 저장분·서버 정규화 호환). 화면에서만 안 묻는다.
+     ★참고 링크 주의·예시는 전부 접힘 안으로 내렸다 — 적기 전에 읽을 글이 아니다. */
   var _flow=((PHOTOFLOW.rd||{}).summary||{}).flow||null;   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 안 그린다(넘겨짚지 않는다)
-  h+='<div class="ph-sec">꼭 담고 싶은 사진 <span style="color:var(--label-soft);font-weight:400">· 선택 · 사진작가에게 그대로 전달돼요</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">위에 없는데 <b>이건 꼭 남기고 싶다</b> 하는 사진이 있으면 적어 주세요 · <b>'+PHOTO_WISH_MAX+'개까지</b>, 개수로 비용은 바뀌지 않아요. 어떤 사진인지와 <b>누구와 함께인지</b>를 같이 적어 주시면 그날 부를 수 있어요.</div>';
+  h+='<div class="ph-sec">꼭 담고 싶은 사진 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">위에 없는데 <b>이건 꼭 남기고 싶다</b> 하는 사진이 있을 때만 적어 주세요 · <b>안 적으셔도 괜찮아요</b>.</div>';
   if(wish.length){
     h+='<div class="wsh-list">';
     wish.forEach(function(w,i){
       h+='<div class="wsh-item"><div class="wsh-hd"><span class="wsh-no">'+(i+1)+'</span><button type="button" class="ph-del" data-wdel="'+i+'" aria-label="이 요청 빼기">✕</button></div>';
-      h+='<textarea class="cc-input wsh-what" data-wf="what" data-wi="'+i+'" maxlength="'+WISH_WHAT_MAX+'" placeholder="어떤 사진인가요 (예: 할머니 앉으신 옆에 두 분이 쪼그려 앉아 눈높이 맞춘 컷)">'+escapeHtml(w.what||'')+'</textarea>';
-      h+='<input class="cc-input wsh-who" data-wf="who" data-wi="'+i+'" maxlength="'+WISH_WHO_MAX+'" autocomplete="off" placeholder="누구와 (예: 신부 측 할머니·이모님)" value="'+escapeHtml(w.who||'')+'">';
-      // 누구와 — 위에서 고른 구도를 그대로 권한다(가장 자주 비는 칸이라 한 번 눌러 채우게)
-      var _who=['두 분만','전체 하객'].concat(PHOTOFLOW.sel.slice(0,4));
-      h+='<div class="ph-chips" style="margin-top:6px">'+_who.map(function(n){ return '<span class="ph-chip wsh-pick" data-wwho="'+escapeHtml(n)+'" data-wi="'+i+'">'+escapeHtml(n)+'</span>'; }).join('')+'</div>';
-      h+='<input class="cc-input wsh-ref" data-wf="ref" data-wi="'+i+'" type="url" inputmode="url" maxlength="'+WISH_REF_MAX+'" autocomplete="off" placeholder="참고 사진 링크 (선택 · https://...)" value="'+escapeHtml(w.ref||'')+'">';
+      h+='<textarea class="cc-input wsh-what" data-wf="what" data-wi="'+i+'" maxlength="'+WISH_WHAT_MAX+'" aria-label="어떤 사진인지" placeholder="어떤 사진인지 · 누구와 함께인지 편하게 적어 주세요&#10;(예: 할머니 앉으신 옆에 쪼그려 앉아서 · 신부 측 할머니와 이모님)">'+escapeHtml(w.what||'')+'</textarea>';
+      h+='<input class="cc-input wsh-ref" data-wf="ref" data-wi="'+i+'" type="url" inputmode="url" maxlength="'+WISH_REF_MAX+'" autocomplete="off" aria-label="참고 사진 링크" placeholder="참고 사진 링크 (선택)" value="'+escapeHtml(w.ref||'')+'">';
       if(w.ref) h+='<div class="wsh-ref-ok"><a href="'+escapeHtml(safeUrl(w.ref))+'" target="_blank" rel="noopener">링크 열어 확인하기</a></div>';
       h+='</div>';
     });
     h+='</div>';
   }
-  if(wish.length<PHOTO_WISH_MAX) h+='<button type="button" class="cc-btn-ghost" id="mp_wishAdd" style="width:100%;margin-top:8px">'+(wish.length?'하나 더 적기':'꼭 담고 싶은 사진 적기')+'</button>';
-  /* ★[WISH_QUIET] 아래 두 안내는 **요청이 하나라도 있을 때만** 뜬다.
-     빈 화면에서 참고 링크 규칙과 「식순에 축배가 없어요」를 먼저 읽히면, 아직 적지도 않은 요청에 대한
-     주의부터 받는 셈이라 '적지 말라'는 말로 읽힌다. 적기 시작한 순간에 필요한 말이다. */
-  if(wish.length) h+='<div class="cc-note" style="text-align:left;margin-top:8px">참고 링크는 <b>핀터레스트·인스타 게시물</b>처럼 나중에도 열리는 주소로 주세요 · 스토리·카톡 링크는 며칠 뒤 만료돼 저희가 못 열어요. 똑같이 따라 찍는 게 아니라 <b>구도와 분위기를 읽는 용도</b>예요.</div>';
-  /* [PHOTO_FX_LINK] 식순 연동은 카드가 사라져도 남는다 — 다만 이제 '카드 배지'가 아니라
-     **적는 중에 알려 주는 한 줄**이다(잔이 필요한 요청을 적을 때 축배가 없으면 그때 알아야 한다). */
+  if(wish.length<PHOTO_WISH_MAX) h+='<button type="button" class="cc-btn-ghost" id="mp_wishAdd" style="width:100%;margin-top:'+(wish.length?'10px':'0')+'">'+(wish.length?'+ 하나 더':'+ 요청 적기')+'</button>';
+  /* [PHOTO_FX_LINK] 식순 연동은 **적는 중에만** 알려 준다(잔이 필요한 요청을 적을 때 축배가 없으면 그때 알아야 한다).
+     ★빈 화면에서는 안 뜬다 — 아직 적지도 않은 요청에 대한 주의부터 받으면 '적지 말라'로 읽힌다([WISH_QUIET]). */
   if(_flow && wish.length){
     var _lkNote=[];
+    /* ★[WISH_LINK_ASKED 2026-08-16 점검] **적은 요청에 대해서만** 알린다.
+       옛 판은 식순에 없기만 하면 떴다 — 잔 얘기를 꺼낸 적도 없는 부부가 「잔을 챙겨 드려요」를 읽었다.
+       묻지도 않은 것에 답하는 안내는 도움이 아니라 소음이고, 정작 진짜로 걸리는 날 눈에 안 들어온다.
+       ★확인서 대조(PHOTO_FX_STALE)는 진작 글자를 보고 있었다 — 두 곳의 기준을 같게 맞춘 것이다. */
     PHOTO_WISH_EX.forEach(function(c){ if(!c.link||!c.link.off) return;
-      if(_flow.indexOf(c.link.when)<0) _lkNote.push('식순에 <b>'+escapeHtml(c.link.when)+'</b>가 없어요 · '+escapeHtml(c.n)+' 같은 요청은 '+escapeHtml(c.need||'준비물')+'을 저희가 따로 챙겨 드려요'); });
-    if(_lkNote.length) h+='<div class="cc-note" style="text-align:left;margin-top:6px">'+_lkNote.join('<br>')+'</div>';
+      if(_flow.indexOf(c.link.when)>-1) return;
+      if(!wish.some(function(w){ return String(w.what||'').indexOf(c.n)>-1; })) return;
+      _lkNote.push('식순에 <b>'+escapeHtml(c.link.when)+'</b>가 없어요 · '+escapeHtml(c.need||'준비물')+'을 저희가 따로 챙겨 드려요'); });
+    if(_lkNote.length) h+='<div class="cc-note" style="text-align:left;margin-top:8px">'+_lkNote.join('<br>')+'</div>';
   }
   /* [PHOTO_WISH] 예시 — **고르기가 아니라 쓰기의 출발점**이다. 누르면 입력칸에 문장이 들어가고,
      그 뒤엔 고쳐 쓸 수 있다. 백지 앞에서 막히는 것이 자유 서술의 가장 큰 함정이라 접어서 둔다. */
-  h+='<details class="cc-more" style="margin-top:8px"><summary>어떻게 적으면 되나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">눌러서 가져다 쓰고, 두 분 말로 고치시면 돼요. 아무것도 안 적으셔도 <b>위 장면과 전체 하객 단체컷은 그대로 담겨요</b>.</div><div class="ph-chips" style="margin-top:8px">'
+  h+='<details class="cc-more" style="margin-top:8px"><summary>어떻게 적으면 되나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">아래를 눌러 가져다 쓰고 두 분 말로 고치시면 돼요. 아무것도 안 적으셔도 <b>위 장면과 전체 하객 단체컷은 그대로 담겨요</b>.<br><br>참고 링크는 <b>핀터레스트·인스타 게시물</b>처럼 나중에도 열리는 주소로 주세요 · 스토리·카톡 링크는 며칠 뒤 만료돼 저희가 못 열어요. 똑같이 따라 찍는 게 아니라 <b>구도와 분위기를 읽는 용도</b>예요.</div><div class="ph-chips" style="margin-top:8px">'
     +PHOTO_WISH_EX.map(function(c){ return '<span class="ph-chip" data-wex="'+escapeHtml(c.n+' · '+c.c)+'">'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리)
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
@@ -6435,12 +6443,7 @@ function renderPhoto(box){
   });
   Array.prototype.forEach.call(box.querySelectorAll('[data-wdel]'), function(el){
     el.addEventListener('click', function(){ wish.splice(+el.getAttribute('data-wdel'),1); rerender(); }); });
-  // '누구와' 칩 — 비어 있으면 채우고, 이미 있으면 ' · '로 잇는다(할머니와 이모님처럼 둘인 경우가 흔하다)
-  Array.prototype.forEach.call(box.querySelectorAll('[data-wwho]'), function(el){
-    _kbChip(el, function(){ var i=+el.getAttribute('data-wi'), n=el.getAttribute('data-wwho'); if(!wish[i]) return;
-      var cur=String(wish[i].who||'').trim();
-      if(cur.split(' · ').indexOf(n)>-1) return;                       // 같은 것을 두 번 넣지 않는다
-      wish[i].who=(cur?(cur+' · '):'')+n; rerender(); }); });
+  /* [WISH_MINIMAL] '누구와' 칩 핸들러 폐지 — 칸 자체를 서술 한 칸으로 합쳤다. 되살리지 말 것(칩 5개가 정신없다는 지적의 절반이었다). */
   var wab=$('mp_wishAdd');
   if(wab) wab.addEventListener('click', function(){ if(wish.length>=PHOTO_WISH_MAX) return; wish.push({what:'',who:'',ref:''}); rerender(); });
   // 예시 — 고르기가 아니라 **가져다 쓰기**. 빈 요청이 있으면 거기에, 없으면 새로 하나 만들어 넣는다
