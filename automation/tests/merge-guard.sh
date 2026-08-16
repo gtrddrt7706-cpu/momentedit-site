@@ -4025,3 +4025,17 @@ chk 'GUIDE_DEFAULT_TRUTH' guide.html 1                # 기본값은 '전체 공
 
 
 
+
+# [QR_CENTER 2026-08-16] .ph-qr 는 CSS 가 flex+center 다 — 켜는 코드가 인라인 display 를 박으면 가운데 정렬이 죽는다.
+#   빈 문자열로 지워 스타일시트 값으로 되돌릴 것. 'block'·'flex' 를 박지 말 것(CSS 가 바뀌면 또 갈린다).
+chk 'QR_CENTER' mypage.html 1
+nochk "qbox.style.display='block'" mypage.html
+# [WISH_BOX_QUIET 2026-08-16 디자이너 점검] 요청 상자 머리 행 폐지 — 번호 배지는 뜻 없는 순서를 가장 진하게 찍었고,
+#   번호와 ✕ 사이 space-between 이 빈 골짜기를 만들어 상자가 '표'로 읽혔다. ✕ 만 우상단에 얹는다.
+chk 'WISH_BOX_QUIET' mypage.html 1
+nochk 'class="wsh-no"' mypage.html                # 번호 배지 복원 금지
+nochk 'class="wsh-hd"' mypage.html                # 머리 행 복원 금지
+# [WISH_DEL_ASK 2026-08-16] ✕(44px)가 글칸 오른쪽 여백과 겹쳐 오탭이 가능하다 — 적은 글이 있으면 한 번 묻는다.
+#   표적을 줄이면 「지우는 단추」의 44px 근거가 무너지고, 칸을 밀면 없앤 머리 행이 높이로 되살아난다.
+chk 'WISH_DEL_ASK' mypage.html 1
+chk '이 요청을 뺄까요' mypage.html 1
