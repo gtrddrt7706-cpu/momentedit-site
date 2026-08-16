@@ -167,16 +167,20 @@ ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).guide.seatFull === true, '27c (
 // 28) 서버 검색(seatView+q) — 일치 테이블 라벨만 답하고 하객 이름은 절대 미포함
 setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [
   { name: '테이블 1', side: 'L', seats: ['김하객', '이친구'] },
-  { name: '가족석', side: 'R', seats: ['김삼촌'] }
+  { name: '가족석', side: 'R', seats: ['김하늘'] }   // [SEAT_Q_MIN] 두 글자('김하')로도 다중 일치가 나게 — 서버가 한 글자를 막으므로
 ] } } });
 const sf1 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '이친구' });
 ok(sf1.ok === true && sf1.hits.length === 1 && sf1.hits[0].no === 1 && sf1.hits[0].label === '테이블 1', '28a 단일 일치 → 행순서 번호·라벨');
 ok(sf1.hits[0].room && sf1.hits[0].room.length === 2 && sf1.hits[0].hti === 0 && JSON.stringify(sf1.hits[0].mi) === '[1]' && sf1.hits[0].nm === '이친구', '28a2 단일 일치 → 홀 전체 배치(익명)+본인 테이블·자리·이름');
 ok(JSON.stringify(sf1.hits[0].room[0].occ) === '[1,1]' && sf1.hits[0].room[1].label === '가족석' && sf1.hits[0].seats === undefined, '28a3 room은 점유 여부·라벨만(이름 배열 없음)');
-ok(!JSON.stringify(sf1).includes('김하객') && !JSON.stringify(sf1).includes('김삼촌'), '28a4 응답 어디에도 타인 이름 없음(본인 이름만)');
-const sf2 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김' });
+ok(!JSON.stringify(sf1).includes('김하객') && !JSON.stringify(sf1).includes('김하늘'), '28a4 응답 어디에도 타인 이름 없음(본인 이름만)');
+const sf2 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김하' });   // [SEAT_Q_MIN] 한 글자는 서버가 거절한다(아래 28c 가 그것을 본다)
 ok(sf2.ok === true && sf2.hits.length === 2 && sf2.hits[1].label === '가족석' && sf2.hits[1].no === 2, '28b 다중 일치(흔한 성) → 테이블 목록만 · 커스텀명 존중');
 ok(sf2.hits[0].room === undefined && sf2.hits[1].room === undefined, '28b2 다중 일치 → 홀 배치·자리 구성 미전송(테이블 특정 전 최소 응답)');
+/* ★[SEAT_Q_MIN 2026-08-16 노출 점검] «두 글자부터»가 클라이언트에만 있던 시절, 요청을 직접 보내면
+   한 글자('김')로 성씨 단위 훑기가 됐다 — 특정인의 참석 여부를 캐는 열쇠가 된다. 서버에도 같은 값을 둔다. */
+const sfq = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김' });
+ok(sfq.ok === false && !JSON.stringify(sfq).includes('김하'), '28c 한 글자 검색은 서버가 거절(명단 훑기 차단) [SEAT_Q_MIN]');
 const sf3 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '박없음' });
 ok(sf3.ok === true && sf3.hits.length === 0 && !JSON.stringify(sf3).includes('김하객'), '28c 불일치 → 빈 결과 · 응답에 하객 이름 없음');
 const sf4 = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김 하객' });
@@ -213,10 +217,10 @@ const dInv = sb._prodLoad(makeRow('C1'));
 ok(rInv.ok === true && dInv.confirm === undefined && dInv.confirmStale === true, '32 청첩장 수정 → 확인 자동 해제(85_invitation 연동)');
 // 33) 서버 검색 상한 4 — 프런트 규약(1=단정 · 2~3=후보 나열 · 4=성함 더 입력)
 setup({ 예식일: ymdShift(10), _prod: { seatDraft: { tables: [
-  { side: 'L', seats: ['김a'] }, { side: 'R', seats: ['김b'] }, { side: 'L', seats: ['김c'] },
-  { side: 'R', seats: ['김d'] }, { side: 'L', seats: ['김e'] }, { side: 'R', seats: ['김f'] }
-] } } });
-const sfC = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김' });
+  { side: 'L', seats: ['김하a'] }, { side: 'R', seats: ['김하b'] }, { side: 'L', seats: ['김하c'] },
+  { side: 'R', seats: ['김하d'] }, { side: 'L', seats: ['김하e'] }, { side: 'R', seats: ['김하f'] }
+] } } });   // [SEAT_Q_MIN] 두 글자 질의로 — 서버가 한 글자를 거절하므로 상한 검사는 두 글자로 본다
+const sfC = sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김하' });
 ok(sfC.ok === true && sfC.hits.length === 4, '33 다수 일치 상한 4(응답 최소·프런트 규약)');
 
 // 34) 예약 시간·예약자 — 다이닝 위저드 입력(diningDraft) 우선 · 구 guideinfo 저장분 폴백(2026-07-17 이동)

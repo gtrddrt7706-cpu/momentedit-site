@@ -1524,7 +1524,16 @@ document.addEventListener('visibilitychange', function(){
 });
 if(TOKEN) _pollStart();
 
-function doLogout(){ _pollStop(); try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN=''; localStorage.removeItem('me_admin_token'); setTopbar(false); showLogin(); }
+/* ★★[ADM_LOGOUT_WIPE 2026-08-16 노출 점검] 로그아웃하면 **고객 실명도 지운다.**
+   종전엔 토큰(me_admin_token)만 지워, 「최근 본 고객」에 남은 고객 5명의 **이름과 개인코드**가
+   기기에 그대로 남았다(RECENT_KEY). 공용 PC·빌린 노트북에서 로그아웃한 뒤에도 남는다는 뜻이다.
+   ★로그아웃은 «이 기기에서 흔적을 지운다»는 약속이다 — 토큰만 지우는 것은 그 약속의 절반이다.
+   ★열어 둔 패널(OPEN_KEY)·목록 필터(FILTER_KEY)는 개인정보가 아니라 그대로 둔다. */
+function doLogout(){ _pollStop(); try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN='';
+  localStorage.removeItem('me_admin_token');
+  try{ localStorage.removeItem(RECENT_KEY); }catch(e){}
+  try{ var w=$('recentWrap'); if(w){ w.innerHTML=''; w.style.display='none'; } }catch(e){}   // 화면에 떠 있던 칩도 즉시 치운다
+  setTopbar(false); showLogin(); }
 
 /* ════════ 홈 ════════ */
 var _homeRetried=false;
