@@ -1167,7 +1167,7 @@ chk 'GUIDE_PHOTO_INFO' guide.html 2            # 외부 공간으로 나가는 �
 #   ★마커는 없어져도 **지키려던 세 가지는 그대로 있어야 한다**(접근 범위·프로필 노출·정리하면 버튼도 닫힘).
 #     그래서 마커 대신 문장을 직접 센다 — 이름이 아니라 내용을 지키는 쪽이 원래 의도에 맞다.
 chk '링크를 아는 분은 누구나 들어갈 수 있어요' mypage.html 1
-chk '안내 페이지의 버튼도 함께 닫혀요' mypage.html 1
+chk '버튼도 닫혀요' mypage.html 1                 # [SEC_RANK] 문구를 줄여도 안 걸리게 핵심만 센다 — 지키는 것은 문장이 아니라 '앨범을 지우면 버튼도 닫힌다'는 사실
 # ── 2026-07-26 guide.html 3라운드(예식장 현장 조건 — 느린 회선·실패·확대)
 chk 'GUIDE_FONT_NOBLOCK' guide.html 1          # 폰트 CSS가 렌더 블로킹이라 FCP 3056ms·백지였다. media=print+onload로 뺐다 → FCP 60ms
 chk 'media="print"' guide.html 1               # ★위 처방의 본체. rel=stylesheet만 남기면 다시 렌더 블로킹이 되고 흰 화면이 돌아온다
@@ -3875,7 +3875,7 @@ chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1# ★★[PHOTOSHARE_D
 chk 'PHOTOSHARE_DIRECT' mypage.html 1
 # [PHOTOSHARE_ONE] 선택지 하나(구글 포토 공유 앨범) — 카톡은 사진을 압축해 사진이 상품인 우리와 안 맞는다
 chk 'PHOTOSHARE_ONE' mypage.html 2
-chk '「공동작업」을 켜 주셔야' mypage.html 1
+chk '「공동작업」' mypage.html 1                   # 같은 이유 — 지키는 것은 '공동작업을 켜야 올릴 수 있다'는 사실 하나
 # ★★[FIN_DRINK_FILL 2026-08-16 사용자 제보 "좌석 배치완료했는데도 좌석 완료하라고 되어있네"]
 #   GAS 80_production.gs:409 가 final 저장에 `drink`(대표 음료)를 요구하는데 그 입력 UI 는 2026-07-19 폐지됐다
 #   → 그 뒤 고객 전원이 tracks.final 을 못 만들었다(확인서 미완료·잔금 미합산·관리자 메일 미발송).
@@ -3972,3 +3972,12 @@ chk '오픈채팅 → 1:1 채팅방' mypage.html 1
 # [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다(막지 않는다) — 엉뚱한 주소를 넣고도 모르는 일이 없게
 chk 'SHARE_KIND' mypage.html 3
 chk 'function photoShareKind' mypage.html 1
+
+
+
+
+
+# [SEC_RANK 2026-08-16 디자이너 점검] 섹션 제목 13 → 14px — 본문 12px 과 1px 차이면 제목이 제목으로 안 읽힌다.
+#   꼬리(· 설명)는 아래 본문과 같은 말을 하면 뺀다 · 390px 에서 두 줄로 꺾이면 그것도 뺀다.
+chk 'SEC_RANK' mypage.html 3
+chk '.ph-sec{font-family:var(--serif-ko);font-size:14px' mypage.html 1
