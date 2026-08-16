@@ -3594,6 +3594,14 @@ chk '--dim:#75705F' console.html 1
 chk 'body.guest .main.wait small{opacity:1}' console.html 1
 # [PREVIEW_SOUND_CUE 2026-08-16] 누르면 소리가 난다는 사실을 먼저 말한다(이어폰·무음 스위치).
 chk '폰이 무음이면 들리지 않아요' console.html 1
+# [GUEST_HONORIFIC 2026-08-16] 고객 설명문의 호칭은 보이스 가이드대로 「하객분들」이다(CLAUDE.md H6).
+#   ★같은 예식 장면에서 장면 지문은 '하객분들께'인데 대목 설명은 '하객에게'로 갈려 있었다 —
+#     BLOCK_FX 로 fx 가 고객 화면에 자주 뜨게 된 뒤로는 한 화면에서 둘이 부딪친다.
+#   ★원천과 사본 두 곳을 함께 본다. 한쪽만 고치면 조용히 갈라지는 자리다.
+chk '하객분들께 직접 감사 인사를 전해요' assets/ritual-data.js 4
+chk '하객분들께 직접 감사 인사를 전해요' order-preview.html 4
+nochk '하객에게 직접 감사 인사' assets/ritual-data.js
+nochk '하객에게 직접 감사 인사' order-preview.html
 # ── [SEAT_ONE_CARD · ALC_ONE 2026-08-16 사용자 지시] 좌석·음료 편집기 개편 ──
 #   ①"이름부분을 클릭하면 음료랑 이름적는게 동시에" → 한 창(이름칸+음료)으로 통합
 #   ②"논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인" → 알콜은 행사 전체 한 종류
