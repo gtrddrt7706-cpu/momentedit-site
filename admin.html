@@ -3129,8 +3129,30 @@ function doForce(code,names,target,reason){
   // [ADM_AC3] 입력 누락은 필드 옆 인라인 + focus(H2 매핑) — 토스트는 사라져서 어디가 비었는지 안 보인다.
   if(!target){ _advHint('fStage','바꿀 단계를 선택해 주세요'); return; }
   if(!reason){ _advHint('fReason','강제 변경 사유를 입력해 주세요'); return; }
-  openModal({ title:'강제로 단계를 바꿀까요?', danger:true, text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('⚠ 그 이후 단계 진행 데이터(계약·입금·시착 등)가 초기화돼요')+li('상담 예약(캘린더)은 별개예요')+li('이력에 남아요'), yes:'강제 변경',
-    onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
+  /* ★★[FORCE_MODAL_TRUTH 2026-08-17 조사 실측] 마지막 확인창이 **하드코딩된 거짓말**을 하고 있었다.
+     ·앞으로 가는 복구에도 «초기화돼요»라고 겁을 줬다(실제로는 아무것도 안 지운다)
+     ·신청접수로 내리면 상담 예약·캘린더가 실제로 초기화되는데 «상담 예약은 별개예요»라고 안심시켰다
+     ·바로 앞 미리보기 패널은 서버 사실을 말하는데, 그 다음 창이 정반대를 말해 둘 중 뭘 믿어야 할지 없었다
+     → 서버에 다시 물어(preview) **그 답을 그대로** 읽는다. 예고가 곧 실행이라야 확인창이 뜻을 갖는다.
+     ★고객에게 알림톡이 나가는 이동(취소)도 여기서 미리 말한다 — 발송은 되돌릴 수 없다. */
+  gas('adminForceStagePreview', code, target).then(function(p){
+    var facts='';
+    if(p&&p.ok){
+      if((p.cleared||[]).length) facts+=li('⚠ 비워져요 · '+p.cleared.map(esc).join(' · '));
+      if((p.consent||[]).length) facts+=li('⚠ 함께 지워져요 · '+p.consent.map(esc).join(' · '));
+      if((p.kept||[]).length) facts+=li('그대로 남아요 · '+p.kept.map(esc).join(' · '));
+      if(p.bookingReset) facts+=li('⚠ 상담 예약과 캘린더 일정이 초기화돼요');
+      if(!(p.cleared||[]).length && !(p.consent||[]).length && !p.bookingReset) facts+=li('비워지는 데이터는 없어요 · 단계만 바뀌어요');
+    } else { facts+=li('미리보기를 못 불러왔어요 · 그래도 진행하면 서버 판단대로 처리돼요'); }
+    if(STAGE_EX.indexOf(target)!==-1) facts+=li('종료 처리예요 · 받은 금액이 있고 환불 계좌가 없으면 고객에게 계좌 요청 안내가 나가요');
+    openModal({ title:'강제로 단계를 바꿀까요?', danger:true,
+      text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+facts+li('이력에 남아요'), yes:'강제 변경',
+      onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
+  }).catch(function(){
+    openModal({ title:'강제로 단계를 바꿀까요?', danger:true,
+      text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('미리보기를 못 불러왔어요')+li('이력에 남아요'), yes:'강제 변경',
+      onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
+  });
 }
 
 function saveMemo(){

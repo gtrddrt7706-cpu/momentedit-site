@@ -4515,3 +4515,38 @@ chk '드라이브가 꽉 차면 사진이 안 들어와요' mypage.html 1
 chk 'ROLLBACK_ROUNDTRIP' scripts/audit/rollback-roundtrip.mjs 1
 chk '다시 결과물전달까지 완주' scripts/audit/rollback-roundtrip.mjs 1
 chk '환불완료 흔적이 지워진다' scripts/audit/rollback-roundtrip.mjs 1
+# ★★[ROLLBACK_NOTICE 2026-08-17 사용자 지시 "관리자에의해 되돌라갔다 … 고객마이페이지 화면에 팝업 안내"]
+#   되돌리면 고객 화면이 **조용히** 앞 단계로 돌아갔다 — 서명한 계약이 사라진 것처럼 보이는데 설명이 없다.
+#   ★관리자 사유·컬럼 이름은 고객에게 안 나간다 · «관리자/강제변경» 같은 내부 용어도 쓰지 않는다(디렉터로).
+#   ★해소되면 서버가 애초에 안 내려준다(buildRollbackNotice) — 지난 일을 말하는 안내는 소음이다.
+chk 'ROLLBACK_NOTICE' automation/admin/admin.gs 1
+chk 'ROLLBACK_NOTICE' automation/platform/60_mypage.gs 2
+chk 'ROLLBACK_NOTICE' mypage.html 2
+chk 'buildRollbackNotice' automation/platform/60_mypage.gs 2
+chk '화면이 앞 단계로 돌아가 있어요' mypage.html 1
+# ★내부 용어 금지는 «실제로 화면에 나가는 줄»만 본다 — 근거를 적은 주석까지 걸면
+#   설명을 지워야 통과하게 되어, 검사가 문서를 갉아먹는다(그러면 다음 사람이 이유를 모른다).
+#   화면 문구는 lines.push(...) 안에만 있으므로 그 꼴로 겨눈다.
+nochk "lines.push('관리자" mypage.html
+chk 'ROLLBACK_NOTICE' scripts/audit/rollback-notice.mjs 1
+# ★★[KEEP_SIGNAL 2026-08-17 조사 실측] 입금 '완료신호'도 되돌림에 보존 — 이미 이체한 분께 또 내라고 하지 않는다.
+chk 'KEEP_SIGNAL' automation/admin/admin.gs 1
+chk "_v === '확인' || _v === '완료신호'" automation/admin/admin.gs 1
+# ★★[FORCE_EXIT_TS 2026-08-17 조사 실측] 노쇼·미계약도 기준일을 찍는다 — 환불 예정액이 매일 흔들리던 것 차단.
+chk 'FORCE_EXIT_TS' automation/admin/admin.gs 1
+chk 'STAGE_EXCEPTIONS.indexOf(targetStage) !== -1) {' automation/admin/admin.gs 1
+# ★★[KEEP_MONEY_BASIS 2026-08-17 조사 실측] 수납이 살아 있으면 «금액의 근거»도 함께 남긴다.
+#   종전엔 입금상태='확인'은 보존하면서 계약총액·예식일·시착벌수는 무조건 지웠다 →
+#   «받은 돈은 기록에 남았는데 얼마인지 아무도 모르는» 상태. 현금영수증 큐 금액이 비고,
+#   고객 내 내역에서 결제가 통째로 사라지고, 재취소 때 시착 공제가 빠져 과다 환불이 났다.
+chk 'KEEP_MONEY_BASIS' automation/admin/admin.gs 2
+chk '_rbPaidAny' automation/admin/admin.gs 3
+# ★★[EXIT_TS_REFRESH 2026-08-17] 정상→예외 «전환»이면 기준일을 다시 찍는다.
+#   멱등 가드 탓에 재취소 시 첫 취소일에 굳어 위약 구간이 틀린 값으로 계산됐다.
+chk 'EXIT_TS_REFRESH' automation/admin/admin.gs 1
+chk '_exFresh' automation/admin/admin.gs 2
+# ★★[FORCE_MODAL_TRUTH 2026-08-17] 마지막 확인창이 하드코딩 거짓말을 하고 있었다 —
+#   앞으로 가는 복구에도 «초기화돼요», 신청접수로 내릴 땐 «상담 예약은 별개예요»(실제로는 초기화된다).
+#   서버 미리보기를 다시 물어 그 답을 그대로 읽는다. 예고가 곧 실행이라야 확인창이 뜻을 갖는다.
+chk 'FORCE_MODAL_TRUTH' admin.html 1
+nochk '상담 예약(캘린더)은 별개예요' admin.html
