@@ -6649,10 +6649,15 @@ function renderPhoto(box){
                       +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">하객마다 방이 따로 생겨요 · <b>예식 뒤 방마다 저장</b>해 주세요. 카톡 사진은 시간이 지나면 다시 받을 수 없어요.</div>';
   /* [SHARE_WEDUP] 권한 것을 넣었을 때만 「무엇을 확인해야 하나」를 짚는다.
      ★구글 드라이브 연결이 끊기면 하객 업로드가 통째로 실패한다(직송형 공통 약점) — 예식 전날 한 번 열어 보게 한다.
+     ★★[SHARE_DRIVE_ROOM 2026-08-17] **용량도 같이 보게 한다.** 연결보다 이쪽이 더 자주 일어나고 더 조용히 망한다 —
+       구글 드라이브 15GB 는 지메일·구글포토와 **나눠 쓰는 한 덩어리**라, 사진 자체는 작아도(하객 30명이면 1GB 안팎)
+       남은 자리가 없으면 업로드가 실패한다. 게다가 드라이브가 차면 **지메일 수신까지 멈춘다** — 사진만 잃는 게 아니다.
+       ★그런데 이 구조는 사진이 우리를 안 거치고 부부에게 바로 간다(PHOTOSHARE_DIRECT) — 즉 **우리가 대신 봐 줄 수 없다.**
+         우리가 못 보는 것을 부부가 보게 만드는 것이 이 한 줄의 일이다. 지우면 아무도 안 본다.
      ★'안전하게 보관돼요' 류의 보증은 쓰지 않는다. 남의 서비스라 우리가 책임질 수 없다(책임질 수 없는 안심 금지). */
   if(_sk==='wedup')  h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">하객은 <b>가입도 이름 입력도 없이</b> 올려요 · 서로의 사진은 안 보여요.</div>'
                       +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">화면은 영어예요 · 하객이 누르는 건 <b>고르기·올리기 두 번</b>이라 안내는 저희가 한국어로 해요.</div>'
-                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)"><b>예식 전날 한 번 열어</b> 구글 드라이브 연결이 살아 있는지 봐 주세요.</div>';
+                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)"><b>예식 전날 한 번 열어</b> 구글 드라이브 연결과 <b>남은 용량</b>을 봐 주세요 · 드라이브가 꽉 차면 사진이 안 들어와요.</div>';
   if(_sk==='gphoto') h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">공유 앨범 · <b>링크를 아는 하객끼리 서로 사진이 보여요</b>.</div>';
   if(_sk==='etc')    h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">권해 드린 곳이 아니에요 · 하객이 <b>가입 없이 올릴 수 있는지</b> 확인해 주세요.</div>';
   /* [SHARE_WEDUP][PHOTOSHARE_ONE] 나머지는 접어 둔다 — 이미 쓰고 계신 부부가 있으니 지우지는 않는다.

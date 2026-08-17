@@ -4368,3 +4368,10 @@ nochk '<b>스냅웨딩</b>' mypage.html               # 고객 화면 문구로�
 nochk '스냅웨딩' guide.html                       # 하객 화면엔 주석도 없다 — 통째로 금지
 chk 'placeholder="링크 붙여넣기 (weduploader.com)"' mypage.html 1   # [SHARE_WEDUP] 자리표시가 안내와 어긋나지 않게
 nochk '링크 붙여넣기 (1:1 오픈채팅방)' mypage.html
+# ★★[SHARE_DRIVE_ROOM 2026-08-17] 용량도 함께 보게 한다 — 연결보다 더 자주 일어나고 더 조용히 망한다.
+#   구글 드라이브 15GB 는 지메일·구글포토와 나눠 쓰는 한 덩어리라, 사진이 작아도 남은 자리가 없으면 실패한다.
+#   게다가 드라이브가 차면 지메일 수신까지 멈춘다. 사진은 우리를 안 거치므로(PHOTOSHARE_DIRECT)
+#   우리가 대신 봐 줄 수 없다 — 우리가 못 보는 것을 부부가 보게 만드는 줄이다.
+chk 'SHARE_DRIVE_ROOM' mypage.html 1
+chk '남은 용량</b>을 봐 주세요' mypage.html 1
+chk '드라이브가 꽉 차면 사진이 안 들어와요' mypage.html 1
