@@ -4283,6 +4283,35 @@ chk 'CONTRACT_STAGE_BLANK' mypage.html 2
 chk '계약금은 서명 뒤에 안내드려요' mypage.html 1
 chk 'CONTRACT_STAGE_BLANK' scripts/audit/journey-sim.mjs 1
 chk '계약완료·계약서 없음' scripts/audit/journey-sim.mjs 1
+# ★★[FORCE_WARN_TRUTH 2026-08-17 사용자 고립 사례] 지운 것이 없으면 «지웠다»고 말하지 않는다.
+#   강제변경 결과 문구가 무조건 «이후 단계 진행 데이터를 초기화했습니다» 였다. 앞으로 가는 복구
+#   (계약완료→입금완료)는 실제로 아무것도 안 지우는데(cleared: []) 같은 경고가 떠서,
+#   고립을 푸는 유일한 손잡이를 «누르면 날아간다»로 읽게 만들었다. 거짓 경고는 없는 경고보다 나쁘다.
+chk 'FORCE_WARN_TRUTH' automation/admin/admin.gs 1
+chk 'FORCE_WARN_TRUTH' admin.html 1
+chk '초기화된 데이터는 없어요' automation/admin/admin.gs 1
+nochk '위 데이터가 초기화되는 것을 확인했어요' admin.html   # 미리보기가 사실대로 말하므로 라벨은 그것을 가리킨다
+# ★★[RESYNC_NOOP_HONEST 2026-08-17] 「단계 맞추기」가 조용히 헛돌면 그렇다고 말한다.
+#   버튼(admin.html)은 Vercel 로 바로 나가지만 단계를 고치는 곳은 GAS(admin.gs)다. 재배포 전에 누르면
+#   옛 서버가 «이미 확인됨»만 주고 단계는 그대로인데 화면은 «✓ 처리됨»을 띄웠다 — 조용한 실패.
+chk 'RESYNC_NOOP_HONEST' admin.html 1
+chk 'res.stageFixed' admin.html 1
+chk 'stageFixed' automation/admin/admin.gs 1
+# ★★[STRANDED_QUEUE 2026-08-17] 갇힌 고객이 «관리자 눈»에 보이는지 실측하는 검사기.
+#   ★큐 항목 자체는 다른 세션이 같은 시각에 [STALE_ROLLBACK_Q]('단계정리')로 넣었다 — 둘을 겹쳐 두면
+#     같은 고객에게 줄이 두 개 뜬다. 그래서 내 중복 항목은 빼고 **그쪽 것을 정본으로** 삼는다.
+#   이 검사기가 지키는 것은 «뜨는가»와 «가짜로 뜨지 않는가» 두 가지다
+#   (미리 낸 중도금·잔금으로 걸리면 큐가 늑대소년이 되어 진짜 신호까지 죽는다 — 실측으로 좁혔다).
+chk 'STRANDED_QUEUE' scripts/audit/stranded-queue.mjs 1
+# ★★[SUB_PAID_TRUTH] 입금이 '확인'인데 «입금 대기»라고 말하지 않는다 — 그 거짓말이 고립의 실질 원인이었다.
+# ★★[RESYNC_SNAP_FLOW] 상품 흐름을 d.product 로 읽는다 — d.raw 에는 상품타입 키가 없다(admin.gs 1026).
+#   r['상품타입'] 로 읽으면 늘 시그니처로 폴백해, 스냅이 「촬영확정」에 갇히면 문이 안 그려진다.
+chk 'RESYNC_SNAP_FLOW' admin.html 1
+chk 'RESYNC_SNAP_FLOW' automation/admin/Admin.html 1
+# ★대괄호를 escape 한다 — chk/nochk 는 `grep -c -e` (기본정규식)라 `[` 가 문자클래스로 먹힌다.
+#   escape 없이 쓰면 엉뚱한 줄을 세어 **멀쩡한 코드가 붉게** 뜬다(실측: 4건이라며 REVERT).
+nochk "STAGE_FLOW\[String(r\['상품타입'\]" admin.html
+nochk "STAGE_FLOW\[String(r\['상품타입'\]" automation/admin/Admin.html
 # ★★[STALE_ROLLBACK_Q 2026-08-17 사용자 제보 "아무쪽에도 어떤푸시가없는데"] 교착 금지.
 #   되돌려진 고객(단계는 입금 전 · 입금상태 '확인')이 어떤 큐에도 안 잡혀,
 #   고객은 «디렉터가 확인하는 중»을 기다리고 관리자는 «처리할 일 없어요»를 봤다 —
@@ -4290,9 +4319,30 @@ chk '계약완료·계약서 없음' scripts/audit/journey-sim.mjs 1
 #   ★공은 관리자에게 있다(되돌린 것도 관리자) — 처리할 일에 '단계정리'로 띄우고 라벨을 사실로.
 chk 'STALE_ROLLBACK_Q' automation/admin/admin.gs 2
 chk "kind: '단계정리'" automation/admin/admin.gs 1
-chk '입금 확인됨 · 단계 정리 필요' automation/admin/admin.gs 1
+# [STALE_ROLLBACK_WIDE] 문구가 «입금 확인됨» 고정에서 «계약금·중도금·잔금 이름 나열»로 진화 — 같은 불변식의 새 꼴
+chk "확인됨 · 단계 정리 필요" automation/admin/admin.gs 1
 chk 'STALE_ROLLBACK_Q' scripts/audit/journey-sim.mjs 2
 chk 'WORLD_READ' scripts/audit/_gasworld.mjs 1     # 월드가 시트 읽기(getLastRow·getValues)도 지원 — adminHome 을 진짜로 부를 수 있게
+# ★★[UNDO_BEHIND 2026-08-17 사용자 스크린샷 «되돌릴 수 없어요»] 되돌려진 상태의 되돌리기를 막지 않는다.
+#   강제변경으로 단계가 입금완료보다 앞으로 간 상태에서 계약금 취소를 누르면 차단 C 가
+#   «이미 계약완료(으)로 진행된 고객이에요»라고 거짓말했다(계약완료는 입금완료보다 앞이다).
+#   behind 는 C·E 면제(강제변경만이 만드는 이상 상태) — 전진 고객 보호(C)·24시간 창(E)·영수증(B)·종료(D)는 그대로.
+#   ★단계는 입금완료에 서 있을 때만 계약완료로 내린다 — behind 에서 앞으로 «올리면» 그게 새 사고다.
+chk 'UNDO_BEHIND' automation/admin/admin.gs 4
+chk '_ubBehind' automation/admin/admin.gs 3
+# ★★[STALE_ROLLBACK_WIDE 2026-08-17] 갇힘 탐지를 계약금 하나에서 중도금·잔금으로 넓혔다.
+#   behind 취소로 계약금만 비우면 중도금·잔금 '확인' 잔재가 남는데 구 조건(입금==='확인')이 놓쳤다.
+chk 'STALE_ROLLBACK_WIDE' automation/admin/admin.gs 3
+chk '_srPaid' automation/admin/admin.gs 6
+# ★★[ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "처리할일에 나오고 원클릭으로 팝업 안내 · 진행 클릭이면 모든셋팅"]
+#   단계정리 큐에 인라인 「단계 맞추기」 — 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하고 한 번에 처리.
+#   ★잔금 판정은 raw 로 — mirror.balance 는 되돌려진 단계에서 null 이라 반쪽 정리가 된다(queue-oneclick ⑤).
+chk 'ROLLBACK_ONECLICK' admin.html 3
+chk 'doFixStage' admin.html 2
+chk 'fxUndo' admin.html 2
+chk "'단계정리':'fixStage'" admin.html 1
+chk 'ROLLBACK_REDO' scripts/audit/rollback-redo.mjs 1
+chk 'QUEUE_ONECLICK' scripts/audit/queue-oneclick.mjs 1
 
 # ★★★[SHARE_WEDUP 2026-08-17 사용자 결정] 권하는 곳 = WedUploader(부부 구글드라이브 직송).
 #   카톡 1:1 을 내린 이유: "1:1 카톡 이용은 전문성이 없어 보인다" + "부부가 답장을 해줘야 하는 번거로움".

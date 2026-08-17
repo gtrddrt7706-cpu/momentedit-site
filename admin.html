@@ -1569,10 +1569,10 @@ function loadHome(silent){
 var curHome=null;
 
 function queueRow(it){
-  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded' };   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세)
+  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded','단계정리':'fixStage' };   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세) · [ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "원클릭으로 팝업 안내가 나오고 진행을 클릭하면 모든셋팅"] 단계정리도 인라인
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인' }[it.kind]||'처리';
-  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소' };
+  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인','단계정리':'단계 맞추기' }[it.kind]||'처리';
+  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소', '단계정리':'단계 정리' };   /* [ROLLBACK_ONECLICK 2026-08-17] 단계정리도 인라인을 «준다» — 사용자 지시("처리할일에 나오고 원클릭으로 팝업 안내"). 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하므로 사람 판단은 팝업 안에서 이뤄진다 */
   var chipLabel=KLABEL[it.kind]||it.kind;
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
@@ -1644,6 +1644,7 @@ function onQueueAct(act,code,names,isSnap,el){
   else if(act==='grantHold') doGrantHold(code,names,{hold:{date:(el&&el.getAttribute('data-hd'))||'',slot:(el&&el.getAttribute('data-hs'))||'',status:'요청'}});
   else if(act==='consultDone') doConsultDone(code,names);
   else if(act==='confirmPay') doConfirmPay(code,names,_qSub(el));
+  else if(act==='fixStage') doFixStage(code,names,(el&&el.getAttribute('data-sub'))||'');   /* [ROLLBACK_ONECLICK] */
   else if(act==='confirmBalance') doConfirmBalance(code,names,_qSub(el));
   else if(act==='confirmMid') doConfirmMid(code,names,_qSub(el));
   else if(act==='confirmMidBal') doConfirmMidBal(code,names,_qSub(el));
@@ -2167,7 +2168,12 @@ function cardPayment(d){
      그 자리에 문을 하나 낸다. 돈은 그대로 두고 단계만 맞추는 버튼이라 라벨에 그 뜻을 적는다.
      ★이 화면(momentedit.kr/admin)이 실제로 쓰는 쪽이다 — GAS 사본(Admin.html)에만 넣으면 사용자에겐 안 보인다. */
   else if(pay==='확인'){
-    var _psFl=(STAGE_FLOW[String(r['상품타입']||'').trim()]||STAGE_FLOW['시그니처']||[]);
+    /* ★★[RESYNC_SNAP_FLOW 2026-08-17 정밀조사에서 잡음] 상품은 `d.product` 로 온다 — `d.raw` 에는 없다
+       (adminDetail 이 만드는 raw 목록에 상품타입 키가 아예 없다 · admin.gs 1026). 종전엔 `r['상품타입']` 을 읽어
+       **항상 undefined → 시그니처 흐름으로 폴백**했다. 시그니처는 우연히 맞았지만 **웨딩스냅이 「촬영확정」에
+       입금확인 상태로 갇히면** 그 단계가 시그니처 흐름에 없어 `_psI = -1` → 버튼도 설명도 안 나왔다.
+       즉 이 화면의 유일한 문이 스냅 고객에게만 닫혀 있었다. 같은 파일이 이미 `snap(d.product)` 를 쓴다(2146). */
+    var _psFl=(STAGE_FLOW[String(d.product||'').trim()]||STAGE_FLOW['시그니처']||[]);
     var _psCur=String(r['현재단계']||'').trim();
     var _psI=_psFl.indexOf(_psCur), _psP=_psFl.indexOf('입금완료');
     if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1) b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');
@@ -2177,8 +2183,11 @@ function cardPayment(d){
        단계와 무관하게 그려졌다 — 제작중·예식완료·결과물전달·후기·취소에서 누르면 매번 거부됐다.
        **보이는데 안 되는 버튼은 없는 버튼보다 나쁘다** — 운영자가 자기 손을 의심하게 된다.
        그래서 버튼 대신 «왜 지금은 안 되는지»를 한 줄로 둔다(설명까지 없애면 그것대로 불친절하다).
-       ★24시간 창(차단 E)은 여기서 못 본다 — 확인 시각이 이 화면 데이터에 없다. 그건 서버 문구가 맡는다. */
-    if(_psCur==='입금완료') b+=ab('undoPay:계약금','입금 확인 취소','btn-danger');
+       ★24시간 창(차단 E)은 여기서 못 본다 — 확인 시각이 이 화면 데이터에 없다. 그건 서버 문구가 맡는다.
+       ★[UNDO_BEHIND 2026-08-17] «되돌려진 상태»(_psI<_psP)에서도 버튼을 낸다 — 서버 차단 C·E 가
+         behind 를 면제하게 됐다(강제변경만이 만드는 이상 상태 · 재입금 흐름으로 정리하는 길).
+         단계 맞추기와 확인 취소가 나란히 서서, 운영자가 두 갈래 중 뜻에 맞는 쪽을 고른다. */
+    if(_psCur==='입금완료' || (_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1)) b+=ab('undoPay:계약금','입금 확인 취소','btn-danger');
     else if(STAGE_EX.indexOf(_psCur)!==-1) b+='<div class="gate">되돌리기는 단계를 정상으로 되돌린 뒤에 할 수 있어요</div>';
     else if(_psI>_psP) b+='<div class="gate">이미 '+esc(_psCur)+'까지 진행돼 계약금 확인은 되돌릴 수 없어요 (강제 단계 변경으로 정리)</div>';
   }
@@ -2447,7 +2456,9 @@ function advancedBox(d){
     '<label>단계</label><select id="fStage">'+opts+'</select>'+
     '<div id="fPrev" class="adv-prev" style="display:none"></div>'+
     '<label>사유 (필수)</label><input type="text" id="fReason" placeholder="예: 잘못 취소 복구">'+
-    '<label class="adv-gate"><input type="checkbox" id="fAgree"><span>위 데이터가 초기화되는 것을 확인했어요</span></label>'+
+    /* ★[FORCE_WARN_TRUTH] 라벨이 «초기화된다»고 단정하지 않는다 — 앞으로 가는 이동(복구)은 아무것도 안 지운다.
+       바로 위 미리보기가 «비워짐/유지됨/비워지는 데이터는 없어요»를 이미 사실대로 말하므로, 라벨은 그것을 가리킨다. */
+    '<label class="adv-gate"><input type="checkbox" id="fAgree"><span>위 미리보기 내용을 확인했어요</span></label>'+
     '<div class="actions"><button class="btn btn-danger" id="fGo" disabled>강제 변경</button></div></div></div>';
 }
 /* [ADM_AC3] 단계를 고르면 서버 미리보기를 불러 '비워짐 / 유지됨 / 상담 예약 초기화'를 목록으로 보여준다.
@@ -2562,6 +2573,22 @@ function runAct(fnArgs, code, lbl){
 }
 function afterAction(code,res,act){
   closeModal();
+  /* ★★[RESYNC_NOOP_HONEST 2026-08-17] 「단계 맞추기」를 눌렀는데 단계가 안 맞춰졌으면 그렇다고 말한다.
+     이 버튼(화면)은 Vercel 로 바로 나가지만, 실제로 단계를 고치는 곳은 GAS 의 admin.gs 다.
+     GAS 재배포 전에 누르면 옛 서버가 «이미 확인됨»만 돌려주고 **단계는 그대로**인데,
+     화면은 «✓ 처리됨» 토스트를 띄운다 — 조용한 실패다(내가 이번에 없애려던 바로 그 모양).
+     서버가 실제로 고쳤을 때만 stageFixed 를 준다(admin.gs PAID_STAGE_RESYNC). 없으면 사실대로 알린다. */
+  if(act==='adminConfirmPayment' && res && res.already && !res.stageFixed){
+    /* ★단순 더블클릭(이미 입금완료 이상)과 구별한다 — 그 경우는 «그대로»가 정상이라 알릴 것이 없다.
+       누르기 «전» 단계가 입금완료보다 앞이었을 때만, 맞춰졌어야 하는데 안 맞춰진 것이다. */
+    var _rnCur=(curDetail&&curDetail.raw&&String(curDetail.raw['현재단계']||'').trim())||'';
+    var _rnFl=(STAGE_FLOW[(curDetail&&curDetail.product)||'시그니처']||STAGE_FLOW['시그니처']||[]);
+    var _rnI=_rnFl.indexOf(_rnCur), _rnP=_rnFl.indexOf('입금완료');
+    if(_rnI!==-1&&_rnP!==-1&&_rnI<_rnP&&STAGE_EX.indexOf(_rnCur)===-1){
+      toast('단계가 그대로예요 · GAS(admin) 새 버전 재배포가 아직 안 됐어요 · 지금은 고급 → 강제 변경 → 입금완료로 푸세요');
+      if(_view==='detail') openDetail(code,'home'); return;
+    }
+  }
   if(res&&res.archived){ toast('처리됨 · 아카이브로 이동'); if(_view==='archive') loadArchive(); else loadHome(); return; }
   /* [ADM_AB3] 알림 사실대로 — 서버가 알아서 보내는 액션에 '잊지 마세요'라고 하면 관리자가 같은 안내를 한 번 더 보내게 된다.
        라벨(NH)과 자동 발송 여부(NH_AUTO)를 나란히 둬서, 새 이벤트가 생기면 두 줄만 더하면 토스트가 따라온다.
@@ -2697,6 +2724,45 @@ function doUndoPay(code,names,milestone,d){
         if(!r){ mErr('되돌리는 사유를 입력해 주세요'); return; }
         runAct(['adminUndoConfirmPayment',code,milestone,r],code,'입금 확인 취소');
       } });
+  }).catch(function(){ toast('확인 실패 · 잠시 후 다시 시도해 주세요'); });
+}
+/* ★★[ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "처리할일에 나오고 원클릭으로 팝업 안내가 나오고 진행을
+   클릭하면 모든 그환경에 필요한 모든셋팅이 가능하게"] 되돌림 정리 원클릭 — 큐 버튼 하나로.
+   갈래는 **서버 데이터로** 정한다(큐 문구 파싱 금지 — 문구는 바뀐다):
+   ·계약금 '확인' → 기본 = 단계 맞추기(입금완료로 · 돈 기록 유지). 대안 = 확인 취소(재입금 흐름·UNDO_BEHIND).
+   ·계약금은 이미 취소됐고 중도금·잔금만 '확인' → 기본 = 남은 확인 취소.
+    ★이때 «단계 맞추기»를 내밀면 안 된다 — 계약금이 미확인인데 입금완료로 올리는 것이 새 사고다. */
+function doFixStage(code,names,sub){
+  toast('상태 확인 중');
+  gas('adminDetail', code).then(function(d){
+    if(!(d&&d.ok)){ toast('상태를 불러오지 못했어요 · 행을 눌러 상세에서 진행해 주세요'); return; }
+    var r=d.raw||{};
+    var payOk=(r['입금상태']==='확인');
+    var midOk=(r['중도금상태']==='확인');
+    /* ★잔금은 mirror.balance 가 아니라 raw 로 본다 — buildBalanceState 는 잔금 «카드»용이라
+       입금완료·제작중·예식완료 밖(=지금 다루는 되돌려진 단계)에서 null 을 준다(70_journey 1276).
+       mirror 로 읽으면 잔금 '확인' 잔재가 있어도 midOk 만 잡혀 반쪽 정리가 된다(queue-oneclick ⑤가 잡았다). */
+    var balOk=(r['잔금상태']==='확인');
+    var restTxt=[midOk?'중도금':null,balOk?'잔금':null].filter(Boolean).join('·');
+    if(payOk){
+      openModal({ title:'되돌려진 단계를 정리할까요?',
+        text:b(names)+(sub?li(sub):'')
+          +li('진행하면 단계만 입금완료로 맞춰요 · 수납 기록·계약·예식일은 그대로예요')
+          +li('고객 마이페이지가 다시 열려 제작 준비로 넘어갈 수 있어요')
+          +(restTxt?li(restTxt+'도 확인된 채 유지돼요'):''),
+        extra:'<button type="button" class="btn btn-ghost" style="width:100%;margin-top:6px" id="fxUndo">대신 입금 확인을 취소할래요 (처음부터 재입금 흐름)</button>',
+        yes:'진행 · 단계 맞추기',
+        init:function(){ var u=$('fxUndo'); if(u) u.onclick=function(){ closeModal(); doUndoPay(code,names,'계약금',d); }; },
+        onYes:function(){ runAct(['adminConfirmPayment',code],code,'단계 맞추기'); } });
+    } else if(midOk||balOk){
+      var ms=(midOk&&balOk)?'중도금잔금':(midOk?'중도금':'잔금');
+      openModal({ title:'남은 입금 확인을 정리할까요?',
+        text:b(names)+(sub?li(sub):'')
+          +li('계약금은 이미 취소됐는데 '+restTxt+' 확인이 남아 있어요')
+          +li('진행하면 '+restTxt+' 확인 취소 화면이 열려요 (사유 입력 후 확정)'),
+        yes:'진행 · '+restTxt+' 확인 취소',
+        onYes:function(){ closeModal(); doUndoPay(code,names,ms,d); } });
+    } else { toast('정리할 입금 확인이 없어요 · 이미 정리된 상태예요'); loadHome(); }
   }).catch(function(){ toast('확인 실패 · 잠시 후 다시 시도해 주세요'); });
 }
 function doMarkRefundedInline(code,names){   // [REFUND_QUEUE_INLINE 2026-07-25] 큐 버튼 전용 — 상세 화면으로 들어가지 않고 완료 확인 팝업만 띄운다. 계좌·환불완료 여부는 상세를 조회해 doMarkRefunded에 넘김(계좌 있으면 복사 제공 · 없으면 카톡 안내). 상세를 보고 싶으면 행(줄)을 누르면 됨.
