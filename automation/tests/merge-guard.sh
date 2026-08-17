@@ -4500,3 +4500,18 @@ chk 'BLOCK_KEY' automation/admin/admin.gs 1
 chk 'blockKey' automation/admin/admin.gs 2
 chk 'BLOCK_CHAIN' admin.html 1
 chk '진행 · 영수증 취소 후 계속' admin.html 1
+# ★★[SHARE_DRIVE_ROOM 2026-08-17] 용량도 함께 보게 한다 — 연결보다 더 자주 일어나고 더 조용히 망한다.
+#   구글 드라이브 15GB 는 지메일·구글포토와 나눠 쓰는 한 덩어리라, 사진이 작아도 남은 자리가 없으면 실패한다.
+#   게다가 드라이브가 차면 지메일 수신까지 멈춘다. 사진은 우리를 안 거치므로(PHOTOSHARE_DIRECT)
+#   우리가 대신 봐 줄 수 없다 — 우리가 못 보는 것을 부부가 보게 만드는 줄이다.
+chk 'SHARE_DRIVE_ROOM' mypage.html 1
+chk '남은 용량</b>을 봐 주세요' mypage.html 1
+chk '드라이브가 꽉 차면 사진이 안 들어와요' mypage.html 1
+# ★★[ROLLBACK_ROUNDTRIP 2026-08-17 사용자 지시 "되돌리기(강제변경) … 의도를 파악후 시뮬레이션 … 문제점 개선점"]
+#   파악한 의도 = 강제변경은 사고 복구용 비상구다. 그러니 ①갇히지 않고 ②상태가 앞뒤 맞고
+#   ③되돌린 뒤 **다시 끝까지 갈 수 있어야** 한다. ③은 앞선 검사들(anywhere·redo)이 안 보던 것이다 —
+#   «정리됐다»가 «여정이 이어진다»를 뜻하지 않기 때문. 왕복으로 걸어 봐야 안다.
+#   예외(취소·노쇼·미계약) + 환불완료 표시까지 붙인 최악 조건에서의 복구도 함께 고정한다.
+chk 'ROLLBACK_ROUNDTRIP' scripts/audit/rollback-roundtrip.mjs 1
+chk '다시 결과물전달까지 완주' scripts/audit/rollback-roundtrip.mjs 1
+chk '환불완료 흔적이 지워진다' scripts/audit/rollback-roundtrip.mjs 1
