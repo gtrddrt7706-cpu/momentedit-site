@@ -1407,6 +1407,24 @@ function _confirmDepositCore(code, opts) {
     return { ok: false, error: '계약 서명 완료 후 입금 확인이 가능합니다.' };
   }
   if (String(cust.get('입금상태') || '').trim() === '확인') {
+    /* ★★[PAID_STAGE_RESYNC 2026-08-16 사용자 신고 "강제변경으로 전으로 돌리고 다시 진행하려는데 더 이상 진행이 안 된다"]
+       막다른 길이 실제로 있었다. 세 규칙이 맞물린다:
+         ① ROLLBACK_KEEP_PAID — 강제변경으로 단계를 내려도 **확인된 수납은 일부러 보존**한다(돈 기록을 지우지 않는 건 맞다).
+         ② 이 함수 — 입금상태가 이미 '확인'이면 `already` 로 조용히 빠져나가며 **단계를 전진시키지 않는다**.
+         ③ adminUndoConfirmPayment — 24시간(UNDO_WINDOW_HOURS)이 지나면 되돌리기도 막힌다.
+       셋이 겹치면 계약완료에 선 채로 입금완료로 갈 문이 사라진다. 실제 사고 경로:
+         제작중 → (강제변경) 입금완료 → 계약완료 → 상담완료 → 계약 재발송·재서명 → **계약완료에서 정지**
+       ★고침은 '돈'이 아니라 '단계'만 만진다 — 수납 기록·영수증·동의기록은 한 글자도 건드리지 않는다.
+         수납이 확인된 고객이 그보다 앞 단계에 서 있는 것은 그 자체로 어긋난 상태이므로, 맞춰 주는 것이 옳다.
+       ★setCustomerStage 가 멱등·역행금지를 이미 들고 있어(consultation-booking 276) 앞선 단계면 아무 일도 안 한다. */
+    var _psCur = String(cust.get('현재단계') || '').trim();
+    var _psFlow = stageFlowFor(String(cust.get('상품타입') || '').trim());
+    var _psI = _psFlow.indexOf(_psCur), _psPaid = _psFlow.indexOf('입금완료');
+    if (_psI !== -1 && _psPaid !== -1 && _psI < _psPaid) {
+      setCustomerStage(code, 'paid');
+      _recordHandler(code, '입금 확인(이미 확인됨) · 단계만 ' + _psCur + '→입금완료로 맞춤' + viaTag);
+      return { ok: true, already: true, stageFixed: true };
+    }
     _recordHandler(code, '입금 확인(중복)' + viaTag); return { ok: true, already: true };
   }
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);

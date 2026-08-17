@@ -713,7 +713,17 @@ function cardPayment(d){
   var rcptBlock = rcpt ? '<div class="raw-sub"><div class="raw-sub-h">현금영수증</div>'+rcpt+'</div>' : '';
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·❻)
-  else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>';
+  /* ★★[PAID_STAGE_RESYNC 2026-08-16] 수납은 확인됐는데 단계가 그 앞에 서 있으면 **누를 것이 하나도 없었다.**
+     강제변경으로 단계를 내려도 확인된 수납은 보존되므로(ROLLBACK_KEEP_PAID) 여기 '✓ 입금 확인됨'만 남고,
+     되돌리기는 24시간이 지나면 막힌다 — 계약완료에 갇힌다(사용자 실제 신고).
+     그 자리에 문을 하나 낸다. 돈은 그대로 두고 단계만 맞추는 버튼이라 라벨에 그 뜻을 적는다. */
+  else if(pay==='확인'){
+    var _psFl=(STAGE_FLOW[String(r['상품타입']||'').trim()]||STAGE_FLOW['시그니처']||[]);
+    var _psCur=String(r['현재단계']||'').trim();
+    var _psI=_psFl.indexOf(_psCur), _psP=_psFl.indexOf('입금완료');
+    if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1) b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');
+    b+='<div class="gate">✓ 입금 확인됨</div>';
+  }
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
   if(mid==='완료신호') b+=ab('confirmMid','중도금 입금 확인','btn-line');   // 고객 입금 신호 → 통장 대조 후 확인
   if(bal==='완료신호') b+=ab('confirmBalance','잔금 입금 확인','btn-line');

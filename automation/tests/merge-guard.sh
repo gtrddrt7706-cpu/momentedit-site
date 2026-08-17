@@ -3685,6 +3685,14 @@ nochk '하객에게 직접 감사 인사' order-preview.html
 chk '하객분들께 어떻게 보여드릴까요' mypage.html 1
 chk '하객분들께도 보여주기' mypage.html 3
 chk '하객에게는 안내 음성과 식순지' mypage.html 1
+# [PAID_STAGE_RESYNC 2026-08-16 사용자 신고 "강제변경으로 돌린 뒤 더 이상 진행이 안 된다"]
+#   ROLLBACK_KEEP_PAID(수납 보존) + 입금확인 already 조기반환 + 되돌리기 24시간 가드가 겹쳐
+#   계약완료에 갇히는 막다른 길이 있었다. 수납이 확인된 고객이 그 앞 단계에 서 있으면
+#   **돈은 그대로 두고 단계만** 입금완료로 맞춘다(서버) + 그 버튼을 화면에 낸다(관리자).
+#   ★지우지 말 것 — 지우면 강제변경으로 되돌린 고객이 다시 앞으로 갈 문을 잃는다.
+chk 'PAID_STAGE_RESYNC' automation/admin/admin.gs 1
+chk 'PAID_STAGE_RESYNC' automation/admin/Admin.html 1
+chk '단계 맞추기 · 입금완료로' automation/admin/Admin.html 1
 # ── [SEAT_ONE_CARD · ALC_ONE 2026-08-16 사용자 지시] 좌석·음료 편집기 개편 ──
 #   ①"이름부분을 클릭하면 음료랑 이름적는게 동시에" → 한 창(이름칸+음료)으로 통합
 #   ②"논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인" → 알콜은 행사 전체 한 종류
