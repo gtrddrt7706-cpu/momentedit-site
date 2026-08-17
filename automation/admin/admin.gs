@@ -329,7 +329,8 @@ function _subStatusFor(stage, isSnap, x) {
     case '촬영확정': return x.consultPast ? ('촬영일 지남' + (x.consultDate ? ' · ' + x.consultDate : '')) : ('촬영 예정' + _dueWhen(x.cdday, x.consultDate));
     case '시착': return (x.시착 === '동의완료') ? '시착 완료 · 상담완료 대기' : '고객 시착 서명 대기';
     case '상담완료': return (!x.계약 || x.계약 === '미발송') ? (x.hasReq ? '계약서 발송 대기' : '고객 계약정보 입력 대기') : '계약 진행 중';
-    case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
+    case '계약완료': if (x.입금 === '확인') return '입금 확인됨 · 단계 정리 필요';   // [STALE_ROLLBACK_Q] 되돌려진 상태 — '입금 대기'라고 하면 이미 낸 돈을 또 기다리는 것처럼 읽힌다
+      return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
     case '입금완료': return isSnap ? '촬영 준비' : '제작 시작 대기';
     // ★SUBSTATUS_TRACKS(2026-07-25 코워크 교차검증 주의2): 청첩장 하나만 보던 판정 → 트랙 전체.
     //   식순·좌석만 만든 고객이 '제작 시작 전'으로 잘못 보이던 문제(전이 정상화로 유입 증가). invStatus 단독 판정 복원 금지.
@@ -726,6 +727,21 @@ function adminHome() {
       }
     }
     // 입금 확인 — 입금상태=완료신호 (스냅: 계약 시 계약금 입금 신호. 시그: 계약 서명 시 예약금 충당으로 입금완료 자동 전이 → 여기 안 옴)
+    /* ★★[STALE_ROLLBACK_Q 2026-08-17 사용자 제보 "아무쪽에도 어떤푸시가없는데"] 되돌려진 채 잊힌 고객.
+       단계는 입금 전(계약완료 등)인데 입금상태가 '확인'인 상태 — adminForceStage 되돌리기가
+       돈 기록을 남기므로(ROLLBACK_KEEP_PAID) 실무에서 실제로 생긴다.
+       고객 화면은 «디렉터가 진행 단계를 확인하는 중»이라며 기다리는데([PAID_STAGE_BACK] 카드),
+       이 큐엔 항목이 없어 관리자는 «처리할 일이 없어요 · 다 됐어요»를 봤다 —
+       **양쪽 다 상대를 기다리는 교착**이고, 어느 화면에도 다음 행동이 없었다.
+       ★공은 관리자에게 있다 — 되돌린 것도 관리자고, 고객은 할 일이 없는 게 맞다. 그러니 여기에 띄운다. */
+    if (입금 === '확인') {
+      var _fwQ = stageFlowFor(product), _siQ = _fwQ.indexOf(stage), _piQ = _fwQ.indexOf('입금완료');
+      if (_siQ !== -1 && _piQ !== -1 && _siQ < _piQ) {
+        pushQ({ code: code, names: names, product: product, kind: '단계정리',
+          sub: '입금은 확인됐는데 단계가 ' + stage + '에 머물러 있어요 · 다음 단계로 보내거나 입금 확인을 취소해 주세요',
+          badge: { level: 'yellow', text: '되돌림 정리 대기' }, _urgent: false, _stage: 4, _wait: createdYmd });
+      }
+    }
     if (입금 === '완료신호') {
       var sigDays = _dayDiff(today, _ymdOf(cget(rv, '입금완료신호')));
       // [수납묶음] 신고 시점 스냅샷(동의기록.수납묶음)이 있으면 묶음 구성+합산 금액을 카드에 직표시 — 통장 대조할 총액을 큐에서 바로 알게

@@ -64,7 +64,7 @@ export function openWorld() {
     const BN = {}; BH.forEach((h, i) => { BN[i + 1] = h; });
     const ev = [];                                        // 이벤트 로그(쓰기·캘린더 삭제 순서까지 기록)
     const C = Object.assign({ 개인코드: 'ME-TEST', 상품타입: '시그니처' }, cells);
-    const B = booking ? Object.assign({}, booking) : null;
+    const B = booking ? Object.assign({ 개인코드: 'ME-TEST' }, booking) : null;   // [WORLD_READ] adminHome 이 예약↔고객을 개인코드로 잇는다 — 픽스처마다 적지 않게 기본값
     /* ★[WORLD_RANGE 2026-08-17 stage-reach 가 걸림] 시트 목이 1칸 setValue 만 알았다.
        진짜 코드에는 «행 전체를 한 번에 읽는» 길이 따로 있다 — row(sheet,colOf,n) 이
        getRange(n,1,1,getLastColumn()).getValues() 로 읽는다(consultation-booking 1577).
