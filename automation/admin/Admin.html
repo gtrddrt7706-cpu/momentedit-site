@@ -718,7 +718,9 @@ function cardPayment(d){
      되돌리기는 24시간이 지나면 막힌다 — 계약완료에 갇힌다(사용자 실제 신고).
      그 자리에 문을 하나 낸다. 돈은 그대로 두고 단계만 맞추는 버튼이라 라벨에 그 뜻을 적는다. */
   else if(pay==='확인'){
-    var _psFl=(STAGE_FLOW[String(r['상품타입']||'').trim()]||STAGE_FLOW['시그니처']||[]);
+    /* ★[RESYNC_SNAP_FLOW 2026-08-17] 상품은 d.product 로 온다 — d.raw 에는 상품타입 키가 없다(admin.gs 1026).
+       r['상품타입'] 은 늘 undefined 라 시그니처로 폴백했고, 웨딩스냅이 「촬영확정」에 갇히면 버튼이 안 나왔다. */
+    var _psFl=(STAGE_FLOW[String(d.product||'').trim()]||STAGE_FLOW['시그니처']||[]);
     var _psCur=String(r['현재단계']||'').trim();
     var _psI=_psFl.indexOf(_psCur), _psP=_psFl.indexOf('입금완료');
     if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1) b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');

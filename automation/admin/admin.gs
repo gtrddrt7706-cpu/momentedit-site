@@ -329,7 +329,14 @@ function _subStatusFor(stage, isSnap, x) {
     case '촬영확정': return x.consultPast ? ('촬영일 지남' + (x.consultDate ? ' · ' + x.consultDate : '')) : ('촬영 예정' + _dueWhen(x.cdday, x.consultDate));
     case '시착': return (x.시착 === '동의완료') ? '시착 완료 · 상담완료 대기' : '고객 시착 서명 대기';
     case '상담완료': return (!x.계약 || x.계약 === '미발송') ? (x.hasReq ? '계약서 발송 대기' : '고객 계약정보 입력 대기') : '계약 진행 중';
-    case '계약완료': return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
+    /* ★★[SUB_PAID_TRUTH 2026-08-17 사용자 고립 사례] 입금이 «확인»인데 「입금 대기」라고 말하지 않는다.
+       종전엔 이 분기가 x.계약 하나만 읽었다. 호출부(admin.gs 860)는 x.입금 을 이미 넘겨주고 있었는데
+       여기서 쓰지 않아, **돈을 다 받은 고객이 «입금 대기»로 서 있었다.**
+       그래서 관리자는 목록만 보고 «고객이 아직 안 냈구나» 하고 넘어갔고, 그 고객은 몇 주를 갇혀 있었다.
+       화면이 틀린 말을 하면 사람은 안 들어가 본다 — 고립의 실질적 원인이 이 한 줄이었다.
+       ★«단계 밀림»은 조치가 필요한 상태다. 여기서 이름을 불러 줘야 상세로 들어갈 이유가 생긴다. */
+    case '계약완료': return (x.입금 === '확인') ? '★단계 밀림 · 입금은 확인됨(상세에서 단계 맞추기)'
+      : (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
     case '입금완료': return isSnap ? '촬영 준비' : '제작 시작 대기';
     // ★SUBSTATUS_TRACKS(2026-07-25 코워크 교차검증 주의2): 청첩장 하나만 보던 판정 → 트랙 전체.
     //   식순·좌석만 만든 고객이 '제작 시작 전'으로 잘못 보이던 문제(전이 정상화로 유입 증가). invStatus 단독 판정 복원 금지.
@@ -723,6 +730,32 @@ function adminHome() {
           pushQ({ code: code, names: names, product: product, kind: '계약만료', sub: subtxt,
             badge: { level: 'red', text: btxt }, _urgent: true, _loss: 1, _wait: createdYmd });
         }
+      }
+    }
+    /* ★★[STRANDED_QUEUE 2026-08-17 사용자 고립 사례] «돈은 받았는데 단계가 그 앞에 서 있는» 고객을 큐에 띄운다.
+       이것이 없어서 실제로 사고가 났다 — 강제변경으로 되돌린 고객이 계약완료에 갇혔는데
+       「처리할 일」은 0건이었다. 22개 큐 조건 중 어느 것도 이 조합을 보지 않았기 때문이다:
+         · 입금 큐는 '완료신호'만 본다(아래 줄) — '확인'은 안 본다
+         · 미납 큐는 _pend()(빈값·'대기')만 본다 — '확인'은 안 본다
+         · 예식완료 큐는 단계가 ['입금완료','제작중']일 때만 뜬다 — 계약완료는 영영 안 온다
+       고객 화면은 «디렉터가 확인하는 중»이라 기다리라 하고, 관리자 목록엔 «입금 대기»로 보였다.
+       **서로 기다리는 교착**이었고, 그 사이 아무 신호도 오가지 않았다.
+       ★수납이 확인된 고객이 그보다 앞 단계에 서 있는 것은 언제나 어긋난 상태다 — 조용히 두지 않는다.
+       ★조치는 상세의 「단계 맞추기」 한 번이라 부제에 그대로 적는다(어디로 가야 하는지 모르면 큐는 무의미). */
+    var _stFlow = stageFlowFor(product), _stCur = _stFlow.indexOf(stage);
+    if (_stCur !== -1 && STAGE_EXCEPTIONS.indexOf(stage) === -1) {
+      /* ★기준은 «입금완료» 하나다 — 확인된 돈이 있으면 단계는 최소한 입금완료여야 한다.
+         ★중도금·잔금을 각자의 «제자리»(제작중·촬영완료)로 재면 **미리 낸 고객이 전부 걸린다** —
+           중도금을 입금완료 단계에서 앞당겨 내는 것은 정상이고(단계는 제작 시작으로 올라가지 결제로 올라가지 않는다),
+           실측으로 «입금완료 + 중도금 확인»이 가짜로 잡혔다. 규칙을 넓히면 큐가 늑대소년이 된다. */
+      var _stPaidAt = _stFlow.indexOf('입금완료'), _stMiss = [];
+      if (입금 === '확인' && _stCur < _stPaidAt) _stMiss.push('계약금');
+      if (!isSnap && String(cget(rv, '중도금상태') || '').trim() === '확인' && _stCur < _stPaidAt) _stMiss.push('중도금');
+      if (String(cget(rv, '잔금상태') || '').trim() === '확인' && _stCur < _stPaidAt) _stMiss.push('잔금');
+      if (_stMiss.length) {
+        pushQ({ code: code, names: names, product: product, kind: '단계밀림',
+          sub: _stMiss.join('·') + ' 확인됐는데 단계가 «' + stage + '» 이에요 · 상세에서 「단계 맞추기」',
+          badge: { level: 'yellow', text: '단계 밀림' }, _urgent: false, _stage: 5, _wait: createdYmd });
       }
     }
     // 입금 확인 — 입금상태=완료신호 (스냅: 계약 시 계약금 입금 신호. 시그: 계약 서명 시 예약금 충당으로 입금완료 자동 전이 → 여기 안 옴)
@@ -2160,7 +2193,16 @@ function adminForceStage(code, targetStage, reason) {
     _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage
       + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '')
       + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '') + ' · 사유: ' + reason);
-    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: (bookingReset ? '이후 단계 진행 데이터와 상담 예약(캘린더 포함)을' : '이후 단계 진행 데이터를') + ' 초기화했습니다.' };   // [ADM_JOSA] 조사를 분기 안으로 — 밖에 붙여 쓰면 앞 낱말이 바뀔 때 틀린다(끝 음절 '함'은 ㅁ받침이라 '을')
+    /* ★★[FORCE_WARN_TRUTH 2026-08-17 사용자 고립 사례] 지운 것이 없으면 «지웠다»고 말하지 않는다.
+       종전엔 결과 문구가 무조건 «이후 단계 진행 데이터를 초기화했습니다» 였다. 앞으로 가는 이동
+       (계약완료→입금완료 같은 복구)은 실제로 **아무것도 안 지운다**(cleared: []). 그런데도 같은 경고가 떠서,
+       고립을 푸는 유일한 손잡이를 «누르면 데이터가 날아간다»로 읽게 만들었다 — 실제로 그래서 못 눌렀다.
+       ★거짓 경고는 없는 경고보다 나쁘다. 안 누르게 만들기 때문이다. 지운 것이 있을 때만 그렇게 말한다.
+       ★`cleared` 는 _fsChanged 로 «실제로 값이 바뀐 컬럼»만 담긴다 — 빈 칸을 비운 것은 여기 안 들어온다. */
+    var _fwWarn = (clearedCols.length || bookingReset)
+      ? ((bookingReset ? '이후 단계 진행 데이터와 상담 예약(캘린더 포함)을' : '이후 단계 진행 데이터를') + ' 초기화했습니다.')   // [ADM_JOSA] 조사를 분기 안으로 — 밖에 붙여 쓰면 앞 낱말이 바뀔 때 틀린다(끝 음절 '함'은 ㅁ받침이라 '을')
+      : '초기화된 데이터는 없어요. 단계만 바꿨어요.';
+    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: _fwWarn };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 

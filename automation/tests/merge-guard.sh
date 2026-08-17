@@ -4240,3 +4240,35 @@ chk 'CONTRACT_STAGE_BLANK' mypage.html 2
 chk '계약금은 서명 뒤에 안내드려요' mypage.html 1
 chk 'CONTRACT_STAGE_BLANK' scripts/audit/journey-sim.mjs 1
 chk '계약완료·계약서 없음' scripts/audit/journey-sim.mjs 1
+# ★★[FORCE_WARN_TRUTH 2026-08-17 사용자 고립 사례] 지운 것이 없으면 «지웠다»고 말하지 않는다.
+#   강제변경 결과 문구가 무조건 «이후 단계 진행 데이터를 초기화했습니다» 였다. 앞으로 가는 복구
+#   (계약완료→입금완료)는 실제로 아무것도 안 지우는데(cleared: []) 같은 경고가 떠서,
+#   고립을 푸는 유일한 손잡이를 «누르면 날아간다»로 읽게 만들었다. 거짓 경고는 없는 경고보다 나쁘다.
+chk 'FORCE_WARN_TRUTH' automation/admin/admin.gs 1
+chk 'FORCE_WARN_TRUTH' admin.html 1
+chk '초기화된 데이터는 없어요' automation/admin/admin.gs 1
+nochk '위 데이터가 초기화되는 것을 확인했어요' admin.html   # 미리보기가 사실대로 말하므로 라벨은 그것을 가리킨다
+# ★★[RESYNC_NOOP_HONEST 2026-08-17] 「단계 맞추기」가 조용히 헛돌면 그렇다고 말한다.
+#   버튼(admin.html)은 Vercel 로 바로 나가지만 단계를 고치는 곳은 GAS(admin.gs)다. 재배포 전에 누르면
+#   옛 서버가 «이미 확인됨»만 주고 단계는 그대로인데 화면은 «✓ 처리됨»을 띄웠다 — 조용한 실패.
+chk 'RESYNC_NOOP_HONEST' admin.html 1
+chk 'res.stageFixed' admin.html 1
+chk 'stageFixed' automation/admin/admin.gs 1
+# ★★[STRANDED_QUEUE 2026-08-17 사용자 실제 고립] 갇힌 고객을 «관리자 눈»에 올린다.
+#   문(단계 맞추기 버튼)을 만든 것과 그 문으로 데려가는 것은 다른 일이다. 실사고: 큐 0건 · 부제 «입금 대기».
+#   ★검사기(stranded-queue.mjs)는 가짜 경보도 함께 막는다 — 중도금 미리 낸 고객이 걸리면 큐가 늑대소년이 된다.
+chk 'STRANDED_QUEUE' automation/admin/admin.gs 1
+chk 'STRANDED_QUEUE' admin.html 1
+chk 'STRANDED_QUEUE' scripts/audit/stranded-queue.mjs 1
+chk "kind: '단계밀림'" automation/admin/admin.gs 1
+# ★★[SUB_PAID_TRUTH] 입금이 '확인'인데 «입금 대기»라고 말하지 않는다 — 그 거짓말이 고립의 실질 원인이었다.
+chk 'SUB_PAID_TRUTH' automation/admin/admin.gs 1
+chk "x.입금 === '확인'" automation/admin/admin.gs 1
+# ★★[RESYNC_SNAP_FLOW] 상품 흐름을 d.product 로 읽는다 — d.raw 에는 상품타입 키가 없다(admin.gs 1026).
+#   r['상품타입'] 로 읽으면 늘 시그니처로 폴백해, 스냅이 「촬영확정」에 갇히면 문이 안 그려진다.
+chk 'RESYNC_SNAP_FLOW' admin.html 1
+chk 'RESYNC_SNAP_FLOW' automation/admin/Admin.html 1
+# ★대괄호를 escape 한다 — chk/nochk 는 `grep -c -e` (기본정규식)라 `[` 가 문자클래스로 먹힌다.
+#   escape 없이 쓰면 엉뚱한 줄을 세어 **멀쩡한 코드가 붉게** 뜬다(실측: 4건이라며 REVERT).
+nochk "STAGE_FLOW\[String(r\['상품타입'\]" admin.html
+nochk "STAGE_FLOW\[String(r\['상품타입'\]" automation/admin/Admin.html
