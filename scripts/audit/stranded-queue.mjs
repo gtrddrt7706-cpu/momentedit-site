@@ -47,10 +47,10 @@ for (const [label, over, want] of CASES) {
   world(Object.assign({}, BASE, over), Object.assign({}, BK));
   let h; try { h = G.adminHome(); } catch (e) { ok(false, `${label} · adminHome 실행`, e.message); continue; }
   const q = (h.queue.urgent || []).concat(h.queue.normal || []);
-  const hit = q.filter((x) => x.kind === '단계밀림');
-  ok(!!hit.length === want, `${label} — 단계밀림 ${want ? '떠야 한다' : '뜨면 안 된다'}`,
+  const hit = q.filter((x) => x.kind === '단계정리');
+  ok(!!hit.length === want, `${label} — 단계정리 ${want ? '떠야 한다' : '뜨면 안 된다'}`,
     hit.length ? hit[0].sub : ('큐 ' + q.length + '건: ' + q.map((x) => x.kind).join(', ')));
-  if (hit.length) ok(/단계 맞추기/.test(hit[0].sub), `${label} — 무엇을 하라는지 적혀 있다`, hit[0].sub);
+  if (hit.length) ok(/단계|확인 취소/.test(hit[0].sub), `${label} — 무엇을 하라는지 적혀 있다`, hit[0].sub);
 }
 
 /* 파이프라인 부제 — «입금 대기»라는 거짓말을 하지 않는가 [SUB_PAID_TRUTH] */
@@ -63,7 +63,7 @@ const subOf = (over) => {
 };
 const s1 = subOf({ 현재단계: '계약완료', 입금상태: '확인' });
 ok(!/^입금 대기$/.test(s1), '입금이 확인된 고객을 «입금 대기»라고 하지 않는다', s1);
-ok(/단계 밀림/.test(s1), '대신 «단계 밀림»이라고 이름을 불러 준다', s1);
+ok(/단계 정리/.test(s1), '대신 «단계 정리 필요»라고 이름을 불러 준다', s1);
 const s2 = subOf({ 현재단계: '계약완료', 입금상태: '대기' });
 ok(s2 === '입금 대기', '진짜 입금 대기는 종전대로 «입금 대기»', s2);
 

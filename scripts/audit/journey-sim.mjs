@@ -180,6 +180,22 @@ try {
     ok(!(c.adm && c.adm.depositTick), '웨딩스냅(예약금 개념 없음)에는 경고하지 않는다', JSON.stringify(c.adm && c.adm.depositTick));
   }
 
+  /* ★[STALE_ROLLBACK_Q] 교착 금지 — 고객 화면이 «디렉터가 확인하는 중»이라며 기다리는 상태라면,
+     관리자 처리할 일에 그 고객이 반드시 있어야 한다. 없으면 양쪽 다 상대를 기다린다
+     (사용자 제보 "아무쪽에도 어떤푸시가없는데" — 실제로 그랬다). */
+  console.log('\n[교착 금지 — 고객이 기다리면 관리자 할 일에 있다]');
+  {
+    const a = payloadAt({ 현재단계: '계약완료', 계약상태: '서명완료', 계약서명일시: '2026-08-16 11:00', 계약총액: AMT, 입금상태: '확인', 입금자명: '정희준' });
+    let hq = [];
+    try { const h = G.adminHome(); hq = [...((h.queue && h.queue.urgent) || []), ...((h.queue && h.queue.normal) || [])].filter((x) => x.code === 'ME-TEST'); } catch (e) {}
+    ok(hq.some((x) => x.kind === '단계정리'), '되돌려진 고객이 관리자 처리할 일에 뜬다 [STALE_ROLLBACK_Q]', hq.map((x) => x.kind).join(','));
+    const b = payloadAt({ 현재단계: '입금완료', 계약상태: '서명완료', 계약총액: AMT, 입금상태: '확인' });
+    let hq2 = [];
+    try { const h2 = G.adminHome(); hq2 = [...((h2.queue && h2.queue.urgent) || []), ...((h2.queue && h2.queue.normal) || [])].filter((x) => x.code === 'ME-TEST' && x.kind === '단계정리'); } catch (e) {}
+    ok(hq2.length === 0, '정상 진행(입금완료)에는 단계정리 항목이 뜨지 않는다', String(hq2.length));
+    void a; void b;
+  }
+
   console.log('\n[A~Z 정상 여정 — 각 단계에서 고객 화면]');
   for (const s of STOPS) await check(s.at, s.row);
 

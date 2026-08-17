@@ -44,6 +44,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { dropGuard } from './lib/drop-guard.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
@@ -64,6 +65,7 @@ const norm = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, '');
 const srcOf = (c) => ['narration', 'cast']
   .map((d) => path.join(ROOT, 'assets/audio', d, `${c.no}_${c.file}.mp3`)).find((p) => fs.existsSync(p)) || '';
 
+const GUARD = dropGuard();   // [DROP_GUARD] 자리마다 「비워도 되나」 — lib 한 곳에서만 센다
 const marks = fs.readFileSync(MARK, 'utf8').split('\n').filter((l) => l.trim())
   .map((l) => ({ v: l.split(':')[0].trim(), t: l.slice(l.indexOf(':') + 1).trim() }));
 
@@ -78,9 +80,20 @@ for (const L of marks) for (const x of flat)
   }
 const OLD = [...hitOld.keys()].map((ci) => ({ ci, c: man.clips[ci], hit: [...hitOld.get(ci)] }))
   .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part)) || (+a.c.no - +b.c.no))
-  .map((r) => ({ id: `${r.c.no}_${r.c.file}`, ko: r.c.label || r.c.file, part: PART_KO[r.c.part] || r.c.part,
-    voice: V[r.c.role] || r.c.role, hit: r.hit,
-    s: (r.c.sents || []).map((x) => String(x.text).trim()) }));
+  .map((r) => {
+    /* ★★[DROP_GUARD 2026-08-17 사용자 지시] 「버림」을 눌러도 되는 자리인지 **미리** 붙여 둔다.
+       *"버림으로 체크해도 이 부분의 안내가 없으면 안 된다고 판단이 들면 너가 같이 적은 이유를 보고
+         적절한 문장으로 변경 적용하자"*
+       ★판단은 판정을 다 받은 뒤에 하는 것이 아니라 **누르는 그 순간에** 보여야 한다.
+         나중에 내가 되돌리면 사용자는 「내가 버림이라 했는데 왜 바뀌었지」가 된다.
+         화면에서 먼저 알려 주면, 이유 칸에 적는 말이 «왜 뺐나»가 아니라 «무엇이 걸렸나»가 되고
+         그게 곧 새 문안의 재료가 된다. 같은 한 줄인데 쓰임이 달라진다. */
+    const g = GUARD.of(`${r.c.no}_${r.c.file}`);
+    return { id: `${r.c.no}_${r.c.file}`, ko: r.c.label || r.c.file, part: PART_KO[r.c.part] || r.c.part,
+      voice: V[r.c.role] || r.c.role, hit: r.hit,
+      keep: g.empty === false, ask: g.empty === null, kind: g.kind, gwhy: g.why,
+      s: (r.c.sents || []).map((x) => String(x.text).trim()) };
+  });
 
 /* ── ② 새 어조 ───────────────────────────────────────────────────────────── */
 const lines0 = fs.readFileSync(path.join(DIR, '더빙_한번에.txt'), 'utf8').split('\n').filter((l) => l.trim());
@@ -166,6 +179,12 @@ border:1px solid var(--gold);border-radius:9px;padding:9px;font-family:inherit;m
 .why{margin-top:8px}
 .why input{width:100%;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:inherit}
 .why input:focus{border-color:var(--gold);outline:none}
+.tag.live{border-color:var(--re);color:var(--re)}
+.nb{color:var(--re)}
+.tag.ask{border-color:var(--gold);color:var(--gold)}
+.warn{margin-top:8px;background:#FDF4F3;border:1px solid var(--re);border-radius:9px;padding:9px 11px;font-size:13px;color:var(--re);line-height:1.6}
+.warn b{color:var(--re)}
+.warn.ask{background:#FEFAF4;border-color:var(--gold);color:#8A6A44}
 .whole{display:block;width:100%;margin:2px 0 10px;padding:9px;border:1px solid var(--gold);
 background:#fff;color:var(--gold);border-radius:9px;font-size:13px;cursor:pointer}
 .whole.on{background:var(--gold);color:#fff}
@@ -189,6 +208,8 @@ border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
 <b>어조</b>는 아직 조립 전이라 <b>문장 하나씩</b> 갈아 끼울 수 있습니다.<br>
 <b>글 바꿈</b>을 누르면 글칸이 열려요 · 지금 글이 채워져 있으니 고치시면 됩니다.<br>
 <b>버림·글 바꿈</b>에는 <b>이유 한 줄</b>을 적는 칸이 열려요 · 비워 두셔도 넘어갑니다.<br>
+<b class="nb">비울 수 없음</b> 딱지가 붙은 자리(${OLD.filter((c) => c.keep).length}개)는 식장에서 꼭 소리가 나야 하는 자리예요 ·
+버리셔도 됩니다 · 적어 주신 이유를 읽고 <b>제가 새 문장을 지어 「글 바꿈」으로 돌려 드립니다</b>.<br>
 어조는 <b>이 대본 전체 듣기</b>로 문단을 통째로 들어 보고 고르세요 · 느낌은 한 문장으로는 안 갈립니다.<br>
 판정은 이 브라우저에 저장돼요 · 중간에 닫아도 이어서 하시면 됩니다.
 </div>
@@ -228,11 +249,27 @@ function playAll(list){
 }
 function nextQ(){ QI++; if(QI>=Q.length){ Q=[]; return; } A.src=Q[QI]; A.play().catch(function(){}); }
 A.addEventListener('ended', function(){ if(Q.length) nextQ(); });
-/* 이유 칸 — 버림·바꿈에만 연다. 비워도 넘어간다(강제하지 않는다) */
-function whyBox(k, v){
+/* 이유 칸 — 버림·바꿈에만 연다. 비워도 넘어간다(강제하지 않는다)
+   ★[DROP_GUARD] 비울 수 없는 자리에서는 묻는 말이 달라진다.
+     「왜 버리나」가 아니라 「무엇이 걸리나」다 — 그 한 줄이 새 문안의 재료가 되기 때문이다. */
+function whyBox(k, v, c){
   if(v!=='버림' && v!=='바꿈') return '';
+  var ph = (v==='버림' && c && c.keep)
+    ? '무엇이 걸리셨나요? 한 줄 (이걸 읽고 새 문장을 지어 드립니다)'
+    : '왜 '+v+'인지 한 줄 (비워도 됩니다)';
   return '<div class="why"><input data-w="'+esc(k)+'" value="'+esc(R[k]||'')+'" '
-    + 'placeholder="왜 '+esc(v)+'인지 한 줄 (비워도 됩니다)"></div>';
+    + 'placeholder="'+esc(ph)+'"></div>';
+}
+/* ★[DROP_GUARD] 「버림」을 누른 그 순간에 알린다 — 나중에 내가 되돌리면 사용자는 영문을 모른다 */
+function warnBox(v, c){
+  if(v!=='버림' || !c) return '';
+  if(c.keep) return '<div class="warn"><b>이 자리는 비울 수 없어요</b> · '+esc(c.gwhy)+'.<br>'
+    + '그냥 빼면 식장에서 <b>아무 안내 없이 다음이 시작됩니다.</b><br>'
+    + '적어 주신 이유를 읽고 <b>새 문장을 지어 「글 바꿈」으로 돌려 드립니다.</b> '
+    + '순서 자체를 없애실 거면 그렇게 적어 주세요.</div>';
+  if(c.ask) return '<div class="warn ask">이 자리는 식순대로 갈 땐 안 나오지만 '
+    + '<b>폴백·런타임 조건으로 나갈 수 있어요.</b> 비우기 전에 제가 한 번 확인하겠습니다.</div>';
+  return '';
 }
 
 /* 판정 단위가 다르다 — 기존은 클립 하나, 어조는 문장 하나 [REDUB_PICK] */
@@ -251,7 +288,10 @@ function draw(){
       h+='<div class="card'+(v?' done':'')+'">'
         +'<div class="hd"><span class="no">'+(i+1)+'.</span><b>'+esc(c.ko)+'</b>'
         +'<span class="tag">'+esc(c.id)+'</span><span class="tag">'+esc(c.voice)+'</span>'
-        +'<span class="tag">'+c.hit.length+'/'+c.s.length+' 표시</span></div>';
+        +'<span class="tag">'+c.hit.length+'/'+c.s.length+' 표시</span>'
+        +(c.keep? '<span class="tag live">비울 수 없음 · '+esc(c.kind)+'</span>'
+          : c.ask? '<span class="tag ask">확인 필요</span>' : '')
+        +'</div>';
       c.s.forEach(function(t,si){ h+='<div class="sent'+(c.hit.indexOf(si)>=0?' hit':'')+'">'+esc(t)+'</div>'; });
       h+='<div class="btns">'
         +'<button class="play" data-p="o:'+esc(c.id)+'">문단 듣기</button>'
@@ -263,7 +303,8 @@ function draw(){
       if(v==='바꿈'){ var k='o|'+c.id, cur=(T[k]!=null? T[k] : c.s.join('\\n'));
         h+='<div class="ed"><textarea data-e="'+esc(k)+'" rows="'+Math.max(2,c.s.length)+'">'+esc(cur)+'</textarea>'
           +'<p class="hint">한 줄에 한 문장 · 줄을 늘리거나 지우면 문장 수도 그렇게 바뀝니다</p></div>'; }
-      h+=whyBox('o|'+c.id, v);
+      h+=warnBox(v, c);
+      h+=whyBox('o|'+c.id, v, c);
       h+='</div>';
     });
   } else {

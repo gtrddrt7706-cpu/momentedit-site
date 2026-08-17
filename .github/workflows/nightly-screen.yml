@@ -137,6 +137,12 @@ jobs:
           # ★★[ASR_TRUTH] 소리를 받아 적어 대장과 맞댄다 — 글끼리 맞대는 검사가 전부 초록인데
           #   스피커에서 다른 말이 나던 자리를 잡는다. 받아쓰기 파일이 없으면 2(재지 못함)로 남는다.
           node scripts/check-audio-text.mjs; note "check-audio-text (소리 받아쓰기 대조)" $?
+          # ★★[VOICE_ID 2026-08-17 사용자 물음 *"나래이션 성우 각각맞게 입힌거지 ?"*]
+          #   ASR 이 «무슨 말을 하나»를 실물로 가져왔듯, 이건 «누가 말하나»를 실물로 가져온다.
+          #   대장 ↔ 붙여넣기 대조는 둘 다 글이라, 손으로 쓴 화자가 틀리면 아무 데도 안 걸린다(PHOTO_ASK).
+          #   ★자기 클립은 중심에서 빼고 잰다(leave-one-out) — 안 빼면 검사가 아니라 거울이 된다.
+          python3 -m pip install --quiet --break-system-packages numpy 2>/dev/null || true
+          python3 scripts/audit/clip-voice-id.py; note "clip-voice-id (성우 목소리 대조)" $?
           # ★[MYPAGE_UNSEEN] 이 검사는 **일부러 절대 0 을 내지 않는다.** 로그인 뒤가 사각지대라는
           #   사실을 매일 다시 알리는 것이 목적이다. 2 로 나오는 것이 정상이고, 사람이 로그인해
           #   확인하기 전까지 계속 2 다. 초록으로 만들려고 이 검사를 고치지 말 것.
