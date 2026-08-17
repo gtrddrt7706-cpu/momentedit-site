@@ -4316,6 +4316,27 @@ nochk "STAGE_FLOW\[String(r\['상품타입'\]" automation/admin/Admin.html
 #   ★공은 관리자에게 있다(되돌린 것도 관리자) — 처리할 일에 '단계정리'로 띄우고 라벨을 사실로.
 chk 'STALE_ROLLBACK_Q' automation/admin/admin.gs 2
 chk "kind: '단계정리'" automation/admin/admin.gs 1
-chk '입금 확인됨 · 단계 정리 필요' automation/admin/admin.gs 1
+# [STALE_ROLLBACK_WIDE] 문구가 «입금 확인됨» 고정에서 «계약금·중도금·잔금 이름 나열»로 진화 — 같은 불변식의 새 꼴
+chk "확인됨 · 단계 정리 필요" automation/admin/admin.gs 1
 chk 'STALE_ROLLBACK_Q' scripts/audit/journey-sim.mjs 2
 chk 'WORLD_READ' scripts/audit/_gasworld.mjs 1     # 월드가 시트 읽기(getLastRow·getValues)도 지원 — adminHome 을 진짜로 부를 수 있게
+# ★★[UNDO_BEHIND 2026-08-17 사용자 스크린샷 «되돌릴 수 없어요»] 되돌려진 상태의 되돌리기를 막지 않는다.
+#   강제변경으로 단계가 입금완료보다 앞으로 간 상태에서 계약금 취소를 누르면 차단 C 가
+#   «이미 계약완료(으)로 진행된 고객이에요»라고 거짓말했다(계약완료는 입금완료보다 앞이다).
+#   behind 는 C·E 면제(강제변경만이 만드는 이상 상태) — 전진 고객 보호(C)·24시간 창(E)·영수증(B)·종료(D)는 그대로.
+#   ★단계는 입금완료에 서 있을 때만 계약완료로 내린다 — behind 에서 앞으로 «올리면» 그게 새 사고다.
+chk 'UNDO_BEHIND' automation/admin/admin.gs 4
+chk '_ubBehind' automation/admin/admin.gs 3
+# ★★[STALE_ROLLBACK_WIDE 2026-08-17] 갇힘 탐지를 계약금 하나에서 중도금·잔금으로 넓혔다.
+#   behind 취소로 계약금만 비우면 중도금·잔금 '확인' 잔재가 남는데 구 조건(입금==='확인')이 놓쳤다.
+chk 'STALE_ROLLBACK_WIDE' automation/admin/admin.gs 3
+chk '_srPaid' automation/admin/admin.gs 6
+# ★★[ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "처리할일에 나오고 원클릭으로 팝업 안내 · 진행 클릭이면 모든셋팅"]
+#   단계정리 큐에 인라인 「단계 맞추기」 — 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하고 한 번에 처리.
+#   ★잔금 판정은 raw 로 — mirror.balance 는 되돌려진 단계에서 null 이라 반쪽 정리가 된다(queue-oneclick ⑤).
+chk 'ROLLBACK_ONECLICK' admin.html 3
+chk 'doFixStage' admin.html 2
+chk 'fxUndo' admin.html 2
+chk "'단계정리':'fixStage'" admin.html 1
+chk 'ROLLBACK_REDO' scripts/audit/rollback-redo.mjs 1
+chk 'QUEUE_ONECLICK' scripts/audit/queue-oneclick.mjs 1

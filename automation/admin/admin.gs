@@ -329,8 +329,15 @@ function _subStatusFor(stage, isSnap, x) {
     case '촬영확정': return x.consultPast ? ('촬영일 지남' + (x.consultDate ? ' · ' + x.consultDate : '')) : ('촬영 예정' + _dueWhen(x.cdday, x.consultDate));
     case '시착': return (x.시착 === '동의완료') ? '시착 완료 · 상담완료 대기' : '고객 시착 서명 대기';
     case '상담완료': return (!x.계약 || x.계약 === '미발송') ? (x.hasReq ? '계약서 발송 대기' : '고객 계약정보 입력 대기') : '계약 진행 중';
-    case '계약완료': if (x.입금 === '확인') return '입금 확인됨 · 단계 정리 필요';   // [STALE_ROLLBACK_Q] 되돌려진 상태 — '입금 대기'라고 하면 이미 낸 돈을 또 기다리는 것처럼 읽힌다
+    case '계약완료': {   // [STALE_ROLLBACK_Q] 되돌려진 상태 — '입금 대기'라고 하면 이미 낸 돈을 또 기다리는 것처럼 읽힌다
+      // [STALE_ROLLBACK_WIDE] 계약금이 취소돼도 중도금·잔금 '확인'이 남아 있으면 같은 «정리 필요» 상태다
+      var _srSub = [];
+      if (x.입금 === '확인') _srSub.push('계약금');
+      if (x.중도금 === '확인') _srSub.push('중도금');
+      if (x.잔금 === '확인') _srSub.push('잔금');
+      if (_srSub.length) return _srSub.join('·') + ' 확인됨 · 단계 정리 필요';
       return (x.계약 === '서명완료') ? '입금 대기' : '계약 서명 대기';
+    }
     case '입금완료': return isSnap ? '촬영 준비' : '제작 시작 대기';
     // ★SUBSTATUS_TRACKS(2026-07-25 코워크 교차검증 주의2): 청첩장 하나만 보던 판정 → 트랙 전체.
     //   식순·좌석만 만든 고객이 '제작 시작 전'으로 잘못 보이던 문제(전이 정상화로 유입 증가). invStatus 단독 판정 복원 금지.
@@ -734,11 +741,19 @@ function adminHome() {
        이 큐엔 항목이 없어 관리자는 «처리할 일이 없어요 · 다 됐어요»를 봤다 —
        **양쪽 다 상대를 기다리는 교착**이고, 어느 화면에도 다음 행동이 없었다.
        ★공은 관리자에게 있다 — 되돌린 것도 관리자고, 고객은 할 일이 없는 게 맞다. 그러니 여기에 띄운다. */
-    if (입금 === '확인') {
+    /* ★[STALE_ROLLBACK_WIDE 2026-08-17 교차점검] 계약금만 보지 않는다 — 중도금·잔금 '확인'도 같은 갇힘이다.
+       실제로 만들어지는 경로: behind 상태에서 계약금만 취소하면(UNDO_BEHIND) 중도금·잔금 '확인'은 남는데,
+       입금상태는 ''라서 종전 조건(입금==='확인')이 그 고객을 놓쳤다 — 같은 교착이 이름만 바꿔 재발한다.
+       ★기준 단계는 여전히 «입금완료보다 앞»뿐 — 입금완료·제작중에서 미리 낸 중도금·잔금은 정상이라 안 띄운다. */
+    var _srPaid = [];
+    if (입금 === '확인') _srPaid.push('계약금');
+    if (!isSnap && String(cget(rv, '중도금상태') || '').trim() === '확인') _srPaid.push('중도금');
+    if (잔금 === '확인') _srPaid.push('잔금');
+    if (_srPaid.length) {
       var _fwQ = stageFlowFor(product), _siQ = _fwQ.indexOf(stage), _piQ = _fwQ.indexOf('입금완료');
       if (_siQ !== -1 && _piQ !== -1 && _siQ < _piQ) {
         pushQ({ code: code, names: names, product: product, kind: '단계정리',
-          sub: '입금은 확인됐는데 단계가 ' + stage + '에 머물러 있어요 · 다음 단계로 보내거나 입금 확인을 취소해 주세요',
+          sub: _srPaid.join('·') + ' 확인됐는데 단계가 ' + stage + '에 머물러 있어요 · 단계를 맞추거나 입금 확인을 취소해 주세요',
           badge: { level: 'yellow', text: '되돌림 정리 대기' }, _urgent: false, _stage: 4, _wait: createdYmd });
       }
     }
@@ -873,7 +888,7 @@ function adminHome() {
     var g = pipe[isSnap ? P.PRODUCT_SNAP : P.PRODUCT_SIGNATURE];
     (g[stage] = g[stage] || []).push({
       code: code, names: names,
-      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, cdday: (consultYmd ? _dayDiff(consultYmd, today) : null), 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 원본: 원본, invStatus: invStatus, tracks: (draft.tracks || {}), 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),   // SUBSTATUS_TRACKS — 트랙 전체 전달(청첩장 단독 판정 탈피)
+      sub: _subStatusFor(stage, isSnap, { booking: bookingStatus, consultPast: consultPast, consultDate: consultMD, cdday: (consultYmd ? _dayDiff(consultYmd, today) : null), 시착: 시착, 계약: 계약, hasReq: hasReq, 입금: 입금, 중도금: (isSnap ? '' : String(cget(rv, '중도금상태') || '').trim()), 잔금: 잔금, 원본: 원본, invStatus: invStatus, tracks: (draft.tracks || {}), 결과물: 결과물, 선택수: 선택수, 추가보정: 추가보정 }),   // SUBSTATUS_TRACKS — 트랙 전체 전달(청첩장 단독 판정 탈피) · STALE_ROLLBACK_WIDE — 중도금·잔금도
       dday: (wedYmd ? _dayDiff(wedYmd, today) : null),
       cdday: (consultYmd ? _dayDiff(consultYmd, today) : null),   // 대면상담까지 D-day(상담확정·촬영확정 그룹 표시·정렬용). +면 예정·0 오늘·-면 지남
       _created: createdYmd
@@ -1582,6 +1597,20 @@ function _undoConfirmCore(code, milestone, reason, preview) {
   // F · 환불 정산 완료 — 환불액은 기수령액(=확인된 입금)으로 계산돼서, 정산 뒤 입금을 되돌리면 장부가 어긋난다
   if (rec.환불완료) return { ok: false, block: 'F', error: '이미 환불 완료로 정리된 고객이에요. 입금을 되돌리면 환불 계산과 어긋나요. 환불 완료 취소를 먼저 해주세요.' };
 
+  /* ★★[UNDO_BEHIND 2026-08-17 사용자 실측 스크린샷] «되돌려진 상태»에서는 되돌리기를 막지 않는다.
+     강제변경으로 단계를 입금완료보다 앞(계약완료·상담완료…)으로 내리면 확인된 수납만 남는다(ROLLBACK_KEEP_PAID).
+     그 상태에서 관리자가 「입금 확인 취소」를 누르면 종전 차단 C 가 «이미 계약완료(으)로 **진행된** 고객이에요»
+     라고 막았다 — 계약완료는 입금완료보다 앞인데 «진행됐다»는 말 자체가 거짓이고,
+     취소하려면 단계를 먼저 입금완료로 올렸다가 취소하는 **숨은 2단 춤**이 필요했다(아무도 발견 못 한다).
+     차단 C(전진 고객 보호)의 취지는 «앞 단계 데이터가 수납에 의존하는데 수납만 빼는 것»을 막는 것 —
+     단계가 수납보다 뒤에 있는 상태엔 그 의존이 없다. 그래서 behind 면 C 를 면제한다.
+     ★E(24시간 창)도 behind 면 면제한다 — 이 상태는 관리자가 강제변경으로만 만들 수 있는 이상 상태라
+       «정상 흐름의 오래된 확정을 실수로 뒤집는 것»(E 의 취지)이 아니고, E 를 두면 오래된 되돌림 건은
+       영영 정리할 수 없다(강제변경은 수납을 보존하므로 지울 다른 길이 없다). 사유 필수·처리이력은 그대로. */
+  var _ubFlow = stageFlowFor(String(cust.get('상품타입') || '').trim());
+  var _ubSi = _ubFlow.indexOf(stageNow), _ubPi = _ubFlow.indexOf('입금완료');
+  var _ubBehind = (_ubSi !== -1 && _ubPi !== -1 && _ubSi < _ubPi);
+
   var targets = (milestone === '중도금잔금') ? ['중도금', '잔금'] : [milestone];
   var plan = [], patch = {}, recDirty = false, consentRemoved = [];
   for (var i = 0; i < targets.length; i++) {
@@ -1598,24 +1627,29 @@ function _undoConfirmCore(code, milestone, reason, preview) {
       if (issued[sp.receiptKeys[k]]) return { ok: false, block: 'B', error: sp.label + '은 현금영수증이 이미 발행됐어요(' + sp.receiptKeys[k] + '). 현금영수증 발행 취소를 먼저 해주세요.' };
     }
     // C · 다음 단계로 전진함 — 계약금에만 적용. 중도금·잔금은 원래 제작중·예식완료에서 확인하는 마일스톤이라 여기서 막으면 정상 건이 전부 막힌다
-    if (sp.stage && stageNow !== '입금완료') return { ok: false, block: 'C', error: '이미 ' + (stageNow || '다음 단계') + '(으)로 진행된 고객이에요. 계약금 확인은 입금완료 단계에 머물러 있을 때만 되돌릴 수 있어요.' };
-    // E · 되돌리기 시간 — 계약금은 영수증 기산점, 중도금·잔금은 확인일시가 확인 시각
+    //     [UNDO_BEHIND] behind(단계가 입금완료보다 앞 = 되돌려진 상태)면 면제 — «진행된» 것이 아니라 «되돌려진» 것이다
+    if (sp.stage && stageNow !== '입금완료' && !_ubBehind) return { ok: false, block: 'C', error: '이미 ' + (stageNow || '다음 단계') + '(으)로 진행된 고객이에요. 계약금 확인은 입금완료 단계에 머물러 있을 때만 되돌릴 수 있어요.' };
+    // E · 되돌리기 시간 — 계약금은 영수증 기산점, 중도금·잔금은 확인일시가 확인 시각. [UNDO_BEHIND] behind 면 면제(위 근거)
     var atStr = sp.atCol ? String(cust.get(sp.atCol) || '').trim() : String((rec.영수증기준일 || {}).예약금 || '').trim();
     var hrs = _undoHoursSince(atStr);
-    if (hrs == null) return { ok: false, block: 'E', error: sp.label + ' 확인 시각이 기록에 없어요(예전 데이터). 되돌리기 대신 강제 단계 변경으로 정리해 주세요.' };
-    if (hrs > UNDO_WINDOW_HOURS) return { ok: false, block: 'E', error: sp.label + ' 확인 후 ' + Math.floor(hrs) + '시간이 지났어요. 되돌리기는 확인 후 ' + UNDO_WINDOW_HOURS + '시간 안에만 가능해요.' };
+    if (!_ubBehind) {
+      if (hrs == null) return { ok: false, block: 'E', error: sp.label + ' 확인 시각이 기록에 없어요(예전 데이터). 되돌리기 대신 강제 단계 변경으로 정리해 주세요.' };
+      if (hrs > UNDO_WINDOW_HOURS) return { ok: false, block: 'E', error: sp.label + ' 확인 후 ' + Math.floor(hrs) + '시간이 지났어요. 되돌리기는 확인 후 ' + UNDO_WINDOW_HOURS + '시간 안에만 가능해요.' };
+    }
     // 되돌린 상태 — 고객 입금 신고가 남아 있으면 '완료신호'로, 없으면 빈값(대기)으로
     var back = String(cust.get(sp.signalCol) || '').trim() ? '완료신호' : '';
     patch[sp.stateCol] = back;
     if (sp.atCol) patch[sp.atCol] = '';
-    plan.push({ key: targets[i], label: sp.label, from: '확인', to: back || '대기', at: atStr, hours: Math.max(0, Math.round(hrs * 10) / 10) });
+    plan.push({ key: targets[i], label: sp.label, from: '확인', to: back || '대기', at: atStr, hours: (hrs == null ? null : Math.max(0, Math.round(hrs * 10) / 10)) });
     if (targets[i] === '계약금' && rec.영수증기준일 && rec.영수증기준일.예약금) { delete rec.영수증기준일.예약금; recDirty = true; consentRemoved.push('영수증기준일.예약금(현금영수증 5일 기한 기산점)'); }
     if (targets[i] === '잔금' && rec.잔금확정금액 != null) { delete rec.잔금확정금액; recDirty = true; consentRemoved.push('잔금확정금액(확정 시점 금액 스냅샷)'); }
   }
   if (!plan.length) return { ok: true, already: true, error: '' };      // 멱등 — 두 번 눌러도 안전
 
   var stagePlan = null;
-  if (targets.indexOf('계약금') !== -1) stagePlan = { from: stageNow, to: '계약완료' };
+  /* [UNDO_BEHIND] 단계는 «입금완료에 서 있을 때만» 계약완료로 내린다.
+     behind(이미 계약완료·상담완료…)면 그대로 둔다 — 상담완료에서 취소했는데 계약완료로 «올리면» 그게 새 사고다. */
+  if (targets.indexOf('계약금') !== -1 && stageNow === '입금완료') stagePlan = { from: stageNow, to: '계약완료' };
   var notice = '이미 나간 입금 확인 카톡은 취소되지 않아요. 필요하면 직접 안내해 주세요.';
   if (preview) return { ok: true, preview: true, milestone: milestone, plan: plan, stage: stagePlan, consentRemoved: consentRemoved, notice: notice, windowHours: UNDO_WINDOW_HOURS };
 

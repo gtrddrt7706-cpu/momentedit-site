@@ -1569,10 +1569,10 @@ function loadHome(silent){
 var curHome=null;
 
 function queueRow(it){
-  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded' };   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세)
+  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded','단계정리':'fixStage' };   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세) · [ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "원클릭으로 팝업 안내가 나오고 진행을 클릭하면 모든셋팅"] 단계정리도 인라인
   var act=inlineKinds[it.kind];
   var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인','단계정리':'단계 맞추기' }[it.kind]||'처리';
-  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소', '단계정리':'단계 정리' };   /* [STRANDED_QUEUE] 인라인 액션은 일부러 안 준다 — 단계를 올릴지 입금 확인을 취소할지가 사람 판단이라 상세로 보낸다 */
+  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소', '단계정리':'단계 정리' };   /* [ROLLBACK_ONECLICK 2026-08-17] 단계정리도 인라인을 «준다» — 사용자 지시("처리할일에 나오고 원클릭으로 팝업 안내"). 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하므로 사람 판단은 팝업 안에서 이뤄진다 */
   var chipLabel=KLABEL[it.kind]||it.kind;
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
@@ -1644,6 +1644,7 @@ function onQueueAct(act,code,names,isSnap,el){
   else if(act==='grantHold') doGrantHold(code,names,{hold:{date:(el&&el.getAttribute('data-hd'))||'',slot:(el&&el.getAttribute('data-hs'))||'',status:'요청'}});
   else if(act==='consultDone') doConsultDone(code,names);
   else if(act==='confirmPay') doConfirmPay(code,names,_qSub(el));
+  else if(act==='fixStage') doFixStage(code,names,(el&&el.getAttribute('data-sub'))||'');   /* [ROLLBACK_ONECLICK] */
   else if(act==='confirmBalance') doConfirmBalance(code,names,_qSub(el));
   else if(act==='confirmMid') doConfirmMid(code,names,_qSub(el));
   else if(act==='confirmMidBal') doConfirmMidBal(code,names,_qSub(el));
@@ -2182,8 +2183,11 @@ function cardPayment(d){
        단계와 무관하게 그려졌다 — 제작중·예식완료·결과물전달·후기·취소에서 누르면 매번 거부됐다.
        **보이는데 안 되는 버튼은 없는 버튼보다 나쁘다** — 운영자가 자기 손을 의심하게 된다.
        그래서 버튼 대신 «왜 지금은 안 되는지»를 한 줄로 둔다(설명까지 없애면 그것대로 불친절하다).
-       ★24시간 창(차단 E)은 여기서 못 본다 — 확인 시각이 이 화면 데이터에 없다. 그건 서버 문구가 맡는다. */
-    if(_psCur==='입금완료') b+=ab('undoPay:계약금','입금 확인 취소','btn-danger');
+       ★24시간 창(차단 E)은 여기서 못 본다 — 확인 시각이 이 화면 데이터에 없다. 그건 서버 문구가 맡는다.
+       ★[UNDO_BEHIND 2026-08-17] «되돌려진 상태»(_psI<_psP)에서도 버튼을 낸다 — 서버 차단 C·E 가
+         behind 를 면제하게 됐다(강제변경만이 만드는 이상 상태 · 재입금 흐름으로 정리하는 길).
+         단계 맞추기와 확인 취소가 나란히 서서, 운영자가 두 갈래 중 뜻에 맞는 쪽을 고른다. */
+    if(_psCur==='입금완료' || (_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1)) b+=ab('undoPay:계약금','입금 확인 취소','btn-danger');
     else if(STAGE_EX.indexOf(_psCur)!==-1) b+='<div class="gate">되돌리기는 단계를 정상으로 되돌린 뒤에 할 수 있어요</div>';
     else if(_psI>_psP) b+='<div class="gate">이미 '+esc(_psCur)+'까지 진행돼 계약금 확인은 되돌릴 수 없어요 (강제 단계 변경으로 정리)</div>';
   }
@@ -2720,6 +2724,45 @@ function doUndoPay(code,names,milestone,d){
         if(!r){ mErr('되돌리는 사유를 입력해 주세요'); return; }
         runAct(['adminUndoConfirmPayment',code,milestone,r],code,'입금 확인 취소');
       } });
+  }).catch(function(){ toast('확인 실패 · 잠시 후 다시 시도해 주세요'); });
+}
+/* ★★[ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "처리할일에 나오고 원클릭으로 팝업 안내가 나오고 진행을
+   클릭하면 모든 그환경에 필요한 모든셋팅이 가능하게"] 되돌림 정리 원클릭 — 큐 버튼 하나로.
+   갈래는 **서버 데이터로** 정한다(큐 문구 파싱 금지 — 문구는 바뀐다):
+   ·계약금 '확인' → 기본 = 단계 맞추기(입금완료로 · 돈 기록 유지). 대안 = 확인 취소(재입금 흐름·UNDO_BEHIND).
+   ·계약금은 이미 취소됐고 중도금·잔금만 '확인' → 기본 = 남은 확인 취소.
+    ★이때 «단계 맞추기»를 내밀면 안 된다 — 계약금이 미확인인데 입금완료로 올리는 것이 새 사고다. */
+function doFixStage(code,names,sub){
+  toast('상태 확인 중');
+  gas('adminDetail', code).then(function(d){
+    if(!(d&&d.ok)){ toast('상태를 불러오지 못했어요 · 행을 눌러 상세에서 진행해 주세요'); return; }
+    var r=d.raw||{};
+    var payOk=(r['입금상태']==='확인');
+    var midOk=(r['중도금상태']==='확인');
+    /* ★잔금은 mirror.balance 가 아니라 raw 로 본다 — buildBalanceState 는 잔금 «카드»용이라
+       입금완료·제작중·예식완료 밖(=지금 다루는 되돌려진 단계)에서 null 을 준다(70_journey 1276).
+       mirror 로 읽으면 잔금 '확인' 잔재가 있어도 midOk 만 잡혀 반쪽 정리가 된다(queue-oneclick ⑤가 잡았다). */
+    var balOk=(r['잔금상태']==='확인');
+    var restTxt=[midOk?'중도금':null,balOk?'잔금':null].filter(Boolean).join('·');
+    if(payOk){
+      openModal({ title:'되돌려진 단계를 정리할까요?',
+        text:b(names)+(sub?li(sub):'')
+          +li('진행하면 단계만 입금완료로 맞춰요 · 수납 기록·계약·예식일은 그대로예요')
+          +li('고객 마이페이지가 다시 열려 제작 준비로 넘어갈 수 있어요')
+          +(restTxt?li(restTxt+'도 확인된 채 유지돼요'):''),
+        extra:'<button type="button" class="btn btn-ghost" style="width:100%;margin-top:6px" id="fxUndo">대신 입금 확인을 취소할래요 (처음부터 재입금 흐름)</button>',
+        yes:'진행 · 단계 맞추기',
+        init:function(){ var u=$('fxUndo'); if(u) u.onclick=function(){ closeModal(); doUndoPay(code,names,'계약금',d); }; },
+        onYes:function(){ runAct(['adminConfirmPayment',code],code,'단계 맞추기'); } });
+    } else if(midOk||balOk){
+      var ms=(midOk&&balOk)?'중도금잔금':(midOk?'중도금':'잔금');
+      openModal({ title:'남은 입금 확인을 정리할까요?',
+        text:b(names)+(sub?li(sub):'')
+          +li('계약금은 이미 취소됐는데 '+restTxt+' 확인이 남아 있어요')
+          +li('진행하면 '+restTxt+' 확인 취소 화면이 열려요 (사유 입력 후 확정)'),
+        yes:'진행 · '+restTxt+' 확인 취소',
+        onYes:function(){ closeModal(); doUndoPay(code,names,ms,d); } });
+    } else { toast('정리할 입금 확인이 없어요 · 이미 정리된 상태예요'); loadHome(); }
   }).catch(function(){ toast('확인 실패 · 잠시 후 다시 시도해 주세요'); });
 }
 function doMarkRefundedInline(code,names){   // [REFUND_QUEUE_INLINE 2026-07-25] 큐 버튼 전용 — 상세 화면으로 들어가지 않고 완료 확인 팝업만 띄운다. 계좌·환불완료 여부는 상세를 조회해 doMarkRefunded에 넘김(계좌 있으면 복사 제공 · 없으면 카톡 안내). 상세를 보고 싶으면 행(줄)을 누르면 됨.
