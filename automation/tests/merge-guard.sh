@@ -4065,7 +4065,10 @@ chk 'apiTrackSave=fail' scripts/audit/save-honesty.mjs 1
 chk 'SHARE_KAKAO_1TO1' mypage.html 1
 chk 'SHARE_KAKAO_1TO1' guide.html 1
 chk '원본' guide.html 1
-chk '오픈채팅 → 1:1 채팅방' mypage.html 1
+# ★[SHARE_WEDUP 2026-08-17] 이 자리의 chk '오픈채팅 → 1:1 채팅방' 은 **정당한 폐지**로 내렸다.
+#   카톡을 권장에서 내리고 WedUploader 로 바꾼 결정(아래 SHARE_WEDUP 블록)이라 마커가 사라진 것이 맞다.
+#   카톡 안내 자체는 접힌 「다른 방법도 되나요」 안에 남아 있고, 그쪽은 아래에서 따로 지킨다.
+chk '카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨' mypage.html 1
 # [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다(막지 않는다) — 엉뚱한 주소를 넣고도 모르는 일이 없게
 chk 'SHARE_KIND' mypage.html 3
 chk 'function photoShareKind' mypage.html 1
@@ -4290,3 +4293,28 @@ chk "kind: '단계정리'" automation/admin/admin.gs 1
 chk '입금 확인됨 · 단계 정리 필요' automation/admin/admin.gs 1
 chk 'STALE_ROLLBACK_Q' scripts/audit/journey-sim.mjs 2
 chk 'WORLD_READ' scripts/audit/_gasworld.mjs 1     # 월드가 시트 읽기(getLastRow·getValues)도 지원 — adminHome 을 진짜로 부를 수 있게
+
+# ★★★[SHARE_WEDUP 2026-08-17 사용자 결정] 권하는 곳 = WedUploader(부부 구글드라이브 직송).
+#   카톡 1:1 을 내린 이유: "1:1 카톡 이용은 전문성이 없어 보인다" + "부부가 답장을 해줘야 하는 번거로움".
+#   대기업 8곳(애플·구글·네이버·카카오·아마존·삼성·어도비·MS) 전부 계정 로그인 필수라 이름값으로 고를 길이 없다.
+#   그래서 「안정적」을 회사 크기가 아니라 **사진이 어디에 쌓이느냐**로 다시 정의했다 —
+#   직송형은 업체가 망해도 부부 드라이브에 사진이 남는다(업체는 예식 당일 하루만 살면 된다).
+#   ★스냅웨딩 복원 금지: 개업 5개월 개인사업자 · 통신판매업 번호 불일치 · 4개월 만에 보관 90일→3일 · 종료 조항 없음.
+#   ★드롭박스 복원 금지: 하객 이름+이메일 강제(못 끔) · 부부에게 업로드마다 알림 메일(못 끔).
+chk 'SHARE_WEDUP' mypage.html 3
+chk 'SHARE_WEDUP' guide.html 1
+chk "weduploader\\\\.com" mypage.html 1
+chk 'weduploader.com</b>에서 앨범을 만들고' mypage.html 1
+chk '두 분 구글 드라이브</b>로 바로 들어와요' mypage.html 1
+chk '가입도 이름 입력도 없이' mypage.html 1
+chk '예식 전날 한 번 열어' mypage.html 1              # 직송형 공통 약점(OAuth 끊김) 안내
+chk 'BROWSE FILES' guide.html 1                       # 영어 두 단어를 한국어로 덮는 유일한 자리
+chk '이름도 가입도 필요 없어요' guide.html 1
+nochk '카톡 → <b>오픈채팅 → 1:1 채팅방</b>을 만들어' mypage.html   # 권장 자리에서 카톡 복원 금지
+# ★단어 자체를 막지 않는다 — 「왜 안 권하나」를 적은 주석이 같은 단어를 쓰기 때문이다.
+#   막을 것은 **고객이 읽는 문구**이고, 지켜야 할 것은 **근거 주석**이라 둘을 나눠 검사한다.
+chk '스냅웨딩은 권하지 않는다' mypage.html 1     # 근거가 사라지면 다음 리뷰가 다시 후보로 올린다
+nochk '<b>스냅웨딩</b>' mypage.html               # 고객 화면 문구로는 복원 금지
+nochk '스냅웨딩' guide.html                       # 하객 화면엔 주석도 없다 — 통째로 금지
+chk 'placeholder="링크 붙여넣기 (weduploader.com)"' mypage.html 1   # [SHARE_WEDUP] 자리표시가 안내와 어긋나지 않게
+nochk '링크 붙여넣기 (1:1 오픈채팅방)' mypage.html
