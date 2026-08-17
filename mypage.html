@@ -2294,6 +2294,11 @@ function renderMyPage(d){
       sub  = '기한 안에 계약서를 확인하고 서명해 주세요.';
     }
     // [시착 동의 완료] 서명했는데 nextAction이 '서명하세요'에 머물면 완료 톤으로 교체(매치 깨짐 방지)
+    /* [FITTING_STAGE_BLANK] 동의서가 아직 없으면 «서명해 주세요»라고 하지 않는다(서명할 곳이 없다). */
+    if (d.stage === '시착' && !d.fitting) {
+      head = '시착 준비 중이에요';
+      sub = '동의서가 준비되면 이 화면에서 서명하실 수 있어요.';
+    }
     if (d.stage === '시착' && d.fitting && d.fitting.signed) {
       head = '시착 동의가 완료됐어요';
       sub  = '상담 당일 함께 진행되고, 이후 계약 단계를 안내드릴게요.';
@@ -3199,7 +3204,24 @@ function doAcceptProp(){
 function renderFitting(f, d){
   var box = $('mp_fitting');
   if (!box) return;
-  if (!f){ box.style.display='none'; box.innerHTML=''; return; }
+  /* ★★[FITTING_STAGE_BLANK 2026-08-16 시뮬레이션 점검 · [PAID_STAGE_BACK]의 형제]
+     단계가 '시착'인데 동의서가 없는 조합에서 **화면이 백지가 됐다.**
+     이 단계에서 뜰 수 있는 카드는 시착 카드 하나뿐인데(상담 카드는 «시착 카드가 받는다»는 전제로 숨는다)
+     그 하나가 여기서 스스로를 지웠다. 그런데 NOW 는 «동의서에 서명해 주세요»라고 말한다 —
+     **서명하라는데 서명할 곳이 없는 화면.**
+     ★관리자 동작 **두 가지**로 실제 도달한다(실행으로 확인):
+       ①adminCloseFitting — 동의를 닫으면 단계는 '시착'인데 시착동의상태가 '대기'로 내려간다
+       ②adminForceStage(시착) — 시착동의상태가 아예 없는 채로 단계만 올라간다
+     ★고칠 곳은 «전제가 깨졌을 때 말하는 것»이다. 조용히 사라지지 않는다. */
+  if (!f){
+    if (String((d && d.stage) || '') === '시착'){
+      box.innerHTML='<div class="consult-card" style="text-align:center"><div class="cc-eyebrow en-22">Fitting</div>'
+        +'<div class="cc-title">시착 동의서를 준비하고 있어요</div>'
+        +'<div class="cc-sub">준비되면 이 화면에서 바로 서명하실 수 있어요. 먼저 하실 일은 없어요.</div></div>';
+      box.style.display='block'; return;
+    }
+    box.style.display='none'; box.innerHTML=''; return;
+  }
   window._lastFitVersion = f.version || '';   // 동의서 문서 뷰어 버전 분기용(서명 당시 보존본 열람)
   var terms = (f.terms || []).map(function(t){ return '<li>'+escapeHtml(t)+'</li>'; }).join('');
   if (f.signed){   // 완료 · 시착 단계엔 완료 안내(#4), 상담완료 이후엔 접힌 기록(시착만 펼쳐보기)

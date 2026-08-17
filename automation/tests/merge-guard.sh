@@ -4179,3 +4179,23 @@ chk 'PAID_BACK_TYPO' mypage.html 2
 chk '요약은 NOW · 근거는 카드' mypage.html 1
 chk '확인됨' mypage.html 1
 nochk '디렉터가 확인하는 중이에요 · 다음 안내는 이 화면에 열려요' mypage.html   # 같은 문장 두 번 쓰던 첫 판
+# ★★[BLANK_STRICT 2026-08-16 자체 점검에서 잡음] «백지 금지» 판정이 사문이었다.
+#   처음엔 «카드가 있거나 NOW 가 있으면 통과»였는데, NOW 문구엔 폴백이 있어(mypage 2286)
+#   항상 비어 있지 않다 → **절대 실패할 수 없는 조건**이었다. 초록이 안전을 뜻하지 않았다.
+#   ★NOW 는 한 줄 요약이지 «할 일이 있는 자리»가 아니다. 카드 존재를 직접 본다(예외 단계는 제외).
+#   ★이 조건을 «|| !!r.now» 로 되돌리지 말 것 — 되돌리면 아래 FITTING_STAGE_BLANK 를 못 잡는다.
+chk 'BLANK_STRICT' scripts/audit/journey-sim.mjs 2
+chk 'r.cards.length > 0,' scripts/audit/journey-sim.mjs 1
+nochk 'r.cards.length > 0 || !!r.now' scripts/audit/journey-sim.mjs
+# ★★[SIM_FIXTURE_REAL 2026-08-16] 되돌리기 상태를 손으로 짜지 않고 **진짜 adminForceStage** 로 만든다.
+#   손으로 행을 짜면 _clearForwardData·ROLLBACK_KEEP_PAID 의 실제 동작이 아니라 내 추측을 검사하게 된다.
+#   ★상담 예약 행도 함께 심는다 — 없으면 서버가 정당하게 consult:null 을 줘 «가짜 백지»로 붉어진다.
+chk 'SIM_FIXTURE_REAL' scripts/audit/journey-sim.mjs 1
+chk 'adminForceStage' scripts/audit/journey-sim.mjs 2
+# ★★[FITTING_STAGE_BLANK 2026-08-16] 단계가 '시착'인데 동의서가 없으면 화면이 백지였다.
+#   이 단계에 뜰 수 있는 카드는 시착 카드 하나뿐인데(상담 카드는 «시착이 받는다»는 전제로 숨는다)
+#   그 하나가 스스로를 지웠고, NOW 는 «동의서에 서명해 주세요»라고 말했다 — 서명할 곳이 없는 화면.
+#   ★관리자 동작 둘로 실제 도달한다: adminCloseFitting(동의 닫기) · adminForceStage(시착).
+chk 'FITTING_STAGE_BLANK' mypage.html 2
+chk '시착 동의서를 준비하고 있어요' mypage.html 1
+chk '시착 준비 중이에요' mypage.html 1
