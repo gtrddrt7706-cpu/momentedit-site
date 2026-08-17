@@ -1336,6 +1336,9 @@ function adminConfirmExtra(code) {
   rec0.영수증기준일.추가보정 = fmtKST(new Date());   // 받은 날 기준(현금영수증 의무발급 5일 기한 계산용)
   touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '완료', '동의기록': JSON.stringify(rec0) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '추가보정' });   // 고객 안심 알림(카톡) · 다른 입금확인과 일관
+  /* ★[ADM_TRACE_MONEY 2026-08-16 시뮬레이션 점검] 돈·작업 상태를 바꾸는 동작인데 처리이력에 흔적이 없었다.
+     누가 언제 했는지 남지 않으면 오처리를 되짚을 근거가 사라진다. */
+  try { _recordHandler(code, '추가보정 확인'); } catch (e) {}
   return { ok: true };
 }
 
@@ -1349,6 +1352,9 @@ function adminStartRetouch(code) {
   if (rs === '보정중') return { ok: true, already: true };
   if (rs !== '선택완료') return { ok: false, error: '고객이 컷을 선택한 뒤(선택완료)에 보정 착수할 수 있어요. (현재: ' + (rs || '대기') + ')' };
   touchCustomer(sheet, colOf, cust.num, { '결과물상태': '보정중' });
+  /* ★[ADM_TRACE_MONEY 2026-08-16 시뮬레이션 점검] 돈·작업 상태를 바꾸는 동작인데 처리이력에 흔적이 없었다.
+     누가 언제 했는지 남지 않으면 오처리를 되짚을 근거가 사라진다. */
+  try { _recordHandler(code, '보정 시작'); } catch (e) {}
   return { ok: true };
 }
 

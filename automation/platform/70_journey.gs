@@ -1338,6 +1338,10 @@ function adminConfirmBalance(code) {
   _bRec.잔금확정금액 = Math.round((_bAm ? Number(_bAm['잔금']) || 0 : 0) + (_bX.amount || 0));
   touchCustomer(sheet, colOf, cust.num, { '잔금상태': '확인', '잔금확인일시': fmtKST(new Date()), '동의기록': JSON.stringify(_bRec) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '잔금' });   // 고객 안심 알림(카톡)
+  /* ★[ADM_TRACE_MONEY 2026-08-16 시뮬레이션 점검] 돈을 확인하는 동작인데 처리이력에 흔적이 없었다.
+     누가 언제 확인했는지 남지 않으면 오처리를 되짚을 근거가 사라진다 — 입금 확인·환불은 이력이 곧 근거다.
+     (실행으로 확인: adminConfirmMid 를 불러도 처리이력이 한 글자도 늘지 않았다.) */
+  try { _recordHandler(code, '잔금 확인'); } catch (e) {}
   return { ok: true };
 }
 // ============================ 02-4b · 중도금 (결제 마일스톤 — 단계 아님) ============================
@@ -1405,6 +1409,10 @@ function adminConfirmMid(code) {
   if (String(cust.get('중도금상태') || '').trim() === '확인') return { ok: true, already: true };
   touchCustomer(sheet, colOf, cust.num, { '중도금상태': '확인', '중도금확인일시': fmtKST(new Date()) });
   notifyKakao('cust.paymentConfirmed', code, { kind: '중도금' });   // 고객 안심 알림(카톡)
+  /* ★[ADM_TRACE_MONEY 2026-08-16 시뮬레이션 점검] 돈을 확인하는 동작인데 처리이력에 흔적이 없었다.
+     누가 언제 확인했는지 남지 않으면 오처리를 되짚을 근거가 사라진다 — 입금 확인·환불은 이력이 곧 근거다.
+     (실행으로 확인: adminConfirmMid 를 불러도 처리이력이 한 글자도 늘지 않았다.) */
+  try { _recordHandler(code, '중도금 확인'); } catch (e) {}
   return { ok: true };
 }
 // 관리자 중도금·잔금 묶음 확인 — 임박 계약(D-9 이내)에서 고객이 한 번에 입금(withBalance)한 경우 1클릭 처리.
@@ -1431,6 +1439,10 @@ function adminConfirmMidBalance(code) {
   }
   touchCustomer(sheet, colOf, cust.num, upd);
   notifyKakao('cust.paymentConfirmed', code, { kind: '중도금·잔금' });
+  /* ★[ADM_TRACE_MONEY 2026-08-16 시뮬레이션 점검] 돈을 확인하는 동작인데 처리이력에 흔적이 없었다.
+     누가 언제 확인했는지 남지 않으면 오처리를 되짚을 근거가 사라진다 — 입금 확인·환불은 이력이 곧 근거다.
+     (실행으로 확인: adminConfirmMid 를 불러도 처리이력이 한 글자도 늘지 않았다.) */
+  try { _recordHandler(code, '중도금·잔금 확인'); } catch (e) {}
   return { ok: true };
 }
 
