@@ -4199,3 +4199,13 @@ chk 'adminForceStage' scripts/audit/journey-sim.mjs 2
 chk 'FITTING_STAGE_BLANK' mypage.html 2
 chk '시착 동의서를 준비하고 있어요' mypage.html 1
 chk '시착 준비 중이에요' mypage.html 1
+# ★★[CONTRACT_STAGE_BLANK 2026-08-16] 단계가 '계약완료'인데 계약서가 없으면 화면이 백지였다.
+#   이 단계에 뜰 수 있는 카드는 계약+계약금 병합 카드 하나뿐인데 그 하나가 사라졌고,
+#   NOW 는 «계약금을 입금해 주세요»라고 말했다 — 낼 곳도 서명할 곳도 없는 화면.
+#   ★관리자 동작 한 번으로 도달한다(실행 확인): adminForceStage(상담완료 → 계약완료).
+#     목표가 계약완료면 _clearForwardData 가 계약 열을 지우지 않아 계약서 없이 단계만 올라간다.
+#   ★[PAID_STAGE_BACK]·[FITTING_STAGE_BLANK] 과 같은 병이다. 셋 다 «전제가 깨졌으면 말한다»로 고쳤다.
+chk 'CONTRACT_STAGE_BLANK' mypage.html 2
+chk '계약금은 서명 뒤에 안내드려요' mypage.html 1
+chk 'CONTRACT_STAGE_BLANK' scripts/audit/journey-sim.mjs 1
+chk '계약완료·계약서 없음' scripts/audit/journey-sim.mjs 1
