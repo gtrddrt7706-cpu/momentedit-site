@@ -438,7 +438,15 @@ function photoShareHtml(url){
          고르는 화면에서 「원본」을 켜면 원본으로 간다. 그 한 번을 아는 사람이 거의 없어서,
          부부에게 "원본으로 받으세요"라고 말해 봐야 소용이 없다 — **누르는 사람은 하객**이다.
          우리가 하객 화면을 갖고 있으니 여기서 말한다. 이 줄을 지우면 사진이 조용히 압축된다. */
-    +(/^https?:\/\/open\.kakao\.com\//i.test(String(url||''))
+    /* ★★★[SHARE_WEDUP 2026-08-17] 권하는 곳이 WedUploader 로 바뀌었다(근거는 mypage.html SHARE_WEDUP).
+       ★여기가 **영어 화면을 한국어로 덮는 유일한 자리**다. 하객이 넘어가서 보는 것은
+         `BROWSE FILES` 와 `UPLOAD` 두 단어뿐인데, 그 두 단어를 미리 한국어로 짚어 주면
+         영어라는 사실이 장벽이 아니게 된다. 이 줄을 지우면 하객이 낯선 화면에서 멈춘다.
+       ★이름을 안 묻는다는 것도 여기서 말한다 — 「내 정보가 남나」가 올리기 전 가장 큰 망설임이고,
+         이건 우리가 확인한 사실이라 말할 수 있다(추측이 아니다). */
+    +(/^https?:\/\/(www\.)?weduploader\.com\//i.test(String(url||''))
+        ? '<div class="privacy">두 분에게 바로 전해져요 · <b>이름도 가입도 필요 없어요</b>.<br>다음 화면은 영어예요 · <b>BROWSE FILES</b>로 사진을 고르고 <b>UPLOAD</b>를 누르시면 돼요.</div>'
+      : /^https?:\/\/open\.kakao\.com\//i.test(String(url||''))
         ? '<div class="privacy">두 분에게 바로 전해져요 · 들어갈 때 <b>닉네임을 고를 수 있어요</b>.<br>사진 고른 뒤 <b>원본</b>을 눌러 주세요 · 화질 그대로 전해져요.</div>'
         : '<div class="privacy">두 분이 준비한 외부 공간이에요 · 이름이 함께 보일 수 있어요.</div>')+'</div>';
 }
