@@ -3362,6 +3362,12 @@ chk 'RETIRED_ROWS' scripts/build-listen-all.mjs 3
 #   어조는 문장(아직 조립 전이라 낱개로 갈아 낀다). 다르면 실행 불가능한 답이 나온다.
 chk 'REDUB_PICK' scripts/build-redub-pick.mjs 3
 chk 'SELF_PARSE' scripts/build-redub-pick.mjs 1
+# [PICK_EDIT] 판정 넷째 칸 — 「다시」와 「글 바꿈」은 뒤에 오는 일이 다르다.
+#   다시 = 같은 글을 다시 받는다(대장 무변경) / 글 바꿈 = 대장을 먼저 고치고 받는다.
+#   한 칸에 두면 새 글이 말로만 오가고 아무 데도 안 남는다. 칸을 갈라 결과 상자에 글자로 싣는다.
+# ★글칸은 다시 그리지 않는다 — 입력 중 repaint 하면 커서가 튀고 글이 날아간다.
+chk 'PICK_EDIT' scripts/build-redub-pick.mjs 2
+chk '글 바꿈' scripts/build-redub-pick.mjs 4
 chk '소리를 하나도 못 심었다' scripts/build-redub-pick.mjs 1   # LISTEN_HAS_SOUND 와 같은 처방
 # [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.

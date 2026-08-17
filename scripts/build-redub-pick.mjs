@@ -1,4 +1,4 @@
-// 「다시」로 찍은 자리를 **버림/다시/그대로** 로 가르는 판정 화면 [REDUB_PICK]
+// 「다시」로 찍은 자리를 **버림/다시/글 바꿈/그대로** 로 가르는 판정 화면 [REDUB_PICK]
 //
 //   node scripts/build-redub-pick.mjs --out <경로> [--embed]
 //
@@ -14,6 +14,15 @@
 //      그래서 판정 단위도 **문장**이다.
 //   ★판정 단위를 실제 고칠 수 있는 단위와 같게 둔다. 다르면 「문장만 버리기」 같은
 //     실행 불가능한 답이 나오고, 그걸 받은 내가 다시 되물어야 한다.
+//
+// ★★[PICK_EDIT 2026-08-17 사용자 지시 *"변경기능도 추가하자 문단이 조금 애매해서 내용을 바꾸고 싶을때"*]
+//   판정을 **넷**으로 늘렸다 — 버림 / 다시 / **글 바꿈** / 그대로.
+//   「다시」와 「글 바꿈」은 뒤에 오는 일이 다르다:
+//     다시    = 같은 글을 다시 받는다. 대장을 안 건드린다. 붙여넣기 → 조립으로 끝난다.
+//     글 바꿈 = **대장(ritual-data → cue → manifest)을 먼저 고쳐야** 한다. 그다음에 받는다.
+//   ★이 둘을 한 칸에 두면 「다시」로 적고 새 글을 말로 덧붙이게 되고, 그 말이 어디에도 안 남는다.
+//     칸을 갈라 두면 새 글이 **결과 상자에 글자로** 실려 나온다 — 옮겨 적는 사람이 없다.
+//   ★고칠 글은 **지금 글을 채워서** 보여 준다. 빈 칸에 다시 쓰게 하면 원문이 사라진다.
 //
 // ★듣고 판정한다 — 글만 보고는 어조를 못 고른다. 소리를 심어 인터넷 없이도 들리게 한다.
 // ★판정은 브라우저에 저장된다(localStorage) — 중간에 닫아도 이어서 한다.
@@ -138,6 +147,11 @@ h1{font-size:19px;margin:0 0 6px}.sub{color:var(--sub);font-size:13px;margin:0 0
 .btns button.v-drop.on{background:var(--drop);color:#fff;border-color:var(--drop)}
 .btns button.v-re.on{background:var(--re);color:#fff;border-color:var(--re)}
 .btns button.v-keep.on{background:var(--keep);color:#fff;border-color:var(--keep)}
+.btns button.v-edit.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.ed{margin-top:8px}
+.ed textarea{width:100%;height:auto;min-height:64px;font-size:14px;line-height:1.6;
+border:1px solid var(--gold);border-radius:9px;padding:9px;font-family:inherit;margin:0}
+.ed .hint{font-size:12px;color:var(--sub);margin:4px 0 0}
 .srow{display:flex;gap:6px;align-items:center;margin:6px 0}
 .srow .t{flex:1;font-size:14px}
 .srow button{padding:5px 9px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:12px;cursor:pointer}
@@ -156,6 +170,7 @@ border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
 ★ 표시가 찍으신 문장입니다. 흐린 줄은 같은 문단의 나머지입니다.<br>
 <b>기존 클립</b>은 문장 하나만 다시 받을 수 없어 <b>문단 통째로</b> 판정합니다.<br>
 <b>어조</b>는 아직 조립 전이라 <b>문장 하나씩</b> 갈아 끼울 수 있습니다.<br>
+<b>글 바꿈</b>을 누르면 글칸이 열려요 · 지금 글이 채워져 있으니 고치시면 됩니다.<br>
 판정은 이 브라우저에 저장돼요 · 중간에 닫아도 이어서 하시면 됩니다.
 </div>
 <div class="tabs">
@@ -178,9 +193,9 @@ border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
 var D = ${JSON.stringify(DATA)};
 var AO = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(AO).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
 var AN = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(AN).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
-var KEY = 'me_redub_pick_v1', TAB = 'old', V = {};
-try { V = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { V = {}; }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(V)); } catch (e) {} }
+var KEY = 'me_redub_pick_v2', TAB = 'old', V = {}, T = {};
+try { var _s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; V = _s.v || {}; T = _s.t || {}; } catch (e) { V = {}; T = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify({v:V, t:T})); } catch (e) {} }
 function $(i){ return document.getElementById(i); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];}); }
 var A = $('a');
@@ -208,8 +223,13 @@ function draw(){
         +'<button class="play" data-p="o:'+esc(c.id)+'">문단 듣기</button>'
         +'<button class="v-drop'+(v==='버림'?' on':'')+'" data-v="o|'+esc(c.id)+'|버림">버림</button>'
         +'<button class="v-re'+(v==='다시'?' on':'')+'" data-v="o|'+esc(c.id)+'|다시">다시</button>'
+        +'<button class="v-edit'+(v==='바꿈'?' on':'')+'" data-v="o|'+esc(c.id)+'|바꿈">글 바꿈</button>'
         +'<button class="v-keep'+(v==='그대로'?' on':'')+'" data-v="o|'+esc(c.id)+'|그대로">그대로</button>'
-        +'</div></div>';
+        +'</div>';
+      if(v==='바꿈'){ var k='o|'+c.id, cur=(T[k]!=null? T[k] : c.s.join('\\n'));
+        h+='<div class="ed"><textarea data-e="'+esc(k)+'" rows="'+Math.max(2,c.s.length)+'">'+esc(cur)+'</textarea>'
+          +'<p class="hint">한 줄에 한 문장 · 줄을 늘리거나 지우면 문장 수도 그렇게 바뀝니다</p></div>'; }
+      h+='</div>';
     });
   } else {
     D.neu.forEach(function(c,i){
@@ -226,8 +246,12 @@ function draw(){
           +'<button class="play" data-p="n:'+x.i+'">듣기</button>'
           +'<button class="v-drop'+(v==='버림'?' on':'')+'" data-v="n|'+x.i+'|버림">버림</button>'
           +'<button class="v-re'+(v==='다시'?' on':'')+'" data-v="n|'+x.i+'|다시">다시</button>'
+          +'<button class="v-edit'+(v==='바꿈'?' on':'')+'" data-v="n|'+x.i+'|바꿈">글 바꿈</button>'
           +'<button class="v-keep'+(v==='그대로'?' on':'')+'" data-v="n|'+x.i+'|그대로">그대로</button>'
           +'</div>';
+        if(v==='바꿈'){ var nk='n|'+x.i, ncur=(T[nk]!=null? T[nk] : x.t);
+          h+='<div class="ed"><textarea data-e="'+esc(nk)+'" rows="2">'+esc(ncur)+'</textarea>'
+            +'<p class="hint">이 한 문장만 고칩니다 · 화자는 '+esc(x.v)+' 그대로예요</p></div>'; }
       });
       h+='</div>';
     });
@@ -252,13 +276,25 @@ $('list').addEventListener('click', function(e){
   if(b.dataset.v){ var a=b.dataset.v.split('|'), k=a[0]+'|'+a[1], v=a[2];
     if(V[k]===v) delete V[k]; else V[k]=v; save(); draw(); }
 });
+/* ★[PICK_EDIT] 글칸은 **다시 그리지 않는다.** 입력 중에 repaint 하면 커서가 튀고 글이 날아간다
+   (이 저장소가 마이페이지 글칸에서 겪은 것과 같다 · PICK_KEEPS_SOUND 계열). 값만 담는다. */
+$('list').addEventListener('input', function(e){
+  var t=e.target; if(!t.dataset || !t.dataset.e) return;
+  T[t.dataset.e]=t.value; save();
+});
 $('mk').onclick = function(){
   var L=['# 재더빙 판정 결과',''];
   L.push('## ① 기존 클립');
-  D.old.forEach(function(c){ L.push(c.id + ' = ' + (V['o|'+c.id]||'(안 정함)')); });
+  D.old.forEach(function(c){ var k='o|'+c.id, v=V[k]||'(안 정함)';
+    L.push(c.id + ' = ' + v);
+    if(v==='바꿈'){ L.push('   [지금]'); c.s.forEach(function(t){ L.push('     ' + t); });
+      L.push('   [바꿀 글]'); String(T[k]!=null?T[k]:c.s.join('\\n')).split('\\n')
+        .forEach(function(t){ if(t.trim()) L.push('     ' + t.trim()); }); } });
   L.push('', '## ② 새 어조 (문장)');
   D.neu.forEach(function(c){ c.n.forEach(function(x){
-    if(x.hit) L.push(c.slug + ' #' + (x.i+1) + ' = ' + (V['n|'+x.i]||'(안 정함)') + '   // ' + x.t); }); });
+    if(!x.hit) return; var k='n|'+x.i, v=V[k]||'(안 정함)';
+    L.push(c.slug + ' #' + (x.i+1) + ' = ' + v + '   // ' + x.t);
+    if(v==='바꿈') L.push('   [바꿀 글] ' + String(T[k]!=null?T[k]:x.t).replace(/\\n/g,' ').trim()); }); });
   var miss = L.filter(function(s){ return s.indexOf('(안 정함)')>=0; }).length;
   L.push('', '안 정한 것 ' + miss + '개');
   $('out').value = L.join('\\n');
