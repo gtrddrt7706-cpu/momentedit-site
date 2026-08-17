@@ -4106,3 +4106,11 @@ chk 'ADM_TRACE_MONEY' automation/platform/80_production.gs 2
 chk 'SURVEY_STAGE_BOTH' automation/admin/admin.gs 1
 chk 'ADM_AMT_ONE' admin.html 1
 nochk "var _DEP=Math.round(_T\*0.1)" admin.html    # 프론트 금액 산식 복제 금지(admin.gs 주석과 같은 규칙)
+# ★[CF_SEAL_MIN 2026-08-16 사용자 지시 "미니멀하게 아래 확정함 상세 문구부분도 심플하고 깔끔하게 줄여보자"]
+#   확정 기록 카드 네 줄 → 세 줄(226px → 135px). 예식일 되풀이·미리 적은 절차·요일 괄호를 걷었다.
+#   ★진사는 **인장 배지 하나뿐**이다 — 왼쪽 3px 선을 되살리지 말 것(둘이면 서로를 깎는다).
+#   ★남은 한 줄 「저희가 이대로 준비해요」는 지우지 말 것 — 그게 확정의 대가이자 이 카드의 값이다.
+chk 'CF_SEAL_MIN' mypage.html 4
+chk '저희가 이대로 준비해요' mypage.html 1
+nochk 'border-left:3px solid var(--seal)' mypage.html
+nochk "_wdT+' 예식은 이 내용" mypage.html   # 문구 자체는 위 주석이 근거로 인용하므로 '조립하는 코드'가 없는지를 본다
