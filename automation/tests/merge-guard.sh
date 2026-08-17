@@ -4080,3 +4080,12 @@ chk '1:1 채팅방</b>으로 만드셨는지 확인' mypage.html 1
 nochk '하객끼리 서로 안 보여요 · 사진은' mypage.html
 nochk '단둘이</b> 열려요' guide.html
 chk '닉네임을 고를 수 있어요' guide.html 1
+# ★★[PAID_STAGE_BACK 2026-08-16 사용자 제보 "강제로 돌렸는데 입금단계에서 아무것도 고객화면에 안나오는걸 확인"]
+#   관리자가 단계를 계약완료로 되돌리면 입금 기록은 남는데(ROLLBACK_KEEP_PAID · 돈은 지우지 않는다)
+#   그 단계에 뜰 수 있는 카드가 «서명+입금확인 → 접기» 하나뿐이라 **화면이 백지가 됐다.**
+#   NOW 는 단계 라벨만 보고 «계약금을 입금해 주세요»라고 말했다 — 내라는데 낼 곳이 없는 화면.
+#   ★불변식: 내라고 말하면 낼 곳이 있어야 하고, 보이는 카드가 없으면 NOW 라도 상황을 말해야 한다.
+chk 'PAID_STAGE_BACK' mypage.html 2
+chk '다시 입금하지 않으셔도 돼요' mypage.html 2
+chk 'PAID_STAGE_BACK' scripts/audit/stage-back.mjs 2
+chk '내라면 낼 곳' scripts/audit/stage-back.mjs 1
