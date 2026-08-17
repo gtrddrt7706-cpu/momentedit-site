@@ -4162,3 +4162,12 @@ chk 'DEPOSIT_TICK' automation/admin/admin.gs 1
 chk 'DEPOSIT_TICK' admin.html 1
 chk 'depositTick' automation/admin/admin.gs 2   # 초기화 1 + 채우는 곳 1(같은 줄에 두 번 나오는 곳은 1줄로 센다)
 chk 'DEPOSIT_TICK' scripts/audit/journey-sim.mjs 1
+# ★★[PAID_BACK_TYPO 2026-08-16 사용자 지적 "문단이랑 조금 어색한데"] 되돌림 안내 카드의 위계.
+#   원래 네 줄이 같은 무게로 가운데 정렬돼 읽는 순서가 없었고, 강조가 문장 꼬리에 매달려 있었고,
+#   무엇보다 **바로 위 NOW 카드와 같은 문장**이 한 화면에 두 번 나왔다.
+#   → 역할을 나눈다: 요약(결론·안심)은 NOW · 근거(금액·입금자)는 카드. 카드는 영수증처럼 조용히 든다.
+#   ★카드에 «계약금은 확인됐어요»·«다시 입금하지 않으셔도 돼요»를 다시 넣지 말 것 — NOW 가 이미 말한다.
+chk 'PAID_BACK_TYPO' mypage.html 2
+chk '요약은 NOW · 근거는 카드' mypage.html 1
+chk '확인됨' mypage.html 1
+nochk '디렉터가 확인하는 중이에요 · 다음 안내는 이 화면에 열려요' mypage.html   # 같은 문장 두 번 쓰던 첫 판
