@@ -4151,3 +4151,14 @@ nochk '30일 뒤 만료' mypage.html
 #   없고 오픈채팅 미디어는 톡서랍/톡클라우드 백업에서도 빠진다 — 돈으로 못 푸는 부담이라 감추지 않는다.
 chk 'SHARE_ROOM_EACH' mypage.html 1
 chk '하객마다 방이 따로 생겨요' mypage.html 1
+# ★★[DEPOSIT_TICK 2026-08-16 시뮬레이션 점검] 예약금 입금확인 칸이 비면 관리자에게 보인다.
+#   고객 화면은 예약금을 '결제 완료'로 찍는다(60_mypage 148 · 예약금을 받고 상담을 진행하니 실무와 맞는 의도된 판단).
+#   그런데 관리자 근거는 **예약 시트의 입금확인 칸**이라, 비면 조용히 갈린다:
+#     ·현금영수증 원장에 예약금이 '발행 대기'로 안 떠 → 의무발급(받은 날 D+5) 영구 미발행
+#     ·환불 견적 기수령액에서 10만이 빠져 → 환불 금액이 틀린다
+#   ★고객 화면을 '확인 중'으로 바꾸는 쪽은 택하지 않았다 — 실제로 낸 분께 안 냈다고 말하는 것이 더 나쁘다.
+#     고칠 곳은 «비어 있는 칸을 채우게 하는 것»이다. 이 경고를 지우지 말 것.
+chk 'DEPOSIT_TICK' automation/admin/admin.gs 1
+chk 'DEPOSIT_TICK' admin.html 1
+chk 'depositTick' automation/admin/admin.gs 2   # 초기화 1 + 채우는 곳 1(같은 줄에 두 번 나오는 곳은 1줄로 센다)
+chk 'DEPOSIT_TICK' scripts/audit/journey-sim.mjs 1

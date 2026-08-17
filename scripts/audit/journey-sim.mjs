@@ -140,6 +140,19 @@ try {
     }
   };
 
+  /* ★[DEPOSIT_TICK] 예약금 입금확인 칸이 비면 관리자에게 보여야 한다 —
+     고객 화면은 예약금을 '결제 완료'로 찍는데(의도) 관리자 근거는 예약 시트의 그 칸이라,
+     비어 있으면 현금영수증 의무발급이 큐에 안 뜨고 환불 기수령액에서 빠진다(둘 다 돈·세무). */
+  console.log('\n[예약금 입금확인 칸이 비었을 때 — 관리자가 아는가]');
+  {
+    const a = payloadAt({ 현재단계: '입금완료', 계약상태: '서명완료', 계약총액: AMT, 입금상태: '확인' });
+    ok(!!(a.adm && a.adm.depositTick && a.adm.depositTick.missing), '칸이 비면 관리자 상세가 그 사실을 싣는다 [DEPOSIT_TICK]', JSON.stringify(a.adm && a.adm.depositTick));
+    const b = payloadAt({ 현재단계: '신청접수' });
+    ok(!(b.adm && b.adm.depositTick), '예약금을 받기 전(신청접수)에는 경고하지 않는다', JSON.stringify(b.adm && b.adm.depositTick));
+    const c = payloadAt({ 현재단계: '입금완료', 상품타입: '웨딩스냅', 계약상태: '서명완료', 계약총액: 1200000, 입금상태: '확인' });
+    ok(!(c.adm && c.adm.depositTick), '웨딩스냅(예약금 개념 없음)에는 경고하지 않는다', JSON.stringify(c.adm && c.adm.depositTick));
+  }
+
   console.log('\n[A~Z 정상 여정 — 각 단계에서 고객 화면]');
   for (const s of STOPS) await check(s.at, s.row);
 

@@ -968,6 +968,26 @@ function adminDetail(code) {
   d.contractReq = _rec.계약정보 || null;   // [02-2.5] 고객이 입력한 계약 정보(예식일·생년월일·주소). null=고객 요청 전
   d.cashReceipt = _rec.현금영수증 || '';   // 현금영수증 발급 대상(고객 입력 휴대폰/사업자번호)
   d.receipts = _cashReceiptLedger(cust);   // 현금영수증 발행 원장 — 마일스톤별 입금확인·금액·발행기록(발행 카드/큐)
+  /* ★★[DEPOSIT_TICK 2026-08-16 시뮬레이션 점검] 예약금 입금확인이 비어 있으면 관리자에게 알린다.
+     고객 화면은 «여기까지 왔으면 예약금은 이미 받았다»고 보고 예약금 행을 항상 '결제 완료'로 찍는다
+     (60_mypage.gs 148 · 의도된 판단 — 예약금을 받고 나서 상담을 진행하니 실무와 맞다).
+     그런데 관리자 쪽 근거는 **예약 시트의 입금확인 칸**이라, 그 칸이 비면 조용히 둘이 갈린다:
+       · 현금영수증 원장에 예약금이 '발행 대기'로 뜨지 않아 → **의무발급(받은 날 D+5)이 영구 미발행**
+       · 환불 견적의 기수령액에서 10만 원이 빠져 → 환불 금액이 틀린다
+     둘 다 돈·세무 문제이고, 화면 어디에도 «칸이 비었다»는 신호가 없었다.
+     ★고객 화면을 '확인 중'으로 바꾸는 쪽은 택하지 않았다 — 실제로 낸 분께 안 냈다고 말하는 것이 더 나쁘다.
+       고칠 곳은 «비어 있는 칸을 채우게 하는 것»이다. */
+  d.depositTick = null;
+  try {
+    if (product !== '웨딩스냅') {
+      var _dtStage = String(cust.get('현재단계') || '').trim();
+      var _dtPast = (typeof STAGE_EXCEPTIONS === 'undefined' || STAGE_EXCEPTIONS.indexOf(_dtStage) === -1)
+        && ['신청접수'].indexOf(_dtStage) === -1;   // 상담확정 이후 = 예약금을 받고 진행한 뒤
+      var _dtBk = findRowByPersonalCode(code);
+      var _dtOk = !!(_dtBk && String(_dtBk.get('입금확인') || '').trim() === '확인');
+      if (_dtPast && !_dtOk) d.depositTick = { missing: true, amount: (typeof PAYMENT !== 'undefined' ? PAYMENT.예약금 : 100000) };
+    }
+  } catch (e) {}
   /* [ADM_AB1B] 마일스톤별 금액을 서버가 계산해 실어 보낸다 — 확인 모달이 통장과 대조할 금액을 바로 보여주게.
        종전엔 상세에 계약금 자리에 '계약 총액'이 떴고(대조 대상이 다름) 중도금은 금액이 아예 없었다.
        ★프론트에서 금액 산식을 복제하지 말 것 — _journeyAmounts(70_journey) 단일 원천. 잔금은 확정 스냅샷 우선. */
