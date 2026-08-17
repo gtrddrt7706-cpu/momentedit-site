@@ -2027,7 +2027,12 @@ function cardConsult(d,isSnap){
   else if(st==='신청접수'){ b+='<div class="gate">고객이 아직 시간을 선택하지 않았어요</div>'+ab('propose','시간 직접 제안','btn-line')+ab('cancel','취소','btn-danger'); }
   // 상담완료/노쇼 — 상담확정/촬영확정 단계
   if(d.stage==='상담확정'){ b+=ab('openFitting','드레스 시착 동의 보내기')+ab('noshow','노쇼 처리','btn-danger'); }
-  else if(d.stage==='시착'){ b+=ab('consultDone','상담완료 처리')+ab('noshow','노쇼 처리','btn-danger'); }
+  /* ★[CONSULTDONE_BTN_GATE 2026-08-17 admin-btn-server 검사가 찾음] 서명 전에는 버튼을 내지 않는다.
+     서버는 «고객이 시착 동의서에 서명한 뒤»에만 상담완료를 받는다(admin.gs 1671). 그런데 버튼은
+     시착 단계면 무조건 그려져, 서명 대기 중에 누르면 매번 거부됐다. 대신 무엇을 기다리는지 적는다. */
+  else if(d.stage==='시착'){ b+=((d.raw&&d.raw['시착동의상태'])==='동의완료' ? ab('consultDone','상담완료 처리')
+    : '<div class="gate">고객 시착 서명을 기다리는 중이에요 · 서명 후 상담완료로 넘길 수 있어요</div>')
+    +ab('noshow','노쇼 처리','btn-danger'); }
   else if(d.stage==='촬영확정'){ b+=ab('noshow','노쇼 처리','btn-danger'); }
   if(d.hold && d.hold.date && d.hold.slot){   // 예식일 임시고정(가예약) — 요청이면 승인/거절, 승인됨이면 해제
     raw+='<br><span style="color:var(--gold-deeper,#9a7b3f)">예식일 '+esc(fmtDate(d.hold.date))+' · '+esc(wedTimeKo(d.hold.slot))+' · 임시고정 '+(d.hold.status==='승인'?(d.hold.expired?'기한 만료(점유 해제됨)':'승인됨'+(d.hold.expires?' ('+esc(fmtDate(d.hold.expires))+'까지 보호·자동해제)':'')):'요청')+'</span>';
@@ -2156,7 +2161,27 @@ function cardPayment(d){
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·)
   // [ADM_AC1] 오처리 복구용 되돌리기 — 큐엔 두지 않는다(일상 액션이 아니라 사고 복구용이라 눈에 잘 띄면 오히려 위험).
-  else if(pay==='확인') b+='<div class="gate">✓ 입금 확인됨</div>'+ab('undoPay:계약금','입금 확인 취소','btn-danger');
+  /* ★★[PAID_STAGE_RESYNC 2026-08-16] 수납은 확인됐는데 단계가 그 앞에 서 있으면 «누를 것이 하나도 없었다».
+     강제변경으로 단계를 내려도 확인된 수납은 보존되므로(ROLLBACK_KEEP_PAID) 여기 '✓ 입금 확인됨'만 남고,
+     되돌리기는 24시간이 지나면 막힌다 — 계약완료에 갇힌다(사용자 실제 신고).
+     그 자리에 문을 하나 낸다. 돈은 그대로 두고 단계만 맞추는 버튼이라 라벨에 그 뜻을 적는다.
+     ★이 화면(momentedit.kr/admin)이 실제로 쓰는 쪽이다 — GAS 사본(Admin.html)에만 넣으면 사용자에겐 안 보인다. */
+  else if(pay==='확인'){
+    var _psFl=(STAGE_FLOW[String(r['상품타입']||'').trim()]||STAGE_FLOW['시그니처']||[]);
+    var _psCur=String(r['현재단계']||'').trim();
+    var _psI=_psFl.indexOf(_psCur), _psP=_psFl.indexOf('입금완료');
+    if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1) b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');
+    b+='<div class="gate">✓ 입금 확인됨</div>';
+    /* ★★[UNDO_BTN_GATE 2026-08-17 admin-btn-server 검사가 찾음] 계약금 되돌리기는 «입금완료에 머물러
+       있을 때»만 서버가 받는다(admin.gs _undoConfirmCore 차단 C·D). 그런데 버튼은 «입금상태=확인»이면
+       단계와 무관하게 그려졌다 — 제작중·예식완료·결과물전달·후기·취소에서 누르면 매번 거부됐다.
+       **보이는데 안 되는 버튼은 없는 버튼보다 나쁘다** — 운영자가 자기 손을 의심하게 된다.
+       그래서 버튼 대신 «왜 지금은 안 되는지»를 한 줄로 둔다(설명까지 없애면 그것대로 불친절하다).
+       ★24시간 창(차단 E)은 여기서 못 본다 — 확인 시각이 이 화면 데이터에 없다. 그건 서버 문구가 맡는다. */
+    if(_psCur==='입금완료') b+=ab('undoPay:계약금','입금 확인 취소','btn-danger');
+    else if(STAGE_EX.indexOf(_psCur)!==-1) b+='<div class="gate">되돌리기는 단계를 정상으로 되돌린 뒤에 할 수 있어요</div>';
+    else if(_psI>_psP) b+='<div class="gate">이미 '+esc(_psCur)+'까지 진행돼 계약금 확인은 되돌릴 수 없어요 (강제 단계 변경으로 정리)</div>';
+  }
   else b+='<div class="gate">계약 서명 후 입금 확인 가능</div>';
   // [수납묶음] 고객이 계약금과 중도금·잔금을 한 번에 신고(완료신호)한 상태 — '입금 확인' 클릭 시 신고 묶음이 함께 확정됨을 미리 안내
   if(pay==='완료신호'&&((r['중도금상태']||'')==='완료신호'||(d.mirror&&d.mirror.balance&&d.mirror.balance.status==='완료신호')))
@@ -2376,7 +2401,13 @@ function cardResult(d,isSnap){
     SURVEY_ORDER.forEach(function(k){ if(sa[k]){ var q=SURVEY_Q[k]; bits.push((q?q.t:k)+' '+((q&&q.o[sa[k]])||sa[k])); } });
     raw+='<div class="res-ex">설문'+(r['설문일시']?(' · '+esc(r['설문일시'])):'')+(sp.reviewPublic==='Y'?' · <b style="color:var(--gold-deeper)">공개동의</b>':'')+(bits.length?('<div class="res-sel-list">'+esc(bits.join(' · '))+'</div>'):'')+(sp.review?'<div class="res-sel-list">“'+esc(sp.review)+'”</div>':'')+'</div>'; }catch(e){} }
   var b='', st=d.stage, exPay=(ex==='결제대기'), rstt=stt;
-  if((isSnap&&st==='입금완료')||(!isSnap&&st==='제작중')){ b+='<div class="gate">'+(isSnap?'촬영':'예식')+' 후 결과물 단계예요</div>'+ab('eventDone',(isSnap?'촬영':'예식')+'완료 처리'); }
+  /* ★★[EVENT_BTN_WIDE 2026-08-17 stage-reach 도달성 검사가 찾음] 시그니처는 «입금완료»에서도 낸다.
+     서버는 이미 입금완료·제작중 둘 다 받는다(admin.gs 1845 EVENT_GATE_WIDE) · 홈 큐도 둘 다 띄운다(admin.gs 819).
+     화면만 «제작중»으로 좁아, **제작 기초정보를 한 번도 안 채운 고객**은 예식이 끝나도
+     누를 버튼이 없었다 — 제작중 전이는 고객이 제작 화면에 들어와야 걸리기 때문이다.
+     막다른 길의 모양이 [PAID_STAGE_RESYNC] 와 같다: 서버는 되는데 문이 안 그려진 것.
+     ★조건을 다시 좁히지 말 것 — 좁히면 그 고객은 강제변경으로만 진행된다. */
+  if((isSnap&&st==='입금완료')||(!isSnap&&(st==='제작중'||st==='입금완료'))){ b+='<div class="gate">'+(isSnap?'촬영':'예식')+' 후 결과물 단계예요</div>'+ab('eventDone',(isSnap?'촬영':'예식')+'완료 처리'); }
   else if(st==='예식완료'||st==='촬영완료'){
     if(rstt==='선택완료') b+=ab('startRetouch','보정 착수','btn-line');             // 선택완료 → 보정중(고객 화면 '보정 중' 표시)
     if(rstt==='선택완료'||rstt==='보정중') b+=ab('setResult','보정본 등록');         // 선택 끝 → 보정본 올리기가 1순위

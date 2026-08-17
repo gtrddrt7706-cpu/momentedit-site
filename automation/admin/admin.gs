@@ -1746,7 +1746,12 @@ function adminSetResultLinks(code, links) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
     var stage = String(cust.get('현재단계') || '').trim();
-    if (['제작중', '예식완료', '촬영완료', '결과물전달'].indexOf(stage) === -1) {
+    /* ★★[RESULT_LINK_REVIEW 2026-08-17 stage-reach 도달성 검사가 찾음] '후기' 단계도 받는다.
+       화면은 후기 단계에서도 «보정본 등록·결과물 링크 수정» 버튼을 그린다(admin.html DELIV_FORCE_RESUME).
+       그런데 서버 목록에만 '후기'가 빠져 있어, 누르면 «결과물 준비 단계가 아닙니다»로 거부됐다 —
+       보이는 버튼이 안 되는 것은 없는 버튼보다 나쁘다(운영자가 자기 손을 의심하게 된다).
+       ★후기는 «결과물을 이미 받은 뒤»라 링크를 고칠 자격은 결과물전달과 같다. 목록을 좁히지 말 것. */
+    if (['제작중', '예식완료', '촬영완료', '결과물전달', '후기'].indexOf(stage) === -1) {
       return { ok: false, error: '결과물 준비 단계가 아닙니다. (현재: ' + (stage || '없음') + ')' };
     }
     var isSnap = String(cust.get('상품타입') || '').trim() === P.PRODUCT_SNAP;
@@ -1862,7 +1867,11 @@ function adminMarkDelivered(code, force) {
     var stage = String(cust.get('현재단계') || '').trim();
     // [DELIV_FORCE_RESUME 2026-07-25] 강제 변경 등으로 단계만 먼저 결과물전달이 된 고객(결과물상태≠전달완료)도 전달 완료 처리 가능하게 —
     //   종전엔 already로 조기 반환해 상태·기록·알림 없이 영영 마감 불가(막다른길). 이미 전달완료면 종전대로 멱등 반환.
-    var _stageAlreadyDeliv = (stage === '결과물전달');
+    /* ★[DELIV_RESUME_REVIEW 2026-08-17 admin-btn-server 검사가 찾음] '후기'도 같이 본다.
+       화면은 결과물전달·후기 둘 다에서 «결과물 전달 처리» 버튼을 그리는데(admin.html DELIV_FORCE_RESUME)
+       서버는 결과물전달만 봐서, 후기 단계에 올려 둔 미완 건은 누를 때마다 거부됐다.
+       두 단계 모두 «강제변경으로 단계만 앞서간» 같은 상황이다 — 자격을 다르게 둘 이유가 없다. */
+    var _stageAlreadyDeliv = (stage === '결과물전달' || stage === '후기');
     if (_stageAlreadyDeliv && String(cust.get('결과물상태') || '').trim() === '전달완료') return { ok: true, already: true, stage: stage };
     if (!_stageAlreadyDeliv && ['예식완료', '촬영완료'].indexOf(stage) === -1) return { ok: false, error: '예식완료/촬영완료 상태에서만 전달할 수 있습니다. (현재: ' + (stage || '없음') + ')' };
     if (!String(cust.get('원본링크') || '').trim()) return { ok: false, error: '결과물(원본)을 먼저 등록해 주세요.' };

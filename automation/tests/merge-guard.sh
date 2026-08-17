@@ -4179,3 +4179,34 @@ chk 'PAID_BACK_TYPO' mypage.html 2
 chk '요약은 NOW · 근거는 카드' mypage.html 1
 chk '확인됨' mypage.html 1
 nochk '디렉터가 확인하는 중이에요 · 다음 안내는 이 화면에 열려요' mypage.html   # 같은 문장 두 번 쓰던 첫 판
+# ★★[STAGE_REACH 2026-08-17 사용자 지시 "각각 전부 병렬로 스텝바이스텝 시뮬레이션 … 경우의수 따져서 전부"]
+#   여정 «도달성» 검사기 — 상태 하나가 아니라 **상태 사이의 문**을 본다.
+#   journey-sim(화면이 뭐라고 말하나)이 통과시킨 [PAID_STAGE_RESYNC] 를 잡으려고 만들었다.
+#   ★이 셋을 지우면 «서버는 되는데 화면에 문이 없는» 종류가 다시 조용히 들어온다.
+chk 'STAGE_REACH' scripts/audit/stage-reach.mjs 1
+chk 'WORLD_RANGE' scripts/audit/_gasworld.mjs 1   # 행 전체 읽기 목 — 없으면 예약 쪽 동작이 던져 «가짜 막다른 길»이 뜬다
+# ★★[PAID_STAGE_RESYNC] 단계 맞추기 버튼 — **두 관리자 화면 모두에** 있어야 한다.
+#   admin.html(momentedit.kr/admin · 실제로 쓰는 쪽)에만 없으면 사용자에겐 고쳐진 것이 아니다.
+chk 'PAID_STAGE_RESYNC' automation/admin/admin.gs 1
+chk 'PAID_STAGE_RESYNC' automation/admin/Admin.html 1
+chk 'PAID_STAGE_RESYNC' admin.html 1
+chk '단계 맞추기 · 입금완료로' automation/admin/Admin.html 1
+chk '단계 맞추기 · 입금완료로' admin.html 1
+# ★★[EVENT_BTN_WIDE 2026-08-17] 시그니처 예식완료 버튼은 입금완료에서도 뜬다.
+#   서버는 이미 둘 다 받는다(EVENT_GATE_WIDE) — 화면만 좁으면 제작을 한 번도 안 연 고객이 갇힌다.
+chk 'EVENT_BTN_WIDE' admin.html 1
+chk "(!isSnap&&(st==='제작중'||st==='입금완료'))" admin.html 1
+# ★★[RESULT_LINK_REVIEW 2026-08-17] 결과물 링크 등록은 '후기' 단계도 받는다(화면이 이미 버튼을 그린다).
+chk 'RESULT_LINK_REVIEW' automation/admin/admin.gs 1
+chk "'결과물전달', '후기'\].indexOf(stage)" automation/admin/admin.gs 1
+# ★★[BTN_SERVER 2026-08-17] «보이는 버튼이 실제로 눌리는가» — 화면·서버 맞대보기.
+#   stage-reach 는 서버만 두드려 버튼을 모른다. 이 검사가 그 반대편(보이는데 안 되는 버튼)을 맡는다.
+#   실제로 넷을 잡았다: 후기 단계의 보정본 등록·결과물 전달 처리 · 되돌리기 버튼 상시노출 · 서명 전 상담완료.
+chk 'BTN_SERVER' scripts/audit/admin-btn-server.mjs 1
+# ★후기 단계도 결과물 손질 자격이 같다 — 좁히면 «보이는데 안 되는 버튼»이 다시 생긴다
+chk 'DELIV_RESUME_REVIEW' automation/admin/admin.gs 1
+chk "stage === '결과물전달' || stage === '후기'" automation/admin/admin.gs 1
+# ★서버가 못 받는 자리에 버튼을 그리지 않는다(대신 왜 안 되는지를 적는다)
+chk 'UNDO_BTN_GATE' admin.html 1
+chk 'CONSULTDONE_BTN_GATE' admin.html 1
+chk '고객 시착 서명을 기다리는 중이에요' admin.html 1
