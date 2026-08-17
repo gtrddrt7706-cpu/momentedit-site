@@ -6432,7 +6432,28 @@ function photoShareNorm(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//
 /* ★[SHARE_KIND 2026-08-16] 넣은 링크가 **어떤 성격인지** 알아본다. 종류마다 하객이 겪는 것이 다르기 때문이다 —
    1:1 오픈채팅은 서로 안 보이고, 공유 앨범은 링크를 아는 사람끼리 다 본다. 그 차이를 부부가 넣는 즉시 알아야 한다.
    ★막는 장치가 아니다(무엇을 넣든 저장된다) — 넣은 것이 뜻하는 바를 되읽어 주는 거울일 뿐이다. */
+/* ★★★[SHARE_WEDUP 2026-08-17 사용자 결정] 권하는 하나가 **WedUploader** 로 바뀌었다.
+   ■ 왜 카톡 1:1 을 내렸나 (사용자 지적 둘)
+     ①"1:1 카톡 이용은 전문성이 없어 보인다" ②"부부가 답장을 해줘야 하는 번거로움"
+     대화방은 말을 거는 모양이고, 하객 수만큼 방이 쪼개져 부부가 방마다 저장해야 했다.
+   ■ 왜 대기업이 아닌가 — 없다(3라운드 실사)
+     애플·구글·네이버·카카오·아마존·삼성·어도비·MS **8곳 전부 X.** 전부 계정 로그인 위에 지어져 있다.
+     계정 없이 올리는 수집함은 대기업이 만들지 않는 물건이라, 이름값으로 고를 방법이 애초에 없다.
+   ■ 그래서 「안정적」의 기준을 바꿨다 — 회사 크기가 아니라 **사진이 어디에 쌓이느냐**
+     업체 서버 보관형(스냅웨딩 등)은 업체가 망하면 사진이 사라진다.
+     ★직송형은 사진이 **부부 구글드라이브**로 바로 들어가 업체가 망해도 남는다.
+       업체는 예식 당일 하루만 살아 있으면 된다 — 회사 크기가 거의 상관없어진다.
+   ■ WedUploader 를 고른 근거 (셋 다 실제 확인)
+     ①하객에게 **이름·이메일을 묻지 않는다**(익명) ②사진 여러 장 한 번에 골라진다
+     ③하객끼리 서로 안 보인다(갤러리는 별도 유료라 무료는 업로드 전용). 2018년부터 8년.
+   ★스냅웨딩은 권하지 않는다 — 개업 5개월 개인사업자 · 통신판매업 번호 불일치 ·
+     4개월 만에 보관기간 90일→3일 축소 · 약관에 서비스 종료 조항 없음. 되살리지 말 것.
+   ★드롭박스도 권하지 않는다 — 하객에게 이름+이메일을 **강제**하고(끌 수 없음)
+     부부에게 업로드마다 알림 메일이 온다(끌 수 없음). 「부부는 응대하지 않는다」와 정면 충돌.
+   ★하객 30명 규모에서 용량은 어느 쪽도 문제가 아니다. 갈리는 것은 **마찰**이다 —
+     30명 중 올리는 사람은 10명 안팎이라, 입력칸 하나가 곧 사진 몇 장의 차이가 된다. */
 function photoShareKind(u){ u=String(u||'');
+  if(/^https?:\/\/(www\.)?weduploader\.com\//i.test(u)) return 'wedup';
   if(/^https?:\/\/open\.kakao\.com\//i.test(u)) return 'kakao';
   if(/^https?:\/\/(photos\.app\.goo\.gl|photos\.google\.com)\//i.test(u)) return 'gphoto';
   return u?'etc':''; }
@@ -6567,7 +6588,7 @@ function renderPhoto(box){
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';   // [SEC_RANK] 390px 에서 두 줄로 꺾이던 꼬리 — 설명은 아래 본문이 한다
-  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="링크 붙여넣기 (1:1 오픈채팅방)" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';   // 예시는 플레이스홀더로 올림 · 단일라인 잘림 방지(2026-07-21)
+  h+='<input class="cc-input" id="mp_photoShare" type="url" inputmode="url" maxlength="300" autocomplete="off" placeholder="링크 붙여넣기 (weduploader.com)" style="margin:0" value="'+escapeHtml(PHOTOFLOW.share||'')+'">';   // [SHARE_WEDUP] 자리표시도 권하는 곳과 같아야 한다 — 여기가 어긋나면 안내와 칸이 서로 다른 말을 한다   // 예시는 플레이스홀더로 올림 · 단일라인 잘림 방지(2026-07-21)
   /* ★★★[PHOTOSHARE_DIRECT 2026-08-16 사용자 결정] 하객 사진은 **우리를 안 거치고 부부에게 바로 간다.**
      사용자 원문: *"우리를 안거치고 부부한테 바로가는걸원해"*
      ★조사(2026-08-16): 구글 드라이브·구글 폼은 **로그인 없이 업로드를 못 받는다.** 그래서 「우리 폴더 링크를
@@ -6611,7 +6632,11 @@ function renderPhoto(box){
            알림은 결정 대기함에 올려 두었다.
 
      ■ 공유 앨범은 지우지 않고 접었다 — 이미 만들어 둔 부부가 있고, 되는 것은 사실이다. */
-  h+='<div class="cc-note" style="text-align:left;margin-top:8px">카톡 → <b>오픈채팅 → 1:1 채팅방</b>을 만들어 링크를 넣어 주세요.</div>';
+  /* [SHARE_WEDUP] 권하는 하나만 세운다(PHOTOSHARE_ONE) — 만드는 법 한 줄 + 하객이 겪는 것 한 줄.
+     ★영어 화면이라는 것을 먼저 밝힌다. 눌러 보고 놀라는 것보다 미리 아는 편이 낫고,
+       하객이 누르는 것은 버튼 두 개뿐이라 그 사실까지 같이 적으면 걱정이 사라진다. */
+  h+='<div class="cc-note" style="text-align:left;margin-top:8px"><b>weduploader.com</b>에서 앨범을 만들고 링크를 넣어 주세요 · 무료예요.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin-top:6px">하객 사진이 <b>두 분 구글 드라이브</b>로 바로 들어와요 · 두 분이 답하거나 받아 주실 일은 없어요.</div>';
   h+='<div class="cc-note" style="text-align:left;margin-top:6px">하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요 · QR은 테이블 카드용이에요.</div>';
   /* [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다 — 부부가 엉뚱한 것을 넣고도 모르는 일이 없게. */
   var _sk=photoShareKind(_psu);
@@ -6622,9 +6647,17 @@ function renderPhoto(box){
   /* [SHARE_NO_DAYS][SHARE_ROOM_EACH] 숫자 없이 · 대가 둘을 그대로 적는다(위 근거 주석) */
   if(_sk==='kakao')  h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">오픈채팅 링크예요 · <b>1:1 채팅방</b>으로 만드셨는지 확인해 주세요(그룹이면 하객끼리 서로 보여요).</div>'
                       +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">하객마다 방이 따로 생겨요 · <b>예식 뒤 방마다 저장</b>해 주세요. 카톡 사진은 시간이 지나면 다시 받을 수 없어요.</div>';
+  /* [SHARE_WEDUP] 권한 것을 넣었을 때만 「무엇을 확인해야 하나」를 짚는다.
+     ★구글 드라이브 연결이 끊기면 하객 업로드가 통째로 실패한다(직송형 공통 약점) — 예식 전날 한 번 열어 보게 한다.
+     ★'안전하게 보관돼요' 류의 보증은 쓰지 않는다. 남의 서비스라 우리가 책임질 수 없다(책임질 수 없는 안심 금지). */
+  if(_sk==='wedup')  h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">하객은 <b>가입도 이름 입력도 없이</b> 올려요 · 서로의 사진은 안 보여요.</div>'
+                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">화면은 영어예요 · 하객이 누르는 건 <b>고르기·올리기 두 번</b>이라 안내는 저희가 한국어로 해요.</div>'
+                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)"><b>예식 전날 한 번 열어</b> 구글 드라이브 연결이 살아 있는지 봐 주세요.</div>';
   if(_sk==='gphoto') h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">공유 앨범 · <b>링크를 아는 하객끼리 서로 사진이 보여요</b>.</div>';
-  if(_sk==='etc')    h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">오픈채팅·공유 앨범이 아니에요 · 하객이 <b>가입 없이 올릴 수 있는지</b> 확인해 주세요.</div>';
-  h+='<details class="cc-more" style="margin-top:6px"><summary>다른 방법도 되나요 · 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b>도 돼요 · 만들 때 「공동작업」을 켜야 하객이 올릴 수 있고, <b>링크를 아는 하객끼리 서로 보여요</b>. 압축이 없는 건 이쪽이에요.<br><br>어느 쪽이든 링크를 아는 분은 누구나 들어갈 수 있어요 · <b>예식 뒤 정리하시면 안내 페이지 버튼도 닫혀요</b>.</div></details>';
+  if(_sk==='etc')    h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">권해 드린 곳이 아니에요 · 하객이 <b>가입 없이 올릴 수 있는지</b> 확인해 주세요.</div>';
+  /* [SHARE_WEDUP][PHOTOSHARE_ONE] 나머지는 접어 둔다 — 이미 쓰고 계신 부부가 있으니 지우지는 않는다.
+     ★각 방법의 대가를 한 줄씩만 적는다. 셋을 나란히 펼치면 또 세 문단이 된다(PHOTOSHARE_ONE 의 교훈). */
+  h+='<details class="cc-more" style="margin-top:6px"><summary>다른 방법도 되나요 · 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b> · 만들 때 「공동작업」을 켜야 하객이 올릴 수 있고, <b>링크를 아는 하객끼리 서로 보여요</b>.<br><br><b>카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨 <b>방마다 저장</b>하셔야 하고, 카톡 사진은 시간이 지나면 다시 받을 수 없어요.<br><br>어느 쪽이든 링크를 아는 분은 누구나 들어갈 수 있어요 · <b>예식 뒤 정리하시면 안내 페이지 버튼도 닫혀요</b>.</div></details>';
   h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
   h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
   h+='</div>';
