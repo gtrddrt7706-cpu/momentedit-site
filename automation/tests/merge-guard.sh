@@ -3382,12 +3382,50 @@ chk '소리를 하나도 못 심었다' scripts/build-redub-pick.mjs 1   # LISTE
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
 chk 'GUESS_TIE' scripts/check-audio-sents.mjs 1
+# ── ★★[DROP_GUARD] 「버림」으로 찍어도 비울 수 없는 자리 (2026-08-17 사용자 지시) ──
+# *"버림으로 체크해도 이 부분의 안내가 없으면 안 된다고 판단이 들면 너가 같이 적은 이유를 보고
+#   적절한 문장으로 변경 적용하자"*
+# ★「버림」은 «클립을 지운다»지 «식순에서 그 순서를 없앤다»가 아니다. 둘을 같게 보면
+#   엔진이 부르는 큐가 소리 없는 큐가 된다 = 식장에서 아무 안내 없이 다음이 시작된다.
+# ★★엔진(Cue.build)만으로는 못 가른다 — 실측(2026-08-17): 「다시」로 찍힌 56클립 중 엔진이
+#   부르는 것 49개. 남은 7개를 「비워도 됨」으로 넘길 뻔했는데 그중 5개가 비우면 안 되는 자리였다:
+#     24_vow-both-1(합창 26_vow-both 의 재료) · 49·50 bridge(콘솔에서 손으로 튼다)
+#     32_declare-family(폴백) · 25_narr-bless-end-long(런타임 조건)
+#   진짜로 비워도 되는 것은 이미 폐지한 2개뿐이었다. 그래서 답을 셋으로 둔다 —
+#   못비움(false) · 비워도됨(true) · **확인 필요(null)**. ★null 을 「괜찮다」로 접지 말 것.
+chk 'DROP_GUARD' scripts/lib/drop-guard.mjs 2
+chk 'DROP_ANSWERS' scripts/lib/drop-guard.mjs 1
+chk '합성 재료' scripts/lib/drop-guard.mjs 1
+chk '콘솔에서 손으로 고르는 판' scripts/lib/drop-guard.mjs 1
+chk '확인 필요' scripts/lib/drop-guard.mjs 3
+chk 'DROP_GUARD' scripts/build-redub-pick.mjs 4
+chk '이 자리는 비울 수 없어요' scripts/build-redub-pick.mjs 1
+chk 'DROP_GUARD' scripts/apply-redub-pick.mjs 4
+chk 'REDUB_PICK_APPLY' scripts/apply-redub-pick.mjs 1
+chk 'PICK_PARSE' scripts/apply-redub-pick.mjs 1
+# ★[ENGINE_CALLS] 「엔진이 부르는 자리」는 저장소에 한 곳만 둔다. 셋이 각자 세면 답이 갈리고,
+#   갈린 날 사람은 「비워도 된다」고 말한 쪽을 믿는다 — 그쪽이 되돌리기 비싼 쪽이다.
+chk 'ENGINE_CALLS' scripts/lib/engine-calls.mjs 1
+chk 'ENGINE_CALLS' scripts/check-listen-cover.mjs 1
+chk 'engineCalls' scripts/lib/drop-guard.mjs 2
+# ── ★[VOICE_ID] 조립된 mp3 가 대장에 적힌 성우의 목소리인가 (2026-08-17 사용자 물음) ──
+# *"나래이션 성우 각각맞게 입힌거지 ?"*
+# ★대장 ↔ 붙여넣기 대조는 둘 다 «글»이다. 사고가 그 틈에서 났다(PHOTO_ASK) — 손으로 쓴 화자가
+#   틀렸는데 글끼리는 아무 데도 안 걸렸고 사람이 귀로 잡았다. 그래서 여기서는 파형을 잰다.
+# ★F0 만으로는 사람을 못 지목한다(실측: 주하 145Hz · 우성 151Hz). 음색까지 본다.
+# ★★자기 클립은 중심에서 빼고 잰다(leave-one-out) — 안 빼면 검사가 아니라 거울이 된다.
+# ★못 잰 자리를 «통과»로 세지 않는다 — 클립이 하나뿐인 성우 4명은 «판정 불가»로 따로 적는다.
+chk 'VOICE_ID' scripts/audit/clip-voice-id.py 2
+chk 'leave-one-out' scripts/audit/clip-voice-id.py 3
+chk 'EXPORT_TRUTH' scripts/audit/clip-voice-id.py 1
+chk '판정 불가' scripts/audit/clip-voice-id.py 3
+chk 'clip-voice-id' .github/workflows/nightly-screen.yml 1   # 야간에 매일 다시 잰다
 # ── [LISTEN_COVER] 실청 화면에 «식장에서 날 소리»가 전부 있는가 (2026-08-16 사용자 지시) ──
 # 왼쪽을 대장(manifest)이 아니라 **큐 엔진**에 둔다 — 대장과 화면은 같은 생성기에서 나와 늘 맞는다.
 # ★castLive(배역 상황극)를 보는 첫 검사다. check-text-audio 는 그것을 일부러 뺀다(화면 글과 짝이 아니라서).
 #   그 사정과 「들어 있나」는 별개인데, 여태 아무도 그 별개를 안 봤다.
 chk 'LISTEN_COVER' scripts/check-listen-cover.mjs 1
-chk 'castLiveOf' scripts/check-listen-cover.mjs 1
+chk 'castLiveOf' scripts/lib/engine-calls.mjs 1      # [ENGINE_CALLS] 상황극을 세는 곳은 이제 lib 이다
 chk 'UNREACHED_TEXT' scripts/check-listen-cover.mjs 1
 chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 # ★[LISTEN_KEEP 2026-08-16] 만든 실청 판을 버리지 않는다 — 사용자가 내려받아 «들을» 판이다.
@@ -3775,7 +3813,9 @@ chk 'PHOTO_ASK' assets/ritual-cue.js 5
 chk 'PHOTO_ASK' assets/ritual-preview-link.js 3
 chk 'PHOTO_ASK' mypage.html 3
 chk 'PHOTO_ASK' order-preview.html 2
-chk 'photoShare' scripts/check-listen-cover.mjs 1     # ★축을 안 흔들면 84·85 가 「엔진이 안 부르는 줄」로 잡힌다(실측 89→91)
+chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 84·85 가 「엔진이 안 부르는 줄」로 잡힌다(실측 89→91)
+# ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
+#   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 chk "INJECT = \['digital', 'photoShare'\]" assets/ritual-preview-link.js 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
@@ -3849,7 +3889,7 @@ chk 'DUB_FROZEN_FILE' scripts/build-dub-onefile.mjs 1
 chk 'frozen' "docs/plans/식순연구/타입캐스트/더빙_번호계약.json" 1
 # [EXTRA_CROSS 2026-08-16 CC 적대검증 ④] extra 는 «그 축의 모든 값»과 곱한다 —
 #   'wine' 하나로만 켜서 18_narr-valley-cake(valley:'cake' + extra.valley 동시)가 통째로 빠져 있었다(91→92곳).
-chk 'EXTRA_CROSS' scripts/check-listen-cover.mjs 1
+chk 'EXTRA_CROSS' scripts/lib/engine-calls.mjs 1     # [ENGINE_CALLS] 위와 같은 이유로 파일이 바뀌었다
 # [AUDIO_PATH_REAL 2026-08-16 CC 적대검증 ⑤] 손으로 박은 mp3 경로가 실물에 닿는가.
 #   ★지금 rc 1 이 정상이다 — preview-bed.mp3 가 없다(고칠지는 사용자가 정한다). 게이트는 «세는 것»만 건다.
 chk 'AUDIO_PATH_REAL' scripts/audit/audio-paths.mjs 1

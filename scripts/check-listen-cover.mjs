@@ -26,14 +26,10 @@
 // ★종료 코드 [CANT_LOOK] 0 통과 · 1 재서 틀림 · 2 재지 못함
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { engineCalls } from './lib/engine-calls.mjs';
 
-const require_ = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const Cue = require_(path.join(ROOT, 'assets/ritual-cue.js'));
-const Story = require_(path.join(ROOT, 'assets/ritual-story.js'));
-const D = require_(path.join(ROOT, 'assets/ritual-data.js'));
 const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8'));
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
@@ -46,81 +42,11 @@ let bad = 0;
 const no = (m) => { console.error('✗ ' + m); bad++; };
 
 /* ── 왼쪽: 엔진이 부르는 것 전부 ──────────────────────────────────────────── */
-const AX = {
-  course: Object.keys(D.COURSES),
-  entry: ['A', 'B', 'C', 'D', 'E', 'F'],
-  entryVoice: ['nar', 'couple'],
-  guestVoice: ['nar', 'couple'],
-  declareWho: Object.keys(D.DECLWHO),
-  declare: ['1', '2'],
-  letter: Object.keys(D.LETTER),
-  valley: ['none', 'wine', 'cake', 'both'],
-  ringwarm: ['family', 'all'],
-  tribute: Object.keys(D.TRIBUTE.modes),
-  toast: Object.keys(D.TOAST),
-  bless: ['on', 'off'],
-  blessProxy: [false, true],
-  ring: ['on', 'off'],
-  song: ['family', 'live', 'off'],
-  digital: [false, true],
-  /* ★[PHOTO_ASK 2026-08-16] 사진 부탁 두 자리(84·85)는 이 축을 안 흔들면 영영 안 나온다.
-     실측: 축을 넣기 전 84·85 가 «화면에만 있고 엔진이 안 부르는 줄»로 잡혔다 — 엔진은 부르는데
-     이 검사가 부를 상태를 안 만든 것이다. 축이 늘면 여기도 같이 늘려야 한다(EXTRA_CROSS 와 같은 교훈). */
-  photoShare: [false, true],
-};
-/* ★축을 **두 개씩** 흔든다 — check-text-audio 와 같은 규칙이다.
-   한 축씩만 흔들면 「두 분 목소리 × 느낌 C」처럼 두 값이 만나야 생기는 자리가 통째로 빠진다. */
-const states = [];
-const base = { course: 'damback' };
-const keys = Object.keys(AX);
-states.push({ ...base });
-for (const k of keys) for (const v of AX[k]) states.push({ ...base, [k]: v });
-for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++)
-  for (const a of AX[keys[i]]) for (const b of AX[keys[j]]) states.push({ ...base, [keys[i]]: a, [keys[j]]: b });
-/* ★[EXTRA_CROSS 2026-08-16 CC 적대검증] extra 를 **켜는 값 하나**와만 곱하면 셋이 만나는 자리가 빠진다.
-   실측(그때): `18_narr-valley-cake` 는 `valley:'cake'` + `extra.valley` 가 **동시에** 있어야 나왔다.
-   EXTRA_ON 이 valley 를 'wine' 으로만 켜서, 두 축 흔들기로도 그 자리에 못 닿았다(80 → 81).
-   ★[WINE_RETIRED 2026-08-16] 그 valley 축 자체가 그날 폐지됐다 — 위 실측 사례는 이제 «없는 자리»다.
-     ★그래도 **곱하는 규칙은 남긴다.** 고친 것은 valley 하나가 아니라 「extra 를 한 값과만 곱한다」는
-       버릇이기 때문이다. 다음에 축이 하나 늘면 같은 구멍이 그대로 다시 난다.
-       (사례가 사라졌다고 처방을 걷으면, 사례가 다시 생겼을 때 아무도 모른다) */
-const EXTRA_ON = { bless: { bless: 'on' } };   // [WINE_RETIRED 2026-08-16] valley 제거 — 팔레트에서 빠져 켤 길이 없다
-for (const k of ['bless', 'ringwarm', 'welcome', 'tribute', 'toast', 'song', 'letter', 'free']) {
-  const e = {}; e[k] = true;
-  const on = EXTRA_ON[k] || {};
-  states.push({ ...base, ...on, extra: e });
-  states.push({ ...base, ...on, extra: e, entryVoice: 'couple', guestVoice: 'couple' });
-  if (AX[k]) for (const v of AX[k]) {                       // [EXTRA_CROSS] 같은 이름 축의 모든 값과 교차
-    states.push({ ...base, [k]: v, extra: e });
-    for (const co of AX.course) states.push({ course: co, [k]: v, extra: e });
-  }
-  for (const co of AX.course) states.push({ course: co, ...on, extra: e });
-}
-
-const want = new Map();   // id → {kind, where:Set}
-const add = (id, kind, where) => { if (!id) return;
-  const k = String(id);
-  if (!want.has(k)) want.set(k, { kind, where: new Set() });
-  want.get(k).where.add(where); };
-
-for (const S of states) for (const MODE of ['preview', 'console']) {
-  let r; try { r = Cue.build(S, { mode: MODE }); } catch (e) { continue; }
-  for (const c of r.cues) {
-    const main = Story.castMainOf(c), live = Story.castLiveOf(c);
-    if (c.file) add(c.file, '나레이션', MODE);
-    for (const x of main) add(x.id, '배역(나레이션 대신)', MODE);
-    for (const x of live) add(x.id, '배역 상황극(사람 구간)', MODE);   // ★여태 아무도 안 본 자리
-  }
-}
+/* ★[ENGINE_CALLS 2026-08-17] 이 계산은 scripts/lib/engine-calls.mjs 로 옮겼다 — 쓰는 곳이 셋이 됐다.
+   여기서 한 번 더 세면 언젠가 셋이 서로 다르게 세고, 그날 «비워도 되는 자리»의 답이 갈린다.
+   축(AX)을 늘릴 일이 있으면 lib 를 고친다. 여기에 다시 적지 말 것. */
+const { want, retired } = engineCalls();
 const pad2 = (n) => ('0' + n).slice(-2);
-const NOBY = new Map(man.clips.map((c) => [c.file, pad2(c.no) + '_' + c.file]));
-for (const g of [].concat(D.PHOTOCUE.call, D.PHOTOCUE.fx))
-  add(NOBY.get(g.slug) || g.slug, '골라 트는 판(촬영 신호)', 'photocue');
-
-/* 폐지한 자리는 식장에서 안 난다 — 왼쪽에서 뺀다. 대신 몇 개를 뺐는지 적는다 [RETIRED_SLUG] */
-const RET = Cue.RETIRED || {};
-const retired = [...want.keys()].filter((id) => RET[String(id).replace(/^\d+_/, '')]);
-retired.forEach((id) => want.delete(id));
 
 /* ── 오른쪽: 만들어진 그 파일 ─────────────────────────────────────────────── */
 const html = fs.readFileSync(FILE, 'utf8');
