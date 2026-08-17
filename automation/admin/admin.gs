@@ -753,7 +753,9 @@ function adminHome() {
       var _fwQ = stageFlowFor(product), _siQ = _fwQ.indexOf(stage), _piQ = _fwQ.indexOf('입금완료');
       if (_siQ !== -1 && _piQ !== -1 && _siQ < _piQ) {
         pushQ({ code: code, names: names, product: product, kind: '단계정리',
-          sub: _srPaid.join('·') + ' 확인됐는데 단계가 ' + stage + '에 머물러 있어요 · 단계를 맞추거나 입금 확인을 취소해 주세요',
+          /* [UNDO_ALL] 무엇을 해야 하는지가 계약 유무로 갈린다 — 계약이 지워졌으면 단계만 올릴 수 없다(서버가 막는다) */
+          sub: _srPaid.join('·') + ' 확인됐는데 단계가 ' + stage + '에 머물러 있어요 · '
+            + (계약 === '서명완료' ? '단계를 맞추거나 입금 확인을 취소해 주세요' : '계약이 초기화됐어요 · 입금 확인을 취소하고 계약서부터 다시 보내 주세요'),
           badge: { level: 'yellow', text: '되돌림 정리 대기' }, _urgent: false, _stage: 4, _wait: createdYmd });
       }
     }
@@ -1585,7 +1587,12 @@ function _undoConfirmCore(code, milestone, reason, preview) {
   code = String(code || '').trim().toUpperCase();
   milestone = String(milestone || '').trim();
   reason = String(reason || '').trim();
-  if (['계약금', '중도금', '잔금', '중도금잔금'].indexOf(milestone) === -1) return { ok: false, error: '되돌릴 항목이 올바르지 않아요. (계약금·중도금·잔금·중도금잔금)' };
+  /* ★★[UNDO_ALL 2026-08-17 사용자 질문 "원클릭으로 가능한거야?"] '전체' = 확인된 수납을 한 번에.
+     실측: 되돌려진 고객의 계약금만 취소하면 중도금·잔금 '확인'이 남아 큐가 다시 뜨고, 운영자가
+     같은 팝업을 두세 번 더 눌러야 했다 — 그건 원클릭이 아니다.
+     targets 루프는 이미 여러 항목을 돌 수 있으므로 목록만 넓히면 «한 번의 사유·한 번의 확인»으로 끝난다.
+     ★스냅은 중도금이 없다 — '전체'에서는 오류가 아니라 «건너뛴다»(아래 targets 구성에서 제외). */
+  if (['계약금', '중도금', '잔금', '중도금잔금', '전체'].indexOf(milestone) === -1) return { ok: false, error: '되돌릴 항목이 올바르지 않아요. (계약금·중도금·잔금·중도금잔금·전체)' };
   if (!preview && !reason) return { ok: false, error: '되돌리는 사유를 입력해 주세요. 금전 기록이라 처리이력에 남겨요.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
@@ -1611,7 +1618,9 @@ function _undoConfirmCore(code, milestone, reason, preview) {
   var _ubSi = _ubFlow.indexOf(stageNow), _ubPi = _ubFlow.indexOf('입금완료');
   var _ubBehind = (_ubSi !== -1 && _ubPi !== -1 && _ubSi < _ubPi);
 
-  var targets = (milestone === '중도금잔금') ? ['중도금', '잔금'] : [milestone];
+  var targets = (milestone === '중도금잔금') ? ['중도금', '잔금']
+    : (milestone === '전체') ? (isSnap ? ['계약금', '잔금'] : ['계약금', '중도금', '잔금'])   // [UNDO_ALL] 스냅은 중도금 없음 — 오류 대신 제외
+    : [milestone];
   var plan = [], patch = {}, recDirty = false, consentRemoved = [];
   for (var i = 0; i < targets.length; i++) {
     var sp = _undoSpec(targets[i], isSnap);
@@ -1620,11 +1629,15 @@ function _undoConfirmCore(code, milestone, reason, preview) {
     var cur = String(cust.get(sp.stateCol) || '').trim();
     if (cur !== '확인') continue;                                        // 멱등 — 이미 확인이 아니면 되돌릴 게 없다
     // A · 카드 확정분 — 시트에서만 되돌리면 장부와 PG가 어긋난다
-    if (rec.결제수단 && rec.결제수단[sp.payKey] === '카드') return { ok: false, block: 'A', error: sp.label + '은 카드로 결제된 건이에요. 시트만 되돌리면 결제 기록과 어긋나요. 토스에서 결제 취소를 먼저 진행해 주세요.' };
+    if (rec.결제수단 && rec.결제수단[sp.payKey] === '카드') return { ok: false, block: 'A', blockKey: sp.payKey, blockLabel: sp.label, error: sp.label + '은 카드로 결제된 건이에요. 시트만 되돌리면 결제 기록과 어긋나요. 토스에서 결제 취소를 먼저 진행해 주세요.' };
     // B · 현금영수증 발행분 — 발행 취소가 먼저다
     var issued = rec.영수증발행 || {};
     for (var k = 0; k < sp.receiptKeys.length; k++) {
-      if (issued[sp.receiptKeys[k]]) return { ok: false, block: 'B', error: sp.label + '은 현금영수증이 이미 발행됐어요(' + sp.receiptKeys[k] + '). 현금영수증 발행 취소를 먼저 해주세요.' };
+      /* ★[BLOCK_KEY 2026-08-17 사용자 지시 "현금영수증 발행취소같은것도 확인 메세지 나와서 바로선택해서 넘길수있게"]
+         무엇이 막는지를 **문구가 아니라 값으로** 돌려준다 — 화면이 한글을 파싱해 알아내면
+         문구를 다듬는 순간 조용히 깨진다. blockKey 를 보고 «그럼 그것부터 취소할까요?»를 바로 낸다. */
+      if (issued[sp.receiptKeys[k]]) return { ok: false, block: 'B', blockKey: sp.receiptKeys[k], blockLabel: sp.label,
+        error: sp.label + '은 현금영수증이 이미 발행됐어요(' + sp.receiptKeys[k] + '). 현금영수증 발행 취소를 먼저 해주세요.' };
     }
     // C · 다음 단계로 전진함 — 계약금에만 적용. 중도금·잔금은 원래 제작중·예식완료에서 확인하는 마일스톤이라 여기서 막으면 정상 건이 전부 막힌다
     //     [UNDO_BEHIND] behind(단계가 입금완료보다 앞 = 되돌려진 상태)면 면제 — «진행된» 것이 아니라 «되돌려진» 것이다

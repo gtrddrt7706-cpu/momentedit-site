@@ -4480,3 +4480,23 @@ chk 'flex: none; align-self: flex-start;' index.html 1
 #   옛 표본은 외부 주소를 넣어 두어 '두 분이 준비한 외부 공간' 안내가 떴다(홈 홍보와 어긋남).
 nochk "photoShare:'https://momentedit.kr/'" guide.html
 chk '표본은 \*\*비워 둔다\*\*' guide.html 1
+
+
+
+# ★★[UNDO_ALL 2026-08-17 사용자 질문 "강제되돌리기 돌려도 … 원클릭으로 가능한거야?"] 실측 답이 «아니오»였다.
+#   계약완료로 되돌린 경우만 「단계 맞추기」가 됐다 — 더 앞으로 되돌리면 _clearForwardData 가 계약상태를
+#   비워 서버가 «계약 서명 완료 후 입금 확인이 가능합니다»로 거부(큐엔 뜨는데 원클릭은 실패).
+#   또 계약금만 취소하면 중도금·잔금 잔재가 남아 큐가 다시 떴다 — 3클릭은 원클릭이 아니다.
+#   → 갈래를 «계약 유무»로 정하고, 취소는 '전체' 한 번으로 끝낸다. 불변식: 한 번 누르면 큐가 빈다.
+chk 'UNDO_ALL' automation/admin/admin.gs 3
+chk "'전체'" automation/admin/admin.gs 3
+chk 'UNDO_ALL_UI' admin.html 2
+chk 'ROLLBACK_ANYWHERE' scripts/audit/rollback-anywhere.mjs 1
+# ★★[BLOCK_CHAIN 2026-08-17 사용자 지시 "현금영수증 발행취소같은것도 확인 메세지 나와서 바로선택해서 넘길수있게"]
+#   막혔으면 «막혔다»로 끝내지 않고 그 다음 손잡이를 그 자리에 낸다(영수증 취소 → 이어서 입금 확인 취소).
+#   ★무엇이 막는지는 blockKey 로 온다 — 화면이 한글 문구를 파싱하면 문구를 다듬는 순간 조용히 깨진다.
+#   ★카드(A)는 이어 붙이지 않는다 — 토스에서 먼저 취소해야 하는 바깥 일이라 안내만 한다.
+chk 'BLOCK_KEY' automation/admin/admin.gs 1
+chk 'blockKey' automation/admin/admin.gs 2
+chk 'BLOCK_CHAIN' admin.html 1
+chk '진행 · 영수증 취소 후 계속' admin.html 1

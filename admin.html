@@ -2176,7 +2176,13 @@ function cardPayment(d){
     var _psFl=(STAGE_FLOW[String(d.product||'').trim()]||STAGE_FLOW['시그니처']||[]);
     var _psCur=String(r['현재단계']||'').trim();
     var _psI=_psFl.indexOf(_psCur), _psP=_psFl.indexOf('입금완료');
-    if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1) b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');
+    /* ★[UNDO_ALL_UI] 계약이 살아 있을 때만 «단계 맞추기»를 낸다 — 서버가 계약 서명완료를 요구한다(admin.gs 1406).
+       계약완료보다 더 앞으로 되돌리면 _clearForwardData 가 계약상태를 비우므로, 그 자리엔 이 버튼이
+       «보이는데 안 되는 버튼»이 된다(실측: 상담완료·시착·상담확정·신청접수 전부 거부). 대신 취소로 안내한다. */
+    if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1){
+      if(r['계약상태']==='서명완료') b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');
+      else b+='<div class="gate">계약이 초기화돼 단계만 올릴 수 없어요 · 입금 확인을 취소하고 계약서부터 다시 보내 주세요</div>';
+    }
     b+='<div class="gate">✓ 입금 확인됨</div>';
     /* ★★[UNDO_BTN_GATE 2026-08-17 admin-btn-server 검사가 찾음] 계약금 되돌리기는 «입금완료에 머물러
        있을 때»만 서버가 받는다(admin.gs _undoConfirmCore 차단 C·D). 그런데 버튼은 «입금상태=확인»이면
@@ -2706,7 +2712,31 @@ function doUndoRefunded(code,names,d){
 function doUndoPay(code,names,milestone,d){
   toast('되돌릴 내용 확인 중');
   gas('adminUndoConfirmPreview', code, milestone).then(function(p){
-    if(!(p&&p.ok)){ openModal({ title:'되돌릴 수 없어요', text:b(names)+li((p&&p.error)||'확인하지 못했어요'), yes:'확인', onYes:function(){ closeModal(); } }); return; }
+    if(!(p&&p.ok)){
+      /* ★★[BLOCK_CHAIN 2026-08-17 사용자 지시 "현금영수증 발행취소같은것도 확인 메세지 나와서
+         관리자 입장에서 바로선택해서 넘길수있게하기"] 막혔으면 «막혔다»로 끝내지 않는다.
+         무엇이 막는지 서버가 blockKey 로 알려주므로, 그 다음 손잡이를 이 자리에 바로 낸다.
+         종전엔 «현금영수증 발행 취소를 먼저 해주세요»만 뜨고 닫혔다 — 운영자가 그 버튼을 찾아
+         상세를 헤매야 했고, 그 사이 «어차피 안 되는구나» 하고 포기하면 고객은 계속 갇혀 있었다.
+         ★B(영수증)는 우리가 시트에서 되돌릴 수 있으니 이어서 처리한다.
+           A(카드)는 토스에서 먼저 취소해야 하는 **바깥 일**이라 이어 붙이지 않는다 — 안내만 한다. */
+      if(p&&p.block==='B'&&p.blockKey){
+        openModal({ title:'현금영수증부터 정리할까요?', danger:true,
+          text:b(names)+li(String(p.blockLabel||'')+'은 현금영수증이 이미 발행됐어요 ('+esc(p.blockKey)+')')
+            +li('진행하면 발행 기록을 취소하고, 이어서 입금 확인 취소로 넘어가요')
+            +li('⚠ 홈택스에서 실제 발급한 건이면 홈택스에서도 취소해 주세요'),
+          yes:'진행 · 영수증 취소 후 계속',
+          onYes:function(){
+            mBusy(true);
+            gas('adminUndoCashReceipt', code, p.blockKey).then(function(r2){
+              if(!(r2&&r2.ok)){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr((r2&&r2.error)||'영수증 취소 실패'); return; }
+              closeModal(); toast('영수증 발행 취소됨 · 이어서 입금 확인 취소');
+              setTimeout(function(){ doUndoPay(code,names,milestone,d); }, 400);   // 같은 흐름을 이어 간다
+            }).catch(function(e){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr('오류: '+(e&&e.message||e)); });
+          } });
+        return;
+      }
+      openModal({ title:'되돌릴 수 없어요', text:b(names)+li((p&&p.error)||'확인하지 못했어요'), yes:'확인', onYes:function(){ closeModal(); } }); return; }
     if(p.already){ toast('이미 되돌려진 상태예요'); return; }
     var rows=(p.plan||[]).map(function(x){ return li(x.label+' · 확인('+esc(x.at||'')+') → '+x.to); }).join('');
     var st=p.stage?li('현재단계 '+p.stage.from+' → '+p.stage.to):'';
@@ -2738,13 +2768,29 @@ function doFixStage(code,names,sub){
     if(!(d&&d.ok)){ toast('상태를 불러오지 못했어요 · 행을 눌러 상세에서 진행해 주세요'); return; }
     var r=d.raw||{};
     var payOk=(r['입금상태']==='확인');
+    var signed=(r['계약상태']==='서명완료');
     var midOk=(r['중도금상태']==='확인');
     /* ★잔금은 mirror.balance 가 아니라 raw 로 본다 — buildBalanceState 는 잔금 «카드»용이라
        입금완료·제작중·예식완료 밖(=지금 다루는 되돌려진 단계)에서 null 을 준다(70_journey 1276).
        mirror 로 읽으면 잔금 '확인' 잔재가 있어도 midOk 만 잡혀 반쪽 정리가 된다(queue-oneclick ⑤가 잡았다). */
     var balOk=(r['잔금상태']==='확인');
     var restTxt=[midOk?'중도금':null,balOk?'잔금':null].filter(Boolean).join('·');
-    if(payOk){
+    /* ★★[UNDO_ALL_UI 2026-08-17 사용자 질문 "강제되돌리기 돌려도 … 원클릭으로 가능한거야?"]
+       실측 답: 계약완료로 되돌린 경우만 「단계 맞추기」가 됐다. 더 앞(상담완료·시착·상담확정·신청접수)으로
+       되돌리면 _clearForwardData 가 계약상태를 비우고, 서버는 «계약 서명 완료 후 입금 확인이 가능합니다»로
+       거부한다(admin.gs 1406). 그 자리에 단계 맞추기를 내미는 것은 «보이는데 안 되는 버튼»이고,
+       뜻으로도 틀렸다 — 계약이 지워졌으면 다시 서명받아야 하지 단계만 올릴 일이 아니다.
+       → 계약이 없으면 «수납 기록 전부 취소»를 주 갈래로 준다(계약 재발송 흐름으로 돌아간다).
+       ★취소는 '전체' 한 번으로 — 계약금만 지우면 중도금·잔금이 남아 큐가 다시 뜬다(원클릭이 아니게 된다). */
+    var allTxt=[payOk?'계약금':null,midOk?'중도금':null,balOk?'잔금':null].filter(Boolean).join('·');
+    if(payOk&&!signed){
+      openModal({ title:'수납 기록을 정리할까요?', danger:true,
+        text:b(names)+(sub?li(sub):'')
+          +li('되돌리면서 계약이 초기화돼 «단계 맞추기»로는 진행할 수 없어요 (계약 서명이 있어야 입금 단계로 갑니다)')
+          +li('진행하면 '+allTxt+' 확인을 한 번에 취소해요 · 계약서 재발송부터 다시 진행하시면 돼요'),
+        yes:'진행 · '+allTxt+' 확인 취소',
+        onYes:function(){ closeModal(); doUndoPay(code,names,'전체',d); } });
+    } else if(payOk){
       openModal({ title:'되돌려진 단계를 정리할까요?',
         text:b(names)+(sub?li(sub):'')
           +li('진행하면 단계만 입금완료로 맞춰요 · 수납 기록·계약·예식일은 그대로예요')
@@ -2755,7 +2801,7 @@ function doFixStage(code,names,sub){
         init:function(){ var u=$('fxUndo'); if(u) u.onclick=function(){ closeModal(); doUndoPay(code,names,'계약금',d); }; },
         onYes:function(){ runAct(['adminConfirmPayment',code],code,'단계 맞추기'); } });
     } else if(midOk||balOk){
-      var ms=(midOk&&balOk)?'중도금잔금':(midOk?'중도금':'잔금');
+      var ms=(midOk&&balOk)?'중도금잔금':(midOk?'중도금':'잔금');   /* 계약금은 이미 취소된 자리 — 남은 둘이 곧 전체 */
       openModal({ title:'남은 입금 확인을 정리할까요?',
         text:b(names)+(sub?li(sub):'')
           +li('계약금은 이미 취소됐는데 '+restTxt+' 확인이 남아 있어요')
