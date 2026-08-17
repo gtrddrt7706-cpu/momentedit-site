@@ -65,8 +65,23 @@ export function openWorld() {
     const ev = [];                                        // 이벤트 로그(쓰기·캘린더 삭제 순서까지 기록)
     const C = Object.assign({ 개인코드: 'ME-TEST', 상품타입: '시그니처' }, cells);
     const B = booking ? Object.assign({}, booking) : null;
-    const sheetC = { getRange: (r, c) => ({ setValue: (v) => { ev.push({ t: 'writeC', h: CB[c], v }); C[CB[c]] = v; } }) };
-    const sheetB = { _isBooking: true, getRange: (r, c) => ({ setValue: (v) => { ev.push({ t: 'writeB', h: BN[c], v }); if (B) B[BN[c]] = v; } }) };
+    /* ★[WORLD_RANGE 2026-08-17 stage-reach 가 걸림] 시트 목이 1칸 setValue 만 알았다.
+       진짜 코드에는 «행 전체를 한 번에 읽는» 길이 따로 있다 — row(sheet,colOf,n) 이
+       getRange(n,1,1,getLastColumn()).getValues() 로 읽는다(consultation-booking 1577).
+       그 길을 모르면 adminApprove·adminAcceptProposal·adminCancel 이 **던지고**,
+       검사기는 그걸 «문이 없다»로 읽는다 — 가짜 막다른 길이 만들어진다(실제로 만들어졌다).
+       읽기를 열어 두면 못 재는 칸이 줄고, 검사기가 못 재는 것을 통과로 세지 않는다. */
+    const rangeFor = (store, byNum, width, tag) => (r, c, nr, nc) => ({
+      setValue: (v) => { ev.push({ t: tag, h: byNum[c], v }); store[byNum[c]] = v; },
+      getValue: () => (byNum[c] in store ? store[byNum[c]] : ''),
+      getValues: () => [Array.from({ length: nc || 1 }, (_, i) => { const h = byNum[(c || 1) + i]; return h && (h in store) ? store[h] : ''; })],
+      setValues: (vv) => { (vv[0] || []).forEach((v, i) => { const h = byNum[(c || 1) + i]; if (h) { ev.push({ t: tag, h, v }); store[h] = v; } }); },
+      setNumberFormat: () => {}, setBackground: () => {}, setFontColor: () => {}, setNote: () => {},
+    });
+    const sheetC = { getLastRow: () => 2, getLastColumn: () => H2.length, getMaxColumns: () => H2.length,
+      getRange: rangeFor(C, CB, H2.length, 'writeC') };
+    const sheetB = { _isBooking: true, getLastRow: () => 2, getLastColumn: () => BH.length, getMaxColumns: () => BH.length,
+      getRange: rangeFor(B || {}, BN, BH.length, 'writeB') };
     const row = (o, n) => ({ num: n, get: (h) => (h in o ? o[h] : '') });
 
     G._AUTHED = true;                                     // 디스패처가 이미 인증한 상태로 진입(_requireAdmin 통과)
