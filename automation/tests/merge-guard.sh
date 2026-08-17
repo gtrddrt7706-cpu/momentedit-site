@@ -4080,3 +4080,29 @@ chk '1:1 채팅방</b>으로 만드셨는지 확인' mypage.html 1
 nochk '하객끼리 서로 안 보여요 · 사진은' mypage.html
 nochk '단둘이</b> 열려요' guide.html
 chk '닉네임을 고를 수 있어요' guide.html 1
+# ★★[PAID_STAGE_BACK 2026-08-16 사용자 제보 "강제로 돌렸는데 입금단계에서 아무것도 고객화면에 안나오는걸 확인"]
+#   관리자가 단계를 계약완료로 되돌리면 입금 기록은 남는데(ROLLBACK_KEEP_PAID · 돈은 지우지 않는다)
+#   그 단계에 뜰 수 있는 카드가 «서명+입금확인 → 접기» 하나뿐이라 **화면이 백지가 됐다.**
+#   NOW 는 단계 라벨만 보고 «계약금을 입금해 주세요»라고 말했다 — 내라는데 낼 곳이 없는 화면.
+#   ★불변식: 내라고 말하면 낼 곳이 있어야 하고, 보이는 카드가 없으면 NOW 라도 상황을 말해야 한다.
+chk 'PAID_STAGE_BACK' mypage.html 2
+chk '다시 입금하지 않으셔도 돼요' mypage.html 2
+chk 'PAID_STAGE_BACK' scripts/audit/stage-back.mjs 2
+chk '내라면 낼 곳' scripts/audit/stage-back.mjs 1
+# ★★[JOURNEY_SIM 2026-08-16 사용자 지시 "관리자·고객 연동 스탭바이스탭 a~z 심층 점검"]
+#   여정 시뮬레이터 — 진짜 서버 핸들러(handleGetMyState·adminDetail)의 응답을 진짜 화면에 그려 확인한다.
+#   ★수정을 되돌려 실제로 붉어지는 것까지 확인했다 — [PAID_STAGE_BACK] 을 서버 문장까지 그대로 재현했다.
+chk 'JOURNEY_SIM' scripts/audit/journey-sim.mjs 1
+chk 'handleGetMyState' scripts/audit/journey-sim.mjs 1
+chk '이름이 아니라 «뜻»으로 짝지어야' scripts/audit/journey-sim.mjs 1   # 관리자 계약금=납부액 · 이름끼리 비교하면 가짜 실패
+# ★★[시뮬레이션에서 잡은 연동 어긋남 넷]
+#   ①관리자 상세만 레거시 '업로드'를 정규화하지 않아, 같은 고객을 두고 관리자 «업로드» ↔ 고객 «원본이 도착했어요»
+#   ②돈을 확인하는 동작(중도금·잔금·중도금잔금·추가보정·보정시작)이 처리이력에 흔적을 남기지 않았다
+#   ③후기를 기다리는 단계는 '후기'인데 adminSkipSurvey 는 '결과물전달'만 받아 막다른 길이었다
+#   ④관리자 화면이 금액·기한 산식을 하드코딩 복제 — 정책을 고치면 관리자만 옛 숫자를 말한다(통장 대조에 쓰이는 화면)
+chk 'RESULT_LABEL_ONE' admin.html 1
+chk 'ADM_TRACE_MONEY' automation/platform/70_journey.gs 3
+chk 'ADM_TRACE_MONEY' automation/platform/80_production.gs 2
+chk 'SURVEY_STAGE_BOTH' automation/admin/admin.gs 1
+chk 'ADM_AMT_ONE' admin.html 1
+nochk "var _DEP=Math.round(_T\*0.1)" admin.html    # 프론트 금액 산식 복제 금지(admin.gs 주석과 같은 규칙)

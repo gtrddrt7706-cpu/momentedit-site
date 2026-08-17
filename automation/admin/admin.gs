@@ -1916,7 +1916,13 @@ function adminSkipSurvey(code) {
   try {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
-    if (String(cust.get('현재단계') || '').trim() !== '결과물전달') return { ok: false, error: '결과물 전달 완료 고객만 후기를 넘길 수 있습니다.' };
+    /* ★★[SURVEY_STAGE_BOTH 2026-08-16 시뮬레이션 점검] '후기' 단계도 받는다.
+       종전엔 '결과물전달'만 허용했는데, 후기를 기다리는 단계는 **'후기'** 다(adminForceStage 로 올린다).
+       그래서 «후기 대기 중인 고객의 후기를 넘기려 하면 거부»되는 막다른 길이 있었다 —
+       실행으로 확인: 후기 단계에서 «결과물 전달 완료 고객만…» 오류.
+       ★두 단계 다 «결과물을 이미 받은 뒤»라 후기를 생략할 자격은 같다. 조건을 좁히지 말 것. */
+    var _sg = String(cust.get('현재단계') || '').trim();
+    if (_sg !== '결과물전달' && _sg !== '후기') return { ok: false, error: '결과물 전달 완료 고객만 후기를 넘길 수 있습니다. (현재: ' + (_sg || '미정') + ')' };
     var cur = String(cust.get('설문상태') || '').trim();
     if (cur === '완료' || cur === '건너뜀') return { ok: true, already: true, archived: true };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
