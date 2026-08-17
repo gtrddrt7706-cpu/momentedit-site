@@ -3355,6 +3355,29 @@ chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
 chk 'RETIRED_OFF_SCREEN' scripts/build-listen-all.mjs 4
 chk 'Cue.RETIRED' scripts/build-listen-all.mjs 1
 chk 'RETIRED_ROWS' scripts/build-listen-all.mjs 3
+# ── [REDUB_PICK] 「다시」로 찍은 자리를 버림/다시/그대로로 가르는 판정 화면 (2026-08-17 사용자 지시) ──
+# *"내가선택 간편하게 페이지로 만들어주던지"* — md 로 드렸더니 손으로 적어야 했다.
+# 손으로 적는 자리는 틀린다(바로 어제 붙여넣기를 손으로 써서 화자를 틀렸다 · PHOTO_ASK).
+# ★판정 단위를 **실제 고칠 수 있는 단위**와 같게 둔다 — 기존은 클립(문장 wav 원본이 없다),
+#   어조는 문장(아직 조립 전이라 낱개로 갈아 낀다). 다르면 실행 불가능한 답이 나온다.
+chk 'REDUB_PICK' scripts/build-redub-pick.mjs 3
+chk 'SELF_PARSE' scripts/build-redub-pick.mjs 1
+# [PICK_EDIT] 판정 넷째 칸 — 「다시」와 「글 바꿈」은 뒤에 오는 일이 다르다.
+#   다시 = 같은 글을 다시 받는다(대장 무변경) / 글 바꿈 = 대장을 먼저 고치고 받는다.
+#   한 칸에 두면 새 글이 말로만 오가고 아무 데도 안 남는다. 칸을 갈라 결과 상자에 글자로 싣는다.
+# ★글칸은 다시 그리지 않는다 — 입력 중 repaint 하면 커서가 튀고 글이 날아간다.
+chk 'PICK_EDIT' scripts/build-redub-pick.mjs 2
+chk '글 바꿈' scripts/build-redub-pick.mjs 4
+# [PICK_WHOLE] 어조는 문장 하나로 안 갈린다 — 클립마다 「이 대본 전체 듣기」로 이어서 튼다.
+#   ★듣는 단위(문단)와 고치는 단위(문장)는 다를 수 있고, 어조에서는 다르다.
+# [PICK_WHY] 버림·바꿈에 이유 한 줄. 강제하지 않되 비면 결과에 「이유 없음」으로 실려 눈에 보인다.
+#   이유가 없으면 두 달 뒤 「왜 뺐더라」가 되고 되살리는 판단이 근거 없이 뒤집힌다.
+# [PICK_MACHINE] 결과는 기계가 읽는 한 가지 꼴로만 — 사람 줄과 섞으면 파서가 문안으로 착각한다.
+chk 'PICK_WHOLE' scripts/build-redub-pick.mjs 2
+chk 'PICK_WHY' scripts/build-redub-pick.mjs 1
+chk 'PICK_MACHINE' scripts/build-redub-pick.mjs 1
+chk 'REDUB_PICK v1' scripts/build-redub-pick.mjs 1
+chk '소리를 하나도 못 심었다' scripts/build-redub-pick.mjs 1   # LISTEN_HAS_SOUND 와 같은 처방
 # [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
