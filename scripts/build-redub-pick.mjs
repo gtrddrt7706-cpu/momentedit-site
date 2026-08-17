@@ -24,6 +24,17 @@
 //     칸을 갈라 두면 새 글이 **결과 상자에 글자로** 실려 나온다 — 옮겨 적는 사람이 없다.
 //   ★고칠 글은 **지금 글을 채워서** 보여 준다. 빈 칸에 다시 쓰게 하면 원문이 사라진다.
 //
+// ★★[PICK_WHOLE 2026-08-17 사용자 지시 *"해당문장이 들어간 대본 전체를 듣고 판단할수있게"*]
+//   어조는 **문장 하나만 들어서는 못 고른다.** 「간결/다정/서정」은 3~4문장이 흐르는 결이지
+//   한 문장의 성질이 아니다. 그래서 클립마다 「이 대본 전체 듣기」를 붙여 **이어서** 튼다.
+//   ★판정 단위는 그대로 문장이다 — 듣는 단위와 고치는 단위는 다를 수 있고, 여기서는 다르다.
+//     (어조 wav 는 낱개라 문장만 갈아 낄 수 있다. 그러나 «귀»는 문단으로 듣는다)
+//
+// ★★[PICK_WHY 2026-08-17 사용자 지시 *"버림 혹은 변경 체크시 간단한 이유 적을수있게"*]
+//   버림·바꿈에는 **한 줄 이유** 칸을 연다. 이유가 없으면 두 달 뒤에 「왜 뺐더라」가 되고,
+//   그때 되살리는 판단이 근거 없이 뒤집힌다(이 저장소의 제거 지시 보존 규칙이 그래서 있다).
+//   ★강제하지 않는다 — 비워도 넘어간다. 대신 결과에 「이유 없음」으로 실려 눈에 보인다.
+//
 // ★듣고 판정한다 — 글만 보고는 어조를 못 고른다. 소리를 심어 인터넷 없이도 들리게 한다.
 // ★판정은 브라우저에 저장된다(localStorage) — 중간에 닫아도 이어서 한다.
 // ★결과는 **붙여넣기 한 덩어리**로 낸다. 사람이 옮겨 적지 않는다.
@@ -152,6 +163,12 @@ h1{font-size:19px;margin:0 0 6px}.sub{color:var(--sub);font-size:13px;margin:0 0
 .ed textarea{width:100%;height:auto;min-height:64px;font-size:14px;line-height:1.6;
 border:1px solid var(--gold);border-radius:9px;padding:9px;font-family:inherit;margin:0}
 .ed .hint{font-size:12px;color:var(--sub);margin:4px 0 0}
+.why{margin-top:8px}
+.why input{width:100%;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:inherit}
+.why input:focus{border-color:var(--gold);outline:none}
+.whole{display:block;width:100%;margin:2px 0 10px;padding:9px;border:1px solid var(--gold);
+background:#fff;color:var(--gold);border-radius:9px;font-size:13px;cursor:pointer}
+.whole.on{background:var(--gold);color:#fff}
 .srow{display:flex;gap:6px;align-items:center;margin:6px 0}
 .srow .t{flex:1;font-size:14px}
 .srow button{padding:5px 9px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:12px;cursor:pointer}
@@ -171,6 +188,8 @@ border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
 <b>기존 클립</b>은 문장 하나만 다시 받을 수 없어 <b>문단 통째로</b> 판정합니다.<br>
 <b>어조</b>는 아직 조립 전이라 <b>문장 하나씩</b> 갈아 끼울 수 있습니다.<br>
 <b>글 바꿈</b>을 누르면 글칸이 열려요 · 지금 글이 채워져 있으니 고치시면 됩니다.<br>
+<b>버림·글 바꿈</b>에는 <b>이유 한 줄</b>을 적는 칸이 열려요 · 비워 두셔도 넘어갑니다.<br>
+어조는 <b>이 대본 전체 듣기</b>로 문단을 통째로 들어 보고 고르세요 · 느낌은 한 문장으로는 안 갈립니다.<br>
 판정은 이 브라우저에 저장돼요 · 중간에 닫아도 이어서 하시면 됩니다.
 </div>
 <div class="tabs">
@@ -180,7 +199,7 @@ border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
 <div class="bar"><i id="bi"></i></div>
 <div id="list"></div>
 <div id="outWrap" class="hide">
-  <div class="grp">결과 — 이걸 통째로 복사해서 주세요</div>
+  <div class="grp">결과 — 이걸 통째로 복사해서 주세요 (제가 그대로 읽어 반영합니다)</div>
   <textarea id="out" readonly></textarea>
 </div>
 </div>
@@ -194,12 +213,27 @@ var D = ${JSON.stringify(DATA)};
 var AO = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(AO).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
 var AN = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(AN).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
 var KEY = 'me_redub_pick_v2', TAB = 'old', V = {}, T = {};
-try { var _s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; V = _s.v || {}; T = _s.t || {}; } catch (e) { V = {}; T = {}; }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify({v:V, t:T})); } catch (e) {} }
+var R = {};
+try { var _s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; V = _s.v || {}; T = _s.t || {}; R = _s.r || {}; } catch (e) { V = {}; T = {}; R = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify({v:V, t:T, r:R})); } catch (e) {} }
 function $(i){ return document.getElementById(i); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];}); }
-var A = $('a');
-function play(src){ if(!src){ alert('이 판에는 소리가 안 심겼어요.'); return; } A.pause(); A.src = src; A.play().catch(function(){}); }
+var A = $('a'), Q = [], QI = -1;
+function play(src){ Q=[]; if(!src){ alert('이 판에는 소리가 안 심겼어요.'); return; } A.pause(); A.src = src; A.play().catch(function(){}); }
+/* ★[PICK_WHOLE] 문단을 «이어서» 튼다 — 어조는 문장 하나로 안 갈린다 */
+function playAll(list){
+  Q = list.filter(Boolean); QI = -1;
+  if(!Q.length){ alert('이 판에는 소리가 안 심겼어요.'); return; }
+  nextQ();
+}
+function nextQ(){ QI++; if(QI>=Q.length){ Q=[]; return; } A.src=Q[QI]; A.play().catch(function(){}); }
+A.addEventListener('ended', function(){ if(Q.length) nextQ(); });
+/* 이유 칸 — 버림·바꿈에만 연다. 비워도 넘어간다(강제하지 않는다) */
+function whyBox(k, v){
+  if(v!=='버림' && v!=='바꿈') return '';
+  return '<div class="why"><input data-w="'+esc(k)+'" value="'+esc(R[k]||'')+'" '
+    + 'placeholder="왜 '+esc(v)+'인지 한 줄 (비워도 됩니다)"></div>';
+}
 
 /* 판정 단위가 다르다 — 기존은 클립 하나, 어조는 문장 하나 [REDUB_PICK] */
 function need(){ return TAB==='old' ? D.old.length : D.neu.reduce(function(a,c){ return a + c.n.filter(function(x){return x.hit;}).length; },0); }
@@ -229,6 +263,7 @@ function draw(){
       if(v==='바꿈'){ var k='o|'+c.id, cur=(T[k]!=null? T[k] : c.s.join('\\n'));
         h+='<div class="ed"><textarea data-e="'+esc(k)+'" rows="'+Math.max(2,c.s.length)+'">'+esc(cur)+'</textarea>'
           +'<p class="hint">한 줄에 한 문장 · 줄을 늘리거나 지우면 문장 수도 그렇게 바뀝니다</p></div>'; }
+      h+=whyBox('o|'+c.id, v);
       h+='</div>';
     });
   } else {
@@ -237,7 +272,8 @@ function draw(){
       var all=c.n.filter(function(x){return x.hit;}).every(function(x){ return V['n|'+x.i]; });
       h+='<div class="card'+(all?' done':'')+'">'
         +'<div class="hd"><span class="no">'+(i+1)+'.</span><b>'+esc(c.ko)+'</b>'
-        +'<span class="tag">'+esc(c.slug)+'</span></div>';
+        +'<span class="tag">'+esc(c.slug)+'</span><span class="tag">'+c.n.length+'문장</span></div>'
+        +'<button class="whole" data-w-all="'+i+'">이 대본 전체 듣기 ('+c.n.length+'문장 이어서)</button>';
       c.n.forEach(function(x,k){
         if(!x.hit){ h+='<div class="sent">'+esc(x.v+': '+x.t)+'</div>'; return; }
         var v=V['n|'+x.i]||'';
@@ -252,6 +288,7 @@ function draw(){
         if(v==='바꿈'){ var nk='n|'+x.i, ncur=(T[nk]!=null? T[nk] : x.t);
           h+='<div class="ed"><textarea data-e="'+esc(nk)+'" rows="2">'+esc(ncur)+'</textarea>'
             +'<p class="hint">이 한 문장만 고칩니다 · 화자는 '+esc(x.v)+' 그대로예요</p></div>'; }
+        h+=whyBox('n|'+x.i, v);
       });
       h+='</div>';
     });
@@ -272,6 +309,8 @@ document.querySelector('.tabs').addEventListener('click', function(e){
 });
 $('list').addEventListener('click', function(e){
   var b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.wAll!=null){ var c=D.neu[+b.dataset.wAll];
+    return playAll(c.n.map(function(x){ return AN['n'+x.i]; })); }
   if(b.dataset.p){ var p=b.dataset.p.split(':'); return play(p[0]==='o'? AO[p.slice(1).join(':')] : AN['n'+p[1]]); }
   if(b.dataset.v){ var a=b.dataset.v.split('|'), k=a[0]+'|'+a[1], v=a[2];
     if(V[k]===v) delete V[k]; else V[k]=v; save(); draw(); }
@@ -279,24 +318,37 @@ $('list').addEventListener('click', function(e){
 /* ★[PICK_EDIT] 글칸은 **다시 그리지 않는다.** 입력 중에 repaint 하면 커서가 튀고 글이 날아간다
    (이 저장소가 마이페이지 글칸에서 겪은 것과 같다 · PICK_KEEPS_SOUND 계열). 값만 담는다. */
 $('list').addEventListener('input', function(e){
-  var t=e.target; if(!t.dataset || !t.dataset.e) return;
-  T[t.dataset.e]=t.value; save();
+  var t=e.target; if(!t.dataset) return;
+  if(t.dataset.e){ T[t.dataset.e]=t.value; save(); }
+  else if(t.dataset.w){ R[t.dataset.w]=t.value; save(); }
 });
 $('mk').onclick = function(){
-  var L=['# 재더빙 판정 결과',''];
-  L.push('## ① 기존 클립');
-  D.old.forEach(function(c){ var k='o|'+c.id, v=V[k]||'(안 정함)';
-    L.push(c.id + ' = ' + v);
-    if(v==='바꿈'){ L.push('   [지금]'); c.s.forEach(function(t){ L.push('     ' + t); });
-      L.push('   [바꿀 글]'); String(T[k]!=null?T[k]:c.s.join('\\n')).split('\\n')
-        .forEach(function(t){ if(t.trim()) L.push('     ' + t.trim()); }); } });
-  L.push('', '## ② 새 어조 (문장)');
+  /* ★★[PICK_MACHINE 2026-08-17 사용자 지시 *"복사 한번에 너한테전달되어 너가 바꿔줄수있게 반자동으로"*]
+     결과를 **기계가 읽을 수 있는 한 가지 꼴**로만 낸다. 사람이 읽는 줄과 섞지 않는다 —
+     섞으면 그걸 읽는 쪽(scripts/apply-redub-pick.mjs)이 «사람 줄»을 문안으로 착각한다.
+       O <클립id> = 판정      기존 클립
+       N <슬러그> #<줄번호> = 판정   어조 문장(줄번호는 더빙_한번에.txt 기준 1부터)
+       <  지금 글   ·   >  바꿀 글   (판정이 「바꿈」일 때만 · 한 줄에 한 문장)
+       #  이유 한 줄   (판정이 「버림」·「바꿈」일 때만)
+     ★이 꼴을 바꾸면 apply-redub-pick.mjs 의 파서도 같은 커밋에서 고칠 것. */
+  var L=['### REDUB_PICK v1'];
+  var miss=0;
+  D.old.forEach(function(c){ var k='o|'+c.id, v=V[k];
+    if(!v){ miss++; L.push('O ' + c.id + ' = (안 정함)'); return; }
+    L.push('O ' + c.id + ' = ' + v);
+    if(v==='버림'||v==='바꿈') L.push('# ' + ((R[k]||'').trim() || '(이유 없음)'));
+    if(v==='바꿈'){
+      c.s.forEach(function(t){ L.push('< ' + t); });
+      String(T[k]!=null?T[k]:c.s.join('\\n')).split('\\n').forEach(function(t){ if(t.trim()) L.push('> ' + t.trim()); });
+    } });
   D.neu.forEach(function(c){ c.n.forEach(function(x){
-    if(!x.hit) return; var k='n|'+x.i, v=V[k]||'(안 정함)';
-    L.push(c.slug + ' #' + (x.i+1) + ' = ' + v + '   // ' + x.t);
-    if(v==='바꿈') L.push('   [바꿀 글] ' + String(T[k]!=null?T[k]:x.t).replace(/\\n/g,' ').trim()); }); });
-  var miss = L.filter(function(s){ return s.indexOf('(안 정함)')>=0; }).length;
-  L.push('', '안 정한 것 ' + miss + '개');
+    if(!x.hit) return; var k='n|'+x.i, v=V[k];
+    if(!v){ miss++; L.push('N ' + c.slug + ' #' + (x.i+1) + ' = (안 정함)'); return; }
+    L.push('N ' + c.slug + ' #' + (x.i+1) + ' = ' + v);
+    if(v==='버림'||v==='바꿈') L.push('# ' + ((R[k]||'').trim() || '(이유 없음)'));
+    if(v==='바꿈'){ L.push('< ' + x.t);
+      L.push('> ' + String(T[k]!=null?T[k]:x.t).replace(/\\n/g,' ').trim()); } }); });
+  L.push('### END  안 정한 것 ' + miss + '개');
   $('out').value = L.join('\\n');
   $('outWrap').className='';
   $('out').select();

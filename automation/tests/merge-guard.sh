@@ -3368,6 +3368,15 @@ chk 'SELF_PARSE' scripts/build-redub-pick.mjs 1
 # ★글칸은 다시 그리지 않는다 — 입력 중 repaint 하면 커서가 튀고 글이 날아간다.
 chk 'PICK_EDIT' scripts/build-redub-pick.mjs 2
 chk '글 바꿈' scripts/build-redub-pick.mjs 4
+# [PICK_WHOLE] 어조는 문장 하나로 안 갈린다 — 클립마다 「이 대본 전체 듣기」로 이어서 튼다.
+#   ★듣는 단위(문단)와 고치는 단위(문장)는 다를 수 있고, 어조에서는 다르다.
+# [PICK_WHY] 버림·바꿈에 이유 한 줄. 강제하지 않되 비면 결과에 「이유 없음」으로 실려 눈에 보인다.
+#   이유가 없으면 두 달 뒤 「왜 뺐더라」가 되고 되살리는 판단이 근거 없이 뒤집힌다.
+# [PICK_MACHINE] 결과는 기계가 읽는 한 가지 꼴로만 — 사람 줄과 섞으면 파서가 문안으로 착각한다.
+chk 'PICK_WHOLE' scripts/build-redub-pick.mjs 2
+chk 'PICK_WHY' scripts/build-redub-pick.mjs 1
+chk 'PICK_MACHINE' scripts/build-redub-pick.mjs 1
+chk 'REDUB_PICK v1' scripts/build-redub-pick.mjs 1
 chk '소리를 하나도 못 심었다' scripts/build-redub-pick.mjs 1   # LISTEN_HAS_SOUND 와 같은 처방
 # [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
