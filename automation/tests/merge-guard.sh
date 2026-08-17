@@ -4240,3 +4240,13 @@ chk 'CONTRACT_STAGE_BLANK' mypage.html 2
 chk '계약금은 서명 뒤에 안내드려요' mypage.html 1
 chk 'CONTRACT_STAGE_BLANK' scripts/audit/journey-sim.mjs 1
 chk '계약완료·계약서 없음' scripts/audit/journey-sim.mjs 1
+# ★★[STALE_ROLLBACK_Q 2026-08-17 사용자 제보 "아무쪽에도 어떤푸시가없는데"] 교착 금지.
+#   되돌려진 고객(단계는 입금 전 · 입금상태 '확인')이 어떤 큐에도 안 잡혀,
+#   고객은 «디렉터가 확인하는 중»을 기다리고 관리자는 «처리할 일 없어요»를 봤다 —
+#   양쪽 다 상대를 기다리는 교착. 파이프라인 라벨도 «입금 대기»라고 거짓말을 했다.
+#   ★공은 관리자에게 있다(되돌린 것도 관리자) — 처리할 일에 '단계정리'로 띄우고 라벨을 사실로.
+chk 'STALE_ROLLBACK_Q' automation/admin/admin.gs 2
+chk "kind: '단계정리'" automation/admin/admin.gs 1
+chk '입금 확인됨 · 단계 정리 필요' automation/admin/admin.gs 1
+chk 'STALE_ROLLBACK_Q' scripts/audit/journey-sim.mjs 2
+chk 'WORLD_READ' scripts/audit/_gasworld.mjs 1     # 월드가 시트 읽기(getLastRow·getValues)도 지원 — adminHome 을 진짜로 부를 수 있게
