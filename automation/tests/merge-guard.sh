@@ -3355,6 +3355,14 @@ chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
 chk 'RETIRED_OFF_SCREEN' scripts/build-listen-all.mjs 4
 chk 'Cue.RETIRED' scripts/build-listen-all.mjs 1
 chk 'RETIRED_ROWS' scripts/build-listen-all.mjs 3
+# ── [REDUB_PICK] 「다시」로 찍은 자리를 버림/다시/그대로로 가르는 판정 화면 (2026-08-17 사용자 지시) ──
+# *"내가선택 간편하게 페이지로 만들어주던지"* — md 로 드렸더니 손으로 적어야 했다.
+# 손으로 적는 자리는 틀린다(바로 어제 붙여넣기를 손으로 써서 화자를 틀렸다 · PHOTO_ASK).
+# ★판정 단위를 **실제 고칠 수 있는 단위**와 같게 둔다 — 기존은 클립(문장 wav 원본이 없다),
+#   어조는 문장(아직 조립 전이라 낱개로 갈아 낀다). 다르면 실행 불가능한 답이 나온다.
+chk 'REDUB_PICK' scripts/build-redub-pick.mjs 3
+chk 'SELF_PARSE' scripts/build-redub-pick.mjs 1
+chk '소리를 하나도 못 심었다' scripts/build-redub-pick.mjs 1   # LISTEN_HAS_SOUND 와 같은 처방
 # [GUESS_TIE] 1·2등이 붙으면 «어느 문장인지»를 지목하지 않는다 — GAP_MATCH 와 같은 처방.
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
