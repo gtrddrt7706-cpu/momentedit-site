@@ -2202,7 +2202,64 @@ function _fsChangedCols(cust, upd) {
     return String(a == null ? '' : a) !== String(b == null ? '' : b);
   });
 }
-function adminForceStagePreview(code, targetStage) {
+/* ★★[ROLLBACK_SLOT 2026-08-18 사용자 결정 «추천대로»] 되돌려도 예식 «자리»는 이 부부 것으로 둔다.
+
+   ── 무엇이 문제였나
+   되돌리면 계약상태가 비워진다. 그런데 예식 슬롯 점유 판정(_weddingOccupancy)이
+   «계약상태=서명완료 + 예식일 + 계약정보.weddingTime» 셋을 함께 본다 —
+   즉 되돌리는 순간 그 날짜가 **다른 부부에게 열린다.** 되돌린 부부는 그 사실을 모른다.
+   되돌림의 대부분은 사고 복구인데, 복구하려다 날짜를 잃으면 그건 복구가 아니라 새 계약이다.
+
+   ── 어떻게 잠그나 (새 장치를 만들지 않는다)
+   저장소에는 «계약 전에 날짜를 잡아 두는» 장치가 이미 있다 — 임시고정(동의기록.가예약 · 승인).
+   되돌릴 때 확정 점유를 **그 상태로 되돌려 놓는다.** 점유 판정·만료 안내(D-3)·관리자 해제 버튼·
+   캘린더 표시가 전부 이미 그 장치를 알고 있어서, 새로 만들 것도 새로 배울 것도 없다.
+   기한은 임시고정과 같은 14일 — 무기한으로 잡아 두면 아무도 모르게 자리가 묶인다.
+
+   ── 여는 경우 (관리자가 고른다)
+   강제변경 확인창의 체크 한 칸(기본 꺼짐)으로 «이 날짜를 다른 분께 엽니다»를 고를 수 있다.
+   신청접수까지 내리거나 취소·노쇼·미계약으로 뺄 때는 자리를 놓아 준다 — 그건 되돌림이 아니라 종료다. */
+function _rbConfirmedSlot(cust) {
+  try {
+    if (String(cust.get('계약상태') || '').trim() !== '서명완료') return null;
+    var d = _ymdOf(cust.get('예식일'));
+    var rc = _parseJsonSafe(cust.get('동의기록'));
+    var t = (rc.계약정보 && rc.계약정보.weddingTime) || '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d || '')) || !t) return null;
+    return { date: d, slot: t, eventId: (rc.가예약 && rc.가예약.eventId) || '' };
+  } catch (e) { return null; }
+}
+/* 캘린더 제목만 바꾼다(지우지 않는다) — 사용자 선택 (나).
+   지우면 되돌릴 수 없고, 사고 복구용 되돌림에서 예식이 달력에서 통째로 사라진다.
+   ★[예식확정] · [가예약] · [보류] 어느 상태에서 와도 한 번에 갈아끼운다(접두사만 교체). */
+function _rbCalRetitle(eventId, prefix, note) {
+  try {
+    if (!eventId || typeof getCalendar !== 'function') return false;
+    var cal = getCalendar(); if (!cal) return false;
+    var ev = cal.getEventById(eventId); if (!ev) return false;
+    var t = String(ev.getTitle() || '');
+    var body = t.replace(/^\s*\[[^\]]*\]\s*/, '');          // 앞의 [xxx] 하나를 떼고
+    ev.setTitle(prefix + ' ' + body);                          // 새 접두사로 붙인다
+    if (note) { try { ev.setDescription(note); } catch (e2) {} }
+    return true;
+  } catch (e) { try { Logger.log('ROLLBACK_SLOT 캘린더 제목 변경 실패: ' + (e && e.message)); } catch (e3) {} return false; }
+}
+
+/* [ROLLBACK_SLOT] «자리를 어떻게 할 것인가» 판정 — 미리보기와 실행이 **같은 함수**를 쓴다.
+   (예고와 실행이 갈라지면 확인창은 뜻을 잃는다 · FORCE_MODAL_TRUTH 와 같은 이유)
+     null    — 확정 점유가 없다(잠글 것도 열 것도 없다)
+     'lock'  — 이 부부 것으로 임시고정해 둔다(기본)
+     'release' — 다른 분께 연다(관리자가 골랐거나 · 신청접수까지 내리거나 · 종료로 뺄 때) */
+function _rbSlotPlan(slot, cur, targetStage, flow, bookingReset, releaseSlot) {
+  if (!slot) return null;
+  var ci = flow.indexOf(cur), ti = flow.indexOf(targetStage);
+  var isEx = (STAGE_EXCEPTIONS.indexOf(targetStage) !== -1);
+  if (!isEx && !(ti >= 0 && ci >= 0 && ti < ci)) return null;      // 앞으로 가는 이동은 자리를 건드리지 않는다
+  if (releaseSlot === true || isEx || bookingReset) return 'release';
+  return 'lock';
+}
+
+function adminForceStagePreview(code, targetStage, releaseSlot) {
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   targetStage = String(targetStage || '').trim();
@@ -2218,13 +2275,17 @@ function adminForceStagePreview(code, targetStage) {
   var flow = stageFlowFor(product), ti = flow.indexOf(targetStage);
   var bookConfirm = flow.indexOf(product === P.PRODUCT_SNAP ? '촬영확정' : '상담확정');
   var bookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);   // 신청접수까지 내리면 상담 예약·캘린더 슬롯도 초기화
+  /* [ROLLBACK_SLOT] 예식 자리를 어떻게 할지도 미리 말한다 — 실행과 같은 판정식으로. */
+  var _pvSlot = _rbConfirmedSlot(cust);
+  var _pvPlan = _rbSlotPlan(_pvSlot, cur, targetStage, flow, bookingReset, releaseSlot);
   return { ok: true, preview: true, from: cur, to: targetStage,
     cleared: report.cleared, kept: report.kept, consent: report.consent, bookingReset: bookingReset,
     holdRelease: !!report.holdCal,   // [ADM_AC3FIX] 가예약 캘린더 슬롯이 풀린다는 것도 미리 알린다(삭제는 실행할 때만)
+    slot: _pvSlot ? { date: _pvSlot.date, time: _pvSlot.slot, plan: _pvPlan } : null,   // [ROLLBACK_SLOT] lock=이 부부 것으로 잠금 · release=다른 분께 열림 · null=해당 없음
     noop: (cur === targetStage && !_fsChangedCols(cust, _pvUpd).length && !bookingReset) };   // [ADM_AC3NOOP] 실행 가드와 같은 판정식(미리보기·실행 불일치 차단)
 }
 
-function adminForceStage(code, targetStage, reason) {
+function adminForceStage(code, targetStage, reason, releaseSlot) {   // [ROLLBACK_SLOT] releaseSlot=true 면 예식 자리를 다른 분께 연다(기본 false = 잠근 채 둔다)
   _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   targetStage = String(targetStage || '').trim();
@@ -2246,6 +2307,9 @@ function adminForceStage(code, targetStage, reason) {
     // 상담확정 이전(신청접수)까지 내릴 땐 상담 예약도 초기화 + 캘린더 슬롯 해제
     var bookConfirm = flow.indexOf(isSnap ? '촬영확정' : '상담확정');
     var needBookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);
+    /* [ROLLBACK_SLOT] ★반드시 쓰기 «전»에 잡는다 — 계약상태가 비워진 뒤에 재면 확정 점유가 사라져 보인다. */
+    var _rbSlot = _rbConfirmedSlot(cust);
+    var _rbPlan = _rbSlotPlan(_rbSlot, cur, targetStage, flow, needBookingReset, releaseSlot);
     /* ★★[REFUND_MARK_TRACE 2026-08-18 rollback-fuzz 관찰 «환불완료 + 수납 확인 동시 존재» 37회]
        예외→정상 복구는 «환불완료» 표시를 지운다(안 지우면 재취소 때 환불 큐가 영영 안 뜬다 · 2141행).
        그런데 지운 사실은 어디에도 안 남았다 — 처리이력 줄은 동의기록을 일부러 뺀다(ADM_AC3NOOP).
@@ -2265,7 +2329,12 @@ function adminForceStage(code, targetStage, reason) {
     touchCustomer(sheet, colOf, cust.num, upd);
     // [ADM_AC3FIX] 가예약 캘린더 이벤트 해제 — 시트에서 '가예약'이 실제로 지워진 뒤에만(미리보기에서는 여기까지 오지 않는다).
     //   실패해도 단계 변경 자체는 이미 끝났으므로 막지 않는다(로그만).
-    if (_fsRep.holdCal && typeof _holdCalDelete === 'function') { try { _holdCalDelete(_fsRep.holdCal); } catch (eHc) { Logger.log('가예약 캘린더 해제 실패: ' + (eHc && eHc.message)); } }
+    /* ★[ROLLBACK_SLOT] 다만 «계약전환»된 이벤트는 지우지 않는다 — 그건 임시고정이 아니라 **확정된 예식**이다.
+       사용자 선택 (나): 지우지 않고 제목만 바꾼다. 지우면 되돌릴 수 없고, 사고 복구용 되돌림에서
+       예식이 달력에서 통째로 사라진다. 아직 안 넘어간 진짜 임시고정은 종전대로 지운다. */
+    if (_fsRep.holdCal && String(_fsRep.holdCal.status || '') === '계약전환') {
+      _rbCalRetitle(_fsRep.holdCal.eventId, '[보류]', '단계 되돌림으로 보류 · ' + _kstYmd(new Date()) + ' · 개인코드 ' + code);
+    } else if (_fsRep.holdCal && typeof _holdCalDelete === 'function') { try { _holdCalDelete(_fsRep.holdCal); } catch (eHc) { Logger.log('가예약 캘린더 해제 실패: ' + (eHc && eHc.message)); } }
     // [FORCE_CANCEL_TS 2026-07-25] 강제이동 목표가 '취소'면 Bookings.취소일시를 기록(정상 취소 경로와 동일). 없으면 환불 견적·큐 aging이 '오늘' 기준으로 매일 흔들리던 문제 차단. 멱등(이미 있으면 유지).
     /* ★[FORCE_EXIT_TS 2026-08-17 조사 실측] 노쇼·미계약도 같은 처리를 받는다.
        종전엔 '취소'만 취소일시를 찍었다. 노쇼·미계약으로 강제이동하면 그 칸이 비어
@@ -2339,10 +2408,34 @@ function adminForceStage(code, targetStage, reason) {
         touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(_rbRec) });
       } catch (eRb) { try { Logger.log('ROLLBACK_NOTICE 기록 실패: ' + (eRb && eRb.message)); } catch (e2) {} }
     }
+    /* ★★[ROLLBACK_SLOT] 예식 «자리» 처리 — 시트 쓰기가 끝난 뒤에 한 번.
+       lock    : 확정 점유를 임시고정(승인·14일)으로 되돌려 이 부부 것으로 잠근다 + 캘린더 [가예약]
+       release : 자리를 놓아 준다(관리자 선택 · 신청접수까지 내림 · 종료) + 캘린더 [보류](지우지 않는다)
+       ★동의기록은 위 ROLLBACK_NOTICE 와 같은 이유로 «다시 읽어» 쓴다 — upd 를 고쳐도 이미 쓴 뒤라 안 먹는다. */
+    var _rbSlotWord = '';
+    if (_rbPlan === 'lock' || _rbPlan === 'release') {
+      try {
+        var _slRec = _parseJsonSafe(cust.get('동의기록'));
+        if (_rbPlan === 'lock') {
+          var _slExp = new Date(); _slExp.setDate(_slExp.getDate() + 14);   // 임시고정과 같은 14일 — 무기한은 아무도 모르게 자리를 묶는다
+          _slRec.가예약 = { date: _rbSlot.date, slot: _rbSlot.slot, status: '승인',
+            requestedAt: fmtKST(new Date()), grantedAt: fmtKST(new Date()), expires: _kstYmd(_slExp),
+            source: '단계되돌림', eventId: _rbSlot.eventId || '' };
+          touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(_slRec) });
+          _rbCalRetitle(_rbSlot.eventId, '[가예약]', '단계 되돌림으로 임시고정 전환 · ~' + _kstYmd(_slExp) + ' · 개인코드 ' + code);
+          _rbSlotWord = ' · 예식 자리 잠금 유지(' + _rbSlot.date + ' ' + _rbSlot.slot + ' · 임시고정 ~' + _kstYmd(_slExp) + ')';
+        } else {
+          if (_slRec.가예약) { delete _slRec.가예약; touchCustomer(sheet, colOf, cust.num, { '동의기록': Object.keys(_slRec).length ? JSON.stringify(_slRec) : '' }); }
+          _rbCalRetitle(_rbSlot.eventId, '[보류]', '단계 되돌림으로 자리 개방 · ' + _kstYmd(new Date()) + ' · 개인코드 ' + code);
+          _rbSlotWord = ' · ★예식 자리 개방(' + _rbSlot.date + ' ' + _rbSlot.slot + ' · 다른 분이 예약할 수 있음)';
+        }
+      } catch (eSl) { try { Logger.log('ROLLBACK_SLOT 처리 실패: ' + (eSl && eSl.message)); } catch (e4) {} }
+    }
     _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage
       + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '')
       + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '')
       + (_rfWas ? (' · [REFUND_MARK_TRACE] 환불완료 표시 해제(원래 ' + _rfWas + ') · 실제 송금 여부는 위 «환불 송금 완료» 기록으로 확인') : '')
+      + _rbSlotWord
       + ' · 사유: ' + reason);
     /* ★★[FORCE_WARN_TRUTH 2026-08-17 사용자 고립 사례] 지운 것이 없으면 «지웠다»고 말하지 않는다.
        종전엔 결과 문구가 무조건 «이후 단계 진행 데이터를 초기화했습니다» 였다. 앞으로 가는 이동
@@ -2353,7 +2446,8 @@ function adminForceStage(code, targetStage, reason) {
     var _fwWarn = (clearedCols.length || bookingReset)
       ? ((bookingReset ? '이후 단계 진행 데이터와 상담 예약(캘린더 포함)을' : '이후 단계 진행 데이터를') + ' 초기화했습니다.')   // [ADM_JOSA] 조사를 분기 안으로 — 밖에 붙여 쓰면 앞 낱말이 바뀔 때 틀린다(끝 음절 '함'은 ㅁ받침이라 '을')
       : '초기화된 데이터는 없어요. 단계만 바꿨어요.';
-    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: _fwWarn };
+    return { ok: true, from: cur, to: targetStage, cleared: clearedCols, bookingReset: bookingReset, warning: _fwWarn,
+      slot: _rbSlot ? { date: _rbSlot.date, time: _rbSlot.slot, plan: _rbPlan } : null };   // [ROLLBACK_SLOT] 자리를 어떻게 했는지 화면에 그대로 돌려준다
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 

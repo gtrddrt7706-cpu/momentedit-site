@@ -2489,6 +2489,9 @@ function _forcePreview(code){
     if((p.consent||[]).length) h+='<div class="adv-prev-x">동의기록에서 지워짐 · '+p.consent.map(esc).join(' · ')+'</div>';
     if(p.bookingReset) h+='<div class="adv-prev-x">상담 예약이 신청접수로 · 캘린더 슬롯 해제</div>';
     if(p.holdRelease) h+='<div class="adv-prev-x">예식일 임시고정(가예약) 해제 · 캘린더 이벤트 삭제</div>';   /* [ADM_AC3FIX] 실행할 때만 실제로 지워져요 */
+    /* [ROLLBACK_SLOT] 예식 자리가 어떻게 되는지 — 확인창과 같은 서버 판정을 그대로 읽는다 */
+    if(p.slot&&p.slot.plan==='lock') h+='<div class="adv-prev-k">예식 자리 '+esc(p.slot.date)+' '+esc(p.slot.time)+' 잠금 유지 · 임시고정 14일(확인창에서 열 수 있어요)</div>';
+    if(p.slot&&p.slot.plan==='release') h+='<div class="adv-prev-x">예식 자리 '+esc(p.slot.date)+' '+esc(p.slot.time)+' 개방 · 다른 분이 예약할 수 있어요</div>';
     if((p.kept||[]).length) h+='<div class="adv-prev-k">유지됨 · '+p.kept.map(esc).join(' · ')+' <span style="color:var(--label-soft)">(확인된 수납은 강제 변경으로 지워지지 않아요 · 되돌리려면 입금 확인 취소)</span></div>';
     if(!(p.cleared||[]).length && !(p.consent||[]).length && !p.bookingReset && !p.noop) h+='<div>비워지는 데이터는 없어요</div>';
     box.innerHTML=h;
@@ -3145,9 +3148,26 @@ function doForce(code,names,target,reason){
       if(!(p.cleared||[]).length && !(p.consent||[]).length && !p.bookingReset) facts+=li('비워지는 데이터는 없어요 · 단계만 바뀌어요');
     } else { facts+=li('미리보기를 못 불러왔어요 · 그래도 진행하면 서버 판단대로 처리돼요'); }
     if(STAGE_EX.indexOf(target)!==-1) facts+=li('종료 처리예요 · 받은 금액이 있고 환불 계좌가 없으면 고객에게 계좌 요청 안내가 나가요');
-    openModal({ title:'강제로 단계를 바꿀까요?', danger:true,
+    /* ★★[ROLLBACK_SLOT 2026-08-18 사용자 결정] 예식 «자리»는 관리자가 고른다 — 기본은 잠근 채 두기.
+       되돌리면 계약상태가 비워지고, 그러면 그 날짜가 다른 분께 열린다(점유 판정이 계약상태를 본다).
+       되돌림의 대부분은 사고 복구인데 날짜까지 풀리면 복구가 아니라 새 계약이 된다.
+       ★체크는 «여는» 쪽에만 둔다 — 기본값이 안전한 쪽이라야 실수로 눌러도 잃는 것이 없다.
+       ★취소·노쇼·미계약이나 신청접수까지 내릴 때는 자리를 놓아 준다(서버가 그렇게 판정한다) →
+         그때는 고를 것이 없으니 체크칸을 아예 안 그린다. 못 고르는 선택지를 보여 주지 않는다. */
+    var _sl=(p&&p.ok)?p.slot:null, _slPick=(_sl&&_sl.plan==='lock');
+    var extra='';
+    if(_sl&&_sl.plan==='lock'){
+      extra='<label class="field" style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;margin:0">'
+        +'<input type="checkbox" id="fSlotOpen" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:#6B2A24">'
+        +'<span style="font-size:13px;line-height:1.6">예식 날짜 <b>'+esc(_sl.date)+' '+esc(_sl.time)+'</b> · 다른 분께 열어요'
+        +'<span class="li">체크하지 않으면 이 고객 자리로 임시고정(14일)해 둬요</span></span></label>';
+    } else if(_sl&&_sl.plan==='release'){
+      facts+=li('⚠ 예식 날짜 '+_sl.date+' '+_sl.time+'이(가) 다른 분께 열려요');
+    }
+    openModal({ title:'강제로 단계를 바꿀까요?', danger:true, extra:extra,
       text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+facts+li('이력에 남아요'), yes:'강제 변경',
-      onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
+      onYes:function(){ var op=(_slPick&&$('fSlotOpen')&&$('fSlotOpen').checked)?true:false;
+        runAct(['adminForceStage',code,target,reason,op],code,'강제 변경'); } });
   }).catch(function(){
     openModal({ title:'강제로 단계를 바꿀까요?', danger:true,
       text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('미리보기를 못 불러왔어요')+li('이력에 남아요'), yes:'강제 변경',
