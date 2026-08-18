@@ -3885,7 +3885,10 @@ nochk '본식영상 데이터 + 수정본' index.html               # 계약서 
 chk '25명 초과 스탠딩' index.html 1                       # 제3조⑥ 1인 50,000원·최대 30명(값이 비어 있었다)
 chk '총 30명으로 진행하실 수 있습니다' index.html 2        # 30명 상한 고지(화면에 0건이었다)
 chk '드레스를 시착하신 경우에만' index.html 1              # 제4조⑧ — '전액 환불' 단서 없던 자리
-chk '예식 150일 전까지 위약금 없이 전액 환급' index.html 1  # 제7조② — 23스크린 접힘 안에만 있던 것
+# 제7조② — 23스크린 접힘 안에만 있던 사실을 가격 카드로 끌어올린 것이 이 가드의 뜻이다.
+#   ★2026-08-18 문구만 바뀌었다(「위약금 없이 전액 환급」→「전액 돌려드립니다」·[PRICE_NOTE_TONE]).
+#     사실도 자리도 그대로다 — 지키려던 것은 «일찍 보인다»이지 특정 단어가 아니다.
+chk '예식 150일 전까지는 전액 돌려드립니다' index.html 1
 chk '디지털 참석 페이지' index.html 1                     # 제3조⑥ 포함 칸(별도 칸에 있었다)
 # [PRICE_STAGE_TABLE 2026-08-16] 계약서 단계별 지급 표가 총액과 따로 놀지 않게(평일 열이 240만이었다)
 chk 'PRICE_STAGE_TABLE' scripts/check-price-sync.mjs 1
@@ -4706,6 +4709,17 @@ chk 'ga-frame.ready { opacity: 1; transition' index.html 1
 chk 'function arm()' index.html 1
 chk 'setTimeout(reveal, 1200)' index.html 1
 chk "de.style.scrollBehavior = 'auto'" index.html 1
+# ★★[GA_LATE_PIN 2026-08-18 점검 라운드3 발견] 자리를 «한 번만» 잡으면 늦게 완성되는 문서에서 어긋난다.
+#   실측(표적 .sec 이 2.2초 뒤 생기는 판): 1.2초 대비책이 먼저 나타나 y=0 · 그 뒤 표적이 생겨도 그대로 ·
+#   load 가 와도 그대로 · 3.8초 뒤 자동 넘김이 02 로 가 **01 을 통째로 건너뛰었다.**
+#   그동안 목록은 「01 활성」이라 글과 그림이 따로 놀았다 — GA_SYNC 가 금지하는 바로 그 상태다.
+#   → 잡힐 때까지 200ms 간격으로 다시 시도(잡히면 즉시 멈춤 · 못 잡아도 4초면 그만).
+#   ★늦게 온 load 도 자리를 못 잡았으면 그때 잡는다(reveal 의 !armed 갈래).
+chk 'GA_LATE_PIN' index.html 1
+chk 'function pin()' index.html 1
+chk 'if (!armed) { if (!pinned) pin(); frame.classList.add' index.html 1
+chk 'pinned || ++n > 20' index.html 1
+nochk 'fit(); show(0, false); frame.classList.add' index.html
 nochk "behavior: smooth === false ? 'auto' : 'smooth'" index.html
 
 # ★★[ENV_DEMO_OPEN 2026-08-18 사용자 제안 "계좌 신부쪽이 열려있는 부분으로 등록해놓으면"]
@@ -4733,3 +4747,24 @@ case "$_orc" in
   2) echo "· orphan-copy 안 쟀다(브라우저·서버 없는 자리) — 푸시 전에 손으로: node scripts/audit/orphan-copy.mjs" ;;
   *) echo "FAIL orphan-copy — node scripts/audit/orphan-copy.mjs"; fail=1 ;;
 esac
+
+# ★★[PRICE_NOTE_TONE 2026-08-18 사용자 지시 "계약서 조항 같은 느낌은 빼자"]
+#   가격 아래 세 줄은 «약속»이지 «약관»이 아니다. 셋 다 방어 문서 어조로 적혀 있었다.
+#   ①조항 번호(계약서 제7조②) — 약속에 각주가 붙으면 「믿어 주세요」가 「따져 보세요」가 된다.
+#     전문은 FAQ 「계약 후 사정이 생기면」에 조항 번호까지 그대로 있으니 여기서 잃는 정보가 없다.
+#   ②「위약금 없이」 — 안심 문장이 가장 무서운 단어로 시작했고, 「전액」이 이미 그 뜻이라 중복이었다.
+#     ★근거를 뺀 것이 아니다(책임질 수 없는 안심 금지) — 근거인 기한 150일은 그대로 남는다.
+#   ③「보증인원」 — 웨딩홀 견적서 용어. 홀을 아직 안 본 분껜 안 읽힌다.
+#   ④서두르라는 마감 문구 — 브랜드 규칙이 금지한 긴급성. 가격 바로 아래·금색·자간까지 준 자리였다.
+#     하루 세 팀은 원래 «품질 근거»다(THE REALITY 「30분마다 다음 식」의 반대편). 압박이 아니라 약속으로.
+#     ★되살리지 말 것 — 「빨리 하세요」는 이 브랜드가 파는 것(정중·절제)과 정반대다.
+#   ★「VAT 포함」은 그대로 둔다 — 페이지에 6곳이라 여기만 바꾸면 표기가 갈라진다.
+chk 'PRICE_NOTE_TONE' index.html 2
+chk '최소 인원 조건 없음' index.html 1
+chk '하루 세 팀까지만 맡습니다' index.html 1
+nochk '계약서 제7조②' index.html
+nochk '조기\s*마감' index.html      # 서두르라는 마감 문구가 가격 아래로 돌아오는 것을 막는다
+nochk '보증인원 없음' index.html
+# ★체크 목록은 한 줄에 하나 — 인라인이라 「…조건 없음 ✓ 예식 150일…」로 붙어 가운데 ✓ 가 오타처럼 보였다
+#   (390·1280 실렌더 둘 다 · 고치기 전 화면에도 있던 결함). 선이 아니라 여백으로 나눈다.
+chk '.price-note span { display: block; }' index.html 1
