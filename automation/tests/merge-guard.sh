@@ -4430,6 +4430,11 @@ chk 'GPM_MODAL' assets/guest-photo-modal.js 1
 chk 'GPM_MODAL' index.html 2
 chk 'data-gpm-open' index.html 1
 chk 'guest-photo-modal.js' index.html 1
+# ★[GPM_MODAL 트리거 자리 2026-08-18 사용자 지시 «여기 ... 부분은 없어도될거같아»]
+#   「두 편의 청첩장」 카드 안 트리거 한 줄은 삭제했다. 세 장을 나란히 비교하는 칸이라 한 칸에만
+#   더 읽을 것이 붙으면 리듬이 어긋나고, 비교하러 온 사람을 딴 데로 데려간다.
+#   ★복원 금지 — 모달은 살아 있고, 여는 자리는 목업의 [GA_POPLINK] 한 곳이다.
+nochk '하객 사진은 어떻게 오나요' index.html
 chk '__meTCLock = 1' assets/guest-photo-modal.js 1
 chk '__meTCSync' assets/guest-photo-modal.js 1
 chk 'aria-modal' assets/guest-photo-modal.js 1
