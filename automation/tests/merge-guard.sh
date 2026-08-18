@@ -4656,3 +4656,16 @@ chk '눌러 보시면' guide.html 1
 #   폰 안을 누를 수 있게 inert 를 푸는 방향으로 되돌리지 말 것 — Tab 25회 측정으로 0회 진입을 확인한 계약이다.
 chk 'GA_POPLINK' index.html 2
 chk '어떻게 오는지 보기' index.html 1
+
+# ★★[SLOT_HOLD_EXPIRY_Q 2026-08-18 점검] 되돌리며 «잠가 둔» 자리가 조용히 풀리지 않게.
+#   만료 안내(D-3)는 고객에게만 간다. 되돌린 것도, 계약서를 다시 보낼 사람도 관리자다 —
+#   공을 쥔 쪽이 아무 신호를 못 받으면 14일 뒤 그 날짜가 아무도 모르게 열린다.
+chk 'SLOT_HOLD_EXPIRY_Q' automation/admin/admin.gs 1
+chk "kind: '자리만료'" automation/admin/admin.gs 1
+chk "'자리만료'" admin.html 2
+# ★★[DATE_ONE_STYLE 2026-08-18 점검] 한 문장 안에서 날짜 표기를 섞지 않는다
+#   (2026.12.20(일) 과 2026-08-20 이 한 줄에 있으면 두 날짜가 다른 종류처럼 읽힌다).
+chk 'DATE_ONE_STYLE' automation/admin/admin.gs 2
+chk '_ymdDot' automation/admin/admin.gs 2
+chk '한 문장 안에서 날짜 표기를 섞지 않는다' scripts/audit/rollback-slot.mjs 1
+chk '되돌린 뒤에도 자리가 이 부부 것이다' scripts/audit/rollback-slot.mjs 1

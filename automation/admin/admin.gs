@@ -321,6 +321,15 @@ function _holdWhenLabel(ymd, slot) {
   return m[1] + '.' + (+m[2]) + '.' + (+m[3]) + '(' + w + ') ' + (lab ? lab + ' ' : '') + slot;
 }
 
+/* [DATE_ONE_STYLE 2026-08-18 점검] 'YYYY-MM-DD' → '2026.8.20(수)'. _holdWhenLabel 과 같은 표기를 쓴다.
+   한 문장에 '2026.12.20(일)' 과 '2026-08-20' 이 같이 나오면 두 날짜가 다른 종류처럼 읽힌다. */
+function _ymdDot(ymd) {
+  var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return String(ymd || '');
+  var w = ['일', '월', '화', '수', '목', '금', '토'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()];
+  return m[1] + '.' + (+m[2]) + '.' + (+m[3]) + '(' + w + ')';
+}
+
 // 현황 줄 하위상태 1줄 (B2.2) — 단계+상품+보조상태
 function _subStatusFor(stage, isSnap, x) {
   switch (stage) {
@@ -718,6 +727,27 @@ function adminHome() {
     if (canSend && bookingLocked && (!계약 || 계약 === '미발송')) {   // bookingLocked: 미승인 새 예약(현재단계만 최고수위로 남은 경우) 조기 노출 차단
       pushQ({ code: code, names: names, product: product, kind: '계약발송', sub: '계약서 발송 대기',
         badge: null, _urgent: false, _stage: 3, _wait: createdYmd });
+    }
+    /* ★★[SLOT_HOLD_EXPIRY_Q 2026-08-18 점검 라운드5] 되돌림으로 «잠가 둔» 예식 자리가 조용히 풀리는 것을 막는다.
+       ROLLBACK_SLOT 은 되돌릴 때 확정 점유를 임시고정(승인·14일)으로 돌려 자리를 잡아 둔다.
+       그런데 만료 안내(D-3)는 **고객에게만** 간다(70_journey sendHoldExpiryNotices).
+       되돌린 것은 관리자이고 다시 계약을 보낼 사람도 관리자다 — 정작 공을 쥔 쪽이 아무 신호를 못 받으면,
+       14일 뒤 그 날짜가 아무도 모르게 열린다. 되돌림 때 지킨 자리를 시간이 대신 빼앗는 셈이다.
+       ★«되돌림으로 잠근 것»만 띄운다(source==='단계되돌림'). 평범한 계약요청 홀드는 계약발송 큐가 이미 몰고 간다 —
+         전부 띄우면 큐가 시끄러워지고, 시끄러운 큐는 아무도 안 본다. */
+    var _shH = _parseJsonSafe(cget(rv, '동의기록')).가예약;
+    if (_shH && _shH.status === '승인' && _shH.source === '단계되돌림' && _shH.date && _shH.slot && 계약 !== '서명완료') {
+      var _shLeft = _shH.expires ? _dayDiff(_shH.expires, today) : null;    // 만료까지 남은 날(음수=지남)
+      if (_shLeft != null && _shLeft <= 5) {
+        var _shGone = (_shLeft < 0);
+        pushQ({ code: code, names: names, product: product, kind: '자리만료',
+          sub: _shGone
+            ? ('되돌리며 잡아 둔 예식 자리(' + _holdWhenLabel(_shH.date, _shH.slot) + ')가 이미 풀렸어요 · 다른 분이 예약할 수 있어요')
+            : ('되돌리며 잡아 둔 예식 자리(' + _holdWhenLabel(_shH.date, _shH.slot) + ')가 ' + _ymdDot(_shH.expires) + '에 풀려요 · 계약서를 다시 보내 주세요'),   /* [DATE_ONE_STYLE] 한 문장 안에서 날짜 표기를 섞지 않는다 */
+          hold: { date: _shH.date, slot: _shH.slot },
+          badge: _shGone ? { level: 'red', text: '자리 풀림' } : { level: (_shLeft <= 2 ? 'red' : 'yellow'), text: 'D-' + _shLeft },
+          _urgent: (_shLeft <= 2), _loss: 2, _stage: 2, _wait: createdYmd });
+      }
     }
     // 계약 만료 임박/만료됨 — 계약상태=발송 & 발송+72h 잔여<24h (고객대기 예외 큐)
     if (계약 === '발송') {
