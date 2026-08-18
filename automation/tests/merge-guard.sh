@@ -4603,3 +4603,9 @@ chk "'안내공유토큰', '좌석공유토큰'\]), at: isSnap" automation/admin
 #   종전엔 열어 뒀고, 미수납 되돌림에선 예식일까지 지워져 영영 만료되지 않았다.
 chk 'GUIDE_EXPIRE_FAILCLOSED' automation/platform/80_production.gs 1
 chk '옛 링크로는 더 이상 안 열린다' scripts/audit/rollback-roundtrip.mjs 1
+# ★★[DEMO_PHOTO_DONE 2026-08-18 사용자 지적 "자동올리기 목업부분이 좀 약한데"] 표본 사진 칸에 **결과**를 띄운다.
+#   버튼 하나뿐이면 홈 목업에서 이 화면이 가장 허전하고, 이 기능의 핵심 장면('전해졌다')이 탭 뒤에 숨는다.
+#   좌석 검색을 미리 띄워 둔 것과 같은 판단이다(2026-08-01 "검색된 것도 보여줘야지").
+#   ★진행 중이 아니라 완료를 보여준다 — 멈춘 진행바는 고장으로 읽힌다.
+chk 'DEMO_PHOTO_DONE' guide.html 1
+chk '12장 전해졌어요' guide.html 1
