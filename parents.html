@@ -78,6 +78,35 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
 .tools button:hover{color:var(--accent);border-color:var(--gold)}
 @media(max-width:680px){.tools{padding:0 22px 6px}}
 
+/* ★★[LISTEN_BAR 2026-08-18 사용자 지시 "재생 멈춤 버튼도 적절하게"] 듣는 동안 늘 닿는 자리에 멈춤을 둔다.
+   멈춤 버튼은 원래도 있었다 — 맨 위 도구줄의 「듣기」가 라벨만 「멈춤」으로 바뀌는 방식이었다.
+   그런데 편지를 읽어 내려가면 그 버튼이 «화면 밖으로 사라져» 멈출 길이 없어진다.
+   ★이 페이지의 독자는 어른이다. 13px 도구 버튼이 스스로 라벨을 바꾸는 것을 알아채기 어렵고,
+     멈추려고 맨 위까지 되돌아 올라가게 하면 안 된다.
+   ★자동으로 뜨는 팝업이 아니다 — 재생을 «누른 사람에게만», 재생 중에만 선다. */
+.play-bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;
+  display:none;align-items:center;justify-content:space-between;gap:14px;
+  padding:12px 22px calc(12px + env(safe-area-inset-bottom));
+  background:var(--bg);border-top:1px solid var(--hairline);
+  transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)
+}
+.play-bar.on{display:flex}
+.play-bar.up{transform:translateY(0)}
+.play-bar-t{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--sub);letter-spacing:0.02em}
+.play-bar-stop{
+  font-family:var(--serif-ko);font-size:14px;font-weight:400;letter-spacing:0.08em;
+  color:#F5F1E9;background:var(--seal);border:none;border-radius:4px;
+  padding:0 22px;min-height:44px;min-width:88px;cursor:pointer;transition:opacity 0.25s
+}
+.play-bar-stop:hover{opacity:0.88}
+@media(prefers-reduced-motion:reduce){.play-bar{transition:none}}
+@media print{.play-bar{display:none!important}}
+/* ★막대가 뜬 동안엔 그 높이만큼 아래를 비워 준다 — 안 그러면 맨 아래 한 줄이 통째로 가린다.
+   실측: 끝까지 내리면 「상호 모먼트에디트 · 대표 …」 사업자 정보 줄이 완전히 덮였다(법적 표시 의무가 있는 줄).
+   ★여백은 문서 «맨 아래»에 붙으므로 읽던 자리가 밀리지 않는다(스크롤 위치는 그대로 유지된다). */
+body.listening{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+
 /* Letter */
 main{max-width:var(--max);margin:0 auto;padding:8px 28px 72px}
 .letter{font-size:var(--letter-size);line-height:2;color:var(--sub);font-weight:300}
@@ -255,6 +284,12 @@ nav .nav-links a, .nav-links a, .f-links a {
   <button type="button" id="printBtn" aria-label="인쇄 · 인쇄하기">인쇄</button>
 </div>
 
+<!-- [LISTEN_BAR] 재생 중에만 서는 멈춤 줄 · aria-live 로 낭독기에도 상태가 전해진다 -->
+<div class="play-bar" id="playBar" role="status" aria-live="polite">
+  <span class="play-bar-t" id="playBarT">편지를 읽어 드리는 중이에요</span>
+  <button type="button" class="play-bar-stop" id="playBarStop">멈춤</button>
+</div>
+
 <main>
 <div class="letter" id="letter">
 
@@ -361,6 +396,37 @@ nav .nav-links a, .nav-links a, .f-links a {
     var audioEl=null, speaking=false, settled=false;
 
     var label=function(t){ btn.textContent=t; };
+
+    /* ★★[WAKE_LOCK 2026-08-18 사용자 지시 "음성 끝날때까지 핸드폰 자동꺼짐 안하게 할수있어?"]
+       듣는 동안 화면이 잠들지 않게 잡아 둔다. 이 페이지에서 화면이 꺼지면 소리가 «멈춘다» —
+       바로 아래 visibilitychange 가 stopAll 을 부르기 때문이다(그건 두 소리가 겹치지 않게 하는
+       [LISTEN_ONE_HANDLER] 계약이라 그대로 둔다). 그래서 잠들지 않게 하는 쪽이 옳은 처방이다.
+       ★재생 중에만 잡고, 멈추면 반드시 놓는다 — 안 놓으면 편지가 끝난 뒤에도 화면이 안 꺼진다.
+       ★없는 기기(구형 iOS 16.4 미만 등)에서는 조용히 지나간다. 화면이 꺼지면 종전대로 멈춘다.
+         대신 화면 안에 늘 있는 멈춤 줄이 「지금 재생 중」임을 알려 주므로 무엇이 일어났는지는 보인다. */
+    var wake=null;
+    var wakeOn=function(){
+      try{
+        if(!(navigator.wakeLock&&navigator.wakeLock.request))return;
+        navigator.wakeLock.request('screen').then(function(s){
+          wake=s;
+          s.addEventListener('release',function(){ wake=null; });   // 기기가 회수해 갈 수 있다
+        }).catch(function(){});   // 배터리 절약 모드 등에서 거절될 수 있다 — 소리는 그대로 난다
+      }catch(e){}
+    };
+    var wakeOff=function(){ if(wake){ try{ wake.release(); }catch(e){} wake=null; } };
+
+    /* [LISTEN_BAR] 재생 상태를 «한 곳»에서만 바꾼다 — 버튼 라벨 · 멈춤 줄 · 화면 잠금이 늘 같은 말을 하게.
+       종전엔 label() 을 일곱 자리에서 따로 불렀다. 거기에 줄과 잠금까지 각자 붙이면 셋이 어긋난다. */
+    var bar=document.getElementById('playBar');
+    var setPlaying=function(on){
+      label(on?'멈춤':'듣기');
+      if(on)wakeOn(); else wakeOff();
+      document.body.classList.toggle('listening',!!on);   // 막대 높이만큼 아래를 비워 준다
+      if(!bar)return;
+      if(on){ bar.classList.add('on'); requestAnimationFrame(function(){ bar.classList.add('up'); }); }
+      else{ bar.classList.remove('up'); bar.classList.remove('on'); }
+    };
     var koVoice=function(){
       try{
         var vs=(synth&&synth.getVoices&&synth.getVoices())||[];
@@ -370,7 +436,7 @@ nav .nav-links a, .nav-links a, .f-links a {
     };
     var ttsStop=function(){ if(canTTS){try{synth.cancel();}catch(e){}} speaking=false; };
     var audioStop=function(){ if(audioEl&&!audioEl.paused){try{audioEl.pause();}catch(e){}} };
-    var stopAll=function(){ ttsStop(); audioStop(); label('듣기'); };
+    var stopAll=function(){ ttsStop(); audioStop(); setPlaying(false); };
 
     var ttsStart=function(){
       var parts=[], nodes=document.querySelectorAll('#letter p, #letter .part-title, #letter .choice-list li, #letter .sign-from');
@@ -381,40 +447,43 @@ nav .nav-links a, .nav-links a, .f-links a {
       if(!parts.length)return;
       try{synth.cancel();}catch(e){}
       var v=koVoice(), remaining=parts.length;
-      var done=function(){ remaining--; if(remaining<=0){ speaking=false; if(mode==='tts')label('듣기'); } };
+      var done=function(){ remaining--; if(remaining<=0){ speaking=false; if(mode==='tts')setPlaying(false); } };
       for(var j=0;j<parts.length;j++){
         var u=new SpeechSynthesisUtterance(parts[j]);
         u.lang='ko-KR'; if(v)u.voice=v; u.rate=0.95; u.pitch=1;
         u.onend=u.onerror=done;
         synth.speak(u);
       }
-      speaking=true; label('멈춤');
+      speaking=true; setPlaying(true);
     };
 
     var audioToggle=function(){
       if(!audioEl){
         audioEl=new Audio(AUDIO_SRC); audioEl.preload='auto';
-        audioEl.addEventListener('ended',function(){label('듣기');});
-        audioEl.addEventListener('error',function(){label('듣기');});
+        audioEl.addEventListener('ended',function(){setPlaying(false);});
+        audioEl.addEventListener('error',function(){setPlaying(false);});
       }
       if(audioEl.paused){
-        label('멈춤');
-        var p=null; try{ p=audioEl.play(); }catch(e){ label('듣기'); return; }
+        setPlaying(true);
+        var p=null; try{ p=audioEl.play(); }catch(e){ setPlaying(false); return; }
         // 재생이 거절될 수 있다(자동재생 정책·디코드 실패) — 라벨만 '멈춤'으로 남아 거짓말하지 않게 되돌린다
-        if(p&&p.catch)p.catch(function(){ label('듣기'); });
-      }else{ audioEl.pause(); label('듣기'); }
+        if(p&&p.catch)p.catch(function(){ setPlaying(false); });
+      }else{ audioEl.pause(); setPlaying(false); }
     };
 
     // 모드가 바뀌는 순간, 떠 있던 소리를 먼저 끈다 — 이 한 줄이 두 소리가 겹치는 유일한 통로를 막는다
     var setMode=function(m){
       if(mode===m)return;
-      mode=m; ttsStop(); audioStop(); label('듣기'); btn.hidden=false;
+      mode=m; ttsStop(); audioStop(); setPlaying(false); btn.hidden=false;
     };
 
     btn.addEventListener('click',function(){
       if(mode==='audio')return audioToggle();
       if(mode==='tts')return speaking?stopAll():ttsStart();
     });
+    /* [LISTEN_BAR] 멈춤 줄의 버튼도 결국 stopAll 하나로 모인다 — 멈추는 길이 둘이면 상태가 갈라진다 */
+    var barStop=document.getElementById('playBarStop');
+    if(barStop)barStop.addEventListener('click',stopAll);
     document.addEventListener('visibilitychange',function(){ if(document.hidden)stopAll(); });
     window.addEventListener('pagehide',stopAll);
     if(canTTS&&typeof synth.onvoiceschanged!=='undefined'){synth.onvoiceschanged=function(){};}
