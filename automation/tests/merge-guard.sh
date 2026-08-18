@@ -4706,6 +4706,17 @@ chk 'ga-frame.ready { opacity: 1; transition' index.html 1
 chk 'function arm()' index.html 1
 chk 'setTimeout(reveal, 1200)' index.html 1
 chk "de.style.scrollBehavior = 'auto'" index.html 1
+# ★★[GA_LATE_PIN 2026-08-18 점검 라운드3 발견] 자리를 «한 번만» 잡으면 늦게 완성되는 문서에서 어긋난다.
+#   실측(표적 .sec 이 2.2초 뒤 생기는 판): 1.2초 대비책이 먼저 나타나 y=0 · 그 뒤 표적이 생겨도 그대로 ·
+#   load 가 와도 그대로 · 3.8초 뒤 자동 넘김이 02 로 가 **01 을 통째로 건너뛰었다.**
+#   그동안 목록은 「01 활성」이라 글과 그림이 따로 놀았다 — GA_SYNC 가 금지하는 바로 그 상태다.
+#   → 잡힐 때까지 200ms 간격으로 다시 시도(잡히면 즉시 멈춤 · 못 잡아도 4초면 그만).
+#   ★늦게 온 load 도 자리를 못 잡았으면 그때 잡는다(reveal 의 !armed 갈래).
+chk 'GA_LATE_PIN' index.html 1
+chk 'function pin()' index.html 1
+chk 'if (!armed) { if (!pinned) pin(); frame.classList.add' index.html 1
+chk 'pinned || ++n > 20' index.html 1
+nochk 'fit(); show(0, false); frame.classList.add' index.html
 nochk "behavior: smooth === false ? 'auto' : 'smooth'" index.html
 
 # ★★[ENV_DEMO_OPEN 2026-08-18 사용자 제안 "계좌 신부쪽이 열려있는 부분으로 등록해놓으면"]

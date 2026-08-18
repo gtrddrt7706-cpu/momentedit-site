@@ -7026,13 +7026,24 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
      ★load 에만 기대면 안 된다 — 이 페이지들은 바깥 글꼴 한 줄이 막히면 load 가 영영 안 온다
        (실측: readyState 가 'loading' 인 채 본문은 이미 그려져 있었다).
        그러면 폰이 «영영 투명»해진다 — 튀는 것보다 나쁘다. 그래서 늦어도 1.2초엔 나타난다. */
-  var revealT = null, armed = false;
-  function arm() { armed = true; frame.classList.remove('ready'); clearTimeout(revealT); revealT = setTimeout(reveal, 1200); }
+  var revealT = null, pinT = null, armed = false, pinned = false;
+  function pin() { fit(); show(idx, false); pinned = !!target(idx); }
+  function arm() {
+    armed = true; pinned = false; frame.classList.remove('ready');
+    clearTimeout(revealT); revealT = setTimeout(reveal, 1200);
+    /* ★[GA_LATE_PIN] 문서가 «자리 잡을 만큼» 언제 그려질지 모른다 — 잡힐 때까지 잠깐 다시 시도한다.
+       실측(표적 .sec 이 2.2초 뒤 생기는 판): 한 번만 잡으면 y=0 에 머문 채
+       load 가 와도 그대로였고, 3.8초 뒤 자동 넘김이 02 로 가 **01 을 통째로 건너뛰었다.**
+       그동안 목록은 「01 활성」이라 글과 그림이 따로 놀았다(GA_SYNC 가 금지하는 바로 그 상태).
+       ★잡히면 즉시 멈춘다. 끝내 못 잡아도 4초면 그만둔다(표적 없는 판에서 영영 돌지 않게). */
+    clearInterval(pinT); var n = 0;
+    pinT = setInterval(function () { if (pinned || ++n > 20) { clearInterval(pinT); pinT = null; return; } pin(); }, 200);
+  }
   function reveal() {
     clearTimeout(revealT); revealT = null;
-    if (!armed) { frame.classList.add('ready'); return; }   // 이미 보여준 뒤의 중복 호출
+    if (!armed) { if (!pinned) pin(); frame.classList.add('ready'); return; }   // 늦게 온 load — 자리를 못 잡았으면 지금 잡는다
     armed = false;
-    fit(); show(0, false); frame.classList.add('ready'); start();
+    pin(); frame.classList.add('ready'); start();
   }
   /* ★모션 최소화 설정이면 저절로 넘기지 않는다 — 목록을 짚으면 그때만 움직인다(브랜드 모션 규칙).
      ★화면 밖으로 나가면 멈춘다 — 보이지도 않는 것을 계속 돌릴 이유가 없다(배터리·연산). */
