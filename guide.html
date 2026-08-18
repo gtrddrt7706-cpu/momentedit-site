@@ -97,6 +97,13 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
 .privacy{font-size:10.5px;color:var(--faint);text-align:center;margin-top:9px}
+/* [GUEST_PHOTO_IN] 업로드 진행·결과 한 줄 — 버튼 바로 아래, 안내문과 같은 크기로 조용하게 */
+/* [GUEST_PHOTO_IN] .ps-btn 은 원래 <a> 용이라 폭이 저절로 찬다 — <button> 은 안 그래서 명시한다.
+   ★버튼은 부모 글꼴도 상속하지 않는다(브라우저 기본값이 이긴다) → font 도 여기서 되돌린다. */
+button.ps-btn{width:100%;font:inherit;font-family:var(--serif-ko);cursor:pointer;-webkit-appearance:none;appearance:none}
+.gp-stat{font-size:11.5px;color:var(--sub);text-align:center;margin-top:10px;line-height:1.65;word-break:keep-all}
+.gp-stat.gp-err{color:var(--gold-deep)}
+.gp-retry{font:inherit;color:var(--gold-deep);background:none;border:0;border-bottom:1px solid currentColor;padding:0 0 1px;cursor:pointer;min-height:44px}
 /* [GUIDE_DRINK] 자리 안내 바로 아래 한 줄 — 배치도보다 위에 둔다(내 자리 다음으로 궁금한 것) */
 .dk-line{display:flex;align-items:center;justify-content:center;gap:7px;margin:9px 0 2px}
 .dk-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:0 0 auto}
@@ -423,8 +430,86 @@ function diningHtml(dn){
   return h+'</div>';
 }
 // 하객 사진 모으기 — 부부가 정한 외부 공유 앨범/오픈채팅 링크가 있을 때만. 하객이 찍은 사진을 한곳으로(2026-07-19 · QR 갤러리 파일럿)
+/* ══ [GUEST_PHOTO_IN] 하객이 여기서 바로 올린다 — 우리 화면·한국어·가입 없음 ══
+   ■ 왜 순차 전송인가 (한 번에 몰아 보내지 않는다)
+     ①GAS 는 요청 하나의 크기에 한도가 있어 여러 장을 한 덩어리로 보내면 통째로 실패한다.
+     ②하객 여럿이 동시에 올리는 예식장에서 병렬로 쏘면 서버 동시 실행 한도에 걸린다.
+     ③한 장이 실패해도 **나머지는 이미 올라가 있다** — 몰아 보내면 전부 잃는다.
+   ■ 실패는 숨기지 않는다 — 몇 장 실패했는지 말하고 「다시 시도」로 그 장들만 재전송한다.
+     예식 사진은 다시 찍을 수 없어서, 조용히 넘어가는 것이 가장 나쁘다.
+   ■ 하객에게 아무것도 묻지 않는다 — 이름·연락처 입력칸이 없다(개인정보 최소 · 마찰 0).
+     올라간 사진 목록도 보여주지 않는다(하객끼리 서로 안 보이는 것이 이 기능의 출발점). */
+var GP_MAX_MB=20, GP_ONCE=30;   // 서버 한도(20MB)와 같은 값 · 한 번에 고를 수 있는 장수
+function guestUploadHtml(){
+  return '<div class="sec"><div class="sec-h"><h2 class="sec-t">사진 모으기</h2><span class="sec-n">Photos</span></div>'
+    +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
+    +'<input type="file" id="gpFile" accept="image/*,video/*" multiple style="display:none">'
+    +'<button type="button" class="ps-btn" id="gpPick">사진 올리기</button>'
+    +'<div class="privacy" id="gpNote">두 분에게 바로 전해져요 · <b>이름도 가입도 필요 없어요</b>.<br>여러 장 한 번에 고르셔도 돼요.</div>'
+    +'<div class="gp-stat" id="gpStat" style="display:none"></div></div>';
+}
+function gpSay(msg, kind){
+  var el=document.getElementById('gpStat'); if(!el) return;
+  el.className='gp-stat'+(kind?' gp-'+kind:''); el.innerHTML=msg; el.style.display='';
+}
+function bindGuestUpload(){
+  var pick=document.getElementById('gpPick'), inp=document.getElementById('gpFile');
+  if(!pick||!inp) return;
+  var token=qp('g'); if(!token) return;
+  var busy=false, failed=[];
+  pick.addEventListener('click', function(){ if(!busy) inp.click(); });
+  inp.addEventListener('change', function(){ var f=[].slice.call(inp.files||[],0,GP_ONCE); inp.value=''; if(f.length) send(f); });
+
+  function one(file){
+    return new Promise(function(res){
+      if(file.size > GP_MAX_MB*1048576){ res({ok:false, big:true}); return; }
+      var fr=new FileReader();
+      fr.onerror=function(){ res({ok:false}); };
+      fr.onload=function(){
+        var d=String(fr.result||''); var i=d.indexOf(',');
+        fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body:JSON.stringify({ action:'guestPhoto', g:token, name:file.name, mime:(file.type||'image/jpeg'), data:(i>=0?d.slice(i+1):d) }) })
+          .then(function(r){ return r.json(); })
+          .then(function(v){ res(v&&v.ok ? {ok:true} : {ok:false, msg:(v&&v.error)||'', stop:!!(v&&(v.expired||v.full))}); })
+          .catch(function(){ res({ok:false}); });
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function send(files){
+    busy=true; window.__gpBusy=true; failed=[]; var done=0, big=0, stopMsg='';   // [GP_NO_REPAINT] 올리는 동안 render 를 막는다
+    pick.textContent='올리는 중이에요'; pick.classList.add('ps-btn-off');
+    gpSay('0 / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
+    (function next(i){
+      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg); return; }
+      one(files[i]).then(function(v){
+        if(v.ok) done++; else if(v.big) big++; else { failed.push(files[i]); if(v.stop) stopMsg=v.msg||''; }
+        gpSay((done)+' / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
+        next(i+1);
+      });
+    })(0);
+  }
+  function finish(total, done, big, stopMsg){
+    busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
+    if(stopMsg){ gpSay(esc(stopMsg), 'err'); return; }
+    var msg=done?('<b>'+done+'장 전해졌어요</b> · 고맙습니다.'):'';
+    if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지).';
+    if(failed.length){
+      msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
+      gpSay(msg,'err');
+      var rb=document.getElementById('gpRetry');
+      if(rb) rb.addEventListener('click', function(){ var again=failed.slice(); send(again); });
+      return;
+    }
+    gpSay(msg||'보낼 사진이 없었어요.');
+  }
+}
 function photoShareHtml(url){
-  if(!/^https?:/i.test(String(url||''))) return '';
+  /* ★★★[GUEST_PHOTO_IN 2026-08-17 사용자 지시] 부부가 외부 링크를 넣지 않았으면 **우리가 직접 받는다.**
+     사용자 원문: "오프라인 청첩장 하객안내 페이지에서 사진올리기 누르면 자동으로 구글 드라이브에 업로드되는 시스템말이야"
+     ★기본이 우리 업로드다 — 부부는 아무 설정도 안 해도 되고, 하객은 우리 사이트를 떠나지 않는다.
+     ★외부 링크가 있으면 종전대로 그 링크로 보낸다. 이미 그렇게 준비해 둔 부부의 화면을 바꾸지 않기 위해서다. */
+  if(!/^https?:/i.test(String(url||''))) return guestUploadHtml();
   // [GUIDE_PHOTO_INFO] 이 버튼은 우리 화면이 아니라 부부가 만든 외부 공간(공유 앨범·오픈채팅)으로 나간다.
   //   기존 안내는 '큰 선물이 돼요' 한 줄뿐이라, 하객은 누르기 전에 어디로 가는지도
   //   오픈채팅이면 내 프로필·닉네임이 방에 보인다는 것도 알 수 없었다.
@@ -660,6 +745,12 @@ function isWeddingDay(ymd){
   return t===ymd;
 }
 function render(g){
+  /* ★★[GP_NO_REPAINT 2026-08-17 시뮬에서 잡은 결함] 업로드 중에는 **다시 그리지 않는다.**
+     이 페이지는 캐시로 한 번 그리고 서버 응답으로 또 그린다(GUIDE_CACHE). 하객이 들어오자마자
+     사진을 올리기 시작하면 그 사이 두 번째 렌더가 화면을 갈아 끼워 **진행 표시가 사라지고**
+     버튼이 새것으로 바뀐다 — 하객은 올라가는 중인지 멈춘 건지 알 수 없게 된다.
+     ★올리는 동안은 화면을 건드리지 않는 것이 맞다. 갱신은 다음 방문에 반영된다. */
+  if(window.__gpBusy) return;
   var couple=esc(g.groom||'')+(g.groom&&g.bride?'<span class="heart">&amp;</span>':'')+esc(g.bride||'');
   var date=fmtDate(g.date);
   var hasSeat=!!g.seatToken;
@@ -672,6 +763,7 @@ function render(g){
     +'<div class="foot"><div class="wm">Moment Edit</div><div class="tag">Focus on the Essence, Record the Truth.</div></div>'
     +'</div>';
   if(hasSeat && !DEMO) bindSeat(g.seatToken, !!g.seatFull);   // [GUIDE_DEMO] 표본은 서버를 부르지 않는다
+  if(!DEMO) bindGuestUpload();   // [GUEST_PHOTO_IN] 매 렌더마다 다시 건다 — render 가 innerHTML 을 갈아 끼우므로 앞의 리스너는 사라진다
   if(window.gCue) window.gCue();   // [GUIDE_SCROLLCUE] 내용이 화면보다 길 때만 나타난다
 }
 // [GUIDE_RETRY] 실패하면 하객이 할 수 있는 게 아무것도 없었다.

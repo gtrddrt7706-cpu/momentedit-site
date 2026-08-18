@@ -936,6 +936,173 @@ function addGuideTokenColumn() {
   return '안내공유토큰 열 추가됨';
 }
 
+// ==============================================================================
+// [GUEST_PHOTO_IN 2026-08-17 사용자 지시] 하객 사진을 **우리 페이지에서 바로 받는다**
+//   사용자 원문: "오프라인 청첩장 하객안내 페이지에서 사진올리기 누르면 자동으로 구글 드라이브에
+//   업로드되는 시스템말이야" · "문제없이 꼼꼼하게 구현해보자"
+//
+//   ■ 왜 외부 서비스를 안 쓰나 (3라운드 리서치를 뒤집는 것이 아니라 넘어서는 것)
+//     외부 후보는 전부 대가가 있었다 — 카톡 1:1(방이 하객 수만큼 쪼개짐) · 드롭박스(하객에게
+//     이름·이메일 강제 + 부부에게 알림 폭탄) · 스냅웨딩(개업 5개월 업체 서버에 3개월 보관) ·
+//     WedUploader(무료·부부 드라이브 직송이지만 화면이 영어라 낯설다).
+//     ★우리는 이미 하객 페이지(guide.html)와 토큰(안내공유토큰)과 드라이브 접근(DriveApp)을
+//       전부 갖고 있다 — 남의 투입구를 빌릴 이유가 없었다. 여기서 받으면 화면이 한국어이고
+//       우리 디자인이고, 하객은 사이트를 떠나지 않는다.
+//
+//   ■ 어디에 쌓나 — **스튜디오 드라이브**(부부 드라이브 아님)
+//     부부 드라이브에 직접 넣으려면 부부 구글 로그인 + 구글 앱 심사 + 우리가 부부 계정 접근권을
+//     보관해야 한다. 털리면 부부 드라이브가 통째로 노출되는 책임이라 값이 너무 비싸다.
+//     ★대신 우리 드라이브에 받고 부부에게는 폴더 링크를 드린다. 결과물 전달(원본폴더ID)이
+//       이미 우리 드라이브라 자리가 같고, 관리자 화면에서 '잘 들어왔나'를 우리가 볼 수 있다.
+//     ★[PHOTOSHARE_DIRECT] 와의 관계: 그때 사용자가 거부한 것은 **우리가 받아서 손으로 옮겨 주는
+//       심부름**이었다. 이건 사람 손이 없는 자동 경로라 취지에 어긋나지 않고, 사용자가 이 시스템을
+//       직접 지시했다. 되돌리지 말 것.
+//
+//   ■ 안전 장치 (전부 이유가 있다)
+//     · 토큰 게이트 — 안내공유토큰이 있어야만 받는다. 아무나 우리 드라이브에 못 쓴다.
+//     · 만료 — 안내 페이지가 예식+30일에 닫히는 것과 **같은 기준**(_guideExpired)으로 막는다.
+//       화면은 닫혔는데 업로드 구멍만 열려 있는 상태가 생기지 않게.
+//     · 형식·크기 — 사진·영상만 · 1개 20MB. base64 는 원본의 4/3 이라 doPost 한도 안쪽이다.
+//     · 총량 — 한 예식 400장·4GB. 오작동으로 같은 파일이 폭주해도 우리 드라이브가 안 터진다.
+//     · 잠금 — **폴더 만들 때와 숫자 셀 때만** 짧게 건다. 파일 쓰기(느린 구간)는 잠금 밖이라
+//       하객 여럿이 동시에 올려도 서로 기다리지 않는다. 잠그고 파일까지 쓰면 줄이 밀려 당일 실패한다.
+//     · 열 가드 — 컬럼이 없으면 **저장을 거부한다.** writeCell 은 헤더 없는 컬럼을 조용히 건너뛰므로
+//       (addProdTrackColumns 주석의 그 사고와 같은 형태) 열 없이 받으면 사진이 소리 없이 사라진다.
+//
+//   ■ 하객은 아무것도 안 남긴다 — 이름·연락처를 묻지 않는다(개인정보 최소). 목록도 안 보여준다
+//     (하객끼리 서로의 사진이 보이면 안 된다는 조건이 이 기능의 출발점이었다).
+// ==============================================================================
+var GP_ROOT_FOLDER  = 'ME_하객사진';   // 스튜디오 드라이브 최상위 보관함(없으면 자동 생성)
+var GP_MAX_FILE_MB  = 20;              // 파일 1개 원본 최대 — 폰 사진 8MB·짧은 영상까지 커버
+var GP_MAX_FILES    = 400;             // 한 예식 총 장수 상한(남용·폭주 차단)
+var GP_MAX_TOTAL_MB = 4000;            // 한 예식 총 용량 상한
+var GP_KEEP_DAYS    = 180;             // 예식 후 보관일수 — 결과물 인도 6개월(계약서 12조3)과 같은 기준
+
+function _gpRootFolder() {
+  var it = DriveApp.getFoldersByName(GP_ROOT_FOLDER);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(GP_ROOT_FOLDER);
+}
+
+// 파일명 — 하객 폰이 준 이름을 그대로 믿지 않는다(경로·제어문자 제거). 앞에 시각을 붙여 같은 이름끼리 안 덮이게.
+function _gpSafeName(raw, mime) {
+  var s = String(raw || '').replace(/[\\\/:*?"<>|]/g, '').replace(/[\x00-\x1f]/g, '').replace(/^\.+/, '').trim().slice(0, 80);
+  if (!s) s = 'photo';
+  if (s.indexOf('.') < 0) s += '.' + (String(mime || '').split('/')[1] || 'jpg').replace(/[^a-z0-9]/gi, '');
+  return Utilities.formatDate(new Date(), 'Asia/Seoul', 'MMdd-HHmmss') + '_' + s;
+}
+
+// 이 부부의 하객사진 폴더 — 없으면 만들고 열에 기록. ★호출자가 잠근 상태에서 부를 것(폴더 중복 생성 방지).
+function _gpFolderFor(cust, sheet, colOf) {
+  if (!colOf['하객사진폴더ID']) return '';
+  var fid = String(cust.get('하객사진폴더ID') || '').trim();
+  if (fid) { try { DriveApp.getFolderById(fid); return fid; } catch (e) { fid = ''; } }   // 지워졌으면 새로 만든다
+  var name = (String(cust.get('개인코드') || '').trim() || 'unknown') + '_' + (_ymdOf(cust.get('예식일')) || 'nodate');
+  fid = _gpRootFolder().createFolder(name).getId();
+  touchCustomer(sheet, colOf, cust.num, { '하객사진폴더ID': fid });
+  return fid;
+}
+
+// 하객 업로드 1건 — guide.html 이 파일 하나씩 순차로 부른다(한 번에 몰아 보내지 않는 이유는 프런트 주석 참고).
+function handleGuestPhoto(body) {
+  body = body || {};
+  var token = String(body.g || '').trim();
+  if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
+
+  var mime = String(body.mime || '').trim().toLowerCase();
+  if (!/^(image|video)\/[a-z0-9.+-]+$/.test(mime)) return { ok: false, error: '사진과 영상만 올릴 수 있어요.' };
+
+  var b64 = String(body.data || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, '');
+  if (!b64) return { ok: false, error: '파일이 비어 있어요.' };
+  var bytes = Math.floor(b64.length * 3 / 4);
+  if (bytes > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '한 개에 ' + GP_MAX_FILE_MB + 'MB 까지 올릴 수 있어요.' };
+
+  var cust = _findCustomerBy('안내공유토큰', token, false);
+  if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
+  if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 사진 받기가 닫혔어요.' };
+
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  // ★열 가드 — 없으면 저장하지 않는다. writeCell 이 조용히 건너뛰어 '올렸는데 없다'가 되는 것을 막는다.
+  if (!colOf['하객사진폴더ID']) return { ok: false, error: '아직 준비 중이에요. 두 분께 알려 주세요.' };
+
+  if ((Number(cust.get('하객사진수') || 0) || 0) >= GP_MAX_FILES) return { ok: false, full: true, error: '사진이 충분히 모였어요. 고맙습니다.' };
+  if ((Number(cust.get('하객사진MB') || 0) || 0) * 1048576 + bytes > GP_MAX_TOTAL_MB * 1048576) return { ok: false, full: true, error: '사진이 충분히 모였어요. 고맙습니다.' };
+
+  // (1) 폴더 확보 — 첫 하객 여럿이 동시에 눌러도 폴더가 둘 생기지 않게 짧게 잠근다.
+  var lock = LockService.getScriptLock(), fid = '';
+  try {
+    lock.waitLock(20000);
+    fid = _gpFolderFor(_findCustomerBy('안내공유토큰', token, false) || cust, sheet, colOf);
+  } catch (e) {
+    return { ok: false, error: '지금은 붐벼요. 잠시 뒤 다시 눌러 주세요.' };
+  } finally { try { lock.releaseLock(); } catch (e2) {} }
+  if (!fid) return { ok: false, error: '저장할 곳을 열지 못했어요.' };
+
+  // (2) 파일 쓰기 — ★잠금 밖. 여기가 느린 구간이라 잠그면 하객들이 줄을 서다 당일에 실패한다.
+  try {
+    DriveApp.getFolderById(fid).createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, _gpSafeName(body.name, mime)));
+  } catch (e) {
+    return { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' };
+  }
+
+  // (3) 집계 — 다시 짧게 잠그고 **그때 읽은 값**에 더한다(동시 업로드로 숫자가 덮이지 않게).
+  //     ★여기가 실패해도 사진은 이미 저장됐다 → 하객에게는 성공으로 답한다. 숫자는 부부 화면 표시용일 뿐이다.
+  var n = (Number(cust.get('하객사진수') || 0) || 0) + 1;
+  try {
+    lock.waitLock(20000);
+    var f2 = _findCustomerBy('안내공유토큰', token, false) || cust;
+    n = (Number(f2.get('하객사진수') || 0) || 0) + 1;
+    touchCustomer(sheet, colOf, f2.num, {
+      '하객사진수': n,
+      '하객사진MB': Math.round(((Number(f2.get('하객사진MB') || 0) || 0) + bytes / 1048576) * 10) / 10,
+      '하객사진최근': fmtKST(new Date())
+    });
+  } catch (e) { /* 집계 실패는 사진 유실이 아니다 */ }
+  finally { try { lock.releaseLock(); } catch (e3) {} }
+
+  return { ok: true, n: n };
+}
+
+// [1회 실행] Customers 에 하객사진 열 4개 추가(멱등). ★'새 버전' 배포 _전에_ 실행할 것.
+//   ★폴더ID를 **마지막**에 넣는다 — handleGuestPhoto 가 그 열 하나로 '전부 있음'을 판정하므로,
+//     중간에 실패해도 '열은 반쪽인데 저장은 받는' 상태가 생기지 않는다(addProdTrackColumns 와 같은 규칙).
+function addGuestPhotoColumns() {
+  var sheet = getCustomersSheet(), added = [];
+  ['하객사진수', '하객사진MB', '하객사진최근', '하객사진폴더ID'].forEach(function (h) {
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (v) { return String(v).trim(); });
+    if (headers.indexOf(h) !== -1) return;
+    sheet.getRange(1, sheet.getLastColumn() + 1).setValue(h);
+    added.push(h);
+  });
+  return added.length ? ('추가됨: ' + added.join(', ')) : '이미 다 있음';
+}
+
+// [정리] 예식 후 GP_KEEP_DAYS(180일) 지난 하객사진 폴더를 휴지통으로 — 개인정보 보관 최소화.
+//   ★기본 드라이런(로그만) · 실제 삭제는 purgeGuestPhotos(false). 결과물 인도 6개월과 같은 기준이라
+//     부부가 받아 갈 시간을 충분히 준 뒤에만 지운다.
+function purgeGuestPhotos(dryRun) {
+  if (dryRun !== false) dryRun = true;
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf['하객사진폴더ID']) return '하객사진 열 없음(할 일 없음)';
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return '대상 없음';
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var done = [];
+  for (var i = 0; i < vals.length; i++) {
+    var r = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
+    var fid = String(r.get('하객사진폴더ID') || '').trim(); if (!fid) continue;
+    var wed = _ymdOf(r.get('예식일')); if (!wed) continue;
+    var dd = (typeof _dayDiff === 'function' && typeof _kstYmd === 'function') ? _dayDiff(wed, _kstYmd(new Date())) : null;
+    if (dd == null || dd >= -GP_KEEP_DAYS) continue;   // 아직 보관 기간 안
+    done.push(String(r.get('개인코드') || '') + '(' + wed + ')');
+    if (!dryRun) {
+      try { DriveApp.getFolderById(fid).setTrashed(true); } catch (e) {}
+      touchCustomer(sheet, colOf, r.num, { '하객사진폴더ID': '' });   // 링크만 끊는다 · 장수 기록은 남겨 둔다
+    }
+  }
+  var msg = (dryRun ? '[드라이런] ' : '[실행] ') + '정리 대상 ' + done.length + '건' + (done.length ? ' - ' + done.join(', ') : '');
+  Logger.log(msg); return msg;
+}
+function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS 편집기는 인자를 못 넘긴다 - 실행용 래퍼
+
 // [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
 //   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
 function buildProductionState(r) {
@@ -986,6 +1153,11 @@ function buildProductionState(r) {
     seatToken: String(r.get('좌석공유토큰') || ''),   // 공개 링크·QR 키(발급됐으면)
     guideToken: String(r.get('안내공유토큰') || ''),   // 하객 안내 허브 공개 링크·QR 키(다이닝/좌석 완료 시 발급)
     guideinfoDraft: draft.guideinfoDraft || null,      // 하객 안내 정보(오시는 길·드레스코드) 이어하기·편집용
+    guestPhoto: {   // [GUEST_PHOTO_IN] 하객이 우리 안내 페이지에서 올린 사진 - 부부 화면 표시용(장수·폴더·최근)
+      n: Number(r.get('하객사진수') || 0) || 0,
+      url: (function () { var f = String(r.get('하객사진폴더ID') || '').trim(); return f ? 'https://drive.google.com/drive/folders/' + f : ''; })(),
+      at: String(r.get('하객사진최근') || '').trim()
+    },
     finalPolicy: { seats: FINAL_CONFIRM.착석, max: FINAL_CONFIRM.최대, unit: FINAL_CONFIRM.초과단가 }   // 프런트 계산·문구 단일 기준
   };
 }
