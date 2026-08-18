@@ -3506,6 +3506,31 @@ footer {
   position: relative;
   flex-shrink: 0;
 }
+/* ══ [GA_TABS 2026-08-18] 하객이 만나는 화면 · 온·오프라인 전환 ═══════════════════════
+   ★탭은 채움 버튼이 아니다 — 한 화면에 진사 덩어리를 늘리지 않는다([SEAL_POINT]와 같은 판단).
+     고른 쪽만 먹색·밑줄, 나머지는 옅은 글자. 존재감은 여백이 낸다. */
+/* [LIVE_DEMOTE] '고르지 않으셔도 손해 없다' — 본문보다 한 단 낮게, 그러나 읽히게 */
+.live-optional { font-size: 12px; color: var(--light); margin-top: 14px; }
+.ga-tabs { display: flex; justify-content: center; gap: 4px; margin: 20px 0 0; }
+.ga-tab {
+  background: none; border: 0; padding: 12px 14px; cursor: pointer;
+  font-family: var(--serif-ko); font-size: 12px; font-weight: 400; letter-spacing: 0.02em;
+  line-height: 1.7; color: var(--light); border-bottom: 1px solid transparent;
+  transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.ga-tab:hover { color: var(--sub); }
+.ga-tab.on { color: var(--text); font-weight: 500; border-bottom-color: var(--gold); }
+/* 실물 페이지를 폰 화면 크기로 줄여 넣는다 — 배율은 JS가 실측(.phone-screen 폭 ÷ 390)해서 건다.
+   ★하드코딩하지 않는 이유: 폭이 브레이크포인트마다 달라 상수로 두면 한쪽에서 어긋난다. */
+.ga-frame {
+  width: 390px; border: 0; display: block; background: var(--bg);
+  transform-origin: top left; pointer-events: none;
+}
+.ga-foot {
+  text-align: center; font-family: var(--serif-ko); font-weight: 300; font-size: 12px;
+  color: var(--sub); letter-spacing: 0.02em; line-height: 1.85; max-width: 500px;
+  margin: 16px auto 0; word-break: keep-all;
+}
 .phone-notch {
   position: absolute;
   top: 18px;
@@ -5836,214 +5861,63 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <!-- LIVE -->
 <section id="live">
 <div class="reveal">
-  <div class="sec-label">SELECTIVE PRESENCE ·<span class="ll-ko"> 선택적 디지털 참석</span></div>
+  <!-- ══ [LIVE_DEMOTE 2026-08-18 사용자 지시] 라이브(디지털 참석)를 **섹션의 주인 자리에서 내린다** ══
+       사용자 원문: "라이브방송을 부담스러워하는 고객들도 있을 수 있으니깐 라이브홍보를 격하하면 좋겠다
+                    선택 안하는 고객도 손해보는 느낌이 없게"
+       ■ 옛 머리글은 섹션 전체가 디지털 참석 홍보였다(눈썹 '선택적 디지털 참석' · 부제 '디지털 참석 ·' ·
+         본문도 '오지 못한 분' 한쪽뿐). 그래서 라이브를 원치 않는 고객에게는 **섹션 하나가 통째로
+         남의 이야기**였고, 안 고르면 뭔가 빠지는 듯한 인상이 남았다.
+       ■ 축을 「하객이 만나는 화면」으로 올린다. 그 아래 두 판이 나란히 서고, 디지털 참석은 그중 하나다.
+         ★오신 분께 가는 하객 안내가 오히려 **모두에게 가는 쪽**이라, 평평하게 놓으면 무게가 저절로 옮겨간다.
+       ■ '고르지 않으셔도 손해가 없다'를 **섹션 머리로 올렸다.** 전에는 온라인 탭 각주에만 있어
+         그 탭을 연 사람만 봤다 — 정작 읽어야 할 사람은 라이브를 건너뛴 고객이다.
+       ★디지털 참석을 '핵심·시그니처'로 다시 띄우지 말 것(나레이션 포지셔닝과 같은 규칙). -->
+  <div class="sec-label">BEYOND THE INVITATION ·<span class="ll-ko"> 청첩장 그다음</span></div>
   <h2 class="sec-title">The Extended Venue</h2>
-  <div class="sec-title-sub">디지털 참석 · 물리적 거리를 넘어, 마음으로 닿는 초대</div>
-  <p class="t-body">초대된 분만 닿을 수 있는 사적인 자리입니다. <br>거리와 일정으로 오지 못한 분의 마음까지 이어집니다.</p>
+  <div class="sec-title-sub">오신 분께는 안내를, 오지 못한 분께는 자리를</div>
+  <p class="t-body">청첩장을 연 하객분은 예식 당일까지 두 화면을 만납니다. <br>오신 분께는 자리와 식사를 안내하고, 오지 못한 분께는 디지털 참석으로 자리를 내어드립니다.</p>
+  <p class="t-body live-optional">디지털 참석은 두 분의 선택입니다 · 고르지 않으셔도 예식 영상은 추가금 없이 그대로 전해 드려요.</p>
 </div>
 <!-- MOCKUP ACCESS NOTE -->
 <div class="reveal">
+  <!-- ══ [GA_TABS 2026-08-18 사용자 지시] 하객이 만나는 화면을 온·오프라인 둘로 보여준다 ══
+       사용자 원문: "온라인은 라이브페이지, 오프라인은 하객안내페이지" · "실제 보이게 말이야"
+                    · "기존틀 얽매이지말고 더좋은 방법이있다면 그것으로 진행"
+       ■ 손으로 만든 목업(.mock-slide 4장)을 **실물 iframe** 으로 바꾼다.
+         [GV_REAL] 이 이미 정한 원칙이다 — "갤러리는 실물을 src로 띄운다, 사본 금지.
+         실물이 바뀌면 미리보기도 저절로 같다." 청첩장 갤러리에서 사본이 실물과 갈라진 사고를
+         겪고 세운 규칙인데, 이 목업은 같은 위험을 그대로 지고 있었다(인트로가 "하객이 만나는
+         화면입니다"라고 단언하는데 내용물은 사람이 베낀 것이었다).
+       ■ 탭은 **aria-hidden 밖**에 둔다. 폰 그림만 장식이고, 탭과 목록은 진짜 내용이다.
+       ★탭 라벨에 Online/Offline 을 쓰되 위 「두 편의 청첩장」과 뜻이 이어진다 —
+         청첩장이 두 편이니 그 다음 화면도 두 편이라는 체계가 여기서 완성된다. -->
   <div class="mockup-intro">
-    <span class="mockup-intro-label">Guest Access · 초대 경로</span>
-    <p class="mockup-intro-text">
-      <span class="mockup-intro-hi">온라인 청첩장</span> 링크를 열면 하객이 만나는 <span class="mockup-intro-hi">디지털 참석</span> 화면입니다.
-    </p>
+    <span class="mockup-intro-label">Guest Access · 하객이 만나는 화면</span>
+    <p class="mockup-intro-text" id="gaIntro"></p>
+    <div class="ga-tabs" role="tablist" aria-label="하객이 만나는 두 화면">
+      <button type="button" class="ga-tab on" role="tab" aria-selected="true" data-ga="on">온라인 · 디지털 참석</button>
+      <button type="button" class="ga-tab" role="tab" aria-selected="false" data-ga="off">오프라인 · 하객 안내</button>
+    </div>
   </div>
 </div>
-<!-- LIVE PREVIEW MOCKUP -->
-<div class="reveal">
-<!-- [MOCKUP_ARIA_HIDDEN] 장식용 목업 — 안의 4.5~9px 텍스트 49건은 읽으라고 넣은 게 아니라
-     디지털 참석 페이지를 축소해 '형태'만 보여주는 것이다(2026-07-30 사용자 확인).
-     ★이 aria-hidden은 '내부 포커스 가능 요소 0개'라는 실측에 근거한다
-       (측정 당시 a[href]·button·input·[tabindex] 0 · img 0 · 하위 156개 전부 비대화형).
-       여기에 버튼·링크·입력을 추가하면 aria-hidden을 반드시 함께 재검토할 것 —
-       포커스는 되는데 스크린리더가 읽지 않으면 접근성 위반이 된다.
-     설명은 바로 위 .mockup-intro-text가 담당한다. 글자 크기는 의도된 것이니 키우지 말 것. -->
-<div class="live-mockup-wrap" aria-hidden="true">
+<div class="live-mockup-wrap">
   <div class="live-mockup-cols">
-    <!-- PHONE -->
-    <div class="phone">
+    <!-- [MOCKUP_ARIA_HIDDEN → GA_TABS 2026-08-18] aria-hidden 을 **폰 그림에만** 좁혔다.
+         전에는 이 wrap 전체가 숨겨져 있어 01~04 목록까지 스크린리더에서 사라졌다 — 그건 장식이 아니라 내용이다.
+         ★폰 안에는 여전히 포커스 가능 요소가 0개다: iframe 에 tabindex="-1" 과 inert 를 함께 건다.
+           (옛 주석이 근거로 삼은 '내부 포커스 0개'라는 실측 전제를 그대로 지킨다.) -->
+    <div class="phone" aria-hidden="true">
       <div class="phone-notch"></div>
       <div class="phone-screen">
-        <!-- Persistent sticky header -->
-        <div class="mock-header">
-          <span class="mock-brand">MOMENT<span class="b-dot"></span>EDIT</span>
-          <span class="mock-onair"><span class="a-dot"></span>On Air</span>
-        </div>
-        <div class="mock-slides">
-          <!-- Slide 01 — Hero (vertically centered) -->
-          <div class="mock-slide active hero-slide" data-slide="0">
-            <div class="mock-eyebrow">Invitation<span class="it"> · </span>초대장</div>
-            <div class="mock-hairline"></div>
-            <div class="mock-couple">이서준<span class="dot">·</span>정하윤</div>
-            <div class="mock-couple-en">SEO&nbsp;JUN<span class="sep">·</span>HA&nbsp;YOON</div>
-            <div class="mock-hairline"></div>
-            <!-- [MOCK_SAMPLE_SYNC] 이 목업의 표본은 청첩장 표본(shared/hydrate.js SAMPLE)과 한 몸이다.
-                 이서준·정하윤 / 2026-10-24(토) / 14:00. 예전엔 여기만 2027.12.17 FRI로 남아,
-                 홈에서 본 예식일과 청첩장 미리보기의 예식일이 서로 달랐다(2026-08-02 사용자 지적).
-                 ★한쪽만 고치면 다시 어긋난다 — SAMPLE을 바꾸면 아래 두 곳(날짜줄·크레딧)도 함께. -->
-            <div class="mock-date">2026<span class="sep">·</span>10<span class="sep">·</span>24</div>
-            <div class="mock-time">SAT／14:00 KST</div>
-            <p class="mock-note">두 분의 가장 빛나는 순간에<br>함께해 주셔서 감사합니다.</p>
-            <div class="mock-scroll">
-              <span class="mock-scroll-label">Scroll</span>
-              <span class="mock-scroll-line"></span>
-            </div>
-          </div>
-          <!-- Slide 02 — Broadcast -->
-          <div class="mock-slide" data-slide="1">
-            <div class="mock-sec">
-              <span class="mock-sec-line"></span>
-              <span class="mock-sec-label">Broadcast<span class="ko">디지털 참석</span></span>
-            </div>
-            <div class="mock-video-wrap">
-              <div class="mock-video">
-                <div class="mock-player-placeholder">
-                  <div class="mock-placeholder-mark">MOMENT&nbsp;EDIT</div>
-                  <div class="mock-placeholder-line"></div>
-                  <div class="mock-placeholder-text">Broadcast will begin<br>at the scheduled hour.</div>
-                  <div class="mock-placeholder-text-ko">예식 시각에 디지털 참석이 시작됩니다.</div>
-                </div>
-              </div>
-              <span class="mock-crop tl"></span>
-              <span class="mock-crop tr"></span>
-              <span class="mock-crop bl"></span>
-              <span class="mock-crop br"></span>
-            </div>
-            <p class="mock-vidnote">이 자리는 두 분의 가까운 분들만을 위해<br>비공개로 진행됩니다.</p>
-            <p class="mock-fs-hint">
-              <svg class="mock-fs-icon" viewBox="0 0 16 16" aria-hidden="true">
-                <path d="M1,5 L1,1 L5,1 M15,5 L15,1 L11,1 M1,11 L1,15 L5,15 M15,11 L15,15 L11,15"/>
-              </svg>
-              <span>영상을 탭하시면 전체화면으로 감상하실 수 있습니다.</span>
-            </p>
-            <div class="mock-credit">
-              <div class="mock-credit-row"><span class="mock-credit-key">Date</span><span class="mock-credit-val">2026.10.24 <span class="small">SAT</span></span></div>
-              <div class="mock-credit-row"><span class="mock-credit-key">Time</span><span class="mock-credit-val">14:00 <span class="small">KST</span></span></div>
-              <div class="mock-credit-row"><span class="mock-credit-key">Duration</span><span class="mock-credit-val">Approx. 30 <span class="small">Min</span></span></div>
-              <div class="mock-credit-row"><span class="mock-credit-key">Broadcast</span><span class="mock-credit-val">Moment Edit <span class="small">Private · 1080p</span></span></div>
-            </div>
-          </div>
-          <!-- Slide 03 — Letter -->
-          <div class="mock-slide" data-slide="2">
-            <div class="mock-sec">
-              <span class="mock-sec-line"></span>
-              <span class="mock-sec-label">Letter<span class="ko">편지</span></span>
-            </div>
-            <p class="mock-lead">오직 두 분에게</p>
-            <p class="mock-desc">남기신 편지는 오직 신랑·신부에게만 전해집니다.<br>길게도 짧게도 자유롭게 적으실 수 있습니다.</p>
-            <div class="mock-form">
-              <div class="mock-form-eyebrow">A letter for the couple</div>
-              <div class="mock-form-seg">
-                <span class="mfs">신랑</span>
-                <span class="mfs active">두 분</span>
-                <span class="mfs">신부</span>
-              </div>
-              <div class="mock-form-q">두 분에게 편지를 남겨 주세요</div>
-              <div class="mock-form-paper">
-                <div class="mock-form-paper-text">두 분에게 전하고 싶은 마음을 편안히 남겨 주세요. 짧은 인사도, 긴 편지도 모두 두 분만의 기록으로 간직됩니다.</div>
-              </div>
-              <div class="mock-form-meta">
-                <span>From · 보내는이</span>
-                <span class="mock-form-meta-spacer"></span>
-                <span>익명 가능</span>
-              </div>
-              <div class="mock-form-cta">
-                <span>Deliver</span>
-                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2,8 L13,8 M9,4 L13,8 L9,12" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </div>
-            </div>
-          </div>
-          <!-- Slide 04 — Envelope -->
-          <div class="mock-slide" data-slide="3">
-            <div class="mock-sec">
-              <span class="mock-sec-line"></span>
-              <span class="mock-sec-label">Envelope<span class="ko">디지털 봉투</span></span>
-            </div>
-            <p class="mock-lead">마음을 담아, 조용히</p>
-            <div class="mock-env">
-              <div class="mock-env-item">
-                <span class="mock-env-left">
-                  <span class="mock-env-side">Groom</span>
-                  <span class="mock-env-info">
-                    <span class="mock-env-name">이서준</span>
-                    <span class="mock-env-parents">이재환 · 최미경<span class="of">의 아들</span></span>
-                  </span>
-                </span>
-                <span class="mock-env-plus">−</span>
-              </div>
-              <div class="mock-env-open">
-                <div class="mock-env-bank">국민은행</div>
-                <div class="mock-env-acc">123456-78-901234</div>
-                <div style="font-size:5.5px;letter-spacing:0.08em;color:var(--light);margin-top:5px;font-family:var(--sans);font-weight:300">
-                  <span style="color:var(--gold);font-family:var(--serif);font-style:italic;margin-right:3px;letter-spacing:0.1em">예금주</span>이서준
-                </div>
-              </div>
-              <div class="mock-env-item" style="border-bottom:none">
-                <span class="mock-env-left">
-                  <span class="mock-env-side">Bride</span>
-                  <span class="mock-env-info">
-                    <span class="mock-env-name">정하윤</span>
-                    <span class="mock-env-parents">정영석 · 박윤희<span class="of">의 딸</span></span>
-                  </span>
-                </span>
-                <span class="mock-env-plus">+</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- 실물 페이지를 그대로 띄운다 · src 는 화면에 들어올 때 비로소 넣는다(첫 로드 비용 0) -->
+        <iframe class="ga-frame" id="gaFrame" title="" tabindex="-1" inert scrolling="no" loading="lazy" referrerpolicy="same-origin"></iframe>
       </div>
     </div>
-    <!-- SIDE DESCRIPTION LIST -->
-    <!-- [MOCKUP_TERSE] 설명 4줄을 62·79·80·71자 → 23~27자로 줄였다(2026-08-01 사용자 지시
-         "미니멀하게 · 설명이 너무 길어도 좋지 않다").
-         ★긴 쪽이 친절한 게 아니었다 — 옆 폰 목업이 이미 그 화면을 보여주고 있어, 글이 화면을
-           한 번 더 묘사하면 같은 말이 두 번 된다("메인 초대장 한 화면. 입장 직후 가장 먼저
-           보이는 초대 카드." = 한 문장을 두 번 쓴 것).
-         ★규칙: 한 항목 = 한 줄, 30자 이내, '그 화면에만 있는 사실' 하나만. 늘리지 말 것.
-         ★버린 정보는 과장이 아니라 중복이거나 지엽이다(전체화면 전환·무드 수사 등). -->
-    <div class="mockup-list">
-      <div class="mockup-item active" data-item="0">
-        <div class="mockup-num">01</div>
-        <div class="mockup-content">
-          <div class="mockup-title">Invitation<span class="ko">초대장</span></div>
-          <p class="mockup-desc">이름과 식 일시, 환영 인사가 담긴 첫 화면.</p>
-        </div>
-      </div>
-      <div class="mockup-item" data-item="1">
-        <div class="mockup-num">02</div>
-        <div class="mockup-content">
-          <div class="mockup-title">Broadcast<span class="ko">디지털 참석</span></div>
-          <p class="mockup-desc">광고도 접속자 목록도 없는 1080p 비공개 화면.</p>
-        </div>
-      </div>
-      <div class="mockup-item" data-item="2">
-        <div class="mockup-num">03</div>
-        <div class="mockup-content">
-          <div class="mockup-title">Letter<span class="ko">편지</span></div>
-          <p class="mockup-desc">신랑·신부·두 분 중 고른 쪽에게만 전해집니다.</p>
-        </div>
-      </div>
-      <div class="mockup-item" data-item="3">
-        <div class="mockup-num">04</div>
-        <div class="mockup-content">
-          <div class="mockup-title">Envelope<span class="ko">디지털 봉투</span></div>
-          <p class="mockup-desc">아코디언 안에 접혀 있어 필요한 분만 펼쳐 봅니다.</p>
-        </div>
-      </div>
-    </div>
+    <!-- [MOCKUP_TERSE] 한 항목 = 한 줄, 30자 이내, '그 화면에만 있는 사실' 하나만. 늘리지 말 것. -->
+    <div class="mockup-list" id="gaList"></div>
   </div>
-  <div class="phone-pages" role="tablist" aria-label="Live page preview pages">
-    <span class="active" data-page="0">01</span>
-    <span class="sep"></span>
-    <span data-page="1">02</span>
-    <span class="sep"></span>
-    <span data-page="2">03</span>
-    <span class="sep"></span>
-    <span data-page="3">04</span>
-  </div>
-  <p class="phone-caption">네 개의 화면</p>   <!-- [MOCKUP_TERSE] '하객이 실제로 보게 될…'은 바로 위 인트로가 이미 한 말이라 잘랐다 -->
-  <p style="text-align:center;font-family:var(--serif-ko);font-weight:300;font-size:12.5px;color:var(--sub);letter-spacing:0.02em;line-height: 1.85;max-width:500px;margin:16px auto 0;word-break:keep-all">디지털 참석은 두 분의 선택입니다. 선택하지 않으셔도, 예식 영상은 추가금 없이 동일하게 전달됩니다.</p>
+  <p class="phone-caption" id="gaCap"></p>
+  <p class="ga-foot" id="gaFoot"></p>
 </div>
 </div>
 
@@ -7011,39 +6885,89 @@ const obs = new IntersectionObserver((entries)=>{
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 })();
 (function(){
-  const slides = document.querySelectorAll('.live-mockup-wrap .mock-slide');
-  const pages = document.querySelectorAll('.phone-pages span[data-page]');
-  const items = document.querySelectorAll('.mockup-list .mockup-item');
-  if (!slides.length) return;
-  let current = 0;
-  let timer;
-  function go(idx){
-    slides[current].classList.remove('active');
-    pages[current].classList.remove('active');
-    if (items[current]) items[current].classList.remove('active');
-    current = (idx + slides.length) % slides.length;
-    slides[current].classList.add('active');
-    pages[current].classList.add('active');
-    if (items[current]) items[current].classList.add('active');
+  /* ══ [GA_TABS 2026-08-18] 하객이 만나는 화면 — 실물 두 판을 탭으로 ══════════════════════
+     ★옛 슬라이드 스크립트(.mock-slide 4장 자동 넘김)를 대신한다. 손으로 베낀 화면이 아니라
+       실물 페이지(live.html · guide.html)의 데모 경로를 그대로 띄우므로, 실물이 바뀌면
+       미리보기도 저절로 같다([GV_REAL] 원칙). 사본이 갈라지는 사고가 구조적으로 사라진다.
+     ★src 는 화면에 들어올 때 넣는다 — 홈 첫 로드에 남의 페이지 두 개를 받지 않는다
+       (이 페이지의 로드 비용은 Style&Layout 이 지배한다 · [PERF_CV_SECTIONS] 와 같은 결). */
+  var TAB = {
+    on: {
+      src: '/live.html?e=test-couple',
+      intro: '<span class="mockup-intro-hi">온라인 청첩장</span> 링크를 열면 하객이 만나는 <span class="mockup-intro-hi">디지털 참석</span> 화면입니다.',
+      cap: '네 개의 화면',
+      foot: '',   /* [LIVE_DEMOTE] 이 문장은 섹션 머리로 올라갔다 — 탭을 연 사람만 보면 늦다 */
+      list: [['Invitation','초대장','이름과 식 일시, 환영 인사가 담긴 첫 화면.'],
+             ['Broadcast','디지털 참석','광고도 접속자 목록도 없는 1080p 비공개 화면.'],
+             ['Letter','편지','신랑·신부·두 분 중 고른 쪽에게만 전해집니다.'],
+             ['Envelope','디지털 봉투','아코디언 안에 접혀 있어 필요한 분만 펼쳐 봅니다.']]
+    },
+    off: {
+      src: '/guide.html?g=demo',
+      intro: '<span class="mockup-intro-hi">오프라인 청첩장</span>을 받은 분이 예식 당일 여는 <span class="mockup-intro-hi">하객 안내</span> 화면입니다.',
+      cap: '세 개의 화면',
+      foot: '하객 안내는 두 분이 좌석이나 식사 안내를 마치시면 열립니다.',
+      list: [['Seat','내 자리','이름만 넣으면 앉으실 테이블이 뜹니다.'],
+             ['Dining','식사 안내','예식 뒤 가실 곳을 미리 보고 오십니다.'],
+             ['Photos','사진 올리기','담아 주신 사진이 두 분께 바로 모입니다.']]
+    }
+  };
+  var frame = document.getElementById('gaFrame'), listEl = document.getElementById('gaList');
+  var introEl = document.getElementById('gaIntro'), capEl = document.getElementById('gaCap'), footEl = document.getElementById('gaFoot');
+  var tabs = document.querySelectorAll('.ga-tab');
+  if (!frame || !listEl) return;
+  var cur = '', shown = false;
+
+  /* 폰 화면 폭 ÷ 390 으로 배율을 실측해 건다 — 브레이크포인트마다 폰 크기가 달라 상수는 어긋난다 */
+  function fit() {
+    var box = frame.parentElement; if (!box) return;
+    var w = box.clientWidth, h = box.clientHeight; if (!w || !h) return;
+    var k = w / 390;
+    frame.style.transform = 'scale(' + k.toFixed(4) + ')';
+    frame.style.height = Math.ceil(h / k) + 'px';
   }
-  function tick(){ go(current + 1); }
-  function start(){ stop(); timer = setInterval(tick, 4200); }
-  function stop(){ if(timer) clearInterval(timer); }
-  pages.forEach((p,i) => {
-    p.addEventListener('click', () => { go(i); start(); });
-  });
-  items.forEach((it,i) => {
-    it.addEventListener('click', () => { go(i); start(); });
-  });
-  const wrap = document.querySelector('.live-mockup-wrap');
-  if (wrap) {
-    wrap.addEventListener('mouseenter', stop);
-    wrap.addEventListener('mouseleave', start);
+  function paint(key) {
+    if (cur === key) return;
+    var t = TAB[key]; if (!t) return;
+    cur = key;
+    introEl.innerHTML = t.intro;
+    capEl.textContent = t.cap;
+    footEl.textContent = t.foot; footEl.style.display = t.foot ? '' : 'none';
+    listEl.innerHTML = t.list.map(function (r, i) {
+      return '<div class="mockup-item active" data-item="' + i + '">'
+        + '<div class="mockup-num">0' + (i + 1) + '</div>'
+        + '<div class="mockup-content"><div class="mockup-title">' + r[0] + '<span class="ko">' + r[1] + '</span></div>'
+        + '<p class="mockup-desc">' + r[2] + '</p></div></div>';
+    }).join('');
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].getAttribute('data-ga') === key;
+      tabs[i].classList.toggle('on', on);
+      tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    if (shown) { frame.src = t.src; fit(); }
   }
-  const startObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { start(); startObs.unobserve(e.target); } });
-  }, { threshold: 0.3 });
-  if (wrap) startObs.observe(wrap);
+  paint('on');   // 글·목록은 처음부터 그린다(자바스크립트가 늦어도 빈 칸이 안 남게) · 화면은 아래에서
+
+  for (var i = 0; i < tabs.length; i++) {
+    /* ★[ADV_OPEN_TOP] 인자 받는 함수를 리스너에 그대로 넘기지 않는다 — 이벤트가 첫 인자로 들어간다 */
+    (function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-ga'); cur = ''; paint(k); }); })(tabs[i]);
+  }
+
+  var wrap = document.querySelector('.live-mockup-wrap');
+  if (wrap && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        shown = true; frame.src = TAB[cur].src; fit(); io.unobserve(e.target);
+      });
+    }, { threshold: 0.15 });
+    io.observe(wrap);
+  } else { shown = true; frame.src = TAB[cur].src; fit(); }
+  /* ★load 에만 기대지 않는다 — 페이지 안의 요청 하나가 멈추면 load 가 영영 안 온다(실측: readyState 가
+     'loading' 에서 멈춘 채 본문은 이미 그려져 있었다). 처음 몇 초만 짧게 다시 재서 배율을 붙인다. */
+  frame.addEventListener('load', fit);
+  var n = 0, tick = setInterval(function () { fit(); if (++n > 12) clearInterval(tick); }, 250);
+  window.addEventListener('resize', fit, { passive: true });
 })();
 /* ★★[ESSAY_CLOSE_ANCHOR 2026-08-16 사용자 지적 "클로즈 누르면 화면이 이상하게 내려가는 현상"]
    실측(1180×900) — 에세이를 펼쳐 끝까지 읽고 CLOSE 를 누르면 카드가 1307→472px 로 줄면서
