@@ -2157,7 +2157,7 @@ function cardPayment(d){
      ★조용히 두면 세무·환불이 틀린다. 경고(⚠)는 이 화면의 허용된 신호다(장식 아이콘 금지 규칙과 별개). */
   if(d.depositTick && d.depositTick.missing){
     raw+='<div class="cnote" style="color:#b00">⚠ 예약금 '+_amtKo(d.depositTick.amount)+' 입금확인 칸이 비어 있어요 · 고객 화면엔 «결제 완료»로 보여요'
-      +'<br>예약 시트의 <b>입금확인</b>을 «확인»으로 채워 주세요 — 안 채우면 현금영수증 발급 대기에 안 뜨고 환불 계산에서도 빠져요</div>';
+      +'<br>예약 시트의 <b>입금확인</b>을 «확인»으로 채워 주세요. 안 채우면 현금영수증 발급 대기에 안 뜨고 환불 계산에서도 빠져요</div>';
   }
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·)

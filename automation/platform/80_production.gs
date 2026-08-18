@@ -1471,6 +1471,10 @@ function handleSubmitSurvey(body) {
     var product = String(cust.get('상품타입') || '').trim() || (typeof P !== 'undefined' ? P.PRODUCT_SIGNATURE : '시그니처');
     var payload = { product: product, answers: clean, review: review, reviewPublic: reviewPublic };
     touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(payload), '설문일시': fmtKST(new Date()) });
+    /* [STAGE_REVIEW_DOOR] 후기를 받으면 마지막 칸('후기')으로 올린다 — 여정이 끝난 자리.
+       ★'결과물전달'에서만 올린다. RESULT_STAGES 는 예식완료까지 넓어서, 조건 없이 올리면
+         결과물을 아직 못 받은 고객이 결과물전달을 건너뛰고 끝으로 튄다. */
+    if (String(cust.get('현재단계') || '').trim() === '결과물전달') setCustomerStage(code, 'review');
     // 관리자 메일 — 핵심 신호 한글화 + 개선 신호(안전망) 부각 + 커피쿠폰 발송 리마인드
     var _L = {
       overall: { very: '매우만족', satisfied: '만족', neutral: '보통', low: '아쉬움' },

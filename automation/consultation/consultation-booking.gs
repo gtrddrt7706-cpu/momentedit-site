@@ -290,6 +290,13 @@ function setCustomerStage(code, transition) {
     produce:  '제작중',                      // [03] 제작 기초정보 시작 → 제작중
     event:    isSnap ? '촬영완료' : '예식완료',  // [⑧관리자] 예식/촬영 완료 처리(제품 분기) · adminMarkEventDone
     deliver:  '결과물전달',                  // [⑧관리자] 결과물 전달 완료 · adminMarkDelivered
+    /* ★★[STAGE_REVIEW_DOOR 2026-08-18 stage-reach 도달성 검사가 남긴 마지막 붉은 줄]
+       '후기'는 STAGE_FLOW 의 마지막 칸인데 **아무 동작도 이 칸으로 올려 주지 않았다.**
+       화면·가드·아카이브는 전부 '후기'를 알고 있었는데(RESULT_STAGES·SURVEY_STAGE_BOTH·
+       RESULT_LINK_REVIEW) 문만 없었다 — 그래서 강제변경으로만 닿는 방이었다.
+       뜻을 이렇게 정한다: **결과물전달 = 후기를 기다리는 중 · 후기 = 여정이 끝난 자리.**
+       그래서 문은 «후기 마감»(고객 제출 또는 관리자 넘기기) 하나뿐이다. */
+    review:   '후기',
     cancel:   '취소'
   };
   var newStage = MAP[transition] || transition;

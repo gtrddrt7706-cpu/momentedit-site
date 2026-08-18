@@ -4550,3 +4550,34 @@ chk '_exFresh' automation/admin/admin.gs 2
 #   서버 미리보기를 다시 물어 그 답을 그대로 읽는다. 예고가 곧 실행이라야 확인창이 뜻을 갖는다.
 chk 'FORCE_MODAL_TRUTH' admin.html 1
 nochk '상담 예약(캘린더)은 별개예요' admin.html
+
+# ★★[FITTING_SPLIT 2026-08-18] 시착은 컬럼과 기록을 나눠 다룬다 —
+#   컬럼(시착동의상태)을 남기면 되돌린 뒤 「시착 동의 보내기」가 already 로 조용히 넘어가
+#   단계가 안 올라가고 「상담완료 처리」가 거부된다(관리자가 그 자리에 갇힘 · 실측 재현).
+#   기록(동의기록.시착)은 수납이 있으면 남긴다 — 벌수가 환불 공제의 근거(계약서 4조⑧).
+chk 'FITTING_SPLIT' automation/admin/admin.gs 1
+chk "{ cols: \['시착동의상태', '시착동의일시'\], at: '시착' }," automation/admin/admin.gs 1
+# ★★[CONTRACT_STAGE_GATE 2026-08-18] 예식일만으로 계약서를 보낼 수 있던 우회로 차단.
+#   KEEP_MONEY_BASIS 로 예식일을 보존하게 되면서, 되돌린 고객이 시착·상담완료를 건너뛴 채
+#   계약완료로 올라갔다(왕복 검사의 발자국이 «안 밟음: 시착·상담완료»로 잡아냄).
+chk 'CONTRACT_STAGE_GATE' automation/admin/admin.gs 1
+chk '_consultDone' automation/admin/admin.gs 2
+# ★★[CONTRACT_AMOUNT_REQ 2026-08-18] 총액이 지금도 없고 이번에도 안 오면 계약서 발송을 막는다.
+#   무작위 순서 검사(rollback-fuzz)가 «받은 돈은 있는데 얼마인지 모르는» 상태를 15회 만들어 냈다.
+chk 'CONTRACT_AMOUNT_REQ' automation/admin/admin.gs 1
+# ★★[STAGE_REVIEW_DOOR 2026-08-18] '후기'로 올려 주는 문. 이게 없으면 STAGE_FLOW 의 마지막 칸이
+#   강제변경으로만 닿는 방이 된다(stage-reach 도달성 검사가 마지막까지 붉게 남겼던 지적).
+chk 'STAGE_REVIEW_DOOR' automation/consultation/consultation-booking.gs 1
+chk "review:   '후기'," automation/consultation/consultation-booking.gs 1
+chk 'STAGE_REVIEW_DOOR' automation/platform/80_production.gs 1
+chk 'STAGE_REVIEW_DOOR' automation/admin/admin.gs 1
+# ★★[REFUND_MARK_TRACE 2026-08-18] 예외→정상 복구가 «환불완료» 표시를 지운 사실을 처리이력에 남긴다.
+#   안 남기면 이미 송금한 고객이 «입금 확인 · 환불 흔적 없음»으로 보여 두 번 송금할 수 있다.
+chk 'REFUND_MARK_TRACE' automation/admin/admin.gs 2
+# ★★[WALK_TRACE 2026-08-18] 왕복 검사는 도착지만 묻지 않는다 — 걸음마다 단계를 적어
+#   «건너뛰고 도착한» 여정을 잡는다. 이 발자국이 FITTING_SPLIT 회귀를 실제로 찾아냈다.
+chk 'WALK_TRACE' scripts/audit/rollback-roundtrip.mjs 1
+chk '건너뛴 단계 없이 밟고 갔다' scripts/audit/rollback-roundtrip.mjs 1
+# ★★[ROLLBACK_FUZZ 2026-08-18] 무작위 순서 + 불변식 검사. 정해진 길만 걷는 검사들이 못 보는 자리를 본다.
+chk 'ROLLBACK_FUZZ' scripts/audit/rollback-fuzz.mjs 1
+chk 'FUZZ_COVER' scripts/audit/rollback-fuzz.mjs 1

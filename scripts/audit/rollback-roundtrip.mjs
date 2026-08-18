@@ -83,12 +83,25 @@ function walkToEnd(prod, log) {
     ['결과물 전달', (g) => g.adminMarkDelivered(CODE, true)],
   ];
   const blocked = [];
+  /* ★[WALK_TRACE 2026-08-18] 걸음마다 «그때의 단계»를 적어 둔다 — 발자국.
+     도착 단계만 보면 «건너뛰고 도착한» 여정을 통과시킨다(실사고: FITTING_SPLIT 회귀 때
+     시착·상담완료가 막혔는데도 계약서 발송에 서버 단계 가드가 없어 결과물전달까지 갔다).
+     발자국을 남겨야 «어느 방을 안 밟았는지»를 물을 수 있다. */
+  const seen = [C.현재단계];
   for (const [name, fn] of steps) {
     const r = act(fn);
     if (!(r.r && r.r.ok !== false) || r.e) blocked.push(`${name}: ${String((r.r && r.r.error) || r.e).slice(0, 60)}`);
+    if (seen[seen.length - 1] !== C.현재단계) seen.push(C.현재단계);
   }
   if (log && blocked.length) console.log('        막힌 걸음: ' + blocked.join(' | '));
-  return { stage: C.현재단계, blocked };
+  return { stage: C.현재단계, blocked, seen };
+}
+
+/* 출발 단계 다음부터 결과물전달까지 «모든 방을 밟았는가». 안 밟은 방 이름을 돌려준다. */
+function skipped(flow, from, seen) {
+  const a = flow.indexOf(from), b = flow.indexOf('결과물전달');
+  if (a < 0 || b < 0) return [];
+  return flow.slice(a + 1, b + 1).filter((st) => seen.indexOf(st) === -1);
 }
 
 for (const prod of ['시그니처', '웨딩스냅']) {
@@ -126,13 +139,45 @@ for (const prod of ['시그니처', '웨딩스냅']) {
       ok(queue().length === 0, `${t} · 한 번으로 큐가 빈다`, JSON.stringify(queue().map((x) => x.sub)));
     }
 
-    /* ③ ★거기서 다시 끝까지 갈 수 있는가 — 이 검사의 핵심 */
-    const again = walkToEnd(prod, false);
+    /* ③ ★거기서 다시 끝까지 갈 수 있는가 — 이 검사의 핵심.
+       ★도착지만 묻지 않는다. 원클릭 정리가 끝난 «그 자리»부터 결과물전달까지
+       빠짐없이 밟았는지 발자국으로 확인한다(WALK_TRACE 참고). */
+    const startStage = C.현재단계;
+    const again = walkToEnd(prod, true);
     ok(again.stage === '결과물전달', `${t} · ★되돌린 뒤 다시 결과물전달까지 완주`,
       '도착=' + again.stage + (again.blocked.length ? ' / 막힘: ' + again.blocked.slice(0, 2).join(' | ') : ''));
+    const miss = skipped(flow, startStage, again.seen);
+    ok(miss.length === 0, `${t} · ★건너뛴 단계 없이 밟고 갔다(정리 지점 ${startStage} 이후)`,
+      '안 밟음: ' + miss.join('·') + (again.blocked.length ? ' / 막힘: ' + again.blocked.slice(0, 2).join(' | ') : ''));
   }
 }
 
+
+/* ── 건너뛰기 우회로 — «계약서 발송»이 시착·상담완료를 뛰어넘지 못한다 [CONTRACT_STAGE_GATE] ──
+   발자국 검사(WALK_TRACE)가 결과로 잡아내는 사고를 **원인 쪽에서** 한 번 더 못 박는다.
+   순서대로 걸으면 이 우회로를 밟지 않아, 게이트를 지워도 위 검사는 초록으로 남는다 —
+   그래서 «되돌린 자리에서 곧바로 계약서를 보내면?» 을 직접 눌러 본다. */
+console.log('\n═══ 시그니처 — 되돌린 자리에서 계약서 발송 우회 시도 ═══');
+{
+  fresh('시그니처');
+  walkToEnd('시그니처', false);
+  const back = act((g) => g.adminForceStage(CODE, '상담확정', '우회로 점검'));
+  ok(!!(back.r && back.r.ok) && C.현재단계 === '상담확정', '상담확정으로 되돌렸다', C.현재단계);
+  ok(String(C.예식일 || '') !== '', '수납이 살아 있어 예식일은 보존됐다(KEEP_MONEY_BASIS)', C.예식일);
+  const send = act((g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html'));
+  ok(!(send.r && send.r.ok), '★상담완료 전에는 계약서 발송이 막힌다(시착·상담완료 건너뛰기 차단)',
+    JSON.stringify(send.r).slice(0, 120));
+  ok(C.현재단계 === '상담확정', '막힌 뒤에도 단계가 앞으로 튀지 않았다', C.현재단계);
+
+  /* [CONTRACT_AMOUNT_REQ] 총액 없는 계약서 — «받은 돈은 있는데 얼마인지 모르는» 상태의 입구 */
+  fresh('시그니처');
+  C.계약총액 = '';                                   // 되돌림으로 총액이 비워진 자리(미수납이라 정상 삭제)
+  walkToEnd('시그니처', false);
+  ok(String(C.계약상태 || '') !== '서명완료', '★총액 없이는 계약서가 안 나가 서명까지 못 간다', C.계약상태 || '(빔)');
+  ok(String(C.입금상태 || '') !== '확인', '★따라서 «총액 없는 입금 확인»도 생기지 않는다', C.입금상태 || '(빔)');
+  const amt = act((g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, '2026-12-20'));
+  ok(!!(amt.r && amt.r.ok), '총액을 넣으면 그대로 지나간다(막다른 길이 아니다)', JSON.stringify(amt.r).slice(0, 90));
+}
 
 /* ── 예외 단계 왕복 — 취소·노쇼·미계약으로 뺐다가 «정상으로 되돌리기» ──
    의도상 여기도 갇히면 안 된다. 실무에서 가장 잦은 오처리가 «잘못 취소»이고,
@@ -156,8 +201,16 @@ for (const prod of ['시그니처', '웨딩스냅']) {
     ok(!!(back.r && back.r.ok) && C.현재단계 === backTo, `${ex} · 정상(${backTo})으로 복구된다`, C.현재단계);
     const rec1 = JSON.parse(C.동의기록 || '{}');
     ok(!rec1.환불완료, `${ex} · ★복구하면 환불완료 흔적이 지워진다(안 지우면 입금 되돌리기가 영영 막힌다)`, String(rec1.환불완료 || ''));
-    const again = walkToEnd(prod, false);
-    ok(again.stage === '결과물전달', `${ex} · 복구 후 다시 끝까지 완주`, '도착=' + again.stage);
+    /* [REFUND_MARK_TRACE] 지우되 «지웠다»는 말은 남아야 한다 — 돈이 이미 나간 고객이
+       «입금 확인 · 환불 흔적 없음»으로만 보이면 두 번 송금할 수 있다. */
+    ok(String(C.처리이력 || '').indexOf('환불완료 표시 해제') !== -1,
+      `${ex} · ★환불완료 표시를 지운 사실이 처리이력에 남는다`, String(C.처리이력 || '').slice(-160));
+    const startStage = C.현재단계;
+    const again = walkToEnd(prod, true);
+    ok(again.stage === '결과물전달', `${ex} · 복구 후 다시 끝까지 완주`,
+      '도착=' + again.stage + (again.blocked.length ? ' / 막힘: ' + again.blocked.slice(0, 2).join(' | ') : ''));
+    const miss = skipped(flow, startStage, again.seen);
+    ok(miss.length === 0, `${ex} · 복구 후에도 건너뛴 단계 없음(${startStage} 이후)`, '안 밟음: ' + miss.join('·'));
   }
 }
 
