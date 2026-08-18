@@ -4782,3 +4782,27 @@ chk '.price-note span { display: block; }' index.html 1
 chk 'REFUND_CAVEAT' index.html 1
 chk '드레스 시착 비용만 제외' index.html 1
 chk '드레스를 시착하신 경우에만' index.html 1   # 예약금 쪽 단서(앞선 점검이 세운 것) — 함께 살아 있어야 한다
+
+# ★★[WAKE_LOCK 2026-08-18 사용자 지시 "음성 끝날때까지 핸드폰 자동꺼짐 안하게 할수있어?"]
+#   이 페이지는 화면이 꺼지면 소리가 «멈춘다» — visibilitychange 가 stopAll 을 부르기 때문이다.
+#   그건 두 소리가 겹치지 않게 하는 [LISTEN_ONE_HANDLER] 계약이라 그대로 두고, 대신 잠들지 않게 잡는다.
+#   ★잡았으면 반드시 놓는다 — 안 놓으면 편지가 끝난 뒤에도 화면이 안 꺼진다.
+#     실측(잠금 API 를 스텁해 셈): 재생 1회 잡음 → 멈춤·도구줄멈춤·숨김 세 경로 모두 1회 놓음(짝이 맞음).
+#   ★없는 기기에서는 조용히 지나간다(구형 iOS 등) — 소리는 그대로 나고 화면이 꺼지면 종전대로 멈춘다.
+chk 'WAKE_LOCK' parents.html 1
+chk 'navigator.wakeLock.request' parents.html 1
+chk 'var wakeOff' parents.html 1
+chk 'if(on)wakeOn(); else wakeOff();' parents.html 1
+
+# ★★[LISTEN_BAR 2026-08-18 사용자 지시 "재생 멈춤 버튼도 적절하게 만들어주고"]
+#   멈춤은 원래도 있었다 — 맨 위 도구줄 「듣기」가 라벨만 바뀌는 방식. 그런데 편지를 읽어 내려가면
+#   그 버튼이 «화면 밖으로 사라져» 멈출 길이 없었다. 이 페이지의 독자는 어른이다.
+#   ★재생 중에만 선다(자동으로 뜨는 팝업이 아니다 · 누른 사람에게만).
+#   ★멈추는 길은 stopAll 하나로 모은다 — 길이 둘이면 상태가 갈라진다.
+#   ★막대가 뜬 동안 body 에 여백을 준다. 안 주면 맨 아래 사업자 정보 줄이 통째로 가린다(실측 1건→0건).
+chk 'LISTEN_BAR' parents.html 3
+chk "id=\"playBarStop\"" parents.html 1
+chk 'barStop.addEventListener' parents.html 1
+chk 'body.listening{padding-bottom' parents.html 1
+chk 'var setPlaying' parents.html 1
+nochk "label('멈춤')" parents.html      # 상태는 setPlaying 한 곳에서만 바꾼다(라벨·막대·잠금이 갈라지지 않게)
