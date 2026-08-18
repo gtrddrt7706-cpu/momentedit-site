@@ -4470,3 +4470,13 @@ chk 'GA_SYNC\|목록 ↔ 폰 화면 연동' index.html 1
 chk 'var RM = window.matchMedia' index.html 1
 chk "key.indexOf('sec:')" index.html 1
 chk 'id="gaPages"' index.html 1
+# ★★[GA_FRAME_FLEX 2026-08-18 사용자 실기기 지적 "화면이좀 이상한데"] .phone-screen 은 flex 컨테이너다.
+#   flex 아이템이면 iframe 에 준 height 가 무시되고 상자 높이로 눌린다 — 실측 825px 지정에 innerHeight 524.
+#   그 상태로 0.63배 축소하니 실제로 그려진 높이가 333px 뿐이라 폰 아래가 191px 비어 흰 띠로 보였다.
+#   ★flex:none 을 빼면 흰 띠가 그대로 돌아온다.
+chk 'GA_FRAME_FLEX\|flex 아이템이면 지정한 height' index.html 1
+chk 'flex: none; align-self: flex-start;' index.html 1
+# ★[GUEST_PHOTO_IN] 하객 안내 표본은 photoShare 를 비워 둔다 — 비어야 우리 업로드 화면이 뜬다(현재 기본값).
+#   옛 표본은 외부 주소를 넣어 두어 '두 분이 준비한 외부 공간' 안내가 떴다(홈 홍보와 어긋남).
+nochk "photoShare:'https://momentedit.kr/'" guide.html
+chk '표본은 \*\*비워 둔다\*\*' guide.html 1
