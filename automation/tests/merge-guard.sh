@@ -4620,7 +4620,29 @@ chk '옛 링크로는 더 이상 안 열린다' scripts/audit/rollback-roundtrip
 #   좌석 검색을 미리 띄워 둔 것과 같은 판단이다(2026-08-01 "검색된 것도 보여줘야지").
 #   ★진행 중이 아니라 완료를 보여준다 — 멈춘 진행바는 고장으로 읽힌다.
 chk 'DEMO_PHOTO_DONE' guide.html 1
-chk '12장 전해졌어요' guide.html 1
+# ★★[GP_DONE_MSG 2026-08-18 사용자 물음 "이 문구는 실제랑 같은거야?"] 다 올린 뒤 문구는 한 곳에서 만든다.
+#   표본이 실제보다 한 글자라도 후하게 말하면 그건 지키지 못할 약속이 된다 — 표본은 홍보에 그대로 쓰인다.
+#   ★손으로 베끼지 말 것. 표본도 gpDoneMsg 를 불러 쓴다(실제 finish() 와 같은 함수).
+chk 'GP_DONE_MSG' guide.html 3
+chk 'function gpDoneMsg' guide.html 1
+chk 'gpDoneMsg(12)' guide.html 1
+nochk "gpS.innerHTML = '<b>12장" guide.html
+# ★[DEMO_REAL_COPY] 그 약속을 브라우저에서 실제로 재는 자 — 실제 화면을 만드는 함수를 페이지 안에서
+#   직접 불러 표본이 그려 놓은 글과 맞춘다. 검사에 문구를 베껴 적지 않는다(베끼면 검사부터 낡는다).
+#   ★적대 검증 완료 — 표본 결과 줄만 한 글자 고쳐 보니 exit 1 로 걸렸다.
+chk 'DEMO_REAL_COPY' scripts/audit/demo-real-copy.mjs 1
+chk '표본이 실제와 같은 말을 한다' scripts/audit/demo-real-copy.mjs 1
+chk 'cantLook' scripts/audit/demo-real-copy.mjs 1            # 브라우저 없는 자리에선 '못 봤다'고 말하고 비켜선다(초록 아님)
+# ★종료코드 셋을 가른다 — 0 잰 결과 초록 · 2 브라우저가 없어 «안 쟀다» · 그 외 불일치.
+#   2026-08-18 실측: 안 쟀는데 «ok 표본=실제 문구»라고 찍혔다(CI·170ms). 안 본 것을 봤다고 말하지 않는다.
+#   ★CI 러너엔 playwright 가 없어 늘 2로 비켜선다 — 실제로 재는 자리는 «푸시 전 로컬»이다.
+#     CI 도 재게 하려면 워크플로에 playwright 설치를 더해야 한다(아직 안 했다 · 여기 적어 둔다).
+node scripts/audit/demo-real-copy.mjs >/dev/null 2>&1; _drc=$?
+case "$_drc" in
+  0) echo "ok demo-real-copy (표본=실제 문구)" ;;
+  2) echo "· demo-real-copy 안 쟀다(브라우저·서버 없는 자리) — 푸시 전에 손으로: node scripts/audit/demo-real-copy.mjs" ;;
+  *) echo "FAIL demo-real-copy — node scripts/audit/demo-real-copy.mjs"; fail=1 ;;
+esac
 
 # ★★[ROLLBACK_SLOT 2026-08-18 사용자 결정 «추천대로»] 되돌려도 예식 자리는 이 부부 것으로 잠근다.
 #   점유 판정(_weddingOccupancy)이 계약상태를 함께 보므로, 되돌리면 그냥 두면 그 날짜가 다른 분께 열린다.
