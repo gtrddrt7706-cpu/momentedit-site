@@ -4584,3 +4584,13 @@ chk 'FUZZ_COVER' scripts/audit/rollback-fuzz.mjs 1
 # ★★[REVIEW_DOOR_AUDIT 2026-08-18] '후기' 문 하나만 초 단위로 확인하는 검사(stage-reach 는 10분이라 자주 못 돈다).
 chk 'REVIEW_DOOR_AUDIT' scripts/audit/review-door.mjs 1
 chk '결과물전달 → 후기 (고객 제출이 문이다)' scripts/audit/review-door.mjs 1
+# ★★[RB_NOTICE_TRUTH 2026-08-18] 되돌림 팝업의 첫 줄은 «조건»이다 —
+#   수납이 없는 고객은 예식일·계약총액이 실제로 지워지는데, 종전엔 «그대로예요»가 무조건 첫 줄이라
+#   바로 아래 «계약 내용 · 예식 일정을 다시 진행하시게 돼요»와 한 팝업 안에서 모순됐다(실측).
+chk 'RB_NOTICE_TRUTH' mypage.html 1
+chk 'RB_NOTICE_TRUTH' scripts/audit/rollback-notice.mjs 1
+nochk "var lines = \['예식 일정과 계약 내용은 그대로예요.'\]" mypage.html
+# ★★[MODAL_DISMISS 2026-08-18] 팝업은 버튼으로 닫는다 — class 만 떼면 _mpModalBusy 가 풀리지 않아
+#   그 뒤 팝업이 큐에 쌓인 채 영영 안 뜬다. 그 탓에 «두 번째엔 안 뜬다»가 엉뚱한 이유로 초록이었다.
+chk 'MODAL_DISMISS' scripts/audit/rollback-notice.mjs 1
+chk '전제 — 첫 진입엔 뜬다' scripts/audit/rollback-notice.mjs 1

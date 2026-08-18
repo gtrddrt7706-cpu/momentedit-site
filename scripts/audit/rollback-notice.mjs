@@ -170,15 +170,68 @@ ok(!/관리자|강제|롤백/.test(shot.body + shot.title), '★내부 용어(�
 ok(/디렉터/.test(shot.body), '주체는 «디렉터»로 부른다(표준 용어)', shot.body);
 ok(/확인했어요/.test(shot.btn), '버튼 라벨이 «확인했어요»', shot.btn);
 
+/* ★[MODAL_DISMISS 2026-08-18] 팝업을 «닫을» 때는 반드시 버튼을 누른다.
+   class 만 떼면 mpModalOpen 의 약속이 안 풀려 `_mpModalBusy` 가 true 로 남고,
+   그 뒤의 모든 팝업이 **큐에 쌓인 채 영영 안 뜬다**. 첫 판에서 그 탓에
+   ③-B 가 «팝업이 안 뜬다»로 붉었고(제품은 멀쩡했다), ④ 는 반대로
+   «두 번째엔 안 뜬다»가 **엉뚱한 이유로** 초록이었다(잠긴 것이지 억제된 것이 아니다). */
+const dismiss = () => page.evaluate(async () => {
+  const b = document.querySelector('#mpModalActions button');
+  if (b) b.click();
+  await new Promise((r) => setTimeout(r, 250));
+  return !document.getElementById('mpModal').classList.contains('open');
+});
+
+/* ★[RB_NOTICE_TRUTH 2026-08-18 문구 점검] 수납이 없는 고객은 예식일·계약총액이 실제로 지워진다.
+   그때도 첫 줄이 «예식 일정과 계약 내용은 그대로예요» 로 고정돼 있었다 —
+   바로 아래 줄에서 «계약 내용 · 예식 일정을 다시 진행하시게 돼요» 라고 말하면서.
+   한 팝업 안에서 같은 것을 «그대로» 이자 «다시» 라고 부르면 안심이 아니라 혼란이다. */
+console.log('\n[③-B 수납 없는 되돌림 — 팝업이 스스로 모순되지 않는가]');
+{
+  seedDone();
+  C.입금상태 = ''; C.입금자명 = ''; C.확인일시 = ''; C.중도금상태 = ''; C.중도금확인일시 = '';
+  act((g) => g.adminForceStage(CODE, '상담확정', '수납 없는 되돌림'));
+  ok(!String(C.계약총액 || '').trim() && !String(C.예식일 || '').trim(),
+    '전제 확인 — 이 판에선 계약총액·예식일이 실제로 지워졌다', C.계약총액 + '/' + C.예식일);
+  const pay2 = act((g) => g.handleGetMyState({ token: 'tk' })).r;
+  ok(await dismiss(), '앞선 팝업을 버튼으로 닫았다(잠금 해제 · MODAL_DISMISS)');
+  const s2 = await page.evaluate(async (d) => {
+    try { localStorage.clear(); } catch (e) {}
+    renderMyPage(d);
+    await new Promise((r) => setTimeout(r, 1400));
+    const ov = document.getElementById('mpModal');
+    return { open: !!(ov && ov.classList.contains('open')),
+      body: (document.getElementById('mpModalBody') || {}).innerText || '' };
+  }, pay2);
+  ok(s2.open, '수납 없는 되돌림에도 팝업은 뜬다', String(s2.open));
+  const said = /그대로예요/.test(s2.body);
+  const redo = /다시 진행하시게/.test(s2.body);
+  const both = said && /(계약 내용|예식 일정)[^\n]*다시 진행하시게|다시 진행[^\n]*(계약 내용|예식 일정)/.test(s2.body);
+  ok(!both, '★같은 것을 «그대로»이자 «다시»라고 말하지 않는다', s2.body);
+  ok(!/그대로 남아 있어요/.test(s2.body), '남은 결제가 없으면 «그대로 남아 있어요»를 말하지 않는다(근거 없는 안심 금지)', s2.body);
+  ok(redo, '다시 하게 되는 것은 그대로 알려 준다', s2.body);
+  ok(!/을\(를\)/.test(s2.body), '★조사 서식(을(를))이 고객 글에 남지 않는다', s2.body);
+}
+
 console.log('\n[④ 한 번만 뜬다]');
+/* ★한 판 안에서 «처음 → 닫기 → 다시»를 다 한다. 앞 절이 localStorage 를 비웠을 수도 있어
+   «두 번째»만 재면 무엇을 재는지 알 수 없다 — 첫 번째가 떴다는 사실이 이 검사의 전제다. */
+ok(await dismiss(), '팝업을 버튼으로 닫았다(잠금 해제 · MODAL_DISMISS)');
 const again = await page.evaluate(async (d) => {
   const ov = document.getElementById('mpModal');
-  ov.classList.remove('open');
-  renderMyPage(d);
-  await new Promise((r) => setTimeout(r, 1400));
-  return !!(ov && ov.classList.contains('open'));
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  /* ★앞 절이 같은 «분»의 안내를 이미 본 것으로 표시해 뒀을 수 있다(키가 분 단위라 겹친다).
+     이 절은 «한 번만 뜬다»를 재는 곳이니, 재기 전에 자를 0으로 맞춘다. */
+  try { localStorage.clear(); } catch (e) {}
+  renderMyPage(d); await wait(1400);
+  const first = ov.classList.contains('open');
+  const b = document.querySelector('#mpModalActions button'); if (b) b.click();
+  await wait(300);
+  renderMyPage(d); await wait(1400);
+  return { first: first, second: ov.classList.contains('open') };
 }, payload);
-ok(!again, '두 번째 진입엔 안 뜬다(볼 때마다 뜨면 그게 더 불안하다)', String(again));
+ok(again.first, '전제 — 첫 진입엔 뜬다', JSON.stringify(again));
+ok(!again.second, '두 번째 진입엔 안 뜬다(볼 때마다 뜨면 그게 더 불안하다)', JSON.stringify(again));
 
 ok((errors || []).length === 0, '브라우저 콘솔 오류 0건', String((errors || []).length));
 console.log(`\n결과 — ${fail ? '실패 ' + fail + '건' : '실패 0건 (전부 통과)'}`);
