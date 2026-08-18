@@ -4462,3 +4462,11 @@ chk 'LIVE_DEMOTE' index.html 2
 chk 'live-optional' index.html 2
 chk '고르지 않으셔도 예식 영상은 추가금 없이' index.html 1
 nochk 'SELECTIVE PRESENCE' index.html
+# ★★[GA_SYNC 2026-08-18 사용자 지적 "글씨에 맞춰 화면전환되는 기능까지점검"] 목록 ↔ 폰 화면 연동.
+#   실물 iframe 으로 바꾸면서 한 번 잃었던 기능이다 — 목록이 '폰에 안 보이는 화면'을 설명하면 글과 그림이 따로 논다.
+#   같은 출처라 안쪽 문서를 직접 스크롤한다. 항목 표의 넷째 칸이 그 자리(선택자 또는 sec:n)다.
+#   ★모션 최소화 설정이면 저절로 넘기지 않고, 화면 밖으로 나가면 멈춘다.
+chk 'GA_SYNC\|목록 ↔ 폰 화면 연동' index.html 1
+chk 'var RM = window.matchMedia' index.html 1
+chk "key.indexOf('sec:')" index.html 1
+chk 'id="gaPages"' index.html 1
