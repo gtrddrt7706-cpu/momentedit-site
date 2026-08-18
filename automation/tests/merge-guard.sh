@@ -4480,3 +4480,126 @@ chk 'flex: none; align-self: flex-start;' index.html 1
 #   옛 표본은 외부 주소를 넣어 두어 '두 분이 준비한 외부 공간' 안내가 떴다(홈 홍보와 어긋남).
 nochk "photoShare:'https://momentedit.kr/'" guide.html
 chk '표본은 \*\*비워 둔다\*\*' guide.html 1
+
+
+
+# ★★[UNDO_ALL 2026-08-17 사용자 질문 "강제되돌리기 돌려도 … 원클릭으로 가능한거야?"] 실측 답이 «아니오»였다.
+#   계약완료로 되돌린 경우만 「단계 맞추기」가 됐다 — 더 앞으로 되돌리면 _clearForwardData 가 계약상태를
+#   비워 서버가 «계약 서명 완료 후 입금 확인이 가능합니다»로 거부(큐엔 뜨는데 원클릭은 실패).
+#   또 계약금만 취소하면 중도금·잔금 잔재가 남아 큐가 다시 떴다 — 3클릭은 원클릭이 아니다.
+#   → 갈래를 «계약 유무»로 정하고, 취소는 '전체' 한 번으로 끝낸다. 불변식: 한 번 누르면 큐가 빈다.
+chk 'UNDO_ALL' automation/admin/admin.gs 3
+chk "'전체'" automation/admin/admin.gs 3
+chk 'UNDO_ALL_UI' admin.html 2
+chk 'ROLLBACK_ANYWHERE' scripts/audit/rollback-anywhere.mjs 1
+# ★★[BLOCK_CHAIN 2026-08-17 사용자 지시 "현금영수증 발행취소같은것도 확인 메세지 나와서 바로선택해서 넘길수있게"]
+#   막혔으면 «막혔다»로 끝내지 않고 그 다음 손잡이를 그 자리에 낸다(영수증 취소 → 이어서 입금 확인 취소).
+#   ★무엇이 막는지는 blockKey 로 온다 — 화면이 한글 문구를 파싱하면 문구를 다듬는 순간 조용히 깨진다.
+#   ★카드(A)는 이어 붙이지 않는다 — 토스에서 먼저 취소해야 하는 바깥 일이라 안내만 한다.
+chk 'BLOCK_KEY' automation/admin/admin.gs 1
+chk 'blockKey' automation/admin/admin.gs 2
+chk 'BLOCK_CHAIN' admin.html 1
+chk '진행 · 영수증 취소 후 계속' admin.html 1
+# ★★[SHARE_DRIVE_ROOM 2026-08-17] 용량도 함께 보게 한다 — 연결보다 더 자주 일어나고 더 조용히 망한다.
+#   구글 드라이브 15GB 는 지메일·구글포토와 나눠 쓰는 한 덩어리라, 사진이 작아도 남은 자리가 없으면 실패한다.
+#   게다가 드라이브가 차면 지메일 수신까지 멈춘다. 사진은 우리를 안 거치므로(PHOTOSHARE_DIRECT)
+#   우리가 대신 봐 줄 수 없다 — 우리가 못 보는 것을 부부가 보게 만드는 줄이다.
+chk 'SHARE_DRIVE_ROOM' mypage.html 1
+chk '남은 용량</b>을 봐 주세요' mypage.html 1
+chk '드라이브가 꽉 차면 사진이 안 들어와요' mypage.html 1
+# ★★[ROLLBACK_ROUNDTRIP 2026-08-17 사용자 지시 "되돌리기(강제변경) … 의도를 파악후 시뮬레이션 … 문제점 개선점"]
+#   파악한 의도 = 강제변경은 사고 복구용 비상구다. 그러니 ①갇히지 않고 ②상태가 앞뒤 맞고
+#   ③되돌린 뒤 **다시 끝까지 갈 수 있어야** 한다. ③은 앞선 검사들(anywhere·redo)이 안 보던 것이다 —
+#   «정리됐다»가 «여정이 이어진다»를 뜻하지 않기 때문. 왕복으로 걸어 봐야 안다.
+#   예외(취소·노쇼·미계약) + 환불완료 표시까지 붙인 최악 조건에서의 복구도 함께 고정한다.
+chk 'ROLLBACK_ROUNDTRIP' scripts/audit/rollback-roundtrip.mjs 1
+chk '다시 결과물전달까지 완주' scripts/audit/rollback-roundtrip.mjs 1
+chk '환불완료 흔적이 지워진다' scripts/audit/rollback-roundtrip.mjs 1
+# ★★[ROLLBACK_NOTICE 2026-08-17 사용자 지시 "관리자에의해 되돌라갔다 … 고객마이페이지 화면에 팝업 안내"]
+#   되돌리면 고객 화면이 **조용히** 앞 단계로 돌아갔다 — 서명한 계약이 사라진 것처럼 보이는데 설명이 없다.
+#   ★관리자 사유·컬럼 이름은 고객에게 안 나간다 · «관리자/강제변경» 같은 내부 용어도 쓰지 않는다(디렉터로).
+#   ★해소되면 서버가 애초에 안 내려준다(buildRollbackNotice) — 지난 일을 말하는 안내는 소음이다.
+chk 'ROLLBACK_NOTICE' automation/admin/admin.gs 1
+chk 'ROLLBACK_NOTICE' automation/platform/60_mypage.gs 2
+chk 'ROLLBACK_NOTICE' mypage.html 2
+chk 'buildRollbackNotice' automation/platform/60_mypage.gs 2
+chk '화면이 앞 단계로 돌아가 있어요' mypage.html 1
+# ★내부 용어 금지는 «실제로 화면에 나가는 줄»만 본다 — 근거를 적은 주석까지 걸면
+#   설명을 지워야 통과하게 되어, 검사가 문서를 갉아먹는다(그러면 다음 사람이 이유를 모른다).
+#   화면 문구는 lines.push(...) 안에만 있으므로 그 꼴로 겨눈다.
+nochk "lines.push('관리자" mypage.html
+chk 'ROLLBACK_NOTICE' scripts/audit/rollback-notice.mjs 1
+# ★★[KEEP_SIGNAL 2026-08-17 조사 실측] 입금 '완료신호'도 되돌림에 보존 — 이미 이체한 분께 또 내라고 하지 않는다.
+chk 'KEEP_SIGNAL' automation/admin/admin.gs 1
+chk "_v === '확인' || _v === '완료신호'" automation/admin/admin.gs 1
+# ★★[FORCE_EXIT_TS 2026-08-17 조사 실측] 노쇼·미계약도 기준일을 찍는다 — 환불 예정액이 매일 흔들리던 것 차단.
+chk 'FORCE_EXIT_TS' automation/admin/admin.gs 1
+chk 'STAGE_EXCEPTIONS.indexOf(targetStage) !== -1) {' automation/admin/admin.gs 1
+# ★★[KEEP_MONEY_BASIS 2026-08-17 조사 실측] 수납이 살아 있으면 «금액의 근거»도 함께 남긴다.
+#   종전엔 입금상태='확인'은 보존하면서 계약총액·예식일·시착벌수는 무조건 지웠다 →
+#   «받은 돈은 기록에 남았는데 얼마인지 아무도 모르는» 상태. 현금영수증 큐 금액이 비고,
+#   고객 내 내역에서 결제가 통째로 사라지고, 재취소 때 시착 공제가 빠져 과다 환불이 났다.
+chk 'KEEP_MONEY_BASIS' automation/admin/admin.gs 2
+chk '_rbPaidAny' automation/admin/admin.gs 3
+# ★★[EXIT_TS_REFRESH 2026-08-17] 정상→예외 «전환»이면 기준일을 다시 찍는다.
+#   멱등 가드 탓에 재취소 시 첫 취소일에 굳어 위약 구간이 틀린 값으로 계산됐다.
+chk 'EXIT_TS_REFRESH' automation/admin/admin.gs 1
+chk '_exFresh' automation/admin/admin.gs 2
+# ★★[FORCE_MODAL_TRUTH 2026-08-17] 마지막 확인창이 하드코딩 거짓말을 하고 있었다 —
+#   앞으로 가는 복구에도 «초기화돼요», 신청접수로 내릴 땐 «상담 예약은 별개예요»(실제로는 초기화된다).
+#   서버 미리보기를 다시 물어 그 답을 그대로 읽는다. 예고가 곧 실행이라야 확인창이 뜻을 갖는다.
+chk 'FORCE_MODAL_TRUTH' admin.html 1
+nochk '상담 예약(캘린더)은 별개예요' admin.html
+
+# ★★[FITTING_SPLIT 2026-08-18] 시착은 컬럼과 기록을 나눠 다룬다 —
+#   컬럼(시착동의상태)을 남기면 되돌린 뒤 「시착 동의 보내기」가 already 로 조용히 넘어가
+#   단계가 안 올라가고 「상담완료 처리」가 거부된다(관리자가 그 자리에 갇힘 · 실측 재현).
+#   기록(동의기록.시착)은 수납이 있으면 남긴다 — 벌수가 환불 공제의 근거(계약서 4조⑧).
+chk 'FITTING_SPLIT' automation/admin/admin.gs 1
+chk "{ cols: \['시착동의상태', '시착동의일시'\], at: '시착' }," automation/admin/admin.gs 1
+# ★★[CONTRACT_STAGE_GATE 2026-08-18] 예식일만으로 계약서를 보낼 수 있던 우회로 차단.
+#   KEEP_MONEY_BASIS 로 예식일을 보존하게 되면서, 되돌린 고객이 시착·상담완료를 건너뛴 채
+#   계약완료로 올라갔다(왕복 검사의 발자국이 «안 밟음: 시착·상담완료»로 잡아냄).
+chk 'CONTRACT_STAGE_GATE' automation/admin/admin.gs 1
+chk '_consultDone' automation/admin/admin.gs 2
+# ★★[CONTRACT_AMOUNT_REQ 2026-08-18] 총액이 지금도 없고 이번에도 안 오면 계약서 발송을 막는다.
+#   무작위 순서 검사(rollback-fuzz)가 «받은 돈은 있는데 얼마인지 모르는» 상태를 15회 만들어 냈다.
+chk 'CONTRACT_AMOUNT_REQ' automation/admin/admin.gs 1
+# ★★[STAGE_REVIEW_DOOR 2026-08-18] '후기'로 올려 주는 문. 이게 없으면 STAGE_FLOW 의 마지막 칸이
+#   강제변경으로만 닿는 방이 된다(stage-reach 도달성 검사가 마지막까지 붉게 남겼던 지적).
+chk 'STAGE_REVIEW_DOOR' automation/consultation/consultation-booking.gs 1
+chk "review:   '후기'," automation/consultation/consultation-booking.gs 1
+chk 'STAGE_REVIEW_DOOR' automation/platform/80_production.gs 1
+chk 'STAGE_REVIEW_DOOR' automation/admin/admin.gs 1
+# ★★[REFUND_MARK_TRACE 2026-08-18] 예외→정상 복구가 «환불완료» 표시를 지운 사실을 처리이력에 남긴다.
+#   안 남기면 이미 송금한 고객이 «입금 확인 · 환불 흔적 없음»으로 보여 두 번 송금할 수 있다.
+chk 'REFUND_MARK_TRACE' automation/admin/admin.gs 2
+# ★★[WALK_TRACE 2026-08-18] 왕복 검사는 도착지만 묻지 않는다 — 걸음마다 단계를 적어
+#   «건너뛰고 도착한» 여정을 잡는다. 이 발자국이 FITTING_SPLIT 회귀를 실제로 찾아냈다.
+chk 'WALK_TRACE' scripts/audit/rollback-roundtrip.mjs 1
+chk '건너뛴 단계 없이 밟고 갔다' scripts/audit/rollback-roundtrip.mjs 1
+# ★★[ROLLBACK_FUZZ 2026-08-18] 무작위 순서 + 불변식 검사. 정해진 길만 걷는 검사들이 못 보는 자리를 본다.
+chk 'ROLLBACK_FUZZ' scripts/audit/rollback-fuzz.mjs 1
+chk 'FUZZ_COVER' scripts/audit/rollback-fuzz.mjs 1
+# ★★[REVIEW_DOOR_AUDIT 2026-08-18] '후기' 문 하나만 초 단위로 확인하는 검사(stage-reach 는 10분이라 자주 못 돈다).
+chk 'REVIEW_DOOR_AUDIT' scripts/audit/review-door.mjs 1
+chk '결과물전달 → 후기 (고객 제출이 문이다)' scripts/audit/review-door.mjs 1
+# ★★[RB_NOTICE_TRUTH 2026-08-18] 되돌림 팝업의 첫 줄은 «조건»이다 —
+#   수납이 없는 고객은 예식일·계약총액이 실제로 지워지는데, 종전엔 «그대로예요»가 무조건 첫 줄이라
+#   바로 아래 «계약 내용 · 예식 일정을 다시 진행하시게 돼요»와 한 팝업 안에서 모순됐다(실측).
+chk 'RB_NOTICE_TRUTH' mypage.html 1
+chk 'RB_NOTICE_TRUTH' scripts/audit/rollback-notice.mjs 1
+nochk "var lines = \['예식 일정과 계약 내용은 그대로예요.'\]" mypage.html
+# ★★[MODAL_DISMISS 2026-08-18] 팝업은 버튼으로 닫는다 — class 만 떼면 _mpModalBusy 가 풀리지 않아
+#   그 뒤 팝업이 큐에 쌓인 채 영영 안 뜬다. 그 탓에 «두 번째엔 안 뜬다»가 엉뚱한 이유로 초록이었다.
+chk 'MODAL_DISMISS' scripts/audit/rollback-notice.mjs 1
+chk '전제 — 첫 진입엔 뜬다' scripts/audit/rollback-notice.mjs 1
+# ★★[GUIDE_TOKEN_CLEAR 2026-08-18] 되돌리면 공개 링크 열쇠도 함께 버린다 —
+#   안내 허브·좌석은 무인증 페이지라 토큰만 알면 열리고, 그 화면엔 두 분의 실명이 실린다.
+#   내용만 지우고 열쇠를 남기면 이미 뿌려진 QR 이 계속 열린다(실측).
+chk 'GUIDE_TOKEN_CLEAR' automation/admin/admin.gs 1
+chk "'안내공유토큰', '좌석공유토큰'\]), at: isSnap" automation/admin/admin.gs 1
+# ★★[GUIDE_EXPIRE_FAILCLOSED 2026-08-18] 예식일을 모르면 «만료»로 본다 — 개인정보는 모를 때 닫는다.
+#   종전엔 열어 뒀고, 미수납 되돌림에선 예식일까지 지워져 영영 만료되지 않았다.
+chk 'GUIDE_EXPIRE_FAILCLOSED' automation/platform/80_production.gs 1
+chk '옛 링크로는 더 이상 안 열린다' scripts/audit/rollback-roundtrip.mjs 1

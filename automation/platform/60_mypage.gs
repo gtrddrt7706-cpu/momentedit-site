@@ -52,6 +52,7 @@ function handleGetMyState(body) {
     hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 · 검토 중/승인. 계약 서명 전까지만(없으면 null)
     refundBank: buildRefundBankState(r),  // [환불 안전망] 종료(취소·노쇼·미계약) 고객 환불 계좌 셀프 제출 카드(없으면 null)
     payPolicy: (typeof PAYMENT !== 'undefined') ? { balanceDays: PAYMENT.잔금일수전, midDays: PAYMENT.중도금일수전 } : null,  // [정책 서빙] 프론트 D-day 판정 기준(리터럴 9/149 제거 — 70_journey PAYMENT 단일 출처)
+    rollbackNotice: buildRollbackNotice(r),   // [ROLLBACK_NOTICE] 관리자가 단계를 되돌린 사실 안내(해소되면 자동으로 null)
     waiting: _journeyWaiting(r),  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
     aiToken: _aiWidgetToken_(String(r.get('개인코드') || ''))  // [AI_WIDGET_HMAC] 식순 AI 위젯 embed 신원 증명(시크릿 미설정이면 빈값 · 프론트는 그냥 안 보냄)
   };
@@ -233,5 +234,34 @@ function buildConsultState(code) {
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',
     proposedTime: String(cr.get('변경제안시간') || '').trim(),
     proposedNote: String(cr.get('변경제안메모') || '').trim()
+  };
+}
+
+
+/* ★★[ROLLBACK_NOTICE 2026-08-17 사용자 지시 "관리자에의해 되돌라갔다 … 고객마이페이지 화면에
+   팝업 안내가 적절하게 나왔으면좋겠어"] 되돌림 안내 — **아직 사실일 때만** 내려준다.
+
+   왜 «아직 사실일 때만»인가:
+     관리자가 되돌렸다가 곧바로 되살리는 일이 잦다(테스트·오처리 복구). 그때도 안내가 남아 있으면
+     두 분은 «아직 뒤로 가 있나?» 하고 없는 문제를 걱정하게 된다. 지난 일을 말하는 안내는 소음이다.
+   그래서 «지금 단계가 그때 되돌린 자리보다 앞서 있으면» 스스로 사라진다 — 지우는 사람이 없어도 된다.
+   ★예외 단계(취소·노쇼·미계약)는 흐름 밖이라 위치 비교가 성립하지 않는다. 그 화면은 이미
+     제 사정을 따로 말하고 있으므로(환불 안내) 여기서 또 말하지 않는다.
+   ★관리자 사유는 담지 않는다 — 내부 기록이다. 고객에게 필요한 것은 «무엇이 그대로고 무엇을 다시 하나»뿐. */
+function buildRollbackNotice(r) {
+  var rec = _parseJsonSafe(r.get('동의기록'));
+  var rb = rec && rec.단계되돌림;
+  if (!rb || !rb.at) return null;
+  var stage = String(r.get('현재단계') || '').trim();
+  if (STAGE_EXCEPTIONS.indexOf(stage) !== -1) return null;          // 종료 고객은 환불 안내가 따로 말한다
+  var flow = stageFlowFor(String(r.get('상품타입') || '').trim());
+  var now = flow.indexOf(stage), was = flow.indexOf(String(rb.to || ''));
+  if (now === -1 || was === -1) return null;
+  if (now > was) return null;                                        // 이미 앞으로 갔다 = 해소됨 → 조용히 사라진다
+  return {
+    at: String(rb.at || ''),
+    stage: stage,
+    redo: (rb.redo || []).slice(0, 5),                               // 다시 하게 되는 것(고객이 읽을 말로 이미 바뀌어 있다)
+    keep: (rb.keep || []).slice(0, 3)                                // 그대로인 것 — 안심 문구의 «근거»
   };
 }

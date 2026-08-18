@@ -753,7 +753,9 @@ function adminHome() {
       var _fwQ = stageFlowFor(product), _siQ = _fwQ.indexOf(stage), _piQ = _fwQ.indexOf('입금완료');
       if (_siQ !== -1 && _piQ !== -1 && _siQ < _piQ) {
         pushQ({ code: code, names: names, product: product, kind: '단계정리',
-          sub: _srPaid.join('·') + ' 확인됐는데 단계가 ' + stage + '에 머물러 있어요 · 단계를 맞추거나 입금 확인을 취소해 주세요',
+          /* [UNDO_ALL] 무엇을 해야 하는지가 계약 유무로 갈린다 — 계약이 지워졌으면 단계만 올릴 수 없다(서버가 막는다) */
+          sub: _srPaid.join('·') + ' 확인됐는데 단계가 ' + stage + '에 머물러 있어요 · '
+            + (계약 === '서명완료' ? '단계를 맞추거나 입금 확인을 취소해 주세요' : '계약이 초기화됐어요 · 입금 확인을 취소하고 계약서부터 다시 보내 주세요'),
           badge: { level: 'yellow', text: '되돌림 정리 대기' }, _urgent: false, _stage: 4, _wait: createdYmd });
       }
     }
@@ -1370,7 +1372,18 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   }
   if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅') {   // 시그니처: 고객이 계약 정보(예식일·생년월일·주소)를 입력/요청해야 발송 — 빈 계약서·예식일 미설정(중도금·잔금 D-day 깨짐) 방지
     var _rec = _parseJsonSafe(cust.get('동의기록'));
-    if (!_rec.계약정보 && !/^\d{4}-\d{2}-\d{2}$/.test(String(cust.get('예식일') || '').trim())) {
+    /* ★★[CONTRACT_STAGE_GATE 2026-08-18 rollback-fuzz/roundtrip 발자국 검사가 찾음]
+       예식일만 있어도 통과시키던 우회로를 «상담완료 이후»로 좁힌다.
+       왜 생겼나 — [KEEP_MONEY_BASIS] 로 되돌려도 예식일을 남기게 되면서, 상담확정으로 내린
+       고객도 이 fallback 을 타고 계약서 발송이 됐다. 그러면 **시착·상담완료를 건너뛴 채**
+       계약완료로 올라간다(발자국 검사가 «안 밟음: 시착·상담완료» 로 잡아낸 그 모양).
+       시착 벌수는 환불 공제의 근거라(계약서 4조⑧) 건너뛰면 돈 계산이 틀어진다.
+       ★예식일 fallback 자체는 남긴다 — 계약정보 기록이 없는 옛 고객을 위한 길이고,
+         그 고객들은 이미 상담완료 이후에 있다. 단계 조건만 붙여 우회로를 막는다. */
+    var _flowC = stageFlowFor(cust.get('상품타입'));
+    var _consultDone = (_flowC.indexOf(stage) >= _flowC.indexOf('상담완료'));
+    var _ymdOk = /^\d{4}-\d{2}-\d{2}$/.test(String(cust.get('예식일') || '').trim()) && _consultDone;
+    if (!_rec.계약정보 && !_ymdOk) {
       return { ok: false, error: '고객이 아직 계약 정보(예식일·인적사항)를 입력하지 않았어요. 고객이 마이페이지에서 입력(요청)하면 발송할 수 있어요.' };
     }
   }
@@ -1381,6 +1394,16 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var now = fmtKST(new Date());
   var amt = Math.round(Number(total) || 0);                   // 0이면 미설정(입금화면이 "확인 후 안내")
+  /* ★★[CONTRACT_AMOUNT_REQ 2026-08-18 rollback-fuzz 무작위 순서 검사가 찾음]
+     총액이 «지금도 없고 이번에도 안 왔으면» 발송을 막는다.
+     실측 경로 — 되돌림으로 계약총액이 비워진(미수납이라 정상) 고객에게 총액 없이 계약서를 다시
+     보내면, 그대로 서명·입금까지 가서 **«받은 돈은 있는데 얼마인지 아무도 모르는» 상태**가 된다
+     (현금영수증 원장·환불 견적이 전부 계약총액 하나를 근거로 계산한다 · KEEP_MONEY_BASIS 참고).
+     ★막다른 길을 만들지 않는다 — 관리자는 발송 모달에서 금액을 고르면 바로 지나간다.
+     ★이미 총액이 있는 고객은 종전대로 총액 없이 재발송할 수 있다(값 유지 · 화면 습관 안 깨짐). */
+  if (amt <= 0 && !(Number(String(cust.get('계약총액') || '').replace(/[^0-9]/g, '')) > 0)) {
+    return { ok: false, error: '계약 총액을 골라 주세요. 금액이 없으면 입금 안내·현금영수증·환불 계산이 모두 비어요.' };
+  }
   var wed = String(weddingYmd || '').trim();                  // 계약 시점에 예식일 확정 → 돈 계산(중도금·잔금 D-day) 단일 기준
   var wT = String(weddingTime || '').trim();                  // 예식 슬롯(관리자 픽스) — 예식일과 함께 잠금
   if (wT && WEDDING_SLOT.SLOTS.indexOf(wT) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(wed) && _weddingSlotTaken(sheet, colOf, wed, wT, code)) {   // 발송 시점에 슬롯 충돌 차단(서명 때 늦은 거절 방지)
@@ -1585,7 +1608,12 @@ function _undoConfirmCore(code, milestone, reason, preview) {
   code = String(code || '').trim().toUpperCase();
   milestone = String(milestone || '').trim();
   reason = String(reason || '').trim();
-  if (['계약금', '중도금', '잔금', '중도금잔금'].indexOf(milestone) === -1) return { ok: false, error: '되돌릴 항목이 올바르지 않아요. (계약금·중도금·잔금·중도금잔금)' };
+  /* ★★[UNDO_ALL 2026-08-17 사용자 질문 "원클릭으로 가능한거야?"] '전체' = 확인된 수납을 한 번에.
+     실측: 되돌려진 고객의 계약금만 취소하면 중도금·잔금 '확인'이 남아 큐가 다시 뜨고, 운영자가
+     같은 팝업을 두세 번 더 눌러야 했다 — 그건 원클릭이 아니다.
+     targets 루프는 이미 여러 항목을 돌 수 있으므로 목록만 넓히면 «한 번의 사유·한 번의 확인»으로 끝난다.
+     ★스냅은 중도금이 없다 — '전체'에서는 오류가 아니라 «건너뛴다»(아래 targets 구성에서 제외). */
+  if (['계약금', '중도금', '잔금', '중도금잔금', '전체'].indexOf(milestone) === -1) return { ok: false, error: '되돌릴 항목이 올바르지 않아요. (계약금·중도금·잔금·중도금잔금·전체)' };
   if (!preview && !reason) return { ok: false, error: '되돌리는 사유를 입력해 주세요. 금전 기록이라 처리이력에 남겨요.' };
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
@@ -1611,7 +1639,9 @@ function _undoConfirmCore(code, milestone, reason, preview) {
   var _ubSi = _ubFlow.indexOf(stageNow), _ubPi = _ubFlow.indexOf('입금완료');
   var _ubBehind = (_ubSi !== -1 && _ubPi !== -1 && _ubSi < _ubPi);
 
-  var targets = (milestone === '중도금잔금') ? ['중도금', '잔금'] : [milestone];
+  var targets = (milestone === '중도금잔금') ? ['중도금', '잔금']
+    : (milestone === '전체') ? (isSnap ? ['계약금', '잔금'] : ['계약금', '중도금', '잔금'])   // [UNDO_ALL] 스냅은 중도금 없음 — 오류 대신 제외
+    : [milestone];
   var plan = [], patch = {}, recDirty = false, consentRemoved = [];
   for (var i = 0; i < targets.length; i++) {
     var sp = _undoSpec(targets[i], isSnap);
@@ -1620,11 +1650,15 @@ function _undoConfirmCore(code, milestone, reason, preview) {
     var cur = String(cust.get(sp.stateCol) || '').trim();
     if (cur !== '확인') continue;                                        // 멱등 — 이미 확인이 아니면 되돌릴 게 없다
     // A · 카드 확정분 — 시트에서만 되돌리면 장부와 PG가 어긋난다
-    if (rec.결제수단 && rec.결제수단[sp.payKey] === '카드') return { ok: false, block: 'A', error: sp.label + '은 카드로 결제된 건이에요. 시트만 되돌리면 결제 기록과 어긋나요. 토스에서 결제 취소를 먼저 진행해 주세요.' };
+    if (rec.결제수단 && rec.결제수단[sp.payKey] === '카드') return { ok: false, block: 'A', blockKey: sp.payKey, blockLabel: sp.label, error: sp.label + '은 카드로 결제된 건이에요. 시트만 되돌리면 결제 기록과 어긋나요. 토스에서 결제 취소를 먼저 진행해 주세요.' };
     // B · 현금영수증 발행분 — 발행 취소가 먼저다
     var issued = rec.영수증발행 || {};
     for (var k = 0; k < sp.receiptKeys.length; k++) {
-      if (issued[sp.receiptKeys[k]]) return { ok: false, block: 'B', error: sp.label + '은 현금영수증이 이미 발행됐어요(' + sp.receiptKeys[k] + '). 현금영수증 발행 취소를 먼저 해주세요.' };
+      /* ★[BLOCK_KEY 2026-08-17 사용자 지시 "현금영수증 발행취소같은것도 확인 메세지 나와서 바로선택해서 넘길수있게"]
+         무엇이 막는지를 **문구가 아니라 값으로** 돌려준다 — 화면이 한글을 파싱해 알아내면
+         문구를 다듬는 순간 조용히 깨진다. blockKey 를 보고 «그럼 그것부터 취소할까요?»를 바로 낸다. */
+      if (issued[sp.receiptKeys[k]]) return { ok: false, block: 'B', blockKey: sp.receiptKeys[k], blockLabel: sp.label,
+        error: sp.label + '은 현금영수증이 이미 발행됐어요(' + sp.receiptKeys[k] + '). 현금영수증 발행 취소를 먼저 해주세요.' };
     }
     // C · 다음 단계로 전진함 — 계약금에만 적용. 중도금·잔금은 원래 제작중·예식완료에서 확인하는 마일스톤이라 여기서 막으면 정상 건이 전부 막힌다
     //     [UNDO_BEHIND] behind(단계가 입금완료보다 앞 = 되돌려진 상태)면 면제 — «진행된» 것이 아니라 «되돌려진» 것이다
@@ -2024,6 +2058,9 @@ function adminSkipSurvey(code) {
     if (cur === '완료' || cur === '건너뜀') return { ok: true, already: true, archived: true };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     touchCustomer(sheet, colOf, cust.num, { '설문상태': '건너뜀' });
+    /* [STAGE_REVIEW_DOOR] 넘기기도 «후기 마감»이다 — 고객 제출과 같은 문으로 마지막 칸에 올린다.
+       (이미 '후기'면 setCustomerStage 가 멱등으로 그대로 둔다) */
+    if (_sg === '결과물전달') setCustomerStage(code, 'review');
     _recordHandler(code, '후기 넘기기(설문 생략)');
     return { ok: true, archived: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
@@ -2033,6 +2070,14 @@ function adminSkipSurvey(code) {
 //   ※ 상담 예약(상담예약 시트·캘린더)은 별개라 건드리지 않음.
 // [ADM_AC3] report(선택)를 넘기면 무엇이 비워지고 무엇이 보존되는지 함께 채운다 — 미리보기와 실행이 같은 함수를 쓰게 해
 //   "미리보기와 실제 결과가 다른 안전장치"(= 함정)가 생기지 않도록. report를 안 넘기면 동작은 종전과 완전히 같다.
+/* [KEEP_MONEY_BASIS] 수납이 하나라도 살아 있는가 — «금액 근거를 남길 이유»가 있는지 판정.
+   확인분은 물론 '완료신호'(고객이 이미 이체하고 신고한 것)도 센다(KEEP_SIGNAL 과 같은 기준). */
+function _rbPaidAny(c) {
+  var v = function (k) { return String(c.get(k) || '').trim(); };
+  var paid = function (x) { return x === '확인' || x === '완료신호'; };
+  return paid(v('입금상태')) || paid(v('중도금상태')) || paid(v('잔금상태'));
+}
+
 function _clearForwardData(colOf, cust, product, targetStage, fromException, report) {
   var flow = stageFlowFor(product);
   var ti = flow.indexOf(targetStage);
@@ -2041,13 +2086,42 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException, rep
   // [컬럼들, 이 데이터가 생기는 단계(상품 기준), 동의기록 키] — 목표가 그 단계보다 앞이면 비움
   var groups = [
     { cols: [], at: isSnap ? '촬영확정' : '상담확정', consent: '가예약' },   // 예식일 임시고정 — 신청접수로 내리면(예약 자체 리셋) 요청/승인·슬롯 점유까지 제거. 상담확정 이상 복귀는 보존
-    { cols: ['시착동의상태', '시착동의일시'], at: '시착', consent: '시착' },
-    { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크', '계약총액', '예식일'], at: '계약완료', consent: ['계약', '계약정보'] },  // 계약정보=고객이 입력한 계약서 요청 정보(상담완료 단계 산출물) → 함께 비워야 '요청 완료' 카드도 초기화. 예식일(톱레벨 복사본)도 함께 — 남으면 계약발송 큐·'계약서 준비 중' 안내가 잘못 살아남
-    { cols: ['입금상태', '입금완료신호', '입금자명'], at: '입금완료', consent: '현금영수증', keep: function (c) { return String(c.get('입금상태') || '').trim() === '확인'; } },   // ROLLBACK_KEEP_PAID · 확인된 수납은 롤백에도 보존(지우면 카드 이중청구·영수증 큐 소실·환불계산 누락 — 2026-07-25 점검)
+    /* ★★[FITTING_SPLIT 2026-08-17 «한번더 점검»에서 내가 만든 회귀를 잡음]
+       시착은 **컬럼과 기록을 나눠서** 다룬다.
+       ·컬럼(시착동의상태·일시)은 언제나 비운다 — 남기면 되돌린 뒤 「시착 동의 보내기」가
+         already 로 조용히 넘어가고(admin.gs 1640 조기반환) 단계가 안 올라, 「상담완료 처리」가
+         «시착 단계에서…»로 거부된다. 관리자가 그 자리에 갇힌다(실측으로 재현).
+       ·기록(동의기록.시착)은 수납이 있으면 남긴다 — 벌수가 환불 공제의 근거다(계약서 4조⑧).
+         지우면 재취소 때 공제가 빠져 **과다 환불**이 난다. 돈이 나가는 방향이라 더 위험하다.
+       ★둘을 한 그룹으로 묶어 keep 을 걸면 컬럼까지 남아 위 갇힘이 생긴다. 나눠 두는 이유가 이것이다. */
+    { cols: ['시착동의상태', '시착동의일시'], at: '시착' },
+    { cols: [], at: '시착', consent: '시착', keep: function (c) { return _rbPaidAny(c); } },
+    /* ★★[KEEP_MONEY_BASIS 2026-08-17 조사 실측] 수납이 살아 있으면 «금액의 근거»도 함께 남긴다.
+       종전엔 입금상태='확인'은 보존(ROLLBACK_KEEP_PAID)하면서 계약총액은 무조건 지웠다.
+       계약총액은 금액 계산의 단일 근거다(_journeyAmounts → 현금영수증 원장·환불 견적).
+       그래서 «받은 돈은 기록에 남았는데 얼마인지는 아무도 모르는» 상태가 만들어졌다 —
+       현금영수증 큐는 계속 뜨는데 금액이 비고, 고객 내 내역에서 결제가 통째로 사라졌다(실측).
+       ★예식일도 같이 남긴다 — 환불 위약 구간(D-60·30·10)이 예식일로 계산된다. 지우면 환불액이 틀어진다.
+       ★수납이 없으면 종전대로 전부 지운다(계약을 처음부터 다시 받는 것이 맞다). */
+    { cols: ['계약상태', '계약서발송일시', '계약서명일시', '계약서링크'], at: '계약완료', consent: ['계약', '계약정보'] },
+    { cols: ['계약총액', '예식일'], at: '계약완료', keep: function (c) { return _rbPaidAny(c); } },
+    /* ★시착 벌수는 환불 공제의 근거다(계약서 4조⑧ · _refundQuote 가 동의기록.시착.벌수 를 읽는다).
+       수납이 있는 고객에게서 이걸 지우면 재취소 때 공제가 빠져 **과다 환불**이 난다. 돈이 나가는 방향이라 더 위험하다. */  // 계약정보=고객이 입력한 계약서 요청 정보(상담완료 단계 산출물) → 함께 비워야 '요청 완료' 카드도 초기화. 예식일(톱레벨 복사본)도 함께 — 남으면 계약발송 큐·'계약서 준비 중' 안내가 잘못 살아남
+    { cols: ['입금상태', '입금완료신호', '입금자명'], at: '입금완료', consent: '현금영수증', keep: function (c) { var _v = String(c.get('입금상태') || '').trim(); return _v === '확인' || _v === '완료신호'; } },   // ROLLBACK_KEEP_PAID · 확인된 수납은 롤백에도 보존(지우면 카드 이중청구·영수증 큐 소실·환불계산 누락 — 2026-07-25 점검) · ★[KEEP_SIGNAL 2026-08-17] '완료신호'(고객이 이미 이체하고 신고한 상태)도 보존 — 지우면 화면이 «계약금 입금만 남았어요»로 돌아가 **이미 보낸 분께 또 보내라고 말한다**(조사 실측). 신고는 고객이 한 일이지 되돌릴 대상이 아니다
     { cols: ['중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드'], at: '제작중', keep: function (c) { return String(c.get('중도금상태') || '').trim() === '확인'; } },        // 중도금(시그 3단계 마일스톤) · ROLLBACK_KEEP_PAID
     { cols: ['잔금상태', '잔금입금자명', '잔금입금신호', '잔금확인일시', '잔금리마인드'], at: isSnap ? '촬영완료' : '제작중', keep: function (c) { return String(c.get('잔금상태') || '').trim() === '확인'; } }, // 잔금(제작/촬영 단계 마일스톤) · ROLLBACK_KEEP_PAID
-    { cols: _prodCols().concat(['eventId', '제작상태']), at: isSnap ? '입금완료' : '제작중' },   // PROD_ACCESSOR — 제작 컬럼 목록은 _prodCols() 단일 출처(PR-B 트랙 분리 시 자동 확장 · 신 컬럼 잔존=데이터 부활 사고 차단)   // 스냅은 flow에 '제작중'이 없어 이 그룹이 영영 스킵되던 것 수정(스냅 기획·청첩장 초안도 초기화 대상 — 2026-07-25 점검)
-    { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태', '선택사진', '선택수', '선택확정일시', '컨펌일시'], at: isSnap ? '촬영완료' : '예식완료' },
+    /* ★★[GUIDE_TOKEN_CLEAR 2026-08-18 문서화된 미해결건을 실측으로 확인] 공개 링크 열쇠도 함께 버린다.
+       안내공유토큰·좌석공유토큰은 «제작 데이터»에서 발급된다(다이닝·좌석 완료 시). 그 데이터를 여기서
+       지우면서 열쇠만 남겨 두면, 이미 뿌려진 QR·링크가 **빈 안내를 계속 열어 준다** —
+       그 화면에는 두 분의 실명이 실린다. 게다가 만료는 예식일로 판정하는데(_guideExpired),
+       미수납 되돌림에선 예식일까지 지워져 **영영 만료되지 않는다**(실측 확인).
+       ★열쇠는 다시 발급된다 — 두 분이 다이닝·좌석을 다시 마치면 새 토큰이 나온다(80_production 627).
+         옛 QR 이 죽는 것은 되돌림의 당연한 결과다(안내 내용 자체가 이미 지워졌다). */
+    { cols: _prodCols().concat(['eventId', '제작상태', '안내공유토큰', '좌석공유토큰']), at: isSnap ? '입금완료' : '제작중' },   // PROD_ACCESSOR — 제작 컬럼 목록은 _prodCols() 단일 출처(PR-B 트랙 분리 시 자동 확장 · 신 컬럼 잔존=데이터 부활 사고 차단)   // 스냅은 flow에 '제작중'이 없어 이 그룹이 영영 스킵되던 것 수정(스냅 기획·청첩장 초안도 초기화 대상 — 2026-07-25 점검)
+    /* ★[GAL_FID_CLEAR 2026-08-18] 원본폴더ID 도 같은 등급이다 — 원본링크를 지우면서 이 열을 남기면
+       같은 Drive 폴더를 그대로 가리킨다(20_customers-data 의 파기 목록이 같은 이유로 이 열을 넣어 뒀다).
+       지금은 단계 가드(RESULT_STAGES)가 갤러리를 막아 새는 창은 없지만, 가드 하나에만 기대지 않는다. */
+    { cols: ['원본링크', '영상링크', '보정본폴더', '결과물상태', '선택사진', '선택수', '선택확정일시', '컨펌일시', '원본폴더ID'], at: isSnap ? '촬영완료' : '예식완료' },
     { cols: ['추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명'], at: isSnap ? '촬영완료' : '예식완료', keep: function (c) { return String(c.get('추가보정상태') || '').trim() === '완료'; } },   // ROLLBACK_KEEP_PAID · 완료(입금확인)된 추가 보정 — 현금영수증 의무발급 큐 유지
     { cols: ['설문상태', '설문응답', '설문일시'], at: '후기' },   // 후기(설문)는 '후기' 단계 산출물 — 그 아래로 내리면 초기화
     /* [ADM_DELIVDATE 2026-07-26 사용자 결정] 보관 시계는 '결과물전달' 단계 산출물 — 후기 단계에서 결과물전달로만 내리는 롤백에는 지우지 않는다.
@@ -2172,6 +2246,14 @@ function adminForceStage(code, targetStage, reason) {
     // 상담확정 이전(신청접수)까지 내릴 땐 상담 예약도 초기화 + 캘린더 슬롯 해제
     var bookConfirm = flow.indexOf(isSnap ? '촬영확정' : '상담확정');
     var needBookingReset = (ti >= 0 && bookConfirm >= 0 && ti < bookConfirm);
+    /* ★★[REFUND_MARK_TRACE 2026-08-18 rollback-fuzz 관찰 «환불완료 + 수납 확인 동시 존재» 37회]
+       예외→정상 복구는 «환불완료» 표시를 지운다(안 지우면 재취소 때 환불 큐가 영영 안 뜬다 · 2141행).
+       그런데 지운 사실은 어디에도 안 남았다 — 처리이력 줄은 동의기록을 일부러 뺀다(ADM_AC3NOOP).
+       그 결과 복구된 고객은 «입금 확인 · 환불 흔적 없음»으로 보인다. 돈이 이미 나갔는데도.
+       ★송금 자체를 되돌릴 수는 없다(사람의 계좌 이체다). 우리가 할 수 있는 건 **그 사실이
+         타임라인의 그 자리에 남게** 하는 것뿐이다. 값을 지우되, 지웠다는 말과 원래 시각을 남긴다. */
+    var _rfWas = '';
+    try { if (_fsRep.consent.indexOf('환불완료') !== -1) _rfWas = String(_parseJsonSafe(cust.get('동의기록')).환불완료 || ''); } catch (eRf) {}
     var _fsChanged = _fsChangedCols(cust, cleared);   // [ADM_AC3NOOP] ★반드시 touchCustomer 앞에서 계산 — 쓰기 뒤에 재면 전부 '안 바뀜'이 된다
     if (cur === targetStage && !_fsChanged.length && !needBookingReset) return { ok: true, noop: true, from: cur, to: targetStage };   // [ADM_AC3NOOP] 값이 실제로 바뀌는 컬럼이 하나도 없을 때만 noop
     var upd = { '현재단계': targetStage };
@@ -2185,12 +2267,22 @@ function adminForceStage(code, targetStage, reason) {
     //   실패해도 단계 변경 자체는 이미 끝났으므로 막지 않는다(로그만).
     if (_fsRep.holdCal && typeof _holdCalDelete === 'function') { try { _holdCalDelete(_fsRep.holdCal); } catch (eHc) { Logger.log('가예약 캘린더 해제 실패: ' + (eHc && eHc.message)); } }
     // [FORCE_CANCEL_TS 2026-07-25] 강제이동 목표가 '취소'면 Bookings.취소일시를 기록(정상 취소 경로와 동일). 없으면 환불 견적·큐 aging이 '오늘' 기준으로 매일 흔들리던 문제 차단. 멱등(이미 있으면 유지).
-    if (targetStage === '취소') {
+    /* ★[FORCE_EXIT_TS 2026-08-17 조사 실측] 노쇼·미계약도 같은 처리를 받는다.
+       종전엔 '취소'만 취소일시를 찍었다. 노쇼·미계약으로 강제이동하면 그 칸이 비어
+       환불 견적이 «오늘» 기준으로 계산되고(60_mypage 86 → 70_journey 794),
+       고객 화면의 환불 예정 금액이 구간(D-60·30·10)을 넘길 때마다 하루아침에 떨어졌다.
+       돈에 관한 숫자가 가만히 있는데 저 혼자 바뀌면, 그건 화면이 아니라 신뢰가 깎이는 일이다. */
+    if (STAGE_EXCEPTIONS.indexOf(targetStage) !== -1) {
       try {
         var _bkTs = findRowByPersonalCode(code);
         if (_bkTs) {
           var _bsTs = getSheet(), _bcTs = buildHeaderIndex(_bsTs);
-          if (_bcTs['취소일시'] && !String(_bkTs.get('취소일시') || '').trim()) writeCell(_bsTs, _bcTs, _bkTs.num, '취소일시', new Date());
+          /* ★[EXIT_TS_REFRESH 2026-08-17 조사 실측] «새로 종료로 들어올 때»는 기준일을 갱신한다.
+             종전 멱등 가드는 «이미 값이 있으면 유지»였다 — 취소했다가 정상 복구하고 다시 취소하면
+             기준일이 **첫 취소일에 굳어**, 두 번째 취소의 위약 구간(D-60·30·10)이 틀린 값으로 계산됐다.
+             정상 단계에서 예외로 «전환»될 때만 다시 찍는다(예외→예외 이동은 그대로 둔다 · 같은 종료의 연장이므로). */
+          var _exFresh = (STAGE_EXCEPTIONS.indexOf(cur) === -1);
+          if (_bcTs['취소일시'] && (_exFresh || !String(_bkTs.get('취소일시') || '').trim())) writeCell(_bsTs, _bcTs, _bkTs.num, '취소일시', new Date());
         }
         // [REFUND_ACCT_REQ 2026-07-25] 강제취소 고객이 수령분(입금확인/입금상태=확인) 있고 환불계좌 미입력이면 고객에게 계좌 입력 요청 1회(카톡→SMS→메일 폴백). 이 블록은 취소로 '전환'될 때만 도달(같은 단계 재지정은 상단 noop). 계좌 있으면 생략.
         var _acctF = _bkTs ? String(_bkTs.get('환불계좌') || '').trim() : '';
@@ -2207,9 +2299,51 @@ function adminForceStage(code, targetStage, reason) {
     }
     var bookingReset = needBookingReset ? _resetConsultBooking(code) : false;   // 예약 취소 + 캘린더 슬롯 해제
     var clearedCols = _fsChanged.filter(function (k) { return k !== '동의기록'; });   // [ADM_AC3NOOP] 처리이력엔 실제로 비워진 컬럼만(빈 컬럼 수십 개 나열 방지)
+
+    /* ★★[ROLLBACK_NOTICE 2026-08-17 사용자 지시 "관리자에의해 되돌라갔다 뭐 문구적절하게 꾸며서
+       고객마이페이지 화면에 팝업 안내가 적절하게 나왔으면좋겠어"] 되돌린 사실을 고객 쪽에 남긴다.
+       종전엔 고객 화면이 «조용히» 앞 단계로 돌아갔다 — 서명한 계약이 사라진 것처럼 보이는데
+       아무 설명이 없으니, 두 분 입장에선 사고를 의심할 수밖에 없다.
+       ★남기는 것은 «무엇이 그대로고 무엇을 다시 하게 되는지»뿐이다. 관리자 사유는 내부 기록이라 넣지 않는다.
+       ★컬럼 이름을 그대로 주지 않는다 — 고객이 읽을 말로 바꿔서 담는다(계약서명일시 같은 말이 새면 안 된다). */
+    var _rbWord = { '계약상태': '계약서 서명', '계약서명일시': '계약서 서명', '계약서발송일시': '계약서 서명',
+      '계약총액': '계약 내용', '예식일': '예식 일정', '시착동의상태': '드레스 시착 동의', '시착동의일시': '드레스 시착 동의',
+      '결과물상태': '사진 고르기', '선택사진': '사진 고르기', '선택수': '사진 고르기', '컨펌일시': '사진 고르기',
+      '원본링크': '결과물 확인', '보정본폴더': '결과물 확인', '영상링크': '결과물 확인',
+      '설문상태': '후기', '설문응답': '후기' };
+    var _rbRedo = [];
+    clearedCols.forEach(function (c) {
+      var w = _rbWord[c] || (c.indexOf('제작_') === 0 ? '예식 준비(청첩장·식순·좌석)' : '');
+      if (w && _rbRedo.indexOf(w) === -1) _rbRedo.push(w);
+    });
+    if (bookingReset && _rbRedo.indexOf('상담 일정 선택') === -1) _rbRedo.unshift('상담 일정 선택');
+    /* 보존된 것 — 확인된 수납은 강제변경으로 지워지지 않는다(ROLLBACK_KEEP_PAID). 이것이 안심의 «근거»다. */
+    var _rbKeep = [];
+    if (String(cust.get('입금상태') || '').trim() === '확인') _rbKeep.push('계약금');
+    if (String(cust.get('중도금상태') || '').trim() === '확인') _rbKeep.push('중도금');
+    if (String(cust.get('잔금상태') || '').trim() === '확인') _rbKeep.push('잔금');
+    /* ★upd 는 위(2196)에서 이미 시트에 쓰였다 — 여기서 upd 를 더 채워도 **아무 일도 일어나지 않는다.**
+       (첫 판에서 실제로 그렇게 썼다가 «조용한 실패»를 만들 뻔했다. 내가 이번에 없애려던 바로 그 모양.)
+       그래서 별도 쓰기로 남긴다. 읽을 원본도 upd 에 방금 담긴 값이 우선이다 —
+       cust 는 쓰기 전에 읽은 스냅샷이라 _clearForwardData 가 지운 키가 되살아난다. */
+    /* ★뒤로 간 이동에만 남긴다 — 앞으로 가는 복구(계약완료→입금완료)에도 기록하면
+       now===was 가 되어 «되돌아가 있어요» 팝업이 복구 직후에 뜬다(조사 지적). 그건 거짓말이다. */
+    var _rbFlow = stageFlowFor(product), _rbCur = _rbFlow.indexOf(cur), _rbTo = _rbFlow.indexOf(targetStage);
+    var _rbBack = (_rbCur === -1) || (_rbTo !== -1 && _rbTo < _rbCur);   // 예외에서 나오는 복구(cur=-1)도 «설명이 필요한 이동»이다
+    /* ★«전진이면 건너뛴다»를 throw 로 하지 않는다 — 그러면 정상 흐름이 catch 로 떨어져
+       **앞으로 가는 복구를 할 때마다** «기록 실패» 로그가 쌓인다. 로그가 거짓말하면 진짜 실패를 못 찾는다. */
+    if (_rbBack) {
+      try {
+        var _rbRec = _parseJsonSafe(upd['동의기록'] != null ? upd['동의기록'] : cust.get('동의기록'));
+        _rbRec.단계되돌림 = { at: fmtKST(new Date()), to: targetStage, redo: _rbRedo, keep: _rbKeep };
+        touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(_rbRec) });
+      } catch (eRb) { try { Logger.log('ROLLBACK_NOTICE 기록 실패: ' + (eRb && eRb.message)); } catch (e2) {} }
+    }
     _recordHandler(code, '★강제변경 ' + (cur || '없음') + '→' + targetStage
       + (clearedCols.length ? (' · 이후 데이터 초기화(' + clearedCols.join('·') + ')') : '')
-      + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '') + ' · 사유: ' + reason);
+      + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '')
+      + (_rfWas ? (' · [REFUND_MARK_TRACE] 환불완료 표시 해제(원래 ' + _rfWas + ') · 실제 송금 여부는 위 «환불 송금 완료» 기록으로 확인') : '')
+      + ' · 사유: ' + reason);
     /* ★★[FORCE_WARN_TRUTH 2026-08-17 사용자 고립 사례] 지운 것이 없으면 «지웠다»고 말하지 않는다.
        종전엔 결과 문구가 무조건 «이후 단계 진행 데이터를 초기화했습니다» 였다. 앞으로 가는 이동
        (계약완료→입금완료 같은 복구)은 실제로 **아무것도 안 지운다**(cleared: []). 그런데도 같은 경고가 떠서,

@@ -2157,7 +2157,7 @@ function cardPayment(d){
      ★조용히 두면 세무·환불이 틀린다. 경고(⚠)는 이 화면의 허용된 신호다(장식 아이콘 금지 규칙과 별개). */
   if(d.depositTick && d.depositTick.missing){
     raw+='<div class="cnote" style="color:#b00">⚠ 예약금 '+_amtKo(d.depositTick.amount)+' 입금확인 칸이 비어 있어요 · 고객 화면엔 «결제 완료»로 보여요'
-      +'<br>예약 시트의 <b>입금확인</b>을 «확인»으로 채워 주세요 — 안 채우면 현금영수증 발급 대기에 안 뜨고 환불 계산에서도 빠져요</div>';
+      +'<br>예약 시트의 <b>입금확인</b>을 «확인»으로 채워 주세요. 안 채우면 현금영수증 발급 대기에 안 뜨고 환불 계산에서도 빠져요</div>';
   }
   var b='';
   if(r['계약상태']==='서명완료'&&pay!=='확인') b+=ab('confirmPay','입금 확인');  // 서명완료면 항상(신호 무관·)
@@ -2176,7 +2176,13 @@ function cardPayment(d){
     var _psFl=(STAGE_FLOW[String(d.product||'').trim()]||STAGE_FLOW['시그니처']||[]);
     var _psCur=String(r['현재단계']||'').trim();
     var _psI=_psFl.indexOf(_psCur), _psP=_psFl.indexOf('입금완료');
-    if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1) b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');
+    /* ★[UNDO_ALL_UI] 계약이 살아 있을 때만 «단계 맞추기»를 낸다 — 서버가 계약 서명완료를 요구한다(admin.gs 1406).
+       계약완료보다 더 앞으로 되돌리면 _clearForwardData 가 계약상태를 비우므로, 그 자리엔 이 버튼이
+       «보이는데 안 되는 버튼»이 된다(실측: 상담완료·시착·상담확정·신청접수 전부 거부). 대신 취소로 안내한다. */
+    if(_psI!==-1&&_psP!==-1&&_psI<_psP&&STAGE_EX.indexOf(_psCur)===-1){
+      if(r['계약상태']==='서명완료') b+=ab('confirmPay','단계 맞추기 · 입금완료로','btn-line');
+      else b+='<div class="gate">계약이 초기화돼 단계만 올릴 수 없어요 · 입금 확인을 취소하고 계약서부터 다시 보내 주세요</div>';
+    }
     b+='<div class="gate">✓ 입금 확인됨</div>';
     /* ★★[UNDO_BTN_GATE 2026-08-17 admin-btn-server 검사가 찾음] 계약금 되돌리기는 «입금완료에 머물러
        있을 때»만 서버가 받는다(admin.gs _undoConfirmCore 차단 C·D). 그런데 버튼은 «입금상태=확인»이면
@@ -2706,7 +2712,31 @@ function doUndoRefunded(code,names,d){
 function doUndoPay(code,names,milestone,d){
   toast('되돌릴 내용 확인 중');
   gas('adminUndoConfirmPreview', code, milestone).then(function(p){
-    if(!(p&&p.ok)){ openModal({ title:'되돌릴 수 없어요', text:b(names)+li((p&&p.error)||'확인하지 못했어요'), yes:'확인', onYes:function(){ closeModal(); } }); return; }
+    if(!(p&&p.ok)){
+      /* ★★[BLOCK_CHAIN 2026-08-17 사용자 지시 "현금영수증 발행취소같은것도 확인 메세지 나와서
+         관리자 입장에서 바로선택해서 넘길수있게하기"] 막혔으면 «막혔다»로 끝내지 않는다.
+         무엇이 막는지 서버가 blockKey 로 알려주므로, 그 다음 손잡이를 이 자리에 바로 낸다.
+         종전엔 «현금영수증 발행 취소를 먼저 해주세요»만 뜨고 닫혔다 — 운영자가 그 버튼을 찾아
+         상세를 헤매야 했고, 그 사이 «어차피 안 되는구나» 하고 포기하면 고객은 계속 갇혀 있었다.
+         ★B(영수증)는 우리가 시트에서 되돌릴 수 있으니 이어서 처리한다.
+           A(카드)는 토스에서 먼저 취소해야 하는 **바깥 일**이라 이어 붙이지 않는다 — 안내만 한다. */
+      if(p&&p.block==='B'&&p.blockKey){
+        openModal({ title:'현금영수증부터 정리할까요?', danger:true,
+          text:b(names)+li(String(p.blockLabel||'')+'은 현금영수증이 이미 발행됐어요 ('+esc(p.blockKey)+')')
+            +li('진행하면 발행 기록을 취소하고, 이어서 입금 확인 취소로 넘어가요')
+            +li('⚠ 홈택스에서 실제 발급한 건이면 홈택스에서도 취소해 주세요'),
+          yes:'진행 · 영수증 취소 후 계속',
+          onYes:function(){
+            mBusy(true);
+            gas('adminUndoCashReceipt', code, p.blockKey).then(function(r2){
+              if(!(r2&&r2.ok)){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr((r2&&r2.error)||'영수증 취소 실패'); return; }
+              closeModal(); toast('영수증 발행 취소됨 · 이어서 입금 확인 취소');
+              setTimeout(function(){ doUndoPay(code,names,milestone,d); }, 400);   // 같은 흐름을 이어 간다
+            }).catch(function(e){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr('오류: '+(e&&e.message||e)); });
+          } });
+        return;
+      }
+      openModal({ title:'되돌릴 수 없어요', text:b(names)+li((p&&p.error)||'확인하지 못했어요'), yes:'확인', onYes:function(){ closeModal(); } }); return; }
     if(p.already){ toast('이미 되돌려진 상태예요'); return; }
     var rows=(p.plan||[]).map(function(x){ return li(x.label+' · 확인('+esc(x.at||'')+') → '+x.to); }).join('');
     var st=p.stage?li('현재단계 '+p.stage.from+' → '+p.stage.to):'';
@@ -2738,13 +2768,29 @@ function doFixStage(code,names,sub){
     if(!(d&&d.ok)){ toast('상태를 불러오지 못했어요 · 행을 눌러 상세에서 진행해 주세요'); return; }
     var r=d.raw||{};
     var payOk=(r['입금상태']==='확인');
+    var signed=(r['계약상태']==='서명완료');
     var midOk=(r['중도금상태']==='확인');
     /* ★잔금은 mirror.balance 가 아니라 raw 로 본다 — buildBalanceState 는 잔금 «카드»용이라
        입금완료·제작중·예식완료 밖(=지금 다루는 되돌려진 단계)에서 null 을 준다(70_journey 1276).
        mirror 로 읽으면 잔금 '확인' 잔재가 있어도 midOk 만 잡혀 반쪽 정리가 된다(queue-oneclick ⑤가 잡았다). */
     var balOk=(r['잔금상태']==='확인');
     var restTxt=[midOk?'중도금':null,balOk?'잔금':null].filter(Boolean).join('·');
-    if(payOk){
+    /* ★★[UNDO_ALL_UI 2026-08-17 사용자 질문 "강제되돌리기 돌려도 … 원클릭으로 가능한거야?"]
+       실측 답: 계약완료로 되돌린 경우만 「단계 맞추기」가 됐다. 더 앞(상담완료·시착·상담확정·신청접수)으로
+       되돌리면 _clearForwardData 가 계약상태를 비우고, 서버는 «계약 서명 완료 후 입금 확인이 가능합니다»로
+       거부한다(admin.gs 1406). 그 자리에 단계 맞추기를 내미는 것은 «보이는데 안 되는 버튼»이고,
+       뜻으로도 틀렸다 — 계약이 지워졌으면 다시 서명받아야 하지 단계만 올릴 일이 아니다.
+       → 계약이 없으면 «수납 기록 전부 취소»를 주 갈래로 준다(계약 재발송 흐름으로 돌아간다).
+       ★취소는 '전체' 한 번으로 — 계약금만 지우면 중도금·잔금이 남아 큐가 다시 뜬다(원클릭이 아니게 된다). */
+    var allTxt=[payOk?'계약금':null,midOk?'중도금':null,balOk?'잔금':null].filter(Boolean).join('·');
+    if(payOk&&!signed){
+      openModal({ title:'수납 기록을 정리할까요?', danger:true,
+        text:b(names)+(sub?li(sub):'')
+          +li('되돌리면서 계약이 초기화돼 «단계 맞추기»로는 진행할 수 없어요 (계약 서명이 있어야 입금 단계로 갑니다)')
+          +li('진행하면 '+allTxt+' 확인을 한 번에 취소해요 · 계약서 재발송부터 다시 진행하시면 돼요'),
+        yes:'진행 · '+allTxt+' 확인 취소',
+        onYes:function(){ closeModal(); doUndoPay(code,names,'전체',d); } });
+    } else if(payOk){
       openModal({ title:'되돌려진 단계를 정리할까요?',
         text:b(names)+(sub?li(sub):'')
           +li('진행하면 단계만 입금완료로 맞춰요 · 수납 기록·계약·예식일은 그대로예요')
@@ -2755,7 +2801,7 @@ function doFixStage(code,names,sub){
         init:function(){ var u=$('fxUndo'); if(u) u.onclick=function(){ closeModal(); doUndoPay(code,names,'계약금',d); }; },
         onYes:function(){ runAct(['adminConfirmPayment',code],code,'단계 맞추기'); } });
     } else if(midOk||balOk){
-      var ms=(midOk&&balOk)?'중도금잔금':(midOk?'중도금':'잔금');
+      var ms=(midOk&&balOk)?'중도금잔금':(midOk?'중도금':'잔금');   /* 계약금은 이미 취소된 자리 — 남은 둘이 곧 전체 */
       openModal({ title:'남은 입금 확인을 정리할까요?',
         text:b(names)+(sub?li(sub):'')
           +li('계약금은 이미 취소됐는데 '+restTxt+' 확인이 남아 있어요')
@@ -3083,8 +3129,30 @@ function doForce(code,names,target,reason){
   // [ADM_AC3] 입력 누락은 필드 옆 인라인 + focus(H2 매핑) — 토스트는 사라져서 어디가 비었는지 안 보인다.
   if(!target){ _advHint('fStage','바꿀 단계를 선택해 주세요'); return; }
   if(!reason){ _advHint('fReason','강제 변경 사유를 입력해 주세요'); return; }
-  openModal({ title:'강제로 단계를 바꿀까요?', danger:true, text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('⚠ 그 이후 단계 진행 데이터(계약·입금·시착 등)가 초기화돼요')+li('상담 예약(캘린더)은 별개예요')+li('이력에 남아요'), yes:'강제 변경',
-    onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
+  /* ★★[FORCE_MODAL_TRUTH 2026-08-17 조사 실측] 마지막 확인창이 **하드코딩된 거짓말**을 하고 있었다.
+     ·앞으로 가는 복구에도 «초기화돼요»라고 겁을 줬다(실제로는 아무것도 안 지운다)
+     ·신청접수로 내리면 상담 예약·캘린더가 실제로 초기화되는데 «상담 예약은 별개예요»라고 안심시켰다
+     ·바로 앞 미리보기 패널은 서버 사실을 말하는데, 그 다음 창이 정반대를 말해 둘 중 뭘 믿어야 할지 없었다
+     → 서버에 다시 물어(preview) **그 답을 그대로** 읽는다. 예고가 곧 실행이라야 확인창이 뜻을 갖는다.
+     ★고객에게 알림톡이 나가는 이동(취소)도 여기서 미리 말한다 — 발송은 되돌릴 수 없다. */
+  gas('adminForceStagePreview', code, target).then(function(p){
+    var facts='';
+    if(p&&p.ok){
+      if((p.cleared||[]).length) facts+=li('⚠ 비워져요 · '+p.cleared.map(esc).join(' · '));
+      if((p.consent||[]).length) facts+=li('⚠ 함께 지워져요 · '+p.consent.map(esc).join(' · '));
+      if((p.kept||[]).length) facts+=li('그대로 남아요 · '+p.kept.map(esc).join(' · '));
+      if(p.bookingReset) facts+=li('⚠ 상담 예약과 캘린더 일정이 초기화돼요');
+      if(!(p.cleared||[]).length && !(p.consent||[]).length && !p.bookingReset) facts+=li('비워지는 데이터는 없어요 · 단계만 바뀌어요');
+    } else { facts+=li('미리보기를 못 불러왔어요 · 그래도 진행하면 서버 판단대로 처리돼요'); }
+    if(STAGE_EX.indexOf(target)!==-1) facts+=li('종료 처리예요 · 받은 금액이 있고 환불 계좌가 없으면 고객에게 계좌 요청 안내가 나가요');
+    openModal({ title:'강제로 단계를 바꿀까요?', danger:true,
+      text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+facts+li('이력에 남아요'), yes:'강제 변경',
+      onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
+  }).catch(function(){
+    openModal({ title:'강제로 단계를 바꿀까요?', danger:true,
+      text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('미리보기를 못 불러왔어요')+li('이력에 남아요'), yes:'강제 변경',
+      onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
+  });
 }
 
 function saveMemo(){

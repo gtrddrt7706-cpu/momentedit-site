@@ -2254,8 +2254,54 @@ function stageLabel(code, product){
   return STAGE_LABEL[k] || k;
 }
 
+/* ★★[ROLLBACK_NOTICE 2026-08-17 사용자 지시 "관리자에의해 되돌라갔다 뭐 문구적절하게 꾸며서
+   고객마이페이지 화면에 팝업 안내가 적절하게 나왔으면좋겠어"]
+
+   종전엔 화면이 **조용히** 앞 단계로 돌아갔다. 서명한 계약이 사라진 것처럼 보이는데 아무 설명이 없으니
+   두 분 입장에선 사고를 의심할 수밖에 없다. 그 자리에 «무슨 일이 있었는지»를 한 번 말한다.
+
+   문구를 이렇게 고른 이유
+   · «관리자가 되돌렸어요»라고 쓰지 않는다 — 두 분에겐 «누가 무슨 버튼을 눌렀나»가 아니라
+     «내 예식은 그대로인가»가 궁금하다. 그래서 첫 줄은 결과(그대로임)를 말한다.
+   · 안심에는 **근거를 붙인다**(문구 규칙) — «확인된 결제는 그대로예요»는 실제로 보존되기에 쓸 수 있는 말이다.
+     보존된 것이 없으면 그 줄을 아예 빼서, 책임질 수 없는 안심이 되지 않게 한다.
+   · «다시 하실 것»을 숨기지 않는다. 숨기면 두 분이 빈 화면 앞에서 더 오래 헤맨다.
+   · 전각 줄표·장식 이모지 없음 · 호칭은 «두 분» · 소요시간 약속 없음.
+
+   ★한 번만 띄운다 — 되돌린 시각(at)을 열쇠로 기억한다. 볼 때마다 뜨면 그게 더 불안하다.
+   ★해소되면 서버가 애초에 안 내려준다(buildRollbackNotice) — 화면은 지우는 일을 하지 않는다. */
+function _mpRollbackNotice(d){
+  var rb = d && d.rollbackNotice; if(!rb || !rb.at) return;
+  var key = 'me_rbnotice_' + String(rb.at).replace(/[^0-9]/g,'');
+  try{ if(localStorage.getItem(key)==='o') return; }catch(e){}
+  /* ★[RB_NOTICE_TRUTH 2026-08-18 문구 점검] 첫 줄을 «조건»으로 만든다.
+     종전엔 «예식 일정과 계약 내용은 그대로예요» 가 무조건 첫 줄이었다. 그런데 수납이 없는 고객을
+     되돌리면 그 둘이 실제로 지워진다([KEEP_MONEY_BASIS] 는 수납이 있을 때만 남긴다) —
+     그래서 «그대로예요» 라고 해놓고 바로 아래에서 «계약 내용 · 예식 일정을 다시 진행하시게 돼요» 라고
+     말하는 판이 나왔다(실측). 두 분 입장에서 이건 안심이 아니라 «무슨 말인지 모르겠다» 다.
+     ★남아 있는 것만 이름을 부른다. 하나도 안 남았으면 그 줄을 아예 쓰지 않는다
+       (근거 없는 안심 금지 · CLAUDE.md 문구 규칙). */
+  var _rbRedo = (rb.redo && rb.redo.length) ? rb.redo : [];
+  var _rbKept = ['예식 일정','계약 내용'].filter(function(x){ return _rbRedo.indexOf(x) === -1; });
+  var lines = [];
+  if(_rbKept.length === 2) lines.push('예식 일정과 계약 내용은 그대로예요.');
+  else if(_rbKept.length === 1) lines.push(_rbKept[0] + '은 그대로예요.');
+  if(rb.keep && rb.keep.length) lines.push('확인된 ' + rb.keep.join('·') + ' 결제도 그대로 남아 있어요. 다시 입금하지 않으셔도 돼요.');
+  lines.push('진행 상황을 다시 확인하려고 디렉터가 이 화면을 앞 단계로 돌려 두었어요.');
+  /* 조사도 맞춘다 — «…을(를)» 은 안내문이 아니라 서식이다(받침으로 고른다) */
+  if(_rbRedo.length){ var _lastW = _rbRedo[_rbRedo.length-1]; var _lc = _lastW.charCodeAt(_lastW.length-1);
+    var _jong = (_lc >= 0xAC00 && _lc <= 0xD7A3) ? ((_lc - 0xAC00) % 28) !== 0 : false;
+    lines.push('이 화면에서 ' + _rbRedo.join(' · ') + (_jong ? '을' : '를') + ' 다시 진행하시게 돼요. 준비되면 순서대로 열려요.'); }
+  lines.push('궁금한 점은 카카오톡으로 편하게 물어봐 주세요.');
+  try{ localStorage.setItem(key,'o'); }catch(e){}
+  /* ★확인 버튼 라벨은 `confirmText` 다(`ok` 는 이 모달이 안 읽는다 — 첫 판에서 그렇게 써서 기본 '확인'이 나왔다).
+     mpAlert 를 쓰면 cancel:false·confirmText 기본값까지 한 번에 맞춰진다. */
+  mpAlert({ title:'화면이 앞 단계로 돌아가 있어요', body: lines.join('\n'), confirmText:'확인했어요' });
+}
+
 function renderMyPage(d){
   window._mpStateD = d;   // 전체 상태 전역 — 렌더 시작점에서 세팅(하위 렌더러·게이트가 같은 상태를 보게. 종전 렌더 말미 세팅은 초기 렌더 타이밍 구멍)
+  setTimeout(function(){ try{ _mpRollbackNotice(d); }catch(e){} }, 700);   // [ROLLBACK_NOTICE] 화면이 다 그려진 뒤 한 박자 늦게 — 렌더 도중에 덮으면 무엇이 바뀌었는지 못 본다
   var _mn=document.querySelector('main'); if(_mn) _mn.classList.add('wide');   // [N2] 마이페이지 폭 통일(진입부터 전부 동일 · 데스크톱 600px / 모바일 100%)
   // 환영 — 이름 + '님'(작게)
   var _nmv=String(d.name||'').trim();   // MPD_G9 이름 폴백 '고객 님' → '두 분'(§9-2)

@@ -142,6 +142,37 @@ console.log('\n[⑤ 계약금은 취소됐고 중도금·잔금만 남은 잔재
   ok(/계약금은 이미 취소됐는데/.test(m3.text), '왜 단계 맞추기가 아닌지(계약금 미확인)를 설명한다', m3.text.slice(0, 90));
 }
 
+
+console.log('\n[⑥ 영수증 발행분 — 막힘 팝업이 «그 다음 손잡이»를 낸다]');
+{
+  /* 계약이 지워진 자리(=수납 전부 취소 갈래) + 영수증 발행분 → 종전엔 «되돌릴 수 없어요»로 끝났다 */
+  CUR = Object.assign({}, STUCK, { 계약상태: '', 계약서명일시: '',
+    동의기록: JSON.stringify({ 영수증기준일: { 예약금: OLD }, 영수증발행: { 계약금: { 번호: '1', 금액: 150000 } } }) });
+  await page.evaluate(() => { try { closeModal(); } catch (e) {} });
+  await page.evaluate(() => loadHome());
+  await page.waitForTimeout(600);
+  await page.click('.qrow[data-kind="단계정리"] button[data-act="fixStage"]');
+  await page.waitForTimeout(500);
+  const t1 = await page.evaluate(() => ({
+    title: (document.getElementById('cm_title') || {}).textContent || '',
+    yes: (document.getElementById('cm_yes') || {}).textContent || '',
+    text: (document.getElementById('cm_text') || {}).textContent || '',
+  }));
+  ok(/수납 기록을 정리/.test(t1.title), '계약이 지워진 자리 → «수납 전부 취소» 갈래로 뜬다', t1.title);
+  ok(/계약이 초기화돼/.test(t1.text), '왜 단계 맞추기가 아닌지 설명한다', t1.text.slice(0, 70));
+  await page.click('#cm_yes');            // → doUndoPay('전체') → preview 가 block B 로 막힘
+  await page.waitForTimeout(800);
+  const t2 = await page.evaluate(() => ({
+    title: (document.getElementById('cm_title') || {}).textContent || '',
+    yes: (document.getElementById('cm_yes') || {}).textContent || '',
+    text: (document.getElementById('cm_text') || {}).textContent || '',
+  }));
+  ok(/현금영수증부터 정리할까요/.test(t2.title), '★막혔다고 끝내지 않고 «영수증부터 정리할까요»를 낸다', t2.title);
+  ok(/진행 · 영수증 취소 후 계속/.test(t2.yes), '버튼이 «취소 후 계속»이라 다음이 이어짐을 말한다', t2.yes);
+  ok(/홈택스/.test(t2.text), '홈택스 실발급분 안내가 함께 뜬다(시트만 되돌리면 어긋난다)', t2.text.slice(0, 90));
+  ok(!/되돌릴 수 없어요/.test(t2.title), '구버전의 «되돌릴 수 없어요» 막다른 팝업이 아니다', t2.title);
+}
+
 ok((errors || []).length === 0, '브라우저 콘솔 오류 0건', String((errors || []).length));
 console.log(`\n결과 — ${fail ? '실패 ' + fail + '건' : '실패 0건 (전부 통과)'}`);
 await eng.close?.(); srv.kill();
