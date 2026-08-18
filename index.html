@@ -6732,8 +6732,18 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   }
   function paint(){
     ticking = false;
-    // 메뉴 열림(scrollY=0 튐) 또는 뒤로가기 복원 중(첫 페인트 scrollY=0)엔 마우브로 튀지 않게 크림 고정하고 갱신 skip
-    if (document.body.classList.contains('menu-open') || de.classList.contains('me-restoring')){
+    /* 메뉴 열림(scrollY=0 튐) 또는 뒤로가기 복원 중(첫 페인트 scrollY=0)엔 마우브로 튀지 않게 크림 고정하고 갱신 skip
+       ★★[OVERLAY_CANVAS 2026-08-18 사용자 지적 "어떻게 오는지 보기 클릭하면 아랫부분이 진사색상으로"]
+         여기에 «오버레이 일반»을 더한다. 종전엔 메뉴 두 가지만 이름으로 적혀 있었고,
+         뒤에 생긴 하객사진 팝업(GPM_MODAL)은 목록에 없어서 그대로 뚫렸다.
+         팝업이 body{position:fixed} 로 잠그면 scrollY 가 0 으로 무너지고, 이 함수가 그걸 그대로 읽어
+         «지금 히어로 맨 위»로 오해해 html·body 를 진사로 칠한다. 화면 크림은 .page-bg 가 칠하는데
+         그 상자를 벗어난 자리(잠금으로 어긋난 아래쪽)에서 진사가 그대로 드러났다.
+       ★이름으로 세지 않고 «잠금이 걸렸나»로 센다 — 앞으로 생길 오버레이도 [ADV_TC] 계약만 지키면 함께 막힌다.
+         이름 목록은 새 오버레이가 생길 때마다 조용히 낡는다(이번이 그 증거다).
+       ★닫을 때는 저절로 돌아온다 — close() 가 scrollTo 로 스크롤을 되돌리며 scroll 이벤트를 쏘고,
+         그 rAF 가 돌기 전에 __meTCLock 이 0 이 되므로 다음 paint 가 제 색을 계산한다(순서 확인함). */
+    if (document.body.classList.contains('menu-open') || de.classList.contains('me-restoring') || window.__meTCLock){
       de.style.setProperty('background-color', '#fafaf8', 'important');
       body.style.setProperty('background-color', '#fafaf8', 'important');
       return;

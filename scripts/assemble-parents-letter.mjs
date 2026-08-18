@@ -218,9 +218,20 @@ execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
   '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
   '-ar', '48000', '-b:a', '192k', dst]);
 
-// parents.html은 번호 없는 경로를 부른다 — 사본을 둔다 (★PARENTS_DUAL_PATH)
+/* parents.html은 번호 없는 경로를 부른다 — 사본을 둔다 (★PARENTS_DUAL_PATH)
+   ★★[LETTER_AUDIO_DIVERGED 2026-08-18 사용자가 새 녹음을 직접 주심]
+     이 둘은 더 이상 같은 파일이 아니다.
+       assets/audio/parents-letter.mp3          ← 「어른께 드리는 안내」 페이지 · 사용자 새 녹음(162.9초)
+       assets/audio/narration/43_parents-letter.mp3 ← 예식 당일 나레이션 · 옛 조립본(170.9초) 그대로
+     사용자가 바꿔 달라고 한 것은 «페이지 쪽»이고, 예식 당일 소리는 실예식에 나가는 것이라 손대지 않았다.
+   ★★그래서 이 스크립트를 다시 돌리면 아래 copyFileSync 가 «사용자 녹음을 조립본으로 덮어쓴다.»
+     되살릴 수 없는 손실이다. 다시 돌릴 일이 생기면 먼저 사용자에게 물을 것 —
+     예식 클립도 새 녹음으로 통일할 것인지, 페이지만 새 녹음으로 둘 것인지. */
 const alt = path.join(path.dirname(outDir), 'parents-letter.mp3');
-fs.copyFileSync(dst, alt);
+if (fs.existsSync(alt) && !process.argv.includes('--overwrite-page-audio')) {
+  console.log(`\n⚠ ${path.relative(root, alt)} 를 덮어쓰지 않았다 — 사용자 녹음일 수 있다([LETTER_AUDIO_DIVERGED]).`);
+  console.log('  정말 조립본으로 맞추려면 --overwrite-page-audio 를 붙여 다시 돌릴 것.');
+} else fs.copyFileSync(dst, alt);
 
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`\n✓ ${path.relative(root, dst)}  ${total.toFixed(1)}초 (${Math.floor(total / 60)}분 ${(total % 60).toFixed(0)}초)`);
