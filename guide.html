@@ -132,12 +132,33 @@ button.ps-btn{width:100%;font:inherit;font-family:var(--serif-ko);cursor:pointer
 /* ★opacity로 흐리게 두었더니 대비가 AA 미달로 떨어졌다(axe 적발 4건).
    게다가 이 화면의 목적은 '하객이 보는 모양 그대로' 보여주는 것이라 흐리게 만들 이유도 없다.
    생김새는 원본과 똑같이 두고 '이동'만 막는다 — 연결 안 된다는 설명은 꼬리말이 한다. */
-.act-off,.ps-btn-off{cursor:default}
-.ps-btn-off{pointer-events:none}
+/* ★[DEMO_TIP 2026-08-18] 표본 버튼을 '못 누르는 것'으로 만들던 잠금 클래스는 폐지했다.
+   이제 표본에서도 누를 수 있고(<button data-dtip>), 누르면 실제 동작을 시트가 말해 준다.
+   되살리지 말 것 — 죽은 버튼은 고객에게 '고장'으로 읽혔다(사용자 지적).
+   아래 것은 남는다. 그쪽은 표본이 아니라 **실제 업로드 중** 잠금이다(gpPick). */
+.ps-btn-off{cursor:default;pointer-events:none}
 .demo-foot{margin:0 -18px;padding:16px 18px 18px;border-top:1px solid var(--hair);background:var(--bg2);
   border-radius:0 0 10px 10px;text-align:center}
 .demo-foot .t{font-size:11.5px;color:var(--sub);line-height:1.7}
 .demo-foot .t b{color:var(--seal);font-weight:600}
+/* ★★[DEMO_TIP 2026-08-18 사용자 제안 "저 메세지를 팝업으로 · 고객이 누르면 직관적으로"]
+   표본에서 지도·사진 올리기는 눌러도 아무 일이 없었다. **죽은 버튼은 고장으로 읽힌다** —
+   바닥 각주로 '연결되지 않아요'라고 적어 뒀지만, 누른 사람은 각주를 읽기 전에 이미 갸웃한다.
+   ★그 자리에서 답한다. 누르면 시트가 떠서 '실제로는 이렇게 됩니다'를 말한다.
+   ★표본에서만 만든다 — 진짜 하객 화면에는 이 코드가 붙지 않는다(renderDemo 안에서만 배선). */
+.dtip-ov{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;
+  background:rgba(28,27,25,.34);opacity:0;transition:opacity .3s var(--ease,ease)}
+.dtip-ov.show{display:flex}.dtip-ov.open{opacity:1}
+.dtip{width:100%;max-width:420px;background:var(--bg);border-radius:12px 12px 0 0;
+  padding:24px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;
+  transform:translateY(24px);transition:transform .45s var(--ease,ease)}
+.dtip-ov.open .dtip{transform:none}
+.dtip .k{font-family:var(--serif);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep)}
+.dtip .h{font-family:var(--serif-ko);font-size:15px;font-weight:500;color:var(--accent);margin-top:10px;line-height:1.5;word-break:keep-all}
+.dtip .d{font-size:12px;color:var(--sub);line-height:1.85;margin-top:10px;word-break:keep-all}
+.dtip .x{margin-top:18px;width:100%;min-height:44px;background:none;border:1px solid var(--border);
+  border-radius:6px;font:inherit;font-family:var(--serif-ko);font-size:13px;color:var(--accent);cursor:pointer}
+@media(prefers-reduced-motion:reduce){.dtip-ov,.dtip{transition-duration:.01ms!important;transition-delay:0s!important}}
 /* .demo-foot .b(홈 버튼) 규칙 삭제 — 버튼 자체를 뺐다(2026-08-01). 죽은 규칙 남기지 않는다. */
 /* [GUIDE_SCROLLCUE] 윈도우 실물 스크롤바 숨김(스크롤은 유지) + 인지는 하단 Scroll 큐가 담당
    (2026-08-01 사용자 지시 "스크롤바 없애고 아래 스크롤 효과가 잠깐 나오는 식으로").
@@ -804,6 +825,37 @@ var DEMO_TABLES=[
   {side:'L',name:'',seats:['윤소연','윤재원'],                                 drinks:['N','C']},
   {side:'R',name:'',seats:['임재원','임서윤'],                                 drinks:['R','N']}
 ];
+/* [DEMO_TIP] 표본 전용 안내 시트 — 무엇을 눌렀는지에 따라 실제 동작을 말해 준다 */
+var DTIP={
+  map:{ k:'Sample', h:'표본이라 지도가 열리지 않아요',
+        d:'실제 예식에서는 누르는 순간 그 장소의 지도가 바로 열려요 · 하객분들이 길을 헤매지 않으시도록.' },
+  photo:{ k:'Sample', h:'표본이라 사진이 올라가지 않아요',
+        d:'실제 예식에서는 누르는 순간 사진첩이 열리고, 고르신 사진이 두 분께 바로 전해져요 · 이름도 가입도 필요 없어요.' }
+};
+function bindDemoTip(){
+  if(document.getElementById('dtipOv')) return;
+  var ov=document.createElement('div');
+  ov.id='dtipOv'; ov.className='dtip-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+  ov.setAttribute('aria-labelledby','dtipH');   /* 이름 없는 dialog 는 스크린리더가 '대화상자'라고만 읽는다 */
+  ov.innerHTML='<div class="dtip"><div class="k"></div><div class="h" id="dtipH"></div><div class="d"></div>'
+    +'<button type="button" class="x">알겠어요</button></div>';
+  document.body.appendChild(ov);
+  var back=null;   /* 닫으면 누르던 자리로 초점을 돌려준다 — 안 그러면 초점이 문서 맨 앞으로 튄다 */
+  function close(){ ov.classList.remove('open'); setTimeout(function(){ ov.classList.remove('show'); },320);
+    if(back && back.focus){ try{ back.focus(); }catch(_){} } back=null; }
+  ov.querySelector('.x').addEventListener('click', close);
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && ov.classList.contains('open')) close(); });
+  document.addEventListener('click', function(e){
+    var t=e.target.closest('[data-dtip]'); if(!t) return;
+    var d=DTIP[t.getAttribute('data-dtip')]; if(!d) return;
+    e.preventDefault();
+    ov.querySelector('.k').textContent=d.k; ov.querySelector('.h').textContent=d.h; ov.querySelector('.d').textContent=d.d;
+    back=t;
+    ov.classList.add('show'); requestAnimationFrame(function(){ ov.classList.add('open'); });
+    ov.querySelector('.x').focus();
+  });
+}
 function renderDemo(){
   DEMO=true;
   render({
@@ -863,15 +915,23 @@ function renderDemo(){
     if(acts) pick.insertBefore(mp, acts); else pick.appendChild(mp);
   }
 
-  // ── 바깥으로 나가는 링크를 죽인다(지도·사진 올리기) — 모양은 그대로, 이동만 막는다
+  /* ── [DEMO_TIP] 바깥으로 나가는 링크는 여전히 막되, **죽이지는 않는다.**
+     옛 판은 <a> 를 못 누르는 <span> 으로 바꿔 놨다. 모양은 같은데 눌러도 아무 일이 없어
+     '고장'으로 읽혔다(사용자 제안: "고객이 누르면 직관적으로 확인할수있게").
+     ★버튼으로 바꿔 누르면 그 자리에서 '실제로는 이렇게 됩니다'를 말해 준다. */
   [].slice.call(root.querySelectorAll('a.act')).forEach(function(a){
-    var sp=document.createElement('span');
-    sp.className='act act-off'; sp.innerHTML=a.innerHTML;
-    a.parentNode.replaceChild(sp, a);
+    var b=document.createElement('button');
+    b.type='button'; b.className='act'; b.innerHTML=a.innerHTML; b.setAttribute('data-dtip','map');
+    a.parentNode.replaceChild(b, a);
   });
-  var ps=root.querySelector('a.ps-btn');
-  if(ps){ var sp2=document.createElement('span'); sp2.className='ps-btn ps-btn-off'; sp2.textContent='사진 올리기';
-    ps.parentNode.replaceChild(sp2, ps); }
+  /* 사진 버튼은 두 모양이 있다 — 외부 링크를 넣었으면 <a class="ps-btn">, 우리 업로더면 <button id="gpPick">.
+     ★둘 다 잡는다. 한쪽만 보면 표본에서 그 버튼만 아무 말도 없이 죽는다(실측으로 겪은 함정). */
+  var psA=root.querySelector('a.ps-btn');
+  if(psA){ var b2=document.createElement('button');
+    b2.type='button'; b2.className='ps-btn'; b2.textContent='사진 올리기'; b2.setAttribute('data-dtip','photo');
+    psA.parentNode.replaceChild(b2, psA); }
+  var psB=$('gpPick'); if(psB) psB.setAttribute('data-dtip','photo');
+  bindDemoTip();
 
   // ── 꼬리말: 여기가 무엇인지 · 오시는 길은 어디에 있는지 · 돌아가는 길
   var card=document.querySelector('#root .card');
@@ -882,8 +942,9 @@ function renderDemo(){
     //   여정 전체를 버리는 함정문이었다. 꼬리말은 '왜 안 눌리는지'만 말한다.
     // ★'종이 청첩장 속 QR' 문구 정정([GV_REAL] 시스템 지도) — 이 화면은 오프라인 청첩장 '안'의
     //   버튼으로 들어온다. QR은 실물(종이) 직접 제작 구성에만 드린다.
-    f.innerHTML='<div class="t">표본이라 <b>지도·사진 올리기</b>는 연결되지 않아요.<br>'
-      +'실제 예식에서는 두 분의 정보로 채워집니다.</div>';
+    /* [DEMO_TIP] 각주는 한 줄로 줄였다 — '왜 안 되는지'는 이제 버튼을 누르면 그 자리에서 말한다.
+       대신 **눌러 보라고 권한다.** 각주가 설명을 다 해 버리면 아무도 안 눌러 보고 지나간다. */
+    f.innerHTML='<div class="t">표본 화면이에요 · <b>눌러 보시면</b> 실제로 어떻게 되는지 알려 드려요.</div>';
     card.appendChild(f);
   }
 }

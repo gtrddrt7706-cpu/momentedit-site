@@ -1560,7 +1560,14 @@ chk "g==='demo'" guide.html 1                                # 데모 분기는 
 chk 'GUIDE_DEMO_CTA' index.html 1                            # 하객 안내를 '설명'에서 '열어볼 수 있는 것'으로
 chk 'BTN_WIDTH' index.html 1                                 # 데스크톱 버튼 폭 288px 통일 · inline-block이라 글자 수가 폭을 정하던 것
 chk 'A11Y_SEATMAP' guide.html 1                              # 가로 스크롤 배치도 tabindex=0 · 빼면 키보드 하객이 화면 밖 테이블을 못 본다(WCAG 2.1.1)
-chk 'act-off' guide.html 2                                   # 표본에서 지도·사진 올리기 이동 차단 · 지어낸 가게로 지도를 띄우면 고장난 화면이 된다
+# ★[DEMO_TIP 2026-08-18] 옛 가드는 표본 지도 버튼을 죽이던 클래스를 2개 셌다(CSS + 적용).
+#   그 '버튼 죽이기'는 사용자 지적으로 **정당히 폐지**했다 — 이제 표본 버튼도 눌리고,
+#   누르면 시트가 실제 동작을 말한다. 그래서 세는 것을 바꾼다: '이동을 막는다'는 여전히 지키되
+#   (a→button 이라 애초에 이동할 수 없다), 대신 **말해 주는가**를 센다.
+#   ★아래 nochk 는 그 폐지한 클래스가 되살아나는 것을 막는다(죽은 버튼 복귀 금지).
+nochk 'act\-off' guide.html
+chk "querySelectorAll('a.act')" guide.html 1                 # 표본에선 지도 <a> 를 button 으로 갈아 끼운다 · 지어낸 가게로 지도를 띄우지 않는다
+chk 'ps-btn-off' guide.html 3                                # 남는 잠금은 '업로드 중' 한 가지뿐(CSS + 걸기 + 풀기)
 chk 'GUEST_PREVIEW' index.html 1                             # 청첩장·하객 안내 미리보기를 한 블록으로 · 3줄 설명으로 되돌리지 말 것
 chk 'GALLERY_GUIDE' invitation-gallery.html 2                # 10번째 카드 = 하객 안내 표본 · 빼면 오프라인판 발견 여정의 종착지가 사라진다
 chk "g=demo" invitation-gallery.html 1                       # 10번째 카드가 가리키는 표본 주소
@@ -4626,3 +4633,21 @@ chk 'ROLLBACK_SLOT' automation/platform/70_journey.gs 1
 nochk "_hev.getTitle().replace('\[가예약\]', '\[예식확정\]')" automation/platform/70_journey.gs
 chk 'ROLLBACK_SLOT_AUDIT' scripts/audit/rollback-slot.mjs 1
 chk '되돌린 뒤에도 자리가 이 부부 것이다' scripts/audit/rollback-slot.mjs 1
+
+# ★★[DEMO_TIP 2026-08-18 사용자 제안 "저 메세지를 팝업으로 · 고객이 누르면 직관적으로 확인할수있게"]
+#   표본(미리보기) 화면의 버튼은 종전에 **죽은 버튼**이었다 — 눌러도 아무 일이 없고,
+#   왜 안 되는지는 화면 맨 아래 각주에만 적혀 있었다. 누르는 사람은 그 각주를 보지 않는다.
+#   이제 누르면 그 자리에서 시트가 올라와 «실제 예식에서는 이렇게 됩니다»를 말한다.
+#   ★두 모양 모두 잡아야 한다 — 지도는 <a class="act">, 사진은 우리 업로더의 <button id="gpPick">.
+#     a.ps-btn 만 보던 초판은 사진 버튼을 놓쳐 팝업이 붙지 않았다.
+#   ★표본에서만 — 실제 하객 페이지의 버튼은 그대로 동작해야 하므로 renderDemo 경로 안에만 있다.
+chk 'DEMO_TIP' guide.html 2
+chk "psB.setAttribute('data-dtip','photo')" guide.html 1
+chk '표본이라 사진이 올라가지 않아요' guide.html 1
+chk '눌러 보시면' guide.html 1
+
+# ★★[GA_POPLINK 2026-08-18] 홈 목업의 폰은 inert 라 안을 누를 수 없다(접근성 계약 — 초점이 프레임에 갇히면 안 된다).
+#   그래서 «사진 올리기» 줄에는 목록 쪽에 설명 팝업(GPM_MODAL)을 여는 단추를 따로 둔다.
+#   폰 안을 누를 수 있게 inert 를 푸는 방향으로 되돌리지 말 것 — Tab 25회 측정으로 0회 진입을 확인한 계약이다.
+chk 'GA_POPLINK' index.html 2
+chk '어떻게 오는지 보기' index.html 1
