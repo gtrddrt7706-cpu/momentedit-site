@@ -71,8 +71,10 @@
     + '.gpm-ds{font-family:' + V('serif-ko', 'serif') + ';font-size:12px;font-weight:300;letter-spacing:.01em;'
     +   'line-height:1.85;color:' + V('sub', '#5A554C') + ';margin-top:4px;word-break:keep-all}'
     /* 두 분이 얻는 것 — 잔잔한 카드 대신 얇은 헤어라인 한 줄로 묶는다(선을 줄마다 긋지 않는다) */
-    + '.gpm-gains{border-left:1px solid ' + V('gold', '#B89A75') + ';padding-left:16px}'
-    + '.gpm-gain{padding:11px 0}.gpm-gain:first-child{padding-top:2px}.gpm-gain:last-child{padding-bottom:2px}'
+    /* ★★[GOLD_BAR_OFF 2026-08-18 사용자 지적] 왼쪽 골드바를 걷었다 — 인용문 관용구라 옛 느낌이 난다.
+       묶는 일은 위의 소라벨과 여백이 한다. 걸음(01·02·03)과는 번호 유무로 이미 갈린다. */
+    + '.gpm-gains{padding-left:22px}'
+    + '.gpm-gain{padding:13px 0}.gpm-gain:first-child{padding-top:2px}.gpm-gain:last-child{padding-bottom:2px}'
     + '.gpm-note{font-family:' + V('serif-ko', 'serif') + ';font-size:12px;font-weight:300;letter-spacing:.01em;'
     +   'line-height:1.85;color:' + V('sub', '#5A554C') + ';margin:30px 0 0;padding:16px 18px;border-radius:6px;'
     +   'background:' + V('bg2', '#F5F3EF') + ';word-break:keep-all}'

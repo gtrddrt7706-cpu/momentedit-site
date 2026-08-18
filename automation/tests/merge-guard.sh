@@ -4426,3 +4426,12 @@ chk 'transition-delay:0s' assets/guest-photo-modal.js 1          # 지속시간�
 chk 'gold-text' assets/guest-photo-modal.js 3                    # 글자와 같은 줄의 글리프는 --gold-text(2.54:1 금지)
 nochk 'setTimeout(open' assets/guest-photo-modal.js              # 자동 노출 금지
 nochk 'scroll.*open()' assets/guest-photo-modal.js
+
+# ★★[GOLD_BAR_OFF 2026-08-18 사용자 지적 "골드선이 조금 올드해보이는데"] 왼쪽 세로 골드바를 두 곳에서 걷었다.
+#   세로 골드바는 인용문(blockquote) 관용구라 에디토리얼이 아니라 옛 블로그처럼 읽힌다.
+#   그 바가 지던 뜻(종속·읽기전용)은 소제목과 들여쓰기가 이미 낸다 — 선은 가장 시끄러운 구분자다([ADV_INDEX] 1번).
+#   ★되살리지 말 것. 밋밋해 보이면 선이 아니라 **항목 사이 여백**부터 늘릴 것.
+chk 'GOLD_BAR_OFF' mypage.html 1
+chk 'GOLD_BAR_OFF' assets/guest-photo-modal.js 1
+nochk 'border-left:2px solid var(--gold)' mypage.html
+nochk "gpm-gains{border-left" assets/guest-photo-modal.js
