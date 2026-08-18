@@ -511,10 +511,16 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-chip.fxon{color:var(--gold-deeper);border-style:solid;border-color:var(--gold-deep);background:rgba(184,154,117,.10)}
 .ph-chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 0}
 /* [PHOTO_SCENE 2026-08-16] 식순에서 이어지는 장면 — 읽기 전용 목록.
-   줄마다 헤어라인을 긋지 않는다([ADV_INDEX]: 선 12개는 여백을 12등분해 '표'로 읽힌다) —
-   왼쪽 골드 한 줄이 '이건 고르는 칸이 아니라 딸려오는 것'이라는 뜻까지 함께 낸다. */
-.ph-scene{margin:8px 0 0;padding-left:13px;border-left:2px solid var(--gold)}
-.ph-sc{padding:5px 0}
+   줄마다 헤어라인을 긋지 않는다([ADV_INDEX]: 선 12개는 여백을 12등분해 '표'로 읽힌다).
+   ★★[GOLD_BAR_OFF 2026-08-18 사용자 지적 "골드선이 조금 올드해보이는데"] 왼쪽 2px 골드바를 걷었다.
+     세로 골드바는 인용문(blockquote) 관용구라 에디토리얼이 아니라 옛 블로그처럼 읽힌다.
+     그 바가 지고 있던 뜻('고르는 칸이 아니라 딸려오는 것')은 **이미 다른 것들이 내고 있다** —
+     위의 소제목(.ph-sec)이 묶고, 고르는 것들은 점선 알약(.ph-chip)이라 생김새부터 다르다.
+     ★대신 들여쓰기를 남긴다. 선 없이 들여쓰기만으로 종속을 말하는 건 활자에서 가장 오래된 방법이고,
+       여백이 이 브랜드의 주 표현수단이다(덜 하는 쪽을 고른다).
+     ★골드바를 되살리지 말 것. 되살리려면 항목 사이 여백부터 늘려 볼 것. */
+.ph-scene{margin:10px 0 0;padding-left:12px}
+.ph-sc{padding:7px 0}
 .ph-sc-n{display:block;font-family:var(--serif-ko);font-size:13px;color:var(--accent);word-break:keep-all}
 .ph-sc-s{display:block;font-size:11px;color:var(--label-soft);margin-top:1px;line-height:1.5;word-break:keep-all}
 .ph-qr{display:flex;justify-content:center;margin:12px 0 0}
