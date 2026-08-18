@@ -48,7 +48,10 @@ const plain = (html) => html.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ''
 let page, close;
 try { ({ page, close } = await openProbe('guide.html?g=demo', { width: 390, height: 900 })); }
 catch (e) {
-  if (e.cantLook) { console.log('· 못 봄(' + e.message + ') — 이 자리에선 재지 않는다. 손으로: node scripts/audit/demo-real-copy.mjs'); stopSrv(); process.exit(0); }
+  /* ★종료코드 2 = «안 봤다». 0(초록)과 반드시 갈라야 한다 —
+     2026-08-18 실측: CI 에서 브라우저가 없어 건너뛰었는데 가드가 «ok 표본=실제 문구»라고 찍었다.
+     170ms 만에 난 초록이었다. 안 본 것을 봤다고 말하는 자가 이 저장소가 가장 경계하는 늑대다. */
+  if (e.cantLook) { console.log('· 못 봄(' + e.message + ') — 이 자리에선 재지 않는다. 손으로: node scripts/audit/demo-real-copy.mjs'); stopSrv(); process.exit(2); }
   stopSrv(); throw e;
 }
 await page.waitForTimeout(700);

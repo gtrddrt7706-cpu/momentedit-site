@@ -4633,7 +4633,16 @@ nochk "gpS.innerHTML = '<b>12장" guide.html
 chk 'DEMO_REAL_COPY' scripts/audit/demo-real-copy.mjs 1
 chk '표본이 실제와 같은 말을 한다' scripts/audit/demo-real-copy.mjs 1
 chk 'cantLook' scripts/audit/demo-real-copy.mjs 1            # 브라우저 없는 자리에선 '못 봤다'고 말하고 비켜선다(초록 아님)
-node scripts/audit/demo-real-copy.mjs >/dev/null 2>&1 && echo "ok demo-real-copy (표본=실제 문구)" || { echo "FAIL demo-real-copy — node scripts/audit/demo-real-copy.mjs"; fail=1; }
+# ★종료코드 셋을 가른다 — 0 잰 결과 초록 · 2 브라우저가 없어 «안 쟀다» · 그 외 불일치.
+#   2026-08-18 실측: 안 쟀는데 «ok 표본=실제 문구»라고 찍혔다(CI·170ms). 안 본 것을 봤다고 말하지 않는다.
+#   ★CI 러너엔 playwright 가 없어 늘 2로 비켜선다 — 실제로 재는 자리는 «푸시 전 로컬»이다.
+#     CI 도 재게 하려면 워크플로에 playwright 설치를 더해야 한다(아직 안 했다 · 여기 적어 둔다).
+node scripts/audit/demo-real-copy.mjs >/dev/null 2>&1; _drc=$?
+case "$_drc" in
+  0) echo "ok demo-real-copy (표본=실제 문구)" ;;
+  2) echo "· demo-real-copy 안 쟀다(브라우저·서버 없는 자리) — 푸시 전에 손으로: node scripts/audit/demo-real-copy.mjs" ;;
+  *) echo "FAIL demo-real-copy — node scripts/audit/demo-real-copy.mjs"; fail=1 ;;
+esac
 
 # ★★[ROLLBACK_SLOT 2026-08-18 사용자 결정 «추천대로»] 되돌려도 예식 자리는 이 부부 것으로 잠근다.
 #   점유 판정(_weddingOccupancy)이 계약상태를 함께 보므로, 되돌리면 그냥 두면 그 날짜가 다른 분께 열린다.
