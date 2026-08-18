@@ -4354,8 +4354,10 @@ chk 'QUEUE_ONECLICK' scripts/audit/queue-oneclick.mjs 1
 chk 'SHARE_WEDUP' mypage.html 3
 chk 'SHARE_WEDUP' guide.html 1
 chk "weduploader\\\\.com" mypage.html 1
-chk 'weduploader.com</b>에서 앨범을 만들고' mypage.html 1
-chk '두 분 구글 드라이브</b>로 바로 들어와요' mypage.html 1
+# ★[GUEST_PHOTO_IN 2026-08-17] 위 두 chk(weduploader 권장 문구·부부 드라이브 직송 문구)는 **정당한 폐지**로 내렸다.
+#   우리가 직접 받게 되면서 그 자리 첫 줄이 '남의 링크를 넣어 주세요'에서 '준비하실 건 없어요'로 바뀌었다.
+#   외부 링크 안내 자체는 접힌 「다른 방법도 되나요」 안에 남아 있고, 그쪽은 아래에서 지킨다.
+chk '가입도 이름 입력도 없이' mypage.html 1        # 외부 링크(weduploader)를 넣었을 때의 안내는 살아 있다
 chk '가입도 이름 입력도 없이' mypage.html 1
 chk '예식 전날 한 번 열어' mypage.html 1              # 직송형 공통 약점(OAuth 끊김) 안내
 chk 'BROWSE FILES' guide.html 1                       # 영어 두 단어를 한국어로 덮는 유일한 자리
@@ -4375,3 +4377,32 @@ nochk '링크 붙여넣기 (1:1 오픈채팅방)' mypage.html
 chk 'SHARE_DRIVE_ROOM' mypage.html 1
 chk '남은 용량</b>을 봐 주세요' mypage.html 1
 chk '드라이브가 꽉 차면 사진이 안 들어와요' mypage.html 1
+
+# ★★★[GUEST_PHOTO_IN 2026-08-17 사용자 지시] 하객 사진을 우리 페이지에서 직접 받는다(외부 서비스 없이).
+#   사용자 원문: "오프라인 청첩장 하객안내 페이지에서 사진올리기 누르면 자동으로 구글 드라이브에 업로드되는 시스템말이야"
+#   ■ 지켜야 할 것들 — 하나라도 빠지면 예식 당일에 사진이 통째로 사라진다
+#     · 열 가드(_gp 폴더ID 없으면 저장 거부) — writeCell 이 헤더 없는 컬럼을 조용히 건너뛰기 때문
+#     · 만료 동기(_guideExpired) — 안내 화면은 닫혔는데 업로드 구멍만 열려 있으면 안 된다
+#     · 파일 쓰기는 잠금 밖 — 잠그고 쓰면 하객들이 줄을 서다 당일에 실패한다
+#     · 순차 전송 + 실패분 재시도 — 몰아 보내면 한 장 실패에 전부 잃는다
+chk 'GUEST_PHOTO_IN' automation/platform/80_production.gs 1
+chk 'GUEST_PHOTO_IN' guide.html 2
+chk 'GUEST_PHOTO_IN' mypage.html 2
+chk 'function handleGuestPhoto' automation/platform/80_production.gs 1
+chk "case 'guestPhoto'" automation/consultation/consultation-booking.gs 1
+chk 'function addGuestPhotoColumns' automation/platform/80_production.gs 1
+chk 'function purgeGuestPhotos' automation/platform/80_production.gs 1
+chk "colOf\['하객사진폴더ID'\]" automation/platform/80_production.gs 3    # 열 가드 · 폴더 확보 · 정리
+chk '_guideExpired' automation/platform/80_production.gs 3               # 안내·업로드 만료 기준 동기
+chk 'guestPhoto:' automation/platform/80_production.gs 1                 # 부부 화면 표시용 필드
+chk 'function bindGuestUpload' guide.html 1
+chk 'function guestUploadHtml' guide.html 1
+chk "action:'guestPhoto'" guide.html 1
+chk 'gpRetry' guide.html 2                                               # 실패분 다시 시도 — 조용히 넘어가지 않는다
+chk '이름도 가입도 필요 없어요' guide.html 1
+chk '안내 페이지에서 바로</b> 사진을 올려요' mypage.html 1
+nochk 'weduploader.com</b>에서 앨범을 만들고' mypage.html                 # 권장 자리에서 외부 링크 안내 복원 금지
+chk 'GP_NO_REPAINT' guide.html 3                                         # 올리는 중 재렌더 금지(진행 표시가 사라지던 결함)
+chk 'GUEST_PHOTO_SIM' scripts/audit/guest-photo-sim.mjs 1
+# ★서버 판정을 기계가 확인한다 — 예식 당일은 재시도가 없으므로 배포 전에 여기서 걸러야 한다.
+node scripts/audit/guest-photo-sim.mjs >/dev/null 2>&1 && echo "ok guest-photo-sim (17항목)" || { echo "FAIL guest-photo-sim — node scripts/audit/guest-photo-sim.mjs"; fail=1; }
