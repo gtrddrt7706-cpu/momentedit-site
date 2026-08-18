@@ -4620,7 +4620,20 @@ chk '옛 링크로는 더 이상 안 열린다' scripts/audit/rollback-roundtrip
 #   좌석 검색을 미리 띄워 둔 것과 같은 판단이다(2026-08-01 "검색된 것도 보여줘야지").
 #   ★진행 중이 아니라 완료를 보여준다 — 멈춘 진행바는 고장으로 읽힌다.
 chk 'DEMO_PHOTO_DONE' guide.html 1
-chk '12장 전해졌어요' guide.html 1
+# ★★[GP_DONE_MSG 2026-08-18 사용자 물음 "이 문구는 실제랑 같은거야?"] 다 올린 뒤 문구는 한 곳에서 만든다.
+#   표본이 실제보다 한 글자라도 후하게 말하면 그건 지키지 못할 약속이 된다 — 표본은 홍보에 그대로 쓰인다.
+#   ★손으로 베끼지 말 것. 표본도 gpDoneMsg 를 불러 쓴다(실제 finish() 와 같은 함수).
+chk 'GP_DONE_MSG' guide.html 3
+chk 'function gpDoneMsg' guide.html 1
+chk 'gpDoneMsg(12)' guide.html 1
+nochk "gpS.innerHTML = '<b>12장" guide.html
+# ★[DEMO_REAL_COPY] 그 약속을 브라우저에서 실제로 재는 자 — 실제 화면을 만드는 함수를 페이지 안에서
+#   직접 불러 표본이 그려 놓은 글과 맞춘다. 검사에 문구를 베껴 적지 않는다(베끼면 검사부터 낡는다).
+#   ★적대 검증 완료 — 표본 결과 줄만 한 글자 고쳐 보니 exit 1 로 걸렸다.
+chk 'DEMO_REAL_COPY' scripts/audit/demo-real-copy.mjs 1
+chk '표본이 실제와 같은 말을 한다' scripts/audit/demo-real-copy.mjs 1
+chk 'cantLook' scripts/audit/demo-real-copy.mjs 1            # 브라우저 없는 자리에선 '못 봤다'고 말하고 비켜선다(초록 아님)
+node scripts/audit/demo-real-copy.mjs >/dev/null 2>&1 && echo "ok demo-real-copy (표본=실제 문구)" || { echo "FAIL demo-real-copy — node scripts/audit/demo-real-copy.mjs"; fail=1; }
 
 # ★★[ROLLBACK_SLOT 2026-08-18 사용자 결정 «추천대로»] 되돌려도 예식 자리는 이 부부 것으로 잠근다.
 #   점유 판정(_weddingOccupancy)이 계약상태를 함께 보므로, 되돌리면 그냥 두면 그 날짜가 다른 분께 열린다.

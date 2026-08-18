@@ -469,6 +469,10 @@ function guestUploadHtml(){
     +'<div class="privacy" id="gpNote">두 분에게 바로 전해져요 · <b>이름도 가입도 필요 없어요</b>.<br>여러 장 한 번에 고르셔도 돼요.</div>'
     +'<div class="gp-stat" id="gpStat" style="display:none"></div></div>';
 }
+/* ★[GP_DONE_MSG 2026-08-18 사용자 물음 "이 문구는 실제랑 같은거야?"] 다 올린 뒤 문구는 **여기 한 곳**에서 만든다.
+   표본(renderDemo)도 이 함수를 부른다 — 손으로 베껴 두면 실제 문구를 고칠 때 표본만 옛말을 하게 된다.
+   그게 [GV_REAL]('실물을 띄운다 · 사본 금지')이 막으려는 바로 그 어긋남이다. */
+function gpDoneMsg(n){ return '<b>'+n+'장 전해졌어요</b> · 고맙습니다.'; }
 function gpSay(msg, kind){
   var el=document.getElementById('gpStat'); if(!el) return;
   el.className='gp-stat'+(kind?' gp-'+kind:''); el.innerHTML=msg; el.style.display='';
@@ -513,7 +517,7 @@ function bindGuestUpload(){
   function finish(total, done, big, stopMsg){
     busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
     if(stopMsg){ gpSay(esc(stopMsg), 'err'); return; }
-    var msg=done?('<b>'+done+'장 전해졌어요</b> · 고맙습니다.'):'';
+    var msg=done?gpDoneMsg(done):'';   // [GP_DONE_MSG] 표본도 같은 함수를 쓴다
     if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지).';
     if(failed.length){
       msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
@@ -900,7 +904,7 @@ function renderDemo(){
   var gpS = $('gpStat');
   if (gpS) {
     gpS.className = 'gp-stat';
-    gpS.innerHTML = '<b>12장 전해졌어요</b> · 고맙습니다.';
+    gpS.innerHTML = gpDoneMsg(12);   // [GP_DONE_MSG] 실제 화면과 **같은 함수**가 만든 문구 · 베끼지 않는다
     gpS.style.display = '';
     var gpB = $('gpPick'); if (gpB) gpB.textContent = '사진 더 올리기';
   }
