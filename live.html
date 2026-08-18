@@ -1681,8 +1681,12 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       <div class="lf-field">
         <div class="lp-message-box">
           <div class="lp-message-mark">PREVIEW</div>
-          <div class="lp-message-title">이 페이지는<br class="mobile-br"> 고유 링크로만 접근할 수 있습니다</div>
-          <div class="lp-message-desc">신랑·신부에게 받으신 편지 링크로<br class="mobile-br"> 다시 접속해 주세요.</div>
+          <!-- ★[GA_TABS 2026-08-18] 이 블록은 **프리뷰에서만** 뜬다(진짜 링크를 받은 하객에겐 실제 폼이 나온다).
+               그래서 두 사람이 본다 — ①링크 없이 들어온 하객 ②홈페이지 목업으로 이 화면을 보는 예비 부부.
+               옛 문구('…접근할 수 있습니다 / 다시 접속해 주세요')는 ①에게만 맞는 지시문이라,
+               홍보 화면에서는 차단 안내처럼 읽혔다. 뜻은 같게 두되 **설명하는 말**로 바꾼다. -->
+          <div class="lp-message-title">편지 칸은<br class="mobile-br"> 받으신 링크에서 열립니다</div>
+          <div class="lp-message-desc">이 화면은 미리보기예요 · 신랑·신부께 받으신<br class="mobile-br"> 링크로 들어오시면 바로 쓰실 수 있어요.</div>
         </div>
       </div>
 
