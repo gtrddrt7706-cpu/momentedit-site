@@ -4406,3 +4406,23 @@ chk 'GP_NO_REPAINT' guide.html 3                                         # 올�
 chk 'GUEST_PHOTO_SIM' scripts/audit/guest-photo-sim.mjs 1
 # ★서버 판정을 기계가 확인한다 — 예식 당일은 재시도가 없으므로 배포 전에 여기서 걸러야 한다.
 node scripts/audit/guest-photo-sim.mjs >/dev/null 2>&1 && echo "ok guest-photo-sim (17항목)" || { echo "FAIL guest-photo-sim — node scripts/audit/guest-photo-sim.mjs"; fail=1; }
+
+# ★★★[GPM_MODAL 2026-08-18 사용자 지시] 메인 홈페이지 청첩장 소개 → 하객 사진 안내 모달.
+#   사용자 원문: "오프라인 하객안내 사진올리기부분 클릭시 어떻게 되며 신랑신부에게 어떻게 전달이되는지
+#   장점 위주로 홍보 적절하게 팝업형식으로" · "디자인적으로 마케팅적으로 완성도높게"
+#   ★자동으로 뜨지 않는다 — 브랜드 규칙이 팝업(자동 노출)을 금지한다. 타이머·스크롤·이탈 감지 금지.
+#   ★[ADV_TC] 오버레이 계약 — 불투명 크림이라 상태바를 크림으로 '고정'한다. 잠그지 않으면
+#     position:fixed 가 무너뜨린 scrollY 를 히어로 핸들러가 읽고 진사로 되돌린다(아이폰 검은 띠).
+#   ★닫을 때 __meTCSync() 는 잠금 해제 뒤에 부른다 — 캐시를 비워야 복귀가 안 씹힌다.
+chk 'GPM_MODAL' assets/guest-photo-modal.js 1
+chk 'GPM_MODAL' index.html 2
+chk 'data-gpm-open' index.html 1
+chk 'guest-photo-modal.js' index.html 1
+chk '__meTCLock = 1' assets/guest-photo-modal.js 1
+chk '__meTCSync' assets/guest-photo-modal.js 1
+chk 'aria-modal' assets/guest-photo-modal.js 1
+chk 'prefers-reduced-motion:reduce' assets/guest-photo-modal.js 1
+chk 'transition-delay:0s' assets/guest-photo-modal.js 1          # 지속시간만 죽이면 늦게 뜬다([DTL16] 5번)
+chk 'gold-text' assets/guest-photo-modal.js 3                    # 글자와 같은 줄의 글리프는 --gold-text(2.54:1 금지)
+nochk 'setTimeout(open' assets/guest-photo-modal.js              # 자동 노출 금지
+nochk 'scroll.*open()' assets/guest-photo-modal.js
