@@ -6918,7 +6918,7 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
       /* guide.html 은 카드 안 .sec 이 순서대로 좌석·식사·사진이라 번호로 짚는다 */
       list: [['Seat','내 자리','이름만 넣으면 앉으실 테이블이 뜹니다.','sec:0'],
              ['Dining','식사 안내','예식 뒤 가실 곳을 미리 보고 오십니다.','sec:1'],
-             ['Photos','사진 올리기','담아 주신 사진이 두 분께 바로 모입니다.','sec:2']]
+             ['Photos','사진 올리기','담아 주신 사진이 두 분께 바로 모입니다.','sec:2','pop']]   /* [GA_POPLINK] 다섯째 칸 = 설명 팝업을 여는 줄 */
     }
   };
   var wrap = document.querySelector('.live-mockup-wrap');
@@ -6948,10 +6948,15 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
     }).join('');
     footEl.textContent = t.foot; footEl.style.display = t.foot ? '' : 'none';
     listEl.innerHTML = t.list.map(function (r, i) {
+      /* ★[GA_POPLINK 2026-08-18 사용자 제안 "고객이 누르면 직관적으로 확인할수있게"]
+         'pop' 로 표시된 줄에는 설명 팝업을 여는 한 줄을 붙인다. 폰 안은 장식이라(inert) 누를 수 없어서,
+         누를 수 있는 자리를 그 옆에 둔다. 표본 화면에서는 버튼을 직접 눌러 같은 답을 듣는다(guide.html DEMO_TIP). */
       return '<div class="mockup-item' + (i === 0 ? ' active' : '') + '" data-item="' + i + '">'
         + '<div class="mockup-num">0' + (i + 1) + '</div>'
         + '<div class="mockup-content"><div class="mockup-title">' + r[0] + '<span class="ko">' + r[1] + '</span></div>'
-        + '<p class="mockup-desc">' + r[2] + '</p></div></div>';
+        + '<p class="mockup-desc">' + r[2] + '</p>'
+        + (r[4] === 'pop' ? '<button type="button" class="gpm-open" data-gpm-open aria-haspopup="dialog">어떻게 오는지 보기<span class="gpm-chev" aria-hidden="true">›</span></button>' : '')
+        + '</div></div>';
     }).join('');
     for (var i = 0; i < tabs.length; i++) {
       var on = tabs[i].getAttribute('data-ga') === key;
