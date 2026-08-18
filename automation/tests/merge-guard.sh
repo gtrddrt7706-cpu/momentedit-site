@@ -4609,3 +4609,20 @@ chk '옛 링크로는 더 이상 안 열린다' scripts/audit/rollback-roundtrip
 #   ★진행 중이 아니라 완료를 보여준다 — 멈춘 진행바는 고장으로 읽힌다.
 chk 'DEMO_PHOTO_DONE' guide.html 1
 chk '12장 전해졌어요' guide.html 1
+
+# ★★[ROLLBACK_SLOT 2026-08-18 사용자 결정 «추천대로»] 되돌려도 예식 자리는 이 부부 것으로 잠근다.
+#   점유 판정(_weddingOccupancy)이 계약상태를 함께 보므로, 되돌리면 그냥 두면 그 날짜가 다른 분께 열린다.
+#   확정 점유를 임시고정(승인·14일)으로 되돌려 잠그고, 여는 것은 관리자가 확인창에서 고른다(기본 잠금).
+chk 'ROLLBACK_SLOT' automation/admin/admin.gs 5
+chk '_rbConfirmedSlot' automation/admin/admin.gs 3
+chk '_rbSlotPlan' automation/admin/admin.gs 3
+chk 'ROLLBACK_SLOT' admin.html 2
+chk 'fSlotOpen' admin.html 2
+# ★★[ROLLBACK_SLOT 캘린더] 확정된 예식은 «지우지 않는다» — 제목만 [가예약]·[보류]로 바꾼다.
+#   지우면 되돌릴 수 없고, 사고 복구용 되돌림에서 예식이 달력에서 통째로 사라진다.
+chk '_rbCalRetitle' automation/admin/admin.gs 4
+chk "String(_fsRep.holdCal.status || '') === '계약전환'" automation/admin/admin.gs 1
+chk 'ROLLBACK_SLOT' automation/platform/70_journey.gs 1
+nochk "_hev.getTitle().replace('\[가예약\]', '\[예식확정\]')" automation/platform/70_journey.gs
+chk 'ROLLBACK_SLOT_AUDIT' scripts/audit/rollback-slot.mjs 1
+chk '되돌린 뒤에도 자리가 이 부부 것이다' scripts/audit/rollback-slot.mjs 1

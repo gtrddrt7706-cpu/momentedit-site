@@ -271,7 +271,10 @@ function handleSignContract(body) {
     var isSnapC = String(cust.get('상품타입') || '').trim() === '웨딩스냅';
     // [A-5] 서명 = 계약 점유로 전환 — 잔존 가예약이 별도 점유·만료 알림 대상으로 남지 않게 상태만 바꿔 보존(이력)
     if (prev.가예약 && prev.가예약.status !== '계약전환') { prev.가예약.status = '계약전환'; prev.가예약.convertedAt = now;
-      try { if (prev.가예약.eventId && typeof getCalendar === 'function') { var _hev = getCalendar().getEventById(prev.가예약.eventId); if (_hev) _hev.setTitle(_hev.getTitle().replace('[가예약]', '[예식확정]')); } } catch (e) {}   // 캘린더 표시도 확정으로
+      /* ★[ROLLBACK_SLOT 2026-08-18] 접두사 하나를 통째로 갈아끼운다.
+         종전엔 '[가예약]' 글자를 찾아 바꿨다 — 되돌림으로 제목이 '[보류] …'가 된 이벤트에는 안 걸려,
+         다시 서명해도 달력에는 «보류»가 남았다. 어느 상태에서 오든 확정으로 돌아오게 한다. */
+      try { if (prev.가예약.eventId && typeof getCalendar === 'function') { var _hev = getCalendar().getEventById(prev.가예약.eventId); if (_hev) _hev.setTitle('[예식확정] ' + String(_hev.getTitle() || '').replace(/^\s*\[[^\]]*\]\s*/, '')); } } catch (e) {}   // 캘린더 표시도 확정으로
     }
     try {   // 가예약 이벤트가 없던 서명(과거 데이터·수동 발송 경유) — [예식확정] 이벤트 직접 생성해 캘린더 공백 방지
       if (!prev.가예약 || !prev.가예약.eventId) {
