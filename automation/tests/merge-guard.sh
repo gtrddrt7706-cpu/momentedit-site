@@ -4594,3 +4594,12 @@ nochk "var lines = \['예식 일정과 계약 내용은 그대로예요.'\]" myp
 #   그 뒤 팝업이 큐에 쌓인 채 영영 안 뜬다. 그 탓에 «두 번째엔 안 뜬다»가 엉뚱한 이유로 초록이었다.
 chk 'MODAL_DISMISS' scripts/audit/rollback-notice.mjs 1
 chk '전제 — 첫 진입엔 뜬다' scripts/audit/rollback-notice.mjs 1
+# ★★[GUIDE_TOKEN_CLEAR 2026-08-18] 되돌리면 공개 링크 열쇠도 함께 버린다 —
+#   안내 허브·좌석은 무인증 페이지라 토큰만 알면 열리고, 그 화면엔 두 분의 실명이 실린다.
+#   내용만 지우고 열쇠를 남기면 이미 뿌려진 QR 이 계속 열린다(실측).
+chk 'GUIDE_TOKEN_CLEAR' automation/admin/admin.gs 1
+chk "'안내공유토큰', '좌석공유토큰'\]), at: isSnap" automation/admin/admin.gs 1
+# ★★[GUIDE_EXPIRE_FAILCLOSED 2026-08-18] 예식일을 모르면 «만료»로 본다 — 개인정보는 모를 때 닫는다.
+#   종전엔 열어 뒀고, 미수납 되돌림에선 예식일까지 지워져 영영 만료되지 않았다.
+chk 'GUIDE_EXPIRE_FAILCLOSED' automation/platform/80_production.gs 1
+chk '옛 링크로는 더 이상 안 열린다' scripts/audit/rollback-roundtrip.mjs 1

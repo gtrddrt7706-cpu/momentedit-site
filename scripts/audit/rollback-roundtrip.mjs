@@ -179,6 +179,34 @@ console.log('\n═══ 시그니처 — 되돌린 자리에서 계약서 발�
   ok(!!(amt.r && amt.r.ok), '총액을 넣으면 그대로 지나간다(막다른 길이 아니다)', JSON.stringify(amt.r).slice(0, 90));
 }
 
+/* ── 공개 링크 — 되돌리면 하객이 보던 문도 닫힌다 [GUIDE_TOKEN_CLEAR][GUIDE_EXPIRE_FAILCLOSED] ──
+   안내 허브(guide.html)·좌석(seat.html)은 토큰만 알면 누구나 여는 무인증 페이지다.
+   거기엔 두 분의 실명이 실린다. 되돌림이 안내 «내용»은 지우면서 «열쇠»는 남겨 두면,
+   이미 뿌려진 QR 이 빈 화면을 계속 열어 준다. 게다가 만료는 예식일로 판정하는데
+   미수납 되돌림에선 예식일까지 지워져 영영 만료되지 않았다(실측). */
+console.log('\n═══ 되돌리면 공개 링크도 닫히는가 ═══');
+for (const paid of [true, false]) {
+  fresh('시그니처');
+  C.현재단계 = '제작중'; C.계약상태 = '서명완료'; C.예식일 = '2026-12-20';
+  C.입금상태 = paid ? '확인' : '';
+  C.안내공유토큰 = 'guidetoken123456'; C.좌석공유토큰 = 'seattoken1234567';
+  const open0 = act((g) => g.handleGuideView({ g: 'guidetoken123456' }));
+  ok(!!(open0.r && open0.r.ok), `수납 ${paid ? '있음' : '없음'} · 전제 — 되돌리기 전엔 안내가 열린다`, JSON.stringify(open0.r).slice(0, 60));
+  act((g) => g.adminForceStage(CODE, '상담확정', '공개 링크 점검'));
+  ok(!String(C.안내공유토큰 || '').trim() && !String(C.좌석공유토큰 || '').trim(),
+    `수납 ${paid ? '있음' : '없음'} · ★열쇠(안내·좌석 토큰)가 함께 지워진다`,
+    (C.안내공유토큰 || '(빔)') + '/' + (C.좌석공유토큰 || '(빔)'));
+  const after = act((g) => g.handleGuideView({ g: 'guidetoken123456' }));
+  ok(!(after.r && after.r.ok), `수납 ${paid ? '있음' : '없음'} · ★옛 링크로는 더 이상 안 열린다(실명 노출 차단)`, JSON.stringify(after.r).slice(0, 80));
+}
+{
+  /* 열쇠가 어떤 이유로 살아남더라도 — 날짜를 모르면 닫는다(두 겹) */
+  fresh('시그니처');
+  C.현재단계 = '제작중'; C.안내공유토큰 = 'guidetoken123456'; C.예식일 = '';
+  const r = act((g) => g.handleGuideView({ g: 'guidetoken123456' }));
+  ok(!(r.r && r.r.ok), '★예식일이 없으면 만료로 본다(모를 때는 닫는다 · 두 번째 겹)', JSON.stringify(r.r).slice(0, 80));
+}
+
 /* ── 예외 단계 왕복 — 취소·노쇼·미계약으로 뺐다가 «정상으로 되돌리기» ──
    의도상 여기도 갇히면 안 된다. 실무에서 가장 잦은 오처리가 «잘못 취소»이고,
    그때 되돌릴 길이 없으면 고객 하나가 통째로 못 쓰게 된다. */

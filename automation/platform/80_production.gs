@@ -711,7 +711,13 @@ function handleSaveProductionTrack(body) {
 var GUIDE_EXPIRE_DAYS = 30;
 function _guideExpired(weddingYmd) {
   var m = String(weddingYmd || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (!m) return false;
+  /* ★★[GUIDE_EXPIRE_FAILCLOSED 2026-08-18] 예식일이 없으면 «만료»로 본다(닫는 쪽으로).
+     종전엔 false(=열어 둠)였다. 그런데 되돌림으로 예식일이 지워지는 판이 있어
+     (미수납 되돌림 · KEEP_MONEY_BASIS 는 수납이 있을 때만 남긴다) 그 경우 이 링크가
+     **영영 만료되지 않은 채 두 분의 실명을 계속 보여 줬다**(실측 확인).
+     날짜를 모르면 «아직 유효하다»고 말할 근거가 없다 — 개인정보는 모를 때 닫는다.
+     ★정상 고객은 계약 시점에 예식일이 잠기므로(adminSendContract) 이 분기에 오지 않는다. */
+  if (!m) return true;
   if (typeof _dayDiff === 'function' && typeof _kstYmd === 'function') {   // 코드베이스 표준 KST 판정(admin.gs 헬퍼) — 프로젝트 타임존 설정과 무관하게 정확
     var _dd = _dayDiff(String(weddingYmd).trim(), _kstYmd(new Date()));   // 예식까지 남은 일수(음수=지남)
     return _dd != null && _dd < -GUIDE_EXPIRE_DAYS;
