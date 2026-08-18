@@ -86,19 +86,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
    ★자동으로 뜨는 팝업이 아니다 — 재생을 «누른 사람에게만», 재생 중에만 선다. */
 .play-bar{
   position:fixed;left:0;right:0;bottom:0;z-index:60;
-  display:none;align-items:center;justify-content:space-between;gap:14px;
+  display:none;flex-direction:column;gap:6px;
   padding:12px 22px calc(12px + env(safe-area-inset-bottom));
   background:var(--bg);border-top:1px solid var(--hairline);
   transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)
 }
 .play-bar.on{display:flex}
+/* 첫 줄 = 지금 무엇을 하는지 + 멈춤. 힌트는 아래 «전체 폭» 한 줄로 내린다 —
+   버튼 옆에 두면 글자칸이 244px(390px 기준)뿐이라 어떤 문구를 넣어도 두 줄로 접힌다(실측). */
+.play-bar-row{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .play-bar.up{transform:translateY(0)}
-.play-bar-in{display:flex;flex-direction:column;gap:3px;min-width:0}
 .play-bar-t{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--sub);letter-spacing:0.02em}
 /* ★[SILENT_HINT] 소리가 안 들릴 때 가장 흔한 원인은 «아이폰 측면 무음 스위치»다.
    iOS 는 new Audio() 로 만든 소리를 벨소리 스위치로 함께 음소거한다 — 화면은 「멈춤」(재생 중)인데
    소리만 안 나는 상태가 되고, 사람은 «고장»으로 읽는다.
-   ★처음부터 띄우지 않는다. 잘 들리는 분께는 잔소리다. 5초쯤 지나 «이상하다» 싶을 때 나타난다. */
+   ★처음부터 띄우지 않는다. 잘 들리는 분께는 잔소리다. 5초쯤 지나 «이상하다» 싶을 때 나타난다.
+   ★한 줄로 유지할 것 — 두 줄이 되면 안내가 아니라 «경고문»처럼 무거워진다(사용자 지적).
+     실측 글자칸: 버튼 옆에 두면 244px(390px 기준)뿐이라 어떤 문구도 접힌다 → 전체 폭 줄로 내려
+     320px 에서도 276px 을 확보했다. 25자까지 한 줄이다. 문구를 늘리려면 이 수치부터 다시 잴 것. */
 .play-bar-hint{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);letter-spacing:0.02em;display:none}
 .play-bar.hint .play-bar-hint{display:block}
 .play-bar-stop{
@@ -113,6 +118,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
    실측: 끝까지 내리면 「상호 모먼트에디트 · 대표 …」 사업자 정보 줄이 완전히 덮였다(법적 표시 의무가 있는 줄).
    ★여백은 문서 «맨 아래»에 붙으므로 읽던 자리가 밀리지 않는다(스크롤 위치는 그대로 유지된다). */
 body.listening{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+/* ★인쇄에는 막대 «자리»도 남기지 않는다 — 막대만 감췄더니 body 의 70px 이 그대로 찍혀
+   편지 끝에 빈 띠가 남았다(실측). ★반드시 위 규칙 «뒤»에 둘 것 — 특이도가 같아 순서가 승부를 가른다
+   (앞에 뒀다가 밀려서 70px 이 그대로였다). */
+@media print{body.listening{padding-bottom:0}}
 
 /* Letter */
 main{max-width:var(--max);margin:0 auto;padding:8px 28px 72px}
@@ -293,11 +302,14 @@ nav .nav-links a, .nav-links a, .f-links a {
 
 <!-- [LISTEN_BAR] 재생 중에만 서는 멈춤 줄 · aria-live 로 낭독기에도 상태가 전해진다 -->
 <div class="play-bar" id="playBar" role="status" aria-live="polite">
-  <span class="play-bar-in">
-    <span class="play-bar-t" id="playBarT">편지를 읽어 드리는 중이에요</span>
-    <span class="play-bar-hint">소리가 안 들리면 볼륨과 옆면 무음 스위치를 확인해 주세요</span>
+  <span class="play-bar-row">
+    <!-- ★한 줄로 유지 — 320px 의 글자칸은 174px 이라 13자짜리 옛 문구는 접혔다(실측).
+         9자까지 한 줄이다. 「중」을 버리고 높임말을 지켰다 — 막대는 «재생 중에만» 서므로 진행 중이라는 뜻은
+         막대의 존재가 이미 말한다. 어른 독자에겐 그쪽이 남는 값이 크다. -->
+    <span class="play-bar-t" id="playBarT">편지를 읽어 드려요</span>
+    <button type="button" class="play-bar-stop" id="playBarStop">멈춤</button>
   </span>
-  <button type="button" class="play-bar-stop" id="playBarStop">멈춤</button>
+  <span class="play-bar-hint">안 들리면 볼륨과 무음 스위치를 확인해 주세요</span>
 </div>
 
 <main>

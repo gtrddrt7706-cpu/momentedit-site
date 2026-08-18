@@ -4823,7 +4823,13 @@ chk "de.classList.contains('me-restoring') || window.__meTCLock" index.html 1
 #   iOS 는 new Audio() 소리를 벨소리 스위치로 함께 음소거한다.
 #   ★처음부터 띄우지 않는다 — 잘 들리는 분께는 잔소리다. 5초쯤 지나 「이상하다」 싶을 때 나타난다.
 chk 'SILENT_HINT' parents.html 2
-chk '옆면 무음 스위치를 확인해 주세요' parents.html 1
+chk '안 들리면 볼륨과 무음 스위치를 확인해 주세요' parents.html 1
+chk 'play-bar-row' parents.html 2   # 힌트는 버튼 옆이 아니라 «전체 폭» 줄 — 옆에 두면 320px 에서 접힌다(실측)
+chk '편지를 읽어 드려요' parents.html 1   # 320px 글자칸 174px · 9자까지 한 줄(13자는 접힌다)
+nochk '편지를 읽어 드리는 중이에요' parents.html
+# ★인쇄에는 막대 «자리»도 남기지 않는다 — 막대만 감췄더니 body 의 70px 이 그대로 찍혀 빈 띠가 남았다.
+#   ★반드시 base 규칙 뒤에 둘 것 — 특이도가 같아 순서가 승부를 가른다(앞에 뒀다가 밀렸다·실측).
+chk '@media print{body.listening{padding-bottom:0}}' parents.html 1
 chk "bar.classList.add('hint'); },5000)" parents.html 1
 
 # ★★[LETTER_AUDIO_DIVERGED 2026-08-18 사용자가 새 녹음을 직접 주심] 두 경로가 더 이상 같은 파일이 아니다.
