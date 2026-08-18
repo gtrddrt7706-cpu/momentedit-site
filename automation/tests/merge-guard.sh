@@ -1345,10 +1345,16 @@ chk 'XM_MIRROR_9KEY' scripts/check-ritual-mirror.js 1
 chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <-> 원천 문안 전수 대조
 # [TOAST_SCENE 2026-08-09] 옛 마커('두 사람이 함께 나이프를 잡습니다')는 장면화로 사라졌다.
 # 대신 **장면을 세우는 세 문장**을 지킨다 — 하나라도 빠지면 그 자리가 다시 매끄럽지 않아진다.
-#   ①카운트(케이크·둘 다 2벌) — 방 전체가 같은 순간을 보는 신호. 없으면 커팅이 언제인지 아무도 모른다
+#   ①★[COUNT_RETIRED 2026-08-17 사용자 지시] 카운트는 **폐지했다.**
+#     *"하나둘셋도그렇고 행동을 너무 쪼개서 강요하는느낌도 별로 안좋아보여"*
+#     *"이런 사진관련 하나둘셋 이런건 사진작가가 하는게 맞는거같아"*
+#     ★전에는 「없으면 커팅이 언제인지 아무도 모른다」를 근거로 지켰다. 그 자리를 **작가가 맡는다**로
+#       옮긴 것이지 신호를 없앤 것이 아니다. 안내 음성이 세지 않을 뿐이다.
+#     ★되살리지 말 것 — 카운트를 다시 넣으면 같은 지적이 세 번째로 온다.
+#     대신 **장면을 세우는 문장**이 남았는지 지킨다(무음이 되지 않게).
 #   ②시연 문장(축배·둘 다 2벌) — 하객이 답할 말. 없으면 선창에 돌아오는 소리가 없다(성혼 선언과 같은 금지)
 #   ③사이 문안 — 나이프를 걷고 잔을 쥐여 드리는 15~20초. 없으면 통째로 무음이다
-chk '제가 셋을 세면' assets/ritual-data.js 2
+chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 4   # [COUNT_RETIRED] 카운트를 대신하는 장면 문장
 chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
 chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
 chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
@@ -3394,6 +3400,42 @@ chk '소리를 하나도 못 심었다' scripts/build-redub-pick.mjs 1   # LISTE
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
 chk 'GUESS_TIE' scripts/check-audio-sents.mjs 1
+# ── ★★[COPY_BATCH] 문안 교체안을 원천에 한 번에 넣는다 (2026-08-17 사용자 *"추천대로 우선 진행하고"*) ──
+# ★★같은 문장이 **여러 사본**에 흩어져 있다. 원천만 고치면 사본이 옛말을 하고, 그 차이는
+#   고객 화면에서만 드러난다. 실측으로 사본이 넷이나 나왔다:
+#     ①order-preview.html  빌더 인라인 사본 50개 (merge-guard 가 drift 17건으로 잡았다)
+#     ②scripts/build-dubbing-script.mjs  EXTRA 문안 사본 (cue 의 EXTRA_MIRROR 가 6건으로 잡았다)
+#     ③docs/plans/대본개정/21_B_제안.md  ★어조(TONE)의 **진짜 원천** — ritual-data.js 쪽이 생성물이다
+#       (실측 사고: ritual-data 의 TONE 을 고쳤다가 tone 생성기를 돌리자 4곳 → 2곳으로 되돌아갔다)
+#     ④assets/ritual-cue.js  EXTRA 맵
+#   ★그래서 사본에 **옮겨 적지 않는다** — 같은 표를 사본에도 한 번 더 돌린다(--mirror).
+chk 'COPY_BATCH' scripts/apply-copy-batch.mjs 1
+chk 'MIRROR_P' scripts/apply-copy-batch.mjs 1
+chk 'MIRROR_S' scripts/apply-copy-batch.mjs 1
+chk 'MIRROR_B' scripts/apply-copy-batch.mjs 1
+# ★★[TEXT_WITH_SOUND] 문안과 소리는 같은 커밋에서 바꾼다. 글만 먼저 넣으면 그 사이 내내
+#   화면과 스피커가 다른 말을 한다. check-text-audio 가 붉은 채로 있는 것이 **정상**이고,
+#   그 붉음이 곧 「소리 받기 전엔 병합하지 마라」는 자물쇠다. 초록으로 만들려고 검사를 고치지 말 것.
+chk 'TEXT_WITH_SOUND' scripts/apply-copy-batch.mjs 2
+# ★★[AI고지_G1-4 보호] 문안을 다듬다가 **AI 음성 고지를 지울 뻔했다.**
+#   1분 전 안내에서 「미리 준비한 안내 음성으로 진행합니다」를 빼자 merge-guard 가 즉시 잡았다.
+#   사용자가 지적한 것은 «두 문장이 따로 논다»였지 «고지를 빼라»가 아니다. 순서만 바꿔 이었다.
+chk 'AI고지_G1-4' scripts/apply-copy-batch.mjs 1
+# ★[PHOTO_POSE_RETIRED 2026-08-17] 촬영 연출 두 자리 폐지 — 「둘러싸기」·「하나, 둘, 셋」.
+#   ★줄을 **지우지 않고** off:1 로 끈다 — 지우면 뒤 클립 번호가 두 칸씩 밀려 이미 녹음된 mp3 가
+#     남의 자리에 앉는다(2026-08-08 에 fx-count 가 78→83 으로 밀린 그 사고). 실측으로 84→82 로 줄어드는 걸 확인하고 되돌렸다.
+chk 'PHOTO_POSE_RETIRED' assets/ritual-cue.js 1
+chk 'PHOTO_POSE_RETIRED' assets/ritual-data.js 2
+chk 'PHOTO_POSE_RETIRED' console.html 1
+chk "'fx-surround': 1, 'fx-count': 1," assets/ritual-cue.js 1
+# ★[WELCOME_TONE 2026-08-17] 「말주변이 없어도 된다」를 **대사로 말하지 않는다.**
+#   의도는 옳았지만 실물로 들으면 성의 없어 들린다. 부담을 더는 일은 «길이»가 한다.
+chk 'WELCOME_TONE' "docs/plans/식순연구/배역_예시_대사.txt" 1
+# ★★[PERF_CANON_2 2026-08-17] N8 표준형에서 호명(「신랑 신부,」)을 뺐다 — 규칙을 없앤 게 아니라 옮겼다.
+#   다섯 자리가 여전히 같은 한 문장을 쓰는지 전수 대조한다. 하나만 옛 꼴이면 붉는다.
+chk 'PERF_CANON_2' scripts/check-narr-rule.mjs 1
+chk "PERF_CANON = '이제 두 사람은 부부입니다'" scripts/check-narr-rule.mjs 1
+
 # ── ★★[DROP_GUARD] 「버림」으로 찍어도 비울 수 없는 자리 (2026-08-17 사용자 지시) ──
 # *"버림으로 체크해도 이 부분의 안내가 없으면 안 된다고 판단이 들면 너가 같이 적은 이유를 보고
 #   적절한 문장으로 변경 적용하자"*
