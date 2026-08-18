@@ -4581,3 +4581,6 @@ chk '건너뛴 단계 없이 밟고 갔다' scripts/audit/rollback-roundtrip.mjs
 # ★★[ROLLBACK_FUZZ 2026-08-18] 무작위 순서 + 불변식 검사. 정해진 길만 걷는 검사들이 못 보는 자리를 본다.
 chk 'ROLLBACK_FUZZ' scripts/audit/rollback-fuzz.mjs 1
 chk 'FUZZ_COVER' scripts/audit/rollback-fuzz.mjs 1
+# ★★[REVIEW_DOOR_AUDIT 2026-08-18] '후기' 문 하나만 초 단위로 확인하는 검사(stage-reach 는 10분이라 자주 못 돈다).
+chk 'REVIEW_DOOR_AUDIT' scripts/audit/review-door.mjs 1
+chk '결과물전달 → 후기 (고객 제출이 문이다)' scripts/audit/review-door.mjs 1
