@@ -1585,7 +1585,9 @@ chk 'GUIDE_DRINK' guide.html 4                               # 내 자리 음료
 chk 'DEMO_MAP' guide.html 2                                  # 표본 지도 도식 · 지명·도로명 없는 추상 도식이어야 한다
 chk 'PS_QUIET' guide.html 1                                  # 사진 올리기 = 채움·진사 없는 헤어라인 버튼 · 골드 채움으로 되돌리지 말 것
 chk 'LIVE_DEMO' live.html 1                                  # ?e=test-couple = 프리뷰(GAS 무호출) · 빼면 갤러리 온라인판 Enter가 '예식을 찾을 수 없습니다'로 떨어진다
-chk 'MOCKUP_TERSE' index.html 2                              # 목업 4단 설명 30자 이내 1줄 규칙 · 옆 폰이 이미 화면을 보여주므로 글이 한 번 더 묘사하면 중복이다
+chk 'MOCKUP_TERSE' index.html 1                              # 목업 설명 30자 이내 1줄 규칙 · 옆 폰이 이미 화면을 보여주므로 글이 한 번 더 묘사하면 중복이다
+#   ★[GA_TABS 2026-08-18] 2→1 — 마커 하나가 손목업 마크업 안에 있었고 그 마크업이 실물 iframe 으로 대체됐다.
+#     규칙 자체는 살아 있다(목록 문구가 JS 로 옮겨갔을 뿐).
 chk 'VENUE_MAP_DEMO' shared/hydrate.js 2                     # 표본만 지도 도식 · 실물은 '장소는 본 계약 후'를 그대로 둔다(본계약 전이라 정확 주소가 없는 건 사실이다) · 하객에게 가짜 지도 금지
 chk 'xMidYMid slice' shared/hydrate.js 1                     # 지도 도식 slice · 08종 박스 비율이 제각각이라 이걸 빼면 디자인마다 찌그러진다 (주석이 아니라 SVG 속성을 직접 지킨다)
 chk 'CTA_EYEBROW' shared/hydrate.js 1                        # Guest Guide 라벨 opacity .68 = 5.0:1 · .55로 되돌리면 3.1:1로 AA 미달, 고정 hex로 바꾸면 어두운 디자인에서 안 보인다
@@ -1735,7 +1737,10 @@ chk '[guestName, relation, message]' automation/guest-letter-webhook.gs 1  # 금
 chk 'DM_FOOT_SIGN' automation/guest-letter-webhook.gs 1  # ★실제 하객이 보내고 두 분이 받는 편지 메일 — 홈 예시만 고치면 진짜 편지는 옛 모습으로 남는다(2026-08-03 사용자 확인)
 chk 'DM_FOOT_SIGN' automation/form-to-couple.gs 2        # 청첩장 전달 메일 2종(안내·재제출)
 chk 'DM_FOOT_SIGN' automation/consultation/consultation-booking.gs 1  # 상담 메일(흰 지면) — 금색을 글자로 쓰면 대비 2.3                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
-chk 'MOCK_SAMPLE_SYNC' index.html 1                     # 홈 목업 표본일 = 청첩장 SAMPLE(2026-10-24 토 14:00) · 어긋나면 홈과 미리보기가 다른 예식일을 보여준다
+# ★[GA_TABS 2026-08-18] 'MOCK_SAMPLE_SYNC' 마커 폐지 — **구조적으로 불필요해졌다.**
+#   이 마커는 손으로 베낀 목업의 표본일이 청첩장 SAMPLE 과 어긋나는 것을 막던 것이다.
+#   이제 홈 목업이 실물 live.html?e=test-couple 을 그대로 띄우므로 두 날짜가 갈릴 자리가 아예 없다.
+#   ★손목업을 되살리면 이 마커도 함께 되살릴 것(그때 다시 갈릴 수 있으므로).
 
 # ── 미리듣기 배경 음악 [PREVIEW_BED] (2026-08-02 · 사용자 제안 "오디오북처럼 BGM까지 나오게")
 # 엔진은 이미 음악을 지시하고 있었다(post music) · 없던 것은 소리와 '그 곡이 무엇인지 말하는 줄'뿐이다
@@ -4435,3 +4440,25 @@ chk 'GOLD_BAR_OFF' mypage.html 1
 chk 'GOLD_BAR_OFF' assets/guest-photo-modal.js 1
 nochk 'border-left:2px solid var(--gold)' mypage.html
 nochk "gpm-gains{border-left" assets/guest-photo-modal.js
+
+# ★★★[GA_TABS 2026-08-18 사용자 지시] 하객이 만나는 화면 = 실물 두 판(온라인 라이브 · 오프라인 하객안내)을 탭으로.
+#   손으로 베낀 목업(.mock-slide 4장)을 실물 iframe 으로 바꿨다 — [GV_REAL] 이 이미 정한 원칙이다
+#   ("갤러리는 실물을 src로 띄운다, 사본 금지. 실물이 바뀌면 미리보기도 저절로 같다").
+#   ★src 는 화면에 들어올 때만 넣는다(첫 로드 비용 0) · 데모 경로는 GAS 를 부르지 않는다(LIVE_DEMO·GUIDE_DEMO).
+#   ★iframe 에 tabindex="-1" + inert — 폰 그림 안에 포커스 가능 요소 0개라는 전제를 지킨다(실측 통과).
+#   ★live.html 의 html.me-inframe .reveal{opacity:1} 을 지우지 말 것 — 없으면 미리보기가 통째로 백지다.
+chk 'GA_TABS' index.html 3
+chk 'GA_TABS' live.html 1
+chk 'id="gaFrame"' index.html 1
+chk 'inert' index.html 1
+chk 'live.html?e=test-couple' index.html 1
+chk 'guide.html?g=demo' index.html 1
+chk 'html.me-inframe .reveal{opacity:1;transform:none}' live.html 1
+nochk "querySelectorAll('.live-mockup-wrap .mock-slide')" index.html   # 옛 슬라이드 스크립트 복원 금지
+# ★★[LIVE_DEMOTE 2026-08-18 사용자 지시 "라이브홍보를 격하 · 선택 안하는 고객도 손해보는 느낌이 없게"]
+#   섹션 축을 '디지털 참석'에서 '하객이 만나는 화면'으로 올렸다. 라이브는 그중 하나다.
+#   ★'고르지 않으셔도 손해 없다'는 **섹션 머리**에 있어야 한다 — 탭 각주에 있으면 그 탭을 연 사람만 본다.
+chk 'LIVE_DEMOTE' index.html 2
+chk 'live-optional' index.html 2
+chk '고르지 않으셔도 예식 영상은 추가금 없이' index.html 1
+nochk 'SELECTIVE PRESENCE' index.html
