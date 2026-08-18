@@ -4691,3 +4691,45 @@ chk 'DATE_ONE_STYLE' automation/admin/admin.gs 2
 chk '_ymdDot' automation/admin/admin.gs 2
 chk '한 문장 안에서 날짜 표기를 섞지 않는다' scripts/audit/rollback-slot.mjs 1
 chk '되돌린 뒤에도 자리가 이 부부 것이다' scripts/audit/rollback-slot.mjs 1
+
+# ★★[GA_NO_SNAP 2026-08-18 사용자 지적 "온라인에서 오프라인 버튼 누르면 목업 화면이 순간적으로 빨라지면서 부자연스럽게"]
+#   탭을 바꾸면 새 문서가 맨 위로 한 프레임 그려졌다가 첫 화면 자리로 «순간이동»했다(실측 201px).
+#   오프라인 첫 화면(좌석)이 문서 맨 위가 아니라 머리글 아래에 있어서다.
+#   처방 둘 — ①자리를 잡기 전까지 감춘다(.ready 없으면 opacity 0) ②정말로 «즉시» 옮긴다.
+#   ★transition 은 .ready 에만 둔다. 양쪽에 두면 감추는 0.3초 동안 새 문서가 반투명하게 비쳐
+#     점프가 그대로 보였다(실측: 그 상태에서도 201px).
+#   ★behavior:'auto' 는 «즉시»가 아니다 — 안쪽 문서의 scroll-behavior 를 따르라는 뜻이라
+#     live.html(smooth)에서는 0→51px 램프로 애니메이션됐다. CSS 를 잠깐 꺼서 옮긴다.
+#   ★load 에만 기대지 않는다 — 바깥 글꼴이 막히면 load 가 영영 안 와 폰이 «영영 투명»해진다. 1.2초 뒤엔 나타난다.
+chk 'GA_NO_SNAP' index.html 3
+chk 'ga-frame.ready { opacity: 1; transition' index.html 1
+chk 'function arm()' index.html 1
+chk 'setTimeout(reveal, 1200)' index.html 1
+chk "de.style.scrollBehavior = 'auto'" index.html 1
+nochk "behavior: smooth === false ? 'auto' : 'smooth'" index.html
+
+# ★★[ENV_DEMO_OPEN 2026-08-18 사용자 제안 "계좌 신부쪽이 열려있는 부분으로 등록해놓으면"]
+#   홈 목업의 봉투 화면은 양쪽 다 접혀 있어 «무엇을 하는 곳인지» 보이지 않았다.
+#   목업 안(me-inframe)에서만 신부 쪽을 펼친다. ★실제 하객 페이지는 접힌 채여야 한다 —
+#   봉투는 원하는 분만 펼치는 것이 예의다. 이 열기가 me-inframe 밖으로 나가면 안 된다.
+chk 'ENV_DEMO_OPEN' live.html 1
+chk "classList.contains('me-inframe')" live.html 1
+chk 'ENV_DEMO_OPEN' index.html 1
+chk '이름을 펼친 분에게만 계좌가 보입니다' index.html 1   # 화면이 열려 있으니 설명도 같은 말을 해야 한다
+nochk '아코디언 안에 접혀 있어 필요한 분만' index.html
+
+# ★★[CARD_FOOT_25 2026-08-18 사용자 지적 "여기 문구 이상한 위치에서 확인되는데"]
+#   「25 Guests」 카드의 꼬리말이 divider 를 건너 「Our Perspective」 블록의 첫 줄로 들어가 있었다.
+#   설명하는 카드와 같은 칸, divider 앞에 둔다. divider 뒤로 다시 옮기지 말 것.
+chk 'CARD_FOOT_25' index.html 1
+# ★[ORPHAN_COPY] 같은 사고를 기계가 잡게 — 「본문이 제목보다 앞서는 블록」을 6쪽에서 찾는다.
+#   정렬 차이로 찾지 않는다(left/start 가 같은 값이라 오탐 3건). 적대 검증: 고치기 전 파일로 되돌리면 1건을 집어낸다.
+chk 'ORPHAN_COPY' scripts/audit/orphan-copy.mjs 1
+chk '제목이 본문보다 앞선다' scripts/audit/orphan-copy.mjs 1
+chk 'cantLook' scripts/audit/orphan-copy.mjs 1
+node scripts/audit/orphan-copy.mjs >/dev/null 2>&1; _orc=$?
+case "$_orc" in
+  0) echo "ok orphan-copy (문구 제자리)" ;;
+  2) echo "· orphan-copy 안 쟀다(브라우저·서버 없는 자리) — 푸시 전에 손으로: node scripts/audit/orphan-copy.mjs" ;;
+  *) echo "FAIL orphan-copy — node scripts/audit/orphan-copy.mjs"; fail=1 ;;
+esac
