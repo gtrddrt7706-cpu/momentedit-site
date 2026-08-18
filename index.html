@@ -3523,7 +3523,12 @@ footer {
 /* 실물 페이지를 폰 화면 크기로 줄여 넣는다 — 배율은 JS가 실측(.phone-screen 폭 ÷ 390)해서 건다.
    ★하드코딩하지 않는 이유: 폭이 브레이크포인트마다 달라 상수로 두면 한쪽에서 어긋난다. */
 .ga-frame {
+  /* ★.phone-screen 은 flex 컨테이너다 — flex 아이템이면 지정한 height 가 무시되고 상자 높이로 눌린다.
+     실측: height 825px 를 줬는데 contentWindow.innerHeight 가 524 였다. 그 상태로 0.63배 축소하니
+     실제로 그려진 높이가 333px 뿐이라 **폰 아래가 191px 비어 흰 띠**로 보였다(사용자 실기기 지적).
+     flex 로 눌리지 않게 못박는다. 이걸 빼면 흰 띠가 그대로 돌아온다. */
   width: 390px; border: 0; display: block; background: var(--bg);
+  flex: none; align-self: flex-start;
   transform-origin: top left; pointer-events: none;
 }
 .ga-foot {
