@@ -93,7 +93,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
 }
 .play-bar.on{display:flex}
 .play-bar.up{transform:translateY(0)}
+.play-bar-in{display:flex;flex-direction:column;gap:3px;min-width:0}
 .play-bar-t{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--sub);letter-spacing:0.02em}
+/* ★[SILENT_HINT] 소리가 안 들릴 때 가장 흔한 원인은 «아이폰 측면 무음 스위치»다.
+   iOS 는 new Audio() 로 만든 소리를 벨소리 스위치로 함께 음소거한다 — 화면은 「멈춤」(재생 중)인데
+   소리만 안 나는 상태가 되고, 사람은 «고장»으로 읽는다.
+   ★처음부터 띄우지 않는다. 잘 들리는 분께는 잔소리다. 5초쯤 지나 «이상하다» 싶을 때 나타난다. */
+.play-bar-hint{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);letter-spacing:0.02em;display:none}
+.play-bar.hint .play-bar-hint{display:block}
 .play-bar-stop{
   font-family:var(--serif-ko);font-size:14px;font-weight:400;letter-spacing:0.08em;
   color:#F5F1E9;background:var(--seal);border:none;border-radius:4px;
@@ -286,7 +293,10 @@ nav .nav-links a, .nav-links a, .f-links a {
 
 <!-- [LISTEN_BAR] 재생 중에만 서는 멈춤 줄 · aria-live 로 낭독기에도 상태가 전해진다 -->
 <div class="play-bar" id="playBar" role="status" aria-live="polite">
-  <span class="play-bar-t" id="playBarT">편지를 읽어 드리는 중이에요</span>
+  <span class="play-bar-in">
+    <span class="play-bar-t" id="playBarT">편지를 읽어 드리는 중이에요</span>
+    <span class="play-bar-hint">소리가 안 들리면 볼륨과 옆면 무음 스위치를 확인해 주세요</span>
+  </span>
   <button type="button" class="play-bar-stop" id="playBarStop">멈춤</button>
 </div>
 
@@ -418,14 +428,17 @@ nav .nav-links a, .nav-links a, .f-links a {
 
     /* [LISTEN_BAR] 재생 상태를 «한 곳»에서만 바꾼다 — 버튼 라벨 · 멈춤 줄 · 화면 잠금이 늘 같은 말을 하게.
        종전엔 label() 을 일곱 자리에서 따로 불렀다. 거기에 줄과 잠금까지 각자 붙이면 셋이 어긋난다. */
-    var bar=document.getElementById('playBar');
+    var bar=document.getElementById('playBar'), hintT=null;
     var setPlaying=function(on){
       label(on?'멈춤':'듣기');
       if(on)wakeOn(); else wakeOff();
       document.body.classList.toggle('listening',!!on);   // 막대 높이만큼 아래를 비워 준다
       if(!bar)return;
-      if(on){ bar.classList.add('on'); requestAnimationFrame(function(){ bar.classList.add('up'); }); }
-      else{ bar.classList.remove('up'); bar.classList.remove('on'); }
+      clearTimeout(hintT);
+      if(on){ bar.classList.add('on'); requestAnimationFrame(function(){ bar.classList.add('up'); });
+        hintT=setTimeout(function(){ bar.classList.add('hint'); },5000);   // [SILENT_HINT] 5초 뒤에만
+      }
+      else{ bar.classList.remove('up'); bar.classList.remove('on'); bar.classList.remove('hint'); }
     };
     var koVoice=function(){
       try{

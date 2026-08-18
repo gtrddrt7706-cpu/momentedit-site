@@ -4806,3 +4806,22 @@ chk 'barStop.addEventListener' parents.html 1
 chk 'body.listening{padding-bottom' parents.html 1
 chk 'var setPlaying' parents.html 1
 nochk "label('멈춤')" parents.html      # 상태는 setPlaying 한 곳에서만 바꾼다(라벨·막대·잠금이 갈라지지 않게)
+
+# ★★[OVERLAY_CANVAS 2026-08-18 사용자 지적 "어떻게 오는지 보기 클릭하면 아랫부분이 진사색상으로"]
+#   최상단 캔버스(html·body 배경)를 칠하는 paint() 가 scrollY 로 색을 정한다.
+#   오버레이가 body{position:fixed} 로 잠그면 scrollY 가 0 으로 무너져 「지금 히어로 맨 위」로 오해하고
+#   진사를 칠한다. 화면 크림은 .page-bg 가 칠하므로, 그 상자를 벗어난 자리에서 진사가 드러났다.
+#   ★종전 예외 목록은 «이름»(menu-open · me-restoring) 뿐이라 뒤에 생긴 팝업이 그대로 뚫렸다.
+#     이름 목록은 새 오버레이가 생길 때마다 조용히 낡는다 — 그래서 «잠금이 걸렸나»(__meTCLock)로 센다.
+#   실측 4상태: 히어로 진사 · 본문 크림 · 팝업 크림(전엔 진사) · 닫으면 크림 복귀 + 스크롤 10943 복원.
+chk 'OVERLAY_CANVAS' index.html 1
+chk "de.classList.contains('me-restoring') || window.__meTCLock" index.html 1
+
+# ★★[SILENT_HINT 2026-08-18 사용자 신고 "어른께드리안내 소리가 안나오는데?"]
+#   대조 결과 코드·파일·배포는 정상이었다 — 변경 전/후 모두 play=1·오류 0, mp3 는 170.9초·진폭 0.82(무음 아님).
+#   남는 원인은 기기 쪽이고, 이 증상(화면은 「멈춤」인데 소리만 없음)의 1순위는 아이폰 옆면 무음 스위치다.
+#   iOS 는 new Audio() 소리를 벨소리 스위치로 함께 음소거한다.
+#   ★처음부터 띄우지 않는다 — 잘 들리는 분께는 잔소리다. 5초쯤 지나 「이상하다」 싶을 때 나타난다.
+chk 'SILENT_HINT' parents.html 2
+chk '옆면 무음 스위치를 확인해 주세요' parents.html 1
+chk "bar.classList.add('hint'); },5000)" parents.html 1
