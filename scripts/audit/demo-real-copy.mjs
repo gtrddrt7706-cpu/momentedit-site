@@ -57,15 +57,15 @@ catch (e) {
 await page.waitForTimeout(700);
 
 const r = await page.evaluate(() => {
-  const out = { real: null, done: null, shown: null, stat: null, btn: null };
+  const out = { real: null, done: null, sub: null, hasNote: null, statShown: null, btn: null };
   /* 실제 화면을 만드는 바로 그 함수를 부른다 — 사본이 아니라 원본이다 */
   try { out.real = window.guestUploadHtml ? guestUploadHtml() : null; } catch (e) { out.real = 'ERR:' + e.message; }
   try { out.done = window.gpDoneMsg ? gpDoneMsg(12) : null; } catch (e) { out.done = 'ERR:' + e.message; }
-  const note = document.getElementById('gpNote');
+  try { out.sub = typeof GP_DONE_SUB === 'string' ? GP_DONE_SUB : null; } catch (e) { out.sub = null; }
   const stat = document.getElementById('gpStat');
   const btn = document.getElementById('gpPick');
-  out.shown = note ? note.innerHTML : null;
-  out.stat = stat ? stat.innerHTML : null;
+  out.hasNote = !!document.getElementById('gpNote');
+  out.statShown = !!(stat && getComputedStyle(stat).display !== 'none' && stat.textContent.trim());
   out.btn = btn ? btn.textContent.trim() : null;
   return out;
 });
@@ -74,30 +74,30 @@ if (!r.real || String(r.real).startsWith('ERR:')) no('guestUploadHtml 을 못 �
 if (!r.done || String(r.done).startsWith('ERR:')) no('gpDoneMsg 를 못 불렀다 — ' + r.done);
 
 if (r.real && !String(r.real).startsWith('ERR:')) {
-  /* ① 안내 한 줄 — 실제 함수가 만든 것에서 그 자리만 떼어 표본과 맞춘다.
-     ★오늘은 표본이 이 함수를 그대로 그리므로 «항상 같다». 그래도 둔다 —
-       미래에 누가 표본용으로 문구를 베껴 넣으면 그 순간부터 이 줄이 진짜 검사가 된다.
-       (실측: 결과 줄을 베껴 두었더니 한쪽만 고친 순간 바로 걸렸다) */
-  const m = /id="gpNote">([\s\S]*?)<\/div>/.exec(r.real);
-  if (!m) no('실제 화면에서 안내 줄(gpNote)을 못 찾았다 — 검사가 낡았다');
-  else if (r.shown === null) no('표본에 안내 줄이 없다');
-  else if (plain(m[1]) !== plain(r.shown)) {
-    no('안내 줄이 다르다\n   실제: ' + plain(m[1]) + '\n   표본: ' + plain(r.shown));
-  } else ok('안내 줄이 실제와 같다 — ' + plain(r.shown));
-
-  /* ② 버튼 — 표본은 '올린 뒤' 상태를 보여주므로 실제의 «올린 뒤» 라벨과 같아야 한다 */
+  /* ① 표본 버튼 = 실제 «처음» 라벨.
+     ★2026-08-18 [GP_DONE_SHEET] 로 뒤집힌 검사다. 그전엔 표본이 「12장 전해졌어요」를 미리 띄웠으므로
+       «올린 뒤» 라벨이어야 했다. 이제는 미리 그리지 않으니 «처음» 라벨이 맞다.
+       검사가 옛 구조를 기대한 채 남아 있으면 그것부터 낡는다 — 구조를 바꿀 때 함께 뒤집는다. */
   const first = /id="gpPick">([^<]*)</.exec(r.real);
-  if (!first) no('실제 화면에서 버튼 라벨을 못 찾았다');
-  else if (r.btn === first[1]) {
-    no('표본 버튼이 «처음» 라벨이다(' + r.btn + ') — 표본은 12장을 이미 받은 화면이라 어긋난다');
-  } else ok('버튼이 올린 뒤 라벨이다 — ' + r.btn + ' (처음 라벨은 ' + first[1] + ')');
+  if (!first) no('실제 화면에서 버튼 라벨을 못 찾았다 — 검사가 낡았다');
+  else if (r.btn !== first[1]) no('표본 버튼이 실제 «처음» 라벨과 다르다 — 표본 ' + r.btn + ' / 실제 ' + first[1]);
+  else ok('버튼이 실제 처음 라벨과 같다 — ' + r.btn);
+
+  /* ② 버튼 아래 정적 안내 줄은 폐지했다(사용자 지시) — 되살아나면 잡는다.
+     그 말은 사라진 게 아니라 완료 시트의 본문(GP_DONE_SUB)으로 옮겼다. */
+  if (r.hasNote) no('폐지한 안내 줄(gpNote)이 되살아났다 — 완료 시트가 그 말을 맡는다');
+  else ok('버튼 아래 정적 안내 줄 없음 (시트가 맡는다)');
+
+  /* ③ 표본은 결과를 «미리 그리지» 않는다 — 누르면 시트가 답한다 */
+  if (r.statShown) no('표본이 결과 줄을 미리 띄우고 있다 — 눌러야 나오는 것이 맞다');
+  else ok('표본 결과 줄은 비어 있다');
 }
 
-/* ③ 다 올린 뒤 문구 — 실제와 «글자 그대로» 같아야 한다 */
+/* ④ 완료 문구는 한 곳에서 나온다 — 시트 제목·본문 둘 다 페이지 안의 값과 같아야 한다 */
 if (r.done && !String(r.done).startsWith('ERR:')) {
-  if (r.stat === null) no('표본에 결과 줄(gpStat)이 없다');
-  else if (r.stat !== r.done) no('결과 줄이 다르다\n   실제: ' + r.done + '\n   표본: ' + r.stat);
-  else ok('결과 줄이 실제와 같다 — ' + plain(r.stat));
+  if (!/\d+장 전해졌어요/.test(r.done)) no('완료 제목 꼴이 바뀌었다 — ' + r.done);
+  else if (!r.sub) no('완료 본문(GP_DONE_SUB)이 없다');
+  else ok('완료 문구가 한 곳에서 나온다 — 「' + r.done + '」 / 「' + r.sub + '」');
 }
 
 /* ④ 표본에만 있어도 되는 것은 «팝업» 하나뿐이다(사용자 지시: "버튼 눌렀을 때만 표본") */

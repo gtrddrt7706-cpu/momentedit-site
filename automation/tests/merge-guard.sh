@@ -4618,18 +4618,24 @@ chk "'안내공유토큰', '좌석공유토큰'\]), at: isSnap" automation/admin
 #   종전엔 열어 뒀고, 미수납 되돌림에선 예식일까지 지워져 영영 만료되지 않았다.
 chk 'GUIDE_EXPIRE_FAILCLOSED' automation/platform/80_production.gs 1
 chk '옛 링크로는 더 이상 안 열린다' scripts/audit/rollback-roundtrip.mjs 1
-# ★★[DEMO_PHOTO_DONE 2026-08-18 사용자 지적 "자동올리기 목업부분이 좀 약한데"] 표본 사진 칸에 **결과**를 띄운다.
-#   버튼 하나뿐이면 홈 목업에서 이 화면이 가장 허전하고, 이 기능의 핵심 장면('전해졌다')이 탭 뒤에 숨는다.
-#   좌석 검색을 미리 띄워 둔 것과 같은 판단이다(2026-08-01 "검색된 것도 보여줘야지").
-#   ★진행 중이 아니라 완료를 보여준다 — 멈춘 진행바는 고장으로 읽힌다.
-chk 'DEMO_PHOTO_DONE' guide.html 1
-# ★★[GP_DONE_MSG 2026-08-18 사용자 물음 "이 문구는 실제랑 같은거야?"] 다 올린 뒤 문구는 한 곳에서 만든다.
-#   표본이 실제보다 한 글자라도 후하게 말하면 그건 지키지 못할 약속이 된다 — 표본은 홍보에 그대로 쓰인다.
-#   ★손으로 베끼지 말 것. 표본도 gpDoneMsg 를 불러 쓴다(실제 finish() 와 같은 함수).
-chk 'GP_DONE_MSG' guide.html 3
+# ★★[GP_DONE_SHEET 2026-08-18 사용자 지시 "이 멘트는 굳이 필요한가 · 팝업으로 확인메세지 나오면 될거같은데
+#   저 문구 삭제하고 팝업으로 대체하고 표본 미리보기 부분에서도 삭제하자"]
+#   버튼 아래 늘 떠 있던 안내 세 줄을 뺐다. 하객은 «누르기 전»에 그 글을 읽지 않는다 —
+#   읽는 순간은 «올린 직후»이고 그때는 확인 한 마디면 된다. 그 말을 시트가 맡는다.
+#   ★진행(「3 / 5 올리는 중」)과 실패(「다시 시도」)는 그대로 인라인이다 —
+#     진행은 계속 보여야 하고 실패엔 누를 버튼이 붙는다. 시트로 옮기면 둘 다 망가진다.
+#     실측: 전부 성공 → 인라인 숨김·시트 「3장 전해졌어요」 / 일부 실패 → 인라인 유지·시트 안 뜸.
+#   ★시트는 페이지에 «하나»만 둔다(sheetEnsure/sheetOpen) — 표본 안내와 업로드 확인이 같은 것을 쓴다.
+#     구현이 둘이면 여닫는 규칙·초점 되돌리기·Esc 가 갈라진다.
+#   ★표본에 결과를 «미리 그리던» 자리(옛 DEMO_PHOTO_DONE)는 폐지했다. 되살리지 말 것 —
+#     그 판단(핵심을 상호작용 뒤에 숨기지 말자)은 시트가 이어받았다(누르면 답한다).
+chk 'GP_DONE_SHEET' guide.html 4
 chk 'function gpDoneMsg' guide.html 1
-chk 'gpDoneMsg(12)' guide.html 1
-nochk "gpS.innerHTML = '<b>12장" guide.html
+chk 'GP_DONE_SUB' guide.html 2
+chk 'function sheetEnsure' guide.html 1
+chk "sheetOpen('Photos', gpDoneMsg(done), sub, pick)" guide.html 1
+nochk 'id=\"gpNote\"' guide.html                 # 폐지한 정적 안내 줄 — 시트가 그 말을 맡는다
+nochk 'gpS.innerHTML' guide.html                  # 표본에 결과를 미리 그리던 자리
 # ★[DEMO_REAL_COPY] 그 약속을 브라우저에서 실제로 재는 자 — 실제 화면을 만드는 함수를 페이지 안에서
 #   직접 불러 표본이 그려 놓은 글과 맞춘다. 검사에 문구를 베껴 적지 않는다(베끼면 검사부터 낡는다).
 #   ★적대 검증 완료 — 표본 결과 줄만 한 글자 고쳐 보니 exit 1 로 걸렸다.

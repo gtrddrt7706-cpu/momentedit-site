@@ -466,13 +466,18 @@ function guestUploadHtml(){
     +'<div class="ps-t">오늘 담아 주신 사진, 여기로 모아 주세요</div>'
     +'<input type="file" id="gpFile" accept="image/*,video/*" multiple style="display:none">'
     +'<button type="button" class="ps-btn" id="gpPick">사진 올리기</button>'
-    +'<div class="privacy" id="gpNote">두 분에게 바로 전해져요 · <b>이름도 가입도 필요 없어요</b>.<br>여러 장 한 번에 고르셔도 돼요.</div>'
+    /* ★[GP_DONE_SHEET 2026-08-18 사용자 지시 "이 멘트는 굳이 필요한가 · 팝업으로 확인메세지 나오면 될거같은데"]
+       버튼 아래 늘 떠 있던 안내 세 줄을 뺐다. 하객은 «누르기 전»에 그 글을 읽지 않는다 —
+       읽는 순간은 «올린 직후»이고, 그때는 확인 한 마디면 된다. 그 말을 시트가 맡는다.
+       ★진행(「3 / 5 올리는 중」)과 실패(「다시 시도」)는 그대로 인라인(gpStat)이다 —
+         진행은 계속 보여야 하고, 실패엔 누를 버튼이 붙는다. 시트로 옮기면 둘 다 망가진다. */
     +'<div class="gp-stat" id="gpStat" style="display:none"></div></div>';
 }
-/* ★[GP_DONE_MSG 2026-08-18 사용자 물음 "이 문구는 실제랑 같은거야?"] 다 올린 뒤 문구는 **여기 한 곳**에서 만든다.
-   표본(renderDemo)도 이 함수를 부른다 — 손으로 베껴 두면 실제 문구를 고칠 때 표본만 옛말을 하게 된다.
-   그게 [GV_REAL]('실물을 띄운다 · 사본 금지')이 막으려는 바로 그 어긋남이다. */
-function gpDoneMsg(n){ return '<b>'+n+'장 전해졌어요</b> · 고맙습니다.'; }
+/* ★[GP_DONE_MSG] 다 올린 뒤 하는 말은 **여기 한 곳**에서 만든다. 베껴 두면 한쪽만 옛말을 하게 된다.
+   ★2026-08-18 [GP_DONE_SHEET] 로 자리를 옮겼다 — 인라인 한 줄이 아니라 시트의 제목·본문이 된다.
+     본문은 버튼 아래에서 뺀 안내(이름도 가입도 필요 없다)를 이어받는다. 지운 게 아니라 옮긴 것이다. */
+function gpDoneMsg(n){ return n+'장 전해졌어요'; }
+var GP_DONE_SUB='두 분께 바로 전해졌어요 · 이름도 가입도 필요 없어요.';
 function gpSay(msg, kind){
   var el=document.getElementById('gpStat'); if(!el) return;
   el.className='gp-stat'+(kind?' gp-'+kind:''); el.innerHTML=msg; el.style.display='';
@@ -517,7 +522,7 @@ function bindGuestUpload(){
   function finish(total, done, big, stopMsg){
     busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
     if(stopMsg){ gpSay(esc(stopMsg), 'err'); return; }
-    var msg=done?gpDoneMsg(done):'';   // [GP_DONE_MSG] 표본도 같은 함수를 쓴다
+    var msg=done?gpDoneMsg(done):'';   // 실패가 섞였을 때만 쓰인다 — 성공은 아래에서 시트로 간다
     if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지).';
     if(failed.length){
       msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
@@ -526,7 +531,13 @@ function bindGuestUpload(){
       if(rb) rb.addEventListener('click', function(){ var again=failed.slice(); send(again); });
       return;
     }
-    gpSay(msg||'보낼 사진이 없었어요.');
+    if(!done){ gpSay('보낼 사진이 없었어요.'); return; }
+    /* [GP_DONE_SHEET] 성공은 시트로 알린다 — 인라인 줄은 지워 «옛 결과»가 남지 않게 한다.
+       큰 파일을 걸렀으면 그 사실은 시트 본문에 함께 싣는다(따로 남기면 확인이 두 곳으로 갈라진다). */
+    var st=document.getElementById('gpStat'); if(st){ st.innerHTML=''; st.style.display='none'; }
+    var sub=GP_DONE_SUB;
+    if(big) sub='너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지). '+sub;
+    sheetOpen('Photos', gpDoneMsg(done), sub, pick);
   }
 }
 function photoShareHtml(url){
@@ -836,8 +847,12 @@ var DTIP={
   photo:{ k:'Sample', h:'표본이라 사진이 올라가지 않아요',
         d:'실제 예식에서는 누르는 순간 사진첩이 열리고, 고르신 사진이 두 분께 바로 전해져요 · 이름도 가입도 필요 없어요.' }
 };
-function bindDemoTip(){
-  if(document.getElementById('dtipOv')) return;
+/* ★[GP_DONE_SHEET] 시트는 «하나»만 둔다 — 표본 안내(data-dtip)와 업로드 확인이 같은 것을 쓴다.
+   페이지에 팝업 구현이 둘이면 여닫는 규칙·초점 되돌리기·Esc 가 갈라진다(실제로 겪은 병).
+   sheetEnsure() 가 만들고, sheetOpen() 이 연다. bindDemoTip 은 거기에 «표본 전용 위임»만 얹는다. */
+var _sheetOpen=null;
+function sheetEnsure(){
+  if(_sheetOpen) return _sheetOpen;
   var ov=document.createElement('div');
   ov.id='dtipOv'; ov.className='dtip-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
   ov.setAttribute('aria-labelledby','dtipH');   /* 이름 없는 dialog 는 스크린리더가 '대화상자'라고만 읽는다 */
@@ -850,14 +865,23 @@ function bindDemoTip(){
   ov.querySelector('.x').addEventListener('click', close);
   ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && ov.classList.contains('open')) close(); });
+  _sheetOpen=function(k,h,d,backEl){
+    ov.querySelector('.k').textContent=k; ov.querySelector('.h').textContent=h; ov.querySelector('.d').textContent=d;
+    back=backEl||null;
+    ov.classList.add('show'); requestAnimationFrame(function(){ ov.classList.add('open'); });
+    ov.querySelector('.x').focus();
+  };
+  return _sheetOpen;
+}
+function sheetOpen(k,h,d,backEl){ sheetEnsure()(k,h,d,backEl); }
+function bindDemoTip(){
+  sheetEnsure();
+  if(window.__dtipBound) return; window.__dtipBound=1;
   document.addEventListener('click', function(e){
     var t=e.target.closest('[data-dtip]'); if(!t) return;
     var d=DTIP[t.getAttribute('data-dtip')]; if(!d) return;
     e.preventDefault();
-    ov.querySelector('.k').textContent=d.k; ov.querySelector('.h').textContent=d.h; ov.querySelector('.d').textContent=d.d;
-    back=t;
-    ov.classList.add('show'); requestAnimationFrame(function(){ ov.classList.add('open'); });
-    ov.querySelector('.x').focus();
+    sheetOpen(d.k, d.h, d.d, t);
   });
 }
 function renderDemo(){
@@ -894,20 +918,13 @@ function renderDemo(){
     var find=q.closest('.find'); if(find && find.parentNode) find.parentNode.insertBefore(tip, find.nextSibling);
   }
 
-  /* ── ★★[DEMO_PHOTO_DONE 2026-08-18 사용자 지적 "자동올리기 목업부분이 좀 약한데"] ──────────
-     표본의 사진 칸이 **버튼 하나뿐**이라, 홈 목업에서 이 화면이 가장 허전했다.
-     이 기능의 핵심 장면은 버튼이 아니라 **'전해졌다'는 결과**인데 그게 탭 뒤에 숨어 있었다.
-     ★좌석 검색을 미리 띄워 둔 것과 같은 판단이다(2026-08-01 "검색된 것도 보여줘야지") —
-       홍보 화면에서 핵심을 상호작용 뒤에 숨기지 않는다.
-     ★진행 중('올리는 중')이 아니라 **완료**를 보여준다. 멈춘 진행바는 고장으로 읽힌다.
-     ★표본임은 카드 아래 꼬리말이 이미 말한다 — 여기서 또 '샘플'이라 적지 않는다. */
-  var gpS = $('gpStat');
-  if (gpS) {
-    gpS.className = 'gp-stat';
-    gpS.innerHTML = gpDoneMsg(12);   // [GP_DONE_MSG] 실제 화면과 **같은 함수**가 만든 문구 · 베끼지 않는다
-    gpS.style.display = '';
-    var gpB = $('gpPick'); if (gpB) gpB.textContent = '사진 더 올리기';
-  }
+  /* ── ★★[DEMO_PHOTO_DONE 폐지 2026-08-18 사용자 지시 "저 문구 삭제하고 팝업으로 대체하고
+     표본 미리보기 부분에서도 삭제하자"] ─────────────────────────────────────────────
+     표본에 「12장 전해졌어요」를 미리 띄워 두던 자리다. 되살리지 말 것.
+     ★그때의 판단(홍보 화면에서 핵심을 상호작용 뒤에 숨기지 말자)은 «시트»가 이어받았다 —
+       표본에서 버튼을 누르면 [DEMO_TIP] 시트가, 실제 화면에서는 [GP_DONE_SHEET] 확인 시트가 뜬다.
+       결과를 «미리 그려 두는» 대신 «누르면 보여주는» 쪽으로 옮긴 것이지 없앤 것이 아니다.
+     ★그래서 표본 버튼은 처음 라벨(「사진 올리기」) 그대로다 — 실제 첫 화면과 같아야 한다. */
 
   // ── [DEMO_MAP] 대표 장소 카드에 지도 자리를 세운다(표본 전용 · 추상 도식)
   var root=$('root');
