@@ -4825,3 +4825,13 @@ chk "de.classList.contains('me-restoring') || window.__meTCLock" index.html 1
 chk 'SILENT_HINT' parents.html 2
 chk '옆면 무음 스위치를 확인해 주세요' parents.html 1
 chk "bar.classList.add('hint'); },5000)" parents.html 1
+
+# ★★[LETTER_AUDIO_DIVERGED 2026-08-18 사용자가 새 녹음을 직접 주심] 두 경로가 더 이상 같은 파일이 아니다.
+#     assets/audio/parents-letter.mp3              ← 「어른께 드리는 안내」 페이지 · 사용자 새 녹음(162.9초)
+#     assets/audio/narration/43_parents-letter.mp3 ← 예식 «당일» 나레이션 · 옛 조립본(170.9초) 그대로
+#   사용자가 바꿔 달라고 한 것은 페이지 쪽이고, 예식 당일 소리는 실예식에 나가는 것이라 손대지 않았다.
+#   ★assemble-parents-letter.mjs 를 다시 돌리면 사본 복사가 «사용자 녹음을 조립본으로 덮어쓴다» —
+#     되살릴 수 없다. 그래서 그 자리에 «있으면 덮지 않는다» 가드를 뒀다(--overwrite-page-audio 로만 강제).
+chk 'LETTER_AUDIO_DIVERGED' scripts/assemble-parents-letter.mjs 1
+chk 'overwrite-page-audio' scripts/assemble-parents-letter.mjs 2
+nochk '^fs.copyFileSync(dst, alt);' scripts/assemble-parents-letter.mjs
