@@ -566,6 +566,33 @@ function aiRegAdd(surface, q, type, val) {   // adminCall
 }
 function aiRegSetActive(id, on) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.getRange(i + 2, 6).setValue(on ? 'Y' : ''); return { ok: true }; } } return { ok: false, error: '없음' }; }
 function aiRegDelete(id) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.deleteRows(i + 2, 1); return { ok: true }; } } return { ok: false, error: '없음' }; }
+/* ★★[KB_DRAFT 2026-08-17 사용자 지시 "원클릭 버튼 누르면 … «이렇게 대답하면 맞을까요?»"]
+   교육 초안 한 건 — 관리자 «가르치기» 탭의 원클릭이 부른다(adminCall).
+   먼저 전 직원에게 같은 질문을 던져 «갈린 답»을 모으고, 그것과 함께 초안 생성기에 넘긴다.
+   초안 생성기는 KB·핵심정보에 적힌 것만 근거로 쓰고, 없으면 grounded:false 로 돌려준다
+   (api/kb-draft.js) — 사장 화면은 그때 초안을 아예 보여주지 않는다.
+   ★반환을 «항상 초안이 있는» 모양으로 바꾸지 말 것. 근거 없음을 감추면 거짓이 교육으로 굳는다. */
+function aiDraftAnswer(question) {
+  var q = String(question || '').trim().slice(0, 300);
+  if (!q) return { ok: false, error: '질문이 비었습니다.' };
+  var answers = [];
+  ['메인', '마이', '예약', '애프터'].forEach(function (sf) {
+    try {
+      var r = _aiSurfacePost_(sf, q);
+      var t = '';
+      try { t = String((r.j && (r.j.text || r.j.answer || r.j.reply)) || ''); } catch (e) {}
+      if (t) answers.push({ surface: sf, text: t.slice(0, 300) });
+    } catch (e) {}
+  });
+  var res = _aiPost_('/api/kb-draft', { question: q, answers: answers });
+  if (!(res && res.code >= 200 && res.code < 300 && res.j)) {
+    return { ok: false, error: '초안 서버에 닿지 못했어요(' + ((res && res.code) || '?') + ')' };
+  }
+  var j = res.j;
+  return { ok: true, grounded: !!j.grounded, draft: String(j.draft || ''), basis: String(j.basis || ''),
+    note: String(j.note || ''), answers: answers };
+}
+
 function _aiSurfacePost_(surface, q) {   // 회귀/점검용 — 접점→엔드포인트 매핑(test:true)
   var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   if (surface === '예약') return _aiPost_('/api/schedule-advisor', { messages: [{ role: 'user', content: q }], today: today, page: '예약', test: true });

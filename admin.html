@@ -1108,12 +1108,23 @@ function openAiTeam(){
   box.appendChild(tabs); box.appendChild(bd); ov.appendChild(box); document.body.appendChild(ov);
   document.getElementById('atmClose').addEventListener('click',function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
   ov.addEventListener('click',function(e){ if(e.target===ov&&ov.parentNode) ov.parentNode.removeChild(ov); });
-  var TABS=[['명단'],['핵심정보'],['교육'],['개선'],['리포트'],['인계기록'],['테스트'],['인건비']]; var btns={};   // 이모지 열 제거(2026-07-25 사용자 지시 · 최소 사용)
+  /* ★★[AI_TABS3 2026-08-17 사용자 지시 "ai기능 너무많은거같아 … 자동으로할건 하고 지울건지우고 개편"]
+     8탭 → 3탭. **기능을 지운 게 아니라 «누를 이유»로 다시 묶었다.**
+       ①핵심정보 — 사실을 고치는 곳(가격·정책). 종전 그대로.
+       ②가르치기 — «오늘 고칠 것»이 모이는 곳. 종전 교육 + 개선(전 직원 점검·고객 질문·회귀셋)을 한 화면에.
+       ③기록 — 사람 손이 필요했던 것과 비용. 종전 인계기록 + 인건비 + 명단(각주).
+     ★리포트·테스트는 뺐다 — 리포트 통계는 아침 메일 한 줄로 오고([AUTO_DISAGREE]),
+       테스트는 «전 직원 점검»과 같은 일을 두 화면에서 하고 있었다. 렌더 함수는 남겨 둔다
+       (rReport·테스트 블록) — 되살릴 일이 생기면 탭 목록에 이름만 다시 넣으면 된다.
+     ★탭을 다시 늘리기 전에 물을 것: «이건 사장이 눌러야만 도는가?» 그렇다면 자동으로 만들 자리다. */
+  var TABS=[['핵심정보'],['가르치기'],['기록']]; var btns={};   // 이모지 열 제거(2026-07-25 사용자 지시 · 최소 사용)
   TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
   function show(name){
     Object.keys(btns).forEach(function(k){ var on=(k===name); btns[k].style.background=on?'#6B2A24':'#f4f1ea'; btns[k].style.color=on?'#fff':'#5a554c'; });
-    if(name==='명단') return rRoster();
     if(name==='핵심정보') return rFacts();
+    if(name==='가르치기') return rTeach();     // [AI_TABS3] 교육 + 개선을 한 화면에
+    if(name==='기록') return rRecords();       // [AI_TABS3] 인계기록 + 인건비 + 명단
+    if(name==='명단') return rRoster();        // (탭에서 내렸지만 호출 경로는 남긴다 — 기록 탭이 부른다)
     if(name==='교육') return rEdu();
     if(name==='개선') return rImprove();
     if(name==='리포트') return rReport();
@@ -1121,6 +1132,91 @@ function openAiTeam(){
     if(name==='테스트'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">5접점 자동 테스트(예산·접점·커스텀 질문). 결과는 직전과 비교되고, 문제 시 관리자 문자 알림도 가능해요.</div><button id="atmT" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">테스트 열기</button>'; document.getElementById('atmT').addEventListener('click', openAiTest); return; }
     if(name==='인건비'){ bd.innerHTML='<div style="font-size:13px;color:#5a554c;margin-bottom:12px">접점별 24시간·이번 달 비용(원화)을 봅니다.</div><button id="atmC" style="padding:10px 22px;border:none;background:#6B2A24;color:#fff;border-radius:6px;font-size:13px;cursor:pointer">인건비 열기</button>'; document.getElementById('atmC').addEventListener('click', openAiCost); return; }
   }
+  /* ★[AI_TABS3] 가르치기 — «오늘 고칠 것»이 모이는 한 화면.
+     위: 자동으로 잡힌 것(답이 갈린 질문·막힌 질문) → 원클릭 초안 → 승인/수정 → 교육
+     아래: 종전 교육 목록(켜기·끄기·삭제)과 전 직원 점검·회귀셋 */
+  function rTeach(){
+    bd.innerHTML='<div style="font-size:11px;color:#75705F;margin-bottom:10px">'
+      +'매일 아침 자동으로 <b>답이 갈린 질문</b>을 찾아 둡니다. 눌러서 초안을 받고, 맞으면 그대로 가르치세요.</div>'
+      +'<div id="teachAuto" style="margin-bottom:16px"><div style="color:#75705F;font-size:12px">불러오는 중…</div></div>'
+      +'<div id="teachEdu"></div>';
+    var au=document.getElementById('teachAuto');
+    /* 실제 고객 질문 중 막힌·애매한 것 — 아침 메일이 싣는 것과 같은 원천(aiQuestionLog). */
+    gas('aiQuestionLog').then(function(r){
+      if(!(r&&r.ok!==false)){ au.innerHTML='<div style="color:#b00;font-size:12px">질문 목록을 불러오지 못했어요 · 새로고침 해주세요</div>'; return; }
+      var items=(r.items||[]).filter(function(x){ return x&&x.q&&(x.flag==='막힘'||x.flag==='애매'); }).slice(0,8);
+      if(!items.length){ au.innerHTML='<div style="font-size:12px;color:#75705F">고칠 것이 없어요 · 막히거나 애매한 질문이 아직 없습니다.</div>'; return; }
+      au.innerHTML='<div style="font-size:13px;font-weight:600;color:#3a2f25;margin-bottom:6px">고칠 것 '+items.length+'건</div>'
+        +items.map(function(it,i){
+          return '<div class="tq" data-i="'+i+'" style="border:1px solid #eee5d9;border-radius:8px;padding:10px;margin-bottom:8px">'
+            +'<div style="font-size:12.5px;color:#3a2f25">'+(it.flag==='막힘'?'🔴':'🟡')+' '+esc(it.q)+(it.count>1?(' <span style="color:#75705F">×'+it.count+'</span>'):'')+'</div>'
+            +'<div style="margin-top:8px"><button type="button" class="tdraft" data-q="'+esc(it.q)+'" style="padding:6px 12px;border:1px solid #6B2A24;background:#fff;color:#6B2A24;border-radius:6px;font-size:12px;cursor:pointer">이렇게 답하면 될까요? (초안 받기)</button></div>'
+            +'<div class="tout" style="margin-top:8px"></div></div>';
+        }).join('');
+      Array.prototype.forEach.call(au.querySelectorAll('.tdraft'),function(b){
+        b.addEventListener('click',function(){
+          var q=b.getAttribute('data-q'), out=b.parentNode.parentNode.querySelector('.tout');
+          var t0=b.textContent; b.disabled=true; b.textContent='초안 만드는 중…';
+          out.innerHTML='';
+          gas('aiDraftAnswer', q).then(function(d){
+            b.disabled=false; b.textContent=t0;
+            if(!(d&&d.ok)){ out.innerHTML='<div style="color:#b00;font-size:12px">'+esc((d&&d.error)||'초안을 못 만들었어요')+'</div>'; return; }
+            if(!d.grounded){
+              /* ★근거가 없으면 초안을 보여주지 않는다 — 여기서 그럴듯한 문장을 보여주면
+                 사장이 그것을 사실로 착각해 승인한다. 그 순간 거짓이 전 직원에 박힌다. */
+              out.innerHTML='<div style="border:1px solid #e0d6c8;background:#faf7f2;border-radius:6px;padding:9px;font-size:12px;color:#5a554c">'
+                +'<b>근거 없음</b> · 지금 자료(핵심정보·교육노트)에는 이 질문의 답이 없어요.<br>'
+                +'사장님이 사실을 알려주시면 그대로 가르칠게요.'+(d.note?('<br><span style="color:#75705F">'+esc(d.note)+'</span>'):'')+'</div>'
+                +'<div style="margin-top:6px"><button type="button" class="tmanual" style="padding:6px 12px;border:1px solid #6B2A24;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">직접 가르치기</button></div>';
+              var mb=out.querySelector('.tmanual'); if(mb) mb.addEventListener('click',function(){ aiTeachPrompt('전체','질문: '+q,function(){ rTeach(); }); });
+              return;
+            }
+            out.innerHTML='<div style="border:1px solid #cfe0d2;background:#f6faf7;border-radius:6px;padding:10px">'
+              +'<div style="font-size:12.5px;color:#2f3a32;line-height:1.65">'+esc(d.draft)+'</div>'
+              +(d.basis?('<div style="margin-top:6px;font-size:11px;color:#75705F">근거: '+esc(d.basis)+'</div>'):'')
+              +(d.note?('<div style="margin-top:4px;font-size:11px;color:#8a6d3b">'+esc(d.note)+'</div>'):'')
+              +'</div>'
+              +'<div style="margin-top:8px;display:flex;gap:6px">'
+              +'<button type="button" class="tok" style="padding:6px 12px;border:1px solid #6B2A24;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">이대로 가르치기</button>'
+              +'<button type="button" class="tedit" style="padding:6px 12px;border:1px solid #6B2A24;background:#fff;color:#6B2A24;border-radius:6px;font-size:12px;cursor:pointer">고쳐서 가르치기</button>'
+              +'</div>';
+            var okb=out.querySelector('.tok'), edb=out.querySelector('.tedit');
+            var teach=function(text){
+              okb.disabled=true; if(edb) edb.disabled=true;
+              _eduDone(gas('aiKbNoteAdd','전체','질문: '+q+'\n답: '+text), function(){ rTeach(); }, '교육 저장');
+            };
+            if(okb) okb.addEventListener('click',function(){ teach(d.draft); });
+            if(edb) edb.addEventListener('click',function(){
+              /* ★admPrompt 는 value·placeholder·label 만 받는다(multiline 옵션 없음 — 실측). 없는 옵션을 넘기지 말 것. */
+              admPrompt({ title:'고쳐서 가르치기', body:'초안을 고쳐 주세요. 이대로 직원들이 답합니다.', value:d.draft, label:'답변' })
+                .then(function(v){ if(v&&String(v).trim()) teach(String(v).trim()); });
+            });
+          }).catch(function(){ b.disabled=false; b.textContent=t0; out.innerHTML='<div style="color:#b00;font-size:12px">초안을 못 만들었어요 · 네트워크를 확인해 주세요</div>'; });
+        });
+      });
+    }).catch(function(){ au.innerHTML='<div style="color:#b00;font-size:12px">질문 목록을 불러오지 못했어요</div>'; });
+    /* 아래쪽 — 종전 교육/개선 화면을 그대로 잇는다(bd 를 덮지 않게 대상만 바꿔 호출) */
+    var host=document.getElementById('teachEdu');
+    var _bd=bd; bd=host; try{ rEdu(); }catch(e){} bd=_bd;
+  }
+
+  /* ★[AI_TABS3] 기록 — 사람 손이 필요했던 것(인계)과 비용·명단. 평소엔 볼 일이 없는 것들을 한곳에. */
+  function rRecords(){
+    bd.innerHTML='<div style="display:flex;gap:6px;margin-bottom:10px">'
+      +'<button type="button" id="rcHand" style="padding:6px 11px;border:1px solid #6B2A24;background:#6B2A24;color:#fff;border-radius:6px;font-size:12px;cursor:pointer">인계기록</button>'
+      +'<button type="button" id="rcRoster" style="padding:6px 11px;border:1px solid #eee5d9;background:#f4f1ea;color:#5a554c;border-radius:6px;font-size:12px;cursor:pointer">직원 명단·비용</button>'
+      +'</div><div id="rcBody"></div>';
+    var host=document.getElementById('rcBody');
+    var pick=function(which){
+      var a=document.getElementById('rcHand'), b=document.getElementById('rcRoster');
+      [[a,which==='hand'],[b,which==='roster']].forEach(function(x){ x[0].style.background=x[1]?'#6B2A24':'#f4f1ea'; x[0].style.color=x[1]?'#fff':'#5a554c'; x[0].style.borderColor=x[1]?'#6B2A24':'#eee5d9'; });
+      var _bd=bd; bd=host; try{ which==='hand'?rHandoff():rRoster(); }catch(e){} bd=_bd;
+    };
+    document.getElementById('rcHand').addEventListener('click',function(){ pick('hand'); });
+    document.getElementById('rcRoster').addEventListener('click',function(){ pick('roster'); });
+    pick('hand');
+  }
+
   function rRoster(){ var R=[['메인 상담','홈 예비고객 상담','메인'],['마이 비서','마이페이지 상담','마이페이지'],['예약 담당','날짜·시간 예약','예약'],['애프터 컨시어지','식당·애프터 추천','애프터'],['인계 비서','상담사 연결 브리핑','핸드오프'],['식순 도우미','예식 순서 설계 상담','식순']];   /* [AI_ROSTER_RITUAL 2026-08-03] 식순 AI(api/ritual-advisor)는 돌아가고 비용도 쓰는데 명단에만 없었다 — 그래서 교육 대상에서도 빠져 있었다. 지우지 말 것. */
     bd.innerHTML='<div style="font-size:11px;color:#75705F;margin-bottom:8px">AI 6명을 한곳에서 · 교육으로 알려주고 · 테스트로 점검하고 · 인건비를 봅니다.</div><div style="color:#75705F;font-size:12px">최근 24시간 불러오는 중…</div>';
     gas('aiCostSummary24h').then(function(r){ var by={}; if(r&&r.ok&&r.day&&r.day.bySurface){ r.day.bySurface.forEach(function(s){ by[s.surface]=s; }); }

@@ -4871,3 +4871,15 @@ nochk 'KB.includes(`\${weekend}만원`)' scripts/audit/kb-truth.mjs
 #   초안 생성기가 지어내면 그 거짓이 «승인된 교육»이 되어 전 직원에 영구히 박힌다.
 chk 'KB_DRAFT' api/kb-draft.js 1
 chk 'grounded' api/kb-draft.js 6
+# ★★[AI_TABS3 2026-08-17 사용자 지시 "개편"] AI 직원실 8탭 → 3탭(핵심정보·가르치기·기록).
+#   기능을 지운 게 아니라 «누를 이유»로 다시 묶었다 — 렌더 함수(rEdu·rImprove·rHandoff·rRoster)는 그대로 쓴다.
+#   리포트·테스트만 탭에서 내렸다(통계는 아침 메일 한 줄 · 테스트는 전 직원 점검과 중복).
+#   ★탭을 다시 늘리기 전에 물을 것: «이건 사장이 눌러야만 도는가?» 그렇다면 자동으로 만들 자리다.
+chk 'AI_TABS3' admin.html 3
+chk "\['핵심정보'\],\['가르치기'\],\['기록'\]" admin.html 1
+chk 'function rTeach' admin.html 1
+chk 'function rRecords' admin.html 1
+# ★[KB_DRAFT] 원클릭 초안 — GAS 함수 + adminCall 화이트리스트가 **둘 다** 있어야 버튼이 산다.
+chk 'function aiDraftAnswer' automation/platform/96_ai_cost.gs 1
+chk 'aiDraftAnswer: aiDraftAnswer' automation/admin/admin.gs 1
+chk '근거 없음' admin.html 1                      # 근거 없으면 초안을 보여주지 않는다(거짓이 교육으로 굳는 것 방지)
