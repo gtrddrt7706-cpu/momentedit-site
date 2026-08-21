@@ -21,6 +21,18 @@ function handleGetMyState(body) {
 
   var nextAction = nextActionFor(product, stage);
   if (stage === '시착' && String(r.get('시착동의상태') || '').trim() === '동의완료') nextAction = '시착 동의가 완료됐어요. 디렉터 확인 후 계약서를 안내드릴게요.';   // 서명 후에도 '서명하세요'로 남던 문구 보정
+  /* ★★[NOW_CONTRACT_EXPIRED 2026-08-18 journey-sim 이 잡음] 서명 기한이 지나면 «지금 할 일»도 바뀐다.
+     계약완료 단계의 기본 문구는 «계약금을 입금해 주세요»다. 그런데 72시간이 지나 계약서가 만료되면
+     화면에서 결제 칸이 사라지고 «계약서 재요청» 버튼만 남는다 —
+     **낼 곳이 없는데 내라고 말하는 화면**이 된다(실렌더로 확인).
+     그 자리에서 두 분이 할 수 있는 일은 하나뿐이니, 그 하나를 말한다.
+     ★위 시착 보정과 같은 모양이다 — 단계는 그대로 두고 «지금 할 일»만 상태에 맞춘다. */
+  if (stage === '계약완료' && String(r.get('계약상태') || '').trim() === '발송') {
+    var _sentAt = _parseKstStr(r.get('계약서발송일시'));
+    if (_sentAt && Date.now() > _sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000) {
+      nextAction = '계약서 서명 기한이 지났어요. 아래에서 다시 요청하시면 새 계약서를 보내드릴게요.';
+    }
+  }
 
   return {
     ok: true,

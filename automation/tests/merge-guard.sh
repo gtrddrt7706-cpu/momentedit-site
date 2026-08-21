@@ -4909,3 +4909,12 @@ chk "notifyKakao('cust.couponIssued'" automation/admin/admin.gs 1
 #   «내용이 통째로 사라진 것»을 못 잡는다. 크기도 함께 본다.
 chk 'GAS_NOT_EMPTY' scripts/audit/gas-lint.mjs 2
 chk 'COUPON_FLOW' scripts/audit/coupon-flow.mjs 1
+# ★★[NOW_CONTRACT_EXPIRED 2026-08-18 journey-sim] 서명 기한이 지나면 «지금 할 일»도 바뀐다 —
+#   결제 칸이 사라지고 재요청 버튼만 남는데 «계약금을 입금해 주세요»라고 말하던 화면(낼 곳이 없다).
+chk 'NOW_CONTRACT_EXPIRED' automation/platform/60_mypage.gs 1
+chk '계약서 서명 기한이 지났어요. 아래에서 다시 요청하시면' automation/platform/60_mypage.gs 1
+# ★★[FIXTURE_NO_ROT 2026-08-18] 고정 날짜 금지 — 달력이 지나면 같은 픽스처의 뜻이 말없이 바뀐다
+#   (계약서발송일시가 박혀 있어 사흘 뒤 «발송됨»이 «기한 지남»이 됐고, 그 붉음은 시간이 만든 것이었다).
+chk 'FIXTURE_NO_ROT' scripts/audit/journey-sim.mjs 2
+chk 'const SENT_OK' scripts/audit/journey-sim.mjs 1
+nochk "계약서발송일시: '2026-08-16 10:00'" scripts/audit/journey-sim.mjs
