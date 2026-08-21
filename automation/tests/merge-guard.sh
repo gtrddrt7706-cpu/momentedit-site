@@ -4864,6 +4864,13 @@ chk '직원 답이 갈렸어요' automation/platform/96_ai_cost.gs 1
 #   대신 KB 가 말하는 것이 **실제 코드와 같은지** 매번 대조한다. 어긋나면 사람에게 알린다.
 #   ★[KB_TRUTH_STRICT] 값 비교는 «KB 어딘가에 그 숫자가 있나»가 아니라 **선언 줄의 값**으로 —
 #     includes 로 짰더니 330→350만 오류가 통과했다(다른 줄에 330만원이 또 있었다). 되돌리지 말 것.
+# ★★[KB_TRUTH_RUN 2026-08-21 사용자 질문 "자동으로 점검하고 개선하고 스스로 하게 해놨어?"에 답하다 발견]
+#   이 아래 chk 들은 **파일에 마커 글자가 있는지**만 본다 — 검사기를 «부르지는» 않았다.
+#   즉 «핵심정보 자동 재검증»이라 해 놓고 실제로는 사람이 손으로 돌려야 도는 상태였다.
+#   ★여기서 실제로 실행한다 — PR 마다·main 푸시마다 돈다(check-photo-scene 과 같은 방식).
+#   ★이 줄을 지우면 kb-truth 는 다시 «있지만 안 도는 검사»가 된다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/kb-truth.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL kb-truth: KB(고객에게 말하는 사실)와 실제 코드가 어긋납니다 — node scripts/audit/kb-truth.mjs'; fail=1; }; fi
 chk 'KB_TRUTH' scripts/audit/kb-truth.mjs 2
 chk 'KB_TRUTH_STRICT' scripts/audit/kb-truth.mjs 1
 nochk 'KB.includes(`\${weekend}만원`)' scripts/audit/kb-truth.mjs
@@ -4926,3 +4933,15 @@ chk "case 'cust.couponIssued':" automation/platform/95_notify.gs 1
 chk "coupon:'mp_coupon'" mypage.html 1
 chk 'T19 · 후기 감사 선물' automation/알림톡_템플릿_신청문안.md 1
 chk '바코드 자체는 문자로 보내지 않는다' scripts/audit/coupon-flow.mjs 1
+# ★★[KB_TRUTH_RUN · NIGHTLY_JOURNEY 2026-08-21] «자동으로 점검하나?»에 답하다 구멍 둘을 찾았다.
+#   ①kb-truth 는 마커만 검사하고 **스크립트를 부르지 않았다** — «핵심정보 자동 재검증»이 실은 수동이었다.
+#     이제 이 가드가 직접 실행한다(반증 확인: KB 가격을 330→350만으로 틀리게 하니 FAIL kb-truth 로 막혔다).
+#   ②journey-sim·save-honesty·stage-back·seat-onecard 는 **게이트에도 야간에도 없었다** —
+#     이 저장소에서 가장 큰 사고들(고객 화면 백지 3건 등)을 잡은 검사인데 내가 손으로 돌릴 때만 돌았다.
+#     야간 잡(nightly-screen)에 등록했다 — 브라우저가 필요해 게이트에는 넣지 않는다(막지 않고 알린다).
+#   ★«검사를 만들었다»와 «검사가 돈다»는 다른 말이다. 새 검사를 만들면 어디서 도는지 반드시 확인할 것.
+chk 'KB_TRUTH_RUN' automation/tests/merge-guard.sh 1
+chk 'node scripts/audit/kb-truth.mjs' automation/tests/merge-guard.sh 2
+chk 'NIGHTLY_JOURNEY' .github/workflows/nightly-screen.yml 1
+chk 'journey-sim.mjs' .github/workflows/nightly-screen.yml 1
+chk 'save-honesty.mjs' .github/workflows/nightly-screen.yml 1

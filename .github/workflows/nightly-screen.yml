@@ -118,6 +118,21 @@ jobs:
           set +e
           node scripts/audit/page-probe.mjs index.html order-preview.html console.html guide.html audio-review.html
           note "page-probe" $?
+          # ★★[NIGHTLY_JOURNEY 2026-08-21 사용자 질문 "내가 따로 체크안해도 자동으로 점검하나?"에 답하다 발견]
+          #   아래 넷은 이 저장소에서 가장 큰 사고들을 잡아낸 검사인데(고객 화면 백지 3건 · 저장 실패를
+          #   성공이라 말하던 곳들 · 겹쳐 눌렀을 때의 경합) **게이트에도 야간에도 없었다** —
+          #   내가 손으로 돌릴 때만 도는 상태였다. 그건 «자동으로 점검한다»고 말할 수 없다.
+          #   ★브라우저가 필요해 merge-guard(게이트)에는 넣지 않는다 — 느리고 환경을 타서 잘 울고,
+          #     그러면 사람이 붉은 것을 무시하기 시작한다(이 잡의 머리 주석이 적어 둔 그 이유).
+          #     여기서는 막지 않고 «알린다».
+          node scripts/audit/journey-sim.mjs
+          note "journey-sim (관리자·고객 연동 52경우)" $?
+          node scripts/audit/save-honesty.mjs
+          note "save-honesty (저장 실패를 실패라 말하는가)" $?
+          node scripts/audit/stage-back.mjs
+          note "stage-back (되돌린 단계에서 백지 금지)" $?
+          node scripts/audit/seat-onecard.mjs
+          note "seat-onecard (자리·음료 한 창)" $?
           node scripts/check-est-one.mjs;      note "check-est-one" $?
           node scripts/check-guest-skin.mjs;   note "check-guest-skin" $?
           # ★[LISTEN_EXPORT_REAL] 실청 페이지가 낸 대본을 **진짜 붙여넣기 검사에 그대로 넣는다.**
