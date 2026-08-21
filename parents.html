@@ -54,7 +54,13 @@ html{scroll-behavior:smooth;overflow-x:hidden}
 body{background:var(--bg);color:var(--text);font-family:var(--serif-ko);font-weight:300;font-size:15px;line-height:2;letter-spacing:0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
 /* Nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(to bottom,rgba(250,250,248,0.92),rgba(250,250,248,0))}
+/* ★★[NAV_MASK 2026-08-18 점검에서 눈으로 발견] 워드마크 글자 자리까지는 «불투명»해야 한다.
+   종전엔 0.92 에서 시작해 52px 에 걸쳐 0 으로 빠졌다 — 글자가 앉은 y≈22 의 알파가 0.53 뿐이라
+   편지 본문이 그 뒤로 비쳐 「MOMENT EDIT」와 「배웅하시게 됩니다」가 겹쳐 뭉개졌다(390px 실측·픽셀 확인).
+   ★어른이 읽는 페이지다 — 글자끼리 겹치는 것은 여기서 가장 비싼 결함이다.
+   ★띠를 키우지 않고 «알파 곡선»만 고친다. 글자 띠(0~72%)는 1.0, 나머지에서 부드럽게 사라진다. */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  background:linear-gradient(to bottom,rgba(250,250,248,1) 0,rgba(250,250,248,1) 72%,rgba(250,250,248,0) 100%)}
 .nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}
 .nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}
@@ -84,28 +90,43 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(t
    ★이 페이지의 독자는 어른이다. 13px 도구 버튼이 스스로 라벨을 바꾸는 것을 알아채기 어렵고,
      멈추려고 맨 위까지 되돌아 올라가게 하면 안 된다.
    ★자동으로 뜨는 팝업이 아니다 — 재생을 «누른 사람에게만», 재생 중에만 선다. */
+/* ★★[BAR_RHYTHM 2026-08-18 사용자 지적 "하단 내용부분 좀더 깔끔하게 · 지금은 너무 간격도 이상해"]
+   옛 짜임은 «행(글+버튼) 위 / 힌트 아래»였다. 행 높이를 44px 버튼이 정하는데 글자는 28px 뿐이라
+   위아래 8px 씩 죽은 공간이 생기고, 거기에 gap 6px 이 더해져 두 글줄 사이가 14px 로 벌어졌다(실측).
+   같은 덩어리인 두 줄이 남남처럼 떨어져 보인 이유다.
+   ★글 두 줄을 «한 덩어리»로 묶고 버튼을 그 옆에 세운다 — 버튼이 글줄 사이를 벌리지 못한다.
+     버튼은 덩어리 전체에 대해 세로 가운데. 44px 탭 타깃은 그대로 지킨다. */
 .play-bar{
-  position:fixed;left:0;right:0;bottom:0;z-index:60;
-  display:none;flex-direction:column;gap:6px;
-  padding:12px 22px calc(12px + env(safe-area-inset-bottom));
+  position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;
+  padding:12px 0 calc(12px + env(safe-area-inset-bottom));
   background:var(--bg);border-top:1px solid var(--hairline);
   transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)
 }
-.play-bar.on{display:flex}
-/* 첫 줄 = 지금 무엇을 하는지 + 멈춤. 힌트는 아래 «전체 폭» 한 줄로 내린다 —
-   버튼 옆에 두면 글자칸이 244px(390px 기준)뿐이라 어떤 문구를 넣어도 두 줄로 접힌다(실측). */
-.play-bar-row{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.play-bar.on{display:block}
+/* ★★[BAR_COLUMN 2026-08-18 사용자 스크린샷에서 발견] 막대 «안»은 편지 글단과 같은 폭으로 가둔다.
+   종전엔 좌우 끝에 붙어, 1240px 화면에서 글과 버튼이 1000px 넘게 벌어져 서로 남남으로 보였다.
+   편지는 max 640px 한 단인데 막대만 화면 끝까지 벌어지면 같은 화면의 것으로 안 읽힌다. */
+.play-bar-in{max-width:var(--max);margin:0 auto;padding:0 28px;
+  display:flex;align-items:center;gap:16px}
+/* ★★[BAR_ONE_LINE 2026-08-18 사용자 지시 "이걸 위로 올려서 한줄로 만들자"]
+   안내를 아랫줄이 아니라 «같은 줄»에 잇는다 — 흐르는 한 문장이라 넓은 화면에선 한 줄로 끝나고,
+   좁은 화면에서는 문단처럼 자연스럽게 접힌다. 블록 두 개로 나누면 그 접힘이 «두 덩어리»로 보인다. */
+.play-bar-row{flex:1;min-width:0}
+.play-bar-nb{white-space:nowrap}
+.play-bar-sep{color:var(--light);padding-left:6px}
 .play-bar.up{transform:translateY(0)}
-.play-bar-t{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--sub);letter-spacing:0.02em}
-/* ★[SILENT_HINT] 소리가 안 들릴 때 가장 흔한 원인은 «아이폰 측면 무음 스위치»다.
+.play-bar-t{font-size:14px;color:var(--sub)}
+/* 한 줄로 흐르므로 글꼴·굵기·자간·행간은 «줄» 쪽에서 한 번만 정한다 — 조각마다 주면 기준선이 어긋난다 */
+.play-bar-row{font-family:var(--serif-ko);font-weight:300;letter-spacing:0.02em;line-height:1.6;text-wrap:balance}
+/* ★[SILENT_HINT] 소리가 안 들릴 때 가장 흔한 원인은 «아이폰 옆면 무음 스위치»다.
    iOS 는 new Audio() 로 만든 소리를 벨소리 스위치로 함께 음소거한다 — 화면은 「멈춤」(재생 중)인데
    소리만 안 나는 상태가 되고, 사람은 «고장»으로 읽는다.
-   ★처음부터 띄우지 않는다. 잘 들리는 분께는 잔소리다. 5초쯤 지나 «이상하다» 싶을 때 나타난다.
-   ★한 줄로 유지할 것 — 두 줄이 되면 안내가 아니라 «경고문»처럼 무거워진다(사용자 지적).
-     실측 글자칸: 버튼 옆에 두면 244px(390px 기준)뿐이라 어떤 문구도 접힌다 → 전체 폭 줄로 내려
-     320px 에서도 276px 을 확보했다. 25자까지 한 줄이다. 문구를 늘리려면 이 수치부터 다시 잴 것. */
-.play-bar-hint{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);letter-spacing:0.02em;display:none}
-.play-bar.hint .play-bar-hint{display:block}
+   ★★[HINT_NO_POP 2026-08-18 사용자 지적 "이 문구가 나중에 등장하는 버그가 잇어"]
+     5초 뒤에 띄우던 것을 «처음부터» 보이게 바꿨다. 늦게 나타나면 막대가 69→99px 로 갑자기 커지며
+     글이 튀어나와, 배려로 만든 것이 «고장»으로 읽힌다. 내 판단이 틀렸다.
+     지금은 크기가 처음부터 끝까지 그대로다 — 튀는 것이 없다.
+   ★잔소리로 읽히지 않게 하는 것은 «시점»이 아니라 «격»이다 — 12px·--light 로 한 단 아래에 둔다. */
+.play-bar-hint{font-size:12px;color:var(--light)}
 .play-bar-stop{
   font-family:var(--serif-ko);font-size:14px;font-weight:400;letter-spacing:0.08em;
   color:#F5F1E9;background:var(--seal);border:none;border-radius:4px;
@@ -302,14 +323,14 @@ nav .nav-links a, .nav-links a, .f-links a {
 
 <!-- [LISTEN_BAR] 재생 중에만 서는 멈춤 줄 · aria-live 로 낭독기에도 상태가 전해진다 -->
 <div class="play-bar" id="playBar" role="status" aria-live="polite">
-  <span class="play-bar-row">
-    <!-- ★한 줄로 유지 — 320px 의 글자칸은 174px 이라 13자짜리 옛 문구는 접혔다(실측).
-         9자까지 한 줄이다. 「중」을 버리고 높임말을 지켰다 — 막대는 «재생 중에만» 서므로 진행 중이라는 뜻은
-         막대의 존재가 이미 말한다. 어른 독자에겐 그쪽이 남는 값이 크다. -->
-    <span class="play-bar-t" id="playBarT">편지를 읽어 드려요</span>
+  <span class="play-bar-in">
+    <span class="play-bar-row">
+      <!-- ★가운뎃점은 앞뒤로 줄바꿈이 «허용되는» 글자다 — 그냥 두면 좁은 폭에서 「·」가 줄 맨 앞에 매달린다
+           (320px 실측). 앞말과 한 덩어리로 묶어 떨어지지 않게 하고, 줄바꿈은 그 «뒤»에서만 일어나게 한다. -->
+      <span class="play-bar-nb"><span class="play-bar-t" id="playBarT">편지를 읽어 드려요</span><span class="play-bar-sep" aria-hidden="true">·</span></span> <span class="play-bar-hint">안 들리면 볼륨·무음 스위치를 확인해 주세요</span>
+    </span>
     <button type="button" class="play-bar-stop" id="playBarStop">멈춤</button>
   </span>
-  <span class="play-bar-hint">안 들리면 볼륨과 무음 스위치를 확인해 주세요</span>
 </div>
 
 <main>
@@ -440,17 +461,15 @@ nav .nav-links a, .nav-links a, .f-links a {
 
     /* [LISTEN_BAR] 재생 상태를 «한 곳»에서만 바꾼다 — 버튼 라벨 · 멈춤 줄 · 화면 잠금이 늘 같은 말을 하게.
        종전엔 label() 을 일곱 자리에서 따로 불렀다. 거기에 줄과 잠금까지 각자 붙이면 셋이 어긋난다. */
-    var bar=document.getElementById('playBar'), hintT=null;
+    var bar=document.getElementById('playBar');
     var setPlaying=function(on){
       label(on?'멈춤':'듣기');
       if(on)wakeOn(); else wakeOff();
       document.body.classList.toggle('listening',!!on);   // 막대 높이만큼 아래를 비워 준다
       if(!bar)return;
-      clearTimeout(hintT);
-      if(on){ bar.classList.add('on'); requestAnimationFrame(function(){ bar.classList.add('up'); });
-        hintT=setTimeout(function(){ bar.classList.add('hint'); },5000);   // [SILENT_HINT] 5초 뒤에만
-      }
-      else{ bar.classList.remove('up'); bar.classList.remove('on'); bar.classList.remove('hint'); }
+      /* [HINT_NO_POP] 힌트는 처음부터 있다 — 늦게 띄우면 막대가 커지며 글이 튀어나와 «고장»으로 읽힌다 */
+      if(on){ bar.classList.add('on'); requestAnimationFrame(function(){ bar.classList.add('up'); }); }
+      else{ bar.classList.remove('up'); bar.classList.remove('on'); }
     };
     var koVoice=function(){
       try{

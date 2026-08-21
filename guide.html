@@ -139,7 +139,11 @@ button.ps-btn{width:100%;font:inherit;font-family:var(--serif-ko);cursor:pointer
 .ps-btn-off{cursor:default;pointer-events:none}
 .demo-foot{margin:0 -18px;padding:16px 18px 18px;border-top:1px solid var(--hair);background:var(--bg2);
   border-radius:0 0 10px 10px;text-align:center}
-.demo-foot .t{font-size:11.5px;color:var(--sub);line-height:1.7}
+.demo-foot .t{font-size:11.5px;color:var(--sub);line-height:1.7;
+  /* ★[FOOT_BALANCE 2026-08-18 점검에서 눈으로 발견] 마지막 줄에 「요.」 한 글자만 떨어져 있었다(390px).
+     글자 수를 깎아 맞추는 것은 다음 문구 수정 때 바로 깨진다 — 두 줄을 고르게 나누게 한다.
+     ★balance 를 모르는 브라우저는 종전대로 흐른다(있으면 좋고 없어도 안 깨지는 속성). */
+  text-wrap:balance}
 .demo-foot .t b{color:var(--seal);font-weight:600}
 /* ★★[DEMO_TIP 2026-08-18 사용자 제안 "저 메세지를 팝업으로 · 고객이 누르면 직관적으로"]
    표본에서 지도·사진 올리기는 눌러도 아무 일이 없었다. **죽은 버튼은 고장으로 읽힌다** —
@@ -364,6 +368,21 @@ function $(id){ return document.getElementById(id); }
       el=document.createElement('div'); el.className='g-scroll'; el.setAttribute('aria-hidden','true');
       el.innerHTML='<span class="g-scroll-label">Scroll</span><span class="g-scroll-chev"></span>';
       document.body.appendChild(el);
+      /* ★★[CUE_NO_COVER 2026-08-18 점검에서 눈으로 발견] 큐는 «누를 것» 위에 앉지 않는다.
+         실측(390×844 · 좌석 없는 구성): 문서 933 vs 화면 844 라 스크롤할 것이 89px 뿐인데 큐가 떴고,
+         큐(707~764)가 「사진 올리기」 버튼(721~781)을 43px 덮어 글자가 「사 ▒▒ 기」로 보였다.
+         큐는 곁들이고 버튼은 본체다 — 겹치면 큐가 물러나는 것이 맞다.
+         ★fixed 라 문서 길이와 무관하게 늘 그 띠에 뜬다. 그래서 «길이»가 아니라 «겹치는가»로 판단한다. */
+      try{
+        var cr=el.getBoundingClientRect(), hit=false;
+        var acts=document.querySelectorAll('button,a[href],input,.ps-btn,.act');
+        for(var ai=0; ai<acts.length; ai++){
+          var ar=acts[ai].getBoundingClientRect();
+          if(ar.width<=0||ar.height<=0) continue;
+          if(!(ar.bottom<cr.top || ar.top>cr.bottom || ar.right<cr.left || ar.left>cr.right)){ hit=true; break; }
+        }
+        if(hit){ el.parentNode.removeChild(el); el=null; return; }
+      }catch(e){}
       /* [CUE_GLIDE] 리듬도 청첩장과 같다 — 0.5s 뒤 떠오르고, 2.2s 머물다 스스로 물러난다. */
       var _t=setTimeout(function(){ if(el) el.classList.add('in'); },500);
       var _h=setTimeout(function(){ if(el) el.classList.add('hide'); },500+2200);

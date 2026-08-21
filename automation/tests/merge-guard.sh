@@ -4828,15 +4828,42 @@ chk "de.classList.contains('me-restoring') || window.__meTCLock" index.html 1
 #   남는 원인은 기기 쪽이고, 이 증상(화면은 「멈춤」인데 소리만 없음)의 1순위는 아이폰 옆면 무음 스위치다.
 #   iOS 는 new Audio() 소리를 벨소리 스위치로 함께 음소거한다.
 #   ★처음부터 띄우지 않는다 — 잘 들리는 분께는 잔소리다. 5초쯤 지나 「이상하다」 싶을 때 나타난다.
-chk 'SILENT_HINT' parents.html 2
-chk '안 들리면 볼륨과 무음 스위치를 확인해 주세요' parents.html 1
-chk 'play-bar-row' parents.html 2   # 힌트는 버튼 옆이 아니라 «전체 폭» 줄 — 옆에 두면 320px 에서 접힌다(실측)
+chk 'SILENT_HINT' parents.html 1
+chk '안 들리면 볼륨·무음 스위치를 확인해 주세요' parents.html 1
+chk 'play-bar-row' parents.html 2
+# ★★[BAR_RHYTHM 2026-08-18 사용자 지적 "하단 내용부분 좀더 깔끔하게 · 지금은 너무 간격도 이상해"]
+#   옛 짜임은 «행(글+버튼) 위 / 힌트 아래»였다. 행 높이를 44px 버튼이 정하는데 글자는 28px 뿐이라
+#   위아래 8px 씩 죽은 공간이 생기고 gap 6px 이 더해져 두 글줄 사이가 14px 로 벌어졌다(실측).
+#   같은 덩어리인 두 줄이 남남처럼 떨어져 보였다.
+#   → 글 두 줄을 한 덩어리(.play-bar-row)로 묶고 버튼을 그 «옆»에 세운다. 버튼이 글줄 사이를 못 벌린다.
+#   실측: 글줄 사이 14px→2px · 막대 99px→73px(390·430) · 44px 탭 타깃은 그대로.
+chk 'BAR_RHYTHM' parents.html 1
+# ★★[BAR_ONE_LINE 2026-08-18 사용자 지시 "이걸 위로 올려서 한줄로 만들자"]
+#   안내를 아랫줄이 아니라 «같은 줄»에 잇는다 — 흐르는 한 문장이라 넓은 화면에선 한 줄로 끝나고,
+#   좁은 화면에선 문단처럼 접힌다. 블록 두 개로 나누면 그 접힘이 «두 덩어리»로 보인다.
+#   실측: 1240·768px 한 줄(막대 69px) · 390px 두 줄(73px) · 320px 세 줄(97px).
+#   ★가운뎃점은 앞뒤로 줄바꿈이 «허용되는» 글자다 — 묶지 않으면 320px 에서 「·」가 줄 맨 앞에 매달린다(실측).
+#     앞말과 nowrap 으로 묶고 줄바꿈은 그 뒤에서만 일어나게 한다.
+chk 'BAR_ONE_LINE' parents.html 1
+chk 'play-bar-nb{white-space:nowrap}' parents.html 1
+# ★★[BAR_COLUMN 2026-08-18 사용자 스크린샷에서 발견] 막대 «안»은 편지 글단과 같은 폭으로 가둔다.
+#   종전엔 좌우 끝에 붙어 1240px 화면에서 글과 버튼이 1000px 넘게 벌어져 서로 남남으로 보였다.
+#   실측: 안쪽 640px · 본문단과 좌우가 정확히 같다(l 300 · r 940).
+chk 'BAR_COLUMN' parents.html 1
+chk 'play-bar-in{max-width:var(--max)' parents.html 1
+# ★★[HINT_NO_POP 2026-08-18 사용자 지적 "이 문구가 나중에 등장하는 버그가 잇어"]
+#   5초 뒤에 띄우던 것을 «처음부터» 보이게 했다. 늦게 나타나면 막대가 69→99px 로 갑자기 커지며
+#   글이 튀어나와, 배려로 만든 것이 «고장»으로 읽힌다. 되살리지 말 것.
+#   잔소리로 읽히지 않게 하는 것은 «시점»이 아니라 «격»이다(12px · --light 로 한 단 아래).
+#   실측: 재생 0.9~8.1초 내내 막대 73px 고정(튀는 구간 없음).
+chk 'HINT_NO_POP' parents.html 2
+nochk "classList.add('hint')" parents.html   # 늦게 띄우던 기제 — 되살리지 말 것
+#   ★nochk 에 'play-bar.hint' 를 쓰지 말 것: '.' 이 정규식 와일드카드라 살아 있는 play-bar-hint 를 잡는다(겪음)
 chk '편지를 읽어 드려요' parents.html 1   # 320px 글자칸 174px · 9자까지 한 줄(13자는 접힌다)
 nochk '편지를 읽어 드리는 중이에요' parents.html
 # ★인쇄에는 막대 «자리»도 남기지 않는다 — 막대만 감췄더니 body 의 70px 이 그대로 찍혀 빈 띠가 남았다.
 #   ★반드시 base 규칙 뒤에 둘 것 — 특이도가 같아 순서가 승부를 가른다(앞에 뒀다가 밀렸다·실측).
 chk '@media print{body.listening{padding-bottom:0}}' parents.html 1
-chk "bar.classList.add('hint'); },5000)" parents.html 1
 
 # ★★[LETTER_AUDIO_DIVERGED 2026-08-18 사용자가 새 녹음을 직접 주심] 두 경로가 더 이상 같은 파일이 아니다.
 #     assets/audio/parents-letter.mp3              ← 「어른께 드리는 안내」 페이지 · 사용자 새 녹음(162.9초)
@@ -4945,3 +4972,31 @@ chk 'node scripts/audit/kb-truth.mjs' automation/tests/merge-guard.sh 2
 chk 'NIGHTLY_JOURNEY' .github/workflows/nightly-screen.yml 1
 chk 'journey-sim.mjs' .github/workflows/nightly-screen.yml 1
 chk 'save-honesty.mjs' .github/workflows/nightly-screen.yml 1
+
+
+# ★★[NAV_MASK 2026-08-18 «점검 직접 보면서» 에서 눈으로 발견] 스크롤해도 숨지 않는 nav 는 마스크가 있어야 한다.
+#   실측(390px): parents.html 은 그라디언트가 0.92→0 이라 글자가 앉은 y≈22 의 알파가 0.53 뿐이었고,
+#   편지 본문이 그 뒤로 비쳐 「MOMENT EDIT」와 겹쳐 뭉개졌다. privacy.html 은 마스크가 아예 없었다
+#   (y=700 에서 「가. 방문 상담 신청 단계」를 덮음).
+#   ★index·inquiry 는 스크롤하면 nav 를 «숨겨» 이 문제가 없다 — 방식이 달라 처방도 다르다.
+#     그 두 곳에 마스크를 넣지 말 것(히어로 진사 위에 크림 띠가 남는다).
+#   ★글자 띠(0~72%)는 불투명, 나머지에서 사라진다. 띠 높이는 그대로다.
+chk 'NAV_MASK' parents.html 1
+chk 'NAV_MASK' privacy.html 1
+chk 'rgba(250,250,248,1) 72%' parents.html 1
+chk 'rgba(250,250,248,1) 72%' privacy.html 1
+nochk 'rgba(250,250,248,0.92)),' parents.html      # 글자가 비치던 옛 곡선
+
+# ★★[CUE_NO_COVER 2026-08-18 «점검 직접 보면서» 에서 눈으로 발견] 스크롤 큐는 «누를 것» 위에 앉지 않는다.
+#   실측(390×844 · 좌석 없는 구성): 문서 933 vs 화면 844 라 스크롤할 것이 89px 뿐인데 큐가 떴고,
+#   큐(707~764)가 「사진 올리기」 버튼(721~781)을 43px 덮어 글자가 「사 ▒▒ 기」로 보였다.
+#   ★fixed 라 문서 길이와 무관하게 늘 그 띠에 뜬다 — «길이»가 아니라 «겹치는가»로 판단한다.
+#   ★긴 화면에서는 그대로 뜬다(실측: 표본 2031px·좌석 구성 1395px 둘 다 큐 있음·겹침 0).
+chk 'CUE_NO_COVER' guide.html 1
+chk "querySelectorAll('button,a\[href\],input,.ps-btn,.act')" guide.html 1
+
+# ★[FOOT_BALANCE 2026-08-18] 표본 꼬리말 마지막 줄에 「요.」 한 글자만 떨어져 있었다(390px).
+#   글자 수를 깎아 맞추면 다음 문구 수정 때 바로 깨진다 — 두 줄을 고르게 나누게 한다.
+#   실측: 마지막 줄이 첫 줄의 72%(전에는 한 글자).
+chk 'FOOT_BALANCE' guide.html 1
+chk 'text-wrap:balance' guide.html 1
