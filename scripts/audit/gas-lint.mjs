@@ -64,10 +64,24 @@ export function makeSandbox() {
   return sb;
 }
 
+/* ★★[GAS_NOT_EMPTY 2026-08-18 내가 실제로 저지른 사고] 빈 파일도 «로드 OK» 였다.
+   패치 스크립트가 파일을 읽기 전에 먼저 비워(io.open(p,'w') 가 먼저 평가된다) admin.gs 가 0바이트가 됐는데,
+   이 검사는 초록을 냈다 — 빈 문자열은 완벽하게 유효한 자바스크립트이기 때문이다.
+   구문만 보는 검사는 «내용이 사라진 것»을 영영 못 잡는다. 그래서 크기도 함께 본다.
+   ★기준은 낮게(200자) 잡는다 — 진짜 작은 파일을 붉히려는 게 아니라 «통째로 날아간 것»만 잡는다. */
+const MIN_CHARS = 200;
+
 export function loadGas(sb = makeSandbox()) {
   const errors = [];
   for (const fp of files) {
-    try { vm.runInContext(fs.readFileSync(fp, 'utf8'), sb, { filename: rel(fp) }); }
+    let src = '';
+    try { src = fs.readFileSync(fp, 'utf8'); }
+    catch (e) { errors.push({ file: rel(fp), message: '읽기 실패 · ' + e.message }); continue; }
+    if (src.trim().length < MIN_CHARS) {
+      errors.push({ file: rel(fp), message: `내용이 ${src.length}자뿐 — 통째로 비워졌을 수 있다(GAS_NOT_EMPTY)` });
+      continue;
+    }
+    try { vm.runInContext(src, sb, { filename: rel(fp) }); }
     catch (e) { errors.push({ file: rel(fp), message: e.message }); }
   }
   return { sandbox: sb, errors, files: files.map(rel) };

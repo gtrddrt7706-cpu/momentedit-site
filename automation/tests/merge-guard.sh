@@ -4883,3 +4883,29 @@ chk 'function rRecords' admin.html 1
 chk 'function aiDraftAnswer' automation/platform/96_ai_cost.gs 1
 chk 'aiDraftAnswer: aiDraftAnswer' automation/admin/admin.gs 1
 chk '근거 없음' admin.html 1                      # 근거 없으면 초안을 보여주지 않는다(거짓이 교육으로 굳는 것 방지)
+
+
+# ★★[CPN_QUEUE 2026-08-18 쿠폰 연동 점검] 후기는 받았는데 커피를 안 드린 고객이 화면에서 사라지지 않게.
+#   후기 마감 순간 아카이브 분기로 들어가 보드에서 빠졌고, 남는 리마인드는 메일 한 통뿐이었다.
+#   추가보정·현금영수증과 같은 «끝난 고객이라도 우리 의무는 남는다» 자리에 둔다.
+chk 'CPN_QUEUE' automation/admin/admin.gs 1
+chk "kind: '쿠폰발급'" automation/admin/admin.gs 1
+chk "'쿠폰발급'" admin.html 4
+chk "act==='issueCoupon'" admin.html 1
+# ★★[CPN_SAY_ONCE 2026-08-18] 되돌리면 설문은 초기화되고 쿠폰은 남는다(남기는 게 맞다) —
+#   그때 «후기 쓰면 커피 드려요»를 다시 말하면 한 잔 더 준다는 뜻이 된다. 상태에 맞게 한 번만 말한다.
+chk 'CPN_SAY_ONCE' mypage.html 1
+chk 'CPN_SAY_ONCE' scripts/audit/rollback-notice.mjs 1
+chk '_hasCpn' mypage.html 3
+# ★★[CPN_PASTE 2026-08-18] 기프티콘은 «복사»로 온다 — 붙여넣기·끌어놓기도 받는다(같은 압축 경로로).
+chk 'CPN_PASTE' admin.html 4
+chk '_cpnTake' admin.html 4
+chk '_modalClose' admin.html 3
+# ★★[CPN_NOTIFY 2026-08-18] 바코드가 떴다는 안내 — 배선만 하고 기본은 꺼짐(고객 발송은 사용자 판단).
+chk 'CPN_NOTIFY' automation/platform/95_notify.gs 1
+chk "'cust.couponIssued'" automation/platform/95_notify.gs 1
+chk "notifyKakao('cust.couponIssued'" automation/admin/admin.gs 1
+# ★★[GAS_NOT_EMPTY 2026-08-18 내가 저지른 사고] 빈 파일도 «로드 OK» 였다 — 구문만 보는 검사는
+#   «내용이 통째로 사라진 것»을 못 잡는다. 크기도 함께 본다.
+chk 'GAS_NOT_EMPTY' scripts/audit/gas-lint.mjs 2
+chk 'COUPON_FLOW' scripts/audit/coupon-flow.mjs 1

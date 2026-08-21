@@ -82,6 +82,13 @@ var NOTIFY_EVENTS = {
   'cust.paymentConfirmed':{ to: 'customer', need: false, off: true, desc: '입금 확인됨' },
   'cust.cashReceiptIssued':{ to: 'customer', need: false, off: true, desc: '현금영수증 발행됨' },
   'cust.holdGranted':     { to: 'customer', need: false, off: true, desc: '예식일 임시고정 승인됨' },
+  /* ★[CPN_NOTIFY 2026-08-18 쿠폰 연동 점검] 커피쿠폰 바코드가 떴다는 안내.
+     지금은 «준비되면 위쪽에 바코드가 떠요»라고만 말해 두고 끝난다 — 두 분이 마이페이지를 다시
+     열어보지 않으면 받은 줄을 모른다. 이 이벤트가 그 문장을 완성한다.
+     ★기본은 off — 고객에게 나가는 발송은 비용·문안 승인이 걸린 사용자 판단 영역이라 임의로 켜지 않는다.
+       확인/축하류(paymentConfirmed·cashReceiptIssued·holdGranted)가 전부 off 인 이 저장소의 관례와도 같다.
+       켜려면 이 줄의 off 를 지우면 된다(템플릿 미승인이면 같은 내용이 SMS 로 나간다). */
+  'cust.couponIssued':    { to: 'customer', need: false, off: true, desc: '커피쿠폰 발급됨 · 마이페이지에 바코드 표시(CPN_NOTIFY · 기본 꺼짐)' },
   'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨(2026-06-23 켬 · 요청 결과 통보)' },
   'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },

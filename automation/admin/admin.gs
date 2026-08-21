@@ -569,6 +569,24 @@ function adminHome() {
       if ((stage === '결과물전달' || stage === '후기') && String(cget(rv, '추가보정상태') || '').trim() === '결제대기') {   // STAGE_REVIEW
         pushQ({ code: code, names: names, product: product, kind: '추가보정확인', sub: '추가 보정 입금 확인 (전달 후)', badge: { level: 'yellow', text: '입금 신호' }, _urgent: false, _stage: 8, _wait: createdYmd });
       }
+      /* ★★[CPN_QUEUE 2026-08-18 쿠폰 연동 점검] 아카이브라도 «커피쿠폰 미발급»은 큐에 남긴다.
+         후기를 받으면 고객 화면은 «감사의 마음으로 커피 2잔을 준비해요»라고 말해 둔다.
+         그런데 설문이 마감되는 순간 이 분기로 들어와 보드에서 사라진다 — 남는 리마인드는
+         제출 시점 관리자 메일 한 통뿐이고, 그걸 놓치면 되짚을 화면이 없다.
+         두 분은 기다리는데 아무 일도 안 일어난다. 사람 기억에만 기대던 유일한 마감이었다.
+         ★위의 추가보정·현금영수증과 같은 성격이라 같은 자리에 둔다 — «끝난 고객이라도 우리 의무는 남는다».
+         ★'건너뜀'은 제외 — 후기를 안 쓴 분께 드릴 커피가 없다(약속 자체가 성립하지 않는다).
+         ★회수도 다시 띄운다 — 회수는 «아직 못 드린» 상태로 돌아간 것이다.
+         ★배지로 겁주지 않는다 — 며칠이 지나야 급한지 정한 바가 없다. 조용히 남아 있기만 하면 된다. */
+      if ((stage === '결과물전달' || stage === '후기') && survStatus === '완료') {
+        var _cpS = String(cget(rv, '쿠폰상태') || '').trim();
+        if (_cpS !== '발급') {
+          pushQ({ code: code, names: names, product: product, kind: '쿠폰발급',
+            sub: '후기를 남겨 주셨어요 · 커피쿠폰(스타벅스 2잔) 바코드를 등록해 주세요'
+              + (_cpS === '회수' ? ' (회수 후 미발급)' : ''),
+            badge: { level: 'yellow', text: '후기 감사' }, _urgent: false, _loss: 5, _stage: 9, _wait: createdYmd });
+        }
+      }
       // 아카이브라도 추가 보정 현금영수증 미발행분은 큐 유지(의무발급·가산세 방지)
       if ((stage === '결과물전달' || stage === '후기')) {   // STAGE_REVIEW
         var _exArc = Math.round(Number(cget(rv, '추가보정금액')) || 0);
@@ -2054,6 +2072,9 @@ function adminIssueCoupon(code, images, expiry, title) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     touchCustomer(sheet, colOf, cust.num, { '쿠폰상태': '발급', '쿠폰데이터': json });
     _recordHandler(code, '커피쿠폰 발급(' + imgs.length + '장' + (data.expiry ? (' · ~' + data.expiry) : '') + ')');
+    /* [CPN_NOTIFY] 바코드가 떴다고 알린다 — 기본 off 라 지금은 로그만 남는다(95_notify 이벤트 표에서 off 를 지우면 켜진다).
+       ★호출을 미리 심어 두는 이유: 켜는 순간 코드를 다시 만지지 않아도 되게. 실패해도 발급은 이미 끝났다. */
+    try { notifyKakao('cust.couponIssued', code, { title: data.title, expiry: data.expiry }); } catch (eNf) {}
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
