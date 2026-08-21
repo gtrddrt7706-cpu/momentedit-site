@@ -4828,15 +4828,30 @@ chk "de.classList.contains('me-restoring') || window.__meTCLock" index.html 1
 #   남는 원인은 기기 쪽이고, 이 증상(화면은 「멈춤」인데 소리만 없음)의 1순위는 아이폰 옆면 무음 스위치다.
 #   iOS 는 new Audio() 소리를 벨소리 스위치로 함께 음소거한다.
 #   ★처음부터 띄우지 않는다 — 잘 들리는 분께는 잔소리다. 5초쯤 지나 「이상하다」 싶을 때 나타난다.
-chk 'SILENT_HINT' parents.html 2
-chk '안 들리면 볼륨과 무음 스위치를 확인해 주세요' parents.html 1
-chk 'play-bar-row' parents.html 2   # 힌트는 버튼 옆이 아니라 «전체 폭» 줄 — 옆에 두면 320px 에서 접힌다(실측)
+chk 'SILENT_HINT' parents.html 1
+chk '안 들리면 볼륨·무음 스위치를 확인해 주세요' parents.html 1
+chk 'play-bar-row' parents.html 2
+# ★★[BAR_RHYTHM 2026-08-18 사용자 지적 "하단 내용부분 좀더 깔끔하게 · 지금은 너무 간격도 이상해"]
+#   옛 짜임은 «행(글+버튼) 위 / 힌트 아래»였다. 행 높이를 44px 버튼이 정하는데 글자는 28px 뿐이라
+#   위아래 8px 씩 죽은 공간이 생기고 gap 6px 이 더해져 두 글줄 사이가 14px 로 벌어졌다(실측).
+#   같은 덩어리인 두 줄이 남남처럼 떨어져 보였다.
+#   → 글 두 줄을 한 덩어리(.play-bar-row)로 묶고 버튼을 그 «옆»에 세운다. 버튼이 글줄 사이를 못 벌린다.
+#   실측: 글줄 사이 14px→2px · 막대 99px→73px(390·430) · 44px 탭 타깃은 그대로.
+chk 'BAR_RHYTHM' parents.html 1
+chk 'flex-direction:column;gap:2px' parents.html 1
+# ★★[HINT_NO_POP 2026-08-18 사용자 지적 "이 문구가 나중에 등장하는 버그가 잇어"]
+#   5초 뒤에 띄우던 것을 «처음부터» 보이게 했다. 늦게 나타나면 막대가 69→99px 로 갑자기 커지며
+#   글이 튀어나와, 배려로 만든 것이 «고장»으로 읽힌다. 되살리지 말 것.
+#   잔소리로 읽히지 않게 하는 것은 «시점»이 아니라 «격»이다(12px · --light 로 한 단 아래).
+#   실측: 재생 0.9~8.1초 내내 막대 73px 고정(튀는 구간 없음).
+chk 'HINT_NO_POP' parents.html 2
+nochk "classList.add('hint')" parents.html   # 늦게 띄우던 기제 — 되살리지 말 것
+#   ★nochk 에 'play-bar.hint' 를 쓰지 말 것: '.' 이 정규식 와일드카드라 살아 있는 play-bar-hint 를 잡는다(겪음)
 chk '편지를 읽어 드려요' parents.html 1   # 320px 글자칸 174px · 9자까지 한 줄(13자는 접힌다)
 nochk '편지를 읽어 드리는 중이에요' parents.html
 # ★인쇄에는 막대 «자리»도 남기지 않는다 — 막대만 감췄더니 body 의 70px 이 그대로 찍혀 빈 띠가 남았다.
 #   ★반드시 base 규칙 뒤에 둘 것 — 특이도가 같아 순서가 승부를 가른다(앞에 뒀다가 밀렸다·실측).
 chk '@media print{body.listening{padding-bottom:0}}' parents.html 1
-chk "bar.classList.add('hint'); },5000)" parents.html 1
 
 # ★★[LETTER_AUDIO_DIVERGED 2026-08-18 사용자가 새 녹음을 직접 주심] 두 경로가 더 이상 같은 파일이 아니다.
 #     assets/audio/parents-letter.mp3              ← 「어른께 드리는 안내」 페이지 · 사용자 새 녹음(162.9초)
