@@ -4859,3 +4859,15 @@ chk '사진이 들어가는 자리가 처음부터 없다' api/_kb.js 1
 #   ★«반영»까지 자동으로 만들지 말 것: AI 답을 근거로 지식을 자동 저장하면 틀린 답이 전 접점 영구 사실이 된다.
 chk 'AUTO_DISAGREE' automation/platform/96_ai_cost.gs 3
 chk '직원 답이 갈렸어요' automation/platform/96_ai_cost.gs 1
+# ★★[KB_TRUTH 2026-08-17 사용자 지시 "주기적으로 핵심정보등을 스스로 학습"] 사실 «자동 재검증».
+#   AI 가 사실을 고쳐 쓰게 하지 않는다(가격이 그렇게 틀리면 그대로 청구 사고) —
+#   대신 KB 가 말하는 것이 **실제 코드와 같은지** 매번 대조한다. 어긋나면 사람에게 알린다.
+#   ★[KB_TRUTH_STRICT] 값 비교는 «KB 어딘가에 그 숫자가 있나»가 아니라 **선언 줄의 값**으로 —
+#     includes 로 짰더니 330→350만 오류가 통과했다(다른 줄에 330만원이 또 있었다). 되돌리지 말 것.
+chk 'KB_TRUTH' scripts/audit/kb-truth.mjs 2
+chk 'KB_TRUTH_STRICT' scripts/audit/kb-truth.mjs 1
+nochk 'KB.includes(`\${weekend}만원`)' scripts/audit/kb-truth.mjs
+# ★★[KB_DRAFT 2026-08-17] 교육 초안은 **KB·핵심정보에 적힌 것만** 근거로 쓴다. 없으면 «근거 없음».
+#   초안 생성기가 지어내면 그 거짓이 «승인된 교육»이 되어 전 직원에 영구히 박힌다.
+chk 'KB_DRAFT' api/kb-draft.js 1
+chk 'grounded' api/kb-draft.js 6

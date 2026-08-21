@@ -1,0 +1,74 @@
+/* ★[KB_TRUTH 2026-08-17 사용자 지시 "주기적으로 핵심정보등을 스스로 학습하게하는건어때?"]
+   핵심정보 «자동 재검증» — KB(api/_kb.js)가 고객에게 말하는 사실이 **실제 코드와 맞는지** 대조한다.
+
+   ★«스스로 학습»을 사실 재작성으로 만들지 않은 이유:
+     AI 가 제 답을 근거로 사실을 고쳐 쓰면, 틀린 값이 조용히 «최신 사실»이 되어 전 직원에 박힌다.
+     가격이 그렇게 틀리면 그대로 청구 사고다. 그래서 방향을 뒤집었다 —
+     **고쳐 쓰는 것이 아니라, 어긋났는지 매번 확인한다.** 어긋나면 사람에게 알린다.
+
+   ★이 검사가 잡는 것: 코드는 바뀌었는데 KB 만 옛말을 하는 표류.
+     (실제 사고: 곡 선정 칸을 지운 뒤에도 KB 가 열사흘 동안 «마이페이지에서 입력»이라 말했다 — MUSIC_GONE)
+
+   사용: node scripts/audit/kb-truth.mjs
+*/
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const SITE = path.resolve(HERE, '../..');
+const require_ = createRequire(import.meta.url);
+const KB = require_(path.join(SITE, 'api/_kb.js'));
+const read = (p) => { try { return fs.readFileSync(path.join(SITE, p), 'utf8'); } catch (e) { return ''; } };
+
+let fail = 0;
+const ok = (c, m, d) => { console.log(`  ${c ? '✅' : '❌'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
+
+const journey = read('automation/platform/70_journey.gs');
+const prod = read('automation/platform/80_production.gs');
+const invites = ['i/cover-01.html', 'i/cover-02.html', 'i/cover-07.html', 'i-family/family-01.html'].map(read).join('\n');
+const mypage = read('mypage.html');
+
+console.log('\n[가격 — KB 가 말하는 값이 코드의 값과 같은가]');
+{
+  const m = journey.match(/'시그니처':\s*\{\s*평일:\s*(\d+),\s*주말:\s*(\d+)\s*\}/);
+  ok(!!m, '코드에서 시그니처 가격을 찾았다', m ? '' : '패턴 불일치 — 검사를 고칠 것');
+  if (m) {
+    const weekday = Number(m[1]) / 10000, weekend = Number(m[2]) / 10000;
+    /* ★★[KB_TRUTH_STRICT 2026-08-17 자체 반증에서 잡음] «KB 어딘가에 그 숫자가 있으면 통과»로 짰더니
+       가격을 330→350만으로 틀리게 고쳐도 **검사가 통과했다** — KB 다른 줄(가격 판정 순서)에
+       «330만원»이 또 있었기 때문이다. 있는지 없는지가 아니라 **선언 줄의 값**을 뽑아 숫자로 견준다.
+       ★includes 로 되돌리지 말 것 — 그러면 이 검사는 다시 통과만 하는 장식이 된다. */
+    const kbLine = (label) => { const mm = KB.match(new RegExp('- ' + label + '[^\n]*')); return mm ? mm[0] : ''; };
+    const kbWon = (line) => { const mm = String(line).match(/(\d+(?:\.\d+)?)\s*만원/); return mm ? Number(mm[1]) : null; };
+    const wkEndLine = kbLine('주말·공휴일 올인원 패키지'), wkDayLine = kbLine('평일결혼식 올인원 패키지');
+    ok(kbWon(wkEndLine) === weekend, `주말가 ${weekend}만원이 KB 선언과 일치`, 'KB 선언: ' + (wkEndLine || '(줄 없음)'));
+    ok(kbWon(wkDayLine) === weekday, `평일가 ${weekday}만원이 KB 선언과 일치`, 'KB 선언: ' + (wkDayLine || '(줄 없음)'));
+  }
+}
+
+console.log('\n[하객 수 — 상품 정체성의 핵심 숫자]');
+{
+  const m = prod.match(/FINAL_CONFIRM\s*=\s*\{[^}]*착석:\s*(\d+)[^}]*최대:\s*(\d+)/);
+  ok(!!m, '코드에서 인원 정책을 찾았다', m ? '' : '패턴 불일치');
+  if (m) ok(KB.includes(`${m[1]}명`), `착석 ${m[1]}명이 KB 와 일치`, 'KB 에 없음');
+}
+
+console.log('\n[청첩장 사진 — 2026-08-17 사고의 그 사실]');
+{
+  const hasUpload = /type=["']file["']|FileReader/.test(invites + mypage.slice(mypage.indexOf('invStepMethod') || 0, (mypage.indexOf('invStepConfirm') || 0) + 4000));
+  ok(!hasUpload, '청첩장 계열에 사진 업로드 경로가 없다(코드 실측)', hasUpload ? '업로드 경로가 생겼다 — KB 를 고칠 것' : '');
+  ok(/사진이 들어가는 자리가 처음부터 없다/.test(KB), 'KB 가 그 사실을 말하고 있다 [INV_NO_PHOTO]', 'KB 에서 사라졌다 — 다시 지어낸다');
+  ok(!hasUpload === /사진이 들어가는 자리가 처음부터 없다/.test(KB), '코드와 KB 가 같은 말을 한다', '어긋남 — 둘 중 하나가 낡았다');
+}
+
+console.log('\n[폐지된 기능을 KB 가 아직 말하고 있지 않은가]');
+{
+  const musicGone = !/음악|곡 선정/.test(mypage);
+  ok(musicGone, '마이페이지에 음악·곡 선정 칸이 없다(폐지 유지)', '');
+  if (musicGone) ok(!/마이페이지[^.]{0,20}(음악|곡)[^.]{0,10}입력/.test(KB), 'KB 도 «음악을 입력한다»고 말하지 않는다 [MUSIC_GONE]', 'KB 가 없는 칸을 안내하고 있다');
+}
+
+console.log(`\n결과 — ${fail ? ('어긋남 ' + fail + '건 · KB 또는 코드 중 하나가 낡았습니다') : '어긋남 0건 (KB 가 코드와 같은 말을 합니다)'}`);
+process.exit(fail ? 1 : 0);
