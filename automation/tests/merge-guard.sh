@@ -3470,6 +3470,12 @@ chk '규민:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배�
 #   붉게 떠 있었다. clip.role '신랑|신부' 는 캐릭터가 아니라 «번갈아 읽는다»는 표시라 배정이 안 된다.
 #   손으로 하나 골랐으면 입장 아홉 줄이 통째로 한 사람 목소리가 됐다.
 chk 'PASTE_ROLE_SENT' scripts/repatch-clip.mjs 1
+# ★★[RECORDED_MIX 2026-08-21] 합성 클립(26)도 «무슨 말인지»를 _recorded.json 에 적는다.
+#   assemble-narration 은 만드는 자리에서 적는데(RECORDED_TRUTH) build-chorus 만 안 적었다.
+#   실측: 재료 24·25 를 새 문안으로 받아 26 을 다시 겹쳤는데도 대장엔 26 이 옛말로 남아
+#   67곳이 전부 맞는 판에서 26 하나만 붉었다. 적는 값은 manifest 가 아니라 «재료가 실제로 녹음한 글»이다.
+chk 'RECORDED_MIX' scripts/build-chorus.mjs 1
+chk 'recordMixed' scripts/build-chorus.mjs 2
 chk 'voiceOf' scripts/repatch-clip.mjs 4
 nochk 'man.voice?.\[c.role\]' scripts/repatch-clip.mjs 0
 nochk '신랑|신부:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 0
