@@ -3463,8 +3463,16 @@ nochk "하객대표: '영목'" scripts/build-typecast-import.mjs 0
 #   ★생성물도 함께 본다 — 원천만 고치고 생성기를 다시 안 돌린 날을 잡으려는 것이다.
 nochk '이준:' "docs/plans/식순연구/타입캐스트/5_배역.txt" 0
 nochk '영목:' "docs/plans/식순연구/타입캐스트/5_배역.txt" 0
-chk '이겸:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 26
+chk '이겸:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 32
 chk '규민:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 4
+# ★★[PASTE_ROLE_SENT 2026-08-21] 붙여넣기 화자는 «문장» 역할에서 온다 — 클립 역할이 아니다.
+#   사용자가 타입캐스트 화면을 보내 왔다: 「신랑|신부 · 대사 9개」 묶음에 «보이스를 선택하세요» 만
+#   붉게 떠 있었다. clip.role '신랑|신부' 는 캐릭터가 아니라 «번갈아 읽는다»는 표시라 배정이 안 된다.
+#   손으로 하나 골랐으면 입장 아홉 줄이 통째로 한 사람 목소리가 됐다.
+chk 'PASTE_ROLE_SENT' scripts/repatch-clip.mjs 1
+chk 'voiceOf' scripts/repatch-clip.mjs 4
+nochk 'man.voice?.\[c.role\]' scripts/repatch-clip.mjs 0
+nochk '신랑|신부:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 0
 
 # ── ★★[DROP_GUARD] 「버림」으로 찍어도 비울 수 없는 자리 (2026-08-17 사용자 지시) ──
 # *"버림으로 체크해도 이 부분의 안내가 없으면 안 된다고 판단이 들면 너가 같이 적은 이유를 보고
