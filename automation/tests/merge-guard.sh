@@ -4945,3 +4945,31 @@ chk 'node scripts/audit/kb-truth.mjs' automation/tests/merge-guard.sh 2
 chk 'NIGHTLY_JOURNEY' .github/workflows/nightly-screen.yml 1
 chk 'journey-sim.mjs' .github/workflows/nightly-screen.yml 1
 chk 'save-honesty.mjs' .github/workflows/nightly-screen.yml 1
+
+
+# ★★[NAV_MASK 2026-08-18 «점검 직접 보면서» 에서 눈으로 발견] 스크롤해도 숨지 않는 nav 는 마스크가 있어야 한다.
+#   실측(390px): parents.html 은 그라디언트가 0.92→0 이라 글자가 앉은 y≈22 의 알파가 0.53 뿐이었고,
+#   편지 본문이 그 뒤로 비쳐 「MOMENT EDIT」와 겹쳐 뭉개졌다. privacy.html 은 마스크가 아예 없었다
+#   (y=700 에서 「가. 방문 상담 신청 단계」를 덮음).
+#   ★index·inquiry 는 스크롤하면 nav 를 «숨겨» 이 문제가 없다 — 방식이 달라 처방도 다르다.
+#     그 두 곳에 마스크를 넣지 말 것(히어로 진사 위에 크림 띠가 남는다).
+#   ★글자 띠(0~72%)는 불투명, 나머지에서 사라진다. 띠 높이는 그대로다.
+chk 'NAV_MASK' parents.html 1
+chk 'NAV_MASK' privacy.html 1
+chk 'rgba(250,250,248,1) 72%' parents.html 1
+chk 'rgba(250,250,248,1) 72%' privacy.html 1
+nochk 'rgba(250,250,248,0.92)),' parents.html      # 글자가 비치던 옛 곡선
+
+# ★★[CUE_NO_COVER 2026-08-18 «점검 직접 보면서» 에서 눈으로 발견] 스크롤 큐는 «누를 것» 위에 앉지 않는다.
+#   실측(390×844 · 좌석 없는 구성): 문서 933 vs 화면 844 라 스크롤할 것이 89px 뿐인데 큐가 떴고,
+#   큐(707~764)가 「사진 올리기」 버튼(721~781)을 43px 덮어 글자가 「사 ▒▒ 기」로 보였다.
+#   ★fixed 라 문서 길이와 무관하게 늘 그 띠에 뜬다 — «길이»가 아니라 «겹치는가»로 판단한다.
+#   ★긴 화면에서는 그대로 뜬다(실측: 표본 2031px·좌석 구성 1395px 둘 다 큐 있음·겹침 0).
+chk 'CUE_NO_COVER' guide.html 1
+chk "querySelectorAll('button,a\[href\],input,.ps-btn,.act')" guide.html 1
+
+# ★[FOOT_BALANCE 2026-08-18] 표본 꼬리말 마지막 줄에 「요.」 한 글자만 떨어져 있었다(390px).
+#   글자 수를 깎아 맞추면 다음 문구 수정 때 바로 깨진다 — 두 줄을 고르게 나누게 한다.
+#   실측: 마지막 줄이 첫 줄의 72%(전에는 한 글자).
+chk 'FOOT_BALANCE' guide.html 1
+chk 'text-wrap:balance' guide.html 1

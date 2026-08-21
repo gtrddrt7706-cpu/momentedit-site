@@ -57,7 +57,14 @@ html{scroll-behavior:smooth;overflow-x:hidden}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:14.5px;line-height:1.95;letter-spacing:0;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
 /* Nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:none;transition:transform 1.05s cubic-bezier(0.22,1,0.36,1),opacity 0.95s ease}nav.nav-hidden{transform:translateY(-100%);opacity:0}
+/* ★★[NAV_MASK 2026-08-18 점검에서 눈으로 발견 · parents.html 과 같은 결함] 배경이 아예 없어
+   스크롤하면 본문이 워드마크 뒤로 지나가며 겹쳤다(390px 실측: y=700 에서 「MOMENT EDIT」가
+   「가. 방문 상담 신청 단계」를 덮음). 이 nav 는 스크롤해도 숨지 않으므로 마스크가 있어야 한다.
+   ★inquiry·index 는 스크롤하면 nav 를 숨겨서 이 문제가 없다 — 방식이 달라 처방도 다르다.
+   ★글자 띠(0~72%)는 불투명, 나머지에서 부드럽게 사라진다. */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  background:linear-gradient(to bottom,rgba(250,250,248,1) 0,rgba(250,250,248,1) 72%,rgba(250,250,248,0) 100%);
+  transition:transform 1.05s cubic-bezier(0.22,1,0.36,1),opacity 0.95s ease}nav.nav-hidden{transform:translateY(-100%);opacity:0}
 .nav-in{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:14px 40px}
 .nav-mark{font-family:var(--serif);font-size:12px;font-weight:400;letter-spacing:0.32em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .nav-mark .dot{width:3px;height:3px;border-radius:50%;background:var(--seal);display:inline-block}
