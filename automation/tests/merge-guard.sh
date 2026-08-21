@@ -5000,3 +5000,14 @@ chk "querySelectorAll('button,a\[href\],input,.ps-btn,.act')" guide.html 1
 #   실측: 마지막 줄이 첫 줄의 72%(전에는 한 글자).
 chk 'FOOT_BALANCE' guide.html 1
 chk 'text-wrap:balance' guide.html 1
+# ★★[KB_TRUTH_WIDE 2026-08-21 사용자 지시 "추천대로 진행"] KB↔코드 대조를 4항목 → 전 결제·결과물 정책으로.
+#   왜: 자동 탐지(AUTO_DISAGREE)는 «답이 갈릴 때»만 잡는다 — 다섯 직원이 **똑같이 틀리면** 조용하다.
+#   그 사각을 KB↔코드 대조가 메운다(갈리든 안 갈리든 값이 다르면 잡힌다).
+#   ★넓히면서 KB 에 없던 사실도 하나 찾았다: 계약서 서명 기한 72시간 — 고객 화면엔 카운트다운이 뜨는데
+#     KB 엔 없어서 «서명 기한이 얼마인가요?»에 답할 근거가 없었다. 그것도 이 검사가 잡아 준 것이다.
+#   ★새 항목은 반드시 kbNum(선언라벨)로 — includes 로 짜면 다른 줄의 같은 숫자에 걸려 통과한다
+#     (확장 때 실제로 그렇게 짰다가 반증에서 걸렸다: 추가보정 20,000→30,000 이 통과했다).
+chk 'KB_TRUTH_WIDE' scripts/audit/kb-truth.mjs 1
+chk 'KB_TRUTH_WIDE' api/_kb.js 1
+chk 'kbNum' scripts/audit/kb-truth.mjs 5
+chk '계약서 서명 기한' api/_kb.js 1
