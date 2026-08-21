@@ -67,7 +67,14 @@ if grep -nE '^[^#]*\|\|[[:space:]]*(FAIL|Fail)=' "$_SELF"; then
 fi
 # chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
 # _ran = GATE_RAN 중단 감지용 실행 계수.
-chk(){ _ran=$((_ran+1)); n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+chk(){ _ran=$((_ran+1)); case "$3" in ''|*[!0-9]*) echo "REVERT? merge-guard: chk '$1' $2 — 셋째 인자 '$3' 가 정수가 아니다 · 그 줄은 조용히 초록이 된다(CHK_ARG_SPACE)"; fail=1; return;; esac; n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+# ★★[CHK_ARG_SPACE 2026-08-21] 위 case 가 이 게이트의 가장 조용한 고장을 막는다.
+#   chk 의 셋째 인자는 «최소 개수»(정수)다. 거기에 주석이 붙거나(`1#주석` — 띄어쓰기 하나 빠짐)
+#   「없음」 같은 말이 오면 `[ "$n" -lt "$3" ]` 가 산술 비교에 실패한다. sh 는 그때
+#   stderr 에 한 줄 찍고 **비교를 거짓으로 쳐서 else(초록)로 떨어뜨린다.**
+#   실측 2건 — ①`photoWish … 1#★★[PHOTOSHARE_DIRECT` (2026-08-16부터 5일간 안 쏜 화살)
+#              ②`chk '영목' … 없음` (2026-08-21 · 내가 부재 검사를 chk 로 쓴 것 · nochk 가 맞다)
+#   ★붉게 지는 고장이 아니라 «초록으로 지는» 고장이라 눈으로는 영영 못 찾는다. 호출 때 잡는다.
 # ★[CHK_DASH_SAFE 2026-08-15] chk 에 `-e … --` 를 붙였다(nochk 는 이미 있었다).
 #   없으면 대시로 시작하는 패턴이 grep 의 옵션으로 먹힌다 — 실측: `chk '{--col:720px}' console.html 1` 가
 #   `grep --color console.html` 로 해석돼 **파일 인자를 잃고 stdin 을 기다리며 영영 멈췄다.**
@@ -76,7 +83,7 @@ chk(){ _ran=$((_ran+1)); n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if
 #   전엔 1248행에 있어서 그 위에서 nochk 를 부르면 `nochk: not found` 만 찍히고
 #   게이트는 **그대로 초록**이었다(실측 — 내가 410행대에 두 줄 넣었다가 당했다).
 #   쓰는 자리가 정의보다 위면 그 검사는 안 쏜 화살이 된다(★11-c). 정의를 위로 올려 그 창을 없앤다.
-nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
+nochk(){ case "${3:-0}" in ''|*[!0-9]*) echo "REVERT? merge-guard: nochk '$1' $2 — 셋째 인자 '$3' 가 정수가 아니다 · 그 줄은 조용히 초록이 된다(CHK_ARG_SPACE)"; fail=1; return;; esac; n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' ${n}개 (한도 ${3:-0})"; fi; }
 # ── 2026-07-18 위저드·대시보드 수정 마커
 chk '_t04prev' mypage.html 2                       # 04 호칭 복원
 chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 발행 차단
@@ -2204,7 +2211,11 @@ chk 'CHORUS_SEGN' scripts/build-chorus.mjs 5              # 문장 경계를 소
 chk 'CHORUS_MEET' scripts/build-chorus.mjs 1                # 목표 길이는 긴 쪽이 아니라 가운데 — 두 사람의 보정 여유를 둘 다 쓴다
 chk 'CHORUS_STAGGER' scripts/build-chorus.mjs 1            # 0이면 사람이 아니라 합성처럼 들린다(플랜저)
 chk 'IS_MIX' scripts/build-typecast-import.mjs 5           # 붙여넣기·화자 수·클립 수에서 합성 클립 제외
-chk '저희, 그렇게 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_화면글자_맞추기.txt' 2   # 재더빙 붙여넣기에 합창 재료 2클립이 들어 있어야 한다
+# ★[CHORUS_PASTE_2 2026-08-21] 가리키는 파일과 문장을 함께 옮겼다 — 뜻은 그대로다:
+#   «재더빙 붙여넣기에 합창 재료 2클립(24·25)이 들어 있어야 한다». 26은 그 둘을 겹쳐 만드는 것이라
+#   재료가 빠지면 26이 낡은 채 남는다. 옛 파일(재더빙_화면글자_맞추기.txt)은 옛 신랑 이름을 들고 있어
+#   지웠고(VOICE_CAST_2), 문장도 COPY_BATCH 에서 VOWBOTH 가 바뀌었다.
+chk '저희 두 사람, 오늘 한 약속대로 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt' 2
 nochk "'live:두 분이 각자 준비한 서약문을 낭독'" assets/ritual-story.js   # 옛 키 — 되살리면 장면 안내가 조용히 끊긴다
 
 # ── [ENTRY_ALT] 입장 인사는 두 분이 한 문장씩 번갈아 (2026-08-04 사용자
@@ -3435,6 +3446,25 @@ chk 'WELCOME_TONE' "docs/plans/식순연구/배역_예시_대사.txt" 1
 #   다섯 자리가 여전히 같은 한 문장을 쓰는지 전수 대조한다. 하나만 옛 꼴이면 붉는다.
 chk 'PERF_CANON_2' scripts/check-narr-rule.mjs 1
 chk "PERF_CANON = '이제 두 사람은 부부입니다'" scripts/check-narr-rule.mjs 1
+# ★★[VOICE_CAST_2 2026-08-21] 배역 성우 2자리 교체 — 신랑 이준→이겸 · 하객대표 영목→규민
+#   신랑은 사용자 선택, 하객대표는 판정 *"너무 짧고 어색해 · 더빙 성우 바꿔야해"*.
+#   시험 녹음을 실측해 둘 다 바뀐 것을 확인했다 — 이준 116.8→이겸 133.3Hz · 영목 128.0→규민 144.1Hz.
+#   보이스 이름은 DEFAULT_VOICE 한 곳에만 적는다 — manifest.voice·붙여넣기 파일·보이스찾기 표가
+#   전부 거기서 생성된다. 옛 이름이 한 곳이라도 남으면 타입캐스트가 그 줄만 옛 성우로 배정한다.
+chk 'VOICE_GROOM_2' scripts/build-typecast-import.mjs 1
+chk 'VOICE_FRIEND_2' scripts/build-typecast-import.mjs 1
+chk "신랑: '이겸'" scripts/build-typecast-import.mjs 1
+chk "하객대표: '규민'" scripts/build-typecast-import.mjs 1
+#   ★부재는 nochk 로 쏜다(chk 셋째 인자는 «최소 개수»다 — CHK_ARG_SPACE 참고).
+#   ★이름 통짜로 세지 않는다 — 배역 «가상 인물»이 이준호(31)라서 '이준' 이 정당하게 남고,
+#     근거 주석에도 옛 이름이 남아야 한다(왜 바꿨는지). 대장 줄 모양 그대로만 없는지 본다.
+nochk "신랑: '이준'" scripts/build-typecast-import.mjs 0
+nochk "하객대표: '영목'" scripts/build-typecast-import.mjs 0
+#   ★생성물도 함께 본다 — 원천만 고치고 생성기를 다시 안 돌린 날을 잡으려는 것이다.
+nochk '이준:' "docs/plans/식순연구/타입캐스트/5_배역.txt" 0
+nochk '영목:' "docs/plans/식순연구/타입캐스트/5_배역.txt" 0
+chk '이겸:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 26
+chk '규민:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 4
 
 # ── ★★[DROP_GUARD] 「버림」으로 찍어도 비울 수 없는 자리 (2026-08-17 사용자 지시) ──
 # *"버림으로 체크해도 이 부분의 안내가 없으면 안 된다고 판단이 들면 너가 같이 적은 이유를 보고
@@ -4023,7 +4053,10 @@ chk 'PHOTO_WISH' automation/platform/80_production.gs 2
 chk 'body.draft.photoWish = _pw' automation/platform/80_production.gs 1
 chk 'photoWish' admin.html 1                     # 관리자 화면이 요청을 읽는다
 # [PHOTO_WISH] 좌석 공개설정만 바꿔도 guideinfo 트랙이 통째로 교체된다 — 통과 목록에서 빠지면 요청이 조용히 지워진다
-chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1# ★★[PHOTOSHARE_DIRECT 2026-08-16 사용자 결정 "우리를 안거치고 부부한테 바로가는걸원해"]
+chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1 # ★★[PHOTOSHARE_DIRECT 2026-08-16 사용자 결정 "우리를 안거치고 부부한테 바로가는걸원해"]
+# ★[CHK_ARG_SPACE 2026-08-21] 위 줄은 `1#` 이라 셋째 인자가 «1#» 이었다 — 산술 비교가 깨져
+#   `line 70: [: 1#: integer expression expected` 만 찍고 조용히 초록으로 떨어졌다(2026-08-16부터 5일간).
+#   붉게 지지 않는 고장이라 아무도 몰랐다. 아래 자가검사가 그 꼴을 정적으로 잡는다.
 #   하객 사진은 우리를 거치지 않는다. 리뷰가 「우리 안내 페이지에서 직접 받자」를 개선안으로 되살리지 못하게 막는다.
 #   (조사: 구글 드라이브·폼은 로그인 없이 업로드 불가 → 우리가 받으려면 GAS 업로드 배관이 필요한데 그 길을 안 간다)
 chk 'PHOTOSHARE_DIRECT' mypage.html 1
