@@ -4847,3 +4847,39 @@ chk "bar.classList.add('hint'); },5000)" parents.html 1
 chk 'LETTER_AUDIO_DIVERGED' scripts/assemble-parents-letter.mjs 1
 chk 'overwrite-page-audio' scripts/assemble-parents-letter.mjs 2
 nochk '^fs.copyFileSync(dst, alt);' scripts/assemble-parents-letter.mjs
+# ★★[INV_NO_PHOTO 2026-08-17 사용자 제보 — 접점마다 다른 답] 청첩장에는 사진이 들어가지 않는다.
+#   실측: 16종 전부 사진 0장(장식은 인라인 SVG) · 위저드에 업로드 칸 0개 · 초안에 사진 키 0개.
+#   그런데 「마이」가 «네, 가능합니다 · 개인 사진을 넣어 편집하실 수 있어요»라고 **없는 기능을 지어냈다**.
+#   ★KB 에서 이 줄을 빼지 말 것 — 빼면 근거가 없어져 다시 지어낸다.
+chk 'INV_NO_PHOTO' api/_kb.js 1
+chk '사진이 들어가는 자리가 처음부터 없다' api/_kb.js 1
+# ★★[AUTO_DISAGREE 2026-08-17 사용자 지시 "자동으로 학습해서 … 시간이 갈수록 똑똑해지는거지"]
+#   실제 고객 질문을 매일 전 직원에게 되물어 **답이 갈린 것만** 아침 메일로 올린다.
+#   정답을 몰라도 오답을 찾는 방식(둘이 다르면 하나는 틀렸다) — 그래서 사람 없이 매일 돈다.
+#   ★«반영»까지 자동으로 만들지 말 것: AI 답을 근거로 지식을 자동 저장하면 틀린 답이 전 접점 영구 사실이 된다.
+chk 'AUTO_DISAGREE' automation/platform/96_ai_cost.gs 3
+chk '직원 답이 갈렸어요' automation/platform/96_ai_cost.gs 1
+# ★★[KB_TRUTH 2026-08-17 사용자 지시 "주기적으로 핵심정보등을 스스로 학습"] 사실 «자동 재검증».
+#   AI 가 사실을 고쳐 쓰게 하지 않는다(가격이 그렇게 틀리면 그대로 청구 사고) —
+#   대신 KB 가 말하는 것이 **실제 코드와 같은지** 매번 대조한다. 어긋나면 사람에게 알린다.
+#   ★[KB_TRUTH_STRICT] 값 비교는 «KB 어딘가에 그 숫자가 있나»가 아니라 **선언 줄의 값**으로 —
+#     includes 로 짰더니 330→350만 오류가 통과했다(다른 줄에 330만원이 또 있었다). 되돌리지 말 것.
+chk 'KB_TRUTH' scripts/audit/kb-truth.mjs 2
+chk 'KB_TRUTH_STRICT' scripts/audit/kb-truth.mjs 1
+nochk 'KB.includes(`\${weekend}만원`)' scripts/audit/kb-truth.mjs
+# ★★[KB_DRAFT 2026-08-17] 교육 초안은 **KB·핵심정보에 적힌 것만** 근거로 쓴다. 없으면 «근거 없음».
+#   초안 생성기가 지어내면 그 거짓이 «승인된 교육»이 되어 전 직원에 영구히 박힌다.
+chk 'KB_DRAFT' api/kb-draft.js 1
+chk 'grounded' api/kb-draft.js 6
+# ★★[AI_TABS3 2026-08-17 사용자 지시 "개편"] AI 직원실 8탭 → 3탭(핵심정보·가르치기·기록).
+#   기능을 지운 게 아니라 «누를 이유»로 다시 묶었다 — 렌더 함수(rEdu·rImprove·rHandoff·rRoster)는 그대로 쓴다.
+#   리포트·테스트만 탭에서 내렸다(통계는 아침 메일 한 줄 · 테스트는 전 직원 점검과 중복).
+#   ★탭을 다시 늘리기 전에 물을 것: «이건 사장이 눌러야만 도는가?» 그렇다면 자동으로 만들 자리다.
+chk 'AI_TABS3' admin.html 3
+chk "\['핵심정보'\],\['가르치기'\],\['기록'\]" admin.html 1
+chk 'function rTeach' admin.html 1
+chk 'function rRecords' admin.html 1
+# ★[KB_DRAFT] 원클릭 초안 — GAS 함수 + adminCall 화이트리스트가 **둘 다** 있어야 버튼이 산다.
+chk 'function aiDraftAnswer' automation/platform/96_ai_cost.gs 1
+chk 'aiDraftAnswer: aiDraftAnswer' automation/admin/admin.gs 1
+chk '근거 없음' admin.html 1                      # 근거 없으면 초안을 보여주지 않는다(거짓이 교육으로 굳는 것 방지)

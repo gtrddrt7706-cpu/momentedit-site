@@ -185,6 +185,7 @@ function adminCall(token, fn, args) {
       adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
       adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange,
       aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
+      aiDraftAnswer: aiDraftAnswer,   // [KB_DRAFT] «가르치기» 탭 원클릭 초안 — 화이트리스트에 없으면 버튼이 «알 수 없는 요청»으로 죽는다
       aiKbNoteList: aiKbNoteList, aiKbNoteAdd: aiKbNoteAdd, aiKbNoteSetActive: aiKbNoteSetActive, aiKbNoteDelete: aiKbNoteDelete,
       aiTestRunSave: aiTestRunSave, aiAlertAdmin: aiAlertAdmin, aiBudgetGet: aiBudgetGet, aiBudgetSet: aiBudgetSet, aiQuestionLog: aiQuestionLog,
       aiSafetyNow: aiSafetyNow, aiSafetyHistory: aiSafetyHistory, aiDigestPreview: aiDigestPreview, aiQuestionReport: aiQuestionReport,

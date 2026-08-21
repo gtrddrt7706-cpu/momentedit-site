@@ -319,6 +319,49 @@ function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + 
     if (regsAll.length > regs.length) note = '회귀 ' + (regsAll.length - regs.length) + '건 미실행(상한 초과 · 오래된 회귀 비활성 정리 권장)';
     for (var j = 0; j < regs.length; j++) { var rc = regs[j]; var rx = _aiSurfacePost_(String(rc[1]), String(rc[2])); if (rx.code >= 200 && rx.code < 500 && rx.j) { reachable++; var ok2 = false; try { ok2 = _regGrade_(String(rc[3]), String(rc[4]), rx); } catch (e) {} if (ok2) pass++; else fails.push('회귀:' + String(rc[1]) + ':' + String(rc[2]).slice(0, 14)); } }
   } catch (e) {}
+  /* ★★[AUTO_DISAGREE 2026-08-17 사용자 지시 "내가 체크하지않아도 자동으로 학습해서 … 시간이 갈수록 똑똑해지는거지"]
+     실제 고객 질문을 매일 **전 직원에게 되물어, 답이 갈리는 것만** 잡는다.
+
+     ★왜 이 방식인가 — «정답을 몰라도 오답을 찾을 수 있다».
+       한 접점이 «가능합니다»라고 하고 다른 접점이 «잘 모르겠습니다»라고 하면, 둘 중 하나는 틀렸다.
+       그 판정에는 **정답이 필요 없다.** 그래서 사람 없이 기계가 매일 돌 수 있다.
+       실제로 이 장치가 없어서, 2026-08-17 «청첩장에 개인 사진 넣을 수 있나요?»에 마이가
+       «네, 가능합니다»라고 **없는 기능을 지어낸 것**을 사장이 우연히 손으로 물어보고서야 발견했다.
+       그 질문은 이미 교육 후보 목록에 🔴로 쌓여 있었다 — 신호는 있었는데 아무도 대조하지 않았다.
+
+     ★«스스로 학습»은 여기까지다 — 수집·탐지·초안은 기계가, **반영은 사람이 한 번 누른다.**
+       AI 답을 근거로 지식을 자동으로 쓰면, 위 «가능합니다»가 **전 접점 영구 사실**이 된다.
+       지금은 접점마다 답이 달라 눈에 띄기라도 하지만, 자동 반영은 틀린 답을 **일관되게** 만든다 —
+       무작위 오답보다 나쁘다. 그래서 이 함수는 «고칠 것을 찾아 줄 세우기»까지만 한다.
+
+     ★비용 가드: 하루 최대 5문항 × 접점 4 = 20콜(회귀셋과 같은 규모). 미해결 최신순. */
+  var disagree = [];
+  try {
+    var _cands = (typeof aiQuestionLog === 'function') ? (aiQuestionLog() || {}) : {};
+    var _list = (_cands.items || []).filter(function (it) { return it && it.q && (it.flag === '막힘' || it.flag === '애매'); }).slice(0, 5);
+    for (var q0 = 0; q0 < _list.length; q0++) {
+      var _q = String(_list[q0].q || '').slice(0, 120);
+      var _ans = [], _esc = 0;
+      ['메인', '마이', '예약', '애프터'].forEach(function (sf) {
+        var r0 = _aiSurfacePost_(sf, _q);
+        var t0 = '';
+        try { t0 = String((r0.j && (r0.j.text || r0.j.answer || r0.j.reply)) || ''); } catch (e2) {}
+        if (/\[\[ESCALATE\]\]|상담사 연결|디렉터 연결|정확히 안내드리기 어려/.test(t0)) _esc++;
+        _ans.push({ sf: sf, t: t0.slice(0, 160) });
+      });
+      /* 갈림 판정 — «된다/안 된다»가 섞이거나, 일부만 답을 못 하는 경우.
+         문장 유사도가 아니라 **결론의 방향**을 본다(문체는 접점마다 달라도 정상이다). */
+      var _yes = 0, _no = 0;
+      _ans.forEach(function (a) {
+        if (/가능합니다|가능해요|하실 수 있어|있습니다|돼요|됩니다/.test(a.t)) _yes++;
+        if (/어렵|불가|않습니다|없습니다|들어가지 않|제공하지 않/.test(a.t)) _no++;
+      });
+      if ((_yes > 0 && _no > 0) || (_esc > 0 && _esc < 4)) {
+        disagree.push({ q: _q, esc: _esc, yes: _yes, no: _no,
+          detail: _ans.map(function (a) { return a.sf + ': ' + a.t.slice(0, 60); }).join(' | ') });
+      }
+    }
+  } catch (e) {}
   if (reachable === 0) return { ok: false, unreachable: true, error: '엔드포인트 접근 불가(서버측 자동점검 제한일 수 있어요 — 관리자 화면 🧪로 점검하세요).' };
   var sh = _aiSafetySheet_(), prev = null;
   if (sh.getLastRow() > 1) { var l = sh.getRange(sh.getLastRow(), 1, 1, 4).getValues()[0]; prev = { pass: Number(l[1]) || 0, total: Number(l[2]) || 0 }; }
@@ -327,7 +370,7 @@ function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + 
   var regress = !!(prev && pass < prev.pass);
   // silent(아침보고 통합)일 땐 개별 문자 생략 — 결과는 보고 메일/문자에 합쳐서 한 번에 나간다.
   if (!silent && (fails.length > 0 || regress)) { try { aiAlertAdmin('안전점검 ' + pass + '/' + reachable + (fails.length ? (' · 실패: ' + fails.join(', ')) : '') + (regress ? ' · 점수 하락' : '') + '. 확인해 주세요.'); } catch (e) {} }
-  return { ok: true, pass: pass, total: reachable, fails: fails, regress: regress, note: note, at: today };
+  return { ok: true, pass: pass, total: reachable, fails: fails, regress: regress, note: note, at: today, disagree: disagree };   // [AUTO_DISAGREE] 답이 갈린 실제 고객 질문 — 아침 보고가 실어 나른다
 }
 function aiSafetyNow() { return aiDailySafetyCheck(); }   // adminCall — 지금 안전점검(서버측 실행)
 function aiSafetyHistory() {   // adminCall — 최근 안전점검 이력(최대 10건, 최신순)
@@ -421,6 +464,12 @@ function aiMorningReport(preview) {
   } catch (e) {}
   rows.push(['안전점검', safetyStr, !!((safety.fails && safety.fails.length) || safety.regress)]);
   if (safety.note) rows.push(['회귀셋 정리 권장', safety.note, false]);   // 상한 초과 미실행 — 경보 아님(운영 알림)
+  /* [AUTO_DISAGREE] 답이 갈린 실제 고객 질문 — 사장이 관리자 화면을 열지 않아도 아침 메일로 온다.
+     ★«고칠 것»만 싣는다(갈린 것 0건이면 줄 자체를 만들지 않는다) — 매일 오는 «이상 없음»은 곧 안 읽히게 된다. */
+  if (safety.disagree && safety.disagree.length) {
+    rows.push(['직원 답이 갈렸어요 (' + safety.disagree.length + '건)',
+      safety.disagree.map(function (d0) { return '· "' + d0.q + '" → ' + d0.detail; }).join('<br>'), true]);
+  }
   rows.push(['솔라피 잔액', balStr, balLow]);
   if (failY > 0) rows.push(['어제 알림 발송 실패', failY + '건 · 솔라피 설정 확인', true]);
 
@@ -517,6 +566,33 @@ function aiRegAdd(surface, q, type, val) {   // adminCall
 }
 function aiRegSetActive(id, on) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.getRange(i + 2, 6).setValue(on ? 'Y' : ''); return { ok: true }; } } return { ok: false, error: '없음' }; }
 function aiRegDelete(id) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.deleteRows(i + 2, 1); return { ok: true }; } } return { ok: false, error: '없음' }; }
+/* ★★[KB_DRAFT 2026-08-17 사용자 지시 "원클릭 버튼 누르면 … «이렇게 대답하면 맞을까요?»"]
+   교육 초안 한 건 — 관리자 «가르치기» 탭의 원클릭이 부른다(adminCall).
+   먼저 전 직원에게 같은 질문을 던져 «갈린 답»을 모으고, 그것과 함께 초안 생성기에 넘긴다.
+   초안 생성기는 KB·핵심정보에 적힌 것만 근거로 쓰고, 없으면 grounded:false 로 돌려준다
+   (api/kb-draft.js) — 사장 화면은 그때 초안을 아예 보여주지 않는다.
+   ★반환을 «항상 초안이 있는» 모양으로 바꾸지 말 것. 근거 없음을 감추면 거짓이 교육으로 굳는다. */
+function aiDraftAnswer(question) {
+  var q = String(question || '').trim().slice(0, 300);
+  if (!q) return { ok: false, error: '질문이 비었습니다.' };
+  var answers = [];
+  ['메인', '마이', '예약', '애프터'].forEach(function (sf) {
+    try {
+      var r = _aiSurfacePost_(sf, q);
+      var t = '';
+      try { t = String((r.j && (r.j.text || r.j.answer || r.j.reply)) || ''); } catch (e) {}
+      if (t) answers.push({ surface: sf, text: t.slice(0, 300) });
+    } catch (e) {}
+  });
+  var res = _aiPost_('/api/kb-draft', { question: q, answers: answers });
+  if (!(res && res.code >= 200 && res.code < 300 && res.j)) {
+    return { ok: false, error: '초안 서버에 닿지 못했어요(' + ((res && res.code) || '?') + ')' };
+  }
+  var j = res.j;
+  return { ok: true, grounded: !!j.grounded, draft: String(j.draft || ''), basis: String(j.basis || ''),
+    note: String(j.note || ''), answers: answers };
+}
+
 function _aiSurfacePost_(surface, q) {   // 회귀/점검용 — 접점→엔드포인트 매핑(test:true)
   var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   if (surface === '예약') return _aiPost_('/api/schedule-advisor', { messages: [{ role: 'user', content: q }], today: today, page: '예약', test: true });
