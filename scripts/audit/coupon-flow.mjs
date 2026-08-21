@@ -132,7 +132,7 @@ ok(C.설문상태==='건너뜀','전제 — 건너뜀',C.설문상태);
 ok(q('쿠폰발급').length===0,'★후기를 안 쓴 분께 드릴 커피는 없다(큐에 안 뜸)',JSON.stringify(q('쿠폰발급').map(x=>x.sub)));
 ok(arch().filter(x=>x.code===CODE).length===1,'건너뜀은 종전대로 아카이브',JSON.stringify(arch().map(x=>x.code)));
 
-console.log('\n═══ ⑥ 알림 — 발급 시 이벤트가 «꺼진 채» 배선돼 있는가 ═══');
+console.log('\n═══ ⑥ 알림 — 발급 시 나가는 한 통이 맞는가 ═══');
 seed(); act(g=>g.handleSubmitSurvey(SURVEY));
 {
   /* ★하네스가 notifyKakao 를 자기 스텁으로 갈아끼운다(_gasworld 97) — 스파이를 꽂아도 덮인다.
@@ -142,7 +142,18 @@ seed(); act(g=>g.handleSubmitSurvey(SURVEY));
   ok(notes.some(x=>x.k==='cust.couponIssued'),'★발급 시 알림 이벤트를 부른다',JSON.stringify(notes));
   const meta=G.NOTIFY_EVENTS&&G.NOTIFY_EVENTS['cust.couponIssued'];
   ok(!!meta,'이벤트가 표에 등록돼 있다(미등록이면 조용히 버려진다)',JSON.stringify(meta));
-  ok(!!(meta&&meta.off),'★기본은 꺼짐 — 고객에게 실제로 나가지 않는다(사용자가 켤 때까지)',JSON.stringify(meta));
+  /* ★2026-08-18 사용자 «추천대로» 로 켰다 — 이제 실제로 나간다. 나가는 말이 맞는지까지 본다. */
+  ok(!(meta&&meta.off),'★발송이 켜져 있다(모르면 영영 못 받는 안내라서)',JSON.stringify(meta));
+  const msg=G._nfCustomerMsg('cust.couponIssued','미쿠',{title:'스타벅스 커피 2잔',expiry:'2026-11-20'});
+  const txt=(msg&&msg.text)||'';
+  ok(/후기 감사합니다/.test(txt)&&/스타벅스 커피 2잔/.test(txt),'문안이 무엇을 왜 주는지 말한다',txt);
+  ok(/사용기한/.test(txt),'사용기한을 알려준다(연장이 안 되니 놓치면 못 쓴다)',txt);
+  ok(/focus=coupon/.test(txt),'★링크가 바코드 카드로 바로 내려앉는다',txt);
+  ok(txt.indexOf('—')===-1,'전각 줄표 없음(문구 규칙)',txt);
+  ok(!/[\u{1F300}-\u{1FAFF}\u{2700}-\u{27BF}]/u.test(txt),'장식 이모지 없음(문구 규칙)',txt);
+  ok(!/data:image|바코드 이미지가 첨부/.test(txt),'★바코드 자체는 문자로 보내지 않는다(마이페이지 안에서만)',txt);
+  const noExp=G._nfCustomerMsg('cust.couponIssued','미쿠',{title:'스타벅스 커피 2잔',expiry:''});
+  ok(!/사용기한/.test((noExp&&noExp.text)||''),'기한이 없으면 그 줄을 아예 쓰지 않는다(빈 날짜 노출 금지)',(noExp&&noExp.text)||'');
 }
 console.log(`\n결과 — ${fail?'발견 '+fail+'건':'발견 0건'}`);
 process.exit(fail?1:0);

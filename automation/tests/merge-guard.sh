@@ -4918,3 +4918,11 @@ chk '계약서 서명 기한이 지났어요. 아래에서 다시 요청하시�
 chk 'FIXTURE_NO_ROT' scripts/audit/journey-sim.mjs 2
 chk 'const SENT_OK' scripts/audit/journey-sim.mjs 1
 nochk "계약서발송일시: '2026-08-16 10:00'" scripts/audit/journey-sim.mjs
+# ★★[CPN_NOTIFY 켬 2026-08-18 사용자 «추천대로»] 후기 감사 선물 안내를 실제로 보낸다.
+#   다른 확인·축하류는 여전히 off 인데 이것만 켠 이유 — 저것들은 «고객이 이미 아는 사실»의 확인이지만
+#   이건 «모르면 영영 못 받는» 안내다(화면이 "준비되면 바코드가 떠요"라고만 말해 두고 끝난다).
+nochk "'cust.couponIssued':    { to: 'customer', need: false, off: true" automation/platform/95_notify.gs
+chk "case 'cust.couponIssued':" automation/platform/95_notify.gs 1
+chk "coupon:'mp_coupon'" mypage.html 1
+chk 'T19 · 후기 감사 선물' automation/알림톡_템플릿_신청문안.md 1
+chk '바코드 자체는 문자로 보내지 않는다' scripts/audit/coupon-flow.mjs 1

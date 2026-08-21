@@ -85,10 +85,12 @@ var NOTIFY_EVENTS = {
   /* ★[CPN_NOTIFY 2026-08-18 쿠폰 연동 점검] 커피쿠폰 바코드가 떴다는 안내.
      지금은 «준비되면 위쪽에 바코드가 떠요»라고만 말해 두고 끝난다 — 두 분이 마이페이지를 다시
      열어보지 않으면 받은 줄을 모른다. 이 이벤트가 그 문장을 완성한다.
-     ★기본은 off — 고객에게 나가는 발송은 비용·문안 승인이 걸린 사용자 판단 영역이라 임의로 켜지 않는다.
-       확인/축하류(paymentConfirmed·cashReceiptIssued·holdGranted)가 전부 off 인 이 저장소의 관례와도 같다.
-       켜려면 이 줄의 off 를 지우면 된다(템플릿 미승인이면 같은 내용이 SMS 로 나간다). */
-  'cust.couponIssued':    { to: 'customer', need: false, off: true, desc: '커피쿠폰 발급됨 · 마이페이지에 바코드 표시(CPN_NOTIFY · 기본 꺼짐)' },
+     ★2026-08-18 사용자 «추천대로» 로 켰다. 다른 확인/축하류(paymentConfirmed·cashReceiptIssued·
+       holdGranted)는 여전히 off 인데 이것만 켜는 이유가 있다 — 저 셋은 **고객이 이미 아는 사실**의
+       확인이지만(입금했으니 확인될 것을 안다), 이건 **모르면 영영 못 받는** 안내다.
+       화면이 «준비되면 위쪽에 바코드가 떠요»라고만 말해 두고 끝나서, 다시 열어보지 않으면 받은 줄을 모른다.
+       ★알림톡 템플릿이 아직 없으면 같은 내용이 SMS 로 나간다(건당 비용) → 승인되면 T19 로 매핑. */
+  'cust.couponIssued':    { to: 'customer', need: false, desc: '커피쿠폰 발급됨 · 마이페이지에 바코드 표시(CPN_NOTIFY · 2026-08-18 사용자 «추천대로» 켬)' },
   'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨(2026-06-23 켬 · 요청 결과 통보)' },
   'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
   'cust.holdExpiring':    { to: 'customer', need: true,  desc: '임시고정 만료 임박(D-3) — 상담/연장 안내' },
@@ -397,6 +399,12 @@ function _nfCustomerMsg(event, name, x) {
     case 'cust.resultRetouch':    // RESULT_NOTIFY_STEPS — 보정본 업로드 순간(고객 액션: 컨펌)
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 보정본이 도착했습니다. 마이페이지에서 받아보시고, 마음에 드시면 확인을 눌러 마무리해 주세요. ' + _nfMy('result') };
+    case 'cust.couponIssued':   /* [CPN_NOTIFY] 후기 감사 커피쿠폰 — 바코드는 마이페이지 안에 있다(문자로 안 보낸다) */
+      d = x.expiry ? _nfDate(x.expiry) : '';
+      return { vars: { '#{이름}': name, '#{선물}': String(x.title || '스타벅스 커피 2잔'), '#{기한}': d },
+        text: '[모먼트에디트] ' + name + '님, 후기 감사합니다. 마음을 담아 ' + String(x.title || '스타벅스 커피 2잔')
+          + '을 마이페이지에 올려 두었어요. 바코드를 매장에서 보여주시면 됩니다.'
+          + (d ? (' 사용기한은 ' + d + '까지예요.') : '') + ' ' + _nfMy('coupon') };
     case 'cust.holdGranted':
       d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
@@ -572,7 +580,8 @@ function setKakaoTemplates() {
     'cust.holdExpiring':        '',   // T13 임시고정만료
     'cust.changeConfirmed':     '',   // T14 예식일변경적용
     'cust.changeDeclined':      '',   // T15 예식일변경보류
-    'cust.consultDone':         ''    // T17 상담완료(승인 후 채우기)
+    'cust.consultDone':         '',   // T17 상담완료(승인 후 채우기)
+    'cust.couponIssued':        ''    // T19 후기감사 선물(신규 · 승인 후 채우기 · 그 전엔 SMS/이메일 폴백) CPN_NOTIFY
   };
   var clean = {};
   Object.keys(map).forEach(function (k) { var v = String(map[k] || '').trim(); if (v) clean[k] = v; });
@@ -591,7 +600,8 @@ function importKakaoTemplates() {
     '1': ['cust.consultConfirmed'], '2': ['cust.consultDayBefore'], '3': ['cust.timeProposed'],
     '4': ['cust.fittingRequest'], '5': ['cust.contractArrived'], '8': ['cust.midPre', 'cust.midDue'],
     '9': ['cust.balancePre', 'cust.balanceDue'], '10': ['cust.resultDelivered'], '13': ['cust.holdExpiring'],
-    '14': ['cust.changeConfirmed'], '15': ['cust.changeDeclined'], '17': ['cust.consultDone'], '18': ['cust.depositToProduction']
+    '14': ['cust.changeConfirmed'], '15': ['cust.changeDeclined'], '17': ['cust.consultDone'], '18': ['cust.depositToProduction'],
+    '19': ['cust.couponIssued']   // CPN_NOTIFY
   };
   var date = new Date().toISOString();
   var salt = Utilities.getUuid().replace(/-/g, '');
@@ -851,7 +861,8 @@ var NF_EMAIL_TITLE = {
   'cust.consultDone':         { subj: '상담이 완료되었습니다', head: '상담이 완료되었어요', btn: '다음 단계 입력' },
   'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' },
   'cust.resultOriginal':      { subj: '원본 사진이 도착했습니다', head: '원본이 도착했어요', btn: '보정 컷 고르기' },
-  'cust.resultRetouch':       { subj: '보정본이 도착했습니다', head: '보정본이 도착했어요', btn: '보정본 확인' }
+  'cust.resultRetouch':       { subj: '보정본이 도착했습니다', head: '보정본이 도착했어요', btn: '보정본 확인' },
+  'cust.couponIssued':        { subj: '후기 감사 선물이 도착했습니다', head: '작은 선물을 올려 두었어요', btn: '바코드 확인' }   /* [CPN_NOTIFY] */
 };
 
 // 고객 알림이 카톡으로 못 나갔을 때(템플릿없음·전송실패·전달실패) 같은 내용을 '고객 이메일'로 발송.

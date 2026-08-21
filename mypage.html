@@ -2142,7 +2142,7 @@ function qp(name){
 
 // [MPD3_D2] 알림 딥링크 — ?focus=카드 (95_notify _nfMy와 세트 · 미지 값 무시). 로그인/캐시 렌더 후 1회 소비.
 window._mpFocus=(function(){ var f=String(qp('focus')||'').toLowerCase(); return /^[a-z]{2,16}$/.test(f)?f:''; })();
-var _FOCUS_MAP={ consult:'mp_consult', fitting:'mp_fitting', contract:'mp_contract', payment:'mp_payment', mid:'mp_midpayment', balance:'mp_balance', result:'mp_result', production:'mp_production', hold:'mp_hold', refund:'mp_refundBank' };
+var _FOCUS_MAP={ consult:'mp_consult', fitting:'mp_fitting', contract:'mp_contract', payment:'mp_payment', mid:'mp_midpayment', balance:'mp_balance', result:'mp_result', production:'mp_production', hold:'mp_hold', refund:'mp_refundBank', coupon:'mp_coupon' };   /* [CPN_NOTIFY] 알림 링크(?focus=coupon)가 바코드 카드로 내려앉게 */
 function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이면 스크롤+1회 강조, 아니면 조용히 소비
   var f=window._mpFocus; if(!f) return; window._mpFocus='';
   if(f==='ledger'){ try{ openLedModal(); }catch(e){} return; }
