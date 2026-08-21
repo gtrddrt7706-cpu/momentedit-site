@@ -4883,3 +4883,46 @@ chk 'function rRecords' admin.html 1
 chk 'function aiDraftAnswer' automation/platform/96_ai_cost.gs 1
 chk 'aiDraftAnswer: aiDraftAnswer' automation/admin/admin.gs 1
 chk '근거 없음' admin.html 1                      # 근거 없으면 초안을 보여주지 않는다(거짓이 교육으로 굳는 것 방지)
+
+
+# ★★[CPN_QUEUE 2026-08-18 쿠폰 연동 점검] 후기는 받았는데 커피를 안 드린 고객이 화면에서 사라지지 않게.
+#   후기 마감 순간 아카이브 분기로 들어가 보드에서 빠졌고, 남는 리마인드는 메일 한 통뿐이었다.
+#   추가보정·현금영수증과 같은 «끝난 고객이라도 우리 의무는 남는다» 자리에 둔다.
+chk 'CPN_QUEUE' automation/admin/admin.gs 1
+chk "kind: '쿠폰발급'" automation/admin/admin.gs 1
+chk "'쿠폰발급'" admin.html 4
+chk "act==='issueCoupon'" admin.html 1
+# ★★[CPN_SAY_ONCE 2026-08-18] 되돌리면 설문은 초기화되고 쿠폰은 남는다(남기는 게 맞다) —
+#   그때 «후기 쓰면 커피 드려요»를 다시 말하면 한 잔 더 준다는 뜻이 된다. 상태에 맞게 한 번만 말한다.
+chk 'CPN_SAY_ONCE' mypage.html 1
+chk 'CPN_SAY_ONCE' scripts/audit/rollback-notice.mjs 1
+chk '_hasCpn' mypage.html 3
+# ★★[CPN_PASTE 2026-08-18] 기프티콘은 «복사»로 온다 — 붙여넣기·끌어놓기도 받는다(같은 압축 경로로).
+chk 'CPN_PASTE' admin.html 4
+chk '_cpnTake' admin.html 4
+chk '_modalClose' admin.html 3
+# ★★[CPN_NOTIFY 2026-08-18] 바코드가 떴다는 안내 — 배선만 하고 기본은 꺼짐(고객 발송은 사용자 판단).
+chk 'CPN_NOTIFY' automation/platform/95_notify.gs 1
+chk "'cust.couponIssued'" automation/platform/95_notify.gs 1
+chk "notifyKakao('cust.couponIssued'" automation/admin/admin.gs 1
+# ★★[GAS_NOT_EMPTY 2026-08-18 내가 저지른 사고] 빈 파일도 «로드 OK» 였다 — 구문만 보는 검사는
+#   «내용이 통째로 사라진 것»을 못 잡는다. 크기도 함께 본다.
+chk 'GAS_NOT_EMPTY' scripts/audit/gas-lint.mjs 2
+chk 'COUPON_FLOW' scripts/audit/coupon-flow.mjs 1
+# ★★[NOW_CONTRACT_EXPIRED 2026-08-18 journey-sim] 서명 기한이 지나면 «지금 할 일»도 바뀐다 —
+#   결제 칸이 사라지고 재요청 버튼만 남는데 «계약금을 입금해 주세요»라고 말하던 화면(낼 곳이 없다).
+chk 'NOW_CONTRACT_EXPIRED' automation/platform/60_mypage.gs 1
+chk '계약서 서명 기한이 지났어요. 아래에서 다시 요청하시면' automation/platform/60_mypage.gs 1
+# ★★[FIXTURE_NO_ROT 2026-08-18] 고정 날짜 금지 — 달력이 지나면 같은 픽스처의 뜻이 말없이 바뀐다
+#   (계약서발송일시가 박혀 있어 사흘 뒤 «발송됨»이 «기한 지남»이 됐고, 그 붉음은 시간이 만든 것이었다).
+chk 'FIXTURE_NO_ROT' scripts/audit/journey-sim.mjs 2
+chk 'const SENT_OK' scripts/audit/journey-sim.mjs 1
+nochk "계약서발송일시: '2026-08-16 10:00'" scripts/audit/journey-sim.mjs
+# ★★[CPN_NOTIFY 켬 2026-08-18 사용자 «추천대로»] 후기 감사 선물 안내를 실제로 보낸다.
+#   다른 확인·축하류는 여전히 off 인데 이것만 켠 이유 — 저것들은 «고객이 이미 아는 사실»의 확인이지만
+#   이건 «모르면 영영 못 받는» 안내다(화면이 "준비되면 바코드가 떠요"라고만 말해 두고 끝난다).
+nochk "'cust.couponIssued':    { to: 'customer', need: false, off: true" automation/platform/95_notify.gs
+chk "case 'cust.couponIssued':" automation/platform/95_notify.gs 1
+chk "coupon:'mp_coupon'" mypage.html 1
+chk 'T19 · 후기 감사 선물' automation/알림톡_템플릿_신청문안.md 1
+chk '바코드 자체는 문자로 보내지 않는다' scripts/audit/coupon-flow.mjs 1

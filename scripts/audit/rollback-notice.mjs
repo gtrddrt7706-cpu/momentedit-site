@@ -213,6 +213,47 @@ console.log('\n[③-B 수납 없는 되돌림 — 팝업이 스스로 모순되�
   ok(!/을\(를\)/.test(s2.body), '★조사 서식(을(를))이 고객 글에 남지 않는다', s2.body);
 }
 
+/* ★[CPN_SAY_ONCE 2026-08-18 쿠폰 연동 시뮬에서 실측] 커피 2잔 이야기를 상태에 맞게 한 번만 한다.
+   되돌림은 설문상태를 초기화하지만 쿠폰은 남긴다(실제로 산 기프티콘이고 이미 썼을 수도 있다 · 남기는 게 맞다).
+   그런데 후기 카드가 «후기를 남겨주시면 커피 2잔을 보내드려요»를 **다시** 말해,
+   이미 바코드를 받은 두 분에게 한 잔 더 준다는 뜻으로 읽혔다. 쿠폰을 뺏는 대신 말을 바꿨다. */
+console.log('\n[③-C 이미 커피를 받은 두 분에게 같은 약속을 두 번 하지 않는가]');
+{
+  ok(await dismiss(), '앞선 팝업을 버튼으로 닫았다');
+  seedDone();
+  /* ★후기 카드는 «결과물 전달 완료» 분기에서만 그려진다(mypage renderResult) — 그 조건을 갖춰 준다.
+     안 갖추면 카드가 아예 없어 «약속 문장이 없다»가 초록으로 나온다(못 잰 것을 통과로 세는 함정). */
+  C.현재단계 = '후기'; C.결과물상태 = '전달완료';
+  C.원본링크 = 'https://drive.google.com/drive/folders/AAAAAAAAAAAA';
+  C.보정본폴더 = 'https://drive.google.com/drive/folders/BBBBBBBBBBBB';
+  C.설문상태 = '완료'; C.쿠폰상태 = '발급';
+  C.쿠폰데이터 = JSON.stringify({ title: '스타벅스 커피 2잔', images: ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'], expiry: '2026-11-20', issuedAt: NOW });
+  const pay3 = act((g) => g.handleGetMyState({ token: 'tk' })).r;
+  ok(!!(pay3 && pay3.coupon), '전제 — 쿠폰이 실려 있다', JSON.stringify(!!(pay3 && pay3.coupon)));
+  let s3 = await page.evaluate(async (d) => {
+    try { localStorage.clear(); } catch (e) {}
+    renderMyPage(d); await new Promise((r) => setTimeout(r, 1400));
+    const rs = document.getElementById('mp_result');
+    const t = (rs && rs.textContent) || '';   /* ★textContent — 이 하네스는 로그인 화면 위라 innerText 가 빈다 */
+    return { promise: /후기를 남겨주시면/.test(t), prepping: /준비되면 위쪽에 바코드가 떠요/.test(t), already: /위쪽 카드에/.test(t) };
+  }, pay3);
+  ok(!s3.prepping, '★이미 떠 있는데 «준비되면 뜬다»고 말하지 않는다', JSON.stringify(s3));
+  ok(s3.already, '대신 «위쪽 카드에 바코드가 있어요»로 안내한다', JSON.stringify(s3));
+  /* 되돌림 뒤 — 설문만 초기화된 상태(쿠폰은 남음) */
+  C.설문상태 = '';
+  const pay4 = act((g) => g.handleGetMyState({ token: 'tk' })).r;
+  const s4 = await page.evaluate(async (d) => {
+    try { localStorage.clear(); } catch (e) {}
+    renderMyPage(d); await new Promise((r) => setTimeout(r, 1400));
+    const rs = document.getElementById('mp_result');
+    const t = (rs && rs.textContent) || '';
+    return { promise: /후기를 남겨주시면/.test(t), ask: /두 분의 하루는 어떠셨나요/.test(t), already: /이미 준비돼 있어요/.test(t) };
+  }, pay4);
+  ok(s4.ask, '전제 — 후기 요청 카드가 다시 떴다', JSON.stringify(s4));
+  ok(!s4.promise, '★그래도 «후기 쓰면 커피 드려요»를 다시 말하지 않는다', JSON.stringify(s4));
+  ok(s4.already, '«커피 2잔은 위쪽 카드에 이미 준비돼 있어요»로 사실을 말한다', JSON.stringify(s4));
+}
+
 console.log('\n[④ 한 번만 뜬다]');
 /* ★한 판 안에서 «처음 → 닫기 → 다시»를 다 한다. 앞 절이 localStorage 를 비웠을 수도 있어
    «두 번째»만 재면 무엇을 재는지 알 수 없다 — 첫 번째가 떴다는 사실이 이 검사의 전제다. */

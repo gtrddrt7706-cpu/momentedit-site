@@ -2142,7 +2142,7 @@ function qp(name){
 
 // [MPD3_D2] 알림 딥링크 — ?focus=카드 (95_notify _nfMy와 세트 · 미지 값 무시). 로그인/캐시 렌더 후 1회 소비.
 window._mpFocus=(function(){ var f=String(qp('focus')||'').toLowerCase(); return /^[a-z]{2,16}$/.test(f)?f:''; })();
-var _FOCUS_MAP={ consult:'mp_consult', fitting:'mp_fitting', contract:'mp_contract', payment:'mp_payment', mid:'mp_midpayment', balance:'mp_balance', result:'mp_result', production:'mp_production', hold:'mp_hold', refund:'mp_refundBank' };
+var _FOCUS_MAP={ consult:'mp_consult', fitting:'mp_fitting', contract:'mp_contract', payment:'mp_payment', mid:'mp_midpayment', balance:'mp_balance', result:'mp_result', production:'mp_production', hold:'mp_hold', refund:'mp_refundBank', coupon:'mp_coupon' };   /* [CPN_NOTIFY] 알림 링크(?focus=coupon)가 바코드 카드로 내려앉게 */
 function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이면 스크롤+1회 강조, 아니면 조용히 소비
   var f=window._mpFocus; if(!f) return; window._mpFocus='';
   if(f==='ledger'){ try{ openLedModal(); }catch(e){} return; }
@@ -4457,15 +4457,29 @@ function _bindExtra(res){
 // 마지막 설문 카드 HTML — 완료/접힘/문항.
 function _surveyCardHtml(res, nm, code){
   var sv=res.survey||{};
+  /* ★★[CPN_SAY_ONCE 2026-08-18 쿠폰 연동 시뮬에서 실측] 커피 2잔 이야기를 상태에 맞게 한 번만 한다.
+     ①되돌림 뒤 — 강제변경으로 후기 아래로 내리면 설문상태는 초기화되는데 쿠폰은 남는다(남기는 게 맞다 ·
+       실제로 산 기프티콘이고 이미 썼을 수도 있다). 그런데 후기 카드가 «후기를 남겨주시면 커피 2잔을
+       보내드려요»를 **다시** 말해, 이미 바코드를 받은 두 분에게 한 잔 더 준다는 뜻으로 읽혔다(실측).
+     ②제출 직후 — 발급까지 끝난 상태에서도 «준비되면 위쪽에 바코드가 떠요»라고 말했다. 이미 떠 있는데.
+     ★쿠폰을 없애는 쪽으로 풀지 않는다 — 준 것을 도로 가져가는 화면이 된다. 말을 바꾼다. */
+  var _cpn=((window._mpStateD||{}).coupon)||null;
+  var _hasCpn=!!(_cpn&&_cpn.images&&_cpn.images.length);
   // SURVEY_DONE_TONE 2026-07-23 · 여정 종점 = 감정 문장으로 닫고 쿠폰 로지스틱은 cc-mini로 분리(이모지 없음 · 진사 악센트 '오래' 1점)
-  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">후기, 감사히 받았어요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'두 분의 이야기가 잘 닿았어요.<br>두 분의 하루를, 저희가 <span class="em-seal">오래</span> 간직할게요.</div><div class="cc-mini" style="display:block;margin-top:12px">감사의 마음으로 스타벅스 커피 2잔을 준비해요.<br>준비되면 위쪽에 바코드가 떠요 · 사용기한 안에 여유롭게 즐겨 주세요.</div></div>';
+  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">후기, 감사히 받았어요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'두 분의 이야기가 잘 닿았어요.<br>두 분의 하루를, 저희가 <span class="em-seal">오래</span> 간직할게요.</div><div class="cc-mini" style="display:block;margin-top:12px">'
+    +(_hasCpn
+      ? '감사의 마음으로 준비한 스타벅스 커피 2잔, 위쪽 카드에 바코드가 있어요.<br>사용기한 안에 여유롭게 즐겨 주세요.'
+      : '감사의 마음으로 스타벅스 커피 2잔을 준비해요.<br>준비되면 위쪽에 바코드가 떠요 · 사용기한 안에 여유롭게 즐겨 주세요.')
+    +'</div></div>';
   var body='';
   _surveySchema(res.isSnap).forEach(function(it){
     body+='<div class="srv-block"><div class="srv-q2">'+escapeHtml(it.q)+(it.req?'<span class="srv-req">*</span>':'')+'</div><div class="srv-opts" data-key="'+it.k+'">'
       + it.o.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+escapeHtml(o[1])+'</button>'; }).join('') + '</div></div>';
   });
   return '<div class="res-panel" id="mp_svPanel"><div class="res-panel-t">두 분의 하루는 어떠셨나요</div>'
-    +'<div class="cc-note" style="margin-top:0">대부분 탭 한 번씩이에요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>* 표시만 필수예요 · 후기를 남겨주시면 감사의 마음으로 스타벅스 커피 2잔을 보내드려요.</div>'   // MPD_B6 카피-실측 정직화(11~12문항 · 수치 약속 금지) + 필수 범례
+    +'<div class="cc-note" style="margin-top:0">대부분 탭 한 번씩이에요. 두 분의 답이 다음 부부의 하루를 더 좋게 만들어요.<br>* 표시만 필수예요 · '
+    +(_hasCpn ? '커피 2잔은 위쪽 카드에 이미 준비돼 있어요.' : '후기를 남겨주시면 감사의 마음으로 스타벅스 커피 2잔을 보내드려요.')
+    +'</div>'   // MPD_B6 카피-실측 정직화(11~12문항 · 수치 약속 금지) + 필수 범례 · [CPN_SAY_ONCE] 이미 받은 분께 다시 약속하지 않는다
     + body
     +'<div class="srv-block"><div class="srv-q2">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
     +'<textarea class="cc-input" id="mp_svReview" style="min-height:92px" maxlength="2000" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'

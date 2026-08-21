@@ -1665,10 +1665,10 @@ function loadHome(silent){
 var curHome=null;
 
 function queueRow(it){
-  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded','단계정리':'fixStage' };   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세) · [ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "원클릭으로 팝업 안내가 나오고 진행을 클릭하면 모든셋팅"] 단계정리도 인라인
+  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded','단계정리':'fixStage','쿠폰발급':'issueCoupon' };   /* [CPN_QUEUE] 큐에서 바로 바코드 등록(상세로 안 가도 됨) */   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세) · [ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "원클릭으로 팝업 안내가 나오고 진행을 클릭하면 모든셋팅"] 단계정리도 인라인
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인','단계정리':'단계 맞추기','자리만료':'계약서 발송' }[it.kind]||'처리';   /* [SLOT_HOLD_EXPIRY_Q] 되돌리며 잡아 둔 자리 — 할 일은 «계약서 재발송»이다 */
-  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소', '단계정리':'단계 정리' };   /* [ROLLBACK_ONECLICK 2026-08-17] 단계정리도 인라인을 «준다» — 사용자 지시("처리할일에 나오고 원클릭으로 팝업 안내"). 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하므로 사람 판단은 팝업 안에서 이뤄진다 */
+  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인','단계정리':'단계 맞추기','자리만료':'계약서 발송','쿠폰발급':'커피쿠폰 발급' }[it.kind]||'처리';   /* [SLOT_HOLD_EXPIRY_Q] 되돌리며 잡아 둔 자리 — 할 일은 «계약서 재발송»이다 */
+  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소', '단계정리':'단계 정리', '쿠폰발급':'커피쿠폰' };   /* [ROLLBACK_ONECLICK 2026-08-17] 단계정리도 인라인을 «준다» — 사용자 지시("처리할일에 나오고 원클릭으로 팝업 안내"). 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하므로 사람 판단은 팝업 안에서 이뤄진다 */
   var chipLabel=KLABEL[it.kind]||it.kind;
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
@@ -1748,6 +1748,7 @@ function onQueueAct(act,code,names,isSnap,el){
   else if(act==='eventDone') doEventDone(code,names,isSnap);
   else if(act==='delivered') doDelivered(code,names);
   else if(act==='openFitting') doOpenFitting(code,names);
+  else if(act==='issueCoupon') doIssueCoupon(code,names);   /* [CPN_QUEUE] 큐에서 바로 바코드 등록 — 상세로 안 가도 된다 */
   else if(act==='confirmChange') doConfirmChange(code,names,{changeReq:{from:{date:(el&&el.getAttribute('data-cfd'))||'',slot:(el&&el.getAttribute('data-cfs'))||''},to:{date:(el&&el.getAttribute('data-ctd'))||'',slot:(el&&el.getAttribute('data-cts'))||''},fee:Number(el&&el.getAttribute('data-cfee'))||0,payer:(el&&el.getAttribute('data-cpy'))||''}});
 }
 
@@ -1953,7 +1954,7 @@ function doSearch(){
 }
 
 /* ════════ 상세 ════════ */
-var KIND2CARD={ '계약발송':'contract','계약만료':'contract','변경확인':'contract','현금영수증발행':'payment','현금영수증취소':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','중도금잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result','자리만료':'contract' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지) · [SLOT_HOLD_EXPIRY_Q] 자리만료는 계약 카드로
+var KIND2CARD={ '계약발송':'contract','계약만료':'contract','변경확인':'contract','현금영수증발행':'payment','현금영수증취소':'payment','입금확인':'payment','중도금확인':'payment','잔금확인':'payment','중도금잔금확인':'payment','결과물등록':'result','보정시작':'result','결과물전달':'result','추가보정확인':'result','환불송금':'consult','신규신청':'consult','임시고정':'consult','시착보내기':'fitting','상담완료':'consult','예식완료':'result','촬영완료':'result','자리만료':'contract','쿠폰발급':'result' };   // 처리할 일 종류 → 상세 카드(스크롤 목적지) · [SLOT_HOLD_EXPIRY_Q] 자리만료는 계약 카드로
 /* [ADM_AA6] 최근 본 고객 — openDetail 진입 시 {code,names} 최근 5명만 localStorage에 기록(중복은 앞으로).
      ★이름·코드만 저장한다. 금액·연락처 등 민감정보는 절대 넣지 않는다(공용 폰 분실 대비).
      localStorage 접근 실패(사파리 프라이빗 등)면 칩 영역 자체를 숨기고 조용히 넘어간다. */
@@ -2647,7 +2648,7 @@ function onDetailAct(act,d){
 }
 
 /* ════════ 액션 모달 (큐·상세 공용) ════════ */
-var _modalYes=null;
+var _modalYes=null; var _modalClose=null;
 function openModal(opt){
   $('cm_title').textContent=opt.title;
   $('cm_text').innerHTML=opt.text||'';
@@ -2658,10 +2659,14 @@ function openModal(opt){
   $('cm_yes').className='btn '+(opt.danger?'btn-danger':'btn-seal');
   $('modalBox').className='modal'+(opt.danger?' danger':'');
   _modalYes=opt.onYes;
+  /* [CPN_PASTE] 닫힐 때 되돌릴 것이 있는 모달을 위해 — 전역 리스너(document paste 등)를 여기서 거둔다.
+     없으면 모달을 열 때마다 리스너가 쌓인다(열고 닫기를 반복하는 화면이라 실제로 쌓인다). */
+  _modalClose=opt.onClose||null;
   $('confirmModal').classList.add('show');
   if(opt.init) opt.init();
 }
-function closeModal(){ $('confirmModal').classList.remove('show'); _modalYes=null; }
+function closeModal(){ $('confirmModal').classList.remove('show'); _modalYes=null;
+  if(_modalClose){ try{ _modalClose(); }catch(e){} _modalClose=null; } }
 $('cm_no').addEventListener('click', closeModal);
 $('cm_yes').addEventListener('click', function(){ if(_modalYes) _modalYes(); });
 $('confirmModal').addEventListener('click', function(e){ if(e.target===$('confirmModal')) closeModal(); });
@@ -2982,6 +2987,7 @@ function doIssueCoupon(code,names){
   var today=new Date(); var dflt=new Date(today.getTime()+60*24*3600*1000);   // 기본 사용기한 60일 뒤
   function ymd(dt){ return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2); }
   var extra='<div class="field"><label>바코드 이미지 (1~2장 · 스타벅스 기프티콘 캡처)</label>'
+    +'<div style="font-size:11.5px;color:var(--label-soft);margin:0 0 6px">파일 선택 · <b>Ctrl+V 붙여넣기</b> · 아래 칸에 끌어다 놓기 모두 돼요</div>'
     +'<input type="file" id="cpnFile" accept="image/*" multiple></div>'
     +'<div id="cpnPrev" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"></div>'
     +'<div class="field"><label>선물 이름</label><input type="text" id="cpnTitle" value="스타벅스 커피 2잔" maxlength="40"></div>'
@@ -2998,18 +3004,39 @@ function doIssueCoupon(code,names){
     },
     init:function(){
       var f=$('cpnFile'); if(!f) return;
-      f.addEventListener('change', function(){
-        var files=Array.prototype.slice.call(f.files||[]).slice(0,2);
-        if(!files.length) return;
-        $('cpnStat').textContent='이미지 압축 중…';
-        var budget = files.length>1 ? 22000 : 44000;   // 셀 5만자 한계 대비 이미지당 예산(base64 글자수)
-        Promise.all(files.map(function(file){ return _cpnCompress(file, budget); })).then(function(arr){
-          _cpnImgs=arr.filter(Boolean);
-          var pv=$('cpnPrev'); pv.innerHTML=_cpnImgs.map(function(s){ return '<img src="'+s+'" style="width:88px;height:88px;object-fit:contain;border:1px solid #e6e0d8;border-radius:8px;background:#fff">'; }).join('');
-          $('cpnStat').textContent=_cpnImgs.length?('준비됨 · '+_cpnImgs.length+'장'):'이미지를 읽지 못했어요';
-        }).catch(function(){ $('cpnStat').textContent='이미지 처리 오류 · 다시 시도해 주세요'; });
-      });
-    } });
+      /* ★★[CPN_PASTE 2026-08-18 쿠폰 연동 점검] 파일 선택 말고 «붙여넣기·끌어놓기»도 받는다.
+         기프티콘은 카톡 선물하기로 사서 그 화면을 캡처하거나 이미지를 복사해 온다 —
+         PC 에서는 Ctrl+V 가 자연스러운데, 종전엔 한 번 저장했다가 다시 골라야 했다.
+         ★같은 압축 경로(_cpnTake)로 흘려보낸다 — 입구만 늘리고 처리는 하나로 둔다(갈라지면 한쪽만 고쳐진다). */
+      var _drop=$('cpnPrev');
+      document.addEventListener('paste', _cpnOnPaste);
+      if(_drop){
+        ['dragenter','dragover'].forEach(function(ev){ _drop.addEventListener(ev,function(e){ e.preventDefault(); _drop.style.outline='2px dashed var(--gold-deeper,#9a7)'; }); });
+        ['dragleave','drop'].forEach(function(ev){ _drop.addEventListener(ev,function(e){ e.preventDefault(); _drop.style.outline=''; }); });
+        _drop.addEventListener('drop', function(e){ _cpnTake(Array.prototype.slice.call((e.dataTransfer&&e.dataTransfer.files)||[])); });
+      }
+      f.addEventListener('change', function(){ _cpnTake(Array.prototype.slice.call(f.files||[])); });
+    },
+    onClose:function(){ document.removeEventListener('paste', _cpnOnPaste); } });   /* [CPN_PASTE] 모달을 닫으면 전역 리스너를 거둔다 */
+}
+/* [CPN_PASTE] 붙여넣기 — 클립보드 항목 중 이미지만 골라 같은 경로로 */
+function _cpnOnPaste(e){
+  if(!$('cpnFile')) return;   // 쿠폰 모달이 열려 있을 때만
+  var items=(e.clipboardData&&e.clipboardData.items)||[], out=[];
+  for(var i=0;i<items.length;i++){ if(String(items[i].type||'').indexOf('image/')===0){ var f=items[i].getAsFile(); if(f) out.push(f); } }
+  if(out.length){ e.preventDefault(); _cpnTake(out); }
+}
+/* [CPN_PASTE] 파일 선택·붙여넣기·끌어놓기 공용 — 압축·미리보기·상태표시 한 곳에서 */
+function _cpnTake(files){
+  files=(files||[]).filter(function(x){ return x && String(x.type||'').indexOf('image/')===0; }).slice(0,2);
+  if(!files.length){ if($('cpnStat')) $('cpnStat').textContent='이미지 파일만 넣을 수 있어요'; return; }
+  $('cpnStat').textContent='이미지 압축 중…';
+  var budget = files.length>1 ? 22000 : 44000;   // 셀 5만자 한계 대비 이미지당 예산(base64 글자수)
+  Promise.all(files.map(function(file){ return _cpnCompress(file, budget); })).then(function(arr){
+    _cpnImgs=arr.filter(Boolean);
+    var pv=$('cpnPrev'); pv.innerHTML=_cpnImgs.map(function(s){ return '<img src="'+s+'" style="width:88px;height:88px;object-fit:contain;border:1px solid #e6e0d8;border-radius:8px;background:#fff">'; }).join('');
+    $('cpnStat').textContent=_cpnImgs.length?('준비됨 · '+_cpnImgs.length+'장'):'이미지를 읽지 못했어요';
+  }).catch(function(){ $('cpnStat').textContent='이미지 처리 오류 · 다시 시도해 주세요'; });
 }
 // 파일 → 캔버스 축소 → JPEG. 목표 글자수 이내가 될 때까지 해상도·품질을 낮춰 재시도.
 function _cpnCompress(file, budget){
