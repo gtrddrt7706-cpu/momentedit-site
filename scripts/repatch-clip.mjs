@@ -98,9 +98,30 @@ const made = [];
 
 for (const pf of parts) {
   const cs = sel.filter((c) => c.part === pf);
-  const spk = [...new Set(cs.map((c) => man.voice?.[c.role] || c.role))];
+  /* ★★[ENTRY_ALT_HERE 2026-08-17 · 코드 실측] 화자는 **문장마다** 다를 수 있다.
+     entry-A~F 와 vow-both 는 클립 role 이 `신랑|신부` 다 — 그건 «둘 중 하나»라는 뜻이지 사람 이름이 아니다.
+     대장은 그 답을 이미 갖고 있다: `sents[].role` 에 「신랑」/「신부」가 한 문장씩 적혀 있다
+     (build-typecast-import:329 가 그렇게 쓴다). 그런데 여기서는 **클립 role 만** 보고 있었다.
+     ★실측 사고: 재더빙 붙여넣기 5_배역 에 `신랑|신부:` 9줄이 나갔다 — 타입캐스트에 **없는 사람**이다.
+       이미 병합된 5_배역.txt 의 같은 문장은 `이준:` 이다. 대조하면 바로 드러난다.
+     ★이 저장소가 이름 붙여 둔 [EXPORT_TRUTH](2026-08-11) 와 같은 병이다 —
+       *"화자 이름을 여기서 지어내지 않는다 — manifest 가 정한다."* 대장이 정한 값을 안 읽은 것이다.
+     ★그래서 문장 role 을 먼저 본다. 그래도 이름을 못 찾으면 **멎는다** — 없는 사람을 적어 보내면
+       크레딧을 쓰고 나서야 안다(다운로드는 취소가 안 된다). */
+  const nameOf = (c, s) => {
+    const role = (s && s.role) || c.role;
+    const nm = man.voice?.[role];
+    if (!nm) {
+      console.error(`✗ [${c.no}] ${c.file} — 화자 '${role}' 를 대장의 voice 표에서 못 찾았습니다.`);
+      console.error(`   voice 표: ${Object.keys(man.voice || {}).join(' · ')}`);
+      console.error(`   role 에 '|' 가 들어 있으면 문장마다 누가 읽는지(sents[].role)가 있어야 합니다 [ENTRY_ALT_HERE].`);
+      process.exit(1);
+    }
+    return nm;
+  };
+  const spk = [...new Set(cs.flatMap((c) => c.sents.map((s) => nameOf(c, s))))];
   const lines = [];
-  for (const c of cs) for (const s of c.sents) lines.push(`${man.voice?.[c.role] || c.role}: ${s.text}`);
+  for (const c of cs) for (const s of c.sents) lines.push(`${nameOf(c, s)}: ${s.text}`);
   const fn = `재더빙_${slug}${parts.length > 1 ? '_' + pf.replace(/\.txt$/, '') : ''}.txt`;
   fs.writeFileSync(path.join(DIR, fn), lines.join('\n') + '\n', 'utf8');
   made.push({ fn, pf, cs, spk, n: lines.length });
