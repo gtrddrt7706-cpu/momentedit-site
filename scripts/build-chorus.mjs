@@ -130,6 +130,43 @@ function concat(files, out, tag) {
   execFileSync('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', out]);
 }
 
+/* ★★[RECORDED_MIX 2026-08-21] 합성 클립도 «무슨 말인지»를 _recorded.json 에 적는다.
+   왜 — assemble-narration 은 만드는 그 자리에서 적는데(RECORDED_TRUTH), 이 스크립트만 안 적었다.
+   그래서 재료 24·25 를 새 문안으로 다시 받아 26 을 다시 겹쳐도, 대장에는 26 이 옛말로 남았다.
+   실측 2026-08-21: 67곳이 전부 맞는데 26 하나만 「소리가 옛말」로 붉었다. mp3 는 새말이었는데도.
+   ★적는 값은 manifest(녹음하기로 한 글)가 아니라 «재료가 실제로 녹음한 글»이다.
+     manifest 를 적으면 대조가 늘 참이 되어 검사가 눈을 감는다 — _recorded.json 이 존재하는 이유 그 자체다.
+   ★재료끼리 글이 다르면 적지 않고 경고한다. 두 사람이 다른 말을 읽은 것을 한 줄로 합쳐 적으면,
+     그 순간 「26 이 무슨 말인지」를 아무도 알 수 없게 된다. */
+function recRead(dir) {
+  const f = path.join(dir, '_recorded.json');
+  try { if (fs.existsSync(f)) return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { /* 깨졌으면 없는 셈 */ }
+  return null;
+}
+function recordMixed(c, id, srcs) {
+  const dir = path.join(root, c.dir || 'assets/audio/narration');
+  const j = recRead(dir) || { _왜: '실제로 녹음된 글. manifest.json 은 「녹음하기로 한 글」이라 문안을 고치면 같이 바뀐다 — 그래서 둘을 대조하면 늘 같고, 소리만 옛말인 상태를 아무도 못 본다.', clips: {} };
+  if (!j.clips) j.clips = {};
+  const said = srcs.map((s) => j.clips[s.id]);
+  if (said.some((t) => !t)) {
+    console.log(`   ★ ${id} 의 «무슨 말인지»를 못 적었습니다 — 재료 ${srcs.filter((s, i) => !said[i]).map((s) => s.id).join(' · ')} 가 _recorded.json 에 없습니다.`);
+    console.log('     재료를 assemble-narration 으로 다시 조립하면 채워집니다. 그때까지 26 은 검사에서 옛말로 남습니다.'); warned++; return;
+  }
+  const uniq = [...new Set(said)];
+  if (uniq.length > 1) {
+    console.log(`   ★ ${id} 의 재료가 서로 다른 글을 읽었습니다 — 적지 않습니다(합쳐 적으면 26 이 무슨 말인지 알 수 없게 됩니다):`);
+    srcs.forEach((s, i) => console.log(`     ${s.id}: "${said[i]}"`)); warned++; return;
+  }
+  j.clips[id] = uniq[0];
+  j._언제 = `${STAMP} · build-chorus 가 ${id} 갱신`;
+  const sorted = {};
+  for (const k of Object.keys(j.clips).sort()) sorted[k] = j.clips[k];
+  j.clips = sorted;
+  fs.writeFileSync(path.join(dir, '_recorded.json'), JSON.stringify(j, null, 1) + '\n');
+  console.log(`   ↳ ${path.relative(root, path.join(dir, '_recorded.json'))} 갱신 — 검사가 이제 이 소리를 안다`);
+}
+const STAMP = new Date().toISOString().slice(0, 10);
+
 const targets = man.clips.filter((c) => c.mix && (!ONLY || idOf(c) === ONLY));
 if (!targets.length) { console.error(`✗ 만들 합창 클립이 없습니다${ONLY ? ` (--clip ${ONLY})` : ''}`); process.exit(1); }
 
@@ -247,6 +284,7 @@ for (const c of targets) {
     `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04[out]`,
     '-map', '[out]', '-ar', '48000', '-b:a', '192k', dst]);
   console.log(`   ✓ ${path.relative(root, dst)}  ${dur(dst).toFixed(2)}초  (엇박 ${(STAGGER * 1000).toFixed(0)}ms)`);
+  recordMixed(c, id, srcs);
   made++;
 }
 
