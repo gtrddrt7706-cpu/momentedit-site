@@ -4838,7 +4838,19 @@ chk 'play-bar-row' parents.html 2
 #   → 글 두 줄을 한 덩어리(.play-bar-row)로 묶고 버튼을 그 «옆»에 세운다. 버튼이 글줄 사이를 못 벌린다.
 #   실측: 글줄 사이 14px→2px · 막대 99px→73px(390·430) · 44px 탭 타깃은 그대로.
 chk 'BAR_RHYTHM' parents.html 1
-chk 'flex-direction:column;gap:2px' parents.html 1
+# ★★[BAR_ONE_LINE 2026-08-18 사용자 지시 "이걸 위로 올려서 한줄로 만들자"]
+#   안내를 아랫줄이 아니라 «같은 줄»에 잇는다 — 흐르는 한 문장이라 넓은 화면에선 한 줄로 끝나고,
+#   좁은 화면에선 문단처럼 접힌다. 블록 두 개로 나누면 그 접힘이 «두 덩어리»로 보인다.
+#   실측: 1240·768px 한 줄(막대 69px) · 390px 두 줄(73px) · 320px 세 줄(97px).
+#   ★가운뎃점은 앞뒤로 줄바꿈이 «허용되는» 글자다 — 묶지 않으면 320px 에서 「·」가 줄 맨 앞에 매달린다(실측).
+#     앞말과 nowrap 으로 묶고 줄바꿈은 그 뒤에서만 일어나게 한다.
+chk 'BAR_ONE_LINE' parents.html 1
+chk 'play-bar-nb{white-space:nowrap}' parents.html 1
+# ★★[BAR_COLUMN 2026-08-18 사용자 스크린샷에서 발견] 막대 «안»은 편지 글단과 같은 폭으로 가둔다.
+#   종전엔 좌우 끝에 붙어 1240px 화면에서 글과 버튼이 1000px 넘게 벌어져 서로 남남으로 보였다.
+#   실측: 안쪽 640px · 본문단과 좌우가 정확히 같다(l 300 · r 940).
+chk 'BAR_COLUMN' parents.html 1
+chk 'play-bar-in{max-width:var(--max)' parents.html 1
 # ★★[HINT_NO_POP 2026-08-18 사용자 지적 "이 문구가 나중에 등장하는 버그가 잇어"]
 #   5초 뒤에 띄우던 것을 «처음부터» 보이게 했다. 늦게 나타나면 막대가 69→99px 로 갑자기 커지며
 #   글이 튀어나와, 배려로 만든 것이 «고장»으로 읽힌다. 되살리지 말 것.

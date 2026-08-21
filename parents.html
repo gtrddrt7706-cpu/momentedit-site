@@ -97,16 +97,27 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;
    ★글 두 줄을 «한 덩어리»로 묶고 버튼을 그 옆에 세운다 — 버튼이 글줄 사이를 벌리지 못한다.
      버튼은 덩어리 전체에 대해 세로 가운데. 44px 탭 타깃은 그대로 지킨다. */
 .play-bar{
-  position:fixed;left:0;right:0;bottom:0;z-index:60;
-  display:none;align-items:center;gap:16px;
-  padding:12px 22px calc(12px + env(safe-area-inset-bottom));
+  position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;
+  padding:12px 0 calc(12px + env(safe-area-inset-bottom));
   background:var(--bg);border-top:1px solid var(--hairline);
   transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)
 }
-.play-bar.on{display:flex}
-.play-bar-row{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.play-bar.on{display:block}
+/* ★★[BAR_COLUMN 2026-08-18 사용자 스크린샷에서 발견] 막대 «안»은 편지 글단과 같은 폭으로 가둔다.
+   종전엔 좌우 끝에 붙어, 1240px 화면에서 글과 버튼이 1000px 넘게 벌어져 서로 남남으로 보였다.
+   편지는 max 640px 한 단인데 막대만 화면 끝까지 벌어지면 같은 화면의 것으로 안 읽힌다. */
+.play-bar-in{max-width:var(--max);margin:0 auto;padding:0 28px;
+  display:flex;align-items:center;gap:16px}
+/* ★★[BAR_ONE_LINE 2026-08-18 사용자 지시 "이걸 위로 올려서 한줄로 만들자"]
+   안내를 아랫줄이 아니라 «같은 줄»에 잇는다 — 흐르는 한 문장이라 넓은 화면에선 한 줄로 끝나고,
+   좁은 화면에서는 문단처럼 자연스럽게 접힌다. 블록 두 개로 나누면 그 접힘이 «두 덩어리»로 보인다. */
+.play-bar-row{flex:1;min-width:0}
+.play-bar-nb{white-space:nowrap}
+.play-bar-sep{color:var(--light);padding-left:6px}
 .play-bar.up{transform:translateY(0)}
-.play-bar-t{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--sub);letter-spacing:0.02em}
+.play-bar-t{font-size:14px;color:var(--sub)}
+/* 한 줄로 흐르므로 글꼴·굵기·자간·행간은 «줄» 쪽에서 한 번만 정한다 — 조각마다 주면 기준선이 어긋난다 */
+.play-bar-row{font-family:var(--serif-ko);font-weight:300;letter-spacing:0.02em;line-height:1.6;text-wrap:balance}
 /* ★[SILENT_HINT] 소리가 안 들릴 때 가장 흔한 원인은 «아이폰 옆면 무음 스위치»다.
    iOS 는 new Audio() 로 만든 소리를 벨소리 스위치로 함께 음소거한다 — 화면은 「멈춤」(재생 중)인데
    소리만 안 나는 상태가 되고, 사람은 «고장»으로 읽는다.
@@ -115,8 +126,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;
      글이 튀어나와, 배려로 만든 것이 «고장»으로 읽힌다. 내 판단이 틀렸다.
      지금은 크기가 처음부터 끝까지 그대로다 — 튀는 것이 없다.
    ★잔소리로 읽히지 않게 하는 것은 «시점»이 아니라 «격»이다 — 12px·--light 로 한 단 아래에 둔다. */
-.play-bar-hint{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--light);
-  letter-spacing:0.02em;line-height:1.5;text-wrap:balance}
+.play-bar-hint{font-size:12px;color:var(--light)}
 .play-bar-stop{
   font-family:var(--serif-ko);font-size:14px;font-weight:400;letter-spacing:0.08em;
   color:#F5F1E9;background:var(--seal);border:none;border-radius:4px;
@@ -313,14 +323,14 @@ nav .nav-links a, .nav-links a, .f-links a {
 
 <!-- [LISTEN_BAR] 재생 중에만 서는 멈춤 줄 · aria-live 로 낭독기에도 상태가 전해진다 -->
 <div class="play-bar" id="playBar" role="status" aria-live="polite">
-  <span class="play-bar-row">
-    <span class="play-bar-t" id="playBarT">편지를 읽어 드려요</span>
-    <!-- ★한 줄로 유지 — 글 덩어리 칸은 390px 에서 242px 이다(버튼 88 + gap 16 + 좌우 패딩 44 를 뺀 나머지).
-         24자까지 한 줄. 「과」를 «·»로 바꿔 두 글자를 벌어 볼륨과 스위치를 둘 다 지켰다.
-         360px 이하에서는 두 줄이 되지만 text-wrap:balance 가 고르게 나눈다(고아 글자 없음). -->
-    <span class="play-bar-hint">안 들리면 볼륨·무음 스위치를 확인해 주세요</span>
+  <span class="play-bar-in">
+    <span class="play-bar-row">
+      <!-- ★가운뎃점은 앞뒤로 줄바꿈이 «허용되는» 글자다 — 그냥 두면 좁은 폭에서 「·」가 줄 맨 앞에 매달린다
+           (320px 실측). 앞말과 한 덩어리로 묶어 떨어지지 않게 하고, 줄바꿈은 그 «뒤»에서만 일어나게 한다. -->
+      <span class="play-bar-nb"><span class="play-bar-t" id="playBarT">편지를 읽어 드려요</span><span class="play-bar-sep" aria-hidden="true">·</span></span> <span class="play-bar-hint">안 들리면 볼륨·무음 스위치를 확인해 주세요</span>
+    </span>
+    <button type="button" class="play-bar-stop" id="playBarStop">멈춤</button>
   </span>
-  <button type="button" class="play-bar-stop" id="playBarStop">멈춤</button>
 </div>
 
 <main>
