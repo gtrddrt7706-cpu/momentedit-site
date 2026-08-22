@@ -1432,6 +1432,7 @@ $('#bWait').onclick = function(){
   function add(label, list){
     var h = document.createElement('div'); h.className = 'pcb-g'; h.textContent = label; box.appendChild(h);
     list.forEach(function(g){
+      if (g.off) return;   /* [PHOTO_POSE_RETIRED 2026-08-17] 꺼 둔 연출은 판에 안 그린다 */
       var b = document.createElement('button');
       b.innerHTML = '<b></b><i></i>';
       b.querySelector('b').textContent = g.k;
