@@ -32,6 +32,19 @@ const NAME = arg('--name', '');
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
 
+// ★★[PASTE_ROLE_SENT 2026-08-21] 화자는 «문장»의 역할에서 찾는다 — 클립의 역할이 아니다.
+//   사용자 화면 실물: 타입캐스트가 「신랑|신부 · 대사 9개 · 줄 5, 6, 7 …」 묶음에
+//   «보이스를 선택하세요» 만 띄우고 붉게 표시했다. 배정할 캐릭터가 없기 때문이다.
+//   왜 — 입장 클립(entry-A·E·F)은 clip.role 이 '신랑|신부' 다. 그건 캐릭터 이름이 아니라
+//   «이 클립은 두 사람이 번갈아 읽는다»는 표시이고, 진짜 화자는 sents[i].role 에 신랑/신부로 갈려 있다.
+//   그 표시를 그대로 화자로 찍으면 타입캐스트가 배정할 수 없는 이름이 되고, 사람이 손으로 고르는
+//   순간 아홉 줄이 통째로 한 사람 목소리가 된다 — 번갈아 읽기가 통째로 사라진다.
+//   ★대장 생성기(build-typecast-import.mjs)는 처음부터 문장 역할을 썼다. 이 스크립트만 달랐다.
+//     같은 대장을 읽는 두 도구가 서로 다른 답을 내면, 둘 중 하나는 반드시 틀린 파일을 만든다.
+//   ★check-entry-alt.mjs 의 ENTRY_PASTE 검사가 이 꼴을 잡는다 — 「입장 17줄을 통째로 든 파일」의
+//     화자를 대장과 대조한다. 이 함수를 되돌리면 그 검사가 즉시 붉어진다.
+const voiceOf = (c, s) => man.voice?.[s?.role || c.role] || s?.role || c.role;
+
 if (!CLIPS && !SENTS) {
   console.log('한 대목만 다시 더빙할 때 쓰는 도구입니다. --clip 으로 대목을, --sent 로 문장 하나를 짚습니다.\n');
   const byPart = {};
@@ -62,8 +75,8 @@ if (SENTS) {
   const slug = NAME || SENTS.replace(/[^0-9A-Za-z가-힣]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24) || 'sent';
   const fn = `재더빙문장_${slug}.txt`;
   const spk = (t) => {
-    const c = hits.find((x) => x.text === t).clip;
-    return man.voice?.[c.role] || c.role;
+    const h = hits.find((x) => x.text === t);
+    return voiceOf(h.clip, h.clip.sents[h.i]);
   };
   fs.writeFileSync(path.join(DIR, fn), uniq.map((t) => `${spk(t)}: ${t}`).join('\n') + '\n', 'utf8');
 
@@ -98,9 +111,9 @@ const made = [];
 
 for (const pf of parts) {
   const cs = sel.filter((c) => c.part === pf);
-  const spk = [...new Set(cs.map((c) => man.voice?.[c.role] || c.role))];
+  const spk = [...new Set(cs.flatMap((c) => c.sents.map((s) => voiceOf(c, s))))];
   const lines = [];
-  for (const c of cs) for (const s of c.sents) lines.push(`${man.voice?.[c.role] || c.role}: ${s.text}`);
+  for (const c of cs) for (const s of c.sents) lines.push(`${voiceOf(c, s)}: ${s.text}`);
   const fn = `재더빙_${slug}${parts.length > 1 ? '_' + pf.replace(/\.txt$/, '') : ''}.txt`;
   fs.writeFileSync(path.join(DIR, fn), lines.join('\n') + '\n', 'utf8');
   made.push({ fn, pf, cs, spk, n: lines.length });
