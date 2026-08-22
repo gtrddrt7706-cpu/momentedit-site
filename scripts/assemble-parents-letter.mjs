@@ -225,8 +225,13 @@ execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
        assets/audio/narration/43_parents-letter.mp3 ← 예식 당일 나레이션 · 옛 조립본(170.9초) 그대로
      사용자가 바꿔 달라고 한 것은 «페이지 쪽»이고, 예식 당일 소리는 실예식에 나가는 것이라 손대지 않았다.
    ★★그래서 이 스크립트를 다시 돌리면 아래 copyFileSync 가 «사용자 녹음을 조립본으로 덮어쓴다.»
-     되살릴 수 없는 손실이다. 다시 돌릴 일이 생기면 먼저 사용자에게 물을 것 —
-     예식 클립도 새 녹음으로 통일할 것인지, 페이지만 새 녹음으로 둘 것인지. */
+     되살릴 수 없는 손실이다.
+
+   ★★★결정 완료 — 갈라진 채로 «둔다» (2026-08-21 사용자: "예식당일은 신경쓰지마 따로작업하고있어")
+     예식 당일 소리는 사용자가 별도로 작업 중이다. 이 두 파일은 앞으로도 서로 다른 소리다.
+     ★「같아야 하는데 어긋났다」며 통일하지 말 것. 어긋난 것이 아니라 «그렇게 정한 것»이다.
+     ★이 결정을 근거로 다시 묻지도 말 것 — 이미 물었고 답을 받았다.
+     정말 통일해야 할 일이 생기면 그때 사용자가 먼저 말한다. */
 const alt = path.join(path.dirname(outDir), 'parents-letter.mp3');
 if (fs.existsSync(alt) && !process.argv.includes('--overwrite-page-audio')) {
   console.log(`\n⚠ ${path.relative(root, alt)} 를 덮어쓰지 않았다 — 사용자 녹음일 수 있다([LETTER_AUDIO_DIVERGED]).`);
