@@ -5007,6 +5007,14 @@ chk 'text-wrap:balance' guide.html 1
 #     KB 엔 없어서 «서명 기한이 얼마인가요?»에 답할 근거가 없었다. 그것도 이 검사가 잡아 준 것이다.
 #   ★새 항목은 반드시 kbNum(선언라벨)로 — includes 로 짜면 다른 줄의 같은 숫자에 걸려 통과한다
 #     (확장 때 실제로 그렇게 짰다가 반증에서 걸렸다: 추가보정 20,000→30,000 이 통과했다).
+# ★★[REFUND_SIM 2026-08-21] 환불 계산을 **경계일마다 실제로 호출해** 본다(node 전용·빠름 → 게이트 안).
+#   위약 구간은 «예식 150일 전»처럼 하루로 갈린다 — `>` 와 `>=` 한 글자가 수십만 원이고 읽어서는 안 보인다.
+#   불변식 셋: 음수 아님 · 받은 것보다 많이 돌려주지 않음 · 예식이 가까울수록 늘지 않음(단조 감소).
+#   ★실측(2026-08-21): 전 구간이 계약서 비율과 일치했다(330만×0.9=297만 …). 이 검사는 그 상태를 고정한다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/refund-sim.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL refund-sim: 환불 계산이 불변식을 깨거나 계단이 뒤집혔습니다 — node scripts/audit/refund-sim.mjs'; fail=1; }; fi
+chk 'REFUND_SIM' scripts/audit/refund-sim.mjs 1
+chk '단조 감소' scripts/audit/refund-sim.mjs 2
 chk 'KB_TRUTH_WIDE' scripts/audit/kb-truth.mjs 1
 chk 'KB_TRUTH_WIDE' api/_kb.js 1
 chk 'kbNum' scripts/audit/kb-truth.mjs 5
