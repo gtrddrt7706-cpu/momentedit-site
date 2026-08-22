@@ -797,15 +797,43 @@ function _refundQuote(r, asOfYmd) {
   var dd = _dayDiff(_ymdOf(r.get('예식일')), asOf);   // 예식까지 남은 일수(D-dd · 0=당일 · 음수=지남)
   if (dd == null) return { pending: true };
 
+  /* ★★[CHANGE_RATCHET 2026-08-21 환불 경계값 점검에서 잡음] 제8조⑤ «변경을 통한 회피 금지» 구현.
+     계약서 원문: «예식일이 변경된 경우에도 제7조·제9조의 기간 산정 기준일은 변경된 예식일로 한다.
+       다만 변경 시점에 최초 예식일 기준으로 **이미 도달한 위약금 구간이 있는 경우, 그보다 낮은 구간은
+       적용하지 아니한다**(변경을 통한 위약금 회피 방지).»
+     종전 코드는 «현재 예식일»만 봤다 — 조항이 막으려던 바로 그 회피가 그대로 열려 있었다.
+     재현: 330만·기수령 165만·D-19(40% 구간)에서 예식일을 1년 뒤로 변경(수수료 33만) → 즉시 취소.
+       코드는 D-287 로 보고 «무상취소» → 환불 165만. 계약서대로면 40% 유지 → 환불 66만. **차액 99만원.**
+       고객이 마이페이지에서 혼자 변경 요청을 넣고 관리자가 확인 한 번 누르면 성립한다.
+     ★래칫 재료는 이미 있다 — 변경이력에 {from(최초 예식일), at(변경 시점)} 이 남는다(966행).
+       각 변경 시점에 «그때의 from 기준 남은 일수»로 요율을 구해, 그중 가장 높은 것을 하한으로 쓴다.
+     ★이 하한을 지우지 말 것. 지우면 99만원짜리 구멍이 그대로 돌아온다. */
+  var _floorRate = 0, _floorWhy = '';
+  try {
+    var _hist = (_parseJsonSafe(r.get('동의기록')).변경이력) || [];
+    for (var _hi = 0; _hi < _hist.length; _hi++) {
+      var _h = _hist[_hi] || {};
+      var _fromYmd = _ymdOf(_h.from && (_h.from.date || _h.from)) || null;
+      var _atYmd = _ymdOf(_h.at) || null;
+      if (!_fromYmd || !_atYmd) continue;                  // 근거가 없으면 하한을 세우지 않는다(추측 금지)
+      var _ddThen = _dayDiff(_fromYmd, _atYmd);            // 변경 시점에 «최초 예식일»까지 남았던 일수
+      if (_ddThen == null) continue;
+      var _rateThen = _ddThen >= 150 ? 0 : _ddThen >= 60 ? 0.1 : _ddThen >= 30 ? 0.2 : _ddThen >= 10 ? 0.4 : _ddThen >= 1 ? 0.5 : 0.7;
+      if (_rateThen > _floorRate) { _floorRate = _rateThen; _floorWhy = '변경 당시 D-' + _ddThen; }
+    }
+  } catch (e) {}
+
   // ② 7조① 청약철회 — 계약 성립일부터 15일 이내, 예식 용역 개시 전(예식 전일=dd>=1)까지.
   var signYmd = _ymdOf(r.get('계약서명일시'));
   if (signYmd && asOf <= _shiftYmd(signYmd, 15) && dd >= 1) return out('청약철회(7조)', 0, 0, paid - fitDeduct, dd);
-  // ③ 7조② 무상취소 — 예식일 150일 전까지 위약금 없이 해제.
-  if (dd >= 150) return out('무상취소(7조)', 0, 0, paid - fitDeduct, dd);
+  // ③ 7조② 무상취소 — 예식일 150일 전까지 위약금 없이 해제. ★단 8조⑤ 하한이 있으면 무상으로 내려가지 않는다.
+  if (dd >= 150 && _floorRate <= 0) return out('무상취소(7조)', 0, 0, paid - fitDeduct, dd);
   // ④ 9조② 위약금 — 총 계약금액 기준 시기별 요율. 시착비는 위약금에 흡수(9조⑤) → 추가 차감 없음.
   var rate = dd >= 60 ? 0.1 : dd >= 30 ? 0.2 : dd >= 10 ? 0.4 : dd >= 1 ? 0.5 : 0.7;
+  if (dd >= 150) rate = 0;                                  // 무상 구간인데 하한이 걸린 경우 — 아래에서 하한으로 올라간다
+  if (_floorRate > rate) { rate = _floorRate; }              // [CHANGE_RATCHET] 8조⑤ — 낮은 구간으로 내려가지 않는다
   var penalty = Math.round(amounts.총액 * rate);
-  return out('위약금 ' + Math.round(rate * 100) + '%(9조)', rate, penalty, paid - penalty, dd);
+  return out('위약금 ' + Math.round(rate * 100) + '%(9조)' + (_floorWhy && _floorRate >= rate ? (' · 8조⑤ ' + _floorWhy + ' 구간 유지') : ''), rate, penalty, paid - penalty, dd);
 }
 
 // [02-8] 노출 게이트 — 마이페이지(getMyState.refund)·관리자 상세(adminDetail.refundQuote) 공용.

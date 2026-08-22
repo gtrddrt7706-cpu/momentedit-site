@@ -150,8 +150,12 @@ function _nfProps() {
 function _kakaoSend(to, event, code, extra, opts) {
   // [NOTIFY_SENT_RET 2026-07-25] 반환: true(발송 시도 성공)·'held'(야간 보류)·false(미발송). 기존 호출부 반환 미사용(호환).
   var cfg = _nfProps();
-  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 발송 생략'); return false; }
-
+  /* ★★[ADMIN_MAIL_UNCHAINED 2026-08-21 알림 전수점검에서 잡음] 솔라피 설정 검사를 **고객 분기로 내렸다.**
+     종전엔 이 검사가 관리자 분기보다 «앞»에 있었다. 그런데 관리자 알림은 2026-06-29 에 **메일 전용**으로
+     바뀌어 솔라피를 한 번도 쓰지 않는다 — 그런데도 SOLAPI_SENDER 에 오타 하나만 나면
+     입금신호·계약서요청·환불송금·슬롯승인 같은 **행동 게이트 알림이 통째로 무음**이 됐다.
+     고객은 기다리는데 관리자는 큐를 보러 갈 이유조차 모르는 상태 — 알려주는 장치도 없었다.
+     ★관리자 메일은 솔라피와 무관하다. 이 검사를 다시 위로 올리지 말 것. */
   if (to === 'admin') {
     // [관리자 알림 최소화 · 2026-06-11] 행동 게이트(need:true)만 알림 — 관리자가 페이지에서 처리해야
     // 고객 진행이 풀리는 일만. 안내성(서명완료·보정본선택·다이닝·브리핑 등)은 아침보고·관리자 페이지로 충분.
@@ -161,6 +165,7 @@ function _kakaoSend(to, event, code, extra, opts) {
     if (typeof _nfAdminLineEmail === 'function') { _nfAdminLineEmail(_nfAdminText(event, code, extra), _nfPayConfirmAction(event, code, extra)); return true; }
     return false;
   }
+  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 고객 발송 생략'); return false; }   // [ADMIN_MAIL_UNCHAINED] 고객 알림만 막는다
 
   // [야간 보류] 고객 알림은 21시~익일 8시엔 보류 큐로 적재 → 아침 8시 트리거가 발송(정보성이라도 새벽 카톡 방지). 관리자 알림은 즉시.
   if (!(opts && opts.skipHold) && _nfIsNight()) { _nfHoldPush(event, code, extra); return 'held'; }

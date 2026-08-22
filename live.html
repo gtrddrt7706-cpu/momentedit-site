@@ -2039,6 +2039,26 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
   //     홍보 경로는 GAS를 부르지 않는다(예식 당일 부하 + 시트 잡값 노출 차단).
   if (!eventId || eventId === 'test-couple') {
     clearTimeout(failsafeTimer);
+    /* ★★[DEMO_BADGE 2026-08-21 하객 경로 점검에서 잡음] 표본 화면임을 **하객에게 보이게** 밝힌다.
+       종전엔 표본 부부(이서준·정하윤)와 표본 계좌 넷이 «진짜 예식»과 똑같이 그려졌고,
+       화면에 «표본»이라는 글자가 **한 곳도 없었다**(파일 안의 11군데는 전부 주석이다 · 실측).
+       카톡으로 전달되며 «?e=» 가 잘리는 것은 이 저장소가 스스로 적어 둔 실제 사고 유형인데
+       (guide.html 413), guide·seat 는 «잘못된 주소예요 + 문의처»를 내주는 반면 여기는
+       완성된 남의 결혼식을 보여 준다 — **하객이 표본 계좌로 축의금을 보낼 수 있다.**
+       ★표본 화면 자체는 홍보에 쓰이므로 없애지 않는다. 없애는 대신 **사실대로 표시한다.**
+       ★이 배지를 지우지 말 것. 지우면 «되돌릴 수 없는 송금»이 다시 가능해진다. */
+    try {
+      if (!document.getElementById('demoBadge')) {
+        var _db = document.createElement('div');
+        _db.id = 'demoBadge';
+        _db.style.cssText = 'position:sticky;top:0;z-index:9999;background:#6B2A24;color:#fff;'
+          + 'font-size:12.5px;line-height:1.5;text-align:center;padding:9px 14px;letter-spacing:.01em';
+        _db.innerHTML = '예시 화면이에요 · 실제 청첩장이 아닙니다'
+          + '<br><span style="opacity:.85;font-size:11.5px">계좌·이름·날짜 모두 예시예요 · 받으신 링크가 잘렸을 수 있어요</span>';
+        document.body.insertBefore(_db, document.body.firstChild);
+      }
+      document.documentElement.setAttribute('data-demo', '1');
+    } catch (e) {}
     /* [LIVE_DEMO_DATE] 정적 더미는 2027·12·17인데 청첩장 표본은 2026·10·24였다 —
        갤러리에서 온라인판 Enter로 넘어온 예비 고객에게 '같은 예식인데 날짜가 다른' 화면이 보였다
        (2026-08-02 라이브 카드 추가 검토 중 실측 발견 · 04 날짜 하드코딩과 같은 계열).

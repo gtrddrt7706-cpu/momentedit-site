@@ -75,8 +75,16 @@ ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' }).expired === true, '11b 예식 +3
 // 12) 예식 29일 경과 → 아직 열림 · 예식일 미정 → 만료 안 함
 setup({ 예식일: ymdShift(-29) });
 ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12a 예식 +29일 → 아직 열림');
+/* ★★[GUIDE_EXPIRE_REASON 2026-08-21] 이 검사는 오래 붉어 있었다(main 에서도 실패).
+   기대가 «만료 안 함»이었는데 제품은 [GUIDE_EXPIRE_FAILCLOSED] 로 **닫는 쪽**을 택했다 —
+   날짜를 모르면 두 분의 실명을 계속 보여 줄 근거가 없기 때문이다(개인정보는 모를 때 닫는다).
+   판정은 제품이 옳다. 잘못된 것은 «문구»였다 — 아직 하지도 않은 예식을 «끝났다»고 말했다.
+   그래서 기대를 제품 결정에 맞추되, **닫는 이유와 문의처가 함께 오는지**까지 본다. */
 setup({ 예식일: '' });
-ok(sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' }).ok === true, '12b 예식일 미정 → 만료 안 함');
+const _g12b = sb.handleGuideView({ g: 'Gyyyyyyyyyyyyyy1' });
+ok(_g12b.ok === false && _g12b.reason === 'unknown', '12b 예식일 미정 → 닫되 사유가 unknown');
+ok(!/끝나/.test(String(_g12b.error || '')), '12b 아직 안 한 예식을 «끝났다»고 말하지 않는다');
+ok(_g12b.help === true, '12b 그 경우엔 문의처를 함께 준다(막다른 길 금지)');
 
 // 13) (구)showSeat=false 레거시 저장분은 무시(허용 토글 폐지 2026-07-17) · 라이브 필드는 어떤 청첩장 방식에서도 미전송(섹션 삭제)
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false }, invitationDraft: { method: 'both' } } });

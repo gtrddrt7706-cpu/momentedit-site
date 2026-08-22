@@ -57,6 +57,29 @@ console.log('\n[불변식]');
   ok(!rise, '예식이 가까워질수록 환불이 늘지 않는다(단조 감소)', rise);
 }
 
+console.log('\n[8조⑤ 변경을 통한 회피 — 미루고 취소해도 그때 구간이 유지되는가]');
+{
+  /* 계약서 제8조⑤: «변경 시점에 최초 예식일 기준으로 이미 도달한 위약금 구간이 있는 경우,
+     그보다 낮은 구간은 적용하지 아니한다». 2026-08-21 점검 전에는 이 조항이 코드에 없었고,
+     D-19(40%)에서 1년 뒤로 미룬 뒤 취소하면 «무상취소»가 되어 **99만원이 새어 나갔다.** */
+  const hist = (fromDays, atDays) => [{ from: { date: ymdPlus(fromDays) }, to: { date: ymdPlus(300) }, fee: 330000, at: ymdPlus(atDays) + ' 10:00' }];
+  const base = { 중도금상태: '확인', 중도금확인일시: '2026-01-01 10:00', 동의기록: JSON.stringify({ 시착: { 벌수: 0 } }) };
+  const withHist = (h) => Object.assign({}, base, { 동의기록: JSON.stringify({ 시착: { 벌수: 0 }, 변경이력: h }) });
+
+  const 미룬뒤 = quoteAt(300, withHist(hist(19, 0)));      // D-19(40%)에서 미룸
+  const 그때취소 = quoteAt(19, base);                       // 미루지 않고 그때 취소했다면
+  ok(Number(미룬뒤.refund) === Number(그때취소.refund),
+    '미루고 취소해도 그때 구간이 유지된다(8조⑤) [CHANGE_RATCHET]',
+    `미룬 뒤 ${미룬뒤.refund} vs 그때 ${그때취소.refund}`);
+  ok(/8조⑤/.test(String(미룬뒤.rule || '')), '적용 근거가 문구에 남는다', String(미룬뒤.rule));
+
+  const 무상에서미룸 = quoteAt(400, withHist(hist(300, 0)));   // 무상 구간(D-300)에서 미룬 것은 하한 없음
+  ok(/무상취소/.test(String(무상에서미룸.rule || '')), '무상 구간에서 미룬 것은 그대로 무상이다(과잉 적용 금지)', String(무상에서미룸.rule));
+
+  const 이력없음 = quoteAt(300, base);
+  ok(/무상취소/.test(String(이력없음.rule || '')), '변경 이력이 없으면 종전대로 무상', String(이력없음.rule));
+}
+
 console.log('\n[중도금·잔금까지 받은 뒤 취소 — 큰 금액이 오갈 때]');
 {
   /* ★여기가 진짜 위험 구간이다. 계약금만 받았을 때는 위약금이 기수령을 넘어 0 으로 잘리지만,

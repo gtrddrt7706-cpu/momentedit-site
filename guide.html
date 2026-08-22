@@ -1013,7 +1013,16 @@ function renderDemo(){
           render(d.guide); painted=true;
         }
         else if(d && d.expired){ try{ localStorage.removeItem(cacheKey); }catch(e){}
-          $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
+          /* ★[GUIDE_EXPIRE_REASON 2026-08-21] 닫는 이유가 둘이다 — «끝났다»와 «날짜를 아직 모른다».
+             종전엔 둘 다 «예식이 끝나…»로 말해, 아직 하지도 않은 예식을 끝났다고 안내했고
+             그 화면엔 출구도 없었다(만료 화면은 정상 종료라 문의처를 일부러 안 붙인다).
+             ★서버가 reason·help 를 준다 — 모르는 경우에만 문의처를 함께 낸다. */
+          if(d.reason==='unknown'){
+            /* 서버 문구가 이미 «확정되면 다시 열려요»를 담고 있다 — 부제에 같은 말을 반복하지 않는다(실렌더로 확인). */
+            $('root').innerHTML=stateHtml('안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?1:0);
+          } else {
+            $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
+          } }
         else { try{ localStorage.removeItem(cacheKey); }catch(e){}
           $('root').innerHTML=stateHtml((d&&d.error)||'안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]
       })

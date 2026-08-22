@@ -709,6 +709,19 @@ function handleSaveProductionTrack(body) {
 // 하객 공개 링크 자동 만료 — 예식 후 이 일수가 지나면 좌석·안내 링크를 닫는다(개인정보: 하객 이름이 무기한 노출되지 않게).
 //   예식일 미정이면 만료하지 않음(날짜가 없으면 기준이 없음). 서버 시각(KST) 기준.
 var GUIDE_EXPIRE_DAYS = 30;
+/* ★★[GUIDE_EXPIRE_REASON 2026-08-21 하객 경로 점검에서 잡음] 닫는 «이유»를 구분해 말한다.
+   _guideExpired 는 두 경우에 닫는다: ①예식이 실제로 +30일 지났다 ②예식일을 모른다(되돌림·미기입).
+   그런데 네 곳 전부 «예식이 끝나 …»라는 **한 문구**를 썼다. ②에 걸린 하객은 아직 하지도 않은 예식을
+   «끝났다»고 듣고, 그 화면엔 문의처도 없다(만료 화면은 «정상 종료»라 출구를 일부러 안 붙인다).
+   ★닫는 판정 자체는 그대로다 — 날짜를 모르면 개인정보는 닫는 것이 옳다(FAILCLOSED).
+     바꾸는 것은 **문구와 출구**뿐이다. 판정을 열지 말 것.
+   ★automation/tests/guide.test.js 12b 가 오래 붉어 있던 것이 이 자리다(main 에서도 실패). */
+function _guideCloseInfo(weddingYmd) {
+  var v = _guideExpired(weddingYmd);
+  if (v === 'unknown') return { closed: true, reason: 'unknown', error: '안내를 준비하고 있어요. 예식 정보가 확정되면 다시 열려요.', help: true };
+  if (v) return { closed: true, reason: 'past', error: '예식이 끝나 안내가 닫혔어요.', help: false };
+  return { closed: false };
+}
 function _guideExpired(weddingYmd) {
   var m = String(weddingYmd || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   /* ★★[GUIDE_EXPIRE_FAILCLOSED 2026-08-18] 예식일이 없으면 «만료»로 본다(닫는 쪽으로).
@@ -717,7 +730,7 @@ function _guideExpired(weddingYmd) {
      **영영 만료되지 않은 채 두 분의 실명을 계속 보여 줬다**(실측 확인).
      날짜를 모르면 «아직 유효하다»고 말할 근거가 없다 — 개인정보는 모를 때 닫는다.
      ★정상 고객은 계약 시점에 예식일이 잠기므로(adminSendContract) 이 분기에 오지 않는다. */
-  if (!m) return true;
+  if (!m) return 'unknown';   // [GUIDE_EXPIRE_REASON] 닫되 «끝나서»가 아니라 «날짜를 모른다»는 사실을 구분해 돌려준다
   if (typeof _dayDiff === 'function' && typeof _kstYmd === 'function') {   // 코드베이스 표준 KST 판정(admin.gs 헬퍼) — 프로젝트 타임존 설정과 무관하게 정확
     var _dd = _dayDiff(String(weddingYmd).trim(), _kstYmd(new Date()));   // 예식까지 남은 일수(음수=지남)
     return _dd != null && _dd < -GUIDE_EXPIRE_DAYS;
@@ -743,7 +756,7 @@ function handleSeatView(body) {
   }
   var cust = _findCustomerBy('좌석공유토큰', token, false);
   if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
-  if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
+  var _ci = _guideCloseInfo(_ymdOf(cust.get('예식일'))); if (_ci.closed) return { ok: false, expired: true, reason: _ci.reason, help: !!_ci.help, error: _ci.error };   // 예식 후 자동 만료(개인정보)
   var d = _prodLoad(cust);   // PROD_ACCESSOR
   // (구)showSeat 허용 토글 게이트 제거 — 2026-07-17 2안 폐지. 레거시 false 저장분이 좌석 안내를 UI 없이 영구 차단하던 막다른길 해소. ★접근 게이트 추가 시 _seatFindByToken과 쌍으로
   // [좌석 공개 범위] 부부가 '내 자리만 검색'을 켠 경우에만 전체 배치도(명단) 차단 — 기본은 전체 공개(2026-07-17 사용자 지시).
@@ -833,7 +846,7 @@ function _seatFindByToken(token, q) {
     // ★접근 게이트(토큰 조회·만료·자리찾기 OFF)는 handleSeatView 본문과 쌍 — 게이트를 추가하면 반드시 양쪽 모두에
     var cust = _findCustomerBy('좌석공유토큰', token, false);
     if (!cust) return { ok: false, error: '배치를 찾을 수 없어요.' };
-    if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 좌석 안내가 닫혔어요.' };
+    var _ci = _guideCloseInfo(_ymdOf(cust.get('예식일'))); if (_ci.closed) return { ok: false, expired: true, reason: _ci.reason, help: !!_ci.help, error: _ci.error };
     var d = _prodLoad(cust);   // PROD_ACCESSOR
     var sd = d.seatDraft || {};   // (구)showSeat 게이트 제거 — handleSeatView와 동일(2026-07-17 2안 폐지)
     var raw = (Object.prototype.toString.call(sd.tables) === '[object Array]') ? sd.tables : [];
@@ -898,7 +911,7 @@ function handleGuideView(body) {
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
   var cust = _findCustomerBy('안내공유토큰', token, false);
   if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
-  if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 안내가 닫혔어요.' };   // 예식 후 자동 만료(개인정보)
+  var _ci = _guideCloseInfo(_ymdOf(cust.get('예식일'))); if (_ci.closed) return { ok: false, expired: true, reason: _ci.reason, help: !!_ci.help, error: _ci.error };   // 예식 후 자동 만료(개인정보)
   var d = _prodLoad(cust);   // PROD_ACCESSOR
   var gi = d.guideinfoDraft || {};
   // (구)showSeat 허용 토글 폐지(2026-07-17 2안) — 좌석 노출은 배치 유무 + seatMode만으로 결정
@@ -1024,7 +1037,7 @@ function handleGuestPhoto(body) {
 
   var cust = _findCustomerBy('안내공유토큰', token, false);
   if (!cust) return { ok: false, error: '안내를 찾을 수 없어요.' };
-  if (_guideExpired(_ymdOf(cust.get('예식일')))) return { ok: false, expired: true, error: '예식이 끝나 사진 받기가 닫혔어요.' };
+  var _ci = _guideCloseInfo(_ymdOf(cust.get('예식일'))); if (_ci.closed) return { ok: false, expired: true, reason: _ci.reason, help: !!_ci.help, error: _ci.error };
 
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   // ★열 가드 — 없으면 저장하지 않는다. writeCell 이 조용히 건너뛰어 '올렸는데 없다'가 되는 것을 막는다.
