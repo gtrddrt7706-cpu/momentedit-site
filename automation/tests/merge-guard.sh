@@ -5000,3 +5000,53 @@ chk "querySelectorAll('button,a\[href\],input,.ps-btn,.act')" guide.html 1
 #   실측: 마지막 줄이 첫 줄의 72%(전에는 한 글자).
 chk 'FOOT_BALANCE' guide.html 1
 chk 'text-wrap:balance' guide.html 1
+# ★★[KB_TRUTH_WIDE 2026-08-21 사용자 지시 "추천대로 진행"] KB↔코드 대조를 4항목 → 전 결제·결과물 정책으로.
+#   왜: 자동 탐지(AUTO_DISAGREE)는 «답이 갈릴 때»만 잡는다 — 다섯 직원이 **똑같이 틀리면** 조용하다.
+#   그 사각을 KB↔코드 대조가 메운다(갈리든 안 갈리든 값이 다르면 잡힌다).
+#   ★넓히면서 KB 에 없던 사실도 하나 찾았다: 계약서 서명 기한 72시간 — 고객 화면엔 카운트다운이 뜨는데
+#     KB 엔 없어서 «서명 기한이 얼마인가요?»에 답할 근거가 없었다. 그것도 이 검사가 잡아 준 것이다.
+#   ★새 항목은 반드시 kbNum(선언라벨)로 — includes 로 짜면 다른 줄의 같은 숫자에 걸려 통과한다
+#     (확장 때 실제로 그렇게 짰다가 반증에서 걸렸다: 추가보정 20,000→30,000 이 통과했다).
+# ★★[REFUND_SIM 2026-08-21] 환불 계산을 **경계일마다 실제로 호출해** 본다(node 전용·빠름 → 게이트 안).
+#   위약 구간은 «예식 150일 전»처럼 하루로 갈린다 — `>` 와 `>=` 한 글자가 수십만 원이고 읽어서는 안 보인다.
+#   불변식 셋: 음수 아님 · 받은 것보다 많이 돌려주지 않음 · 예식이 가까울수록 늘지 않음(단조 감소).
+#   ★실측(2026-08-21): 전 구간이 계약서 비율과 일치했다(330만×0.9=297만 …). 이 검사는 그 상태를 고정한다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/refund-sim.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL refund-sim: 환불 계산이 불변식을 깨거나 계단이 뒤집혔습니다 — node scripts/audit/refund-sim.mjs'; fail=1; }; fi
+chk 'REFUND_SIM' scripts/audit/refund-sim.mjs 1
+chk '단조 감소' scripts/audit/refund-sim.mjs 2
+chk 'KB_TRUTH_WIDE' scripts/audit/kb-truth.mjs 1
+chk 'KB_TRUTH_WIDE' api/_kb.js 1
+chk 'kbNum' scripts/audit/kb-truth.mjs 5
+chk '계약서 서명 기한' api/_kb.js 1
+# ★★[CHANGE_RATCHET 2026-08-21 환불 경계값 전수점검] 계약서 제8조⑤ «변경을 통한 회피 금지» 구현.
+#   조항은 있는데 **코드에 없었다.** D-19(위약 40%)에서 예식일을 1년 뒤로 미룬 뒤 취소하면
+#   코드가 «무상취소»로 보고 환불 165만을 지시했다 — 계약서대로면 66만. **건당 99만원.**
+#   고객이 마이페이지에서 혼자 변경 요청을 넣고 관리자가 확인 한 번 누르면 성립하는 경로였다.
+#   ★래칫: 변경이력의 {from, at} 으로 «그 시점의 최초 예식일 기준 요율»을 구해 하한으로 쓴다.
+#   ★무상 구간에서 미룬 것에는 하한을 세우지 않는다(과잉 적용 금지) — 검사가 그것도 함께 본다.
+chk 'CHANGE_RATCHET' automation/platform/70_journey.gs 2
+chk '_floorRate' automation/platform/70_journey.gs 5
+chk 'CHANGE_RATCHET' scripts/audit/refund-sim.mjs 1
+chk '8조⑤' scripts/audit/refund-sim.mjs 2
+# ★★[ADMIN_MAIL_UNCHAINED 2026-08-21 알림 전수점검] 솔라피 설정 검사를 고객 분기로 내렸다.
+#   관리자 알림은 2026-06-29 메일 전용인데 솔라피 키 검사에 묶여 있어서, SOLAPI_SENDER 오타 하나로
+#   입금신호·계약서요청·환불송금 같은 **행동 게이트 알림이 통째로 무음**이 됐다(알려주는 장치도 없음).
+chk 'ADMIN_MAIL_UNCHAINED' automation/platform/95_notify.gs 2
+# ★★[DEMO_BADGE 2026-08-21 하객 경로 점검] 표본 화면임을 하객에게 «보이게» 밝힌다.
+#   링크가 잘려 오면(?e= 유실 · 이 저장소가 스스로 적어 둔 실제 사고 유형) live.html 이
+#   표본 부부와 **표본 계좌 넷**을 진짜처럼 그렸고, 화면에 «표본»이라는 글자가 한 곳도 없었다
+#   (파일 안 11군데는 전부 주석 · 실측). 하객이 표본 계좌로 축의금을 보낼 수 있었다.
+#   ★배지를 지우지 말 것 — 되돌릴 수 없는 송금이 다시 가능해진다.
+chk 'DEMO_BADGE' live.html 1
+chk '예시 화면이에요' live.html 1
+# ★★[GUIDE_EXPIRE_REASON 2026-08-21 하객 경로 점검] 닫는 «이유»를 구분해 말한다.
+#   _guideExpired 는 ①예식 +30일 경과 ②예식일을 모름(되돌림·미기입) 두 경우에 닫는데
+#   네 곳 전부 «예식이 끝나…»라는 한 문구를 썼다 — ②에 걸린 하객은 아직 하지도 않은 예식을
+#   «끝났다»고 듣고, 그 화면엔 문의처도 없었다(만료 화면은 정상 종료라 출구를 일부러 안 붙인다).
+#   ★닫는 판정은 그대로다(FAILCLOSED · 날짜를 모르면 실명을 계속 보여 줄 근거가 없다). 문구와 출구만 고쳤다.
+#   ★guide.test.js 12b 가 main 에서도 오래 붉어 있던 자리 — 기대를 제품 결정에 맞추고 사유·문의처까지 검사한다.
+chk 'GUIDE_EXPIRE_REASON' automation/platform/80_production.gs 2
+chk '_guideCloseInfo' automation/platform/80_production.gs 5
+chk 'GUIDE_EXPIRE_REASON' guide.html 1
+chk 'GUIDE_EXPIRE_REASON' automation/tests/guide.test.js 1

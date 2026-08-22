@@ -8,7 +8,23 @@ const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs'
 const from = src.indexOf('var GP_ROOT_FOLDER');
 const to   = src.indexOf('function purgeGuestPhotosApply');
 if (from < 0 || to < 0) { console.error('✗ GUEST_PHOTO_IN 블록을 찾지 못했다 — 마커가 바뀌었나?'); process.exit(1); }
-const code = src.slice(from, to);
+/* ★[GUIDE_EXPIRE_REASON 2026-08-21] 이 검사는 사진 블록만 잘라 쓴다 — 그런데 그 블록이
+   _guideCloseInfo(만료 사유 구분 헬퍼)를 부른다. 잘라낸 조각 밖에 있으면 «정의되지 않음»으로 터진다.
+   ★사본을 만들지 않고 **실제 헬퍼 원문을 함께 떼어** 붙인다 — 사본을 두면 둘이 갈라진다. */
+const grab = (name) => {                       // 함수 하나를 중괄호로 정확히 떼어 온다(사본 금지 · 원문 그대로)
+  const i = src.indexOf('function ' + name);
+  if (i < 0) return '';
+  let d = 0, j = src.indexOf('{', i);
+  for (let k = j; k < src.length; k++) {
+    if (src[k] === '{') d++;
+    else if (src[k] === '}') { d--; if (d === 0) return src.slice(i, k + 1); }
+  }
+  return '';
+};
+const constLine = (src.match(/var GUIDE_EXPIRE_DAYS[^\n]*/) || [''])[0];   // 만료 일수 상수도 원문에서(사본 금지)
+const helper = [constLine, grab('_guideExpired'), grab('_guideCloseInfo')].join('\n');
+if (!/\_guideCloseInfo/.test(helper) || !/_guideExpired/.test(helper)) { console.error('✗ 만료 헬퍼를 찾지 못했다 — 이름이 바뀌었나?'); process.exit(1); }
+const code = helper + '\n' + src.slice(from, to);
 
 let created = [], written = [];
 const mk = (over={}) => {
