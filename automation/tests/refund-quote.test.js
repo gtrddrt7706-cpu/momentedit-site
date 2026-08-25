@@ -105,12 +105,16 @@ const TOTAL = 2800000;          // 고정 검사값(구가 주말) — 비율 �
 const MID = 1120000;            // 40% (계약금 잔액은 계약 시 별도 납부 · 4조③)
 const BAL = 1400000;            // 50%
 const bookingPaid = () => row({ 입금확인: '확인' });
+/* ★[OLD_SIGNER_TERMS 2026-08-25] 픽스처의 시착 기록엔 **스냅샷(예약금·추가벌비용)을 반드시 넣는다** —
+   실제 서명(handleSignFittingConsent)이 항상 남기는 값이다. 생략하면 «구서명자»로 판정되어
+   예약금 200,000·1벌당 70,000(그들이 서명한 v1~v3 약관)으로 계산된다. 그 경로는 아래
+   [구서명자] 케이스가 따로 못박는다 — 여기 공통 픽스처는 현행(v4) 고객이다. */
 // 서명 오래전(철회기한 경과) 시그니처 공통 필드
 function signedBase(extra) {
   return Object.assign({
     상품타입: '시그니처', 현재단계: '입금완료', 계약상태: '서명완료', 입금상태: '확인',
     계약서명일시: '2026-01-05 10:00', 계약총액: TOTAL,
-    시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2 } }), 개인코드: 'TQ00'
+    시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2, 예약금: 100000, 추가벌비용: 50000 } }), 개인코드: 'TQ00'
   }, extra || {});
 }
 
@@ -119,7 +123,7 @@ console.log('\n[1] _refundQuote — 계약서 v1-1 7조·9조·4조⑧ 케이스
 // ① 계약 전 · 2벌 → 예약금 10만 - 10만 = 0원 (4조⑧ 비례 공제 · Bookings 입금확인 폴백 경유)
 ctx.findRowByPersonalCode = bookingPaid;
 let q = ctx._refundQuote(row({ 상품타입: '시그니처', 현재단계: '시착', 계약상태: '', 입금상태: '',
-  시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2 } }), 개인코드: 'TQ01' }), ASOF);
+  시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2, 예약금: 100000, 추가벌비용: 50000 } }), 개인코드: 'TQ01' }), ASOF);
 check('① 계약 전 2벌: rule', q.rule === '계약 전', JSON.stringify(q));
 check('① 계약 전 2벌: paid 100,000(Bookings 폴백)', q.paid === 100000, 'paid=' + q.paid);
 check('① 계약 전 2벌: fitDeduct 100,000(상한)', q.fitDeduct === 100000 && q.fitCount === 2, JSON.stringify(q));
@@ -161,7 +165,7 @@ check('⑦ 총액 미정: {pending:true}', q && q.pending === true && q.refund =
 // ⑧ 벌수 미기록 + 시착동의완료 → needCount · 공제 0으로 계산
 ctx.findRowByPersonalCode = bookingPaid;
 q = ctx._refundQuote(row({ 상품타입: '시그니처', 현재단계: '상담완료', 계약상태: '', 입금상태: '',
-  시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: '2026-06-01 11:00' } }), 개인코드: 'TQ08' }), ASOF);
+  시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: '2026-06-01 11:00', 예약금: 100000, 추가벌비용: 50000 } }), 개인코드: 'TQ08' }), ASOF);
 check('⑧ 벌수 미기록: needCount=true', q.needCount === true, JSON.stringify(q));
 check('⑧ 벌수 미기록: 공제 0 · refund 100,000', q.fitDeduct === 0 && q.fitCount === 0 && q.refund === 100000, 'refund=' + q.refund);
 
@@ -194,7 +198,7 @@ check('게이트: 계약 전 + 입금 미확인 → null',
   ctx.buildRefundQuote(row({ 상품타입: '시그니처', 현재단계: '시착', 계약상태: '', 입금상태: '', 개인코드: 'TQ' })) === null);
 ctx.findRowByPersonalCode = bookingPaid;
 q = ctx.buildRefundQuote(row({ 상품타입: '시그니처', 현재단계: '시착', 계약상태: '', 입금상태: '',
-  시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 1 } }), 개인코드: 'TQ' }));
+  시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 1, 예약금: 100000, 추가벌비용: 50000 } }), 개인코드: 'TQ' }));
 check('게이트: 계약 전 + 예약금 확인 → 견적(1벌 공제 후 50,000)', !!q && q.refund === 50000, JSON.stringify(q));
 ctx.findRowByPersonalCode = () => null;
 q = ctx.buildRefundQuote(row(signedBase({ 예식일: addDays(ASOF, 100) })));
@@ -202,6 +206,22 @@ q = ctx.buildRefundQuote(row(signedBase({ 예식일: addDays(ASOF, 100) })));
 // 이 게이트 테스트는 '서명완료면 견적이 열린다(위약금 규칙 반환)'만 검증한다(정확한 rate 표는 위 dd 표에서 asOf 명시로 결정적 검증).
 check('게이트: 서명완료 → 견적', !!q && /^위약금 \d+%\(9조\)$/.test(q.rule), JSON.stringify(q));
 // asOf 생략 시 오늘(KST) 폴백
+
+/* ★★[OLD_SIGNER_TERMS 2026-08-25 · F3b] 구서명자(스냅샷 없는 동의완료) — 서명한 문서가 정본이다.
+   그들이 서명한 v1~v3 약관: 예약금 200,000 · 1벌당 70,000(archive/fitting-v3.html).
+   종전 코드는 현행 상수(100,000/50,000)로 계산해 ①기수령이 절반으로 적히고
+   ②2벌 시착 후 취소 시 refund 가 0 이 되어 환불송금 큐·고객 화면에서 **동시에 숨었다** —
+   서명본대로면 60,000원을 돌려줘야 하는데 그 돈이 어디에도 안 보였다.
+   ★이 케이스를 지우거나 기대값을 현행 상수로 되돌리면 F3b 가 그대로 돌아온다. */
+console.log('\n[구서명자] 스냅샷 없는 동의완료 → 서명 당시 약관(200,000/70,000)');
+ctx.findRowByPersonalCode = bookingPaid;
+q = ctx._refundQuote(row({ 상품타입: '시그니처', 현재단계: '시착', 계약상태: '', 입금상태: '',
+  시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2 } }), 개인코드: 'TQ90' }), ASOF);
+check('구서명자 2벌: paid 200,000(서명본 예약금)', q.paid === 200000, 'paid=' + q.paid);
+check('구서명자 2벌: 공제 140,000(1벌당 70,000)', q.fitDeduct === 140000, 'fitDeduct=' + q.fitDeduct);
+check('구서명자 2벌: refund 60,000 — 0원으로 숨지 않는다', q.refund === 60000, 'refund=' + q.refund);
+ctx.findRowByPersonalCode = () => null;
+
 q = ctx._refundQuote(row(signedBase({ 예식일: addDays(ASOF, 100) })), null);
 check('asOf 생략 → 오늘(YYYY-MM-DD)', /^\d{4}-\d{2}-\d{2}$/.test(q.asOf), q.asOf);
 

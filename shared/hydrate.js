@@ -594,9 +594,30 @@
     var _p = new URLSearchParams(location.search);
     var eventId = (_p.get('e') || '').trim();
     var forceFresh = _p.get('fresh') === '1';   // ?e=...&fresh=1 → 캐시(클라+서버) 전부 무시(편집 중 확인용)
+    /* ★★[DEMO_BADGE 2026-08-22 하객 경로 점검 2라운드] 표본으로 그릴 때는 **하객에게 보이게** 밝힌다.
+       live.html 은 지난 라운드에 고쳤는데 **청첩장 16종은 그대로였다** — 같은 사고의 절반만 막은 셈이었다.
+       실측(2026-08-22): ?e= 없이 /i/cover-01 을 열면 남의 이름 8곳 + 표본 계좌 2개가 뜨고
+       화면에 «예시»라는 글자가 **한 곳도 없다**. 하객이 그 계좌로 축의금을 보낼 수 있다.
+       ★카톡 전달 중 ?e= 가 잘리는 것은 이 저장소가 스스로 적어 둔 실제 사고 유형이다.
+       ★표본 화면 자체는 홍보(갤러리 미리보기)에 쓰이므로 없애지 않는다 — 사실대로 «표시»한다.
+       ★배지를 지우지 말 것. 지우면 되돌릴 수 없는 송금이 다시 가능해진다. */
+    function markDemo(why) {
+      try {
+        if (document.getElementById('meDemoBadge')) return;
+        var b = document.createElement('div');
+        b.id = 'meDemoBadge';
+        b.style.cssText = 'position:sticky;top:0;z-index:99999;background:#6B2A24;color:#fff;'
+          + 'font:500 12.5px/1.5 system-ui,-apple-system,sans-serif;text-align:center;padding:9px 14px';
+        b.innerHTML = '예시 청첩장이에요 · 실제 초대장이 아닙니다'
+          + '<br><span style="opacity:.85;font-size:11.5px">이름·날짜·계좌 모두 예시예요'
+          + (why ? (' · ' + why) : '') + '</span>';
+        document.body.insertBefore(b, document.body.firstChild);
+        document.documentElement.setAttribute('data-demo', '1');
+      } catch (e) {}
+    }
     var failsafe = setTimeout(reveal, 5000);
 
-    if (!eventId) { apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
+    if (!eventId) { markDemo('링크가 잘렸을 수 있어요'); apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
 
     // [HYDRATE_DEMO] ?e=test-couple = 홍보 미리보기(메인·청첩장 갤러리)다 — 시트를 부르지 않는다.
     //   ① 예식 당일 GAS가 붐빌 때 홍보 조회가 부하를 얹으면 안 된다(guide.html?g=demo와 같은 원칙).
@@ -639,10 +660,19 @@
           try { localStorage.setItem(cacheKey, fresh); } catch (_) {}
           if (!rendered || prev !== fresh) apply(data.couple);
         } else if (!rendered) {
+          /* [DEMO_BADGE] 서버가 «그런 예식 없음»을 답한 경우 — eventId 는 있었지만 잘못된 값이다.
+             여기서도 표본으로 떨어지므로 같은 표시를 단다(«없는 주소»를 진짜 초대장으로 보이게 두지 않는다). */
+          markDemo('주소를 다시 확인해 주세요');
           apply(SAMPLE);
         }
       })
-      .catch(function () { if (!rendered) apply(safeCache(cacheKey) || SAMPLE); })
+      .catch(function () {
+        if (rendered) return;
+        var _c = safeCache(cacheKey);
+        if (_c) { apply(_c); return; }          // 전에 본 진짜 내용이 있으면 그것을 쓴다(표본 아님)
+        markDemo('연결이 불안정해요');            // [DEMO_BADGE] 표본으로 떨어질 때만 표시
+        apply(SAMPLE);
+      })
       .then(function () { if (!rendered) { clearTimeout(failsafe); reveal(); } injectGuideCta(eventId); });   // 주입은 최종 렌더 뒤(innerHTML 교체에 지워지지 않게)
   }
 

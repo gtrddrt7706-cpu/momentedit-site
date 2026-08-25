@@ -1036,7 +1036,11 @@ function renderDemo(){
         $('root').innerHTML=failHtml();
         var b=$('retryBtn');
         if(b) b.addEventListener('click', function(){
-          $('root').innerHTML=stateHtml('<span class="bdot"></span>안내를 불러오는 중이에요…'); load(0);
+          /* ★[RETRY_NO_TAG 2026-08-25 하객 경로 점검] stateHtml 은 esc() 로 이스케이프한다 — 여기만 태그를 넘겨
+             «<span class="bdot"></span>» 가 글자 그대로 화면에 찍혔다. 예식 당일 회선이 몰려 재시도를 누르는,
+             가장 취약한 순간에 가장 눈에 띄게 깨지는 자리였다. 초기 로딩 카드와 같은 마크업을 직접 그린다.
+             ★stateHtml 에 HTML 을 넘기지 말 것 — 그 함수의 이스케이프는 하객 이름 등 데이터용 방어라 풀면 안 된다. */
+          $('root').innerHTML='<div class="card"><div class="state" role="status"><span class="bdot"></span>안내를 불러오는 중이에요…</div></div>'; load(0);
         });
       });
   }
