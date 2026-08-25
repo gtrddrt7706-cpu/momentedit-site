@@ -5,7 +5,10 @@
    ★검사 셋: ①정상이면 큐가 빈다 ②중간에 죽으면 못 보낸 것이 큐에 남는다 ③실패한 건은 재시도로 남는다
    사용: node scripts/audit/notify-hold-sim.mjs */
 import fs from 'node:fs';
-const src=fs.readFileSync('/home/user/momentedit-site/automation/platform/95_notify.gs','utf8');
+/* ★경로는 이 파일 기준 상대로 — 절대 경로(/home/user/…)를 썼다가 CI 러너(경로가 다르다)에서
+   파일을 못 찾아 죽었고, 게이트는 그것을 «보류 큐 결함»으로 읽었다(2026-08-25 CI 실패로 확인).
+   검사 자신이 환경을 타면 붉음이 신호가 아니라 소음이 된다. */
+const src=fs.readFileSync(new URL('../../automation/platform/95_notify.gs', import.meta.url),'utf8');
 const i=src.indexOf('function flushHeldNotifies');
 let d=0,j=src.indexOf('{',i),end=i;
 for(let k=j;k<src.length;k++){ if(src[k]==='{')d++; else if(src[k]==='}'){d--; if(d===0){end=k+1;break;}} }

@@ -5069,3 +5069,25 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/notify-hold-sim.mjs 
   || { echo 'FAIL notify-hold-sim: 보류 큐가 중간에 죽으면 알림이 사라집니다 — node scripts/audit/notify-hold-sim.mjs'; fail=1; }; fi
 chk 'HOLD_NO_LOSS' automation/platform/95_notify.gs 1
 chk 'HOLD_NO_LOSS' scripts/audit/notify-hold-sim.mjs 2
+# ★★[2026-08-25 시뮬레이션 병렬 점검 라운드]
+# [RETRY_NO_TAG] «다시 불러오기» 직후 화면에 <span> 태그가 글자로 찍히던 것 — stateHtml 은 esc() 라
+#   HTML 을 넘기면 안 된다. 초기 로딩 카드와 같은 마크업을 직접 그린다. 클릭 직후 프레임 실측으로 확인.
+chk 'RETRY_NO_TAG' guide.html 1
+chk 'RETRY_NO_TAG' seat.html 1
+nochk "stateHtml('<span" guide.html
+nochk "stateHtml('<span" seat.html
+# [EXIT_QUOTE_TS] 노쇼·미계약 환불 큐의 기준일 = 취소일시(없으면 오늘) — today 고정이라 관리자가
+#   하루 미룰 때마다 큐 금액이 혼자 바뀌고 상세·마이페이지와 최대 33만 원 갈렸다.
+chk 'EXIT_QUOTE_TS' automation/admin/admin.gs 1
+# [COUPON_NOTIFY_ONCE] «선물 도착» 카톡은 처음 발급에만 — 바코드 교체 재저장마다 또 나갔다.
+chk 'COUPON_NOTIFY_ONCE' automation/admin/admin.gs 2
+# [CONTRACT_NOTIFY_THROTTLE] 계약서 발송 알림 3분 연타 가드 — 정당한 재발송(새 기한)은 알림이 가야 하므로 창을 늘리지 말 것.
+chk 'CONTRACT_NOTIFY_THROTTLE' automation/admin/admin.gs 2
+# ★★[OLD_SIGNER_TERMS · F3b/F4] 스냅샷 없는 서명자 = 구서명자 — 서명본(예약금 200,000 · 1벌당 70,000)으로 계산한다.
+#   현행 서명은 스냅샷을 항상 남기므로(handleSignFittingConsent) 이 판정이 성립한다.
+#   종전엔 _refundQuote·cancel 화면만 현행 상수로 떨어져, 서명본대로면 60,000원인 환불이 0원이 되어
+#   환불송금 큐·고객 화면에서 동시에 숨었다. 세 구현체(_refundQuote·buildFittingState·_consultRefundQuote)는 한 몸.
+chk 'OLD_SIGNER_TERMS' automation/platform/70_journey.gs 1
+chk 'OLD_SIGNER_TERMS' automation/consultation/consultation-booking.gs 1
+chk 'OLD_SIGNER_TERMS' automation/tests/refund-quote.test.js 2
+chk '0원으로 숨지 않는다' automation/tests/refund-quote.test.js 1

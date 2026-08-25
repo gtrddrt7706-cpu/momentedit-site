@@ -769,8 +769,21 @@ function _refundQuote(r, asOfYmd) {
   // 시착 공제(4조⑧) — 실제 벌수(동의기록.시착.벌수) 기준. 예약금·1벌당 비용은 서명 당시 스냅샷(구버전 v1~v3 조건 보존) 우선, 없으면 현행 상수(buildFittingState와 동일 기준).
   var _fit = _parseJsonSafe(r.get('동의기록')).시착 || {};
   var _signedFit = String(r.get('시착동의상태') || '').trim() === '동의완료';
-  var _depAmt = (_signedFit && _fit.예약금 != null && !isNaN(Number(_fit.예약금)) && Number(_fit.예약금) > 0) ? Number(_fit.예약금) : PAYMENT.예약금;
-  var _perBul = (_signedFit && _fit.추가벌비용 != null && !isNaN(Number(_fit.추가벌비용))) ? Number(_fit.추가벌비용) : FITTING_CONSENT.추가벌비용;
+  /* ★★[OLD_SIGNER_TERMS 2026-08-25 환불 경계값 점검 F3b] 스냅샷 없는 «서명자»의 폴백은
+     현행 상수가 아니라 **구서명자 약관값**(예약금 200,000 · 1벌당 70,000)이다.
+     근거: 현행 서명(handleSignFittingConsent 92~94행)은 예약금·추가벌비용을 **항상** 동의기록에 남긴다 —
+     그러니 서명완료인데 그 값이 없으면 스냅샷 도입 전(v1~v3) 서명자이고, 그들이 서명한 문서에는
+     «예약금 200,000원 · 1벌당 70,000원»이 적혀 있다(archive/fitting-v3.html · buildFittingState 137~138행과 같은 규칙).
+     종전엔 여기만 현행 상수(100,000/50,000)로 떨어져서:
+       ①실제로 20만을 낸 고객의 기수령이 10만으로 적혀 **돌려줄 돈이 절반으로** 계산됐고
+       ②마이페이지 시착 카드(서명본 그대로 표시)와 환불 견적이 **다른 숫자**를 말했고
+       ③공제로 0원이 되는 순간 환불송금 큐·고객 화면에서 **동시에 숨어** 6만 원이 어디에도 안 보였다.
+     ★서명 안 한 고객(계약 전 예약금만)은 현행 상수가 맞다 — 서명한 문서가 없다.
+     ★buildFittingState 의 폴백(137~138행)과 값을 함께 바꿔야 한다 — 한쪽만 바꾸면 F3b 가 되돌아온다. */
+  var _depAmt = (_signedFit && _fit.예약금 != null && !isNaN(Number(_fit.예약금)) && Number(_fit.예약금) > 0) ? Number(_fit.예약금)
+    : (_signedFit ? 200000 : PAYMENT.예약금);
+  var _perBul = (_signedFit && _fit.추가벌비용 != null && !isNaN(Number(_fit.추가벌비용))) ? Number(_fit.추가벌비용)
+    : (_signedFit ? 70000 : FITTING_CONSENT.추가벌비용);
   var paid = depConfirmed ? _depAmt : 0;
   var fitCount = (_fit.벌수 != null && _fit.벌수 !== '' && !isNaN(Number(_fit.벌수))) ? Number(_fit.벌수) : null;
   var needCount = (fitCount == null) && _signedFit;   // 시착했는데 벌수 미기록 → 산정 보류 플래그

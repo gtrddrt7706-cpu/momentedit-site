@@ -599,6 +599,15 @@ function _consultRefundQuote(code) {
   if (!cust) return q;                                                                            // Customers 행 없음(원자성 실패) → 공제 0
   if (String(cust.get('시착동의상태') || '').trim() !== '동의완료') return q;                      // 시착 전 → 전액 환불
   var fit = _parseJsonSafe(cust.get('동의기록')).시착 || {};
+  /* ★[OLD_SIGNER_TERMS 2026-08-25 · F4] 서명자의 금액은 **서명본에서** 읽는다 — 세 번째 구현체였던 이곳만
+     현행 상수로 계산해, 같은 고객이 cancel.html 에선 50,000 · 관리자 상세에선 130,000 을 봤다.
+     스냅샷 있으면 그 값 · 없으면 구서명자 약관(200,000/70,000) — 70_journey _refundQuote 와 같은 규칙.
+     ★한쪽만 바꾸면 두 화면이 또 갈린다. 세 구현체(_refundQuote·buildFittingState·여기)는 한 몸이다. */
+  if (fit.예약금 != null && !isNaN(Number(fit.예약금)) && Number(fit.예약금) > 0) dep = Number(fit.예약금);
+  else dep = 200000;
+  if (fit.추가벌비용 != null && !isNaN(Number(fit.추가벌비용))) unit = Number(fit.추가벌비용);
+  else unit = 70000;
+  q.amount = dep;
   var cnt = (fit.벌수 != null && fit.벌수 !== '' && !isNaN(Number(fit.벌수))) ? Number(fit.벌수) : null;
   if (cnt == null) { q.needCount = true; return q; }                                              // 시착했는데 벌수 미기록 → 산정 보류
   q.fitCount = cnt;

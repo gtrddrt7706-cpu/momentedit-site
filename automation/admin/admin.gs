@@ -645,8 +645,15 @@ function adminHome() {
         if (_rPaid2 && !_rdone2) {
           var _racct2 = _rbk2 ? String(bget(_rbk2, '환불계좌') || '').trim() : '';
           var _rsub2 = stage + ' 처리 · 예약금 환불 확인', _show2 = true;
+          /* ★★[EXIT_QUOTE_TS 2026-08-25 환불 경계값 점검 F6] 기준일 = 취소일시(없으면 오늘).
+             '취소' 큐(위)는 취소일시 기준인데 **노쇼·미계약 큐만 today 고정**이었다 —
+             FORCE_EXIT_TS(2390)가 노쇼·미계약에도 취소일시를 찍어 두는데 이 분기만 안 읽었다.
+             결과: 관리자가 처리를 하루 미룰 때마다 큐의 환불액이 혼자 바뀌고(위약 구간이 흘러가므로),
+             관리자 상세·마이페이지(취소일시 기준)와 최대 33만 원이 갈렸다.
+             ★돈 숫자는 사건이 일어난 날에 고정한다 — 화면을 여는 날에 따라 바뀌면 신뢰가 깎인다. */
+          var _rcd2 = _rbk2 ? _ymdOf(bget(_rbk2, '취소일시')) : '';
           try {
-            var _rq2 = _refundQuote({ get: function (h) { var c = cc[h]; return c ? rv[c - 1] : ''; } }, today);
+            var _rq2 = _refundQuote({ get: function (h) { var c = cc[h]; return c ? rv[c - 1] : ''; } }, _rcd2 || today);
             if (_rq2 && _rq2.needCount) _rsub2 += ' · 시착 벌수 기록 후 산정';
             else if (_rq2 && !_rq2.pending && _rq2.refund != null) {
               if (Number(_rq2.refund) <= 0) _show2 = false;   // 공제로 환불액 0원 — 송금할 게 없어 큐 생략(상세 환불 산정에는 그대로 표시)
@@ -1458,6 +1465,12 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   if (wT && WEDDING_SLOT.SLOTS.indexOf(wT) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(wed) && _weddingSlotTaken(sheet, colOf, wed, wT, code)) {   // 발송 시점에 슬롯 충돌 차단(서명 때 늦은 거절 방지)
     return { ok: false, error: '그 예식 시간(' + wed + ' ' + wT + ')은 이미 다른 예약으로 마감됐어요. 다른 슬롯으로 보내 주세요.' };
   }
+  /* ★[CONTRACT_NOTIFY_THROTTLE 2026-08-25 알림 전수점검] 직전 발송이 3분 안이면 고객 알림을 생략한다.
+     재발송 알림 자체는 정당하다(새 링크·새 72시간 기한 — 고객이 알아야 한다). 막는 것은
+     **모달을 두 번 확인하거나 화면이 두 번 그려져 몇 초 간격으로 두 번 나가는** 연타뿐이다.
+     ★시간 창을 늘리지 말 것 — 링크를 고쳐 곧바로 다시 보내는 정상 재발송(수 분 뒤)은 알림이 가야 한다. */
+  var _prevSentAt = _parseKstStr(cust.get('계약서발송일시'));
+  var _justSent = !!(_prevSentAt && (Date.now() - _prevSentAt.getTime()) < 3 * 60 * 1000);
   var upd = { '계약상태': '발송', '계약서발송일시': now, '계약서링크': linkStr };
   if (amt > 0) upd['계약총액'] = amt;
   if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) upd['예식일'] = wed;    // 톱레벨 예식일 = 잔금 D-9·중도금 D-149 산출 기준(계약에서 잠금 · PAYMENT 단일 출처)
@@ -1468,7 +1481,7 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   }
   touchCustomer(sheet, colOf, cust.num, upd);
   _recordHandler(code, '계약서 발송' + (amt > 0 ? (' · 총액 ' + amt + '원') : '') + (wed ? (' · 예식일 ' + wed + (wT ? (' ' + wT) : '')) : '') + ' (링크)');
-  notifyKakao('cust.contractArrived', code);   // 고객: 계약서 도착 — 72시간 내 서명(카톡)
+  if (!_justSent) notifyKakao('cust.contractArrived', code);   // 고객: 계약서 도착 — 72시간 내 서명(카톡) · [CONTRACT_NOTIFY_THROTTLE] 3분 내 연타는 1통
   try {   // 고객 알림 — 계약서 도착(72h 서명). 메일 실패해도 발송 자체는 성공(베스트에포트).
     var _cem = String(cust.get('이메일') || '').trim();
     if (CONFIG.SEND_CONTRACT_MAIL && _cem) {   // OFF 기본 — 마이페이지+카톡 대체. (복구: SEND_CONTRACT_MAIL=true)
@@ -2070,11 +2083,15 @@ function adminIssueCoupon(code, images, expiry, title) {
     var json = JSON.stringify(data);
     if (json.length > 48000) return { ok: false, error: '이미지 용량이 커요. 더 작은 바코드 이미지로 올려 주세요.' };
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    /* ★[COUPON_NOTIFY_ONCE 2026-08-25 알림 전수점검] «선물 도착» 카톡은 **처음 발급에만** 보낸다.
+       종전엔 바코드 이미지를 바꿔 다시 저장할 때마다 고객에게 또 나갔다 — 같은 선물을 두 번 받은 것처럼.
+       재발급(회수 후 다시 발급)은 상태가 '발급'이 아니게 되므로 정상적으로 다시 알린다. */
+    var _wasIssued = String(cust.get('쿠폰상태') || '').trim() === '발급';
     touchCustomer(sheet, colOf, cust.num, { '쿠폰상태': '발급', '쿠폰데이터': json });
     _recordHandler(code, '커피쿠폰 발급(' + imgs.length + '장' + (data.expiry ? (' · ~' + data.expiry) : '') + ')');
     /* [CPN_NOTIFY] 바코드가 떴다고 알린다 — 기본 off 라 지금은 로그만 남는다(95_notify 이벤트 표에서 off 를 지우면 켜진다).
        ★호출을 미리 심어 두는 이유: 켜는 순간 코드를 다시 만지지 않아도 되게. 실패해도 발급은 이미 끝났다. */
-    try { notifyKakao('cust.couponIssued', code, { title: data.title, expiry: data.expiry }); } catch (eNf) {}
+    if (!_wasIssued) { try { notifyKakao('cust.couponIssued', code, { title: data.title, expiry: data.expiry }); } catch (eNf) {} }   // [COUPON_NOTIFY_ONCE]
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
