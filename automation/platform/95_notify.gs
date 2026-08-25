@@ -310,16 +310,45 @@ function flushHeldNotifies() {
   if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — 보류 큐 유지(미발송)'); return; }
   var lock = null, arr = [];
   try { lock = LockService.getScriptLock(); lock.waitLock(15000); } catch (e) { lock = null; }
+  /* ★★[HOLD_NO_LOSS 2026-08-22 알림 전수점검] 큐를 **보내고 나서** 지운다.
+     종전엔 큐를 먼저 지우고(deleteProperty) 그 다음 루프에서 보냈다 — 실행이 중간에 끊기면
+     (6분 한도 · Gmail 쿼터 · 예외) 남은 건이 **메모리와 함께 영구 소실**됐다. 아무 기록도 안 남는다.
+     여기에 «보내기 전에 이미 발송함 플래그를 찍는» 리마인더 구조가 겹치면(70_journey 1495)
+     잔금·중도금 안내가 영영 안 나가고 그 사실조차 모른다.
+     ★고친 방식: 한 건 보낼 때마다 **남은 것을 다시 저장**한다. 중간에 죽어도 남은 건은 큐에 있다.
+     ★실패한 건은 큐에 남긴다(재적재) — 다음 8시에 다시 시도한다. 다만 무한 반복을 막으려
+       시도 횟수(n)를 세어 3회를 넘으면 관리자에게 알리고 버린다.
+     ★큐를 먼저 지우는 형태로 되돌리지 말 것. */
   try {
     var p = PropertiesService.getScriptProperties();
     try { arr = JSON.parse(p.getProperty('NOTIFY_HOLD') || '[]'); } catch (e) { arr = []; }
-    p.deleteProperty('NOTIFY_HOLD');
   } finally { try { if (lock) lock.releaseLock(); } catch (e2) {} }
   if (!arr.length) { Logger.log('flushHeldNotifies: 보류 0건'); return; }
-  arr.forEach(function (it) {
-    try { _kakaoSend('customer', it.e, it.c, it.x, { skipHold: true }); } catch (e) {}
-  });
-  Logger.log('flushHeldNotifies: ' + arr.length + '건 발송 시도 완료');
+
+  var _props = PropertiesService.getScriptProperties();
+  var _left = arr.slice(), _sent = 0, _fail = 0, _drop = [];
+  var _save = function () { try { _props.setProperty('NOTIFY_HOLD', JSON.stringify(_left)); } catch (e) {} };
+  for (var i = 0; i < arr.length; i++) {
+    var it = arr[i], okSend = false;
+    try { okSend = (_kakaoSend('customer', it.e, it.c, it.x, { skipHold: true }) !== false); } catch (e) { okSend = false; }
+    _left = _left.filter(function (x) { return x !== it; });     // 성공이든 실패든 이번 회차 목록에서는 뺀다
+    if (okSend) { _sent++; }
+    else {
+      it.n = (Number(it.n) || 0) + 1;                            // 시도 횟수 누적
+      if (it.n >= 3) { _drop.push(it); }                         // 세 번 실패하면 큐에서 내리고 사람에게 알린다
+      else { _left.push(it); _fail++; }                          // 아니면 다시 큐에 — 다음 아침에 재시도
+    }
+    _save();                                                     // ★매 건마다 저장 — 중간에 죽어도 남은 것이 살아 있다
+  }
+  if (_drop.length) {
+    try {
+      if (typeof _nfAdminLineEmail === 'function') {
+        _nfAdminLineEmail('밤사이 보류 알림 ' + _drop.length + '건이 세 번 시도해도 실패해 큐에서 내렸습니다 · '
+          + _drop.map(function (d) { return (d.c || '?') + '/' + (d.e || '?'); }).join(', '));
+      }
+    } catch (e) {}
+  }
+  Logger.log('flushHeldNotifies: 발송 ' + _sent + ' · 재시도 대기 ' + _fail + ' · 포기 ' + _drop.length);
 }
 
 // ============================ 문구 빌더 ============================
@@ -947,10 +976,20 @@ function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return Str
 
 // [테스트 전용] 승인난 알림톡 6종을 한 번에 테스트 계정으로 발송 — 운영 트리거와 무관(수동 실행만).
 //   서로 다른 템플릿 6개(T04·T05·T08·T09·T10·T15)를 각 변수 채워 순차 발송. skipHold로 야간에도 즉시.
-//   code 인자 없이 ▶실행하면 ZZ_TEST_CODE(기본 'HTV4WN') 사용. 다른 코드로 보내려면 ZZ_kakaoTestAll('코드').
-var ZZ_TEST_CODE = 'HTV4WN';
+//   ★[TEST_BLAST_GUARD 2026-08-22] **인자 없이 실행하면 아무것도 보내지 않는다**(기본 개인코드 제거).
+//     보내려면 반드시 코드를 손으로 적을 것: ZZ_kakaoTestAll('코드'). 실고객에게 6통이 나가는 함수다.
+/* ★★[TEST_BLAST_GUARD 2026-08-22 알림 전수점검] 인자 없이 실행하면 **아무것도 보내지 않는다.**
+   종전엔 실개인코드가 기본값으로 박혀 있어(ZZ_TEST_CODE), GAS 편집기 함수 드롭다운에서 잘못 고르고
+   ▶ 를 누르면 **그 고객에게 6통이 1.5초 간격으로 실발송**됐다 — 확인 절차 없이, skipHold 라 새벽에도.
+   다른 테스트 함수는 전부 ADMIN_PHONE 으로 향하는데 이것만 실고객을 기본값으로 들고 있었다.
+   ★되돌릴 수 없는 종류의 사고다(발송 취소가 없다). 기본값을 되살리지 말 것 —
+     테스트할 코드는 **부를 때 손으로 적는다**: ZZ_kakaoTestAll('코드'). */
 function ZZ_kakaoTestAll(code) {
-  var c = String(code || ZZ_TEST_CODE).trim();
+  var c = String(code || '').trim();
+  if (!c) {
+    Logger.log('[ZZ] 개인코드를 인자로 주세요 — ZZ_kakaoTestAll(\'ABC123\') · 실고객에게 6통이 나가는 함수라 기본값을 두지 않습니다.');
+    return { ok: false, error: '개인코드 인자가 필요합니다(실발송 함수 · 기본값 없음).' };
+  }
   var seq = [
     ['cust.fittingRequest',  {}],                          // T04 #{이름}
     ['cust.contractArrived', {}],                          // T05 #{이름}

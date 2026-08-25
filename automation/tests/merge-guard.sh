@@ -5050,3 +5050,22 @@ chk 'GUIDE_EXPIRE_REASON' automation/platform/80_production.gs 2
 chk '_guideCloseInfo' automation/platform/80_production.gs 5
 chk 'GUIDE_EXPIRE_REASON' guide.html 1
 chk 'GUIDE_EXPIRE_REASON' automation/tests/guide.test.js 1
+# ★★[DEMO_BADGE · 청첩장 16종 2026-08-22] 지난 라운드에 live.html 만 고치고 **청첩장은 그대로였다.**
+#   실측: ?e= 없이 /i/cover-01 을 열면 남의 이름 8곳 + 표본 계좌 2개가 «예시» 표시 없이 뜬다.
+#   hydrate 한 곳을 고치면 16종이 함께 붙는다. 세 경로(인자 없음·응답 실패·예외) 전부에 표시한다.
+#   ★캐시에 «전에 본 진짜 내용»이 있으면 그것을 쓰고 배지를 달지 않는다(표본이 아니므로).
+chk 'DEMO_BADGE' shared/hydrate.js 3
+chk 'markDemo' shared/hydrate.js 4
+chk '예시 청첩장이에요' shared/hydrate.js 1
+# ★★[TEST_BLAST_GUARD 2026-08-22] 인자 없이 실행하면 아무것도 보내지 않는다.
+#   종전엔 실개인코드가 기본값이라, 함수 드롭다운에서 잘못 고르고 ▶ 를 누르면 그 고객에게 6통이 나갔다.
+#   되돌릴 수 없는 사고다(발송 취소 없음). 기본 개인코드를 되살리지 말 것.
+chk 'TEST_BLAST_GUARD' automation/platform/95_notify.gs 2
+nochk "code || ZZ_TEST_CODE" automation/platform/95_notify.gs   # 실고객 기본값 복원 금지
+# ★★[HOLD_NO_LOSS 2026-08-22] 밤사이 보류 큐를 «보내고 나서» 지운다(매 건 저장).
+#   종전엔 먼저 지우고 보내서, 6분 한도·쿠터·예외로 끊기면 남은 건이 영구 소실됐다(기록도 없음).
+#   실패한 건은 큐에 남겨 다음 아침 재시도 · 3회 실패하면 관리자에게 알리고 내린다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/notify-hold-sim.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL notify-hold-sim: 보류 큐가 중간에 죽으면 알림이 사라집니다 — node scripts/audit/notify-hold-sim.mjs'; fail=1; }; fi
+chk 'HOLD_NO_LOSS' automation/platform/95_notify.gs 1
+chk 'HOLD_NO_LOSS' scripts/audit/notify-hold-sim.mjs 2
