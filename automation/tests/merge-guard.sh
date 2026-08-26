@@ -5644,3 +5644,17 @@ chk 'freePort()' scripts/audit/admin-review-stage.mjs 1
 chk 'CROSS_SESSION' scripts/audit/cross-session.mjs 1
 chk '되돌려도 변경이력' scripts/audit/cross-session.mjs 1
 nochk "'변경이력'" automation/admin/admin.gs
+# ★★[ADMIN_IDEMPOTENT 2026-08-26] 관리자 동작 «두 번 누르기» 전수 — 응답이 늦어 또 누르는 것이
+#   실무에서 가장 흔한 사고다. ①두 번째가 오류로 끝나지 않을 것 ②상태를 바꾸지 않을 것, 둘 다 본다.
+chk 'ADMIN_IDEMPOTENT' scripts/audit/admin-idempotent.mjs 1
+chk '두 번째가 상태를 바꾸지 않는다' scripts/audit/admin-idempotent.mjs 1
+# ★★[AUTH_SWEEP 2026-08-26] 고객 인증은 토큰 하나다. 거절 응답에 남의 이름·연락처가 섞이는지
+#   문자열로 훑는다 — «샐 데이터가 없는 세계»에서 «안 샜다»는 말은 아무 뜻이 없어, 진짜 값을 심어 둔다.
+chk 'AUTH_SWEEP' scripts/audit/auth-sweep.mjs 1
+chk '개인정보가 샌 곳 0' scripts/audit/auth-sweep.mjs 1
+# ★★[COPY_RULE 2026-08-26] 고객 문구 규칙 전수(정적). 렌더 검사는 «보이는 것»만 보므로
+#   아직 아무도 밟지 않은 분기의 문구는 영영 안 걸린다. 소스를 통째로 훑어 그 구멍을 메운다.
+#   ★.gs 는 고객 문장이 사는 두 구역만 본다 — Logger·관리자 메일을 함께 붉히면 소음에 진짜가 묻힌다.
+chk 'COPY_RULE' scripts/audit/copy-rule.mjs 1
+chk '못 찾으면 검사가 사문이 된다' scripts/audit/copy-rule.mjs 1
+nochk '저장돼요 — 마이페이지로 열면' order-preview.html
