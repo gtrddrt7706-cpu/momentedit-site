@@ -5091,3 +5091,8 @@ chk 'OLD_SIGNER_TERMS' automation/platform/70_journey.gs 1
 chk 'OLD_SIGNER_TERMS' automation/consultation/consultation-booking.gs 1
 chk 'OLD_SIGNER_TERMS' automation/tests/refund-quote.test.js 2
 chk '0원으로 숨지 않는다' automation/tests/refund-quote.test.js 1
+# ★★[SLOT_OCC 2026-08-26] 예식 슬롯 점유 의미 일곱 가지 고정 — «한 타임 한 팀»의 판정부.
+#   실측 전부 올바름 · 이 검사는 그 상태를 지킨다(취소·만료 홀드·예식일 변경 시 슬롯이 풀리는 것 포함).
+if command -v node >/dev/null 2>&1; then node scripts/audit/slot-occupancy.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL slot-occupancy: 예식 슬롯 점유 판정이 바뀌었습니다(더블부킹/유령점유 위험) — node scripts/audit/slot-occupancy.mjs'; fail=1; }; fi
+chk 'SLOT_OCC' scripts/audit/slot-occupancy.mjs 1
