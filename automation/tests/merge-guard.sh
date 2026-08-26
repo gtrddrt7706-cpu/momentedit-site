@@ -67,7 +67,14 @@ if grep -nE '^[^#]*\|\|[[:space:]]*(FAIL|Fail)=' "$_SELF"; then
 fi
 # chk는 한 줄 정의다 — 중간에 주석(#)을 넣으면 그 뒤가 통째로 주석이 되어 함수가 안 닫힌다(2026-07-26에 실제로 겪음).
 # _ran = GATE_RAN 중단 감지용 실행 계수.
-chk(){ _ran=$((_ran+1)); n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+chk(){ _ran=$((_ran+1)); case "$3" in ''|*[!0-9]*) echo "REVERT? merge-guard: chk '$1' $2 — 셋째 인자 '$3' 가 정수가 아니다 · 그 줄은 조용히 초록이 된다(CHK_ARG_SPACE)"; fail=1; return;; esac; n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -lt "$3" ]; then echo "REVERT? $2: '$1' ($n<$3)"; fail=1; else echo "ok $2: '$1' $n"; fi; }   # grep -c는 0건도 '0'을 출력하며 exit 1 — '|| echo 0'을 붙이면 '0\n0'이 돼 [ 비교가 깨짐
+# ★★[CHK_ARG_SPACE 2026-08-21] 위 case 가 이 게이트의 가장 조용한 고장을 막는다.
+#   chk 의 셋째 인자는 «최소 개수»(정수)다. 거기에 주석이 붙거나(`1#주석` — 띄어쓰기 하나 빠짐)
+#   「없음」 같은 말이 오면 `[ "$n" -lt "$3" ]` 가 산술 비교에 실패한다. sh 는 그때
+#   stderr 에 한 줄 찍고 **비교를 거짓으로 쳐서 else(초록)로 떨어뜨린다.**
+#   실측 2건 — ①`photoWish … 1#★★[PHOTOSHARE_DIRECT` (2026-08-16부터 5일간 안 쏜 화살)
+#              ②`chk '영목' … 없음` (2026-08-21 · 내가 부재 검사를 chk 로 쓴 것 · nochk 가 맞다)
+#   ★붉게 지는 고장이 아니라 «초록으로 지는» 고장이라 눈으로는 영영 못 찾는다. 호출 때 잡는다.
 # ★[CHK_DASH_SAFE 2026-08-15] chk 에 `-e … --` 를 붙였다(nochk 는 이미 있었다).
 #   없으면 대시로 시작하는 패턴이 grep 의 옵션으로 먹힌다 — 실측: `chk '{--col:720px}' console.html 1` 가
 #   `grep --color console.html` 로 해석돼 **파일 인자를 잃고 stdin 을 기다리며 영영 멈췄다.**
@@ -76,7 +83,7 @@ chk(){ _ran=$((_ran+1)); n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if
 #   전엔 1248행에 있어서 그 위에서 nochk 를 부르면 `nochk: not found` 만 찍히고
 #   게이트는 **그대로 초록**이었다(실측 — 내가 410행대에 두 줄 넣었다가 당했다).
 #   쓰는 자리가 정의보다 위면 그 검사는 안 쏜 화살이 된다(★11-c). 정의를 위로 올려 그 창을 없앤다.
-nochk(){ n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' 없음"; fi; }
+nochk(){ case "${3:-0}" in ''|*[!0-9]*) echo "REVERT? merge-guard: nochk '$1' $2 — 셋째 인자 '$3' 가 정수가 아니다 · 그 줄은 조용히 초록이 된다(CHK_ARG_SPACE)"; fail=1; return;; esac; n=$(grep -c -e "$1" -- "$2" 2>/dev/null); n=${n:-0}; if [ "$n" -gt "${3:-0}" ]; then echo "REVERT? $2: '$1' 이 남아 있다 ($n>${3:-0})"; fail=1; else echo "ok $2: '$1' ${n}개 (한도 ${3:-0})"; fi; }
 # ── 2026-07-18 위저드·대시보드 수정 마커
 chk '_t04prev' mypage.html 2                       # 04 호칭 복원
 chk 'QR을 받으실지 골라 주세요' mypage.html 1      # selfQR 미응답 발행 차단
@@ -1345,10 +1352,16 @@ chk 'XM_MIRROR_9KEY' scripts/check-ritual-mirror.js 1
 chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <-> 원천 문안 전수 대조
 # [TOAST_SCENE 2026-08-09] 옛 마커('두 사람이 함께 나이프를 잡습니다')는 장면화로 사라졌다.
 # 대신 **장면을 세우는 세 문장**을 지킨다 — 하나라도 빠지면 그 자리가 다시 매끄럽지 않아진다.
-#   ①카운트(케이크·둘 다 2벌) — 방 전체가 같은 순간을 보는 신호. 없으면 커팅이 언제인지 아무도 모른다
+#   ①★[COUNT_RETIRED 2026-08-17 사용자 지시] 카운트는 **폐지했다.**
+#     *"하나둘셋도그렇고 행동을 너무 쪼개서 강요하는느낌도 별로 안좋아보여"*
+#     *"이런 사진관련 하나둘셋 이런건 사진작가가 하는게 맞는거같아"*
+#     ★전에는 「없으면 커팅이 언제인지 아무도 모른다」를 근거로 지켰다. 그 자리를 **작가가 맡는다**로
+#       옮긴 것이지 신호를 없앤 것이 아니다. 안내 음성이 세지 않을 뿐이다.
+#     ★되살리지 말 것 — 카운트를 다시 넣으면 같은 지적이 세 번째로 온다.
+#     대신 **장면을 세우는 문장**이 남았는지 지킨다(무음이 되지 않게).
 #   ②시연 문장(축배·둘 다 2벌) — 하객이 답할 말. 없으면 선창에 돌아오는 소리가 없다(성혼 선언과 같은 금지)
 #   ③사이 문안 — 나이프를 걷고 잔을 쥐여 드리는 15~20초. 없으면 통째로 무음이다
-chk '제가 셋을 세면' assets/ritual-data.js 2
+chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 4   # [COUNT_RETIRED] 카운트를 대신하는 장면 문장
 chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
 chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
 chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
@@ -2198,7 +2211,11 @@ chk 'CHORUS_SEGN' scripts/build-chorus.mjs 5              # 문장 경계를 소
 chk 'CHORUS_MEET' scripts/build-chorus.mjs 1                # 목표 길이는 긴 쪽이 아니라 가운데 — 두 사람의 보정 여유를 둘 다 쓴다
 chk 'CHORUS_STAGGER' scripts/build-chorus.mjs 1            # 0이면 사람이 아니라 합성처럼 들린다(플랜저)
 chk 'IS_MIX' scripts/build-typecast-import.mjs 5           # 붙여넣기·화자 수·클립 수에서 합성 클립 제외
-chk '저희, 그렇게 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_화면글자_맞추기.txt' 2   # 재더빙 붙여넣기에 합창 재료 2클립이 들어 있어야 한다
+# ★[CHORUS_PASTE_2 2026-08-21] 가리키는 파일과 문장을 함께 옮겼다 — 뜻은 그대로다:
+#   «재더빙 붙여넣기에 합창 재료 2클립(24·25)이 들어 있어야 한다». 26은 그 둘을 겹쳐 만드는 것이라
+#   재료가 빠지면 26이 낡은 채 남는다. 옛 파일(재더빙_화면글자_맞추기.txt)은 옛 신랑 이름을 들고 있어
+#   지웠고(VOICE_CAST_2), 문장도 COPY_BATCH 에서 VOWBOTH 가 바뀌었다.
+chk '저희 두 사람, 오늘 한 약속대로 살겠습니다.' 'docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt' 2
 nochk "'live:두 분이 각자 준비한 서약문을 낭독'" assets/ritual-story.js   # 옛 키 — 되살리면 장면 안내가 조용히 끊긴다
 
 # ── [ENTRY_ALT] 입장 인사는 두 분이 한 문장씩 번갈아 (2026-08-04 사용자
@@ -3394,6 +3411,75 @@ chk '소리를 하나도 못 심었다' scripts/build-redub-pick.mjs 1   # LISTE
 # 실측 27_letter-parent: 3번째 1.90 vs 4번째 1.94(차이 0.04). 지목했으면 엉뚱한 문장을 받았다.
 chk 'GUESS_TIE' scripts/lib/sent-bounds.mjs 2
 chk 'GUESS_TIE' scripts/check-audio-sents.mjs 1
+# ── ★★[COPY_BATCH] 문안 교체안을 원천에 한 번에 넣는다 (2026-08-17 사용자 *"추천대로 우선 진행하고"*) ──
+# ★★같은 문장이 **여러 사본**에 흩어져 있다. 원천만 고치면 사본이 옛말을 하고, 그 차이는
+#   고객 화면에서만 드러난다. 실측으로 사본이 넷이나 나왔다:
+#     ①order-preview.html  빌더 인라인 사본 50개 (merge-guard 가 drift 17건으로 잡았다)
+#     ②scripts/build-dubbing-script.mjs  EXTRA 문안 사본 (cue 의 EXTRA_MIRROR 가 6건으로 잡았다)
+#     ③docs/plans/대본개정/21_B_제안.md  ★어조(TONE)의 **진짜 원천** — ritual-data.js 쪽이 생성물이다
+#       (실측 사고: ritual-data 의 TONE 을 고쳤다가 tone 생성기를 돌리자 4곳 → 2곳으로 되돌아갔다)
+#     ④assets/ritual-cue.js  EXTRA 맵
+#   ★그래서 사본에 **옮겨 적지 않는다** — 같은 표를 사본에도 한 번 더 돌린다(--mirror).
+chk 'COPY_BATCH' scripts/apply-copy-batch.mjs 1
+chk 'MIRROR_P' scripts/apply-copy-batch.mjs 1
+chk 'MIRROR_S' scripts/apply-copy-batch.mjs 1
+chk 'MIRROR_B' scripts/apply-copy-batch.mjs 1
+# ★★[TEXT_WITH_SOUND] 문안과 소리는 같은 커밋에서 바꾼다. 글만 먼저 넣으면 그 사이 내내
+#   화면과 스피커가 다른 말을 한다. check-text-audio 가 붉은 채로 있는 것이 **정상**이고,
+#   그 붉음이 곧 「소리 받기 전엔 병합하지 마라」는 자물쇠다. 초록으로 만들려고 검사를 고치지 말 것.
+chk 'TEXT_WITH_SOUND' scripts/apply-copy-batch.mjs 2
+# ★★[AI고지_G1-4 보호] 문안을 다듬다가 **AI 음성 고지를 지울 뻔했다.**
+#   1분 전 안내에서 「미리 준비한 안내 음성으로 진행합니다」를 빼자 merge-guard 가 즉시 잡았다.
+#   사용자가 지적한 것은 «두 문장이 따로 논다»였지 «고지를 빼라»가 아니다. 순서만 바꿔 이었다.
+chk 'AI고지_G1-4' scripts/apply-copy-batch.mjs 1
+# ★[PHOTO_POSE_RETIRED 2026-08-17] 촬영 연출 두 자리 폐지 — 「둘러싸기」·「하나, 둘, 셋」.
+#   ★줄을 **지우지 않고** off:1 로 끈다 — 지우면 뒤 클립 번호가 두 칸씩 밀려 이미 녹음된 mp3 가
+#     남의 자리에 앉는다(2026-08-08 에 fx-count 가 78→83 으로 밀린 그 사고). 실측으로 84→82 로 줄어드는 걸 확인하고 되돌렸다.
+chk 'PHOTO_POSE_RETIRED' assets/ritual-cue.js 1
+chk 'PHOTO_POSE_RETIRED' assets/ritual-data.js 2
+chk 'PHOTO_POSE_RETIRED' console.html 1
+chk "'fx-surround': 1, 'fx-count': 1," assets/ritual-cue.js 1
+# ★[WELCOME_TONE 2026-08-17] 「말주변이 없어도 된다」를 **대사로 말하지 않는다.**
+#   의도는 옳았지만 실물로 들으면 성의 없어 들린다. 부담을 더는 일은 «길이»가 한다.
+chk 'WELCOME_TONE' "docs/plans/식순연구/배역_예시_대사.txt" 1
+# ★★[PERF_CANON_2 2026-08-17] N8 표준형에서 호명(「신랑 신부,」)을 뺐다 — 규칙을 없앤 게 아니라 옮겼다.
+#   다섯 자리가 여전히 같은 한 문장을 쓰는지 전수 대조한다. 하나만 옛 꼴이면 붉는다.
+chk 'PERF_CANON_2' scripts/check-narr-rule.mjs 1
+chk "PERF_CANON = '이제 두 사람은 부부입니다'" scripts/check-narr-rule.mjs 1
+# ★★[VOICE_CAST_2 2026-08-21] 배역 성우 2자리 교체 — 신랑 이준→이겸 · 하객대표 영목→규민
+#   신랑은 사용자 선택, 하객대표는 판정 *"너무 짧고 어색해 · 더빙 성우 바꿔야해"*.
+#   시험 녹음을 실측해 둘 다 바뀐 것을 확인했다 — 이준 116.8→이겸 133.3Hz · 영목 128.0→규민 144.1Hz.
+#   보이스 이름은 DEFAULT_VOICE 한 곳에만 적는다 — manifest.voice·붙여넣기 파일·보이스찾기 표가
+#   전부 거기서 생성된다. 옛 이름이 한 곳이라도 남으면 타입캐스트가 그 줄만 옛 성우로 배정한다.
+chk 'VOICE_GROOM_2' scripts/build-typecast-import.mjs 1
+chk 'VOICE_FRIEND_2' scripts/build-typecast-import.mjs 1
+chk "신랑: '이겸'" scripts/build-typecast-import.mjs 1
+chk "하객대표: '규민'" scripts/build-typecast-import.mjs 1
+#   ★부재는 nochk 로 쏜다(chk 셋째 인자는 «최소 개수»다 — CHK_ARG_SPACE 참고).
+#   ★이름 통짜로 세지 않는다 — 배역 «가상 인물»이 이준호(31)라서 '이준' 이 정당하게 남고,
+#     근거 주석에도 옛 이름이 남아야 한다(왜 바꿨는지). 대장 줄 모양 그대로만 없는지 본다.
+nochk "신랑: '이준'" scripts/build-typecast-import.mjs 0
+nochk "하객대표: '영목'" scripts/build-typecast-import.mjs 0
+#   ★생성물도 함께 본다 — 원천만 고치고 생성기를 다시 안 돌린 날을 잡으려는 것이다.
+nochk '이준:' "docs/plans/식순연구/타입캐스트/5_배역.txt" 0
+nochk '영목:' "docs/plans/식순연구/타입캐스트/5_배역.txt" 0
+chk '이겸:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 32
+chk '규민:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 4
+# ★★[PASTE_ROLE_SENT 2026-08-21] 붙여넣기 화자는 «문장» 역할에서 온다 — 클립 역할이 아니다.
+#   사용자가 타입캐스트 화면을 보내 왔다: 「신랑|신부 · 대사 9개」 묶음에 «보이스를 선택하세요» 만
+#   붉게 떠 있었다. clip.role '신랑|신부' 는 캐릭터가 아니라 «번갈아 읽는다»는 표시라 배정이 안 된다.
+#   손으로 하나 골랐으면 입장 아홉 줄이 통째로 한 사람 목소리가 됐다.
+chk 'PASTE_ROLE_SENT' scripts/repatch-clip.mjs 1
+# ★★[RECORDED_MIX 2026-08-21] 합성 클립(26)도 «무슨 말인지»를 _recorded.json 에 적는다.
+#   assemble-narration 은 만드는 자리에서 적는데(RECORDED_TRUTH) build-chorus 만 안 적었다.
+#   실측: 재료 24·25 를 새 문안으로 받아 26 을 다시 겹쳤는데도 대장엔 26 이 옛말로 남아
+#   67곳이 전부 맞는 판에서 26 하나만 붉었다. 적는 값은 manifest 가 아니라 «재료가 실제로 녹음한 글»이다.
+chk 'RECORDED_MIX' scripts/build-chorus.mjs 1
+chk 'recordMixed' scripts/build-chorus.mjs 2
+chk 'voiceOf' scripts/repatch-clip.mjs 4
+nochk 'man.voice?.\[c.role\]' scripts/repatch-clip.mjs 0
+nochk '신랑|신부:' "docs/plans/식순연구/타입캐스트/재더빙_20260821_5_배역.txt" 0
+
 # ── ★★[DROP_GUARD] 「버림」으로 찍어도 비울 수 없는 자리 (2026-08-17 사용자 지시) ──
 # *"버림으로 체크해도 이 부분의 안내가 없으면 안 된다고 판단이 들면 너가 같이 적은 이유를 보고
 #   적절한 문장으로 변경 적용하자"*
@@ -3981,7 +4067,10 @@ chk 'PHOTO_WISH' automation/platform/80_production.gs 2
 chk 'body.draft.photoWish = _pw' automation/platform/80_production.gs 1
 chk 'photoWish' admin.html 1                     # 관리자 화면이 요청을 읽는다
 # [PHOTO_WISH] 좌석 공개설정만 바꿔도 guideinfo 트랙이 통째로 교체된다 — 통과 목록에서 빠지면 요청이 조용히 지워진다
-chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1# ★★[PHOTOSHARE_DIRECT 2026-08-16 사용자 결정 "우리를 안거치고 부부한테 바로가는걸원해"]
+chk 'photoWish: (gi.photoWish||\[\]).slice()' mypage.html 1 # ★★[PHOTOSHARE_DIRECT 2026-08-16 사용자 결정 "우리를 안거치고 부부한테 바로가는걸원해"]
+# ★[CHK_ARG_SPACE 2026-08-21] 위 줄은 `1#` 이라 셋째 인자가 «1#» 이었다 — 산술 비교가 깨져
+#   `line 70: [: 1#: integer expression expected` 만 찍고 조용히 초록으로 떨어졌다(2026-08-16부터 5일간).
+#   붉게 지지 않는 고장이라 아무도 몰랐다. 아래 자가검사가 그 꼴을 정적으로 잡는다.
 #   하객 사진은 우리를 거치지 않는다. 리뷰가 「우리 안내 페이지에서 직접 받자」를 개선안으로 되살리지 못하게 막는다.
 #   (조사: 구글 드라이브·폼은 로그인 없이 업로드 불가 → 우리가 받으려면 GAS 업로드 배관이 필요한데 그 길을 안 간다)
 chk 'PHOTOSHARE_DIRECT' mypage.html 1
