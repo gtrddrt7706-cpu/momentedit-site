@@ -5637,3 +5637,10 @@ chk 'FREE_PORT' scripts/audit/_freeport.mjs 1
 chk 'freePort()' scripts/audit/index-jr-hover.mjs 1
 chk 'freePort()' scripts/audit/seat-onecard.mjs 1
 chk 'freePort()' scripts/audit/admin-review-stage.mjs 1
+# ★★[CROSS_SESSION 2026-08-25] 여러 세션의 수정이 «서로를 깨지 않는가» — 접점만 모은 검사.
+#   한 PR 안에서는 각자 초록이다. 사고는 둘이 만나는 자리에서 나고, 그 자리는 어느 쪽 검사에도 없다.
+#   ★특히 [CHANGE_RATCHET] 의 근거인 동의기록.변경이력 — 되돌리기가 지우는 키 목록에 이것이
+#     한 번이라도 들어가면 99만원짜리 구멍이 «되돌리기»라는 다른 문으로 다시 열린다.
+chk 'CROSS_SESSION' scripts/audit/cross-session.mjs 1
+chk '되돌려도 변경이력' scripts/audit/cross-session.mjs 1
+nochk "'변경이력'" automation/admin/admin.gs
