@@ -1252,7 +1252,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .gd-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:2px 0 10px}
     .gd-chip{font-family:var(--serif-ko);font-size:12px;padding:5px 11px;border:1px dashed var(--border);border-radius:999px;color:var(--label-soft);background:#fff}
     .gd-chip.on{border:1px solid var(--gold);color:var(--gold-deeper);background:rgba(184,154,117,.08)}
-    .seat-share-btns{display:flex;gap:8px;justify-content:center}
+    /* ★[SHARE_BTN_WRAP 2026-08-17 · 폭별 실측이 잡음] 320px 에서 버튼 셋의 총폭(222px)이 컨테이너(210px)를 넘어
+       좌우로 6px 씩 **카드를 뚫고** 나갔고, 라벨이 「하객 / 눈으로 / 미리보기」 세 줄로 깨졌다.
+       페이지 가로 스크롤은 안 생겨 넘침 검사에 안 잡히던 종류다 — 줄을 바꿔 담는다. */
+    .seat-share-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
     /* 하객 안내 — 행별 컨트롤(예약 정보·자리 찾기 토글)·접힘 허브 */
     /* (구).gi-wrap/.gi-sum/.gi-badge 접이식 블록 CSS 삭제 — 확인서·하객 안내가 카드 안 행+패널로 재배치되며 마크업 소멸(2026-07-17 리뷰) */
     .gi-row{margin-bottom:11px}
@@ -1261,6 +1264,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* (구).rsv-* 예약 정보 접기 위젯 CSS 삭제 — 예식 확인서(cf-*)로 통합되며 마크업 소멸(2026-07-17 리뷰) */
     .cf-l{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--hairline,#E6E1D8);text-align:left}
     .cf-k{font-size:12px;color:var(--gold-deep);padding-top:1px}
+    /* ★[CF_WRAP_BALANCE 2026-08-17 · 폭별 실측] 320·360·430 에서 마지막 줄에 「공개」·「05」·「작성됨」·「41분」처럼
+       한 마디만 떨어지는 고아 줄이 여럿이었다(숫자만 떨어진 「오프라인 / 05」가 가장 나쁘다 — 오독한다).
+       이 화면이 이미 쓰는 관용구를 그대로 쓴다(.now-head·.cc-sub 와 같은 이유) — 미지원 브라우저는 종전 그대로. */
+    .cf-v,#cf_wrap .cc-mini,.cf-seal-at,.cf-seal-b,.cf-seal-n{text-wrap:balance}
     .cf-v{font-size:13px;color:var(--accent);line-height:1.6;word-break:keep-all}
     /* [CF_LINK_TAP] 확인서 안 「전화」·「지도」 — 보이는 크기는 그대로, 누르는 자리만 44px */
     .cf-links{display:inline-flex;gap:12px;margin-left:8px;vertical-align:baseline}
@@ -7117,7 +7124,7 @@ function prodConfirmHtml(p, inv){
   var _imL=({online:'온라인',offline:'오프라인',both:'온라인·오프라인',self:'개인 제작',none:'청첩장 없이'})[_im]||'';
   var _dz=[]; if(_ivd.designOnline&&(_im==='online'||_im==='both')) _dz.push('온라인 '+_ivd.designOnline); if(_ivd.designFamily&&(_im==='offline'||_im==='both')) _dz.push('오프라인 '+_ivd.designFamily);
   var _ivv=(inv.status==='완료')?((inv.published&&inv.published.eventId)?'발행됨':'만듦 · 미발행'):'';
-  if(_ivv&&_imL) _ivv+=' · '+_imL; if(_ivv&&_dz.length) _ivv+='<br><span class="cc-mini">디자인 · '+escapeHtml(_dz.join(' · '))+'</span>';
+  if(_ivv&&_imL) _ivv+=' · '+_imL; if(_ivv&&_dz.length) _ivv+='<br><span class="cc-mini">디자인 · '+_dz.map(function(x){ return '<span style="white-space:nowrap">'+escapeHtml(x)+'</span>'; }).join(' · ')+'</span>';   // [CF_WRAP_BALANCE] 「오프라인 / 05」로 숫자만 떨어지면 오독한다
   L+=line('청첩장', _ivv);
   var rv='';
   if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
