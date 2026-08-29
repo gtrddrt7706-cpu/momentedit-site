@@ -3529,6 +3529,16 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 # ★[LISTEN_KEEP 2026-08-16] 만든 실청 판을 버리지 않는다 — 사용자가 내려받아 «들을» 판이다.
 #   전에는 /tmp 에 만들어 검사만 하고 버려서, 들으려면 ffmpeg 이 있는 세션이 매번 새로 만들어
 #   사람 손으로 넘겨야 했다. 실청은 사람만 할 수 있는 마지막 검사인데 그 판을 얻는 길이 심부름이었다.
+# ── [LISTEN_KEY_STAMP 2026-08-26 사용자 지적] 판정 저장 열쇠에 내용 지문을 찍는다 ──
+# *"이미 전에 체크한것들이 그대로 저장되어있는데 왜그래? 지금 새로운것을 다시 테스트하는거아니야?"*
+# 열쇠가 `me_listen_all_v1` 고정 문자열이라, 재더빙 58클립을 갈아 낀 새 판을 열어도
+# 브라우저가 같은 칸을 봐서 「판정 478/483」이 이미 차 있었다.
+# ★불편이 아니라 **기록이 거짓이 되는 것**이다 — 옛 소리에 누른 「좋아요」가 새 소리 위에 앉는다.
+# 지문 = 클립 글 + 어조 문장 + mp3 파일 크기 + _recorded.json.
+# 실측: mp3 에 1바이트 더하면 9f7b3c6d → b0fd2b20 · 되돌리면 9f7b3c6d 로 복귀.
+chk 'LISTEN_KEY_STAMP' scripts/build-listen-all.mjs 4
+chk 'me_listen_all_\${STAMP}' scripts/build-listen-all.mjs 1
+nochk "var KEY = 'me_listen_all_v1'" scripts/build-listen-all.mjs   # ★고정 열쇠 복원 금지 — 코드 모양으로 잡는다
 chk 'LISTEN_KEEP' .github/workflows/nightly-screen.yml 1
 chk 'upload-artifact' .github/workflows/nightly-screen.yml 1
 chk 'name: 실청_전체' .github/workflows/nightly-screen.yml 1

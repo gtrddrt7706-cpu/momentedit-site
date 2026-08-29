@@ -26,6 +26,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
 import { sentBounds, durOf, blockFit } from './lib/sent-bounds.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -179,6 +180,32 @@ const DATA = {
      지어내면 `신랑|신부:` 같은, 타입캐스트에 없는 사람이 대본에 실린다(이 저장소가 겪은 사고). */
   voice: man.voice || {},
 };
+/* ★★[LISTEN_KEY_STAMP 2026-08-26 사용자 지적] 저장 열쇠에 **내용 지문**을 찍는다.
+   사용자 원문: *"이미 전에 체크한것들이 그대로 저장되어있는데 왜그래? 지금 새로운것을 다시 테스트하는거아니야?"*
+   ★무엇이 문제였나 — 열쇠가 `me_listen_all_v1` 고정 문자열이었다. 브라우저는 판이 바뀌어도
+     같은 칸을 본다. 그래서 **옛 소리에 누른 판정이 새 소리 위에 그대로 앉는다.**
+     실측: 재더빙 58클립을 갈아 끼운 판을 열었는데 「판정 478/483」이 이미 차 있었다.
+   ★단순한 불편이 아니라 **기록이 거짓이 되는 것**이다 — 「좋아요」가 가리키는 소리가
+     그 소리가 아니다. 이 저장소가 계속 싸워 온 병(적힌 것과 실물이 다르다)의 또 한 얼굴이다.
+   ★지문에 무엇을 넣나 — «귀에 들리는 것을 정하는 것» 전부다:
+     클립 id·글·녹음된 글(_recorded) · 어조 문장. 하나라도 바뀌면 열쇠가 바뀐다.
+     반대로 아무것도 안 바뀌면 열쇠가 같아, 같은 판을 다시 열었을 때 판정이 살아 있다.
+   ★열쇠를 화면에도 찍는다 — 두 판을 놓고 어느 것을 보고 있는지 사람이 알아야 한다. */
+const STAMP = (() => {
+  const h = createHash('sha1');
+  /* 글 — 화면에 뜨는 문장 */
+  h.update(JSON.stringify(OLDC.map((c) => [c.id, c.sents])));
+  h.update(JSON.stringify(NEWC.map((c) => [c.slug, c.idx.map((i) => sents[i])])));
+  /* 소리 — 파일 크기로 잰다. 다시 조립하면 반드시 바뀐다(실측: 84번이 174573 → 164781).
+     ★바이트를 다 읽지 않는 이유는 27MB 를 매번 훑을 값이 없어서다. 크기가 같은데 내용만 다른
+       재조립은 이론상 가능하니, 그때를 위해 _recorded.json 도 함께 넣는다(조립기가 매번 갱신한다). */
+  for (const c of OLDC) { const f = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, ''), dir: null });
+    let sz = 0; try { sz = fs.statSync(f).size; } catch (e) {}
+    h.update(c.id + ':' + sz + ';'); }
+  for (const f of ['assets/audio/narration/_recorded.json', 'assets/audio/cast/_recorded.json'])
+    { try { h.update(fs.readFileSync(path.join(ROOT, f))); } catch (e) {} }
+  return h.digest('hex').slice(0, 8);
+})();
 const oldSents = OLDC.reduce((a, c) => a + c.sents.length, 0);
 const newSents = NEWC.reduce((a, c) => a + c.idx.length, 0);
 
@@ -242,7 +269,9 @@ border:1px solid var(--border);border-radius:9px;background:#fff}
 
 <h1>전체 실청 점검</h1>
 <p class="sub">[LISTEN_ALL] 지금 나가는 기존 <b>${OLDC.length}클립</b>(문장 ${oldSents}) + 새 어조 <b>${NEWC.length}클립</b>(문장 ${newSents})
-&nbsp;·&nbsp; 예식 순서대로 늘어놓았습니다</p>
+&nbsp;·&nbsp; 예식 순서대로 늘어놓았습니다
+&nbsp;·&nbsp; <b>판 ${STAMP}</b></p>
+<p class="sub" style="color:var(--light)">[LISTEN_KEY_STAMP] 판정은 이 판(<b>${STAMP}</b>)에만 저장됩니다 &mdash; 소리나 글이 바뀌면 판이 달라져 <b>판정을 새로 받습니다</b>.<br>옛 소리에 누른 판정이 새 소리 위에 남아 있으면 그 기록은 거짓이 되기 때문입니다.</p>
 ${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_SCREEN] 폐지한 자리 <b>${RETIRED_ROWS.length}개</b>는 목록에 없습니다 &mdash; 식장에서 나지 않습니다: ${RETIRED_ROWS.join(' · ')}<br>(파일은 남겨 둡니다 &mdash; 지우면 뒤 클립 번호가 전부 밀립니다)</p>` : ''}
 
 <div class="note">
@@ -280,7 +309,12 @@ ${EMBED ? `<div class="note" style="background:#f2f5f2;color:var(--green);border
 var D = ${JSON.stringify(DATA)};
 var AO = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(A_OLD).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
 var AN = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(A_NEW).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
-var KEY = 'me_listen_all_v1';
+var KEY = 'me_listen_all_${STAMP}';
+/* [LISTEN_KEY_STAMP] 옛 열쇠(고정 문자열)에 판정이 남아 있으면 «있다»고 알린다 — 조용히 버리지 않는다.
+   옮겨 주지도 않는다: 그 판정이 어느 소리에 대한 것인지 이 판은 모른다. */
+try { var _old = localStorage.getItem('me_listen_all_v1');
+  if (_old && _old.length > 2) console.log('[LISTEN_KEY_STAMP] 옛 판정이 브라우저에 남아 있습니다(me_listen_all_v1). 이 판은 소리가 달라 새로 받습니다.');
+} catch (e) {}
 var V = {}; try { V = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { V = {}; }
 var save = function () { try { localStorage.setItem(KEY, JSON.stringify(V)); } catch (e) {} };
 var $ = function (i) { return document.getElementById(i); };
