@@ -1331,6 +1331,10 @@ function handleSubmitResultSelection(body) {
   }
   picks = _pkOut.join(', ');
   var n = _pkOut.length;   // 고유 토큰 수 = 장수(프론트 카운터와 동일 기준)
+  /* ★[PICK_MAX_MANUAL 2026-08-29 시뮬레이션 점검] 수동 입력 분기도 컷 수 상한을 센다.
+     종전엔 갤러리 분기만 PICK_MAX 를 봤고 여기는 글자 상한(36,000자)뿐이라
+     «1, 2, 3»처럼 짧은 토큰이면 수천 컷이 통과했다 — 초과분은 컷당 2만원 자동 과금 견적으로 이어진다. */
+  if (n > PICK_MAX) return { ok: false, error: '한 번에 ' + PICK_MAX + '컷까지 제출할 수 있어요. 선택을 ' + PICK_MAX + '컷 안으로 줄여 주시거나, 디렉터에게 문의해 주세요.' };
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
@@ -1367,8 +1371,14 @@ function handleRequestExtraRetouch(body) {
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
     if (RESULT_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 결과물 단계가 아닙니다.' };
-    if (String(cust.get('추가보정상태') || '').trim() === '완료') return { ok: false, error: '이미 결제가 완료된 추가 보정이 있어요. 문의해 주세요.' };
-    touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '신청', '추가보정수량': qty, '추가보정금액': amount });
+    var _xrCur = String(cust.get('추가보정상태') || '').trim();
+    if (_xrCur === '완료') return { ok: false, error: '이미 결제가 완료된 추가 보정이 있어요. 문의해 주세요.' };
+    /* ★[XR_SIGNAL_KEEP 2026-08-29 시뮬레이션 점검] 입금 신호(결제대기)가 살아있는데 재신청하면
+       상태가 «신청»으로 되돌아가 입금 신호가 증발했다 — 고객은 이미 보냈는데 관리자 화면에선
+       입금 신호가 사라져 확인이 늦어진다. 확인 중엔 재신청을 거부한다. */
+    if (_xrCur === '결제대기') return { ok: false, error: '입금 확인 중인 신청이 있어요. 확인이 끝난 뒤 다시 신청하실 수 있어요.' };
+    /* 새 견적이므로 이전 신청의 입금자명은 지운다(낡은 이름이 새 견적 대조를 오도) */
+    touchCustomer(sheet, colOf, cust.num, { '추가보정상태': '신청', '추가보정수량': qty, '추가보정금액': amount, '추가보정입금자명': '' });
     try { notifyStudio('[플랫폼] 추가 보정 신청 (' + code + ')', code + ' · ' + qty + '컷 · ' + amount.toLocaleString() + '원'); } catch (e) {}
     return { ok: true, qty: qty, amount: amount };
   } finally { try { lock.releaseLock(); } catch (e) {} }
@@ -1387,6 +1397,8 @@ function handleExtraRetouchSignal(body) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    /* ★[XR_STAGE_GUARD 2026-08-29] 강제 단계 이동 뒤 옛 화면의 유령 입금신호 차단(STAGE_REVIEW 와 동일 원칙) */
+    if (RESULT_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 결과물 단계가 아닙니다.' };
     var cur = String(cust.get('추가보정상태') || '').trim();
     if (cur === '완료') return { ok: true, already: true };
     if (['신청', '견적', '결제대기'].indexOf(cur) === -1) return { ok: false, error: '추가 보정 신청 후 진행할 수 있어요.' };
@@ -1487,6 +1499,10 @@ function handleSubmitSurvey(body) {
     // ★STAGE_REVIEW 안전장치(기획 §3-2 #22): 종전엔 단계 검사가 아예 없어 강제이동 뒤 옛 화면에서 유령 제출이 가능했다.
     //   결과물·후기 구간(RESULT_STAGES) 밖이면 거부. 제거 금지.
     if (RESULT_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 후기를 남길 수 있는 단계가 아니에요.' };
+    /* ★[SURVEY_ONCE 2026-08-29 시뮬레이션 점검] 설문은 한 번만 받는다 — 종전엔 재제출이 응답을
+       덮어쓰고 «스타벅스 2잔 발송 대상» 관리자 메일을 또 보냈다(쿠폰 이중 발급 유도).
+       탭 두 개·뒤로가기 재제출 전부 여기서 멱등 처리. */
+    if (String(cust.get('설문상태') || '').trim() === '완료') return { ok: true, already: true };
     var product = String(cust.get('상품타입') || '').trim() || (typeof P !== 'undefined' ? P.PRODUCT_SIGNATURE : '시그니처');
     var payload = { product: product, answers: clean, review: review, reviewPublic: reviewPublic };
     touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(payload), '설문일시': fmtKST(new Date()) });

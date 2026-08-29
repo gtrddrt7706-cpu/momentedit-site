@@ -387,8 +387,28 @@ function actAccept(sheet, colOf, row) {
   if (curStatus === ST.CANCELLED) {
     return infoPage('취소된 예약입니다', '이 예약은 취소되었습니다. 다시 예약을 원하시면 새로 신청해 주세요.', false);
   }
+  /* ★★[ACCEPT_GUARDED 2026-08-26 상담 흐름 점검 C1·C2] 수락 경로만 무방비였다.
+     승인(actApprove)은 락 + 슬롯 확인 + 상태 재확인을 다 하는데, 이 함수는 셋 다 없었다:
+       ①상태 가드가 확정·취소만 → **승인완료 뒤에도** 낡은 [수락] 메일 클릭이 확정 예약을
+         옛 제안 시간으로 조용히 옮겼다(캘린더 이동 + 확정 메일 재발송까지)
+       ②슬롯 확인 없음 → 그 사이 다른 팀이 확정된 같은 시간으로 **더블 확정**
+       ③락 없음 → 승인과 수락이 겹치면 서로 덮어씀
+     ★수락은 «변경제안» 상태에서만 유효하다 — 제안이 살아 있는 유일한 상태다.
+     ★수락 후 제안 칸을 비운다(C2) — 저장소 전체에 이 두 칸을 지우는 코드가 없어,
+       낡은 제안이 영원히 살아 재수락으로 확정을 뒤엎을 수 있었다. */
+  if (curStatus !== ST.PROPOSED) {
+    return infoPage('처리할 제안이 없습니다', '이 제안은 이미 처리되었거나 일정이 바뀌었습니다.<br>현재 잡힌 일정은 확정 메일을 확인해 주세요.', false);
+  }
+  var _acLock = null;
+  try { _acLock = LockService.getScriptLock(); _acLock.waitLock(10000); } catch (eL) { _acLock = null; }
+  try {
   var nd = row.get('변경제안날짜'), nt = row.get('변경제안시간');
   if (!nd || !nt) return infoPage('제안된 시간이 없습니다', '변경 제안 정보를 찾을 수 없습니다.', false);
+  /* ★시그니처 주의: _slotTaken(dateKey, time, exceptRowNum) — 시트 인자가 없다(내부에서 연다).
+     처음에 (sheet, colOf, …)로 불렀다가 normalizeDateKey(sheet)가 falsy 라 **항상 통과**했다(자가 검증에서 잡음). */
+  if (typeof _slotTaken === 'function' && _slotTaken(nd, nt, row.num)) {
+    return infoPage('그 시간이 방금 마감됐습니다', '제안드린 시간이 다른 예약으로 확정되었습니다.<br>다른 시간을 다시 제안드릴게요 · 잠시만 기다려 주세요.', false);
+  }
 
   writeCell(sheet, colOf, row.num, '선택날짜', nd);
   writeCell(sheet, colOf, row.num, '선택시간', nt);
@@ -404,7 +424,10 @@ function actAccept(sheet, colOf, row) {
   }
   try { sendStudioBriefEmail(row, nd, nt); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ 변경수락→확정도 동일 전이
+  writeCell(sheet, colOf, row.num, '변경제안날짜', '');   // [ACCEPT_GUARDED C2] 소진된 제안은 비운다 — 낡은 [수락]이 되살아나지 않게
+  writeCell(sheet, colOf, row.num, '변경제안시간', '');
   return infoPage('변경 확정', '변경된 일정으로 예약이 확정되었습니다.<br>' + prettyDate(nd) + ' · ' + nt, true);
+  } finally { try { if (_acLock) _acLock.releaseLock(); } catch (eR) {} }
 }
 
 // 취소 처리 (공통) — 캘린더 일정 삭제 + 고객 취소 안내 메일 + 취소일시 기록.
@@ -792,6 +815,26 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
   if (slotsForDate(dateKey).indexOf(time) === -1) {
     throw new Error('선택하신 시간은 예약 가능한 시간이 아닙니다. 다시 선택해 주세요.');
   }
+  /* ★★[PAST_SLOT_REJECT 2026-08-26 상담 흐름 점검 C3] 지난 날짜·지난 시간은 서버가 거절한다.
+     종전엔 요일 검증뿐이라 2020년 날짜도 통과했고, 화면도 자정 기준으로만 잘라서
+     저녁에 들어온 고객이 «오늘 11:30»을 신청하고 «접수되었습니다»를 봤다 — 첫 접점에서
+     가장 자주 밟힐 구멍. 프런트에만 있는 규칙은 규칙이 아니다(SEAT_Q_MIN 과 같은 원칙). */
+  (function () {
+    /* ★normalizeDateKey 는 '2026-6-7'처럼 **비패딩**이다(1694행 경고 주석) — 문자열 비교는 10월을 9월보다
+       과거로 정렬한다. 반드시 숫자(yyyymmdd)로 비교한다. 처음에 문자열로 짰다가 자가 검증에서 잡았다. */
+    var _nowK = new Date(Date.now() + 9 * 3600e3);   // KST
+    var _todayNum = _nowK.getUTCFullYear() * 10000 + (_nowK.getUTCMonth() + 1) * 100 + _nowK.getUTCDate();
+    var _dm = String(normalizeDateKey(dateKey)).match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    var _dkNum = _dm ? (Number(_dm[1]) * 10000 + Number(_dm[2]) * 100 + Number(_dm[3])) : 0;
+    if (!_dkNum || _dkNum < _todayNum) throw new Error('지난 날짜는 선택할 수 없습니다. 다른 날짜를 골라 주세요.');
+    if (_dkNum === _todayNum) {
+      var _hm = String(time).match(/^(\d{1,2}):(\d{2})/);
+      var _nowMin = _nowK.getUTCHours() * 60 + _nowK.getUTCMinutes();
+      if (_hm && (Number(_hm[1]) * 60 + Number(_hm[2])) <= _nowMin) {
+        throw new Error('이미 지난 시간입니다. 다른 시간을 골라 주세요.');
+      }
+    }
+  })();
 
   // 셀프 변경(확정 후 재방문) 시 24시간 전까지만 허용
   var status = row.get('상태');
