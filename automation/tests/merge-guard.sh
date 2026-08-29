@@ -3540,6 +3540,19 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 # 소리가 없는 자리에 「듣기」를 내밀지 않는다. 전엔 버튼이 있고 누르면 경고가 떴다 —
 # 186문장을 하나씩 눌러 봐야 알았다. 그러면 「한 번에」가 안 된다.
 # ★그리고 맨 위에 「이 판으로 되는 것 / 안 되는 것」을 **세어서** 적는다(손으로 적은 수는 언젠가 어긋난다).
+# ── [LISTEN_WHY · LISTEN_SPLIT 2026-08-26 사용자 지적] ──
+# ①*"다시 하는 이유를 적어야 너한테전달했을때 너가 하나하나 파악해서 개선을하지"*
+#   「다시」에만 이유 칸을 연다. 비워도 넘어가되 대본에 「(이유 없음)」으로 실려 눈에 보인다.
+#   ★열쇠를 판정과 따로 둔다 — 「판정 지우기」로 판정을 비워도 적어 둔 이유는 남는다.
+#   ★글칸은 다시 그리지 않는다(입력 중 repaint 하면 커서가 튄다 · 마이페이지에서 겪은 병).
+# ②*"모바일이나 태블릿에서는 안나오네 항목들이"* — 한 판 8.5MB 가 폰에서 버겁다.
+#   ★화면 탓이 **아님**을 먼저 쟀다: 390px 헤드리스에서 클립 160·문장 495 그려지고 pageerror 0.
+#   그래서 --part 로 쪼갤 길을 연다(1.0~2.2MB). 쪼갠 판은 지문이 달라 판정이 안 섞인다.
+#   ★어조는 파트가 없어 안 빼면 **모든 파트 판에 딸려 온다**(실측: 1_안내 가 13이 아니라 76클립).
+chk 'LISTEN_WHY' scripts/build-listen-all.mjs 7
+chk 'LISTEN_SPLIT' scripts/build-listen-all.mjs 3
+chk 'function whyBox' scripts/build-listen-all.mjs 1
+chk '왜 다시' scripts/build-listen-all.mjs 3
 chk 'NO_SOUND_SAY' scripts/build-listen-all.mjs 4
 chk 'function hasSnd' scripts/build-listen-all.mjs 1
 chk 'function sayCanDo' scripts/build-listen-all.mjs 1

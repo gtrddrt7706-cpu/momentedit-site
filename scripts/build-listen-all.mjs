@@ -34,6 +34,15 @@ const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
 const STAGE = path.join(ROOT, '_dub_stage');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
+/* ★★[LISTEN_SPLIT 2026-08-26 사용자 지적 *"모바일이나 태블릿에서는 안나오네 항목들이"*]
+   소리를 다 심으면 한 판이 8.5MB 다. 데스크톱은 열리는데 폰·태블릿에서 항목이 안 뜬다.
+   ★실측으로 «화면 탓이 아님»을 먼저 확인했다 — 390px 헤드리스에서 클립 160·문장 495 가
+     그대로 그려지고 pageerror 0 이다. 즉 레이아웃이 아니라 **무게**(또는 앱 내장 뷰어)다.
+   ★그래서 파트별로 쪼갤 길을 연다: `--part 1_안내.txt` · `--part 어조`.
+     쪼갠 판은 저마다 다른 지문을 갖는다(LISTEN_KEY_STAMP) → 판정이 서로 안 섞인다.
+   ★쪼개는 것을 «기본»으로 만들지는 않는다 — 한 판으로 보고 싶은 사람이 있고,
+     데스크톱에서는 그게 더 낫다. 고르게 둔다. */
+const PART = arg('--part', '');
 let bad = 0;
 const no = (m) => { console.error('✗ ' + m); bad++; };
 const die = (m, c = 2) => { console.error('✗ ' + m); process.exit(c); };
@@ -71,11 +80,18 @@ const RETIRED = Cue.RETIRED || {};
      화면은 그대로 예식 순서다 — 보는 차례와 붙이는 차례는 쓰임이 다르니 따로 둔다.
    ★이 저장소가 같은 병을 두 번 앓았다(--redub 의 클립번호 정렬 · 여기). 고치는 자리도 하나로 맞춘다. */
 const RETIRED_ROWS = man.clips.filter((c) => RETIRED[c.file]).map((c) => `${c.no}_${c.file}`);
-const OLDC = man.clips.map((c, mi) => ({ c, mi })).filter(({ c }) => !RETIRED[c.file])
+const OLDC0 = man.clips.map((c, mi) => ({ c, mi })).filter(({ c }) => !RETIRED[c.file])
   .sort((a, b) => (PART_ORDER.indexOf(a.c.part) - PART_ORDER.indexOf(b.c.part)) || (+a.c.no - +b.c.no))
   .map(({ c, mi }) => ({ id: `${c.no}_${c.file}`, no: c.no, mi, ko: c.label || c.file, part: c.part,
     role: c.role || '', mix: !!c.mix, has: !!srcOf(c),
     sents: (c.sents || []).map((s) => String(s.text || '').trim()).filter(Boolean) }));
+/* [LISTEN_SPLIT] 파트를 짚으면 그 파트만 — 「어조」면 기존 클립을 통째로 뺀다 */
+const PARTSEL = PART && PART !== '어조' ? (PART_ORDER.find((x) => x.startsWith(PART) || x === PART) || PART) : '';
+if (PART && PART !== '어조' && !PART_ORDER.includes(PARTSEL)) {
+  die(`--part ${PART} 는 없는 파트다. 있는 것: ${PART_ORDER.join(' · ')} · 어조`, 2);
+}
+const OLDC = PART === '어조' ? [] : (PARTSEL ? OLDC0.filter((c) => c.part === PARTSEL) : OLDC0);
+if (PART && PART !== '어조' && !OLDC.length) die(`--part ${PART} 에 클립이 하나도 없다`, 2);
 /* ★[SENT_SEEK 2026-08-16 사용자 지적 "아래쪽 대사는 나레이션이 안 입혀졌나 오디오가 안 들리는데?"]
    기존 클립은 「클립 듣기」만 있고 문장별 듣기가 없었다. 눌러 볼 것이 없으니 «안 입혀진» 것처럼 보인다.
    ★소리를 더 넣지 않는다 — 같은 클립을 **그 구간만** 재생하면 된다(currentTime 으로 건너뛰고 끝에서 멈춘다).
@@ -126,10 +142,13 @@ const ORDER = JSON.parse(fs.readFileSync(path.join(DIR, '더빙_한번에_순서
 const USE_EXISTING = '신랑 신부, 입장!';
 const EXFROM = (slug) => { const m = /^entry-([A-F])\b/.exec(slug); if (!m) return '';
   return `${{ A: '05', B: '06', C: '07', D: '08', E: '09', F: '10' }[m[1]]}_entry-${m[1]}`; };
-const NEWC = ORDER.클립.map((c) => {
+const NEWC = (PART && PART !== '어조' ? [] : ORDER.클립).map((c) => {
   const idx = []; for (let k = 0; k < c.문장수; k++) idx.push(c.시작줄 - 1 + k);
   return { slug: c.slug, ko: c.이름, 묶음: c.묶음, idx };
 });
+/* ★[LISTEN_SPLIT] 파트를 짚으면 어조는 뺀다 — 어조는 파트가 없어서, 안 빼면 **모든 파트 판에 딸려 온다.**
+   실측으로 잡혔다: `--part 1_안내.txt` 인데 클립이 76개(어조 63 포함)로 나왔다. 12개여야 맞다.
+   ★「어조」는 그 자체를 파트 이름처럼 짚어 따로 본다. */
 
 /* 이미 녹음된 문장인지 — 견주기 힌트 */
 const OLDSENT = new Map();
@@ -260,7 +279,10 @@ border-top:1px solid var(--border);padding-top:14px;font-weight:600}
 .sent.re{background:#fdf7f6}
 .sent.lock{background:#f7faf8}
 .ops{display:flex;gap:6px;flex-wrap:wrap}
-.nosnd{font-size:12px;color:var(--light);white-space:nowrap;padding:0 8px}   /* [NO_SOUND_SAY] 없는 것을 없다고 적는 자리 */
+.nosnd{font-size:12px;color:var(--light);white-space:nowrap;padding:0 8px}
+.why{margin-top:8px;flex-basis:100%}
+.why input{width:100%;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-family:inherit;box-sizing:border-box}
+.why input:focus{border-color:var(--gold);outline:none}   /* [NO_SOUND_SAY] 없는 것을 없다고 적는 자리 */
 .foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.97);border-top:1px solid var(--border);
 padding:9px 14px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap;backdrop-filter:blur(8px);z-index:30}
 textarea{width:100%;min-height:170px;font:13px/1.6 ui-monospace,Menlo,monospace;padding:10px;
@@ -322,6 +344,15 @@ try { var _old = localStorage.getItem('me_listen_all_v1');
 } catch (e) {}
 var V = {}; try { V = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { V = {}; }
 var save = function () { try { localStorage.setItem(KEY, JSON.stringify(V)); } catch (e) {} };
+/* ★★[LISTEN_WHY 2026-08-26 사용자 지시] 「다시」에 **이유 한 줄**을 받는다.
+   사용자 원문: *"다시 하는 이유를 적어야 너한테전달했을때 너가 하나하나 파악해서 개선을하지"*
+   ★이게 없으면 넘어오는 것은 «어느 문장을 다시 받아라»뿐이라, 무엇이 마음에 안 들었는지가 사라진다.
+     받는 쪽은 같은 글을 다시 뽑을 수밖에 없고, 두 번째도 같은 이유로 걸린다.
+   ★강제하지 않는다 — 비워도 넘어간다. 대신 대본에 「(이유 없음)」으로 실려 **눈에 보인다.**
+   ★열쇠를 따로 둔다 — 「판정 지우기」로 판정을 비워도 적어 둔 이유는 남는다(다시 적게 하지 않는다). */
+var WKEY = KEY + '_why';
+var W = {}; try { W = JSON.parse(localStorage.getItem(WKEY) || '{}') || {}; } catch (e) { W = {}; }
+var saveW = function () { try { localStorage.setItem(WKEY, JSON.stringify(W)); } catch (e) {} };
 var $ = function (i) { return document.getElementById(i); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
 var TAB = '전체';
@@ -360,6 +391,12 @@ function counts() {
    186문장을 하나씩 눌러 확인하게 만드는 셈이라, 「한 번에」가 안 된다.
    ★그래서 있는지를 먼저 보고, 없으면 그 자리에 «소리 없음»이라고 적는다. */
 function hasSnd(k) { return !!(k.charAt(0) === 'n' ? AN[k] : AO[k]); }
+/* [LISTEN_WHY] 「다시」일 때만 연다 — 안 고칠 자리에 빈 칸을 늘어놓으면 화면이 시끄럽다 */
+function whyBox(k) {
+  if (V[k] !== 're') return '';
+  return '<div class="why"><input data-w="' + k + '" value="' + esc(W[k] || '')
+    + '" placeholder="왜 다시 받나요? (예: 너무 딱딱해요 · 문장이 길어요 · 목소리가 안 맞아요)"></div>';
+}
 function ops(k, canPlay) {
   var v = V[k];
   var snd = canPlay && hasSnd(k);
@@ -402,7 +439,8 @@ function draw() {
           + '</div><div class="ops">'
           + (bb ? '<button class="btn sm play" data-seek="' + c.id + '" data-a="' + bb[0] + '" data-b="' + bb[1] + '">듣기</button>' : '')
           + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="' + k + '">좋아요</button>'
-          + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + k + '">다시</button></div></div>';
+          + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + k + '">다시</button></div>'
+          + whyBox(k) + '</div>';   /* [LISTEN_WHY] */
       });
       h += '</div>';
     });
@@ -424,7 +462,7 @@ function draw() {
           + '<div class="mi">' + esc(s.v) + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다(판정 안 함)</b>'
               : (s.old ? (' · 기존에도 있음 · ' + esc(s.old)) : '')) + '</div></div>'
           + (s.lock ? ('<div class="ops">' + (hasSnd(k) ? '<button class="btn sm play" data-u="' + k + '">듣기</button>' : '<span class="nosnd">소리 없음</span>') + '</div>') : ops(k, true))
-          + '</div>';
+          + (s.lock ? '' : whyBox(k)) + '</div>';   /* [LISTEN_WHY] */
       });
       h += '</div>';
     });
@@ -471,15 +509,24 @@ $('mkOut').onclick = function () {
     if (V[c.id + '#' + j] !== 're') return;
     var vn = D.voice[c.r];                       /* [EXPORT_TRUTH] manifest 표에서만 가져온다 */
     if (!vn) { bad.push(c.id + ' (' + (c.r || '역할없음') + ')'); return; }
-    picked.push({ mi: c.mi, j: j, line: vn + ': ' + t }); }); });
+    picked.push({ mi: c.mi, j: j, line: vn + ': ' + t,
+      why: '왜 다시: ' + (W[c.id + '#' + j] || '(이유 없음)') }); }); });   /* [LISTEN_WHY] */
   picked.sort(function (a, b) { return (a.mi - b.mi) || (a.j - b.j); });
-  picked.forEach(function (x) { out.push(x.line); });
+  picked.forEach(function (x) { out.push(x.line); if (x.why) out.push('# ' + x.why); });
   if (bad.length) alert('화자를 못 정한 클립이 있어 대본에서 뺐습니다:\\n' + bad.join('\\n') + '\\n\\n(합창처럼 여럿이 말하는 자리입니다 · 따로 알려 주세요)');
-  D.neu.forEach(function (c) { c.n.forEach(function (s) { if (V['n' + s.i] === 're') out.push(s.v + ': ' + s.t); }); });
+  D.neu.forEach(function (c) { c.n.forEach(function (s) { if (V['n' + s.i] !== 're') return;
+    out.push(s.v + ': ' + s.t);
+    out.push('# 왜 다시: ' + (W['n' + s.i] || '(이유 없음)')); }); });   /* [LISTEN_WHY] */
   $('outWrap').className = out.length ? '' : 'hide';
   $('out').value = out.join('\\n') + (out.length ? '\\n' : '');
   if (!out.length) alert('「다시」로 표시한 문장이 없습니다.'); else $('outWrap').scrollIntoView({ behavior: 'smooth' });
 };
+/* ★[LISTEN_WHY] 글칸은 **다시 그리지 않는다** — 입력 중 repaint 하면 커서가 튀고 글이 날아간다
+   (이 저장소가 마이페이지 글칸에서 겪은 것과 같은 병). 값만 담는다. */
+$('list').addEventListener('input', function (e) {
+  var t = e.target; if (!t || !t.dataset || t.dataset.w == null) return;
+  var k = t.dataset.w; if (t.value.trim()) W[k] = t.value.trim(); else delete W[k]; saveW();
+});
 $('copyOut').onclick = function () { var o = $('out'); if (!o.value) { alert('먼저 대본을 만들어 주세요.'); return; }
   o.select(); try { document.execCommand('copy'); alert('복사했습니다.'); } catch (e) {} };
 $('reset').onclick = function () { if (confirm('판정을 전부 지울까요?')) { V = {}; save(); draw(); } };
