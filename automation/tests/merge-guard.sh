@@ -5244,3 +5244,15 @@ chk 'mp-7-제작중-준비카드' scripts/audit/mypage-shot.mjs 1
 # [SEQ_MIN_BASELINE 2026-08-29] 140분 타임라인 «20 min» 록업 = 순수 인라인 흐름(flex 금지).
 #   inline-flex 베이스라인은 실기기 WebKit에서 min이 떠 보였다(사용자 스크린샷) — flex로 되돌리지 말 것.
 chk 'SEQ_MIN_BASELINE' index.html 1
+# ★★[DEPLOY_CHECK_COVER 2026-08-29 사용자 질문 "메인 최신 파일이 업로드 안 되면 저기에 체크되는 거야?"]
+#   답은 «절반만»이었다 — 파일을 통째로 안 붙이면 잡히지만, 붙였는데 **옛 내용**인 것은
+#   99_deployCheck 의 목록에 그 변경의 표식이 있을 때만 잡힌다. 목록은 사람이 짜므로 반드시 뒤처진다
+#   (실제로 8/26 판이 8/29 확정 변경을 못 잡았고, 30일 치로 재니 목록 밖 표식이 50개였다).
+#   ★그래서 «최근 7일 안에 GAS 로 들어간 표식»이 목록에 있는지 기계가 대조한다 — 앞으로 들어오는 것부터 강제.
+#     30일 치 전부를 요구하지 않는 것은 의도다: 밀린 50개를 지금 다 넣으라고 하면 게이트가 무시당한다.
+#   빠지면 붉어진다 → automation/platform/99_deployCheck.gs 의 MARKS 에 한 줄 추가하고 GAS 에도 다시 붙여넣을 것.
+if command -v node >/dev/null 2>&1; then DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL deploycheck-coverage: 최근 GAS 변경이 99_deployCheck 목록에 없다 — DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs'; fail=1; }; fi
+chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
+chk 'CF_CORE_TRUTH' automation/platform/99_deployCheck.gs 1
+chk 'platformSelfTest' automation/platform/99_deployCheck.gs 2   # ★setupAllTriggers 로 되돌리면 90_test-utils 누락이 안 잡힌다
