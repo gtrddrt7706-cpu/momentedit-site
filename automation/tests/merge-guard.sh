@@ -5231,3 +5231,13 @@ chk "track === 'confirm' ? 'final'" automation/platform/80_production.gs 1
 chk 'CF_VOID_WEDDAY' automation/platform/70_journey.gs 2
 chk 'CF_HEADS_MISSING' mypage.html 3
 chk 'FIN_NO_BLANK' mypage.html 1
+# ★[CF_WRAP_BALANCE·SHARE_BTN_WRAP·TRK_TAP44 2026-08-17 · 폭별 실측 감사]
+#   ①320px 에서 하객 안내 버튼 셋이 카드를 좌우 6px 씩 뚫고 나갔다(페이지 넘침엔 안 잡히는 종류) → flex-wrap.
+#   ②320·360·430 의 고아 줄(「05」·「공개」·「41분」·「작성됨」) → 이 화면이 이미 쓰는 text-wrap:balance 로.
+#   ③행 버튼 히트영역 44px 는 **재는 검사**로 고정 — 옛 검사는 버튼이 0개인 화면만 돌아 늘 초록이었다(죽은 검사).
+#     mypage-shot 에 '예식 준비 카드가 그려지는 케이스'를 두고, 잴 것이 0개면 통과로 세지 않는다.
+chk 'CF_WRAP_BALANCE' mypage.html 2
+chk 'SHARE_BTN_WRAP' mypage.html 1
+chk 'text-wrap:balance' mypage.html 3
+chk 'TRK_TAP44' scripts/audit/mypage-shot.mjs 4
+chk 'mp-7-제작중-준비카드' scripts/audit/mypage-shot.mjs 1
