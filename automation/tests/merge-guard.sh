@@ -3536,6 +3536,14 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 # ★불편이 아니라 **기록이 거짓이 되는 것**이다 — 옛 소리에 누른 「좋아요」가 새 소리 위에 앉는다.
 # 지문 = 클립 글 + 어조 문장 + mp3 파일 크기 + _recorded.json.
 # 실측: mp3 에 1바이트 더하면 9f7b3c6d → b0fd2b20 · 되돌리면 9f7b3c6d 로 복귀.
+# ── [NO_SOUND_SAY 2026-08-26 사용자 지시 *"한번에해 … 중간에 또작업없이"*] ──
+# 소리가 없는 자리에 「듣기」를 내밀지 않는다. 전엔 버튼이 있고 누르면 경고가 떴다 —
+# 186문장을 하나씩 눌러 봐야 알았다. 그러면 「한 번에」가 안 된다.
+# ★그리고 맨 위에 「이 판으로 되는 것 / 안 되는 것」을 **세어서** 적는다(손으로 적은 수는 언젠가 어긋난다).
+chk 'NO_SOUND_SAY' scripts/build-listen-all.mjs 4
+chk 'function hasSnd' scripts/build-listen-all.mjs 1
+chk 'function sayCanDo' scripts/build-listen-all.mjs 1
+nochk "canPlay ? '<button class=\"btn sm play\"" scripts/build-listen-all.mjs   # ★소리 유무를 안 보고 버튼 내밀던 옛 줄
 chk 'LISTEN_KEY_STAMP' scripts/build-listen-all.mjs 4
 chk 'me_listen_all_\${STAMP}' scripts/build-listen-all.mjs 1
 nochk "var KEY = 'me_listen_all_v1'" scripts/build-listen-all.mjs   # ★고정 열쇠 복원 금지 — 코드 모양으로 잡는다

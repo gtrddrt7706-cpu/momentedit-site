@@ -260,6 +260,7 @@ border-top:1px solid var(--border);padding-top:14px;font-weight:600}
 .sent.re{background:#fdf7f6}
 .sent.lock{background:#f7faf8}
 .ops{display:flex;gap:6px;flex-wrap:wrap}
+.nosnd{font-size:12px;color:var(--light);white-space:nowrap;padding:0 8px}   /* [NO_SOUND_SAY] 없는 것을 없다고 적는 자리 */
 .foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.97);border-top:1px solid var(--border);
 padding:9px 14px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap;backdrop-filter:blur(8px);z-index:30}
 textarea{width:100%;min-height:170px;font:13px/1.6 ui-monospace,Menlo,monospace;padding:10px;
@@ -273,6 +274,10 @@ border:1px solid var(--border);border-radius:9px;background:#fff}
 &nbsp;·&nbsp; <b>판 ${STAMP}</b></p>
 <p class="sub" style="color:var(--light)">[LISTEN_KEY_STAMP] 판정은 이 판(<b>${STAMP}</b>)에만 저장됩니다 &mdash; 소리나 글이 바뀌면 판이 달라져 <b>판정을 새로 받습니다</b>.<br>옛 소리에 누른 판정이 새 소리 위에 남아 있으면 그 기록은 거짓이 되기 때문입니다.</p>
 ${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_SCREEN] 폐지한 자리 <b>${RETIRED_ROWS.length}개</b>는 목록에 없습니다 &mdash; 식장에서 나지 않습니다: ${RETIRED_ROWS.join(' · ')}<br>(파일은 남겨 둡니다 &mdash; 지우면 뒤 클립 번호가 전부 밀립니다)</p>` : ''}
+
+<div class="note" id="canDo">
+  <!-- [NO_SOUND_SAY] 채워 넣는다 — 무엇이 되고 무엇이 안 되는지를 «시작 전에» 말한다 -->
+</div>
 
 <div class="note">
   <b>기존 클립</b>은 이미 예식에 나가는 완성본입니다 — 무음·음량까지 들어간 <b>실제로 들릴 소리</b>라 클립 통째로 들려 드립니다.<br>
@@ -349,10 +354,18 @@ function counts() {
    기존 클립 줄은 구간 재생이라 자기 자리에서 따로 단추를 그리므로 여기선 false 로 부른다.
    ★이름을 playUrl 로 둔 것이 화근이었다 — 「주소를 안 주면 못 튼다」로 읽혀 null 을 넣게 된다.
      canPlay 로 바꿔 «무엇을 묻는 인자인지»가 이름에 드러나게 한다. */
+/* ★★[NO_SOUND_SAY 2026-08-26 사용자 지시 *"한번에해 … 중간에 또작업없이"*]
+   소리가 없으면 「듣기」를 **내밀지 않는다.** 전에는 버튼이 그대로 있고 누르면
+   「그 자리 소리가 이 판에 없습니다」 경고가 떴다 — 사람이 **눌러 보고서야** 알았다.
+   186문장을 하나씩 눌러 확인하게 만드는 셈이라, 「한 번에」가 안 된다.
+   ★그래서 있는지를 먼저 보고, 없으면 그 자리에 «소리 없음»이라고 적는다. */
+function hasSnd(k) { return !!(k.charAt(0) === 'n' ? AN[k] : AO[k]); }
 function ops(k, canPlay) {
   var v = V[k];
+  var snd = canPlay && hasSnd(k);
   return '<div class="ops">'
-    + (canPlay ? '<button class="btn sm play" data-u="' + k + '">듣기</button>' : '')
+    + (canPlay ? (snd ? '<button class="btn sm play" data-u="' + k + '">듣기</button>'
+                      : '<span class="nosnd">소리 없음</span>') : '')
     + '<button class="btn sm' + (v === 'ok' ? ' on' : '') + '" data-v="ok" data-k="' + k + '">좋아요</button>'
     + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + k + '">다시</button></div>';
 }
@@ -410,7 +423,7 @@ function draw() {
         h += '<div class="sent' + (s.lock ? ' lock' : (v === 're' ? ' re' : '')) + '"><div class="tx"><div>' + esc(s.t) + '</div>'
           + '<div class="mi">' + esc(s.v) + (s.lock ? ' · <b style="color:var(--green)">기존 녹음을 씁니다(판정 안 함)</b>'
               : (s.old ? (' · 기존에도 있음 · ' + esc(s.old)) : '')) + '</div></div>'
-          + (s.lock ? '<div class="ops"><button class="btn sm play" data-u="' + k + '">듣기</button></div>' : ops(k, true))
+          + (s.lock ? ('<div class="ops">' + (hasSnd(k) ? '<button class="btn sm play" data-u="' + k + '">듣기</button>' : '<span class="nosnd">소리 없음</span>') + '</div>') : ops(k, true))
           + '</div>';
       });
       h += '</div>';
@@ -418,6 +431,27 @@ function draw() {
   }
   $('list').innerHTML = h || '<p class="sub">해당하는 것이 없습니다.</p>';
 }
+
+/* ★★[NO_SOUND_SAY] 「이 판으로 무엇이 되나」를 **세어서** 맨 위에 적는다.
+   ★숫자를 손으로 적지 않는다 — 판마다 달라지고, 손으로 적은 수는 언젠가 실물과 어긋난다.
+   ★사용자 지시가 «한 번에, 중간에 또 작업 없이»다. 그러려면 시작 전에 전부 알아야 한다. */
+function sayCanDo() {
+  var oldOK = 0, oldNo = 0, warn = [];
+  D.old.forEach(function (c) { if (AO[c.id]) oldOK++; else oldNo++;
+    if (c.miss) warn.push(c.id); });
+  var nTot = 0, nOK = 0;
+  D.neu.forEach(function (c) { c.n.forEach(function (x) { nTot++; if (AN['n' + x.i]) nOK++; }); });
+  var seg = D.old.filter(function (c) { return c.b; }).length;
+  var h = '<b>이 판으로 지금 할 수 있는 것</b><br>'
+    + '· 기존 나레이션·배역 <b>' + oldOK + '클립</b> — 소리가 다 들어 있습니다. 문장 단위로 건너뛰며 듣기 <b>' + seg + '클립</b>.<br>';
+  if (oldNo) h += '· 기존 클립 중 <b>' + oldNo + '개</b>는 이 판에 소리가 없습니다.<br>';
+  h += '<b>이 판으로 못 하는 것</b><br>';
+  if (nOK < nTot) h += '· 새 어조 <b>' + (nTot - nOK) + '문장</b>은 <b>소리가 없습니다</b> — 글만 보실 수 있고, 「소리 없음」이라 적어 두었습니다.<br>'
+    + '&nbsp;&nbsp;조립 전 재료라 이 저장소에 없습니다. 어조까지 들으려면 그 재료를 가진 판이 따로 필요합니다.<br>';
+  h += '· 「손으로 고르는·폴백·폐지」로 표시된 자리는 <b>식장에서 나지 않습니다</b> — 소리가 옛 말이어도 정상이니 판정하지 마세요.';
+  var e = $('canDo'); if (e) e.innerHTML = h;
+}
+sayCanDo();
 
 $('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { TAB = b.dataset.t; draw(); window.scrollTo(0, 0); } });
 $('list').addEventListener('click', function (e) {
