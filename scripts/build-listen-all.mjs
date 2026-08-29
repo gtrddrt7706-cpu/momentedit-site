@@ -43,6 +43,13 @@ const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
    ★쪼개는 것을 «기본»으로 만들지는 않는다 — 한 판으로 보고 싶은 사람이 있고,
      데스크톱에서는 그게 더 낫다. 고르게 둔다. */
 const PART = arg('--part', '');
+/* ★★[LISTEN_LIGHT 2026-08-26 사용자 지시 *"파트별? 하나로줘야지"*]
+   쪼개지 말고 **한 판**으로 주되, 폰이 감당하게 무게를 줄인다.
+   ★실청은 «무슨 말인지·어조가 맞는지»를 듣는 자리다. 음질을 최고로 둘 이유가 없다.
+     당일 나가는 소리는 assets/audio 의 원본이고, 이 판은 그걸 검수하려고 줄여 담은 사본이다.
+   ★기본을 24kbps 모노 22.05kHz 로 내린다(전 48k/32kHz). 말소리는 이 대역에서 또렷하다.
+   ★--kbps 로 올릴 수 있다 — 어조를 더 곱게 들어야 하면 그때만 올린다. */
+const KBPS = arg('--kbps', '24k');
 let bad = 0;
 const no = (m) => { console.error('✗ ' + m); bad++; };
 const die = (m, c = 2) => { console.error('✗ ' + m); process.exit(c); };
@@ -162,15 +169,15 @@ if (EMBED) {
   const enc = (src, key, bag, kbps) => {
     const o = path.join(tmp, key.replace(/[^\w.-]/g, '_') + '.mp3');
     const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-c:a', 'libmp3lame',
-      '-b:a', kbps, '-ac', '1', '-ar', '32000', o]);
+      '-b:a', kbps, '-ac', '1', '-ar', '22050', o]);
     if (r.status !== 0 || !fs.existsSync(o)) { no(`mp3 변환 실패: ${key}`); return; }
     bag[key] = fs.readFileSync(o).toString('base64');
   };
-  OLDC.forEach((c) => { const s = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') }); if (s) enc(s, c.id, A_OLD, '48k'); });
+  OLDC.forEach((c) => { const s = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') }); if (s) enc(s, c.id, A_OLD, KBPS); });
   if (fs.existsSync(STAGE)) {
     const ff = {};
     for (const f of fs.readdirSync(STAGE)) { const m = /^audio_(\d+)_/.exec(f); if (m) ff[+m[1]] = f; }
-    for (const [i, f] of Object.entries(ff)) enc(path.join(STAGE, f), 'n' + i, A_NEW, '48k');
+    for (const [i, f] of Object.entries(ff)) enc(path.join(STAGE, f), 'n' + i, A_NEW, KBPS);
     /* [USE_EXISTING] 입장 자리는 기존에서 잘라 온 것으로 덮는다 */
     let cut = 0;
     NEWC.forEach((c) => { const from = EXFROM(c.slug); if (!from) return;

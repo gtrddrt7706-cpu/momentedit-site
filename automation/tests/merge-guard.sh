@@ -3549,6 +3549,14 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 #   ★화면 탓이 **아님**을 먼저 쟀다: 390px 헤드리스에서 클립 160·문장 495 그려지고 pageerror 0.
 #   그래서 --part 로 쪼갤 길을 연다(1.0~2.2MB). 쪼갠 판은 지문이 달라 판정이 안 섞인다.
 #   ★어조는 파트가 없어 안 빼면 **모든 파트 판에 딸려 온다**(실측: 1_안내 가 13이 아니라 76클립).
+# ── [LISTEN_LIGHT 2026-08-26 사용자 지시 *"파트별? 하나로줘야지"*] ──
+# 쪼개지 말고 **한 판**으로 주되 폰이 감당하게 무게를 줄인다. 48k/32kHz → 24k/22.05kHz.
+# 실측: 8.5MB → 4.3MB · 390px 로드 4.8초 · pageerror 0 · 첫 클립 디코드 17.6초 정상.
+# ★실청은 «무슨 말인지·어조가 맞는지»를 듣는 자리다. 당일 나가는 소리는 assets/audio 원본이고
+#   이 판은 그걸 검수하려고 줄여 담은 사본이다. 더 곱게 들어야 하면 --kbps 로 올린다.
+chk 'LISTEN_LIGHT' scripts/build-listen-all.mjs 1
+chk "arg('--kbps'" scripts/build-listen-all.mjs 1
+nochk "'-ar', '32000'" scripts/build-listen-all.mjs
 chk 'LISTEN_WHY' scripts/build-listen-all.mjs 7
 chk 'LISTEN_SPLIT' scripts/build-listen-all.mjs 3
 chk 'function whyBox' scripts/build-listen-all.mjs 1
