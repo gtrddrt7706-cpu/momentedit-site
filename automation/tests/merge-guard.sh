@@ -5211,3 +5211,23 @@ chk 'XR_SIGNAL_KEEP' automation/platform/80_production.gs 1
 chk 'XR_STAGE_GUARD' automation/platform/80_production.gs 1
 # [SURVEY_ONCE] 설문 재제출 멱등 — 응답 덮어쓰기·커피쿠폰 리마인드 메일 중복 방지.
 chk 'SURVEY_ONCE' automation/platform/80_production.gs 1
+# ★[CF_FOCUS 2026-08-17 자체 점검] 확정 직후 포커스가 body 로 날아가 낭독기 사용자에겐 아무 일도 안 일어났다.
+#   새로 생긴 기록 카드로 옮긴다(빌더 [ORD_STEPFOCUS] 와 같은 처방) · tabindex=-1 이라 Tab 순서엔 안 낀다.
+#   ★:focus 테두리는 반드시 꺼 둘 것 — 프로그램 포커스는 :focus-visible 을 켜서, 가장 조용해야 할 기록이 외친다.
+chk 'CF_FOCUS' mypage.html 2
+chk 'aria-labelledby="mpModalTitle"' mypage.html 1
+# ★★[확정 흐름 적대검증 2026-08-17 · 실제 .gs 샌드박스] 화면·서버 양쪽에 안전망을 걸었다. 되돌리지 말 것.
+#   ①CF_CORE_TRUTH — 확정은 트랙 딱지가 아니라 **실값**(1~30명)을 본다. 손상 컬럼도 confirm 에서 격리 판정('final').
+#     그러지 않으면 「하객 -명 · 추가 0원」짜리 빈 도장이 찍히고 잔금 15만 원이 조용히 사라진다(실측).
+#   ②CF_ONCE — 같은 상태의 두 번째 확정은 첫 기록을 그대로 돌려준다(두 탭이 각각 눌러도 기록·메일 1회).
+#   ③CF_LOG — 처리이력 + 관리자 메일에 핵심 수치. 면책 문서인데 되짚을 근거가 없었다.
+#   ④CF_VOID_WEDDAY — 예식일이 바뀌면 확정이 풀린다(옛 날짜에 찍은 도장이 새 날짜 위에 남던 것).
+#   ⑤CF_HEADS_MISSING·FIN_NO_BLANK — 화면도 같은 잣대. 인원이 비면 확정 버튼을 세우지 않고,
+#     빈 초안을 서버로 보내 저장된 인원을 지우지 않는다.
+chk 'CF_CORE_TRUTH' automation/platform/80_production.gs 2
+chk 'CF_ONCE' automation/platform/80_production.gs 1
+chk 'CF_LOG' automation/platform/80_production.gs 1
+chk "track === 'confirm' ? 'final'" automation/platform/80_production.gs 1
+chk 'CF_VOID_WEDDAY' automation/platform/70_journey.gs 2
+chk 'CF_HEADS_MISSING' mypage.html 3
+chk 'FIN_NO_BLANK' mypage.html 1

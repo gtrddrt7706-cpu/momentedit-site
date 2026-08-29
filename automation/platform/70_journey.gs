@@ -1037,11 +1037,20 @@ function adminConfirmWeddingChange(code) {
     //   buildProductionState(80)·_ensureProductionBase(85 발행 promote)가 옛 base.weddingDate/Time을
     //   우선해 청첩장·식순·다이닝 도착시간이 옛 일시로 남는 것 방지(시간은 계약 슬롯→본예식 +1h 매핑).
     var prod = _prodLoad(cust);   // PROD_ACCESSOR
+    var _oldWedD = String(((prod || {}).base || {}).weddingDate || '');   // [CF_VOID_WEDDAY] 갈아 끼우기 전 날짜 — 실변경일 때만 확정을 푼다
     var _prodSyncFail = '';   // [A급1] 제작 동기화 실패를 조용히 넘기지 않는다(아래 관리자 통지·처리이력)
     if (prod && prod.base) {
       prod.base.weddingDate = req.to.date;
       var mapT = ({ '09:00': '10:00', '12:20': '13:20', '15:40': '16:40' })[String(req.to.slot || '').trim()];
       if (mapT) prod.base.weddingTime = mapT;
+      /* ★★[CF_VOID_WEDDAY 2026-08-17 · 샌드박스 적대검증이 잡음] 예식일이 바뀌면 **확정은 풀린다.**
+         옛 판은 여기서 base 만 갈아 끼우고 확정 기록은 그대로 뒀다. 그래서 확인서 첫 줄은 새 날짜로 다시
+         그려지는데, 그 아래 도장은 **옛 날짜에 찍은 것**이 남아 "위 내용으로 확정하셨어요"라고 말했다(실측).
+         부부는 새 날짜를 확정한 적이 없다 — 면책 문서로서 가장 나쁜 종류의 거짓말이다.
+         ★대칭도 맞춘다: 고객이 제 이름을 고치면 이미 풀린다(80_production.gs:65 기초정보 실변경).
+           예식일이 통째로 바뀌는데 안 풀릴 이유가 없다.
+         ★날짜가 실제로 달라졌을 때만 — 같은 날짜로 재승인하는 경우까지 풀지 않는다. */
+      if (prod.confirm && String(_oldWedD || '') !== String(req.to.date || '') && typeof _prodConfirmVoid === 'function') _prodConfirmVoid(prod);
       // ★[A급1 · PROD_COL_SPLIT] 예식일 변경 '자체'는 성공해야 하므로 여기서 return하지 않는다.
       //   대신 제작 base 동기화만 실패한 것을 잡아 관리자에게 알린다 — 이걸 삼키면 톱레벨 예식일만 바뀌고
       //   prod.base는 옛 일시로 남아 청첩장·식순·다이닝 도착시간이 옛 날짜로 도는, 바로 위 주석이 막으려던 사고가 난다.

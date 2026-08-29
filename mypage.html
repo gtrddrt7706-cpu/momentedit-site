@@ -1293,6 +1293,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
        도장은 **하나**여야 도장이다: 선을 걷고 배지만 남긴다. 카드는 흰 면 + 헤어라인으로 조용히 받친다
        (회색 패널 위 흰 카드라 경계는 이미 충분하다 · 여백이 살아난다). 선을 되살리지 말 것. */
     .cf-seal{margin-top:12px;background:var(--card-white,#fff);border:1px solid var(--hairline,#E6E1D8);border-radius:9px;padding:14px 16px;text-align:left}
+    /* [CF_FOCUS] 프로그램 포커스(tabindex=-1)는 :focus-visible 을 켠다 — 확정 직후 카드에 테두리가 그려지면
+       가장 조용해야 할 기록이 갑자기 외친다(식순 빌더 [ASK_FOCUS_BOX] 에서 같은 사고를 겪었다).
+       낭독기에는 그대로 읽히고, 눈에는 아무 변화가 없게 한다. */
+    .cf-seal:focus,.cf-seal:focus-visible,.cf-warn:focus,.cf-warn:focus-visible{outline:none}
     .cf-seal-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .cf-seal-mk{flex:0 0 auto;background:var(--seal);color:#FAFAF8;font-size:11px;font-weight:600;letter-spacing:.04em;border-radius:4px;padding:3px 7px}
     .cf-seal-at{font-family:var(--serif-ko);font-size:14px;color:var(--accent);word-break:keep-all}
@@ -1398,7 +1402,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .cc-btn-ghost{position:relative}
 .cc-btn-ghost::after{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px}
 </style>
-    <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
+    <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true" aria-labelledby="mpModalTitle"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
     <!-- 카카오톡 문의는 우측 중앙 AI 상담 위젯 안으로 이동(드로어 하단 상시 링크 + 에스컬레이션) -->
     <div class="foot-actions"><a id="mp_logout"><span>로그아웃</span></a></div>
@@ -4344,7 +4348,15 @@ function renderProduction(p, inv){
   try{
     var _cfWant = window._cfScroll || (p.confirmStale && !window._cfStaleSeen);
     if(_cfWant){ window._cfScroll=false; if(p.confirmStale) window._cfStaleSeen=true;
-      var _cp=$('mp_cfPanel'); if(_cp && _cp.style.display!=='none') setTimeout(function(){ try{ _cp.scrollIntoView({block:'center'}); }catch(e){} }, 60); }
+      /* ★[CF_FOCUS 2026-08-17 자체 점검] 스크롤만으로는 **낭독기 사용자에게 아무 일도 안 일어난다.**
+         확정을 누르면 화면이 통째로 다시 그려지는데 포커스는 body 로 날아가 있었다(실측).
+         빌더의 [ORD_STEPFOCUS] 와 같은 처방 — 새로 생긴 기록 카드로 포커스를 옮겨 그 내용을 읽게 한다.
+         ★tabindex=-1 은 Tab 순서에 끼지 않는다(마우스 사용자에겐 아무 변화 없음) · 테두리는 안 그린다. */
+      var _cp=$('mp_cfPanel'); if(_cp && _cp.style.display!=='none') setTimeout(function(){
+        try{ _cp.scrollIntoView({block:'center'}); }catch(e){}
+        try{ var _sc=_cp.querySelector('.cf-seal')||_cp.querySelector('.cf-warn');
+          if(_sc){ _sc.setAttribute('tabindex','-1'); _sc.focus({preventScroll:true}); } }catch(e){}
+      }, 60); }
   }catch(e){}
   if(p.guideToken && !_guideLinkClosed(p.base)){ wireGuideShare(box, p.guideToken); }
   // 행 버튼 → 바로 아래 패널 토글(내용 확인)
@@ -7217,9 +7229,19 @@ function prodConfirmHtml(p, inv){
     });
   }
   // 좌석 배치 인원 ↔ 최종 확정 인원 대조(표시만 · 값 안 건드림) — 좌석은 마지막 주에 그리므로 확정과 어긋난 채 예식을 맞는 것 방지(2026-07-18 검토 반영)
-  if(_sDone && _fDone && sd.tables && fd.headcount){
+  /* ★★[CF_HEADS_MISSING 2026-08-17 · GAS 샌드박스 적대검증이 잡음] 이 대조는 `fd.headcount` 가 **있어야만** 켜졌다 —
+     그래서 **인원이 통째로 비어 있는**(가장 망가진) 상태에서 스스로 침묵했다.
+     실측 재현: 제작_final 셀이 손상되면 서버는 그 트랙 저장을 거부하는데(고객은 그 사실을 모른다)
+     메타의 `tracks.final` 은 '완료'로 살아 있어, 화면은 좌석에서 파생해 「하객 28명 · 추가 150,000원」을 그리고
+     서버 기록(core)·잔금·관리자 화면은 「-명 · 0원」이 된다. 돈과 확정서가 동시에 빈다.
+     ★그래서 조건을 뒤집는다 — **저장된 인원이 없는데 좌석엔 사람이 있으면** 그것부터 말한다.
+       숫자 불일치 경고는 종전대로. 되돌리지 말 것(값이 없을 때 꺼지는 안전망은 안전망이 아니다). */
+  if(_sDone && sd.tables){
     var _pl=_seatPlacedCount(sd.tables), _hn=parseInt(fd.headcount,10)||0;
-    if(_pl>0 && _hn>0 && _pl!==_hn) L+='<div class="cf-warn">좌석 배치 '+_pl+'명 · 적어 두신 인원 '+_hn+'명 · 숫자가 달라요. 자리 없이 함께하는 분이 있다면 그대로 두셔도 돼요.</div>';
+    if(_pl>0 && _fDone && !fd.headcount)
+      L+='<div class="cf-warn">자리에 '+_pl+'명이 있는데 인원이 저장되지 않았어요 · 「좌석 · 음료」를 한 번 열었다 저장해 주세요. 그래도 그대로면 디렉터에게 알려 주세요.</div>';
+    else if(_pl>0 && _hn>0 && _pl!==_hn)
+      L+='<div class="cf-warn">좌석 배치 '+_pl+'명 · 적어 두신 인원 '+_hn+'명 · 숫자가 달라요. 자리 없이 함께하는 분이 있다면 그대로 두셔도 돼요.</div>';
   }
   L+=line('하객 안내', p.guideToken?'링크 준비됨':'');
   // 확인 상태·버튼 — 판정은 _cfOk 하나로. 마감 입력은 각 소속 화면으로 이동(예약=다이닝 위저드 · 자리 찾기=좌석 편집기 · 2026-07-17 사용자 지시) → 확인서는 순수 요약+확인만
@@ -7257,7 +7279,9 @@ function prodConfirmHtml(p, inv){
        ★[FIN_DRINK_FILL]이 들어간 뒤로는 파생 저장이 실제로 통과하므로 `_fDone`이 정상적으로 선다.
          그래도 두 가지 창은 남는다 — ①치유 저장이 오가는 몇 초 ②30명 초과(서버가 정말로 거절).
          그 둘은 아래에서 **다른 말로** 안내한다. 「좌석·음료를 마치세요」는 그 경우 거짓말이다. */
-    var _need=[]; if(!_rDone) _need.push('식순'); if(!_fDone) _need.push('좌석 · 음료');
+    /* ★[CF_HEADS_MISSING] `_fHas` 로 본다 — 트랙 딱지(_fDone)만이 아니라 **저장된 인원이 실제로 있는가**.
+       서버는 이 상태에서도 확정을 통과시키고 core 를 빈 채로 남긴다(샌드박스 실측) — 화면이 먼저 막는다. */
+    var _need=[]; if(!_rDone) _need.push('식순'); if(!_fHas) _need.push('좌석 · 음료');
     var _over=(_named>MP_FINAL_POLICY.max);
     if(!_need.length) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용으로 확정합니다</button>'
       +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">누르신 날짜와 시각이 함께 기록돼요 · 저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span></div>';
@@ -7266,9 +7290,11 @@ function prodConfirmHtml(p, inv){
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">아직 남은 것 · '+_need.map(function(n){ return '<b>「'+n+'」</b>'; }).join(' ')
       +'<br>다 마치면 여기에서 한 번에 확정하실 수 있어요 · 섹션마다 따로 확인하지 않으셔도 돼요.'
       /* 좌석·음료가 남았을 때의 이유는 **세 가지가 다르다.** 한 문장으로 뭉뜽그리면 그중 둘에게 거짓말이 된다. */
-      +((!_fDone&&_over)?'<br>하객이 '+MP_FINAL_POLICY.max+'명을 넘어요 · 디렉터와 함께 조정한 뒤 확정할 수 있어요.'
-        :(!_fDone&&_fLive)?'<br>「좌석 · 음료」 내용을 저장하는 중이에요 · 잠시 뒤 새로고침하면 확정하실 수 있어요.'
-        :(!_fDone&&_sDone)?'<br>「좌석 · 음료」는 자리에 이름을 넣으면 인원이 정해지며 완료돼요.':'')+'</span></div>';
+      /* [CF_HEADS_MISSING] 갈래 판정도 `_fHas` 기준으로 — 위 게이트와 같은 잣대를 쓴다(다르면 또 갈린다).
+         「인원이 저장되지 않았어요」는 위 대조 경고가 이미 자세히 말하므로 여기선 되풀이하지 않는다. */
+      +((!_fHas&&_over)?'<br>하객이 '+MP_FINAL_POLICY.max+'명을 넘어요 · 디렉터와 함께 조정한 뒤 확정할 수 있어요.'
+        :(!_fHas&&_fLive)?'<br>「좌석 · 음료」 내용을 저장하는 중이에요 · 잠시 뒤 새로고침하면 확정하실 수 있어요.'
+        :(!_fHas&&_sDone)?'<br>「좌석 · 음료」는 자리에 이름을 넣으면 인원이 정해지며 완료돼요.':'')+'</span></div>';
   }
   return '<div id="cf_wrap">'+L+C+'</div>';   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 }
@@ -7483,6 +7509,13 @@ function _finDrinkFrom(tables){
 function _seatFinSave(){ try{ if(!SEATFLOW) return Promise.resolve(null); var n=_seatNamedCount(), P=MP_FINAL_POLICY; var fd=SEATFLOW.fd||(SEATFLOW.fd={});
   if(n){ fd.headcount=String(n); fd.standing=Math.max(0,n-P.seats); fd.extraFee=fd.standing*P.unit; }
   if(n && !String(fd.drink||'').trim()) fd.drink=_finDrinkFrom(SEATFLOW.tables);   // [FIN_DRINK_FILL] 비었을 때만 · 마지막 키로
+  /* ★★[FIN_NO_BLANK 2026-08-17 · GAS 샌드박스 적대검증이 잡음] **빈 초안을 보내지 않는다.**
+     서버의 인원·음료 검증은 `body.done` 안에만 있고, 트랙이 이미 '완료'면 done:false 저장으로 내려가지 않는다.
+     그래서 이름을 전부 지운 상태(n=0)에서 `fd` 가 비어 있으면, 화면은 아무 말도 안 하는데
+     서버의 `finalDraft.headcount` 만 빈 문자열로 덮여 **확정서 core·잔금 추가요금이 조용히 0이 된다**(실측).
+     ★보낼 값이 없으면 안 보내는 것이 옳다 — 없는 근거로 있는 값을 지우지 않는다([SEAT_ROW_TRUTH] 와 같은 원칙).
+     ★n>0 이면 종전대로 보낸다(그때는 지울 것이 아니라 새로 정한 값이 있다). */
+  if(!n && !String(fd.headcount||'').trim()) return Promise.resolve(null);
   /* ★[FIN_SAVE_LOUD] 이 저장은 인원·추가요금(돈)의 유일한 기록인데, 실패가 완전히 조용했다 —
      그래서 이번 사고가 3주를 살았다. 고객 화면을 어지럽히지 않되 **흔적은 남긴다**(콘솔 · 개발자 도구).
      화면 쪽 안전망은 따로 있다: [SEAT_TRUTH_ONE] 표시 · [SEAT_FIN_HEAL] 다음 진입 때 재시도. */
