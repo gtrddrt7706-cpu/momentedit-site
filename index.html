@@ -1899,14 +1899,18 @@ section:not(#rsvp) > *:last-child {
   color: var(--gold-text);
   line-height: 1;
   padding-top: 4px;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
+  /* [SEQ_MIN_BASELINE 2026-08-29 사용자 지적 «min이 조금 위로 올라가있어»] 숫자+단위는
+     flex가 아니라 순수 인라인 흐름으로 조판한다. inline-flex + align-items:baseline 은
+     크로뮴에선 정확했지만 실기기(WebKit)에서 min 이 숫자 베이스라인 위로 떠 보였다 —
+     flex 항목의 베이스라인 계산은 엔진별로 갈리는 유일한 지점이고, 인라인 텍스트의
+     vertical-align:baseline 은 어느 엔진에서도 같은 결과다. gap:4px 은 span margin-left 로 대체. */
+  display: block;
 }
 .seq-time span {
   font-size: 12px;
   color: var(--light);
   letter-spacing: 0.04em;
+  margin-left: 4px;
 }
 /* ★[WAVE_SOFT 2026-08-10] '약' 접두 폐지 — 사용자 지적 *"약은 빼자 모양이 틀어져"*.
    붙였더니 그 두 줄만 숫자가 오른쪽으로 밀려 **다섯 줄의 왼끝이 어긋났다**(390px 실렌더).

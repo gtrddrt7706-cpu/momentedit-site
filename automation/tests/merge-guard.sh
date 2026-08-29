@@ -5241,3 +5241,6 @@ chk 'SHARE_BTN_WRAP' mypage.html 1
 chk 'text-wrap:balance' mypage.html 3
 chk 'TRK_TAP44' scripts/audit/mypage-shot.mjs 4
 chk 'mp-7-제작중-준비카드' scripts/audit/mypage-shot.mjs 1
+# [SEQ_MIN_BASELINE 2026-08-29] 140분 타임라인 «20 min» 록업 = 순수 인라인 흐름(flex 금지).
+#   inline-flex 베이스라인은 실기기 WebKit에서 min이 떠 보였다(사용자 스크린샷) — flex로 되돌리지 말 것.
+chk 'SEQ_MIN_BASELINE' index.html 1
