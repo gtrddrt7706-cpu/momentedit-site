@@ -236,11 +236,28 @@ function handleSignContract(body) {
     if (sentAt && Date.now() > sentAt.getTime() + CONTRACT.서명기한시간 * 3600 * 1000) {
       return { ok: false, expired: true, error: '서명 기한이 지났습니다. 디렉터에게 다시 요청해 주세요.' };
     }
-    // 예식 슬롯 점유 가드 — 서명=점유 확정. 같은 예식일·슬롯을 다른 서명완료 고객이 선점했으면 차단(더블부킹 0·시그니처).
+    // 예식 슬롯 점유 가드 — 서명=점유 확정. 같은 예식일·슬롯을 다른 서명완료 고객이 선점했으면 차단(더블부킹 0·
     if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅') {
       var _rec0 = _parseJsonSafe(cust.get('동의기록'));
       var _wY = _ymdOf(cust.get('예식일')), _wT = (_rec0.계약정보 && _rec0.계약정보.weddingTime) || '';
-      if (_wY && _wT && _weddingSlotTaken(sheet, colOf, _wY, _wT, code)) {
+      /* ★★[SIGN_SLOT_REQUIRED 2026-08-26 더블부킹 점검 S1] 시그니처는 예식일·시간이 **둘 다** 있어야 서명된다.
+         종전엔 `_wY && _wT &&` 라 — 값이 비면 **가드가 통째로 건너뛰고**, 서명완료가 되어도
+         _weddingOccupancy(327행)가 t 없음으로 점유 null 을 돌려줬다. 즉 계약이 끝난 부부가
+         아무 슬롯도 점유하지 않아, 다른 팀이 같은 날·같은 타임으로 요청→승인→서명까지 **아무 경고 없이**
+         완주할 수 있었다 — 튕기는 사람조차 없는 유일한 «침묵의 더블부킹» 경로였다.
+         진입로: 옛 고객 fallback(admin.gs 1443~ · 계약정보 없이 예식일만으로 발송) + 발송 모달에서 시간 비움.
+         ★«한 타임 한 팀»이 이 스튜디오의 정체성이다 — 시간 없는 시그니처 계약은 성립시키지 않는다. */
+      if (!_wY || !_wT) {
+        try { _recordHandler(code, '서명 차단 — 예식 시간 미확정(슬롯 점유 불가 상태)'); } catch (e) {}
+        try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[서명 차단] ' + code + ' — 예식일/시간이 비어 서명을 막았습니다. 발송 모달에서 예식일·시간을 채워 재발송해 주세요.'); } catch (e) {}
+        return { ok: false, error: '예식 시간이 아직 확정되지 않았어요. 디렉터가 확인 후 다시 안내드릴게요.' };
+      }
+      if (_weddingSlotTaken(sheet, colOf, _wY, _wT, code)) {
+        /* ★[SIGN_BOUNCE_ALERT 2026-08-26 S5] 늦은 서명자가 튕길 때 — 고객에게는 «디렉터가 다른 시간을
+           안내드릴게요»라고 약속하면서 **디렉터는 이 사건을 모르는** 상태였다(이력·알림 0).
+           약속을 코드가 지키게 한다: 처리이력 + 관리자 메일. */
+        try { _recordHandler(code, '서명 튕김 — ' + _wY + ' ' + _wT + ' 슬롯이 먼저 선점됨(다른 시간 안내 필요)'); } catch (e) {}
+        try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[서명 튕김] ' + code + ' — ' + _wY + ' ' + _wT + ' 이 방금 마감되어 서명이 거절됐습니다. 고객에게 다른 시간을 안내해 주세요(고객 화면에 그렇게 약속되어 있습니다).'); } catch (e) {}
         return { ok: false, error: '선택하신 예식 시간이 방금 마감됐어요. 디렉터가 다른 시간을 안내드릴게요.' };
       }
     }

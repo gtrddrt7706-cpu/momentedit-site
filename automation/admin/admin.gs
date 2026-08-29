@@ -923,6 +923,21 @@ function adminHome() {
       } else if (rs === '컨펌완료') {
         pushQ({ code: code, names: names, product: product, kind: '결과물전달', sub: '고객 컨펌 완료 · 결과물 전달', badge: { level: 'yellow', text: '컨펌 완료' }, _urgent: false, _stage: 7, _wait: createdYmd });
       }
+      /* ★★[REVISION_QUEUE 2026-08-26 결과물 여정 점검 #1] 수정요청은 «운영자 액션»이다 — 큐에 띄운다.
+         종전엔 컨펌대기가 통째로 «고객 대기»로 큐 제외였는데, 그 상태에서 들어오는 수정요청은
+         정반대다: 접수되는 순간 고객은 컨펌도(1419) 재요청도(1450) 못 하게 잠기고,
+         관리자 쪽 신호는 메일 1통뿐이었다 — 놓치면 **무기한 침묵**이 구조적으로 가능했다.
+         고객이 잠겨 있는 상태라 노란 배지로 눈에 걸리게 한다. */
+      else if (rs === '컨펌대기') {
+        try {
+          var _rvHist = (_crRec.수정요청이력 || []);
+          var _rvLast = _rvHist.length ? _rvHist[_rvHist.length - 1] : null;
+          if (_rvLast && String(_rvLast.status || '') === '대기') {
+            pushQ({ code: code, names: names, product: product, kind: '수정요청', sub: '보정 수정 요청 처리 · 고객이 답을 기다려요',
+              badge: { level: 'yellow', text: '고객 잠김' }, _urgent: false, _stage: 6, _wait: createdYmd });
+          }
+        } catch (e) {}
+      }
       // rs === '원본전달'(고객 선택 대기) · '컨펌대기'(고객 컨펌 대기) → 운영자 액션 없음 → 큐 제외(보드·현황에만)
       // 결과물 관리 보드 — 결과물전달(아카이브) 전까지 모든 결과물 단계 고객을 한곳에.
       resultsList.push({
@@ -1477,6 +1492,20 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   if (wT && WEDDING_SLOT.SLOTS.indexOf(wT) !== -1) {          // 예식 슬롯 반영(고객 요청분 확정 또는 관리자 변경)
     var _rec = _parseJsonSafe(cust.get('동의기록')); _rec.계약정보 = _rec.계약정보 || {};
     _rec.계약정보.weddingTime = wT; if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) _rec.계약정보.weddingDate = wed;
+    /* ★★[SEND_HOLD_SYNC 2026-08-26 더블부킹 점검 S2·S3] 발송하는 슬롯을 **가예약이 따라간다.**
+       ①관리자가 발송 모달에서 슬롯을 바꾸면(가장 흔한 운영 동작) 종전엔 가예약이 옛 슬롯에 남아
+         **새 슬롯이 서명 순간까지 무주공산**이었다 — 하루 세 팀이 붐비는 날 두 팀 동시 발송이 실제로 난다.
+       ②가예약 만료(+14일)가 계약 발송·72h 서명 창과 연동돼 있지 않아, 요청 15일째에 발송하면
+         유효한 계약서를 손에 든 부부가 서명에서 튕길 수 있었다 — 발송 시 만료를 **서명 창 이후**까지 민다.
+       ★가예약이 없던 발송(옛 고객 fallback)에도 여기서 만들어 준다 — 발송 순간부터 슬롯이 잠긴다. */
+    if (/^\d{4}-\d{2}-\d{2}$/.test(wed)) {
+      var _sExp = new Date(); _sExp.setDate(_sExp.getDate() + 5);   // 72h 서명 창 + 여유 2일
+      var _sExpYmd = _kstYmd(_sExp);
+      if (!_rec.가예약) _rec.가예약 = {};
+      _rec.가예약.date = wed; _rec.가예약.slot = wT;
+      if (_rec.가예약.status !== '계약전환') _rec.가예약.status = '승인';
+      if (!_rec.가예약.expires || _ymdNum(_rec.가예약.expires) < _ymdNum(_sExpYmd)) _rec.가예약.expires = _sExpYmd;
+    }
     upd['동의기록'] = JSON.stringify(_rec);
   }
   touchCustomer(sheet, colOf, cust.num, upd);
@@ -2541,6 +2570,13 @@ function adminCloseFitting(code) {
 // [임시고정] 예식일 가예약 승인 — 요청 → 승인(점유 확정·14일 후 자동해제). 승인 직전 슬롯 재확인(더블부킹 0).
 function adminGrantWeddingHold(code) {
   _requireAdmin();
+  /* ★★[HOLD_LOCK 2026-08-26 더블부킹 점검 S4] 이 함수와 아래 거절 함수만 락 밖에 있었다.
+     승인이 동의기록 스냅샷을 읽고(아래) 다시 통째로 쓰는 사이에 고객 서명(handleSignContract · 같은
+     ScriptLock 계열)이 끼면, 서명이 남긴 동의기록.계약(손글씨 저장 여부·효력 해시·문서 버전)이
+     **스냅샷 덮어쓰기로 소멸**한다 — 계약상태 컬럼만 서명완료로 남아 분쟁 시 서명 증적이 없다.
+     다른 관리자 함수는 전부 _adminLock() 을 쓴다. 이 락을 빼지 말 것. */
+  var _hl = _adminLock(); if (!_hl) return { ok: false, error: _LOCK_BUSY };
+  try {
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -2557,10 +2593,13 @@ function adminGrantWeddingHold(code) {
   _recordHandler(code, '예식일 임시고정 승인 · ' + hold.date + ' ' + hold.slot);
   notifyKakao('cust.holdGranted', code, { date: hold.date, slot: hold.slot });
   return { ok: true };
+  } finally { try { _hl.releaseLock(); } catch (e) {} }   // [HOLD_LOCK]
 }
 // [임시고정] 예식일 가예약 거절/해제 — 동의기록.가예약 제거 + 고객 안내.
 function adminDeclineWeddingHold(code) {
   _requireAdmin();
+  var _hl = _adminLock(); if (!_hl) return { ok: false, error: _LOCK_BUSY };   // [HOLD_LOCK] 승인과 같은 이유 — 스냅샷 덮어쓰기로 서명 기록이 소멸하는 것 방지
+  try {
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -2574,6 +2613,7 @@ function adminDeclineWeddingHold(code) {
   _recordHandler(code, '예식일 임시고정 거절/해제 · ' + (_d || '') + ' ' + (_s || ''));
   notifyKakao('cust.holdReleased', code, { date: _d, slot: _s });
   return { ok: true };
+  } finally { try { _hl.releaseLock(); } catch (e) {} }   // [HOLD_LOCK]
 }
 
 // 7. ★노쇼 처리 — 상담확정/촬영확정 → 현재단계=노쇼 (자체 멱등·직접 쓰기·캘린더/메일/상담예약 안 건드림)

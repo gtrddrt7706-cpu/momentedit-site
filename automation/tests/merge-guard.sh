@@ -5183,3 +5183,31 @@ chk 'OLD_SIGNER_TERMS' automation/platform/70_journey.gs 1
 chk 'OLD_SIGNER_TERMS' automation/consultation/consultation-booking.gs 1
 chk 'OLD_SIGNER_TERMS' automation/tests/refund-quote.test.js 2
 chk '0원으로 숨지 않는다' automation/tests/refund-quote.test.js 1
+# ★★[SLOT_OCC 2026-08-26] 예식 슬롯 점유 의미 일곱 가지 고정 — «한 타임 한 팀»의 판정부.
+#   실측 전부 올바름 · 이 검사는 그 상태를 지킨다(취소·만료 홀드·예식일 변경 시 슬롯이 풀리는 것 포함).
+if command -v node >/dev/null 2>&1; then node scripts/audit/slot-occupancy.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL slot-occupancy: 예식 슬롯 점유 판정이 바뀌었습니다(더블부킹/유령점유 위험) — node scripts/audit/slot-occupancy.mjs'; fail=1; }; fi
+chk 'SLOT_OCC' scripts/audit/slot-occupancy.mjs 1
+# ★★[2026-08-29 시뮬레이션 병렬 점검 라운드 — 계약·상담·결과물 서버 가드 11건]
+# [SIGN_SLOT_REQUIRED] 예식일·시간이 비면 서명을 막는다 — 비면 슬롯 가드가 통째로 건너뛰어 침묵의 더블부킹.
+chk 'SIGN_SLOT_REQUIRED' automation/platform/70_journey.gs 1
+# [SIGN_BOUNCE_ALERT] 서명 튕김(방금 마감)은 처리이력+관리자 메일 — 디렉터가 모르던 사건이었다.
+chk 'SIGN_BOUNCE_ALERT' automation/platform/70_journey.gs 1
+# [SEND_HOLD_SYNC] 계약서 발송 슬롯이 가예약 홀드를 따라간다(만료 연장 포함) — 발송·홀드가 서로 달라 마감 오판.
+chk 'SEND_HOLD_SYNC' automation/admin/admin.gs 1
+# [HOLD_LOCK] 가예약 승인·거절은 락 안에서 — 동의기록(서명 증빙) 동시 쓰기 유실 방지.
+chk 'HOLD_LOCK' automation/admin/admin.gs 4
+# [REVISION_QUEUE] 보정 수정 요청 대기(컨펌대기+수정요청이력 대기)를 관리자 처리할 일 큐에 띄운다 — 고객 잠김 방치 방지.
+chk 'REVISION_QUEUE' automation/admin/admin.gs 1
+# [ACCEPT_GUARDED] 상담 변경제안 수락 = 제안 상태에서만·락·슬롯 재검증(_slotTaken(nd,nt,row.num) 인자 순서 주의)·제안 셀 청소.
+chk 'ACCEPT_GUARDED' automation/consultation/consultation-booking.gs 2
+# [PAST_SLOT_REJECT] 지난 날짜·오늘 지난 시간은 서버가 거절 — normalizeDateKey 비패딩이라 숫자 비교 필수(문자열 비교 금지).
+chk 'PAST_SLOT_REJECT' automation/consultation/consultation-booking.gs 1
+# [PICK_MAX_MANUAL] 수동 입력 컷 제출도 PICK_MAX(400) 상한 — 짧은 토큰이면 글자 상한만으론 수천 컷 통과.
+chk 'PICK_MAX_MANUAL' automation/platform/80_production.gs 1
+# [XR_SIGNAL_KEEP] 추가보정 «결제대기» 중 재신청 거부 + 재신청 시 낡은 입금자명 청소 — 입금 신호 증발 방지.
+chk 'XR_SIGNAL_KEEP' automation/platform/80_production.gs 1
+# [XR_STAGE_GUARD] 추가보정 입금신호도 결과물 단계에서만 — 강제이동 뒤 유령 신호 차단.
+chk 'XR_STAGE_GUARD' automation/platform/80_production.gs 1
+# [SURVEY_ONCE] 설문 재제출 멱등 — 응답 덮어쓰기·커피쿠폰 리마인드 메일 중복 방지.
+chk 'SURVEY_ONCE' automation/platform/80_production.gs 1
