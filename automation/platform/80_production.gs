@@ -523,13 +523,34 @@ function handleSaveProductionTrack(body) {
     if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 제작 단계가 없습니다.' };
     if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 제작 단계가 아닙니다.' };
     var _cm = _prodColsMissingError(colOf, code, _notifyQ); if (_cm) return _cm;   // [A-1] 컬럼 미생성 상태에서의 무증상 유실 차단
-    var _dl = _prodDraftLoadSafe(cust, code, _notifyQ, (track === 'confirm' ? '' : track)); if (!_dl.ok) return _dl.res;   // 손상 컬럼 위 저장 금지(이번 트랙만 격리 판정 · confirm은 메타만 씀) · 경고 메일은 큐로(락 밖 발송)
+    /* ★[CF_CORE_TRUTH] confirm 에 `''`(격리 없음)를 넘기던 것을 `'final'` 로 바꾼다.
+       confirm 은 메타만 **쓰지만** 모든 트랙을 **읽어** core 를 만든다 — 읽는 값이 손상이면 빈 도장이 찍힌다.
+       그중 돈이 걸린 final 을 판정 대상으로 삼는다(다른 트랙 손상은 그 트랙 저장에서 이미 막힌다). */
+    var _dl = _prodDraftLoadSafe(cust, code, _notifyQ, (track === 'confirm' ? 'final' : track)); if (!_dl.ok) return _dl.res;   // 손상 컬럼 위 저장 금지 · 경고 메일은 큐로(락 밖 발송)
     var d = _dl.d;
     // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
     if (track === 'confirm') {
+      /* ★★[CF_CORE_TRUTH 2026-08-17 · 샌드박스 적대검증이 잡음] 확정은 **트랙 딱지가 아니라 실값**을 본다.
+         옛 판은 `tracks.final === '완료'` 만 보고 통과시켰다. 그런데 그 딱지는 메타 컬럼에 있고,
+         인원·요금은 `제작_final` 컬럼에 있다 — 그 컬럼이 손상되면 딱지는 '완료'로 살아 있는데 초안은 `{}` 다.
+         실측: 그 상태에서 확정이 통과하고 core 가 `heads:"" extraFee:0` 으로 남았다.
+         화면은 좌석에서 파생해 「하객 28명 · 추가 150,000원」을 그리고 있었으니
+         **확정서·잔금·관리자 화면이 한꺼번에 비면서 15만 원이 조용히 사라진다.**
+         ★확정은 되돌리기 어려운 기록이다 — 근거가 비어 있으면 찍지 않는다.
+         ★같은 이유로 confirm 은 트랙 컬럼 손상도 통과시키면 안 된다(아래 `_prodDraftLoadSafe` 인자 참고). */
       if (((d.tracks || {}).ritual) !== '완료' || ((d.tracks || {}).final) !== '완료') return { ok: false, error: '식순과 최종 확정을 완료한 뒤 확인할 수 있어요.' };
+      var _fdChk = d.finalDraft || {}, _hChk = parseInt(String(_fdChk.headcount || '').replace(/[^0-9]/g, ''), 10) || 0;
+      if (_hChk < 1) return { ok: false, error: '하객 인원이 저장되어 있지 않아요. 「좌석 · 음료」를 한 번 열었다 저장한 뒤 확정해 주세요.' };
+      if (_hChk > FINAL_CONFIRM.최대) return { ok: false, error: '하객이 최대 ' + FINAL_CONFIRM.최대 + '명을 넘어요. 디렉터와 조정한 뒤 확정할 수 있어요.' };
       // 상태 지문 대조 — 배우자의 다른 탭이 먼저 수정했으면 옛 화면의 확인을 거부(새로고침 유도). 구버전 프런트(rev 미전송)는 검사 생략
       if (body && body.rev != null && String(body.rev) !== _prodStateRev(d)) return { ok: false, error: '내용이 갱신됐어요. 화면을 새로고침한 뒤 다시 확인해 주세요.' };
+      /* ★★[CF_ONCE 2026-08-17 · 샌드박스 적대검증이 잡음] 이미 확정돼 있고 그 뒤로 바뀐 것이 없으면 **다시 찍지 않는다.**
+         `_prodStateRev` 해시에 confirm 이 안 들어 있어 확정해도 지문이 그대로다 — 그래서 배우자의 두 탭이
+         각자 확정을 눌러도 둘 다 통과했고(실측), 관리자 메일이 두 통 가고 시각만 나중 것으로 덮였다.
+         ★멱등으로 만든다: 같은 상태의 두 번째 확정은 **첫 기록을 그대로 돌려준다**(시각을 밀지 않는다).
+           고객 화면은 어느 쪽이든 '확정됨'을 보므로 달라지는 것이 없고, 기록과 메일만 한 번이 된다.
+         ★내용이 바뀐 뒤의 재확정은 `confirmStale` 이 서므로 이 분기를 지나간다(정상 경로). */
+      if (d.confirm && d.confirm.at && !d.confirmStale) return { ok: true, confirm: d.confirm, already: true };
       // core = 서버가 저장된 초안에서 직접 뽑은 핵심 수치 — 화면 텍스트(snap)만 믿지 않는 확인 기록(구버전 탭·변조 대비 · 관리자 대조용)
       var _fd = d.finalDraft || {}, _rd = d.ritualDraft || {}, _dd = d.diningDraft || {}, _sd = d.seatDraft || {}, _tr = d.tracks || {};
       var _tc = 0, _pn = 0;
@@ -543,7 +564,17 @@ function handleSaveProductionTrack(body) {
       if (_szC) return { ok: false, error: _szC };
       touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));   // PROD_ACCESSOR — confirm은 메타 컬럼만 갱신(트랙 미지정)
       setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 확인서 경로도 조기 return이라 별도 전이(멱등)
-      _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 확인서 확인 완료 · ' + code + ' · 확인 내용은 관리자 페이지 고객 카드 참조'); } catch (e) {} });
+      /* ★[CF_LOG 2026-08-17] 확정은 면책 문서인데 **되짚을 근거가 하나도 없었다** — 재확정하면 앞의 기록이
+         덮이고, 처리이력도 남지 않고, 관리자 메일은 매번 같은 한 줄이라 '무엇을 언제'가 어디에도 없었다(실측).
+         ①처리이력에 한 줄 남기고 ②메일에 핵심 수치를 실어, 메일함만 봐도 그날 무엇을 확정했는지 알게 한다.
+         ★시트에 이력 배열을 새로 만들지는 않는다 — 제작 메타는 셀 한도가 걸려 있어(_prodSizeError) 커지면
+           저장 자체가 막힌다. 되짚을 곳은 처리이력·메일 둘로 충분하다. */
+      var _cLine = '예식 확인서 확정 · ' + code + ' · 하객 ' + (String(_fd.headcount || '-')) + '명'
+        + ((Number(_fd.standing) || 0) > 0 ? (' · 스탠딩 ' + _fd.standing + '명 · 추가 ' + (Number(_fd.extraFee) || 0).toLocaleString() + '원') : '')
+        + (_fd.drink ? (' · ' + _fd.drink) : '') + ' · 식순 ' + (String((_rd.summary || {}).course || '-')) + ' 코스'
+        + ' · 좌석 ' + _tc + '테이블 ' + _pn + '명 · ' + d.confirm.at;
+      try { if (typeof _recordHandler === 'function') _recordHandler(code, '예식 확인서 확정(하객 ' + (String(_fd.headcount || '-')) + '명)'); } catch (e) {}
+      _notifyQ.push(function () { try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(_cLine + ' · 상세는 관리자 페이지 고객 카드 참조'); } catch (e) {} });
       return { ok: true, confirm: d.confirm };
     }
     var _wasDone = (d.tracks && d.tracks[track]) === '완료';   // 완료 전이 1회 감지용(재저장 반복 알림 방지)
