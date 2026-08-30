@@ -5288,6 +5288,25 @@ chk "steps\[idx\].querySelector('.jr-step-btn').addEventListener('click'" index.
 #   띄워 두면 어른들이 멀쩡한 볼륨을 최대로 올려 두고, 소리가 나는 순간 깜짝 놀란다.
 chk 'LEAD_IN_SAY' parents.html 2
 
+# ── 2026-08-30 전수점검 라운드 [AUDIT_0830] ──
+# [INV_CANONICAL_PATH] 청첩장 SEO 8페이지 canonical·og:url·prev/next = 실경로 /i/invitations/ (구 루트 경로는 404 · 08은 velour→noir 오기까지).
+chk 'INV_CANONICAL_PATH' i/invitations/invitation-01-classic.html 1
+chk 'https://momentedit.kr/i/invitations/invitation-08-noir.html' i/invitations/invitation-08-noir.html 2
+# [SNAP_BALANCE_D7] 스냅 잔금 = 촬영 D-7(스냅 계약서 §4 표) — 시그니처 9 재사용으로 되돌리지 말 것.
+chk '잔금일수전_스냅' automation/platform/70_journey.gs 3
+chk '잔금일수전_스냅' automation/admin/admin.gs 1
+chk '_balanceDaysFor' automation/platform/60_mypage.gs 2
+# [SNAP_PENALTY_TABLE] 스냅 위약표(§9②) 엔진 구현 — 'return null(시그니처 전용)'로 되돌리면 서명된 표를 아무도 계산하지 않게 된다.
+chk 'SNAP_PENALTY_TABLE' automation/platform/70_journey.gs 1
+chk 'B27 스냅 당일' scripts/audit/calc-audit.mjs 1
+# [FIT_EXTRA_N2] 시착 추가 벌수 경계 n>2·증분 n-2 (구 n>3 은 1벌 적게 안내하던 off-by-one).
+chk 'FIT_EXTRA_N2' contract/fitting.html 1
+# [CAL_320_FIT] 노아르 달력 320px 맞춤(부모 패딩+300px 넘침 수정).
+chk 'CAL_320_FIT' i/invitations/invitation-08-noir.html 1
+# [PRICE_DERIVED] 구가 파생 금액(18만/14만/11만) 스캔 — mypage 미리보기·_kb "14만원 인용"·sim 정답 잠금 3중 실사고의 그물.
+chk 'PRICE_DERIVED' scripts/check-price-sync.mjs 2
+# [SUM_GATE] 시퀀스 카드 대표값 합=140 · '합은 N분' 산문=55 — drift 게이트가 일부러 안 보던 자리에서 실제로 새던 둘.
+chk 'SUM_GATE' scripts/check-source-drift.mjs 1
 
 # ★★[GP_OVER_PICK 2026-08-22 병렬 시뮬레이션 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면
 #   «말없이» 잘렸다. 실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 —

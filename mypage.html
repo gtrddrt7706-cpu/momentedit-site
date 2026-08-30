@@ -2551,7 +2551,8 @@ function renderMyPage(d){
       setTimeout(function(){ var _bb=$('mp_balance'); if(_bb && getComputedStyle(_bb).display!=='none'){ try{ _bb.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } },200);
     }
     // [정합] 제작 폼 예식 시간 — 계약에서 확정한 슬롯(도착 09:00·12:20·15:40)을 본예식 시각(+1h)으로 채우고 날짜처럼 잠금(조정 불가).
-    //   청첩장·식순에 찍히는 시간은 본예식 기준(inquiry 진행 시간표: 09:00→10:00 / 12:20→13:20 / 15:40→16:40).
+    //   청첩장·식순에 찍히는 시간은 슬롯 ID(+1h: 09:00→10:00 / 12:20→13:20 / 15:40→16:40) — 저장값·다이닝 키가 전부 이 ID.
+    //   ★inquiry 실제 운영 시간표의 본예식은 +65분(10:05·13:25·16:45)이라 표기와 ID가 다르다. 표기 통일은 결정 대기함 [J5] 참고.
     if (d.production && d.production.base && d.contract && d.contract.fill && d.contract.fill.weddingTime){
       var _wtMap={'09:00':'10:00','12:20':'13:20','15:40':'16:40'};
       if (_wtMap[d.contract.fill.weddingTime]){ d.production.base.weddingTime=_wtMap[d.contract.fill.weddingTime]; d.production.base.weddingTimeLocked=true; }
@@ -4203,8 +4204,8 @@ var meCardPay = (function(){
       + '<div class="consult-sec" style="display:block"><div class="consult-card">'
       +   '<div class="cc-eyebrow en-22">Contract</div>'
       +   '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'
-      +   '<div class="cc-sub">납부하실 금액 · <b>140,000원</b><br><span class="cc-mini">계약금 240,000 − 예약금 100,000</span></div>'   // [PRICE_2026_08] 평일 예시(미리보기 전용 · 실제 금액은 서버가 계산)
-      +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="140000"','입금액 140,000원 복사'))
+      +   '<div class="cc-sub">납부하실 금액 · <b>150,000원</b><br><span class="cc-mini">계약금 250,000 − 예약금 100,000</span></div>'   // 평일 예시(미리보기 전용 · 실제 금액은 서버가 계산) — 현행가 기준(인상 전 예시 잔존 수정 2026-08-30)
+      +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="150000"','입금액 150,000원 복사'))
       +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
       +     '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
       +     '<button type="button" class="cc-btn cc-btn-seal" id="mp_demoSignal">입금했어요</button></div>'
@@ -4979,9 +4980,9 @@ function showContractPrivacy(){
   if(_privacyHtml){ body.innerHTML=_privacyHtml; body.scrollTop=0; return; }
   fetch('privacy.html').then(function(r){ return r.text(); }).then(function(html){
     var doc=new DOMParser().parseFromString(html,'text/html'), main=doc.querySelector('main');
-    _privacyHtml = main ? main.innerHTML : '<p style="text-align:center">불러오지 못했어요. <a href="privacy.html" target="_blank">전체 보기</a></p>';
+    _privacyHtml = main ? main.innerHTML : '<p style="text-align:center">불러오지 못했어요. <a href="privacy.html" target="_blank" rel="noopener">전체 보기</a></p>';
     body.innerHTML=_privacyHtml; body.scrollTop=0;
-  }).catch(function(){ body.innerHTML='<p style="text-align:center;color:var(--sub)">불러오지 못했어요.<br><a href="privacy.html" target="_blank" style="color:var(--gold-deep)">새 창에서 보기</a></p>'; });
+  }).catch(function(){ body.innerHTML='<p style="text-align:center;color:var(--sub)">불러오지 못했어요.<br><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--gold-deep)">새 창에서 보기</a></p>'; });
 }
 function fmtWedKo(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';

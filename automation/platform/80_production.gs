@@ -66,7 +66,7 @@ function handleSaveProductionBase(body) {
     var _szB = _prodSizeError(draft, { cust: cust });   // [A급2·B급1] err를 삼키지 않게 사전 검사 + 행 전체 합산
     if (_szB) return { ok: false, error: _szB };
     var upd = _prodStoreCols(draft, { '제작상태': '작성중' }, { cust: cust });   // PROD_ACCESSOR
-    if (wDate) upd['예식일'] = wDate;   // 잔금 D-7 산출용 톱레벨 컬럼(계약 확정값 재기록 · 무해)
+    if (wDate) upd['예식일'] = wDate;   // 잔금 D-day 산출용 톱레벨 컬럼(시그 D-9 · 스냅 D-7 — PAYMENT 단일 출처 · 계약 확정값 재기록 · 무해)
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
     touchCustomer(sheet, colOf, cust.num, upd);

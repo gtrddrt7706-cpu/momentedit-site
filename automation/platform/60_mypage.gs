@@ -63,7 +63,7 @@ function handleGetMyState(body) {
     change: buildChangeState(r),  // [02-9] 예식일 변경(계약서 8조① · 70_journey). 서명완료·시그니처만 · {request,used,history,eligible}(없으면 null)
     hold: buildHoldState(r),  // [①] 예식일 임시 고정(가예약) 상태 · 검토 중/승인. 계약 서명 전까지만(없으면 null)
     refundBank: buildRefundBankState(r),  // [환불 안전망] 종료(취소·노쇼·미계약) 고객 환불 계좌 셀프 제출 카드(없으면 null)
-    payPolicy: (typeof PAYMENT !== 'undefined') ? { balanceDays: PAYMENT.잔금일수전, midDays: PAYMENT.중도금일수전 } : null,  // [정책 서빙] 프론트 D-day 판정 기준(리터럴 9/149 제거 — 70_journey PAYMENT 단일 출처)
+    payPolicy: (typeof PAYMENT !== 'undefined') ? { balanceDays: (typeof _balanceDaysFor === 'function' ? _balanceDaysFor(r) : PAYMENT.잔금일수전), midDays: PAYMENT.중도금일수전 } : null,  // [정책 서빙][SNAP_BALANCE_D7] 프론트 D-day 판정 기준 — 잔금은 상품별(시그 9 · 스냅 7)
     rollbackNotice: buildRollbackNotice(r),   // [ROLLBACK_NOTICE] 관리자가 단계를 되돌린 사실 안내(해소되면 자동으로 null)
     waiting: _journeyWaiting(r),  // [02-1] 관리자 대기 구간 한 줄(카드 없는 갭). 없으면 ''
     aiToken: _aiWidgetToken_(String(r.get('개인코드') || ''))  // [AI_WIDGET_HMAC] 식순 AI 위젯 embed 신원 증명(시크릿 미설정이면 빈값 · 프론트는 그냥 안 보냄)
@@ -174,7 +174,7 @@ function buildLedgerState(r) {
     payments.push({ key: '잔금', label: '잔금', amount: _balShown, status: st(r.get('잔금상태')), done: _bConf,
       extra: (!_bConf && _bx.amount > 0) ? { standing: _bx.standing, amount: _bx.amount } : null,
       dueLabel: (typeof _balanceDueLabelFor === 'function') ? _balanceDueLabelFor(r) : _balanceDueLabel(),   // 스냅은 '촬영 N일 전' 어휘
-      dueDate: _shiftYmd((typeof _payWeddingYmd === 'function') ? _payWeddingYmd(r) : r.get('예식일'), -PAYMENT.잔금일수전) });   // 예식일 셀 빈값이면 동의기록 폴백
+      dueDate: _shiftYmd((typeof _payWeddingYmd === 'function') ? _payWeddingYmd(r) : r.get('예식일'), -(typeof _balanceDaysFor === 'function' ? _balanceDaysFor(r) : PAYMENT.잔금일수전)) });   // [SNAP_BALANCE_D7] 상품별 잔금 D-day · 예식일 셀 빈값이면 동의기록 폴백
   }
   // 결제 진행률 — 완료된 마일스톤 금액 합 / 총액. (작은 계약서 등 예약금이 계약금을 초과해 100%를 넘는 경우 방지)
   var paid = 0; payments.forEach(function (p) { if (p.done) paid += Number(p.amount) || 0; });

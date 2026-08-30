@@ -61,7 +61,10 @@ const WINDOWS = [
 /* ── 고정 시드 — 상태 벡터에 없지만 핸들러가 필요로 하는 칸 ── */
 function seedFor(st, hours) {
   const stamp = kstAgo(hours);
-  const rec = { 시착: { at: stamp }, 계약: { at: stamp } };
+  /* ★계약정보.weddingTime — 서명 가드가 읽는 키(70_journey 242·253 «예식 시간 미확정이면 서명 거부» · #597 신설).
+     안 실으면 계약 문이 닫혀 «계약완료·입금완료로 올려 주는 동작이 없다»는 가짜 경보가 뜬다(2026-08-30 실측 4건).
+     원본링크 시드(아래 77행 주석)와 같은 종류의 함정이다 — 가드가 새 칸을 읽기 시작하면 여기도 같은 커밋에서 싣는다. */
+  const rec = { 시착: { at: stamp }, 계약: { at: stamp }, 계약정보: { weddingTime: '12:20' } };
   if (st.시착벌수 !== '') rec.시착.벌수 = Number(st.시착벌수);
   return {
     개인코드: CODE, 신랑이름: '김희준', 신부이름: '이미쿠', 연락처: '010-1234-5678', 이메일: 't@example.com',

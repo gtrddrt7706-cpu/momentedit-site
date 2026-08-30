@@ -76,6 +76,8 @@ function deployCheck() {
     ['95_notify', 'flushHeldNotifies', 'HOLD_NO_LOSS', '보류 알림 무손실'],
     ['60_mypage', 'handleGetMyState', 'NOW_CONTRACT_EXPIRED', '기한 지난 계약 안내'],
     ['70_journey', '_refundQuote', 'CHANGE_RATCHET', '위약금 회피 차단(99만원)'],
+    ['70_journey', '_balanceDaysFor', 'SNAP_BALANCE_D7', '스냅 잔금 촬영 D-7 분리'],
+    ['70_journey', '_refundQuote', 'SNAP_PENALTY_TABLE', '스냅 위약표 §9② 견적'],
     ['70_journey', 'handleSignContract', 'SIGN_SLOT_REQUIRED', '예식시간 없인 서명 불가'],
     ['70_journey', 'handleSignContract', 'SIGN_BOUNCE_ALERT', '서명 튕김 알림'],
     ['consultation-booking', 'setCustomerStage', 'STAGE_REVIEW_DOOR', '후기 단계로 올리는 문'],

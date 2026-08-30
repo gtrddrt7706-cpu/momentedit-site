@@ -172,8 +172,15 @@ check('⑧ 벌수 미기록: 공제 0 · refund 100,000', q.fitDeduct === 0 && q
 console.log('\n[2] 경계·게이트 검증');
 ctx.findRowByPersonalCode = () => null;
 
-// 스냅 → null (시그니처 전용)
-check('스냅 → null', ctx._refundQuote(row({ 상품타입: '웨딩스냅', 계약상태: '서명완료' }), ASOF) === null);
+// 스냅 — [SNAP_PENALTY_TABLE 2026-08-30] 종전 null(시그니처 전용)에서 §9② 실표 구현으로 전환.
+//   서명·촬영일 없는 이례 행은 pending, 정상 행은 표대로(상세 구간은 calc-audit B22~B27이 커버).
+{
+  const _sq = ctx._refundQuote(row({ 상품타입: '웨딩스냅', 계약상태: '서명완료' }), ASOF);
+  check('스냅 서명·촬영일 미정 → pending(더는 null 아님)', !!(_sq && _sq.pending));
+  const _sq2 = ctx._refundQuote(row({ 상품타입: '웨딩스냅', 계약상태: '서명완료', 계약총액: 600000,
+    예식일: addDays(ASOF, 5), 계약서명일시: '2026-01-01 10:00', 입금상태: '확인', 잔금상태: '확인' }), ASOF);
+  check('스냅 촬영 5일 전 완납 → 50%·60만−30만 환급', _sq2 && _sq2.rate === 0.5 && _sq2.refund === 300000);
+}
 
 // 철회기한 경계 — 서명일+15일까지 철회, +16일부터 위약 표(D-100 → 10%)
 q = ctx._refundQuote(row(signedBase({ 계약서명일시: '2026-06-01 10:00', 예식일: addDays('2026-06-16', 100) })), '2026-06-16');
