@@ -230,6 +230,12 @@ const STAMP = (() => {
     h.update(c.id + ':' + sz + ';'); }
   for (const f of ['assets/audio/narration/_recorded.json', 'assets/audio/cast/_recorded.json'])
     { try { h.update(fs.readFileSync(path.join(ROOT, f))); } catch (e) {} }
+  /* ★[STAMP_TONE 2026-08-26 실측] 어조 재료도 센다 — 안 세면 **어조 소리를 넣어도 열쇠가 그대로**다.
+     실제로 그랬다: 어조 186개를 심었는데 지문이 9f7b3c6d 로 안 바뀌어, 옛 판정이 그대로 딸려 왔다.
+     ★지문은 «귀에 들리는 것 전부»를 세야 한다. 기존 mp3 만 세고 어조를 빼면 반만 센 것이다.
+       내가 만든 검사가 내가 만든 자리에서 새는 것을 실물로 확인하고 고친다. */
+  try { for (const f of fs.readdirSync(STAGE).sort())
+    h.update(f + ':' + fs.statSync(path.join(STAGE, f)).size + ';'); } catch (e) { h.update('no-stage;'); }
   return h.digest('hex').slice(0, 8);
 })();
 const oldSents = OLDC.reduce((a, c) => a + c.sents.length, 0);

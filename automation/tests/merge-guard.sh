@@ -3554,6 +3554,11 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 # 실측: 8.5MB → 4.3MB · 390px 로드 4.8초 · pageerror 0 · 첫 클립 디코드 17.6초 정상.
 # ★실청은 «무슨 말인지·어조가 맞는지»를 듣는 자리다. 당일 나가는 소리는 assets/audio 원본이고
 #   이 판은 그걸 검수하려고 줄여 담은 사본이다. 더 곱게 들어야 하면 --kbps 로 올린다.
+# ★[STAMP_TONE 2026-08-26 실측] 지문이 «귀에 들리는 것 전부»를 세는지 — 어조 재료까지.
+#   실제로 샜다: 어조 186개를 심었는데 지문이 9f7b3c6d 로 안 바뀌어 옛 판정이 딸려 왔다.
+#   내가 만든 검사가 내가 만든 자리에서 새는 것을 실물로 보고 고쳤다.
+#   실측: 어조 있음 e17caa93 · 없음 833048dc · 되돌리면 e17caa93.
+chk 'STAMP_TONE' scripts/build-listen-all.mjs 1
 chk 'LISTEN_LIGHT' scripts/build-listen-all.mjs 1
 chk "arg('--kbps'" scripts/build-listen-all.mjs 1
 nochk "'-ar', '32000'" scripts/build-listen-all.mjs
