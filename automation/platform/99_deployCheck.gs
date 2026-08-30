@@ -90,6 +90,7 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
     }
   }
 
+  L.push('');
   L.push('══ ③ 쿠폰 발급 안내가 켜져 있는가 ══');
   try {
     var ev = (typeof NOTIFY_EVENTS !== 'undefined') ? NOTIFY_EVENTS['cust.couponIssued'] : null;
