@@ -3558,6 +3558,11 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 #   실제로 샜다: 어조 186개를 심었는데 지문이 9f7b3c6d 로 안 바뀌어 옛 판정이 딸려 왔다.
 #   내가 만든 검사가 내가 만든 자리에서 새는 것을 실물로 보고 고쳤다.
 #   실측: 어조 있음 e17caa93 · 없음 833048dc · 되돌리면 e17caa93.
+# ★[EMPTY_IS_OK 2026-08-26 실측] 「없는 것이 정답인」 경우를 실패로 세지 않는다.
+#   재더빙 대기가 0이면 붙여넣기 파일은 «일부러» 지운다. 그런데 build-dub-onefile 이 그 상태를
+#   「원천 생성기를 먼저 돌릴 것」이라 붉혔다 — 돌려도 안 생기니 끝나지 않는 고리였다.
+#   명단에 클립이 있는데 붙여넣기가 없을 때만 붉힌다.
+chk 'EMPTY_IS_OK' scripts/build-dub-onefile.mjs 1
 chk 'STAMP_TONE' scripts/build-listen-all.mjs 1
 chk 'LISTEN_LIGHT' scripts/build-listen-all.mjs 1
 chk "arg('--kbps'" scripts/build-listen-all.mjs 1

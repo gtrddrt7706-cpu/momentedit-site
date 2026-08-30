@@ -49,7 +49,19 @@ const allLines = [];
 
 for (const s of SRC) {
   const pp = path.join(DIR, s.paste), lp = path.join(DIR, s.list);
-  if (!fs.existsSync(pp)) { no(`${s.paste} 이 없다 — 원천 생성기를 먼저 돌릴 것`); continue; }
+  /* ★★[EMPTY_IS_OK 2026-08-26 실측] 「없는 것이 정답인」 경우를 실패로 세지 않는다.
+     재더빙은 **대기가 0이면 붙여넣기 파일을 일부러 지운다**(check-text-audio 가 그렇게 만든다 —
+     빈 파일을 남기면 형식 검사가 빈 줄을 물고, 열어 본 사람이 «붙여넣을 게 있나» 하고 한 번 더 본다).
+     그런데 여기서는 그 상태를 「원천 생성기를 먼저 돌릴 것」이라 붉혔다. 돌려도 안 생긴다 —
+     **끝나지 않는 고리**다(SAY_WHAT_DID 와 같은 꼴).
+     ★그래서 명단에 클립이 하나도 없으면 «없는 것이 맞다»고 보고 조용히 건너뛴다.
+       명단에 클립이 있는데 붙여넣기가 없을 때만 붉힌다 — 그건 진짜로 어긋난 것이다. */
+  const listHas = fs.existsSync(lp)
+    && fs.readFileSync(lp, 'utf8').split('\n').some((l) => /^\[\d+\]/.test(l.trim()));
+  if (!fs.existsSync(pp)) {
+    if (!listHas) { console.log(`  ※ ${s.ko} — 대기가 0이라 붙여넣기 파일이 없습니다(정상)`); continue; }
+    no(`${s.paste} 이 없다 — 명단에는 클립이 있는데 붙여넣기가 없다`); continue;
+  }
   if (!fs.existsSync(lp)) { no(`${s.list} 이 없다 — 원천 생성기를 먼저 돌릴 것`); continue; }
 
   const pasteLines = fs.readFileSync(pp, 'utf8').split('\n').filter((l) => l.trim());
