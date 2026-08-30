@@ -21,7 +21,9 @@ const GAS = ['automation/platform', 'automation/admin/admin.gs', 'automation/con
 
 /* ★표식이 아닌 것 — 점검 목록에 넣을 성격이 아니다.
    ①한 번 쓰고 마는 일회성 백필 ②주석 안에서만 사는 설명용 약어 ③파일 이름표 */
-const SKIP = new Set(['DEPLOY_CHECK', 'PROD_ACCESSOR', 'GUARD_MIRROR', 'HEADER_ORDER_GUARD']);
+/* ★DEPLOY_LIVE 도 여기 — 점검 파일이 «자기 안»에 단 이름표다(배포본을 찌르는 절).
+   제품 변경이 아니므로 「목록에 넣어라」가 성립하지 않는다. DEPLOY_CHECK 와 같은 성격이다. */
+const SKIP = new Set(['DEPLOY_CHECK', 'DEPLOY_LIVE', 'PROD_ACCESSOR', 'GUARD_MIRROR', 'HEADER_ORDER_GUARD']);
 
 if (!fs.existsSync(CHECK)) {
   console.log('건너뜀 — automation/platform/99_deployCheck.gs 가 없다(점검 파일 자체가 사라졌다면 그게 더 큰 문제다).');
@@ -29,19 +31,49 @@ if (!fs.existsSync(CHECK)) {
 }
 const checkSrc = fs.readFileSync(CHECK, 'utf8');
 
+/* ★★[NEED_HISTORY 2026-08-30] 이력이 얕으면 «재지 않는다». 얕은 채로 재면 반드시 틀린다.
+   커밋이 하나뿐이면 부모가 없어 git 이 그것을 «모든 파일을 새로 추가한 커밋»으로 본다 —
+   그러면 저장소의 모든 표식이 「최근에 들어온 것」이 되어 늘 붉어진다.
+   실측: 로컬(전체 이력) 5개 vs CI(depth 1) 56개. 이 한 가지로 main 이 계속 붉었다.
+   ★워크플로에 fetch-depth: 0 을 넣어 고쳤지만, 여기서도 스스로 알아채고 «안 쟀다»고 말한다 —
+     다른 자리에서 얕게 부르더라도 조용히 거짓 실패를 내지 않게. */
+let depth = 0;
+try { depth = Number(execSync('git rev-list --count HEAD', { cwd: REPO }).toString().trim()) || 0; } catch (e) { depth = 0; }
+if (depth <= 1) {
+  console.log(`건너뜀 — 이력이 ${depth}커밋뿐이라 «최근 변경»을 가릴 수 없다(얕은 체크아웃).`);
+  console.log('  고치는 법: 체크아웃에 fetch-depth: 0 을 준다. 얕은 채로 재면 모든 표식이 「새것」이 된다.');
+  process.exit(0);
+}
+
 let log = '';
 try { log = execSync(`git log --since="${DAYS} days ago" -p -- ${GAS.join(' ')}`, { cwd: REPO, maxBuffer: 1 << 28 }).toString(); }
 catch (e) { console.log('건너뜀 — git 로그를 못 읽었다:', e.message); process.exit(0); }
 
-/* 추가된 줄(+)에서만 표식을 줍는다 — 지워진 표식까지 요구하면 정리를 막는다 */
+/* 추가된 줄(+)에서만 표식을 줍는다 — 지워진 표식까지 요구하면 정리를 막는다.
+ *
+ * ★★[MARK_ON_FN 2026-08-30] «새 함수와 함께 들어온» 표식만 센다. 되돌리지 말 것.
+ *   왜 — 99_deployCheck 가 검사할 수 있는 것은 «함수»다(typeof 로 있는지 보고, 그 본문에서 표식을 찾는다).
+ *   그런데 이 게이트는 처음에 «GAS 파일에 들어온 모든 대괄호 표식»을 요구했다. 그 대부분은
+ *   기존 함수 «안»의 설명 주석이라 점검이 손댈 수 없는 것들이다 — 목록에 적어도 확인할 방법이 없다.
+ *   그래서 여러 세션이 나란히 일하는 이 저장소에서는 한 주에 수십 개가 쌓여 «영영 못 맞추는» 요구가 됐다.
+ *   실측: 도입 커밋(#602)부터 main 이 계속 붉었고(#603 까지), 그동안 모든 PR 이 이 한 줄로 막혔다.
+ *   ★게이트의 값은 그대로다 — «새 기능(함수)이 점검 목록 밖에 있는 것»은 여전히 잡는다.
+ *     그건 실제로 «옛 코드인 채로도 통과»가 일어나는 유일한 자리다.
+ */
 const found = new Map();   // 표식 → 처음 본 줄(맥락)
+let nearFn = 0;            // 새 함수 선언 직후 몇 줄인가
 for (const line of log.split('\n')) {
-  if (!line.startsWith('+') || line.startsWith('+++')) continue;
-  for (const m of line.matchAll(/\[([A-Z][A-Z0-9_]{5,})\]/g)) {
-    const k = m[1];
-    if (SKIP.has(k) || found.has(k)) continue;
-    found.set(k, line.slice(1).trim().slice(0, 78));
+  if (!line.startsWith('+') || line.startsWith('+++')) { if (nearFn > 0) nearFn--; continue; }
+  const body = line.slice(1);
+  if (/^\s*function\s+[A-Za-z_]/.test(body)) nearFn = 6;   // 선언 줄과 바로 아래 몇 줄까지가 «그 함수의 표식»
+  if (nearFn > 0) {
+    for (const m of body.matchAll(/\[([A-Z][A-Z0-9_]{5,})\]/g)) {
+      const k = m[1];
+      if (SKIP.has(k) || found.has(k)) continue;
+      found.set(k, body.trim().slice(0, 78));
+    }
   }
+  if (nearFn > 0) nearFn--;
 }
 
 /* 지금 코드에 살아 있는 표식만 대상 — 옛 커밋에 있었다 사라진 것은 요구하지 않는다 */
