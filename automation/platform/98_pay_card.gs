@@ -121,8 +121,16 @@ function handleCardConfirm(body) {
   var amount = Math.round(Number((body && body.amount) || 0));
   if (!paymentKey || !orderId || !(amount > 0)) return { ok: false, error: '결제 정보가 올바르지 않습니다.' };
 
-  var lock = LockService.getScriptLock();
-  try { lock.waitLock(15000); } catch (e) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  /* ★[PAY_LOCK_REENTRANT 2026-08-30] 여기서 부르는 기록 함수들(_confirmDepositCore·adminConfirmMid/Balance/MidBalance)이
+     2026-08-30부터 자기 락을 갖는다. 이 자리가 LockService 를 직접 잡고 있으면 안쪽 함수의 finally 가
+     **바깥 락을 먼저 풀어** 남은 구간(영수증·알림·이력)이 무방비가 된다. 같은 재진입 헬퍼를 써서 그 창을 없앤다.
+     ★카드결제는 아직 OFF(PAY_CARD_ENABLED 미설정)라 지금 바꿔도 실사용 영향은 없다 — 켜기 전에 고쳐야 하는 자리다. */
+  var lock = (typeof _payLock === 'function') ? _payLock() : (function () {
+    var lk = LockService.getScriptLock();
+    try { lk.waitLock(15000); } catch (e) { return null; }
+    return { nested: false, releaseLock: function () { try { lk.releaseLock(); } catch (e2) {} } };
+  })();
+  if (!lock) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   try {
     var code = String(s.row.get('개인코드') || '').trim();
     var cust = findCustomerByCode(code);

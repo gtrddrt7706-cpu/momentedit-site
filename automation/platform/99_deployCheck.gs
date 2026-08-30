@@ -83,6 +83,10 @@ function deployCheck() {
        ★새 항목을 넣기 전에 deploycheck-sim.mjs 로 기준선을 돌릴 것 — 이런 헛경보를 그게 잡는다. */
     ['70_journey', '_journeyAmounts', 'SNAP_BALANCE_D7', '스냅 잔금 촬영 D-7 분리'],
     ['70_journey', '_refundQuote', 'SNAP_PENALTY_TABLE', '스냅 위약표 §9② 견적'],
+    /* ★2026-08-30 라운드 3 — 돈이 걸린 셋. 옛 판이 올라가면 «촬영 끝난 뒤 전액 환급»·«초과 환불»·«확인 경합»이 되살아난다 */
+    ['70_journey', '_refundQuote', 'SNAP_WITHDRAW_GUARD', '스냅 철회는 촬영 개시 전에만'],
+    ['70_journey', '_refundQuote', 'FIT_DEDUCT_FLOOR', '시착 공제 음수 방지'],
+    ['70_journey', '_payLock', 'PAY_LOCK_REENTRANT', '돈 확인 재진입 안전 락'],
     ['70_journey', 'handleSignContract', 'SIGN_SLOT_REQUIRED', '예식시간 없인 서명 불가'],
     ['70_journey', 'handleSignContract', 'SIGN_BOUNCE_ALERT', '서명 튕김 알림'],
     ['consultation-booking', 'setCustomerStage', 'STAGE_REVIEW_DOOR', '후기 단계로 올리는 문'],

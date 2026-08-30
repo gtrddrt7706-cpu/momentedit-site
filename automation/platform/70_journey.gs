@@ -698,6 +698,27 @@ var PAYMENT = {
   잔금일수전_스냅: 7   // ★[SNAP_BALANCE_D7 2026-08-30] 스냅 잔금 = 촬영 D-7 — 서명되는 스냅 계약서(§4 표 '촬영일 7일 전(D-7)'·§9)가 원천.
                        //   종전엔 시그니처 9를 재사용해 화면·리마인드가 계약서와 이틀 어긋났다(D-9의 근거인 시그 위약 9~1일 구간은 스냅에 없음).
 };
+/* ★★[PAY_LOCK_REENTRANT 2026-08-30 동시성 점검에서 잡음] 입금 «확인» 계열에는 락이 없었다.
+   관리자 두 사람(또는 한 사람의 두 탭)이 같은 고객의 확인 버튼을 거의 동시에 누르면,
+   둘 다 «아직 확인 아님»을 보고 통과해 동의기록(잔금확정금액·영수증기준일)을 각자 읽고 각자 써서
+   나중 쓰기가 먼저 것을 덮는다 — 고객에겐 같은 카톡이 두 번 가고, 처리이력 한 줄이 사라진다.
+   화면의 버튼 잠금(mBusy)은 «자기 탭 안에서만» 유효해 이걸 못 막는다.
+
+   ★그런데 여기에 락을 그냥 넣으면 더 나빠지는 자리가 있다 — 카드결제(handleCardConfirm)는
+   자기가 락을 잡은 채 이 함수들을 부른다. 안쪽 함수가 finally 에서 락을 풀면 **바깥의 남은 구간이 무방비**가 된다.
+   그래서 «이 실행이 이미 보유 중이면 다시 잡지 않고, 해제도 바깥에 맡기는» 재진입 안전 헬퍼를 쓴다.
+   ★카드 경로(98_pay_card)도 같은 헬퍼를 쓰게 맞춰 두었다 — 카드를 켜기 전에 고쳐야 하는 자리였다. */
+var _PAY_LOCK_HELD = false;
+function _payLock() {
+  /* [PAY_LOCK_REENTRANT] ★표식은 반드시 «본문 안»에 둔다 — 99_deployCheck 가 String(함수)로 찾기 때문에
+     닫는 중괄호 뒤 주석은 영영 MISS 가 된다(#607 MARK_INSIDE 와 같은 함정 · deploycheck-sim 이 잡아 줬다). */
+  if (_PAY_LOCK_HELD) return { nested: true, releaseLock: function () {} };   // 바깥이 이미 보유 — 해제도 바깥이 한다
+  var lk = LockService.getScriptLock();
+  try { lk.waitLock(15000); } catch (e) { try { if (typeof lockBusySignal === 'function') lockBusySignal('입금확인'); } catch (_e) {} return null; }
+  _PAY_LOCK_HELD = true;
+  return { nested: false, releaseLock: function () { _PAY_LOCK_HELD = false; try { lk.releaseLock(); } catch (e2) {} } };
+}
+var _PAY_LOCK_BUSY = '잠시 후 다시 시도해 주세요. (서버 혼잡)';
 function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
 function _balanceDaysFor(r) { return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? PAYMENT.잔금일수전_스냅 : PAYMENT.잔금일수전; }   // [SNAP_BALANCE_D7] 상품별 잔금 D-day 단일 판정
 function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
@@ -798,7 +819,10 @@ function _refundQuote(r, asOfYmd) {
     var _signYmd = _ymdOf(r.get('계약서명일시'));
     var _sinceSign = _signYmd ? _dayDiff(asOf, _signYmd) : null;   // 서명 후 경과일
     var _sRate, _sRule;
-    if (_sinceSign != null && _sinceSign >= 0 && _sinceSign <= 7) { _sRate = 0;    _sRule = '계약일 + 7일 이내(청약철회)'; }
+    /* ★[SNAP_WITHDRAW_GUARD 2026-08-30 경계값 적대검증에서 잡음] 철회는 «촬영 개시 전»에만 성립한다(스냅 계약서 §7③).
+       초판은 서명 후 7일만 보고 촬영일을 안 봐서, **촬영이 끝난 다음날에도 100% 환급**이 나왔다(실측: dd=-1·서명 3일째 → 전액).
+       시그니처는 같은 자리에 `dd >= 1`(예식 전일까지) 가드가 있다(아래 ② 7조① 줄) — 그 가드를 스냅에도 맞춘다. */
+    if (_sinceSign != null && _sinceSign >= 0 && _sinceSign <= 7 && _sDd >= 1) { _sRate = 0;    _sRule = '계약일 + 7일 이내(청약철회)'; }
     else if (_sDd >= 31) { _sRate = 0.10; _sRule = '계약일 + 8일 ~ 촬영 31일 전'; }
     else if (_sDd >= 15) { _sRate = 0.20; _sRule = '촬영 30 ~ 15일 전'; }
     else if (_sDd >= 8)  { _sRate = 0.30; _sRule = '촬영 14 ~ 8일 전'; }
@@ -838,7 +862,9 @@ function _refundQuote(r, asOfYmd) {
   var paid = depConfirmed ? _depAmt : 0;
   var fitCount = (_fit.벌수 != null && _fit.벌수 !== '' && !isNaN(Number(_fit.벌수))) ? Number(_fit.벌수) : null;
   var needCount = (fitCount == null) && _signedFit;   // 시착했는데 벌수 미기록 → 산정 보류 플래그
-  var fitDeduct = Math.min((fitCount || 0) * _perBul, _depAmt);
+  /* ★[FIT_DEDUCT_FLOOR 2026-08-30] 벌수가 음수로 잘못 기록되면 공제가 «마이너스»가 되어 받은 돈보다 더 돌려주게 된다
+     (실측: 벌수 -1 → 공제 -50,000 → 환불 150,000 > 기수령 100,000). 공제 하한을 0으로 잠근다. */
+  var fitDeduct = Math.min(Math.max(0, fitCount || 0) * _perBul, _depAmt);
 
   function out(rule, rate, penalty, refund, dd) {   // paid는 클로저 — 중도금·잔금 가산 후 호출돼도 최신값
     return { paid: paid, fitCount: (fitCount == null ? 0 : fitCount), fitDeduct: fitDeduct, needCount: needCount,
@@ -1398,9 +1424,11 @@ function buildBalanceState(r) {
     account: (CONFIG.ACCOUNT && String(CONFIG.ACCOUNT).charAt(0) !== '[') ? CONFIG.ACCOUNT : '',
     holder: (CONFIG.ACCOUNT_HOLDER && String(CONFIG.ACCOUNT_HOLDER).charAt(0) !== '[') ? CONFIG.ACCOUNT_HOLDER : '',
     dday: dday,                                        // 예식까지 남은 일수(null=예식일 미정)
-    due: (dday != null && dday <= PAYMENT.잔금일수전),  // 기한 이내(부각)
+    /* ★[SNAP_BALANCE_D7] 라벨만 상품별이고 날짜·부각은 시그니처 9로 하드코딩돼 있었다 —
+       스냅 고객 화면이 «촬영 7일 전»이라 말하면서 이미 지난 날짜(D-9)를 마감일로 보여 줬다(실측). 셋을 한 기준으로. */
+    due: (dday != null && dday <= _balanceDaysFor(r)),  // 기한 이내(부각) · 상품별(시그 9 · 스냅 7)
     dueLabel: _balanceDueLabelFor(r),                  // 스냅은 '촬영 N일 전' 어휘
-    dueDate: _shiftYmd(_wYmd, -PAYMENT.잔금일수전)   // 잔금 마감일 = 예식(촬영) D-잔금일수전 (YYYY-MM-DD)
+    dueDate: _shiftYmd(_wYmd, -_balanceDaysFor(r))   // 잔금 마감일 = 예식(촬영) D-잔금일수전 (YYYY-MM-DD)
   };
 }
 // 잔금 입금 신호(고객). 단계 전이 없음·멱등.
@@ -1428,7 +1456,12 @@ function handleBalanceSignal(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 // 관리자 잔금 확인(통장 대조). 단계 전이 없음.
+/* [PAY_LOCK_REENTRANT] 락 래퍼 — 본문은 코어에 그대로 두고 감싸기만 한다(카드 경로에서 오면 nested 로 통과) */
 function adminConfirmBalance(code) {
+  var _lk = _payLock(); if (!_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _adminConfirmBalanceCore(code); } finally { _lk.releaseLock(); }
+}
+function _adminConfirmBalanceCore(code) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -1504,7 +1537,12 @@ function handleMidSignal(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 // 관리자 중도금 확인(통장 대조). 단계 전이 없음.
+/* [PAY_LOCK_REENTRANT] 락 래퍼 */
 function adminConfirmMid(code) {
+  var _lk = _payLock(); if (!_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _adminConfirmMidCore(code); } finally { _lk.releaseLock(); }
+}
+function _adminConfirmMidCore(code) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -1521,7 +1559,12 @@ function adminConfirmMid(code) {
 }
 // 관리자 중도금·잔금 묶음 확인 — 임박 계약(D-9 이내)에서 고객이 한 번에 입금(withBalance)한 경우 1클릭 처리.
 //   같은 확인일시(now)로 기록 → 영수증 원장도 '중도금·잔금' 1건으로 합쳐짐(_cashReceiptLedger 콤보 판정 짝).
+/* [PAY_LOCK_REENTRANT] 락 래퍼 */
 function adminConfirmMidBalance(code) {
+  var _lk = _payLock(); if (!_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _adminConfirmMidBalanceCore(code); } finally { _lk.releaseLock(); }
+}
+function _adminConfirmMidBalanceCore(code) {
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -1567,8 +1610,12 @@ function sendBalanceReminders() {
     var _wYmd = _payWeddingYmd(_remR);                                              // 예식일 셀 빈값이면 동의기록 계약정보로 폴백(스냅 사각 방지)
     var dday = _balanceDDay(_wYmd);
     if (dday == null) continue;
-    var stagePre = (!flag && dday <= PAYMENT.잔금일수전 + 15 && dday > PAYMENT.잔금일수전);
-    var stageDue = ((!flag || flag === '예고') && dday <= PAYMENT.잔금일수전);
+    /* ★[SNAP_BALANCE_D7] 이 트리거는 실제로 고객에게 나가는 발송이다 — 일수도 상품별이어야 한다.
+       시그니처 9를 그대로 쓰던 초판은 스냅에 **이틀 일찍**(D-9) 「오늘이 납부일」을 보냈고,
+       메일 본문의 「촬영 9일 전」도 계약서(D-7)와 어긋났다(실측). 아래 다섯 자리를 한 값으로 묶는다. */
+    var _remDays = (typeof _balanceDaysFor === 'function') ? _balanceDaysFor(_remR) : PAYMENT.잔금일수전;
+    var stagePre = (!flag && dday <= _remDays + 15 && dday > _remDays);
+    var stageDue = ((!flag || flag === '예고') && dday <= _remDays);
     if (!stagePre && !stageDue) continue;
     var email = String(row[c('이메일') - 1] || '').trim();
     var amounts = _journeyAmounts(row[c('계약총액') - 1], row[c('상품타입') - 1]);
@@ -1580,16 +1627,16 @@ function sendBalanceReminders() {
     var _remX = (typeof _balanceExtraInfo === 'function') ? _balanceExtraInfo(_remR) : { amount: 0 };
     var _balRem = (amounts ? Number(amounts['잔금']) || 0 : 0) + (_remX.amount || 0);
     var amtTxt = amounts ? (Number(_comboRem ? (Number(amounts['중도금']) || 0) + _balRem : _balRem).toLocaleString() + '원') : '잔금';
-    var dueYmd = _shiftYmd(_wYmd, -PAYMENT.잔금일수전);
+    var dueYmd = _shiftYmd(_wYmd, -_remDays);   // [SNAP_BALANCE_D7] 상품별 마감일
     notifyKakao(stageDue ? 'cust.balanceDue' : 'cust.balancePre', String(row[c('개인코드') - 1] || '').trim(), { dday: dday });
     if (CONFIG.SEND_BALANCE_MAIL && email) {
       try {
         if (stageDue) {
           GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 납부일 안내 (' + (dday >= 0 ? (_payW + ' D-' + dday) : '납부일 지남') + ')',
-            _payW + '이 코앞이에요.\n' + _payL + ' ' + amtTxt + '을 ' + (dday >= PAYMENT.잔금일수전 ? ('오늘(' + dueYmd + ')까지') : '지금 바로') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
+            _payW + '이 코앞이에요.\n' + _payL + ' ' + amtTxt + '을 ' + (dday >= _remDays ? ('오늘(' + dueYmd + ')까지') : '지금 바로') + ' 입금 부탁드립니다.\n마이페이지에서 계좌·금액을 확인하실 수 있습니다.\n\nMoment Edit');
         } else {
           GmailApp.sendEmail(email, '[Moment Edit] ' + _payL + ' 안내가 열렸어요 (납부일: ' + dueYmd + ')',
-            _payW + '이 다가옵니다.\n' + _payL + ' ' + amtTxt + '의 납부일은 ' + dueYmd + ' (' + _payW + ' ' + PAYMENT.잔금일수전 + '일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
+            _payW + '이 다가옵니다.\n' + _payL + ' ' + amtTxt + '의 납부일은 ' + dueYmd + ' (' + _payW + ' ' + _remDays + '일 전)입니다.\n마이페이지에 계좌·금액 안내가 열려 있어요.\n\nMoment Edit');
         }
       } catch (e) {}
     }

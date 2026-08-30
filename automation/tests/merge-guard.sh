@@ -5369,3 +5369,41 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/deploycheck-sim.mjs 
   || { echo 'FAIL deploycheck-sim: 99_deployCheck 가 안 붙인 파일/옛 버전을 못 잡는다 — node scripts/audit/deploycheck-sim.mjs'; fail=1; }; fi
 chk 'DEPLOY_CHECK_SIM' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
+
+# ── 2026-08-30 라운드 3(병렬 심층 점검) ──
+# [SNAP_WITHDRAW_GUARD] 스냅 청약철회는 촬영 개시 «전»에만(계약서 §7③) — dd>=1 가드를 빼면
+#   촬영이 끝난 뒤에도 전액 환급이 나온다(실측으로 잡은 구멍).
+chk 'SNAP_WITHDRAW_GUARD' automation/platform/70_journey.gs 1
+chk '_sDd >= 1' automation/platform/70_journey.gs 3
+# [FIT_DEDUCT_FLOOR] 시착 벌수가 음수여도 공제는 0 이상 — 받은 돈보다 더 돌려주지 않게.
+chk 'FIT_DEDUCT_FLOOR' automation/platform/70_journey.gs 1
+# [PAY_LOCK_REENTRANT] 돈 확인 계열의 재진입 안전 락 — 관리자 동시 클릭 직렬화 + 카드 경로에서 조기 해제 금지.
+#   ★단순 LockService 로 되돌리지 말 것: 카드(handleCardConfirm)가 락을 쥔 채 이 함수들을 부른다.
+chk 'PAY_LOCK_REENTRANT' automation/platform/70_journey.gs 4
+chk '_payLock' automation/platform/70_journey.gs 4
+chk '_payLock' automation/admin/admin.gs 10
+chk '_payLock' automation/platform/98_pay_card.gs 1
+# [KB_DRAFT_RATE] kb-draft 레이트 가드 — 시그니처 불일치로 한 번도 안 걸리던 것(200회 전부 통과 실측).
+chk 'KB_DRAFT_RATE' api/kb-draft.js 1
+chk 'rateLimit(req, 3, 30)' api/kb-draft.js 1
+# [OG_HOST_FIX] og-inv 가 요청 헤더의 호스트를 그대로 fetch 대상에 쓰던 것 — 허용 목록으로.
+chk 'OG_HOST_FIX' api/og-inv.js 1
+# [SURVEY_DIRTY] 후기 객관식은 버튼(data-sel)이라 태그 기반 dirty 검사에 안 걸려 새로고침에 조용히 날아갔다.
+chk 'SURVEY_DIRTY' mypage.html 1
+# [LOGOUT_SWEEP] 로그아웃이 식순 초안·펼침 상태를 남겨 다음 사람 화면에 비치던 것(me_guide_* 는 보존).
+chk 'LOGOUT_SWEEP' mypage.html 1
+# [SEATNOTE_LEAVE] 좌석 «미리 알려주실 것» 0.8초 디바운스가 앱 전환·탭 닫기에서 유실되던 것.
+chk 'SEATNOTE_LEAVE' mypage.html 1
+# ★★[TESTS_ACTUALLY_RUN 2026-08-30] 돈 관련 테스트들이 «마커만 검사되고 실행은 안 되고» 있었다.
+#   그래서 pay-card 는 stageFlowFor 의존이 늘어난 뒤 ReferenceError 로 통째 죽어 있었고(60건 전부 미실행),
+#   change-fee 는 구서명자 폴백(OLD_SIGNER_TERMS) 때문에 4건이 빨간 채 방치돼 있었다 — 아무도 몰랐다.
+#   검사를 «만들었다»와 «검사가 돈다»는 다른 말이다. 여기서 실제로 돌린다(넷 합쳐 0.4초).
+#   ★guide.test.js 는 지금 9건 실패다 — 8/29 CF_CORE_TRUTH(확정을 트랙 딱지가 아닌 실값으로 판정) 이후
+#     테스트가 옛 구조를 기대하는 것으로 판정했다(제품 정상). 고친 뒤 이 목록에 넣을 것 — 결정 대기함 참고.
+if command -v node >/dev/null 2>&1; then
+  for _t in pay-card refund-quote change-fee dining-sync; do
+    node "automation/tests/${_t}.test.js" >/dev/null 2>&1 || { echo "FAIL ${_t}.test.js — node automation/tests/${_t}.test.js 로 확인"; fail=1; }
+  done
+fi
+chk 'TESTS_ACTUALLY_RUN' automation/tests/merge-guard.sh 1
+chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1

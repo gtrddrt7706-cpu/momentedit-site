@@ -37,10 +37,16 @@ const SYS = `너는 모먼트에디트의 «지식 정리 담당»이다. 고객
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'method' }); return; }
-  try {
-    const rl = await rateLimit(req, { key: 'kb-draft', limit: 30, windowSec: 3600 });
-    if (rl && rl.limited) { res.status(429).json({ ok: false, error: '잠시 후 다시 시도해 주세요.' }); return; }
-  } catch (e) {}
+  /* ★★[KB_DRAFT_RATE 2026-08-30 보안 점검에서 잡음] 이 가드는 **한 번도 작동한 적이 없었다.**
+     _ratelimit 의 실제 시그니처는 `rateGate(req, perMin, per6h, key)` → **불리언**인데,
+     초판은 ①두 번째 인자로 객체를 넘겨 perMin 자리에 객체가 들어갔고(숫자 비교가 전부 false)
+     ②반환값을 `rl.limited` 로 읽어(불리언에 그런 속성이 없어 undefined) 조건이 영영 성립하지 않았다.
+     실측: 같은 IP 로 200회 연속 호출 → 차단 0 · 통과 200(정상 호출은 30회 뒤 차단).
+     이 엔드포인트는 호출 1회당 Claude API 비용이 나가므로 그대로 두면 비용이 무제한으로 샌다.
+     ★관리자 원클릭용이라 빈도가 낮다 — 분당 3 · 6시간 30 이면 정상 사용은 닿지 않는다(faq-draft 와 같은 급).
+     ★인증(공유 시크릿)은 GAS 호출부(_aiPost_)가 아직 시크릿을 싣지 않아 여기서 요구하면 기능이 죽는다 →
+       양쪽 동시 변경이 필요해 결정 대기함으로 넘겼다. 그때까지는 이 레이트 가드가 유일한 방어다. */
+  if (!rateLimit(req, 3, 30)) { res.status(429).json({ ok: false, error: '잠시 후 다시 시도해 주세요.' }); return; }
 
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }

@@ -57,9 +57,23 @@ function extractVarObject(src, name) {
 }
 const stageExLine = (SRC_CONFIG.match(/var STAGE_EXCEPTIONS = \[[^\]]*\];/) || [])[0];
 if (!stageExLine) throw new Error('STAGE_EXCEPTIONS not found');
+/* ★[PAYCARD_HARNESS_FLOW 2026-08-30] 이 테스트는 «죽어 있었다» — _confirmDepositCore 가 stageFlowFor 를 쓰게 바뀐 뒤
+   하네스가 그 함수를 안 실어 D2 부터 ReferenceError 로 통째 중단됐다(main 에서도 동일 재현).
+   아무 게이트도 이 파일을 돌리지 않아 아무도 몰랐다 — 그래서 merge-guard 에 실행을 걸고 여기서 의존을 채운다.
+   ★config 를 통째로 넣지 않는 것은 이 하네스의 설계다(필요한 조각만 실어 무엇에 기대는지 드러낸다). */
+const stageFlowObj = extractVarObject(SRC_CONFIG, 'STAGE_FLOW');
+const stageFlowFn = extractFunction(SRC_CONFIG, 'stageFlowFor');
 
 const code = [
   stageExLine,
+  stageFlowObj,
+  stageFlowFn,
+  /* [PAY_LOCK_REENTRANT] 돈 확인 계열의 재진입 안전 락 — 목이 아니라 **진짜 함수**를 싣는다.
+     LockService 목이 이미 위에 있어 그대로 돌고, 카드 경로가 락을 쥔 채 확인 함수를 부르는 이 테스트가
+     곧 «조기 해제가 없는지»를 함께 지키는 자리가 된다. */
+  'var _PAY_LOCK_HELD = false;',
+  "var _PAY_LOCK_BUSY = '잠시 후 다시 시도해 주세요. (서버 혼잡)';",
+  extractFunction(SRC_JOURNEY, '_payLock'),
   extractVarObject(SRC_JOURNEY, 'PAYMENT'),
   extractFunction(SRC_JOURNEY, '_parseJsonSafe'),
   extractFunction(SRC_JOURNEY, '_balanceDueLabel'),
@@ -70,9 +84,13 @@ const code = [
   extractFunction(SRC_JOURNEY, '_shiftYmd'),
   extractFunction(SRC_JOURNEY, '_cashReceiptOf'),
   extractFunction(SRC_JOURNEY, '_cashReceiptLedger'),
+  /* [PAY_LOCK_REENTRANT] 2026-08-30부터 셋은 «락 래퍼 + 코어» 두 조각이다 — 둘 다 실어야 실제 경로가 재현된다 */
   extractFunction(SRC_JOURNEY, 'adminConfirmMid'),
+  extractFunction(SRC_JOURNEY, '_adminConfirmMidCore'),
   extractFunction(SRC_JOURNEY, 'adminConfirmBalance'),
+  extractFunction(SRC_JOURNEY, '_adminConfirmBalanceCore'),
   extractFunction(SRC_JOURNEY, 'adminConfirmMidBalance'),
+  extractFunction(SRC_JOURNEY, '_adminConfirmMidBalanceCore'),
   extractFunction(SRC_JOURNEY, '_bundleKeysFor'),
   extractFunction(SRC_JOURNEY, '_payWeddingYmd'),
   extractFunction(SRC_ADMIN, '_ymdOf'),

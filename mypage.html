@@ -1530,6 +1530,12 @@ function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getE
   function dirtyOutsideFlows(){
     var ae=document.activeElement;
     if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName||'') && !(ae.closest && ae.closest('#mp_production'))) return true;   // 플로 밖에서 입력 중(키보드 열림) — 플로 안은 수집 훅이 지키므로 막지 않음
+    /* ★[SURVEY_DIRTY 2026-08-30 데이터 잔존 점검에서 잡음] 후기 객관식은 <input>이 아니라 **버튼**이다
+       (.srv-opts 그룹의 data-sel + 버튼 .on 클래스). 아래 태그 검사(INPUT|TEXTAREA|SELECT)에 안 걸려,
+       11문항을 버튼으로 고르고 자유서술을 아직 안 쓴 상태에서 당겨서 새로고침하면 **경고 없이 전부 리셋**됐다.
+       (자유서술은 진짜 <textarea>라 보호되고 있었다 — 버튼형만 구멍이었다.) */
+    var _srv=document.querySelectorAll('.srv-opts[data-sel]');   // ★스코프를 좁히지 않는다 — 후기 패널이 #mypageView 밖 컨테이너에 그려져도 놓치지 않게(.srv-opts 는 후기 전용이라 오탐 없음)
+    for(var s=0;s<_srv.length;s++){ if(String(_srv[s].getAttribute('data-sel')||'')!=='') return true; }
     var els=document.querySelectorAll('#mypageView input, #mypageView textarea');
     for(var i=0;i<els.length;i++){
       var el=els[i];
@@ -2115,7 +2121,15 @@ function show(viewId){
 function _mpHoldScroll(){ try{ window._mpKeepScroll=(document.body.style.position==='fixed')?_mpLockY:(window.pageYOffset||0); }catch(e){ window._mpKeepScroll=null; } }   // MPD_E2 저장-나가기 직전 위치 캡처(배경 잠금 중엔 잠금 기준값)
 function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
 function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
-function clearToken(){ try{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY); }catch(e){} }
+/* ★[LOGOUT_SWEEP 2026-08-30] 로그아웃이 토큰·상태캐시만 지워, 식순 초안(me_order)·결과물 펼침(me_deliv_*) 등이
+   그대로 남았다. 웨딩은 한 기기를 부부가 함께 쓰는 일이 잦아, 다음 사람 화면에 앞사람 서약문·편지가 잠깐 비칠 수 있다.
+   ★me_guide_*(하객 안내 캐시)는 건드리지 않는다 — guide.html 소유이고 예식별 토큰으로 이미 격리돼 있다. */
+function clearToken(){ try{
+  localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
+  var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+    if(k && /^me_(order|deliv_|prod_ping|order_v2note_)/.test(k)) _kill.push(k); }
+  _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+}catch(e){} }
 // 마지막 getMyState 스냅샷 캐시 — 재방문 시 즉시 표시(stale-while-revalidate). 토큰에 묶고, 로그아웃/만료 시 자동 폐기.
 var STATE_CACHE_KEY = 'me_state_v1';
 function cacheState(d){ try{
@@ -7455,6 +7469,15 @@ function wireSeatNote(box){
   ta.addEventListener('blur', function(){   // 화면을 떠나기 전에 한 번 더 — 0.8초를 못 채우고 나가도 남게
     if(_seatNoteT){ clearTimeout(_seatNoteT); _seatNoteT=null; _seatNoteSave(st); }
   });
+  /* ★[SEATNOTE_LEAVE 2026-08-30 동시성 점검에서 잡음] blur 없이 «앱 전환·탭 닫기»로 나가면 0.8초 대기분이 사라졌다
+     (알레르기·미리 알려주실 것 — 예식 당일 실무에 쓰이는 글이라 조용한 유실이 특히 나쁘다).
+     ★pagehide 는 iOS 사파리에서 유일하게 신뢰할 수 있는 이탈 신호이고, visibilitychange 는 앱 전환을 잡는다.
+       둘 다 «대기 중일 때만» 저장을 앞당길 뿐이라 중복 저장을 만들지 않는다. */
+  if(!ta._leaveWired){ ta._leaveWired=true;
+    var _flush=function(){ if(_seatNoteT){ clearTimeout(_seatNoteT); _seatNoteT=null; try{ _seatNoteSave(st); }catch(e){} } };
+    window.addEventListener('pagehide', _flush);
+    document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') _flush(); });
+  }
 }
 function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._edLast=SEATFLOW.edit; SEATFLOW.edit=null; }   // _edLast: blur 직후 ~200ms 창에서 음료 칩 탭이 무시되지 않게. edit 있을 때만 갱신 — blur가 캡처·직접 핸들러로 2번 커밋해 2번째가 null로 덮던 것 방지
 // [최종 확정 = 좌석 화면 통합 · 별도 인원/대표음료 입력 폐지 2026-07-19 사용자 지시: "고르고 인원 정하는 탭 전부 제거 · 자리 클릭하면 3가지 음료가 나오게"]
