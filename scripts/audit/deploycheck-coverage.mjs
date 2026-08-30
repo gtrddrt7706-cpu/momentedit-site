@@ -31,6 +31,20 @@ if (!fs.existsSync(CHECK)) {
 }
 const checkSrc = fs.readFileSync(CHECK, 'utf8');
 
+/* ★★[NEED_HISTORY 2026-08-30] 이력이 얕으면 «재지 않는다». 얕은 채로 재면 반드시 틀린다.
+   커밋이 하나뿐이면 부모가 없어 git 이 그것을 «모든 파일을 새로 추가한 커밋»으로 본다 —
+   그러면 저장소의 모든 표식이 「최근에 들어온 것」이 되어 늘 붉어진다.
+   실측: 로컬(전체 이력) 5개 vs CI(depth 1) 56개. 이 한 가지로 main 이 계속 붉었다.
+   ★워크플로에 fetch-depth: 0 을 넣어 고쳤지만, 여기서도 스스로 알아채고 «안 쟀다»고 말한다 —
+     다른 자리에서 얕게 부르더라도 조용히 거짓 실패를 내지 않게. */
+let depth = 0;
+try { depth = Number(execSync('git rev-list --count HEAD', { cwd: REPO }).toString().trim()) || 0; } catch (e) { depth = 0; }
+if (depth <= 1) {
+  console.log(`건너뜀 — 이력이 ${depth}커밋뿐이라 «최근 변경»을 가릴 수 없다(얕은 체크아웃).`);
+  console.log('  고치는 법: 체크아웃에 fetch-depth: 0 을 준다. 얕은 채로 재면 모든 표식이 「새것」이 된다.');
+  process.exit(0);
+}
+
 let log = '';
 try { log = execSync(`git log --since="${DAYS} days ago" -p -- ${GAS.join(' ')}`, { cwd: REPO, maxBuffer: 1 << 28 }).toString(); }
 catch (e) { console.log('건너뜀 — git 로그를 못 읽었다:', e.message); process.exit(0); }
