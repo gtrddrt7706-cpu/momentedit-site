@@ -3529,6 +3529,97 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 # ★[LISTEN_KEEP 2026-08-16] 만든 실청 판을 버리지 않는다 — 사용자가 내려받아 «들을» 판이다.
 #   전에는 /tmp 에 만들어 검사만 하고 버려서, 들으려면 ffmpeg 이 있는 세션이 매번 새로 만들어
 #   사람 손으로 넘겨야 했다. 실청은 사람만 할 수 있는 마지막 검사인데 그 판을 얻는 길이 심부름이었다.
+# ── [LISTEN_KEY_STAMP 2026-08-26 사용자 지적] 판정 저장 열쇠에 내용 지문을 찍는다 ──
+# *"이미 전에 체크한것들이 그대로 저장되어있는데 왜그래? 지금 새로운것을 다시 테스트하는거아니야?"*
+# 열쇠가 `me_listen_all_v1` 고정 문자열이라, 재더빙 58클립을 갈아 낀 새 판을 열어도
+# 브라우저가 같은 칸을 봐서 「판정 478/483」이 이미 차 있었다.
+# ★불편이 아니라 **기록이 거짓이 되는 것**이다 — 옛 소리에 누른 「좋아요」가 새 소리 위에 앉는다.
+# 지문 = 클립 글 + 어조 문장 + mp3 파일 크기 + _recorded.json.
+# 실측: mp3 에 1바이트 더하면 9f7b3c6d → b0fd2b20 · 되돌리면 9f7b3c6d 로 복귀.
+# ── [NO_SOUND_SAY 2026-08-26 사용자 지시 *"한번에해 … 중간에 또작업없이"*] ──
+# 소리가 없는 자리에 「듣기」를 내밀지 않는다. 전엔 버튼이 있고 누르면 경고가 떴다 —
+# 186문장을 하나씩 눌러 봐야 알았다. 그러면 「한 번에」가 안 된다.
+# ★그리고 맨 위에 「이 판으로 되는 것 / 안 되는 것」을 **세어서** 적는다(손으로 적은 수는 언젠가 어긋난다).
+# ── [LISTEN_WHY · LISTEN_SPLIT 2026-08-26 사용자 지적] ──
+# ①*"다시 하는 이유를 적어야 너한테전달했을때 너가 하나하나 파악해서 개선을하지"*
+#   「다시」에만 이유 칸을 연다. 비워도 넘어가되 대본에 「(이유 없음)」으로 실려 눈에 보인다.
+#   ★열쇠를 판정과 따로 둔다 — 「판정 지우기」로 판정을 비워도 적어 둔 이유는 남는다.
+#   ★글칸은 다시 그리지 않는다(입력 중 repaint 하면 커서가 튄다 · 마이페이지에서 겪은 병).
+# ②*"모바일이나 태블릿에서는 안나오네 항목들이"* — 한 판 8.5MB 가 폰에서 버겁다.
+#   ★화면 탓이 **아님**을 먼저 쟀다: 390px 헤드리스에서 클립 160·문장 495 그려지고 pageerror 0.
+#   그래서 --part 로 쪼갤 길을 연다(1.0~2.2MB). 쪼갠 판은 지문이 달라 판정이 안 섞인다.
+#   ★어조는 파트가 없어 안 빼면 **모든 파트 판에 딸려 온다**(실측: 1_안내 가 13이 아니라 76클립).
+# ── [LISTEN_LIGHT 2026-08-26 사용자 지시 *"파트별? 하나로줘야지"*] ──
+# 쪼개지 말고 **한 판**으로 주되 폰이 감당하게 무게를 줄인다. 48k/32kHz → 24k/22.05kHz.
+# 실측: 8.5MB → 4.3MB · 390px 로드 4.8초 · pageerror 0 · 첫 클립 디코드 17.6초 정상.
+# ★실청은 «무슨 말인지·어조가 맞는지»를 듣는 자리다. 당일 나가는 소리는 assets/audio 원본이고
+#   이 판은 그걸 검수하려고 줄여 담은 사본이다. 더 곱게 들어야 하면 --kbps 로 올린다.
+# ★[STAMP_TONE 2026-08-26 실측] 지문이 «귀에 들리는 것 전부»를 세는지 — 어조 재료까지.
+#   실제로 샜다: 어조 186개를 심었는데 지문이 9f7b3c6d 로 안 바뀌어 옛 판정이 딸려 왔다.
+#   내가 만든 검사가 내가 만든 자리에서 새는 것을 실물로 보고 고쳤다.
+#   실측: 어조 있음 e17caa93 · 없음 833048dc · 되돌리면 e17caa93.
+# ★[EMPTY_IS_OK 2026-08-26 실측] 「없는 것이 정답인」 경우를 실패로 세지 않는다.
+#   재더빙 대기가 0이면 붙여넣기 파일은 «일부러» 지운다. 그런데 build-dub-onefile 이 그 상태를
+#   「원천 생성기를 먼저 돌릴 것」이라 붉혔다 — 돌려도 안 생기니 끝나지 않는 고리였다.
+#   명단에 클립이 있는데 붙여넣기가 없을 때만 붉힌다.
+chk 'EMPTY_IS_OK' scripts/build-dub-onefile.mjs 1
+# ★[COPY_MOBILE 2026-08-26] 폰에서 복사 — navigator.clipboard 먼저, 실패하면 execCommand, 둘 다 막히면 «막혔다»고 적는다.
+#   ★안 된 것을 됐다고 하지 않는다. 사람은 붙여넣기가 빌 때까지 모른다.
+#   실측(iPhone 13 에뮬·터치): 세 갈래 다 옳게 갈림. 단 iOS Safari 실물은 여기서 못 잰다 — 그래서 안전판을 깐 것이다.
+# ── [SOUND_OUT_OF_JS · SHOW_THE_CRASH 2026-08-26 사용자 실물(폰 스크린샷)] ──
+# 폰에서 판정줄·탭·목록·안내칸이 전부 비었다 — 그 자리는 모두 스크립트가 채우는 곳이다.
+# 즉 화면 폭이 아니라 **스크립트가 시작을 못 한 것**(헤드리스 390px 는 멀쩡했다).
+# 범인은 «var AO = { …6.5MB base64… }» — 브라우저가 통째로 파싱해 문자열 300여 개를 만든다.
+# ★소리를 줄이지 않고 JS «밖»으로 뺐다: script type=text/plain 283개 · 누를 때 하나만 읽는다.
+#   실측 로드 6.0초 → 3.1초 · 재생 정상(17.6·3.7·2.7초) · 소리 품질 그대로(어조 판정용이라 안 뭉갠다).
+# ★그리고 죽으면 화면이 말한다 — 이번엔 사용자가 알려 줄 때까지 아무도 몰랐다.
+chk 'SOUND_OUT_OF_JS' scripts/build-listen-all.mjs 5
+# ★[JS_BLOCKED_SAY 2026-08-26 사용자 실물 두 번] 스크립트가 «아예 안 도는» 경우를 화면이 말한다.
+#   단서: 목록도 탭도 안 뜨는데 window.onerror 배너까지 비어 있었다 — 죽은 게 아니라 시작을 못 한 것.
+#   앱 내장 미리보기가 스크립트를 막는다(정적 HTML 은 멀쩡히 그려졌다). 무게 문제가 아니었다.
+#   ★안내를 «정적 HTML»로 박아 둔다 — 스크립트가 돌면 sayCanDo 가 덮고, 안 돌면 그 글이 남는다.
+#   실측: JS 켜짐 → 「97클립 …」으로 덮임 / JS 꺼짐 → 「앱이 스크립트를 막은 것입니다」 그대로.
+# ── [LISTEN_WEB 2026-08-26 사용자 실물 세 번] 소리를 «주소로» 부른다 — 파일에 박지 않는다 ──
+# 폰에서 세 번 안 열렸다. 원인은 앱 내장 미리보기가 스크립트를 막는 것이고,
+# 파일을 손으로 주고받는 한 못 고친다. **파일이 아니라 길이 잘못된 것**이었다.
+# ★이 저장소는 이미 내부 검수 페이지를 배포한다(audio-review-tone.html) · assets/audio/**.mp3 도 배포된다.
+#   그러면 base64 로 박을 이유가 없다 — 판이 6.6MB → **105K** 가 되고 사파리로 주소만 열면 된다.
+# ★--embed 는 남긴다: 인터넷 없이 손에 쥐여 줘야 할 때(코워크 전달)가 있다. 쓰임이 다르다.
+# ★어조 mp3 186개를 assets/audio/tone/ 에 넣었다(2.0MB) — 재료가 또 사라지는 것도 함께 막는다
+#   (_dub_stage 가 gitignore 라 코워크 컨테이너와 함께 날아간 적이 있다).
+# 실측(iPhone13 에뮬·http 서빙): 클립 160 · 문장 495 · 「소리없음」 0 · 주소 재생 17.6/3.7/2.7초.
+# ★[LISTEN_URL 2026-08-26] 실청판을 **주소로** 연다 — listen-075c9ad62acf.html
+#   폰 앱 미리보기가 스크립트를 막아 파일 전달로는 못 쓴다(세 번 실패). 사이트에서 열면 그 문제가 없다.
+#   ★주소를 어렵게 둔다 — 검색 차단(noindex)에 더해, 아는 사람만 열도록.
+#   ★소리는 assets/audio/{narration,cast,tone}/ 에서 받는다 — 판 자체는 105K 다.
+chk 'listen-075c9ad62acf.html' automation/tests/merge-guard.sh 1
+chk 'LISTEN_WEB' scripts/build-listen-all.mjs 3
+chk 'SRCMAP' scripts/build-listen-all.mjs 3
+chk 'assets/audio/tone' scripts/build-listen-all.mjs 1
+chk 'JS_BLOCKED_SAY' scripts/build-listen-all.mjs 1
+chk '브라우저로 열어 주세요' scripts/build-listen-all.mjs 1
+nochk 'if (AO\[c.id\]) oldOK' scripts/build-listen-all.mjs
+chk 'SHOW_THE_CRASH' scripts/build-listen-all.mjs 1
+chk 'function sndOf' scripts/build-listen-all.mjs 1
+nochk 'AO\[id\]' scripts/build-listen-all.mjs
+chk 'COPY_MOBILE' scripts/build-listen-all.mjs 1
+chk 'navigator.clipboard' scripts/build-listen-all.mjs 2
+nochk "o.select(); try { document.execCommand('copy'); alert('복사했습니다.'); }" scripts/build-listen-all.mjs
+chk 'STAMP_TONE' scripts/build-listen-all.mjs 1
+chk 'LISTEN_LIGHT' scripts/build-listen-all.mjs 1
+chk "arg('--kbps'" scripts/build-listen-all.mjs 1
+nochk "'-ar', '32000'" scripts/build-listen-all.mjs
+chk 'LISTEN_WHY' scripts/build-listen-all.mjs 8
+chk 'LISTEN_SPLIT' scripts/build-listen-all.mjs 3
+chk 'function whyBox' scripts/build-listen-all.mjs 1
+chk '왜 다시' scripts/build-listen-all.mjs 3
+chk 'NO_SOUND_SAY' scripts/build-listen-all.mjs 3
+chk 'function hasSnd' scripts/build-listen-all.mjs 1
+chk 'function sayCanDo' scripts/build-listen-all.mjs 1
+nochk "canPlay ? '<button class=\"btn sm play\"" scripts/build-listen-all.mjs   # ★소리 유무를 안 보고 버튼 내밀던 옛 줄
+chk 'LISTEN_KEY_STAMP' scripts/build-listen-all.mjs 4
+chk 'me_listen_all_\${STAMP}' scripts/build-listen-all.mjs 1
+nochk "var KEY = 'me_listen_all_v1'" scripts/build-listen-all.mjs   # ★고정 열쇠 복원 금지 — 코드 모양으로 잡는다
 chk 'LISTEN_KEEP' .github/workflows/nightly-screen.yml 1
 chk 'upload-artifact' .github/workflows/nightly-screen.yml 1
 chk 'name: 실청_전체' .github/workflows/nightly-screen.yml 1
