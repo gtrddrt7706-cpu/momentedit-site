@@ -76,7 +76,12 @@ function deployCheck() {
     ['95_notify', 'flushHeldNotifies', 'HOLD_NO_LOSS', '보류 알림 무손실'],
     ['60_mypage', 'handleGetMyState', 'NOW_CONTRACT_EXPIRED', '기한 지난 계약 안내'],
     ['70_journey', '_refundQuote', 'CHANGE_RATCHET', '위약금 회피 차단(99만원)'],
-    ['70_journey', '_balanceDaysFor', 'SNAP_BALANCE_D7', '스냅 잔금 촬영 D-7 분리'],
+    /* ★[MARK_INSIDE 2026-08-30 실기에서 오탐으로 드러남] 기준 함수는 표식을 «본문 안»에 담아야 한다.
+       _balanceDaysFor 는 표식이 닫는 중괄호 «뒤» 꼬리 주석에 있어 String(함수) 에 안 잡힌다 →
+       파일이 최신이어도 영영 MISS. 사용자 GAS 실행에서 실제로 헛경보가 났다.
+       같은 파일에서 표식을 본문에 담은 _journeyAmounts 로 옮긴다.
+       ★새 항목을 넣기 전에 deploycheck-sim.mjs 로 기준선을 돌릴 것 — 이런 헛경보를 그게 잡는다. */
+    ['70_journey', '_journeyAmounts', 'SNAP_BALANCE_D7', '스냅 잔금 촬영 D-7 분리'],
     ['70_journey', '_refundQuote', 'SNAP_PENALTY_TABLE', '스냅 위약표 §9② 견적'],
     ['70_journey', 'handleSignContract', 'SIGN_SLOT_REQUIRED', '예식시간 없인 서명 불가'],
     ['70_journey', 'handleSignContract', 'SIGN_BOUNCE_ALERT', '서명 튕김 알림'],
@@ -115,18 +120,27 @@ function deployCheck() {
      ★틀린 토큰을 보내므로 아무것도 올라가지 않는다. 읽기 전용이라는 성질은 그대로다.
      ★응답이 갈린다 — 배포됐으면 handleGuestPhoto 가 「잘못된 주소」로 막고,
        배포가 낡았으면 라우터가 「알 수 없는 요청」을 낸다. */
+  /* ★★[DEPLOY_LIVE_URL 2026-08-30 실기 실측] getUrl() 은 «편집기에서 수동 실행»하면 /dev 를 준다.
+     /dev 는 소유자 로그인이 필요한 개발 주소라, 서버끼리 찌르면 앱이 아니라 «구글 로그인 화면»이
+     돌아온다(실측 응답: <!DOCTYPE html>…window['ppConf']…). 그걸 「응답을 못 읽었습니다」로 세니
+     배포가 멀쩡한데도 늘 붉었다. 고객이 쓰는 주소는 /exec 이므로 그쪽으로 바꿔 찌른다.
+     ★그래도 앱 응답이 아니면 «실패»가 아니라 «확인 불가»로 남긴다 — 못 잰 것을 실패로 세면
+       「누락 0건」이 영영 안 나오고, 그러면 사람이 MISS 를 무시하기 시작한다. 게이트가 죽는 길이다. */
   try {
     var _u = ScriptApp.getService().getUrl();
     if (!_u) chk('배포 URL 읽기', false, '웹앱으로 배포돼 있는지 확인하세요');
     else {
-      var _r = UrlFetchApp.fetch(_u, { method: 'post', contentType: 'text/plain;charset=utf-8',
+      var _live = _u.replace(/\/dev(\?|$)/, '/exec$1');
+      var _r = UrlFetchApp.fetch(_live, { method: 'post', contentType: 'text/plain;charset=utf-8',
         payload: JSON.stringify({ action: 'guestPhoto', g: 'x' }), muteHttpExceptions: true, followRedirects: true });
       var _t = String(_r.getContentText() || '');
       if (_t.indexOf('잘못된 주소') >= 0)          chk('배포본이 최신이다 (하객사진 경로 있음)', true);
       else if (_t.indexOf('알 수 없는 요청') >= 0) chk('배포본이 최신이다', false, '저장만 했습니다 — 배포 관리에서 «새 버전»으로 재배포하세요');
-      else                                        chk('배포본 판정', false, '응답을 못 읽었습니다: ' + _t.replace(/\s+/g, ' ').slice(0, 90));
+      else if (/ppConf|accounts\.google\.com|<!DOCTYPE html>/i.test(_t))
+        L.push('  --   배포본 판정  (구글 로그인 화면이 돌아와 확인 불가 · 웹앱 접근이 «모든 사용자»인지 확인 · 실패 아님)');
+      else L.push('  --   배포본 판정  (모르는 응답이라 확인 불가 · 실패 아님): ' + _t.replace(/\s+/g, ' ').slice(0, 70));
     }
-  } catch (e) { chk('배포 확인', false, '권한/네트워크: ' + (e && e.message)); }
+  } catch (e) { L.push('  --   배포 확인  (권한/네트워크로 확인 불가 · 실패 아님): ' + (e && e.message)); }
 
   L.push('');
   L.push('══ ⑤ 시트가 준비됐는가 (함수만 있고 컬럼이 없으면 저장이 조용히 사라진다) ══');
