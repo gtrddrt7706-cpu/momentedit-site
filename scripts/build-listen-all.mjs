@@ -50,6 +50,15 @@ const PART = arg('--part', '');
    ★기본을 24kbps 모노 22.05kHz 로 내린다(전 48k/32kHz). 말소리는 이 대역에서 또렷하다.
    ★--kbps 로 올릴 수 있다 — 어조를 더 곱게 들어야 하면 그때만 올린다. */
 const KBPS = arg('--kbps', '24k');
+/* ★★[LISTEN_WEB 2026-08-26 사용자 실물 세 번] 소리를 **주소로** 부른다 — 파일에 박지 않는다.
+   ★왜 여기까지 왔나: 폰에서 세 번 안 열렸다. 원인은 앱 내장 미리보기가 스크립트를 막는 것이고,
+     그건 파일을 손으로 주고받는 한 못 고친다. 파일이 아니라 **길**이 잘못된 것이다.
+   ★이 저장소는 이미 내부 검수 페이지를 배포한다(audio-review-tone.html).
+     assets/audio/**.mp3 도 배포되고 vercel.json 에 캐시 규칙까지 있다.
+     그러면 base64 로 박을 이유가 없다 — 판이 92K 가 되고, 사파리로 주소만 열면 된다.
+   ★--embed 는 남긴다: 인터넷 없이 손에 쥐여 줘야 할 때가 있다(코워크에게 넘길 때).
+     둘은 쓰임이 다르다. 없애지 않고 고르게 둔다. */
+const WEB = process.argv.includes('--web');
 let bad = 0;
 const no = (m) => { console.error('✗ ' + m); bad++; };
 const die = (m, c = 2) => { console.error('✗ ' + m); process.exit(c); };
@@ -372,7 +381,20 @@ var D = ${JSON.stringify(DATA)};
    ★소리를 줄이지 않았다 — 어조를 판정할 판인데 소리를 뭉개면 판정이 못 미더워진다.
      무게가 아니라 «어떻게 담느냐»가 문제였다. */
 var AO = {}, AN = {};
+var WEBSND = ${WEB ? 'true' : 'false'};   /* [LISTEN_WEB] */
+/* [LISTEN_WEB] 배포된 mp3 주소표 — 파일에 소리를 안 담고 사이트에서 받아 온다.
+   기존 클립은 assets/audio/{narration,cast}/ 에 이미 있다. 어조는 assets/audio/tone/ 에 넣는다. */
+var SRCMAP = ${WEB ? JSON.stringify(Object.fromEntries([
+  ...OLDC.filter((c) => c.has).map((c) => {
+    const f = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') });
+    return [c.id, '/' + path.relative(ROOT, f).split(path.sep).join('/')];
+  }),
+  ...(fs.existsSync(STAGE) ? fs.readdirSync(STAGE).map((f) => {
+    const m = /^audio_(\d+)_/.exec(f); return m ? ['n' + (+m[1]), '/assets/audio/tone/n' + (+m[1]) + '.mp3'] : null;
+  }).filter(Boolean) : []),
+])) : '{}'};
 function sndOf(k) {
+  if (WEBSND) return (SRCMAP[k] || '');          /* 주소로 부른다 — 배포된 mp3 를 그대로 */
   var e = document.getElementById('snd_' + k);
   return e ? 'data:audio/mpeg;base64,' + e.textContent.trim() : '';
 }
@@ -430,7 +452,7 @@ function counts() {
    「그 자리 소리가 이 판에 없습니다」 경고가 떴다 — 사람이 **눌러 보고서야** 알았다.
    186문장을 하나씩 눌러 확인하게 만드는 셈이라, 「한 번에」가 안 된다.
    ★그래서 있는지를 먼저 보고, 없으면 그 자리에 «소리 없음»이라고 적는다. */
-function hasSnd(k) { return !!document.getElementById('snd_' + k); }   /* [SOUND_OUT_OF_JS] */
+function hasSnd(k) { return WEBSND ? !!SRCMAP[k] : !!document.getElementById('snd_' + k); }   /* [SOUND_OUT_OF_JS] */
 /* [LISTEN_WHY] 「다시」일 때만 연다 — 안 고칠 자리에 빈 칸을 늘어놓으면 화면이 시끄럽다 */
 function whyBox(k) {
   if (V[k] !== 're') return '';

@@ -3579,6 +3579,18 @@ chk 'SOUND_OUT_OF_JS' scripts/build-listen-all.mjs 5
 #   앱 내장 미리보기가 스크립트를 막는다(정적 HTML 은 멀쩡히 그려졌다). 무게 문제가 아니었다.
 #   ★안내를 «정적 HTML»로 박아 둔다 — 스크립트가 돌면 sayCanDo 가 덮고, 안 돌면 그 글이 남는다.
 #   실측: JS 켜짐 → 「97클립 …」으로 덮임 / JS 꺼짐 → 「앱이 스크립트를 막은 것입니다」 그대로.
+# ── [LISTEN_WEB 2026-08-26 사용자 실물 세 번] 소리를 «주소로» 부른다 — 파일에 박지 않는다 ──
+# 폰에서 세 번 안 열렸다. 원인은 앱 내장 미리보기가 스크립트를 막는 것이고,
+# 파일을 손으로 주고받는 한 못 고친다. **파일이 아니라 길이 잘못된 것**이었다.
+# ★이 저장소는 이미 내부 검수 페이지를 배포한다(audio-review-tone.html) · assets/audio/**.mp3 도 배포된다.
+#   그러면 base64 로 박을 이유가 없다 — 판이 6.6MB → **105K** 가 되고 사파리로 주소만 열면 된다.
+# ★--embed 는 남긴다: 인터넷 없이 손에 쥐여 줘야 할 때(코워크 전달)가 있다. 쓰임이 다르다.
+# ★어조 mp3 186개를 assets/audio/tone/ 에 넣었다(2.0MB) — 재료가 또 사라지는 것도 함께 막는다
+#   (_dub_stage 가 gitignore 라 코워크 컨테이너와 함께 날아간 적이 있다).
+# 실측(iPhone13 에뮬·http 서빙): 클립 160 · 문장 495 · 「소리없음」 0 · 주소 재생 17.6/3.7/2.7초.
+chk 'LISTEN_WEB' scripts/build-listen-all.mjs 3
+chk 'SRCMAP' scripts/build-listen-all.mjs 3
+chk 'assets/audio/tone' scripts/build-listen-all.mjs 1
 chk 'JS_BLOCKED_SAY' scripts/build-listen-all.mjs 1
 chk '브라우저로 열어 주세요' scripts/build-listen-all.mjs 1
 nochk 'if (AO\[c.id\]) oldOK' scripts/build-listen-all.mjs
