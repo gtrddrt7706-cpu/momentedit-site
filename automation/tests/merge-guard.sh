@@ -5372,6 +5372,35 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/deploycheck-sim.mjs 
   || { echo 'FAIL deploycheck-sim: 99_deployCheck 가 안 붙인 파일/옛 버전을 못 잡는다 — node scripts/audit/deploycheck-sim.mjs'; fail=1; }; fi
 chk 'DEPLOY_CHECK_SIM' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
+
+# ── 2026-08-30 라운드 3(병렬 심층 점검) ──
+# [SNAP_WITHDRAW_GUARD] 스냅 청약철회는 촬영 개시 «전»에만(계약서 §7③) — dd>=1 가드를 빼면
+#   촬영이 끝난 뒤에도 전액 환급이 나온다(실측으로 잡은 구멍).
+chk 'SNAP_WITHDRAW_GUARD' automation/platform/70_journey.gs 1
+chk '_sDd >= 1' automation/platform/70_journey.gs 3
+# [FIT_DEDUCT_FLOOR] 시착 벌수가 음수여도 공제는 0 이상 — 받은 돈보다 더 돌려주지 않게.
+chk 'FIT_DEDUCT_FLOOR' automation/platform/70_journey.gs 1
+# [PAY_LOCK_REENTRANT] 돈 확인 계열의 재진입 안전 락 — 관리자 동시 클릭 직렬화 + 카드 경로에서 조기 해제 금지.
+#   ★단순 LockService 로 되돌리지 말 것: 카드(handleCardConfirm)가 락을 쥔 채 이 함수들을 부른다.
+chk 'PAY_LOCK_REENTRANT' automation/platform/70_journey.gs 4
+chk '_payLock' automation/platform/70_journey.gs 4
+chk '_payLock' automation/admin/admin.gs 10
+chk '_payLock' automation/platform/98_pay_card.gs 1
+# [KB_DRAFT_RATE] kb-draft 레이트 가드 — 시그니처 불일치로 한 번도 안 걸리던 것(200회 전부 통과 실측).
+chk 'KB_DRAFT_RATE' api/kb-draft.js 1
+chk 'rateLimit(req, 3, 30)' api/kb-draft.js 1
+# [OG_HOST_FIX] og-inv 가 요청 헤더의 호스트를 그대로 fetch 대상에 쓰던 것 — 허용 목록으로.
+chk 'OG_HOST_FIX' api/og-inv.js 1
+# [SURVEY_DIRTY] 후기 객관식은 버튼(data-sel)이라 태그 기반 dirty 검사에 안 걸려 새로고침에 조용히 날아갔다.
+chk 'SURVEY_DIRTY' mypage.html 1
+# [LOGOUT_SWEEP] 로그아웃이 식순 초안·펼침 상태를 남겨 다음 사람 화면에 비치던 것(me_guide_* 는 보존).
+chk 'LOGOUT_SWEEP' mypage.html 1
+# [SEATNOTE_LEAVE] 좌석 «미리 알려주실 것» 0.8초 디바운스가 앱 전환·탭 닫기에서 유실되던 것.
+chk 'SEATNOTE_LEAVE' mypage.html 1
+# ★두 세션이 같은 결론에 동시에 도달했다 — 단위 스위트 «실행» 배선은 아래 main 쪽(UNIT_SUITES_RUN)으로 합쳤다.
+#   guide.test 는 #606 이 되살려 이제 초록이라 그 목록에 함께 들어 있다.
+chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
+
 # ★★[UNIT_SUITES_RUN 2026-08-29 점검] 단위 스위트를 **실행**한다 — 종전엔 이 파일들 안의 마커만 보고
 #   내용은 한 번도 돌리지 않았다(#589 «검사를 만들었다 ≠ 검사가 돈다»의 재발).
 #   그 결과 pay-card 는 PR #555 이후 몇 주 동안 ReferenceError 로 통째로 죽어 있었고(60건 미실행),

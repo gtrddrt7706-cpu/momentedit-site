@@ -8,8 +8,13 @@ module.exports = async (req, res) => {
   try {
     const page = String((req.query && req.query.page) || '');
     if (!PAGE_RE.test(page)) { res.statusCode = 404; return res.end('not found'); }
-    const host = req.headers['x-forwarded-host'] || req.headers.host;
-    const proto = req.headers['x-forwarded-proto'] || 'https';
+    /* ★[OG_HOST_FIX 2026-08-30 보안 점검] 요청 헤더(Host·X-Forwarded-Host)를 그대로 fetch 대상에 쓰면,
+       헤더를 조작한 요청 하나로 이 서버가 **임의 외부 호스트**를 대신 불러 응답을 반사한다.
+       페이지 경로는 정규식으로 완전히 앵커링돼 있어(PAGE_RE) 경로 조작은 애초에 안 되지만, 호스트는 무방비였다.
+       → 우리 도메인·자기 배포(*.vercel.app)만 허용하고, 그 밖은 운영 도메인으로 떨어뜨린다. */
+    const rawHost = String(req.headers['x-forwarded-host'] || req.headers.host || '');
+    const host = /^(?:(?:www\.)?momentedit\.kr|[a-z0-9-]+\.vercel\.app)$/i.test(rawHost) ? rawHost : 'momentedit.kr';
+    const proto = 'https';
 
     // 원본 정적 HTML — 이 서버 측 fetch는 봇 UA가 아니라서 라우트에 다시 안 걸림(루프 없음)
     const sr = await fetch(proto + '://' + host + page);

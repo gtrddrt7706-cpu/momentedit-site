@@ -223,6 +223,24 @@
     },
     {
       "file": "70_journey",
+      "fn": "_refundQuote",
+      "mark": "SNAP_WITHDRAW_GUARD",
+      "why": "스냅 철회는 촬영 개시 전에만(옛 판은 촬영 끝난 뒤에도 전액 환급)"
+    },
+    {
+      "file": "70_journey",
+      "fn": "_refundQuote",
+      "mark": "FIT_DEDUCT_FLOOR",
+      "why": "시착 공제 음수 방지(옛 판은 받은 돈보다 더 환불)"
+    },
+    {
+      "file": "70_journey",
+      "fn": "_payLock",
+      "mark": "PAY_LOCK_REENTRANT",
+      "why": "돈 확인 재진입 안전 락(관리자 동시 클릭 직렬화)"
+    },
+    {
+      "file": "70_journey",
       "fn": "handleSignContract",
       "mark": "SIGN_SLOT_REQUIRED",
       "why": "예식시간 없인 서명 불가"

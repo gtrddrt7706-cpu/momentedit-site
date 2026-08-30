@@ -1542,7 +1542,13 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
 // [02-4] 계약금 입금 확인(통장 대조 후) → 입금상태=확인 + 현재단계=입금완료. 자동 진행 아님(이 승인이 트리거).
 function adminConfirmPayment(code) {
   _requireAdmin();
-  return _confirmDepositCore(code, { bundle: true });   // 관리자: 통장 일괄 수납(임박) 번들 ON — 기존 동작 그대로
+  /* [PAY_LOCK_REENTRANT 2026-08-30] 가장 자주 눌리는 «돈 확인» 버튼인데 락이 없었다 —
+     두 탭 동시 클릭이면 동의기록(영수증기준일·수납묶음·잔금확정금액)을 서로 덮어쓰고 고객 카톡이 두 번 나간다.
+     코어(_confirmDepositCore)는 카드결제도 공유하므로 락은 «진입점»에 건다(재진입 헬퍼라 카드 경로와도 안전). */
+  var _lk = (typeof _payLock === 'function') ? _payLock() : null;
+  if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _confirmDepositCore(code, { bundle: true }); }   // 관리자: 통장 일괄 수납(임박) 번들 ON — 기존 동작 그대로
+  finally { if (_lk) _lk.releaseLock(); }
 }
 
 // [02-4·코어] 계약금 입금 확인 코어 — 가드 없음(호출측이 인증 책임). 관리자 승인·카드결제가 공유.
@@ -1622,8 +1628,16 @@ function _confirmDepositCore(code, opts) {
 
 // [02-7] 현금영수증 발행 기록 — 입금 확인된 마일스톤(예약금/계약금·중도금·잔금)을 홈택스에서 발급한 뒤, 승인번호(발행번호)를 여기 기록.
 //   기록되면 발행 큐에서 사라지고 고객 '내 내역'에 발행완료로 표시. 금액은 원장에서 자동 산출(관리자는 번호만 입력).
+/* [PAY_LOCK_REENTRANT 2026-08-30] 현금영수증은 의무발급 대상이라 기록 유실이 곧 세무 리스크다.
+   계약금·중도금 영수증을 두 탭에서 거의 동시에 입력하면 같은 «동의기록.영수증발행» 객체를 각자 읽고 각자 써서
+   먼저 기록된 발행번호가 조용히 사라진다(→ 미발행으로 다시 뜨거나 재발행을 유도). 락으로 직렬화한다. */
 function adminIssueCashReceipt(code, kind, num) {
   _requireAdmin();
+  var _lk = (typeof _payLock === 'function') ? _payLock() : null;
+  if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _adminIssueCashReceiptCore(code, kind, num); } finally { if (_lk) _lk.releaseLock(); }
+}
+function _adminIssueCashReceiptCore(code, kind, num) {
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
   num = String(num || '').replace(/[^0-9\-]/g, '').trim();   // 승인번호(숫자·하이픈)
@@ -1656,8 +1670,14 @@ function adminIssueCashReceipt(code, kind, num) {
   return { ok: true };
 }
 // [02-7b] 현금영수증 발행 취소(오기재·환불) — 기록 제거 → 다시 발행 대기로. 홈택스 실제 취소는 별도(자료 안내).
+/* [PAY_LOCK_REENTRANT] 발행 취소도 같은 객체를 RMW — 발행과 취소가 겹치면 한쪽이 사라진다 */
 function adminUndoCashReceipt(code, kind) {
   _requireAdmin();
+  var _lk = (typeof _payLock === 'function') ? _payLock() : null;
+  if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _adminUndoCashReceiptCore(code, kind); } finally { if (_lk) _lk.releaseLock(); }
+}
+function _adminUndoCashReceiptCore(code, kind) {
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
   if (['예약금', '계약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
@@ -2675,8 +2695,14 @@ function adminMarkUncontracted(code) {
 /* [ADM_AC2] 환불 완료 취소 — '송금 완료 표시'를 되돌리는 것이지 송금 자체를 되돌리는 게 아니다.
      표시를 지우면 그 고객이 다시 환불 송금 큐에 떠서, 잘못 눌러 큐에서 사라진 건을 되찾을 수 있다.
      금전 표시라 사유 필수 · 멱등 · 처리이력은 AC1과 같은 규칙. */
+/* [PAY_LOCK_REENTRANT] 위와 짝 */
 function adminUndoRefunded(code, reason) {
   _requireAdmin();
+  var _lk = (typeof _payLock === 'function') ? _payLock() : null;
+  if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _adminUndoRefundedCore(code, reason); } finally { if (_lk) _lk.releaseLock(); }
+}
+function _adminUndoRefundedCore(code, reason) {
   code = String(code || '').trim().toUpperCase();
   reason = String(reason || '').trim();
   if (!reason) return { ok: false, error: '되돌리는 사유를 입력해 주세요. 금전 기록이라 처리이력에 남겨요.' };
@@ -2692,8 +2718,14 @@ function adminUndoRefunded(code, reason) {
   return { ok: true, was: at };
 }
 
+/* [PAY_LOCK_REENTRANT] 환불 «완료 표시»와 «표시 취소»가 겹치면 실제 송금과 화면이 어긋나 이중 송금·미송금 판단을 흐린다 */
 function adminMarkRefunded(code) {
   _requireAdmin();
+  var _lk = (typeof _payLock === 'function') ? _payLock() : null;
+  if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
+  try { return _adminMarkRefundedCore(code); } finally { if (_lk) _lk.releaseLock(); }
+}
+function _adminMarkRefundedCore(code) {
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };

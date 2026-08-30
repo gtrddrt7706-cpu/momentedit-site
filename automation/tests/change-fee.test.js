@@ -163,6 +163,10 @@ check('Customers 행 없음 → 전액 100,000 · 공제 0', cq.amount === 10000
 setCust({ 개인코드: 'TQ01', 시착동의상태: '대기', 동의기록: '' });
 cq = ctx._consultRefundQuote('TQ01');
 check('시착 전(동의 전) → 전액 환불', cq.amount === 100000 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
+/* ★[OLD_SIGNER_TERMS 정합 2026-08-30] 픽스처의 시착 기록엔 스냅샷(예약금·추가벌비용)을 반드시 넣는다 —
+   없으면 엔진이 «스냅샷 도입 전 서명자»로 보고 구약관(200,000/70,000)으로 계산해 이 절의 기대값이 통째로 어긋난다.
+   ★두 세션이 같은 결함을 동시에 고쳤다(#606과 라운드 3) — 값은 동일해 그대로 두고 근거만 남긴다.
+   (아무 게이트도 이 파일을 안 돌려서 오래 죽어 있었다 — 지금은 merge-guard 가 실행한다.) */
 setCust({ 개인코드: 'TQ02', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 0, 예약금: 100000, 추가벌비용: 50000 } }) });
 cq = ctx._consultRefundQuote('TQ02');
 check('시착 0벌 → 전액 환불(공제 0)', cq.amount === 100000 && cq.fitCount === 0 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
@@ -172,7 +176,7 @@ check('시착 2벌 → 공제 100,000(상한) · 환불 0', cq.amount === 0 && c
 setCust({ 개인코드: 'TQ04', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 4, 예약금: 100000, 추가벌비용: 50000 } }) });
 cq = ctx._consultRefundQuote('TQ04');
 check('시착 4벌 → 공제 상한 100,000 · 환불 0', cq.amount === 0 && cq.fitDeduct === 100000, JSON.stringify(cq));
-setCust({ 개인코드: 'TQ05', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: 'x', 예약금: 100000, 추가벌비용: 50000 } }) });
+setCust({ 개인코드: 'TQ05', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: 'x', 예약금: 100000, 추가벌비용: 50000 } }) });   // [OLD_SIGNER_TERMS 정합] 벌수만 없는 «현행 서명자» — 스냅샷이 없으면 예약금까지 구약관 200,000으로 잡힌다
 cq = ctx._consultRefundQuote('TQ05');
 check('동의완료 + 벌수 미기록 → needCount(공제 0 유지)', cq.needCount === true && cq.fitDeduct === 0 && cq.amount === 100000, JSON.stringify(cq));
 
