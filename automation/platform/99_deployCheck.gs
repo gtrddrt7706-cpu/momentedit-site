@@ -9,6 +9,16 @@
  *   ②최근 변경이 실제로 올라갔는가 — 새 함수의 존재 + 함수 본문 안의 표식(toString)
  *   ★표식은 주석이라 «붙여넣다 잘렸는지»까지 잡는다. 이름만 맞고 내용이 옛것이면 여기서 걸린다.
  *
+ * ★★[MARKS_REMOTE 2026-08-30 사용자 질문 "99파일은 매번 같이 업로드해야하는거야?"]
+ *   답은 «그랬다» 였다 — 목록이 이 파일 안에 있어서, 새 변경이 main 에 들어올 때마다 목록이 늘고
+ *   이 파일도 함께 붙여넣어야 했다. 게이트가 그걸 강제하니 사실상 매번이었다.
+ *   ★이제 목록은 https://momentedit.kr/deploy-marks.json 에 있다. main 병합 → Vercel 자동 배포라
+ *     늘 최신이다. **이 파일은 한 번만 붙여넣으면 그 뒤로 안 바꿔도 된다.**
+ *   ★사이트를 못 읽으면 아래 FILES(파일 존재 확인)만으로 돈다. 그때는 «목록을 못 읽었다»고 크게 알린다 —
+ *     조용히 줄어든 점검은 «통과»로 읽혀서 가장 위험하다.
+ *   ★FILES 를 파일 안에 남겨 두는 이유: 파일이 늘거나 줄 때만 바뀌어 거의 안 변하고,
+ *     사이트가 죽었을 때 최소한 «통째로 안 붙인 파일»은 잡아 주기 때문이다.
+ *
  * ★[FIX 2026-08-29] 두 가지를 고쳤다. 되돌리지 말 것.
  *   ①90_test-utils 의 기준이 `setupAllTriggers` 였는데 그 함수는 **70_journey.gs** 에 있다.
  *     → 90_test-utils 를 통째로 안 붙여도 「OK」가 나오던 자리다(일부러 빼서 확인). `platformSelfTest` 로 교체.
@@ -26,8 +36,19 @@ function deployCheck() {
   function src(name) { try { return eval('String(' + name + ')'); } catch (e) { return ''; } }
   function mark(fn, m) { var s = src(fn); return s && s.indexOf(m) >= 0; }
 
-  L.push('══ ① 파일이 다 있는가 (파일마다 «그 파일에만 있는» 함수 하나로 확인) ══');
-  var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
+  /* [MARKS_REMOTE] 목록을 사이트에서 가져온다 — 실패하면 아래 FILES 만으로 돈다. */
+  var MARKS_URL = 'https://momentedit.kr/deploy-marks.json';
+  var REMOTE = null, remoteWhy = '';
+  try {
+    var _mr = UrlFetchApp.fetch(MARKS_URL, { muteHttpExceptions: true, followRedirects: true });
+    if (_mr.getResponseCode() === 200) {
+      var _mj = JSON.parse(_mr.getContentText());
+      if (_mj && _mj.files && _mj.files.length) REMOTE = _mj;
+      else remoteWhy = '내용이 비었습니다';
+    } else remoteWhy = 'HTTP ' + _mr.getResponseCode();
+  } catch (e) { remoteWhy = String((e && e.message) || e).slice(0, 60); }
+
+var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
     ['00_platform-config', 'stageFlowFor'], ['10_customers-setup', 'setupCustomers'],
     ['20_customers-data', 'findCustomerByCode'], ['30_auth-core', 'resolveSession'],
     ['40_signup', 'handleSignup'], ['50_auth-handlers', 'handleLogin'],
@@ -39,81 +60,36 @@ function deployCheck() {
     ['96_ai_cost', 'aiMorningReport'], ['97_ai-handoff', 'aiHandoffStatus'],
     ['98_pay_card', 'ZZ_tossPing'], ['consultation-booking', 'doPost'], ['admin', 'adminHome']
   ];
-  for (var i = 0; i < FILES.length; i++) {
-    chk('파일 ' + FILES[i][0] + '  (기준: ' + FILES[i][1] + ')', has(FILES[i][1]), '이 파일이 없거나 이름이 다릅니다');
+
+  if (REMOTE) L.push('목록: 사이트에서 가져옴 (' + MARKS_URL + ')');
+  else {
+    L.push('★★목록: 사이트를 못 읽어 파일 안 사본으로 돕니다 (' + remoteWhy + ')');
+    L.push('  → 파일 존재만 확인합니다. «최근 변경이 올라갔는지»는 이번 실행에서 확인하지 못했습니다.');
+  }
+  L.push('');
+
+  L.push('══ ① 파일이 다 있는가 (파일마다 «그 파일에만 있는» 함수 하나로 확인) ══');
+  var fileList = REMOTE ? REMOTE.files.map(function (o) { return [o.file, o.fn]; }) : FILES;
+  for (var i = 0; i < fileList.length; i++) {
+    chk('파일 ' + fileList[i][0] + '  (기준: ' + fileList[i][1] + ')', has(fileList[i][1]), '이 파일이 없거나 이름이 다릅니다');
   }
   L.push('  --   파일 86_dining_ai  (주석만 있는 빈 슬롯 · 실행으로 확인 불가 · 없어도 무방)');
   L.push('  --   파일 Admin.html    (화면 틀이라 코드로 확인 불가 · 관리자 페이지가 열리면 그게 확인이다)');
 
   L.push('');
   L.push('══ ② 최근 변경이 실제로 올라갔는가 ══');
-  var NEWFN = [
-    ['admin', '_rbConfirmedSlot', '되돌림 슬롯 잠금'], ['admin', '_rbSlotPlan', '되돌림 슬롯 판정'],
-    ['admin', '_rbCalRetitle', '캘린더 제목 변경'], ['admin', '_ymdDot', '날짜 표기 통일'],
-    ['admin', '_rbPaidAny', '수납 보존 판정'],
-    ['60_mypage', 'buildRollbackNotice', '되돌림 고객 안내'],
-    ['80_production', '_guideCloseInfo', '안내 닫는 이유 구분'],
-    ['96_ai_cost', 'aiDraftAnswer', 'AI 원클릭 교육']
-  ];
-  for (var j = 0; j < NEWFN.length; j++) {
-    chk('[' + NEWFN[j][0] + '] ' + NEWFN[j][1] + ' — ' + NEWFN[j][2], has(NEWFN[j][1]), '그 파일이 옛 버전입니다');
-  }
-  var MARKS = [
-    ['admin', 'adminHome', 'CPN_QUEUE', '커피쿠폰 발급 큐'],
-    ['admin', 'adminHome', 'SLOT_HOLD_EXPIRY_Q', '잡아 둔 자리 만료 큐'],
-    ['admin', 'adminHome', 'REVISION_QUEUE', '수정요청 처리 큐'],
-    ['admin', 'adminSendContract', 'CONTRACT_AMOUNT_REQ', '총액 없는 계약서 차단'],
-    ['admin', 'adminSendContract', 'SEND_HOLD_SYNC', '발송·홀드 동기화'],
-    ['admin', 'adminGrantWeddingHold', 'HOLD_LOCK', '가예약 승인 락'],
-    ['admin', 'adminSendContract', 'CONTRACT_NOTIFY_THROTTLE', '계약서 도착 알림 중복 방지'],
-    ['admin', 'adminIssueCoupon', 'COUPON_NOTIFY_ONCE', '쿠폰 발급 알림 1회'],
-    ['admin', '_clearForwardData', 'FITTING_SPLIT', '시착 갇힘 수정'],
-    ['admin', '_clearForwardData', 'GUIDE_TOKEN_CLEAR', '되돌리면 공개 링크 닫기'],
-    /* ★게이트가 잡아 준 실제 누락(2026-08-30) — adminForceStage 가 releaseSlot 인자를 받게 바뀌었는데
-       목록에 없어 «옛 판이어도 통과»했다. 되돌려도 예식 자리를 두 분 것으로 잠그는 그 변경이다. */
-    ['admin', 'adminForceStage', 'ROLLBACK_SLOT', '되돌려도 예식 자리 잠금'],
-    ['95_notify', '_kakaoSend', 'ADMIN_MAIL_UNCHAINED', '관리자 알림 살리기'],
-    ['95_notify', 'flushHeldNotifies', 'HOLD_NO_LOSS', '보류 알림 무손실'],
-    ['60_mypage', 'handleGetMyState', 'NOW_CONTRACT_EXPIRED', '기한 지난 계약 안내'],
-    ['70_journey', '_refundQuote', 'CHANGE_RATCHET', '위약금 회피 차단(99만원)'],
-    /* ★[MARK_INSIDE 2026-08-30 실기에서 오탐으로 드러남] 기준 함수는 표식을 «본문 안»에 담아야 한다.
-       _balanceDaysFor 는 표식이 닫는 중괄호 «뒤» 꼬리 주석에 있어 String(함수) 에 안 잡힌다 →
-       파일이 최신이어도 영영 MISS. 사용자 GAS 실행에서 실제로 헛경보가 났다.
-       같은 파일에서 표식을 본문에 담은 _journeyAmounts 로 옮긴다.
-       ★새 항목을 넣기 전에 deploycheck-sim.mjs 로 기준선을 돌릴 것 — 이런 헛경보를 그게 잡는다. */
-    ['70_journey', '_journeyAmounts', 'SNAP_BALANCE_D7', '스냅 잔금 촬영 D-7 분리'],
-    ['70_journey', '_refundQuote', 'SNAP_PENALTY_TABLE', '스냅 위약표 §9② 견적'],
-    ['70_journey', 'handleSignContract', 'SIGN_SLOT_REQUIRED', '예식시간 없인 서명 불가'],
-    ['70_journey', 'handleSignContract', 'SIGN_BOUNCE_ALERT', '서명 튕김 알림'],
-    ['consultation-booking', 'setCustomerStage', 'STAGE_REVIEW_DOOR', '후기 단계로 올리는 문'],
-    ['consultation-booking', 'actAccept', 'ACCEPT_GUARDED', '변경제안 수락 가드'],
-    ['consultation-booking', 'submitSchedule', 'PAST_SLOT_REJECT', '지난 날짜·시간 거절'],
-    ['80_production', 'handleSubmitSurvey', 'STAGE_REVIEW_DOOR', '후기 제출이 단계를 올림'],
-    ['80_production', 'handleSubmitSurvey', 'SURVEY_ONCE', '설문 재제출 멱등'],
-    ['80_production', 'handleSubmitResultSelection', 'PICK_MAX_MANUAL', '수동 컷 400 상한'],
-    ['80_production', 'handleRequestExtraRetouch', 'XR_SIGNAL_KEEP', '입금신호 증발 방지'],
-    ['80_production', 'handleExtraRetouchSignal', 'XR_STAGE_GUARD', '유령 입금신호 차단'],
-    /* ★8/29 확정(예식 확인서) 변경 넷 — 빈 도장·중복 확정·이력 없음·옛 날짜 도장을 막는다 */
-    ['80_production', 'handleSaveProductionTrack', 'CF_CORE_TRUTH', '빈 인원·손상 컬럼이면 확정 거부'],
-    ['80_production', 'handleSaveProductionTrack', 'CF_ONCE', '두 번째 확정은 멱등(기록·메일 1회)'],
-    ['80_production', 'handleSaveProductionTrack', 'CF_LOG', '확정을 처리이력·메일에 남김'],
-    ['70_journey', 'adminConfirmWeddingChange', 'CF_VOID_WEDDAY', '예식일이 바뀌면 확정 해제'],
-    /* ★8/30 점검 — 예식 시간 없는 계약서는 고객이 서명할 수 없다(막다른 길) → 발송에서 막는다 */
-    ['admin', 'adminSendContract', 'SEND_TIME_REQ', '예식 시간 없는 계약서 발송 차단'],
-    /* ★같은 라운드에 드러난 셋 — 옛 코드인 채로도 점검을 통과하던 자리다 */
-    ['admin', 'adminHome', 'EXIT_QUOTE_TS', '환불 큐 기준일=취소일시(금액이 날마다 안 변함)'],
-    ['consultation-booking', '_consultRefundQuote', 'OLD_SIGNER_TERMS', '구서명자 환불은 서명본 금액으로'],
-    /* ★표식이 함수 «바깥» 주석에 있으면 검사가 늘 누락으로 잡는다(함수 소스에 주석이 안 들어옴) —
-       그럴 땐 함수 안에 실제로 있는 문구로 대조한다. 이 함수는 인자가 없으면 거절 문구를 돌려준다. */
-    ['95_notify', 'ZZ_kakaoTestAll', '개인코드 인자가 필요합니다', '인자 없는 테스트는 아무에게도 안 보냄'],
-    ['20_customers-data', 'purgeStaleCustomers', 'LIVETEST_0830', '붙여넣기 누락 점검 실기 테스트']
-  ];
-  for (var k = 0; k < MARKS.length; k++) {
-    var m = MARKS[k];
-    chk('[' + m[0] + '] ' + m[1] + ' 안의 ' + m[2] + ' — ' + m[3], mark(m[1], m[2]), '그 파일이 옛 버전이거나 붙여넣다 잘렸습니다');
+  if (!REMOTE) L.push('  --   목록을 못 읽어 건너뜁니다 (위 ★★줄 참고 · 통과가 아닙니다)');
+  else {
+    for (var j2 = 0; j2 < REMOTE.newfn.length; j2++) {
+      var f = REMOTE.newfn[j2];
+      chk('[' + f.file + '] ' + f.fn + ' — ' + f.why, has(f.fn), '그 파일이 옛 버전입니다');
+    }
+    for (var k = 0; k < REMOTE.marks.length; k++) {
+      var m = REMOTE.marks[k];
+      chk('[' + m.file + '] ' + m.fn + ' 안의 ' + m.mark + ' — ' + m.why, mark(m.fn, m.mark), '그 파일이 옛 버전이거나 붙여넣다 잘렸습니다');
+    }
   }
 
-  L.push('');
   L.push('══ ③ 쿠폰 발급 안내가 켜져 있는가 ══');
   try {
     var ev = (typeof NOTIFY_EVENTS !== 'undefined') ? NOTIFY_EVENTS['cust.couponIssued'] : null;

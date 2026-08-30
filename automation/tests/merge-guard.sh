@@ -5261,7 +5261,10 @@ if command -v node >/dev/null 2>&1; then
          printf '%s\n' "$_dcOut" | sed 's/^/    | /'; fail=1; }
 fi
 chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
-chk 'CF_CORE_TRUTH' automation/platform/99_deployCheck.gs 1
+# ★[MARKS_REMOTE 2026-08-30] 아래 넷은 «점검 목록»에 그 항목이 살아 있는지 보는 줄이다.
+#   목록이 99_deployCheck.gs → deploy-marks.json 으로 옮겨 갔으므로 보는 곳도 옮긴다.
+#   ★.gs 를 계속 보게 두면 목록이 통째로 사라져도 이 줄들이 조용히 초록을 낸다.
+chk 'CF_CORE_TRUTH' deploy-marks.json 1
 chk 'platformSelfTest' automation/platform/99_deployCheck.gs 2   # ★setupAllTriggers 로 되돌리면 90_test-utils 누락이 안 잡힌다
 
 # ★★[LISTEN_LEAD_IN 2026-08-30 사용자 지시 "듣기 누르면 바로 나오기보단 2초정도 있다가 음성나오게
@@ -5404,6 +5407,19 @@ chk 'UNDO_AHEAD_LINE' scripts/audit/admin-shot.mjs 1
 #   ★얕은 체크아웃 문제(검사가 CI 에서만 붉던 것)는 #595·#607 이 fetch-depth: 0 + depth<=1 기권으로
 #     이미 고쳤다 — 그 설계를 되돌리지 말 것. #607 이 표식 수집을 «새 함수 근처»로 좁힌 것도
 #     헛경보를 줄이려는 의도적 결정이다(넓히지 말 것).
-chk 'SEND_TIME_REQ' automation/platform/99_deployCheck.gs 1
-chk 'EXIT_QUOTE_TS' automation/platform/99_deployCheck.gs 1
-chk '개인코드 인자가 필요합니다' automation/platform/99_deployCheck.gs 1
+chk 'SEND_TIME_REQ' deploy-marks.json 1
+chk 'EXIT_QUOTE_TS' deploy-marks.json 1
+chk '개인코드 인자가 필요합니다' deploy-marks.json 1
+
+# ★★[MARKS_REMOTE 2026-08-30 사용자 질문 "99파일은 매번 같이 업로드해야하는거야?"]
+#   답은 «그랬다» 였다 — 목록이 99_deployCheck.gs 안에 있어 새 변경마다 그 파일도 함께 붙여야 했다.
+#   ★이제 목록은 저장소 루트 deploy-marks.json 이고, 점검이 실행할 때 momentedit.kr 에서 읽어 간다.
+#     main 병합 → Vercel 자동 배포라 늘 최신 → **99_deployCheck.gs 는 한 번만 붙여넣으면 된다.**
+#   ★사이트를 못 읽으면 파일 존재 확인(FILES)만 하고, «②를 건너뛰었다»고 크게 알린다.
+#     조용히 줄어든 점검은 «통과»로 읽혀서 가장 위험하다 — 그래서 침묵하지 않는다.
+#   ★deploy-marks.json 을 지우거나 marks 를 비우면 시뮬레이터가 붉어진다(돌연변이로 확인).
+chk 'MARKS_REMOTE' automation/platform/99_deployCheck.gs 2
+chk 'deploy-marks.json' automation/platform/99_deployCheck.gs 1
+chk 'MARKS_REMOTE' scripts/audit/deploycheck-coverage.mjs 1
+chk 'SIM_MARKS_REMOTE' scripts/audit/deploycheck-sim.mjs 1
+chk 'COVER_SCOPE' scripts/audit/deploycheck-coverage.mjs 1

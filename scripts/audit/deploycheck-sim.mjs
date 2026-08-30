@@ -48,10 +48,24 @@ const nameOf = (r) => path.basename(r, '.gs');
 
 /* 한 「붙여넣기 상태」를 만들어 deployCheck() 를 돌린다.
    skip: 안 붙인 파일 이름들 · old: {파일이름: 커밋} 으로 옛 버전을 대신 올린다 */
-function run({ skip = [], old = {} } = {}) {
+/* ★[SIM_MARKS_REMOTE 2026-08-30] 점검이 목록을 사이트(deploy-marks.json)에서 읽어 오게 바뀌었다.
+   샌드박스의 UrlFetch 는 가짜라 그냥 두면 «못 읽음» 경로로만 돌고, 그러면 ② 를 통째로 건너뛰어
+   무엇을 망가뜨려도 초록이 난다. 그래서 저장소의 그 파일을 그대로 응답으로 준다.
+   ★즉 여기서 검사하는 것은 «저장소 JSON 대로 점검이 무는가»다. 사이트에 실제로 올라갔는지는
+     Vercel 이 main 을 자동 배포하므로 병합 자체가 보장한다. */
+function marksJson() {
+  return fs.readFileSync(path.join(ROOT, 'deploy-marks.json'), 'utf8');
+}
+
+function run({ skip = [], old = {}, noMarks = false } = {}) {
   const sb = makeSandbox();
   const lines = [];
   sb.Logger = { log: (m) => lines.push(String(m)) };
+  sb.UrlFetchApp = {
+    fetch: (url) => (!noMarks && String(url).includes('deploy-marks.json'))
+      ? { getResponseCode: () => 200, getContentText: () => marksJson() }
+      : { getResponseCode: () => 500, getContentText: () => '' },
+  };
   vm.createContext(sb);
   for (const fp of FILES) {
     const nm = nameOf(rel(fp));
@@ -156,6 +170,24 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
     const r = run();
     console.log(`   (참고) 표식 뒤에 글자를 «덧붙인» 개명 → 누락 ${r.bad}건 ${r.bad === 0 ? '· 못 잡음(문자열 포함 방식의 한계 · 위 주석)' : '· 잡힘'}`);
   } finally { fs.writeFileSync(target, keep, 'utf8'); }
+}
+
+/* ── 4 ── 사이트를 못 읽을 때: «조용히 줄어든 점검»이 통과로 읽히면 안 된다 */
+{
+  console.log('\n── 4) 목록(사이트)을 못 읽을 때 — 건너뛴 것을 통과로 세지 않는가');
+  const r = run({ noMarks: true });
+  const said = /못 읽어|★★목록/.test(r.out);
+  const skipped = /건너뜁니다/.test(r.out);
+  const stillFile = /OK   파일 admin/.test(r.out);
+  console.log(`   크게 알리는가=${said} · ②를 건너뛴다고 말하는가=${skipped} · ①파일 확인은 계속하는가=${stillFile}`);
+  if (!said) ng('사이트를 못 읽었는데 조용히 넘어갔습니다 — 줄어든 점검이 통과로 읽힙니다');
+  if (!skipped) ng('②를 못 했는데 그렇다고 말하지 않았습니다');
+  if (!stillFile) ng('사이트를 못 읽었다고 ①파일 확인까지 죽었습니다 — 폴백이 없습니다');
+  // 이 상태에서 파일을 빼면 그래도 잡혀야 한다(최소 보장)
+  const r2 = run({ noMarks: true, skip: ['admin'] });
+  const caught = r2.miss.some((l) => l.includes('파일 admin'));
+  console.log(`   사이트 없이도 「파일 통째 누락」은 잡히는가=${caught}`);
+  if (!caught) ng('사이트가 없으면 파일 누락조차 못 잡습니다');
 }
 
 console.log(fail ? `\n✗ ${fail}건 — 점검 파일에 구멍이 있습니다` : '\n✓ 전부 통과 — 안 붙인 파일·옛 버전·옛 내용 셋 다 붉어집니다');
