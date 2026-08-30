@@ -183,6 +183,9 @@ function _custAnonymized(get) {
   return true;
 }
 function purgeStaleCustomers(dryRun) {
+  /* ★[LIVETEST_0830] 붙여넣기 누락 점검 실기 확인용 · 동작 없음(주석 한 줄).
+     이 파일을 GAS 에 다시 붙여넣기 «전»에는 deployCheck 가 이 표식을 못 찾아 MISS 로 잡아야 한다.
+     확인이 끝나면 이 줄과 99_deployCheck 의 짝 항목을 함께 지운다. */
   try { if (PropertiesService.getScriptProperties().getProperty('CUSTOMER_PURGE_OFF') === 'Y') return { ok: true, skipped: 'off' }; } catch (e) {}
   // 동시 실행 방지(트리거+수동 겹침·다른 파기 잡과 경합) — 미리보기(dryRun)는 읽기 전용이라 잠그지 않음
   var _lock = null;

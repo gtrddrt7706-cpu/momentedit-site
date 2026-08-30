@@ -105,7 +105,8 @@ function deployCheck() {
     ['consultation-booking', '_consultRefundQuote', 'OLD_SIGNER_TERMS', '구서명자 환불은 서명본 금액으로'],
     /* ★표식이 함수 «바깥» 주석에 있으면 검사가 늘 누락으로 잡는다(함수 소스에 주석이 안 들어옴) —
        그럴 땐 함수 안에 실제로 있는 문구로 대조한다. 이 함수는 인자가 없으면 거절 문구를 돌려준다. */
-    ['95_notify', 'ZZ_kakaoTestAll', '개인코드 인자가 필요합니다', '인자 없는 테스트는 아무에게도 안 보냄']
+    ['95_notify', 'ZZ_kakaoTestAll', '개인코드 인자가 필요합니다', '인자 없는 테스트는 아무에게도 안 보냄'],
+    ['20_customers-data', 'purgeStaleCustomers', 'LIVETEST_0830', '붙여넣기 누락 점검 실기 테스트']
   ];
   for (var k = 0; k < MARKS.length; k++) {
     var m = MARKS[k];
