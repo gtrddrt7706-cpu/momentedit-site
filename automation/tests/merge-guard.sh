@@ -5384,3 +5384,15 @@ chk 'UNIT_SUITES_RUN' automation/tests/merge-guard.sh 1
 chk 'HARNESS_STAGEFLOW' automation/tests/pay-card.test.js 1
 chk 'CF_CORE_TRUTH 픽스처' automation/tests/guide.test.js 1
 chk 'OLD_SIGNER_TERMS 픽스처' automation/tests/change-fee.test.js 1
+# ★★[SEND_TIME_REQ 2026-08-29 점검] 시그니처 계약서는 «예식 시간»과 함께만 나간다.
+#   서명 가드([SIGN_SLOT_REQUIRED])는 시간이 없으면 서명을 거부한다 — 그런데 발송 폼엔 시간 칸이
+#   아예 없어, 시간 없이 나간 계약서를 받은 고객은 **아무것도 할 수 없는 막다른 길**에 선다.
+#   막는 자리를 서명이 아니라 발송으로 옮겼다(고칠 수 있는 사람이 그쪽에 있다) + 화면에 고를 칸을 뒀다.
+#   ★서버 가드만 지우거나 화면 칸만 지우면 각각 다른 방식으로 발송이 깨진다 — 둘은 한 몸이다.
+chk 'SEND_TIME_REQ' automation/admin/admin.gs 1
+chk 'SEND_TIME_REQ' admin.html 2
+chk 'ctWedT' admin.html 2
+chk 'SEND_TIME_REQ' scripts/audit/admin-shot.mjs 2
+chk 'SEED_WEDTIME' scripts/audit/stage-reach.mjs 1
+# [UNDO_AHEAD_LINE] 앞선 단계에선 되돌리기 «버튼» 대신 «사유 한 줄» — 두 검사가 서로 반대를 요구하지 않게.
+chk 'UNDO_AHEAD_LINE' scripts/audit/admin-shot.mjs 1

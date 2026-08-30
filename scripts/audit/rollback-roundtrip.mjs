@@ -67,7 +67,10 @@ function walkToEnd(prod, log) {
     ...(isSnap ? [] : [['고객 계약정보 입력', (g) => g.handleRequestContract({ token: 'tk', info: {
       weddingDate: '2026-12-20', weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02',
       groomAddr: '서울시 어딘가 1', brideAddr: '서울시 어딘가 2', consent: true } })]]),
-    ['계약서 발송', (g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html')],
+    /* [SEND_TIME_REQ] 시그니처는 예식 시간 없이 발송할 수 없다 — 시간만 더한다.
+       ★총액·예식일은 종전대로 넘기지 않는다: 아래 «총액 없이는 못 나간다»(CONTRACT_AMOUNT_REQ)
+         검사가 이 걸음을 그대로 재사용하므로, 여기서 총액을 채우면 그 검사가 조용히 무력해진다. */
+    ['계약서 발송', (g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', '', '', '12:20')],
     ['고객 계약 서명', (g) => g.handleSignContract({ token: 'tk', signature: 'data:image/png;base64,AAA', agree: true })],
     ['고객 입금 신고', (g) => g.handlePaymentSignal({ token: 'tk', payerName: '정희준' })],
     ['관리자 입금 확인', (g) => g.adminConfirmPayment(CODE)],
@@ -164,6 +167,8 @@ console.log('\n═══ 시그니처 — 되돌린 자리에서 계약서 발�
   const back = act((g) => g.adminForceStage(CODE, '상담확정', '우회로 점검'));
   ok(!!(back.r && back.r.ok) && C.현재단계 === '상담확정', '상담확정으로 되돌렸다', C.현재단계);
   ok(String(C.예식일 || '') !== '', '수납이 살아 있어 예식일은 보존됐다(KEEP_MONEY_BASIS)', C.예식일);
+  /* ★이 걸음은 «총액 없이 보내면 막힌다»(CONTRACT_AMOUNT_REQ)를 보는 자리다 — 총액을 넣으면
+     검사 의도가 사라진다. 예식 시간(SEND_TIME_REQ)은 총액 검사보다 뒤에 있어 여기 영향이 없다. */
   const send = act((g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html'));
   ok(!(send.r && send.r.ok), '★상담완료 전에는 계약서 발송이 막힌다(시착·상담완료 건너뛰기 차단)',
     JSON.stringify(send.r).slice(0, 120));
@@ -175,7 +180,7 @@ console.log('\n═══ 시그니처 — 되돌린 자리에서 계약서 발�
   walkToEnd('시그니처', false);
   ok(String(C.계약상태 || '') !== '서명완료', '★총액 없이는 계약서가 안 나가 서명까지 못 간다', C.계약상태 || '(빔)');
   ok(String(C.입금상태 || '') !== '확인', '★따라서 «총액 없는 입금 확인»도 생기지 않는다', C.입금상태 || '(빔)');
-  const amt = act((g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, '2026-12-20'));
+  const amt = act((g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, '2026-12-20', '12:20'));
   ok(!!(amt.r && amt.r.ok), '총액을 넣으면 그대로 지나간다(막다른 길이 아니다)', JSON.stringify(amt.r).slice(0, 90));
 }
 

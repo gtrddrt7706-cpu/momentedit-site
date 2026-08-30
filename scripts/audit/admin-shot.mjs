@@ -42,6 +42,16 @@ const SEED_A = Object.assign({}, NAMES, {
   계약서발송일시: '2026-07-01 12:00', 계약서명일시: '2026-07-02 08:00',
   동의기록: REC,
 });
+/* C) 계약서를 «아직 안 보낸» 고객 — 발송 대화상자를 열 수 있는 유일한 상태.
+   contractReq(고객이 입력한 계약 정보)가 있어야 발송 버튼이 그려진다(admin.html 2210행). */
+const SEED_SEND = Object.assign({}, NAMES, {
+  현재단계: '상담완료', 계약상태: '', 계약총액: '', 예식일: '2026-12-20',
+  시착동의상태: '동의완료', 시착동의일시: '2026-07-01 10:00',
+  동의기록: JSON.stringify({
+    시착: { at: '2026-07-01 10:00' },
+    계약정보: { weddingDate: '2026-12-20', weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1992-01-01', groomAddr: '서울', brideAddr: '서울' }
+  }),
+});
 // B) 방금 계약금을 확인한 '입금완료' 고객 — 계약금 되돌리기가 정상 통과하는 상태(모달 본문 확인용)
 const SEED_B = Object.assign({}, NAMES, {
   현재단계: '입금완료', 계약상태: '서명완료', 계약총액: '2500000', 예식일: '2026-10-26',
@@ -116,7 +126,10 @@ async function main() {
   });
   ok(!!payBtns, '결제 카드가 화면에 있다');
   const acts = (payBtns || []).map((b) => b.act);
-  ok(acts.indexOf('undoPay:계약금') !== -1, '계약금 되돌리기 버튼', JSON.stringify(acts));
+  /* ★계약금은 이 픽스처(제작중 = 입금완료보다 앞선 단계)에서 **버튼이 없는 것이 정답**이다 —
+     그 계약은 아래 SHOT-2A 가 «버튼 대신 사유 한 줄»로 검사한다. 여기서 다시 버튼을 기대하면
+     두 검사가 서로 반대를 요구하게 된다(PR #562 이후 · 되돌리지 말 것). */
+  ok(acts.indexOf('undoPay:계약금') === -1, '앞선 단계에선 계약금 되돌리기 버튼 없음(사유 줄은 2A에서 확인)', JSON.stringify(acts));
   ok(acts.indexOf('undoPay:중도금') !== -1, '중도금 되돌리기 버튼', JSON.stringify(acts));
   ok(acts.indexOf('undoPay:잔금') !== -1, '잔금 되돌리기 버튼', JSON.stringify(acts));
   ok(acts.indexOf('undoPay:중도금잔금') !== -1, '★AC1B 중도금·잔금 한 번에 취소 콤보 버튼', JSON.stringify(acts));
@@ -126,16 +139,26 @@ async function main() {
   ok(payTexts.indexOf('—') === -1, '결제 카드 버튼 문구에 전각 줄표 없음');
   await shot(page, '.card[data-k="payment"]', '1-결제카드-되돌리기버튼.png');
 
-  // ── ②-A 차단 모달 — 이미 다음 단계로 간 고객의 계약금 되돌리기(차단 C)
-  console.log('\n[SHOT-2A] 계약금 되돌리기 차단 모달 (단계 전진 · 차단 C)');
-  await clickAct(page, 'undoPay:계약금');
-  const blocked = await readModal(page);
-  ok(/되돌릴 수 없어요/.test(blocked.text), '차단 모달이 떴다', blocked.text.slice(0, 60));
-  ok(/제작중/.test(blocked.text) && /입금완료 단계/.test(blocked.text), '★왜 막혔는지 이유가 문장으로 나온다(강제변경 우회 유도 방지)', blocked.text.slice(0, 160));
-  ok(!blocked.hasReason, '차단 시에는 사유 입력칸을 띄우지 않는다');
-  ok(blocked.text.indexOf('—') === -1, '차단 문구에 전각 줄표 없음');
-  await shot(page, null, '2a-계약금되돌리기-차단모달.png');
-  await closeModal(page);
+  /* ── ②-A 앞선 단계에서는 «버튼이 아니라 이유 한 줄» (차단 C의 화면 쪽 계약)
+     ★[UNDO_AHEAD_LINE 2026-08-29 점검] 이 검사는 옛 UI 를 기대해 크래시로 죽어 있었다 —
+       «undoPay:계약금 버튼을 눌러 차단 모달이 뜨는지»를 봤는데, PR #562 가 그 버튼을
+       **앞선 단계에서는 그리지 않기로** 바꿨다(admin.html «보이는데 안 되는 버튼은 없는
+       버튼보다 나쁘다»). 제품 결정이 옳으므로 기대를 새 계약에 맞춘다.
+     ★다만 «그냥 사라짐»은 막다른 길이라 안 된다 — 버튼이 없는 대신 **왜 안 되는지와
+       무엇으로 정리하는지**가 화면에 남아 있는지까지 본다(설명이 사라지면 이 검사가 빨개진다). */
+  console.log('\n[SHOT-2A] 앞선 단계(제작중) — 되돌리기 버튼 대신 사유 한 줄');
+  const ahead = await page.evaluate(() => {
+    const card = document.querySelector('.card[data-k="payment"]');
+    return {
+      acts: [...card.querySelectorAll('[data-act]')].map((b) => b.getAttribute('data-act')),
+      gates: [...card.querySelectorAll('.gate')].map((g) => g.textContent.trim()).join(' | ')
+    };
+  });
+  ok(ahead.acts.indexOf('undoPay:계약금') === -1, '앞선 단계에선 계약금 되돌리기 버튼을 그리지 않는다', JSON.stringify(ahead.acts));
+  ok(/제작중/.test(ahead.gates) && /되돌릴 수 없어요/.test(ahead.gates), '★대신 왜 안 되는지가 한 줄로 남는다(막다른 길 금지)', ahead.gates.slice(0, 160));
+  ok(/강제 단계 변경/.test(ahead.gates), '★무엇으로 정리하는지까지 알려 준다', ahead.gates.slice(0, 160));
+  ok(ahead.gates.indexOf('—') === -1, '그 안내 문구에 전각 줄표 없음');
+  await shot(page, '.card[data-k="payment"]', '2a-앞선단계-되돌리기불가-사유줄.png');
 
   // ── ②-B 정상 미리보기 모달 — 방금 확인한 '입금완료' 고객
   console.log('\n[SHOT-2B] 입금 확인 취소 모달 · 미리보기 계획');
@@ -161,6 +184,36 @@ async function main() {
   const noReason = await readModal(page);
   ok(/사유를 입력/.test(noReason.text), '사유 없이 누르면 실행되지 않고 안내가 뜬다', noReason.text.slice(-80));
   ok(W && W.writes().length === 0, '★사유 없이 누른 시점까지 시트 쓰기 0건', W && String(W.writes().length));
+  await closeModal(page);
+  SEED = SEED_A;
+  await page.evaluate(() => window.openDetail('ME-TEST', 'home'));
+  await page.waitForTimeout(900);
+
+  /* ── ②-C 계약서 발송 대화상자 — 예식 «시간» 칸 [SEND_TIME_REQ]
+     서버가 시간 없는 발송을 막게 됐으므로(고객이 서명할 수 없는 계약서 방지), 화면에 고를 자리가
+     반드시 있어야 한다. 칸이 없으면 관리자는 서버 거부만 보고 무엇을 해야 할지 모른다 —
+     그 상태가 이 검사가 막으려는 것이다. */
+  console.log('\n[SHOT-2C] 계약서 발송 대화상자 · 예식 시간 칸 [SEND_TIME_REQ]');
+  SEED = SEED_SEND;
+  await page.evaluate(() => window.openDetail('ME-TEST', 'home'));
+  await page.waitForTimeout(900);
+  const sendDlg = await page.evaluate(() => {
+    const b = document.querySelector('[data-da="sendContract"]');
+    if (!b) return { err: '발송 버튼이 없다' };
+    b.click();
+    const sel = document.getElementById('ctWedT');
+    return {
+      있나: !!sel,
+      기본값: sel ? sel.value : null,
+      보기: sel ? [...sel.options].map((o) => o.text).join(' / ') : null,
+      라벨: sel && sel.closest('.field') ? sel.closest('.field').querySelector('label').textContent : null
+    };
+  });
+  ok(sendDlg.있나 === true, '발송 대화상자에 예식 시간 선택칸이 있다', JSON.stringify(sendDlg));
+  ok(sendDlg.기본값 === '12:20', '★고객이 요청한 슬롯이 기본으로 골라져 있다(손으로 다시 안 고르게)', sendDlg.기본값);
+  ok(/오전|오후/.test(sendDlg.보기 || ''), '보기는 본예식 기준 표기(고객·계약서와 같은 말)', sendDlg.보기);
+  ok(String(sendDlg.라벨 || '').indexOf('—') === -1, '그 칸 라벨에 전각 줄표 없음', sendDlg.라벨);
+  await shot(page, '#adm_modal .modal, .modal', '2c-계약서발송-예식시간칸.png');
   await closeModal(page);
   SEED = SEED_A;
   await page.evaluate(() => window.openDetail('ME-TEST', 'home'));
