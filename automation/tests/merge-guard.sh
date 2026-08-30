@@ -5469,9 +5469,6 @@ chk 'DEPLOY_STAMP' automation/consultation/consultation-booking.gs 2
 chk "catch (_ds) {}" automation/consultation/consultation-booking.gs 2
 chk 'DEPLOY_STAMP' automation/platform/99_deployCheck.gs 1
 chk 'SIM_DEPLOY_STAMP' scripts/audit/deploycheck-sim.mjs 1
-chk 'SEND_TIME_REQ' automation/platform/99_deployCheck.gs 1
-chk 'EXIT_QUOTE_TS' automation/platform/99_deployCheck.gs 1
-chk '개인코드 인자가 필요합니다' automation/platform/99_deployCheck.gs 1
 # ★★[DEMO_BADGE_QUIET 2026-08-30 사용자 지적 «빨간색 부분이 너무 튀는게»] 표본 배지는 «맥락»으로 갈린다.
 #   우리 폰 목업 안(iframe) = 크림 캡션(노치 아래 26px) · 그 밖(하객이 잘린 링크로 연 자리) = 진사 채움 유지.
 #   ★배지 자체를 지우지 말 것(표본 계좌 송금 사고 방지) · ①을 이유로 ②까지 조용하게 만들지 말 것.
