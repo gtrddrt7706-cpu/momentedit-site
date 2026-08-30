@@ -5256,3 +5256,27 @@ if command -v node >/dev/null 2>&1; then DC_DAYS=7 node scripts/audit/deploychec
 chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
 chk 'CF_CORE_TRUTH' automation/platform/99_deployCheck.gs 1
 chk 'platformSelfTest' automation/platform/99_deployCheck.gs 2   # ★setupAllTriggers 로 되돌리면 90_test-utils 누락이 안 잡힌다
+
+# ★★[LISTEN_LEAD_IN 2026-08-30 사용자 지시 "듣기 누르면 바로 나오기보단 2초정도 있다가 음성나오게
+#   해죠 처음 누를때 가끔씩 씹히는 경우가 있어 첫마디가 말이야"]
+#   parents.html 「듣기」는 누른 뒤 2초를 두고 소리를 낸다. 그 2초가 소리 장치를 깨우는 시간이다
+#   (음원은 버퍼, 기기 음성은 엔진). 그래서 첫 글자가 안 씹힌다.
+#   ★«재생»을 늦추는 게 아니라 «소리»를 늦춘다 — 재생을 setTimeout 으로 미루면 사용자 조작과의 끈이
+#     끊겨 iOS 자동재생 정책에 막힌다. 음원은 muted 로 시작해 2초 뒤 되감아 풀고, 기기 음성은
+#     빈 문장으로 엔진만 먼저 깨운다. volume 으로 바꾸지 말 것 — iOS 는 volume 을 코드로 못 바꾼다.
+#   ★clearPending 을 빼지 말 것 — 멈춘 뒤 2초 있다 혼자 읽기 시작하는 유령이 생긴다(돌연변이로 확인).
+chk 'LISTEN_LEAD_IN' parents.html 3
+chk 'clearPending' parents.html 6
+chk 'audioEl.muted=true' parents.html 1
+chk 'LISTEN_IDEMPOTENT' parents.html 1
+chk 'LISTEN_LEAD_IN' scripts/audit/parents-listen-race.mjs 3
+
+# ★[JR_HOVER 2026-08-30 사용자 지시 "이부분도 위쪽 목업 처럼 클릭하지않아도 마우스 올려도 전환되게 해죠"]
+#   index.html My Page 목업 목록 = 짚기만 해도 그 화면으로. 위쪽 「하객이 만나는 화면」과 같은 방식.
+#   click 리스너를 지우지 말 것 — 손가락 기기에는 hover 가 없다.
+chk 'JR_HOVER' index.html 1
+chk "stepsWrap.addEventListener('mouseover'" index.html 1
+chk "steps\[idx\].querySelector('.jr-step-btn').addEventListener('click'" index.html 1
+# [LEAD_IN_SAY] 기다리는 2초 동안엔 「안 들리면 볼륨을 확인하세요」를 감춘다 — 그 2초는 원래 안 들린다.
+#   띄워 두면 어른들이 멀쩡한 볼륨을 최대로 올려 두고, 소리가 나는 순간 깜짝 놀란다.
+chk 'LEAD_IN_SAY' parents.html 2

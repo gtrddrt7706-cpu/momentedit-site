@@ -8603,6 +8603,25 @@ nav .nav-links a, .nav-links a, .f-links a {
   function stop(){ if(timer){ clearInterval(timer); timer=null; } }
   function play(){ stop(); timer=setInterval(function(){ show(cur+1); }, DUR); }
   for(var k=0;k<n;k++){ (function(idx){ steps[idx].querySelector('.jr-step-btn').addEventListener('click', function(){ show(idx); play(); }); })(k); }
+
+  /* ★[JR_HOVER 2026-08-30 사용자 지시 "위쪽 목업 처럼 클릭하지않아도 마우스 올려도 전환되게 해죠"]
+     짚기만 해도 그 화면으로 넘어간다 — 위쪽 「하객이 만나는 화면」 목록과 같은 방식이다.
+     ★한 곳에 위임한다(항목마다 붙이지 않는다). 항목이 늘거나 줄어도 따라오고, 리스너도 하나뿐이다.
+     ★같은 칸이면 일찍 돌아간다 — 마우스가 한 칸 위에서 움직이는 내내 show() 가 불리는 걸 막는 것뿐이다.
+       ※화면이 «깜빡인다»는 뜻은 아니다. 실측해 보니 classList.toggle 은 이미 켜진 칸에서 아무것도 바꾸지
+         않고, 진행 막대 애니메이션은 애초에 좁은 화면에서만 돈다(넓은 화면 hover 와는 겹치지 않는다).
+         그래서 이 줄은 «고장 방지»가 아니라 «헛일 방지»다. 없애도 보이는 것은 같다.
+     ★stop() 은 겹겹이 두는 쪽 — 이미 sc 의 mouseenter 가 자동 넘김을 멈춘다(빼 봐도 검사는 초록이었다).
+       칸에 마우스가 닿는 경로가 mouseenter 를 안 거치는 경우를 대비해 남긴다. 값이 없으면 지워도 된다.
+     ★손가락(터치)에서도 이 이벤트가 한 번 오지만, 곧바로 오는 click 이 같은 칸을 다시 켜고
+       play() 로 자동 넘김까지 되살리므로 결과가 어긋나지 않는다. */
+  var stepsWrap = sc.querySelector('.jr-steps');
+  if(stepsWrap) stepsWrap.addEventListener('mouseover', function(e){
+    var t = e.target && e.target.closest ? e.target.closest('.jr-step') : null; if(!t) return;
+    var i = Array.prototype.indexOf.call(steps, t); if(i < 0 || i === cur) return;
+    stop(); show(i);
+  });
+
   sc.addEventListener('mouseenter', stop);
   sc.addEventListener('mouseleave', play);
   if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ play(); io.unobserve(e.target); } }); }, {threshold:.3}); io.observe(sc); }
