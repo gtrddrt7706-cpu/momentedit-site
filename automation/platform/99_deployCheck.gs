@@ -69,6 +69,9 @@ function deployCheck() {
     ['admin', 'adminIssueCoupon', 'COUPON_NOTIFY_ONCE', '쿠폰 발급 알림 1회'],
     ['admin', '_clearForwardData', 'FITTING_SPLIT', '시착 갇힘 수정'],
     ['admin', '_clearForwardData', 'GUIDE_TOKEN_CLEAR', '되돌리면 공개 링크 닫기'],
+    /* ★게이트가 잡아 준 실제 누락(2026-08-30) — adminForceStage 가 releaseSlot 인자를 받게 바뀌었는데
+       목록에 없어 «옛 판이어도 통과»했다. 되돌려도 예식 자리를 두 분 것으로 잠그는 그 변경이다. */
+    ['admin', 'adminForceStage', 'ROLLBACK_SLOT', '되돌려도 예식 자리 잠금'],
     ['95_notify', '_kakaoSend', 'ADMIN_MAIL_UNCHAINED', '관리자 알림 살리기'],
     ['95_notify', 'flushHeldNotifies', 'HOLD_NO_LOSS', '보류 알림 무손실'],
     ['60_mypage', 'handleGetMyState', 'NOW_CONTRACT_EXPIRED', '기한 지난 계약 안내'],
@@ -103,10 +106,43 @@ function deployCheck() {
   } catch (e) { chk('알림 이벤트 표 읽기', false, String(e && e.message)); }
 
   L.push('');
+  L.push('══ ④ 배포가 «먹었는가» (저장만으론 /exec 에 안 먹는다) ══');
+  /* ★★[DEPLOY_LIVE 2026-08-30] 위 ①~③ 은 «저장된 코드»만 본다 — 편집기가 그것으로 돌기 때문이다.
+     그래서 「전부 올렸는데 화면은 그대로」가 계속 나온다. 재배포를 안 한 것이 원인인데
+     사람이 그걸 기억해야만 했다. 여기서 «배포본»을 직접 찔러 기억할 필요를 없앤다.
+     ★틀린 토큰을 보내므로 아무것도 올라가지 않는다. 읽기 전용이라는 성질은 그대로다.
+     ★응답이 갈린다 — 배포됐으면 handleGuestPhoto 가 「잘못된 주소」로 막고,
+       배포가 낡았으면 라우터가 「알 수 없는 요청」을 낸다. */
+  try {
+    var _u = ScriptApp.getService().getUrl();
+    if (!_u) chk('배포 URL 읽기', false, '웹앱으로 배포돼 있는지 확인하세요');
+    else {
+      var _r = UrlFetchApp.fetch(_u, { method: 'post', contentType: 'text/plain;charset=utf-8',
+        payload: JSON.stringify({ action: 'guestPhoto', g: 'x' }), muteHttpExceptions: true, followRedirects: true });
+      var _t = String(_r.getContentText() || '');
+      if (_t.indexOf('잘못된 주소') >= 0)          chk('배포본이 최신이다 (하객사진 경로 있음)', true);
+      else if (_t.indexOf('알 수 없는 요청') >= 0) chk('배포본이 최신이다', false, '저장만 했습니다 — 배포 관리에서 «새 버전»으로 재배포하세요');
+      else                                        chk('배포본 판정', false, '응답을 못 읽었습니다: ' + _t.replace(/\s+/g, ' ').slice(0, 90));
+    }
+  } catch (e) { chk('배포 확인', false, '권한/네트워크: ' + (e && e.message)); }
+
+  L.push('');
+  L.push('══ ⑤ 시트가 준비됐는가 (함수만 있고 컬럼이 없으면 저장이 조용히 사라진다) ══');
+  /* ★addGuestPhotoColumns 는 «배포 전에» 한 번 돌려야 한다. 안 돌리면 writeCell 이 헤더 없는 칸을
+     조용히 건너뛰어 저장이 통째로 사라진다(화면엔 「저장됐어요」). 그 상태를 여기서 잡는다. */
+  try {
+    var _sh = getCustomersSheet();
+    var _hd = _sh.getRange(1, 1, 1, _sh.getLastColumn()).getValues()[0].map(function (v) { return String(v).trim(); });
+    var _need = ['하객사진수', '하객사진MB', '하객사진최근', '하객사진폴더ID'];
+    var _lack = _need.filter(function (h) { return _hd.indexOf(h) < 0; });
+    chk('하객사진 컬럼 4개', _lack.length === 0, '없는 것: ' + _lack.join(', ') + ' → 80_production 을 열고 addGuestPhotoColumns 실행');
+  } catch (e) { chk('시트 확인', false, String(e && e.message)); }
+
+  L.push('');
   L.push(badN === 0
-    ? '결과 — 누락 0건. 파일이 전부 있고, 최근 변경도 전부 올라갔습니다. (확인 ' + okN + '항목)'
+    ? '결과 — 누락 0건. 파일이 전부 있고, 최근 변경도 전부 올라갔고, 배포·시트도 준비됐습니다. (확인 ' + okN + '항목)'
     : '결과 — ★누락 ' + badN + '건. 위 MISS 줄의 파일을 다시 붙여넣고 «새 버전»으로 배포하세요. (확인 ' + okN + '항목)');
-  L.push('※ 이 결과는 «저장된 코드» 기준이다. 고객 화면(/exec)에 반영하려면 배포 관리 → 새 버전으로 재배포할 것.');
+  L.push('※ ①~③ 은 «저장된 코드» 기준이고, ④ 가 «배포본»을 직접 찔러 확인한다.');
   var out = L.join('\n');
   Logger.log(out);
   return out;

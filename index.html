@@ -1905,6 +1905,19 @@ section:not(#rsvp) > *:last-child {
      flex 항목의 베이스라인 계산은 엔진별로 갈리는 유일한 지점이고, 인라인 텍스트의
      vertical-align:baseline 은 어느 엔진에서도 같은 결과다. gap:4px 은 span margin-left 로 대체. */
   display: block;
+  /* ★★[SEQ_FIG_LINING 2026-08-29 사용자 재지적 "왜 그대로지"] 위 처방(인라인 조판)만으로는
+     안 풀렸다 — 사용자 화면이 그대로였다. 그래서 «두 번째 원인»을 함께 잡는다.
+     ★min 의 자리는 이미 다섯 줄이 같다(실측: 상자 위에서 전부 21px). 옮겨서는 못 고친다.
+       눈에 어긋나 보이는 것은 숫자 «글리프»가 줄마다 깊이가 다르기 때문이다 —
+       Cormorant 의 기본 숫자는 올드스타일이라 2·0·1 은 x높이인데 3·4·5 는 기준선 아래로 내려간다.
+       그래서 45·35 는 숫자가 더 내려가 min 이 «가운데»에 뜬 것처럼 보이고 20·21 은 나란해 보인다.
+     ★숫자를 높이가 같은 라이닝으로 바꾸고 폭도 고정(tabular)해 다섯 줄이 한 단으로 서게 한다.
+       저장소에 같은 처방 전례가 있다(console·order-audit 의 tabular-nums · 갤러리 카운터의 lnum).
+     ★★내 환경에서는 이 글꼴을 못 띄운다 — 프록시가 fonts.gstatic 과 CDN 을 모두 막는다(404·거부).
+       그래서 «적용됐는가»만 계산된 스타일로 확인했고, «눈에 나아졌는가»는 사용자 기기에서만 확정된다.
+       이 글꼴에 라이닝 숫자가 없다면 이 선언은 아무 일도 하지 않는다 — 그때는 다른 처방으로 간다. */
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;   /* 구형 사파리는 variant 를 무시한다 */
 }
 .seq-time span {
   font-size: 12px;
