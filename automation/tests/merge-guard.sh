@@ -5477,3 +5477,9 @@ chk 'DEMO_BADGE_QUIET' shared/hydrate.js 1
 chk '_inFrame' live.html 3
 chk 'padding:26px 14px 9px' live.html 1
 chk 'padding:26px 14px 9px' shared/hydrate.js 1
+
+# [SECTION_GAP 2026-08-30] 점검 로그의 섹션 제목 앞 빈 줄 — 같은 실수를 두 번 했다(②③·④⑤).
+#   둘 다 «블록을 통째로 다시 쓰며 끝의 L.push('') 를 옮겨 적지 않아서»다. 기능은 멀쩡하지만
+#   40줄짜리 목록이 다음 제목과 붙어 한 덩어리로 읽힌다 — 이 로그는 사람이 눈으로 훑는 것이다.
+#   세 번째는 사람의 주의가 아니라 검사가 막는다(deploycheck-sim 7번 · 돌연변이로 확인).
+chk 'SECTION_GAP' scripts/audit/deploycheck-sim.mjs 1
