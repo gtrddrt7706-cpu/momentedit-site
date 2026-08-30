@@ -52,7 +52,7 @@ console.log('\n[가격 — KB 가 말하는 값이 코드의 값과 같은가]')
        ★includes 로 되돌리지 말 것 — 그러면 이 검사는 다시 통과만 하는 장식이 된다. */
     const kbLine = (label) => { const mm = KB.match(new RegExp('- ' + label + '[^\n]*')); return mm ? mm[0] : ''; };
     const kbWon = (line) => { const mm = String(line).match(/(\d+(?:\.\d+)?)\s*만원/); return mm ? Number(mm[1]) : null; };
-    const wkEndLine = kbLine('주말·공휴일 올인원 패키지'), wkDayLine = kbLine('평일결혼식 올인원 패키지');
+    const wkEndLine = kbLine('주말·공휴일 올인원 구성'), wkDayLine = kbLine('평일결혼식 올인원 구성');   /* 2026-08-30 금지어 '패키지'→'구성' 개명과 세트(check-price-sync 니들도 동일 커밋) */
     ok(kbWon(wkEndLine) === weekend, `주말가 ${weekend}만원이 KB 선언과 일치`, 'KB 선언: ' + (wkEndLine || '(줄 없음)'));
     ok(kbWon(wkDayLine) === weekday, `평일가 ${weekday}만원이 KB 선언과 일치`, 'KB 선언: ' + (wkDayLine || '(줄 없음)'));
   }

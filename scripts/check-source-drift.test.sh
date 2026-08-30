@@ -72,7 +72,7 @@ io.open(p,'w',encoding='utf-8').write(s[:i]+b+s[i+len(a):])
 }
 
 # 시간표가 적힌 열 자리 + 원천(MIN.base) 자체
-run index.html '>21<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM] 이제 가운데값을 적는다 — 겨눌 자리가 칸으로 옮겼다
+run index.html '>20<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM·SUM_GATE] 본식 대표값 20(합 140 정합 · 구 21은 합 141) — 겨눌 자리가 칸으로 옮겼다
 run index.html '>35<span>min' '>44<span>min'                              # 같은 표 · 인사 사진 칸(가운데값)도 낡으면 잡히는지
 run index.html '16~25m | The Ceremony' '30m | The Ceremony'               # FAQ 블록
 run index.html 'Ceremony 16~25분' 'Ceremony 30분'                          # Service JSON-LD

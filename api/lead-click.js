@@ -2,9 +2,12 @@
 //   sendBeacon으로 들어오는 fire-and-forget 요청. 본문은 {surface}만. 실패해도 무방.
 // 환경변수: HANDOFF_WEBHOOK_URL (GAS /exec URL)
 
+const rateGate = require('./_ratelimit');   // 2026-08-30 유일하게 가드 없던 엔드포인트 — 시트 행 폭주(집계 오염) 차단
+
 module.exports = async (req, res) => {
   const done = (code) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store'); res.end(JSON.stringify({ ok: code === 200 })); };
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return done(405); }
+  if (!rateGate(req, 30, 500)) return done(200);   // 비콘이라 조용히 삼킨다(클라이언트 재시도 유발 금지) — 정상 클릭은 닿지 않는 한도
   const hook = process.env.HANDOFF_WEBHOOK_URL;
   if (!hook || !/^https:\/\//.test(hook)) return done(200);   // 미설정이어도 조용히 OK(집계는 부가기능)
   try {

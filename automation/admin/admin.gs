@@ -856,8 +856,9 @@ function adminHome() {
         badge: _over === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
         _urgent: _over > 0, _stage: 5, _wait: createdYmd });
     }
-    if (_pend('잔금상태') && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.잔금일수전) {
-      var _over2 = PAYMENT.잔금일수전 - _dd;   // 기한 당일부터 노출 — 중도금 카드(기한 초과 구간)와 빈틈 없이 이어짐
+    var _balDays = isSnap ? PAYMENT.잔금일수전_스냅 : PAYMENT.잔금일수전;   // [SNAP_BALANCE_D7] 스냅 잔금은 촬영 D-7(계약서 §4)
+    if (_pend('잔금상태') && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= _balDays) {
+      var _over2 = _balDays - _dd;   // 기한 당일부터 노출 — 중도금 카드(기한 초과 구간)와 빈틈 없이 이어짐
       // [B-7] 잔금 기한 이내 중도금까지 통미납이면 합산 1카드 — 고객 화면(묶음 입금 안내)·확인 처리(중도금잔금확인)와 짝
       var _midAlso = !isSnap && _pend('중도금상태') && !String(cget(rv, '중도금입금신호') || '').trim();
       var _ovLbl = _midAlso ? '중도금·잔금' : '잔금';

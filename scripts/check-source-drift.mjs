@@ -176,8 +176,11 @@ function scan(needle) {
      ★★슬롯마다 '범위 또는 가운데값'을 허용하면 안 된다 — 그러면 한 표 안에서 두 표기가 섞여도
        통과해 버려 돌연변이가 다른 슬롯에 흡수된다(실제로 그렇게 새는 것을 확인했다).
        **줄 전체가 한 형태로 맞아떨어질 때만** 통과시킨다. 그래서 두 벌을 따로 두고 OR 로 본다. */
-  const mid = (a, b2) => String(Math.round((a + b2) / 2));
-  const wantMid = [String(D.DAY.ready), String(D.DAY.snap), mid(CE[0], CE[1]), mid(GR[0], GR[1]), String(D.DAY.farewell)];
+  /* [SUM_GATE 2026-08-30 정합] 대표값 쌍은 반올림이 아니라 «둘의 합 = SUM(55)»이 되게 잡는다 —
+     구현이 round(20.5)+round(34.5)=21+35=141 로 게이트 스스로 합 141을 승인하고 있었다(위 MID_FORM 주석의
+     '큰 숫자 칸에 20 · 35' 가 원의도). 본식 = floor(가운데) · 인사 사진 = SUM − 본식. */
+  const midCE = Math.floor((CE[0] + CE[1]) / 2);
+  const wantMid = [String(D.DAY.ready), String(D.DAY.snap), String(midCE), String(SUM - midCE), String(D.DAY.farewell)];
   /* ★숫자와 단위 사이에 태그가 낀다 — `20<span>min</span>` · `30<small>min</small>`.
      이걸 빼먹어서 index.html 의 **보이는** 시간표 한 벌을 통째로 못 읽고 있었다(THIN).
      '읽은 벌 수'를 함께 세지 않았다면 초록으로 통과했을 것이다. */
@@ -438,6 +441,29 @@ function scan(needle) {
      정규식을 한 겹 더 올리는 것보다, 못 잡는다고 ☐ 로 적어 두는 것이 정직하다.
    여기를 다시 조이려면 — 먼저 **진짜 rot 가 이 구멍으로 새어 나온 실사고**를 하나 들 것.
    실사고 없이 조이는 것은 검사를 키우는 것이 아니라 늑대를 키우는 것이다. */
+
+/* 8) 총합 두 줄 — [SUM_GATE 2026-08-30] 산문·대표값은 (5)가 오탐 회피로 일부러 안 보던 자리다(159행).
+   그 그물 밖에서 실제로 둘이 살아남았다 — index 카드 대표값 합 141분 · 스마트스토어 산문 '합은 60분'.
+   STOP_HERE 원칙대로 «실사고가 있는 딱 그 두 형태»만 잡는다(정규식 확장 금지). */
+{
+  const _fs8 = require('node:fs');
+  const _idx8 = _fs8.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const _nums8 = [..._idx8.matchAll(/<div class="seq-time">(\d+)<span>min/g)].map((m) => Number(m[1]));
+  const _tot8 = D.DAY.total;
+  if (_nums8.length === 5) {
+    const _sum8 = _nums8.reduce((a, b) => a + b, 0);
+    if (_sum8 !== _tot8) no(`index 시퀀스 카드 대표값 합 ${_sum8}분 ≠ ${_tot8}분 (${_nums8.join('+')})`);
+    else ok(`index 시퀀스 카드 대표값 합 ${_tot8}분 (${_nums8.join('+')})`);
+  } else no(`index 시퀀스 카드가 5칸이 아니다(${_nums8.length}칸) — 카드 형식이 바뀌면 이 검사도 같은 커밋에서 갱신`);
+  const _SUM8 = _tot8 - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
+  for (const f8 of ['index.html', 'docs/smartstore/상세페이지_원본.html', 'api/_kb.js']) {
+    let s8 = ''; try { s8 = _fs8.readFileSync(path.join(root, f8), 'utf8'); } catch { continue; }
+    for (const m8 of s8.matchAll(/합은\s*(\d{1,3})분/g)) {
+      if (Number(m8[1]) !== _SUM8) no(`${f8}: 산문 「합은 ${m8[1]}분」 ≠ 본식+인사 사진 합 ${_SUM8}분`);
+      else ok(`${f8}: 산문 「합은 ${_SUM8}분」 일치`);
+    }
+  }
+}
 
 console.log(fail ? '\n── 원천과 갈린 자리가 있다. 손으로 적지 말고 데이터에서 뽑을 것.' : 'SOURCE DRIFT OK');
 process.exit(fail);

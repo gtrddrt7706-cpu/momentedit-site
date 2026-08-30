@@ -108,7 +108,8 @@ ol.terms li{margin:9px 0}
     if(d.count!=null && d.count!==''){
       var n=Number(d.count)||0, ded=Math.min(n*50000,100000);
       document.getElementById('fCntRow').style.display='';
-      document.getElementById('fCnt').textContent=n+'벌 (시착 비용 기준 '+ded.toLocaleString()+'원'+(n>3?(' · 추가 '+(n-3)+'벌 별도'):'')+')';
+      /* [FIT_EXTRA_N2 2026-08-30] 경계 n>2 · 증분 n-2 — 본문 "2벌 포함 · 3벌째부터 유료" 규칙과 정합(구 n>3 은 1벌씩 적게 안내하던 off-by-one) */
+      document.getElementById('fCnt').textContent=n+'벌 (시착 비용 기준 '+ded.toLocaleString()+'원'+(n>2?(' · 추가 '+(n-2)+'벌 별도'):'')+')';
     }
     if(d.terms && d.terms.length){
       var ol=document.getElementById('fTerms'); ol.innerHTML='';

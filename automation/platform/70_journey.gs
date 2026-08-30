@@ -694,13 +694,16 @@ var PAYMENT = {
   계약금율: 0.1,       // 계약서 §4 · 계약금 10% (예약금 100,000원 차감 후 잔액을 계약 성립 시 납부)
   중도금율: 0.4,       // 중도금 40%
   중도금일수전: 149,   // 중도금 기한 = 예식 D-149(무료 취소 종료·일정 확정 시) — 위약금 전 구간이 기수령액으로 커버되도록(2026-06-12 결정)
-  잔금일수전: 9        // 잔금 기한 = 예식 D-9 (9~1일 전 위약 50% 구간을 잔금 수령으로 커버 · 라벨·카피 파생)
+  잔금일수전: 9,       // 잔금 기한 = 예식 D-9 (9~1일 전 위약 50% 구간을 잔금 수령으로 커버 · 라벨·카피 파생) — ★시그니처 전용 값
+  잔금일수전_스냅: 7   // ★[SNAP_BALANCE_D7 2026-08-30] 스냅 잔금 = 촬영 D-7 — 서명되는 스냅 계약서(§4 표 '촬영일 7일 전(D-7)'·§9)가 원천.
+                       //   종전엔 시그니처 9를 재사용해 화면·리마인드가 계약서와 이틀 어긋났다(D-9의 근거인 시그 위약 9~1일 구간은 스냅에 없음).
 };
 function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
+function _balanceDaysFor(r) { return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? PAYMENT.잔금일수전_스냅 : PAYMENT.잔금일수전; }   // [SNAP_BALANCE_D7] 상품별 잔금 D-day 단일 판정
 function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
 // 상품별 어휘 — 스냅은 '예식'이 아니라 '촬영'(잔금 기한 라벨·리마인드 문구가 스냅 고객에게 어색하던 문제)
 function _payWordFor(r) { return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? '촬영' : '예식'; }
-function _balanceDueLabelFor(r) { return _payWordFor(r) + ' ' + PAYMENT.잔금일수전 + '일 전'; }
+function _balanceDueLabelFor(r) { return _payWordFor(r) + ' ' + _balanceDaysFor(r) + '일 전'; }   // [SNAP_BALANCE_D7] 어휘와 함께 일수도 상품별
 // 결제 기준일 — 예식일 컬럼 우선 · 비어 있으면(스냅 등 계약정보 우회 경로) 동의기록.계약정보.weddingDate 폴백(dday=null로 카드 기한·리마인드가 통째 죽던 문제)
 function _payWeddingYmd(r) {
   var d = _ymdOf(r.get('예식일')); if (d) return d;
@@ -741,7 +744,7 @@ function _journeyAmounts(total, product) {
   if (t <= 0) return null;
   if (String(product || '').trim() === '웨딩스냅') {        // 스냅 계약서 §4 · 2단계
     var dep = Math.round(t * 0.2);
-    return { 총액: t, 계약금: dep, 예약금: 0, 납부액: dep, 중도금: 0, 중도금시점: '', 잔금: t - dep, 잔금시점: _balanceDueLabel() };
+    return { 총액: t, 계약금: dep, 예약금: 0, 납부액: dep, 중도금: 0, 중도금시점: '', 잔금: t - dep, 잔금시점: '촬영 ' + PAYMENT.잔금일수전_스냅 + '일 전' };   // [SNAP_BALANCE_D7] 스냅 계약서 §4 표와 동일(구: '예식 9일 전')
   }
   var 계약금 = Math.round(t * PAYMENT.계약금율);            // 10%
   var 중도금기본 = Math.round(t * PAYMENT.중도금율);        // 40%
@@ -772,8 +775,39 @@ function _journeyAmounts(total, product) {
 //        / {pending:true}(계약 후 총액·예식일 미정 — 견적 불가) / null(스냅·행 없음).
 function _refundQuote(r, asOfYmd) {
   if (!r) return null;
-  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 시그니처 전용
   var asOf = _ymdOf(asOfYmd) || _kstYmd(new Date());
+  if (String(r.get('상품타입') || '').trim() === '웨딩스냅') {
+    /* ★[SNAP_PENALTY_TABLE 2026-08-30] 스냅 계약서 §7·§9② 구현 — 종전 return null(시그니처 전용)이라
+       서명된 위약표를 계산하는 곳이 어디에도 없었다(마이페이지 환불 예상·관리자 상세·환불 송금 큐 전부 빈칸).
+       위약금 = 총 대금 × 요율(계약일+7일 이내 0% / +8일~촬영 31일 전 10% / 30~15일 20% / 14~8일 30% /
+       7~3일 50% / 2~1일·당일·노쇼 70%) · 환불 = 기수령(계약금 20%+잔금 80% 확인분) − 위약금.
+       상담 예약금은 스냅 원장(_journeyAmounts 예약금:0)과 동일하게 여기서 합산하지 않는다(예약 트랙에서 별도 환불).
+       §9③ 촬영 개시 후 100%·§8④ 변경 래칫은 사람 판단으로 남긴다 — 구현하게 되면 이 주석을 갱신할 것. */
+    var _sPaid = 0;
+    var _sOut = function (rule, rate, penalty, refund, dd2) {
+      return { paid: _sPaid, fitCount: 0, fitDeduct: 0, needCount: false,
+               penalty: penalty, rate: rate, rule: rule, refund: Math.max(0, refund), dd: dd2, asOf: asOf };
+    };
+    if (String(r.get('계약상태') || '').trim() !== '서명완료') return _sOut('계약 전', 0, 0, 0, null);
+    var _sAmt = _journeyAmounts(r.get('계약총액'), '웨딩스냅');
+    if (!_sAmt) return { pending: true };
+    if (String(r.get('입금상태') || '').trim() === '확인') _sPaid += _sAmt.납부액;
+    if (String(r.get('잔금상태') || '').trim() === '확인') _sPaid += _sAmt.잔금;
+    var _sDd = _dayDiff((typeof _payWeddingYmd === 'function') ? _payWeddingYmd(r) : _ymdOf(r.get('예식일')), asOf);   // 촬영까지 남은 일수(0=당일 · 음수=지남) · 폴백은 테스트 샌드박스(부분 로드) 방어
+    if (_sDd == null) return { pending: true };
+    var _signYmd = _ymdOf(r.get('계약서명일시'));
+    var _sinceSign = _signYmd ? _dayDiff(asOf, _signYmd) : null;   // 서명 후 경과일
+    var _sRate, _sRule;
+    if (_sinceSign != null && _sinceSign >= 0 && _sinceSign <= 7) { _sRate = 0;    _sRule = '계약일 + 7일 이내(청약철회)'; }
+    else if (_sDd >= 31) { _sRate = 0.10; _sRule = '계약일 + 8일 ~ 촬영 31일 전'; }
+    else if (_sDd >= 15) { _sRate = 0.20; _sRule = '촬영 30 ~ 15일 전'; }
+    else if (_sDd >= 8)  { _sRate = 0.30; _sRule = '촬영 14 ~ 8일 전'; }
+    else if (_sDd >= 3)  { _sRate = 0.50; _sRule = '촬영 7 ~ 3일 전'; }
+    else if (_sDd >= 1)  { _sRate = 0.70; _sRule = '촬영 2 ~ 1일 전'; }
+    else                 { _sRate = 0.70; _sRule = '촬영 당일 · 노쇼'; }
+    var _sPen = Math.round(_sAmt.총액 * _sRate);
+    return _sOut(_sRule, _sRate, _sPen, _sPaid - _sPen, _sDd);
+  }
 
   // 기수령액 — 예약금(상담 시 입금). 계약 전엔 Customers 입금상태가 비어 있으므로 Bookings 입금확인으로 폴백(_cashReceiptLedger와 동일 패턴).
   var depConfirmed = String(r.get('입금상태') || '').trim() === '확인';

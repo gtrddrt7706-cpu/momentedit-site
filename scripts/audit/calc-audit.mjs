@@ -43,7 +43,9 @@ function rq({ dd, sign, dep = '확인', mid = '', bal = '', fit = 2, fitState = 
   const data = {
     상품타입: '시그니처', 현재단계: '입금완료', 계약상태: contract, 계약총액: 2800000,
     예식일: dd == null ? '' : ymdShift(ASOF, dd),
-    동의기록: JSON.stringify({ 시착: fit == null ? {} : { 벌수: fit } }),
+    /* ★[OLD_SIGNER_TERMS 2026-08-25 정합] 픽스처 시착 기록엔 스냅샷(예약금·추가벌비용)을 반드시 넣는다 —
+       없으면 엔진이 구서명자(v1~v3 · 200,000/70,000)로 판정해 B계열 10건이 통째로 어긋난다(refund-quote.test:108 동일 규칙). */
+    동의기록: JSON.stringify({ 시착: fit == null ? { 예약금: 100000, 추가벌비용: 50000 } : { 벌수: fit, 예약금: 100000, 추가벌비용: 50000 } }),
     시착동의상태: fitState, 개인코드: 'T1',
     입금상태: dep, 중도금상태: mid, 잔금상태: bal,
     계약서명일시: sign || '',
@@ -85,9 +87,19 @@ check('B19 위약 구간 시착 공제 없음(0벌=2벌)', rq({ dd: 100, sign: y
 check('B20 벌수 미기록 → needCount', rq({ dd: 200, sign: ymdShift(ASOF, -1), fit: null }).needCount, true);
 // 환급 음수 방지
 check('B21 환급 하한 0', rq({ dd: 0, sign: ymdShift(ASOF, -30) }).refund, 0);
-// 스냅 → null
+// ── 웨딩스냅 §7·§9② — [SNAP_PENALTY_TABLE 2026-08-30] 종전 'null(시그니처 전용)'에서 실표 구현으로 전환 ──
 bookingsDeposit = '';
-check('B22 웨딩스냅 → null', sb._refundQuote(row({ 상품타입: '웨딩스냅' }), ASOF), null);
+function rqs(over, asOf) {
+  const d = Object.assign({ 상품타입: '웨딩스냅', 현재단계: '계약완료', 계약상태: '서명완료', 계약총액: 600000,
+    예식일: '2026-12-20', 계약서명일시: '2026-08-01 10:00', 입금상태: '확인', 잔금상태: '', 동의기록: '{}', 개인코드: 'S1' }, over || {});
+  return sb._refundQuote(row(d), asOf);
+}
+check('B22 스냅 계약 전 → 위약 0·기수령 0', [rqs({ 계약상태: '발송', 입금상태: '' }, '2026-09-01').rule, rqs({ 계약상태: '발송', 입금상태: '' }, '2026-09-01').refund], ['계약 전', 0]);
+check('B23 스냅 서명+7일 이내 → 철회 0%·전액', [rqs({}, '2026-08-08').rate, rqs({}, '2026-08-08').refund], [0, 120000]);
+check('B24 스냅 촬영 60일 전 → 10%·60만 기준 6만', [rqs({}, '2026-10-21').rate, rqs({}, '2026-10-21').penalty], [0.1, 60000]);
+check('B25 스냅 촬영 20일 전 → 20%·환급 0(12만−12만)', [rqs({}, '2026-11-30').rate, rqs({}, '2026-11-30').refund], [0.2, 0]);
+check('B26 스냅 촬영 5일 전 완납 → 50%·60만−30만', [rqs({ 잔금상태: '확인' }, '2026-12-15').rate, rqs({ 잔금상태: '확인' }, '2026-12-15').refund], [0.5, 300000]);
+check('B27 스냅 당일 완납 → 70%·60만−42만', [rqs({ 잔금상태: '확인' }, '2026-12-20').rate, rqs({ 잔금상태: '확인' }, '2026-12-20').refund], [0.7, 180000]);
 
 // ── C. _changeFeeQuote (§8①) — 오늘 기준 상대 예식일 ──
 const today = sb._kstYmd(new Date());

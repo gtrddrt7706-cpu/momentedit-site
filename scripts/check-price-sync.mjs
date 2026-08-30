@@ -58,7 +58,7 @@ const MUST = [
   ['contract/v1-1.html', [`주말·공휴일 ${man(WE)}만원 / 평일 ${man(WD)}만원`,
     `<strong>${comma(WE)}원</strong>`, `<strong>${comma(WD)}원</strong>`,
     `주말·공휴일 ${comma(deposit(WE))}원 · 평일 ${comma(deposit(WD))}원`]],
-  ['api/_kb.js', [`주말·공휴일 올인원 패키지: ${man(WE)}만원`, `평일결혼식 올인원 패키지: ${man(WD)}만원`,
+  ['api/_kb.js', [`주말·공휴일 올인원 구성: ${man(WE)}만원`, `평일결혼식 올인원 구성: ${man(WD)}만원`,   /* 2026-08-30 금지어 '패키지' 제거와 세트 */
     `주말·공휴일 ${comma(deposit(WE))}원`, `평일 ${comma(deposit(WD))}원`]],
   ['assets/advisor-kb.js', [`주말·공휴일 ${man(WE)}만원, 평일결혼식 ${man(WD)}만원`,
     `주말 ${comma(deposit(WE))}원·평일 ${comma(deposit(WD))}원`]],
@@ -77,7 +77,13 @@ for (const [f, needles] of MUST) {
    메타는 검색 결과·링크 미리보기로 나가는 «고객 노출 문구»다(문구 규칙이 '메타'를 명시). */
 const OLD = [2800000, 2100000, 2400000].filter((v) => v !== WE && v !== WD);
 const SCAN = ['index.html', 'inquiry.html', 'contract/v1-1.html', 'api/_kb.js', 'assets/advisor-kb.js',
-  'automation/consultation/ScreenA_apply.html', 'docs/smartstore/상세페이지_원본.html'];
+  'automation/consultation/ScreenA_apply.html', 'docs/smartstore/상세페이지_원본.html', 'mypage.html'];
+/* ★[PRICE_DERIVED 2026-08-30] 구가의 «파생 금액»(계약금 잔액 18만/14만/11만)도 잠복한다 —
+   실사고 둘: mypage 미리보기 카드 140,000원 · _kb.js "14만원 그대로 인용" 지시 · ai-live-sim-ci 정답 잠금.
+   총액 스캔은 admin.html 의 구가 계약 지원 UI(PRICE_2026_08 · 정당)를 봐줘야 하지만,
+   파생 금액은 봐줄 정당한 자리가 없어 면제를 «같은 줄의 '인상 전' 명시»로만 좁힌다. */
+const OLD_DEPOSIT = ['180,000원', '140,000원', '110,000원', '18만원', '14만원', '11만원', '140,000|14만'];
+const SCAN_DEPOSIT = ['api/_kb.js', 'assets/advisor-kb.js', 'index.html', 'inquiry.html', 'mypage.html', 'scripts/ai-live-sim-ci.js'];
 for (const f of SCAN) {
   let s; try { s = R(f); } catch { continue; }
   for (const o of OLD) {
@@ -91,6 +97,17 @@ for (const f of SCAN) {
       if (/인상 전|PRICE_2026_08|보존|archive/.test(line) || /인상 전|PRICE_2026_08/.test(around)) continue;
       bad.push(`${f}: 인상 전 금액 「${form}」 이 남아 있다 — ${line.trim().slice(0, 90)}`);
      }
+    }
+  }
+}
+
+for (const f of SCAN_DEPOSIT) {   // [PRICE_DERIVED] 파생 금액 스캔 — 면제는 같은 줄 '인상 전' 명시뿐
+  let s; try { s = R(f); } catch { continue; }
+  for (const form of OLD_DEPOSIT) {
+    for (let i = s.indexOf(form); i >= 0; i = s.indexOf(form, i + 1)) {
+      const line = s.slice(s.lastIndexOf('\n', i) + 1, s.indexOf('\n', i));
+      if (/인상 전/.test(line)) continue;
+      bad.push(`${f}: 구가 파생 금액 「${form}」 이 남아 있다 — ${line.trim().slice(0, 90)}`);
     }
   }
 }
