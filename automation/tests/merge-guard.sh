@@ -5396,3 +5396,12 @@ chk 'SEND_TIME_REQ' scripts/audit/admin-shot.mjs 2
 chk 'SEED_WEDTIME' scripts/audit/stage-reach.mjs 1
 # [UNDO_AHEAD_LINE] 앞선 단계에선 되돌리기 «버튼» 대신 «사유 한 줄» — 두 검사가 서로 반대를 요구하지 않게.
 chk 'UNDO_AHEAD_LINE' scripts/audit/admin-shot.mjs 1
+# [DC_LIST_WIDEN 2026-08-30 점검] 99_deployCheck 목록에 넷을 더했다 — SEND_TIME_REQ 와,
+#   같은 라운드에 드러난 EXIT_QUOTE_TS · OLD_SIGNER_TERMS · TEST_BLAST_GUARD.
+#   넷 다 «옛 코드인 채로도 점검을 통과»하던 자리다(GAS 에 안 붙여넣어도 안 걸림).
+#   ★얕은 체크아웃 문제(검사가 CI 에서만 붉던 것)는 #595·#607 이 fetch-depth: 0 + depth<=1 기권으로
+#     이미 고쳤다 — 그 설계를 되돌리지 말 것. #607 이 표식 수집을 «새 함수 근처»로 좁힌 것도
+#     헛경보를 줄이려는 의도적 결정이다(넓히지 말 것).
+chk 'SEND_TIME_REQ' automation/platform/99_deployCheck.gs 1
+chk 'EXIT_QUOTE_TS' automation/platform/99_deployCheck.gs 1
+chk '개인코드 인자가 필요합니다' automation/platform/99_deployCheck.gs 1
