@@ -352,6 +352,18 @@
       "fn": "purgeStaleCustomers",
       "mark": "LIVETEST_0830",
       "why": "붙여넣기 누락 점검 실기 테스트"
+    },
+    {
+      "file": "98_pay_card",
+      "fn": "handleCardConfirm",
+      "mark": "PAY_LOCK_REENTRANT",
+      "why": "카드결제도 재진입 락(옛 판은 안쪽 함수가 바깥 락을 먼저 풀어 영수증·알림 구간이 무방비)"
+    },
+    {
+      "file": "admin",
+      "fn": "adminConfirmPayment",
+      "mark": "PAY_LOCK_REENTRANT",
+      "why": "입금 확인도 재진입 락(관리자 두 탭 동시 클릭 시 기록이 서로 덮임)"
     }
   ]
 }
