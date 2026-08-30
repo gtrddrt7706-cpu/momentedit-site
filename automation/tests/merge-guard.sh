@@ -5589,3 +5589,14 @@ chk 'SECTION_GAP' scripts/audit/deploycheck-sim.mjs 1
 chk 'COVER_PAIR' scripts/audit/deploycheck-coverage.mjs 1
 chk 'COVER_PAIR' scripts/audit/deploycheck-sim.mjs 1
 chk 'listedPairs' scripts/audit/deploycheck-coverage.mjs 2
+# ★★[DEMO_BADGE_PLACE 2026-08-30 사용자 지적 «라이브 페이지도 개선해 줘»] 표본 경고를 두 자리로 나눈다.
+#   위쪽 띠 = 크림 머리글(진사 채움 폐지) · **계좌 자리 = 별도 표시**([DEMO_ACCT_MARK]).
+#   ★띠만 남기고 계좌 표시를 지우지 말 것 — 손이 움직이는 순간엔 띠가 화면 밖이다. 둘은 한 몸.
+#   ★붙이는 자리는 «계좌 줄의 실제 부모»다(섹션에 바로 붙이면 NotFoundError 로 조용히 실패 · 실측).
+chk 'DEMO_BADGE_PLACE' live.html 1
+chk 'DEMO_BADGE_PLACE' shared/hydrate.js 1
+chk 'DEMO_ACCT_MARK' live.html 1
+chk 'DEMO_ACCT_MARK' shared/hydrate.js 1
+chk 'demoAcctMark' live.html 2
+chk 'meDemoAcct' shared/hydrate.js 2
+nochk "background:#6B2A24;color:#fff" live.html
