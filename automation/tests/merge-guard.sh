@@ -3588,6 +3588,11 @@ chk 'SOUND_OUT_OF_JS' scripts/build-listen-all.mjs 5
 # ★어조 mp3 186개를 assets/audio/tone/ 에 넣었다(2.0MB) — 재료가 또 사라지는 것도 함께 막는다
 #   (_dub_stage 가 gitignore 라 코워크 컨테이너와 함께 날아간 적이 있다).
 # 실측(iPhone13 에뮬·http 서빙): 클립 160 · 문장 495 · 「소리없음」 0 · 주소 재생 17.6/3.7/2.7초.
+# ★[LISTEN_URL 2026-08-26] 실청판을 **주소로** 연다 — listen-075c9ad62acf.html
+#   폰 앱 미리보기가 스크립트를 막아 파일 전달로는 못 쓴다(세 번 실패). 사이트에서 열면 그 문제가 없다.
+#   ★주소를 어렵게 둔다 — 검색 차단(noindex)에 더해, 아는 사람만 열도록.
+#   ★소리는 assets/audio/{narration,cast,tone}/ 에서 받는다 — 판 자체는 105K 다.
+chk 'listen-075c9ad62acf.html' automation/tests/merge-guard.sh 1
 chk 'LISTEN_WEB' scripts/build-listen-all.mjs 3
 chk 'SRCMAP' scripts/build-listen-all.mjs 3
 chk 'assets/audio/tone' scripts/build-listen-all.mjs 1
