@@ -108,7 +108,28 @@ for (const [mk, ctx] of found) {
   if (hit) alive.push([mk, ctx]);
 }
 
-const missing = alive.filter(([mk]) => !checkSrc.includes(mk));
+/* ★★[COVER_PAIR 2026-08-30 사용자 지시 "왜못잡앗는지 추적해서 확실하게 개선해"]
+   여기가 못 잡은 «진짜 자리»다. 종전엔 목록 전체를 한 덩어리 문자열로 놓고 «표식 이름»만 찾았다.
+     const missing = alive.filter(([mk]) => !checkSrc.includes(mk));
+   그러면 같은 표식이 여러 파일에 있을 때, 어느 «한 파일»만 목록에 있어도 나머지가 전부 통과한다.
+   실사고: PAY_LOCK_REENTRANT 가 70_journey·admin·98_pay_card 셋에 있는데 목록엔 70_journey 한 줄뿐이라
+           98_pay_card 를 안 붙여도 「누락 0건」이 나왔다(옛 판으로 되돌려 재현 확인).
+   ★그래서 «파일과 표식의 짝»으로 본다. 표식이 그 파일에 있으면 그 파일 이름으로 목록에 있어야 한다. */
+const listedPairs = new Set((JSON.parse(checkSrc).marks || []).map((m) => m.file + '|' + m.mark));
+const missing = alive.filter(([mk]) => {
+  for (const g of GAS) {
+    const p2 = path.join(REPO, g);
+    const fl = fs.statSync(p2).isDirectory()
+      ? fs.readdirSync(p2).filter((f) => f.endsWith('.gs')).map((f) => path.join(p2, f)) : [p2];
+    for (const f of fl) {
+      const name = path.basename(f, '.gs');
+      if (name === '99_deployCheck') continue;
+      if (!fs.readFileSync(f, 'utf8').includes('[' + mk)) continue;
+      if (!listedPairs.has(name + '|' + mk)) return true;      // 그 파일 몫이 목록에 없다
+    }
+  }
+  return false;
+});
 console.log(`최근 ${DAYS}일 GAS 표식 ${alive.length}개 · 점검 목록에 있는 것 ${alive.length - missing.length}개`);
 if (!missing.length) { console.log('✅ 빠진 표식 없음 — deploy-marks.json 이 최근 변경을 전부 덮는다.'); process.exit(0); }
 console.log(`❌ 점검 목록에 없는 표식 ${missing.length}개 — 이 변경들은 «옛 코드인 채로도» 통과한다:`);

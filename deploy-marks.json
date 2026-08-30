@@ -364,6 +364,42 @@
       "fn": "adminConfirmPayment",
       "mark": "PAY_LOCK_REENTRANT",
       "why": "입금 확인도 재진입 락(관리자 두 탭 동시 클릭 시 기록이 서로 덮임)"
+    },
+    {
+      "file": "70_journey",
+      "fn": "handleSignContract",
+      "mark": "ROLLBACK_SLOT",
+      "why": "되돌려도 예식 자리 잠금 — 서명 쪽 짝"
+    },
+    {
+      "file": "admin",
+      "fn": "adminHome",
+      "mark": "SNAP_BALANCE_D7",
+      "why": "스냅 잔금 D-7 — 관리자 화면 표기 짝"
+    },
+    {
+      "file": "60_mypage",
+      "fn": "buildLedgerState",
+      "mark": "SNAP_BALANCE_D7",
+      "why": "스냅 잔금 D-7 — 고객 내역 표기 짝"
+    },
+    {
+      "file": "admin",
+      "fn": "adminSendContract",
+      "mark": "SIGN_SLOT_REQUIRED",
+      "why": "예식시간 없인 서명 불가 — 발송 쪽 짝"
+    },
+    {
+      "file": "admin",
+      "fn": "adminSkipSurvey",
+      "mark": "STAGE_REVIEW_DOOR",
+      "why": "후기 단계로 올리는 문 — 관리자 건너뛰기 짝"
+    },
+    {
+      "file": "70_journey",
+      "fn": "_refundQuote",
+      "mark": "OLD_SIGNER_TERMS",
+      "why": "구서명자 환불은 서명본 금액으로 — 견적 엔진 짝"
     }
   ]
 }
