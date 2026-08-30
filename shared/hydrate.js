@@ -604,13 +604,34 @@
     function markDemo(why) {
       try {
         if (document.getElementById('meDemoBadge')) return;
+        /* ★★[DEMO_BADGE_QUIET 2026-08-30 사용자 지적 «빨간색 부분이 너무 튀는게»]
+         배지는 **없애지 않는다** — 표본 계좌로 축의금이 나가는 것을 막는 안전망이다(위 주석).
+         대신 «누가 보고 있는가»로 모양을 나눈다.
+         ① 우리 목업 안(iframe · index 폰 목업 · 갤러리) — 보는 사람은 디자인을 고르는 예비
+            고객이고, 바깥 화면이 이미 «미리보기»라고 말한다. 여기서 진사 채움 띠는 브랜드
+            규칙(«--seal 넓은 면적 금지»)을 어기면서 정보는 하나도 더 주지 않는다.
+            → 크림 바탕 · 진사 글자 · 아래 헤어라인의 «캡션»으로. 대비 10.14:1(AAA).
+            ★위 여백 26px 은 폰 목업의 노치(검은 알약)를 비켜 앉기 위한 값이다 —
+              실측: 프레임 배율 0.72 기준 노치 바닥이 안쪽 21px 자리에 온다.
+              종전 8px 이면 첫 줄이 노치에 그대로 가렸다(사용자 스크린샷의 검은 블록).
+         ② 그 밖(링크가 잘려 하객이 직접 연 경우) — 여기가 진짜 위험한 자리다.
+            돈이 잘못 나갈 수 있으므로 **종전대로 진사 채움을 유지한다.**
+         ★①을 이유로 ②까지 조용하게 만들지 말 것. 나누는 기준은 «예쁨»이 아니라 «위험»이다. */
+        var _inFrame = false;
+        try { _inFrame = !!(window.parent && window.parent !== window); } catch (e) { _inFrame = true; }
         var b = document.createElement('div');
         b.id = 'meDemoBadge';
-        b.style.cssText = 'position:sticky;top:0;z-index:99999;background:#6B2A24;color:#fff;'
-          + 'font:500 12.5px/1.5 system-ui,-apple-system,sans-serif;text-align:center;padding:9px 14px';
-        b.innerHTML = '예시 청첩장이에요 · 실제 초대장이 아닙니다'
-          + '<br><span style="opacity:.85;font-size:11.5px">이름·날짜·계좌 모두 예시예요'
-          + (why ? (' · ' + why) : '') + '</span>';
+        b.style.cssText = _inFrame
+          ? 'position:sticky;top:0;z-index:99999;background:#FAFAF8;color:#6B2A24;'
+            + 'font:400 11px/1.5 system-ui,-apple-system,sans-serif;text-align:center;padding:26px 14px 9px;'
+            + 'letter-spacing:.04em;border-bottom:1px solid rgba(107,42,36,.18)'
+          : 'position:sticky;top:0;z-index:99999;background:#6B2A24;color:#fff;'
+            + 'font:500 12.5px/1.5 system-ui,-apple-system,sans-serif;text-align:center;padding:9px 14px';
+        b.innerHTML = _inFrame
+          ? '예시 청첩장이에요 · 이름·날짜·계좌 모두 예시'
+          : '예시 청첩장이에요 · 실제 초대장이 아닙니다'
+            + '<br><span style="opacity:.85;font-size:11.5px">이름·날짜·계좌 모두 예시예요'
+            + (why ? (' · ' + why) : '') + '</span>';
         document.body.insertBefore(b, document.body.firstChild);
         document.documentElement.setAttribute('data-demo', '1');
       } catch (e) {}
