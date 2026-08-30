@@ -91,7 +91,8 @@ function moves(prod) {
     ['고객 계약정보 입력', (g) => g.handleRequestContract({ token: 'tk', info: {
       weddingDate: '2026-12-20', weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02',
       groomAddr: '서울시 어딘가 1', brideAddr: '서울시 어딘가 2', consent: true } })],
-    ['계약서 발송', (g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html')],
+    /* [SEND_TIME_REQ] 시그니처는 예식 시간 없이 발송할 수 없다 — 인자를 빼면 이 걸음이 늘 실패한다 */
+    ['계약서 발송', (g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, '2026-12-20', '12:20')],
     ['고객 계약 서명', (g) => g.handleSignContract({ token: 'tk', signature: 'data:image/png;base64,AAA', agree: true })],
     ['고객 입금 신고', (g) => g.handlePaymentSignal({ token: 'tk', payerName: '정희준' })],
     ['관리자 입금 확인', (g) => g.adminConfirmPayment(CODE)],

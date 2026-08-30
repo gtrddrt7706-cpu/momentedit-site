@@ -5369,3 +5369,41 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/deploycheck-sim.mjs 
   || { echo 'FAIL deploycheck-sim: 99_deployCheck 가 안 붙인 파일/옛 버전을 못 잡는다 — node scripts/audit/deploycheck-sim.mjs'; fail=1; }; fi
 chk 'DEPLOY_CHECK_SIM' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
+# ★★[UNIT_SUITES_RUN 2026-08-29 점검] 단위 스위트를 **실행**한다 — 종전엔 이 파일들 안의 마커만 보고
+#   내용은 한 번도 돌리지 않았다(#589 «검사를 만들었다 ≠ 검사가 돈다»의 재발).
+#   그 결과 pay-card 는 PR #555 이후 몇 주 동안 ReferenceError 로 통째로 죽어 있었고(60건 미실행),
+#   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
+#   ★스위트를 추가하면 이 목록에도 넣을 것.
+if command -v node >/dev/null 2>&1; then
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg; do
+    node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
+      || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
+  done
+fi
+chk 'UNIT_SUITES_RUN' automation/tests/merge-guard.sh 1
+chk 'HARNESS_STAGEFLOW' automation/tests/pay-card.test.js 1
+chk 'CF_CORE_TRUTH 픽스처' automation/tests/guide.test.js 1
+chk 'OLD_SIGNER_TERMS 픽스처' automation/tests/change-fee.test.js 1
+# ★★[SEND_TIME_REQ 2026-08-29 점검] 시그니처 계약서는 «예식 시간»과 함께만 나간다.
+#   서명 가드([SIGN_SLOT_REQUIRED])는 시간이 없으면 서명을 거부한다 — 그런데 발송 폼엔 시간 칸이
+#   아예 없어, 시간 없이 나간 계약서를 받은 고객은 **아무것도 할 수 없는 막다른 길**에 선다.
+#   막는 자리를 서명이 아니라 발송으로 옮겼다(고칠 수 있는 사람이 그쪽에 있다) + 화면에 고를 칸을 뒀다.
+#   ★서버 가드만 지우거나 화면 칸만 지우면 각각 다른 방식으로 발송이 깨진다 — 둘은 한 몸이다.
+chk 'SEND_TIME_REQ' automation/admin/admin.gs 1
+chk 'SEND_TIME_REQ' admin.html 2
+chk 'ctWedT' admin.html 2
+chk 'SEND_TIME_REQ' scripts/audit/admin-shot.mjs 2
+# ★씨앗의 예식 시간은 main(#597 라운드)이 먼저 넣었다 — 마커 이름이 아니라 «값»으로 지킨다.
+#   이게 빠지면 [SIGN_SLOT_REQUIRED]가 서명을 거부해 «계약완료에 못 닿는다»는 가짜 경보가 난다.
+chk "계약정보: { weddingTime: '12:20' }" scripts/audit/stage-reach.mjs 1
+# [UNDO_AHEAD_LINE] 앞선 단계에선 되돌리기 «버튼» 대신 «사유 한 줄» — 두 검사가 서로 반대를 요구하지 않게.
+chk 'UNDO_AHEAD_LINE' scripts/audit/admin-shot.mjs 1
+# [DC_LIST_WIDEN 2026-08-30 점검] 99_deployCheck 목록에 넷을 더했다 — SEND_TIME_REQ 와,
+#   같은 라운드에 드러난 EXIT_QUOTE_TS · OLD_SIGNER_TERMS · TEST_BLAST_GUARD.
+#   넷 다 «옛 코드인 채로도 점검을 통과»하던 자리다(GAS 에 안 붙여넣어도 안 걸림).
+#   ★얕은 체크아웃 문제(검사가 CI 에서만 붉던 것)는 #595·#607 이 fetch-depth: 0 + depth<=1 기권으로
+#     이미 고쳤다 — 그 설계를 되돌리지 말 것. #607 이 표식 수집을 «새 함수 근처»로 좁힌 것도
+#     헛경보를 줄이려는 의도적 결정이다(넓히지 말 것).
+chk 'SEND_TIME_REQ' automation/platform/99_deployCheck.gs 1
+chk 'EXIT_QUOTE_TS' automation/platform/99_deployCheck.gs 1
+chk '개인코드 인자가 필요합니다' automation/platform/99_deployCheck.gs 1

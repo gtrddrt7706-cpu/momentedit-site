@@ -125,7 +125,11 @@ const ACTIONS = [
   { k: '관리자:시착 동의 보내기', side: 'adm', run: ADMIN('adminOpenFittingConsent') },
   { k: '관리자:시착 동의 취소', side: 'adm', run: ADMIN('adminCloseFitting') },
   { k: '관리자:시착 벌수 기록', side: 'adm', run: ADMIN('adminSetFittingCount', [2]) },
-  { k: '관리자:계약서 발송', side: 'adm', run: ADMIN('adminSendContract', ['https://momentedit.kr/contract/v1-1.html']) },   /* ★링크 인자 필수 — 빼면 서버가 거부해 계약 이후 절반이 통째로 안 열린다 */
+  /* ★링크 인자 필수 — 빼면 서버가 거부해 계약 이후 절반이 통째로 안 열린다.
+     ★[SEND_TIME_REQ 2026-08-30] 총액·예식일·**예식 시간**도 함께 넘긴다 — 시그니처는 시간 없는
+       발송을 서버가 거부한다(고객이 서명할 수 없는 계약서를 만들지 않으려고). 빼면 계약완료·
+       입금완료가 통째로 «닿지 않는 단계»로 잘못 잡힌다(스냅은 시간을 무시하므로 같은 인자로 돈다). */
+  { k: '관리자:계약서 발송', side: 'adm', run: ADMIN('adminSendContract', ['https://momentedit.kr/contract/v1-1.html', 3300000, '2026-12-20', '12:20']) },
   { k: '관리자:입금 확인', side: 'adm', run: ADMIN('adminConfirmPayment') },
   { k: '관리자:중도금 확인', side: 'adm', run: ADMIN('adminConfirmMid') },
   { k: '관리자:잔금 확인', side: 'adm', run: ADMIN('adminConfirmBalance') },

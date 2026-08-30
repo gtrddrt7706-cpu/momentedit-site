@@ -152,22 +152,27 @@ function setCust(fields) { ctx.CUST = { data: Object.assign({}, fields), row: { 
 function consent() { return JSON.parse(String(ctx.CUST.data['동의기록'] || '{}')); }
 
 console.log('\n[0] _consultRefundQuote — 상담 취소 환불 예상 (예약금 100,000 · 시착 4조⑧ 공제 · cancel.html)');
+/* ★[OLD_SIGNER_TERMS 픽스처 2026-08-29] 시착 동의 픽스처에는 **서명 스냅샷**(예약금·추가벌비용)을 반드시 싣는다.
+   현행 handleSignFittingConsent 는 서명 때 이 둘을 항상 남기므로, 없는 행은 «구서명자»(200,000/70,000)로
+   계산되는 것이 옳은 동작이다. 종전 픽스처는 그 필드를 빼먹어 현행 고객을 모델링한다면서 구서명자 값을
+   기대했고, OLD_SIGNER_TERMS 도입 뒤 4건이 붉어졌다(제품이 아니라 픽스처가 낡은 것).
+   ★스냅샷을 지우지 말 것 — 지우면 다시 구서명자 계산이 되어 이 네 건이 붉어진다. */
 ctx.CUST = null;   // Customers 행 없음(원자성 실패)
 let cq = ctx._consultRefundQuote('NOROW1');
 check('Customers 행 없음 → 전액 100,000 · 공제 0', cq.amount === 100000 && cq.fitDeduct === 0 && cq.fitCount === 0 && !cq.needCount, JSON.stringify(cq));
 setCust({ 개인코드: 'TQ01', 시착동의상태: '대기', 동의기록: '' });
 cq = ctx._consultRefundQuote('TQ01');
 check('시착 전(동의 전) → 전액 환불', cq.amount === 100000 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
-setCust({ 개인코드: 'TQ02', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 0 } }) });
+setCust({ 개인코드: 'TQ02', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 0, 예약금: 100000, 추가벌비용: 50000 } }) });
 cq = ctx._consultRefundQuote('TQ02');
 check('시착 0벌 → 전액 환불(공제 0)', cq.amount === 100000 && cq.fitCount === 0 && cq.fitDeduct === 0 && !cq.needCount, JSON.stringify(cq));
-setCust({ 개인코드: 'TQ03', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2 } }) });
+setCust({ 개인코드: 'TQ03', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 2, 예약금: 100000, 추가벌비용: 50000 } }) });
 cq = ctx._consultRefundQuote('TQ03');
 check('시착 2벌 → 공제 100,000(상한) · 환불 0', cq.amount === 0 && cq.fitCount === 2 && cq.fitDeduct === 100000, JSON.stringify(cq));
-setCust({ 개인코드: 'TQ04', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 4 } }) });
+setCust({ 개인코드: 'TQ04', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { 벌수: 4, 예약금: 100000, 추가벌비용: 50000 } }) });
 cq = ctx._consultRefundQuote('TQ04');
 check('시착 4벌 → 공제 상한 100,000 · 환불 0', cq.amount === 0 && cq.fitDeduct === 100000, JSON.stringify(cq));
-setCust({ 개인코드: 'TQ05', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: 'x' } }) });
+setCust({ 개인코드: 'TQ05', 시착동의상태: '동의완료', 동의기록: JSON.stringify({ 시착: { signedAt: 'x', 예약금: 100000, 추가벌비용: 50000 } }) });
 cq = ctx._consultRefundQuote('TQ05');
 check('동의완료 + 벌수 미기록 → needCount(공제 0 유지)', cq.needCount === true && cq.fitDeduct === 0 && cq.amount === 100000, JSON.stringify(cq));
 

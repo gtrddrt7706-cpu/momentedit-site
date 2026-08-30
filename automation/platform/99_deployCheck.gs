@@ -97,7 +97,15 @@ function deployCheck() {
     ['80_production', 'handleSaveProductionTrack', 'CF_CORE_TRUTH', '빈 인원·손상 컬럼이면 확정 거부'],
     ['80_production', 'handleSaveProductionTrack', 'CF_ONCE', '두 번째 확정은 멱등(기록·메일 1회)'],
     ['80_production', 'handleSaveProductionTrack', 'CF_LOG', '확정을 처리이력·메일에 남김'],
-    ['70_journey', 'adminConfirmWeddingChange', 'CF_VOID_WEDDAY', '예식일이 바뀌면 확정 해제']
+    ['70_journey', 'adminConfirmWeddingChange', 'CF_VOID_WEDDAY', '예식일이 바뀌면 확정 해제'],
+    /* ★8/30 점검 — 예식 시간 없는 계약서는 고객이 서명할 수 없다(막다른 길) → 발송에서 막는다 */
+    ['admin', 'adminSendContract', 'SEND_TIME_REQ', '예식 시간 없는 계약서 발송 차단'],
+    /* ★같은 라운드에 드러난 셋 — 옛 코드인 채로도 점검을 통과하던 자리다 */
+    ['admin', 'adminHome', 'EXIT_QUOTE_TS', '환불 큐 기준일=취소일시(금액이 날마다 안 변함)'],
+    ['consultation-booking', '_consultRefundQuote', 'OLD_SIGNER_TERMS', '구서명자 환불은 서명본 금액으로'],
+    /* ★표식이 함수 «바깥» 주석에 있으면 검사가 늘 누락으로 잡는다(함수 소스에 주석이 안 들어옴) —
+       그럴 땐 함수 안에 실제로 있는 문구로 대조한다. 이 함수는 인자가 없으면 거절 문구를 돌려준다. */
+    ['95_notify', 'ZZ_kakaoTestAll', '개인코드 인자가 필요합니다', '인자 없는 테스트는 아무에게도 안 보냄']
   ];
   for (var k = 0; k < MARKS.length; k++) {
     var m = MARKS[k];
