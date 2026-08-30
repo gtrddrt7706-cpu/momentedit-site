@@ -5357,3 +5357,15 @@ chk '하객사진 컬럼 4개' automation/platform/99_deployCheck.gs 1
 chk 'SEQ_FIG_LINING' index.html 1
 chk 'font-variant-numeric: lining-nums tabular-nums' index.html 1
 chk '"lnum" 1, "tnum" 1' index.html 1
+
+# ★★[DEPLOY_CHECK_SIM 2026-08-30 사용자 지시 "너가 임의로 메인 파일 살짝 변경하고 필터되는지 체크"]
+#   점검 파일(99_deployCheck.gs) 자체가 «점검받지 않은 코드»였다. GAS 실행에서 「누락 0건」이 나온 건
+#   지금이 온전하다는 뜻이지 «망가뜨렸을 때 붉어진다»는 뜻이 아니다.
+#   그래서 GAS 없이 실제 .gs 를 node vm 에 올려 붙여넣기 상태를 흉내 내고, 셋을 실제로 확인한다:
+#     ①파일 18개를 하나씩 빼 본다 ②80_production 을 옛 커밋 판으로 바꿔 올린다 ③표식 한 줄만 지운다
+#   ★샌드박스가 못 재는 둘(④배포본 판정·⑤시트 확인)은 빼고 센다 — 안 빼면 늘 2건 붉어 차이를 못 잰다.
+#   0.4초. 붉어지면 점검 파일에 구멍이 생긴 것이다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/deploycheck-sim.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL deploycheck-sim: 99_deployCheck 가 안 붙인 파일/옛 버전을 못 잡는다 — node scripts/audit/deploycheck-sim.mjs'; fail=1; }; fi
+chk 'DEPLOY_CHECK_SIM' scripts/audit/deploycheck-sim.mjs 1
+chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
