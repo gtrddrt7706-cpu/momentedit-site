@@ -57,10 +57,23 @@ function marksJson() {
   return fs.readFileSync(path.join(ROOT, 'deploy-marks.json'), 'utf8');
 }
 
-function run({ skip = [], old = {}, noMarks = false } = {}) {
+function run({ skip = [], old = {}, noMarks = false, stamp = undefined } = {}) {
   const sb = makeSandbox();
   const lines = [];
   sb.Logger = { log: (m) => lines.push(String(m)) };
+  /* [SIM_DEPLOY_STAMP] ④ 는 «배포된 코드가 남긴 지문»과 «저장된 코드의 지문»을 대조한다.
+     stamp: undefined = 기록 없음(아직 모름) · 'MATCH' = 저장본과 같게 · 그 밖 문자열 = 다르게 */
+  const store = new Map();
+  if (stamp !== undefined && stamp !== 'MATCH') store.set('DEPLOY_CODE_FINGERPRINT', stamp + '|2026-08-30T00:00:00Z');
+  sb.PropertiesService = {
+    getScriptProperties: () => ({
+      getProperty: (k) => store.get(k) ?? null,
+      setProperty: (k, v) => store.set(k, v),
+      deleteProperty: (k) => store.delete(k),
+      getProperties: () => Object.fromEntries(store),
+    }),
+  };
+  sb.__seedMatch = () => { try { store.set('DEPLOY_CODE_FINGERPRINT', sb.deployFingerprint() + '|2026-08-30T00:00:00Z'); } catch (e) {} };
   sb.UrlFetchApp = {
     fetch: (url) => (!noMarks && String(url).includes('deploy-marks.json'))
       ? { getResponseCode: () => 200, getContentText: () => marksJson() }
@@ -80,6 +93,7 @@ function run({ skip = [], old = {}, noMarks = false } = {}) {
     catch (e) { /* 옛 버전이 지금 세계와 안 맞아 로드가 깨질 수 있다 — 그 파일만 빠진 셈이 된다 */
       lines.push(`  (로드실패 ${nm}: ${e.message})`); }
   }
+  if (stamp === 'MATCH') sb.__seedMatch();
   if (typeof sb.deployCheck !== 'function') throw new Error('deployCheck 가 없습니다 — 99_deployCheck.gs 를 못 읽었습니다');
   sb.deployCheck();
   const out = lines.join('\n');
@@ -188,6 +202,68 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   const caught = r2.miss.some((l) => l.includes('파일 admin'));
   console.log(`   사이트 없이도 「파일 통째 누락」은 잡히는가=${caught}`);
   if (!caught) ng('사이트가 없으면 파일 누락조차 못 잡습니다');
+}
+
+/* ── 5 ── [DEPLOY_STAMP] ④ 가 «재배포 했는가»를 실제로 말하는가
+   사용자 질문: "재배포가 최신인지 그것도 같이 체크는 불가해?"
+   종전엔 자기 /exec 를 찔러 늘 「확인 불가」였다(구글이 막는다 · HTTP 401).
+   이제는 배포된 코드가 남긴 지문과 저장된 코드의 지문을 대조한다. 세 상태가 각각 «다르게» 나와야 한다. */
+{
+  console.log('\n── 5) ④ 재배포 확인 — 세 상태가 구분되는가');
+  const noRec = run();                                   // 기록 없음
+  const same  = run({ stamp: 'MATCH' });                 // 배포본 = 저장본
+  const diff  = run({ stamp: 'ZZ옛지문' });               // 배포본 ≠ 저장본
+
+  const sNo = /아직 모름/.test(noRec.out);
+  const sOk = /OK   배포본이 지금 저장된 코드와 같다/.test(same.out);
+  const sNg = same.bad === diff.bad - 1 && /MISS 배포본이 지금 저장된 코드와 같다/.test(diff.out);
+  console.log(`   기록 없음 → «아직 모름»=${sNo}`);
+  console.log(`   배포본=저장본 → OK=${sOk}`);
+  console.log(`   배포본≠저장본 → MISS=${/MISS 배포본이/.test(diff.out)} (누락 ${same.bad}건 → ${diff.bad}건)`);
+
+  if (!sNo) ng('배포 기록이 없는데 «아직 모름»이라고 말하지 않습니다 — 실패로 세면 누락 0건이 영영 안 나옵니다');
+  if (noRec.bad !== 0) ng('배포 기록이 없다고 실패로 셌습니다');
+  if (!sOk) ng('배포본이 저장본과 같은데 OK 가 안 나옵니다');
+  if (same.bad !== 0) ng('배포본이 최신인데 누락이 잡혔습니다');
+  if (!sNg) ng('배포본이 옛것인데 MISS 로 안 잡힙니다 — 재배포 안 한 것을 못 알려 줍니다');
+
+  /* 지문이 «코드가 바뀌면 저절로 달라지는가» — 손으로 버전을 올리지 않아도 되는 근거 */
+  const fingerprint = () => {
+    const sb = makeSandbox(); vm.createContext(sb);
+    for (const fp of FILES) { try { vm.runInContext(fs.readFileSync(fp, 'utf8'), sb, { filename: rel(fp) }); } catch (e) {} }
+    return sb.deployFingerprint();
+  };
+  const a = fingerprint();
+  const target = path.join(AUT, 'platform/80_production.gs');
+  const keep = fs.readFileSync(target, 'utf8');
+  let b;
+  try {
+    fs.writeFileSync(target, keep.replace('function handleSaveProductionTrack', 'function handleSaveProductionTrack /* 바뀜 */'), 'utf8');
+    b = fingerprint();
+  } finally { fs.writeFileSync(target, keep, 'utf8'); }
+  console.log(`   코드를 고치면 지문이 달라지는가 = ${a !== b}  (${a} → ${b})`);
+  if (a === b) ng('코드를 고쳤는데 지문이 그대로입니다 — 재배포 안 함을 영영 못 잡습니다');
+}
+
+/* ── 6 ── [DEPLOY_STAMP] 지문 남기기가 고객 요청을 망가뜨리지 않는가
+   /exec 는 고객의 길이다. 배포 확인은 편의 기능이다. 편의가 길을 막으면 안 된다. */
+{
+  console.log('\n── 6) 지문 남기기가 터져도 고객 요청은 살아 있는가');
+  const sb = makeSandbox();
+  const lines = [];
+  sb.Logger = { log: (m) => lines.push(String(m)) };
+  sb.PropertiesService = { getScriptProperties: () => { throw new Error('Property 서비스 장애'); } };
+  vm.createContext(sb);
+  for (const fp of FILES) {
+    try { vm.runInContext(fs.readFileSync(fp, 'utf8'), sb, { filename: rel(fp) }); } catch (e) {}
+  }
+  let ok = false, err = '';
+  try {
+    const r = sb.doPost({ postData: { contents: JSON.stringify({ action: '없는액션' }) } });
+    ok = !!r;                                   // 던지지 않고 무언가 돌려주면 길은 살아 있다
+  } catch (e) { err = String(e && e.message); }
+  console.log(`   Property 서비스가 죽은 채로 doPost → 응답 있음=${ok}${err ? ' · 예외: ' + err : ''}`);
+  if (!ok) ng(`지문 남기기가 터지자 doPost 가 함께 죽었습니다 — 고객 요청이 막힙니다 (${err})`);
 }
 
 console.log(fail ? `\n✗ ${fail}건 — 점검 파일에 구멍이 있습니다` : '\n✓ 전부 통과 — 안 붙인 파일·옛 버전·옛 내용 셋 다 붉어집니다');
