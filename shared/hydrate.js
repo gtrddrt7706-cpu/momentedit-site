@@ -621,19 +621,40 @@
         try { _inFrame = !!(window.parent && window.parent !== window); } catch (e) { _inFrame = true; }
         var b = document.createElement('div');
         b.id = 'meDemoBadge';
-        b.style.cssText = _inFrame
-          ? 'position:sticky;top:0;z-index:99999;background:#FAFAF8;color:#6B2A24;'
-            + 'font:400 11px/1.5 system-ui,-apple-system,sans-serif;text-align:center;padding:26px 14px 9px;'
-            + 'letter-spacing:.04em;border-bottom:1px solid rgba(107,42,36,.18)'
-          : 'position:sticky;top:0;z-index:99999;background:#6B2A24;color:#fff;'
-            + 'font:500 12.5px/1.5 system-ui,-apple-system,sans-serif;text-align:center;padding:9px 14px';
+        /* ★★[DEMO_BADGE_PLACE 2026-08-30] live.html 과 같은 처방 — 진사 채움 대신 크림 머리글로 두고,
+           경고를 **계좌가 보이는 자리**에도 함께 세운다(아래 _markAccounts). 띠 하나에 몰아 두면
+           정작 손이 움직이는 순간에는 그 띠가 화면 밖이다. 대비 10.14:1(AAA) 유지. */
+        b.style.cssText = 'position:sticky;top:0;z-index:99999;background:#FAFAF8;color:#6B2A24;'
+          + 'text-align:center;letter-spacing:.04em;border-bottom:1px solid rgba(107,42,36,.18);'
+          + (_inFrame
+              ? 'font:400 11px/1.5 system-ui,-apple-system,sans-serif;padding:26px 14px 9px'
+              : 'font:500 12px/1.5 system-ui,-apple-system,sans-serif;padding:11px 14px');
         b.innerHTML = _inFrame
           ? '예시 청첩장이에요 · 이름·날짜·계좌 모두 예시'
           : '예시 청첩장이에요 · 실제 초대장이 아닙니다'
-            + '<br><span style="opacity:.85;font-size:11.5px">이름·날짜·계좌 모두 예시예요'
+            + '<br><span style="font:400 11px/1.5 system-ui,-apple-system,sans-serif;color:#5A554C;letter-spacing:.02em">이름·날짜·계좌 모두 예시예요'
             + (why ? (' · ' + why) : '') + '</span>';
         document.body.insertBefore(b, document.body.firstChild);
         document.documentElement.setAttribute('data-demo', '1');
+        /* [DEMO_ACCT_MARK] 돈이 움직이는 자리에서 한 번 더 — 계좌 복사 버튼이 있는 블록의 머리에.
+           16종이 마크업이 제각각이라 «복사 버튼의 공통 조상»을 타고 올라가 붙인다(클래스 이름에 안 기댄다).
+           ★«보내도 된다/안 된다»를 보증하지 않는다 — 사실만 적는다(책임질 수 없는 안심 금지). */
+        try {
+          var _copy = document.querySelector('[data-account]');
+          /* ★붙일 자리는 «계좌 줄의 실제 부모»다 — 섹션(.sec)에 바로 붙이려다 실패했다(실측:
+             .env-acc-row 는 .sec 의 손자라 insertBefore 가 NotFoundError). 그 예외를 try 가
+             조용히 삼켜 8종 전부에서 표시가 하나도 안 붙었는데 화면은 멀쩡해 보였다. */
+          var _row = _copy && _copy.closest ? _copy.closest('.env-acc-row, .env-acc, li, tr, div') : null;
+          if (_row && _row.parentNode && !document.getElementById('meDemoAcct')) {
+            var _am = document.createElement('p');
+            _am.id = 'meDemoAcct';
+            _am.style.cssText = 'margin:24px auto 12px;max-width:26em;padding:11px 14px;'
+              + 'border:1px solid rgba(107,42,36,.28);border-radius:6px;color:#6B2A24;'
+              + 'font:400 12px/1.7 system-ui,-apple-system,sans-serif;text-align:center;letter-spacing:.02em';
+            _am.textContent = '이 계좌는 예시예요. 실제 두 분의 계좌가 아닙니다.';
+            _row.parentNode.insertBefore(_am, _row);
+          }
+        } catch (e) {}
       } catch (e) {}
     }
     var failsafe = setTimeout(reveal, 5000);
