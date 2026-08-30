@@ -1,0 +1,339 @@
+{
+  "_설명": "GAS 붙여넣기 누락 점검 목록 — 99_deployCheck.gs 가 실행할 때 여기서 읽어 간다.",
+  "_왜": "목록을 .gs 안에 두면 새 변경마다 그 파일을 다시 붙여넣어야 했다. 여기에 두면 main 병합 → Vercel 자동 배포로 목록이 늘 최신이라, 99_deployCheck.gs 는 한 번만 붙여넣으면 된다.",
+  "_주의": "표식은 반드시 그 «함수 본문 안»에 있어야 한다. 닫는 중괄호 뒤 꼬리 주석은 String(함수)에 안 잡혀 영영 MISS 가 된다. 넣기 전에 node scripts/audit/deploycheck-sim.mjs 로 기준선이 0 인지 확인할 것.",
+  "files": [
+    {
+      "file": "00_platform-config",
+      "fn": "stageFlowFor"
+    },
+    {
+      "file": "10_customers-setup",
+      "fn": "setupCustomers"
+    },
+    {
+      "file": "20_customers-data",
+      "fn": "findCustomerByCode"
+    },
+    {
+      "file": "30_auth-core",
+      "fn": "resolveSession"
+    },
+    {
+      "file": "40_signup",
+      "fn": "handleSignup"
+    },
+    {
+      "file": "50_auth-handlers",
+      "fn": "handleLogin"
+    },
+    {
+      "file": "60_mypage",
+      "fn": "handleGetMyState"
+    },
+    {
+      "file": "70_journey",
+      "fn": "buildRefundQuote"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSaveProductionTrack"
+    },
+    {
+      "file": "85_invitation",
+      "fn": "handleSaveInvitationDraft"
+    },
+    {
+      "file": "88_place_audit",
+      "fn": "auditDineDb"
+    },
+    {
+      "file": "90_test-utils",
+      "fn": "platformSelfTest"
+    },
+    {
+      "file": "95_notify",
+      "fn": "notifySetupCheck"
+    },
+    {
+      "file": "96_ai_cost",
+      "fn": "aiMorningReport"
+    },
+    {
+      "file": "97_ai-handoff",
+      "fn": "aiHandoffStatus"
+    },
+    {
+      "file": "98_pay_card",
+      "fn": "ZZ_tossPing"
+    },
+    {
+      "file": "consultation-booking",
+      "fn": "doPost"
+    },
+    {
+      "file": "admin",
+      "fn": "adminHome"
+    }
+  ],
+  "newfn": [
+    {
+      "file": "admin",
+      "fn": "_rbConfirmedSlot",
+      "why": "되돌림 슬롯 잠금"
+    },
+    {
+      "file": "admin",
+      "fn": "_rbSlotPlan",
+      "why": "되돌림 슬롯 판정"
+    },
+    {
+      "file": "admin",
+      "fn": "_rbCalRetitle",
+      "why": "캘린더 제목 변경"
+    },
+    {
+      "file": "admin",
+      "fn": "_ymdDot",
+      "why": "날짜 표기 통일"
+    },
+    {
+      "file": "admin",
+      "fn": "_rbPaidAny",
+      "why": "수납 보존 판정"
+    },
+    {
+      "file": "60_mypage",
+      "fn": "buildRollbackNotice",
+      "why": "되돌림 고객 안내"
+    },
+    {
+      "file": "80_production",
+      "fn": "_guideCloseInfo",
+      "why": "안내 닫는 이유 구분"
+    },
+    {
+      "file": "96_ai_cost",
+      "fn": "aiDraftAnswer",
+      "why": "AI 원클릭 교육"
+    }
+  ],
+  "marks": [
+    {
+      "file": "admin",
+      "fn": "adminHome",
+      "mark": "CPN_QUEUE",
+      "why": "커피쿠폰 발급 큐"
+    },
+    {
+      "file": "admin",
+      "fn": "adminHome",
+      "mark": "SLOT_HOLD_EXPIRY_Q",
+      "why": "잡아 둔 자리 만료 큐"
+    },
+    {
+      "file": "admin",
+      "fn": "adminHome",
+      "mark": "REVISION_QUEUE",
+      "why": "수정요청 처리 큐"
+    },
+    {
+      "file": "admin",
+      "fn": "adminSendContract",
+      "mark": "CONTRACT_AMOUNT_REQ",
+      "why": "총액 없는 계약서 차단"
+    },
+    {
+      "file": "admin",
+      "fn": "adminSendContract",
+      "mark": "SEND_HOLD_SYNC",
+      "why": "발송·홀드 동기화"
+    },
+    {
+      "file": "admin",
+      "fn": "adminGrantWeddingHold",
+      "mark": "HOLD_LOCK",
+      "why": "가예약 승인 락"
+    },
+    {
+      "file": "admin",
+      "fn": "adminSendContract",
+      "mark": "CONTRACT_NOTIFY_THROTTLE",
+      "why": "계약서 도착 알림 중복 방지"
+    },
+    {
+      "file": "admin",
+      "fn": "adminIssueCoupon",
+      "mark": "COUPON_NOTIFY_ONCE",
+      "why": "쿠폰 발급 알림 1회"
+    },
+    {
+      "file": "admin",
+      "fn": "_clearForwardData",
+      "mark": "FITTING_SPLIT",
+      "why": "시착 갇힘 수정"
+    },
+    {
+      "file": "admin",
+      "fn": "_clearForwardData",
+      "mark": "GUIDE_TOKEN_CLEAR",
+      "why": "되돌리면 공개 링크 닫기"
+    },
+    {
+      "file": "admin",
+      "fn": "adminForceStage",
+      "mark": "ROLLBACK_SLOT",
+      "why": "되돌려도 예식 자리 잠금"
+    },
+    {
+      "file": "95_notify",
+      "fn": "_kakaoSend",
+      "mark": "ADMIN_MAIL_UNCHAINED",
+      "why": "관리자 알림 살리기"
+    },
+    {
+      "file": "95_notify",
+      "fn": "flushHeldNotifies",
+      "mark": "HOLD_NO_LOSS",
+      "why": "보류 알림 무손실"
+    },
+    {
+      "file": "60_mypage",
+      "fn": "handleGetMyState",
+      "mark": "NOW_CONTRACT_EXPIRED",
+      "why": "기한 지난 계약 안내"
+    },
+    {
+      "file": "70_journey",
+      "fn": "_refundQuote",
+      "mark": "CHANGE_RATCHET",
+      "why": "위약금 회피 차단(99만원)"
+    },
+    {
+      "file": "70_journey",
+      "fn": "_journeyAmounts",
+      "mark": "SNAP_BALANCE_D7",
+      "why": "스냅 잔금 촬영 D-7 분리"
+    },
+    {
+      "file": "70_journey",
+      "fn": "_refundQuote",
+      "mark": "SNAP_PENALTY_TABLE",
+      "why": "스냅 위약표 §9② 견적"
+    },
+    {
+      "file": "70_journey",
+      "fn": "handleSignContract",
+      "mark": "SIGN_SLOT_REQUIRED",
+      "why": "예식시간 없인 서명 불가"
+    },
+    {
+      "file": "70_journey",
+      "fn": "handleSignContract",
+      "mark": "SIGN_BOUNCE_ALERT",
+      "why": "서명 튕김 알림"
+    },
+    {
+      "file": "consultation-booking",
+      "fn": "setCustomerStage",
+      "mark": "STAGE_REVIEW_DOOR",
+      "why": "후기 단계로 올리는 문"
+    },
+    {
+      "file": "consultation-booking",
+      "fn": "actAccept",
+      "mark": "ACCEPT_GUARDED",
+      "why": "변경제안 수락 가드"
+    },
+    {
+      "file": "consultation-booking",
+      "fn": "submitSchedule",
+      "mark": "PAST_SLOT_REJECT",
+      "why": "지난 날짜·시간 거절"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSubmitSurvey",
+      "mark": "STAGE_REVIEW_DOOR",
+      "why": "후기 제출이 단계를 올림"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSubmitSurvey",
+      "mark": "SURVEY_ONCE",
+      "why": "설문 재제출 멱등"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSubmitResultSelection",
+      "mark": "PICK_MAX_MANUAL",
+      "why": "수동 컷 400 상한"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleRequestExtraRetouch",
+      "mark": "XR_SIGNAL_KEEP",
+      "why": "입금신호 증발 방지"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleExtraRetouchSignal",
+      "mark": "XR_STAGE_GUARD",
+      "why": "유령 입금신호 차단"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSaveProductionTrack",
+      "mark": "CF_CORE_TRUTH",
+      "why": "빈 인원·손상 컬럼이면 확정 거부"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSaveProductionTrack",
+      "mark": "CF_ONCE",
+      "why": "두 번째 확정은 멱등(기록·메일 1회)"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSaveProductionTrack",
+      "mark": "CF_LOG",
+      "why": "확정을 처리이력·메일에 남김"
+    },
+    {
+      "file": "70_journey",
+      "fn": "adminConfirmWeddingChange",
+      "mark": "CF_VOID_WEDDAY",
+      "why": "예식일이 바뀌면 확정 해제"
+    },
+    {
+      "file": "admin",
+      "fn": "adminSendContract",
+      "mark": "SEND_TIME_REQ",
+      "why": "예식 시간 없는 계약서 발송 차단"
+    },
+    {
+      "file": "admin",
+      "fn": "adminHome",
+      "mark": "EXIT_QUOTE_TS",
+      "why": "환불 큐 기준일=취소일시(금액이 날마다 안 변함)"
+    },
+    {
+      "file": "consultation-booking",
+      "fn": "_consultRefundQuote",
+      "mark": "OLD_SIGNER_TERMS",
+      "why": "구서명자 환불은 서명본 금액으로"
+    },
+    {
+      "file": "95_notify",
+      "fn": "ZZ_kakaoTestAll",
+      "mark": "개인코드 인자가 필요합니다",
+      "why": "인자 없는 테스트는 아무에게도 안 보냄"
+    },
+    {
+      "file": "20_customers-data",
+      "fn": "purgeStaleCustomers",
+      "mark": "LIVETEST_0830",
+      "why": "붙여넣기 누락 점검 실기 테스트"
+    }
+  ]
+}
