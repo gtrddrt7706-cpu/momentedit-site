@@ -3105,8 +3105,18 @@ function openSendContract(code,names,d){
   var partyBlock = creq
     ? '<div class="field"><label>고객 입력 정보 (확인)</label><div style="font-size:12px;line-height:1.7;color:#3A2D22;background:#F5F3EF;border:1px solid #DDD8D1;border-radius:6px;padding:10px 12px">신랑 '+esc(creq.groomBirth||'-')+' · '+esc(creq.groomAddr||'-')+'<br>신부 '+esc(creq.brideBirth||'-')+' · '+esc(creq.brideAddr||'-')+'</div></div>'
     : '';
+  var isSnapP=(String(d.product||'').indexOf('스냅')!==-1);
+  var wedTPre=String((creq&&creq.weddingTime)||(d.hold&&d.hold.slot)||'').slice(0,5);   // 고객이 고른 슬롯 → 임시고정 슬롯 순으로 기본 선택
   var extra=sugLine
     +'<div class="field"><label>예식일 (고객 지정 · 필요 시 수정)</label><input type="date" id="ctWed" value="'+wedPre+'"></div>'
+    /* ★[SEND_TIME_REQ 2026-08-29 점검] 예식 «시간» 칸 — 종전엔 이 칸이 아예 없어 고객이 요청한 슬롯이
+       있을 때만 조용히 딸려 갔고, 없으면 시간 없는 계약서가 나갔다. 그 계약서는 서명 단계에서
+       [SIGN_SLOT_REQUIRED] 에 막혀 **고객이 아무것도 할 수 없는 막다른 길**이 된다.
+       ★스냅은 예식 슬롯 개념이 없어 칸을 두지 않는다(서버 가드도 스냅을 면제한다). */
+    +(isSnapP?'':'<div class="field"><label>예식 시간 (필수 · 한 타임 한 팀)</label><select id="ctWedT">'
+      +'<option value="">선택해 주세요</option>'
+      +['09:00','12:20','15:40'].map(function(sv){ return '<option value="'+sv+'"'+(wedTPre===sv?' selected':'')+'>'+esc(wedTimeKo(sv))+'</option>'; }).join('')
+      +'</select><div style="font-size:11px;color:var(--label-soft);margin-top:4px">※ 계약서 「예식 일시」와 자리 잠금(더블부킹 방지)에 함께 쓰여요</div></div>')
     +partyBlock
     +'<div class="field"><label>계약 총액</label><select id="ctSel">'+
     '<option value="3300000">주말·공휴일 · 330만</option><option value="2500000">평일 · 250만</option><option value="600000">스냅 · 60만</option>'+
@@ -3139,7 +3149,11 @@ function openSendContract(code,names,d){
       if(!/^\d{4}-\d{2}-\d{2}$/.test(wed)){ mErr('예식일을 선택해 주세요. 중도금·잔금 일정의 기준이 돼요.'); return; }
       if(!link) link=contractFullUrl(d.product);
       if(!/^https?:\/\//i.test(link)){ mErr('계약서 링크는 https://… 형식이어야 해요.'); return; }
-      runAct(['adminSendContract',code,link,total,wed],code,'발송'); } });
+      var wedT=String(($('ctWedT')&&$('ctWedT').value)||'').trim();
+      /* [SEND_TIME_REQ] 화면에서 먼저 막는다 — 서버도 같은 것을 막지만(이중), 여기서 잡아야
+         관리자가 «무엇을 고르면 되는지» 그 자리에서 안다. */
+      if(!isSnapP && !wedT){ mErr('예식 시간을 선택해 주세요. 시간 없이 보내면 고객이 서명할 수 없어요.'); return; }
+      runAct(['adminSendContract',code,link,total,wed,wedT],code,'발송'); } });
 }
 function bumpName(n){ return '<b>'+esc(n)+'</b>'; }
 // 상품·문서 버전별 계약서 경로 — 구버전 서명자(v1.1/snap-v1.0)는 archive 보존본, 그 외 현행(v1.2/snap-v1.1)

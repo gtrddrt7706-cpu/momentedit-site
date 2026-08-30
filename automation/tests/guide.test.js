@@ -128,6 +128,11 @@ ok(gvS.guide.dining.pick === '' && gvS.guide.dining.on === false, '19 위저드 
 setup({ 예식일: ymdShift(10), _prod: { guideinfoDraft: { showSeat: false } } });
 ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1' }).ok === true, '20 (구)showSeat=false 무시 → seat 링크 정상(막다른길 해소)');
 
+/* ★[CF_CORE_TRUTH 픽스처 2026-08-29] 확정(confirm) 픽스처에는 **finalDraft.headcount 를 반드시 싣는다.**
+   PR #597 이 게이트를 «트랙 딱지»에서 «저장된 실값(1~30명)»으로 바꿨다 — 딱지만 '완료'이고 인원이
+   비어 있는 상태는 컬럼 손상이라 확정을 거부하는 것이 옳다(빈 도장 · 추가요금 15만원 증발 차단).
+   종전 픽스처는 딱지만 세워 9건이 붉어졌다(제품이 아니라 픽스처가 낡은 것).
+   ★headcount 를 빼지 말 것 — 빼면 게이트가 정당하게 거부해 이 9건이 다시 붉어진다. */
 // ── 예식 확인서(confirm) — 게이트·스냅샷 정규화·수정 시 해제 ──
 // 21) 식순·최종 확정 미완료 → 확인 거부
 fresh();
@@ -135,7 +140,7 @@ DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '진행중', final
 ok(sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순', v: 'x' }] } }).ok === false, '21 식순 미완료 → 확인 거부');
 // 22) 완료 후 확인 → 스냅샷·시각 저장(+정규화: 길이 상한·미지정 필드 제거)
 fresh();
-DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료' } });
+DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료' }, finalDraft: { headcount: 12 } });
 const rc = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순'.repeat(30), v: 'v'.repeat(500), evil: 'x' }] } });
 const dc = sb._prodLoad(makeRow('C1'));
 ok(rc.ok === true && rc.confirm && rc.confirm.at && dc.confirm.snap[0].k.length === 24 && dc.confirm.snap[0].v.length === 300 && dc.confirm.snap[0].evil === undefined, '22 확인 저장 · 스냅샷 상한·정규화');
@@ -199,7 +204,7 @@ ok(sb.handleSeatView({ t: 'Sxxxxxxxxxxxxxx1', q: '김하객' }).ok === true, '28
 // ── 확인 무결성 후속(2026-07-17 코드리뷰) — 실변경만 해제(_prodUiStrip) · 상태 지문(rev) · 청첩장 연동 해제 ──
 // 29) 무변경 재저장(위저드 열고 닫기·자동저장 에코)은 확인을 해제하지 않는다 · showSeat 토글만도 유지(스냅샷 비대상)
 fresh();
-DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료', guideinfo: '완료' }, guideinfoDraft: { showSeat: true, seatMode: 'mine', reserveTime: '오후 1시', reserveName: '정희준' } });
+DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료', guideinfo: '완료' }, finalDraft: { headcount: 12 }, guideinfoDraft: { showSeat: true, seatMode: 'mine', reserveTime: '오후 1시', reserveName: '정희준' } });
 sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '식순', v: 'x' }] } });
 const rNoop = sb.handleSaveProductionTrack({ token: 't1', track: 'guideinfo', done: true, draft: { showSeat: true, seatMode: 'mine', reserveTime: '오후 1시', reserveName: '정희준' } });
 const dNoop = sb._prodLoad(makeRow('C1'));
@@ -218,7 +223,7 @@ const rC3 = sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: 
 ok(rC3.ok === true && sb._prodLoad(makeRow('C1')).confirmStale === undefined, '31b 지문 일치 → 확인 허용·stale 해제');
 // 32) 청첩장 수정(85_invitation)도 확인 자동 해제 — 스냅샷 1행(청첩장 상태) 무결성
 fresh();
-DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료' } });
+DB.C1.제작임시저장 = JSON.stringify({ tracks: { ritual: '완료', final: '완료' }, finalDraft: { headcount: 12 } });
 sb.handleSaveProductionTrack({ token: 't1', track: 'confirm', done: true, draft: { snap: [{ k: '청첩장', v: '만듦' }] } });
 const rInv = sb.handleSaveInvitationDraft({ token: 't1', draft: { method: 'offline', groomKo: '정희준' } });
 const dInv = sb._prodLoad(makeRow('C1'));

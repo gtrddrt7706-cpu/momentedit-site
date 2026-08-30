@@ -13,7 +13,10 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
-const CHECK = path.join(REPO, 'automation/platform/99_deployCheck.gs');
+/* ★[MARKS_REMOTE 2026-08-30] 목록이 .gs 에서 deploy-marks.json 으로 옮겨 갔다.
+   그래야 99_deployCheck.gs 를 매번 다시 붙여넣지 않는다(사용자 질문: "매번 같이 업로드해야하는거야?").
+   ★그래서 이 게이트도 그 JSON 을 본다. .gs 를 계속 보면 목록이 옮겨 간 줄 모르고 늘 초록이 난다. */
+const CHECK = path.join(REPO, 'deploy-marks.json');
 const DAYS = Number(process.env.DC_DAYS || 30);
 
 /* 메인 GAS 프로젝트 파일만 본다(부부폼·하객편지·가족청첩장은 다른 프로젝트라 제외) */
@@ -26,7 +29,7 @@ const GAS = ['automation/platform', 'automation/admin/admin.gs', 'automation/con
 const SKIP = new Set(['DEPLOY_CHECK', 'DEPLOY_LIVE', 'PROD_ACCESSOR', 'GUARD_MIRROR', 'HEADER_ORDER_GUARD']);
 
 if (!fs.existsSync(CHECK)) {
-  console.log('건너뜀 — automation/platform/99_deployCheck.gs 가 없다(점검 파일 자체가 사라졌다면 그게 더 큰 문제다).');
+  console.log('건너뜀 — deploy-marks.json 이 없다(점검 목록 자체가 사라졌다면 그게 더 큰 문제다).');
   process.exit(1);
 }
 const checkSrc = fs.readFileSync(CHECK, 'utf8');
@@ -59,6 +62,18 @@ catch (e) { console.log('건너뜀 — git 로그를 못 읽었다:', e.message)
  *   실측: 도입 커밋(#602)부터 main 이 계속 붉었고(#603 까지), 그동안 모든 PR 이 이 한 줄로 막혔다.
  *   ★게이트의 값은 그대로다 — «새 기능(함수)이 점검 목록 밖에 있는 것»은 여전히 잡는다.
  *     그건 실제로 «옛 코드인 채로도 통과»가 일어나는 유일한 자리다.
+ *
+ * ★★[COVER_SCOPE 2026-08-30] 이 게이트가 «무엇을 안 잡는지»를 분명히 적어 둔다 — 내가 사용자에게
+ *   "앞으로 GAS 변경은 목록에 안 넣으면 푸시가 막힌다"고 말했는데, 그건 과장이었다.
+ *   실제 범위: **새 function 선언 줄과 그 아래 6줄 안**에 나타난 표식만 본다(nearFn).
+ *   그래서 «기존 함수 본문 깊숙이» 넣은 표식은 목록에 없어도 그냥 통과한다.
+ *     실측: LIVETEST_0830 은 purgeStaleCustomers 본문 안에 심었는데 이 게이트가 안 셌다.
+ *   ★그런 표식도 99_deployCheck 는 «검사할 수 있다»(mark() 가 함수 본문을 읽는다). 못 하는 게 아니라
+ *     이 게이트가 «요구»를 안 할 뿐이다. 좁힌 이유는 능력이 아니라 물량이었다(#602~#603 에서
+ *     수십 개가 쌓여 main 이 사흘 붉었다).
+ *   ★넓히려면 «표식 하나하나»가 아니라 «창 안에 바뀐 .gs 파일마다 표식 하나»를 요구하는 편이 낫다 —
+ *     물량이 파일 수(≤20)로 묶여 다시 사흘 붉는 사고가 안 난다. 다만 그건 모든 세션의 작업 방식을
+ *     바꾸는 일이라 사용자 결정이 필요하다. 나중에할일_체크리스트.md 결정 대기함에 올려 뒀다.
  */
 const found = new Map();   // 표식 → 처음 본 줄(맥락)
 let nearFn = 0;            // 새 함수 선언 직후 몇 줄인가
@@ -95,9 +110,11 @@ for (const [mk, ctx] of found) {
 
 const missing = alive.filter(([mk]) => !checkSrc.includes(mk));
 console.log(`최근 ${DAYS}일 GAS 표식 ${alive.length}개 · 점검 목록에 있는 것 ${alive.length - missing.length}개`);
-if (!missing.length) { console.log('✅ 빠진 표식 없음 — 99_deployCheck 가 최근 변경을 전부 덮는다.'); process.exit(0); }
+if (!missing.length) { console.log('✅ 빠진 표식 없음 — deploy-marks.json 이 최근 변경을 전부 덮는다.'); process.exit(0); }
 console.log(`❌ 점검 목록에 없는 표식 ${missing.length}개 — 이 변경들은 «옛 코드인 채로도» 통과한다:`);
 missing.forEach(([mk, ctx]) => console.log(`   [${mk}]  ${ctx}`));
-console.log('\n고치는 법 — automation/platform/99_deployCheck.gs 의 MARKS 배열에');
-console.log("   ['파일', '함수', '표식', '한 줄 설명'] 을 추가하고, 그 파일을 GAS 에도 다시 붙여넣는다.");
+console.log('\n고치는 법 — 저장소 루트 deploy-marks.json 의 marks 배열에');
+console.log('   { "file": "파일", "fn": "함수", "mark": "표식", "why": "한 줄 설명" } 을 추가한다.');
+console.log('   ★GAS 에 다시 붙여넣을 것은 «그 .gs 파일 하나»뿐이다 — 99_deployCheck 는 이 JSON 을 실행할 때 읽어 간다.');
+console.log('   ★표식은 반드시 그 함수 «본문 안»에 둘 것. 닫는 } 뒤 꼬리 주석은 영영 안 잡힌다.');
 process.exit(1);

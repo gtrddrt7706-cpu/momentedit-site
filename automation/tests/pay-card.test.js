@@ -61,13 +61,17 @@ if (!stageExLine) throw new Error('STAGE_EXCEPTIONS not found');
    하네스가 그 함수를 안 실어 D2 부터 ReferenceError 로 통째 중단됐다(main 에서도 동일 재현).
    아무 게이트도 이 파일을 돌리지 않아 아무도 몰랐다 — 그래서 merge-guard 에 실행을 걸고 여기서 의존을 채운다.
    ★config 를 통째로 넣지 않는 것은 이 하네스의 설계다(필요한 조각만 실어 무엇에 기대는지 드러낸다). */
-const stageFlowObj = extractVarObject(SRC_CONFIG, 'STAGE_FLOW');
-const stageFlowFn = extractFunction(SRC_CONFIG, 'stageFlowFor');
+/* ★두 세션이 같은 구멍을 동시에 막았다(#606과 이 커밋) — 실을 자리는 아래 code 배열 한 곳으로 합쳤다. */
 
+/* ★[HARNESS_STAGEFLOW 2026-08-29 점검] `_confirmDepositCore` 는 PR #555 부터 `stageFlowFor` 를 부른다
+   (수납 확인된 고객이 앞 단계에 서 있으면 단계만 맞춰 주는 경로). 하네스가 그 함수를 안 실어
+   **몇 주 동안 이 스위트 전체가 ReferenceError 로 죽어 있었다** — 게이트가 .test.js 를 실행하지 않아
+   아무도 몰랐다(같은 커밋에서 게이트 실행을 함께 붙였다).
+   ★진짜 소스에서 뽑는다 — 사본을 손으로 적으면 단계 목록이 갈린다(00_platform-config 가 단일 출처). */
 const code = [
   stageExLine,
-  stageFlowObj,
-  stageFlowFn,
+  extractVarObject(SRC_CONFIG, 'STAGE_FLOW'),
+  extractFunction(SRC_CONFIG, 'stageFlowFor'),
   /* [PAY_LOCK_REENTRANT] 돈 확인 계열의 재진입 안전 락 — 목이 아니라 **진짜 함수**를 싣는다.
      LockService 목이 이미 위에 있어 그대로 돌고, 카드 경로가 락을 쥔 채 확인 함수를 부르는 이 테스트가
      곧 «조기 해제가 없는지»를 함께 지키는 자리가 된다. */

@@ -1478,6 +1478,16 @@ function adminSendContract(code, link, total, weddingYmd, weddingTime) {
   }
   var wed = String(weddingYmd || '').trim();                  // 계약 시점에 예식일 확정 → 돈 계산(중도금·잔금 D-day) 단일 기준
   var wT = String(weddingTime || '').trim();                  // 예식 슬롯(관리자 픽스) — 예식일과 함께 잠금
+  /* ★★[SEND_TIME_REQ 2026-08-29 점검 · stage-reach 가 찾음] 시그니처는 **예식 시간 없이 발송하지 않는다.**
+     발송 폼은 예식일만 검사하고 시간은 «고객이 요청한 슬롯»에서 딸려 오는 값이라, 요청이 없던 고객
+     (관리자 수기 생성 · 상담에서 시간 미확정)에게는 빈 채로 나갔다. 그러면 [SIGN_SLOT_REQUIRED] 가
+     서명을 막아 **고객이 계약서를 받고도 서명할 수 없는 막다른 길**이 된다(실측: stage-reach 에서
+     계약완료에 닿는 정상 경로가 0). 막는 자리는 서명이 아니라 여기다 — 고칠 수 있는 사람이
+     이쪽에 있다(관리자는 시간을 고르면 되지만, 고객은 아무것도 할 수 없다).
+     ★웨딩스냅은 예식 슬롯 개념이 없어 제외(서명 가드와 같은 기준). */
+  if (String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && WEDDING_SLOT.SLOTS.indexOf(wT) === -1) {
+    return { ok: false, error: '예식 시간을 먼저 정해 주세요. 시간 없이 보내면 고객이 서명할 수 없어요. (선택 가능: ' + WEDDING_SLOT.SLOTS.join(' · ') + ')' };
+  }
   if (wT && WEDDING_SLOT.SLOTS.indexOf(wT) !== -1 && /^\d{4}-\d{2}-\d{2}$/.test(wed) && _weddingSlotTaken(sheet, colOf, wed, wT, code)) {   // 발송 시점에 슬롯 충돌 차단(서명 때 늦은 거절 방지)
     return { ok: false, error: '그 예식 시간(' + wed + ' ' + wT + ')은 이미 다른 예약으로 마감됐어요. 다른 슬롯으로 보내 주세요.' };
   }

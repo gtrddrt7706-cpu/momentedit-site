@@ -67,7 +67,9 @@ const ARGS = {
   adminCancel: () => ['점검'],
   adminProposeTime: () => ['2026-09-02', '18:10', ''],
   adminSetFittingCount: () => [2],
-  adminSendContract: () => ['https://momentedit.kr/contract/v1-1.html'],
+  /* [SEND_TIME_REQ 2026-08-29] 발송 대화상자가 실제로 넘기는 인자(링크·총액·예식일·예식 시간).
+     시간을 빼면 서버가 정당하게 거부해 «보이는데 안 눌리는 버튼»으로 잘못 잡힌다. */
+  adminSendContract: () => ['https://momentedit.kr/contract/v1-1.html', 2500000, '2026-12-20', '12:20'],
   adminSetResultLinks: () => [{ 원본: 'https://drive.google.com/drive/folders/AAAAAAAAAAAA',
     보정본: 'https://drive.google.com/drive/folders/BBBBBBBBBBBB', 영상: 'https://vimeo.com/1' }],
   adminUndoConfirmPayment: (act) => [String(act).split(':')[1] || '계약금', '점검'],

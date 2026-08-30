@@ -5261,7 +5261,10 @@ if command -v node >/dev/null 2>&1; then
          printf '%s\n' "$_dcOut" | sed 's/^/    | /'; fail=1; }
 fi
 chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
-chk 'CF_CORE_TRUTH' automation/platform/99_deployCheck.gs 1
+# ★[MARKS_REMOTE 2026-08-30] 아래 넷은 «점검 목록»에 그 항목이 살아 있는지 보는 줄이다.
+#   목록이 99_deployCheck.gs → deploy-marks.json 으로 옮겨 갔으므로 보는 곳도 옮긴다.
+#   ★.gs 를 계속 보게 두면 목록이 통째로 사라져도 이 줄들이 조용히 초록을 낸다.
+chk 'CF_CORE_TRUTH' deploy-marks.json 1
 chk 'platformSelfTest' automation/platform/99_deployCheck.gs 2   # ★setupAllTriggers 로 되돌리면 90_test-utils 누락이 안 잡힌다
 
 # ★★[LISTEN_LEAD_IN 2026-08-30 사용자 지시 "듣기 누르면 바로 나오기보단 2초정도 있다가 음성나오게
@@ -5394,16 +5397,58 @@ chk 'SURVEY_DIRTY' mypage.html 1
 chk 'LOGOUT_SWEEP' mypage.html 1
 # [SEATNOTE_LEAVE] 좌석 «미리 알려주실 것» 0.8초 디바운스가 앱 전환·탭 닫기에서 유실되던 것.
 chk 'SEATNOTE_LEAVE' mypage.html 1
-# ★★[TESTS_ACTUALLY_RUN 2026-08-30] 돈 관련 테스트들이 «마커만 검사되고 실행은 안 되고» 있었다.
-#   그래서 pay-card 는 stageFlowFor 의존이 늘어난 뒤 ReferenceError 로 통째 죽어 있었고(60건 전부 미실행),
-#   change-fee 는 구서명자 폴백(OLD_SIGNER_TERMS) 때문에 4건이 빨간 채 방치돼 있었다 — 아무도 몰랐다.
-#   검사를 «만들었다»와 «검사가 돈다»는 다른 말이다. 여기서 실제로 돌린다(넷 합쳐 0.4초).
-#   ★guide.test.js 는 지금 9건 실패다 — 8/29 CF_CORE_TRUTH(확정을 트랙 딱지가 아닌 실값으로 판정) 이후
-#     테스트가 옛 구조를 기대하는 것으로 판정했다(제품 정상). 고친 뒤 이 목록에 넣을 것 — 결정 대기함 참고.
+# ★두 세션이 같은 결론에 동시에 도달했다 — 단위 스위트 «실행» 배선은 아래 main 쪽(UNIT_SUITES_RUN)으로 합쳤다.
+#   guide.test 는 #606 이 되살려 이제 초록이라 그 목록에 함께 들어 있다.
+chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
+
+# ★★[UNIT_SUITES_RUN 2026-08-29 점검] 단위 스위트를 **실행**한다 — 종전엔 이 파일들 안의 마커만 보고
+#   내용은 한 번도 돌리지 않았다(#589 «검사를 만들었다 ≠ 검사가 돈다»의 재발).
+#   그 결과 pay-card 는 PR #555 이후 몇 주 동안 ReferenceError 로 통째로 죽어 있었고(60건 미실행),
+#   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
+#   ★스위트를 추가하면 이 목록에도 넣을 것.
 if command -v node >/dev/null 2>&1; then
-  for _t in pay-card refund-quote change-fee dining-sync; do
-    node "automation/tests/${_t}.test.js" >/dev/null 2>&1 || { echo "FAIL ${_t}.test.js — node automation/tests/${_t}.test.js 로 확인"; fail=1; }
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg; do
+    node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
+      || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
   done
 fi
-chk 'TESTS_ACTUALLY_RUN' automation/tests/merge-guard.sh 1
-chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
+chk 'UNIT_SUITES_RUN' automation/tests/merge-guard.sh 1
+chk 'HARNESS_STAGEFLOW' automation/tests/pay-card.test.js 1
+chk 'CF_CORE_TRUTH 픽스처' automation/tests/guide.test.js 1
+chk 'OLD_SIGNER_TERMS 픽스처' automation/tests/change-fee.test.js 1
+# ★★[SEND_TIME_REQ 2026-08-29 점검] 시그니처 계약서는 «예식 시간»과 함께만 나간다.
+#   서명 가드([SIGN_SLOT_REQUIRED])는 시간이 없으면 서명을 거부한다 — 그런데 발송 폼엔 시간 칸이
+#   아예 없어, 시간 없이 나간 계약서를 받은 고객은 **아무것도 할 수 없는 막다른 길**에 선다.
+#   막는 자리를 서명이 아니라 발송으로 옮겼다(고칠 수 있는 사람이 그쪽에 있다) + 화면에 고를 칸을 뒀다.
+#   ★서버 가드만 지우거나 화면 칸만 지우면 각각 다른 방식으로 발송이 깨진다 — 둘은 한 몸이다.
+chk 'SEND_TIME_REQ' automation/admin/admin.gs 1
+chk 'SEND_TIME_REQ' admin.html 2
+chk 'ctWedT' admin.html 2
+chk 'SEND_TIME_REQ' scripts/audit/admin-shot.mjs 2
+# ★씨앗의 예식 시간은 main(#597 라운드)이 먼저 넣었다 — 마커 이름이 아니라 «값»으로 지킨다.
+#   이게 빠지면 [SIGN_SLOT_REQUIRED]가 서명을 거부해 «계약완료에 못 닿는다»는 가짜 경보가 난다.
+chk "계약정보: { weddingTime: '12:20' }" scripts/audit/stage-reach.mjs 1
+# [UNDO_AHEAD_LINE] 앞선 단계에선 되돌리기 «버튼» 대신 «사유 한 줄» — 두 검사가 서로 반대를 요구하지 않게.
+chk 'UNDO_AHEAD_LINE' scripts/audit/admin-shot.mjs 1
+# [DC_LIST_WIDEN 2026-08-30 점검] 99_deployCheck 목록에 넷을 더했다 — SEND_TIME_REQ 와,
+#   같은 라운드에 드러난 EXIT_QUOTE_TS · OLD_SIGNER_TERMS · TEST_BLAST_GUARD.
+#   넷 다 «옛 코드인 채로도 점검을 통과»하던 자리다(GAS 에 안 붙여넣어도 안 걸림).
+#   ★얕은 체크아웃 문제(검사가 CI 에서만 붉던 것)는 #595·#607 이 fetch-depth: 0 + depth<=1 기권으로
+#     이미 고쳤다 — 그 설계를 되돌리지 말 것. #607 이 표식 수집을 «새 함수 근처»로 좁힌 것도
+#     헛경보를 줄이려는 의도적 결정이다(넓히지 말 것).
+chk 'SEND_TIME_REQ' deploy-marks.json 1
+chk 'EXIT_QUOTE_TS' deploy-marks.json 1
+chk '개인코드 인자가 필요합니다' deploy-marks.json 1
+
+# ★★[MARKS_REMOTE 2026-08-30 사용자 질문 "99파일은 매번 같이 업로드해야하는거야?"]
+#   답은 «그랬다» 였다 — 목록이 99_deployCheck.gs 안에 있어 새 변경마다 그 파일도 함께 붙여야 했다.
+#   ★이제 목록은 저장소 루트 deploy-marks.json 이고, 점검이 실행할 때 momentedit.kr 에서 읽어 간다.
+#     main 병합 → Vercel 자동 배포라 늘 최신 → **99_deployCheck.gs 는 한 번만 붙여넣으면 된다.**
+#   ★사이트를 못 읽으면 파일 존재 확인(FILES)만 하고, «②를 건너뛰었다»고 크게 알린다.
+#     조용히 줄어든 점검은 «통과»로 읽혀서 가장 위험하다 — 그래서 침묵하지 않는다.
+#   ★deploy-marks.json 을 지우거나 marks 를 비우면 시뮬레이터가 붉어진다(돌연변이로 확인).
+chk 'MARKS_REMOTE' automation/platform/99_deployCheck.gs 2
+chk 'deploy-marks.json' automation/platform/99_deployCheck.gs 1
+chk 'MARKS_REMOTE' scripts/audit/deploycheck-coverage.mjs 1
+chk 'SIM_MARKS_REMOTE' scripts/audit/deploycheck-sim.mjs 1
+chk 'COVER_SCOPE' scripts/audit/deploycheck-coverage.mjs 1
