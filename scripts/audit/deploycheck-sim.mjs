@@ -266,5 +266,23 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   if (!ok) ng(`지문 남기기가 터지자 doPost 가 함께 죽었습니다 — 고객 요청이 막힙니다 (${err})`);
 }
 
+/* ── 7 ── [SECTION_GAP] 섹션 제목 앞엔 빈 줄이 있어야 한다
+   두 번 같은 실수를 했다 — ②③ 사이(MARKS_REMOTE 리팩터), ④⑤ 사이(DEPLOY_STAMP 리팩터).
+   둘 다 «블록을 통째로 다시 쓰며 끝의 L.push('') 를 옮겨 적지 않아서»다. 기능은 멀쩡하지만
+   40줄짜리 목록이 다음 제목과 붙어 한 덩어리로 읽힌다 — 이 로그는 사람이 눈으로 훑는 것이다.
+   세 번째를 막으려면 사람의 주의가 아니라 검사가 필요하다. */
+{
+  console.log('\n── 7) 섹션 제목 앞 빈 줄 (사람이 눈으로 훑는 로그다)');
+  const out = run({ stamp: 'MATCH' }).out;
+  const bad = [];
+  for (const n of ['②', '③', '④', '⑤']) {
+    const i = out.indexOf('══ ' + n);
+    if (i < 0) { bad.push(n + '(섹션 자체가 없음)'); continue; }
+    if (!out.slice(Math.max(0, i - 2), i).endsWith('\n\n')) bad.push(n);
+  }
+  console.log(`   빈 줄 없는 섹션: ${bad.length ? bad.join(', ') : '없음'}`);
+  if (bad.length) ng(`섹션 ${bad.join('·')} 앞에 빈 줄이 없습니다 — 앞 목록과 붙어 한 덩어리로 읽힙니다`);
+}
+
 console.log(fail ? `\n✗ ${fail}건 — 점검 파일에 구멍이 있습니다` : '\n✓ 전부 통과 — 안 붙인 파일·옛 버전·옛 내용 셋 다 붉어집니다');
 process.exit(fail ? 1 : 0);
