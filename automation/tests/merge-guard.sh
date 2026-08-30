@@ -3563,6 +3563,12 @@ chk 'check-listen-cover' .github/workflows/nightly-screen.yml 1
 #   「원천 생성기를 먼저 돌릴 것」이라 붉혔다 — 돌려도 안 생기니 끝나지 않는 고리였다.
 #   명단에 클립이 있는데 붙여넣기가 없을 때만 붉힌다.
 chk 'EMPTY_IS_OK' scripts/build-dub-onefile.mjs 1
+# ★[COPY_MOBILE 2026-08-26] 폰에서 복사 — navigator.clipboard 먼저, 실패하면 execCommand, 둘 다 막히면 «막혔다»고 적는다.
+#   ★안 된 것을 됐다고 하지 않는다. 사람은 붙여넣기가 빌 때까지 모른다.
+#   실측(iPhone 13 에뮬·터치): 세 갈래 다 옳게 갈림. 단 iOS Safari 실물은 여기서 못 잰다 — 그래서 안전판을 깐 것이다.
+chk 'COPY_MOBILE' scripts/build-listen-all.mjs 1
+chk 'navigator.clipboard' scripts/build-listen-all.mjs 2
+nochk "o.select(); try { document.execCommand('copy'); alert('복사했습니다.'); }" scripts/build-listen-all.mjs
 chk 'STAMP_TONE' scripts/build-listen-all.mjs 1
 chk 'LISTEN_LIGHT' scripts/build-listen-all.mjs 1
 chk "arg('--kbps'" scripts/build-listen-all.mjs 1

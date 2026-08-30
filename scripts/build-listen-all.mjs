@@ -540,8 +540,27 @@ $('list').addEventListener('input', function (e) {
   var t = e.target; if (!t || !t.dataset || t.dataset.w == null) return;
   var k = t.dataset.w; if (t.value.trim()) W[k] = t.value.trim(); else delete W[k]; saveW();
 });
-$('copyOut').onclick = function () { var o = $('out'); if (!o.value) { alert('먼저 대본을 만들어 주세요.'); return; }
-  o.select(); try { document.execCommand('copy'); alert('복사했습니다.'); } catch (e) {} };
+/* ★★[COPY_MOBILE 2026-08-26] 폰에서도 복사가 되게 — 새 길을 먼저, 안 되면 옛 길로 내려앉는다.
+   ★실측(iPhone 13 에뮬레이션·터치): 탭·이유 입력·대본 생성·execCommand 전부 됐다.
+     그런데 그 에뮬레이션은 Chromium 이다 — **iOS Safari 실물은 여기서 못 잰다.**
+     Safari 는 readonly textarea 의 select() 가 먹지 않는 경우가 있고 execCommand 는 폐기 예정이다.
+   ★못 재는 자리에 «되겠지»를 두지 않는다. navigator.clipboard 를 먼저 쓰고, 실패하면 옛 길로 간다.
+   ★두 길 다 실패하면 «복사했다»고 말하지 않는다 — 손으로 긁으시라고 적는다.
+     안 된 것을 됐다고 하면, 사람은 붙여넣기가 빌 때까지 모른다. */
+$('copyOut').onclick = function () {
+  var o = $('out'); if (!o.value) { alert('먼저 대본을 만들어 주세요.'); return; }
+  var done = function () { alert('복사했습니다.'); };
+  var fallback = function () {
+    try { o.removeAttribute('readonly'); o.focus(); o.setSelectionRange(0, o.value.length);
+      var ok = document.execCommand('copy'); o.setAttribute('readonly', '');
+      if (ok) return done();
+    } catch (e) {}
+    alert('복사가 막혔습니다 — 아래 칸의 글을 길게 눌러 직접 복사해 주세요.');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(o.value).then(done, fallback);
+  } else fallback();
+};
 $('reset').onclick = function () { if (confirm('판정을 전부 지울까요?')) { V = {}; save(); draw(); } };
 draw();
 </script></body></html>
