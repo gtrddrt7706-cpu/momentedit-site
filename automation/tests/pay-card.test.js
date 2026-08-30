@@ -58,8 +58,15 @@ function extractVarObject(src, name) {
 const stageExLine = (SRC_CONFIG.match(/var STAGE_EXCEPTIONS = \[[^\]]*\];/) || [])[0];
 if (!stageExLine) throw new Error('STAGE_EXCEPTIONS not found');
 
+/* ★[HARNESS_STAGEFLOW 2026-08-29 점검] `_confirmDepositCore` 는 PR #555 부터 `stageFlowFor` 를 부른다
+   (수납 확인된 고객이 앞 단계에 서 있으면 단계만 맞춰 주는 경로). 하네스가 그 함수를 안 실어
+   **몇 주 동안 이 스위트 전체가 ReferenceError 로 죽어 있었다** — 게이트가 .test.js 를 실행하지 않아
+   아무도 몰랐다(같은 커밋에서 게이트 실행을 함께 붙였다).
+   ★진짜 소스에서 뽑는다 — 사본을 손으로 적으면 단계 목록이 갈린다(00_platform-config 가 단일 출처). */
 const code = [
   stageExLine,
+  extractVarObject(SRC_CONFIG, 'STAGE_FLOW'),
+  extractFunction(SRC_CONFIG, 'stageFlowFor'),
   extractVarObject(SRC_JOURNEY, 'PAYMENT'),
   extractFunction(SRC_JOURNEY, '_parseJsonSafe'),
   extractFunction(SRC_JOURNEY, '_balanceDueLabel'),

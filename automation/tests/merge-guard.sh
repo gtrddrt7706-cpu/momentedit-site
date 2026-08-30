@@ -5369,3 +5369,18 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/deploycheck-sim.mjs 
   || { echo 'FAIL deploycheck-sim: 99_deployCheck 가 안 붙인 파일/옛 버전을 못 잡는다 — node scripts/audit/deploycheck-sim.mjs'; fail=1; }; fi
 chk 'DEPLOY_CHECK_SIM' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
+# ★★[UNIT_SUITES_RUN 2026-08-29 점검] 단위 스위트를 **실행**한다 — 종전엔 이 파일들 안의 마커만 보고
+#   내용은 한 번도 돌리지 않았다(#589 «검사를 만들었다 ≠ 검사가 돈다»의 재발).
+#   그 결과 pay-card 는 PR #555 이후 몇 주 동안 ReferenceError 로 통째로 죽어 있었고(60건 미실행),
+#   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
+#   ★스위트를 추가하면 이 목록에도 넣을 것.
+if command -v node >/dev/null 2>&1; then
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg; do
+    node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
+      || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
+  done
+fi
+chk 'UNIT_SUITES_RUN' automation/tests/merge-guard.sh 1
+chk 'HARNESS_STAGEFLOW' automation/tests/pay-card.test.js 1
+chk 'CF_CORE_TRUTH 픽스처' automation/tests/guide.test.js 1
+chk 'OLD_SIGNER_TERMS 픽스처' automation/tests/change-fee.test.js 1
