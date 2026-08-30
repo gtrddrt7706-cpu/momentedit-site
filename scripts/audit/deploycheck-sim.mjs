@@ -284,5 +284,31 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   if (bad.length) ng(`섹션 ${bad.join('·')} 앞에 빈 줄이 없습니다 — 앞 목록과 붙어 한 덩어리로 읽힙니다`);
 }
 
+/* ── 8 ── [COVER_PAIR] 같은 표식이 여러 .gs 에 있는데 «한 파일 몫»만 목록에 있는가
+   사용자 지시: "왜못잡앗는지 추적해서 확실하게 개선해"
+   실사고: PAY_LOCK_REENTRANT 가 70_journey·admin·98_pay_card 셋에 있는데 목록엔 70_journey 한 줄뿐이라
+           98_pay_card 를 안 붙여도 「누락 0건」이 나왔다.
+   ★커버리지 게이트도 (파일,표식) 짝으로 고쳤지만 그건 «최근 7일 창» 안에서만 본다.
+     이 검사는 창과 무관하게 저장소 전체를 훑는다 — 옛날에 벌어진 짝은 그 창에 안 잡히기 때문이다.
+     (실제로 이 방식으로 6짝을 더 찾아 목록에 넣었다: ROLLBACK_SLOT·SNAP_BALANCE_D7×2·
+      SIGN_SLOT_REQUIRED·STAGE_REVIEW_DOOR·OLD_SIGNER_TERMS) */
+{
+  console.log('\n── 8) 같은 표식이 여러 파일에 있는데 한 파일 몫만 목록에 있는가');
+  const marks = JSON.parse(fs.readFileSync(path.join(ROOT, 'deploy-marks.json'), 'utf8')).marks || [];
+  const listed = new Set(marks.map((m) => m.file + '|' + m.mark));
+  const names = [...new Set(marks.map((m) => m.mark))];
+  const gap = [];
+  for (const mk of names) {
+    for (const fp of FILES) {
+      const nm = nameOf(rel(fp));
+      if (nm === '99_deployCheck') continue;
+      if (!fs.readFileSync(fp, 'utf8').includes('[' + mk)) continue;
+      if (!listed.has(nm + '|' + mk)) gap.push(`${mk}@${nm}`);
+    }
+  }
+  console.log(`   목록 표식 ${names.length}개 · 파일 몫이 빠진 짝 ${gap.length}개${gap.length ? ': ' + gap.slice(0, 6).join(', ') : ''}`);
+  if (gap.length) ng(`(파일,표식) 짝 ${gap.length}개가 목록에 없습니다 — 그 파일은 옛 판을 붙여도 안 잡힙니다`);
+}
+
 console.log(fail ? `\n✗ ${fail}건 — 점검 파일에 구멍이 있습니다` : '\n✓ 전부 통과 — 안 붙인 파일·옛 버전·옛 내용 셋 다 붉어집니다');
 process.exit(fail ? 1 : 0);

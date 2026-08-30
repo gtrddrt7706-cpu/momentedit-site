@@ -5574,3 +5574,18 @@ chk 'padding:26px 14px 9px' shared/hydrate.js 1
 #   40줄짜리 목록이 다음 제목과 붙어 한 덩어리로 읽힌다 — 이 로그는 사람이 눈으로 훑는 것이다.
 #   세 번째는 사람의 주의가 아니라 검사가 막는다(deploycheck-sim 7번 · 돌연변이로 확인).
 chk 'SECTION_GAP' scripts/audit/deploycheck-sim.mjs 1
+
+# ★★[COVER_PAIR 2026-08-30 사용자 지시 "왜못잡앗는지 추적해서 확실하게 개선해"]
+#   근본 원인이었다 — 커버리지 게이트가 목록 전체를 «한 덩어리 문자열»로 놓고 표식 «이름»만 찾았다.
+#     const missing = alive.filter(([mk]) => !checkSrc.includes(mk));
+#   그래서 같은 표식이 여러 파일에 있을 때, 어느 «한 파일»만 목록에 있으면 나머지가 전부 통과했다.
+#   실사고: PAY_LOCK_REENTRANT 가 70_journey·admin·98_pay_card 셋에 있는데 목록엔 70_journey 한 줄뿐 →
+#           98_pay_card 를 안 붙여도 「누락 0건」(옛 판으로 되돌려 재현 확인).
+#   ★고친 것 둘 — ①게이트를 (파일,표식) «짝»으로 ②창과 무관한 전수 훑기(deploycheck-sim 8번).
+#     ②가 필요한 이유: 게이트는 최근 7일 창만 본다. 옛날에 벌어진 짝은 그 창에 안 잡힌다.
+#     실제로 ②로 6짝을 더 찾아 목록에 넣었다(ROLLBACK_SLOT·SNAP_BALANCE_D7×2·SIGN_SLOT_REQUIRED·
+#     STAGE_REVIEW_DOOR·OLD_SIGNER_TERMS).
+#   ★표식 이름만 보는 방식으로 되돌리지 말 것 — 되돌리면 이 구멍이 그대로 돌아온다.
+chk 'COVER_PAIR' scripts/audit/deploycheck-coverage.mjs 1
+chk 'COVER_PAIR' scripts/audit/deploycheck-sim.mjs 1
+chk 'listedPairs' scripts/audit/deploycheck-coverage.mjs 2
