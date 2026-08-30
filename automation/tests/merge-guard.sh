@@ -5393,7 +5393,9 @@ chk 'SEND_TIME_REQ' automation/admin/admin.gs 1
 chk 'SEND_TIME_REQ' admin.html 2
 chk 'ctWedT' admin.html 2
 chk 'SEND_TIME_REQ' scripts/audit/admin-shot.mjs 2
-chk 'SEED_WEDTIME' scripts/audit/stage-reach.mjs 1
+# ★씨앗의 예식 시간은 main(#597 라운드)이 먼저 넣었다 — 마커 이름이 아니라 «값»으로 지킨다.
+#   이게 빠지면 [SIGN_SLOT_REQUIRED]가 서명을 거부해 «계약완료에 못 닿는다»는 가짜 경보가 난다.
+chk "계약정보: { weddingTime: '12:20' }" scripts/audit/stage-reach.mjs 1
 # [UNDO_AHEAD_LINE] 앞선 단계에선 되돌리기 «버튼» 대신 «사유 한 줄» — 두 검사가 서로 반대를 요구하지 않게.
 chk 'UNDO_AHEAD_LINE' scripts/audit/admin-shot.mjs 1
 # [DC_LIST_WIDEN 2026-08-30 점검] 99_deployCheck 목록에 넷을 더했다 — SEND_TIME_REQ 와,
