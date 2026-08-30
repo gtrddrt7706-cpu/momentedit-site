@@ -345,10 +345,27 @@ ${EMBED ? `<div class="note" style="background:#f2f5f2;color:var(--green);border
   <button class="btn" id="copyOut">복사</button>
   <button class="btn" id="reset">판정 지우기</button>
 </div>
+<!-- ★[SOUND_OUT_OF_JS] 소리는 여기 있다 — type="text/plain" 이라 브라우저가 **파싱하지 않는다.**
+     누를 때 그 하나만 textContent 로 읽는다(위 sndOf). 이 블록을 지우면 판이 통째로 벙어리가 된다. -->
+${EMBED ? Object.entries(A_OLD).map(([k, v]) => `<script type="text/plain" id="snd_${k}">${v}<\/script>`).join('\n')
+        + '\n' + Object.entries(A_NEW).map(([k, v]) => `<script type="text/plain" id="snd_${k}">${v}<\/script>`).join('\n') : ''}
 <script>
 var D = ${JSON.stringify(DATA)};
-var AO = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(A_OLD).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
-var AN = ${EMBED ? JSON.stringify(Object.fromEntries(Object.entries(A_NEW).map(([k, v]) => [k, 'data:audio/mpeg;base64,' + v]))) : '{}'};
+/* ★★[SOUND_OUT_OF_JS 2026-08-26 사용자 실물 · 폰 스크린샷] 소리를 **자바스크립트 밖**에 둔다.
+   ★무엇이 보였나 — 폰에서 「판정 N/M」도 탭도 목록도 안 뜨고, 안내 칸(#canDo)마저 빈 회색 막대였다.
+     그 자리는 전부 스크립트가 채우는 곳이다. 즉 **스크립트가 시작조차 못 했다.**
+     헤드리스 390px 에서는 멀쩡했으니 화면 폭이 아니라 **엔진/기기**다.
+   ★왜 — «var AO = { … 6.5MB base64 … }» 는 브라우저가 **통째로 파싱해 문자열 300여 개를 만드는** 일이다.
+     iOS 계열 내장 뷰어는 그 자리에서 죽는다. 죽으면 아무 말도 없이 화면이 빈다.
+   ★그래서 소리를 «script type=text/plain» 에 담는다 — **브라우저가 파싱하지 않는 자리**다.
+     그냥 텍스트 노드로 놓였다가, 누를 때 그 하나만 읽는다. 파싱 비용이 사라진다.
+   ★소리를 줄이지 않았다 — 어조를 판정할 판인데 소리를 뭉개면 판정이 못 미더워진다.
+     무게가 아니라 «어떻게 담느냐»가 문제였다. */
+var AO = {}, AN = {};
+function sndOf(k) {
+  var e = document.getElementById('snd_' + k);
+  return e ? 'data:audio/mpeg;base64,' + e.textContent.trim() : '';
+}
 var KEY = 'me_listen_all_${STAMP}';
 /* [LISTEN_KEY_STAMP] 옛 열쇠(고정 문자열)에 판정이 남아 있으면 «있다»고 알린다 — 조용히 버리지 않는다.
    옮겨 주지도 않는다: 그 판정이 어느 소리에 대한 것인지 이 판은 모른다. */
@@ -376,7 +393,7 @@ function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없�
 var segT = null;
 function playSeg(id, a0, b0) {
   stop(); if (segT) { clearTimeout(segT); segT = null; }
-  var u = AO[id]; if (!u) { alert('그 클립 소리가 이 판에 없습니다.'); return; }
+  var u = sndOf(id); if (!u) { alert('그 클립 소리가 이 판에 없습니다.'); return; }   /* [SOUND_OUT_OF_JS] */
   var a = new Audio(u); cur = a;
   a.addEventListener('loadedmetadata', function () { a.currentTime = a0; a.play(); });
   a.addEventListener('timeupdate', function () { if (a.currentTime >= b0) { try { a.pause(); } catch (e) {} } });
@@ -403,7 +420,7 @@ function counts() {
    「그 자리 소리가 이 판에 없습니다」 경고가 떴다 — 사람이 **눌러 보고서야** 알았다.
    186문장을 하나씩 눌러 확인하게 만드는 셈이라, 「한 번에」가 안 된다.
    ★그래서 있는지를 먼저 보고, 없으면 그 자리에 «소리 없음»이라고 적는다. */
-function hasSnd(k) { return !!(k.charAt(0) === 'n' ? AN[k] : AO[k]); }
+function hasSnd(k) { return !!document.getElementById('snd_' + k); }   /* [SOUND_OUT_OF_JS] */
 /* [LISTEN_WHY] 「다시」일 때만 연다 — 안 고칠 자리에 빈 칸을 늘어놓으면 화면이 시끄럽다 */
 function whyBox(k) {
   if (V[k] !== 're') return '';
@@ -502,13 +519,25 @@ function sayCanDo() {
   h += '· 「손으로 고르는·폴백·폐지」로 표시된 자리는 <b>식장에서 나지 않습니다</b> — 소리가 옛 말이어도 정상이니 판정하지 마세요.';
   var e = $('canDo'); if (e) e.innerHTML = h;
 }
+/* ★★[SHOW_THE_CRASH 2026-08-26 사용자 실물] 죽으면 **화면이 말한다.**
+   ★이번에 폰에서 빈 화면이 나왔다. 탭도 목록도 안내 칸도 비어 있었다 — 스크립트가 시작을 못 한 것인데
+     화면에는 아무 말이 없어, 사용자가 「안 나온다」고 알려 줄 때까지 아무도 몰랐다.
+   ★조용한 실패는 실패가 아니다(이 저장소가 계속 싸운 그것). 무엇이 죽었는지 적어야 다음 판이 나아진다. */
+window.addEventListener('error', function (e) {
+  var el = document.getElementById('canDo'); if (!el || el.dataset.crashed) return;
+  el.dataset.crashed = '1';
+  el.innerHTML = '<b>이 판이 이 기기에서 안 열립니다.</b><br>' +
+    '아래 글을 그대로 알려 주시면 고칠 수 있습니다 — 기기·브라우저도 함께요.<br>' +
+    '<code style="font-size:12px;word-break:break-all">' +
+    String((e && (e.message || e.error)) || '알 수 없음').slice(0, 200) + '</code>';
+});
 sayCanDo();
 
 $('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { TAB = b.dataset.t; draw(); window.scrollTo(0, 0); } });
 $('list').addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   if (b.dataset.seek) return playSeg(b.dataset.seek, +b.dataset.a, +b.dataset.b);
-  if (b.dataset.u != null) { var u = b.dataset.u; return play(u.charAt(0) === 'n' && AN[u] ? AN[u] : AO[u]); }
+  if (b.dataset.u != null) { return play(sndOf(b.dataset.u)); }   /* [SOUND_OUT_OF_JS] 누를 때 그 하나만 읽는다 */
   if (b.dataset.v) { var k = b.dataset.k; setV(k, V[k] === b.dataset.v ? null : b.dataset.v); }
 });
 $('onlyLeft').onchange = draw; $('onlyRe').onchange = draw;

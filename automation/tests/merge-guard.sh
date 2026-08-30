@@ -3566,6 +3566,17 @@ chk 'EMPTY_IS_OK' scripts/build-dub-onefile.mjs 1
 # ★[COPY_MOBILE 2026-08-26] 폰에서 복사 — navigator.clipboard 먼저, 실패하면 execCommand, 둘 다 막히면 «막혔다»고 적는다.
 #   ★안 된 것을 됐다고 하지 않는다. 사람은 붙여넣기가 빌 때까지 모른다.
 #   실측(iPhone 13 에뮬·터치): 세 갈래 다 옳게 갈림. 단 iOS Safari 실물은 여기서 못 잰다 — 그래서 안전판을 깐 것이다.
+# ── [SOUND_OUT_OF_JS · SHOW_THE_CRASH 2026-08-26 사용자 실물(폰 스크린샷)] ──
+# 폰에서 판정줄·탭·목록·안내칸이 전부 비었다 — 그 자리는 모두 스크립트가 채우는 곳이다.
+# 즉 화면 폭이 아니라 **스크립트가 시작을 못 한 것**(헤드리스 390px 는 멀쩡했다).
+# 범인은 «var AO = { …6.5MB base64… }» — 브라우저가 통째로 파싱해 문자열 300여 개를 만든다.
+# ★소리를 줄이지 않고 JS «밖»으로 뺐다: script type=text/plain 283개 · 누를 때 하나만 읽는다.
+#   실측 로드 6.0초 → 3.1초 · 재생 정상(17.6·3.7·2.7초) · 소리 품질 그대로(어조 판정용이라 안 뭉갠다).
+# ★그리고 죽으면 화면이 말한다 — 이번엔 사용자가 알려 줄 때까지 아무도 몰랐다.
+chk 'SOUND_OUT_OF_JS' scripts/build-listen-all.mjs 5
+chk 'SHOW_THE_CRASH' scripts/build-listen-all.mjs 1
+chk 'function sndOf' scripts/build-listen-all.mjs 1
+nochk 'AO\[id\]' scripts/build-listen-all.mjs
 chk 'COPY_MOBILE' scripts/build-listen-all.mjs 1
 chk 'navigator.clipboard' scripts/build-listen-all.mjs 2
 nochk "o.select(); try { document.execCommand('copy'); alert('복사했습니다.'); }" scripts/build-listen-all.mjs
