@@ -5251,8 +5251,15 @@ chk 'SEQ_MIN_BASELINE' index.html 1
 #   ★그래서 «최근 7일 안에 GAS 로 들어간 표식»이 목록에 있는지 기계가 대조한다 — 앞으로 들어오는 것부터 강제.
 #     30일 치 전부를 요구하지 않는 것은 의도다: 밀린 50개를 지금 다 넣으라고 하면 게이트가 무시당한다.
 #   빠지면 붉어진다 → automation/platform/99_deployCheck.gs 의 MARKS 에 한 줄 추가하고 GAS 에도 다시 붙여넣을 것.
-if command -v node >/dev/null 2>&1; then DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs >/dev/null 2>&1 \
-  || { echo 'FAIL deploycheck-coverage: 최근 GAS 변경이 99_deployCheck 목록에 없다 — DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs'; fail=1; }; fi
+# ★★[GATE_SAY_WHY 2026-08-30] 실패하면 «이유»를 함께 찍는다.
+#   종전엔 출력을 버려서 CI 로그에 「목록에 없다」 한 줄만 남았다 — 어떤 표식인지 알 수 없어
+#   두 번 연속 원인 못 찾고 헤맸다(실측: 로컬은 통과하고 CI 만 붉었는데 이유를 볼 길이 없었다).
+#   초록일 때는 종전대로 조용하다. 붉을 때만 말한다.
+if command -v node >/dev/null 2>&1; then
+  _dcOut=$(DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs 2>&1) \
+    || { echo 'FAIL deploycheck-coverage: 최근 GAS 변경이 99_deployCheck 목록에 없다 — DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs'
+         printf '%s\n' "$_dcOut" | sed 's/^/    | /'; fail=1; }
+fi
 chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
 chk 'CF_CORE_TRUTH' automation/platform/99_deployCheck.gs 1
 chk 'platformSelfTest' automation/platform/99_deployCheck.gs 2   # ★setupAllTriggers 로 되돌리면 90_test-utils 누락이 안 잡힌다
@@ -5280,3 +5287,54 @@ chk "steps\[idx\].querySelector('.jr-step-btn').addEventListener('click'" index.
 # [LEAD_IN_SAY] 기다리는 2초 동안엔 「안 들리면 볼륨을 확인하세요」를 감춘다 — 그 2초는 원래 안 들린다.
 #   띄워 두면 어른들이 멀쩡한 볼륨을 최대로 올려 두고, 소리가 나는 순간 깜짝 놀란다.
 chk 'LEAD_IN_SAY' parents.html 2
+
+
+# ★★[GP_OVER_PICK 2026-08-22 병렬 시뮬레이션 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면
+#   «말없이» 잘렸다. 실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 —
+#   남은 5장이 사라진 것을 하객이 알 길이 없었다. 조용한 절삭은 «다 갔다»로 읽힌다.
+#   → 잘린 수를 send/finish 로 넘겨 끝에서 함께 말한다(성공 시트·실패 인라인 양쪽).
+chk 'GP_OVER_PICK' guide.html 1
+chk 'over=all.length-f.length' guide.html 1
+chk '남은 '"'"'+over+'"'"'장은 다시 눌러 보내 주세요' guide.html 1
+
+# ★★[GP_NONE_WHY 2026-08-22 병렬 점검에서 발견 · 내가 만든 결함] 한 장도 못 갔을 때
+#   「보낼 사진이 없었어요」는 «고르지 않았다»는 뜻으로 읽힌다. 실제로는 크기 때문에 걸러진 것이다.
+#   실측: 25MB 한 장만 고르니 그 문구가 떴다 — 왜 안 갔는지 알 수 없었다.
+#   [GP_DONE_SHEET] 로 성공을 시트로 옮기면서 big 을 이 갈래에서 잃어버린 것이 원인이다.
+chk 'GP_NONE_WHY' guide.html 1
+chk '사진이 너무 커서 보내지 못했어요' guide.html 1
+
+# ★★[DEPLOY_CHECK 2026-08-22 사용자 요청 "GAS 파일 전부 업로드 했는데 누락없는지 체크해보자"]
+#   여러 파일을 한꺼번에 붙여 넣으면 «빠뜨린 파일»보다 «옛 판을 붙인 파일»이 더 흔하다.
+#   있는지만 보면 그걸 못 잡는다 — 그래서 넷을 따로 본다:
+#     ①파일이 있나(그 파일에만 있는 함수) ②최신판인가(최근 커밋이 새로 넣은 함수)
+#     ③배포가 먹었나(/exec 를 직접 찔러 '알 수 없는 요청' 인지 본다 — 저장만으론 안 먹는다)
+#     ④시트가 준비됐나(addGuestPhotoColumns 로 생긴 컬럼)
+#   ★프록시가 막아 내가 라이브를 못 찌른다 — 그래서 «GAS 안에서» 도는 함수로 만들었다.
+#   ★적대 검증: 다섯 상황을 흉내 내 각각 다른 이유를 짚는지 확인한다(deploy-check-sim).
+# ★★2026-08-30 — 같은 것을 두 세션이 만들었다. 내가 만든 99_deploy_check.gs 는 «지웠다».
+#   99_deployCheck.gs(다른 세션)가 더 낫다 — 함수 본문 표식(toString)으로 «붙여넣다 잘린 것»까지 잡고,
+#   deploycheck-coverage 게이트가 목록이 뒤처지는 것을 막는다. 원천은 하나여야 한다.
+#   ★내 쪽에만 있던 둘(배포본 확인·시트 컬럼)은 그 파일에 «보탰다» — 버린 것이 아니다.
+chk 'DEPLOY_LIVE' automation/platform/99_deployCheck.gs 1
+chk '알 수 없는 요청' automation/platform/99_deployCheck.gs 1
+chk '하객사진 컬럼 4개' automation/platform/99_deployCheck.gs 1
+# ★중복 점검 파일이 되살아나는 것을 «문자열»이 아니라 «파일이 있느냐»로 본다.
+#   nochk 로 두었더니 그 nochk 줄 자신이 걸렸다(자기 참조 · 오늘만 세 번째다).
+[ -e automation/platform/99_deploy_check.gs ] \
+  && { echo "FAIL 중복 점검 파일이 되살아났다 — 99_deployCheck.gs 하나만 둔다"; fail=1; } \
+  || echo "ok 점검 파일은 하나뿐(99_deployCheck.gs)"
+
+# ★★[SEQ_FIG_LINING 2026-08-22 사용자 지적 "min이 하단에 붙어있어야 하는데 어떤건 중간에 있고"]
+#   ★먼저 «레이아웃 문제가 아님»을 실측으로 배제했다 — 다섯 min 이 각자 상자 위에서 전부 21px 로 같다.
+#     상자 높이만 65/89 로 다른데(설명이 1줄이냐 2줄이냐) 그건 min 자리와 무관하다.
+#     min 을 옮겨 고치려 하지 말 것 — 이미 같은 자리다. 옮기면 이번엔 다른 줄이 어긋난다.
+#   원인은 글리프다: Cormorant 의 기본 숫자가 «올드스타일»이라 2·0·1 은 x높이인데 3·4·5 는
+#   기준선 아래로 내려간다. 그래서 45·35 는 숫자가 min 보다 더 내려가 min 이 «가운데»처럼 보였다.
+#   → 숫자를 높이가 같은 라이닝으로. 폭도 고정해 다섯 줄이 한 단으로 선다(실측 칸폭 80px 통일).
+#   ★구형 사파리는 font-variant-numeric 을 무시하므로 font-feature-settings 도 함께 둔다.
+#   ★내 환경에서는 실제 글꼴을 못 띄운다(프록시가 fonts.gstatic 을 404 로 막는다) —
+#     적용 여부는 계산된 스타일로 확인했고, 눈으로의 확정은 사용자 기기 몫이다.
+chk 'SEQ_FIG_LINING' index.html 1
+chk 'font-variant-numeric: lining-nums tabular-nums' index.html 1
+chk '"lnum" 1, "tnum" 1' index.html 1

@@ -507,7 +507,14 @@ function bindGuestUpload(){
   var token=qp('g'); if(!token) return;
   var busy=false, failed=[];
   pick.addEventListener('click', function(){ if(!busy) inp.click(); });
-  inp.addEventListener('change', function(){ var f=[].slice.call(inp.files||[],0,GP_ONCE); inp.value=''; if(f.length) send(f); });
+  /* ★★[GP_OVER_PICK 2026-08-22 병렬 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면 «말없이» 잘렸다.
+     실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 — 남은 5장이 사라진 것을
+     하객이 알 길이 없다. 조용한 절삭은 «다 갔다»로 읽힌다.
+     ★잘린 수를 send 에 넘겨 끝에서 함께 말한다. */
+  inp.addEventListener('change', function(){
+    var all=[].slice.call(inp.files||[]), f=all.slice(0,GP_ONCE), over=all.length-f.length;
+    inp.value=''; if(f.length) send(f, over);
+  });
 
   function one(file){
     return new Promise(function(res){
@@ -525,12 +532,13 @@ function bindGuestUpload(){
       fr.readAsDataURL(file);
     });
   }
-  function send(files){
+  function send(files, over){
+    over=over||0;
     busy=true; window.__gpBusy=true; failed=[]; var done=0, big=0, stopMsg='';   // [GP_NO_REPAINT] 올리는 동안 render 를 막는다
     pick.textContent='올리는 중이에요'; pick.classList.add('ps-btn-off');
     gpSay('0 / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
     (function next(i){
-      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg); return; }
+      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg, over); return; }
       one(files[i]).then(function(v){
         if(v.ok) done++; else if(v.big) big++; else { failed.push(files[i]); if(v.stop) stopMsg=v.msg||''; }
         gpSay((done)+' / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
@@ -538,11 +546,13 @@ function bindGuestUpload(){
       });
     })(0);
   }
-  function finish(total, done, big, stopMsg){
+  function finish(total, done, big, stopMsg, over){
+    over=over||0;
     busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
     if(stopMsg){ gpSay(esc(stopMsg), 'err'); return; }
     var msg=done?gpDoneMsg(done):'';   // 실패가 섞였을 때만 쓰인다 — 성공은 아래에서 시트로 간다
     if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지).';
+    if(over) msg+=(msg?'<br>':'')+'한 번에 '+GP_ONCE+'장까지 갈 수 있어요 · 남은 '+over+'장은 다시 눌러 주세요.';
     if(failed.length){
       msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
       gpSay(msg,'err');
@@ -550,11 +560,20 @@ function bindGuestUpload(){
       if(rb) rb.addEventListener('click', function(){ var again=failed.slice(); send(again); });
       return;
     }
-    if(!done){ gpSay('보낼 사진이 없었어요.'); return; }
+    if(!done){
+      /* ★★[GP_NONE_WHY 2026-08-22 병렬 점검에서 발견 · 내가 만든 결함] 한 장도 못 갔을 때
+         「보낼 사진이 없었어요」는 «고르지 않았다»는 뜻으로 읽힌다. 실제로는 크기·전송 때문에 걸러진 것이다.
+         실측: 25MB 한 장만 고르니 그 문구가 떴다 — 하객은 왜 안 갔는지 알 수 없다.
+         [GP_DONE_SHEET] 로 성공을 시트로 옮기면서 big 을 이 갈래에서 잃어버린 것이 원인이다. */
+      if(big) gpSay('사진이 너무 커서 보내지 못했어요 · 한 장에 '+GP_MAX_MB+'MB까지 보낼 수 있어요.','err');
+      else    gpSay('보낼 사진이 없었어요.');
+      return;
+    }
     /* [GP_DONE_SHEET] 성공은 시트로 알린다 — 인라인 줄은 지워 «옛 결과»가 남지 않게 한다.
        큰 파일을 걸렀으면 그 사실은 시트 본문에 함께 싣는다(따로 남기면 확인이 두 곳으로 갈라진다). */
     var st=document.getElementById('gpStat'); if(st){ st.innerHTML=''; st.style.display='none'; }
     var sub=GP_DONE_SUB;
+    if(over) sub='한 번에 '+GP_ONCE+'장까지 갈 수 있어요 · 남은 '+over+'장은 다시 눌러 보내 주세요. '+sub;
     if(big) sub='너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지). '+sub;
     sheetOpen('Photos', gpDoneMsg(done), sub, pick);
   }
