@@ -3574,6 +3574,14 @@ chk 'EMPTY_IS_OK' scripts/build-dub-onefile.mjs 1
 #   실측 로드 6.0초 → 3.1초 · 재생 정상(17.6·3.7·2.7초) · 소리 품질 그대로(어조 판정용이라 안 뭉갠다).
 # ★그리고 죽으면 화면이 말한다 — 이번엔 사용자가 알려 줄 때까지 아무도 몰랐다.
 chk 'SOUND_OUT_OF_JS' scripts/build-listen-all.mjs 5
+# ★[JS_BLOCKED_SAY 2026-08-26 사용자 실물 두 번] 스크립트가 «아예 안 도는» 경우를 화면이 말한다.
+#   단서: 목록도 탭도 안 뜨는데 window.onerror 배너까지 비어 있었다 — 죽은 게 아니라 시작을 못 한 것.
+#   앱 내장 미리보기가 스크립트를 막는다(정적 HTML 은 멀쩡히 그려졌다). 무게 문제가 아니었다.
+#   ★안내를 «정적 HTML»로 박아 둔다 — 스크립트가 돌면 sayCanDo 가 덮고, 안 돌면 그 글이 남는다.
+#   실측: JS 켜짐 → 「97클립 …」으로 덮임 / JS 꺼짐 → 「앱이 스크립트를 막은 것입니다」 그대로.
+chk 'JS_BLOCKED_SAY' scripts/build-listen-all.mjs 1
+chk '브라우저로 열어 주세요' scripts/build-listen-all.mjs 1
+nochk 'if (AO\[c.id\]) oldOK' scripts/build-listen-all.mjs
 chk 'SHOW_THE_CRASH' scripts/build-listen-all.mjs 1
 chk 'function sndOf' scripts/build-listen-all.mjs 1
 nochk 'AO\[id\]' scripts/build-listen-all.mjs
@@ -3584,11 +3592,11 @@ chk 'STAMP_TONE' scripts/build-listen-all.mjs 1
 chk 'LISTEN_LIGHT' scripts/build-listen-all.mjs 1
 chk "arg('--kbps'" scripts/build-listen-all.mjs 1
 nochk "'-ar', '32000'" scripts/build-listen-all.mjs
-chk 'LISTEN_WHY' scripts/build-listen-all.mjs 7
+chk 'LISTEN_WHY' scripts/build-listen-all.mjs 8
 chk 'LISTEN_SPLIT' scripts/build-listen-all.mjs 3
 chk 'function whyBox' scripts/build-listen-all.mjs 1
 chk '왜 다시' scripts/build-listen-all.mjs 3
-chk 'NO_SOUND_SAY' scripts/build-listen-all.mjs 4
+chk 'NO_SOUND_SAY' scripts/build-listen-all.mjs 3
 chk 'function hasSnd' scripts/build-listen-all.mjs 1
 chk 'function sayCanDo' scripts/build-listen-all.mjs 1
 nochk "canPlay ? '<button class=\"btn sm play\"" scripts/build-listen-all.mjs   # ★소리 유무를 안 보고 버튼 내밀던 옛 줄

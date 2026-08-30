@@ -292,10 +292,10 @@ border-top:1px solid var(--border);padding-top:14px;font-weight:600}
 .sent.re{background:#fdf7f6}
 .sent.lock{background:#f7faf8}
 .ops{display:flex;gap:6px;flex-wrap:wrap}
-.nosnd{font-size:12px;color:var(--light);white-space:nowrap;padding:0 8px}
+.nosnd{font-size:12px;color:var(--light);white-space:nowrap;padding:0 8px}   /* [NO_SOUND_SAY] 소리가 없으면 죽은 「듣기」 대신 이 글을 낸다 — 눌러 봐야 아는 판을 만들지 않는다 */
 .why{margin-top:8px;flex-basis:100%}
 .why input{width:100%;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-family:inherit;box-sizing:border-box}
-.why input:focus{border-color:var(--gold);outline:none}   /* [NO_SOUND_SAY] 없는 것을 없다고 적는 자리 */
+.why input:focus{border-color:var(--gold);outline:none}   /* [LISTEN_WHY] 「다시」에 이유 한 줄 — 이유가 없으면 다음 판이 같은 이유로 또 걸린다 */
 .foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.97);border-top:1px solid var(--border);
 padding:9px 14px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap;backdrop-filter:blur(8px);z-index:30}
 textarea{width:100%;min-height:170px;font:13px/1.6 ui-monospace,Menlo,monospace;padding:10px;
@@ -310,8 +310,18 @@ border:1px solid var(--border);border-radius:9px;background:#fff}
 <p class="sub" style="color:var(--light)">[LISTEN_KEY_STAMP] 판정은 이 판(<b>${STAMP}</b>)에만 저장됩니다 &mdash; 소리나 글이 바뀌면 판이 달라져 <b>판정을 새로 받습니다</b>.<br>옛 소리에 누른 판정이 새 소리 위에 남아 있으면 그 기록은 거짓이 되기 때문입니다.</p>
 ${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_SCREEN] 폐지한 자리 <b>${RETIRED_ROWS.length}개</b>는 목록에 없습니다 &mdash; 식장에서 나지 않습니다: ${RETIRED_ROWS.join(' · ')}<br>(파일은 남겨 둡니다 &mdash; 지우면 뒤 클립 번호가 전부 밀립니다)</p>` : ''}
 
+<!-- ★★[JS_BLOCKED_SAY 2026-08-26 사용자 실물 두 번] 스크립트가 «아예 안 도는» 자리를 화면이 말한다.
+     ★단서: 폰에서 목록도 탭도 안 뜨는데 **내가 넣은 오류 배너(window.onerror)까지 비어 있었다.**
+       죽었으면 배너가 떴을 것이다. 즉 죽은 게 아니라 **시작을 못 한 것** — 무게가 아니라
+       앱 내장 미리보기가 스크립트를 막는 것이다(정적 HTML 은 멀쩡히 그려졌다).
+     ★그래서 이 글을 **정적 HTML 로 미리 박아 둔다.** 스크립트가 돌면 sayCanDo 가 덮어쓴다.
+       안 돌면 이 글이 그대로 남아, 사람이 «고장»이 아니라 «여는 법»을 보게 된다.
+     ★빈 화면은 아무것도 안 알려 준다. 안 도는 것을 안 돈다고 적는 것이 이 저장소의 규칙이다. -->
 <div class="note" id="canDo">
-  <!-- [NO_SOUND_SAY] 채워 넣는다 — 무엇이 되고 무엇이 안 되는지를 «시작 전에» 말한다 -->
+  <b>이 화면이 이대로 멈춰 있으면, 지금 보고 계신 앱이 스크립트를 막은 것입니다.</b><br>
+  판정 단추와 목록이 안 뜨고 이 글만 보이면 그 경우예요.<br>
+  <b>브라우저로 열어 주세요</b> — 아이폰이면 아래 공유 단추 → 「파일에 저장」 → 파일 앱에서 열기,
+  또는 사파리·크롬으로 여시면 됩니다.
 </div>
 
 <div class="note">
@@ -505,10 +515,12 @@ function draw() {
    ★사용자 지시가 «한 번에, 중간에 또 작업 없이»다. 그러려면 시작 전에 전부 알아야 한다. */
 function sayCanDo() {
   var oldOK = 0, oldNo = 0, warn = [];
-  D.old.forEach(function (c) { if (AO[c.id]) oldOK++; else oldNo++;
+  /* ★[SOUND_OUT_OF_JS] 세는 자리도 새 저장소를 본다 — 안 고쳤더니 「기존 0클립」으로 나왔다.
+     구조를 바꾸면 «그 구조를 세던 곳»도 같이 바꿔야 한다. 실측으로 잡았다. */
+  D.old.forEach(function (c) { if (hasSnd(c.id)) oldOK++; else oldNo++;
     if (c.miss) warn.push(c.id); });
   var nTot = 0, nOK = 0;
-  D.neu.forEach(function (c) { c.n.forEach(function (x) { nTot++; if (AN['n' + x.i]) nOK++; }); });
+  D.neu.forEach(function (c) { c.n.forEach(function (x) { nTot++; if (hasSnd('n' + x.i)) nOK++; }); });
   var seg = D.old.filter(function (c) { return c.b; }).length;
   var h = '<b>이 판으로 지금 할 수 있는 것</b><br>'
     + '· 기존 나레이션·배역 <b>' + oldOK + '클립</b> — 소리가 다 들어 있습니다. 문장 단위로 건너뛰며 듣기 <b>' + seg + '클립</b>.<br>';
