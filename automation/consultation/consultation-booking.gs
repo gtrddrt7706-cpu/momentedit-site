@@ -154,6 +154,7 @@ const LOCKED_STATES = [ST.APPROVED, ST.CONFIRMED];
 
 // ============================ 웹앱 라우팅 (doGet) ============================
 function doGet(e) {
+  try { if (typeof deployStamp === 'function') deployStamp(); } catch (_ds) {}   // [DEPLOY_STAMP]
   var p = (e && e.parameter) || {};
   try {
     if (p.admin === '1') return serveAdmin(e);       // [관리자 v1] 구글 로그인 + Admins 화이트리스트
@@ -2127,6 +2128,9 @@ function handleAcceptProposal(body) {
 }
 
 function doPost(e) {
+  /* [DEPLOY_STAMP] 배포된 코드가 «자기 지문»을 남긴다 — deployCheck 가 저장된 코드와 대조해
+     «새 버전으로 재배포했는지»를 말해 준다. 실패해도 고객 요청은 그대로 간다(안이 전부 try). */
+  try { if (typeof deployStamp === 'function') deployStamp(); } catch (_ds) {}
   try {
     var raw = {};
     try { raw = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (_) { raw = {}; }

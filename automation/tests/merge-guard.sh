@@ -5338,8 +5338,10 @@ chk '사진이 너무 커서 보내지 못했어요' guide.html 1
 #   99_deployCheck.gs(다른 세션)가 더 낫다 — 함수 본문 표식(toString)으로 «붙여넣다 잘린 것»까지 잡고,
 #   deploycheck-coverage 게이트가 목록이 뒤처지는 것을 막는다. 원천은 하나여야 한다.
 #   ★내 쪽에만 있던 둘(배포본 확인·시트 컬럼)은 그 파일에 «보탰다» — 버린 것이 아니다.
-chk 'DEPLOY_LIVE' automation/platform/99_deployCheck.gs 1
-chk '알 수 없는 요청' automation/platform/99_deployCheck.gs 1
+# ★[DEPLOY_LIVE → DEPLOY_STAMP 2026-08-30] 옛 ④ 는 자기 /exec 를 찔러 응답 문구('알 수 없는 요청')로
+#   배포 여부를 갈랐다. 그 길은 «구글이 막는다» — 실측 HTTP 401, 두 번의 실기 실행에서 늘 「확인 불가」였다.
+#   그래서 지문 대조로 갈아탔다(아래 DEPLOY_STAMP 블록). 마커가 사라진 것은 역전이 아니라 정당한 폐지다.
+#   ★되살리지 말 것 — 되살려도 401 이라 「확인 불가」만 반복하고, 그러면 사람이 ④ 를 안 읽게 된다.
 chk '하객사진 컬럼 4개' automation/platform/99_deployCheck.gs 1
 # ★중복 점검 파일이 되살아나는 것을 «문자열»이 아니라 «파일이 있느냐»로 본다.
 #   nochk 로 두었더니 그 nochk 줄 자신이 걸렸다(자기 참조 · 오늘만 세 번째다).
@@ -5452,3 +5454,18 @@ chk 'deploy-marks.json' automation/platform/99_deployCheck.gs 1
 chk 'MARKS_REMOTE' scripts/audit/deploycheck-coverage.mjs 1
 chk 'SIM_MARKS_REMOTE' scripts/audit/deploycheck-sim.mjs 1
 chk 'COVER_SCOPE' scripts/audit/deploycheck-coverage.mjs 1
+
+# ★★[DEPLOY_STAMP 2026-08-30 사용자 질문 "재배포가 최신인지 그것도 같이 체크는 불가해?"]
+#   막힌 것은 «GAS 가 자기 /exec 를 부르는 것»이었다(실측 HTTP 401 · 구글이 막는다).
+#   그래서 방향을 뒤집었다 — 배포된 코드가 /exec 를 탈 때마다 «자기 지문»을 ScriptProperty 에 남기고,
+#   deployCheck 는 «저장된 코드»의 지문을 같은 방법으로 계산해 대조한다. 다르면 재배포를 안 한 것이다.
+#   ★지문은 핵심 함수 소스에서 «자동으로» 나온다 — 손으로 버전을 올리게 하면 그게 또 빠뜨릴 일거리가 된다.
+#   ★★doPost·doGet 의 try 를 절대 벗기지 말 것 — /exec 는 고객의 길이고 배포 확인은 편의 기능이다.
+#     보호막을 두 겹(호출 자리 + deployStamp 안) 다 벗기면 Property 장애 때 고객 요청이 통째로 죽는다.
+#     돌연변이로 확인했다: 둘 다 벗기면 deploycheck-sim 6번이 붉어진다(한 겹만 벗기면 성질은 유지).
+chk 'DEPLOY_STAMP' automation/platform/00_platform-config.gs 1
+chk 'deployFingerprint' automation/platform/00_platform-config.gs 2
+chk 'DEPLOY_STAMP' automation/consultation/consultation-booking.gs 2
+chk "catch (_ds) {}" automation/consultation/consultation-booking.gs 2
+chk 'DEPLOY_STAMP' automation/platform/99_deployCheck.gs 1
+chk 'SIM_DEPLOY_STAMP' scripts/audit/deploycheck-sim.mjs 1

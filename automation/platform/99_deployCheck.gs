@@ -100,50 +100,32 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
 
   L.push('');
   L.push('══ ④ 배포가 «먹었는가» (저장만으론 /exec 에 안 먹는다) ══');
-  /* ★★[DEPLOY_LIVE 2026-08-30] 위 ①~③ 은 «저장된 코드»만 본다 — 편집기가 그것으로 돌기 때문이다.
-     그래서 「전부 올렸는데 화면은 그대로」가 계속 나온다. 재배포를 안 한 것이 원인인데
-     사람이 그걸 기억해야만 했다. 여기서 «배포본»을 직접 찔러 기억할 필요를 없앤다.
-     ★틀린 토큰을 보내므로 아무것도 올라가지 않는다. 읽기 전용이라는 성질은 그대로다.
-     ★응답이 갈린다 — 배포됐으면 handleGuestPhoto 가 「잘못된 주소」로 막고,
-       배포가 낡았으면 라우터가 「알 수 없는 요청」을 낸다. */
-  /* ★★[DEPLOY_LIVE_URL 2026-08-30 실기 실측] getUrl() 은 «편집기에서 수동 실행»하면 /dev 를 준다.
-     /dev 는 소유자 로그인이 필요한 개발 주소라, 서버끼리 찌르면 앱이 아니라 «구글 로그인 화면»이
-     돌아온다(실측 응답: <!DOCTYPE html>…window['ppConf']…). 그걸 「응답을 못 읽었습니다」로 세니
-     배포가 멀쩡한데도 늘 붉었다. 고객이 쓰는 주소는 /exec 이므로 그쪽으로 바꿔 찌른다.
-     ★그래도 앱 응답이 아니면 «실패»가 아니라 «확인 불가»로 남긴다 — 못 잰 것을 실패로 세면
-       「누락 0건」이 영영 안 나오고, 그러면 사람이 MISS 를 무시하기 시작한다. 게이트가 죽는 길이다. */
-  /* ★★[DEPLOY_LIVE_WHY 2026-08-30] 두 번을 돌려도 「확인 불가」만 나왔다. 그 줄은 «무엇을 해야
-     하는지»를 안 알려 준다 — 확인 불가가 반복되면 사람은 그 줄을 읽지 않게 된다.
-     그래서 «무엇을 찔렀고 무엇이 왔는지»를 함께 남긴다: 끝 주소(/exec 인가 /dev 인가) · HTTP 코드 ·
-     리다이렉트 여부. 이 셋이면 다음 한 번의 실행으로 원인이 갈린다.
-       · /dev 를 찔렀다        → getUrl 이 준 주소가 개발용(치환이 안 먹은 것)
-       · /exec + 200 + 로그인  → 웹앱 접근이 «모든 사용자»가 아니다
-       · /exec + 302/401       → 같은 프로젝트가 자기 /exec 를 부르는 것을 구글이 막는다(구조적)
-     ★주소 전체는 안 찍는다 — 로그에 남는 배포 주소는 그 자체가 열쇠다. 끝 8자만 남긴다. */
+  /* ★★[DEPLOY_STAMP 2026-08-30] 종전엔 자기 /exec 를 찔러 봤는데 구글이 막는다(실측 HTTP 401).
+     그래서 방향을 뒤집었다 — 배포된 코드가 /exec 를 탈 때마다 «자기 지문»을 남기고(deployStamp),
+     여기서는 «저장된 코드»의 지문을 같은 방법으로 계산해 그것과 대조한다.
+     같다  → 지금 저장된 코드가 그대로 배포돼 있다.
+     다르다 → 저장은 했는데 «새 버전»으로 배포를 안 했다(또는 배포 뒤 또 고쳤다).
+     ★기록이 없을 수도 있다 — 배포 뒤 아직 아무도 사이트를 안 썼을 때다. 그건 «실패»가 아니라 «아직 모름»이다.
+       그때는 관리자 페이지를 한 번 열면 곧바로 찍힌다고 알려 준다. */
   try {
-    var _u = ScriptApp.getService().getUrl();
-    if (!_u) chk('배포 URL 읽기', false, '웹앱으로 배포돼 있는지 확인하세요');
-    else {
-      var _live = _u.replace(/\/dev(\?|$)/, '/exec$1');
-      var _tail = (_live.match(/\/(exec|dev)(\?|$)/) || [])[1] || '알수없음';
-      var _r = UrlFetchApp.fetch(_live, { method: 'post', contentType: 'text/plain;charset=utf-8',
-        payload: JSON.stringify({ action: 'guestPhoto', g: 'x' }), muteHttpExceptions: true, followRedirects: true });
-      var _t = String(_r.getContentText() || '');
-      var _code = 0; try { _code = _r.getResponseCode(); } catch (e2) {}
-      var _why = '주소 …/' + _tail + ' · HTTP ' + _code;
-      if (_t.indexOf('잘못된 주소') >= 0)          chk('배포본이 최신이다 (하객사진 경로 있음)', true);
-      else if (_t.indexOf('알 수 없는 요청') >= 0) chk('배포본이 최신이다', false, '저장만 했습니다 — 배포 관리에서 «새 버전»으로 재배포하세요');
-      else if (/ppConf|accounts\.google\.com/i.test(_t)) {
-        L.push('  --   배포본 판정  (구글 로그인 화면 · 확인 불가 · 실패 아님) — ' + _why);
-        L.push('       ' + (_tail === 'dev'
-          ? '개발 주소를 찔렀습니다 — getUrl() 이 /dev 를 줬고 치환이 안 먹었습니다(점검 파일 문제).'
-          : 'HTTP ' + _code + ' 입니다. 200 이면 웹앱 접근을 «모든 사용자»로, 그 외면 GAS 가 자기 /exec 를 부르는 것을 막는 것이라 이 방법으론 못 잽니다.'));
+    if (typeof deployFingerprint !== 'function') {
+      L.push('  --   배포 확인  (deployStamp 가 없는 옛 00_platform-config 입니다 · 실패 아님)');
+    } else {
+      var _saved = deployFingerprint();
+      var _rec = String(PropertiesService.getScriptProperties().getProperty('DEPLOY_CODE_FINGERPRINT') || '');
+      var _live = _rec.split('|')[0], _at = _rec.split('|')[1] || '';
+      if (!_rec) {
+        L.push('  --   배포 확인  (배포 뒤 아직 요청이 없어 «아직 모름» · 실패 아님)');
+        L.push('       → 관리자 페이지를 한 번 열고 이 점검을 다시 돌리면 판정됩니다.');
+      } else if (_live === _saved) {
+        chk('배포본이 지금 저장된 코드와 같다  (마지막 확인 ' + _at.slice(0, 16).replace('T', ' ') + ')', true);
+      } else {
+        chk('배포본이 지금 저장된 코드와 같다', false,
+          '저장만 했습니다 — 배포 관리에서 «새 버전»으로 재배포하세요 (배포본 ' + _live + ' · 저장본 ' + _saved + ')');
       }
-      else L.push('  --   배포본 판정  (모르는 응답 · 확인 불가 · 실패 아님) — ' + _why + ' · ' + _t.replace(/\s+/g, ' ').slice(0, 60));
     }
-  } catch (e) { L.push('  --   배포 확인  (권한/네트워크로 확인 불가 · 실패 아님): ' + (e && e.message)); }
+  } catch (e) { L.push('  --   배포 확인  (확인 불가 · 실패 아님): ' + ((e && e.message) || e)); }
 
-  L.push('');
   L.push('══ ⑤ 시트가 준비됐는가 (함수만 있고 컬럼이 없으면 저장이 조용히 사라진다) ══');
   /* ★addGuestPhotoColumns 는 «배포 전에» 한 번 돌려야 한다. 안 돌리면 writeCell 이 헤더 없는 칸을
      조용히 건너뛰어 저장이 통째로 사라진다(화면엔 「저장됐어요」). 그 상태를 여기서 잡는다. */

@@ -190,3 +190,48 @@ function nextActionFor(product, stage) {
   };
   return MAP[String(stage || '').trim()] || '디렉터가 확인하고 있어요. 다음 단계를 곧 안내드릴게요.';
 }
+
+/* ★★[DEPLOY_STAMP 2026-08-30 사용자 질문 "재배포가 최신인지 그것도 같이 체크는 불가해?"]
+   ④ 배포 확인이 막힌 이유는 «GAS 가 자기 /exec 를 부르는 것»을 구글이 막기 때문이다(실측 HTTP 401).
+   그래서 반대로 한다 — **배포된 코드가 스스로 지문을 남긴다.**
+     · 고객·관리자가 사이트를 쓰면 /exec 가 돈다 → 그때 자기 코드의 지문을 ScriptProperty 에 적는다.
+     · deployCheck 는 «저장된 코드»의 지문을 같은 방법으로 계산해 그것과 대조한다.
+     · 다르면 → 저장은 했는데 «새 버전»으로 배포를 안 한 것이다.
+
+   ★지문은 «자동으로» 달라져야 한다. 손으로 버전을 올리게 만들면 그 자체가 또 빠뜨릴 일거리가 된다.
+     그래서 핵심 함수 몇 개의 소스를 이어 붙여 해시한다 — 코드가 바뀌면 지문이 저절로 바뀐다.
+   ★고객 요청을 절대 망가뜨리면 안 된다. 전부 try 로 감싸고, 실패하면 «조용히 지나간다».
+     배포 확인은 편의 기능이고 /exec 는 고객의 길이다. 편의가 길을 막으면 안 된다.
+   ★매 요청마다 Property 를 쓰지 않는다 — 같을 때는 아무것도 안 쓴다(대부분의 요청이 여기서 끝난다). */
+var DEPLOY_STAMP_KEY = 'DEPLOY_CODE_FINGERPRINT';
+var DEPLOY_STAMP_FNS = ['doPost', 'handleSaveProductionTrack', 'adminSendContract', '_refundQuote', 'handleGetMyState'];
+
+function deployFingerprint() {
+  var parts = [];
+  for (var i = 0; i < DEPLOY_STAMP_FNS.length; i++) {
+    var src = '';
+    try { src = eval('typeof ' + DEPLOY_STAMP_FNS[i] + " === 'function' ? String(" + DEPLOY_STAMP_FNS[i] + ') : ""'); }
+    catch (e) { src = ''; }
+    parts.push(DEPLOY_STAMP_FNS[i] + ':' + src.length + ':' + _dsHash(src));
+  }
+  return _dsHash(parts.join('|'));
+}
+
+/* 짧고 빠른 해시 — 암호용이 아니다. «바뀌었는가»만 알면 되므로 32비트로 충분하다.
+   Utilities.computeDigest 는 매 요청마다 돌기엔 무겁다. */
+function _dsHash(s) {
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) { h = ((h << 5) + h + s.charCodeAt(i)) | 0; }
+  return (h >>> 0).toString(36);
+}
+
+/* /exec 진입점에서 부른다. 지문이 그대로면 아무것도 쓰지 않는다. */
+function deployStamp() {
+  try {
+    var fp = deployFingerprint();
+    var props = PropertiesService.getScriptProperties();
+    var cur = props.getProperty(DEPLOY_STAMP_KEY) || '';
+    if (cur.indexOf(fp + '|') === 0) return;                    // 같다 — 흔한 경우, 여기서 끝
+    props.setProperty(DEPLOY_STAMP_KEY, fp + '|' + new Date().toISOString());
+  } catch (e) { /* 배포 확인 때문에 고객 요청이 막히면 안 된다 */ }
+}
