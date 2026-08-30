@@ -5244,7 +5244,44 @@ chk 'mp-7-제작중-준비카드' scripts/audit/mypage-shot.mjs 1
 # [SEQ_MIN_BASELINE 2026-08-29] 140분 타임라인 «20 min» 록업 = 순수 인라인 흐름(flex 금지).
 #   inline-flex 베이스라인은 실기기 WebKit에서 min이 떠 보였다(사용자 스크린샷) — flex로 되돌리지 말 것.
 chk 'SEQ_MIN_BASELINE' index.html 1
-# ── 2026-08-30 전수점검 라운드 ──
+# ★★[DEPLOY_CHECK_COVER 2026-08-29 사용자 질문 "메인 최신 파일이 업로드 안 되면 저기에 체크되는 거야?"]
+#   답은 «절반만»이었다 — 파일을 통째로 안 붙이면 잡히지만, 붙였는데 **옛 내용**인 것은
+#   99_deployCheck 의 목록에 그 변경의 표식이 있을 때만 잡힌다. 목록은 사람이 짜므로 반드시 뒤처진다
+#   (실제로 8/26 판이 8/29 확정 변경을 못 잡았고, 30일 치로 재니 목록 밖 표식이 50개였다).
+#   ★그래서 «최근 7일 안에 GAS 로 들어간 표식»이 목록에 있는지 기계가 대조한다 — 앞으로 들어오는 것부터 강제.
+#     30일 치 전부를 요구하지 않는 것은 의도다: 밀린 50개를 지금 다 넣으라고 하면 게이트가 무시당한다.
+#   빠지면 붉어진다 → automation/platform/99_deployCheck.gs 의 MARKS 에 한 줄 추가하고 GAS 에도 다시 붙여넣을 것.
+if command -v node >/dev/null 2>&1; then DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL deploycheck-coverage: 최근 GAS 변경이 99_deployCheck 목록에 없다 — DC_DAYS=7 node scripts/audit/deploycheck-coverage.mjs'; fail=1; }; fi
+chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
+chk 'CF_CORE_TRUTH' automation/platform/99_deployCheck.gs 1
+chk 'platformSelfTest' automation/platform/99_deployCheck.gs 2   # ★setupAllTriggers 로 되돌리면 90_test-utils 누락이 안 잡힌다
+
+# ★★[LISTEN_LEAD_IN 2026-08-30 사용자 지시 "듣기 누르면 바로 나오기보단 2초정도 있다가 음성나오게
+#   해죠 처음 누를때 가끔씩 씹히는 경우가 있어 첫마디가 말이야"]
+#   parents.html 「듣기」는 누른 뒤 2초를 두고 소리를 낸다. 그 2초가 소리 장치를 깨우는 시간이다
+#   (음원은 버퍼, 기기 음성은 엔진). 그래서 첫 글자가 안 씹힌다.
+#   ★«재생»을 늦추는 게 아니라 «소리»를 늦춘다 — 재생을 setTimeout 으로 미루면 사용자 조작과의 끈이
+#     끊겨 iOS 자동재생 정책에 막힌다. 음원은 muted 로 시작해 2초 뒤 되감아 풀고, 기기 음성은
+#     빈 문장으로 엔진만 먼저 깨운다. volume 으로 바꾸지 말 것 — iOS 는 volume 을 코드로 못 바꾼다.
+#   ★clearPending 을 빼지 말 것 — 멈춘 뒤 2초 있다 혼자 읽기 시작하는 유령이 생긴다(돌연변이로 확인).
+chk 'LISTEN_LEAD_IN' parents.html 3
+chk 'clearPending' parents.html 6
+chk 'audioEl.muted=true' parents.html 1
+chk 'LISTEN_IDEMPOTENT' parents.html 1
+chk 'LISTEN_LEAD_IN' scripts/audit/parents-listen-race.mjs 3
+
+# ★[JR_HOVER 2026-08-30 사용자 지시 "이부분도 위쪽 목업 처럼 클릭하지않아도 마우스 올려도 전환되게 해죠"]
+#   index.html My Page 목업 목록 = 짚기만 해도 그 화면으로. 위쪽 「하객이 만나는 화면」과 같은 방식.
+#   click 리스너를 지우지 말 것 — 손가락 기기에는 hover 가 없다.
+chk 'JR_HOVER' index.html 1
+chk "stepsWrap.addEventListener('mouseover'" index.html 1
+chk "steps\[idx\].querySelector('.jr-step-btn').addEventListener('click'" index.html 1
+# [LEAD_IN_SAY] 기다리는 2초 동안엔 「안 들리면 볼륨을 확인하세요」를 감춘다 — 그 2초는 원래 안 들린다.
+#   띄워 두면 어른들이 멀쩡한 볼륨을 최대로 올려 두고, 소리가 나는 순간 깜짝 놀란다.
+chk 'LEAD_IN_SAY' parents.html 2
+
+# ── 2026-08-30 전수점검 라운드 [AUDIT_0830] ──
 # [INV_CANONICAL_PATH] 청첩장 SEO 8페이지 canonical·og:url·prev/next = 실경로 /i/invitations/ (구 루트 경로는 404 · 08은 velour→noir 오기까지).
 chk 'INV_CANONICAL_PATH' i/invitations/invitation-01-classic.html 1
 chk 'https://momentedit.kr/i/invitations/invitation-08-noir.html' i/invitations/invitation-08-noir.html 2
