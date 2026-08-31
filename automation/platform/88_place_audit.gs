@@ -72,6 +72,8 @@ var AW_DB_NAMES = [
 
 /** ① 기존 리스트 전수 검증 — GAS 편집기에서 실행(약 1분) */
 function auditDineDb() {
+  /* ★[PAIRTEST_0830] 실기 테스트 — 같은 표식이 «두 파일»에 있을 때 한쪽만 붙여도 잡히는가.
+     2026-08-30 COVER_PAIR 수정(게이트를 파일·표식 짝으로)이 실제 GAS 에서 무는지 확인용. 동작 없음. */
   var r = _awRunAudit_();
   Logger.log('검증 완료 — 일치 ' + r.found + ' · 유사 ' + r.fuzzy + ' · 미발견 ' + r.missing + ' (AW_장소검증 시트)');
 }

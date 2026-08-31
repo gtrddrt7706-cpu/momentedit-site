@@ -16,6 +16,8 @@ var _LAST_TEST_CODE = null;
 
 // ── 순수 로직 셀프테스트 (시트·메일 불필요) ──────────────
 function platformSelfTest() {
+  /* ★[PAIRTEST_0830] 실기 테스트 — 같은 표식이 «두 파일»에 있을 때 한쪽만 붙여도 잡히는가.
+     2026-08-30 COVER_PAIR 수정(게이트를 파일·표식 짝으로)이 실제 GAS 에서 무는지 확인용. 동작 없음. */
   var log = [];
   function ok(name, cond) { log.push((cond ? '  ✓ ' : '  ✗ FAIL ') + name); return !!cond; }
   var allPass = true;
