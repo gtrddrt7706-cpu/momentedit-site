@@ -400,6 +400,18 @@
       "fn": "_refundQuote",
       "mark": "OLD_SIGNER_TERMS",
       "why": "구서명자 환불은 서명본 금액으로 — 견적 엔진 짝"
+    },
+    {
+      "file": "90_test-utils",
+      "fn": "platformSelfTest",
+      "mark": "PAIRTEST_0830",
+      "why": "두 파일에 같은 표식 — 한쪽만 붙여도 나머지가 잡히는지 실기 확인"
+    },
+    {
+      "file": "88_place_audit",
+      "fn": "auditDineDb",
+      "mark": "PAIRTEST_0830",
+      "why": "두 파일에 같은 표식 — 한쪽만 붙여도 나머지가 잡히는지 실기 확인"
     }
   ]
 }
