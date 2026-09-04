@@ -133,6 +133,27 @@ jobs:
           note "stage-back (되돌린 단계에서 백지 금지)" $?
           node scripts/audit/seat-onecard.mjs
           note "seat-onecard (자리·음료 한 창)" $?
+          # ★★[ORPHAN_AUDITS 2026-08-30 사용자 지시 "자동으로 전부 개선"]
+          #   저장소의 감사 61개 중 **10개를 아무데서도 안 불렀다.** 게이트에도 야간에도 없었다 —
+          #   만들어 두고 손으로 한 번 돌린 뒤 잊힌 것들이다. 안 도는 검사는 있으나 마나가 아니라
+          #   «있다고 믿게 만들어서» 더 나쁘다(실제로 그중 하나는 오늘 내가 만들고 바로 잊었다).
+          #   ★빠른 셋(admin-ac-check·admin-forcestage-noop·balance-sim · 합 0.3초)은 게이트로 보냈다.
+          #     여기 여섯은 브라우저·시뮬레이션이라 3~10초씩 걸려 게이트에 넣으면 91초가 124초가 된다.
+          #     이 잡의 머리 주석이 적어 둔 그 이유 — 느린 검사를 게이트에 넣으면 사람이 붉은 것을 무시한다.
+          node scripts/audit/admin-review-stage.mjs
+          note "admin-review-stage (후기 단계 전이)" $?
+          node scripts/audit/func-check.mjs
+          note "func-check (정상·실패·멱등 경로)" $?
+          node scripts/audit/pay-front-check.mjs
+          note "pay-front-check (결제 화면 19항목)" $?
+          node scripts/audit/render-check.mjs
+          note "render-check (구문·렌더 오류 0)" $?
+          node scripts/audit/xss-check.mjs
+          note "xss-check (고객 입력이 화면을 넘보는가)" $?
+          node scripts/audit/parents-audio-check.mjs
+          note "parents-audio-check (어른 안내문 음원·듣기)" $?
+          node scripts/audit/index-jr-hover.mjs
+          note "index-jr-hover (My Page 목업 짚어 전환)" $?
           node scripts/check-est-one.mjs;      note "check-est-one" $?
           node scripts/check-guest-skin.mjs;   note "check-guest-skin" $?
           # ★[LISTEN_EXPORT_REAL] 실청 페이지가 낸 대본을 **진짜 붙여넣기 검사에 그대로 넣는다.**
