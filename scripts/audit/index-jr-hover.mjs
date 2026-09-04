@@ -16,11 +16,13 @@
 //   를 다시 부르면 브라우저가 속성을 안 건드려서, 지켜볼 «변화»라는 게 아예 없었다.
 //   초록으로만 뜰 수 있는 검사는 아무것도 지키지 못하므로 남기지 않는다.
 import { spawn } from 'node:child_process';
+import { freePort } from './_freeport.mjs';
 import path from 'node:path';
 import { launchBrowser } from './_browser.mjs';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '../..');
-const PORT = 8241;
+
+const PORT = await freePort();   // [FREE_PORT] 근거는 _freeport.mjs 주석에
 const srv = spawn('python3', ['-m', 'http.server', String(PORT), '--directory', root], { stdio: 'ignore' });
 const stop = () => { try { srv.kill(); } catch {} };
 process.on('exit', stop);

@@ -6,11 +6,12 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { launchBrowser } from './_browser.mjs';
+import { freePort } from './_freeport.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.resolve(HERE, '../..');
 const OUT = path.join(HERE, '_shots');
-const PORT = 8129;
+const PORT = await freePort();   // [FREE_PORT] 박아 두면 나란히 돌 때 부딪힌다
 
 let fail = 0;
 const ok = (cond, msg, detail) => { console.log(`  ${cond ? '✅' : '❌'} ${msg}${cond || !detail ? '' : ' → ' + detail}`); if (!cond) fail++; };

@@ -7,10 +7,11 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { openWorld, kstAgo } from './_gasworld.mjs';
 import { launchBrowser } from './_browser.mjs';
+import { freePort } from './_freeport.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.resolve(HERE, '../..');
-const PORT = 8129;
+const PORT = await freePort();   // [FREE_PORT] 박아 두면 나란히 돌 때 부딪힌다
 
 let fail = 0;
 const ok = (c, m, d) => { if (c) console.log('  ✅ ' + m); else { fail++; console.log('  ❌ ' + m + (d !== undefined && d !== '' ? ' — ' + JSON.stringify(d) : '')); } };

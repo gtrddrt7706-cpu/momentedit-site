@@ -5600,3 +5600,27 @@ chk 'DEMO_ACCT_MARK' shared/hydrate.js 1
 chk 'demoAcctMark' live.html 2
 chk 'meDemoAcct' shared/hydrate.js 2
 nochk "background:#6B2A24;color:#fff" live.html
+
+# ★★[ORPHAN_AUDITS 2026-08-30 사용자 지시 "자동으로 전부 개선"]
+#   감사 61개를 훑어보니 **10개를 아무데서도 안 불렀다** — 게이트에도 야간 CI 에도 없었다.
+#   만들어 두고 손으로 한 번 돌린 뒤 잊힌 것들이다. 안 도는 검사는 없느니만 못하다 —
+#   «있다고 믿게 만들어서» 그 자리를 안 보게 한다. (오늘 내가 만든 index-jr-hover 도 그중 하나였다.)
+#   ★여기 셋만 게이트에 둔다 — 합쳐 0.3초. 나머지 일곱은 브라우저·시뮬레이션이라 3~10초씩 걸려
+#     게이트가 91초→124초가 된다. 그건 nightly-screen.yml 로 보냈다(느린 검사를 게이트에 넣으면
+#     잘 울고, 그러면 사람이 붉은 것을 무시하기 시작한다 — 그 잡의 머리 주석이 적어 둔 이유).
+if command -v node >/dev/null 2>&1; then
+  for _a in admin-ac-check admin-forcestage-noop balance-sim; do
+    node "scripts/audit/$_a.mjs" >/dev/null 2>&1 \
+      || { echo "FAIL $_a — node scripts/audit/$_a.mjs"; fail=1; }
+  done
+fi
+chk 'ORPHAN_AUDITS' automation/tests/merge-guard.sh 1
+chk 'ORPHAN_AUDITS' .github/workflows/nightly-screen.yml 1
+# [FREE_PORT 2026-08-30] 자기 서버를 띄우는 감사는 포트를 박지 않는다 — 나란히 돌면 부딪혀
+#   «화면이 깨진 것»처럼 붉어진다(실측: 단독은 초록, 9개 연달아 돌리자 index-jr-hover 만 3건 실패).
+#   실측 충돌 2쌍 중 admin-review-stage↔seat-onecard 는 내가 방금 야간 CI 에 나란히 넣은 조합이었다.
+#   ★scripts/check-est-one.mjs 등 «워크플로가 띄운 8895 공용 서버에 접속»하는 쪽은 대상이 아니다(의도된 공유).
+chk 'FREE_PORT' scripts/audit/_freeport.mjs 1
+chk 'freePort()' scripts/audit/index-jr-hover.mjs 1
+chk 'freePort()' scripts/audit/seat-onecard.mjs 1
+chk 'freePort()' scripts/audit/admin-review-stage.mjs 1
