@@ -515,6 +515,10 @@ var WD = ['일','월','화','수','목','금','토'];
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+/* [SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소는 http(s)·사이트 경로만 링크로 만든다 — javascript: 같은 값은 글자로만 남긴다.
+   서버(adminSetResultLinks)가 https 만 받지만, 시트 셀을 손으로 고친 값·서버가 만든 링크도 같은 자리를 지나므로 화면에서 한 번 더 거른다(마이페이지 safeUrl 과 같은 기준). */
+function _safeHref(u){ var v=String(u==null?'':u).trim(); return (/^https?:\/\//i.test(v)||v.charAt(0)==='/')?v:''; }
+function _chipLink(lb,v){ var h=_safeHref(v); return h?('<a href="'+esc(h)+'" target="_blank" rel="noopener">'+esc(lb)+'</a>'):('<span title="'+esc(String(v))+'">'+esc(lb)+' · 주소 형식이 아니에요</span>'); }   /* [SAFE_HREF] 링크 칩 공통 */
 // 예식 시간 표기 — 계약 슬롯(09:00·12:20·15:40)·본예식 시간 둘 다 받아 '오전 10:00' 본예식 기준으로 통일(고객·계약서와 동일 표기).
 function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var B={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; if(B[t]) t=B[t]; var L={'10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; return (L[t]?L[t]+' ':'')+t; }
 function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
@@ -2079,7 +2083,7 @@ function fieldGroups(fields){
   var map={}; fields.forEach(function(f){ map[f.label]=f; });
   var html='';
   G.forEach(function(grp){
-    var rows=grp[1].map(function(lb){ var f=map[lb]; if(!f) return ''; var v=f.isLink?('<a href="'+esc(f.value)+'" target="_blank" rel="noopener">'+esc(f.value)+'</a>'):esc(f.value); return '<div class="fld"><span class="k">'+esc(lb)+'</span><span class="v">'+v+'</span></div>'; }).join('');
+    var rows=grp[1].map(function(lb){ var f=map[lb]; if(!f) return ''; var v=(f.isLink&&_safeHref(f.value))?('<a href="'+esc(_safeHref(f.value))+'" target="_blank" rel="noopener">'+esc(f.value)+'</a>'):esc(f.value);   /* [SAFE_HREF] 고객이 적은 참고링크 — 주소가 아니면 글자로 */ return '<div class="fld"><span class="k">'+esc(lb)+'</span><span class="v">'+v+'</span></div>'; }).join('');
     if(rows) html+='<div class="grp-l">'+esc(grp[0])+'</div>'+rows;
   });
   return html;
@@ -2241,7 +2245,7 @@ function cardContract(d,isSnap){
            : ' · 서명 대기(약 '+Math.ceil(_rem/86400000)+'일)'; }
   }
   if(r['계약서명일시']) raw+=' · 서명 '+fmtDT(r['계약서명일시']);
-  if(r['계약서링크']) raw+='<br><span class="link-chip"> <a href="'+esc(r['계약서링크'])+'" target="_blank" rel="noopener">양식 원본(빈 템플릿)</a></span>';
+  if(r['계약서링크']) raw+='<br><span class="link-chip"> '+_chipLink('양식 원본(빈 템플릿)',r['계약서링크'])+'</span>';   /* [SAFE_HREF] */
   var b='', preStage = isSnap ? (d.stage==='촬영확정') : (d.stage==='상담완료');
   if((con===''||con==='미발송')){
     if(preStage && (isSnap || (r['시착동의상태']==='동의완료'))){
@@ -2381,8 +2385,8 @@ function cardProduction(d){
     if(inv.published&&inv.published.urls){
       var u=inv.published.urls;
       raw+='<br>';
-      if(u.online) raw+='<span class="link-chip"> <a href="'+esc(u.online)+'" target="_blank" rel="noopener">온라인 보기</a></span>';
-      if(u.offline) raw+='<span class="link-chip"> <a href="'+esc(u.offline)+'" target="_blank" rel="noopener">오프라인 보기</a></span>';
+      if(u.online) raw+='<span class="link-chip"> '+_chipLink('온라인 보기',u.online)+'</span>';   /* [SAFE_HREF] */
+      if(u.offline) raw+='<span class="link-chip"> '+_chipLink('오프라인 보기',u.offline)+'</span>';
       raw+='<button class="mt" id="copyInv" style="padding:0;margin-left:4px">링크 복사</button>';
     }
   } else if(r['eventId']){ raw+='<b>발행됨</b> · eventId '+esc(r['eventId']); }
@@ -2517,7 +2521,7 @@ function cardResult(d,isSnap){
   var raw='결과물 <b>'+esc(stt)+'</b>';
   var has=function(v){ return v?'✓':'-'; };   // [ADM_AA4] 값 없음 자리표시 — 전각 줄표 금지(CLAUDE.md 2026-06-11) · 연결이 아니라 '없음' 표시라 하이픈
   raw+=' · 원본 '+has(r['원본링크'])+' · 보정본 '+has(r['보정본폴더'])+(isSnap?'':(' · 영상 '+has(r['영상링크'])));
-  function lk(lb,v){ return v?('<br><span class="link-chip"> <a href="'+esc(v)+'" target="_blank" rel="noopener">'+lb+' 열기</a></span>'):''; }
+  function lk(lb,v){ return v?('<br><span class="link-chip"> '+_chipLink(lb+' 열기',v)+'</span>'):''; }   /* [SAFE_HREF] 원본·보정본·영상 */
   raw+=lk('원본',r['원본링크'])+lk('보정본',r['보정본폴더'])+(isSnap?'':lk('영상',r['영상링크']));
   // ② 고객이 고른 컷 — 번호/파일명 그대로(A안). 보정 대상.
   var picks=r['선택사진'], pn=r['선택수'];

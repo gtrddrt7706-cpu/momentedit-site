@@ -5544,6 +5544,9 @@ chk 'NAV_SEQ' admin.html 15
 chk "var seq=silent?_navSeq:++_navSeq" admin.html 1      # 조용한 갱신은 순번을 올리지 않는다 — 눌러 둔 상세 열기를 죽이지 않게
 chk 'STATE_SEQ' mypage.html 3                          # 마이페이지 — 느린 로드 중 로그아웃 뒤 늦게 온 남의 화면을 버린다(캐시에도 안 남김)
 chk 'NAV_SEQ' scripts/audit/nav-race.mjs 1             # 재현 시뮬(브라우저) — node scripts/audit/nav-race.mjs · 실패 0
+# ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
+chk 'SAFE_HREF' admin.html 6
+chk 'SAFE_HREF' scripts/audit/admin-inject.mjs 1        # 재현 시뮬(브라우저) — node scripts/audit/admin-inject.mjs · 실패 0
 chk 'column-count' admin.html 0
 # [SUM_GATE] 시퀀스 카드 대표값 합=140 · '합은 N분' 산문=55 — drift 게이트가 일부러 안 보던 자리에서 실제로 새던 둘.
 chk 'SUM_GATE' scripts/check-source-drift.mjs 1
