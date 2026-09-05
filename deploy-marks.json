@@ -1069,5 +1069,214 @@
    "purgeAdvisorLog",
    "purgeAwDemandLog"
   ]
- }
+ },
+ "vars": {
+  "00_platform-config": [
+   "P",
+   "CUSTOMER_HEADERS",
+   "CUSTOMER_VALS",
+   "STAGE_FLOW",
+   "STAGE_EXCEPTIONS",
+   "DEPLOY_STAMP_KEY",
+   "DEPLOY_STAMP_FNS"
+  ],
+  "20_customers-data": [
+   "_CUST_PII_COLS"
+  ],
+  "70_journey": [
+   "FITTING_CONSENT",
+   "FITTING_TERMS_BY_VERSION",
+   "SIGNATURES_SHEET",
+   "CONTRACT",
+   "WEDDING_SLOT",
+   "PRICING",
+   "HOLIDAYS_LUNAR",
+   "PAYMENT",
+   "_PAY_LOCK_HELD",
+   "_PAY_LOCK_BUSY"
+  ],
+  "80_production": [
+   "PRODUCTION_STAGES",
+   "FINAL_CONFIRM",
+   "PROD_LEGACY_COL",
+   "PROD_META_COL",
+   "PROD_TRACK_COL",
+   "PROD_META_KEYS",
+   "PROD_CAP",
+   "TRACK_LABEL_KO",
+   "DN_PLACEHOLDER",
+   "GUIDE_EXPIRE_DAYS",
+   "GP_ROOT_FOLDER",
+   "GP_MAX_FILE_MB",
+   "GP_MAX_FILES",
+   "GP_MAX_TOTAL_MB",
+   "GP_KEEP_DAYS",
+   "RESULT_STAGES",
+   "RESULT",
+   "PICK_MAX",
+   "PICK_NAME_CAP",
+   "PICK_TEXT_CAP",
+   "PICK_SEP",
+   "PICK_NAME_BAD",
+   "REVISION_CATS"
+  ],
+  "85_invitation": [
+   "INV"
+  ],
+  "88_place_audit": [
+   "AW_STUDIO",
+   "AW_DB_NAMES",
+   "AW_SWEEP",
+   "AW_GRID"
+  ],
+  "90_test-utils": [
+   "_LAST_TEST_CODE"
+  ],
+  "95_notify": [
+   "NOTIFY",
+   "NOTIFY_EVENTS",
+   "NF_MYPAGE",
+   "NF_TRACK_SHEET",
+   "NF_EMAIL_TITLE"
+  ],
+  "96_ai_cost": [
+   "AI_COST_CFG",
+   "AI_KB_PROTECT",
+   "AI_SITE_BASE"
+  ],
+  "97_ai-handoff": [
+   "AIH_SHEET",
+   "AIH_HEADERS"
+  ],
+  "98_pay_card": [
+   "PAY_LOG_SHEET"
+  ],
+  "admin": [
+   "ADMIN_SHEET",
+   "ADMIN_HEADERS",
+   "_ADMIN_OWNER_EMAILS",
+   "_AUTHED",
+   "_CURRENT_ADMIN",
+   "UNDO_WINDOW_HOURS",
+   "_LOCK_BUSY"
+  ],
+  "consultation-booking": [
+   "DETAIL_MAP",
+   "AVAIL_CACHE_KEY"
+  ]
+ },
+ "triggers": [
+  "expireUnsignedContracts",
+  "flushHeldNotifies",
+  "sendDailyReminders",
+  "sendHoldExpiryNotices",
+  "sendBalanceReminders",
+  "sendMidReminders",
+  "sendArchiveExpiryNotices",
+  "aiDaily",
+  "weeklyBackup",
+  "weeklyReceiptAudit",
+  "purgeAdvisorLog",
+  "warmAvailCache"
+ ],
+ "columns": [
+  {
+   "fn": "addBalanceColumns",
+   "file": "70_journey",
+   "need": [
+    "예식일",
+    "잔금상태",
+    "잔금입금자명",
+    "잔금입금신호",
+    "잔금확인일시",
+    "잔금리마인드"
+   ]
+  },
+  {
+   "fn": "addProdTrackColumns",
+   "file": "80_production",
+   "need": [
+    "제작_ritual",
+    "제작_dining",
+    "제작_seat",
+    "제작_guideinfo",
+    "제작_snap",
+    "제작_final",
+    "제작_invitation",
+    "제작_meta"
+   ]
+  },
+  {
+   "fn": "addGuideTokenColumn",
+   "file": "80_production",
+   "need": [
+    "안내공유토큰"
+   ]
+  },
+  {
+   "fn": "addGuestPhotoColumns",
+   "file": "80_production",
+   "need": [
+    "하객사진수",
+    "하객사진MB",
+    "하객사진최근",
+    "하객사진폴더ID"
+   ]
+  },
+  {
+   "fn": "addResultSelectionColumns",
+   "file": "80_production",
+   "need": [
+    "선택사진",
+    "선택수",
+    "선택확정일시",
+    "추가보정상태",
+    "추가보정수량",
+    "추가보정금액",
+    "추가보정입금자명",
+    "컨펌일시",
+    "설문상태",
+    "설문응답",
+    "설문일시",
+    "중도금상태",
+    "중도금입금자명",
+    "중도금입금신호",
+    "중도금확인일시",
+    "중도금리마인드",
+    "원본폴더ID"
+   ]
+  }
+ ],
+ "html": [
+  {
+   "file": "Admin",
+   "marks": [
+    "BUSY_ONE",
+    "PRICE_2026_08"
+   ],
+   "bytes": 93734
+  },
+  {
+   "file": "ScreenA_apply",
+   "marks": [
+    "BUSY_ONE"
+   ],
+   "bytes": 141185
+  },
+  {
+   "file": "ScreenB_schedule",
+   "marks": [
+    "BUSY_ONE"
+   ],
+   "bytes": 92853
+  },
+  {
+   "file": "ScreenC_change",
+   "marks": [
+    "SCREEN_C"
+   ],
+   "bytes": 7442
+  }
+ ],
+ "_생성": "2026-09-05 02:51 · 72853f72"
 }
