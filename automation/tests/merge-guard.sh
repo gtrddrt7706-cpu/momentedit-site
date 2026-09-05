@@ -5457,7 +5457,14 @@ chk '사진이 너무 커서 보내지 못했어요' guide.html 1
 #   배포 여부를 갈랐다. 그 길은 «구글이 막는다» — 실측 HTTP 401, 두 번의 실기 실행에서 늘 「확인 불가」였다.
 #   그래서 지문 대조로 갈아탔다(아래 DEPLOY_STAMP 블록). 마커가 사라진 것은 역전이 아니라 정당한 폐지다.
 #   ★되살리지 말 것 — 되살려도 401 이라 「확인 불가」만 반복하고, 그러면 사람이 ④ 를 안 읽게 된다.
-chk '하객사진 컬럼 4개' automation/platform/99_deployCheck.gs 1
+# ★[COLS_ALL 2026-09-05] 종전 마커('하객사진 컬럼 4개')는 «넓혀서» 사라졌다 — 폐지가 아니다.
+#   컬럼을 만드는 함수는 다섯인데 하객사진 4개만 봤다. 이제 다섯 함수를 저장소에서 실제로 실행해
+#   만들려는 컬럼 전부를 목록에 싣고, ⑤ 가 그 전부를 본다. 하객사진 넷도 그 안에 있다 —
+#   아래 두 줄이 «넓힌 뒤에도 여전히 본다»는 것을 지킨다(마커만 옮기고 검사가 사라지는 일을 막는다).
+grep -q '하객사진폴더ID' deploy-marks.json \
+  || { echo 'FAIL COLS_ALL: 하객사진 컬럼이 점검 목록에서 사라졌다 — node scripts/gen-deploy-fns.mjs'; fail=1; }
+grep -q '안내공유토큰' deploy-marks.json \
+  || { echo 'FAIL COLS_ALL: 안내공유토큰 컬럼이 점검 목록에서 사라졌다 — node scripts/gen-deploy-fns.mjs'; fail=1; }
 # ★중복 점검 파일이 되살아나는 것을 «문자열»이 아니라 «파일이 있느냐»로 본다.
 #   nochk 로 두었더니 그 nochk 줄 자신이 걸렸다(자기 참조 · 오늘만 세 번째다).
 [ -e automation/platform/99_deploy_check.gs ] \
@@ -5498,6 +5505,39 @@ chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
 chk 'STAMP_MISS_WORDING' automation/platform/99_deployCheck.gs 1
 chk 'STAMP_MISS_WORDING' scripts/audit/deploycheck-sim.mjs 2
 chk '저장된 코드와 «다르다»' automation/platform/99_deployCheck.gs 1
+# [FNS_FULL] 점검이 파일마다 «함수 하나»만 봐서, 그보다 아래가 잘려도 통과하던 자리가 있었다.
+#   실측(2026-09-05) 점검이 닿던 가장 아래 줄 — 90_test-utils 6% · 40_signup 7% · 50_auth-handlers 8% · 10_customers-setup 9%.
+#   즉 그 파일들은 앞 스무 줄만 붙여도 「누락 0건」이었다. 이제 최상위 함수 588개를 전수 대조한다.
+#   목록은 deploy-marks.json 의 fns 에 있고 사이트로 나가므로, 낡으면 «없는 함수»를 찾거나 «있는 함수»를 못 봐서 둘 다 위험하다.
+if command -v node >/dev/null 2>&1; then node scripts/gen-deploy-fns.mjs --check >/dev/null 2>&1 \
+  || { echo 'FAIL deploy-fns: deploy-marks.json 의 함수 목록이 저장소와 다르다 — node scripts/gen-deploy-fns.mjs'; fail=1; }; fi
+chk 'FNS_FULL' automation/platform/99_deployCheck.gs 1
+chk 'FNS_FULL' scripts/audit/deploycheck-sim.mjs 1
+chk 'SIM_TRUNC' scripts/audit/deploycheck-sim.mjs 1
+
+# [FNS_MORE] 함수만 보던 점검을 넷으로 넓혔다 — 함수·최상위 var·예약 실행(트리거)·시트 컬럼 + Admin.html.
+#   빠져 있던 것들: 트리거는 코드를 붙여도 안 걸리고(사람이 setupAllTriggers 실행),
+#   컬럼은 다섯 함수가 만드는데 하객사진 4개만 봤고, Admin.html 106KB 는 「확인 불가」로 통째 밖이었다.
+#   ★[SIM_WORLD] 이 셋을 «못 잰다»고 빼지 않고 샌드박스에 건강한 세계를 만들어 준다 —
+#     그래야 하나 뺐을 때 «정확히 하나»가 더 붉어지는지 잴 수 있다. 빼 두면 늘 같은 수라 차이를 못 잰다.
+chk 'VARS_TOO' automation/platform/99_deployCheck.gs 1
+chk 'ADMIN_HTML' automation/platform/99_deployCheck.gs 1
+chk 'COLS_ALL' automation/platform/99_deployCheck.gs 1
+chk 'TRIGGERS' automation/platform/99_deployCheck.gs 1
+chk 'FNS_MORE' scripts/gen-deploy-fns.mjs 1
+chk 'SIM_WORLD' scripts/audit/deploycheck-sim.mjs 3
+chk 'SIM_WORLD_ORDER' scripts/audit/deploycheck-sim.mjs 1
+chk 'MARKS_AGE' scripts/gen-deploy-fns.mjs 1
+chk 'MARKS_AGE' automation/platform/99_deployCheck.gs 1
+chk 'LIST_PARTIAL' automation/platform/99_deployCheck.gs 1
+chk 'SIM_STALE' scripts/audit/deploycheck-sim.mjs 1
+# ★GAS 가 읽는 화면 파일 4벌은 전부 표식을 하나씩 갖고 있어야 한다 — 없으면 «붙었는지» 볼 근거가 없다.
+#   ScreenC_change.html 은 표식이 0개라 361KB 중 그 몫이 점검 밖이었다(2026-09-05 에 넣었다).
+for _h in automation/admin/Admin.html automation/consultation/ScreenA_apply.html \
+          automation/consultation/ScreenB_schedule.html automation/consultation/ScreenC_change.html; do
+  grep -qE '\[[A-Z][A-Z0-9_]{3,}\]' "$_h" \
+    || { echo "FAIL HTML_MARK: $_h 에 표식이 없다 — deployCheck 가 이 화면이 붙었는지 볼 수 없다"; fail=1; }
+done
 
 # ── 2026-08-30 라운드 3(병렬 심층 점검) ──
 # [SNAP_WITHDRAW_GUARD] 스냅 청약철회는 촬영 개시 «전»에만(계약서 §7③) — dd>=1 가드를 빼면

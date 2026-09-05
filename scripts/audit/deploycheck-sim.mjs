@@ -53,11 +53,17 @@ const nameOf = (r) => path.basename(r, '.gs');
    무엇을 망가뜨려도 초록이 난다. 그래서 저장소의 그 파일을 그대로 응답으로 준다.
    ★즉 여기서 검사하는 것은 «저장소 JSON 대로 점검이 무는가»다. 사이트에 실제로 올라갔는지는
      Vercel 이 main 을 자동 배포하므로 병합 자체가 보장한다. */
-function marksJson() {
-  return fs.readFileSync(path.join(ROOT, 'deploy-marks.json'), 'utf8');
+function marksJson(staleList) {
+  const raw = fs.readFileSync(path.join(ROOT, 'deploy-marks.json'), 'utf8');
+  if (!staleList) return raw;
+  /* [SIM_STALE] «나란히 일한 다른 세션의 파일이 목록에 아직 없는» 판 — 사이트가 뒤처졌을 때의 모양. */
+  const j = JSON.parse(raw);
+  delete j.fns[staleList];
+  return JSON.stringify(j);
 }
 
-function run({ skip = [], old = {}, noMarks = false, stamp = undefined } = {}) {
+function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefined,
+               dropTrigger = null, dropColumn = null, oldAdmin = false, staleList = null } = {}) {
   const sb = makeSandbox();
   const lines = [];
   sb.Logger = { log: (m) => lines.push(String(m)) };
@@ -76,7 +82,7 @@ function run({ skip = [], old = {}, noMarks = false, stamp = undefined } = {}) {
   sb.__seedMatch = () => { try { store.set('DEPLOY_CODE_FINGERPRINT', sb.deployFingerprint() + '|2026-08-30T00:00:00Z'); } catch (e) {} };
   sb.UrlFetchApp = {
     fetch: (url) => (!noMarks && String(url).includes('deploy-marks.json'))
-      ? { getResponseCode: () => 200, getContentText: () => marksJson() }
+      ? { getResponseCode: () => 200, getContentText: () => marksJson(staleList) }
       : { getResponseCode: () => 500, getContentText: () => '' },
   };
   vm.createContext(sb);
@@ -89,10 +95,56 @@ function run({ skip = [], old = {}, noMarks = false, stamp = undefined } = {}) {
       try { src = execFileSync('git', ['show', `${old[nm]}:${gitPath}`], { cwd: ROOT, maxBuffer: 64e6 }).toString(); }
       catch { throw new Error(`${old[nm]} 에서 ${gitPath} 를 못 꺼냈습니다`); }
     } else src = fs.readFileSync(fp, 'utf8');
+    /* [SIM_TRUNC] «붙여넣다 뒷부분이 잘렸다» — 함수 경계에서 자른다.
+       중간에서 자르면 구문이 깨져 파일이 통째로 안 올라가고, 그건 ①이 잡는 다른 상황이 된다.
+       경계에서 자르면 «앞부분은 멀쩡히 도는데 뒷 함수만 없는» 진짜 모양이 된다. */
+    if (trunc[nm] != null) {
+      const ls = src.split('\n');
+      const at = ls.map((l, i) => (/^function\s/.test(l) ? i : -1)).filter((i) => i >= 0);
+      const keep = at[Math.max(1, Math.ceil(at.length * trunc[nm]))];
+      if (keep != null) src = ls.slice(0, keep).join('\n');
+    }
     try { vm.runInContext(src, sb, { filename: rel(fp) }); }
     catch (e) { /* 옛 버전이 지금 세계와 안 맞아 로드가 깨질 수 있다 — 그 파일만 빠진 셈이 된다 */
       lines.push(`  (로드실패 ${nm}: ${e.message})`); }
   }
+  /* ★[SIM_WORLD 2026-09-05] ★파일 로드 «뒤»에 세운다 — 앞에 두면 진짜 getCustomersSheet 가 덮어써
+     컬럼을 빼도 「시트 없음」만 나왔다(실측).
+     [SIM_WORLD_ORDER] ⑤시트·⑥트리거·①-C Admin.html 을 «못 잰다»고 빼 두면
+     무엇을 망가뜨려도 늘 같은 수가 붉어 차이를 못 잰다(SIM_BLIND 가 겪은 그 문제).
+     그래서 빼는 대신 «건강한 세계»를 만들어 준다 — 그러면 하나를 빼 봤을 때 정확히 하나가 더 붉어진다. */
+  const MARKS = JSON.parse(marksJson(staleList));
+  const wantCols = (MARKS.columns || []).reduce((a, c) => a.concat(c.need), []);
+  const haveCols = wantCols.filter((h) => h !== dropColumn);
+  sb.getCustomersSheet = () => ({
+    getLastColumn: () => haveCols.length,
+    getRange: () => ({ getValues: () => [haveCols.slice()] }),
+  });
+  const wantTrig = (MARKS.triggers || []).filter((t) => t !== dropTrigger);
+  sb.ScriptApp = Object.assign({}, sb.ScriptApp, {
+    getProjectTriggers: () => wantTrig.map((fn) => ({ getHandlerFunction: () => fn })),
+  });
+  /* GAS 안 HTML 4벌 — 진짜 파일을 그대로 읽어 준다. oldAdmin 이면 그 파일의 표식 하나만 지운다. */
+  const HTML_AT = {
+    Admin: 'automation/admin/Admin.html',
+    ScreenA_apply: 'automation/consultation/ScreenA_apply.html',
+    ScreenB_schedule: 'automation/consultation/ScreenB_schedule.html',
+    ScreenC_change: 'automation/consultation/ScreenC_change.html',
+  };
+  sb.HtmlService = Object.assign({}, sb.HtmlService, {
+    createTemplateFromFile: (nm) => ({
+      getRawContent: () => {
+        const at = HTML_AT[nm];
+        if (!at) throw new Error('그런 HTML 파일이 없습니다: ' + nm);
+        let raw = fs.readFileSync(path.join(ROOT, at), 'utf8');
+        if (oldAdmin === nm) {
+          const m = (MARKS.html || []).find((h) => h.file === nm);
+          if (m) raw = raw.replace('[' + m.marks[0] + ']', '[OLD_VERSION]');
+        }
+        return raw;
+      },
+    }),
+  });
   if (stamp === 'MATCH') sb.__seedMatch();
   if (typeof sb.deployCheck !== 'function') throw new Error('deployCheck 가 없습니다 — 99_deployCheck.gs 를 못 읽었습니다');
   sb.deployCheck();
@@ -102,7 +154,9 @@ function run({ skip = [], old = {}, noMarks = false, stamp = undefined } = {}) {
        ⑤ 시트 확인   = 진짜 스프레드시트의 컬럼을 읽는다(샌드박스에 시트가 없다)
      이 둘을 세면 무엇을 해도 늘 «2건 붉음»이라 「망가뜨렸을 때 더 붉어지는가」를 잴 수 없다.
      ★빼는 것이지 «괜찮다»는 뜻이 아니다 — 그 둘은 사용자가 GAS 에서 실행할 때만 의미가 있다. */
-  const BLIND = ['배포본 판정', '시트 확인'];
+  /* ★[SIM_WORLD] «시트 확인» 은 더 이상 눈먼 항목이 아니다 — 위에서 헤더를 가진 세계를 준다.
+     남은 하나(④ 배포본 판정)만 여기서 뺀다. */
+  const BLIND = ['배포본 판정'];
   const all = (out.match(/^ *MISS .*$/gm) || []).map((s) => s.trim());
   const miss = all.filter((l) => !BLIND.some((b) => l.includes(b)));
   return { out, miss, blind: all.length - miss.length, bad: miss.length };
@@ -138,6 +192,22 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
     console.log(`   ${nm.padEnd(22)} 누락 ${String(r.bad).padStart(2)}건  ${caught ? '잡힘' : (r.bad > 0 ? '△ 다른 줄로만 잡힘' : '✗ 못 잡음')}`);
     if (r.bad === 0) ng(`${nm} 를 안 붙였는데 「누락 0건」이 나왔습니다 — 이 파일은 점검 밖입니다`);
     else if (!caught) ng(`${nm} 를 안 붙였는데 「파일 ${nm}」 줄이 아니라 다른 줄만 붉었습니다 — 원인을 못 짚어 줍니다`);
+  }
+}
+
+/* ── 1-B ── 붙이다 «뒷부분이 잘렸다» — 파일마다 뒤 절반을 날려 본다
+   ★[FNS_FULL 2026-09-05] 이 절이 생기기 전에는 여기가 통째로 구멍이었다.
+   점검이 파일마다 함수 하나만 봤으므로, 그 함수가 앞쪽에 있는 파일은 뒤를 다 날려도 초록이었다
+   (실측: 90_test-utils 6% · 40_signup 7% · 50_auth-handlers 8% · 10_customers-setup 9% 까지만 봤다). */
+{
+  const sweep = FILES.map((fp) => nameOf(rel(fp))).filter((n) => !NOT_SWEPT.includes(n));
+  console.log(`\n── 1-B) 붙이다 뒷부분이 잘렸을 때 — ${sweep.length}개를 하나씩 (뒤 절반 삭제)`);
+  for (const nm of sweep) {
+    const r = run({ trunc: { [nm]: 0.5 } });
+    const caught = r.miss.some((l) => l.includes('파일 ' + nm + ' 안쪽'));
+    console.log(`   ${nm.padEnd(22)} 누락 ${String(r.bad).padStart(2)}건  ${caught ? '잡힘' : (r.bad > 0 ? '△ 다른 줄로만 잡힘' : '✗ 못 잡음')}`);
+    if (r.bad === 0) ng(`${nm} 의 뒤 절반이 없는데 「누락 0건」이 나왔습니다 — 잘린 파일이 점검 밖입니다`);
+    else if (!caught) ng(`${nm} 가 잘렸는데 「파일 ${nm} 안쪽」 줄이 아니라 다른 줄만 붉었습니다 — 원인을 못 짚어 줍니다`);
   }
 }
 
@@ -270,6 +340,49 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   } catch (e) { err = String(e && e.message); }
   console.log(`   Property 서비스가 죽은 채로 doPost → 응답 있음=${ok}${err ? ' · 예외: ' + err : ''}`);
   if (!ok) ng(`지문 남기기가 터지자 doPost 가 함께 죽었습니다 — 고객 요청이 막힙니다 (${err})`);
+}
+
+/* ── 6-B ── ⑤⑥①-C 가 실제로 무는가 — 하나씩 빼 보고 «정확히 그 줄»이 붉어지는지
+   ★[SIM_WORLD] 이 셋은 «코드를 붙이는 것»으로는 못 고치는 것들이다(시트 컬럼·예약 실행·화면 파일).
+   그래서 종전 점검은 이 셋을 통째로 안 봤고, 안 본 것이 「누락 0건」에 섞여 들어갔다. */
+{
+  console.log('\n── 6-B) 시트 컬럼 · 예약 실행 · 화면 파일 4벌');
+  const base = run().bad;
+
+  const oneTrig = (JSON.parse(marksJson()).triggers || [])[0];
+  const rt = run({ dropTrigger: oneTrig });
+  const tOk = rt.miss.some((l) => l.includes('예약 실행') && l.includes(oneTrig));
+  console.log(`   예약 실행 ${oneTrig} 하나 빠짐   누락 ${rt.bad}건  ${tOk ? '잡힘' : '✗ 못 잡음'}`);
+  if (!tOk) ng('트리거가 안 걸렸는데 ⑥ 이 그 이름을 짚지 못했습니다');
+  if (rt.bad <= base) ng('트리거를 뺐는데 붉은 수가 안 늘었습니다');
+
+  const oneCol = ((JSON.parse(marksJson()).columns || [])[0] || { need: [] }).need[0];
+  const rc = run({ dropColumn: oneCol });
+  const cOk = rc.miss.some((l) => l.includes(oneCol));
+  console.log(`   시트 컬럼 ${oneCol} 하나 빠짐        누락 ${rc.bad}건  ${cOk ? '잡힘' : '✗ 못 잡음'}`);
+  if (!cOk) ng('컬럼이 없는데 ⑤ 가 그 이름을 짚지 못했습니다');
+  if (rc.bad <= base) ng('컬럼을 뺐는데 붉은 수가 안 늘었습니다');
+
+  for (const h of (JSON.parse(marksJson()).html || [])) {
+    const ra = run({ oldAdmin: h.file });
+    const aOk = ra.miss.some((l) => l.includes(h.file));
+    console.log(`   ${(h.file + '.html 이 옛 판').padEnd(32)} 누락 ${ra.bad}건  ${aOk ? '잡힘' : '✗ 못 잡음'}`);
+    if (!aOk) ng(`${h.file}.html 이 옛 판인데 ①-C 가 못 잡았습니다`);
+    if (ra.bad <= base) ng(`${h.file}.html 을 옛 판으로 바꿨는데 붉은 수가 안 늘었습니다`);
+  }
+}
+
+/* ── 6-C ── 나란히 일하는 세션 — 목록이 뒤처졌을 때 «조용히 적게 검사»하지 않는가
+   ★이것이 이 점검의 가장 미묘한 실패다. 빠진 항목은 붉어지지 않고 그냥 안 세어진다 —
+   덜 검사하고도 「누락 0건」이 나온다. 전부는 못 잡지만, «파일 하나가 통째로 빠진» 판은 말해야 한다. */
+{
+  console.log('\n── 6-C) 목록이 뒤처졌을 때 (다른 세션 파일이 아직 사이트에 없음)');
+  const r = run({ staleList: '40_signup' });
+  const said = /목록이 낡았습니다[\s\S]*40_signup/.test(r.out);
+  console.log(`   40_signup 몫이 목록에 없음   말해 주는가=${said}`);
+  if (!said) ng('목록이 뒤처졌는데 점검이 아무 말도 안 했습니다 — 조용히 덜 검사합니다');
+  const quiet = run({ staleList: '40_signup', skip: [] });
+  if (/★★목록이 낡았습니다/.test(quiet.out) === false) ng('경고가 눈에 띄게 찍히지 않습니다');
 }
 
 /* ── 7 ── [SECTION_GAP] 섹션 제목 앞엔 빈 줄이 있어야 한다
