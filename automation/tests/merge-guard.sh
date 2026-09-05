@@ -5615,6 +5615,22 @@ chk 'SIM_STALE' scripts/audit/deploycheck-sim.mjs 1
 chk 'HTML_LEN' automation/platform/99_deployCheck.gs 1
 chk 'SIM_HTML_BODY' scripts/audit/deploycheck-sim.mjs 1
 
+# [PROPS_CHECK] 설정값(스크립트 속성) — 「코드는 멀쩡한데 기능만 조용히 안 도는」 자리.
+#   갈래표(gen-deploy-fns.mjs 의 PROPS)에 없는 키를 쓰면 생성기가 거절한다 → 조용히 늘지 않는다.
+chk 'PROPS_CHECK' automation/platform/99_deployCheck.gs 1
+chk 'LIST_REVERSE' automation/platform/99_deployCheck.gs 1
+chk 'SIM_PROPS' scripts/audit/deploycheck-sim.mjs 1
+chk 'SIM_REVERSE' scripts/audit/deploycheck-sim.mjs 1
+chk 'SIM_NOT_MINE' scripts/audit/deploycheck-sim.mjs 1
+
+# [PROJECT_CHECK] 별도 GAS 프로젝트 3곳(부부폼·하객편지·가족청첩장)은 deployCheck 가 못 닿는다 —
+#   typeof 는 같은 프로젝트 안에서만 통한다. 그래서 각자 스스로 세는 파일을 따로 둔다.
+#   그 파일도 «점검받지 않은 코드»가 되지 않게, 전 함수를 하나씩 빼 보는 시뮬레이터를 물린다.
+chk 'PROJECT_CHECK' automation/99_projectCheck.gs 1
+chk 'PROJECT_CHECK_SIM' scripts/audit/projectcheck-sim.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/projectcheck-sim.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL projectcheck-sim: 별도 프로젝트 점검이 빠진 함수를 못 잡는다 — node scripts/audit/projectcheck-sim.mjs'; fail=1; }; fi
+
 # ★[MARKS_REACH] 점검 목록이 «사이트로 나가는 길»을 지킨다 — 이 길이 끊기면 모든 것이 조용히 무너진다.
 #   GAS 는 https://momentedit.kr/deploy-marks.json 에서 목록을 읽는다. 그 파일이 배포에서 빠지거나
 #   Vercel 이 빌드를 건너뛰면, 점검은 «옛 목록»으로 돌면서도 초록을 낸다 — 가장 위험한 실패다.

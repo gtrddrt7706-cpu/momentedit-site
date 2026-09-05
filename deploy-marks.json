@@ -1278,5 +1278,364 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-05 02:51 · 72853f72"
+ "_생성": "2026-09-05 08:07 · b6c13f56",
+ "props": [
+  {
+   "key": "ADMIN_ALERT_EMAIL",
+   "kind": "option",
+   "a": "관리자 경고 메일 수신처",
+   "b": ""
+  },
+  {
+   "key": "ADMIN_NOTIFY_INFO",
+   "kind": "switch",
+   "a": "관리자 정보성 알림",
+   "b": ""
+  },
+  {
+   "key": "ADMIN_PHONE",
+   "kind": "option",
+   "a": "관리자 테스트 문자 수신처 (관리자 알림은 메일 전용)",
+   "b": ""
+  },
+  {
+   "key": "AIH_EXPIRE_DAYS",
+   "kind": "tuning",
+   "a": "인계 만료 일수 (기본 30일)",
+   "b": ""
+  },
+  {
+   "key": "AIH_REMIND_AT",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "AIH_REMIND_CNT",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "AI_HANDOFF_NIGHT_PENDING",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "AI_HANDOFF_SECRET",
+   "kind": "option",
+   "a": "AI 인계 API 인증",
+   "b": ""
+  },
+  {
+   "key": "AI_LAST_HANDOFF_ALERT",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "AI_MONTH_BUDGET_KRW",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "AI_SAFETY_SECRET",
+   "kind": "option",
+   "a": "AI 안전점검 API 인증",
+   "b": ""
+  },
+  {
+   "key": "AI_WIDGET_SECRET",
+   "kind": "option",
+   "a": "AI 위젯 API 인증",
+   "b": ""
+  },
+  {
+   "key": "CUSTOMER_PURGE_DAYS",
+   "kind": "tuning",
+   "a": "개인정보 파기 일수 (기본값 있음)",
+   "b": ""
+  },
+  {
+   "key": "CUSTOMER_PURGE_OFF",
+   "kind": "switch",
+   "a": "미계약 개인정보 자동파기 정지 (Y 면 «꺼짐»)",
+   "b": ""
+  },
+  {
+   "key": "DBG_RESET",
+   "kind": "tuning",
+   "a": "디버그용",
+   "b": ""
+  },
+  {
+   "key": "DEPLOY_CODE_FINGERPRINT",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "KAKAO_REST_KEY",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "KAKAO_TEMPLATES",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "LEAD_CONFIRM_SMS",
+   "kind": "switch",
+   "a": "상담 접수 확인 문자 (N 면 «끔»)",
+   "b": ""
+  },
+  {
+   "key": "LOCK_BUSY_MAILED",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "LOCK_BUSY_N",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "NOTIFY_ENABLED",
+   "kind": "switch",
+   "a": "알림 발송 (true 면 켜짐)",
+   "b": ""
+  },
+  {
+   "key": "NOTIFY_FAILMAIL_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "NOTIFY_FAIL_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "NOTIFY_HOLD",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "PAY_CARD_ENABLED",
+   "kind": "switch",
+   "a": "카드결제 (true 면 켜짐)",
+   "b": ""
+  },
+  {
+   "key": "SOLAPI_API_KEY",
+   "kind": "needs",
+   "a": "NOTIFY_ENABLED",
+   "b": "문자·알림톡 발송 (95_notify 계열)"
+  },
+  {
+   "key": "SOLAPI_API_SECRET",
+   "kind": "needs",
+   "a": "NOTIFY_ENABLED",
+   "b": "문자·알림톡 발송 (95_notify 계열)"
+  },
+  {
+   "key": "SOLAPI_BAL_CHK_AT",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "SOLAPI_KEY",
+   "kind": "needs",
+   "a": "NOTIFY_ENABLED",
+   "b": "★아이디·코드 찾기 문자 (50_auth-handlers 계열 · 이름이 다르다)"
+  },
+  {
+   "key": "SOLAPI_LOW_BALANCE",
+   "kind": "tuning",
+   "a": "잔액 경고 임계 (기본 3000원)",
+   "b": ""
+  },
+  {
+   "key": "SOLAPI_PFID",
+   "kind": "option",
+   "a": "알림톡 채널 (50_auth-handlers 계열)",
+   "b": ""
+  },
+  {
+   "key": "SOLAPI_PF_ID",
+   "kind": "option",
+   "a": "알림톡 채널 (95_notify 계열)",
+   "b": ""
+  },
+  {
+   "key": "SOLAPI_PRICE",
+   "kind": "tuning",
+   "a": "문자 단가표 (기본 {})",
+   "b": ""
+  },
+  {
+   "key": "SOLAPI_SECRET",
+   "kind": "needs",
+   "a": "NOTIFY_ENABLED",
+   "b": "★아이디·코드 찾기 문자 (50_auth-handlers 계열 · 이름이 다르다)"
+  },
+  {
+   "key": "SOLAPI_SENDER",
+   "kind": "needs",
+   "a": "NOTIFY_ENABLED",
+   "b": "발신번호 — 없으면 한 건도 안 나간다"
+  },
+  {
+   "key": "SOLAPI_TPL_FINDCODE",
+   "kind": "option",
+   "a": "코드찾기 알림톡 템플릿",
+   "b": ""
+  },
+  {
+   "key": "TOSS_CLIENT_KEY",
+   "kind": "needs",
+   "a": "PAY_CARD_ENABLED",
+   "b": "카드결제 화면"
+  },
+  {
+   "key": "TOSS_SECRET_KEY",
+   "kind": "needs",
+   "a": "PAY_CARD_ENABLED",
+   "b": "카드결제 승인"
+  },
+  {
+   "key": "WEDDING_BLOCKS",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  }
+ ],
+ "projects": [
+  {
+   "name": "form-to-couple",
+   "why": "부부폼(예식 영상·D-3 점검)",
+   "sentinel": "onCoupleFormSubmit",
+   "fns": [
+    "onCoupleFormSubmit",
+    "buildHeaderIndex",
+    "makeEventId",
+    "resolveEventId",
+    "_randEventSuffix",
+    "findLastEventIdRow",
+    "_deFormula",
+    "writeCell",
+    "pad2",
+    "isValidYmd",
+    "ynShow",
+    "notifyStudio",
+    "vimeoGuardDaily",
+    "setupVimeoGuard",
+    "purgeCoupleData",
+    "previewCoupleData",
+    "_purgeGuestSheet",
+    "sendCoupleEmail",
+    "buildCoupleEmailHtml",
+    "buildDateRetryEmailHtml",
+    "addFormImage",
+    "createCoupleForm",
+    "createCoupleFormForce",
+    "diagnoseFormSetup",
+    "ensureTrigger",
+    "extractFormId_",
+    "addAccountDisplayCheckbox",
+    "openFormForEdit_",
+    "verifyAccountCheckbox",
+    "addChildTitleQuestions",
+    "ensureSheetHeaders",
+    "setFormConfirmationMessage",
+    "verifyChildTitleQuestions"
+   ],
+   "vars": [
+    "CFG"
+   ]
+  },
+  {
+   "name": "guest-letter-webhook",
+   "why": "하객 편지 웹훅",
+   "sentinel": "getCoupleByEventId",
+   "fns": [
+    "doGet",
+    "doPost",
+    "getCoupleByEventId",
+    "_acctVisibleForView",
+    "getCoupleByEventIdFull",
+    "normalizeDate",
+    "normalizeTime",
+    "normalizeRecipient",
+    "recipientLabelKo",
+    "recipientLabelEn",
+    "_glDeFormula",
+    "withRowLock",
+    "appendMessage",
+    "appendModeration",
+    "_glRateCheck",
+    "sendToRecipients",
+    "buildEmailHtml",
+    "escapeHtml",
+    "jsonResponse",
+    "notifyStudioOnce",
+    "getBannedList",
+    "normalizeMessage",
+    "checkBannedWords",
+    "checkModeration",
+    "testGetCouple",
+    "diagnoseWebhookSheet",
+    "testGetCoupleByEventId",
+    "testSendToGroom",
+    "testSendToBride",
+    "testSendToBoth",
+    "testModeration",
+    "testBannedFilter",
+    "onOpen"
+   ],
+   "vars": []
+  },
+  {
+   "name": "가족청첩장빌드",
+   "why": "가족 청첩장 빌드",
+   "sentinel": "FC_addFamilyMenu",
+   "fns": [
+    "FC_addFamilyMenu",
+    "FC_buildFromSelectedRow",
+    "FC_buildFromEventIdPrompt",
+    "FC_buildAllActive",
+    "FC_buildFamilyCard",
+    "FC_loadCoupleData",
+    "FC_loadAllActiveCouples",
+    "FC_validateRequiredFields",
+    "FC_findFullDesignCode",
+    "FC_loadMasterHtml",
+    "FC_transformPlaceholders",
+    "FC_transformEnName",
+    "FC_splitCamelCase",
+    "FC_transformDate",
+    "FC_yearToEnglish",
+    "FC_transformTime",
+    "FC_generateCalendarCells",
+    "FC_processOptionalMarkers",
+    "FC_pushToGithub",
+    "FC_logBuild",
+    "FC_testGithubConnection",
+    "FC_replaceAll",
+    "FC_escapeHtml"
+   ],
+   "vars": []
+  }
+ ]
 }

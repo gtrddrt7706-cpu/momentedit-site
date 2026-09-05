@@ -112,6 +112,106 @@ const html = HTMLS.map(([name, rel]) => {
 });
 const htmlMarks = html.reduce((a, h) => a.concat(h.marks), []);
 
+/* ── 스크립트 속성 — «비어 있어도 코드는 멀쩡해 보이고 기능만 조용히 안 도는» 자리.
+   ★분류는 코드에서 기계적으로 못 뽑는다(무엇이 «필수»인지는 그 기능을 쓰느냐에 달렸다).
+     그래서 표로 적되, «표에 없는 키가 생기면 게이트가 막는다» — 그래야 조용히 늘지 않는다.
+   ★값은 절대 싣지 않는다. GAS 쪽도 «있음/없음»만 본다(비밀이 로그로 새지 않게).
+   갈래
+     state  코드가 스스로 쓴다 — 사람이 넣는 설정이 아니다(판정 대상 아님)
+     switch 기능 스위치 — 비어 있음 = 그 기능 꺼짐(정상)
+     tuning 기본값이 있다 — 비어 있어도 돈다(참고만)
+     needs  어떤 스위치가 켜지면 반드시 있어야 한다 → 없으면 누락
+     option 없어도 무해 — 그 곁가지 기능만 조용해진다(참고만) */
+const PROPS = {
+  /* state */
+  AIH_REMIND_AT: ['state'], AIH_REMIND_CNT: ['state'], AI_HANDOFF_NIGHT_PENDING: ['state'],
+  AI_LAST_HANDOFF_ALERT: ['state'], AI_MONTH_BUDGET_KRW: ['state'], LOCK_BUSY_MAILED: ['state'],
+  LOCK_BUSY_N: ['state'], NOTIFY_HOLD: ['state'], SOLAPI_BAL_CHK_AT: ['state'],
+  WEDDING_BLOCKS: ['state'], DEPLOY_CODE_FINGERPRINT: ['state'],
+  NOTIFY_FAIL_: ['state'], NOTIFY_FAILMAIL_: ['state'],   /* 날짜가 뒤에 붙는 접두사 */
+  KAKAO_REST_KEY: ['state'], KAKAO_TEMPLATES: ['state'],  /* 설정 함수가 넣어 두는 값 */
+
+  /* switch */
+  NOTIFY_ENABLED: ['switch', '알림 발송 (true 면 켜짐)'],
+  PAY_CARD_ENABLED: ['switch', '카드결제 (true 면 켜짐)'],
+  ADMIN_NOTIFY_INFO: ['switch', '관리자 정보성 알림'],
+  CUSTOMER_PURGE_OFF: ['switch', "미계약 개인정보 자동파기 정지 (Y 면 «꺼짐»)"],
+  LEAD_CONFIRM_SMS: ['switch', '상담 접수 확인 문자 (N 면 «끔»)'],
+
+  /* tuning */
+  SOLAPI_LOW_BALANCE: ['tuning', '잔액 경고 임계 (기본 3000원)'],
+  AIH_EXPIRE_DAYS: ['tuning', '인계 만료 일수 (기본 30일)'],
+  CUSTOMER_PURGE_DAYS: ['tuning', '개인정보 파기 일수 (기본값 있음)'],
+  SOLAPI_PRICE: ['tuning', '문자 단가표 (기본 {})'],
+  DBG_RESET: ['tuning', '디버그용'],
+
+  /* needs — 조건부 필수 */
+  SOLAPI_API_KEY: ['needs', 'NOTIFY_ENABLED', '문자·알림톡 발송 (95_notify 계열)'],
+  SOLAPI_API_SECRET: ['needs', 'NOTIFY_ENABLED', '문자·알림톡 발송 (95_notify 계열)'],
+  SOLAPI_SENDER: ['needs', 'NOTIFY_ENABLED', '발신번호 — 없으면 한 건도 안 나간다'],
+  SOLAPI_KEY: ['needs', 'NOTIFY_ENABLED', '★아이디·코드 찾기 문자 (50_auth-handlers 계열 · 이름이 다르다)'],
+  SOLAPI_SECRET: ['needs', 'NOTIFY_ENABLED', '★아이디·코드 찾기 문자 (50_auth-handlers 계열 · 이름이 다르다)'],
+  TOSS_SECRET_KEY: ['needs', 'PAY_CARD_ENABLED', '카드결제 승인'],
+  TOSS_CLIENT_KEY: ['needs', 'PAY_CARD_ENABLED', '카드결제 화면'],
+
+  /* option */
+  ADMIN_ALERT_EMAIL: ['option', '관리자 경고 메일 수신처'],
+  ADMIN_PHONE: ['option', '관리자 테스트 문자 수신처 (관리자 알림은 메일 전용)'],
+  AI_HANDOFF_SECRET: ['option', 'AI 인계 API 인증'],
+  AI_SAFETY_SECRET: ['option', 'AI 안전점검 API 인증'],
+  AI_WIDGET_SECRET: ['option', 'AI 위젯 API 인증'],
+  SOLAPI_PFID: ['option', '알림톡 채널 (50_auth-handlers 계열)'],
+  SOLAPI_PF_ID: ['option', '알림톡 채널 (95_notify 계열)'],
+  SOLAPI_TPL_FINDCODE: ['option', '코드찾기 알림톡 템플릿'],
+};
+
+/* ★표가 저장소를 따라가는지 — getProperty 로 읽는 키가 표에 다 있는가.
+   새 키를 넣고 표에 안 적으면 여기서 막힌다(조용히 늘지 않게). */
+{
+  const used = new Set();
+  for (const rel of Object.values(SRC)) {
+    const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+    for (const m of src.matchAll(/getProperty\(\s*['"]([A-Z][A-Z0-9_]*)['"]/g)) used.add(m[1]);
+  }
+  const missing = [...used].filter((k) => !PROPS[k]);
+  if (missing.length) {
+    console.error('★스크립트 속성 표에 없는 키: ' + missing.join(', '));
+    console.error('  scripts/gen-deploy-fns.mjs 의 PROPS 에 갈래를 적어 주세요 (state/switch/tuning/needs/option).');
+    process.exit(2);
+  }
+}
+const props = Object.keys(PROPS).sort().map((k) => ({ key: k, kind: PROPS[k][0], a: PROPS[k][1] || '', b: PROPS[k][2] || '' }));
+
+/* ── 별도 GAS 프로젝트 — 이 저장소에 있지만 «다른 프로젝트»라 deployCheck 가 못 닿는다.
+   한 프로젝트 안에서만 typeof 가 통하므로, 각자에게 자기 몫 목록을 주고 스스로 세게 한다
+   (99_projectCheck.gs 를 세 곳에 붙여넣으면, 자기가 어느 프로젝트인지 알아보고 자기 것만 본다). */
+const PROJECTS = [
+  ['form-to-couple', 'automation/form-to-couple.gs', '부부폼(예식 영상·D-3 점검)'],
+  ['guest-letter-webhook', 'automation/guest-letter-webhook.gs', '하객 편지 웹훅'],
+  ['가족청첩장빌드', 'automation/가족청첩장빌드.gs', '가족 청첩장 빌드'],
+];
+const projects = PROJECTS.map(([name, rel, why]) => {
+  const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+  const list = [...src.matchAll(/^function\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/gm)].map((m) => m[1]);
+  const vlist = [...src.matchAll(/^var\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm)].map((m) => m[1]);
+  if (!list.length) { console.error('★' + name + ' 에 최상위 함수가 없습니다 — 파싱이 깨졌습니다'); process.exit(2); }
+  /* ★기준 함수는 «이 프로젝트에만 있는» 이름이어야 한다 — 첫 함수를 그냥 쓰면 안 된다.
+     guest-letter-webhook 의 첫 함수는 doGet 이고, 그건 본 프로젝트에도 있어 서로를 오인한다(실측). */
+  const mine = new Set(Object.values(fns).reduce((a, b) => a.concat(b), []));
+  const uniq = list.find((f) => !mine.has(f) && !PROJECTS.some(([n2, r2]) =>
+    n2 !== name && new RegExp('^function\\s+' + f + '\\s*\\(', 'm').test(fs.readFileSync(path.join(ROOT, r2), 'utf8'))));
+  if (!uniq) { console.error('★' + name + ' 에 «그 프로젝트에만 있는» 함수가 없습니다'); process.exit(2); }
+  return { name, why, sentinel: uniq, fns: list, vars: vlist };
+});
+/* 세 프로젝트가 서로를 «자기»로 오인하면 안 된다 — 기준 함수가 겹치지 않아야 한다. */
+{
+  const sent = projects.map((p) => p.sentinel);
+  if (new Set(sent).size !== sent.length) { console.error('★프로젝트 기준 함수가 겹칩니다: ' + sent.join(', ')); process.exit(2); }
+  const mainFns = new Set(Object.values(fns).reduce((a, b) => a.concat(b), []));
+  const clash = sent.filter((x) => mainFns.has(x));
+  if (clash.length) { console.error('★기준 함수가 본 프로젝트에도 있습니다(오인식): ' + clash.join(', ')); process.exit(2); }
+}
+
 /* 같은 이름이 두 파일에 있으면 GAS 는 전역 하나뿐이라 한쪽이 조용히 덮인다 — 생성 단계에서 막는다. */
 const seen = new Map(); const dup = [];
 for (const [file, list] of Object.entries(fns))
@@ -121,16 +221,16 @@ if (dup.length) { console.error('★이름이 겹치는 함수 — GAS 전역이
 const total = Object.values(fns).reduce((a, b) => a + b.length, 0);
 const varN = Object.values(vars).reduce((a, b) => a + b.length, 0);
 const colN = columns.reduce((a, c) => a + c.need.length, 0);
-const PACK = { fns, vars, triggers, columns, html };
+const PACK = { fns, vars, triggers, columns, html, props, projects };
 const P = path.join(ROOT, 'deploy-marks.json');
 const cur = JSON.parse(fs.readFileSync(P, 'utf8'));
-const same = ['fns', 'vars', 'triggers', 'columns', 'html']
+const same = ['fns', 'vars', 'triggers', 'columns', 'html', 'props', 'projects']
   .every((k) => JSON.stringify(cur[k] ?? null) === JSON.stringify(PACK[k]));
 
 if (process.argv.includes('--check')) {
-  if (same) { console.log(`✅ 목록 최신 — 함수 ${total} · var ${varN} · 트리거 ${triggers.length} · 컬럼 ${colN} · HTML ${html.length}벌 표식 ${htmlMarks.length}`); process.exit(0); }
+  if (same) { console.log(`✅ 목록 최신 — 함수 ${total} · var ${varN} · 트리거 ${triggers.length} · 컬럼 ${colN} · HTML ${html.length}벌 · 속성 ${props.length} · 별도프로젝트 ${projects.length}`); process.exit(0); }
   console.error('★deploy-marks.json 의 점검 목록이 낡았습니다 → node scripts/gen-deploy-fns.mjs 로 갱신하세요');
-  for (const k of ['vars', 'triggers', 'columns', 'html'])
+  for (const k of ['vars', 'triggers', 'columns', 'html', 'props', 'projects'])
     if (JSON.stringify(cur[k] ?? null) !== JSON.stringify(PACK[k])) console.error(`  ${k} 가 다릅니다`);
   const before = cur.fns || {};
   for (const f of new Set([...Object.keys(before), ...Object.keys(fns)])) {
@@ -151,4 +251,4 @@ if (!same || !cur._생성) {
 }
 Object.assign(cur, PACK);
 fs.writeFileSync(P, JSON.stringify(cur, null, 1) + '\n');
-console.log(`✅ 갱신 — 함수 ${total} · var ${varN} · 트리거 ${triggers.length} · 컬럼 ${colN} · HTML ${html.length}벌 표식 ${htmlMarks.length} · ${(fs.statSync(P).size / 1024).toFixed(1)}KB`);
+console.log(`✅ 갱신 — 함수 ${total} · var ${varN} · 트리거 ${triggers.length} · 컬럼 ${colN} · HTML ${html.length}벌 · 속성 ${props.length} · 별도프로젝트 ${projects.length} · ${(fs.statSync(P).size / 1024).toFixed(1)}KB`);
