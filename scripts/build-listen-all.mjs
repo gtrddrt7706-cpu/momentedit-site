@@ -32,6 +32,16 @@ import { sentBounds, durOf, blockFit } from './lib/sent-bounds.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'docs/plans/식순연구/타입캐스트');
 const STAGE = path.join(ROOT, '_dub_stage');
+/* ★★[TONE_FROM_REPO 2026-08-30 실측] 어조 소리를 «저장소»에서 읽는다 — _dub_stage 가 아니라.
+   ★왜: _dub_stage 는 .gitignore 다(44MB wav). 컨테이너가 반납되면 사라진다.
+     그 상태로 --web 을 다시 뽑으면 SRCMAP 의 어조가 **0개**가 되고, 판은 조용히 완성된다.
+     화면엔 174자리가 「소리 없음」으로 뜬다. 실측했다: 총 283 → 97, 어조 0.
+   ★assets/audio/tone/ 은 커밋돼 있고 배포된다. 주소로 부르는 판이 참조하는 것도 그쪽이다.
+     그러니 «있는 것을 세는 자리»를 stage 가 아니라 저장소로 옮긴다. stage 는 조립 재료일 뿐이다. */
+const TONE_DIR = path.join(ROOT, 'assets/audio/tone');
+const toneNums = () => { try { return fs.readdirSync(TONE_DIR)
+  .map((f) => { const m = /^n(\d+)\.mp3$/.exec(f); return m ? +m[1] : null; })
+  .filter((x) => x !== null).sort((a, b) => a - b); } catch (e) { return []; } };
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
 /* ★★[LISTEN_SPLIT 2026-08-26 사용자 지적 *"모바일이나 태블릿에서는 안나오네 항목들이"*]
@@ -243,8 +253,13 @@ const STAMP = (() => {
      실제로 그랬다: 어조 186개를 심었는데 지문이 9f7b3c6d 로 안 바뀌어, 옛 판정이 그대로 딸려 왔다.
      ★지문은 «귀에 들리는 것 전부»를 세야 한다. 기존 mp3 만 세고 어조를 빼면 반만 센 것이다.
        내가 만든 검사가 내가 만든 자리에서 새는 것을 실물로 확인하고 고친다. */
-  try { for (const f of fs.readdirSync(STAGE).sort())
-    h.update(f + ':' + fs.statSync(path.join(STAGE, f)).size + ';'); } catch (e) { h.update('no-stage;'); }
+  /* ★[STAMP_DURABLE 2026-08-30] 지문을 «사라지는 것»에서 «남는 것»으로 옮긴다.
+     stage 를 세면 세션마다 값이 달라진다 — 재료가 없어지는 순간 지문이 바뀌고,
+     그러면 사장님이 하던 판정이 **내용이 그대로인데도** 통째로 날아간다.
+     저장소의 tone mp3 를 세면 내용이 같은 한 값이 같다. 그게 지문이 해야 할 일이다. */
+  for (const i of toneNums()) { let sz = 0;
+    try { sz = fs.statSync(path.join(TONE_DIR, `n${i}.mp3`)).size; } catch (e) {}
+    h.update('n' + i + ':' + sz + ';'); }
   return h.digest('hex').slice(0, 8);
 })();
 const oldSents = OLDC.reduce((a, c) => a + c.sents.length, 0);
@@ -362,6 +377,7 @@ ${EMBED ? `<div class="note" style="background:#f2f5f2;color:var(--green);border
 <div class="foot">
   <button class="btn" id="mkOut">다시 받을 것 대본 만들기</button>
   <button class="btn" id="copyOut">복사</button>
+  <button class="btn" id="handoff">다른 기기로 이어받기 링크</button>
   <button class="btn" id="reset">판정 지우기</button>
 </div>
 <!-- ★[SOUND_OUT_OF_JS] 소리는 여기 있다 — type="text/plain" 이라 브라우저가 **파싱하지 않는다.**
@@ -389,9 +405,12 @@ var SRCMAP = ${WEB ? JSON.stringify(Object.fromEntries([
     const f = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') });
     return [c.id, '/' + path.relative(ROOT, f).split(path.sep).join('/')];
   }),
-  ...(fs.existsSync(STAGE) ? fs.readdirSync(STAGE).map((f) => {
-    const m = /^audio_(\d+)_/.exec(f); return m ? ['n' + (+m[1]), '/assets/audio/tone/n' + (+m[1]) + '.mp3'] : null;
-  }).filter(Boolean) : []),
+  /* [TONE_FROM_REPO] stage 가 있으면 그 번호를, 없으면 저장소에 실제로 있는 파일을 센다.
+     둘 다 같은 주소를 가리킨다 — 다른 것은 «무엇을 보고 목록을 만드느냐»뿐이다. */
+  ...(fs.existsSync(STAGE)
+    ? fs.readdirSync(STAGE).map((f) => { const m = /^audio_(\d+)_/.exec(f);
+        return m ? ['n' + (+m[1]), '/assets/audio/tone/n' + (+m[1]) + '.mp3'] : null; }).filter(Boolean)
+    : toneNums().map((i) => ['n' + i, '/assets/audio/tone/n' + i + '.mp3'])),
 ])) : '{}'};
 function sndOf(k) {
   if (WEBSND) return (SRCMAP[k] || '');          /* 주소로 부른다 — 배포된 mp3 를 그대로 */
@@ -415,6 +434,78 @@ var save = function () { try { localStorage.setItem(KEY, JSON.stringify(V)); } c
 var WKEY = KEY + '_why';
 var W = {}; try { W = JSON.parse(localStorage.getItem(WKEY) || '{}') || {}; } catch (e) { W = {}; }
 var saveW = function () { try { localStorage.setItem(WKEY, JSON.stringify(W)); } catch (e) {} };
+/* ★★[STAMP_CARRY 2026-08-30] 지문 계산법을 바꾼 «한 번의 이사».
+   내용은 그대로인데 재는 자리를 _dub_stage → assets/audio/tone 으로 옮겼다(STAMP_DURABLE).
+   그러면 열쇠가 달라지고, 사장님이 PC 에서 하던 판정이 **아무 잘못 없이** 사라진다.
+   ★그래서 옛 열쇠에서 한 번만 옮겨 온다. 조건은 «새 자리가 비어 있을 때»뿐 —
+     새로 판정한 것이 있으면 건드리지 않는다. 덮어쓰기보다 잃지 않는 쪽이 먼저다.
+   ★내용이 같다는 것은 실측했다: 기존 97/97 · 어조 186/186 글자 일치 · 소리 283/283 존재.
+     그러니 이 이사는 «같은 것을 같다고 잇는 것»이지, 옛 판정을 새 소리에 붙이는 것이 아니다.
+   ★이 블록은 이사 한 번이 지나면 하는 일이 없다. 지워도 되지만, 지우면 아직 안 옮긴
+     브라우저가 판정을 잃는다 — 사장님이 「다 끝났다」고 할 때까지 둔다. */
+try { if (!Object.keys(V).length) {
+  var _prevV = localStorage.getItem('me_listen_all_e17caa93');
+  if (_prevV) { V = JSON.parse(_prevV) || {}; save();
+    var _prevW = localStorage.getItem('me_listen_all_e17caa93_why');
+    if (_prevW) { W = JSON.parse(_prevW) || {}; saveW(); } }
+} } catch (e) {}
+/* ★★[HANDOFF_LINK 2026-08-30 사용자 지적 *"pc로 진행중인데 누워서 모바일로 하고싶은데
+     저링크들어가면 연동되어서 모바일로도 가능한거야?"*]
+   ★답은 «아니오»였다 — 판정은 localStorage 라 그 브라우저에만 있다. 주소가 같아도 안 따라간다.
+     사장님은 그걸 «연동»이라고 기대했다. 기대가 틀린 게 아니라 **판이 그 길을 안 냈던 것**이다.
+   ★서버를 두지 않고 잇는다: 판정을 주소(#h=)에 실어 **링크 하나로** 넘긴다.
+     PC 에서 「이어받기 링크」를 만들어 자기 카톡으로 보내고, 폰에서 그 링크를 열면 그대로 이어진다.
+   ★자리 순서로 싣는다(id 를 안 싣는다) — 271자리가 '0/1/2' 한 글자씩이라 링크가 짧다.
+   ★지문을 함께 실어 **다른 판의 링크는 받지 않는다.** 소리가 바뀐 판에 옛 판정이 앉는 것이
+     이 판이 이미 한 번 겪은 사고다(LISTEN_KEY_STAMP). 같은 사고를 새 길로 다시 내지 않는다. */
+var HANDOFF_MSG = '';
+function b64e(t) { var b = new TextEncoder().encode(t), r = '';
+  for (var i = 0; i < b.length; i++) r += String.fromCharCode(b[i]);
+  return btoa(r).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }
+function b64d(t) { t = t.replace(/-/g, '+').replace(/_/g, '/');
+  var r = atob(t), b = new Uint8Array(r.length);
+  for (var i = 0; i < r.length; i++) b[i] = r.charCodeAt(i);
+  return new TextDecoder().decode(b); }
+/* 판정이 실리는 «자리 차례» — 화면에 뜨는 것과 같은 순서다. 양쪽이 이 함수 하나를 본다. */
+/* ★[ORD_SAME_KEY 2026-08-30 실측] 열쇠를 «화면이 쓰는 것과 똑같이» 만든다.
+   처음엔 기존 클립을 클립 하나에 열쇠 하나로 셌다 — 판정 5개를 실었는데 화면은 3개만 셌다.
+   기존 클립은 **문장마다** 판정한다(«id#0»·«id#1»…). 483자리가 맞고 271자리는 틀렸다.
+   ★같은 것을 두 군데서 따로 세면 반드시 어긋난다. 그래서 세는 규칙을 여기 한 곳에 둔다. */
+function ORD() { var a = [];
+  D.old.forEach(function (c) { c.s.forEach(function (_t, j) { a.push(c.id + '#' + j); }); });
+  D.neu.forEach(function (c) { c.n.forEach(function (x) { if (!x.lock) a.push('n' + x.i); }); });
+  return a; }
+function handoffLink() { var o = ORD(), v = '', w = [];
+  for (var i = 0; i < o.length; i++) { var x = V[o[i]];
+    v += x === 'ok' ? '1' : x === 're' ? '2' : '0';
+    if (W[o[i]]) w.push([i, W[o[i]]]); }
+  return location.origin + location.pathname + '#h='
+    + b64e(JSON.stringify({ s: '${STAMP}', v: v, w: w })); }
+/* ★[HANDOFF_RELOAD 2026-08-30 실측] 이미 열려 있는 판에 이어받기 주소를 **붙여넣으면**
+   브라우저는 «해시만 바뀐 같은 문서»로 보고 스크립트를 다시 돌리지 않는다.
+   실측에서 그대로 걸렸다 — 첫 시도 0개, 새로고침하니 5개. 폰에서 새 창으로 열면 되지만,
+   주소창에 붙여넣는 길이 막혀 있으면 사장님은 «안 된다»고 겪는다. 그래서 해시 변화도 듣는다. */
+function takeHandoff() {
+  var m = /^#h=(.+)$/.exec(location.hash || ''); if (!m) return;
+  var d = null; try { d = JSON.parse(b64d(m[1])); } catch (e) { d = null; }
+  if (!d) { HANDOFF_MSG = '이어받기 링크를 읽지 못했습니다 — 링크가 잘려 온 듯합니다.'; return; }
+  if (d.s !== '${STAMP}') { HANDOFF_MSG = '다른 판에서 만든 이어받기 링크입니다 — 소리가 달라 받지 않았습니다.'; return; }
+  var o = ORD(), n = 0;
+  for (var i = 0; i < o.length && i < (d.v || '').length; i++) {
+    var c = d.v.charAt(i);
+    if (c === '1') { V[o[i]] = 'ok'; n++; } else if (c === '2') { V[o[i]] = 're'; n++; } }
+  (d.w || []).forEach(function (pr) { if (o[pr[0]]) W[o[pr[0]]] = pr[1]; });
+  save(); saveW();
+  HANDOFF_MSG = '다른 기기에서 <b>' + n + '개</b>를 이어받았습니다.';
+  /* 주소에서 지운다 — 새로고침할 때마다 다시 덮어쓰지 않게 */
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+}
+takeHandoff();
+window.addEventListener('hashchange', function () {
+  takeHandoff();
+  try { draw(); sayCanDo(); } catch (e) {}
+  if (HANDOFF_MSG) alert(HANDOFF_MSG.replace(/<[^>]*>/g, ''));
+});
 var $ = function (i) { return document.getElementById(i); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
 var TAB = '전체';
@@ -551,6 +642,10 @@ function sayCanDo() {
   if (nOK < nTot) h += '· 새 어조 <b>' + (nTot - nOK) + '문장</b>은 <b>소리가 없습니다</b> — 글만 보실 수 있고, 「소리 없음」이라 적어 두었습니다.<br>'
     + '&nbsp;&nbsp;조립 전 재료라 이 저장소에 없습니다. 어조까지 들으려면 그 재료를 가진 판이 따로 필요합니다.<br>';
   h += '· 「손으로 고르는·폴백·폐지」로 표시된 자리는 <b>식장에서 나지 않습니다</b> — 소리가 옛 말이어도 정상이니 판정하지 마세요.';
+  /* [HANDOFF_LINK] 판정이 «이 브라우저에만» 있다는 것을 화면이 먼저 말한다 — 묻기 전에. */
+  h += '<br>· 판정은 <b>이 기기의 이 브라우저에만</b> 저장됩니다. PC 에서 하던 것을 폰에서 이으려면'
+    + ' 아래 <b>「다른 기기로 이어받기 링크」</b>를 눌러 나온 주소를 그 기기에서 여세요.';
+  if (HANDOFF_MSG) h = '<b>' + HANDOFF_MSG + '</b><br>' + h;
   var e = $('canDo'); if (e) e.innerHTML = h;
 }
 /* ★★[SHOW_THE_CRASH 2026-08-26 사용자 실물] 죽으면 **화면이 말한다.**
@@ -625,6 +720,28 @@ $('copyOut').onclick = function () {
   } else fallback();
 };
 $('reset').onclick = function () { if (confirm('판정을 전부 지울까요?')) { V = {}; save(); draw(); } };
+/* [HANDOFF_LINK] 링크를 만들어 준다 — 복사가 막히면 «막혔다»고 적고 주소를 화면에 띄운다
+   (COPY_MOBILE 과 같은 규칙: 성공했다고 거짓말하지 않는다). */
+$('handoff').onclick = function () {
+  var url = handoffLink(), n = 0;
+  ORD().forEach(function (k) { if (V[k]) n++; });
+  var box = $('out'); if (box) { box.value = url; box.scrollIntoView({ block: 'center' }); }
+  /* ★[HANDOFF_LONG 2026-08-30 실측] 전부 판정 + 이유를 다 적으면 주소가 16,339자까지 간다.
+     사파리 주소창은 견디지만 메신저가 링크를 잘라 보낼 수 있다 — 잘리면 «읽지 못했습니다»로 뜬다.
+     막지 않는다. 대신 길면 길다고 **먼저** 말한다. 잘린 뒤에 알면 다시 만들어야 한다. */
+  var longWarn = url.length > 8000
+    ? '\\n\\n★주소가 ' + url.length + '자로 깁니다 — 메신저가 자를 수 있습니다.\\n자르지 않는 곳(메모·나에게 보내기)으로 옮기세요.' : '';
+  var done = function (ok) { alert((ok
+    ? '이어받기 링크를 복사했습니다 (판정 ' + n + '개).\\n\\n자기 자신에게 카톡·메모로 보내고,\\n그 링크를 다른 기기에서 열면 이어집니다.'
+    : '복사가 막혔습니다 — 아래 칸의 주소를 직접 복사하세요 (판정 ' + n + '개).') + longWarn); };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText)
+      navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); });
+    else { box.removeAttribute('readonly'); box.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      box.setAttribute('readonly', 'readonly'); done(ok); }
+  } catch (e) { done(false); }
+};
 draw();
 </script></body></html>
 `;

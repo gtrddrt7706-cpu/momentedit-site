@@ -3384,6 +3384,30 @@ chk 'SENT_MISSING' scripts/build-listen-all.mjs 3
 chk 'RETIRED_OFF_SCREEN' scripts/build-listen-all.mjs 4
 chk 'Cue.RETIRED' scripts/build-listen-all.mjs 1
 chk 'RETIRED_ROWS' scripts/build-listen-all.mjs 3
+# ── [TONE_FROM_REPO][STAMP_DURABLE] 어조 소리를 «사라지는 곳»이 아니라 «남는 곳»에서 센다 ──
+# _dub_stage 는 .gitignore(44MB wav)라 컨테이너가 반납되면 없어진다.
+# 그 상태로 --web 을 다시 뽑으면 SRCMAP 의 어조가 조용히 0개가 되고 판은 «완성»된다.
+# 실측: 총 283 → 97 · 어조 0 (화면엔 174자리가 「소리 없음」).
+# ★지문도 같은 곳을 센다 — stage 를 세면 세션마다 값이 달라져, 내용이 그대로인데도 판정이 날아간다.
+chk 'TONE_FROM_REPO' scripts/build-listen-all.mjs 2
+chk 'STAMP_DURABLE' scripts/build-listen-all.mjs 1
+chk 'toneNums' scripts/build-listen-all.mjs 3
+# ★stage 를 지문 재료로 되돌리면 이 검사가 잡는다 — 되돌아가면 안 되는 결정이다.
+nochk 'readdirSync(STAGE).sort()' scripts/build-listen-all.mjs
+# ── [HANDOFF_LINK] 판정을 다른 기기로 잇는 길 (2026-08-30 사용자 지적) ──
+# *"pc로 진행중인데 누워서 모바일로 하고싶은데 저링크들어가면 연동되어서 모바일로도 가능한거야?"*
+# 판정은 localStorage 라 주소가 같아도 안 따라간다. 서버 없이 주소(#h=)에 실어 잇는다.
+# ★지문을 함께 실어 «다른 판의 링크»는 받지 않는다 — 옛 판정이 새 소리에 앉는 사고를 새 길로 다시 내지 않는다.
+# ★열쇠는 ORD() 한 곳에서만 만든다 — 화면과 따로 세다가 483자리를 271로 세는 실수를 이미 했다.
+chk 'HANDOFF_LINK' scripts/build-listen-all.mjs 3
+chk 'ORD_SAME_KEY' scripts/build-listen-all.mjs 1
+chk 'HANDOFF_RELOAD' scripts/build-listen-all.mjs 1
+chk 'STAMP_CARRY' scripts/build-listen-all.mjs 1
+chk "c.id + '#' + j" scripts/build-listen-all.mjs 6
+chk 'handoffLink' scripts/build-listen-all.mjs 2
+# ★배포되는 실청판이 실제로 어조 소리를 담고 있나 — 판 자체를 본다(생성기만 보면 못 본다)
+chk 'assets/audio/tone/n185.mp3' listen-075c9ad62acf.html 1
+chk 'HANDOFF_LINK' listen-075c9ad62acf.html 1
 # ── [REDUB_PICK] 「다시」로 찍은 자리를 버림/다시/그대로로 가르는 판정 화면 (2026-08-17 사용자 지시) ──
 # *"내가선택 간편하게 페이지로 만들어주던지"* — md 로 드렸더니 손으로 적어야 했다.
 # 손으로 적는 자리는 틀린다(바로 어제 붙여넣기를 손으로 써서 화자를 틀렸다 · PHOTO_ASK).
