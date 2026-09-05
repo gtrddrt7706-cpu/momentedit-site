@@ -424,6 +424,24 @@
       "fn": "_seatFindSlim",
       "mark": "SEAT_DRINK_SRV",
       "why": "좌석 «내 자리만» 모드에서 음료를 버리면 본인 것도 못 찾는다"
+    },
+    {
+      "file": "consultation-booking",
+      "fn": "doGet",
+      "mark": "DEPLOY_STAMP",
+      "why": "/exec 진입에서 배포 지문을 남긴다 — 이 파일이 옛것이면 ④ 배포 확인이 영영 «아직 모름»"
+    },
+    {
+      "file": "00_platform-config",
+      "fn": "deployStamp",
+      "mark": "DEPLOY_STAMP",
+      "why": "배포 지문 계산·기록 본체 — 이 파일이 옛것이면 ④ 가 판정을 못 한다"
+    },
+    {
+      "file": "80_production",
+      "fn": "handleSaveProductionBase",
+      "mark": "SNAP_BALANCE_D7",
+      "why": "예식일 톱레벨 기록 = 잔금 D-day 근거(시그 D-9 · 스냅 D-7)"
     }
   ]
 }

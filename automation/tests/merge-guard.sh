@@ -5658,3 +5658,15 @@ chk '개인정보가 샌 곳 0' scripts/audit/auth-sweep.mjs 1
 chk 'COPY_RULE' scripts/audit/copy-rule.mjs 1
 chk '못 찾으면 검사가 사문이 된다' scripts/audit/copy-rule.mjs 1
 nochk '저장돼요 — 마이페이지로 열면' order-preview.html
+
+# ★★[FILE_COVER 2026-09-05 사용자 지시 "좀더 완벽한 체크 테스트가될수있게"]
+#   .gs 를 고치면 «그 커밋이 넣은 표식»이 deploy-marks.json 에 하나 있어야 한다(파일 단위).
+#   종전엔 «새 함수»만 요구해서, 기존 함수 본문 수정은 목록 밖이었고 그 파일을 GAS 에 안 붙여도
+#   점검이 「누락 0건」이라고 답했다 — 사용자의 99_deployCheck.gs 가 실제로 그렇게 뒤처져 있었다.
+#   ★«창 전체»가 아니라 «마지막 커밋» 기준이다. 창으로 되돌리면 한 파일이 두 번 바뀔 때
+#     첫 표식만으로 통과하는 구멍이 되살아난다(반증으로 재현했다).
+#   ★FILE_COVER_SINCE 는 앞당기지 말 것 — 규칙 이전 커밋까지 소급하면 고칠 수 없는 빨강이 된다.
+chk 'FILE_COVER' scripts/audit/deploycheck-coverage.mjs 2
+chk 'FILE_COVER_SINCE' scripts/audit/deploycheck-coverage.mjs 2
+chk 'FILE_COVER' CLAUDE.md 1
+chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
