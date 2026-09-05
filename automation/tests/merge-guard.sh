@@ -4885,6 +4885,20 @@ chk '건너뛴 단계 없이 밟고 갔다' scripts/audit/rollback-roundtrip.mjs
 # ★★[ROLLBACK_FUZZ 2026-08-18] 무작위 순서 + 불변식 검사. 정해진 길만 걷는 검사들이 못 보는 자리를 본다.
 chk 'ROLLBACK_FUZZ' scripts/audit/rollback-fuzz.mjs 1
 chk 'FUZZ_COVER' scripts/audit/rollback-fuzz.mjs 1
+# ★[ROLLBACK_RC_GATE 2026-09-05 점검] 이 둘은 마커만 확인하고 «실제 통과»는 게이트 밖이었다 —
+#   그래서 시뮬레이터가 박아 둔 상담 날짜 '2026-09-01' 이 과거가 된 9/1 부터 나흘간 붉었는데
+#   main 은 초록이었다(rollback = 돈·단계 안전이라 조용한 빨강이 가장 위험하다). 이제 rc 로 건다.
+#   ★날짜는 kstAhead 로 «지금 기준 미래»라 다시 썩지 않는다. fuzz 는 무작위지만 통과/실패는 결정적(8회 확인).
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/rollback-roundtrip.mjs >/dev/null 2>&1 \
+    || { echo 'FAIL rollback-roundtrip: 되돌린 뒤 다시 완주가 막힌다 — node scripts/audit/rollback-roundtrip.mjs'; fail=1; }
+  node scripts/audit/rollback-fuzz.mjs >/dev/null 2>&1 \
+    || { echo 'FAIL rollback-fuzz: 무작위 순서에서 불변식이 깨진다 — node scripts/audit/rollback-fuzz.mjs'; fail=1; }
+fi
+chk 'ROLLBACK_RC_GATE' automation/tests/merge-guard.sh 1
+chk 'KST_AHEAD' scripts/audit/_gasworld.mjs 1
+chk 'KST_AHEAD' scripts/audit/rollback-roundtrip.mjs 1
+chk 'KST_AHEAD' scripts/audit/rollback-fuzz.mjs 1
 # ★★[REVIEW_DOOR_AUDIT 2026-08-18] '후기' 문 하나만 초 단위로 확인하는 검사(stage-reach 는 10분이라 자주 못 돈다).
 chk 'REVIEW_DOOR_AUDIT' scripts/audit/review-door.mjs 1
 chk '결과물전달 → 후기 (고객 제출이 문이다)' scripts/audit/review-door.mjs 1

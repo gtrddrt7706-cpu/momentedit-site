@@ -25,7 +25,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openWorld, kstAgo } from './_gasworld.mjs';
+import { openWorld, kstAgo, kstAhead } from './_gasworld.mjs';
+
+/* [KST_AHEAD] 날짜를 지금 기준 미래로 — 고정 리터럴이 과거가 되어 서버가 거절하던 것을 막는다(모듈 전역) */
+const CONSULT_YMD = kstAhead(45), WEDDING_YMD = kstAhead(150);
 
 const { G, world } = openWorld();
 const REAL = G.setCustomerStage;
@@ -63,7 +66,7 @@ function fresh(prod) {
   C = { 개인코드: CODE, 신랑이름: '희준', 신부이름: '미쿠', 연락처: '010-0000-0000', 이메일: 't@e.com',
     상품타입: prod, 현재단계: '신청접수', 계약총액: (prod === '웨딩스냅' ? 1200000 : 2500000),
     동의기록: '{}', 처리이력: '' };
-  B = { 개인코드: CODE, 상태: '시간선택완료', 선택날짜: '2026-09-01', 선택시간: '14:50',
+  B = { 개인코드: CODE, 상태: '시간선택완료', 선택날짜: CONSULT_YMD, 선택시간: '14:50',
     신랑이름: '희준', 신부이름: '미쿠', 이메일: 't@e.com', 토큰: 'tk' };
 }
 function act(fn) {
@@ -82,17 +85,17 @@ function moves(prod) {
   const flow = G.STAGE_FLOW[prod];
   const targets = flow.concat(G.STAGE_EXCEPTIONS);
   const base = [
-    ['고객 일정 선택', (g) => g.handleSubmitSchedule({ token: 'tk', dateKey: '2026-09-01', time: '14:50' })],
+    ['고객 일정 선택', (g) => g.handleSubmitSchedule({ token: 'tk', dateKey: CONSULT_YMD, time: '14:50' })],
     ['예약 승인', (g) => g.adminApprove(CODE)],
     ['시착 동의 보내기', (g) => g.adminOpenFittingConsent(CODE)],
     ['고객 시착 서명', (g) => g.handleSignFittingConsent({ token: 'tk', signature: 'data:image/png;base64,AAA', agree: true })],
     ['시착 벌수 기록', (g) => g.adminSetFittingCount(CODE, 2)],
     ['상담완료 처리', (g) => g.adminMarkConsultDone(CODE)],
     ['고객 계약정보 입력', (g) => g.handleRequestContract({ token: 'tk', info: {
-      weddingDate: '2026-12-20', weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02',
+      weddingDate: WEDDING_YMD, weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02',
       groomAddr: '서울시 어딘가 1', brideAddr: '서울시 어딘가 2', consent: true } })],
     /* [SEND_TIME_REQ] 시그니처는 예식 시간 없이 발송할 수 없다 — 인자를 빼면 이 걸음이 늘 실패한다 */
-    ['계약서 발송', (g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, '2026-12-20', '12:20')],
+    ['계약서 발송', (g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, WEDDING_YMD, '12:20')],
     ['고객 계약 서명', (g) => g.handleSignContract({ token: 'tk', signature: 'data:image/png;base64,AAA', agree: true })],
     ['고객 입금 신고', (g) => g.handlePaymentSignal({ token: 'tk', payerName: '정희준' })],
     ['관리자 입금 확인', (g) => g.adminConfirmPayment(CODE)],
