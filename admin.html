@@ -488,6 +488,9 @@ var SLOTS = { weekday: [], weekend: [] };
 var curDetail = null;
 var _view = 'home';        // home | detail | archive
 var _origin = 'home';      // 상세 진입 출처(came-from): home | search | archive
+var _loadingSince = 0;     /* [NAV_SEQ] 해골(불러오는 중)을 띄운 시각 — 조용한 갱신이 «불러오는 중»을 홈으로 갈아치우지 않게(15초 넘게 갇혔을 때만 구조) */
+var _navSeq = 0;           /* [NAV_SEQ 2026-09-05 점검 라운드4] 화면 이동 순번 — 느린 응답이 나중에 도착해 «지금 화면»을 덮지 못하게.
+                              홈·검색·상세·아카이브로 이동할 때마다 +1 하고, 응답은 자기 순번일 때만 그린다(실측: A 를 열다 B 를 열면 늦게 온 A 가 B 를 덮었다). */
 var _lastQuery = '';
 var _arcQuery = '', _arcFilter = 'all';
 var FILTER_KEY = 'me_admin_filter', OPEN_KEY = 'me_admin_open';
@@ -512,6 +515,10 @@ var WD = ['일','월','화','수','목','금','토'];
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+/* [SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소는 http(s)·사이트 경로만 링크로 만든다 — javascript: 같은 값은 글자로만 남긴다.
+   서버(adminSetResultLinks)가 https 만 받지만, 시트 셀을 손으로 고친 값·서버가 만든 링크도 같은 자리를 지나므로 화면에서 한 번 더 거른다(마이페이지 safeUrl 과 같은 기준). */
+function _safeHref(u){ var v=String(u==null?'':u).trim(); return (/^https?:\/\//i.test(v)||v.charAt(0)==='/')?v:''; }
+function _chipLink(lb,v){ var h=_safeHref(v); return h?('<a href="'+esc(h)+'" target="_blank" rel="noopener">'+esc(lb)+'</a>'):('<span title="'+esc(String(v))+'">'+esc(lb)+' · 주소 형식이 아니에요</span>'); }   /* [SAFE_HREF] 링크 칩 공통 */
 // 예식 시간 표기 — 계약 슬롯(09:00·12:20·15:40)·본예식 시간 둘 다 받아 '오전 10:00' 본예식 기준으로 통일(고객·계약서와 동일 표기).
 function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var B={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; if(B[t]) t=B[t]; var L={'10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; return (L[t]?L[t]+' ':'')+t; }
 function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
@@ -613,6 +620,7 @@ function admPrompt(o){ o=o||{}; o.kind='prompt'; return _admDlgQueue(o); }
 function show(view){
   _view = (view==='detail'||view==='archive') ? view : (view==='login'?'login':'home');
   $('loading').style.display = (view==='loading')?'block':'none';
+  if(view==='loading') _loadingSince=Date.now();   /* [NAV_SEQ] */
   $('loginView').style.display = (view==='login')?'block':'none';
   $('homeView').style.display = (view==='home')?'':'none';   /* [ADM_WIDE] 보일 땐 시트가 정한다(데스크톱 grid) · 인라인 block 이 grid 를 덮던 자리 */
   $('detailView').style.display = (view==='detail')?'block':'none';
@@ -627,7 +635,10 @@ function _admHistInit(){
   window.addEventListener('popstate', function(ev){
     try{ closeModal(); }catch(e){}   // [ADMIN_BACK_NAV] 확인 모달이 열린 채 뒤로가기 시 목록 위에 모달이 남던 것 방지(모달 먼저 닫기)
     try{ _admDlgEnd(false); }catch(e){}   // [ADM_MODAL 2026-08-03] 같은 이유 · 기본 팝업 대체 판도 함께 닫는다(안 닫으면 스크롤 잠금이 남는다)
-    if(_view!=='detail' && _view!=='archive') return;   // home/login이면 관여 안 함(자연 이탈)
+    /* [NAV_SEQ] 상세·아카이브를 «불러오는 중»에도 뒤로가기는 목록 복귀다 — show('loading') 이 _view 를 home 으로 두어 종전엔 여기서
+       빠져나갔고, 해골만 남다가 늦게 온 상세가 그 위에 떴다(실측 T1a). 이동으로 세어 순번을 올리면 늦은 응답은 버려진다. */
+    var _ldg=($('loading').style.display==='block');
+    if(_view!=='detail' && _view!=='archive' && !_ldg) return;   // home/login이면 관여 안 함(자연 이탈)
     var target=(ev && ev.state && ev.state.admV) || 'home';
     _admFromPop=true;
     try{ if(target==='archive' && _view!=='archive') loadArchive(); else loadHome(); }
@@ -1657,12 +1668,17 @@ function doLogout(){ _pollStop(); try{ gasRaw('adminLogout', TOKEN); }catch(e){}
 var _homeRetried=false;
 function loadHome(silent){
   _admHistInit();   // [ADMIN_BACK_NAV] 첫 목록 진입 시 history 기준점(home) 세팅 · popstate 리스너 등록(1회)
+  var seq=silent?_navSeq:++_navSeq;   /* [NAV_SEQ] 조용한 갱신은 순번을 올리지 않는다 — 눌러 둔 상세 열기를 죽이지 않게 */
   if(!silent){ _lastQuery=''; _origin='home';
     $('loading').innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel" style="height:40px"></div>';
     show('loading');
   } else { _silentN++; }   // [ADM_AA7] 조용한 갱신 — 스켈레톤·진행바 없이
   gas('adminHome').then(function(d){
-    if(silent){ _silentN=Math.max(0,_silentN-1); if(_view!=='home' || _lastQuery){ return; } }   // 도착 사이 상세·검색으로 갔으면 화면을 건드리지 않는다
+    if(silent){ _silentN=Math.max(0,_silentN-1); if(_view!=='home' || _lastQuery){ return; }
+      /* [NAV_SEQ] 상세·검색을 «불러오는 중»(해골)에 조용한 갱신이 먼저 도착하면 해골이 홈으로 바뀌었다가 상세가 뜬다(깜빡임 · 실측).
+         해골이 15초 넘게 남아 있을 때(요청이 끊겨 갇힘)만 예전처럼 홈으로 구조한다. */
+      if($('loading').style.display==='block' && Date.now()-_loadingSince<15000){ return; } }
+    if(seq!==_navSeq) return;   /* [NAV_SEQ] 도착 사이 다른 화면으로 갔다 — 실패 응답도 그리지 않는다(로그인 화면으로 튕기지 않게) */
     if(!d||!d.ok){
       // 진짜 인증 실패(토큰 무효·만료)만 로그아웃. GAS 일시 오류는 토큰 보존(netFail).
       if(d && /로그인이 필요|만료|권한/.test(String(d.error||''))) authFail();
@@ -1958,8 +1974,10 @@ function doSearch(){
   var q=$('q').value.trim();
   if(!q){ loadHome(); return; }
   _lastQuery=q;
+  var seq=++_navSeq;   /* [NAV_SEQ] */
   show('loading'); $('loading').innerHTML='<div class="spinner"></div>검색 중…';
   gas('adminSearch', q).then(function(d){
+    if(seq!==_navSeq) return;   /* [NAV_SEQ] 늦게 온 검색 결과가 홈(처리할 일)을 덮지 않는다 */
     if(!d||!d.ok){ toast('검색 실패'); show('home'); return; }
     /* [ADM_SEARCH2 2026-08-04] ①서버 30건 상한(admin.gs:1123)을 사용자에게 알림 — 흔한 성씨 검색 시 "30이 전부"로 오인
        ②서버가 동명이인 구분용으로 보내는 it.wedding(예식일)을 드디어 표시 ③빈 결과에 아카이브 안내(종료 고객은 여기 안 나옴) */
@@ -1972,7 +1990,7 @@ function doSearch(){
     $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML=''; var _rw=$('resultsWrap'); if(_rw) _rw.innerHTML=''; var _sw=$('surveyWrap'); if(_sw) _sw.innerHTML='';
     $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'search'); }); });
     show('home');
-  }).catch(function(){ toast('검색 오류'); show('home'); });
+  }).catch(function(){ if(seq!==_navSeq) return; toast('검색 오류'); show('home'); });   /* [NAV_SEQ] */
 }
 
 /* ════════ 상세 ════════ */
@@ -2003,9 +2021,11 @@ function renderRecent(){
 }
 function openDetail(code, origin, focusKind){
   if(origin) _origin=origin;
+  var seq=++_navSeq;   /* [NAV_SEQ] */
   _admHistInit(); if(_view!=='detail') _admPushView('detail');   // [ADMIN_BACK_NAV] 목록/아카이브→상세 진입 시 1회 push(상세 새로고침·popstate 복귀는 제외)
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   gas('adminDetail', code).then(function(d){
+    if(seq!==_navSeq) return;   /* [NAV_SEQ] 늦게 온 다른 고객 — 지금 화면을 덮지 않는다 */
     if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
     curDetail=d; _recentPush(d.code||code, d.names); renderDetail(d); show('detail');   // [ADM_AA6] 조회 성공한 고객만 기록
     setTimeout(function(){
@@ -2016,7 +2036,7 @@ function openDetail(code, origin, focusKind){
         target.classList.add('focus'); setTimeout(function(){ target.classList.remove('focus'); },2200); }
       else window.scrollTo(0,0);
     }, 60);   // 큐 일감 카드로만 자동 스크롤 (없으면 상단부터)
-  }).catch(function(e){ toast('오류'); loadHome(); });
+  }).catch(function(e){ if(seq!==_navSeq) return; toast('오류'); loadHome(); });   /* [NAV_SEQ] */
 }
 
 function renderDetail(d){
@@ -2063,7 +2083,7 @@ function fieldGroups(fields){
   var map={}; fields.forEach(function(f){ map[f.label]=f; });
   var html='';
   G.forEach(function(grp){
-    var rows=grp[1].map(function(lb){ var f=map[lb]; if(!f) return ''; var v=f.isLink?('<a href="'+esc(f.value)+'" target="_blank" rel="noopener">'+esc(f.value)+'</a>'):esc(f.value); return '<div class="fld"><span class="k">'+esc(lb)+'</span><span class="v">'+v+'</span></div>'; }).join('');
+    var rows=grp[1].map(function(lb){ var f=map[lb]; if(!f) return ''; var v=(f.isLink&&_safeHref(f.value))?('<a href="'+esc(_safeHref(f.value))+'" target="_blank" rel="noopener">'+esc(f.value)+'</a>'):esc(f.value);   /* [SAFE_HREF] 고객이 적은 참고링크 — 주소가 아니면 글자로 */ return '<div class="fld"><span class="k">'+esc(lb)+'</span><span class="v">'+v+'</span></div>'; }).join('');
     if(rows) html+='<div class="grp-l">'+esc(grp[0])+'</div>'+rows;
   });
   return html;
@@ -2225,7 +2245,7 @@ function cardContract(d,isSnap){
            : ' · 서명 대기(약 '+Math.ceil(_rem/86400000)+'일)'; }
   }
   if(r['계약서명일시']) raw+=' · 서명 '+fmtDT(r['계약서명일시']);
-  if(r['계약서링크']) raw+='<br><span class="link-chip"> <a href="'+esc(r['계약서링크'])+'" target="_blank" rel="noopener">양식 원본(빈 템플릿)</a></span>';
+  if(r['계약서링크']) raw+='<br><span class="link-chip"> '+_chipLink('양식 원본(빈 템플릿)',r['계약서링크'])+'</span>';   /* [SAFE_HREF] */
   var b='', preStage = isSnap ? (d.stage==='촬영확정') : (d.stage==='상담완료');
   if((con===''||con==='미발송')){
     if(preStage && (isSnap || (r['시착동의상태']==='동의완료'))){
@@ -2365,8 +2385,8 @@ function cardProduction(d){
     if(inv.published&&inv.published.urls){
       var u=inv.published.urls;
       raw+='<br>';
-      if(u.online) raw+='<span class="link-chip"> <a href="'+esc(u.online)+'" target="_blank" rel="noopener">온라인 보기</a></span>';
-      if(u.offline) raw+='<span class="link-chip"> <a href="'+esc(u.offline)+'" target="_blank" rel="noopener">오프라인 보기</a></span>';
+      if(u.online) raw+='<span class="link-chip"> '+_chipLink('온라인 보기',u.online)+'</span>';   /* [SAFE_HREF] */
+      if(u.offline) raw+='<span class="link-chip"> '+_chipLink('오프라인 보기',u.offline)+'</span>';
       raw+='<button class="mt" id="copyInv" style="padding:0;margin-left:4px">링크 복사</button>';
     }
   } else if(r['eventId']){ raw+='<b>발행됨</b> · eventId '+esc(r['eventId']); }
@@ -2501,7 +2521,7 @@ function cardResult(d,isSnap){
   var raw='결과물 <b>'+esc(stt)+'</b>';
   var has=function(v){ return v?'✓':'-'; };   // [ADM_AA4] 값 없음 자리표시 — 전각 줄표 금지(CLAUDE.md 2026-06-11) · 연결이 아니라 '없음' 표시라 하이픈
   raw+=' · 원본 '+has(r['원본링크'])+' · 보정본 '+has(r['보정본폴더'])+(isSnap?'':(' · 영상 '+has(r['영상링크'])));
-  function lk(lb,v){ return v?('<br><span class="link-chip"> <a href="'+esc(v)+'" target="_blank" rel="noopener">'+lb+' 열기</a></span>'):''; }
+  function lk(lb,v){ return v?('<br><span class="link-chip"> '+_chipLink(lb+' 열기',v)+'</span>'):''; }   /* [SAFE_HREF] 원본·보정본·영상 */
   raw+=lk('원본',r['원본링크'])+lk('보정본',r['보정본폴더'])+(isSnap?'':lk('영상',r['영상링크']));
   // ② 고객이 고른 컷 — 번호/파일명 그대로(A안). 보정 대상.
   var picks=r['선택사진'], pn=r['선택수'];
@@ -3345,10 +3365,12 @@ function openArchive(){ _arcQuery=''; _arcFilter='all'; $('aq').value=''; loadAr
 function loadArchive(){
   _admHistInit(); if(_view!=='archive') _admPushView('archive');   // [ADMIN_BACK_NAV] 목록→아카이브 진입 시 1회 push
   show('loading'); $('loading').innerHTML='<div class="spinner"></div>불러오는 중…';
+  var seq=++_navSeq;   /* [NAV_SEQ] */
   gas('adminArchive', _arcQuery, _arcFilter).then(function(d){
+    if(seq!==_navSeq) return;   /* [NAV_SEQ] */
     if(!d||!d.ok){ toast('불러오기 실패'); return; }
     renderArchive(d); show('archive');
-  }).catch(function(){ toast('오류'); });
+  }).catch(function(){ if(seq!==_navSeq) return; toast('오류'); });
 }
 function renderArchive(d){
   var chips=[['all','전체'],['done','완료(전달)'],['stopped','중단']];
