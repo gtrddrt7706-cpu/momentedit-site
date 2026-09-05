@@ -3402,6 +3402,19 @@ nochk 'readdirSync(STAGE).sort()' scripts/build-listen-all.mjs
 chk 'HANDOFF_LINK' scripts/build-listen-all.mjs 3
 chk 'ORD_SAME_KEY' scripts/build-listen-all.mjs 1
 chk 'HANDOFF_RELOAD' scripts/build-listen-all.mjs 1
+# ── [HANDOFF_SMALL][HANDOFF_PASTE] 주소가 20,307자였다 (2026-09-05 사장님 실물) ──
+# 이유 글을 자리마다 통째로 실었다. 같은 이유가 수십 번 반복되는데 수십 벌을 실은 것이다.
+# 사전+번호 · 판정 2비트 · deflate 로 655자가 됐다(최악 2,495자). 실측 31배.
+# ★그래도 주소 하나에 걸지 않는다 — 「이어받기 코드」로도 같은 것을 나른다(길이 제한 없음).
+# ★옛 모양(v/w) 주소도 계속 받는다 — 사장님 손에 이미 만든 주소가 있을 수 있다.
+chk 'HANDOFF_SMALL' scripts/build-listen-all.mjs 1
+chk 'HANDOFF_PASTE' scripts/build-listen-all.mjs 1
+chk 'unpackV' scripts/build-listen-all.mjs 2
+chk 'deflate-raw' scripts/build-listen-all.mjs 2
+chk 'applyHandoff' scripts/build-listen-all.mjs 3
+# ★옛 모양을 받는 갈래를 지우면 여기서 잡힌다
+chk "d.w || \\[\\]" scripts/build-listen-all.mjs 1
+chk 'id="paste"' listen-075c9ad62acf.html 1
 chk 'STAMP_CARRY' scripts/build-listen-all.mjs 1
 chk "c.id + '#' + j" scripts/build-listen-all.mjs 6
 chk 'handoffLink' scripts/build-listen-all.mjs 2
