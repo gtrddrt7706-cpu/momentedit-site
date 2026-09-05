@@ -5514,6 +5514,16 @@ chk 'PRICE_DERIVED' scripts/check-price-sync.mjs 2
 chk 'AI_PRICE_LOCK' scripts/check-price-sync.mjs 1
 chk 'AI_PRICE_LOCK' admin.html 1
 chk 'AI_PRICE_LOCK' scripts/ai-live-sim-ci.js 2
+
+# ★[ADM_WIDE 2026-09-05 사용자 지시 "pc버전은 모바일처럼 말고 넓게 · 조작 쉽게 직관적으로"]
+#   관리자 PC 폭 — main 580px 고정 해제(≥1024px 1180px) + 상세 .card 2열 grid + 홈 «처리할 일 | 진행 현황» 분할 + 아카이브 2열.
+#   ★column-count 로 되돌리지 말 것 — 실측: 고정 띠(.dsticky)가 절반 폭이 되고, 토글 하나에 카드가 열을 뛴다.
+#   ★show() 의 homeView 는 ''(빈 값)이어야 grid 가 산다 — 'block' 으로 되돌리면 홈 분할이 조용히 죽는다.
+#   ★미디어 블록은 .search 규칙보다 앞에 있다 — 괄호 하나만 남아도 파서가 .search{display:flex} 를 삼킨다(실사고).
+chk 'ADM_WIDE' admin.html 2
+chk 'grid-template-areas:"search search"' admin.html 1
+chk "(view==='home')?'':'none'" admin.html 1
+chk 'column-count' admin.html 0
 # [SUM_GATE] 시퀀스 카드 대표값 합=140 · '합은 N분' 산문=55 — drift 게이트가 일부러 안 보던 자리에서 실제로 새던 둘.
 chk 'SUM_GATE' scripts/check-source-drift.mjs 1
 
