@@ -2620,24 +2620,49 @@ a.ig-handle:hover {
    ★음원이 없으면 스스로 사라진다 — 아래 JS 가 확인될 때까지 hidden 을 풀지 않는다.
      기기 음성(TTS) 폴백은 쓰지 않는다: 여기는 브랜드 인상이 목적이라 기계음이 디렉터 이름으로
      읽히면 없느니만 못하다(parents.html 은 어르신 접근성이 목적이라 폴백이 이득 · 목적이 다르다). */
+/* ★[TAP44-ESSAY] 보이는 원은 26px, 손가락이 닿는 넓이는 44px. 이 저장소의 탭 타깃 기준이다
+     (같은 카드의 READ 58×45 · 상담 칩 45 · 모바일 Close 44 · [TAP44-3]).
+   ★왜 padding 이 아니라 ::before 인가 — 이 요소에 테두리가 걸려 있어서, 패딩을 주면
+     «반지 자체»가 44px 로 커진다. 넓혀야 하는 것은 «닿는 넓이»이지 «보이는 크기»가 아니다.
+   ★[META_ROW_KEEP] 위아래 음수 마진 3px — 26px 버튼이 메타줄(20.3px)을 밀어 올리면
+     제목이 5.7px 내려가고 모바일에서 카드가 그만큼 커진다. 줄 높이는 «글자»가 정한다.
+     모바일 메뉴 Close 가 44px 타깃을 가지면서도 행 높이를 안 밀던 것과 같은 처방이다. */
 .journal-listen {
-  margin-left: auto;
+  position: relative;
+  margin: -3px 0 -3px auto;
   width: 26px;
   height: 26px;
   flex: 0 0 26px;
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid var(--hairline);
+  /* [GOLD_ONE_FAMILY] 테두리를 골드로 물들인다 — 먹색 반지 안에 진한 골드 삼각형이 들면
+     반지는 속삭이고 아이콘만 외쳐 한 요소 안에서 무게가 갈린다. 장식 테두리라 대비 하한선 밖이다. */
+  border: 1px solid rgba(122, 95, 55, 0.32);
   border-radius: 50%;
   background: transparent;
   color: var(--gold-text);
   cursor: pointer;
   transition: border-color 0.3s var(--ease), color 0.3s var(--ease), background 0.3s var(--ease);
 }
+.journal-listen::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;   /* 정렬은 margin · transform 은 움직임 몫 (›의 광학 보정과 같은 원칙) */
+}
 .journal-listen:hover { border-color: var(--gold-text); background: rgba(122, 95, 55, 0.06); }
+/* ★폰에는 호버가 없다 — 누른 신호를 :active 로 반드시 함께 준다.
+   여기는 특히 아프다: 리드인 2초 동안 소리가 없으므로, 이 워시가 없으면 «눌렸나?» 하고 또 누른다. */
+.journal-listen:active { background: rgba(122, 95, 55, 0.12); border-color: var(--gold-text); }
 .journal-listen:focus-visible { outline: 2px solid var(--seal); outline-offset: 2px; }
 .journal-listen svg { display: block; }
+/* [PLAY_OPTICAL] 재생 삼각형은 무게중심이 왼쪽 변에 있어 «정중앙»에 두면 왼쪽으로 쏠려 보인다.
+   오른쪽으로 1px 옮겨야 가운데로 보인다. 이 저장소의 › 광학 보정(top:-2px)과 같은 종류다. */
+.journal-listen .ic-play { transform: translateX(1px); }
 .journal-listen .ic-stop { display: none; }
 .journal-listen[data-state="stop"] .ic-play { display: none; }
 .journal-listen[data-state="stop"] .ic-stop { display: block; }
@@ -2645,9 +2670,9 @@ a.ig-handle:hover {
 /* ★[ESSAY_LEAD_IN 2026-09-05 사용자 지시 "플레이버튼 누르고 2초있다가 시작 · 씹히는거방지"]
    누르고 2초는 아직 소리가 없다 — 그 2초가 «고장»으로 읽히지 않게 테두리가 숨을 쉰다.
    ★화면은 «누른 즉시» 반응해야 한다. 조용히 2초를 두면 한 번 더 누르고, 그게 겹침의 시작이다. */
-.journal-listen[data-state="wait"] { animation: listenPulse 1s var(--ease) infinite; }
+.journal-listen[data-state="wait"] { animation: listenPulse 1.2s var(--ease) infinite; }
 @keyframes listenPulse {
-  0%, 100% { border-color: var(--hairline); }
+  0%, 100% { border-color: rgba(122, 95, 55, 0.32); }
   50% { border-color: var(--gold-text); }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2660,8 +2685,9 @@ a.ig-handle:hover {
   bottom: 0;
   height: 1px;
   width: 0;
-  background: var(--gold-text);
-  opacity: 0.55;
+  /* 글자와 «떨어진» 순수 장식선이라 장식 골드가 맞다(골드 2값 분리 규칙).
+     텍스트용 골드에 투명도를 걸어 흐리게 만들 이유가 없다 — 장식 골드가 그 자리의 값이다. */
+  background: var(--gold);
   pointer-events: none;
 }
 .journal-card-title {
