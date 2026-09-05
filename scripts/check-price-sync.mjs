@@ -112,6 +112,31 @@ for (const f of SCAN_DEPOSIT) {   // [PRICE_DERIVED] 파생 금액 스캔 — �
   }
 }
 
+/* ★★[AI_PRICE_LOCK 2026-09-05 /ai냄새 라운드 2 에서 잡음] AI «정답 잠금»은 맨숫자로 적힌다.
+   이 게이트의 목적문은 「AI 상담사가 옛 가격을 답한다」를 막겠다고 적어 놓고, 정작 그것을 못 잡았다 —
+   위 SCAN 은 «280만»·«2800000»·«2,800,000» 세 형태만 찾는데 정답 잠금은 /280/ · ['280'] 처럼
+   **만 단위 없이** 적히기 때문이다. 실측으로 세 곳이 숨어 있었다:
+     admin.html          /280/.test(r)          ← AI 가 «옳게» 330/250 을 답하면 실패하던 테스트
+     ai-live-sim-ci L202 ['280']                ← #601 이 다섯을 고치며 놓친 한 줄
+     ai-live-sim-ci L203 ['280', '25', …]
+   ★구가를 정답으로 잠그면 «회귀했을 때 초록»이 된다. 검사가 거꾸로 서는 자리라 총액 스캔보다 위험하다.
+   ★범위를 두 파일로 좁힌다 — 청첩장 SVG 의 width='280' 같은 무관한 맨숫자를 붉히지 않으려고. */
+const SCAN_AILOCK = ['admin.html', 'scripts/ai-live-sim-ci.js'];
+for (const f of SCAN_AILOCK) {
+  let s2; try { s2 = R(f); } catch { continue; }
+  s2.split('\n').forEach((line, i) => {
+    /* ★표식·근거 주석은 «벗기고» 코드만 본다. 표식이 붙은 줄을 통째로 면제하면
+       그 줄은 영영 안 보게 되어, 나중에 280 을 되돌려도 초록이 난다(내가 처음에 그렇게 짰다). */
+    const code = line.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/.*$/, ' ');
+    if (/인상 전|PRICE_2026_08/.test(code)) return;
+    for (const o of OLD) {
+      const bare = String(o / 10000);                       // 2800000 → '280'
+      const lock = new RegExp(`(/${bare}[/|]|'${bare}'|'${bare}\\||\\|${bare}')`);
+      if (lock.test(code)) bad.push(`${f}:${i + 1}: 구가 ${bare} 을 «AI 정답»으로 잠갔다 — ${line.trim().slice(0, 80)}`);
+    }
+  });
+}
+
 bad.forEach((b) => console.log('  ✖ ' + b));
 console.log(bad.length ? `틀림 ${bad.length}건` : '가격 사본 전부 일치');
 process.exit(bad.length ? 1 : 0);
