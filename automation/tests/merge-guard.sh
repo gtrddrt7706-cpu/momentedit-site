@@ -3935,6 +3935,30 @@ chk 'class="core-price-link" href="#invest"' index.html 1
 # [ESSAY_CLOSE_ANCHOR 2026-08-16] CLOSE 때 카드가 화면 위로 783px 벗어나던 것 — 스크롤 보정 + 되돌아오기.
 chk 'ESSAY_CLOSE_ANCHOR' index.html 1
 chk '_essayJump' index.html 2
+# ★★[에세이 설득 개편 2026-09-05 사용자 승인] 저널 두 편이 「주장만 있고 근거가 없다」던 것을 고쳤다.
+#   되돌리기 쉬운 문구 수정이 아니라 «논리»를 넣은 것이라, 지워지면 글이 조용히 예전 상태로 돌아간다.
+#   [ESSAY1_HOOK]   상담 인용문을 접힌 카드 첫 줄로. 본문 뒤로 다시 내리면 카드가 안 걸린다
+#   [ESSAY1_GROUND] 「가까이 모시니 정성을 다한다」의 근거(스물다섯 분 착석 · 자리마다 인사) 문단
+#   [ESSAY2_HONEST] 백사십 분 앞의 「새벽 메이크업은 저희도 못 줄인다」 — 빼면 논리 구멍이 돌아온다
+#   [ESSAY2_TOFAQ]  2편 하단 → FAQ 140분 항목 딥링크(faq-140)
+#   [DIR_FACT_FIRST] 디렉터 소개 첫 문장을 사실(일본 웨딩 스튜디오 경력)로
+chk 'ESSAY1_HOOK' index.html 1
+chk 'ESSAY1_GROUND' index.html 1
+chk 'ESSAY2_HONEST' index.html 1
+chk 'ESSAY2_TOFAQ' index.html 2
+chk 'DIR_FACT_FIRST' index.html 1
+chk 'id="faq-140"' index.html 1
+chk 'data-faq-open' index.html 3
+chk '스물다섯 분까지 착석으로 모십니다' index.html 1
+chk '저희도 줄여 드리지 못합니다' index.html 1
+# ★낭독 대본(docs/plans/저널낭독/*.txt)과 화면 글이 갈라지지 않는지 기계가 맞댄다 [JOURNAL_SCRIPT_TRUTH]
+#   화면 문장만 고치고 대본을 안 고치면 스피커에서 옛말이 난다 — 식순 쪽에서 실제로 겪은 사고와 같은 구조.
+chk 'JOURNAL_SCRIPT_TRUTH' scripts/audit/journal-script-check.mjs 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/journal-script-check.mjs >/dev/null 2>&1 \
+    && echo 'ok journal-script-check: 낭독 대본 2편 == 화면 본문 · 타입캐스트 규격 통과' \
+    || { echo 'FAIL journal-script-check — node scripts/audit/journal-script-check.mjs'; fail=1; }
+fi
 # [GUEST_DIM_AA 2026-08-16] 고객 미리듣기의 --dim 은 브랜드 텍스트 하한선(#75705F · 4.74:1)이다.
 #   ★디렉터 스킨의 #8A8478 을 다시 옮겨 오지 말 것 — 밝은 바탕에서 3.55:1 로 떨어져 axe 8곳이 잡혔던 값이다.
 #   ★끝 화면 부제의 opacity 도 되살리지 말 것(회색 버튼 위에서 3.34:1). 위계는 크기·굵기가 낸다.

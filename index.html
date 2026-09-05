@@ -2738,6 +2738,21 @@ a.ig-handle:hover {
     padding-top: 12px;
   }
 }
+/* [ESSAY2_TOFAQ] 하단 한 줄이 링크가 됐다 — 격은 그대로 둔다.
+   이 줄은 카드의 «각주»라 눈에 띄면 안 된다. 그래서 색·크기·기울기를 .journal-footer 그대로 물려받고
+   밑줄도 평소에는 없다. 링크임은 화살표와 hover 로만 알린다(.journal-guide-link 같은 버튼 격이 아니다). */
+.journal-footer-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s var(--ease);
+}
+.journal-footer-link .arrow {
+  display: inline-block;
+  transition: transform 0.3s var(--ease);
+}
+.journal-footer-link:hover { border-bottom-color: var(--gold-text); }
+.journal-footer-link:hover .arrow { transform: translateX(3px); }
 .journal-guide {
   text-align: center;
   margin-top: 52px;
@@ -6301,8 +6316,13 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div style="margin:20px 0 4px">
     <div style="font-family:var(--serif);font-size:20px;font-weight:500;color:var(--accent)">Kawana Miku<span style="font-size:12px;font-weight:400;color:var(--light);letter-spacing:0.04em;margin-left:10px">川名 美玖</span></div>
   </div>
+  <!-- [DIR_FACT_FIRST] 2026-09-05. 고친 이유 — 이 줄의 임무는 「이 사람 믿을 만한가」인데
+       종전 문장에는 검증 가능한 사실이 하나도 없었다(수식만 있었다).
+       사실 출처: docs/국가지원금/01_사업소개서.md — 배우자 川名 美玖가 일본 웨딩 스튜디오
+       촬영·디렉팅 경력자. ★근무 연수(○년)는 아직 확인 전이라 넣지 않았다.
+       확인되면 "일본의 웨딩 스튜디오에서 ○년," 로 한 낱말만 끼우면 된다. -->
   <div class="director-quote">
-    <p>웨딩 디렉터로 일해 오며, 한국의 예우와 일본의 미학 사이에서 표정이 가까이 머무는 자리를 마련해 왔습니다.</p>
+    <p>일본의 웨딩 스튜디오에서 촬영과 디렉팅을 해 왔습니다. 한국의 예우와 일본의 미학 사이에서, 표정이 가까이 머무는 자리를 만듭니다.</p>
   </div>
   <div style="height:1px;background:var(--hairline);margin:48px 0 0"></div>
   <div class="journal-grid">
@@ -6314,19 +6334,32 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
       </div>
       <h3 class="journal-card-title">혼주라는 이름,<br>주인공이라는 이름</h3>
       <div class="journal-card-subtitle">On the Two Names in a Korean Wedding</div>
+      <!-- [ESSAY1_HOOK] 2026-09-05. 상담 인용문을 «첫 줄»로 올렸다.
+           고친 이유 — 이 글에서 독자가 「내 얘기다」로 걸리는 문장은 이 인용문 하나인데,
+           종전에는 세 번째 문단이라 Read 를 눌러야 보였다. 접힌 카드에 보이던 것은
+           「한 결혼식에는 두 개의 이름이 있습니다」라는 추상 문장이었다.
+           ★이 두 줄을 본문 뒤로 다시 내리지 말 것 — 카드가 다시 안 걸리는 상태로 돌아간다. -->
       <div class="journal-card-preview">
-        <p>한 결혼식에는 두 개의 이름이 있습니다.</p>
-        <p>한쪽에는 결혼하는 두 사람이 있고, 다른 한쪽에는 혼주가 있습니다. 둘은 같은 날을 준비하지만, 서로 다른 언어로 그날을 생각합니다.</p>
+        <p class="q">사실은 저희가 원하는 건 따로 있는데, 어머님이 친척 분들을 다 부르고 싶어하셔서…</p>
+        <p>처음 상담을 온 신부가 조심스럽게 꺼내는 말입니다.</p>
       </div>
       <div class="journal-card-full">
-        <p>한 결혼식에는 두 개의 이름이 있습니다.</p>
-        <p>한쪽에는 결혼하는 두 사람이 있고, 다른 한쪽에는 혼주가 있습니다. 둘은 같은 날을 준비하지만, 서로 다른 언어로 그날을 생각합니다.</p>
-        <p class="q">"사실은 저희가 원하는 건 따로 있는데, 어머님이 친척 분들을 다 부르고 싶어하셔서…"</p>
+        <p class="q">사실은 저희가 원하는 건 따로 있는데, 어머님이 친척 분들을 다 부르고 싶어하셔서…</p>
         <p>처음 상담을 온 신부가 조심스럽게 꺼내는 말입니다.</p>
-        <p>혼주라는 이름은 오래된 이름입니다. 결혼이 가문과 가문의 일이었던 시절, 혼주는 그 자리의 주인이었습니다. 지금도 이 이름은 살아 있습니다. 청첩장에 적히고, 식장 앞에서 인사를 받는 사람은 혼주입니다.</p>
-        <p>그러나 결혼은 오래전부터 두 사람의 일이 되어 왔습니다. 두 사람이 만나 약속을 하고, 그 약속을 지키며 살아가겠다고 말하는 자리. 그 자리의 주인공은 두 사람입니다.</p>
+        <p>한 결혼식에는 두 개의 이름이 있습니다. 한쪽에는 결혼하는 두 사람이 있고, 다른 한쪽에는 혼주가 있습니다. 둘은 같은 날을 준비하지만, 서로 다른 언어로 그날을 생각합니다.</p>
+        <p>혼주는 오래된 이름입니다. 결혼이 가문과 가문의 일이던 시절, 그 자리의 주인은 혼주였습니다. 청첩장에 적히고 식장 앞에서 인사를 받는 사람은 지금도 혼주입니다.</p>
+        <p>그러나 결혼은 오래전부터 두 사람의 일이 되어 왔습니다. 약속을 하고, 그 약속을 지키며 살아가겠다고 말하는 자리. 그 자리의 주인공은 두 사람입니다.</p>
         <p>저는 이 두 이름이 반드시 부딪쳐야 한다고 생각하지 않습니다.</p>
-        <p>양가 어르신을 정중하게 모시는 것과, 두 사람이 주인공이 되는 것은 서로 다른 일이 아닙니다. 오히려 가까이 모시기 때문에 한 분 한 분께 정성을 다할 수 있고, 두 사람이 중심이기 때문에 어른 한 분 한 분이 더 귀한 분이 됩니다.</p>
+        <p>양가 어르신을 정중하게 모시는 것과, 두 사람이 주인공이 되는 것은 서로 다른 일이 아닙니다.</p>
+        <!-- ★★[ESSAY1_GROUND] 2026-09-05 신설 — 이 글의 «근거» 문단이다. 지우지 말 것.
+             고친 이유 — 「가까이 모시기 때문에 정성을 다할 수 있다」가 이 글의 결론인데,
+             ‘왜 가까이 모실 수 있는지’가 본문 어디에도 없었다. 근거는 카드 맨 아래
+             작은 글씨(25명 착석)에만 있어 주장과 떨어져 있었다.
+             수치·순서 출처는 지어낸 것이 아니라 같은 페이지 FAQ 실측이다 —
+               · 스물다섯 분 착석 = FAQ 「하객은 몇 분까지」(양가 합산 최대 25명)
+               · 자리마다 인사 = FAQ 「예식은 얼마나」의 Group Record(두 분이 자리마다 인사드리고)
+             ★FAQ 인원·시퀀스를 고치면 이 문단도 함께 고칠 것. -->
+        <p>저희 예식은 양가를 합쳐 스물다섯 분까지 착석으로 모십니다. 그리고 예식 안에는 두 사람이 자리마다 찾아가 인사드리는 순서를 따로 둡니다. 가까이 모시기 때문에 한 분 한 분께 정성을 다할 수 있고, 두 사람이 중심이기 때문에 어른 한 분 한 분이 더 귀한 분이 됩니다.</p>
         <p>결혼이라는 자리에 두 이름이 나란히 놓일 수 있다면, 결혼은 훨씬 고요한 자리가 됩니다.</p>
         <p>이것이 제가 하는 일입니다.</p>
         <p>혼주에게는 혼주의 품격을, 주인공에게는 주인공의 시간을.</p>
@@ -6355,16 +6388,25 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <p>신혼여행 첫날의 풍경이 이렇습니다.</p>
         <p>새벽 다섯 시부터 시작된 하루 열다섯 시간의 여정이 그제서야 몸 밖으로 빠져나가는 시간. 창문 너머에 낯선 풍경이 펼쳐져 있지만 눈을 뜰 힘이 남아 있지 않은 시간.</p>
         <p>저는 이 시간이 오래 아쉬웠습니다.</p>
-        <p>신혼여행 첫날은 두 사람이 '부부'가 된 후 처음으로 함께 맞이하는 세상입니다. 익숙한 집도 아니고, 익숙한 도시도 아닌 곳에서, 서로의 이름을 다르게 부르기 시작하는 시간. 그 시간의 주인이 피로가 되어버리는 것은 어딘가 이상합니다.</p>
+        <p>신혼여행 첫날은 두 사람이 부부가 된 후 처음으로 함께 맞이하는 세상입니다. 익숙한 집도 아니고, 익숙한 도시도 아닌 곳에서, 서로의 이름을 다르게 부르기 시작하는 시간. 그 시간의 주인이 피로가 되어버리는 것은 어딘가 이상합니다.</p>
         <p>결혼식이 신혼여행을 소진시키고 있는 것은 아닌가. 결혼이라는 자리가 결혼 이후의 시간을 조금 훔쳐가고 있는 것은 아닌가.</p>
-        <p>이 질문에서 우리의 140분이 시작되었습니다.</p>
-        <p>140분. 불필요한 반복과 대기를 덜어내고, 주인공의 가장 선명한 순간만을 담는 시간. 140분 후에도 두 사람의 눈빛은 여전히 살아 있어야 한다고 생각했습니다.</p>
+        <p>이 질문에서 저희의 140분이 시작되었습니다.</p>
+        <!-- ★★[ESSAY2_HONEST] 2026-09-05. 「못 하는 것」 두 문장을 140분 앞에 놓았다. 지우지 말 것.
+             고친 이유 — 글은 「새벽 다섯 시부터 열다섯 시간」을 문제로 세우고 140분을 답으로 냈는데,
+             새벽 메이크업은 저희 예식에서도 그대로다(FAQ: 헤어·메이크업은 외부에서 별도 진행).
+             그래서 냉정한 독자에게 「140분이라도 새벽 준비는 똑같잖아」라는 반문이 남았다.
+             못 하는 것을 먼저 말하면 하는 것이 믿어진다 — CLAUDE.md 「책임질 수 없는 안심 금지」와 같은 화법.
+             ★이 두 문장을 «지우고» 140분만 남기면 논리 구멍이 그대로 돌아온다. -->
+        <p>새벽 메이크업과 공항까지의 이동은 저희도 줄여 드리지 못합니다. 저희는 그 사이, 예식 자체에만 손을 댈 수 있습니다. 불필요한 반복과 대기를 덜어내고, 주인공의 가장 선명한 순간만을 담는 140분. 140분 후에도 두 사람의 눈빛은 여전히 살아 있어야 한다고 생각했습니다.</p>
         <p>신혼여행 첫날이 침대가 아닌 거리에서 시작될 수 있다면. 부부가 된 후 처음 보는 풍경이 호텔 천장이 아니라, 함께 걷는 골목길의 불빛일 수 있다면.</p>
         <p>신혼여행 첫날, 두 사람이 가장 깨어있기를.</p>
-        <p>이것이 우리가 만드는 결혼의 순서입니다.</p>
+        <p>이것이 저희가 만드는 결혼의 순서입니다.</p>
         <div class="journal-sign">Kawana Miku</div>
       </div>
-      <div class="journal-footer">140분의 시그니처 시퀀스.</div>
+      <!-- [ESSAY2_TOFAQ] 2026-09-05. 140분에 설득된 사람이 「그래서 140분이 어떻게 흐르는데」를
+           볼 길이 없었다(답은 FAQ 「예식은 얼마나 진행되나요」에 있다). 1편에는 아래 어른 안내 CTA가
+           짝으로 있는데 2편에만 없었다. 링크는 그 FAQ 항목을 펼치면서 데려간다(faq-deep). -->
+      <div class="journal-footer"><a class="journal-footer-link" href="#faq-140" data-faq-open="faq-140">140분의 시그니처 시퀀스 <span class="arrow">→</span></a></div>
       <button class="journal-card-btn" onclick="toggleEssay(this)">
         <span class="btn-text-read">Read <span class="arrow">→</span></span>
         <span class="btn-text-close">Close <span class="arrow">×</span></span>
@@ -6387,7 +6429,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 </div>
 <div class="faq-item"><div class="faq-q"><span>하객은 몇 분까지 함께할 수 있나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트는 양가 합산 <strong>최대 25명</strong>까지 착석으로 모실 수 있습니다.<br><br>인원은 자유롭게 정하시면 됩니다. 적게 모여도, 가까이 모여도 괜찮습니다. 12명이 모이는 자리든 24명이 모이는 자리든, 그날의 인원에 맞추어 테이블과 좌석을 다시 배치하여 자연스러운 자리를 만들어 드립니다.<br><br>25명을 넘는 경우에는 스탠딩 좌석을 최대 5명까지 더해 총 30명으로 진행하실 수 있습니다(1인 50,000원 · 공간·안전상 30명이 상한입니다). 멀리 계신 분께는 디지털 참석으로 자리를 내어드립니다.<br><br>구체적인 인원과 동선은 상담을 통해 함께 설계해 드립니다.</div></div></div>
 <div class="faq-item"><div class="faq-q"><span>스몰웨딩 비용은 얼마인가요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 올인원 구성은 주말·공휴일 <strong>330만 원</strong>, 평일결혼식 <strong>250만 원</strong>입니다(VAT 포함). 양가 직계가족 25명까지 함께하는 마이크로웨딩 동일 시퀀스로 진행됩니다. 촬영(원본 전체 + 보정 10장)·예식 영상·모바일청첩장·다이닝 안내까지 필수 항목이 모두 포함되어 있으며, <strong>필수 추가 비용은 없습니다</strong>.<br><br><strong>일반 웨딩홀이 식대·꽃·스드메를 항목마다 따로 청구하는 것과 달리, 하나의 통합 가격에 본질적인 항목만 담아낸 구성입니다.</strong><br><br>평일 웨딩스냅만 원하시는 경우, 운영 초기 한정으로 60만 원에 진행하고 있습니다(정가 80만 원).<br><br><span style="display:block;padding:14px 16px;background:var(--bg2);border-radius:6px;font-size:12px;line-height:1.85;color:var(--sub)"><strong style="color:var(--accent);font-size:13px;letter-spacing:0.04em">선택 항목 안내</strong><br>다이닝 식사 비용은 선택하신 파트너사에 <strong style="color:var(--accent)">직접</strong> 지불하십니다(저희가 청구하지 않습니다). 인근 파트너는 1인 2.5~4만 원대가 가장 많아 <strong style="color:var(--accent)">하객 25명 기준 약 60~100만 원</strong>이며, 가벼운 곳은 약 40~50만 원입니다. 식당·인원에 따라 달라지므로 정확한 금액은 예약하실 때 확인하시게 됩니다.<br>그 밖에 추가 보정 1컷 20,000원, 추가 시착 1벌 50,000원(3벌째부터)이며, 헤어·메이크업은 외부에서 별도 진행됩니다.</span></div></div></div>
-<div class="faq-item"><div class="faq-q"><span>예식은 얼마나 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 140분은 본질만 남긴 시간입니다. 불필요한 대기와 반복을 걷어내고, 주인공의 에너지가 가장 선명한 순간만을 담습니다.<div class="faq-seq"><strong>140분 시그니처 시퀀스</strong><br>20m | Getting Ready · 의상 착장, 컨디션 정돈<br>45m | Private Snap · 하객과 분리된 두 공간에서 촬영 20분씩 · 사이 이동 5분<br>16~25m | The Ceremony · 모든 시선이 집중되는, 정갈한 예식의 중심<br>30~39m | Group Record · 두 분이 자리마다 인사드리고, 다 함께 한 장을 남기는 시간<br>20m | Farewell · 서두르지 않는 배웅, 여운 있는 마무리<br>· 본식과 Group Record의 길이는 고르신 식순에 따라 달라지며, 두 시간의 합은 55분으로 하루 140분은 그대로입니다.</div><!-- [FAQ_GUEST_WINDOW] 2026-08-03 추가. 이 질문을 하는 진짜 이유는 '하객분들께 몇 시라고 안내하지?'인데
+<div class="faq-item" id="faq-140"><div class="faq-q"><span>예식은 얼마나 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 140분은 본질만 남긴 시간입니다. 불필요한 대기와 반복을 걷어내고, 주인공의 에너지가 가장 선명한 순간만을 담습니다.<div class="faq-seq"><strong>140분 시그니처 시퀀스</strong><br>20m | Getting Ready · 의상 착장, 컨디션 정돈<br>45m | Private Snap · 하객과 분리된 두 공간에서 촬영 20분씩 · 사이 이동 5분<br>16~25m | The Ceremony · 모든 시선이 집중되는, 정갈한 예식의 중심<br>30~39m | Group Record · 두 분이 자리마다 인사드리고, 다 함께 한 장을 남기는 시간<br>20m | Farewell · 서두르지 않는 배웅, 여운 있는 마무리<br>· 본식과 Group Record의 길이는 고르신 식순에 따라 달라지며, 두 시간의 합은 55분으로 하루 140분은 그대로입니다.</div><!-- [FAQ_GUEST_WINDOW] 2026-08-03 추가. 이 질문을 하는 진짜 이유는 '하객분들께 몇 시라고 안내하지?'인데
      사이트 어디에도 그 숫자가 없어 청첩장 시간을 잡을 수 없었다.
      수치 출처는 고객 대면 진행 시간표 assets/sequence-modal.js:18~26(SLOTS·ROWS) 실측:
      오전 09:00 시작 · 하객 입장 09:45(20분) · 본식 시작(두 분 입장) 10:05 · 종료 11:20 → 하객 관여 95분.
@@ -7207,6 +7249,23 @@ function toggleEssay(btn){
     q.addEventListener('click', toggle);
     q.addEventListener('keydown', function(e){
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+  /* [FAQ_DEEP] 다른 곳에서 FAQ 한 항목을 «펼친 채로» 데려온다 (2편 저널 카드 하단 → 140분 항목).
+     ★그냥 #앵커로 보내면 접힌 채로 도착해 「눌렀는데 아무 일도 안 났다」가 된다.
+     ★열기는 위 toggle 과 같은 방식(class + maxHeight)으로 한다 — 애니메이션 계약이 하나여야
+       나중에 CSS 를 고칠 때 두 곳이 어긋나지 않는다. 이미 열려 있으면 스크롤만 한다. */
+  document.querySelectorAll('[data-faq-open]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var item = document.getElementById(a.getAttribute('data-faq-open'));
+      if (!item) return;                     // 대상이 사라졌으면 평범한 앵커로 둔다
+      e.preventDefault();
+      if (!item.classList.contains('open')) {
+        var ans = item.querySelector('.faq-a');
+        item.classList.add('open');
+        if (ans) ans.style.maxHeight = ans.scrollHeight + 'px';
+      }
+      item.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
   // FAQ "더보기" 토글
