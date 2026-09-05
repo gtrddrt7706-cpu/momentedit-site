@@ -160,8 +160,19 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
         var _hlack = _hm.marks.filter(function (m) { return _raw.indexOf('[' + m + ']') < 0; });
         chk(_hm.file + '.html  (표식 ' + _hm.marks.length + '개)', _hlack.length === 0,
           '없는 것: ' + _hlack.join(', ') + ' → 이 화면 파일을 다시 붙여넣으세요');
-        L.push('  --   ' + _hm.file + ' 본문 ' + _raw.length + '자' +
-          (_raw.length === _hm.bytes ? ' — 저장소와 같습니다' : ' · 저장소는 ' + _hm.bytes + '자 (참고 · 줄바꿈 차이로도 달라집니다)'));
+        /* ★[HTML_LEN 2026-09-05 사용자 질문 "다른 채팅방에서 파일수정하면 … 빈틈없이?"]
+           길이를 «참고»로만 두었더니 구멍이 하나 남았다 — 다른 세션이 화면 본문을 고치고
+           표식은 그대로 두면(대개 그렇다) 표식 검사는 통과하고, 길이 차이는 세어지지 않아
+           「누락 0건」이 나온다. .gs 는 FILE_COVER 가 «마지막 커밋의 표식»을 요구해 막지만
+           HTML 에는 그 규율이 없다. 그래서 길이를 판정으로 올린다.
+           ★근거: 실기 4벌 전부 저장소와 «글자 수까지» 일치했다(2026-09-05 12:21) —
+             GAS 가 본문을 그대로 보관한다는 실측이다. 붙여넣기가 온전하면 길이는 어긋나지 않는다.
+           ★어긋나도 할 일은 하나다 — 그 파일을 다시 붙여넣는 것. 고칠 수 없는 빨강이 아니다.
+           ★목록의 bytes 는 저장소가 바뀌면 게이트(gen-deploy-fns --check)가 갱신을 강제하므로
+             늘 main 을 따라간다(반증으로 확인). */
+        chk(_hm.file + '.html 본문 길이 ' + _hm.bytes + '자', _raw.length === _hm.bytes,
+          '지금 ' + _raw.length + '자 — ' + (_raw.length < _hm.bytes ? (_hm.bytes - _raw.length) + '자 모자랍니다' : (_raw.length - _hm.bytes) + '자 많습니다') +
+          ' → 이 화면 파일을 다시 붙여넣으세요 (표식은 있으니 «옛 판»입니다)');
       } catch (e) {
         chk(_hm.file + '.html', false, '못 읽었습니다: ' + ((e && e.message) || e) + ' → 그 이름의 HTML 파일이 없습니다');
       }

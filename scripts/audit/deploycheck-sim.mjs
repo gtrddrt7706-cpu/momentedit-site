@@ -63,7 +63,7 @@ function marksJson(staleList) {
 }
 
 function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefined,
-               dropTrigger = null, dropColumn = null, oldAdmin = false, staleList = null } = {}) {
+               dropTrigger = null, dropColumn = null, oldAdmin = false, bodyEdit = null, staleList = null } = {}) {
   const sb = makeSandbox();
   const lines = [];
   sb.Logger = { log: (m) => lines.push(String(m)) };
@@ -137,6 +137,9 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
         const at = HTML_AT[nm];
         if (!at) throw new Error('그런 HTML 파일이 없습니다: ' + nm);
         let raw = fs.readFileSync(path.join(ROOT, at), 'utf8');
+        /* [SIM_HTML_BODY] «표식은 그대로인데 본문만 바뀐» 판 — 다른 세션이 화면을 고치고
+           두 분이 아직 안 붙여넣은 그 모양이다. 표식 검사만으로는 안 잡힌다. */
+        if (bodyEdit === nm) raw = raw + '\n<!-- 다른 세션이 고친 자리 -->\n';
         if (oldAdmin === nm) {
           const m = (MARKS.html || []).find((h) => h.file === nm);
           if (m) raw = raw.replace('[' + m.marks[0] + ']', '[OLD_VERSION]');
@@ -364,6 +367,11 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   if (rc.bad <= base) ng('컬럼을 뺐는데 붉은 수가 안 늘었습니다');
 
   for (const h of (JSON.parse(marksJson()).html || [])) {
+    const rb = run({ bodyEdit: h.file });
+    const bOk = rb.miss.some((l) => l.includes(h.file) && l.includes('본문 길이'));
+    console.log(`   ${(h.file + ' 본문만 바뀜(표식 그대로)').padEnd(32)} 누락 ${rb.bad}건  ${bOk ? '잡힘' : '✗ 못 잡음'}`);
+    if (!bOk) ng(`${h.file} 본문이 옛 판인데 길이로 못 잡았습니다 — 표식만 보면 통과합니다`);
+    if (rb.bad <= base) ng(`${h.file} 본문을 바꿨는데 붉은 수가 안 늘었습니다`);
     const ra = run({ oldAdmin: h.file });
     const aOk = ra.miss.some((l) => l.includes(h.file));
     console.log(`   ${(h.file + '.html 이 옛 판').padEnd(32)} 누락 ${ra.bad}건  ${aOk ? '잡힘' : '✗ 못 잡음'}`);

@@ -5612,6 +5612,20 @@ chk 'MARKS_AGE' scripts/gen-deploy-fns.mjs 1
 chk 'MARKS_AGE' automation/platform/99_deployCheck.gs 1
 chk 'LIST_PARTIAL' automation/platform/99_deployCheck.gs 1
 chk 'SIM_STALE' scripts/audit/deploycheck-sim.mjs 1
+chk 'HTML_LEN' automation/platform/99_deployCheck.gs 1
+chk 'SIM_HTML_BODY' scripts/audit/deploycheck-sim.mjs 1
+
+# ★[MARKS_REACH] 점검 목록이 «사이트로 나가는 길»을 지킨다 — 이 길이 끊기면 모든 것이 조용히 무너진다.
+#   GAS 는 https://momentedit.kr/deploy-marks.json 에서 목록을 읽는다. 그 파일이 배포에서 빠지거나
+#   Vercel 이 빌드를 건너뛰면, 점검은 «옛 목록»으로 돌면서도 초록을 낸다 — 가장 위험한 실패다.
+#   ①.vercelignore 에 들어가면 웹에 안 올라간다.
+#   ②vercel.json 의 ignoreCommand 가 이 파일을 제외 목록에 넣으면, .gs 만 바뀐 병합에서 빌드가 통째로 스킵된다.
+grep -qE '^[[:space:]]*deploy-marks\.json' .vercelignore \
+  && { echo 'FAIL MARKS_REACH: deploy-marks.json 이 .vercelignore 에 있다 — 사이트에 안 올라가 점검이 목록을 못 읽는다'; fail=1; }
+grep -q 'deploy-marks' vercel.json \
+  && { echo 'FAIL MARKS_REACH: vercel.json 이 deploy-marks.json 을 언급한다 — 빌드 스킵 규칙에 걸리면 목록이 낡은 채 남는다'; fail=1; }
+[ -f deploy-marks.json ] \
+  || { echo 'FAIL MARKS_REACH: deploy-marks.json 이 저장소 루트에 없다'; fail=1; }
 # ★GAS 가 읽는 화면 파일 4벌은 전부 표식을 하나씩 갖고 있어야 한다 — 없으면 «붙었는지» 볼 근거가 없다.
 #   ScreenC_change.html 은 표식이 0개라 361KB 중 그 몫이 점검 밖이었다(2026-09-05 에 넣었다).
 for _h in automation/admin/Admin.html automation/consultation/ScreenA_apply.html \
