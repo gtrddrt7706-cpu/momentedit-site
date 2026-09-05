@@ -354,8 +354,16 @@ ${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_
   고칠 것이 보이면 그 문장에 <b>「다시」</b>를 눌러 주세요. 누른 것만 모아 <b>재더빙 대본</b>이 나옵니다.
 </div>
 
-${EMBED ? `<div class="note" style="background:#f2f5f2;color:var(--green);border:1px solid #cfe0d4">
+${/* ★★[SAY_WHICH_BOARD 2026-09-05 사장님 화면] 이 칸이 «세상은 둘»이라고 알고 있었다.
+     --web 을 나중에 만들면서 이 문장을 안 고쳐, 주소로 소리를 부르는 판이
+     «소리가 없는 가벼운 판»이라고 스스로 말했다. 바로 위 칸은 «소리가 다 들어 있습니다»라고
+     말하는데 아래 칸이 뒤집는다 — 사장님은 「듣기」가 안 되는 줄 알고 누르지 않는다.
+     ★[SOUND_OUT_OF_JS] 때 sayCanDo 가 「기존 0클립」이라 했던 것과 같은 병이다.
+       구조를 늘리면 «그 구조를 말하던 곳»도 같이 늘려야 한다. 판이 셋이면 문장도 셋이다. */
+  EMBED ? `<div class="note" style="background:#f2f5f2;color:var(--green);border:1px solid #cfe0d4">
   <b>소리가 이 화면 안에 있습니다.</b> 바로 「듣기」를 누르세요.
+</div>` : WEB ? `<div class="note" style="background:#f2f5f2;color:var(--green);border:1px solid #cfe0d4">
+  <b>소리는 사이트에서 받아 옵니다.</b> 바로 「듣기」를 누르세요 · 인터넷이 있어야 들립니다.
 </div>` : `<div class="note" style="background:#fdf7ec;color:var(--gold-text);border:1px solid #e8dcc4">
   이 판은 <b>소리가 없는 가벼운 판</b>입니다(목록·판정만). 소리까지 들으려면 <code>--embed</code> 로 뽑은 판을 쓰세요.
 </div>`}

@@ -3409,6 +3409,14 @@ chk 'HANDOFF_RELOAD' scripts/build-listen-all.mjs 1
 # ★옛 모양(v/w) 주소도 계속 받는다 — 사장님 손에 이미 만든 주소가 있을 수 있다.
 chk 'HANDOFF_SMALL' scripts/build-listen-all.mjs 1
 chk 'HANDOFF_PASTE' scripts/build-listen-all.mjs 1
+# ── [SAY_WHICH_BOARD] 판이 셋이면 «판을 설명하는 문장»도 셋 (2026-09-05 사장님 화면) ──
+# --web 을 나중에 만들면서 이 칸을 안 고쳐, 주소로 소리를 부르는 판이 스스로
+# «소리가 없는 가벼운 판»이라고 말했다. 바로 위 칸은 «소리가 다 들어 있습니다»라고 하는데.
+# 사장님은 「듣기」가 안 되는 줄 알고 안 누른다. SOUND_OUT_OF_JS 때 sayCanDo 와 같은 병이다.
+chk 'SAY_WHICH_BOARD' scripts/build-listen-all.mjs 1
+chk '소리는 사이트에서 받아 옵니다' scripts/build-listen-all.mjs 1
+# ★배포되는 판이 «소리 없음»이라 말하면 잡는다 — 그 판은 소리를 주소로 부른다
+nochk '소리가 없는 가벼운 판' listen-075c9ad62acf.html
 chk 'unpackV' scripts/build-listen-all.mjs 2
 chk 'deflate-raw' scripts/build-listen-all.mjs 2
 chk 'applyHandoff' scripts/build-listen-all.mjs 3
