@@ -63,6 +63,21 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weigh
   .topbar .tb{font-size:11.5px;padding:0 2px}
 }
 main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
+/* ★[ADM_WIDE 2026-09-05 사용자 지시 "pc버전은 모바일버전처럼하지말고 좀더 넓게 · 작업하기 편하게"]
+   종전엔 max-width:580px 이 «모든 폭»에 걸려, 1920px 모니터에서도 가운데 580px 만 쓰고
+   좌우 1340px 이 통째로 비었다. 미디어쿼리는 600·340px «좁히는 것» 둘뿐이라 데스크톱 분기가 아예 없었다.
+   실측: 고객 상세가 420px 폭에 3,534px 세로 — 넓은 화면에서 3.5 화면을 스크롤해야 했다.
+   ★고객 화면(index·mypage)의 «본문 65~75자» 규칙을 여기 대지 말 것 — admin 은 읽는 글이 아니라
+     목록·버튼을 다루는 작업대다. 넓을수록 잘림이 줄고 스크롤이 준다. */
+@media (min-width:1024px){
+  main{max-width:1180px;padding:18px 22px 72px}
+  /* 상세는 .card 가 세로로 쌓인 구조라 HTML 변경 없이 2열로 흘린다(카드는 쪼개지지 않게) */
+  #detailBody{column-count:2;column-gap:14px}
+  #detailBody>.card{break-inside:avoid;-webkit-column-break-inside:avoid}
+  /* 홈의 큐 블록도 같은 방식 — 처리할 일이 한 화면에 더 들어온다 */
+  #queueWrap,#pipeWrap{column-count:2;column-gap:14px}
+  #queueWrap>.card,#pipeWrap>.card{break-inside:avoid;-webkit-column-break-inside:avoid}
+}
 
 /* 검색 */
 .search{display:flex;gap:8px;margin-bottom:16px}
