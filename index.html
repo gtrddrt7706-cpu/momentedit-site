@@ -7306,8 +7306,8 @@ function _essayJump(y){
 /* ★★[ESSAY_LISTEN] 저널 카드 낭독 재생기 — parents.html 의 「듣기」에서 «겪어서 알게 된 것»만 옮겼다.
    그 페이지의 규칙과 사고 기록은 parents.html 의 [LISTEN_ONE_HANDLER]·[LISTEN_LEAD_IN] 주석에 있다.
 
-   ★[ESSAY_LEAD_IN] 누르고 2초 뒤에 소리가 난다 (2026-09-05 사용자 지시
-     "플레이버튼 누르고 2초있다가 시작" · "씹히는거방지")
+   ★[ESSAY_LEAD_IN] 누르고 1초 뒤에 소리가 난다 (2026-09-05 사용자 지시
+     "플레이버튼 누르고 2초있다가 시작" · "씹히는거방지" → 같은 날 "2초는 너무 기니깐 1초로")
      첫마디가 씹히는 건 누른 그 순간엔 소리 장치가 아직 안 깨어 있어서다(버퍼가 안 찼다).
      그 2초 동안 «소리를 죽인 채» 재생을 시작해 버퍼를 채운다. 그래서 2초 뒤 첫 글자부터 온전히 들린다.
      ★재생 자체는 «누른 그 순간» 시작해야 한다 — setTimeout 안으로 미루면 사용자 조작과의 끈이
@@ -7315,7 +7315,18 @@ function _essayJump(y){
      ★volume 이 아니라 muted 를 쓴다 — iOS Safari 는 volume 을 코드로 못 바꾼다(무시된다).
      ★음원 머리에도 0.3초 무음이 들어 있다(scripts/build-journal-audio.py 의 HEAD_PAD).
        화면과 소리 양쪽에 방어선을 하나씩 둔 것이다.
-     ★기다리는 중에 다시 누르면 예약을 반드시 지운다 — 안 지우면 «멈췄는데 2초 뒤에 소리가 나는» 유령이 생긴다.
+     ★기다리는 중에 다시 누르면 예약을 반드시 지운다 — 안 지우면 «멈췄는데 1초 뒤에 소리가 나는» 유령이 생긴다.
+
+   ★★[SEEK_THEN_OPEN 2026-09-05 사용자 신고 "처음 이상한 알 수 없는 소리가 잠깐 등장"]
+     되감기가 «끝난 뒤에» 음을 연다. 순서를 바꾸면 첫머리에 알 수 없는 말 조각이 샌다.
+     원인을 이벤트 순서로 잡았다(실측) —
+         seek→0   그때 재생위치 1.94   ← 리드인 동안 음소거로 여기까지 갔다
+         unmute                        ← 음을 열었는데
+         seeked 완료  muted:false      ← 되감기는 «그 뒤에» 끝났다
+     currentTime 게터는 새 위치(0)를 «즉시» 보고하지만 디코더가 실제로 옮겨 앉는 것은 그 뒤다.
+     그 사이 몇십 ms 동안 옛 위치(1.9초 · 문장 한가운데)의 소리가 열린 음으로 새어 나온다.
+     ★그래서 muted=false 를 currentTime=0 «옆에» 두지 말 것. 반드시 seeked 를 기다린다.
+     ★seeked 가 안 오는 기기가 있을 수 있어 400ms 안전망을 함께 둔다(그때는 이미 되감겨 있다).
 
    ★[ESSAY_ONE_AT_A_TIME] 한 번에 하나만 — 다른 카드를 누르면 앞의 것이 멈춘다.
      두 편이 겹쳐 나면 둘 다 못 알아듣는다.
@@ -7323,14 +7334,14 @@ function _essayJump(y){
    ★[ESSAY_NO_LIE] 음원이 실제로 있는 것이 확인될 때까지 버튼을 보이지 않는다.
      눌렀는데 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다. */
 (function(){
-  var LEAD_IN = 2000;
+  var LEAD_IN = 1000;
   var playing = null;                       // 지금 소리를 내는(또는 낼) 하나. 둘이 될 수 없다.
 
   document.querySelectorAll('.journal-listen').forEach(function(btn){
     var src = btn.getAttribute('data-essay-audio');
     var card = btn.closest('.journal-card');
     var bar = card && card.querySelector('.journal-progress');
-    var audio = null, pending = null, raf = null;
+    var audio = null, pending = null, raf = null, guard = null, opened = false;
 
     // [ESSAY_NO_LIE] 있는지부터 확인하고 보인다. 못 물어봤으면 계속 숨은 채로 둔다.
     fetch(src, { method: 'HEAD' })
@@ -7349,6 +7360,8 @@ function _essayJump(y){
 
     var stop = function(){
       if (pending) { clearTimeout(pending); pending = null; }
+      if (guard) { clearTimeout(guard); guard = null; }
+      opened = true;                       // [SEEK_THEN_OPEN] 늦게 오는 seeked 가 음을 열지 못하게
       if (audio) { try { audio.pause(); audio.muted = false; } catch (e) {} }
       stopTick();
       if (bar) bar.style.width = '0';
@@ -7369,6 +7382,7 @@ function _essayJump(y){
         audio.addEventListener('error', stop);
       }
       setState('wait');                                          // 화면은 «누른 즉시» 반응한다
+      opened = false;
       // 소리는 나는데 글이 안 보이면 어디쯤인지 모른다 — 접힌 카드는 펼치면서 재생한다
       if (card && !card.classList.contains('open')) {
         var openBtn = card.querySelector('.journal-card-btn');
@@ -7380,9 +7394,22 @@ function _essayJump(y){
       if (pr && pr.catch) pr.catch(function(){ stop(); });        // 자동재생 거절·디코드 실패
       pending = setTimeout(function(){
         pending = null;
-        try { audio.currentTime = 0; audio.muted = false; } catch (e) {}
-        setState('stop');
-        stopTick(); tick();
+        // [SEEK_THEN_OPEN] 되감기가 «끝난 뒤에» 음을 연다. 한 번만 열리고, 멈춤이 이기게 한다.
+        var open = function(){
+          if (opened) return;
+          opened = true;
+          audio.removeEventListener('seeked', open);
+          if (guard) { clearTimeout(guard); guard = null; }
+          try { audio.muted = false; } catch (e) {}
+          setState('stop');
+          stopTick(); tick();
+        };
+        // 되감을 것이 없으면 기다릴 seeked 도 없다 — 그대로 열지 않으면 영영 조용하다
+        var was = 0; try { was = audio.currentTime; } catch (e) {}
+        if (!was) { open(); return; }
+        audio.addEventListener('seeked', open);
+        try { audio.currentTime = 0; } catch (e) { open(); return; }
+        guard = setTimeout(open, 400);                            // seeked 가 안 오는 기기 대비
       }, LEAD_IN);
     });
   });
