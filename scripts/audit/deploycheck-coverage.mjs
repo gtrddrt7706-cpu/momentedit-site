@@ -137,6 +137,69 @@ const missing = alive.filter(([mk]) => {
   }
   return false;
 });
+/* ★★[FILE_COVER 2026-09-05 사용자 지시 "제안대로 진행해 좀더 완벽한 체크 테스트가될수있게"]
+   위(MARK_ON_FN)까지는 «새 함수»만 요구한다. 그래서 **기존 함수 본문을 고친 변경은 목록에
+   안 들어가고, 그 파일을 GAS 에 안 붙여도 점검이 「누락 0건」이라고 답한다.**
+   실사고(2026-09-05): 사용자의 99_deployCheck.gs 가 한 판 뒤처져 있었는데 점검은 초록이었다.
+   사용자 질문 그대로다 — "메인에 있는 파일이 전부 올라가 있다는 거지?" 그때 답은 «아니오»였다.
+
+   ★규칙: **그 파일을 마지막으로 바꾼 커밋**이 새로 넣은 줄에 있는 표식이, 목록에 최소 하나.
+     - «창 전체»로 보면 한 파일이 두 번 바뀔 때 첫 변경 표식만으로 통과한다(반증으로 재현).
+       그 사이에 붙여넣은 사람은 뒤 변경을 빠뜨린 채 «누락 0건»을 본다. 그래서 마지막 커밋이다.
+     - 옛 파일에는 그 표식이 없으니 99_deployCheck 가 곧바로 «옛 버전»으로 잡는다.
+   ★물량은 «파일 수»로 묶인다 — 표식 하나하나를 요구하다 main 이 사흘 붉었던 사고(#602~#603)의
+     재발을 막는 것이 범위를 좁혔던 이유였고, 파일 단위는 그 이유를 건드리지 않는다.
+   ★고르는 표식은 «그 함수 본문 안»에 있어야 한다 — mark() 가 함수 소스를 읽기 때문이다.
+     함수 밖 주석에 단 표식은 목록에 넣어도 영영 «누락»으로만 뜬다(실측 이력 있음).
+   ★.gs 를 고치는 세션은 이제 표식 한 줄 + 목록 한 줄을 함께 남긴다. 그것이 «전부 올라갔다»를
+     점검이 진짜로 보증하게 만드는 값이다. */
+function _fnBody(src, name) {
+  const i = src.indexOf('function ' + name + '(');
+  if (i < 0) return '';
+  let d = 0, j = src.indexOf('{', i);
+  for (let k = j; k < src.length; k++) {
+    if (src[k] === '{') d++;
+    else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); }
+  }
+  return '';
+}
+const marksAll = (JSON.parse(checkSrc).marks || []);
+/* ★규칙 시작일 이전 커밋은 묻지 않는다 — 그때는 «표식을 남긴다»는 약속 자체가 없었다.
+   이것이 없으면 DC_DAYS 를 30 으로 돌릴 때 옛 커밋까지 소급 요구해 늘 붉는다(사람이 곧 무시한다).
+   ★날짜를 앞당기지 말 것 — 소급은 «고칠 수 없는 빨강»을 만든다. */
+const FILE_COVER_SINCE = '2026-09-05';
+const _winMs = Date.now() - DAYS * 86400e3;
+/* ★날짜만 넘기면(«2026-09-05») git 이 그 날 00:00 을 «오늘 이후»로 보고 아무것도 안 잡는다 —
+   그러면 이 규칙이 조용히 꺼진다(반증에서 실제로 통과해 버려 발견). 시각까지 붙여 넘긴다. */
+const _since = new Date(Math.max(_winMs, Date.parse(FILE_COVER_SINCE))).toISOString();
+const changedFiles = execSync(`git log --since="${_since}" --name-only --pretty=format: -- ${GAS.join(' ')}`,
+  { cwd: REPO }).toString().split('\n').map((x) => x.trim()).filter((x) => x.endsWith('.gs'));
+const uncovered = [];
+for (const rel of [...new Set(changedFiles)]) {
+  const base = path.basename(rel, '.gs');
+  if (base === '99_deployCheck') continue;                    // 점검 파일 자신은 스스로를 못 본다
+  const abs = path.join(REPO, rel);
+  if (!fs.existsSync(abs)) continue;                           // 지워진 파일
+  const lastSha = execSync(`git log -1 --format=%H -- ${rel}`, { cwd: REPO }).toString().trim();
+  if (!lastSha) continue;
+  const diff = execSync(`git show ${lastSha} -- ${rel}`, { cwd: REPO, maxBuffer: 1 << 28 }).toString();
+  const added = diff.split('\n').filter((l) => l.startsWith('+') && !l.startsWith('+++')).join('\n');
+  if (!added.trim()) continue;                                 // 지우기만 한 변경 — 요구할 것이 없다
+  const now = fs.readFileSync(abs, 'utf8');
+  const ok = marksAll.some((m) => m.file === base
+    && added.includes(m.mark)                                  // 그 커밋이 넣은 것이라야 옛 파일과 갈린다
+    && _fnBody(now, m.fn).includes(m.mark));                   // 그리고 그 함수 «본문 안»에 살아 있어야 한다
+  if (!ok) uncovered.push(rel + '  (마지막 커밋 ' + lastSha.slice(0, 8) + ')');
+}
+if (uncovered.length) {
+  console.log(`❌ [FILE_COVER] 바뀌었는데 «그 변경을 가리키는» 목록 항목이 없는 파일 ${uncovered.length}개:`);
+  uncovered.forEach((f) => console.log('   ' + f));
+  console.log('\n  이 파일들은 GAS 에 안 붙여넣어도 점검이 «누락 0건»이라고 답한다.');
+  console.log('  고치는 법 — 이번에 바꾼 자리(함수 «본문 안»)에 [표식] 주석을 하나 남기고,');
+  console.log('    deploy-marks.json 에 { "file","fn","mark","why" } 한 줄을 추가한다.');
+  process.exit(1);
+}
+
 console.log(`최근 ${DAYS}일 GAS 표식 ${alive.length}개 · 점검 목록에 있는 것 ${alive.length - missing.length}개`);
 if (!missing.length) { console.log('✅ 빠진 표식 없음 — deploy-marks.json 이 최근 변경을 전부 덮는다.'); process.exit(0); }
 console.log(`❌ 점검 목록에 없는 표식 ${missing.length}개 — 이 변경들은 «옛 코드인 채로도» 통과한다:`);

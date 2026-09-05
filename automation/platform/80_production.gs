@@ -67,6 +67,7 @@ function handleSaveProductionBase(body) {
     if (_szB) return { ok: false, error: _szB };
     var upd = _prodStoreCols(draft, { '제작상태': '작성중' }, { cust: cust });   // PROD_ACCESSOR
     if (wDate) upd['예식일'] = wDate;   // 잔금 D-day 산출용 톱레벨 컬럼(시그 D-9 · 스냅 D-7 — PAYMENT 단일 출처 · 계약 확정값 재기록 · 무해)
+    /* [SNAP_BALANCE_D7] 이 컬럼이 잔금 D-day 의 근거다 — 시그 D-9 · 스냅 D-7 은 PAYMENT 한 곳에서 갈린다 */
     upd['신랑이름'] = groomKo;            // 확인·보완 결과를 마스터에 반영
     upd['신부이름'] = brideKo;
     touchCustomer(sheet, colOf, cust.num, upd);
