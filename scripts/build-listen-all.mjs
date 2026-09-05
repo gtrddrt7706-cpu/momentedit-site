@@ -378,6 +378,7 @@ ${EMBED ? `<div class="note" style="background:#f2f5f2;color:var(--green);border
   <button class="btn" id="mkOut">다시 받을 것 대본 만들기</button>
   <button class="btn" id="copyOut">복사</button>
   <button class="btn" id="handoff">다른 기기로 이어받기 링크</button>
+  <button class="btn" id="paste">이어받기 코드 붙여넣기</button>
   <button class="btn" id="reset">판정 지우기</button>
 </div>
 <!-- ★[SOUND_OUT_OF_JS] 소리는 여기 있다 — type="text/plain" 이라 브라우저가 **파싱하지 않는다.**
@@ -475,36 +476,88 @@ function ORD() { var a = [];
   D.old.forEach(function (c) { c.s.forEach(function (_t, j) { a.push(c.id + '#' + j); }); });
   D.neu.forEach(function (c) { c.n.forEach(function (x) { if (!x.lock) a.push('n' + x.i); }); });
   return a; }
-function handoffLink() { var o = ORD(), v = '', w = [];
+/* ★★[HANDOFF_SMALL 2026-09-05 사장님 실물] 첫 판은 주소가 **20,307자**였다.
+   내가 넣어 둔 경고가 울렸다 — 그런데 경고로 끝낼 일이 아니었다. 카톡이 자르면 못 쓴다.
+   ★왜 그렇게 길었나: 이유 글을 자리마다 **통째로** 실었다. 화면을 보면 같은 이유가
+     수십 번 반복된다("좀더 감동적으로 만들어보자 자연스럽게 멘트개선"). 같은 글을 수십 벌 실은 것이다.
+   ★셋을 고친다.
+     ① 이유는 «사전 + 번호»로 — 같은 글은 한 번만 싣는다
+     ② 판정은 2비트씩 눌러 담는다 — 483자 → 121바이트
+     ③ 그 위에 deflate — 한글은 잘 눌린다. 못 쓰는 브라우저면 안 눌러도 동작한다('r' 표시)
+   ★그래도 길면 «코드 붙여넣기» 길이 따로 있다(HANDOFF_PASTE). 주소 길이에 목을 매지 않는다. */
+function packV(o) { var by = [], acc = 0, n = 0;
   for (var i = 0; i < o.length; i++) { var x = V[o[i]];
-    v += x === 'ok' ? '1' : x === 're' ? '2' : '0';
-    if (W[o[i]]) w.push([i, W[o[i]]]); }
-  return location.origin + location.pathname + '#h='
-    + b64e(JSON.stringify({ s: '${STAMP}', v: v, w: w })); }
+    acc = (acc << 2) | (x === 'ok' ? 1 : x === 're' ? 2 : 0); n++;
+    if (n === 4) { by.push(acc); acc = 0; n = 0; } }
+  if (n) by.push(acc << (2 * (4 - n)));
+  var t = ''; for (var j = 0; j < by.length; j++) t += String.fromCharCode(by[j]);
+  return btoa(t).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }
+function unpackV(t) { t = t.replace(/-/g, '+').replace(/_/g, '/');
+  var r = atob(t), out = [];
+  for (var i = 0; i < r.length; i++) { var c = r.charCodeAt(i);
+    out.push((c >> 6) & 3, (c >> 4) & 3, (c >> 2) & 3, c & 3); }
+  return out; }
+function payload() { var o = ORD(), tx = [], map = {}, m = [];
+  for (var i = 0; i < o.length; i++) { var t = W[o[i]]; if (!t) continue;
+    if (!(t in map)) { map[t] = tx.length; tx.push(t); }
+    m.push([i, map[t]]); }
+  return JSON.stringify({ s: '${STAMP}', p: packV(o), t: tx, m: m }); }
+async function squeeze(str) {
+  try { if (typeof CompressionStream === 'function') {
+    var st = new Blob([str]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    var b = new Uint8Array(await new Response(st).arrayBuffer()), r = '';
+    for (var i = 0; i < b.length; i++) r += String.fromCharCode(b[i]);
+    return 'z' + btoa(r).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); } } catch (e) {}
+  return 'r' + b64e(str); }
+async function unsqueeze(t) {
+  var kind = t.charAt(0), body = t.slice(1);
+  if (kind === 'r') return b64d(body);
+  body = body.replace(/-/g, '+').replace(/_/g, '/');
+  var r = atob(body), b = new Uint8Array(r.length);
+  for (var i = 0; i < r.length; i++) b[i] = r.charCodeAt(i);
+  var st = new Blob([b]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return await new Response(st).text(); }
+async function handoffLink() {
+  return location.origin + location.pathname + '#h=' + (await squeeze(payload())); }
 /* ★[HANDOFF_RELOAD 2026-08-30 실측] 이미 열려 있는 판에 이어받기 주소를 **붙여넣으면**
    브라우저는 «해시만 바뀐 같은 문서»로 보고 스크립트를 다시 돌리지 않는다.
    실측에서 그대로 걸렸다 — 첫 시도 0개, 새로고침하니 5개. 폰에서 새 창으로 열면 되지만,
    주소창에 붙여넣는 길이 막혀 있으면 사장님은 «안 된다»고 겪는다. 그래서 해시 변화도 듣는다. */
-function takeHandoff() {
-  var m = /^#h=(.+)$/.exec(location.hash || ''); if (!m) return;
-  var d = null; try { d = JSON.parse(b64d(m[1])); } catch (e) { d = null; }
-  if (!d) { HANDOFF_MSG = '이어받기 링크를 읽지 못했습니다 — 링크가 잘려 온 듯합니다.'; return; }
-  if (d.s !== '${STAMP}') { HANDOFF_MSG = '다른 판에서 만든 이어받기 링크입니다 — 소리가 달라 받지 않았습니다.'; return; }
+/* 실어 온 것을 푼다 — 새 모양(p/t/m)과 옛 모양(v/w) 둘 다 받는다.
+   ★사장님이 이미 만들어 둔 옛 주소가 손에 있을 수 있다. 새 모양만 받으면 그게 쓰레기가 된다. */
+function applyHandoff(d) {
+  if (!d) { HANDOFF_MSG = '이어받기 내용을 읽지 못했습니다 — 중간에 잘린 듯합니다.'; return 0; }
+  if (d.s !== '${STAMP}') { HANDOFF_MSG = '다른 판에서 만든 것입니다 — 소리가 달라 받지 않았습니다.'; return 0; }
   var o = ORD(), n = 0;
-  for (var i = 0; i < o.length && i < (d.v || '').length; i++) {
-    var c = d.v.charAt(i);
-    if (c === '1') { V[o[i]] = 'ok'; n++; } else if (c === '2') { V[o[i]] = 're'; n++; } }
-  (d.w || []).forEach(function (pr) { if (o[pr[0]]) W[o[pr[0]]] = pr[1]; });
+  if (d.p) { var arr = unpackV(d.p);
+    for (var i = 0; i < o.length && i < arr.length; i++) {
+      if (arr[i] === 1) { V[o[i]] = 'ok'; n++; } else if (arr[i] === 2) { V[o[i]] = 're'; n++; } }
+    (d.m || []).forEach(function (pr) { var t = (d.t || [])[pr[1]]; if (o[pr[0]] && t) W[o[pr[0]]] = t; });
+  } else {
+    for (var j = 0; j < o.length && j < (d.v || '').length; j++) { var c = d.v.charAt(j);
+      if (c === '1') { V[o[j]] = 'ok'; n++; } else if (c === '2') { V[o[j]] = 're'; n++; } }
+    (d.w || []).forEach(function (pr) { if (o[pr[0]]) W[o[pr[0]]] = pr[1]; });
+  }
   save(); saveW();
   HANDOFF_MSG = '다른 기기에서 <b>' + n + '개</b>를 이어받았습니다.';
+  return n;
+}
+async function takeHandoff() {
+  var m = /^#h=(.+)$/.exec(location.hash || ''); if (!m) return 0;
+  var d = null;
+  try { d = JSON.parse(await unsqueeze(m[1])); }
+  catch (e) { try { d = JSON.parse(b64d(m[1])); } catch (e2) { d = null; } }
+  var n = applyHandoff(d);
   /* 주소에서 지운다 — 새로고침할 때마다 다시 덮어쓰지 않게 */
   try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  return n;
 }
-takeHandoff();
+takeHandoff().then(function () { try { draw(); sayCanDo(); } catch (e) {} });
 window.addEventListener('hashchange', function () {
-  takeHandoff();
-  try { draw(); sayCanDo(); } catch (e) {}
-  if (HANDOFF_MSG) alert(HANDOFF_MSG.replace(/<[^>]*>/g, ''));
+  takeHandoff().then(function () {
+    try { draw(); sayCanDo(); } catch (e) {}
+    if (HANDOFF_MSG) alert(HANDOFF_MSG.replace(/<[^>]*>/g, ''));
+  });
 });
 var $ = function (i) { return document.getElementById(i); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
@@ -722,15 +775,18 @@ $('copyOut').onclick = function () {
 $('reset').onclick = function () { if (confirm('판정을 전부 지울까요?')) { V = {}; save(); draw(); } };
 /* [HANDOFF_LINK] 링크를 만들어 준다 — 복사가 막히면 «막혔다»고 적고 주소를 화면에 띄운다
    (COPY_MOBILE 과 같은 규칙: 성공했다고 거짓말하지 않는다). */
-$('handoff').onclick = function () {
-  var url = handoffLink(), n = 0;
+$('handoff').onclick = async function () {
+  var url = await handoffLink(), n = 0;
   ORD().forEach(function (k) { if (V[k]) n++; });
-  var box = $('out'); if (box) { box.value = url; box.scrollIntoView({ block: 'center' }); }
+  var code = url.split('#h=')[1] || '';
+  var box = $('out');
+  if (box) { box.value = url + '\\n\\n── 이어받기 코드 (링크가 잘리면 이 글을 옮기세요) ──\\n' + code;
+    box.scrollIntoView({ block: 'center' }); }
   /* ★[HANDOFF_LONG 2026-08-30 실측] 전부 판정 + 이유를 다 적으면 주소가 16,339자까지 간다.
      사파리 주소창은 견디지만 메신저가 링크를 잘라 보낼 수 있다 — 잘리면 «읽지 못했습니다»로 뜬다.
      막지 않는다. 대신 길면 길다고 **먼저** 말한다. 잘린 뒤에 알면 다시 만들어야 한다. */
-  var longWarn = url.length > 8000
-    ? '\\n\\n★주소가 ' + url.length + '자로 깁니다 — 메신저가 자를 수 있습니다.\\n자르지 않는 곳(메모·나에게 보내기)으로 옮기세요.' : '';
+  var longWarn = url.length > 4000
+    ? '\\n\\n★주소가 ' + url.length + '자로 깁니다 — 메신저가 자를 수 있습니다.\\n아래 「이어받기 코드」 칸의 글을 대신 옮기세요(길이 제한 없음).' : '';
   var done = function (ok) { alert((ok
     ? '이어받기 링크를 복사했습니다 (판정 ' + n + '개).\\n\\n자기 자신에게 카톡·메모로 보내고,\\n그 링크를 다른 기기에서 열면 이어집니다.'
     : '복사가 막혔습니다 — 아래 칸의 주소를 직접 복사하세요 (판정 ' + n + '개).') + longWarn); };
@@ -741,6 +797,22 @@ $('handoff').onclick = function () {
       var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
       box.setAttribute('readonly', 'readonly'); done(ok); }
   } catch (e) { done(false); }
+};
+/* ★★[HANDOFF_PASTE 2026-09-05] 주소가 길어 잘릴 수 있는 한, 주소 하나에 걸면 안 된다.
+   ★같은 내용을 «글자»로도 주고받는다 — 길이 제한이 없고, 메신저가 자르면 잘린 게 눈에 보인다.
+     주소는 조용히 잘려서 «읽지 못했습니다»로만 나타난다. 글자는 사장님이 다시 붙여넣으면 된다.
+   ★코드는 링크의 #h= 뒤와 **같은 문자열**이다 — 두 길이 같은 것을 나른다. 따로 만들지 않는다. */
+$('paste').onclick = async function () {
+  var t = prompt('다른 기기에서 만든 「이어받기 코드」를 붙여넣으세요.\\n(링크 전체를 붙여넣어도 됩니다)');
+  if (!t) return;
+  t = t.trim(); var at = t.indexOf('#h=');
+  if (at >= 0) t = t.slice(at + 3);
+  var d = null;
+  try { d = JSON.parse(await unsqueeze(t)); }
+  catch (e) { try { d = JSON.parse(b64d(t)); } catch (e2) { d = null; } }
+  var n = applyHandoff(d);
+  draw(); sayCanDo();
+  alert(HANDOFF_MSG.replace(/<[^>]*>/g, ''));
 };
 draw();
 </script></body></html>
