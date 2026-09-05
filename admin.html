@@ -63,6 +63,27 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weigh
   .topbar .tb{font-size:11.5px;padding:0 2px}
 }
 main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
+/* ★[ADM_WIDE 2026-09-05 사용자 지시 "pc버전은 모바일버전처럼하지말고 좀더 넓게 · 작업하기 편하게"]
+   종전엔 max-width:580px 이 «모든 폭»에 걸려, 1920px 모니터에서도 가운데 580px 만 쓰고
+   좌우 1340px 이 통째로 비었다. 미디어쿼리는 600·340px «좁히는 것» 둘뿐이라 데스크톱 분기가 아예 없었다.
+   실측: 고객 상세가 420px 폭에 3,534px 세로 — 넓은 화면에서 3.5 화면을 스크롤해야 했다.
+   ★고객 화면(index·mypage)의 «본문 65~75자» 규칙을 여기 대지 말 것 — admin 은 읽는 글이 아니라
+     목록·버튼을 다루는 작업대다. 넓을수록 잘림이 줄고 스크롤이 준다. */
+@media (min-width:1024px){
+  main{max-width:1180px;padding:18px 22px 72px}
+  #detailBody{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;align-items:start}
+  #detailBody>:not(.card),#detailBody>.card[data-k="payment"]{grid-column:1/-1}
+  .card[data-k="payment"] .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .card[data-k="payment"] .actions>:not(.btn){grid-column:1/-1}   /* 상태 문구(.gate·.hint)는 전폭 · 버튼만 짝 */
+  /* 홈 — 왼쪽 «처리할 일·결과물», 오른쪽 «진행 중 현황». 목록 행은 폰에서 설계된 폭(≈560px)을 그대로 유지한다 */
+  #homeView{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:start;
+    grid-template-areas:"search search" "recent recent" "queue pipe" "results pipe" "survey pipe"}
+  #homeView>.search{grid-area:search} #recentWrap{grid-area:recent} #queueWrap{grid-area:queue}
+  #resultsWrap{grid-area:results} #pipeWrap{grid-area:pipe} #surveyWrap{grid-area:survey}
+  /* 아카이브 — 끝난 고객 목록. 행이 독립 항목이라 2열(왼→오) · 제목·빈 안내는 전폭 */
+  #archiveBody{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;align-items:start}
+  #archiveBody>:not(.arow){grid-column:1/-1}
+}
 
 /* 검색 */
 .search{display:flex;gap:8px;margin-bottom:16px}
@@ -593,7 +614,7 @@ function show(view){
   _view = (view==='detail'||view==='archive') ? view : (view==='login'?'login':'home');
   $('loading').style.display = (view==='loading')?'block':'none';
   $('loginView').style.display = (view==='login')?'block':'none';
-  $('homeView').style.display = (view==='home')?'block':'none';
+  $('homeView').style.display = (view==='home')?'':'none';   /* [ADM_WIDE] 보일 땐 시트가 정한다(데스크톱 grid) · 인라인 block 이 grid 를 덮던 자리 */
   $('detailView').style.display = (view==='detail')?'block':'none';
   $('archiveView').style.display = (view==='archive')?'block':'none';
 }
