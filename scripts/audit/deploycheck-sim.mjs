@@ -24,7 +24,10 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
 const AUT = path.join(ROOT, 'automation');
 
-const EXCLUDE = [/(^|\/)archive\//, /form-to-couple\.gs$/, /guest-letter.*\.gs$/, /가족청첩장빌드\.gs$/];
+/* ★[SIM_NOT_MINE] 99_projectCheck.gs 는 «별도 프로젝트» 셋에 붙이는 파일이라 본 프로젝트 소속이 아니다.
+   훑기에 섞으면 «안 붙였는데 안 잡힌다»가 뜨는데, 애초에 여기 붙일 파일이 아니다.
+   그 파일은 scripts/audit/projectcheck-sim.mjs 가 따로 점검한다(전 함수 하나씩 빼 보는 방식). */
+const EXCLUDE = [/(^|\/)archive\//, /form-to-couple\.gs$/, /guest-letter.*\.gs$/, /가족청첩장빌드\.gs$/, /99_projectCheck\.gs$/];
 const ORDER = ['platform/00', 'platform/10', 'platform/20', 'platform/30', 'platform/40', 'platform/50',
   'platform/60', 'platform/70', 'platform/80', 'platform/85', 'platform/86', 'platform/90', 'platform/95',
   'consultation/', 'admin/'];
@@ -63,7 +66,7 @@ function marksJson(staleList) {
 }
 
 function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefined,
-               dropTrigger = null, dropColumn = null, oldAdmin = false, staleList = null } = {}) {
+               dropTrigger = null, dropColumn = null, oldAdmin = false, bodyEdit = null, staleList = null, props = null } = {}) {
   const sb = makeSandbox();
   const lines = [];
   sb.Logger = { log: (m) => lines.push(String(m)) };
@@ -71,6 +74,8 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
      stamp: undefined = 기록 없음(아직 모름) · 'MATCH' = 저장본과 같게 · 그 밖 문자열 = 다르게 */
   const store = new Map();
   if (stamp !== undefined && stamp !== 'MATCH') store.set('DEPLOY_CODE_FINGERPRINT', stamp + '|2026-08-30T00:00:00Z');
+  /* [SIM_PROPS] ⑦ 은 «스위치가 켜졌는데 키가 비었나»를 본다 — 그 세계를 만들어 준다. */
+  if (props) for (const k of Object.keys(props)) store.set(k, props[k]);
   sb.PropertiesService = {
     getScriptProperties: () => ({
       getProperty: (k) => store.get(k) ?? null,
@@ -137,6 +142,9 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
         const at = HTML_AT[nm];
         if (!at) throw new Error('그런 HTML 파일이 없습니다: ' + nm);
         let raw = fs.readFileSync(path.join(ROOT, at), 'utf8');
+        /* [SIM_HTML_BODY] «표식은 그대로인데 본문만 바뀐» 판 — 다른 세션이 화면을 고치고
+           두 분이 아직 안 붙여넣은 그 모양이다. 표식 검사만으로는 안 잡힌다. */
+        if (bodyEdit === nm) raw = raw + '\n<!-- 다른 세션이 고친 자리 -->\n';
         if (oldAdmin === nm) {
           const m = (MARKS.html || []).find((h) => h.file === nm);
           if (m) raw = raw.replace('[' + m.marks[0] + ']', '[OLD_VERSION]');
@@ -364,12 +372,50 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   if (rc.bad <= base) ng('컬럼을 뺐는데 붉은 수가 안 늘었습니다');
 
   for (const h of (JSON.parse(marksJson()).html || [])) {
+    const rb = run({ bodyEdit: h.file });
+    const bOk = rb.miss.some((l) => l.includes(h.file) && l.includes('본문 길이'));
+    console.log(`   ${(h.file + ' 본문만 바뀜(표식 그대로)').padEnd(32)} 누락 ${rb.bad}건  ${bOk ? '잡힘' : '✗ 못 잡음'}`);
+    if (!bOk) ng(`${h.file} 본문이 옛 판인데 길이로 못 잡았습니다 — 표식만 보면 통과합니다`);
+    if (rb.bad <= base) ng(`${h.file} 본문을 바꿨는데 붉은 수가 안 늘었습니다`);
     const ra = run({ oldAdmin: h.file });
     const aOk = ra.miss.some((l) => l.includes(h.file));
     console.log(`   ${(h.file + '.html 이 옛 판').padEnd(32)} 누락 ${ra.bad}건  ${aOk ? '잡힘' : '✗ 못 잡음'}`);
     if (!aOk) ng(`${h.file}.html 이 옛 판인데 ①-C 가 못 잡았습니다`);
     if (ra.bad <= base) ng(`${h.file}.html 을 옛 판으로 바꿨는데 붉은 수가 안 늘었습니다`);
   }
+}
+
+/* ── 6-D ── ⑦ 설정값 — «스위치는 켰는데 키가 비었다»를 잡는가
+   ★이 자리가 「코드는 멀쩡한데 기능만 조용히 안 도는」 그 자리다. 오류가 안 나서 아무도 모른다.
+   ★반대 방향도 본다 — 안 쓰는 기능 때문에 붉어지면 사람이 이 절을 곧 안 읽게 된다. */
+{
+  console.log('\n── 6-D) 설정값(스크립트 속성)');
+  const base = run().bad;
+
+  const rOff = run({ props: {} });
+  console.log(`   스위치 전부 꺼짐(안 쓰는 기능)      누락 ${rOff.bad}건  ${rOff.bad === base ? '조용함(맞다)' : '✗ 안 쓰는데 붉어짐'}`);
+  if (rOff.bad !== base) ng('안 쓰는 기능인데 붉어집니다 — 고칠 수 없는 빨강이 됩니다');
+
+  const rOn = run({ props: { NOTIFY_ENABLED: 'true' } });
+  const need = ['SOLAPI_API_KEY', 'SOLAPI_API_SECRET', 'SOLAPI_SENDER', 'SOLAPI_KEY', 'SOLAPI_SECRET'];
+  const caught = need.filter((k) => rOn.miss.some((l) => l.includes(k)));
+  console.log(`   알림 켰는데 솔라피 키 없음          누락 ${rOn.bad}건  ${caught.length}/${need.length} 잡힘`);
+  if (caught.length !== need.length) ng(`알림을 켰는데 못 잡은 키: ${need.filter((k) => !caught.includes(k)).join(', ')}`);
+
+  const rPay = run({ props: { PAY_CARD_ENABLED: 'true' } });
+  const payOk = ['TOSS_SECRET_KEY', 'TOSS_CLIENT_KEY'].every((k) => rPay.miss.some((l) => l.includes(k)));
+  console.log(`   카드결제 켰는데 토스 키 없음        누락 ${rPay.bad}건  ${payOk ? '잡힘' : '✗ 못 잡음'}`);
+  if (!payOk) ng('카드결제를 켰는데 토스 키 누락을 못 잡았습니다');
+
+  const rFull = run({ props: { NOTIFY_ENABLED: 'true', SOLAPI_API_KEY: 'x', SOLAPI_API_SECRET: 'x',
+    SOLAPI_SENDER: 'x', SOLAPI_KEY: 'x', SOLAPI_SECRET: 'x' } });
+  console.log(`   알림 켜고 키도 다 넣음              누락 ${rFull.bad}건  ${rFull.bad === base ? '조용함(맞다)' : '✗ 다 넣었는데 붉어짐'}`);
+  if (rFull.bad !== base) ng('키를 다 넣었는데도 붉습니다');
+
+  /* 값이 로그로 새면 안 된다 — «있음/없음»만 봐야 한다 */
+  if (rFull.out.indexOf('SOLAPI_API_KEY = x') >= 0 || /SOLAPI_API_KEY[^\n]*'x'/.test(rFull.out))
+    ng('설정값이 로그에 찍힙니다 — 비밀이 샙니다');
+  console.log('   값이 로그에 안 찍히는가             예');
 }
 
 /* ── 6-C ── 나란히 일하는 세션 — 목록이 뒤처졌을 때 «조용히 적게 검사»하지 않는가
@@ -379,6 +425,16 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   console.log('\n── 6-C) 목록이 뒤처졌을 때 (다른 세션 파일이 아직 사이트에 없음)');
   const r = run({ staleList: '40_signup' });
   const said = /목록이 낡았습니다[\s\S]*40_signup/.test(r.out);
+  /* [SIM_REVERSE] 되짚기 — «GAS 에 있는데 목록에 없는» 함수를 이름으로 보여 주는가 */
+  const rev = /목록에 없는 함수 \d+개[^\n]*handleSignup/.test(r.out);
+  console.log(`   되짚기가 그 함수들을 짚는가=${rev}`);
+  if (!rev) ng('목록에 없는 함수를 되짚어 이름으로 보여 주지 않습니다');
+  const clean = run();
+  if (/목록에 없는 함수/.test(clean.out)) {
+    console.log('   ★온전한 상태인데 «목록에 없는 함수»가 떴습니다:');
+    (clean.out.match(/목록에 없는 함수[^\n]*/g)||[]).forEach(l=>console.log('     '+l));
+    ng('온전한데 되짚기가 헛것을 봅니다 — 걸러야 할 이름이 있습니다');
+  } else console.log('   온전할 때는 조용한가=true');
   console.log(`   40_signup 몫이 목록에 없음   말해 주는가=${said}`);
   if (!said) ng('목록이 뒤처졌는데 점검이 아무 말도 안 했습니다 — 조용히 덜 검사합니다');
   const quiet = run({ staleList: '40_signup', skip: [] });

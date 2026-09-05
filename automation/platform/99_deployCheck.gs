@@ -8,6 +8,7 @@
  *   ①파일이 다 있는가 — 파일마다 «그 파일에만 있는 함수» 하나로 존재를 확인
  *   ①-B 그 파일이 «끝까지» 붙었는가 — 최상위 함수 588개를 전수 대조(붙여넣다 잘린 뒷부분을 잡는다)
  *   ①-C 화면 파일 4벌(Admin·ScreenA·B·C)이 붙었는가 — 템플릿 본문을 읽어 표식으로 확인
+ *   ⑦설정값(스크립트 속성) — 스위치가 켜졌는데 키가 비어 있으면 «오류 없이» 그 기능만 안 돈다
  *   ②최근 변경이 실제로 올라갔는가 — 새 함수의 존재 + 함수 본문 안의 표식(toString)
  *   ★표식은 주석이라 «붙여넣다 잘렸는지»까지 잡는다. 이름만 맞고 내용이 옛것이면 여기서 걸린다.
  *
@@ -137,6 +138,47 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
           '  → 이 파일을 통째로 다시 붙여넣으세요');
       }
     }
+    /* ★[LIST_REVERSE 2026-09-05] 반대 방향 — «GAS 에는 있는데 목록에 없는» 함수.
+       목록이 부분만 뒤처지면(다른 세션 것이 아직 사이트에 안 올라감) 그 함수들은 붉어지지 않고
+       그냥 «안 세어진다». 그 판을 여기서 되짚는다.
+       ★판정(MISS)으로 만들지 않는다 — 제가 모르는 GAS 내장이 섞이면 «고칠 수 없는 빨강»이 되고,
+         그러면 사람이 이 절을 통째로 안 읽게 된다. 대신 이름을 보여 주고 판단을 넘긴다.
+       ★열거 자체가 안 되면 그렇다고 말한다 — 조용히 0개로 넘어가면 «봤다»는 착각을 준다. */
+    try {
+      var _all = Object.getOwnPropertyNames(globalThis);
+      if (_all.length < 50) {
+        L.push('  --   되짚기(목록에 없는 함수 찾기)는 이 환경에서 못 했습니다 — 안 본 것입니다');
+      } else {
+        var _known = {};
+        for (var kf in REMOTE.fns) for (var ki = 0; ki < REMOTE.fns[kf].length; ki++) _known[REMOTE.fns[kf][ki]] = 1;
+        if (REMOTE.vars) for (var kv in REMOTE.vars) for (var kj = 0; kj < REMOTE.vars[kv].length; kj++) _known[REMOTE.vars[kv][kj]] = 1;
+        var _std = ('Object Function Array Number Boolean String Symbol Date RegExp Error EvalError RangeError ReferenceError ' +
+          'SyntaxError TypeError URIError Math JSON Promise Map Set WeakMap WeakSet Proxy Reflect BigInt ArrayBuffer ' +
+          'SharedArrayBuffer DataView Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array ' +
+          'Float32Array Float64Array BigInt64Array BigUint64Array eval isNaN isFinite parseInt parseFloat decodeURI ' +
+          'decodeURIComponent encodeURI encodeURIComponent escape unescape globalThis undefined NaN Infinity ' +
+          'AggregateError FinalizationRegistry WeakRef Atomics Intl Iterator AsyncIterator console deployCheck projectCheck').split(' ');
+        for (var si = 0; si < _std.length; si++) _known[_std[si]] = 1;
+        var _extra = [];
+        for (var ai = 0; ai < _all.length; ai++) {
+          var _n = _all[ai];
+          if (_known[_n]) continue;
+          var _t = ''; try { _t = typeof globalThis[_n]; } catch (e) { continue; }
+          if (_t !== 'function') continue;          /* GAS 서비스는 object 라 안 걸린다 */
+          if (/^[A-Z][a-zA-Z]*(App|Service)$/.test(_n)) continue;   /* SpreadsheetApp·CacheService … */
+          if (_n.indexOf('__') === 0) continue;   /* 검사 도구가 심는 이름 — 이 저장소에는 __ 로 시작하는 함수가 없다 */
+          _extra.push(_n);
+        }
+        if (_extra.length) {
+          L.push('  ★★목록에 없는 함수 ' + _extra.length + '개: ' + _extra.slice(0, 10).join(', ') + (_extra.length > 10 ? ' …' : ''));
+          L.push('       목록이 뒤처졌을 수 있습니다(다른 작업이 아직 사이트에 안 올라감) — 그 함수들은 이번에 확인 못 했습니다.');
+          L.push('       ※ 제가 모르는 GAS 내장일 수도 있습니다. 이름을 알려 주시면 다음 판에서 걸러 두겠습니다.');
+        }
+      }
+    } catch (e) {
+      L.push('  --   되짚기를 못 했습니다: ' + ((e && e.message) || e) + ' — 안 본 것입니다');
+    }
+
     if (fnMiss === 0 && varMiss === 0)
       chk('함수 ' + fnTotal + '개 · 표 ' + varTotal + '개 전부 있음 (붙여넣다 잘린 파일 없음)', true);
     else if (fnMiss === 0)
@@ -160,8 +202,19 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
         var _hlack = _hm.marks.filter(function (m) { return _raw.indexOf('[' + m + ']') < 0; });
         chk(_hm.file + '.html  (표식 ' + _hm.marks.length + '개)', _hlack.length === 0,
           '없는 것: ' + _hlack.join(', ') + ' → 이 화면 파일을 다시 붙여넣으세요');
-        L.push('  --   ' + _hm.file + ' 본문 ' + _raw.length + '자' +
-          (_raw.length === _hm.bytes ? ' — 저장소와 같습니다' : ' · 저장소는 ' + _hm.bytes + '자 (참고 · 줄바꿈 차이로도 달라집니다)'));
+        /* ★[HTML_LEN 2026-09-05 사용자 질문 "다른 채팅방에서 파일수정하면 … 빈틈없이?"]
+           길이를 «참고»로만 두었더니 구멍이 하나 남았다 — 다른 세션이 화면 본문을 고치고
+           표식은 그대로 두면(대개 그렇다) 표식 검사는 통과하고, 길이 차이는 세어지지 않아
+           「누락 0건」이 나온다. .gs 는 FILE_COVER 가 «마지막 커밋의 표식»을 요구해 막지만
+           HTML 에는 그 규율이 없다. 그래서 길이를 판정으로 올린다.
+           ★근거: 실기 4벌 전부 저장소와 «글자 수까지» 일치했다(2026-09-05 12:21) —
+             GAS 가 본문을 그대로 보관한다는 실측이다. 붙여넣기가 온전하면 길이는 어긋나지 않는다.
+           ★어긋나도 할 일은 하나다 — 그 파일을 다시 붙여넣는 것. 고칠 수 없는 빨강이 아니다.
+           ★목록의 bytes 는 저장소가 바뀌면 게이트(gen-deploy-fns --check)가 갱신을 강제하므로
+             늘 main 을 따라간다(반증으로 확인). */
+        chk(_hm.file + '.html 본문 길이 ' + _hm.bytes + '자', _raw.length === _hm.bytes,
+          '지금 ' + _raw.length + '자 — ' + (_raw.length < _hm.bytes ? (_hm.bytes - _raw.length) + '자 모자랍니다' : (_raw.length - _hm.bytes) + '자 많습니다') +
+          ' → 이 화면 파일을 다시 붙여넣으세요 (표식은 있으니 «옛 판»입니다)');
       } catch (e) {
         chk(_hm.file + '.html', false, '못 읽었습니다: ' + ((e && e.message) || e) + ' → 그 이름의 HTML 파일이 없습니다');
       }
@@ -262,13 +315,49 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
   } catch (e) { L.push('  --   트리거 확인 불가(권한 승인 전일 수 있습니다): ' + ((e && e.message) || e)); }
 
   L.push('');
+  L.push('══ ⑦ 설정값(스크립트 속성)이 들어 있는가 ══');
+  /* ★[PROPS_CHECK 2026-09-05 사용자 "완성도높게 테스트하면 전부 체크할수있게"]
+     여기가 「코드는 멀쩡한데 기능만 조용히 안 도는」 자리다 — 키가 비면 문자도 카드결제도
+     «오류 없이» 그냥 안 나간다. 종전엔 통째로 점검 밖이라 「누락 0건」과 무관했다.
+     ★값은 절대 찍지 않는다 — «있음/없음»만 본다(비밀이 실행 로그로 새지 않게).
+     ★«필수»는 스위치가 켜졌을 때만이다. 안 쓰는 기능 때문에 붉어지면 사람이 이 절을 안 읽게 된다. */
+  try {
+    if (!REMOTE || !REMOTE.props) {
+      L.push('  --   목록을 못 읽어 건너뜁니다 (통과가 아닙니다)');
+    } else {
+      var _pp = PropertiesService.getScriptProperties();
+      var _has = function (k) { var v = _pp.getProperty(k); return v !== null && String(v).trim() !== ''; };
+      var _on = {}, _emptyOpt = [], _emptyTune = [];
+      for (var pi = 0; pi < REMOTE.props.length; pi++) {
+        var _p = REMOTE.props[pi];
+        if (_p.kind === 'switch') {
+          var _v = String(_pp.getProperty(_p.key) || '').trim();
+          _on[_p.key] = _v;
+          L.push('  --   ' + _p.key + ' = ' + (_v === '' ? '(비어 있음)' : _v) + '   ' + _p.a);
+        } else if (_p.kind === 'tuning' && !_has(_p.key)) _emptyTune.push(_p.key);
+        else if (_p.kind === 'option' && !_has(_p.key)) _emptyOpt.push(_p.key);
+      }
+      for (var pj = 0; pj < REMOTE.props.length; pj++) {
+        var _q = REMOTE.props[pj];
+        if (_q.kind !== 'needs') continue;
+        var _sw = String(_on[_q.a] || '').trim();
+        var _live = (_q.a === 'NOTIFY_ENABLED' || _q.a === 'PAY_CARD_ENABLED') ? (_sw === 'true') : (_sw !== '');
+        if (!_live) { L.push('  --   ' + _q.key + '  (' + _q.a + ' 가 꺼져 있어 지금은 필요 없음)'); continue; }
+        chk(_q.key + '  — ' + _q.b, _has(_q.key),
+          '비어 있습니다 → ' + _q.a + ' 를 켜 두었으므로 이 값이 없으면 그 기능이 «오류 없이» 안 돕니다');
+      }
+      if (_emptyTune.length) L.push('  --   기본값으로 도는 것 ' + _emptyTune.length + '개: ' + _emptyTune.join(', ') + ' (비어 있어도 정상)');
+      if (_emptyOpt.length) L.push('  --   비어 있는 곁가지 ' + _emptyOpt.length + '개: ' + _emptyOpt.join(', ') + ' (그 곁가지만 조용해집니다)');
+    }
+  } catch (e) { L.push('  --   설정값 확인 불가: ' + ((e && e.message) || e) + ' (통과가 아닙니다)'); }
+
+  L.push('');
   L.push(badN === 0
     ? '결과 — 누락 0건. 파일이 전부(안쪽까지) 있고, 최근 변경도 올라갔고, 배포·시트·예약 실행까지 준비됐습니다. (확인 ' + okN + '항목)'
-    : '결과 — ★누락 ' + badN + '건. 각 MISS 줄의 «→» 가 할 일을 말합니다 (①~③ 은 그 파일을 다시 붙여넣고 «새 버전» 배포 · ④ 는 배포만 · ⑤⑥ 은 함수 실행). (확인 ' + okN + '항목)');
-  L.push('※ ①~③ 은 «저장된 코드» 기준 · ④ 는 배포본 지문과 대조해 «재배포했는지» · ⑤⑥ 은 시트·트리거라 배포와 무관하게 사람이 한 번 돌려야 하는 것.');
-  L.push('※ 이 점검 밖 — 초록이어도 이 셋은 안 본 것이다:');
+    : '결과 — ★누락 ' + badN + '건. 각 MISS 줄의 «→» 가 할 일을 말합니다 (①~③ 은 그 파일을 다시 붙여넣고 «새 버전» 배포 · ④ 는 배포만 · ⑤⑥ 은 함수 실행 · ⑦ 은 스크립트 속성에 값 넣기). (확인 ' + okN + '항목)');
+  L.push('※ ①~③ 은 «저장된 코드» 기준 · ④ 는 배포본 지문과 대조해 «재배포했는지» · ⑤⑥⑦ 은 시트·트리거·설정이라 배포와 무관하게 사람이 한 번 넣어 두는 것.');
+  L.push('※ 이 점검 밖 — 초록이어도 이 둘은 안 본 것이다:');
   L.push('   · 별도 GAS 프로젝트(form-to-couple 부부폼 · guest-letter-webhook · 가족청첩장빌드) — 각각 따로 배포한다.');
-  L.push('   · 스크립트 속성 값(솔라피·카카오·토스 키, 각종 시크릿) — 비어 있어도 코드는 멀쩡해 보이고 기능만 조용히 안 돈다.');
   L.push('   · consultation-booking 의 const 5개(CONFIG·SYS·HEADERS·ST·LOCKED_STATES) — 그 파일은 함수 130개로 덮인다.');
   var out = L.join('\n');
   Logger.log(out);
