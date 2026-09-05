@@ -5547,6 +5547,16 @@ chk 'NAV_SEQ' scripts/audit/nav-race.mjs 1             # 재현 시뮬(브라우
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
 chk 'SAFE_HREF' admin.html 6
 chk 'SAFE_HREF' scripts/audit/admin-inject.mjs 1        # 재현 시뮬(브라우저) — node scripts/audit/admin-inject.mjs · 실패 0
+# ★[ALERT_SEND_ONCE 2026-09-05 점검] EDU_ADD_ONCE 와 같은 결함이 «실제로 보내는» 버튼 둘에도 있었다
+#   (aicAlert·aitAlert → aiAlertAdmin). 연타하면 관리자에게 같은 알림이 두 번 간다. 같은 처방으로 잠근다.
+#   ★되돌리기(aiFactRollback)는 «비멱등»이라 더 위험했다 — 되돌림 자체가 새 이력이 되어
+#     두 번 부르면 hist[0].prev 가 방금 값이라 원래대로 되돌아온다(그 값이 고객 답변에 쓰인다).
+chk 'ALERT_SEND_ONCE' admin.html 2
+chk 'ROLLBACK_ONCE' admin.html 1
+# ★[ADMIN_MAIL_WORDING] 관리자 알림은 메일 전용(CLAUDE.md 2026-06-29 · aiAlertAdmin → _nfAdminLineEmail 실측).
+#   화면이 「문자」라고 말하면, 안 왔을 때 관리자가 엉뚱한 곳(문자 설정)을 뒤진다.
+grep -q '관리자에게 문자를 보냈어요' admin.html \
+  && { echo 'FAIL ADMIN_MAIL_WORDING: admin.html 이 관리자 알림을 「문자」라고 말한다 — 실제는 메일이다'; fail=1; }
 chk 'column-count' admin.html 0
 # [SUM_GATE] 시퀀스 카드 대표값 합=140 · '합은 N분' 산문=55 — drift 게이트가 일부러 안 보던 자리에서 실제로 새던 둘.
 chk 'SUM_GATE' scripts/check-source-drift.mjs 1
