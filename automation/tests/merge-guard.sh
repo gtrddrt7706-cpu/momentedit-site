@@ -5423,6 +5423,12 @@ chk 'FIT_EXTRA_N2' contract/fitting.html 1
 chk 'CAL_320_FIT' i/invitations/invitation-08-noir.html 1
 # [PRICE_DERIVED] 구가 파생 금액(18만/14만/11만) 스캔 — mypage 미리보기·_kb "14만원 인용"·sim 정답 잠금 3중 실사고의 그물.
 chk 'PRICE_DERIVED' scripts/check-price-sync.mjs 2
+# ★★[AI_PRICE_LOCK 2026-09-05] AI «정답 잠금»은 맨숫자(/280/ · ['280'])로 적혀 총액 스캔이 못 봤다.
+#   게이트 목적문은 「AI 상담사가 옛 가격을 답한다」를 막겠다고 적어 놓고 정작 이걸 놓쳤다.
+#   구가를 정답으로 잠그면 «회귀했을 때 초록»이 된다 — 검사가 거꾸로 서는 자리라 총액보다 위험하다. 실측 3곳.
+chk 'AI_PRICE_LOCK' scripts/check-price-sync.mjs 1
+chk 'AI_PRICE_LOCK' admin.html 1
+chk 'AI_PRICE_LOCK' scripts/ai-live-sim-ci.js 2
 # [SUM_GATE] 시퀀스 카드 대표값 합=140 · '합은 N분' 산문=55 — drift 게이트가 일부러 안 보던 자리에서 실제로 새던 둘.
 chk 'SUM_GATE' scripts/check-source-drift.mjs 1
 
