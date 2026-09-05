@@ -111,6 +111,16 @@ export function openWorld() {
 }
 
 // 'yyyy-MM-dd HH:mm'(KST) — hoursAgo 시간 전
+/* ★[KST_AHEAD 2026-09-05 점검] 미래 날짜(yyyy-mm-dd, KST). 시뮬레이터가 상담·예식 날짜를 «고정»으로 박으면
+   시간이 흘러 그 날짜가 과거가 되고, 서버의 PAST_SLOT_REJECT 가 «정상적으로» 거절해 여정이 막힌다
+   (2026-09-05 실측: '2026-09-01' 이 과거가 되어 rollback-fuzz·roundtrip 이 통째로 붉었다).
+   지금 기준으로 계산하면 다시 썩지 않는다. */
+export const kstAhead = (days) => {
+  const d = new Date(Date.now() + days * 86400e3 + 9 * 3600e3);
+  const z = (n) => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}`;
+};
+
 export const kstAgo = (hoursAgo) => {
   const d = new Date(Date.now() - hoursAgo * 3600e3 + 9 * 3600e3);
   const z = (n) => String(n).padStart(2, '0');

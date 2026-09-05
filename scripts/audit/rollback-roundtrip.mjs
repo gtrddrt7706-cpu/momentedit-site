@@ -16,7 +16,10 @@
 
    사용: node scripts/audit/rollback-roundtrip.mjs
 */
-import { openWorld, kstAgo } from './_gasworld.mjs';
+import { openWorld, kstAgo, kstAhead } from './_gasworld.mjs';
+
+/* [KST_AHEAD] 날짜를 지금 기준 미래로 — 고정 리터럴이 과거가 되어 서버가 거절하던 것을 막는다(모듈 전역) */
+const CONSULT_YMD = kstAhead(45), WEDDING_YMD = kstAhead(150);
 
 const { G, world } = openWorld();
 const REAL = G.setCustomerStage;
@@ -30,7 +33,7 @@ function fresh(prod) {
   C = { 개인코드: CODE, 신랑이름: '희준', 신부이름: '미쿠', 연락처: '010-0000-0000', 이메일: 't@e.com',
     상품타입: prod, 현재단계: '신청접수', 계약총액: (prod === '웨딩스냅' ? 1200000 : 2500000),
     동의기록: '{}', 처리이력: '' };
-  B = { 개인코드: CODE, 상태: '시간선택완료', 선택날짜: '2026-09-01', 선택시간: '14:50',
+  B = { 개인코드: CODE, 상태: '시간선택완료', 선택날짜: CONSULT_YMD, 선택시간: '14:50',
     신랑이름: '희준', 신부이름: '미쿠', 이메일: 't@e.com', 토큰: 'tk' };
 }
 function act(fn) {
@@ -54,7 +57,7 @@ function walkToEnd(prod, log) {
   const steps = [
     /* ★강제변경으로 신청접수까지 내리면 예약행도 초기화된다(_resetConsultBooking) — 고객이 시간을 다시 고른다.
        이 걸음을 빼면 «예약 승인»이 «승인할 수 있는 상태가 아닙니다»로 막혀, 제품 버그가 아닌 것이 붉어진다. */
-    ['고객 일정 선택', (g) => g.handleSubmitSchedule({ token: 'tk', dateKey: '2026-09-01', time: '14:50' })],
+    ['고객 일정 선택', (g) => g.handleSubmitSchedule({ token: 'tk', dateKey: CONSULT_YMD, time: '14:50' })],
     ['예약 승인', (g) => g.adminApprove(CODE)],
     ...(isSnap ? [] : [
       ['시착 동의 보내기', (g) => g.adminOpenFittingConsent(CODE)],
@@ -65,7 +68,7 @@ function walkToEnd(prod, log) {
     /* ★계약서 발송은 «고객이 계약정보를 넣은 뒤»에만 된다(admin.gs 1342) — 시그니처 한정.
        되돌리면 동의기록.계약정보도 지워지므로 이 걸음이 매번 다시 필요하다. */
     ...(isSnap ? [] : [['고객 계약정보 입력', (g) => g.handleRequestContract({ token: 'tk', info: {
-      weddingDate: '2026-12-20', weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02',
+      weddingDate: WEDDING_YMD, weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02',
       groomAddr: '서울시 어딘가 1', brideAddr: '서울시 어딘가 2', consent: true } })]]),
     /* [SEND_TIME_REQ] 시그니처는 예식 시간 없이 발송할 수 없다 — 시간만 더한다.
        ★총액·예식일은 종전대로 넘기지 않는다: 아래 «총액 없이는 못 나간다»(CONTRACT_AMOUNT_REQ)
@@ -180,7 +183,7 @@ console.log('\n═══ 시그니처 — 되돌린 자리에서 계약서 발�
   walkToEnd('시그니처', false);
   ok(String(C.계약상태 || '') !== '서명완료', '★총액 없이는 계약서가 안 나가 서명까지 못 간다', C.계약상태 || '(빔)');
   ok(String(C.입금상태 || '') !== '확인', '★따라서 «총액 없는 입금 확인»도 생기지 않는다', C.입금상태 || '(빔)');
-  const amt = act((g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, '2026-12-20', '12:20'));
+  const amt = act((g) => g.adminSendContract(CODE, 'https://momentedit.kr/contract/v1-1.html', 2500000, WEDDING_YMD, '12:20'));
   ok(!!(amt.r && amt.r.ok), '총액을 넣으면 그대로 지나간다(막다른 길이 아니다)', JSON.stringify(amt.r).slice(0, 90));
 }
 
@@ -192,7 +195,7 @@ console.log('\n═══ 시그니처 — 되돌린 자리에서 계약서 발�
 console.log('\n═══ 되돌리면 공개 링크도 닫히는가 ═══');
 for (const paid of [true, false]) {
   fresh('시그니처');
-  C.현재단계 = '제작중'; C.계약상태 = '서명완료'; C.예식일 = '2026-12-20';
+  C.현재단계 = '제작중'; C.계약상태 = '서명완료'; C.예식일 = WEDDING_YMD;
   C.입금상태 = paid ? '확인' : '';
   C.안내공유토큰 = 'guidetoken123456'; C.좌석공유토큰 = 'seattoken1234567';
   const open0 = act((g) => g.handleGuideView({ g: 'guidetoken123456' }));
