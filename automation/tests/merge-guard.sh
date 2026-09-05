@@ -5466,6 +5466,15 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/deploycheck-sim.mjs 
 chk 'DEPLOY_CHECK_SIM' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
 
+# ★[STAMP_MISS_WORDING 2026-09-05 사용자 "배포했는데 최신본맞는지 직접확인해볼래?"]
+#   ④ 의 실패 줄이 OK 쪽 라벨을 재사용해 「MISS 배포본이 지금 저장된 코드와 같다」로 찍혔다 —
+#   재배포가 먹었는지 보는 «바로 그 순간»에 정반대를 말하던 줄이다.
+#   ★sim 5번이 그 잘못된 문구를 «정답»으로 고정하고 있었다(게이트가 모순을 지켜 준 자리) — 둘 다 고쳤다.
+#   되돌리면 sim 5번이 종료코드 1 로 붉어진다(돌연변이로 확인).
+chk 'STAMP_MISS_WORDING' automation/platform/99_deployCheck.gs 1
+chk 'STAMP_MISS_WORDING' scripts/audit/deploycheck-sim.mjs 2
+chk '저장된 코드와 «다르다»' automation/platform/99_deployCheck.gs 1
+
 # ── 2026-08-30 라운드 3(병렬 심층 점검) ──
 # [SNAP_WITHDRAW_GUARD] 스냅 청약철회는 촬영 개시 «전»에만(계약서 §7③) — dd>=1 가드를 빼면
 #   촬영이 끝난 뒤에도 전액 환급이 나온다(실측으로 잡은 구멍).
@@ -5587,6 +5596,10 @@ chk 'SECTION_GAP' scripts/audit/deploycheck-sim.mjs 1
 #     STAGE_REVIEW_DOOR·OLD_SIGNER_TERMS).
 #   ★표식 이름만 보는 방식으로 되돌리지 말 것 — 되돌리면 이 구멍이 그대로 돌아온다.
 chk 'COVER_PAIR' scripts/audit/deploycheck-coverage.mjs 1
+# ★[COVER_COMMENT_ONLY 2026-09-05] 표식은 주석에 산다 — setValues([ADMIN_HEADERS]) 같은 배열
+#   리터럴을 표식으로 세어 30일 창이 영구히 붉었다(붉은 채 사는 게이트 = 무시되는 게이트).
+#   ★COVER_SCOPE 가 말하는 «좁힘»과 다른 것이다 — 그건 의도된 범위, 이건 오탐이었다.
+chk 'COVER_COMMENT_ONLY' scripts/audit/deploycheck-coverage.mjs 1
 chk 'COVER_PAIR' scripts/audit/deploycheck-sim.mjs 1
 chk 'listedPairs' scripts/audit/deploycheck-coverage.mjs 2
 # ★★[DEMO_BADGE_PLACE 2026-08-30 사용자 지적 «라이브 페이지도 개선해 줘»] 표본 경고를 두 자리로 나눈다.
