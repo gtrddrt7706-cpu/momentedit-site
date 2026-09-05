@@ -82,7 +82,14 @@ for (const line of log.split('\n')) {
   const body = line.slice(1);
   if (/^\s*function\s+[A-Za-z_]/.test(body)) nearFn = 6;   // 선언 줄과 바로 아래 몇 줄까지가 «그 함수의 표식»
   if (nearFn > 0) {
-    for (const m of body.matchAll(/\[([A-Z][A-Z0-9_]{5,})\]/g)) {
+    /* ★[COVER_COMMENT_ONLY 2026-09-05] 표식은 «주석»에 산다. 종전엔 줄 전체를 훑어
+       setValues([ADMIN_HEADERS]) 같은 **배열 리터럴**을 표식으로 셌다 —
+       ADMIN_HEADERS·HEADERS·AIH_HEADERS 셋이 그렇게 잡혀 30일 창이 영구히 붉었다.
+       붉은 채로 사는 게이트는 곧 «무시하는 게이트»가 된다(merge-guard 는 7일 창이라 초록이었다).
+       그래서 첫 주석 기호(// /* 줄머리 * ★) 뒤만 훑는다. 되돌리지 말 것. */
+    const _cm = body.match(/(?:\/\/|\/\*|^\s*\*|★).*$/);
+    const _scan = _cm ? _cm[0] : "";
+    for (const m of _scan.matchAll(/\[([A-Z][A-Z0-9_]{5,})\]/g)) {
       const k = m[1];
       if (SKIP.has(k) || found.has(k)) continue;
       found.set(k, body.trim().slice(0, 78));

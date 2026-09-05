@@ -412,6 +412,18 @@
       "fn": "auditDineDb",
       "mark": "PAIRTEST_0830",
       "why": "두 파일에 같은 표식 — 한쪽만 붙여도 나머지가 잡히는지 실기 확인"
+    },
+    {
+      "file": "00_platform-config",
+      "fn": "nextActionFor",
+      "mark": "NOW_ONELINE",
+      "why": "NOW 헤드라인 첫 문장 규약 — mypage 가 마침표에서 자른다"
+    },
+    {
+      "file": "80_production",
+      "fn": "_seatFindSlim",
+      "mark": "SEAT_DRINK_SRV",
+      "why": "좌석 «내 자리만» 모드에서 음료를 버리면 본인 것도 못 찾는다"
     }
   ]
 }

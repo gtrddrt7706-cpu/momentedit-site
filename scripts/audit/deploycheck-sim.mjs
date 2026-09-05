@@ -216,16 +216,22 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
 
   const sNo = /아직 모름/.test(noRec.out);
   const sOk = /OK   배포본이 지금 저장된 코드와 같다/.test(same.out);
-  const sNg = same.bad === diff.bad - 1 && /MISS 배포본이 지금 저장된 코드와 같다/.test(diff.out);
+  const sNg = same.bad === diff.bad - 1 && /MISS 배포본이 지금 저장된 코드와 «다르다»/.test(diff.out);
+  /* ★[STAMP_MISS_WORDING 2026-09-05] 실패 줄이 «같다»고 말하면 안 된다.
+     종전 이 검사는 「MISS … 같다」를 **정답으로 고정**하고 있었다 — 게이트가 모순을 지켜 준 자리다.
+     이제 문구까지 본다: MISS 줄에 «같다»가 남아 있으면 붉어진다. */
+  const sWord = !/MISS 배포본이 지금 저장된 코드와 같다/.test(diff.out);
   console.log(`   기록 없음 → «아직 모름»=${sNo}`);
   console.log(`   배포본=저장본 → OK=${sOk}`);
   console.log(`   배포본≠저장본 → MISS=${/MISS 배포본이/.test(diff.out)} (누락 ${same.bad}건 → ${diff.bad}건)`);
+  console.log(`   그 MISS 줄이 «다르다»고 말하는가 = ${sWord && sNg}`);
 
   if (!sNo) ng('배포 기록이 없는데 «아직 모름»이라고 말하지 않습니다 — 실패로 세면 누락 0건이 영영 안 나옵니다');
   if (noRec.bad !== 0) ng('배포 기록이 없다고 실패로 셌습니다');
   if (!sOk) ng('배포본이 저장본과 같은데 OK 가 안 나옵니다');
   if (same.bad !== 0) ng('배포본이 최신인데 누락이 잡혔습니다');
   if (!sNg) ng('배포본이 옛것인데 MISS 로 안 잡힙니다 — 재배포 안 한 것을 못 알려 줍니다');
+  if (!sWord) ng('실패 줄이 «배포본이 저장된 코드와 같다»고 말합니다 — 실패인데 성공 문장입니다(STAMP_MISS_WORDING)');
 
   /* 지문이 «코드가 바뀌면 저절로 달라지는가» — 손으로 버전을 올리지 않아도 되는 근거 */
   const fingerprint = () => {
