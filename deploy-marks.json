@@ -1,447 +1,1073 @@
 {
-  "_설명": "GAS 붙여넣기 누락 점검 목록 — 99_deployCheck.gs 가 실행할 때 여기서 읽어 간다.",
-  "_왜": "목록을 .gs 안에 두면 새 변경마다 그 파일을 다시 붙여넣어야 했다. 여기에 두면 main 병합 → Vercel 자동 배포로 목록이 늘 최신이라, 99_deployCheck.gs 는 한 번만 붙여넣으면 된다.",
-  "_주의": "표식은 반드시 그 «함수 본문 안»에 있어야 한다. 닫는 중괄호 뒤 꼬리 주석은 String(함수)에 안 잡혀 영영 MISS 가 된다. 넣기 전에 node scripts/audit/deploycheck-sim.mjs 로 기준선이 0 인지 확인할 것.",
-  "files": [
-    {
-      "file": "00_platform-config",
-      "fn": "stageFlowFor"
-    },
-    {
-      "file": "10_customers-setup",
-      "fn": "setupCustomers"
-    },
-    {
-      "file": "20_customers-data",
-      "fn": "findCustomerByCode"
-    },
-    {
-      "file": "30_auth-core",
-      "fn": "resolveSession"
-    },
-    {
-      "file": "40_signup",
-      "fn": "handleSignup"
-    },
-    {
-      "file": "50_auth-handlers",
-      "fn": "handleLogin"
-    },
-    {
-      "file": "60_mypage",
-      "fn": "handleGetMyState"
-    },
-    {
-      "file": "70_journey",
-      "fn": "buildRefundQuote"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSaveProductionTrack"
-    },
-    {
-      "file": "85_invitation",
-      "fn": "handleSaveInvitationDraft"
-    },
-    {
-      "file": "88_place_audit",
-      "fn": "auditDineDb"
-    },
-    {
-      "file": "90_test-utils",
-      "fn": "platformSelfTest"
-    },
-    {
-      "file": "95_notify",
-      "fn": "notifySetupCheck"
-    },
-    {
-      "file": "96_ai_cost",
-      "fn": "aiMorningReport"
-    },
-    {
-      "file": "97_ai-handoff",
-      "fn": "aiHandoffStatus"
-    },
-    {
-      "file": "98_pay_card",
-      "fn": "ZZ_tossPing"
-    },
-    {
-      "file": "consultation-booking",
-      "fn": "doPost"
-    },
-    {
-      "file": "admin",
-      "fn": "adminHome"
-    }
+ "_설명": "GAS 붙여넣기 누락 점검 목록 — 99_deployCheck.gs 가 실행할 때 여기서 읽어 간다.",
+ "_왜": "목록을 .gs 안에 두면 새 변경마다 그 파일을 다시 붙여넣어야 했다. 여기에 두면 main 병합 → Vercel 자동 배포로 목록이 늘 최신이라, 99_deployCheck.gs 는 한 번만 붙여넣으면 된다.",
+ "_주의": "표식은 반드시 그 «함수 본문 안»에 있어야 한다. 닫는 중괄호 뒤 꼬리 주석은 String(함수)에 안 잡혀 영영 MISS 가 된다. 넣기 전에 node scripts/audit/deploycheck-sim.mjs 로 기준선이 0 인지 확인할 것.",
+ "files": [
+  {
+   "file": "00_platform-config",
+   "fn": "stageFlowFor"
+  },
+  {
+   "file": "10_customers-setup",
+   "fn": "setupCustomers"
+  },
+  {
+   "file": "20_customers-data",
+   "fn": "findCustomerByCode"
+  },
+  {
+   "file": "30_auth-core",
+   "fn": "resolveSession"
+  },
+  {
+   "file": "40_signup",
+   "fn": "handleSignup"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleLogin"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "handleGetMyState"
+  },
+  {
+   "file": "70_journey",
+   "fn": "buildRefundQuote"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "handleSaveInvitationDraft"
+  },
+  {
+   "file": "88_place_audit",
+   "fn": "auditDineDb"
+  },
+  {
+   "file": "90_test-utils",
+   "fn": "platformSelfTest"
+  },
+  {
+   "file": "95_notify",
+   "fn": "notifySetupCheck"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiMorningReport"
+  },
+  {
+   "file": "97_ai-handoff",
+   "fn": "aiHandoffStatus"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "ZZ_tossPing"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome"
+  }
+ ],
+ "newfn": [
+  {
+   "file": "admin",
+   "fn": "_rbConfirmedSlot",
+   "why": "되돌림 슬롯 잠금"
+  },
+  {
+   "file": "admin",
+   "fn": "_rbSlotPlan",
+   "why": "되돌림 슬롯 판정"
+  },
+  {
+   "file": "admin",
+   "fn": "_rbCalRetitle",
+   "why": "캘린더 제목 변경"
+  },
+  {
+   "file": "admin",
+   "fn": "_ymdDot",
+   "why": "날짜 표기 통일"
+  },
+  {
+   "file": "admin",
+   "fn": "_rbPaidAny",
+   "why": "수납 보존 판정"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "buildRollbackNotice",
+   "why": "되돌림 고객 안내"
+  },
+  {
+   "file": "80_production",
+   "fn": "_guideCloseInfo",
+   "why": "안내 닫는 이유 구분"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiDraftAnswer",
+   "why": "AI 원클릭 교육"
+  }
+ ],
+ "marks": [
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "CPN_QUEUE",
+   "why": "커피쿠폰 발급 큐"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "SLOT_HOLD_EXPIRY_Q",
+   "why": "잡아 둔 자리 만료 큐"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "REVISION_QUEUE",
+   "why": "수정요청 처리 큐"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSendContract",
+   "mark": "CONTRACT_AMOUNT_REQ",
+   "why": "총액 없는 계약서 차단"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSendContract",
+   "mark": "SEND_HOLD_SYNC",
+   "why": "발송·홀드 동기화"
+  },
+  {
+   "file": "admin",
+   "fn": "adminGrantWeddingHold",
+   "mark": "HOLD_LOCK",
+   "why": "가예약 승인 락"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSendContract",
+   "mark": "CONTRACT_NOTIFY_THROTTLE",
+   "why": "계약서 도착 알림 중복 방지"
+  },
+  {
+   "file": "admin",
+   "fn": "adminIssueCoupon",
+   "mark": "COUPON_NOTIFY_ONCE",
+   "why": "쿠폰 발급 알림 1회"
+  },
+  {
+   "file": "admin",
+   "fn": "_clearForwardData",
+   "mark": "FITTING_SPLIT",
+   "why": "시착 갇힘 수정"
+  },
+  {
+   "file": "admin",
+   "fn": "_clearForwardData",
+   "mark": "GUIDE_TOKEN_CLEAR",
+   "why": "되돌리면 공개 링크 닫기"
+  },
+  {
+   "file": "admin",
+   "fn": "adminForceStage",
+   "mark": "ROLLBACK_SLOT",
+   "why": "되돌려도 예식 자리 잠금"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_kakaoSend",
+   "mark": "ADMIN_MAIL_UNCHAINED",
+   "why": "관리자 알림 살리기"
+  },
+  {
+   "file": "95_notify",
+   "fn": "flushHeldNotifies",
+   "mark": "HOLD_NO_LOSS",
+   "why": "보류 알림 무손실"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "handleGetMyState",
+   "mark": "NOW_CONTRACT_EXPIRED",
+   "why": "기한 지난 계약 안내"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "CHANGE_RATCHET",
+   "why": "위약금 회피 차단(99만원)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_journeyAmounts",
+   "mark": "SNAP_BALANCE_D7",
+   "why": "스냅 잔금 촬영 D-7 분리"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "SNAP_PENALTY_TABLE",
+   "why": "스냅 위약표 §9② 견적"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "SNAP_WITHDRAW_GUARD",
+   "why": "스냅 철회는 촬영 개시 전에만(옛 판은 촬영 끝난 뒤에도 전액 환급)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "FIT_DEDUCT_FLOOR",
+   "why": "시착 공제 음수 방지(옛 판은 받은 돈보다 더 환불)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_payLock",
+   "mark": "PAY_LOCK_REENTRANT",
+   "why": "돈 확인 재진입 안전 락(관리자 동시 클릭 직렬화)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleSignContract",
+   "mark": "SIGN_SLOT_REQUIRED",
+   "why": "예식시간 없인 서명 불가"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleSignContract",
+   "mark": "SIGN_BOUNCE_ALERT",
+   "why": "서명 튕김 알림"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "setCustomerStage",
+   "mark": "STAGE_REVIEW_DOOR",
+   "why": "후기 단계로 올리는 문"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actAccept",
+   "mark": "ACCEPT_GUARDED",
+   "why": "변경제안 수락 가드"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "PAST_SLOT_REJECT",
+   "why": "지난 날짜·시간 거절"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSubmitSurvey",
+   "mark": "STAGE_REVIEW_DOOR",
+   "why": "후기 제출이 단계를 올림"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSubmitSurvey",
+   "mark": "SURVEY_ONCE",
+   "why": "설문 재제출 멱등"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSubmitResultSelection",
+   "mark": "PICK_MAX_MANUAL",
+   "why": "수동 컷 400 상한"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRequestExtraRetouch",
+   "mark": "XR_SIGNAL_KEEP",
+   "why": "입금신호 증발 방지"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleExtraRetouchSignal",
+   "mark": "XR_STAGE_GUARD",
+   "why": "유령 입금신호 차단"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "CF_CORE_TRUTH",
+   "why": "빈 인원·손상 컬럼이면 확정 거부"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "CF_ONCE",
+   "why": "두 번째 확정은 멱등(기록·메일 1회)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "CF_LOG",
+   "why": "확정을 처리이력·메일에 남김"
+  },
+  {
+   "file": "70_journey",
+   "fn": "adminConfirmWeddingChange",
+   "mark": "CF_VOID_WEDDAY",
+   "why": "예식일이 바뀌면 확정 해제"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSendContract",
+   "mark": "SEND_TIME_REQ",
+   "why": "예식 시간 없는 계약서 발송 차단"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "EXIT_QUOTE_TS",
+   "why": "환불 큐 기준일=취소일시(금액이 날마다 안 변함)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_consultRefundQuote",
+   "mark": "OLD_SIGNER_TERMS",
+   "why": "구서명자 환불은 서명본 금액으로"
+  },
+  {
+   "file": "95_notify",
+   "fn": "ZZ_kakaoTestAll",
+   "mark": "개인코드 인자가 필요합니다",
+   "why": "인자 없는 테스트는 아무에게도 안 보냄"
+  },
+  {
+   "file": "20_customers-data",
+   "fn": "purgeStaleCustomers",
+   "mark": "LIVETEST_0830",
+   "why": "붙여넣기 누락 점검 실기 테스트"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "handleCardConfirm",
+   "mark": "PAY_LOCK_REENTRANT",
+   "why": "카드결제도 재진입 락(옛 판은 안쪽 함수가 바깥 락을 먼저 풀어 영수증·알림 구간이 무방비)"
+  },
+  {
+   "file": "admin",
+   "fn": "adminConfirmPayment",
+   "mark": "PAY_LOCK_REENTRANT",
+   "why": "입금 확인도 재진입 락(관리자 두 탭 동시 클릭 시 기록이 서로 덮임)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleSignContract",
+   "mark": "ROLLBACK_SLOT",
+   "why": "되돌려도 예식 자리 잠금 — 서명 쪽 짝"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "SNAP_BALANCE_D7",
+   "why": "스냅 잔금 D-7 — 관리자 화면 표기 짝"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "buildLedgerState",
+   "mark": "SNAP_BALANCE_D7",
+   "why": "스냅 잔금 D-7 — 고객 내역 표기 짝"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSendContract",
+   "mark": "SIGN_SLOT_REQUIRED",
+   "why": "예식시간 없인 서명 불가 — 발송 쪽 짝"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSkipSurvey",
+   "mark": "STAGE_REVIEW_DOOR",
+   "why": "후기 단계로 올리는 문 — 관리자 건너뛰기 짝"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_refundQuote",
+   "mark": "OLD_SIGNER_TERMS",
+   "why": "구서명자 환불은 서명본 금액으로 — 견적 엔진 짝"
+  },
+  {
+   "file": "90_test-utils",
+   "fn": "platformSelfTest",
+   "mark": "PAIRTEST_0830",
+   "why": "두 파일에 같은 표식 — 한쪽만 붙여도 나머지가 잡히는지 실기 확인"
+  },
+  {
+   "file": "88_place_audit",
+   "fn": "auditDineDb",
+   "mark": "PAIRTEST_0830",
+   "why": "두 파일에 같은 표식 — 한쪽만 붙여도 나머지가 잡히는지 실기 확인"
+  },
+  {
+   "file": "00_platform-config",
+   "fn": "nextActionFor",
+   "mark": "NOW_ONELINE",
+   "why": "NOW 헤드라인 첫 문장 규약 — mypage 가 마침표에서 자른다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_seatFindSlim",
+   "mark": "SEAT_DRINK_SRV",
+   "why": "좌석 «내 자리만» 모드에서 음료를 버리면 본인 것도 못 찾는다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "DEPLOY_STAMP",
+   "why": "/exec 진입에서 배포 지문을 남긴다 — 이 파일이 옛것이면 ④ 배포 확인이 영영 «아직 모름»"
+  },
+  {
+   "file": "00_platform-config",
+   "fn": "deployStamp",
+   "mark": "DEPLOY_STAMP",
+   "why": "배포 지문 계산·기록 본체 — 이 파일이 옛것이면 ④ 가 판정을 못 한다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionBase",
+   "mark": "SNAP_BALANCE_D7",
+   "why": "예식일 톱레벨 기록 = 잔금 D-day 근거(시그 D-9 · 스냅 D-7)"
+  }
+ ],
+ "fns": {
+  "00_platform-config": [
+   "stageFlowFor",
+   "nextActionFor",
+   "deployFingerprint",
+   "_dsHash",
+   "deployStamp"
   ],
-  "newfn": [
-    {
-      "file": "admin",
-      "fn": "_rbConfirmedSlot",
-      "why": "되돌림 슬롯 잠금"
-    },
-    {
-      "file": "admin",
-      "fn": "_rbSlotPlan",
-      "why": "되돌림 슬롯 판정"
-    },
-    {
-      "file": "admin",
-      "fn": "_rbCalRetitle",
-      "why": "캘린더 제목 변경"
-    },
-    {
-      "file": "admin",
-      "fn": "_ymdDot",
-      "why": "날짜 표기 통일"
-    },
-    {
-      "file": "admin",
-      "fn": "_rbPaidAny",
-      "why": "수납 보존 판정"
-    },
-    {
-      "file": "60_mypage",
-      "fn": "buildRollbackNotice",
-      "why": "되돌림 고객 안내"
-    },
-    {
-      "file": "80_production",
-      "fn": "_guideCloseInfo",
-      "why": "안내 닫는 이유 구분"
-    },
-    {
-      "file": "96_ai_cost",
-      "fn": "aiDraftAnswer",
-      "why": "AI 원클릭 교육"
-    }
+  "10_customers-setup": [
+   "getCustomersSheet",
+   "setupCustomers",
+   "formatCustomersSheet",
+   "checkCustomerHeaderOrder"
   ],
-  "marks": [
-    {
-      "file": "admin",
-      "fn": "adminHome",
-      "mark": "CPN_QUEUE",
-      "why": "커피쿠폰 발급 큐"
-    },
-    {
-      "file": "admin",
-      "fn": "adminHome",
-      "mark": "SLOT_HOLD_EXPIRY_Q",
-      "why": "잡아 둔 자리 만료 큐"
-    },
-    {
-      "file": "admin",
-      "fn": "adminHome",
-      "mark": "REVISION_QUEUE",
-      "why": "수정요청 처리 큐"
-    },
-    {
-      "file": "admin",
-      "fn": "adminSendContract",
-      "mark": "CONTRACT_AMOUNT_REQ",
-      "why": "총액 없는 계약서 차단"
-    },
-    {
-      "file": "admin",
-      "fn": "adminSendContract",
-      "mark": "SEND_HOLD_SYNC",
-      "why": "발송·홀드 동기화"
-    },
-    {
-      "file": "admin",
-      "fn": "adminGrantWeddingHold",
-      "mark": "HOLD_LOCK",
-      "why": "가예약 승인 락"
-    },
-    {
-      "file": "admin",
-      "fn": "adminSendContract",
-      "mark": "CONTRACT_NOTIFY_THROTTLE",
-      "why": "계약서 도착 알림 중복 방지"
-    },
-    {
-      "file": "admin",
-      "fn": "adminIssueCoupon",
-      "mark": "COUPON_NOTIFY_ONCE",
-      "why": "쿠폰 발급 알림 1회"
-    },
-    {
-      "file": "admin",
-      "fn": "_clearForwardData",
-      "mark": "FITTING_SPLIT",
-      "why": "시착 갇힘 수정"
-    },
-    {
-      "file": "admin",
-      "fn": "_clearForwardData",
-      "mark": "GUIDE_TOKEN_CLEAR",
-      "why": "되돌리면 공개 링크 닫기"
-    },
-    {
-      "file": "admin",
-      "fn": "adminForceStage",
-      "mark": "ROLLBACK_SLOT",
-      "why": "되돌려도 예식 자리 잠금"
-    },
-    {
-      "file": "95_notify",
-      "fn": "_kakaoSend",
-      "mark": "ADMIN_MAIL_UNCHAINED",
-      "why": "관리자 알림 살리기"
-    },
-    {
-      "file": "95_notify",
-      "fn": "flushHeldNotifies",
-      "mark": "HOLD_NO_LOSS",
-      "why": "보류 알림 무손실"
-    },
-    {
-      "file": "60_mypage",
-      "fn": "handleGetMyState",
-      "mark": "NOW_CONTRACT_EXPIRED",
-      "why": "기한 지난 계약 안내"
-    },
-    {
-      "file": "70_journey",
-      "fn": "_refundQuote",
-      "mark": "CHANGE_RATCHET",
-      "why": "위약금 회피 차단(99만원)"
-    },
-    {
-      "file": "70_journey",
-      "fn": "_journeyAmounts",
-      "mark": "SNAP_BALANCE_D7",
-      "why": "스냅 잔금 촬영 D-7 분리"
-    },
-    {
-      "file": "70_journey",
-      "fn": "_refundQuote",
-      "mark": "SNAP_PENALTY_TABLE",
-      "why": "스냅 위약표 §9② 견적"
-    },
-    {
-      "file": "70_journey",
-      "fn": "_refundQuote",
-      "mark": "SNAP_WITHDRAW_GUARD",
-      "why": "스냅 철회는 촬영 개시 전에만(옛 판은 촬영 끝난 뒤에도 전액 환급)"
-    },
-    {
-      "file": "70_journey",
-      "fn": "_refundQuote",
-      "mark": "FIT_DEDUCT_FLOOR",
-      "why": "시착 공제 음수 방지(옛 판은 받은 돈보다 더 환불)"
-    },
-    {
-      "file": "70_journey",
-      "fn": "_payLock",
-      "mark": "PAY_LOCK_REENTRANT",
-      "why": "돈 확인 재진입 안전 락(관리자 동시 클릭 직렬화)"
-    },
-    {
-      "file": "70_journey",
-      "fn": "handleSignContract",
-      "mark": "SIGN_SLOT_REQUIRED",
-      "why": "예식시간 없인 서명 불가"
-    },
-    {
-      "file": "70_journey",
-      "fn": "handleSignContract",
-      "mark": "SIGN_BOUNCE_ALERT",
-      "why": "서명 튕김 알림"
-    },
-    {
-      "file": "consultation-booking",
-      "fn": "setCustomerStage",
-      "mark": "STAGE_REVIEW_DOOR",
-      "why": "후기 단계로 올리는 문"
-    },
-    {
-      "file": "consultation-booking",
-      "fn": "actAccept",
-      "mark": "ACCEPT_GUARDED",
-      "why": "변경제안 수락 가드"
-    },
-    {
-      "file": "consultation-booking",
-      "fn": "submitSchedule",
-      "mark": "PAST_SLOT_REJECT",
-      "why": "지난 날짜·시간 거절"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSubmitSurvey",
-      "mark": "STAGE_REVIEW_DOOR",
-      "why": "후기 제출이 단계를 올림"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSubmitSurvey",
-      "mark": "SURVEY_ONCE",
-      "why": "설문 재제출 멱등"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSubmitResultSelection",
-      "mark": "PICK_MAX_MANUAL",
-      "why": "수동 컷 400 상한"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleRequestExtraRetouch",
-      "mark": "XR_SIGNAL_KEEP",
-      "why": "입금신호 증발 방지"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleExtraRetouchSignal",
-      "mark": "XR_STAGE_GUARD",
-      "why": "유령 입금신호 차단"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSaveProductionTrack",
-      "mark": "CF_CORE_TRUTH",
-      "why": "빈 인원·손상 컬럼이면 확정 거부"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSaveProductionTrack",
-      "mark": "CF_ONCE",
-      "why": "두 번째 확정은 멱등(기록·메일 1회)"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSaveProductionTrack",
-      "mark": "CF_LOG",
-      "why": "확정을 처리이력·메일에 남김"
-    },
-    {
-      "file": "70_journey",
-      "fn": "adminConfirmWeddingChange",
-      "mark": "CF_VOID_WEDDAY",
-      "why": "예식일이 바뀌면 확정 해제"
-    },
-    {
-      "file": "admin",
-      "fn": "adminSendContract",
-      "mark": "SEND_TIME_REQ",
-      "why": "예식 시간 없는 계약서 발송 차단"
-    },
-    {
-      "file": "admin",
-      "fn": "adminHome",
-      "mark": "EXIT_QUOTE_TS",
-      "why": "환불 큐 기준일=취소일시(금액이 날마다 안 변함)"
-    },
-    {
-      "file": "consultation-booking",
-      "fn": "_consultRefundQuote",
-      "mark": "OLD_SIGNER_TERMS",
-      "why": "구서명자 환불은 서명본 금액으로"
-    },
-    {
-      "file": "95_notify",
-      "fn": "ZZ_kakaoTestAll",
-      "mark": "개인코드 인자가 필요합니다",
-      "why": "인자 없는 테스트는 아무에게도 안 보냄"
-    },
-    {
-      "file": "20_customers-data",
-      "fn": "purgeStaleCustomers",
-      "mark": "LIVETEST_0830",
-      "why": "붙여넣기 누락 점검 실기 테스트"
-    },
-    {
-      "file": "98_pay_card",
-      "fn": "handleCardConfirm",
-      "mark": "PAY_LOCK_REENTRANT",
-      "why": "카드결제도 재진입 락(옛 판은 안쪽 함수가 바깥 락을 먼저 풀어 영수증·알림 구간이 무방비)"
-    },
-    {
-      "file": "admin",
-      "fn": "adminConfirmPayment",
-      "mark": "PAY_LOCK_REENTRANT",
-      "why": "입금 확인도 재진입 락(관리자 두 탭 동시 클릭 시 기록이 서로 덮임)"
-    },
-    {
-      "file": "70_journey",
-      "fn": "handleSignContract",
-      "mark": "ROLLBACK_SLOT",
-      "why": "되돌려도 예식 자리 잠금 — 서명 쪽 짝"
-    },
-    {
-      "file": "admin",
-      "fn": "adminHome",
-      "mark": "SNAP_BALANCE_D7",
-      "why": "스냅 잔금 D-7 — 관리자 화면 표기 짝"
-    },
-    {
-      "file": "60_mypage",
-      "fn": "buildLedgerState",
-      "mark": "SNAP_BALANCE_D7",
-      "why": "스냅 잔금 D-7 — 고객 내역 표기 짝"
-    },
-    {
-      "file": "admin",
-      "fn": "adminSendContract",
-      "mark": "SIGN_SLOT_REQUIRED",
-      "why": "예식시간 없인 서명 불가 — 발송 쪽 짝"
-    },
-    {
-      "file": "admin",
-      "fn": "adminSkipSurvey",
-      "mark": "STAGE_REVIEW_DOOR",
-      "why": "후기 단계로 올리는 문 — 관리자 건너뛰기 짝"
-    },
-    {
-      "file": "70_journey",
-      "fn": "_refundQuote",
-      "mark": "OLD_SIGNER_TERMS",
-      "why": "구서명자 환불은 서명본 금액으로 — 견적 엔진 짝"
-    },
-    {
-      "file": "90_test-utils",
-      "fn": "platformSelfTest",
-      "mark": "PAIRTEST_0830",
-      "why": "두 파일에 같은 표식 — 한쪽만 붙여도 나머지가 잡히는지 실기 확인"
-    },
-    {
-      "file": "88_place_audit",
-      "fn": "auditDineDb",
-      "mark": "PAIRTEST_0830",
-      "why": "두 파일에 같은 표식 — 한쪽만 붙여도 나머지가 잡히는지 실기 확인"
-    },
-    {
-      "file": "00_platform-config",
-      "fn": "nextActionFor",
-      "mark": "NOW_ONELINE",
-      "why": "NOW 헤드라인 첫 문장 규약 — mypage 가 마침표에서 자른다"
-    },
-    {
-      "file": "80_production",
-      "fn": "_seatFindSlim",
-      "mark": "SEAT_DRINK_SRV",
-      "why": "좌석 «내 자리만» 모드에서 음료를 버리면 본인 것도 못 찾는다"
-    },
-    {
-      "file": "consultation-booking",
-      "fn": "doGet",
-      "mark": "DEPLOY_STAMP",
-      "why": "/exec 진입에서 배포 지문을 남긴다 — 이 파일이 옛것이면 ④ 배포 확인이 영영 «아직 모름»"
-    },
-    {
-      "file": "00_platform-config",
-      "fn": "deployStamp",
-      "mark": "DEPLOY_STAMP",
-      "why": "배포 지문 계산·기록 본체 — 이 파일이 옛것이면 ④ 가 판정을 못 한다"
-    },
-    {
-      "file": "80_production",
-      "fn": "handleSaveProductionBase",
-      "mark": "SNAP_BALANCE_D7",
-      "why": "예식일 톱레벨 기록 = 잔금 D-day 근거(시그 D-9 · 스냅 D-7)"
-    }
+  "20_customers-data": [
+   "makePersonalCode",
+   "_randomCode",
+   "_existingCodeSet",
+   "_findCustomerBy",
+   "findCustomerByCode",
+   "findCustomerByToken",
+   "findCustomerByEmail",
+   "findLatestCustomerByEmail",
+   "touchCustomer",
+   "fmtKST",
+   "customerNames",
+   "_custPiiCols",
+   "_custRetained",
+   "_custAnonymized",
+   "purgeStaleCustomers",
+   "previewStaleCustomers",
+   "_purgeBookingsPII",
+   "_purgeSignaturesPII"
+  ],
+  "30_auth-core": [
+   "hashPassword",
+   "verifyPassword",
+   "_stretch",
+   "_randomSaltHex",
+   "_constTimeEq",
+   "pwPolicyError",
+   "issueToken",
+   "tokenExpired",
+   "parseKSTString",
+   "resolveSession",
+   "makeResetSig",
+   "verifyResetSig"
+  ],
+  "40_signup": [
+   "handleSignup",
+   "_shortHash",
+   "sendSignupEmail",
+   "_applySummaryFromDetail"
+  ],
+  "50_auth-handlers": [
+   "handleLogin",
+   "handleAutologin",
+   "handleVerify",
+   "handleFindCode",
+   "handleResetPw",
+   "handleDoResetPw",
+   "_sessionMsg",
+   "sendFindCodeEmail",
+   "sendFindCodeKakao",
+   "sendResetPwEmail"
+  ],
+  "60_mypage": [
+   "handleGetMyState",
+   "_aiWidgetToken_",
+   "buildRefundBankState",
+   "buildHoldState",
+   "buildCouponState",
+   "buildLedgerState",
+   "_journeyWaiting",
+   "buildConsultState",
+   "buildRollbackNotice"
+  ],
+  "70_journey": [
+   "handleSignFittingConsent",
+   "buildFittingState",
+   "_parseJsonSafe",
+   "_termsHash",
+   "setupSignatures",
+   "_saveSignature",
+   "getSignatureDataUrl",
+   "handleGetSignature",
+   "handleSignContract",
+   "_weddingOccupancy",
+   "_weddingBlocks",
+   "_weddingSlotTaken",
+   "handleWeddingAvailability",
+   "handleChangeWeddingHold",
+   "handleCancelWeddingHold",
+   "handleRequestContract",
+   "buildContractInfoState",
+   "handleRequestContractResend",
+   "buildContractState",
+   "expireUnsignedContracts",
+   "_parseKstStr",
+   "_isPublicHoliday",
+   "_isPremiumDay",
+   "suggestContractTotal",
+   "_payLock",
+   "_balanceDueLabel",
+   "_balanceDaysFor",
+   "_midDueLabel",
+   "_payWordFor",
+   "_balanceDueLabelFor",
+   "_payWeddingYmd",
+   "_bundleKeysFor",
+   "_midDuePast",
+   "_midDueLabelFor",
+   "_midDueDateFor",
+   "_wonNum",
+   "_journeyAmounts",
+   "_refundQuote",
+   "buildRefundQuote",
+   "_changeFeeQuote",
+   "_changeGuard",
+   "_changeInput",
+   "handleQuoteWeddingChange",
+   "handleRequestWeddingChange",
+   "handleCancelWeddingChange",
+   "adminConfirmWeddingChange",
+   "adminDeclineWeddingChange",
+   "buildChangeState",
+   "handlePaymentSignal",
+   "_saveCashReceipt",
+   "_cashReceiptOf",
+   "handleSaveCashReceipt",
+   "_cashReceiptLedger",
+   "buildPaymentState",
+   "_balanceDDay",
+   "_shiftYmd",
+   "_balanceExtraInfo",
+   "buildBalanceState",
+   "handleBalanceSignal",
+   "adminConfirmBalance",
+   "_adminConfirmBalanceCore",
+   "buildMidState",
+   "handleMidSignal",
+   "adminConfirmMid",
+   "_adminConfirmMidCore",
+   "adminConfirmMidBalance",
+   "_adminConfirmMidBalanceCore",
+   "sendBalanceReminders",
+   "sendMidReminders",
+   "_stampConsentKey",
+   "_holdCalCreate",
+   "_holdCalDelete",
+   "sendHoldExpiryNotices",
+   "sendArchiveExpiryNotices",
+   "handleSaveRefundAccount",
+   "weeklyBackup",
+   "setupAllTriggers",
+   "addBalanceColumns"
+  ],
+  "80_production": [
+   "handleSaveProductionBase",
+   "_ensureProductionBase",
+   "_prodCols",
+   "_prodNewCols",
+   "_prodCreateOrder",
+   "_prodColsMissing",
+   "_prodColsMissingError",
+   "_prodTrackPack",
+   "_prodTrackUnpack",
+   "_prodAssemble",
+   "_prodLoad",
+   "_prodLoadRaw",
+   "_prodPack",
+   "_prodStoreCols",
+   "_prodSizeError",
+   "checkProdCapOverflow",
+   "addProdTrackColumns",
+   "_prodDraftLoadSafe",
+   "_prodConfirmVoid",
+   "_prodStateRev",
+   "_prodTrackRev",
+   "_prodUiStrip",
+   "handleSaveProductionTrack",
+   "_guideCloseInfo",
+   "_guideExpired",
+   "handleSeatView",
+   "_seatNorm",
+   "_seatRowNum",
+   "_seatFindSlim",
+   "_seatFindByToken",
+   "handleGuideView",
+   "addGuideTokenColumn",
+   "_gpRootFolder",
+   "_gpSafeName",
+   "_gpFolderFor",
+   "handleGuestPhoto",
+   "addGuestPhotoColumns",
+   "purgeGuestPhotos",
+   "purgeGuestPhotosApply",
+   "buildProductionState",
+   "_resAcct",
+   "buildResultState",
+   "handleGetResultGallery",
+   "handleSubmitResultSelection",
+   "handleRequestExtraRetouch",
+   "handleExtraRetouchSignal",
+   "handleConfirmRetouch",
+   "handleRequestRevision",
+   "handleSubmitSurvey",
+   "adminConfirmExtra",
+   "adminStartRetouch",
+   "addResultSelectionColumns",
+   "backfillProduceStage",
+   "backfillProduceStageApply"
+  ],
+  "85_invitation": [
+   "_invConfigured",
+   "_couplesSheet",
+   "_couplesColOf",
+   "_couplesWrite",
+   "_invMakeEventId",
+   "_invFindLastRow",
+   "_invResolveEventId",
+   "_invRandEventSuffix",
+   "_invUrls",
+   "_invDigital",
+   "_invCouplesFields",
+   "handleSaveInvitationDraft",
+   "handlePublishInvitation",
+   "saveInvitationPreview",
+   "buildInvitationState"
+  ],
+  "88_place_audit": [
+   "aw_setKey",
+   "_awKey_",
+   "_awSearch_",
+   "_awSheet_",
+   "_awNow_",
+   "_awNorm_",
+   "auditDineDb",
+   "_awRunAudit_",
+   "awMonthlyAudit",
+   "setupAwAudit",
+   "_awNotifyAdmin_",
+   "collectDinePool",
+   "collectDinePoolDeep",
+   "_awSearchAt_",
+   "_awDist_"
+  ],
+  "90_test-utils": [
+   "platformSelfTest",
+   "testSignupSignature",
+   "testSignupSnap",
+   "_testSignup",
+   "testLoginRoundTrip",
+   "acctDump",
+   "resetDbgRun",
+   "resetDbg",
+   "pwFixRun",
+   "pwSet",
+   "pwDiagRun",
+   "pwDiag",
+   "adminSmokeTest",
+   "testMemoNotLeaked",
+   "adminReadCheck",
+   "adminActionCheck"
+  ],
+  "95_notify": [
+   "_notifyEnabled",
+   "_adminInfoOn",
+   "notifyKakao",
+   "_nfProps",
+   "_kakaoSend",
+   "_solapiSend",
+   "_notifyFailMark",
+   "notifyFailYesterday",
+   "_nfIsNight",
+   "_nfHoldPush",
+   "flushHeldNotifies",
+   "_nfCoupleName",
+   "_nfDate",
+   "_nfWon",
+   "_nfDday",
+   "_nfMy",
+   "_nfCustomerMsg",
+   "_nfAdminText",
+   "notifySetupCheck",
+   "notifyTestAdminSms",
+   "notifyTestCustomerByCode",
+   "notifyTestKakao",
+   "notifyTestKakaoAll",
+   "addKakaoTemplate",
+   "addT17",
+   "testKakaoT17",
+   "testKakaoAll",
+   "setKakaoTemplates",
+   "importKakaoTemplates",
+   "_notifyCustomerEmail",
+   "_solapiBalance",
+   "notifyBalanceCheck",
+   "_noEmoji",
+   "_nfAdminEmail",
+   "_nfPayConfirmAction",
+   "_nfAdminLineEmail",
+   "_nfMaybeBalanceCheck",
+   "_nfTrackSheet",
+   "_nfTrackSend",
+   "handleSolapiReport",
+   "purgeNfTrack",
+   "_nfCustomerEmailFallback",
+   "_solapiLogSend",
+   "purgeSmsLog",
+   "solapiUsageSummary",
+   "_safeJson",
+   "ZZ_kakaoTestAll",
+   "lockBusySignal",
+   "_lockedAppend"
+  ],
+  "96_ai_cost": [
+   "_aiCostUSD_",
+   "_aiCostSheet_",
+   "handleAiCostLog",
+   "aiCostSummary24h",
+   "purgeAiCostLog",
+   "_aiTestSheet_",
+   "aiTestScenarios",
+   "aiTestScenariosSave",
+   "_aiKbSheet_",
+   "_aiKbRows_",
+   "aiKbNoteList",
+   "aiKbNoteAdd",
+   "aiKbNoteSetActive",
+   "aiKbNoteDelete",
+   "handleAiKbNotes",
+   "_aiQResolveSheet_",
+   "_resolvedMap_",
+   "aiQuestionResolve",
+   "aiQuestionLog",
+   "aiQuestionReport",
+   "_aiTestHistSheet_",
+   "aiTestRunSave",
+   "aiBudgetGet",
+   "aiBudgetSet",
+   "aiAlertAdmin",
+   "_aiSafetySheet_",
+   "handleAiSafetyAlert",
+   "_aiPost_",
+   "_aiRep_",
+   "aiDailySafetyCheck",
+   "aiSafetyNow",
+   "aiSafetyHistory",
+   "aiDailyDigest",
+   "aiDigestPreview",
+   "aiDaily",
+   "aiMorningReport",
+   "aiMorningPreview",
+   "_factsSheet_",
+   "_factsHistSheet_",
+   "_factsRows_",
+   "aiFactsList",
+   "aiFactSet",
+   "aiFactDelete",
+   "aiFactHistory",
+   "aiFactRollback",
+   "handleAiFacts",
+   "_regSheet_",
+   "_regRows_",
+   "aiRegList",
+   "aiRegAdd",
+   "aiRegSetActive",
+   "aiRegDelete",
+   "aiDraftAnswer",
+   "_aiSurfacePost_",
+   "_regGrade_"
+  ],
+  "97_ai-handoff": [
+   "_aihSheet",
+   "_aihNow",
+   "_aihStr",
+   "handleAiHandoff",
+   "_aihNotifyNew",
+   "aiHandoffNightFlush",
+   "aiHandoffStatus",
+   "aiHandoffNightTake",
+   "aiHandoffReminder",
+   "dumpPendingAiHandoff",
+   "clearAllPendingAiHandoff",
+   "purgeAiHandoff",
+   "adminListAiHandoffs",
+   "adminResolveAiHandoff",
+   "handleAiAvailability"
+  ],
+  "98_pay_card": [
+   "_payCfg",
+   "_payExpectedAmount",
+   "_tossConfirm",
+   "_payMarkCard",
+   "_payLog",
+   "_payPreValidate",
+   "handleCardConfirm",
+   "handleCardPayConfig",
+   "ZZ_tossPing"
+  ],
+  "admin": [
+   "setupAdmins",
+   "_adminSheet",
+   "_findAdminRow",
+   "setAdminAccount",
+   "_parseTokens",
+   "_liveTokens",
+   "adminLogin",
+   "adminLogout",
+   "_resolveAdmin",
+   "_requireAdmin",
+   "adminCall",
+   "adminFittingDoc",
+   "adminListWeddingBlocks",
+   "adminSetWeddingBlock",
+   "adminRemoveWeddingBlock",
+   "adminSetFittingCount",
+   "serveAdmin",
+   "_kstYmd",
+   "_ymdOf",
+   "_ymdNum",
+   "_dayDiff",
+   "_cmpWait",
+   "_dueWhen",
+   "_chgWhenLabel",
+   "_holdWhenLabel",
+   "_ymdDot",
+   "_subStatusFor",
+   "_resultSub",
+   "_briefMailOk",
+   "morningBriefData",
+   "adminNotifyText",
+   "monthBusinessData",
+   "sendMorningBrief",
+   "_crDueBadge",
+   "weeklyReceiptAudit",
+   "adminHome",
+   "_names",
+   "adminDetail",
+   "_consultDetail",
+   "adminSearch",
+   "adminArchive",
+   "adminSaveMemo",
+   "_recordHandler",
+   "adminApprove",
+   "adminAcceptProposal",
+   "adminCancel",
+   "adminProposeTime",
+   "adminAvailability",
+   "adminGetSignature",
+   "adminSendContract",
+   "adminConfirmPayment",
+   "_confirmDepositCore",
+   "adminIssueCashReceipt",
+   "_adminIssueCashReceiptCore",
+   "adminUndoCashReceipt",
+   "_adminUndoCashReceiptCore",
+   "_undoHoursSince",
+   "_undoSpec",
+   "_undoConfirmCore",
+   "adminUndoConfirmPayment",
+   "adminUndoConfirmPreview",
+   "adminOpenFittingConsent",
+   "_adminLock",
+   "adminMarkConsultDone",
+   "_resultLinkCheck",
+   "_resultLinkWarnings",
+   "adminSetResultLinks",
+   "adminMarkEventDone",
+   "adminMarkDelivered",
+   "adminIssueCoupon",
+   "adminRevokeCoupon",
+   "adminSkipSurvey",
+   "_rbPaidAny",
+   "_clearForwardData",
+   "_resetConsultBooking",
+   "_fsChangedCols",
+   "_rbConfirmedSlot",
+   "_rbCalRetitle",
+   "_rbSlotPlan",
+   "adminForceStagePreview",
+   "adminForceStage",
+   "adminCloseFitting",
+   "adminGrantWeddingHold",
+   "adminDeclineWeddingHold",
+   "adminMarkNoshow",
+   "adminMarkUncontracted",
+   "adminUndoRefunded",
+   "_adminUndoRefundedCore",
+   "adminMarkRefunded",
+   "_adminMarkRefundedCore"
+  ],
+  "consultation-booking": [
+   "slotsForDate",
+   "adminCc",
+   "parseDetail",
+   "doGet",
+   "serveApplyA",
+   "serveScheduleB",
+   "serveChangeC",
+   "handleAction",
+   "setCustomerStage",
+   "markConsultDone",
+   "actApprove",
+   "actAccept",
+   "_releaseWeddingHoldOnCancel",
+   "_maybeRefundAcctReq",
+   "actCancel",
+   "serveCancelD",
+   "doCustomerCancel",
+   "_consultRefundQuote",
+   "handleEmailCancelInfo",
+   "handleEmailCancel",
+   "serveAdminCancelD",
+   "doAdminCancel",
+   "submitApplication",
+   "_slotTaken",
+   "submitSchedule",
+   "submitProposal",
+   "addProposalMemoColumn",
+   "getAvailability",
+   "_cachedAvailability",
+   "_bustAvailCache",
+   "warmAvailCache",
+   "syncCalendarEvent",
+   "deleteCalendarEvent",
+   "sendUrlEmail",
+   "infoRowIf",
+   "telLink",
+   "mailLink",
+   "guestValue",
+   "stripGuestFlag",
+   "applicantDetailRows",
+   "sectionLabel",
+   "sendNewInquiryEmail",
+   "sendAdminNotifyEmail",
+   "sendConfirmEmail",
+   "sendCancelEmail",
+   "sendRefundRequestEmail",
+   "sendStudioBriefEmail",
+   "sendProposalEmail",
+   "emailShell",
+   "emailBtn",
+   "emailBtnOutline",
+   "centerP",
+   "noteP",
+   "smallP",
+   "infoRow",
+   "infoBlock",
+   "dateCard",
+   "gcalUrl",
+   "placeValue",
+   "getSheet",
+   "getCalendar",
+   "diagnoseEmail",
+   "cancelByRow",
+   "seedAvailabilityRange",
+   "isWeekdayDay",
+   "isWeekendDay",
+   "seedWeekdaySlots",
+   "seedWeekendSlots",
+   "seedAllDaysUntil2027",
+   "seedWeekdaySlotsUntil2027",
+   "seedWeekendSlotsUntil2027",
+   "buildHeaderIndex",
+   "_deFormula",
+   "writeCell",
+   "findRowByToken",
+   "findRowByPersonalCode",
+   "rowFromValues",
+   "row",
+   "coupleNames",
+   "isExpired",
+   "withinCancelDeadline",
+   "makeToken",
+   "getSecret",
+   "sign",
+   "verifySig",
+   "webAppUrl",
+   "scheduleUrl",
+   "actionUrl",
+   "cancelPageUrl",
+   "dkey",
+   "normalizeDateKey",
+   "_dayNum",
+   "_padYmd",
+   "parseDateTime",
+   "eachDate",
+   "addFull",
+   "formatWon",
+   "prettyDate",
+   "shortDate",
+   "adminSubject",
+   "deadlineLabel",
+   "esc",
+   "safeAttr",
+   "notifyStudio",
+   "servePayConfirm",
+   "infoPage",
+   "setupConsultation",
+   "onConsultEdit",
+   "sendDailyReminders",
+   "sendReminderCustomer",
+   "sendReminderStudio",
+   "formatConsultationSheet",
+   "_sessionToConsult",
+   "handleGetAvailability",
+   "handleSubmitSchedule",
+   "handleCancelReservation",
+   "handleAcceptProposal",
+   "doPost",
+   "jsonOut",
+   "_maskPII",
+   "handleAdvisorLog",
+   "handleLeadCapture",
+   "adminListLeads",
+   "adminResolveLead",
+   "handleLeadClick",
+   "purgeKakaoClicks",
+   "purgeLeads",
+   "handleAwDemandLog",
+   "purgeAdvisorLog",
+   "purgeAwDemandLog"
   ]
+ }
 }

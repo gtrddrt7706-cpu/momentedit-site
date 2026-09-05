@@ -57,7 +57,7 @@ function marksJson() {
   return fs.readFileSync(path.join(ROOT, 'deploy-marks.json'), 'utf8');
 }
 
-function run({ skip = [], old = {}, noMarks = false, stamp = undefined } = {}) {
+function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefined } = {}) {
   const sb = makeSandbox();
   const lines = [];
   sb.Logger = { log: (m) => lines.push(String(m)) };
@@ -89,6 +89,15 @@ function run({ skip = [], old = {}, noMarks = false, stamp = undefined } = {}) {
       try { src = execFileSync('git', ['show', `${old[nm]}:${gitPath}`], { cwd: ROOT, maxBuffer: 64e6 }).toString(); }
       catch { throw new Error(`${old[nm]} 에서 ${gitPath} 를 못 꺼냈습니다`); }
     } else src = fs.readFileSync(fp, 'utf8');
+    /* [SIM_TRUNC] «붙여넣다 뒷부분이 잘렸다» — 함수 경계에서 자른다.
+       중간에서 자르면 구문이 깨져 파일이 통째로 안 올라가고, 그건 ①이 잡는 다른 상황이 된다.
+       경계에서 자르면 «앞부분은 멀쩡히 도는데 뒷 함수만 없는» 진짜 모양이 된다. */
+    if (trunc[nm] != null) {
+      const ls = src.split('\n');
+      const at = ls.map((l, i) => (/^function\s/.test(l) ? i : -1)).filter((i) => i >= 0);
+      const keep = at[Math.max(1, Math.ceil(at.length * trunc[nm]))];
+      if (keep != null) src = ls.slice(0, keep).join('\n');
+    }
     try { vm.runInContext(src, sb, { filename: rel(fp) }); }
     catch (e) { /* 옛 버전이 지금 세계와 안 맞아 로드가 깨질 수 있다 — 그 파일만 빠진 셈이 된다 */
       lines.push(`  (로드실패 ${nm}: ${e.message})`); }
@@ -138,6 +147,22 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
     console.log(`   ${nm.padEnd(22)} 누락 ${String(r.bad).padStart(2)}건  ${caught ? '잡힘' : (r.bad > 0 ? '△ 다른 줄로만 잡힘' : '✗ 못 잡음')}`);
     if (r.bad === 0) ng(`${nm} 를 안 붙였는데 「누락 0건」이 나왔습니다 — 이 파일은 점검 밖입니다`);
     else if (!caught) ng(`${nm} 를 안 붙였는데 「파일 ${nm}」 줄이 아니라 다른 줄만 붉었습니다 — 원인을 못 짚어 줍니다`);
+  }
+}
+
+/* ── 1-B ── 붙이다 «뒷부분이 잘렸다» — 파일마다 뒤 절반을 날려 본다
+   ★[FNS_FULL 2026-09-05] 이 절이 생기기 전에는 여기가 통째로 구멍이었다.
+   점검이 파일마다 함수 하나만 봤으므로, 그 함수가 앞쪽에 있는 파일은 뒤를 다 날려도 초록이었다
+   (실측: 90_test-utils 6% · 40_signup 7% · 50_auth-handlers 8% · 10_customers-setup 9% 까지만 봤다). */
+{
+  const sweep = FILES.map((fp) => nameOf(rel(fp))).filter((n) => !NOT_SWEPT.includes(n));
+  console.log(`\n── 1-B) 붙이다 뒷부분이 잘렸을 때 — ${sweep.length}개를 하나씩 (뒤 절반 삭제)`);
+  for (const nm of sweep) {
+    const r = run({ trunc: { [nm]: 0.5 } });
+    const caught = r.miss.some((l) => l.includes('파일 ' + nm + ' 안쪽'));
+    console.log(`   ${nm.padEnd(22)} 누락 ${String(r.bad).padStart(2)}건  ${caught ? '잡힘' : (r.bad > 0 ? '△ 다른 줄로만 잡힘' : '✗ 못 잡음')}`);
+    if (r.bad === 0) ng(`${nm} 의 뒤 절반이 없는데 「누락 0건」이 나왔습니다 — 잘린 파일이 점검 밖입니다`);
+    else if (!caught) ng(`${nm} 가 잘렸는데 「파일 ${nm} 안쪽」 줄이 아니라 다른 줄만 붉었습니다 — 원인을 못 짚어 줍니다`);
   }
 }
 

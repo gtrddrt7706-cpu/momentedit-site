@@ -5474,6 +5474,15 @@ chk 'SIM_BLIND' scripts/audit/deploycheck-sim.mjs 2
 chk 'STAMP_MISS_WORDING' automation/platform/99_deployCheck.gs 1
 chk 'STAMP_MISS_WORDING' scripts/audit/deploycheck-sim.mjs 2
 chk '저장된 코드와 «다르다»' automation/platform/99_deployCheck.gs 1
+# [FNS_FULL] 점검이 파일마다 «함수 하나»만 봐서, 그보다 아래가 잘려도 통과하던 자리가 있었다.
+#   실측(2026-09-05) 점검이 닿던 가장 아래 줄 — 90_test-utils 6% · 40_signup 7% · 50_auth-handlers 8% · 10_customers-setup 9%.
+#   즉 그 파일들은 앞 스무 줄만 붙여도 「누락 0건」이었다. 이제 최상위 함수 588개를 전수 대조한다.
+#   목록은 deploy-marks.json 의 fns 에 있고 사이트로 나가므로, 낡으면 «없는 함수»를 찾거나 «있는 함수»를 못 봐서 둘 다 위험하다.
+if command -v node >/dev/null 2>&1; then node scripts/gen-deploy-fns.mjs --check >/dev/null 2>&1 \
+  || { echo 'FAIL deploy-fns: deploy-marks.json 의 함수 목록이 저장소와 다르다 — node scripts/gen-deploy-fns.mjs'; fail=1; }; fi
+chk 'FNS_FULL' automation/platform/99_deployCheck.gs 1
+chk 'FNS_FULL' scripts/audit/deploycheck-sim.mjs 1
+chk 'SIM_TRUNC' scripts/audit/deploycheck-sim.mjs 1
 
 # ── 2026-08-30 라운드 3(병렬 심층 점검) ──
 # [SNAP_WITHDRAW_GUARD] 스냅 청약철회는 촬영 개시 «전»에만(계약서 §7③) — dd>=1 가드를 빼면
