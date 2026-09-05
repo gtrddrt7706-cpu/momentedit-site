@@ -3965,6 +3965,16 @@ chk 'ESSAY_TWO_VOICES' scripts/audit/journal-script-check.mjs 2
 #   [HEAD_PAD]            음원 «머리»에도 0.3초 무음 — 화면과 소리 양쪽에 방어선 하나씩.
 chk 'ESSAY_LISTEN' index.html 3
 chk 'ESSAY_LEAD_IN' index.html 2
+# ★★[SEEK_THEN_OPEN 2026-09-05 사용자 신고 "처음 이상한 알 수 없는 소리가 잠깐 등장"]
+#   되감기가 «끝난 뒤에» 음을 연다. muted=false 를 currentTime=0 옆에 두면 그 사이 몇십 ms 동안
+#   옛 위치(문장 한가운데)의 소리가 새어 나온다 — 이벤트 순서로 실측해 잡은 결함이다.
+#   ★muted=false 를 seeked 밖으로 옮기지 말 것. 되살리면 유령 소리가 그대로 돌아온다.
+chk 'SEEK_THEN_OPEN' index.html 3
+chk "addEventListener('seeked', open)" index.html 1
+chk 'LEAD_IN = 1000' index.html 1
+# 같은 결함이 혼주 편지(parents.html)에도 있었다 — 같은 코드가 여러 곳에 있으면 함께 고친다.
+chk 'SEEK_THEN_OPEN' parents.html 2
+chk "addEventListener('seeked',open)" parents.html 1
 chk 'ESSAY_ONE_AT_A_TIME' index.html 2
 chk 'ESSAY_NO_LIE' index.html 2
 # ★★[플레이 버튼 디자인 교정 2026-09-05] 디자이너 관점 점검에서 나온 규칙 위반 넷 + 광학 보정 둘.
