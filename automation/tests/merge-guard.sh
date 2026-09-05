@@ -3954,6 +3954,9 @@ chk '저희도 줄여 드리지 못합니다' index.html 1
 # ★낭독 대본(docs/plans/저널낭독/*.txt)과 화면 글이 갈라지지 않는지 기계가 맞댄다 [JOURNAL_SCRIPT_TRUTH]
 #   화면 문장만 고치고 대본을 안 고치면 스피커에서 옛말이 난다 — 식순 쪽에서 실제로 겪은 사고와 같은 구조.
 chk 'JOURNAL_SCRIPT_TRUTH' scripts/audit/journal-script-check.mjs 1
+# [ESSAY_TWO_VOICES 2026-09-05 사용자 지시] 1편 첫 줄은 상담 온 신부의 «말»이라 목소리를 나눈다.
+#   화면의 인용문 표시(<p class="q">)와 대본의 신부 줄이 같은지까지 검사기가 맞댄다.
+chk 'ESSAY_TWO_VOICES' scripts/audit/journal-script-check.mjs 2
 if command -v node >/dev/null 2>&1; then
   node scripts/audit/journal-script-check.mjs >/dev/null 2>&1 \
     && echo 'ok journal-script-check: 낭독 대본 2편 == 화면 본문 · 타입캐스트 규격 통과' \
