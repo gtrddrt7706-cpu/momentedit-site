@@ -3935,6 +3935,47 @@ chk 'class="core-price-link" href="#invest"' index.html 1
 # [ESSAY_CLOSE_ANCHOR 2026-08-16] CLOSE 때 카드가 화면 위로 783px 벗어나던 것 — 스크롤 보정 + 되돌아오기.
 chk 'ESSAY_CLOSE_ANCHOR' index.html 1
 chk '_essayJump' index.html 2
+# ★★[에세이 설득 개편 2026-09-05 사용자 승인] 저널 두 편이 「주장만 있고 근거가 없다」던 것을 고쳤다.
+#   되돌리기 쉬운 문구 수정이 아니라 «논리»를 넣은 것이라, 지워지면 글이 조용히 예전 상태로 돌아간다.
+#   [ESSAY1_HOOK]   상담 인용문을 접힌 카드 첫 줄로. 본문 뒤로 다시 내리면 카드가 안 걸린다
+#   [ESSAY1_GROUND] 「가까이 모시니 정성을 다한다」의 근거(스물다섯 분 착석 · 자리마다 인사) 문단
+#   [ESSAY2_HONEST] 백사십 분 앞의 「새벽 메이크업은 저희도 못 줄인다」 — 빼면 논리 구멍이 돌아온다
+#   [ESSAY2_TOFAQ]  2편 하단 → FAQ 140분 항목 딥링크(faq-140)
+#   [DIR_FACT_FIRST] 디렉터 소개 첫 문장을 사실(일본 웨딩 스튜디오 경력)로
+chk 'ESSAY1_HOOK' index.html 1
+chk 'ESSAY1_GROUND' index.html 1
+chk 'ESSAY2_HONEST' index.html 1
+chk 'ESSAY2_TOFAQ' index.html 2
+chk 'DIR_FACT_FIRST' index.html 1
+chk 'id="faq-140"' index.html 1
+chk 'data-faq-open' index.html 3
+chk '스물다섯 분까지 착석으로 모십니다' index.html 1
+chk '저희도 줄여 드리지 못합니다' index.html 1
+# ★낭독 대본(docs/plans/저널낭독/*.txt)과 화면 글이 갈라지지 않는지 기계가 맞댄다 [JOURNAL_SCRIPT_TRUTH]
+#   화면 문장만 고치고 대본을 안 고치면 스피커에서 옛말이 난다 — 식순 쪽에서 실제로 겪은 사고와 같은 구조.
+chk 'JOURNAL_SCRIPT_TRUTH' scripts/audit/journal-script-check.mjs 1
+# [ESSAY_TWO_VOICES 2026-09-05 사용자 지시] 1편 첫 줄은 상담 온 신부의 «말»이라 목소리를 나눈다.
+#   화면의 인용문 표시(<p class="q">)와 대본의 신부 줄이 같은지까지 검사기가 맞댄다.
+chk 'ESSAY_TWO_VOICES' scripts/audit/journal-script-check.mjs 2
+# ★★[ESSAY_LISTEN 2026-09-05 사용자 지시] 저널 카드 «작은 플레이 버튼». 되살리기 어려운 계약이 넷이다.
+#   [ESSAY_LEAD_IN]       누르고 2초 뒤에 소리 — 그 2초 동안 «소리를 죽인 채» 버퍼를 채운다.
+#                         지우면 첫마디가 다시 씹힌다(사용자가 겪은 증상 그대로).
+#   [ESSAY_ONE_AT_A_TIME] 한 번에 하나 — 두 편이 겹쳐 나면 둘 다 못 알아듣는다.
+#   [ESSAY_NO_LIE]        음원이 있는 게 확인될 때까지 버튼을 안 보인다(HEAD). 기기 음성 폴백은 쓰지 않는다.
+#   [HEAD_PAD]            음원 «머리»에도 0.3초 무음 — 화면과 소리 양쪽에 방어선 하나씩.
+chk 'ESSAY_LISTEN' index.html 3
+chk 'ESSAY_LEAD_IN' index.html 2
+chk 'ESSAY_ONE_AT_A_TIME' index.html 2
+chk 'ESSAY_NO_LIE' index.html 2
+chk 'journal-listen' index.html 13
+chk "audio.muted = true" index.html 1
+chk 'JOURNAL_ASSEMBLE' scripts/build-journal-audio.py 1
+chk 'HEAD_PAD' scripts/build-journal-audio.py 3
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/journal-script-check.mjs >/dev/null 2>&1 \
+    && echo 'ok journal-script-check: 낭독 대본 2편 == 화면 본문 · 타입캐스트 규격 통과' \
+    || { echo 'FAIL journal-script-check — node scripts/audit/journal-script-check.mjs'; fail=1; }
+fi
 # [GUEST_DIM_AA 2026-08-16] 고객 미리듣기의 --dim 은 브랜드 텍스트 하한선(#75705F · 4.74:1)이다.
 #   ★디렉터 스킨의 #8A8478 을 다시 옮겨 오지 말 것 — 밝은 바탕에서 3.55:1 로 떨어져 axe 8곳이 잡혔던 값이다.
 #   ★끝 화면 부제의 opacity 도 되살리지 말 것(회색 버튼 위에서 3.34:1). 위계는 크기·굵기가 낸다.
