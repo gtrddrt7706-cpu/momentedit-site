@@ -2245,11 +2245,14 @@ function loadMyState(opts){
   opts=opts||{};
   if(!opts.silent) show('loading');                       // 백그라운드 갱신(silent)이면 스피너 없이 조용히
   var _fin=function(){ if(typeof opts.done==='function'){ try{ opts.done(); }catch(e){} } };   // [BUSY_ONE] 베일을 걷을 시점 — 성공·실패·끊김 모두
-  api({action:'getMyState', token:getToken()}).then(function(d){
+  var _tok=getToken();   /* [STATE_SEQ 2026-09-05 점검 라운드4] 요청 시점의 토큰 — 응답이 오기 전에 로그아웃(또는 다른 사람이 로그인)했으면 그 응답은 버린다.
+                            실측: 느린 로드 중 로그아웃하면 늦게 온 상태가 로그인 화면을 덮어 앞사람 화면이 다시 떴다(한 기기를 부부가 함께 쓴다 · LOGOUT_SWEEP 과 같은 이유) */
+  api({action:'getMyState', token:_tok}).then(function(d){
+    if(getToken()!==_tok){ _fin(); return; }   /* [STATE_SEQ] 늦게 온 남의 화면 — 캐시에도 남기지 않는다 */
     if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
     else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
     _fin();
-  }).catch(function(){ var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(); } _fin(); });   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
+  }).catch(function(){ if(getToken()!==_tok){ _fin(); return; } var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(); } _fin(); });   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
 }
 
 /* [BUSY_ONE] 동작을 마치고 돌아올 때의 갱신 — 화면을 비우지 않는다.
