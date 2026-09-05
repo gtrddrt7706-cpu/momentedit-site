@@ -3967,6 +3967,19 @@ chk 'ESSAY_LISTEN' index.html 3
 chk 'ESSAY_LEAD_IN' index.html 2
 chk 'ESSAY_ONE_AT_A_TIME' index.html 2
 chk 'ESSAY_NO_LIE' index.html 2
+# ★★[플레이 버튼 디자인 교정 2026-09-05] 디자이너 관점 점검에서 나온 규칙 위반 넷 + 광학 보정 둘.
+#   [TAP44-ESSAY]     보이는 원 26px · 닿는 넓이 44px(::before). 이 저장소의 탭 타깃 기준이다
+#                     (READ 58×45 · 상담 칩 45 · 모바일 Close 44 · [TAP44-3]). 26px 로 되돌리지 말 것.
+#   :active           폰엔 호버가 없다. 리드인 2초 동안 소리가 없으므로 이 워시가 유일한 «눌렸다» 신호다.
+#   [META_ROW_KEEP]   위아래 음수 마진 — 없애면 메타줄이 5.7px 두꺼워져 제목이 밀리고 카드가 커진다.
+#   [PLAY_OPTICAL]    삼각형 오른쪽 1px — 기하 중심에 두면 왼쪽으로 쏠려 보인다(› 의 top:-2px 와 같은 종류).
+#   [GOLD_ONE_FAMILY] 테두리를 골드로 물들여 아이콘과 한 식구로. 먹색 반지 + 진한 골드 삼각형은 무게가 갈린다.
+chk 'TAP44-ESSAY' index.html 1
+chk 'META_ROW_KEEP' index.html 1
+chk 'PLAY_OPTICAL' index.html 1
+chk 'GOLD_ONE_FAMILY' index.html 1
+chk 'journal-listen:active' index.html 1
+chk 'listenPulse 1.2s' index.html 1
 chk 'journal-listen' index.html 13
 chk "audio.muted = true" index.html 1
 chk 'JOURNAL_ASSEMBLE' scripts/build-journal-audio.py 1
