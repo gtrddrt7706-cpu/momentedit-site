@@ -3414,6 +3414,14 @@ chk 'HANDOFF_PASTE' scripts/build-listen-all.mjs 1
 # «소리가 없는 가벼운 판»이라고 말했다. 바로 위 칸은 «소리가 다 들어 있습니다»라고 하는데.
 # 사장님은 「듣기」가 안 되는 줄 알고 안 누른다. SOUND_OUT_OF_JS 때 sayCanDo 와 같은 병이다.
 chk 'SAY_WHICH_BOARD' scripts/build-listen-all.mjs 1
+# ── [SHOW_THE_LINK] «복사했습니다» 해 놓고 화면엔 아무것도 안 떴다 (2026-09-05 사장님 «링크가안나오는데?») ──
+# `#outWrap` 은 기본이 hide 다 — 재더빙 대본이 있을 때만 열리는 칸이다.
+# 링크를 그 칸에 넣으면서 칸을 여는 줄을 안 넣었다. 복사가 막힌 기기에서는 주소를 볼 길이 통째로 없다.
+# ★남의 칸을 빌려 쓰면 그 칸의 규칙(hide·설명 문구)도 함께 봐야 한다.
+chk 'SHOW_THE_LINK' scripts/build-listen-all.mjs 1
+chk 'outNote' scripts/build-listen-all.mjs 3
+chk "wrap.className = ''" scripts/build-listen-all.mjs 1
+chk 'id="outNote"' listen-075c9ad62acf.html 1
 chk '소리는 사이트에서 받아 옵니다' scripts/build-listen-all.mjs 1
 # ★배포되는 판이 «소리 없음»이라 말하면 잡는다 — 그 판은 소리를 주소로 부른다
 nochk '소리가 없는 가벼운 판' listen-075c9ad62acf.html
