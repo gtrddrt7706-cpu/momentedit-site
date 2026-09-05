@@ -3957,6 +3957,20 @@ chk 'JOURNAL_SCRIPT_TRUTH' scripts/audit/journal-script-check.mjs 1
 # [ESSAY_TWO_VOICES 2026-09-05 사용자 지시] 1편 첫 줄은 상담 온 신부의 «말»이라 목소리를 나눈다.
 #   화면의 인용문 표시(<p class="q">)와 대본의 신부 줄이 같은지까지 검사기가 맞댄다.
 chk 'ESSAY_TWO_VOICES' scripts/audit/journal-script-check.mjs 2
+# ★★[ESSAY_LISTEN 2026-09-05 사용자 지시] 저널 카드 «작은 플레이 버튼». 되살리기 어려운 계약이 넷이다.
+#   [ESSAY_LEAD_IN]       누르고 2초 뒤에 소리 — 그 2초 동안 «소리를 죽인 채» 버퍼를 채운다.
+#                         지우면 첫마디가 다시 씹힌다(사용자가 겪은 증상 그대로).
+#   [ESSAY_ONE_AT_A_TIME] 한 번에 하나 — 두 편이 겹쳐 나면 둘 다 못 알아듣는다.
+#   [ESSAY_NO_LIE]        음원이 있는 게 확인될 때까지 버튼을 안 보인다(HEAD). 기기 음성 폴백은 쓰지 않는다.
+#   [HEAD_PAD]            음원 «머리»에도 0.3초 무음 — 화면과 소리 양쪽에 방어선 하나씩.
+chk 'ESSAY_LISTEN' index.html 3
+chk 'ESSAY_LEAD_IN' index.html 2
+chk 'ESSAY_ONE_AT_A_TIME' index.html 2
+chk 'ESSAY_NO_LIE' index.html 2
+chk 'journal-listen' index.html 13
+chk "audio.muted = true" index.html 1
+chk 'JOURNAL_ASSEMBLE' scripts/build-journal-audio.py 1
+chk 'HEAD_PAD' scripts/build-journal-audio.py 3
 if command -v node >/dev/null 2>&1; then
   node scripts/audit/journal-script-check.mjs >/dev/null 2>&1 \
     && echo 'ok journal-script-check: 낭독 대본 2편 == 화면 본문 · 타입캐스트 규격 통과' \

@@ -2588,6 +2588,7 @@ a.ig-handle:hover {
   background: var(--bg2);
   border: 1px solid var(--border);
   padding: 36px 32px 32px;
+  position: relative;   /* [ESSAY_LISTEN] 카드 아래 모서리의 진행선(.journal-progress) 기준 */
   display: flex;
   flex-direction: column;
   transition:
@@ -2612,6 +2613,56 @@ a.ig-handle:hover {
 .journal-card-meta .journal-dot {
   color: var(--light);
   letter-spacing: 0;
+}
+/* ★★[ESSAY_LISTEN 2026-09-05 사용자 지시 "자연스럽게 작게 플레이 버튼"] 저널 카드를 소리로 듣는다.
+   ★작아야 한다 — 제목과 겨루면 카드가 시끄러워진다. 그래서 메타줄(Nº 01 · 2026 · 04) 오른쪽 끝,
+     지름 26px 테두리 원 하나다. 채우지 않는다(채움은 이 페이지에서 «전환» 신호다 · BTN_TIER).
+   ★음원이 없으면 스스로 사라진다 — 아래 JS 가 확인될 때까지 hidden 을 풀지 않는다.
+     기기 음성(TTS) 폴백은 쓰지 않는다: 여기는 브랜드 인상이 목적이라 기계음이 디렉터 이름으로
+     읽히면 없느니만 못하다(parents.html 은 어르신 접근성이 목적이라 폴백이 이득 · 목적이 다르다). */
+.journal-listen {
+  margin-left: auto;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gold-text);
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease), color 0.3s var(--ease), background 0.3s var(--ease);
+}
+.journal-listen:hover { border-color: var(--gold-text); background: rgba(122, 95, 55, 0.06); }
+.journal-listen:focus-visible { outline: 2px solid var(--seal); outline-offset: 2px; }
+.journal-listen svg { display: block; }
+.journal-listen .ic-stop { display: none; }
+.journal-listen[data-state="stop"] .ic-play { display: none; }
+.journal-listen[data-state="stop"] .ic-stop { display: block; }
+.journal-listen[data-state="stop"] { border-color: var(--gold-text); }
+/* ★[ESSAY_LEAD_IN 2026-09-05 사용자 지시 "플레이버튼 누르고 2초있다가 시작 · 씹히는거방지"]
+   누르고 2초는 아직 소리가 없다 — 그 2초가 «고장»으로 읽히지 않게 테두리가 숨을 쉰다.
+   ★화면은 «누른 즉시» 반응해야 한다. 조용히 2초를 두면 한 번 더 누르고, 그게 겹침의 시작이다. */
+.journal-listen[data-state="wait"] { animation: listenPulse 1s var(--ease) infinite; }
+@keyframes listenPulse {
+  0%, 100% { border-color: var(--hairline); }
+  50% { border-color: var(--gold-text); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .journal-listen[data-state="wait"] { animation: none; border-color: var(--gold-text); }
+}
+/* 카드 아래 모서리를 따라 차오르는 1px — 얼마나 남았는지 «글자 없이» 알린다 */
+.journal-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background: var(--gold-text);
+  opacity: 0.55;
+  pointer-events: none;
 }
 .journal-card-title {
   font-family: var(--serif-ko);
@@ -6331,7 +6382,13 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <span class="journal-num">Nº 01</span>
         <span class="journal-dot">·</span>
         <span class="journal-date">2026 · 04</span>
+        <button type="button" class="journal-listen" data-state="play" hidden
+                data-essay-audio="/assets/audio/essay/1_honju.mp3" aria-label="혼주라는 이름, 주인공이라는 이름 낭독 듣기">
+          <svg class="ic-play" width="9" height="10" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z" fill="currentColor"/></svg>
+          <svg class="ic-stop" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><rect width="8" height="8" fill="currentColor"/></svg>
+        </button>
       </div>
+      <div class="journal-progress" aria-hidden="true"></div>
       <h3 class="journal-card-title">혼주라는 이름,<br>주인공이라는 이름</h3>
       <div class="journal-card-subtitle">On the Two Names in a Korean Wedding</div>
       <!-- [ESSAY1_HOOK] 2026-09-05. 상담 인용문을 «첫 줄»로 올렸다.
@@ -6376,7 +6433,13 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <span class="journal-num">Nº 02</span>
         <span class="journal-dot">·</span>
         <span class="journal-date">2026 · 04</span>
+        <button type="button" class="journal-listen" data-state="play" hidden
+                data-essay-audio="/assets/audio/essay/2_honeymoon.mp3" aria-label="신혼여행 첫날, 가장 깨어있기 위하여 낭독 듣기">
+          <svg class="ic-play" width="9" height="10" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z" fill="currentColor"/></svg>
+          <svg class="ic-stop" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><rect width="8" height="8" fill="currentColor"/></svg>
+        </button>
       </div>
+      <div class="journal-progress" aria-hidden="true"></div>
       <h3 class="journal-card-title">신혼여행 첫날,<br>가장 깨어있기 위하여</h3>
       <div class="journal-card-subtitle">To Be Most Awake on the First Day</div>
       <div class="journal-card-preview">
@@ -7214,6 +7277,91 @@ function _essayJump(y){
   window.scrollTo(0, y);
   el.style.scrollBehavior = prev;
 }
+/* ★★[ESSAY_LISTEN] 저널 카드 낭독 재생기 — parents.html 의 「듣기」에서 «겪어서 알게 된 것»만 옮겼다.
+   그 페이지의 규칙과 사고 기록은 parents.html 의 [LISTEN_ONE_HANDLER]·[LISTEN_LEAD_IN] 주석에 있다.
+
+   ★[ESSAY_LEAD_IN] 누르고 2초 뒤에 소리가 난다 (2026-09-05 사용자 지시
+     "플레이버튼 누르고 2초있다가 시작" · "씹히는거방지")
+     첫마디가 씹히는 건 누른 그 순간엔 소리 장치가 아직 안 깨어 있어서다(버퍼가 안 찼다).
+     그 2초 동안 «소리를 죽인 채» 재생을 시작해 버퍼를 채운다. 그래서 2초 뒤 첫 글자부터 온전히 들린다.
+     ★재생 자체는 «누른 그 순간» 시작해야 한다 — setTimeout 안으로 미루면 사용자 조작과의 끈이
+       끊겨 iOS 자동재생 정책이 막는다. 늦추는 것은 «소리»이지 «재생»이 아니다.
+     ★volume 이 아니라 muted 를 쓴다 — iOS Safari 는 volume 을 코드로 못 바꾼다(무시된다).
+     ★음원 머리에도 0.3초 무음이 들어 있다(scripts/build-journal-audio.py 의 HEAD_PAD).
+       화면과 소리 양쪽에 방어선을 하나씩 둔 것이다.
+     ★기다리는 중에 다시 누르면 예약을 반드시 지운다 — 안 지우면 «멈췄는데 2초 뒤에 소리가 나는» 유령이 생긴다.
+
+   ★[ESSAY_ONE_AT_A_TIME] 한 번에 하나만 — 다른 카드를 누르면 앞의 것이 멈춘다.
+     두 편이 겹쳐 나면 둘 다 못 알아듣는다.
+
+   ★[ESSAY_NO_LIE] 음원이 실제로 있는 것이 확인될 때까지 버튼을 보이지 않는다.
+     눌렀는데 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다. */
+(function(){
+  var LEAD_IN = 2000;
+  var playing = null;                       // 지금 소리를 내는(또는 낼) 하나. 둘이 될 수 없다.
+
+  document.querySelectorAll('.journal-listen').forEach(function(btn){
+    var src = btn.getAttribute('data-essay-audio');
+    var card = btn.closest('.journal-card');
+    var bar = card && card.querySelector('.journal-progress');
+    var audio = null, pending = null, raf = null;
+
+    // [ESSAY_NO_LIE] 있는지부터 확인하고 보인다. 못 물어봤으면 계속 숨은 채로 둔다.
+    fetch(src, { method: 'HEAD' })
+      .then(function(r){ if (r.ok) btn.hidden = false; })
+      .catch(function(){});
+
+    var setState = function(st){
+      btn.dataset.state = st;
+      btn.setAttribute('aria-label', btn.getAttribute('aria-label').replace(/ (낭독 듣기|멈춤)$/, st === 'play' ? ' 낭독 듣기' : ' 멈춤'));
+    };
+    var tick = function(){
+      if (bar && audio && audio.duration) bar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      raf = requestAnimationFrame(tick);
+    };
+    var stopTick = function(){ if (raf) { cancelAnimationFrame(raf); raf = null; } };
+
+    var stop = function(){
+      if (pending) { clearTimeout(pending); pending = null; }
+      if (audio) { try { audio.pause(); audio.muted = false; } catch (e) {} }
+      stopTick();
+      if (bar) bar.style.width = '0';
+      setState('play');
+      if (playing === stop) playing = null;
+    };
+    btn._stopEssay = stop;
+
+    btn.addEventListener('click', function(){
+      if (btn.dataset.state !== 'play') { stop(); return; }      // 재생 중·대기 중 → 멈춤
+      if (playing) playing();                                    // [ESSAY_ONE_AT_A_TIME]
+      playing = stop;
+
+      if (!audio) {
+        audio = new Audio(src);
+        audio.preload = 'none';                                  // 누를 때까지 홈 로딩에 얹지 않는다
+        audio.addEventListener('ended', stop);
+        audio.addEventListener('error', stop);
+      }
+      setState('wait');                                          // 화면은 «누른 즉시» 반응한다
+      // 소리는 나는데 글이 안 보이면 어디쯤인지 모른다 — 접힌 카드는 펼치면서 재생한다
+      if (card && !card.classList.contains('open')) {
+        var openBtn = card.querySelector('.journal-card-btn');
+        if (openBtn) openBtn.click();
+      }
+      try { audio.muted = true; audio.currentTime = 0; } catch (e) {}
+      var pr = null;
+      try { pr = audio.play(); } catch (e) { stop(); return; }
+      if (pr && pr.catch) pr.catch(function(){ stop(); });        // 자동재생 거절·디코드 실패
+      pending = setTimeout(function(){
+        pending = null;
+        try { audio.currentTime = 0; audio.muted = false; } catch (e) {}
+        setState('stop');
+        stopTick(); tick();
+      }, LEAD_IN);
+    });
+  });
+})();
+
 function toggleEssay(btn){
   var card = btn.closest('.journal-card');
   var opening = !card.classList.contains('open');
