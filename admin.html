@@ -1298,12 +1298,13 @@ function openAiTeam(){
      +'<div style="font-size:11px;color:#75705F;margin-bottom:8px">기본은 <b>전체</b> · 한 번 가르치면 5명이 함께 배워요. 특정 직원에게만 알릴 땐 대상을 바꿔 주세요. · 고친 뒤엔 <b>개선</b>탭에서 전 직원이 제대로 답하는지 확인해 주세요.</div>'
      +'<input id="eduSearch" placeholder="등록된 교육 검색" style="width:100%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px;box-sizing:border-box;margin-bottom:8px">'
      +'<div id="eduList"></div>';
-    document.getElementById('eduAdd').addEventListener('click',function(){ var tg=document.getElementById('eduTg').value, t=document.getElementById('eduTx').value.trim(), memo=document.getElementById('eduMemo').value.trim(); if(!t) return;
+    document.getElementById('eduAdd').addEventListener('click',function(){ var btn=this; if(btn.disabled) return;   /* [EDU_ADD_ONCE 2026-09-05 점검 라운드2·연타] 응답 전 두 번째 누름을 막는다 — 서버 aiKbNoteAdd 는 같은 글을 거르지 않아 연타가 교육을 두 줄로 쌓았다(퍼저 실측) */
+      var tg=document.getElementById('eduTg').value, t=document.getElementById('eduTx').value.trim(), memo=document.getElementById('eduMemo').value.trim(); if(!t) return;
       /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. doAdd는 자기 자신을 다시 부르는 구조인데 반환값을 쓰는 곳이 없어,
          재시도 호출(doAdd(true))만 .then 안으로 옮기면 예·아니오 두 갈래가 그대로 보존된다(아니오는 원래도 아무것도 안 했다). */
-      var doAdd=function(force){ gas('aiKbNoteAdd',tg,t,force,memo).then(function(r){ if(r&&r.ok){ document.getElementById('eduTx').value=''; document.getElementById('eduMemo').value=''; loadEdu(); }
+      var doAdd=function(force){ btn.disabled=true; gas('aiKbNoteAdd',tg,t,force,memo).then(function(r){ btn.disabled=false; if(r&&r.ok){ document.getElementById('eduTx').value=''; document.getElementById('eduMemo').value=''; loadEdu(); }
         else if(r&&r.blocked){ admConfirm({ title:'그래도 추가할까요?', body:(r.error||'핵심 수치처럼 보여요.')+'\n가격·정책이 틀리면 고객에게 그대로 나가요.', yes:'그대로 추가' }).then(function(go){ if(go) doAdd(true); }); }
-        else admAlert({ title:'추가하지 못했어요', body:(r&&r.error)||'잠시 후 다시 시도해 주세요.' }); }); };
+        else admAlert({ title:'추가하지 못했어요', body:(r&&r.error)||'잠시 후 다시 시도해 주세요.' }); }).catch(function(){ btn.disabled=false; }); };   /* [EDU_ADD_ONCE] 망 오류에도 버튼이 잠긴 채 남지 않게 */
       doAdd(false); });
     document.getElementById('eduSearch').addEventListener('input',function(){ renderEdu(); });
     loadEdu(); }

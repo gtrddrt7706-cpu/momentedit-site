@@ -5537,6 +5537,7 @@ chk 'AI_PRICE_LOCK' scripts/ai-live-sim-ci.js 2
 chk 'ADM_WIDE' admin.html 2
 chk 'grid-template-areas:"search search"' admin.html 1
 chk "(view==='home')?'':'none'" admin.html 1
+chk 'EDU_ADD_ONCE' admin.html 2   # [점검 라운드2 2026-09-05] 교육 추가 연타 잠금 — 표식 2개(진입 가드 + catch 복구)
 chk 'column-count' admin.html 0
 # [SUM_GATE] 시퀀스 카드 대표값 합=140 · '합은 N분' 산문=55 — drift 게이트가 일부러 안 보던 자리에서 실제로 새던 둘.
 chk 'SUM_GATE' scripts/check-source-drift.mjs 1
