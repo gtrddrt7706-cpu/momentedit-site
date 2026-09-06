@@ -118,7 +118,9 @@ async function run(name, handler, { clicks = 1, waitAfter = 1200, delayClicks = 
   await page.evaluate(() => document.querySelector('.submit-btn').click());
   /* ★필수 누락은 «반짝이는 동안»을 한 장 남긴다 — meFlashTo 의 애니메이션은 1.5초뿐이라
      그 뒤에 찍으면 화면에 아무 흔적이 없다(첫 판이 그랬다). 사람이 판정할 그림은 이쪽이다. */
-  if (omit) { await page.waitForTimeout(500);
+  /* ★1000ms 인 이유 — 500ms 는 아직 «부드러운 스크롤 중»이라 빠진 항목이 화면 위쪽에
+     반쯤 걸린 채 찍힌다(실측). 스크롤이 앉고 반짝임(1.5초)이 아직 살아 있는 구간이 여기다. */
+  if (omit) { await page.waitForTimeout(1000);
     await page.screenshot({ path: path.join(SHOTS, `inq-submit-${SLUG[name] || 'x'}-flash.png`) }); }
   await page.waitForTimeout(700);
   // 이메일 확인 모달의 «맞습니다»를 누른다
@@ -217,7 +219,11 @@ for (const r of results) {
     console.log(`   · 판정 없음(기록만) — stage 를 비운 채 제출한 결과다.`);
     console.log(`   · 요청 ${r.요청수}건(0이어야 정상) · 오류문구 보임=${r.오류보임}`);
     if (r.누락위치) console.log(`   · 빠진 항목이 화면 안에 있나: ${r.누락위치.화면안} (top ${r.누락위치.상단}px) · ${r.누락위치.반짝임}`);
-    console.log('   · 되돌아오는 신호는 «부드러운 스크롤 + 1.5초 반짝임»뿐이고 문구는 없다(meFlashTo).');
+    console.log('   · 되돌아오는 신호는 «부드러운 스크롤 + 반짝임»뿐이고 문구는 없다(meFlashTo).');
+    console.log('   · ★타이밍이 어긋난다 — meFieldFlash 는 1.5초짜리인데 정점이 22%(330ms)이고,');
+    console.log('     그때는 아직 부드러운 스크롤이 «움직이는 중»이다(500ms 캡처가 화면 중간에 걸렸다).');
+    console.log('     스크롤이 앉는 ~1초에는 이미 거의 사라진 뒤다. 게다가 정점조차');
+    console.log('     box-shadow 0 0 0 4px rgba(184,154,117,0.30) — 크림 바탕의 옅은 금빛 테두리다.');
     console.log('   · 반짝이는 순간: ' + path.relative(ROOT, path.join(SHOTS, 'inq-submit-missing-required-flash.png')));
     r.요청수 === 0 ? okline('필수가 비면 서버로 보내지 않는다') : fail(`필수가 비었는데 요청이 ${r.요청수}건 나갔다`);
   }
