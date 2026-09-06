@@ -1152,6 +1152,11 @@ chk 'FOLD_319' index.html 1
 chk 'DESIGN_AUTHORITY' CLAUDE.md 1
 chk '이 문서가 디자인 판단의 최종 권위다' .claude/skills/momentedit-design/SKILL.md 1
 chk '행번호를 믿지 말 것' .claude/skills/momentedit-design/SKILL.md 1
+# ★[SEC_TITLE_DEVICE 2026-09-06 코워크 합의] 「index 27px vs inquiry 17px 이라 위계가 약하다」는
+#   같은 날 두 번 제안됐다가 두 번 철회됐다. inquiry 는 선으로, index 는 크기로 섹션을 가른다.
+#   결론을 프로토콜이 아니라 «권위 문서»에 둔다 — 프로토콜에만 두면 다음 라운드에 또 올라온다.
+chk 'SEC_TITLE_DEVICE' .claude/skills/momentedit-design/SKILL.md 1
+chk '두 번 제안됐다가 두 번 철회됐다' .claude/skills/momentedit-design/SKILL.md 1
 # ★★[LIGHT_SYNC 2026-09-06 사용자 결정 "11개를 #6E6959 로"] --light 가 3개 페이지(index·inquiry·mypage)만
 #   새 값이고 나머지 11개는 옛값(#75705F)으로 갈려 있었다. 대비가 4.74→5.25:1 로 오른다.
 #   ★admin.html 은 동기화 대상이 아니다(momentedit-design) · contract/ 는 법률 문서라 손대지 않는다.
