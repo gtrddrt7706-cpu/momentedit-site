@@ -52,7 +52,7 @@
       "dir": "assets/audio/narration",
       "clips": 22,
       "sents": 54,
-      "chars": 1665
+      "chars": 1654
     },
     {
       "file": "3_진행_후반.txt",
@@ -924,7 +924,7 @@
         },
         {
           "i": 1,
-          "text": "두 분, 다시 두 사람이 다시 정면을 바라봅니다.",
+          "text": "이제 다시 정면을 바라봅니다.",
           "before": 0,
           "after": 0
         }

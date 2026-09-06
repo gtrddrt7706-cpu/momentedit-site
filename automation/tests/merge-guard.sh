@@ -6304,3 +6304,12 @@ chk '신랑 이서준입니다' 'docs/plans/식순연구/배역_예시_대사.tx
 chk '신부 정하윤입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk "groomName: '이서준'" shared/hydrate.js 1
 chk "brideName: '정하윤'" shared/hydrate.js 1
+
+# ★★[DOUBLE_AGAIN 2026-09-06] 「두 분, 다시 두 사람이 다시 정면을 바라봅니다.」 — 말이 안 되는 문장이었다.
+#   264cbbf2(문안 92곳 일괄 교체)에서 옛 요청형(「두 분, 다시 …」)과 새 서술형(「두 사람이 다시 …」)이
+#   반씩 겹쳐 남았다. 반지 교환 마무리 자리라 예식에서 그대로 나갈 뻔했다.
+#   성우별 대본으로 우성 153줄을 한 화면에 놓으니 그 줄 하나가 눈에 걸렸다 — 파트로 잘려 있을 땐 안 보였다.
+#   지금: 「같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 이제 다시 정면을 바라봅니다.」
+nochk '두 분, 다시 두 사람이' assets/ritual-data.js
+nochk '두 분, 다시 두 사람이' order-preview.html
+chk '이제 다시 정면을 바라봅니다' assets/ritual-data.js 2
