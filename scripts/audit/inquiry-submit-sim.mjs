@@ -116,6 +116,10 @@ async function run(name, handler, { clicks = 1, waitAfter = 1200, delayClicks = 
   await page.evaluate(() => document.querySelector('.submit-btn').scrollIntoView({ block: 'center' }));
   await page.waitForTimeout(200);
   await page.evaluate(() => document.querySelector('.submit-btn').click());
+  /* ★필수 누락은 «반짝이는 동안»을 한 장 남긴다 — meFlashTo 의 애니메이션은 1.5초뿐이라
+     그 뒤에 찍으면 화면에 아무 흔적이 없다(첫 판이 그랬다). 사람이 판정할 그림은 이쪽이다. */
+  if (omit) { await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(SHOTS, `inq-submit-${SLUG[name] || 'x'}-flash.png`) }); }
   await page.waitForTimeout(700);
   // 이메일 확인 모달의 «맞습니다»를 누른다
   const confirmed = await page.evaluate(() => {
@@ -213,6 +217,8 @@ for (const r of results) {
     console.log(`   · 판정 없음(기록만) — stage 를 비운 채 제출한 결과다.`);
     console.log(`   · 요청 ${r.요청수}건(0이어야 정상) · 오류문구 보임=${r.오류보임}`);
     if (r.누락위치) console.log(`   · 빠진 항목이 화면 안에 있나: ${r.누락위치.화면안} (top ${r.누락위치.상단}px) · ${r.누락위치.반짝임}`);
+    console.log('   · 되돌아오는 신호는 «부드러운 스크롤 + 1.5초 반짝임»뿐이고 문구는 없다(meFlashTo).');
+    console.log('   · 반짝이는 순간: ' + path.relative(ROOT, path.join(SHOTS, 'inq-submit-missing-required-flash.png')));
     r.요청수 === 0 ? okline('필수가 비면 서버로 보내지 않는다') : fail(`필수가 비었는데 요청이 ${r.요청수}건 나갔다`);
   }
   if (r.name === '무응답') {
