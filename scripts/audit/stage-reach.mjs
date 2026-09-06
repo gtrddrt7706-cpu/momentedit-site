@@ -36,7 +36,12 @@
      merge-guard 에 심어 두었다(STAGE_REVIEW_DOOR) — 문이 사라지면 초당 단위로 잡힌다.
      상태공간 자체가 바뀌는 변경(단계 추가·가드 변경)을 했을 때 손으로 한 번 돌린다.
 */
-import { openWorld, kstAgo } from './_gasworld.mjs';
+import { openWorld, kstAgo, kstAhead } from './_gasworld.mjs';
+
+/* ★[KST_AHEAD 2026-09-05 점검] 상담 날짜를 «지금 기준 미래»로 — 고정 리터럴이 과거가 되면
+   서버의 PAST_SLOT_REJECT 가 «정상적으로» 거절해 그 문이 닫히고, 상태 그래프가 줄어
+   「비상구 없이는 앞으로 못 간다」가 뜬다(실측: 7497→6055 상태 · 실패 4건). 다시 썩지 않게 계산한다. */
+const CONSULT_YMD = kstAhead(45), PROPOSE_YMD = kstAhead(46);
 
 const VERBOSE = process.argv.includes('--verbose');
 const { G, world } = openWorld();
@@ -88,7 +93,7 @@ function seedFor(st, hours) {
     동의기록: JSON.stringify(rec), 처리이력: '',
   };
 }
-const bookingFor = (st) => (st.B상태 ? { 개인코드: CODE, 상태: st.B상태, 선택날짜: '2026-09-01', 선택시간: '14:50',
+const bookingFor = (st) => (st.B상태 ? { 개인코드: CODE, 상태: st.B상태, 선택날짜: CONSULT_YMD, 선택시간: '14:50',
   신랑이름: '김희준', 신부이름: '이미쿠', 이메일: 't@example.com', 토큰: 'tk' } : null);
 
 /* ── 동작 목록 ────────────────────────────────────────────────────────────────
@@ -111,13 +116,13 @@ const ACTIONS = [
   { k: '고객:계약서 재발송 요청', side: 'cust', run: CUST('handleRequestContractResend', {}) },
   /* ★강제변경은 예약행을 «신청접수»로 되돌린다(_resetConsultBooking). 거기서 나가는 문은
      고객의 일정 선택과 관리자의 시간 직접 제안 둘뿐이다 — 빠뜨리면 그 칸이 통째로 막다른 길로 뜬다. */
-  { k: '고객:상담 일정 선택', side: 'cust', run: CUST('handleSubmitSchedule', { dateKey: '2026-09-01', time: '14:50' }) },
+  { k: '고객:상담 일정 선택', side: 'cust', run: CUST('handleSubmitSchedule', { dateKey: CONSULT_YMD, time: '14:50' }) },
   /* 관리자 — 일상
      ★예약(상담) 쪽 동작을 빠뜨리면 «신청접수에서 나갈 문이 없다»는 가짜 경보가 뜬다(첫 판에서 실제로 그랬다).
        도구가 모르는 문은 없는 문과 구별되지 않는다 — 그래서 adminCall FNS 표를 훑어 전부 채웠다. */
   { k: '관리자:예약 승인', side: 'adm', run: ADMIN('adminApprove') },
   { k: '관리자:변경제안 수락', side: 'adm', run: ADMIN('adminAcceptProposal') },
-  { k: '관리자:시간 직접 제안', side: 'adm', run: ADMIN('adminProposeTime', ['2026-09-02', '18:10', '']) },
+  { k: '관리자:시간 직접 제안', side: 'adm', run: ADMIN('adminProposeTime', [PROPOSE_YMD, '18:10', '']) },
   { k: '관리자:상담완료 처리', side: 'adm', run: ADMIN('adminMarkConsultDone') },
   { k: '관리자:임시고정 승인', side: 'adm', run: ADMIN('adminGrantWeddingHold') },
   { k: '관리자:중도금·잔금 한번에 확인', side: 'adm', run: ADMIN('adminConfirmMidBalance') },
