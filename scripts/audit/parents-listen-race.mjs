@@ -27,9 +27,12 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { launchBrowser } from './_browser.mjs';
+import { freePort } from './_freeport.mjs';
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '../..');
-const PORT = 8232;
+const PORT = await freePort();   // [FREE_PORT_5 2026-09-06] 포트를 리터럴(8232)로 박아 두면
+//   앞 실행이 죽어 소켓을 물고 있을 때 화면은 멀쩡한데 감사만 붉는다(실측 2건 · img-webp/orphan-copy).
+//   커널에서 빈 포트를 받아 쓴다 — 리터럴로 되돌리지 말 것(_freeport.mjs 주석 참조).
 const LEAD = 2000;        // parents.html 의 LEAD_IN 과 같은 값 — 여기가 어긋나면 아래 대기가 헛돈다
 const WARM = 1;           // 누르는 즉시 나가는 워밍업 문장 수(엔진 깨우기) — 본문은 이보다 많아야 한다
 const AUDIO_PATH = '/assets/audio/parents-letter.mp3';
@@ -66,7 +69,7 @@ const srv = http.createServer((req, res) => {
   }
   send();
 });
-await new Promise((r) => srv.listen(PORT, '127.0.0.1', r));
+await new Promise((r, j) => { srv.on('error', j); srv.listen(PORT, '127.0.0.1', r); });
 const stop = () => { try { srv.close(); } catch {} };
 process.on('exit', stop);
 

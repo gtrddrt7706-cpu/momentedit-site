@@ -374,6 +374,30 @@ select {
      디스플레이(22+)와 마이크로 라벨(8/9), 폰 목업 장식 구역은 별도. 반px 금지. */
   --max: 820px;
 }
+/* [SKIP_LINK 2026-09-06] 키보드로 오면 본문 전에 상단 링크 9개를 지나야 했다(WCAG 2.4.1 Level A).
+   평소엔 화면에 1px 도 안 보인다 — Tab 을 처음 눌렀을 때만 좌상단에 나타난다.
+   ★clip/left:-9999px 로 숨기지 말 것: 그러면 포커스가 가도 안 보여 아무 소용이 없다. */
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: -80px;
+  z-index: 9999;
+  background: var(--accent);
+  color: #fff;
+  padding: 11px 16px;
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  transition: top 0.12s var(--ease);
+}
+.skip-link:focus {
+  top: 12px;
+}
+
   /* [PERF_CV_SECTIONS] 화면 밖 섹션의 스타일·레이아웃을 뒤로 미룬다(content-visibility:auto).
      Lighthouse 실측 — 이 페이지 비용의 대부분은 스크립트(0.8s)가 아니라 Style&Layout(5.6s, 4x 스로틀):
      25,000px 전체를 첫 로드에 레이아웃하는 값. 아래 8개 섹션은 뷰포트에 접근할 때 렌더된다.
@@ -4314,7 +4338,8 @@ footer {
   transition: color 0.45s var(--ease);
 }
 .mockup-item.active .mockup-num {
-  color: var(--gold);
+  color: var(--gold-text); /* [GOLD_TEXT_AA 2026-09-06] 활성 서수 = 정보 · 2.54:1 → 5.71:1.
+     .jr-step.on .jr-n 과 같은 구문인데 이 자리만 정리에서 빠져 있었다. --gold 복원 금지 */
 }
 .mockup-content {
   flex: 1;
@@ -4578,7 +4603,9 @@ footer {
   font-family: var(--serif);
   font-size: 10.5px;
   letter-spacing: 0.3em;
-  color: var(--gold);
+  color: var(--gold-text); /* [GOLD_TEXT_AA 2026-09-06] 편지 카드 상단 브랜드줄 2.65:1 → 5.97:1.
+     이 카드는 [A11Y_LETTER_EXPOSED] 로 «장식이 아니라 실제 예시» 라 스크린리더에 노출한 자리다 —
+     읽으라고 내놓은 글자라 장식용 --gold 를 쓰면 안 된다. 복원 금지 */
   margin-top: 8px;
   text-transform: uppercase;
   padding-left: 0.3em;
@@ -4599,7 +4626,9 @@ footer {
   font-style: italic;
   font-size: 11px;
   letter-spacing: 0.26em;
-  color: var(--gold);
+  color: var(--gold-text); /* [GOLD_TEXT_AA 2026-09-06] 편지 카드 배지 2.65:1 → 5.97:1.
+     이 카드는 [A11Y_LETTER_EXPOSED] 로 «장식이 아니라 실제 예시» 라 스크린리더에 노출한 자리다 —
+     읽으라고 내놓은 글자라 장식용 --gold 를 쓰면 안 된다. 복원 금지 */
   text-transform: uppercase;
   margin-bottom: 26px;
 }
@@ -4625,7 +4654,9 @@ footer {
   font-style: italic;
   font-size: 10.5px;
   letter-spacing: 0.24em;
-  color: var(--gold);
+  color: var(--gold-text); /* [GOLD_TEXT_AA 2026-09-06] 편지 보낸이 라벨 2.65:1 → 5.97:1.
+     이 카드는 [A11Y_LETTER_EXPOSED] 로 «장식이 아니라 실제 예시» 라 스크린리더에 노출한 자리다 —
+     읽으라고 내놓은 글자라 장식용 --gold 를 쓰면 안 된다. 복원 금지 */
   text-transform: uppercase;
   margin-bottom: 6px;
 }
@@ -5563,6 +5594,7 @@ body {
 </script>
 </head>
 <body itemscope itemtype="https://schema.org/WebPage">
+<a class="skip-link" href="#main">본문 바로가기</a>
 <div class="page-bg">
 <header>
 <!-- NAV -->
@@ -5619,7 +5651,7 @@ body {
   </div>
 </div>
 </header>
-<main>
+<main id="main" tabindex="-1">
 <!-- HERO -->
 <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">모먼트에디트 · 고양 마이크로웨딩·프라이빗 웨딩 스튜디오</h1>
 <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">양가 직계가족 결혼식</h2>

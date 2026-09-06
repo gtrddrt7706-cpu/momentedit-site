@@ -1097,6 +1097,12 @@ chk 'LABEL_KO_TRACK' index.html 1              # 섹션 라벨 22% 자간이 한
 chk 'll-ko' index.html 18                     # 라벨 17개 한글 꼬리 span + CSS 규칙 1 = 18 (span 제거 시 자간 원복)
 chk 'HOME_GOLD_TEXT' index.html 2               # 글자용 골드를 --gold-text(#7a5f37)로 분리 — 2.54:1→5.71:1. 장식 선·아이콘용 --gold 복원 금지
 chk 'gold-text' index.html 3                    # 변수 정의 1 + 사용 2 + 주석 1
+# ★[SKIP_LINK 2026-09-06] 키보드로 오면 본문 전에 상단 링크 9개를 지나야 했다(WCAG 2.4.1 Level A).
+#   평소엔 화면 밖(top:-80px)에 있다가 Tab 을 처음 눌렀을 때만 좌상단에 나타난다.
+#   ★clip/left:-9999px 로 숨기는 판으로 «정리»하지 말 것 — 포커스가 가도 안 보여 아무 소용이 없다.
+chk 'SKIP_LINK' index.html 1
+chk 'skip-link' index.html 3                     # CSS 규칙 1 + :focus 1 + body 첫 줄 앵커 1
+chk 'main id="main" tabindex="-1"' index.html 1   # 건너뛰기 링크의 착지점 — id·tabindex 둘 다 있어야 포커스가 옮겨간다
 chk 'HOME_TAP40' index.html 1                   # 텍스트 링크 히트영역 ::before (규칙 블록)
 # [TAP44-3] 두 번째 HOME_TAP40(상담 위젯 닫기 padding 11px 주석)은 13px·44px 로 올리며 TAP44-3 주석으로 바뀜(2026-08-09)
 chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + 위젯 닫기
@@ -1405,7 +1411,9 @@ chk '_DECL_CARD_WHO' admin.html 3                           # 낭독 카드 대�
 chk "'나레이션 대행' 선택지 복원 금지" assets/ritual-data.js 1   # 8842582로 폐지된 선택지 · 카피만 뒤늦게 정리(제거 지시 보존)
 chk 'FESTIVE_MIN_WHY' assets/ritual-data.js 1                   # 축하 여유 16분은 오타 아님 · 첫 예식 실측 전 낮추기 금지
 chk '가장 가까운 정면 열에 앉으신 채로' assets/ritual-data.js 3   # 헌정 큐 · 부모님 좌석·자세(3종 전부)
-chk 'GOLD_TEXT_AA' index.html 6                             # 텍스트 골드는 --gold-text(#7A5F37·5.71:1) · 장식 --gold(#B89A75·2.54:1)로 되돌리기 금지
+chk 'GOLD_TEXT_AA' index.html 11                            # 텍스트 골드는 --gold-text(#7A5F37·5.71:1) · 장식 --gold(#B89A75·2.54:1)로 되돌리기 금지
+#   ★6→11 (2026-09-06): 갤러리 활성 서수(.mockup-item.active .mockup-num · .jr-step.on .jr-n 과 같은 구문인데
+#     이 자리만 빠져 있었다)와 편지 카드 3줄(.dm-subbrand·.dm-badge·.dm-from-label)을 더했다.
 chk 'NOWRAP_CLIP_FIX' index.html 1                          # 390px서 17px 잘리던 문장 · white-space:nowrap 재삽입 금지
 chk 'MOCKUP_ARIA_HIDDEN' index.html 1                       # 장식 목업 스크린리더 제외 · 목업에 포커스 요소 추가 시 함께 재검토
 chk 'SECTION_RHYTHM' index.html 2                           # 섹션 간격은 .divider 단독(--gap×2+40) · 새는 마진 차단 규칙 + about 인라인 마진
@@ -5068,6 +5076,21 @@ case "$_orc" in
   0) echo "ok orphan-copy (문구 제자리)" ;;
   2) echo "· orphan-copy 안 쟀다(브라우저·서버 없는 자리) — 푸시 전에 손으로: node scripts/audit/orphan-copy.mjs" ;;
   *) echo "FAIL orphan-copy — node scripts/audit/orphan-copy.mjs"; fail=1 ;;
+esac
+
+# ★[HOME_A11Y 2026-09-06] 홈이 «읽히는가» 를 기계가 지킨다.
+#   [GOLD_TEXT_AA] 정리가 같은 구문인 .mockup-item.active .mockup-num 한 자리만 빠뜨렸다 —
+#   사람이 눈으로 훑어 찾는 방식이라 난 사고다. 이제 색을 계산해서 찾는다.
+#   ★탭 표적은 여기서 안 잰다(scripts/check-tap-targets.mjs 가 권위 · 접힘·::before 를 제대로 거른다).
+#   적대 검증: 고치기 전 index.html 로 되돌리면 위반 20건으로 붉는다.
+chk 'HOME_A11Y' scripts/audit/home-a11y.mjs 1
+chk '홈은 읽히는 상태다' scripts/audit/home-a11y.mjs 1
+chk '못 봄(브라우저 없음)' scripts/audit/home-a11y.mjs 1
+node scripts/audit/home-a11y.mjs >/dev/null 2>&1; _ha=$?
+case "$_ha" in
+  0) echo "ok home-a11y (홈 대비·건너뛰기 정상)" ;;
+  2) echo "· home-a11y 안 쟀다(브라우저·포트 없는 자리) — 푸시 전에 손으로: node scripts/audit/home-a11y.mjs" ;;
+  *) echo "FAIL home-a11y — node scripts/audit/home-a11y.mjs"; fail=1 ;;
 esac
 
 # ★★[PRICE_NOTE_TONE 2026-08-18 사용자 지시 "계약서 조항 같은 느낌은 빼자"]
