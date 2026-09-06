@@ -16,7 +16,18 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PAGES = ['console.html', 'parents.html', 'order-preview.html', 'mypage.html', 'guide.html', 'index.html'];
 const RE = /['"](\/assets\/[^'"]+\.mp3)['"]/g;
 
-let bad = 0, seen = 0;
+/* ★[AUDIO_KNOWN_GAP 2026-09-06] «알고 있는 결손»은 게이트를 붉히지 않는다 — 대신 매번 말한다.
+ *   console.html 의 PREVIEW_BED 는 처음부터 실물이 없다(위 머리말 · 2026-08-16 기록).
+ *   파일을 만드는 일은 사용자 몫이라(음원 선택) 여기서 고칠 수 없다.
+ *   ★그렇다고 검사를 안 돌리면 «새로» 사라진 소리도 함께 묻힌다 — 실제로 merge-guard 는
+ *     이 감사의 «마커만» 세고 실행하지는 않아서, 결손이 3주 넘게 게이트를 그냥 통과했다.
+ *   ★자정(自淨): 아래 파일이 «생기면» 이번엔 그걸 알려 준다. 목록이 낡은 채 남지 않게. */
+const KNOWN_GAP = {
+  'assets/narration/preview-bed.mp3':
+    '고객 미리듣기 배경음악 · 음원 선택이 사용자 몫이라 대기(나중에할일_체크리스트.md)',
+};
+
+let bad = 0, seen = 0, known = 0, stale = [];
 for (const p of PAGES) {
   const f = path.join(ROOT, p);
   if (!fs.existsSync(f)) continue;
@@ -24,9 +35,18 @@ for (const p of PAGES) {
   for (const m of s.matchAll(RE)) {
     const rel = m[1].replace(/^\//, '');
     seen++;
-    if (fs.existsSync(path.join(ROOT, rel))) console.log(`ok ${p} → ${rel}`);
-    else { console.error(`✗ ${p} 가 없는 소리를 운다 → ${rel}`); bad++; }
+    const there = fs.existsSync(path.join(ROOT, rel));
+    if (there) {
+      console.log(`ok ${p} → ${rel}`);
+      if (KNOWN_GAP[rel]) stale.push(rel);            // 생겼다 — 목록에서 빼라고 알린다
+    } else if (KNOWN_GAP[rel]) {
+      console.log(`· ${p} → ${rel} 없음(알고 있는 결손) — ${KNOWN_GAP[rel]}`);
+      known++;
+    } else { console.error(`✗ ${p} 가 없는 소리를 운다 → ${rel}`); bad++; }
   }
 }
-console.log(bad ? `\n손으로 박은 소리 ${seen}개 중 ${bad}개가 없다` : `\n손으로 박은 소리 ${seen}개 전부 실물이 있다`);
-process.exit(bad ? 1 : 0);
+stale.forEach((r) => console.error(`✗ ${r} 가 이제 있다 — KNOWN_GAP 에서 빼라(목록이 낡으면 다음 결손을 놓친다)`));
+console.log(bad || stale.length
+  ? `\n손으로 박은 소리 ${seen}개 중 ${bad}개가 없다${stale.length ? ` · 낡은 예외 ${stale.length}개` : ''}`
+  : `\n손으로 박은 소리 ${seen}개 — 없는 것 0개${known ? ` (알고 있는 결손 ${known}개는 따로 셈)` : ''}`);
+process.exit(bad || stale.length ? 1 : 0);

@@ -4231,6 +4231,23 @@ chk 'EXTRA_CROSS' scripts/lib/engine-calls.mjs 1     # [ENGINE_CALLS] 위와 같
 # [AUDIO_PATH_REAL 2026-08-16 CC 적대검증 ⑤] 손으로 박은 mp3 경로가 실물에 닿는가.
 #   ★지금 rc 1 이 정상이다 — preview-bed.mp3 가 없다(고칠지는 사용자가 정한다). 게이트는 «세는 것»만 건다.
 chk 'AUDIO_PATH_REAL' scripts/audit/audio-paths.mjs 1
+chk 'AUDIO_KNOWN_GAP' scripts/audit/audio-paths.mjs 1
+# ★[JR_HOVER_SETTLE 2026-09-06] index-jr-hover 가 «4번을 짚었는데 3번이 켜진다»로 간헐 실패했다(3회 중 2회).
+#   화면 결함이 아니라 재는 쪽 사정 — index.html 은 html{scroll-behavior:smooth}(423행)이고
+#   playwright 의 hover 는 요소를 화면에 넣으려 스크롤한다. 그 스크롤이 애니메이션 중인데
+#   220ms 뒤 다음 칸 좌표를 계산하니 마우스가 이웃 칸에 떨어졌다(실측: 첫 hover 로 815px 이동).
+#   ★고친 뒤 5회 연속 통과 · 호버 동작을 일부러 없애면 12건으로 붉는다(무는 힘 그대로 · 적대검증).
+chk 'JR_HOVER_SETTLE' scripts/audit/index-jr-hover.mjs 1
+# ★★[AUDIO_RUN 2026-09-06] 이 감사는 «마커만» 세고 정작 돌리지는 않았다.
+#   그래서 console.html 의 PREVIEW_BED 결손(2026-08-16 기록)이 3주 넘게 게이트를 그냥 통과했다.
+#   마커가 살아 있는지 세는 것과 «검사가 실제로 도는지»는 다른 일이다 — 이제 돌린다.
+#   ★알고 있는 결손 1건(음원 선택이 사용자 몫)은 KNOWN_GAP 이 따로 세어 초록을 유지한다.
+#     새로 사라진 소리는 붉고, 알던 결손이 «생기면» 예외를 빼라고 붉는다(양쪽 다 적대검증 확인).
+node scripts/audit/audio-paths.mjs >/dev/null 2>&1; _ap=$?
+case "$_ap" in
+  0) echo "ok audio-paths (손으로 박은 소리 전부 실물 · 알고 있는 결손은 따로 셈)" ;;
+  *) echo "FAIL audio-paths — node scripts/audit/audio-paths.mjs"; fail=1 ;;
+esac
 chk 'PREVIEW_BED' console.html 6
 # ★[SEAT_FIT 2026-08-16] 이름이 세 글자만 넘어가도 자리 알약이 카드 밖으로 30px 넘게 나갔다(390px 실측).
 #   지그재그 배율 1.9→1.15 · --zig 26→20 으로 잡고, 테이블 커스텀 이름은 원 안에서 원 아래 한 줄로 내렸다.
