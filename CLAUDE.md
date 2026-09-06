@@ -181,7 +181,7 @@
 | `adminUndoRefunded('코드','사유')` | admin | 환불 '완료 표시' 취소 — 송금 자체가 아니라 표시를 되돌려 환불 송금 큐에 다시 띄움. 사유 필수·멱등·처리이력(adminCall) |
 | `adminForceStagePreview('코드','단계')` | admin | 강제 단계 변경 미리보기 — 비워질 컬럼·동의기록 키·상담 예약 초기화 여부와 ROLLBACK_KEEP_PAID로 '유지됨'인 항목을 반환(실행과 같은 `_clearForwardData`) |
 | `monthBusinessData` | admin | (읽기 전용) 이번 달 계약 건수·실입금 매출·전달 건수. aiMorningReport가 읽어 아침 메일 한 줄로 실음. 매출=‘확인’된 입금의 합(계약총액 합계 아님·상담 예약금 제외) |
-| `morningBriefData` | admin | (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op) |
+| `morningBriefData` | admin | (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op). ★2026-09-06부터 오늘 상담은 **`adminHome`이 만든 `todayConsults`를 그대로 쓴다**(TODAY_CONSULT) — 예약 시트를 다시 훑지 않는다. 관리자 홈 화면과 아침 메일이 한 원천을 본다 |
 | `aiMorningPreview` | 96_ai_cost | 지금 아침보고 1통 즉시 발송(테스트·수동). aiMorningReport와 동일 |
 | `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). `aiDailySafetyCheck(true)`(silent)면 개별 문자 없이 결과만 반환(아침보고가 합쳐 발송). 수동 실행 시엔 위반/하락 시 SMS. 서버 fetch 막히면 점검불가 반환 |
 | `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS(aiMorningReport는 `false`로 텍스트만 가져감) |

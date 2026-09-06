@@ -75,11 +75,14 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
   #detailBody>:not(.card),#detailBody>.card[data-k="payment"]{grid-column:1/-1}
   .card[data-k="payment"] .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .card[data-k="payment"] .actions>:not(.btn){grid-column:1/-1}   /* 상태 문구(.gate·.hint)는 전폭 · 버튼만 짝 */
-  /* 홈 — 왼쪽 «처리할 일·결과물», 오른쪽 «진행 중 현황». 목록 행은 폰에서 설계된 폭(≈560px)을 그대로 유지한다 */
+  /* 홈 — 왼쪽은 «처리할 일» 한 줄기, 오른쪽은 «오늘 상담 → 진행 중 현황 → 결과물 → 후기».
+     ★[HOME_RIGHT_STACK 2026-09-06 사용자 승인] 종전엔 결과물·후기가 왼쪽 큐 «아래»라, 큐가 길어질수록
+       (바쁜 날 1276px) 오른쪽 아래가 700px 비고 결과물은 @1411 로 밀려 스크롤해야 보였다.
+       오른쪽에 쌓으니 문서 1902→1483px(-419) · 결과물이 첫 화면(@812)으로 들어온다(실측). */
   #homeView{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:start;
-    grid-template-areas:"search search" "recent recent" "queue pipe" "results pipe" "survey pipe"}
+    grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"}
   #homeView>.search{grid-area:search} #recentWrap{grid-area:recent} #queueWrap{grid-area:queue}
-  #resultsWrap{grid-area:results} #pipeWrap{grid-area:pipe} #surveyWrap{grid-area:survey}
+  #todayWrap{grid-area:today} #resultsWrap{grid-area:results} #pipeWrap{grid-area:pipe} #surveyWrap{grid-area:survey}
   /* 아카이브 — 끝난 고객 목록. 행이 독립 항목이라 2열(왼→오) · 제목·빈 안내는 전폭 */
   #archiveBody{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;align-items:start}
   #archiveBody>:not(.arow){grid-column:1/-1}
@@ -342,6 +345,13 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal .paste-btn:active{background:var(--paper2)}
 .modal .paste-hint{font-family:var(--serif-ko);font-size:11px;color:var(--seal);margin-top:4px;text-align:left;min-height:0}
 /* [ADM_AA6] 최근 본 고객 칩 — 폰 재방문 시 재검색 제거(이름·코드만 저장) */
+/* [TODAY_CONSULT] 오늘 상담 — 파이프라인 행과 같은 격(카드 안 목록). 새 색·새 모양을 만들지 않는다 */
+.trow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--divider);cursor:pointer}
+.trow:last-child{border-bottom:none}
+.trow:active{background:var(--paper)}
+.trow .ttime{font-family:var(--mono);font-size:12.5px;color:var(--seal);flex:none}
+.trow .tnm{font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbox{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .recent{display:flex;flex-wrap:wrap;gap:6px;margin:8px 2px 0}
 .recent .rc-l{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);align-self:center;margin-right:2px}
 .recent button{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:6px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -405,6 +415,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
       <button id="btnSearch">검색</button>
     </div>
     <div id="recentWrap" class="recent" style="display:none"></div><!-- [ADM_AA6] 최근 본 고객 -->
+    <div id="todayWrap" style="display:none"></div><!-- [TODAY_CONSULT] 오늘 상담 · 없으면 아예 안 그린다 -->
     <div id="queueWrap"></div>
     <div id="resultsWrap"></div>
     <div id="pipeWrap"></div>
@@ -1701,6 +1712,7 @@ function loadHome(silent){
          관리자는 «오늘은 후기가 없나 보다»로 읽는다 — 이 저장소가 반복해 없애 온 조용한 실패다.
          이제 섹션마다 따로 그리고, 죽은 자리에는 왜 비었는지 한 줄을 남긴다(GAS 재배포 갭이 흔한 원인). */
     [['최근 본 고객','recentWrap',renderRecent],   /* [ADM_AA6] 최근 본 고객 칩 */
+     ['오늘 상담','todayWrap',renderToday],   /* [TODAY_CONSULT] */
      ['처리할 일','queueWrap',renderQueue],['결과물','resultsWrap',renderResults],
      ['진행 중 현황','pipeWrap',renderPipeline],['후기','surveyWrap',renderSurvey]].forEach(function(sec){
       try{ sec[2](d); }
@@ -1746,6 +1758,26 @@ function _waitDays(w){
   var t=new Date(w+'T00:00:00').getTime(); if(isNaN(t)) return -1;
   var now=new Date(); now.setHours(0,0,0,0);
   return Math.floor((now.getTime()-t)/86400000);
+}
+/* ★[TODAY_CONSULT 2026-09-06] 오늘 상담 — 서버가 준 목록을 시간순으로. 눌러서 그 고객 상세로 간다.
+   ★없는 날은 칸 자체를 그리지 않는다 — 대부분의 날이 «없음»이라 빈 상자를 매번 띄우면 그게 소음이 된다.
+     («비었나 고장났나»는 [HOME_SECTION_ISOLATE] 가 실패한 자리에 한 줄을 남겨 가른다)
+   ★옛 GAS 응답엔 todayConsults 가 없다 — 그때도 조용히 숨을 뿐 깨지지 않는다(재배포 갭 안전). */
+function renderToday(d){
+  var el=$('todayWrap'); if(!el) return;
+  var list=((d&&d.todayConsults)||[]).slice();
+  /* [TODAY_CONSULT] 화면에서도 시간순으로 세운다 — 서버(admin.gs)도 정렬하지만 그 둘은 «따로 배포된다»
+     (Vercel 즉시 · GAS 수동 재배포). 정렬 같은 한 줄을 서버 배포에 매달아 두지 않는다. */
+  list.sort(function(a,b){ var x=String(a&&a.time||''), y=String(b&&b.time||''); return x<y?-1:(x>y?1:0); });
+  if(!list.length){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='';
+  el.innerHTML='<div class="sect-h"><span class="tt">오늘 상담</span><span class="ct">'+list.length+'</span></div>'
+    +'<div class="tbox">'+list.map(function(c){
+      return '<div class="trow" data-code="'+esc(c.code||'')+'"><span class="ttime">'+esc(c.time||'시간 미정')+'</span><span class="tnm">'+esc(c.names||'')+'</span></div>';
+    }).join('')+'</div>';
+  el.querySelectorAll('.trow').forEach(function(r){
+    r.addEventListener('click', function(){ var c=r.getAttribute('data-code'); if(c) openDetail(c,'home'); });
+  });
 }
 function renderQueue(d){
   var u=d.queue.urgent||[], n=d.queue.normal||[], html='', ct=d.counts||{}, ctTotal=Number(ct.total)||0, ctUrgent=Number(ct.urgent)||0;

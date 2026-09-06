@@ -387,20 +387,9 @@ function morningBriefData() {
   _AUTHED = true;                                  // 트리거 컨텍스트 — adminCall과 동일한 내부 인증 패턴
   try { d = adminHome(); } finally { _AUTHED = false; }
   if (!d || !d.ok) return null;
-  var today = d.today;
-  var bs = getSheet(), bc = buildHeaderIndex(bs), bLast = bs.getLastRow();
-  var todays = [];
-  if (bLast >= SYS.DATA_START_ROW) {
-    var rows = bs.getRange(SYS.DATA_START_ROW, 1, bLast - SYS.DATA_START_ROW + 1, bs.getLastColumn()).getValues();
-    var bg = function (rv, h) { var col = bc[h]; return col ? rv[col - 1] : ''; };
-    rows.forEach(function (rv) {
-      var st = String(bg(rv, '상태') || '').trim();
-      if (st !== ST.APPROVED && st !== ST.CONFIRMED) return;
-      if (_ymdOf(bg(rv, '선택날짜')) !== today) return;
-      todays.push(String(bg(rv, '선택시간') || '').trim() + ' ' + _names(bg(rv, '성함(신랑)'), bg(rv, '성함(신부)')));
-    });
-    todays.sort();
-  }
+  /* [TODAY_CONSULT] 예약 시트를 다시 훑지 않는다 — adminHome 이 같은 순회에서 이미 모았다.
+     종전엔 같은 계산이 두 곳에 있어, 한쪽만 고치면 화면과 메일이 다른 말을 하게 되는 자리였다. */
+  var todays = (d.todayConsults || []).map(function (c) { return (c.time + ' ' + c.names).trim(); });
   var q = d.queue.urgent.concat(d.queue.normal);
   var byKind = {};
   q.forEach(function (it) { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
@@ -531,7 +520,20 @@ function adminHome() {
 
   // 상담예약 맵(개인코드 → 최신 행) + Customers 단계 맵(신규신청 booking 필터용)
   var bookMap = {};
-  bookRows.forEach(function (rv) { var code = String(bget(rv, '개인코드') || '').trim().toUpperCase(); if (code) bookMap[code] = rv; });
+  /* ★★[TODAY_CONSULT 2026-09-06 관리자 입장 점검] 오늘 상담 일정이 «아침 메일에만» 있었다 —
+     낮에 «오늘 몇 시에 누구지?» 를 보려면 받은편지함을 뒤져야 했다(관리자 화면은 today 조차 안 썼다).
+     이미 메모리에 올린 bookRows 를 한 번 더 도는 대신 같은 순회에서 모은다 — 시트 읽기는 늘지 않는다.
+     ★morningBriefData 가 따로 훑던 같은 계산을 여기로 합쳤다. 화면과 아침 메일이 한 원천을 본다. */
+  var todayConsults = [];
+  bookRows.forEach(function (rv) {
+    var code = String(bget(rv, '개인코드') || '').trim().toUpperCase(); if (code) bookMap[code] = rv;
+    var _tcSt = String(bget(rv, '상태') || '').trim();   // [TODAY_CONSULT]
+    if ((_tcSt === ST.APPROVED || _tcSt === ST.CONFIRMED) && _ymdOf(bget(rv, '선택날짜')) === today) {
+      todayConsults.push({ time: String(bget(rv, '선택시간') || '').trim(),
+        names: _names(bget(rv, '성함(신랑)'), bget(rv, '성함(신부)')), code: code });
+    }
+  });
+  todayConsults.sort(function (a, b) { return a.time < b.time ? -1 : (a.time > b.time ? 1 : 0); });   // [TODAY_CONSULT] 시간순
   var custStageMap = {};
 
   var urgent = [], normal = [], queueCodes = {}, resultsList = [];
@@ -1015,6 +1017,7 @@ function adminHome() {
 
   return {
     ok: true, name: name, today: today,
+    todayConsults: todayConsults,   // [TODAY_CONSULT] 오늘 상담 — 화면(관리자 홈)과 아침 메일이 함께 쓴다
     queue: { urgent: urgent, normal: normal },
     counts: { total: urgent.length + normal.length, urgent: urgent.length },
     results: resultsList,
