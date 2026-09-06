@@ -156,6 +156,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .pcust .bolt{color:var(--seal);flex:none;font-size:12px}
 
 .empty{font-family:var(--serif-ko);font-size:13px;color:var(--label-soft);text-align:center;padding:26px 0}
+.qwait{margin-left:6px;font-size:11px;color:var(--sub);white-space:nowrap}   /* [STALE_DAYS_SHOW] 며칠째 · 읽어야 하는 값이라 --sub(7.08:1) */
 .hint{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deeper);text-align:center;padding:6px 0}
 
 /* 상세 */
@@ -1694,9 +1695,20 @@ function loadHome(silent){
     _homeRetried=false;
     setWho(d.name); setTopbar(true);
     curHome=d;
-    // 렌더 예외가 아래 .catch(authFail)로 흘러 '세션 만료'로 둔갑하지 않게 — 한 섹션이 죽어도 홈은 띄운다
-    try{ renderRecent(); renderQueue(d); renderResults(d); renderPipeline(d); renderSurvey(d); }   // [ADM_AA6] 최근 본 고객 칩
-    catch(e){ try{ console.error('adminHome render 실패(부분)', e); }catch(_){} }
+    /* 렌더 예외가 아래 .catch(authFail)로 흘러 '세션 만료'로 둔갑하지 않게 — 한 섹션이 죽어도 홈은 띄운다
+       ★★[HOME_SECTION_ISOLATE 2026-09-06 관리자 입장 점검] 종전엔 다섯을 한 try 로 묶어, 앞이 죽으면
+         뒤가 통째로 안 그려졌다(파이프라인이 던지자 후기까지 사라짐 · 실측). 게다가 화면엔 아무 말이 없어
+         관리자는 «오늘은 후기가 없나 보다»로 읽는다 — 이 저장소가 반복해 없애 온 조용한 실패다.
+         이제 섹션마다 따로 그리고, 죽은 자리에는 왜 비었는지 한 줄을 남긴다(GAS 재배포 갭이 흔한 원인). */
+    [['최근 본 고객','recentWrap',renderRecent],   /* [ADM_AA6] 최근 본 고객 칩 */
+     ['처리할 일','queueWrap',renderQueue],['결과물','resultsWrap',renderResults],
+     ['진행 중 현황','pipeWrap',renderPipeline],['후기','surveyWrap',renderSurvey]].forEach(function(sec){
+      try{ sec[2](d); }
+      catch(e){
+        try{ console.error('adminHome 렌더 실패 · '+sec[0], e); }catch(_){}
+        var el=$(sec[1]); if(el) el.innerHTML='<div class="empty">'+esc(sec[0])+' 부분을 못 그렸어요 · 새로고침해도 그대로면 서버(GAS) 새 버전 재배포를 확인해 주세요</div>';
+      }
+    });
     show('home');
   }).catch(function(e){
     if(silent){ _silentN=Math.max(0,_silentN-1); return; }   // [ADM_AA7] 조용한 갱신 실패는 조용히 넘긴다(다음 주기에 다시 시도)
@@ -1725,7 +1737,7 @@ function queueRow(it){
   }
   return '<div class="qrow'+(it.badge&&it.badge.level==='red'?' red':'')+'" data-code="'+esc(it.code)+'" data-kind="'+esc(it.kind)+'">'+
     '<div class="ql"><div class="qn"><span class="qk'+(it.kind==='현금영수증취소'?' qk-warn':'')+'">'+esc(chipLabel)+'</span>'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div>'+
-    '<div class="qs">'+esc(it.sub||'')+badge+'</div></div>'+btn+'</div>';
+    '<div class="qs">'+esc(it.sub||'')+badge+(it._staleDays?('<span class="qwait">'+it._staleDays+'일째</span>'):'')+'</div></div>'+btn+'</div>';   /* [STALE_DAYS_SHOW] */
 }
 // [ADM_AA10] 대기 일수 — 큐 항목의 _wait('YYYY-MM-DD')에서 오늘까지. 값이 없거나 형식이 다르면 -1(=분리 안 함).
 var STALE_DAYS = 7;
@@ -1746,7 +1758,12 @@ function renderQueue(d){
     // [ADM_AA10] '그 외'는 단계순이라 오래 기다린 건이 아래로 묻힌다 → 7일 이상 대기만 위로 떼어 별도 묶음.
     //   서버 정렬(단계순 → 대기순)을 그대로 두고 걸러내기만 하므로 묶음 안 순서는 종전과 같다. _wait 없는 구 응답이면 전부 '그 외'로 남아 무회귀.
     var stale=[], rest=[];
-    n.forEach(function(it){ (_waitDays(it&&it._wait)>=STALE_DAYS ? stale : rest).push(it); });
+    n.forEach(function(it){ var _w=_waitDays(it&&it._wait); if(_w>=STALE_DAYS){ it._staleDays=_w; stale.push(it); } else { rest.push(it); } });
+    /* ★[STALE_DAYS_SHOW 2026-09-06 관리자 입장 점검] 묶음 이름이 「오래 기다린 것」인데 안이 단계순이라
+       17일짜리가 9일짜리 위에 있으리란 보장이 없었고, 며칠째인지도 화면에 없었다(_waitDays 는 이미 계산하고 버렸다).
+       이 묶음만 오래된 순으로 세우고 행에 «N일째»를 붙인다 — 묶음의 이름이 하는 약속을 지키는 정렬이다.
+       ★'그 외'는 종전대로 서버 정렬(단계순)을 건드리지 않는다. */
+    stale.sort(function(a,b){ return (b._staleDays||0)-(a._staleDays||0); });
     if(stale.length){ html+='<div class="qhead">오래 기다린 것 ('+stale.length+')</div>'+stale.map(queueRow).join(''); }
     if(rest.length){ html+='<div class="qhead">그 외 ('+rest.length+')</div>'+rest.map(queueRow).join(''); }
   }
@@ -2351,12 +2368,19 @@ function cardPayment(d){
     if(_mbBoth) b+=ab('confirmMidBal','중도금·잔금 입금 확인 (한 번에 입금)','btn-line');
     else if(mid==='완료신호') b+=ab('confirmMid','중도금 입금 확인','btn-line');
     else if(mid==='확인') b+='<div class="gate">✓ 중도금 확인됨</div>'+ab('undoPay:중도금','중도금 확인 취소','btn-danger');   /* [ADM_AC1] */
+    /* ★★[MID_BAL_CONFIRM 2026-09-06 관리자 입장 점검] 고객이 «입금했어요»를 안 눌러도 관리자는 통장으로 확인한다.
+       계약금은 그 길이 열려 있었는데(위 2306행 «서명완료면 항상 · 신호 무관») 중도금·잔금만 «완료신호»에서만 버튼이 났다.
+       그래서 큐에는 「중도금 확인」이 뜨는데 그 행을 눌러 상세로 들어가면 버튼이 없는 막다른 길이 됐다(실측).
+       서버(adminConfirmMid·adminConfirmBalance)는 «대기»에서도 받아 준다(샌드박스 실행으로 확인) — 화면만 막고 있었다.
+       계약금 확인 뒤에만 낸다: 수납 순서를 건너뛴 버튼을 만들지 않기 위해서다. */
+    else if(pay==='확인') b+=ab('confirmMid','중도금 입금 확인','btn-line');   /* [MID_BAL_CONFIRM] */
   }
   var bal=d.mirror&&d.mirror.balance;
   if(bal){
     raw+='<div class="cnote">잔금 <b>'+esc(bal.status)+'</b>'+(bal.amount!=null?(' · '+_moneyNum(bal.amount).toLocaleString()+'원'):'')+(bal.payerName?(' · 입금자 '+esc(bal.payerName)):'')+(bal.dday!=null?(' · 예식 D'+(bal.dday>=0?('-'+bal.dday):('+'+(-bal.dday)))):'')+'</div>';
     if(bal.status==='완료신호'&&!_mbBoth) b+=ab('confirmBalance','잔금 입금 확인','btn-line');
     else if(bal.confirmed) b+='<div class="gate">✓ 잔금 확인됨</div>'+ab('undoPay:잔금','잔금 확인 취소','btn-danger');   /* [ADM_AC1] */
+    else if(pay==='확인'&&!_mbBoth) b+=ab('confirmBalance','잔금 입금 확인','btn-line');   /* [MID_BAL_CONFIRM] 위와 같은 이유 */
     // [ADM_AC1B] 계약금 확인이 수납묶음으로 중도금·잔금까지 한 번에 확정한 건은 되돌리기도 버튼을 2~3번 눌러야 했다.
     //   서버(_undoConfirmCore)가 '중도금잔금' 콤보를 이미 지원하므로 둘 다 확인된 경우에만 한 번에 되돌리는 버튼을 하나 더 둔다.
     if(mid==='확인' && bal.confirmed) b+=ab('undoPay:중도금잔금','중도금·잔금 한 번에 취소','btn-danger');
