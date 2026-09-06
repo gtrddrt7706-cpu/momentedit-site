@@ -1116,6 +1116,12 @@ chk 'MAIN_LANDMARK' scripts/audit/home-a11y.mjs 1
 chk 'SMALL_CTRL_REACH' scripts/audit/home-a11y.mjs 1
 chk 'A11Y_SETTLE' scripts/audit/home-a11y.mjs 1
 chk 'LISTEN_BESIDE_NUM' index.html 1     # 재생 버튼을 다시 오른쪽 끝으로 되돌리지 않게
+# ★[LISTEN_ROW_WEIGHT 2026-09-06 사용자 "플레이버튼 위치가 조금이상하다"]
+#   원을 26 → 20px 로 줄였다. 메타줄에서 유일한 기하 도형이라 11px 라벨보다 세 배 굵어
+#   제목보다 먼저 눈에 들어왔다(카드 위계 역전). 20px 은 메타줄 높이(20.3px)보다 작아
+#   음수 마진 없이도 줄을 안 민다 — META_ROW_KEEP 의 보정이 «크기»로 해소된 자리다.
+chk 'LISTEN_ROW_WEIGHT' index.html 1
+chk 'flex: 0 0 20px' index.html 1        # 원을 되키우려면 META_ROW_KEEP 음수 마진도 함께 되살릴 것
 nochk 'margin: -3px 0 -3px auto' index.html
 # ★★[OPEN_TIMING 2026-09-06 사용자 지시 "적절하게 올린다"]
 #   「2027년 하반기 정식 오픈」이 FAQ 아코디언 안, 그것도 «얼마나 전에 예약해야 하나요?» 라는
