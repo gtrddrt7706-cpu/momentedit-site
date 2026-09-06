@@ -1103,6 +1103,24 @@ chk 'gold-text' index.html 3                    # 변수 정의 1 + 사용 2 + �
 chk 'SKIP_LINK' index.html 1
 chk 'skip-link' index.html 3                     # CSS 규칙 1 + :focus 1 + body 첫 줄 앵커 1
 chk 'main id="main" tabindex="-1"' index.html 1   # 건너뛰기 링크의 착지점 — id·tabindex 둘 다 있어야 포커스가 옮겨간다
+# ★★[MAIN_LANDMARK 2026-09-06] 짝 없는 </div> 하나가 파서로 하여금 <main> 을 일찍 닫게 만들어
+#   다섯 섹션(가격·마이페이지·디렉터·FAQ·RSVP)이 본문 밖으로 밀려나 있었다. 화면은 멀쩡해 보여
+#   오래 안 보였다 — 랜드마크로 훑는 사람에게만 반쪽이었다. 실제 판정은 home-a11y.mjs 가 한다.
+chk 'MAIN_LANDMARK' index.html 1
+chk 'MAIN_LANDMARK' scripts/audit/home-a11y.mjs 1
+# ★★[OPEN_TIMING 2026-09-06 사용자 지시 "적절하게 올린다"]
+#   「2027년 하반기 정식 오픈」이 FAQ 아코디언 안, 그것도 «얼마나 전에 예약해야 하나요?» 라는
+#   **다른 질문의 답** 끝에만 있었다(y≈21,000). 위에서부터 읽는 고객은 그 전에
+#   「방문 상담 예약」·「상담 예약금 100,000원」을 만나 «지금 갈 수 있는 스튜디오»로 읽고,
+#   맨 아래 「(정확한 주소 확정 예정)」을 «준비 중»이 아니라 «미완성»으로 읽었다.
+#   ★소개 섹션(y≈3,600)의 한 줄을 지우지 말 것 — 지우면 그 오독이 그대로 돌아온다.
+chk 'OPEN_TIMING' index.html 1
+chk '2027년 하반기 정식 오픈을 앞두고' index.html 1
+chk '도로명 주소는 확정되면 안내드립니다' index.html 1
+# ★[HONOR_BASIS 2026-09-06 사용자 답변 "계약기준"] 「2027 상반기 한정」이 「2027년 하반기 오픈」과
+#   어긋나 보였다(하반기에 여는데 상반기 한정이면 예식을 못 한다). 기준이 «계약»임을 한 단어로 밝힌다.
+#   ★「계약」을 빼면 예식일 기준으로 읽혀 다시 모순이 된다.
+chk '2027 상반기 계약 한정' index.html 1
 chk 'HOME_TAP40' index.html 1                   # 텍스트 링크 히트영역 ::before (규칙 블록)
 # [TAP44-3] 두 번째 HOME_TAP40(상담 위젯 닫기 padding 11px 주석)은 13px·44px 로 올리며 TAP44-3 주석으로 바뀜(2026-08-09)
 chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + 위젯 닫기
