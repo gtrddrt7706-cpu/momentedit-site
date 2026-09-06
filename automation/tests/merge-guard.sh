@@ -2571,6 +2571,17 @@ if command -v node >/dev/null 2>&1; then node scripts/check-css-tokens.mjs \
 #   (한 줄 flex 로 모으는 판을 만들어 보였고 사용자가 *"푸터 이상한데 그냥 전으로 돌려"* 로 물렀다)
 chk 'TAP44_FOOT_OFF' index.html 1
 chk 'TAP44_FOOT_OFF' inquiry.html 1
+# ★★[ROWGAP_SPLIT · TAP44_COMPACT 2026-09-06 코워크 라운드 2 사전점검]
+#   ① 줄바꿈 간격이 그룹 간격(28px)과 2px 차이라 «다음 줄»이 «새 질문»으로 읽혔다.
+#      원인은 리듬 규칙의 공백이 아니라 인라인 gap shorthand 가 세로에도 걸린 부작용.
+#      row-gap 만 14px 로 분리 — 가로는 1px 도 안 변한다(320·390·1280 실측).
+#      ★인라인이 column-gap 이 아니라 gap 으로 되돌아가면 이 분리가 통째로 무효가 된다.
+#   ② 라디오·체크 18개 40→44px (WCAG 2.5.5 Enhanced). 문서 +12px · 그룹 간격 불변.
+chk 'ROWGAP_SPLIT' inquiry.html 1
+chk 'TAP44_COMPACT' inquiry.html 1
+chk 'row-gap:14px' inquiry.html 2          # 두 .compact-options 규칙 모두
+chk 'column-gap:2' inquiry.html 3          # 인라인 3곳(24·26·22) — gap 으로 되돌리면 위가 무효
+nochk 'padding:8px 2px;min-height:40px' inquiry.html
 chk 'TAP44_FOOT_OFF' parents.html 1
 nochk 'footer a\[href\$="mypage.html"\]' index.html
 nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
