@@ -6290,3 +6290,17 @@ chk 'MIXED_BY_SENT' scripts/build-voice-parts.mjs 2
 chk 'MIX_MADE' scripts/build-voice-parts.mjs 1
 chk 'ORDER_BACK' scripts/build-voice-parts.mjs 1
 chk 'c.mix' scripts/build-voice-parts.mjs 1
+
+# ★★[NAME_ONE 2026-09-06] 예시 부부 이름은 한 벌뿐이다 — 이서준 · 정하윤.
+#   실제로 어긋나 있었다: 신랑이 「신랑 이서준입니다」라고 소개한 뒤, 신부 편지는 「준호야」로 불렀고
+#   하객대표는 「준호, 세영이와 오래 알고 지낸 친구」라고 했다. 같은 예식에서 네 사람이 딴 이름을 부른다.
+#   성우별 대본을 뽑다가 한 화면에 나란히 놓이면서 드러났다(파트로 잘려 있을 땐 안 보였다).
+#   이름 교체 결정 자체는 이미 있었다(문안개정_20260906.md) — 배역 파일에만 적용이 안 됐던 것이다.
+#   ★shared/hydrate.js 의 SAMPLE(groomName 이서준 · brideName 정하윤)이 같은 이름의 다른 원천이다.
+#     둘 중 하나만 바꾸면 청첩장 미리보기와 예식 대본이 다른 사람을 가리킨다.
+nochk '준호' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '세영' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '신랑 이서준입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '신부 정하윤입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk "groomName: '이서준'" shared/hydrate.js 1
+chk "brideName: '정하윤'" shared/hydrate.js 1
