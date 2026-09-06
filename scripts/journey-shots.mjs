@@ -26,7 +26,9 @@ const W = 390, H = 823;                       // 9:19 → 390 × 823.3
 
 const SIG = ['신청접수', '상담확정', '시착', '상담완료', '계약완료', '입금완료', '제작중', '예식완료', '결과물전달', '후기'];
 const base = (stage, extra) => Object.assign({
-  name: '김희준 · 이미쿠', product: '시그니처', code: 'ME-SHOT',
+  /* ★표본 부부는 «이서준 · 정하윤» — 저장소 공식 표본이다(shared/hydrate.js SAMPLE · 청첩장 16종 · 71/67회).
+     실제 두 분 성함(희준·미쿠)을 홍보 목업에 쓰지 않는다. */
+  name: '이서준 · 정하윤', product: '시그니처', code: 'ME-SHOT',
   stage, stageIndex: SIG.indexOf(stage), stageList: SIG.slice(),
   nextAction: '다음 할 일을 안내해 드릴게요.',
   contract: { signed: true }, payment: { confirmed: true },
@@ -40,7 +42,7 @@ const PREP = base('제작중', {
   invitation: { status: '완료', draft: { method: 'both', designOnline: '05', designFamily: '05' }, published: { eventId: 'e', urls: {} } },
   production: {
     entered: true,
-    base: { groomKo: '희준', brideKo: '미쿠', weddingDate: '2026-10-26', weddingTime: '13:20' },
+    base: { groomKo: '서준', brideKo: '하윤', weddingDate: '2026-10-26', weddingTime: '13:20' },
     tracks: { invitation: '완료', dining: '완료', ritual: '완료', final: '완료', seat: '완료' },
     ritualDraft: { _v: 3, summary: { course: '담백', count: 7, min: '약 19분', flow: [] }, S: {} },
     diningDraft: { dining_on: 'Y', venue: '잔치연' },
@@ -111,7 +113,7 @@ try {
     window._mpStateD = { production: { base: { weddingDate: '2026-10-26' }, tracks: {} } };
     show('mypageView');
     const el = document.getElementById('mp_production'); if (el) el.style.display = 'block';
-    startInvFlow(null, { groomKo: '희준', brideKo: '미쿠', weddingDate: '2026-10-26', weddingTime: '13:20' });
+    startInvFlow(null, { groomKo: '서준', brideKo: '하윤', weddingDate: '2026-10-26', weddingTime: '13:20' });
     window.scrollTo(0, 0);
   }));
 
@@ -122,7 +124,7 @@ try {
     const el = document.getElementById('mp_production'); if (el) el.style.display = 'block';
     /* ★식순은 startTrkFlow 가 아니다 — TRK_META 는 dining·final 뿐이고 「식순은 전용 빌더」라고
        코드에 적혀 있다. 모르고 부르면 조용히 return 해서 «직전 화면»이 그대로 찍힌다(실제로 그랬다). */
-    openRitualBuilder({ groomKo: '희준', brideKo: '미쿠', weddingDate: '2026-10-26', weddingTime: '13:20' }, null);
+    openRitualBuilder({ groomKo: '서준', brideKo: '하윤', weddingDate: '2026-10-26', weddingTime: '13:20' }, null);
     window.scrollTo(0, 0);
   }));
 
