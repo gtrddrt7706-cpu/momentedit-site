@@ -1108,6 +1108,15 @@ chk 'main id="main" tabindex="-1"' index.html 1   # 건너뛰기 링크의 착�
 #   오래 안 보였다 — 랜드마크로 훑는 사람에게만 반쪽이었다. 실제 판정은 home-a11y.mjs 가 한다.
 chk 'MAIN_LANDMARK' index.html 1
 chk 'MAIN_LANDMARK' scripts/audit/home-a11y.mjs 1
+# ★★[SMALL_CTRL_REACH 2026-09-06 사용자 "Nº 01 옆에 붙음 으로 하는건어때?"]
+#   폭 44px 이하 컨트롤이 고정 레일에 덮이면 붉는다. 넓은 것은 안 본다 — 오른쪽 몇 px 은
+#   사용자가 「그대로 유지」로 판단한 자리이고 남은 면적이 충분하다. 작은 것만 기능이 상한다.
+#   ★A11Y_SETTLE 을 지우지 말 것 — 요소마다 기다렸다 재지 않으면 레일이 전환 중 좌표로 잡혀
+#     7px 겹침이 통째로 사라진다. 초안이 그래서 옛 배치를 못 잡았다(반증으로 확인).
+chk 'SMALL_CTRL_REACH' scripts/audit/home-a11y.mjs 1
+chk 'A11Y_SETTLE' scripts/audit/home-a11y.mjs 1
+chk 'LISTEN_BESIDE_NUM' index.html 1     # 재생 버튼을 다시 오른쪽 끝으로 되돌리지 않게
+nochk 'margin: -3px 0 -3px auto' index.html
 # ★★[OPEN_TIMING 2026-09-06 사용자 지시 "적절하게 올린다"]
 #   「2027년 하반기 정식 오픈」이 FAQ 아코디언 안, 그것도 «얼마나 전에 예약해야 하나요?» 라는
 #   **다른 질문의 답** 끝에만 있었다(y≈21,000). 위에서부터 읽는 고객은 그 전에

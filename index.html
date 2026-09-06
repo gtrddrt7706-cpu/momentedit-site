@@ -2659,7 +2659,16 @@ a.ig-handle:hover {
      모바일 메뉴 Close 가 44px 타깃을 가지면서도 행 높이를 안 밀던 것과 같은 처방이다. */
 .journal-listen {
   position: relative;
-  margin: -3px 0 -3px auto;
+  /* ★[LISTEN_BESIDE_NUM 2026-09-06 사용자 "Nº 01 옆에 붙음 으로 하는건어때?"]
+     오른쪽 끝(margin-left:auto)에서 Nº 01 바로 옆으로 옮겼다. 취향이 아니라 «안 눌리던» 문제다.
+     390px 실측: 오른쪽 끝에 두면 고정 레일(.me-fab-stack)이 이 버튼의 오른쪽 7px 을 덮었고
+     — 폭이 26px 뿐이라 27% 다 — 원의 오른쪽 가장자리를 누르면 재생이 아니라 레일이 잡혔다
+     (elementFromPoint 로 확인). 옮긴 뒤에는 원 위 어느 점을 눌러도 버튼이 잡힌다.
+     ★레일은 건드리지 않았다 — 2026-09-06 사용자 지시 「그대로 유지」. 비켜선 것은 버튼 쪽이다.
+     ★왼쪽 -2px 은 광학 보정이다. Nº 01 의 자간(0.22em)이 마지막 글자 뒤에도 2.4px 을 남겨
+     gap:8px 이 눈에는 10.4px 로 보인다. -2px 을 빼야 실제로 8px 로 읽힌다
+     (이 저장소의 › top:-2px · 삼각형 translateX(1px) 과 같은 종류의 보정). */
+  margin: -3px 0 -3px -2px;
   width: 26px;
   height: 26px;
   flex: 0 0 26px;
