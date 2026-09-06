@@ -1122,6 +1122,16 @@ chk '도로명 주소는 확정되면 안내드립니다' index.html 1
 #   ★「계약」을 빼면 예식일 기준으로 읽혀 다시 모순이 된다.
 chk '2027 상반기 계약 한정' index.html 1
 chk 'HOME_TAP40' index.html 1                   # 텍스트 링크 히트영역 ::before (규칙 블록)
+# ★★[FOLD_319 2026-09-06 사용자 "추천대로"] 320px 미만에서만 도는 블록.
+#   280px 에서 가로로 12px, 300px 에서 2px 이 샜다(갤럭시 폴드 커버 화면 정도).
+#   넘치던 것: .hero-logo-wordmark(305px 고정·nowrap) · .jr-phone(266px 고정).
+#   ★320px 부터는 원래 0px 이었다 — iPhone SE 포함 주류 폰은 전부 안전했다.
+#   ★«320px 미만»으로 가둔 이유: 히어로 워드마크 자간은 디자인 규칙이 «건드리지 말 것·브랜드
+#     시그니처»로 못박은 자리다(momentedit-design/SKILL.md 234행). 이미 깨져 있는 폭에서만 손댄다.
+#   ★실측 고정: 320·360·390·768·1280px 은 문서 높이·섹션 좌표 11곳·요소 크기가 전부 동일(1px 무변경).
+#     이 블록의 max-width 를 320 이상으로 올리면 그 약속이 깨진다.
+chk 'FOLD_319' index.html 1
+chk 'max-width: 319px' index.html 1
 # [TAP44-3] 두 번째 HOME_TAP40(상담 위젯 닫기 padding 11px 주석)은 13px·44px 로 올리며 TAP44-3 주석으로 바뀜(2026-08-09)
 chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + 위젯 닫기
 chk 'PLUS_Z' order-preview.html 1               # ＋− 버튼이 카드 펼침 덮개 아래 깔리던 실탭 버그 — 목록에서 .mvb 빼면 재발
