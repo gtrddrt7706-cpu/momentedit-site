@@ -89,7 +89,18 @@ const PROBE = `(() => {
   document.querySelectorAll('[id]').forEach((el) => { seen[el.id] = (seen[el.id] || 0) + 1; });
   Object.keys(seen).forEach((i) => { if (seen[i] > 1) out.dup.push('#' + i + ' ×' + seen[i]); });
 
-  // ⑦ 건너뛰기 링크 — 있는지 + 평소엔 화면 밖인지 (WCAG 2.4.1 A)
+  // ⑦ 본문 랜드마크 — 내용 섹션이 전부 <main> 안에 있는가
+  //   ★[MAIN_LANDMARK] 짝 없는 </div> 하나가 파서로 하여금 <main> 을 일찍 닫게 만들어
+  //     다섯 섹션(가격·마이페이지·디렉터·FAQ·RSVP)이 본문 밖으로 밀려나 있었다(2026-09-06).
+  //     화면은 멀쩡해 보여 오래 안 보였다 — 랜드마크로 훑는 사람에게만 반쪽이었다.
+  const _main = document.querySelector('main');
+  out.outside = _main
+    ? [...document.querySelectorAll('section[id]')]
+        .filter((s) => s.getAttribute('role') !== 'dialog' && !_main.contains(s))
+        .map((s) => '#' + s.id)
+    : ['<main> 자체가 없다'];
+
+  // ⑧ 건너뛰기 링크 — 있는지 + 평소엔 화면 밖인지 (WCAG 2.4.1 A)
   const sl = document.querySelector('.skip-link');
   out.skip = sl ? { href: sl.getAttribute('href'), 화면밖: sl.getBoundingClientRect().bottom <= 0,
     표적있음: !!document.querySelector((sl.getAttribute('href') || '#none')) } : null;
@@ -115,6 +126,7 @@ for (const W of [390, 1280]) {
   say('이름 없는 링크', r.link);
   say('끊긴 aria 참조', r.aria);
   say('중복 id', r.dup);
+  say('본문(main) 밖으로 밀려난 섹션', r.outside);
   if (!r.skip) { bad++; console.log('✗ 건너뛰기 링크(.skip-link) 없음 — WCAG 2.4.1 Level A'); }
   else if (!r.skip.화면밖 || !r.skip.표적있음) { bad++; console.log(`✗ 건너뛰기 링크 이상 (평소 화면밖 ${r.skip.화면밖} · 표적 ${r.skip.href} ${r.skip.표적있음})`); }
   else console.log(`✓ 건너뛰기 링크 정상 (평소 화면밖 · ${r.skip.href} 존재)`);

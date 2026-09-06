@@ -5724,6 +5724,15 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
        ★짧던 곳(존 카드 50자대·관점 70자)은 손대지 않는다 — 줄이는 게 목적이 아니라 읽히는 게 목적이다.
        ★가격·인원 같은 '결정에 필요한 사실'은 지우지 않는다(전환). 지운 건 수식과 중복뿐. -->
   <p class="t-body" style="margin-top:14px;font-size:14px;color:var(--sub)">양가 직계가족 25명의 마이크로웨딩, 평일결혼식의 여유까지.<br class="pc-hide"> 촬영·디지털 참석·청첩장을 한 흐름으로 잇는 140분, 예식 뒤 다이닝은 파트너를 안내해 드려요.</p>
+  <!-- ★[OPEN_TIMING 2026-09-06 사용자 지시 "적절하게 올린다"]
+       「2027년 하반기 정식 오픈」이 FAQ 아코디언 안, 그것도 «얼마나 전에 예약해야 하나요?» 라는
+       **다른 질문의 답** 끝에만 있었다(y≈21,000). 위에서부터 읽는 고객은 그 전에
+       「방문 상담 예약」·「상담 예약금 100,000원」을 먼저 만나 «지금 갈 수 있는 스튜디오»로 읽고,
+       맨 아래 「(정확한 주소 확정 예정)」을 «준비 중»이 아니라 «미완성»으로 읽었다.
+       이 페이지의 척추가 「미리 밝히고 시작합니다」인데 딱 이 한 곳에서 제 약속을 못 지켰다.
+       ★같은 사실을 «순서»만 바꿔 앞에 둔다 — 문장을 부풀리지 않는다(책임질 수 없는 안심 금지).
+       ★FAQ 의 상세 답변은 그대로 둔다. 여기는 한 줄, 거기는 설명. -->
+  <p class="t-note" style="margin-top:16px">2027년 하반기 정식 오픈을 앞두고, 지금은 사전 예약을 받고 있습니다. 원하시는 날짜를 먼저 잡으실 수 있습니다.</p>
 </div>
 <div class="divider-line"></div>
 <div class="reveal">
@@ -6092,8 +6101,10 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="phone-pages" id="gaPages" aria-hidden="true"></div>
   <p class="phone-caption" id="gaCap"></p>
   <p class="ga-foot" id="gaFoot"></p>
-</div>
-</div>
+</div><!-- .live-mockup-wrap  ★[MAIN_LANDMARK 2026-09-06] 이 아래에 </div> 가 하나 더 있었다.
+     닫을 것이 없어서 파서가 <main> 을 대신 닫았고, 그 뒤 다섯 섹션(가격·마이페이지·디렉터·FAQ·RSVP)이
+     본문 밖으로 밀려나 있었다. 화면은 멀쩡해 보여서 오래 안 보였다 — 랜드마크로 훑는 사람에게만 반쪽이었다.
+     ★여기에 </div> 를 다시 더하지 말 것. 균형은 scripts/audit/home-a11y.mjs 가 지킨다. -->
 
 <!-- TWO INVITATIONS — 온라인·오프라인 맞춤 안내 (다층 노출) -->
 <div class="reveal" style="max-width:560px;margin:56px auto 0">
@@ -6328,7 +6339,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <div class="reveal">
   <div class="price-block highlight">
     <div class="price-title">Archive Opening Honor</div>
-    <div style="display:inline-block;font-size:11px;letter-spacing:0.04em;color:var(--gold-text);border:1px solid var(--gold);border-radius: 4px;padding:4px 14px;margin-bottom:16px;font-weight:500">2027 상반기 한정</div>
+    <div style="display:inline-block;font-size:11px;letter-spacing:0.04em;color:var(--gold-text);border:1px solid var(--gold);border-radius: 4px;padding:4px 14px;margin-bottom:16px;font-weight:500">2027 상반기 계약 한정</div>
     <p style="font-size:13px;color:var(--sub);margin-bottom:8px">브랜드의 시작을 함께해 주시는 부부를 위한 예우입니다</p>
     <p style="font-size:12px;color:var(--light);margin-bottom:20px">두 분의 기록이 모먼트에디트의 첫 아카이브에 정중히 담깁니다.</p>
     <div style="font-size:14px;color:var(--accent);font-weight:400;margin-bottom:16px">보정 셀렉트 컷 +10장 추가 제공</div>
@@ -6835,11 +6846,11 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="access-info">
     <div class="access-row">
       <span class="access-label">Address</span>
-      <a href="https://map.naver.com/v5/search/경기도 고양시 덕양구 향동동" target="_blank" rel="noopener" class="access-value access-link" aria-label="경기도 고양시 덕양구 향동동 (정확한 주소 확정 예정) · 네이버 지도에서 열기">경기도 고양시 덕양구 향동동 <span class="access-note">(정확한 주소 확정 예정)</span></a>
+      <a href="https://map.naver.com/v5/search/경기도 고양시 덕양구 향동동" target="_blank" rel="noopener" class="access-value access-link" aria-label="경기도 고양시 덕양구 향동동 (2027년 하반기 오픈 · 도로명 주소는 확정되면 안내드립니다) · 네이버 지도에서 열기">경기도 고양시 덕양구 향동동 <span class="access-note">(2027년 하반기 오픈 · 도로명 주소는 확정되면 안내드립니다)</span></a>
     </div>
     <div class="access-row">
       <span class="access-label">Transit</span>
-      <span class="access-value">서울에서 차로 약 30분 · 일산에서 15분 · 3호선 원당역 버스 환승 15분 <span class="access-note">(교통편 확정 예정)</span></span>
+      <span class="access-value">서울에서 차로 약 30분 · 일산에서 15분 · 3호선 원당역 버스 환승 15분 <span class="access-note">(오픈 시 확정 안내)</span></span>
     </div>
     <div class="access-row">
       <span class="access-label">Parking</span>
