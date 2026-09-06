@@ -5574,6 +5574,13 @@ chk 'TODAY_CONSULT' automation/admin/admin.gs 5
 chk 'TODAY_CONSULT' scripts/audit/admin-ux.mjs 1
 # ★[HOME_RIGHT_STACK] 결과물·후기를 오른쪽 열로 — 종전엔 큐 아래라 바쁜 날 오른쪽이 700px 비고 결과물이 스크롤 밖이었다.
 chk 'HOME_RIGHT_STACK' admin.html 1
+# ★[FP_BROAD 2026-09-06 관리자 점검] 배포 지문이 표본 5개만 봐서, 그 밖의 파일만 고치면 재배포를 «안 해도»
+#   ④ 가 «같다»고 답했다(실측: adminHome 변경 전후 지문 둘 다 1lzcle2). 전역 함수 이름:길이 서명을 지문에 더했다.
+#   회귀 검사: node scripts/audit/deploy-fp.mjs — 표본 밖 한 함수만 바꿔도 지문이 달라지는지 본다.
+chk 'FP_BROAD' automation/platform/00_platform-config.gs 2
+chk 'FP_BROAD' automation/platform/99_deployCheck.gs 1
+chk '_dsGlobalSig' automation/platform/00_platform-config.gs 2   # 정의 1 + deployFingerprint 안 호출 1
+chk 'FP_BROAD' scripts/audit/deploy-fp.mjs 2
 chk 'grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
 chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
