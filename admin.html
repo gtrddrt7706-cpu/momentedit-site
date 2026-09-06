@@ -2715,7 +2715,7 @@ function openModal(opt){
 function closeModal(){ $('confirmModal').classList.remove('show'); _modalYes=null;
   if(_modalClose){ try{ _modalClose(); }catch(e){} _modalClose=null; } }
 /* ★[DLG_GRACE 2026-09-05 점검 라운드7 · 실제 마우스 더블클릭 실측] 버튼을 더블클릭하면 첫 클릭이 판을 열고, 두 번째 클릭(100~200ms 뒤)이
-   배경(=취소)이나 판 위 버튼에 떨어져 판이 «번쩍하고 사라지거나» 읽기도 전에 확인됐다. 열린 뒤 350ms 안의 **마우스** 클릭(e.detail>0)은 무시한다.
+   배경(=취소)이나 판 위 버튼에 떨어져 판이 «번쩍하고 사라지거나» 읽기도 전에 확인됐다. 열린 뒤 350ms 안의 **마우스** 클릭(detail 이 0 보다 큰 클릭)은 무시한다.
    키보드(Enter·Space 는 detail 0)와 프로그램 click() 은 그대로다. 두 판(confirmModal · admDlg) 모두 같은 처방. */
 var _modalOpenedAt=0; var DLG_GRACE_MS=350;
 function _dlgTooSoon(e, at){ return !!(e && e.detail>0 && Date.now()-at<DLG_GRACE_MS); }   /* [DLG_GRACE] */
