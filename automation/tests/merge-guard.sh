@@ -6234,3 +6234,23 @@ chk 'RAMP_NO_DEAD' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_TWO_PASS' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_NO_OPACITY' scripts/audit/typo-ramp.mjs 1
 chk "closest('\[class\*=\"mock\"\]" scripts/audit/typo-ramp.mjs 1   # 목업은 이름이 아니라 DOM 조상으로 거른다
+# ★★[VOICE_JINHEE 2026-09-06 사장님 확정] 안내 목소리 이름은 '진희' 다 ('잔희' 아님).
+#   사장님 원문: *"아 그리고 잔희가 아니라 진희야"*
+#   163곳에 '잔희' 가 박혀 있었지만 원천은 build-typecast-import.mjs 의 DEFAULT_VOICE 한 줄뿐이다.
+#   ★생성물을 손으로 고치지 말 것 — 여기만 고치고 --write 로 다시 뽑는다.
+#   ★'잔희' 로 뽑으면 타입캐스트가 그 화자를 못 찾아 사장님이 클립마다 손으로 배정해야 한다.
+chk 'VOICE_JINHEE' scripts/build-typecast-import.mjs 1
+chk "안내: '진희'" scripts/build-typecast-import.mjs 1
+#   ★주석에 남은 '잔희' 는 «왜 바뀌었나»의 기록이라 그대로 둔다 — 지우면 다음 세션이 오타로 되돌린다.
+#     검사는 «뽑힌 대본»을 본다: 거기 '잔희' 가 하나라도 있으면 원천이 되돌아간 것이다.
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/재더빙_붙여넣기.txt'
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/1_안내.txt'
+# ★★[WAIT_BRIDGE_RETIRED 2026-09-06 사장님 결정] 대기·재개 브릿지 3클립(6문장) 폐지.
+#   49_bridge-4-wait-emotion · 50_bridge-5-wait-setup · 51_bridge-6-resume.
+#   근거 ①녹음은 「금방 이어집니다」를 약속하는데 실제로 얼마나 걸릴지 모른다 — 어긋나면 그 약속이
+#   기다림을 더 길게 만든다(Munichor & Rafaeli 2007: 녹음 사과가 음악보다 체감을 나쁘게 했다).
+#   ②멈춘 자리는 디렉터가 눈을 보고 말하는 편이 낫다 — 사람이 이미 거기 있다.
+#   ★되살리지 말 것. 폐지 정본은 assets/ritual-cue.js 의 RETIRED 다.
+chk 'WAIT_BRIDGE_RETIRED' assets/ritual-cue.js 1
+chk "'bridge-4-wait-emotion': 1" assets/ritual-cue.js 1
+chk "'bridge-6-resume': 1" assets/ritual-cue.js 1
