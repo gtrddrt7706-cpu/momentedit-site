@@ -4899,6 +4899,19 @@ chk 'ROLLBACK_RC_GATE' automation/tests/merge-guard.sh 1
 chk 'KST_AHEAD' scripts/audit/_gasworld.mjs 1
 chk 'KST_AHEAD' scripts/audit/rollback-roundtrip.mjs 1
 chk 'KST_AHEAD' scripts/audit/rollback-fuzz.mjs 1
+# ★[DATE_ROT_GUARD 2026-09-05 점검] 날짜 부패가 세 번째 파일에서 또 나왔다(stage-reach).
+#   앞선 점검에서 «가드를 타는 고정 날짜는 둘뿐»이라고 단정했는데 틀렸다 —
+#   CUST('handleSubmitSchedule', {dateKey:'…'}) 처럼 «감싼 호출»을 내 정규식이 못 봤다.
+#   이제 호출 «형태»가 아니라 인자 «이름»으로 본다: 서버의 날짜 가드(PAST_SLOT_REJECT)를 타는
+#   dateKey · adminProposeTime 에 고정 리터럴을 넣으면 그날부터 조용히 문이 닫힌다 → kstAhead 를 쓸 것.
+#   ★선택날짜(픽스처)는 가드를 안 타므로 여기서 막지 않는다 — 안 깨지는 것까지 막으면 규칙이 미움받는다.
+if grep -rnE "dateKey\s*:\s*'20[0-9]{2}-|adminProposeTime'?\s*,\s*\['20[0-9]{2}-" scripts/audit/*.mjs >/dev/null 2>&1; then
+  echo 'FAIL DATE_ROT_GUARD: 감사가 날짜 가드를 타는 인자에 고정 날짜를 쓴다 — kstAhead() 로 바꾸세요'
+  grep -rnE "dateKey\s*:\s*'20[0-9]{2}-|adminProposeTime'?\s*,\s*\['20[0-9]{2}-" scripts/audit/*.mjs | sed 's/^/    /'
+  fail=1
+fi
+chk 'KST_AHEAD' scripts/audit/stage-reach.mjs 1
+chk 'DATE_ROT_GUARD' automation/tests/merge-guard.sh 1
 # ★★[REVIEW_DOOR_AUDIT 2026-08-18] '후기' 문 하나만 초 단위로 확인하는 검사(stage-reach 는 10분이라 자주 못 돈다).
 chk 'REVIEW_DOOR_AUDIT' scripts/audit/review-door.mjs 1
 chk '결과물전달 → 후기 (고객 제출이 문이다)' scripts/audit/review-door.mjs 1
