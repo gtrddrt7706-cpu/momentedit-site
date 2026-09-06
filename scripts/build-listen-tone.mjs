@@ -210,7 +210,7 @@ const html = `<!doctype html>
   ★내부용. 어디에서도 링크하지 않는다.
 -->
 <style>
-:root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#75705F;
+:root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#6E6959;
 --border:#DDD8D1;--gold:#B89A75;--gold-text:#7A5F37;--seal:#6B2A24;--green:#3B6E4F;
 --serif-ko:'Noto Serif KR',serif;}
 *{box-sizing:border-box}

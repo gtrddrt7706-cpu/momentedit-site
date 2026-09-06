@@ -29,7 +29,7 @@
 
   /* 브랜드 색 — index.html :root 실측 */
   --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6;
-  --text:#1C1B19; --accent:#3A2D22; --sub:#5A554C; --light:#75705F;
+  --text:#1C1B19; --accent:#3A2D22; --sub:#5A554C; --light:#6E6959;
   --border:#DDD8D1;
   --footer-bg:#1A1714; --footer-text:#C9C3B8;
 
@@ -39,7 +39,7 @@
   --seal:#6B2A24;       /* 인장·전환 버튼 채움 */
 
   /* 폰트 — Fallback 은 웹폰트 바로 뒤에 와야 메트릭 보정이 걸린다 */
-  --serif:'Cormorant Garamond','Cormorant Fallback',Georgia,serif;
+  --serif:'Cormorant Garamond','Cormorant Fallback','Noto Serif KR','Noto Serif KR Fallback','Nanum Myeongjo',Georgia,serif;
   --serif-ko:'Noto Serif KR','Noto Serif KR Fallback','Nanum Myeongjo',serif;
   --sans:'Noto Sans KR','Noto Sans KR Fallback',-apple-system,sans-serif;
 
@@ -48,3 +48,10 @@
   --ease-ink:cubic-bezier(0.22,1,0.36,1);
   --ease-seal:cubic-bezier(0.65,0,0.35,1);
 }
+
+/* ★[TOKENS_REF 2026-09-06] 이 파일은 어디에도 <link>·@import 되어 있지 않다(실측 0건).
+   여기를 고쳐도 화면은 1px 도 안 바뀐다 — 정본은 각 HTML 안의 :root 다.
+   ★그런데 낡은 채로 두면 위험하다: 2026-09-06 실측에서 이 파일의 --light(#75705F)가
+     momentedit-design/SKILL.md 의 틀린 값과 «똑같았다». 문서를 화면이 아니라 이 파일을
+     보고 쓴 것이다. 안 붙은 파일이 문서를 오염시키는 경로가 실제로 있었다.
+   그래서 «값만» index.html 기준으로 맞춰 둔다. 붙이지는 않는다(사용자 결정 2026-09-06). */

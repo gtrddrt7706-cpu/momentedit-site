@@ -1131,6 +1131,26 @@ chk 'HOME_TAP40' index.html 1                   # 텍스트 링크 히트영역 
 #   ★실측 고정: 320·360·390·768·1280px 은 문서 높이·섹션 좌표 11곳·요소 크기가 전부 동일(1px 무변경).
 #     이 블록의 max-width 를 320 이상으로 올리면 그 약속이 깨진다.
 chk 'FOLD_319' index.html 1
+# ★★[DESIGN_AUTHORITY 2026-09-06 사용자 결정] 디자인 스킬 8개가 우선순위 없이 부딪히고 있었다.
+#   momentedit-design 을 최우선 권위로 못 박았다 — SKILL.md 머리 + CLAUDE.md 두 곳.
+#   ★한쪽만 남으면 «어느 쪽을 먼저 읽었나»에 따라 판단이 갈린다. 둘 다 유지할 것.
+chk 'DESIGN_AUTHORITY' CLAUDE.md 1
+chk '이 문서가 디자인 판단의 최종 권위다' .claude/skills/momentedit-design/SKILL.md 1
+chk '행번호를 믿지 말 것' .claude/skills/momentedit-design/SKILL.md 1
+# ★★[LIGHT_SYNC 2026-09-06 사용자 결정 "11개를 #6E6959 로"] --light 가 3개 페이지(index·inquiry·mypage)만
+#   새 값이고 나머지 11개는 옛값(#75705F)으로 갈려 있었다. 대비가 4.74→5.25:1 로 오른다.
+#   ★admin.html 은 동기화 대상이 아니다(momentedit-design) · contract/ 는 법률 문서라 손대지 않는다.
+#   ★audio-review-tone.html 은 생성물이라 scripts/build-listen-tone.mjs 와 «짝으로» 고쳤다 —
+#     한쪽만 고치면 그 생성기의 자가대조가 붉는다(실측: 양방향 모두 잡힌다).
+for _f in index.html inquiry.html mypage.html guide.html live.html schedule.html order-preview.html \
+          seat.html cancel.html privacy.html invitation-gallery.html audio-review.html \
+          audio-review-tone.html listen-075c9ad62acf.html; do
+  nochk '\-\-light:#75705F' "$_f"
+done
+chk '\-\-light:#6E6959' shared/tokens.css 1
+chk 'TOKENS_REF 2026-09-06' shared/tokens.css 1
+chk '\-\-light:#6E6959' scripts/build-listen-tone.mjs 1
+chk '\-\-light:#6E6959' scripts/build-listen-all.mjs 1
 chk 'max-width: 319px' index.html 1
 # [TAP44-3] 두 번째 HOME_TAP40(상담 위젯 닫기 padding 11px 주석)은 13px·44px 로 올리며 TAP44-3 주석으로 바뀜(2026-08-09)
 chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + 위젯 닫기
