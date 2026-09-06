@@ -6273,3 +6273,16 @@ chk '핑거 푸드와 음료 준비해 두었으니 편히 드세요' assets/rit
 chk '핑거 푸드와 음료 준비해 두었어요' assets/ritual-data.js 1
 nochk '음료가 준비되어 있습니다' assets/ritual-data.js
 chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
+
+# ★★[BY_VOICE 2026-09-06 사장님 지시 "성우별로 전부 다시 정리된 내용으로 더빙 해보는게 좋을거같아"]
+#   파트 파일(1_안내·2_진행_전반…)은 «식 순서»로 잘려 한 파일에 여러 목소리가 섞인다.
+#   타입캐스트는 덩어리에 화자를 하나 배정하므로 섞인 파일은 줄마다 손으로 바꿔야 했다.
+#   성우로 자르면 파일 하나 = 화자 하나 = 클릭 한 번이다.
+#   ★[MIXED_BY_SENT] 신랑·신부 교대 클립은 «문장 role» 로 가른다(클립 role 로 가르면 상대 대사를 읽는다).
+#   ★[MIX_MADE] 합성 클립(26_vow-both)은 받지 않는다 — 24·25 를 겹쳐 만드는 것이라 두 번 받게 된다.
+#   ★[ORDER_BACK] _성우별_순서.json 이 줄번호 → 클립·문장 자리를 들고 있다. 이게 없으면 되돌릴 수 없다.
+chk 'BY_VOICE' scripts/build-voice-parts.mjs 1
+chk 'MIXED_BY_SENT' scripts/build-voice-parts.mjs 2
+chk 'MIX_MADE' scripts/build-voice-parts.mjs 1
+chk 'ORDER_BACK' scripts/build-voice-parts.mjs 1
+chk 'c.mix' scripts/build-voice-parts.mjs 1
