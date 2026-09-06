@@ -1446,6 +1446,17 @@ chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 �
 chk 'TRACK_RAMP8' index.html 1                              # 자간 8단계 램프 · 히어로/워드마크/목업 예외
 chk 'A11Y_PINCH_ZOOM' index.html 1                          # 핀치줌 허용 · user-scalable=no 재삽입 금지(WCAG 1.4.4)
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
+# ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
+#   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
+#   도착합니다」라는 프라이버시 약속이라, 그 아래 실제 편지처럼 보이는 카드가 전문까지 펼쳐지면
+#   「그럼 내 편지도 여기 올라가나?」로 읽힐 여지가 있었다. 약속과 화면이 어긋나 보이던 자리다.
+chk 'LETTER_SAMPLE' index.html 2
+chk '아래는 예시로 보여드리는 편지입니다' index.html 1
+# ★[JOURNAL_NO_DATE 2026-09-06 사용자 "추천대로해"] 저널 두 편 다 2026·04 라 5개월째 그대로였다.
+#   「지금도 하고 있나」를 확인하러 온 사람에게 오히려 조용해 보여, 연재 번호(Nº)만 남겼다.
+#   ★새 글을 실을 때 날짜를 되살리려면 두 카드를 함께 — 한쪽만 있으면 더 낡아 보인다.
+chk 'JOURNAL_NO_DATE' index.html 2
+nochk 'class="journal-date"' index.html          # 날짜 span 이 돌아오면 잡는다(주석·산문은 안 건드리게 마크업을 겨냥)
 chk 'A11Y_FOOTER_AA' index.html 1                           # 푸터 f-copy 알파 0.7 유지 · 0.44로 되돌리면 2.71:1 미달
 chk 'A11Y_INPUT_16' index.html 1                            # 입력창 16px 이상 · 미만이면 iOS가 포커스 시 강제 확대
 chk 'A11Y_LABEL_MATCH' index.html 1                         # aria-label은 보이는 글자를 포함(WCAG 2.5.3) · 요약형으로 축약 금지
