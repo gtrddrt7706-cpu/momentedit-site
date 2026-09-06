@@ -1700,7 +1700,8 @@ function loadHome(silent){
          뒤가 통째로 안 그려졌다(파이프라인이 던지자 후기까지 사라짐 · 실측). 게다가 화면엔 아무 말이 없어
          관리자는 «오늘은 후기가 없나 보다»로 읽는다 — 이 저장소가 반복해 없애 온 조용한 실패다.
          이제 섹션마다 따로 그리고, 죽은 자리에는 왜 비었는지 한 줄을 남긴다(GAS 재배포 갭이 흔한 원인). */
-    [['최근 본 고객','recentWrap',renderRecent],['처리할 일','queueWrap',renderQueue],['결과물','resultsWrap',renderResults],
+    [['최근 본 고객','recentWrap',renderRecent],   /* [ADM_AA6] 최근 본 고객 칩 */
+     ['처리할 일','queueWrap',renderQueue],['결과물','resultsWrap',renderResults],
      ['진행 중 현황','pipeWrap',renderPipeline],['후기','surveyWrap',renderSurvey]].forEach(function(sec){
       try{ sec[2](d); }
       catch(e){
