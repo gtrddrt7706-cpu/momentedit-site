@@ -6254,3 +6254,16 @@ nochk '잔희' 'docs/plans/식순연구/타입캐스트/1_안내.txt'
 chk 'WAIT_BRIDGE_RETIRED' assets/ritual-cue.js 1
 chk "'bridge-4-wait-emotion': 1" assets/ritual-cue.js 1
 chk "'bridge-6-resume': 1" assets/ritual-cue.js 1
+
+# ★★[DRINK_TONE 2026-09-06 사장님 지적] 10분 전 안내에서 「음료 한 잔」을 걷어냈다.
+#   사장님 원문: *"이부분 너무 아저씨같은느낌이야 고급스럽게"*
+#   ①「한 잔」은 술자리 관용구(「한 잔 하시면서」)의 그림자다 ②「드시면서」는 마시는 동작까지 시킨다
+#   ③ 한 호흡에 셋(마시고·있다가·앉기)을 지시한다. 말을 더하지 않고 지시를 덜어 고쳤다.
+#   ★부부(저희-체)는 「음료 준비해 두었습니다」로 따로 간다 — 준비한 사람이 말하는 자리라서다.
+#     중립 문장을 배역 파일에 넣으면 안내 말투가 부부 입에서 나온다(한 번 그렇게 넣었다가 잡았다).
+nochk '음료 한 잔' assets/ritual-data.js
+nochk '음료 한 잔' order-preview.html
+nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '음료가 준비되어 있습니다' assets/ritual-data.js 1
+chk '음료 준비해 두었습니다' assets/ritual-data.js 1
+chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
