@@ -145,11 +145,19 @@ function sendFindCodeEmail(to, names, code) {
 }
 
 // 개인코드 알림톡(솔라피) — Script Properties 미설정 시 false(호출부가 메일 폴백). [Task3]
-//   필요: SOLAPI_KEY / SOLAPI_SECRET / SOLAPI_PFID / SOLAPI_TPL_FINDCODE (+선택 SOLAPI_SENDER). 승인 템플릿 변수 #{이름}·#{코드}.
+//   필요: SOLAPI_KEY/SOLAPI_SECRET/SOLAPI_PFID (없으면 95_notify 의 SOLAPI_API_KEY/SOLAPI_API_SECRET/SOLAPI_PF_ID 로 폴백)
+//         + SOLAPI_TPL_FINDCODE (승인 템플릿 ID · 폴백 없음) + 선택 SOLAPI_SENDER. 템플릿 변수 #{이름}·#{코드}.
 function sendFindCodeKakao(phone, names, code) {
   var P_ = PropertiesService.getScriptProperties();
-  var KEY = P_.getProperty('SOLAPI_KEY'), SEC = P_.getProperty('SOLAPI_SECRET');
-  var PFID = P_.getProperty('SOLAPI_PFID'), TPL = P_.getProperty('SOLAPI_TPL_FINDCODE');
+  /* ★[SOLAPI_NAME_ALIAS 2026-09-06 관리자 입장 점검] 같은 솔라피 자격증명을 이 파일은 SOLAPI_KEY·SOLAPI_SECRET·SOLAPI_PFID 로,
+     95_notify 는 SOLAPI_API_KEY·SOLAPI_API_SECRET·SOLAPI_PF_ID 로 읽고 있었다. 사장님이 95_notify 쪽만 채워 두면
+     여기는 영영 빈 값이라 알림톡을 «시도조차» 못 한다(메일 폴백이라 티가 안 난다 · deployCheck ⑦ 이 실측으로 잡았다).
+     같은 값을 두 이름으로 넣게 하지 않는다 — 95_notify 이름을 폴백으로 읽는다. 옛 이름이 있으면 그쪽이 우선(기존 설정 존중).
+     ★TPL(승인 템플릿 ID)만은 폴백이 없다 — 코드찾기 전용 템플릿이라 다른 곳과 공유할 값이 아니다. */
+  var KEY = P_.getProperty('SOLAPI_KEY') || P_.getProperty('SOLAPI_API_KEY');
+  var SEC = P_.getProperty('SOLAPI_SECRET') || P_.getProperty('SOLAPI_API_SECRET');
+  var PFID = P_.getProperty('SOLAPI_PFID') || P_.getProperty('SOLAPI_PF_ID');
+  var TPL = P_.getProperty('SOLAPI_TPL_FINDCODE');   // [SOLAPI_NAME_ALIAS] 템플릿만 별개
   if (!KEY || !SEC || !PFID || !TPL) return false;                 // 미설정 → 메일 폴백
   var to = String(phone).replace(/[^0-9]/g, ''); if (!to) return false;
   var date = new Date().toISOString(), salt = Utilities.getUuid().replace(/-/g, '');

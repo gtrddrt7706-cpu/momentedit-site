@@ -50,6 +50,11 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weigh
 .topbar .tb-group{display:flex;align-items:center;gap:8px;flex:none}
 .topbar .tb{background:none;border:1px solid var(--border);border-radius:7px;min-width:34px;height:34px;cursor:pointer;color:var(--gold-deeper);font-size:13px;flex:none;padding:0 9px}
 .topbar .tb:active{background:var(--paper2)}
+/* ★[TB_TAP44 2026-09-06 관리자 입장 점검·모바일 420 실측] 상단바 버튼이 34px 이라 폰에서 누르기 작았다(권장 44px).
+   보이는 크기는 그대로 두고 «누르는 자리»만 넓힌다 — 크기를 키우면 다섯 개가 한 줄에 안 들어간다(320px 실측).
+   mypage 의 MPD_B11 과 같은 처방(히트박스만 확장·시각 유지). position 은 ::after 의 기준점이라 필요하다. */
+.topbar .tb{position:relative}
+.topbar .tb::after{content:'';position:absolute;left:0;right:0;top:50%;height:44px;margin-top:-22px}
 /* [ADM_HEAD2] 좁은 화면 헤더 2단 — 한 줄에 브랜드·이름·버튼 5개를 몰아넣어
    'MOMENT EDIT'가 두 줄로 쪼개지고 '로그아웃'이 화면 밖으로 잘려 나가고 있었다.
    윗줄은 누구인지(브랜드·이름), 아랫줄은 무엇을 하는지(도구 5개)로 나눈다. */
@@ -127,6 +132,11 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .qfit-in:focus{border-color:var(--gold)}
 .qbtn.go{background:#fff;border:1px solid var(--gold-deep);color:var(--gold-deeper)}
 .qbtn:active{opacity:.85}
+/* ★[TB_TAP44] 큐 버튼이 38px — 관리자가 폰에서 하루에 가장 많이 누르는 버튼이다. 세로로만 히트박스를 44px 로 넓힌다.
+   ★가로로는 안 넓힌다 — 옆이 행(.qrow) 클릭 영역이라, 가로로 먹으면 «상세로 가려던 손»이 액션을 누르게 된다.
+   ★세로 3px 씩은 행 안쪽 여백이라 안전하고, 설령 눌려도 쓰기 동작은 전부 확인 판이 받는다(오조작 레인 실측 6/6). */
+.qbtn{position:relative}
+.qbtn::after{content:'';position:absolute;left:0;right:0;top:50%;height:44px;margin-top:-22px}
 /* 결과물 관리 — 진행 스텝 스트립(원본›선택›보정›전달) */
 .rstep{display:flex;align-items:center;flex-wrap:wrap;margin-top:5px}
 .rstep .rs{font-family:var(--serif-ko);font-size:10.5px;color:var(--label-soft)}

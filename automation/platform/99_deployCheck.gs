@@ -157,6 +157,8 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
           'SharedArrayBuffer DataView Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array ' +
           'Float32Array Float64Array BigInt64Array BigUint64Array eval isNaN isFinite parseInt parseFloat decodeURI ' +
           'decodeURIComponent encodeURI encodeURIComponent escape unescape globalThis undefined NaN Infinity ' +
+          /* [V8_NEW_GLOBALS 2026-09-06 실기] 런타임이 올라가며 늘어난 전역 — 목록에 없다고 매번 «모르는 함수 4개»를 찍었다. */
+          'SuppressedError DisposableStack AsyncDisposableStack Float16Array ' +
           'AggregateError FinalizationRegistry WeakRef Atomics Intl Iterator AsyncIterator console deployCheck projectCheck').split(' ');
         for (var si = 0; si < _std.length; si++) _known[_std[si]] = 1;
         var _extra = [];

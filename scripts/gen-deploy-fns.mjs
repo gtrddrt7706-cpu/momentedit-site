@@ -149,8 +149,13 @@ const PROPS = {
   SOLAPI_API_KEY: ['needs', 'NOTIFY_ENABLED', '문자·알림톡 발송 (95_notify 계열)'],
   SOLAPI_API_SECRET: ['needs', 'NOTIFY_ENABLED', '문자·알림톡 발송 (95_notify 계열)'],
   SOLAPI_SENDER: ['needs', 'NOTIFY_ENABLED', '발신번호 — 없으면 한 건도 안 나간다'],
-  SOLAPI_KEY: ['needs', 'NOTIFY_ENABLED', '★아이디·코드 찾기 문자 (50_auth-handlers 계열 · 이름이 다르다)'],
-  SOLAPI_SECRET: ['needs', 'NOTIFY_ENABLED', '★아이디·코드 찾기 문자 (50_auth-handlers 계열 · 이름이 다르다)'],
+  /* ★[SOLAPI_NAME_ALIAS 2026-09-06] 'needs' 로 두면 ⑦ 이 «없으면 기능이 오류 없이 안 돈다»고 말한다 — 사실이 아니다.
+     50_auth-handlers 는 이 값이 없으면 false 를 돌려주고 호출부가 «메일로» 코드를 보낸다(고객은 코드를 받는다).
+     게다가 이제 95_notify 의 SOLAPI_API_KEY/SECRET 를 폴백으로 읽으므로 이 이름들은 «옛 이름»일 뿐이다.
+     늑대를 부르는 경고는 점검 전체를 안 믿게 만든다 — option 으로 낮추고 사실을 적는다. */
+  SOLAPI_KEY: ['option', '개인코드 찾기 알림톡용 옛 이름 (지금은 95_notify 의 SOLAPI_API_KEY 로 폴백)', ''],
+  SOLAPI_SECRET: ['option', '개인코드 찾기 알림톡용 옛 이름 (지금은 95_notify 의 SOLAPI_API_SECRET 로 폴백)', ''],
+  SOLAPI_TPL_FINDCODE: ['option', '개인코드 찾기 알림톡 템플릿 ID — 비면 메일로 나간다(고장 아님)', ''],
   TOSS_SECRET_KEY: ['needs', 'PAY_CARD_ENABLED', '카드결제 승인'],
   TOSS_CLIENT_KEY: ['needs', 'PAY_CARD_ENABLED', '카드결제 화면'],
 

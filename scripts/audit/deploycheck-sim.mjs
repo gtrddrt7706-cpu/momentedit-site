@@ -397,7 +397,11 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   if (rOff.bad !== base) ng('안 쓰는 기능인데 붉어집니다 — 고칠 수 없는 빨강이 됩니다');
 
   const rOn = run({ props: { NOTIFY_ENABLED: 'true' } });
-  const need = ['SOLAPI_API_KEY', 'SOLAPI_API_SECRET', 'SOLAPI_SENDER', 'SOLAPI_KEY', 'SOLAPI_SECRET'];
+  /* ★[SOLAPI_NAME_ALIAS 2026-09-06] SOLAPI_KEY·SOLAPI_SECRET 은 여기서 빠졌다 — 없앤 게 아니라 «필수가 아니게» 됐다.
+     50_auth-handlers 가 이제 95_notify 의 SOLAPI_API_KEY/SECRET 를 폴백으로 읽고, 그마저 없어도 개인코드는 메일로 나간다.
+     필수(needs)로 두면 ⑦ 이 «없으면 기능이 안 돈다»고 거짓 경고를 하고, 그런 경고가 쌓이면 점검 전체를 안 믿게 된다.
+     ★진짜 필수 셋(API_KEY·API_SECRET·SENDER)은 그대로 남아 여전히 붉어진다 — 안전망을 푼 게 아니다. */
+  const need = ['SOLAPI_API_KEY', 'SOLAPI_API_SECRET', 'SOLAPI_SENDER'];
   const caught = need.filter((k) => rOn.miss.some((l) => l.includes(k)));
   console.log(`   알림 켰는데 솔라피 키 없음          누락 ${rOn.bad}건  ${caught.length}/${need.length} 잡힘`);
   if (caught.length !== need.length) ng(`알림을 켰는데 못 잡은 키: ${need.filter((k) => !caught.includes(k)).join(', ')}`);
@@ -408,7 +412,7 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   if (!payOk) ng('카드결제를 켰는데 토스 키 누락을 못 잡았습니다');
 
   const rFull = run({ props: { NOTIFY_ENABLED: 'true', SOLAPI_API_KEY: 'x', SOLAPI_API_SECRET: 'x',
-    SOLAPI_SENDER: 'x', SOLAPI_KEY: 'x', SOLAPI_SECRET: 'x' } });
+    SOLAPI_SENDER: 'x' } });   // [SOLAPI_NAME_ALIAS] 옛 별칭 없이도 «전부 채움»이어야 한다
   console.log(`   알림 켜고 키도 다 넣음              누락 ${rFull.bad}건  ${rFull.bad === base ? '조용함(맞다)' : '✗ 다 넣었는데 붉어짐'}`);
   if (rFull.bad !== base) ng('키를 다 넣었는데도 붉습니다');
 
