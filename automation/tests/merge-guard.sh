@@ -5544,6 +5544,10 @@ chk 'NAV_SEQ' admin.html 15
 chk "var seq=silent?_navSeq:++_navSeq" admin.html 1      # 조용한 갱신은 순번을 올리지 않는다 — 눌러 둔 상세 열기를 죽이지 않게
 chk 'STATE_SEQ' mypage.html 3                          # 마이페이지 — 느린 로드 중 로그아웃 뒤 늦게 온 남의 화면을 버린다(캐시에도 안 남김)
 chk 'NAV_SEQ' scripts/audit/nav-race.mjs 1             # 재현 시뮬(브라우저) — node scripts/audit/nav-race.mjs · 실패 0
+# ★[DLG_GRACE 2026-09-05 점검 라운드7 · 실제 마우스 더블클릭 실측] 버튼 더블클릭 → 첫 클릭이 판을 열고 두 번째 클릭이 배경(취소)이나
+#   판 위 버튼에 떨어져 판이 번쩍 사라지거나 읽기 전에 확인됐다. 열린 뒤 350ms 안의 마우스 클릭(e.detail>0)은 무시 · 키보드·프로그램 click() 은 그대로.
+chk 'DLG_GRACE' admin.html 6   # 줄 수 기준(한 줄에 DLG_GRACE_MS 와 표식이 같이 있는 줄이 있어 등장 수 7 ≠ 줄 수 6)
+chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
 chk 'SAFE_HREF' admin.html 6
 chk 'SAFE_HREF' scripts/audit/admin-inject.mjs 1        # 재현 시뮬(브라우저) — node scripts/audit/admin-inject.mjs · 실패 0
