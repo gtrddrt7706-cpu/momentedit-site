@@ -6041,3 +6041,16 @@ chk 'FILE_COVER' scripts/audit/deploycheck-coverage.mjs 2
 chk 'FILE_COVER_SINCE' scripts/audit/deploycheck-coverage.mjs 2
 chk 'FILE_COVER' CLAUDE.md 1
 chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
+
+# ★★[CSS_COMMENT_NEST 2026-09-06 실기기 제보 "플레이버튼 전에꺼가더 좋왔던거같은데"]
+#   CSS 주석은 중첩되지 않는다. 주석 안에서 다시 열면 «첫» 닫는 표시가 바깥까지 함께 닫고,
+#   그 뒤 설명문이 CSS 로 읽힌다. 파서는 회복하려고 다음 { } 블록 하나를 통째로 삼킨다.
+#   실사고: index.html 의 .journal-listen 규칙이 그렇게 사라져, 저널 재생 버튼이
+#   26px 골드 원 대신 «브라우저 기본 네모 버튼»으로 배포됐다(8c261bee6 ~ 이 커밋).
+#   ★이 사고는 기존 어떤 검사에도 안 걸렸다 — 링크·접근성·탭타깃·문구 검사는 전부 통과했고,
+#     전체 스크린샷도 «대체로 멀쩡»해 눈으로도 안 보였다. 규칙 하나만 조용히 없어졌기 때문이다.
+#     그래서 화면이 아니라 «파서가 무엇을 버렸나»를 직접 보는 검사를 따로 둔다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/css-comment-nest.mjs || fail=1; else echo 'skip css-comment-nest (node 없음)'; fi
+chk 'CSS_COMMENT_NEST' scripts/audit/css-comment-nest.mjs 1
+chk 'CSS_COMMENT_NEST' index.html 1     # 사고 자리에 남긴 근거 주석 — 지우면 같은 실수가 되돌아온다
+chk 'nestedOpens' scripts/audit/css-comment-nest.mjs 2
