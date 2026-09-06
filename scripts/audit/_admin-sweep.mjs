@@ -123,6 +123,72 @@ if (MODE === 'archive') {
   note('★ 그런데 «서버가 옛 판이라 숨은 것»과 «오늘 상담이 없어 숨은 것»을 화면이 구분해 주지 않는다');
   OLD_SERVER = false; await load();
   ok(await page.evaluate(()=>getComputedStyle(document.getElementById('todayWrap')).display!=='none'), '새 판이면 뜬다(대조)');
+} else if (MODE === 'money') {
+  /* 오조작의 핵심 — 확인 판이 «실제로 확정될 금액»을 말하는가. 판의 숫자가 결제 카드 원장과 어긋나면
+     사장이 틀린 금액을 보고 확인을 누른다. 판 숫자를 카드 숫자와 대조한다. */
+  console.log('\n[돈 확인 판] 판의 금액 ↔ 결제 카드 원장');
+  const CASES = [
+    ['계약금 확인 대기', { 현재단계:'계약완료', 입금상태:'대기' }, 'confirmPay'],
+    ['중도금 확인', { 중도금상태:'대기' }, 'confirmMid']
+  ];
+  const BASE = JSON.parse(JSON.stringify(CUST));
+  for (const c of CASES) {
+    const tag = c[0], over = c[1], act = c[2];
+    for (const k of Object.keys(CUST)) delete CUST[k];
+    Object.assign(CUST, BASE, over);
+    await load();
+    await page.evaluate(function(){ return window.openDetail('ME-TEST','home'); });
+    await page.waitForTimeout(900);
+    const led = await page.evaluate(function(){ const el=document.querySelector('.card[data-k="payment"]'); return el ? (el.innerText||'') : ''; });
+    const nums = led.match(/[\d,]{4,}원/g) || [];
+    ok(nums.length > 0, tag + ' · 결제 카드에 금액이 보인다', JSON.stringify(nums.slice(0,4)));
+    const opened = await page.evaluate(function(a){ const b=document.querySelector('[data-da="'+a+'"]'); if(!b) return false; b.click(); return true; }, act);
+    await page.waitForTimeout(800);
+    if (!opened) { note(tag + ' · «' + act + '» 버튼 없음 — 건너뜀'); continue; }
+    const modal = await page.evaluate(function(){ const m=document.getElementById('confirmModal'); return m.classList.contains('show') ? (document.getElementById('modalBox').innerText||'') : ''; });
+    ok(!!modal, tag + ' · 확인 판이 뜬다');
+    ok(!/NaN|undefined/.test(modal), tag + ' · 판에 NaN·undefined 없음', (modal.match(/.{0,25}(NaN|undefined).{0,25}/)||[''])[0]);
+    const mnums = modal.match(/[\d,]{4,}원/g) || [];
+    const same = mnums.every(function(n){ return led.indexOf(n) !== -1; });
+    ok(mnums.length === 0 || same, tag + ' · 판의 금액이 카드 원장과 같다', '판=' + JSON.stringify(mnums) + ' 카드=' + JSON.stringify(nums.slice(0,5)));
+    note(tag + ' · 판 첫 줄: ' + (modal.split('\n').filter(Boolean)[0]||''));
+    await page.evaluate(function(){ try { closeModal(); } catch(e) {} });
+  }
+  for (const k of Object.keys(CUST)) delete CUST[k];
+  Object.assign(CUST, BASE);
+} else if (MODE === 'danger') {
+  /* 위험 버튼이 «일상 버튼과 구분되는가 · 확인 판을 거치는가 · 큐에 안 나오는가» */
+  console.log('\n[오조작 위험] 위험 버튼 전수');
+  await load();
+  await page.evaluate(function(){ return window.openDetail('ME-TEST','home'); });
+  await page.waitForTimeout(900);
+  await page.evaluate(function(){ document.querySelectorAll('#detailBody details').forEach(function(d){ d.open = true; }); });
+  const btns = await page.evaluate(function(){ return [].slice.call(document.querySelectorAll('#detailBody .btn[data-da]')).map(function(b){ return { act:b.getAttribute('data-da'), label:(b.textContent||'').trim(), danger:b.classList.contains('btn-danger') }; }); });
+  const risky = btns.filter(function(b){ return /undo|force|refund|noshow|취소|되돌|환불|강제|해제/i.test(b.act + b.label); });
+  note('상세 버튼 ' + btns.length + '개 중 위험 후보 ' + risky.length + '개');
+  for (const b of risky) ok(b.danger, '«' + b.label + '» 이 위험 색으로 구분된다', b.act);
+  const noConfirm = [];
+  for (const b of risky) {
+    await page.evaluate(function(){ try { closeModal(); } catch(e) {} try { _admDlgEnd(false); } catch(e) {} });
+    await page.evaluate(function(a){ const el=document.querySelector('[data-da="'+a+'"]'); if(el) el.click(); }, b.act);
+    await page.waitForTimeout(700);
+    const st = await page.evaluate(function(){ return { cm:document.getElementById('confirmModal').classList.contains('show'), dl:document.getElementById('admDlgOv').classList.contains('show'), reason:!!document.querySelector('#confirmModal input, #confirmModal textarea') }; });
+    if (!st.cm && !st.dl) noConfirm.push(b.label);
+    else if (/undo|되돌|환불/i.test(b.act + b.label)) {
+      /* ★사유칸이 없다고 바로 결함이 아니다 — 서버가 «지금은 되돌릴 수 없다»고 막으면 그건 «차단 안내» 판이고
+         거기엔 사유칸이 없는 게 정답이다. 판의 글을 읽어 둘을 가른다(첫 판에서 이걸 안 갈라 오탐이 났다). */
+      const txt = await page.evaluate(function(){ const m=document.getElementById('modalBox'); return m ? (m.innerText||'') : ''; });
+      const blocked = /없어요|없습니다|불가|막혔|지났|경과|안 돼요|할 수 없/.test(txt);
+      ok(st.reason || st.dl || blocked, '«' + b.label + '» 이 사유를 받거나, 못 하는 이유를 말한다', JSON.stringify(st) + ' 판=' + txt.replace(/\s+/g,' ').slice(0,110));
+      if (blocked && !st.reason) note('«' + b.label + '» 은 지금 상태에선 차단 안내 판 — 사유칸 없는 것이 정답');
+    }
+  }
+  ok(noConfirm.length === 0, '위험 버튼은 모두 확인 판을 거친다', noConfirm.join(', '));
+  await page.evaluate(function(){ try { closeModal(); } catch(e) {} });
+  await page.evaluate(function(){ return window.loadHome(); });
+  await page.waitForTimeout(800);
+  const inQueue = await page.evaluate(function(){ return [].slice.call(document.querySelectorAll('#queueWrap .qbtn')).map(function(b){ return (b.textContent||'').trim(); }); });
+  ok(!inQueue.some(function(l){ return /되돌|확인 취소/.test(l); }), '큐(일상 목록)에는 되돌리기류를 두지 않는다', JSON.stringify(inQueue));
 }
 const real = errors.filter(e=>!/ERR_FAILED/.test(e));
 if (real.length) { console.log('  pageerror: ' + real.slice(0,3).join(' | ')); fail++; }
