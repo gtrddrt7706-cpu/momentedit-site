@@ -1152,6 +1152,11 @@ chk 'FOLD_319' index.html 1
 chk 'DESIGN_AUTHORITY' CLAUDE.md 1
 chk '이 문서가 디자인 판단의 최종 권위다' .claude/skills/momentedit-design/SKILL.md 1
 chk '행번호를 믿지 말 것' .claude/skills/momentedit-design/SKILL.md 1
+# ★[SEC_TITLE_DEVICE 2026-09-06 코워크 합의] 「index 27px vs inquiry 17px 이라 위계가 약하다」는
+#   같은 날 두 번 제안됐다가 두 번 철회됐다. inquiry 는 선으로, index 는 크기로 섹션을 가른다.
+#   결론을 프로토콜이 아니라 «권위 문서»에 둔다 — 프로토콜에만 두면 다음 라운드에 또 올라온다.
+chk 'SEC_TITLE_DEVICE' .claude/skills/momentedit-design/SKILL.md 1
+chk '두 번 제안됐다가 두 번 철회됐다' .claude/skills/momentedit-design/SKILL.md 1
 # ★★[LIGHT_SYNC 2026-09-06 사용자 결정 "11개를 #6E6959 로"] --light 가 3개 페이지(index·inquiry·mypage)만
 #   새 값이고 나머지 11개는 옛값(#75705F)으로 갈려 있었다. 대비가 4.74→5.25:1 로 오른다.
 #   ★admin.html 은 동기화 대상이 아니다(momentedit-design) · contract/ 는 법률 문서라 손대지 않는다.
@@ -2578,6 +2583,14 @@ chk 'TAP44_FOOT_OFF' inquiry.html 1
 #      ★인라인이 column-gap 이 아니라 gap 으로 되돌아가면 이 분리가 통째로 무효가 된다.
 #   ② 라디오·체크 18개 40→44px (WCAG 2.5.5 Enhanced). 문서 +12px · 그룹 간격 불변.
 chk 'ROWGAP_SPLIT' inquiry.html 1
+# ★★[INQ_SUBMIT_SIM 2026-09-06 라운드 2 0번] 문의 폼 제출이 서버 응답별로 무엇을 하는가.
+#   실패 경로·오류 안내·키보드 검사는 전부 «제출이 된다»를 전제한다. 전제부터 기계가 지킨다.
+#   ★실제 문의는 안 나간다 — script.google.com 을 전부 가로채고, 나간 요청 수로 이중 제출을 본다.
+#   ★«필수 5종»(referral·attire·priority·hesitation·stage)은 HTML required 가 아니라
+#     validateForm() 이 막는다. FILL 에서 이 다섯을 빼면 모달까지 못 가고 검사가 통째로 헛돈다.
+chk 'INQ_SUBMIT_SIM' scripts/audit/inquiry-submit-sim.mjs 1
+chk 'JS 로만 강제되는 필수 5종' scripts/audit/inquiry-submit-sim.mjs 1
+chk 'successScreen' scripts/audit/inquiry-submit-sim.mjs 1   # 성공 판정을 성공 화면 하나로 좁힌 자리
 chk 'TAP44_COMPACT' inquiry.html 1
 chk 'row-gap:14px' inquiry.html 2          # 두 .compact-options 규칙 모두
 chk 'column-gap:2' inquiry.html 3          # 인라인 3곳(24·26·22) — gap 으로 되돌리면 위가 무효
