@@ -2583,6 +2583,14 @@ chk 'TAP44_FOOT_OFF' inquiry.html 1
 #      ★인라인이 column-gap 이 아니라 gap 으로 되돌아가면 이 분리가 통째로 무효가 된다.
 #   ② 라디오·체크 18개 40→44px (WCAG 2.5.5 Enhanced). 문서 +12px · 그룹 간격 불변.
 chk 'ROWGAP_SPLIT' inquiry.html 1
+# ★★[INQ_SUBMIT_SIM 2026-09-06 라운드 2 0번] 문의 폼 제출이 서버 응답별로 무엇을 하는가.
+#   실패 경로·오류 안내·키보드 검사는 전부 «제출이 된다»를 전제한다. 전제부터 기계가 지킨다.
+#   ★실제 문의는 안 나간다 — script.google.com 을 전부 가로채고, 나간 요청 수로 이중 제출을 본다.
+#   ★«필수 5종»(referral·attire·priority·hesitation·stage)은 HTML required 가 아니라
+#     validateForm() 이 막는다. FILL 에서 이 다섯을 빼면 모달까지 못 가고 검사가 통째로 헛돈다.
+chk 'INQ_SUBMIT_SIM' scripts/audit/inquiry-submit-sim.mjs 1
+chk 'JS 로만 강제되는 필수 5종' scripts/audit/inquiry-submit-sim.mjs 1
+chk 'successScreen' scripts/audit/inquiry-submit-sim.mjs 1   # 성공 판정을 성공 화면 하나로 좁힌 자리
 chk 'TAP44_COMPACT' inquiry.html 1
 chk 'row-gap:14px' inquiry.html 2          # 두 .compact-options 규칙 모두
 chk 'column-gap:2' inquiry.html 3          # 인라인 3곳(24·26·22) — gap 으로 되돌리면 위가 무효
