@@ -3,7 +3,8 @@
 //   ② 「오래 기다린 것」이 며칠째인지 안 보이고 단계순이라 17일짜리가 9일짜리 아래 묻히던 것
 //   ③ 홈 다섯 섹션이 한 try 라, 앞이 던지면 뒤가 통째로 사라지고 화면엔 아무 말이 없던 것(돌연변이로 재현)
 //   방식: 서버는 진짜 GAS 함수(_gasworld) · 홈만 스텁. ③은 옛 응답 모양(배열 대신 객체)을 일부러 흘려 넣는다.
-//   사용: node scripts/audit/admin-ux.mjs   (브라우저 필요 · 약 30초 · 실패 0이어야 한다)
+//   ④ 오늘 상담(TODAY_CONSULT)이 아침 메일에만 있고 화면엔 없던 것 · ⑤ 홈 오른쪽 열이 절반 비던 것(HOME_RIGHT_STACK)
+//   사용: node scripts/audit/admin-ux.mjs   (브라우저 필요 · 약 40초 · 실패 0이어야 한다)
 import { spawn } from 'node:child_process';
 import path from 'node:path'; import { fileURLToPath } from 'node:url';
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -19,7 +20,8 @@ const _near = new Date(Date.now()+12*86400000).toISOString().slice(0,10);   // �
 const q = (kind,names,sub,wait) => ({ code:'ME-TEST', names, product:'시그니처', kind, sub, _wait: wait });
 const mkHome = (pipe) => ({ ok:true, name:'미쿠', today:'2026-09-06',
   queue:{ urgent:[], normal:[ q('계약발송','송강 · 김유정','계약서 발송 대기','2026-08-20'), q('현금영수증발행','조정석 · 임수정','계약금 현금영수증 발행','2026-08-28'), q('단계정리','류준열 · 전여빈','단계 잔재','2026-08-25'), q('신규신청','박서준 · 김지원','새 신청','2026-09-05') ] },
-  counts:{ total:4, urgent:0 }, results:[], pipeline:{ 시그니처: pipe, 웨딩스냅: PIPE_OK(1) }, pipeCounts:{ 시그니처:3, 웨딩스냅:1 },
+  counts:{ total:4, urgent:0 }, todayConsults:[{ time:'16:30', names:'강태오 · 배수지', code:'ME-TEST' },{ time:'10:00', names:'오세훈 · 윤아름', code:'ME-TEST' }],
+  results:[{ code:'ME-TEST', names:'이제훈 · 신세경', product:'시그니처', stage:'결과물전달', sub:'원본 전달' }], pipeline:{ 시그니처: pipe, 웨딩스냅: PIPE_OK(1) }, pipeCounts:{ 시그니처:3, 웨딩스냅:1 },
   survey:{ n:2, byProduct:{ 시그니처:2 }, q:{ overall:{ '매우 만족':2 } }, recent:[{ code:'ME-TEST', names:'정해인 · 김고은', product:'시그니처', overall:'매우 만족', recommend:'추천함', gap:'' }] },
   stageFlow:{ 시그니처:['신청접수','상담확정','시착','상담완료','계약완료','입금완료','제작중','예식완료','결과물전달','후기'], 웨딩스냅:['신청접수','촬영확정','계약완료','입금완료','촬영완료','결과물전달','후기'] }, stageEx:['미계약','취소','노쇼'] });
 let HOME = mkHome(PIPE_OK(2)); let SEED = base({ 중도금상태:'대기' });
@@ -69,4 +71,39 @@ const back = await page.evaluate(()=>(document.getElementById('pipeWrap').innerT
 ok(!/못 그렸어요/.test(back) && /시그니처|진행/.test(back), '정상 응답이면 그대로 그린다(회귀 없음)', back);
 const realErr = errors.filter(e=>!/ERR_FAILED/.test(e) && !/렌더 실패/.test(e));
 ok(realErr.length===0, '의도한 것 외 pageerror 없음', realErr.slice(0,2).join(' | '));
+console.log('\n[④] 오늘 상담 — 시간순 · 눌러서 상세 · 없으면 칸 자체가 없다 · 옛 응답에도 안 깨진다');
+HOME = mkHome(PIPE_OK(2)); await load();
+const td = await page.evaluate(()=>{ const el=document.getElementById('todayWrap'); return { shown: getComputedStyle(el).display!=='none', head:(el.querySelector('.sect-h')||{}).textContent||'', rows:[...el.querySelectorAll('.trow')].map(r=>({ t:(r.querySelector('.ttime')||{}).textContent||'', n:(r.querySelector('.tnm')||{}).textContent||'' })) }; });
+ok(td.shown && td.rows.length===2, '오늘 상담 2건이 보인다', JSON.stringify(td));
+/* ★스텁이 일부러 뒤섞어 준다(16:30, 10:00) — 화면이 서버 정렬에 기대고 있으면 여기서 걸린다.
+   둘은 따로 배포되므로(Vercel 즉시 · GAS 수동) 화면도 스스로 세워야 한다. 첫 판에서 실제로 걸렸다. */
+ok(td.rows[0] && td.rows[0].t==='10:00' && td.rows[1].t==='16:30', '뒤섞여 와도 화면이 시간순으로 세운다', JSON.stringify(td.rows.map(r=>r.t)));
+ok(/오늘 상담/.test(td.head) && /2/.test(td.head), '제목과 건수', td.head.replace(/\s+/g,' '));
+await page.evaluate(()=>document.querySelector('#todayWrap .trow').click()); await page.waitForTimeout(800);
+ok(await page.evaluate(()=>window._view==='detail'), '행을 누르면 그 고객 상세로 간다');
+const H2 = mkHome(PIPE_OK(2)); H2.todayConsults=[]; HOME=H2; await load();
+ok(await page.evaluate(()=>getComputedStyle(document.getElementById('todayWrap')).display==='none'), '상담이 없는 날은 칸 자체를 안 그린다');
+const H3 = mkHome(PIPE_OK(2)); delete H3.todayConsults; HOME=H3; await load();   // 옛 GAS 응답(재배포 전)
+const old = await page.evaluate(()=>({ hidden:getComputedStyle(document.getElementById('todayWrap')).display==='none', queue:(document.getElementById('queueWrap').innerText||'').slice(0,12) }));
+ok(old.hidden && /처리할 일/.test(old.queue), '옛 GAS 응답(필드 없음)에도 조용히 숨고 나머지는 정상', JSON.stringify(old));
+
+console.log('\n[⑤] 홈 오른쪽 쌓기 — 오늘 상담·현황·결과물·후기가 오른쪽 열 · 모바일은 한 열');
+HOME = mkHome(PIPE_OK(2)); await load();
+const wide = await page.evaluate(()=>{ const L=id=>{const r=document.getElementById(id).getBoundingClientRect(); return { l:Math.round(r.left), t:Math.round(r.top+scrollY) };};
+  return { q:L('queueWrap'), today:L('todayWrap'), pipe:L('pipeWrap'), res:L('resultsWrap'), sur:L('surveyWrap'), ovf: document.documentElement.scrollWidth-window.innerWidth, h: document.documentElement.scrollHeight }; });
+ok(wide.today.l>wide.q.l && wide.pipe.l>wide.q.l && wide.res.l>wide.q.l && wide.sur.l>wide.q.l, '1440: 넷 다 큐 오른쪽 열에 있다', JSON.stringify(wide));
+ok(wide.today.t<wide.pipe.t && wide.pipe.t<wide.res.t && wide.res.t<wide.sur.t, '오른쪽 열이 오늘상담→현황→결과물→후기 순으로 쌓인다', JSON.stringify([wide.today.t,wide.pipe.t,wide.res.t,wide.sur.t]));
+ok(wide.ovf<=0, '1440 가로 넘침 없음', 'ovf='+wide.ovf);
+const mp = await eng.newPage({ port:PORT, viewport:{ width:420, height:860 } });
+await mp.page.route('**script.google.com**', async route => { let p={}; try{ p=JSON.parse(route.request().postData()||'{}'); }catch{} await route.fulfill({ status:200, contentType:'application/json', headers:{'Access-Control-Allow-Origin':'*'}, body: JSON.stringify(serverCall(p)) }); });
+await mp.page.addInitScript(()=>{ localStorage.setItem('me_admin_token','SHOT-TOKEN'); });
+await mp.page.goto(`http://localhost:${PORT}/admin.html`,{waitUntil:'domcontentloaded'}); await mp.page.waitForTimeout(900);
+const nar = await mp.page.evaluate(()=>{ const L=id=>{const r=document.getElementById(id).getBoundingClientRect(); return { l:Math.round(r.left), t:Math.round(r.top+scrollY) };};
+  return { disp:getComputedStyle(document.getElementById('homeView')).display, q:L('queueWrap'), today:L('todayWrap'), ovf: document.documentElement.scrollWidth-window.innerWidth }; });
+ok(nar.disp!=='grid', '420: 모바일은 grid 가 아니다(종전 그대로)', nar.disp);
+ok(nar.today.l===nar.q.l && nar.today.t<nar.q.t, '420: 오늘 상담이 처리할 일 위 한 열', JSON.stringify(nar));
+ok(nar.ovf<=0, '420 가로 넘침 없음', 'ovf='+nar.ovf);
+ok(mp.errors.length===0, '420 pageerror 없음', mp.errors.slice(0,2).join(' | '));
+await mp.page.close();
+
 console.log(`\n결과 — 실패 ${fail}건`); await eng.close?.(); process.exit(fail?1:0);

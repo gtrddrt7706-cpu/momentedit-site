@@ -5566,6 +5566,15 @@ chk 'MID_BAL_CONFIRM' admin.html 3      # 중도금·잔금 확인 버튼(계약
 chk 'STALE_DAYS_SHOW' admin.html 3      # 「오래 기다린 것」 N일째 표시 + 그 묶음만 오래된 순
 chk 'HOME_SECTION_ISOLATE' admin.html 1 # 홈 섹션 개별 렌더 + 죽은 자리에 한 줄
 chk 'MID_BAL_CONFIRM' scripts/audit/admin-ux.mjs 1
+# ★[TODAY_CONSULT 2026-09-06 사용자 승인 "추천대로"] 오늘 상담이 아침 메일에만 있어 낮엔 받은편지함을 뒤져야 했다.
+#   서버(adminHome)가 이미 읽은 예약행에서 함께 모으고(시트 읽기 0 증가) morningBriefData 의 중복 스캔을 걷어냈다 — 한 원천.
+#   ★화면도 스스로 시간순 정렬한다: Vercel(즉시)과 GAS(수동 재배포)는 따로 배포되므로 정렬을 서버 배포에 매달지 않는다.
+chk 'TODAY_CONSULT' admin.html 5
+chk 'TODAY_CONSULT' automation/admin/admin.gs 5
+chk 'TODAY_CONSULT' scripts/audit/admin-ux.mjs 1
+# ★[HOME_RIGHT_STACK] 결과물·후기를 오른쪽 열로 — 종전엔 큐 아래라 바쁜 날 오른쪽이 700px 비고 결과물이 스크롤 밖이었다.
+chk 'HOME_RIGHT_STACK' admin.html 1
+chk 'grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
 chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
 chk 'SAFE_HREF' admin.html 6
