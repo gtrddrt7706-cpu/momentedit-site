@@ -6269,9 +6269,13 @@ nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     준비한 사람이 주어가 되면(「준비해 두었으니」) 그대로 환대가 된다. 「편히 드세요」로 권하고,
 #     앉는 부탁은 다음 문장으로 뗐다 — 한 문장에 붙으면 다시 참견으로 들린다.
 #   ★핑거 푸드는 계약서·index.html 이 약속한 제공 항목이다(웰컴 핑거 푸드·와인). 빼지 말 것.
-chk '핑거 푸드와 음료 준비해 두었으니 편히 드세요' assets/ritual-data.js 1
-chk '핑거 푸드와 음료 준비해 두었어요' assets/ritual-data.js 1
+#   ★3차 — 사장님이 실제로 녹음하신 판이 B안이었다(올려 주신 wav 30개 파일명으로 확인).
+#     화면 글과 소리가 다른 말을 하면 안 되므로 «소리»를 정본으로 삼는다.
+#     ★검사 문장을 A안으로 되돌리지 말 것 — 되돌리면 녹음과 글이 어긋난 채 초록이 된다.
+chk '한쪽에 핑거 푸드와 음료를 준비해 두었어요' assets/ritual-data.js 2
+chk '천천히 드시다 자리에 앉아 주시면 됩니다' assets/ritual-data.js 2
 nochk '음료가 준비되어 있습니다' assets/ritual-data.js
+nochk '편히 계시다 자리에 앉아' assets/ritual-data.js
 chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
 
 # ★★[BY_VOICE 2026-09-06 사장님 지시 "성우별로 전부 다시 정리된 내용으로 더빙 해보는게 좋을거같아"]
