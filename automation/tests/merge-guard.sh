@@ -5560,6 +5560,12 @@ chk 'NAV_SEQ' scripts/audit/nav-race.mjs 1             # 재현 시뮬(브라우
 # ★[DLG_GRACE 2026-09-05 점검 라운드7 · 실제 마우스 더블클릭 실측] 버튼 더블클릭 → 첫 클릭이 판을 열고 두 번째 클릭이 배경(취소)이나
 #   판 위 버튼에 떨어져 판이 번쩍 사라지거나 읽기 전에 확인됐다. 열린 뒤 350ms 안의 마우스 클릭(e.detail>0)은 무시 · 키보드·프로그램 click() 은 그대로.
 chk 'DLG_GRACE' admin.html 6   # 줄 수 기준(한 줄에 DLG_GRACE_MS 와 표식이 같이 있는 줄이 있어 등장 수 7 ≠ 줄 수 6)
+# ★[관리자 입장 점검 2026-09-06] 큐와 상세가 어긋나던 자리 · 며칠째를 버리던 자리 · 섹션이 조용히 사라지던 자리.
+#   셋 다 «관리자가 화면만 보고는 알 수 없던» 유형이라 표식이 사라지면 그대로 재발한다. 재현 검사: node scripts/audit/admin-ux.mjs
+chk 'MID_BAL_CONFIRM' admin.html 3      # 중도금·잔금 확인 버튼(계약금과 같은 기준 · 서버는 대기에서도 받는다)
+chk 'STALE_DAYS_SHOW' admin.html 3      # 「오래 기다린 것」 N일째 표시 + 그 묶음만 오래된 순
+chk 'HOME_SECTION_ISOLATE' admin.html 1 # 홈 섹션 개별 렌더 + 죽은 자리에 한 줄
+chk 'MID_BAL_CONFIRM' scripts/audit/admin-ux.mjs 1
 chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
 chk 'SAFE_HREF' admin.html 6
