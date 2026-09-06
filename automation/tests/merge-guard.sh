@@ -6264,6 +6264,12 @@ chk "'bridge-6-resume': 1" assets/ritual-cue.js 1
 nochk '음료 한 잔' assets/ritual-data.js
 nochk '음료 한 잔' order-preview.html
 nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
-chk '음료가 준비되어 있습니다' assets/ritual-data.js 1
-chk '음료 준비해 두었습니다' assets/ritual-data.js 1
+#   ★2차(같은 날) — 「음료가 준비되어 있습니다」는 아저씨는 면했지만 이번엔 «안내판»이 됐다.
+#     사장님: *"음료랑 핑거 푸드 얘기를 조금더 자연스럽게 풀어보자 지금은 너무 딱딱하잖아"*
+#     준비한 사람이 주어가 되면(「준비해 두었으니」) 그대로 환대가 된다. 「편히 드세요」로 권하고,
+#     앉는 부탁은 다음 문장으로 뗐다 — 한 문장에 붙으면 다시 참견으로 들린다.
+#   ★핑거 푸드는 계약서·index.html 이 약속한 제공 항목이다(웰컴 핑거 푸드·와인). 빼지 말 것.
+chk '핑거 푸드와 음료 준비해 두었으니 편히 드세요' assets/ritual-data.js 1
+chk '핑거 푸드와 음료 준비해 두었어요' assets/ritual-data.js 1
+nochk '음료가 준비되어 있습니다' assets/ritual-data.js
 chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
