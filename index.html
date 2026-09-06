@@ -2639,7 +2639,7 @@ a.ig-handle:hover {
   letter-spacing: 0;
 }
 /* ★★[ESSAY_LISTEN 2026-09-05 사용자 지시 "자연스럽게 작게 플레이 버튼"] 저널 카드를 소리로 듣는다.
-   ★작아야 한다 — 제목과 겨루면 카드가 시끄러워진다. 그래서 메타줄(Nº 01 · 2026 · 04) 오른쪽 끝,
+   ★작아야 한다 — 제목과 겨루면 카드가 시끄러워진다. 그래서 메타줄(Nº 01) 오른쪽 끝,   /* [JOURNAL_NO_DATE] 날짜는 2026-09-06 에 뺐다 */
      지름 26px 테두리 원 하나다. 채우지 않는다(채움은 이 페이지에서 «전환» 신호다 · BTN_TIER).
    ★음원이 없으면 스스로 사라진다 — 아래 JS 가 확인될 때까지 hidden 을 풀지 않는다.
      기기 음성(TTS) 폴백은 쓰지 않는다: 여기는 브랜드 인상이 목적이라 기계음이 디렉터 이름으로
@@ -4568,6 +4568,18 @@ footer {
   color: var(--gold-text);
   margin-bottom: 28px;
 }
+/* ★[LETTER_SAMPLE 2026-09-06] 편지 카드가 «예시»임을 눈에도 보이게 한다.
+   바로 위 문장이 「스튜디오를 거치지 않고 두 분께만 도착합니다」라는 프라이버시 약속인데,
+   그 아래에 실제 편지처럼 보이는 카드가 전문까지 펼쳐진다. 스크린리더에는
+   role=group + aria-label 「받은 편지 예시」로 알렸지만 **눈에 보이는 «예시» 글자는 0개**였다(실측).
+   「그럼 내 편지도 여기 올라가나?」로 읽힐 여지가 있어, 약속과 화면이 서로 어긋나 보였다. */
+.delivered-sample {
+  font-size: 12px;
+  color: var(--light);
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin: -16px auto 20px;
+}
 .delivered-intro {
   font-family: var(--serif-ko);
   font-size: 14px;
@@ -6174,6 +6186,10 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     스튜디오를 거치지 않고 두 분께만 도착합니다.
   </p>
 
+  <!-- ★[LETTER_SAMPLE 2026-09-06] 이 한 줄을 지우지 말 것 — 지우면 위 프라이버시 약속과
+       아래 편지 카드가 서로 어긋나 보인다(눈에 보이는 «예시» 표시가 0개가 된다). -->
+  <p class="delivered-sample">아래는 예시로 보여드리는 편지입니다</p>
+
   <!-- [A11Y_LETTER_EXPOSED] 이 카드는 장식이 아니라 '받은 편지' 실제 예시다(본문·펼쳐보기 버튼 포함).
        aria-hidden이면 스크린리더 사용자가 예시를 통째로 못 읽고, 안의 버튼은 포커스는 되는데
        읽히지 않는 위반이 된다(WCAG 4.1.2). 대신 group+라벨로 '예시'임을 알린다. -->
@@ -6449,8 +6465,10 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     <article class="journal-card">
       <div class="journal-card-meta">
         <span class="journal-num">Nº 01</span>
-        <span class="journal-dot">·</span>
-        <span class="journal-date">2026 · 04</span>
+        <!-- ★[JOURNAL_NO_DATE 2026-09-06 사용자 "추천대로해"] 날짜(2026 · 04)를 뺐다.
+             두 편 다 4월이라 5개월째 그대로였고, 「지금도 하고 있나」를 확인하러 온 사람에게
+             오히려 조용해 보였다. 연재 번호(Nº)만 남긴다.
+             ★새 글을 실을 때 날짜를 되살리려면 두 카드를 함께 고칠 것 — 한쪽만 있으면 더 낡아 보인다. -->
         <button type="button" class="journal-listen" data-state="play" hidden
                 data-essay-audio="/assets/audio/essay/1_honju.mp3" aria-label="혼주라는 이름, 주인공이라는 이름 낭독 듣기">
           <svg class="ic-play" width="9" height="10" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z" fill="currentColor"/></svg>
@@ -6500,8 +6518,10 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     <article class="journal-card">
       <div class="journal-card-meta">
         <span class="journal-num">Nº 02</span>
-        <span class="journal-dot">·</span>
-        <span class="journal-date">2026 · 04</span>
+        <!-- ★[JOURNAL_NO_DATE 2026-09-06 사용자 "추천대로해"] 날짜(2026 · 04)를 뺐다.
+             두 편 다 4월이라 5개월째 그대로였고, 「지금도 하고 있나」를 확인하러 온 사람에게
+             오히려 조용해 보였다. 연재 번호(Nº)만 남긴다.
+             ★새 글을 실을 때 날짜를 되살리려면 두 카드를 함께 고칠 것 — 한쪽만 있으면 더 낡아 보인다. -->
         <button type="button" class="journal-listen" data-state="play" hidden
                 data-essay-audio="/assets/audio/essay/2_honeymoon.mp3" aria-label="신혼여행 첫날, 가장 깨어있기 위하여 낭독 듣기">
           <svg class="ic-play" width="9" height="10" viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z" fill="currentColor"/></svg>
