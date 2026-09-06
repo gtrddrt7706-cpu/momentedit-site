@@ -19,13 +19,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launchBrowser } from './_browser.mjs';
+import { freePort } from './_freeport.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const PAGES = ['index.html', 'mypage.html', 'live.html', 'schedule.html', 'inquiry.html', 'guide.html', 'seat.html'];
 const WIDTHS = [360, 390, 430, 768, 1024];
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon', '.json': 'application/json' };
 
-const PORT = 8931;
+const PORT = await freePort();   // [FREE_PORT_5 2026-09-06] 포트를 리터럴(8931)로 박아 두면
+//   앞 실행이 죽어 소켓을 물고 있을 때 화면은 멀쩡한데 감사만 붉는다(실측 2건 · img-webp/orphan-copy).
+//   커널에서 빈 포트를 받아 쓴다 — 리터럴로 되돌리지 말 것(_freeport.mjs 주석 참조).
 const srv = http.createServer((req, res) => {
   const p = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]));
   if (fs.existsSync(p) && fs.statSync(p).isFile()) {
@@ -33,7 +36,7 @@ const srv = http.createServer((req, res) => {
     res.end(fs.readFileSync(p));
   } else { res.statusCode = 404; res.end('nf'); }
 });
-await new Promise((r) => srv.listen(PORT, r));
+await new Promise((r, j) => { srv.on('error', j); srv.listen(PORT, r); });
 
 const eng = await launchBrowser();
 if (!eng) { console.log('브라우저 없음 — 건너뜀 (npm i playwright 또는 puppeteer)'); srv.close(); process.exit(0); }
