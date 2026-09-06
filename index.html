@@ -8882,6 +8882,29 @@ nav .nav-links a, .nav-links a, .f-links a {
      하고, 그건 푸터 모양이 바뀌는 일이라 사용자 선택이 먼저다. */
 .journal-card-btn { padding-top: 16px; padding-bottom: 16px; margin-top: -16px; margin-bottom: -16px; }
 .nav-back { padding: 12px 6px; margin: -12px -6px; }
+
+/* ★★[FOLD_319 2026-09-06 사용자 "추천대로"] 320px 미만에서만 도는 블록.
+ *
+ * 왜 — 280px 에서 가로로 12px, 300px 에서 2px 이 샜다(갤럭시 폴드 커버 화면 정도).
+ *   넘치던 것: .hero-logo-wordmark(305px 고정 · nowrap)와 .jr-phone(266px 고정).
+ *   ★320px 부터는 원래 0px 이다 — iPhone SE 를 포함한 주류 폰은 전부 안전했다.
+ *
+ * ★왜 «320px 미만»으로 가뒀나 — 히어로 워드마크의 자간은 디자인 규칙이
+ *   «건드리지 말 것 · 브랜드 시그니처»로 못박은 자리다(momentedit-design/SKILL.md 234행).
+ *   그 브랜드 자산을 주류 화면에서 바꾸지 않으려고, **지금 이미 깨져 있는 폭에서만** 손댄다.
+ *   320px 이상은 1px 도 안 변한다(전후 실측 대조로 고정 · 문서 높이·섹션 좌표 전부 동일).
+ *
+ * ★자간 값은 그대로 두고 크기만 줄인다 — letter-spacing 이 em 단위라 함께 좁아진다.
+ *   비율이 유지되므로 «시그니처 자간»의 성격은 보존된다.
+ */
+@media (max-width: 319px) {
+  .hero-logo-wordmark {
+    font-size: 26px;          /* 305px → 약 248px */
+  }
+  .jr-phone {
+    width: 244px;             /* 266px → 244px (여백 포함 264px < 280px) */
+  }
+}
 </style>
 <script>
 /* [POPUP_BRAND 2026-08-03] 네이티브 alert 대체용 최소 토스트. 노드 하나를 재사용하고 2.6초 뒤 스스로 사라진다.
