@@ -8019,11 +8019,22 @@ function replayHeroAnimation(){
   flex-direction: column;
   overflow: hidden;
   transform: translateX(102%);
-  transition: transform 0.45s var(--ease);
+  /* ★★[ADV_PANEL_TABOUT 2026-09-06 라운드 2 3번] 닫힌 패널이 «탭 순서»에 남아 있었다.
+     transform 으로 밀어 두기만 하면 화면 밖에 있어도 안쪽 컨트롤이 계속 포커스를 받는다.
+     inquiry.html 실측(실제 Tab 키): 60스텝 중 3스텝이 «보이지 않는 패널 안»이었다.
+     visibility 는 «포커스 가능»에서 제외되므로 이 한 값이 그 구멍을 막는다.
+     ★transition 에 visibility 를 함께 실어야 슬라이드가 산다 — 닫을 때는 transform 이 끝난
+       뒤(.45s 지연) 숨기고, 열 때는 .open 이 지연 0으로 덮어 즉시 보인다.
+     ★이 규칙은 assets/advisor-widget.js 에도 같은 내용이 있다. 한쪽만 고치면 그 페이지만
+       고쳐진다 — 실제로 이 파일을 빠뜨려 index 만 안 먹었다. 고칠 때 둘을 함께 볼 것. */
+  visibility: hidden;
+  transition: transform 0.45s var(--ease), visibility 0s linear 0.45s;
   will-change: transform;
 }
 .me-adv-panel.open {
   transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.45s var(--ease), visibility 0s;
   box-shadow: -26px 0 72px rgba(28, 27, 25, 0.2);
 }
 @media (max-width: 680px) {
@@ -8491,7 +8502,7 @@ function replayHeroAnimation(){
   </div>
 
   <div class="me-adv-backdrop" id="meAdvBackdrop"></div>
-  <section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true">
+  <section class="me-adv-panel" id="meAdvPanel" role="dialog" aria-label="모먼트에디트 상담 도우미" aria-modal="true" tabindex="-1">
     <header class="me-adv-head">
       <div class="me-adv-head-t">
         <span class="me-adv-titles">
@@ -8705,8 +8716,16 @@ function replayHeroAnimation(){
     if(on){ window.__meTCLock=1; tcEl.setAttribute('content','#faf9f8'); }
     else  { window.__meTCLock=0; if(window.__meTCSync) window.__meTCSync(); }
   }
+  /* ★[ADV_FOCUS_ENTER 2026-09-06 라운드 2 3번] 대화상자를 열면 «그 안»으로 포커스를 옮긴다.
+     종전에는 패널만 열리고 포커스는 있던 자리에 남았다(실측: 열린 뒤 Tab 한 번 → skip-link).
+     backdrop 이 뒤를 가리므로, 키보드 사용자는 보이지도 않는 페이지를 훑어 패널까지 가야 했다.
+     inquiry 쪽 위젯(assets/advisor-widget.js)은 이미 이렇게 동작한다 — 여기만 빠져 있었다.
+     ★opener 를 기억해 닫을 때 되돌려 준다. 안 되돌리면 포커스가 문서 맨 앞으로 튄다. */
+  var advOpener = null;
   function open(keepScroll){
+    try { advOpener = (document.activeElement && document.activeElement !== document.body) ? document.activeElement : null; } catch(_e){ advOpener = null; }
     panel.classList.add('open'); stackEl.classList.add('hide');
+    try { panel.focus({ preventScroll: true }); } catch(_e){}
     if(backdrop) backdrop.classList.add('open');
     themeCream(true);
     lockScroll();
@@ -8721,6 +8740,7 @@ function replayHeroAnimation(){
   }
   function close(){
     panel.classList.remove('open'); stackEl.classList.remove('hide');
+    if (advOpener) { try { advOpener.focus({ preventScroll: true }); } catch(_e){} advOpener = null; }   // [ADV_FOCUS_ENTER]
     if(backdrop) backdrop.classList.remove('open');
     unlockScroll();
     themeCream(false);   // unlockScroll 뒤에 — 스크롤 복원이 끝나야 히어로가 제 값을 계산한다

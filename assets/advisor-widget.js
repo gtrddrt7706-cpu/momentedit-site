@@ -45,8 +45,20 @@
          ③스크롤 자동 숨김 → **2026-06-12 사용자 지시로 이미 폐지**(바로 윗줄). 되살리지 말 것. */
     + '.me-adv-backdrop{position:fixed;inset:0;z-index:148;background:rgba(28,27,25,0.34);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .42s,visibility .42s}'
     + '.me-adv-backdrop.open{opacity:1;visibility:visible}'
-    + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);transition:transform .46s cubic-bezier(0.16,1,0.3,1);will-change:transform}'
-    + '.me-adv-panel.open{transform:translateX(0);box-shadow:-26px 0 72px rgba(28,27,25,0.20)}'
+    /* ★★[ADV_PANEL_TABOUT 2026-09-06 라운드 2 3번] 닫힌 패널이 «탭 순서»에 남아 있었다.
+       transform 으로 밀어 두기만 하고 display:flex 를 유지하니, 화면 밖에 있어도
+       닫기·질문 입력·전송 세 컨트롤이 계속 포커스를 받는다. 실측(inquiry.html · 실제 Tab 키):
+       60스텝 중 57~59 가 «보이지 않는 패널 안»이었다. 키보드 사용자는 푸터를 지나
+       아무것도 안 보이는 자리에서 세 번을 헤맨다. index.html 도 같은 위젯을 쓴다.
+
+       고치는 방법은 visibility 다 — 이 값은 «포커스 가능»에서 제외된다.
+       ★transition 에 visibility 를 함께 실어야 슬라이드가 살아 있다:
+         닫을 때  transform 이 끝난 «뒤»에 숨긴다(.46s 지연)
+         열 때    즉시 보이게 한다(.open 이 지연 0으로 덮는다)
+       inert 대신 CSS 로 하는 이유 — JS 상태와 어긋날 일이 없다. 열림 표시가 .open 하나뿐이라
+       그 클래스 하나로 «보임»과 «포커스 가능»이 같이 움직인다. */
+    + '.me-adv-panel{position:fixed;top:0;right:0;bottom:0;z-index:150;width:452px;max-width:100vw;height:100vh;height:100dvh;background:var(--bg,#FAFAF8);border-left:1px solid var(--border,#DDD8D1);display:flex;flex-direction:column;overflow:hidden;transform:translateX(102%);visibility:hidden;transition:transform .46s cubic-bezier(0.16,1,0.3,1),visibility 0s linear .46s;will-change:transform}'
+    + '.me-adv-panel.open{transform:translateX(0);visibility:visible;transition:transform .46s cubic-bezier(0.16,1,0.3,1),visibility 0s;box-shadow:-26px 0 72px rgba(28,27,25,0.20)}'
     + '.me-adv-panel:focus{outline:none}'
     /* [ADV_NOZOOM 2026-08-03] 여기 있던 `.me-adv-input{font-size:16px}`을 뺐다 — 죽은 규칙이었다.
        이 블록(36행)이 base `.me-adv-input`(아래) 보다 먼저 선언돼, 같은 특이도(0,1,0)에서

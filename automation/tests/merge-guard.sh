@@ -2599,6 +2599,17 @@ chk 'TAP44_COMPACT' inquiry.html 1
 #   required 쪽과 같은 처방 — 포커스를 옮기고 aria-invalid 를 건다. 고르면 즉시 거둔다.
 #   ★focus({preventScroll:true}) 를 지우지 말 것 — meFlashTo 가 이미 스크롤한다. 빼면 두 번 움직인다.
 chk 'JS_REQUIRED_REACH' inquiry.html 3
+# ★★[ADV_PANEL_TABOUT · ADV_FOCUS_ENTER 2026-09-06 라운드 2 3번]
+#   ① 닫힌 상담 패널이 «탭 순서»에 남아 있었다 — transform 으로 밀기만 하고 display:flex 유지.
+#      실측(실제 Tab 키): inquiry 60스텝 중 3스텝이 보이지 않는 패널 안. visibility 로 막았다.
+#      ★규칙이 두 곳에 있다 — index.html 인라인 CSS 와 assets/advisor-widget.js.
+#        한쪽만 고치면 그 페이지만 고쳐진다(실제로 index 를 빠뜨려 한 번 그랬다).
+#   ② index 만 열었을 때 포커스가 패널 밖에 남았다. 위젯 쪽은 이미 안으로 넣고 있었다.
+chk 'ADV_PANEL_TABOUT' index.html 1
+chk 'ADV_PANEL_TABOUT' assets/advisor-widget.js 1
+chk 'ADV_FOCUS_ENTER' index.html 2
+chk 'visibility:hidden' assets/advisor-widget.js 1
+chk 'visibility: hidden' index.html 1
 chk "aria-invalid', 'true'" inquiry.html 1
 chk 'preventScroll: true' inquiry.html 1
 chk 'row-gap:14px' inquiry.html 2          # 두 .compact-options 규칙 모두
