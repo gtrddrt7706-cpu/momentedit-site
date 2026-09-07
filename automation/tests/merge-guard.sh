@@ -2599,6 +2599,21 @@ chk 'TAP44_COMPACT' inquiry.html 1
 #   required 쪽과 같은 처방 — 포커스를 옮기고 aria-invalid 를 건다. 고르면 즉시 거둔다.
 #   ★focus({preventScroll:true}) 를 지우지 말 것 — meFlashTo 가 이미 스크롤한다. 빼면 두 번 움직인다.
 chk 'JS_REQUIRED_REACH' inquiry.html 3
+# ★★[GROUP_ERR_MSG · GOLD_MARKER_AA · FAQ_ARIA · TYPO_HALFPX 2026-09-06 사용자 승인]
+#   ① 필수 그룹 실패 시 «문장»이 그룹 옆에 뜬다(role=alert · aria-describedby).
+#      상단 요약이 아닌 이유 — validateForm 은 첫 실패에서 return 하므로 한 번에 한 곳만 걸린다.
+#      ★비웠다 넣는다 — role=alert 는 내용이 바뀔 때 읽는다. 같은 문구 두 번이면 안 읽힐 수 있다.
+#   ② --gold 를 기능 마커에 쓰던 3곳 → --gold-text (2.54/2.65/2.39 → 5.71/5.97/5.38)
+#   ③ FAQ 14곳 aria-expanded + aria-controls. 여는 «두 경로» 모두에서 갱신한다.
+#   ④ .92em 이 12px 부모에 걸려 11.04px 이던 3곳 → 11px
+chk 'GROUP_ERR_MSG' inquiry.html 3
+chk '하나만 골라 주세요' inquiry.html 1
+chk '하나 이상 골라 주세요' inquiry.html 1
+chk 'GOLD_MARKER_AA' index.html 2
+chk 'FAQ_ARIA' index.html 2
+chk "aria-expanded', opening" index.html 1
+nochk 'font-size:.92em' index.html
+nochk 'font-size:0.92em' index.html
 # ★★[ADV_PANEL_TABOUT · ADV_FOCUS_ENTER 2026-09-06 라운드 2 3번]
 #   ① 닫힌 상담 패널이 «탭 순서»에 남아 있었다 — transform 으로 밀기만 하고 display:flex 유지.
 #      실측(실제 Tab 키): inquiry 60스텝 중 3스텝이 보이지 않는 패널 안. visibility 로 막았다.
