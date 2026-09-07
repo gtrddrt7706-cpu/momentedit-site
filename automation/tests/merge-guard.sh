@@ -2607,6 +2607,13 @@ chk 'JS_REQUIRED_REACH' inquiry.html 3
 #   ③ FAQ 14곳 aria-expanded + aria-controls. 여는 «두 경로» 모두에서 갱신한다.
 #   ④ .92em 이 12px 부모에 걸려 11.04px 이던 3곳 → 11px
 chk 'GROUP_ERR_MSG' inquiry.html 3
+# ★★[GUIDE_TAP44 2026-09-06 라운드 3] 하객 안내의 조작 요소를 44px 로.
+#   「지도」 3개가 40px · 성함 입력칸이 43px 이었다. inquiry 의 .compact-option 과 같은 원인(min-height 40).
+#   ★43px 은 표류가 아니라 계산 결과였다(내용 17 + 패딩 24 + 테두리 2). 패딩을 반px 로 못 올리니
+#     min-height 로 1px 을 채웠다. 값을 바꾸기 전에 «왜 그 값인가»를 먼저 본 자리다.
+chk 'GUIDE_TAP44' guide.html 2
+chk 'min-height:44px' guide.html 2
+nochk 'act{min-height:40px}' guide.html
 chk '하나만 골라 주세요' inquiry.html 1
 chk '하나 이상 골라 주세요' inquiry.html 1
 chk 'GOLD_MARKER_AA' index.html 2
