@@ -107,12 +107,11 @@ function App() {
   const [empAnnual, setEmpAnnual] = useState(3000);
   const [empCount, setEmpCount] = useState(1);
   const [freelancerCost, setFreelancerCost] = useState(0);
-  const [isOpening, setIsOpening] = useState(true);
-
-  const prices = useMemo(() => ({
-    weekend: isOpening ? 180 : 210,
-    weekday: isOpening ? 120 : 150,
-  }), [isOpening]);
+  // [PRICE_CANON_330_250] 2026-09-07 사용자 확정 — 330/250 이 정본이다.
+  // 종전엔 오프닝(180/120) · 정상(210/150) 토글이 있었으나 둘 다 라이브(index.html)·
+  // 계약서(contract/v1-1.html 3,300,000 / 2,500,000)와 어긋난 낡은 값이라 제거했다.
+  // 기본값으로 열면 월 -177만 적자로 보이던 원인이 이것이다. 되살리지 말 것.
+  const prices = useMemo(() => ({ weekend: 330, weekday: 250 }), []);
 
   const labor = useMemo(() => {
     const empMonthly = Math.round(empAnnual / 12);
@@ -179,18 +178,7 @@ function App() {
           <div style={{ width: 40, height: 1, background: COLORS.accent, margin: "12px auto 0" }} />
         </div>
 
-        {/* Pricing Toggle */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 28 }}>
-          {[{ val: true, label: "오프닝 가격", sub: "27년 상반기" }, { val: false, label: "정상 가격", sub: "정규 운영" }].map(({ val, label, sub }) => (
-            <button key={String(val)} onClick={() => setIsOpening(val)} style={{
-              padding: "10px 20px", border: `1px solid ${isOpening === val ? COLORS.accent : COLORS.border}`,
-              borderRadius: 8, background: isOpening === val ? COLORS.accent : COLORS.card,
-              color: isOpening === val ? "#fff" : COLORS.text, cursor: "pointer", fontSize: 13, fontWeight: 500, transition: "all 0.2s", lineHeight: 1.4,
-            }}>
-              {label}<div style={{ fontSize: 10, opacity: 0.7 }}>{sub}</div>
-            </button>
-          ))}
-        </div>
+        {/* [PRICE_CANON_330_250] 오프닝/정상 토글 제거 — 정본 단가 하나만 쓴다 */}
 
         <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 28, fontSize: 13, color: COLORS.sub }}>
           <span>주말·공휴일 <b style={{ color: COLORS.text }}>{fmtFull(prices.weekend)}</b></span>
