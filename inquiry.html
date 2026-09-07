@@ -1276,6 +1276,10 @@ function meShowConfirm(o){
   cancel.onclick=function(){ meCloseModal(); if(o.onNo) o.onNo(); };
 }
 function validateForm(){
+  // [JS_REQUIRED_REACH] 지난 실패의 흔적을 먼저 지운다 — 고친 칸이 계속 «오류»로 읽히면 더 나쁘다
+  var stale = form.querySelectorAll('[aria-invalid]');
+  for (var _i = 0; _i < stale.length; _i++) stale[_i].removeAttribute('aria-invalid');
+
   // HTML5 검증 먼저
   if (!form.checkValidity()) {
     // 첫 invalid 필드로 스크롤
@@ -1306,9 +1310,30 @@ function validateForm(){
   }
 
   // 추가 필수 항목 검증 — 누락 시 해당 위치로 스크롤(팝업 없음)
+  /* ★[JS_REQUIRED_REACH 2026-09-06 라운드 2 1~2] 이 다섯(referral·attire·priority·hesitation·stage)은
+     HTML required 가 아니라 여기서만 막는다. 그래서 실패했을 때 되돌아오는 것이 «스크롤 + 반짝임»뿐이었다.
+
+     실측으로 갈린 조건 (390px)
+       HTML required 가 걸릴 때 → firstInvalid.focus() 가 이미 있어 포커스가 그 칸으로 간다.
+                                  화면낭독기가 그 칸의 라벨을 읽는다.
+       이 다섯이 걸릴 때        → 포커스가 body 에 그대로 머문다. 낭독기에 «아무 일도 안 일어난다».
+     게다가 반짝임(meFieldFlash 1.5s)은 정점이 22%(330ms)인데 그때는 아직 스크롤 중이고,
+     이 다섯은 폼 아래쪽에 있어 스크롤이 길다 — 2014px 를 지나는 동안 정점이 끝난다(코워크 실측).
+     «가장 잘 빠뜨리는 칸이 가장 안 보이는 신호를 받는» 구조였다.
+
+     그래서 required 쪽과 같은 처방을 준다: 포커스를 옮기고 aria-invalid 를 건다.
+     ★문구는 여기서 만들지 않았다 — 고객에게 보이는 새 문장이라 사용자 판단 자리다. */
   var requireChecked = function(name){
     var el = form.querySelector('input[name="'+name+'"]:checked');
-    if (!el) { meFlashTo(form.querySelector('input[name="'+name+'"]')); return false; }
+    if (!el) {
+      var first = form.querySelector('input[name="'+name+'"]');
+      meFlashTo(first);
+      var group = form.querySelectorAll('input[name="'+name+'"]');
+      for (var i = 0; i < group.length; i++) group[i].setAttribute('aria-invalid', 'true');
+      // meFlashTo 가 이미 스크롤한다 — preventScroll 로 두 번 움직이지 않게(required 쪽과 동일)
+      try { first.focus({ preventScroll: true }); } catch(_e){}
+      return false;
+    }
     return true;
   };
   if (!requireChecked('referral')) return false;
@@ -1504,6 +1529,14 @@ function meDoSubmit(){
   })
   .catch(function(){ resetBtn(); });
 }
+
+/* [JS_REQUIRED_REACH] 고르는 «즉시» 오류 표시를 거둔다 — 다음 제출까지 기다리지 않는다. */
+form.addEventListener('change', function(e){
+  var t = e.target;
+  if (!t || !t.name) return;
+  var group = form.querySelectorAll('[name="' + t.name + '"][aria-invalid]');
+  for (var i = 0; i < group.length; i++) group[i].removeAttribute('aria-invalid');
+});
 
 /* TEL 입력 자동 포맷 (한국 휴대폰 번호) */
 const phoneInput = document.getElementById('phone');
