@@ -2592,6 +2592,15 @@ chk 'INQ_SUBMIT_SIM' scripts/audit/inquiry-submit-sim.mjs 1
 chk 'JS 로만 강제되는 필수 5종' scripts/audit/inquiry-submit-sim.mjs 1
 chk 'successScreen' scripts/audit/inquiry-submit-sim.mjs 1   # 성공 판정을 성공 화면 하나로 좁힌 자리
 chk 'TAP44_COMPACT' inquiry.html 1
+# ★★[JS_REQUIRED_REACH 2026-09-06 라운드 2 1~2 코워크 판정]
+#   referral·attire·priority·hesitation·stage 는 HTML required 가 아니라 validateForm() 이 막는다.
+#   그래서 실패 시 «스크롤 + 1.5초 반짝임»뿐이었고 포커스가 body 에 머물러
+#   화면낭독기에는 아무 일도 안 일어났다(실측: 포커스 body · aria-invalid 0).
+#   required 쪽과 같은 처방 — 포커스를 옮기고 aria-invalid 를 건다. 고르면 즉시 거둔다.
+#   ★focus({preventScroll:true}) 를 지우지 말 것 — meFlashTo 가 이미 스크롤한다. 빼면 두 번 움직인다.
+chk 'JS_REQUIRED_REACH' inquiry.html 3
+chk "aria-invalid', 'true'" inquiry.html 1
+chk 'preventScroll: true' inquiry.html 1
 chk 'row-gap:14px' inquiry.html 2          # 두 .compact-options 규칙 모두
 chk 'column-gap:2' inquiry.html 3          # 인라인 3곳(24·26·22) — gap 으로 되돌리면 위가 무효
 nochk 'padding:8px 2px;min-height:40px' inquiry.html
