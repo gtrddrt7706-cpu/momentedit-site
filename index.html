@@ -2201,7 +2201,7 @@ section:not(#rsvp) > *:last-child {
   content: "+";
   font-family: var(--serif);
   font-size: 22px;
-  color: var(--gold);
+  color: var(--gold-text)   /* [GOLD_MARKER_AA 2026-09-06] 기능 마커라 비텍스트 3:1 을 지켜야 한다. --gold 는 2.54:1 · --gold-text 는 5.71:1 */;
   transition: transform 0.3s;
   flex-shrink: 0;
   margin-left: 16px;
@@ -4895,7 +4895,7 @@ a.access-link::after {
   display: inline-block;
   font-family: var(--serif);
   font-size: 11px;
-  color: var(--gold);
+  color: var(--gold-text)   /* [GOLD_MARKER_AA] 위와 같은 이유 — ↗ 는 «새 창»을 알리는 기능 마커다 */;
   opacity: 0.7;
   margin-left: 4px;
   transform: translateY(-1px);
@@ -6419,7 +6419,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <div class="cta-block">
   <div class="cta-eyebrow">Start Your Narrative</div>
   <a href="./inquiry.html" class="cta-btn">프라이빗 방문 상담 예약하기</a>
-  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 환불됩니다<br><span style="font-size:.92em;color:var(--light)">드레스를 시착하신 경우에만 1벌당 50,000원(최대 100,000원)을 제하고 돌려드려요</span></div>
+  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 환불됩니다<br><span style="font-size:11px;color:var(--light)">드레스를 시착하신 경우에만 1벌당 50,000원(최대 100,000원)을 제하고 돌려드려요</span></div>
 </div>
 </section>
 <div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
@@ -6630,9 +6630,9 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
      같은 층위로 나란히 놓여 서로를 무효화하고 있었다(고객 반응: "6개월이라며? 3개월도 된다며?").
      권장 = 원하는 날짜를 확보할 확률 · 3개월 = 가능 여부, 두 층위로 갈라 모순을 없앴다.
      '운영 초기 한정' 문구 자체는 유효 여부가 미정이라 그대로 뒀다(나중에할일_체크리스트 결정 대기함). --><br><br><strong>원하시는 날짜를 확보하시려면</strong> 6개월 전, 봄(4~5월)·가을(9~11월) 주말이라면 9개월 전 문의를 권해 드립니다. 인기 있는 날짜부터 먼저 차기 때문입니다.<br><br>다만 이 기간이 지났다고 안 되는 것은 아닙니다. <span style="color:var(--gold-text);font-style:italic">운영 초기 한정으로 3개월 전 예약도 환영합니다.</span> 남아 있는 일정은 사전 문의서로 바로 확인해 드리니, 날짜가 가깝더라도 편히 물어봐 주십시오.</div></div></div>
-<div class="faq-item"><div class="faq-q"><span>상담 예약은 어떻게 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">세 단계로 정중히 모십니다.<br><br><strong>01.</strong> 사전 문의서 제출<br><strong>02.</strong> 담당 디렉터 메일 안내 <span style="color:var(--light);font-size:0.92em">(영업일 48시간 이내)</span><br><strong>03.</strong> 상담 예약금 <strong>100,000원</strong> 송금 → 방문 일정 확정<br><br><!-- [FAQ_DEPOSIT_WHY] 2026-08-03 추가. 환불 보증은 이미 있었지만 '상담받는데 왜 돈을 내지?'라는
+<div class="faq-item"><div class="faq-q"><span>상담 예약은 어떻게 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">세 단계로 정중히 모십니다.<br><br><strong>01.</strong> 사전 문의서 제출<br><strong>02.</strong> 담당 디렉터 메일 안내 <span style="color:var(--light);font-size:11px">(영업일 48시간 이내)</span><br><strong>03.</strong> 상담 예약금 <strong>100,000원</strong> 송금 → 방문 일정 확정<br><br><!-- [FAQ_DEPOSIT_WHY] 2026-08-03 추가. 환불 보증은 이미 있었지만 '상담받는데 왜 돈을 내지?'라는
      첫 반응에 답이 없었다. 환불 문구를 늘리는 게 아니라 '이유' 한 줄만 붙인다
-     (REPORT §B-3 · 위험 역전 문구 반복 = 저가 신호·역U자 → 반복 금지). -->예약금을 받는 이유는 상담 한 자리에 실제 준비가 따르기 때문입니다. 그 시간대의 공간을 비워 두고, 시착하실 드레스를 미리 준비해 둡니다.<br><br>▸ 예약금은 본 계약 시 <strong>100% 차감</strong>되며, 본 계약을 진행하지 않으셔도 <strong>전액 환불</strong>됩니다. 단, 드레스 시착을 진행하신 경우에는 진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 차감되고 나머지는 환불됩니다.<br>▸ 일정 변경은 상담 <strong>24시간 전</strong>까지 가능합니다.<br>▸ 드레스 시착은 상담 당일 시착 동의 후 진행됩니다 <span style="color:var(--light);font-size:0.92em">(기본 2벌)</span>.</div></div></div>
+     (REPORT §B-3 · 위험 역전 문구 반복 = 저가 신호·역U자 → 반복 금지). -->예약금을 받는 이유는 상담 한 자리에 실제 준비가 따르기 때문입니다. 그 시간대의 공간을 비워 두고, 시착하실 드레스를 미리 준비해 둡니다.<br><br>▸ 예약금은 본 계약 시 <strong>100% 차감</strong>되며, 본 계약을 진행하지 않으셔도 <strong>전액 환불</strong>됩니다. 단, 드레스 시착을 진행하신 경우에는 진행한 벌수만큼(1벌당 50,000원) 시착 비용으로 차감되고 나머지는 환불됩니다.<br>▸ 일정 변경은 상담 <strong>24시간 전</strong>까지 가능합니다.<br>▸ 드레스 시착은 상담 당일 시착 동의 후 진행됩니다 <span style="color:var(--light);font-size:11px">(기본 2벌)</span>.</div></div></div>
 <button type="button" class="faq-more-toggle" id="faqMoreToggle" aria-expanded="false" aria-controls="faqMoreList"><span class="more-text-open">더 자세한 질문 <span class="more-count">7</span> 보기</span><span class="more-text-close">접기</span><span class="more-icon">+</span></button>
 <div class="faq-more" id="faqMoreList"><div class="faq-more-inner">
 <!-- [FAQ_REFUND] 2026-08-03 추가. FAQ 검색칩에 '환불 규정'이 있는데 정작 문항이 없어
@@ -7534,10 +7534,22 @@ function toggleEssay(btn){
 <script>
 (function(){
   // FAQ 항목 토글 (인라인 onclick 대체)
-  document.querySelectorAll('.faq-item .faq-q').forEach(function(q){
+  /* ★[FAQ_ARIA 2026-09-06 라운드 1 ④] 접힘·펼침을 «상태»로 알린다.
+     종전에는 role=button · tabindex 만 있고 aria-expanded 가 없어, 화면낭독기 사용자에게
+     이 줄이 «지금 열려 있는지»가 전달되지 않았다(WCAG 4.1.2). 14곳 전부 그랬다.
+     ★새 패턴을 만들지 않았다 — 같은 페이지의 .faq-more-toggle 이 이미
+       aria-expanded + aria-controls 를 쓰고 있어 그것을 그대로 옮겼다.
+       (라운드 2 의 requireChecked 포커스도 같은 모양이었다 — 한쪽에만 있던 줄을 옮겨 적는 일) */
+  document.querySelectorAll('.faq-item .faq-q').forEach(function(q, qi){
     q.setAttribute('role', 'button');
     q.setAttribute('tabindex', '0');
-    var toggle = function(){ var item=q.parentElement, ans=item.querySelector('.faq-a'); var opening=!item.classList.contains('open'); item.classList.toggle('open', opening); if(ans) ans.style.maxHeight = opening ? (ans.scrollHeight+'px') : '0px'; };
+    var _item = q.parentElement, _ans = _item && _item.querySelector('.faq-a');
+    if (_ans) {
+      if (!_ans.id) _ans.id = 'faqA' + (qi + 1);
+      q.setAttribute('aria-controls', _ans.id);
+    }
+    q.setAttribute('aria-expanded', _item && _item.classList.contains('open') ? 'true' : 'false');
+    var toggle = function(){ var item=q.parentElement, ans=item.querySelector('.faq-a'); var opening=!item.classList.contains('open'); item.classList.toggle('open', opening); q.setAttribute('aria-expanded', opening ? 'true' : 'false'); if(ans) ans.style.maxHeight = opening ? (ans.scrollHeight+'px') : '0px'; };
     q.addEventListener('click', toggle);
     q.addEventListener('keydown', function(e){
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
@@ -7556,6 +7568,10 @@ function toggleEssay(btn){
         var ans = item.querySelector('.faq-a');
         item.classList.add('open');
         if (ans) ans.style.maxHeight = ans.scrollHeight + 'px';
+        /* [FAQ_ARIA] 여는 «두 번째 경로»다. 여기서 상태를 안 갱신하면 화면은 열려 있는데
+           aria-expanded 는 false 로 남아 낭독기에만 «닫힘»으로 들린다. 위 toggle 과 짝이다. */
+        var qq = item.querySelector('.faq-q');
+        if (qq) qq.setAttribute('aria-expanded', 'true');
       }
       item.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
