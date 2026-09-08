@@ -69,7 +69,9 @@ const OK = '{"ok":true}';
 const SCREEN = `(() => {
   const vis = (e) => { if (!e) return false; const c = getComputedStyle(e); const b = e.getBoundingClientRect();
     return c.display !== 'none' && c.visibility !== 'hidden' && +c.opacity > 0.05 && b.width > 1 && b.height > 1; };
-  const t = (e) => e ? (e.textContent || '').replace(/\\s+/g, ' ').trim() : null;
+  /* innerText 로 읽는다 — textContent 는 <br> 을 무시해 「전해졌어요남은 5장」처럼 붙어 보인다.
+     화면엔 줄이 나뉘어 있는데 로그만 붙어 보이면, 없는 문구 결함을 쫓게 된다. */
+  const t = (e) => e ? ((e.innerText != null ? e.innerText : e.textContent) || '').replace(/\\s+/g, ' ').trim() : null;
   const st = document.getElementById('gpStat');
   const pick = document.getElementById('gpPick');
   /* ★시트는 #dtipOv 다(sheetEnsure 가 만든다). .k=꼬리표 · .h=본문 · .d=부제.
@@ -83,6 +85,7 @@ const SCREEN = `(() => {
     줄색: vis(st) ? getComputedStyle(st).color : null,
     줄크기: vis(st) ? px(st) : null,
     다시시도: !!document.getElementById('gpRetry'),
+    이어보내기: !!document.getElementById('gpRest'),
     버튼: pick ? t(pick) : null,
     버튼잠김: pick ? pick.classList.contains('ps-btn-off') : null,
     시트: wrap && vis(wrap) ? { 본문: t(main), 본문크기: px(main), 부제: t(sub), 부제크기: px(sub) } : null,
@@ -101,7 +104,7 @@ const GUIDE = JSON.stringify({ ok: true, guide: {
   photoShare: ''          // 비우면 «우리 업로드» 화면이 뜬다(지금의 기본값)
 } });
 
-async function run(name, { count, handler, midShot = 0 }) {
+async function run(name, { count, handler, midShot = 0, clickRest = false }) {
   const { page } = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
   let hits = 0;
   await page.route('**://script.google.com/**', async (route) => {
@@ -128,8 +131,22 @@ async function run(name, { count, handler, midShot = 0 }) {
   await page.waitForTimeout(700);
   const after = await page.evaluate(SCREEN);
   await page.screenshot({ path: path.join(SHOTS, `gp-${name}.png`), clip: { x: 0, y: 200, width: 390, height: 500 } });
+
+  /* [GP_OVER_KEEP] 넘친 사진을 «다시 고르지 않고» 이어 보낼 수 있는가 —
+     버튼을 «실제로 눌러» 요청이 더 나가는지까지 본다. 있다고만 보면 죽은 버튼도 통과한다.
+     ★파일을 다시 고르지 않는다는 것이 요점이다. setInputFiles 를 다시 부르지 않는다. */
+  const 첫판 = hits;        // ★캡 검사는 여기까지다 — 아래 이어보내기를 더하면 30이 35로 보인다
+  let 이어 = null;
+  if (clickRest && after.이어보내기) {
+    const before = hits;
+    await page.click('#gpRest');
+    await page.waitForFunction(() => !window.__gpBusy, null, { timeout: 40000 }).catch(() => {});
+    await page.waitForTimeout(700);
+    이어 = { 더보낸수: hits - before, ...(await page.evaluate(SCREEN)) };
+    await page.screenshot({ path: path.join(SHOTS, `gp-${name}-이어.png`), clip: { x: 0, y: 200, width: 390, height: 500 } });
+  }
   await page.close();
-  return { name, 요청수: hits, mid, ...after };
+  return { name, 요청수: 첫판, 총요청: hits, mid, 이어, ...after };
 }
 
 const J = (body, delay = 0) => async (route) => {
@@ -143,7 +160,7 @@ results.push(await run('성공', { count: 3, handler: J(OK) }));
 results.push(await run('부분실패', { count: 4, handler: async (route, n) =>
   (n % 2 === 0 ? route.abort('connectionfailed') : J(OK)(route)) }));
 results.push(await run('완전실패', { count: 3, handler: (route) => route.abort('connectionfailed') }));
-results.push(await run('장수초과', { count: 35, handler: J(OK) }));
+results.push(await run('장수초과', { count: 35, handler: J(OK, 40), midShot: 900, clickRest: true }));
 results.push(await run('느린회선', { count: 3, handler: J(OK, 1500), midShot: 1200 }));
 results.push(await run('토큰만료', { count: 3, handler: J('{"ok":false,"expired":true,"error":"이 링크는 만료됐어요."}') }));
 
@@ -178,6 +195,23 @@ for (const r of results) {
     /남은 5장/.test((r.시트 && r.시트.부제) || r.줄 || '')
       ? good('남은 5장을 «숫자로» 말한다 — [GP_OVER_PICK] 처리가 살아 있다')
       : fail('잘린 5장을 말하지 않는다 — 조용한 절삭이 되살아났다');
+    // [GP_OVER_AHEAD] 끝나고서가 아니라 «올리는 동안»부터 남은 장수를 말하는가
+    /남은 5장/.test((r.mid && r.mid.줄) || '')
+      ? good('올리는 동안에도 남은 5장을 말한다 — 창을 닫기 전에 안다')
+      : fail('올리는 동안엔 남은 장수를 말하지 않는다: ' + (r.mid && r.mid.줄));
+    // [GP_OVER_WEIGHT] 끝난 게 아니면 «끝났다는 시트»를 띄우지 않는다
+    !r.시트 ? good('넘쳤을 땐 성공 시트를 안 띄운다 — 큰 글씨가 «끝났다»고 말하지 않는다')
+      : fail(`넘쳤는데 성공 시트가 떴다: 「${r.시트.본문}」(${r.시트.본문크기}px)`);
+    // [GP_OVER_KEEP] 실패와 같은 대접인가 — 다시 고르지 않고 이어 보낼 수 있는가
+    r.이어보내기 ? good('「남은 5장 보내기」 버튼이 있다') : fail('넘친 5장을 이어 보낼 길이 없다 — 다시 골라야 한다');
+    if (r.이어) {
+      console.log(`   [이어보내기] 더 보낸 요청 ${r.이어.더보낸수}건 · 시트「${r.이어.시트 && r.이어.시트.본문}」`);
+      r.이어.더보낸수 === 5 ? good('누르니 남은 5장이 «다시 고르지 않고» 나갔다')
+        : fail(`이어보내기를 눌렀는데 요청이 ${r.이어.더보낸수}건`);
+      r.이어.시트 ? good('이어 보낸 뒤엔 성공 시트가 뜬다 — 이제 진짜로 끝났다')
+        : fail('이어 보냈는데 끝났다는 말이 없다');
+      !r.이어.이어보내기 ? good('남은 게 없어지면 버튼도 사라진다') : fail('보낼 게 없는데 버튼이 남아 있다');
+    }
   }
   if (r.name === '느린회선') {
     r.mid && /\d+ \/ \d+/.test(r.mid.줄 || '') ? good('올리는 동안 «N / 전체»를 보여준다')

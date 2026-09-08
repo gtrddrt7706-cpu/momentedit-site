@@ -138,7 +138,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;
 /* ★[LEAD_IN_SAY] 소리가 시작되기 전 2초 — 「안 들리면 볼륨을 확인하세요」를 감춘다.
    그 2초는 «원래» 안 들리는 시간이라, 이 안내가 떠 있으면 어른들이 멀쩡한 볼륨을 만지기 시작한다.
    그러다 소리가 나면 이미 최대 볼륨이다. 안내는 소리가 «난 뒤»에 나와야 안내다. */
-.play-bar.waiting .play-bar-hint,.play-bar.waiting .play-bar-sep{display:none}
+/* ★★[LEAD_IN_NO_JUMP 2026-09-08 «글자 크기 × 재생 중» 조합 검사에서 발견] visibility 여야 한다.
+   display:none 이면 그 줄이 «자리째» 빠져 막대가 리드인 2초 동안만 작아진다 —
+   실측 320px: 69px → (소리 시작) 97px. 28px 이 갑자기 커지며 글이 밀려 올라온다.
+   그건 [HINT_NO_POP 2026-08-18] 이 «고장으로 읽힌다»며 없앤 바로 그 움직임이다.
+   2026-08-30 [LEAD_IN_SAY] 로 이 줄을 감추면서 그 움직임이 조용히 되살아났다(같은 자리·다른 원인).
+   ★visibility 는 «감추되 자리는 남긴다» — 두 결정을 다 지킨다.
+     리드인엔 볼륨 안내를 안 보이게 하고(어른들이 멀쩡한 볼륨을 만지지 않게),
+     막대 높이는 처음부터 끝까지 그대로 둔다. display:none 으로 되돌리지 말 것. */
+.play-bar.waiting .play-bar-hint,.play-bar.waiting .play-bar-sep{visibility:hidden}
 .play-bar-stop{
   font-family:var(--serif-ko);font-size:14px;font-weight:400;letter-spacing:0.08em;
   color:#F5F1E9;background:var(--seal);border:none;border-radius:4px;
@@ -150,7 +158,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;
 /* ★막대가 뜬 동안엔 그 높이만큼 아래를 비워 준다 — 안 그러면 맨 아래 한 줄이 통째로 가린다.
    실측: 끝까지 내리면 「상호 모먼트에디트 · 대표 …」 사업자 정보 줄이 완전히 덮였다(법적 표시 의무가 있는 줄).
    ★여백은 문서 «맨 아래»에 붙으므로 읽던 자리가 밀리지 않는다(스크롤 위치는 그대로 유지된다). */
-body.listening{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+/* ★[BAR_HEIGHT_REAL 2026-09-08 코워크 «조합» 지적에서 실측] 70px 은 «어림수»였다.
+   실측: 막대는 320px 화면에서 97px · 390px 에서 73px 이다(안내 문장이 접히는 줄 수가 다르다).
+   즉 아래 여백이 27px 모자란 채로 돌고 있었는데, 마지막 글(사업자정보) 아래에 다른 여백이
+   이미 있어 «가려지지는» 않았다 — 320px 에서 남는 틈이 8px 이었다. 우연히 덮인 것이다.
+   ★그래서 JS 가 막대를 «재서» 넣는다(--bar-h). offsetHeight 에 safe-area 패딩이 이미 들어 있어
+     env() 를 또 더하지 않는다. 아래 fallback 은 JS 가 아직 안 잰 순간을 위한 종전 값 그대로다.
+   ★인쇄는 종전대로 0 — 그래서 인라인 style 이 아니라 변수로 넣는다(인라인은 @media print 를 이긴다). */
+body.listening{padding-bottom:var(--bar-h, calc(70px + env(safe-area-inset-bottom)))}
 /* ★인쇄에는 막대 «자리»도 남기지 않는다 — 막대만 감췄더니 body 의 70px 이 그대로 찍혀
    편지 끝에 빈 띠가 남았다(실측). ★반드시 위 규칙 «뒤»에 둘 것 — 특이도가 같아 순서가 승부를 가른다
    (앞에 뒀다가 밀려서 70px 이 그대로였다). */
@@ -474,6 +489,13 @@ nav .nav-links a, .nav-links a, .f-links a {
     /* [LISTEN_BAR] 재생 상태를 «한 곳»에서만 바꾼다 — 버튼 라벨 · 멈춤 줄 · 화면 잠금이 늘 같은 말을 하게.
        종전엔 label() 을 일곱 자리에서 따로 불렀다. 거기에 줄과 잠금까지 각자 붙이면 셋이 어긋난다. */
     var bar=document.getElementById('playBar');
+    /* [BAR_HEIGHT_REAL] 막대 높이를 실제로 재서 아래 여백에 넣는다 — 위 CSS 주석 참고.
+       화면을 돌리면 안내 문장이 접히는 줄 수가 달라져 높이도 바뀌므로 resize 에도 다시 잰다. */
+    var barMeasure=function(){
+      if(!bar||!bar.classList.contains('on')) return;
+      document.documentElement.style.setProperty('--bar-h', bar.offsetHeight+'px');
+    };
+    window.addEventListener('resize', barMeasure);
     var playingUi=false;
     var setPlaying=function(on){
       /* [LISTEN_IDEMPOTENT] 같은 상태로 두 번 부르면 그냥 돌아간다 — 리드인이 생기며 «누른 순간»과
@@ -485,7 +507,7 @@ nav .nav-links a, .nav-links a, .f-links a {
       document.body.classList.toggle('listening',!!on);   // 막대 높이만큼 아래를 비워 준다
       if(!bar)return;
       /* [HINT_NO_POP] 힌트는 처음부터 있다 — 늦게 띄우면 막대가 커지며 글이 튀어나와 «고장»으로 읽힌다 */
-      if(on){ bar.classList.add('on'); requestAnimationFrame(function(){ bar.classList.add('up'); }); }
+      if(on){ bar.classList.add('on'); requestAnimationFrame(function(){ bar.classList.add('up'); barMeasure(); }); }
       else{ bar.classList.remove('up'); bar.classList.remove('on'); }
     };
     var koVoice=function(){

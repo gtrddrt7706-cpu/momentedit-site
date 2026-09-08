@@ -5796,10 +5796,15 @@ chk 'SUM_GATE' scripts/check-source-drift.mjs 1
 # ★★[GP_OVER_PICK 2026-08-22 병렬 시뮬레이션 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면
 #   «말없이» 잘렸다. 실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 —
 #   남은 5장이 사라진 것을 하객이 알 길이 없었다. 조용한 절삭은 «다 갔다»로 읽힌다.
-#   → 잘린 수를 send/finish 로 넘겨 끝에서 함께 말한다(성공 시트·실패 인라인 양쪽).
+#   → 잘린 수를 끝에서 함께 말한다.
+#   ★2026-09-08 이 두 줄을 «갱신»했다(폐지가 아니라 자리 이동) — 아래 GP_OVER_KEEP 참고.
+#     ①`over` 를 인자로 나르던 것을 rest 배열 하나로 바꿨다(넘친 «파일»을 쥐고 있어야 이어 보낸다).
+#       그래서 'over=all.length-f.length' 는 사라졌고 'rest=all.slice(GP_ONCE)' 가 그 자리다.
+#     ②「다시 눌러 보내 주세요」(다시 고르라는 말)를 「남은 N장 보내기」 버튼으로 바꿨다.
+#     조용한 절삭을 막는다는 취지는 그대로다 — 오히려 말에서 «누를 것»으로 올라갔다.
 chk 'GP_OVER_PICK' guide.html 1
-chk 'over=all.length-f.length' guide.html 1
-chk '남은 '"'"'+over+'"'"'장은 다시 눌러 보내 주세요' guide.html 1
+chk 'rest=all.slice(GP_ONCE)' guide.html 1
+chk '남은 '"'"'+over+'"'"'장 보내기' guide.html 1
 
 # ★★[GP_NONE_WHY 2026-08-22 병렬 점검에서 발견 · 내가 만든 결함] 한 장도 못 갔을 때
 #   「보낼 사진이 없었어요」는 «고르지 않았다»는 뜻으로 읽힌다. 실제로는 크기 때문에 걸러진 것이다.
@@ -6144,3 +6149,30 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/css-comment-nest.mjs
 chk 'CSS_COMMENT_NEST' scripts/audit/css-comment-nest.mjs 1
 chk 'CSS_COMMENT_NEST' index.html 1     # 사고 자리에 남긴 근거 주석 — 지우면 같은 실수가 되돌아온다
 chk 'nestedOpens' scripts/audit/css-comment-nest.mjs 2
+
+# ★★[GP_OVER_KEEP 2026-09-08 코워크 지적 "초과분이 실패분보다 불리하다"]
+#   실패한 사진은 「다시 시도」가 그 파일들을 그대로 다시 보낸다 — 다시 고를 필요가 없다.
+#   그런데 «넘친» 사진은 문장만 있고 선택이 비워져, 예식장에서 서서 다시 골라야 했다.
+#   잘못한 것도 없는데 실패보다 초과가 더 불리했던 것이다. 셋을 함께 고쳤다:
+#   ①넘친 파일을 쥐고 있다가 「남은 N장 보내기」로 이어 보낸다(GP_OVER_KEEP)
+#   ②올리는 «동안»부터 남은 장수를 말한다 — 끝나고 말하면 이미 창을 닫은 뒤다(GP_OVER_AHEAD)
+#   ③넘쳤으면 «끝났다는 성공 시트»를 안 띄운다 — 15px 이 «끝났다»고 하면 12px 은 안 읽힌다(GP_OVER_WEIGHT)
+chk 'GP_OVER_KEEP' guide.html 1
+chk 'GP_OVER_AHEAD' guide.html 1
+chk 'GP_OVER_WEIGHT' guide.html 1
+chk 'gpRest' guide.html 2                            # 「남은 N장 보내기」 버튼 — 만드는 자리 + 배선하는 자리
+chk 'GP_OVER_KEEP' scripts/audit/guide-photo-sim.mjs 2   # 버튼을 «실제로 눌러» 요청이 더 나가는지까지 본다
+
+# ★★[LEAD_IN_NO_JUMP 2026-09-08 «글자 크기 × 재생 중» 조합 검사에서 발견]
+#   [HINT_NO_POP 2026-08-18] 이 «막대가 갑자기 커지며 글이 튀어나오는 것»을 없앴는데,
+#   2026-08-30 [LEAD_IN_SAY] 가 볼륨 안내를 display:none 으로 감추면서 그 움직임이 되살아났다.
+#   실측 320px: 리드인 69px → 소리 시작 97px. 같은 자리·다른 원인의 재발이라 아무도 안 봤다.
+#   ★visibility 여야 한다 — 감추되 자리는 남긴다. display:none 으로 되돌리지 말 것.
+#   ★[BAR_HEIGHT_REAL] body 아래 여백 70px 도 어림수였다(막대는 320px 97px · 390px 73px).
+#     가려지진 않았지만 남는 틈이 8px 뿐이었다. 이제 막대를 재서 넣는다.
+chk 'LEAD_IN_NO_JUMP' parents.html 1
+chk 'visibility:hidden}' parents.html 1              # 리드인 동안 볼륨 안내를 감추는 방식 — display:none 금지
+chk 'BAR_HEIGHT_REAL' parents.html 2
+chk 'bar-h' parents.html 2
+chk 'PAR_COMBO' scripts/audit/parents-listen-size.mjs 1
+chk 'BAR_SLACK' scripts/audit/parents-listen-size.mjs 2   # 대리 지표로 없는 결함을 만들지 않는다는 근거

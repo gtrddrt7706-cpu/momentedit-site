@@ -511,15 +511,25 @@ function bindGuestUpload(){
   var pick=document.getElementById('gpPick'), inp=document.getElementById('gpFile');
   if(!pick||!inp) return;
   var token=qp('g'); if(!token) return;
-  var busy=false, failed=[];
+  var busy=false, failed=[], rest=[];   // rest = 한 번에 고를 수 있는 장수를 넘겨 «아직 안 보낸» 사진들
   pick.addEventListener('click', function(){ if(!busy) inp.click(); });
   /* ★★[GP_OVER_PICK 2026-08-22 병렬 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면 «말없이» 잘렸다.
      실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 — 남은 5장이 사라진 것을
      하객이 알 길이 없다. 조용한 절삭은 «다 갔다»로 읽힌다.
-     ★잘린 수를 send 에 넘겨 끝에서 함께 말한다. */
+     ★그래서 잘린 수를 끝에서 함께 말했다. 그런데 «말만» 했다 — 아래 GP_OVER_KEEP.
+     ★★[GP_OVER_KEEP 2026-09-08 코워크 지적] 말하는 것만으로는 부족했다.
+     실패한 사진은 「다시 시도」가 그 파일들을 그대로 다시 보낸다 — 다시 고를 필요가 없다.
+     그런데 «넘친» 사진은 문장만 있고 inp.value='' 로 선택이 비워져, 다시 골라야 했다.
+     예식장에서 서서 35장 중 «어느 5장»이었는지 기억해 다시 고르는 건 사실상 포기다.
+     즉 잘못한 것도 없는데 실패보다 초과가 더 불리했다.
+     ★고른 파일 객체는 inp.value='' 뒤에도 살아 있다. 그래서 «넘친 것»을 rest 에 쥐고 있다가
+       「남은 N장 보내기」로 이어 보낸다. 실패와 같은 대접이다.
+     ★다시 30장을 넘겨도 된다 — rest 에서 30장씩 꺼내니 80장을 골라도 세 번에 나눠 간다. */
   inp.addEventListener('change', function(){
-    var all=[].slice.call(inp.files||[]), f=all.slice(0,GP_ONCE), over=all.length-f.length;
-    inp.value=''; if(f.length) send(f, over);
+    var all=[].slice.call(inp.files||[]);
+    inp.value='';                        // 같은 파일을 다시 골라도 change 가 뜨게 비운다
+    rest=all.slice(GP_ONCE);
+    if(all.length) send(all.slice(0,GP_ONCE));
   });
 
   function one(file){
@@ -538,32 +548,46 @@ function bindGuestUpload(){
       fr.readAsDataURL(file);
     });
   }
-  function send(files, over){
-    over=over||0;
+  /* ★[GP_OVER_AHEAD 2026-09-08] 넘친 장수는 «끝나고»가 아니라 «올리는 동안»부터 말한다.
+     끝에서만 말하면 하객은 30장이 다 가는 줄 알고 다 되면 창을 닫는다 — 그 뒤 안내는 아무도 못 본다.
+     ★버튼 아래 «상시 안내»로 되살리지 않는다 — 그 세 줄은 2026-08-18 사용자 지시로 뺐다([GP_DONE_SHEET]).
+       누르기 전에는 아무도 안 읽는다는 그 판단은 그대로다. 넘쳤을 때만 · 그 순간에만 말한다. */
+  function gpProgress(done, total){
+    var m=done+' / '+total+' 올리는 중이에요 · 창을 닫지 말아 주세요';
+    if(rest.length) m+='<br>남은 '+rest.length+'장은 끝나고 이어서 보낼 수 있어요.';
+    gpSay(m);
+  }
+  function send(files){
     busy=true; window.__gpBusy=true; failed=[]; var done=0, big=0, stopMsg='';   // [GP_NO_REPAINT] 올리는 동안 render 를 막는다
     pick.textContent='올리는 중이에요'; pick.classList.add('ps-btn-off');
-    gpSay('0 / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
+    gpProgress(0, files.length);
     (function next(i){
-      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg, over); return; }
+      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg); return; }
       one(files[i]).then(function(v){
         if(v.ok) done++; else if(v.big) big++; else { failed.push(files[i]); if(v.stop) stopMsg=v.msg||''; }
-        gpSay((done)+' / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
+        gpProgress(done, files.length);
         next(i+1);
       });
     })(0);
   }
-  function finish(total, done, big, stopMsg, over){
-    over=over||0;
+  function finish(total, done, big, stopMsg){
     busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
     if(stopMsg){ gpSay(esc(stopMsg), 'err'); return; }
-    var msg=done?gpDoneMsg(done):'';   // 실패가 섞였을 때만 쓰인다 — 성공은 아래에서 시트로 간다
+    var over=rest.length;
+    var msg=done?gpDoneMsg(done):'';   // 아직 안 끝났을 때만 쓰인다 — 온전한 성공은 아래에서 시트로 간다
     if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지).';
-    if(over) msg+=(msg?'<br>':'')+'한 번에 '+GP_ONCE+'장까지 갈 수 있어요 · 남은 '+over+'장은 다시 눌러 주세요.';
-    if(failed.length){
-      msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
+    if(over) msg+=(msg?'<br>':'')+'남은 '+over+'장이 아직 있어요. <button type="button" class="gp-retry" id="gpRest">남은 '+over+'장 보내기</button>';
+    if(failed.length) msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
+    /* ★[GP_OVER_WEIGHT 2026-09-08 코워크 지적] 넘쳤을 땐 «성공 시트»를 띄우지 않는다.
+       종전엔 시트 본문에 「30장 전해졌어요」(15px)를 크게 띄우고, 넘친 안내는 부제(12px)로 그 뒤에 붙였다.
+       큰 글씨가 «끝났다»고 말하면 작은 글씨는 안 읽힌다. 실패를 시트로 안 보내는 이유와 똑같다.
+       ★끝난 게 아니면 «끝났다는 시트»를 띄우지 않는다. 두 문장을 같은 크기로, 누를 것과 함께 둔다. */
+    if(over || failed.length){
       gpSay(msg,'err');
       var rb=document.getElementById('gpRetry');
-      if(rb) rb.addEventListener('click', function(){ var again=failed.slice(); send(again); });
+      if(rb) rb.addEventListener('click', function(){ send(failed.slice()); });
+      var ob=document.getElementById('gpRest');
+      if(ob) ob.addEventListener('click', function(){ var take=rest.slice(0,GP_ONCE); rest=rest.slice(GP_ONCE); send(take); });
       return;
     }
     if(!done){
@@ -578,8 +602,7 @@ function bindGuestUpload(){
     /* [GP_DONE_SHEET] 성공은 시트로 알린다 — 인라인 줄은 지워 «옛 결과»가 남지 않게 한다.
        큰 파일을 걸렀으면 그 사실은 시트 본문에 함께 싣는다(따로 남기면 확인이 두 곳으로 갈라진다). */
     var st=document.getElementById('gpStat'); if(st){ st.innerHTML=''; st.style.display='none'; }
-    var sub=GP_DONE_SUB;
-    if(over) sub='한 번에 '+GP_ONCE+'장까지 갈 수 있어요 · 남은 '+over+'장은 다시 눌러 보내 주세요. '+sub;
+    var sub=GP_DONE_SUB;   // 여기까지 왔으면 넘친 것도 실패한 것도 없다 — 시트는 «온전히 끝났을 때»만 뜬다
     if(big) sub='너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지). '+sub;
     sheetOpen('Photos', gpDoneMsg(done), sub, pick);
   }
