@@ -2612,6 +2612,15 @@ chk 'GROUP_ERR_MSG' inquiry.html 3
 #   ★43px 은 표류가 아니라 계산 결과였다(내용 17 + 패딩 24 + 테두리 2). 패딩을 반px 로 못 올리니
 #     min-height 로 1px 을 채웠다. 값을 바꾸기 전에 «왜 그 값인가»를 먼저 본 자리다.
 chk 'GUIDE_TAP44' guide.html 2
+# ★★[GP_SIM 2026-09-06 라운드 3 0번] 하객 사진 올리기가 서버 응답별로 무엇을 말하는가.
+#   위험한 건 «완전 실패»가 아니라 «부분 성공»이다 — 완전히 실패하면 다시 하지만
+#   부분 성공은 성공으로 보이고 끝난다. 실제로 그 사고가 있었다([GP_OVER_PICK] 2026-08-22).
+#   ★?g=demo 로는 못 잰다 — 표본 화면은 업로더를 배선하지 않는다(if(!DEMO) bindGuestUpload()).
+#     첫 판에서 그걸 모르고 재서 «요청 0건 · 위반 11건»이 나왔다. 하네스가 틀린 것이었다.
+chk 'GP_SIM' scripts/audit/guide-photo-sim.mjs 1
+chk 'GP_SIM_NOT_DEMO' scripts/audit/guide-photo-sim.mjs 1
+chk 'dtipOv' scripts/audit/guide-photo-sim.mjs 1     # 시트 선택자 — .sheet 로 찾다 오탐을 냈다
+chk 'GP_OVER_PICK' guide.html 1                      # 조용한 절삭 방지 처리를 지우지 말 것
 chk 'min-height:44px' guide.html 2
 nochk 'act{min-height:40px}' guide.html
 chk '하나만 골라 주세요' inquiry.html 1
