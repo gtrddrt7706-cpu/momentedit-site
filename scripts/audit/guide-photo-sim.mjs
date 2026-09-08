@@ -104,6 +104,13 @@ const GUIDE = JSON.stringify({ ok: true, guide: {
   photoShare: ''          // 비우면 «우리 업로드» 화면이 뜬다(지금의 기본값)
 } });
 
+/* 결과 줄(gpStat)은 버튼 «아래»에 붙어, 고정 clip 으로 찍으면 정작 볼 것이 잘려 나간다.
+   사람이 보라고 남기는 그림이니 그 구역을 화면 가운데로 옮기고 찍는다. */
+const center = async (page) => {
+  await page.evaluate(() => { const p = document.getElementById('gpPick'); if (p) p.scrollIntoView({ block: 'center' }); });
+  await page.waitForTimeout(250);
+};
+
 async function run(name, { count, handler, midShot = 0, clickRest = false }) {
   const { page } = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
   let hits = 0;
@@ -126,11 +133,13 @@ async function run(name, { count, handler, midShot = 0, clickRest = false }) {
   let mid = null;
   if (midShot) { await page.waitForTimeout(midShot);
     mid = await page.evaluate(SCREEN);
-    await page.screenshot({ path: path.join(SHOTS, `gp-${name}-mid.png`), clip: { x: 0, y: 300, width: 390, height: 380 } }); }
+    await center(page);
+    await page.screenshot({ path: path.join(SHOTS, `gp-${name}-mid.png`) }); }
   await page.waitForFunction(() => !window.__gpBusy, null, { timeout: 40000 }).catch(() => {});
   await page.waitForTimeout(700);
   const after = await page.evaluate(SCREEN);
-  await page.screenshot({ path: path.join(SHOTS, `gp-${name}.png`), clip: { x: 0, y: 200, width: 390, height: 500 } });
+  await center(page);
+  await page.screenshot({ path: path.join(SHOTS, `gp-${name}.png`) });
 
   /* [GP_OVER_KEEP] 넘친 사진을 «다시 고르지 않고» 이어 보낼 수 있는가 —
      버튼을 «실제로 눌러» 요청이 더 나가는지까지 본다. 있다고만 보면 죽은 버튼도 통과한다.
@@ -143,7 +152,8 @@ async function run(name, { count, handler, midShot = 0, clickRest = false }) {
     await page.waitForFunction(() => !window.__gpBusy, null, { timeout: 40000 }).catch(() => {});
     await page.waitForTimeout(700);
     이어 = { 더보낸수: hits - before, ...(await page.evaluate(SCREEN)) };
-    await page.screenshot({ path: path.join(SHOTS, `gp-${name}-이어.png`), clip: { x: 0, y: 200, width: 390, height: 500 } });
+    await center(page);
+    await page.screenshot({ path: path.join(SHOTS, `gp-${name}-이어.png`) });
   }
   await page.close();
   return { name, 요청수: 첫판, 총요청: hits, mid, 이어, ...after };
