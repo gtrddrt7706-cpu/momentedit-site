@@ -29,3 +29,4 @@ _deploy-patch/
 # 더빙 wav 스테이징 — 44MB 소리 파일. 산출물은 assets/audio 로 조립된다 [DUB_STAGE]
 _dub_stage/
 _dub_in/
+_shots/
