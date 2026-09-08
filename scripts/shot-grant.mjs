@@ -35,7 +35,11 @@ const TARGETS = [
   { n: '03_청첩장_실물',   url: '/i/cover-01.html?e=' + DUMMY.eventId, wait: 1500 },
   { n: '04_식순_빌더',     url: '/order-preview.html',           wait: 1800 },
   { n: '05_어른_안내',     url: '/parents.html',                 wait: 1200 },
-  { n: '06_하객_좌석조회', url: '/seat.html?t=demo',   wait: 1800, gas: SEAT },
+  // ★[SEAT_414] 좌석 배치도만 414px 로 찍는다. 390px 에서는 우측 테이블 칩 하나가 9px 넘쳐
+  //   화면 밖으로 나간다(실측: scrollW 384 > clientW 360 · '이수아' right=399).
+  //   버그가 아니라 @media(max-width:400px) 의 가로 스크롤 설계라 실기기에선 밀어서 볼 수 있지만,
+  //   정지 이미지로는 잘려 보인다. 414px 에서는 넘치는 칩 0개(실측).
+  { n: '06_하객_좌석조회', url: '/seat.html?t=demo',   wait: 1800, gas: SEAT, vp: { width: 414, height: 844 } },
   { n: '07_하객_안내허브', url: '/guide.html?g=demo',  wait: 1800 },   // 내장 표본 [GUIDE_DEMO] · 서버 안 부른다
 ];
 
@@ -48,7 +52,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const report = [];
 for (const t of TARGETS) {
-  const { page, errors } = await eng.newPage({ port: PORT, gasBody: JSON.stringify(t.gas || DUMMY), viewport: VP });
+  const { page, errors } = await eng.newPage({ port: PORT, gasBody: JSON.stringify(t.gas || DUMMY), viewport: t.vp || VP });
   let status = 'ok';
   try {
     await page.goto(`http://localhost:${PORT}${t.url}`, { waitUntil: 'domcontentloaded', timeout: 15000 });
