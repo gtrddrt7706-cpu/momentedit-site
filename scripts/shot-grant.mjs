@@ -41,6 +41,10 @@ const TARGETS = [
   //   정지 이미지로는 잘려 보인다. 414px 에서는 넘치는 칩 0개(실측).
   { n: '06_하객_좌석조회', url: '/seat.html?t=demo',   wait: 1800, gas: SEAT, vp: { width: 414, height: 844 } },
   { n: '07_하객_안내허브', url: '/guide.html?g=demo',  wait: 1800 },   // 내장 표본 [GUIDE_DEMO] · 서버 안 부른다
+  // ★[SHOT_08] 손 스케치가 없을 때의 「과정」 칸 — 코워크 대체 A.
+  //   02_자산팩트시트 §4-2(2026-07-21 작성)를 브랜드 톤으로 옮긴 한 장.
+  //   공고일(8/20)보다 한 달 앞선 문서라 «계획을 지어내지 않았다»의 물증이 된다.
+  { n: '08_전환과제_7월문서', url: '/_shots/src/08_전환과제.html', wait: 1500, full: true },
 ];
 
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--directory', SITE], { stdio: 'ignore' });
@@ -57,7 +61,7 @@ for (const t of TARGETS) {
   try {
     await page.goto(`http://localhost:${PORT}${t.url}`, { waitUntil: 'domcontentloaded', timeout: 15000 });
     await page.waitForTimeout(t.wait);
-    await page.screenshot({ path: path.join(OUT, `${t.n}.png`), fullPage: false });
+    await page.screenshot({ path: path.join(OUT, `${t.n}.png`), fullPage: !!t.full });
     const text = (await page.evaluate(() => document.body.innerText || '')).trim();
     if (text.length < 40) status = `빈화면(글자 ${text.length}자)`;
     // ★글자 수만으로 'ok' 라 하면 오류 화면을 통과시킨다(1차 실측에서 실제로 그랬다)
