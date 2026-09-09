@@ -6368,3 +6368,29 @@ chk "p.startsWith('=')" scripts/clip-select.mjs 1
 #   진희는 이미 다 받아 명단에 없는데도 게이트가 붉었다. 화살표 뒤를 먼저 본다.
 chk 'TWIN_ARROW' scripts/check-paste-format.mjs 1
 chk '←' scripts/check-paste-format.mjs 2
+
+# ★★[MUNAN_APPLIED 2026-09-09 사장님 지적 "이거 분명 개선해달라고 적은거같은데 반영이누락된건지? 전수점검"]
+#   맞았다. 문안개정·감동구간 문서에 적어 놓고 원천에 안 넣은 배역 대사가 무더기로 있었다.
+#   실측 — 아버님 1/12 · 어머님 3/14 · 신부→부모님 1/9 · 하객대표 1/8 문장만 들어가 있었다.
+#   ★왜 놓쳤나: 개정을 apply-copy-0906.mjs 로 «한 번에» 넣었는데 거기엔 28줄만 적었다(문서엔 33).
+#     감동 구간 문안은 아예 한 줄도 안 옮겼다. 개수를 센 적이 없어 조용히 지나갔다.
+#     ★「일괄 스크립트를 돌렸다」는 «전부 넣었다»가 아니다. 문서와 원천을 직접 맞대야 한다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/munan-applied.mjs >/dev/null || echo 'note munan-applied — 문서와 원천이 다른 자리가 있다(사람이 판정)'; fi
+chk 'MUNAN_APPLIED' scripts/audit/munan-applied.mjs 1
+chk 'MUNAN_MISS' scripts/apply-munan-miss.mjs 1
+chk 'REDUB_COST' scripts/apply-munan-miss.mjs 2
+# ★★[CAST_SAID 2026-09-09] 배역 대사 ↔ 실제로 녹음된 글을 전수 대조한다.
+#   check-text-audio 는 «화면 글 ↔ 소리»를 본다. 편지·덕담·서약 같은 배역 클립은 castLive 라
+#   화면 글과 짝이 아니어서 «일부러» 빠져 있다 — 그 판단은 옳지만, 그래서 배역 대사만 바꾸면
+#   소리가 옛말인 채 아무도 안 보는 구간이 생긴다. 실제로 그 상태였다:
+#   07_welcome-bride 는 「신부 정세영입니다」, 09_vow-bride 는 「준호야」로 남아 있었다(이름 통일 전 소리).
+#   ★여기서는 화면을 끼우지 않는다 — manifest ↔ _recorded.json 둘만 맞대므로 castLive 여부와 무관하다.
+chk 'CAST_SAID' scripts/audit/cast-text-audio.mjs 1
+chk '_recorded.json' scripts/audit/cast-text-audio.mjs 1
+chk 'RETIRED.has' scripts/audit/cast-text-audio.mjs 1
+# ★★[CAP_NAME_READ 2026-09-09] 최장 클립의 «이름»도 주석에서 읽는다 — 코드에 굳히지 않는다.
+#   'declare-1-solemn' 이 코드에 박혀 있어, 최장이 정당하게 바뀌자(어머님 덕담 4 → 12문장)
+#   주석을 아무리 고쳐도 검사가 계속 붉었다. 이 검사가 지키는 것은 «누가 최장인가»가 아니라
+#   «주석과 실측이 같은가»다. 이름도 주석이 원천이다.
+chk 'CAP_NAME_READ' scripts/check-narr-len.mjs 1
+nochk "!== 'declare-1-solemn'" scripts/check-narr-len.mjs

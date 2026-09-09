@@ -65,11 +65,15 @@ else {
   else if (Math.abs(claimed - ro.sec) > 0.15) no(`주석은 ${claimed}초라는데 실측은 ${ro.sec.toFixed(1)}초입니다 — 문안을 고쳤으면 주석도 같은 커밋에서 고치세요`);
   else console.log(`\nok narr-round-open 예상 ${ro.sec.toFixed(1)}초 · 전체 ${rank}위/${rows.length} · 주석 수치와 일치`);
 
-  const cap = num(/declare-1-solemn ([\d.]+)초/);
-  if (cap === null) no("주석에서 '편지 제외 최장 = declare-1-solemn N초' 를 못 찾았습니다");
-  else if (noLetter[0].f !== 'declare-1-solemn') no(`편지 제외 최장이 declare-1-solemn 이 아니라 ${noLetter[0].f}(${noLetter[0].sec.toFixed(1)}초)로 바뀌었습니다 — 주석을 갱신하세요`);
-  else if (Math.abs(cap - noLetter[0].sec) > 0.15) no(`주석은 최장 ${cap}초라는데 실측은 ${noLetter[0].sec.toFixed(1)}초입니다`);
-  else console.log(`ok 편지 제외 최장(예상) declare-1-solemn ${noLetter[0].sec.toFixed(1)}초 — 주석과 일치`);
+  /* ★★[CAP_NAME_READ 2026-09-09] 최장 클립의 «이름»도 주석에서 읽는다 — 코드에 굳히지 않는다.
+     종전엔 'declare-1-solemn' 이 코드에 박혀 있어, 최장이 정당하게 바뀌면(감동 구간 문안을 넣어
+     어머님 덕담이 4문장 → 12문장이 됐다) 주석을 아무리 고쳐도 검사가 계속 붉었다.
+     이 검사가 지키려는 것은 «누가 최장인가»가 아니라 «주석과 실측이 같은가»다. 이름도 주석이 원천이다. */
+  const capM = /편지 제외 최장은 ([\w-]+) ([\d.]+)초/.exec(src);
+  if (!capM) no("주석에서 '편지 제외 최장은 <클립> N초' 를 못 찾았습니다");
+  else if (noLetter[0].f !== capM[1]) no(`편지 제외 최장이 ${capM[1]} 이 아니라 ${noLetter[0].f}(${noLetter[0].sec.toFixed(1)}초)로 바뀌었습니다 — 주석을 갱신하세요`);
+  else if (Math.abs(Number(capM[2]) - noLetter[0].sec) > 0.15) no(`주석은 최장 ${capM[2]}초라는데 실측은 ${noLetter[0].sec.toFixed(1)}초입니다`);
+  else console.log(`ok 편지 제외 최장(예상) ${capM[1]} ${noLetter[0].sec.toFixed(1)}초 — 주석과 일치`);
 
   /* 안내 클립이 천장을 넘으면 그때 사람이 판단하게 한다(자동으로 막지 않는다 — 정당한 경우가 있다) */
   if (ro.sec > noLetter[0].sec) no(`안내(narr-round-open ${ro.sec.toFixed(1)}초)가 편지 제외 최장(${noLetter[0].sec.toFixed(1)}초)을 넘었습니다 — 안내가 감정 정점보다 길면 안 됩니다`);
