@@ -6193,3 +6193,26 @@ chk 'kstAheadWeekday(45, 1)' scripts/audit/stage-reach.mjs 1   # 45(토)·46(일
 nochk 'kstAhead(45)' scripts/audit/rollback-roundtrip.mjs      # 평일 보정 없는 옛 형태로 되돌리지 말 것
 nochk 'kstAhead(45)' scripts/audit/rollback-fuzz.mjs
 nochk 'kstAhead(46)' scripts/audit/stage-reach.mjs
+
+# ★★[HERO_SUB_12 2026-09-09 사용자 확정 「12」] 히어로 부제 clamp 하한 11.5 → 12px.
+#   [TYPO_SCALE7] 이 index 에 온전히 서게 하는 마지막 한 걸음이었다(라운드 1 ③-a 가 이걸로 닫힌다).
+#   ★하한만 바꿨다 — 1.3vw 와 상한 13px 은 그대로다. 923px 아래에서만 이 값이 걸린다
+#     (1.3vw = 12px 되는 폭이 923px · 13px 되는 폭이 1000px). 즉 «폰 전부»가 대상이다.
+#   실렌더 320·390·1280: 줄바꿈 없음 · 문서 높이 그대로(26032 / 25674 / 25989 · 변화 0).
+chk 'HERO_SUB_12' index.html 1
+chk 'clamp(12px, 1.3vw, 13px)' index.html 1
+nochk 'clamp(11.5px' index.html                      # 반px 하한으로 되돌리지 말 것
+
+# ★[TYPO_RAMP 2026-09-09] 램프를 «주석»이 아니라 «숫자»로 지킨다.
+#   종전 게이트는 [TYPO_SCALE7] 주석이 살아 있는지만 봤다 — 규칙이 적혀 있는지를 본 것이지
+#   지켜지는지를 본 게 아니다. 실제로 .92em(11.04px) 셋과 히어로 11.5px 이 그 아래에서 살아 있었다.
+#   ★아직 «막는» 게이트로 걸지 않는다 — 남은 둘(.hero-tease-line 상한 15px · .mfs 5.5px)이
+#     취향 판단이라 사용자 결정을 기다린다. 그 둘이 정해지면 여기서 node 로 돌려 빨강으로 만든다.
+#   ★[RAMP_DOMAIN] 램프의 범위는 11~20px 이다. 첫 판에서 이걸 안 걸어 제목·아이브로우까지
+#     「램프 밖 14종」으로 셌다 — 검사의 가정이 규칙과 달랐던 경우다(§5-24).
+#   ★[RAMP_NO_DEAD] 「안 쓰는 규칙은 빼자」를 넣었다가 뺐다. .me-adv-* 는 advisor-widget.js 가
+#     만드는데 index.html 안에만 없어서 「죽었다」로 셌다 — 한 파일로는 확정할 수 없다.
+chk 'TYPO_RAMP' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_DOMAIN' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_CANT' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_NO_DEAD' scripts/audit/typo-ramp.mjs 1

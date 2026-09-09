@@ -997,11 +997,16 @@ body.menu-open nav {
   line-height: 1;
 }
 /* 티저 서브 라인 — 가치제안 한 줄(히어로 무드 보존 위해 티저로 이동 · 2026-07-04) */
+/* ★[HERO_SUB_12 2026-09-09 사용자 확정 「12」] clamp 하한 11.5 → 12px.
+   [TYPO_SCALE7] 은 11/12/13/14/16/18/20 일곱 단계 고정 · 반px 금지인데, 이 한 줄만 램프 밖이었다.
+   ★하한만 바꾼다 — 1.3vw 와 상한 13px 은 그대로다. 넓은 화면에선 1.3vw 가 이겨 하한이 안 걸린다.
+     즉 이 값이 실제로 쓰이는 곳은 «좁은 폰»뿐이고, 거기가 노안 독자에게 가장 불리한 자리다.
+   ★실렌더 확인(320·390·1280): 줄바꿈 안 생김 · 문서 높이 그대로. 되돌리지 말 것. */
 .hero-tease-sub {
   display: block;
   margin-top: 16px;
   font-family: var(--serif-ko);
-  font-size: clamp(11.5px, 1.3vw, 13px);
+  font-size: clamp(12px, 1.3vw, 13px);
   font-weight: 300;
   color: var(--gold-text);
   letter-spacing: 0.08em;
