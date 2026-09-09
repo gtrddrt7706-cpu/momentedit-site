@@ -6244,3 +6244,11 @@ chk '양가 가족과 가까운 분들, 140분의 웨딩' index.html 1
 nochk 'hero-tease-sub">양가 가족만' index.html            # 옛 문장으로 되돌리지 말 것(주석 인용은 허용)
 chk '양가 직계가족' index.html 5                         # 검색 자산 — meta·schema·숨은 h1/h2·FAQ
 chk '양가 직계가족' inquiry.html 1
+
+# ★[HERO_SUB_TABLE 2026-09-09] 히어로 부제는 «셋 중 둘»이다 — 가족 · 열림 · 320px 한 줄.
+#   E 는 「프라이빗」을 내주고 셋을 다 가져왔다. 「프라이빗을 다시 넣자」가 오면 그 표가 답이다.
+#   ★[SEC_TITLE_DEVICE] 와 같은 자리에 둔다 — 둘 다 «크기·문구 한 축만 보면 매번 같은 결론이
+#     나오는» 종류다. 다시 올라오기 전에 읽을 것이 저장소 안에 있어야 한다.
+chk 'HERO_SUB_OPEN' .claude/skills/momentedit-design/SKILL.md 1
+chk '셋 중 둘' .claude/skills/momentedit-design/SKILL.md 1
+chk 'NOCHK_QUOTES_ITSELF' automation/tests/merge-guard.sh 1
