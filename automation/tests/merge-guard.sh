@@ -6216,3 +6216,13 @@ chk 'TYPO_RAMP' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_DOMAIN' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_CANT' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_NO_DEAD' scripts/audit/typo-ramp.mjs 1
+
+# ★[RAMP_TWO_PASS 2026-09-09 코워크 제안] «선언»과 «렌더»는 다른 사건이라 칸을 나눠 센다.
+#   clamp 상한 15px 은 선언으로는 램프 밖이지만 폰(~923px)에서는 하한 13px 이 걸려 렌더로는 램프 안이다.
+#   섞으면 「고객이 보는 위반」과 「선언상의 위반」이 뒤섞여 우선순위가 흐려진다.
+#   ★[RAMP_NO_OPACITY] 렌더 칸을 만들며 또 틀렸다 — opacity<0.05 를 걸러 .hero-tease-main 의
+#     15px 을 「0건」으로 냈다. 스크롤 등장 연출이 첫 화면에서 opacity:0 을 걸어 두기 때문이다.
+#     크기를 세는 검사에서 «지금 투명한가»는 상관이 없다. 글자는 투명해도 그 크기다.
+chk 'RAMP_TWO_PASS' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_NO_OPACITY' scripts/audit/typo-ramp.mjs 1
+chk "closest('\[class\*=\"mock\"\]" scripts/audit/typo-ramp.mjs 1   # 목업은 이름이 아니라 DOM 조상으로 거른다
