@@ -1435,7 +1435,13 @@ chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <->
 #     대신 **장면을 세우는 문장**이 남았는지 지킨다(무음이 되지 않게).
 #   ②시연 문장(축배·둘 다 2벌) — 하객이 답할 말. 없으면 선창에 돌아오는 소리가 없다(성혼 선언과 같은 금지)
 #   ③사이 문안 — 나이프를 걷고 잔을 쥐여 드리는 15~20초. 없으면 통째로 무음이다
-chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 4   # [COUNT_RETIRED] 카운트를 대신하는 장면 문장
+#     ★[CAKE_SOFT 2026-09-09] 그 「장면 문장」을 4→2 로 줄였다. 폐지가 아니라 «교체»다.
+#       사장님: *"내립니다 나랑히 섭니다 너무 형식적이고 딱딱한거같아"* — 목적어 없는 동작 중계였다.
+#       실황 나레이션 2벌은 「함께 자르면, 큰 박수 부탁드립니다」가 그 자리를 대신 잡는다
+#       (커팅 시점이 여전히 소리로 표시되고, 무음도 안 생긴다 — 이 검사의 원래 목적 그대로다).
+#       남은 2벌은 TONE_TABLE(생성구역)이라 손대지 않았다. 어조 mp3 186개가 이미 걸려 있다.
+chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 2   # [COUNT_RETIRED] 어조표 2벌 — 생성구역
+chk '함께 자르면, 큰 박수 부탁드립니다' assets/ritual-data.js 2      # [CAKE_SOFT] 실황 2벌이 그 자리를 잡는다
 chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
 chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
 chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
@@ -6339,4 +6345,4 @@ chk "start_threshold=-35dB" scripts/join-typecast-splits.mjs 1
 nochk '케이크 앞에 나란히 섭니다' assets/ritual-data.js
 nochk '케이크 앞에 나란히 섭니다' order-preview.html
 chk '두 사람이 케이크 앞에 섰습니다' assets/ritual-data.js 2
-chk '함께 자르면, 큰 박수 부탁드립니다' assets/ritual-data.js 2
+#   (문장 개수 검사는 위 [COUNT_RETIRED] 블록에 함께 두었다 — 한 자리에서 보게)
