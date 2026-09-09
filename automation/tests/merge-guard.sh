@@ -6176,3 +6176,20 @@ chk 'BAR_HEIGHT_REAL' parents.html 2
 chk 'bar-h' parents.html 2
 chk 'PAR_COMBO' scripts/audit/parents-listen-size.mjs 1
 chk 'BAR_SLACK' scripts/audit/parents-listen-size.mjs 2   # 대리 지표로 없는 결함을 만들지 않는다는 근거
+
+# ★★[KST_WEEKDAY 2026-09-09 게이트가 «달력 때문에» 붉었다] 날짜 부패의 두 번째 축.
+#   [KST_AHEAD 2026-09-05] 는 고정 날짜가 «과거가 되는 것»만 막았다. 그런데 상담 슬롯은
+#   요일마다 다르다 — 평일 ['11:30','14:50','18:10','19:30'] · 주말 ['18:20'].
+#   시뮬레이터가 '14:50' 을 박아 두므로 오늘+45 가 토·일이면 «없는 시간»이 되어
+#   서버가 정상 거절하고 여정이 통째로 막힌다.
+#   ★실측: 2026-09-08(+45=금) 초록 → 자정을 넘겨 2026-09-09(+45=토) 붉음. 제품은 한 줄도 안 바뀌었다.
+#     즉 이 게이트는 7일 중 2일 붉었고, 그 빨강은 아무 값도 없었다(사람을 게이트에 둔감하게 만든다).
+#   ★반증: 앞으로 21일 어느 날에 돌려도 평일이고, CONSULT 와 PROPOSE 가 서로 다르다.
+chk 'KST_WEEKDAY' scripts/audit/_gasworld.mjs 1
+chk 'export const kstAheadWeekday' scripts/audit/_gasworld.mjs 1
+chk 'kstAheadWeekday(45)' scripts/audit/rollback-roundtrip.mjs 1
+chk 'kstAheadWeekday(45)' scripts/audit/rollback-fuzz.mjs 1
+chk 'kstAheadWeekday(45, 1)' scripts/audit/stage-reach.mjs 1   # 45(토)·46(일)이 같은 월요일로 붙는 것 방지
+nochk 'kstAhead(45)' scripts/audit/rollback-roundtrip.mjs      # 평일 보정 없는 옛 형태로 되돌리지 말 것
+nochk 'kstAhead(45)' scripts/audit/rollback-fuzz.mjs
+nochk 'kstAhead(46)' scripts/audit/stage-reach.mjs
