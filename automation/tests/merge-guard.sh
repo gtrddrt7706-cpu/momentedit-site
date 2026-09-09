@@ -6346,3 +6346,25 @@ nochk '케이크 앞에 나란히 섭니다' assets/ritual-data.js
 nochk '케이크 앞에 나란히 섭니다' order-preview.html
 chk '두 사람이 케이크 앞에 섰습니다' assets/ritual-data.js 2
 #   (문장 개수 검사는 위 [COUNT_RETIRED] 블록에 함께 두었다 — 한 자리에서 보게)
+
+# ★★[GAP_BY_TEXT 2026-09-09] 쪼개진 take 를 붙일 때 사이 길이를 «자른 자리의 글»에서 정한다.
+#   반증: 「그럼, 두 사람의 새로운 시작을 위하여!」가 «…시작을» + «위하여!» 로 갈렸는데
+#   같은 문장이 같은 묶음에 안 갈린 채도 있었다. 그 take 엔 그 자리에 무음이 없다(연속 발화).
+#   0.2초를 넣은 판은 2.90초 — 원본 2.70초보다 딱 넣은 만큼 길었다.
+#   ★쉼표 0.2초 · 마침표류 0.35초 · 말 한가운데 0.05초. 고정값으로 되돌리지 말 것.
+#   ★자른 자리 «바로 뒤» 글자를 본다 — 앞을 보면 쉼표를 놓쳐 「신랑 신부, 입장!」이 0.05초가 된다(실제로 그랬다).
+chk 'GAP_BY_TEXT' scripts/join-typecast-splits.mjs 2
+chk 'GAP_MID' scripts/join-typecast-splits.mjs 2
+chk 'GAP_COMMA' scripts/join-typecast-splits.mjs 2
+# ★★[EXACT_ONE 2026-09-09] --clip 에 '=' 를 붙이면 그것 하나만 — 앞글자로 번지지 않는다.
+#   'G12-1' 이 G12-1B..F 까지 여섯을 끌고 와, 49개를 줬는데 63문장을 요구하며 멎었다.
+#   앞글자 규칙(entry-A..F 를 한 번에)은 옳다 — 다만 이름이 다른 이름의 앞머리이면
+#   (G12-1 ⊂ G12-1B) 그 하나를 영영 못 고른다. 그 구멍만 메운다.
+chk 'EXACT_ONE' scripts/clip-select.mjs 1
+chk "p.startsWith('=')" scripts/clip-select.mjs 1
+# ★★[TWIN_ARROW 2026-09-09] 대기 명단 한 줄에는 이름이 둘이다 — 왼쪽은 «화면 자리», 화살표 뒤가 «실제 클립».
+#   한 화면 자리에 녹음이 둘인 곳이 있어서다(안내판 + 배역판 · REDUB_TWIN).
+#   검사가 왼쪽을 읽어, 배역 01_guest-1(이겸)이 대기인데 안내 guest-1-arrival(진희) 목소리를 내놓으라 했다.
+#   진희는 이미 다 받아 명단에 없는데도 게이트가 붉었다. 화살표 뒤를 먼저 본다.
+chk 'TWIN_ARROW' scripts/check-paste-format.mjs 1
+chk '←' scripts/check-paste-format.mjs 2

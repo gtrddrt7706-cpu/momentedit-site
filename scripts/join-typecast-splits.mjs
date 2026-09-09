@@ -9,8 +9,18 @@
 //
 // ★왜 그냥 이어 붙이면 안 되나 — 실측: 앞 조각 꼬리 무음 0.347초 + 뒤 조각 머리 무음 0.278초.
 //   그대로 붙이면 사이가 0.625초가 된다. 쉼표가 아니라 «두 문장»으로 들린다.
-//   그래서 맞닿는 안쪽 무음만 깎고, 쉼표 길이(기본 0.2초)를 새로 넣는다.
+//   그래서 맞닿는 안쪽 무음만 깎고, 사이를 새로 넣는다.
 //   바깥쪽(앞 조각의 머리·뒤 조각의 꼬리)은 손대지 않는다 — 조립기가 클립 앞뒤 여백을 따로 계산한다.
+//
+// ★★[GAP_BY_TEXT 2026-09-09] 사이 길이를 «자른 자리의 글»에서 정한다 — 한 값으로 고정하지 않는다.
+//   반증이 바로 나왔다. 우성 ②에서 「그럼, 두 사람의 새로운 시작을 위하여!」가
+//   «…시작을» + «위하여!» 로 갈라졌다 — 쉼표가 아니라 «말 한가운데»다.
+//   그런데 같은 문장이 같은 묶음 35번에 안 갈라진 채 있었다. 그 take 를 재 보니
+//   그 자리에 무음이 아예 없다(0.751~2.461초 연속 발화). 0.2초를 넣은 내 판은 2.90초 —
+//   원본 2.70초보다 0.2초 길다. 딱 내가 넣은 만큼 틀렸다.
+//   ★그래서 앞 조각이 끝나는 «글자»를 본다: 쉼표면 0.2초 · 마침표·물음표·느낌표면 0.35초 ·
+//     아무 표시도 없으면(말 한가운데) 0.05초. 0.05초는 클릭음만 막는 값이고 귀에는 안 들린다.
+//   ★고정값으로 되돌리지 말 것 — 되돌리면 「신랑 신부, 입장!」은 맞고 「…위하여!」는 늘어진다.
 //
 // ★대조가 먼저다 — 파일명을 대본 줄에 «탐욕적으로» 맞춰 보고, 한 줄도 못 맞추면 아무것도 쓰지 않는다.
 //   붙일 자리를 사람이 지정하지 않는다(여섯 번 세는 일을 만들지 않는다 · 세다가 틀린다).
@@ -22,7 +32,9 @@ import { execFileSync } from 'node:child_process';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const IN = arg('--in', ''), SCRIPT = arg('--script', ''), OUT = arg('--out', '');
-const GAP = Number(arg('--gap', '0.2'));
+const GAP_COMMA = Number(arg('--gap', '0.2'));   // 쉼표에서 갈렸을 때
+const GAP_STOP = 0.35;                            // 마침표·느낌표·물음표에서 갈렸을 때
+const GAP_MID = 0.05;                             // 말 한가운데서 갈렸을 때 — 클릭음만 막는다
 const DRY = process.argv.includes('--dry');
 if (!IN || !SCRIPT || !OUT) { console.log('✗ --in · --script · --out 이 필요하다'); process.exit(2); }
 
@@ -35,7 +47,7 @@ try {
 } catch (e) { console.log('✗ 못 읽음: ' + e.message); process.exit(2); }
 
 // 파일명에서 «내용» 부분만 — 타입캐스트가 긴 문장은 ~ 로 자른다
-const stem = (f) => {
+const stemOf = (f) => {
   const n = f.normalize('NFC'), p = n.split('_');
   const body = n.slice(('audio_' + p[1] + '_').length).replace(/\.wav$/i, '');
   return { s: norm(body).replace(/~$/, ''), cut: body.includes('~') };
@@ -48,8 +60,8 @@ for (const [li, line] of lines.entries()) {
   let taken = null;
   for (let k = 1; k <= 3 && i + k <= files.length; k++) {         // 한 줄에 최대 세 조각까지
     const parts = files.slice(i, i + k);
-    const joined = parts.map((f) => stem(f).s).join('');
-    const cut = stem(parts[parts.length - 1]).cut;
+    const joined = parts.map((f) => stemOf(f).s).join('');
+    const cut = stemOf(parts[parts.length - 1]).cut;
     if (cut ? a.startsWith(joined) : a === joined) { taken = parts; break; }
   }
   if (!taken) {
@@ -84,12 +96,30 @@ for (const [n, p] of plan.entries()) {
     ff(['-i', path.join(IN, f), '-af', af, o]);
     cut.push(o);
   });
-  const sil = path.join(TMP, `sil${n}.wav`);
-  ff(['-f', 'lavfi', '-i', `anullsrc=r=44100:cl=mono`, '-t', String(GAP), '-c:a', 'pcm_s16le', sil]);
+  // [GAP_BY_TEXT] 앞 조각이 대본 줄의 몇 글자까지인지 되짚어, 그 자리의 «끝 글자»로 사이를 정한다.
+  //   파일명은 기호가 지워진 채 오므로, 대본 줄을 한 글자씩 훑으며 «기호를 뺀 길이»를 맞춰 자리를 찾는다.
+  const gaps = [];
+  let acc = 0;
+  for (let k = 0; k < cut.length - 1; k++) {
+    acc += stemOf(p.parts[k]).s.length;
+    let seen = 0, at = 0;
+    for (; at < p.line.length && seen < acc; at++) if (/[가-힣a-zA-Z0-9]/.test(p.line[at])) seen++;
+    // ★자른 자리 «바로 뒤» 글자를 본다 — 앞을 보면 기호를 놓친다.
+    //   at 은 마지막으로 센 글자의 «다음» 칸이라, 쉼표는 거기 있고 그 앞엔 '부' 같은 글자가 있다.
+    //   앞을 봤다가 「신랑 신부, 입장!」이 0.05초로 붙었다(쉼표인데 말 한가운데로 읽혔다).
+    const end = (p.line.slice(at).match(/^\s*(\S)/) || ['', ''])[1];
+    gaps.push(end === ',' ? GAP_COMMA : /[.!?]/.test(end) ? GAP_STOP : GAP_MID);
+  }
+  const sils = gaps.map((g, k) => {
+    const o = path.join(TMP, `sil${n}_${k}.wav`);
+    ff(['-f', 'lavfi', '-i', `anullsrc=r=44100:cl=mono`, '-t', String(g), '-c:a', 'pcm_s16le', o]);
+    return o;
+  });
+  console.log(`  ${n + 1}줄 «${p.line}» — 사이 ${gaps.map((g) => g + '초').join(' · ')}`);
   const list = path.join(TMP, `l${n}.txt`);
-  const seq = []; cut.forEach((c, k) => { if (k) seq.push(sil); seq.push(c); });
+  const seq = []; cut.forEach((c, k) => { if (k) seq.push(sils[k - 1]); seq.push(c); });
   fs.writeFileSync(list, seq.map((s) => `file '${s}'`).join('\n') + '\n');
   ff(['-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', dst]);
 }
 fs.rmSync(TMP, { recursive: true, force: true });
-console.log(`\n썼다: ${OUT} · ${plan.length}개 (쉼표 사이 ${GAP}초)`);
+console.log(`\n썼다: ${OUT} · ${plan.length}개`);
