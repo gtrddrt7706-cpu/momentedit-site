@@ -6252,3 +6252,17 @@ chk '양가 직계가족' inquiry.html 1
 chk 'HERO_SUB_OPEN' .claude/skills/momentedit-design/SKILL.md 1
 chk '셋 중 둘' .claude/skills/momentedit-design/SKILL.md 1
 chk 'NOCHK_QUOTES_ITSELF' automation/tests/merge-guard.sh 1
+
+# ★★[SETTLE 2026-09-09 코워크 지적 「전환이 끝났는지 상태로 확인한다」]
+#   라운드 3 측정 오류 넷 중 셋이 «전환 중에 읽어서» 났다 — 레일 획좌표·Tab 순회·1280 opacity.
+#   waitForTimeout 은 「아마 끝났겠지」다. 안 끝났는데 읽으면 값이 뒤집힌다.
+#   ★규칙을 문장으로만 두지 않고 «분기»로 만들었다 — 안 읽어도 지켜지게.
+#   ★[SETTLE_LIMIT] 이 함수는 CSS 전환만 안다. JS 가 inline style 로 그리는 것은 안 잡힌다
+#     (typo-ramp 의 opacity 사고는 settle 로도 못 잡았을 것이다). 그 한계를 파일 안에 적어 뒀다.
+chk 'SETTLE_LIMIT' scripts/audit/_settle.mjs 1
+chk 'getAnimations' scripts/audit/_settle.mjs 2
+chk 'SETTLE_STATE' scripts/audit/parents-listen-size.mjs 1
+# ★[NOCHK_QUOTES_ITSELF] 또 걸렸다 — 바로 앞 커밋에서 이 함정을 문서화하고 그 다음 커밋에서 밟았다.
+#   nochk 'waitForTimeout(500)' 로 걸었더니 «종전 코드를 인용한 주석»이 잡혔다(1>0).
+#   → 살아 있는 호출만 겨냥한다(await page. 접두). 규칙이 실제로 다음 실수를 잡은 사례다.
+nochk 'await page.waitForTimeout(500)' scripts/audit/parents-listen-size.mjs   # 시간으로 어림한 자리로 되돌리지 말 것
