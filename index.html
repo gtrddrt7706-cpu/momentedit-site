@@ -5645,7 +5645,12 @@ body {
 <!-- NAV -->
 <nav class="nav-hidden">
 <div class="nav-in">
-  <a href="/" onclick="event.preventDefault(); replayHeroAnimation();" class="nav-logo-link" aria-label="페이지 최상단으로"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var f=this.nextElementSibling;if(f)f.style.display='inline-flex'"><span class="nav-wordmark" aria-hidden="true" style="display:none">MOMENT<span class="nav-wordmark-dot" aria-hidden="true"></span>EDIT</span></a>
+  <!-- ★★[LOGO_WEBP 2026-09-09 3G 실측] 워드마크를 png·webp «둘 다» 받고 있었다 — 네비만 picture 가 없었다.
+       실측(Slow 3G · 실제 전송): 238 → 225KB. 푸터가 이미 webp 를 받고 있어 네비를 맞추니 png 요청이 사라졌다.
+       ★png src 는 «지운 게 아니라 폴백»이다. webp 를 못 읽는 브라우저가 이걸 받는다. 지우지 말 것.
+       ★[LOGO_FALLBACK_POS] 감싸면 onerror 의 nextElementSibling 이 null 이 된다(img 가 picture 의 막내).
+         picture 를 건너뛰고 그 «다음»을 찾는다 — 폴백 span 의 클래스는 페이지마다 달라 이름에 안 기댄다. -->
+  <a href="/" onclick="event.preventDefault(); replayHeroAnimation();" class="nav-logo-link" aria-label="페이지 최상단으로"><picture><source type="image/webp" srcset="/assets/brand/wordmark-only.webp"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var p=this.parentElement,f=(p&&p.tagName==='PICTURE'?p:this).nextElementSibling;if(f)f.style.display='inline-flex'"></picture><span class="nav-wordmark" aria-hidden="true" style="display:none">MOMENT<span class="nav-wordmark-dot" aria-hidden="true"></span>EDIT</span></a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#archive">Archive</a></li>

@@ -6286,3 +6286,19 @@ nochk "'/guide.html?g='" mypage.html                      # 공유 링크를 옛
 #   ② 'g/([A-Za-z0-9_-]' → 대괄호가 «문자 클래스»로 해석됐다. 파일엔 대괄호가 «글자 그대로» 있다.
 #   정규식을 찾는 패턴을 정규식으로 쓰면 이렇게 된다. 특수문자가 없는 조각을 고른다.
 chk 'A-Za-z0-9_-]{1,64}' vercel.json 1                     # 경로 라우트 — 토큰 문자만 받는다
+
+# ★★[LOGO_WEBP 2026-09-09 3G 실측에서 발견] 워드마크를 png·webp «둘 다» 받고 있었다.
+#   네비 로고만 <picture> 없이 png 직접이었고, 푸터는 <picture> 로 webp 를 받았다 → 한 페이지에 둘.
+#   실측(Slow 3G · 실제 전송 바이트): index 238 → 225KB · parents 72 → 59KB.
+#   ★[LOGO_FALLBACK_POS] 감싸면 onerror 의 nextElementSibling 이 null 이 된다(img 가 picture 의 막내라서).
+#     picture 를 건너뛰고 그 «다음»을 찾도록 고쳤다 — 클래스 이름에 안 기댄다(페이지마다 다르다).
+#   ★390px 에서 .nav-logo 가 0×0 인 것은 «원래» 그렇다(모바일은 다른 마크). main 과 대조해 확인했다.
+chk 'LOGO_FALLBACK_POS' index.html 1
+chk 'wordmark-only.webp' index.html 2
+chk 'wordmark-only.webp' inquiry.html 1
+chk 'wordmark-only.webp' parents.html 2
+chk 'wordmark-only.webp' privacy.html 1
+# ★[NOCHK_WRONG_TARGET] 처음엔 'nav-logo" src="…png"' 를 금지했다가 걸렸다 —
+#   png src 는 «지운 게 아니라 webp 미지원 폴백»이라 남아 있는 게 맞다. 금지할 대상이 아니었다.
+#   되돌림의 실제 신호는 «옛 onerror 형태»다. picture 를 벗기면 그게 돌아온다.
+nochk 'var f=this.nextElementSibling' index.html            # picture 없이 png 직접으로 되돌리지 말 것
