@@ -6327,3 +6327,16 @@ chk '이제 다시 정면을 바라봅니다' assets/ritual-data.js 2
 chk 'SPLIT_TAKE' scripts/join-typecast-splits.mjs 1
 chk 'TRIM_TAIL' scripts/join-typecast-splits.mjs 2
 chk "start_threshold=-35dB" scripts/join-typecast-splits.mjs 1
+
+# ★★[CAKE_SOFT 2026-09-09 사장님 지적 "내립니다 나랑히 섭니다 너무 형식적이고 딱딱한거같아"]
+#   ①「나란히 섭니다」는 대형(隊形) 서술이다 — 사열·조회의 말이라 사람이 아니라 배치를 본다.
+#   ②「내립니다」는 목적어가 없다. 나이프를 못 말할 이유가 없는데 피해 간 말이라 그림이 안 그려진다.
+#   ③ 둘 다 «지금 일어나는 동작»을 현재형으로 중계한다 — 중계는 딱딱해질 수밖에 없다.
+#   고친 방향: 배치를 빼고, 자르는 동작 대신 «자르면 박수»로 넘긴다.
+#   사장님이 앞서 정한 그대로다: *"자르면 큰박수 유도 까지하면 자동으로 자연스럽[게] 되지 않을까?"*
+#   ★ritual-data.js 는 TONE_TABLE(생성구역)이 같은 문장을 또 들고 있다 — 그 줄은 손대지 않았다.
+#     어조 mp3 186개가 이미 있어, 그쪽 문안을 바꾸면 그 자리는 다시 받아야 한다(사장님 결정 대기).
+nochk '케이크 앞에 나란히 섭니다' assets/ritual-data.js
+nochk '케이크 앞에 나란히 섭니다' order-preview.html
+chk '두 사람이 케이크 앞에 섰습니다' assets/ritual-data.js 2
+chk '함께 자르면, 큰 박수 부탁드립니다' assets/ritual-data.js 2
