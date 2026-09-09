@@ -6226,3 +6226,21 @@ chk 'RAMP_NO_DEAD' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_TWO_PASS' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_NO_OPACITY' scripts/audit/typo-ramp.mjs 1
 chk "closest('\[class\*=\"mock\"\]" scripts/audit/typo-ramp.mjs 1   # 목업은 이름이 아니라 DOM 조상으로 거른다
+
+# ★★[HERO_SUB_OPEN 2026-09-09 사용자 지시 「친구도 부를 수 있는데 굳이 제한 두는 것 같다」]
+#   히어로 부제 「양가 가족만 모시는, 140분의 프라이빗 웨딩」 → 「양가 가족과 가까운 분들, 140분의 웨딩」
+#   ★카피 취향이 아니라 «문서와 화면의 불일치»였다 — 브랜드 문서
+#     (momentedit-docs/manuals/04_브랜드_키워드_시스템.html)는 이미 「양가 직계가족과 가장 가까운
+#     지인만 초대」·「양가 가족과 가장 가까운 분들만」이라고 적어 둔다. 히어로만 좁게 말하고 있었다.
+#   ★★검색 키워드는 손대지 않았다 — meta description · schema audienceType · 숨은 h1(5701) ·
+#     숨은 h2(5702) · 탭 라벨의 「양가 직계가족」은 그대로. 카피가 아니라 검색 자산이다.
+#     같이 바꾸면 SEO 가 흔들리고 원인을 못 가른다. 아래 chk 가 그 다섯을 지킨다.
+#   실측: 320·360·390·430·1280 다섯 폭 전부 1줄 · 320px 여유 38px(종전 12px) · 문서 높이 변화 0.
+chk 'HERO_SUB_OPEN' index.html 1
+chk '양가 가족과 가까운 분들, 140분의 웨딩' index.html 1
+# ★[NOCHK_QUOTES_ITSELF] 처음엔 nochk '양가 가족만 모시는' 으로 걸었다가 «내 근거 주석»에 걸렸다.
+#   바꾼 이유를 적으려면 옛 문장을 인용해야 하는데, 그러면 그 인용이 곧 위반이 된다.
+#   → 마크업만 겨냥한다. 주석은 남고 «살아 있는 문장»만 지켜진다.
+nochk 'hero-tease-sub">양가 가족만' index.html            # 옛 문장으로 되돌리지 말 것(주석 인용은 허용)
+chk '양가 직계가족' index.html 5                         # 검색 자산 — meta·schema·숨은 h1/h2·FAQ
+chk '양가 직계가족' inquiry.html 1
