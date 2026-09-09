@@ -513,12 +513,13 @@
     if (location.pathname.indexOf('/i-family/') === -1 || !eventId) return;   // 온라인 커버(/i/)는 디지털 참석용 — 가족 카드에서만
     // [HYDRATE_DEMO] 표본은 조회 없이 즉시 — 표본 안내(g=demo)로 연결. 갤러리 iframe 안이면
     // 새 창 대신 부모에게 카드 이동을 요청한다(gv:goto:guide → 10번 하객 안내 카드).
-    if (eventId === 'test-couple') { _paintGuideCta('/guide.html?g=demo', true); return; }
+    /* [GUIDE_PATH] ? 없는 경로 형태 — mypage.html 의 guideUrl 주석 참고. ?g= 도 계속 열린다. */
+    if (eventId === 'test-couple') { _paintGuideCta('/g/demo', true); return; }
     fetch(GUIDE_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'guideView', byEvent: eventId }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.ok || !d.g) return;
-        _paintGuideCta('/guide.html?g=' + encodeURIComponent(d.g), false);
+        _paintGuideCta('/g/' + encodeURIComponent(d.g), false);   // [GUIDE_PATH]
       })
       .catch(function () {});
   }

@@ -6266,3 +6266,23 @@ chk 'SETTLE_STATE' scripts/audit/parents-listen-size.mjs 1
 #   nochk 'waitForTimeout(500)' 로 걸었더니 «종전 코드를 인용한 주석»이 잡혔다(1>0).
 #   → 살아 있는 호출만 겨냥한다(await page. 접두). 규칙이 실제로 다음 실수를 잡은 사례다.
 nochk 'await page.waitForTimeout(500)' scripts/audit/parents-listen-size.mjs   # 시간으로 어림한 자리로 되돌리지 말 것
+
+# ★★[GUIDE_PATH 2026-09-09 사용자 지시 「카톡에서 링크가 잘린다」] 하객 안내 링크를 «경로»로 낸다.
+#   /guide.html?g=<토큰> 을 대화앱에 붙이면 ?g= 뒤가 잘려 나가는 일이 있었다. ? 가 없으면 잘릴 자리가 없다.
+#   vercel.json 의 ^/g/([A-Za-z0-9_-]{1,64})$ 가 /guide.html?g=$1 로 다시 쓴다(rewrite).
+#   ★기존 ?g= 링크도 그대로 산다 — 이미 나간 청첩장이 있다. «추가»이지 교체가 아니다.
+#     guide.html 은 종전대로 qp('g') 를 읽는다. 그 파일은 손대지 않았다.
+#   ★확인한 것 둘 — ①guide.html 의 자산은 전부 절대경로라 주소가 /g/ 로 보여도 안 깨진다
+#                   ②GAS 는 이 링크를 «만들지 않는다». mypage.html 의 guideUrl 이 유일한 출처다.
+#                     그래서 이 변경에 GAS 재배포가 필요 없다.
+#   ★정규식 반증: /g/../secret · /g/a%2Fb · 65자 · /g/ 전부 거부(경로 탈출 불가).
+chk 'GUIDE_PATH' mypage.html 1
+chk 'GUIDE_PATH' shared/hydrate.js 2
+
+chk '/guide.html?g=' vercel.json 1                       # rewrite 대상 — 이게 없으면 라우트가 죽은 것
+nochk "'/guide.html?g='" mypage.html                      # 공유 링크를 옛 형태로 되돌리지 말 것(주석 인용은 허용)
+# ★[CHK_BRE_LITERAL] chk 는 grep BRE 다. 두 번 걸렸다 —
+#   ① '^/g/…' → '^' 가 «줄머리» 앵커로 먹었다(라우트는 줄 가운데라 0건).
+#   ② 'g/([A-Za-z0-9_-]' → 대괄호가 «문자 클래스»로 해석됐다. 파일엔 대괄호가 «글자 그대로» 있다.
+#   정규식을 찾는 패턴을 정규식으로 쓰면 이렇게 된다. 특수문자가 없는 조각을 고른다.
+chk 'A-Za-z0-9_-]{1,64}' vercel.json 1                     # 경로 라우트 — 토큰 문자만 받는다

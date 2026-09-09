@@ -6287,7 +6287,14 @@ function wireSeatShare(box, token){
   ensureQR(function(){ renderQRInto('seat_qr','seat_qrsave',url); });
 }
 // [하객 안내 허브] 공유 — 다이닝/좌석을 하나로 묶은 하객 링크. 미리보기(하객 눈으로 확인)+링크 복사+QR.
-function guideUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/guide.html?g='+encodeURIComponent(token); }
+// ★★[GUIDE_PATH 2026-09-09 사용자 지시 「카톡에서 링크가 잘린다」] 공유 링크를 «경로» 형태로 낸다.
+//   왜 — /guide.html?g=<토큰> 을 대화앱에 붙이면 ?g= 뒤가 잘려 나가는 일이 있었다.
+//   ? 가 없으면 잘릴 자리가 없다. vercel.json 의 ^/g/([A-Za-z0-9_-]{1,64})$ 가 다시 써 준다.
+//   ★기존 ?g= 링크도 그대로 산다 — 이미 나간 청첩장이 있다. 이건 «추가»이지 교체가 아니다.
+//     guide.html 은 종전대로 qp('g') 를 읽는다(rewrite 라 서버에서 붙는다). 그쪽은 손대지 않았다.
+//   ★guide.html 의 자산은 전부 절대경로라(확인함) 주소가 /g/ 로 보여도 안 깨진다.
+//   ★GAS 는 이 링크를 만들지 않는다(확인함) — 여기가 공유 링크의 «유일한» 출처다. 재배포 불필요.
+function guideUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/g/'+encodeURIComponent(token); }
 // [만료 인지] 예식 후 30일이 지나면 서버(GUIDE_EXPIRE_DAYS=30 · _guideExpired)가 하객 페이지를 닫음 — 닫힌 링크를 공유 UI가 계속 권하지 않게 프론트도 같은 기준으로 판정.
 function _guideLinkClosed(base){
   try{
