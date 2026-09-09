@@ -6313,3 +6313,17 @@ chk "brideName: '정하윤'" shared/hydrate.js 1
 nochk '두 분, 다시 두 사람이' assets/ritual-data.js
 nochk '두 분, 다시 두 사람이' order-preview.html
 chk '이제 다시 정면을 바라봅니다' assets/ritual-data.js 2
+
+# ★★[SPLIT_TAKE 2026-09-09] 타입캐스트가 한 문장을 둘로 쪼개 줄 때가 있다.
+#   실측 — 「1_우성_전반」 51줄을 넣었는데 wav 가 57개로 왔다. 「신랑 신부, 입장!」 여섯 줄이
+#   «신랑 신부,» + «입장!» 로 갈라졌다(다른 줄은 안 갈라졌다 · 쉼표 일반이 아니라 그 문장만).
+#   조립기는 대본 문장 수와 파일 수가 같다고 보고 순서를 맞추므로, 여섯 칸이 밀리면
+#   그 뒤 전부가 다른 자리에 붙는다 — 「입장!」이 서약 자리에서 나온다.
+#   ★그냥 이어 붙이면 안 된다 — 앞 조각 꼬리 무음 0.347초 + 뒤 조각 머리 무음 0.278초 = 0.625초.
+#     쉼표가 아니라 «두 문장»으로 들린다. 맞닿는 안쪽 무음만 깎고 쉼표 길이(0.2초)를 새로 넣는다.
+#     바깥쪽은 손대지 않는다 — 조립기가 클립 앞뒤 여백을 따로 계산한다.
+#   ★붙일 자리를 사람이 지정하지 않는다 — 파일명을 대본 줄에 탐욕적으로 맞춰 보고
+#     한 줄이라도 못 맞추면 아무것도 쓰지 않는다(여섯 번 세는 일을 만들지 않는다).
+chk 'SPLIT_TAKE' scripts/join-typecast-splits.mjs 1
+chk 'TRIM_TAIL' scripts/join-typecast-splits.mjs 2
+chk "start_threshold=-35dB" scripts/join-typecast-splits.mjs 1
