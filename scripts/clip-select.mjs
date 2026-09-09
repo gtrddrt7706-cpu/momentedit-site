@@ -12,10 +12,18 @@
 //   ※ 파일명은 파트가 달라도 겹칠 수 있다 — 나레이션 entry-A 와 배역 entry-A 는 다른 클립인데
 //     이름이 같다. 그래서 'entry-' 는 열두 개를 잡는다. 한쪽만 원하면 **id 앞글자**로 짚는다:
 //     배역만 → 'R-entry-' · 나레이션만 → 'G2-'. 이름이 겹치는 축과 안 겹치는 축을 둘 다 준다.
+// ★★[EXACT_ONE 2026-09-09] '=' 를 앞에 붙이면 «그것 하나»만 — 앞글자로 번지지 않는다.
+//   왜 필요했나: 성우별로 받은 우성 ② 를 붙이는데 마지막 클립이 G12-1(narr-entry-out) 이었다.
+//   'G12-1' 을 주면 G12-1B·C·D·E·F 까지 여섯이 딸려 와, 49개를 줬는데 63문장을 요구하며 멎었다.
+//   앞글자 규칙은 entry-A..F 를 한 번에 잡으려고 만든 것이라 옳다 — 다만 «가족 중 맏이»를
+//   짚을 길이 없었다. 이름이 다른 이름의 앞머리이면(G12-1 ⊂ G12-1B) 영영 혼자 못 고른다.
+//   ★판별과 생성이 같은 자를 써야 하므로 여기 한 곳에만 적는다(repatch-clip 도 같이 얻는다).
 export const selectClips = (clips, spec) => {
   const pats = String(spec || '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!pats.length) return [];
-  return clips.filter((c) => pats.some((p) => c.file === p || c.id === p || c.file.startsWith(p) || String(c.id || '').startsWith(p)));
+  return clips.filter((c) => pats.some((p) => (p.startsWith('=')
+    ? c.file === p.slice(1) || c.id === p.slice(1)
+    : c.file === p || c.id === p || c.file.startsWith(p) || String(c.id || '').startsWith(p))));
 };
 
 // ── 문장 자리 고르기 (SENT_PATCH · 2026-08-04)

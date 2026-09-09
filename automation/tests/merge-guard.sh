@@ -1435,7 +1435,13 @@ chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <->
 #     대신 **장면을 세우는 문장**이 남았는지 지킨다(무음이 되지 않게).
 #   ②시연 문장(축배·둘 다 2벌) — 하객이 답할 말. 없으면 선창에 돌아오는 소리가 없다(성혼 선언과 같은 금지)
 #   ③사이 문안 — 나이프를 걷고 잔을 쥐여 드리는 15~20초. 없으면 통째로 무음이다
-chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 4   # [COUNT_RETIRED] 카운트를 대신하는 장면 문장
+#     ★[CAKE_SOFT 2026-09-09] 그 「장면 문장」을 4→2 로 줄였다. 폐지가 아니라 «교체»다.
+#       사장님: *"내립니다 나랑히 섭니다 너무 형식적이고 딱딱한거같아"* — 목적어 없는 동작 중계였다.
+#       실황 나레이션 2벌은 「함께 자르면, 큰 박수 부탁드립니다」가 그 자리를 대신 잡는다
+#       (커팅 시점이 여전히 소리로 표시되고, 무음도 안 생긴다 — 이 검사의 원래 목적 그대로다).
+#       남은 2벌은 TONE_TABLE(생성구역)이라 손대지 않았다. 어조 mp3 186개가 이미 걸려 있다.
+chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 2   # [COUNT_RETIRED] 어조표 2벌 — 생성구역
+chk '함께 자르면, 큰 박수 부탁드립니다' assets/ritual-data.js 2      # [CAKE_SOFT] 실황 2벌이 그 자리를 잡는다
 chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
 chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
 chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
@@ -3571,6 +3577,14 @@ chk 'HANDOFF_PASTE' scripts/build-listen-all.mjs 1
 # «소리가 없는 가벼운 판»이라고 말했다. 바로 위 칸은 «소리가 다 들어 있습니다»라고 하는데.
 # 사장님은 「듣기」가 안 되는 줄 알고 안 누른다. SOUND_OUT_OF_JS 때 sayCanDo 와 같은 병이다.
 chk 'SAY_WHICH_BOARD' scripts/build-listen-all.mjs 1
+# ── [SHOW_THE_LINK] «복사했습니다» 해 놓고 화면엔 아무것도 안 떴다 (2026-09-05 사장님 «링크가안나오는데?») ──
+# `#outWrap` 은 기본이 hide 다 — 재더빙 대본이 있을 때만 열리는 칸이다.
+# 링크를 그 칸에 넣으면서 칸을 여는 줄을 안 넣었다. 복사가 막힌 기기에서는 주소를 볼 길이 통째로 없다.
+# ★남의 칸을 빌려 쓰면 그 칸의 규칙(hide·설명 문구)도 함께 봐야 한다.
+chk 'SHOW_THE_LINK' scripts/build-listen-all.mjs 1
+chk 'outNote' scripts/build-listen-all.mjs 3
+chk "wrap.className = ''" scripts/build-listen-all.mjs 1
+chk 'id="outNote"' listen-075c9ad62acf.html 1
 chk '소리는 사이트에서 받아 옵니다' scripts/build-listen-all.mjs 1
 # ★배포되는 판이 «소리 없음»이라 말하면 잡는다 — 그 판은 소리를 주소로 부른다
 nochk '소리가 없는 가벼운 판' listen-075c9ad62acf.html
@@ -6226,3 +6240,131 @@ chk 'RAMP_NO_DEAD' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_TWO_PASS' scripts/audit/typo-ramp.mjs 1
 chk 'RAMP_NO_OPACITY' scripts/audit/typo-ramp.mjs 1
 chk "closest('\[class\*=\"mock\"\]" scripts/audit/typo-ramp.mjs 1   # 목업은 이름이 아니라 DOM 조상으로 거른다
+# ★★[VOICE_JINHEE 2026-09-06 사장님 확정] 안내 목소리 이름은 '진희' 다 ('잔희' 아님).
+#   사장님 원문: *"아 그리고 잔희가 아니라 진희야"*
+#   163곳에 '잔희' 가 박혀 있었지만 원천은 build-typecast-import.mjs 의 DEFAULT_VOICE 한 줄뿐이다.
+#   ★생성물을 손으로 고치지 말 것 — 여기만 고치고 --write 로 다시 뽑는다.
+#   ★'잔희' 로 뽑으면 타입캐스트가 그 화자를 못 찾아 사장님이 클립마다 손으로 배정해야 한다.
+chk 'VOICE_JINHEE' scripts/build-typecast-import.mjs 1
+chk "안내: '진희'" scripts/build-typecast-import.mjs 1
+#   ★주석에 남은 '잔희' 는 «왜 바뀌었나»의 기록이라 그대로 둔다 — 지우면 다음 세션이 오타로 되돌린다.
+#     검사는 «뽑힌 대본»을 본다: 거기 '잔희' 가 하나라도 있으면 원천이 되돌아간 것이다.
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/재더빙_붙여넣기.txt'
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/1_안내.txt'
+# ★★[WAIT_BRIDGE_RETIRED 2026-09-06 사장님 결정] 대기·재개 브릿지 3클립(6문장) 폐지.
+#   49_bridge-4-wait-emotion · 50_bridge-5-wait-setup · 51_bridge-6-resume.
+#   근거 ①녹음은 「금방 이어집니다」를 약속하는데 실제로 얼마나 걸릴지 모른다 — 어긋나면 그 약속이
+#   기다림을 더 길게 만든다(Munichor & Rafaeli 2007: 녹음 사과가 음악보다 체감을 나쁘게 했다).
+#   ②멈춘 자리는 디렉터가 눈을 보고 말하는 편이 낫다 — 사람이 이미 거기 있다.
+#   ★되살리지 말 것. 폐지 정본은 assets/ritual-cue.js 의 RETIRED 다.
+chk 'WAIT_BRIDGE_RETIRED' assets/ritual-cue.js 1
+chk "'bridge-4-wait-emotion': 1" assets/ritual-cue.js 1
+chk "'bridge-6-resume': 1" assets/ritual-cue.js 1
+
+# ★★[DRINK_TONE 2026-09-06 사장님 지적] 10분 전 안내에서 「음료 한 잔」을 걷어냈다.
+#   사장님 원문: *"이부분 너무 아저씨같은느낌이야 고급스럽게"*
+#   ①「한 잔」은 술자리 관용구(「한 잔 하시면서」)의 그림자다 ②「드시면서」는 마시는 동작까지 시킨다
+#   ③ 한 호흡에 셋(마시고·있다가·앉기)을 지시한다. 말을 더하지 않고 지시를 덜어 고쳤다.
+#   ★부부(저희-체)는 「음료 준비해 두었습니다」로 따로 간다 — 준비한 사람이 말하는 자리라서다.
+#     중립 문장을 배역 파일에 넣으면 안내 말투가 부부 입에서 나온다(한 번 그렇게 넣었다가 잡았다).
+nochk '음료 한 잔' assets/ritual-data.js
+nochk '음료 한 잔' order-preview.html
+nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
+#   ★2차(같은 날) — 「음료가 준비되어 있습니다」는 아저씨는 면했지만 이번엔 «안내판»이 됐다.
+#     사장님: *"음료랑 핑거 푸드 얘기를 조금더 자연스럽게 풀어보자 지금은 너무 딱딱하잖아"*
+#     준비한 사람이 주어가 되면(「준비해 두었으니」) 그대로 환대가 된다. 「편히 드세요」로 권하고,
+#     앉는 부탁은 다음 문장으로 뗐다 — 한 문장에 붙으면 다시 참견으로 들린다.
+#   ★핑거 푸드는 계약서·index.html 이 약속한 제공 항목이다(웰컴 핑거 푸드·와인). 빼지 말 것.
+#   ★3차 — 사장님이 실제로 녹음하신 판이 B안이었다(올려 주신 wav 30개 파일명으로 확인).
+#     화면 글과 소리가 다른 말을 하면 안 되므로 «소리»를 정본으로 삼는다.
+#     ★검사 문장을 A안으로 되돌리지 말 것 — 되돌리면 녹음과 글이 어긋난 채 초록이 된다.
+chk '한쪽에 핑거 푸드와 음료를 준비해 두었어요' assets/ritual-data.js 2
+chk '천천히 드시다 자리에 앉아 주시면 됩니다' assets/ritual-data.js 2
+nochk '음료가 준비되어 있습니다' assets/ritual-data.js
+nochk '편히 계시다 자리에 앉아' assets/ritual-data.js
+chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
+
+# ★★[BY_VOICE 2026-09-06 사장님 지시 "성우별로 전부 다시 정리된 내용으로 더빙 해보는게 좋을거같아"]
+#   파트 파일(1_안내·2_진행_전반…)은 «식 순서»로 잘려 한 파일에 여러 목소리가 섞인다.
+#   타입캐스트는 덩어리에 화자를 하나 배정하므로 섞인 파일은 줄마다 손으로 바꿔야 했다.
+#   성우로 자르면 파일 하나 = 화자 하나 = 클릭 한 번이다.
+#   ★[MIXED_BY_SENT] 신랑·신부 교대 클립은 «문장 role» 로 가른다(클립 role 로 가르면 상대 대사를 읽는다).
+#   ★[MIX_MADE] 합성 클립(26_vow-both)은 받지 않는다 — 24·25 를 겹쳐 만드는 것이라 두 번 받게 된다.
+#   ★[ORDER_BACK] _성우별_순서.json 이 줄번호 → 클립·문장 자리를 들고 있다. 이게 없으면 되돌릴 수 없다.
+chk 'BY_VOICE' scripts/build-voice-parts.mjs 1
+chk 'MIXED_BY_SENT' scripts/build-voice-parts.mjs 2
+chk 'MIX_MADE' scripts/build-voice-parts.mjs 1
+chk 'ORDER_BACK' scripts/build-voice-parts.mjs 1
+chk 'c.mix' scripts/build-voice-parts.mjs 1
+
+# ★★[NAME_ONE 2026-09-06] 예시 부부 이름은 한 벌뿐이다 — 이서준 · 정하윤.
+#   실제로 어긋나 있었다: 신랑이 「신랑 이서준입니다」라고 소개한 뒤, 신부 편지는 「준호야」로 불렀고
+#   하객대표는 「준호, 세영이와 오래 알고 지낸 친구」라고 했다. 같은 예식에서 네 사람이 딴 이름을 부른다.
+#   성우별 대본을 뽑다가 한 화면에 나란히 놓이면서 드러났다(파트로 잘려 있을 땐 안 보였다).
+#   이름 교체 결정 자체는 이미 있었다(문안개정_20260906.md) — 배역 파일에만 적용이 안 됐던 것이다.
+#   ★shared/hydrate.js 의 SAMPLE(groomName 이서준 · brideName 정하윤)이 같은 이름의 다른 원천이다.
+#     둘 중 하나만 바꾸면 청첩장 미리보기와 예식 대본이 다른 사람을 가리킨다.
+nochk '준호' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '세영' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '신랑 이서준입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '신부 정하윤입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk "groomName: '이서준'" shared/hydrate.js 1
+chk "brideName: '정하윤'" shared/hydrate.js 1
+
+# ★★[DOUBLE_AGAIN 2026-09-06] 「두 분, 다시 두 사람이 다시 정면을 바라봅니다.」 — 말이 안 되는 문장이었다.
+#   264cbbf2(문안 92곳 일괄 교체)에서 옛 요청형(「두 분, 다시 …」)과 새 서술형(「두 사람이 다시 …」)이
+#   반씩 겹쳐 남았다. 반지 교환 마무리 자리라 예식에서 그대로 나갈 뻔했다.
+#   성우별 대본으로 우성 153줄을 한 화면에 놓으니 그 줄 하나가 눈에 걸렸다 — 파트로 잘려 있을 땐 안 보였다.
+#   지금: 「같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 이제 다시 정면을 바라봅니다.」
+nochk '두 분, 다시 두 사람이' assets/ritual-data.js
+nochk '두 분, 다시 두 사람이' order-preview.html
+chk '이제 다시 정면을 바라봅니다' assets/ritual-data.js 2
+
+# ★★[SPLIT_TAKE 2026-09-09] 타입캐스트가 한 문장을 둘로 쪼개 줄 때가 있다.
+#   실측 — 「1_우성_전반」 51줄을 넣었는데 wav 가 57개로 왔다. 「신랑 신부, 입장!」 여섯 줄이
+#   «신랑 신부,» + «입장!» 로 갈라졌다(다른 줄은 안 갈라졌다 · 쉼표 일반이 아니라 그 문장만).
+#   조립기는 대본 문장 수와 파일 수가 같다고 보고 순서를 맞추므로, 여섯 칸이 밀리면
+#   그 뒤 전부가 다른 자리에 붙는다 — 「입장!」이 서약 자리에서 나온다.
+#   ★그냥 이어 붙이면 안 된다 — 앞 조각 꼬리 무음 0.347초 + 뒤 조각 머리 무음 0.278초 = 0.625초.
+#     쉼표가 아니라 «두 문장»으로 들린다. 맞닿는 안쪽 무음만 깎고 쉼표 길이(0.2초)를 새로 넣는다.
+#     바깥쪽은 손대지 않는다 — 조립기가 클립 앞뒤 여백을 따로 계산한다.
+#   ★붙일 자리를 사람이 지정하지 않는다 — 파일명을 대본 줄에 탐욕적으로 맞춰 보고
+#     한 줄이라도 못 맞추면 아무것도 쓰지 않는다(여섯 번 세는 일을 만들지 않는다).
+chk 'SPLIT_TAKE' scripts/join-typecast-splits.mjs 1
+chk 'TRIM_TAIL' scripts/join-typecast-splits.mjs 2
+chk "start_threshold=-35dB" scripts/join-typecast-splits.mjs 1
+
+# ★★[CAKE_SOFT 2026-09-09 사장님 지적 "내립니다 나랑히 섭니다 너무 형식적이고 딱딱한거같아"]
+#   ①「나란히 섭니다」는 대형(隊形) 서술이다 — 사열·조회의 말이라 사람이 아니라 배치를 본다.
+#   ②「내립니다」는 목적어가 없다. 나이프를 못 말할 이유가 없는데 피해 간 말이라 그림이 안 그려진다.
+#   ③ 둘 다 «지금 일어나는 동작»을 현재형으로 중계한다 — 중계는 딱딱해질 수밖에 없다.
+#   고친 방향: 배치를 빼고, 자르는 동작 대신 «자르면 박수»로 넘긴다.
+#   사장님이 앞서 정한 그대로다: *"자르면 큰박수 유도 까지하면 자동으로 자연스럽[게] 되지 않을까?"*
+#   ★ritual-data.js 는 TONE_TABLE(생성구역)이 같은 문장을 또 들고 있다 — 그 줄은 손대지 않았다.
+#     어조 mp3 186개가 이미 있어, 그쪽 문안을 바꾸면 그 자리는 다시 받아야 한다(사장님 결정 대기).
+nochk '케이크 앞에 나란히 섭니다' assets/ritual-data.js
+nochk '케이크 앞에 나란히 섭니다' order-preview.html
+chk '두 사람이 케이크 앞에 섰습니다' assets/ritual-data.js 2
+#   (문장 개수 검사는 위 [COUNT_RETIRED] 블록에 함께 두었다 — 한 자리에서 보게)
+
+# ★★[GAP_BY_TEXT 2026-09-09] 쪼개진 take 를 붙일 때 사이 길이를 «자른 자리의 글»에서 정한다.
+#   반증: 「그럼, 두 사람의 새로운 시작을 위하여!」가 «…시작을» + «위하여!» 로 갈렸는데
+#   같은 문장이 같은 묶음에 안 갈린 채도 있었다. 그 take 엔 그 자리에 무음이 없다(연속 발화).
+#   0.2초를 넣은 판은 2.90초 — 원본 2.70초보다 딱 넣은 만큼 길었다.
+#   ★쉼표 0.2초 · 마침표류 0.35초 · 말 한가운데 0.05초. 고정값으로 되돌리지 말 것.
+#   ★자른 자리 «바로 뒤» 글자를 본다 — 앞을 보면 쉼표를 놓쳐 「신랑 신부, 입장!」이 0.05초가 된다(실제로 그랬다).
+chk 'GAP_BY_TEXT' scripts/join-typecast-splits.mjs 2
+chk 'GAP_MID' scripts/join-typecast-splits.mjs 2
+chk 'GAP_COMMA' scripts/join-typecast-splits.mjs 2
+# ★★[EXACT_ONE 2026-09-09] --clip 에 '=' 를 붙이면 그것 하나만 — 앞글자로 번지지 않는다.
+#   'G12-1' 이 G12-1B..F 까지 여섯을 끌고 와, 49개를 줬는데 63문장을 요구하며 멎었다.
+#   앞글자 규칙(entry-A..F 를 한 번에)은 옳다 — 다만 이름이 다른 이름의 앞머리이면
+#   (G12-1 ⊂ G12-1B) 그 하나를 영영 못 고른다. 그 구멍만 메운다.
+chk 'EXACT_ONE' scripts/clip-select.mjs 1
+chk "p.startsWith('=')" scripts/clip-select.mjs 1
+# ★★[TWIN_ARROW 2026-09-09] 대기 명단 한 줄에는 이름이 둘이다 — 왼쪽은 «화면 자리», 화살표 뒤가 «실제 클립».
+#   한 화면 자리에 녹음이 둘인 곳이 있어서다(안내판 + 배역판 · REDUB_TWIN).
+#   검사가 왼쪽을 읽어, 배역 01_guest-1(이겸)이 대기인데 안내 guest-1-arrival(진희) 목소리를 내놓으라 했다.
+#   진희는 이미 다 받아 명단에 없는데도 게이트가 붉었다. 화살표 뒤를 먼저 본다.
+chk 'TWIN_ARROW' scripts/check-paste-format.mjs 1
+chk '←' scripts/check-paste-format.mjs 2
