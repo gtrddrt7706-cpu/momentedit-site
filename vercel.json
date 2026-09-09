@@ -43,6 +43,10 @@
       "handle": "filesystem"
     },
     {
+      "src": "^/g/([A-Za-z0-9_-]{1,64})$",
+      "dest": "/guide.html?g=$1"
+    },
+    {
       "src": "^/form$",
       "dest": "/form.html"
     },
