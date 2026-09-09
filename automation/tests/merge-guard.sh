@@ -1447,7 +1447,8 @@ chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
 chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
 chk 'TOAST_SCENE' assets/ritual-story.js 2
 chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js 2  # 링워밍 속도 통제(family+all)
-chk '오늘, 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
+#   ★[MUNAN_REST 2026-09-09] D-9 는 두 문장을 하나로 이었다 — 세는 문장이 바뀐다.
+chk '그 사랑이 있어 오늘의 두 사람이 있고, 오늘 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
 # ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
 #   ①규칙 6 위반(정의문으로 열기) ②'마지막'이 사실과 다르다(예식 뒤 30분이 더 있다)
 #   ③"자리에서 그대로"가 새 설계와 정면으로 어긋난다(이제 전원이 앞으로 모인다)
@@ -6318,7 +6319,14 @@ chk "brideName: '정하윤'" shared/hydrate.js 1
 #   지금: 「같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 이제 다시 정면을 바라봅니다.」
 nochk '두 분, 다시 두 사람이' assets/ritual-data.js
 nochk '두 분, 다시 두 사람이' order-preview.html
-chk '이제 다시 정면을 바라봅니다' assets/ritual-data.js 2
+#   ★[MUNAN_REST 2026-09-09] D-3 이 「정면을 바라봅니다」를 뺐다 — 작가 몫이라 나레이션이 말하지 않는다.
+#     오늘 아침 [DOUBLE_AGAIN] 이 이 자리의 깨진 문장을 고쳤지만, 그건 말이 안 되는 문장을 고친 것이지
+#     이 결정을 뒤집은 것이 아니다. 되살리지 말 것.
+#     ★392·394행의 「두 사람이 다시 정면을 바라봅니다」는 반지 «어조 변형»이라 남긴다 —
+#       문서가 지운 것은 명령형(「정면을 바라보아 주세요」)이고, 저 둘은 서술이며
+#       사장님이 그 표에서 본 문장이 아니다. 넓게 지우면 보지 않은 것까지 지운다.
+nochk '정면을 바라보아 주세요' assets/ritual-data.js
+nochk '여기 함께 있습니다. 이제 다시 정면' assets/ritual-data.js
 
 # ★★[SPLIT_TAKE 2026-09-09] 타입캐스트가 한 문장을 둘로 쪼개 줄 때가 있다.
 #   실측 — 「1_우성_전반」 51줄을 넣었는데 wav 가 57개로 왔다. 「신랑 신부, 입장!」 여섯 줄이
@@ -6394,3 +6402,23 @@ chk 'RETIRED.has' scripts/audit/cast-text-audio.mjs 1
 #   «주석과 실측이 같은가»다. 이름도 주석이 원천이다.
 chk 'CAP_NAME_READ' scripts/check-narr-len.mjs 1
 nochk "!== 'declare-1-solemn'" scripts/check-narr-len.mjs
+
+# ★★[MUNAN_REST 2026-09-09 사장님 지시 "내가 지적한 멘트 전부 누락 하나도 없는지 하나하나체크"]
+#   33개 개정 항목을 «옛 글이 아직 있나 / 새 글이 들어갔나» 두 축으로 다시 쟀다.
+#   앞 커밋의 배역 13클립 말고도 나레이션에 아홉 자리가 남아 있었다 — 전부 넣었다.
+#   ★넣지 «않은» 것도 적어 둔다(다음 점검이 또 붉지 않게): 음료·「직접」·케이크는 뒤 대화가 이겼고,
+#     E-6~E-11 은 나중 문서(감동 구간)가 이겨 이미 들어갔다.
+#   ★TONE_TABLE(생성구역)에 같은 문장이 또 있는 자리가 있다 — 어조 mp3 186개가 걸려 있어
+#     사장님 결정 전에는 손대지 않는다. 축배가 그 예다(실황 2곳만 바꿨다).
+chk 'MUNAN_REST' scripts/apply-munan-rest.mjs 1
+chk '화면으로 함께해 주시는 분들, 반갑습니다' assets/ritual-cue.js 1
+chk '이제 두 분 손에 같은 것이 하나씩 생겼습니다' assets/ritual-data.js 2
+chk '이제 두 사람은 부부입니다. 다 함께 축하해 주세요' assets/ritual-data.js 1
+nochk '선언은 가족의 목소리로 남았습니다' assets/ritual-data.js
+nochk '두 사람이 한 바퀴를 거의 마쳤습니다' assets/ritual-data.js
+nochk '여러분과 두 분이 함께 찍는 시간은' assets/ritual-data.js
+# ★★[ENTRY_HOLD 2026-09-09] 「신랑 신부, 입장!」 앞에 1.2초.
+#   *"신랑신부 조금 쉬다가 입장하는 게 좋을 것 같아. 너무 바로 입장 아니깐 어색해 긴장도 없고"*
+#   고칠 것이 글이 아니라 «간격»이었다. 소리를 다시 받을 필요는 없다 — 다시 붙이기만 하면 된다.
+chk 'ENTRY_HOLD' scripts/build-typecast-import.mjs 1
+chk 'before = 1.2' scripts/build-typecast-import.mjs 1

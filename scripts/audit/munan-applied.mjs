@@ -34,7 +34,9 @@ const doc = fs.readFileSync(DOC, 'utf8').split('\n');
 const strip = (s) => s.replace(/\*\*/g, '').replace(/`/g, '').trim();
 let head = '', total = 0, missing = [];
 for (const [i, l] of doc.entries()) {
-  if (/^## /.test(l)) head = l.replace(/^##\s*/, '').trim();
+  /* ★머리는 #·##·### 셋 다 쓴다 — ## 만 보면 A~C절의 ### 항목이 전부 앞 ## 로 뭉쳐
+     「이름 통일」 밑에 하객 안내 문장이 달리는 엉뚱한 보고가 나온다(실제로 그랬다). */
+  if (/^#{1,3} /.test(l)) head = l.replace(/^#{1,3}\s*/, '').trim();
   const m = /^\|\s*\*\*바꿈\*\*\s*\|(.*)\|\s*$/.exec(l);
   if (!m) continue;
   const sents = m[1].split('/').map(strip).filter((s) => s && !/^\(|^삭제|^없음/.test(s));
