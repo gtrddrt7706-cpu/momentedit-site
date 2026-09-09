@@ -36,12 +36,16 @@
      merge-guard 에 심어 두었다(STAGE_REVIEW_DOOR) — 문이 사라지면 초당 단위로 잡힌다.
      상태공간 자체가 바뀌는 변경(단계 추가·가드 변경)을 했을 때 손으로 한 번 돌린다.
 */
-import { openWorld, kstAgo, kstAhead } from './_gasworld.mjs';
+import { openWorld, kstAgo, kstAhead, kstAheadWeekday } from './_gasworld.mjs';
 
 /* ★[KST_AHEAD 2026-09-05 점검] 상담 날짜를 «지금 기준 미래»로 — 고정 리터럴이 과거가 되면
    서버의 PAST_SLOT_REJECT 가 «정상적으로» 거절해 그 문이 닫히고, 상태 그래프가 줄어
    「비상구 없이는 앞으로 못 간다」가 뜬다(실측: 7497→6055 상태 · 실패 4건). 다시 썩지 않게 계산한다. */
-const CONSULT_YMD = kstAhead(45), PROPOSE_YMD = kstAhead(46);
+/* ★[KST_WEEKDAY] 상담 날짜는 «평일»이어야 한다 — 주말 슬롯엔 '14:50' 이 없어 서버가 정상 거절한다.
+   오늘+45 가 토·일이면 통째로 붉었다(2026-09-09 실측). _gasworld.mjs 의 주석 참고. */
+/* ★둘은 «서로 달라야» 한다 — 45(토)·46(일)이 둘 다 같은 월요일로 붙으면 «다른 날 제안»이 안 된다.
+   그래서 46 이 아니라 «그 다음 평일»(skip=1)로 잡는다. */
+const CONSULT_YMD = kstAheadWeekday(45), PROPOSE_YMD = kstAheadWeekday(45, 1);
 
 const VERBOSE = process.argv.includes('--verbose');
 const { G, world } = openWorld();

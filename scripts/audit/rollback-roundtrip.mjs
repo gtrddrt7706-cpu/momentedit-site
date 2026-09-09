@@ -16,10 +16,12 @@
 
    사용: node scripts/audit/rollback-roundtrip.mjs
 */
-import { openWorld, kstAgo, kstAhead } from './_gasworld.mjs';
+import { openWorld, kstAgo, kstAhead, kstAheadWeekday } from './_gasworld.mjs';
 
 /* [KST_AHEAD] 날짜를 지금 기준 미래로 — 고정 리터럴이 과거가 되어 서버가 거절하던 것을 막는다(모듈 전역) */
-const CONSULT_YMD = kstAhead(45), WEDDING_YMD = kstAhead(150);
+/* ★[KST_WEEKDAY] 상담 날짜는 «평일»이어야 한다 — 주말 슬롯엔 '14:50' 이 없어 서버가 정상 거절한다.
+   오늘+45 가 토·일이면 통째로 붉었다(2026-09-09 실측). _gasworld.mjs 의 주석 참고. */
+const CONSULT_YMD = kstAheadWeekday(45), WEDDING_YMD = kstAhead(150);
 
 const { G, world } = openWorld();
 const REAL = G.setCustomerStage;

@@ -121,6 +121,28 @@ export const kstAhead = (days) => {
   return `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}`;
 };
 
+/* ★★[KST_WEEKDAY 2026-09-09 게이트가 토요일에 붉었다] 미래 날짜에 더해 «평일»까지 맞춘다.
+   [KST_AHEAD] 는 날짜가 «과거가 되는 것»만 막았다. 그런데 상담 슬롯은 요일마다 다르다 —
+   평일 ['11:30','14:50','18:10','19:30'] · 주말 ['18:20'] (consultation-booking.gs slotsForDate).
+   시뮬레이터는 시간을 '14:50' 으로 박아 두므로, 오늘+45 가 토·일이면 그건 «없는 시간»이 되고
+   서버가 «정상적으로» 거절해 여정이 통째로 막힌다.
+   ★실측: 2026-09-08(+45=금) 초록 → 자정을 넘겨 2026-09-09(+45=토) 붉음.
+     제품은 한 줄도 안 바뀌었다. 바꾼 것은 달력이다 — 게이트가 7일 중 2일 붉었다는 뜻이다.
+   ★날짜 부패의 «두 번째 축»이다. 첫 축(과거가 됨)만 막고 이 축을 안 막으면 같은 사고가 돌아온다.
+   skip = 그 뒤로 더 건너뛸 평일 수. 서로 «달라야» 하는 날짜 둘을 만들 때 쓴다 —
+          45(토)와 46(일)이 둘 다 같은 월요일로 붙어 버리는 것을 막는다. */
+export const kstAheadWeekday = (days, skip = 0) => {
+  const z = (n) => String(n).padStart(2, '0');
+  const d = new Date(Date.now() + days * 86400e3 + 9 * 3600e3);
+  let left = skip;
+  for (;;) {
+    const wd = d.getUTCDay();                       // +9h 를 더한 뒤라 이게 KST 요일이다
+    if (wd !== 0 && wd !== 6) { if (left === 0) break; left--; }
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}`;
+};
+
 export const kstAgo = (hoursAgo) => {
   const d = new Date(Date.now() - hoursAgo * 3600e3 + 9 * 3600e3);
   const z = (n) => String(n).padStart(2, '0');
