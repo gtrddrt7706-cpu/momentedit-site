@@ -6302,3 +6302,10 @@ chk 'wordmark-only.webp' privacy.html 1
 #   png src 는 «지운 게 아니라 webp 미지원 폴백»이라 남아 있는 게 맞다. 금지할 대상이 아니었다.
 #   되돌림의 실제 신호는 «옛 onerror 형태»다. picture 를 벗기면 그게 돌아온다.
 nochk 'var f=this.nextElementSibling' index.html            # picture 없이 png 직접으로 되돌리지 말 것
+
+# ★★[ROUND_CLOSED 2026-09-09 사용자 결정 「큰 것 셋만 하고 종료」] 보류함을 §13-2 에 못 박았다.
+#   상한 16px · 죽은 클래스 80종 · 라운드 4 · 섹션 경계 84px · 레일 겹침 시각 — 다섯 다 보류.
+#   ★오픈 후 «실제 유입 데이터»가 쌓이기 전까지 다시 제안하지 않는다. 추측으로 열지 않는다.
+#     다시 올리려면 새 근거(실유입·실기기 제보)를 먼저 가져와야 한다.
+chk 'ROUND_CLOSED\|오픈 전까지 다시 올리지 않는다' docs/handoff/round-protocol.md 1
+chk 'SIZE_HEADER_LIE' docs/handoff/round-protocol.md 1
