@@ -82,6 +82,39 @@ for(const url of ['/g/','/g/a%2Fb']){
   await page.close();
 }
 
+/* ★★[SLASH_BOTH 2026-09-11 점검] 꼬리 슬래시 — «한 층이 받는 걸 다른 층이 막는» 어긋남을 고정한다.
+   실제로 걸린 것: guide.html 의 guideToken() 은 /^\/g\/(…)\/?$/ 로 꼬리 슬래시를 «받는다»고 써 있었는데,
+   vercel.json 라우트는 ^…$ 로 끝나 그 주소가 아예 guide.html 까지 못 갔다 — 404. 관용이 죽은 코드였다.
+   ★그래서 여기서 «양쪽 철자»를 다 연다. 토큰 글자집합에 / 가 없으니 /g/a/b 는 여전히 안 열린다(아래에서 확인). */
+console.log('\n══ ①-3 꼬리 슬래시 — 두 철자가 같은 화면을 연다 ══');
+for(const [url, want] of [['/g/G1a2b3c4d5e6f7a/','G1a2b3c4d5e6f7a'],['/g/demo/','__DEMO__']]){
+  const {page}=await eng.newPage({port:PORT,viewport:{width:390,height:844}});
+  await page.route('**://script.google.com/**', r=>r.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:GUIDE}));
+  const res=await page.goto(`http://localhost:${PORT}${url}`,{waitUntil:'load'}).catch(()=>null);
+  await page.waitForTimeout(1200);
+  const code=res?res.status():0;
+  const txt=await page.evaluate(()=>document.body.innerText||'');
+  const 열림 = code===200 && !/잘못된 주소/.test(txt);
+  (열림? good : fail)(`${url.padEnd(22)} → ${code||'실패'} · ${열림?'화면이 선다':'★안 열린다'} (${want})`);
+  await page.close();
+}
+/* 관용이 너무 넓어지지 않았는지 — 토큰 안에 / 는 여전히 못 들어간다 */
+for(const u of ['/g/a/b','/g//']) (rewrite(u)===u? good : fail)(`rewrite(${u.padEnd(8)}) → 그대로 (여전히 안 받는다)`);
+
+/* ★★[FORM_ONE 2026-09-11 점검] /form 은 «한 장»이어야 한다.
+   form/index.html 이라는 사본이 아무도 안 가리킨 채 따로 늙었다(og:title 이 집 관례 밖 · 브랜드 스크롤바 규칙 빠짐 ·
+   og:image 한 판 뒤처져 #604 가 따라잡히느라 커밋을 한 번 씀). 사본이 «있으면» handle:filesystem 이 먼저 먹어
+   /form/ 가 그 낡은 사본을 내준다 — 그래서 사본 없음이 라우트의 전제다. */
+console.log('\n══ ①-4 /form 은 한 장인가 ══');
+(!fs.existsSync(path.join(ROOT,'form/index.html'))? good : fail)('form/index.html 사본 없음 (있으면 /form/ 가 낡은 사본을 내준다)');
+for(const u of ['/form','/form/','/admin/','/schedule/','/cancel/']){
+  const {page}=await eng.newPage({port:PORT,viewport:{width:390,height:844}});
+  const res=await page.goto(`http://localhost:${PORT}${u}`,{waitUntil:'domcontentloaded'}).catch(()=>null);
+  const code=res?res.status():0;
+  (code===200? good : fail)(`${u.padEnd(12)} → ${code||'실패'} (200 이어야 한다)`);
+  await page.close();
+}
+
 console.log('\n══ ①-2 경로 형태에서 «사진 올리기»가 같은 토큰을 쓰는가 ══');
 /* ★고친 것이 bindGuestUpload 의 토큰 출처(qp→guideToken)라, 화면이 뜨는 것만으로는 부족하다.
    실제로 파일을 올려 guestPhoto 요청의 g 가 경로의 토큰과 같은지 본다. */
