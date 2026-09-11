@@ -6326,6 +6326,21 @@ chk 'SIZE_HEADER_LIE' docs/handoff/round-protocol.md 1
 #     라우트 검사는 정규식이 아니라 «그 주소로 들어갔을 때 화면이 서는가»로 한다.
 #   ★guide.html 의 정규식과 vercel.json 의 라우트는 «같은 문자 집합»이어야 한다. 어긋나면 한쪽만 열린다.
 chk 'GUIDE_PATH_READ' guide.html 1
+
+# ★★[SLASH_BOTH 2026-09-11 점검] 꼬리 슬래시 — «한 층이 받는 걸 다른 층이 막는» 어긋남.
+#   guide.html 의 guideToken() 은 /^\/g\/(…)\/?$/ 로 꼬리 슬래시를 «받는다»고 써 있었는데,
+#   vercel.json 라우트가 ^…$ 로 끝나 그 주소는 guide.html 까지 가지도 못했다 — 404. 관용이 죽은 코드였다.
+#   ★고객 링크는 mypage 가 슬래시 없이 만든다. 그래도 사람이·메신저가 하나 붙이면 하객은 404 만 본다.
+#   짧은 주소 넷(form·admin·schedule·cancel)도 같은 모양이라 한 규칙으로 묶었다 — «짧은 주소는 두 철자를 다 받는다».
+#   ★토큰 글자집합에 / 가 없어 /g/a/b·/g// 는 여전히 안 받는다(guide-path-route ①-3 이 고정).
+chk '/?\$' vercel.json 5
+chk 'SLASH_BOTH' scripts/audit/guide-path-route.mjs 1   # 실검사는 ①-3 — 구간이 통째로 지워지면 여기서 걸린다
+
+# ★★[FORM_ONE 2026-09-11 점검] /form 은 «한 장»이다 — 사본을 되살리지 말 것.
+#   form/index.html 이 아무도 안 가리킨 채 따로 늙었다: og:title 이 집 관례(MOMENT EDIT · <이름>) 밖으로 갔고,
+#   브랜드 스크롤바 규칙이 빠졌고, og:image 가 한 판 뒤처져 #604 가 «따라잡히느라» 커밋을 한 번 썼다.
+#   ★handle:filesystem 이 라우트보다 앞이라, 사본이 있으면 /form/ 가 그 낡은 사본을 내준다. 사본 없음이 라우트의 전제다.
+chk 'FORM_ONE' form.html 1
 chk 'function guideToken' guide.html 1
 chk 'A-Za-z0-9_-]{1,64}' guide.html 1                    # vercel.json 라우트와 같은 문자 집합
 nochk "var token=qp('g')" guide.html                      # 경로를 못 읽는 옛 형태로 되돌리지 말 것
