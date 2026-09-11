@@ -6526,3 +6526,10 @@ chk '앞으로는 자주 찾아뵙겠습니다' 'docs/plans/식순연구/배역_
 chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 nochk '진짜로요' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★★[NAME_PREFIX 2026-09-11 사장님 "대본 자동으로 성우이름까지 적용될수있게해서 파일만들어"]
+#   0_전체_화자표기.txt 는 줄마다 «화자: 대사» 다 — 타입캐스트가 그 이름으로 화자를 배정한다.
+#   ★대장 차례 그대로다. 성우별로 묶으면 조립기가 자리를 못 찾는다.
+#   ★★성우별 낱개 파일에는 이름을 붙이지 «않는다» — 화자를 이미 고른 뒤 붙여넣는 파일이라
+#     이름이 붙어 있으면 그대로 소리로 읽힌다(PASTE_WRONG_FILE 사고가 그것이었다). 두 꼴을 섞지 말 것.
+chk 'NAME_PREFIX' scripts/build-redub-byvoice.mjs 1
+chk '0_전체_화자표기.txt' scripts/build-redub-byvoice.mjs 1

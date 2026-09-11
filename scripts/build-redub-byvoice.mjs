@@ -80,6 +80,24 @@ rows.forEach(([v, l], n) => {
   order[v] = l.map((x, k) => ({ n: k + 1, clip: x.clip, i: x.i, text: x.text }));
 });
 fs.writeFileSync(path.join(OUT, '_순서.json'), JSON.stringify(order, null, 1));
+
+/* ★★[NAME_PREFIX 2026-09-11 사장님 "대본 자동으로 성우이름까지 적용될수있게해서 파일만들어"]
+   한 파일에 전부 담되 줄마다 «화자: 대사» 로 적는다. 타입캐스트가 그 이름으로 화자를 배정하므로
+   성우를 일곱 번 고를 일이 없어진다.
+   ★대장 차례 그대로다 — 성우별로 묶지 않는다. 묶으면 조립기가 자리를 못 찾는다.
+   ★★[PASTE_WRONG_FILE] 성우별 낱개 파일에는 이름을 «붙이지 않는다».
+     그 파일은 화자를 이미 고른 뒤 붙여넣는 것이라, 이름이 붙어 있으면 그대로 읽힌다.
+     실제로 예전에 주석이 달린 파일을 붙여넣어 머리말이 소리로 나온 적이 있다. 두 꼴을 섞지 말 것. */
+const flat = [];
+for (const c of man.clips) {
+  if (c.mix || RETIRED.has(c.file)) continue;
+  const key = pad2(c.no) + '_' + c.file;
+  const said = rec[(c.dir || NAR) + '|' + key];
+  if (said !== undefined && norm(said) === norm(c.sents.map((s) => s.text).join(' '))) continue;
+  for (const s of c.sents) flat.push(`${VOICE[s.role || c.role]}: ${s.text}`);
+}
+fs.writeFileSync(path.join(OUT, '0_전체_화자표기.txt'), flat.join('\n') + '\n');
+console.log(`  ${'전체'.padEnd(6)} ${String(flat.length).padStart(4)}줄  ← 0_전체_화자표기.txt (화자: 대사 · 한 번에)`);
 fs.writeFileSync(path.join(OUT, 'README.md'),
   ['# 다시 받을 대본 (자동 생성 · 손으로 고치지 마세요)', '',
    '`node scripts/build-redub-byvoice.mjs --write` 가 만듭니다.', '',
