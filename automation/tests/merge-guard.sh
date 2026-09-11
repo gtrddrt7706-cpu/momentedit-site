@@ -5826,3 +5826,8 @@ chk 'FILE_COVER_SINCE' scripts/audit/deploycheck-coverage.mjs 2
 chk 'GRANT_FACTS' docs/국가지원금/근거데이터_외부통계.md 1   # 외부 숫자 단일 보관처 — 지우지 말 것
 chk 'FILE_COVER' CLAUDE.md 1
 chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
+
+# [RULE_MEASURED 2026-09-11] 잰 것과 낸 것이 같은 물건인가 — 재고 나서 고치면 잰 값은 죽는다.
+#   코워크가 len() 으로 제대로 쟀는데 +99 로 틀렸다. 재고 나서 문장을 고쳤고 다시 안 쟀다(실제 +96).
+#   [NOT_THE_SOURCE] 는 「도구로 재라」인데, 이건 그 다음 구멍이다 — 도구로 쟀어도 대상이 바뀌면 죽는다.
+chk 'RULE_MEASURED' CLAUDE.md 1
