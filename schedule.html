@@ -1249,7 +1249,17 @@ if(_hdw){
 (function(){
   function $(i){return document.getElementById(i);}
   function fail(msg){ /* [SCHED_FAIL_AA] 오류 화면도 고객이 실제로 보는 면이다 — 링크색 #9A7F5F는 2.6:1 미달이라 텍스트용 골드로. main 랜드마크도 유지한다. */
-    document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'+msg+'<br><br><a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>'; }
+    /* ★[SCHED_FAIL_H1 2026-09-11 점검] 이 함수는 body 를 «통째로» 갈아치운다 — 그때 532행의 <h1>
+       까지 지워져 오류 화면엔 제목이 하나도 없었다(실측: document.querySelectorAll('h1').length === 0).
+       낭독기로 들어온 사람은 이 쪽이 무슨 화면인지 알 길이 없다.
+       ★첫 <br> 앞을 제목으로 올린다 — 네 호출부가 전부 「제목.<br>설명」 꼴이다.
+       ★모양은 안 바꾼다: font:inherit·margin:0 으로 UA 기본값을 지우고, 제목이 블록이라
+         원래 있던 첫 <br> 은 뺀다(실측 main 높이 284px → 284px 동일 · 390/1280 둘 다). */
+    var _i=msg.indexOf('<br>');
+    var _head=(_i<0?msg:msg.slice(0,_i)), _rest=(_i<0?'':msg.slice(_i+4));
+    document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'
+      +'<h1 style="font:inherit;margin:0">'+_head+'</h1>'+_rest
+      +'<br><br><a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>'; }
   var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'');
   var me=new URLSearchParams(location.search).get('me');
   if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.'); return; }

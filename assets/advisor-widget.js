@@ -430,7 +430,10 @@
       _locked = false;
     }
   }
+  var opener = null;   // [ADV_FOCUS_BACK] 패널을 연 요소 — 닫을 때 여기로 돌려준다
   function open() {
+    /* [ADV_FOCUS_BACK] 연 자리를 기억해 둔다 — close() 가 여기로 포커스를 돌려준다 */
+    try { var _a = document.activeElement; opener = (_a && _a !== document.body) ? _a : null; } catch (e) { opener = null; }
     panel.classList.add('open'); stackEl.classList.add('hide');
     backdrop.classList.add('open');
     lockScroll();
@@ -448,10 +451,33 @@
        대신 **패널 자체**(tabindex=-1)를 잡는다. 스크립트 포커스 링은 CSS 가 끈다(ASK_FOCUS_BOX 와 같은 수법). */
     setTimeout(function () { if (window.innerWidth > 680) input.focus(); else try { panel.focus(); } catch (e) {} }, 480);
   }
+  /* ★★[ADV_FOCUS_BACK 2026-09-11 점검] 닫을 때 «열었던 자리»로 포커스를 돌려준다.
+     종전에는 안 돌려줬다(실측: Escape 뒤 activeElement 가 엉뚱한 A 로 남았다). 키보드·낭독기 사용자는
+     쪽 맨 위부터 다시 Tab 해서 레일까지 내려와야 했다 — 열기는 쉬운데 «되돌아오기»가 비쌌다.
+     ★돌려줄 자리가 화면에서 사라졌으면(레일이 다시 숨는 등) 억지로 잡지 않는다. */
+  function _advRestoreFocus(el){
+    /* ★[ADV_FOCUS_WAIT 2026-09-11 점검] 레일은 닫은 «뒤 약 460ms» 동안 visibility:hidden 이다
+       (패널 슬라이드 .46s 와 맞춘 전환 · 실측). 그래서 tick 0 에 잡으려 하면 숨은 요소라 거부되고
+       포커스는 BODY 에 남는다 — 복귀 코드가 있는데도 영영 안 돈 이유가 이것이었다.
+       ★보일 때까지 프레임마다 기다렸다 잡는다(최대 ~1초). 그 사이 사용자가 다른 데를 잡았으면 뺏지 않는다. */
+    if(!el) return; var tries=0;
+    (function tick(){
+      if(!document.contains(el)) return;
+      var a=document.activeElement;
+      /* ★닫은 «뒤»에도 포커스는 숨은 패널 안(입력칸)에 남아 있다 — BODY 가 아니다(실측).
+         그래서 «BODY 일 때만»으로 양보하면 복귀가 영영 안 돈다. 양보는 «패널 밖»으로 옮겨갔을 때만 한다. */
+      if(a && a!==document.body && !panel.contains(a)) return;
+      var v=''; try{ v=getComputedStyle(el).visibility; }catch(e){ return; }
+      if(v!=='hidden'){ try{ el.focus({preventScroll:true}); }catch(e){} return; }
+      if(++tries>60) return;                          // 레일 전환 .46s — 1초까지만 기다린다
+      requestAnimationFrame(tick);
+    })();
+  }
   function close() {
     panel.classList.remove('open'); stackEl.classList.remove('hide');
     backdrop.classList.remove('open');
     unlockScroll();
+    var back = opener; opener = null; _advRestoreFocus(back);
   }
   // 특정 화면에서 아이콘 스택 숨김(예: 마이페이지 로그인 뷰) — CFG.hideOn()이 true인 동안 비노출
   if (typeof CFG.hideOn === 'function') {
@@ -505,6 +531,21 @@
     });
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
+
+  /* ★★[ADV_FOCUS_TRAP 2026-09-11 점검] 패널은 role="dialog" aria-modal="true" 로 «모달»이라 선언한다.
+     그런데 Tab 이 밖으로 샜다(실측: 3번째 Tab 에서 뒤쪽 .skip-link 로 나갔다). 선언과 동작이 어긋나면
+     낭독기 사용자는 «닫지 않았는데 뒷 쪽을 읽고 있는» 상태가 된다 — 어디 있는지 알 수 없다.
+     ★배경에 inert 를 걸지 않는 것은 이 파일의 기존 선택이다(위 패널 CSS 주석 — 열림 표시가 .open 하나뿐이라
+       CSS 로만 움직인다). 그 선택을 지키면서 Tab 만 감는다. */
+  panel.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab' || !panel.classList.contains('open')) return;
+    var f = [].slice.call(panel.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])'))
+      .filter(function (el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1], a = document.activeElement;
+    if (e.shiftKey && (a === first || a === panel)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
+  });
 
   input.addEventListener('input', function () {
     input.style.height = 'auto';

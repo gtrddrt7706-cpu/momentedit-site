@@ -6392,6 +6392,45 @@ if command -v node >/dev/null 2>&1; then
   elif [ "$_advt" != "0" ]; then echo "FAIL advisor-tree-sim(exit $_advt): 챗봇 대화트리 — node scripts/audit/advisor-tree-sim.mjs"; fail=1
   else echo 'ok advisor-tree-sim: 대화트리 전수 + 실제 클릭'; fi
 fi
+
+# ★★[PUBLIC_SWEEP 2026-09-11 점검] 고객이 여는 쪽 «전부»를 한 번에 훑는다.
+#   왜: a11y 를 보는 감사는 home-a11y 하나였고 그건 «홈만» 봤다. 메타·캐노니컬은 감사가 아예 0개였다 —
+#   form.html 이 캐노니컬로 /form.html 을, og:url 로 /form 을 가리키던 것을 사람이 손으로 찾았다.
+#   ★탭 타깃은 WCAG 2.5.8 «24x24 + 간격 예외»로 잰다(44는 AAA). 간격 예외를 빼고 크기만 보면
+#     멀쩡한 것이 무더기로 잡힌다 — 실제로 갤러리 11개(18px·22px 간격·중심 간 40px)가 그렇게 잡혔었다.
+#   ★noindex 쪽에 meta description 을 요구하지 않는다(검색 미리보기용이라 뜻이 없다).
+#   ★form.html 은 구글폼으로 즉시 이동해 DOM 이 이미 다른 문서다 — 그 쪽만 소스로 본다.
+chk 'PUBLIC_SWEEP' scripts/audit/public-sweep.mjs 1
+chk 'FORM_LABEL' inquiry.html 2        # 입력칸 2개의 프로그래밍 라벨(낭독기가 「편집란, 비어 있음」으로 읽던 것)
+chk 'aria-labelledby' inquiry.html 2
+chk 'CAN_EXIT' cancel.html 1           # 종착 화면에서 «말한 길»(카카오톡)을 실제로 열어 준다
+chk 'SCHED_FAIL_H1' schedule.html 1    # body 를 갈아치우며 h1 까지 지우던 오류 화면
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/public-sweep.mjs >/dev/null 2>&1; _psw=$?
+  if [ "$_psw" = "2" ]; then echo 'skip public-sweep (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_psw" != "0" ]; then echo "FAIL public-sweep(exit $_psw): 공개 쪽 a11y·메타 — node scripts/audit/public-sweep.mjs"; fail=1
+  else echo 'ok public-sweep: 공개 10쪽 a11y·메타·탭타깃·404·사이트맵'; fi
+fi
+
+# ★★[ADVISOR_UX 2026-09-11 점검] 챗봇을 «키보드로 · 막혔을 때» 쓴다.
+#   ①패널은 role="dialog" aria-modal="true" 로 모달이라 선언해 놓고 Tab 이 밖으로 샜다(실측 3번째 Tab).
+#     선언과 동작이 어긋나면 낭독기 사용자는 «닫지도 않았는데 뒷 쪽을 읽는» 상태가 된다.
+#   ②닫아도 포커스가 안 돌아왔다. 복귀 코드는 있었는데 레일이 닫은 뒤 ~460ms 동안 visibility:hidden 이라
+#     그 사이에 잡으려다 거부됐다 — 보일 때까지 기다렸다 잡는다([ADV_FOCUS_WAIT]).
+#   ★★위젯은 «두 벌»이다 — index.html 은 인라인 사본, 나머지는 assets/advisor-widget.js.
+#     한쪽만 고치면 그 쪽만 낫는다(실제로 파일만 고쳐 놓고 «고쳤다»고 할 뻔했다). 그래서 둘 다 연다.
+chk 'ADVISOR_UX' scripts/audit/advisor-ux-sim.mjs 1
+chk 'ADV_TWO_COPIES' scripts/audit/advisor-ux-sim.mjs 1
+chk 'ADV_FOCUS_TRAP' index.html 1
+chk 'ADV_FOCUS_TRAP' assets/advisor-widget.js 1
+chk 'ADV_FOCUS_WAIT' index.html 1
+chk 'ADV_FOCUS_WAIT' assets/advisor-widget.js 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-ux-sim.mjs >/dev/null 2>&1; _aux=$?
+  if [ "$_aux" = "2" ]; then echo 'skip advisor-ux-sim (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_aux" != "0" ]; then echo "FAIL advisor-ux-sim(exit $_aux): 챗봇 키보드·실패화면 — node scripts/audit/advisor-ux-sim.mjs"; fail=1
+  else echo 'ok advisor-ux-sim: 키보드(두 사본) + 서버 죽었을 때 4갈래'; fi
+fi
 else echo 'skip guide-path-route (node 없음)'; fi
 chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
 

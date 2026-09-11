@@ -719,10 +719,14 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal)}
 
     <!-- 원하시는 분위기·스냅 스타일 (textarea) -->
     <div class="field-group">
-      <span class="field-group-label">원하시는 분위기 · 스냅 스타일 <span style="color:var(--light);font-weight:300">(선택)</span></span>
+      <span class="field-group-label" id="refMoodLabel">원하시는 분위기 · 스냅 스타일 <span style="color:var(--light);font-weight:300">(선택)</span></span>
+      <!-- ★[FORM_LABEL 2026-09-11 점검] 화면엔 이름이 있는데 «프로그래밍 라벨»이 없어 낭독기가
+           「편집란, 비어 있음」으로만 읽었다. 이 쪽의 다른 칸은 전부 <label for=""> 을 쓰는데 여기만
+           <span> 이라 빠졌다. 보이는 글을 그대로 가리켜 «한 원천»으로 묶는다(aria-label 로 베끼면 갈린다). -->
       <div class="ref-textarea-wrap">
         <textarea
           id="refMood"
+          aria-labelledby="refMoodLabel"
           name="원하는 분위기"
           class="ref-textarea"
           maxlength="500"
@@ -864,14 +868,16 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal)}
     <div class="sec-head">
       <span class="sec-num">Nº 05</span>
       <div>
-        <h2 class="sec-title">기타 문의사항</h2>
+        <h2 class="sec-title" id="storyLabel">기타 문의사항</h2>
       </div>
       <span class="sec-optional">Optional <span class="ko">· 선택</span></span>
     </div>
 
+    <!-- ★[FORM_LABEL 2026-09-11 점검] 위와 같은 이유 — h2 를 가리킨다 -->
     <div class="story-wrap">
       <textarea
         id="story"
+        aria-labelledby="storyLabel"
         name="기타 문의사항"
         class="story-textarea"
         maxlength="1500"
