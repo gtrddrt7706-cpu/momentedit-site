@@ -6341,6 +6341,18 @@ chk 'SLASH_BOTH' scripts/audit/guide-path-route.mjs 1   # 실검사는 ①-3 —
 #   브랜드 스크롤바 규칙이 빠졌고, og:image 가 한 판 뒤처져 #604 가 «따라잡히느라» 커밋을 한 번 썼다.
 #   ★handle:filesystem 이 라우트보다 앞이라, 사본이 있으면 /form/ 가 그 낡은 사본을 내준다. 사본 없음이 라우트의 전제다.
 chk 'FORM_ONE' form.html 1
+
+# ★★[FAQ_DINE_BAND 2026-09-11 점검] 화면이 공개한 식사 가격대를 AI 도 같은 말로 해야 한다.
+#   2026-08-03 에 홈 FAQ·JSON-LD 가 「1인 2.5~4만 원대 · 25명 약 60~100만」을 «일부러» 공개했다(통점 A-3 깜깜이 가격).
+#   수치 출처는 mypage.html _DN_PPR(low 1.5~2만 / mid 2.5~4만 / high 5~8만) + 식당 80곳 분포(mid 61·low 13·high 6).
+#   ★그런데 AI 지식 2곳만 그 결정을 못 따라갔다 — 「가격대는 상담에서」로 답하고 사람에게 넘겼다(escalate).
+#   고객은 FAQ 에서 숫자를 읽은 직후 챗봇에서 「모른다」를 들었다. 그래서 같은 헤지로 맞췄다.
+#   ★'식대'는 여전히 없는 개념이다 — 금액을 붙이면 안 된다(ai-live-sim-ci N6 의 forbid 가 잰다).
+chk '2.5~4만' api/_kb.js 1
+chk '2.5~4만' assets/advisor-kb.js 1
+chk '2.5~4만' index.html 5   # FAQ 02 박스·FAQ 08 본문·JSON-LD 2곳·FAQ_DINE_BAND 주석 — 하나라도 빠지면 화면끼리 어긋난다
+nochk '가격대·메뉴는 식당마다 달라 단정하지 않는다' api/_kb.js
+nochk '구체적인 메뉴와 가격대는 상담에서 함께 정리해 드립니다' assets/advisor-kb.js
 chk 'function guideToken' guide.html 1
 chk 'A-Za-z0-9_-]{1,64}' guide.html 1                    # vercel.json 라우트와 같은 문자 집합
 nochk "var token=qp('g')" guide.html                      # 경로를 못 읽는 옛 형태로 되돌리지 말 것
