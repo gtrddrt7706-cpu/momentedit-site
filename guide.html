@@ -406,6 +406,20 @@ function $(id){ return document.getElementById(id); }
 })();
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
+/* ★★[GUIDE_PATH_READ 2026-09-11 점검에서 발견 · 내가 만든 결함] /g/<토큰> 이 «아예 안 열렸다».
+   vercel.json 의 dest 는 «서버» rewrite 다 — 서버는 /guide.html?g=<토큰> 을 보지만
+   브라우저 주소는 /g/<토큰> 그대로라 location.search 가 «비어 있다».
+   그래서 qp('g') 가 빈 값을 돌려주고 「잘못된 주소예요」 화면이 떴다.
+   ★카톡 잘림을 고치려고 넣은 링크가, 잘리기 전에 이미 안 열리는 링크였다(2026-09-09 ~ 09-11 배포됨).
+   ★근거: 커밋 메시지에 「rewrite 라 서버에서 붙는다」고 적었는데, 서버에서 붙는 것과
+     «클라이언트 JS 가 읽는 것»은 다른 일이다. 렌더로 확인했으면 그날 잡혔다.
+   ★경로에서도 읽는다. ?g= 가 있으면 그쪽이 우선 — 이미 나간 링크가 계속 이긴다.
+     정규식은 vercel.json 의 라우트와 «같은» 문자 집합이다(둘이 어긋나면 한쪽만 열린다). */
+function guideToken(){
+  var q=qp('g'); if(q) return q;
+  try{ var m=/^\/g\/([A-Za-z0-9_-]{1,64})\/?$/.exec(location.pathname||''); return m? m[1] : ''; }
+  catch(e){ return ''; }
+}
 function fmtDate(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
   var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]);
@@ -510,7 +524,7 @@ function gpSay(msg, kind){
 function bindGuestUpload(){
   var pick=document.getElementById('gpPick'), inp=document.getElementById('gpFile');
   if(!pick||!inp) return;
-  var token=qp('g'); if(!token) return;
+  var token=guideToken(); if(!token) return;   // [GUIDE_PATH_READ] 경로 형태(/g/<토큰>)도 받는다
   var busy=false, failed=[], rest=[];   // rest = 한 번에 고를 수 있는 장수를 넘겨 «아직 안 보낸» 사진들
   pick.addEventListener('click', function(){ if(!busy) inp.click(); });
   /* ★★[GP_OVER_PICK 2026-08-22 병렬 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면 «말없이» 잘렸다.
@@ -1037,7 +1051,7 @@ function renderDemo(){
   }
 }
 (function boot(){
-  var g=qp('g');
+  var g=guideToken();   // [GUIDE_PATH_READ] 경로 형태(/g/<토큰>)도 받는다
   if(g==='demo'){ try{ renderDemo(); }catch(e){ $('root').innerHTML=stateHtml('샘플을 불러오지 못했어요.','',0); } return; }   // [GUIDE_DEMO]
   if(!g){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
   var cacheKey='me_guide_'+g;
