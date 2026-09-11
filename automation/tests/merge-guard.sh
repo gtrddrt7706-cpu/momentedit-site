@@ -5831,3 +5831,7 @@ chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
 #   코워크가 len() 으로 제대로 쟀는데 +99 로 틀렸다. 재고 나서 문장을 고쳤고 다시 안 쟀다(실제 +96).
 #   [NOT_THE_SOURCE] 는 「도구로 재라」인데, 이건 그 다음 구멍이다 — 도구로 쟀어도 대상이 바뀌면 죽는다.
 chk 'RULE_MEASURED' CLAUDE.md 1
+
+# [OPS_ANSWER_0911 2026-09-11] 운영기관 2차 답변 — 권역 비율은 비례배분과 «함께» 적용된다(내 종전 판단 정정)
+#   + 회수하기 실재하나 «회수 중 기관이 100% 차면 그 기관 선택 불가» 함정. 회수-수정 전략 폐기 근거.
+chk 'OPS_ANSWER_0911' docs/국가지원금/운영기관답변_2026-09-11.md 1
