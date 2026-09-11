@@ -83,9 +83,13 @@ if(!TOKEN||!SIG){ showMsg('안내','유효하지 않은 링크예요','받으신
 else {
   api({action:'emailCancelInfo', token:TOKEN, sig:SIG}).then(function(d){
     if(!d||!d.ok){ showMsg('안내','예약 정보를 불러오지 못했어요', esc((d&&d.error)||'')); return; }
-    if(d.state==='cancelled'){ showMsg('Cancelled','이미 취소된 예약이에요','다시 예약을 원하시면 새로 신청해 주세요.'); return; }
-    if(d.state==='none'){ showMsg('안내','취소할 확정 예약이 없어요','문의가 필요하시면 카카오톡으로 연락 주세요.'); return; }
+    /* ★[CAN_EXIT 2026-09-11 점검] 이 줄은 원래 아래 expired 분기 «바로 앞»에 있었다.
+       그래서 cancelled·none 분기는 이미 d.kakao 를 손에 쥐고도 못 썼고, 특히 none 은
+       「카카오톡으로 연락 주세요」라고 «말만» 하고 링크를 안 줬다 — 말한 길을 안 열어 준 셈이다.
+       한 줄 위로 올리면 두 분기가 같은 링크를 쓴다(d.kakao 가 없으면 종전대로 글자만 — 폴백 동일). */
     var kakao=d.kakao?'<a class="kakao" href="'+esc(d.kakao)+'" target="_blank" rel="noopener">카카오톡</a>':'카카오톡';
+    if(d.state==='cancelled'){ showMsg('Cancelled','이미 취소된 예약이에요','다시 예약을 원하시면 새로 신청해 주세요.','문의가 필요하시면 '+kakao+'으로 연락 주세요.'); return; }
+    if(d.state==='none'){ showMsg('안내','취소할 확정 예약이 없어요','문의가 필요하시면 '+kakao+'으로 연락 주세요.'); return; }
     if(d.state==='expired'){
       showMsg('안내','온라인 취소 기한이 지났어요',
         '상담 <b>'+esc(d.deadlineLabel)+' 전</b>까지만 온라인 취소가 가능해요.<br><br>예약하신 일정: <b>'+esc(d.date)+' · '+esc(d.time)+'</b>',
