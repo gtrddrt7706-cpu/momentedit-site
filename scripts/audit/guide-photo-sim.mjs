@@ -111,7 +111,7 @@ const center = async (page) => {
   await page.waitForTimeout(250);
 };
 
-async function run(name, { count, handler, midShot = 0, clickRest = false }) {
+async function run(name, { count, handler, midShot = 0, clickRest = false, doubleRest = false }) {
   const { page } = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
   let hits = 0;
   await page.route('**://script.google.com/**', async (route) => {
@@ -148,7 +148,8 @@ async function run(name, { count, handler, midShot = 0, clickRest = false }) {
   let 이어 = null;
   if (clickRest && after.이어보내기) {
     const before = hits;
-    await page.click('#gpRest');
+    if (doubleRest) await page.evaluate(() => { const b = document.getElementById('gpRest'); b.click(); b.click(); });
+    else await page.click('#gpRest');
     await page.waitForFunction(() => !window.__gpBusy, null, { timeout: 40000 }).catch(() => {});
     await page.waitForTimeout(700);
     이어 = { 더보낸수: hits - before, ...(await page.evaluate(SCREEN)) };
@@ -173,6 +174,13 @@ results.push(await run('완전실패', { count: 3, handler: (route) => route.abo
 results.push(await run('장수초과', { count: 35, handler: J(OK, 40), midShot: 900, clickRest: true }));
 results.push(await run('느린회선', { count: 3, handler: J(OK, 1500), midShot: 1200 }));
 results.push(await run('토큰만료', { count: 3, handler: J('{"ok":false,"expired":true,"error":"이 링크는 만료됐어요."}') }));
+/* ★[GP_DBL_REST 2026-09-11 점검 라운드 4] 「남은 N장 보내기」는 이번에 «새로 만든» 버튼이다.
+   사람이 반응 없다고 두 번 누르는 그 동작을 재현한다 — 두 번 눌려 두 번 가면 사진이 겹쳐 올라간다.
+   ★보호는 send() 의 busy 플래그에서 온다(새 버튼도 같은 send 를 쓴다). 그래도 «눌러서» 확인한다.
+   ★경계값도 함께: 정확히 30장(이어버튼 없어야) · 31장(있어야). 캡의 양옆을 둘 다 본다(§5-29). */
+results.push(await run('이중클릭', { count: 35, handler: J(OK), clickRest: true, doubleRest: true }));
+results.push(await run('경계30', { count: 30, handler: J(OK) }));
+results.push(await run('경계31', { count: 31, handler: J(OK), clickRest: true }));
 
 let bad = 0;
 const fail = (m) => { bad++; console.log('   ✗ ' + m); };
@@ -222,6 +230,20 @@ for (const r of results) {
         : fail('이어 보냈는데 끝났다는 말이 없다');
       !r.이어.이어보내기 ? good('남은 게 없어지면 버튼도 사라진다') : fail('보낼 게 없는데 버튼이 남아 있다');
     }
+  }
+  if (r.name === '이중클릭') {
+    r.이어 && r.이어.더보낸수 === 5 ? good('두 번 눌러도 «한 번»만 나갔다(busy 플래그가 막는다)')
+      : fail(`이중 클릭에 요청이 ${r.이어 && r.이어.더보낸수}건 — 사진이 겹쳐 올라간다`);
+    r.이어 && !r.이어.이어보내기 ? good('다 보낸 뒤 버튼이 사라졌다') : fail('보낼 게 없는데 버튼이 남았다');
+  }
+  if (r.name === '경계30') {
+    r.요청수 === 30 ? good('정확히 30장은 30건 — 캡에 딱 맞는다') : fail(`30장인데 요청이 ${r.요청수}건`);
+    !r.이어보내기 ? good('넘친 게 없으니 이어버튼도 없다') : fail('30장인데 이어버튼이 떴다');
+  }
+  if (r.name === '경계31') {
+    r.요청수 === 30 ? good('31장은 30건만 — 한 장이 넘친다') : fail(`31장인데 요청이 ${r.요청수}건`);
+    r.이어보내기 ? good('넘친 1장에 이어버튼이 떴다') : fail('31장인데 이어버튼이 없다');
+    r.이어 && r.이어.더보낸수 === 1 ? good('눌러서 남은 1장이 나갔다') : fail(`이어보내기가 ${r.이어 && r.이어.더보낸수}건`);
   }
   if (r.name === '느린회선') {
     r.mid && /\d+ \/ \d+/.test(r.mid.줄 || '') ? good('올리는 동안 «N / 전체»를 보여준다')
