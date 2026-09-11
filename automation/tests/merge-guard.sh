@@ -6333,3 +6333,11 @@ if command -v node >/dev/null 2>&1; then
   else echo 'ok guide-path-route: /g/<토큰>·?g= 둘 다 열린다'; fi
 else echo 'skip guide-path-route (node 없음)'; fi
 chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
+
+# ★[GP_DBL_REST 2026-09-11 점검 라운드 4] 「남은 N장 보내기」 이중 클릭 · 캡 경계(30/31).
+#   새로 만든 버튼이라 «사람이 두 번 누르는» 동작을 재현한다 — 두 번 가면 사진이 겹쳐 올라간다.
+#   보호는 send() 의 busy 플래그에서 온다(새 버튼도 같은 send 를 쓴다). 그래도 눌러서 확인한다.
+#   ★캡의 «양옆»을 둘 다 본다(30 정확히 · 31 한 장 넘침) — 한쪽만 보면 경계가 어디인지 안 보인다(§5-29).
+chk 'GP_DBL_REST' scripts/audit/guide-photo-sim.mjs 1
+chk '이중클릭' scripts/audit/guide-photo-sim.mjs 2
+chk '경계31' scripts/audit/guide-photo-sim.mjs 2
