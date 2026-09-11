@@ -6422,3 +6422,16 @@ nochk '여러분과 두 분이 함께 찍는 시간은' assets/ritual-data.js
 #   고칠 것이 글이 아니라 «간격»이었다. 소리를 다시 받을 필요는 없다 — 다시 붙이기만 하면 된다.
 chk 'ENTRY_HOLD' scripts/build-typecast-import.mjs 1
 chk 'before = 1.2' scripts/build-typecast-import.mjs 1
+
+# ★★[REDUB_BYVOICE 2026-09-11 사장님 지시 "빼먹은게 없을때까지 반복해서 검토"]
+#   5라운드에서 나왔다. 저장소의 재더빙 명단(재더빙_붙여넣기.txt)은 22줄인데
+#   실제로 다시 받아야 할 것은 103줄이었다. 배역 13클립이 그 명단에 «구조적으로» 안 잡힌다 —
+#   그 명단은 check-text-audio(화면 글 ↔ 소리)가 만드는데, 편지·덕담·서약은 castLive 라
+#   화면 글과 짝이 아니어서 그 대조에서 빠지기 때문이다(그 판단 자체는 옳다).
+#   ★그대로 두면 다음 세션이 그 파일을 믿고 열세 클립을 통째로 빠뜨린다.
+#   ★다시받기/ 는 «소리»를 기준으로 센다 — manifest ↔ _recorded.json. 화면을 끼우지 않는다.
+#   ★이미 맞는 소리가 있는 클립은 뺀다 — 실측으로 김호인 38줄·서진 11줄이 빠졌다(헛녹음 49줄).
+chk 'REDUB_BYVOICE' scripts/build-redub-byvoice.mjs 1
+chk '_recorded.json' scripts/build-redub-byvoice.mjs 1
+chk 'RETIRED.has' scripts/build-redub-byvoice.mjs 1
+chk '다시받기' scripts/build-redub-byvoice.mjs 2
