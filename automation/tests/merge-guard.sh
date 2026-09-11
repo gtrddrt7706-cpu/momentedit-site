@@ -6321,5 +6321,15 @@ chk 'GUIDE_PATH_READ' guide.html 1
 chk 'function guideToken' guide.html 1
 chk 'A-Za-z0-9_-]{1,64}' guide.html 1                    # vercel.json 라우트와 같은 문자 집합
 nochk "var token=qp('g')" guide.html                      # 경로를 못 읽는 옛 형태로 되돌리지 말 것
-if command -v node >/dev/null 2>&1; then node scripts/audit/guide-path-route.mjs >/dev/null 2>&1 || fail=1; else echo 'skip guide-path-route (node 없음)'; fi
+# ★★[EXIT2_IS_NOT_FAIL] 종료코드 2 는 «안 쟀다»이지 «실패»가 아니다 — `|| fail=1` 로 묶으면 안 된다.
+#   실사고(2026-09-11 · 이 줄을 넣은 그 PR): 로컬은 초록인데 CI 만 붉었다.
+#   CI 엔 브라우저가 없어 이 검사가 2 를 냈고, 내 `||` 가 그걸 실패로 셌다.
+#   ★이 저장소의 브라우저 검사들이 다 «0 통과 · 1 위반 · 2 못 쟀다» 규약을 쓴다. 게이트도 그 규약을 지켜야 한다.
+#   ★종료코드를 «찍는다» — /dev/null 로 묻으면 다음 사람이 왜 붉은지 못 본다.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/guide-path-route.mjs >/dev/null 2>&1; _gpr=$?
+  if [ "$_gpr" = "2" ]; then echo 'skip guide-path-route (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_gpr" != "0" ]; then echo "FAIL guide-path-route(exit $_gpr): /g/<토큰> 이 안 열린다 — node scripts/audit/guide-path-route.mjs"; fail=1
+  else echo 'ok guide-path-route: /g/<토큰>·?g= 둘 다 열린다'; fi
+else echo 'skip guide-path-route (node 없음)'; fi
 chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1

@@ -82,6 +82,34 @@ for(const url of ['/g/','/g/a%2Fb']){
   await page.close();
 }
 
+console.log('\n══ ①-2 경로 형태에서 «사진 올리기»가 같은 토큰을 쓰는가 ══');
+/* ★고친 것이 bindGuestUpload 의 토큰 출처(qp→guideToken)라, 화면이 뜨는 것만으로는 부족하다.
+   실제로 파일을 올려 guestPhoto 요청의 g 가 경로의 토큰과 같은지 본다. */
+{
+  const TOK='G_test-Token_01';
+  const {page,errors}=await eng.newPage({port:PORT,viewport:{width:390,height:844}});
+  let photoG=null, hits=0;
+  await page.route('**://script.google.com/**', async(route)=>{ let b=''; try{b=route.request().postData()||'';}catch(e){}
+    if(b.includes('guideView')) return route.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:GUIDE});
+    hits++; try{ photoG=JSON.parse(b).g; }catch(e){}
+    await route.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:'{"ok":true}'}); });
+  await page.goto(`http://localhost:${PORT}/g/${TOK}`,{waitUntil:'load'});
+  await page.waitForTimeout(1400);
+  const png=path.join(ROOT,'scripts/audit/_shots/_pathtok.png');
+  fs.mkdirSync(path.dirname(png),{recursive:true});
+  fs.writeFileSync(png, Buffer.from('89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000a49444154789c6360000002000100ffff03000006000557bfabd40000000049454e44ae426082','hex'));
+  const has=await page.evaluate(()=>!!document.getElementById('gpFile'));
+  if(!has) fail('경로 형태에서 사진 올리기 입력칸이 없다(업로더가 배선 안 됨)');
+  else{
+    await page.setInputFiles('#gpFile',[png]);
+    await page.waitForFunction(()=>!window.__gpBusy,null,{timeout:20000}).catch(()=>{});
+    await page.waitForTimeout(500);
+    (photoG===TOK? good : fail)(`업로드가 보낸 토큰 «${photoG}» (기대 ${TOK}) · 요청 ${hits}건${errors&&errors.length?' · pageerror '+errors.length:''}`);
+  }
+  fs.rmSync(png,{force:true});
+  await page.close();
+}
+
 console.log('\n══ ② onerror 폴백 — <picture> 로 감싼 뒤 «실패 경로»가 도는가 ══');
 BREAK_IMG='wordmark-only';
 for(const p of ['index.html','inquiry.html','parents.html','privacy.html']){
