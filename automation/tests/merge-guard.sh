@@ -6309,3 +6309,17 @@ nochk 'var f=this.nextElementSibling' index.html            # picture 없이 png
 #     다시 올리려면 새 근거(실유입·실기기 제보)를 먼저 가져와야 한다.
 chk 'ROUND_CLOSED\|오픈 전까지 다시 올리지 않는다' docs/handoff/round-protocol.md 1
 chk 'SIZE_HEADER_LIE' docs/handoff/round-protocol.md 1
+
+# ★★[GUIDE_PATH_READ 2026-09-11 점검에서 발견 · 내가 만든 결함] /g/<토큰> 이 «아예 안 열렸다».
+#   vercel 의 dest 는 «서버» rewrite 라 브라우저 주소는 /g/<토큰> 그대로다 →
+#   location.search 가 비어 qp('g') 가 빈 값을 냈고 「잘못된 주소예요」가 떴다.
+#   ★[GUIDE_PATH] 를 넣을 때 «정규식 반증 0건»으로 통과시킨 것이 문제였다 —
+#     그건 «라우트가 무엇을 받는가»만 본 것이고, «받은 뒤 화면이 서는가»는 안 봤다.
+#     라우트 검사는 정규식이 아니라 «그 주소로 들어갔을 때 화면이 서는가»로 한다.
+#   ★guide.html 의 정규식과 vercel.json 의 라우트는 «같은 문자 집합»이어야 한다. 어긋나면 한쪽만 열린다.
+chk 'GUIDE_PATH_READ' guide.html 1
+chk 'function guideToken' guide.html 1
+chk 'A-Za-z0-9_-]{1,64}' guide.html 1                    # vercel.json 라우트와 같은 문자 집합
+nochk "var token=qp('g')" guide.html                      # 경로를 못 읽는 옛 형태로 되돌리지 말 것
+if command -v node >/dev/null 2>&1; then node scripts/audit/guide-path-route.mjs >/dev/null 2>&1 || fail=1; else echo 'skip guide-path-route (node 없음)'; fi
+chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
