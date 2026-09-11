@@ -6366,6 +6366,32 @@ if command -v node >/dev/null 2>&1; then
   if [ "$_gpr" = "2" ]; then echo 'skip guide-path-route (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
   elif [ "$_gpr" != "0" ]; then echo "FAIL guide-path-route(exit $_gpr): /g/<토큰> 이 안 열린다 — node scripts/audit/guide-path-route.mjs"; fail=1
   else echo 'ok guide-path-route: /g/<토큰>·?g= 둘 다 열린다'; fi
+
+# ★★[ADVISOR_SIM 2026-09-11 점검] 챗봇을 «모델 없이» 잰다.
+#   ai-live-sim-ci.js 는 운영 서버에 실제로 쏘는 배터리라 네트워크가 막힌 자리(이 컨테이너·CI)에선 아예 못 돈다.
+#   그러면 챗봇은 한 번도 안 재고 배포된다. 그런데 ★고객을 다치게 하는 것들은 전부 우리 코드다 —
+#   가드레일(405·429·503·400·길이·턴수) · 시스템 프롬프트 조립 · 프롬프트 주입 격리 · 후처리(전각 줄표·마크다운·
+#   요일 교정·이메일 제거) · 에스컬레이션. fetch 만 가짜로 두면 그 전부를 브라우저 없이 잴 수 있다.
+#   ★모델이 «실제로 무슨 말을 하는지»는 여기서 안 잰다 — 그건 ai-live-sim-ci.js 몫이다(운영 서버 필요).
+chk 'ADVISOR_SIM' scripts/audit/advisor-sim.mjs 1
+chk 'FAQ_DINE_BAND' scripts/audit/advisor-sim.mjs 1   # 화면이 공개한 식사 가격대가 «실제로 모델에 가는가»를 잰다
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-sim.mjs >/dev/null 2>&1; _adv=$?
+  if [ "$_adv" != "0" ]; then echo "FAIL advisor-sim(exit $_adv): 챗봇 가드레일·후처리 — node scripts/audit/advisor-sim.mjs"; fail=1
+  else echo 'ok advisor-sim: 챗봇 가드레일·프롬프트 조립·주입 격리·후처리 32검사'; fi
+fi
+
+# ★★[ADVISOR_TREE 2026-09-11 점검] 챗봇 1단(즉답 트리)은 «모델이 없다» — 우리가 쓴 글이 그대로 고객에게 간다.
+#   그래서 답 120개를 전수로 읽고 규칙을 댄다(죽은 가지·빈 답·전각 줄표·이모지·길이) + 홈 화면과 숫자가 같은지 대조.
+#   ★그리고 실제로 눌러 본다 — 파일에 있는 것과 화면에 뜨는 것은 다르다.
+#   진입은 클래스가 아니라 aria-label «상담 도우미» 로 찾는다(레일 버튼이 전부 .me-fab 라 클래스로는 못 가른다).
+chk 'ADVISOR_TREE' scripts/audit/advisor-tree-sim.mjs 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-tree-sim.mjs >/dev/null 2>&1; _advt=$?
+  if [ "$_advt" = "2" ]; then echo 'skip advisor-tree-sim (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_advt" != "0" ]; then echo "FAIL advisor-tree-sim(exit $_advt): 챗봇 대화트리 — node scripts/audit/advisor-tree-sim.mjs"; fail=1
+  else echo 'ok advisor-tree-sim: 대화트리 전수 + 실제 클릭'; fi
+fi
 else echo 'skip guide-path-route (node 없음)'; fi
 chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
 
