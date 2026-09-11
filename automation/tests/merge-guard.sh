@@ -6464,9 +6464,9 @@ nochk '여기 계신 분들 앞에서' 'docs/plans/식순연구/배역_예시_�
 nochk '려무나' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '단다' 'docs/plans/식순연구/배역_예시_대사.txt'
 chk 'LETTER_REAL' scripts/apply-letter-rewrite.mjs 1
-chk '말수가 줄고, 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [LETTER_LAND] 두 문장을 한 줄로 합치며 표현이 바뀌었다
-chk '보일러를 고쳐 놓았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '국 끓여서 얼려 놨어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [LETTER_LAND] 두 문장을 한 줄로 합치며 표현이 바뀌었다
+chk '두 시간을 만지더니 고쳐 놓고, 밥도 안 먹고 갔습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '네 옆에 사람이 생겼으니까' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 
 # ★★[LETTER_LAND 2026-09-11 사장님 "최선인지 검토"] 선언을 뺐으면 «종결 장치»를 대신 넣어야 한다.
 #   앞 커밋에서 선언을 전부 빼자 편지가 흐지부지 끝났다. 조사로 원인이 둘 특정됐다.
@@ -6483,7 +6483,7 @@ chk 'VOW_ECHO' scripts/apply-letter-landing.mjs 2
 chk '오늘부터 너는 혼자 참지 않아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '너는 나에게 먼저 말해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '그래서 오늘 여기 서 있어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '다음에 올 때도 끓여 놓을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '네 옆에 사람이 생겼으니까' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 
 # ★★[LETTER_COST 2026-09-11 사장님 "젊은 예비부부들이 뭉클하게"] 값을 치르는 문장을 넣었다.
@@ -6503,10 +6503,10 @@ chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구
 #   ★「평생 살고 싶어」가 아니라 「늙고 싶어」다 — 평생은 추상이고 늙음은 몸에 일어나는 일이다.
 chk 'LETTER_COST' scripts/apply-letter-cost.mjs 1
 chk 'CROSS_ECHO' scripts/apply-letter-cost.mjs 1
-chk '너는 힘든 걸 말하지 않아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '아프다는 말을 하지 않았어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '엄마가 걱정할까 봐 그랬답니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '괜찮다고 해도 한 번은 더 물을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '괜찮다고 하거든, 한 번만 더 물어봐 주세요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '하윤이가 괜찮다고 하거든, 한 번만 더 물어봐 주세요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '이 사람과 함께 늙고 싶어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
@@ -6533,3 +6533,11 @@ nochk '진짜로요' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     이름이 붙어 있으면 그대로 소리로 읽힌다(PASTE_WRONG_FILE 사고가 그것이었다). 두 꼴을 섞지 말 것.
 chk 'NAME_PREFIX' scripts/build-redub-byvoice.mjs 1
 chk '0_전체_화자표기.txt' scripts/build-redub-byvoice.mjs 1
+
+# ★★[NO_ERRAND 2026-09-11 사장님 "국 끓여얼려놨다는게 덕담에 있을필요는없어"]
+#   덕담에서 사적인 심부름을 뺐다. 하객 앞에서 하는 말인데 모녀 사이의 용건이라 듣는 사람이 낄 자리가 없고,
+#   「갈 때 가져가」는 예식 한가운데에 할 일을 하나 만든다. ★되살리지 말 것.
+#   ★사물로 착지하라는 원칙(LETTER_LAND)은 맞지만 «아무 사물»이 아니다 —
+#     그 자리에서 이미 말한 것을 되불러와야 한다. 국은 처음 나온 물건이었다.
+nochk '국 끓여' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '갈 때 가져가' 'docs/plans/식순연구/배역_예시_대사.txt'
