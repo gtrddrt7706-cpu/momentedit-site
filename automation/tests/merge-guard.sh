@@ -6435,3 +6435,27 @@ chk 'REDUB_BYVOICE' scripts/build-redub-byvoice.mjs 1
 chk '_recorded.json' scripts/build-redub-byvoice.mjs 1
 chk 'RETIRED.has' scripts/build-redub-byvoice.mjs 1
 chk '다시받기' scripts/build-redub-byvoice.mjs 2
+
+# ★★[LETTER_REAL 2026-09-11 사장님 지적 "편지부분 너무 오글거리게 아침드라마 처럼말고 요즘 스타일로"]
+#   병렬 조사 4건 뒤 편지·서약·덕담 8클립을 다시 썼다. 되돌리지 말 것 — 출처가 특정된 클리셰다.
+#   ①「더 나은 사람」 = 이보다 더 좋을 순 없다(1997) "a better man" 번역투 · 관용구화
+#   ②우산 회상 = 늑대의 유혹(2004) 원조 · 문화일보가 클리셰로 지목(세부까지 기사에 있다)
+#   ③「그날을 넘기지 않을게」 = "Never go to bed angry" 직수입 · 앞줄과 자기모순
+#   ④「낳아주셔서, 키워주셔서」 = 세 박자 관용구 · 반감 스레드 존재
+#   ⑤「여기 계신 분들 앞에서 약속할게」 = 서약서 판매 업체 양식 정형구
+#   ⑥「딸을 보내는 게 아니라 아들을 얻는다」 = 같은 프레임의 변형(자녀를 수량으로 센다)
+#   ⑦「-단다/-려무나/-거라」 = 국립국어원 2017 개정이 「예스러운 형태」로 규정 · 계녀가 계보
+#   ★설계 축이 바뀌었다 — 「구체를 넣어라」(Hansen&Wänke 2010)는 재현 실패(Henderson 2019 dz=0.08).
+#     「선언을 빼라」가 근거에 충실하다(Paulus 2013 의도적 자기제시 + Leech 겸양 격률).
+#   ★매끄러움이 위험 신호다 — 추도사 연구에서 전문가의 매끄러운 글보다 아는 사람의 더듬는 말이 선호됐다.
+nochk '더 나은 사람' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '우산' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '그날을 넘기지' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '낳아주셔서' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '여기 계신 분들 앞에서' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '려무나' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '단다' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk 'LETTER_REAL' scripts/apply-letter-rewrite.mjs 1
+chk '설거지를 오래 하는 걸로 알아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '보일러를 고쳐 놨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '국 끓여서 얼려 놨어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
