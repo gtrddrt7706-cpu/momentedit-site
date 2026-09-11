@@ -6459,13 +6459,13 @@ nochk '그날을 넘기지' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     닳은 문장이 이 편지 안에서는 «벼르던 말»이 된다. 끝에 있으면 그냥 상투구였다.
 #   ★착지는 여전히 「다음에 갈 때도 빈손으로 갈게요」가 맡는다(LETTER_LAND). 순서를 바꾸지 말 것.
 chk '낳아주셔서, 키워주셔서, 참아주셔서 고맙습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '다음에 갈 때도 빈손으로 갈게요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 nochk '여기 계신 분들 앞에서' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '려무나' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '단다' 'docs/plans/식순연구/배역_예시_대사.txt'
 chk 'LETTER_REAL' scripts/apply-letter-rewrite.mjs 1
 chk '말수가 줄고, 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [LETTER_LAND] 두 문장을 한 줄로 합치며 표현이 바뀌었다
-chk '보일러를 고쳐 놨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '보일러를 고쳐 놓았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '국 끓여서 얼려 놨어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 
 # ★★[LETTER_LAND 2026-09-11 사장님 "최선인지 검토"] 선언을 뺐으면 «종결 장치»를 대신 넣어야 한다.
@@ -6480,11 +6480,11 @@ chk '국 끓여서 얼려 놨어' 'docs/plans/식순연구/배역_예시_대사.
 #   ★「인스타 감성」은 목표가 아니다 — 문체 이름이 아니라 평가어이고 조롱하는 변형이 「갬성」이다.
 chk 'LETTER_LAND' scripts/apply-letter-landing.mjs 1
 chk 'VOW_ECHO' scripts/apply-letter-landing.mjs 2
-chk '오늘부터 너는 혼자 안 참아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '너는 나한테만 먼저 말해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '오늘부터 너는 혼자 참지 않아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '너는 나에게 먼저 말해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '그래서 오늘 여기 서 있어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '다음에 올 때도 끓여 놓을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '다음에 갈 때도 빈손으로 갈게요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 
 # ★★[LETTER_COST 2026-09-11 사장님 "젊은 예비부부들이 뭉클하게"] 값을 치르는 문장을 넣었다.
 #   앞 두 판(LETTER_REAL·LETTER_LAND)은 «감점을 없애는» 일이었다 — 클리셰를 지우고 끝을 착지시켰다.
@@ -6503,10 +6503,26 @@ chk '다음에 갈 때도 빈손으로 갈게요' 'docs/plans/식순연구/배�
 #   ★「평생 살고 싶어」가 아니라 「늙고 싶어」다 — 평생은 추상이고 늙음은 몸에 일어나는 일이다.
 chk 'LETTER_COST' scripts/apply-letter-cost.mjs 1
 chk 'CROSS_ECHO' scripts/apply-letter-cost.mjs 1
-chk '너는 힘든 걸 말 안 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '아프다는 말을 안 했어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '괜찮다고 해도 한 번은 더 물어볼게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '괜찮다고 하면 한 번만 더 물어봐 줘요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '아직도 좀 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '너는 힘든 걸 말하지 않아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '아프다는 말을 하지 않았어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '괜찮다고 해도 한 번은 더 물을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '괜찮다고 하거든, 한 번만 더 물어봐 주세요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '이 사람이랑 늙고 싶어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '이 사람과 함께 늙고 싶어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+
+# ★★[LETTER_FORMAL 2026-09-11 사장님 "조금더 격식을 차리는듯한 멘트로 개선"] 격식을 한 단 올렸다.
+#   앞 판은 오글거림을 피하려다 구어로 너무 내려가, 하객 앞에서 읽는 글이 문자메시지처럼 읽혔다.
+#   ★올리는 방법은 «고급 어휘»가 아니라 셋뿐이다 — 새 미사여구를 넣으면 업체 샘플로 되돌아간다:
+#     ①구어 축약 펴기(「그거」→「그걸」·「-더라고요」→「-더군요」) ②조사 복원(「너 만나고」→「너를 만나고」)
+#     ③군말 빼기(「그냥」·「좀」·「진짜로요」)
+#   ★말단계는 그대로 둔다 — 서로에게 하는 서약·편지는 반말이 맞다. 존대로 바꾸면 «둘 사이»가
+#     사라지고 낭독 대회가 된다. 부모님께 드리는 말만 -습니다체로 올렸고,
+#     어머님이 사위에게 하는 말은 -요체로 둔다(장모가 -습니다체면 어색하고 하게체는 대본에 위험하다).
+#   ★고백의 흐린 말끝은 건드리지 않는다 — 「아직도 마음이 그래」·「저 하나도 버거운데」.
+#     여기를 정제하면 LETTER_COST 가 죽는다.
+chk 'LETTER_FORMAL' scripts/apply-letter-formal.mjs 1
+chk '앞으로는 자주 찾아뵙겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '진짜로요' 'docs/plans/식순연구/배역_예시_대사.txt'
