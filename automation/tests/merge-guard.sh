@@ -6679,4 +6679,10 @@ node scripts/check-speech-level.mjs >/dev/null 2>&1 && ok '말단계: 한 화자
 #     문턱을 올려 초록을 만든 것이 아니라, 4어절부터가 판단 없이 «겹쳤다»고 말할 수 있는 선이다.
 chk 'N4_NOT_CLEAN' scripts/check-echo-inrun.js 2
 node scripts/check-echo-inrun.js >/dev/null 2>&1 && ok '한 예식 안 4어절 겹침 0건(코스 6종)' 1 || ok '한 예식 안 4어절 겹침 0건(코스 6종)' 0
+chk 'AUX_ONLY' scripts/check-echo-inrun.js 1
+chk 'PRED_REPORT_ONLY' scripts/check-echo-inrun.js 1
+# ★[PRED_ECHO] 이웃 큐가 같은 서술어로 끝나는 자리는 «보고만» 한다 — 지금 9건이 실재하고(「섰다」5코스·
+#   「채웠다」3코스·「것…」1코스) 고치면 우성 재녹음이 따라온다. 게이트로 걸면 병합이 막히거나
+#   내가 초록을 만들려고 문안을 손대게 된다. 사장님 결정 뒤에 게이트로 올린다.
+#   ★대신 «늘어나면» 빨개진다 — PRED_KNOWN 을 넘기면 exit 1 이다. 줄었으면 그 수로 내려 적을 것.
 
