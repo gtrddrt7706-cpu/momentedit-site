@@ -6937,3 +6937,30 @@ chk 'POST_WAIT' scripts/audit/flow-shape.js 1
 chk 'GUEST_SPACED' scripts/audit/flow-shape.js 1
 chk 'LOOSE_COVER' scripts/audit/flow-shape.js 1
 
+# ★★[PLETTER_TRIM 2026-09-12 사장님 결정 ⑤ 「추천대로(일부만)」] 혼주 편지에서 값이 큰 자리만 고쳤다.
+#   43_parents-letter 는 38문장 서면이고 낭독물이 아니다(parents.html 에서 읽고 예식 당일 안 나간다).
+#   ★38문장을 다 손보지 «않는» 이유 — 이 글은 격식이 곧 내용이다. 많이 고칠수록
+#     「업체가 보낸 사무적 공지」 쪽으로 미끄러진다. 「일부만」의 값은 녹음 절약이 아니라
+#     «바꾸는 문장이 적을수록 격식이 안 흔들린다»는 데 있다(클립은 하나라 어차피 통째 재녹음이다).
+#   ①「저희가 감히 다 알지 못합니다」 — 과공은 비례다. 낮춤을 빼니 다짐이 곧게 선다.
+#   ②「오신 모든 분과 눈을 맞추고」가 연속 두 문장에 그대로 있었다(10·11). 눈으로 읽는 글이라 바로 걸린다.
+#   ⑤「축하의 마음은 청첩장과 함께 정중히 안내드리고, 감사히 받습니다」 — 어른이 가장 궁금해하실
+#     자리를 가장 에둘러 말했다. 돈 이야기를 흐리면 «숨긴다»는 인상이 남는다 → 「축의는 여느 예식과 같습니다」.
+#   ⑧ 「올립니다」+「모먼트에디트 올림」 — 맺음이 두 번이었다. 앞을 「인사드립니다」로.
+#     ★화면은 서명 블록(Moment Edit)이 그 자리를 맡아 이 문장이 «없다». 그 갈림은 설계다.
+# ★★[TERM_DIGITAL] 한 글 안에서 소리는 「온라인 참석」, 화면은 「디지털 참석」이었다.
+#   표준은 «디지털»이다 — S.digital · digitalAttendance · 청첩장 8장이 전부 그 말을 쓴다.
+#   어른께 드리는 글에서 용어가 흔들리면 «다른 것»을 말하는 줄 안다. 소리를 화면에 맞췄다.
+#   ★남은 것 — assets/ritual-cue.js 의 나레이션 쪽에 「온라인 참석」이 아직 있다. 별도 클립이라
+#     고치면 재녹음이 붙는다. 사장님 결정 대기다. 여기서 조용히 같이 바꾸지 않았다.
+# ★[BODY_SLICE] 자가검사의 본문 추출을 정규식으로 하려다 소스 뒷부분까지 끌고 온 적이 있다.
+#   시작·끝을 문자열로 잘라 낸다. 그래야 세는 대상이 편지 본문뿐이다.
+chk 'PLETTER_TRIM' scripts/apply-parents-letter.mjs 2
+chk 'TERM_DIGITAL' scripts/apply-parents-letter.mjs 1
+chk 'BODY_SLICE' scripts/apply-parents-letter.mjs 1
+chk '축의는 여느 예식과 같습니다' scripts/build-dubbing-script.mjs 1
+chk '축의는 여느 예식과 같습니다' parents.html 1
+nochk '저희가 감히 다 알지 못합니다' scripts/build-dubbing-script.mjs
+nochk '저희가 감히 다 알지 못합니다' parents.html
+nochk '온라인 참석' scripts/build-dubbing-script.mjs
+
