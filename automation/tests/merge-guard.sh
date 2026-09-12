@@ -6285,7 +6285,11 @@ nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
 #   ★3차 — 사장님이 실제로 녹음하신 판이 B안이었다(올려 주신 wav 30개 파일명으로 확인).
 #     화면 글과 소리가 다른 말을 하면 안 되므로 «소리»를 정본으로 삼는다.
 #     ★검사 문장을 A안으로 되돌리지 말 것 — 되돌리면 녹음과 글이 어긋난 채 초록이 된다.
-chk '한쪽에 핑거 푸드와 음료를 준비해 두었어요' assets/ritual-data.js 2
+#   ★[TONE_POLISH 2026-09-12] 2 → 1 로 내렸다. **B안을 되돌린 것이 아니다** — 핑거 푸드를
+#     말한다는 내용은 그대로고, 나레이션판의 «어미»만 합쇼체로 맞췄다(「두었어요」→「두었습니다」).
+#     G1-1·G1-3·G1-4 나레이션판은 이미 전부 합쇼체인데 G1-2만 두 분 목소리판에서 복사된 채였다.
+#     두 분 목소리판은 그대로 해요체다 — 그래서 1건이 «남아 있어야» 맞다.
+chk '한쪽에 핑거 푸드와 음료를 준비해 두었어요' assets/ritual-data.js 1
 chk '천천히 드시다 자리에 앉아 주시면 됩니다' assets/ritual-data.js 2
 nochk '음료가 준비되어 있습니다' assets/ritual-data.js
 nochk '편히 계시다 자리에 앉아' assets/ritual-data.js
@@ -6590,7 +6594,10 @@ chk '사진 뒤에 날짜가 적혀 있길래 세어 봤습니다' 'docs/plans/�
 #   ★CROSS_ECHO 의 «약속 → 증언» 순서는 그대로다. 바꾸지 말 것.
 chk 'BLESS_TURN' scripts/apply-bless-turn.mjs 1
 chk '하윤아, 너는 앞쪽이지' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '먼저 말을 거는 건 아마 네가 할 거다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ★[TONE_POLISH 2026-09-12] 이 줄의 «구조»는 그대로 두고 문장만 고쳤다.
+#     「~하는 건 … 네가 할 거다」가 비문이었고, 앞 두 줄이 두 사람을 각각 「너」로 불러 놓아서
+#     「네가」가 누구인지 소리로 안 잡혔다. 이름으로 못 박았다 — 대구도 훈계의 방향도 그대로다.
+chk '먼저 말을 거는 쪽은 아마 하윤이일 거다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 
 # ★★[PEAK_ONE 2026-09-11 사장님 "심리학 분석해서 개선있다면개선해봐"] 정점을 «하나»로 정했다.
 #   고립 효과는 배경이 평평할 때만 작동한다 — 감정 정점 여섯이 전부 최대치면 서로를 지운다.
@@ -6777,7 +6784,9 @@ nochk "'declare-ask-b', '여러분은" scripts/build-dubbing-script.mjs
 #   ★④가 «우연»이면 흠이고 «알고 한 것»이면 장치다. 그래서 「나도 해 볼게」를 뒤에 붙였다.
 #     신랑 서약의 끝 「오늘부터 너는 혼자 참지 않아」에 답하는 줄이라, 두 서약이 대화가 된다.
 #   ★[VOW_ECHO] 「너는 나에게 먼저 말해」는 지우지 않고 «뒤에» 붙였다. 짝은 살고 아이러니만 의도가 된다.
-chk '너한테는 삼십 분을 따지면서, 내가 힘든 건 한 마디도 안 하더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ★[TONE_POLISH 2026-09-12] 「정작」 한 단어를 넣었다. 아이러니(④)는 그대로 살리되,
+#     뒷절 주어가 「너」로 들려 뜻이 뒤집히던 것만 고정한다. 이 문장이 걸리면 마지막 두 줄이 붕 뜬다.
+chk '너한테는 삼십 분을 따지면서, 정작 내가 힘든 건 한 마디도 안 하더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '나도 해 볼게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '나는 따지는 사람이야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk 'CHAR_ONE' scripts/apply-hayun-one.mjs 1   # ★넣은 날부터 1개뿐이었다
@@ -7091,4 +7100,40 @@ chk 'GAP_KNOWN' scripts/audit/voice-gap.js 1
 #   ffmpeg 로 mp3 를 훑어 30초쯤 걸린다 — 게이트에서 제일 느린 축이지만, 성우 교체가
 #   조용히 규칙을 깨는 사고를 이 검사 말고는 잡을 방법이 없다.
 if node scripts/audit/voice-gap.js >/dev/null 2>&1; then echo "ok 성우 F0 겹침 (붙은 쌍 GAP_KNOWN 이하)"; else echo "REVERT? 성우 목소리가 더 겹친다 — node scripts/audit/voice-gap.js"; fail=1; fi
+
+# ★★[TONE_POLISH 2026-09-12] 소리로 들었을 때 격이 흔들리던 자리를 고쳤다(각도 D 진단).
+#   여기 거는 것은 «정답이 하나인 것»뿐이다 — 비문·시제 오류·말단계 잔재·저장소 자신의 규칙 위반.
+#   되살아나면 안 되는 이유를 하나씩 적어 둔다. 근거 없이 되돌아오면 그때 이 줄이 막는다.
+chk 'TONE_POLISH' scripts/apply-tone-polish.mjs 1
+# ① 입장 닫는 말 — 여섯 갈래가 «전부» 「서로를 바라봐 주세요」로 닫아야 한다.
+#   ★[ENTRY_OUT_DRIFT] 주석은 그렇게 적혀 있었는데 실제로는 B 한 갈래에만 있었다. 그 어긋남을
+#     사람 눈이 한 달 넘게 못 봤다. 그래서 개수가 아니라 «전수»로 센다 — 갈래가 늘어도 따라온다.
+_eo=$(node -e "var D=require('./assets/ritual-data.js');var o=D.NARR.entryOutBy;var k=Object.keys(o);
+  var miss=k.filter(function(x){return !/서로를 바라봐 주세요\.$/.test(o[x].trim())});
+  console.log(miss.length+' '+k.length+' '+miss.join(','))" 2>/dev/null)
+case "$_eo" in
+  "0 "*) echo "ok 입장 닫는 말 ${_eo#0 } 갈래 전부 「서로를 바라봐 주세요」로 닫는다" ;;
+  *)     echo "REVERT? 입장 닫는 말이 그 한 마디 없이 닫히는 갈래가 있다 ($_eo) — 첫 사진을 만드는 문장이다"; fail=1 ;;
+esac
+# ② 아버님 덕담 — 앞 두 줄이 두 사람을 각각 「너」로 불러 놓아서, 「네가」가 누구인지 소리로 안 잡혔다.
+nochk '그때 먼저 말을 거는 건 아마 네가 할 거다' "docs/plans/식순연구/배역_예시_대사.txt"
+chk '먼저 말을 거는 쪽은 아마 하윤이일 거다' "docs/plans/식순연구/배역_예시_대사.txt" 1
+# ③ 축배 — 이 대본은 「백년해로·꽃길·영원히」를 0회로 지켜 왔다. 「좋은 일만 있기를」은 그 계열이다.
+nochk '좋은 일만 있기를' "docs/plans/식순연구/배역_예시_대사.txt"
+nochk '하던 날이 있습니다' "docs/plans/식순연구/배역_예시_대사.txt"
+# ④ 신부 서약 — 「정작」이 빠지면 뒷절 주어가 「너」로 들려 뜻이 뒤집힌다.
+chk '정작 내가 힘든 건 한 마디도 안 하더라' "docs/plans/식순연구/배역_예시_대사.txt" 1
+# ⑤ 안내 G1-2 — 나레이션판은 합쇼체다. 두 분 목소리판(「두었어요」)은 그대로 두므로 파일 전체를 막지 않는다.
+chk '음료를 준비해 두었습니다' assets/ritual-data.js 1
+# ⑥ 예식 뒤 — 합쇼체 안의 해요체 «평서»만 걷었다(「~주세요」류 청유는 표준이라 안 건드린다).
+nochk '작가님이 안내해 드릴게요' assets/ritual-cue.js
+nochk '차례로 찾아뵐 거예요' assets/ritual-data.js
+chk 'PHOTO_HANDOVER' assets/ritual-cue.js 1
+# ⑦ 반지는 «나누는» 게 아니라 «끼워 주는» 것이다. 만능 동사로 돌아가면 장면이 뭉개진다.
+nochk '반지를 나눕니다' assets/ritual-data.js
+# ⑧ 케이크 — 저장소 자신의 규칙(「정의문으로 열지 않는다」) + 웨딩 상투어.
+nochk '가장 달콤한 순간' assets/ritual-data.js
+# ⑨ 「첫걸음」은 한 단어다. 띄면 TTS 가 그 자리에서 쉰다.
+nochk '첫 걸음' assets/ritual-data.js
+nochk '첫 걸음' "docs/plans/식순연구/배역_예시_대사.txt"
 
