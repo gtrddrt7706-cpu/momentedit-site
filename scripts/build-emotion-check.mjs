@@ -18,24 +18,22 @@ const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const require = createRequire(path.join(ROOT, 'package.json'));
 const RC = require(path.join(ROOT, 'assets/ritual-cue.js'));
 const ST = require(path.join(ROOT, 'assets/ritual-story.js'));
-const CASTSRC = path.join(ROOT, 'docs/plans/식순연구/배역_예시_대사.txt');
+const MAN = path.join(ROOT, 'docs/plans/식순연구/타입캐스트/manifest.json');
 const OUT = path.join(ROOT, 'docs/plans/식순연구/감동구간_확인판.txt');
+const OUTDIR = path.join(ROOT, 'docs/plans/식순연구/감동구간_성우별');
 
-/* ── 배역 대사 파싱 — 머리줄 `[NN] R-slug · 역할 · 설명 → NN_file.mp3` 로 끊는다 */
+/* ★★[MAN_IS_SOURCE 2026-09-12] 대사를 배역_예시_대사.txt 에서 «파싱»하지 않는다.
+   처음엔 그 txt 를 줄 단위로 훑었는데, 클립 사이에 섞인 «절 제목·설명 문장»이 대사인 척 딸려 왔다
+   (26번 뒤에 「편지 (letter · 부모님께 / 서로에게)」와 설명 세 줄이 붙어 나왔다).
+   ★manifest.json 이 이미 «어느 클립에 어느 문장이 몇 번째로 들어가는지»를 갖고 있다.
+     그게 실제로 녹음·조립에 쓰이는 표다. 사람이 읽는 txt 가 아니라 기계가 쓰는 표를 읽는다.
+   ★덤으로 성우 이름도 여기 있다(manifest.voice) — 역할→성우 표를 또 적을 필요가 없다. */
+const M = JSON.parse(fs.readFileSync(MAN, 'utf8'));
 const CLIP = new Map();
-{
-  let cur = null;
-  for (const raw of fs.readFileSync(CASTSRC, 'utf8').split('\n')) {
-    const h = /^\[(\d{2})\]\s*(R-[\w-]+)\s*·\s*([^·]+?)\s*·\s*(.+?)\s*→\s*(\S+)\s*$/.exec(raw.trim());
-    if (h) { cur = { no: h[1], slug: h[2], who: h[3].trim(), desc: h[4].trim(), file: h[5], lines: [] };
-             CLIP.set(h[5].replace(/\.mp3$/, ''), cur); continue; }
-    if (!cur) continue;
-    const t = raw.trim();
-    if (!t) continue;
-    if (/^[─═—-]{5,}$/.test(t)) { cur = null; continue; }     // 구분선이면 그 묶음 끝
-    if (/^[★※(]/.test(t)) continue;                            // 지문·주석은 대사가 아니다
-    cur.lines.push(t);
-  }
+for (const c of M.clips) {
+  if (c.dir !== 'assets/audio/cast') continue;
+  CLIP.set(c.no + '_' + c.file, { no: c.no, who: c.role, desc: c.label, file: c.no + '_' + c.file,
+                                  lines: c.sents.map((x) => x.text) });
 }
 
 /* ── 어느 조합에서든 한 번은 나오는 자리를 모은다(첫 발견만 쓴다) */
@@ -68,8 +66,8 @@ const WANT = ['06_welcome-groom', '07_welcome-bride',
               '14_tribute', '27_tribute-reply', '15_toast'];
 /* ★24·25 는 합창의 «재료»라 뺀다 — 그대로 틀면 같은 말이 두 번 들린다(26 이 그 둘을 겹친 결과물). */
 
-const VOICE = { '신랑': '이겸', '신부': '서진', '아버님': '권일', '어머님': '주하',
-                '하객대표': '규민', '시어머님': '★미정', '신랑|신부': '이겸 + 서진' };
+/* 역할→성우는 manifest.voice 가 원천이다. 거기 없는 역할(시어머님)은 아직 안 정해진 것이다. */
+const VOICE = (who) => M.voice[who] || (who === '신랑|신부' ? (M.voice['신랑'] + ' + ' + M.voice['신부']) : '★미정');
 
 const W = 78;
 const bar = (c) => c.repeat(W);
@@ -108,7 +106,7 @@ for (const g of GROUPS) {
   if (at.open) { out.push(''); out.push('  \ub098\ub808\uc774\uc158(\uc6b0\uc131) \u2014 \uc5ec\ub294 \ub9d0'); for (const s of split(at.open)) out.push('    ' + s); }
   for (const c of g.clips) {
     out.push('');
-    out.push(`  [${c.no}] ${c.who} \u00b7 \uc131\uc6b0 ${VOICE[c.who] || '?'} \u00b7 ${c.lines.length}\ubb38\uc7a5 \u00b7 ${c.file}`);
+    out.push(`  [${c.no}] ${c.who} \u00b7 \uc131\uc6b0 ${VOICE(c.who)} \u00b7 ${c.lines.length}\ubb38\uc7a5 \u00b7 ${c.file}`);
     out.push('');
     for (const l of c.lines) out.push('      ' + l);
   }
@@ -127,3 +125,82 @@ out.push(bar('═'));
 fs.writeFileSync(OUT, out.join('\n') + '\n');
 console.log(`[EMO_CHECK] ${n}클립 → ${path.relative(ROOT, OUT)}`);
 if (missing.length) console.log('  ★빠진 것: ' + missing.join(' / '));
+
+/* ═══════════════════════════════════════════════════════════════
+   붙여넣기용 — 성우별 맨몸 대본  [PASTE_CLEAN]
+
+   ★★왜 따로 만드나 (2026-09-12 사장님 실사고)
+     위 «확인판»을 타입캐스트에 그대로 붙이셨더니 구분선·머리말·설명문까지 전부 읽혔다.
+     11분 45초짜리가 나왔고, 첫 문장이 「감동 구간 확인판 — 녹음 들어가기 전에 보는 판」이었다.
+     ★확인판은 «눈»으로 보는 판이고, 이 폴더는 «기계»에 붙이는 판이다. 한 파일이 둘을 겸할 수 없다.
+     ★그래서 여기 나가는 줄은 «대사와 나레이션 문장뿐»이다. 제목도 번호도 설명도 한 줄 없다.
+       그걸 사람 눈이 아니라 아래 검사가 지킨다 — 장식이 한 글자라도 섞이면 아무것도 안 쓴다.
+   ★26(합창)은 두 성우 파일에 «둘 다» 들어간다 — 실제로 둘이 따로 녹음해 겹치는 클립이다.
+     0_전체 에는 한 번만 넣는다(두 번 넣으면 붙여 들을 때 같은 말이 두 번 들린다). */
+const DECOR = /[═─━│┃★※«»]|^\s*\[|^\s*[·•]/;
+/* ★성우가 안 정해진 역할은 «★미정»이 아니라 «역할 이름»을 머리에 쓴다.
+   붙여넣기 판에는 별표 한 글자도 들어가면 안 된다 — 기계가 그걸 읽는다.
+   실제로 이 검사에 걸렸다(「★미정: 서준아.」). 역할 이름이면 뜻도 통하고 깨끗하다. */
+const NAME = (who) => M.voice[who] || who;
+const byVoice = new Map();   // 성우 → 줄[]
+const whole = [];            // '성우: 문장'
+const put = (v, line) => { if (!byVoice.has(v)) byVoice.set(v, []); byVoice.get(v).push(line); };
+
+for (const g of GROUPS) {
+  const narV = M.voice['진행'] || '우성';
+  for (const t of split(g.at.open || '')) { put(narV, t); whole.push(narV + ': ' + t); }
+  for (const c of g.clips) {
+    const v = NAME(c.who);
+    if (c.who === '신랑|신부') {
+      /* 합창 재료 — 두 사람이 따로 녹음한다. 파일에는 둘 다, 한 번에 듣는 판에는 한 번만. */
+      for (const l of c.lines) { put(M.voice['신랑'], l); put(M.voice['신부'], l); }
+      for (const l of c.lines) whole.push(M.voice['신랑'] + ': ' + l);
+      continue;
+    }
+    for (const l of c.lines) { put(v, l); whole.push(v + ': ' + l); }
+  }
+  for (const t of split(g.at.close || '')) { put(narV, t); whole.push(narV + ': ' + t); }
+}
+
+/* 순서를 고정한다 — 예식에서 먼저 나오는 성우가 앞 번호를 갖는다(진행이 1번) */
+const ORDER = [M.voice['진행'], M.voice['신랑'], M.voice['신부'], M.voice['아버님'], M.voice['어머님'], M.voice['하객대표'], '시어머님'];
+const voices = [...byVoice.keys()].sort((a, b) => {
+  const ia = ORDER.indexOf(a), ib = ORDER.indexOf(b);
+  return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+});
+
+/* ★장식이 한 글자라도 섞이면 아무것도 쓰지 않는다. 절반만 깨끗한 파일이 제일 위험하다 —
+   붙여 넣고 나서야 알게 되고, 그때는 이미 크레딧을 썼다. */
+const dirty = [...whole, ...[...byVoice.values()].flat()].filter((l) => DECOR.test(l));
+if (dirty.length) {
+  console.log('  ✗ 붙여넣기 판에 장식이 섞였다 — 아무것도 쓰지 않는다:');
+  dirty.slice(0, 5).forEach((l) => console.log('      ' + l));
+  process.exit(2);
+}
+
+fs.mkdirSync(OUTDIR, { recursive: true });
+for (const f of fs.readdirSync(OUTDIR)) fs.unlinkSync(path.join(OUTDIR, f));   // 옛 성우 파일이 남지 않게
+fs.writeFileSync(path.join(OUTDIR, '0_전체_화자표기.txt'), whole.join('\n') + '\n');
+voices.forEach((v, i) => {
+  const name = (i + 1) + '_' + (M.voice[v] || ORDER.indexOf(v) >= 0 && v !== '시어머님' ? v : v + '_성우미정') + '.txt';
+  fs.writeFileSync(path.join(OUTDIR, name), byVoice.get(v).join('\n') + '\n');
+});
+fs.writeFileSync(path.join(OUTDIR, 'README.md'),
+  ['# 감동 구간 — 붙여넣기용 (자동 생성 · 손으로 고치지 마세요)',
+   '',
+   '`node scripts/build-emotion-check.mjs` 가 만듭니다.',
+   '',
+   '**이 폴더의 txt 는 대사 줄만 있습니다.** 제목·번호·설명이 한 줄도 없어서 그대로 붙이면 됩니다.',
+   '눈으로 차례를 볼 때는 `../감동구간_확인판.txt` 를 보세요 — 그쪽은 붙이면 장식까지 읽힙니다.',
+   '',
+   '| 파일 | 성우 | 줄 |',
+   '|---|---|---|',
+   ...voices.map((v, i) => `| ${(i + 1)}_${v === '시어머님' ? '시어머님_성우미정' : v}.txt | ${v === '시어머님' ? '아직 안 정해짐' : v} | ${byVoice.get(v).length} |`),
+   `| 0_전체_화자표기.txt | 전부 (\`성우: 대사\`) | ${whole.length} |`,
+   '',
+   '★26번(서약 마지막 합창)은 신랑·신부 파일에 **둘 다** 들어 있습니다 — 실제로 둘이 따로 녹음해 겹치는 클립입니다.',
+   '  0_전체 에는 한 번만 넣었습니다(두 번 넣으면 붙여 들을 때 같은 말이 두 번 들립니다).',
+   ''].join('\n'));
+
+console.log(`[PASTE_CLEAN] ${voices.length}명 · ${whole.length}줄 → ${path.relative(ROOT, OUTDIR)}/`);
+voices.forEach((v, i) => console.log(`   ${(i + 1)}_${v}  ${String(byVoice.get(v).length).padStart(3)}줄`));

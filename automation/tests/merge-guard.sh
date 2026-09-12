@@ -7209,3 +7209,23 @@ _ij=$(node -e "var RC=require('./assets/ritual-cue.js');var t=0;
   });console.log(t)" 2>/dev/null)
 if [ "${_ij:-99}" -eq 0 ]; then echo "ok 「이제」로 여는 클립이 연달아 붙는 자리 0건(6코스 전수)"; else echo "REVERT? 「이제 …, 이제 …」로 이어 나가는 자리가 ${_ij}건 생겼다 — 여는 쪽에서 뺄 것"; fail=1; fi
 
+# ★★[PASTE_CLEAN 2026-09-12 사장님 실사고] 붙여넣기 판에 장식이 한 글자도 없어야 한다.
+#   사장님이 «눈으로 보는 판»(감동구간_확인판.txt)을 타입캐스트에 그대로 붙이셨더니
+#   구분선·머리말·설명문까지 전부 읽혀 11분 45초가 나왔다. 첫 문장이 「감동 구간 확인판」이었다.
+#   ★한 파일이 «사람이 읽는 판»과 «기계에 붙이는 판»을 겸할 수 없다. 그래서 폴더를 나눴다:
+#     감동구간_확인판.txt      → 눈으로. 나레이션 여는 말·닫는 말까지 붙여 차례를 본다.
+#     감동구간_성우별/*.txt    → 기계에. 대사 줄만 있다. 제목도 번호도 설명도 한 줄 없다.
+#   ★사람 눈으로 지키지 않는다 — 생성기가 장식을 발견하면 아무것도 안 쓰고 죽고(exit 2),
+#     그래도 새 나가면 이 검사가 잡는다. 실제로 생성기 쪽 검사에 한 번 걸렸다(「★미정: 서준아.」).
+#   ★[MAN_IS_SOURCE] 대사는 manifest.json 에서 읽는다. 배역 txt 를 파싱하던 판에서는
+#     클립 사이의 «절 제목·설명 문장»이 대사인 척 딸려 왔다.
+chk 'PASTE_CLEAN' scripts/build-emotion-check.mjs 1
+chk 'MAN_IS_SOURCE' scripts/build-emotion-check.mjs 1
+_pc=$(node -e "var fs=require('fs'),p='docs/plans/식순연구/감동구간_성우별/';
+  var D=/[═─━│┃★※«»]|^\s*\[|^\s*[·•]/, bad=0;
+  fs.readdirSync(p).filter(function(f){return /\.txt$/.test(f)}).forEach(function(f){
+    fs.readFileSync(p+f,'utf8').split('\n').filter(Boolean).forEach(function(l){ if(D.test(l)) bad++; });
+  });
+  console.log(bad)" 2>/dev/null)
+if [ "${_pc:-99}" -eq 0 ]; then echo "ok 감동구간 붙여넣기 판에 장식 0줄 (그대로 붙일 수 있다)"; else echo "REVERT? 붙여넣기 판에 장식이 ${_pc}줄 섞였다 — 타입캐스트가 그걸 읽는다"; fail=1; fi
+
