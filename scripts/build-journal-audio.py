@@ -18,13 +18,14 @@
 #   예외는 대본이 아니라 여기 적는다 — 대본은 화면 글과 글자까지 같아야 해서 표시를 넣을 수 없다.
 #
 # ★[LEVEL] 음량은 RMS 로 맞추고 피크로 잡는다. 두 편이 다른 크기로 나가면 듣는 사람이 볼륨을 만진다.
-import argparse, glob, io, os, re, sys, wave, array, math
+import argparse, glob, io, os, re, sys, wave, array, math, json, hashlib, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = {
     '1': ('docs/plans/저널낭독/1_혼주라는이름.txt', 'assets/audio/essay/1_honju.mp3'),
     '2': ('docs/plans/저널낭독/2_신혼여행첫날.txt', 'assets/audio/essay/2_honeymoon.mp3'),
 }
+STATE = 'docs/plans/저널낭독/audio-state.json'   # [JOURNAL_AUDIO_SYNC] 어느 판 대본으로 만들었나
 HEAD_PAD   = 0.30     # [HEAD_PAD] 첫 글자 앞 무음
 TAIL_PAD   = 0.60     # 끝 여운 — 뚝 끊기면 «끊겼다»로 들린다
 GAP        = 0.65     # 문장 사이 기본
@@ -85,9 +86,27 @@ def build(part, files, lines):
     return out, sr, rms, peak, g
 
 
+def stamp(part, script):
+    """[JOURNAL_AUDIO_SYNC] 방금 쓴 대본의 해시를 남기고 재녹음 대기표를 뗀다.
+
+    ★왜 여기서 하나 — 손으로 적는 상태 파일은 반드시 낡는다. 음원을 만든 바로 그 자리에서
+      적어야 «만든 것»과 «적은 것»이 어긋날 수 없다. 검사(scripts/audit/journal-audio-sync.mjs)는
+      이 값만 믿는다.
+    """
+    sp = os.path.join(ROOT, STATE)
+    st = json.load(io.open(sp, encoding='utf-8'))
+    e = st['parts'][part]
+    e['script_sha256'] = hashlib.sha256(io.open(os.path.join(ROOT, script), 'rb').read()).hexdigest()
+    e['built_at'] = datetime.date.today().isoformat()
+    e.pop('pending_rerecord', None)          # 새로 만들었으니 대기표는 뗀다
+    io.open(sp, 'w', encoding='utf-8').write(json.dumps(st, ensure_ascii=False, indent=2) + '\n')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--in', dest='src', required=True, help='타입캐스트에서 받은 폴더(하위에 wav 들)')
+    ap.add_argument('--part', action='append', choices=sorted(SCRIPTS),
+                    help='이 편만 조립한다(한 편만 재녹음했을 때). 여러 번 쓸 수 있다. 없으면 전부')
     a = ap.parse_args()
     try:
         import lameenc
@@ -100,7 +119,12 @@ def main():
         w = [os.path.join(d, f) for f in fs if f.lower().endswith('.wav')]
         if w: pools[d] = sorted(w, key=lambda p: int(re.search(r'audio_(\d+)_', os.path.basename(p)).group(1)))
 
-    for part, (script, outrel) in SCRIPTS.items():
+    # ★한 편만 재녹음하는 날이 있다 — 그때 나머지 편 폴더가 없다고 멈추면 안 된다.
+    #   다만 «조용히 건너뛰기»는 하지 않는다. 무엇을 조립하는지 이름을 대고 시작한다.
+    want = a.part or sorted(SCRIPTS)
+    print('조립할 편: ' + ' · '.join(want))
+    for part in want:
+        script, outrel = SCRIPTS[part]
         lines = [tuple(l.split(': ', 1)) for l in
                  io.open(os.path.join(ROOT, script), encoding='utf-8').read().strip().split('\n')]
         hit = [p for p in pools.values() if len(p) == len(lines)]
@@ -121,6 +145,8 @@ def main():
         open(dst, 'wb').write(mp3)
         print(f'{outrel} · {len(pcm)/sr:6.1f}초 · {len(mp3)/1024:6.0f}KB '
               f'· 문장 {len(files)} · 이득 {g:.2f}(rms {rms:.3f} peak {peak:.2f})')
+        stamp(part, script)
+        print(f'  audio-state.json 갱신 · {part}편 재녹음 대기 해제')
 
 
 main()
