@@ -6668,7 +6668,7 @@ nochk '이제 조금 알 것 같습니다' 'docs/plans/식순연구/배역_예�
 chk 'ANIDA_TRAP' scripts/check-speech-level.mjs 1
 chk 'TRAIL_OFF' scripts/check-speech-level.mjs 1
 chk 'EXCLAIM_SELF' scripts/check-speech-level.mjs 1
-node scripts/check-speech-level.mjs >/dev/null 2>&1 && ok '말단계: 한 화자 안의 왕복 0건' 1 || ok '말단계: 한 화자 안의 왕복 0건' 0
+if node scripts/check-speech-level.mjs >/dev/null 2>&1; then echo "ok 말단계: 한 화자 안의 왕복 0건"; else echo "REVERT? 말단계: 한 화자 안에서 말단계가 왕복한다 — node scripts/check-speech-level.mjs"; fail=1; fi
 
 # ★★[ECHO_INRUN 2026-09-12] 한 예식 «안에서» 같은 말이 두 번 나가는지 큐 엔진을 돌려 확인한다.
 #   대본 파일로 세면 63건이 겹쳐 보이는데 대부분 «고객이 하나만 고르는 대안 클립»이라 가짜다.
@@ -6678,7 +6678,7 @@ node scripts/check-speech-level.mjs >/dev/null 2>&1 && ok '말단계: 한 화자
 #     (「편히 계시면 됩니다」 인사 사진→단체촬영 · 「오늘 이 자리를」 감동 코스 3회) 고칠지는 결정 대기다.
 #     문턱을 올려 초록을 만든 것이 아니라, 4어절부터가 판단 없이 «겹쳤다»고 말할 수 있는 선이다.
 chk 'N4_NOT_CLEAN' scripts/check-echo-inrun.js 2
-node scripts/check-echo-inrun.js >/dev/null 2>&1 && ok '한 예식 안 4어절 겹침 0건(코스 6종)' 1 || ok '한 예식 안 4어절 겹침 0건(코스 6종)' 0
+if node scripts/check-echo-inrun.js >/dev/null 2>&1; then echo "ok 한 예식 안 겹침 (4어절 0건 · 이웃 서술어 PRED_KNOWN 이하)"; else echo "REVERT? 한 예식 안에서 같은 말이 두 번 나간다 — node scripts/check-echo-inrun.js"; fail=1; fi
 chk 'AUX_ONLY' scripts/check-echo-inrun.js 1
 chk 'PRED_REPORT_ONLY' scripts/check-echo-inrun.js 1
 # ★[PRED_ECHO] 이웃 큐가 같은 서술어로 끝나는 자리는 «보고만» 한다 — 지금 9건이 실재하고(「섰다」5코스·
@@ -7009,4 +7009,45 @@ chk '대신 다 따지고 나서 내가 먼저 밥 먹었냐고 물을게' 'docs
 chk '밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '낳아주셔서, 키워주셔서, 참아주셔서' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 nochk '다 듣고 나서,' 'docs/plans/식순연구/배역_예시_대사.txt'
+
+# ★★[PHOTO_OK 2026-09-12 사장님 "듣는 청중 하객입장에서 좀더 디테일하게 점검"]
+#   하객 귀로만 대본을 따라가는 검사를 만들었더니(scripts/audit/guest-ear.js) 구멍이 나왔다.
+#   기본 예식에서 하객이 사진에 대해 듣는 말은 «이것뿐»이었다 —
+#     「휴대폰 소리는 잠시만 꺼 주시면 감사하겠습니다.」
+#   찍어도 되는지에 대한 답이 «없다». 25명은 그 말을 「찍지 말라」로 읽는다.
+#   결혼식에서 하객이 가장 많이 하는 행동인데 그 자리가 비어 있었다.
+#   ★★왜 안 보였나 — 답이 «조건부 클립»에 있었다. 「마음껏 찍으셔도 좋습니다」는 narr-photo-ask 에
+#     있는데 그 클립은 S.photoShare(사진 링크를 넣은 두 분)일 때만 나간다.
+#     게다가 앞 커밋에서 그 클립을 완화했는데 그 완화도 조건부라 정작 필요한 예식엔 안 갔다.
+#     ★조건부 클립을 고쳐서는 이 구멍이 안 메워진다. 답을 «조건 없는 자리»(guest-4)로 옮겼다.
+#   ★순서가 중요하다 — 「소리만 줄여」로 범위를 한정한 «뒤» 「사진은 편히」로 허락한다.
+#     허락을 먼저 주면 소리 얘기가 뒤늦은 단서처럼 붙는다.
+#   ★[D-폰모순]도 이걸로 함께 풀린다 — guest-4 가 범위를 한정했으므로 뒤에 chain 으로 붙는
+#     narr-photo-ask 가 앞말을 뒤집지 않는다. 그 클립은 이제 제 일(보내는 법 예고)만 한다.
+#   ★[TEXT_AUDIO] guest-4 는 화면 글과 소리가 한 글자도 달라선 안 된다. 원천(GUEST[3])과
+#     배역_예시_대사.txt 를 같은 커밋에서 고쳤다. 한쪽만 고치면 check-text-audio 가 잡는다.
+#   ★두 분 목소리판은 「진동으로 바꿔」다 — 나레이션판과 «일부러» 다르다(초대한 사람의 말이라 부드럽다).
+#     그 결은 지키고 사진 허락만 같이 붙였다. 두 판을 같은 문장으로 통일하지 말 것.
+chk 'PHOTO_OK' scripts/apply-photo-ok.mjs 2
+chk '사진은 편히 남기셔도 좋습니다' assets/ritual-data.js 1
+chk '사진은 편히 남기셔도 좋아요' assets/ritual-data.js 1
+chk '사진은 편히 남기셔도 좋아요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '오늘 찍으신 사진은 나중에 두 사람에게 보내 주실 수 있습니다' assets/ritual-cue.js 1
+nochk '휴대폰 소리는 잠시만 꺼 주시면' assets/ritual-data.js
+
+# ★[GUEST_EAR] 하객 귀로만 대본을 따라가는 검사. 25명 중 한 사람이 되어 자기가 무엇을 듣고
+#   무엇을 해야 하는지만 본다 — 그 사람은 대본을 못 보고 되물을 사람도 없다.
+#   ①하객에게 «하는 말» 비율 ②몸을 움직여야 하는 횟수 ③궁금할 것에 답이 있는가
+#   ④호칭이 흔들리지 않는가 ⑤조건이 맞아야만 나가는 안내(아니면 그 답이 «아예» 없다)
+#   ★⑤가 이 검사의 핵심이다. 대본을 통째로 읽으면 답이 있어 보이는데, 조건부라 실제로는 안 나간다.
+chk 'GUEST_EAR' scripts/audit/guest-ear.js 1
+# ★★[NO_OK_FN 2026-09-12] 이 게이트에 «ok 라는 함수는 없다». chk · nochk · _gate 뿐이다.
+#   출력에 보이는 「ok …」는 chk 가 찍거나 개별 node 검사가 스스로 찍는 글자다.
+#   내가 `&& ok '…' 1` 패턴을 지어내 세 줄을 넣었고, 셋 다 «ok: not found» 로 조용히 죽어 있었다.
+#   FAIL 만 grep 하고 있어서 며칠을 못 봤다 — 이 저장소가 CLIP_COUNT 주석에 적어 둔
+#   「실패 메시지가 사람 눈에만 뜨고 검사에 안 걸려 있었다」와 똑같은 사고다.
+#   ★규약은 하나다 — 판정 트랩 _gate 가 읽는 변수는 «fail» 뿐이다. 실패하면 fail=1 을 세운다.
+#   ★파이프 뒤에 함수를 붙이면 서브셸로 들어가 fail 도 안 남는다. 변수로 받아 [ ] 로 판정한다.
+_GE=$(node scripts/audit/guest-ear.js damback 2>/dev/null | grep -c '✗')
+if [ "$_GE" = "0" ]; then echo "ok 하객이 궁금할 것 9종에 전부 답이 있다"; else echo "REVERT? 하객이 궁금할 것에 답이 없다 ($_GE종) — node scripts/audit/guest-ear.js"; fail=1; fi
 
