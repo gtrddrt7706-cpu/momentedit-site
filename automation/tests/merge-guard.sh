@@ -6964,3 +6964,26 @@ nochk '저희가 감히 다 알지 못합니다' scripts/build-dubbing-script.mj
 nochk '저희가 감히 다 알지 못합니다' parents.html
 nochk '온라인 참석' scripts/build-dubbing-script.mjs
 
+# ★[TERM_DIGITAL 2026-09-12 사장님 결정 ③] 고객이 읽는 글에서 「온라인」을 뺐다.
+#   상품 표준은 «디지털 참석»이다(S.digital · digitalAttendance · 청첩장 8장 · 마이페이지).
+#   한 상품에서 용어가 갈리면 고객은 «다른 것»을 말하는 줄 안다.
+#   ★고객 노출은 한 곳뿐이었다(ritual-story.js 식전 안내 how) — 나레이션 문안에는 애초에 없었다.
+#     그래서 재녹음이 «0»이다. 용어 통일이 늘 비싼 것은 아니다. 범위부터 재고 판단할 것.
+#   ★디렉터 화면의 라벨·지문(「온라인 참석자 환영」·「온라인 인사 2분」)은 그대로 둔다.
+#     고객이 안 보고, 당일 진행 «동작»의 이름이라 실무에서 굳어져 있다. 고객 노출만 맞춘다.
+chk 'TERM_DIGITAL' assets/ritual-story.js 1
+chk '화면으로 함께하시는 분이 계시거나' assets/ritual-story.js 1
+nochk '온라인으로 함께하시는 분이' assets/ritual-story.js
+
+# ★★[CROWD_MIX 기각 2026-09-12] 하객 군중을 AI 성우 다섯으로 «겹쳐» 만들려다 되돌렸다.
+#   사장님이 「추천대로」를 주셨지만, 만들다 보니 이 저장소가 이미 그 방향을 검토하고 기각해 뒀다:
+#     build-typecast-import.mjs 의 CAST_HOLD 주석과 보고문 —
+#     「AI 단일 보이스로는 군중 소리를 만들 수 없습니다. 한 사람이 "네, 그러겠습니다"를 말하면
+#      스물다섯 명의 응답이 아니라 한 명의 대답으로 들리고, 그 순간 예식이 우스워집니다.
+#      후보 셋 — ①팀·지인 4~5명 실녹음 ②그 구간만 텍스트 카드 ③생략」
+#   ★AI 를 다섯 겹쳐도 «같은 엔진»이라 질감이 균일하다. 군중감의 핵심은 그 불균일함인데 안 나온다.
+#     후보 ①이 「실녹음」인 이유가 그것이다. 내 추천이 얕았고, 되돌리는 것이 맞다.
+#   ★다시 시도하지 말 것 — 하려면 AI 겹치기가 아니라 «사람 4~5명이 한 마디»다. 한 문장이라 금방이다.
+nochk 'R-declare-ask-28' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk 'CAST_HOLD' scripts/build-typecast-import.mjs 1
+
