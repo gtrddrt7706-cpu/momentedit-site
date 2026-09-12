@@ -181,7 +181,28 @@ if (dirty.length) {
 const FILES = [];
 fs.mkdirSync(OUTDIR, { recursive: true });
 for (const f of fs.readdirSync(OUTDIR)) fs.unlinkSync(path.join(OUTDIR, f));   // 옛 성우 파일이 남지 않게
-fs.writeFileSync(path.join(OUTDIR, '감동_전체_한번에.txt'), whole.join('\n') + '\n');
+/* ★★[ONE_FILE_AUTOCAST 2026-09-12 사장님 「한파일로 만들어죠 … 성우 자동으로 대입하게」]
+   타입캐스트의 «대본 가져오기 → 텍스트 붙여넣기»는 콜론 앞 이름으로 화자를 잡고,
+   그 이름이 타입캐스트 캐릭터 이름과 «정확히» 같으면 목소리까지 자동으로 배정한다.
+   여덟 이름이 실제로 잡히는 것은 0_보이스확인.txt 로 확인돼 있다.
+   ★그래서 이 파일 한 장이면 된다 — 성우별로 나눠 붙일 필요가 없다.
+   ★내가 앞에서 「화자 접두사를 지우고 붙이세요」라고 잘못 안내했다. 그 접두사가 곧 배정 장치다.
+   ★콜론이 없는 줄은 «기본 화자에 묶여 그대로 읽힌다»(2026-08-01 실사고 — 머리 주석 8줄이 통째로 읽혔다).
+     그래서 아래 검사가 «모든 줄이 이름: 대사 꼴인지»를 본다. 하나라도 어긋나면 아무것도 쓰지 않는다. */
+const LINE_OK = /^[^\s:]{1,12}: \S/;
+const badLine = whole.filter((l) => !LINE_OK.test(l));
+if (badLine.length) {
+  console.log('  ✗ 「이름: 대사」 꼴이 아닌 줄이 있다 — 붙이면 기본 화자가 그대로 읽는다:');
+  badLine.slice(0, 5).forEach((l) => console.log('      ' + JSON.stringify(l)));
+  process.exit(2);
+}
+/* 자동 배정되는 이름과 «손으로 골라야 하는» 이름을 갈라 알려 준다.
+   manifest.voice 의 값이 곧 타입캐스트에서 확인된 캐릭터 이름이다. */
+const KNOWN = new Set(Object.values(M.voice));
+const spk = [...new Set(whole.map((l) => l.slice(0, l.indexOf(':'))))];
+const autoCast = spk.filter((x) => KNOWN.has(x));
+const manualCast = spk.filter((x) => !KNOWN.has(x));
+fs.writeFileSync(path.join(OUTDIR, '감동_한번에_붙여넣기.txt'), whole.join('\n') + '\n');
 /* ★★[NAME_NO_CLASH 2026-09-12 사장님 「감동구간만 먼저 줘봐」] 이름을 헷갈리게 지었다.
    다시받기 폴더도 `1_우성.txt`·`2_이겸.txt` 였다. 두 벌이 손에 들어오면 어느 쪽이 감동 구간인지
    파일 이름만 보고는 알 수 없다 — 사장님이 물으신 게 그것이다.
@@ -215,11 +236,13 @@ fs.writeFileSync(path.join(OUTDIR, 'README.md'),
    '| 파일 | 역할 | 성우 | 줄 |',
    '|---|---|---|---|',
    ...FILES.sort((a, b) => a.name.localeCompare(b.name)).map((f) => `| ${f.name} | ${f.role} | ${f.v === '시어머님' ? '아직 안 정해짐' : f.v} | ${f.n} |`),
-   `| 감동_전체_한번에.txt | 전부 | (\`성우: 대사\`) | ${whole.length} |`,
+   `| 감동_한번에_붙여넣기.txt | 전부 | 자동 배정 | ${whole.length} |`,
    '',
    '★26번(서약 마지막 합창)은 신랑·신부 파일에 **둘 다** 들어 있습니다 — 실제로 둘이 따로 녹음해 겹치는 클립입니다.',
    '  0_전체 에는 한 번만 넣었습니다(두 번 넣으면 붙여 들을 때 같은 말이 두 번 들립니다).',
    ''].join('\n'));
 
 console.log(`[PASTE_CLEAN] ${voices.length}명 · ${whole.length}줄 → ${path.relative(ROOT, OUTDIR)}/`);
+console.log(`[ONE_FILE_AUTOCAST] 감동_한번에_붙여넣기.txt — 자동 배정 ${autoCast.length}인(${autoCast.join(' · ')})`);
+if (manualCast.length) console.log(`   ★손으로 골라야 하는 화자: ${manualCast.join(' · ')} (타입캐스트 캐릭터 이름이 아니다)`);
 FILES.forEach((f) => console.log(`   ${f.name.padEnd(34)} ${String(f.n).padStart(3)}줄`));

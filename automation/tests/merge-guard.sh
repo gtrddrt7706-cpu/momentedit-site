@@ -7229,3 +7229,21 @@ _pc=$(node -e "var fs=require('fs'),p='docs/plans/식순연구/감동구간_성�
   console.log(bad)" 2>/dev/null)
 if [ "${_pc:-99}" -eq 0 ]; then echo "ok 감동구간 붙여넣기 판에 장식 0줄 (그대로 붙일 수 있다)"; else echo "REVERT? 붙여넣기 판에 장식이 ${_pc}줄 섞였다 — 타입캐스트가 그걸 읽는다"; fail=1; fi
 
+# ★★[ONE_FILE_AUTOCAST 2026-09-12 사장님 「한파일로 … 성우 자동으로 대입하게」]
+#   타입캐스트는 콜론 앞 이름으로 화자를 잡고, 그 이름이 캐릭터 이름과 «정확히» 같으면 목소리까지 배정한다.
+#   여덟 이름이 실제로 잡히는 것은 0_보이스확인.txt 로 확인돼 있다(우성·진희·김호인·이겸·서진·권일·주하·규민).
+#   ★콜론이 없는 줄은 «기본 화자에 묶여 그대로 읽힌다» — 2026-08-01 에 머리 주석 8줄이 통째로 읽혔고
+#     그 상태로 다운로드하면 크레딧이 즉시 깎인다. 그래서 한 줄이라도 어긋나면 파일을 안 쓴다.
+#   ★내가 「화자 접두사를 지우고 붙이세요」라고 잘못 안내한 적이 있다. 그 접두사가 곧 배정 장치다.
+chk 'ONE_FILE_AUTOCAST' scripts/build-emotion-check.mjs 1
+_af=$(node -e "var fs=require('fs');
+  var f='docs/plans/식순연구/감동구간_성우별/감동_한번에_붙여넣기.txt';
+  if(!fs.existsSync(f)){console.log(-1);process.exit(0)}
+  var L=fs.readFileSync(f,'utf8').split('\n').filter(Boolean), OK=/^[^\s:]{1,12}: \S/;
+  console.log(L.filter(function(l){return !OK.test(l)}).length)" 2>/dev/null)
+case "${_af:-99}" in
+  0)  echo "ok 감동 한번에 판 — 모든 줄이 「이름: 대사」 꼴 (화자·목소리 자동 배정)" ;;
+  -1) echo "REVERT? 감동 한번에 판이 없다 — node scripts/build-emotion-check.mjs 로 뽑을 것"; fail=1 ;;
+  *)  echo "REVERT? 「이름: 대사」 꼴이 아닌 줄 ${_af}개 — 붙이면 기본 화자가 그대로 읽는다"; fail=1 ;;
+esac
+
