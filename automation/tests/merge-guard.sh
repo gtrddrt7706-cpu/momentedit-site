@@ -4192,6 +4192,21 @@ chk 'PAR_DINE' parents.html 1
 #   ★문장을 세게 만들지 말 것 — 부모님 헌정은 두 분이 뺄 수 있다(order-preview.html NEVEROFF={entry:1}).
 #     「큰절을 올립니다」로 단정하면 헌정을 뺀 예식에서 거짓이 된다. 「고르십니다」가 맞는 말이다.
 chk 'PAR_PYEBAEK' parents.html 1
+
+# [INV_EDITION 2026-09-12] 청첩장은 «온라인(i/cover)»과 «오프라인(i-family/family)» 두 판이다
+#   (api/_kb.js §15). 오프라인 판은 오시는 길·주차를 담고, 온라인 판은 디지털 참석·편지·영상을 담는다.
+#   실제 사고: cover 를 복사해 family 를 만들며 한쪽만 고쳐, 오시는 분께 보내는 판에
+#     · family-04 「귀한 걸음으로 마음만 더해 주십시오」 — 걸음으로 오시는데 «마음만»
+#     · family-08 「참석이 어려운 분들을 위한 안내입니다」 — 오시는 분께 할 말이 아니다
+#   둘 다 cover 쪽에서는 맞는 말이라 원문 검색만으로는 안 잡힌다. 판을 나눠서 센다.
+nochk '마음만 더해' i-family/family-04.html
+nochk '참석이 어려운' i-family/family-08.html
+nochk '멀리 계셔도' i-family/family-01.html
+nochk '한 페이지의 자리' i-family/family-01.html
+chk '멀리 계셔도' i/cover-01.html 1
+chk '한 자리를 마련했습니다' i-family/family-01.html 1
+chk '귀한 마음만 더해' i/cover-04.html 1
+chk '참석이 어려운' i/cover-08.html 1
 chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
 chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
 chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
