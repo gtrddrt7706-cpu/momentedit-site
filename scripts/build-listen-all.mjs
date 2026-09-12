@@ -44,6 +44,20 @@ const toneNums = () => { try { return fs.readdirSync(TONE_DIR)
   .filter((x) => x !== null).sort((a, b) => a - b); } catch (e) { return []; } };
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
+/* ★★[OUT_NOT_REVIEW 2026-09-12] `--out audio-review.html` 을 막는다.
+   ★실사고 — 이번 세션에서 이 생성기를 `--out audio-review.html` 로 돌려,
+     같은 이름의 «손으로 만든 실청 점검 도구»를 통째로 덮어썼다(2026-08-11 판, 마커 16개).
+     둘은 이름만 같고 다른 물건이다:
+       audio-review.html  = 사람이 한 문장씩 듣고 고르고 고치는 «판정»의 자리(손으로 만든다)
+       listen-*.html      = 클립을 전부 늘어놓고 흘려 듣는 «목록»(여기서 만든다)
+   ★게이트는 그 순간 빨개졌는데(마커 16개가 0), 내가 출력을 grep 으로 걸러 보느라 못 봤다.
+     그래서 «사람이 안 봐도 걸리게» 생성기 쪽에 막대를 박는다 — 눈이 아니라 코드가 막는다.
+   ★되살리지 말 것: 이 파일 이름으로 내보낼 이유는 없다. 목록은 listen-*.html 로 간다. */
+if (/(^|[\\/])audio-review(-tone)?\.html$/.test(OUT)) {
+  console.error('[OUT_NOT_REVIEW] audio-review.html 은 손으로 만든 실청 판정 도구다 — 생성물로 덮지 않는다.');
+  console.error('  목록판은 listen-*.html 로 내보낼 것.  예: --out listen-075c9ad62acf.html');
+  process.exit(2);
+}
 /* ★★[LISTEN_SPLIT 2026-08-26 사용자 지적 *"모바일이나 태블릿에서는 안나오네 항목들이"*]
    소리를 다 심으면 한 판이 8.5MB 다. 데스크톱은 열리는데 폰·태블릿에서 항목이 안 뜬다.
    ★실측으로 «화면 탓이 아님»을 먼저 확인했다 — 390px 헤드리스에서 클립 160·문장 495 가

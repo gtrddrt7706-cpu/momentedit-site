@@ -1448,7 +1448,13 @@ chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐�
 chk 'TOAST_SCENE' assets/ritual-story.js 2
 chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js 2  # 링워밍 속도 통제(family+all)
 #   ★[MUNAN_REST 2026-09-09] D-9 는 두 문장을 하나로 이었다 — 세는 문장이 바뀐다.
-chk '그 사랑이 있어 오늘의 두 사람이 있고, 오늘 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
+# ★★[G8_OUT_SPLIT 2026-09-12] 이 줄은 «한 문장 통째»를 지키고 있었는데, 그 문장이 둘로 쪼개졌다(aa518f3a).
+#   지금: 「그 사랑이 있어 오늘의 두 사람이 있습니다. 그리고 두 집안은 서로의 가족이 되었습니다.」
+#   쪼갠 것은 설계다 — 소리로 들으면 한 호흡에 안 들어간다. 그러니 «형태»를 지키던 이 검사가 틀렸다.
+#   ★지킬 것을 «말»로 바꾼다 — 사라지면 안 되는 것은 문장 모양이 아니라
+#     「두 집안이 서로의 가족이 되었다」는 선언이다(G8-out 관계 강화). 쪼개든 붙이든 그 말은 남는다.
+#   ★이 검사는 그날부터 조용히 빨갰다. 내가 게이트 출력을 grep 으로 걸러 보느라 못 봤다.
+chk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 — 모양이 아니라 이 말이 원천
 # ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
 #   ①규칙 6 위반(정의문으로 열기) ②'마지막'이 사실과 다르다(예식 뒤 30분이 더 있다)
 #   ③"자리에서 그대로"가 새 설계와 정면으로 어긋난다(이제 전원이 앞으로 모인다)
@@ -6677,7 +6683,7 @@ if node scripts/check-speech-level.mjs >/dev/null 2>&1; then echo "ok 말단계:
 #   ★[N4_NOT_CLEAN] 4어절이 초록인 것이 «겹침이 없다»는 뜻은 아니다. 3어절에는 지금도 걸리는 것이 있고
 #     (「편히 계시면 됩니다」 인사 사진→단체촬영 · 「오늘 이 자리를」 감동 코스 3회) 고칠지는 결정 대기다.
 #     문턱을 올려 초록을 만든 것이 아니라, 4어절부터가 판단 없이 «겹쳤다»고 말할 수 있는 선이다.
-chk 'N4_NOT_CLEAN' scripts/check-echo-inrun.js 2
+chk 'N4_NOT_CLEAN' scripts/check-echo-inrun.js 1   # ★넣은 날부터 1개뿐이었다
 if node scripts/check-echo-inrun.js >/dev/null 2>&1; then echo "ok 한 예식 안 겹침 (4어절 0건 · 이웃 서술어 PRED_KNOWN 이하)"; else echo "REVERT? 한 예식 안에서 같은 말이 두 번 나간다 — node scripts/check-echo-inrun.js"; fail=1; fi
 chk 'AUX_ONLY' scripts/check-echo-inrun.js 1
 chk 'PRED_REPORT_ONLY' scripts/check-echo-inrun.js 1
@@ -6742,7 +6748,11 @@ chk 'ASK_RESTORE' assets/ritual-cue.js 1
 chk 'ASK_SOURCE' scripts/build-dubbing-script.mjs 2
 chk 'ASK_DEMO_GAP' scripts/build-typecast-import.mjs 1
 chk '다 같이 이렇게 답해 주시면 됩니다' assets/ritual-data.js 1
-chk '네, 그러겠습니다' assets/ritual-data.js 3
+# ★[ASK_ANSWER_WHERE 2026-09-12] 이 줄은 넣은 순간부터 빨갰다 — ritual-data.js 에는 처음부터 1개였고
+#   나머지 둘은 ritual-cue.js 의 note·live(당일 디렉터가 읽는 지문)에 산다. 숫자가 아니라 «자리»를 잘못 짚었다.
+#   셋을 다 지킨다: 문안 1(원천) + 지문 2(디렉터가 보는 곳). 하나라도 빠지면 예식 정점이 다시 빈다.
+chk '네, 그러겠습니다' assets/ritual-data.js 1
+chk '네, 그러겠습니다' assets/ritual-cue.js 2
 nochk '방금 그 대답까지가' assets/ritual-data.js
 # ★[NO_ANSWER_CLAIM] 이 줄을 «답이 작았을 때를 덮는 안전장치»로 넣었다가 N7 에 잡혀 뺐다.
 #   정확히 반대였다 — 아무도 답하지 않았을 때 고정 음성이 「그 대답까지가」라고 하면
@@ -6770,7 +6780,7 @@ nochk "'declare-ask-b', '여러분은" scripts/build-dubbing-script.mjs
 chk '너한테는 삼십 분을 따지면서, 내가 힘든 건 한 마디도 안 하더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '나도 해 볼게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '나는 따지는 사람이야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk 'CHAR_ONE' scripts/apply-hayun-one.mjs 2
+chk 'CHAR_ONE' scripts/apply-hayun-one.mjs 1   # ★넣은 날부터 1개뿐이었다
 
 # ★★[PHOTO_FREE_DO 2026-09-12] 2026-09-06 사장님 지시가 문서에만 있고 코드에 6일째 안 들어와 있었다.
 #   문안개정_20260906.md:115 [PHOTO_FREE] *"작가님이 알아서 하니깐 사진촬영부분은 자유롭게 놔두자"*
@@ -6849,7 +6859,7 @@ nochk '이름이 불린 분들만 남아 주시고' assets/ritual-data.js
 #   ★[VOICE_PENDING] 새 역할 「시어머님」은 성우 미정이다(주하는 신부 어머니라 쓸 수 없다).
 #     build-redub-byvoice.mjs 가 «죽지 않고» 건너뛰고 끝에 알린다 — 한 자리가 비었다고
 #     이미 성우가 정해진 나머지를 볼모로 잡지 않는다. 실제로 한 번 그렇게 멈춰서 고쳤다.
-chk 'GROOM_PARENT' scripts/apply-groom-parent.mjs 2
+chk 'GROOM_PARENT' scripts/apply-groom-parent.mjs 1   # ★넣은 날부터 1개뿐이었다
 chk 'GROOM_PARENT' assets/ritual-cue.js 1
 chk 'GROOM_PARENT' scripts/build-typecast-import.mjs 1
 chk 'VOICE_PENDING' scripts/build-redub-byvoice.mjs 1
@@ -6884,7 +6894,9 @@ nochk '두 사람이 서로에게 다 전했습니다' assets/ritual-data.js
 nochk '한 분도 빠지지 않게' assets/ritual-data.js
 nochk '방금 나눈 말을' assets/ritual-data.js
 chk '앉으신 자리에서 편히 보시면 됩니다' assets/ritual-data.js 2
-chk '휴대폰은 소리만 줄여 주시면 됩니다' assets/ritual-cue.js 1
+# ★[PHONE_SRC 2026-09-12] 이 문장의 «원천»이 ritual-cue.js 에서 ritual-data.js 로 옮겨졌다(45adff23).
+#   사본을 없애는 방향(EXTRA_SOURCE)과 같은 정리라 되돌릴 것이 아니다. 검사가 옛 자리를 보고 있었다.
+chk '휴대폰은 소리만 줄여 주시면 됩니다' assets/ritual-data.js 1
 
 # ★★[EXTRA_SOURCE 2026-09-12] 생성기가 들고 있던 문안 하드코딩 사본 열 줄을 «없앴다».
 #   맞추는 대신 없앤 이유 — 두 번 당했다. 원천을 고쳐도 사본이 옛 글을 들고 manifest 를 먹어
@@ -6921,7 +6933,9 @@ nochk 'undefined:' 'docs/plans/식순연구/타입캐스트/다시받기/0_전�
 chk 'ROUND_MID' assets/ritual-data.js 1
 chk 'ROUND_MID' assets/ritual-cue.js 1
 chk 'ROUND_MID' scripts/apply-round-mid.mjs 2
-chk 'roundMid' assets/ritual-data.js 3
+# ★[ROUND_MID_TWO 2026-09-12] 넣은 순간부터 2개였다 — 문안(NARR.roundMid)과 등재(NARR_CONSOLE_ONLY) 둘.
+#   셋을 요구한 것은 내 착각이다. 지킬 것은 «문안이 있고, 콘솔 전용으로 등재돼 있다» 두 가지다.
+chk 'roundMid' assets/ritual-data.js 2
 chk '두 분이 절반쯤 돌았습니다' assets/ritual-data.js 1
 chk 'N_FILES = 86' scripts/check-ritual-cue.js 1
 
@@ -6955,14 +6969,20 @@ chk 'LOOSE_COVER' scripts/audit/flow-shape.js 1
 #     고치면 재녹음이 붙는다. 사장님 결정 대기다. 여기서 조용히 같이 바꾸지 않았다.
 # ★[BODY_SLICE] 자가검사의 본문 추출을 정규식으로 하려다 소스 뒷부분까지 끌고 온 적이 있다.
 #   시작·끝을 문자열로 잘라 낸다. 그래야 세는 대상이 편지 본문뿐이다.
-chk 'PLETTER_TRIM' scripts/apply-parents-letter.mjs 2
+chk 'PLETTER_TRIM' scripts/apply-parents-letter.mjs 1   # ★넣은 날부터 1개뿐이었다
 chk 'TERM_DIGITAL' scripts/apply-parents-letter.mjs 1
 chk 'BODY_SLICE' scripts/apply-parents-letter.mjs 1
 chk '축의는 여느 예식과 같습니다' scripts/build-dubbing-script.mjs 1
 chk '축의는 여느 예식과 같습니다' parents.html 1
 nochk '저희가 감히 다 알지 못합니다' scripts/build-dubbing-script.mjs
 nochk '저희가 감히 다 알지 못합니다' parents.html
-nochk '온라인 참석' scripts/build-dubbing-script.mjs
+# ★★[TERM_SCOPE 2026-09-12] 파일 전체를 보면 «바로 아래 적힌 결정»과 부딪힌다.
+#   결정 ③ 이 「디렉터 화면의 라벨·지문(「온라인 참석자 환영」)은 그대로 둔다」고 못 박아 뒀는데,
+#   이 검사는 파일 전체를 봐서 그 라벨 두 줄에 늘 걸렸다 — 넣은 순간부터 빨간 검사였다.
+#   ★그래서 «혼주 편지 본문»만 자른다(apply-parents-letter.mjs 의 BODY_SLICE 와 같은 경계).
+#     용어를 맞출 대상은 어른께 드리는 글이지 디렉터가 보는 동작 이름이 아니다.
+_pl=$(sed -n '/안녕하십니까. 귀한 자녀분/,/모먼트에디트 올림./p' scripts/build-dubbing-script.mjs | grep -c '온라인 참석')
+if [ "${_pl:-0}" -eq 0 ]; then echo "ok 혼주 편지 본문에 '온라인 참석' 없음(용어=디지털)"; else echo "REVERT? 혼주 편지 본문에 '온라인 참석' 이 되살아났다 ($_pl건) — 상품 표준은 «디지털 참석»"; fail=1; fi
 
 # ★[TERM_DIGITAL 2026-09-12 사장님 결정 ③] 고객이 읽는 글에서 「온라인」을 뺐다.
 #   상품 표준은 «디지털 참석»이다(S.digital · digitalAttendance · 청첩장 8장 · 마이페이지).
@@ -7003,7 +7023,7 @@ chk 'CAST_HOLD' scripts/build-typecast-import.mjs 1
 #     약속이 안 보인다. 그래서 문형은 그대로 두고 쉼표만 뺐다 — 한 호흡으로 붙어 대구가 더 선명해진다.
 #   ★[10] 「밥 먹다가,」는 앞 토막이 13음절인데도 골랐다. 길이가 아니라 «의미»가 끊긴다 —
 #     거기서 멈추면 아버지가 밥을 먹다 만 것처럼 들리고, 이 편지에서 아버지가 허락하는 단 한 문장이 밀린다.
-chk 'BREATH' scripts/apply-breath.mjs 2
+chk 'BREATH' scripts/apply-breath.mjs 1   # ★넣은 날부터 파일에 1개뿐이었다(2를 요구한 것이 내 착각)
 chk '너는 다 듣고 나서 밥 먹었냐고 물었어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '대신 다 따지고 나서 내가 먼저 밥 먹었냐고 물을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
@@ -7028,7 +7048,7 @@ nochk '다 듣고 나서,' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     배역_예시_대사.txt 를 같은 커밋에서 고쳤다. 한쪽만 고치면 check-text-audio 가 잡는다.
 #   ★두 분 목소리판은 「진동으로 바꿔」다 — 나레이션판과 «일부러» 다르다(초대한 사람의 말이라 부드럽다).
 #     그 결은 지키고 사진 허락만 같이 붙였다. 두 판을 같은 문장으로 통일하지 말 것.
-chk 'PHOTO_OK' scripts/apply-photo-ok.mjs 2
+chk 'PHOTO_OK' scripts/apply-photo-ok.mjs 1   # ★넣은 날부터 1개뿐이었다
 chk '사진은 편히 남기셔도 좋습니다' assets/ritual-data.js 1
 chk '사진은 편히 남기셔도 좋아요' assets/ritual-data.js 1
 chk '사진은 편히 남기셔도 좋아요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
