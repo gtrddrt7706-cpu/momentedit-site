@@ -4195,6 +4195,7 @@ chk 'PAR_PYEBAEK' parents.html 1
 chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
 chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
 chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
+chk '별도의 폐백 순서는 없다' api/_ritual-kb.js 1
 nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' assets/advisor-kb.js
 chk '식사 자리' parents.html 1
 chk '보증하지 않습니다' parents.html 1
