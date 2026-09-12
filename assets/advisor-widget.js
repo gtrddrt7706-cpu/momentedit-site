@@ -372,7 +372,7 @@
       })
       .catch(function () {
         typing.remove();
-        addMsg(isAnonMode() ? '연결이 잠시 불안정합니다. 상담 예약 페이지에서 이어서 확인하실 수 있어요.' : '연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.', 'bot');
+        addMsg(isAnonMode() ? '연결이 잠시 불안정해요. 상담 예약 페이지에서 이어서 확인하실 수 있어요.' : '연결이 잠시 불안정해요. 디렉터가 직접 안내해 드릴게요.', 'bot');
         escalateOrBook();
       })
       .then(function () { sending = false; sendBtn.disabled = false; });
