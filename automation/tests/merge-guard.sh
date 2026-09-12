@@ -6898,3 +6898,9 @@ chk 'EXTRA_SOURCE' scripts/build-dubbing-script.mjs 1
 chk 'EXTRA_SOURCE' scripts/check-ritual-cue.js 1
 nochk "'end-2-goodbye', '오늘" scripts/build-dubbing-script.mjs
 
+# ★[VOICE_PENDING 2026-09-12] 성우 미정 줄은 «개별 파일과 0_전체 둘 다»에서 빠져야 한다.
+#   한 곳만 막았다가 0_전체_화자표기.txt 에 「undefined: 대사」 네 줄이 샜다. 그대로 붙이면
+#   타입캐스트에 «undefined» 라는 화자가 생긴다. 한 곳만 막으면 다른 곳으로 샌다.
+chk 'VOICE_PENDING' scripts/build-redub-byvoice.mjs 2
+nochk 'undefined:' 'docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'
+

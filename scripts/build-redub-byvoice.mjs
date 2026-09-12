@@ -105,7 +105,10 @@ for (const c of man.clips) {
   const key = pad2(c.no) + '_' + c.file;
   const said = rec[(c.dir || NAR) + '|' + key];
   if (said !== undefined && norm(said) === norm(c.sents.map((s) => s.text).join(' '))) continue;
-  for (const s of c.sents) flat.push(`${VOICE[s.role || c.role]}: ${s.text}`);
+  /* ★[VOICE_PENDING] 성우 미정인 줄은 «여기서도» 뺀다 — 한 번 샜다.
+     개별 파일에서만 거르고 이 전체 파일은 안 걸러서 「undefined: 대사」 네 줄이 들어갔다.
+     그대로 타입캐스트에 붙이면 «undefined» 라는 화자가 생긴다. 한 곳만 막으면 다른 곳으로 샌다. */
+  for (const s of c.sents) { const v = VOICE[s.role || c.role]; if (v) flat.push(`${v}: ${s.text}`); }
 }
 fs.writeFileSync(path.join(OUT, '0_전체_화자표기.txt'), flat.join('\n') + '\n');
 console.log(`  ${'전체'.padEnd(6)} ${String(flat.length).padStart(4)}줄  ← 0_전체_화자표기.txt (화자: 대사 · 한 번에)`);
