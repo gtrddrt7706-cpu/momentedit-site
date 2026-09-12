@@ -6904,3 +6904,36 @@ nochk "'end-2-goodbye', '오늘" scripts/build-dubbing-script.mjs
 chk 'VOICE_PENDING' scripts/build-redub-byvoice.mjs 2
 nochk 'undefined:' 'docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'
 
+# ★★[ROUND_MID 2026-09-12 사장님 "진행 흐름을 파악하고 개선점은 없는지 … 완성도를 높여보자"]
+#   흐름을 «시간축»으로 펼쳐 재는 검사를 만들고(scripts/audit/flow-shape.js) 이게 나왔다:
+#     narr-round-open → ● 라이브 1020초(17분) → narr-final-warn
+#   그 17분 동안 스피커에서 «한 마디도 안 나간다». 하루에서 사람의 시간이 가장 긴 자리다.
+#   ★★이 저장소는 이미 그 원리를 알고 있었다 — narr-photo-split 큐 note 에
+#     「순번을 알려 주면 이탈이 준다(하버드)」라고 적어 두고, 그걸 «4분» 구간에만 썼다.
+#     17분 구간엔 안 썼다. 거꾸로였다.
+#   ★여는 말을 늘리지 «않았다» — roundOpen 은 이미 31.5초→20.1초로 줄인 이력이 있고(ROUND_LEN),
+#     17분 뒤엔 어차피 잊힌다. 필요한 것은 «그 시점에» 다시 말하는 것이라 가운데에 한 줄을 뒀다.
+#   ★체인이 아니라 «골라 트는» 자리다(NARR_CONSOLE_ONLY) — 「절반」이 몇 분인지는 그날 자리 수로
+#     달라지고 녹음은 그걸 모른다. 그래서 문안도 「절반」이 아니라 「절반쯤」이다.
+#   ★이탈을 막지 않는다 — 막으면 17분을 참고 앉아 있고, 그냥 풀면 두 분이 갔을 때 사람이 없다.
+#     그래서 비우는 것을 허용하되 「다녀오신 뒤에 다시 찾아뵙겠습니다」로 다시 만나게 한다.
+#   ★번호는 86, 맨 끝. 중간에 끼우면 이미 녹음된 85개가 전부 개명된다.
+chk 'ROUND_MID' assets/ritual-data.js 1
+chk 'ROUND_MID' assets/ritual-cue.js 1
+chk 'ROUND_MID' scripts/apply-round-mid.mjs 2
+chk 'roundMid' assets/ritual-data.js 3
+chk '두 분이 절반쯤 돌았습니다' assets/ritual-data.js 1
+chk 'N_FILES = 86' scripts/check-ritual-cue.js 1
+
+# ★[FLOW_SHAPE] 흐름을 시간축으로 펼쳐 «모양»을 재는 검사. 문장이 아니라 구조를 본다 —
+#   한 목소리가 연속으로 끄는 시간 · 말 없이 흘러가는 구간 · 하객 동작 지시가 몰린 자리 · 블록별 배분.
+#   ★[POST_WAIT] post 의 대기·페이드도 시간이다. 빼고 재면 선언 뒤 박수 시간이 0 으로 잡혀
+#     「선언 직후에 바로 편지가 온다」는 가짜 지적이 나온다. 실제로 한 번 그렇게 나왔다.
+#   ★[GUEST_SPACED] 하객 맞이 네 클립은 5~7분 간격 반복이라 붙여 재면 안 된다. 블록째 뺀다.
+#   ★[LOOSE_COVER] 무음이라고 다 같은 무음이 아니다 — 골라 트는 클립이 준비된 구간은 구별해 표시한다.
+#     구별을 안 하면 이미 손쓴 자리를 계속 빨갛게 보고하게 되고, 보고가 닳는다.
+chk 'FLOW_SHAPE' scripts/audit/flow-shape.js 1
+chk 'POST_WAIT' scripts/audit/flow-shape.js 1
+chk 'GUEST_SPACED' scripts/audit/flow-shape.js 1
+chk 'LOOSE_COVER' scripts/audit/flow-shape.js 1
+

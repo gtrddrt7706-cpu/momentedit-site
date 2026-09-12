@@ -38,7 +38,9 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★「목록 끝」은 「비슷한 것 옆」이 아니라 **파일의 마지막 줄**이다. 다음 사람도 여기서 읽고 가길.
 // [PHOTO_ASK 2026-08-16] 사진 부탁 2개 추가(84_narr-photo-ask · 85_narr-photo-send) → 85.
 //   ★맨 끝에 붙였다 — 위 ENTRY_OUT_TONE 이 실제로 당한 그 사고를 안 되풀이한다.
-const N_FILES = 85;
+// [ROUND_MID 2026-09-12] 인사 사진 «가운데» 안내 1개 추가(86_narr-round-mid) → 86.
+//   그 구간 라이브가 1020초(17분)인데 그동안 스피커에서 한 마디도 안 나갔다(flow-shape.js 실측).
+const N_FILES = 86;
 if (C.FILES.length !== N_FILES) no(`FILES ${N_FILES}개가 아니다 (${C.FILES.length})`);
 else if (new Set(C.FILES).size !== N_FILES) no('FILES에 중복 슬러그가 있다');
 else ok(`FILES ${N_FILES}개 · 중복 없음`);

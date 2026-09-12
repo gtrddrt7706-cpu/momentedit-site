@@ -94,7 +94,9 @@
        84 = 예식 직전(04_guest-4-1min 뒤) · 85 = 배웅(45_end-1a-farewell 뒤).
        ★두 클립 다 `S.photoShare` 가 참일 때만 나온다 — 링크를 안 넣은 두 분에게
          「보내 주세요」라고 하면 없는 버튼을 안내하는 셈이다. */
-    'narr-photo-ask', 'narr-photo-send'
+    'narr-photo-ask', 'narr-photo-send',
+    /* [ROUND_MID 2026-09-12] 인사 사진 가운데 안내 — ★맨 끝에 붙인다(중간에 끼우면 앞 번호가 전부 밀린다) */
+    'narr-round-mid'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;

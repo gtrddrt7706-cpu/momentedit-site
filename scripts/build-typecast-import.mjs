@@ -228,8 +228,15 @@ const clips = parse(SRC);
               ★두 클립 다 «사진 링크를 넣은 두 분에게만» 나간다(S.photoShare) — 04·45 «안»에
                 문장을 더하지 않고 별도 클립으로 뺀 이유가 그것이다. 안에 넣으면 링크 없는
                 두 분에게도 나가거나, 04·45 를 두 벌로 만들어야 한다.
-              ★번호는 맨 끝(84·85) — 중간에 끼우면 이미 녹음된 83개가 전부 개명된다. */
-const CLIP_COUNT = 84;
+              ★번호는 맨 끝(84·85) — 중간에 끼우면 이미 녹음된 83개가 전부 개명된다.
+              84 → 85 [ROUND_MID 2026-09-12] 인사 사진 «가운데» 안내 1개.
+              흐름을 시간축으로 펼쳐 재 보니(scripts/audit/flow-shape.js) 그 구간의 라이브가
+              1020초(17분)인데 그동안 스피커에서 한 마디도 안 나갔다 — 하루에서 사람의 시간이
+              가장 긴 자리다. 저장소가 이미 그 원리를 적어 뒀는데(narr-photo-split note 의
+              「순번을 알려 주면 이탈이 준다 · 하버드」) 4분 구간에만 쓰고 17분 구간엔 안 썼다.
+              ★번호는 맨 끝(86) — 중간에 끼우면 이미 녹음된 85개가 전부 개명된다.
+              ★디렉터가 골라 트는 자리다(NARR_CONSOLE_ONLY) — 「절반」이 몇 분인지는 그날 달라진다. */
+const CLIP_COUNT = 85;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
