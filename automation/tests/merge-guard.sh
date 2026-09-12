@@ -7184,3 +7184,28 @@ nochk 'state-x-h{font-size:13px;font-weight:700' seat.html
 #   ⑧ 한국어가 단어 중간에서 갈렸다 — balance 만으로는 어절이 안 지켜진다.
 chk 'FOOT_KEEPALL' guide.html 1
 
+# ★★[TONE_POLISH2 2026-09-12 사장님 「추천대로」] 한 문장씩은 옳은데 «이어 들으면» 드러나던 것.
+chk 'TONE_POLISH2' scripts/apply-tone-polish2.mjs 1
+#   ① 첫인사 닫는 말이 인사를 닫지 않고 하객 칭찬으로 샜다. 「오늘이 빛난다」는 이 대본이
+#     유일하게 허용한 미화였다(재생 문안 전체에서 「빛」 1회). 닫는 말은 닫기만 한다([LEAD_OUT]).
+nochk '오늘이 더 빛납니다' assets/ritual-data.js
+nochk '오늘이 더 빛납니다' order-preview.html
+chk '두 사람이 오늘 처음 건넨 말이었습니다' assets/ritual-data.js 2
+#   ② 성혼 선언 「따뜻하게」 — 「세상에 단 하나뿐인 사람」은 이 대본이 다른 어디서도 안 쓰는 상투구였고,
+#     한 클립에 「함께」 3회·「주시기 바랍니다」 2회·「이제 두 사람은」 2회가 겹쳐 있었다.
+#     ★짝인 「엄숙하게」의 시그니처(「서로의 평생이 되었습니다」)를 빌려 오지 않았다 —
+#       빌리면 두 갈래가 같은 말을 한다. 갈래의 차이는 어조이지 격이 아니어야 한다.
+nochk '세상에 단 하나뿐인 사람' assets/ritual-data.js
+chk '서로에게 가장 가까운 사람이 되었습니다' assets/ritual-data.js 1
+#   ③ 「이제」로 여는 클립이 «붙어» 나가던 자리. 개수가 아니라 «연속 쌍»을 센다 —
+#     한 예식에 몇 번 나오느냐가 아니라 두 클립이 이어 나가느냐가 귀에 걸리는 것이기 때문이다.
+#     ★짝 중 한쪽은 그 자리의 한 방이라 건드리지 않았다(반지 닫는 말 · 「이제 두 사람은 부부입니다」).
+#       여는 쪽에서만 뺐다. 장면을 여는 문장은 그 말 없이도 열린다.
+_ij=$(node -e "var RC=require('./assets/ritual-cue.js');var t=0;
+  ['family','gamdong','damback','record','minimal','festive'].forEach(function(c){
+    var q=RC.build({course:c},{mode:'console'}).cues;
+    var ix=[];q.forEach(function(x,i){ if(/^이제[,·]?\s/.test((x.text||'').trim())) ix.push(i); });
+    for(var k=1;k<ix.length;k++) if(ix[k]-ix[k-1]===1) t++;
+  });console.log(t)" 2>/dev/null)
+if [ "${_ij:-99}" -eq 0 ]; then echo "ok 「이제」로 여는 클립이 연달아 붙는 자리 0건(6코스 전수)"; else echo "REVERT? 「이제 …, 이제 …」로 이어 나가는 자리가 ${_ij}건 생겼다 — 여는 쪽에서 뺄 것"; fail=1; fi
+
