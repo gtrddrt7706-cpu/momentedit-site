@@ -4164,6 +4164,33 @@ if command -v node >/dev/null 2>&1; then
     && echo 'ok journal-script-check: 낭독 대본 2편 == 화면 본문 · 타입캐스트 규격 통과' \
     || { echo 'FAIL journal-script-check — node scripts/audit/journal-script-check.mjs'; fail=1; }
 fi
+# [JOURNAL_AUDIO_SYNC 2026-09-12] 위 검사는 «대본 == 화면 글»까지다. 둘 다 글이라 둘 다 고치면 초록이 된다.
+#   소리는 같이 안 바뀐다 — 대본을 다듬은 날 화면은 새 문장을 보이고 스피커는 옛 문장을 말한다.
+#   실제로 #704 에서 저널 Nº02 맺음 한 줄을 줄였고 게이트는 전부 초록이었고 mp3 는 옛 문장이었다.
+#   그래서 «음원을 만들 때 쓴 대본의 해시»(audio-state.json)를 맞댄다. 재녹음은 사람이 타입캐스트에서
+#   해야 하므로, 대기표(pending_rerecord)를 적어 둔 어긋남은 경고로만 두고 «말 없는 어긋남»만 빨강이다.
+if command -v node >/dev/null 2>&1; then
+  _jas=$(node scripts/audit/journal-audio-sync.mjs 2>&1); _jasc=$?
+  if [ "$_jasc" = "0" ]; then echo "ok journal-audio-sync: $(printf '%s' "$_jas" | tail -1)"
+    printf '%s' "$_jas" | grep '^· 경고' || true
+  else echo "FAIL journal-audio-sync — node scripts/audit/journal-audio-sync.mjs"
+    printf '%s\n' "$_jas" | grep '^FAIL'; fail=1
+  fi
+fi
+chk 'JOURNAL_AUDIO_SYNC' scripts/audit/journal-audio-sync.mjs 1
+
+# [PAR_ORDER·PAR_DINE 2026-09-12 사용자 선택] 어른께 드리는 안내(parents.html) 두 결정.
+#   ① 「갖출 것은 갖춘 예식」이 「인원을 절제하는 이유」보다 먼저다. 어른이 처음 읽는 본문이
+#      「줄인다」이면 걱정을 풀기 전에 확인해 주는 꼴이 된다. 순서를 되돌리지 말 것.
+#   ② 손님 식사 문단 — 실측으로 이 편지에 「식사」가 0건이었다. 혼주의 가장 큰 걱정에 답이 없었다.
+#   둘 다 «없애 달라»가 아니라 «넣어 달라»라서, 리뷰가 «중복»·«군더더기»로 지우기 쉽다. 그래서 센다.
+chk 'PAR_ORDER' parents.html 1
+chk 'PAR_DINE' parents.html 1
+chk '식사 자리' parents.html 1
+chk '보증하지 않습니다' parents.html 1
+chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
+chk 'pending_rerecord' scripts/audit/journal-audio-sync.mjs 2
+chk 'stamp(part, script)' scripts/build-journal-audio.py 1
 # [GUEST_DIM_AA 2026-08-16] 고객 미리듣기의 --dim 은 브랜드 텍스트 하한선(#75705F · 4.74:1)이다.
 #   ★디렉터 스킨의 #8A8478 을 다시 옮겨 오지 말 것 — 밝은 바탕에서 3.55:1 로 떨어져 axe 8곳이 잡혔던 값이다.
 #   ★끝 화면 부제의 opacity 도 되살리지 말 것(회색 버튼 위에서 3.34:1). 위계는 크기·굵기가 낸다.
