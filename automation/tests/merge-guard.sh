@@ -6859,3 +6859,42 @@ chk '그래도 다음 주에 또 업더라' 'docs/plans/식순연구/배역_예�
 chk '신랑 어머님 한 마디' assets/ritual-data.js 3
 chk 'CAST_COUNT = 26' scripts/build-typecast-import.mjs 1
 
+# ★★[WF_FINDINGS 2026-09-12 사장님 결정 ①⑦] 워크플로 39/39 완주 결과를 반영했다.
+#   ★후반부 12건 중 «3건만 진짜»였고 9건은 반증됐다(오진율 75%). 진단서를 그대로 반영했으면
+#     아홉 곳을 헛되이 고치고 재녹음까지 시킬 뻔했다. 반증을 먼저 거는 값이 여기서 났다.
+#     그 3건 중 A-부모님높임은 [PHOTO_FREE_DO] 로 클립을 꺼서 무효가 됐다. 남은 둘만 고쳤다.
+#   ★★치명 1 — NARV.bless 서정에만 「마이크가 전해지면」이 없었다. 담백·다정엔 있다.
+#     부모님이 마이크를 받고도 언제 시작할지 몰라 서 계시게 된다. 진행자가 없어 그 침묵을 못 메운다.
+#     문안 취향이 아니라 진행 사고다. ★서정에서 이 신호를 다시 빼지 말 것.
+#   ★★치명 2 — 내가 [TIC_CUT] 을 «절반만» 고쳤다. end-2-goodbye 를 ritual-cue.js 만 고치고
+#     build-dubbing-script.mjs 의 하드코딩 사본을 놓쳐, 글에서는 사라지고 소리에는 그대로 남았다.
+#     [ASK_SOURCE] 에서 똑같이 당하고 또 당했다 → [EXTRA_SOURCE] 로 그 열 줄을 통째로
+#     RC.EXTRA 참조로 바꿨다. 사본을 맞추지 않고 없앤다. 맞추면 세 번째가 온다.
+#   ★배웅 — 문장이 아니라 «이어 붙는 방식»이 문제였다. end-1a 가 chain 이라 피크엔드로 설계한
+#     narr-photo-out 바로 뒤에 「오늘의 기록이 모두 담겼습니다」가 붙어 정점을 덮었다. 첫 문장을 뺐다.
+#     hint 도 고쳤다 — 「하객 대부분이 나가시면」인데 note 는 「하객이 듣는 마지막 소리」였다(모순).
+#   ★어조 — 기계 검사(check-narr-rule)는 100벌 전부 초록인데, 그 검사가 스스로 «안 본다»고 적어 둔
+#     N3(감정 설명)·N5(듣고 3초)·N6(그 자리의 사실)에 문제가 몰려 있었다. 열한 곳을 고쳤다.
+#     ring 서정 「방금 나눈 말을」은 서약이 «꺼지는» 조합(record + 편지)에서만 틀린 말이 된다 — 실행해서 확인했다.
+chk 'WF_FINDINGS' scripts/apply-wf-findings.mjs 2
+chk 'WF_FINDINGS' assets/ritual-cue.js 1
+chk '마이크가 전해지면, 편히 말씀해 주시면 됩니다' assets/ritual-data.js 2
+nochk '다른 분들은 잠시 잊으셔도 됩니다' assets/ritual-data.js
+nochk '두 사람이 서로에게 다 전했습니다' assets/ritual-data.js
+nochk '한 분도 빠지지 않게' assets/ritual-data.js
+nochk '방금 나눈 말을' assets/ritual-data.js
+chk '앉으신 자리에서 편히 보시면 됩니다' assets/ritual-data.js 2
+chk '휴대폰은 소리만 줄여 주시면 됩니다' assets/ritual-cue.js 1
+
+# ★★[EXTRA_SOURCE 2026-09-12] 생성기가 들고 있던 문안 하드코딩 사본 열 줄을 «없앴다».
+#   맞추는 대신 없앤 이유 — 두 번 당했다. 원천을 고쳐도 사본이 옛 글을 들고 manifest 를 먹어
+#   «글에서만 고쳐지고 소리엔 그대로» 남았고, 그동안 게이트는 초록이었다.
+#   ★[EXTRA_MIRROR 완화] 그래서 check-ritual-cue.js 의 대조를 «산출물 기준»으로 바꿨다 —
+#     소스에 문자열이 있으면 종전대로 verbatim 대조하고, 없으면 생성기가 만든
+#     더빙_녹음_대본_최종.txt 에 그 문안이 실렸는지 본다. 참조 경로(RC.EXTRA·D.DECLWHO·D.NARR…)를
+#     하나씩 열거하면 새 경로가 생길 때마다 샌다. 산출물을 보면 경로와 무관하게 판정된다.
+#     ★이 검사가 약해진 것이 아니다 — 반증으로 확인했다. EXTRA 문안 한 글자를 바꾸면 빨개진다.
+chk 'EXTRA_SOURCE' scripts/build-dubbing-script.mjs 1
+chk 'EXTRA_SOURCE' scripts/check-ritual-cue.js 1
+nochk "'end-2-goodbye', '오늘" scripts/build-dubbing-script.mjs
+

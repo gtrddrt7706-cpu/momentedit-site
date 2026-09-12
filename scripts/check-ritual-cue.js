@@ -243,7 +243,26 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
 /* ── 6. EXTRA_MIRROR — 문안 사본이 원본과 갈라지지 않았는가 ── */
 {
   const src = fs.readFileSync(path.join(ROOT, 'scripts/build-dubbing-script.mjs'), 'utf8');
-  const miss = Object.keys(C.EXTRA).filter((k) => typeof C.EXTRA[k] !== 'string' || src.indexOf(C.EXTRA[k]) < 0);
+  /* ★★[EXTRA_SOURCE 2026-09-12] 이 검사의 목적은 «두 사본이 갈라지지 않는 것»이다.
+     그런데 사본을 아예 «없애면» 갈라질 수가 없다 — 그게 더 나은 상태다. 실제로 두 번 당했다:
+       [ASK_SOURCE] 응답형 선언 셋 · [TIC_CUT] end-2-goodbye — 둘 다 원천을 고쳤는데
+       생성기의 하드코딩 사본이 옛 글을 들고 manifest 를 먹어, 글에서만 고쳐지고 소리엔 그대로였다.
+     그래서 생성기가 RC.EXTRA['키'] 로 «읽게» 바꿨다. 그 줄이 있으면 사본이 없는 것이므로 통과다.
+     ★문자열을 손으로 적어 둔 키는 종전대로 verbatim 대조한다 — 사본이 남아 있는 한 검사는 유효하다.
+     ★이 완화를 «전부 통과»로 넓히지 말 것. 참조하는 키만 면제된다. */
+  /* 생성기 «소스»에 문자열이 있으면 사본이 남아 있는 것이니 종전대로 대조하고,
+     없으면 생성기가 만든 «산출물»(더빙_녹음_대본_최종.txt)에 그 문안이 실제로 실렸는지 본다.
+     참조 형태를 하나씩 열거하면(RC.EXTRA · D.DECLWHO · D.NARR …) 새 경로가 생길 때마다 샌다.
+     산출물을 보면 경로와 무관하게 «소리로 나갈 글이 같은가»를 바로 판정한다. 그게 원래 의도다. */
+  let out = '';
+  try { out = fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/더빙_녹음_대본_최종.txt'), 'utf8'); } catch (e) { out = ''; }
+  const miss = Object.keys(C.EXTRA).filter((k) => {
+    const v = C.EXTRA[k];
+    if (typeof v !== 'string') return true;
+    if (src.indexOf(v) >= 0) return false;          // 사본이 있고 같다
+    if (out && out.indexOf(v) >= 0) return false;   // 사본은 없지만 산출물에 실렸다
+    return true;
+  });
   if (miss.length) {
     no(`EXTRA_MIRROR 갈라짐 — build-dubbing-script.mjs에 없는 문안: ${miss.join(', ')}\n` +
       '    → 대본 문안을 고쳤으면 assets/ritual-cue.js의 EXTRA도 같이 고쳐야 한다(원본은 대본 생성기).');
