@@ -4203,6 +4203,20 @@ if command -v node >/dev/null 2>&1; then
     || { echo 'FAIL copy-truth — node scripts/audit/copy-truth.mjs'; fail=1; }
 fi
 chk 'COPY_TRUTH' mypage.html 3
+
+# [KB_CHATBOT_TRUTH 2026-09-12] 챗봇이 «없는 기능을 있다»고 말하던 6곳을 고쳤다.
+#   가장 큰 것 — 질문이 「사진 · 문구를 직접 넣나요?」인데 답이 「네, 자유롭게 커스텀」이었다.
+#   api/_kb.js §15 는 「사진은 넣지 않는다」·「"가능합니다"라고 답하지 말 것」을 글로 적어 두었는데
+#   챗봇이 그 금지된 답을 그대로 하고 있었다. 나머지 5건(주례·다국어·수정 마감·녹화본·한복 대여)도
+#   전부 「상담에서 안내드립니다」로 써서 «된다»는 전제를 깔았다.
+#   ★문체 검사가 아니라 사실 검사다. 답변을 고칠 때 원천을 먼저 읽을 것.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/kb-chatbot-truth.mjs >/dev/null 2>&1 \
+    && echo 'ok kb-chatbot-truth: 챗봇이 원천에 없는 기능을 있다고 말하지 않는다' \
+    || { echo 'FAIL kb-chatbot-truth — node scripts/audit/kb-chatbot-truth.mjs'; fail=1; }
+fi
+chk 'INV_NO_PHOTO' api/_kb.js 1
+nochk '사진·문구·구성을 자유롭게' assets/advisor-kb.js
 chk 'function copyThen' mypage.html 1
 nochk 'legacyCopy(t); ok();' mypage.html
 
