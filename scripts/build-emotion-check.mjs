@@ -178,12 +178,31 @@ if (dirty.length) {
   process.exit(2);
 }
 
+const FILES = [];
 fs.mkdirSync(OUTDIR, { recursive: true });
 for (const f of fs.readdirSync(OUTDIR)) fs.unlinkSync(path.join(OUTDIR, f));   // 옛 성우 파일이 남지 않게
-fs.writeFileSync(path.join(OUTDIR, '0_전체_화자표기.txt'), whole.join('\n') + '\n');
-voices.forEach((v, i) => {
-  const name = (i + 1) + '_' + (M.voice[v] || ORDER.indexOf(v) >= 0 && v !== '시어머님' ? v : v + '_성우미정') + '.txt';
+fs.writeFileSync(path.join(OUTDIR, '감동_전체_한번에.txt'), whole.join('\n') + '\n');
+/* ★★[NAME_NO_CLASH 2026-09-12 사장님 「감동구간만 먼저 줘봐」] 이름을 헷갈리게 지었다.
+   다시받기 폴더도 `1_우성.txt`·`2_이겸.txt` 였다. 두 벌이 손에 들어오면 어느 쪽이 감동 구간인지
+   파일 이름만 보고는 알 수 없다 — 사장님이 물으신 게 그것이다.
+   ★그래서 이름에 «무엇인지»와 «누구인지»를 둘 다 박는다: 감동_2_이겸_신랑.txt
+     번호는 예식에서 나오는 차례다. 나레이션은 0번 — 대사가 아니라 사이를 잇는 말이라 따로 둔다. */
+const ROLEOF = new Map();
+for (const g of GROUPS) for (const c of g.clips) {
+  if (c.who === '신랑|신부') { ROLEOF.set(M.voice['신랑'], '신랑'); ROLEOF.set(M.voice['신부'], '신부'); }
+  else if (!ROLEOF.has(NAME(c.who))) ROLEOF.set(NAME(c.who), c.who);
+}
+const NARV2 = M.voice['진행'] || '우성';
+ROLEOF.set(NARV2, '나레이션');
+voices.forEach((v) => {
+  const role = ROLEOF.get(v) || '';
+  const idx = (v === NARV2) ? 0 : voices.filter((x) => x !== NARV2).indexOf(v) + 1;
+  /* 성우가 안 정해진 역할은 v 와 role 이 같은 이름이 된다(NAME 이 역할 이름을 그대로 쓴다).
+     그때는 이름을 겹쳐 쓰지 않고 «역할_성우미정» 한 번만 적는다 — 「시어머님_시어머님_성우미정」은 헛것이다. */
+  const unassigned = (v === role);
+  const name = '감동_' + idx + '_' + (unassigned ? v + '_성우미정' : v + (role ? '_' + role : '')) + '.txt';
   fs.writeFileSync(path.join(OUTDIR, name), byVoice.get(v).join('\n') + '\n');
+  FILES.push({ name, v, role, n: byVoice.get(v).length });
 });
 fs.writeFileSync(path.join(OUTDIR, 'README.md'),
   ['# 감동 구간 — 붙여넣기용 (자동 생성 · 손으로 고치지 마세요)',
@@ -193,14 +212,14 @@ fs.writeFileSync(path.join(OUTDIR, 'README.md'),
    '**이 폴더의 txt 는 대사 줄만 있습니다.** 제목·번호·설명이 한 줄도 없어서 그대로 붙이면 됩니다.',
    '눈으로 차례를 볼 때는 `../감동구간_확인판.txt` 를 보세요 — 그쪽은 붙이면 장식까지 읽힙니다.',
    '',
-   '| 파일 | 성우 | 줄 |',
-   '|---|---|---|',
-   ...voices.map((v, i) => `| ${(i + 1)}_${v === '시어머님' ? '시어머님_성우미정' : v}.txt | ${v === '시어머님' ? '아직 안 정해짐' : v} | ${byVoice.get(v).length} |`),
-   `| 0_전체_화자표기.txt | 전부 (\`성우: 대사\`) | ${whole.length} |`,
+   '| 파일 | 역할 | 성우 | 줄 |',
+   '|---|---|---|---|',
+   ...FILES.sort((a, b) => a.name.localeCompare(b.name)).map((f) => `| ${f.name} | ${f.role} | ${f.v === '시어머님' ? '아직 안 정해짐' : f.v} | ${f.n} |`),
+   `| 감동_전체_한번에.txt | 전부 | (\`성우: 대사\`) | ${whole.length} |`,
    '',
    '★26번(서약 마지막 합창)은 신랑·신부 파일에 **둘 다** 들어 있습니다 — 실제로 둘이 따로 녹음해 겹치는 클립입니다.',
    '  0_전체 에는 한 번만 넣었습니다(두 번 넣으면 붙여 들을 때 같은 말이 두 번 들립니다).',
    ''].join('\n'));
 
 console.log(`[PASTE_CLEAN] ${voices.length}명 · ${whole.length}줄 → ${path.relative(ROOT, OUTDIR)}/`);
-voices.forEach((v, i) => console.log(`   ${(i + 1)}_${v}  ${String(byVoice.get(v).length).padStart(3)}줄`));
+FILES.forEach((f) => console.log(`   ${f.name.padEnd(34)} ${String(f.n).padStart(3)}줄`));
