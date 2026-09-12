@@ -704,7 +704,7 @@ var OUT_TOAST="고맙습니다. 잔은 편히 내려놓으셔도 좋습니다. �
    잔이 없는 손에 "잔은 편히 내려놓으셔도 좋습니다" 는 장면을 깬다. */
 var OUT_CAKE="두 사람이 함께 해낸 첫 번째 일이었습니다. 나이프는 그대로 두셔도 좋습니다.";
 var OUT_DECLARE_FAMILY="이제 두 사람은 부부입니다. 다 함께 축하해 주세요.";
-var CLOSE_NAR="두 사람이 나눈 약속이, 오늘 이 자리를 가득 채웠습니다. 시간이 흘러도, 두 사람은 오늘의 이 마음으로 언제든 돌아올 수 있을 것입니다. 이제 그 자리를 사진으로 남기겠습니다. 모두 앞으로 나와, 두 분 곁에 서 주세요.";   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
+var CLOSE_NAR="오늘 두 사람이 한 말은 여기까지입니다. 이제 사진으로 남기겠습니다. 모두 앞으로 나오셔서, 두 분 곁에 서 주세요.";   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
 window.growHint=function(v){ var el=document.getElementById('growHint'); if(!el) return; var s=String(v||'').trim(); el.style.display=(s&&!/^https?:\/\//i.test(s))?'block':'none'; };   /* [GROW_LINK_HINT] */
@@ -763,9 +763,9 @@ var DECLWHO={
  family:{d:'가족이 낭독',desc:'양가 부모님이나 대표 한 분이 직접 선언해요',nar:"오늘, 신랑 신부는 이 자리에 함께한 우리 모두를 증인으로 서로의 평생이 되었습니다. 이 약속은 오늘부터 두 사람의 것입니다. 이제 두 사람은 부부입니다. 가족 여러분과 함께, 두 사람에게 큰 박수를 보내 주시기 바랍니다.",prep:'낭독하실 가족께 미리 부탁 (D-14) · 선언문은 큰 글씨로 인쇄해 당일 손에 들려 드려요 · 리허설 때 한 번 같이 읽어 봐요, 틀려도 괜찮아요 · 부담되시면 당일에도 나레이션으로 바꿀 수 있어요'}
 };
 var LETTER={
- parent:{d:"부모님께",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음이, 오늘 이 자리에 함께합니다. 듣다가 울컥하셔도 괜찮습니다. 오늘은 그래도 되는 날입니다. 이제, 그 목소리가 이어집니다.",prep:"부모님께 드릴 편지"},
+ parent:{d:"부모님께",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 분들이, 오늘 앞자리에 앉아 계십니다. 듣다가 울컥하셔도 괜찮습니다. 오늘은 그래도 되는 날입니다. 이제, 그 목소리가 이어집니다.",prep:"부모님께 드릴 편지"},
  each:{d:"서로에게",nar:"이제, 두 사람이 서로에게 오래 담아 둔 마음을 꺼냅니다. 듣다가 울컥하셔도 괜찮습니다. 오늘은 그래도 되는 날입니다. 이제, 그 목소리가 이어집니다.",prep:"서로에게 쓸 편지"},
- both:{d:"부모님께, 그리고 서로에게",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 마음, 그리고 이제 서로의 평생이 될 두 사람. 오늘, 그 모든 마음을 차례로 소리 내어 전합니다. 듣다가 울컥하셔도 괜찮습니다. 오늘은 그래도 되는 날입니다. 이제, 그 목소리가 이어집니다.",prep:"부모님께 드릴 편지 · 서로에게 쓸 편지"}
+ both:{d:"부모님께, 그리고 서로에게",nar:"세상에서 가장 먼저 두 사람을 사랑해 준 분들이 앞자리에 계시고, 이제 서로의 평생이 될 두 사람이 여기 섰습니다. 오늘, 그 모든 마음을 차례로 소리 내어 전합니다. 듣다가 울컥하셔도 괜찮습니다. 오늘은 그래도 되는 날입니다. 이제, 그 목소리가 이어집니다.",prep:"부모님께 드릴 편지 · 서로에게 쓸 편지"}
 };
 /* [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것. */
 var RINGWARM={
@@ -2569,7 +2569,7 @@ function renderStep(k){
   else if(k==='letter'){
     h+=clip('letter');
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
-    lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
+    lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'그 편지는 두 분이 가져갑니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 함께해요</label>';
     h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 배우자가 이어서 읽어 주면 돼요.');   // [NO_DIRECTOR_READ] 서약 카드와 같은 사다리 — 디렉터 대독은 실제로 없다
     h+=writeCard('letter',false);   // 1차 입력 — WRITE_2CHECK
@@ -2853,7 +2853,7 @@ var BLOCK={
     return {n:'축배 · 케이크',nar:TOAST[S.toast].nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue};
   },
   letter:function(){
-    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
+    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"그 편지는 두 분이 가져갑니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
   },
   tribute:function(){
     return {n:'부모님 헌정',nar:TRIBUTE.nar,self:'두 분이 부모님께 · '+TRIBUTE.modes[S.tribute].d,end:TRIBUTE.end,cue:TRIBUTE.modes[S.tribute].cue};

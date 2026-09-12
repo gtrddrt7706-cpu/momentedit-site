@@ -52,6 +52,7 @@ for (const d of ['assets/audio/cast', NAR]) {
 }
 
 const byVoice = new Map();
+const pending = {};
 let clips = 0;
 for (const c of man.clips) {                       // ★대장 차례 그대로 — 정렬하지 않는다
   if (c.mix || RETIRED.has(c.file)) continue;
@@ -61,13 +62,23 @@ for (const c of man.clips) {                       // ★대장 차례 그대로
   clips++;
   for (const s of c.sents) {
     const v = VOICE[s.role || c.role];
-    if (!v) { console.log(`✗ 배역 '${s.role || c.role}' 의 성우를 모른다 (${key})`); process.exit(2); }
+    /* ★★[VOICE_PENDING 2026-09-12] 성우가 아직 없는 역할에서 «죽지 않는다» — 건너뛰고 끝에 알린다.
+       실제로 당했다. [27] 시어머님을 새로 만든 순간 이 줄이 process.exit(2) 로 멈추면서
+       «이미 성우가 정해진 다른 17클립까지» 파일이 안 나왔다. 사장님은 성우를 고르기 전에도
+       나머지를 녹음하실 수 있어야 한다. 한 자리가 비었다고 전체를 볼모로 잡지 않는다.
+       ★대신 조용히 넘어가지도 않는다 — 마지막에 «성우 미정» 목록으로 찍고, 그 줄은 어떤
+         성우 파일에도 안 들어간다. 성우가 정해지면 그날 다시 돌리면 된다. */
+    if (!v) { (pending[s.role || c.role] ||= []).push(`${key} ${s.i}`); continue; }
     if (!byVoice.has(v)) byVoice.set(v, []);
     byVoice.get(v).push({ clip: key, i: s.i, text: s.text });
   }
 }
 const rows = [...byVoice.entries()].sort((a, b) => b[1].length - a[1].length);
 console.log(`다시 받아야 할 클립 ${clips}개 · 문장 ${rows.reduce((a, [, l]) => a + l.length, 0)}개`);
+if (Object.keys(pending).length) {
+  console.log('★성우 미정 — 아래 줄은 어떤 파일에도 안 들어갔다. 성우를 고른 뒤 다시 돌리세요:');
+  for (const [role, xs] of Object.entries(pending)) console.log(`   ${role}  ${xs.length}줄  (${xs.join(' · ')})`);
+}
 for (const [v, l] of rows) console.log(`  ${v.padEnd(6)} ${String(l.length).padStart(4)}줄  ${new Set(l.map((x) => x.clip)).size}클립`);
 if (!clips) console.log('REDUB NONE — 다시 받을 것이 없다');
 if (!WRITE) { console.log('\n(안 씀 · --write 로 실제 반영)'); process.exit(0); }

@@ -254,7 +254,14 @@ const castAll = fs.existsSync(CAST) ? parse(CAST) : [];
 // [TEXT_AUDIO 2026-08-04] 입장이 1클립 → 6클립(A~F)으로 벌어져 17 → 22.
 //   화면이 느낌 6종을 보여 주는데 소리가 하나뿐이면, 고르는 일이 아무 소리도 바꾸지 못한다.
 // [VOW_CHORUS 2026-08-04] 서약 마지막 한 문장 합창 3클립(재료 2 + 합성 1)이 붙어 22 → 25.
-if (castAll.length && castAll.length !== 25) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 25)`); process.exit(1); }
+/* ★[CAST_COUNT] 배역 클립 수도 손으로 적는다 — CLIP_COUNT 와 같은 이유다(위 주석).
+     25 → 26 [GROOM_PARENT 2026-09-12] 신랑 부모가 헌정을 «받기만» 하고 말이 한 마디도 없었다.
+              사장님 결정 ④ *"신랑부모가 줄수잇는 감동포인트가 잇다면 양쪽 다 준비해서
+              감정이배가될수잇는쪽으로 기획 구현"*. 덕담을 하나 더 주면 정점이 넷으로 쪼개지므로
+              (PEAK_ONE) «받는 자리»인 헌정에서 네 줄만 답하게 했다 — 27_tribute-reply.
+              ★번호는 맨 끝(27) — 중간에 끼우면 이미 녹음된 26개가 전부 개명된다. */
+const CAST_COUNT = 26;
+if (castAll.length && castAll.length !== CAST_COUNT) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 ${CAST_COUNT})`); process.exit(1); }
 // 배역은 라벨 첫 칸이 화자다 — `신랑 · 식전 안내 · 도착` → 화자 `신랑`
 for (const c of castAll) {
   const seg = c.label.split('·').map((s) => s.trim());
