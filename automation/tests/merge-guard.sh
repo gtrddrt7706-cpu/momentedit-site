@@ -4193,6 +4193,19 @@ chk 'PAR_DINE' parents.html 1
 #     「큰절을 올립니다」로 단정하면 헌정을 뺀 예식에서 거짓이 된다. 「고르십니다」가 맞는 말이다.
 chk 'PAR_PYEBAEK' parents.html 1
 
+# [COPY_TRUTH 2026-09-12] 마이페이지 복사 버튼 13곳이 «복사가 안 돼도» 「복사됐어요」라고 했다.
+#   legacyCopy 가 catch(e){} 로 execCommand 실패를 삼켰고 호출부가 무조건 성공 콜백을 불렀다.
+#   QR 저장도 같았다 — 새 탭 폴백에서도 「저장됐어요」. 집 규칙(근거 없는 완료 단언 금지) 위반이다.
+#   ★복사 버튼을 새로 달 때 옛 꼴을 복사해 붙이는 것을 막는다. 재현 검사가 반증 5종을 확인한다.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/copy-truth.mjs >/dev/null 2>&1 \
+    && echo 'ok copy-truth: 복사·QR 이 실패를 성공이라 말하지 않는다' \
+    || { echo 'FAIL copy-truth — node scripts/audit/copy-truth.mjs'; fail=1; }
+fi
+chk 'COPY_TRUTH' mypage.html 3
+chk 'function copyThen' mypage.html 1
+nochk 'legacyCopy(t); ok();' mypage.html
+
 # [INV_EDITION 2026-09-12] 청첩장은 «온라인(i/cover)»과 «오프라인(i-family/family)» 두 판이다
 #   (api/_kb.js §15). 오프라인 판은 오시는 길·주차를 담고, 온라인 판은 디지털 참석·편지·영상을 담는다.
 #   실제 사고: cover 를 복사해 family 를 만들며 한쪽만 고쳐, 오시는 분께 보내는 판에
