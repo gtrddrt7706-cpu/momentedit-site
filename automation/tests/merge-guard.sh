@@ -6669,3 +6669,14 @@ chk 'ANIDA_TRAP' scripts/check-speech-level.mjs 1
 chk 'TRAIL_OFF' scripts/check-speech-level.mjs 1
 chk 'EXCLAIM_SELF' scripts/check-speech-level.mjs 1
 node scripts/check-speech-level.mjs >/dev/null 2>&1 && ok '말단계: 한 화자 안의 왕복 0건' 1 || ok '말단계: 한 화자 안의 왕복 0건' 0
+
+# ★★[ECHO_INRUN 2026-09-12] 한 예식 «안에서» 같은 말이 두 번 나가는지 큐 엔진을 돌려 확인한다.
+#   대본 파일로 세면 63건이 겹쳐 보이는데 대부분 «고객이 하나만 고르는 대안 클립»이라 가짜다.
+#   그래서 ritual-cue.js 의 build(S) 를 코스별로 실제로 돌려 그 예식에 나가는 큐만 본다 —
+#   대안 판정을 손으로 적지 않으니 순서를 바꾸거나 코스를 늘려도 검사가 저절로 따라온다.
+#   ★[N4_NOT_CLEAN] 4어절이 초록인 것이 «겹침이 없다»는 뜻은 아니다. 3어절에는 지금도 걸리는 것이 있고
+#     (「편히 계시면 됩니다」 인사 사진→단체촬영 · 「오늘 이 자리를」 감동 코스 3회) 고칠지는 결정 대기다.
+#     문턱을 올려 초록을 만든 것이 아니라, 4어절부터가 판단 없이 «겹쳤다»고 말할 수 있는 선이다.
+chk 'N4_NOT_CLEAN' scripts/check-echo-inrun.js 2
+node scripts/check-echo-inrun.js >/dev/null 2>&1 && ok '한 예식 안 4어절 겹침 0건(코스 6종)' 1 || ok '한 예식 안 4어절 겹침 0건(코스 6종)' 0
+
