@@ -4201,6 +4201,10 @@ chk 'PAR_PYEBAEK' parents.html 1
 #   둘 다 cover 쪽에서는 맞는 말이라 원문 검색만으로는 안 잡힌다. 판을 나눠서 센다.
 nochk '마음만 더해' i-family/family-04.html
 nochk '참석이 어려운' i-family/family-08.html
+nochk '멀리 계셔도' i-family/family-01.html
+nochk '한 페이지의 자리' i-family/family-01.html
+chk '멀리 계셔도' i/cover-01.html 1
+chk '한 자리를 마련했습니다' i-family/family-01.html 1
 chk '귀한 마음만 더해' i/cover-04.html 1
 chk '참석이 어려운' i/cover-08.html 1
 chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
