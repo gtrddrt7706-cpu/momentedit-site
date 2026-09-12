@@ -67,7 +67,15 @@
       /* [INV_BACK_DODGE] 알약이 커버 워드마크를 덮었다(02·03·04·05·07 실측 61×14px 겹침, 16종 검수).
          디자인마다 마스트 높이가 달라 고정 top으론 전부 못 피한다 — 붙인 뒤 실제로 밑에 깔린
          텍스트 요소를 히트테스트로 찾아, 있으면 그 아래로 내려앉는다(최대 132px). */
-      requestAnimationFrame(function () {
+      /* ★★[DODGE_AGAIN 2026-09-12] 한 번만 피하던 것을 «피할 곳이 없을 때까지» 반복한다.
+         실사고 — live.html 390px 에서 알약이 워드마크를 정확히 덮어 브랜드명이 「MENT · EDIT」로 읽혔다.
+         원인은 한 번뿐인 검사다: 붙인 직후 밑에 깔린 건 표본 배지(bottom 59)뿐이라 69px 로 내려앉았는데,
+         «그 자리»가 곧 브랜드 마스트(59~116)였다. 한 번 피하고 나면 다시 보지 않았다.
+         ★한 판(마스트가 있는 화면)에서만 나는 문제라 고정 top 으로는 못 고친다 — 원래 판단은 옳았고,
+           «반복»이 빠져 있었을 뿐이다. 옮길 때마다 다시 보고, 더 못 내려가면 그대로 멈춘다(132px 상한 유지).
+         ★상한에 닿아도 여전히 덮이면 더 하지 않는다 — 그때는 알약을 옮길 게 아니라 그 판을 봐야 한다. */
+      var CAP = 132;
+      function dodge(pass) {
         try {
           var r = a.getBoundingClientRect(), low = 0;
           var pts = [[r.left + 6, r.top + r.height / 2], [r.right - 6, r.top + r.height / 2], [(r.left + r.right) / 2, r.top + 4]];
@@ -81,9 +89,14 @@
               if (b2.height > 0 && b2.height < 160 && b2.bottom > low) low = b2.bottom;   // 화면만 한 배경 컨테이너는 제외
             }
           }
-          if (low > 0) a.style.top = Math.min(132, Math.round(low) + 10) + 'px';
+          if (low <= 0) return;                                   // 아무것도 안 덮는다 — 끝
+          var want = Math.min(CAP, Math.round(low) + 10);
+          if (want <= Math.round(r.top)) return;                  // 더 내려갈 곳이 없다(상한이거나 이미 아래다)
+          a.style.top = want + 'px';
+          if (pass < 4) requestAnimationFrame(function () { dodge(pass + 1); });
         } catch (_) {}
-      });
+      }
+      requestAnimationFrame(function () { dodge(0); });
       return true;
     } catch (_) { return true; }
   }

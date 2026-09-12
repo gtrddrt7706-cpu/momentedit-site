@@ -24,10 +24,16 @@ html,body{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
 
     html,body{margin:0;height:100%}
-    body{display:flex;align-items:center;justify-content:center;background:#FAFAF8;color:#3d3d3a;font-family:'Noto Serif KR',serif;text-align:center;padding:24px}
-    .ey{font-family:'Cormorant Garamond',serif;letter-spacing:.28em;font-size:13px;color:#B89A75}
+    /* ★★[FORM_EXIT_CONTRAST 2026-09-12] 이 화면은 «자동 이동이 실패했을 때만» 보인다.
+       그런데 그 화면의 유일한 출구인 「여기를 눌러 주세요」가 --gold(#B89A75) = 크림 위 2.54:1 이었다.
+       제일 필요한 순간에 제일 안 읽히는 글자였다. 글자에 쓰는 금색은 --gold-text(#7A5F37 · 5.71:1)다.
+       ★본문색 #3d3d3a 도 팔레트 밖 값이라 --sub(#5A554C)로 맞췄다.
+       ★폰트 링크는 «일부러» 안 넣는다 — 이 페이지는 meta refresh 로 즉시 떠나는 자리라
+         웹폰트를 받으면 떠나는 것만 늦어진다. 시스템 서체로 읽히는 게 맞다. */
+    body{display:flex;align-items:center;justify-content:center;background:#FAFAF8;color:#5A554C;font-family:'Noto Serif KR',serif;text-align:center;padding:24px}
+    .ey{font-family:'Cormorant Garamond',serif;letter-spacing:.28em;font-size:13px;color:#7A5F37}
     .ms{font-size:15px;font-weight:300;margin:14px 0 18px}
-    a{color:#B89A75}
+    a{color:#7A5F37}
   </style>
 </head>
 <body>

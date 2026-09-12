@@ -7137,3 +7137,50 @@ nochk '가장 달콤한 순간' assets/ritual-data.js
 nochk '첫 걸음' assets/ritual-data.js
 nochk '첫 걸음' "docs/plans/식순연구/배역_예시_대사.txt"
 
+# ★★[SCREEN_POLISH 2026-09-12] 화면 세 각도(고객 여정 · 하객 · 당일 운영)를 390/1280 으로 실제 찍어 보고 고쳤다.
+#   여기 거는 것도 «정답이 하나인 것»뿐이다 — 접근성 수치·문서화된 규칙 위반·못 보던 실패 경로.
+#   취향이 갈리는 것(글자 크기 램프 · 글래스모피즘 · 음료 점 색)은 사장님 결정으로 넘겼다.
+#
+#   ① 라이브 화면이 «남의 결혼식 + 표본 계좌»를 진짜처럼 보여주고 있었다 [LIVE_NOT_LOADED]
+#     서버에 «닿지 못한» 경우(fetch throw · 재시도 3회 실패) catch 가 콘솔에만 찍고 finally 가
+#     정적 더미를 공개했다. 하객이 그 계좌로 축의를 보낼 수 있었다.
+#     ★이 파일 자신이 [DEMO_BADGE] 에 「하객이 표본 계좌로 축의금을 보낼 수 있다」고 적어 뒀는데,
+#       그 경고는 test-couple 분기에만 붙어 있었다. 두 주석이 가리키는 상황의 «교차점»만 무방비였다.
+#     ★link-unknown 을 재사용하지 않았다 — 서버가 「없다」고 답한 게 아니라 답을 못 받은 것이라
+#       「링크가 틀렸다」고 말하면 거짓말이다. 폴링이 복구하면 저절로 걷힌다.
+chk 'LIVE_NOT_LOADED' live.html 4
+chk 'setNotLoaded(true)' live.html 1
+chk 'body.live-notloaded #envelope{display:none}' live.html 1
+#   ② 폰트가 «무응답»이면 JS 가 통째로 안 돌았다 [FONT_ASYNC]
+#     실측 — 폰트 요청을 지연시키면 18초 뒤에도 readyState=loading · 인라인 스크립트 미실행 ·
+#     관리자 로그인 버튼이 조용히 먹통. 예식장 캡티브 포털은 «실패»가 아니라 «무응답»으로 온다.
+#     order-preview·index 가 이미 쓰던 media=print → onload 패턴으로 셋을 맞췄다.
+chk 'FONT_ASYNC' live.html 1
+chk 'FONT_ASYNC' preview.html 1
+chk 'FONT_ASYNC' admin.html 1
+#   ③ 갤러리 알약이 워드마크를 덮어 「MENT · EDIT」로 읽혔다 [DODGE_AGAIN] — 닷지가 «한 번»만 돌았다.
+chk 'DODGE_AGAIN' shared/gv-back.js 1
+#   ④ 진행 중인 예식을 확인 없이 버렸다 [EXIT_CONFIRM] — 같은 화면의 「전체 정지」는 길게누름인데 이쪽만 맨몸이었다.
+chk 'EXIT_CONFIRM' console.html 1
+#   ⑤ 모션 최소화를 무시하던 곳 둘 — 여정 목록 자동 넘김 · 로딩 점.
+#     index 는 reduce 를 «재기만» 하고 안 썼다(죽은 변수). 같은 파일 7338행에 정답이 이미 있었다.
+chk 'JR_REDUCED' index.html 1
+chk 'if(reduce) return' index.html 1
+chk 'BDOT_REDUCED' guide.html 1
+chk 'BDOT_REDUCED' seat.html 1
+#   ⑥ 대비 — opacity 로 위계를 내려다 «안 읽힘»이 된 자리들. 위계는 크기가 이미 내고 있었다.
+chk 'DIM_READABLE' index.html 2
+chk 'MIN_UNIT_CONTRAST' index.html 1
+chk 'FORM_EXIT_CONTRAST' form.html 1
+nochk 'color:#B89A75' form.html
+chk 'SKEL_CONTRAST' preview.html 1
+chk 'SEP_CONTRAST' invitation-gallery.html 1
+#   ⑦ 빈 화면의 위계가 뒤집혀 있었다 — 제목이 제일 옅고 보조 헤더가 제일 진하고 굵었다.
+#     게다가 그 700 은 이 페이지가 «받지 않는» 무게라 합성 볼드로 그려지고 있었다.
+chk 'STATE_HIER' guide.html 1
+chk 'STATE_HIER' seat.html 1
+nochk 'state-x-h{font-size:13px;font-weight:700' guide.html
+nochk 'state-x-h{font-size:13px;font-weight:700' seat.html
+#   ⑧ 한국어가 단어 중간에서 갈렸다 — balance 만으로는 어절이 안 지켜진다.
+chk 'FOOT_KEEPALL' guide.html 1
+

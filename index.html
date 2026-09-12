@@ -1967,7 +1967,9 @@ section:not(#rsvp) > *:last-child {
 }
 .seq-item--core .seq-time span {
   color: var(--seal);
-  opacity: 0.6;
+  /* ★[MIN_UNIT_CONTRAST 2026-09-12] opacity:0.6 이 10.14:1 을 3.45:1 로 떨어뜨렸다(12px 본문).
+     숫자 45px ↔ 단위 12px 로 크기 위계가 이미 3.75배라 opacity 는 위계에 아무것도 안 보태고
+     대비만 깎고 있었다. 걷어 내면 그대로 10.14:1 이다. */
 }
 .seq-name {
   font-family: var(--serif);
@@ -4344,7 +4346,11 @@ footer {
   display: flex;
   gap: 22px;
   align-items: flex-start;
-  opacity: 0.32;
+  /* ★[DIM_READABLE 2026-09-12] 0.32 는 실측 1.54~1.65:1 이다. 위계가 아니라 «안 읽힘»이었다.
+     ★크기 위계(20/11/12px)가 이미 나 있어서 opacity 는 위계에 기여하지 않고 대비만 깎았다.
+       [CTA_EYEBROW] 가 같은 이유로 3.1 → 5.0 으로 올린 전례가 있다. 0.55 면 4.5:1 을 넘긴다.
+     ★disabled 가 아니라 «누를 수 있는» 항목이라 비활성 컨트롤 예외도 안 걸린다. */
+  opacity: 0.55;
   transition: opacity 0.45s var(--ease);
   cursor: pointer;
   padding: 4px 0;
@@ -5526,7 +5532,7 @@ body {
   cursor: pointer;
   padding: 4px 0;
   position: relative;
-  opacity: 0.32;
+  opacity: 0.55;   /* ★[DIM_READABLE] 위 .mockup-item 과 같은 이유 — 0.32 는 1.54~1.88:1 이었다 */
   transition: opacity 0.45s var(--ease);
   font: inherit;
   color: inherit;
@@ -9029,7 +9035,12 @@ nav .nav-links a, .nav-links a, .f-links a {
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   function show(i){ cur=((i%n)+n)%n; for(var k=0;k<n;k++){ var on=k===cur; shots[k].classList.toggle('on',on); steps[k].classList.toggle('on',on); var b=steps[k].querySelector('.jr-step-btn'); if(b) b.setAttribute('aria-pressed', on?'true':'false'); } }
   function stop(){ if(timer){ clearInterval(timer); timer=null; } }
-  function play(){ stop(); timer=setInterval(function(){ show(cur+1); }, DUR); }
+  /* ★[JR_REDUCED 2026-09-12] 모션 최소화 설정에서도 5.4초마다 저절로 넘어가고 있었다.
+     바로 윗줄에서 reduce 를 «재기만» 하고 아무 데도 안 썼다 — 죽은 변수였다.
+     ★같은 파일 7338행의 목업 캐러셀이 이미 정답을 갖고 있었다:
+       「모션 최소화 설정이면 저절로 넘기지 않는다 — 브랜드 모션 규칙」.
+       규칙은 있었고 한 곳에만 적용돼 있었다. 누른 버튼으로 넘기는 길은 그대로다. */
+  function play(){ stop(); if(reduce) return; timer=setInterval(function(){ show(cur+1); }, DUR); }
   for(var k=0;k<n;k++){ (function(idx){ steps[idx].querySelector('.jr-step-btn').addEventListener('click', function(){ show(idx); play(); }); })(k); }
 
   /* ★[JR_HOVER 2026-08-30 사용자 지시 "위쪽 목업 처럼 클릭하지않아도 마우스 올려도 전환되게 해죠"]
