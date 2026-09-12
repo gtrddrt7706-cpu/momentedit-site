@@ -7067,4 +7067,8 @@ if [ "$_GE" = "0" ]; then echo "ok 하객이 궁금할 것 9종에 전부 답이
 chk 'VOICE_GAP' scripts/audit/voice-gap.js 1
 chk 'OCTAVE_FIX' scripts/audit/voice-gap.js 2
 chk 'GAP_KNOWN' scripts/audit/voice-gap.js 1
+# ★검사를 «실제로» 돌린다. 마커만 걸고 실행을 안 넣으면 아무것도 안 잡는다([NO_OK_FN] 참고).
+#   ffmpeg 로 mp3 를 훑어 30초쯤 걸린다 — 게이트에서 제일 느린 축이지만, 성우 교체가
+#   조용히 규칙을 깨는 사고를 이 검사 말고는 잡을 방법이 없다.
+if node scripts/audit/voice-gap.js >/dev/null 2>&1; then echo "ok 성우 F0 겹침 (붙은 쌍 GAP_KNOWN 이하)"; else echo "REVERT? 성우 목소리가 더 겹친다 — node scripts/audit/voice-gap.js"; fail=1; fi
 
