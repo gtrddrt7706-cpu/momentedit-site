@@ -6631,8 +6631,24 @@ chk '잘 살아라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '한 번 더 묻는 사람이구나 싶었습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '네가 한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '저는 그날 이 걱정을 내려놓았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '듣다가 울컥하셔도 괜찮습니다' assets/ritual-data.js 3
-chk '듣다가 울컥하셔도 괜찮습니다' order-preview.html 3
+# ★★[CRY_OK 폐지 — 2026-09-12 사용자 지시로 삭제 · 되살리지 말 것]
+#   사장님 원문: 「이거 너무 오글거려 별로야 울컥감동은 강요하지말고 하객이 자연스럽게 느끼는거지
+#                 호들갑부리지마 수정개선」
+#   위 CRY_OK 블록의 관찰(25명 방에는 익명이 없다)은 틀리지 않았지만 «처방»이 틀렸다 —
+#   감정을 «허용»한다는 것이 곧 «예고»다. 아직 아무 일도 안 일어났는데 무엇을 느낄지 먼저 말하면
+#   안 느낀 사람은 눈치를 보고 느낀 사람은 김이 샌다. 그리고 아무도 안 울면 그 말이 틀린 말이 된다
+#   (녹음된 말은 반응하지 못한다 — [NO_ANSWER_CLAIM] 과 같은 종류의 잘못이다).
+#   ★«넣기 전»으로 되돌리지도 않았다. 그 판도 호들갑이었다(「세상에서 가장 먼저」·「한 번도 다 갚지 못한」).
+#     되돌리기는 쉬운 길이지 맞는 길이 아니다. 새로 썼다.
+#   ★새 원칙 — 여는 말은 «지금 눈앞에 무엇이 벌어지는지»만 말하고 물러난다.
+#     감정에 이름을 붙이지 않고, 무엇을 느낄지 말하지 않고, 실제보다 크게 말하지 않는다.
+nochk '울컥하셔도 괜찮습니다' assets/ritual-data.js
+nochk '울컥하셔도 괜찮습니다' order-preview.html
+nochk '오늘은 그래도 되는 날입니다' assets/ritual-data.js
+chk 'NO_FUSS' scripts/apply-no-fuss.mjs 1
+chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
+chk '두 사람이 서로에게 쓴 편지가 있습니다' assets/ritual-data.js 1
+chk '두 사람이 편지를 두 통 썼습니다' assets/ritual-data.js 1
 
 # ★★[SPEECH_LEVEL 2026-09-12 사장님 "아버지 존대하는거 조금 어색해"] 아버님 덕담의 말단계를 반말로 통일했다.
 #   실측: 습니다(2~9) → 반말(10~13) → 습니다(14~15) → 반말(16). 한 사람 안에서 왕복 네 번이었다.
@@ -6850,7 +6866,12 @@ chk 'TIC_CUT' scripts/apply-tic-cut.mjs 2
 chk 'COUNT_BY_CUE' scripts/apply-tic-cut.mjs 1
 chk '오늘 이 자리에 있던 사람들만 들었습니다' assets/ritual-data.js 1
 chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
-chk '앞자리에 앉아 계십니다' assets/ritual-data.js 1
+# ★[NO_FUSS 2026-09-12] 「앉아 계십니다」 → 「앞자리에 부모님이 계십니다」.
+#   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
+#   새 문장도 주어가 사람이고, 하객의 시선을 부모님께 돌리는 기능도 그대로다. 형태만 짧아졌다.
+#   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
+chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
+nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
 chk '그 편지는 두 분이 가져갑니다' assets/ritual-data.js 1
 nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
 nochk '오늘 이 자리를 함께 채워 주셔서' assets/ritual-cue.js
