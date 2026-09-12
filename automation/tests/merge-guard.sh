@@ -4186,6 +4186,17 @@ chk 'JOURNAL_AUDIO_SYNC' scripts/audit/journal-audio-sync.mjs 1
 #   둘 다 «없애 달라»가 아니라 «넣어 달라»라서, 리뷰가 «중복»·«군더더기»로 지우기 쉽다. 그래서 센다.
 chk 'PAR_ORDER' parents.html 1
 chk 'PAR_DINE' parents.html 1
+
+# [PAR_PYEBAEK 2026-09-12 사용자 지시 「폐백 예단은 안해」] 폐백 방침은 «세 곳이 같은 말»이어야 한다.
+#   어른 페이지·챗봇·식순 KB 중 하나만 고치면 어른은 「안 한다」를 읽고 챗봇에 물으면 다른 말을 듣는다.
+#   ★문장을 세게 만들지 말 것 — 부모님 헌정은 두 분이 뺄 수 있다(order-preview.html NEVEROFF={entry:1}).
+#     「큰절을 올립니다」로 단정하면 헌정을 뺀 예식에서 거짓이 된다. 「고르십니다」가 맞는 말이다.
+chk 'PAR_PYEBAEK' parents.html 1
+chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
+chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
+chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
+chk '별도의 폐백 순서는 없다' api/_ritual-kb.js 1
+nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' assets/advisor-kb.js
 chk '식사 자리' parents.html 1
 chk '보증하지 않습니다' parents.html 1
 chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
