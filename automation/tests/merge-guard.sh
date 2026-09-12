@@ -6772,3 +6772,21 @@ chk '나도 해 볼게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '나는 따지는 사람이야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk 'CHAR_ONE' scripts/apply-hayun-one.mjs 2
 
+# ★★[PHOTO_FREE_DO 2026-09-12] 2026-09-06 사장님 지시가 문서에만 있고 코드에 6일째 안 들어와 있었다.
+#   문안개정_20260906.md:115 [PHOTO_FREE] *"작가님이 알아서 하니깐 사진촬영부분은 자유롭게 놔두자"*
+#   여섯을 지우라 했는데 「하나, 둘, 셋」(fx-count) 하나만 실행되고 다섯이 살아 있었다.
+#   ★어떻게 찾았나 — 「이번에는 양가 부모님만 남습니다」의 주체높임 누락을 고치려다 걸렸다.
+#     지적은 3/3 으로 맞았지만, 그 문장은 «고칠 것»이 아니라 «지워졌어야 할 것»이었다.
+#     높임만 고쳤으면 사장님이 지우라 한 문장을 더 다듬어 놓고 재녹음까지 시킬 뻔했다.
+#     ★문안을 고치기 전에 「이 문장이 아직 살아 있어야 하는가」를 먼저 묻는다.
+#   ★지우지 않고 off:1 + RETIRED 로 끈다 — 지우면 뒤 클립 번호가 밀려 녹음된 mp3 가 남의 자리에 앉는다.
+#   ★되살리지 말 것. 「작가는 이 집안의 누가 누군지 모른다」는 조사 근거로 되살리고 싶어지는데,
+#     그 근거는 문안개정 문서가 이미 스스로 «틀렸다»고 철회했다(지시자가 둘이 되는 것이 더 큰 사고다).
+chk 'PHOTO_FREE_DO' assets/ritual-data.js 1
+chk 'PHOTO_FREE_DO' assets/ritual-cue.js 1
+chk 'PHOTO_FREE_DO' scripts/apply-photo-free.mjs 2
+chk "'call-family-all': 1" assets/ritual-cue.js 1
+chk "'call-parents': 1" assets/ritual-cue.js 1
+chk "'fx-seatrow': 1" assets/ritual-cue.js 1
+nochk '나머지 분들은 그대로 계셔도 좋습니다' assets/ritual-data.js
+

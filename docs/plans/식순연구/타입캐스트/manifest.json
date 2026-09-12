@@ -105,8 +105,8 @@
       ],
       "dir": "assets/audio/narration",
       "clips": 30,
-      "sents": 59,
-      "chars": 1544
+      "sents": 58,
+      "chars": 1518
     },
     {
       "file": "5_배역.txt",
@@ -2697,12 +2697,6 @@
       "sents": [
         {
           "i": 0,
-          "text": "나머지 분들은 그대로 계셔도 좋습니다.",
-          "before": 0,
-          "after": 0.45
-        },
-        {
-          "i": 1,
           "text": "두 분, 폰을 들어 주세요.",
           "before": 0,
           "after": 0
