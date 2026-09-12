@@ -3228,6 +3228,10 @@ chk 'CANT_LOOK' scripts/check-syl-rate.mjs 2
 chk 'NAN_NOT_ZERO' scripts/assemble-narration.mjs 1
 chk 'NAN_NOT_ZERO' scripts/assemble-parents-letter.mjs 2
 chk 'NAN_NOT_ZERO' scripts/check-syl-rate.mjs 1
+# ★[TEXT_AHEAD 2026-09-12] 이 검사가 빨개지는 «가장 흔한» 원인은 성우 교체가 아니라
+#   «문안을 고쳤는데 녹음이 아직 옛 판»인 것이다. 값이 (총 음절 ÷ 총 녹음 길이)라 그렇다.
+#   그때 범위를 넓혀 초록으로 만들면 「상수와 실측이 맞다」는 거짓을 박는 것이 된다. 건드리지 말 것.
+chk 'TEXT_AHEAD' scripts/check-syl-rate.mjs 1
 chk 'Number.isFinite' scripts/assemble-narration.mjs 1
 chk 'Number.isFinite' scripts/assemble-parents-letter.mjs 1
 chk '!(r >= 0.85)' scripts/assemble-parents-letter.mjs 1
@@ -6676,6 +6680,44 @@ nochk '울컥하셔도 괜찮습니다' assets/ritual-data.js
 nochk '울컥하셔도 괜찮습니다' order-preview.html
 nochk '오늘은 그래도 되는 날입니다' assets/ritual-data.js
 chk 'NO_FUSS' scripts/apply-no-fuss.mjs 1
+
+# ★★[NO_FUSS2 2026-09-12 사장님 「이런식으로 감동부분들 전면 검토개선」]
+#   여섯 각도로 감동 구간을 훑고 발견마다 셋이 검증했다(①정말 호들갑인가 ②고치면 감동이 죽는가
+#   ③대안이 정말 나은가). 43건 중 24건 통과 → 문장 단위로 겹침을 걷어 여덟 자리를 고쳤다.
+#   ★열아홉 건은 「감동이 죽는가」에서 떨어졌다. 밋밋하게 만드는 것은 고친 것이 아니다.
+#   ★드러난 패턴 하나 — 이 대본의 나레이션은 «닫는 말»에서 자꾸 결론을 낸다.
+#     하객이 방금 들은 것을 스스로 재기 전에 진행자가 먼저 크기를 정해 버린다.
+#     같은 대본의 모범들은 정반대다 — 「이제 두 분 손에 같은 것이 하나씩 생겼습니다」·
+#     「그 편지는 두 분이 가져갑니다」·「방금 그 말은, 오늘 이 자리에 있던 사람들만 들었습니다」.
+#     전부 «방금 생긴 사실» 하나만 말하고 물러난다. 아래가 그 규칙을 안 지키던 자리들이다.
+chk 'NO_FUSS2' scripts/apply-no-fuss2.mjs 1
+# ①서약 여는 말 — 아직 아무 말도 안 나왔는데 두 사람 속을 단정하던 문장.
+nochk '오래 마음에 품어 온 말이 있을 겁니다' assets/ritual-data.js
+nochk '오래 마음에 품어 온 말이 있을 겁니다' order-preview.html
+# ②서약 닫는 말 — 두 사람은 「가까이서 오래 지켜봐 주세요」라고 작게 말했는데 나레이터가 「평생」으로 부풀렸다.
+#   ★한 예식에 「평생」이 두 번 나오던 것도 풀린다(두 클립 뒤 성혼 선언이 「서로의 평생이 되었습니다」).
+nochk '두 사람의 평생이 됩니다' assets/ritual-data.js
+chk '방금 두 사람이 지킬 것을 말했습니다' assets/ritual-data.js 2
+# ③④축배 — 잔도 안 들었는데 「기쁨」이라 이름 붙이고, 끝나서는 그 기쁨이 하루를 「채웠다」고 봉인했다.
+#   축배 답이 작았던 날에도 그대로 나간다. 「울컥하셔도 괜찮습니다」와 같은 꼴이다.
+nochk '두 사람의 첫날을 채웠습니다' assets/ritual-data.js
+nochk '이 기쁨을 함께 나누겠습니다' assets/ritual-data.js
+chk '축배를 들겠습니다. 앞에 놓인 잔을' assets/ritual-data.js 1
+# ⑤⑥헌정 — 눈앞의 부모님을 「가장 오랜 사랑」이라는 추상으로 바꿔 부르고,
+#   시어머님이 방금 «보여 준» 것을 닫는 말이 되받아 해설했다.
+nochk '가장 오랜 사랑 앞으로' assets/ritual-data.js
+nochk '그 사랑이 있어 오늘의 두 사람이 있습니다' assets/ritual-data.js
+chk '키워 주신 분들 앞으로 걸어갑니다' assets/ritual-data.js 1
+# ⑦입장 닫는 말 C — 25명 예식의 하객 대부분은 가족·친구다. 「먼 길 함께 걸어와 주신」은 미화였다.
+nochk '먼 길 함께 걸어와 주신' assets/ritual-data.js
+# ⑧★★되살아난 흠 — 「다 지웠어」가 서약과 편지 양쪽에 있었다.
+#   apply-letter-cost.mjs:38 이 「편지에만 남긴다 — 지우고 다시 쓰는 것은 편지의 일이다」로
+#   서약 쪽을 이미 걷어냈는데, 그다음 판 apply-letter-formal.mjs:40 이 격식을 올리며
+#   «아무 언급 없이» 되살렸다. 게이트에 그 결정이 안 걸려 있어서 아무도 못 잡았다. 이제 건다.
+#   ★한 번이면 겸손이고 두 번이면 겸손을 연기하는 것이 된다. 사이에 낀 것은 반지 교환 하나뿐이다.
+nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
 chk '두 사람이 서로에게 쓴 편지가 있습니다' assets/ritual-data.js 1
 chk '두 사람이 편지를 두 통 썼습니다' assets/ritual-data.js 1
