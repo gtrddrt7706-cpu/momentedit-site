@@ -6475,7 +6475,12 @@ nochk '려무나' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '단다' 'docs/plans/식순연구/배역_예시_대사.txt'
 chk 'LETTER_REAL' scripts/apply-letter-rewrite.mjs 1
 chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [LETTER_LAND] 두 문장을 한 줄로 합치며 표현이 바뀌었다
-chk '두 시간을 만지더니 고쳐 놓고, 밥도 안 먹고 갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★[BLESS_SCENE 2026-09-12] 보일러 장면이 사라졌다. [LETTER_REAL] 이 이 줄로 지키려던 것은
+#   «훈계 대신 관찰로 사람을 보여 주는 구체 장면»이었다. 그 일은 이제 정류장이 한다:
+#   「버스 시간을 알면서도 삼십 분씩 일찍 나갔다」 — 성격을 규정하지 않고 행동으로 보여 준다.
+#   ★보일러를 버린 이유는 좋은 장면이 아니어서가 아니다. «사위가 한 일»이라 그걸 중심에 두면
+#     딸을 보내는 아버지가 자기 딸을 두 줄만 말하게 된다. 근거는 apply-bless-scene.mjs 에 있다.
+chk '버스 시간을 알면서도 삼십 분씩 일찍 나갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
 
 # ★★[LETTER_LAND 2026-09-11 사장님 "최선인지 검토"] 선언을 뺐으면 «종결 장치»를 대신 넣어야 한다.
@@ -6569,7 +6574,6 @@ chk '그건 못 고쳐' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #     예식 중반 신랑 「괜찮다고 해도 한 번은 더 물을게」 → 예식 후반 어머님 「한 번 더 묻더군요」
 #     어머니가 사위의 약속을 «이미 봤다»고 추인한다. ★둘의 순서를 바꾸지 말 것.
 chk 'WITNESS' scripts/apply-letter-witness.mjs 1
-chk '이거 쓰는 데 한 달 걸렸다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [SPEECH_LEVEL] 아버님은 자식에게 반말
 # ★★[LETTER_SCENE 2026-09-11 사장님 "이런식으로 스토리를 만들어서 각각 한번 꾸며봐"]
 #   덕담에 한 것을 편지·헌정에도 했다. 편지는 아직 «요약»이었다 —
 #   「너를 만나고 나서 나는 화를 덜 내」는 결론만 있고 그렇게 된 날이 없었고,
@@ -6593,11 +6597,38 @@ chk '사진 뒤에 날짜가 적혀 있길래 세어 봤습니다' 'docs/plans/�
 #     35음절짜리 한 줄을 셋으로 쪼갰다. 제일 중요한 문장인데 한 호흡에 안 들어갔다.
 #   ★CROSS_ECHO 의 «약속 → 증언» 순서는 그대로다. 바꾸지 말 것.
 chk 'BLESS_TURN' scripts/apply-bless-turn.mjs 1
-chk '하윤아, 너는 앞쪽이지' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+
+# ★★[BLESS_SCENE 2026-09-12 사장님 「이거 좀별로야 개선」] 아버님 덕담을 «장면 하나»로 다시 썼다.
+#   다섯 각도로 각각 새로 쓰고 안마다 세 심사자가 점수를 냈다 — 「한 장면」 안이 8.0/10(셋 다 8점).
+#   ★위 [BLESS_TURN]·[CHAR_ONE] 의 판단은 살아 있다(조언을 관찰로 · 딸이 중심). 더 멀리 밀었을 뿐이다 —
+#     일반론을 한 줄도 쓰지 않는다. 「말로 하는 사람이 있고」·「앞쪽/뒤쪽」이 그래서 사라졌다.
+#   ★옛 문장을 지키던 chk 일곱 줄을 걷었다. 그 문장들이 나빠서가 아니라 글이 통째로 바뀌어서다.
+#     항목별 근거는 scripts/apply-bless-scene.mjs 주석에 있다. 되살리려면 거기부터 읽을 것.
+chk 'BLESS_SCENE' scripts/apply-bless-scene.mjs 1
+# 장갑 세 박자 — 이 글에서 감정을 한 글자도 안 쓰고 감정을 만드는 장치다. 하나라도 빠지면 죽는다.
+chk '겨울이면 장갑을 하나 더 챙겼다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '하윤이는 늘 맨손으로 내렸다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '그날은 장갑을 꺼내지 않았다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# 「앞쪽/뒤쪽」이 문자 그대로의 자리로 돌아온 자리. 추상으로 되돌리지 말 것.
+chk '나는 뒤에서 갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '너는 계속 옆에서 가라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '말로 하는 사람이 있고' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '너는 앞쪽이지' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '잘 살아라' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★[PEAK_ONE 수치 보장] 아버님이 어머님보다 «짧고 낮아야» 정점이 뒤에 온다.
+#   길이는 그 낙차의 대리 지표다 — 아버님이 더 길어지면 어머님이 받는 자리가 아니라 덧붙임이 된다.
+_bl=$(node -e "var fs=require('fs');var t=fs.readFileSync('docs/plans/식순연구/배역_예시_대사.txt','utf8').split('\n');
+  function syl(k){{var on=false,c=0;for(var i=0;i<t.length;i++){{var r=t[i];
+    if(new RegExp('^\\\\['+k+'\\\\]').test(r)){{on=true;continue}}
+    if(on&&/^\\[/.test(r))break; if(on&&r.trim())c+=(r.match(/[가-힣]/g)||[]).length}}return c}}
+  var f=syl('12'),m=syl('13');console.log(f+' '+m+' '+(f<m?'ok':'bad'))" 2>/dev/null)
+case "$_bl" in
+  *ok) echo "ok 아버님($(echo $_bl|cut -d' ' -f1)음절) < 어머님($(echo $_bl|cut -d' ' -f2)음절) — 정점이 뒤에 온다" ;;
+  *)   echo "REVERT? 아버님 덕담이 어머님보다 길어졌다 ($_bl) — 정점(어머님)이 덧붙임으로 밀린다"; fail=1 ;;
+esac
 #   ★[TONE_POLISH 2026-09-12] 이 줄의 «구조»는 그대로 두고 문장만 고쳤다.
 #     「~하는 건 … 네가 할 거다」가 비문이었고, 앞 두 줄이 두 사람을 각각 「너」로 불러 놓아서
 #     「네가」가 누구인지 소리로 안 잡혔다. 이름으로 못 박았다 — 대구도 훈계의 방향도 그대로다.
-chk '먼저 말을 거는 쪽은 아마 하윤이일 거다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 
 # ★★[PEAK_ONE 2026-09-11 사장님 "심리학 분석해서 개선있다면개선해봐"] 정점을 «하나»로 정했다.
 #   고립 효과는 배경이 평평할 때만 작동한다 — 감정 정점 여섯이 전부 최대치면 서로를 지운다.
@@ -6627,7 +6658,6 @@ chk 'ALGOE_TRAIT' scripts/apply-peak-one.mjs 1
 chk 'LAND_VOCATIVE' scripts/apply-peak-one.mjs 1
 nochk '이 손은 셋이 잡습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '네 옆에 사람이 생겼으니까' 'docs/plans/식순연구/배역_예시_대사.txt'
-chk '잘 살아라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '한 번 더 묻는 사람이구나 싶었습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '네가 한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '저는 그날 이 걱정을 내려놓았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
@@ -6660,11 +6690,8 @@ chk '두 사람이 편지를 두 통 썼습니다' assets/ritual-data.js 1
 #     흔들리지 않는다. 둘을 같은 말단계로 맞추지 말 것. 맞추면 부모가 한 사람이 된다.
 #   ★[HONORIFIC] 「그때 아버지가 지금 제 나이였습니다」는 주어가 아버지인데 서술어가 평대였다.
 #     아들이 아버지 앞에서 읽는 문장이라 문체가 아니라 «틀린 말»이다 → 「제 나이셨습니다」.
-nochk '이거 쓰는 데 한 달 걸렸습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '제 나이였습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 chk '그때 아버지가 지금 제 나이셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '서준아, 너는 뒤쪽이더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '하윤이 손을 스물아홉 해 잡고 걸었다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk 'POLITE_NIDA' scripts/apply-son-daughter.mjs 1
 chk 'SPEECH_LEVEL' scripts/apply-son-daughter.mjs 2
 
@@ -7153,7 +7180,6 @@ case "$_eo" in
 esac
 # ② 아버님 덕담 — 앞 두 줄이 두 사람을 각각 「너」로 불러 놓아서, 「네가」가 누구인지 소리로 안 잡혔다.
 nochk '그때 먼저 말을 거는 건 아마 네가 할 거다' "docs/plans/식순연구/배역_예시_대사.txt"
-chk '먼저 말을 거는 쪽은 아마 하윤이일 거다' "docs/plans/식순연구/배역_예시_대사.txt" 1
 # ③ 축배 — 이 대본은 「백년해로·꽃길·영원히」를 0회로 지켜 왔다. 「좋은 일만 있기를」은 그 계열이다.
 nochk '좋은 일만 있기를' "docs/plans/식순연구/배역_예시_대사.txt"
 nochk '하던 날이 있습니다' "docs/plans/식순연구/배역_예시_대사.txt"
