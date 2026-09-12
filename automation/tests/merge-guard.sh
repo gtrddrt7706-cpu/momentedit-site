@@ -6686,3 +6686,68 @@ chk 'PRED_REPORT_ONLY' scripts/check-echo-inrun.js 1
 #   내가 초록을 만들려고 문안을 손대게 된다. 사장님 결정 뒤에 게이트로 올린다.
 #   ★대신 «늘어나면» 빨개진다 — PRED_KNOWN 을 넘기면 exit 1 이다. 줄었으면 그 수로 내려 적을 것.
 
+# ★★[NO_SPOIL 2026-09-12 사장님 "특히 흐름상 감동을 주는부분들 신경써서"] 진행자가 편지를 먼저 읽고 있었다.
+#   편지 여는 말 「한 번도 다 갚지 못한 그 마음에, 두 사람이 오늘 처음으로 소리 내어 답합니다」가
+#   10초 뒤 신부가 읽을 편지의 «머리와 꼬리를 동시에» 앞질렀다:
+#     첫 줄 「고맙다는 말을 제대로 한 적이 없어요」 ← 「처음으로 소리 내어」
+#     끝 줄 「다음에 갈 때도 빈손으로 가겠습니다」   ← 「다 갚지 못한」
+#   벼르던 고백을 진행자가 더 근사한 말로 먼저 해 버리면 편지가 각주로 떨어진다. 그 한 줄만 뺐다.
+#   ★나레이션과 배역이 다른 파일에 있어 «세로로 읽으면» 절대 안 보인다. 이어 붙여야 보인다.
+#   ★다시 넣지 말 것. 문장 자체는 좋아서 되살리고 싶어지는 종류다.
+nochk '한 번도 다 갚지 못한 그 마음에' assets/ritual-data.js
+nochk '한 번도 다 갚지 못한 그 마음에' order-preview.html
+chk 'NO_SPOIL' scripts/apply-nospoil.mjs 2
+
+# ★★[NO_VERDICT 2026-09-12] 진행자가 하객의 감상을 «대신 결론짓는» 자리 셋을 뺐다.
+#   ①덕담 마무리(긴 버전) 「그 말씀 안에 다 있었습니다 / 함께 남았습니다」 —
+#     「다」가 «더 느낄 것 없다»가 되고 「남았습니다」가 진행 중인 여운을 완료형으로 봉인한다.
+#     ★모범이 바로 옆에 있다 — 짧은 버전 「방금 그 말은, 오늘 이 자리에 있던 사람들만 들었습니다」.
+#       사실만 말하고 감정은 하객에게 맡긴다. 새 문안도 그 원칙이다(잘림을 이치로 바꾼다).
+#   ②헌정 예고 「말로 다 못 한 감사를」 — 신랑 헌정의 실체는 감사가 아니라 뒤늦은 발견이고
+#     온도는 미안함에 가깝다. 장르를 잘못 붙이면 하객이 감사를 기다리다 빗나간다.
+#   ③헌정 마무리 — 한 문장에 「오늘」이 둘이었다. 문장을 잘랐다.
+#   ★이 규칙은 ritual-data.js NARV 주석 ③(「감정을 설명하지 않는다」)과 같은 것이다. 되돌리지 말 것.
+nochk '그 말씀 안에 다 있었습니다' assets/ritual-data.js
+nochk '말로 다 못 한 감사를' assets/ritual-data.js
+chk '한 번에 다 말해지지 않습니다' assets/ritual-data.js 1
+chk '나머지는 두 사람이 살면서 듣습니다' assets/ritual-data.js 1
+chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
+
+# ★★[NARV_ZERO] 첫인사 여는 말은 원천에 «두 곳»이다 — NARR.welcome 과 NARV.welcome[0].
+#   index 0 은 따로 녹음하지 않고 NARR 녹음을 그대로 쓴다(build-tone-dub.mjs 가 0 을 안 뽑는다).
+#   그래서 둘은 «항상 같아야» 한다 — 한쪽만 고치면 화면 글과 소리가 갈린다.
+#   ★「0 은 건드리지 말 것」 주석의 뜻은 «다른 글로 갈아치우지 말라»이지 «NARR 과 어긋나게 두라»가 아니다.
+chk '먼저, 두 사람이 준비한 첫 인사가 있습니다' assets/ritual-data.js 2
+nochk '두 사람이 자리에 섰습니다' assets/ritual-data.js
+chk 'NARV_ZERO' scripts/apply-nospoil.mjs 1
+
+# ★★[ASK_RESTORE 2026-09-12 사장님 "특히 흐름상 감동을 주는부분들 신경써서"] 예식 정점에 빈 자리가 있었다.
+#   식전에 「함께 답해 주시는 순서가 한 번 있습니다. 짧은 한마디면 됩니다」라고 예고해 놓고,
+#   25분 뒤 그 자리에서는 「그 마음을, 박수로 보여 주시면 좋겠습니다」만 나갔다. 아무도 묻지 않았다.
+#   큐 데이터(live.t)에는 「하객 전원 "네, 그러겠습니다"」가 있는데 스피커로는 그 말이 안 나가니,
+#   진행자가 없는 예식에서 그 6초는 그냥 침묵이 된다.
+#   ★★두 곳에 「삭제 금지」라고 적혀 있던 문장이 실제로 삭제돼 있었다:
+#       ritual-cue.js       note: '"네, 그러겠습니다" 시연 문장 삭제 금지 — 없으면 답이 갈린다'
+#       build-dubbing-script.mjs W2-b note: 편집 지시(앞뒤 0.5초 무음)까지 남아 있었다
+#     마커가 없어서 조용히 역전됐다. 「제거 지시 보존 규칙」의 거울상이다 — «보존하라»가 사라졌다.
+#     그래서 이번엔 마커를 건다. ★다시 빼지 말 것.
+#   ★「네」 한 글자로 줄이려다 되돌렸다 — note 가 말한 «시연»이 핵심이다. 나레이터가 답을 직접
+#     소리 내어 보여 주면 억양까지 따라 하므로 4어절도 갈리지 않는다. 시연이 없을 때 갈린다.
+#   ★[ASK_DEMO_GAP] 그 시연 줄 앞뒤 0.5초 무음은 처음부터 note 에 있었는데 조립기에 반영된 적이 없었다.
+#     이제 build-typecast-import.mjs 가 값으로 넣는다. 소리를 다시 받을 필요는 없다.
+#   ★[ASK_SOURCE] 이 문안이 «네 곳»에 복제돼 있었고 그중 build-dubbing-script.mjs 의 하드코딩이
+#     manifest 를 먹였다. 그래서 원천을 고쳐도 녹음 대본만 한 판 뒤처진 채 게이트는 초록이었다.
+#     사본을 맞추지 않고 «없앴다» — 맞추기로 하면 다음에 또 어긋난다.
+chk 'ASK_RESTORE' assets/ritual-cue.js 1
+chk 'ASK_SOURCE' scripts/build-dubbing-script.mjs 2
+chk 'ASK_DEMO_GAP' scripts/build-typecast-import.mjs 1
+chk '다 같이 이렇게 답해 주시면 됩니다' assets/ritual-data.js 1
+chk '네, 그러겠습니다' assets/ritual-data.js 3
+nochk '방금 그 대답까지가' assets/ritual-data.js
+# ★[NO_ANSWER_CLAIM] 이 줄을 «답이 작았을 때를 덮는 안전장치»로 넣었다가 N7 에 잡혀 뺐다.
+#   정확히 반대였다 — 아무도 답하지 않았을 때 고정 음성이 「그 대답까지가」라고 하면
+#   없던 일을 있었다고 우기는 꼴이 된다. 녹음은 현장의 답에 반응할 수 없다. 다시 넣지 말 것.
+chk 'NO_ANSWER_CLAIM' assets/ritual-cue.js 1
+nochk '그 마음을, 박수로 보여 주시면 좋겠습니다' assets/ritual-data.js
+nochk "'declare-ask-b', '여러분은" scripts/build-dubbing-script.mjs
+

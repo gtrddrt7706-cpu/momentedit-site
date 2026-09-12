@@ -125,7 +125,7 @@ for (const course of Object.keys(D.COURSES)) {
    게이트로 걸면 둘 중 하나가 된다 — 병합이 막히거나, 내가 초록을 만들려고 문안을 손대거나.
    둘 다 안 된다(「구멍은 보고만, 메움은 합의 후」). 사장님이 정하면 그때 게이트로 올린다.
    ★대신 «알고 있는 건수»를 여기 박아 둔다. 늘어나면 다음 사람이 알아채라고. */
-const PRED_KNOWN = 9;   // 2026-09-12 실측 — 「섰다」5코스 · 「채웠다」3코스 · 「것…」1코스(minimal)
+const PRED_KNOWN = 5;   // 2026-09-12 실측 — 「채웠다」3코스 · 「것…」1코스 · 「남」1코스. 「섰다」5건은 [PRED_ECHO] 에서 고쳐 사라졌다
 if (pred > PRED_KNOWN) {
   console.log(`\n✗ 이웃 큐 서술어 반복이 ${PRED_KNOWN}건에서 ${pred}건으로 늘었습니다.`);
   process.exit(1);

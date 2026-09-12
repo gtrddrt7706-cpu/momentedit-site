@@ -492,13 +492,19 @@
           cue({
             k: 'declare', blockN: '성혼 선언', slug: 'declare-ask-b', name: '성혼 선언 · 하객께 질문',
             text: D.DECLWHO.ask.nar, pick: '하객이 함께 답하기',
-            note: '"네, 그러겠습니다" 시연 문장 삭제 금지 — 없으면 답이 갈린다',
-            live: { t: '하객 전원 "네, 그러겠습니다"', est: 6, self: true, doing: 'say' }
+            note: '[ASK_RESTORE] 「다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다.」 삭제 금지 — 나레이터가 답을 «시연»하는 구간이다. 없으면 아무도 답하지 않거나 답이 «네»·«예»·«그럽니다»로 갈린다(build-dubbing-script.mjs W2-b note).',
+            live: { t: '하객 전원 "네, 그러겠습니다" (앞 클립 끝에서 나레이터가 시연한다)', est: 6, self: true, doing: 'say' }
           }),
           cue({
             k: 'declare', blockN: '성혼 선언', slug: 'declare-ask-c', name: '성혼 선언 · 선언과 박수',
             text: EXTRA['declare-ask-c'], duck: PARAM.duckOff,
             hint: '하객 답이 잦아들면',
+            /* ★★[NO_ANSWER_CLAIM 2026-09-12] 이 클립에 「방금 그 대답까지가, 오늘의 약속입니다」를
+               넣었다가 게이트(N7)에 잡혀 뺐다. 답이 작았을 때를 덮는 «안전장치»라고 생각했는데
+               정확히 반대였다 — 아무도 답하지 않았을 때 고정 음성이 「그 대답까지가」라고 말해 버리면
+               없던 일을 있었다고 우기는 꼴이 되고, 그게 예식에서 가장 크게 무너지는 방식이다.
+               ★녹음된 나레이션은 «현장의 답에 반응할 수 없다». 답을 전제하는 말을 여기 넣지 말 것.
+               구조는 이미 완결이다 — 시연(앞 클립 끝) → 하객 답 → 선언(이 클립). 더 얹지 않는다. */
             post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }, { wait: PARAM.declare.applauseMs }]
           })
         ];

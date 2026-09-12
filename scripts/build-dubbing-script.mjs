@@ -10,6 +10,10 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const D = require(path.join(root, 'assets/ritual-data.js'));
+/* [ASK_SOURCE] 응답형 예고문(declare-ask-a)의 원천은 ritual-cue.js 의 EXTRA 다 —
+   큐 엔진만 쓰는 문안이라 ritual-data 에 자리가 없다. 여기서 베끼지 말고 그쪽을 읽는다.
+   ★선언을 파일 맨 위로 올렸다 — 아래 padOf 가 쓰던 것과 «같은» RC 다. 둘로 만들면 죽는다. */
+const RC = require(path.join(root, 'assets/ritual-cue.js'));
 
 const syl = (s) => (s.match(/[가-힣]/g) || []).length;
 const sec = (s) => Math.round((syl(s) / 300) * 60);
@@ -57,9 +61,14 @@ const G = [
   ], note: '★DECL_PAUSE_POS — 선언문 "신랑 신부, 이제 두 사람은 부부입니다" 앞에 0.5초 · 뒤에 1초 무음.\n  이 문장은 세 클립 모두 **끝에서 두 번째**다(마지막은 박수 요청: G5-1 "…큰 박수를 부탁드립니다" · G5-2 "다 함께 큰 박수로…" · G5-4 "가족 여러분과 함께…").\n  구 지시가 "마지막 문장 앞"이라 그대로 편집하면 정적이 박수 요청 앞에 붙어 정점이 어긋났다(2026-07-26 실측 정정).\n선언문 한 문장으로 통일된 것은 브랜드 자산이라 유지한다.\nG5-3(하객 합송)은 보류라 녹음하지 않는다.\n★가족 코스의 기본 재생은 가족 대표가 인쇄물을 직접 읽는 것이다. G5-4 mp3는 당일 가족이 부담스러워할 때 쓰는 폴백이며, 그래서 무이름이어야 즉시 재생할 수 있다.' },
 
   { n: '5-응답형', t: 'G5 택1 · 하객 응답(응답형 3클립 1세트)', tone: '또렷하고 안내하듯 · 질문은 끝을 올리지 말고 정중하게', items: [
-    ['W2-a', '개식 직후 예고', 'declare-ask-a', '오늘 예식에는 여러분이 함께 답해 주시는 순서가 한 번 있습니다. 짧은 한마디면 됩니다.'],
-    ['W2-b', '차례 넘기기 + 답 지정 + 질문', 'declare-ask-b', '여러분은 방금, 두 사람의 약속을 함께 지켜보셨습니다. 이제 그 약속에 여러분의 이름이 함께 남습니다. 두 사람이 흔들리는 날, 오늘 이 자리를 기억해 주시면 그것으로 충분합니다. 그 마음을, 박수로 보여 주시면 좋겠습니다.'],
-    ['W2-c', '마무리 + 받아 넘기기', 'declare-ask-c', '이제 두 사람은 부부입니다. 큰 박수로 두 사람을 축하해 주시기 바랍니다.'],
+    /* ★★[ASK_SOURCE 2026-09-12] 여기 문안을 «손으로 적지 않는다» — 원천에서 읽는다.
+       실제로 당한 일이다. 사장님이 원천(DECLWHO.ask)을 고쳤는데 이 세 줄이 옛 글을 그대로
+       들고 있었고, manifest 가 이 파일을 읽으므로 «녹음 대본만 한 판 뒤처진 채» 초록이었다.
+       NAR_MIRROR(check-ritual-mirror.js)는 order-preview.html 만 보아서 여기를 못 본다.
+       ★사본을 맞추는 대신 «사본을 없앴다». 맞추기로 하면 다음에 또 어긋난다. */
+    ['W2-a', '개식 직후 예고', 'declare-ask-a', RC.EXTRA['declare-ask-a']],
+    ['W2-b', '차례 넘기기 + 답 지정 + 질문', 'declare-ask-b', D.DECLWHO.ask.nar],
+    ['W2-c', '마무리 + 받아 넘기기', 'declare-ask-c', D.DECLWHO.ask.end],
   ], note: '★G5 택1 세트의 네 번째 선택지다 — {G5-1 | G5-2 | G5-4 | 응답형 3클립}. 나레이션 선언과 함께 쓰지 않는다(W2-c가 선언문 자체라 겹치면 성혼 선언이 두 번 나간다).\nW2-a(개식 직후 예고)만 선언 자리가 아니라 개식 직후에 재생된다 · 응답형을 고른 예식에만 붙는 클립이다.\n★반드시 별개 파일 3개. W2-b가 질문으로 끝나고 하객이 답한 뒤 W2-c를 재생한다 · 클립 경계가 곧 응답 대기 구간이다.\n★W2-b의 "다 같이 이렇게 답해 주시면 됩니다. 네, 그러겠습니다." 삭제 금지. 없으면 답이 "네"·"그럽니다"·"예"로 갈라진다.\n편집: "네, 그러겠습니다." 앞뒤에 각각 0.5초 무음(나레이터가 답을 시연하는 구간).\n하객 응답 "네, 그러겠습니다."는 녹음 대상이 아니다 · 인쇄물도 필요 없다.' },
 
   // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
@@ -217,7 +226,6 @@ txt.push('');
      녹음해서 넣은 뒤 당일 콘솔이 54_ 를 찾는데 파일은 53_ 로 저장돼 있어,
      「다 함께」 구간 나레이션이 전부 무음으로 지나갔을 것이다.
    ★그래서 번호는 언제나 fileOf 에서 온다. 여기서 세지 않는다. */
-const RC = createRequire(import.meta.url)('../assets/ritual-cue.js');
 const padOf = (file) => {
   const f = RC.fileOf(file);
   if (!f || !/^\d/.test(f)) throw new Error(`✗ ${file} 이 FILES 에 없습니다 — assets/ritual-cue.js 의 FILES 끝에 붙이세요(중간에 끼우면 뒤가 전부 개명됩니다).`);
