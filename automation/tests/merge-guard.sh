@@ -4178,6 +4178,16 @@ if command -v node >/dev/null 2>&1; then
   fi
 fi
 chk 'JOURNAL_AUDIO_SYNC' scripts/audit/journal-audio-sync.mjs 1
+
+# [PAR_ORDER·PAR_DINE 2026-09-12 사용자 선택] 어른께 드리는 안내(parents.html) 두 결정.
+#   ① 「갖출 것은 갖춘 예식」이 「인원을 절제하는 이유」보다 먼저다. 어른이 처음 읽는 본문이
+#      「줄인다」이면 걱정을 풀기 전에 확인해 주는 꼴이 된다. 순서를 되돌리지 말 것.
+#   ② 손님 식사 문단 — 실측으로 이 편지에 「식사」가 0건이었다. 혼주의 가장 큰 걱정에 답이 없었다.
+#   둘 다 «없애 달라»가 아니라 «넣어 달라»라서, 리뷰가 «중복»·«군더더기»로 지우기 쉽다. 그래서 센다.
+chk 'PAR_ORDER' parents.html 1
+chk 'PAR_DINE' parents.html 1
+chk '식사 자리' parents.html 1
+chk '보증하지 않습니다' parents.html 1
 chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
 chk 'pending_rerecord' scripts/audit/journal-audio-sync.mjs 2
 chk 'stamp(part, script)' scripts/build-journal-audio.py 1
