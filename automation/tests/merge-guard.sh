@@ -7015,6 +7015,12 @@ chk 'SENT_LIB_CHECK' scripts/audit/sent-lib-check.mjs 2
 #   ★그래도 «글이 진짜 다른» 줄은 끝까지 안 넣는다 — 다른 소리를 그 자리에 조용히 끼우는 것이 제일 나쁘다.
 chk 'BY_NAME' scripts/sent-lib.mjs 2
 chk 'FOLD_SPACE' scripts/sent-lib.mjs 2
+# ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
+#   창고에 «없거나 낡은» 자리만 뽑아 붙여넣기 판을 만든다(--todo).
+#   ★이미 받은 자리를 다시 요구하지 않는다 — 그게 이 창고를 만든 이유다.
+#   ★[DUP_ONCE] 를 여기서도 그대로 건다. 겹치는 말은 한 번만, 다만 «한 예식에 둘 다 나가는» 말은 따로.
+#     한 곳에만 걸면 다른 곳으로 샌다(전체 화자표기 판에서 한 번 새어 본 적이 있다).
+chk 'TODO_ONLY' scripts/sent-lib.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \

@@ -247,7 +247,76 @@ function stage() {
   console.log(`   node scripts/assemble-narration.mjs --in ${out} --clip ${sel.map((c) => '=' + pad2(c.no) + '_' + c.file).join(',')}`);
 }
 
-if (has('--import')) importFrom(arg('--import'));
+/* ── 아직 못 받은 것만 뽑기  [TODO_ONLY] ─────────────────
+   창고에 «없거나 낡은» 자리만 모아 붙여넣기 판을 만든다.
+   ★이미 받은 자리를 다시 요구하지 않는다 — 그게 이 창고를 만든 이유다. */
+function todo() {
+  const out = arg('--todo');
+  const j = loadIdx();
+  const need = [];
+  for (const s of slots) {
+    const e = j.slots[s.id];
+    if (e && fs.existsSync(fileOf(s.id)) && e.text === s.text) continue;   // 이미 있고 글도 그대로
+    need.push(s);
+  }
+  /* ★[DUP_ONCE] 같은 성우가 글자까지 같은 말을 여러 자리에서 하면 «한 번만» 받는다.
+     ★다만 «한 예식에 둘 다 나가는» 말은 따로 받는다 — 같은 소리가 몇 분 사이에 두 번 나면 티가 난다.
+       (신랑 「하윤아.」가 서약과 편지에 둘 다 있다. 큐 엔진 324조합 전수로 가른다.) */
+  const together = new Set();
+  try {
+    const RC = require(P('assets/ritual-cue.js')), ST = require(P('assets/ritual-story.js'));
+    for (const course of ['gamdong', 'family', 'damback', 'record', 'minimal', 'festive'])
+      for (const letter of ['parent', 'each', 'both'])
+        for (const bless of ['on', 'off'])
+          for (const tribute of ['flower', 'bow', 'hug'])
+            for (const toast of ['toast', 'cake', 'both']) {
+              let cues; try { cues = RC.build({ course, letter, bless, tribute, toast }, { mode: 'console' }).cues; } catch { continue; }
+              const live = new Set();
+              for (const q of cues) { if (q.file) live.add(q.file);
+                for (const id of (ST.castIds(q).live || [])) if (id) live.add(String(id).replace(/^\d+_/, '')); }
+              const f = [...live];
+              for (let a = 0; a < f.length; a++) for (let b = a + 1; b < f.length; b++) together.add([f[a], f[b]].sort().join('||'));
+            }
+  } catch { /* [CANT_LOOK] 못 읽으면 안 합친다 */ }
+  const co = (a, b) => together.has([a.replace(/^\d+_/, ''), b.replace(/^\d+_/, '')].sort().join('||'));
+
+  const rows = [], seen = new Map();
+  for (const s of need) {
+    const v = VOICE[s.role] || null;
+    const k = (v || s.role) + '|' + s.text;
+    const prev = seen.get(k);
+    if (v && prev && !prev.at.some((x) => co(x.key, s.key))) { prev.at.push(s); continue; }
+    const r = { voice: v, role: s.role, text: s.text, at: [s] };
+    rows.push(r); if (!prev) seen.set(k, r);
+  }
+  const ready = rows.filter((r) => r.voice), pend = rows.filter((r) => !r.voice);
+
+  if (!out) {   // 폴더를 안 주면 세기만 한다
+    console.log(`[SENT_LIB] 아직 못 받은 자리 ${need.length}개 → 받으실 줄 ${ready.length}줄 (겹쳐서 뺀 ${need.length - rows.length}줄)`);
+    const by = {}; for (const r of ready) (by[r.voice] ??= 0), by[r.voice]++;
+    for (const [v, n] of Object.entries(by).sort((a, b) => b[1] - a[1])) console.log(`   ${v.padEnd(6)} ${String(n).padStart(3)}줄`);
+    if (pend.length) console.log(`   ★성우 미정 ${pend.length}줄 (${[...new Set(pend.map((r) => r.role))].join(' · ')})`);
+    return;
+  }
+  fs.rmSync(out, { recursive: true, force: true });
+  fs.mkdirSync(out, { recursive: true });
+  /* 한 파일 — 「이름: 대사」 꼴이라 타입캐스트가 화자를 스스로 배정한다 */
+  fs.writeFileSync(path.join(out, '0_전체_화자표기.txt'), ready.map((r) => `${r.voice}: ${r.text}`).join('\n') + '\n');
+  fs.writeFileSync(path.join(out, '_순서.json'), JSON.stringify(
+    ready.map((r, i) => ({ n: i + 1, voice: r.voice, text: r.text, at: r.at.map((s) => ({ clip: s.key, i: s.i })) })), null, 1));
+  /* 성우별 낱개 — 이름을 붙이지 않는다([PASTE_WRONG_FILE] 그대로 읽힌다) */
+  const by = {}; for (const r of ready) (by[r.voice] ??= []).push(r);
+  const sorted = Object.entries(by).sort((a, b) => b[1].length - a[1].length);
+  sorted.forEach(([v, l], n) => fs.writeFileSync(path.join(out, `${n + 1}_${v}.txt`), l.map((r) => r.text).join('\n') + '\n'));
+  if (pend.length) fs.writeFileSync(path.join(out, `${sorted.length + 1}_성우미정.txt`),
+    pend.map((r) => `${r.role}: ${r.text}`).join('\n') + '\n');
+  console.log(`[SENT_LIB] ${out} · 받으실 줄 ${ready.length} (겹쳐서 뺀 ${need.length - rows.length}) · 파일 ${sorted.length + 2 + (pend.length ? 1 : 0)}개`);
+  for (const [v, l] of sorted) console.log(`   ${v.padEnd(6)} ${String(l.length).padStart(3)}줄`);
+  if (pend.length) console.log(`   ★성우 미정 ${pend.length}줄`);
+}
+
+if (has('--todo')) todo();
+else if (has('--import')) importFrom(arg('--import'));
 else if (has('--patch')) patch();
 else if (has('--stage')) stage();
 else status();
