@@ -6658,3 +6658,21 @@ chk 'ADM_SLOW_NOTE' admin.html 3
 chk '_admSlowArm' admin.html 2
 chk 'slow-note' admin.html 3
 chk "서버 응답이 늦어요" scripts/audit/guest-timeout.mjs 1
+
+# ★★[FREE_PORT · SERVED_OURS 2026-09-13 점검 라운드 8] 이번에 만든 브라우저 감사 셋이 포트를 박아 두고 있었다.
+#   실측: 8534 를 다른 프로세스가 쥔 채 guest-state 를 돌리니 「예식이 끝나…라고 말해야 하는데」로
+#   **제품 결함처럼** 붉었다. 원인은 화면이 아니라 포트다.
+#   ★_freeport.mjs 머리말이 2026-08-30 에 같은 사고를 이미 적어 뒀다 —
+#     「환경 탓으로 붉는 검사는 사람이 곧 무시한다」. 19개 감사가 그래서 그걸 쓰는데 내가 새로 만들며 빠뜨렸다.
+#   ★두 겹으로 막는다: ①freePort 로 충돌 자체를 없애고 ②그래도 우리 화면이 아니면 «틀림(1)»이 아니라 «못 쟀다(2)».
+#     둘을 구분하는 것이 이 저장소의 규칙이다(CANT_LOOK).
+#   ★남은 20개(자기 서버 + 박은 포트)는 서로 겹치지 않는다(실측) — 전수 실행 안에서는 부딪히지 않아 그대로 둔다.
+chk 'freePort' scripts/audit/snap-word.mjs 1
+chk 'freePort' scripts/audit/guest-timeout.mjs 1
+chk 'freePort' scripts/audit/guest-state.mjs 1
+chk 'SERVED_OURS' scripts/audit/snap-word.mjs 1
+chk 'SERVED_OURS' scripts/audit/guest-timeout.mjs 1
+chk 'SERVED_OURS' scripts/audit/guest-state.mjs 1
+nochk 'const PORT = 8489' scripts/audit/snap-word.mjs 0
+nochk 'const PORT = 8512' scripts/audit/guest-timeout.mjs 0
+nochk 'const PORT = 8534' scripts/audit/guest-state.mjs 0
