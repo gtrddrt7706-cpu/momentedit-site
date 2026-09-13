@@ -5843,3 +5843,19 @@ chk 'STRENGTH_COUPLE' docs/국가지원금/강점_예비부부관점_재정리.m
 # [RULE_EASY 2026-09-11] 증명하기 쉬운 것이 중요한 것을 밀어낸다 — 대표가 「이게 강점 확실해?」로 잡았다.
 #   참인 것만 골랐는데 중요하지 않은 것을 골랐다. 그 사이 원본 전체·보증인원 없음·150일 전액환불을 빠뜨렸다.
 chk 'RULE_EASY' CLAUDE.md 1
+
+# [DECISION_GATE 2026-09-13] 대표가 정한 것이 신청서 본문에 들어갔는가 — 푸시를 막는 게이트.
+#   사고: 대표가 답해 준 「세 곳을 넘긴 이유」와 「스마트스토어 1등」을 길게 칭찬만 하고
+#   파일에 넣지 않았다. 칭찬은 반영이 아닌데 내 쪽에는 「처리했다」는 느낌이 남는다.
+#   대화는 저장소가 아니라 화제가 옮겨가면 사라지고, 파일에 흔적이 없으니 아무도 못 찾는다.
+#   누락을 잡은 건 대표가 물어봐 준 덕이지 절차가 아니었다 → 사람이 지킬 규칙을 구조로 바꾼다.
+#   대장(docs/국가지원금/대표결정_반영대장.tsv)에 MUST/NEVER 를 적고 본문과 대조한다.
+#   자수도 함께 본다 — 줄바꿈이 \r\n 으로 저장되면 문단마다 1자씩 늘어난다
+#   (실측 2026-09-13: Q2 2,018 · Q3-1 2,019 로 잘릴 상태였다).
+#   ★적대적 시험 3/3 통과 확인 — MUST 삭제·NEVER 부활·자수 초과를 각각 잡는다(죽은 게이트 아님).
+chk 'DECISION_LEDGER' docs/국가지원금/대표결정_반영대장.tsv 1
+chk 'DECISION_GATE' scripts/audit/application-decisions.py 1
+if command -v python3 >/dev/null 2>&1; then
+  _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
+    || { printf '%s\n' "$_ad"; fail=1; }
+else echo 'skip application-decisions (python3 없음)'; fi
