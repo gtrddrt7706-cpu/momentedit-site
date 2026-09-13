@@ -6992,6 +6992,22 @@ chk 'VOICE_CHANGED' scripts/assemble-narration.mjs 1
 #     (첫 판이 그래서 11건을 일렀는데 진짜는 1건이었다 — 거짓말하는 검사는 없는 것만 못하다).
 #   ★낭독 전용 줄(장 번호·여는 말·맺음)은 «모양»으로 가른다. 문장을 베껴 적으면 이 검사가 또 한 벌이 된다.
 chk 'LETTER_MIRROR' scripts/audit/letter-mirror.mjs 3
+
+# ★★[SENT_LIB 2026-09-13 사장님 「보수하기쉽게셋팅해 여러번 한문장씩수정하는부분들이 있을거야」]
+#   문장 «한 자리»의 받은 그대로를 창고(assets/audio/_src)에 둔다. 고친 문장만 갈아 끼워 클립을 다시 붙인다.
+#   ★원본 문장 wav 가 «0개»여서, 4문장 중 한 줄만 고쳐도 클립을 통째로 다시 받아야 했다
+#     (실측: 75문장 고치는 데 200문장 vs 79종). 조립된 mp3 를 잘라 쓰는 길은 이미 막아 두었다.
+#   ★[SLOT_NAME] 이름을 «자리»로 짓는다 — 타입캐스트 번호는 그날 붙여넣은 순서라 한 줄만 늘어도 전부 밀린다.
+#   ★[FLAC_HALF] 무손실 flac 으로 절반(실측 264KB → 133KB). 조립기는 ffmpeg 로 읽어 형식을 안 가린다.
+#   ★[SRC_STALE] 그때 글을 함께 적어 둔다. 대장과 다르면 «낡은» 자리이고, 깔기를 거부한다 —
+#     적어 두지 않으면 옛 소리를 새 글의 자리에 조용히 끼운다. 가장 나쁜 실패다.
+chk 'SENT_LIB' scripts/sent-lib.mjs 1
+chk 'SLOT_NAME' scripts/sent-lib.mjs 2
+chk 'FLAC_HALF' scripts/sent-lib.mjs 2
+chk 'SRC_STALE' scripts/sent-lib.mjs 2
+chk 'SENT_LIB_CHECK' scripts/audit/sent-lib-check.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
   || { echo 'FAIL letter-mirror: 어른께 드리는 편지의 화면과 소리가 갈렸습니다 — node scripts/audit/letter-mirror.mjs'; fail=1; }; fi
 # ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
