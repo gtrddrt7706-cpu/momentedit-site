@@ -12,14 +12,19 @@ const { openWorld, kstAgo } = await import('./_gasworld.mjs');
 const { launchBrowser } = await import('./_browser.mjs');
 const PORT = 8151; const { G, world } = openWorld();
 let fail = 0; const ok = (c,m,d) => { console.log(`  ${c?'✅':'❌'} ${m}${c||!d?'':' → '+String(d).slice(0,170)}`); if(!c) fail++; };
+/* ★[SEED_RELATIVE 2026-09-13 점검] 큐 대기일은 «오늘» 기준으로 만든다 — 날짜를 박으면 시간이 지나며 검사가 조용히 붉어진다.
+   실측 사고: 시드의 「2026‑09‑05」가 작성일(「2026‑09‑06」)엔 1일째라 '그 외'였는데 오늘은 8일째라 「오래 기다린 것」에 끼어
+   3건 기대가 4건이 됐다. admin.html 의 _waitDays 는 new Date() 를 본다 — 시드만 멈춰 있었다.
+   이 저장소에서 세 번째 재발이다(#642 되돌리기 시뮬 · #684 상담 요일). 박은 날짜로 되돌리지 말 것. */
+const dAgo = (n) => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const REC = JSON.stringify({ 시착:{at:'2026-07-01 10:00',count:2}, 계약:{at:'2026-07-02'} });
 const base = (x) => Object.assign({ 신랑이름:'김희준', 신부이름:'이미쿠', 연락처:'010-1234-5678', 이메일:'t@example.com', 현재단계:'입금완료', 계약상태:'서명완료', 계약총액:'2500000', 예식일:'2026-10-26', 입금상태:'확인', 입금자명:'김희준', 입금완료신호:kstAgo(1), 시착동의상태:'동의완료', 계약서발송일시:'2026-07-01 12:00', 계약서명일시:'2026-07-02 08:00', 동의기록:REC }, x);
 const BK = { 상태:'확정', 캘린더이벤트ID:'BK1', 개인코드:'ME-TEST', '성함(신랑)':'김희준', '성함(신부)':'이미쿠', 연락처:'010-1234-5678', 이메일:'t@example.com', 예식일자:'2026-10-26', 하객:'30', 상담일시:'2026-06-20 14:00' };
 const PIPE_OK = (n) => [['신청접수',n],['상담확정',1],['입금완료',2],['후기',0]].map(([stage,count]) => ({ stage, count, hasUrgent:false, customers: Array.from({length:count},(_,i)=>({ code:'ME-TEST', names:'고객'+i, sub:'D-30', flag:false })) }));
 const _near = new Date(Date.now()+12*86400000).toISOString().slice(0,10);   // 예식 D-12 — 잔금 카드가 생기는 창
 const q = (kind,names,sub,wait) => ({ code:'ME-TEST', names, product:'시그니처', kind, sub, _wait: wait });
-const mkHome = (pipe) => ({ ok:true, name:'미쿠', today:'2026-09-06',
-  queue:{ urgent:[], normal:[ q('계약발송','송강 · 김유정','계약서 발송 대기','2026-08-20'), q('현금영수증발행','조정석 · 임수정','계약금 현금영수증 발행','2026-08-28'), q('단계정리','류준열 · 전여빈','단계 잔재','2026-08-25'), q('신규신청','박서준 · 김지원','새 신청','2026-09-05') ] },
+const mkHome = (pipe) => ({ ok:true, name:'미쿠', today:dAgo(0),
+  queue:{ urgent:[], normal:[ q('계약발송','송강 · 김유정','계약서 발송 대기',dAgo(17)), q('현금영수증발행','조정석 · 임수정','계약금 현금영수증 발행',dAgo(9)), q('단계정리','류준열 · 전여빈','단계 잔재',dAgo(12)), q('신규신청','박서준 · 김지원','새 신청',dAgo(1)) ] },
   counts:{ total:4, urgent:0 }, todayConsults:[{ time:'16:30', names:'강태오 · 배수지', code:'ME-TEST' },{ time:'10:00', names:'오세훈 · 윤아름', code:'ME-TEST' }],
   results:[{ code:'ME-TEST', names:'이제훈 · 신세경', product:'시그니처', stage:'결과물전달', sub:'원본 전달' }], pipeline:{ 시그니처: pipe, 웨딩스냅: PIPE_OK(1) }, pipeCounts:{ 시그니처:3, 웨딩스냅:1 },
   survey:{ n:2, byProduct:{ 시그니처:2 }, q:{ overall:{ '매우 만족':2 } }, recent:[{ code:'ME-TEST', names:'정해인 · 김고은', product:'시그니처', overall:'매우 만족', recommend:'추천함', gap:'' }] },

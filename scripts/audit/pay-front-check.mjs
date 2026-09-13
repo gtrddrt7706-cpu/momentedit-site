@@ -198,7 +198,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   check('I1 클릭 즉시 \'결제창 여는 중…\' 비활성(더블탭 방지)', i1.text === '결제창 여는 중…' && i1.disabled === true, JSON.stringify(i1));
   await sleep(700);   // SDK 로드 실패 대기
   const i2 = await p.evaluate(() => { const b = document.querySelector('.me-card-pay'); return { text: b.textContent, disabled: b.disabled, alerts: window.__alerts }; });
-  check('I2 SDK 로드 실패 → 알림 + 버튼 복구', i2.text === '카드로 결제' && i2.disabled === false && i2.alerts.some(a => /결제 모듈/.test(a)), JSON.stringify(i2));
+  check('I2 SDK 로드 실패 → 알림 + 버튼 복구', i2.text === '카드로 결제' && i2.disabled === false && i2.alerts.some(a => /결제 창을 불러오지 못했어요/.test(a)), JSON.stringify(i2));
   await p.close();
 }
 
