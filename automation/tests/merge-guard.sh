@@ -6909,6 +6909,27 @@ chk 'PAIR_READ' scripts/audit/pair-read.mjs 1
 #     (redub 쪽은 아래에 이미 걸려 있다 — 여기서는 그동안 «비어 있던» voice-parts 쪽을 채운다.)
 #   ★생성기를 exit 2 로 멈추게 되돌리지 말 것 — 한 역할의 성우가 비었다고 나머지 일곱을 볼모로 잡는다.
 chk 'VOICE_PENDING' scripts/build-voice-parts.mjs 2
+
+# ★★[GEN_FRESH 2026-09-13 점검] 위 사고의 «본체»를 막는다 — 생성물이 낡아도 조용하던 자리.
+#   VOICE_PENDING 은 「생성기가 죽지 않게」 고친 것이고, 이건 「죽었거나 낡았으면 게이트가 알게」 하는 것이다.
+#   둘은 다른 일을 한다. 생성기는 또 다른 이유로 죽을 수 있고, 그때도 낡은 파일은 그대로 남는다.
+#   ★어제 [STORY_STALE] 이 장면 대본 6편에 같은 것을 걸었다. 그때 «녹음 대본 네 폴더»를 안 본 것이
+#     오늘 사고다. 그래서 여기서 넷(타입캐스트·성우별·다시받기·감동구간)을 한꺼번에 건다.
+#   ★재고 나서 원래대로 되돌린다 — 게이트가 파일을 고쳐 놓지 않는다(구멍은 보고만).
+chk 'GEN_FRESH' scripts/audit/gen-fresh.mjs 3
+
+# ★★[REDUB_COVERS 2026-09-13 점검] 「다시 받아야 할 클립」 ⊆ 「사장님이 받는 파일」.
+#   cast-text-audio 와 build-redub-byvoice 가 같은 원천을 보면서 «거르는 조건»을 각자 적어 두었다.
+#   한쪽만 고치면 「글은 어긋났는데 다시받기 파일엔 없는 클립」이 생기고,
+#   사장님은 받은 것을 전부 녹음하시고도 그 자리가 옛 소리로 남는다 — 게이트는 계속 붉고 원인은 안 보인다.
+#   ★오늘 재 보니 54 ⊂ 55 로 맞았다. «맞은 날» 거는 것이 검사다.
+#   ★이 검사 첫 판은 폐지 필터를 빠뜨려 셋을 잘못 일렀다(46_end-1b-farewell-online 등).
+#     거르는 조건을 한 곳이라도 빠뜨리면 검사가 거짓말을 한다 — 폐지 명단은 ritual-cue.js 에서만 읽는다.
+chk 'REDUB_COVERS' scripts/audit/redub-covers.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/redub-covers.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL redub-covers: 다시 받아야 할 클립이 다시받기 파일에 없습니다 — node scripts/audit/redub-covers.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/gen-fresh.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL gen-fresh: 녹음 대본 생성물이 낡았거나 생성기가 죽어 있습니다 — node scripts/audit/gen-fresh.mjs'; fail=1; }; fi
 nochk "성우를 모른다\`); process.exit(2)" scripts/build-voice-parts.mjs
 if command -v node >/dev/null 2>&1; then node scripts/audit/decision-guard.mjs >/dev/null 2>&1 \
   || { echo 'FAIL decision-guard: 결정을 적어 놓고 지키는 검사를 안 만든 자리가 있습니다 — node scripts/audit/decision-guard.mjs'; fail=1; }; fi
@@ -7777,6 +7798,10 @@ chk '경계31' scripts/audit/guide-photo-sim.mjs 2
 #   ★여기서 --verify 는 감사를 **돌리지 않는다**(디렉터리만 읽는다 · 0.1초). 실제 실행은 야간이 맡는다 —
 #     느린 검사를 게이트에 넣으면 사람이 붉은 것을 무시한다는 그 이유를 그대로 지킨다.
 if command -v node >/dev/null 2>&1; then
+# ★[RUN_ALL_SUMMARY] 요약표도 러너가 «직접» 쓴다 — 워크플로 yml 에 검사 이름을 다시 적지 않기 위해서다.
+#   손 목록이 벌어지는 것이 이 러너를 만든 이유인데, 요약만 손으로 적으면 같은 병이 요약에 남는다.
+#   ★yml 로 옮기지 말 것. (decision-guard 가 「게이트에 이 이름이 없다」고 잡아 여기 걸었다.)
+chk 'RUN_ALL_SUMMARY' scripts/audit/run-all.mjs 1
   _ra=$(node scripts/audit/run-all.mjs --verify 2>&1)
   if [ $? = 0 ]; then echo "ok run-all: $(printf '%s' "$_ra" | tail -1)"
   else echo 'REVERT? run-all --verify 실패 — 아무도 안 돌리는 감사가 생겼다:'; printf '%s\n' "$_ra"; fail=1; fi

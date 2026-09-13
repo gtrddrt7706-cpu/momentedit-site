@@ -1,0 +1,91 @@
+/* ★★[REDUB_COVERS 2026-09-13 점검] 「다시 받아야 할 클립」이 «사장님이 받는 파일»에 전부 들어 있나.
+ *
+ * ── 왜 만드나
+ *   두 벌이 따로 산다:
+ *     ① cast-text-audio.mjs  — 대장의 «지금 글» ↔ _recorded.json 의 «녹음된 글» 을 맞대 어긋남을 센다
+ *     ② 다시받기/_순서.json  — build-redub-byvoice.mjs 가 만든, 사장님이 실제로 붙여넣는 목록
+ *   같은 원천을 보지만 «거르는 조건»을 각자 적어 두었다. 한쪽 조건만 고치면
+ *   「글은 어긋났는데 다시받기 파일에는 없는 클립」이 생긴다.
+ *   그러면 사장님은 받은 파일을 «전부» 녹음하시고도 그 자리가 옛 소리로 남는다.
+ *   전부 녹음했는데 게이트가 여전히 붉는 것이 이 사고의 모양이고, 원인을 찾기가 아주 어렵다.
+ *
+ *   ★오늘(2026-09-13) 재 보니 54 ⊂ 55 로 맞았다. 맞은 날 거는 것이 검사다 —
+ *     어긋난 뒤에 거는 것은 이미 사장님이 헛녹음을 하신 뒤다.
+ *
+ * ── 무엇을 재나 (한 방향만)
+ *   «어긋남 ⊆ 다시받기». 반대는 안 본다 — 다시받기에는 «아직 한 번도 안 받은 클립»이 더 들어 있는 것이
+ *   정상이다(오늘 86_narr-round-mid 하나가 그렇다).
+ *
+ * ── 종료코드 [CANT_LOOK]  0 통과 · 1 빠진 클립이 있다 · 2 재지 못함
+ * 쓰기: node scripts/audit/redub-covers.mjs
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const P = (r) => path.join(ROOT, r);
+const MAN = 'docs/plans/식순연구/타입캐스트/manifest.json';
+/* ★녹음된 글은 «음원 폴더 옆»에 있다(두 곳). build-redub-byvoice.mjs 46~52행과 같은 자리를 읽는다 —
+   다른 자리를 읽으면 이 검사가 비교하는 대상이 애초에 달라진다. */
+const RECDIRS = ['assets/audio/cast', 'assets/audio/narration'];
+const ORD = 'docs/plans/식순연구/타입캐스트/다시받기/_순서.json';
+
+let man, ord;
+const rec = {};
+try {
+  man = JSON.parse(fs.readFileSync(P(MAN), 'utf8'));
+  ord = JSON.parse(fs.readFileSync(P(ORD), 'utf8'));
+  let got = 0;
+  for (const d of RECDIRS) {
+    const j = JSON.parse(fs.readFileSync(P(path.join(d, '_recorded.json')), 'utf8'));
+    for (const [k, v] of Object.entries(j.clips || {})) { rec[d + '|' + k] = typeof v === 'string' ? v : v.text; got++; }
+  }
+  if (!got) throw new Error('_recorded.json 이 비어 있다');
+} catch (e) {
+  console.log(`[REDUB_COVERS] ? 원천을 못 읽었다 — ${e.message}`);
+  console.log('  ★«못 잼»은 «통과»가 아니다. 다시받기 폴더가 안 뽑혀 있으면 먼저 뽑으세요.');
+  process.exit(2);
+}
+
+/* ★폐지 명단을 «생성기와 같은 자리»에서 읽는다 — ritual-cue.js 의 RETIRED 블록.
+   ★첫 판에서 이걸 빠뜨려 46_end-1b-farewell-online · 36_ringwarm-family · 37_ringwarm-all
+     셋을 「사장님이 못 받는 클립」이라고 잘못 일렀다(2026-09-13). 셋 다 폐지된 클립이라
+     다시받기에 없는 것이 «맞다». 거르는 조건을 한 곳이라도 빠뜨리면 검사가 거짓말을 한다.
+   ★여기 명단을 다시 적지 말 것 — 적는 순간 또 한 벌이 생기고, 그게 이 검사가 막으려는 병이다. */
+const cueSrc = fs.readFileSync(P('assets/ritual-cue.js'), 'utf8');
+const rb = /RETIRED\s*=\s*\{([\s\S]*?)\n\s*\};/.exec(cueSrc);
+const RETIRED = new Set(rb ? [...rb[1].matchAll(/'([^']+)'\s*:\s*1/g)].map((m) => m[1]) : []);
+if (!RETIRED.size) { console.log('[REDUB_COVERS] ? ritual-cue.js 에서 폐지 명단을 못 읽었다'); process.exit(2); }
+
+/* 다시받기 파일에 실제로 들어간 클립 */
+const covered = new Set();
+for (const lines of Object.values(ord)) for (const x of lines) covered.add(x.clip);
+
+/* 대장의 지금 글 ↔ 녹음된 글 — cast-text-audio 와 «같은» 정규화를 쓴다.
+   ★여기서 정규화를 다르게 쓰면 이 검사가 스스로 거짓말을 한다. 공백만 눌러 비교한다. */
+const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim();
+const NAR = 'assets/audio/narration';
+const pad2 = (n) => String(n).padStart(2, '0');
+
+const missing = [];
+let mismatch = 0;
+for (const c of man.clips || []) {
+  if (c.mix || RETIRED.has(c.file)) continue;            // 합성 클립[MIX_MADE]·폐지 클립은 받지 않는다
+  const key = pad2(c.no) + '_' + c.file;
+  const said = rec[(c.dir || NAR) + '|' + key];
+  if (said === undefined) continue;                     // 아직 한 번도 안 받은 클립은 이 검사 밖이다
+  if (norm(said) === norm((c.sents || []).map((s) => s.text).join(' '))) continue;
+  mismatch++;
+  if (!covered.has(key)) missing.push(key);
+}
+
+console.log(`[REDUB_COVERS] 글↔소리 어긋남 ${mismatch}클립 · 다시받기 파일이 담은 것 ${covered.size}클립`);
+if (missing.length) {
+  console.log(`\n✗ 어긋났는데 다시받기 파일에 «없는» 클립 ${missing.length}개 — 사장님이 받으실 길이 없다:`);
+  for (const k of missing) console.log(`    ${k}`);
+  console.log('\n  ★전부 녹음하셔도 이 자리는 옛 소리로 남는다. 게이트는 계속 붉고 원인은 안 보인다.');
+  console.log('  → build-redub-byvoice.mjs 의 «거르는 조건»과 cast-text-audio 의 것을 맞추세요.');
+  process.exit(1);
+}
+console.log('[REDUB_COVERS] ok — 어긋난 클립이 전부 다시받기 파일에 들어 있다');
