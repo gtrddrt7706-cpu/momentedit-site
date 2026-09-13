@@ -6961,6 +6961,28 @@ chk 'FLAT_ORDER' scripts/build-redub-byvoice.mjs 2
 #     «문장 하나에 파일 하나»를 유지한다. 가장 위험한 단계에 새 길을 내지 않는다.
 chk 'DUP_ONCE' scripts/build-redub-byvoice.mjs 1
 chk 'DUP_ONCE' scripts/audit/redub-covers.mjs 2
+
+# ★★[VOICE_LETTER_NARR 2026-09-13 사장님 「어른께드리는편지 부분 우성으로 바꾸고」]
+#   편지(43_parents-letter · 39문장) 김호인 → 우성. 이미 김호인으로 받은 mp3 가 있었지만
+#   사장님 상시 지시대로 «이미 녹음한 것에 제약을 두지 않고» 결과물 기준으로 바꿨다.
+chk 'VOICE_LETTER_NARR' scripts/build-typecast-import.mjs 1
+chk "편지: '우성'" scripts/build-typecast-import.mjs 1
+# ★★[SAME_ROOM] 「한 목소리가 여러 자리」 검사를 «예식에서 이어 듣는 역할»로 좁혔다.
+#   그 검사의 근거는 «낙차»인데, 낙차는 하객이 둘을 이어 들을 때만 생긴다.
+#   실측: 43_parents-letter 는 324조합 «전부»에서 예식 큐에 없다 — parents.html 에서 어른 혼자 들으신다.
+#   ★약하게 한 것이 아니다. 반증으로 확인했다 — 하객대표·신부를 겹치면 여전히 막는다.
+#   ★[CANT_LOOK] 큐 엔진을 못 읽으면 좁히지 않는다(못 쟀다를 괜찮다로 바꾸지 않는다).
+chk 'SAME_ROOM' scripts/build-typecast-import.mjs 1
+# ★★[PROBE_BY_VOICE] 0_보이스확인.txt 는 «역할»이 아니라 «목소리»를 확인하는 판이다.
+#   한 목소리가 두 역할을 맡으면 줄이 둘이어도 확인되는 것은 하나다 — 목소리 기준으로 한 줄씩 만든다.
+chk 'PROBE_BY_VOICE' scripts/build-typecast-import.mjs 1
+# ★★[VOICE_CHANGED] 글이 같아도 «읽은 사람»이 바뀌었으면 다시 받아야 한다.
+#   _recorded.json 이 대사만 적어, 성우만 바꾸면 그 클립이 조용히 옛 목소리로 남았다(실측 49클립).
+#   ★성우는 «녹음한 그 자리»(assemble-narration)에 박는다. 배정 스냅샷을 따로 두는 안은 버렸다 —
+#     뽑을 때마다 덮어써서 두 번 돌리면 잊는다(만들어 보고 직접 겪었다).
+#   ★voice 가 없는 옛 기록은 «모른다»로 둔다. 모르는 것을 그대로다로도 바뀌었다로도 단정하지 않고 수를 알린다.
+chk 'VOICE_CHANGED' scripts/build-redub-byvoice.mjs 2
+chk 'VOICE_CHANGED' scripts/assemble-narration.mjs 1
 chk 'ID_ONE' scripts/build-dubbing-script.mjs 1
 nochk "\['G13-3', '하객과 함께" scripts/build-dubbing-script.mjs
 if command -v node >/dev/null 2>&1; then node scripts/audit/redub-covers.mjs >/dev/null 2>&1 \

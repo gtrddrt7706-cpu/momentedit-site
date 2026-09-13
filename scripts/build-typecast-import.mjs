@@ -51,7 +51,14 @@ const OUT = path.join(root, 'docs/plans/식순연구/타입캐스트');
 const DEFAULT_VOICE = {
   진행: '우성',
   안내: '진희',
-  편지: '김호인',
+  // ★★[VOICE_LETTER_NARR 2026-09-13 사장님 「어른께드리는편지 부분 우성으로 바꾸고」]
+  //   편지(43_parents-letter · 39문장) 김호인 → 우성.
+  //   ★이미 김호인으로 받은 mp3 가 있다 — 39줄을 다시 받아야 한다. 사장님 상시 지시대로
+  //     «이미 녹음한 것에 제약을 두지 않고» 결과물 기준으로 바꾼다.
+  //   ★이 편지는 스튜디오가 «두 분 어른께» 직접 드리는 글이다(parents.html 본문).
+  //     진행 나레이터와 같은 목소리면 「우리가 드리는 말」로 한 사람이 일관되게 말한다.
+  //     F0 실측 김호인 140 → 우성 151Hz.
+  편지: '우성',
   // ★[VOICE_GROOM_2 2026-08-21] 신랑 이준 → 이겸 (사용자 선택)
   //   시험 녹음 실측 — F0 중앙값 이준 116.8Hz → 이겸 133.3Hz(+16.5Hz). 바뀐 것이 소리에서 재진다.
   //   ★신랑 자리는 26줄 + 서약 합창 재료 2클립이 걸려 있다. 여기를 늦게 바꾸면
@@ -481,9 +488,42 @@ for (const P of PARTS) {
 
   // ★중복 배정 검사 — 8자리 = 8개 다른 목소리. 특히 진행(41클립)과 편지·하객대표가 겹치면
   //   편지가 진행의 연장으로 들리고, 축배는 낭독처럼 들린다. 낙차가 전부인 자리들이다.
+  //
+  // ★★[SAME_ROOM 2026-09-13] 그 «낙차»는 하객이 «둘을 이어 들을 때»만 생긴다.
+  //   이 검사는 그 조건을 안 보고 모든 역할을 한 덩어리로 묶었다. 그래서 예식에서 아예
+  //   안 나가는 역할까지 막았다 — 실측: 43_parents-letter 는 324조합 «전부»에서 큐에 없다.
+  //   그 편지는 parents.html 에서 어른 혼자 들으시는 글이라, 진행 나레이션과 이어 들을 자리가 없다.
+  //   ★검사를 약하게 하는 것이 아니다. 재는 대상을 «실제로 이어 듣는 역할»로 좁혀 정확하게 만든다.
+  //     예식에 나가는 역할끼리 겹치면 종전대로 막는다(하객대표·신랑·신부·아버님·어머님·안내·진행).
+  //   ★[CANT_LOOK] 큐 엔진을 못 읽으면 좁히지 않는다 — «못 쟀다»를 «괜찮다»로 바꾸지 않는다.
+  let inRoom = null;
+  try {
+    const req_ = createRequire(import.meta.url);
+    const RCq = req_(path.join(root, 'assets/ritual-cue.js'));
+    const STq = req_(path.join(root, 'assets/ritual-story.js'));
+    const files = new Set();
+    for (const course of ['gamdong', 'family', 'damback', 'record', 'minimal', 'festive'])
+      for (const letter of ['parent', 'each', 'both'])
+        for (const bless of ['on', 'off'])
+          for (const tribute of ['flower', 'bow', 'hug'])
+            for (const toast of ['toast', 'cake', 'both']) {
+              let cues; try { cues = RCq.build({ course, letter, bless, tribute, toast }, { mode: 'console' }).cues; } catch { continue; }
+              for (const q of cues) {
+                if (q.file) files.add(q.file);
+                for (const id of (STq.castIds(q).live || [])) if (id) files.add(String(id).replace(/^\d+_/, ''));
+              }
+            }
+    if (files.size) {
+      inRoom = new Set();
+      for (const c of manifest.clips) if (files.has(c.file)) for (const r of String(c.role).split('|')) inRoom.add(r);
+    }
+  } catch { /* [CANT_LOOK] 못 읽으면 inRoom 을 null 로 두어 종전대로 전부 본다 */ }
+
   const byVoice = {};
   for (const [role, v] of Object.entries(VOICE)) (byVoice[v] ||= []).push(role);
-  const dup = Object.entries(byVoice).filter(([, rs]) => rs.length > 1);
+  const dup = Object.entries(byVoice)
+    .map(([v, rs]) => [v, inRoom ? rs.filter((r) => inRoom.has(r)) : rs, rs])
+    .filter(([, rs]) => rs.length > 1);
   if (dup.length) {
     console.error(`\n✗ 한 목소리가 여러 자리에 배정돼 있습니다 — 같은 사람이 계속 말하는 예식이 됩니다.`);
     for (const [v, rs] of dup) console.error(`   '${v}' → ${rs.join(' · ')}`);
@@ -514,9 +554,19 @@ for (const [role, name] of Object.entries(VOICE)) {
   probe.push({ role, name, text: sorted[Math.floor((sorted.length - 1) * 0.6)] });
 }
 {
-  const want = Object.keys(VOICE).length;
+  /* ★★[PROBE_BY_VOICE 2026-09-13] 이 파일이 확인하는 것은 «역할»이 아니라 «목소리»다.
+     붙여넣어 「그 이름이 타입캐스트에서 잡히나」만 보는 판이라, 한 목소리가 두 역할을 맡으면
+     줄이 둘이어도 확인되는 것은 하나다. 그래서 목소리 기준으로 한 줄씩 만든다.
+     ★[VOICE_LETTER_NARR] 로 우성이 진행·편지 둘을 맡으면서 드러났다 — 종전 판은 역할 수로 세어
+       「같은 이름이 두 번」이라며 멎었다. 검사가 틀린 것이 아니라 «세는 단위»가 역할이었다.
+     ★아래 두 검사는 그대로 둔다 — 목소리 수만큼 줄이 있어야 하고, 이름이 겹치면 안 된다. */
+  const seenName = new Set();
+  for (let i = probe.length - 1; i >= 0; i--) {
+    if (seenName.has(probe[i].name)) probe.splice(i, 1); else seenName.add(probe[i].name);
+  }
+  const want = new Set(Object.values(VOICE)).size;
   if (probe.length !== want) {
-    console.error(`\n✗ 보이스 확인 파일이 ${probe.length}줄입니다 — ${want}자리를 다 확인할 수 없습니다.`);
+    console.error(`\n✗ 보이스 확인 파일이 ${probe.length}줄입니다 — 목소리 ${want}개를 다 확인할 수 없습니다.`);
     process.exit(1);
   }
   const names = probe.map((x) => x.name);

@@ -46,10 +46,15 @@ const vb = /const DEFAULT_VOICE = \{([\s\S]*?)\n\};/.exec(imp);
 const VOICE = Object.fromEntries([...(vb ? vb[1] : '').matchAll(/^\s*([가-힣|]+):\s*'([^']+)'/gm)].map((m) => [m[1], m[2]]));
 
 const rec = {};
+const recVoice = {};     // [VOICE_CHANGED] 그 클립을 «누가» 읽었나 (옛 기록엔 없다)
+let unknownVoice = 0;
 for (const d of ['assets/audio/cast', NAR]) {
   try {
     const j = JSON.parse(fs.readFileSync(path.join(ROOT, d, '_recorded.json'), 'utf8'));
-    for (const [k, v] of Object.entries(j.clips || {})) rec[d + '|' + k] = typeof v === 'string' ? v : v.text;
+    for (const [k, v] of Object.entries(j.clips || {})) {
+      rec[d + '|' + k] = typeof v === 'string' ? v : v.text;
+      if (typeof v !== 'string' && v.voice) recVoice[d + '|' + k] = v.voice;   // [VOICE_CHANGED]
+    }
   } catch { /* 없으면 «아직 안 받음» */ }
 }
 
@@ -60,7 +65,18 @@ for (const c of man.clips) {                       // ★대장 차례 그대로
   if (c.mix || RETIRED.has(c.file)) continue;
   const key = pad2(c.no) + '_' + c.file;
   const said = rec[(c.dir || NAR) + '|' + key];
-  if (said !== undefined && norm(said) === norm(c.sents.map((s) => s.text).join(' '))) continue;
+  /* ★★[VOICE_CHANGED 2026-09-13] 글이 같아도 «읽은 사람»이 바뀌었으면 다시 받아야 한다.
+     [VOICE_LETTER_NARR] 로 편지를 김호인 → 우성으로 바꾸다 드러났다. 그 클립은 마침 글도
+     바뀌어 있어 살았지만, 글이 그대로인 49클립이었으면 파일 어디에도 안 나오고 옛 소리로 나갔다.
+     ★성우는 «녹음한 그 자리»에 박는다 — assemble-narration 이 _recorded.json 에 voice 를 남긴다.
+       배정 스냅샷을 따로 두는 안은 버렸다. 뽑을 때마다 덮어써서 두 번 돌리면 잊는다(직접 겪었다).
+     ★voice 가 없는 옛 기록(문자열만)은 «모른다»로 둔다 — 모르는 것을 «바뀌었다»로도
+       «그대로다»로도 단정하지 않는다. 아래에서 그 수를 세어 알린다([CANT_LOOK]). */
+  const recV = recVoice[(c.dir || NAR) + '|' + key];
+  const nowV = VOICE[String(c.role).split('|')[0]];
+  if (recV === undefined) unknownVoice++;
+  const voiceMoved = recV !== undefined && nowV !== undefined && recV !== nowV;
+  if (said !== undefined && norm(said) === norm(c.sents.map((s) => s.text).join(' ')) && !voiceMoved) continue;
   clips++;
   for (const s of c.sents) {
     const v = VOICE[s.role || c.role];
@@ -76,6 +92,7 @@ for (const c of man.clips) {                       // ★대장 차례 그대로
   }
 }
 const rows = [...byVoice.entries()].sort((a, b) => b[1].length - a[1].length);
+if (unknownVoice) console.log(`★옛 기록 ${unknownVoice}클립은 «누가 읽었는지»가 안 적혀 있습니다 — 성우를 바꿔도 여기서는 못 잡습니다.\n   다시 받는 순간 assemble-narration 이 성우를 박아 두므로, 그 뒤로는 잡힙니다.`);
 console.log(`다시 받아야 할 클립 ${clips}개 · 문장 ${rows.reduce((a, [, l]) => a + l.length, 0)}개`);
 if (Object.keys(pending).length) {
   console.log('★성우 미정 — 아래 줄은 어떤 파일에도 안 들어갔다. 성우를 고른 뒤 다시 돌리세요:');
