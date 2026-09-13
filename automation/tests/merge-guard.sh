@@ -6891,6 +6891,18 @@ chk 'FRAME_OUT' scripts/apply-frame-out.mjs 1
 chk 'DECISION_GUARD' scripts/audit/decision-guard.mjs 1
 chk 'APPLY_TO_GATE' scripts/audit/decision-guard.mjs 1
 chk 'PAIR_READ' scripts/audit/pair-read.mjs 1
+
+# ★★[VOICE_PENDING] 같은 규칙이 «두 생성기»에 다 있어야 한다 — 2026-09-13 사장님 「전부 다시 뽑아」에서 드러났다.
+#   9/12 에 build-redub-byvoice.mjs 에만 넣고 build-voice-parts.mjs 를 못 봤다. 그 결과:
+#     · 성우별/ 폴더가 [27] 시어머님이 생긴 날부터 «한 번도» 안 뽑혔다(생성기가 exit 2 로 멎었다)
+#     · 멎은 생성기는 낡은 파일을 «그대로 남긴다» — 그래서 아무 검사도 빨개지지 않았다
+#     · 그 사이 아버님 덕담 15줄 전면 개작·축배 마무리·혼주 편지가 그 폴더에 하나도 안 들어갔다
+#       그대로 붙여넣어 녹음하셨으면 옛 대본을 녹음하신다. 「낡았는데 조용한 것」이 제일 나쁘다.
+#   ★그래서 두 파일에 «같이» 건다. 한쪽만 고치면 여기서 걸린다.
+#     (redub 쪽은 아래에 이미 걸려 있다 — 여기서는 그동안 «비어 있던» voice-parts 쪽을 채운다.)
+#   ★생성기를 exit 2 로 멈추게 되돌리지 말 것 — 한 역할의 성우가 비었다고 나머지 일곱을 볼모로 잡는다.
+chk 'VOICE_PENDING' scripts/build-voice-parts.mjs 2
+nochk "성우를 모른다\`); process.exit(2)" scripts/build-voice-parts.mjs
 if command -v node >/dev/null 2>&1; then node scripts/audit/decision-guard.mjs >/dev/null 2>&1 \
   || { echo 'FAIL decision-guard: 결정을 적어 놓고 지키는 검사를 안 만든 자리가 있습니다 — node scripts/audit/decision-guard.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/null 2>&1 \

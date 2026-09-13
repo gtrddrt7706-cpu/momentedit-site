@@ -47,6 +47,7 @@ const VOICE = Object.fromEntries(
 );
 
 const byVoice = new Map();
+const pending = {};      // [VOICE_PENDING] 성우 미정 역할 → 어느 클립 몇 번째 문장인지
 for (const c of man.clips) {
   if (RETIRED.has(c.file)) continue;
   /* ★[MIX_MADE 2026-09-06] 합성 클립은 받지 않는다 — 26_vow-both 는 24·25 를 겹쳐 만든다.
@@ -56,7 +57,16 @@ for (const c of man.clips) {
   for (const s of c.sents) {
     const role = s.role || c.role;          // [MIXED_BY_SENT] 문장 role 이 먼저다
     const v = VOICE[role];
-    if (!v) { console.log(`★배역 '${role}' 의 성우를 모른다 (${c.no}_${c.file})`); process.exit(2); }
+    /* ★★[VOICE_PENDING 2026-09-13] 성우가 아직 없는 역할에서 «죽지 않는다» — 건너뛰고 끝에 알린다.
+       ★이 규칙은 2026-09-12 에 build-redub-byvoice.mjs 에 이미 들어갔다. 그런데 «같은 코드가
+         두 벌»인 것을 못 보고 한쪽만 고쳤다. 그래서 [27] 시어머님이 생긴 뒤로 이 폴더는
+         하루 넘게 한 번도 안 뽑혔고, 안에 있는 것은 9/12 판이었다 — 빨갛지도 않았다.
+         멎은 생성기는 «낡은 파일을 그대로 남긴다». 그게 이 사고의 진짜 모양이다.
+       ★사장님은 성우를 고르기 전에도 나머지를 녹음하실 수 있어야 한다.
+         한 자리가 비었다고 전체를 볼모로 잡지 않는다.
+       ★대신 조용히 넘어가지도 않는다 — 마지막에 «성우 미정» 목록으로 찍고, 그 줄은 어떤
+         성우 파일에도 안 들어간다(undefined 라는 화자가 생기지 않게). 성우가 정해지면 다시 돌린다. */
+    if (!v) { (pending[role] ||= []).push(`${c.no}_${c.file} ${s.i}`); continue; }
     if (!byVoice.has(v)) byVoice.set(v, []);
     byVoice.get(v).push({ voice: v, role, clip: `${c.no}_${c.file}`, i: s.i, text: s.text });
   }
@@ -68,6 +78,10 @@ for (const [v, list] of rows) {
   order[v] = list.map((x, n) => ({ n: n + 1, clip: x.clip, i: x.i, role: x.role, text: x.text }));
   const clips = new Set(list.map((x) => x.clip)).size;
   console.log(`  ${v.padEnd(6)} ${String(list.length).padStart(4)}줄  ${String(clips).padStart(3)}클립  (${[...new Set(list.map((x) => x.role))].join('·')})`);
+}
+if (Object.keys(pending).length) {
+  console.log('★성우 미정 — 아래 줄은 어떤 파일에도 안 들어갔다. 성우를 고른 뒤 다시 돌리세요:');
+  for (const [role, xs] of Object.entries(pending)) console.log(`   ${role}  ${xs.length}줄  (${xs.join(' · ')})`);
 }
 console.log(`  ${'합계'.padEnd(6)} ${String(Object.values(order).reduce((a, b) => a + b.length, 0)).padStart(4)}줄  · 폐지 ${RETIRED.size}클립 제외`);
 
