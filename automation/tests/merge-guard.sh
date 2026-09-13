@@ -1583,6 +1583,12 @@ chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 
 chk 'STORY_KEY_IS_SOURCE' assets/ritual-story.js 1           # LIVE의 키는 live.t 원문 · slug로 바꾸면 꽃/큰절/포옹이 한 칸에 뭉친다
 chk 'STORY_BLOCK_FILL' assets/ritual-story.js 1              # 순서 소개의 원천은 COURSES[].detail · BLOCK은 detail에 없는 것만
 chk '\[STORY_COVER\]' scripts/build-course-story.mjs 1       # 커버리지 검사 + 코스별 장면 대본 생성기 자체
+# [STORY_STALE 2026-09-13] 장면 대본 6편(docs/plans/식순연구/)은 자동 생성물인데,
+#   --check 가 커버리지만 보고 바로 나가서 «원천은 바뀌고 문서는 옛 판»이 그냥 통과했다.
+#   실측으로 그 상태를 확인했다 — 여섯 편이 전부 뒤처져 있었고 게이트는 초록이었다.
+#   저널 「대본 ↔ 음원」과 같은 종류의 구멍이다. 이제 --check 가 쓰는 대신 내용을 대조한다.
+#   반증 4종 확인: 문서 수정 · 원천 수정 후 문서 방치 · 파일 삭제 · 나레이션 문안 변경 — 전부 빨강.
+chk 'STORY_STALE' scripts/build-course-story.mjs 4
 chk 'FIRE_FROM_CONSOLE' scripts/build-course-story.mjs 1     # 진행 방식은 console 빌드가 진실 · preview meta로 세면 머리글이 거짓말한다
 # 장면 레이어 커버리지 — 미커버/중복/죽은 문안/fallback 원문 어긋남/내부 용어 누출을 전 조합에서 잡는다
 if command -v node >/dev/null 2>&1; then node scripts/build-course-story.mjs --check || fail=1; fi
