@@ -5572,8 +5572,15 @@ chk '바코드 자체는 문자로 보내지 않는다' scripts/audit/coupon-flo
 chk 'KB_TRUTH_RUN' automation/tests/merge-guard.sh 1
 chk 'node scripts/audit/kb-truth.mjs' automation/tests/merge-guard.sh 2
 chk 'NIGHTLY_JOURNEY' .github/workflows/nightly-screen.yml 1
-chk 'journey-sim.mjs' .github/workflows/nightly-screen.yml 1
-chk 'save-honesty.mjs' .github/workflows/nightly-screen.yml 1
+# ★[AUDIT_RUN_ALL 2026-09-13] 위 두 줄은 「야간 yml 이 이 검사들의 이름을 적고 있다」를 재던 것이다.
+#   이제 야간은 이름을 안 적는다 — run-all 이 scripts/audit 를 스스로 찾아 돌린다(손 목록이 세 번 벌어져서 없앴다).
+#   그래서 **같은 뜻을 새 구조에 맞게** 다시 쓴다: 이 둘이 SKIP 에 들어가 있지 않으면 반드시 돈다
+#   (run-all --verify 가 «모든 감사는 돌거나 이유 붙여 빠지거나» 둘 중 하나임을 이미 강제한다).
+#   ★바로 위 주석의 그 말이 여전히 이 자리의 이유다 — «검사를 만들었다»와 «검사가 돈다»는 다른 말이다.
+nochk "'journey-sim.mjs':" scripts/audit/run-all.mjs 0
+nochk "'save-honesty.mjs':" scripts/audit/run-all.mjs 0
+chk 'journey-sim.mjs' scripts/audit/journey-sim.mjs 0        # 파일 자체가 살아 있다(지우면 --verify 가 아니라 여기서 먼저 걸린다)
+chk 'SAVE_HONESTY\|save' scripts/audit/save-honesty.mjs 1
 
 
 # ★★[NAV_MASK 2026-08-18 «점검 직접 보면서» 에서 눈으로 발견] 스크롤해도 숨지 않는 nav 는 마스크가 있어야 한다.
@@ -6527,3 +6534,34 @@ chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
 chk 'GP_DBL_REST' scripts/audit/guide-photo-sim.mjs 1
 chk '이중클릭' scripts/audit/guide-photo-sim.mjs 2
 chk '경계31' scripts/audit/guide-photo-sim.mjs 2
+
+# ★★[AUDIT_RUN_ALL 2026-09-13 점검] 「만들어 놓고 아무도 안 부르는 감사」를 구조적으로 없앤다.
+#   실측(오늘): 감사 84개 중 merge-guard 가 실행하는 것 30개 · nightly-screen 이 12개 — **42개를 아무도 안 돌렸다.**
+#   이 자리를 고친 것이 처음이 아니다:
+#     · 2026-08-11 nightly-screen 을 만들며 「51개 중 22개만 돈다」
+#     · 2026-08-30 [ORPHAN_AUDITS] 「61개 중 10개가 고아」 → 열 개를 손으로 넣었다
+#   두 번 다 **손으로 적은 목록**이었고 두 번 다 벌어졌다. 그동안 치른 값(오늘 실측):
+#     · deliv-matrix·pay-front-check — #708 에서 문구를 고칠 때 같이 낡았는데 게이트는 초록이었다
+#     · admin-ux — 박아 둔 날짜가 과거가 되어 며칠째 붉었다(아무도 안 봤다)
+#     · guest-photo-sim — **게이트가 돌리는** 검사인데 2026-10-06 부터 붉어진다(시계를 돌려 이분 탐색)
+#   → run-all 은 scripts/audit/*.mjs 를 스스로 찾아 돈다. 빠지는 길은 SKIP 한 곳뿐이고 «왜»가 붙는다.
+#   ★여기서 --verify 는 감사를 **돌리지 않는다**(디렉터리만 읽는다 · 0.1초). 실제 실행은 야간이 맡는다 —
+#     느린 검사를 게이트에 넣으면 사람이 붉은 것을 무시한다는 그 이유를 그대로 지킨다.
+if command -v node >/dev/null 2>&1; then
+  _ra=$(node scripts/audit/run-all.mjs --verify 2>&1)
+  if [ $? = 0 ]; then echo "ok run-all: $(printf '%s' "$_ra" | tail -1)"
+  else echo 'REVERT? run-all --verify 실패 — 아무도 안 돌리는 감사가 생겼다:'; printf '%s\n' "$_ra"; fail=1; fi
+else echo 'skip run-all --verify (node 없음)'; fi
+chk 'AUDIT_RUN_ALL' scripts/audit/run-all.mjs 1
+chk 'RUN_ALL_VERIFY' scripts/audit/run-all.mjs 1
+chk 'run-all.mjs' .github/workflows/nightly-screen.yml 1   # 야간이 실제로 부른다(러너만 있고 안 부르면 그대로 고아다)
+
+# ★[SEED_RELATIVE 2026-09-13 점검] 시드에 날짜를 박으면 검사가 달력 때문에 죽는다 — 이 저장소에서 다섯 번째다
+#   (#642 되돌리기 시뮬 · #684 상담 요일 · 오늘 admin-ux · guest-photo-sim · rollback-slot).
+#   libfaketime 으로 시계를 돌려 «첫 빨강의 날짜»를 이분 탐색으로 특정한 뒤 상대값으로 바꿨다.
+#   박은 날짜로 되돌리지 말 것 — 세 파일 모두 그 이유를 파일 안에 적어 뒀다.
+chk 'SEED_RELATIVE' scripts/audit/admin-ux.mjs 1
+chk 'SEED_RELATIVE' scripts/audit/guest-photo-sim.mjs 1
+chk 'SEED_RELATIVE' scripts/audit/rollback-slot.mjs 1
+nochk "예식일:'2026-09-05'" scripts/audit/guest-photo-sim.mjs      # 되돌아오면 2026-10-06 에 다시 붉어진다
+nochk "예식일: '2026-12-20'" scripts/audit/rollback-slot.mjs        # 되돌아오면 2026-12-21 에 붉어진다
