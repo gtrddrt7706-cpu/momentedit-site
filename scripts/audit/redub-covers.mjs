@@ -22,6 +22,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const P = (r) => path.join(ROOT, r);
@@ -109,3 +111,60 @@ if (dups.length) {
   process.exit(1);
 }
 console.log(`[ID_ONE] ok — 클립 ${(man.clips || []).length}개의 id 가 전부 고유하다`);
+
+/* ★★[DUP_ONCE] 한 파일 판이 «겹치는 말을 한 번만» 담게 된 뒤로, 그 판이 채우는 자리가
+   낱개 판과 «정확히 같아야» 한다. 한 자리라도 비면 그날 예식에서 그 문장이 소리 없이 지나간다.
+   ★합친 것 자체가 틀릴 수도 있다 — 같은 예식에 둘 다 나가는 말을 합치면 같은 소리가 두 번 난다.
+     그것도 여기서 잰다(큐 엔진 324조합 전수). 사람이 눈으로 셀 수 있는 것이 아니다. */
+let flatOrder = null;
+try { flatOrder = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/타입캐스트/다시받기/_전체_순서.json'), 'utf8')); }
+catch { console.log('[DUP_ONCE] ? _전체_순서.json 이 없다 — 다시받기를 먼저 뽑으세요'); process.exit(2); }
+
+const slot = (a) => a.clip + '#' + a.i;
+const filled = [];
+for (const r of flatOrder) for (const a of r.at || []) filled.push(slot(a));
+const want = [];
+for (const lines of Object.values(ord)) for (const x of lines) want.push(x.clip + '#' + x.i);
+
+const dupFill = filled.filter((k, i) => filled.indexOf(k) !== i);
+const missSlot = want.filter((k) => !filled.includes(k));
+const extraSlot = filled.filter((k) => !want.includes(k));
+if (dupFill.length || missSlot.length || extraSlot.length) {
+  console.log('\n✗ 한 파일 판이 채우는 자리가 낱개 판과 다르다:');
+  if (missSlot.length) console.log(`    비는 자리 ${missSlot.length}개 — 예식에서 소리 없이 지나간다: ${missSlot.slice(0, 5).join(' ')}`);
+  if (extraSlot.length) console.log(`    없는 자리에 넣는다 ${extraSlot.length}개: ${extraSlot.slice(0, 5).join(' ')}`);
+  if (dupFill.length) console.log(`    한 자리에 두 번 넣는다 ${dupFill.length}개: ${dupFill.slice(0, 5).join(' ')}`);
+  process.exit(1);
+}
+
+/* 합친 것이 «한 날에 같이 나가는» 말은 아닌지 — 큐 엔진으로 잰다. */
+const RCq = require(P('assets/ritual-cue.js'));
+const STq = require(P('assets/ritual-story.js'));
+const together = new Set();
+for (const course of ['gamdong', 'family', 'damback', 'record', 'minimal', 'festive'])
+  for (const letter of ['parent', 'each', 'both'])
+    for (const bless of ['on', 'off'])
+      for (const tribute of ['flower', 'bow', 'hug'])
+        for (const toast of ['toast', 'cake', 'both']) {
+          let cues; try { cues = RCq.build({ course, letter, bless, tribute, toast }, { mode: 'console' }).cues; } catch { continue; }
+          const live = new Set();
+          for (const q of cues) {
+            if (q.file) live.add(q.file);
+            for (const id of (STq.castIds(q).live || [])) if (id) live.add(String(id).replace(/^\d+_/, ''));
+          }
+          const f = [...live];
+          for (let i = 0; i < f.length; i++) for (let j = i + 1; j < f.length; j++) together.add([f[i], f[j]].sort().join('||'));
+        }
+const bad = [];
+for (const r of flatOrder) {
+  const ks = (r.at || []).map((a) => a.clip.replace(/^\d+_/, ''));
+  for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++)
+    if (together.has([ks[i], ks[j]].sort().join('||'))) bad.push([r, ks[i], ks[j]]);
+}
+if (bad.length) {
+  console.log(`\n✗ 같은 예식에 «둘 다» 나가는 말을 한 소리로 합쳤다 ${bad.length}건 — 같은 소리가 두 번 난다:`);
+  for (const [r, a, b] of bad.slice(0, 6)) console.log(`    [${r.n}] ${r.voice} 「${r.text}」  ${a} + ${b}`);
+  process.exit(1);
+}
+const saved = flatOrder.reduce((a, r) => a + (r.at || []).length - 1, 0);
+console.log(`[DUP_ONCE] ok — 한 파일 ${flatOrder.length}줄이 ${filled.length}자리를 빠짐없이 채운다 (겹쳐서 뺀 ${saved}줄)`);

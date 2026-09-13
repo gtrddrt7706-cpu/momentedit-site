@@ -6949,6 +6949,18 @@ chk 'BACK_CMD' scripts/build-redub-byvoice.mjs 1
 #   그 이름은 잘린다([DUB_STAGE] 가 앞자락만 대조하는 이유다) — 잘린 이름이 겹치는 날 조용히 밀린다.
 #   ★낱개 판에는 _순서.json 이 있었는데 한 파일 판에만 없었다. 같은 것이 두 벌인데 한쪽만 갖춘 꼴이다.
 chk 'FLAT_ORDER' scripts/build-redub-byvoice.mjs 2
+# ★★[DUP_ONCE 2026-09-13 사장님 「중복되는 문구가 왜많지? 녹음은 하나만 하고 그녹음본을 입히면되잖아」]
+#   같은 성우가 글자까지 같은 말을 여러 클립에서 한다. 한 번만 받아 나머지 자리에 그 소리를 넣는다.
+#   ★가르는 자는 «같은 예식에서 둘 다 나가는가» 하나뿐이다. 전부 합치면 안 된다:
+#     · 갈래가 달라 한 날에 하나만 나간다 → 같은 소리를 써도 하객은 모른다 (합친다)
+#     · 둘 다 나간다 → 같은 사람이 몇 분 사이에 똑같은 소리를 두 번 낸다 (따로 받는다)
+#   실측 324조합 전수: 합쳐도 되는 줄 32 · 따로 받아야 하는 줄 1 — 신랑 「하윤아.」(서약 + 편지).
+#   ★배역 클립은 castIds(q).live 에 있다. q.file 만 세면 서약·편지·덕담이 통째로 안 보여
+#     「안 겹친다」는 거짓 결론이 나온다 — 첫 판이 실제로 그렇게 답했다.
+#   ★조립기는 손대지 않았다. 되돌릴 때 _전체_순서.json 의 at[] 자리에 같은 파일을 복사해
+#     «문장 하나에 파일 하나»를 유지한다. 가장 위험한 단계에 새 길을 내지 않는다.
+chk 'DUP_ONCE' scripts/build-redub-byvoice.mjs 1
+chk 'DUP_ONCE' scripts/audit/redub-covers.mjs 2
 chk 'ID_ONE' scripts/build-dubbing-script.mjs 1
 nochk "\['G13-3', '하객과 함께" scripts/build-dubbing-script.mjs
 if command -v node >/dev/null 2>&1; then node scripts/audit/redub-covers.mjs >/dev/null 2>&1 \

@@ -22,6 +22,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const WRITE = process.argv.includes('--write');
@@ -99,8 +101,47 @@ fs.writeFileSync(path.join(OUT, '_순서.json'), JSON.stringify(order, null, 1))
    ★★[PASTE_WRONG_FILE] 성우별 낱개 파일에는 이름을 «붙이지 않는다».
      그 파일은 화자를 이미 고른 뒤 붙여넣는 것이라, 이름이 붙어 있으면 그대로 읽힌다.
      실제로 예전에 주석이 달린 파일을 붙여넣어 머리말이 소리로 나온 적이 있다. 두 꼴을 섞지 말 것. */
+/* ★★[DUP_ONCE 2026-09-13 사장님 「중복되는 문구가 왜많지? 녹음은 하나만 하고 그녹음본을 입히면되잖아」]
+   같은 성우가 «글자까지 같은 말»을 여러 클립에서 한다. 한 번만 받아 나머지 자리에 그 소리를 넣는다.
+
+   ★그런데 «전부» 합치면 안 된다. 가르는 자는 하나다 — «같은 예식에서 둘 다 나가는가».
+     · 안 나간다(갈래가 다르다) → 하객은 한 날에 하나만 듣는다. 같은 소리를 써도 아무도 모른다.
+     · 둘 다 나간다            → 같은 사람이 몇 분 사이에 똑같은 소리를 두 번 낸다. 티가 난다.
+   실측(324조합 전수 · 2026-09-13): 합쳐도 되는 줄 32 · 따로 받아야 하는 줄 1.
+     ★그 하나가 신랑 「하윤아.」 다 — 08_vow-groom(서약)과 11_letter-each(편지)가 한 날에 둘 다 나간다.
+       서약을 열고 몇 분 뒤 편지를 여는 말이라, 같은 소리면 편지가 서약의 되풀이로 들린다.
+   ★첫 판은 q.file 만 보아 이것을 «안 겹친다»고 답했다. 배역 클립은 castIds(q).live 에 있다.
+     나레이션만 세면 서약·편지·덕담이 통째로 안 보인다 — 반드시 둘 다 봐야 한다.
+
+   ★조립기는 손대지 않는다. 받은 소리를 되돌릴 때 _전체_순서.json 의 `also` 자리에 같은 파일을
+     복사해 넣어 «문장 하나에 파일 하나»를 그대로 유지한다. 가장 위험한 단계(조립)에 새 길을 내지 않는다. */
+const together = new Set();
+try {
+  const RC = require(path.join(ROOT, 'assets/ritual-cue.js'));
+  const ST = require(path.join(ROOT, 'assets/ritual-story.js'));
+  for (const course of ['gamdong', 'family', 'damback', 'record', 'minimal', 'festive'])
+    for (const letter of ['parent', 'each', 'both'])
+      for (const bless of ['on', 'off'])
+        for (const tribute of ['flower', 'bow', 'hug'])
+          for (const toast of ['toast', 'cake', 'both']) {
+            let cues; try { cues = RC.build({ course, letter, bless, tribute, toast }, { mode: 'console' }).cues; } catch { continue; }
+            const live = new Set();
+            for (const q of cues) {
+              if (q.file) live.add(q.file);
+              for (const id of (ST.castIds(q).live || [])) if (id) live.add(String(id).replace(/^\d+_/, ''));
+            }
+            const f = [...live];
+            for (let i = 0; i < f.length; i++) for (let j = i + 1; j < f.length; j++)
+              together.add([f[i], f[j]].sort().join('||'));
+          }
+} catch (e) {
+  console.log('★큐 엔진을 못 읽어 중복 합치기를 끕니다(전부 따로 받습니다):', e.message);
+}
+const coOccur = (a, b) => together.has([a.replace(/^\d+_/, ''), b.replace(/^\d+_/, '')].sort().join('||'));
+
 const flat = [];
-const flatOrder = [];        // [FLAT_ORDER] 줄번호 → 성우·클립·문장 자리
+const flatOrder = [];        // [FLAT_ORDER] 줄번호 → 성우·클립·문장 자리 (+ also: 같은 소리를 넣을 다른 자리)
+const seen = new Map();      // 성우|대사 → flatOrder 의 그 줄
 for (const c of man.clips) {
   if (c.mix || RETIRED.has(c.file)) continue;
   const key = pad2(c.no) + '_' + c.file;
@@ -110,9 +151,19 @@ for (const c of man.clips) {
      개별 파일에서만 거르고 이 전체 파일은 안 걸러서 「undefined: 대사」 네 줄이 들어갔다.
      그대로 타입캐스트에 붙이면 «undefined» 라는 화자가 생긴다. 한 곳만 막으면 다른 곳으로 샌다. */
   for (const s of c.sents) { const v = VOICE[s.role || c.role]; if (!v) continue;
+    const dk = v + '|' + s.text;
+    const prev = seen.get(dk);
+    if (prev && !prev.at.some((x) => coOccur(x.clip, key))) {     // [DUP_ONCE] 한 날에 같이 안 나간다 → 합친다
+      prev.at.push({ clip: key, i: s.i });
+      continue;
+    }
     flat.push(`${v}: ${s.text}`);
-    flatOrder.push({ n: flat.length, voice: v, clip: key, i: s.i, text: s.text }); }
+    const row = { n: flat.length, voice: v, text: s.text, at: [{ clip: key, i: s.i }] };
+    flatOrder.push(row);
+    if (!prev) seen.set(dk, row);                                 // 나뉜 줄은 첫 줄에만 붙인다
+  }
 }
+const merged = flatOrder.reduce((a, r) => a + r.at.length - 1, 0);
 fs.writeFileSync(path.join(OUT, '0_전체_화자표기.txt'), flat.join('\n') + '\n');
 /* ★★[FLAT_ORDER 2026-09-13 사장님 「파일하나로만들어 … 별로의 수정없이」]
    낱개 파일에는 되돌리는 표(_순서.json)가 있는데 «한 파일» 판에는 없었다.
@@ -121,7 +172,7 @@ fs.writeFileSync(path.join(OUT, '0_전체_화자표기.txt'), flat.join('\n') + 
    그 이름은 잘린다(DUB_STAGE 가 앞자락만 대조하는 이유다). 잘린 이름이 겹치는 날 조용히 밀린다.
    ★그래서 같은 실행에서 번호 → 자리를 적어 둔다. 사람이 나중에 셀 수 있는 것이 아니다. */
 fs.writeFileSync(path.join(OUT, '_전체_순서.json'), JSON.stringify(flatOrder, null, 1));
-console.log(`  ${'전체'.padEnd(6)} ${String(flat.length).padStart(4)}줄  ← 0_전체_화자표기.txt (화자: 대사 · 한 번에)`);
+console.log(`  ${'전체'.padEnd(6)} ${String(flat.length).padStart(4)}줄  ← 0_전체_화자표기.txt (화자: 대사 · 한 번에 · 겹쳐서 뺀 ${merged}줄)`);
 fs.writeFileSync(path.join(OUT, 'README.md'),
   ['# 다시 받을 대본 (자동 생성 · 손으로 고치지 마세요)', '',
    '`node scripts/build-redub-byvoice.mjs --write` 가 만듭니다.', '',
