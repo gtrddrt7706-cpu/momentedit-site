@@ -25,7 +25,12 @@ import { fileURLToPath } from 'node:url';
 
 const require_ = createRequire(import.meta.url);
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const PORT = 8512;
+/* ★[FREE_PORT 2026-09-13 점검 라운드 8] 포트를 커널에서 받는다 — 박아 두면 짝이 생긴다.
+   실측: 8534 를 다른 프로세스가 쥐고 있을 때 이 검사가 「예식이 끝나…라고 말해야 하는데」로
+   **제품 결함처럼** 붉어졌다. 원인은 화면이 아니라 포트였다. _freeport.mjs 머리말이
+   2026-08-30 에 같은 사고를 이미 적어 뒀는데(19개 감사가 그래서 이걸 쓴다) 내가 새로 만들며 빠뜨렸다. */
+const { freePort } = await import('./_freeport.mjs');
+const PORT = await freePort();
 const TOK = 'G1234567890abcd';
 /* 설계상 예산은 12초(gapi) + 1.2 + 12 + 3 + 12 = 약 40초다. 실측 41초.
    60초는 그 위의 여유 — CI 가 느린 날 헛울지 않게. 40초 아래로 내리지 말 것(설계 예산을 자르는 값이 된다). */
@@ -72,6 +77,15 @@ for (const [pg, label, wantRe, wantBtn, seedKey] of PAGES) {
     return route.fulfill({ status: 200, contentType: 'text/plain', body: '' });
   });
   try { await page.goto(`http://localhost:${PORT}/${pg}`, { waitUntil: 'domcontentloaded', timeout: 15000 }); } catch {}
+  /* ★[SERVED_OURS] 우리 화면이 맞는지 먼저 본다 — 아니면 «갇혔다»가 아니라 «못 쟀다»(2)다.
+     서버가 안 떴거나 포트를 뺏기면 어떤 화면이든 «말을 안 한다» → 이 검사가 제품 결함처럼 붉는다. */
+  await page.waitForTimeout(800);
+  const ours = await page.evaluate(() => /MOMENT/i.test(document.body.innerText || '') || !!document.querySelector('#card,#root,#mypageView,#homeView,#loading'));
+  if (!ours) {
+    console.log(`  · 못 쟀다 — ${label} 자리에 우리 화면이 아닌 것이 떴다(서버가 안 떴거나 포트를 뺏겼다)`);
+    await page.close(); await browser.close(); try { server.kill(); } catch {}
+    process.exit(2);
+  }
   const t0 = Date.now();
   let m = { said: false, btn: 0 };
   while (Date.now() - t0 < DEADLINE) {

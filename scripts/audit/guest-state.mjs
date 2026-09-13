@@ -24,7 +24,12 @@ import { fileURLToPath } from 'node:url';
 
 const require_ = createRequire(import.meta.url);
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const PORT = 8534;
+/* ★[FREE_PORT 2026-09-13 점검 라운드 8] 포트를 커널에서 받는다 — 박아 두면 짝이 생긴다.
+   실측: 8534 를 다른 프로세스가 쥐고 있을 때 이 검사가 「예식이 끝나…라고 말해야 하는데」로
+   **제품 결함처럼** 붉어졌다. 원인은 화면이 아니라 포트였다. _freeport.mjs 머리말이
+   2026-08-30 에 같은 사고를 이미 적어 뒀는데(19개 감사가 그래서 이걸 쓴다) 내가 새로 만들며 빠뜨렸다. */
+const { freePort } = await import('./_freeport.mjs');
+const PORT = await freePort();
 const TOK = 'G1234567890abcd';
 
 /* [이름, 서버 응답, 화면에 있어야 할 말, 출구 규칙]
@@ -78,6 +83,14 @@ for (const [pg, label] of PAGES) {
       n: [...document.querySelectorAll('button,a[href],[role=button]')]
         .filter(e => e.getBoundingClientRect().width > 0 && (e.textContent || '').trim()).length,
     }));
+    /* ★[SERVED_OURS] 우리 화면이 맞는지 먼저 본다 — 아니면 «틀렸다»가 아니라 «못 쟀다»(2)다.
+       실측: 포트를 다른 프로세스가 쥐면 파이썬의 404 쪽이 떠서, 이 검사가 제품 결함처럼 붉었다.
+       freePort 로 충돌 자체를 없앴지만(위), 서버가 안 떴을 때도 같은 오진이 나므로 한 겹 더 둔다. */
+    if (!/MOMENT/i.test(m.txt)) {
+      console.log(`  · 못 쟀다 — ${label} 자리에 우리 화면이 아닌 것이 떴다(서버가 안 떴거나 포트를 뺏겼다)`);
+      await page.close(); await browser.close(); try { server.kill(); } catch {}
+      process.exit(2);
+    }
     const said = m.txt.indexOf(want) !== -1;
     const exitOk = exitRule === 'any' || (exitRule === 'none' ? m.n === 0 : m.n >= 1);
     if (said && exitOk) console.log(`    ok ${name} — 「${want}」 · 출구 ${m.n}개`);
