@@ -1596,6 +1596,12 @@ chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 
 chk 'STORY_KEY_IS_SOURCE' assets/ritual-story.js 1           # LIVE의 키는 live.t 원문 · slug로 바꾸면 꽃/큰절/포옹이 한 칸에 뭉친다
 chk 'STORY_BLOCK_FILL' assets/ritual-story.js 1              # 순서 소개의 원천은 COURSES[].detail · BLOCK은 detail에 없는 것만
 chk '\[STORY_COVER\]' scripts/build-course-story.mjs 1       # 커버리지 검사 + 코스별 장면 대본 생성기 자체
+# [STORY_STALE 2026-09-13] 장면 대본 6편(docs/plans/식순연구/)은 자동 생성물인데,
+#   --check 가 커버리지만 보고 바로 나가서 «원천은 바뀌고 문서는 옛 판»이 그냥 통과했다.
+#   실측으로 그 상태를 확인했다 — 여섯 편이 전부 뒤처져 있었고 게이트는 초록이었다.
+#   저널 「대본 ↔ 음원」과 같은 종류의 구멍이다. 이제 --check 가 쓰는 대신 내용을 대조한다.
+#   반증 4종 확인: 문서 수정 · 원천 수정 후 문서 방치 · 파일 삭제 · 나레이션 문안 변경 — 전부 빨강.
+chk 'STORY_STALE' scripts/build-course-story.mjs 4
 chk 'FIRE_FROM_CONSOLE' scripts/build-course-story.mjs 1     # 진행 방식은 console 빌드가 진실 · preview meta로 세면 머리글이 거짓말한다
 # 장면 레이어 커버리지 — 미커버/중복/죽은 문안/fallback 원문 어긋남/내부 용어 누출을 전 조합에서 잡는다
 if command -v node >/dev/null 2>&1; then node scripts/build-course-story.mjs --check || fail=1; fi
@@ -4096,11 +4102,19 @@ nochk '240만' assets/advisor-kb.js
 chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 1
 nochk ': ops(k, null))' scripts/build-listen-all.mjs   # ★모양으로 겨눈다(이름만 쓰면 설명 주석을 문다)
 # [DINING_NOT_INCLUDED 2026-08-16 사용자 지적 "우리는 다이닝 별도인데 틀린정보가 있네"]
-#   계약 제3조② — '을'은 소개·조율만 하고 식사비는 파트너사 직결제다. 「견적에 포함」으로 쓰지 말 것.
+#   계약 제3조② — '을'은 소개·조율만 하고 식사비는 식당 직결제다. 「견적에 포함」으로 쓰지 말 것.
 #   실사고: 핵심 구성 카드와 JSON-LD 상품설명 2곳이 「다이닝 포함」·「하나의 견적에」라 계약과 정면 충돌.
+#   ★★[PARTNER_WORD 2026-09-11 대표 확인] 감시 문구를 옮겼다 — 「파트너사」 → 「식당」.
+#     식당들과 맺은 제휴·계약이 «없다». 인기 있고 적절한 곳으로 리스트를 뽑았을 뿐인데
+#     「파트너사」라고 부르면 ①고객은 제휴 할인·우선 예약·품질 보증이 있는 줄 알고
+#     ②식당은 모르는 사이 우리 사이트에 「파트너사」로 게시돼 있다.
+#     ★가드의 «의도»는 그대로다 — 「다이닝은 견적에 포함이 아니다」. 감시할 문자열만 바뀌었다.
 nochk '다이닝 포함' index.html
 nochk '다이닝을 하나의 견적' index.html
-chk '다이닝 식사비는 파트너사 직접 결제' index.html 2
+chk '다이닝 식사비는 식당 직접 결제' index.html 2
+nochk '파트너' index.html                                  # 되돌리지 말 것 — 없는 관계다
+nochk '파트너' api/_kb.js                                  # ★AI 가 고객에게 말하는 원천
+nochk '파트너' assets/advisor-kb.js                        # ★상담 위젯 고정 답변
 # [CORE_TRIM 2026-08-16] 핵심 구성 3칸은 위 REALITY 3칸(본문 37~39자)과 호흡을 맞춘다(전 86~97자).
 chk '140분, 또렷이 남도록 설계한 호흡입니다' index.html 1
 # [CORE_PRICE_LINK 2026-08-16 사용자 결정] 금액 자리를 가격 섹션(#invest)으로 가는 링크로.
@@ -4181,6 +4195,86 @@ if command -v node >/dev/null 2>&1; then
     && echo 'ok journal-script-check: 낭독 대본 2편 == 화면 본문 · 타입캐스트 규격 통과' \
     || { echo 'FAIL journal-script-check — node scripts/audit/journal-script-check.mjs'; fail=1; }
 fi
+# [JOURNAL_AUDIO_SYNC 2026-09-12] 위 검사는 «대본 == 화면 글»까지다. 둘 다 글이라 둘 다 고치면 초록이 된다.
+#   소리는 같이 안 바뀐다 — 대본을 다듬은 날 화면은 새 문장을 보이고 스피커는 옛 문장을 말한다.
+#   실제로 #704 에서 저널 Nº02 맺음 한 줄을 줄였고 게이트는 전부 초록이었고 mp3 는 옛 문장이었다.
+#   그래서 «음원을 만들 때 쓴 대본의 해시»(audio-state.json)를 맞댄다. 재녹음은 사람이 타입캐스트에서
+#   해야 하므로, 대기표(pending_rerecord)를 적어 둔 어긋남은 경고로만 두고 «말 없는 어긋남»만 빨강이다.
+if command -v node >/dev/null 2>&1; then
+  _jas=$(node scripts/audit/journal-audio-sync.mjs 2>&1); _jasc=$?
+  if [ "$_jasc" = "0" ]; then echo "ok journal-audio-sync: $(printf '%s' "$_jas" | tail -1)"
+    printf '%s' "$_jas" | grep '^· 경고' || true
+  else echo "FAIL journal-audio-sync — node scripts/audit/journal-audio-sync.mjs"
+    printf '%s\n' "$_jas" | grep '^FAIL'; fail=1
+  fi
+fi
+chk 'JOURNAL_AUDIO_SYNC' scripts/audit/journal-audio-sync.mjs 1
+
+# [PAR_ORDER·PAR_DINE 2026-09-12 사용자 선택] 어른께 드리는 안내(parents.html) 두 결정.
+#   ① 「갖출 것은 갖춘 예식」이 「인원을 절제하는 이유」보다 먼저다. 어른이 처음 읽는 본문이
+#      「줄인다」이면 걱정을 풀기 전에 확인해 주는 꼴이 된다. 순서를 되돌리지 말 것.
+#   ② 손님 식사 문단 — 실측으로 이 편지에 「식사」가 0건이었다. 혼주의 가장 큰 걱정에 답이 없었다.
+#   둘 다 «없애 달라»가 아니라 «넣어 달라»라서, 리뷰가 «중복»·«군더더기»로 지우기 쉽다. 그래서 센다.
+chk 'PAR_ORDER' parents.html 1
+chk 'PAR_DINE' parents.html 1
+
+# [PAR_PYEBAEK 2026-09-12 사용자 지시 「폐백 예단은 안해」] 폐백 방침은 «세 곳이 같은 말»이어야 한다.
+#   어른 페이지·챗봇·식순 KB 중 하나만 고치면 어른은 「안 한다」를 읽고 챗봇에 물으면 다른 말을 듣는다.
+#   ★문장을 세게 만들지 말 것 — 부모님 헌정은 두 분이 뺄 수 있다(order-preview.html NEVEROFF={entry:1}).
+#     「큰절을 올립니다」로 단정하면 헌정을 뺀 예식에서 거짓이 된다. 「고르십니다」가 맞는 말이다.
+chk 'PAR_PYEBAEK' parents.html 1
+
+# [COPY_TRUTH 2026-09-12] 마이페이지 복사 버튼 13곳이 «복사가 안 돼도» 「복사됐어요」라고 했다.
+#   legacyCopy 가 catch(e){} 로 execCommand 실패를 삼켰고 호출부가 무조건 성공 콜백을 불렀다.
+#   QR 저장도 같았다 — 새 탭 폴백에서도 「저장됐어요」. 집 규칙(근거 없는 완료 단언 금지) 위반이다.
+#   ★복사 버튼을 새로 달 때 옛 꼴을 복사해 붙이는 것을 막는다. 재현 검사가 반증 5종을 확인한다.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/copy-truth.mjs >/dev/null 2>&1 \
+    && echo 'ok copy-truth: 복사·QR 이 실패를 성공이라 말하지 않는다' \
+    || { echo 'FAIL copy-truth — node scripts/audit/copy-truth.mjs'; fail=1; }
+fi
+chk 'COPY_TRUTH' mypage.html 3
+
+# [KB_CHATBOT_TRUTH 2026-09-12] 챗봇이 «없는 기능을 있다»고 말하던 6곳을 고쳤다.
+#   가장 큰 것 — 질문이 「사진 · 문구를 직접 넣나요?」인데 답이 「네, 자유롭게 커스텀」이었다.
+#   api/_kb.js §15 는 「사진은 넣지 않는다」·「"가능합니다"라고 답하지 말 것」을 글로 적어 두었는데
+#   챗봇이 그 금지된 답을 그대로 하고 있었다. 나머지 5건(주례·다국어·수정 마감·녹화본·한복 대여)도
+#   전부 「상담에서 안내드립니다」로 써서 «된다»는 전제를 깔았다.
+#   ★문체 검사가 아니라 사실 검사다. 답변을 고칠 때 원천을 먼저 읽을 것.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/kb-chatbot-truth.mjs >/dev/null 2>&1 \
+    && echo 'ok kb-chatbot-truth: 챗봇이 원천에 없는 기능을 있다고 말하지 않는다' \
+    || { echo 'FAIL kb-chatbot-truth — node scripts/audit/kb-chatbot-truth.mjs'; fail=1; }
+fi
+chk 'INV_NO_PHOTO' api/_kb.js 1
+nochk '사진·문구·구성을 자유롭게' assets/advisor-kb.js
+chk 'function copyThen' mypage.html 1
+nochk 'legacyCopy(t); ok();' mypage.html
+
+# [INV_EDITION 2026-09-12] 청첩장은 «온라인(i/cover)»과 «오프라인(i-family/family)» 두 판이다
+#   (api/_kb.js §15). 오프라인 판은 오시는 길·주차를 담고, 온라인 판은 디지털 참석·편지·영상을 담는다.
+#   실제 사고: cover 를 복사해 family 를 만들며 한쪽만 고쳐, 오시는 분께 보내는 판에
+#     · family-04 「귀한 걸음으로 마음만 더해 주십시오」 — 걸음으로 오시는데 «마음만»
+#     · family-08 「참석이 어려운 분들을 위한 안내입니다」 — 오시는 분께 할 말이 아니다
+#   둘 다 cover 쪽에서는 맞는 말이라 원문 검색만으로는 안 잡힌다. 판을 나눠서 센다.
+nochk '마음만 더해' i-family/family-04.html
+nochk '참석이 어려운' i-family/family-08.html
+nochk '멀리 계셔도' i-family/family-01.html
+nochk '한 페이지의 자리' i-family/family-01.html
+chk '멀리 계셔도' i/cover-01.html 1
+chk '한 자리를 마련했습니다' i-family/family-01.html 1
+chk '귀한 마음만 더해' i/cover-04.html 1
+chk '참석이 어려운' i/cover-08.html 1
+chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
+chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
+chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
+chk '별도의 폐백 순서는 없다' api/_ritual-kb.js 1
+nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' assets/advisor-kb.js
+chk '식사 자리' parents.html 1
+chk '보증하지 않습니다' parents.html 1
+chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
+chk 'pending_rerecord' scripts/audit/journal-audio-sync.mjs 2
+chk 'stamp(part, script)' scripts/build-journal-audio.py 1
 # [GUEST_DIM_AA 2026-08-16] 고객 미리듣기의 --dim 은 브랜드 텍스트 하한선(#75705F · 4.74:1)이다.
 #   ★디렉터 스킨의 #8A8478 을 다시 옮겨 오지 말 것 — 밝은 바탕에서 3.55:1 로 떨어져 axe 8곳이 잡혔던 값이다.
 #   ★끝 화면 부제의 opacity 도 되살리지 말 것(회색 버튼 위에서 3.34:1). 위계는 크기·굵기가 낸다.
@@ -7442,3 +7536,211 @@ case "${_af:-99}" in
   *)  echo "REVERT? 「이름: 대사」 꼴이 아닌 줄 ${_af}개 — 붙이면 기본 화자가 그대로 읽는다"; fail=1 ;;
 esac
 
+
+
+# ★★[HERO_SUB_OPEN 2026-09-09 사용자 지시 「친구도 부를 수 있는데 굳이 제한 두는 것 같다」]
+#   히어로 부제 「양가 가족만 모시는, 140분의 프라이빗 웨딩」 → 「양가 가족과 가까운 분들, 140분의 웨딩」
+#   ★카피 취향이 아니라 «문서와 화면의 불일치»였다 — 브랜드 문서
+#     (momentedit-docs/manuals/04_브랜드_키워드_시스템.html)는 이미 「양가 직계가족과 가장 가까운
+#     지인만 초대」·「양가 가족과 가장 가까운 분들만」이라고 적어 둔다. 히어로만 좁게 말하고 있었다.
+#   ★★검색 키워드는 손대지 않았다 — meta description · schema audienceType · 숨은 h1(5701) ·
+#     숨은 h2(5702) · 탭 라벨의 「양가 직계가족」은 그대로. 카피가 아니라 검색 자산이다.
+#     같이 바꾸면 SEO 가 흔들리고 원인을 못 가른다. 아래 chk 가 그 다섯을 지킨다.
+#   실측: 320·360·390·430·1280 다섯 폭 전부 1줄 · 320px 여유 38px(종전 12px) · 문서 높이 변화 0.
+chk 'HERO_SUB_OPEN' index.html 1
+chk '양가 가족과 가까운 분들, 140분의 웨딩' index.html 1
+# ★[NOCHK_QUOTES_ITSELF] 처음엔 nochk '양가 가족만 모시는' 으로 걸었다가 «내 근거 주석»에 걸렸다.
+#   바꾼 이유를 적으려면 옛 문장을 인용해야 하는데, 그러면 그 인용이 곧 위반이 된다.
+#   → 마크업만 겨냥한다. 주석은 남고 «살아 있는 문장»만 지켜진다.
+nochk 'hero-tease-sub">양가 가족만' index.html            # 옛 문장으로 되돌리지 말 것(주석 인용은 허용)
+chk '양가 직계가족' index.html 5                         # 검색 자산 — meta·schema·숨은 h1/h2·FAQ
+chk '양가 직계가족' inquiry.html 1
+
+# ★[HERO_SUB_TABLE 2026-09-09] 히어로 부제는 «셋 중 둘»이다 — 가족 · 열림 · 320px 한 줄.
+#   E 는 「프라이빗」을 내주고 셋을 다 가져왔다. 「프라이빗을 다시 넣자」가 오면 그 표가 답이다.
+#   ★[SEC_TITLE_DEVICE] 와 같은 자리에 둔다 — 둘 다 «크기·문구 한 축만 보면 매번 같은 결론이
+#     나오는» 종류다. 다시 올라오기 전에 읽을 것이 저장소 안에 있어야 한다.
+chk 'HERO_SUB_OPEN' .claude/skills/momentedit-design/SKILL.md 1
+chk '셋 중 둘' .claude/skills/momentedit-design/SKILL.md 1
+chk 'NOCHK_QUOTES_ITSELF' automation/tests/merge-guard.sh 1
+
+# ★★[SETTLE 2026-09-09 코워크 지적 「전환이 끝났는지 상태로 확인한다」]
+#   라운드 3 측정 오류 넷 중 셋이 «전환 중에 읽어서» 났다 — 레일 획좌표·Tab 순회·1280 opacity.
+#   waitForTimeout 은 「아마 끝났겠지」다. 안 끝났는데 읽으면 값이 뒤집힌다.
+#   ★규칙을 문장으로만 두지 않고 «분기»로 만들었다 — 안 읽어도 지켜지게.
+#   ★[SETTLE_LIMIT] 이 함수는 CSS 전환만 안다. JS 가 inline style 로 그리는 것은 안 잡힌다
+#     (typo-ramp 의 opacity 사고는 settle 로도 못 잡았을 것이다). 그 한계를 파일 안에 적어 뒀다.
+chk 'SETTLE_LIMIT' scripts/audit/_settle.mjs 1
+chk 'getAnimations' scripts/audit/_settle.mjs 2
+chk 'SETTLE_STATE' scripts/audit/parents-listen-size.mjs 1
+# ★[NOCHK_QUOTES_ITSELF] 또 걸렸다 — 바로 앞 커밋에서 이 함정을 문서화하고 그 다음 커밋에서 밟았다.
+#   nochk 'waitForTimeout(500)' 로 걸었더니 «종전 코드를 인용한 주석»이 잡혔다(1>0).
+#   → 살아 있는 호출만 겨냥한다(await page. 접두). 규칙이 실제로 다음 실수를 잡은 사례다.
+nochk 'await page.waitForTimeout(500)' scripts/audit/parents-listen-size.mjs   # 시간으로 어림한 자리로 되돌리지 말 것
+
+# ★★[GUIDE_PATH 2026-09-09 사용자 지시 「카톡에서 링크가 잘린다」] 하객 안내 링크를 «경로»로 낸다.
+#   /guide.html?g=<토큰> 을 대화앱에 붙이면 ?g= 뒤가 잘려 나가는 일이 있었다. ? 가 없으면 잘릴 자리가 없다.
+#   vercel.json 의 ^/g/([A-Za-z0-9_-]{1,64})$ 가 /guide.html?g=$1 로 다시 쓴다(rewrite).
+#   ★기존 ?g= 링크도 그대로 산다 — 이미 나간 청첩장이 있다. «추가»이지 교체가 아니다.
+#     guide.html 은 종전대로 qp('g') 를 읽는다. 그 파일은 손대지 않았다.
+#   ★확인한 것 둘 — ①guide.html 의 자산은 전부 절대경로라 주소가 /g/ 로 보여도 안 깨진다
+#                   ②GAS 는 이 링크를 «만들지 않는다». mypage.html 의 guideUrl 이 유일한 출처다.
+#                     그래서 이 변경에 GAS 재배포가 필요 없다.
+#   ★정규식 반증: /g/../secret · /g/a%2Fb · 65자 · /g/ 전부 거부(경로 탈출 불가).
+chk 'GUIDE_PATH' mypage.html 1
+chk 'GUIDE_PATH' shared/hydrate.js 2
+
+chk '/guide.html?g=' vercel.json 1                       # rewrite 대상 — 이게 없으면 라우트가 죽은 것
+nochk "'/guide.html?g='" mypage.html                      # 공유 링크를 옛 형태로 되돌리지 말 것(주석 인용은 허용)
+# ★[CHK_BRE_LITERAL] chk 는 grep BRE 다. 두 번 걸렸다 —
+#   ① '^/g/…' → '^' 가 «줄머리» 앵커로 먹었다(라우트는 줄 가운데라 0건).
+#   ② 'g/([A-Za-z0-9_-]' → 대괄호가 «문자 클래스»로 해석됐다. 파일엔 대괄호가 «글자 그대로» 있다.
+#   정규식을 찾는 패턴을 정규식으로 쓰면 이렇게 된다. 특수문자가 없는 조각을 고른다.
+chk 'A-Za-z0-9_-]{1,64}' vercel.json 1                     # 경로 라우트 — 토큰 문자만 받는다
+
+# ★★[LOGO_WEBP 2026-09-09 3G 실측에서 발견] 워드마크를 png·webp «둘 다» 받고 있었다.
+#   네비 로고만 <picture> 없이 png 직접이었고, 푸터는 <picture> 로 webp 를 받았다 → 한 페이지에 둘.
+#   실측(Slow 3G · 실제 전송 바이트): index 238 → 225KB · parents 72 → 59KB.
+#   ★[LOGO_FALLBACK_POS] 감싸면 onerror 의 nextElementSibling 이 null 이 된다(img 가 picture 의 막내라서).
+#     picture 를 건너뛰고 그 «다음»을 찾도록 고쳤다 — 클래스 이름에 안 기댄다(페이지마다 다르다).
+#   ★390px 에서 .nav-logo 가 0×0 인 것은 «원래» 그렇다(모바일은 다른 마크). main 과 대조해 확인했다.
+chk 'LOGO_FALLBACK_POS' index.html 1
+chk 'wordmark-only.webp' index.html 2
+chk 'wordmark-only.webp' inquiry.html 1
+chk 'wordmark-only.webp' parents.html 2
+chk 'wordmark-only.webp' privacy.html 1
+# ★[NOCHK_WRONG_TARGET] 처음엔 'nav-logo" src="…png"' 를 금지했다가 걸렸다 —
+#   png src 는 «지운 게 아니라 webp 미지원 폴백»이라 남아 있는 게 맞다. 금지할 대상이 아니었다.
+#   되돌림의 실제 신호는 «옛 onerror 형태»다. picture 를 벗기면 그게 돌아온다.
+nochk 'var f=this.nextElementSibling' index.html            # picture 없이 png 직접으로 되돌리지 말 것
+
+# ★★[ROUND_CLOSED 2026-09-09 사용자 결정 「큰 것 셋만 하고 종료」] 보류함을 §13-2 에 못 박았다.
+#   상한 16px · 죽은 클래스 80종 · 라운드 4 · 섹션 경계 84px · 레일 겹침 시각 — 다섯 다 보류.
+#   ★오픈 후 «실제 유입 데이터»가 쌓이기 전까지 다시 제안하지 않는다. 추측으로 열지 않는다.
+#     다시 올리려면 새 근거(실유입·실기기 제보)를 먼저 가져와야 한다.
+chk 'ROUND_CLOSED\|오픈 전까지 다시 올리지 않는다' docs/handoff/round-protocol.md 1
+chk 'SIZE_HEADER_LIE' docs/handoff/round-protocol.md 1
+
+# ★★[GUIDE_PATH_READ 2026-09-11 점검에서 발견 · 내가 만든 결함] /g/<토큰> 이 «아예 안 열렸다».
+#   vercel 의 dest 는 «서버» rewrite 라 브라우저 주소는 /g/<토큰> 그대로다 →
+#   location.search 가 비어 qp('g') 가 빈 값을 냈고 「잘못된 주소예요」가 떴다.
+#   ★[GUIDE_PATH] 를 넣을 때 «정규식 반증 0건»으로 통과시킨 것이 문제였다 —
+#     그건 «라우트가 무엇을 받는가»만 본 것이고, «받은 뒤 화면이 서는가»는 안 봤다.
+#     라우트 검사는 정규식이 아니라 «그 주소로 들어갔을 때 화면이 서는가»로 한다.
+#   ★guide.html 의 정규식과 vercel.json 의 라우트는 «같은 문자 집합»이어야 한다. 어긋나면 한쪽만 열린다.
+chk 'GUIDE_PATH_READ' guide.html 1
+
+# ★★[SLASH_BOTH 2026-09-11 점검] 꼬리 슬래시 — «한 층이 받는 걸 다른 층이 막는» 어긋남.
+#   guide.html 의 guideToken() 은 /^\/g\/(…)\/?$/ 로 꼬리 슬래시를 «받는다»고 써 있었는데,
+#   vercel.json 라우트가 ^…$ 로 끝나 그 주소는 guide.html 까지 가지도 못했다 — 404. 관용이 죽은 코드였다.
+#   ★고객 링크는 mypage 가 슬래시 없이 만든다. 그래도 사람이·메신저가 하나 붙이면 하객은 404 만 본다.
+#   짧은 주소 넷(form·admin·schedule·cancel)도 같은 모양이라 한 규칙으로 묶었다 — «짧은 주소는 두 철자를 다 받는다».
+#   ★토큰 글자집합에 / 가 없어 /g/a/b·/g// 는 여전히 안 받는다(guide-path-route ①-3 이 고정).
+chk '/?\$' vercel.json 5
+chk 'SLASH_BOTH' scripts/audit/guide-path-route.mjs 1   # 실검사는 ①-3 — 구간이 통째로 지워지면 여기서 걸린다
+
+# ★★[FORM_ONE 2026-09-11 점검] /form 은 «한 장»이다 — 사본을 되살리지 말 것.
+#   form/index.html 이 아무도 안 가리킨 채 따로 늙었다: og:title 이 집 관례(MOMENT EDIT · <이름>) 밖으로 갔고,
+#   브랜드 스크롤바 규칙이 빠졌고, og:image 가 한 판 뒤처져 #604 가 «따라잡히느라» 커밋을 한 번 썼다.
+#   ★handle:filesystem 이 라우트보다 앞이라, 사본이 있으면 /form/ 가 그 낡은 사본을 내준다. 사본 없음이 라우트의 전제다.
+chk 'FORM_ONE' form.html 1
+
+# ★★[FAQ_DINE_BAND 2026-09-11 점검] 화면이 공개한 식사 가격대를 AI 도 같은 말로 해야 한다.
+#   2026-08-03 에 홈 FAQ·JSON-LD 가 「1인 2.5~4만 원대 · 25명 약 60~100만」을 «일부러» 공개했다(통점 A-3 깜깜이 가격).
+#   수치 출처는 mypage.html _DN_PPR(low 1.5~2만 / mid 2.5~4만 / high 5~8만) + 식당 80곳 분포(mid 61·low 13·high 6).
+#   ★그런데 AI 지식 2곳만 그 결정을 못 따라갔다 — 「가격대는 상담에서」로 답하고 사람에게 넘겼다(escalate).
+#   고객은 FAQ 에서 숫자를 읽은 직후 챗봇에서 「모른다」를 들었다. 그래서 같은 헤지로 맞췄다.
+#   ★'식대'는 여전히 없는 개념이다 — 금액을 붙이면 안 된다(ai-live-sim-ci N6 의 forbid 가 잰다).
+chk '2.5~4만' api/_kb.js 1
+chk '2.5~4만' assets/advisor-kb.js 1
+chk '2.5~4만' index.html 5   # FAQ 02 박스·FAQ 08 본문·JSON-LD 2곳·FAQ_DINE_BAND 주석 — 하나라도 빠지면 화면끼리 어긋난다
+nochk '가격대·메뉴는 식당마다 달라 단정하지 않는다' api/_kb.js
+nochk '구체적인 메뉴와 가격대는 상담에서 함께 정리해 드립니다' assets/advisor-kb.js
+chk 'function guideToken' guide.html 1
+chk 'A-Za-z0-9_-]{1,64}' guide.html 1                    # vercel.json 라우트와 같은 문자 집합
+nochk "var token=qp('g')" guide.html                      # 경로를 못 읽는 옛 형태로 되돌리지 말 것
+# ★★[EXIT2_IS_NOT_FAIL] 종료코드 2 는 «안 쟀다»이지 «실패»가 아니다 — `|| fail=1` 로 묶으면 안 된다.
+#   실사고(2026-09-11 · 이 줄을 넣은 그 PR): 로컬은 초록인데 CI 만 붉었다.
+#   CI 엔 브라우저가 없어 이 검사가 2 를 냈고, 내 `||` 가 그걸 실패로 셌다.
+#   ★이 저장소의 브라우저 검사들이 다 «0 통과 · 1 위반 · 2 못 쟀다» 규약을 쓴다. 게이트도 그 규약을 지켜야 한다.
+#   ★종료코드를 «찍는다» — /dev/null 로 묻으면 다음 사람이 왜 붉은지 못 본다.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/guide-path-route.mjs >/dev/null 2>&1; _gpr=$?
+  if [ "$_gpr" = "2" ]; then echo 'skip guide-path-route (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_gpr" != "0" ]; then echo "FAIL guide-path-route(exit $_gpr): /g/<토큰> 이 안 열린다 — node scripts/audit/guide-path-route.mjs"; fail=1
+  else echo 'ok guide-path-route: /g/<토큰>·?g= 둘 다 열린다'; fi
+
+# ★★[ADVISOR_SIM 2026-09-11 점검] 챗봇을 «모델 없이» 잰다.
+#   ai-live-sim-ci.js 는 운영 서버에 실제로 쏘는 배터리라 네트워크가 막힌 자리(이 컨테이너·CI)에선 아예 못 돈다.
+#   그러면 챗봇은 한 번도 안 재고 배포된다. 그런데 ★고객을 다치게 하는 것들은 전부 우리 코드다 —
+#   가드레일(405·429·503·400·길이·턴수) · 시스템 프롬프트 조립 · 프롬프트 주입 격리 · 후처리(전각 줄표·마크다운·
+#   요일 교정·이메일 제거) · 에스컬레이션. fetch 만 가짜로 두면 그 전부를 브라우저 없이 잴 수 있다.
+#   ★모델이 «실제로 무슨 말을 하는지»는 여기서 안 잰다 — 그건 ai-live-sim-ci.js 몫이다(운영 서버 필요).
+chk 'ADVISOR_SIM' scripts/audit/advisor-sim.mjs 1
+chk 'FAQ_DINE_BAND' scripts/audit/advisor-sim.mjs 1   # 화면이 공개한 식사 가격대가 «실제로 모델에 가는가»를 잰다
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-sim.mjs >/dev/null 2>&1; _adv=$?
+  if [ "$_adv" != "0" ]; then echo "FAIL advisor-sim(exit $_adv): 챗봇 가드레일·후처리 — node scripts/audit/advisor-sim.mjs"; fail=1
+  else echo 'ok advisor-sim: 챗봇 가드레일·프롬프트 조립·주입 격리·후처리 32검사'; fi
+fi
+
+# ★★[ADVISOR_TREE 2026-09-11 점검] 챗봇 1단(즉답 트리)은 «모델이 없다» — 우리가 쓴 글이 그대로 고객에게 간다.
+#   그래서 답 120개를 전수로 읽고 규칙을 댄다(죽은 가지·빈 답·전각 줄표·이모지·길이) + 홈 화면과 숫자가 같은지 대조.
+#   ★그리고 실제로 눌러 본다 — 파일에 있는 것과 화면에 뜨는 것은 다르다.
+#   진입은 클래스가 아니라 aria-label «상담 도우미» 로 찾는다(레일 버튼이 전부 .me-fab 라 클래스로는 못 가른다).
+chk 'ADVISOR_TREE' scripts/audit/advisor-tree-sim.mjs 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-tree-sim.mjs >/dev/null 2>&1; _advt=$?
+  if [ "$_advt" = "2" ]; then echo 'skip advisor-tree-sim (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_advt" != "0" ]; then echo "FAIL advisor-tree-sim(exit $_advt): 챗봇 대화트리 — node scripts/audit/advisor-tree-sim.mjs"; fail=1
+  else echo 'ok advisor-tree-sim: 대화트리 전수 + 실제 클릭'; fi
+fi
+
+# ★★[PUBLIC_SWEEP 2026-09-11 점검] 고객이 여는 쪽 «전부»를 한 번에 훑는다.
+#   왜: a11y 를 보는 감사는 home-a11y 하나였고 그건 «홈만» 봤다. 메타·캐노니컬은 감사가 아예 0개였다 —
+#   form.html 이 캐노니컬로 /form.html 을, og:url 로 /form 을 가리키던 것을 사람이 손으로 찾았다.
+#   ★탭 타깃은 WCAG 2.5.8 «24x24 + 간격 예외»로 잰다(44는 AAA). 간격 예외를 빼고 크기만 보면
+#     멀쩡한 것이 무더기로 잡힌다 — 실제로 갤러리 11개(18px·22px 간격·중심 간 40px)가 그렇게 잡혔었다.
+#   ★noindex 쪽에 meta description 을 요구하지 않는다(검색 미리보기용이라 뜻이 없다).
+#   ★form.html 은 구글폼으로 즉시 이동해 DOM 이 이미 다른 문서다 — 그 쪽만 소스로 본다.
+chk 'PUBLIC_SWEEP' scripts/audit/public-sweep.mjs 1
+chk 'FORM_LABEL' inquiry.html 2        # 입력칸 2개의 프로그래밍 라벨(낭독기가 「편집란, 비어 있음」으로 읽던 것)
+chk 'aria-labelledby' inquiry.html 2
+chk 'CAN_EXIT' cancel.html 1           # 종착 화면에서 «말한 길»(카카오톡)을 실제로 열어 준다
+chk 'SCHED_FAIL_H1' schedule.html 1    # body 를 갈아치우며 h1 까지 지우던 오류 화면
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/public-sweep.mjs >/dev/null 2>&1; _psw=$?
+  if [ "$_psw" = "2" ]; then echo 'skip public-sweep (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_psw" != "0" ]; then echo "FAIL public-sweep(exit $_psw): 공개 쪽 a11y·메타 — node scripts/audit/public-sweep.mjs"; fail=1
+  else echo 'ok public-sweep: 공개 10쪽 a11y·메타·탭타깃·404·사이트맵'; fi
+fi
+
+# ★★[ADVISOR_UX 2026-09-11 점검] 챗봇을 «키보드로 · 막혔을 때» 쓴다.
+#   ①패널은 role="dialog" aria-modal="true" 로 모달이라 선언해 놓고 Tab 이 밖으로 샜다(실측 3번째 Tab).
+#     선언과 동작이 어긋나면 낭독기 사용자는 «닫지도 않았는데 뒷 쪽을 읽는» 상태가 된다.
+#   ②닫아도 포커스가 안 돌아왔다. 복귀 코드는 있었는데 레일이 닫은 뒤 ~460ms 동안 visibility:hidden 이라
+#     그 사이에 잡으려다 거부됐다 — 보일 때까지 기다렸다 잡는다([ADV_FOCUS_WAIT]).
+#   ★★위젯은 «두 벌»이다 — index.html 은 인라인 사본, 나머지는 assets/advisor-widget.js.
+#     한쪽만 고치면 그 쪽만 낫는다(실제로 파일만 고쳐 놓고 «고쳤다»고 할 뻔했다). 그래서 둘 다 연다.
+chk 'ADVISOR_UX' scripts/audit/advisor-ux-sim.mjs 1
+chk 'ADV_TWO_COPIES' scripts/audit/advisor-ux-sim.mjs 1
+chk 'ADV_FOCUS_TRAP' index.html 1
+chk 'ADV_FOCUS_TRAP' assets/advisor-widget.js 1
+chk 'ADV_FOCUS_WAIT' index.html 1
+chk 'ADV_FOCUS_WAIT' assets/advisor-widget.js 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-ux-sim.mjs >/dev/null 2>&1; _aux=$?
+  if [ "$_aux" = "2" ]; then echo 'skip advisor-ux-sim (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_aux" != "0" ]; then echo "FAIL advisor-ux-sim(exit $_aux): 챗봇 키보드·실패화면 — node scripts/audit/advisor-ux-sim.mjs"; fail=1
+  else echo 'ok advisor-ux-sim: 키보드(두 사본) + 서버 죽었을 때 4갈래'; fi
+fi
+else echo 'skip guide-path-route (node 없음)'; fi
+chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
+
+# ★[GP_DBL_REST 2026-09-11 점검 라운드 4] 「남은 N장 보내기」 이중 클릭 · 캡 경계(30/31).
+#   새로 만든 버튼이라 «사람이 두 번 누르는» 동작을 재현한다 — 두 번 가면 사진이 겹쳐 올라간다.
+#   보호는 send() 의 busy 플래그에서 온다(새 버튼도 같은 send 를 쓴다). 그래도 눌러서 확인한다.
+#   ★캡의 «양옆»을 둘 다 본다(30 정확히 · 31 한 장 넘침) — 한쪽만 보면 경계가 어디인지 안 보인다(§5-29).
+chk 'GP_DBL_REST' scripts/audit/guide-photo-sim.mjs 1
+chk '이중클릭' scripts/audit/guide-photo-sim.mjs 2
+chk '경계31' scripts/audit/guide-photo-sim.mjs 2

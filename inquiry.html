@@ -236,7 +236,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal)}
 
 <nav>
   <div class="nav-in">
-    <a href="./index.html" class="nav-mark" aria-label="Moment Edit · 홈으로"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var f=this.nextElementSibling;if(f)f.style.display='inline-flex'"><span class="nav-mark-fb" aria-hidden="true">MOMENT<span class="dot"></span>EDIT</span></a>
+    <a href="./index.html" class="nav-mark" aria-label="Moment Edit · 홈으로"><picture><source type="image/webp" srcset="/assets/brand/wordmark-only.webp"><img class="nav-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" width="1545" height="212" decoding="async" onerror="this.style.display='none';var p=this.parentElement,f=(p&&p.tagName==='PICTURE'?p:this).nextElementSibling;if(f)f.style.display='inline-flex'"></picture><span class="nav-mark-fb" aria-hidden="true">MOMENT<span class="dot"></span>EDIT</span></a>
     <a href="./index.html" class="nav-back">
       <span class="arrow">←</span>
       <span>Home</span>
@@ -558,7 +558,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal)}
         <div class="snaprow"><b>화이트존 촬영</b><span>30~35분</span></div>
         <div class="snaprow"><b>마무리·환복</b><span>5~10분</span></div>
         <div class="schedule-ref-foot">
-          <span class="accent">Note</span>하객 없이 두 분만 진행되는 프라이빗 촬영이에요. 원본 사진 전량과 보정본을 전해 드립니다.
+          <span class="accent">Note</span>하객 없이 두 분만 진행되는 프라이빗 촬영입니다. 원본 사진 전량과 보정본을 전해 드립니다.
         </div>
         <button type="button" class="seq-open-btn" data-seq-open="snap" style="margin-top:13px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -663,7 +663,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal)}
           </label>
         </div>
         <div class="compact-row-note">
-          <span class="accent">Note</span>대여 의상은 프리 사이즈(44~88 내외)로, 상담에서 직접 보고 확인하실 수 있어요. 시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착비(1벌 50,000원)만 차감되고 나머지 예약금은 환불됩니다.
+          <span class="accent">Note</span>대여 의상은 프리 사이즈(44~88 내외)로, 상담에서 직접 보고 확인하실 수 있습니다. 시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착비(1벌 50,000원)만 차감되고 나머지 예약금은 환불됩니다.
         </div>
       </div>
 
@@ -719,10 +719,14 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal)}
 
     <!-- 원하시는 분위기·스냅 스타일 (textarea) -->
     <div class="field-group">
-      <span class="field-group-label">원하시는 분위기 · 스냅 스타일 <span style="color:var(--light);font-weight:300">(선택)</span></span>
+      <span class="field-group-label" id="refMoodLabel">원하시는 분위기 · 스냅 스타일 <span style="color:var(--light);font-weight:300">(선택)</span></span>
+      <!-- ★[FORM_LABEL 2026-09-11 점검] 화면엔 이름이 있는데 «프로그래밍 라벨»이 없어 낭독기가
+           「편집란, 비어 있음」으로만 읽었다. 이 쪽의 다른 칸은 전부 <label for=""> 을 쓰는데 여기만
+           <span> 이라 빠졌다. 보이는 글을 그대로 가리켜 «한 원천»으로 묶는다(aria-label 로 베끼면 갈린다). -->
       <div class="ref-textarea-wrap">
         <textarea
           id="refMood"
+          aria-labelledby="refMoodLabel"
           name="원하는 분위기"
           class="ref-textarea"
           maxlength="500"
@@ -864,14 +868,16 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal)}
     <div class="sec-head">
       <span class="sec-num">Nº 05</span>
       <div>
-        <h2 class="sec-title">기타 문의사항</h2>
+        <h2 class="sec-title" id="storyLabel">기타 문의사항</h2>
       </div>
       <span class="sec-optional">Optional <span class="ko">· 선택</span></span>
     </div>
 
+    <!-- ★[FORM_LABEL 2026-09-11 점검] 위와 같은 이유 — h2 를 가리킨다 -->
     <div class="story-wrap">
       <textarea
         id="story"
+        aria-labelledby="storyLabel"
         name="기타 문의사항"
         class="story-textarea"
         maxlength="1500"

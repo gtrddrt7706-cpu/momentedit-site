@@ -23,6 +23,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launchBrowser } from './_browser.mjs';
 import { freePort } from './_freeport.mjs';
+import { settle } from './_settle.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const SHOTS = path.join(ROOT, 'scripts/audit/_shots');
@@ -106,10 +107,21 @@ async function state(width, idx, { play = false, wait = false, shot = '' } = {})
   if (play) {
     await page.waitForSelector('#listenBtn:not([hidden])', { timeout: 6000 }).catch(() => {});
     await page.click('#listenBtn').catch(() => {});
-    await page.waitForTimeout(wait ? 700 : 2600);   // wait=리드인 2초 중 · 아니면 소리가 시작된 뒤
+    /* ★[SETTLE_STATE 2026-09-09 코워크 지적] 리드인이 끝났는지를 «시간»이 아니라 «상태»로 본다.
+       종전엔 2600ms 를 기다렸다 — LEAD_IN 2000ms 에 여유를 더한 어림수다. 느린 기기에선 모자라고
+       빠른 기기에선 헛되이 기다린다. 실제 상태는 .play-bar 의 waiting 클래스가 쥐고 있다
+       (barSay() 가 붙였다 뗀다). 그걸 직접 본다. */
+    const waiting = () => page.waitForFunction((want) => {
+      const b = document.getElementById('playBar');
+      return !!b && b.classList.contains('waiting') === want;
+    }, wait, { timeout: 8000 }).catch(() => {});
+    await waiting();          // wait=true 면 «리드인 중» · false 면 «리드인이 끝난 뒤»
   }
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await page.waitForTimeout(500);
+  /* [SETTLE] 막대가 올라오는 transition(transform 0.3s)이 «끝났는지»를 상태로 확인한다.
+     종전 waitForTimeout(500) 은 「아마 끝났겠지」였다 — 라운드 3 오류 넷 중 셋이 그 자리였다. */
+  const 가라앉음 = await settle(page);
+  if (!가라앉음) console.log('   · 전환이 안 끝났다 — 아래 값은 «못 쟀다»로 볼 것');
   const m = await page.evaluate(MEASURE);
   if (shot) await page.screenshot({ path: path.join(SHOTS, shot) });
   await page.close();

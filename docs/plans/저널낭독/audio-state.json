@@ -1,0 +1,31 @@
+{
+  "_why": "음원이 «어느 판 대본»으로 만들어졌는지 적어 둔다  [JOURNAL_AUDIO_SYNC]",
+  "_읽는법": [
+    "대본(.txt)과 음원(.mp3)은 다른 파일에 산다. 대본만 고치면 화면 글은 바뀌는데",
+    "스피커에서는 옛 문장이 계속 나온다 — 눈으로는 영영 안 보이는 어긋남이다.",
+    "그래서 «만들 때 쓴 대본의 해시»를 여기 남기고, scripts/audit/journal-audio-sync.mjs 가 맞댄다.",
+    "· 해시가 같다              → 음원이 최신이다",
+    "· 다른데 pending 에 적혀 있다 → 재녹음 대기(경고만 · 빨강 아님)",
+    "· 다른데 아무 말이 없다     → FAIL. 대본을 고치고 음원을 잊은 것이다",
+    "★build-journal-audio.py 가 조립할 때 이 파일을 자동으로 갱신한다. 손으로 고치지 말 것."
+  ],
+  "parts": {
+    "1": {
+      "script": "docs/plans/저널낭독/1_혼주라는이름.txt",
+      "mp3": "assets/audio/essay/1_honju.mp3",
+      "script_sha256": "06bf924eedba27e8c592404162a325007ca8d3ae9cf6633c1b49e0afa8dafeba",
+      "built_at": "2026-09-06"
+    },
+    "2": {
+      "script": "docs/plans/저널낭독/2_신혼여행첫날.txt",
+      "mp3": "assets/audio/essay/2_honeymoon.mp3",
+      "script_sha256": "228f8047a64b2b2192691fb0bebd0a389d804def9d28a9b93382aef8a7379043",
+      "built_at": "2026-09-06",
+      "pending_rerecord": {
+        "since": "2026-09-12",
+        "why": "맺음 한 줄을 줄였다 — 「그 하루를 위해 저희는 결혼의 순서를 다시 짰습니다」 → 「저희가 만드는 결혼의 순서입니다」. 앞 문장이 한 말을 되풀이해서(#704). 타입캐스트 19문장 재생성 대기.",
+        "expect_sha256": "b6c59c59e9d674fbfe8dc2323d88a342b7a09da66925ef54957c79586e9deb78"
+      }
+    }
+  }
+}
