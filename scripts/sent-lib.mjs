@@ -126,21 +126,51 @@ function importFrom(src) {
   /* ★이름으로 «번호»와 «글»을 둘 다 본다. 번호만 믿으면 배치가 밀려도 모른다.
      타입캐스트는 한글을 #Uxxxx 로 이스케이프해 넣기도 하고, 이름을 잘라 끝에 ~ 를 붙인다. */
   const unesc = (s) => s.replace(/#U([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
-  const fold = (s) => s.replace(/[^가-힣0-9a-zA-Z]/g, '_');
+  /* ★★[FOLD_SPACE 2026-09-13] 띄어쓰기·구두점은 «지운다»(밑줄로 바꾸지 않는다).
+     왜 — 받은 이름이 `나도___해볼게` 인데 대본은 「나도 해 볼게」다. 타입캐스트가 낭독 호흡을 위해
+     공백을 더 넣거나, 사장님이 그 화면에서 띄어쓰기를 손보시기도 한다. 소리는 같은데 이름만 다르다.
+     밑줄로 바꾸면 그 차이가 그대로 남아 «안 맞는다»가 되고, 실제로 15줄이 그렇게 빠졌다.
+     ★지우고 나면 한글·숫자·영문만 남는다 — 문장 단위라 이것만으로도 서로 안 헷갈린다. */
+  const fold = (s) => s.replace(/[^가-힣0-9a-zA-Z]/g, '');
   const byNo = new Map();
   for (const f of wavs) { const m = path.basename(f).match(/^audio_(\d+)_(.*)\.[^.]+$/i); if (m) byNo.set(+m[1], { f, name: unesc(m[2]) }); }
   if (!byNo.size) { console.log('✗ audio_번호_문장 꼴의 파일을 못 찾았다. 타입캐스트 «문장별 분리» 다운로드가 맞는지 보세요.'); process.exit(2); }
 
+  /* ★★[BY_NAME 2026-09-13] 번호가 아니라 «이름(문장)»으로 맞춘다.
+     왜 — 사장님이 50줄짜리 파일만 따로 붙여넣으시면 타입캐스트가 audio_0 부터 «새로» 번호를 매긴다.
+     그 묶음은 붙여넣기 152~201번째 줄인데 파일은 0~49 다. 번호로 맞추면 150칸이 밀려 전부 엉뚱한 자리에 간다.
+     ★이름은 배치를 가로질러도 안 밀린다([DUB_STAGE] 가 같은 이유로 이름을 쓴다).
+     ★이름은 «잘린다» — 끝의 ~ 가 잘림 표시다. 잘린 만큼만 앞자락으로 대조한다.
+     ★같은 문장이 그 묶음 안에 둘 이상이면 «번호 차례»로 가른다. 그래도 안 갈리면 안 넣는다. */
+  const foldName = (g) => { const cut = g.name.endsWith('~'); return { cut, s: fold(cut ? g.name.slice(0, -1) : g.name) }; };
+  const pool = [...byNo.entries()].sort((a, b) => a[0] - b[0]).map(([no, g]) => ({ no, g, ...foldName(g) }));
+  const matchOf = (text) => {
+    const want = fold(text);
+    return pool.filter((x) => !x.used && (x.cut ? want.slice(0, x.s.length) === x.s : want === x.s));
+  };
+  /* 번호로 맞춘 것이 얼마나 맞나 먼저 재 본다 — 많이 맞으면 종전 길(통짜 붙여넣기)이다. */
+  let byNumHit = 0;
+  for (const r of ord) { const g = byNo.get(r.n - 1); if (!g) continue;
+    const f = foldName(g); const w = fold(r.text);
+    if (f.cut ? w.slice(0, f.s.length) === f.s : w === f.s) byNumHit++; }
+  const USE_NAME = byNumHit < byNo.size * 0.5;
+  if (USE_NAME) console.log(`[BY_NAME] 번호로는 ${byNumHit}/${byNo.size} 만 맞는다 — «이름»으로 맞춥니다(따로 붙여넣으신 묶음입니다).`);
+
   const j = loadIdx();
-  let put = 0, skipName = 0, skipSlot = 0, miss = 0;
+  let put = 0, skipName = 0, skipSlot = 0, miss = 0, ambig = 0;
   for (const r of ord) {
-    const g = byNo.get(r.n - 1);                 // 붙여넣기 1번째 줄 = audio_0
-    if (!g) { miss++; continue; }
-    const cut = g.name.endsWith('~');
-    const got = fold(cut ? g.name.slice(0, -1) : g.name);
-    const want = fold(r.text);
-    const n = cut ? got.length : Math.max(got.length, want.length);
-    if (want.slice(0, n) !== got.slice(0, n)) { skipName++; continue; }   // 이름이 다르면 «안 넣는다»
+    let g;
+    if (USE_NAME) {
+      const m = matchOf(r.text);
+      if (!m.length) { miss++; continue; }
+      if (m.length > 1 && new Set(m.map((x) => x.s)).size === 1 && m.length > 1) { /* 같은 문장 여럿 — 차례로 */ }
+      const pick = m[0]; pick.used = true; g = pick.g;
+    } else {
+      g = byNo.get(r.n - 1);                     // 붙여넣기 1번째 줄 = audio_0
+      if (!g) { miss++; continue; }
+      const f = foldName(g); const w = fold(r.text);
+      if (f.cut ? w.slice(0, f.s.length) !== f.s : w !== f.s) { skipName++; continue; }   // 이름이 다르면 «안 넣는다»
+    }
     for (const a of r.at || []) {
       const id = a.clip + '#' + a.i;
       const s = bySlot.get(id);
@@ -155,6 +185,7 @@ function importFrom(src) {
   saveIdx(j);
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`[SENT_LIB] 창고에 넣은 자리 ${put}개`);
+  if (ambig) console.log(`   ★같은 문장이 여럿이라 못 가른 것 ${ambig}건`);
   if (miss) console.log(`   · 그 순서표의 ${miss}줄은 이번 묶음에 없었다(다른 배치일 것)`);
   if (skipName) console.log(`   ★이름이 대본과 달라 «안 넣은» 것 ${skipName}건 — 배치가 밀렸는지 보세요`);
   if (skipSlot) console.log(`   ★대장과 글이 달라 «안 넣은» 자리 ${skipSlot}건 — 대본이 그 사이 바뀐 자리입니다`);

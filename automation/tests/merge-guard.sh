@@ -7006,6 +7006,15 @@ chk 'SLOT_NAME' scripts/sent-lib.mjs 2
 chk 'FLAC_HALF' scripts/sent-lib.mjs 2
 chk 'SRC_STALE' scripts/sent-lib.mjs 2
 chk 'SENT_LIB_CHECK' scripts/audit/sent-lib-check.mjs 2
+# ★★[BY_NAME][FOLD_SPACE 2026-09-13] 들일 때 «번호»가 아니라 «이름(문장)»으로 맞춘다.
+#   왜 — 사장님이 50줄짜리 파일만 따로 붙여넣으시면 타입캐스트가 audio_0 부터 새로 번호를 매긴다.
+#   그 묶음은 붙여넣기 152~201번째 줄인데 파일은 0~49 다. 번호로 맞추면 150칸이 밀려 전부 엉뚱한 자리에 간다.
+#   ★[FOLD_SPACE] 띄어쓰기·구두점은 «지운다». 받은 이름이 `나도___해볼게` 인데 대본은 「나도 해 볼게」였다 —
+#     타입캐스트가 호흡을 위해 공백을 더 넣거나 사장님이 그 화면에서 손보신다. 소리는 같은데 이름만 다르다.
+#     밑줄로 바꾸면 그 차이가 남아 «안 맞는다»가 되고, 실제로 15줄이 그렇게 빠졌다.
+#   ★그래도 «글이 진짜 다른» 줄은 끝까지 안 넣는다 — 다른 소리를 그 자리에 조용히 끼우는 것이 제일 나쁘다.
+chk 'BY_NAME' scripts/sent-lib.mjs 2
+chk 'FOLD_SPACE' scripts/sent-lib.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
