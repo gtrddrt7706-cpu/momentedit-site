@@ -30,9 +30,13 @@ const TOK = 'G1234567890abcd';
 /* 설계상 예산은 12초(gapi) + 1.2 + 12 + 3 + 12 = 약 40초다. 실측 41초.
    60초는 그 위의 여유 — CI 가 느린 날 헛울지 않게. 40초 아래로 내리지 말 것(설계 예산을 자르는 값이 된다). */
 const DEADLINE = 60000;
+/* [주소, 이름, 그 화면이 내야 할 말, 누를 것이 있어야 하나]
+   ★cancel.html 은 재시도 버튼이 없다 — 「메일 링크로 다시」가 그 화면의 복구 경로다. 말이 뜨는지만 본다.
+     (2026-09-13 라운드 6: guide·seat 만 고치고 cancel 을 빠뜨릴 뻔했다 — 세 벌 중 두 벌만 고치는 그 병이다) */
 const PAGES = [
-  ['guide.html?g=' + TOK, '하객 안내'],
-  ['seat.html?t=' + TOK, '좌석 안내'],
+  ['guide.html?g=' + TOK, '하객 안내', /불러오지 못했어요/, true],
+  ['seat.html?t=' + TOK, '좌석 안내', /불러오지 못했어요/, true],
+  ['cancel.html?token=TKN&sig=SIG', '예약 취소', /불러오지 못했어요/, false],
 ];
 
 let pw = null;
@@ -55,7 +59,7 @@ process.on('exit', () => { try { server.kill(); } catch {} });
 await new Promise(r => setTimeout(r, 1500));
 
 let bad = 0;
-for (const [pg, label] of PAGES) {
+for (const [pg, label, wantRe, wantBtn] of PAGES) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.route('**', (route) => {
     const u = route.request().url();
@@ -65,20 +69,27 @@ for (const [pg, label] of PAGES) {
   });
   try { await page.goto(`http://localhost:${PORT}/${pg}`, { waitUntil: 'domcontentloaded', timeout: 15000 }); } catch {}
   const t0 = Date.now();
-  let found = 0;
+  let m = { said: false, btn: 0 };
   while (Date.now() - t0 < DEADLINE) {
     await page.waitForTimeout(1500);
-    found = await page.evaluate(() => [...document.querySelectorAll('button,a[href],[role=button]')]
-      .filter(e => e.getBoundingClientRect().width > 0 && (e.textContent || '').trim()).length);
-    if (found) break;
+    m = await page.evaluate((src) => ({
+      said: new RegExp(src).test(document.body.innerText || ''),
+      btn: [...document.querySelectorAll('button,a[href],[role=button]')]
+        .filter(e => e.getBoundingClientRect().width > 0 && (e.textContent || '').trim()).length,
+    }), wantRe.source);
+    if (m.said && (!wantBtn || m.btn)) break;
   }
   const secs = Math.round((Date.now() - t0) / 1000);
-  if (found) console.log(`  ok ${label} — ${secs}초 만에 누를 것이 ${found}개 생겼다`);
-  else { bad++; console.log(`  ✗ ${label} — ${DEADLINE/1000}초가 지나도 누를 것이 없다(하객이 갇힌다)`); }
+  if (m.said && (!wantBtn || m.btn)) console.log(`  ok ${label} — ${secs}초 만에 「${wantRe.source}」${wantBtn ? ` · 누를 것 ${m.btn}개` : ''}`);
+  else {
+    bad++;
+    if (!m.said) console.log(`  ✗ ${label} — ${DEADLINE/1000}초가 지나도 「${wantRe.source}」라고 말하지 않는다(갇힌다)`);
+    else console.log(`  ✗ ${label} — 말은 하는데 누를 것이 없다`);
+  }
   await page.close();
 }
 await browser.close(); try { server.kill(); } catch {}
 
-console.log(`\n[GUEST_TIMEOUT] 하객 화면 ${PAGES.length}개 — 갇힘 ${bad}건`);
-if (bad) console.log('  gapi() 의 12초 제한이 살아 있는지 볼 것 — 그게 없으면 load(attempt) 의 catch 가 영영 안 불린다.');
+console.log(`\n[GUEST_TIMEOUT] 화면 ${PAGES.length}개 — 갇힘 ${bad}건`);
+if (bad) console.log('  12초 제한(gapi·api 의 AbortController)이 살아 있는지 볼 것 — 그게 없으면 load(attempt) 의 catch 가 영영 안 불린다.');
 process.exit(bad ? 1 : 0);

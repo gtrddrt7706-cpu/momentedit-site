@@ -6635,3 +6635,14 @@ chk 'GUIDE_EXPIRE_REASON' guide.html 1
 chk 'GUIDE_EXPIRE_REASON' seat.html 1
 chk '좌석 안내를 준비하고 있어요' seat.html 1
 chk 'GUEST_STATE' scripts/audit/guest-state.mjs 1
+
+# ★[GUEST_TIMEOUT · 세 번째 화면 2026-09-13 점검 라운드 6] guide·seat 만 고치고 cancel.html 을 빠뜨릴 뻔했다.
+#   실측: 응답이 영영 안 오면 예약 취소 화면은 40초 뒤에도 카드가 「불러오는 중…」이고 버튼이 0개였다.
+#   그 화면의 catch(「예약 정보를 불러오지 못했어요 · 네트워크 상태를 확인하고 잠시 후 다시 시도해 주세요」)는
+#   이미 있었다 — fetch 가 끝나지 않아 안 불렸을 뿐이다(guide·seat 과 똑같은 자리).
+#   ★inquiry.html 은 일부러 안 건드렸다 — 제출 POST 라 끊으면 이중 제출 위험이 있고,
+#     inquiry-submit-sim 이 이미 「무응답 · 영영 안 옴 → 탈출구가 있는가」를 재고 초록이다.
+#   ★schedule.html 도 안 건드렸다 — 자체 killer(25초)가 「시간이 너무 걸려요」+「마이페이지로」를 낸다(실측).
+chk 'GUEST_TIMEOUT' cancel.html 1
+chk 'AbortController' cancel.html 1
+chk 'cancel.html?token' scripts/audit/guest-timeout.mjs 1
