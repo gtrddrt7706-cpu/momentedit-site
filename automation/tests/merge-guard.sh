@@ -6716,7 +6716,14 @@ nochk '먼 길 함께 걸어와 주신' assets/ritual-data.js
 #   «아무 언급 없이» 되살렸다. 게이트에 그 결정이 안 걸려 있어서 아무도 못 잡았다. 이제 건다.
 #   ★한 번이면 겸손이고 두 번이면 겸손을 연기하는 것이 된다. 사이에 낀 것은 반지 교환 하나뿐이다.
 nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt'
-chk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★★[VOW_OPENS_COLD 2026-09-13] 위 ⑧의 결론이 한 판 더 갔다 — 서약에서 이 프레임을 «통째로» 뺐다.
+#   ⑧은 「다 지웠어」라는 «같은 말»만 막았다. 그래서 그 자리를 다른 말(「무슨 말을 할지 한참 못 정했어」)로
+#   채우자 검사는 통과했고, 흠은 그대로 남았다 — 말이 아니라 «프레임»이 겹쳐 있었기 때문이다.
+#   pair-read 로 08+09+26 을 나란히 읽고 나서야 보였다: 서약도 편지도 «쓰기가 어려웠다»로 열고 있었다.
+#   ★그 프레임의 집은 편지다(11번 「멋있는 말을 잔뜩 적었다가 다 지웠어」 · 바로 아래 chk 가 지킨다).
+#     서약은 호명하고 바로 본론으로 연다 — 「하윤아. / 아는 것만 말할게.」
+#   ★되살리지 말 것. 되살리면 신랑이 두 번 연달아 «말이 잘 안 나온다»고 말하는 사람이 된다.
+nochk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt'
 chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
 chk '두 사람이 서로에게 쓴 편지가 있습니다' assets/ritual-data.js 1
@@ -6764,6 +6771,66 @@ chk '그 얼굴도 버티는 중이었다는 걸 이제 압니다' 'docs/plans/�
 #     어머니를 사진에서 비우면 [27]의 첫마디가 «아들이 몰랐던 사람»을 채운다. 설계대로 돌아가는 것이다.
 #   ★여는 호명 「어머니, 아버지.」는 그대로다 — 두 분 앞에 서 있는 것과 사진 프레임은 다른 층이다.
 chk 'FRAME_OUT' scripts/apply-frame-out.mjs 1
+
+# ★★★[DECISION_GUARD · PAIR_READ 2026-09-13 사장님 지시]
+#   「누락이 있으면 지금것 준비한 이유가없어 누락이발생한이유를 찾아네고
+#    그거를 예방할수있는장치를만들어」 · 「누락된게없는지 하나씩복귀하면서 찾아내」
+#
+#   이번 세션에 난 누락 다섯 건의 «공통 모양»을 세어 보니 하나였다 —
+#   전부 «결정이 틀려서»가 아니라 **결정을 적은 사람이 그 결정을 지키는 검사를 안 만들어서**다.
+#     [PHOTO_FREE]   6일 전 사장님 지시가 문서에만 있고 코드엔 안 내려왔다
+#     [TERM_DIGITAL] 결정이 게이트 «주석»에만 적히고 실행이 안 됐다
+#     「다 지웠어」    apply-letter-cost 가 정한 것을 다음 판이 조용히 되살렸다(게이트에 없었다)
+#     [ENTRY_OUT_DRIFT] 주석이 「다섯 다 이 문장으로 닫는다」고 적었는데 실제로는 한 갈래뿐이었다
+#     [FRAME_OUT]    [27]의 전제를 내가 적어 놓고 [14]가 그 전제를 깨는지 안 봤다
+#   주석은 «사람이 읽어야» 작동하고, 사람은 7,000줄을 매번 읽지 않는다. 그래서 기계에 넘긴다.
+#
+#   ① decision-guard — 「결정」이라고 선언한 주석마다 그 아래 «지키는 검사»가 있는지 본다.
+#      그리고 apply·audit 스크립트가 ★[이름] 으로 선언한 결정이 게이트까지 왔는지 대조한다.
+#      ★한글 이름은 세지 않는다 — 이 저장소는 ★[...] 를 이름으로도 문장 괄호로도 쓴다.
+#        가르려다 68건을 쏟아 냈고 대부분이 문장이었다. 거짓말하는 검사는 없는 것만 못하다.
+#        대신 규칙을 사람 쪽에 둔다 — «지켜야 할 결정에는 영문 대문자 이름을 짓는다».
+#   ② pair-read  — 한 라이브 창에 배역 클립이 둘 이상 붙는 자리를 전수로 찾아 «나란히» 찍고,
+#      짝마다 「읽었다」는 표식을 요구한다. 대사가 바뀌면 지문(문장 수)이 달라져 다시 물린다.
+#      ★모순을 자동으로 찾는 검사가 아니다 — 그건 기계가 못 한다. 사람 앞에 나란히 놓고 멈춰 세운다.
+#        [FRAME_OUT] 은 읽으면 «바로» 보이는 것이었는데 아무도 나란히 놓고 본 적이 없어 지나갔다.
+chk 'DECISION_GUARD' scripts/audit/decision-guard.mjs 1
+chk 'APPLY_TO_GATE' scripts/audit/decision-guard.mjs 1
+chk 'PAIR_READ' scripts/audit/pair-read.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/decision-guard.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL decision-guard: 결정을 적어 놓고 지키는 검사를 안 만든 자리가 있습니다 — node scripts/audit/decision-guard.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL pair-read: 한 자리에 붙어 나가는 대사 짝을 아직 나란히 읽지 않았습니다 — node scripts/audit/pair-read.mjs'; fail=1; }; fi
+
+# ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
+#   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
+#     부딪히는 사실 없음. 신부의 「오늘은 이렇게 먼저」는 예식 뒤 인사 사진에서 실제로 자리를 도는 것과 맞다.
+# PAIR_READ 06_welcome-groom+07_welcome-bride 3.4
+#   ②서약 — 신랑 「한 번도 힘들다는 말을 안 했어」 ↔ 신부 「정작 내가 힘들다는 말은 한 번도 안 했더라」. 맞물린다.
+#     둘 다 「작년」이지만 다른 사건이라 충돌 아님. 합창 두 줄도 어긋나지 않는다.
+#     ★읽다가 하나 찾았다 — 신랑이 서약과 편지에서 «둘 다» 쓰기 고생으로 열고 있었다.
+#       서약의 「무슨 말을 할지 한참 못 정했어」를 뺐다. 그 프레임의 집은 편지다(11번에 그대로 있다).
+# PAIR_READ 08_vow-groom+09_vow-bride+26_vow-both 9.13.2
+#   ③헌정 — [FRAME_OUT] 로 어머니를 사진 밖으로 비운 뒤 다시 읽었다. 이제 아들은 아버지만 말하고
+#     어머니가 「그 사진, 엄마가 찍은 거야」로 처음 나타난다. 나이 계산도 맞는다(아버지 30 때 업힌 아이 = 지금 30).
+# PAIR_READ 14_tribute+27_tribute-reply 11.4
+#   ④편지 둘 다 — 신부 「스물아홉 해 / 스물넷에」와 신랑 「삼 주 전에 / 두 번째 이사」가 충돌하지 않는다.
+#     ★아버님 덕담의 「십 년」이 신부 편지의 「스물넷에 집에 살던 장면」과 어긋나던 것은 [BLESS_SCENE] 에서 이미 뺐다.
+# PAIR_READ 10_letter-parent+11_letter-each 13.15
+#   ⑤덕담 — 아버님은 «안 놓는 사람»(「그때도 먼저 나가 있을 거다」), 어머님은 «놓는 사람»(「엄마 이제 밤에 잘 잔다」).
+#     설계대로 갈려 있다. 호명 순서가 서로 반대인 것도 자연스럽다(아버지는 사위 먼저, 어머니는 딸 먼저).
+# PAIR_READ 12_bless-father+13_bless-mother 15.17
+
+# ── apply·audit 스크립트가 선언한 결정 이름을 게이트에 건다 (decision-guard 가 요구한 아홉 건)
+chk 'TIER_COUNT' scripts/audit/btn-tier.mjs 1
+chk 'FREE_PORT_5' scripts/audit/demo-real-copy.mjs 1
+chk 'NEED_HISTORY' scripts/audit/deploycheck-coverage.mjs 1
+chk 'MARK_ON_FN' scripts/audit/deploycheck-coverage.mjs 1
+chk 'SOLAPI_NAME_ALIAS' scripts/audit/deploycheck-sim.mjs 1
+chk 'RETIRED_SILENT' scripts/audit/order-audio-check.mjs 1
+chk 'FREE_PORT_5' scripts/audit/orphan-copy.mjs 1
+chk 'PAREN_DEPTH' scripts/audit/ritual-order-sim.mjs 1
+chk 'FUZZ_LINK_STAGES' scripts/audit/rollback-fuzz.mjs 1
 chk '저는 사진 속 아버지가 원래 어른인 줄 알았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '아버지가 저를 업고 계셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 nochk '뒤에서 어머니가 웃고 계셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
