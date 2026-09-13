@@ -5861,6 +5861,12 @@ chk 'DECISION_GATE' scripts/audit/application-decisions.py 1
 #   그러면 그 줄의 검증문자열을 MUST 검사가 본문에서 다시 확인한다 — 완료 표시가 본문까지 이어진다.
 chk 'REVIEW_INBOX' docs/국가지원금/대표검토_지적사항_20260913.md 1
 chk 'REVIEW_GATE' scripts/audit/application-decisions.py 1
+# [SUBMIT_BUILD 2026-09-13] 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
+chk 'SUBMIT_BUILD' scripts/audit/build-submission-txt.py 1
+if command -v python3 >/dev/null 2>&1; then
+  _sb=$(python3 scripts/audit/build-submission-txt.py --check 2>&1) && printf '%s\n' "$_sb" \
+    || { printf '%s\n' "$_sb"; fail=1; }
+else echo 'skip build-submission-txt (python3 없음)'; fi
 if command -v python3 >/dev/null 2>&1; then
   _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
     || { printf '%s\n' "$_ad"; fail=1; }
