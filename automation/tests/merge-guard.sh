@@ -6565,3 +6565,14 @@ chk 'SEED_RELATIVE' scripts/audit/guest-photo-sim.mjs 1
 chk 'SEED_RELATIVE' scripts/audit/rollback-slot.mjs 1
 nochk "예식일:'2026-09-05'" scripts/audit/guest-photo-sim.mjs      # 되돌아오면 2026-10-06 에 다시 붉어진다
 nochk "예식일: '2026-12-20'" scripts/audit/rollback-slot.mjs        # 되돌아오면 2026-12-21 에 붉어진다
+
+# ★★[SNAP_WORD 2026-09-13 점검 라운드 2] 웨딩스냅 고객에게 «예식»이라 말하지 않는다.
+#   실측: 여정 로드맵의 갈림(mypage.html `product === '웨딩스냅'`)은 촬영 단계를 「촬영 · 예정일에 진행」으로
+#   옳게 부르는데, **결과물 줄의 부제만 두 갈래에 같은 문장이 복사**돼 있어 스냅 고객이 여덟 화면 중
+#   **다섯**에서 「예식 후 · 마이페이지에서 확인」을 읽고 있었다. api/_kb.js 22행은 웨딩스냅을 「촬영만」이라
+#   못박는다 — 그 고객에게 우리가 하는 예식은 없다.
+#   ★렌더 검사(scripts/audit/snap-word.mjs)는 브라우저가 필요해 야간(run-all)이 돌린다. 여기서는 문구만 고정한다.
+chk 'SNAP_WORD' mypage.html 1
+chk '촬영 후 · 마이페이지에서 확인' mypage.html 1      # 스냅 갈래
+chk '예식 후 · 마이페이지에서 확인' mypage.html 1      # 시그니처 갈래 — 이쪽은 예식이 맞다(둘 다 있어야 한다)
+chk 'SNAP_WORD' scripts/audit/snap-word.mjs 1
