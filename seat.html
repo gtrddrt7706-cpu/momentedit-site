@@ -432,7 +432,18 @@ function seatFailHtml(){
       .then(function(d){
         if(d && d.ok && d.seat){ render(d.seat); }
         else if(d && d.mineOnly){ renderMineOnly(d.seat, t); }   // 부부가 '내 자리만'으로 설정 — 검색 전용 화면
-        else if(d && d.expired){ $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.'); }
+        else if(d && d.expired){
+          /* ★[GUIDE_EXPIRE_REASON 2026-09-13 점검 라운드 5] 닫는 이유가 둘이다 — «끝났다»와 «날짜를 아직 모른다».
+             2026-08-21 에 guide.html 은 이렇게 고쳤는데 **이 줄만 남았다** — 두 벌 중 한 벌만 고친 자리다.
+             그동안 예식일이 아직 안 정해진 하객은 「예식이 끝나 좌석 안내가 닫혔어요」를 듣고, 그 화면엔 출구가 0개였다
+             (만료 화면은 정상 종료라 문의처를 일부러 안 붙인다 — 위 EXIT_HTML 주석). 실렌더로 확인했다.
+             ★서버(80_production.gs _guideCloseInfo)가 reason·help 를 준다 — 모르는 경우에만 문의처를 함께 낸다.
+             ★문구는 guide.html 과 같은 말로 맞춘다. 한쪽만 고치지 말 것(scripts/audit/guest-state.mjs 가 둘을 함께 잰다). */
+          if(d.reason==='unknown'){
+            $('root').innerHTML=stateHtml('좌석 안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?1:0);
+          } else {
+            $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
+          } }
         else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]
       })
       .catch(function(){

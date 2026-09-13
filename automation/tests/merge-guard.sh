@@ -6620,3 +6620,18 @@ chk 'gapi({action' guide.html 3            # 읽기 호출 3곳(seatView·seatVi
 chk 'gapi({action' seat.html 2             # 읽기 호출 2곳(seatView+q·seatView)
 chk 'GUEST_TIMEOUT' scripts/audit/guest-timeout.mjs 1
 nochk "fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView'" seat.html 0   # 읽기는 전부 gapi 를 지난다
+
+# ★★[GUEST_STATE 2026-09-13 점검 라운드 5] 하객 두 화면이 «서버가 무엇을 답하든» 같은 규칙으로 말해야 한다.
+#   서버(80_production.gs _guideCloseInfo)는 닫는 이유를 둘로 갈라 준다 —
+#     reason:'past'(예식이 +30일 지남 · 정상 종료라 문의처를 일부러 안 붙인다)
+#     reason:'unknown'(예식일을 모름 · 되돌림·미기입 → 사고라 문의처를 붙여야 한다)
+#   2026-08-21 [GUIDE_EXPIRE_REASON] 이 이 구분을 넣었는데 **guide.html 에만 내렸다.**
+#   seat.html 은 d.expired 만 보고 둘 다 「예식이 끝나 좌석 안내가 닫혔어요」로 말했고 그 화면엔 **출구가 0개**였다 —
+#   아직 하지도 않은 예식을 끝났다고 듣고 물어볼 곳도 없었다. 한 화면만 봐서는 영영 안 보이던 자리다.
+#   ★재현 검사는 브라우저가 필요해 야간(run-all)이 돌린다 — node scripts/audit/guest-state.mjs (2화면×5응답=10칸)
+chk "d.reason==='unknown'" guide.html 1
+chk "d.reason==='unknown'" seat.html 1
+chk 'GUIDE_EXPIRE_REASON' guide.html 1
+chk 'GUIDE_EXPIRE_REASON' seat.html 1
+chk '좌석 안내를 준비하고 있어요' seat.html 1
+chk 'GUEST_STATE' scripts/audit/guest-state.mjs 1
