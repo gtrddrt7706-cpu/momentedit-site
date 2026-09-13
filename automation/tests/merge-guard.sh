@@ -6576,3 +6576,27 @@ chk 'SNAP_WORD' mypage.html 1
 chk '촬영 후 · 마이페이지에서 확인' mypage.html 1      # 스냅 갈래
 chk '예식 후 · 마이페이지에서 확인' mypage.html 1      # 시그니처 갈래 — 이쪽은 예식이 맞다(둘 다 있어야 한다)
 chk 'SNAP_WORD' scripts/audit/snap-word.mjs 1
+
+# ★★[KB_CROSS_TRUTH 2026-09-13 점검 라운드 3] 식순 챗봇이 «이미 정해진 것»을 «확정 전»이라 답하고 있었다.
+#   셋 다 두 벌 중 한 벌만 고친 자리다(이 세션의 그 병):
+#     ①시간 연장 — **계약서 제8조 ④** 가 「단축된 시퀀스 시간은 환불·연장의 대상이 되지 아니하며 …
+#       하루 3팀 운영 구조상 당일 연장은 불가하다」로 명문화했다. 고객이 **서명한 조항**을 «아직 안 정해졌다»고 답했다
+#     ②반려동물 — api/_kb.js 94행이 「케이지 동반 시 입장 가능」(2026-06-12 운영자 확정)인데 「단정하지 말라」였다.
+#       정해지지 않은 것은 «식순 연출로 화면에서 고르는 것»뿐이라 둘을 갈라 적었다
+#     ③음악 — 2026-08-03 «노래선정부분 완전삭제» 뒤에도 D-14 목록에 「음악 2곡 정하기」가 남았다.
+#       같은 날 같은 목록에서 '베일 다운'은 지워졌다(VEIL_RETIRED) — 음악만 남은 것이다.
+#       렌더 실측으로도 order-preview 에 곡 입력칸이 0개다(코드 주석 2801행의 「선택으로 남고」는 그 뒤 폐지된 옛 설명)
+#   ★kb-chatbot-truth 와 방향이 반대다 — 그쪽은 «없는 걸 있다고», 이쪽은 «정해진 걸 안 정해졌다고».
+#   ★앵커가 사라지면 통과가 아니라 실패다(원천이 바뀌면 검사도 함께 고치라는 뜻).
+if command -v node >/dev/null 2>&1; then
+  _kx=$(node scripts/audit/kb-cross-truth.mjs 2>&1)
+  if [ $? = 0 ]; then echo "ok kb-cross-truth: $(printf '%s' "$_kx" | tail -1)"
+  else echo 'REVERT? kb-cross-truth 실패 — 식순 KB 가 원천과 어긋난다:'; printf '%s\n' "$_kx" | grep '❌'; fail=1; fi
+else echo 'skip kb-cross-truth (node 없음)'; fi
+chk 'KB_CROSS_TRUTH' scripts/audit/kb-cross-truth.mjs 1
+chk 'KB_SETTLED' api/_ritual-kb.js 1
+chk 'MUSIC_GONE' api/_ritual-kb.js 1
+nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-08-03 폐지 — 숙제로 되살리지 말 것
+nochk '확정 전 정책' api/_ritual-kb.js 0                # 정해진 것을 «확정 전»이라 말하지 않는다
+# ★두 nochk 의 한도가 0 인 이유 — 위 주석은 옛 문구를 «음악 두 곡»·«아직 정해지지 않은 정책»으로 비켜 적었다.
+#   근거 주석이 금지 문구를 그대로 인용하면 가드가 자기 설명문을 잡는다(이 세션에서 세 번 겪었다).
