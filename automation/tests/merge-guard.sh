@@ -5864,6 +5864,17 @@ chk 'REVIEW_GATE' scripts/audit/application-decisions.py 1
 chk 'SPLIT_FACTS' scripts/audit/application-decisions.py 2   # 한 발언에 사실이 여럿이면 하위 항목으로 쪼갠다
 # [SUBMIT_BUILD 2026-09-13] 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
 chk 'SUBMIT_BUILD' scripts/audit/build-submission-txt.py 1
+# [TWIN_DRIFT 2026-09-13] 정본과 _v2 는 같은 파일이어야 한다 — 게이트는 정본만 읽는다.
+#   사고: _v2 가 윤문 전 판으로 굳어 있었다. 이름이 「v2」라 더 새 것으로 읽히는데 실제로는 낡은 것이었고,
+#   대표검토 문서가 그것을 「3중 대조 대상」으로 가리키고 있었다 — 틀린 쪽을 근거로 삼을 뻔했다.
+#   둘 중 무엇을 붙여 넣을지 사람이 고르게 두지 않는다. 다르면 빨강.
+if [ -f docs/국가지원금/모두의창업_신청서_최종본_v2.md ]; then
+  if cmp -s docs/국가지원금/모두의창업_신청서_최종본.md docs/국가지원금/모두의창업_신청서_최종본_v2.md; then
+    echo 'ok 신청서 정본 == _v2 (갈라지지 않았다)'
+  else
+    echo 'FAIL 신청서 _v2 가 정본과 갈라졌다 — cp 로 맞추거나 _v2 를 지운다'; fail=1
+  fi
+fi
 if command -v python3 >/dev/null 2>&1; then
   _sb=$(python3 scripts/audit/build-submission-txt.py --check 2>&1) && printf '%s\n' "$_sb" \
     || { printf '%s\n' "$_sb"; fail=1; }
