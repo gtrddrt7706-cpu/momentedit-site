@@ -6646,3 +6646,15 @@ chk 'GUEST_STATE' scripts/audit/guest-state.mjs 1
 chk 'GUEST_TIMEOUT' cancel.html 1
 chk 'AbortController' cancel.html 1
 chk 'cancel.html?token' scripts/audit/guest-timeout.mjs 1
+
+# ★★[ADM_SLOW_NOTE 2026-09-13 점검 라운드 7] 관리자 화면의 해골이 영원히 반짝이던 자리.
+#   실측: 응답이 오지도 실패하지도 않으면 20초가 지나도 본문이 「MOMENT EDIT」뿐이고 버튼이 0개였다 —
+#   운영자는 «내 망인지 시스템이 죽은 건지»를 알 수 없다. [ADM_NETFAIL] 의 토스트는 **거절이 나야** 뜨므로
+#   «영영 안 옴»에는 안 걸린다(그 안전망의 사각).
+#   ★고객 화면처럼 12초에 끊지 않는다 — 리포트·장소 스윕처럼 오래 걸리는 호출을 자르면 멀쩡한 작업이 죽는다.
+#     «끊지 않고 알리기만» 한다(schedule.html 의 slowT 와 같은 결).
+#   ★15초는 _loadingSince 가 이미 «갇힘»으로 보는 값과 같은 숫자다(NAV_SEQ) — 두 값이 따로 놀지 않게 맞췄다.
+chk 'ADM_SLOW_NOTE' admin.html 3
+chk '_admSlowArm' admin.html 2
+chk 'slow-note' admin.html 3
+chk "서버 응답이 늦어요" scripts/audit/guest-timeout.mjs 1
