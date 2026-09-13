@@ -176,6 +176,21 @@ function $(id){ return document.getElementById(id); }
 // 뒤로 가기 — 하객 안내 등 다른 페이지에서 넘어온 경우만 표시(QR·새 탭 직접 진입은 돌아갈 곳이 없어 숨김)
 (function(){ try{ if(history.length>1 && document.referrer){ $('backBar').style.display='block'; $('backBtn').addEventListener('click', function(){ history.back(); }); } }catch(e){} })();
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+/* ★★[GUEST_TIMEOUT 2026-09-13 점검 라운드 4 · 실측] 읽기 호출에 12초 제한. mypage 의 api() 와 같은 처방·같은 숫자다.
+   ── 무엇이 문제였나: 응답이 «영영 안 오는» 망(패킷이 버려지는 공공 와이파이·지하 예식장)에서
+      이 화면은 45초를 기다려도 스피너만 돌았고 **버튼이 0개**였다(실측 16·30·45초 전부 동일).
+      하객은 카톡 링크로 온 일회성 방문자다 — 로그인도 자력 복구도 못 한다.
+   ── 아래 load(attempt) 의 회복 경로(두 번 재시도 → 「불러오지 못했어요」+재시도 버튼)는 **이미 잘 만들어져 있었다.**
+      fetch 가 끝나지 않아 그 catch 가 영영 안 불렸을 뿐이다. 고친 것은 «끝나게» 한 것뿐이다.
+   ★사진 업로드(guestPhoto)에는 걸지 않는다 — 느린 회선에서 큰 본문을 올리는 중에 끊기면 그게 더 나쁘다.
+   ★12초는 GAS 콜드스타트를 자르지 않으려는 값이다(mypage MPD_E3 와 같은 근거). 줄이지 말 것. */
+function gapi(payload){
+  var ac=(typeof AbortController!=='undefined')?new AbortController():null;
+  var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },12000):null;
+  return fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
+    .then(function(r){ if(tm) clearTimeout(tm); return r; }, function(e){ if(tm) clearTimeout(tm); throw e; });
+}
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
 function fmtDate(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
@@ -381,7 +396,7 @@ function renderMineOnly(seat, t){
     if(last && last.q===v){ fr.innerHTML=last.html; return; }
     var my=seq;
     fr.textContent='자리를 찾는 중이에요…';
-    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t, q:v}) })
+    gapi({action:'seatView', t:t, q:v})
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
@@ -412,7 +427,7 @@ function seatFailHtml(){
   var t=qp('t');
   if(!t){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
   function load(attempt){
-    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:t}) })
+    gapi({action:'seatView', t:t})
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(d && d.ok && d.seat){ render(d.seat); }

@@ -6600,3 +6600,23 @@ nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-
 nochk '확정 전 정책' api/_ritual-kb.js 0                # 정해진 것을 «확정 전»이라 말하지 않는다
 # ★두 nochk 의 한도가 0 인 이유 — 위 주석은 옛 문구를 «음악 두 곡»·«아직 정해지지 않은 정책»으로 비켜 적었다.
 #   근거 주석이 금지 문구를 그대로 인용하면 가드가 자기 설명문을 잡는다(이 세션에서 세 번 겪었다).
+
+# ★★[GUEST_TIMEOUT 2026-09-13 점검 라운드 4] 하객 화면이 «영영 안 오는 응답»에 갇혀 있었다.
+#   실측: guide.html·seat.html 에 시간제한이 하나도 없었다(AbortController 0곳). 응답이 오지도 실패하지도 않는 망에서
+#   **45초를 기다려도 스피너만 돌았고 버튼이 0개**였다(16·30·45초 전부 동일). 하객은 카톡 링크로 온 일회성 방문자다 —
+#   로그인도 자력 복구도 못 한다. 서버가 500·연결실패로 «답을 주는» 경우는 그 전에도 정상이었다.
+#   ★두 화면의 회복 경로(재시도 2회 → 「불러오지 못했어요」+재시도 버튼)는 **이미 잘 만들어져 있었다.**
+#     fetch 가 끝나지 않아 그 catch 가 영영 안 불렸을 뿐이다 — 고친 것은 «끝나게» 한 것뿐이다.
+#   ★사진 업로드(guestPhoto)에는 일부러 안 걸었다 — 느린 회선에서 큰 본문을 올리는 중에 끊기면 그게 더 나쁘다.
+#   ★12초는 GAS 콜드스타트를 자르지 않으려는 값이다(mypage MPD_E3 와 같은 근거). 줄이지 말 것.
+#   ★재현 검사는 브라우저가 필요해 야간(run-all)이 돌린다 — node scripts/audit/guest-timeout.mjs (약 100초)
+chk 'GUEST_TIMEOUT' guide.html 1
+chk 'GUEST_TIMEOUT' seat.html 1
+chk 'function gapi(payload)' guide.html 1
+chk 'function gapi(payload)' seat.html 1
+chk 'ac.abort' guide.html 1
+chk 'ac.abort' seat.html 1
+chk 'gapi({action' guide.html 3            # 읽기 호출 3곳(seatView·seatView+q·guideView)
+chk 'gapi({action' seat.html 2             # 읽기 호출 2곳(seatView+q·seatView)
+chk 'GUEST_TIMEOUT' scripts/audit/guest-timeout.mjs 1
+nochk "fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView'" seat.html 0   # 읽기는 전부 gapi 를 지난다
