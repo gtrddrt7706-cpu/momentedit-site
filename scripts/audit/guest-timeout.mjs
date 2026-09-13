@@ -37,6 +37,9 @@ const PAGES = [
   ['guide.html?g=' + TOK, '하객 안내', /불러오지 못했어요/, true],
   ['seat.html?t=' + TOK, '좌석 안내', /불러오지 못했어요/, true],
   ['cancel.html?token=TKN&sig=SIG', '예약 취소', /불러오지 못했어요/, false],
+  /* ★관리자는 «끊지» 않고 «알리기만» 한다(ADM_SLOW_NOTE) — 리포트·장소 스윕처럼 오래 걸리는 호출을
+     12초에 자르면 멀쩡한 작업이 죽는다. 그래서 여기서도 버튼이 아니라 «말»만 본다. */
+  ['admin.html', '관리자', /서버 응답이 늦어요/, false, 'me_admin_token'],
 ];
 
 let pw = null;
@@ -59,8 +62,9 @@ process.on('exit', () => { try { server.kill(); } catch {} });
 await new Promise(r => setTimeout(r, 1500));
 
 let bad = 0;
-for (const [pg, label, wantRe, wantBtn] of PAGES) {
+for (const [pg, label, wantRe, wantBtn, seedKey] of PAGES) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  if (seedKey) await page.addInitScript((k) => { try { localStorage.setItem(k, 'T'); } catch (e) {} }, seedKey);
   await page.route('**', (route) => {
     const u = route.request().url();
     if (u.includes('script.google.com')) return new Promise(() => {});   // 영영 안 온다
