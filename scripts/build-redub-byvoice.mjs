@@ -100,6 +100,7 @@ fs.writeFileSync(path.join(OUT, '_순서.json'), JSON.stringify(order, null, 1))
      그 파일은 화자를 이미 고른 뒤 붙여넣는 것이라, 이름이 붙어 있으면 그대로 읽힌다.
      실제로 예전에 주석이 달린 파일을 붙여넣어 머리말이 소리로 나온 적이 있다. 두 꼴을 섞지 말 것. */
 const flat = [];
+const flatOrder = [];        // [FLAT_ORDER] 줄번호 → 성우·클립·문장 자리
 for (const c of man.clips) {
   if (c.mix || RETIRED.has(c.file)) continue;
   const key = pad2(c.no) + '_' + c.file;
@@ -108,9 +109,18 @@ for (const c of man.clips) {
   /* ★[VOICE_PENDING] 성우 미정인 줄은 «여기서도» 뺀다 — 한 번 샜다.
      개별 파일에서만 거르고 이 전체 파일은 안 걸러서 「undefined: 대사」 네 줄이 들어갔다.
      그대로 타입캐스트에 붙이면 «undefined» 라는 화자가 생긴다. 한 곳만 막으면 다른 곳으로 샌다. */
-  for (const s of c.sents) { const v = VOICE[s.role || c.role]; if (v) flat.push(`${v}: ${s.text}`); }
+  for (const s of c.sents) { const v = VOICE[s.role || c.role]; if (!v) continue;
+    flat.push(`${v}: ${s.text}`);
+    flatOrder.push({ n: flat.length, voice: v, clip: key, i: s.i, text: s.text }); }
 }
 fs.writeFileSync(path.join(OUT, '0_전체_화자표기.txt'), flat.join('\n') + '\n');
+/* ★★[FLAT_ORDER 2026-09-13 사장님 「파일하나로만들어 … 별로의 수정없이」]
+   낱개 파일에는 되돌리는 표(_순서.json)가 있는데 «한 파일» 판에는 없었다.
+   한 파일로 받으면 돌아오는 wav 는 1..N 한 줄기다 — 그 번호가 어느 클립 몇 번째 문장인지
+   적어 두지 않으면 되돌릴 열쇠가 «파일명에 박힌 문장» 하나뿐이 된다.
+   그 이름은 잘린다(DUB_STAGE 가 앞자락만 대조하는 이유다). 잘린 이름이 겹치는 날 조용히 밀린다.
+   ★그래서 같은 실행에서 번호 → 자리를 적어 둔다. 사람이 나중에 셀 수 있는 것이 아니다. */
+fs.writeFileSync(path.join(OUT, '_전체_순서.json'), JSON.stringify(flatOrder, null, 1));
 console.log(`  ${'전체'.padEnd(6)} ${String(flat.length).padStart(4)}줄  ← 0_전체_화자표기.txt (화자: 대사 · 한 번에)`);
 fs.writeFileSync(path.join(OUT, 'README.md'),
   ['# 다시 받을 대본 (자동 생성 · 손으로 고치지 마세요)', '',

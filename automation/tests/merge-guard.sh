@@ -6943,6 +6943,12 @@ chk 'REDUB_COVERS' scripts/audit/redub-covers.mjs 3
 chk 'ID_ONE' scripts/audit/redub-covers.mjs 2
 chk 'KEY_NN' scripts/clip-select.mjs 1
 chk 'BACK_CMD' scripts/build-redub-byvoice.mjs 1
+# ★★[FLAT_ORDER 2026-09-13 사장님 「파일하나로만들어 … 별로의 수정없이 진행」]
+#   한 파일로 붙여넣어 받으면 wav 가 1..270 한 줄기로 돌아온다. 그 번호가 어느 클립 몇 번째
+#   문장인지 «같은 실행에서» 적어 두지 않으면, 되돌릴 열쇠가 파일명에 박힌 문장 하나뿐이 된다.
+#   그 이름은 잘린다([DUB_STAGE] 가 앞자락만 대조하는 이유다) — 잘린 이름이 겹치는 날 조용히 밀린다.
+#   ★낱개 판에는 _순서.json 이 있었는데 한 파일 판에만 없었다. 같은 것이 두 벌인데 한쪽만 갖춘 꼴이다.
+chk 'FLAT_ORDER' scripts/build-redub-byvoice.mjs 2
 chk 'ID_ONE' scripts/build-dubbing-script.mjs 1
 nochk "\['G13-3', '하객과 함께" scripts/build-dubbing-script.mjs
 if command -v node >/dev/null 2>&1; then node scripts/audit/redub-covers.mjs >/dev/null 2>&1 \
