@@ -5855,6 +5855,12 @@ chk 'RULE_EASY' CLAUDE.md 1
 #   ★적대적 시험 3/3 통과 확인 — MUST 삭제·NEVER 부활·자수 초과를 각각 잡는다(죽은 게이트 아님).
 chk 'DECISION_LEDGER' docs/국가지원금/대표결정_반영대장.tsv 1
 chk 'DECISION_GATE' scripts/audit/application-decisions.py 1
+# [REVIEW_GATE 2026-09-13] 대표가 올린 지적이 조용히 사라지지 않는가.
+#   대표 지시: "개선사항 계속해서 올릴 거니깐 누락 없이 취합해놔 한 번에 반영하게"
+#   검토함의 줄은 상태가 있어야 하고, '완료'라고 적으려면 대장에 [검토N] 이 있어야 한다.
+#   그러면 그 줄의 검증문자열을 MUST 검사가 본문에서 다시 확인한다 — 완료 표시가 본문까지 이어진다.
+chk 'REVIEW_INBOX' docs/국가지원금/대표검토_지적사항_20260913.md 1
+chk 'REVIEW_GATE' scripts/audit/application-decisions.py 1
 if command -v python3 >/dev/null 2>&1; then
   _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
     || { printf '%s\n' "$_ad"; fail=1; }
