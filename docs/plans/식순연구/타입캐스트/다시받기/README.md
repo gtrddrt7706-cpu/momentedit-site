@@ -9,7 +9,7 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 125 | 33 |
+| 1_우성.txt | 우성 | 126 | 33 |
 | 2_이겸.txt | 이겸 | 44 | 7 |
 | 3_서진.txt | 서진 | 43 | 8 |
 | 4_진희.txt | 진희 | 19 | 6 |
@@ -20,7 +20,7 @@
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 125줄 · 33클립
+# 우성 — 126줄 · 33클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
   --clip =07_entry-C,=09_entry-E,=11_narr-welcome-in,=12_narr-welcome-out,=13_narr-vow-in,=14_narr-vow-out,=15_narr-ring-in,=20_narr-letter-end,=21_narr-declare-family-intro,=25_narr-bless-end-long,=26_narr-close,=27_letter-parent,=28_letter-each,=29_letter-both,=31_declare-2-warm,=34_declare-ask-b,=38_tribute-in,=39_tribute-out,=40_toast-toast,=41_toast-cake,=42_toast-both,=43_parents-letter,=52_narr-entry-out,=80_narr-entry-out-C,=81_narr-entry-out-D,=82_narr-entry-out-E,=83_narr-entry-out-F,=56_narr-toast-out,=60_narr-photo-split,=61_narr-round-open,=86_narr-round-mid,=65_narr-photo-out,=75_fx-selfie
 ```

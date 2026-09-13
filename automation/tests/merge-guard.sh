@@ -6983,6 +6983,27 @@ chk 'PROBE_BY_VOICE' scripts/build-typecast-import.mjs 1
 #   ★voice 가 없는 옛 기록은 «모른다»로 둔다. 모르는 것을 그대로다로도 바뀌었다로도 단정하지 않고 수를 알린다.
 chk 'VOICE_CHANGED' scripts/build-redub-byvoice.mjs 2
 chk 'VOICE_CHANGED' scripts/assemble-narration.mjs 1
+
+# ★★[LETTER_MIRROR 2026-09-13] 어른께 드리는 편지는 «두 벌»이다 — 화면(parents.html)과 소리(대본).
+#   오늘 실제로 갈려 있었다: [TONE_POLISH] 가 소리를 「짐작하기에」로 고쳤는데 화면은 「알기에」로 남았다.
+#   앞 문장이 「저희가 다 알 수는 없습니다」라 화면만 읽으면 바로 부딪힌다 — 못 안다고 해 놓고 안다고 한다.
+#   두 벌인데 한쪽만 고쳐도 아무 검사가 안 물었다.
+#   ★태그는 «공백 없이» 지운다. 공백을 넣으면 <strong> 하나에 없던 띄어쓰기가 생겨 전부 다르게 보인다
+#     (첫 판이 그래서 11건을 일렀는데 진짜는 1건이었다 — 거짓말하는 검사는 없는 것만 못하다).
+#   ★낭독 전용 줄(장 번호·여는 말·맺음)은 «모양»으로 가른다. 문장을 베껴 적으면 이 검사가 또 한 벌이 된다.
+chk 'LETTER_MIRROR' scripts/audit/letter-mirror.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL letter-mirror: 어른께 드리는 편지의 화면과 소리가 갈렸습니다 — node scripts/audit/letter-mirror.mjs'; fail=1; }; fi
+# ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
+#   어른께 드리는 편지에서 가장 조심할 자리다. 주어를 우리 쪽으로 돌렸다. 되돌리지 말 것.
+nochk '결례가 되지 않도록' parents.html
+nochk '결례가 되지 않도록' scripts/build-dubbing-script.mjs
+chk '사정이 있어 오시기 어려운 분께도' parents.html 1
+# ★[LETTER_COMMA] 연결어미 뒤 쉼표 셋을 뺐다(humanize-korean 진단 · 주어가 같고 절이 짧은 자리만).
+#   ★남긴 둘은 지우지 말 것 — 「본식으로 진행하며,」는 그 긴 문장의 유일한 호흡 자리이고,
+#     「안내해 드리고,」는 쉼표를 사이에 두고 주어가 저희 → 디렉터로 바뀐다(맞춤법이 권하는 자리).
+chk '본식으로 진행하며,' parents.html 1
+chk '안내해 드리고,' parents.html 1
 chk 'ID_ONE' scripts/build-dubbing-script.mjs 1
 nochk "\['G13-3', '하객과 함께" scripts/build-dubbing-script.mjs
 if command -v node >/dev/null 2>&1; then node scripts/audit/redub-covers.mjs >/dev/null 2>&1 \
