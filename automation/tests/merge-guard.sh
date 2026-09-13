@@ -5597,8 +5597,15 @@ chk '바코드 자체는 문자로 보내지 않는다' scripts/audit/coupon-flo
 chk 'KB_TRUTH_RUN' automation/tests/merge-guard.sh 1
 chk 'node scripts/audit/kb-truth.mjs' automation/tests/merge-guard.sh 2
 chk 'NIGHTLY_JOURNEY' .github/workflows/nightly-screen.yml 1
-chk 'journey-sim.mjs' .github/workflows/nightly-screen.yml 1
-chk 'save-honesty.mjs' .github/workflows/nightly-screen.yml 1
+# ★[AUDIT_RUN_ALL 2026-09-13] 위 두 줄은 「야간 yml 이 이 검사들의 이름을 적고 있다」를 재던 것이다.
+#   이제 야간은 이름을 안 적는다 — run-all 이 scripts/audit 를 스스로 찾아 돌린다(손 목록이 세 번 벌어져서 없앴다).
+#   그래서 **같은 뜻을 새 구조에 맞게** 다시 쓴다: 이 둘이 SKIP 에 들어가 있지 않으면 반드시 돈다
+#   (run-all --verify 가 «모든 감사는 돌거나 이유 붙여 빠지거나» 둘 중 하나임을 이미 강제한다).
+#   ★바로 위 주석의 그 말이 여전히 이 자리의 이유다 — «검사를 만들었다»와 «검사가 돈다»는 다른 말이다.
+nochk "'journey-sim.mjs':" scripts/audit/run-all.mjs 0
+nochk "'save-honesty.mjs':" scripts/audit/run-all.mjs 0
+chk 'journey-sim.mjs' scripts/audit/journey-sim.mjs 0        # 파일 자체가 살아 있다(지우면 --verify 가 아니라 여기서 먼저 걸린다)
+chk 'SAVE_HONESTY\|save' scripts/audit/save-honesty.mjs 1
 
 
 # ★★[NAV_MASK 2026-08-18 «점검 직접 보면서» 에서 눈으로 발견] 스크롤해도 숨지 않는 nav 는 마스크가 있어야 한다.
@@ -7756,3 +7763,69 @@ chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
 chk 'GP_DBL_REST' scripts/audit/guide-photo-sim.mjs 1
 chk '이중클릭' scripts/audit/guide-photo-sim.mjs 2
 chk '경계31' scripts/audit/guide-photo-sim.mjs 2
+
+# ★★[AUDIT_RUN_ALL 2026-09-13 점검] 「만들어 놓고 아무도 안 부르는 감사」를 구조적으로 없앤다.
+#   실측(오늘): 감사 84개 중 merge-guard 가 실행하는 것 30개 · nightly-screen 이 12개 — **42개를 아무도 안 돌렸다.**
+#   이 자리를 고친 것이 처음이 아니다:
+#     · 2026-08-11 nightly-screen 을 만들며 「51개 중 22개만 돈다」
+#     · 2026-08-30 [ORPHAN_AUDITS] 「61개 중 10개가 고아」 → 열 개를 손으로 넣었다
+#   두 번 다 **손으로 적은 목록**이었고 두 번 다 벌어졌다. 그동안 치른 값(오늘 실측):
+#     · deliv-matrix·pay-front-check — #708 에서 문구를 고칠 때 같이 낡았는데 게이트는 초록이었다
+#     · admin-ux — 박아 둔 날짜가 과거가 되어 며칠째 붉었다(아무도 안 봤다)
+#     · guest-photo-sim — **게이트가 돌리는** 검사인데 2026-10-06 부터 붉어진다(시계를 돌려 이분 탐색)
+#   → run-all 은 scripts/audit/*.mjs 를 스스로 찾아 돈다. 빠지는 길은 SKIP 한 곳뿐이고 «왜»가 붙는다.
+#   ★여기서 --verify 는 감사를 **돌리지 않는다**(디렉터리만 읽는다 · 0.1초). 실제 실행은 야간이 맡는다 —
+#     느린 검사를 게이트에 넣으면 사람이 붉은 것을 무시한다는 그 이유를 그대로 지킨다.
+if command -v node >/dev/null 2>&1; then
+  _ra=$(node scripts/audit/run-all.mjs --verify 2>&1)
+  if [ $? = 0 ]; then echo "ok run-all: $(printf '%s' "$_ra" | tail -1)"
+  else echo 'REVERT? run-all --verify 실패 — 아무도 안 돌리는 감사가 생겼다:'; printf '%s\n' "$_ra"; fail=1; fi
+else echo 'skip run-all --verify (node 없음)'; fi
+chk 'AUDIT_RUN_ALL' scripts/audit/run-all.mjs 1
+chk 'RUN_ALL_VERIFY' scripts/audit/run-all.mjs 1
+chk 'run-all.mjs' .github/workflows/nightly-screen.yml 1   # 야간이 실제로 부른다(러너만 있고 안 부르면 그대로 고아다)
+
+# ★[SEED_RELATIVE 2026-09-13 점검] 시드에 날짜를 박으면 검사가 달력 때문에 죽는다 — 이 저장소에서 다섯 번째다
+#   (#642 되돌리기 시뮬 · #684 상담 요일 · 오늘 admin-ux · guest-photo-sim · rollback-slot).
+#   libfaketime 으로 시계를 돌려 «첫 빨강의 날짜»를 이분 탐색으로 특정한 뒤 상대값으로 바꿨다.
+#   박은 날짜로 되돌리지 말 것 — 세 파일 모두 그 이유를 파일 안에 적어 뒀다.
+chk 'SEED_RELATIVE' scripts/audit/admin-ux.mjs 1
+chk 'SEED_RELATIVE' scripts/audit/guest-photo-sim.mjs 1
+chk 'SEED_RELATIVE' scripts/audit/rollback-slot.mjs 1
+nochk "예식일:'2026-09-05'" scripts/audit/guest-photo-sim.mjs      # 되돌아오면 2026-10-06 에 다시 붉어진다
+nochk "예식일: '2026-12-20'" scripts/audit/rollback-slot.mjs        # 되돌아오면 2026-12-21 에 붉어진다
+
+# ★★[SNAP_WORD 2026-09-13 점검 라운드 2] 웨딩스냅 고객에게 «예식»이라 말하지 않는다.
+#   실측: 여정 로드맵의 갈림(mypage.html `product === '웨딩스냅'`)은 촬영 단계를 「촬영 · 예정일에 진행」으로
+#   옳게 부르는데, **결과물 줄의 부제만 두 갈래에 같은 문장이 복사**돼 있어 스냅 고객이 여덟 화면 중
+#   **다섯**에서 「예식 후 · 마이페이지에서 확인」을 읽고 있었다. api/_kb.js 22행은 웨딩스냅을 「촬영만」이라
+#   못박는다 — 그 고객에게 우리가 하는 예식은 없다.
+#   ★렌더 검사(scripts/audit/snap-word.mjs)는 브라우저가 필요해 야간(run-all)이 돌린다. 여기서는 문구만 고정한다.
+chk 'SNAP_WORD' mypage.html 1
+chk '촬영 후 · 마이페이지에서 확인' mypage.html 1      # 스냅 갈래
+chk '예식 후 · 마이페이지에서 확인' mypage.html 1      # 시그니처 갈래 — 이쪽은 예식이 맞다(둘 다 있어야 한다)
+chk 'SNAP_WORD' scripts/audit/snap-word.mjs 1
+
+# ★★[KB_CROSS_TRUTH 2026-09-13 점검 라운드 3] 식순 챗봇이 «이미 정해진 것»을 «확정 전»이라 답하고 있었다.
+#   셋 다 두 벌 중 한 벌만 고친 자리다(이 세션의 그 병):
+#     ①시간 연장 — **계약서 제8조 ④** 가 「단축된 시퀀스 시간은 환불·연장의 대상이 되지 아니하며 …
+#       하루 3팀 운영 구조상 당일 연장은 불가하다」로 명문화했다. 고객이 **서명한 조항**을 «아직 안 정해졌다»고 답했다
+#     ②반려동물 — api/_kb.js 94행이 「케이지 동반 시 입장 가능」(2026-06-12 운영자 확정)인데 「단정하지 말라」였다.
+#       정해지지 않은 것은 «식순 연출로 화면에서 고르는 것»뿐이라 둘을 갈라 적었다
+#     ③음악 — 2026-08-03 «노래선정부분 완전삭제» 뒤에도 D-14 목록에 「음악 2곡 정하기」가 남았다.
+#       같은 날 같은 목록에서 '베일 다운'은 지워졌다(VEIL_RETIRED) — 음악만 남은 것이다.
+#       렌더 실측으로도 order-preview 에 곡 입력칸이 0개다(코드 주석 2801행의 「선택으로 남고」는 그 뒤 폐지된 옛 설명)
+#   ★kb-chatbot-truth 와 방향이 반대다 — 그쪽은 «없는 걸 있다고», 이쪽은 «정해진 걸 안 정해졌다고».
+#   ★앵커가 사라지면 통과가 아니라 실패다(원천이 바뀌면 검사도 함께 고치라는 뜻).
+if command -v node >/dev/null 2>&1; then
+  _kx=$(node scripts/audit/kb-cross-truth.mjs 2>&1)
+  if [ $? = 0 ]; then echo "ok kb-cross-truth: $(printf '%s' "$_kx" | tail -1)"
+  else echo 'REVERT? kb-cross-truth 실패 — 식순 KB 가 원천과 어긋난다:'; printf '%s\n' "$_kx" | grep '❌'; fail=1; fi
+else echo 'skip kb-cross-truth (node 없음)'; fi
+chk 'KB_CROSS_TRUTH' scripts/audit/kb-cross-truth.mjs 1
+chk 'KB_SETTLED' api/_ritual-kb.js 1
+chk 'MUSIC_GONE' api/_ritual-kb.js 1
+nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-08-03 폐지 — 숙제로 되살리지 말 것
+nochk '확정 전 정책' api/_ritual-kb.js 0                # 정해진 것을 «확정 전»이라 말하지 않는다
+# ★두 nochk 의 한도가 0 인 이유 — 위 주석은 옛 문구를 «음악 두 곡»·«아직 정해지지 않은 정책»으로 비켜 적었다.
+#   근거 주석이 금지 문구를 그대로 인용하면 가드가 자기 설명문을 잡는다(이 세션에서 세 번 겪었다).
