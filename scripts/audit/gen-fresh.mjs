@@ -32,8 +32,12 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const P = (r) => path.join(ROOT, r);
 
-/* 생성기 → 그것이 «쓰는» 폴더. 한 생성기가 여러 폴더를 쓰면 전부 적는다.
-   ★새 생성기를 만들면 여기 한 줄을 더한다. 안 더하면 그 폴더는 다시 «아무도 안 보는 것»이 된다. */
+/* 생성기 → 그것이 «쓰는» 폴더.
+   ★★[LIST_SELF_CHECK] 이 목록은 손으로 적은 것이다 — 그러니 손 목록이 벌어지는 것까지 «검사»한다.
+     첫 판을 만들자마자 타입캐스트/보이스찾기 를 빠뜨렸다(2026-09-13 실측). 손 목록은 반드시 벌어진다.
+     그래서 아래 COVER_CHECK 가 scripts/build-*.mjs 가 실제로 쓰는 경로를 «스스로 긁어» 이 표와 맞댄다.
+     빠진 것이 있으면 여기서 걸린다 — [AUDIT_RUN_ALL] 이 감사 목록에 한 것과 같은 수법이다.
+   ★빼려면 KNOWN_OUT 에 «왜»와 함께 적는다. 조용히 빠지는 길은 없다. */
 const GENS = [
   { gen: 'scripts/build-dubbing-script.mjs',  args: [],          dirs: ['docs/plans/식순연구/더빙_녹음_대본_최종.txt',
                                                                         'docs/plans/식순연구/더빙_녹음_대본_최종.md'] },
@@ -43,6 +47,32 @@ const GENS = [
   { gen: 'scripts/build-emotion-check.mjs',   args: [],          dirs: ['docs/plans/식순연구/감동구간_성우별',
                                                                         'docs/plans/식순연구/감동구간_확인판.txt'] },
 ];
+
+/* 이 검사가 «일부러» 안 보는 경로 — 반드시 왜를 적는다. */
+const KNOWN_OUT = {
+  'docs/plans/식순연구': '장면 대본 6편은 [STORY_STALE](build-course-story.mjs --check)이 이미 대조한다. 두 번 재지 않는다',
+  'docs/plans/식순연구/배역_예시_대사.txt': '생성물이 아니라 «사람이 쓰는 원천»이다. 다시 뽑을 것이 아니다',
+  'docs/plans/식순연구/타입캐스트/manifest.json': '타입캐스트 폴더 안에 있어 이미 대조된다(같은 것을 두 번 적은 자리)',
+  'docs/plans/식순연구/타입캐스트/보이스찾기': '성우를 «고르던» 과정의 기록이다. 여덟 자리가 이미 정해져 다시 뽑을 일이 없고, 다시 뽑으면 그때의 후보 비교가 사라진다',
+};
+
+/* ★★[COVER_CHECK] 생성기들이 실제로 쓰는 경로를 스스로 긁어 위 표와 맞댄다. */
+const listed = new Set(GENS.flatMap((g) => g.dirs));
+const missed = [];
+for (const f of fs.readdirSync(P('scripts')).filter((x) => /^build-.*\.mjs$/.test(x))) {
+  const src = fs.readFileSync(P(path.join('scripts', f)), 'utf8');
+  for (const m of src.matchAll(/'(docs\/plans\/식순연구[^']*)'/g)) {
+    const rel = m[1];
+    if (listed.has(rel) || KNOWN_OUT[rel]) continue;
+    if (!missed.includes(rel)) missed.push(rel);
+  }
+}
+if (missed.length) {
+  console.log('[GEN_FRESH] ✗ 생성기가 쓰는데 이 검사가 «안 보는» 경로가 있다:');
+  for (const r of missed) console.log(`    ${r}`);
+  console.log('  → GENS 에 넣거나, 안 볼 것이면 KNOWN_OUT 에 «왜»를 적으세요. 조용히 빠지는 길은 없습니다.');
+  process.exit(1);
+}
 
 /* 한 경로(파일이든 폴더든) 아래 모든 파일을 상대경로 → 내용으로 읽는다. */
 function snap(rel) {

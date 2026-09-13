@@ -6916,7 +6916,14 @@ chk 'VOICE_PENDING' scripts/build-voice-parts.mjs 2
 #   ★어제 [STORY_STALE] 이 장면 대본 6편에 같은 것을 걸었다. 그때 «녹음 대본 네 폴더»를 안 본 것이
 #     오늘 사고다. 그래서 여기서 넷(타입캐스트·성우별·다시받기·감동구간)을 한꺼번에 건다.
 #   ★재고 나서 원래대로 되돌린다 — 게이트가 파일을 고쳐 놓지 않는다(구멍은 보고만).
-chk 'GEN_FRESH' scripts/audit/gen-fresh.mjs 3
+chk 'GEN_FRESH' scripts/audit/gen-fresh.mjs 6
+# ★[LIST_SELF_CHECK][COVER_CHECK] 이 검사의 «생성기 → 폴더» 표는 손으로 적은 것이다.
+#   손 목록은 반드시 벌어진다 — 만들자마자 타입캐스트/보이스찾기 를 빠뜨렸다(같은 날 실측).
+#   그래서 build-*.mjs 가 실제로 쓰는 경로를 스스로 긁어 표와 맞댄다. 빠지면 빨개진다.
+#   ★빼려면 KNOWN_OUT 에 «왜»를 적는다. 조용히 빠지는 길을 만들지 말 것.
+#     ([AUDIT_RUN_ALL] 이 감사 목록에 쓴 수법과 같다 — 목록을 손으로 지키지 않는다.)
+chk 'LIST_SELF_CHECK' scripts/audit/gen-fresh.mjs 1
+chk 'COVER_CHECK' scripts/audit/gen-fresh.mjs 2
 
 # ★★[REDUB_COVERS 2026-09-13 점검] 「다시 받아야 할 클립」 ⊆ 「사장님이 받는 파일」.
 #   cast-text-audio 와 build-redub-byvoice 가 같은 원천을 보면서 «거르는 조건»을 각자 적어 두었다.
