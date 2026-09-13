@@ -6933,6 +6933,18 @@ chk 'COVER_CHECK' scripts/audit/gen-fresh.mjs 2
 #   ★이 검사 첫 판은 폐지 필터를 빠뜨려 셋을 잘못 일렀다(46_end-1b-farewell-online 등).
 #     거르는 조건을 한 곳이라도 빠뜨리면 검사가 거짓말을 한다 — 폐지 명단은 ritual-cue.js 에서만 읽는다.
 chk 'REDUB_COVERS' scripts/audit/redub-covers.mjs 3
+# ★★[ID_ONE][KEY_NN][BACK_CMD 2026-09-13 사장님 「그부분만 녹음다시하고 차후 그부분만 대입해서」]
+#   부분 재더빙이 실제로 되려면 «클립 하나를 혼자 짚을 수 있어야» 한다. 셋 다 그 전제다.
+#   · ID_ONE  — 같은 id 를 쓰는 클립이 없어야 한다(G13-3 이 둘이었다 · 9/12 복사 실수)
+#   · KEY_NN  — 이름도 id 도 겹치므로 «번호_이름»으로 짚는 길을 clip-select 에 열었다
+#               (entry-C 는 07·20 둘 · letter-each 는 11·28 둘 · `--clip toast` 는 다섯을 끌고 왔다)
+#   · BACK_CMD — 되돌리는 명령을 «사람이 짓지 않는다». 생성기가 다시받기/README.md 에 써 준다
+#   ★clip-select.mjs 는 판별과 생성이 같이 쓰는 «하나뿐인 자»다. 규칙을 다른 데 또 적지 말 것.
+chk 'ID_ONE' scripts/audit/redub-covers.mjs 2
+chk 'KEY_NN' scripts/clip-select.mjs 1
+chk 'BACK_CMD' scripts/build-redub-byvoice.mjs 1
+chk 'ID_ONE' scripts/build-dubbing-script.mjs 1
+nochk "\['G13-3', '하객과 함께" scripts/build-dubbing-script.mjs
 if command -v node >/dev/null 2>&1; then node scripts/audit/redub-covers.mjs >/dev/null 2>&1 \
   || { echo 'FAIL redub-covers: 다시 받아야 할 클립이 다시받기 파일에 없습니다 — node scripts/audit/redub-covers.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/gen-fresh.mjs >/dev/null 2>&1 \

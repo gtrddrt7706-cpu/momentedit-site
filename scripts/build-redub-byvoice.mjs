@@ -120,5 +120,26 @@ fs.writeFileSync(path.join(OUT, 'README.md'),
    '파일 하나 = 화자 하나입니다. 대장 차례 그대로이고, 되돌리는 표는 `_순서.json` 에 있습니다.', '',
    '| 파일 | 성우 | 줄 | 클립 |', '|---|---|---|---|',
    ...rows.map(([v, l], n) => `| ${n + 1}_${v}.txt | ${v} | ${l.length} | ${new Set(l.map((x) => x.clip)).size} |`),
+   '',
+   /* ★★[BACK_CMD 2026-09-13 사장님 「그부분만 녹음다시하고 차후 그부분만 대입해서 원활하게」]
+      되돌리는 «명령»까지 여기서 짓는다 — 사람이 손으로 지으면 그 자리에서 틀린다.
+      ★=번호_이름 으로 찍는다([KEY_NN]). 이름만·id 만으로는 혼자 못 고른다:
+        entry-C 는 07(배역)·20(나레이션) 둘, letter-each 는 11·28 둘이다.
+        그냥 `--clip toast` 를 주면 toast-cake·toast-both 까지 다섯을 끌고 온다.
+      ★조립기는 «클립 전체 문장»을 요구한다. 그래서 두 사람이 섞인 클립은 둘 다 받아야 조립된다 —
+        아래에 그 클립을 따로 적어 둔다(안 적으면 44줄을 주고 46문장을 요구받으며 멎는다). */
+   '## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)', '',
+   ...rows.flatMap(([v, l]) => {
+     const clips = [...new Set(l.map((x) => x.clip))];
+     const mixed = clips.filter((k) => {
+       const c = man.clips.find((x) => pad2(x.no) + '_' + x.file === k);
+       return c && c.sents.length !== l.filter((x) => x.clip === k).length;
+     });
+     return ['```', `# ${v} — ${l.length}줄 · ${clips.length}클립`,
+       `node scripts/assemble-narration.mjs --in <${v}_받은폴더> \\`,
+       `  --clip ${clips.map((k) => '=' + k).join(',')}`, '```',
+       ...(mixed.length ? [`★${mixed.join(' · ')} 은 두 사람이 한 클립에 섞여 있습니다. `
+         + `${v} 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.`, ''] : [''])];
+   }),
   ].join('\n') + '\n');
 console.log(`\n썼다: ${path.relative(ROOT, OUT)}/ · 파일 ${rows.length + 2}개`);

@@ -89,3 +89,23 @@ if (missing.length) {
   process.exit(1);
 }
 console.log('[REDUB_COVERS] ok — 어긋난 클립이 전부 다시받기 파일에 들어 있다');
+
+/* ★★[ID_ONE] 클립을 «혼자» 짚을 수 있어야 한다 — 부분 재더빙의 전제다.
+   2026-09-13 실측: G13-3 이 86_narr-round-mid·62_narr-online-in 둘에 붙어 있었다(9/12 복사 실수).
+   그 상태로 --clip =G13-3 을 주면 둘이 딸려 와, 받은 문장 수가 안 맞아 조립이 멎는다.
+   ★번호_이름(KEY_NN)은 대장이 매기니 늘 고유하지만, id 는 사람이 손으로 단다 — 그래서 여기서 센다. */
+const dupId = new Map();
+for (const c of man.clips || []) {
+  if (!c.id) continue;
+  const k = pad2(c.no) + '_' + c.file;
+  if (!dupId.has(c.id)) dupId.set(c.id, []);
+  dupId.get(c.id).push(k);
+}
+const dups = [...dupId.entries()].filter(([, v]) => v.length > 1);
+if (dups.length) {
+  console.log(`\n✗ 같은 id 를 쓰는 클립이 ${dups.length}건 — 한 대목만 다시 조립할 때 둘이 딸려 온다:`);
+  for (const [id, ks] of dups) console.log(`    ${id}  →  ${ks.join(' · ')}`);
+  console.log('  → scripts/build-dubbing-script.mjs 에서 «뒤에 온 쪽»에 새 번호를 주세요.');
+  process.exit(1);
+}
+console.log(`[ID_ONE] ok — 클립 ${(man.clips || []).length}개의 id 가 전부 고유하다`);

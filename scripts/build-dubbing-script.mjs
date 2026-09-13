@@ -168,7 +168,12 @@ const G = [
     ['G13-2', '하객과 함께 시작', 'narr-round-open', D.NARR.roundOpen],
     /* ★[ROUND_MID 2026-09-12] 인사 사진 «가운데» 안내. 이 구간은 라이브가 1020초(17분)인데
        그동안 스피커에서 한 마디도 안 나갔다. 디렉터가 절반쯤에서 골라 튼다(체인 아님). */
-    ['G13-3', '하객과 함께 · 가운데 안내', 'narr-round-mid', D.NARR.roundMid],
+    /* ★[ID_ONE 2026-09-13 점검] 이 줄이 처음 들어올 때(9/12) 바로 아래 narr-online-in 의 G13-3 을
+       «그대로 베껴» 달았다. 클립 두 개가 같은 id 를 갖게 되어, --clip 으로 한 대목만 다시 조립할 때
+       =G13-3 이 둘을 동시에 끌고 왔다(부분 재더빙이 조용히 엉키는 자리다).
+       ★뒤에 온 이 줄에 새 번호를 준다 — G13-3 은 「디지털 참석이 있는 날만」이라는 아래 note 가
+         가리키는 것이라 그쪽이 임자다. 번호를 서로 바꾸지 말 것. */
+    ['G13-2b', '하객과 함께 · 가운데 안내', 'narr-round-mid', D.NARR.roundMid],
     ['G13-3', '온라인 인사로 부르기', 'narr-online-in', D.NARR.onlineIn],
     ['G13-4', '마지막 사진 예고', 'narr-final-warn', D.NARR.finalWarn],
     ['G13-5', '모이는 신호', 'narr-final-call', D.NARR.finalCall],
