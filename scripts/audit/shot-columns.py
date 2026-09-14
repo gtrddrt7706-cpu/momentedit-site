@@ -24,7 +24,7 @@ import sys, os, glob, math
 from PIL import Image, ImageDraw
 
 TARGET = 1.2      # 목표 «세로/가로»
-SPLIT_OVER = 2.6  # 이 비를 넘을 때만 단으로 나눈다 (그 아래는 그냥 둔다)
+SPLIT_OVER = 3.2  # 이 비를 넘을 때만 단으로 나눈다 (2.6배는 한 단으로 두는 게 낫다 — 실측 후 올림)
 GUT = 28          # 단 사이 여백
 PAD = 20          # 바깥 여백
 BG = (247, 246, 243)
