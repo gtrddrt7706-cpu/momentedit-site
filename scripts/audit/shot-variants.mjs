@@ -62,6 +62,7 @@ for (const t of TARGETS) {
         //   본문 문단 한가운데(x353~369 · y414~430)에 맨몸으로 떠 있었다. 다른 버튼은 전부 테두리
         //   상자를 갖고 있어 이것만 튀었고, 본문 컬럼 경계를 11px 넘었다.
         //   제출용 사진에서는 «미완성 버튼»으로 읽힌다 — 기능이 아니라 사진의 문제라 캡처에서 숨긴다.
+        document.querySelectorAll('#meAdvStack,#meAdvPanel,#meAdvBackdrop,.me-fab-stack,.me-adv-panel,.me-adv-backdrop,.me-fab').forEach(e=>e.remove());  // ★[SHOT_FLOAT] 상담 도우미 떠 있는 버튼 묶음(advisor-widget.js:142~171) — 가장자리에 반쯤 걸쳐 찍힌다
         document.querySelectorAll('*').forEach(e => {
           const cs = getComputedStyle(e), r = e.getBoundingClientRect();
           if ((cs.position === 'fixed' || cs.position === 'sticky') && r.width > 8 && r.width < 260 && r.height < 260) e.style.display = 'none';
@@ -81,6 +82,7 @@ for (const t of TARGETS) {
       });
       const bad = CONFLICT.filter(k => m.text.includes(k));
       await page.evaluate(() => {
+        document.querySelectorAll('#meAdvStack,#meAdvPanel,#meAdvBackdrop,.me-fab-stack,.me-adv-panel,.me-adv-backdrop,.me-fab').forEach(e=>e.remove());  // ★[SHOT_FLOAT] 상담 도우미 떠 있는 버튼 묶음(advisor-widget.js:142~171) — 가장자리에 반쯤 걸쳐 찍힌다
         document.querySelectorAll('*').forEach(e => {
           const cs = getComputedStyle(e), r = e.getBoundingClientRect();
           if ((cs.position === 'fixed' || cs.position === 'sticky') && r.width > 8 && r.width < 260 && r.height < 260) e.style.display = 'none';

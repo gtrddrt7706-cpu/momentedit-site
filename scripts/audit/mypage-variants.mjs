@@ -44,6 +44,15 @@ async function open(w) {
   });
   await page.goto(`http://localhost:${PORT}/mypage.html?token=SHOT`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(3200);
+  // ★[SHOT_FLOAT] 떠 있는 상담 말풍선을 숨긴다 — 가장자리에 반쯤 걸쳐 찍히면 «미완성 버튼»으로 읽힌다
+  await page.evaluate(() => {
+    document.querySelectorAll('#meAdvStack,#meAdvPanel,#meAdvBackdrop,.me-fab-stack,.me-adv-panel,.me-adv-backdrop,.me-fab').forEach(e=>e.remove());  // ★[SHOT_FLOAT] 상담 도우미 떠 있는 버튼 묶음(advisor-widget.js:142~171) — 가장자리에 반쯤 걸쳐 찍힌다
+        document.querySelectorAll('*').forEach(e => {
+      const cs = getComputedStyle(e), r = e.getBoundingClientRect();
+      if ((cs.position === 'fixed' || cs.position === 'sticky') && r.width > 8 && r.width < 260 && r.height < 260) e.style.display = 'none';
+    });
+  }).catch(() => {});
+  await page.waitForTimeout(400);
   return page;
 }
 
