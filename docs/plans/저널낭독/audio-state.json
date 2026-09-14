@@ -19,13 +19,8 @@
     "2": {
       "script": "docs/plans/저널낭독/2_신혼여행첫날.txt",
       "mp3": "assets/audio/essay/2_honeymoon.mp3",
-      "script_sha256": "228f8047a64b2b2192691fb0bebd0a389d804def9d28a9b93382aef8a7379043",
-      "built_at": "2026-09-06",
-      "pending_rerecord": {
-        "since": "2026-09-12",
-        "why": "맺음 한 줄을 줄였다 — 「그 하루를 위해 저희는 결혼의 순서를 다시 짰습니다」 → 「저희가 만드는 결혼의 순서입니다」. 앞 문장이 한 말을 되풀이해서(#704). 타입캐스트 19문장 재생성 대기.",
-        "expect_sha256": "b6c59c59e9d674fbfe8dc2323d88a342b7a09da66925ef54957c79586e9deb78"
-      }
+      "script_sha256": "b6c59c59e9d674fbfe8dc2323d88a342b7a09da66925ef54957c79586e9deb78",
+      "built_at": "2026-09-14"
     }
   }
 }

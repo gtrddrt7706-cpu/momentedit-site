@@ -4142,7 +4142,8 @@ chk 'ESSAY_LEAD_IN' index.html 2
 #   ★muted=false 를 seeked 밖으로 옮기지 말 것. 되살리면 유령 소리가 그대로 돌아온다.
 chk 'SEEK_THEN_OPEN' index.html 3
 chk "addEventListener('seeked', open)" index.html 1
-chk 'LEAD_IN = 1000' index.html 1
+chk 'LEAD_IN = 2000' index.html 1   # 2026-09-14 사용자 지시로 1000→2000 (parents.html 의 2초와 같아졌다)
+nochk 'LEAD_IN = 1000' index.html 0  # 1초로 되돌리는 것은 지시 역전이다
 # 같은 결함이 혼주 편지(parents.html)에도 있었다 — 같은 코드가 여러 곳에 있으면 함께 고친다.
 chk 'SEEK_THEN_OPEN' parents.html 2
 chk "addEventListener('seeked',open)" parents.html 1
