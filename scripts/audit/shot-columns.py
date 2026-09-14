@@ -139,21 +139,28 @@ def columnize(src, dst):
     parts = [side_trim(im.crop((0, bounds[i], w, bounds[i + 1]))) for i in range(n)]
     w = max(p.size[0] for p in parts)
     ch = max(p.size[1] for p in parts)
-    W = PAD * 2 + n * w + (n - 1) * GUT
-    H = PAD * 2 + ch
+    # ★여백과 단 번호를 «이미지 폭»에 맞춰 키운다 (2026-09-14 · 눈으로 잡음)
+    #   2배 해상도로 찍은 장에서는 표식만 고정 픽셀이라 절반 크기로 보였다.
+    #   1배(폭 560~760)에서는 S=1 이라 종전 결과가 그대로다.
+    S = max(1, int(round(w / 700.0)))
+    P, G = PAD * S, GUT * S
+    W = P * 2 + n * w + (n - 1) * G
+    H = P * 2 + ch
     out = Image.new('RGB', (W, H), BG)
     d = ImageDraw.Draw(out)
     for i in range(n):
         part = parts[i]
-        x = PAD + i * (w + GUT)
-        out.paste(part, (x, PAD))
-        d.rectangle([x - 1, PAD - 1, x + w, PAD + part.size[1]], outline=LINE)
+        x = P + i * (w + G)
+        out.paste(part, (x, P))
+        d.rectangle([x - 1, P - 1, x + w, P + part.size[1]], outline=LINE)
         # 단 번호 — 읽는 순서를 잃지 않게
-        d.ellipse([x + w - 34, PAD + 10, x + w - 10, PAD + 34], fill=(255, 255, 255), outline=NUM)
-        d.text((x + w - 25, PAD + 16), str(i + 1), fill=NUM)
+        r = 24 * S
+        d.ellipse([x + w - 10 * S - r, P + 10 * S, x + w - 10 * S, P + 10 * S + r],
+                  fill=(255, 255, 255), outline=NUM, width=S)
+        d.text((x + w - 10 * S - r // 2 - 3 * S, P + 10 * S + r // 2 - 5 * S), str(i + 1), fill=NUM)
         if i < n - 1:                                       # 이어짐 표시
-            mx = x + w + GUT // 2
-            d.line([mx, PAD + ch // 2 - 10, mx, PAD + ch // 2 + 10], fill=LINE, width=2)
+            mx = x + w + G // 2
+            d.line([mx, P + ch // 2 - 10 * S, mx, P + ch // 2 + 10 * S], fill=LINE, width=2 * S)
     out.save(dst)
     return n, ratio, (ch / float(W))
 

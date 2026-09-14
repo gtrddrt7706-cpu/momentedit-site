@@ -27,7 +27,18 @@ const SEAT = { ok: true, seat: { groom: '김도현', bride: '이서진', date: '
   { side: 'R', name: '', seats: ['정예린', '한도윤', '', '', '', ''] } ] } };
 
 const TARGETS = [
-  { n: 'live_비공개참석', url: '/live.html', gas: DUMMY },
+  // ★[SHOT_TIGHTEN 2026-09-14 대표 지시 「청첩장 간격도 첨부 예시에서는 좀 줄이는 게 어때?」]
+  //   live.html 의 .hero/.section 은 min-height:100vh 다 — 한 칸이 «한 화면»을 차지한다.
+  //   실제로 넘겨 보는 화면에서는 그게 맞지만, 사진 한 장에 담으면 내용보다 여백이 많아진다.
+  //   ★사이트는 그대로 두고 «캡처할 때만» 푼다. 글자·배치는 하나도 안 바뀌고 빈칸만 준다.
+  { n: 'live_비공개참석', url: '/live.html', gas: DUMMY,
+    css: '.hero,.section{min-height:0!important}'
+       + '.hero{padding:40px 22px 44px!important}'
+       + '.section{padding:44px 22px 0!important}'
+       // ★.hero-scroll 은 position:absolute · bottom:36px 로 «화면 바닥»에 붙는다.
+       //   칸 높이를 줄이면 본문 문장 위로 올라탄다(실측: 「두 분의 가장 빛나는 순간에」와 겹침).
+       //   스크롤 안내라 사진에서는 뜻이 없다 — 숨긴다.
+       + '.hero-scroll{display:none!important}' },
   { n: 'gallery_온라인', url: '/invitation-gallery.html', gas: DUMMY },
   { n: 'gallery_오프라인', url: '/invitation-gallery.html', gas: DUMMY, click: '#gv-ver-off' },
   { n: 'seat_좌석', url: '/seat.html?t=demo', gas: SEAT },
@@ -55,6 +66,7 @@ for (const t of TARGETS) {
     try {
       await page.goto(`http://localhost:${PORT}${t.url}`, { waitUntil: 'domcontentloaded', timeout: 20000 });
       await page.waitForTimeout(2200);
+      if (t.css) await page.addStyleTag({ content: t.css });   // [SHOT_TIGHTEN] 칸 높이만 줄인다
       if (t.click) { await page.click(t.click).catch(() => { note += '클릭실패 '; }); await page.waitForTimeout(1200); }
       await page.evaluate(async () => {
         // ★[SHOT_FLOAT 2026-09-14] 떠 있는 위젯(공유·상담 말풍선)을 숨긴다.

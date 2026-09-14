@@ -8275,7 +8275,10 @@ function dineFilterUI(d, wt){
   var _headT=_hasFilter?'고른 조건에 맞는 곳':('디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트');
   var head='<div class="dn-head"><span class="dn-head-t">'+_headT+'</span><span class="dn-head-c">'+_cntTxt+(arr?' · 예식 후 '+arr+' 도착 기준':'')+'</span></div>';
   var care=list.length?'<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">하객분들이 가장 아쉬워하는 건 자리·주차·식사예요. 그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요.</div>':'';   // [심리] 호스트 불안(자리·주차·식사 질) 대신 걱정해 둠 신호 · 결과 0곳이면 모순이라 숨김
-  var fine='<div class="dn-fine">정보는 안내용이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';
+  /* ★[DINE_ORIGIN 2026-09-14] 「차8분」의 «어디서부터»가 화면에 없었다. 코드에는 「향동 기준 차로(분)」
+     이라고 적혀 있는데(mypage.html:7998 필드 주석) 고객이 보는 글에는 기준점이 빠져 있었다.
+     ★고객에게도 필요한 정보다 — 기준점을 모르면 「차8분」은 아무 뜻이 없다. */
+  var fine='<div class="dn-fine">정보는 안내용이에요. 차로 걸리는 시간은 고양 향동 스튜디오 기준이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';
   var aiHint = (d._chat&&d._chat.length) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';
   // 예식 후 가볼 만한 곳 — 접이식 큐레이션. 각 항목도 눌러서 담기(식당과 함께 다음 취합 페이지에서 봄). '지도' 링크는 담기와 분리.
   var attrItems=DN_ATTRACTIONS.map(function(a){
