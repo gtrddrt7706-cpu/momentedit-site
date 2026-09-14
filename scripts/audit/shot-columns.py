@@ -31,8 +31,28 @@ BG = (247, 246, 243)
 LINE = (214, 208, 198)
 NUM = (150, 120, 80)
 
+def trim(im):
+    """위아래로 «완전히 빈 줄»을 잘라낸다.
+    ★2026-09-14 실측 — 마이페이지 다이닝 위저드는 높이 100%% 통 안에서 세로 가운데 정렬이라
+      4,200px 로 찍으면 위쪽 1,000px 이 통째로 빈다. 그대로 단을 나누면 1단이 백지가 된다.
+      «찍을 때 잘 찍는다»로는 못 막는다(요소의 바깥 상자가 화면 높이 그대로다). 그래서 자른다."""
+    w, h = im.size
+    px = im.convert('RGB').load()
+    def blank(y):
+        c = {}
+        for x in range(0, w, 4):
+            v = px[x, y]; c[v] = c.get(v, 0) + 1
+        return max(c.values()) / float(len(range(0, w, 4))) >= 0.995
+    top = 0
+    while top < h - 1 and blank(top): top += 1
+    bot = h - 1
+    while bot > top and blank(bot): bot -= 1
+    top = max(0, top - 24); bot = min(h - 1, bot + 24)      # 숨 쉴 여백은 남긴다
+    return im.crop((0, top, w, bot + 1)) if (top or bot < h - 1) else im
+
+
 def columnize(src, dst):
-    im = Image.open(src).convert('RGB')
+    im = trim(Image.open(src).convert('RGB'))
     w, h = im.size
     ratio = h / float(w)
     if ratio <= SPLIT_OVER:
