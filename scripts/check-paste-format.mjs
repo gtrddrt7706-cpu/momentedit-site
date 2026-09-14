@@ -82,10 +82,20 @@ if (!fs.existsSync(PASTE)) {
       .filter((l) => l.trim()).map((l) => l.split(':')[0].trim()));
     const unknown = [...listed].filter((x) => !known.has(x));
     if (unknown.length) no(`붙여넣기 파일에 manifest 에 없는 화자가 있습니다: ${unknown.join(' · ')} — 아는 이름은 ${[...known].join(' · ')}`);
-    /* 명단(리드보강)에 실린 클립들의 역할이 요구하는 화자가 전부 들어 있는가 */
+    /* 명단(리드보강)에 실린 클립들의 역할이 요구하는 화자가 전부 들어 있는가
+       ★★[TWIN_ARROW 2026-09-09] 명단 한 줄에는 이름이 «둘» 있다:
+           [01] guest-1-arrival   (수정)   ← 01_guest-1
+           ^^^^^^^^^^^^^^^^ 화면 자리                  ^^^^^^^^^ 실제 클립
+         한 화면 자리에 녹음이 둘인 곳이 있어서다(안내판 + 배역판 · 그 파일 머리말의 REDUB_TWIN).
+         이 검사는 «왼쪽»을 읽고 있었다. 그래서 배역 01_guest-1(신랑·이겸)이 대기인데
+         안내 guest-1-arrival(진희)의 목소리를 내놓으라고 요구했다 — 진희는 이미 다 받아
+         명단에 없는데도 게이트가 붉었다. 실제로 오늘 그렇게 막혔다.
+       ★화살표 뒤를 먼저 본다. 화살표가 없는 줄(나레이션)은 좌우가 같으니 왼쪽으로 떨어진다. */
     const wantV = new Set();
-    for (const m of fs.readFileSync(LIST, 'utf8').matchAll(/^\[\d+\]\s+(\S+)/gm)) {
-      const c = (man.clips || []).find((x) => x.file === m[1]);
+    for (const m of fs.readFileSync(LIST, 'utf8').matchAll(/^\[\d+\]\s+(\S+)(?:.*←\s*(\d+)_(\S+))?/gm)) {
+      const c = m[2]
+        ? (man.clips || []).find((x) => x.no === m[2] && x.file === m[3])
+        : (man.clips || []).find((x) => x.file === m[1]);
       if (c && V[c.role]) wantV.add(V[c.role]);
     }
     const missing = [...wantV].filter((x) => !listed.has(x));

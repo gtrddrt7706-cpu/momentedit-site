@@ -12,10 +12,29 @@
 //   ※ 파일명은 파트가 달라도 겹칠 수 있다 — 나레이션 entry-A 와 배역 entry-A 는 다른 클립인데
 //     이름이 같다. 그래서 'entry-' 는 열두 개를 잡는다. 한쪽만 원하면 **id 앞글자**로 짚는다:
 //     배역만 → 'R-entry-' · 나레이션만 → 'G2-'. 이름이 겹치는 축과 안 겹치는 축을 둘 다 준다.
+// ★★[EXACT_ONE 2026-09-09] '=' 를 앞에 붙이면 «그것 하나»만 — 앞글자로 번지지 않는다.
+//   왜 필요했나: 성우별로 받은 우성 ② 를 붙이는데 마지막 클립이 G12-1(narr-entry-out) 이었다.
+//   'G12-1' 을 주면 G12-1B·C·D·E·F 까지 여섯이 딸려 와, 49개를 줬는데 63문장을 요구하며 멎었다.
+//   앞글자 규칙은 entry-A..F 를 한 번에 잡으려고 만든 것이라 옳다 — 다만 «가족 중 맏이»를
+//   짚을 길이 없었다. 이름이 다른 이름의 앞머리이면(G12-1 ⊂ G12-1B) 영영 혼자 못 고른다.
+//   ★판별과 생성이 같은 자를 써야 하므로 여기 한 곳에만 적는다(repatch-clip 도 같이 얻는다).
+// ★★[KEY_NN 2026-09-13 점검] 「번호_이름」(20_entry-C)으로도 짚는다 — «한 클립»을 가리키는 유일한 열쇠다.
+//   왜 필요했나: 성우별로 받은 것을 되돌려 넣으려고 --clip 을 지으려다, 이름도 id 도 혼자가 아님을 알았다.
+//     · file 이 겹친다 — entry-C 가 07(배역)·20(나레이션) 둘, letter-each 가 11·28 둘
+//     · id 도 겹쳤다 — G13-3 이 86_narr-round-mid·62_narr-online-in 둘([ID_ONE] 에서 고쳤다)
+//   =file 도 =id 도 둘을 끌고 오니, 이겸 44줄을 주면 46문장을 요구하며 멎는다. 멎는 건 옳지만
+//   «혼자 고를 길»이 아예 없었다. 번호는 대장이 매기고 클립마다 다르므로 그 길을 연다.
+//   ★앞글자 규칙(entry- → A..F)은 그대로다 — 여기 더한 것은 «정확히 하나»를 짚는 길뿐이다.
+//   ★판별과 생성이 같은 자를 써야 하므로 여기 한 곳에만 적는다(assemble·repatch 가 같이 얻는다).
+const keyOf = (c) => String(c.no).padStart(2, '0') + '_' + c.file;
+
 export const selectClips = (clips, spec) => {
   const pats = String(spec || '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!pats.length) return [];
-  return clips.filter((c) => pats.some((p) => c.file === p || c.id === p || c.file.startsWith(p) || String(c.id || '').startsWith(p)));
+  return clips.filter((c) => pats.some((p) => (p.startsWith('=')
+    ? c.file === p.slice(1) || c.id === p.slice(1) || keyOf(c) === p.slice(1)
+    : c.file === p || c.id === p || keyOf(c) === p
+      || c.file.startsWith(p) || String(c.id || '').startsWith(p))));
 };
 
 // ── 문장 자리 고르기 (SENT_PATCH · 2026-08-04)

@@ -44,6 +44,20 @@ const toneNums = () => { try { return fs.readdirSync(TONE_DIR)
   .filter((x) => x !== null).sort((a, b) => a - b); } catch (e) { return []; } };
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
+/* ★★[OUT_NOT_REVIEW 2026-09-12] `--out audio-review.html` 을 막는다.
+   ★실사고 — 이번 세션에서 이 생성기를 `--out audio-review.html` 로 돌려,
+     같은 이름의 «손으로 만든 실청 점검 도구»를 통째로 덮어썼다(2026-08-11 판, 마커 16개).
+     둘은 이름만 같고 다른 물건이다:
+       audio-review.html  = 사람이 한 문장씩 듣고 고르고 고치는 «판정»의 자리(손으로 만든다)
+       listen-*.html      = 클립을 전부 늘어놓고 흘려 듣는 «목록»(여기서 만든다)
+   ★게이트는 그 순간 빨개졌는데(마커 16개가 0), 내가 출력을 grep 으로 걸러 보느라 못 봤다.
+     그래서 «사람이 안 봐도 걸리게» 생성기 쪽에 막대를 박는다 — 눈이 아니라 코드가 막는다.
+   ★되살리지 말 것: 이 파일 이름으로 내보낼 이유는 없다. 목록은 listen-*.html 로 간다. */
+if (/(^|[\\/])audio-review(-tone)?\.html$/.test(OUT)) {
+  console.error('[OUT_NOT_REVIEW] audio-review.html 은 손으로 만든 실청 판정 도구다 — 생성물로 덮지 않는다.');
+  console.error('  목록판은 listen-*.html 로 내보낼 것.  예: --out listen-075c9ad62acf.html');
+  process.exit(2);
+}
 /* ★★[LISTEN_SPLIT 2026-08-26 사용자 지적 *"모바일이나 태블릿에서는 안나오네 항목들이"*]
    소리를 다 심으면 한 판이 8.5MB 다. 데스크톱은 열리는데 폰·태블릿에서 항목이 안 뜬다.
    ★실측으로 «화면 탓이 아님»을 먼저 확인했다 — 390px 헤드리스에서 클립 160·문장 495 가
@@ -193,20 +207,42 @@ if (EMBED) {
     bag[key] = fs.readFileSync(o).toString('base64');
   };
   OLDC.forEach((c) => { const s = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') }); if (s) enc(s, c.id, A_OLD, KBPS); });
-  if (fs.existsSync(STAGE)) {
+  /* ★★[TONE_EMBED_REPO 2026-09-14] 어조 소리를 «저장소»에서도 심는다 — _dub_stage 가 아니라.
+     ★[TONE_FROM_REPO] 는 2026-08-30 에 같은 병을 고쳤는데 **세는 자리만** 고쳤다.
+       심는 자리는 `if (fs.existsSync(STAGE))` 로 통째로 감싸인 채였다. _dub_stage 는 .gitignore 라
+       컨테이너가 반납되면 사라지고, 그러면 --embed 판은 **어조 186문장이 통째로 벙어리인 채**
+       「전체 실청 OK」로 완성된다. 실측: 2026-09-14 에 그 판을 그대로 사장님께 보냈다.
+     ★한 병을 두 자리에서 고쳐야 했는데 한 자리만 고친 것이다 — 이 저장소가 계속 겪는 모양이다.
+     ★assets/audio/tone/ 은 커밋돼 있고 배포된다(n<i>.mp3 186개). stage 가 있으면 그쪽을 먼저 쓰고
+       (원본 wav 라 한 번 덜 상한다), 없으면 저장소 mp3 를 쓴다. 둘 다 없을 때만 빈다. */
+  {
     const ff = {};
-    for (const f of fs.readdirSync(STAGE)) { const m = /^audio_(\d+)_/.exec(f); if (m) ff[+m[1]] = f; }
-    for (const [i, f] of Object.entries(ff)) enc(path.join(STAGE, f), 'n' + i, A_NEW, KBPS);
+    if (fs.existsSync(STAGE))
+      for (const f of fs.readdirSync(STAGE)) { const m = /^audio_(\d+)_/.exec(f); if (m) ff[+m[1]] = path.join(STAGE, f); }
+    for (const i of toneNums()) if (!ff[i]) ff[i] = path.join(TONE_DIR, `n${i}.mp3`);
+    for (const [i, f] of Object.entries(ff)) enc(f, 'n' + i, A_NEW, KBPS);
     /* [USE_EXISTING] 입장 자리는 기존에서 잘라 온 것으로 덮는다 */
-    let cut = 0;
+    let cut = 0; const keep = [];
     NEWC.forEach((c) => { const from = EXFROM(c.slug); if (!from) return;
       c.idx.forEach((i) => { if (sents[i] !== USE_EXISTING) return;
         const o = path.join(tmp, `ex_${i}.mp3`);
         const r = spawnSync('node', [path.join(ROOT, 'scripts/extract-existing-sent.mjs'),
           '--clip', from, '--sent', USE_EXISTING, '--out', o], { encoding: 'utf8' });
-        if (r.status !== 0 || !fs.existsSync(o)) { no(`기존 소리 잘라내기 실패: ${c.slug}`); return; }
+        if (r.status !== 0 || !fs.existsSync(o)) { keep.push(c.slug + '#' + i); return; }
         A_NEW['n' + i] = fs.readFileSync(o).toString('base64'); cut++; }); });
     if (cut) console.log(`  [USE_EXISTING] 입장 ${cut}자리에 기존 녹음을 잘라 심었다`);
+    /* ★★[USE_EXISTING_CUT_FAIL 2026-09-14] 잘라내기가 거절한 자리를 «판 못 만듦»으로 삼지 않는다.
+       ★extract-existing-sent 는 문장 경계가 헷갈리면 **일부러 안 자른다**
+         (실측 05_entry-A: 「경계와 아닌 것이 너무 비슷하다 0.637 vs 0.650」). 그 거절은 옳다 —
+         헷갈린 채 자르면 말이 잘린 소리를 실청판에 싣게 된다.
+       ★여태 이 자리가 안 보였던 이유: 이 블록 전체가 `_dub_stage 가 있을 때만` 돌았고,
+         그 폴더는 .gitignore 라 대개 없다. 즉 «실패한 적이 없는 게» 아니라 «돈 적이 없다».
+       ★그래서 실패한 자리는 저장소의 assets/audio/tone/n<i>.mp3 를 그대로 쓴다 —
+         그것이 --web 판이 여태 들려주던 바로 그 소리다. 두 판이 같은 소리를 내는 것이 맞다.
+       ★조용히 넘기지 않는다. 몇 자리가 왜 그렇게 됐는지 **찍는다** — 안 찍으면
+         「기존 녹음을 쓴다」는 결정이 지켜졌는지 아무도 다시 못 묻는다. */
+    if (keep.length) console.log(`  [USE_EXISTING_CUT_FAIL] 잘라내기가 거절한 ${keep.length}자리는 `
+      + `저장소 어조 소리를 그대로 씁니다(= --web 판과 같은 소리): ${keep.join(' · ')}`);
   }
   fs.rmSync(tmp, { recursive: true, force: true });
   const mb = (Object.values(A_OLD).join('').length + Object.values(A_NEW).join('').length) / 1048576;
@@ -378,7 +414,7 @@ ${/* ★★[SAY_WHICH_BOARD 2026-09-05 사장님 화면] 이 칸이 «세상은 
 <div id="list"></div>
 
 <div id="outWrap" class="hide" style="margin-top:18px">
-  <p class="sub" style="margin:0 0 6px">타입캐스트에 통째로 붙여넣으세요. 받은 wav 는 폴더째 주시면 됩니다.</p>
+  <p class="sub" style="margin:0 0 6px" id="outNote">타입캐스트에 통째로 붙여넣으세요. 받은 wav 는 폴더째 주시면 됩니다.</p>
   <textarea id="out" readonly></textarea>
 </div>
 </div>
@@ -750,6 +786,7 @@ $('mkOut').onclick = function () {
     out.push(s.v + ': ' + s.t);
     out.push('# 왜 다시: ' + (W['n' + s.i] || '(이유 없음)')); }); });   /* [LISTEN_WHY] */
   $('outWrap').className = out.length ? '' : 'hide';
+  $('outNote').textContent = '타입캐스트에 통째로 붙여넣으세요. 받은 wav 는 폴더째 주시면 됩니다.';   /* [OUT_NOTE] */
   $('out').value = out.join('\\n') + (out.length ? '\\n' : '');
   if (!out.length) alert('「다시」로 표시한 문장이 없습니다.'); else $('outWrap').scrollIntoView({ behavior: 'smooth' });
 };
@@ -787,9 +824,16 @@ $('handoff').onclick = async function () {
   var url = await handoffLink(), n = 0;
   ORD().forEach(function (k) { if (V[k]) n++; });
   var code = url.split('#h=')[1] || '';
-  var box = $('out');
-  if (box) { box.value = url + '\\n\\n── 이어받기 코드 (링크가 잘리면 이 글을 옮기세요) ──\\n' + code;
-    box.scrollIntoView({ block: 'center' }); }
+  /* ★★[SHOW_THE_LINK 2026-09-05 사장님 «링크가안나오는데?»] 값만 넣고 **칸을 안 열었다.**
+     «#outWrap» 은 기본이 «hide» 다(재더빙 대본이 있을 때만 열리는 칸이었다).
+     그래서 «복사했습니다»라고 말해 놓고 화면엔 아무것도 안 나타난다 — 복사가 막힌 기기에서는
+     주소를 볼 길이 통째로 없어진다. 남의 칸을 빌려 쓰면서 그 칸의 규칙을 안 본 것이다.
+     ★칸 설명도 함께 갈아 끼운다 — 「타입캐스트에 붙여넣으세요」는 링크에 대고 하는 말이 아니다. */
+  var box = $('out'), wrap = $('outWrap');
+  if (box) { box.value = url + '\\n\\n── 이어받기 코드 (링크가 잘리면 이 글만 옮기세요) ──\\n' + code;
+    if (wrap) wrap.className = '';
+    $('outNote').textContent = '이어받기 주소입니다. 자기 자신에게 카톡·메모로 보내고, 다른 기기에서 그 링크를 여세요.';
+    if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
   /* ★[HANDOFF_LONG 2026-08-30 실측] 전부 판정 + 이유를 다 적으면 주소가 16,339자까지 간다.
      사파리 주소창은 견디지만 메신저가 링크를 잘라 보낼 수 있다 — 잘리면 «읽지 못했습니다»로 뜬다.
      막지 않는다. 대신 길면 길다고 **먼저** 말한다. 잘린 뒤에 알면 다시 만들어야 한다. */

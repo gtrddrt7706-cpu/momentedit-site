@@ -20,6 +20,7 @@
 //   castLive 는 사람 구간 안에서 따로 흐르는 예시라 이 대조에서 뺀다(화면 글과 짝이 아니다)
 
 import fs from 'node:fs';
+import { recClips } from './recorded-read.mjs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 
@@ -64,7 +65,8 @@ try {
   for (const d of dirs) {
     const RECF = path.join(root, d, '_recorded.json');
     if (!fs.existsSync(RECF)) { console.error(`✗ ${d}/_recorded.json 이 없다 — 실녹음 기록 없이 대조할 수 없다(RECORDED_TRUTH)`); process.exit(1); }
-    const rec = JSON.parse(fs.readFileSync(RECF, 'utf8')).clips || {};
+    /* [REC_READ] 값이 문자열일 수도 {text,voice} 객체일 수도 있다 — 읽는 자를 하나로 둔다 */
+    const rec = recClips(path.join(root, d));
     for (const [key, e] of SAY) {
       if (!key.startsWith(d + '|')) continue;
       const k = key.slice(d.length + 1);
@@ -280,7 +282,13 @@ if (process.argv.includes('--redub')) {
     : `   (화면 자리 ${badSlugs.length}곳 · 한 자리에 녹음이 둘인 곳이 있습니다 [REDUB_TWIN])`;
   const lines = [
     '# 재더빙 · 나레이션 리드 보강 (2026-08-07)',
-    '# 아래를 타입캐스트에 그대로 붙여넣고, 나온 wav 를 한 폴더에 모아 주세요.',
+    /* ★[PASTE_WRONG_FILE 2026-09-06 사장님 실물] 이 줄이 «이 파일을 붙여넣으라»고 말해서
+       사장님이 실제로 이 파일을 타입캐스트에 넣었다. 그런데 여기엔 주석(#)과 클립 제목([44] …)이
+       섞여 있어 그것까지 대사로 읽혔다. 붙여넣기 전용 파일이 나중에 생겼는데 이 안내가 안 따라왔다.
+       ★파일이 자기 쓰임을 잘못 말하면 사람은 그대로 한다. 안내를 파일에 맞춘다. */
+    '# ★이 파일은 «읽는 용도»입니다 — 클립별로 묶어 톤을 함께 보라고 만든 것입니다.',
+    '# ★타입캐스트에 붙여넣을 것은 재더빙_붙여넣기.txt 입니다 (문장만 · 주석·제목 없음).',
+    '#   이 파일을 붙여넣으면 주석과 [클립 제목]까지 대사로 읽힙니다.',
     '# 목소리는 클립마다 다릅니다 — 줄 앞의 이름 그대로 배정하세요 [REDUB_VOICE].',
     '# ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가',
     '#   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.',

@@ -90,7 +90,12 @@ html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }
   "description": "Moment Edit 프라이빗 웨딩 스튜디오의 디지털 참석 서비스. 비공개 URL 접속과 사후 다시보기 기능 제공."
 }
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Sans+KR:wght@200;300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- ★★[FONT_ASYNC 2026-09-12] 동기 <link> 였다. 폰트 요청이 «실패»가 아니라 «무응답»이 되면
+     그 뒤 인라인 스크립트가 통째로 안 돌아간다(실측: 18초 뒤에도 readyState=loading · 화면은 백지).
+     예식장 캡티브 포털·지하 4G·하객 동시 접속은 즉시 실패가 아니라 «무응답»으로 나타난다.
+     ★order-preview.html·index.html 이 이미 쓰는 패턴이다 — media=print → onload 로 렌더 블로킹에서 뺀다.
+     ★브랜드 세리프는 그대로다. 로드 «시점»만 바꿨다. 폰트가 아예 안 와도 화면은 읽힌다. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Sans+KR:wght@200;300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Sans+KR:wght@200;300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
@@ -1584,6 +1589,19 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 
   <!-- [LIVE_LINK_UNKNOWN] 서버가 '그런 예식 없다'고 답했을 때만 뜬다(body.link-unknown).
        스타일은 프리뷰 안내(.lp-message-box)를 그대로 재사용 — 새 컴포넌트를 만들지 않는다. -->
+  <!-- ★★[LIVE_NOT_LOADED 2026-09-12] 서버에 «닿지 못한» 경우. 위 link-unknown 과 다른 상태다.
+       서버가 「그런 예식 없다」고 답한 것이 아니라 답을 아예 못 받은 것이라, 「링크가 틀렸다」고 말하면 거짓말이다.
+       ★왜 새로 만들었나 — 이 경우 화면이 «정적 더미 부부»를 그대로 드러내고 있었다.
+         SEO JUN & HA YOON · 2027·12·17 그리고 «계좌번호 두 개»까지. 하객이 그 계좌로 축의를 보낼 수 있었다.
+         이 파일 자신이 [DEMO_BADGE] 주석에 「하객이 표본 계좌로 축의금을 보낼 수 있다」고 적어 뒀는데,
+         그 경고는 test-couple 분기에만 붙어 있었고 네트워크 실패 분기는 그 옆을 지나갔다.
+       ★폴링이 이어받아 복구하면 이 안내는 저절로 사라진다(아래 setNotLoaded(false)). -->
+  <div class="lp-message-box live-notloaded-box" role="status" hidden>
+    <div class="lp-message-mark">WAIT</div>
+    <div class="lp-message-title">예식 정보를<br class="mobile-br"> 아직 불러오지 못했습니다</div>
+    <div class="lp-message-desc">연결이 불안정한 것 같습니다. 이 화면은 계속 다시 시도하고 있으니<br class="mobile-br"> 잠시만 두시면 자동으로 이어집니다.</div>
+  </div>
+
   <div class="lp-message-box link-unknown-box" role="status" hidden>
     <div class="lp-message-mark">LINK</div>
     <div class="lp-message-title">이 링크로는<br class="mobile-br"> 예식을 찾을 수 없습니다</div>
@@ -2131,6 +2149,12 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     const box = document.querySelector('.link-unknown-box');
     if (box) box.hidden = !on;
   }
+  /* ★[LIVE_NOT_LOADED] 서버에 닿지 못한 상태. link-unknown 과 «다른 말»을 해야 해서 따로 둔다. */
+  function setNotLoaded(on){
+    document.body.classList.toggle('live-notloaded', on);
+    const box = document.querySelector('.live-notloaded-box');
+    if (box) box.hidden = !on;
+  }
 
   // 캐시 우선: 같은 부부 재방문은 즉시 렌더. 그 뒤 백그라운드로 최신값 갱신.
   if (!forceFresh) {
@@ -2184,6 +2208,9 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     attachVimeoPlayer(data.couple.vimeoId, data.couple.vimeoHash);
   } catch (err) {
     console.error('[Live] Failed to load couple info:', err);
+    /* ★[LIVE_NOT_LOADED 2026-09-12] 여기서 아무것도 안 하면 아래 finally 가 «정적 더미»를 공개한다.
+       캐시로 이미 그린 하객(infoApplied)은 건드리지 않는다 — 멀쩡한 화면을 지우면 안 된다. */
+    if (!infoApplied) setNotLoaded(true);
   } finally {
     if (!rendered) {
       clearTimeout(failsafeTimer);
@@ -2206,7 +2233,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
         const d = await r.json();
         if (d.ok && d.couple) {
           // 초기 fetch가 실패했던 하객도 폴링 성공 시 부부 정보 채움(더미 방지)
-          if (!infoApplied) { applyCoupleInfo(d.couple); infoApplied = true; setLinkUnknown(false); }
+          if (!infoApplied) { applyCoupleInfo(d.couple); infoApplied = true; setLinkUnknown(false); setNotLoaded(false); }
           if (d.couple.vimeoId) {
             try { localStorage.setItem(cacheKey, JSON.stringify(d.couple)); } catch (_) {}
             attachVimeoPlayer(d.couple.vimeoId, d.couple.vimeoHash);
@@ -2819,6 +2846,20 @@ body.link-unknown .hero-divider,
 body.link-unknown #live,
 body.link-unknown #letter,
 body.link-unknown #envelope{display:none}
+/* ★[LIVE_NOT_LOADED] 못 불러왔을 때도 같은 것을 감춘다. 감추는 이유는 하나 더 있다 —
+   #envelope 안에 «표본 계좌»가 들어 있다. 누구 예식인지 모르는 화면에 계좌가 떠 있으면 안 된다. */
+body.live-notloaded .couple,
+body.live-notloaded .event-meta,
+body.live-notloaded .hero-note,
+body.live-notloaded .hero-scroll,
+body.live-notloaded .on-air,
+body.live-notloaded .hero-edition,
+body.live-notloaded .hero-divider,
+body.live-notloaded #live,
+body.live-notloaded #letter,
+body.live-notloaded #envelope{display:none}
+.live-notloaded-box{max-width:340px}
+.live-notloaded-box[hidden]{display:none}
 /* ★처음엔 divider를 opacity:0으로 뒀는데 자리를 그대로 차지해 안내문 위가 텅 빈 띠가 됐다.
    Ed.№01 에디션 라벨도 함께 숨긴다 — 어느 예식인지 모르는 화면에 특정 예식의 번호는 거짓말이다. */
 .link-unknown-box{max-width:340px}

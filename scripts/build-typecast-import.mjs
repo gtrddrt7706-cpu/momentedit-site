@@ -42,12 +42,23 @@ const OUT = path.join(root, 'docs/plans/식순연구/타입캐스트');
 //     (보이스찾기/3_진행_결승.txt · 블록 30줄로 지구력, 교대 6줄로 성혼 선언을 붙여 비교).
 //     38/51클립을 이 목소리가 끌고 간다. 바꾸려면 여기 한 줄이지만, 바꾸는 순간 예식 전체가 바뀐다.
 //     (2026-08-03 베일 폐지로 41/54 → 38/51 · 진행 3클립이 빠졌다)
-//   ★'잔희' 는 형님이 적어 준 표기 그대로다. 2026 설 무료 30종에 '진희' 가 있어 오타일 수 있다.
-//     타입캐스트에서 자동 배정이 안 되면 이 줄을 '진희' 로 고쳐 다시 돌리면 된다.
+//   ★★[VOICE_JINHEE 2026-09-06 사장님 확정] '잔희' → '진희'. 오타가 맞았다.
+//     사장님 원문: *"아 그리고 잔희가 아니라 진희야"*
+//     이 파일이 오래전에 의심하고 적어 둔 그대로다 — 「2026 설 무료 30종에 '진희' 가 있어
+//     오타일 수 있다 · 자동 배정이 안 되면 이 줄을 고쳐 다시 돌리면 된다」.
+//     ★되돌리지 말 것. '잔희' 로 뽑으면 타입캐스트가 그 화자를 자동 배정하지 못하고,
+//       배정 화면까지 가서야 드러나 다섯 파트를 다시 붙여넣게 된다.
 const DEFAULT_VOICE = {
   진행: '우성',
-  안내: '잔희',
-  편지: '김호인',
+  안내: '진희',
+  // ★★[VOICE_LETTER_NARR 2026-09-13 사장님 「어른께드리는편지 부분 우성으로 바꾸고」]
+  //   편지(43_parents-letter · 39문장) 김호인 → 우성.
+  //   ★이미 김호인으로 받은 mp3 가 있다 — 39줄을 다시 받아야 한다. 사장님 상시 지시대로
+  //     «이미 녹음한 것에 제약을 두지 않고» 결과물 기준으로 바꾼다.
+  //   ★이 편지는 스튜디오가 «두 분 어른께» 직접 드리는 글이다(parents.html 본문).
+  //     진행 나레이터와 같은 목소리면 「우리가 드리는 말」로 한 사람이 일관되게 말한다.
+  //     F0 실측 김호인 140 → 우성 151Hz.
+  편지: '우성',
   // ★[VOICE_GROOM_2 2026-08-21] 신랑 이준 → 이겸 (사용자 선택)
   //   시험 녹음 실측 — F0 중앙값 이준 116.8Hz → 이겸 133.3Hz(+16.5Hz). 바뀐 것이 소리에서 재진다.
   //   ★신랑 자리는 26줄 + 서약 합창 재료 2클립이 걸려 있다. 여기를 늦게 바꾸면
@@ -61,7 +72,31 @@ const DEFAULT_VOICE = {
   //   시험 녹음을 실측해 바뀐 것을 확인했다 — F0 중앙값 영목 128.0Hz → 규민 144.1Hz(+16.1Hz).
   //   ★이름만 바꾸고 넘어가지 않는다: 같은 이름을 적어 놓고 옛 소리가 남는 날을 막으려면
   //     바뀌었다는 사실이 소리에서 재져야 한다. 조립 뒤 clip-voice-id.py 가 다시 잰다.
+  //   ★★[VOICE_GAP 2026-09-12 사장님 "성우 목소리겹치는거 다르게"] 이 교체가 «다른 규칙을 깼다».
+  //     바뀐 폭(+16.1Hz)은 쟀는데 «어느 쪽으로» 갔는지를 안 쟀다.
+  //       영목 128 → 우성(진행) 151 과 23Hz 벌어져 있었다
+  //       규민 148 → 우성 151 과 «2.8Hz». 사실상 같은 목소리다
+  //     그런데 더빙_타입캐스트_보이스_추천.md 가 바로 그것을 금지해 뒀다:
+  //       「진행과 하객대표가 같으면 축배가 나레이션처럼 들린다 — 축배는 "진행이 잠깐 멈추고
+  //        하객 쪽에서 소리가 나는" 낙차가 전부다」
+  //     축배 앞뒤가 진행 나레이션이라 미리듣기에서 「진행자가 계속 말하네」로 들린다.
+  //   ★★그래서 규칙을 하나 더 박는다 — 성우를 갈아 끼울 때는 «바뀐 폭»이 아니라
+  //     «다른 일곱과의 거리»를 잰다. node scripts/audit/voice-gap.js 가 그 표를 찍는다.
+  //     merge-guard 가 매번 돌리고, 붙은 쌍이 늘면 빨개진다.
+  //   ★교체 후보는 문서에 이미 있다 — 하객대표 1순위 «세진»(20~30대로 오인 = 이 자리엔 장점).
+  //     지금 규민(148)보다 높으면 우성과 벌어진다. 다만 실제 F0 는 «받아서 재 봐야» 안다.
   하객대표: '규민',
+  // ★★[VOICE_STEPMOM 2026-09-14 사장님 「시어머니성우 임의로넣어」] 시어머님 = 정숙.
+  //   ★왜 «다른» 사람이어야 하나 — 어머님(13_bless-mother)과 시어머님(27_tribute-reply)이
+  //     324조합 중 27조합에서 «둘 다» 나간다(실측). 같은 목소리면 두 어른이 한 사람이 된다.
+  //   ★왜 정숙인가 — 조사 문서(더빙_타입캐스트_보이스_추천.md §2-B 7행)가 이미 검토해 둔 중년 여성이고,
+  //     어머님 1순위였다가 주하에게 자리를 내준 후보다. 밈 리스크 스크리닝을 통과했다(연화는 영구 탈락).
+  //     공식 설명 「말투는 단단하지만 정이 느껴지는」 — 시어머님 대사가 울지 않고 관찰만 전하는 말이라 맞다.
+  //   ★★내가 «고르지 못한» 것 하나 — 이 환경은 소리를 듣지 못한다. 정숙은 지금까지 확인된
+  //     여덟 이름(우성·진희·김호인·이겸·서진·권일·주하·규민) 밖이다.
+  //     0_보이스확인.txt 를 한 번 붙여넣어 그 이름이 실제로 잡히는지 사장님이 확인하셔야 한다(크레딧 0).
+  //     안 잡히면 여기만 고치고 다시 뽑으면 된다 — 생성물은 전부 이 한 줄에서 나온다.
+  시어머님: '정숙',
 };
 
 const VOICE = { ...DEFAULT_VOICE };
@@ -224,8 +259,15 @@ const clips = parse(SRC);
               ★두 클립 다 «사진 링크를 넣은 두 분에게만» 나간다(S.photoShare) — 04·45 «안»에
                 문장을 더하지 않고 별도 클립으로 뺀 이유가 그것이다. 안에 넣으면 링크 없는
                 두 분에게도 나가거나, 04·45 를 두 벌로 만들어야 한다.
-              ★번호는 맨 끝(84·85) — 중간에 끼우면 이미 녹음된 83개가 전부 개명된다. */
-const CLIP_COUNT = 84;
+              ★번호는 맨 끝(84·85) — 중간에 끼우면 이미 녹음된 83개가 전부 개명된다.
+              84 → 85 [ROUND_MID 2026-09-12] 인사 사진 «가운데» 안내 1개.
+              흐름을 시간축으로 펼쳐 재 보니(scripts/audit/flow-shape.js) 그 구간의 라이브가
+              1020초(17분)인데 그동안 스피커에서 한 마디도 안 나갔다 — 하루에서 사람의 시간이
+              가장 긴 자리다. 저장소가 이미 그 원리를 적어 뒀는데(narr-photo-split note 의
+              「순번을 알려 주면 이탈이 준다 · 하버드」) 4분 구간에만 쓰고 17분 구간엔 안 썼다.
+              ★번호는 맨 끝(86) — 중간에 끼우면 이미 녹음된 85개가 전부 개명된다.
+              ★디렉터가 골라 트는 자리다(NARR_CONSOLE_ONLY) — 「절반」이 몇 분인지는 그날 달라진다. */
+const CLIP_COUNT = 85;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
@@ -250,7 +292,14 @@ const castAll = fs.existsSync(CAST) ? parse(CAST) : [];
 // [TEXT_AUDIO 2026-08-04] 입장이 1클립 → 6클립(A~F)으로 벌어져 17 → 22.
 //   화면이 느낌 6종을 보여 주는데 소리가 하나뿐이면, 고르는 일이 아무 소리도 바꾸지 못한다.
 // [VOW_CHORUS 2026-08-04] 서약 마지막 한 문장 합창 3클립(재료 2 + 합성 1)이 붙어 22 → 25.
-if (castAll.length && castAll.length !== 25) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 25)`); process.exit(1); }
+/* ★[CAST_COUNT] 배역 클립 수도 손으로 적는다 — CLIP_COUNT 와 같은 이유다(위 주석).
+     25 → 26 [GROOM_PARENT 2026-09-12] 신랑 부모가 헌정을 «받기만» 하고 말이 한 마디도 없었다.
+              사장님 결정 ④ *"신랑부모가 줄수잇는 감동포인트가 잇다면 양쪽 다 준비해서
+              감정이배가될수잇는쪽으로 기획 구현"*. 덕담을 하나 더 주면 정점이 넷으로 쪼개지므로
+              (PEAK_ONE) «받는 자리»인 헌정에서 네 줄만 답하게 했다 — 27_tribute-reply.
+              ★번호는 맨 끝(27) — 중간에 끼우면 이미 녹음된 26개가 전부 개명된다. */
+const CAST_COUNT = 26;
+if (castAll.length && castAll.length !== CAST_COUNT) { console.error(`✗ 배역 클립 수 불일치: ${castAll.length} (기대 ${CAST_COUNT})`); process.exit(1); }
 // 배역은 라벨 첫 칸이 화자다 — `신랑 · 식전 안내 · 도착` → 화자 `신랑`
 for (const c of castAll) {
   const seg = c.label.split('·').map((s) => s.trim());
@@ -330,6 +379,18 @@ for (const P of PARTS) {
       // 혼주 편지 소제목(하나~넷) 앞뒤 — 없으면 3분짜리 편지의 구조가 귀에 안 들린다
       // (원 1.5 → 1차 1.1 → 2차 0.55 · 가장자리 무음을 깎아 냈으므로 이 숫자가 곧 들리는 초다)
       if (c.id === 'G10' && /^(하나|둘|셋|넷),\s/.test(s.text)) { before = FINE.head4[0]; if (!last) after = FINE.head4[1]; }
+      /* ★★[ENTRY_HOLD 2026-09-09] 「신랑 신부, 입장!」 앞에 1.2초를 둔다.
+         사장님: *"신랑신부 조금 쉬다가 입장하는 게 좋을 것 같아. 너무 바로 입장 아니깐 어색해 긴장도 없고"*
+         고칠 것이 글이 아니라 «간격»이었다 — 「입장!」 앞의 정적이 긴장을 만든다.
+         ★소리를 다시 받을 필요는 없다. 조립기가 이 값으로 무음을 넣으므로 다시 붙이기만 하면 된다. */
+      if (/^entry-[A-F]$/.test(c.file) && s.text === '신랑 신부, 입장!') before = 1.2;
+      /* ★★[ASK_DEMO_GAP 2026-09-12] 「네, 그러겠습니다.」는 나레이터가 하객의 답을 «시연»하는 줄이다.
+         앞뒤에 0.5초씩 무음을 둔다 — 앞 무음이 「여기부터는 내 말이 아니라 여러분이 할 말」이라는
+         신호가 되고, 뒤 무음이 하객이 따라 할 자리를 연다. 붙어 있으면 안내문의 일부로 흘러가 버린다.
+         ★이 편집 지시는 build-dubbing-script.mjs 의 W2-b note 에 처음부터 적혀 있었는데
+           조립기에 반영된 적이 없었다. 값으로 박아 두면 다시 잊히지 않는다.
+         ★소리를 다시 받을 필요는 없다 — 조립기가 이 값으로 무음을 넣는다. */
+      if (c.file === 'declare-ask-b' && s.text === '네, 그러겠습니다.') { before = 0.5; after = 0.5; }
       // 문단 경계는 한 박 더 쉰다
       // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }
@@ -438,9 +499,42 @@ for (const P of PARTS) {
 
   // ★중복 배정 검사 — 8자리 = 8개 다른 목소리. 특히 진행(41클립)과 편지·하객대표가 겹치면
   //   편지가 진행의 연장으로 들리고, 축배는 낭독처럼 들린다. 낙차가 전부인 자리들이다.
+  //
+  // ★★[SAME_ROOM 2026-09-13] 그 «낙차»는 하객이 «둘을 이어 들을 때»만 생긴다.
+  //   이 검사는 그 조건을 안 보고 모든 역할을 한 덩어리로 묶었다. 그래서 예식에서 아예
+  //   안 나가는 역할까지 막았다 — 실측: 43_parents-letter 는 324조합 «전부»에서 큐에 없다.
+  //   그 편지는 parents.html 에서 어른 혼자 들으시는 글이라, 진행 나레이션과 이어 들을 자리가 없다.
+  //   ★검사를 약하게 하는 것이 아니다. 재는 대상을 «실제로 이어 듣는 역할»로 좁혀 정확하게 만든다.
+  //     예식에 나가는 역할끼리 겹치면 종전대로 막는다(하객대표·신랑·신부·아버님·어머님·안내·진행).
+  //   ★[CANT_LOOK] 큐 엔진을 못 읽으면 좁히지 않는다 — «못 쟀다»를 «괜찮다»로 바꾸지 않는다.
+  let inRoom = null;
+  try {
+    const req_ = createRequire(import.meta.url);
+    const RCq = req_(path.join(root, 'assets/ritual-cue.js'));
+    const STq = req_(path.join(root, 'assets/ritual-story.js'));
+    const files = new Set();
+    for (const course of ['gamdong', 'family', 'damback', 'record', 'minimal', 'festive'])
+      for (const letter of ['parent', 'each', 'both'])
+        for (const bless of ['on', 'off'])
+          for (const tribute of ['flower', 'bow', 'hug'])
+            for (const toast of ['toast', 'cake', 'both']) {
+              let cues; try { cues = RCq.build({ course, letter, bless, tribute, toast }, { mode: 'console' }).cues; } catch { continue; }
+              for (const q of cues) {
+                if (q.file) files.add(q.file);
+                for (const id of (STq.castIds(q).live || [])) if (id) files.add(String(id).replace(/^\d+_/, ''));
+              }
+            }
+    if (files.size) {
+      inRoom = new Set();
+      for (const c of manifest.clips) if (files.has(c.file)) for (const r of String(c.role).split('|')) inRoom.add(r);
+    }
+  } catch { /* [CANT_LOOK] 못 읽으면 inRoom 을 null 로 두어 종전대로 전부 본다 */ }
+
   const byVoice = {};
   for (const [role, v] of Object.entries(VOICE)) (byVoice[v] ||= []).push(role);
-  const dup = Object.entries(byVoice).filter(([, rs]) => rs.length > 1);
+  const dup = Object.entries(byVoice)
+    .map(([v, rs]) => [v, inRoom ? rs.filter((r) => inRoom.has(r)) : rs, rs])
+    .filter(([, rs]) => rs.length > 1);
   if (dup.length) {
     console.error(`\n✗ 한 목소리가 여러 자리에 배정돼 있습니다 — 같은 사람이 계속 말하는 예식이 됩니다.`);
     for (const [v, rs] of dup) console.error(`   '${v}' → ${rs.join(' · ')}`);
@@ -471,9 +565,19 @@ for (const [role, name] of Object.entries(VOICE)) {
   probe.push({ role, name, text: sorted[Math.floor((sorted.length - 1) * 0.6)] });
 }
 {
-  const want = Object.keys(VOICE).length;
+  /* ★★[PROBE_BY_VOICE 2026-09-13] 이 파일이 확인하는 것은 «역할»이 아니라 «목소리»다.
+     붙여넣어 「그 이름이 타입캐스트에서 잡히나」만 보는 판이라, 한 목소리가 두 역할을 맡으면
+     줄이 둘이어도 확인되는 것은 하나다. 그래서 목소리 기준으로 한 줄씩 만든다.
+     ★[VOICE_LETTER_NARR] 로 우성이 진행·편지 둘을 맡으면서 드러났다 — 종전 판은 역할 수로 세어
+       「같은 이름이 두 번」이라며 멎었다. 검사가 틀린 것이 아니라 «세는 단위»가 역할이었다.
+     ★아래 두 검사는 그대로 둔다 — 목소리 수만큼 줄이 있어야 하고, 이름이 겹치면 안 된다. */
+  const seenName = new Set();
+  for (let i = probe.length - 1; i >= 0; i--) {
+    if (seenName.has(probe[i].name)) probe.splice(i, 1); else seenName.add(probe[i].name);
+  }
+  const want = new Set(Object.values(VOICE)).size;
   if (probe.length !== want) {
-    console.error(`\n✗ 보이스 확인 파일이 ${probe.length}줄입니다 — ${want}자리를 다 확인할 수 없습니다.`);
+    console.error(`\n✗ 보이스 확인 파일이 ${probe.length}줄입니다 — 목소리 ${want}개를 다 확인할 수 없습니다.`);
     process.exit(1);
   }
   const names = probe.map((x) => x.name);

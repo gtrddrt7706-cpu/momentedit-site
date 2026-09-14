@@ -14,7 +14,12 @@
 <meta name="apple-mobile-web-app-title" content="Moment Edit · 관리자">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- ★★[FONT_ASYNC 2026-09-12] 동기 <link> 였다. 폰트 요청이 «실패»가 아니라 «무응답»이 되면
+     그 뒤 인라인 스크립트가 통째로 안 돌아간다(실측: 18초 뒤에도 readyState=loading · 화면은 백지).
+     예식장 캡티브 포털·지하 4G·하객 동시 접속은 즉시 실패가 아니라 «무응답»으로 나타난다.
+     ★order-preview.html·index.html 이 이미 쓰는 패턴이다 — media=print → onload 로 렌더 블로킹에서 뺀다.
+     ★브랜드 세리프는 그대로다. 로드 «시점»만 바꿨다. 폰트가 아예 안 와도 화면은 읽힌다. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 /* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
 html,body{scrollbar-width:none;-ms-overflow-style:none}

@@ -9,6 +9,7 @@
 // 코드 세션 지적). text-audio 는 통과했다 — 유령은 조회되지 않으니 조용했다.
 // 조용한 거짓말이라 검사를 따로 둔다.
 import fs from 'node:fs';
+import { recClips } from './recorded-read.mjs';
 import path from 'node:path';
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 let bad = 0;
@@ -16,7 +17,7 @@ for (const dir of ['assets/audio/narration', 'assets/audio/cast']) {
   const d = path.join(root, dir), f = path.join(d, '_recorded.json');
   if (!fs.existsSync(f)) { console.error(`✗ ${dir}/_recorded.json 이 없습니다 — 녹음된 글의 원천입니다`); bad++; continue; }
   let rec;
-  try { rec = JSON.parse(fs.readFileSync(f, 'utf8')).clips || {}; }
+  try { rec = recClips(path.dirname(f)); }
   catch (e) { console.error(`✗ ${dir}/_recorded.json 을 읽지 못했습니다 — ${e.message}`); bad++; continue; }
   const mp3 = new Set(fs.readdirSync(d).filter((x) => x.endsWith('.mp3')).map((x) => x.slice(0, -4)));
   const ghost = Object.keys(rec).filter((k) => !mp3.has(k));
