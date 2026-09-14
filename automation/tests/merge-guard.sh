@@ -7002,7 +7002,7 @@ chk 'LETTER_MIRROR' scripts/audit/letter-mirror.mjs 3
 #   ★[SRC_STALE] 그때 글을 함께 적어 둔다. 대장과 다르면 «낡은» 자리이고, 깔기를 거부한다 —
 #     적어 두지 않으면 옛 소리를 새 글의 자리에 조용히 끼운다. 가장 나쁜 실패다.
 chk 'SENT_LIB' scripts/sent-lib.mjs 1
-chk 'SLOT_NAME' scripts/sent-lib.mjs 2
+chk 'SLOT_NAME' scripts/sent-lib.mjs 1
 chk 'FLAC_HALF' scripts/sent-lib.mjs 2
 chk 'SRC_STALE' scripts/sent-lib.mjs 2
 chk 'SENT_LIB_CHECK' scripts/audit/sent-lib-check.mjs 2
@@ -7013,8 +7013,8 @@ chk 'SENT_LIB_CHECK' scripts/audit/sent-lib-check.mjs 2
 #     타입캐스트가 호흡을 위해 공백을 더 넣거나 사장님이 그 화면에서 손보신다. 소리는 같은데 이름만 다르다.
 #     밑줄로 바꾸면 그 차이가 남아 «안 맞는다»가 되고, 실제로 15줄이 그렇게 빠졌다.
 #   ★그래도 «글이 진짜 다른» 줄은 끝까지 안 넣는다 — 다른 소리를 그 자리에 조용히 끼우는 것이 제일 나쁘다.
-chk 'BY_NAME' scripts/sent-lib.mjs 2
-chk 'FOLD_SPACE' scripts/sent-lib.mjs 2
+chk 'BY_NAME' scripts/sent-lib.mjs 1
+chk 'FOLD_SPACE' scripts/sent-lib.mjs 1
 # ★★[NAME_FALLBACK 2026-09-14] 번호로 먼저 보되, «그 줄만» 어긋나면 그 줄은 이름으로 찾는다.
 #   왜 — 목록 «가운데»에 한 줄이 끼면 그 뒤가 전부 한 칸씩 밀린다. 실제로 겪었다:
 #   「보건실」 한 줄이 [112]에 들어가자 그 뒤 정숙 4줄이 밀려 이름이 안 맞았고, 그냥 «안 넣은 것»이 됐다.
@@ -7022,6 +7022,14 @@ chk 'FOLD_SPACE' scripts/sent-lib.mjs 2
 #     문턱은 «많이 밀린 경우»만 잡고 «조금 밀린 경우»를 놓친다 — 줄마다 판단하면 둘 다 잡힌다.
 #   ★번호로 맞은 파일은 먼저 «찜»해 둔다. 안 그러면 두 줄이 한 파일을 가져간다.
 chk 'NAME_FALLBACK' scripts/sent-lib.mjs 2
+# ★★[REBIND 2026-09-14] 문장이 합쳐지거나 갈라지면 그 «뒤» 번호가 전부 한 칸씩 밀린다.
+#   소리는 멀쩡한데 자리 이름만 틀린 것이라, 다시 받을 일이 아니라 «다시 묶을» 일이다.
+#   실측: [NOT_RUDE] 로 두 문장을 하나로 합치자 43_parents-letter 16자리가 낡음이 됐는데
+#   그중 15는 소리가 그대로였다. 다시 받았으면 15줄을 헛녹음하실 뻔했다.
+#   ★한 클립 «안»에서만 · «글자까지 같은» 것끼리만 묶는다. 둘 중 하나라도 어기면 남의 소리가 들어온다.
+#   ★들고 있는 것을 «창고 대장»에서 훑는다 — 지금 자리 번호로 훑으면 문장이 줄었을 때
+#     옛 마지막 번호를 못 본다(첫 판이 그래서 #39 를 놓쳤다).
+chk 'REBIND' scripts/sent-lib.mjs 2
 # ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
 #   창고에 «없거나 낡은» 자리만 뽑아 붙여넣기 판을 만든다(--todo).
 #   ★이미 받은 자리를 다시 요구하지 않는다 — 그게 이 창고를 만든 이유다.

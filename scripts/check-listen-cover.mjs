@@ -25,6 +25,7 @@
 //
 // ★종료 코드 [CANT_LOOK] 0 통과 · 1 재서 틀림 · 2 재지 못함
 import fs from 'node:fs';
+import { recClips } from './recorded-read.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { engineCalls } from './lib/engine-calls.mjs';
@@ -125,7 +126,7 @@ if (dead.length) console.log(`· 화면에만 있고 엔진이 안 부르는 줄
   const REC = {};
   for (const d of ['assets/audio/narration', 'assets/audio/cast']) {
     const f = path.join(ROOT, d, '_recorded.json');
-    if (fs.existsSync(f)) Object.assign(REC, JSON.parse(fs.readFileSync(f, 'utf8')).clips || {});
+    if (fs.existsSync(f)) Object.assign(REC, recClips(path.dirname(f)));   // [REC_READ]
   }
   const norm = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, '');
   const drift = [], none = [];

@@ -319,7 +319,60 @@ function todo() {
   if (pend.length) console.log(`   ★성우 미정 ${pend.length}줄`);
 }
 
-if (has('--todo')) todo();
+/* ── 밀린 자리를 다시 묶기  [REBIND] ──────────────────────
+   문장이 합쳐지거나 갈라지면 그 «뒤» 번호가 전부 한 칸씩 밀린다.
+   소리는 멀쩡한데 자리 이름만 틀린 것이라, 다시 받을 일이 아니라 «다시 묶을» 일이다.
+   ★한 클립 «안»에서만, «글자까지 같은» 것끼리만 묶는다 — 그 둘을 어기면 남의 소리가 들어온다.
+   ★실제로 겪었다: [NOT_RUDE] 로 두 문장을 하나로 합치자 43_parents-letter 의 16자리가 낡음이 됐는데,
+     그중 15는 소리가 그대로였다. 다시 받았으면 15줄을 헛녹음하실 뻔했다. */
+function rebind() {
+  const j = loadIdx();
+  const byClip = new Map();
+  for (const s of slots) { if (!byClip.has(s.key)) byClip.set(s.key, []); byClip.get(s.key).push(s); }
+  let moved = 0; const left = [];
+  for (const [key, list] of byClip) {
+    /* 이 클립에 창고가 들고 있는 것 — ★«창고 대장»에서 훑는다. 지금 자리 번호로 훑으면
+       문장이 줄었을 때 «옛 마지막 번호»를 못 본다(첫 판이 그래서 #39 를 놓쳤고,
+       「모먼트에디트 올림.」이 다시 받아야 할 것으로 잘못 떴다). */
+    const held = [];
+    for (const [id, e] of Object.entries(j.slots)) {
+      if (id.split('#')[0] !== key) continue;
+      if (!fs.existsSync(fileOf(id))) continue;
+      held.push({ i: Number(id.split('#')[1]), text: e.text, voice: e.voice });
+    }
+    held.sort((a, b) => a.i - b.i);
+    if (!held.length) continue;
+    const wrong = list.filter((s) => { const e = j.slots[key + '#' + s.i]; return !e || e.text !== s.text; });
+    if (!wrong.length) continue;
+    /* 임시로 빼 두고(덮어쓰기 사고 방지) 글자로 다시 꽂는다 */
+    const tmp = fs.mkdtempSync('/tmp/rebind-');
+    for (const h of held) fs.copyFileSync(fileOf(key + '#' + h.i), path.join(tmp, h.i + '.flac'));
+    const used = new Set();
+    const neo = {};
+    for (const s of list) {
+      const h = held.find((x) => !used.has(x.i) && x.text === s.text);
+      if (!h) { left.push({ id: key + '#' + s.i, text: s.text }); continue; }
+      used.add(h.i);
+      neo[key + '#' + s.i] = { file: path.join(tmp, h.i + '.flac'), voice: h.voice, from: h.i };
+    }
+    /* 이 클립의 옛 기록·파일을 걷어내고 새로 쓴다 */
+    for (const h of held) { try { fs.unlinkSync(fileOf(key + '#' + h.i)); } catch {} delete j.slots[key + '#' + h.i]; }
+    for (const [id, v] of Object.entries(neo)) {
+      const out = fileOf(id); fs.mkdirSync(path.dirname(out), { recursive: true });
+      fs.copyFileSync(v.file, out);
+      const s = bySlot.get(id);
+      j.slots[id] = { text: s.text, voice: v.voice || VOICE[s.role] || null, when: new Date().toISOString().slice(0, 10) };
+      if (String(v.from) !== id.split('#')[1]) { moved++; console.log(`   ${key}#${v.from} → #${id.split('#')[1]}  「${s.text.slice(0, 30)}」`); }
+    }
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  saveIdx(j);
+  console.log(`\n[REBIND] 자리를 옮긴 소리 ${moved}개 · 그래도 빈 자리 ${left.length}개`);
+  for (const x of left) console.log(`   ★ ${x.id}  「${x.text}」  ← 이건 정말 다시 받아야 합니다`);
+}
+
+if (has('--rebind')) rebind();
+else if (has('--todo')) todo();
 else if (has('--import')) importFrom(arg('--import'));
 else if (has('--patch')) patch();
 else if (has('--stage')) stage();

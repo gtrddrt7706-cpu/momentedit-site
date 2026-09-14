@@ -147,7 +147,12 @@ function recordMixed(c, id, srcs) {
   const dir = path.join(root, c.dir || 'assets/audio/narration');
   const j = recRead(dir) || { _왜: '실제로 녹음된 글. manifest.json 은 「녹음하기로 한 글」이라 문안을 고치면 같이 바뀐다 — 그래서 둘을 대조하면 늘 같고, 소리만 옛말인 상태를 아무도 못 본다.', clips: {} };
   if (!j.clips) j.clips = {};
-  const said = srcs.map((s) => j.clips[s.id]);
+  /* ★★[REC_OBJ 2026-09-14] _recorded.json 의 값은 «문자열이거나 {text, voice} 객체»다.
+     [VOICE_CHANGED] 로 성우를 박으면서 객체 꼴이 생겼는데 여기가 문자열만 알아서
+     「재료가 서로 다른 글을 읽었다」며 "[object Object]" 를 찍고 26 을 안 적었다(내가 깨뜨렸다).
+     ★읽는 쪽은 «둘 다» 받아야 한다 — 다른 검사들은 이미 그렇게 하고 있었고 여기만 빠졌다. */
+  const textOf = (v) => (typeof v === 'string' ? v : v && v.text);
+  const said = srcs.map((s) => textOf(j.clips[s.id]));
   if (said.some((t) => !t)) {
     console.log(`   ★ ${id} 의 «무슨 말인지»를 못 적었습니다 — 재료 ${srcs.filter((s, i) => !said[i]).map((s) => s.id).join(' · ')} 가 _recorded.json 에 없습니다.`);
     console.log('     재료를 assemble-narration 으로 다시 조립하면 채워집니다. 그때까지 26 은 검사에서 옛말로 남습니다.'); warned++; return;
@@ -157,6 +162,7 @@ function recordMixed(c, id, srcs) {
     console.log(`   ★ ${id} 의 재료가 서로 다른 글을 읽었습니다 — 적지 않습니다(합쳐 적으면 26 이 무슨 말인지 알 수 없게 됩니다):`);
     srcs.forEach((s, i) => console.log(`     ${s.id}: "${said[i]}"`)); warned++; return;
   }
+  /* 합성 클립의 성우는 재료 둘이라 한 이름으로 못 적는다 — 글만 적고 voice 는 비운다. */
   j.clips[id] = uniq[0];
   j._언제 = `${STAMP} · build-chorus 가 ${id} 갱신`;
   const sorted = {};

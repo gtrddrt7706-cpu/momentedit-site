@@ -9,64 +9,13 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 126 | 33 |
-| 2_이겸.txt | 이겸 | 44 | 7 |
-| 3_서진.txt | 서진 | 43 | 8 |
-| 4_진희.txt | 진희 | 19 | 6 |
-| 5_주하.txt | 주하 | 17 | 1 |
-| 6_권일.txt | 권일 | 15 | 1 |
-| 7_규민.txt | 규민 | 7 | 1 |
-| 8_정숙.txt | 정숙 | 4 | 1 |
+| 1_우성.txt | 우성 | 39 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 126줄 · 33클립
+# 우성 — 39줄 · 1클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =07_entry-C,=09_entry-E,=11_narr-welcome-in,=12_narr-welcome-out,=13_narr-vow-in,=14_narr-vow-out,=15_narr-ring-in,=20_narr-letter-end,=21_narr-declare-family-intro,=25_narr-bless-end-long,=26_narr-close,=27_letter-parent,=28_letter-each,=29_letter-both,=31_declare-2-warm,=34_declare-ask-b,=38_tribute-in,=39_tribute-out,=40_toast-toast,=41_toast-cake,=42_toast-both,=43_parents-letter,=52_narr-entry-out,=80_narr-entry-out-C,=81_narr-entry-out-D,=82_narr-entry-out-E,=83_narr-entry-out-F,=56_narr-toast-out,=60_narr-photo-split,=61_narr-round-open,=86_narr-round-mid,=65_narr-photo-out,=75_fx-selfie
-```
-
-```
-# 이겸 — 44줄 · 7클립
-node scripts/assemble-narration.mjs --in <이겸_받은폴더> \
-  --clip =20_entry-C,=22_entry-E,=06_welcome-groom,=08_vow-groom,=24_vow-both-1,=11_letter-each,=14_tribute
-```
-★20_entry-C · 22_entry-E 은 두 사람이 한 클립에 섞여 있습니다. 이겸 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
-
-```
-# 서진 — 43줄 · 8클립
-node scripts/assemble-narration.mjs --in <서진_받은폴더> \
-  --clip =02_guest-2,=04_guest-4,=20_entry-C,=22_entry-E,=07_welcome-bride,=09_vow-bride,=25_vow-both-2,=10_letter-parent
-```
-★20_entry-C · 22_entry-E 은 두 사람이 한 클립에 섞여 있습니다. 서진 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
-
-```
-# 진희 — 19줄 · 6클립
-node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =02_guest-2-10min,=04_guest-4-1min,=84_narr-photo-ask,=44_end-0-photo,=45_end-1a-farewell,=47_end-2-goodbye
-```
-
-```
-# 주하 — 17줄 · 1클립
-node scripts/assemble-narration.mjs --in <주하_받은폴더> \
-  --clip =13_bless-mother
-```
-
-```
-# 권일 — 15줄 · 1클립
-node scripts/assemble-narration.mjs --in <권일_받은폴더> \
-  --clip =12_bless-father
-```
-
-```
-# 규민 — 7줄 · 1클립
-node scripts/assemble-narration.mjs --in <규민_받은폴더> \
-  --clip =15_toast
-```
-
-```
-# 정숙 — 4줄 · 1클립
-node scripts/assemble-narration.mjs --in <정숙_받은폴더> \
-  --clip =27_tribute-reply
+  --clip =43_parents-letter
 ```
 

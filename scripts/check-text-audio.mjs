@@ -20,6 +20,7 @@
 //   castLive 는 사람 구간 안에서 따로 흐르는 예시라 이 대조에서 뺀다(화면 글과 짝이 아니다)
 
 import fs from 'node:fs';
+import { recClips } from './recorded-read.mjs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 
@@ -64,7 +65,8 @@ try {
   for (const d of dirs) {
     const RECF = path.join(root, d, '_recorded.json');
     if (!fs.existsSync(RECF)) { console.error(`✗ ${d}/_recorded.json 이 없다 — 실녹음 기록 없이 대조할 수 없다(RECORDED_TRUTH)`); process.exit(1); }
-    const rec = JSON.parse(fs.readFileSync(RECF, 'utf8')).clips || {};
+    /* [REC_READ] 값이 문자열일 수도 {text,voice} 객체일 수도 있다 — 읽는 자를 하나로 둔다 */
+    const rec = recClips(path.join(root, d));
     for (const [key, e] of SAY) {
       if (!key.startsWith(d + '|')) continue;
       const k = key.slice(d.length + 1);
