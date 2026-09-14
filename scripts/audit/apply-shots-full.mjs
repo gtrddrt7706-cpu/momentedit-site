@@ -146,6 +146,49 @@ async function main() {
   ok(!!card, '가격 카드', card && card.text);
   if (card && await conflictCheck(page, card.sel, '가격 카드')) await snap(page, card.sel, '05_Q2_가격카드.png', '평일 250만·주말 330만, 그 밖은 미리 밝힙니다');
 
+  console.log('\n[Q2] 가격 — 좁은 폭에서 «섹션 머리부터 25 Guests 카드 직전까지» 잘라 담는다');
+  // ★대표 지시 — 「이런 이미지도 부분말고 조금 폭넓게 따자」.
+  //   카드 하나만 따면 224px 짜리 쪽지가 된다. 그렇다고 섹션을 통째로 뜨면
+  //   「25 Guests」 카드가 함께 찍혀 신청서(「서른 분」)와 어긋난다.
+  //   그래서 좁은 폭(카드가 세로로 쌓인다)에서 «머리글부터 25 카드 직전까지»를 잘라 담는다.
+  const { page: np } = await eng.newPage({ port: PORT, viewport: { width: 430, height: 1200 } });
+  await np.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle' }).catch(() => {});
+  await np.waitForTimeout(800);
+  await unveil(np);
+  const box = await np.evaluate(() => {
+    const pick = (pred) => Array.from(document.querySelectorAll('div,section,p,h2,h3,span'))
+      .filter(pred).sort((a, b) => (a.textContent || '').length - (b.textContent || '').length)[0];
+    const head = pick(e => (e.textContent || '').includes('핵심 구성'));
+    const price = pick(e => { const t = (e.textContent || '').replace(/\u00a0/g, ' '); return t.includes('250만') && t.includes('330만') && t.includes('All Included'); });
+    const guests = pick(e => (e.textContent || '').includes('25 Guests'));
+    if (!head || !price) return null;
+    const sy = window.scrollY;
+    const h = head.getBoundingClientRect(), p2 = price.getBoundingClientRect();
+    const g = guests ? guests.getBoundingClientRect() : null;
+    const top = Math.min(h.top, p2.top) + sy - 20;
+    const bottom = (g && g.top + sy > p2.bottom + sy - 10) ? g.top + sy - 12 : p2.bottom + sy + 20;
+    return { x: 0, y: Math.max(0, top), width: document.documentElement.clientWidth, height: Math.max(160, bottom - top) };
+  });
+  ok(!!box, '가격 구간 좌표', box && `${Math.round(box.width)}x${Math.round(box.height)}`);
+  if (box) {
+    const txt = await np.evaluate(({ y, height }) => {
+      let out = '';
+      document.querySelectorAll('p,h1,h2,h3,div,span').forEach(e => {
+        const r = e.getBoundingClientRect(); const t = r.top + window.scrollY;
+        if (t >= y && t <= y + height && e.children.length === 0) out += (e.textContent || '') + ' ';
+      });
+      return out;
+    }, box);
+    const bad = ['25명', '25 Guests', '스물다섯'].filter(k => txt.includes(k));
+    if (bad.length) { fail++; console.log('  ⛔ 가격 구간에 신청서와 어긋나는 표기: ' + bad.join(' · ')); }
+    else {
+      console.log('  ✅ 신청서와 어긋나는 인원 표기 없음 — 가격 구간');
+      await np.screenshot({ path: path.join(OUT, '05_Q2_가격구간.png'), clip: box, fullPage: true });
+      console.log('  📸 05_Q2_가격구간.png  (핵심 구성 머리글 + 140 Minutes + All Included)');
+    }
+  }
+  await np.close();
+
   // ── 마이페이지 — 페이지 전체
   console.log('\n[Q3-1 · Q4-1] 마이페이지 전체 화면');
   const { page: mp } = await eng.newPage({ port: PORT, viewport: { width: W, height: 1400 } });

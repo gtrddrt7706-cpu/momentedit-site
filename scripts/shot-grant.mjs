@@ -66,6 +66,18 @@ for (const t of TARGETS) {
   try {
     await page.goto(`http://localhost:${PORT}${t.url}`, { waitUntil: 'domcontentloaded', timeout: 15000 });
     await page.waitForTimeout(t.wait);
+    // ★[SHOT_FULL 2026-09-14] fullPage 는 «화면에 들어온 적 없는 구간»을 백지로 남긴다.
+    //   03_청첩장_실물 이 3,617px 짜리 거의 빈 띠로 나왔다(빈 줄 86% · 대표가 눈으로 잡았다).
+    //   그래서 찍기 전에 끝까지 한 번 굴려 reveal 을 열고 lazy 이미지를 받는다.
+    await page.evaluate(async () => {
+      document.querySelectorAll('.reveal').forEach(e => e.classList.add('visible', 'revealed'));
+      document.querySelectorAll('[loading="lazy"]').forEach(e => e.setAttribute('loading', 'eager'));
+      document.querySelectorAll('img[data-src]').forEach(e => { e.src = e.dataset.src; });
+      for (let y = 0; y < document.body.scrollHeight; y += 400) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 70)); }
+      window.scrollTo(0, 0);
+    }).catch(() => {});
+    await page.waitForTimeout(1200);
+    try { await page.evaluate(() => Promise.all(Array.from(document.images).filter(i => !i.complete).map(i => new Promise(r => { i.onload = i.onerror = r; })))); } catch {}
     await page.screenshot({ path: path.join(OUT, `${t.n}.png`), fullPage: !!t.full });
     const text = (await page.evaluate(() => document.body.innerText || '')).trim();
     if (text.length < 40) status = `빈화면(글자 ${text.length}자)`;
