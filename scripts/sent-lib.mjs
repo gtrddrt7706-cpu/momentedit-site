@@ -371,7 +371,60 @@ function rebind() {
   for (const x of left) console.log(`   ★ ${x.id}  「${x.text}」  ← 이건 정말 다시 받아야 합니다`);
 }
 
-if (has('--rebind')) rebind();
+/* ── 고른 문장만 붙여넣기 판으로  [PICK_PASTE] ───────────
+   「이 문장들만 다시 받고 싶다」 할 때 쓴다. 창고에 있든 없든 상관없이 «고른 것»을 뽑는다.
+   ★[DUP_ONCE] 와 [PASTE_CLEAN] 을 여기서도 그대로 건다 — 겹치는 말은 한 번만,
+     머리말·주석은 한 줄도 넣지 않는다. 타입캐스트는 콜론 없는 줄을 화자로 읽거나 소리로 읽는다.
+   쓰기: node scripts/sent-lib.mjs --pick <문장목록.txt> --out <폴더> */
+function pick() {
+  const src = arg('--pick'), out = arg('--out');
+  if (!out) { console.log('✗ --pick 은 --out <폴더> 와 짝입니다.'); process.exit(2); }
+  let lines;
+  try { lines = fs.readFileSync(src, 'utf8').split('\n').map((x) => x.trim()).filter(Boolean); }
+  catch (e) { console.log('✗ 목록을 못 읽었다 — ' + e.message); process.exit(2); }
+  const want = new Set(lines);
+  const need = slots.filter((s) => want.has(s.text));
+  if (!need.length) { console.log('✗ 대장에서 그 문장들을 못 찾았습니다(글자까지 같아야 합니다).'); process.exit(1); }
+
+  const together = new Set();
+  try {
+    const RC = require(P('assets/ritual-cue.js')), ST = require(P('assets/ritual-story.js'));
+    for (const course of ['gamdong', 'family', 'damback', 'record', 'minimal', 'festive'])
+      for (const letter of ['parent', 'each', 'both']) for (const bless of ['on', 'off'])
+        for (const tribute of ['flower', 'bow', 'hug']) for (const toast of ['toast', 'cake', 'both']) {
+          let cues; try { cues = RC.build({ course, letter, bless, tribute, toast }, { mode: 'console' }).cues; } catch { continue; }
+          const live = new Set();
+          for (const q of cues) { if (q.file) live.add(q.file);
+            for (const id of (ST.castIds(q).live || [])) if (id) live.add(String(id).replace(/^\d+_/, '')); }
+          const f = [...live];
+          for (let a = 0; a < f.length; a++) for (let b = a + 1; b < f.length; b++) together.add([f[a], f[b]].sort().join('||'));
+        }
+  } catch { /* [CANT_LOOK] */ }
+  const co = (a, b) => together.has([a.replace(/^\d+_/, ''), b.replace(/^\d+_/, '')].sort().join('||'));
+
+  const rows = [], seen = new Map();
+  for (const s of need) {
+    const v = VOICE[s.role] || null;
+    const k = (v || s.role) + '|' + s.text, prev = seen.get(k);
+    if (v && prev && !prev.at.some((x) => co(x.key, s.key))) { prev.at.push(s); continue; }
+    const r = { voice: v, role: s.role, text: s.text, at: [s] };
+    rows.push(r); if (!prev) seen.set(k, r);
+  }
+  const ready = rows.filter((r) => r.voice), pend = rows.filter((r) => !r.voice);
+  fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
+  fs.writeFileSync(path.join(out, '0_전체_화자표기.txt'), ready.map((r) => `${r.voice}: ${r.text}`).join('\n') + '\n');
+  fs.writeFileSync(path.join(out, '_순서.json'), JSON.stringify(
+    ready.map((r, i) => ({ n: i + 1, voice: r.voice, text: r.text, at: r.at.map((s) => ({ clip: s.key, i: s.i })) })), null, 1));
+  const by = {}; for (const r of ready) (by[r.voice] ??= []).push(r);
+  const sorted = Object.entries(by).sort((a, b) => b[1].length - a[1].length);
+  sorted.forEach(([v, l], n) => fs.writeFileSync(path.join(out, `${n + 1}_${v}.txt`), l.map((r) => r.text).join('\n') + '\n'));
+  console.log(`[PICK_PASTE] ${out} · ${ready.length}줄 (고른 문장 ${want.size} → 자리 ${need.length} · 겹쳐서 뺀 ${need.length - rows.length})`);
+  for (const [v, l] of sorted) console.log(`   ${v.padEnd(6)} ${String(l.length).padStart(3)}줄`);
+  if (pend.length) console.log(`   ★성우 미정 ${pend.length}줄`);
+}
+
+if (has('--pick')) pick();
+else if (has('--rebind')) rebind();
 else if (has('--todo')) todo();
 else if (has('--import')) importFrom(arg('--import'));
 else if (has('--patch')) patch();
