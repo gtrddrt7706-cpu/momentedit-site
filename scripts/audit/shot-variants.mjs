@@ -57,6 +57,15 @@ for (const t of TARGETS) {
       await page.waitForTimeout(2200);
       if (t.click) { await page.click(t.click).catch(() => { note += '클릭실패 '; }); await page.waitForTimeout(1200); }
       await page.evaluate(async () => {
+        // ★[SHOT_FLOAT 2026-09-14] 떠 있는 위젯(공유·상담 말풍선)을 숨긴다.
+        //   적대적 검증에서 잡힌 것 — parents.html 캡처에서 «배경도 테두리도 없는 붉은 공유 아이콘»이
+        //   본문 문단 한가운데(x353~369 · y414~430)에 맨몸으로 떠 있었다. 다른 버튼은 전부 테두리
+        //   상자를 갖고 있어 이것만 튀었고, 본문 컬럼 경계를 11px 넘었다.
+        //   제출용 사진에서는 «미완성 버튼»으로 읽힌다 — 기능이 아니라 사진의 문제라 캡처에서 숨긴다.
+        document.querySelectorAll('*').forEach(e => {
+          const cs = getComputedStyle(e), r = e.getBoundingClientRect();
+          if ((cs.position === 'fixed' || cs.position === 'sticky') && r.width > 8 && r.width < 260 && r.height < 260) e.style.display = 'none';
+        });
         document.querySelectorAll('.reveal').forEach(e => e.classList.add('visible', 'revealed'));
         document.querySelectorAll('[loading="lazy"]').forEach(e => e.setAttribute('loading', 'eager'));
         document.querySelectorAll('img[data-src]').forEach(e => { e.src = e.dataset.src; });
@@ -71,6 +80,13 @@ for (const t of TARGETS) {
                  text: t2 };
       });
       const bad = CONFLICT.filter(k => m.text.includes(k));
+      await page.evaluate(() => {
+        document.querySelectorAll('*').forEach(e => {
+          const cs = getComputedStyle(e), r = e.getBoundingClientRect();
+          if ((cs.position === 'fixed' || cs.position === 'sticky') && r.width > 8 && r.width < 260 && r.height < 260) e.style.display = 'none';
+        });
+      }).catch(() => {});
+      await page.waitForTimeout(300);
       const file = `${t.n}__${w}.png`;
       await page.screenshot({ path: path.join(OUT, file), fullPage: true });
       const sz = fs.statSync(path.join(OUT, file)).size;
