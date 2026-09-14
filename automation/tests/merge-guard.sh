@@ -1164,9 +1164,19 @@ chk '두 번 제안됐다가 두 번 철회됐다' .claude/skills/momentedit-des
 #     한쪽만 고치면 그 생성기의 자가대조가 붉는다(실측: 양방향 모두 잡힌다).
 for _f in index.html inquiry.html mypage.html guide.html live.html schedule.html order-preview.html \
           seat.html cancel.html privacy.html invitation-gallery.html audio-review.html \
-          audio-review-tone.html listen-075c9ad62acf.html; do
+          audio-review-tone.html $(ls listen-*.html 2>/dev/null); do
   nochk '\-\-light:#75705F' "$_f"
 done
+# ★★[PLATE_ONE 2026-09-14] 실청판(listen-*.html)은 **저장소에 하나만** 둔다.
+#   ★판 이름에는 내용 지문이 박힌다(LISTEN_KEY_STAMP) — 글이나 소리가 바뀌면 새 이름으로 나온다.
+#     그런데 --web 판은 소리를 «주소»로 부른다. 즉 **옛 판을 열어도 새 소리가 난다.**
+#     옛 판에 적힌 옛 글 + 새 소리 = 화면과 소리가 다른 자리다. 이 저장소가 계속 싸워 온 그 병이다.
+#   ★그래서 새 판을 낼 때 옛 판을 «지운다». 남겨 두면 링크가 살아 있어 누군가 그걸 연다.
+#   ★위 --light 목록도 이름을 박지 않고 glob 으로 받는다 — 박아 두면 판 이름이 바뀔 때마다 게이트가 거짓으로 붉는다.
+_plates=$(ls listen-*.html 2>/dev/null | wc -l | tr -d ' ')
+_plate=$(ls listen-*.html 2>/dev/null | head -1)
+if [ "$_plates" = 1 ]; then echo "ok PLATE_ONE: 실청판 1개 ($(ls listen-*.html))"
+else echo "REVERT? PLATE_ONE: 실청판이 ${_plates}개다 — 낡은 판은 지운다(옛 글 + 새 소리로 들린다): $(ls listen-*.html 2>/dev/null | tr '\n' ' ')"; fail=1; fi
 chk '\-\-light:#6E6959' shared/tokens.css 1
 chk 'TOKENS_REF 2026-09-06' shared/tokens.css 1
 chk '\-\-light:#6E6959' scripts/build-listen-tone.mjs 1
@@ -3601,22 +3611,22 @@ chk 'SAY_WHICH_BOARD' scripts/build-listen-all.mjs 1
 chk 'SHOW_THE_LINK' scripts/build-listen-all.mjs 1
 chk 'outNote' scripts/build-listen-all.mjs 3
 chk "wrap.className = ''" scripts/build-listen-all.mjs 1
-chk 'id="outNote"' listen-075c9ad62acf.html 1
+chk 'id="outNote"' "$_plate" 1
 chk '소리는 사이트에서 받아 옵니다' scripts/build-listen-all.mjs 1
 # ★배포되는 판이 «소리 없음»이라 말하면 잡는다 — 그 판은 소리를 주소로 부른다
-nochk '소리가 없는 가벼운 판' listen-075c9ad62acf.html
+nochk '소리가 없는 가벼운 판' "$_plate"
 chk 'unpackV' scripts/build-listen-all.mjs 2
 chk 'deflate-raw' scripts/build-listen-all.mjs 2
 chk 'applyHandoff' scripts/build-listen-all.mjs 3
 # ★옛 모양을 받는 갈래를 지우면 여기서 잡힌다
 chk "d.w || \\[\\]" scripts/build-listen-all.mjs 1
-chk 'id="paste"' listen-075c9ad62acf.html 1
+chk 'id="paste"' "$_plate" 1
 chk 'STAMP_CARRY' scripts/build-listen-all.mjs 1
 chk "c.id + '#' + j" scripts/build-listen-all.mjs 6
 chk 'handoffLink' scripts/build-listen-all.mjs 2
 # ★배포되는 실청판이 실제로 어조 소리를 담고 있나 — 판 자체를 본다(생성기만 보면 못 본다)
-chk 'assets/audio/tone/n185.mp3' listen-075c9ad62acf.html 1
-chk 'HANDOFF_LINK' listen-075c9ad62acf.html 1
+chk 'assets/audio/tone/n185.mp3' "$_plate" 1
+chk 'HANDOFF_LINK' "$_plate" 1
 # ── [REDUB_PICK] 「다시」로 찍은 자리를 버림/다시/그대로로 가르는 판정 화면 (2026-08-17 사용자 지시) ──
 # *"내가선택 간편하게 페이지로 만들어주던지"* — md 로 드렸더니 손으로 적어야 했다.
 # 손으로 적는 자리는 틀린다(바로 어제 붙여넣기를 손으로 써서 화자를 틀렸다 · PHOTO_ASK).
@@ -3821,11 +3831,13 @@ chk 'SOUND_OUT_OF_JS' scripts/build-listen-all.mjs 5
 # ★어조 mp3 186개를 assets/audio/tone/ 에 넣었다(2.0MB) — 재료가 또 사라지는 것도 함께 막는다
 #   (_dub_stage 가 gitignore 라 코워크 컨테이너와 함께 날아간 적이 있다).
 # 실측(iPhone13 에뮬·http 서빙): 클립 160 · 문장 495 · 「소리없음」 0 · 주소 재생 17.6/3.7/2.7초.
-# ★[LISTEN_URL 2026-08-26] 실청판을 **주소로** 연다 — listen-075c9ad62acf.html
+# ★[LISTEN_URL 2026-08-26] 실청판을 **주소로** 연다 — listen-<지문>.html (지금 판: PLATE_ONE 줄이 이름을 찍는다)
+#   ★[PLATE_ONE 2026-09-14] 이름을 여기 박지 않는다 — 글·소리가 바뀌면 지문이 바뀌어 이름도 바뀐다.
+#     박아 두면 판을 새로 낼 때마다 게이트가 «없는 파일»로 붉고, 붉은 게이트를 이름 고쳐 끄게 된다.
 #   폰 앱 미리보기가 스크립트를 막아 파일 전달로는 못 쓴다(세 번 실패). 사이트에서 열면 그 문제가 없다.
 #   ★주소를 어렵게 둔다 — 검색 차단(noindex)에 더해, 아는 사람만 열도록.
 #   ★소리는 assets/audio/{narration,cast,tone}/ 에서 받는다 — 판 자체는 105K 다.
-chk 'listen-075c9ad62acf.html' automation/tests/merge-guard.sh 1
+chk 'PLATE_ONE' automation/tests/merge-guard.sh 6
 chk 'LISTEN_WEB' scripts/build-listen-all.mjs 3
 chk 'SRCMAP' scripts/build-listen-all.mjs 3
 chk 'assets/audio/tone' scripts/build-listen-all.mjs 1
@@ -8102,3 +8114,15 @@ nochk '확정 전 정책' api/_ritual-kb.js 0                # 정해진 것을 
 #   못 센 실패 줄을 그대로 보여 주게 했다. 둘 다 지워지면 오보로 되돌아간다.
 chk 'GATE_RED' scripts/gate.sh 2
 chk 'GATE_RED_GAP' scripts/gate.sh 1
+
+# ★[LISTEN_COVER_WEB / TONE_EMBED_REPO / USE_EXISTING_CUT_FAIL] 실청판이 «빠짐 없이» 만들어졌나.
+#   세 결정 모두 «소리를 싣는 길이 둘인데 한 길만 봤다»는 한 가지 병에서 나왔다 — 지우면 그 병이 돌아온다.
+chk 'LISTEN_COVER_WEB' scripts/check-listen-cover.mjs 1
+chk 'SOUND_OUT_OF_JS' scripts/check-listen-cover.mjs 1
+chk 'TONE_EMBED_REPO' scripts/build-listen-all.mjs 1
+chk 'USE_EXISTING_CUT_FAIL' scripts/build-listen-all.mjs 2
+if command -v node >/dev/null 2>&1; then
+  _lc=$(node scripts/check-listen-cover.mjs --file "$(ls listen-*.html 2>/dev/null | head -1)" 2>&1)
+  if [ $? = 0 ]; then echo "ok listen-cover: $(printf '%s' "$_lc" | tail -1)"
+  else echo 'REVERT? listen-cover 실패 — 실청판에 빠진 자리가 있다:'; printf '%s\n' "$_lc" | grep '^✗'; fail=1; fi
+else echo 'skip listen-cover (node 없음)'; fi

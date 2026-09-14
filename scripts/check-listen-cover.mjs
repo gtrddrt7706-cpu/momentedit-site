@@ -61,17 +61,52 @@ const grab = (name) => {
 };
 const DATA = grab('D'); if (!DATA) die('실청 화면에서 D(화면 데이터)를 못 읽었다', 2);
 const AO = grab('AO') || {}, AN = grab('AN') || {};
+/* ★★[LISTEN_COVER_WEB 2026-09-14] 판에는 «소리를 싣는 길»이 둘이다 — 이 검사는 하나만 알았다.
+   ★실사고: --web 로 뽑은 판(지금 폰에 주는 그 판)에 이 검사를 대니
+     「소리가 안 실린 자리 86개」·「어조 심긴 소리 0」이라고 답했다. 전부 거짓이다.
+     그 판은 소리를 base64 로 «심지» 않고 SRCMAP 의 **주소로 부른다**(LISTEN_WEB · 2026-08-26).
+     AO/AN 만 세면 --web 판은 언제나 「전부 빠짐」으로 나온다.
+   ★이 검사의 이름은 「빠진 게 있는가」다. 그런데 안 빠진 것을 빠졌다고 말했다 —
+     그런 검사는 없는 것만 못하다. 한 번 거짓말한 검사는 다음부터 아무도 안 읽는다.
+   ★그래서 주소 쪽이 **더 센 증거**가 되게 짠다: 주소만 있는 것으로는 안 치고,
+     그 주소가 가리키는 파일이 저장소에 **실제로 있을 때만** «소리 있음»으로 센다.
+     심긴 판은 종전대로 AO/AN 으로 센다. 두 길 다 통과해야 한다. */
+const SRCMAP = grab('SRCMAP') || {};
+const urlReal = (u) => {
+  if (!u || typeof u !== 'string' || u.startsWith('data:')) return false;
+  return fs.existsSync(path.join(ROOT, u.replace(/^\//, '')));
+};
+const WEB = Object.values(SRCMAP).some((u) => typeof u === 'string' && !u.startsWith('data:'));
+/* 주소가 깨진 자리 — 판은 그 줄을 그리지만 눌러도 아무 소리가 안 난다. 가장 조용한 실패다. */
+const brokenUrl = Object.entries(SRCMAP)
+  .filter(([, u]) => typeof u === 'string' && !u.startsWith('data:') && !urlReal(u));
+/* ★[SOUND_OUT_OF_JS] 심는 판은 소리를 JS 지도가 아니라 «파싱 안 되는 <script id="snd_…">» 에 둔다.
+   AO/AN 은 그 구조로 바뀐 뒤부터 «항상 빈 {}» 였다 — 그래서 이 검사는 --web 만이 아니라
+   **심긴 판에도** 「소리 0」이라고 답해 왔다. 두 길을 다 보게 고친다. */
+const embedded = new Set([...html.matchAll(/id="snd_([^"]+)"/g)].map((m) => m[1]));
+const hasSnd = (id) => !!AO[id] || embedded.has(id) || urlReal(SRCMAP[id]);
+const toneKeys = () => {
+  const ks = new Set([...Object.keys(AN), ...[...embedded].filter((k) => /^n\d+$/.test(k)),
+    ...Object.keys(SRCMAP).filter((k) => /^n\d+$/.test(k) && urlReal(SRCMAP[k]))]);
+  return ks.size;
+};
+const toneN = toneKeys;
 const rows = new Map((DATA.old || []).map((c) => [c.id, c]));
 const newSent = (DATA.neu || []).reduce((a, c) => a + (c.n || []).length, 0);
 
 console.log(`실청 화면 — 기존 ${rows.size}줄 · 어조 ${(DATA.neu || []).length}클립(문장 ${newSent})`);
-console.log(`심긴 소리 — 기존 ${Object.keys(AO).length}개 · 어조 ${Object.keys(AN).length}개`);
+console.log(embedded.size ? `소리 — **화면 안에 심긴 판**(--embed) · 심긴 자리 ${embedded.size}개`
+  : WEB
+  ? `소리 — **주소로 부르는 판**(--web) · SRCMAP ${Object.keys(SRCMAP).length}자리 · 그중 파일이 실제로 있는 것 ${Object.values(SRCMAP).filter(urlReal).length}개`
+  : `심긴 소리 — 기존 ${Object.keys(AO).length}개 · 어조 ${Object.keys(AN).length}개`);
+if (brokenUrl.length) no(`주소는 있는데 **그 파일이 없다** ${brokenUrl.length}개 — 눌러도 소리가 안 난다:\n    `
+  + brokenUrl.map(([k, u]) => `${k} → ${u}`).join('\n    '));
 console.log(`엔진이 부르는 자리 ${want.size}개 (폐지 ${retired.length}개 뺌: ${retired.join(' · ') || '없음'})`);
 
 /* ① 목록에 있는가 */
 const noRow = [...want.entries()].filter(([id]) => !rows.has(id));
 /* ② 소리가 실려 있는가 — 합성 클립(mix)은 재료에서 만드는 것이라 소리가 없을 수 있다 */
-const noSnd = [...want.entries()].filter(([id]) => rows.has(id) && !AO[id])
+const noSnd = [...want.entries()].filter(([id]) => rows.has(id) && !hasSnd(id))
   .filter(([id]) => !(rows.get(id) || {}).mix);
 /* ③ 화면에만 있고 엔진이 안 부르는 줄 */
 const dead = [...rows.keys()].filter((id) => !want.has(id));
@@ -93,8 +128,8 @@ if (dead.length) console.log(`· 화면에만 있고 엔진이 안 부르는 줄
   if (fs.existsSync(src)) {
     const n = fs.readFileSync(src, 'utf8').split('\n').filter((l) => l.trim()).length;
     if (n !== newSent) no(`어조 문장 수가 다르다 — 대본 ${n}줄 · 화면 ${newSent}문장`);
-    else if (Object.keys(AN).length !== n) no(`어조 소리 수가 다르다 — 문장 ${n} · 심긴 소리 ${Object.keys(AN).length}`);
-    else console.log(`ok 어조 — 대본 ${n}줄 = 화면 ${newSent}문장 = 심긴 소리 ${Object.keys(AN).length}개`);
+    else if (toneN() !== n) no(`어조 소리 수가 다르다 — 문장 ${n} · 소리 ${toneN()}`);
+    else console.log(`ok 어조 — 대본 ${n}줄 = 화면 ${newSent}문장 = 소리 ${toneN()}개`);
   }
 }
 
