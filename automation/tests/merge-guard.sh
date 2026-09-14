@@ -7057,7 +7057,7 @@ chk 'PICK_PASTE' scripts/sent-lib.mjs 2
 #      ★★전원을 끄라고는 «쓰지 않았다» — 바로 다음 줄이 「사진은 편히 남기셔도 좋습니다」([PHOTO_FREE])라
 #        한 클립 안에서 두 말이 된다. «소리»를 끈다고 해야 분명함과 사진이 둘 다 산다.
 #        ★「진동으로 바꿔」도 같이 갔다 — 진동은 «켜 두라»는 말이다.
-#   ⑤ 「두 분이 절반쯤 돌았습니다」 → 「절반쯤 인사를 나누셨습니다」
+#   ⑤ 「두 분이 절반쯤 돌았습니다」 → 「절반쯤 인사를 나누셨습니다」 (가드 줄도 함께 옮겼다 · ROUND_MID_WORD)
 #      사람을 주어로 「돌았다」는 어르신 귀에 험하고, 무엇을 하는지도 안 말한다.
 #      다음 줄이 「찾아뵙습니다」라 그 말로 맞추면 두 줄이 한 장면이 된다.
 chk 'GUEST_TONE' scripts/apply-guest-tone.mjs 1
@@ -7511,7 +7511,10 @@ chk 'ROUND_MID' scripts/apply-round-mid.mjs 2
 # ★[ROUND_MID_TWO 2026-09-12] 넣은 순간부터 2개였다 — 문안(NARR.roundMid)과 등재(NARR_CONSOLE_ONLY) 둘.
 #   셋을 요구한 것은 내 착각이다. 지킬 것은 «문안이 있고, 콘솔 전용으로 등재돼 있다» 두 가지다.
 chk 'roundMid' assets/ritual-data.js 2
-chk '두 분이 절반쯤 돌았습니다' assets/ritual-data.js 1
+# ★[ROUND_MID_WORD 2026-09-14] 문안이 「돌았습니다」→「인사를 나누셨습니다」로 바뀌었다(GUEST_TONE ⑤).
+#   지킬 것은 «절반쯤 왔다고 알려 주는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
+#   ★a606d699 가 문안만 고치고 이 줄을 안 옮겨 게이트가 하루 붉었다. 문안을 고치면 같은 커밋에서 여기도 고친다.
+chk '두 분이 절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
 chk 'N_FILES = 86' scripts/check-ritual-cue.js 1
 
 # ★[FLOW_SHAPE] 흐름을 시간축으로 펼쳐 «모양»을 재는 검사. 문장이 아니라 구조를 본다 —
@@ -8092,3 +8095,10 @@ nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-
 nochk '확정 전 정책' api/_ritual-kb.js 0                # 정해진 것을 «확정 전»이라 말하지 않는다
 # ★두 nochk 의 한도가 0 인 이유 — 위 주석은 옛 문구를 «음악 두 곡»·«아직 정해지지 않은 정책»으로 비켜 적었다.
 #   근거 주석이 금지 문구를 그대로 인용하면 가드가 자기 설명문을 잡는다(이 세션에서 세 번 겪었다).
+
+# ★[GATE_RED / GATE_RED_GAP] 게이트 결과를 읽는 도구 자체를 건다.
+#   scripts/gate.sh 는 7,000줄을 눈으로 걸러 「초록」이라 오보한 사고에서 나왔다(2026-09-12).
+#   그 뒤 «빨간 줄 0건 · 종료코드 1» 이라는 읽을 수 없는 요약이 한 번 더 나와(2026-09-14),
+#   못 센 실패 줄을 그대로 보여 주게 했다. 둘 다 지워지면 오보로 되돌아간다.
+chk 'GATE_RED' scripts/gate.sh 2
+chk 'GATE_RED_GAP' scripts/gate.sh 1
