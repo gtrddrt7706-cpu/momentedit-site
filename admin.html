@@ -688,7 +688,18 @@ function _seatChartDoc(d){
   tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=((t.drinks||[])[i])||''; if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else if(dv==='K')cK++; else if(dv==='Y')cY++; else cU++; }); });
   function tbl(t,no){ var seats=(t&&t.seats)||[]; var n=seats.length,inner=''; for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); var dk=nm?(((t.drinks||[])[i])||''):''; var u=_seatChartPos(n,i,46); var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; inner+='<span class="pseat'+(nm?'':' e')+'" style="left:calc(50% + '+u.x.toFixed(1)+'px);top:calc(50% + '+u.y.toFixed(1)+'px)">'+(nm?esc(nm):'·')+dot+'</span>'; } return '<div class="ptbl"><span class="ptno">'+no+'</span>'+inner+'</div>'; }   // 색점은 이름 있는 자리만(고아 음료가 빈자리에 찍혀 합계와 어긋나는 것 방지)
   var L='',R='';
-  tables.forEach(function(t,i){ var no=num[i]||(i+1); if(String((t&&t.side)||'L')==='R') R+=tbl(t,no); else L+=tbl(t,no); });
+  /* [SEAT_ZIGZAG] 편집기(mypage _seatZig)와 같은 값 — 짝수행 통로쪽 1배 · 홀수행 바깥 1.15배 · 우측은 미러 */
+  /* ★폭은 편집기 실측값을 쓴다 — mypage .seat-room 의 --zig 는 PC 에서
+       min(80px, calc(min(92vw,880px)/7.6 - 40px)) = 75.8px 였다(실측 2026-09-14).
+       테이블 상자(.ptbl 150px)도 편집기(.rt 150px)와 같아 그대로 옮겨도 비율이 맞는다. */
+  function zigX(row, side){ var even=(row%2===0); var base=(even?1:-1)*(even?1:1.15); return (side==='R'? -base : base)*76; }
+  var li=0, ri=0;
+  tables.forEach(function(t,i){
+    var no=num[i]||(i+1), isR=(String((t&&t.side)||'L')==='R');
+    var dx=zigX(isR?ri++:li++, isR?'R':'L');
+    var cell='<div style="transform:translateX('+dx.toFixed(1)+'px)">'+tbl(t,no)+'</div>';
+    if(isR) R+=cell; else L+=cell;
+  });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
   ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
     if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join(' |  ')+'</div>'; });
@@ -699,8 +710,15 @@ function _seatChartDoc(d){
     +'.ptot{font-size:13px;font-weight:600;background:#f5f1ea;border:1px solid #e3dccf;border-radius:8px;padding:8px 11px;margin-bottom:6px}'
     +'.plg{font-weight:400;font-size:11.5px;color:#6b6257;margin-left:6px}.plg i{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 3px 0 9px}'
     +'.pstage{text-align:center;font-size:11px;letter-spacing:.12em;color:#8a8072;border:1px dashed #d8d1c4;border-radius:16px;padding:6px;margin:8px 0 10px}'
-    +'.proom{display:flex;gap:6px;align-items:flex-start;justify-content:center}.pcol{flex:1;max-width:340px;display:flex;flex-direction:column;gap:18px;align-items:center}'
+    +'.proom{display:flex;gap:6px;align-items:flex-start;justify-content:center}.pcol{flex:1;max-width:380px;display:flex;flex-direction:column;gap:18px;align-items:center;overflow:visible}'
     +'.paisle{writing-mode:vertical-rl;font-size:9px;letter-spacing:.3em;color:#9a7b4f;padding:20px 3px 0}'
+    /* ★[SEAT_ZIGZAG 2026-09-14 대표 결정 「B 지그재그」] 좌우가 나란히 마주보지 않는다.
+       ★해석을 한 번 더 틀렸다 — 처음엔 «세로로 반 칸 내림»으로 만들었는데, 실제 배치는
+         이미 «마이페이지 편집기»(mypage.html:7430 _seatZig)와 «하객 안내»(guide.html:748 zigX)에
+         들어 있었다. **가로**로 행마다 통로쪽↔바깥쪽을 번갈아 놓고 우측 열은 부호를 뒤집어 미러한다.
+       ★셋 중 이 인쇄물만 격자였다. 그래서 대표가 「좌석이 좀 다른데」라고 하셨다.
+         [NOT_THE_SOURCE] 밖에서 만들기 전에 안을 먼저 봤어야 했다. */
+    +'.ptbl{transition:none}'
     +'.ptbl{position:relative;width:150px;height:150px}'
     +'.ptbl::before{content:"";position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#fcfbf9;border:1.5px solid #b89a75}'
     +'.ptno{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:600;color:#6B2A24}'

@@ -5968,9 +5968,11 @@ function renderQRInto(qid, svid, url, fname){
 // ── 좌석 배치도 (최종 확정 완료 후) — 탭으로 이름 채우기 + 좌우 배치 미리보기. 완료 시 공개 링크·QR 발급 → 하객 전달 ──
 var SEATFLOW = { active:false, tables:[], token:'' };
 function seatUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} return (o||'https://momentedit.kr')+'/seat.html?t='+encodeURIComponent(token); }
-// 초기 테이블 자동 배치 — 기본 6개 테이블(좌3·우3) · 한 테이블 4명(초기 셋팅). 필요하면 자리 추가로 테이블당 최대 5명까지.
+// 초기 테이블 자동 배치 — 기본 6개 테이블(좌3·우3) · 한 테이블 5명. 테이블당 최대 5명.
+// ★[SEAT_PER5 2026-09-14 대표 확인 「5명이 맞다」] 종전 기본값은 4명이었다. 6×4=24명이라
+//   30명 예식은 부부가 자리를 여섯 번 더 눌러야 채워졌다. 실제 세팅이 5명이니 처음부터 5명으로 둔다.
 function autoSeatTables(headcount){
-  var cnt=6, per=4, lc=Math.floor(cnt/2);   // 6테이블 · 4석 기본 · 좌측 3
+  var cnt=6, per=5, lc=Math.floor(cnt/2);   // [SEAT_PER5] 6테이블 · 5석 기본 · 좌측 3 = 30명
   var out=[]; for(var i=0;i<cnt;i++){ var seats=[],drinks=[]; for(var k=0;k<per;k++){ seats.push(''); drinks.push(''); } out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats, drinks:drinks }); }
   return out;
 }
