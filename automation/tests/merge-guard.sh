@@ -7021,6 +7021,16 @@ chk 'FOLD_SPACE' scripts/sent-lib.mjs 2
 #   ★[DUP_ONCE] 를 여기서도 그대로 건다. 겹치는 말은 한 번만, 다만 «한 예식에 둘 다 나가는» 말은 따로.
 #     한 곳에만 걸면 다른 곳으로 샌다(전체 화자표기 판에서 한 번 새어 본 적이 있다).
 chk 'TODO_ONLY' scripts/sent-lib.mjs 1
+# ★★[VOICE_STEPMOM 2026-09-14 사장님 「시어머니성우 임의로넣어」] 시어머님 = 정숙.
+#   ★«다른» 사람이어야 한다 — 어머님(13_bless-mother)과 시어머님(27_tribute-reply)이
+#     324조합 중 27조합에서 «둘 다» 나간다(실측). 같은 목소리면 두 어른이 한 사람이 된다.
+#     ★주하로 돌려 쓰지 말 것. 미정으로 되돌리지도 말 것 — 그 4줄이 게이트 빨강 3건의 원인이었다.
+#   ★왜 정숙인가 — 조사 문서가 이미 검토해 둔 중년 여성(어머님 1순위였다가 주하에게 자리를 내준 후보)이고,
+#     밈 리스크 스크리닝을 통과했다(연화는 인간극장 밈으로 영구 탈락).
+#   ★내가 못 한 것 — 이 환경은 소리를 듣지 못한다. 정숙은 지금까지 «이름이 잡히는 것을 확인한»
+#     여덟 밖이라, 0_보이스확인.txt 로 사장님이 한 번 확인하셔야 한다(크레딧 0).
+chk 'VOICE_STEPMOM' scripts/build-typecast-import.mjs 1
+chk "시어머님: '정숙'" scripts/build-typecast-import.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \

@@ -16,6 +16,7 @@
 | 5_주하.txt | 주하 | 17 | 1 |
 | 6_권일.txt | 권일 | 15 | 1 |
 | 7_규민.txt | 규민 | 7 | 1 |
+| 8_정숙.txt | 정숙 | 4 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -61,5 +62,11 @@ node scripts/assemble-narration.mjs --in <권일_받은폴더> \
 # 규민 — 7줄 · 1클립
 node scripts/assemble-narration.mjs --in <규민_받은폴더> \
   --clip =15_toast
+```
+
+```
+# 정숙 — 4줄 · 1클립
+node scripts/assemble-narration.mjs --in <정숙_받은폴더> \
+  --clip =27_tribute-reply
 ```
 
