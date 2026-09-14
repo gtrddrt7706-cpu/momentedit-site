@@ -24,16 +24,19 @@ sh automation/tests/merge-guard.sh >"$_log" 2>&1
 _rc=$?
 cat "$_log"
 
-# ★빨간 줄의 생김새는 세 가지뿐이다 — chk 의 'REVERT?', 하위 검사의 'FAIL', '[XXX] FAIL'.
+# ★빨간 줄의 생김새 — chk 의 'REVERT?', 하위 검사의 'FAIL', '[XXX] FAIL', 그리고 'DRIFT?'.
 #   앞에 공백이 붙는 줄이 있어 ^[[:space:]]* 를 둔다(실측: STORY_COVER 가 들여쓴다).
-_red=$(grep -cE '^[[:space:]]*(REVERT\?|FAIL |\[[A-Z_]+\] FAIL)' "$_log")
+#   ★[GATE_RED_DRIFT 2026-09-14] 'DRIFT?' 를 늦게 넣었다 — check-source-drift 가 fail=1 을 세우는데
+#     그 줄만 다른 모양이라 «빨간 줄 0건 · 종료코드 1» 로 두 번 새어 나갔다. 결국 sh -x 로
+#     fail=1 이 서는 자리를 찾아야 했다. 세는 목록은 «fail 을 세우는 모든 모양»이어야 한다.
+_red=$(grep -cE '^[[:space:]]*(REVERT\?|DRIFT\?|FAIL |\[[A-Z_]+\] FAIL)' "$_log")
 
 echo
 echo "════════════════════════════════════════════════════════════"
 echo "  빨간 줄 ${_red}건 · 종료코드 ${_rc}"
 echo "════════════════════════════════════════════════════════════"
 if [ "${_red:-0}" -gt 0 ]; then
-  grep -nE '^[[:space:]]*(REVERT\?|FAIL |\[[A-Z_]+\] FAIL)' "$_log" | sed 's/^/  /'
+  grep -nE '^[[:space:]]*(REVERT\?|DRIFT\?|FAIL |\[[A-Z_]+\] FAIL)' "$_log" | sed 's/^/  /'
   echo
   echo "  ★위가 전부다. 이 목록 밖의 줄로 «초록»을 말하지 않는다."
 elif [ "${_rc}" -ne 0 ]; then
@@ -44,7 +47,13 @@ elif [ "${_rc}" -ne 0 ]; then
   #   바로 그 되돌아감을 없애려던 것이었다. 세는 규칙을 넓히면 오탐이 늘어 «0건»의 값이 떨어지니,
   #   세지 못한 경우에 한해 **못 센 줄을 그대로 보여 준다.** 판정은 여전히 종료 코드가 한다.
   echo "  ★빨간 줄로 세어지지 않은 실패가 있다 — 아래가 그 줄이다."
-  grep -nE '^[[:space:]]*(✗|틀림 [0-9]+건)' "$_log" | sed 's/^/  /' | tail -20
+  _hint=$(grep -nE '^[[:space:]]*(✗|틀림 [0-9]+건)' "$_log" | tail -20)
+  if [ -n "$_hint" ]; then printf '%s\n' "$_hint" | sed 's/^/  /'
+  else
+    # ★아무 모양에도 안 걸렸다. 여기서 «아마 이것일 것»이라 짐작하지 않는다 — 찾는 법을 적는다.
+    echo "  (아는 모양에 하나도 안 걸렸다. fail=1 이 서는 자리를 그대로 찾으려면:"
+    echo "     sh -x automation/tests/merge-guard.sh 2>err.log; grep -n -B12 '^+ fail=1' err.log )"
+  fi
 fi
 rm -f "$_log"
 exit $_rc

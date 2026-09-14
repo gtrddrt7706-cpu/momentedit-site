@@ -4179,7 +4179,8 @@ chk 'ESSAY_LEAD_IN' index.html 2
 #   ★muted=false 를 seeked 밖으로 옮기지 말 것. 되살리면 유령 소리가 그대로 돌아온다.
 chk 'SEEK_THEN_OPEN' index.html 3
 chk "addEventListener('seeked', open)" index.html 1
-chk 'LEAD_IN = 1000' index.html 1
+chk 'LEAD_IN = 2000' index.html 1   # 2026-09-14 사용자 지시로 1000→2000 (parents.html 의 2초와 같아졌다)
+nochk 'LEAD_IN = 1000' index.html 0  # 1초로 되돌리는 것은 지시 역전이다
 # 같은 결함이 혼주 편지(parents.html)에도 있었다 — 같은 코드가 여러 곳에 있으면 함께 고친다.
 chk 'SEEK_THEN_OPEN' parents.html 2
 chk "addEventListener('seeked',open)" parents.html 1
@@ -8108,11 +8109,87 @@ nochk '확정 전 정책' api/_ritual-kb.js 0                # 정해진 것을 
 # ★두 nochk 의 한도가 0 인 이유 — 위 주석은 옛 문구를 «음악 두 곡»·«아직 정해지지 않은 정책»으로 비켜 적었다.
 #   근거 주석이 금지 문구를 그대로 인용하면 가드가 자기 설명문을 잡는다(이 세션에서 세 번 겪었다).
 
+# ★★[GUEST_TIMEOUT 2026-09-13 점검 라운드 4] 하객 화면이 «영영 안 오는 응답»에 갇혀 있었다.
+#   실측: guide.html·seat.html 에 시간제한이 하나도 없었다(AbortController 0곳). 응답이 오지도 실패하지도 않는 망에서
+#   **45초를 기다려도 스피너만 돌았고 버튼이 0개**였다(16·30·45초 전부 동일). 하객은 카톡 링크로 온 일회성 방문자다 —
+#   로그인도 자력 복구도 못 한다. 서버가 500·연결실패로 «답을 주는» 경우는 그 전에도 정상이었다.
+#   ★두 화면의 회복 경로(재시도 2회 → 「불러오지 못했어요」+재시도 버튼)는 **이미 잘 만들어져 있었다.**
+#     fetch 가 끝나지 않아 그 catch 가 영영 안 불렸을 뿐이다 — 고친 것은 «끝나게» 한 것뿐이다.
+#   ★사진 업로드(guestPhoto)에는 일부러 안 걸었다 — 느린 회선에서 큰 본문을 올리는 중에 끊기면 그게 더 나쁘다.
+#   ★12초는 GAS 콜드스타트를 자르지 않으려는 값이다(mypage MPD_E3 와 같은 근거). 줄이지 말 것.
+#   ★재현 검사는 브라우저가 필요해 야간(run-all)이 돌린다 — node scripts/audit/guest-timeout.mjs (약 100초)
+chk 'GUEST_TIMEOUT' guide.html 1
+chk 'GUEST_TIMEOUT' seat.html 1
+chk 'function gapi(payload)' guide.html 1
+chk 'function gapi(payload)' seat.html 1
+chk 'ac.abort' guide.html 1
+chk 'ac.abort' seat.html 1
+chk 'gapi({action' guide.html 3            # 읽기 호출 3곳(seatView·seatView+q·guideView)
+chk 'gapi({action' seat.html 2             # 읽기 호출 2곳(seatView+q·seatView)
+chk 'GUEST_TIMEOUT' scripts/audit/guest-timeout.mjs 1
+nochk "fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView'" seat.html 0   # 읽기는 전부 gapi 를 지난다
+
+# ★★[GUEST_STATE 2026-09-13 점검 라운드 5] 하객 두 화면이 «서버가 무엇을 답하든» 같은 규칙으로 말해야 한다.
+#   서버(80_production.gs _guideCloseInfo)는 닫는 이유를 둘로 갈라 준다 —
+#     reason:'past'(예식이 +30일 지남 · 정상 종료라 문의처를 일부러 안 붙인다)
+#     reason:'unknown'(예식일을 모름 · 되돌림·미기입 → 사고라 문의처를 붙여야 한다)
+#   2026-08-21 [GUIDE_EXPIRE_REASON] 이 이 구분을 넣었는데 **guide.html 에만 내렸다.**
+#   seat.html 은 d.expired 만 보고 둘 다 「예식이 끝나 좌석 안내가 닫혔어요」로 말했고 그 화면엔 **출구가 0개**였다 —
+#   아직 하지도 않은 예식을 끝났다고 듣고 물어볼 곳도 없었다. 한 화면만 봐서는 영영 안 보이던 자리다.
+#   ★재현 검사는 브라우저가 필요해 야간(run-all)이 돌린다 — node scripts/audit/guest-state.mjs (2화면×5응답=10칸)
+chk "d.reason==='unknown'" guide.html 1
+chk "d.reason==='unknown'" seat.html 1
+chk 'GUIDE_EXPIRE_REASON' guide.html 1
+chk 'GUIDE_EXPIRE_REASON' seat.html 1
+chk '좌석 안내를 준비하고 있어요' seat.html 1
+chk 'GUEST_STATE' scripts/audit/guest-state.mjs 1
+
+# ★[GUEST_TIMEOUT · 세 번째 화면 2026-09-13 점검 라운드 6] guide·seat 만 고치고 cancel.html 을 빠뜨릴 뻔했다.
+#   실측: 응답이 영영 안 오면 예약 취소 화면은 40초 뒤에도 카드가 「불러오는 중…」이고 버튼이 0개였다.
+#   그 화면의 catch(「예약 정보를 불러오지 못했어요 · 네트워크 상태를 확인하고 잠시 후 다시 시도해 주세요」)는
+#   이미 있었다 — fetch 가 끝나지 않아 안 불렸을 뿐이다(guide·seat 과 똑같은 자리).
+#   ★inquiry.html 은 일부러 안 건드렸다 — 제출 POST 라 끊으면 이중 제출 위험이 있고,
+#     inquiry-submit-sim 이 이미 「무응답 · 영영 안 옴 → 탈출구가 있는가」를 재고 초록이다.
+#   ★schedule.html 도 안 건드렸다 — 자체 killer(25초)가 「시간이 너무 걸려요」+「마이페이지로」를 낸다(실측).
+chk 'GUEST_TIMEOUT' cancel.html 1
+chk 'AbortController' cancel.html 1
+chk 'cancel.html?token' scripts/audit/guest-timeout.mjs 1
+
+# ★★[ADM_SLOW_NOTE 2026-09-13 점검 라운드 7] 관리자 화면의 해골이 영원히 반짝이던 자리.
+#   실측: 응답이 오지도 실패하지도 않으면 20초가 지나도 본문이 「MOMENT EDIT」뿐이고 버튼이 0개였다 —
+#   운영자는 «내 망인지 시스템이 죽은 건지»를 알 수 없다. [ADM_NETFAIL] 의 토스트는 **거절이 나야** 뜨므로
+#   «영영 안 옴»에는 안 걸린다(그 안전망의 사각).
+#   ★고객 화면처럼 12초에 끊지 않는다 — 리포트·장소 스윕처럼 오래 걸리는 호출을 자르면 멀쩡한 작업이 죽는다.
+#     «끊지 않고 알리기만» 한다(schedule.html 의 slowT 와 같은 결).
+#   ★15초는 _loadingSince 가 이미 «갇힘»으로 보는 값과 같은 숫자다(NAV_SEQ) — 두 값이 따로 놀지 않게 맞췄다.
+chk 'ADM_SLOW_NOTE' admin.html 3
+chk '_admSlowArm' admin.html 2
+chk 'slow-note' admin.html 3
+chk "서버 응답이 늦어요" scripts/audit/guest-timeout.mjs 1
+
+# ★★[FREE_PORT · SERVED_OURS 2026-09-13 점검 라운드 8] 이번에 만든 브라우저 감사 셋이 포트를 박아 두고 있었다.
+#   실측: 8534 를 다른 프로세스가 쥔 채 guest-state 를 돌리니 「예식이 끝나…라고 말해야 하는데」로
+#   **제품 결함처럼** 붉었다. 원인은 화면이 아니라 포트다.
+#   ★_freeport.mjs 머리말이 2026-08-30 에 같은 사고를 이미 적어 뒀다 —
+#     「환경 탓으로 붉는 검사는 사람이 곧 무시한다」. 19개 감사가 그래서 그걸 쓰는데 내가 새로 만들며 빠뜨렸다.
+#   ★두 겹으로 막는다: ①freePort 로 충돌 자체를 없애고 ②그래도 우리 화면이 아니면 «틀림(1)»이 아니라 «못 쟀다(2)».
+#     둘을 구분하는 것이 이 저장소의 규칙이다(CANT_LOOK).
+#   ★남은 20개(자기 서버 + 박은 포트)는 서로 겹치지 않는다(실측) — 전수 실행 안에서는 부딪히지 않아 그대로 둔다.
+chk 'freePort' scripts/audit/snap-word.mjs 1
+chk 'freePort' scripts/audit/guest-timeout.mjs 1
+chk 'freePort' scripts/audit/guest-state.mjs 1
+chk 'SERVED_OURS' scripts/audit/snap-word.mjs 1
+chk 'SERVED_OURS' scripts/audit/guest-timeout.mjs 1
+chk 'SERVED_OURS' scripts/audit/guest-state.mjs 1
+nochk 'const PORT = 8489' scripts/audit/snap-word.mjs 0
+nochk 'const PORT = 8512' scripts/audit/guest-timeout.mjs 0
+nochk 'const PORT = 8534' scripts/audit/guest-state.mjs 0
+
 # ★[GATE_RED / GATE_RED_GAP] 게이트 결과를 읽는 도구 자체를 건다.
 #   scripts/gate.sh 는 7,000줄을 눈으로 걸러 「초록」이라 오보한 사고에서 나왔다(2026-09-12).
 #   그 뒤 «빨간 줄 0건 · 종료코드 1» 이라는 읽을 수 없는 요약이 한 번 더 나와(2026-09-14),
 #   못 센 실패 줄을 그대로 보여 주게 했다. 둘 다 지워지면 오보로 되돌아간다.
-chk 'GATE_RED' scripts/gate.sh 2
+chk 'GATE_RED' scripts/gate.sh 3
 chk 'GATE_RED_GAP' scripts/gate.sh 1
 
 # ★[LISTEN_COVER_WEB / TONE_EMBED_REPO / USE_EXISTING_CUT_FAIL] 실청판이 «빠짐 없이» 만들어졌나.
@@ -8126,3 +8203,8 @@ if command -v node >/dev/null 2>&1; then
   if [ $? = 0 ]; then echo "ok listen-cover: $(printf '%s' "$_lc" | tail -1)"
   else echo 'REVERT? listen-cover 실패 — 실청판에 빠진 자리가 있다:'; printf '%s\n' "$_lc" | grep '^✗'; fail=1; fi
 else echo 'skip listen-cover (node 없음)'; fi
+
+# ★[MEAS_CARRY] 글만 바뀐 실청 어조판을 wav 없이도 다시 뽑을 수 있게 한 장치.
+#   지우면 「대장 문구를 고친 사람은 그 판을 영영 못 고친다」로 되돌아간다 — 게이트가 붉은 채 산다.
+chk 'MEAS_CARRY' scripts/build-listen-tone.mjs 2
+chk '그 자리의 글이 한 글자까지 같을 때만' scripts/build-listen-tone.mjs 1
