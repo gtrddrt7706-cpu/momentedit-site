@@ -12,6 +12,12 @@
         python3 scripts/audit/build-submission-txt.py --check    → 갈라졌는지만 본다(쓰지 않음)
         merge-guard 가 --check 를 돌린다. 정본을 고치고 txt 를 안 만들면 푸시가 막힌다.
 """
+# ★[FORM_COUNT 2026-09-14 · 대표 폼 화면 실측] 폼은 «줄바꿈을 자수에 넣지 않는다».
+#   Q2 를 붙여 넣은 화면 카운터가 1928 이었다. 원문 순수 글자(개행 제외)가 1,927 이고
+#   거기에 붙여넣기로 딸려 들어간 물결 1자를 더하면 정확히 1928 이다.
+#   그래서 이 파일이 찍는 "실제/최악(CRLF)" 값은 «폼보다 보수적»이다 — 잘릴 걱정은 없지만
+#   여유를 실제보다 좁게 보여 준다. 폼 기준 여유는 (한도 - (len - 개행수)) 다.
+#   ★[RULE_MEASURED] 잰 물건과 폼이 재는 물건이 달랐다. 남겨 두어 다시 헷갈리지 않게 한다.
 import io, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
