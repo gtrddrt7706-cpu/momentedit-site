@@ -29,18 +29,23 @@ const SEAT = { ok: true, seat: {
   ],
 } };
 
+// ★[SHOT_FULL 2026-09-14] 대표 지시 — *「사진을 좀더 전체적으로 캡쳐해서 볼수있게
+//   심사위원 입장에서 플러스가될수있게」*. 종전에는 «첫 화면»만 찍혀서
+//   01_홈_가격 은 마룬 배경에 브랜드명만 있는 표지가 되어 있었다(이름은 «홈_가격»인데 가격이 없다).
+//   그래서 전부 fullPage 로 바꾼다. 페이지가 끝까지 들어가야 «돌아가는 제품»으로 읽힌다.
+//   ★01 은 뺀다 — index.html 은 전체가 너무 길어 한 장으로는 못 읽고,
+//     가격·환불은 apply-shots-full.mjs 가 «답 한 덩어리» 단위로 따로 찍는다.
 const TARGETS = [
-  { n: '01_홈_가격',       url: '/index.html#pricing',          wait: 1200 },
-  { n: '02_청첩장_갤러리', url: '/invitation-gallery.html',      wait: 1200 },
-  { n: '03_청첩장_실물',   url: '/i/cover-01.html?e=' + DUMMY.eventId, wait: 1500 },
-  { n: '04_식순_빌더',     url: '/order-preview.html',           wait: 1800 },
-  { n: '05_어른_안내',     url: '/parents.html',                 wait: 1200 },
+  { n: '02_청첩장_갤러리', url: '/invitation-gallery.html',      wait: 1200, full: true },
+  { n: '03_청첩장_실물',   url: '/i/cover-01.html?e=' + DUMMY.eventId, wait: 1500, full: true },
+  { n: '04_식순_빌더',     url: '/order-preview.html',           wait: 1800, full: true },
+  { n: '05_어른_안내',     url: '/parents.html',                 wait: 1200, full: true },
   // ★[SEAT_414] 좌석 배치도만 414px 로 찍는다. 390px 에서는 우측 테이블 칩 하나가 9px 넘쳐
   //   화면 밖으로 나간다(실측: scrollW 384 > clientW 360 · '이수아' right=399).
   //   버그가 아니라 @media(max-width:400px) 의 가로 스크롤 설계라 실기기에선 밀어서 볼 수 있지만,
   //   정지 이미지로는 잘려 보인다. 414px 에서는 넘치는 칩 0개(실측).
-  { n: '06_하객_좌석조회', url: '/seat.html?t=demo',   wait: 1800, gas: SEAT, vp: { width: 414, height: 844 } },
-  { n: '07_하객_안내허브', url: '/guide.html?g=demo',  wait: 1800 },   // 내장 표본 [GUIDE_DEMO] · 서버 안 부른다
+  { n: '06_하객_좌석조회', url: '/seat.html?t=demo',   wait: 1800, full: true, gas: SEAT, vp: { width: 414, height: 844 } },
+  { n: '07_하객_안내허브', url: '/guide.html?g=demo',  wait: 1800, full: true },   // 내장 표본 [GUIDE_DEMO] · 서버 안 부른다
   // ★[SHOT_08] 손 스케치가 없을 때의 「과정」 칸 — 코워크 대체 A.
   //   02_자산팩트시트 §4-2(2026-07-21 작성)를 브랜드 톤으로 옮긴 한 장.
   //   공고일(8/20)보다 한 달 앞선 문서라 «계획을 지어내지 않았다»의 물증이 된다.
@@ -67,6 +72,12 @@ for (const t of TARGETS) {
     // ★글자 수만으로 'ok' 라 하면 오류 화면을 통과시킨다(1차 실측에서 실제로 그랬다)
     for (const bad of ['찾을 수 없어요', '만료', '잠시 후 다시', '오류가']) {
       if (text.includes(bad)) { status = `오류화면("${bad}" 표시됨)`; break; }
+    }
+    // ★[SHOT_CONFLICT 2026-09-14] 신청서는 「서른 분 모두 앉아서」라고 적는데
+    //   사이트는 아직 「25명 착석 + 스탠딩 5」다(대표가 정한 변경이 사이트에 안 내려왔다).
+    //   그 표기가 찍힌 사진을 첨부하면 신청서와 사진이 서로 다른 말을 한다.
+    for (const c of ['25명', '25 Guests', '스물다섯']) {
+      if (text.includes(c)) { status = `★신청서와 어긋남("${c}" 이 찍힌다 · 신청서는 「서른 분」)`; break; }
     }
   } catch (e) { status = '실패: ' + String(e).slice(0, 80); }
   report.push({ n: t.n, status, err: errors.slice(0, 2) });
