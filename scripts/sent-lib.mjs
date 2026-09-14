@@ -148,28 +148,33 @@ function importFrom(src) {
     const want = fold(text);
     return pool.filter((x) => !x.used && (x.cut ? want.slice(0, x.s.length) === x.s : want === x.s));
   };
-  /* 번호로 맞춘 것이 얼마나 맞나 먼저 재 본다 — 많이 맞으면 종전 길(통짜 붙여넣기)이다. */
+  /* ★★[NAME_FALLBACK 2026-09-14] 번호로 먼저 보되, «그 줄만» 어긋나면 그 줄은 이름으로 찾는다.
+     왜 — 목록 «가운데»에 한 줄이 끼면 그 뒤가 전부 한 칸씩 밀린다. 실제로 겪었다:
+     「보건실」 한 줄이 [112]에 들어가자 그 뒤 정숙 4줄이 밀려 이름이 안 맞았다.
+     ★종전엔 「전체의 절반이 안 맞으면 이름으로」였다. 111/115 가 맞아 그 문턱을 못 넘었고,
+       밀린 4줄은 그냥 «안 넣은 것»으로 남았다. 문턱은 «많이 밀린 경우»만 잡고 «조금 밀린 경우»를 놓친다.
+     ★줄마다 판단하면 둘 다 잡힌다. 번호가 맞으면 그대로, 안 맞으면 그 줄만 이름으로. */
+  const matchByNum = (r) => {
+    const g = byNo.get(r.n - 1); if (!g) return null;
+    const f = foldName(g), w = fold(r.text);
+    return (f.cut ? w.slice(0, f.s.length) === f.s : w === f.s) ? g : null;
+  };
   let byNumHit = 0;
-  for (const r of ord) { const g = byNo.get(r.n - 1); if (!g) continue;
-    const f = foldName(g); const w = fold(r.text);
-    if (f.cut ? w.slice(0, f.s.length) === f.s : w === f.s) byNumHit++; }
-  const USE_NAME = byNumHit < byNo.size * 0.5;
-  if (USE_NAME) console.log(`[BY_NAME] 번호로는 ${byNumHit}/${byNo.size} 만 맞는다 — «이름»으로 맞춥니다(따로 붙여넣으신 묶음입니다).`);
+  for (const r of ord) if (matchByNum(r)) byNumHit++;
+  if (byNumHit < byNo.size) console.log(`[NAME_FALLBACK] 번호로 맞는 것 ${byNumHit}/${byNo.size} — 나머지는 «이름»으로 찾습니다.`);
 
   const j = loadIdx();
-  let put = 0, skipName = 0, skipSlot = 0, miss = 0, ambig = 0;
+  let put = 0, skipSlot = 0, miss = 0, ambig = 0;
+  /* 번호로 맞는 줄을 먼저 잡아 둔다 — 그 파일을 이름 찾기에서 빼기 위해서다(두 줄이 한 파일을 가져가지 않게). */
+  const bound = new Map();
+  for (const r of ord) { const g = matchByNum(r); if (g) { bound.set(r.n, g); pool.find((x) => x.g === g).used = true; } }
+
   for (const r of ord) {
-    let g;
-    if (USE_NAME) {
-      const m = matchOf(r.text);
+    let g = bound.get(r.n);
+    if (!g) {
+      const m = matchOf(r.text);                 // [NAME_FALLBACK] 번호가 어긋난 줄만 이름으로
       if (!m.length) { miss++; continue; }
-      if (m.length > 1 && new Set(m.map((x) => x.s)).size === 1 && m.length > 1) { /* 같은 문장 여럿 — 차례로 */ }
       const pick = m[0]; pick.used = true; g = pick.g;
-    } else {
-      g = byNo.get(r.n - 1);                     // 붙여넣기 1번째 줄 = audio_0
-      if (!g) { miss++; continue; }
-      const f = foldName(g); const w = fold(r.text);
-      if (f.cut ? w.slice(0, f.s.length) !== f.s : w !== f.s) { skipName++; continue; }   // 이름이 다르면 «안 넣는다»
     }
     for (const a of r.at || []) {
       const id = a.clip + '#' + a.i;
@@ -187,7 +192,6 @@ function importFrom(src) {
   console.log(`[SENT_LIB] 창고에 넣은 자리 ${put}개`);
   if (ambig) console.log(`   ★같은 문장이 여럿이라 못 가른 것 ${ambig}건`);
   if (miss) console.log(`   · 그 순서표의 ${miss}줄은 이번 묶음에 없었다(다른 배치일 것)`);
-  if (skipName) console.log(`   ★이름이 대본과 달라 «안 넣은» 것 ${skipName}건 — 배치가 밀렸는지 보세요`);
   if (skipSlot) console.log(`   ★대장과 글이 달라 «안 넣은» 자리 ${skipSlot}건 — 대본이 그 사이 바뀐 자리입니다`);
 }
 
