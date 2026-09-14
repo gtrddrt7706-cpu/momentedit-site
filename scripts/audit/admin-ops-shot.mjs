@@ -63,11 +63,11 @@ const HOME = {
     ],
     '웨딩스냅': [],
   },
-  results: [
-    { code:'YZ34AB', names:'이지호 · 김서준', product:'시그니처', 상태:'원본전달', dday:6 },
-    { code:'KL90MN', names:'임하준 · 임수아', product:'시그니처', 상태:'선택완료', 선택수:12, dday:19, 추가보정:'신청', 추가보정수량:'4' },
-    { code:'OP12QR', names:'최서연 · 최유진', product:'웨딩스냅', 상태:'컨펌대기', dday:31 },
-  ],
+  // ★[SHOT_LEGIBLE 2026-09-14 대표 「10번 사진도 잘 안 보여」] 「결과물 관리」를 뺐다.
+  //   세 화면을 한 장에 넣자 세로가 길어져 화면에 맞춰 볼 때 글자가 작아졌다 — 많이 넣을수록 작아지는 맞바꿈이다.
+  //   셋 중 결과물 관리가 신청서 문장을 가장 덜 받친다(459행은 「승인·계약서 발송·입금 확인」, 76행은 「진행 단계」).
+  //   ★남긴 둘이 그 두 문장을 정확히 증명하고, 대신 글자가 커진다.
+  results: [],
   survey: [], blocks: [], stageFlow: {}, stageEx: [],
 };
 
@@ -108,6 +108,12 @@ for (const w of [560]) {
   // ★「예시 데이터」 고지 띠를 넣는다 — 신청서는 「아직 문을 열기 전」이라 밝히고 있다.
   //   진행 중 현황에 고객 12명이 보이면 «이미 12명이 있다»로 읽힐 수 있다.
   //   라이브·하객안내 화면에는 제품 안에 이미 같은 고지가 있다. 관리자에는 없으니 여기서 붙인다.
+  // ★결과물 목록을 비우면 그 자리에 「아직 결과물 단계 고객이 없어요」 빈 칸이 남는다 — 칸째로 숨긴다
+  await page.evaluate(() => {
+    const rw = document.getElementById('resultsWrap');
+    if (rw) rw.style.display = 'none';
+  });
+  await page.waitForTimeout(300);
   await page.evaluate(() => {
     const head = Array.from(document.querySelectorAll('.sect-h'))
       .find(e => (e.textContent || '').includes('처리할 일'));
@@ -131,6 +137,17 @@ for (const w of [560]) {
                    : document.documentElement.scrollHeight;
     return { x: 0, y: Math.max(0, a), width: document.documentElement.clientWidth, height: b - a };
   });
+  // ★단을 어디서 자를지 «캡처할 때» 재 둔다 — 나중에 픽셀로 찾으면 카드 한가운데가 갈린다(⑥ 에서 겪음)
+  const cut = await page.evaluate(() => {
+    const start = document.getElementById('shotNotice');
+    const pipe = Array.from(document.querySelectorAll('.sect-h'))
+      .find(e => (e.textContent || '').includes('진행 중 현황'));
+    if (!start || !pipe) return null;
+    const sy = window.scrollY;
+    const a = start.getBoundingClientRect().top + sy - 16;
+    return Math.round(pipe.getBoundingClientRect().top + sy - a - 10);
+  });
+  if (cut) { fs.writeFileSync(path.join(OUT, `admin_cut_${w}.txt`), String(cut)); console.log(`     → 단 나눌 자리 ${cut}px (「진행 중 현황」 머리글 위)`); }
   if (box) {
     await page.screenshot({ path: path.join(OUT, `admin_운영화면__${w}.png`), clip: box, fullPage: true });
     console.log(`     → 처리할 일만 ${Math.round(box.width)}x${Math.round(box.height)}`);
