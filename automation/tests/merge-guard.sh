@@ -6394,8 +6394,8 @@ nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     말한다는 내용은 그대로고, 나레이션판의 «어미»만 합쇼체로 맞췄다(「두었어요」→「두었습니다」).
 #     G1-1·G1-3·G1-4 나레이션판은 이미 전부 합쇼체인데 G1-2만 두 분 목소리판에서 복사된 채였다.
 #     두 분 목소리판은 그대로 해요체다 — 그래서 1건이 «남아 있어야» 맞다.
-chk '한쪽에 핑거 푸드와 음료를 준비해 두었어요' assets/ritual-data.js 1
-chk '천천히 드시다 자리에 앉아 주시면 됩니다' assets/ritual-data.js 2
+chk '한쪽에 간단한 다과와 음료를 준비해 두었어요' assets/ritual-data.js 1
+chk '자리에 앉으셔서 편히 드시면 됩니다' assets/ritual-data.js 2
 nochk '음료가 준비되어 있습니다' assets/ritual-data.js
 nochk '편히 계시다 자리에 앉아' assets/ritual-data.js
 chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
@@ -7038,6 +7038,45 @@ chk 'REBIND' scripts/sent-lib.mjs 2
 #     붙여넣기 판에는 한 줄도 없어야 기계가 읽는다. 한 파일로 둘을 겸하게 하지 말 것.
 #   ★[DUP_ONCE]·[PASTE_CLEAN] 을 여기서도 그대로 건다 — 한 곳에만 걸면 다른 곳으로 샌다.
 chk 'PICK_PASTE' scripts/sent-lib.mjs 2
+
+# ★★[GUEST_TONE 2026-09-14 사장님 지시 — 하객 안내 문구 다섯 자리]
+#   사장님이 네 줄에 «왜»를 붙여 주셨고, 같은 눈으로 한 자리를 더 골랐다.
+#   ★편지·서약·덕담은 손대지 않았다 — 지적은 전부 «하객에게 하는 안내»였다. 결이 다른 곳에 같은 자를 대지 않는다.
+#   ① 핑거 푸드 → 간단한 다과   *"어르신들있으니 적절하게 개선"*
+#      ★제공 항목은 그대로다 — 계약서·index.html 의 「웰컴 핑거 푸드·와인」은 안 건드렸다.
+#        바뀐 것은 «그것을 부르는 말»뿐이다. 그 약속을 빼는 것이 아니다.
+#   ② 「천천히 드시다 자리에 앉아」 → 「자리에 앉으셔서 편히 드시면 됩니다」
+#      *"너무 많이먹으면않되우려 … 돌아다녀도된다는 문구로 인식되면 부산스러움"*
+#      순서를 뒤집는 것만으로 셋이 풀린다 — 「천천히」(시간이 넉넉하다)를 빼고, 앉는 것을 먼저 둔다.
+#   ③ 「지금 이 문장도 … 직접 고른」 → 「지금 들으시는 이 안내도 … 정한」
+#      말하는 사람이 제 말을 「문장」이라 부르면 글 읽는 티가 난다. 「고른」은 남이 차린 것에서 집었다는 말이다.
+#   ④ 「소리만 줄여」 → 「소리는 잠시 꺼 주시기 바랍니다」   *"꺼달라고 해야지"*
+#      ★★전원을 끄라고는 «쓰지 않았다» — 바로 다음 줄이 「사진은 편히 남기셔도 좋습니다」([PHOTO_FREE])라
+#        한 클립 안에서 두 말이 된다. «소리»를 끈다고 해야 분명함과 사진이 둘 다 산다.
+#        ★「진동으로 바꿔」도 같이 갔다 — 진동은 «켜 두라»는 말이다.
+#   ⑤ 「두 분이 절반쯤 돌았습니다」 → 「절반쯤 인사를 나누셨습니다」
+#      사람을 주어로 「돌았다」는 어르신 귀에 험하고, 무엇을 하는지도 안 말한다.
+#      다음 줄이 「찾아뵙습니다」라 그 말로 맞추면 두 줄이 한 장면이 된다.
+chk 'GUEST_TONE' scripts/apply-guest-tone.mjs 1
+# ★★[COPY_THREE 2026-09-14] 하객 안내 문안은 «세 벌»이다 — 한 벌만 고치면 나머지가 남는다.
+#   ① assets/ritual-data.js  ② docs/plans/식순연구/배역_예시_대사.txt  ③ order-preview.html
+#   오늘 그대로 당했다 — [GUEST_TONE] 으로 ①③을 고쳤는데 ②가 남아 대장의 «두 분 목소리판»이
+#   옛말 그대로였다. 고친 자리가 아홉인데 창고는 다섯만 낡음으로 떴고, 그 차이를 내가 세어 보지
+#   않았으면 신부 네 줄이 옛 소리로 남은 채 완성됐다. 「한 곳만 고치면 다른 곳으로 샌다」의 세 번째다.
+#   ★③은 check-ritual-mirror 가 이미 ①과 대조한다 — 두 번 재지 않는다.
+#   ★두 벌짜리 클립을 «과반»으로 가른다. 한 문장이라도 겹치면 두 벌로 보면 우연에 걸린다
+#     (10_letter-parent 가 13문장 중 1문장만 겹쳐 12건을 헛되이 물었다 · 첫 판 실측).
+chk 'COPY_THREE' scripts/audit/copy-three.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/copy-three.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL copy-three: 하객 안내 문안의 두 벌이 갈렸습니다 — node scripts/audit/copy-three.mjs'; fail=1; }; fi
+nochk '핑거 푸드' assets/ritual-data.js
+nochk '지금 이 문장도' assets/ritual-data.js
+nochk '진동으로 바꿔' assets/ritual-data.js
+nochk '절반쯤 돌았습니다' assets/ritual-data.js
+chk '한쪽에 간단한 다과와 음료를 준비해 두었습니다' assets/ritual-data.js 1
+chk '오늘의 순서도, 지금 들으시는 이 안내도' assets/ritual-data.js 2
+chk '휴대폰 소리는 잠시 꺼 주시면 됩니다' assets/ritual-data.js 1
+chk '절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
 # ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
 #   창고에 «없거나 낡은» 자리만 뽑아 붙여넣기 판을 만든다(--todo).
 #   ★이미 받은 자리를 다시 요구하지 않는다 — 그게 이 창고를 만든 이유다.
@@ -7410,7 +7449,7 @@ nochk '방금 나눈 말을' assets/ritual-data.js
 chk '앉으신 자리에서 편히 보시면 됩니다' assets/ritual-data.js 2
 # ★[PHONE_SRC 2026-09-12] 이 문장의 «원천»이 ritual-cue.js 에서 ritual-data.js 로 옮겨졌다(45adff23).
 #   사본을 없애는 방향(EXTRA_SOURCE)과 같은 정리라 되돌릴 것이 아니다. 검사가 옛 자리를 보고 있었다.
-chk '휴대폰은 소리만 줄여 주시면 됩니다' assets/ritual-data.js 1
+chk '휴대폰 소리는 잠시 꺼 주시기 바랍니다' assets/ritual-data.js 1
 
 # ★★[EXTRA_SOURCE 2026-09-12] 생성기가 들고 있던 문안 하드코딩 사본 열 줄을 «없앴다».
 #   맞추는 대신 없앤 이유 — 두 번 당했다. 원천을 고쳐도 사본이 옛 글을 들고 manifest 를 먹어
