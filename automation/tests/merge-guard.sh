@@ -7031,6 +7031,17 @@ chk 'TODO_ONLY' scripts/sent-lib.mjs 1
 #     여덟 밖이라, 0_보이스확인.txt 로 사장님이 한 번 확인하셔야 한다(크레딧 0).
 chk 'VOICE_STEPMOM' scripts/build-typecast-import.mjs 1
 chk "시어머님: '정숙'" scripts/build-typecast-import.mjs 1
+# ★★[ERA_NOW 2026-09-14 사장님 「부모님들 연령대 지금결혼하는 사람들 나이대 반영 한거지
+#   너무 나이든사람연출한건아닌지 검토」] 어머님 덕담의 「양호실」 → 「보건실」.
+#   ★나이가 아니라 «시대»가 틀렸다. 학교보건법 개정으로 1998-12-31 부터 이름이 보건실이다.
+#     하윤이 스물아홉이면 고3은 2015년경 — 그때 이미 17년째 보건실이었다.
+#     「양호실」에 누우려면 1998년 «이전» 고3이어야 하고, 그러면 하윤이 지금 마흔다섯을 넘는다.
+#     한 단어가 신부를 한 세대 위로 올린다.
+#   ★부모 «나이»는 맞았다(실측) — 하윤 29 → 어머님 57~59 · 헌정의 「그때 아버지가 지금 제 나이셨습니다」가
+#     아버지를 서준+30 안팎에 두어 62세쯤. 2025 평균 초혼(여 31.6)의 부모대와 맞는다.
+#   ★되돌리지 말 것.
+nochk '양호실' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '하윤이는 이미 보건실에 누워 있었어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
