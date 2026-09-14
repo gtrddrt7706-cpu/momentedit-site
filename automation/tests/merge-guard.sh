@@ -6395,7 +6395,7 @@ nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     G1-1·G1-3·G1-4 나레이션판은 이미 전부 합쇼체인데 G1-2만 두 분 목소리판에서 복사된 채였다.
 #     두 분 목소리판은 그대로 해요체다 — 그래서 1건이 «남아 있어야» 맞다.
 chk '한쪽에 간단한 다과와 음료를 준비해 두었어요' assets/ritual-data.js 1
-chk '자리에 앉으셔서 편히 드시면 됩니다' assets/ritual-data.js 2
+chk '자리에 앉아 주시면 됩니다' assets/ritual-data.js 2
 nochk '음료가 준비되어 있습니다' assets/ritual-data.js
 nochk '편히 계시다 자리에 앉아' assets/ritual-data.js
 chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
@@ -7045,9 +7045,12 @@ chk 'PICK_PASTE' scripts/sent-lib.mjs 2
 #   ① 핑거 푸드 → 간단한 다과   *"어르신들있으니 적절하게 개선"*
 #      ★제공 항목은 그대로다 — 계약서·index.html 의 「웰컴 핑거 푸드·와인」은 안 건드렸다.
 #        바뀐 것은 «그것을 부르는 말»뿐이다. 그 약속을 빼는 것이 아니다.
-#   ② 「천천히 드시다 자리에 앉아」 → 「자리에 앉으셔서 편히 드시면 됩니다」
+#   ② 「천천히 드시다 자리에 앉아」 → 「자리에 앉아 주시면 됩니다」
 #      *"너무 많이먹으면않되우려 … 돌아다녀도된다는 문구로 인식되면 부산스러움"*
 #      순서를 뒤집는 것만으로 셋이 풀린다 — 「천천히」(시간이 넉넉하다)를 빼고, 앉는 것을 먼저 둔다.
+#      ★2026-09-14 사장님 *"편히 드시면 이것도 빼자"* — 먹으라는 말을 아예 뺐다.
+#        다과가 있다는 «사실»은 앞줄이 이미 말한다. 뒷줄까지 먹기를 권하면 그 사실이 «권유»가 된다.
+#        십 분 전 안내가 할 일은 앉히는 것 하나뿐이다. ★「편히 드시면」을 되살리지 말 것.
 #   ③ 「지금 이 문장도 … 직접 고른」 → 「지금 들으시는 이 안내도 … 정한」
 #      말하는 사람이 제 말을 「문장」이라 부르면 글 읽는 티가 난다. 「고른」은 남이 차린 것에서 집었다는 말이다.
 #   ④ 「소리만 줄여」 → 「소리는 잠시 꺼 주시기 바랍니다」   *"꺼달라고 해야지"*
@@ -7067,6 +7070,25 @@ chk 'GUEST_TONE' scripts/apply-guest-tone.mjs 1
 #   ★두 벌짜리 클립을 «과반»으로 가른다. 한 문장이라도 겹치면 두 벌로 보면 우연에 걸린다
 #     (10_letter-parent 가 13문장 중 1문장만 겹쳐 12건을 헛되이 물었다 · 첫 판 실측).
 chk 'COPY_THREE' scripts/audit/copy-three.mjs 2
+# ★★[GUEST_TONE2 2026-09-14] 사장님 *"이 대사 전부 한번 비슷하게 검토"* — 80줄을 같은 눈으로 다시 보고 넷.
+#   ② 「그 편지는 두 분이 가져갑니다」 → 「받으신 분이 간직하십니다」  ★갈래에 따라 «틀린 말»이었다
+#      이 대본에서 「두 분」은 신랑·신부인데, 이 한 문장이 편지 «세 갈래 전부»의 닫는 말이다.
+#      부모님께 읽은 갈래에서는 «준 사람이 도로 가져가는» 말이 된다. 세 갈래에서 모두 참인 말로 바꿨다.
+#      ★[NO_VERDICT] 의 「사실만 말한다」는 그대로다 — 바꾼 것은 «누가»뿐이다.
+#   ③ 「아직 만나지 못한 자리도」 → 「들르지 못한 자리도」 — 만나는 것은 사람이고 찾아가는 것이 자리다.
+#      앞 클립(61_narr-round-open)이 이미 「자리마다 차례로 찾아뵙습니다」로 옳게 쓴다.
+#   ④ 신부 첫인사 「얼굴을 한 분씩 다 알고 있습니다」 → 「저희가 다 아는 분들입니다」
+#      「얼굴을 … 알고 있습니다」는 사람을 «파악하고 있다»로 들린다. 어른들 앞에서 신부가 할 말의 결이 아니다.
+#      ★ritual-data 의 「얼굴을 한 분씩 «보면서»」는 «다른 문장»이다(마지막 인사) — 앞자락이 같다고 함께 치지 말 것.
+#   ★감정 구간은 손대지 않았다 — 게이트에 결정이 잠겨 있고 사장님이 받으신 판이다.
+chk 'GUEST_TONE2' scripts/apply-guest-tone2.mjs 1
+chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
+chk '아직 들르지 못한 자리도 차례로 찾아뵙습니다' assets/ritual-data.js 1
+chk '오늘 오신 분들은 저희가 다 아는 분들입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '편히 드시면' assets/ritual-data.js
+nochk '두 분이 가져갑니다' assets/ritual-data.js
+nochk '만나지 못한 자리' assets/ritual-data.js
+nochk '얼굴을 한 분씩 다 알고' 'docs/plans/식순연구/배역_예시_대사.txt'
 if command -v node >/dev/null 2>&1; then node scripts/audit/copy-three.mjs >/dev/null 2>&1 \
   || { echo 'FAIL copy-three: 하객 안내 문안의 두 벌이 갈렸습니다 — node scripts/audit/copy-three.mjs'; fail=1; }; fi
 nochk '핑거 푸드' assets/ritual-data.js
@@ -7380,7 +7402,7 @@ chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 #   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
 chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
 nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
-chk '그 편지는 두 분이 가져갑니다' assets/ritual-data.js 1
+chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
 nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
 nochk '오늘 이 자리를 함께 채워 주셔서' assets/ritual-cue.js
 nochk '두 사람의 가슴에도 오래 남을 것입니다' assets/ritual-data.js

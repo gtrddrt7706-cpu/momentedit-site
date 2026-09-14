@@ -794,8 +794,8 @@ var GUEST=[
   "오늘, 두 사람의 예식에 함께해 주셔서 감사합니다. 오늘의 모든 자리는 두 사람이 정성껏 준비한 지정 좌석입니다. 미리 받으신 좌석 안내나 입구의 안내 화면으로 자리를 확인하실 수 있습니다. 자리를 못 찾으시면, 입구 쪽에서 안내해 드리고 있습니다.",
   "오늘, 저희 두 사람의 예식에 함께해 주셔서 감사합니다. 오늘의 모든 자리는 저희가 정성껏 준비한 지정 좌석이에요. 미리 받으신 좌석 안내나 입구의 안내 화면으로 자리를 확인하실 수 있어요. 자리를 못 찾으시면, 입구 쪽에서 안내해 드리고 있습니다."],
  ['시작 10분 전',
-  "오늘의 예식이 약 십 분 뒤 시작됩니다. 한쪽에 간단한 다과와 음료를 준비해 두었습니다. 자리에 앉으셔서 편히 드시면 됩니다.",
-  "저희 예식이 약 십 분 뒤 시작됩니다. 한쪽에 간단한 다과와 음료를 준비해 두었어요. 자리에 앉으셔서 편히 드시면 됩니다."],
+  "오늘의 예식이 약 십 분 뒤 시작됩니다. 한쪽에 간단한 다과와 음료를 준비해 두었습니다. 자리에 앉아 주시면 됩니다.",
+  "저희 예식이 약 십 분 뒤 시작됩니다. 한쪽에 간단한 다과와 음료를 준비해 두었어요. 자리에 앉아 주시면 됩니다."],
  ['시작 5분 전',
   "예식 시작 오 분 전입니다. 하객 여러분께서는 지정된 좌석에 착석해 주시기 바랍니다.",
   "저희 예식이 오 분 뒤에 시작돼요. 이제 자리에 앉아 주시면 감사하겠습니다."],
@@ -2569,7 +2569,7 @@ function renderStep(k){
   else if(k==='letter'){
     h+=clip('letter');
     var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
-    lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'그 편지는 두 분이 가져갑니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
+    lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'그 편지는 받으신 분이 간직하십니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 함께해요</label>';
     h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 배우자가 이어서 읽어 주면 돼요.');   // [NO_DIRECTOR_READ] 서약 카드와 같은 사다리 — 디렉터 대독은 실제로 없다
     h+=writeCard('letter',false);   // 1차 입력 — WRITE_2CHECK
@@ -2853,7 +2853,7 @@ var BLOCK={
     return {n:'축배 · 케이크',nar:TOAST[S.toast].nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue};
   },
   letter:function(){
-    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"그 편지는 두 분이 가져갑니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
+    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"그 편지는 받으신 분이 간직하십니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
   },
   tribute:function(){
     return {n:'부모님 헌정',nar:TRIBUTE.nar,self:'두 분이 부모님께 · '+TRIBUTE.modes[S.tribute].d,end:TRIBUTE.end,cue:TRIBUTE.modes[S.tribute].cue};
