@@ -102,7 +102,9 @@ h2.q .num{color:#7a5c3e}
 section{page-break-before:always} section:first-of-type{page-break-before:auto}
 p{margin:0 0 3.4mm;text-align:justify;word-break:keep-all}
 figure{margin:5mm 0 6mm;page-break-inside:avoid;text-align:center}
-figure img{max-width:100%;max-height:152mm;border:1px solid #e2ded6;border-radius:1.5mm}
+figure img{max-width:100%;max-height:215mm;border:1px solid #e2ded6;border-radius:1.5mm}
+/* 152mm 로 두면 세로 1.4배가 넘는 사진이 폭 103mm 로 쪼그라들어 글자가 안 보인다.
+   215mm 면 A4 한 쪽(263mm)에 캡션까지 들어가고, 열 장 중 아홉이 글줄 폭을 채운다. */
 figcaption{margin-top:2.5mm;font-size:8.8pt;color:#5c5c5c}
 .tbl{width:100%;border-collapse:collapse;font-size:9.4pt;margin-top:6mm}
 .tbl th,.tbl td{border-bottom:1px solid #e5e1d9;padding:2.4mm 2mm;text-align:left}
