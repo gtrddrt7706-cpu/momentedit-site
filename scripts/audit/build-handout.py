@@ -17,10 +17,31 @@ TITLE= {'Q1':'한 줄 소개','Q2':'아이디어 배경','Q3-1':'차별점과 �
 LIM  = lambda q: 100 if q in ('Q1','Q10') else 2000
 CH   = {'Q1','Q2','Q3-1','Q4-1','Q4-2','Q8'}        # 2차 제출본 대비 바뀐 칸
 # 캡션 번호 → 사진 파일. 번호는 본문 등장 순서와 같아야 한다(아래에서 검사한다).
-FILES= {1:'07_Q2_가격.png', 2:'01_Q3-1_마이페이지.png', 3:'08_Q3-1_환불조항.png',
-        4:'05_Q3-1_식순_2단안.png', 5:'02_Q3-1_라이브.png', 6:'04_Q3-1_좌석세팅표.png',
-        7:'09_Q4-1_하객이_만나는화면.png', 8:'06_Q4-1_하객안내.png',
-        9:'10_Q4-1_관리자.png', 10:'03_Q4-1_다이닝.png'}
+# 사진 번호 → (파일, 문항, 이 문단 뒤에 넣는다(앞머리), 폼 「사진 설명」 칸에 적을 글)
+# ★캡션은 본문이 아니라 폼의 사진 설명 칸에 적는다(2026-09-16 대표 확인) — 본문 자수에 안 들어간다.
+PHOTOS = {
+ 1:('07_Q2_가격.png','Q2','이것이 저만의 사정은 아니었습니다',
+    '계약 전에 공개하는 가격과 포함·별도 항목, 그리고 열여섯 조로 된 계약서'),
+ 2:('01_Q3-1_마이페이지.png','Q3-1','1. 원래 플래너에게 맡기는',
+    '마이페이지 · 지금 하실 일이 맨 위에 뜹니다'),
+ 3:('08_Q3-1_환불조항.png','Q3-1','3. 취소하면 얼마를 돌려받는지',
+    '홈페이지에 공개한 환불 조항 · 150일 전까지는 전액 돌려드립니다'),
+ 4:('05_Q3-1_식순_2단안.png','Q3-1','4. 예식 순서는 사회자와 당일에',
+    '식순 만들기 · 하루 140분의 순서, 코스 고르기, 안내 음성 고르기'),
+ 5:('02_Q3-1_라이브.png','Q3-1','5. 작게 치르면 부르지 못하는',
+    '못 오신 분이 보시는 중계와 편지와 디지털 봉투'),
+ 6:('04_Q3-1_좌석세팅표.png','Q3-1','6. 예식장 계약은 올 사람 수를',
+    '예식 당일 세팅에 그대로 쓰는 좌석 배치도'),
+ 7:('09_Q4-1_하객이_만나는화면.png','Q4-1','2단계, 시공을 마치고 한 달',
+    '하객이 만나는 화면 · 초대장에서 중계·편지·봉투로 이어집니다'),
+ 8:('06_Q4-1_하객안내.png','Q4-1','2단계, 시공을 마치고 한 달',
+    '하객 안내 · 내 자리와 식사와 사진 모으기가 한 곳에'),
+ 9:('10_Q4-1_관리자.png','Q4-1','3단계, 월 4건에서 6건에',
+    '관리자 화면 · 사람이 정해야 하는 일만 모아 둡니다'),
+ 10:('03_Q4-1_다이닝.png','Q4-1','출장 뷔페는 값에 비해 맛을',
+    '다이닝 · 인근 식당을 인원과 조건에 맞춰 골라 줍니다'),
+}
+FILES = {n:v[0] for n,v in PHOTOS.items()}
 
 T = io.open(DOC, encoding='utf-8').read()
 def body(q):
@@ -28,15 +49,16 @@ def body(q):
     return re.sub(r'\n{2,}','\n', T[j+4:k].strip()).strip()
 
 fail=[]
-order=[]
-for q in QS:
-    order += [int(m) for m in re.findall(r'^사진 (\d+)\.', body(q), re.M)]
-if order != sorted(order):
-    fail.append('캡션 번호가 본문 등장 순서와 어긋난다: %s' % order)
-if sorted(order) != sorted(FILES):
-    fail.append('캡션 %s ↔ 사진표 %s 가 다르다' % (sorted(order), sorted(FILES)))
-for n,f in FILES.items():
+# 앵커(사진을 넣을 문단)가 그 문항에 정확히 하나씩 있어야 한다
+for n,(f,q,anchor,desc) in sorted(PHOTOS.items()):
     if not os.path.exists(os.path.join(SHOT,f)): fail.append('사진 없음: %s'%f)
+    hits=[l for l in body(q).split('\n') if l.startswith(anchor)]
+    if len(hits)!=1: fail.append('사진%d 앵커 %d개 — [%s] %s'%(n,len(hits),q,anchor))
+    if not desc.strip(): fail.append('사진%d 설명 없음'%n)
+# 본문에 캡션이 남아 있으면 안 된다(폼 설명칸에 적는다)
+import re as _re
+if _re.search(r'^사진 \d+\.', '\n'.join(body(q) for q in QS), _re.M):
+    fail.append('본문에 「사진 N.」 캡션이 남았다 — 폼 사진 설명칸에 적는다')
 for q in QS:
     b=body(q); n=len(b)-b.count('\n'); worst=n+b.count('\n')
     if worst > LIM(q) - max(LIM(q)//100,2):
@@ -46,6 +68,15 @@ if '—' in ''.join(body(q) for q in QS):
 if fail:
     for f in fail: print('⛔ '+f)
     sys.exit(1)
+# 문항별 사진 목록(본문 등장 순서 = 앵커 순서)
+def pics_of(q):
+    lines=body(q).split('\n')
+    out=[]
+    for n,(f,qq,anchor,desc) in sorted(PHOTOS.items()):
+        if qq!=q: continue
+        idx=[i for i,l in enumerate(lines) if l.startswith(anchor)][0]
+        out.append((idx,n))
+    return [n for _,n in sorted(out)]
 
 # ── ① 붙여넣기용 txt ───────────────────────────────────────────
 L=[];A=L.append
@@ -53,18 +84,22 @@ A('모두의창업 2차 · 붙여넣기용 전체 (2026-09-15)'); A('')
 A('【하는 법 — 칸마다 두 번】')
 A('1) 「여기부터 복사」~「여기까지」 사이를 긁어 폼 칸에 붙여 넣습니다.')
 A('   빈 줄은 미리 뺐습니다. 폼이 알아서 문단 간격을 줍니다. 굵게·소제목 버튼은 쓰지 마세요.')
-A('2) 붙여 넣은 뒤 「사진 N.」으로 시작하는 줄의 맨 앞에 커서를 놓고 사진을 넣습니다.')
-A('   사진이 그 캡션 바로 위에 들어갑니다. 캡션은 이미 자리에 있으니 따로 쓰실 것이 없습니다.')
-A('3) 폼의 자수 카운터를 봅니다. 아래 자수는 캡션 글자까지 넣어 센 값입니다.'); A('')
+A('2) 붙여 넣은 뒤, 아래에 적힌 문단 바로 뒤에 커서를 놓고 사진을 넣습니다.')
+A('   ★사진을 넣으면 폼이 「사진 설명」 칸을 띄웁니다. 아래 적어 둔 설명을 그 칸에 넣으세요.')
+A('   그 설명은 본문이 아니라서 자수에 들어가지 않습니다.')
+A('3) 폼의 자수 카운터를 봅니다.'); A('')
 A('【사진 10장 — 전체 문항 합산 한도라 이게 전부입니다】')
-for n in sorted(FILES): A('  사진 %-2d  %s'%(n,FILES[n]))
+for n in sorted(PHOTOS):
+    f,q,anchor,desc=PHOTOS[n]
+    A('  사진 %-2d [%s]  %s'%(n,q,f))
+    A('           설명칸 : %s'%desc)
 A('')
 A('■ 갈아 끼울 칸: '+' · '.join(q for q in QS if q in CH))
 A('■ 그대로 둘 칸: '+' · '.join(q for q in QS if q not in CH)+'  (제출본과 한 글자도 다르지 않습니다)')
 A('')
 for q in QS:
     b=body(q); n=len(b)-b.count('\n'); worst=n+b.count('\n')
-    pics=[int(m) for m in re.findall(r'^사진 (\d+)\.',b,re.M)]
+    pics=pics_of(q)
     A('='*62)
     h='%s  %s   %s / %s자 (줄바꿈까지 세면 %s)'%(q,TITLE[q],format(n,','),format(LIM(q),','),format(worst,','))
     if pics: h+='   · 사진 '+'·'.join(map(str,pics))
@@ -73,7 +108,11 @@ for q in QS:
     A('='*62)
     if q in CH:
         A('┌─ 여기부터 복사 '+'─'*42); A(b); A('└─ 여기까지 '+'─'*46)
-        for p in pics: A('   · 「사진 %d.」 줄 맨 앞에  →  %s'%(p,FILES[p]))
+        for p in pics:
+            f,qq,anchor,desc=PHOTOS[p]
+            A('   · 사진 %-2d  %s'%(p,f))
+            A('       넣을 자리 : 「%s…」 문단 **바로 뒤**'%anchor[:22])
+            A('       사진 설명 : %s'%desc)
     else:
         A('(제출본과 같습니다. 건드리지 않으셔도 됩니다.)')
     A('')
@@ -122,7 +161,7 @@ A('<table class="tbl"><tr><th>문항</th><th>제목</th><th style="text-align:ri
   '<th style="text-align:right">한도</th><th>사진</th><th>상태</th></tr>')
 for q in QS:
     b=body(q); n=len(b)-b.count('\n')
-    pics=[int(m) for m in re.findall(r'^사진 (\d+)\.',b,re.M)]
+    pics=pics_of(q)
     A('<tr><td>%s</td><td>%s</td><td class="n">%s</td><td class="n">%s</td><td>%s</td><td class="%s">%s</td></tr>'
       %(q,TITLE[q],format(n,','),format(LIM(q),','),'·'.join(map(str,pics)) or '—',
         'chg' if q in CH else '','수정' if q in CH else '그대로'))
@@ -133,12 +172,11 @@ for q in QS:
     A('<div class="meta">%s / %s자<span class="tag %s">%s</span></div>'
       %(format(n,','),format(LIM(q),','),'' if q in CH else 'same','수정함' if q in CH else '제출본과 같음'))
     for line in b.split('\n'):
-        m=re.match(r'^사진 (\d+)\.\s*(.+)$',line)
-        if m:
-            k=int(m.group(1))
-            A('<figure><img src="%s"><figcaption>사진 %d. %s</figcaption></figure>'%(b64(k),k,esc(m.group(2))))
-        else:
-            A('<p>%s</p>'%esc(line))
+        A('<p>%s</p>'%esc(line))
+        for n,(f,qq,anchor,desc) in sorted(PHOTOS.items()):
+            if qq==q and line.startswith(anchor):
+                A('<figure><img src="%s"><figcaption>사진 %d &nbsp;·&nbsp; %s</figcaption></figure>'
+                  %(b64(n),n,esc(desc)))
     A('</section>')
 io.open(OUT_HTML,'w',encoding='utf-8').write('\n'.join(H))
 
