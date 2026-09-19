@@ -4285,7 +4285,8 @@ chk '멀리 계셔도' i/cover-01.html 1
 chk '한 자리를 마련했습니다' i-family/family-01.html 1
 chk '귀한 마음만 더해' i/cover-04.html 1
 chk '참석이 어려운' i/cover-08.html 1
-chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
+# ★[PAR_PYEBAEK_OUT 2026-09-19] 편지에서는 뺐다 — 위 chk 를 nochk 로 뒤집었다(8225행).
+#   챗봇 쪽은 남는다: «물었을 때 답하는 것»이라 성격이 다르다(편지는 묻지 않은 것을 먼저 꺼내는 자리).
 chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
 chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
 chk '별도의 폐백 순서는 없다' api/_ritual-kb.js 1
@@ -8216,7 +8217,17 @@ else echo 'skip listen-cover (node 없음)'; fi
 chk 'MEAS_CARRY' scripts/build-listen-tone.mjs 2
 chk '그 자리의 글이 한 글자까지 같을 때만' scripts/build-listen-tone.mjs 1
 
-# ★[PARENTS_AB] 어른께 드리는 안내 낭독 A·B 두 판을 «같은 자리에서» 받아 귀로 견주는 붙여넣기 판.
-#   차례를 여기 베껴 적지 않는다 — 새 7문장이 parents.html 에 글자 그대로 있을 때만 쓴다(그 대조가 스크립트 안에 있다).
-chk 'PARENTS_AB' scripts/build-parents-ab.mjs 2
-chk 'PICK_PASTE' scripts/build-parents-ab.mjs 1
+# ★[PARENTS_B / PAR_PYEBAEK_OUT 2026-09-19] 어른께 드리는 안내 — 낭독을 화면 차례로 옮기고 폐백 문단을 뺐다.
+#   A·B 견줌 판(build-parents-ab.mjs)은 «고르기 위한 도구»였고 B 로 정해져 역할이 끝났다 — 지워도 되는 것이 맞다.
+#   되살아나면 안 되는 것은 «결정» 쪽이다: 차례와 폐백 삭제.
+chk 'PARENTS_B' scripts/apply-parents-b.mjs 2
+chk 'PAR_PYEBAEK_OUT' scripts/apply-parents-b.mjs 3
+chk 'PAR_PYEBAEK_OUT' parents.html 1
+nochk '별도의 폐백 순서는 두지 않습니다' parents.html
+# ★[NO_BOOKING_HELP 2026-09-19 사용자 「예약 관련 우리가 도움을 주는 건 없어」] 여덟 자리를 한 번에 고쳤다.
+#   되살아나면 «우리가 안 하는 일»을 약속하는 문구가 된다 — 고객이 기다리다 예약을 못 하는 사고가 난다.
+chk 'NO_BOOKING_HELP' scripts/apply-no-booking-help.mjs 1
+nochk '대신 움직입니다' index.html
+nochk '대신 움직입니다' parents.html
+nochk '디렉터가 도와드립니다' index.html
+nochk '디렉터에게 요청' mypage.html
