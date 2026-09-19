@@ -7101,6 +7101,31 @@ chk 'VOICE_CHANGED' scripts/assemble-narration.mjs 1
 #   ★낭독 전용 줄(장 번호·여는 말·맺음)은 «모양»으로 가른다. 문장을 베껴 적으면 이 검사가 또 한 벌이 된다.
 chk 'LETTER_MIRROR' scripts/audit/letter-mirror.mjs 3
 
+# ★★[LETTER_BOTH 2026-09-19 사장님 결정 — 갈래 1 「소리를 화면에 맞춘다」]
+#   위 검사가 «초록인 채로» 편지가 갈려 있었다. 한 방향(소리 → 화면)만 봤기 때문이다.
+#   그 구멍으로 둘이 샜다: ⓐ화면에만 있던 문단 둘(7문장) ⓑ장 차례 뒤바뀜.
+#   ⓐ는 하필 첫 장 앞머리라 «듣기를 누르면 시작하자마자» 통째로 건너뛰어졌고,
+#   재생바는 이미 「편지를 읽어 드려요」라고 약속하고 있었다 — 부분만 읽는 길은 이 페이지에 없다.
+#   ⓑ는 화면이 나중이다(PAR_ORDER 2026-09-12). 글은 눈이 건너뛰지만 소리는 순서대로만 온다.
+#   ★그래서 양방향 + 장 차례로 넓혔다. 되돌리지 말 것.
+chk 'LETTER_BOTH' scripts/audit/letter-mirror.mjs 2
+
+# ★★[LETTER_PENDING] 녹음은 사람이 밖에서 받아 온다 — 결정과 소리 사이에 늘 시차가 있다.
+#   그 시차를 빨강으로 두면 사람이 곧 검사를 무시하고, 초록으로 두면 그대로 잊힌다.
+#   그래서 셋째 자리(대기)를 두고, 대기함에 적힌 것만 통과시킨다.
+#   ★대기함은 스스로 청소된다 — 적어 둔 것이 이미 소리에 있으면 «목록이 낡았다»고 막는다.
+#   ★대기 파일을 지우면 느슨해지는 게 아니라 엄격해진다(실측: 지우면 rc=1).
+chk 'LETTER_PENDING' scripts/audit/letter-mirror.mjs 1
+chk 'pending_sents' 'docs/plans/식순연구/parents-letter-대기.json' 1
+
+# ★★[PAR_RERECORD] 다시 받을 문장을 손으로 적지 않는다 — 적는 순간 «세 번째 벌»이 생긴다.
+#   실제로 이 건의 지시문 두 벌이 재녹음 수를 7과 9로 다르게 적고 있었다(2026-09-19).
+#   ★9가 맞다. 장 번호는 번호와 제목이 «한 문장»이라(「하나, 인원을 절제하는 이유.」)
+#     차례를 바꾸면 그 두 자리의 글이 바뀐다 → 창고 규칙 [SRC_STALE] 로 다시 받아야 한다.
+#     글자 수는 31 → 31 로 같아 길이는 안 변한다 — 늘어나는 36초는 온전히 새 7문장 몫이다.
+chk 'PAR_RERECORD' scripts/make-parents-rerecord.mjs 3
+chk '우성: 하나, 갖출 것은 갖춘 예식' 'docs/plans/식순연구/타입캐스트/재더빙_혼주편지_20260919.txt' 1
+
 # ★★[SENT_LIB 2026-09-13 사장님 「보수하기쉽게셋팅해 여러번 한문장씩수정하는부분들이 있을거야」]
 #   문장 «한 자리»의 받은 그대로를 창고(assets/audio/_src)에 둔다. 고친 문장만 갈아 끼워 클립을 다시 붙인다.
 #   ★원본 문장 wav 가 «0개»여서, 4문장 중 한 줄만 고쳐도 클립을 통째로 다시 받아야 했다
@@ -7260,6 +7285,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
   || { echo 'FAIL letter-mirror: 어른께 드리는 편지의 화면과 소리가 갈렸습니다 — node scripts/audit/letter-mirror.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/make-parents-rerecord.mjs --check >/dev/null 2>&1 \
+  || { echo 'FAIL make-parents-rerecord: 화면 문안과 녹음 대기함이 어긋났습니다 — node scripts/make-parents-rerecord.mjs --check'; fail=1; }; fi
 # ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
 #   어른께 드리는 편지에서 가장 조심할 자리다. 주어를 우리 쪽으로 돌렸다. 되돌리지 말 것.
 nochk '결례가 되지 않도록' parents.html
