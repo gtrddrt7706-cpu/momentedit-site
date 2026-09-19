@@ -8451,3 +8451,7 @@ chk '차례로 읽어 주시면 됩니다' assets/ritual-data.js 1
 chk '서로의 손에 반지를 끼워 주시면 됩니다' assets/ritual-data.js 2
 chk '이제 여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
 chk '오늘의 예식은 여기까지입니다' assets/ritual-cue.js 2
+# ★[LETTER_HEARD_OK 2026-09-19] 편지 낱말을 사장님이 귀로 확인하셨다는 기록.
+#   기계는 낱말을 못 듣는다(ASR 차단). 이 사실은 검사로 재생산할 수 없어, 지우면 영영 사라진다.
+#   ★문안을 고치거나 mp3 를 다시 받으면 이 칸을 지우고 다시 확인받는다 — 그때는 이 chk 도 함께 뺀다.
+chk 'heard_ok' 'docs/plans/식순연구/parents-letter-대기.json' 1
