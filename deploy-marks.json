@@ -516,8 +516,8 @@
     {
       "file": "99_contractCheck",
       "fn": "contractCheck",
-      "mark": "CONTRACT_SEAT30",
-      "why": "서른 분 전원 착석·초과단가 0 을 GAS 값으로 확인하는 자리 — 이 파일이 옛 판이면 잔금에서 없는 돈을 더 받는다(실측 15만 원)"
+      "mark": "FALLBACK_SEAT30",
+      "why": "폴백 착석 기대값 30 — 이 파일이 옛 판이면 점검이 착석 25 를 정답이라 믿고 전부 초록이라 답한다"
     }
   ],
   "fns": {
