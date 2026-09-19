@@ -27,6 +27,14 @@
  *   거기서 지우면 AI 가 「폐백 됩니다」라고 지어낼 수 있다 — 지우는 것이 더 나쁘다.
  *   ★단 «한 줄»만 허용한다. 둘 이상이면 설명이 번지는 것이므로 막는다.
  *
+ * ── ⑤ 우리 «계획·연구 문서»도 본다  [PLAN_CLEAN 2026-09-19 사장님 *"구석구석 남아있으면 전부 찾아서 삭제"*]
+ *   고객 화면만 지우면 다시 자란다. 실제로 이런 줄들이 남아 있었다:
+ *     · 「전통 절차 **수용 여부**」 — 아직 안 정한 항목으로 열려 있었다. 다음 세션이 이걸 근거로 다시 꺼낸다.
+ *     · 「…폐백(현장 변수 → **직접 추가**+상담)」 — «직접 추가로 넣을 수 있다»고 적힌 설계 기록이 둘.
+ *   CLAUDE.md 의 교훈 그대로다 — «닫힌 항목은 그 자리만 고치면 되살아난다».
+ *   ★docs/국가지원금 은 예외다. 거기 폐백은 **외부 웨딩 시장의 통점**(「폐백·이바지의 강요」)이지
+ *     우리 상품 설명이 아니고, 신청서가 그걸 근거로 «우리는 그 강요를 없앴다»고 말한다. 지우면 근거가 빈다.
+ *
  * ── 종료코드 [CANT_LOOK]  0 통과 · 1 나왔다 · 2 재지 못함
  * 쓰기: node scripts/audit/no-tradition.mjs
  */
@@ -77,6 +85,37 @@ else console.log(`  ③ 식순 KB  ok (가드레일 ${lines.length}줄)`);
 /* ── ④ 되살리기 금지 근거가 살아 있나 ──────────────────────────────────── */
 if (!html.includes('PAR_NO_TRADITION')) fail('parents.html 에 PAR_NO_TRADITION 근거 주석이 없다 — 지우면 다음 판이 되살린다');
 else console.log('  ④ 되살리기 금지 근거  ok');
+
+/* ── ⑤ 우리 계획·연구 문서 — 고객 화면만 지우면 다시 자란다 ─────────────── */
+const OURS = 'docs/plans';
+const SKIP_DIR = 'docs/국가지원금';   /* 외부 시장 통점 자료 — 우리 상품 설명이 아니다 */
+const walk = (d, out = []) => {
+  let ents = [];
+  try { ents = fs.readdirSync(P(d), { withFileTypes: true }); } catch (e) { return out; }
+  for (const e of ents) {
+    const r = `${d}/${e.name}`;
+    if (r.startsWith(SKIP_DIR)) continue;
+    if (e.isDirectory()) walk(r, out);
+    else if (/\.(md|json|txt)$/.test(e.name)) out.push(r);
+  }
+  return out;
+};
+const dirty = [];
+for (const r of walk(OURS)) {
+  let t = '';
+  try { t = fs.readFileSync(P(r), 'utf8'); } catch (e) { continue; }
+  /* ★[PLAN_CLEAN] 되살리기 금지 근거 줄은 세지 않는다 — ④ 와 같은 원칙이다.
+     「전통 절차는 넣지 않는다」고 적으려면 그 낱말을 써야 한다. 그 줄을 빨강으로 만들면
+     다음 사람이 근거를 지우게 된다. 그래서 PAR_NO_TRADITION 표식이 달린 줄만 면제한다. */
+  t = t.split('\n').filter((l) => !l.includes('PAR_NO_TRADITION')).join('\n');
+  const h = hit(t);
+  if (h.length) dirty.push([r, h]);
+}
+if (dirty.length) {
+  fail(`우리 계획·연구 문서 ${dirty.length}곳에 전통 절차가 남아 있다:`);
+  for (const [r, h] of dirty) console.log(`    ${r}  (${h.join('·')})`);
+  console.log('  ★문서에 남으면 다음 세션이 그걸 근거로 다시 꺼냅니다 — 열린 결정 항목이 특히 그렇습니다.');
+} else console.log('  ⑤ 계획·연구 문서  ok');
 
 if (bad) { console.log(`\n[NO_TRADITION] ✗ ${bad}곳`); process.exit(1); }
 console.log('\n[NO_TRADITION] ok — 고객이 읽는 글에 전통 절차 0건');
