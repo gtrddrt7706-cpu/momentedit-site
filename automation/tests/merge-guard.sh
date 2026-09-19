@@ -7377,6 +7377,53 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/decision-guard.mjs >
 if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/null 2>&1 \
   || { echo 'FAIL pair-read: 한 자리에 붙어 나가는 대사 짝을 아직 나란히 읽지 않았습니다 — node scripts/audit/pair-read.mjs'; fail=1; }; fi
 
+# ★★[FOOTER_PARITY 2026-09-19 사용자 「여기 풋터부분 좀더 개선해죠 이메일 만있으니초라해보여」
+#                             · 「다른페이 풋터부분들도 점검하고 될수있으면통일」]
+#   네 공개 면(index·inquiry·privacy·parents)의 푸터가 «한 벌»인지 390px 실렌더로 잰다.
+#   문구·링크 주소·링크 표기·대비(AA)·가로 넘침 다섯 가지.
+#
+#   왜 «문서 경고»로는 안 됐나 — 같은 결함이 두 번 샜다.
+#   ①`momentedit-design` 스킬이 이미 「푸터 대비 rgba(...,0.44)(2.7:1)가 index 를 고친 뒤에도
+#     남아 있었다」고 적어 두었는데, 2026-09-19 에 재 보니 privacy 만 2.71:1/2.05:1 로 그대로였다.
+#     하필 법적 고지 면이다. 경고를 적어 둔 것만으로는 세 번째 재발을 못 막는다(DECISION_GUARD).
+#   ②parents 는 주소·처리방침·저작권 «세 줄이 통째로» 없었는데 아무 검사도 붉지 않았다.
+#     푸터는 화면 맨 아래라 사람 눈에 영영 안 걸린다 — 기계가 봐야 하는 자리다.
+#   ③inquiry 만 「마이페이지」, 나머지 셋은 「My Page」였다. 같은 곳을 다른 말로 불렀다.
+#
+#   ★반증으로 고정했다(2026-09-19) — 셋을 각각 되살려 붉어지는 것을 확인했다:
+#     ①privacy 0.7→0.44 ⇒ 「대비 2.71:1 AA 미달」 ②inquiry My Page→마이페이지 ⇒ 「표기가 다르다」
+#     ③parents 세 줄 삭제 ⇒ 「문구·링크·표기가 다르다」. 초록이 «안 본 것»이 아님을 이걸로 보증한다.
+#
+#   ★높이는 일부러 «안» 잰다. parents 만 70px 높은 것은 표류가 아니라 [TAP44-3] 이다 —
+#     그 면은 「어른께 드리는 안내」라 푸터 링크를 inline-block·44px 로 키워 엄지 타깃을 실제로 채웠다.
+#     나머지 셋은 display:inline 이라 WCAG 2.5.8 «문장 속 인라인» 면제를 탄다(둘 다 통과하는 다른 길 ·
+#     check-tap-targets.mjs 로 넷 다 rc=0·작다 0·겹침 0 실측). 높이를 재면 다음 판이 그 차이를
+#     결함으로 읽고 44px 를 걷어낸다 — 접근성 결정을 되돌리는 일이다.
+#   ★결과를 «말하게» 한다 — 조용히 통과하면 「한 벌이다」와 「브라우저가 없어 못 쟀다」가
+#     화면에서 똑같이 생긴다. 이 저장소의 CANT_LOOK 원칙이 그 둘을 가르라고 한다.
+#   ★★어디서 «실제로» 재는지 알고 쓸 것 — 여기(PR CI)가 아니다.
+#     merge-guard.yml 은 node 만 깔고 브라우저를 안 깐다. 그래서 PR 에서 이 줄은 늘 «못 쟀다(2)»다.
+#     실제로 재는 곳은 nightly-screen.yml 이다 — 거기서 chromium 을 깔고 run-all.mjs 가
+#     scripts/audit/*.mjs 를 «스스로 찾아» 돌린다(footer-parity 도 자동 등록 · 109개 중 하나).
+#     PR 에서 이 자리가 막는 것은 «검사를 지우는 것»이다(아래 chk 넷이 grep 이라 브라우저가 필요 없다).
+#     ★브라우저를 PR 에 깔지 말 것 — merge-guard.yml 은 timeout-minutes:3 이고 지금 56초에 끝난다.
+#       설치만 30~60초라 이 잡의 성격(빠른 마커 검사)이 바뀐다. 무거운 실렌더는 야간의 몫이다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/footer-parity.mjs >/dev/null 2>&1; _fp=$?
+  case "$_fp" in
+    0) echo 'ok footer-parity: 네 면 푸터가 한 벌 (문구·링크 주소·링크 표기·대비 AA·넘침 0)' ;;
+    1) echo 'FAIL footer-parity: 네 면 푸터가 한 벌이 아닙니다 — node scripts/audit/footer-parity.mjs'; fail=1 ;;
+    *) echo 'ok footer-parity: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'FOOTER_PARITY' scripts/audit/footer-parity.mjs 1
+chk 'TAP44-3' scripts/audit/footer-parity.mjs 1
+chk 'FOOTER_UNIFY' parents.html 1
+# ★[SERVED_OURS] 포트를 뺏기거나 서버가 안 떴을 때 «틀림(1)»이 아니라 «못 쟀다(2)»로 빠지는 장치.
+#   빼면 멀쩡한 푸터가 환경 탓으로 붉는다 — 그러면 사람이 이 검사를 곧 무시하게 된다.
+#   반증 실측: privacy.html 을 치우면 rc=2, 화면은 두고 <footer> 만 지우면 rc=1 로 갈린다.
+chk 'SERVED_OURS' scripts/audit/footer-parity.mjs 2
+chk 'freePort' scripts/audit/footer-parity.mjs 2
+
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
 #     부딪히는 사실 없음. 신부의 「오늘은 이렇게 먼저」는 예식 뒤 인사 사진에서 실제로 자리를 도는 것과 맞다.
