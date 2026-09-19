@@ -1053,9 +1053,15 @@ if [ "$_hm" -gt 0 ]; then echo "REVERT? 00_platform-config.gs: meta-first 헤더
 #   .gitignore·.vercelignore 2중 장치 + 이 가드로 3중. 루트 __*.html은 항상 0개여야 한다.
 _stray=$(git ls-files | grep -cE '^__.*\.html$'); _stray=${_stray:-0}
 if [ "$_stray" -gt 0 ]; then echo "REVERT? 루트 __*.html 임시 사본 재유입($_stray개) — 배포 노출 위험 · git rm 후 .gitignore 확인"; git ls-files | grep -E '^__.*\.html$' | sed 's/^/    /'; fail=1; else echo 'ok 루트 __*.html 임시 사본 0개 유지'; fi
-_ign=$(grep -c '^__\*\.html$' .gitignore 2>/dev/null); _ign=${_ign:-0}
-_vig=$(grep -c '^__\*\.html$' .vercelignore 2>/dev/null); _vig=${_vig:-0}
-if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? __*.html 무시 규칙 소실(.gitignore=$_ign .vercelignore=$_vig)"; fail=1; else echo 'ok __*.html 무시 규칙 .gitignore+.vercelignore 유지'; fi
+# ★[UNDERSCORE_ONE 2026-09-19] 밑줄 «하나»짜리를 요구한다 — _*.html 은 __*.html 을 포함하는 더 넓은 규칙이다.
+#   실측으로 확인했다: _*.html 은 __b5.html 과 _handout.html 을 둘 다 잡고 normal.html 은 안 잡는다.
+#   종전 __ 만 요구하다가 _handout.html(4.3MB 정부지원사업 신청 설명자료 · 공헌이익·고정비·손익분기 포함)이
+#   배포 대상으로 남아 있었다. 2026-07-26 __b5 사고와 같은 구멍이 한 칸 좁은 자리에서 재발한 것이다.
+_ign=$(grep -c '^_\*\.html' .gitignore 2>/dev/null); _ign=${_ign:-0}
+_vig=$(grep -c '^_\*\.html' .vercelignore 2>/dev/null); _vig=${_vig:-0}
+if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? _*.html 무시 규칙 소실(.gitignore=$_ign .vercelignore=$_vig)"; fail=1; else echo 'ok _*.html 무시 규칙 .gitignore+.vercelignore 유지(밑줄 하나부터)'; fi
+_stray1=$(git ls-files | grep -cE '^_[^/]*\.html$'); _stray1=${_stray1:-0}
+if [ "$_stray1" -gt 0 ]; then echo "note 루트 _*.html 추적 중 $_stray1개 — 배포에선 제외됨(.vercelignore). 목록:"; git ls-files | grep -E '^_[^/]*\.html$' | sed 's/^/    /'; fi
 
 # ── 2026-07-26 관리자 화면 눈확인에서 잡은 3건(체크박스 특이도 · noop 가드 · 조사 오타)
 chk 'ADM_GATE_CB' admin.html 1                     # 강제변경 동의 체크박스가 .adv-body 공통 입력 규칙(전폭 46px·appearance:none)에 안 먹히게 하는 규칙 · ★공통 규칙 '뒤'에 두어야 함 · 삭제 금지
@@ -4267,6 +4273,24 @@ chk 'PAR_NO_TRADITION' scripts/audit/no-tradition.mjs 2
 #     우리 상품 설명이 아니고, 신청서가 그걸 근거로 «우리는 그 강요를 없앴다»고 말한다(실측 10건 살아 있음).
 #   ★근거 표식이 달린 줄도 면제다 — 금지 근거를 적으려면 그 낱말을 써야 한다.
 chk 'PLAN_CLEAN' scripts/audit/no-tradition.mjs 2
+
+# ★★[ATTR_BLIND][TRAD_HONOR] 2026-09-19 전수조사가 찾은 «검사 자신의 구멍» 둘.
+#   ①no-tradition ① 이 strip() 으로 태그를 통째로 지운 뒤 봐서, <meta content="…"> 속성 안 글자가
+#     원리적으로 안 보였다. parents.html:31 의 「전통 예우」가 sitemap 에 올라 구글 스니펫으로
+#     노출되고 있었는데 검사는 계속 초록이었다.
+#   ②낱말 목록에 「전통 예우」가 없었다. index.html FAQ 는 어른께 보내는 안내문의 «목차»로
+#     그것을 내걸었는데, parents.html 본문에는 「전통」이 0건이라 목차만 있고 장이 없었다.
+#   → ⑥ 을 만들어 고객 화면 51개를 «주석·script/style 만 걷고 나머지 전부»로 본다.
+#   반증: meta 속성 · img alt · FAQ 본문 셋 다 빨강 확인 · 주석 안 근거는 면제 확인.
+chk 'ATTR_BLIND' scripts/audit/no-tradition.mjs 1
+chk 'TRAD_HONOR' scripts/audit/no-tradition.mjs 1
+chk '전통 예우' scripts/audit/no-tradition.mjs 2
+
+# ★★[UNDERSCORE_ONE 2026-09-19] 배포 차단 패턴이 밑줄 «둘»이라 구멍이 있었다.
+#   실측: _handout.html(4.3MB · 「모두의창업 2차」 정부지원사업 신청 설명자료)이 git 추적 중이라
+#   배포 대상이었다. 공헌이익 255만 · 월 고정비 400만 · 손익분기 월 2건 · 작가 건당 단가 ·
+#   「아직 문은 열지 않았습니다」가 그대로 들어 있다. 2026-07-26 에 __b5 등 넷이 공개된 사고로
+#   __ 를 막았는데, 밑줄 하나짜리가 새로 생기자 같은 구멍으로 재발했다.
 
 # [COPY_TRUTH 2026-09-12] 마이페이지 복사 버튼 13곳이 «복사가 안 돼도» 「복사됐어요」라고 했다.
 #   legacyCopy 가 catch(e){} 로 execCommand 실패를 삼켰고 호출부가 무조건 성공 콜백을 불렀다.
