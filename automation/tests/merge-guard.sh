@@ -4298,6 +4298,12 @@ chk 'LIVE_FEAT_REAL' i/cover-04.html 1
 chk 'LIVE_FEAT_REAL' i/cover-08.html 1
 nochk 'live-feat-ko">참석 회신' i/cover-04.html
 nochk 'live-feat-ko">참석 회신' i/cover-08.html
+# ★사본도 함께 — 2026-09-19 전수 훑기가 배포본만 고친 뒤 i/invitations 사본 둘을 더 찾았다.
+#   「성수」 지명 때와 같은 꼴이다: 배포본은 고쳐졌는데 사본만 옛 판으로 남는다.
+chk 'LIVE_FEAT_REAL' i/invitations/invitation-04-Vermilion.html 1
+chk 'LIVE_FEAT_REAL' i/invitations/invitation-08-noir.html 1
+nochk 'live-feat-ko">참석 회신' i/invitations/invitation-04-Vermilion.html
+nochk 'live-feat-ko">참석 회신' i/invitations/invitation-08-noir.html
 
 # ★★[ADMIN_NOFEE_LINE 2026-09-19] 관리자 화면 넷이 standing>0 만 보고 «추가 N원 잔금 합산 청구»를 찍었다.
 #   초과단가가 0 이라 실제로는 「추가 0원」이 박혔고, 운영자가 그 줄을 보고 없는 요금을 더할 수 있었다.
