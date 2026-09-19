@@ -3849,7 +3849,12 @@ chk 'LISTEN_WEB' scripts/build-listen-all.mjs 3
 chk 'SRCMAP' scripts/build-listen-all.mjs 3
 chk 'assets/audio/tone' scripts/build-listen-all.mjs 1
 chk 'JS_BLOCKED_SAY' scripts/build-listen-all.mjs 1
-chk '브라우저로 열어 주세요' scripts/build-listen-all.mjs 1
+# ★[OPEN_ONE_TAP 2026-09-19] 옛 문구(「브라우저로 열어 주세요」)에서 옮겼다 — 지운 것이 아니다.
+#   그 문구가 시키던 길이 네 단계(공유 → 파일에 저장 → 파일 앱에서 열기)였고, 사장님이 실제로 막혔다.
+#   ★위 3844행이 이미 「파일 전달로는 못 쓴다(세 번 실패)」라고 적어 두었는데도 파일로 보냈다.
+#     네 번째 실패다. 그래서 이제 판이 **주소를 스스로 내민다** — 사람이 옮겨 적을 것이 없다.
+chk '눌러서 열기' scripts/build-listen-all.mjs 1
+chk '미리보기는 자바스크립트를 실행하지 않습니다' scripts/build-listen-all.mjs 1
 nochk 'if (AO\[c.id\]) oldOK' scripts/build-listen-all.mjs
 chk 'SHOW_THE_CRASH' scripts/build-listen-all.mjs 1
 chk 'function sndOf' scripts/build-listen-all.mjs 1
@@ -8562,4 +8567,19 @@ if [ -n "$_PL" ]; then
   _ABS=$(grep -o '"/assets/audio/[^"]*"' "$_PL" 2>/dev/null | wc -l | tr -d ' ')
   if [ "$_ABS" = "0" ]; then echo "ok SND_RELATIVE: 실청판 소리 주소가 전부 상대경로다 ($_PL)"
   else echo "REVERT? SND_RELATIVE: 실청판에 절대경로 소리 주소가 ${_ABS}개 — 내려받아 열면 전부 끊긴다"; fail=1; fi
+fi
+
+# ★★[OPEN_ONE_TAP 2026-09-19 사장님 폰 화면] 스크립트가 막힌 화면이 «한 단계짜리 길»을 내밀게 했다.
+#   ★실물로 봤다 — 사장님이 판을 미리보기로 여셨고 목록·탭·판정이 전부 비었다. JS_BLOCKED_SAY 가
+#     대비한 그 상황이 맞았고 안내도 떴는데, 안내가 시킨 길이 「공유 → 파일에 저장 → 파일 앱에서
+#     열기」 **네 단계**였다. 한 단계짜리 길(배포된 주소)이 있는데 네 단계를 시키고 있었다.
+#   ★판이 제 이름(--out)을 알고 주소를 직접 내민다. 손으로 적으면 판을 새로 뽑을 때마다 어긋난다.
+chk 'OPEN_ONE_TAP' scripts/build-listen-all.mjs 1
+chk 'OUTNAME' scripts/build-listen-all.mjs 3
+# ★실행 검사 — 뽑힌 판 안에 «제 파일 이름이 박힌» momentedit.kr 주소가 있어야 한다.
+#   이름이 어긋나면 사장님이 누르는 순간 404 다. 그건 안내가 없는 것만 못하다.
+_PL2=$(ls listen-*.html 2>/dev/null | head -1)
+if [ -n "$_PL2" ]; then
+  if grep -q "https://momentedit.kr/$_PL2" "$_PL2" 2>/dev/null; then echo "ok OPEN_ONE_TAP: 판이 제 주소를 내민다 (momentedit.kr/$_PL2)"
+  else echo "REVERT? OPEN_ONE_TAP: 판 안의 주소가 제 파일 이름($_PL2)과 다르다 — 누르면 404 다"; fail=1; fi
 fi

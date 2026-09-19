@@ -44,6 +44,13 @@ const toneNums = () => { try { return fs.readdirSync(TONE_DIR)
   .filter((x) => x !== null).sort((a, b) => a - b); } catch (e) { return []; } };
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
+/* ★★[OPEN_ONE_TAP 2026-09-19 사장님 폰 화면] 스크립트가 막힌 화면에 «한 단계짜리 길»을 내민다.
+   ★실물로 봤다 — 사장님이 파일을 미리보기로 여셨고 목록·탭·판정이 전부 비었다.
+     JS_BLOCKED_SAY 가 대비한 그 상황이 맞았고 안내도 떴다. 그런데 안내가 시킨 길이
+     「공유 → 파일에 저장 → 파일 앱에서 열기」 네 단계였다. 한 단계짜리 길이 있는데 네 단계를 시켰다.
+   ★그래서 판이 제 이름을 알고 배포된 주소를 직접 내민다. 누르면 브라우저가 연다.
+   ★이름은 --out 에서 온다 — 손으로 적으면 판을 새로 뽑을 때마다 어긋난다(LISTEN_KEY_STAMP 와 같은 병). */
+const OUTNAME = (OUT.split('/').pop() || 'listen.html');
 /* ★★[OUT_NOT_REVIEW 2026-09-12] `--out audio-review.html` 을 막는다.
    ★실사고 — 이번 세션에서 이 생성기를 `--out audio-review.html` 로 돌려,
      같은 이름의 «손으로 만든 실청 점검 도구»를 통째로 덮어썼다(2026-08-11 판, 마커 16개).
@@ -391,10 +398,14 @@ border:1px solid var(--border);border-radius:9px;background:#fff}
        안 돌면 이 글이 그대로 남아, 사람이 «고장»이 아니라 «여는 법»을 보게 된다.
      ★빈 화면은 아무것도 안 알려 준다. 안 도는 것을 안 돈다고 적는 것이 이 저장소의 규칙이다. -->
 <div class="note" id="canDo">
-  <b>이 화면이 이대로 멈춰 있으면, 지금 보고 계신 앱이 스크립트를 막은 것입니다.</b><br>
-  판정 단추와 목록이 안 뜨고 이 글만 보이면 그 경우예요.<br>
-  <b>브라우저로 열어 주세요</b> — 아이폰이면 아래 공유 단추 → 「파일에 저장」 → 파일 앱에서 열기,
-  또는 사파리·크롬으로 여시면 됩니다.
+  <b>목록이 비어 있다면, 지금 보고 계신 것이 「미리보기」라 그렇습니다.</b>
+  카톡·메일·파일 앱의 미리보기는 자바스크립트를 실행하지 않습니다. 판이 고장 난 것이 아닙니다.<br>
+  <b>아래를 누르시면 바로 됩니다.</b><br>
+  <a href="https://momentedit.kr/${OUTNAME}" style="display:block;margin:9px 0;padding:13px 12px;
+     background:#B89A75;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;
+     text-align:center;word-break:break-all;line-height:1.45">momentedit.kr/${OUTNAME}<br><span style="font-size:13px;font-weight:600;opacity:.9">눌러서 열기</span></a>
+  눌러도 안 열리면 그 주소를 사파리·크롬 주소창에 직접 쳐 주세요.<br>
+  <span style="color:var(--light)">소리도 그 주소에서 나옵니다. 내려받은 파일로는 목록·판정만 되고 듣기가 안 됩니다.</span>
 </div>
 
 <!-- ★★[SAY_FIRST 2026-09-19 사장님 *"모바일로안보여개선해좌"*] 여는 법을 **맨 위로** 올렸다.
