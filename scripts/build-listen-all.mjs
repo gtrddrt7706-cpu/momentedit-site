@@ -460,6 +460,7 @@ ${/* ★★[SAY_WHICH_BOARD 2026-09-05 사장님 화면] 이 칸이 «세상은 
 </div>
 <div class="foot slim" id="foot">
   <button class="btn ftog" id="ftog">도구 &#9650;</button>
+  <button class="btn" id="sndChk">소리 점검</button>   <!-- [SOUND_TELL] -->
   <button class="btn" id="mkOut">다시 받을 것 대본 만들기</button>
   <button class="btn" id="copyOut">복사</button>
   <button class="btn" id="handoff">다른 기기로 이어받기 링크</button>
@@ -664,27 +665,99 @@ function stop() { if (cur) { try { cur.pause(); } catch (e) {} cur = null; } }
    ★실측 — 이 판을 폰에 내려받아 열면 주소가 file:// 기준이 되어 mp3 요청이 전부 실패한다.
      그런데 종전에는 **아무 말도 안 했다.** 누르면 조용하고, 사람은 판이 고장 난 줄 안다.
    ★한 번만 말한다(누를 때마다 뜨면 그것대로 못 쓴다). 그리고 «왜»와 «어떻게»를 함께 적는다. */
-var sndWarned = false;
-function sndFail() {
-  if (sndWarned) return; sndWarned = true;
-  var d = document.createElement('div'); d.className = 'note';
-  d.style.cssText = 'background:#fdf3f2;color:var(--seal);border:1px solid #e8cfcb;position:sticky;top:0;z-index:40';
-  d.innerHTML = '<b>소리를 못 받아왔습니다.</b><br>이 판은 소리를 <b>사이트에서</b> 받아 옵니다 &mdash; '
-    + '내려받은 파일을 그대로 열면 주소가 끊겨 아무것도 안 들립니다.<br>'
-    + '<b>momentedit.kr/' + (location.pathname.split('/').pop() || '') + '</b> 로 여시면 들립니다. 목록과 판정은 지금도 그대로 됩니다.';
-  var w = document.querySelector('.wrap'); if (w) w.insertBefore(d, w.firstChild);
+function watch(a) { a.addEventListener('error', function () { sndWhy(a, null); }); return a; }
+
+/* ★★[SOUND_TELL 2026-09-19] 「안 들린다」의 원인은 셋인데 종전 판은 셋을 **구분해 주지 못했다.**
+     ① 파일을 못 받았다(주소 끊김·404·인터넷)
+     ② 브라우저가 재생을 막았다(iOS 의 사용자 동작 규칙 · NotAllowedError)
+     ③ 소리는 나가는데 기기가 안 내보낸다(아이폰 무음 스위치·볼륨·다른 앱이 점유)
+   ★③이 특히 고약하다 — 코드는 «정상»이라 오류가 하나도 안 난다. 화면이 「재생 중」이라고
+     말해 주지 않으면 사람은 판이 고장 났다고 판단하고, 나는 없는 버그를 찾으러 간다.
+   ★그러니 «추측해서 사람에게 묻지» 않는다. 판이 재서 답한다. */
+function sndWhy(a, err) {
+  var net = a ? a.networkState : -1, rs = a ? a.readyState : -1;
+  var me = a && a.error ? a.error.code : 0;
+  var name = err ? (err.name || String(err)) : '';
+  var why, how;
+  if (me || net === 3) {                                   /* ① */
+    why = '소리 파일을 못 받아왔습니다.';
+    how = '이 판은 소리를 사이트에서 받아 옵니다. <b>momentedit.kr/' + (location.pathname.split('/').pop() || '')
+        + '</b> 로 여셨는지, 인터넷이 연결돼 있는지 봐 주세요. 내려받은 파일을 그대로 열면 주소가 끊겨 아무것도 안 들립니다.';
+  } else if (name === 'NotAllowedError') {                 /* ② */
+    why = '브라우저가 재생을 막았습니다.';
+    how = '「듣기」를 한 번 더 눌러 주세요. 처음 한 번은 브라우저가 막는 경우가 있습니다.';
+  } else {                                                 /* ② 기타 */
+    why = '재생이 시작되지 않았습니다' + (name ? ' (' + name + ')' : '') + '.';
+    how = '「듣기」를 한 번 더 눌러 보시고, 그래도 같으면 아래 「소리 점검」을 눌러 주세요.';
+  }
+  sndNote(why, how, 'net=' + net + ' ready=' + rs + ' err=' + me + (name ? ' ' + name : ''));
 }
-function watch(a) { a.addEventListener('error', sndFail); return a; }
-function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없습니다.'); return; } var a = watch(new Audio(u)); cur = a; var pr = a.play(); if (pr && pr.catch) pr.catch(sndFail); }
+
+function sndNote(why, how, detail) {
+  var d = document.getElementById('sndNote');
+  if (!d) { d = document.createElement('div'); d.id = 'sndNote'; d.className = 'note';
+    d.style.cssText = 'background:#fdf3f2;color:var(--seal);border:1px solid #e8cfcb;position:sticky;top:0;z-index:40';
+    var w = document.querySelector('.wrap'); if (w) w.insertBefore(d, w.firstChild); }
+  d.innerHTML = '<b>' + why + '</b><br>' + how + '<br><span style="color:var(--light);font-size:12px">' + detail + '</span>';
+  d.scrollIntoView({ block: 'nearest' });
+}
+
+/* [SOUND_TELL] 「소리 점검」 — 한 클립을 실제로 틀어 보고 **무엇이 어디까지 됐는지** 적는다.
+   ★재생이 «진행»되는데 안 들리면 그건 우리 잘못이 아니다. 그 사실을 화면이 말해야
+     사장님이 폰 무음 스위치를 보러 가신다. 말 안 하면 내가 없는 버그를 찾는다(실제로 그럴 뻔했다). */
+function sndCheck() {
+  var k = null;
+  for (var i = 0; i < D.old.length; i++) if (hasSnd(D.old[i].id)) { k = D.old[i].id; break; }
+  if (!k) { sndNote('점검할 클립이 없습니다.', '이 판에 소리가 붙은 자리가 하나도 없습니다.', ''); return; }
+  var u = sndOf(k);
+  sndNote('소리 점검 중…', '한 클립을 틀어 보고 있습니다. 3초만 기다려 주세요.', u);
+  stop();
+  var a = new Audio(u); cur = a;
+  var t0 = 0, started = false;
+  a.addEventListener('playing', function () { started = true; t0 = a.currentTime; });
+  a.addEventListener('error', function () { sndWhy(a, null); });
+  var pr; try { pr = a.play(); } catch (e) { sndWhy(a, e); return; }
+  if (pr && pr.catch) pr.catch(function (e) { sndWhy(a, e); });
+  setTimeout(function () {
+    try { a.pause(); } catch (e) {}
+    if (a.error || a.networkState === 3) return sndWhy(a, null);
+    if (!started) return sndWhy(a, { name: '재생이 시작되지 않음' });
+    if (a.currentTime > t0 + 0.3) {
+      sndNote('소리는 정상으로 나가고 있습니다.',
+        '파일을 받아왔고 재생도 <b>' + a.currentTime.toFixed(1) + '초</b>까지 진행됐습니다. 그런데 안 들리신다면 판이 아니라 기기 쪽입니다.<br>'
+        + '아이폰이면 <b>옆면 무음 스위치</b>(주황색이 보이면 무음)와 <b>볼륨</b>을 봐 주세요. 이어폰·블루투스가 다른 기기에 물려 있는 경우도 있습니다.',
+        '길이 ' + (isFinite(a.duration) ? a.duration.toFixed(1) + '초' : '?') + ' · ready=' + a.readyState);
+    } else {
+      sndNote('재생이 시작됐다가 진행되지 않았습니다.', '「듣기」를 한 번 더 눌러 보시고, 그래도 같으면 이 화면을 캡처해 알려 주세요.',
+        'time=' + a.currentTime.toFixed(2) + ' ready=' + a.readyState + ' net=' + a.networkState);
+    }
+  }, 3000);
+}
+function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없습니다.'); return; } var a = watch(new Audio(u)); cur = a; kick(a); }
+/* [IOS_GESTURE] play() 는 한 곳에서만 부른다 — 거절 사유를 한 곳에서만 다루려는 것이다. */
+function kick(a) {
+  var pr;
+  try { pr = a.play(); } catch (e) { sndWhy(a, e); return; }
+  if (pr && pr.catch) pr.catch(function (e) { sndWhy(a, e); });
+}
 /* [SENT_SEEK] 같은 클립을 그 구간만 — 소리를 더 넣지 않고 문장 하나를 들려준다 */
 var segT = null;
+/* ★★[IOS_GESTURE 2026-09-19 사장님 *"클립듣기눌러도 소리가안나는데"*]
+   종전에는 loadedmetadata 콜백 «안»에서 play() 를 불렀다. 그게 아이폰에서 안 난다 —
+   iOS 는 play() 가 «사용자가 누른 그 실행 흐름»에서 불릴 때만 허락한다.
+   metadata 가 온 뒤는 이미 다른 차례라 NotAllowedError 로 거절된다. **그런데 조용히 거절된다.**
+   ★그래서 ①누른 그 자리에서 바로 play() 를 부르고 ②자리 이동은 그 뒤에 한다.
+     시작 지점은 주소에 실어 보낸다(#t=) — 브라우저가 처음부터 그 자리로 연다.
+   ★그리고 거절되면 **말하게 한다**(sndWhy). 조용히 실패하는 것이 이번 문제의 본질이었다. */
 function playSeg(id, a0, b0) {
   stop(); if (segT) { clearTimeout(segT); segT = null; }
   var u = sndOf(id); if (!u) { alert('그 클립 소리가 이 판에 없습니다.'); return; }   /* [SOUND_OUT_OF_JS] */
-  var a = watch(new Audio(u)); cur = a;   /* [SOUND_UNREACHABLE] */
-  a.addEventListener('loadedmetadata', function () { a.currentTime = a0; a.play(); });
+  var a = watch(new Audio(u + '#t=' + a0.toFixed(2))); cur = a;   /* [SOUND_UNREACHABLE] */
+  var seek = function () { if (Math.abs(a.currentTime - a0) > 0.25) { try { a.currentTime = a0; } catch (e) {} } };
+  a.addEventListener('loadedmetadata', seek);
   a.addEventListener('timeupdate', function () { if (a.currentTime >= b0) { try { a.pause(); } catch (e) {} } });
-  segT = setTimeout(function () { try { a.pause(); } catch (e) {} }, Math.max(300, (b0 - a0) * 1000 + 250));
+  kick(a);   /* [IOS_GESTURE] 누른 그 자리에서 바로 — 콜백 안으로 미루지 않는다 */
+  segT = setTimeout(function () { try { a.pause(); } catch (e) {} }, Math.max(300, (b0 - a0) * 1000 + 1200));
 }
 
 /* 판정 키 — 기존은 "clipId#문장번호", 새 어조는 "n<번호>" */
@@ -888,6 +961,7 @@ $('copyOut').onclick = function () {
 };
 $('reset').onclick = function () { if (confirm('판정을 전부 지울까요?')) { V = {}; save(); draw(); } };
 $('ftog').onclick = footTog;   /* [FOOT_SLIM] */
+$('sndChk').onclick = sndCheck;   /* [SOUND_TELL] */
 /* [HANDOFF_LINK] 링크를 만들어 준다 — 복사가 막히면 «막혔다»고 적고 주소를 화면에 띄운다
    (COPY_MOBILE 과 같은 규칙: 성공했다고 거짓말하지 않는다). */
 $('handoff').onclick = async function () {
