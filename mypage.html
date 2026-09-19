@@ -8268,7 +8268,7 @@ function dineFilterUI(d, wt){
       +escapeHtml(r.n)+_badge
       +'<small>'+escapeHtml(meta)+(_bud?' · '+escapeHtml(_bud):'')+'</small><small>'+escapeHtml(tags.join(' · '))+'</small>'+_rec+_vf+'</div>';
   }).join('') + (shown.length<list.length?'<button type="button" class="dn-morebtn" id="dn_more">리스트 전체 보기 · '+list.length+'곳</button>':'')
-  : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 디렉터가 도와드려요.</div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:10px 16px">조건 초기화</button><button type="button" class="cc-btn-ghost" id="dn_askai" style="width:auto;padding:10px 16px">말로 찾아볼까요?</button></div>';
+  : '<div class="cc-note" style="margin:6px 0 8px">고른 조건에 딱 맞는 곳이 없어요. 조건을 줄이거나 초기화해 보세요. 원하시는 곳이 따로 있으면 그대로 진행하셔도 돼요.</div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="cc-btn-ghost" id="dn_reset" style="width:auto;padding:10px 16px">조건 초기화</button><button type="button" class="cc-btn-ghost" id="dn_askai" style="width:auto;padding:10px 16px">말로 찾아볼까요?</button></div>';
   // (2026-07-12 통합) 시나리오 칩(키즈·뒷풀이)은 위 컨셉 칩 줄로 이동 · 지도 결과는 아래 리스트 영역에 노출 → AI와 리스트가 한 흐름.
   var chat=d._chat||[];
   var msgs=chat.map(function(mm){ return '<div class="dnc-m '+(mm.role==='user'?'dnc-u':'dnc-b')+'">'+escapeHtml(mm.content)+'</div>'; }).join('');
@@ -8430,7 +8430,7 @@ function renderDining(box){
         var mUrl=(url&&/^https?:\/\//i.test(url))?url:_dnMapUrl(nm);
         var callLine=telD
           ? '<a class="cc-btn" href="tel:'+telD+'" style="display:block;text-align:center;margin:10px 0 0;text-decoration:none">전화로 예약하기 · '+escapeHtml(telShow)+'</a>'
-          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요. 디렉터에게 요청하셔도 돼요.</div>';
+          : '<div class="cc-note" style="margin:10px 0 0">전화번호는 확정되는 대로 안내해 드릴게요.</div>';
         var mapLine='<a class="cc-btn-ghost" href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
         var isCafe=(R2&&R2.th==='cafe');   // 카페면 '식사·룸' 대신 '차·디저트' 멘트(2026-06-16)
         var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+(head2?escapeHtml(head2)+'명 ':'')
@@ -8438,7 +8438,7 @@ function renderDining(box){
         return callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
-          + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 안내된 정보는 변동될 수 있으니 통화에서 꼭 확인해 주세요. 예약이 어려우면 디렉터에게 요청해 주세요.</div>';
+          + '<div class="cc-note" style="margin-top:10px">메뉴·세부는 통화로 정하시면 돼요. 안내된 정보는 변동될 수 있으니 통화에서 꼭 확인해 주세요.</div>';
       };
       var favs=d._favs||[];
       if(favs.length){
@@ -8493,7 +8493,7 @@ function renderDining(box){
         } else {
           body2b='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
             + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
-            + '<div class="cc-note">'+(d.venuePick==='상담 때 함께 정할게요'?'상담 때 디렉터와 함께 골라 예약해요.':'원하시는 곳을 직접 정해 예약하시면 돼요. 도움이 필요하면 디렉터에게 요청해 주세요.')+'</div>';
+            + '<div class="cc-note">'+(d.venuePick==='상담 때 함께 정할게요'?'상담 때 디렉터와 함께 고르고, 예약은 두 분이 하시면 돼요.':'원하시는 곳을 직접 정해 예약하시면 돼요.')+'</div>';
         }
         box.innerHTML=trkShell(2,'예약 안내',null,body2b+((d.dining_on!=='N')?_dnRsvHtml(d):''),true,'저장하고 닫기');
         bindTrk(box,renderDining,collect,{ last:true });

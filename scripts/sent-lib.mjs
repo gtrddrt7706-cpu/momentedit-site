@@ -180,6 +180,26 @@ function importFrom(src) {
       const id = a.clip + '#' + a.i;
       const s = bySlot.get(id);
       if (!s || s.text !== r.text) { skipSlot++; continue; }              // 대장과 다르면 «안 넣는다»
+      /* ★★[CUT_AMBIG 2026-09-19] 이름이 «잘린» 파일은 잘린 데까지만 증명한다 — 그 뒤는 모른다.
+         ★실사고: 「… 안내해 드리고, 예약이 어려운 곳은 디렉터가 대신 움직입니다.」를
+           「… 안내해 드리고, 연락처와 … 정리해 드립니다.」로 고친 날, 옛 녹음의 파일 이름이
+           «잘린 앞부분»만으로 새 문장에 걸려 **옛 소리가 새 글의 자리에 조용히 들어갔다.**
+           SRC_STALE 이 막으려던 바로 그 실패인데, 앞자리 일치 규칙이 그 위로 넘어갔다.
+         ★그래서 «그 자리에 원래 있던 글»과도 맞대 본다. 잘린 앞부분이 새 글과 옛 글 양쪽에 걸리면
+           그 파일이 둘 중 무엇을 읽은 것인지 알 길이 없다 — 그러면 **안 넣는다.**
+         ★추측해서 넣는 쪽이 아니라 비워 두는 쪽을 고른다. 비어 있으면 다음 검사가 잡지만,
+           잘못 들어간 소리는 아무 검사도 못 잡고 식장에서 난다. */
+      const prevText = (j.slots[id] || {}).text;
+      const fn = pool.find((x) => x.g === g);
+      if (fn && fn.cut && prevText && prevText !== s.text) {
+        const pre = fold(prevText).slice(0, fn.s.length);
+        if (pre === fn.s) {
+          console.log(`  [CUT_AMBIG] ${id} — 파일 이름이 잘려 옛 글과 새 글을 가릴 수 없습니다. 안 넣었습니다.`);
+          console.log(`     옛 «${prevText.slice(0, 46)}…»`);
+          console.log(`     새 «${s.text.slice(0, 46)}…»`);
+          ambig++; continue;
+        }
+      }
       const out = fileOf(id);
       fs.mkdirSync(path.dirname(out), { recursive: true });
       execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', g.f, '-c:a', 'flac', out]);   // [FLAC_HALF] 무손실

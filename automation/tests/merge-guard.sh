@@ -4304,6 +4304,13 @@ chk '멀리 계셔도' i/cover-01.html 1
 chk '한 자리를 마련했습니다' i-family/family-01.html 1
 chk '귀한 마음만 더해' i/cover-04.html 1
 chk '참석이 어려운' i/cover-08.html 1
+
+
+# ★[PAR_NO_TRADITION 2026-09-19] 여기 있던 폐백 chk 셋을 지웠다 — main 이 같은 날 더 넓게 정했다.
+#   내 브랜치는 «편지에서만» 뺐고 챗봇은 남기려 했는데, main 은 *"전통절차는아예없어"* 로
+#   챗봇·KB 까지 통째로 지웠다. 그쪽이 사장님 말씀에 더 가깝다 — 내 쪽을 접는다.
+#   지금은 scripts/audit/no-tradition.mjs 가 그 자리를 대신 지킨다(게이트가 실행한다).
+nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' assets/advisor-kb.js
 chk '식사 자리' parents.html 1
 chk '보증하지 않습니다' parents.html 1
 chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
@@ -5532,10 +5539,20 @@ chk '@media print{body.listening{padding-bottom:0}}' parents.html 1
 #   사용자가 바꿔 달라고 한 것은 페이지 쪽이고, 예식 당일 소리는 실예식에 나가는 것이라 손대지 않았다.
 #   ★assemble-parents-letter.mjs 를 다시 돌리면 사본 복사가 «사용자 녹음을 조립본으로 덮어쓴다» —
 #     되살릴 수 없다. 그래서 그 자리에 «있으면 덮지 않는다» 가드를 뒀다(--overwrite-page-audio 로만 강제).
-# ★★★2026-08-21 사용자 확정: "예식당일은 신경쓰지마 따로작업하고있어" — 갈라진 채로 «둔다».
-#   두 파일이 다른 것은 «어긋난 것»이 아니라 그렇게 정한 것이다. 통일하지 말고, 다시 묻지도 말 것.
+# ★★★2026-08-21 사용자 확정이었던 「갈라진 채로 둔다」는 2026-09-19 에 거두어졌다 — 아래 참조.
+# ★★★[LETTER_AUDIO_UNIFIED 2026-09-19 사용자 지시 「화면이랑 재생파일이 동일하게」] 다시 «합쳤다».
+#   2026-08-21 의 「갈라진 채로 둔다」를 사장님이 거두셨다. 그때의 전제가 사라졌기 때문이다 —
+#   대본이 B판으로 바뀌면서(PARENTS_B · PAR_PYEBAEK_OUT) 예식 당일 클립은 **어느 글과도 안 맞게** 됐다.
+#   ★두 파일은 이제 바이트까지 같다(sha 동일). 사장님이 주신 통낭독 43문장 · 앞 2.00초 · 180.3초.
+#   ★다시 가르지 말 것 — 가르려면 사장님이 먼저 말씀하신다(전과 같은 규칙, 방향만 뒤집힌 것이다).
 chk 'LETTER_AUDIO_DIVERGED' scripts/assemble-parents-letter.mjs 1
-chk '갈라진 채로 «둔다»' scripts/assemble-parents-letter.mjs 1
+chk 'LETTER_AUDIO_UNIFIED' scripts/assemble-parents-letter.mjs 2
+# 두 경로가 «바이트까지» 같은지 기계가 본다 — 한쪽만 다시 뽑으면 여기서 걸린다
+if [ -f assets/audio/parents-letter.mp3 ] && [ -f assets/audio/narration/43_parents-letter.mp3 ]; then
+  if cmp -s assets/audio/parents-letter.mp3 assets/audio/narration/43_parents-letter.mp3;
+  then echo 'ok LETTER_AUDIO_UNIFIED: 편지 소리 두 경로가 같은 파일이다'
+  else echo 'REVERT? LETTER_AUDIO_UNIFIED: 편지 소리 두 경로가 갈렸다 — 2026-09-19 지시는 «동일하게»다'; fail=1; fi
+fi
 chk 'overwrite-page-audio' scripts/assemble-parents-letter.mjs 2
 nochk '^fs.copyFileSync(dst, alt);' scripts/assemble-parents-letter.mjs
 # ★★[INV_NO_PHOTO 2026-08-17 사용자 제보 — 접점마다 다른 답] 청첩장에는 사진이 들어가지 않는다.
@@ -8366,3 +8383,24 @@ else echo 'skip listen-cover (node 없음)'; fi
 #   지우면 「대장 문구를 고친 사람은 그 판을 영영 못 고친다」로 되돌아간다 — 게이트가 붉은 채 산다.
 chk 'MEAS_CARRY' scripts/build-listen-tone.mjs 2
 chk '그 자리의 글이 한 글자까지 같을 때만' scripts/build-listen-tone.mjs 1
+
+# ★[PARENTS_B / PAR_PYEBAEK_OUT 2026-09-19] 어른께 드리는 안내 — 낭독을 화면 차례로 옮기고 폐백 문단을 뺐다.
+#   A·B 견줌 판(build-parents-ab.mjs)은 «고르기 위한 도구»였고 B 로 정해져 역할이 끝났다 — 지워도 되는 것이 맞다.
+#   되살아나면 안 되는 것은 «결정» 쪽이다: 차례와 폐백 삭제.
+chk 'PARENTS_B' scripts/apply-parents-b.mjs 2
+chk 'PAR_PYEBAEK_OUT' scripts/apply-parents-b.mjs 3
+# ★parents.html 쪽 마커·nochk 는 뺐다 — 그 파일은 main 의 PAR_NO_TRADITION 판을 취했다.
+#   내 PAR_PYEBAEK_OUT 은 이제 «낭독 대본에서 뺀 것»만 가리킨다(apply-parents-b.mjs).
+nochk '별도의 폐백 순서는 두지 않습니다' scripts/build-dubbing-script.mjs
+# ★[NO_BOOKING_HELP 2026-09-19 사용자 「예약 관련 우리가 도움을 주는 건 없어」] 여덟 자리를 한 번에 고쳤다.
+#   되살아나면 «우리가 안 하는 일»을 약속하는 문구가 된다 — 고객이 기다리다 예약을 못 하는 사고가 난다.
+chk 'NO_BOOKING_HELP' scripts/apply-no-booking-help.mjs 1
+nochk '대신 움직입니다' index.html
+nochk '대신 움직입니다' parents.html
+nochk '디렉터가 도와드립니다' index.html
+nochk '디렉터에게 요청' mypage.html
+
+# ★[ALREADY_DONE] apply 스크립트가 «이미 되어 있는 자리»를 실패로 세지 않게 한 장치.
+#   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.
+#   그걸 틀림으로 세면 «반만 고친 판»을 막으려던 가드가 거꾸로 «전부 못 고치게» 막는다.
+chk 'ALREADY_DONE' scripts/apply-no-booking-help.mjs 1
