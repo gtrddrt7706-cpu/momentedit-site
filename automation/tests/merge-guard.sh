@@ -6976,7 +6976,9 @@ chk '축배를 들겠습니다. 앞에 놓인 잔을' assets/ritual-data.js 1
 #   시어머님이 방금 «보여 준» 것을 닫는 말이 되받아 해설했다.
 nochk '가장 오랜 사랑 앞으로' assets/ritual-data.js
 nochk '그 사랑이 있어 오늘의 두 사람이 있습니다' assets/ritual-data.js
-chk '키워 주신 분들 앞으로 걸어갑니다' assets/ritual-data.js 1
+# ★[SOFT_NARRATION 2026-09-19] 문안이 「걸어갑니다」→「천천히 걸음을 옮겨 주시면 됩니다」로 바뀌었다.
+#   지킬 것은 «헌정을 여는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
+chk '키워 주신 분들 앞으로, 천천히 걸음을 옮겨 주시면 됩니다' assets/ritual-data.js 1
 # ⑦입장 닫는 말 C — 25명 예식의 하객 대부분은 가족·친구다. 「먼 길 함께 걸어와 주신」은 미화였다.
 nochk '먼 길 함께 걸어와 주신' assets/ritual-data.js
 # ⑧★★되살아난 흠 — 「다 지웠어」가 서약과 편지 양쪽에 있었다.
@@ -7280,7 +7282,7 @@ chk 'COPY_THREE' scripts/audit/copy-three.mjs 2
 #   ★감정 구간은 손대지 않았다 — 게이트에 결정이 잠겨 있고 사장님이 받으신 판이다.
 chk 'GUEST_TONE2' scripts/apply-guest-tone2.mjs 1
 chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
-chk '아직 들르지 못한 자리도 차례로 찾아뵙습니다' assets/ritual-data.js 1
+chk '아직 들르지 못한 자리도 차례로 찾아뵙겠습니다' assets/ritual-data.js 1
 chk '오늘 오신 분들은 저희가 다 아는 분들입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 nochk '편히 드시면' assets/ritual-data.js
 nochk '두 분이 가져갑니다' assets/ritual-data.js
@@ -7595,7 +7597,8 @@ nochk '나머지 분들은 그대로 계셔도 좋습니다' assets/ritual-data.
 #     이웃 큐 서술어 반복 5건 → 0건(PRED_KNOWN 을 0 으로 내렸다).
 chk 'TIC_CUT' scripts/apply-tic-cut.mjs 2
 chk 'COUNT_BY_CUE' scripts/apply-tic-cut.mjs 1
-chk '오늘 이 자리에 있던 사람들만 들었습니다' assets/ritual-data.js 1
+# ★[SOFT_NARRATION] 디지털 참석자를 가르지 않는 문장으로 바꿨다 — 마커도 함께 옮긴다.
+chk '오늘 이 순간에만 있었습니다' assets/ritual-data.js 1
 chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 # ★[NO_FUSS 2026-09-12] 「앉아 계십니다」 → 「앞자리에 부모님이 계십니다」.
 #   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
@@ -8433,3 +8436,18 @@ chk 'isWholeTake' scripts/sent-lib.mjs 2
 chk 'isWholeTake' scripts/build-redub-byvoice.mjs 3
 chk 'LETTER_WHOLE_TAKE' scripts/assemble-parents-letter.mjs 1
 chk "arg('--whole'" scripts/assemble-parents-letter.mjs 1
+
+# ★[SOFT_NARRATION 2026-09-19 사장님 「전부 권유식으로 부드럽게」·「정중함 권유식으로 고급스러운 웨딩 무드」]
+#   나레이션이 «사람이 지금 할 일»을 3인칭 평서로 통보하던 자리 열둘을 권유로 바꿨다.
+#   되살아나면 듣는 분이 그 말을 «명령»으로 받는다. 고른 기준은 스크립트 머리말에 적어 뒀다.
+chk 'SOFT_NARRATION' scripts/apply-soft-narration.mjs 1
+chk 'SOFT_NOT_BLANKET' scripts/apply-soft-narration.mjs 2
+chk 'SOFT_TONE' scripts/apply-soft-narration.mjs 1
+# ★옛 문구를 nochk 로 막으려다 멀쩡한 자리를 잡았다 — ritual-data 의 TONE_TABLE 블록은
+#   «어조 60벌»(21_B_제안.md §3 에서 생성)이고 그쪽은 이미 186개를 녹음해 둔 다른 묶음이다.
+#   같은 문장이라도 자리가 다르면 다르게 본다(SOFT_NOT_BLANKET) — 그래서 새 문구가 있는지로만 지킨다.
+chk '지금 직접 읽어 주시면 됩니다' assets/ritual-data.js 2
+chk '차례로 읽어 주시면 됩니다' assets/ritual-data.js 1
+chk '서로의 손에 반지를 끼워 주시면 됩니다' assets/ritual-data.js 2
+chk '이제 여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
+chk '오늘의 예식은 여기까지입니다' assets/ritual-cue.js 2

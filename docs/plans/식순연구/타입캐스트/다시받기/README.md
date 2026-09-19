@@ -9,6 +9,20 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
+| 1_우성.txt | 우성 | 27 | 12 |
+| 2_진희.txt | 진희 | 7 | 3 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
+
+```
+# 우성 — 27줄 · 12클립
+node scripts/assemble-narration.mjs --in <우성_받은폴더> \
+  --clip =13_narr-vow-in,=15_narr-ring-in,=21_narr-declare-family-intro,=22_narr-bless-open,=24_narr-bless-end,=27_letter-parent,=28_letter-each,=29_letter-both,=38_tribute-in,=61_narr-round-open,=86_narr-round-mid,=62_narr-online-in
+```
+
+```
+# 진희 — 7줄 · 3클립
+node scripts/assemble-narration.mjs --in <진희_받은폴더> \
+  --clip =44_end-0-photo,=45_end-1a-farewell,=47_end-2-goodbye
+```
 
