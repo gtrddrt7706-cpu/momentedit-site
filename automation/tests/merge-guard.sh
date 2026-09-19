@@ -3621,7 +3621,14 @@ chk 'applyHandoff' scripts/build-listen-all.mjs 3
 # ★옛 모양을 받는 갈래를 지우면 여기서 잡힌다
 chk "d.w || \\[\\]" scripts/build-listen-all.mjs 1
 chk 'id="paste"' "$_plate" 1
-chk 'STAMP_CARRY' scripts/build-listen-all.mjs 1
+# ★★[CARRY_EXPIRED 2026-09-19] STAMP_CARRY 를 «지켜라»에서 «되살리지 마라»로 뒤집는다.
+#   그 블록은 8월 판정을 9월 소리 위에 계속 붙였다 — 사장님이 「아직 시작을 안 했는데 진행중」이라 잡았다.
+#   실측 재현: 안 누른 브라우저에 옛 열쇠만 심으니 「판정 2 / 534」 + 사라진 클립 판정까지 써 넣었다.
+#   ★nochk 로 실행 코드가 돌아오는 것을 막는다(주석 2줄은 CARRY_EXPIRED 설명이라 아래 chk 가 지킨다).
+nochk "localStorage.getItem('me_listen_all_e17caa93')" scripts/build-listen-all.mjs
+chk 'CARRY_EXPIRED' scripts/build-listen-all.mjs 4
+chk '_g2' scripts/build-listen-all.mjs 2
+chk 'CARRY_NOTE' scripts/build-listen-all.mjs 3
 chk "c.id + '#' + j" scripts/build-listen-all.mjs 6
 chk 'handoffLink' scripts/build-listen-all.mjs 2
 # ★배포되는 실청판이 실제로 어조 소리를 담고 있나 — 판 자체를 본다(생성기만 보면 못 본다)
