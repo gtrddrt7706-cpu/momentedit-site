@@ -5516,10 +5516,20 @@ chk '@media print{body.listening{padding-bottom:0}}' parents.html 1
 #   사용자가 바꿔 달라고 한 것은 페이지 쪽이고, 예식 당일 소리는 실예식에 나가는 것이라 손대지 않았다.
 #   ★assemble-parents-letter.mjs 를 다시 돌리면 사본 복사가 «사용자 녹음을 조립본으로 덮어쓴다» —
 #     되살릴 수 없다. 그래서 그 자리에 «있으면 덮지 않는다» 가드를 뒀다(--overwrite-page-audio 로만 강제).
-# ★★★2026-08-21 사용자 확정: "예식당일은 신경쓰지마 따로작업하고있어" — 갈라진 채로 «둔다».
-#   두 파일이 다른 것은 «어긋난 것»이 아니라 그렇게 정한 것이다. 통일하지 말고, 다시 묻지도 말 것.
+# ★★★2026-08-21 사용자 확정이었던 「갈라진 채로 둔다」는 2026-09-19 에 거두어졌다 — 아래 참조.
+# ★★★[LETTER_AUDIO_UNIFIED 2026-09-19 사용자 지시 「화면이랑 재생파일이 동일하게」] 다시 «합쳤다».
+#   2026-08-21 의 「갈라진 채로 둔다」를 사장님이 거두셨다. 그때의 전제가 사라졌기 때문이다 —
+#   대본이 B판으로 바뀌면서(PARENTS_B · PAR_PYEBAEK_OUT) 예식 당일 클립은 **어느 글과도 안 맞게** 됐다.
+#   ★두 파일은 이제 바이트까지 같다(sha 동일). 사장님이 주신 통낭독 43문장 · 앞 2.00초 · 180.3초.
+#   ★다시 가르지 말 것 — 가르려면 사장님이 먼저 말씀하신다(전과 같은 규칙, 방향만 뒤집힌 것이다).
 chk 'LETTER_AUDIO_DIVERGED' scripts/assemble-parents-letter.mjs 1
-chk '갈라진 채로 «둔다»' scripts/assemble-parents-letter.mjs 1
+chk 'LETTER_AUDIO_UNIFIED' scripts/assemble-parents-letter.mjs 2
+# 두 경로가 «바이트까지» 같은지 기계가 본다 — 한쪽만 다시 뽑으면 여기서 걸린다
+if [ -f assets/audio/parents-letter.mp3 ] && [ -f assets/audio/narration/43_parents-letter.mp3 ]; then
+  if cmp -s assets/audio/parents-letter.mp3 assets/audio/narration/43_parents-letter.mp3;
+  then echo 'ok LETTER_AUDIO_UNIFIED: 편지 소리 두 경로가 같은 파일이다'
+  else echo 'REVERT? LETTER_AUDIO_UNIFIED: 편지 소리 두 경로가 갈렸다 — 2026-09-19 지시는 «동일하게»다'; fail=1; fi
+fi
 chk 'overwrite-page-audio' scripts/assemble-parents-letter.mjs 2
 nochk '^fs.copyFileSync(dst, alt);' scripts/assemble-parents-letter.mjs
 # ★★[INV_NO_PHOTO 2026-08-17 사용자 제보 — 접점마다 다른 답] 청첩장에는 사진이 들어가지 않는다.
