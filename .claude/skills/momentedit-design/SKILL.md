@@ -346,6 +346,23 @@ AA 미달**이 됐을 것이다. 지금은 실측값으로 동기화하고 경�
 index에서 고친 뒤에도 inquiry·parents에 남아 있었다. 한 페이지에서 발견한 결함은
 같은 컴포넌트를 쓰는 모든 페이지에서 grep할 것.
 
+### ★그런데 이 경고만으로는 «세 번째»를 못 막았다 (2026-09-19)
+
+위 문단이 이미 적혀 있었는데도, 2026-09-19 에 재 보니 **privacy 만** `2.71:1 / 2.05:1` 로
+그대로였다 — 하필 법적 고지 면이다. 같은 자리에서 둘이 더 샜다:
+parents 는 주소·처리방침·저작권 **세 줄이 통째로** 없었고, inquiry 만 「마이페이지」였다(나머지는 「My Page」).
+
+**경고를 문서에 적는 것으로는 안 된다.** 푸터는 화면 맨 아래라 사람 눈에 영영 안 걸린다.
+그래서 `scripts/audit/footer-parity.mjs` 를 만들어 기계가 보게 했다(`[FOOTER_PARITY]`) —
+네 면(index·inquiry·privacy·parents)의 **문구·링크 주소·링크 표기·대비 AA·가로 넘침**을
+390px 실렌더로 대조한다. merge-guard 가 걸고, 브라우저가 있는 nightly-screen 에서 실제로 잰다.
+
+- 푸터를 고치면 `node scripts/audit/footer-parity.mjs` 로 먼저 재 볼 것.
+- **높이는 일부러 안 잰다.** parents 만 70px 높은 것은 표류가 아니라 `[TAP44-3]` 이다 —
+  「어른께 드리는 안내」 면이라 푸터 링크를 `inline-block; min-height:44px` 로 키워
+  엄지 타깃을 실제로 채웠다. 나머지 셋은 `display:inline` 이라 WCAG 2.5.8 의
+  «문장 속 인라인» 면제를 탄다. **둘 다 통과하는 다른 길이니 «통일»하지 말 것.**
+
 **★`invitation-gallery.html` 성능 47은 구조적이다 — 함부로 고치지 말 것.**
 642KB 중 617KB가 인라인 스크립트이고, 그 안에 청첩장 9종의 HTML 전체가 base64로
 들어 있다(`TEMPLATES` 499KB + `LIVE_HTML_B64` 79KB). iframe srcdoc으로 주입하는

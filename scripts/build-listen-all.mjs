@@ -44,6 +44,13 @@ const toneNums = () => { try { return fs.readdirSync(TONE_DIR)
   .filter((x) => x !== null).sort((a, b) => a - b); } catch (e) { return []; } };
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--out', ''), EMBED = process.argv.includes('--embed');
+/* ★★[OPEN_ONE_TAP 2026-09-19 사장님 폰 화면] 스크립트가 막힌 화면에 «한 단계짜리 길»을 내민다.
+   ★실물로 봤다 — 사장님이 파일을 미리보기로 여셨고 목록·탭·판정이 전부 비었다.
+     JS_BLOCKED_SAY 가 대비한 그 상황이 맞았고 안내도 떴다. 그런데 안내가 시킨 길이
+     「공유 → 파일에 저장 → 파일 앱에서 열기」 네 단계였다. 한 단계짜리 길이 있는데 네 단계를 시켰다.
+   ★그래서 판이 제 이름을 알고 배포된 주소를 직접 내민다. 누르면 브라우저가 연다.
+   ★이름은 --out 에서 온다 — 손으로 적으면 판을 새로 뽑을 때마다 어긋난다(LISTEN_KEY_STAMP 와 같은 병). */
+const OUTNAME = (OUT.split('/').pop() || 'listen.html');
 /* ★★[OUT_NOT_REVIEW 2026-09-12] `--out audio-review.html` 을 막는다.
    ★실사고 — 이번 세션에서 이 생성기를 `--out audio-review.html` 로 돌려,
      같은 이름의 «손으로 만든 실청 점검 도구»를 통째로 덮어썼다(2026-08-11 판, 마커 16개).
@@ -358,17 +365,30 @@ border-top:1px solid var(--border);padding-top:14px;font-weight:600}
 .why input:focus{border-color:var(--gold);outline:none}   /* [LISTEN_WHY] 「다시」에 이유 한 줄 — 이유가 없으면 다음 판이 같은 이유로 또 걸린다 */
 .foot{position:fixed;left:0;right:0;bottom:0;background:rgba(250,250,248,.97);border-top:1px solid var(--border);
 padding:9px 14px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap;backdrop-filter:blur(8px);z-index:30}
+/* ★★[FOOT_SLIM 2026-09-19] 폰에서 이 툴바가 **화면의 25%** 를 먹고 있었다(실측 169/664px).
+   단추 다섯이 셋으로 줄바꿈되면서 그만큼 자란다. 그런데 다섯 다 «다 듣고 나서 한 번» 누르는 것이고,
+   판정하는 동안에는 한 번도 안 쓴다. 항목을 보는 자리를 상시로 4분의 1 내줄 이유가 없다.
+   ★지우지 않는다 — 접는다. 좁은 화면에서만 접고 넓은 화면은 그대로 둔다. */
+.foot .ftog{display:none}
+@media (max-width:560px){
+  .foot{gap:7px;padding:7px 10px}
+  .foot .ftog{display:block}
+  .foot.slim .btn{display:none}
+  .foot.slim .ftog{display:block}
+}
+/* [HEAD_FOLD] 접은 머리말 */
+.fold{margin:10px 0 4px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)}
+.fold summary{cursor:pointer;padding:10px 12px;font-size:13px;color:var(--sub);list-style:none}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary::before{content:'▸ ';color:var(--gold)}
+.fold[open] summary::before{content:'▾ '}
+.fold p{margin:0 12px 10px}
 textarea{width:100%;min-height:170px;font:13px/1.6 ui-monospace,Menlo,monospace;padding:10px;
 border:1px solid var(--border);border-radius:9px;background:#fff}
 .hide{display:none}
 </style></head><body><div class="wrap">
 
 <h1>전체 실청 점검</h1>
-<p class="sub">[LISTEN_ALL] 지금 나가는 기존 <b>${OLDC.length}클립</b>(문장 ${oldSents}) + 새 어조 <b>${NEWC.length}클립</b>(문장 ${newSents})
-&nbsp;·&nbsp; 예식 순서대로 늘어놓았습니다
-&nbsp;·&nbsp; <b>판 ${STAMP}</b></p>
-<p class="sub" style="color:var(--light)">[LISTEN_KEY_STAMP] 판정은 이 판(<b>${STAMP}</b>)에만 저장됩니다 &mdash; 소리나 글이 바뀌면 판이 달라져 <b>판정을 새로 받습니다</b>.<br>옛 소리에 누른 판정이 새 소리 위에 남아 있으면 그 기록은 거짓이 되기 때문입니다.</p>
-${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_SCREEN] 폐지한 자리 <b>${RETIRED_ROWS.length}개</b>는 목록에 없습니다 &mdash; 식장에서 나지 않습니다: ${RETIRED_ROWS.join(' · ')}<br>(파일은 남겨 둡니다 &mdash; 지우면 뒤 클립 번호가 전부 밀립니다)</p>` : ''}
 
 <!-- ★★[JS_BLOCKED_SAY 2026-08-26 사용자 실물 두 번] 스크립트가 «아예 안 도는» 자리를 화면이 말한다.
      ★단서: 폰에서 목록도 탭도 안 뜨는데 **내가 넣은 오류 배너(window.onerror)까지 비어 있었다.**
@@ -378,11 +398,31 @@ ${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_
        안 돌면 이 글이 그대로 남아, 사람이 «고장»이 아니라 «여는 법»을 보게 된다.
      ★빈 화면은 아무것도 안 알려 준다. 안 도는 것을 안 돈다고 적는 것이 이 저장소의 규칙이다. -->
 <div class="note" id="canDo">
-  <b>이 화면이 이대로 멈춰 있으면, 지금 보고 계신 앱이 스크립트를 막은 것입니다.</b><br>
-  판정 단추와 목록이 안 뜨고 이 글만 보이면 그 경우예요.<br>
-  <b>브라우저로 열어 주세요</b> — 아이폰이면 아래 공유 단추 → 「파일에 저장」 → 파일 앱에서 열기,
-  또는 사파리·크롬으로 여시면 됩니다.
+  <b>목록이 비어 있다면, 지금 보고 계신 것이 「미리보기」라 그렇습니다.</b>
+  카톡·메일·파일 앱의 미리보기는 자바스크립트를 실행하지 않습니다. 판이 고장 난 것이 아닙니다.<br>
+  <b>아래를 누르시면 바로 됩니다.</b><br>
+  <a href="https://momentedit.kr/${OUTNAME}" style="display:block;margin:9px 0;padding:13px 12px;
+     background:#B89A75;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;
+     text-align:center;word-break:break-all;line-height:1.45">momentedit.kr/${OUTNAME}<br><span style="font-size:13px;font-weight:600;opacity:.9">눌러서 열기</span></a>
+  눌러도 안 열리면 그 주소를 사파리·크롬 주소창에 직접 쳐 주세요.<br>
+  <span style="color:var(--light)">소리도 그 주소에서 나옵니다. 내려받은 파일로는 목록·판정만 되고 듣기가 안 됩니다.</span>
 </div>
+
+<!-- ★★[SAY_FIRST 2026-09-19 사장님 *"모바일로안보여개선해좌"*] 여는 법을 **맨 위로** 올렸다.
+     ★실측(390px · iPhone 13): 첫 항목까지 1,163px = **1.8화면**. 그 위가 전부
+       [LISTEN_ALL]·[LISTEN_KEY_STAMP]·[RETIRED_OFF_SCREEN](슬러그 17개)였다.
+     ★왜 치명적인가 — JS_BLOCKED_SAY 가 대비한 「앱 내장 뷰어가 스크립트를 막는」 상황에서
+       사람이 보는 첫 화면이 **대괄호 표식 벽**이 된다. 「여는 법」은 그 아래 있어 안 보인다.
+       배너를 넣어 두고도 못 읽게 둔 셈이다. 그래서 순서를 뒤집었다.
+     ★[HEAD_FOLD] 내부 표식은 지우지 «않는다» — 판 지문·폐지 명단은 나중에 근거가 된다.
+       접어서 «보고 싶으면 펼치는 것»으로 바꾼다. 없애는 것과 접는 것은 다르다. -->
+<details class="fold">
+  <summary>이 판이 무엇인지 (판 ${STAMP} · 폐지 ${RETIRED_ROWS.length}자리)</summary>
+  <p class="sub">[LISTEN_ALL] 지금 나가는 기존 <b>${OLDC.length}클립</b>(문장 ${oldSents}) + 새 어조 <b>${NEWC.length}클립</b>(문장 ${newSents})
+  &nbsp;·&nbsp; 예식 순서대로 늘어놓았습니다 &nbsp;·&nbsp; <b>판 ${STAMP}</b></p>
+  <p class="sub" style="color:var(--light)">[LISTEN_KEY_STAMP] 판정은 이 판(<b>${STAMP}</b>)에만 저장됩니다 &mdash; 소리나 글이 바뀌면 판이 달라져 <b>판정을 새로 받습니다</b>.<br>옛 소리에 누른 판정이 새 소리 위에 남아 있으면 그 기록은 거짓이 되기 때문입니다.</p>
+  ${RETIRED_ROWS.length ? `<p class="sub" style="color:var(--light)">[RETIRED_OFF_SCREEN] 폐지한 자리 <b>${RETIRED_ROWS.length}개</b>는 목록에 없습니다 &mdash; 식장에서 나지 않습니다: ${RETIRED_ROWS.join(' · ')}<br>(파일은 남겨 둡니다 &mdash; 지우면 뒤 클립 번호가 전부 밀립니다)</p>` : ''}
+</details>
 
 <div class="note">
   <b>기존 클립</b>은 이미 예식에 나가는 완성본입니다 — 무음·음량까지 들어간 <b>실제로 들릴 소리</b>라 클립 통째로 들려 드립니다.<br>
@@ -418,7 +458,8 @@ ${/* ★★[SAY_WHICH_BOARD 2026-09-05 사장님 화면] 이 칸이 «세상은 
   <textarea id="out" readonly></textarea>
 </div>
 </div>
-<div class="foot">
+<div class="foot slim" id="foot">
+  <button class="btn ftog" id="ftog">도구 &#9650;</button>
   <button class="btn" id="mkOut">다시 받을 것 대본 만들기</button>
   <button class="btn" id="copyOut">복사</button>
   <button class="btn" id="handoff">다른 기기로 이어받기 링크</button>
@@ -448,14 +489,17 @@ var WEBSND = ${WEB ? 'true' : 'false'};   /* [LISTEN_WEB] */
 var SRCMAP = ${WEB ? JSON.stringify(Object.fromEntries([
   ...OLDC.filter((c) => c.has).map((c) => {
     const f = srcOf({ no: c.no, file: c.id.replace(/^\d+_/, '') });
-    return [c.id, '/' + path.relative(ROOT, f).split(path.sep).join('/')];
+    /* ★[SND_RELATIVE 2026-09-19] 맨 앞 «/» 를 뺀다 — 절대경로면 file:// 에서
+       `file:///assets/…` 가 되어 **디스크 뿌리**를 찾는다(실측: 요청 전부 실패).
+       상대경로면 사이트에서도(momentedit.kr/assets/…) 저장소 폴더에서도 같은 자리를 가리킨다. */
+    return [c.id, path.relative(ROOT, f).split(path.sep).join('/')];
   }),
   /* [TONE_FROM_REPO] stage 가 있으면 그 번호를, 없으면 저장소에 실제로 있는 파일을 센다.
      둘 다 같은 주소를 가리킨다 — 다른 것은 «무엇을 보고 목록을 만드느냐»뿐이다. */
   ...(fs.existsSync(STAGE)
     ? fs.readdirSync(STAGE).map((f) => { const m = /^audio_(\d+)_/.exec(f);
-        return m ? ['n' + (+m[1]), '/assets/audio/tone/n' + (+m[1]) + '.mp3'] : null; }).filter(Boolean)
-    : toneNums().map((i) => ['n' + i, '/assets/audio/tone/n' + i + '.mp3'])),
+        return m ? ['n' + (+m[1]), 'assets/audio/tone/n' + (+m[1]) + '.mp3'] : null; }).filter(Boolean)
+    : toneNums().map((i) => ['n' + i, 'assets/audio/tone/n' + i + '.mp3'])),
 ])) : '{}'};
 function sndOf(k) {
   if (WEBSND) return (SRCMAP[k] || '');          /* 주소로 부른다 — 배포된 mp3 를 그대로 */
@@ -608,17 +652,36 @@ window.addEventListener('hashchange', function () {
   });
 });
 var $ = function (i) { return document.getElementById(i); };
+/* [FOOT_SLIM] 좁은 화면에서 툴바를 접었다 폈다 — 넓은 화면에서는 CSS 가 이 단추를 숨긴다 */
+function footTog() { var f = $('foot'), b = $('ftog'); if (!f || !b) return;
+  var on = f.classList.toggle('slim');
+  b.innerHTML = on ? '도구 &#9650;' : '닫기 &#9660;'; }
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); };
 var TAB = '전체';
 var cur = null;
 function stop() { if (cur) { try { cur.pause(); } catch (e) {} cur = null; } }
-function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없습니다.'); return; } var a = new Audio(u); cur = a; a.play(); }
+/* ★★[SOUND_UNREACHABLE 2026-09-19] 소리를 «못 받아오는» 것과 «없는» 것은 다르다.
+   ★실측 — 이 판을 폰에 내려받아 열면 주소가 file:// 기준이 되어 mp3 요청이 전부 실패한다.
+     그런데 종전에는 **아무 말도 안 했다.** 누르면 조용하고, 사람은 판이 고장 난 줄 안다.
+   ★한 번만 말한다(누를 때마다 뜨면 그것대로 못 쓴다). 그리고 «왜»와 «어떻게»를 함께 적는다. */
+var sndWarned = false;
+function sndFail() {
+  if (sndWarned) return; sndWarned = true;
+  var d = document.createElement('div'); d.className = 'note';
+  d.style.cssText = 'background:#fdf3f2;color:var(--seal);border:1px solid #e8cfcb;position:sticky;top:0;z-index:40';
+  d.innerHTML = '<b>소리를 못 받아왔습니다.</b><br>이 판은 소리를 <b>사이트에서</b> 받아 옵니다 &mdash; '
+    + '내려받은 파일을 그대로 열면 주소가 끊겨 아무것도 안 들립니다.<br>'
+    + '<b>momentedit.kr/' + (location.pathname.split('/').pop() || '') + '</b> 로 여시면 들립니다. 목록과 판정은 지금도 그대로 됩니다.';
+  var w = document.querySelector('.wrap'); if (w) w.insertBefore(d, w.firstChild);
+}
+function watch(a) { a.addEventListener('error', sndFail); return a; }
+function play(u) { stop(); if (!u) { alert('그 자리 소리가 이 판에 없습니다.'); return; } var a = watch(new Audio(u)); cur = a; var pr = a.play(); if (pr && pr.catch) pr.catch(sndFail); }
 /* [SENT_SEEK] 같은 클립을 그 구간만 — 소리를 더 넣지 않고 문장 하나를 들려준다 */
 var segT = null;
 function playSeg(id, a0, b0) {
   stop(); if (segT) { clearTimeout(segT); segT = null; }
   var u = sndOf(id); if (!u) { alert('그 클립 소리가 이 판에 없습니다.'); return; }   /* [SOUND_OUT_OF_JS] */
-  var a = new Audio(u); cur = a;
+  var a = watch(new Audio(u)); cur = a;   /* [SOUND_UNREACHABLE] */
   a.addEventListener('loadedmetadata', function () { a.currentTime = a0; a.play(); });
   a.addEventListener('timeupdate', function () { if (a.currentTime >= b0) { try { a.pause(); } catch (e) {} } });
   segT = setTimeout(function () { try { a.pause(); } catch (e) {} }, Math.max(300, (b0 - a0) * 1000 + 250));
@@ -824,6 +887,7 @@ $('copyOut').onclick = function () {
   } else fallback();
 };
 $('reset').onclick = function () { if (confirm('판정을 전부 지울까요?')) { V = {}; save(); draw(); } };
+$('ftog').onclick = footTog;   /* [FOOT_SLIM] */
 /* [HANDOFF_LINK] 링크를 만들어 준다 — 복사가 막히면 «막혔다»고 적고 주소를 화면에 띄운다
    (COPY_MOBILE 과 같은 규칙: 성공했다고 거짓말하지 않는다). */
 $('handoff').onclick = async function () {

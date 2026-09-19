@@ -3855,7 +3855,12 @@ chk 'LISTEN_WEB' scripts/build-listen-all.mjs 3
 chk 'SRCMAP' scripts/build-listen-all.mjs 3
 chk 'assets/audio/tone' scripts/build-listen-all.mjs 1
 chk 'JS_BLOCKED_SAY' scripts/build-listen-all.mjs 1
-chk '브라우저로 열어 주세요' scripts/build-listen-all.mjs 1
+# ★[OPEN_ONE_TAP 2026-09-19] 옛 문구(「브라우저로 열어 주세요」)에서 옮겼다 — 지운 것이 아니다.
+#   그 문구가 시키던 길이 네 단계(공유 → 파일에 저장 → 파일 앱에서 열기)였고, 사장님이 실제로 막혔다.
+#   ★위 3844행이 이미 「파일 전달로는 못 쓴다(세 번 실패)」라고 적어 두었는데도 파일로 보냈다.
+#     네 번째 실패다. 그래서 이제 판이 **주소를 스스로 내민다** — 사람이 옮겨 적을 것이 없다.
+chk '눌러서 열기' scripts/build-listen-all.mjs 1
+chk '미리보기는 자바스크립트를 실행하지 않습니다' scripts/build-listen-all.mjs 1
 nochk 'if (AO\[c.id\]) oldOK' scripts/build-listen-all.mjs
 chk 'SHOW_THE_CRASH' scripts/build-listen-all.mjs 1
 chk 'function sndOf' scripts/build-listen-all.mjs 1
@@ -7000,7 +7005,9 @@ chk '축배를 들겠습니다. 앞에 놓인 잔을' assets/ritual-data.js 1
 #   시어머님이 방금 «보여 준» 것을 닫는 말이 되받아 해설했다.
 nochk '가장 오랜 사랑 앞으로' assets/ritual-data.js
 nochk '그 사랑이 있어 오늘의 두 사람이 있습니다' assets/ritual-data.js
-chk '키워 주신 분들 앞으로 걸어갑니다' assets/ritual-data.js 1
+# ★[SOFT_NARRATION 2026-09-19] 문안이 「걸어갑니다」→「천천히 걸음을 옮겨 주시면 됩니다」로 바뀌었다.
+#   지킬 것은 «헌정을 여는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
+chk '키워 주신 분들 앞으로, 천천히 걸음을 옮겨 주시면 됩니다' assets/ritual-data.js 1
 # ⑦입장 닫는 말 C — 25명 예식의 하객 대부분은 가족·친구다. 「먼 길 함께 걸어와 주신」은 미화였다.
 nochk '먼 길 함께 걸어와 주신' assets/ritual-data.js
 # ⑧★★되살아난 흠 — 「다 지웠어」가 서약과 편지 양쪽에 있었다.
@@ -7304,7 +7311,7 @@ chk 'COPY_THREE' scripts/audit/copy-three.mjs 2
 #   ★감정 구간은 손대지 않았다 — 게이트에 결정이 잠겨 있고 사장님이 받으신 판이다.
 chk 'GUEST_TONE2' scripts/apply-guest-tone2.mjs 1
 chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
-chk '아직 들르지 못한 자리도 차례로 찾아뵙습니다' assets/ritual-data.js 1
+chk '아직 들르지 못한 자리도 차례로 찾아뵙겠습니다' assets/ritual-data.js 1
 chk '오늘 오신 분들은 저희가 다 아는 분들입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 nochk '편히 드시면' assets/ritual-data.js
 nochk '두 분이 가져갑니다' assets/ritual-data.js
@@ -7398,6 +7405,53 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/decision-guard.mjs >
   || { echo 'FAIL decision-guard: 결정을 적어 놓고 지키는 검사를 안 만든 자리가 있습니다 — node scripts/audit/decision-guard.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/null 2>&1 \
   || { echo 'FAIL pair-read: 한 자리에 붙어 나가는 대사 짝을 아직 나란히 읽지 않았습니다 — node scripts/audit/pair-read.mjs'; fail=1; }; fi
+
+# ★★[FOOTER_PARITY 2026-09-19 사용자 「여기 풋터부분 좀더 개선해죠 이메일 만있으니초라해보여」
+#                             · 「다른페이 풋터부분들도 점검하고 될수있으면통일」]
+#   네 공개 면(index·inquiry·privacy·parents)의 푸터가 «한 벌»인지 390px 실렌더로 잰다.
+#   문구·링크 주소·링크 표기·대비(AA)·가로 넘침 다섯 가지.
+#
+#   왜 «문서 경고»로는 안 됐나 — 같은 결함이 두 번 샜다.
+#   ①`momentedit-design` 스킬이 이미 「푸터 대비 rgba(...,0.44)(2.7:1)가 index 를 고친 뒤에도
+#     남아 있었다」고 적어 두었는데, 2026-09-19 에 재 보니 privacy 만 2.71:1/2.05:1 로 그대로였다.
+#     하필 법적 고지 면이다. 경고를 적어 둔 것만으로는 세 번째 재발을 못 막는다(DECISION_GUARD).
+#   ②parents 는 주소·처리방침·저작권 «세 줄이 통째로» 없었는데 아무 검사도 붉지 않았다.
+#     푸터는 화면 맨 아래라 사람 눈에 영영 안 걸린다 — 기계가 봐야 하는 자리다.
+#   ③inquiry 만 「마이페이지」, 나머지 셋은 「My Page」였다. 같은 곳을 다른 말로 불렀다.
+#
+#   ★반증으로 고정했다(2026-09-19) — 셋을 각각 되살려 붉어지는 것을 확인했다:
+#     ①privacy 0.7→0.44 ⇒ 「대비 2.71:1 AA 미달」 ②inquiry My Page→마이페이지 ⇒ 「표기가 다르다」
+#     ③parents 세 줄 삭제 ⇒ 「문구·링크·표기가 다르다」. 초록이 «안 본 것»이 아님을 이걸로 보증한다.
+#
+#   ★높이는 일부러 «안» 잰다. parents 만 70px 높은 것은 표류가 아니라 [TAP44-3] 이다 —
+#     그 면은 「어른께 드리는 안내」라 푸터 링크를 inline-block·44px 로 키워 엄지 타깃을 실제로 채웠다.
+#     나머지 셋은 display:inline 이라 WCAG 2.5.8 «문장 속 인라인» 면제를 탄다(둘 다 통과하는 다른 길 ·
+#     check-tap-targets.mjs 로 넷 다 rc=0·작다 0·겹침 0 실측). 높이를 재면 다음 판이 그 차이를
+#     결함으로 읽고 44px 를 걷어낸다 — 접근성 결정을 되돌리는 일이다.
+#   ★결과를 «말하게» 한다 — 조용히 통과하면 「한 벌이다」와 「브라우저가 없어 못 쟀다」가
+#     화면에서 똑같이 생긴다. 이 저장소의 CANT_LOOK 원칙이 그 둘을 가르라고 한다.
+#   ★★어디서 «실제로» 재는지 알고 쓸 것 — 여기(PR CI)가 아니다.
+#     merge-guard.yml 은 node 만 깔고 브라우저를 안 깐다. 그래서 PR 에서 이 줄은 늘 «못 쟀다(2)»다.
+#     실제로 재는 곳은 nightly-screen.yml 이다 — 거기서 chromium 을 깔고 run-all.mjs 가
+#     scripts/audit/*.mjs 를 «스스로 찾아» 돌린다(footer-parity 도 자동 등록 · 109개 중 하나).
+#     PR 에서 이 자리가 막는 것은 «검사를 지우는 것»이다(아래 chk 넷이 grep 이라 브라우저가 필요 없다).
+#     ★브라우저를 PR 에 깔지 말 것 — merge-guard.yml 은 timeout-minutes:3 이고 지금 56초에 끝난다.
+#       설치만 30~60초라 이 잡의 성격(빠른 마커 검사)이 바뀐다. 무거운 실렌더는 야간의 몫이다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/footer-parity.mjs >/dev/null 2>&1; _fp=$?
+  case "$_fp" in
+    0) echo 'ok footer-parity: 네 면 푸터가 한 벌 (문구·링크 주소·링크 표기·대비 AA·넘침 0)' ;;
+    1) echo 'FAIL footer-parity: 네 면 푸터가 한 벌이 아닙니다 — node scripts/audit/footer-parity.mjs'; fail=1 ;;
+    *) echo 'ok footer-parity: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'FOOTER_PARITY' scripts/audit/footer-parity.mjs 1
+chk 'TAP44-3' scripts/audit/footer-parity.mjs 1
+chk 'FOOTER_UNIFY' parents.html 1
+# ★[SERVED_OURS] 포트를 뺏기거나 서버가 안 떴을 때 «틀림(1)»이 아니라 «못 쟀다(2)»로 빠지는 장치.
+#   빼면 멀쩡한 푸터가 환경 탓으로 붉는다 — 그러면 사람이 이 검사를 곧 무시하게 된다.
+#   반증 실측: privacy.html 을 치우면 rc=2, 화면은 두고 <footer> 만 지우면 rc=1 로 갈린다.
+chk 'SERVED_OURS' scripts/audit/footer-parity.mjs 2
+chk 'freePort' scripts/audit/footer-parity.mjs 2
 
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
@@ -7619,7 +7673,8 @@ nochk '나머지 분들은 그대로 계셔도 좋습니다' assets/ritual-data.
 #     이웃 큐 서술어 반복 5건 → 0건(PRED_KNOWN 을 0 으로 내렸다).
 chk 'TIC_CUT' scripts/apply-tic-cut.mjs 2
 chk 'COUNT_BY_CUE' scripts/apply-tic-cut.mjs 1
-chk '오늘 이 자리에 있던 사람들만 들었습니다' assets/ritual-data.js 1
+# ★[SOFT_NARRATION] 디지털 참석자를 가르지 않는 문장으로 바꿨다 — 마커도 함께 옮긴다.
+chk '오늘 이 순간에만 있었습니다' assets/ritual-data.js 1
 chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 # ★[NO_FUSS 2026-09-12] 「앉아 계십니다」 → 「앞자리에 부모님이 계십니다」.
 #   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
@@ -8441,3 +8496,114 @@ nochk '디렉터에게 요청' mypage.html
 #   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.
 #   그걸 틀림으로 세면 «반만 고친 판»을 막으려던 가드가 거꾸로 «전부 못 고치게» 막는다.
 chk 'ALREADY_DONE' scripts/apply-no-booking-help.mjs 1
+
+# ★[TRIBUTE_VAGUE 2026-09-19 사장님 「신랑신부가 뺄 수도 있으니깐 디테일하게 말하지말자」]
+#   어른께 드리는 편지에서 부모님 헌정의 «방식»(큰절·꽃·포옹)을 늘어놓지 않는다.
+#   두 분이 헌정을 통째로 뺄 수 있어, 방식을 적으면 뺀 예식에서 어른이 «있다고 들은 것»을 찾게 된다.
+chk 'TRIBUTE_VAGUE' parents.html 1
+nochk '큰절을 올리거나' parents.html
+nochk '포옹하는 방식 가운데' parents.html
+
+# ★[LETTER_WHOLE_TAKE 2026-09-19] 어른께 드리는 편지는 통낭독이라 문장 단위 창고가 해당 없다.
+#   빼지 않으면 대본을 고칠 때마다 45줄 전체가 «낡음»으로 뜨고, 다시받기가 이미 받은 것을 또 내민다.
+#   한쪽만 빼면 갈린다 — 창고와 다시받기 둘 다 같은 목록을 본다.
+chk 'LETTER_WHOLE_TAKE' scripts/lib/whole-take.mjs 1
+chk 'isWholeTake' scripts/sent-lib.mjs 2
+chk 'isWholeTake' scripts/build-redub-byvoice.mjs 3
+chk 'LETTER_WHOLE_TAKE' scripts/assemble-parents-letter.mjs 1
+chk "arg('--whole'" scripts/assemble-parents-letter.mjs 1
+
+# ★[SOFT_NARRATION 2026-09-19 사장님 「전부 권유식으로 부드럽게」·「정중함 권유식으로 고급스러운 웨딩 무드」]
+#   나레이션이 «사람이 지금 할 일»을 3인칭 평서로 통보하던 자리 열둘을 권유로 바꿨다.
+#   되살아나면 듣는 분이 그 말을 «명령»으로 받는다. 고른 기준은 스크립트 머리말에 적어 뒀다.
+chk 'SOFT_NARRATION' scripts/apply-soft-narration.mjs 1
+chk 'SOFT_NOT_BLANKET' scripts/apply-soft-narration.mjs 2
+chk 'SOFT_TONE' scripts/apply-soft-narration.mjs 1
+# ★옛 문구를 nochk 로 막으려다 멀쩡한 자리를 잡았다 — ritual-data 의 TONE_TABLE 블록은
+#   «어조 60벌»(21_B_제안.md §3 에서 생성)이고 그쪽은 이미 186개를 녹음해 둔 다른 묶음이다.
+#   같은 문장이라도 자리가 다르면 다르게 본다(SOFT_NOT_BLANKET) — 그래서 새 문구가 있는지로만 지킨다.
+chk '지금 직접 읽어 주시면 됩니다' assets/ritual-data.js 2
+chk '차례로 읽어 주시면 됩니다' assets/ritual-data.js 1
+chk '서로의 손에 반지를 끼워 주시면 됩니다' assets/ritual-data.js 2
+chk '이제 여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
+chk '오늘의 예식은 여기까지입니다' assets/ritual-cue.js 2
+# ★[LETTER_HEARD_OK 2026-09-19] 편지 낱말을 사장님이 귀로 확인하셨다는 기록.
+#   기계는 낱말을 못 듣는다(ASR 차단). 이 사실은 검사로 재생산할 수 없어, 지우면 영영 사라진다.
+#   ★문안을 고치거나 mp3 를 다시 받으면 이 칸을 지우고 다시 확인받는다 — 그때는 이 chk 도 함께 뺀다.
+chk 'heard_ok' 'docs/plans/식순연구/parents-letter-대기.json' 1
+
+# ★★[ROUND_FREE 2026-09-19 사장님 지시 *"자리를 돌며 인사드리는 시간 … 처음 여는 멘트만 넣고
+#   자유롭게 할 수 있도록 하자 · 중간 20 남았다 이런 거 빼고 · 사진 요청 멘트 남기고"*]
+#   인사 돌기를 진행이 아니라 «자유»로 돌려놨다. 되살아나면 두 분이 녹음이 정한 시계에 맞춰 돌게 된다.
+#   ① 여는 말에서 뺀 두 문장 — 동선(「자리마다 차례로」)과 시간(「이십 분쯤」)
+nochk '자리마다 차례로 찾아뵙겠습니다' assets/ritual-data.js
+nochk '이십 분쯤 걸리니' assets/ritual-data.js
+#   ② 사장님이 «남기고»라고 짚으신 두 문장은 반드시 살아 있어야 한다
+chk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js 1
+chk '앉으신 채로 편히 맞아 주시면 됩니다' assets/ritual-data.js 1
+#   ③ 가운데 안내 클립 폐지 — 파일·번호는 남기고 RETIRED 로만 끈다(SONG_RETIRED 와 같은 처방)
+chk "'narr-round-mid': 1" assets/ritual-cue.js 1
+chk 'ROUND_FREE' scripts/apply-round-free.mjs 3
+chk 'ROUND_FREE' assets/ritual-data.js 1
+chk 'ROUND_FREE' assets/ritual-cue.js 1
+
+# ★[HELPER_RETIRED 2026-09-19] 콘솔 보조 클립 목록이 RETIRED 를 안 봐서, 2026-09-06 에 폐지한
+#   대기·재개 브릿지 둘이 아직 «눌리는 버튼»으로 남아 있었다. 손으로 지우지 않고 걸러서 막는다 —
+#   손으로 지우면 다음 폐지 때 또 샌다. 정본은 ritual-cue.js 의 RETIRED 하나다 [ONE_SPEC].
+chk 'HELPER_RETIRED' console.html 1
+chk 'RitualCue.RETIRED' console.html 1
+
+# ★[SENT_PRUNE · SENT_RETIRED 2026-09-19] 문장 창고를 사람 손에서 떼어 놓는다.
+#   ① 문안에서 문장을 빼면 창고에 주인 없는 소리가 남는데, 종전 안내는 «_index.json 을 손으로
+#      고치세요»였다. 자동생성물 손편집은 이 저장소가 반복해 다친 자리다 — 명령으로 바꿨다.
+#   ② --status 가 폐지 클립을 「다시 받아야 할 것」에 세어, 다시받기 목록(0줄)과 어긋났다.
+#      세는 자와 시키는 자가 같은 것을 봐야 한다.
+chk 'SENT_PRUNE' scripts/sent-lib.mjs 2
+chk 'SENT_RETIRED' scripts/sent-lib.mjs 3
+chk "has('--prune')" scripts/sent-lib.mjs 1
+
+# ★[ROUND_LEN_SENTS 2026-09-19] 문장 수를 정규식에 굳혀 두었더니, 문장이 줄자 검사가 «주석을
+#   못 찾았다»고 답했다 — 수치가 틀린 것이 아니라 아예 못 읽은 것이다. 그러면 사람은 수치를 고칠
+#   생각을 안 하고 검사를 지울 생각을 한다. 이름도 수도 주석에서 읽는다(CAP_NAME_READ 와 같은 처방).
+chk 'ROUND_LEN_SENTS' scripts/check-narr-len.mjs 1
+chk '실제는 ${ro.n}문장입니다' scripts/check-narr-len.mjs 1
+
+# ★★[PHONE_PLATE 2026-09-19 사장님 *"모바일로안보여개선해좌"*] 실청판을 폰에서 실측해 셋을 고쳤다.
+#   재 본 것(390px · iPhone 13 · file://): 첫 항목까지 1,163px=1.8화면 · 툴바 169px=화면의 25% ·
+#   mp3 요청 전부 실패(file:///assets/… 로 디스크 뿌리를 찾았다).
+#   ① [SND_RELATIVE] 소리 주소에서 맨 앞 «/» 를 뺀다. 절대경로는 내려받아 열면 통째로 끊긴다.
+#      ★생성물에 절대경로가 하나라도 있으면 아래 실행 검사가 잡는다(문자열 검사로는 못 잡는다).
+#   ② [SAY_FIRST · HEAD_FOLD] 「여는 법」을 맨 위로. 내부 표식([LISTEN_ALL] 등)은 지우지 않고 접는다.
+#      ★JS_BLOCKED_SAY 가 대비한 «앱 뷰어가 스크립트를 막는» 상황에서, 사람이 보는 첫 화면이
+#        대괄호 표식 벽이면 배너를 넣어 두고도 못 읽게 둔 것이다.
+#   ③ [FOOT_SLIM] 툴바 다섯은 «다 듣고 나서 한 번» 쓰는 것이라 좁은 화면에서 접는다(25%→9% 실측).
+#   ④ [SOUND_UNREACHABLE] 못 받아오면 조용히 실패하지 말고 «왜·어떻게»를 한 번 말한다.
+chk 'SND_RELATIVE' scripts/build-listen-all.mjs 1
+chk 'SAY_FIRST' scripts/build-listen-all.mjs 1
+chk 'HEAD_FOLD' scripts/build-listen-all.mjs 2
+chk 'FOOT_SLIM' scripts/build-listen-all.mjs 3
+chk 'SOUND_UNREACHABLE' scripts/build-listen-all.mjs 2
+chk 'sndFail' scripts/build-listen-all.mjs 3
+# ★실행 검사 — 뽑힌 판에 절대경로 소리 주소가 있으면 붉힌다(내려받아 열면 그게 전부 끊긴다).
+#   ★[NO_OK_FN] 규약대로 변수로 받아 [ ] 로 판정한다. 파이프 뒤 함수는 서브셸이라 fail 이 안 남는다.
+_PL=$(ls listen-*.html 2>/dev/null | head -1)
+if [ -n "$_PL" ]; then
+  _ABS=$(grep -o '"/assets/audio/[^"]*"' "$_PL" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$_ABS" = "0" ]; then echo "ok SND_RELATIVE: 실청판 소리 주소가 전부 상대경로다 ($_PL)"
+  else echo "REVERT? SND_RELATIVE: 실청판에 절대경로 소리 주소가 ${_ABS}개 — 내려받아 열면 전부 끊긴다"; fail=1; fi
+fi
+
+# ★★[OPEN_ONE_TAP 2026-09-19 사장님 폰 화면] 스크립트가 막힌 화면이 «한 단계짜리 길»을 내밀게 했다.
+#   ★실물로 봤다 — 사장님이 판을 미리보기로 여셨고 목록·탭·판정이 전부 비었다. JS_BLOCKED_SAY 가
+#     대비한 그 상황이 맞았고 안내도 떴는데, 안내가 시킨 길이 「공유 → 파일에 저장 → 파일 앱에서
+#     열기」 **네 단계**였다. 한 단계짜리 길(배포된 주소)이 있는데 네 단계를 시키고 있었다.
+#   ★판이 제 이름(--out)을 알고 주소를 직접 내민다. 손으로 적으면 판을 새로 뽑을 때마다 어긋난다.
+chk 'OPEN_ONE_TAP' scripts/build-listen-all.mjs 1
+chk 'OUTNAME' scripts/build-listen-all.mjs 3
+# ★실행 검사 — 뽑힌 판 안에 «제 파일 이름이 박힌» momentedit.kr 주소가 있어야 한다.
+#   이름이 어긋나면 사장님이 누르는 순간 404 다. 그건 안내가 없는 것만 못하다.
+_PL2=$(ls listen-*.html 2>/dev/null | head -1)
+if [ -n "$_PL2" ]; then
+  if grep -q "https://momentedit.kr/$_PL2" "$_PL2" 2>/dev/null; then echo "ok OPEN_ONE_TAP: 판이 제 주소를 내민다 (momentedit.kr/$_PL2)"
+  else echo "REVERT? OPEN_ONE_TAP: 판 안의 주소가 제 파일 이름($_PL2)과 다르다 — 누르면 404 다"; fail=1; fi
+fi
