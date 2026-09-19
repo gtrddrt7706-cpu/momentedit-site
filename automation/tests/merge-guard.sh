@@ -5836,6 +5836,11 @@ fi
 chk 'DEPLOY_CONTRACT' automation/platform/99_contractCheck.gs 1
 chk 'DEPLOY_CONTRACT' scripts/audit/deploy-contracts.mjs 1
 chk 'DEPLOY_CONTRACT' deploy-marks.json 1
+# ★[SHIP_NOW 2026-09-19 사용자 지시 "앞으로 작업끝나면 바로메인에 올려"] 브랜치 푸시는 «작업 끝»이 아니다.
+#   실사고 — 브랜치가 main 보다 188커밋 앞서고 83커밋 뒤처진 채 열흘을 갔다. 그 사이
+#   ①고친 계약서가 라이브에 안 가 고객이 15만 원을 청구받을 뻔했고 ②점검 목록이 main 기준이라
+#   그 열흘치가 통째로 검사 사각지대였고 ③내가 83커밋 뒤처진 판을 보고 멀쩡한 문구를 «모순»이라 고쳤다.
+chk 'SHIP_NOW' CLAUDE.md 1
 
 # ★[APPLY_TO_GATE] 아래는 audit·apply 스크립트가 이름 지어 둔 결정들이다.
 #   decision-guard 가 요구한다 — 이름을 지었으면 게이트에 걸어야 «다음 판이 지우면 빨개진다».
