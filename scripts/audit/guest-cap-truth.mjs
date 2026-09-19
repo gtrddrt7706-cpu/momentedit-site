@@ -76,7 +76,12 @@ for (const [f, must] of [[kbFile, `${MAX}명`], ['api/_kb.js', '추가 요금 �
 
 /* ── ④ 계약서(서명본)가 같은 값을 말하는가 ──────────────────────────────── */
 const ct = read('contract/v1-1.html').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-if (!ct.includes(`총 ${MAX}명까지`)) bad.push(`contract/v1-1.html — 「총 ${MAX}명까지」가 없다`);
+/* ★[CAP_PHRASE 2026-09-19] 「총 N명까지」 한 문자열만 보던 것을 «정원 + 상한» 두 축으로 바꾼다.
+   종전 문장은 한 문단 안에서 상한을 두 번 말했다 — 「양가 합산 30명까지 전원 착석 … 총 30명까지
+   수용한다. 30명 초과는 공간·안전상 불가하다.」 중복을 걷어내자 검사가 빨개졌다.
+   문자열 하나를 요구하면 «더 나은 문장»이 곧 빨강이 된다. 그래서 뜻으로 잰다. */
+const capOk = ct.includes(`합산 ${MAX}명까지 전원 착석`) && ct.includes(`${MAX}명이 상한`);
+if (!capOk) bad.push(`contract/v1-1.html — 「합산 ${MAX}명까지 전원 착석」과 「${MAX}명이 상한」이 둘 다 있어야 한다`);
 else if (UNIT === 0 && /1인당\s*50,000원/.test(ct)) bad.push('contract/v1-1.html — 초과단가가 0인데 「1인당 50,000원」이 살아 있다');
 else ok.push('contract/v1-1.html 정원·추가금');
 
