@@ -8419,6 +8419,21 @@ if command -v node >/dev/null 2>&1; then
   else echo 'REVERT? kb-cross-truth 실패 — 식순 KB 가 원천과 어긋난다:'; printf '%s\n' "$_kx" | grep '❌'; fail=1; fi
 else echo 'skip kb-cross-truth (node 없음)'; fi
 chk 'KB_CROSS_TRUTH' scripts/audit/kb-cross-truth.mjs 1
+# ── [KB_DELIV] 계약서가 정한 인도 기한을 AI 가 «모른다»고 답하던 자리 (2026-09-19) ──
+# 계약서 제12조①이 원본 2주·보정본 4주·영상 6주로 못 박고 지연배상(0.1%/일·상한 10%)까지 두었는데
+#   _kb.js 19장은 그것을 「상담에서 확정되는 항목(추측하지 말 것)」에 올려 두었고,
+#   화면 챗봇의 「사진은 언제 받나요?」는 「상담 단계에서 안내드립니다」 + escalate:true 였다.
+#   고객이 제일 많이 누르는 칩에서, 서명한 조항이 있는 질문을 사람에게 넘기고 있었다.
+# 무료 재보정도 같다 — 제5조②가 «총 1회 무료»를 주는데 KB 는 「컷당 20,000원」만 말했다.
+# ★kb-cross-truth 가 이 셋을 본다(대상이 식순 KB 한쪽에만 박혀 있던 것을 이번에 넓혔다).
+chk 'KB_DELIV' api/_kb.js 2                 # 14장 인도 기한 + 19장 «여기 있으면 안 된다» 표시
+chk 'KB_DELIV' assets/advisor-kb.js 1       # 챗봇 photo-when 에 escalate 재부착 금지 근거
+chk 'KB_DELIV' scripts/audit/kb-cross-truth.mjs 3   # 규칙 셋
+# ★원문 그대로 적는다 — 계약서는 <strong>2주</strong> 처럼 태그가 숫자를 감싸고 있어서
+#   화면에서 읽히는 「예식 후 2주 이내」로 적으면 grep 이 0 을 센다(첫 판이 그렇게 빨갰다).
+chk '예식 후 <strong>2주</strong> 이내' contract/v1-1.html 1   # 원천이 사라지면 위 규칙들이 근거를 잃는다
+chk '예식 후 <strong>4주</strong> 이내' contract/v1-1.html 1
+chk '예식 후 <strong>6주</strong> 이내' contract/v1-1.html 1
 chk 'KB_SETTLED' api/_ritual-kb.js 1
 chk 'MUSIC_GONE' api/_ritual-kb.js 1
 nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-08-03 폐지 — 숙제로 되살리지 말 것

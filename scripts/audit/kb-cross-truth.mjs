@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const kb = read('api/_kb.js');
+const advisor = read('assets/advisor-kb.js');   // 화면 챗봇이 그대로 읽어 주는 문장
 const ritualRaw = read('api/_ritual-kb.js');
 const contract = read('contract/v1-1.html').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 
@@ -31,7 +32,14 @@ const contract = read('contract/v1-1.html').replace(/<[^>]+>/g, ' ').replace(/\s
    안 걷으면 검사가 **자기 설명문**을 위반으로 잡는다(2026-09-13 이 세션에서 두 번 당한 자기충돌). */
 const ritual = ritualRaw.split('\n').filter(l => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
 
-// [원천파일, 원천에 있어야 할 앵커, 식순 KB 에 있으면 안 되는 꼴, 설명]
+/* [원천파일, 원천, 원천에 있어야 할 앵커, 검사 대상에 있으면 안 되는 꼴, 설명, 검사 대상(기본 식순 KB)]
+   ★2026-09-19 여섯째 칸을 붙였다 — 종전에는 대상이 «식순 KB» 하나로 박혀 있어
+     «api/_kb.js 자신이 계약서가 정한 것을 모른다고 답하는 경우»를 아예 못 봤다.
+     실제로 그랬다: 계약서 제12조①이 인도 기한(2·4·6주)을 못 박고 지연배상까지 두었는데
+     _kb.js 19장이 그것을 「상담에서 확정되는 항목(추측하지 말 것)」에 올려 두었다.
+     서명한 조항을 «미정»이라 답하는 것 — [KB_SETTLED] 가 막으려던 바로 그 모양인데
+     검사가 한쪽만 보고 있어서 초록이었다. */
+const TARGETS = { ritual: () => ritual, kb: () => kb, advisor: () => advisor };
 const RULES = [
   ['contract/v1-1.html', contract, '당일 연장은 불가하다',
     /시간 연장[^\n]{0,24}확정 전|연장[^\n]{0,16}(아직|미정|정해지지)/,
@@ -45,16 +53,46 @@ const RULES = [
   ['api/_kb.js', kb, '곡을 넣는 칸은 따로 없다',
     /음악\s*\d*\s*곡[^\n]{0,24}정하(기|세요|시면)/,
     '음악 — 2026-08-03 곡 선정 폐지. 입력칸이 없는데 «두 분이 정하라»는 숙제를 주면 안 된다'],
+
+  /* ── 대상이 «api/_kb.js 자신»인 규칙 (2026-09-19) ────────────────────── */
+  ['contract/v1-1.html', contract, '보정본(10장) · 예식 후 4주 이내',
+    /결과물[^\n]{0,40}정확한 수령 시점|수령 시점[^\n]{0,30}(상담에서|확정 전|추측하지)/,
+    '[KB_DELIV] 인도 기한 — 계약서 제12조①이 원본 2주·보정본 4주·영상 6주로 못 박았고 지연배상(0.1%/일)까지 있다. «상담에서 확정»이라 답하면 서명한 조항을 미정이라 말하는 것이다', 'kb'],
+  /* ★이 규칙은 «없어야 할 꼴»이 아니라 «있어야 할 줄»을 본다 — 정규식으로는 «빠진 것»을 못 잡는다.
+     그래서 wrong 에 함수도 받게 했다. 정규식으로 억지로 쓰면 아무것도 매칭하지 않는
+     «늘 통과하는 죽은 검사»가 된다(실제로 처음 판이 그랬고, 반증해 보고 알았다). */
+  ['contract/v1-1.html', contract, '무료 재보정을 제공한다',
+    (t) => {
+      const sec = (t.match(/## 14\. 결과물[\s\S]*?(?=\n## )/) || [''])[0];
+      if (!sec) return '14장(결과물)을 못 찾았다 — 절 제목이 바뀌었으면 이 검사도 함께 고칠 것';
+      if (!/20,000원/.test(sec)) return null;
+      return /무료 재보정/.test(sec) ? null : '14장이 «컷당 20,000원»만 말하고 «무료 재보정 1회»가 없다';
+    },
+    '[KB_DELIV] 무료 재보정 — 계약서 제5조②가 «총 1회 무료»를 준다. 그 줄 없이 «컷당 20,000원»만 답하면 고객이 권리를 모르고 돈을 낸다', 'kb'],
+
+  /* 화면 챗봇 — 「사진은 언제 받나요?」는 고객이 제일 많이 누르는 칩이다.
+     2026-09-19 까지 그 답이 「상담·계약 단계에서 안내드립니다」 + escalate:true 였다.
+     계약서가 기한으로 못 박고 지연배상까지 둔 질문을 «모른다»고 답하고 사람에게 넘기고 있었다. */
+  ['contract/v1-1.html', contract, '보정본(10장) · 예식 후 4주 이내',
+    (t) => {
+      const m = t.match(/id: 'photo-when'[^}]*}/);
+      if (!m) return "'photo-when' 칩을 못 찾았다 — id 가 바뀌었으면 이 검사도 함께 고칠 것";
+      if (/escalate:\s*true/.test(m[0])) return '답이 있는 질문인데 escalate:true 로 사람에게 넘긴다';
+      return /2주|4주|6주/.test(m[0]) ? null : '수령 기한(2·4·6주)을 말하지 않는다';
+    },
+    '[KB_DELIV] 챗봇 「사진은 언제 받나요?」 — 계약서 제12조①이 정한 기한을 그대로 답해야 한다', 'advisor'],
 ];
 
 const bad = [], ok = [];
-for (const [srcName, src, anchor, wrong, why] of RULES) {
+for (const [srcName, src, anchor, wrong, why, targetName = 'ritual'] of RULES) {
+  const target = TARGETS[targetName]();
   if (!src.includes(anchor)) {
     bad.push(`원천(${srcName})에서 「${anchor}」를 못 찾았다 — 원천이 바뀌었으면 이 검사도 함께 고칠 것`);
     continue;
   }
-  const hit = ritual.match(wrong);
-  if (hit) bad.push(`${why}\n        식순 KB: 「…${hit[0]}…」`);
+  const m = typeof wrong === 'function' ? wrong(target) : target.match(wrong);
+  const hit = m && (typeof m === 'string' ? m : m[0]);
+  if (hit) bad.push(`${why}\n        ${targetName === 'kb' ? 'api/_kb.js' : targetName === 'advisor' ? 'assets/advisor-kb.js' : '식순 KB'}: 「…${String(hit).slice(0, 90)}…」`);
   else ok.push(why.split(' — ')[0]);
 }
 
