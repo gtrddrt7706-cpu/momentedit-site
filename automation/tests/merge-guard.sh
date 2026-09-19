@@ -8491,3 +8491,28 @@ chk "has('--prune')" scripts/sent-lib.mjs 1
 #   생각을 안 하고 검사를 지울 생각을 한다. 이름도 수도 주석에서 읽는다(CAP_NAME_READ 와 같은 처방).
 chk 'ROUND_LEN_SENTS' scripts/check-narr-len.mjs 1
 chk '실제는 ${ro.n}문장입니다' scripts/check-narr-len.mjs 1
+
+# ★★[PHONE_PLATE 2026-09-19 사장님 *"모바일로안보여개선해좌"*] 실청판을 폰에서 실측해 셋을 고쳤다.
+#   재 본 것(390px · iPhone 13 · file://): 첫 항목까지 1,163px=1.8화면 · 툴바 169px=화면의 25% ·
+#   mp3 요청 전부 실패(file:///assets/… 로 디스크 뿌리를 찾았다).
+#   ① [SND_RELATIVE] 소리 주소에서 맨 앞 «/» 를 뺀다. 절대경로는 내려받아 열면 통째로 끊긴다.
+#      ★생성물에 절대경로가 하나라도 있으면 아래 실행 검사가 잡는다(문자열 검사로는 못 잡는다).
+#   ② [SAY_FIRST · HEAD_FOLD] 「여는 법」을 맨 위로. 내부 표식([LISTEN_ALL] 등)은 지우지 않고 접는다.
+#      ★JS_BLOCKED_SAY 가 대비한 «앱 뷰어가 스크립트를 막는» 상황에서, 사람이 보는 첫 화면이
+#        대괄호 표식 벽이면 배너를 넣어 두고도 못 읽게 둔 것이다.
+#   ③ [FOOT_SLIM] 툴바 다섯은 «다 듣고 나서 한 번» 쓰는 것이라 좁은 화면에서 접는다(25%→9% 실측).
+#   ④ [SOUND_UNREACHABLE] 못 받아오면 조용히 실패하지 말고 «왜·어떻게»를 한 번 말한다.
+chk 'SND_RELATIVE' scripts/build-listen-all.mjs 1
+chk 'SAY_FIRST' scripts/build-listen-all.mjs 1
+chk 'HEAD_FOLD' scripts/build-listen-all.mjs 2
+chk 'FOOT_SLIM' scripts/build-listen-all.mjs 3
+chk 'SOUND_UNREACHABLE' scripts/build-listen-all.mjs 2
+chk 'sndFail' scripts/build-listen-all.mjs 3
+# ★실행 검사 — 뽑힌 판에 절대경로 소리 주소가 있으면 붉힌다(내려받아 열면 그게 전부 끊긴다).
+#   ★[NO_OK_FN] 규약대로 변수로 받아 [ ] 로 판정한다. 파이프 뒤 함수는 서브셸이라 fail 이 안 남는다.
+_PL=$(ls listen-*.html 2>/dev/null | head -1)
+if [ -n "$_PL" ]; then
+  _ABS=$(grep -o '"/assets/audio/[^"]*"' "$_PL" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$_ABS" = "0" ]; then echo "ok SND_RELATIVE: 실청판 소리 주소가 전부 상대경로다 ($_PL)"
+  else echo "REVERT? SND_RELATIVE: 실청판에 절대경로 소리 주소가 ${_ABS}개 — 내려받아 열면 전부 끊긴다"; fail=1; fi
+fi
