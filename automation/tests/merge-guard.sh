@@ -8559,7 +8559,7 @@ chk 'SAY_FIRST' scripts/build-listen-all.mjs 1
 chk 'HEAD_FOLD' scripts/build-listen-all.mjs 2
 chk 'FOOT_SLIM' scripts/build-listen-all.mjs 3
 chk 'SOUND_UNREACHABLE' scripts/build-listen-all.mjs 2
-chk 'sndFail' scripts/build-listen-all.mjs 3
+chk 'sndWhy' scripts/build-listen-all.mjs 10
 # ★실행 검사 — 뽑힌 판에 절대경로 소리 주소가 있으면 붉힌다(내려받아 열면 그게 전부 끊긴다).
 #   ★[NO_OK_FN] 규약대로 변수로 받아 [ ] 로 판정한다. 파이프 뒤 함수는 서브셸이라 fail 이 안 남는다.
 _PL=$(ls listen-*.html 2>/dev/null | head -1)
@@ -8583,3 +8583,26 @@ if [ -n "$_PL2" ]; then
   if grep -q "https://momentedit.kr/$_PL2" "$_PL2" 2>/dev/null; then echo "ok OPEN_ONE_TAP: 판이 제 주소를 내민다 (momentedit.kr/$_PL2)"
   else echo "REVERT? OPEN_ONE_TAP: 판 안의 주소가 제 파일 이름($_PL2)과 다르다 — 누르면 404 다"; fail=1; fi
 fi
+
+# ★★[IOS_GESTURE · SOUND_TELL 2026-09-19 사장님 *"클립듣기눌러도 소리가안나는데?"*]
+#   ① [IOS_GESTURE] 문장별 듣기가 `loadedmetadata` 콜백 «안»에서 play() 를 불렀다.
+#      아이폰은 play() 가 «사용자가 누른 그 실행 흐름»에서 불릴 때만 허락한다 — metadata 가 온 뒤는
+#      이미 다른 차례라 NotAllowedError 로 거절되고, **그 거절이 조용했다.**
+#      이제 누른 자리에서 바로 play() 를 부르고 시작 지점은 주소(#t=)로 넘긴다.
+#      ★실측: 0.45초에서 시작해 3.85초에 멈춘다(구간 0.45~3.80).
+#   ② [SOUND_TELL] 「안 들린다」의 원인 셋을 판이 **구분해서** 말한다 —
+#      ㉮파일을 못 받았다 ㉯브라우저가 막았다 ㉰소리는 나가는데 기기가 안 내보낸다(무음 스위치).
+#      ㉰은 오류가 하나도 안 나서, 화면이 말해 주지 않으면 없는 버그를 찾으러 가게 된다.
+#      ★실측: 저장소 폴더에서 열면 「정상으로 나가고 있습니다 · 2.9초까지 진행」,
+#             파일만 딴 데 두고 열면 「소리 파일을 못 받아왔습니다 (net=3 err=4)」.
+chk 'IOS_GESTURE' scripts/build-listen-all.mjs 3
+chk 'SOUND_TELL' scripts/build-listen-all.mjs 4
+chk 'function kick' scripts/build-listen-all.mjs 1
+chk 'function sndWhy' scripts/build-listen-all.mjs 1
+chk 'function sndCheck' scripts/build-listen-all.mjs 1
+chk "id=\"sndChk\"" scripts/build-listen-all.mjs 1
+# ★play() 를 부르는 자리는 kick() 하나뿐이어야 한다 — 콜백 안에서 다시 부르면 아이폰이 또 막는다.
+#   ★[NO_OK_FN] 규약대로 변수로 받아 [ ] 로 판정한다.
+_PLAYS=$(grep -c 'a\.play()' scripts/build-listen-all.mjs 2>/dev/null | tr -d ' ')
+if [ "$_PLAYS" = "2" ]; then echo "ok IOS_GESTURE: play() 자리가 둘이다(kick · sndCheck · 둘 다 누른 자리)"
+else echo "REVERT? IOS_GESTURE: play() 자리가 ${_PLAYS}곳 — 콜백 안에서 부르면 아이폰에서 조용히 막힌다"; fail=1; fi
