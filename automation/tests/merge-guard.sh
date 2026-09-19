@@ -4238,11 +4238,17 @@ chk 'JOURNAL_AUDIO_SYNC' scripts/audit/journal-audio-sync.mjs 1
 chk 'PAR_ORDER' parents.html 1
 chk 'PAR_DINE' parents.html 1
 
-# [PAR_PYEBAEK 2026-09-12 사용자 지시 「폐백 예단은 안해」] 폐백 방침은 «세 곳이 같은 말»이어야 한다.
-#   어른 페이지·챗봇·식순 KB 중 하나만 고치면 어른은 「안 한다」를 읽고 챗봇에 물으면 다른 말을 듣는다.
-#   ★문장을 세게 만들지 말 것 — 부모님 헌정은 두 분이 뺄 수 있다(order-preview.html NEVEROFF={entry:1}).
-#     「큰절을 올립니다」로 단정하면 헌정을 뺀 예식에서 거짓이 된다. 「고르십니다」가 맞는 말이다.
-chk 'PAR_PYEBAEK' parents.html 1
+# ★★[PAR_NO_TRADITION 2026-09-19 사장님 지시 *"전통절차는아예없어 삭제해"*]
+#   종전에는 «폐백 방침을 세 곳이 같은 말로» 라고 적고 chk 넷으로 그 문장을 «지키고» 있었다.
+#   사장님이 그 전제를 거두셨다 — *"이미 다 알고 있어, 갑자기 어디서 튀어나왔는지 모르겠네"*.
+#   없는 것을 굳이 없다고 말하는 자리였다. 그래서 고객 노출을 전부 지우고, 방향을 뒤집는다:
+#   «같은 말을 하는가»가 아니라 «다시 나타나지 않는가»를 잰다.
+#   ★문자열 nochk 로 안 하는 이유 — 종전 nochk 는 옛 문장 하나만 막았고, 같은 회피가 말만 바꿔
+#     살아 있었다(「그 밖의 전통 절차는 디렉터가 상담에서 함께 정리해 드립니다」).
+#     그래서 «렌더된 고객 글»에서 낱말로 센다. 주석은 안 센다 — 근거를 적는 것이 빨강이 되면
+#     다음 사람이 근거를 지우게 된다.
+chk 'PAR_NO_TRADITION' parents.html 1
+chk 'PAR_NO_TRADITION' scripts/audit/no-tradition.mjs 2
 
 # [COPY_TRUTH 2026-09-12] 마이페이지 복사 버튼 13곳이 «복사가 안 돼도» 「복사됐어요」라고 했다.
 #   legacyCopy 가 catch(e){} 로 execCommand 실패를 삼켰고 호출부가 무조건 성공 콜백을 불렀다.
@@ -4285,11 +4291,6 @@ chk '멀리 계셔도' i/cover-01.html 1
 chk '한 자리를 마련했습니다' i-family/family-01.html 1
 chk '귀한 마음만 더해' i/cover-04.html 1
 chk '참석이 어려운' i/cover-08.html 1
-chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
-chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
-chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
-chk '별도의 폐백 순서는 없다' api/_ritual-kb.js 1
-nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' assets/advisor-kb.js
 chk '식사 자리' parents.html 1
 chk '보증하지 않습니다' parents.html 1
 chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
@@ -7287,6 +7288,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/
   || { echo 'FAIL letter-mirror: 어른께 드리는 편지의 화면과 소리가 갈렸습니다 — node scripts/audit/letter-mirror.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/make-parents-rerecord.mjs --check >/dev/null 2>&1 \
   || { echo 'FAIL make-parents-rerecord: 화면 문안과 녹음 대기함이 어긋났습니다 — node scripts/make-parents-rerecord.mjs --check'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/no-tradition.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL no-tradition: 전통 절차가 고객이 읽는 글에 다시 나타났습니다 — node scripts/audit/no-tradition.mjs'; fail=1; }; fi
 # ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
 #   어른께 드리는 편지에서 가장 조심할 자리다. 주어를 우리 쪽으로 돌렸다. 되돌리지 말 것.
 nochk '결례가 되지 않도록' parents.html
