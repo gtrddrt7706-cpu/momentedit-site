@@ -4314,6 +4314,15 @@ nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' asse
 chk '식사 자리' parents.html 1
 chk '보증하지 않습니다' parents.html 1
 chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
+
+# ★★[JOURNAL_ONE 2026-09-19 사장님 「이걸로 입혀주고」] 통짜 낭독본 한 파일도 받는다.
+#   타입캐스트는 «문장별 분리»도 주고 «통짜»도 준다. 통짜는 문장 사이 호흡을 읽는 쪽이 정한 대로
+#   남아 조립기의 규칙 호흡(0.65/1.00)보다 자연스러울 때가 있다 — 고르는 것은 사람 몫이다.
+#   ★다만 고르든 말든 지키는 것 넷을 --one 에서도 그대로 건다. 통짜 원본 실측(2026-09-19):
+#     머리 -9.0 dB(소리가 바로 시작) · 끝 -6.3 dB(뚝 끊김) · 평균 -15.0 dB(2편보다 5dB 큼) · 피크 -0.7 dB
+#   그대로 썼으면 HEAD_PAD·TAIL_PAD·LEVEL·PEAK_MAX 네 결정을 한꺼번에 되돌렸을 것이다.
+chk 'JOURNAL_ONE' scripts/build-journal-audio.py 2
+chk 'build_one' scripts/build-journal-audio.py 2
 chk 'pending_rerecord' scripts/audit/journal-audio-sync.mjs 2
 chk 'stamp(part, script)' scripts/build-journal-audio.py 1
 # [GUEST_DIM_AA 2026-08-16] 고객 미리듣기의 --dim 은 브랜드 텍스트 하한선(#75705F · 4.74:1)이다.
@@ -7175,7 +7184,11 @@ chk 'pending_sents' 'docs/plans/식순연구/parents-letter-대기.json' 1
 #     차례를 바꾸면 그 두 자리의 글이 바뀐다 → 창고 규칙 [SRC_STALE] 로 다시 받아야 한다.
 #     글자 수는 31 → 31 로 같아 길이는 안 변한다 — 늘어나는 36초는 온전히 새 7문장 몫이다.
 chk 'PAR_RERECORD' scripts/make-parents-rerecord.mjs 3
-chk '우성: 하나, 갖출 것은 갖춘 예식' 'docs/plans/식순연구/타입캐스트/재더빙_혼주편지_20260919.txt' 1
+# ★[PAR_RERECORD] 요청지 «내용»으로는 걸지 않는다 — 2026-09-19 실측으로 배웠다.
+#   처음엔 chk '우성: 하나, 갖출 것은 갖춘 예식' 으로 걸었다. 그런데 이 파일은 녹음이 들어올수록
+#   «줄어들다 결국 비는» 파일이다. #722 가 장 번호를 녹음하자 그 줄이 사라져 게이트가 붉었다 —
+#   정당한 진행을 결함으로 읽은 것이다. 그래서 내용이 아니라 «생성기가 원천과 맞는가»를 실행으로 본다
+#   (node scripts/make-parents-rerecord.mjs --check · 아래 실행부에 이미 걸려 있다).
 
 # ★★[SENT_LIB 2026-09-13 사장님 「보수하기쉽게셋팅해 여러번 한문장씩수정하는부분들이 있을거야」]
 #   문장 «한 자리»의 받은 그대로를 창고(assets/audio/_src)에 둔다. 고친 문장만 갈아 끼워 클립을 다시 붙인다.

@@ -86,6 +86,34 @@ def build(part, files, lines):
     return out, sr, rms, peak, g
 
 
+def build_one(path):
+    """[JOURNAL_ONE 2026-09-19 사장님 「이걸로 입혀주고」] 통짜 낭독본 한 파일을 받는다.
+
+    ★왜 열어 두나 — 타입캐스트는 «문장별 분리»도 주고 «통짜»도 준다. 통짜는 문장 사이 호흡을
+      읽는 쪽이 정한 대로 남아, 조립기가 만드는 규칙 호흡(0.65/1.00)보다 자연스러울 때가 있다.
+      고르는 것은 사람 몫이다. 다만 **고르든 말든 지켜야 하는 것 넷**은 여기서도 그대로 건다:
+
+      · [HEAD_PAD] 머리 무음 0.30초 — 통짜 원본은 소리가 바로 시작한다(실측 -9.0 dB).
+        첫 프레임이 기기에서 날아가면 첫 글자가 씹힌다(2026-09-05 지시 "씹히는거방지").
+      · TAIL_PAD 끝 여운 0.60초 — 원본은 뚝 끊긴다(실측 끝 0.5초 -6.3 dB).
+      · [LEVEL] RMS 를 TARGET_RMS 로 맞춘다 — 원본은 평균 -15.0 dB 로 2편(-20.4)보다 5dB 크다.
+        두 편이 다른 크기로 나가면 듣는 사람이 볼륨을 만진다.
+      · PEAK_MAX — 원본 피크가 -0.7 dB 로 거의 0dBFS 다. 그대로 두면 기기에서 찌그러진다.
+
+    ★문장 개수로 편을 짚을 수 없으므로 --part 를 반드시 받는다.
+    """
+    a, sr = read_wav(path)
+    out = array.array('h')
+    out.extend(array.array('h', [0]) * int(HEAD_PAD * sr))
+    out.extend(trim(a, sr))
+    out.extend(array.array('h', [0]) * int(TAIL_PAD * sr))
+    rms = math.sqrt(sum(float(v) * v for v in out) / max(1, len(out))) / 32768.0
+    peak = max(abs(v) for v in out) / 32768.0
+    g = min(TARGET_RMS / rms if rms else 1.0, PEAK_MAX / peak if peak else 1.0)
+    out = array.array('h', [max(-32768, min(32767, int(v * g))) for v in out])
+    return out, sr, rms, peak, g
+
+
 def stamp(part, script):
     """[JOURNAL_AUDIO_SYNC] 방금 쓴 대본의 해시를 남기고 재녹음 대기표를 뗀다.
 
@@ -104,7 +132,8 @@ def stamp(part, script):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--in', dest='src', required=True, help='타입캐스트에서 받은 폴더(하위에 wav 들)')
+    ap.add_argument('--in', dest='src', help='타입캐스트에서 받은 폴더(하위에 wav 들)')
+    ap.add_argument('--one', help='[JOURNAL_ONE] 통짜 낭독본 wav 한 파일 (--part 필수)')
     ap.add_argument('--part', action='append', choices=sorted(SCRIPTS),
                     help='이 편만 조립한다(한 편만 재녹음했을 때). 여러 번 쓸 수 있다. 없으면 전부')
     a = ap.parse_args()
@@ -112,6 +141,24 @@ def main():
         import lameenc
     except ImportError:
         sys.exit('lameenc 가 없다 — pip install lameenc')
+
+    if bool(a.src) == bool(a.one):
+        sys.exit('--in (폴더) 또는 --one (통짜 wav) 중 하나만 준다')
+    if a.one:
+        if not a.part or len(a.part) != 1:
+            sys.exit('--one 은 --part 를 정확히 하나 받아야 한다 (문장 개수로 편을 짚을 수 없다)')
+        part = a.part[0]; script, outrel = SCRIPTS[part]
+        pcm, sr, rms, peak, g = build_one(a.one)
+        enc = lameenc.Encoder()
+        enc.set_bit_rate(64); enc.set_in_sample_rate(sr); enc.set_channels(1); enc.set_quality(2)
+        mp3 = enc.encode(pcm.tobytes()) + enc.flush()
+        dst = os.path.join(ROOT, outrel); os.makedirs(os.path.dirname(dst), exist_ok=True)
+        open(dst, 'wb').write(mp3)
+        print(f'{outrel} · {len(pcm)/sr:6.1f}초 · {len(mp3)/1024:6.0f}KB '
+              f'· 통짜 1파일 · 이득 {g:.2f}(rms {rms:.3f} peak {peak:.2f})')
+        stamp(part, script)
+        print(f'  audio-state.json 갱신 · {part}편 재녹음 대기 해제')
+        return
 
     # 폴더 이름은 안 맞춰도 된다: 문장 개수로 편을 짚는다(식순 조립기 PART_AUTOMATCH 와 같은 방식)
     pools = {}
