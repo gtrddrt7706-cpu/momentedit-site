@@ -3394,7 +3394,7 @@ chk 'PRICE_SYNC' scripts/check-price-sync.mjs 1
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1.8' contract/v1-1.html 4
+chk 'v1.8' contract/v1-1.html 5   # [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
 chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
@@ -4284,6 +4284,26 @@ chk 'PLAN_CLEAN' scripts/audit/no-tradition.mjs 2
 #   반증: meta 속성 · img alt · FAQ 본문 셋 다 빨강 확인 · 주석 안 근거는 면제 확인.
 chk 'ATTR_BLIND' scripts/audit/no-tradition.mjs 1
 chk 'TRAD_HONOR' scripts/audit/no-tradition.mjs 1
+
+# ★★[CAP_PHRASE 2026-09-19] 정원 검사 ④ 가 «문자열 하나»를 요구하다 «더 나은 문장»을 빨강으로 만들었다.
+#   계약서 한 문단이 상한을 두 번 말하고 있었다 — 「양가 합산 30명까지 전원 착석 … 총 30명까지 수용한다.
+#   30명 초과는 공간·안전상 불가하다.」 중복을 걷어내자 「총 30명까지」가 사라져 검사가 붉었다.
+#   → 이제 «정원(합산 N명까지 전원 착석) + 상한(N명이 상한)» 두 축을 뜻으로 잰다.
+chk 'CAP_PHRASE' scripts/audit/guest-cap-truth.mjs 1
+
+# ★★[LIVE_FEAT_REAL 2026-09-19] 청첩장이 하객에게 «없는 기능»을 안내하고 있었다.
+#   cover-04·08 이 디지털 참석 칸에 「RSVP · 참석 회신」을 적었는데 live.html 에 그런 기능이 없다.
+#   실제 섹션은 Presence(디지털 참석·영상) · Letter(편지) · Envelope(디지털 봉투) 셋뿐이다.
+chk 'LIVE_FEAT_REAL' i/cover-04.html 1
+chk 'LIVE_FEAT_REAL' i/cover-08.html 1
+nochk 'live-feat-ko">참석 회신' i/cover-04.html
+nochk 'live-feat-ko">참석 회신' i/cover-08.html
+
+# ★★[ADMIN_NOFEE_LINE 2026-09-19] 관리자 화면 넷이 standing>0 만 보고 «추가 N원 잔금 합산 청구»를 찍었다.
+#   초과단가가 0 이라 실제로는 「추가 0원」이 박혔고, 운영자가 그 줄을 보고 없는 요금을 더할 수 있었다.
+#   95_notify·80_production·mypage 셋은 이미 fee>0 으로 갈랐는데 admin 쪽만 안 갈라져 있었다.
+chk 'ADMIN_NOFEE_LINE' admin.html 2
+chk 'ADMIN_NOFEE_LINE' automation/admin/Admin.html 1
 chk '전통 예우' scripts/audit/no-tradition.mjs 2
 
 # ★★[UNDERSCORE_ONE 2026-09-19] 배포 차단 패턴이 밑줄 «둘»이라 구멍이 있었다.
