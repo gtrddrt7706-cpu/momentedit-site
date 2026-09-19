@@ -17,7 +17,7 @@
 
 <title>방문 상담 · 마이크로웨딩·프라이빗 웨딩 스튜디오 | 모먼트에디트 Moment Edit</title>
 <meta name="description" content="서울·경기 수도권 마이크로웨딩 방문 상담 예약. 양가 직계가족 30명까지 함께하는 프라이빗 웨딩 스튜디오. 평일결혼식·하우스웨딩·올인원 140분 시그니처 시퀀스. 주말 ₩3,300,000 / 평일 ₩2,500,000.">
-<meta name="keywords" content="마이크로웨딩,프라이빗웨딩,프리미엄스몰웨딩,프라이빗웨딩스튜디오,스몰웨딩상담,스몰웨딩문의,하우스웨딩,직계가족결혼식,평일결혼식,양가가족만결혼식,25명결혼식,서울스몰웨딩,경기스몰웨딩,서울근교스몰웨딩,수도권스몰웨딩,소규모결혼식,모먼트에디트">
+<meta name="keywords" content="마이크로웨딩,프라이빗웨딩,프리미엄스몰웨딩,프라이빗웨딩스튜디오,스몰웨딩상담,스몰웨딩문의,하우스웨딩,직계가족결혼식,평일결혼식,양가가족만결혼식,30명결혼식,서울스몰웨딩,경기스몰웨딩,서울근교스몰웨딩,수도권스몰웨딩,소규모결혼식,모먼트에디트">
 <meta name="author" content="Moment Edit">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="naver-site-verification" content="">
@@ -433,7 +433,7 @@
       <span class="field-group-label">예상 하객 인원<span class="required-dot"></span></span>
       <div class="field" style="margin-bottom:0">
         <input type="number" id="guests" name="예상 하객 인원" placeholder=" "
-               min="1" max="500" required inputmode="numeric">
+               min="1" max="30" required inputmode="numeric">
         <label for="guests">양가 합산 (명)</label>
       </div>
       <div class="guest-hint">
@@ -933,7 +933,7 @@ const guestsInput = document.getElementById('guests');
 const guestWarning = document.getElementById('guestWarning');
 guestsInput.addEventListener('input', () => {
   const n = parseInt(guestsInput.value, 10);
-  if (!isNaN(n) && n > 25) {
+  if (!isNaN(n) && n > 30) {   // [SEATED30] 정원 30 — 26~30명은 초과가 아니다
     guestWarning.classList.add('show');
   } else {
     guestWarning.classList.remove('show');
@@ -1106,7 +1106,7 @@ function buildPayload(){
 
   var gc = parseInt(form.guests.value, 10);
   var guestLabel = form.guests.value ? (form.guests.value + '명') : '';
-  if (!isNaN(gc) && gc > 25) guestLabel += ' (⚠ 권장 정원 초과)';
+  if (!isNaN(gc) && gc > 30) guestLabel += ' (⚠ 권장 정원 초과)';   // [SEATED30]
   push('예상 하객 인원', guestLabel);
 
   push('디지털 참석', picked('streaming'));

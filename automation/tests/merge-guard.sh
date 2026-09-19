@@ -3394,7 +3394,7 @@ chk 'PRICE_SYNC' scripts/check-price-sync.mjs 1
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1.8' contract/v1-1.html 4
+chk 'v1.8' contract/v1-1.html 5   # [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
 chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
@@ -4284,6 +4284,32 @@ chk 'PLAN_CLEAN' scripts/audit/no-tradition.mjs 2
 #   반증: meta 속성 · img alt · FAQ 본문 셋 다 빨강 확인 · 주석 안 근거는 면제 확인.
 chk 'ATTR_BLIND' scripts/audit/no-tradition.mjs 1
 chk 'TRAD_HONOR' scripts/audit/no-tradition.mjs 1
+
+# ★★[CAP_PHRASE 2026-09-19] 정원 검사 ④ 가 «문자열 하나»를 요구하다 «더 나은 문장»을 빨강으로 만들었다.
+#   계약서 한 문단이 상한을 두 번 말하고 있었다 — 「양가 합산 30명까지 전원 착석 … 총 30명까지 수용한다.
+#   30명 초과는 공간·안전상 불가하다.」 중복을 걷어내자 「총 30명까지」가 사라져 검사가 붉었다.
+#   → 이제 «정원(합산 N명까지 전원 착석) + 상한(N명이 상한)» 두 축을 뜻으로 잰다.
+chk 'CAP_PHRASE' scripts/audit/guest-cap-truth.mjs 1
+
+# ★★[LIVE_FEAT_REAL 2026-09-19] 청첩장이 하객에게 «없는 기능»을 안내하고 있었다.
+#   cover-04·08 이 디지털 참석 칸에 「RSVP · 참석 회신」을 적었는데 live.html 에 그런 기능이 없다.
+#   실제 섹션은 Presence(디지털 참석·영상) · Letter(편지) · Envelope(디지털 봉투) 셋뿐이다.
+chk 'LIVE_FEAT_REAL' i/cover-04.html 1
+chk 'LIVE_FEAT_REAL' i/cover-08.html 1
+nochk 'live-feat-ko">참석 회신' i/cover-04.html
+nochk 'live-feat-ko">참석 회신' i/cover-08.html
+# ★사본도 함께 — 2026-09-19 전수 훑기가 배포본만 고친 뒤 i/invitations 사본 둘을 더 찾았다.
+#   「성수」 지명 때와 같은 꼴이다: 배포본은 고쳐졌는데 사본만 옛 판으로 남는다.
+chk 'LIVE_FEAT_REAL' i/invitations/invitation-04-Vermilion.html 1
+chk 'LIVE_FEAT_REAL' i/invitations/invitation-08-noir.html 1
+nochk 'live-feat-ko">참석 회신' i/invitations/invitation-04-Vermilion.html
+nochk 'live-feat-ko">참석 회신' i/invitations/invitation-08-noir.html
+
+# ★★[ADMIN_NOFEE_LINE 2026-09-19] 관리자 화면 넷이 standing>0 만 보고 «추가 N원 잔금 합산 청구»를 찍었다.
+#   초과단가가 0 이라 실제로는 「추가 0원」이 박혔고, 운영자가 그 줄을 보고 없는 요금을 더할 수 있었다.
+#   95_notify·80_production·mypage 셋은 이미 fee>0 으로 갈랐는데 admin 쪽만 안 갈라져 있었다.
+chk 'ADMIN_NOFEE_LINE' admin.html 2
+chk 'ADMIN_NOFEE_LINE' automation/admin/Admin.html 1
 chk '전통 예우' scripts/audit/no-tradition.mjs 2
 
 # ★★[UNDERSCORE_ONE 2026-09-19] 배포 차단 패턴이 밑줄 «둘»이라 구멍이 있었다.
@@ -7384,6 +7410,30 @@ if command -v node >/dev/null 2>&1; then node scripts/make-parents-rerecord.mjs 
   || { echo 'FAIL make-parents-rerecord: 화면 문안과 녹음 대기함이 어긋났습니다 — node scripts/make-parents-rerecord.mjs --check'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/no-tradition.mjs >/dev/null 2>&1 \
   || { echo 'FAIL no-tradition: 전통 절차가 고객이 읽는 글에 다시 나타났습니다 — node scripts/audit/no-tradition.mjs'; fail=1; }; fi
+
+# ── [INV_RENDER] 청첩장 16판 — 실제로 열어 보고, 원천(마스터)도 같이 잰다 (2026-09-19) ──
+# 왜: ①`/i/cover-NN.html?e=…` 가 그대로 하객에게 가는데 이 16판을 **여는 검사가 하나도 없었다**.
+#     hydrate.js 가 `'{{' + k + '}}'` 로 동적 치환해서 문자열 검사로는 채워지는지 알 수 없다
+#     (grep 으로 재면 74종이 미치환으로 뜬다 — 전부 오탐. 실측으로 확인함).
+#   ②★그리고 이 파일들에는 원천이 따로 있다 — 청첩장/마스터/*.master.
+#     2026-09-19 전수조사에서 사본(i/cover-04·06·08)만 고치고 마스터 셋을 빠뜨렸다.
+#     다시 뽑으면 「RSVP · 참석 회신」과 「, 성수」가 되살아난다. 이제 원천도 함께 센다.
+#   ★깨 보고 믿었다 — 마스터에 낱말 되살리기 · 렌더에 안 채워지는 토큰 심기 둘 다 빨강 확인.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/invitation-render.mjs >/dev/null 2>&1; _inv=$?
+  if [ "$_inv" = 1 ]; then
+    echo 'FAIL invitation-render: 청첩장 16판 렌더 또는 원천 마스터가 어긋납니다 — node scripts/audit/invitation-render.mjs'; fail=1
+  elif [ "$_inv" = 2 ]; then
+    echo 'skip invitation-render: 이번엔 재지 못했습니다(브라우저 없음) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_inv" != 0 ]; then
+    echo "FAIL invitation-render: 뜻 모를 종료 코드 $_inv — node scripts/audit/invitation-render.mjs"; fail=1
+  fi
+fi
+chk 'INV_RENDER' scripts/audit/invitation-render.mjs 1
+chk 'LIVE_FEAT_REAL' 청첩장/마스터/live-04.master 1   # 원천에 되살리기 금지 근거가 남아 있는가
+chk 'LIVE_FEAT_REAL' 청첩장/마스터/live-08.master 1
+chk 'DTL16' 청첩장/마스터/live-06.master 1
+chk 'GV_REAL' api/_kb.js 1                            # 「청첩장 동봉 QR」 오답 재발 금지(온라인은 링크로 나간다)
 # ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
 #   어른께 드리는 편지에서 가장 조심할 자리다. 주어를 우리 쪽으로 돌렸다. 되돌리지 말 것.
 nochk '결례가 되지 않도록' parents.html
@@ -8369,6 +8419,21 @@ if command -v node >/dev/null 2>&1; then
   else echo 'REVERT? kb-cross-truth 실패 — 식순 KB 가 원천과 어긋난다:'; printf '%s\n' "$_kx" | grep '❌'; fail=1; fi
 else echo 'skip kb-cross-truth (node 없음)'; fi
 chk 'KB_CROSS_TRUTH' scripts/audit/kb-cross-truth.mjs 1
+# ── [KB_DELIV] 계약서가 정한 인도 기한을 AI 가 «모른다»고 답하던 자리 (2026-09-19) ──
+# 계약서 제12조①이 원본 2주·보정본 4주·영상 6주로 못 박고 지연배상(0.1%/일·상한 10%)까지 두었는데
+#   _kb.js 19장은 그것을 「상담에서 확정되는 항목(추측하지 말 것)」에 올려 두었고,
+#   화면 챗봇의 「사진은 언제 받나요?」는 「상담 단계에서 안내드립니다」 + escalate:true 였다.
+#   고객이 제일 많이 누르는 칩에서, 서명한 조항이 있는 질문을 사람에게 넘기고 있었다.
+# 무료 재보정도 같다 — 제5조②가 «총 1회 무료»를 주는데 KB 는 「컷당 20,000원」만 말했다.
+# ★kb-cross-truth 가 이 셋을 본다(대상이 식순 KB 한쪽에만 박혀 있던 것을 이번에 넓혔다).
+chk 'KB_DELIV' api/_kb.js 2                 # 14장 인도 기한 + 19장 «여기 있으면 안 된다» 표시
+chk 'KB_DELIV' assets/advisor-kb.js 1       # 챗봇 photo-when 에 escalate 재부착 금지 근거
+chk 'KB_DELIV' scripts/audit/kb-cross-truth.mjs 3   # 규칙 셋
+# ★원문 그대로 적는다 — 계약서는 <strong>2주</strong> 처럼 태그가 숫자를 감싸고 있어서
+#   화면에서 읽히는 「예식 후 2주 이내」로 적으면 grep 이 0 을 센다(첫 판이 그렇게 빨갰다).
+chk '예식 후 <strong>2주</strong> 이내' contract/v1-1.html 1   # 원천이 사라지면 위 규칙들이 근거를 잃는다
+chk '예식 후 <strong>4주</strong> 이내' contract/v1-1.html 1
+chk '예식 후 <strong>6주</strong> 이내' contract/v1-1.html 1
 chk 'KB_SETTLED' api/_ritual-kb.js 1
 chk 'MUSIC_GONE' api/_ritual-kb.js 1
 nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-08-03 폐지 — 숙제로 되살리지 말 것

@@ -851,7 +851,7 @@ function _prodTrackDetail(prod){
   if(fd && (fd.headcount||fd.drink||fd.allergy||fd.cake||fd.videoLink||fd.digital)){
     var fh='';
     fh+=L('총 하객', fd.headcount?esc(String(fd.headcount))+'명':'');
-    fh+=L('스탠딩', Number(fd.standing)>0?(fd.standing+'명 · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):'');
+    fh+=L('스탠딩', Number(fd.standing)>0?(fd.standing+'명'+((Number(fd.extraFee)||0)>0?(' · 추가 '+(Number(fd.extraFee)||0).toLocaleString()+'원(잔금 합산 청구)'):' · 추가 요금 없음')):'');   /* [ADMIN_NOFEE_LINE] 초과단가 0 이면 「추가 0원」을 찍지 않는다 */
     fh+=L('음료', esc(fd.drink||''));
     fh+=L('논알콜 잔 수', Number(fd.softCount)>0?esc(String(fd.softCount)):'');
     fh+=L('알레르기·특이사항', esc(fd.allergy||''));
