@@ -442,6 +442,12 @@
    "fn": "handleSaveProductionBase",
    "mark": "SNAP_BALANCE_D7",
    "why": "예식일 톱레벨 기록 = 잔금 D-day 근거(시그 D-9 · 스냅 D-7)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "GUEST30_NOFEE",
+   "why": "하객 30명까지 추가금 없음 — FINAL_CONFIRM.초과단가 0(2026-09-19 대표 지시). 옛 판이 배포돼 있으면 1인 5만 원이 계속 청구된다"
   }
  ],
  "fns": {
@@ -1261,7 +1267,7 @@
    "marks": [
     "BUSY_ONE"
    ],
-   "bytes": 141185
+   "bytes": 141212
   },
   {
    "file": "ScreenB_schedule",
@@ -1278,5 +1284,5 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-05 02:51 · 72853f72"
+ "_생성": "2026-09-19 02:49 · 0b755b10"
 }

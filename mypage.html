@@ -7180,11 +7180,11 @@ function prodConfirmHtml(p, inv){
   var _fLive=_fHas || (_sDone && _named>0);       // 좌석·음료가 실제로 정해졌는가(화면의 진실)
   var fv='';
   if(_fLive){
-    var _P=(typeof MP_FINAL_POLICY!=='undefined')?MP_FINAL_POLICY:{seats:25,unit:50000};
+    var _P=(typeof MP_FINAL_POLICY!=='undefined')?MP_FINAL_POLICY:{seats:25,unit:0};
     var _hn=_fHas?String(fd.headcount):String(_named);
     var _stn=_fHas?(Number(fd.standing)||0):Math.max(0,_named-_P.seats);
     var _fee=_fHas?(Number(fd.extraFee)||0):(_stn*_P.unit);
-    fv='하객 '+escapeHtml(_hn)+'명'+(_stn>0?(' · 스탠딩 '+_stn+'명 · <b style="color:var(--seal)">추가 '+_fee.toLocaleString()+'원</b>(잔금과 함께)'):'');
+    fv='하객 '+escapeHtml(_hn)+'명'+(_stn>0?(' · 스탠딩 '+_stn+'명'+(_fee>0?(' · <b style="color:var(--seal)">추가 '+_fee.toLocaleString()+'원</b>(잔금과 함께)'):' · 추가 요금 없이')):'');
     /* ★★[CF_DRINK_ONE 2026-08-16 사용자 지시 "너가 직접보면서 확인점검해봐" — 눈으로 보고 잡았다]
        음료 집계가 **두 줄에 각각** 있었다. 병렬 세션 둘이 같은 것을 같은 날 서로 다른 자리에 넣었고
        (여기 [SEAT_TRUTH_ONE] · 아랫줄 [CF_SEAT_DRINK]), 표기까지 갈렸다:
@@ -7833,7 +7833,7 @@ function bindSeat(box){
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
 var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, final:{ label:'좌석 · 음료', steps:3 } };   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
-var MP_FINAL_POLICY = { seats:25, max:30, unit:50000 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
+var MP_FINAL_POLICY = { seats:25, max:30, unit:0 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   bkKill(INVFLOW); INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선) · 남은 뒤로가기 층 정리
@@ -8485,7 +8485,8 @@ function _finCalcHtml(n){
   var P=MP_FINAL_POLICY;
   if(!n) return '<span class="cc-mini" style="color:var(--label-soft)">인원을 입력하면 좌석·추가 요금을 바로 계산해 드려요.</span>';
   if(n>P.max) return '<span style="color:var(--seal)">최대 '+P.max+'명까지 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.</span>';
-  if(n>P.seats) return '착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · 추가 요금 <b>'+((n-P.seats)*P.unit).toLocaleString()+'원</b> (잔금과 함께 안내드려요)';
+  if(n>P.seats){ var _ef=(n-P.seats)*P.unit;
+    return '착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · '+(_ef>0?('추가 요금 <b>'+_ef.toLocaleString()+'원</b> (잔금과 함께 안내드려요)'):'<b>추가 요금 없이</b> 모십니다'); }
   return '전원 착석으로 모실 수 있어요 ('+P.seats+'명까지).';
 }
 // [폐지·통합 2026-07-19 사용자 지시: "고르고 인원 정하는 탭 전부 제거 · 자리 클릭하면 3가지 음료"] 옛 최종 확정 위저드(별도 인원 입력·건배음료 라디오·논알콜 잔 수·알레르기)는 좌석 화면으로 통합.

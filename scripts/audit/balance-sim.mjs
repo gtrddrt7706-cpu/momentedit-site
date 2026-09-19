@@ -68,9 +68,22 @@ let rec = JSON.parse(row.get('동의기록') || '{}');
 ok(row.get('잔금상태') === '확인' && rec.잔금확정금액 === 1150000 && kakao.some(k => k.ev === 'cust.paymentConfirmed'), 'S5 확인 → 스냅샷 1,150,000 + 안심 알림', rec.잔금확정금액);
 
 // 6) 확인 후 인원 29명으로 변경 → 원장 스냅샷 유지(동결) + 차액 메일
+// ★[GUEST30_NOFEE 2026-09-19] 인원 추가금 정책이 0원이 되어(FINAL_CONFIRM.초과단가), 인원 변경만으로는
+//   더 이상 금액이 달라지지 않는다. 그렇다고 이 검사를 지우면 「확정 후 금액이 바뀌면 관리자에게 알린다」는
+//   기능이 영영 검증되지 않는다 — 추가금 말고도 금액이 달라질 경로는 남는다.
+//   그래서 S6a·S6b 구간에서만 단가를 세워 옛 조건을 재현하고, 정책 자체는 S6c가 따로 검증한다.
+const _unitSaved = sb.FINAL_CONFIRM.초과단가;
+sb.FINAL_CONFIRM.초과단가 = 50000;
 sb.handleSaveProductionTrack({ token: 't', track: 'final', draft: { headcount: '29', drink: '스파클링' }, done: true });
 ok(ledBal().amount === 1150000, 'S6a 원장 = 스냅샷 유지(1,150,000 · 현재계산 1,250,000 아님)', ledBal().amount);
 ok(mails.some(m => /100,000원 → 200,000원/.test(m) && /차액 정산 필요/.test(m)), 'S6b 차액 경보 메일(10만→20만)', mails);
+sb.FINAL_CONFIRM.초과단가 = _unitSaved;
+
+// 6-c) ★현행 정책 — 30명까지 추가금 없음. 29명으로 바꿔도 추가금이 붙지 않는다
+ok(sb.FINAL_CONFIRM.초과단가 === 0, 'S6c 인원 추가금 정책 = 0원(30명까지)', sb.FINAL_CONFIRM.초과단가);
+//   ※ 「30명이어도 추가금 0」의 실경로 검증은 S11(착석 이내 → 추가금 없음)이 이미 덮는다.
+//     제작 데이터는 [PROD_COL_SPLIT] 이후 신 컬럼에 저장되므로 구셀(제작임시저장)을 읽어
+//     확인하려 들면 옛 값을 보게 된다 — 읽기 경로를 틀린 검사를 남기지 않는다.
 
 // 7) 카드 금액검증 — 확인 후엔 추가금 미합산(이중청구 방지 · 멱등가드가 선차단이지만 이중 안전)
 ok(sb._payExpectedAmount(cust, '잔금') === 1050000 + 0, 'S7 확인 후 검증금액 동결', sb._payExpectedAmount(cust, '잔금'));
