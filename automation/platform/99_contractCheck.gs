@@ -38,6 +38,9 @@ var CONTRACT_FALLBACK = [
 ];
 
 function contractCheck() {
+  /* [FALLBACK_SEAT30] 폴백 표의 착석 기대값 25 → 30 (2026-09-13 대표 지시 검토38 · 2026-09-19 재확인).
+     이 표식이 GAS 에 없으면 «이 파일을 안 붙여넣은» 것이고, 그러면 이 점검이 착석 25 를 정답이라
+     믿어 «전부 초록»이라 답한다 — 틀린 값을 지키는 점검이 된다. */
   var L = [], okN = 0, badN = 0, skipN = 0;
   var SITE = 'https://momentedit.kr';
   var MARKS_URL = SITE + '/deploy-marks.json';
