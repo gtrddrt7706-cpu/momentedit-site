@@ -34,7 +34,7 @@
 var CONTRACT_FALLBACK = [
   { expr: 'FINAL_CONFIRM.초과단가', eq: 0, file: '80_production' },
   { expr: 'FINAL_CONFIRM.최대', eq: 30, file: '80_production' },
-  { expr: 'FINAL_CONFIRM.착석', eq: 25, file: '80_production' }
+  { expr: 'FINAL_CONFIRM.착석', eq: 30, file: '80_production' }   // SEATED30 — 서른 분 전원 착석(2026-09-13 검토38)
 ];
 
 function contractCheck() {

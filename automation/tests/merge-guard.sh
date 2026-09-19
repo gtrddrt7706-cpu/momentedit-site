@@ -4164,7 +4164,10 @@ chk 'ESSAY2_TOFAQ' index.html 2
 chk 'DIR_FACT_FIRST' index.html 1
 chk 'id="faq-140"' index.html 1
 chk 'data-faq-open' index.html 3
-chk '스물다섯 분까지 착석으로 모십니다' index.html 1
+# ★[SEATED30 2026-09-19] 「스물다섯 분까지 착석」 → 「서른 분까지 전원 착석」(2026-09-13 검토38).
+#   기능을 정당히 폐지해 마커가 사라졌으므로 같은 커밋에서 가드 목록을 갱신한다(병렬 세션 규칙).
+chk '서른 분까지 전원 착석으로 모십니다' index.html 1
+nochk '스물다섯 분까지 착석' index.html                  # 되살리지 말 것 — 좌석 편집기가 30석을 그린다
 chk '저희도 줄여 드리지 못합니다' index.html 1
 # ★낭독 대본(docs/plans/저널낭독/*.txt)과 화면 글이 갈라지지 않는지 기계가 맞댄다 [JOURNAL_SCRIPT_TRUTH]
 #   화면 문장만 고치고 대본을 안 고치면 스피커에서 옛말이 난다 — 식순 쪽에서 실제로 겪은 사고와 같은 구조.
@@ -4465,7 +4468,10 @@ nochk '다섯 코스에서 골라' index.html                    # 코스는 셋
 nochk '촬영·예식·다이닝·디지털 참석이 통합된' index.html   # 다이닝은 파트너사 직결제(제3조②)
 nochk '본식영상 데이터 + 수정본' index.html               # 계약서 용어는 '편집본'
 nochk '25명 초과 스탠딩' index.html                       # ★2026-09-13 대표 결정으로 스탠딩 추가요금 폐지 — 되살리지 말 것(제거 지시 보존). 30명 상한 고지는 아래 줄이 지킨다
-chk '총 30명으로 진행하실 수 있습니다' index.html 2        # 30명 상한 고지(화면에 0건이었다)
+# ★[SEATED30] 「25명을 넘으면 스탠딩을 더해 총 30명」 문장이 폐지되어 이 마커도 바뀐다.
+#   지키려던 것은 «30명 상한을 화면이 고지하는가»이므로 새 문장으로 같은 것을 지킨다.
+chk '공간·안전상 30명이 상한입니다' index.html 2
+nochk '스탠딩 좌석을 최대 5명까지' index.html            # 폐지된 개념(검토38)
 chk '드레스를 시착하신 경우에만' index.html 1              # 제4조⑧ — '전액 환불' 단서 없던 자리
 # 제7조② — 23스크린 접힘 안에만 있던 사실을 가격 카드로 끌어올린 것이 이 가드의 뜻이다.
 #   ★2026-08-18 문구만 바뀌었다(「위약금 없이 전액 환급」→「전액 돌려드립니다」·[PRICE_NOTE_TONE]).
@@ -5836,6 +5842,23 @@ fi
 chk 'DEPLOY_CONTRACT' automation/platform/99_contractCheck.gs 1
 chk 'DEPLOY_CONTRACT' scripts/audit/deploy-contracts.mjs 1
 chk 'DEPLOY_CONTRACT' deploy-marks.json 1
+
+# ★[GUEST30_NOFEE 2026-09-19 점검] 값 계약(deploy-contracts)은 «상수·사이트 문장»을 본다.
+#   그런데 그 값을 «말로 풀어 쓴 자리»가 따로 넷 더 있었고, 거기까지 전파가 안 갔다(실측):
+#   관리자 메일·처리이력이 26~30명에서 「추가 0원 잔금 합산 청구」를 찍었고(운영자가 없는 요금을
+#   더할 수 있다), 챗봇 고정 답변은 「합산 25명 이내」라 26~30명 커플을 돌려보내고 있었다.
+#   상수는 내내 맞았다 — 그래서 값 계약은 초록이었다. 자리 목록을 따로 고정한다.
+if command -v node >/dev/null 2>&1; then
+  _gcOut=$(node scripts/audit/guest-cap-truth.mjs 2>&1) \
+    || { echo 'FAIL guest-cap-truth: 하객 정원·추가금을 말하는 자리가 어긋난다 — node scripts/audit/guest-cap-truth.mjs'
+         printf '%s\n' "$_gcOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'GUEST30_NOFEE' scripts/audit/guest-cap-truth.mjs 1
+chk 'SEATED30' scripts/audit/guest-cap-truth.mjs 1
+chk 'SEATED30' automation/platform/80_production.gs 1
+chk 'STALE_EXTRA_FEE' automation/platform/70_journey.gs 1
+chk 'STALE_EXTRA_FEE' scripts/audit/balance-sim.mjs 1
+chk 'ADMIN_NOFEE_LINE' automation/platform/95_notify.gs 1
 # ★[SHIP_NOW 2026-09-19 사용자 지시 "앞으로 작업끝나면 바로메인에 올려"] 브랜치 푸시는 «작업 끝»이 아니다.
 #   실사고 — 브랜치가 main 보다 188커밋 앞서고 83커밋 뒤처진 채 열흘을 갔다. 그 사이
 #   ①고친 계약서가 라이브에 안 가 고객이 15만 원을 청구받을 뻔했고 ②점검 목록이 main 기준이라
