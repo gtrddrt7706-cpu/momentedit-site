@@ -8404,3 +8404,10 @@ nochk '디렉터에게 요청' mypage.html
 #   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.
 #   그걸 틀림으로 세면 «반만 고친 판»을 막으려던 가드가 거꾸로 «전부 못 고치게» 막는다.
 chk 'ALREADY_DONE' scripts/apply-no-booking-help.mjs 1
+
+# ★[TRIBUTE_VAGUE 2026-09-19 사장님 「신랑신부가 뺄 수도 있으니깐 디테일하게 말하지말자」]
+#   어른께 드리는 편지에서 부모님 헌정의 «방식»(큰절·꽃·포옹)을 늘어놓지 않는다.
+#   두 분이 헌정을 통째로 뺄 수 있어, 방식을 적으면 뺀 예식에서 어른이 «있다고 들은 것»을 찾게 된다.
+chk 'TRIBUTE_VAGUE' parents.html 1
+nochk '큰절을 올리거나' parents.html
+nochk '포옹하는 방식 가운데' parents.html
