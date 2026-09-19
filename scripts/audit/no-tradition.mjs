@@ -44,7 +44,11 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const P = (r) => path.join(ROOT, r);
-const WORDS = ['폐백', '예단', '이바지', '전통 절차', '전통절차'];
+const WORDS = ['폐백', '예단', '이바지', '전통 절차', '전통절차', '전통 예우'];
+/* ★[TRAD_HONOR 2026-09-19] 「전통 예우」를 넣는다 — 낱말 목록에 없어 두 자리가 새어 있었다.
+   index.html FAQ 는 어른께 보내는 안내문의 «목차»로 「전통 예우」를 내걸고 있었고,
+   parents.html 의 meta description 도 같았다. 부모님 세대가 그 목차를 읽고 기대하는 것이
+   바로 폐백·함·예단이다. 그런데 parents.html 본문에는 「전통」이 0건이라 — 목차는 있는데 그 장이 없었다. */
 const hit = (t) => WORDS.filter((w) => t.includes(w));
 
 let bad = 0;
@@ -85,6 +89,34 @@ else console.log(`  ③ 식순 KB  ok (가드레일 ${lines.length}줄)`);
 /* ── ④ 되살리기 금지 근거가 살아 있나 ──────────────────────────────────── */
 if (!html.includes('PAR_NO_TRADITION')) fail('parents.html 에 PAR_NO_TRADITION 근거 주석이 없다 — 지우면 다음 판이 되살린다');
 else console.log('  ④ 되살리기 금지 근거  ok');
+
+/* ── ⑥ 고객이 여는 화면 전부 — «속성 안»까지 본다  [ATTR_BLIND 2026-09-19] ───────
+   ①은 parents.html 하나만, 그것도 strip() 으로 «태그를 통째로 지운 뒤» 봤다.
+   그래서 <meta name="description" content="… 전통 예우 …"> 가 원리적으로 안 보였다 —
+   태그가 지워질 때 속성값도 함께 사라지기 때문이다. 그 줄은 sitemap 에 올라 있어
+   구글 검색 스니펫으로 그대로 노출되고 있었다(실측).
+   ★그래서 ⑥은 주석과 script/style 만 걷어내고 «나머지 전부»를 본다 — 본문이든 속성이든.
+   ★범위도 넓힌다: index.html 의 FAQ 본문도 ①의 대상이 아니어서 새고 있었다.
+   ★contract/archive 와 밑줄 파일은 뺀다(지나간 판·배포 제외). */
+const CUSTOMER_HTML = [];
+const globDir = (d, re) => { try { for (const f of fs.readdirSync(P(d))) if (re.test(f)) CUSTOMER_HTML.push(`${d}/${f}`); } catch (e) {} };
+globDir('.', /^[^_].*\.html$/);
+for (const d of ['i', 'i/invitations', 'i-family', 'contract', 'automation/consultation']) globDir(d, /\.html$/);
+const trad = [];
+for (const rel of CUSTOMER_HTML) {
+  let t = '';
+  try { t = fs.readFileSync(P(rel), 'utf8'); } catch (e) { continue; }
+  t = t.replace(/<!--[\s\S]*?-->/g, ' ')                     /* 되살리기 금지 근거는 안 센다 */
+       .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ');      /* 코드·CSS 는 고객 글이 아니다 */
+  const h = hit(t);
+  if (h.length) trad.push([rel, h]);
+}
+if (!CUSTOMER_HTML.length) { console.log('[NO_TRADITION] ? 고객 화면 목록이 비었다 — 경로가 바뀌었다'); process.exit(2); }
+if (trad.length) {
+  fail(`고객이 여는 화면 ${trad.length}곳에 전통 절차가 있다 (속성 안 포함):`);
+  for (const [r, h] of trad) console.log(`    ${r}  (${h.join('·')})`);
+  console.log('  ★meta description·alt·title 같은 «속성 안»도 고객에게 갑니다 — 검색 스니펫으로 노출됩니다.');
+} else console.log(`  ⑥ 고객 화면 ${CUSTOMER_HTML.length}개 (속성 포함)  ok`);
 
 /* ── ⑤ 우리 계획·연구 문서 — 고객 화면만 지우면 다시 자란다 ─────────────── */
 const OURS = 'docs/plans';
