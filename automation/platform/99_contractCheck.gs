@@ -55,6 +55,12 @@ function contractCheck() {
   function runFallback() {
     /* [CONTRACT_FALLBACK] 목록이 아직 안 왔을 때 GAS 값만이라도 보는 자리.
        deploy-marks.json 의 gas 계약과 갈라지면 deploy-contracts.mjs 가 막는다. */
+    /* [CONTRACT_SEAT30] 서른 분 «전원 착석» — 착석·최대가 둘 다 30, 초과단가 0 이어야 한다.
+       2026-09-13 대표 지시(검토38) 「서른 분까지 앉아서 식을 볼 수 있게 할 거야」.
+       이 표가 옛 판이면 잔금에서 없는 돈을 더 받게 된다 — 실측 15만 원이었다.
+       ★표식 이름을 80_production 의 것과 다르게 둔다 — 같은 이름이 두 파일에 있으면
+         deploycheck-sim ⑧ 이 «둘 다 목록에 있어야 한다»고 요구하는데, 그쪽 것은 함수 밖
+         최상위 주석이라 mark() 가 영영 못 읽는다(실측). */
     L.push('── 파일 안 사본으로 본 GAS 값 (사이트 문장은 못 봤습니다) ──');
     for (var i = 0; i < CONTRACT_FALLBACK.length; i++) {
       var c = CONTRACT_FALLBACK[i], got;
