@@ -7410,6 +7410,30 @@ if command -v node >/dev/null 2>&1; then node scripts/make-parents-rerecord.mjs 
   || { echo 'FAIL make-parents-rerecord: 화면 문안과 녹음 대기함이 어긋났습니다 — node scripts/make-parents-rerecord.mjs --check'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/no-tradition.mjs >/dev/null 2>&1 \
   || { echo 'FAIL no-tradition: 전통 절차가 고객이 읽는 글에 다시 나타났습니다 — node scripts/audit/no-tradition.mjs'; fail=1; }; fi
+
+# ── [INV_RENDER] 청첩장 16판 — 실제로 열어 보고, 원천(마스터)도 같이 잰다 (2026-09-19) ──
+# 왜: ①`/i/cover-NN.html?e=…` 가 그대로 하객에게 가는데 이 16판을 **여는 검사가 하나도 없었다**.
+#     hydrate.js 가 `'{{' + k + '}}'` 로 동적 치환해서 문자열 검사로는 채워지는지 알 수 없다
+#     (grep 으로 재면 74종이 미치환으로 뜬다 — 전부 오탐. 실측으로 확인함).
+#   ②★그리고 이 파일들에는 원천이 따로 있다 — 청첩장/마스터/*.master.
+#     2026-09-19 전수조사에서 사본(i/cover-04·06·08)만 고치고 마스터 셋을 빠뜨렸다.
+#     다시 뽑으면 「RSVP · 참석 회신」과 「, 성수」가 되살아난다. 이제 원천도 함께 센다.
+#   ★깨 보고 믿었다 — 마스터에 낱말 되살리기 · 렌더에 안 채워지는 토큰 심기 둘 다 빨강 확인.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/invitation-render.mjs >/dev/null 2>&1; _inv=$?
+  if [ "$_inv" = 1 ]; then
+    echo 'FAIL invitation-render: 청첩장 16판 렌더 또는 원천 마스터가 어긋납니다 — node scripts/audit/invitation-render.mjs'; fail=1
+  elif [ "$_inv" = 2 ]; then
+    echo 'skip invitation-render: 이번엔 재지 못했습니다(브라우저 없음) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_inv" != 0 ]; then
+    echo "FAIL invitation-render: 뜻 모를 종료 코드 $_inv — node scripts/audit/invitation-render.mjs"; fail=1
+  fi
+fi
+chk 'INV_RENDER' scripts/audit/invitation-render.mjs 1
+chk 'LIVE_FEAT_REAL' 청첩장/마스터/live-04.master 1   # 원천에 되살리기 금지 근거가 남아 있는가
+chk 'LIVE_FEAT_REAL' 청첩장/마스터/live-08.master 1
+chk 'DTL16' 청첩장/마스터/live-06.master 1
+chk 'GV_REAL' api/_kb.js 1                            # 「청첩장 동봉 QR」 오답 재발 금지(온라인은 링크로 나간다)
 # ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
 #   어른께 드리는 편지에서 가장 조심할 자리다. 주어를 우리 쪽으로 돌렸다. 되돌리지 말 것.
 nochk '결례가 되지 않도록' parents.html
