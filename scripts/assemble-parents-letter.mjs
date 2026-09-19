@@ -37,6 +37,44 @@ const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
 const clip = man.clips.find((c) => c.file === CLIP_FILE);
 if (!clip) { console.error(`✗ manifest에 ${CLIP_FILE} 클립이 없습니다.`); process.exit(1); }
 
+/* ★★[LETTER_WHOLE_TAKE 2026-09-19] 통낭독 한 파일을 그대로 입히는 길.
+   사장님이 45문장을 «한 호흡»으로 받아 파일 하나로 주신다. 문단 10개로 쪼개 주시던 길과 다르다.
+   ★여기 두는 이유 — 소리를 놓는 규격(앞 무음·인코딩·두 경로·_recorded 갱신)이 한 곳에 있어야 한다.
+     손으로 ffmpeg 를 돌리고 _recorded.json 을 손으로 고치면 규격이 둘이 되고, 실제로 그렇게 해서
+     cast-text-audio 가 「소리가 옛 글」이라고 계속 말했다(2026-09-19).
+   ★[LETTER_LEAD_IN] 재생을 누르고 **2.00초** 뒤에 말이 시작된다(사장님 지시).
+     원본 머리 무음을 «떼고» 2초를 덧댄다 — 임계값에 안 흔들리게 하려는 것이다.
+   ★[LETTER_AUDIO_UNIFIED] 페이지와 예식 당일, 두 경로에 «같은 파일»을 쓴다. */
+const WHOLE = arg('--whole', '');
+if (WHOLE) {
+  if (!fs.existsSync(WHOLE)) { console.error(`✗ 없습니다: ${WHOLE}`); process.exit(1); }
+  const LEAD_IN = 2.0;
+  const outDir = path.resolve(root, clip.dir || 'assets/audio/narration');
+  const dst = path.join(outDir, `${clip.no}_${clip.file}.mp3`);
+  const alt = path.join(path.dirname(outDir), 'parents-letter.mp3');
+  fs.mkdirSync(outDir, { recursive: true });
+  execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', WHOLE, '-af',
+    `silenceremove=start_periods=1:start_silence=0:start_threshold=-50dB,adelay=${LEAD_IN * 1000}|${LEAD_IN * 1000}`,
+    '-ar', '48000', '-ac', '1', '-b:a', '192k', dst]);
+  fs.copyFileSync(dst, alt);
+  const dur = +spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', dst],
+    { encoding: 'utf8' }).stdout.trim();
+  /* 앞 무음을 실제로 재서 말한다 — 「넣었다」가 아니라 「이렇게 들린다」 */
+  const log = spawnSync('ffmpeg', ['-hide_banner', '-i', dst, '-af', 'silencedetect=n=-50dB:d=0.1', '-f', 'null', '-'],
+    { encoding: 'utf8' }).stderr || '';
+  const head = (log.match(/silence_end: ([\d.]+)/) || [])[1] || '?';
+  /* [RECORDED_TRUTH] «실제로 녹음된 글»을 남긴다 — 이걸 안 쓰면 cast-text-audio 가 영영 빨갛다 */
+  const rp = path.join(outDir, '_recorded.json');
+  const rec = JSON.parse(fs.readFileSync(rp, 'utf8'));
+  rec.clips[`${clip.no}_${clip.file}`] = { text: clip.sents.map((x) => x.text).join(' '), voice: man.voice[clip.role] || null };
+  rec._언제 = `${new Date().toISOString().slice(0, 10)} · assemble-parents-letter --whole 이 편지 1클립 갱신`;
+  fs.writeFileSync(rp, JSON.stringify(rec, null, 2));
+  console.log(`✓ ${path.relative(root, dst)}  ${(+dur).toFixed(1)}초 · 앞 무음 ${head}초 (설계 ${LEAD_IN}초)`);
+  console.log(`  ↳ 사본 ${path.relative(root, alt)} — [LETTER_AUDIO_UNIFIED] 두 경로가 같은 파일이다`);
+  console.log(`  ↳ _recorded.json 갱신 (${clip.sents.length}문장) — 검사가 이제 이 소리를 안다`);
+  process.exit(0);
+}
+
 // ── 문단 경계를 대본에서 되읽는다 (손으로 세지 않는다)
 //    `[43] …` 헤더 다음 빈 줄까지가 본문이고, 그 한 줄이 곧 한 문단이다.
 const lines = fs.readFileSync(SRC, 'utf8').split('\n');

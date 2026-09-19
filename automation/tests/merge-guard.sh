@@ -8411,3 +8411,12 @@ chk 'ALREADY_DONE' scripts/apply-no-booking-help.mjs 1
 chk 'TRIBUTE_VAGUE' parents.html 1
 nochk '큰절을 올리거나' parents.html
 nochk '포옹하는 방식 가운데' parents.html
+
+# ★[LETTER_WHOLE_TAKE 2026-09-19] 어른께 드리는 편지는 통낭독이라 문장 단위 창고가 해당 없다.
+#   빼지 않으면 대본을 고칠 때마다 45줄 전체가 «낡음»으로 뜨고, 다시받기가 이미 받은 것을 또 내민다.
+#   한쪽만 빼면 갈린다 — 창고와 다시받기 둘 다 같은 목록을 본다.
+chk 'LETTER_WHOLE_TAKE' scripts/lib/whole-take.mjs 1
+chk 'isWholeTake' scripts/sent-lib.mjs 2
+chk 'isWholeTake' scripts/build-redub-byvoice.mjs 3
+chk 'LETTER_WHOLE_TAKE' scripts/assemble-parents-letter.mjs 1
+chk "arg('--whole'" scripts/assemble-parents-letter.mjs 1
