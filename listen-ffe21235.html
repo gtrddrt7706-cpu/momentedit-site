@@ -136,11 +136,27 @@ function sndOf(k) {
   var e = document.getElementById('snd_' + k);
   return e ? 'data:audio/mpeg;base64,' + e.textContent.trim() : '';
 }
-var KEY = 'me_listen_all_ffe21235';
+/* ★★[CARRY_EXPIRED 2026-09-19 사장님 *"아직 시작을 안했는데 진행중인게 말이않되잖아"*]
+   판을 처음 여는데 «판정 244 / 534» 가 이미 차 있었다. 사장님 말이 맞다 — 누른 적이 없다.
+   ★범인은 아래에서 지운 STAMP_CARRY 다. 2026-08-30 에 «지문 계산법만 바꾼 한 번의 이사»로 넣은
+     블록인데, 그 뒤로 대본이 크게 바뀌었는데도(문장 327→360 · 서약·편지·덕담 재작성)
+     조건이 «새 자리가 비어 있으면»뿐이라 8월 판정을 9월 소리 위에 계속 붙여 왔다.
+   ★실측으로 재현했다 — 한 번도 안 누른 브라우저에 옛 열쇠만 심고 판을 여니 「판정 2 / 534」가 떴고,
+     **이미 사라진 클립(99_sarajin-clip)의 판정까지** 이 판 저장소에 그대로 써 넣었다.
+   ★이것이 바로 LISTEN_KEY_STAMP 가 막으려던 그 병이다 — 「좋아요」가 가리키는 소리가 그 소리가 아니다.
+     내가 판정을 아끼려다 그 규칙에 스스로 구멍을 냈다. 아끼는 것보다 **거짓이 아닌 것**이 먼저다.
+   ★그래서 ①옮기는 블록을 지우고 ②이미 오염된 저장 자리를 한 번 버린다(_g2).
+     버리는 것이지 지우는 것이 아니다 — 옛 값은 그대로 남아 있고, 이 판이 그것을 안 볼 뿐이다. */
+var KEY = 'me_listen_all_ffe21235_g2';
 /* [LISTEN_KEY_STAMP] 옛 열쇠(고정 문자열)에 판정이 남아 있으면 «있다»고 알린다 — 조용히 버리지 않는다.
    옮겨 주지도 않는다: 그 판정이 어느 소리에 대한 것인지 이 판은 모른다. */
+var CARRY_NOTE = '';
 try { var _old = localStorage.getItem('me_listen_all_v1');
   if (_old && _old.length > 2) console.log('[LISTEN_KEY_STAMP] 옛 판정이 브라우저에 남아 있습니다(me_listen_all_v1). 이 판은 소리가 달라 새로 받습니다.');
+  /* [CARRY_EXPIRED] 버린 자리에 값이 있으면 «왜 0 부터 시작하는지»를 화면이 말한다.
+     안 적으면 사장님은 「어제 하던 게 사라졌다」로 읽는다 — 둘은 완전히 다른 일이다. */
+  var _bad = localStorage.getItem('me_listen_all_ffe21235');
+  if (_bad && _bad.length > 2) CARRY_NOTE = '옛 판(8월)의 판정이 이 판에 잘못 옮겨 와 있었습니다 — 그 뒤로 대본이 바뀌어 가리키는 소리가 달라졌기에 버렸습니다. 이 판은 0 부터 새로 받습니다.';
 } catch (e) {}
 var V = {}; try { V = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { V = {}; }
 var save = function () { try { localStorage.setItem(KEY, JSON.stringify(V)); } catch (e) {} };
@@ -153,21 +169,9 @@ var save = function () { try { localStorage.setItem(KEY, JSON.stringify(V)); } c
 var WKEY = KEY + '_why';
 var W = {}; try { W = JSON.parse(localStorage.getItem(WKEY) || '{}') || {}; } catch (e) { W = {}; }
 var saveW = function () { try { localStorage.setItem(WKEY, JSON.stringify(W)); } catch (e) {} };
-/* ★★[STAMP_CARRY 2026-08-30] 지문 계산법을 바꾼 «한 번의 이사».
-   내용은 그대로인데 재는 자리를 _dub_stage → assets/audio/tone 으로 옮겼다(STAMP_DURABLE).
-   그러면 열쇠가 달라지고, 사장님이 PC 에서 하던 판정이 **아무 잘못 없이** 사라진다.
-   ★그래서 옛 열쇠에서 한 번만 옮겨 온다. 조건은 «새 자리가 비어 있을 때»뿐 —
-     새로 판정한 것이 있으면 건드리지 않는다. 덮어쓰기보다 잃지 않는 쪽이 먼저다.
-   ★내용이 같다는 것은 실측했다: 기존 97/97 · 어조 186/186 글자 일치 · 소리 283/283 존재.
-     그러니 이 이사는 «같은 것을 같다고 잇는 것»이지, 옛 판정을 새 소리에 붙이는 것이 아니다.
-   ★이 블록은 이사 한 번이 지나면 하는 일이 없다. 지워도 되지만, 지우면 아직 안 옮긴
-     브라우저가 판정을 잃는다 — 사장님이 「다 끝났다」고 할 때까지 둔다. */
-try { if (!Object.keys(V).length) {
-  var _prevV = localStorage.getItem('me_listen_all_e17caa93');
-  if (_prevV) { V = JSON.parse(_prevV) || {}; save();
-    var _prevW = localStorage.getItem('me_listen_all_e17caa93_why');
-    if (_prevW) { W = JSON.parse(_prevW) || {}; saveW(); } }
-} } catch (e) {}
+/* ★[CARRY_EXPIRED] 여기 있던 STAMP_CARRY(옛 열쇠 me_listen_all_e17caa93 에서 판정을 옮겨 오던 블록)를
+   지웠다. 이유는 위 KEY 주석에 있다. ★되살리지 말 것 — 「판정을 잃지 않게 해 주자」는 선의가
+   곧바로 「옛 판정을 새 소리에 붙인다」가 된다. 판이 달라지면 판정은 **새로 받는 것이 맞다.** */
 /* ★★[HANDOFF_LINK 2026-08-30 사용자 지적 *"pc로 진행중인데 누워서 모바일로 하고싶은데
      저링크들어가면 연동되어서 모바일로도 가능한거야?"*]
    ★답은 «아니오»였다 — 판정은 localStorage 라 그 브라우저에만 있다. 주소가 같아도 안 따라간다.
@@ -417,6 +421,8 @@ function sayCanDo() {
   h += '<br>· 판정은 <b>이 기기의 이 브라우저에만</b> 저장됩니다. PC 에서 하던 것을 폰에서 이으려면'
     + ' 아래 <b>「다른 기기로 이어받기 링크」</b>를 눌러 나온 주소를 그 기기에서 여세요.';
   if (HANDOFF_MSG) h = '<b>' + HANDOFF_MSG + '</b><br>' + h;
+  /* [CARRY_EXPIRED] 0 부터 시작하는 «이유»를 맨 위에 적는다 — 안 적으면 「하던 게 사라졌다」로 읽힌다. */
+  if (CARRY_NOTE) h = '<b>' + CARRY_NOTE + '</b><br>' + h;
   var e = $('canDo'); if (e) e.innerHTML = h;
 }
 /* ★★[SHOW_THE_CRASH 2026-08-26 사용자 실물] 죽으면 **화면이 말한다.**
