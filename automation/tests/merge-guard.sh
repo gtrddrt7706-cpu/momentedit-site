@@ -8215,3 +8215,8 @@ else echo 'skip listen-cover (node 없음)'; fi
 #   지우면 「대장 문구를 고친 사람은 그 판을 영영 못 고친다」로 되돌아간다 — 게이트가 붉은 채 산다.
 chk 'MEAS_CARRY' scripts/build-listen-tone.mjs 2
 chk '그 자리의 글이 한 글자까지 같을 때만' scripts/build-listen-tone.mjs 1
+
+# ★[PARENTS_AB] 어른께 드리는 안내 낭독 A·B 두 판을 «같은 자리에서» 받아 귀로 견주는 붙여넣기 판.
+#   차례를 여기 베껴 적지 않는다 — 새 7문장이 parents.html 에 글자 그대로 있을 때만 쓴다(그 대조가 스크립트 안에 있다).
+chk 'PARENTS_AB' scripts/build-parents-ab.mjs 2
+chk 'PICK_PASTE' scripts/build-parents-ab.mjs 1

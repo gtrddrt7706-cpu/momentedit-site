@@ -46,6 +46,10 @@ const GENS = [
   { gen: 'scripts/build-redub-byvoice.mjs',   args: ['--write'], dirs: ['docs/plans/식순연구/타입캐스트/다시받기'] },
   { gen: 'scripts/build-emotion-check.mjs',   args: [],          dirs: ['docs/plans/식순연구/감동구간_성우별',
                                                                         'docs/plans/식순연구/감동구간_확인판.txt'] },
+  /* [PARENTS_AB] 어른께 드리는 안내 낭독 A·B 두 판. 대장과 parents.html 에서 뽑으므로,
+     둘 중 하나가 바뀌면 이 붙여넣기 판도 낡는다 — 낡은 판을 타입캐스트에 넣으면 옛 글을 받는다. */
+  { gen: 'scripts/build-parents-ab.mjs',      args: ['--write'], dirs: ['docs/plans/식순연구/타입캐스트/어른께_A_지금차례.txt',
+                                                                        'docs/plans/식순연구/타입캐스트/어른께_B_화면차례.txt'] },
 ];
 
 /* 이 검사가 «일부러» 안 보는 경로 — 반드시 왜를 적는다. */
