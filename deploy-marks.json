@@ -74,6 +74,10 @@
   {
    "file": "admin",
    "fn": "adminHome"
+  },
+  {
+   "file": "99_contractCheck",
+   "fn": "contractCheck"
   }
  ],
  "newfn": [
@@ -448,6 +452,18 @@
    "fn": "handleSaveProductionTrack",
    "mark": "GUEST30_NOFEE",
    "why": "하객 30명까지 추가금 없음 — FINAL_CONFIRM.초과단가 0(2026-09-19 대표 지시). 옛 판이 배포돼 있으면 1인 5만 원이 계속 청구된다"
+  },
+  {
+   "file": "99_contractCheck",
+   "fn": "contractCheck",
+   "mark": "DEPLOY_CONTRACT",
+   "why": "값 계약 점검 본체 — 이 파일이 옛것이거나 잘리면 「값이 맞는가」를 아무도 안 본다"
+  },
+  {
+   "file": "99_contractCheck",
+   "fn": "contractCheckHelp",
+   "mark": "CONTRACT_TAIL",
+   "why": "파일 끝을 지키는 함수 — 이 이름이 사라지면 붙여넣다 뒤가 잘린 것이다"
   }
  ],
  "fns": {
@@ -850,6 +866,10 @@
    "handleCardConfirm",
    "handleCardPayConfig",
    "ZZ_tossPing"
+  ],
+  "99_contractCheck": [
+   "contractCheck",
+   "contractCheckHelp"
   ],
   "admin": [
    "setupAdmins",
@@ -1284,5 +1304,53 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-19 02:49 · 0b755b10"
+ "_생성": "2026-09-19 03:22 · 0527c68f",
+ "_계약설명": "★[DEPLOY_CONTRACT] 표식은 «그 줄이 있는가»만 본다. 값이 맞는가는 안 본다 — 실제로 FINAL_CONFIRM.초과단가가 50000 인 채로 표식만 붙어도 초록이었다. contracts 는 «값 자체»를 대조한다. kind=gas 는 GAS 안에서 식을 평가하고, kind=web 은 배포된 사이트를 가져와 문자열이 있는지/없는지 본다. scripts/audit/deploy-contracts.mjs 가 저장소 쪽에서 같은 계약을 검사해 «계약과 코드가 갈라지는 것»을 막는다.",
+ "contracts": [
+  {
+   "kind": "gas",
+   "expr": "FINAL_CONFIRM.초과단가",
+   "eq": 0,
+   "why": "하객 30명까지 추가금 없음(2026-09-19 대표 지시). 50000 이면 28명 계약자에게 15만 원이 청구된다",
+   "file": "80_production"
+  },
+  {
+   "kind": "gas",
+   "expr": "FINAL_CONFIRM.최대",
+   "eq": 30,
+   "why": "하객 상한 30명 — 계약서 제1조·제8조와 같은 값이어야 한다",
+   "file": "80_production"
+  },
+  {
+   "kind": "gas",
+   "expr": "FINAL_CONFIRM.착석",
+   "eq": 25,
+   "why": "착석 정원 25명 — 스탠딩 5명 산출의 기준",
+   "file": "80_production"
+  },
+  {
+   "kind": "web",
+   "path": "/contract/v1-1.html",
+   "absent": "1인당 50,000원",
+   "why": "고객이 서명하는 계약서에 하객 추가금이 남아 있으면 홈페이지(30명까지 추가금 없음)와 충돌한다"
+  },
+  {
+   "kind": "web",
+   "path": "/contract/v1-1.html",
+   "present": "추가 요금 없이",
+   "why": "계약서 제8조③이 추가금 없음을 명시해야 한다"
+  },
+  {
+   "kind": "web",
+   "path": "/",
+   "present": "하객 30명까지 추가금 없음",
+   "why": "가격 블록의 공개 약속 — 이 문장이 사라지면 계약서 쪽과 갈린다"
+  },
+  {
+   "kind": "web",
+   "path": "/",
+   "absent": "2027 상반기 한정",
+   "why": "오픈 시기는 2027년 하반기로 통일(2026-09-19 대표 결정). 배너만 상반기로 남아 자기모순이었다"
+  }
+ ]
 }

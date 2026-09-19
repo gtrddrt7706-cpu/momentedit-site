@@ -5461,6 +5461,19 @@ if command -v node >/dev/null 2>&1; then
          printf '%s\n' "$_dcOut" | sed 's/^/    | /'; fail=1; }
 fi
 chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
+# ★[DEPLOY_CONTRACT 2026-09-19] 값 계약 — 표식이 «있는가»가 아니라 값이 «맞는가»를 본다.
+#   실제 사고: 하객 추가금을 50000 → 0 으로 고치고 표식을 달았는데, 그 파일을 GAS 에 안 붙여도
+#   deployCheck 가 「누락 0건」이라고 답했다(①표식 목록이 main 에서 와서 새 표식이 대상 밖 ②값은 안 봄).
+#   그 사이 28명 계약자에게 15만 원이 계속 청구된다. 조용한 실패라 사람이 못 찾는다.
+#   ★계약만 적고 코드를 바꾸면 둘이 갈라진다 — 갈라지는 순간 여기서 막는다.
+if command -v node >/dev/null 2>&1; then
+  _ctOut=$(node scripts/audit/deploy-contracts.mjs 2>&1) \
+    || { echo 'FAIL deploy-contracts: 값 계약이 코드와 어긋난다 — node scripts/audit/deploy-contracts.mjs'
+         printf '%s\n' "$_ctOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'DEPLOY_CONTRACT' automation/platform/99_contractCheck.gs 1
+chk 'DEPLOY_CONTRACT' scripts/audit/deploy-contracts.mjs 1
+chk 'DEPLOY_CONTRACT' deploy-marks.json 1
 # ★[MARKS_REMOTE 2026-08-30] 아래 넷은 «점검 목록»에 그 항목이 살아 있는지 보는 줄이다.
 #   목록이 99_deployCheck.gs → deploy-marks.json 으로 옮겨 갔으므로 보는 곳도 옮긴다.
 #   ★.gs 를 계속 보게 두면 목록이 통째로 사라져도 이 줄들이 조용히 초록을 낸다.
