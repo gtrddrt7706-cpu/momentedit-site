@@ -17,7 +17,10 @@
    사용: node scripts/audit/copy-rule.mjs
 */
 import fs from 'node:fs';
-const F=['mypage.html','guide.html','seat.html','live.html','index.html','inquiry.html','schedule.html','order-preview.html','parents.html','privacy.html','cancel.html'];
+/* ★[COPY_RULE_CONTRACT 2026-09-19 점검] 계약서 2종과 상담 신청 화면이 검사 밖에 있었다.
+   계약서는 고객이 «서명하는» 문서이고 상담 화면은 고객이 처음 만나는 화면인데
+   문구 규칙(전각 줄표·장식 이모지·시간 약속) 전수에서 빠져 있었다. 목록에서 빼지 말 것. */
+const F=['contract/v1-1.html','contract/snap-v1-0.html','automation/consultation/ScreenA_apply.html','mypage.html','guide.html','seat.html','live.html','index.html','inquiry.html','schedule.html','order-preview.html','parents.html','privacy.html','cancel.html'];
 let fail=0; const ok=(c,m,d)=>{console.log(`  ${c?'✅':'❌'} ${m}${c||d===undefined?'':' — '+String(d).slice(0,220)}`); if(!c)fail++;};
 /* 화면에 실제로 나가는 문자열만 추린다 — 주석·코드는 뺀다(주석의 줄표는 규칙 대상이 아니다) */
 function customerStrings(src){

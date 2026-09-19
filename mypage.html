@@ -2901,7 +2901,8 @@ function renderLedger(l){
       : '<span class="led-s '+(p.done?'led-done':'')+'">'+escapeHtml(p.status)+'</span>';
     var panel='';
     if(_canBal){
-      var _bx=(_balS.extra&&_balS.baseAmount!=null)?(
+      // [GUEST30_NOFEE] 추가금이 0이면 명세 줄 자체를 내지 않는다 — 「인원 추가 +0원」은 없는 항목이다
+      var _bx=(_balS.extra&&_balS.extra.amount>0&&_balS.baseAmount!=null)?(
           '<div style="margin:0 2px 12px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.5">'
         + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>잔금</span><span>'+fmtWon(_balS.baseAmount)+'</span></div>'
         + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>인원 추가 · 스탠딩 '+escapeHtml(String(_balS.extra.standing))+'명</span><span>+'+fmtWon(_balS.extra.amount)+'</span></div>'
@@ -3900,15 +3901,15 @@ function _finalGateHtml(hard){
   var hasProd = !!((window._mpStateD||{}).production);
   if(hard && hasProd){   // 하드 게이트 — 인원 확정 먼저(2번 결제 방지). 확정 흐름 있을 때만 사용
     return '<div style="margin:12px 0 2px;padding:14px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">'
-      +'<div class="cc-sub" style="margin:0">인원을 먼저 확정해 주세요.<br>확정하면 <b>추가 요금까지 합쳐 한 번에</b> 결제돼요.</div>'
+      +'<div class="cc-sub" style="margin:0">인원을 먼저 확정해 주세요.<br>좌석과 음료가 정해져야 <b>당일 준비가 그대로 이어져요</b>.</div>'
       +'<button type="button" class="cc-btn cc-btn-seal" data-bal-final style="margin-top:11px">최종 인원 확정하기</button>'   // MPD_A1 ★'(1분)' 소요시간 약속 재추가 금지 — 수치 약속 금지 규칙(2026-07-15) · 2026-07-25 삭제
-      +'<div class="cc-note" style="margin:8px 0 0;color:var(--light)">두 번 결제되지 않도록 도와드리는 단계예요.</div></div>';
+      +'<div class="cc-note" style="margin:8px 0 0;color:var(--light)">확정한 인원 그대로 좌석을 배치해 드려요.</div></div>';
   }
   // 소프트(폴백) — 확정 흐름 없을 때: 지금처럼 결제 허용(갇힘 방지)
   return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
-    +'<div class="cc-sub" style="text-align:left;margin:0">인원에 따라 추가 요금이 달라져요.<br><b>좌석·음료를 먼저 마치면</b> 추가 요금까지 <b>한 번에</b> 결제돼요.</div>'
+    +'<div class="cc-sub" style="text-align:left;margin:0">하객은 30명까지 추가 요금 없이 모십니다.<br><b>좌석·음료를 먼저 마치면</b> 당일 준비가 그대로 이어져요.</div>'
     +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">좌석·음료 먼저 하기</button>':'')
-    +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 이후 인원 추가분은 따로 안내드려요.</div></div>';
+    +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 인원이 늘어도 추가 요금은 없어요.</div></div>';
 }
 document.addEventListener('click', function(e){
   var t=(e.target&&e.target.closest)?e.target.closest('[data-bal-final]'):null;
@@ -3938,8 +3939,11 @@ function renderBalance(p, mid){
     body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var head=p.due?'잔금 입금 안내':(near?(_pw+'이 가까워졌어요'):'잔금 안내');
-    var _xBrk=(p.extra&&p.baseAmount!=null)?('<br><span class="cc-mini">잔금 '+fmtWon(p.baseAmount)+' + 인원 추가 '+fmtWon(p.extra.amount)+' (스탠딩 '+p.extra.standing+'명)</span>'):'';   // 최종확정 인원 추가 요금 산식(서버 합산)
-    var _xPend=p.extraPending?'<br><span class="cc-mini">최종 인원 확정 시 추가 요금이 있으면 잔금에 합산돼요.</span>':'';
+    var _xBrk=(p.extra&&p.extra.amount>0&&p.baseAmount!=null)?('<br><span class="cc-mini">잔금 '+fmtWon(p.baseAmount)+' + 인원 추가 '+fmtWon(p.extra.amount)+' (스탠딩 '+p.extra.standing+'명)</span>'):'';   // [GUEST30_NOFEE] 0원 줄 숨김   // 최종확정 인원 추가 요금 산식(서버 합산)
+    /* ★[GUEST30_NOFEE 2026-09-19] 「최종 인원 확정 시 추가 요금이 있으면 잔금에 합산돼요」 삭제 —
+       하객 30명까지 추가금이 0이 되어 이 예고는 영영 참이 되지 않는다. 고객에게 없는 비용을 예고하면
+       결제를 미루게 만든다. 정책이 다시 유료로 바뀌면 그때 되살릴 것(그때는 문구도 금액 기준으로). */
+    var _xPend=(p.extraPending&&p.extra&&p.extra.amount>0)?'<br><span class="cc-mini">최종 인원 확정 시 추가 요금이 잔금에 합산돼요.</span>':'';
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+_xBrk+_xPend+'</div>')
                   :'<div class="cc-sub">잔금 금액은 디렉터 확인 후 안내드려요.</div>';
     var _bPast=(p.dueDate)?(function(x){var m=String(x).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return false;var t=new Date();t.setHours(0,0,0,0);return new Date(+m[1],+m[2]-1,+m[3])<t;})(p.dueDate):false;
@@ -7488,10 +7492,12 @@ function _seatNamedCount(){ var n=0; if(SEATFLOW&&SEATFLOW.tables) SEATFLOW.tabl
 // 이름 있는 자리 수 → 착석/스탠딩/추가요금 안내(별도 인원 입력 대체). 25명 초과 시 경고색.
 function _seatFeeHtml(n){
   var P=MP_FINAL_POLICY;
-  if(!n) return '<span style="color:var(--label-soft)">자리에 이름을 넣으면 인원·요금을 자동으로 계산해 드려요.</span>';
+  n=Number(n); if(!isFinite(n)||n<0) n=0;   // 화면에 Infinity·NaN 이 찍히지 않게(퍼즈로 잡음)
+  if(!n) return '<span style="color:var(--label-soft)">자리에 이름을 넣으면 인원이 자동으로 계산돼요.</span>';
   var head='<span class="sf-n">현재 '+n+'명</span> · ';
   if(n>P.max) return head+'<b>최대 '+P.max+'명까지</b> 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.';
-  if(n>P.seats) return head+'착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · 추가 요금 <b>'+((n-P.seats)*P.unit).toLocaleString()+'원</b> (잔금과 함께 안내드려요)';
+  if(n>P.seats){ var _sf=(n-P.seats)*P.unit;   // [GUEST30_NOFEE] 0원이면 금액 대신 「추가 요금 없이」
+    return head+'착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · '+(_sf>0?('추가 요금 <b>'+_sf.toLocaleString()+'원</b> (잔금과 함께 안내드려요)'):'<b>추가 요금 없이</b> 모십니다'); }
   return head+'전원 착석으로 모실 수 있어요 ('+P.seats+'명까지).';
 }
 // 배경 자동 저장(무음) — 최종 인원=이름 있는 자리 수로 파생 · 스탠딩/추가요금도 함께 담아 관리자 화면과 일치. 이름 하나라도 있으면 완료 처리.
@@ -8483,7 +8489,7 @@ function renderDining(box){
 // ── 최종 확정 위저드 — 인원(초과 스탠딩 요금 자동계산)·음료(논알콜 포함)·특이사항. 기한: 예식 9일 전(잔금과 동일) ──
 function _finCalcHtml(n){
   var P=MP_FINAL_POLICY;
-  if(!n) return '<span class="cc-mini" style="color:var(--label-soft)">인원을 입력하면 좌석·추가 요금을 바로 계산해 드려요.</span>';
+  if(!n) return '<span class="cc-mini" style="color:var(--label-soft)">인원을 입력하면 좌석을 바로 계산해 드려요.</span>';
   if(n>P.max) return '<span style="color:var(--seal)">최대 '+P.max+'명까지 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.</span>';
   if(n>P.seats){ var _ef=(n-P.seats)*P.unit;
     return '착석 '+P.seats+'명 + 스탠딩 '+(n-P.seats)+'명 · '+(_ef>0?('추가 요금 <b>'+_ef.toLocaleString()+'원</b> (잔금과 함께 안내드려요)'):'<b>추가 요금 없이</b> 모십니다'); }
