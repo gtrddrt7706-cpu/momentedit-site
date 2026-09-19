@@ -8429,7 +8429,11 @@ chk 'KB_CROSS_TRUTH' scripts/audit/kb-cross-truth.mjs 1
 chk 'KB_DELIV' api/_kb.js 2                 # 14장 인도 기한 + 19장 «여기 있으면 안 된다» 표시
 chk 'KB_DELIV' assets/advisor-kb.js 1       # 챗봇 photo-when 에 escalate 재부착 금지 근거
 chk 'KB_DELIV' scripts/audit/kb-cross-truth.mjs 3   # 규칙 셋
-chk '예식 후 2주 이내' contract/v1-1.html 1  # 원천이 사라지면 위 규칙들이 근거를 잃는다
+# ★원문 그대로 적는다 — 계약서는 <strong>2주</strong> 처럼 태그가 숫자를 감싸고 있어서
+#   화면에서 읽히는 「예식 후 2주 이내」로 적으면 grep 이 0 을 센다(첫 판이 그렇게 빨갰다).
+chk '예식 후 <strong>2주</strong> 이내' contract/v1-1.html 1   # 원천이 사라지면 위 규칙들이 근거를 잃는다
+chk '예식 후 <strong>4주</strong> 이내' contract/v1-1.html 1
+chk '예식 후 <strong>6주</strong> 이내' contract/v1-1.html 1
 chk 'KB_SETTLED' api/_ritual-kb.js 1
 chk 'MUSIC_GONE' api/_ritual-kb.js 1
 nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-08-03 폐지 — 숙제로 되살리지 말 것
