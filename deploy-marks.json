@@ -518,6 +518,12 @@
    "fn": "contractCheck",
    "mark": "FALLBACK_SEAT30",
    "why": "폴백 착석 기대값 30 — 이 파일이 옛 판이면 점검이 착석 25 를 정답이라 믿고 전부 초록이라 답한다"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployCheck",
+   "mark": "STAMP_NEEDS_HIT",
+   "why": "④ 안내에 «재배포 뒤 /exec 를 한 번 타야 지문이 찍힌다»를 넣은 자리 — 옛 판은 «재배포하세요»만 말해 이미 재배포한 사람이 같은 동작을 세 번 반복했다"
   }
  ],
  "fns": {
