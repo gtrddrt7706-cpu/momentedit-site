@@ -36,6 +36,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { isWholeTake } from './lib/whole-take.mjs';   // [LETTER_WHOLE_TAKE]
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -56,6 +57,7 @@ catch (e) { console.log('✗ 대장을 못 읽었다 — ' + e.message); process
 const slots = [];
 for (const c of man.clips) {
   if (c.mix) continue;
+  if (isWholeTake(c)) continue;   // [LETTER_WHOLE_TAKE] 통낭독은 문장 단위 창고가 해당 없다
   const key = pad2(c.no) + '_' + c.file;
   c.sents.forEach((s) => slots.push({ key, i: s.i, id: key + '#' + s.i, text: s.text, role: s.role || c.role }));
 }

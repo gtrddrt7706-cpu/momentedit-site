@@ -24,6 +24,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
+import { isWholeTake } from './lib/whole-take.mjs';   // [LETTER_WHOLE_TAKE]
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const WRITE = process.argv.includes('--write');
@@ -62,7 +63,7 @@ const byVoice = new Map();
 const pending = {};
 let clips = 0;
 for (const c of man.clips) {                       // ★대장 차례 그대로 — 정렬하지 않는다
-  if (c.mix || RETIRED.has(c.file)) continue;
+  if (c.mix || RETIRED.has(c.file) || isWholeTake(c)) continue;   // [LETTER_WHOLE_TAKE]
   const key = pad2(c.no) + '_' + c.file;
   const said = rec[(c.dir || NAR) + '|' + key];
   /* ★★[VOICE_CHANGED 2026-09-13] 글이 같아도 «읽은 사람»이 바뀌었으면 다시 받아야 한다.
@@ -160,7 +161,7 @@ const flat = [];
 const flatOrder = [];        // [FLAT_ORDER] 줄번호 → 성우·클립·문장 자리 (+ also: 같은 소리를 넣을 다른 자리)
 const seen = new Map();      // 성우|대사 → flatOrder 의 그 줄
 for (const c of man.clips) {
-  if (c.mix || RETIRED.has(c.file)) continue;
+  if (c.mix || RETIRED.has(c.file) || isWholeTake(c)) continue;   // [LETTER_WHOLE_TAKE]
   const key = pad2(c.no) + '_' + c.file;
   const said = rec[(c.dir || NAR) + '|' + key];
   if (said !== undefined && norm(said) === norm(c.sents.map((s) => s.text).join(' '))) continue;
