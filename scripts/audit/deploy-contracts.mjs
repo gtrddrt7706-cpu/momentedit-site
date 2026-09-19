@@ -34,6 +34,8 @@ console.log(`── 값 계약 ${CT.length}건 (GAS ${CT.filter(c=>c.kind==='gas
 for (const c of CT) {
   if (c.kind === 'gas') {
     let got;
+    if (!c.expr || !String(c.expr).trim()) { bad('계약 항목에 expr 이 없습니다', JSON.stringify(c).slice(0, 90)); continue; }
+    if (!('eq' in c)) { bad(`계약 항목에 eq 가 없습니다 (${c.expr})`); continue; }
     try {
       got = new Function('S', `with(S){ return (${c.expr}); }`)(sandbox);
     } catch (e) {
@@ -56,6 +58,25 @@ for (const c of CT) {
     }
   } else bad(`알 수 없는 kind: ${c.kind}`);
 }
+/* ★[CONTRACT_FALLBACK] 99_contractCheck.gs 안의 폴백 표가 목록의 gas 계약과 같은가.
+   폴백은 «목록이 아직 안 왔을 때»를 메우는 사본이다. 사본이 원본과 갈라지면
+   그 순간부터 거짓말을 한다 — 목록은 0 인데 폴백은 50000 을 기대하는 식이다.
+   한쪽만 고치는 일이 실제로 일어나므로 여기서 묶는다. */
+{
+  const gs = rd('automation/platform/99_contractCheck.gs');
+  const m = gs.match(/var CONTRACT_FALLBACK = \[([\s\S]*?)\];/);
+  if (!m) bad('99_contractCheck.gs 에서 CONTRACT_FALLBACK 을 찾지 못했습니다');
+  else {
+    const fb = [...m[1].matchAll(/expr:\s*'([^']+)'\s*,\s*eq:\s*([^,}]+)/g)]
+      .map(([, expr, eq]) => ({ expr, eq: JSON.parse(eq.trim()) }));
+    const want = CT.filter((c) => c.kind === 'gas').map((c) => ({ expr: c.expr, eq: c.eq }));
+    const key = (a) => a.map((x) => `${x.expr}=${JSON.stringify(x.eq)}`).sort().join(' | ');
+    if (key(fb) === key(want)) ok(`폴백 표가 목록의 gas 계약 ${want.length}건과 같음`);
+    else bad('폴백 표가 목록과 갈라졌습니다',
+      `파일 안: ${key(fb) || '(없음)'}\n       목록  : ${key(want) || '(없음)'}`);
+  }
+}
+
 /* ★계약이 0건이 되는 것도 실패다 — 「검사가 있다」는 착각이 가장 나쁘다. */
 console.log(`\n결과 — ${fail === 0 ? '계약 전부 일치' : '★어긋남 ' + fail + '건'}`);
 process.exit(fail === 0 ? 0 : 1);

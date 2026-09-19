@@ -18,7 +18,25 @@
  *   같은 계약을 검사하므로, 계약과 코드가 갈라지면 merge-guard 가 푸시를 막는다.
  *
  * 사용: 이 파일을 열고 contractCheck 실행
+ *
+ * ★.gs 주석에서 다른 규칙 이름을 대괄호로 인용하지 말 것 — 이 파일에서 세 번 걸렸다.
+ *   deploycheck-coverage·deploycheck-sim 은 .gs 안의 [대문자] 를 «이 파일의 표식»으로 읽는다.
+ *   설명하려고 적은 GUEST30_NOFEE·FILE_COVER 가(대괄호를 쳤더니) «목록에 없는 표식»으로 붉어졌다.
+ *   ★이 경고문을 쓰면서도 예시에 대괄호를 쳐서 한 번 더 걸렸다 — 네 번째였다.
+ *   규칙 이름을 언급할 때는 대괄호 없이 쓴다(예: CLAUDE.md 의 FILE_COVER 규칙).
  */
+/* ★목록이 없어도 «GAS 값»만은 본다.
+   실제로 겪었다 — main 병합 전이라 사이트 목록에 계약이 없었고, 그래서 contractCheck 가
+   「계약이 없습니다」 두 줄만 찍고 끝났다. 정작 알고 싶었던 것(이 파일이 붙었나)은 못 봤다.
+   목록이 원본인 것은 맞지만, 원본이 아직 안 왔다고 «아무것도 안 보는» 것은 과하다.
+   ★이 표가 deploy-marks.json 의 contracts(kind=gas)와 갈라지면 merge-guard 가 막는다
+     (scripts/audit/deploy-contracts.mjs). 한쪽만 고치지 말 것. */
+var CONTRACT_FALLBACK = [
+  { expr: 'FINAL_CONFIRM.초과단가', eq: 0, file: '80_production' },
+  { expr: 'FINAL_CONFIRM.최대', eq: 30, file: '80_production' },
+  { expr: 'FINAL_CONFIRM.착석', eq: 25, file: '80_production' }
+];
+
 function contractCheck() {
   var L = [], okN = 0, badN = 0, skipN = 0;
   var SITE = 'https://momentedit.kr';
@@ -33,6 +51,27 @@ function contractCheck() {
   function stripComments(t) {
     return String(t).replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
   }
+  /* 목록이 없을 때 쓰는 최소 검사 — GAS 값만 본다. «통과»라고 말하지 않는다. */
+  function runFallback() {
+    /* [CONTRACT_FALLBACK] 목록이 아직 안 왔을 때 GAS 값만이라도 보는 자리.
+       deploy-marks.json 의 gas 계약과 갈라지면 deploy-contracts.mjs 가 막는다. */
+    L.push('── 파일 안 사본으로 본 GAS 값 (사이트 문장은 못 봤습니다) ──');
+    for (var i = 0; i < CONTRACT_FALLBACK.length; i++) {
+      var c = CONTRACT_FALLBACK[i], got;
+      try { got = eval(c.expr); } catch (e) { bad(c.expr + ' 를 읽지 못했습니다', c.file + ' 파일이 안 붙었을 수 있습니다'); continue; }
+      if (got === c.eq) ok(c.expr + ' = ' + JSON.stringify(got));
+      else bad(c.expr + ' 가 ' + JSON.stringify(got) + ' 입니다 (기대 ' + JSON.stringify(c.eq) + ')',
+        c.file + ' 를 다시 붙여넣고 «새 버전»으로 재배포하세요.');
+    }
+    L.push('');
+    L.push(badN === 0
+      ? '결과 — GAS 값 ' + okN + '건은 맞습니다.'
+      : '결과 — ★어긋남 ' + badN + '건. 각 MISS 의 «→» 가 할 일을 말합니다.');
+    /* ★붉든 초록이든 «못 본 것»은 항상 말한다 — 붉을 때만 침묵하면
+       「어긋남 1건」을 고친 사람이 «이제 다 봤다»고 오해한다(시뮬 b3 가 잡았다). */
+    L.push('※ ★사이트 문장은 이번에 못 봤습니다 — 목록이 없어 파일 안 사본으로 GAS 값만 봤습니다.');
+  }
+
   var _webCache = {};
   function fetchWeb(path) {
     if (_webCache[path] !== undefined) return _webCache[path];
@@ -53,7 +92,9 @@ function contractCheck() {
   } catch (e) { why = String((e && e.message) || e).slice(0, 60); }
 
   if (!MARKS) {
-    L.push('  ★목록을 못 읽었습니다 (' + why + ') — 이번 실행은 «못 잼»이지 «깨끗»이 아닙니다.');
+    L.push('  ★목록을 못 읽었습니다 (' + why + ') — 사이트 문장은 이번에 못 쟀습니다.');
+    L.push('');
+    runFallback();
     Logger.log(L.join('\n')); return L.join('\n');
   }
 
@@ -72,7 +113,10 @@ function contractCheck() {
   var CT = MARKS.contracts;
   if (!CT || !CT.length) {
     bad('목록에 값 계약(contracts)이 없습니다',
-      '사이트의 deploy-marks.json 이 계약을 갖기 전 판입니다 — main 병합 후 다시 실행하세요.');
+      '사이트의 deploy-marks.json 이 계약을 갖기 전 판입니다 — main 병합 후 다시 실행하세요.\n'
+      + '           → 그동안은 아래 «파일 안 사본»으로 GAS 값만 봅니다(사이트 문장은 못 봅니다).');
+    L.push('');
+    runFallback();
     Logger.log(L.join('\n')); return L.join('\n');
   }
 
@@ -80,6 +124,9 @@ function contractCheck() {
   L.push('── GAS 안의 값 ──');
   CT.filter(function (c) { return c.kind === 'gas'; }).forEach(function (c) {
     var got;
+    /* 계약 항목 자체가 망가진 경우 — 「 가 undefined 입니다」 같은 뜻 모를 줄을 내지 않는다(퍼즈로 잡음) */
+    if (!c.expr || !String(c.expr).trim()) { bad('계약 항목에 expr 이 없습니다', 'deploy-marks.json 의 contracts 를 고치세요: ' + JSON.stringify(c).slice(0, 90)); return; }
+    if (!('eq' in c)) { bad('계약 항목에 eq 가 없습니다 (' + c.expr + ')', 'deploy-marks.json 의 contracts 를 고치세요'); return; }
     try { got = eval(c.expr); } catch (e) { bad(c.expr + ' 를 읽지 못했습니다 (' + ((e && e.message) || e) + ')', c.file ? (c.file + ' 파일이 안 붙었을 수 있습니다') : ''); return; }
     if (got === c.eq) ok(c.expr + ' = ' + JSON.stringify(got));
     else bad(c.expr + ' 가 ' + JSON.stringify(got) + ' 입니다 (기대 ' + JSON.stringify(c.eq) + ')',
@@ -120,7 +167,7 @@ function contractCheck() {
    파일 끝에 함수가 하나 더 있으면, 잘린 순간 이 이름이 사라져 함수 전수 대조에 걸린다.
    ★지우지 말 것 — 지우면 이 파일만 «잘려도 모르는» 상태로 되돌아간다. */
 function contractCheckHelp() {
-  /* [CONTRACT_TAIL] 표식은 함수 «본문 안»에 — mark() 가 함수 소스를 읽는다([FILE_COVER]). */
+  /* [CONTRACT_TAIL] 표식은 함수 «본문 안»에 — mark() 가 함수 소스를 읽는다(CLAUDE.md 의 FILE_COVER 규칙). */
   var s = [
     '값 계약 점검 — 사용법',
     '  1) 이 파일을 열고 contractCheck 를 실행합니다.',
