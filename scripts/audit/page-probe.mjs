@@ -56,7 +56,9 @@ export async function serverRooted() {
   const marker = 'assets/ritual-cue.js';                 // 저장소에만 있는 파일
   if (!fs.existsSync(path.join(ROOT, marker))) return { ok: false, why: `저장소에 ${marker} 가 없다 — ROOT 계산이 틀렸다` };
   try {
-    const r = await fetch(BASE + marker, { method: 'GET' });
+    /* [FREE_PORT_5 2026-09-06] 시간제한 없이 물으면, 소켓만 물고 응답을 안 하는 좀비 서버 앞에서
+       이 감사가 영영 멈춘다(죽지도 초록도 아닌 채). 4초 안에 답이 없으면 «못 붙었다»로 본다. */
+    const r = await fetch(BASE + marker, { method: 'GET', signal: AbortSignal.timeout(4000) });
     if (!r.ok) return { ok: false, why: `서버가 ${marker} 를 ${r.status} 로 준다 — 저장소 루트에서 안 띄웠다` };
     return { ok: true };
   } catch (e) { return { ok: false, why: `서버(:${PORT})에 못 붙었다 (${String(e).slice(0, 50)})` }; }

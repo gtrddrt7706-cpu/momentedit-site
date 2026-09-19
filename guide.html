@@ -30,7 +30,7 @@
 <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{
-  --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#75705F; --faint:#A49D8E;
+  --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#6E6959; --faint:#A49D8E;
   --gold:#B89A75; --gold-deep:#9A7B4F; --seal:#6B2A24; --border:#DDD8D1; --bg2:#F5F3EF; --hair:#EAE5DD;
   --serif:'Cormorant Garamond',Georgia,serif;
   --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
@@ -74,7 +74,8 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .act svg{width:12px;height:12px;stroke:var(--gold-deep);fill:none;stroke-width:1.6}
 .subh{font-size:11px;letter-spacing:.04em;color:var(--light);margin:16px 0 6px}
 
-.find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px}
+.find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px;min-height:44px}/* [GUIDE_TAP44] 43px 이던 것 — 표류가 아니라 계산 결과다(내용 17 + 패딩 24 + 테두리 2).
+   패딩을 반px 로 올릴 수는 없으니(램프 규칙) min-height 로 1px 을 채운다. */
 .find input:focus{outline:none;border-color:var(--gold-deep)}
 .find-res{min-height:20px;text-align:center;font-size:13px;color:var(--gold-deep);margin-top:10px}
 /* 내 자리 홀 배치 — 검색 일치 시 홀 전체 테이블 위치를 그려 현장에서 넘버·명패 없이 바로 찾아가게(2026-07-17).
@@ -143,6 +144,10 @@ button.ps-btn{width:100%;font:inherit;font-family:var(--serif-ko);cursor:pointer
   /* ★[FOOT_BALANCE 2026-08-18 점검에서 눈으로 발견] 마지막 줄에 「요.」 한 글자만 떨어져 있었다(390px).
      글자 수를 깎아 맞추는 것은 다음 문구 수정 때 바로 깨진다 — 두 줄을 고르게 나누게 한다.
      ★balance 를 모르는 브라우저는 종전대로 흐른다(있으면 좋고 없어도 안 깨지는 속성). */
+  /* ★[FOOT_KEEPALL 2026-09-12] balance 만으로는 «단어 중간»이 갈린다 — 실렌더에서 「실 / 제로」로 쪼개졌다.
+     한국어는 어절 단위로 끊어야 읽힌다. 같은 파일의 .state-x-s·.dtip .h 는 이미 keep-all 을 갖고 있었고
+     이 줄만 빠져 있었다(두 분이 미리보기에서 보는 자리다). */
+  word-break:keep-all;
   text-wrap:balance}
 .demo-foot .t b{color:var(--seal);font-weight:600}
 /* ★★[DEMO_TIP 2026-08-18 사용자 제안 "저 메세지를 팝업으로 · 고객이 누르면 직관적으로"]
@@ -214,11 +219,17 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
    이 페이지들은 글자만 있어 같은 흐름 안에서 어떤 화면엔 점이 있고 어떤 화면엔 없었다(2026-08-04 전수조사). */
 .bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--seal,#6B2A24);margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
 @keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.bdot{animation:none;opacity:.6}}  /* ★[BDOT_REDUCED 2026-09-12] 모션 최소화에서도 이 점이 계속 뛰고 있었다. 예식장 회선이 느리면 몇 초간 화면에 남는다 */
 .state{text-align:center;padding:54px 20px;color:var(--sub);font-size:14px}
 .state .sm{font-size:12px;color:var(--light);margin-top:8px}
 /* [STATE_EXIT] 막다른 화면의 출구 — 이 카드는 좌우 여백만 있어(padding:0 18px) 아래쪽은 0으로 맞춘다 */
 .state-x{margin:0 -18px;padding:17px 18px 20px;border-top:1px solid var(--hair);background:var(--bg2);border-radius:0 0 10px 10px}
-.state-x-h{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;text-align:center}
+/* ★★[STATE_HIER 2026-09-12] 위계가 뒤집혀 있었다 — 제목(「잘못된 주소예요」)이 14px/--sub 로 제일 옅은데
+   보조 헤더(「이렇게 해 보세요」)가 13px/700/--accent 로 제일 진하고 굵었다. 안내문이 제목보다 크게 외쳤다.
+   ★게다가 이 700 은 «없는 무게»다 — 이 페이지는 Noto Serif KR 300;400;500;600 만 받는다.
+     브라우저가 합성 볼드로 그린다(350 유령값과 같은 계열의 사고). 있는 무게 600 으로 내린다.
+   ★제목 쪽은 .state 에서 올린다 — 아래 참조. */
+.state-x-h{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px;text-align:center}
 .state-x-s{font-size:13px;color:var(--sub);line-height:1.65;word-break:keep-all;text-wrap:pretty;text-align:center;margin-bottom:13px}
 .state-x-b{display:flex;align-items:center;justify-content:center;min-height:44px;padding:6px 12px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;background:var(--gold-text);color:#fff;word-break:keep-all}
 .state-x-b.sub{background:#fff;color:var(--gold-text);border:1px solid var(--border);margin-top:8px;font-weight:500}
@@ -268,7 +279,12 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 
 /* [GUIDE_TAP40] 지도·전화 71×34 — 예식장에서 한 손으로 누르는 버튼이다.
    .acts 간격도 7px였다(인접 타깃 8px 미만) → 8px */
-.act{min-height:40px}
+/* ★[GUIDE_TAP44 2026-09-06 라운드 3] 하객이 «예식장 앞에서 서서 한 손으로» 누르는 버튼이다.
+   「지도」 셋이 40px 이었다 — inquiry 의 .compact-option 과 똑같은 값·똑같은 원인(min-height 40).
+   같은 처방을 준다: padding 6→10 · min-height 40→44. 문서는 390px 에서 12px 늘어난다.
+   ★WCAG 2.5.8(24px)은 원래도 통과였다. 넘긴 것은 2.5.5 «Enhanced» 44px 이고,
+     이 화면은 조작 요소가 여섯뿐이라 셋의 비중이 크고 «길을 찾는» 버튼이다. */
+.act{min-height:44px;padding-top:10px;padding-bottom:10px}
 .acts{gap:8px}
 /* '‹ 뒤로' 48×29 — 화면 맨 위 모서리라 더 누르기 어려운 자리다.
    ★박스만 키우면 라벨이 6px 내려가 브랜드 줄과 어긋난다 — .backbar top을 -4→-9로 함께 올려
@@ -399,7 +415,36 @@ function $(id){ return document.getElementById(id); }
   };
 })();
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+/* ★★[GUEST_TIMEOUT 2026-09-13 점검 라운드 4 · 실측] 읽기 호출에 12초 제한. mypage 의 api() 와 같은 처방·같은 숫자다.
+   ── 무엇이 문제였나: 응답이 «영영 안 오는» 망(패킷이 버려지는 공공 와이파이·지하 예식장)에서
+      이 화면은 45초를 기다려도 스피너만 돌았고 **버튼이 0개**였다(실측 16·30·45초 전부 동일).
+      하객은 카톡 링크로 온 일회성 방문자다 — 로그인도 자력 복구도 못 한다.
+   ── 아래 load(attempt) 의 회복 경로(두 번 재시도 → 「불러오지 못했어요」+재시도 버튼)는 **이미 잘 만들어져 있었다.**
+      fetch 가 끝나지 않아 그 catch 가 영영 안 불렸을 뿐이다. 고친 것은 «끝나게» 한 것뿐이다.
+   ★사진 업로드(guestPhoto)에는 걸지 않는다 — 느린 회선에서 큰 본문을 올리는 중에 끊기면 그게 더 나쁘다.
+   ★12초는 GAS 콜드스타트를 자르지 않으려는 값이다(mypage MPD_E3 와 같은 근거). 줄이지 말 것. */
+function gapi(payload){
+  var ac=(typeof AbortController!=='undefined')?new AbortController():null;
+  var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },12000):null;
+  return fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
+    .then(function(r){ if(tm) clearTimeout(tm); return r; }, function(e){ if(tm) clearTimeout(tm); throw e; });
+}
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
+/* ★★[GUIDE_PATH_READ 2026-09-11 점검에서 발견 · 내가 만든 결함] /g/<토큰> 이 «아예 안 열렸다».
+   vercel.json 의 dest 는 «서버» rewrite 다 — 서버는 /guide.html?g=<토큰> 을 보지만
+   브라우저 주소는 /g/<토큰> 그대로라 location.search 가 «비어 있다».
+   그래서 qp('g') 가 빈 값을 돌려주고 「잘못된 주소예요」 화면이 떴다.
+   ★카톡 잘림을 고치려고 넣은 링크가, 잘리기 전에 이미 안 열리는 링크였다(2026-09-09 ~ 09-11 배포됨).
+   ★근거: 커밋 메시지에 「rewrite 라 서버에서 붙는다」고 적었는데, 서버에서 붙는 것과
+     «클라이언트 JS 가 읽는 것»은 다른 일이다. 렌더로 확인했으면 그날 잡혔다.
+   ★경로에서도 읽는다. ?g= 가 있으면 그쪽이 우선 — 이미 나간 링크가 계속 이긴다.
+     정규식은 vercel.json 의 라우트와 «같은» 문자 집합이다(둘이 어긋나면 한쪽만 열린다). */
+function guideToken(){
+  var q=qp('g'); if(q) return q;
+  try{ var m=/^\/g\/([A-Za-z0-9_-]{1,64})\/?$/.exec(location.pathname||''); return m? m[1] : ''; }
+  catch(e){ return ''; }
+}
 function fmtDate(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
   var p=ymd.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]);
@@ -504,16 +549,26 @@ function gpSay(msg, kind){
 function bindGuestUpload(){
   var pick=document.getElementById('gpPick'), inp=document.getElementById('gpFile');
   if(!pick||!inp) return;
-  var token=qp('g'); if(!token) return;
-  var busy=false, failed=[];
+  var token=guideToken(); if(!token) return;   // [GUIDE_PATH_READ] 경로 형태(/g/<토큰>)도 받는다
+  var busy=false, failed=[], rest=[];   // rest = 한 번에 고를 수 있는 장수를 넘겨 «아직 안 보낸» 사진들
   pick.addEventListener('click', function(){ if(!busy) inp.click(); });
   /* ★★[GP_OVER_PICK 2026-08-22 병렬 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면 «말없이» 잘렸다.
      실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 — 남은 5장이 사라진 것을
      하객이 알 길이 없다. 조용한 절삭은 «다 갔다»로 읽힌다.
-     ★잘린 수를 send 에 넘겨 끝에서 함께 말한다. */
+     ★그래서 잘린 수를 끝에서 함께 말했다. 그런데 «말만» 했다 — 아래 GP_OVER_KEEP.
+     ★★[GP_OVER_KEEP 2026-09-08 코워크 지적] 말하는 것만으로는 부족했다.
+     실패한 사진은 「다시 시도」가 그 파일들을 그대로 다시 보낸다 — 다시 고를 필요가 없다.
+     그런데 «넘친» 사진은 문장만 있고 inp.value='' 로 선택이 비워져, 다시 골라야 했다.
+     예식장에서 서서 35장 중 «어느 5장»이었는지 기억해 다시 고르는 건 사실상 포기다.
+     즉 잘못한 것도 없는데 실패보다 초과가 더 불리했다.
+     ★고른 파일 객체는 inp.value='' 뒤에도 살아 있다. 그래서 «넘친 것»을 rest 에 쥐고 있다가
+       「남은 N장 보내기」로 이어 보낸다. 실패와 같은 대접이다.
+     ★다시 30장을 넘겨도 된다 — rest 에서 30장씩 꺼내니 80장을 골라도 세 번에 나눠 간다. */
   inp.addEventListener('change', function(){
-    var all=[].slice.call(inp.files||[]), f=all.slice(0,GP_ONCE), over=all.length-f.length;
-    inp.value=''; if(f.length) send(f, over);
+    var all=[].slice.call(inp.files||[]);
+    inp.value='';                        // 같은 파일을 다시 골라도 change 가 뜨게 비운다
+    rest=all.slice(GP_ONCE);
+    if(all.length) send(all.slice(0,GP_ONCE));
   });
 
   function one(file){
@@ -532,32 +587,46 @@ function bindGuestUpload(){
       fr.readAsDataURL(file);
     });
   }
-  function send(files, over){
-    over=over||0;
+  /* ★[GP_OVER_AHEAD 2026-09-08] 넘친 장수는 «끝나고»가 아니라 «올리는 동안»부터 말한다.
+     끝에서만 말하면 하객은 30장이 다 가는 줄 알고 다 되면 창을 닫는다 — 그 뒤 안내는 아무도 못 본다.
+     ★버튼 아래 «상시 안내»로 되살리지 않는다 — 그 세 줄은 2026-08-18 사용자 지시로 뺐다([GP_DONE_SHEET]).
+       누르기 전에는 아무도 안 읽는다는 그 판단은 그대로다. 넘쳤을 때만 · 그 순간에만 말한다. */
+  function gpProgress(done, total){
+    var m=done+' / '+total+' 올리는 중이에요 · 창을 닫지 말아 주세요';
+    if(rest.length) m+='<br>남은 '+rest.length+'장은 끝나고 이어서 보낼 수 있어요.';
+    gpSay(m);
+  }
+  function send(files){
     busy=true; window.__gpBusy=true; failed=[]; var done=0, big=0, stopMsg='';   // [GP_NO_REPAINT] 올리는 동안 render 를 막는다
     pick.textContent='올리는 중이에요'; pick.classList.add('ps-btn-off');
-    gpSay('0 / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
+    gpProgress(0, files.length);
     (function next(i){
-      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg, over); return; }
+      if(i>=files.length || stopMsg){ finish(files.length, done, big, stopMsg); return; }
       one(files[i]).then(function(v){
         if(v.ok) done++; else if(v.big) big++; else { failed.push(files[i]); if(v.stop) stopMsg=v.msg||''; }
-        gpSay((done)+' / '+files.length+' 올리는 중이에요 · 창을 닫지 말아 주세요');
+        gpProgress(done, files.length);
         next(i+1);
       });
     })(0);
   }
-  function finish(total, done, big, stopMsg, over){
-    over=over||0;
+  function finish(total, done, big, stopMsg){
     busy=false; window.__gpBusy=false; pick.classList.remove('ps-btn-off'); pick.textContent='사진 더 올리기';   // [GP_NO_REPAINT] 끝났으니 다시 그려도 된다
     if(stopMsg){ gpSay(esc(stopMsg), 'err'); return; }
-    var msg=done?gpDoneMsg(done):'';   // 실패가 섞였을 때만 쓰인다 — 성공은 아래에서 시트로 간다
+    var over=rest.length;
+    var msg=done?gpDoneMsg(done):'';   // 아직 안 끝났을 때만 쓰인다 — 온전한 성공은 아래에서 시트로 간다
     if(big) msg+=(msg?'<br>':'')+'너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지).';
-    if(over) msg+=(msg?'<br>':'')+'한 번에 '+GP_ONCE+'장까지 갈 수 있어요 · 남은 '+over+'장은 다시 눌러 주세요.';
-    if(failed.length){
-      msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
+    if(over) msg+=(msg?'<br>':'')+'남은 '+over+'장이 아직 있어요. <button type="button" class="gp-retry" id="gpRest">남은 '+over+'장 보내기</button>';
+    if(failed.length) msg+=(msg?'<br>':'')+failed.length+'장이 전해지지 않았어요. <button type="button" class="gp-retry" id="gpRetry">다시 시도</button>';
+    /* ★[GP_OVER_WEIGHT 2026-09-08 코워크 지적] 넘쳤을 땐 «성공 시트»를 띄우지 않는다.
+       종전엔 시트 본문에 「30장 전해졌어요」(15px)를 크게 띄우고, 넘친 안내는 부제(12px)로 그 뒤에 붙였다.
+       큰 글씨가 «끝났다»고 말하면 작은 글씨는 안 읽힌다. 실패를 시트로 안 보내는 이유와 똑같다.
+       ★끝난 게 아니면 «끝났다는 시트»를 띄우지 않는다. 두 문장을 같은 크기로, 누를 것과 함께 둔다. */
+    if(over || failed.length){
       gpSay(msg,'err');
       var rb=document.getElementById('gpRetry');
-      if(rb) rb.addEventListener('click', function(){ var again=failed.slice(); send(again); });
+      if(rb) rb.addEventListener('click', function(){ send(failed.slice()); });
+      var ob=document.getElementById('gpRest');
+      if(ob) ob.addEventListener('click', function(){ var take=rest.slice(0,GP_ONCE); rest=rest.slice(GP_ONCE); send(take); });
       return;
     }
     if(!done){
@@ -572,8 +641,7 @@ function bindGuestUpload(){
     /* [GP_DONE_SHEET] 성공은 시트로 알린다 — 인라인 줄은 지워 «옛 결과»가 남지 않게 한다.
        큰 파일을 걸렀으면 그 사실은 시트 본문에 함께 싣는다(따로 남기면 확인이 두 곳으로 갈라진다). */
     var st=document.getElementById('gpStat'); if(st){ st.innerHTML=''; st.style.display='none'; }
-    var sub=GP_DONE_SUB;
-    if(over) sub='한 번에 '+GP_ONCE+'장까지 갈 수 있어요 · 남은 '+over+'장은 다시 눌러 보내 주세요. '+sub;
+    var sub=GP_DONE_SUB;   // 여기까지 왔으면 넘친 것도 실패한 것도 없다 — 시트는 «온전히 끝났을 때»만 뜬다
     if(big) sub='너무 큰 파일 '+big+'개는 빼고 보냈어요('+GP_MAX_MB+'MB까지). '+sub;
     sheetOpen('Photos', gpDoneMsg(done), sub, pick);
   }
@@ -688,7 +756,7 @@ function bindSeat(seatToken, full){
   var started=false;
   function startLoad(){
     if(started) return; started=true; SEAT_STATE='loading';
-    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken}) })
+    gapi({action:'seatView', t:seatToken})
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; renderFullMap(); }
@@ -787,7 +855,7 @@ function bindSeatServer(seatToken, q){
     if(last && last.q===v){ fr.innerHTML=last.html; return; }
     var my=seq;
     fr.textContent='자리를 찾는 중이에요…';
-    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView', t:seatToken, q:v}) })
+    gapi({action:'seatView', t:seatToken, q:v})
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
@@ -1008,7 +1076,7 @@ function renderDemo(){
   }
 }
 (function boot(){
-  var g=qp('g');
+  var g=guideToken();   // [GUIDE_PATH_READ] 경로 형태(/g/<토큰>)도 받는다
   if(g==='demo'){ try{ renderDemo(); }catch(e){ $('root').innerHTML=stateHtml('샘플을 불러오지 못했어요.','',0); } return; }   // [GUIDE_DEMO]
   if(!g){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
   var cacheKey='me_guide_'+g;
@@ -1024,7 +1092,7 @@ function renderDemo(){
   try{ var raw=localStorage.getItem(cacheKey); if(raw){ render(JSON.parse(raw)); painted=true; } }catch(e){}
 
   function load(attempt){
-    fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'guideView', g:g}) })
+    gapi({action:'guideView', g:g})
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(d && d.ok && d.guide){

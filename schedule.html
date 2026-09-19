@@ -37,7 +37,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#75705F;
+  --bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#6E6959;
   --gold:#B89A75;--gold-soft:rgba(184,154,117,0.16);--accent:#3A2D22;--seal:#6B2A24;
   --border:#DDD8D1;--hairline:rgba(28,27,25,0.14);
   --serif:'Cormorant Garamond',Georgia,serif;--serif-ko:'Noto Serif KR',serif;--sans:'Noto Sans KR',sans-serif;
@@ -709,7 +709,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
           <div class="notice-ic"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
           <div class="notice-body">
             <div class="notice-t">예약 확정 절차</div>
-            <div class="notice-d">시간 선택은 <span class="em">신청 접수</span> 단계입니다. 예약 완료는 <span class="em">확정 메일</span> 기준이에요. <span class="muted">일정이 겹칠 경우 다른 시간을 제안드릴 수 있으며, 메일이 보이지 않으면 스팸함을 확인해 주세요.</span></div>
+            <div class="notice-d">시간 선택은 <span class="em">신청 접수</span> 단계입니다. 예약 완료는 <span class="em">확정 메일</span> 기준입니다. <span class="muted">일정이 겹칠 경우 다른 시간을 제안드릴 수 있으며, 메일이 보이지 않으면 스팸함을 확인해 주세요.</span></div>
           </div>
         </div>
 
@@ -717,7 +717,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
           <div class="notice-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
           <div class="notice-body">
             <div class="notice-t">상담 소요 시간</div>
-            <div class="notice-d">시작 시간으로부터 <span class="em">약 40분</span> 진행됩니다. 일정을 넉넉히 비워 두시면 좋아요. 캔들존과 화이트존 두 공간을 직접 둘러보시고, 의상 컬렉션과 함께 상세한 기획을 나눕니다.</div>
+            <div class="notice-d">시작 시간으로부터 <span class="em">약 40분</span> 진행됩니다. 일정을 넉넉히 비워 두시면 좋습니다. 캔들존과 화이트존 두 공간을 직접 둘러보시고, 의상 컬렉션과 함께 상세한 기획을 나눕니다.</div>
           </div>
         </div>
 
@@ -1249,7 +1249,17 @@ if(_hdw){
 (function(){
   function $(i){return document.getElementById(i);}
   function fail(msg){ /* [SCHED_FAIL_AA] 오류 화면도 고객이 실제로 보는 면이다 — 링크색 #9A7F5F는 2.6:1 미달이라 텍스트용 골드로. main 랜드마크도 유지한다. */
-    document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'+msg+'<br><br><a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>'; }
+    /* ★[SCHED_FAIL_H1 2026-09-11 점검] 이 함수는 body 를 «통째로» 갈아치운다 — 그때 532행의 <h1>
+       까지 지워져 오류 화면엔 제목이 하나도 없었다(실측: document.querySelectorAll('h1').length === 0).
+       낭독기로 들어온 사람은 이 쪽이 무슨 화면인지 알 길이 없다.
+       ★첫 <br> 앞을 제목으로 올린다 — 네 호출부가 전부 「제목.<br>설명」 꼴이다.
+       ★모양은 안 바꾼다: font:inherit·margin:0 으로 UA 기본값을 지우고, 제목이 블록이라
+         원래 있던 첫 <br> 은 뺀다(실측 main 높이 284px → 284px 동일 · 390/1280 둘 다). */
+    var _i=msg.indexOf('<br>');
+    var _head=(_i<0?msg:msg.slice(0,_i)), _rest=(_i<0?'':msg.slice(_i+4));
+    document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'
+      +'<h1 style="font:inherit;margin:0">'+_head+'</h1>'+_rest
+      +'<br><br><a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>'; }
   var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'');
   var me=new URLSearchParams(location.search).get('me');
   if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.'); return; }

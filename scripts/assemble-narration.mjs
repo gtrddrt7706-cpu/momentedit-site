@@ -650,7 +650,15 @@ if (_recWritten.length) {
     let j = { _왜: '실제로 녹음된 글. manifest.json 은 「녹음하기로 한 글」이라 문안을 고치면 같이 바뀐다 — 그래서 둘을 대조하면 늘 같고, 소리만 옛말인 상태를 아무도 못 본다. 이 파일은 assemble-narration.mjs 가 mp3 를 만들 때만 갱신한다.', clips: {} };
     try { if (fs.existsSync(f)) j = JSON.parse(fs.readFileSync(f, 'utf8')); } catch { /* 깨진 파일이면 새로 시작 — 아래에서 통째로 다시 쓴다 */ }
     if (!j.clips) j.clips = {};
-    for (const w of ws) j.clips[w.key] = w.text;
+    /* ★★[VOICE_CHANGED 2026-09-13] «누가 읽었는지»를 여기서 박는다.
+       종전엔 대사만 적어, 성우만 바꾸고 글은 그대로인 클립이 다시받기 목록에 안 나왔다
+       (실측 49클립이 그 구멍 안에 있었다 — 파일 어디에도 안 뜨고 옛 목소리로 예식에 나간다).
+       ★읽는 쪽은 문자열도 객체도 받는다(typeof v === 'string' ? v : v.text) — 옛 기록은 그대로 산다. */
+    for (const w of ws) {
+      const cl = man.clips.find((c) => String(c.no).padStart(2, '0') + '_' + c.file === w.key);
+      const v = cl && ((man.voice || {})[String(cl.role).split('|')[0]]);
+      j.clips[w.key] = v ? { text: w.text, voice: v } : w.text;
+    }
     j._언제 = `${new Date().toISOString().slice(0, 10)} · assemble-narration 이 ${ws.length}클립 갱신`;
     const sorted = {};
     for (const k of Object.keys(j.clips).sort()) sorted[k] = j.clips[k];

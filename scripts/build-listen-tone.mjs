@@ -88,6 +88,34 @@ if (fs.existsSync(STAGE)) {
     console.log(`실측 ${n}개 (ffprobe)`);
   }
 }
+/* ★★[MEAS_CARRY 2026-09-14] wav 가 없는 곳에서도 «글만 바뀐» 판을 다시 뽑을 수 있게 한다.
+   ★무엇에 막혔나 — 이 화면의 「의심 표시」는 manifest 의 문장과 겹치는지를 본다(flagOf 의 첫 줄).
+     그래서 대장 문구를 열두 개 고치자 18 → 10 으로 바뀌었고, 커밋된 판이 낡았다.
+     그런데 --write 는 _dub_stage 가 없으면 막힌다 — 맞는 판단이다. 다시 뽑으면 실측 186개가 지워진다.
+     결과: **글을 고친 사람은 그 판을 영영 못 고친다.** 게이트가 붉은 채로 남고, 붉은 게이트는 읽히지 않는다.
+   ★그래서 지우는 대신 **옮겨 싣는다.** 커밋된 판에서 자리마다의 실측을 꺼내 그대로 쓴다.
+     ★자리 번호로만 옮기면 문장이 한 줄 밀렸을 때 «남의 실측»을 입는다 — 가장 조용한 실패다.
+       그래서 **그 자리의 글이 한 글자까지 같을 때만** 옮긴다. 다르면 그 자리는 실측 없이 둔다.
+   ★새로 재는 것이 아니다. 재려면 wav 가 있어야 하고, 그건 여전히 wav 가진 곳의 몫이다. */
+let CARRIED = 0;
+if (!Object.keys(meas).length && fs.existsSync(OUT)) {
+  try {
+    const h = fs.readFileSync(OUT, 'utf8');
+    const a = h.indexOf('var D = ');
+    const st = h.indexOf('{', a); let dep = 0, j = st;
+    for (; j < h.length; j++) { const ch = h[j];
+      if (ch === '{') dep++; else if (ch === '}') { dep--; if (!dep) { j++; break; } } }
+    const old = JSON.parse(h.slice(st, j));
+    let skew = 0;
+    (old.clips || []).forEach((c) => (c.n || []).forEach((x) => {
+      if (!x || x.m == null) return;
+      if (String(sents[x.i] || '').trim() !== String(x.t || '').trim()) { skew++; return; }
+      meas[x.i] = x.m; CARRIED++;
+    }));
+    if (CARRIED) console.log(`실측 ${CARRIED}개 (커밋된 판에서 옮겨 실음 · 다시 잰 것이 아니다`
+      + `${skew ? ` · 글이 달라 못 옮긴 자리 ${skew}개` : ''})`);
+  } catch (e) { console.log('  · 커밋된 판에서 실측을 못 꺼냈다 — ' + e.message); }
+}
 
 /* ── 우선 청취 표시 — 기계가 「여기부터 들어 보라」고 짚어 준다 ────────────────
    ★[COMPARE_OLD 2026-08-15] 1차 자는 음절수 대비 속도(402음절/분)만 봤고, 그게 오해를 낳았다.
@@ -210,7 +238,7 @@ const html = `<!doctype html>
   ★내부용. 어디에서도 링크하지 않는다.
 -->
 <style>
-:root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#75705F;
+:root{--bg:#FAFAF8;--bg2:#F5F3EF;--bg3:#EDEBE6;--text:#1C1B19;--sub:#5A554C;--light:#6E6959;
 --border:#DDD8D1;--gold:#B89A75;--gold-text:#7A5F37;--seal:#6B2A24;--green:#3B6E4F;
 --serif-ko:'Noto Serif KR',serif;}
 *{box-sizing:border-box}
@@ -452,7 +480,8 @@ if (EMBEDAT && !bad) {
   fs.writeFileSync(EMBEDAT, html);
   console.log(`  썼다: ${EMBEDAT} (${(fs.statSync(EMBEDAT).size / 1048576).toFixed(1)}MB · 소리 포함)`);
 } else if (WRITE && !bad) {
-  if (!MEASURED && fs.existsSync(OUT)) no('실측(_dub_stage)이 없는 곳에서는 --write 를 막는다 — 커밋된 실측치를 지운다');
+  /* [MEAS_CARRY] 옮겨 실은 것이 있으면 지워질 실측이 없다 — 그때는 막지 않는다. */
+  if (!MEASURED && !CARRIED && fs.existsSync(OUT)) no('실측(_dub_stage)이 없는 곳에서는 --write 를 막는다 — 커밋된 실측치를 지운다');
   else { fs.writeFileSync(OUT, html); console.log('  썼다: audio-review-tone.html'); }
 } else if (!WRITE && !EMBEDAT) {
   if (!fs.existsSync(OUT)) no('audio-review-tone.html 이 없다 — --write 로 뽑을 것');

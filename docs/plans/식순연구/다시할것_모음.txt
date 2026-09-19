@@ -1,0 +1,64 @@
+다시 하실 것만 모았습니다 (자동 생성 · 2026-09-13)
+==================================================================
+
+■ 1. 다시 녹음 — 성우별로 파일 하나씩 드렸습니다
+
+  우성     86줄 · 32클립   파일: 다시받기/1_우성.txt
+        07_entry-C  09_entry-E  11_narr-welcome-in  12_narr-welcome-out
+        13_narr-vow-in  14_narr-vow-out  15_narr-ring-in  20_narr-letter-end
+        21_narr-declare-family-intro  25_narr-bless-end-long  26_narr-close  27_letter-parent
+        28_letter-each  29_letter-both  31_declare-2-warm  34_declare-ask-b
+        38_tribute-in  39_tribute-out  40_toast-toast  41_toast-cake
+        42_toast-both  52_narr-entry-out  80_narr-entry-out-C  81_narr-entry-out-D
+        82_narr-entry-out-E  83_narr-entry-out-F  56_narr-toast-out  60_narr-photo-split
+        61_narr-round-open  86_narr-round-mid  65_narr-photo-out  75_fx-selfie
+
+  이겸     44줄 ·  7클립   파일: 다시받기/2_이겸.txt
+        20_entry-C  22_entry-E  06_welcome-groom  08_vow-groom
+        24_vow-both-1  11_letter-each  14_tribute
+        ★20_entry-C · 22_entry-E 은 상대 성우와 «한 클립»입니다 — 둘 다 받아야 조립됩니다
+
+  서진     43줄 ·  8클립   파일: 다시받기/3_서진.txt
+        02_guest-2  04_guest-4  20_entry-C  22_entry-E
+        07_welcome-bride  09_vow-bride  25_vow-both-2  10_letter-parent
+        ★20_entry-C · 22_entry-E 은 상대 성우와 «한 클립»입니다 — 둘 다 받아야 조립됩니다
+
+  김호인    39줄 ·  1클립   파일: 다시받기/4_김호인.txt
+        43_parents-letter
+
+  진희     19줄 ·  6클립   파일: 다시받기/5_진희.txt
+        02_guest-2-10min  04_guest-4-1min  84_narr-photo-ask  44_end-0-photo
+        45_end-1a-farewell  47_end-2-goodbye
+
+  주하     17줄 ·  1클립   파일: 다시받기/6_주하.txt
+        13_bless-mother
+
+  권일     15줄 ·  1클립   파일: 다시받기/7_권일.txt
+        12_bless-father
+
+  규민      7줄 ·  1클립   파일: 다시받기/8_규민.txt
+        15_toast
+
+  합계 270줄 · 57클립
+
+■ 2. 아직 녹음할 수 없는 것 — 성우를 정해 주셔야 합니다
+
+  시어머님  4줄 · 1클립  (27_tribute-reply)
+    목표 음높이 175~195Hz — 주하 157 과 서진 211 사이가 비어 있습니다.
+    이 4줄이 지금 게이트 빨강 3건의 원인입니다.
+      · 서준아.
+      · 그 사진, 엄마가 찍은 거야.
+      · 너 업고 그러고 나서 아버지가 사흘을 앓았다.
+      · 그래도 다음 주에 또 업더라.
+
+■ 3. 결정만 해 주시면 되는 것 (녹음 아님)
+
+  ① 축배 순서 — 하객대표 말을 나레이션의 잔 들기 «앞»으로 옮길지
+     지금: 나레이션이 잔을 들라고 한 뒤 → 하객대표가 말함
+     후보: 하객대표가 말한 뒤 → 나레이션이 잔을 들라고 함 (말이 끝나고 바로 마심)
+     답이 없으시면 지금대로 확정하고 넘어갑니다.
+  ② 예식 뒤 배경음 8~12분 곡
+
+■ 4. 되돌려 넣는 법 — 명령은 제가 지어 뒀습니다
+  다시받기/README.md 아래쪽에 성우별로 그대로 복사해 쓸 명령이 있습니다.
+  파일명은 건드리지 마세요 — 타입캐스트가 붙이는 번호가 되돌리는 열쇠입니다.

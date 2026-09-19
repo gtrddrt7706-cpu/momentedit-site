@@ -34,14 +34,22 @@ G.getCalendar = () => ({
   } : null),
 });
 
+/* ★[SEED_RELATIVE 2026-09-13 점검 · libfaketime 으로 실측] 예식일을 «오늘로부터 며칠 뒤»로 만든다.
+   박아 둔 값은 「올해 열두달 스무삼일」이었고, 그 다음 날 이 검사가 붉어진다 — 제품이 「예식일은 오늘 이후로 선택해 주세요」라며
+   옳게 거절하는데 시드만 멈춰 있어서다. 시계를 돌려 첫 빨강을 이분 탐색으로 확인했다.
+   ★박은 날짜로 되돌리지 말 것. 만료·과거 분기는 아래 ymdShift(-1) 이 따로 본다. */
+const ymdShift = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const WED = ymdShift(98);   // 예식일 — 늘 D-98
+/* 화면이 부르는 이름 — 「YYYY.M.D(요일)」. 요일까지 들어가서 날짜만 바꾸면 어긋난다(실측: 2026.12.20(일) 을 박아 뒀었다). */
+const WEDLABEL = (() => { const d = new Date(WED + 'T00:00:00'); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}(${'일월화수목금토'[d.getDay()]})`; })();
 let C = null, B = null;
 function seed(stage) {
   CAL.title = '[예식확정] 희준·미쿠 · 12:20'; CAL.deleted = false;
   C = { 개인코드: CODE, 신랑이름: '희준', 신부이름: '미쿠', 연락처: '010-0000-0000', 이메일: 't@e.com',
     상품타입: '시그니처', 현재단계: stage || '입금완료', 계약상태: '서명완료', 계약서명일시: NOW, 계약서발송일시: NOW,
-    계약총액: 2500000, 예식일: '2026-12-20', 입금상태: '확인',
-    동의기록: JSON.stringify({ 계약: { at: NOW }, 계약정보: { weddingDate: '2026-12-20', weddingTime: '12:20' },
-      가예약: { date: '2026-12-20', slot: '12:20', status: '계약전환', eventId: 'evt123' } }), 처리이력: '' };
+    계약총액: 2500000, 예식일: WED, 입금상태: '확인',
+    동의기록: JSON.stringify({ 계약: { at: NOW }, 계약정보: { weddingDate: WED, weddingTime: '12:20' },
+      가예약: { date: WED, slot: '12:20', status: '계약전환', eventId: 'evt123' } }), 처리이력: '' };
   B = { 개인코드: CODE, 상태: '확정', 선택날짜: '2026-09-01', 선택시간: '14:50', 토큰: 'tk' };
 }
 function act(fn) {
@@ -119,14 +127,13 @@ ok(CAL.title.indexOf('[가예약]') === 0, '전제 — 지금 제목은 [가예�
    ★아래 검사들은 되돌림 지점을 «상담완료»로 잡는다 — 계약 요청이 열리는 자리가 거기뿐이라(70_journey 461),
      상담확정으로 내려 놓고 요청하면 제품이 옳게 막는다(CONTRACT_STAGE_GATE). 그건 결함이 아니다. */
 const rec = () => { try { return JSON.parse(C.동의기록 || '{}'); } catch { return {}; } };
-const ymdShift = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 const setExp = (d) => { const rc = rec(); rc.가예약.expires = d; C.동의기록 = JSON.stringify(rc); };
 const qOf = (kind) => { const { r, e } = act((g) => g.adminHome()); if (e) return []; 
   const qq = (r && r.queue) || {}; return ((qq.urgent || []).concat(qq.normal || [])).filter((x) => !kind || x.kind === kind); };
 function seedFull() {   /* 계약정보까지 갖춘 시드 — 재요청·재서명 왕복을 걸어 보려면 필요하다 */
   seed();
   const rc = JSON.parse(C.동의기록);
-  rc.계약정보 = { weddingDate: '2026-12-20', weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02', groomAddr: '서울 1', brideAddr: '서울 2' };
+  rc.계약정보 = { weddingDate: WED, weddingTime: '12:20', groomBirth: '1990-01-01', brideBirth: '1991-02-02', groomAddr: '서울 1', brideAddr: '서울 2' };
   C.동의기록 = JSON.stringify(rc);
 }
 
@@ -158,7 +165,7 @@ console.log('\n═══ ③ 두 분이 같은 날짜로 다시 계약 요청 �
 seedFull(); act(g=>g.adminForceStage(CODE,'상담완료','되돌림'));
 {
   ok(!!rec().가예약,'전제 — 잠금이 걸려 있다',JSON.stringify(rec().가예약));
-  const r=act(g=>g.handleRequestContract({token:'tk',info:{weddingDate:'2026-12-20',weddingTime:'12:20',
+  const r=act(g=>g.handleRequestContract({token:'tk',info:{weddingDate:WED,weddingTime:'12:20',
     groomBirth:'1990-01-01',brideBirth:'1991-02-02',groomAddr:'서울 1',brideAddr:'서울 2',consent:true}}));
   ok(!!(r.r&&r.r.ok),'★같은 날짜로 다시 요청해도 «내» 잠금에 막히지 않는다',r.e||JSON.stringify(r.r).slice(0,150));
 }
@@ -167,7 +174,7 @@ console.log('\n═══ ④ 다른 고객은 그 날짜를 못 잡는가(잠금
 seedFull(); act(g=>g.adminForceStage(CODE,'상담완료','되돌림'));
 {
   const taken=(()=>{const w=world(Object.assign({},C),Object.assign({},B));
-    try{return G._weddingSlotTaken(G.getCustomersSheet(),G.buildHeaderIndex(G.getCustomersSheet()),'2026-12-20','12:20','ME-OTHER');}catch(e){return 'ERR '+e.message;}})();
+    try{return G._weddingSlotTaken(G.getCustomersSheet(),G.buildHeaderIndex(G.getCustomersSheet()),WED,'12:20','ME-OTHER');}catch(e){return 'ERR '+e.message;}})();
   ok(taken===true,'★다른 고객 기준으로는 «찼음»으로 보인다',String(taken));
 }
 
@@ -181,16 +188,16 @@ seedFull(); act(g=>g.adminForceStage(CODE,'상담완료','되돌림'));
 console.log('\n═══ ⑥ 되돌림→재서명 왕복 — 자리가 확정으로 돌아오는가 ═══');
 seedFull(); act(g=>g.adminForceStage(CODE,'상담완료','되돌림'));
 {
-  act(g=>g.handleRequestContract({token:'tk',info:{weddingDate:'2026-12-20',weddingTime:'12:20',
+  act(g=>g.handleRequestContract({token:'tk',info:{weddingDate:WED,weddingTime:'12:20',
     groomBirth:'1990-01-01',brideBirth:'1991-02-02',groomAddr:'서울 1',brideAddr:'서울 2',consent:true}}));
-  const s=act(g=>g.adminSendContract(CODE,'https://momentedit.kr/contract/v1-1.html',2500000,'2026-12-20','12:20'));
+  const s=act(g=>g.adminSendContract(CODE,'https://momentedit.kr/contract/v1-1.html',2500000,WED,'12:20'));
   ok(!!(s.r&&s.r.ok),'계약서 재발송',s.e||JSON.stringify(s.r).slice(0,120));
   const g2=act(g=>g.handleSignContract({token:'tk',signature:'data:image/png;base64,AAA',agree:true}));
   ok(!!(g2.r&&g2.r.ok),'재서명',g2.e||JSON.stringify(g2.r).slice(0,120));
   const h=rec().가예약||{};
   ok(h.status==='계약전환','★잠금이 다시 «계약전환»(확정)으로 돌아온다',JSON.stringify(h));
   const occ=G._weddingOccupancy(C.예식일,C.계약상태,C.현재단계,C.동의기록);
-  ok(!!occ&&occ.date==='2026-12-20'&&occ.slot==='12:20','확정 점유로 복귀',JSON.stringify(occ));
+  ok(!!occ&&occ.date===WED&&occ.slot==='12:20','확정 점유로 복귀',JSON.stringify(occ));
 }
 
 console.log('\n═══ ⑦ 이중 실행(연타) — 같은 되돌림을 두 번 눌러도 안전한가 ═══');
@@ -202,7 +209,7 @@ seed();
   ok(!!(b.r&&(b.r.ok||b.r.noop)),'두 번째도 오류 없이 처리',JSON.stringify(b.r).slice(0,110));
   const h2=JSON.stringify(rec().가예약);
   ok(!!rec().가예약,'잠금이 사라지지 않는다',h2);
-  ok(rec().가예약.date==='2026-12-20'&&rec().가예약.slot==='12:20','날짜·슬롯이 그대로',h2);
+  ok(rec().가예약.date===WED&&rec().가예약.slot==='12:20','날짜·슬롯이 그대로',h2);
 }
 
 console.log('\n═══ [만료] 갓 잠갔을 때(14일 남음) — 아직 안 띄운다 ═══');
@@ -215,7 +222,7 @@ setExp(ymdShift(2));
   const items=qOf('자리만료');
   ok(items.length===1,'★「자리만료」 1건이 뜬다',JSON.stringify(items.map(x=>x.sub)));
   if(items.length){
-    ok(/2026\.12\.20\(일\)/.test(items[0].sub),'어느 날짜인지 이름을 부른다',items[0].sub);
+    ok(items[0].sub.indexOf(WEDLABEL)!==-1,'어느 날짜인지 이름을 부른다',items[0].sub+' | 기대 '+WEDLABEL);
     ok(!/\d{4}-\d{2}-\d{2}/.test(items[0].sub),'★한 문장 안에서 날짜 표기를 섞지 않는다(전부 2026.8.20(수) 꼴)',items[0].sub);
     ok(/계약서를 다시 보내/.test(items[0].sub),'다음 행동이 문장에 있다',items[0].sub);
     ok(items[0].badge&&items[0].badge.level==='red','D-2 는 빨강',JSON.stringify(items[0].badge));
@@ -243,7 +250,7 @@ console.log('\n═══ 다시 계약이 서명되면 사라진다 ═══');
 console.log('\n═══ 평범한 계약요청 홀드는 안 띄운다(큐 소음 방지) ═══');
 seed(); C.현재단계='상담완료'; C.계약상태='';
 {
-  const rc=JSON.parse(C.동의기록); rc.가예약={date:'2026-12-20',slot:'12:20',status:'승인',source:'계약요청',expires:ymdShift(2)};
+  const rc=JSON.parse(C.동의기록); rc.가예약={date:WED,slot:'12:20',status:'승인',source:'계약요청',expires:ymdShift(2)};
   C.동의기록=JSON.stringify(rc);
   ok(qOf('자리만료').length===0,'★source 가 계약요청이면 이 큐에 안 뜬다(계약발송 큐가 이미 몬다)',JSON.stringify(qOf('자리만료').map(x=>x.sub)));
 }

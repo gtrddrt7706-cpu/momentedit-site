@@ -43,8 +43,10 @@ export async function launchBrowser() {
       return {
         kind: 'playwright',
         close: () => browser.close(),
-        async newPage({ port, gasBody = '{"ok":true}', viewport = { width: 414, height: 900 } } = {}) {
-          const page = await browser.newPage({ viewport });
+        /* [SHOT_DPR] deviceScaleFactor 를 넘길 수 있게 — 홍보용 캡처는 2배로 찍어야 폰 목업에서 안 뭉갠다.
+           기본값(undefined)이면 종전과 완전히 같다 — 기존 감사들의 렌더는 1픽셀도 안 바뀐다. */
+        async newPage({ port, gasBody = '{"ok":true}', viewport = { width: 414, height: 900 }, deviceScaleFactor } = {}) {
+          const page = await browser.newPage(deviceScaleFactor ? { viewport, deviceScaleFactor } : { viewport });
           const errors = [];
           page.on('pageerror', (e) => errors.push(String(e && e.message || e)));
           page.on('console', (m) => { if (m.type() === 'error') errors.push('console.error: ' + m.text()); });

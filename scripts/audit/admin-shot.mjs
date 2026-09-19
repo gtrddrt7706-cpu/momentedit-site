@@ -101,7 +101,7 @@ async function main() {
 
   const eng = await launchBrowser();
   if (!eng) { console.log('브라우저 엔진 없음 — 건너뜀'); return; }
-  const { page, errors } = await eng.newPage({ port: PORT, viewport: { width: 420, height: 1000 } });
+  const { page, errors } = await eng.newPage({ port: PORT, viewport: { width: Number(process.env.VW||420), height: 1000 } });
 
   // 고정 gasBody 대신 요청별 라우팅으로 덮어쓴다(진짜 서버 로직 연결)
   await page.route('**script.google.com**', async (route) => {

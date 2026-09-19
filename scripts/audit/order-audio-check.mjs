@@ -16,6 +16,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { launchBrowser } from './_browser.mjs';
+import { freePort } from './_freeport.mjs';
 import { createRequire as _cr } from 'node:module';
 /* [RETIRED_SILENT] 폐지 목록은 **원천에서 읽는다** — 여기에 손으로 적으면 다음 폐지 때 또 어긋난다. */
 const ENGINE_RETIRED = (() => {
@@ -24,7 +25,9 @@ const ENGINE_RETIRED = (() => {
 })();
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '../..');
-const PORT = 8233;
+const PORT = await freePort();   // [FREE_PORT_5 2026-09-06] 포트를 리터럴(8233)로 박아 두면
+//   앞 실행이 죽어 소켓을 물고 있을 때 화면은 멀쩡한데 감사만 붉는다(실측 2건 · img-webp/orphan-copy).
+//   커널에서 빈 포트를 받아 쓴다 — 리터럴로 되돌리지 말 것(_freeport.mjs 주석 참조).
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mp3': 'audio/mpeg',
   '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 
@@ -36,7 +39,7 @@ const server = http.createServer((req, res) => {
   // mp3는 헤더만 보내도 충분하다 — 이 검사가 보는 건 「무엇을 요청했는가」지 소리가 아니다(★나는 소리를 못 듣는다)
   res.end(path.extname(f) === '.mp3' ? fs.readFileSync(f).subarray(0, 2048) : fs.readFileSync(f));
 });
-await new Promise((r) => server.listen(PORT, r));
+await new Promise((r, j) => { server.on('error', j); server.listen(PORT, r); });
 
 const eng = await launchBrowser();
 if (!eng) { console.log('브라우저 없음 — 건너뜀'); server.close(); process.exit(0); }

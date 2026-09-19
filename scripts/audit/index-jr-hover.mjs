@@ -37,6 +37,18 @@ const fail = (m) => { console.log(`  ✗ ${m}`); bad++; };
 const { page } = await br.newPage({ port: PORT, viewport: { width: 1280, height: 900 } });
 await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForSelector('.jr-showcase .jr-step', { timeout: 15000 });
+
+/* ★[JR_HOVER_SETTLE 2026-09-06] 이 검사가 «4번을 짚었는데 3번이 켜진다»로 간헐 실패했다(3회 중 2회).
+   화면 결함이 아니라 재는 쪽 사정이다 — index.html 은 html{scroll-behavior:smooth}(423행)이고,
+   playwright 의 hover 는 요소를 화면에 넣으려고 스크롤한다. 그 스크롤이 **애니메이션 중**인데
+   220ms 뒤 다음 칸의 좌표를 계산하니 마우스가 이웃 칸에 떨어졌다(실측: 첫 hover 로 815px 이동).
+   ★이 저장소가 이미 아는 함정이다(index.html 7270행 주석 «html{scroll-behavior:smooth} 때문에»).
+   ★해법: 목록을 먼저 한가운데 놓고, 스크롤 애니메이션을 끈다. 페이지 자신도 reduced-motion 이면
+     같은 값(scroll-behavior:auto)으로 돈다(index.html 3332행) — 없는 모드를 만들어 재는 게 아니다.
+   ★진짜 사용자는 이웃 칸으로 마우스를 옮길 때 페이지가 스크롤되지 않는다. 그래서 이건 오탐이었다. */
+await page.addStyleTag({ content: 'html{scroll-behavior:auto !important}' });
+await page.evaluate(() => document.querySelector('.jr-showcase').scrollIntoView({ block: 'center' }));
+await page.waitForTimeout(500);
 await page.evaluate(() => document.querySelector('.jr-showcase').scrollIntoView({ block: 'center' }));
 await page.waitForTimeout(900);
 

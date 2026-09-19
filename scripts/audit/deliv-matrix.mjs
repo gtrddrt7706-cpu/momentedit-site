@@ -75,7 +75,7 @@ try {
           if (cardTxt.indexOf(expCard) < 0) probs.push('대기 카드 제목 누락: "' + expCard + '"');
         }
         if (c.rs === '원본전달' && nowHead !== '원본이 도착했어요') probs.push('NOW "' + nowHead + '"');
-        if (c.rs === '전달완료' && !svDone && nowHead !== '마지막으로 후기를 들려주세요') probs.push('NOW "' + nowHead + '"');
+        if (c.rs === '전달완료' && !svDone && nowHead !== '마지막으로 후기를 들려 주세요') probs.push('NOW "' + nowHead + '"');
         if (c.rs === '전달완료' && svDone && nowHead !== '모든 순간이 마무리됐어요') probs.push('NOW "' + nowHead + '"');
         out.push({ label: c.product.slice(0, 2) + '/' + c.stage + '/' + c.rs + (c.sv ? '/설문완료' : ''), probs: probs });
       } catch (e) {

@@ -206,6 +206,38 @@ function nextActionFor(product, stage) {
 var DEPLOY_STAMP_KEY = 'DEPLOY_CODE_FINGERPRINT';
 var DEPLOY_STAMP_FNS = ['doPost', 'handleSaveProductionTrack', 'adminSendContract', '_refundQuote', 'handleGetMyState'];
 
+/* ★★[FP_BROAD 2026-09-06 관리자 입장 점검] 표본 5개만으로는 «그 5개 밖»의 변경을 못 본다.
+   실제로 났다 — adminHome 을 고쳐 배포했는데 지문이 변경 전후 똑같아서(둘 다 1lzcle2)
+   ④ 가 «배포본이 지금 저장된 코드와 같다»를 그대로 말했다. 재배포를 했든 «안 했든» 같은 답이라,
+   재배포 누락을 잡으라고 만든 검사가 바로 그 순간에 침묵했다. CLAUDE.md 가 기록한 «조용한 초록»의 재발이다.
+   그래서 전역 함수 전체의 «이름:소스길이» 서명을 지문에 함께 넣는다.
+   ★내용 해시가 아니라 «길이»인 이유 — 여기는 매 요청마다 도는 자리다. 678KB(함수 590개)를
+     문자 단위로 훑을 순 없다. toString 은 이미 파싱된 소스의 조각이라 590개를 훑어도 가볍다(실측 2ms).
+     길이가 같은 편집은 이 서명이 놓치지만, 가장 뜨거운 5개는 종전대로 «내용»까지 해시하므로 이중으로 막힌다.
+   ★열거가 안 되는 런타임이면 빈 문자열을 돌려주고 종전과 똑같이 동작한다 — 새 실패를 만들지 않는다.
+   ★반환 앞머리에 함수 개수를 붙인다(예: '590#1a2b3c'). deployCheck 가 그 수를 찍어,
+     «서명이 실제로 작동하는지»를 사람이 눈으로 확인할 수 있게 하기 위해서다(0 이면 열거 실패). */
+function _dsGlobalScope() {
+  try { if (typeof globalThis !== 'undefined' && globalThis) return globalThis; } catch (e) {}
+  try { return (function () { return this; })() || null; } catch (e) { return null; }
+}
+function _dsGlobalSig() {
+  var g = _dsGlobalScope();
+  if (!g) return '';
+  var names = [];
+  try { for (var k in g) { try { if (typeof g[k] === 'function') names.push(k); } catch (e2) {} } }
+  catch (e) { return ''; }
+  if (!names.length) return '';
+  names.sort();
+  var parts = [];
+  for (var i = 0; i < names.length; i++) {
+    var L = -1;
+    try { L = String(g[names[i]]).length; } catch (e3) { L = -1; }
+    parts.push(names[i] + ':' + L);
+  }
+  return names.length + '#' + _dsHash(parts.join('|'));
+}
+
 function deployFingerprint() {
   var parts = [];
   for (var i = 0; i < DEPLOY_STAMP_FNS.length; i++) {
@@ -214,6 +246,7 @@ function deployFingerprint() {
     catch (e) { src = ''; }
     parts.push(DEPLOY_STAMP_FNS[i] + ':' + src.length + ':' + _dsHash(src));
   }
+  parts.push('*global*:' + _dsGlobalSig());   // [FP_BROAD] 표본 밖 변경도 지문에 들어온다
   return _dsHash(parts.join('|'));
 }
 

@@ -7,7 +7,12 @@
 <title>청첩장 미리보기 · Moment Edit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- ★★[FONT_ASYNC 2026-09-12] 동기 <link> 였다. 폰트 요청이 «실패»가 아니라 «무응답»이 되면
+     그 뒤 인라인 스크립트가 통째로 안 돌아간다(실측: 18초 뒤에도 readyState=loading · 화면은 백지).
+     예식장 캡티브 포털·지하 4G·하객 동시 접속은 즉시 실패가 아니라 «무응답»으로 나타난다.
+     ★order-preview.html·index.html 이 이미 쓰는 패턴이다 — media=print → onload 로 렌더 블로킹에서 뺀다.
+     ★브랜드 세리프는 그대로다. 로드 «시점»만 바꿨다. 폰트가 아예 안 와도 화면은 읽힌다. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 /* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
 html,body{scrollbar-width:none;-ms-overflow-style:none}
@@ -27,7 +32,9 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   .pv-frame{width:100%;max-width:430px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border);
     box-shadow:0 2px 6px rgba(28,27,25,.05),0 18px 50px rgba(28,27,25,.16)}
   .pv-frame img{display:block;width:100%;height:auto}
-  .pv-skel{min-height:60vh;display:flex;align-items:center;justify-content:center;color:var(--gold);
+  /* ★[SKEL_CONTRAST 2026-09-12] --gold(#B89A75)는 흰 프레임 위 2.65:1 이다. 이 글자는 이미지가 뜨기 전
+     «화면의 유일한 글자»라 여기가 제일 읽혀야 한다. 글자에 쓰는 금색은 --gold-text 다. */
+  .pv-skel{min-height:60vh;display:flex;align-items:center;justify-content:center;color:var(--gold-text,#7A5F37);
     font-family:var(--serif);font-style:italic;letter-spacing:.2em;font-size:13px;background:var(--bg2)}
   .pv-err{font-family:var(--serif-ko);font-size:13px;color:var(--sub);padding:60px 24px;text-align:center;line-height:1.8}
   .pv-foot{margin-top:18px;font-family:var(--serif-ko);font-size:11.5px;color:var(--gold-deep);text-align:center;line-height:1.7;letter-spacing:.01em}

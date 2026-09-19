@@ -35,7 +35,15 @@ if (!(await serverRooted()).ok) {
       res.end(fs.readFileSync(f));
     } else { res.statusCode = 404; res.end('nf'); }
   });
-  await new Promise((r, j) => { srv.on('error', j); srv.listen(PORT, '127.0.0.1', r); }).catch(() => { srv = null; });
+  /* ★[FREE_PORT_5 2026-09-06] 포트가 물려 있으면 «못 봤다»고 말하고 비켜선다.
+     종전엔 이 자리에서 실패를 삼키고(srv=null) 그대로 진행해, 서버가 없는 채 goto 가 30초 뒤
+     스택으로 죽었다 → merge-guard 가 FAIL(빨강)로 읽었다. 화면은 멀쩡한데 감사만 붉는 그 길이다.
+     이 감사는 :8895 공용 서버를 «공유»하는 쪽이라 freePort 를 쓰지 않는다(_freeport.mjs 주석). */
+  await new Promise((r, j) => { srv.on('error', j); srv.listen(PORT, '127.0.0.1', r); })
+    .catch((e) => {
+      console.log('· 못 봄(포트 :' + PORT + ' 가 이미 물려 있다 · ' + String(e && e.code || e).slice(0, 30) + ') — 이 자리에선 재지 않는다.');
+      process.exit(2);
+    });
 }
 const stopSrv = () => { if (srv) try { srv.close(); } catch { /* 이미 닫힘 */ } };
 

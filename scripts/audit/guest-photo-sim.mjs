@@ -26,9 +26,16 @@ const helper = [constLine, grab('_guideExpired'), grab('_guideCloseInfo')].join(
 if (!/\_guideCloseInfo/.test(helper) || !/_guideExpired/.test(helper)) { console.error('✗ 만료 헬퍼를 찾지 못했다 — 이름이 바뀌었나?'); process.exit(1); }
 const code = helper + '\n' + src.slice(from, to);
 
+/* ★[SEED_RELATIVE 2026-09-13 점검 · 시계를 돌려 실측] 예식일을 «오늘에서 며칠 전»으로 만든다 — 박아 두면 검사가 달력 때문에 죽는다.
+   이 시뮬은 sandbox 의 _guideExpired 스텁을 쓰지 않는다. 위 helper 가 80_production.gs 의 «진짜» _guideExpired 를
+   통째로 떼어 와 앞에 붙이고, 함수 선언이 같은 이름의 인자를 가린다. 그래서 GUIDE_EXPIRE_DAYS(30)가 실제 시계로 돈다.
+   실측: 박아 둔 예식일이 2026-09-05 였고 +30일이면 닫힌다 → libfaketime 이분 탐색으로 2026-10-06 부터
+   이 검사가 붉어지는 것을 확인했다(게이트가 돌리는 검사다 = 그날부터 모든 PR 이 막힌다).
+   ★박은 날짜로 되돌리지 말 것. 만료 경로는 아래 reset({ 예식일:'2020-01-01' }) 가 따로 본다. */
+const dAgo = (n) => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 let created = [], written = [];
 const mk = (over={}) => {
-  const row = { 안내공유토큰:'G1234567890abcd', 개인코드:'ME-0001', 예식일:'2026-09-05',
+  const row = { 안내공유토큰:'G1234567890abcd', 개인코드:'ME-0001', 예식일: dAgo(3),
                 하객사진수:0, 하객사진MB:0, 하객사진폴더ID:'', ...over };
   return { num: 7, get: h => (h in row ? row[h] : ''), _row: row };
 };

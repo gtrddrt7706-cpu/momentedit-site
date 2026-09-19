@@ -283,7 +283,13 @@ for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽�
 
 console.log(fail ? '[STORY_COVER] FAIL' : `[STORY_COVER] ok — 블록 ${seenBlock.size}/${seenBlock.size} · 사람 구간 ${seenLive.size}/${seenLive.size} 커버${warn ? ` (경고 ${warn})` : ''}`);
 if (fail) process.exit(1);
-if (CHECK_ONLY) process.exit(0);
+/* ★★[STORY_STALE 2026-09-13] --check 가 커버리지만 보고 여기서 나가던 자리다.
+   그래서 «원천(ritual-data·cue·story)은 바뀌었는데 md 는 옛 판»인 상태가 게이트를 그냥 통과했다.
+   실측: 낡은 md 로도 --check 종료 0 이었고, 실제로 여섯 편이 전부 뒤처져 있었다
+   (안내 음성 문안·길이 표기가 달랐다). 저널 「대본 ↔ 음원」과 같은 종류의 구멍이다.
+   이제 --check 는 나가지 않고 아래까지 내려가, 파일을 쓰는 대신 «지금 내용과 대조»한다.
+   ★되돌리지 말 것 — 되돌리면 문서 드리프트가 다시 조용해진다. */
+const STALE = [];
 
 // ── 3. 코스별 장면 대본 md 생성
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
@@ -368,7 +374,29 @@ for (const [course, cv] of Object.entries(D.COURSES)) {
   o.push('', '---', '', `*생성: \`node scripts/build-course-story.mjs\` · 장면 지문 ${Object.keys(ST.LIVE).length}종 중 이 코스가 쓰는 것 ${cues.filter(c => c.live).length}종*`, '');
 
   const fn = path.join(OUT_DIR, `장면대본_${L ? '코스' + L + '_' : ''}${cv.nm}.md`);
-  fs.writeFileSync(fn, o.join('\n'), 'utf8');
-  written.push(`${path.basename(fn)}  (${o.join('\n').length.toLocaleString()}자 · 큐 ${meta.total})`);
+  const body = o.join('\n');
+  if (CHECK_ONLY) {
+    // [STORY_STALE] 쓰지 않고 대조만 한다 — 낡았으면 어느 파일이 어디서부터 다른지 말한다
+    let cur = null;
+    try { cur = fs.readFileSync(fn, 'utf8'); } catch { cur = null; }
+    if (cur === null) STALE.push(`${path.basename(fn)} — 파일이 없다`);
+    else if (cur !== body) {
+      const a = cur.split('\n'), b = body.split('\n');
+      let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++;
+      STALE.push(`${path.basename(fn)} — ${i + 1}번째 줄부터 다르다\n      문서: ${String(a[i] ?? '(끝)').slice(0, 78)}\n      원천: ${String(b[i] ?? '(끝)').slice(0, 78)}`);
+    }
+    continue;
+  }
+  fs.writeFileSync(fn, body, 'utf8');
+  written.push(`${path.basename(fn)}  (${body.length.toLocaleString()}자 · 큐 ${meta.total})`);
+}
+if (CHECK_ONLY) {
+  if (STALE.length) {
+    console.error('[STORY_STALE] FAIL — 장면 대본이 원천보다 낡았다. `node scripts/build-course-story.mjs` 로 다시 쓸 것:');
+    for (const x of STALE) console.error('  · ' + x);
+    process.exit(1);
+  }
+  console.log('[STORY_STALE] ok — 장면 대본 6편이 원천과 같다');
+  process.exit(0);
 }
 console.log('[STORY_COVER] 생성:\n  ' + written.join('\n  '));

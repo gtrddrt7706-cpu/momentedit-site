@@ -1097,7 +1097,91 @@ chk 'LABEL_KO_TRACK' index.html 1              # 섹션 라벨 22% 자간이 한
 chk 'll-ko' index.html 18                     # 라벨 17개 한글 꼬리 span + CSS 규칙 1 = 18 (span 제거 시 자간 원복)
 chk 'HOME_GOLD_TEXT' index.html 2               # 글자용 골드를 --gold-text(#7a5f37)로 분리 — 2.54:1→5.71:1. 장식 선·아이콘용 --gold 복원 금지
 chk 'gold-text' index.html 3                    # 변수 정의 1 + 사용 2 + 주석 1
+# ★[SKIP_LINK 2026-09-06] 키보드로 오면 본문 전에 상단 링크 9개를 지나야 했다(WCAG 2.4.1 Level A).
+#   평소엔 화면 밖(top:-80px)에 있다가 Tab 을 처음 눌렀을 때만 좌상단에 나타난다.
+#   ★clip/left:-9999px 로 숨기는 판으로 «정리»하지 말 것 — 포커스가 가도 안 보여 아무 소용이 없다.
+chk 'SKIP_LINK' index.html 1
+chk 'skip-link' index.html 3                     # CSS 규칙 1 + :focus 1 + body 첫 줄 앵커 1
+chk 'main id="main" tabindex="-1"' index.html 1   # 건너뛰기 링크의 착지점 — id·tabindex 둘 다 있어야 포커스가 옮겨간다
+# ★★[MAIN_LANDMARK 2026-09-06] 짝 없는 </div> 하나가 파서로 하여금 <main> 을 일찍 닫게 만들어
+#   다섯 섹션(가격·마이페이지·디렉터·FAQ·RSVP)이 본문 밖으로 밀려나 있었다. 화면은 멀쩡해 보여
+#   오래 안 보였다 — 랜드마크로 훑는 사람에게만 반쪽이었다. 실제 판정은 home-a11y.mjs 가 한다.
+chk 'MAIN_LANDMARK' index.html 1
+chk 'MAIN_LANDMARK' scripts/audit/home-a11y.mjs 1
+# ★★[SMALL_CTRL_REACH 2026-09-06 사용자 "Nº 01 옆에 붙음 으로 하는건어때?"]
+#   폭 44px 이하 컨트롤이 고정 레일에 덮이면 붉는다. 넓은 것은 안 본다 — 오른쪽 몇 px 은
+#   사용자가 「그대로 유지」로 판단한 자리이고 남은 면적이 충분하다. 작은 것만 기능이 상한다.
+#   ★A11Y_SETTLE 을 지우지 말 것 — 요소마다 기다렸다 재지 않으면 레일이 전환 중 좌표로 잡혀
+#     7px 겹침이 통째로 사라진다. 초안이 그래서 옛 배치를 못 잡았다(반증으로 확인).
+chk 'SMALL_CTRL_REACH' scripts/audit/home-a11y.mjs 1
+chk 'A11Y_SETTLE' scripts/audit/home-a11y.mjs 1
+chk 'LISTEN_BESIDE_NUM' index.html 1     # 재생 버튼을 다시 오른쪽 끝으로 되돌리지 않게
+# ★[LISTEN_ROW_WEIGHT 2026-09-06 사용자 "플레이버튼 위치가 조금이상하다"]
+#   원을 26 → 20px 로 줄였다. 메타줄에서 유일한 기하 도형이라 11px 라벨보다 세 배 굵어
+#   제목보다 먼저 눈에 들어왔다(카드 위계 역전). 20px 은 메타줄 높이(20.3px)보다 작아
+#   음수 마진 없이도 줄을 안 민다 — META_ROW_KEEP 의 보정이 «크기»로 해소된 자리다.
+chk 'LISTEN_ROW_WEIGHT' index.html 1
+chk 'flex: 0 0 20px' index.html 1        # 원을 되키우려면 META_ROW_KEEP 음수 마진도 함께 되살릴 것
+nochk 'margin: -3px 0 -3px auto' index.html
+# ★★[OPEN_TIMING 2026-09-06 사용자 지시 "적절하게 올린다"]
+#   「2027년 하반기 정식 오픈」이 FAQ 아코디언 안, 그것도 «얼마나 전에 예약해야 하나요?» 라는
+#   **다른 질문의 답** 끝에만 있었다(y≈21,000). 위에서부터 읽는 고객은 그 전에
+#   「방문 상담 예약」·「상담 예약금 100,000원」을 만나 «지금 갈 수 있는 스튜디오»로 읽고,
+#   맨 아래 「(정확한 주소 확정 예정)」을 «준비 중»이 아니라 «미완성»으로 읽었다.
+#   ★소개 섹션(y≈3,600)의 한 줄을 지우지 말 것 — 지우면 그 오독이 그대로 돌아온다.
+chk 'OPEN_TIMING' index.html 1
+chk '2027년 하반기 정식 오픈을 앞두고' index.html 1
+chk '도로명 주소는 확정되면 안내드립니다' index.html 1
+# ★[HONOR_BASIS 2026-09-06 사용자 답변 "계약기준"] 「2027 상반기 한정」이 「2027년 하반기 오픈」과
+#   어긋나 보였다(하반기에 여는데 상반기 한정이면 예식을 못 한다). 기준이 «계약»임을 한 단어로 밝힌다.
+#   ★「계약」을 빼면 예식일 기준으로 읽혀 다시 모순이 된다.
+chk '2027 상반기 계약 한정' index.html 1
 chk 'HOME_TAP40' index.html 1                   # 텍스트 링크 히트영역 ::before (규칙 블록)
+# ★★[FOLD_319 2026-09-06 사용자 "추천대로"] 320px 미만에서만 도는 블록.
+#   280px 에서 가로로 12px, 300px 에서 2px 이 샜다(갤럭시 폴드 커버 화면 정도).
+#   넘치던 것: .hero-logo-wordmark(305px 고정·nowrap) · .jr-phone(266px 고정).
+#   ★320px 부터는 원래 0px 이었다 — iPhone SE 포함 주류 폰은 전부 안전했다.
+#   ★«320px 미만»으로 가둔 이유: 히어로 워드마크 자간은 디자인 규칙이 «건드리지 말 것·브랜드
+#     시그니처»로 못박은 자리다(momentedit-design/SKILL.md 234행). 이미 깨져 있는 폭에서만 손댄다.
+#   ★실측 고정: 320·360·390·768·1280px 은 문서 높이·섹션 좌표 11곳·요소 크기가 전부 동일(1px 무변경).
+#     이 블록의 max-width 를 320 이상으로 올리면 그 약속이 깨진다.
+chk 'FOLD_319' index.html 1
+# ★★[DESIGN_AUTHORITY 2026-09-06 사용자 결정] 디자인 스킬 8개가 우선순위 없이 부딪히고 있었다.
+#   momentedit-design 을 최우선 권위로 못 박았다 — SKILL.md 머리 + CLAUDE.md 두 곳.
+#   ★한쪽만 남으면 «어느 쪽을 먼저 읽었나»에 따라 판단이 갈린다. 둘 다 유지할 것.
+chk 'DESIGN_AUTHORITY' CLAUDE.md 1
+chk '이 문서가 디자인 판단의 최종 권위다' .claude/skills/momentedit-design/SKILL.md 1
+chk '행번호를 믿지 말 것' .claude/skills/momentedit-design/SKILL.md 1
+# ★[SEC_TITLE_DEVICE 2026-09-06 코워크 합의] 「index 27px vs inquiry 17px 이라 위계가 약하다」는
+#   같은 날 두 번 제안됐다가 두 번 철회됐다. inquiry 는 선으로, index 는 크기로 섹션을 가른다.
+#   결론을 프로토콜이 아니라 «권위 문서»에 둔다 — 프로토콜에만 두면 다음 라운드에 또 올라온다.
+chk 'SEC_TITLE_DEVICE' .claude/skills/momentedit-design/SKILL.md 1
+chk '두 번 제안됐다가 두 번 철회됐다' .claude/skills/momentedit-design/SKILL.md 1
+# ★★[LIGHT_SYNC 2026-09-06 사용자 결정 "11개를 #6E6959 로"] --light 가 3개 페이지(index·inquiry·mypage)만
+#   새 값이고 나머지 11개는 옛값(#75705F)으로 갈려 있었다. 대비가 4.74→5.25:1 로 오른다.
+#   ★admin.html 은 동기화 대상이 아니다(momentedit-design) · contract/ 는 법률 문서라 손대지 않는다.
+#   ★audio-review-tone.html 은 생성물이라 scripts/build-listen-tone.mjs 와 «짝으로» 고쳤다 —
+#     한쪽만 고치면 그 생성기의 자가대조가 붉는다(실측: 양방향 모두 잡힌다).
+for _f in index.html inquiry.html mypage.html guide.html live.html schedule.html order-preview.html \
+          seat.html cancel.html privacy.html invitation-gallery.html audio-review.html \
+          audio-review-tone.html $(ls listen-*.html 2>/dev/null); do
+  nochk '\-\-light:#75705F' "$_f"
+done
+# ★★[PLATE_ONE 2026-09-14] 실청판(listen-*.html)은 **저장소에 하나만** 둔다.
+#   ★판 이름에는 내용 지문이 박힌다(LISTEN_KEY_STAMP) — 글이나 소리가 바뀌면 새 이름으로 나온다.
+#     그런데 --web 판은 소리를 «주소»로 부른다. 즉 **옛 판을 열어도 새 소리가 난다.**
+#     옛 판에 적힌 옛 글 + 새 소리 = 화면과 소리가 다른 자리다. 이 저장소가 계속 싸워 온 그 병이다.
+#   ★그래서 새 판을 낼 때 옛 판을 «지운다». 남겨 두면 링크가 살아 있어 누군가 그걸 연다.
+#   ★위 --light 목록도 이름을 박지 않고 glob 으로 받는다 — 박아 두면 판 이름이 바뀔 때마다 게이트가 거짓으로 붉는다.
+_plates=$(ls listen-*.html 2>/dev/null | wc -l | tr -d ' ')
+_plate=$(ls listen-*.html 2>/dev/null | head -1)
+if [ "$_plates" = 1 ]; then echo "ok PLATE_ONE: 실청판 1개 ($(ls listen-*.html))"
+else echo "REVERT? PLATE_ONE: 실청판이 ${_plates}개다 — 낡은 판은 지운다(옛 글 + 새 소리로 들린다): $(ls listen-*.html 2>/dev/null | tr '\n' ' ')"; fail=1; fi
+chk '\-\-light:#6E6959' shared/tokens.css 1
+chk 'TOKENS_REF 2026-09-06' shared/tokens.css 1
+chk '\-\-light:#6E6959' scripts/build-listen-tone.mjs 1
+chk '\-\-light:#6E6959' scripts/build-listen-all.mjs 1
+chk 'max-width: 319px' index.html 1
 # [TAP44-3] 두 번째 HOME_TAP40(상담 위젯 닫기 padding 11px 주석)은 13px·44px 로 올리며 TAP44-3 주석으로 바뀜(2026-08-09)
 chk 'TAP44-3' index.html 2                      # 44px 승격 — FAQ 알약 + 위젯 닫기
 chk 'PLUS_Z' order-preview.html 1               # ＋− 버튼이 카드 펼침 덮개 아래 깔리던 실탭 버그 — 목록에서 .mvb 빼면 재발
@@ -1361,13 +1445,26 @@ chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <->
 #     대신 **장면을 세우는 문장**이 남았는지 지킨다(무음이 되지 않게).
 #   ②시연 문장(축배·둘 다 2벌) — 하객이 답할 말. 없으면 선창에 돌아오는 소리가 없다(성혼 선언과 같은 금지)
 #   ③사이 문안 — 나이프를 걷고 잔을 쥐여 드리는 15~20초. 없으면 통째로 무음이다
-chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 4   # [COUNT_RETIRED] 카운트를 대신하는 장면 문장
+#     ★[CAKE_SOFT 2026-09-09] 그 「장면 문장」을 4→2 로 줄였다. 폐지가 아니라 «교체»다.
+#       사장님: *"내립니다 나랑히 섭니다 너무 형식적이고 딱딱한거같아"* — 목적어 없는 동작 중계였다.
+#       실황 나레이션 2벌은 「함께 자르면, 큰 박수 부탁드립니다」가 그 자리를 대신 잡는다
+#       (커팅 시점이 여전히 소리로 표시되고, 무음도 안 생긴다 — 이 검사의 원래 목적 그대로다).
+#       남은 2벌은 TONE_TABLE(생성구역)이라 손대지 않았다. 어조 mp3 186개가 이미 걸려 있다.
+chk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js 2   # [COUNT_RETIRED] 어조표 2벌 — 생성구역
+chk '함께 자르면, 큰 박수 부탁드립니다' assets/ritual-data.js 2      # [CAKE_SOFT] 실황 2벌이 그 자리를 잡는다
 chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
 chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
 chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
 chk 'TOAST_SCENE' assets/ritual-story.js 2
 chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js 2  # 링워밍 속도 통제(family+all)
-chk '오늘, 두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 문장
+#   ★[MUNAN_REST 2026-09-09] D-9 는 두 문장을 하나로 이었다 — 세는 문장이 바뀐다.
+# ★★[G8_OUT_SPLIT 2026-09-12] 이 줄은 «한 문장 통째»를 지키고 있었는데, 그 문장이 둘로 쪼개졌다(aa518f3a).
+#   지금: 「그 사랑이 있어 오늘의 두 사람이 있습니다. 그리고 두 집안은 서로의 가족이 되었습니다.」
+#   쪼갠 것은 설계다 — 소리로 들으면 한 호흡에 안 들어간다. 그러니 «형태»를 지키던 이 검사가 틀렸다.
+#   ★지킬 것을 «말»로 바꾼다 — 사라지면 안 되는 것은 문장 모양이 아니라
+#     「두 집안이 서로의 가족이 되었다」는 선언이다(G8-out 관계 강화). 쪼개든 붙이든 그 말은 남는다.
+#   ★이 검사는 그날부터 조용히 빨갰다. 내가 게이트 출력을 grep 으로 걸러 보느라 못 봤다.
+chk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 — 모양이 아니라 이 말이 원천
 # ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
 #   ①규칙 6 위반(정의문으로 열기) ②'마지막'이 사실과 다르다(예식 뒤 30분이 더 있다)
 #   ③"자리에서 그대로"가 새 설계와 정면으로 어긋난다(이제 전원이 앞으로 모인다)
@@ -1405,7 +1502,9 @@ chk '_DECL_CARD_WHO' admin.html 3                           # 낭독 카드 대�
 chk "'나레이션 대행' 선택지 복원 금지" assets/ritual-data.js 1   # 8842582로 폐지된 선택지 · 카피만 뒤늦게 정리(제거 지시 보존)
 chk 'FESTIVE_MIN_WHY' assets/ritual-data.js 1                   # 축하 여유 16분은 오타 아님 · 첫 예식 실측 전 낮추기 금지
 chk '가장 가까운 정면 열에 앉으신 채로' assets/ritual-data.js 3   # 헌정 큐 · 부모님 좌석·자세(3종 전부)
-chk 'GOLD_TEXT_AA' index.html 6                             # 텍스트 골드는 --gold-text(#7A5F37·5.71:1) · 장식 --gold(#B89A75·2.54:1)로 되돌리기 금지
+chk 'GOLD_TEXT_AA' index.html 11                            # 텍스트 골드는 --gold-text(#7A5F37·5.71:1) · 장식 --gold(#B89A75·2.54:1)로 되돌리기 금지
+#   ★6→11 (2026-09-06): 갤러리 활성 서수(.mockup-item.active .mockup-num · .jr-step.on .jr-n 과 같은 구문인데
+#     이 자리만 빠져 있었다)와 편지 카드 3줄(.dm-subbrand·.dm-badge·.dm-from-label)을 더했다.
 chk 'NOWRAP_CLIP_FIX' index.html 1                          # 390px서 17px 잘리던 문장 · white-space:nowrap 재삽입 금지
 chk 'MOCKUP_ARIA_HIDDEN' index.html 1                       # 장식 목업 스크린리더 제외 · 목업에 포커스 요소 추가 시 함께 재검토
 chk 'SECTION_RHYTHM' index.html 2                           # 섹션 간격은 .divider 단독(--gap×2+40) · 새는 마진 차단 규칙 + about 인라인 마진
@@ -1420,6 +1519,17 @@ chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 �
 chk 'TRACK_RAMP8' index.html 1                              # 자간 8단계 램프 · 히어로/워드마크/목업 예외
 chk 'A11Y_PINCH_ZOOM' index.html 1                          # 핀치줌 허용 · user-scalable=no 재삽입 금지(WCAG 1.4.4)
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
+# ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
+#   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
+#   도착합니다」라는 프라이버시 약속이라, 그 아래 실제 편지처럼 보이는 카드가 전문까지 펼쳐지면
+#   「그럼 내 편지도 여기 올라가나?」로 읽힐 여지가 있었다. 약속과 화면이 어긋나 보이던 자리다.
+chk 'LETTER_SAMPLE' index.html 2
+chk '아래는 예시로 보여드리는 편지입니다' index.html 1
+# ★[JOURNAL_NO_DATE 2026-09-06 사용자 "추천대로해"] 저널 두 편 다 2026·04 라 5개월째 그대로였다.
+#   「지금도 하고 있나」를 확인하러 온 사람에게 오히려 조용해 보여, 연재 번호(Nº)만 남겼다.
+#   ★새 글을 실을 때 날짜를 되살리려면 두 카드를 함께 — 한쪽만 있으면 더 낡아 보인다.
+chk 'JOURNAL_NO_DATE' index.html 2
+nochk 'class="journal-date"' index.html          # 날짜 span 이 돌아오면 잡는다(주석·산문은 안 건드리게 마크업을 겨냥)
 chk 'A11Y_FOOTER_AA' index.html 1                           # 푸터 f-copy 알파 0.7 유지 · 0.44로 되돌리면 2.71:1 미달
 chk 'A11Y_INPUT_16' index.html 1                            # 입력창 16px 이상 · 미만이면 iOS가 포커스 시 강제 확대
 chk 'A11Y_LABEL_MATCH' index.html 1                         # aria-label은 보이는 글자를 포함(WCAG 2.5.3) · 요약형으로 축약 금지
@@ -1496,6 +1606,12 @@ chk '\[STORY_LAYER_V1\]' assets/ritual-story.js 1            # 고객이 읽는 
 chk 'STORY_KEY_IS_SOURCE' assets/ritual-story.js 1           # LIVE의 키는 live.t 원문 · slug로 바꾸면 꽃/큰절/포옹이 한 칸에 뭉친다
 chk 'STORY_BLOCK_FILL' assets/ritual-story.js 1              # 순서 소개의 원천은 COURSES[].detail · BLOCK은 detail에 없는 것만
 chk '\[STORY_COVER\]' scripts/build-course-story.mjs 1       # 커버리지 검사 + 코스별 장면 대본 생성기 자체
+# [STORY_STALE 2026-09-13] 장면 대본 6편(docs/plans/식순연구/)은 자동 생성물인데,
+#   --check 가 커버리지만 보고 바로 나가서 «원천은 바뀌고 문서는 옛 판»이 그냥 통과했다.
+#   실측으로 그 상태를 확인했다 — 여섯 편이 전부 뒤처져 있었고 게이트는 초록이었다.
+#   저널 「대본 ↔ 음원」과 같은 종류의 구멍이다. 이제 --check 가 쓰는 대신 내용을 대조한다.
+#   반증 4종 확인: 문서 수정 · 원천 수정 후 문서 방치 · 파일 삭제 · 나레이션 문안 변경 — 전부 빨강.
+chk 'STORY_STALE' scripts/build-course-story.mjs 4
 chk 'FIRE_FROM_CONSOLE' scripts/build-course-story.mjs 1     # 진행 방식은 console 빌드가 진실 · preview meta로 세면 머리글이 거짓말한다
 # 장면 레이어 커버리지 — 미커버/중복/죽은 문안/fallback 원문 어긋남/내부 용어 누출을 전 조합에서 잡는다
 if command -v node >/dev/null 2>&1; then node scripts/build-course-story.mjs --check || fail=1; fi
@@ -2489,6 +2605,76 @@ if command -v node >/dev/null 2>&1; then node scripts/check-css-tokens.mjs \
 #   (한 줄 flex 로 모으는 판을 만들어 보였고 사용자가 *"푸터 이상한데 그냥 전으로 돌려"* 로 물렀다)
 chk 'TAP44_FOOT_OFF' index.html 1
 chk 'TAP44_FOOT_OFF' inquiry.html 1
+# ★★[ROWGAP_SPLIT · TAP44_COMPACT 2026-09-06 코워크 라운드 2 사전점검]
+#   ① 줄바꿈 간격이 그룹 간격(28px)과 2px 차이라 «다음 줄»이 «새 질문»으로 읽혔다.
+#      원인은 리듬 규칙의 공백이 아니라 인라인 gap shorthand 가 세로에도 걸린 부작용.
+#      row-gap 만 14px 로 분리 — 가로는 1px 도 안 변한다(320·390·1280 실측).
+#      ★인라인이 column-gap 이 아니라 gap 으로 되돌아가면 이 분리가 통째로 무효가 된다.
+#   ② 라디오·체크 18개 40→44px (WCAG 2.5.5 Enhanced). 문서 +12px · 그룹 간격 불변.
+chk 'ROWGAP_SPLIT' inquiry.html 1
+# ★★[INQ_SUBMIT_SIM 2026-09-06 라운드 2 0번] 문의 폼 제출이 서버 응답별로 무엇을 하는가.
+#   실패 경로·오류 안내·키보드 검사는 전부 «제출이 된다»를 전제한다. 전제부터 기계가 지킨다.
+#   ★실제 문의는 안 나간다 — script.google.com 을 전부 가로채고, 나간 요청 수로 이중 제출을 본다.
+#   ★«필수 5종»(referral·attire·priority·hesitation·stage)은 HTML required 가 아니라
+#     validateForm() 이 막는다. FILL 에서 이 다섯을 빼면 모달까지 못 가고 검사가 통째로 헛돈다.
+chk 'INQ_SUBMIT_SIM' scripts/audit/inquiry-submit-sim.mjs 1
+chk 'JS 로만 강제되는 필수 5종' scripts/audit/inquiry-submit-sim.mjs 1
+chk 'successScreen' scripts/audit/inquiry-submit-sim.mjs 1   # 성공 판정을 성공 화면 하나로 좁힌 자리
+chk 'TAP44_COMPACT' inquiry.html 1
+# ★★[JS_REQUIRED_REACH 2026-09-06 라운드 2 1~2 코워크 판정]
+#   referral·attire·priority·hesitation·stage 는 HTML required 가 아니라 validateForm() 이 막는다.
+#   그래서 실패 시 «스크롤 + 1.5초 반짝임»뿐이었고 포커스가 body 에 머물러
+#   화면낭독기에는 아무 일도 안 일어났다(실측: 포커스 body · aria-invalid 0).
+#   required 쪽과 같은 처방 — 포커스를 옮기고 aria-invalid 를 건다. 고르면 즉시 거둔다.
+#   ★focus({preventScroll:true}) 를 지우지 말 것 — meFlashTo 가 이미 스크롤한다. 빼면 두 번 움직인다.
+chk 'JS_REQUIRED_REACH' inquiry.html 3
+# ★★[GROUP_ERR_MSG · GOLD_MARKER_AA · FAQ_ARIA · TYPO_HALFPX 2026-09-06 사용자 승인]
+#   ① 필수 그룹 실패 시 «문장»이 그룹 옆에 뜬다(role=alert · aria-describedby).
+#      상단 요약이 아닌 이유 — validateForm 은 첫 실패에서 return 하므로 한 번에 한 곳만 걸린다.
+#      ★비웠다 넣는다 — role=alert 는 내용이 바뀔 때 읽는다. 같은 문구 두 번이면 안 읽힐 수 있다.
+#   ② --gold 를 기능 마커에 쓰던 3곳 → --gold-text (2.54/2.65/2.39 → 5.71/5.97/5.38)
+#   ③ FAQ 14곳 aria-expanded + aria-controls. 여는 «두 경로» 모두에서 갱신한다.
+#   ④ .92em 이 12px 부모에 걸려 11.04px 이던 3곳 → 11px
+chk 'GROUP_ERR_MSG' inquiry.html 3
+# ★★[GUIDE_TAP44 2026-09-06 라운드 3] 하객 안내의 조작 요소를 44px 로.
+#   「지도」 3개가 40px · 성함 입력칸이 43px 이었다. inquiry 의 .compact-option 과 같은 원인(min-height 40).
+#   ★43px 은 표류가 아니라 계산 결과였다(내용 17 + 패딩 24 + 테두리 2). 패딩을 반px 로 못 올리니
+#     min-height 로 1px 을 채웠다. 값을 바꾸기 전에 «왜 그 값인가»를 먼저 본 자리다.
+chk 'GUIDE_TAP44' guide.html 2
+# ★★[GP_SIM 2026-09-06 라운드 3 0번] 하객 사진 올리기가 서버 응답별로 무엇을 말하는가.
+#   위험한 건 «완전 실패»가 아니라 «부분 성공»이다 — 완전히 실패하면 다시 하지만
+#   부분 성공은 성공으로 보이고 끝난다. 실제로 그 사고가 있었다([GP_OVER_PICK] 2026-08-22).
+#   ★?g=demo 로는 못 잰다 — 표본 화면은 업로더를 배선하지 않는다(if(!DEMO) bindGuestUpload()).
+#     첫 판에서 그걸 모르고 재서 «요청 0건 · 위반 11건»이 나왔다. 하네스가 틀린 것이었다.
+chk 'GP_SIM' scripts/audit/guide-photo-sim.mjs 1
+chk 'GP_SIM_NOT_DEMO' scripts/audit/guide-photo-sim.mjs 1
+chk 'dtipOv' scripts/audit/guide-photo-sim.mjs 1     # 시트 선택자 — .sheet 로 찾다 오탐을 냈다
+chk 'GP_OVER_PICK' guide.html 1                      # 조용한 절삭 방지 처리를 지우지 말 것
+chk 'min-height:44px' guide.html 2
+nochk 'act{min-height:40px}' guide.html
+chk '하나만 골라 주세요' inquiry.html 1
+chk '하나 이상 골라 주세요' inquiry.html 1
+chk 'GOLD_MARKER_AA' index.html 2
+chk 'FAQ_ARIA' index.html 2
+chk "aria-expanded', opening" index.html 1
+nochk 'font-size:.92em' index.html
+nochk 'font-size:0.92em' index.html
+# ★★[ADV_PANEL_TABOUT · ADV_FOCUS_ENTER 2026-09-06 라운드 2 3번]
+#   ① 닫힌 상담 패널이 «탭 순서»에 남아 있었다 — transform 으로 밀기만 하고 display:flex 유지.
+#      실측(실제 Tab 키): inquiry 60스텝 중 3스텝이 보이지 않는 패널 안. visibility 로 막았다.
+#      ★규칙이 두 곳에 있다 — index.html 인라인 CSS 와 assets/advisor-widget.js.
+#        한쪽만 고치면 그 페이지만 고쳐진다(실제로 index 를 빠뜨려 한 번 그랬다).
+#   ② index 만 열었을 때 포커스가 패널 밖에 남았다. 위젯 쪽은 이미 안으로 넣고 있었다.
+chk 'ADV_PANEL_TABOUT' index.html 1
+chk 'ADV_PANEL_TABOUT' assets/advisor-widget.js 1
+chk 'ADV_FOCUS_ENTER' index.html 2
+chk 'visibility:hidden' assets/advisor-widget.js 1
+chk 'visibility: hidden' index.html 1
+chk "aria-invalid', 'true'" inquiry.html 1
+chk 'preventScroll: true' inquiry.html 1
+chk 'row-gap:14px' inquiry.html 2          # 두 .compact-options 규칙 모두
+chk 'column-gap:2' inquiry.html 3          # 인라인 3곳(24·26·22) — gap 으로 되돌리면 위가 무효
+nochk 'padding:8px 2px;min-height:40px' inquiry.html
 chk 'TAP44_FOOT_OFF' parents.html 1
 nochk 'footer a\[href\$="mypage.html"\]' index.html
 nochk 'footer a\[href\$="mypage.html"\]' inquiry.html
@@ -3058,6 +3244,10 @@ chk 'CANT_LOOK' scripts/check-syl-rate.mjs 2
 chk 'NAN_NOT_ZERO' scripts/assemble-narration.mjs 1
 chk 'NAN_NOT_ZERO' scripts/assemble-parents-letter.mjs 2
 chk 'NAN_NOT_ZERO' scripts/check-syl-rate.mjs 1
+# ★[TEXT_AHEAD 2026-09-12] 이 검사가 빨개지는 «가장 흔한» 원인은 성우 교체가 아니라
+#   «문안을 고쳤는데 녹음이 아직 옛 판»인 것이다. 값이 (총 음절 ÷ 총 녹음 길이)라 그렇다.
+#   그때 범위를 넓혀 초록으로 만들면 「상수와 실측이 맞다」는 거짓을 박는 것이 된다. 건드리지 말 것.
+chk 'TEXT_AHEAD' scripts/check-syl-rate.mjs 1
 chk 'Number.isFinite' scripts/assemble-narration.mjs 1
 chk 'Number.isFinite' scripts/assemble-parents-letter.mjs 1
 chk '!(r >= 0.85)' scripts/assemble-parents-letter.mjs 1
@@ -3414,21 +3604,36 @@ chk 'HANDOFF_PASTE' scripts/build-listen-all.mjs 1
 # «소리가 없는 가벼운 판»이라고 말했다. 바로 위 칸은 «소리가 다 들어 있습니다»라고 하는데.
 # 사장님은 「듣기」가 안 되는 줄 알고 안 누른다. SOUND_OUT_OF_JS 때 sayCanDo 와 같은 병이다.
 chk 'SAY_WHICH_BOARD' scripts/build-listen-all.mjs 1
+# ── [SHOW_THE_LINK] «복사했습니다» 해 놓고 화면엔 아무것도 안 떴다 (2026-09-05 사장님 «링크가안나오는데?») ──
+# `#outWrap` 은 기본이 hide 다 — 재더빙 대본이 있을 때만 열리는 칸이다.
+# 링크를 그 칸에 넣으면서 칸을 여는 줄을 안 넣었다. 복사가 막힌 기기에서는 주소를 볼 길이 통째로 없다.
+# ★남의 칸을 빌려 쓰면 그 칸의 규칙(hide·설명 문구)도 함께 봐야 한다.
+chk 'SHOW_THE_LINK' scripts/build-listen-all.mjs 1
+chk 'outNote' scripts/build-listen-all.mjs 3
+chk "wrap.className = ''" scripts/build-listen-all.mjs 1
+chk 'id="outNote"' "$_plate" 1
 chk '소리는 사이트에서 받아 옵니다' scripts/build-listen-all.mjs 1
 # ★배포되는 판이 «소리 없음»이라 말하면 잡는다 — 그 판은 소리를 주소로 부른다
-nochk '소리가 없는 가벼운 판' listen-075c9ad62acf.html
+nochk '소리가 없는 가벼운 판' "$_plate"
 chk 'unpackV' scripts/build-listen-all.mjs 2
 chk 'deflate-raw' scripts/build-listen-all.mjs 2
 chk 'applyHandoff' scripts/build-listen-all.mjs 3
 # ★옛 모양을 받는 갈래를 지우면 여기서 잡힌다
 chk "d.w || \\[\\]" scripts/build-listen-all.mjs 1
-chk 'id="paste"' listen-075c9ad62acf.html 1
-chk 'STAMP_CARRY' scripts/build-listen-all.mjs 1
+chk 'id="paste"' "$_plate" 1
+# ★★[CARRY_EXPIRED 2026-09-19] STAMP_CARRY 를 «지켜라»에서 «되살리지 마라»로 뒤집는다.
+#   그 블록은 8월 판정을 9월 소리 위에 계속 붙였다 — 사장님이 「아직 시작을 안 했는데 진행중」이라 잡았다.
+#   실측 재현: 안 누른 브라우저에 옛 열쇠만 심으니 「판정 2 / 534」 + 사라진 클립 판정까지 써 넣었다.
+#   ★nochk 로 실행 코드가 돌아오는 것을 막는다(주석 2줄은 CARRY_EXPIRED 설명이라 아래 chk 가 지킨다).
+nochk "localStorage.getItem('me_listen_all_e17caa93')" scripts/build-listen-all.mjs
+chk 'CARRY_EXPIRED' scripts/build-listen-all.mjs 4
+chk '_g2' scripts/build-listen-all.mjs 2
+chk 'CARRY_NOTE' scripts/build-listen-all.mjs 3
 chk "c.id + '#' + j" scripts/build-listen-all.mjs 6
 chk 'handoffLink' scripts/build-listen-all.mjs 2
 # ★배포되는 실청판이 실제로 어조 소리를 담고 있나 — 판 자체를 본다(생성기만 보면 못 본다)
-chk 'assets/audio/tone/n185.mp3' listen-075c9ad62acf.html 1
-chk 'HANDOFF_LINK' listen-075c9ad62acf.html 1
+chk 'assets/audio/tone/n185.mp3' "$_plate" 1
+chk 'HANDOFF_LINK' "$_plate" 1
 # ── [REDUB_PICK] 「다시」로 찍은 자리를 버림/다시/그대로로 가르는 판정 화면 (2026-08-17 사용자 지시) ──
 # *"내가선택 간편하게 페이지로 만들어주던지"* — md 로 드렸더니 손으로 적어야 했다.
 # 손으로 적는 자리는 틀린다(바로 어제 붙여넣기를 손으로 써서 화자를 틀렸다 · PHOTO_ASK).
@@ -3633,11 +3838,13 @@ chk 'SOUND_OUT_OF_JS' scripts/build-listen-all.mjs 5
 # ★어조 mp3 186개를 assets/audio/tone/ 에 넣었다(2.0MB) — 재료가 또 사라지는 것도 함께 막는다
 #   (_dub_stage 가 gitignore 라 코워크 컨테이너와 함께 날아간 적이 있다).
 # 실측(iPhone13 에뮬·http 서빙): 클립 160 · 문장 495 · 「소리없음」 0 · 주소 재생 17.6/3.7/2.7초.
-# ★[LISTEN_URL 2026-08-26] 실청판을 **주소로** 연다 — listen-075c9ad62acf.html
+# ★[LISTEN_URL 2026-08-26] 실청판을 **주소로** 연다 — listen-<지문>.html (지금 판: PLATE_ONE 줄이 이름을 찍는다)
+#   ★[PLATE_ONE 2026-09-14] 이름을 여기 박지 않는다 — 글·소리가 바뀌면 지문이 바뀌어 이름도 바뀐다.
+#     박아 두면 판을 새로 낼 때마다 게이트가 «없는 파일»로 붉고, 붉은 게이트를 이름 고쳐 끄게 된다.
 #   폰 앱 미리보기가 스크립트를 막아 파일 전달로는 못 쓴다(세 번 실패). 사이트에서 열면 그 문제가 없다.
 #   ★주소를 어렵게 둔다 — 검색 차단(noindex)에 더해, 아는 사람만 열도록.
 #   ★소리는 assets/audio/{narration,cast,tone}/ 에서 받는다 — 판 자체는 105K 다.
-chk 'listen-075c9ad62acf.html' automation/tests/merge-guard.sh 1
+chk 'PLATE_ONE' automation/tests/merge-guard.sh 6
 chk 'LISTEN_WEB' scripts/build-listen-all.mjs 3
 chk 'SRCMAP' scripts/build-listen-all.mjs 3
 chk 'assets/audio/tone' scripts/build-listen-all.mjs 1
@@ -3914,11 +4121,19 @@ nochk '240만' assets/advisor-kb.js
 chk 'NEW_TONE_PLAY' scripts/build-listen-all.mjs 1
 nochk ': ops(k, null))' scripts/build-listen-all.mjs   # ★모양으로 겨눈다(이름만 쓰면 설명 주석을 문다)
 # [DINING_NOT_INCLUDED 2026-08-16 사용자 지적 "우리는 다이닝 별도인데 틀린정보가 있네"]
-#   계약 제3조② — '을'은 소개·조율만 하고 식사비는 파트너사 직결제다. 「견적에 포함」으로 쓰지 말 것.
+#   계약 제3조② — '을'은 소개·조율만 하고 식사비는 식당 직결제다. 「견적에 포함」으로 쓰지 말 것.
 #   실사고: 핵심 구성 카드와 JSON-LD 상품설명 2곳이 「다이닝 포함」·「하나의 견적에」라 계약과 정면 충돌.
+#   ★★[PARTNER_WORD 2026-09-11 대표 확인] 감시 문구를 옮겼다 — 「파트너사」 → 「식당」.
+#     식당들과 맺은 제휴·계약이 «없다». 인기 있고 적절한 곳으로 리스트를 뽑았을 뿐인데
+#     「파트너사」라고 부르면 ①고객은 제휴 할인·우선 예약·품질 보증이 있는 줄 알고
+#     ②식당은 모르는 사이 우리 사이트에 「파트너사」로 게시돼 있다.
+#     ★가드의 «의도»는 그대로다 — 「다이닝은 견적에 포함이 아니다」. 감시할 문자열만 바뀌었다.
 nochk '다이닝 포함' index.html
 nochk '다이닝을 하나의 견적' index.html
-chk '다이닝 식사비는 파트너사 직접 결제' index.html 2
+chk '다이닝 식사비는 식당 직접 결제' index.html 2
+nochk '파트너' index.html                                  # 되돌리지 말 것 — 없는 관계다
+nochk '파트너' api/_kb.js                                  # ★AI 가 고객에게 말하는 원천
+nochk '파트너' assets/advisor-kb.js                        # ★상담 위젯 고정 답변
 # [CORE_TRIM 2026-08-16] 핵심 구성 3칸은 위 REALITY 3칸(본문 37~39자)과 호흡을 맞춘다(전 86~97자).
 chk '140분, 또렷이 남도록 설계한 호흡입니다' index.html 1
 # [CORE_PRICE_LINK 2026-08-16 사용자 결정] 금액 자리를 가격 섹션(#invest)으로 가는 링크로.
@@ -3971,7 +4186,8 @@ chk 'ESSAY_LEAD_IN' index.html 2
 #   ★muted=false 를 seeked 밖으로 옮기지 말 것. 되살리면 유령 소리가 그대로 돌아온다.
 chk 'SEEK_THEN_OPEN' index.html 3
 chk "addEventListener('seeked', open)" index.html 1
-chk 'LEAD_IN = 1000' index.html 1
+chk 'LEAD_IN = 2000' index.html 1   # 2026-09-14 사용자 지시로 1000→2000 (parents.html 의 2초와 같아졌다)
+nochk 'LEAD_IN = 1000' index.html 0  # 1초로 되돌리는 것은 지시 역전이다
 # 같은 결함이 혼주 편지(parents.html)에도 있었다 — 같은 코드가 여러 곳에 있으면 함께 고친다.
 chk 'SEEK_THEN_OPEN' parents.html 2
 chk "addEventListener('seeked',open)" parents.html 1
@@ -3999,6 +4215,86 @@ if command -v node >/dev/null 2>&1; then
     && echo 'ok journal-script-check: 낭독 대본 2편 == 화면 본문 · 타입캐스트 규격 통과' \
     || { echo 'FAIL journal-script-check — node scripts/audit/journal-script-check.mjs'; fail=1; }
 fi
+# [JOURNAL_AUDIO_SYNC 2026-09-12] 위 검사는 «대본 == 화면 글»까지다. 둘 다 글이라 둘 다 고치면 초록이 된다.
+#   소리는 같이 안 바뀐다 — 대본을 다듬은 날 화면은 새 문장을 보이고 스피커는 옛 문장을 말한다.
+#   실제로 #704 에서 저널 Nº02 맺음 한 줄을 줄였고 게이트는 전부 초록이었고 mp3 는 옛 문장이었다.
+#   그래서 «음원을 만들 때 쓴 대본의 해시»(audio-state.json)를 맞댄다. 재녹음은 사람이 타입캐스트에서
+#   해야 하므로, 대기표(pending_rerecord)를 적어 둔 어긋남은 경고로만 두고 «말 없는 어긋남»만 빨강이다.
+if command -v node >/dev/null 2>&1; then
+  _jas=$(node scripts/audit/journal-audio-sync.mjs 2>&1); _jasc=$?
+  if [ "$_jasc" = "0" ]; then echo "ok journal-audio-sync: $(printf '%s' "$_jas" | tail -1)"
+    printf '%s' "$_jas" | grep '^· 경고' || true
+  else echo "FAIL journal-audio-sync — node scripts/audit/journal-audio-sync.mjs"
+    printf '%s\n' "$_jas" | grep '^FAIL'; fail=1
+  fi
+fi
+chk 'JOURNAL_AUDIO_SYNC' scripts/audit/journal-audio-sync.mjs 1
+
+# [PAR_ORDER·PAR_DINE 2026-09-12 사용자 선택] 어른께 드리는 안내(parents.html) 두 결정.
+#   ① 「갖출 것은 갖춘 예식」이 「인원을 절제하는 이유」보다 먼저다. 어른이 처음 읽는 본문이
+#      「줄인다」이면 걱정을 풀기 전에 확인해 주는 꼴이 된다. 순서를 되돌리지 말 것.
+#   ② 손님 식사 문단 — 실측으로 이 편지에 「식사」가 0건이었다. 혼주의 가장 큰 걱정에 답이 없었다.
+#   둘 다 «없애 달라»가 아니라 «넣어 달라»라서, 리뷰가 «중복»·«군더더기»로 지우기 쉽다. 그래서 센다.
+chk 'PAR_ORDER' parents.html 1
+chk 'PAR_DINE' parents.html 1
+
+# [PAR_PYEBAEK 2026-09-12 사용자 지시 「폐백 예단은 안해」] 폐백 방침은 «세 곳이 같은 말»이어야 한다.
+#   어른 페이지·챗봇·식순 KB 중 하나만 고치면 어른은 「안 한다」를 읽고 챗봇에 물으면 다른 말을 듣는다.
+#   ★문장을 세게 만들지 말 것 — 부모님 헌정은 두 분이 뺄 수 있다(order-preview.html NEVEROFF={entry:1}).
+#     「큰절을 올립니다」로 단정하면 헌정을 뺀 예식에서 거짓이 된다. 「고르십니다」가 맞는 말이다.
+chk 'PAR_PYEBAEK' parents.html 1
+
+# [COPY_TRUTH 2026-09-12] 마이페이지 복사 버튼 13곳이 «복사가 안 돼도» 「복사됐어요」라고 했다.
+#   legacyCopy 가 catch(e){} 로 execCommand 실패를 삼켰고 호출부가 무조건 성공 콜백을 불렀다.
+#   QR 저장도 같았다 — 새 탭 폴백에서도 「저장됐어요」. 집 규칙(근거 없는 완료 단언 금지) 위반이다.
+#   ★복사 버튼을 새로 달 때 옛 꼴을 복사해 붙이는 것을 막는다. 재현 검사가 반증 5종을 확인한다.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/copy-truth.mjs >/dev/null 2>&1 \
+    && echo 'ok copy-truth: 복사·QR 이 실패를 성공이라 말하지 않는다' \
+    || { echo 'FAIL copy-truth — node scripts/audit/copy-truth.mjs'; fail=1; }
+fi
+chk 'COPY_TRUTH' mypage.html 3
+
+# [KB_CHATBOT_TRUTH 2026-09-12] 챗봇이 «없는 기능을 있다»고 말하던 6곳을 고쳤다.
+#   가장 큰 것 — 질문이 「사진 · 문구를 직접 넣나요?」인데 답이 「네, 자유롭게 커스텀」이었다.
+#   api/_kb.js §15 는 「사진은 넣지 않는다」·「"가능합니다"라고 답하지 말 것」을 글로 적어 두었는데
+#   챗봇이 그 금지된 답을 그대로 하고 있었다. 나머지 5건(주례·다국어·수정 마감·녹화본·한복 대여)도
+#   전부 「상담에서 안내드립니다」로 써서 «된다»는 전제를 깔았다.
+#   ★문체 검사가 아니라 사실 검사다. 답변을 고칠 때 원천을 먼저 읽을 것.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/kb-chatbot-truth.mjs >/dev/null 2>&1 \
+    && echo 'ok kb-chatbot-truth: 챗봇이 원천에 없는 기능을 있다고 말하지 않는다' \
+    || { echo 'FAIL kb-chatbot-truth — node scripts/audit/kb-chatbot-truth.mjs'; fail=1; }
+fi
+chk 'INV_NO_PHOTO' api/_kb.js 1
+nochk '사진·문구·구성을 자유롭게' assets/advisor-kb.js
+chk 'function copyThen' mypage.html 1
+nochk 'legacyCopy(t); ok();' mypage.html
+
+# [INV_EDITION 2026-09-12] 청첩장은 «온라인(i/cover)»과 «오프라인(i-family/family)» 두 판이다
+#   (api/_kb.js §15). 오프라인 판은 오시는 길·주차를 담고, 온라인 판은 디지털 참석·편지·영상을 담는다.
+#   실제 사고: cover 를 복사해 family 를 만들며 한쪽만 고쳐, 오시는 분께 보내는 판에
+#     · family-04 「귀한 걸음으로 마음만 더해 주십시오」 — 걸음으로 오시는데 «마음만»
+#     · family-08 「참석이 어려운 분들을 위한 안내입니다」 — 오시는 분께 할 말이 아니다
+#   둘 다 cover 쪽에서는 맞는 말이라 원문 검색만으로는 안 잡힌다. 판을 나눠서 센다.
+nochk '마음만 더해' i-family/family-04.html
+nochk '참석이 어려운' i-family/family-08.html
+nochk '멀리 계셔도' i-family/family-01.html
+nochk '한 페이지의 자리' i-family/family-01.html
+chk '멀리 계셔도' i/cover-01.html 1
+chk '한 자리를 마련했습니다' i-family/family-01.html 1
+chk '귀한 마음만 더해' i/cover-04.html 1
+chk '참석이 어려운' i/cover-08.html 1
+chk '별도의 폐백 순서는 두지 않습니다' parents.html 1
+chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
+chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
+chk '별도의 폐백 순서는 없다' api/_ritual-kb.js 1
+nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' assets/advisor-kb.js
+chk '식사 자리' parents.html 1
+chk '보증하지 않습니다' parents.html 1
+chk 'JOURNAL_AUDIO_SYNC' scripts/build-journal-audio.py 2
+chk 'pending_rerecord' scripts/audit/journal-audio-sync.mjs 2
+chk 'stamp(part, script)' scripts/build-journal-audio.py 1
 # [GUEST_DIM_AA 2026-08-16] 고객 미리듣기의 --dim 은 브랜드 텍스트 하한선(#75705F · 4.74:1)이다.
 #   ★디렉터 스킨의 #8A8478 을 다시 옮겨 오지 말 것 — 밝은 바탕에서 3.55:1 로 떨어져 axe 8곳이 잡혔던 값이다.
 #   ★끝 화면 부제의 opacity 도 되살리지 말 것(회색 버튼 위에서 3.34:1). 위계는 크기·굵기가 낸다.
@@ -4194,6 +4490,23 @@ chk 'EXTRA_CROSS' scripts/lib/engine-calls.mjs 1     # [ENGINE_CALLS] 위와 같
 # [AUDIO_PATH_REAL 2026-08-16 CC 적대검증 ⑤] 손으로 박은 mp3 경로가 실물에 닿는가.
 #   ★지금 rc 1 이 정상이다 — preview-bed.mp3 가 없다(고칠지는 사용자가 정한다). 게이트는 «세는 것»만 건다.
 chk 'AUDIO_PATH_REAL' scripts/audit/audio-paths.mjs 1
+chk 'AUDIO_KNOWN_GAP' scripts/audit/audio-paths.mjs 1
+# ★[JR_HOVER_SETTLE 2026-09-06] index-jr-hover 가 «4번을 짚었는데 3번이 켜진다»로 간헐 실패했다(3회 중 2회).
+#   화면 결함이 아니라 재는 쪽 사정 — index.html 은 html{scroll-behavior:smooth}(423행)이고
+#   playwright 의 hover 는 요소를 화면에 넣으려 스크롤한다. 그 스크롤이 애니메이션 중인데
+#   220ms 뒤 다음 칸 좌표를 계산하니 마우스가 이웃 칸에 떨어졌다(실측: 첫 hover 로 815px 이동).
+#   ★고친 뒤 5회 연속 통과 · 호버 동작을 일부러 없애면 12건으로 붉는다(무는 힘 그대로 · 적대검증).
+chk 'JR_HOVER_SETTLE' scripts/audit/index-jr-hover.mjs 1
+# ★★[AUDIO_RUN 2026-09-06] 이 감사는 «마커만» 세고 정작 돌리지는 않았다.
+#   그래서 console.html 의 PREVIEW_BED 결손(2026-08-16 기록)이 3주 넘게 게이트를 그냥 통과했다.
+#   마커가 살아 있는지 세는 것과 «검사가 실제로 도는지»는 다른 일이다 — 이제 돌린다.
+#   ★알고 있는 결손 1건(음원 선택이 사용자 몫)은 KNOWN_GAP 이 따로 세어 초록을 유지한다.
+#     새로 사라진 소리는 붉고, 알던 결손이 «생기면» 예외를 빼라고 붉는다(양쪽 다 적대검증 확인).
+node scripts/audit/audio-paths.mjs >/dev/null 2>&1; _ap=$?
+case "$_ap" in
+  0) echo "ok audio-paths (손으로 박은 소리 전부 실물 · 알고 있는 결손은 따로 셈)" ;;
+  *) echo "FAIL audio-paths — node scripts/audit/audio-paths.mjs"; fail=1 ;;
+esac
 chk 'PREVIEW_BED' console.html 6
 # ★[SEAT_FIT 2026-08-16] 이름이 세 글자만 넘어가도 자리 알약이 카드 밖으로 30px 넘게 나갔다(390px 실측).
 #   지그재그 배율 1.9→1.15 · --zig 26→20 으로 잡고, 테이블 커스텀 이름은 원 안에서 원 아래 한 줄로 내렸다.
@@ -4885,6 +5198,33 @@ chk '건너뛴 단계 없이 밟고 갔다' scripts/audit/rollback-roundtrip.mjs
 # ★★[ROLLBACK_FUZZ 2026-08-18] 무작위 순서 + 불변식 검사. 정해진 길만 걷는 검사들이 못 보는 자리를 본다.
 chk 'ROLLBACK_FUZZ' scripts/audit/rollback-fuzz.mjs 1
 chk 'FUZZ_COVER' scripts/audit/rollback-fuzz.mjs 1
+# ★[ROLLBACK_RC_GATE 2026-09-05 점검] 이 둘은 마커만 확인하고 «실제 통과»는 게이트 밖이었다 —
+#   그래서 시뮬레이터가 박아 둔 상담 날짜 '2026-09-01' 이 과거가 된 9/1 부터 나흘간 붉었는데
+#   main 은 초록이었다(rollback = 돈·단계 안전이라 조용한 빨강이 가장 위험하다). 이제 rc 로 건다.
+#   ★날짜는 kstAhead 로 «지금 기준 미래»라 다시 썩지 않는다. fuzz 는 무작위지만 통과/실패는 결정적(8회 확인).
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/rollback-roundtrip.mjs >/dev/null 2>&1 \
+    || { echo 'FAIL rollback-roundtrip: 되돌린 뒤 다시 완주가 막힌다 — node scripts/audit/rollback-roundtrip.mjs'; fail=1; }
+  node scripts/audit/rollback-fuzz.mjs >/dev/null 2>&1 \
+    || { echo 'FAIL rollback-fuzz: 무작위 순서에서 불변식이 깨진다 — node scripts/audit/rollback-fuzz.mjs'; fail=1; }
+fi
+chk 'ROLLBACK_RC_GATE' automation/tests/merge-guard.sh 1
+chk 'KST_AHEAD' scripts/audit/_gasworld.mjs 1
+chk 'KST_AHEAD' scripts/audit/rollback-roundtrip.mjs 1
+chk 'KST_AHEAD' scripts/audit/rollback-fuzz.mjs 1
+# ★[DATE_ROT_GUARD 2026-09-05 점검] 날짜 부패가 세 번째 파일에서 또 나왔다(stage-reach).
+#   앞선 점검에서 «가드를 타는 고정 날짜는 둘뿐»이라고 단정했는데 틀렸다 —
+#   CUST('handleSubmitSchedule', {dateKey:'…'}) 처럼 «감싼 호출»을 내 정규식이 못 봤다.
+#   이제 호출 «형태»가 아니라 인자 «이름»으로 본다: 서버의 날짜 가드(PAST_SLOT_REJECT)를 타는
+#   dateKey · adminProposeTime 에 고정 리터럴을 넣으면 그날부터 조용히 문이 닫힌다 → kstAhead 를 쓸 것.
+#   ★선택날짜(픽스처)는 가드를 안 타므로 여기서 막지 않는다 — 안 깨지는 것까지 막으면 규칙이 미움받는다.
+if grep -rnE "dateKey\s*:\s*'20[0-9]{2}-|adminProposeTime'?\s*,\s*\['20[0-9]{2}-" scripts/audit/*.mjs >/dev/null 2>&1; then
+  echo 'FAIL DATE_ROT_GUARD: 감사가 날짜 가드를 타는 인자에 고정 날짜를 쓴다 — kstAhead() 로 바꾸세요'
+  grep -rnE "dateKey\s*:\s*'20[0-9]{2}-|adminProposeTime'?\s*,\s*\['20[0-9]{2}-" scripts/audit/*.mjs | sed 's/^/    /'
+  fail=1
+fi
+chk 'KST_AHEAD' scripts/audit/stage-reach.mjs 1
+chk 'DATE_ROT_GUARD' automation/tests/merge-guard.sh 1
 # ★★[REVIEW_DOOR_AUDIT 2026-08-18] '후기' 문 하나만 초 단위로 확인하는 검사(stage-reach 는 10분이라 자주 못 돈다).
 chk 'REVIEW_DOOR_AUDIT' scripts/audit/review-door.mjs 1
 chk '결과물전달 → 후기 (고객 제출이 문이다)' scripts/audit/review-door.mjs 1
@@ -5041,6 +5381,21 @@ case "$_orc" in
   0) echo "ok orphan-copy (문구 제자리)" ;;
   2) echo "· orphan-copy 안 쟀다(브라우저·서버 없는 자리) — 푸시 전에 손으로: node scripts/audit/orphan-copy.mjs" ;;
   *) echo "FAIL orphan-copy — node scripts/audit/orphan-copy.mjs"; fail=1 ;;
+esac
+
+# ★[HOME_A11Y 2026-09-06] 홈이 «읽히는가» 를 기계가 지킨다.
+#   [GOLD_TEXT_AA] 정리가 같은 구문인 .mockup-item.active .mockup-num 한 자리만 빠뜨렸다 —
+#   사람이 눈으로 훑어 찾는 방식이라 난 사고다. 이제 색을 계산해서 찾는다.
+#   ★탭 표적은 여기서 안 잰다(scripts/check-tap-targets.mjs 가 권위 · 접힘·::before 를 제대로 거른다).
+#   적대 검증: 고치기 전 index.html 로 되돌리면 위반 20건으로 붉는다.
+chk 'HOME_A11Y' scripts/audit/home-a11y.mjs 1
+chk '홈은 읽히는 상태다' scripts/audit/home-a11y.mjs 1
+chk '못 봄(브라우저 없음)' scripts/audit/home-a11y.mjs 1
+node scripts/audit/home-a11y.mjs >/dev/null 2>&1; _ha=$?
+case "$_ha" in
+  0) echo "ok home-a11y (홈 대비·건너뛰기 정상)" ;;
+  2) echo "· home-a11y 안 쟀다(브라우저·포트 없는 자리) — 푸시 전에 손으로: node scripts/audit/home-a11y.mjs" ;;
+  *) echo "FAIL home-a11y — node scripts/audit/home-a11y.mjs"; fail=1 ;;
 esac
 
 # ★★[PRICE_NOTE_TONE 2026-08-18 사용자 지시 "계약서 조항 같은 느낌은 빼자"]
@@ -5262,8 +5617,15 @@ chk '바코드 자체는 문자로 보내지 않는다' scripts/audit/coupon-flo
 chk 'KB_TRUTH_RUN' automation/tests/merge-guard.sh 1
 chk 'node scripts/audit/kb-truth.mjs' automation/tests/merge-guard.sh 2
 chk 'NIGHTLY_JOURNEY' .github/workflows/nightly-screen.yml 1
-chk 'journey-sim.mjs' .github/workflows/nightly-screen.yml 1
-chk 'save-honesty.mjs' .github/workflows/nightly-screen.yml 1
+# ★[AUDIT_RUN_ALL 2026-09-13] 위 두 줄은 「야간 yml 이 이 검사들의 이름을 적고 있다」를 재던 것이다.
+#   이제 야간은 이름을 안 적는다 — run-all 이 scripts/audit 를 스스로 찾아 돌린다(손 목록이 세 번 벌어져서 없앴다).
+#   그래서 **같은 뜻을 새 구조에 맞게** 다시 쓴다: 이 둘이 SKIP 에 들어가 있지 않으면 반드시 돈다
+#   (run-all --verify 가 «모든 감사는 돌거나 이유 붙여 빠지거나» 둘 중 하나임을 이미 강제한다).
+#   ★바로 위 주석의 그 말이 여전히 이 자리의 이유다 — «검사를 만들었다»와 «검사가 돈다»는 다른 말이다.
+nochk "'journey-sim.mjs':" scripts/audit/run-all.mjs 0
+nochk "'save-honesty.mjs':" scripts/audit/run-all.mjs 0
+chk 'journey-sim.mjs' scripts/audit/journey-sim.mjs 0        # 파일 자체가 살아 있다(지우면 --verify 가 아니라 여기서 먼저 걸린다)
+chk 'SAVE_HONESTY\|save' scripts/audit/save-honesty.mjs 1
 
 
 # ★★[NAV_MASK 2026-08-18 «점검 직접 보면서» 에서 눈으로 발견] 스크롤해도 숨지 않는 nav 는 마스크가 있어야 한다.
@@ -5474,6 +5836,19 @@ fi
 chk 'DEPLOY_CONTRACT' automation/platform/99_contractCheck.gs 1
 chk 'DEPLOY_CONTRACT' scripts/audit/deploy-contracts.mjs 1
 chk 'DEPLOY_CONTRACT' deploy-marks.json 1
+
+# ★[APPLY_TO_GATE] 아래는 audit·apply 스크립트가 이름 지어 둔 결정들이다.
+#   decision-guard 가 요구한다 — 이름을 지었으면 게이트에 걸어야 «다음 판이 지우면 빨개진다».
+#   이름 없는 결정은 «그때 그렇게 생각했다»는 일기이지, 지켜지는 결정이 아니다.
+chk 'SHOT_LEGIBLE' scripts/audit/admin-ops-shot.mjs 1
+chk 'SHOT_BLANK' scripts/audit/apply-shots-full.mjs 1
+chk 'SHOT_CONFLICT' scripts/audit/apply-shots-full.mjs 1
+chk 'SHOT_FLOAT' scripts/audit/shot-variants.mjs 3
+chk 'SHOT_TIGHTEN' scripts/audit/shot-variants.mjs 2
+chk 'GUEST30_NOFEE' scripts/audit/balance-sim.mjs 1
+chk 'COPY_RULE_CONTRACT' scripts/audit/copy-rule.mjs 1
+chk 'CONTRACT_FALLBACK' scripts/audit/deploy-contracts.mjs 1
+
 # ★[MARKS_REMOTE 2026-08-30] 아래 넷은 «점검 목록»에 그 항목이 살아 있는지 보는 줄이다.
 #   목록이 99_deployCheck.gs → deploy-marks.json 으로 옮겨 갔으므로 보는 곳도 옮긴다.
 #   ★.gs 를 계속 보게 두면 목록이 통째로 사라져도 이 줄들이 조용히 초록을 낸다.
@@ -5527,16 +5902,81 @@ chk 'PRICE_DERIVED' scripts/check-price-sync.mjs 2
 chk 'AI_PRICE_LOCK' scripts/check-price-sync.mjs 1
 chk 'AI_PRICE_LOCK' admin.html 1
 chk 'AI_PRICE_LOCK' scripts/ai-live-sim-ci.js 2
+
+# ★[ADM_WIDE 2026-09-05 사용자 지시 "pc버전은 모바일처럼 말고 넓게 · 조작 쉽게 직관적으로"]
+#   관리자 PC 폭 — main 580px 고정 해제(≥1024px 1180px) + 상세 .card 2열 grid + 홈 «처리할 일 | 진행 현황» 분할 + 아카이브 2열.
+#   ★column-count 로 되돌리지 말 것 — 실측: 고정 띠(.dsticky)가 절반 폭이 되고, 토글 하나에 카드가 열을 뛴다.
+#   ★show() 의 homeView 는 ''(빈 값)이어야 grid 가 산다 — 'block' 으로 되돌리면 홈 분할이 조용히 죽는다.
+#   ★미디어 블록은 .search 규칙보다 앞에 있다 — 괄호 하나만 남아도 파서가 .search{display:flex} 를 삼킨다(실사고).
+chk 'ADM_WIDE' admin.html 2
+chk 'grid-template-areas:"search search"' admin.html 1
+chk "(view==='home')?'':'none'" admin.html 1
+chk 'EDU_ADD_ONCE' admin.html 2   # [점검 라운드2 2026-09-05] 교육 추가 연타 잠금 — 표식 2개(진입 가드 + catch 복구)
+# ★[NAV_SEQ 2026-09-05 점검 라운드4] 응답 순서 역전 — 느린 응답이 나중에 도착해 지금 화면을 덮던 것(A→B 열기에서 늦은 A 가 B 를 덮음 · 늦은 검색이 홈을 덮음 ·
+#   불러오는 중 뒤로가기 뒤 늦은 상세가 홈 위에 뜸). 이동마다 순번 +1, 응답은 자기 순번일 때만 그린다. 순번 검사를 한 곳이라도 빼면 그 화면부터 다시 덮인다.
+chk 'NAV_SEQ' admin.html 15
+chk "var seq=silent?_navSeq:++_navSeq" admin.html 1      # 조용한 갱신은 순번을 올리지 않는다 — 눌러 둔 상세 열기를 죽이지 않게
+chk 'STATE_SEQ' mypage.html 3                          # 마이페이지 — 느린 로드 중 로그아웃 뒤 늦게 온 남의 화면을 버린다(캐시에도 안 남김)
+chk 'NAV_SEQ' scripts/audit/nav-race.mjs 1             # 재현 시뮬(브라우저) — node scripts/audit/nav-race.mjs · 실패 0
+# ★[DLG_GRACE 2026-09-05 점검 라운드7 · 실제 마우스 더블클릭 실측] 버튼 더블클릭 → 첫 클릭이 판을 열고 두 번째 클릭이 배경(취소)이나
+#   판 위 버튼에 떨어져 판이 번쩍 사라지거나 읽기 전에 확인됐다. 열린 뒤 350ms 안의 마우스 클릭(e.detail>0)은 무시 · 키보드·프로그램 click() 은 그대로.
+chk 'DLG_GRACE' admin.html 6   # 줄 수 기준(한 줄에 DLG_GRACE_MS 와 표식이 같이 있는 줄이 있어 등장 수 7 ≠ 줄 수 6)
+# ★[관리자 입장 점검 2026-09-06] 큐와 상세가 어긋나던 자리 · 며칠째를 버리던 자리 · 섹션이 조용히 사라지던 자리.
+#   셋 다 «관리자가 화면만 보고는 알 수 없던» 유형이라 표식이 사라지면 그대로 재발한다. 재현 검사: node scripts/audit/admin-ux.mjs
+chk 'MID_BAL_CONFIRM' admin.html 3      # 중도금·잔금 확인 버튼(계약금과 같은 기준 · 서버는 대기에서도 받는다)
+chk 'STALE_DAYS_SHOW' admin.html 3      # 「오래 기다린 것」 N일째 표시 + 그 묶음만 오래된 순
+chk 'HOME_SECTION_ISOLATE' admin.html 1 # 홈 섹션 개별 렌더 + 죽은 자리에 한 줄
+chk 'MID_BAL_CONFIRM' scripts/audit/admin-ux.mjs 1
+# ★[TB_TAP44 2026-09-06 모바일 420 실측] 상단바 버튼 5개가 34px 이라 폰에서 누르기 작았다. 보이는 크기는 그대로 두고
+#   ::after 로 히트박스만 44px 로 넓힌다(mypage MPD_B11 과 같은 처방). 크기를 키우면 320px 에서 다섯 개가 한 줄에 안 들어간다.
+chk 'TB_TAP44' admin.html 2   # 상단바 버튼 + 큐 버튼 두 곳
+chk 'height:44px;margin-top:-22px' admin.html 2
+# ★[TODAY_CONSULT 2026-09-06 사용자 승인 "추천대로"] 오늘 상담이 아침 메일에만 있어 낮엔 받은편지함을 뒤져야 했다.
+#   서버(adminHome)가 이미 읽은 예약행에서 함께 모으고(시트 읽기 0 증가) morningBriefData 의 중복 스캔을 걷어냈다 — 한 원천.
+#   ★화면도 스스로 시간순 정렬한다: Vercel(즉시)과 GAS(수동 재배포)는 따로 배포되므로 정렬을 서버 배포에 매달지 않는다.
+chk 'TODAY_CONSULT' admin.html 5
+chk 'TODAY_CONSULT' automation/admin/admin.gs 5
+chk 'TODAY_CONSULT' scripts/audit/admin-ux.mjs 1
+# ★[HOME_RIGHT_STACK] 결과물·후기를 오른쪽 열로 — 종전엔 큐 아래라 바쁜 날 오른쪽이 700px 비고 결과물이 스크롤 밖이었다.
+chk 'HOME_RIGHT_STACK' admin.html 1
+# ★[FP_BROAD 2026-09-06 관리자 점검] 배포 지문이 표본 5개만 봐서, 그 밖의 파일만 고치면 재배포를 «안 해도»
+#   ④ 가 «같다»고 답했다(실측: adminHome 변경 전후 지문 둘 다 1lzcle2). 전역 함수 이름:길이 서명을 지문에 더했다.
+#   회귀 검사: node scripts/audit/deploy-fp.mjs — 표본 밖 한 함수만 바꿔도 지문이 달라지는지 본다.
+chk 'FP_BROAD' automation/platform/00_platform-config.gs 2
+chk 'FP_BROAD' automation/platform/99_deployCheck.gs 1
+chk '_dsGlobalSig' automation/platform/00_platform-config.gs 2   # 정의 1 + deployFingerprint 안 호출 1
+chk 'FP_BROAD' scripts/audit/deploy-fp.mjs 2
+chk 'grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
+chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
+# ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
+chk 'SAFE_HREF' admin.html 6
+chk 'SAFE_HREF' scripts/audit/admin-inject.mjs 1        # 재현 시뮬(브라우저) — node scripts/audit/admin-inject.mjs · 실패 0
+# ★[ALERT_SEND_ONCE 2026-09-05 점검] EDU_ADD_ONCE 와 같은 결함이 «실제로 보내는» 버튼 둘에도 있었다
+#   (aicAlert·aitAlert → aiAlertAdmin). 연타하면 관리자에게 같은 알림이 두 번 간다. 같은 처방으로 잠근다.
+#   ★되돌리기(aiFactRollback)는 «비멱등»이라 더 위험했다 — 되돌림 자체가 새 이력이 되어
+#     두 번 부르면 hist[0].prev 가 방금 값이라 원래대로 되돌아온다(그 값이 고객 답변에 쓰인다).
+chk 'ALERT_SEND_ONCE' admin.html 2
+chk 'ROLLBACK_ONCE' admin.html 1
+# ★[ADMIN_MAIL_WORDING] 관리자 알림은 메일 전용(CLAUDE.md 2026-06-29 · aiAlertAdmin → _nfAdminLineEmail 실측).
+#   화면이 「문자」라고 말하면, 안 왔을 때 관리자가 엉뚱한 곳(문자 설정)을 뒤진다.
+grep -q '관리자에게 문자를 보냈어요' admin.html \
+  && { echo 'FAIL ADMIN_MAIL_WORDING: admin.html 이 관리자 알림을 「문자」라고 말한다 — 실제는 메일이다'; fail=1; }
+chk 'column-count' admin.html 0
 # [SUM_GATE] 시퀀스 카드 대표값 합=140 · '합은 N분' 산문=55 — drift 게이트가 일부러 안 보던 자리에서 실제로 새던 둘.
 chk 'SUM_GATE' scripts/check-source-drift.mjs 1
 
 # ★★[GP_OVER_PICK 2026-08-22 병렬 시뮬레이션 점검에서 발견] 한 번에 고를 수 있는 장수를 넘기면
 #   «말없이» 잘렸다. 실측: 35장을 골랐더니 30장만 가고 「30장 전해졌어요」로 끝났다 —
 #   남은 5장이 사라진 것을 하객이 알 길이 없었다. 조용한 절삭은 «다 갔다»로 읽힌다.
-#   → 잘린 수를 send/finish 로 넘겨 끝에서 함께 말한다(성공 시트·실패 인라인 양쪽).
+#   → 잘린 수를 끝에서 함께 말한다.
+#   ★2026-09-08 이 두 줄을 «갱신»했다(폐지가 아니라 자리 이동) — 아래 GP_OVER_KEEP 참고.
+#     ①`over` 를 인자로 나르던 것을 rest 배열 하나로 바꿨다(넘친 «파일»을 쥐고 있어야 이어 보낸다).
+#       그래서 'over=all.length-f.length' 는 사라졌고 'rest=all.slice(GP_ONCE)' 가 그 자리다.
+#     ②「다시 눌러 보내 주세요」(다시 고르라는 말)를 「남은 N장 보내기」 버튼으로 바꿨다.
+#     조용한 절삭을 막는다는 취지는 그대로다 — 오히려 말에서 «누를 것»으로 올라갔다.
 chk 'GP_OVER_PICK' guide.html 1
-chk 'over=all.length-f.length' guide.html 1
-chk '남은 '"'"'+over+'"'"'장은 다시 눌러 보내 주세요' guide.html 1
+chk 'rest=all.slice(GP_ONCE)' guide.html 1
+chk '남은 '"'"'+over+'"'"'장 보내기' guide.html 1
 
 # ★★[GP_NONE_WHY 2026-08-22 병렬 점검에서 발견 · 내가 만든 결함] 한 장도 못 갔을 때
 #   「보낼 사진이 없었어요」는 «고르지 않았다»는 뜻으로 읽힌다. 실제로는 크기 때문에 걸러진 것이다.
@@ -5635,6 +6075,36 @@ chk 'MARKS_AGE' scripts/gen-deploy-fns.mjs 1
 chk 'MARKS_AGE' automation/platform/99_deployCheck.gs 1
 chk 'LIST_PARTIAL' automation/platform/99_deployCheck.gs 1
 chk 'SIM_STALE' scripts/audit/deploycheck-sim.mjs 1
+chk 'HTML_LEN' automation/platform/99_deployCheck.gs 1
+chk 'SIM_HTML_BODY' scripts/audit/deploycheck-sim.mjs 1
+
+# [PROPS_CHECK] 설정값(스크립트 속성) — 「코드는 멀쩡한데 기능만 조용히 안 도는」 자리.
+#   갈래표(gen-deploy-fns.mjs 의 PROPS)에 없는 키를 쓰면 생성기가 거절한다 → 조용히 늘지 않는다.
+chk 'PROPS_CHECK' automation/platform/99_deployCheck.gs 1
+chk 'LIST_REVERSE' automation/platform/99_deployCheck.gs 1
+chk 'SIM_PROPS' scripts/audit/deploycheck-sim.mjs 1
+chk 'SIM_REVERSE' scripts/audit/deploycheck-sim.mjs 1
+chk 'SIM_NOT_MINE' scripts/audit/deploycheck-sim.mjs 1
+
+# [PROJECT_CHECK] 별도 GAS 프로젝트 3곳(부부폼·하객편지·가족청첩장)은 deployCheck 가 못 닿는다 —
+#   typeof 는 같은 프로젝트 안에서만 통한다. 그래서 각자 스스로 세는 파일을 따로 둔다.
+#   그 파일도 «점검받지 않은 코드»가 되지 않게, 전 함수를 하나씩 빼 보는 시뮬레이터를 물린다.
+chk 'PROJECT_CHECK' automation/99_projectCheck.gs 1
+chk 'PROJECT_CHECK_SIM' scripts/audit/projectcheck-sim.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/projectcheck-sim.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL projectcheck-sim: 별도 프로젝트 점검이 빠진 함수를 못 잡는다 — node scripts/audit/projectcheck-sim.mjs'; fail=1; }; fi
+
+# ★[MARKS_REACH] 점검 목록이 «사이트로 나가는 길»을 지킨다 — 이 길이 끊기면 모든 것이 조용히 무너진다.
+#   GAS 는 https://momentedit.kr/deploy-marks.json 에서 목록을 읽는다. 그 파일이 배포에서 빠지거나
+#   Vercel 이 빌드를 건너뛰면, 점검은 «옛 목록»으로 돌면서도 초록을 낸다 — 가장 위험한 실패다.
+#   ①.vercelignore 에 들어가면 웹에 안 올라간다.
+#   ②vercel.json 의 ignoreCommand 가 이 파일을 제외 목록에 넣으면, .gs 만 바뀐 병합에서 빌드가 통째로 스킵된다.
+grep -qE '^[[:space:]]*deploy-marks\.json' .vercelignore \
+  && { echo 'FAIL MARKS_REACH: deploy-marks.json 이 .vercelignore 에 있다 — 사이트에 안 올라가 점검이 목록을 못 읽는다'; fail=1; }
+grep -q 'deploy-marks' vercel.json \
+  && { echo 'FAIL MARKS_REACH: vercel.json 이 deploy-marks.json 을 언급한다 — 빌드 스킵 규칙에 걸리면 목록이 낡은 채 남는다'; fail=1; }
+[ -f deploy-marks.json ] \
+  || { echo 'FAIL MARKS_REACH: deploy-marks.json 이 저장소 루트에 없다'; fail=1; }
 # ★GAS 가 읽는 화면 파일 4벌은 전부 표식을 하나씩 갖고 있어야 한다 — 없으면 «붙었는지» 볼 근거가 없다.
 #   ScreenC_change.html 은 표식이 0개라 361KB 중 그 몫이 점검 밖이었다(2026-09-05 에 넣었다).
 for _h in automation/admin/Admin.html automation/consultation/ScreenA_apply.html \
@@ -5896,3 +6366,1935 @@ if command -v python3 >/dev/null 2>&1; then
   _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
     || { printf '%s\n' "$_ad"; fail=1; }
 else echo 'skip application-decisions (python3 없음)'; fi
+# ★★[CSS_COMMENT_NEST 2026-09-06 실기기 제보 "플레이버튼 전에꺼가더 좋왔던거같은데"]
+#   CSS 주석은 중첩되지 않는다. 주석 안에서 다시 열면 «첫» 닫는 표시가 바깥까지 함께 닫고,
+#   그 뒤 설명문이 CSS 로 읽힌다. 파서는 회복하려고 다음 { } 블록 하나를 통째로 삼킨다.
+#   실사고: index.html 의 .journal-listen 규칙이 그렇게 사라져, 저널 재생 버튼이
+#   26px 골드 원 대신 «브라우저 기본 네모 버튼»으로 배포됐다(8c261bee6 ~ 이 커밋).
+#   ★이 사고는 기존 어떤 검사에도 안 걸렸다 — 링크·접근성·탭타깃·문구 검사는 전부 통과했고,
+#     전체 스크린샷도 «대체로 멀쩡»해 눈으로도 안 보였다. 규칙 하나만 조용히 없어졌기 때문이다.
+#     그래서 화면이 아니라 «파서가 무엇을 버렸나»를 직접 보는 검사를 따로 둔다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/css-comment-nest.mjs || fail=1; else echo 'skip css-comment-nest (node 없음)'; fi
+chk 'CSS_COMMENT_NEST' scripts/audit/css-comment-nest.mjs 1
+chk 'CSS_COMMENT_NEST' index.html 1     # 사고 자리에 남긴 근거 주석 — 지우면 같은 실수가 되돌아온다
+chk 'nestedOpens' scripts/audit/css-comment-nest.mjs 2
+
+# ★★[GP_OVER_KEEP 2026-09-08 코워크 지적 "초과분이 실패분보다 불리하다"]
+#   실패한 사진은 「다시 시도」가 그 파일들을 그대로 다시 보낸다 — 다시 고를 필요가 없다.
+#   그런데 «넘친» 사진은 문장만 있고 선택이 비워져, 예식장에서 서서 다시 골라야 했다.
+#   잘못한 것도 없는데 실패보다 초과가 더 불리했던 것이다. 셋을 함께 고쳤다:
+#   ①넘친 파일을 쥐고 있다가 「남은 N장 보내기」로 이어 보낸다(GP_OVER_KEEP)
+#   ②올리는 «동안»부터 남은 장수를 말한다 — 끝나고 말하면 이미 창을 닫은 뒤다(GP_OVER_AHEAD)
+#   ③넘쳤으면 «끝났다는 성공 시트»를 안 띄운다 — 15px 이 «끝났다»고 하면 12px 은 안 읽힌다(GP_OVER_WEIGHT)
+chk 'GP_OVER_KEEP' guide.html 1
+chk 'GP_OVER_AHEAD' guide.html 1
+chk 'GP_OVER_WEIGHT' guide.html 1
+chk 'gpRest' guide.html 2                            # 「남은 N장 보내기」 버튼 — 만드는 자리 + 배선하는 자리
+chk 'GP_OVER_KEEP' scripts/audit/guide-photo-sim.mjs 2   # 버튼을 «실제로 눌러» 요청이 더 나가는지까지 본다
+
+# ★★[LEAD_IN_NO_JUMP 2026-09-08 «글자 크기 × 재생 중» 조합 검사에서 발견]
+#   [HINT_NO_POP 2026-08-18] 이 «막대가 갑자기 커지며 글이 튀어나오는 것»을 없앴는데,
+#   2026-08-30 [LEAD_IN_SAY] 가 볼륨 안내를 display:none 으로 감추면서 그 움직임이 되살아났다.
+#   실측 320px: 리드인 69px → 소리 시작 97px. 같은 자리·다른 원인의 재발이라 아무도 안 봤다.
+#   ★visibility 여야 한다 — 감추되 자리는 남긴다. display:none 으로 되돌리지 말 것.
+#   ★[BAR_HEIGHT_REAL] body 아래 여백 70px 도 어림수였다(막대는 320px 97px · 390px 73px).
+#     가려지진 않았지만 남는 틈이 8px 뿐이었다. 이제 막대를 재서 넣는다.
+chk 'LEAD_IN_NO_JUMP' parents.html 1
+chk 'visibility:hidden}' parents.html 1              # 리드인 동안 볼륨 안내를 감추는 방식 — display:none 금지
+chk 'BAR_HEIGHT_REAL' parents.html 2
+chk 'bar-h' parents.html 2
+chk 'PAR_COMBO' scripts/audit/parents-listen-size.mjs 1
+chk 'BAR_SLACK' scripts/audit/parents-listen-size.mjs 2   # 대리 지표로 없는 결함을 만들지 않는다는 근거
+
+# ★★[KST_WEEKDAY 2026-09-09 게이트가 «달력 때문에» 붉었다] 날짜 부패의 두 번째 축.
+#   [KST_AHEAD 2026-09-05] 는 고정 날짜가 «과거가 되는 것»만 막았다. 그런데 상담 슬롯은
+#   요일마다 다르다 — 평일 ['11:30','14:50','18:10','19:30'] · 주말 ['18:20'].
+#   시뮬레이터가 '14:50' 을 박아 두므로 오늘+45 가 토·일이면 «없는 시간»이 되어
+#   서버가 정상 거절하고 여정이 통째로 막힌다.
+#   ★실측: 2026-09-08(+45=금) 초록 → 자정을 넘겨 2026-09-09(+45=토) 붉음. 제품은 한 줄도 안 바뀌었다.
+#     즉 이 게이트는 7일 중 2일 붉었고, 그 빨강은 아무 값도 없었다(사람을 게이트에 둔감하게 만든다).
+#   ★반증: 앞으로 21일 어느 날에 돌려도 평일이고, CONSULT 와 PROPOSE 가 서로 다르다.
+chk 'KST_WEEKDAY' scripts/audit/_gasworld.mjs 1
+chk 'export const kstAheadWeekday' scripts/audit/_gasworld.mjs 1
+chk 'kstAheadWeekday(45)' scripts/audit/rollback-roundtrip.mjs 1
+chk 'kstAheadWeekday(45)' scripts/audit/rollback-fuzz.mjs 1
+chk 'kstAheadWeekday(45, 1)' scripts/audit/stage-reach.mjs 1   # 45(토)·46(일)이 같은 월요일로 붙는 것 방지
+nochk 'kstAhead(45)' scripts/audit/rollback-roundtrip.mjs      # 평일 보정 없는 옛 형태로 되돌리지 말 것
+nochk 'kstAhead(45)' scripts/audit/rollback-fuzz.mjs
+nochk 'kstAhead(46)' scripts/audit/stage-reach.mjs
+
+# ★★[HERO_SUB_12 2026-09-09 사용자 확정 「12」] 히어로 부제 clamp 하한 11.5 → 12px.
+#   [TYPO_SCALE7] 이 index 에 온전히 서게 하는 마지막 한 걸음이었다(라운드 1 ③-a 가 이걸로 닫힌다).
+#   ★하한만 바꿨다 — 1.3vw 와 상한 13px 은 그대로다. 923px 아래에서만 이 값이 걸린다
+#     (1.3vw = 12px 되는 폭이 923px · 13px 되는 폭이 1000px). 즉 «폰 전부»가 대상이다.
+#   실렌더 320·390·1280: 줄바꿈 없음 · 문서 높이 그대로(26032 / 25674 / 25989 · 변화 0).
+chk 'HERO_SUB_12' index.html 1
+chk 'clamp(12px, 1.3vw, 13px)' index.html 1
+nochk 'clamp(11.5px' index.html                      # 반px 하한으로 되돌리지 말 것
+
+# ★[TYPO_RAMP 2026-09-09] 램프를 «주석»이 아니라 «숫자»로 지킨다.
+#   종전 게이트는 [TYPO_SCALE7] 주석이 살아 있는지만 봤다 — 규칙이 적혀 있는지를 본 것이지
+#   지켜지는지를 본 게 아니다. 실제로 .92em(11.04px) 셋과 히어로 11.5px 이 그 아래에서 살아 있었다.
+#   ★아직 «막는» 게이트로 걸지 않는다 — 남은 둘(.hero-tease-line 상한 15px · .mfs 5.5px)이
+#     취향 판단이라 사용자 결정을 기다린다. 그 둘이 정해지면 여기서 node 로 돌려 빨강으로 만든다.
+#   ★[RAMP_DOMAIN] 램프의 범위는 11~20px 이다. 첫 판에서 이걸 안 걸어 제목·아이브로우까지
+#     「램프 밖 14종」으로 셌다 — 검사의 가정이 규칙과 달랐던 경우다(§5-24).
+#   ★[RAMP_NO_DEAD] 「안 쓰는 규칙은 빼자」를 넣었다가 뺐다. .me-adv-* 는 advisor-widget.js 가
+#     만드는데 index.html 안에만 없어서 「죽었다」로 셌다 — 한 파일로는 확정할 수 없다.
+chk 'TYPO_RAMP' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_DOMAIN' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_CANT' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_NO_DEAD' scripts/audit/typo-ramp.mjs 1
+
+# ★[RAMP_TWO_PASS 2026-09-09 코워크 제안] «선언»과 «렌더»는 다른 사건이라 칸을 나눠 센다.
+#   clamp 상한 15px 은 선언으로는 램프 밖이지만 폰(~923px)에서는 하한 13px 이 걸려 렌더로는 램프 안이다.
+#   섞으면 「고객이 보는 위반」과 「선언상의 위반」이 뒤섞여 우선순위가 흐려진다.
+#   ★[RAMP_NO_OPACITY] 렌더 칸을 만들며 또 틀렸다 — opacity<0.05 를 걸러 .hero-tease-main 의
+#     15px 을 「0건」으로 냈다. 스크롤 등장 연출이 첫 화면에서 opacity:0 을 걸어 두기 때문이다.
+#     크기를 세는 검사에서 «지금 투명한가»는 상관이 없다. 글자는 투명해도 그 크기다.
+chk 'RAMP_TWO_PASS' scripts/audit/typo-ramp.mjs 1
+chk 'RAMP_NO_OPACITY' scripts/audit/typo-ramp.mjs 1
+chk "closest('\[class\*=\"mock\"\]" scripts/audit/typo-ramp.mjs 1   # 목업은 이름이 아니라 DOM 조상으로 거른다
+# ★★[VOICE_JINHEE 2026-09-06 사장님 확정] 안내 목소리 이름은 '진희' 다 ('잔희' 아님).
+#   사장님 원문: *"아 그리고 잔희가 아니라 진희야"*
+#   163곳에 '잔희' 가 박혀 있었지만 원천은 build-typecast-import.mjs 의 DEFAULT_VOICE 한 줄뿐이다.
+#   ★생성물을 손으로 고치지 말 것 — 여기만 고치고 --write 로 다시 뽑는다.
+#   ★'잔희' 로 뽑으면 타입캐스트가 그 화자를 못 찾아 사장님이 클립마다 손으로 배정해야 한다.
+chk 'VOICE_JINHEE' scripts/build-typecast-import.mjs 1
+chk "안내: '진희'" scripts/build-typecast-import.mjs 1
+#   ★주석에 남은 '잔희' 는 «왜 바뀌었나»의 기록이라 그대로 둔다 — 지우면 다음 세션이 오타로 되돌린다.
+#     검사는 «뽑힌 대본»을 본다: 거기 '잔희' 가 하나라도 있으면 원천이 되돌아간 것이다.
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/재더빙_붙여넣기.txt'
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/1_안내.txt'
+# ★★[WAIT_BRIDGE_RETIRED 2026-09-06 사장님 결정] 대기·재개 브릿지 3클립(6문장) 폐지.
+#   49_bridge-4-wait-emotion · 50_bridge-5-wait-setup · 51_bridge-6-resume.
+#   근거 ①녹음은 「금방 이어집니다」를 약속하는데 실제로 얼마나 걸릴지 모른다 — 어긋나면 그 약속이
+#   기다림을 더 길게 만든다(Munichor & Rafaeli 2007: 녹음 사과가 음악보다 체감을 나쁘게 했다).
+#   ②멈춘 자리는 디렉터가 눈을 보고 말하는 편이 낫다 — 사람이 이미 거기 있다.
+#   ★되살리지 말 것. 폐지 정본은 assets/ritual-cue.js 의 RETIRED 다.
+chk 'WAIT_BRIDGE_RETIRED' assets/ritual-cue.js 1
+chk "'bridge-4-wait-emotion': 1" assets/ritual-cue.js 1
+chk "'bridge-6-resume': 1" assets/ritual-cue.js 1
+
+# ★★[DRINK_TONE 2026-09-06 사장님 지적] 10분 전 안내에서 「음료 한 잔」을 걷어냈다.
+#   사장님 원문: *"이부분 너무 아저씨같은느낌이야 고급스럽게"*
+#   ①「한 잔」은 술자리 관용구(「한 잔 하시면서」)의 그림자다 ②「드시면서」는 마시는 동작까지 시킨다
+#   ③ 한 호흡에 셋(마시고·있다가·앉기)을 지시한다. 말을 더하지 않고 지시를 덜어 고쳤다.
+#   ★부부(저희-체)는 「음료 준비해 두었습니다」로 따로 간다 — 준비한 사람이 말하는 자리라서다.
+#     중립 문장을 배역 파일에 넣으면 안내 말투가 부부 입에서 나온다(한 번 그렇게 넣었다가 잡았다).
+nochk '음료 한 잔' assets/ritual-data.js
+nochk '음료 한 잔' order-preview.html
+nochk '음료 한 잔' 'docs/plans/식순연구/배역_예시_대사.txt'
+#   ★2차(같은 날) — 「음료가 준비되어 있습니다」는 아저씨는 면했지만 이번엔 «안내판»이 됐다.
+#     사장님: *"음료랑 핑거 푸드 얘기를 조금더 자연스럽게 풀어보자 지금은 너무 딱딱하잖아"*
+#     준비한 사람이 주어가 되면(「준비해 두었으니」) 그대로 환대가 된다. 「편히 드세요」로 권하고,
+#     앉는 부탁은 다음 문장으로 뗐다 — 한 문장에 붙으면 다시 참견으로 들린다.
+#   ★핑거 푸드는 계약서·index.html 이 약속한 제공 항목이다(웰컴 핑거 푸드·와인). 빼지 말 것.
+#   ★3차 — 사장님이 실제로 녹음하신 판이 B안이었다(올려 주신 wav 30개 파일명으로 확인).
+#     화면 글과 소리가 다른 말을 하면 안 되므로 «소리»를 정본으로 삼는다.
+#     ★검사 문장을 A안으로 되돌리지 말 것 — 되돌리면 녹음과 글이 어긋난 채 초록이 된다.
+#   ★[TONE_POLISH 2026-09-12] 2 → 1 로 내렸다. **B안을 되돌린 것이 아니다** — 핑거 푸드를
+#     말한다는 내용은 그대로고, 나레이션판의 «어미»만 합쇼체로 맞췄다(「두었어요」→「두었습니다」).
+#     G1-1·G1-3·G1-4 나레이션판은 이미 전부 합쇼체인데 G1-2만 두 분 목소리판에서 복사된 채였다.
+#     두 분 목소리판은 그대로 해요체다 — 그래서 1건이 «남아 있어야» 맞다.
+chk '한쪽에 간단한 다과와 음료를 준비해 두었어요' assets/ritual-data.js 1
+chk '자리에 앉아 주시면 됩니다' assets/ritual-data.js 2
+nochk '음료가 준비되어 있습니다' assets/ritual-data.js
+nochk '편히 계시다 자리에 앉아' assets/ritual-data.js
+chk 'DRINK_TONE' scripts/apply-copy-0906b.mjs 1
+
+# ★★[BY_VOICE 2026-09-06 사장님 지시 "성우별로 전부 다시 정리된 내용으로 더빙 해보는게 좋을거같아"]
+#   파트 파일(1_안내·2_진행_전반…)은 «식 순서»로 잘려 한 파일에 여러 목소리가 섞인다.
+#   타입캐스트는 덩어리에 화자를 하나 배정하므로 섞인 파일은 줄마다 손으로 바꿔야 했다.
+#   성우로 자르면 파일 하나 = 화자 하나 = 클릭 한 번이다.
+#   ★[MIXED_BY_SENT] 신랑·신부 교대 클립은 «문장 role» 로 가른다(클립 role 로 가르면 상대 대사를 읽는다).
+#   ★[MIX_MADE] 합성 클립(26_vow-both)은 받지 않는다 — 24·25 를 겹쳐 만드는 것이라 두 번 받게 된다.
+#   ★[ORDER_BACK] _성우별_순서.json 이 줄번호 → 클립·문장 자리를 들고 있다. 이게 없으면 되돌릴 수 없다.
+chk 'BY_VOICE' scripts/build-voice-parts.mjs 1
+chk 'MIXED_BY_SENT' scripts/build-voice-parts.mjs 2
+chk 'MIX_MADE' scripts/build-voice-parts.mjs 1
+chk 'ORDER_BACK' scripts/build-voice-parts.mjs 1
+chk 'c.mix' scripts/build-voice-parts.mjs 1
+
+# ★★[NAME_ONE 2026-09-06] 예시 부부 이름은 한 벌뿐이다 — 이서준 · 정하윤.
+#   실제로 어긋나 있었다: 신랑이 「신랑 이서준입니다」라고 소개한 뒤, 신부 편지는 「준호야」로 불렀고
+#   하객대표는 「준호, 세영이와 오래 알고 지낸 친구」라고 했다. 같은 예식에서 네 사람이 딴 이름을 부른다.
+#   성우별 대본을 뽑다가 한 화면에 나란히 놓이면서 드러났다(파트로 잘려 있을 땐 안 보였다).
+#   이름 교체 결정 자체는 이미 있었다(문안개정_20260906.md) — 배역 파일에만 적용이 안 됐던 것이다.
+#   ★shared/hydrate.js 의 SAMPLE(groomName 이서준 · brideName 정하윤)이 같은 이름의 다른 원천이다.
+#     둘 중 하나만 바꾸면 청첩장 미리보기와 예식 대본이 다른 사람을 가리킨다.
+nochk '준호' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '세영' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '신랑 이서준입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '신부 정하윤입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk "groomName: '이서준'" shared/hydrate.js 1
+chk "brideName: '정하윤'" shared/hydrate.js 1
+
+# ★★[DOUBLE_AGAIN 2026-09-06] 「두 분, 다시 두 사람이 다시 정면을 바라봅니다.」 — 말이 안 되는 문장이었다.
+#   264cbbf2(문안 92곳 일괄 교체)에서 옛 요청형(「두 분, 다시 …」)과 새 서술형(「두 사람이 다시 …」)이
+#   반씩 겹쳐 남았다. 반지 교환 마무리 자리라 예식에서 그대로 나갈 뻔했다.
+#   성우별 대본으로 우성 153줄을 한 화면에 놓으니 그 줄 하나가 눈에 걸렸다 — 파트로 잘려 있을 땐 안 보였다.
+#   지금: 「같은 약속을 나눠 낀 두 사람이, 여기 함께 있습니다. 이제 다시 정면을 바라봅니다.」
+nochk '두 분, 다시 두 사람이' assets/ritual-data.js
+nochk '두 분, 다시 두 사람이' order-preview.html
+#   ★[MUNAN_REST 2026-09-09] D-3 이 「정면을 바라봅니다」를 뺐다 — 작가 몫이라 나레이션이 말하지 않는다.
+#     오늘 아침 [DOUBLE_AGAIN] 이 이 자리의 깨진 문장을 고쳤지만, 그건 말이 안 되는 문장을 고친 것이지
+#     이 결정을 뒤집은 것이 아니다. 되살리지 말 것.
+#     ★392·394행의 「두 사람이 다시 정면을 바라봅니다」는 반지 «어조 변형»이라 남긴다 —
+#       문서가 지운 것은 명령형(「정면을 바라보아 주세요」)이고, 저 둘은 서술이며
+#       사장님이 그 표에서 본 문장이 아니다. 넓게 지우면 보지 않은 것까지 지운다.
+nochk '정면을 바라보아 주세요' assets/ritual-data.js
+nochk '여기 함께 있습니다. 이제 다시 정면' assets/ritual-data.js
+
+# ★★[SPLIT_TAKE 2026-09-09] 타입캐스트가 한 문장을 둘로 쪼개 줄 때가 있다.
+#   실측 — 「1_우성_전반」 51줄을 넣었는데 wav 가 57개로 왔다. 「신랑 신부, 입장!」 여섯 줄이
+#   «신랑 신부,» + «입장!» 로 갈라졌다(다른 줄은 안 갈라졌다 · 쉼표 일반이 아니라 그 문장만).
+#   조립기는 대본 문장 수와 파일 수가 같다고 보고 순서를 맞추므로, 여섯 칸이 밀리면
+#   그 뒤 전부가 다른 자리에 붙는다 — 「입장!」이 서약 자리에서 나온다.
+#   ★그냥 이어 붙이면 안 된다 — 앞 조각 꼬리 무음 0.347초 + 뒤 조각 머리 무음 0.278초 = 0.625초.
+#     쉼표가 아니라 «두 문장»으로 들린다. 맞닿는 안쪽 무음만 깎고 쉼표 길이(0.2초)를 새로 넣는다.
+#     바깥쪽은 손대지 않는다 — 조립기가 클립 앞뒤 여백을 따로 계산한다.
+#   ★붙일 자리를 사람이 지정하지 않는다 — 파일명을 대본 줄에 탐욕적으로 맞춰 보고
+#     한 줄이라도 못 맞추면 아무것도 쓰지 않는다(여섯 번 세는 일을 만들지 않는다).
+chk 'SPLIT_TAKE' scripts/join-typecast-splits.mjs 1
+chk 'TRIM_TAIL' scripts/join-typecast-splits.mjs 2
+chk "start_threshold=-35dB" scripts/join-typecast-splits.mjs 1
+
+# ★★[CAKE_SOFT 2026-09-09 사장님 지적 "내립니다 나랑히 섭니다 너무 형식적이고 딱딱한거같아"]
+#   ①「나란히 섭니다」는 대형(隊形) 서술이다 — 사열·조회의 말이라 사람이 아니라 배치를 본다.
+#   ②「내립니다」는 목적어가 없다. 나이프를 못 말할 이유가 없는데 피해 간 말이라 그림이 안 그려진다.
+#   ③ 둘 다 «지금 일어나는 동작»을 현재형으로 중계한다 — 중계는 딱딱해질 수밖에 없다.
+#   고친 방향: 배치를 빼고, 자르는 동작 대신 «자르면 박수»로 넘긴다.
+#   사장님이 앞서 정한 그대로다: *"자르면 큰박수 유도 까지하면 자동으로 자연스럽[게] 되지 않을까?"*
+#   ★ritual-data.js 는 TONE_TABLE(생성구역)이 같은 문장을 또 들고 있다 — 그 줄은 손대지 않았다.
+#     어조 mp3 186개가 이미 있어, 그쪽 문안을 바꾸면 그 자리는 다시 받아야 한다(사장님 결정 대기).
+nochk '케이크 앞에 나란히 섭니다' assets/ritual-data.js
+nochk '케이크 앞에 나란히 섭니다' order-preview.html
+chk '두 사람이 케이크 앞에 섰습니다' assets/ritual-data.js 2
+#   (문장 개수 검사는 위 [COUNT_RETIRED] 블록에 함께 두었다 — 한 자리에서 보게)
+
+# ★★[GAP_BY_TEXT 2026-09-09] 쪼개진 take 를 붙일 때 사이 길이를 «자른 자리의 글»에서 정한다.
+#   반증: 「그럼, 두 사람의 새로운 시작을 위하여!」가 «…시작을» + «위하여!» 로 갈렸는데
+#   같은 문장이 같은 묶음에 안 갈린 채도 있었다. 그 take 엔 그 자리에 무음이 없다(연속 발화).
+#   0.2초를 넣은 판은 2.90초 — 원본 2.70초보다 딱 넣은 만큼 길었다.
+#   ★쉼표 0.2초 · 마침표류 0.35초 · 말 한가운데 0.05초. 고정값으로 되돌리지 말 것.
+#   ★자른 자리 «바로 뒤» 글자를 본다 — 앞을 보면 쉼표를 놓쳐 「신랑 신부, 입장!」이 0.05초가 된다(실제로 그랬다).
+chk 'GAP_BY_TEXT' scripts/join-typecast-splits.mjs 2
+chk 'GAP_MID' scripts/join-typecast-splits.mjs 2
+chk 'GAP_COMMA' scripts/join-typecast-splits.mjs 2
+# ★★[EXACT_ONE 2026-09-09] --clip 에 '=' 를 붙이면 그것 하나만 — 앞글자로 번지지 않는다.
+#   'G12-1' 이 G12-1B..F 까지 여섯을 끌고 와, 49개를 줬는데 63문장을 요구하며 멎었다.
+#   앞글자 규칙(entry-A..F 를 한 번에)은 옳다 — 다만 이름이 다른 이름의 앞머리이면
+#   (G12-1 ⊂ G12-1B) 그 하나를 영영 못 고른다. 그 구멍만 메운다.
+chk 'EXACT_ONE' scripts/clip-select.mjs 1
+chk "p.startsWith('=')" scripts/clip-select.mjs 1
+# ★★[TWIN_ARROW 2026-09-09] 대기 명단 한 줄에는 이름이 둘이다 — 왼쪽은 «화면 자리», 화살표 뒤가 «실제 클립».
+#   한 화면 자리에 녹음이 둘인 곳이 있어서다(안내판 + 배역판 · REDUB_TWIN).
+#   검사가 왼쪽을 읽어, 배역 01_guest-1(이겸)이 대기인데 안내 guest-1-arrival(진희) 목소리를 내놓으라 했다.
+#   진희는 이미 다 받아 명단에 없는데도 게이트가 붉었다. 화살표 뒤를 먼저 본다.
+chk 'TWIN_ARROW' scripts/check-paste-format.mjs 1
+chk '←' scripts/check-paste-format.mjs 2
+
+# ★★[MUNAN_APPLIED 2026-09-09 사장님 지적 "이거 분명 개선해달라고 적은거같은데 반영이누락된건지? 전수점검"]
+#   맞았다. 문안개정·감동구간 문서에 적어 놓고 원천에 안 넣은 배역 대사가 무더기로 있었다.
+#   실측 — 아버님 1/12 · 어머님 3/14 · 신부→부모님 1/9 · 하객대표 1/8 문장만 들어가 있었다.
+#   ★왜 놓쳤나: 개정을 apply-copy-0906.mjs 로 «한 번에» 넣었는데 거기엔 28줄만 적었다(문서엔 33).
+#     감동 구간 문안은 아예 한 줄도 안 옮겼다. 개수를 센 적이 없어 조용히 지나갔다.
+#     ★「일괄 스크립트를 돌렸다」는 «전부 넣었다»가 아니다. 문서와 원천을 직접 맞대야 한다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/munan-applied.mjs >/dev/null || echo 'note munan-applied — 문서와 원천이 다른 자리가 있다(사람이 판정)'; fi
+chk 'MUNAN_APPLIED' scripts/audit/munan-applied.mjs 1
+chk 'MUNAN_MISS' scripts/apply-munan-miss.mjs 1
+chk 'REDUB_COST' scripts/apply-munan-miss.mjs 2
+# ★★[CAST_SAID 2026-09-09] 배역 대사 ↔ 실제로 녹음된 글을 전수 대조한다.
+#   check-text-audio 는 «화면 글 ↔ 소리»를 본다. 편지·덕담·서약 같은 배역 클립은 castLive 라
+#   화면 글과 짝이 아니어서 «일부러» 빠져 있다 — 그 판단은 옳지만, 그래서 배역 대사만 바꾸면
+#   소리가 옛말인 채 아무도 안 보는 구간이 생긴다. 실제로 그 상태였다:
+#   07_welcome-bride 는 「신부 정세영입니다」, 09_vow-bride 는 「준호야」로 남아 있었다(이름 통일 전 소리).
+#   ★여기서는 화면을 끼우지 않는다 — manifest ↔ _recorded.json 둘만 맞대므로 castLive 여부와 무관하다.
+chk 'CAST_SAID' scripts/audit/cast-text-audio.mjs 1
+chk '_recorded.json' scripts/audit/cast-text-audio.mjs 1
+chk 'RETIRED.has' scripts/audit/cast-text-audio.mjs 1
+# ★★[CAP_NAME_READ 2026-09-09] 최장 클립의 «이름»도 주석에서 읽는다 — 코드에 굳히지 않는다.
+#   'declare-1-solemn' 이 코드에 박혀 있어, 최장이 정당하게 바뀌자(어머님 덕담 4 → 12문장)
+#   주석을 아무리 고쳐도 검사가 계속 붉었다. 이 검사가 지키는 것은 «누가 최장인가»가 아니라
+#   «주석과 실측이 같은가»다. 이름도 주석이 원천이다.
+chk 'CAP_NAME_READ' scripts/check-narr-len.mjs 1
+nochk "!== 'declare-1-solemn'" scripts/check-narr-len.mjs
+
+# ★★[MUNAN_REST 2026-09-09 사장님 지시 "내가 지적한 멘트 전부 누락 하나도 없는지 하나하나체크"]
+#   33개 개정 항목을 «옛 글이 아직 있나 / 새 글이 들어갔나» 두 축으로 다시 쟀다.
+#   앞 커밋의 배역 13클립 말고도 나레이션에 아홉 자리가 남아 있었다 — 전부 넣었다.
+#   ★넣지 «않은» 것도 적어 둔다(다음 점검이 또 붉지 않게): 음료·「직접」·케이크는 뒤 대화가 이겼고,
+#     E-6~E-11 은 나중 문서(감동 구간)가 이겨 이미 들어갔다.
+#   ★TONE_TABLE(생성구역)에 같은 문장이 또 있는 자리가 있다 — 어조 mp3 186개가 걸려 있어
+#     사장님 결정 전에는 손대지 않는다. 축배가 그 예다(실황 2곳만 바꿨다).
+chk 'MUNAN_REST' scripts/apply-munan-rest.mjs 1
+chk '화면으로 함께해 주시는 분들, 반갑습니다' assets/ritual-cue.js 1
+chk '이제 두 분 손에 같은 것이 하나씩 생겼습니다' assets/ritual-data.js 2
+chk '이제 두 사람은 부부입니다. 다 함께 축하해 주세요' assets/ritual-data.js 1
+nochk '선언은 가족의 목소리로 남았습니다' assets/ritual-data.js
+nochk '두 사람이 한 바퀴를 거의 마쳤습니다' assets/ritual-data.js
+nochk '여러분과 두 분이 함께 찍는 시간은' assets/ritual-data.js
+# ★★[ENTRY_HOLD 2026-09-09] 「신랑 신부, 입장!」 앞에 1.2초.
+#   *"신랑신부 조금 쉬다가 입장하는 게 좋을 것 같아. 너무 바로 입장 아니깐 어색해 긴장도 없고"*
+#   고칠 것이 글이 아니라 «간격»이었다. 소리를 다시 받을 필요는 없다 — 다시 붙이기만 하면 된다.
+chk 'ENTRY_HOLD' scripts/build-typecast-import.mjs 1
+chk 'before = 1.2' scripts/build-typecast-import.mjs 1
+
+# ★★[REDUB_BYVOICE 2026-09-11 사장님 지시 "빼먹은게 없을때까지 반복해서 검토"]
+#   5라운드에서 나왔다. 저장소의 재더빙 명단(재더빙_붙여넣기.txt)은 22줄인데
+#   실제로 다시 받아야 할 것은 103줄이었다. 배역 13클립이 그 명단에 «구조적으로» 안 잡힌다 —
+#   그 명단은 check-text-audio(화면 글 ↔ 소리)가 만드는데, 편지·덕담·서약은 castLive 라
+#   화면 글과 짝이 아니어서 그 대조에서 빠지기 때문이다(그 판단 자체는 옳다).
+#   ★그대로 두면 다음 세션이 그 파일을 믿고 열세 클립을 통째로 빠뜨린다.
+#   ★다시받기/ 는 «소리»를 기준으로 센다 — manifest ↔ _recorded.json. 화면을 끼우지 않는다.
+#   ★이미 맞는 소리가 있는 클립은 뺀다 — 실측으로 김호인 38줄·서진 11줄이 빠졌다(헛녹음 49줄).
+chk 'REDUB_BYVOICE' scripts/build-redub-byvoice.mjs 1
+chk '_recorded.json' scripts/build-redub-byvoice.mjs 1
+chk 'RETIRED.has' scripts/build-redub-byvoice.mjs 1
+chk '다시받기' scripts/build-redub-byvoice.mjs 2
+
+# ★★[LETTER_REAL 2026-09-11 사장님 지적 "편지부분 너무 오글거리게 아침드라마 처럼말고 요즘 스타일로"]
+#   병렬 조사 4건 뒤 편지·서약·덕담 8클립을 다시 썼다. 되돌리지 말 것 — 출처가 특정된 클리셰다.
+#   ①「더 나은 사람」 = 이보다 더 좋을 순 없다(1997) "a better man" 번역투 · 관용구화
+#   ②우산 회상 = 늑대의 유혹(2004) 원조 · 문화일보가 클리셰로 지목(세부까지 기사에 있다)
+#   ③「그날을 넘기지 않을게」 = "Never go to bed angry" 직수입 · 앞줄과 자기모순
+#   ④「낳아주셔서, 키워주셔서」 = 세 박자 관용구 · 반감 스레드 존재
+#   ⑤「여기 계신 분들 앞에서 약속할게」 = 서약서 판매 업체 양식 정형구
+#   ⑥「딸을 보내는 게 아니라 아들을 얻는다」 = 같은 프레임의 변형(자녀를 수량으로 센다)
+#   ⑦「-단다/-려무나/-거라」 = 국립국어원 2017 개정이 「예스러운 형태」로 규정 · 계녀가 계보
+#   ★설계 축이 바뀌었다 — 「구체를 넣어라」(Hansen&Wänke 2010)는 재현 실패(Henderson 2019 dz=0.08).
+#     「선언을 빼라」가 근거에 충실하다(Paulus 2013 의도적 자기제시 + Leech 겸양 격률).
+#   ★매끄러움이 위험 신호다 — 추도사 연구에서 전문가의 매끄러운 글보다 아는 사람의 더듬는 말이 선호됐다.
+nochk '더 나은 사람' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '우산' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '그날을 넘기지' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★★[THREE_BEAT 2026-09-11 사장님 지시 "낳아주셔서, 키워주셔서, 참아주셔서 고맙습니다. 이거는 살렸으면좋겠어"]
+#   되살렸다. 조사는 이 세 박자를 관용구로 판정했고 반감 스레드(82cook·블라인드)까지 확인했는데,
+#   사장님이 살리기로 정했다. ★다시 빼지 말 것.
+#   ★대신 «자리»를 옮겼다 — 끝이 아니라 가운데다. 그러자 상투가 기능으로 바뀌었다:
+#     2행에서 「고맙다는 말을 제대로 한 적이 없어요」라고 해 놓고, 6행에서 그 말을 «처음으로» 한다.
+#     닳은 문장이 이 편지 안에서는 «벼르던 말»이 된다. 끝에 있으면 그냥 상투구였다.
+#   ★착지는 여전히 「다음에 갈 때도 빈손으로 갈게요」가 맡는다(LETTER_LAND). 순서를 바꾸지 말 것.
+chk '낳아주셔서, 키워주셔서, 참아주셔서 고맙습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '여기 계신 분들 앞에서' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '려무나' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '단다' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk 'LETTER_REAL' scripts/apply-letter-rewrite.mjs 1
+chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [LETTER_LAND] 두 문장을 한 줄로 합치며 표현이 바뀌었다
+# ★[BLESS_SCENE 2026-09-12] 보일러 장면이 사라졌다. [LETTER_REAL] 이 이 줄로 지키려던 것은
+#   «훈계 대신 관찰로 사람을 보여 주는 구체 장면»이었다. 그 일은 이제 정류장이 한다:
+#   「버스 시간을 알면서도 삼십 분씩 일찍 나갔다」 — 성격을 규정하지 않고 행동으로 보여 준다.
+#   ★보일러를 버린 이유는 좋은 장면이 아니어서가 아니다. «사위가 한 일»이라 그걸 중심에 두면
+#     딸을 보내는 아버지가 자기 딸을 두 줄만 말하게 된다. 근거는 apply-bless-scene.mjs 에 있다.
+chk '버스 시간을 알면서도 삼십 분씩 일찍 나갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
+
+# ★★[LETTER_LAND 2026-09-11 사장님 "최선인지 검토"] 선언을 뺐으면 «종결 장치»를 대신 넣어야 한다.
+#   앞 커밋에서 선언을 전부 빼자 편지가 흐지부지 끝났다. 조사로 원인이 둘 특정됐다.
+#   ①「평생 사랑하겠습니다」가 하던 일은 약속이 아니라 «종결 신호»였다(Smith, Poetic Closure 1968 —
+#     「단서 없는 단언」이 고전적 종결 장치 목록에 있다). 대체재는 다른 선언이 아니라 다른 종결 신호다.
+#   ②「-더라」는 «직접 지각 + 의외성»을 나르는 «보고»라 구조적으로 말차례를 넘긴다 — 그래서
+#     읽는 사람이 「그래서?」 하고 기다렸다. 게다가 서술어 「되다」는 추상이라 심상이 0이다.
+#   처방 — 마지막 줄은 앞줄보다 짧게 · 미래의 사소한 행동이나 현재의 관찰 · 앞에 나온 사물 되불러오기 ·
+#     선언은 지우지 말고 «가운데»로(윤동주 「서시」 배치법) · 대상 전환(나태주 「너도 그렇다」).
+#   ★[VOW_ECHO] 신랑 「한 번은 더 물어볼게」 ↔ 신부 「너는 나한테만 먼저 말해」. 한쪽만 고치지 말 것.
+#   ★「인스타 감성」은 목표가 아니다 — 문체 이름이 아니라 평가어이고 조롱하는 변형이 「갬성」이다.
+chk 'LETTER_LAND' scripts/apply-letter-landing.mjs 1
+chk 'VOW_ECHO' scripts/apply-letter-landing.mjs 2
+chk '오늘부터 너는 혼자 참지 않아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '너는 나에게 먼저 말해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '그래서 오늘 여기 서 있어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
+chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+
+# ★★[LETTER_COST 2026-09-11 사장님 "젊은 예비부부들이 뭉클하게"] 값을 치르는 문장을 넣었다.
+#   앞 두 판(LETTER_REAL·LETTER_LAND)은 «감점을 없애는» 일이었다 — 클리셰를 지우고 끝을 착지시켰다.
+#   가점이 없었다. 전부 «관찰»이라 안전했고, 안전해서 안 울었다.
+#   뭉클은 화자가 손해를 감수할 때 온다 — 늦었다고 인정하거나, 아직 감당이 안 된다고 털어놓을 때.
+#   ★고백을 감정어로 닫지 않는다. 「미안해」로 끝내면 도로 선언이다. 말끝을 흐린다:
+#     「…아직도 좀 그래」·「…저 하나도 버거운데」. 못 끝낸 문장이 듣는 사람 안에서 끝난다.
+#   ★[CROSS_ECHO] 이 대본에서 가장 센 것은 한 문장이 아니라 «두 사람이 따로 같은 것을 알아본 것»이다.
+#     신랑 「너는 힘든 걸 말 안 해」 ↔ 어머님 「하윤이는 어릴 때부터 아프다는 말을 안 했어요」
+#     신랑 「괜찮다고 해도 한 번은 더 물어볼게」 ↔ 어머님 「괜찮다고 하면 한 번만 더 물어봐 줘요」
+#     신랑이 삼 년 걸려 안 것을 어머니는 스물아홉 해째 알고 있었고, 어머니가 사위에게 부탁한 것을
+#     사위는 이미 하고 있다. 상의한 적 없이 겹친다 — 하객은 그 겹침에서 운다.
+#     ★한쪽만 고치면 장치가 죽는다. 넷을 함께 볼 것.
+#   ★[TIME_GAP] 「아버지가 지금 제 나이였을 때, 저를 업고 다니셨더라고요 / 저는 아직 저 하나도 버거운데」
+#     — 결혼할 즈음 처음 하게 되는 계산이다. 자랑이 아니라 모자람의 고백이라 안 오글거린다.
+#   ★「평생 살고 싶어」가 아니라 「늙고 싶어」다 — 평생은 추상이고 늙음은 몸에 일어나는 일이다.
+chk 'LETTER_COST' scripts/apply-letter-cost.mjs 1
+chk 'CROSS_ECHO' scripts/apply-letter-cost.mjs 1
+chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '엄마가 걱정할까 봐 그랬답니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '괜찮다고 해도 한 번은 더 물을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '이 사람과 함께 늙고 싶어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+
+# ★★[LETTER_FORMAL 2026-09-11 사장님 "조금더 격식을 차리는듯한 멘트로 개선"] 격식을 한 단 올렸다.
+#   앞 판은 오글거림을 피하려다 구어로 너무 내려가, 하객 앞에서 읽는 글이 문자메시지처럼 읽혔다.
+#   ★올리는 방법은 «고급 어휘»가 아니라 셋뿐이다 — 새 미사여구를 넣으면 업체 샘플로 되돌아간다:
+#     ①구어 축약 펴기(「그거」→「그걸」·「-더라고요」→「-더군요」) ②조사 복원(「너 만나고」→「너를 만나고」)
+#     ③군말 빼기(「그냥」·「좀」·「진짜로요」)
+#   ★말단계는 그대로 둔다 — 서로에게 하는 서약·편지는 반말이 맞다. 존대로 바꾸면 «둘 사이»가
+#     사라지고 낭독 대회가 된다. 부모님께 드리는 말만 -습니다체로 올렸고,
+#     어머님이 사위에게 하는 말은 -요체로 둔다(장모가 -습니다체면 어색하고 하게체는 대본에 위험하다).
+#   ★고백의 흐린 말끝은 건드리지 않는다 — 「아직도 마음이 그래」·「저 하나도 버거운데」.
+#     여기를 정제하면 LETTER_COST 가 죽는다.
+chk 'LETTER_FORMAL' scripts/apply-letter-formal.mjs 1
+chk '앞으로는 자주 찾아뵙겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '진짜로요' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★★[NAME_PREFIX 2026-09-11 사장님 "대본 자동으로 성우이름까지 적용될수있게해서 파일만들어"]
+#   0_전체_화자표기.txt 는 줄마다 «화자: 대사» 다 — 타입캐스트가 그 이름으로 화자를 배정한다.
+#   ★대장 차례 그대로다. 성우별로 묶으면 조립기가 자리를 못 찾는다.
+#   ★★성우별 낱개 파일에는 이름을 붙이지 «않는다» — 화자를 이미 고른 뒤 붙여넣는 파일이라
+#     이름이 붙어 있으면 그대로 소리로 읽힌다(PASTE_WRONG_FILE 사고가 그것이었다). 두 꼴을 섞지 말 것.
+chk 'NAME_PREFIX' scripts/build-redub-byvoice.mjs 1
+chk '0_전체_화자표기.txt' scripts/build-redub-byvoice.mjs 1
+
+# ★★[NO_ERRAND 2026-09-11 사장님 "국 끓여얼려놨다는게 덕담에 있을필요는없어"]
+#   덕담에서 사적인 심부름을 뺐다. 하객 앞에서 하는 말인데 모녀 사이의 용건이라 듣는 사람이 낄 자리가 없고,
+#   「갈 때 가져가」는 예식 한가운데에 할 일을 하나 만든다. ★되살리지 말 것.
+#   ★사물로 착지하라는 원칙(LETTER_LAND)은 맞지만 «아무 사물»이 아니다 —
+#     그 자리에서 이미 말한 것을 되불러와야 한다. 국은 처음 나온 물건이었다.
+nochk '국 끓여' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '갈 때 가져가' 'docs/plans/식순연구/배역_예시_대사.txt'
+
+# ★★[NO_BIHON 2026-09-11] 「혼자서도 잘 사는 줄 알았는데 너를 만나고 아니었어」를 뺐다.
+#   사장님이 직접 열어 주신 실물 자료에서 «유일하게 확인된 조롱 대상 구조»였다 —
+#   인스티즈 2024-09-25 「결혼식 3탕 뛰었는데 멘트 다 똑같음 '비혼을 다짐했던 나에게~'」.
+#   세 결혼식에서 같은 멘트를 들었고, 댓글은 인터넷 샘플 복사로 의심했다.
+#   ★[LETTER_COST] 에서 내가 «값을 치르는 문장»이라고 자신 있게 넣은 자리였다. 잘못 짚었다.
+#   ★되살리지 말 것 — 「혼자서도」·「비혼」·「결혼 생각 없었는데」 계열 전부 금지.
+nochk '혼자서도 잘 사는' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '비혼' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '그건 못 고쳐' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★★[WITNESS 2026-09-11] 어머님의 «부탁»을 «목격담»으로 바꿨다.
+#   실물 신랑 어머니 축사(@soyuly)의 특징이 «조언 대신 믿음과 축복»이었고,
+#   인스티즈 2025-12-19 댓글에는 부모 편지 낭독을 «대놓고 울리려는 연출»로 보고 뺐다는 의견이 있었다.
+#   우리는 그 순서를 파는 쪽이라 그 혐의를 특히 조심해야 한다.
+#   ★★이 교체로 CROSS_ECHO 가 세졌다 — 순서가 «약속 → 증언»이 된다:
+#     예식 중반 신랑 「괜찮다고 해도 한 번은 더 물을게」 → 예식 후반 어머님 「한 번 더 묻더군요」
+#     어머니가 사위의 약속을 «이미 봤다»고 추인한다. ★둘의 순서를 바꾸지 말 것.
+chk 'WITNESS' scripts/apply-letter-witness.mjs 1
+# ★★[LETTER_SCENE 2026-09-11 사장님 "이런식으로 스토리를 만들어서 각각 한번 꾸며봐"]
+#   덕담에 한 것을 편지·헌정에도 했다. 편지는 아직 «요약»이었다 —
+#   「너를 만나고 나서 나는 화를 덜 내」는 결론만 있고 그렇게 된 날이 없었고,
+#   「하고 싶은 거 하겠다고 할 때마다」의 «때마다»는 장면이 아니라 습관의 요약이었다.
+#   ★요약은 듣는 사람이 믿어 줘야 성립하고, 장면은 듣는 사람이 스스로 본다.
+#   ★[음식을 두 번 쓰지 않는다] 신부 서약에 이미 「밥 먹었냐고 물었어」가 있어
+#     신랑 편지 장면에서는 음식을 뺐다(박스를 같이 날랐다). 예식 전체에서 음식 장면은 두 번뿐이다.
+chk 'LETTER_SCENE' scripts/apply-letter-scene.mjs 1
+chk '화를 내도 되는 사람이 화를 안 내니까' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '저는 그때 허락받았다고만 생각했어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '사진 뒤에 날짜가 적혀 있길래 세어 봤습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+
+# ★★[BLESS_TURN 2026-09-11 사장님 "부모님이 신랑신부에게 하는말 부분"] 조언을 «관찰»로 돌렸다.
+#   아버님 — 「살다 보면 서로 미운 날이」 세 줄이 앞뒤 어디와도 안 이어지는 조언 덩어리였고,
+#     딸 결혼식인데 «사위 이야기»만 있었다. 대구를 딸에게 돌려 해결했다:
+#     「서준이는 뒤쪽입니다」 → 「하윤아, 너는 앞쪽이지」 → 「먼저 말을 거는 건 아마 네가 할 거다」
+#     훈계가 «딸의 강점»이 되고 보일러 장면과 한 줄로 이어진다(나태주 「너도 그렇다」 구조).
+#   어머님 — 사위에게 «직접» 하는 말이 없었다. 전부 하객에게 하는 3인칭 보고였다.
+#     「서준아」로 호명하고 목격담을 사위에게 직접 말한다. 호칭은 이름 + 존대(「서준아 … 물었지요」) —
+#     장모가 사위를 부르는 실제 방식이고, 하게체(「물었는가」)는 낭독 대본에 위험하다.
+#     35음절짜리 한 줄을 셋으로 쪼갰다. 제일 중요한 문장인데 한 호흡에 안 들어갔다.
+#   ★CROSS_ECHO 의 «약속 → 증언» 순서는 그대로다. 바꾸지 말 것.
+chk 'BLESS_TURN' scripts/apply-bless-turn.mjs 1
+
+# ★★[BLESS_SCENE 2026-09-12 사장님 「이거 좀별로야 개선」] 아버님 덕담을 «장면 하나»로 다시 썼다.
+#   다섯 각도로 각각 새로 쓰고 안마다 세 심사자가 점수를 냈다 — 「한 장면」 안이 8.0/10(셋 다 8점).
+#   ★위 [BLESS_TURN]·[CHAR_ONE] 의 판단은 살아 있다(조언을 관찰로 · 딸이 중심). 더 멀리 밀었을 뿐이다 —
+#     일반론을 한 줄도 쓰지 않는다. 「말로 하는 사람이 있고」·「앞쪽/뒤쪽」이 그래서 사라졌다.
+#   ★옛 문장을 지키던 chk 일곱 줄을 걷었다. 그 문장들이 나빠서가 아니라 글이 통째로 바뀌어서다.
+#     항목별 근거는 scripts/apply-bless-scene.mjs 주석에 있다. 되살리려면 거기부터 읽을 것.
+chk 'BLESS_SCENE' scripts/apply-bless-scene.mjs 1
+# 장갑 세 박자 — 이 글에서 감정을 한 글자도 안 쓰고 감정을 만드는 장치다. 하나라도 빠지면 죽는다.
+chk '겨울이면 장갑을 하나 더 챙겼다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '하윤이는 늘 맨손으로 내렸다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '그날은 장갑을 꺼내지 않았다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# 「앞쪽/뒤쪽」이 문자 그대로의 자리로 돌아온 자리. 추상으로 되돌리지 말 것.
+chk '나는 뒤에서 갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '너는 계속 옆에서 가라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '말로 하는 사람이 있고' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '너는 앞쪽이지' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '잘 살아라' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★[PEAK_ONE 수치 보장] 아버님이 어머님보다 «짧고 낮아야» 정점이 뒤에 온다.
+#   길이는 그 낙차의 대리 지표다 — 아버님이 더 길어지면 어머님이 받는 자리가 아니라 덧붙임이 된다.
+_bl=$(node -e "var fs=require('fs');var t=fs.readFileSync('docs/plans/식순연구/배역_예시_대사.txt','utf8').split('\n');
+  function syl(k){{var on=false,c=0;for(var i=0;i<t.length;i++){{var r=t[i];
+    if(new RegExp('^\\\\['+k+'\\\\]').test(r)){{on=true;continue}}
+    if(on&&/^\\[/.test(r))break; if(on&&r.trim())c+=(r.match(/[가-힣]/g)||[]).length}}return c}}
+  var f=syl('12'),m=syl('13');console.log(f+' '+m+' '+(f<m?'ok':'bad'))" 2>/dev/null)
+case "$_bl" in
+  *ok) echo "ok 아버님($(echo $_bl|cut -d' ' -f1)음절) < 어머님($(echo $_bl|cut -d' ' -f2)음절) — 정점이 뒤에 온다" ;;
+  *)   echo "REVERT? 아버님 덕담이 어머님보다 길어졌다 ($_bl) — 정점(어머님)이 덧붙임으로 밀린다"; fail=1 ;;
+esac
+#   ★[TONE_POLISH 2026-09-12] 이 줄의 «구조»는 그대로 두고 문장만 고쳤다.
+#     「~하는 건 … 네가 할 거다」가 비문이었고, 앞 두 줄이 두 사람을 각각 「너」로 불러 놓아서
+#     「네가」가 누구인지 소리로 안 잡혔다. 이름으로 못 박았다 — 대구도 훈계의 방향도 그대로다.
+
+# ★★[PEAK_ONE 2026-09-11 사장님 "심리학 분석해서 개선있다면개선해봐"] 정점을 «하나»로 정했다.
+#   고립 효과는 배경이 평평할 때만 작동한다 — 감정 정점 여섯이 전부 최대치면 서로를 지운다.
+#   그리고 여러 대목이 이어지는 경험에서는 «정점을 더하는 것»보다 «골을 없애는 것»이 총평을 더 올린다
+#   (Miron-Shatz 2009). 그래서 더하지 않고 뺐다.
+#   ★정점 = 어머님 「저는 그날 이 걱정을 내려놓았습니다」. 스물아홉 해짜리 걱정이 «이 예식 안에서»
+#     끝나는 것을 하객이 실시간으로 본다. 대본에서 시간 폭이 가장 넓고, 유일하게 상태가 «바뀌는» 문장이다.
+#   ★그래서 70초 앞 아버님의 겹친 결말 하나를 눌렀다 — 「오늘부터 이 손은 셋이 잡습니다」 삭제.
+#     ①비유라 이 대본에서 혼자 톤이 뜬다 ②정점과 같은 「스물아홉 해」 소재를 먼저 써 버린다
+#     ③신랑 헌정 「오늘부터 둘이 갑니다」와 「오늘부터 + 숫자」로 구조가 겹친다.
+#     「잘 살아라」가 이미 착지를 맡고 있어 잃는 것이 없다. ★되살리지 말 것.
+#   ★[ALGOE_TRAIT] 칭찬은 «네가 나에게 준 것»이 아니라 «너는 이런 사람이더라»다(Algoe 2016).
+#     어머님이 목격담에서 곧바로 자기 이득으로 넘어가고 있었다 → 사이에 됨됨이를 부르는 한 줄.
+#     「싶었습니다」는 열 줄 위 「평생 이러겠구나 싶어서요」와 운을 맞춘 것이다. 말투를 바꾸지 말 것.
+#   ★[LAND] 끝을 「엄마 이제 밤에 잘 잔다」로. 정점을 다시 말하고 이유까지 붙이던 두 줄을 관찰 한 줄로.
+#   ★[CRY_OK] 25명 방에는 익명이 없다 — 우는 사람을 전부가 본다. 「기쁨」이라 이름 붙여 주지 않으면
+#     「누가 힘든가 보다」로 읽히고 옆 사람이 달래러 움직이며 장면이 깨진다.
+#     ★편지 여는 말에서 «한 번만» 준다. 두 번 말하면 지시가 되고, 안 우는 사람이 눈치를 본다.
+#     ★감정을 «명명»하지 않고 «허용»만 한다 — 「눈물」이라 부르면 아직 안 운 사람에게 지시가 된다.
+#     ★LETTER 세 변형은 서로 배타다(ritual-cue.js letter() 가 하나만 고른다). 그래서 셋 다 넣어도 1회다.
+#   ★[안 함] 편지 2개·덕담 2개 사이를 나레이션으로 벌리는 것 — 둘 다 한 라이브 블록 안이고
+#     마이크가 손으로 건너간다. 그 전달이 이미 10~15초 간격이고, 끼우면 말이 늦은 부모를 자른다.
+#   ★[안 함] 신부 서약 끝 「너는 나에게 먼저 말해」 — VOW_ECHO 짝이다(위 「한쪽만 고치지 말 것」).
+chk 'PEAK_ONE' scripts/apply-peak-one.mjs 1
+chk 'CRY_OK' scripts/apply-peak-one.mjs 1
+chk 'ALGOE_TRAIT' scripts/apply-peak-one.mjs 1
+chk 'LAND_VOCATIVE' scripts/apply-peak-one.mjs 1
+nochk '이 손은 셋이 잡습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '네 옆에 사람이 생겼으니까' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '한 번 더 묻는 사람이구나 싶었습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '네가 한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '저는 그날 이 걱정을 내려놓았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★★[CRY_OK 폐지 — 2026-09-12 사용자 지시로 삭제 · 되살리지 말 것]
+#   사장님 원문: 「이거 너무 오글거려 별로야 울컥감동은 강요하지말고 하객이 자연스럽게 느끼는거지
+#                 호들갑부리지마 수정개선」
+#   위 CRY_OK 블록의 관찰(25명 방에는 익명이 없다)은 틀리지 않았지만 «처방»이 틀렸다 —
+#   감정을 «허용»한다는 것이 곧 «예고»다. 아직 아무 일도 안 일어났는데 무엇을 느낄지 먼저 말하면
+#   안 느낀 사람은 눈치를 보고 느낀 사람은 김이 샌다. 그리고 아무도 안 울면 그 말이 틀린 말이 된다
+#   (녹음된 말은 반응하지 못한다 — [NO_ANSWER_CLAIM] 과 같은 종류의 잘못이다).
+#   ★«넣기 전»으로 되돌리지도 않았다. 그 판도 호들갑이었다(「세상에서 가장 먼저」·「한 번도 다 갚지 못한」).
+#     되돌리기는 쉬운 길이지 맞는 길이 아니다. 새로 썼다.
+#   ★새 원칙 — 여는 말은 «지금 눈앞에 무엇이 벌어지는지»만 말하고 물러난다.
+#     감정에 이름을 붙이지 않고, 무엇을 느낄지 말하지 않고, 실제보다 크게 말하지 않는다.
+nochk '울컥하셔도 괜찮습니다' assets/ritual-data.js
+nochk '울컥하셔도 괜찮습니다' order-preview.html
+nochk '오늘은 그래도 되는 날입니다' assets/ritual-data.js
+chk 'NO_FUSS' scripts/apply-no-fuss.mjs 1
+
+# ★★[NO_FUSS2 2026-09-12 사장님 「이런식으로 감동부분들 전면 검토개선」]
+#   여섯 각도로 감동 구간을 훑고 발견마다 셋이 검증했다(①정말 호들갑인가 ②고치면 감동이 죽는가
+#   ③대안이 정말 나은가). 43건 중 24건 통과 → 문장 단위로 겹침을 걷어 여덟 자리를 고쳤다.
+#   ★열아홉 건은 「감동이 죽는가」에서 떨어졌다. 밋밋하게 만드는 것은 고친 것이 아니다.
+#   ★드러난 패턴 하나 — 이 대본의 나레이션은 «닫는 말»에서 자꾸 결론을 낸다.
+#     하객이 방금 들은 것을 스스로 재기 전에 진행자가 먼저 크기를 정해 버린다.
+#     같은 대본의 모범들은 정반대다 — 「이제 두 분 손에 같은 것이 하나씩 생겼습니다」·
+#     「그 편지는 두 분이 가져갑니다」·「방금 그 말은, 오늘 이 자리에 있던 사람들만 들었습니다」.
+#     전부 «방금 생긴 사실» 하나만 말하고 물러난다. 아래가 그 규칙을 안 지키던 자리들이다.
+chk 'NO_FUSS2' scripts/apply-no-fuss2.mjs 1
+# ①서약 여는 말 — 아직 아무 말도 안 나왔는데 두 사람 속을 단정하던 문장.
+nochk '오래 마음에 품어 온 말이 있을 겁니다' assets/ritual-data.js
+nochk '오래 마음에 품어 온 말이 있을 겁니다' order-preview.html
+# ②서약 닫는 말 — 두 사람은 「가까이서 오래 지켜봐 주세요」라고 작게 말했는데 나레이터가 「평생」으로 부풀렸다.
+#   ★한 예식에 「평생」이 두 번 나오던 것도 풀린다(두 클립 뒤 성혼 선언이 「서로의 평생이 되었습니다」).
+nochk '두 사람의 평생이 됩니다' assets/ritual-data.js
+chk '방금 두 사람이 지킬 것을 말했습니다' assets/ritual-data.js 2
+# ③④축배 — 잔도 안 들었는데 「기쁨」이라 이름 붙이고, 끝나서는 그 기쁨이 하루를 「채웠다」고 봉인했다.
+#   축배 답이 작았던 날에도 그대로 나간다. 「울컥하셔도 괜찮습니다」와 같은 꼴이다.
+nochk '두 사람의 첫날을 채웠습니다' assets/ritual-data.js
+nochk '이 기쁨을 함께 나누겠습니다' assets/ritual-data.js
+chk '축배를 들겠습니다. 앞에 놓인 잔을' assets/ritual-data.js 1
+# ⑤⑥헌정 — 눈앞의 부모님을 「가장 오랜 사랑」이라는 추상으로 바꿔 부르고,
+#   시어머님이 방금 «보여 준» 것을 닫는 말이 되받아 해설했다.
+nochk '가장 오랜 사랑 앞으로' assets/ritual-data.js
+nochk '그 사랑이 있어 오늘의 두 사람이 있습니다' assets/ritual-data.js
+chk '키워 주신 분들 앞으로 걸어갑니다' assets/ritual-data.js 1
+# ⑦입장 닫는 말 C — 25명 예식의 하객 대부분은 가족·친구다. 「먼 길 함께 걸어와 주신」은 미화였다.
+nochk '먼 길 함께 걸어와 주신' assets/ritual-data.js
+# ⑧★★되살아난 흠 — 「다 지웠어」가 서약과 편지 양쪽에 있었다.
+#   apply-letter-cost.mjs:38 이 「편지에만 남긴다 — 지우고 다시 쓰는 것은 편지의 일이다」로
+#   서약 쪽을 이미 걷어냈는데, 그다음 판 apply-letter-formal.mjs:40 이 격식을 올리며
+#   «아무 언급 없이» 되살렸다. 게이트에 그 결정이 안 걸려 있어서 아무도 못 잡았다. 이제 건다.
+#   ★한 번이면 겸손이고 두 번이면 겸손을 연기하는 것이 된다. 사이에 낀 것은 반지 교환 하나뿐이다.
+nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★★[VOW_OPENS_COLD 2026-09-13] 위 ⑧의 결론이 한 판 더 갔다 — 서약에서 이 프레임을 «통째로» 뺐다.
+#   ⑧은 「다 지웠어」라는 «같은 말»만 막았다. 그래서 그 자리를 다른 말(「무슨 말을 할지 한참 못 정했어」)로
+#   채우자 검사는 통과했고, 흠은 그대로 남았다 — 말이 아니라 «프레임»이 겹쳐 있었기 때문이다.
+#   pair-read 로 08+09+26 을 나란히 읽고 나서야 보였다: 서약도 편지도 «쓰기가 어려웠다»로 열고 있었다.
+#   ★그 프레임의 집은 편지다(11번 「멋있는 말을 잔뜩 적었다가 다 지웠어」 · 바로 아래 chk 가 지킨다).
+#     서약은 호명하고 바로 본론으로 연다 — 「하윤아. / 아는 것만 말할게.」
+#   ★되살리지 말 것. 되살리면 신랑이 두 번 연달아 «말이 잘 안 나온다»고 말하는 사람이 된다.
+nochk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
+chk '두 사람이 서로에게 쓴 편지가 있습니다' assets/ritual-data.js 1
+chk '두 사람이 편지를 두 통 썼습니다' assets/ritual-data.js 1
+
+# ★★[SPEECH_LEVEL 2026-09-12 사장님 "아버지 존대하는거 조금 어색해"] 아버님 덕담의 말단계를 반말로 통일했다.
+#   실측: 습니다(2~9) → 반말(10~13) → 습니다(14~15) → 반말(16). 한 사람 안에서 왕복 네 번이었다.
+#   ★존대로 통일하지 «않은» 이유 — 이 클립은 처음부터 끝까지 자식 둘에게 하는 말이다.
+#     호명으로 열어 「잘 살아라」로 닫고, 하객은 엿듣는 쪽이다. 그래서 바로 뒤 나레이션이
+#     「방금 그 말은, 오늘 이 자리에 있던 사람들만 들었습니다」라고 받는다 — 반말이어야 그 문장이 사실이 된다.
+#     존대로 올리면 하객에게 한 연설이 되고 그 나레이션이 거짓말이 된다. ★도로 존대로 올리지 말 것.
+#   ★어머님(13)은 «일부러» 다르다 — 존대로 이야기하다 마지막 한 줄만 딸에게 돈다. 전환이 한 번뿐이라
+#     흔들리지 않는다. 둘을 같은 말단계로 맞추지 말 것. 맞추면 부모가 한 사람이 된다.
+#   ★[HONORIFIC] 「그때 아버지가 지금 제 나이였습니다」는 주어가 아버지인데 서술어가 평대였다.
+#     아들이 아버지 앞에서 읽는 문장이라 문체가 아니라 «틀린 말»이다 → 「제 나이셨습니다」.
+nochk '제 나이였습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '그때 아버지가 지금 제 나이셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk 'POLITE_NIDA' scripts/apply-son-daughter.mjs 1
+chk 'SPEECH_LEVEL' scripts/apply-son-daughter.mjs 2
+
+# ★★[SON_DAUGHTER 2026-09-12 사장님 "아들딸 컵셉에 맞춰 부모님편지도 개선"] 부모님께 드리는 말을 한 쌍으로.
+#   딸(10 letter-parent) 13문장 · 아들(14 tribute) 9문장이었고 구조가 달랐다 —
+#   아들에게 «그때 몰랐던 것 → 지금 아는 것» 한 박자가 통째로 빠져 있었다.
+#   그 두 줄을 넣어 짝을 만들었다. 상의한 적 없이 겹치는 것이 이 대본의 장치다(CROSS_ECHO 와 같은 수법):
+#     딸  「그 밤에 무슨 얘기를 하셨는지는 아직도 모릅니다 / 쉬운 밤이 아니었다는 건 이제 압니다」
+#     아들「사진 속 두 분이 원래 어른인 줄 알았습니다 / 그 얼굴도 버티는 중이었다는 걸 이제 압니다」
+#   ★「버티는 중」은 아들 자신의 「저 하나도 버거운데」를 되받는다 — 아버지의 옛 얼굴에서 지금 자기를
+#     알아보는 것이라 비유가 아니라 관찰이다. 한쪽만 고치면 장치가 죽는다.
+#   ★말단계로 아들딸을 가른다 — 딸은 「엄마, 아빠」 + 해요체, 아들은 「어머니, 아버지」 + 합쇼체.
+#   ★딸 편지 뒷단의 -습니다체는 사고가 아니라 «전환»이다 — 회상(요체)에서 약속(습니다체)으로 허리를 편다.
+#     사장님이 살리라 한 「낳아주셔서, 키워주셔서, 참아주셔서」가 그 전환 위에 얹힌다.
+#     ★앞단을 -습니다체로 올려 «통일»하지 말 것. 통일하면 딸의 목소리가 아들 것과 같아진다.
+chk 'SON_DAUGHTER' scripts/apply-son-daughter.mjs 2
+chk '쉬운 밤이 아니었다는 건 이제 압니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '그 얼굴도 버티는 중이었다는 걸 이제 압니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★★[FRAME_OUT 2026-09-13] 「두 분」 → 「아버지」. 사진 안에 있는 사람이 그 사진을 찍을 수는 없다.
+#   [14]가 어머니를 프레임 «안»에 넣어 놨는데([아버지가 업고 / 뒤에서 어머니가 웃고 / 사진 속 두 분]),
+#   그 뒤에 붙는 [27]이 「그 사진, 엄마가 찍은 거야」로 연다. 같은 큐의 같은 라이브 창이라
+#   30초 안에 같은 사진의 두 사실이 부딪힌다. 하객은 되감을 수 없다.
+#   ★★이건 의도가 아니라 «내가 세운 전제를 내가 확인 안 한 것»이다 —
+#     apply-groom-parent.mjs:23 이 [27]의 근거를 「프레임 밖에 서 있던 사람이고 …
+#     아들은 그 사실을 한 번도 말하지 않았다」로 적어 뒀다. 전제가 이미 깨진 채로 새 클립을 얹었다.
+#     사전 점검 다섯 가지를 돌렸는데 정작 「어머니가 사진 안에 있나」는 안 봤다.
+#   ★[27]을 고치지 않았다 — 그러면 «아들의 추측을 목격자가 뒤집는» 장면이 통째로 사라진다.
+#     어머니를 사진에서 비우면 [27]의 첫마디가 «아들이 몰랐던 사람»을 채운다. 설계대로 돌아가는 것이다.
+#   ★여는 호명 「어머니, 아버지.」는 그대로다 — 두 분 앞에 서 있는 것과 사진 프레임은 다른 층이다.
+chk 'FRAME_OUT' scripts/apply-frame-out.mjs 1
+
+# ★★★[DECISION_GUARD · PAIR_READ 2026-09-13 사장님 지시]
+#   「누락이 있으면 지금것 준비한 이유가없어 누락이발생한이유를 찾아네고
+#    그거를 예방할수있는장치를만들어」 · 「누락된게없는지 하나씩복귀하면서 찾아내」
+#
+#   이번 세션에 난 누락 다섯 건의 «공통 모양»을 세어 보니 하나였다 —
+#   전부 «결정이 틀려서»가 아니라 **결정을 적은 사람이 그 결정을 지키는 검사를 안 만들어서**다.
+#     [PHOTO_FREE]   6일 전 사장님 지시가 문서에만 있고 코드엔 안 내려왔다
+#     [TERM_DIGITAL] 결정이 게이트 «주석»에만 적히고 실행이 안 됐다
+#     「다 지웠어」    apply-letter-cost 가 정한 것을 다음 판이 조용히 되살렸다(게이트에 없었다)
+#     [ENTRY_OUT_DRIFT] 주석이 「다섯 다 이 문장으로 닫는다」고 적었는데 실제로는 한 갈래뿐이었다
+#     [FRAME_OUT]    [27]의 전제를 내가 적어 놓고 [14]가 그 전제를 깨는지 안 봤다
+#   주석은 «사람이 읽어야» 작동하고, 사람은 7,000줄을 매번 읽지 않는다. 그래서 기계에 넘긴다.
+#
+#   ① decision-guard — 「결정」이라고 선언한 주석마다 그 아래 «지키는 검사»가 있는지 본다.
+#      그리고 apply·audit 스크립트가 ★[이름] 으로 선언한 결정이 게이트까지 왔는지 대조한다.
+#      ★한글 이름은 세지 않는다 — 이 저장소는 ★[...] 를 이름으로도 문장 괄호로도 쓴다.
+#        가르려다 68건을 쏟아 냈고 대부분이 문장이었다. 거짓말하는 검사는 없는 것만 못하다.
+#        대신 규칙을 사람 쪽에 둔다 — «지켜야 할 결정에는 영문 대문자 이름을 짓는다».
+#   ② pair-read  — 한 라이브 창에 배역 클립이 둘 이상 붙는 자리를 전수로 찾아 «나란히» 찍고,
+#      짝마다 「읽었다」는 표식을 요구한다. 대사가 바뀌면 지문(문장 수)이 달라져 다시 물린다.
+#      ★모순을 자동으로 찾는 검사가 아니다 — 그건 기계가 못 한다. 사람 앞에 나란히 놓고 멈춰 세운다.
+#        [FRAME_OUT] 은 읽으면 «바로» 보이는 것이었는데 아무도 나란히 놓고 본 적이 없어 지나갔다.
+chk 'DECISION_GUARD' scripts/audit/decision-guard.mjs 1
+chk 'APPLY_TO_GATE' scripts/audit/decision-guard.mjs 1
+chk 'PAIR_READ' scripts/audit/pair-read.mjs 1
+
+# ★★[VOICE_PENDING] 같은 규칙이 «두 생성기»에 다 있어야 한다 — 2026-09-13 사장님 「전부 다시 뽑아」에서 드러났다.
+#   9/12 에 build-redub-byvoice.mjs 에만 넣고 build-voice-parts.mjs 를 못 봤다. 그 결과:
+#     · 성우별/ 폴더가 [27] 시어머님이 생긴 날부터 «한 번도» 안 뽑혔다(생성기가 exit 2 로 멎었다)
+#     · 멎은 생성기는 낡은 파일을 «그대로 남긴다» — 그래서 아무 검사도 빨개지지 않았다
+#     · 그 사이 아버님 덕담 15줄 전면 개작·축배 마무리·혼주 편지가 그 폴더에 하나도 안 들어갔다
+#       그대로 붙여넣어 녹음하셨으면 옛 대본을 녹음하신다. 「낡았는데 조용한 것」이 제일 나쁘다.
+#   ★그래서 두 파일에 «같이» 건다. 한쪽만 고치면 여기서 걸린다.
+#     (redub 쪽은 아래에 이미 걸려 있다 — 여기서는 그동안 «비어 있던» voice-parts 쪽을 채운다.)
+#   ★생성기를 exit 2 로 멈추게 되돌리지 말 것 — 한 역할의 성우가 비었다고 나머지 일곱을 볼모로 잡는다.
+chk 'VOICE_PENDING' scripts/build-voice-parts.mjs 2
+
+# ★★[GEN_FRESH 2026-09-13 점검] 위 사고의 «본체»를 막는다 — 생성물이 낡아도 조용하던 자리.
+#   VOICE_PENDING 은 「생성기가 죽지 않게」 고친 것이고, 이건 「죽었거나 낡았으면 게이트가 알게」 하는 것이다.
+#   둘은 다른 일을 한다. 생성기는 또 다른 이유로 죽을 수 있고, 그때도 낡은 파일은 그대로 남는다.
+#   ★어제 [STORY_STALE] 이 장면 대본 6편에 같은 것을 걸었다. 그때 «녹음 대본 네 폴더»를 안 본 것이
+#     오늘 사고다. 그래서 여기서 넷(타입캐스트·성우별·다시받기·감동구간)을 한꺼번에 건다.
+#   ★재고 나서 원래대로 되돌린다 — 게이트가 파일을 고쳐 놓지 않는다(구멍은 보고만).
+chk 'GEN_FRESH' scripts/audit/gen-fresh.mjs 6
+# ★[LIST_SELF_CHECK][COVER_CHECK] 이 검사의 «생성기 → 폴더» 표는 손으로 적은 것이다.
+#   손 목록은 반드시 벌어진다 — 만들자마자 타입캐스트/보이스찾기 를 빠뜨렸다(같은 날 실측).
+#   그래서 build-*.mjs 가 실제로 쓰는 경로를 스스로 긁어 표와 맞댄다. 빠지면 빨개진다.
+#   ★빼려면 KNOWN_OUT 에 «왜»를 적는다. 조용히 빠지는 길을 만들지 말 것.
+#     ([AUDIT_RUN_ALL] 이 감사 목록에 쓴 수법과 같다 — 목록을 손으로 지키지 않는다.)
+chk 'LIST_SELF_CHECK' scripts/audit/gen-fresh.mjs 1
+chk 'COVER_CHECK' scripts/audit/gen-fresh.mjs 2
+
+# ★★[REDUB_COVERS 2026-09-13 점검] 「다시 받아야 할 클립」 ⊆ 「사장님이 받는 파일」.
+#   cast-text-audio 와 build-redub-byvoice 가 같은 원천을 보면서 «거르는 조건»을 각자 적어 두었다.
+#   한쪽만 고치면 「글은 어긋났는데 다시받기 파일엔 없는 클립」이 생기고,
+#   사장님은 받은 것을 전부 녹음하시고도 그 자리가 옛 소리로 남는다 — 게이트는 계속 붉고 원인은 안 보인다.
+#   ★오늘 재 보니 54 ⊂ 55 로 맞았다. «맞은 날» 거는 것이 검사다.
+#   ★이 검사 첫 판은 폐지 필터를 빠뜨려 셋을 잘못 일렀다(46_end-1b-farewell-online 등).
+#     거르는 조건을 한 곳이라도 빠뜨리면 검사가 거짓말을 한다 — 폐지 명단은 ritual-cue.js 에서만 읽는다.
+chk 'REDUB_COVERS' scripts/audit/redub-covers.mjs 3
+# ★★[ID_ONE][KEY_NN][BACK_CMD 2026-09-13 사장님 「그부분만 녹음다시하고 차후 그부분만 대입해서」]
+#   부분 재더빙이 실제로 되려면 «클립 하나를 혼자 짚을 수 있어야» 한다. 셋 다 그 전제다.
+#   · ID_ONE  — 같은 id 를 쓰는 클립이 없어야 한다(G13-3 이 둘이었다 · 9/12 복사 실수)
+#   · KEY_NN  — 이름도 id 도 겹치므로 «번호_이름»으로 짚는 길을 clip-select 에 열었다
+#               (entry-C 는 07·20 둘 · letter-each 는 11·28 둘 · `--clip toast` 는 다섯을 끌고 왔다)
+#   · BACK_CMD — 되돌리는 명령을 «사람이 짓지 않는다». 생성기가 다시받기/README.md 에 써 준다
+#   ★clip-select.mjs 는 판별과 생성이 같이 쓰는 «하나뿐인 자»다. 규칙을 다른 데 또 적지 말 것.
+chk 'ID_ONE' scripts/audit/redub-covers.mjs 2
+chk 'KEY_NN' scripts/clip-select.mjs 1
+chk 'BACK_CMD' scripts/build-redub-byvoice.mjs 1
+# ★★[FLAT_ORDER 2026-09-13 사장님 「파일하나로만들어 … 별로의 수정없이 진행」]
+#   한 파일로 붙여넣어 받으면 wav 가 1..270 한 줄기로 돌아온다. 그 번호가 어느 클립 몇 번째
+#   문장인지 «같은 실행에서» 적어 두지 않으면, 되돌릴 열쇠가 파일명에 박힌 문장 하나뿐이 된다.
+#   그 이름은 잘린다([DUB_STAGE] 가 앞자락만 대조하는 이유다) — 잘린 이름이 겹치는 날 조용히 밀린다.
+#   ★낱개 판에는 _순서.json 이 있었는데 한 파일 판에만 없었다. 같은 것이 두 벌인데 한쪽만 갖춘 꼴이다.
+chk 'FLAT_ORDER' scripts/build-redub-byvoice.mjs 2
+# ★★[DUP_ONCE 2026-09-13 사장님 「중복되는 문구가 왜많지? 녹음은 하나만 하고 그녹음본을 입히면되잖아」]
+#   같은 성우가 글자까지 같은 말을 여러 클립에서 한다. 한 번만 받아 나머지 자리에 그 소리를 넣는다.
+#   ★가르는 자는 «같은 예식에서 둘 다 나가는가» 하나뿐이다. 전부 합치면 안 된다:
+#     · 갈래가 달라 한 날에 하나만 나간다 → 같은 소리를 써도 하객은 모른다 (합친다)
+#     · 둘 다 나간다 → 같은 사람이 몇 분 사이에 똑같은 소리를 두 번 낸다 (따로 받는다)
+#   실측 324조합 전수: 합쳐도 되는 줄 32 · 따로 받아야 하는 줄 1 — 신랑 「하윤아.」(서약 + 편지).
+#   ★배역 클립은 castIds(q).live 에 있다. q.file 만 세면 서약·편지·덕담이 통째로 안 보여
+#     「안 겹친다」는 거짓 결론이 나온다 — 첫 판이 실제로 그렇게 답했다.
+#   ★조립기는 손대지 않았다. 되돌릴 때 _전체_순서.json 의 at[] 자리에 같은 파일을 복사해
+#     «문장 하나에 파일 하나»를 유지한다. 가장 위험한 단계에 새 길을 내지 않는다.
+chk 'DUP_ONCE' scripts/build-redub-byvoice.mjs 1
+chk 'DUP_ONCE' scripts/audit/redub-covers.mjs 2
+
+# ★★[VOICE_LETTER_NARR 2026-09-13 사장님 「어른께드리는편지 부분 우성으로 바꾸고」]
+#   편지(43_parents-letter · 39문장) 김호인 → 우성. 이미 김호인으로 받은 mp3 가 있었지만
+#   사장님 상시 지시대로 «이미 녹음한 것에 제약을 두지 않고» 결과물 기준으로 바꿨다.
+chk 'VOICE_LETTER_NARR' scripts/build-typecast-import.mjs 1
+chk "편지: '우성'" scripts/build-typecast-import.mjs 1
+# ★★[SAME_ROOM] 「한 목소리가 여러 자리」 검사를 «예식에서 이어 듣는 역할»로 좁혔다.
+#   그 검사의 근거는 «낙차»인데, 낙차는 하객이 둘을 이어 들을 때만 생긴다.
+#   실측: 43_parents-letter 는 324조합 «전부»에서 예식 큐에 없다 — parents.html 에서 어른 혼자 들으신다.
+#   ★약하게 한 것이 아니다. 반증으로 확인했다 — 하객대표·신부를 겹치면 여전히 막는다.
+#   ★[CANT_LOOK] 큐 엔진을 못 읽으면 좁히지 않는다(못 쟀다를 괜찮다로 바꾸지 않는다).
+chk 'SAME_ROOM' scripts/build-typecast-import.mjs 1
+# ★★[PROBE_BY_VOICE] 0_보이스확인.txt 는 «역할»이 아니라 «목소리»를 확인하는 판이다.
+#   한 목소리가 두 역할을 맡으면 줄이 둘이어도 확인되는 것은 하나다 — 목소리 기준으로 한 줄씩 만든다.
+chk 'PROBE_BY_VOICE' scripts/build-typecast-import.mjs 1
+# ★★[VOICE_CHANGED] 글이 같아도 «읽은 사람»이 바뀌었으면 다시 받아야 한다.
+#   _recorded.json 이 대사만 적어, 성우만 바꾸면 그 클립이 조용히 옛 목소리로 남았다(실측 49클립).
+#   ★성우는 «녹음한 그 자리»(assemble-narration)에 박는다. 배정 스냅샷을 따로 두는 안은 버렸다 —
+#     뽑을 때마다 덮어써서 두 번 돌리면 잊는다(만들어 보고 직접 겪었다).
+#   ★voice 가 없는 옛 기록은 «모른다»로 둔다. 모르는 것을 그대로다로도 바뀌었다로도 단정하지 않고 수를 알린다.
+chk 'VOICE_CHANGED' scripts/build-redub-byvoice.mjs 2
+chk 'VOICE_CHANGED' scripts/assemble-narration.mjs 1
+
+# ★★[LETTER_MIRROR 2026-09-13] 어른께 드리는 편지는 «두 벌»이다 — 화면(parents.html)과 소리(대본).
+#   오늘 실제로 갈려 있었다: [TONE_POLISH] 가 소리를 「짐작하기에」로 고쳤는데 화면은 「알기에」로 남았다.
+#   앞 문장이 「저희가 다 알 수는 없습니다」라 화면만 읽으면 바로 부딪힌다 — 못 안다고 해 놓고 안다고 한다.
+#   두 벌인데 한쪽만 고쳐도 아무 검사가 안 물었다.
+#   ★태그는 «공백 없이» 지운다. 공백을 넣으면 <strong> 하나에 없던 띄어쓰기가 생겨 전부 다르게 보인다
+#     (첫 판이 그래서 11건을 일렀는데 진짜는 1건이었다 — 거짓말하는 검사는 없는 것만 못하다).
+#   ★낭독 전용 줄(장 번호·여는 말·맺음)은 «모양»으로 가른다. 문장을 베껴 적으면 이 검사가 또 한 벌이 된다.
+chk 'LETTER_MIRROR' scripts/audit/letter-mirror.mjs 3
+
+# ★★[SENT_LIB 2026-09-13 사장님 「보수하기쉽게셋팅해 여러번 한문장씩수정하는부분들이 있을거야」]
+#   문장 «한 자리»의 받은 그대로를 창고(assets/audio/_src)에 둔다. 고친 문장만 갈아 끼워 클립을 다시 붙인다.
+#   ★원본 문장 wav 가 «0개»여서, 4문장 중 한 줄만 고쳐도 클립을 통째로 다시 받아야 했다
+#     (실측: 75문장 고치는 데 200문장 vs 79종). 조립된 mp3 를 잘라 쓰는 길은 이미 막아 두었다.
+#   ★[SLOT_NAME] 이름을 «자리»로 짓는다 — 타입캐스트 번호는 그날 붙여넣은 순서라 한 줄만 늘어도 전부 밀린다.
+#   ★[FLAC_HALF] 무손실 flac 으로 절반(실측 264KB → 133KB). 조립기는 ffmpeg 로 읽어 형식을 안 가린다.
+#   ★[SRC_STALE] 그때 글을 함께 적어 둔다. 대장과 다르면 «낡은» 자리이고, 깔기를 거부한다 —
+#     적어 두지 않으면 옛 소리를 새 글의 자리에 조용히 끼운다. 가장 나쁜 실패다.
+chk 'SENT_LIB' scripts/sent-lib.mjs 1
+chk 'SLOT_NAME' scripts/sent-lib.mjs 1
+chk 'FLAC_HALF' scripts/sent-lib.mjs 2
+chk 'SRC_STALE' scripts/sent-lib.mjs 2
+chk 'SENT_LIB_CHECK' scripts/audit/sent-lib-check.mjs 2
+# ★★[BY_NAME][FOLD_SPACE 2026-09-13] 들일 때 «번호»가 아니라 «이름(문장)»으로 맞춘다.
+#   왜 — 사장님이 50줄짜리 파일만 따로 붙여넣으시면 타입캐스트가 audio_0 부터 새로 번호를 매긴다.
+#   그 묶음은 붙여넣기 152~201번째 줄인데 파일은 0~49 다. 번호로 맞추면 150칸이 밀려 전부 엉뚱한 자리에 간다.
+#   ★[FOLD_SPACE] 띄어쓰기·구두점은 «지운다». 받은 이름이 `나도___해볼게` 인데 대본은 「나도 해 볼게」였다 —
+#     타입캐스트가 호흡을 위해 공백을 더 넣거나 사장님이 그 화면에서 손보신다. 소리는 같은데 이름만 다르다.
+#     밑줄로 바꾸면 그 차이가 남아 «안 맞는다»가 되고, 실제로 15줄이 그렇게 빠졌다.
+#   ★그래도 «글이 진짜 다른» 줄은 끝까지 안 넣는다 — 다른 소리를 그 자리에 조용히 끼우는 것이 제일 나쁘다.
+chk 'BY_NAME' scripts/sent-lib.mjs 1
+chk 'FOLD_SPACE' scripts/sent-lib.mjs 1
+# ★★[NAME_FALLBACK 2026-09-14] 번호로 먼저 보되, «그 줄만» 어긋나면 그 줄은 이름으로 찾는다.
+#   왜 — 목록 «가운데»에 한 줄이 끼면 그 뒤가 전부 한 칸씩 밀린다. 실제로 겪었다:
+#   「보건실」 한 줄이 [112]에 들어가자 그 뒤 정숙 4줄이 밀려 이름이 안 맞았고, 그냥 «안 넣은 것»이 됐다.
+#   ★종전 문턱(「전체의 절반이 안 맞으면 이름으로」)은 111/115 를 못 넘었다.
+#     문턱은 «많이 밀린 경우»만 잡고 «조금 밀린 경우»를 놓친다 — 줄마다 판단하면 둘 다 잡힌다.
+#   ★번호로 맞은 파일은 먼저 «찜»해 둔다. 안 그러면 두 줄이 한 파일을 가져간다.
+chk 'NAME_FALLBACK' scripts/sent-lib.mjs 2
+# ★★[REBIND 2026-09-14] 문장이 합쳐지거나 갈라지면 그 «뒤» 번호가 전부 한 칸씩 밀린다.
+#   소리는 멀쩡한데 자리 이름만 틀린 것이라, 다시 받을 일이 아니라 «다시 묶을» 일이다.
+#   실측: [NOT_RUDE] 로 두 문장을 하나로 합치자 43_parents-letter 16자리가 낡음이 됐는데
+#   그중 15는 소리가 그대로였다. 다시 받았으면 15줄을 헛녹음하실 뻔했다.
+#   ★한 클립 «안»에서만 · «글자까지 같은» 것끼리만 묶는다. 둘 중 하나라도 어기면 남의 소리가 들어온다.
+#   ★들고 있는 것을 «창고 대장»에서 훑는다 — 지금 자리 번호로 훑으면 문장이 줄었을 때
+#     옛 마지막 번호를 못 본다(첫 판이 그래서 #39 를 놓쳤다).
+chk 'REBIND' scripts/sent-lib.mjs 2
+# ★★[PICK_PASTE 2026-09-14 사장님 「파일 성우가 자동으로 안들어가는데 정리해서 다시」]
+#   「이 문장들만 다시 받고 싶다」 할 때 쓰는 판(--pick). 창고에 있든 없든 고른 것을 뽑는다.
+#   ★왜 필요했나 — 새대사_받는자리_75.txt 는 사장님이 «새 대사를 적어 주시는 양식»인데
+#     타입캐스트에 붙여넣으시자 머리말([01] 진희 · 안내 …)을 화자로 읽어 76명이 잡혔다.
+#     양식과 붙여넣기 판은 «생김새가 달라야» 한다 — 양식에는 머리말이 있어야 사람이 읽고,
+#     붙여넣기 판에는 한 줄도 없어야 기계가 읽는다. 한 파일로 둘을 겸하게 하지 말 것.
+#   ★[DUP_ONCE]·[PASTE_CLEAN] 을 여기서도 그대로 건다 — 한 곳에만 걸면 다른 곳으로 샌다.
+chk 'PICK_PASTE' scripts/sent-lib.mjs 2
+
+# ★★[GUEST_TONE 2026-09-14 사장님 지시 — 하객 안내 문구 다섯 자리]
+#   사장님이 네 줄에 «왜»를 붙여 주셨고, 같은 눈으로 한 자리를 더 골랐다.
+#   ★편지·서약·덕담은 손대지 않았다 — 지적은 전부 «하객에게 하는 안내»였다. 결이 다른 곳에 같은 자를 대지 않는다.
+#   ① 핑거 푸드 → 간단한 다과   *"어르신들있으니 적절하게 개선"*
+#      ★제공 항목은 그대로다 — 계약서·index.html 의 「웰컴 핑거 푸드·와인」은 안 건드렸다.
+#        바뀐 것은 «그것을 부르는 말»뿐이다. 그 약속을 빼는 것이 아니다.
+#   ② 「천천히 드시다 자리에 앉아」 → 「자리에 앉아 주시면 됩니다」
+#      *"너무 많이먹으면않되우려 … 돌아다녀도된다는 문구로 인식되면 부산스러움"*
+#      순서를 뒤집는 것만으로 셋이 풀린다 — 「천천히」(시간이 넉넉하다)를 빼고, 앉는 것을 먼저 둔다.
+#      ★2026-09-14 사장님 *"편히 드시면 이것도 빼자"* — 먹으라는 말을 아예 뺐다.
+#        다과가 있다는 «사실»은 앞줄이 이미 말한다. 뒷줄까지 먹기를 권하면 그 사실이 «권유»가 된다.
+#        십 분 전 안내가 할 일은 앉히는 것 하나뿐이다. ★「편히 드시면」을 되살리지 말 것.
+#   ③ 「지금 이 문장도 … 직접 고른」 → 「지금 들으시는 이 안내도 … 정한」
+#      말하는 사람이 제 말을 「문장」이라 부르면 글 읽는 티가 난다. 「고른」은 남이 차린 것에서 집었다는 말이다.
+#   ④ 「소리만 줄여」 → 「소리는 잠시 꺼 주시기 바랍니다」   *"꺼달라고 해야지"*
+#      ★★전원을 끄라고는 «쓰지 않았다» — 바로 다음 줄이 「사진은 편히 남기셔도 좋습니다」([PHOTO_FREE])라
+#        한 클립 안에서 두 말이 된다. «소리»를 끈다고 해야 분명함과 사진이 둘 다 산다.
+#        ★「진동으로 바꿔」도 같이 갔다 — 진동은 «켜 두라»는 말이다.
+#   ⑤ 「두 분이 절반쯤 돌았습니다」 → 「절반쯤 인사를 나누셨습니다」 (가드 줄도 함께 옮겼다 · ROUND_MID_WORD)
+#      사람을 주어로 「돌았다」는 어르신 귀에 험하고, 무엇을 하는지도 안 말한다.
+#      다음 줄이 「찾아뵙습니다」라 그 말로 맞추면 두 줄이 한 장면이 된다.
+chk 'GUEST_TONE' scripts/apply-guest-tone.mjs 1
+# ★★[COPY_THREE 2026-09-14] 하객 안내 문안은 «세 벌»이다 — 한 벌만 고치면 나머지가 남는다.
+#   ① assets/ritual-data.js  ② docs/plans/식순연구/배역_예시_대사.txt  ③ order-preview.html
+#   오늘 그대로 당했다 — [GUEST_TONE] 으로 ①③을 고쳤는데 ②가 남아 대장의 «두 분 목소리판»이
+#   옛말 그대로였다. 고친 자리가 아홉인데 창고는 다섯만 낡음으로 떴고, 그 차이를 내가 세어 보지
+#   않았으면 신부 네 줄이 옛 소리로 남은 채 완성됐다. 「한 곳만 고치면 다른 곳으로 샌다」의 세 번째다.
+#   ★③은 check-ritual-mirror 가 이미 ①과 대조한다 — 두 번 재지 않는다.
+#   ★두 벌짜리 클립을 «과반»으로 가른다. 한 문장이라도 겹치면 두 벌로 보면 우연에 걸린다
+#     (10_letter-parent 가 13문장 중 1문장만 겹쳐 12건을 헛되이 물었다 · 첫 판 실측).
+chk 'COPY_THREE' scripts/audit/copy-three.mjs 2
+# ★★[GUEST_TONE2 2026-09-14] 사장님 *"이 대사 전부 한번 비슷하게 검토"* — 80줄을 같은 눈으로 다시 보고 넷.
+#   ② 「그 편지는 두 분이 가져갑니다」 → 「받으신 분이 간직하십니다」  ★갈래에 따라 «틀린 말»이었다
+#      이 대본에서 「두 분」은 신랑·신부인데, 이 한 문장이 편지 «세 갈래 전부»의 닫는 말이다.
+#      부모님께 읽은 갈래에서는 «준 사람이 도로 가져가는» 말이 된다. 세 갈래에서 모두 참인 말로 바꿨다.
+#      ★[NO_VERDICT] 의 「사실만 말한다」는 그대로다 — 바꾼 것은 «누가»뿐이다.
+#   ③ 「아직 만나지 못한 자리도」 → 「들르지 못한 자리도」 — 만나는 것은 사람이고 찾아가는 것이 자리다.
+#      앞 클립(61_narr-round-open)이 이미 「자리마다 차례로 찾아뵙습니다」로 옳게 쓴다.
+#   ④ 신부 첫인사 「얼굴을 한 분씩 다 알고 있습니다」 → 「저희가 다 아는 분들입니다」
+#      「얼굴을 … 알고 있습니다」는 사람을 «파악하고 있다»로 들린다. 어른들 앞에서 신부가 할 말의 결이 아니다.
+#      ★ritual-data 의 「얼굴을 한 분씩 «보면서»」는 «다른 문장»이다(마지막 인사) — 앞자락이 같다고 함께 치지 말 것.
+#   ★감정 구간은 손대지 않았다 — 게이트에 결정이 잠겨 있고 사장님이 받으신 판이다.
+chk 'GUEST_TONE2' scripts/apply-guest-tone2.mjs 1
+chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
+chk '아직 들르지 못한 자리도 차례로 찾아뵙습니다' assets/ritual-data.js 1
+chk '오늘 오신 분들은 저희가 다 아는 분들입니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '편히 드시면' assets/ritual-data.js
+nochk '두 분이 가져갑니다' assets/ritual-data.js
+nochk '만나지 못한 자리' assets/ritual-data.js
+nochk '얼굴을 한 분씩 다 알고' 'docs/plans/식순연구/배역_예시_대사.txt'
+if command -v node >/dev/null 2>&1; then node scripts/audit/copy-three.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL copy-three: 하객 안내 문안의 두 벌이 갈렸습니다 — node scripts/audit/copy-three.mjs'; fail=1; }; fi
+nochk '핑거 푸드' assets/ritual-data.js
+nochk '지금 이 문장도' assets/ritual-data.js
+nochk '진동으로 바꿔' assets/ritual-data.js
+nochk '절반쯤 돌았습니다' assets/ritual-data.js
+chk '한쪽에 간단한 다과와 음료를 준비해 두었습니다' assets/ritual-data.js 1
+chk '오늘의 순서도, 지금 들으시는 이 안내도' assets/ritual-data.js 2
+chk '휴대폰 소리는 잠시 꺼 주시면 됩니다' assets/ritual-data.js 1
+chk '절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
+# ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
+#   창고에 «없거나 낡은» 자리만 뽑아 붙여넣기 판을 만든다(--todo).
+#   ★이미 받은 자리를 다시 요구하지 않는다 — 그게 이 창고를 만든 이유다.
+#   ★[DUP_ONCE] 를 여기서도 그대로 건다. 겹치는 말은 한 번만, 다만 «한 예식에 둘 다 나가는» 말은 따로.
+#     한 곳에만 걸면 다른 곳으로 샌다(전체 화자표기 판에서 한 번 새어 본 적이 있다).
+chk 'TODO_ONLY' scripts/sent-lib.mjs 1
+# ★★[VOICE_STEPMOM 2026-09-14 사장님 「시어머니성우 임의로넣어」] 시어머님 = 정숙.
+#   ★«다른» 사람이어야 한다 — 어머님(13_bless-mother)과 시어머님(27_tribute-reply)이
+#     324조합 중 27조합에서 «둘 다» 나간다(실측). 같은 목소리면 두 어른이 한 사람이 된다.
+#     ★주하로 돌려 쓰지 말 것. 미정으로 되돌리지도 말 것 — 그 4줄이 게이트 빨강 3건의 원인이었다.
+#   ★왜 정숙인가 — 조사 문서가 이미 검토해 둔 중년 여성(어머님 1순위였다가 주하에게 자리를 내준 후보)이고,
+#     밈 리스크 스크리닝을 통과했다(연화는 인간극장 밈으로 영구 탈락).
+#   ★내가 못 한 것 — 이 환경은 소리를 듣지 못한다. 정숙은 지금까지 «이름이 잡히는 것을 확인한»
+#     여덟 밖이라, 0_보이스확인.txt 로 사장님이 한 번 확인하셔야 한다(크레딧 0).
+chk 'VOICE_STEPMOM' scripts/build-typecast-import.mjs 1
+chk "시어머님: '정숙'" scripts/build-typecast-import.mjs 1
+# ★★[ERA_NOW 2026-09-14 사장님 「부모님들 연령대 지금결혼하는 사람들 나이대 반영 한거지
+#   너무 나이든사람연출한건아닌지 검토」] 어머님 덕담의 「양호실」 → 「보건실」.
+#   ★나이가 아니라 «시대»가 틀렸다. 학교보건법 개정으로 1998-12-31 부터 이름이 보건실이다.
+#     하윤이 스물아홉이면 고3은 2015년경 — 그때 이미 17년째 보건실이었다.
+#     「양호실」에 누우려면 1998년 «이전» 고3이어야 하고, 그러면 하윤이 지금 마흔다섯을 넘는다.
+#     한 단어가 신부를 한 세대 위로 올린다.
+#   ★부모 «나이»는 맞았다(실측) — 하윤 29 → 어머님 57~59 · 헌정의 「그때 아버지가 지금 제 나이셨습니다」가
+#     아버지를 서준+30 안팎에 두어 62세쯤. 2025 평균 초혼(여 31.6)의 부모대와 맞는다.
+#   ★되돌리지 말 것.
+nochk '양호실' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '하윤이는 이미 보건실에 누워 있었어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+
+# ★★[SCRIPT_WINS 2026-09-14 사장님 결정 「대본준대로 수정 나머지선택은 그대로유지」]
+#   타입캐스트 화면에서 고쳐져 녹음된 두 줄 — 대본이 이긴다. 소리를 다시 받는다.
+#     [185] 녹음 「밥 먹다가 원하면 해 보라고」 → 대본 「밥 먹다가 해 보라고」 그대로
+#     [190] 녹음 「참아주셔서 감사합니다」     → 대본 「참아주셔서 고맙습니다」 그대로
+#   ★[190] 이 대본대로여야 하는 이유가 구조에 있다 — 그 편지 2행이 「스물아홉 해 동안 «고맙다»는
+#     말을 제대로 한 적이 없어요」다. 12행의 «고맙습니다»가 그 벼르던 말을 처음 하는 자리다.
+#     「감사합니다」로 바꾸면 2행이 그 말을 못 받는다([THREE_BEAT] 의 「자리를 옮겨 상투가 기능이 됐다」가 풀린다).
+#   ★이 둘은 창고가 «안 받고» 막아 세운 덕에 드러났다 — 글이 다르면 안 넣는다는 규칙이 일했다.
+#     그 규칙을 느슨하게 하지 말 것. 느슨했으면 옛 소리가 새 글의 자리에 조용히 들어갔다.
+chk '다음 날 아침에 아빠가 밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '원하면 해 보라고' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '참아주셔서 감사합니다' 'docs/plans/식순연구/배역_예시_대사.txt'
+
+# ★★[KEEP_AS_IS 2026-09-14 사장님 결정 「나머지선택은 그대로유지」] 물어본 둘을 «그대로» 두기로 정하셨다.
+#   ① 아버님 덕담의 «정류장 버스 마중» 장면 — 내가 「예순둘 아버지를 한 세대 위로 보이게 할 여지」로
+#      올렸으나 사장님이 유지로 정하셨다. ★다시 꺼내지 말 것. 「역·터미널」이나 차 마중으로 바꾸지 말 것.
+#   ② 하윤 «스물아홉» — 평균(2025 여 31.6)보다 2.6년 어리지만 그대로 간다.
+#      ★「서른하나」류로 올리지 말 것. 「스물넷에 회사를 그만두겠다고」도 그 나이에 맞춰 둔 것이라 함께 고정이다.
+chk '정류장에 먼저 나가 있었다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '스물아홉 해 동안' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '스물넷에 회사를 그만두겠다고' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL letter-mirror: 어른께 드리는 편지의 화면과 소리가 갈렸습니다 — node scripts/audit/letter-mirror.mjs'; fail=1; }; fi
+# ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
+#   어른께 드리는 편지에서 가장 조심할 자리다. 주어를 우리 쪽으로 돌렸다. 되돌리지 말 것.
+nochk '결례가 되지 않도록' parents.html
+nochk '결례가 되지 않도록' scripts/build-dubbing-script.mjs
+chk '사정이 있어 오시기 어려운 분께도' parents.html 1
+# ★[LETTER_COMMA] 연결어미 뒤 쉼표 셋을 뺐다(humanize-korean 진단 · 주어가 같고 절이 짧은 자리만).
+#   ★남긴 둘은 지우지 말 것 — 「본식으로 진행하며,」는 그 긴 문장의 유일한 호흡 자리이고,
+#     「안내해 드리고,」는 쉼표를 사이에 두고 주어가 저희 → 디렉터로 바뀐다(맞춤법이 권하는 자리).
+chk '본식으로 진행하며,' parents.html 1
+chk '안내해 드리고,' parents.html 1
+chk 'ID_ONE' scripts/build-dubbing-script.mjs 1
+nochk "\['G13-3', '하객과 함께" scripts/build-dubbing-script.mjs
+if command -v node >/dev/null 2>&1; then node scripts/audit/redub-covers.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL redub-covers: 다시 받아야 할 클립이 다시받기 파일에 없습니다 — node scripts/audit/redub-covers.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/gen-fresh.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL gen-fresh: 녹음 대본 생성물이 낡았거나 생성기가 죽어 있습니다 — node scripts/audit/gen-fresh.mjs'; fail=1; }; fi
+nochk "성우를 모른다\`); process.exit(2)" scripts/build-voice-parts.mjs
+if command -v node >/dev/null 2>&1; then node scripts/audit/decision-guard.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL decision-guard: 결정을 적어 놓고 지키는 검사를 안 만든 자리가 있습니다 — node scripts/audit/decision-guard.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/pair-read.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL pair-read: 한 자리에 붙어 나가는 대사 짝을 아직 나란히 읽지 않았습니다 — node scripts/audit/pair-read.mjs'; fail=1; }; fi
+
+# ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
+#   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
+#     부딪히는 사실 없음. 신부의 「오늘은 이렇게 먼저」는 예식 뒤 인사 사진에서 실제로 자리를 도는 것과 맞다.
+# PAIR_READ 06_welcome-groom+07_welcome-bride 3.4
+#   ②서약 — 신랑 「한 번도 힘들다는 말을 안 했어」 ↔ 신부 「정작 내가 힘들다는 말은 한 번도 안 했더라」. 맞물린다.
+#     둘 다 「작년」이지만 다른 사건이라 충돌 아님. 합창 두 줄도 어긋나지 않는다.
+#     ★읽다가 하나 찾았다 — 신랑이 서약과 편지에서 «둘 다» 쓰기 고생으로 열고 있었다.
+#       서약의 「무슨 말을 할지 한참 못 정했어」를 뺐다. 그 프레임의 집은 편지다(11번에 그대로 있다).
+# PAIR_READ 08_vow-groom+09_vow-bride+26_vow-both 9.13.2
+#   ③헌정 — [FRAME_OUT] 로 어머니를 사진 밖으로 비운 뒤 다시 읽었다. 이제 아들은 아버지만 말하고
+#     어머니가 「그 사진, 엄마가 찍은 거야」로 처음 나타난다. 나이 계산도 맞는다(아버지 30 때 업힌 아이 = 지금 30).
+# PAIR_READ 14_tribute+27_tribute-reply 11.4
+#   ④편지 둘 다 — 신부 「스물아홉 해 / 스물넷에」와 신랑 「삼 주 전에 / 두 번째 이사」가 충돌하지 않는다.
+#     ★아버님 덕담의 「십 년」이 신부 편지의 「스물넷에 집에 살던 장면」과 어긋나던 것은 [BLESS_SCENE] 에서 이미 뺐다.
+# PAIR_READ 10_letter-parent+11_letter-each 13.15
+#   ⑤덕담 — 아버님은 «안 놓는 사람»(「그때도 먼저 나가 있을 거다」), 어머님은 «놓는 사람»(「엄마 이제 밤에 잘 잔다」).
+#     설계대로 갈려 있다. 호명 순서가 서로 반대인 것도 자연스럽다(아버지는 사위 먼저, 어머니는 딸 먼저).
+# PAIR_READ 12_bless-father+13_bless-mother 15.17
+
+# ── apply·audit 스크립트가 선언한 결정 이름을 게이트에 건다 (decision-guard 가 요구한 아홉 건)
+chk 'TIER_COUNT' scripts/audit/btn-tier.mjs 1
+chk 'FREE_PORT_5' scripts/audit/demo-real-copy.mjs 1
+chk 'NEED_HISTORY' scripts/audit/deploycheck-coverage.mjs 1
+chk 'MARK_ON_FN' scripts/audit/deploycheck-coverage.mjs 1
+chk 'SOLAPI_NAME_ALIAS' scripts/audit/deploycheck-sim.mjs 1
+chk 'RETIRED_SILENT' scripts/audit/order-audio-check.mjs 1
+chk 'FREE_PORT_5' scripts/audit/orphan-copy.mjs 1
+chk 'PAREN_DEPTH' scripts/audit/ritual-order-sim.mjs 1
+chk 'FUZZ_LINK_STAGES' scripts/audit/rollback-fuzz.mjs 1
+chk '저는 사진 속 아버지가 원래 어른인 줄 알았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '아버지가 저를 업고 계셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '뒤에서 어머니가 웃고 계셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '사진 속 두 분' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★사진이 «찍힌 쪽»과 «찍은 쪽»이 갈려 있어야 한다. 한쪽이라도 무너지면 [27]이 성립하지 않는다.
+chk '그 사진, 엄마가 찍은 거야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★[FRAME_OUT ②] 축배 — 나레이션이 선창을 끝낸 뒤에 축사가 「자, 다 같이 잔 들겠습니다」로 또 불렀다.
+#   이미 마신 방에 대고 다시 부르는 셈이다(다섯 각도가 같은 것을 잡았다).
+#   ★구조를 바꾸는 쪽(축사를 선창 «앞»으로)은 사장님 결정 대기다. 여기서는 겹치는 한 줄만 뺐다 —
+#     어느 쪽으로 결정되든 이 줄은 빼는 것이 맞다.
+nochk '자, 다 같이 잔 들겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '엄마, 아빠' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '어머니, 아버지' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '이제 조금 알 것 같습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
+
+# ★★[SPEECH_LEVEL_CHECK 2026-09-12] 말단계 왕복은 눈으로 안 보인다 — 코드가 센다.
+#   한 줄씩 읽으면 다 자연스럽고, 이어서 «소리 내어» 읽을 때만 누구에게 말하는지가 흔들린다.
+#   전환 1회는 설계로 통과시키고(어머님), 2회부터 잡는다. 함정 셋을 이미 밟아 봤으니 지우지 말 것:
+#     [ANIDA_TRAP] 「아니다」가 「니다」로 끝나 존대로 잡혔다 → 「니」 앞 ㅂ 받침으로 가른다
+#     [TRAIL_OFF]  「…버거운데.」는 말단계가 «없다»(일부러 흐린 문장) → 판정에서 뺀다
+#     [EXCLAIM_SELF] 「아, 이건 다르구나.」는 그때 속으로 한 말이라 상대에게 하는 말이 아니다
+chk 'ANIDA_TRAP' scripts/check-speech-level.mjs 1
+chk 'TRAIL_OFF' scripts/check-speech-level.mjs 1
+chk 'EXCLAIM_SELF' scripts/check-speech-level.mjs 1
+if node scripts/check-speech-level.mjs >/dev/null 2>&1; then echo "ok 말단계: 한 화자 안의 왕복 0건"; else echo "REVERT? 말단계: 한 화자 안에서 말단계가 왕복한다 — node scripts/check-speech-level.mjs"; fail=1; fi
+
+# ★★[ECHO_INRUN 2026-09-12] 한 예식 «안에서» 같은 말이 두 번 나가는지 큐 엔진을 돌려 확인한다.
+#   대본 파일로 세면 63건이 겹쳐 보이는데 대부분 «고객이 하나만 고르는 대안 클립»이라 가짜다.
+#   그래서 ritual-cue.js 의 build(S) 를 코스별로 실제로 돌려 그 예식에 나가는 큐만 본다 —
+#   대안 판정을 손으로 적지 않으니 순서를 바꾸거나 코스를 늘려도 검사가 저절로 따라온다.
+#   ★[N4_NOT_CLEAN] 4어절이 초록인 것이 «겹침이 없다»는 뜻은 아니다. 3어절에는 지금도 걸리는 것이 있고
+#     (「편히 계시면 됩니다」 인사 사진→단체촬영 · 「오늘 이 자리를」 감동 코스 3회) 고칠지는 결정 대기다.
+#     문턱을 올려 초록을 만든 것이 아니라, 4어절부터가 판단 없이 «겹쳤다»고 말할 수 있는 선이다.
+chk 'N4_NOT_CLEAN' scripts/check-echo-inrun.js 1   # ★넣은 날부터 1개뿐이었다
+if node scripts/check-echo-inrun.js >/dev/null 2>&1; then echo "ok 한 예식 안 겹침 (4어절 0건 · 이웃 서술어 PRED_KNOWN 이하)"; else echo "REVERT? 한 예식 안에서 같은 말이 두 번 나간다 — node scripts/check-echo-inrun.js"; fail=1; fi
+chk 'AUX_ONLY' scripts/check-echo-inrun.js 1
+chk 'PRED_REPORT_ONLY' scripts/check-echo-inrun.js 1
+# ★[PRED_ECHO] 이웃 큐가 같은 서술어로 끝나는 자리는 «보고만» 한다 — 지금 9건이 실재하고(「섰다」5코스·
+#   「채웠다」3코스·「것…」1코스) 고치면 우성 재녹음이 따라온다. 게이트로 걸면 병합이 막히거나
+#   내가 초록을 만들려고 문안을 손대게 된다. 사장님 결정 뒤에 게이트로 올린다.
+#   ★대신 «늘어나면» 빨개진다 — PRED_KNOWN 을 넘기면 exit 1 이다. 줄었으면 그 수로 내려 적을 것.
+
+# ★★[NO_SPOIL 2026-09-12 사장님 "특히 흐름상 감동을 주는부분들 신경써서"] 진행자가 편지를 먼저 읽고 있었다.
+#   편지 여는 말 「한 번도 다 갚지 못한 그 마음에, 두 사람이 오늘 처음으로 소리 내어 답합니다」가
+#   10초 뒤 신부가 읽을 편지의 «머리와 꼬리를 동시에» 앞질렀다:
+#     첫 줄 「고맙다는 말을 제대로 한 적이 없어요」 ← 「처음으로 소리 내어」
+#     끝 줄 「다음에 갈 때도 빈손으로 가겠습니다」   ← 「다 갚지 못한」
+#   벼르던 고백을 진행자가 더 근사한 말로 먼저 해 버리면 편지가 각주로 떨어진다. 그 한 줄만 뺐다.
+#   ★나레이션과 배역이 다른 파일에 있어 «세로로 읽으면» 절대 안 보인다. 이어 붙여야 보인다.
+#   ★다시 넣지 말 것. 문장 자체는 좋아서 되살리고 싶어지는 종류다.
+nochk '한 번도 다 갚지 못한 그 마음에' assets/ritual-data.js
+nochk '한 번도 다 갚지 못한 그 마음에' order-preview.html
+chk 'NO_SPOIL' scripts/apply-nospoil.mjs 2
+
+# ★★[NO_VERDICT 2026-09-12] 진행자가 하객의 감상을 «대신 결론짓는» 자리 셋을 뺐다.
+#   ①덕담 마무리(긴 버전) 「그 말씀 안에 다 있었습니다 / 함께 남았습니다」 —
+#     「다」가 «더 느낄 것 없다»가 되고 「남았습니다」가 진행 중인 여운을 완료형으로 봉인한다.
+#     ★모범이 바로 옆에 있다 — 짧은 버전 「방금 그 말은, 오늘 이 자리에 있던 사람들만 들었습니다」.
+#       사실만 말하고 감정은 하객에게 맡긴다. 새 문안도 그 원칙이다(잘림을 이치로 바꾼다).
+#   ②헌정 예고 「말로 다 못 한 감사를」 — 신랑 헌정의 실체는 감사가 아니라 뒤늦은 발견이고
+#     온도는 미안함에 가깝다. 장르를 잘못 붙이면 하객이 감사를 기다리다 빗나간다.
+#   ③헌정 마무리 — 한 문장에 「오늘」이 둘이었다. 문장을 잘랐다.
+#   ★이 규칙은 ritual-data.js NARV 주석 ③(「감정을 설명하지 않는다」)과 같은 것이다. 되돌리지 말 것.
+nochk '그 말씀 안에 다 있었습니다' assets/ritual-data.js
+nochk '말로 다 못 한 감사를' assets/ritual-data.js
+chk '한 번에 다 말해지지 않습니다' assets/ritual-data.js 1
+chk '나머지는 두 사람이 살면서 듣습니다' assets/ritual-data.js 1
+chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
+
+# ★★[NARV_ZERO] 첫인사 여는 말은 원천에 «두 곳»이다 — NARR.welcome 과 NARV.welcome[0].
+#   index 0 은 따로 녹음하지 않고 NARR 녹음을 그대로 쓴다(build-tone-dub.mjs 가 0 을 안 뽑는다).
+#   그래서 둘은 «항상 같아야» 한다 — 한쪽만 고치면 화면 글과 소리가 갈린다.
+#   ★「0 은 건드리지 말 것」 주석의 뜻은 «다른 글로 갈아치우지 말라»이지 «NARR 과 어긋나게 두라»가 아니다.
+chk '먼저, 두 사람이 준비한 첫 인사가 있습니다' assets/ritual-data.js 2
+nochk '두 사람이 자리에 섰습니다' assets/ritual-data.js
+chk 'NARV_ZERO' scripts/apply-nospoil.mjs 1
+
+# ★★[ASK_RESTORE 2026-09-12 사장님 "특히 흐름상 감동을 주는부분들 신경써서"] 예식 정점에 빈 자리가 있었다.
+#   식전에 「함께 답해 주시는 순서가 한 번 있습니다. 짧은 한마디면 됩니다」라고 예고해 놓고,
+#   25분 뒤 그 자리에서는 「그 마음을, 박수로 보여 주시면 좋겠습니다」만 나갔다. 아무도 묻지 않았다.
+#   큐 데이터(live.t)에는 「하객 전원 "네, 그러겠습니다"」가 있는데 스피커로는 그 말이 안 나가니,
+#   진행자가 없는 예식에서 그 6초는 그냥 침묵이 된다.
+#   ★★두 곳에 「삭제 금지」라고 적혀 있던 문장이 실제로 삭제돼 있었다:
+#       ritual-cue.js       note: '"네, 그러겠습니다" 시연 문장 삭제 금지 — 없으면 답이 갈린다'
+#       build-dubbing-script.mjs W2-b note: 편집 지시(앞뒤 0.5초 무음)까지 남아 있었다
+#     마커가 없어서 조용히 역전됐다. 「제거 지시 보존 규칙」의 거울상이다 — «보존하라»가 사라졌다.
+#     그래서 이번엔 마커를 건다. ★다시 빼지 말 것.
+#   ★「네」 한 글자로 줄이려다 되돌렸다 — note 가 말한 «시연»이 핵심이다. 나레이터가 답을 직접
+#     소리 내어 보여 주면 억양까지 따라 하므로 4어절도 갈리지 않는다. 시연이 없을 때 갈린다.
+#   ★[ASK_DEMO_GAP] 그 시연 줄 앞뒤 0.5초 무음은 처음부터 note 에 있었는데 조립기에 반영된 적이 없었다.
+#     이제 build-typecast-import.mjs 가 값으로 넣는다. 소리를 다시 받을 필요는 없다.
+#   ★[ASK_SOURCE] 이 문안이 «네 곳»에 복제돼 있었고 그중 build-dubbing-script.mjs 의 하드코딩이
+#     manifest 를 먹였다. 그래서 원천을 고쳐도 녹음 대본만 한 판 뒤처진 채 게이트는 초록이었다.
+#     사본을 맞추지 않고 «없앴다» — 맞추기로 하면 다음에 또 어긋난다.
+chk 'ASK_RESTORE' assets/ritual-cue.js 1
+chk 'ASK_SOURCE' scripts/build-dubbing-script.mjs 2
+chk 'ASK_DEMO_GAP' scripts/build-typecast-import.mjs 1
+chk '다 같이 이렇게 답해 주시면 됩니다' assets/ritual-data.js 1
+# ★[ASK_ANSWER_WHERE 2026-09-12] 이 줄은 넣은 순간부터 빨갰다 — ritual-data.js 에는 처음부터 1개였고
+#   나머지 둘은 ritual-cue.js 의 note·live(당일 디렉터가 읽는 지문)에 산다. 숫자가 아니라 «자리»를 잘못 짚었다.
+#   셋을 다 지킨다: 문안 1(원천) + 지문 2(디렉터가 보는 곳). 하나라도 빠지면 예식 정점이 다시 빈다.
+chk '네, 그러겠습니다' assets/ritual-data.js 1
+chk '네, 그러겠습니다' assets/ritual-cue.js 2
+nochk '방금 그 대답까지가' assets/ritual-data.js
+# ★[NO_ANSWER_CLAIM] 이 줄을 «답이 작았을 때를 덮는 안전장치»로 넣었다가 N7 에 잡혀 뺐다.
+#   정확히 반대였다 — 아무도 답하지 않았을 때 고정 음성이 「그 대답까지가」라고 하면
+#   없던 일을 있었다고 우기는 꼴이 된다. 녹음은 현장의 답에 반응할 수 없다. 다시 넣지 말 것.
+chk 'NO_ANSWER_CLAIM' assets/ritual-cue.js 1
+nochk '그 마음을, 박수로 보여 주시면 좋겠습니다' assets/ritual-data.js
+nochk "'declare-ask-b', '여러분은" scripts/build-dubbing-script.mjs
+
+# ★★[CHAR_ONE 2026-09-12 사장님 "이 두 문장의 캐릭터 성격이 상충되는거같은데"] 하윤이 두 사람처럼 보였다.
+#   증거를 전수로 세면 3:2 로 갈려 있었다:
+#     말 안 함 — 신랑 서약 「한 번도 힘들다는 말을 안 했어」 · 신랑 편지 「화를 내도 되는 사람이
+#                화를 안 내니까」 · 어머님 「괜찮다고 했어요 / 엄마가 걱정할까 봐 그랬답니다」
+#     말 함   — 신부 서약 「삼십 분을 따진 날」 · 아버님 「하윤아, 너는 앞쪽이지」
+#   둘 다 «작년»이고 한 예식에서 20분 간격으로 나간다.
+#   ★★한쪽을 지우지 «않았다» — 그러면 인물이 납작해진다. 따지는 것(상대에 대한 요구)과
+#     아프다고 말하는 것(자기 상태의 고백)은 다른 축이고, 남 얘기는 삼십 분 하면서 자기 얘기는
+#     한 줄도 안 하는 사람은 실재한다. 문제는 모순이 아니라 «연결이 없다»는 것이었다.
+#     그래서 신부가 자기 입으로 그 비대칭을 지목하는 한 줄을 넣었다. 고친 곳은 그 한 곳뿐이다.
+#   ★그 한 줄이 넷을 동시에 푼다 — ①신랑 서약이 뒤늦게 확인되고 ②어머님 덕담이 세 번째로 같은 것을
+#     말하고(세 사람이 상의 없이 같은 것을 본다) ③아버님 「너는 앞쪽이지」가 맞는 말이 되고
+#     ④「너는 나에게 먼저 말해」가 «자기가 못 하는 것을 요구하는 말»이 되어 훨씬 아프게 들린다.
+#   ★④가 «우연»이면 흠이고 «알고 한 것»이면 장치다. 그래서 「나도 해 볼게」를 뒤에 붙였다.
+#     신랑 서약의 끝 「오늘부터 너는 혼자 참지 않아」에 답하는 줄이라, 두 서약이 대화가 된다.
+#   ★[VOW_ECHO] 「너는 나에게 먼저 말해」는 지우지 않고 «뒤에» 붙였다. 짝은 살고 아이러니만 의도가 된다.
+#   ★[TONE_POLISH 2026-09-12] 「정작」 한 단어를 넣었다. 아이러니(④)는 그대로 살리되,
+#     뒷절 주어가 「너」로 들려 뜻이 뒤집히던 것만 고정한다. 이 문장이 걸리면 마지막 두 줄이 붕 뜬다.
+chk '너한테는 삼십 분을 따지면서, 정작 내가 힘들다는 말은 한 번도 안 했더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★★[CHAR_LAND 2026-09-12 사장님 「참는성격이라는데 따지는성격이라고하잖아」] 뜻은 맞았는데 «말»이 달랐다.
+#   신랑: 「너는 나한테 **한 번도 힘들다는 말**을 안 했어」
+#   신부: 「정작 내가 **힘든 건 한 마디도** 안 하더라」   ← 같은 얘긴데 단어가 다르다
+#   귀는 같은 말이 다시 나올 때만 «아, 그 얘기»라고 잇는다. 표현이 바뀌면 연결이 안 들린다.
+#   그래서 신랑이 쓴 낱말을 그대로 되받게 했다. 20분 전 문장이 여기서 닫힌다.
+#   ★「정작」은 그대로 둔다 — 뒷절 주어가 「너」로 들리던 것을 잡는 말이다.
+chk '나도 해 볼게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# ★★[CHAR_LAND] 「나는 따지는 사람이야」는 «성격 전체»를 말하는 딱지였다.
+#   그 딱지가 붙은 뒤 해소 문장까지 네 줄(약 20초)이 걸렸고, 바로 앞 순서에서 신랑이
+#   「한 번도 힘들다는 말을 안 했어 · 몇 번을 혼자 참았을지」라고 말해 둔 참이었다.
+#   소리는 되감기가 없다 — 20초는 모순을 들고 있기에 너무 길다.
+#   ★한쪽을 지우지 않았다(그러면 인물이 납작해진다). 딱지를 «너에게 하는 행동»으로 한정했다.
+#     뒤에 나오는 「삼십 분을 따진 날」·「앞으로도 나는 따질 거야」는 그대로 산다 —
+#     따지는 장면은 남기고 «성격 딱지»만 걷은 것이다.
+nochk '나는 따지는 사람이야' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk '나는 너한테 할 말은 다 하는 사람이야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk 'CHAR_LAND' scripts/apply-char-land.mjs 1
+chk 'CHAR_ONE' scripts/apply-hayun-one.mjs 1   # ★넣은 날부터 1개뿐이었다
+
+# ★★[PHOTO_FREE_DO 2026-09-12] 2026-09-06 사장님 지시가 문서에만 있고 코드에 6일째 안 들어와 있었다.
+#   문안개정_20260906.md:115 [PHOTO_FREE] *"작가님이 알아서 하니깐 사진촬영부분은 자유롭게 놔두자"*
+#   여섯을 지우라 했는데 「하나, 둘, 셋」(fx-count) 하나만 실행되고 다섯이 살아 있었다.
+#   ★어떻게 찾았나 — 「이번에는 양가 부모님만 남습니다」의 주체높임 누락을 고치려다 걸렸다.
+#     지적은 3/3 으로 맞았지만, 그 문장은 «고칠 것»이 아니라 «지워졌어야 할 것»이었다.
+#     높임만 고쳤으면 사장님이 지우라 한 문장을 더 다듬어 놓고 재녹음까지 시킬 뻔했다.
+#     ★문안을 고치기 전에 「이 문장이 아직 살아 있어야 하는가」를 먼저 묻는다.
+#   ★지우지 않고 off:1 + RETIRED 로 끈다 — 지우면 뒤 클립 번호가 밀려 녹음된 mp3 가 남의 자리에 앉는다.
+#   ★되살리지 말 것. 「작가는 이 집안의 누가 누군지 모른다」는 조사 근거로 되살리고 싶어지는데,
+#     그 근거는 문안개정 문서가 이미 스스로 «틀렸다»고 철회했다(지시자가 둘이 되는 것이 더 큰 사고다).
+chk 'PHOTO_FREE_DO' assets/ritual-data.js 1
+chk 'PHOTO_FREE_DO' assets/ritual-cue.js 1
+chk 'PHOTO_FREE_DO' scripts/apply-photo-free.mjs 2
+chk "'call-family-all': 1" assets/ritual-cue.js 1
+chk "'call-parents': 1" assets/ritual-cue.js 1
+chk "'fx-seatrow': 1" assets/ritual-cue.js 1
+nochk '나머지 분들은 그대로 계셔도 좋습니다' assets/ritual-data.js
+
+# ★★[TIC_CUT 2026-09-12 사장님 결정 ⑥ *"2~3회로줄이기 이미 녹음한것에 제약을 두지말고 진행
+#   오로지 결과물에 포커싱 최선"*] 「오늘 이 자리」가 한 예식에 5회였다.
+#   관용구라 한 번은 좋은데 다섯 번이면 하객이 문장이 아니라 «틀»을 듣기 시작한다.
+#   ★줄이는 일은 «무엇을 남길지»를 정하는 일이다. 지킬 둘을 먼저 못박았다:
+#       narr-bless-end 「방금 그 말은, 오늘 이 자리에 있던 사람들만 들었습니다」 — 이 대본의 모범
+#       declare-ask-b  「…오늘 이 자리를 기억해 주시겠습니까?」 — 질문의 핵심
+#     나머지 셋에서 뺐다. 실측 5회 → 최대 2회(family) · 기본 코스 0회.
+#   ★함께 걷은 AI 티 — 사장님 *"스킬사용해서 ai느낌없이 진행"*:
+#     ①D-5 의인화 추상 주어(「마음이 … 함께합니다」·「약속이 … 채웠습니다」) → 주어를 사람으로.
+#       주어가 「마음」이면 서술어는 반드시 선언이 되고, 「분들」이면 관찰이 된다.
+#       편지 여는 말이 「앞자리에 앉아 계십니다」가 되며 하객의 시선을 부모님께 돌리는 기능까지 생겼다.
+#     ②D-6 결말 공식 — 폐식의 「시간이 흘러도 … 언제든 돌아올 수 있을 것입니다」는 추상이고
+#       감정 선언이라 통째로 뺐다. 폐식의 여운은 마지막 클립(narr-photo-out)이 맡는다.
+#     ③군말 「부디」.
+#   ★[NO_VERDICT 추가] 편지 마무리 「오늘 전한 이 마음은, 두 사람의 가슴에도 오래 남을 것입니다」도
+#     같은 것이었다 — 낭독이 끝나자마자 진행자가 하객의 감상을 결론짓는다. 게다가 서술어가
+#     선언 클립과 겹쳐 이웃 큐 반복으로도 잡혔다. → 「그 편지는 두 분이 가져갑니다」(사실만).
+#   ★[COUNT_BY_CUE] 횟수는 «파일 전체»로 세면 안 된다 — 한 번 틀렸다(12회로 나왔다).
+#     어조 변형·주석·예시 문안이 섞여 있고 그것들은 한 예식에 함께 나가지 않는다.
+#     큐 엔진을 코스별로 돌려 «실제로 스피커로 나가는 횟수»만 센다.
+#   실측 부수 효과 — 「남다/남기다」 9회 → 1회 · 「오늘」 21회 → 14~15회 ·
+#     이웃 큐 서술어 반복 5건 → 0건(PRED_KNOWN 을 0 으로 내렸다).
+chk 'TIC_CUT' scripts/apply-tic-cut.mjs 2
+chk 'COUNT_BY_CUE' scripts/apply-tic-cut.mjs 1
+chk '오늘 이 자리에 있던 사람들만 들었습니다' assets/ritual-data.js 1
+chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
+# ★[NO_FUSS 2026-09-12] 「앉아 계십니다」 → 「앞자리에 부모님이 계십니다」.
+#   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
+#   새 문장도 주어가 사람이고, 하객의 시선을 부모님께 돌리는 기능도 그대로다. 형태만 짧아졌다.
+#   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
+chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
+nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
+chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
+nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
+nochk '오늘 이 자리를 함께 채워 주셔서' assets/ritual-cue.js
+nochk '두 사람의 가슴에도 오래 남을 것입니다' assets/ritual-data.js
+nochk '시간이 흘러도, 두 사람은 오늘의 이 마음으로' assets/ritual-data.js
+
+# ★[PHOTO_SPLIT_TRIM] 사장님 결정 ③ 은 「추천대로(=끈다)」였는데, 실측하니 이 클립이
+#   240초짜리 라이브 구간의 «진입 신호»를 겸하고 있었다. 통째로 끄면 그 구간이 무음으로 열린다.
+#   그래서 문장 단위로 갈랐다 — 진입 신호와 「작가님이 부릅니다」는 남기고 하객 동선만 뺐다.
+#   결정의 취지(동선은 작가님께)는 지키면서 무음 사고를 막는다.
+#   ★덤 — 「편히 계시면 됩니다」가 이웃 클립(narr-round-open)과 연달아 나가던 것도 함께 풀렸다.
+chk '가족사진은 작가님이 순서대로 불러 드립니다' assets/ritual-data.js 1
+nochk '이름이 불린 분들만 남아 주시고' assets/ritual-data.js
+
+# ★★[GROOM_PARENT 2026-09-12 사장님 결정 ④ *"신랑부모가 줄수잇는 감동포인트가 잇다면 양쪽 다
+#   준비해서 감정이배가될수잇는쪽으로 기획 구현"*] 신랑 부모가 헌정을 «받기만» 하고 있었다.
+#   덕담은 아버님·어머님 둘 다 신부 쪽이고(보일러는 장인 · 양호실은 친정 엄마), 신랑 부모는 말이 0줄이었다.
+#   ★★네 번째 덕담을 주지 «않았다» — 그게 이 기획의 핵심이다.
+#     덕담이 넷이 되면 정점이 넷으로 쪼개진다. 고립 효과는 배경이 평평할 때만 작동하고(PEAK_ONE),
+#     조사도 «정점을 더하는 것»보다 «골을 없애는 것»이 낫다고 했다(Miron-Shatz 2009).
+#     그래서 자리를 나눴다 — 신부 쪽은 «말하는 자리»(덕담), 신랑 쪽은 «받는 자리»(헌정)에서 네 줄.
+#     받는 쪽이 길게 말하면 헌정이 덕담으로 변한다. 길어야 20초로 못박았다.
+#   ★무엇을 말하게 했나 — 아들의 말을 «받아 뒤집는다».
+#     아들은 사진 «속»을 보고 「그 얼굴도 버티는 중이었다」고 «추측»한다.
+#     그런데 그 사진에는 찍은 사람이 있다 — 프레임 밖에 서 있었고 지금 앞자리에 앉아 있다.
+#     「그 사진, 엄마가 찍은 거야」로 열면 장면이 통째로 뒤집히고, 추측이 목격자의 «사실»이 된다.
+#     아버지가 직접 말하면 자랑이 되고 아내가 말하면 증언이 된다(Pfeffer 2006).
+#     그래서 신랑 «아버지»는 말하지 않는다. 사진 이야기의 대상으로 남는다.
+#   ★번호는 27 — 맨 끝에 붙였다. 중간에 끼우면 이미 녹음된 26개가 전부 개명된다.
+#   ★[VOICE_PENDING] 새 역할 「시어머님」은 성우 미정이다(주하는 신부 어머니라 쓸 수 없다).
+#     build-redub-byvoice.mjs 가 «죽지 않고» 건너뛰고 끝에 알린다 — 한 자리가 비었다고
+#     이미 성우가 정해진 나머지를 볼모로 잡지 않는다. 실제로 한 번 그렇게 멈춰서 고쳤다.
+chk 'GROOM_PARENT' scripts/apply-groom-parent.mjs 1   # ★넣은 날부터 1개뿐이었다
+chk 'GROOM_PARENT' assets/ritual-cue.js 1
+chk 'GROOM_PARENT' scripts/build-typecast-import.mjs 1
+chk 'VOICE_PENDING' scripts/build-redub-byvoice.mjs 1
+chk 'R-tribute-reply' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '그 사진, 엄마가 찍은 거야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '그래도 다음 주에 또 업더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '신랑 어머님 한 마디' assets/ritual-data.js 3
+chk 'CAST_COUNT = 26' scripts/build-typecast-import.mjs 1
+
+# ★★[WF_FINDINGS 2026-09-12 사장님 결정 ①⑦] 워크플로 39/39 완주 결과를 반영했다.
+#   ★후반부 12건 중 «3건만 진짜»였고 9건은 반증됐다(오진율 75%). 진단서를 그대로 반영했으면
+#     아홉 곳을 헛되이 고치고 재녹음까지 시킬 뻔했다. 반증을 먼저 거는 값이 여기서 났다.
+#     그 3건 중 A-부모님높임은 [PHOTO_FREE_DO] 로 클립을 꺼서 무효가 됐다. 남은 둘만 고쳤다.
+#   ★★치명 1 — NARV.bless 서정에만 「마이크가 전해지면」이 없었다. 담백·다정엔 있다.
+#     부모님이 마이크를 받고도 언제 시작할지 몰라 서 계시게 된다. 진행자가 없어 그 침묵을 못 메운다.
+#     문안 취향이 아니라 진행 사고다. ★서정에서 이 신호를 다시 빼지 말 것.
+#   ★★치명 2 — 내가 [TIC_CUT] 을 «절반만» 고쳤다. end-2-goodbye 를 ritual-cue.js 만 고치고
+#     build-dubbing-script.mjs 의 하드코딩 사본을 놓쳐, 글에서는 사라지고 소리에는 그대로 남았다.
+#     [ASK_SOURCE] 에서 똑같이 당하고 또 당했다 → [EXTRA_SOURCE] 로 그 열 줄을 통째로
+#     RC.EXTRA 참조로 바꿨다. 사본을 맞추지 않고 없앤다. 맞추면 세 번째가 온다.
+#   ★배웅 — 문장이 아니라 «이어 붙는 방식»이 문제였다. end-1a 가 chain 이라 피크엔드로 설계한
+#     narr-photo-out 바로 뒤에 「오늘의 기록이 모두 담겼습니다」가 붙어 정점을 덮었다. 첫 문장을 뺐다.
+#     hint 도 고쳤다 — 「하객 대부분이 나가시면」인데 note 는 「하객이 듣는 마지막 소리」였다(모순).
+#   ★어조 — 기계 검사(check-narr-rule)는 100벌 전부 초록인데, 그 검사가 스스로 «안 본다»고 적어 둔
+#     N3(감정 설명)·N5(듣고 3초)·N6(그 자리의 사실)에 문제가 몰려 있었다. 열한 곳을 고쳤다.
+#     ring 서정 「방금 나눈 말을」은 서약이 «꺼지는» 조합(record + 편지)에서만 틀린 말이 된다 — 실행해서 확인했다.
+chk 'WF_FINDINGS' scripts/apply-wf-findings.mjs 2
+chk 'WF_FINDINGS' assets/ritual-cue.js 1
+chk '마이크가 전해지면, 편히 말씀해 주시면 됩니다' assets/ritual-data.js 2
+nochk '다른 분들은 잠시 잊으셔도 됩니다' assets/ritual-data.js
+nochk '두 사람이 서로에게 다 전했습니다' assets/ritual-data.js
+nochk '한 분도 빠지지 않게' assets/ritual-data.js
+nochk '방금 나눈 말을' assets/ritual-data.js
+chk '앉으신 자리에서 편히 보시면 됩니다' assets/ritual-data.js 2
+# ★[PHONE_SRC 2026-09-12] 이 문장의 «원천»이 ritual-cue.js 에서 ritual-data.js 로 옮겨졌다(45adff23).
+#   사본을 없애는 방향(EXTRA_SOURCE)과 같은 정리라 되돌릴 것이 아니다. 검사가 옛 자리를 보고 있었다.
+chk '휴대폰 소리는 잠시 꺼 주시기 바랍니다' assets/ritual-data.js 1
+
+# ★★[EXTRA_SOURCE 2026-09-12] 생성기가 들고 있던 문안 하드코딩 사본 열 줄을 «없앴다».
+#   맞추는 대신 없앤 이유 — 두 번 당했다. 원천을 고쳐도 사본이 옛 글을 들고 manifest 를 먹어
+#   «글에서만 고쳐지고 소리엔 그대로» 남았고, 그동안 게이트는 초록이었다.
+#   ★[EXTRA_MIRROR 완화] 그래서 check-ritual-cue.js 의 대조를 «산출물 기준»으로 바꿨다 —
+#     소스에 문자열이 있으면 종전대로 verbatim 대조하고, 없으면 생성기가 만든
+#     더빙_녹음_대본_최종.txt 에 그 문안이 실렸는지 본다. 참조 경로(RC.EXTRA·D.DECLWHO·D.NARR…)를
+#     하나씩 열거하면 새 경로가 생길 때마다 샌다. 산출물을 보면 경로와 무관하게 판정된다.
+#     ★이 검사가 약해진 것이 아니다 — 반증으로 확인했다. EXTRA 문안 한 글자를 바꾸면 빨개진다.
+chk 'EXTRA_SOURCE' scripts/build-dubbing-script.mjs 1
+chk 'EXTRA_SOURCE' scripts/check-ritual-cue.js 1
+nochk "'end-2-goodbye', '오늘" scripts/build-dubbing-script.mjs
+
+# ★[VOICE_PENDING 2026-09-12] 성우 미정 줄은 «개별 파일과 0_전체 둘 다»에서 빠져야 한다.
+#   한 곳만 막았다가 0_전체_화자표기.txt 에 「undefined: 대사」 네 줄이 샜다. 그대로 붙이면
+#   타입캐스트에 «undefined» 라는 화자가 생긴다. 한 곳만 막으면 다른 곳으로 샌다.
+chk 'VOICE_PENDING' scripts/build-redub-byvoice.mjs 2
+nochk 'undefined:' 'docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'
+
+# ★★[ROUND_MID 2026-09-12 사장님 "진행 흐름을 파악하고 개선점은 없는지 … 완성도를 높여보자"]
+#   흐름을 «시간축»으로 펼쳐 재는 검사를 만들고(scripts/audit/flow-shape.js) 이게 나왔다:
+#     narr-round-open → ● 라이브 1020초(17분) → narr-final-warn
+#   그 17분 동안 스피커에서 «한 마디도 안 나간다». 하루에서 사람의 시간이 가장 긴 자리다.
+#   ★★이 저장소는 이미 그 원리를 알고 있었다 — narr-photo-split 큐 note 에
+#     「순번을 알려 주면 이탈이 준다(하버드)」라고 적어 두고, 그걸 «4분» 구간에만 썼다.
+#     17분 구간엔 안 썼다. 거꾸로였다.
+#   ★여는 말을 늘리지 «않았다» — roundOpen 은 이미 31.5초→20.1초로 줄인 이력이 있고(ROUND_LEN),
+#     17분 뒤엔 어차피 잊힌다. 필요한 것은 «그 시점에» 다시 말하는 것이라 가운데에 한 줄을 뒀다.
+#   ★체인이 아니라 «골라 트는» 자리다(NARR_CONSOLE_ONLY) — 「절반」이 몇 분인지는 그날 자리 수로
+#     달라지고 녹음은 그걸 모른다. 그래서 문안도 「절반」이 아니라 「절반쯤」이다.
+#   ★이탈을 막지 않는다 — 막으면 17분을 참고 앉아 있고, 그냥 풀면 두 분이 갔을 때 사람이 없다.
+#     그래서 비우는 것을 허용하되 「다녀오신 뒤에 다시 찾아뵙겠습니다」로 다시 만나게 한다.
+#   ★번호는 86, 맨 끝. 중간에 끼우면 이미 녹음된 85개가 전부 개명된다.
+chk 'ROUND_MID' assets/ritual-data.js 1
+chk 'ROUND_MID' assets/ritual-cue.js 1
+chk 'ROUND_MID' scripts/apply-round-mid.mjs 2
+# ★[ROUND_MID_TWO 2026-09-12] 넣은 순간부터 2개였다 — 문안(NARR.roundMid)과 등재(NARR_CONSOLE_ONLY) 둘.
+#   셋을 요구한 것은 내 착각이다. 지킬 것은 «문안이 있고, 콘솔 전용으로 등재돼 있다» 두 가지다.
+chk 'roundMid' assets/ritual-data.js 2
+# ★[ROUND_MID_WORD 2026-09-14] 문안이 「돌았습니다」→「인사를 나누셨습니다」로 바뀌었다(GUEST_TONE ⑤).
+#   지킬 것은 «절반쯤 왔다고 알려 주는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
+#   ★a606d699 가 문안만 고치고 이 줄을 안 옮겨 게이트가 하루 붉었다. 문안을 고치면 같은 커밋에서 여기도 고친다.
+chk '두 분이 절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
+chk 'N_FILES = 86' scripts/check-ritual-cue.js 1
+
+# ★[FLOW_SHAPE] 흐름을 시간축으로 펼쳐 «모양»을 재는 검사. 문장이 아니라 구조를 본다 —
+#   한 목소리가 연속으로 끄는 시간 · 말 없이 흘러가는 구간 · 하객 동작 지시가 몰린 자리 · 블록별 배분.
+#   ★[POST_WAIT] post 의 대기·페이드도 시간이다. 빼고 재면 선언 뒤 박수 시간이 0 으로 잡혀
+#     「선언 직후에 바로 편지가 온다」는 가짜 지적이 나온다. 실제로 한 번 그렇게 나왔다.
+#   ★[GUEST_SPACED] 하객 맞이 네 클립은 5~7분 간격 반복이라 붙여 재면 안 된다. 블록째 뺀다.
+#   ★[LOOSE_COVER] 무음이라고 다 같은 무음이 아니다 — 골라 트는 클립이 준비된 구간은 구별해 표시한다.
+#     구별을 안 하면 이미 손쓴 자리를 계속 빨갛게 보고하게 되고, 보고가 닳는다.
+chk 'FLOW_SHAPE' scripts/audit/flow-shape.js 1
+chk 'POST_WAIT' scripts/audit/flow-shape.js 1
+chk 'GUEST_SPACED' scripts/audit/flow-shape.js 1
+chk 'LOOSE_COVER' scripts/audit/flow-shape.js 1
+
+# ★★[PLETTER_TRIM 2026-09-12 사장님 결정 ⑤ 「추천대로(일부만)」] 혼주 편지에서 값이 큰 자리만 고쳤다.
+#   43_parents-letter 는 38문장 서면이고 낭독물이 아니다(parents.html 에서 읽고 예식 당일 안 나간다).
+#   ★38문장을 다 손보지 «않는» 이유 — 이 글은 격식이 곧 내용이다. 많이 고칠수록
+#     「업체가 보낸 사무적 공지」 쪽으로 미끄러진다. 「일부만」의 값은 녹음 절약이 아니라
+#     «바꾸는 문장이 적을수록 격식이 안 흔들린다»는 데 있다(클립은 하나라 어차피 통째 재녹음이다).
+#   ①「저희가 감히 다 알지 못합니다」 — 과공은 비례다. 낮춤을 빼니 다짐이 곧게 선다.
+#   ②「오신 모든 분과 눈을 맞추고」가 연속 두 문장에 그대로 있었다(10·11). 눈으로 읽는 글이라 바로 걸린다.
+#   ⑤「축하의 마음은 청첩장과 함께 정중히 안내드리고, 감사히 받습니다」 — 어른이 가장 궁금해하실
+#     자리를 가장 에둘러 말했다. 돈 이야기를 흐리면 «숨긴다»는 인상이 남는다 → 「축의는 여느 예식과 같습니다」.
+#   ⑧ 「올립니다」+「모먼트에디트 올림」 — 맺음이 두 번이었다. 앞을 「인사드립니다」로.
+#     ★화면은 서명 블록(Moment Edit)이 그 자리를 맡아 이 문장이 «없다». 그 갈림은 설계다.
+# ★★[TERM_DIGITAL] 한 글 안에서 소리는 「온라인 참석」, 화면은 「디지털 참석」이었다.
+#   표준은 «디지털»이다 — S.digital · digitalAttendance · 청첩장 8장이 전부 그 말을 쓴다.
+#   어른께 드리는 글에서 용어가 흔들리면 «다른 것»을 말하는 줄 안다. 소리를 화면에 맞췄다.
+#   ★남은 것 — assets/ritual-cue.js 의 나레이션 쪽에 「온라인 참석」이 아직 있다. 별도 클립이라
+#     고치면 재녹음이 붙는다. 사장님 결정 대기다. 여기서 조용히 같이 바꾸지 않았다.
+# ★[BODY_SLICE] 자가검사의 본문 추출을 정규식으로 하려다 소스 뒷부분까지 끌고 온 적이 있다.
+#   시작·끝을 문자열로 잘라 낸다. 그래야 세는 대상이 편지 본문뿐이다.
+chk 'PLETTER_TRIM' scripts/apply-parents-letter.mjs 1   # ★넣은 날부터 1개뿐이었다
+chk 'TERM_DIGITAL' scripts/apply-parents-letter.mjs 1
+chk 'BODY_SLICE' scripts/apply-parents-letter.mjs 1
+chk '축의는 여느 예식과 같습니다' scripts/build-dubbing-script.mjs 1
+chk '축의는 여느 예식과 같습니다' parents.html 1
+nochk '저희가 감히 다 알지 못합니다' scripts/build-dubbing-script.mjs
+nochk '저희가 감히 다 알지 못합니다' parents.html
+# ★★[TERM_SCOPE 2026-09-12] 파일 전체를 보면 «바로 아래 적힌 결정»과 부딪힌다.
+#   결정 ③ 이 「디렉터 화면의 라벨·지문(「온라인 참석자 환영」)은 그대로 둔다」고 못 박아 뒀는데,
+#   이 검사는 파일 전체를 봐서 그 라벨 두 줄에 늘 걸렸다 — 넣은 순간부터 빨간 검사였다.
+#   ★그래서 «혼주 편지 본문»만 자른다(apply-parents-letter.mjs 의 BODY_SLICE 와 같은 경계).
+#     용어를 맞출 대상은 어른께 드리는 글이지 디렉터가 보는 동작 이름이 아니다.
+_pl=$(sed -n '/안녕하십니까. 귀한 자녀분/,/모먼트에디트 올림./p' scripts/build-dubbing-script.mjs | grep -c '온라인 참석')
+if [ "${_pl:-0}" -eq 0 ]; then echo "ok 혼주 편지 본문에 '온라인 참석' 없음(용어=디지털)"; else echo "REVERT? 혼주 편지 본문에 '온라인 참석' 이 되살아났다 ($_pl건) — 상품 표준은 «디지털 참석»"; fail=1; fi
+
+# ★[TERM_DIGITAL 2026-09-12 사장님 결정 ③] 고객이 읽는 글에서 「온라인」을 뺐다.
+#   상품 표준은 «디지털 참석»이다(S.digital · digitalAttendance · 청첩장 8장 · 마이페이지).
+#   한 상품에서 용어가 갈리면 고객은 «다른 것»을 말하는 줄 안다.
+#   ★고객 노출은 한 곳뿐이었다(ritual-story.js 식전 안내 how) — 나레이션 문안에는 애초에 없었다.
+#     그래서 재녹음이 «0»이다. 용어 통일이 늘 비싼 것은 아니다. 범위부터 재고 판단할 것.
+#   ★디렉터 화면의 라벨·지문(「온라인 참석자 환영」·「온라인 인사 2분」)은 그대로 둔다.
+#     고객이 안 보고, 당일 진행 «동작»의 이름이라 실무에서 굳어져 있다. 고객 노출만 맞춘다.
+chk 'TERM_DIGITAL' assets/ritual-story.js 1
+chk '화면으로 함께하시는 분이 계시거나' assets/ritual-story.js 1
+nochk '온라인으로 함께하시는 분이' assets/ritual-story.js
+
+# ★★[CROWD_MIX 기각 2026-09-12] 하객 군중을 AI 성우 다섯으로 «겹쳐» 만들려다 되돌렸다.
+#   사장님이 「추천대로」를 주셨지만, 만들다 보니 이 저장소가 이미 그 방향을 검토하고 기각해 뒀다:
+#     build-typecast-import.mjs 의 CAST_HOLD 주석과 보고문 —
+#     「AI 단일 보이스로는 군중 소리를 만들 수 없습니다. 한 사람이 "네, 그러겠습니다"를 말하면
+#      스물다섯 명의 응답이 아니라 한 명의 대답으로 들리고, 그 순간 예식이 우스워집니다.
+#      후보 셋 — ①팀·지인 4~5명 실녹음 ②그 구간만 텍스트 카드 ③생략」
+#   ★AI 를 다섯 겹쳐도 «같은 엔진»이라 질감이 균일하다. 군중감의 핵심은 그 불균일함인데 안 나온다.
+#     후보 ①이 「실녹음」인 이유가 그것이다. 내 추천이 얕았고, 되돌리는 것이 맞다.
+#   ★다시 시도하지 말 것 — 하려면 AI 겹치기가 아니라 «사람 4~5명이 한 마디»다. 한 문장이라 금방이다.
+nochk 'R-declare-ask-28' 'docs/plans/식순연구/배역_예시_대사.txt'
+chk 'CAST_HOLD' scripts/build-typecast-import.mjs 1
+
+# ★★[BREATH 2026-09-12 사장님 "최종 스킬사용 점검개선"] 쉼표가 숨 자리를 잘못 잡은 네 곳.
+#   감동 구간 108문장을 스킬로 다시 재니 risk_band=low(2) 이고 번역투 계열이 «전부 0»이었다 —
+#   이중 피동 0 · by-피동 0 · 대명사 밀도 0 · 무생물 주어 0.0 · 한자 명사화 0(z=-2.00).
+#   ★무생물 주어 0.0 은 [TIC_CUT] 에서 의인화 추상 주어를 걷어낸 것이 «수치로» 나온 것이다.
+#   ★★그리고 스킬 임계(S1_SELECT_Z = 2.0)를 넘는 지표는 «하나도 없다». ending_comma_rate 가
+#     z=+1.39 로 제일 높지만 임계 아래다. 즉 이 대본은 스킬 기준으로 손댈 데가 없다.
+#     그러니 아래 네 곳은 «지표 때문»이 아니라 «낭독 호흡» 기준의 판단이다. 구분해서 적어 둔다 —
+#     지표를 맞추려고 고쳤다고 적으면 다음 사람이 지표를 더 내리려다 과교정한다.
+#   ★comma_usage_rate 는 z=-1.21 로 «쉼표 수는 오히려 적다». 줄이는 일이 아니라 위치를 고치는 일이다.
+#     30개를 전수로 재서 「연결어미 뒤 + 앞 토막이 짧음」인 넷만 골랐다. 나머지 26개는 그대로 둔다.
+#   ★★[대구는 살린다] 「~고 나서,」가 셋이라 반복으로 보였는데 둘은 신부 서약 안의 «의도된 대구»였다:
+#       너는 다 듣고 나서 밥 먹었냐고 물었어 / 대신 다 따지고 나서 내가 먼저 밥 먹었냐고 물을게
+#     그가 한 것을 내가 따라 하겠다는 약속이라 «형태가 같은 것»이 장치다. 하나를 다른 말로 바꾸면
+#     약속이 안 보인다. 그래서 문형은 그대로 두고 쉼표만 뺐다 — 한 호흡으로 붙어 대구가 더 선명해진다.
+#   ★[10] 「밥 먹다가,」는 앞 토막이 13음절인데도 골랐다. 길이가 아니라 «의미»가 끊긴다 —
+#     거기서 멈추면 아버지가 밥을 먹다 만 것처럼 들리고, 이 편지에서 아버지가 허락하는 단 한 문장이 밀린다.
+chk 'BREATH' scripts/apply-breath.mjs 1   # ★넣은 날부터 파일에 1개뿐이었다(2를 요구한 것이 내 착각)
+chk '너는 다 듣고 나서 밥 먹었냐고 물었어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '대신 다 따지고 나서 내가 먼저 밥 먹었냐고 물을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '낳아주셔서, 키워주셔서, 참아주셔서' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+nochk '다 듣고 나서,' 'docs/plans/식순연구/배역_예시_대사.txt'
+
+# ★★[PHOTO_OK 2026-09-12 사장님 "듣는 청중 하객입장에서 좀더 디테일하게 점검"]
+#   하객 귀로만 대본을 따라가는 검사를 만들었더니(scripts/audit/guest-ear.js) 구멍이 나왔다.
+#   기본 예식에서 하객이 사진에 대해 듣는 말은 «이것뿐»이었다 —
+#     「휴대폰 소리는 잠시만 꺼 주시면 감사하겠습니다.」
+#   찍어도 되는지에 대한 답이 «없다». 25명은 그 말을 「찍지 말라」로 읽는다.
+#   결혼식에서 하객이 가장 많이 하는 행동인데 그 자리가 비어 있었다.
+#   ★★왜 안 보였나 — 답이 «조건부 클립»에 있었다. 「마음껏 찍으셔도 좋습니다」는 narr-photo-ask 에
+#     있는데 그 클립은 S.photoShare(사진 링크를 넣은 두 분)일 때만 나간다.
+#     게다가 앞 커밋에서 그 클립을 완화했는데 그 완화도 조건부라 정작 필요한 예식엔 안 갔다.
+#     ★조건부 클립을 고쳐서는 이 구멍이 안 메워진다. 답을 «조건 없는 자리»(guest-4)로 옮겼다.
+#   ★순서가 중요하다 — 「소리만 줄여」로 범위를 한정한 «뒤» 「사진은 편히」로 허락한다.
+#     허락을 먼저 주면 소리 얘기가 뒤늦은 단서처럼 붙는다.
+#   ★[D-폰모순]도 이걸로 함께 풀린다 — guest-4 가 범위를 한정했으므로 뒤에 chain 으로 붙는
+#     narr-photo-ask 가 앞말을 뒤집지 않는다. 그 클립은 이제 제 일(보내는 법 예고)만 한다.
+#   ★[TEXT_AUDIO] guest-4 는 화면 글과 소리가 한 글자도 달라선 안 된다. 원천(GUEST[3])과
+#     배역_예시_대사.txt 를 같은 커밋에서 고쳤다. 한쪽만 고치면 check-text-audio 가 잡는다.
+#   ★두 분 목소리판은 「진동으로 바꿔」다 — 나레이션판과 «일부러» 다르다(초대한 사람의 말이라 부드럽다).
+#     그 결은 지키고 사진 허락만 같이 붙였다. 두 판을 같은 문장으로 통일하지 말 것.
+chk 'PHOTO_OK' scripts/apply-photo-ok.mjs 1   # ★넣은 날부터 1개뿐이었다
+chk '사진은 편히 남기셔도 좋습니다' assets/ritual-data.js 1
+chk '사진은 편히 남기셔도 좋아요' assets/ritual-data.js 1
+chk '사진은 편히 남기셔도 좋아요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '오늘 찍으신 사진은 나중에 두 사람에게 보내 주실 수 있습니다' assets/ritual-cue.js 1
+nochk '휴대폰 소리는 잠시만 꺼 주시면' assets/ritual-data.js
+
+# ★[GUEST_EAR] 하객 귀로만 대본을 따라가는 검사. 25명 중 한 사람이 되어 자기가 무엇을 듣고
+#   무엇을 해야 하는지만 본다 — 그 사람은 대본을 못 보고 되물을 사람도 없다.
+#   ①하객에게 «하는 말» 비율 ②몸을 움직여야 하는 횟수 ③궁금할 것에 답이 있는가
+#   ④호칭이 흔들리지 않는가 ⑤조건이 맞아야만 나가는 안내(아니면 그 답이 «아예» 없다)
+#   ★⑤가 이 검사의 핵심이다. 대본을 통째로 읽으면 답이 있어 보이는데, 조건부라 실제로는 안 나간다.
+chk 'GUEST_EAR' scripts/audit/guest-ear.js 1
+# ★★[NO_OK_FN 2026-09-12] 이 게이트에 «ok 라는 함수는 없다». chk · nochk · _gate 뿐이다.
+#   출력에 보이는 「ok …」는 chk 가 찍거나 개별 node 검사가 스스로 찍는 글자다.
+#   내가 `&& ok '…' 1` 패턴을 지어내 세 줄을 넣었고, 셋 다 «ok: not found» 로 조용히 죽어 있었다.
+#   FAIL 만 grep 하고 있어서 며칠을 못 봤다 — 이 저장소가 CLIP_COUNT 주석에 적어 둔
+#   「실패 메시지가 사람 눈에만 뜨고 검사에 안 걸려 있었다」와 똑같은 사고다.
+#   ★규약은 하나다 — 판정 트랩 _gate 가 읽는 변수는 «fail» 뿐이다. 실패하면 fail=1 을 세운다.
+#   ★파이프 뒤에 함수를 붙이면 서브셸로 들어가 fail 도 안 남는다. 변수로 받아 [ ] 로 판정한다.
+_GE=$(node scripts/audit/guest-ear.js damback 2>/dev/null | grep -c '✗')
+if [ "$_GE" = "0" ]; then echo "ok 하객이 궁금할 것 9종에 전부 답이 있다"; else echo "REVERT? 하객이 궁금할 것에 답이 없다 ($_GE종) — node scripts/audit/guest-ear.js"; fail=1; fi
+
+# ★★[VOICE_GAP 2026-09-12 사장님 "성우 목소리겹치는거 다르게"] 성우 F0 를 «실측»해 겹침을 잰다.
+#   귀로는 「비슷하다」까지만 말할 수 있다. 무엇을 얼마나 바꿔야 하는지는 재야 안다.
+#   이 저장소에 선례가 있다 — [VOICE_GROOM_2] 「이준 116.8Hz → 이겸 133.3Hz(+16.5Hz).
+#   바뀐 것이 소리에서 재진다」. 같은 방법을 여덟 자리 전체로 넓혔다.
+#   ★실측 — 권일 123 · 이겸 127 · 김호인 140 · 규민 148 · 우성 151 · 주하 157 · 서진 211 · 진희 229.
+#     남성 다섯이 123~151Hz, 28Hz 안에 전부 몰려 있고 주하(157)도 그 위에 바로 붙어 있다.
+#   ★★당일 예식이 아니라 «미리듣기»가 문제다. 당일엔 나레이션이 우성 하나뿐이고 나머지는 실제 사람이다.
+#     미리듣기는 여덟 목소리를 «이어서» 듣는다. 배역이 진행과 가까우면 「진행자가 계속 말하네」로 들린다.
+#     규민(하객대표) 148 ↔ 우성(진행) 151 = 2.8Hz 가 가장 심하다. 축배사 앞뒤가 진행 나레이션이다.
+#   ★[OCTAVE_FIX] 자기상관은 반 랙에도 물려 한 옥타브 아래로 잘못 잡는다. 반 랙 상관이 0.85배를
+#     넘으면 그쪽을 택한다. 이 보정이 없으면 여성 성우가 남성대로 내려앉아 가짜 경보가 난다(실제로 났다).
+#   ★[GAP_KNOWN] 알고 있는 건수를 코드에 박았다. 늘면 빨개지고, 성우를 갈아 끼워 줄면 내려 적는다.
+#     0 으로 내리려고 성우를 바꾸는 것은 사장님 결정이다. 검사가 강요하지 않는다.
+chk 'VOICE_GAP' scripts/audit/voice-gap.js 1
+chk 'OCTAVE_FIX' scripts/audit/voice-gap.js 2
+chk 'GAP_KNOWN' scripts/audit/voice-gap.js 1
+# ★검사를 «실제로» 돌린다. 마커만 걸고 실행을 안 넣으면 아무것도 안 잡는다([NO_OK_FN] 참고).
+#   ffmpeg 로 mp3 를 훑어 30초쯤 걸린다 — 게이트에서 제일 느린 축이지만, 성우 교체가
+#   조용히 규칙을 깨는 사고를 이 검사 말고는 잡을 방법이 없다.
+if node scripts/audit/voice-gap.js >/dev/null 2>&1; then echo "ok 성우 F0 겹침 (붙은 쌍 GAP_KNOWN 이하)"; else echo "REVERT? 성우 목소리가 더 겹친다 — node scripts/audit/voice-gap.js"; fail=1; fi
+
+# ★★[TONE_POLISH 2026-09-12] 소리로 들었을 때 격이 흔들리던 자리를 고쳤다(각도 D 진단).
+#   여기 거는 것은 «정답이 하나인 것»뿐이다 — 비문·시제 오류·말단계 잔재·저장소 자신의 규칙 위반.
+#   되살아나면 안 되는 이유를 하나씩 적어 둔다. 근거 없이 되돌아오면 그때 이 줄이 막는다.
+chk 'TONE_POLISH' scripts/apply-tone-polish.mjs 1
+# ① 입장 닫는 말 — 여섯 갈래가 «전부» 「서로를 바라봐 주세요」로 닫아야 한다.
+#   ★[ENTRY_OUT_DRIFT] 주석은 그렇게 적혀 있었는데 실제로는 B 한 갈래에만 있었다. 그 어긋남을
+#     사람 눈이 한 달 넘게 못 봤다. 그래서 개수가 아니라 «전수»로 센다 — 갈래가 늘어도 따라온다.
+_eo=$(node -e "var D=require('./assets/ritual-data.js');var o=D.NARR.entryOutBy;var k=Object.keys(o);
+  var miss=k.filter(function(x){return !/서로를 바라봐 주세요\.$/.test(o[x].trim())});
+  console.log(miss.length+' '+k.length+' '+miss.join(','))" 2>/dev/null)
+case "$_eo" in
+  "0 "*) echo "ok 입장 닫는 말 ${_eo#0 } 갈래 전부 「서로를 바라봐 주세요」로 닫는다" ;;
+  *)     echo "REVERT? 입장 닫는 말이 그 한 마디 없이 닫히는 갈래가 있다 ($_eo) — 첫 사진을 만드는 문장이다"; fail=1 ;;
+esac
+# ② 아버님 덕담 — 앞 두 줄이 두 사람을 각각 「너」로 불러 놓아서, 「네가」가 누구인지 소리로 안 잡혔다.
+nochk '그때 먼저 말을 거는 건 아마 네가 할 거다' "docs/plans/식순연구/배역_예시_대사.txt"
+# ③ 축배 — 이 대본은 「백년해로·꽃길·영원히」를 0회로 지켜 왔다. 「좋은 일만 있기를」은 그 계열이다.
+nochk '좋은 일만 있기를' "docs/plans/식순연구/배역_예시_대사.txt"
+nochk '하던 날이 있습니다' "docs/plans/식순연구/배역_예시_대사.txt"
+# ④ 신부 서약 — 「정작」이 빠지면 뒷절 주어가 「너」로 들려 뜻이 뒤집힌다.
+# ★[CHAR_LAND 2026-09-12] 「힘든 건 한 마디도」 → 「힘들다는 말은 한 번도」.
+#   지키려던 것(「정작」이 뒷절 주어를 잡는다)은 그대로고, 신랑이 쓴 낱말을 되받게만 바꿨다.
+chk '정작 내가 힘들다는 말은 한 번도 안 했더라' "docs/plans/식순연구/배역_예시_대사.txt" 1
+# ⑤ 안내 G1-2 — 나레이션판은 합쇼체다. 두 분 목소리판(「두었어요」)은 그대로 두므로 파일 전체를 막지 않는다.
+chk '음료를 준비해 두었습니다' assets/ritual-data.js 1
+# ⑥ 예식 뒤 — 합쇼체 안의 해요체 «평서»만 걷었다(「~주세요」류 청유는 표준이라 안 건드린다).
+nochk '작가님이 안내해 드릴게요' assets/ritual-cue.js
+nochk '차례로 찾아뵐 거예요' assets/ritual-data.js
+chk 'PHOTO_HANDOVER' assets/ritual-cue.js 1
+# ⑦ 반지는 «나누는» 게 아니라 «끼워 주는» 것이다. 만능 동사로 돌아가면 장면이 뭉개진다.
+nochk '반지를 나눕니다' assets/ritual-data.js
+# ⑧ 케이크 — 저장소 자신의 규칙(「정의문으로 열지 않는다」) + 웨딩 상투어.
+nochk '가장 달콤한 순간' assets/ritual-data.js
+# ⑨ 「첫걸음」은 한 단어다. 띄면 TTS 가 그 자리에서 쉰다.
+nochk '첫 걸음' assets/ritual-data.js
+nochk '첫 걸음' "docs/plans/식순연구/배역_예시_대사.txt"
+
+# ★★[SCREEN_POLISH 2026-09-12] 화면 세 각도(고객 여정 · 하객 · 당일 운영)를 390/1280 으로 실제 찍어 보고 고쳤다.
+#   여기 거는 것도 «정답이 하나인 것»뿐이다 — 접근성 수치·문서화된 규칙 위반·못 보던 실패 경로.
+#   취향이 갈리는 것(글자 크기 램프 · 글래스모피즘 · 음료 점 색)은 사장님 결정으로 넘겼다.
+#
+#   ① 라이브 화면이 «남의 결혼식 + 표본 계좌»를 진짜처럼 보여주고 있었다 [LIVE_NOT_LOADED]
+#     서버에 «닿지 못한» 경우(fetch throw · 재시도 3회 실패) catch 가 콘솔에만 찍고 finally 가
+#     정적 더미를 공개했다. 하객이 그 계좌로 축의를 보낼 수 있었다.
+#     ★이 파일 자신이 [DEMO_BADGE] 에 「하객이 표본 계좌로 축의금을 보낼 수 있다」고 적어 뒀는데,
+#       그 경고는 test-couple 분기에만 붙어 있었다. 두 주석이 가리키는 상황의 «교차점»만 무방비였다.
+#     ★link-unknown 을 재사용하지 않았다 — 서버가 「없다」고 답한 게 아니라 답을 못 받은 것이라
+#       「링크가 틀렸다」고 말하면 거짓말이다. 폴링이 복구하면 저절로 걷힌다.
+chk 'LIVE_NOT_LOADED' live.html 4
+chk 'setNotLoaded(true)' live.html 1
+chk 'body.live-notloaded #envelope{display:none}' live.html 1
+#   ② 폰트가 «무응답»이면 JS 가 통째로 안 돌았다 [FONT_ASYNC]
+#     실측 — 폰트 요청을 지연시키면 18초 뒤에도 readyState=loading · 인라인 스크립트 미실행 ·
+#     관리자 로그인 버튼이 조용히 먹통. 예식장 캡티브 포털은 «실패»가 아니라 «무응답»으로 온다.
+#     order-preview·index 가 이미 쓰던 media=print → onload 패턴으로 셋을 맞췄다.
+chk 'FONT_ASYNC' live.html 1
+chk 'FONT_ASYNC' preview.html 1
+chk 'FONT_ASYNC' admin.html 1
+#   ③ 갤러리 알약이 워드마크를 덮어 「MENT · EDIT」로 읽혔다 [DODGE_AGAIN] — 닷지가 «한 번»만 돌았다.
+chk 'DODGE_AGAIN' shared/gv-back.js 1
+#   ④ 진행 중인 예식을 확인 없이 버렸다 [EXIT_CONFIRM] — 같은 화면의 「전체 정지」는 길게누름인데 이쪽만 맨몸이었다.
+chk 'EXIT_CONFIRM' console.html 1
+#   ⑤ 모션 최소화를 무시하던 곳 둘 — 여정 목록 자동 넘김 · 로딩 점.
+#     index 는 reduce 를 «재기만» 하고 안 썼다(죽은 변수). 같은 파일 7338행에 정답이 이미 있었다.
+chk 'JR_REDUCED' index.html 1
+chk 'if(reduce) return' index.html 1
+chk 'BDOT_REDUCED' guide.html 1
+chk 'BDOT_REDUCED' seat.html 1
+#   ⑥ 대비 — opacity 로 위계를 내려다 «안 읽힘»이 된 자리들. 위계는 크기가 이미 내고 있었다.
+chk 'DIM_READABLE' index.html 2
+chk 'MIN_UNIT_CONTRAST' index.html 1
+chk 'FORM_EXIT_CONTRAST' form.html 1
+nochk 'color:#B89A75' form.html
+chk 'SKEL_CONTRAST' preview.html 1
+chk 'SEP_CONTRAST' invitation-gallery.html 1
+#   ⑦ 빈 화면의 위계가 뒤집혀 있었다 — 제목이 제일 옅고 보조 헤더가 제일 진하고 굵었다.
+#     게다가 그 700 은 이 페이지가 «받지 않는» 무게라 합성 볼드로 그려지고 있었다.
+chk 'STATE_HIER' guide.html 1
+chk 'STATE_HIER' seat.html 1
+nochk 'state-x-h{font-size:13px;font-weight:700' guide.html
+nochk 'state-x-h{font-size:13px;font-weight:700' seat.html
+#   ⑧ 한국어가 단어 중간에서 갈렸다 — balance 만으로는 어절이 안 지켜진다.
+chk 'FOOT_KEEPALL' guide.html 1
+
+# ★★[TONE_POLISH2 2026-09-12 사장님 「추천대로」] 한 문장씩은 옳은데 «이어 들으면» 드러나던 것.
+chk 'TONE_POLISH2' scripts/apply-tone-polish2.mjs 1
+#   ① 첫인사 닫는 말이 인사를 닫지 않고 하객 칭찬으로 샜다. 「오늘이 빛난다」는 이 대본이
+#     유일하게 허용한 미화였다(재생 문안 전체에서 「빛」 1회). 닫는 말은 닫기만 한다([LEAD_OUT]).
+nochk '오늘이 더 빛납니다' assets/ritual-data.js
+nochk '오늘이 더 빛납니다' order-preview.html
+chk '두 사람이 오늘 처음 건넨 말이었습니다' assets/ritual-data.js 2
+#   ② 성혼 선언 「따뜻하게」 — 「세상에 단 하나뿐인 사람」은 이 대본이 다른 어디서도 안 쓰는 상투구였고,
+#     한 클립에 「함께」 3회·「주시기 바랍니다」 2회·「이제 두 사람은」 2회가 겹쳐 있었다.
+#     ★짝인 「엄숙하게」의 시그니처(「서로의 평생이 되었습니다」)를 빌려 오지 않았다 —
+#       빌리면 두 갈래가 같은 말을 한다. 갈래의 차이는 어조이지 격이 아니어야 한다.
+nochk '세상에 단 하나뿐인 사람' assets/ritual-data.js
+chk '서로에게 가장 가까운 사람이 되었습니다' assets/ritual-data.js 1
+#   ③ 「이제」로 여는 클립이 «붙어» 나가던 자리. 개수가 아니라 «연속 쌍»을 센다 —
+#     한 예식에 몇 번 나오느냐가 아니라 두 클립이 이어 나가느냐가 귀에 걸리는 것이기 때문이다.
+#     ★짝 중 한쪽은 그 자리의 한 방이라 건드리지 않았다(반지 닫는 말 · 「이제 두 사람은 부부입니다」).
+#       여는 쪽에서만 뺐다. 장면을 여는 문장은 그 말 없이도 열린다.
+_ij=$(node -e "var RC=require('./assets/ritual-cue.js');var t=0;
+  ['family','gamdong','damback','record','minimal','festive'].forEach(function(c){
+    var q=RC.build({course:c},{mode:'console'}).cues;
+    var ix=[];q.forEach(function(x,i){ if(/^이제[,·]?\s/.test((x.text||'').trim())) ix.push(i); });
+    for(var k=1;k<ix.length;k++) if(ix[k]-ix[k-1]===1) t++;
+  });console.log(t)" 2>/dev/null)
+if [ "${_ij:-99}" -eq 0 ]; then echo "ok 「이제」로 여는 클립이 연달아 붙는 자리 0건(6코스 전수)"; else echo "REVERT? 「이제 …, 이제 …」로 이어 나가는 자리가 ${_ij}건 생겼다 — 여는 쪽에서 뺄 것"; fail=1; fi
+
+# ★★[PASTE_CLEAN 2026-09-12 사장님 실사고] 붙여넣기 판에 장식이 한 글자도 없어야 한다.
+#   사장님이 «눈으로 보는 판»(감동구간_확인판.txt)을 타입캐스트에 그대로 붙이셨더니
+#   구분선·머리말·설명문까지 전부 읽혀 11분 45초가 나왔다. 첫 문장이 「감동 구간 확인판」이었다.
+#   ★한 파일이 «사람이 읽는 판»과 «기계에 붙이는 판»을 겸할 수 없다. 그래서 폴더를 나눴다:
+#     감동구간_확인판.txt      → 눈으로. 나레이션 여는 말·닫는 말까지 붙여 차례를 본다.
+#     감동구간_성우별/*.txt    → 기계에. 대사 줄만 있다. 제목도 번호도 설명도 한 줄 없다.
+#   ★사람 눈으로 지키지 않는다 — 생성기가 장식을 발견하면 아무것도 안 쓰고 죽고(exit 2),
+#     그래도 새 나가면 이 검사가 잡는다. 실제로 생성기 쪽 검사에 한 번 걸렸다(「★미정: 서준아.」).
+#   ★[MAN_IS_SOURCE] 대사는 manifest.json 에서 읽는다. 배역 txt 를 파싱하던 판에서는
+#     클립 사이의 «절 제목·설명 문장»이 대사인 척 딸려 왔다.
+chk 'PASTE_CLEAN' scripts/build-emotion-check.mjs 1
+chk 'MAN_IS_SOURCE' scripts/build-emotion-check.mjs 1
+_pc=$(node -e "var fs=require('fs'),p='docs/plans/식순연구/감동구간_성우별/';
+  var D=/[═─━│┃★※«»]|^\s*\[|^\s*[·•]/, bad=0;
+  fs.readdirSync(p).filter(function(f){return /\.txt$/.test(f)}).forEach(function(f){
+    fs.readFileSync(p+f,'utf8').split('\n').filter(Boolean).forEach(function(l){ if(D.test(l)) bad++; });
+  });
+  console.log(bad)" 2>/dev/null)
+if [ "${_pc:-99}" -eq 0 ]; then echo "ok 감동구간 붙여넣기 판에 장식 0줄 (그대로 붙일 수 있다)"; else echo "REVERT? 붙여넣기 판에 장식이 ${_pc}줄 섞였다 — 타입캐스트가 그걸 읽는다"; fail=1; fi
+
+# ★★[ONE_FILE_AUTOCAST 2026-09-12 사장님 「한파일로 … 성우 자동으로 대입하게」]
+#   타입캐스트는 콜론 앞 이름으로 화자를 잡고, 그 이름이 캐릭터 이름과 «정확히» 같으면 목소리까지 배정한다.
+#   여덟 이름이 실제로 잡히는 것은 0_보이스확인.txt 로 확인돼 있다(우성·진희·김호인·이겸·서진·권일·주하·규민).
+#   ★콜론이 없는 줄은 «기본 화자에 묶여 그대로 읽힌다» — 2026-08-01 에 머리 주석 8줄이 통째로 읽혔고
+#     그 상태로 다운로드하면 크레딧이 즉시 깎인다. 그래서 한 줄이라도 어긋나면 파일을 안 쓴다.
+#   ★내가 「화자 접두사를 지우고 붙이세요」라고 잘못 안내한 적이 있다. 그 접두사가 곧 배정 장치다.
+chk 'ONE_FILE_AUTOCAST' scripts/build-emotion-check.mjs 1
+_af=$(node -e "var fs=require('fs');
+  var f='docs/plans/식순연구/감동구간_성우별/감동_한번에_붙여넣기.txt';
+  if(!fs.existsSync(f)){console.log(-1);process.exit(0)}
+  var L=fs.readFileSync(f,'utf8').split('\n').filter(Boolean), OK=/^[^\s:]{1,12}: \S/;
+  console.log(L.filter(function(l){return !OK.test(l)}).length)" 2>/dev/null)
+case "${_af:-99}" in
+  0)  echo "ok 감동 한번에 판 — 모든 줄이 「이름: 대사」 꼴 (화자·목소리 자동 배정)" ;;
+  -1) echo "REVERT? 감동 한번에 판이 없다 — node scripts/build-emotion-check.mjs 로 뽑을 것"; fail=1 ;;
+  *)  echo "REVERT? 「이름: 대사」 꼴이 아닌 줄 ${_af}개 — 붙이면 기본 화자가 그대로 읽는다"; fail=1 ;;
+esac
+
+
+
+# ★★[HERO_SUB_OPEN 2026-09-09 사용자 지시 「친구도 부를 수 있는데 굳이 제한 두는 것 같다」]
+#   히어로 부제 「양가 가족만 모시는, 140분의 프라이빗 웨딩」 → 「양가 가족과 가까운 분들, 140분의 웨딩」
+#   ★카피 취향이 아니라 «문서와 화면의 불일치»였다 — 브랜드 문서
+#     (momentedit-docs/manuals/04_브랜드_키워드_시스템.html)는 이미 「양가 직계가족과 가장 가까운
+#     지인만 초대」·「양가 가족과 가장 가까운 분들만」이라고 적어 둔다. 히어로만 좁게 말하고 있었다.
+#   ★★검색 키워드는 손대지 않았다 — meta description · schema audienceType · 숨은 h1(5701) ·
+#     숨은 h2(5702) · 탭 라벨의 「양가 직계가족」은 그대로. 카피가 아니라 검색 자산이다.
+#     같이 바꾸면 SEO 가 흔들리고 원인을 못 가른다. 아래 chk 가 그 다섯을 지킨다.
+#   실측: 320·360·390·430·1280 다섯 폭 전부 1줄 · 320px 여유 38px(종전 12px) · 문서 높이 변화 0.
+chk 'HERO_SUB_OPEN' index.html 1
+chk '양가 가족과 가까운 분들, 140분의 웨딩' index.html 1
+# ★[NOCHK_QUOTES_ITSELF] 처음엔 nochk '양가 가족만 모시는' 으로 걸었다가 «내 근거 주석»에 걸렸다.
+#   바꾼 이유를 적으려면 옛 문장을 인용해야 하는데, 그러면 그 인용이 곧 위반이 된다.
+#   → 마크업만 겨냥한다. 주석은 남고 «살아 있는 문장»만 지켜진다.
+nochk 'hero-tease-sub">양가 가족만' index.html            # 옛 문장으로 되돌리지 말 것(주석 인용은 허용)
+chk '양가 직계가족' index.html 5                         # 검색 자산 — meta·schema·숨은 h1/h2·FAQ
+chk '양가 직계가족' inquiry.html 1
+
+# ★[HERO_SUB_TABLE 2026-09-09] 히어로 부제는 «셋 중 둘»이다 — 가족 · 열림 · 320px 한 줄.
+#   E 는 「프라이빗」을 내주고 셋을 다 가져왔다. 「프라이빗을 다시 넣자」가 오면 그 표가 답이다.
+#   ★[SEC_TITLE_DEVICE] 와 같은 자리에 둔다 — 둘 다 «크기·문구 한 축만 보면 매번 같은 결론이
+#     나오는» 종류다. 다시 올라오기 전에 읽을 것이 저장소 안에 있어야 한다.
+chk 'HERO_SUB_OPEN' .claude/skills/momentedit-design/SKILL.md 1
+chk '셋 중 둘' .claude/skills/momentedit-design/SKILL.md 1
+chk 'NOCHK_QUOTES_ITSELF' automation/tests/merge-guard.sh 1
+
+# ★★[SETTLE 2026-09-09 코워크 지적 「전환이 끝났는지 상태로 확인한다」]
+#   라운드 3 측정 오류 넷 중 셋이 «전환 중에 읽어서» 났다 — 레일 획좌표·Tab 순회·1280 opacity.
+#   waitForTimeout 은 「아마 끝났겠지」다. 안 끝났는데 읽으면 값이 뒤집힌다.
+#   ★규칙을 문장으로만 두지 않고 «분기»로 만들었다 — 안 읽어도 지켜지게.
+#   ★[SETTLE_LIMIT] 이 함수는 CSS 전환만 안다. JS 가 inline style 로 그리는 것은 안 잡힌다
+#     (typo-ramp 의 opacity 사고는 settle 로도 못 잡았을 것이다). 그 한계를 파일 안에 적어 뒀다.
+chk 'SETTLE_LIMIT' scripts/audit/_settle.mjs 1
+chk 'getAnimations' scripts/audit/_settle.mjs 2
+chk 'SETTLE_STATE' scripts/audit/parents-listen-size.mjs 1
+# ★[NOCHK_QUOTES_ITSELF] 또 걸렸다 — 바로 앞 커밋에서 이 함정을 문서화하고 그 다음 커밋에서 밟았다.
+#   nochk 'waitForTimeout(500)' 로 걸었더니 «종전 코드를 인용한 주석»이 잡혔다(1>0).
+#   → 살아 있는 호출만 겨냥한다(await page. 접두). 규칙이 실제로 다음 실수를 잡은 사례다.
+nochk 'await page.waitForTimeout(500)' scripts/audit/parents-listen-size.mjs   # 시간으로 어림한 자리로 되돌리지 말 것
+
+# ★★[GUIDE_PATH 2026-09-09 사용자 지시 「카톡에서 링크가 잘린다」] 하객 안내 링크를 «경로»로 낸다.
+#   /guide.html?g=<토큰> 을 대화앱에 붙이면 ?g= 뒤가 잘려 나가는 일이 있었다. ? 가 없으면 잘릴 자리가 없다.
+#   vercel.json 의 ^/g/([A-Za-z0-9_-]{1,64})$ 가 /guide.html?g=$1 로 다시 쓴다(rewrite).
+#   ★기존 ?g= 링크도 그대로 산다 — 이미 나간 청첩장이 있다. «추가»이지 교체가 아니다.
+#     guide.html 은 종전대로 qp('g') 를 읽는다. 그 파일은 손대지 않았다.
+#   ★확인한 것 둘 — ①guide.html 의 자산은 전부 절대경로라 주소가 /g/ 로 보여도 안 깨진다
+#                   ②GAS 는 이 링크를 «만들지 않는다». mypage.html 의 guideUrl 이 유일한 출처다.
+#                     그래서 이 변경에 GAS 재배포가 필요 없다.
+#   ★정규식 반증: /g/../secret · /g/a%2Fb · 65자 · /g/ 전부 거부(경로 탈출 불가).
+chk 'GUIDE_PATH' mypage.html 1
+chk 'GUIDE_PATH' shared/hydrate.js 2
+
+chk '/guide.html?g=' vercel.json 1                       # rewrite 대상 — 이게 없으면 라우트가 죽은 것
+nochk "'/guide.html?g='" mypage.html                      # 공유 링크를 옛 형태로 되돌리지 말 것(주석 인용은 허용)
+# ★[CHK_BRE_LITERAL] chk 는 grep BRE 다. 두 번 걸렸다 —
+#   ① '^/g/…' → '^' 가 «줄머리» 앵커로 먹었다(라우트는 줄 가운데라 0건).
+#   ② 'g/([A-Za-z0-9_-]' → 대괄호가 «문자 클래스»로 해석됐다. 파일엔 대괄호가 «글자 그대로» 있다.
+#   정규식을 찾는 패턴을 정규식으로 쓰면 이렇게 된다. 특수문자가 없는 조각을 고른다.
+chk 'A-Za-z0-9_-]{1,64}' vercel.json 1                     # 경로 라우트 — 토큰 문자만 받는다
+
+# ★★[LOGO_WEBP 2026-09-09 3G 실측에서 발견] 워드마크를 png·webp «둘 다» 받고 있었다.
+#   네비 로고만 <picture> 없이 png 직접이었고, 푸터는 <picture> 로 webp 를 받았다 → 한 페이지에 둘.
+#   실측(Slow 3G · 실제 전송 바이트): index 238 → 225KB · parents 72 → 59KB.
+#   ★[LOGO_FALLBACK_POS] 감싸면 onerror 의 nextElementSibling 이 null 이 된다(img 가 picture 의 막내라서).
+#     picture 를 건너뛰고 그 «다음»을 찾도록 고쳤다 — 클래스 이름에 안 기댄다(페이지마다 다르다).
+#   ★390px 에서 .nav-logo 가 0×0 인 것은 «원래» 그렇다(모바일은 다른 마크). main 과 대조해 확인했다.
+chk 'LOGO_FALLBACK_POS' index.html 1
+chk 'wordmark-only.webp' index.html 2
+chk 'wordmark-only.webp' inquiry.html 1
+chk 'wordmark-only.webp' parents.html 2
+chk 'wordmark-only.webp' privacy.html 1
+# ★[NOCHK_WRONG_TARGET] 처음엔 'nav-logo" src="…png"' 를 금지했다가 걸렸다 —
+#   png src 는 «지운 게 아니라 webp 미지원 폴백»이라 남아 있는 게 맞다. 금지할 대상이 아니었다.
+#   되돌림의 실제 신호는 «옛 onerror 형태»다. picture 를 벗기면 그게 돌아온다.
+nochk 'var f=this.nextElementSibling' index.html            # picture 없이 png 직접으로 되돌리지 말 것
+
+# ★★[ROUND_CLOSED 2026-09-09 사용자 결정 「큰 것 셋만 하고 종료」] 보류함을 §13-2 에 못 박았다.
+#   상한 16px · 죽은 클래스 80종 · 라운드 4 · 섹션 경계 84px · 레일 겹침 시각 — 다섯 다 보류.
+#   ★오픈 후 «실제 유입 데이터»가 쌓이기 전까지 다시 제안하지 않는다. 추측으로 열지 않는다.
+#     다시 올리려면 새 근거(실유입·실기기 제보)를 먼저 가져와야 한다.
+chk 'ROUND_CLOSED\|오픈 전까지 다시 올리지 않는다' docs/handoff/round-protocol.md 1
+chk 'SIZE_HEADER_LIE' docs/handoff/round-protocol.md 1
+
+# ★★[GUIDE_PATH_READ 2026-09-11 점검에서 발견 · 내가 만든 결함] /g/<토큰> 이 «아예 안 열렸다».
+#   vercel 의 dest 는 «서버» rewrite 라 브라우저 주소는 /g/<토큰> 그대로다 →
+#   location.search 가 비어 qp('g') 가 빈 값을 냈고 「잘못된 주소예요」가 떴다.
+#   ★[GUIDE_PATH] 를 넣을 때 «정규식 반증 0건»으로 통과시킨 것이 문제였다 —
+#     그건 «라우트가 무엇을 받는가»만 본 것이고, «받은 뒤 화면이 서는가»는 안 봤다.
+#     라우트 검사는 정규식이 아니라 «그 주소로 들어갔을 때 화면이 서는가»로 한다.
+#   ★guide.html 의 정규식과 vercel.json 의 라우트는 «같은 문자 집합»이어야 한다. 어긋나면 한쪽만 열린다.
+chk 'GUIDE_PATH_READ' guide.html 1
+
+# ★★[SLASH_BOTH 2026-09-11 점검] 꼬리 슬래시 — «한 층이 받는 걸 다른 층이 막는» 어긋남.
+#   guide.html 의 guideToken() 은 /^\/g\/(…)\/?$/ 로 꼬리 슬래시를 «받는다»고 써 있었는데,
+#   vercel.json 라우트가 ^…$ 로 끝나 그 주소는 guide.html 까지 가지도 못했다 — 404. 관용이 죽은 코드였다.
+#   ★고객 링크는 mypage 가 슬래시 없이 만든다. 그래도 사람이·메신저가 하나 붙이면 하객은 404 만 본다.
+#   짧은 주소 넷(form·admin·schedule·cancel)도 같은 모양이라 한 규칙으로 묶었다 — «짧은 주소는 두 철자를 다 받는다».
+#   ★토큰 글자집합에 / 가 없어 /g/a/b·/g// 는 여전히 안 받는다(guide-path-route ①-3 이 고정).
+chk '/?\$' vercel.json 5
+chk 'SLASH_BOTH' scripts/audit/guide-path-route.mjs 1   # 실검사는 ①-3 — 구간이 통째로 지워지면 여기서 걸린다
+
+# ★★[FORM_ONE 2026-09-11 점검] /form 은 «한 장»이다 — 사본을 되살리지 말 것.
+#   form/index.html 이 아무도 안 가리킨 채 따로 늙었다: og:title 이 집 관례(MOMENT EDIT · <이름>) 밖으로 갔고,
+#   브랜드 스크롤바 규칙이 빠졌고, og:image 가 한 판 뒤처져 #604 가 «따라잡히느라» 커밋을 한 번 썼다.
+#   ★handle:filesystem 이 라우트보다 앞이라, 사본이 있으면 /form/ 가 그 낡은 사본을 내준다. 사본 없음이 라우트의 전제다.
+chk 'FORM_ONE' form.html 1
+
+# ★★[FAQ_DINE_BAND 2026-09-11 점검] 화면이 공개한 식사 가격대를 AI 도 같은 말로 해야 한다.
+#   2026-08-03 에 홈 FAQ·JSON-LD 가 「1인 2.5~4만 원대 · 25명 약 60~100만」을 «일부러» 공개했다(통점 A-3 깜깜이 가격).
+#   수치 출처는 mypage.html _DN_PPR(low 1.5~2만 / mid 2.5~4만 / high 5~8만) + 식당 80곳 분포(mid 61·low 13·high 6).
+#   ★그런데 AI 지식 2곳만 그 결정을 못 따라갔다 — 「가격대는 상담에서」로 답하고 사람에게 넘겼다(escalate).
+#   고객은 FAQ 에서 숫자를 읽은 직후 챗봇에서 「모른다」를 들었다. 그래서 같은 헤지로 맞췄다.
+#   ★'식대'는 여전히 없는 개념이다 — 금액을 붙이면 안 된다(ai-live-sim-ci N6 의 forbid 가 잰다).
+chk '2.5~4만' api/_kb.js 1
+chk '2.5~4만' assets/advisor-kb.js 1
+chk '2.5~4만' index.html 5   # FAQ 02 박스·FAQ 08 본문·JSON-LD 2곳·FAQ_DINE_BAND 주석 — 하나라도 빠지면 화면끼리 어긋난다
+nochk '가격대·메뉴는 식당마다 달라 단정하지 않는다' api/_kb.js
+nochk '구체적인 메뉴와 가격대는 상담에서 함께 정리해 드립니다' assets/advisor-kb.js
+chk 'function guideToken' guide.html 1
+chk 'A-Za-z0-9_-]{1,64}' guide.html 1                    # vercel.json 라우트와 같은 문자 집합
+nochk "var token=qp('g')" guide.html                      # 경로를 못 읽는 옛 형태로 되돌리지 말 것
+# ★★[EXIT2_IS_NOT_FAIL] 종료코드 2 는 «안 쟀다»이지 «실패»가 아니다 — `|| fail=1` 로 묶으면 안 된다.
+#   실사고(2026-09-11 · 이 줄을 넣은 그 PR): 로컬은 초록인데 CI 만 붉었다.
+#   CI 엔 브라우저가 없어 이 검사가 2 를 냈고, 내 `||` 가 그걸 실패로 셌다.
+#   ★이 저장소의 브라우저 검사들이 다 «0 통과 · 1 위반 · 2 못 쟀다» 규약을 쓴다. 게이트도 그 규약을 지켜야 한다.
+#   ★종료코드를 «찍는다» — /dev/null 로 묻으면 다음 사람이 왜 붉은지 못 본다.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/guide-path-route.mjs >/dev/null 2>&1; _gpr=$?
+  if [ "$_gpr" = "2" ]; then echo 'skip guide-path-route (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_gpr" != "0" ]; then echo "FAIL guide-path-route(exit $_gpr): /g/<토큰> 이 안 열린다 — node scripts/audit/guide-path-route.mjs"; fail=1
+  else echo 'ok guide-path-route: /g/<토큰>·?g= 둘 다 열린다'; fi
+
+# ★★[ADVISOR_SIM 2026-09-11 점검] 챗봇을 «모델 없이» 잰다.
+#   ai-live-sim-ci.js 는 운영 서버에 실제로 쏘는 배터리라 네트워크가 막힌 자리(이 컨테이너·CI)에선 아예 못 돈다.
+#   그러면 챗봇은 한 번도 안 재고 배포된다. 그런데 ★고객을 다치게 하는 것들은 전부 우리 코드다 —
+#   가드레일(405·429·503·400·길이·턴수) · 시스템 프롬프트 조립 · 프롬프트 주입 격리 · 후처리(전각 줄표·마크다운·
+#   요일 교정·이메일 제거) · 에스컬레이션. fetch 만 가짜로 두면 그 전부를 브라우저 없이 잴 수 있다.
+#   ★모델이 «실제로 무슨 말을 하는지»는 여기서 안 잰다 — 그건 ai-live-sim-ci.js 몫이다(운영 서버 필요).
+chk 'ADVISOR_SIM' scripts/audit/advisor-sim.mjs 1
+chk 'FAQ_DINE_BAND' scripts/audit/advisor-sim.mjs 1   # 화면이 공개한 식사 가격대가 «실제로 모델에 가는가»를 잰다
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-sim.mjs >/dev/null 2>&1; _adv=$?
+  if [ "$_adv" != "0" ]; then echo "FAIL advisor-sim(exit $_adv): 챗봇 가드레일·후처리 — node scripts/audit/advisor-sim.mjs"; fail=1
+  else echo 'ok advisor-sim: 챗봇 가드레일·프롬프트 조립·주입 격리·후처리 32검사'; fi
+fi
+
+# ★★[ADVISOR_TREE 2026-09-11 점검] 챗봇 1단(즉답 트리)은 «모델이 없다» — 우리가 쓴 글이 그대로 고객에게 간다.
+#   그래서 답 120개를 전수로 읽고 규칙을 댄다(죽은 가지·빈 답·전각 줄표·이모지·길이) + 홈 화면과 숫자가 같은지 대조.
+#   ★그리고 실제로 눌러 본다 — 파일에 있는 것과 화면에 뜨는 것은 다르다.
+#   진입은 클래스가 아니라 aria-label «상담 도우미» 로 찾는다(레일 버튼이 전부 .me-fab 라 클래스로는 못 가른다).
+chk 'ADVISOR_TREE' scripts/audit/advisor-tree-sim.mjs 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-tree-sim.mjs >/dev/null 2>&1; _advt=$?
+  if [ "$_advt" = "2" ]; then echo 'skip advisor-tree-sim (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_advt" != "0" ]; then echo "FAIL advisor-tree-sim(exit $_advt): 챗봇 대화트리 — node scripts/audit/advisor-tree-sim.mjs"; fail=1
+  else echo 'ok advisor-tree-sim: 대화트리 전수 + 실제 클릭'; fi
+fi
+
+# ★★[PUBLIC_SWEEP 2026-09-11 점검] 고객이 여는 쪽 «전부»를 한 번에 훑는다.
+#   왜: a11y 를 보는 감사는 home-a11y 하나였고 그건 «홈만» 봤다. 메타·캐노니컬은 감사가 아예 0개였다 —
+#   form.html 이 캐노니컬로 /form.html 을, og:url 로 /form 을 가리키던 것을 사람이 손으로 찾았다.
+#   ★탭 타깃은 WCAG 2.5.8 «24x24 + 간격 예외»로 잰다(44는 AAA). 간격 예외를 빼고 크기만 보면
+#     멀쩡한 것이 무더기로 잡힌다 — 실제로 갤러리 11개(18px·22px 간격·중심 간 40px)가 그렇게 잡혔었다.
+#   ★noindex 쪽에 meta description 을 요구하지 않는다(검색 미리보기용이라 뜻이 없다).
+#   ★form.html 은 구글폼으로 즉시 이동해 DOM 이 이미 다른 문서다 — 그 쪽만 소스로 본다.
+chk 'PUBLIC_SWEEP' scripts/audit/public-sweep.mjs 1
+chk 'FORM_LABEL' inquiry.html 2        # 입력칸 2개의 프로그래밍 라벨(낭독기가 「편집란, 비어 있음」으로 읽던 것)
+chk 'aria-labelledby' inquiry.html 2
+chk 'CAN_EXIT' cancel.html 1           # 종착 화면에서 «말한 길»(카카오톡)을 실제로 열어 준다
+chk 'SCHED_FAIL_H1' schedule.html 1    # body 를 갈아치우며 h1 까지 지우던 오류 화면
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/public-sweep.mjs >/dev/null 2>&1; _psw=$?
+  if [ "$_psw" = "2" ]; then echo 'skip public-sweep (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_psw" != "0" ]; then echo "FAIL public-sweep(exit $_psw): 공개 쪽 a11y·메타 — node scripts/audit/public-sweep.mjs"; fail=1
+  else echo 'ok public-sweep: 공개 10쪽 a11y·메타·탭타깃·404·사이트맵'; fi
+fi
+
+# ★★[ADVISOR_UX 2026-09-11 점검] 챗봇을 «키보드로 · 막혔을 때» 쓴다.
+#   ①패널은 role="dialog" aria-modal="true" 로 모달이라 선언해 놓고 Tab 이 밖으로 샜다(실측 3번째 Tab).
+#     선언과 동작이 어긋나면 낭독기 사용자는 «닫지도 않았는데 뒷 쪽을 읽는» 상태가 된다.
+#   ②닫아도 포커스가 안 돌아왔다. 복귀 코드는 있었는데 레일이 닫은 뒤 ~460ms 동안 visibility:hidden 이라
+#     그 사이에 잡으려다 거부됐다 — 보일 때까지 기다렸다 잡는다([ADV_FOCUS_WAIT]).
+#   ★★위젯은 «두 벌»이다 — index.html 은 인라인 사본, 나머지는 assets/advisor-widget.js.
+#     한쪽만 고치면 그 쪽만 낫는다(실제로 파일만 고쳐 놓고 «고쳤다»고 할 뻔했다). 그래서 둘 다 연다.
+chk 'ADVISOR_UX' scripts/audit/advisor-ux-sim.mjs 1
+chk 'ADV_TWO_COPIES' scripts/audit/advisor-ux-sim.mjs 1
+chk 'ADV_FOCUS_TRAP' index.html 1
+chk 'ADV_FOCUS_TRAP' assets/advisor-widget.js 1
+chk 'ADV_FOCUS_WAIT' index.html 1
+chk 'ADV_FOCUS_WAIT' assets/advisor-widget.js 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/advisor-ux-sim.mjs >/dev/null 2>&1; _aux=$?
+  if [ "$_aux" = "2" ]; then echo 'skip advisor-ux-sim (브라우저 없음 — 통과가 아니라 안 본 것입니다)'
+  elif [ "$_aux" != "0" ]; then echo "FAIL advisor-ux-sim(exit $_aux): 챗봇 키보드·실패화면 — node scripts/audit/advisor-ux-sim.mjs"; fail=1
+  else echo 'ok advisor-ux-sim: 키보드(두 사본) + 서버 죽었을 때 4갈래'; fi
+fi
+else echo 'skip guide-path-route (node 없음)'; fi
+chk 'GUIDE_PATH_ROUTE' scripts/audit/guide-path-route.mjs 1
+
+# ★[GP_DBL_REST 2026-09-11 점검 라운드 4] 「남은 N장 보내기」 이중 클릭 · 캡 경계(30/31).
+#   새로 만든 버튼이라 «사람이 두 번 누르는» 동작을 재현한다 — 두 번 가면 사진이 겹쳐 올라간다.
+#   보호는 send() 의 busy 플래그에서 온다(새 버튼도 같은 send 를 쓴다). 그래도 눌러서 확인한다.
+#   ★캡의 «양옆»을 둘 다 본다(30 정확히 · 31 한 장 넘침) — 한쪽만 보면 경계가 어디인지 안 보인다(§5-29).
+chk 'GP_DBL_REST' scripts/audit/guide-photo-sim.mjs 1
+chk '이중클릭' scripts/audit/guide-photo-sim.mjs 2
+chk '경계31' scripts/audit/guide-photo-sim.mjs 2
+
+# ★★[AUDIT_RUN_ALL 2026-09-13 점검] 「만들어 놓고 아무도 안 부르는 감사」를 구조적으로 없앤다.
+#   실측(오늘): 감사 84개 중 merge-guard 가 실행하는 것 30개 · nightly-screen 이 12개 — **42개를 아무도 안 돌렸다.**
+#   이 자리를 고친 것이 처음이 아니다:
+#     · 2026-08-11 nightly-screen 을 만들며 「51개 중 22개만 돈다」
+#     · 2026-08-30 [ORPHAN_AUDITS] 「61개 중 10개가 고아」 → 열 개를 손으로 넣었다
+#   두 번 다 **손으로 적은 목록**이었고 두 번 다 벌어졌다. 그동안 치른 값(오늘 실측):
+#     · deliv-matrix·pay-front-check — #708 에서 문구를 고칠 때 같이 낡았는데 게이트는 초록이었다
+#     · admin-ux — 박아 둔 날짜가 과거가 되어 며칠째 붉었다(아무도 안 봤다)
+#     · guest-photo-sim — **게이트가 돌리는** 검사인데 2026-10-06 부터 붉어진다(시계를 돌려 이분 탐색)
+#   → run-all 은 scripts/audit/*.mjs 를 스스로 찾아 돈다. 빠지는 길은 SKIP 한 곳뿐이고 «왜»가 붙는다.
+#   ★여기서 --verify 는 감사를 **돌리지 않는다**(디렉터리만 읽는다 · 0.1초). 실제 실행은 야간이 맡는다 —
+#     느린 검사를 게이트에 넣으면 사람이 붉은 것을 무시한다는 그 이유를 그대로 지킨다.
+if command -v node >/dev/null 2>&1; then
+# ★[RUN_ALL_SUMMARY] 요약표도 러너가 «직접» 쓴다 — 워크플로 yml 에 검사 이름을 다시 적지 않기 위해서다.
+#   손 목록이 벌어지는 것이 이 러너를 만든 이유인데, 요약만 손으로 적으면 같은 병이 요약에 남는다.
+#   ★yml 로 옮기지 말 것. (decision-guard 가 「게이트에 이 이름이 없다」고 잡아 여기 걸었다.)
+chk 'RUN_ALL_SUMMARY' scripts/audit/run-all.mjs 1
+  _ra=$(node scripts/audit/run-all.mjs --verify 2>&1)
+  if [ $? = 0 ]; then echo "ok run-all: $(printf '%s' "$_ra" | tail -1)"
+  else echo 'REVERT? run-all --verify 실패 — 아무도 안 돌리는 감사가 생겼다:'; printf '%s\n' "$_ra"; fail=1; fi
+else echo 'skip run-all --verify (node 없음)'; fi
+chk 'AUDIT_RUN_ALL' scripts/audit/run-all.mjs 1
+chk 'RUN_ALL_VERIFY' scripts/audit/run-all.mjs 1
+chk 'run-all.mjs' .github/workflows/nightly-screen.yml 1   # 야간이 실제로 부른다(러너만 있고 안 부르면 그대로 고아다)
+
+# ★[SEED_RELATIVE 2026-09-13 점검] 시드에 날짜를 박으면 검사가 달력 때문에 죽는다 — 이 저장소에서 다섯 번째다
+#   (#642 되돌리기 시뮬 · #684 상담 요일 · 오늘 admin-ux · guest-photo-sim · rollback-slot).
+#   libfaketime 으로 시계를 돌려 «첫 빨강의 날짜»를 이분 탐색으로 특정한 뒤 상대값으로 바꿨다.
+#   박은 날짜로 되돌리지 말 것 — 세 파일 모두 그 이유를 파일 안에 적어 뒀다.
+chk 'SEED_RELATIVE' scripts/audit/admin-ux.mjs 1
+chk 'SEED_RELATIVE' scripts/audit/guest-photo-sim.mjs 1
+chk 'SEED_RELATIVE' scripts/audit/rollback-slot.mjs 1
+nochk "예식일:'2026-09-05'" scripts/audit/guest-photo-sim.mjs      # 되돌아오면 2026-10-06 에 다시 붉어진다
+nochk "예식일: '2026-12-20'" scripts/audit/rollback-slot.mjs        # 되돌아오면 2026-12-21 에 붉어진다
+
+# ★★[SNAP_WORD 2026-09-13 점검 라운드 2] 웨딩스냅 고객에게 «예식»이라 말하지 않는다.
+#   실측: 여정 로드맵의 갈림(mypage.html `product === '웨딩스냅'`)은 촬영 단계를 「촬영 · 예정일에 진행」으로
+#   옳게 부르는데, **결과물 줄의 부제만 두 갈래에 같은 문장이 복사**돼 있어 스냅 고객이 여덟 화면 중
+#   **다섯**에서 「예식 후 · 마이페이지에서 확인」을 읽고 있었다. api/_kb.js 22행은 웨딩스냅을 「촬영만」이라
+#   못박는다 — 그 고객에게 우리가 하는 예식은 없다.
+#   ★렌더 검사(scripts/audit/snap-word.mjs)는 브라우저가 필요해 야간(run-all)이 돌린다. 여기서는 문구만 고정한다.
+chk 'SNAP_WORD' mypage.html 1
+chk '촬영 후 · 마이페이지에서 확인' mypage.html 1      # 스냅 갈래
+chk '예식 후 · 마이페이지에서 확인' mypage.html 1      # 시그니처 갈래 — 이쪽은 예식이 맞다(둘 다 있어야 한다)
+chk 'SNAP_WORD' scripts/audit/snap-word.mjs 1
+
+# ★★[KB_CROSS_TRUTH 2026-09-13 점검 라운드 3] 식순 챗봇이 «이미 정해진 것»을 «확정 전»이라 답하고 있었다.
+#   셋 다 두 벌 중 한 벌만 고친 자리다(이 세션의 그 병):
+#     ①시간 연장 — **계약서 제8조 ④** 가 「단축된 시퀀스 시간은 환불·연장의 대상이 되지 아니하며 …
+#       하루 3팀 운영 구조상 당일 연장은 불가하다」로 명문화했다. 고객이 **서명한 조항**을 «아직 안 정해졌다»고 답했다
+#     ②반려동물 — api/_kb.js 94행이 「케이지 동반 시 입장 가능」(2026-06-12 운영자 확정)인데 「단정하지 말라」였다.
+#       정해지지 않은 것은 «식순 연출로 화면에서 고르는 것»뿐이라 둘을 갈라 적었다
+#     ③음악 — 2026-08-03 «노래선정부분 완전삭제» 뒤에도 D-14 목록에 「음악 2곡 정하기」가 남았다.
+#       같은 날 같은 목록에서 '베일 다운'은 지워졌다(VEIL_RETIRED) — 음악만 남은 것이다.
+#       렌더 실측으로도 order-preview 에 곡 입력칸이 0개다(코드 주석 2801행의 「선택으로 남고」는 그 뒤 폐지된 옛 설명)
+#   ★kb-chatbot-truth 와 방향이 반대다 — 그쪽은 «없는 걸 있다고», 이쪽은 «정해진 걸 안 정해졌다고».
+#   ★앵커가 사라지면 통과가 아니라 실패다(원천이 바뀌면 검사도 함께 고치라는 뜻).
+if command -v node >/dev/null 2>&1; then
+  _kx=$(node scripts/audit/kb-cross-truth.mjs 2>&1)
+  if [ $? = 0 ]; then echo "ok kb-cross-truth: $(printf '%s' "$_kx" | tail -1)"
+  else echo 'REVERT? kb-cross-truth 실패 — 식순 KB 가 원천과 어긋난다:'; printf '%s\n' "$_kx" | grep '❌'; fail=1; fi
+else echo 'skip kb-cross-truth (node 없음)'; fi
+chk 'KB_CROSS_TRUTH' scripts/audit/kb-cross-truth.mjs 1
+chk 'KB_SETTLED' api/_ritual-kb.js 1
+chk 'MUSIC_GONE' api/_ritual-kb.js 1
+nochk '음악 2곡' api/_ritual-kb.js 0                    # 곡 선정은 2026-08-03 폐지 — 숙제로 되살리지 말 것
+nochk '확정 전 정책' api/_ritual-kb.js 0                # 정해진 것을 «확정 전»이라 말하지 않는다
+# ★두 nochk 의 한도가 0 인 이유 — 위 주석은 옛 문구를 «음악 두 곡»·«아직 정해지지 않은 정책»으로 비켜 적었다.
+#   근거 주석이 금지 문구를 그대로 인용하면 가드가 자기 설명문을 잡는다(이 세션에서 세 번 겪었다).
+
+# ★★[GUEST_TIMEOUT 2026-09-13 점검 라운드 4] 하객 화면이 «영영 안 오는 응답»에 갇혀 있었다.
+#   실측: guide.html·seat.html 에 시간제한이 하나도 없었다(AbortController 0곳). 응답이 오지도 실패하지도 않는 망에서
+#   **45초를 기다려도 스피너만 돌았고 버튼이 0개**였다(16·30·45초 전부 동일). 하객은 카톡 링크로 온 일회성 방문자다 —
+#   로그인도 자력 복구도 못 한다. 서버가 500·연결실패로 «답을 주는» 경우는 그 전에도 정상이었다.
+#   ★두 화면의 회복 경로(재시도 2회 → 「불러오지 못했어요」+재시도 버튼)는 **이미 잘 만들어져 있었다.**
+#     fetch 가 끝나지 않아 그 catch 가 영영 안 불렸을 뿐이다 — 고친 것은 «끝나게» 한 것뿐이다.
+#   ★사진 업로드(guestPhoto)에는 일부러 안 걸었다 — 느린 회선에서 큰 본문을 올리는 중에 끊기면 그게 더 나쁘다.
+#   ★12초는 GAS 콜드스타트를 자르지 않으려는 값이다(mypage MPD_E3 와 같은 근거). 줄이지 말 것.
+#   ★재현 검사는 브라우저가 필요해 야간(run-all)이 돌린다 — node scripts/audit/guest-timeout.mjs (약 100초)
+chk 'GUEST_TIMEOUT' guide.html 1
+chk 'GUEST_TIMEOUT' seat.html 1
+chk 'function gapi(payload)' guide.html 1
+chk 'function gapi(payload)' seat.html 1
+chk 'ac.abort' guide.html 1
+chk 'ac.abort' seat.html 1
+chk 'gapi({action' guide.html 3            # 읽기 호출 3곳(seatView·seatView+q·guideView)
+chk 'gapi({action' seat.html 2             # 읽기 호출 2곳(seatView+q·seatView)
+chk 'GUEST_TIMEOUT' scripts/audit/guest-timeout.mjs 1
+nochk "fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({action:'seatView'" seat.html 0   # 읽기는 전부 gapi 를 지난다
+
+# ★★[GUEST_STATE 2026-09-13 점검 라운드 5] 하객 두 화면이 «서버가 무엇을 답하든» 같은 규칙으로 말해야 한다.
+#   서버(80_production.gs _guideCloseInfo)는 닫는 이유를 둘로 갈라 준다 —
+#     reason:'past'(예식이 +30일 지남 · 정상 종료라 문의처를 일부러 안 붙인다)
+#     reason:'unknown'(예식일을 모름 · 되돌림·미기입 → 사고라 문의처를 붙여야 한다)
+#   2026-08-21 [GUIDE_EXPIRE_REASON] 이 이 구분을 넣었는데 **guide.html 에만 내렸다.**
+#   seat.html 은 d.expired 만 보고 둘 다 「예식이 끝나 좌석 안내가 닫혔어요」로 말했고 그 화면엔 **출구가 0개**였다 —
+#   아직 하지도 않은 예식을 끝났다고 듣고 물어볼 곳도 없었다. 한 화면만 봐서는 영영 안 보이던 자리다.
+#   ★재현 검사는 브라우저가 필요해 야간(run-all)이 돌린다 — node scripts/audit/guest-state.mjs (2화면×5응답=10칸)
+chk "d.reason==='unknown'" guide.html 1
+chk "d.reason==='unknown'" seat.html 1
+chk 'GUIDE_EXPIRE_REASON' guide.html 1
+chk 'GUIDE_EXPIRE_REASON' seat.html 1
+chk '좌석 안내를 준비하고 있어요' seat.html 1
+chk 'GUEST_STATE' scripts/audit/guest-state.mjs 1
+
+# ★[GUEST_TIMEOUT · 세 번째 화면 2026-09-13 점검 라운드 6] guide·seat 만 고치고 cancel.html 을 빠뜨릴 뻔했다.
+#   실측: 응답이 영영 안 오면 예약 취소 화면은 40초 뒤에도 카드가 「불러오는 중…」이고 버튼이 0개였다.
+#   그 화면의 catch(「예약 정보를 불러오지 못했어요 · 네트워크 상태를 확인하고 잠시 후 다시 시도해 주세요」)는
+#   이미 있었다 — fetch 가 끝나지 않아 안 불렸을 뿐이다(guide·seat 과 똑같은 자리).
+#   ★inquiry.html 은 일부러 안 건드렸다 — 제출 POST 라 끊으면 이중 제출 위험이 있고,
+#     inquiry-submit-sim 이 이미 「무응답 · 영영 안 옴 → 탈출구가 있는가」를 재고 초록이다.
+#   ★schedule.html 도 안 건드렸다 — 자체 killer(25초)가 「시간이 너무 걸려요」+「마이페이지로」를 낸다(실측).
+chk 'GUEST_TIMEOUT' cancel.html 1
+chk 'AbortController' cancel.html 1
+chk 'cancel.html?token' scripts/audit/guest-timeout.mjs 1
+
+# ★★[ADM_SLOW_NOTE 2026-09-13 점검 라운드 7] 관리자 화면의 해골이 영원히 반짝이던 자리.
+#   실측: 응답이 오지도 실패하지도 않으면 20초가 지나도 본문이 「MOMENT EDIT」뿐이고 버튼이 0개였다 —
+#   운영자는 «내 망인지 시스템이 죽은 건지»를 알 수 없다. [ADM_NETFAIL] 의 토스트는 **거절이 나야** 뜨므로
+#   «영영 안 옴»에는 안 걸린다(그 안전망의 사각).
+#   ★고객 화면처럼 12초에 끊지 않는다 — 리포트·장소 스윕처럼 오래 걸리는 호출을 자르면 멀쩡한 작업이 죽는다.
+#     «끊지 않고 알리기만» 한다(schedule.html 의 slowT 와 같은 결).
+#   ★15초는 _loadingSince 가 이미 «갇힘»으로 보는 값과 같은 숫자다(NAV_SEQ) — 두 값이 따로 놀지 않게 맞췄다.
+chk 'ADM_SLOW_NOTE' admin.html 3
+chk '_admSlowArm' admin.html 2
+chk 'slow-note' admin.html 3
+chk "서버 응답이 늦어요" scripts/audit/guest-timeout.mjs 1
+
+# ★★[FREE_PORT · SERVED_OURS 2026-09-13 점검 라운드 8] 이번에 만든 브라우저 감사 셋이 포트를 박아 두고 있었다.
+#   실측: 8534 를 다른 프로세스가 쥔 채 guest-state 를 돌리니 「예식이 끝나…라고 말해야 하는데」로
+#   **제품 결함처럼** 붉었다. 원인은 화면이 아니라 포트다.
+#   ★_freeport.mjs 머리말이 2026-08-30 에 같은 사고를 이미 적어 뒀다 —
+#     「환경 탓으로 붉는 검사는 사람이 곧 무시한다」. 19개 감사가 그래서 그걸 쓰는데 내가 새로 만들며 빠뜨렸다.
+#   ★두 겹으로 막는다: ①freePort 로 충돌 자체를 없애고 ②그래도 우리 화면이 아니면 «틀림(1)»이 아니라 «못 쟀다(2)».
+#     둘을 구분하는 것이 이 저장소의 규칙이다(CANT_LOOK).
+#   ★남은 20개(자기 서버 + 박은 포트)는 서로 겹치지 않는다(실측) — 전수 실행 안에서는 부딪히지 않아 그대로 둔다.
+chk 'freePort' scripts/audit/snap-word.mjs 1
+chk 'freePort' scripts/audit/guest-timeout.mjs 1
+chk 'freePort' scripts/audit/guest-state.mjs 1
+chk 'SERVED_OURS' scripts/audit/snap-word.mjs 1
+chk 'SERVED_OURS' scripts/audit/guest-timeout.mjs 1
+chk 'SERVED_OURS' scripts/audit/guest-state.mjs 1
+nochk 'const PORT = 8489' scripts/audit/snap-word.mjs 0
+nochk 'const PORT = 8512' scripts/audit/guest-timeout.mjs 0
+nochk 'const PORT = 8534' scripts/audit/guest-state.mjs 0
+
+# ★[GATE_RED / GATE_RED_GAP] 게이트 결과를 읽는 도구 자체를 건다.
+#   scripts/gate.sh 는 7,000줄을 눈으로 걸러 「초록」이라 오보한 사고에서 나왔다(2026-09-12).
+#   그 뒤 «빨간 줄 0건 · 종료코드 1» 이라는 읽을 수 없는 요약이 한 번 더 나와(2026-09-14),
+#   못 센 실패 줄을 그대로 보여 주게 했다. 둘 다 지워지면 오보로 되돌아간다.
+chk 'GATE_RED' scripts/gate.sh 3
+chk 'GATE_RED_GAP' scripts/gate.sh 1
+
+# ★[LISTEN_COVER_WEB / TONE_EMBED_REPO / USE_EXISTING_CUT_FAIL] 실청판이 «빠짐 없이» 만들어졌나.
+#   세 결정 모두 «소리를 싣는 길이 둘인데 한 길만 봤다»는 한 가지 병에서 나왔다 — 지우면 그 병이 돌아온다.
+chk 'LISTEN_COVER_WEB' scripts/check-listen-cover.mjs 1
+chk 'SOUND_OUT_OF_JS' scripts/check-listen-cover.mjs 1
+chk 'TONE_EMBED_REPO' scripts/build-listen-all.mjs 1
+chk 'USE_EXISTING_CUT_FAIL' scripts/build-listen-all.mjs 2
+if command -v node >/dev/null 2>&1; then
+  _lc=$(node scripts/check-listen-cover.mjs --file "$(ls listen-*.html 2>/dev/null | head -1)" 2>&1)
+  if [ $? = 0 ]; then echo "ok listen-cover: $(printf '%s' "$_lc" | tail -1)"
+  else echo 'REVERT? listen-cover 실패 — 실청판에 빠진 자리가 있다:'; printf '%s\n' "$_lc" | grep '^✗'; fail=1; fi
+else echo 'skip listen-cover (node 없음)'; fi
+
+# ★[MEAS_CARRY] 글만 바뀐 실청 어조판을 wav 없이도 다시 뽑을 수 있게 한 장치.
+#   지우면 「대장 문구를 고친 사람은 그 판을 영영 못 고친다」로 되돌아간다 — 게이트가 붉은 채 산다.
+chk 'MEAS_CARRY' scripts/build-listen-tone.mjs 2
+chk '그 자리의 글이 한 글자까지 같을 때만' scripts/build-listen-tone.mjs 1
