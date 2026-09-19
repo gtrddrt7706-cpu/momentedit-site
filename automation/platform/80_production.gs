@@ -98,11 +98,14 @@ function _ensureProductionBase(cust, prodDraft, invDraft) {
   return prodDraft.base;
 }
 
-// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(착석 25 · 초과는 스탠딩 1인 50,000원 · 최대 30명)
+// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(착석 25 · 초과는 스탠딩 · 최대 30명 · ★추가금 없음)
 // ★단일 출처는 여기(실청구·검증). 값 변경 시 아래 5곳의 문구·상수도 반드시 함께 동기화(놓치면 계약서·안내와 청구액이 충돌):
 //   ① mypage.html MP_FINAL_POLICY(표시 기본값 · 서버 finalPolicy가 덮음) ② contract/v1-1.html 8조 법문구(고객이 서명하는 문서)
 //   ③ inquiry.html 안내문+인원 검증(30명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
-var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 50000 };
+var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 0 };
+//   ★초과단가 50000 → 0 (2026-09-19 대표 지시 "30명 추가금없음"). 되살리지 말 것 —
+//     index.html 가격 블록이 「하객 30명까지 추가금 없음」을 공개하는데 청구만 1인 5만 원이면
+//     28명 계약자가 홈페이지를 믿고 계약했다가 15만 원을 청구받는다(표시·광고 정합성).
 
 // ══ [PROD_COL_SPLIT 2026-07-25 · Wave 4 PR-B] 제작 데이터 = 트랙별 컬럼 + 메타 컬럼 ══
 //   왜: 단일 셀(제작임시저장) 시절엔 한 트랙이 셀 한도(5만)를 밀어올리면 그 고객의 '모든' 트랙 저장이 마비됐다.
@@ -410,6 +413,7 @@ function handleSaveProductionTrack(body) {
       if (!String(fdr.drink || '').trim()) return { ok: false, error: '건배·웰컴 음료를 골라 주세요.' };
     }
     fdr.headcount = _h ? String(_h) : '';
+    // [GUEST30_NOFEE] 스탠딩은 세되 요금은 0 — 좌석 배치에 스탠딩 수가 필요하다
     fdr.standing = Math.max(0, Math.min(_h, FINAL_CONFIRM.최대) - FINAL_CONFIRM.착석);
     fdr.extraFee = fdr.standing * FINAL_CONFIRM.초과단가;
     if (String(fdr.drink || '').indexOf('논알콜') === 0) fdr.softCount = '';   // 전원 논알콜이면 잔 수 구분 무의미

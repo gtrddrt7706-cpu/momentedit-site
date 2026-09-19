@@ -4464,7 +4464,7 @@ chk "id=\"pReset\"" order-preview.html 1
 nochk '다섯 코스에서 골라' index.html                    # 코스는 셋([THREE_COURSES 2026-08-07])
 nochk '촬영·예식·다이닝·디지털 참석이 통합된' index.html   # 다이닝은 파트너사 직결제(제3조②)
 nochk '본식영상 데이터 + 수정본' index.html               # 계약서 용어는 '편집본'
-chk '25명 초과 스탠딩' index.html 1                       # 제3조⑥ 1인 50,000원·최대 30명(값이 비어 있었다)
+nochk '25명 초과 스탠딩' index.html                       # ★2026-09-13 대표 결정으로 스탠딩 추가요금 폐지 — 되살리지 말 것(제거 지시 보존). 30명 상한 고지는 아래 줄이 지킨다
 chk '총 30명으로 진행하실 수 있습니다' index.html 2        # 30명 상한 고지(화면에 0건이었다)
 chk '드레스를 시착하신 경우에만' index.html 1              # 제4조⑧ — '전액 환불' 단서 없던 자리
 # 제7조② — 23스크린 접힘 안에만 있던 사실을 가격 카드로 끌어올린 것이 이 가드의 뜻이다.
@@ -5823,6 +5823,32 @@ if command -v node >/dev/null 2>&1; then
          printf '%s\n' "$_dcOut" | sed 's/^/    | /'; fail=1; }
 fi
 chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
+# ★[DEPLOY_CONTRACT 2026-09-19] 값 계약 — 표식이 «있는가»가 아니라 값이 «맞는가»를 본다.
+#   실제 사고: 하객 추가금을 50000 → 0 으로 고치고 표식을 달았는데, 그 파일을 GAS 에 안 붙여도
+#   deployCheck 가 「누락 0건」이라고 답했다(①표식 목록이 main 에서 와서 새 표식이 대상 밖 ②값은 안 봄).
+#   그 사이 28명 계약자에게 15만 원이 계속 청구된다. 조용한 실패라 사람이 못 찾는다.
+#   ★계약만 적고 코드를 바꾸면 둘이 갈라진다 — 갈라지는 순간 여기서 막는다.
+if command -v node >/dev/null 2>&1; then
+  _ctOut=$(node scripts/audit/deploy-contracts.mjs 2>&1) \
+    || { echo 'FAIL deploy-contracts: 값 계약이 코드와 어긋난다 — node scripts/audit/deploy-contracts.mjs'
+         printf '%s\n' "$_ctOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'DEPLOY_CONTRACT' automation/platform/99_contractCheck.gs 1
+chk 'DEPLOY_CONTRACT' scripts/audit/deploy-contracts.mjs 1
+chk 'DEPLOY_CONTRACT' deploy-marks.json 1
+
+# ★[APPLY_TO_GATE] 아래는 audit·apply 스크립트가 이름 지어 둔 결정들이다.
+#   decision-guard 가 요구한다 — 이름을 지었으면 게이트에 걸어야 «다음 판이 지우면 빨개진다».
+#   이름 없는 결정은 «그때 그렇게 생각했다»는 일기이지, 지켜지는 결정이 아니다.
+chk 'SHOT_LEGIBLE' scripts/audit/admin-ops-shot.mjs 1
+chk 'SHOT_BLANK' scripts/audit/apply-shots-full.mjs 1
+chk 'SHOT_CONFLICT' scripts/audit/apply-shots-full.mjs 1
+chk 'SHOT_FLOAT' scripts/audit/shot-variants.mjs 3
+chk 'SHOT_TIGHTEN' scripts/audit/shot-variants.mjs 2
+chk 'GUEST30_NOFEE' scripts/audit/balance-sim.mjs 1
+chk 'COPY_RULE_CONTRACT' scripts/audit/copy-rule.mjs 1
+chk 'CONTRACT_FALLBACK' scripts/audit/deploy-contracts.mjs 1
+
 # ★[MARKS_REMOTE 2026-08-30] 아래 넷은 «점검 목록»에 그 항목이 살아 있는지 보는 줄이다.
 #   목록이 99_deployCheck.gs → deploy-marks.json 으로 옮겨 갔으므로 보는 곳도 옮긴다.
 #   ★.gs 를 계속 보게 두면 목록이 통째로 사라져도 이 줄들이 조용히 초록을 낸다.
@@ -6280,9 +6306,66 @@ nochk '저장돼요 — 마이페이지로 열면' order-preview.html
 #   ★FILE_COVER_SINCE 는 앞당기지 말 것 — 규칙 이전 커밋까지 소급하면 고칠 수 없는 빨강이 된다.
 chk 'FILE_COVER' scripts/audit/deploycheck-coverage.mjs 2
 chk 'FILE_COVER_SINCE' scripts/audit/deploycheck-coverage.mjs 2
+chk 'GRANT_FACTS' docs/국가지원금/근거데이터_외부통계.md 1   # 외부 숫자 단일 보관처 — 지우지 말 것
 chk 'FILE_COVER' CLAUDE.md 1
 chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
 
+# [RULE_MEASURED 2026-09-11] 잰 것과 낸 것이 같은 물건인가 — 재고 나서 고치면 잰 값은 죽는다.
+#   코워크가 len() 으로 제대로 쟀는데 +99 로 틀렸다. 재고 나서 문장을 고쳤고 다시 안 쟀다(실제 +96).
+#   [NOT_THE_SOURCE] 는 「도구로 재라」인데, 이건 그 다음 구멍이다 — 도구로 쟀어도 대상이 바뀌면 죽는다.
+chk 'RULE_MEASURED' CLAUDE.md 1
+
+# [OPS_ANSWER_0911 2026-09-11] 운영기관 2차 답변 — 권역 비율은 비례배분과 «함께» 적용된다(내 종전 판단 정정)
+#   + 회수하기 실재하나 «회수 중 기관이 100% 차면 그 기관 선택 불가» 함정. 회수-수정 전략 폐기 근거.
+chk 'OPS_ANSWER_0911' docs/국가지원금/운영기관답변_2026-09-11.md 1
+
+# [STRENGTH_COUPLE 2026-09-11] 강점을 「심사위원 눈」이 아니라 「예비부부 눈」으로 다시 뽑은 문서.
+#   종전 리스트는 코드로 증명하기 쉬운 것을 골랐고, 원본 전체·보증인원 없음·150일 전 전액 환불을 빠뜨렸다.
+chk 'STRENGTH_COUPLE' docs/국가지원금/강점_예비부부관점_재정리.md 1
+
+# [RULE_EASY 2026-09-11] 증명하기 쉬운 것이 중요한 것을 밀어낸다 — 대표가 「이게 강점 확실해?」로 잡았다.
+#   참인 것만 골랐는데 중요하지 않은 것을 골랐다. 그 사이 원본 전체·보증인원 없음·150일 전액환불을 빠뜨렸다.
+chk 'RULE_EASY' CLAUDE.md 1
+
+# [DECISION_GATE 2026-09-13] 대표가 정한 것이 신청서 본문에 들어갔는가 — 푸시를 막는 게이트.
+#   사고: 대표가 답해 준 「세 곳을 넘긴 이유」와 「스마트스토어 1등」을 길게 칭찬만 하고
+#   파일에 넣지 않았다. 칭찬은 반영이 아닌데 내 쪽에는 「처리했다」는 느낌이 남는다.
+#   대화는 저장소가 아니라 화제가 옮겨가면 사라지고, 파일에 흔적이 없으니 아무도 못 찾는다.
+#   누락을 잡은 건 대표가 물어봐 준 덕이지 절차가 아니었다 → 사람이 지킬 규칙을 구조로 바꾼다.
+#   대장(docs/국가지원금/대표결정_반영대장.tsv)에 MUST/NEVER 를 적고 본문과 대조한다.
+#   자수도 함께 본다 — 줄바꿈이 \r\n 으로 저장되면 문단마다 1자씩 늘어난다
+#   (실측 2026-09-13: Q2 2,018 · Q3-1 2,019 로 잘릴 상태였다).
+#   ★적대적 시험 3/3 통과 확인 — MUST 삭제·NEVER 부활·자수 초과를 각각 잡는다(죽은 게이트 아님).
+chk 'DECISION_LEDGER' docs/국가지원금/대표결정_반영대장.tsv 1
+chk 'DECISION_GATE' scripts/audit/application-decisions.py 1
+# [REVIEW_GATE 2026-09-13] 대표가 올린 지적이 조용히 사라지지 않는가.
+#   대표 지시: "개선사항 계속해서 올릴 거니깐 누락 없이 취합해놔 한 번에 반영하게"
+#   검토함의 줄은 상태가 있어야 하고, '완료'라고 적으려면 대장에 [검토N] 이 있어야 한다.
+#   그러면 그 줄의 검증문자열을 MUST 검사가 본문에서 다시 확인한다 — 완료 표시가 본문까지 이어진다.
+chk 'REVIEW_INBOX' docs/국가지원금/대표검토_지적사항_20260913.md 1
+chk 'REVIEW_GATE' scripts/audit/application-decisions.py 1
+chk 'SPLIT_FACTS' scripts/audit/application-decisions.py 2   # 한 발언에 사실이 여럿이면 하위 항목으로 쪼갠다
+# [SUBMIT_BUILD 2026-09-13] 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
+chk 'SUBMIT_BUILD' scripts/audit/build-submission-txt.py 1
+# [TWIN_DRIFT 2026-09-13] 정본과 _v2 는 같은 파일이어야 한다 — 게이트는 정본만 읽는다.
+#   사고: _v2 가 윤문 전 판으로 굳어 있었다. 이름이 「v2」라 더 새 것으로 읽히는데 실제로는 낡은 것이었고,
+#   대표검토 문서가 그것을 「3중 대조 대상」으로 가리키고 있었다 — 틀린 쪽을 근거로 삼을 뻔했다.
+#   둘 중 무엇을 붙여 넣을지 사람이 고르게 두지 않는다. 다르면 빨강.
+if [ -f docs/국가지원금/모두의창업_신청서_최종본_v2.md ]; then
+  if cmp -s docs/국가지원금/모두의창업_신청서_최종본.md docs/국가지원금/모두의창업_신청서_최종본_v2.md; then
+    echo 'ok 신청서 정본 == _v2 (갈라지지 않았다)'
+  else
+    echo 'FAIL 신청서 _v2 가 정본과 갈라졌다 — cp 로 맞추거나 _v2 를 지운다'; fail=1
+  fi
+fi
+if command -v python3 >/dev/null 2>&1; then
+  _sb=$(python3 scripts/audit/build-submission-txt.py --check 2>&1) && printf '%s\n' "$_sb" \
+    || { printf '%s\n' "$_sb"; fail=1; }
+else echo 'skip build-submission-txt (python3 없음)'; fi
+if command -v python3 >/dev/null 2>&1; then
+  _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
+    || { printf '%s\n' "$_ad"; fail=1; }
+else echo 'skip application-decisions (python3 없음)'; fi
 # ★★[CSS_COMMENT_NEST 2026-09-06 실기기 제보 "플레이버튼 전에꺼가더 좋왔던거같은데"]
 #   CSS 주석은 중첩되지 않는다. 주석 안에서 다시 열면 «첫» 닫는 표시가 바깥까지 함께 닫고,
 #   그 뒤 설명문이 CSS 로 읽힌다. 파서는 회복하려고 다음 { } 블록 하나를 통째로 삼킨다.
