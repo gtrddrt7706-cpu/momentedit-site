@@ -58,12 +58,16 @@ const ro = rows.find((r) => r.f === 'narr-round-open');
 if (!ro) no('narr-round-open 을 manifest 에서 못 찾았습니다 — 이 검사도 같은 커밋에서 고치세요');
 else {
   const rank = rows.indexOf(ro) + 1;
-  const said = /→ (\d+(?:\.\d+)?)초\(5문장\)|→ ([\d.]+)초\(5문장\)/.exec(src);
-  const num = (re) => { const m = re.exec(src); return m ? Number(m[1]) : null; };
-  const claimed = num(/31\.5초\(8문장\) → ([\d.]+)초\(5문장\)/);
-  if (claimed === null) no("ritual-data 주석에서 '31.5초(8문장) → N초(5문장)' 를 못 찾았습니다 — 수치를 지우지 말고 갱신하세요");
-  else if (Math.abs(claimed - ro.sec) > 0.15) no(`주석은 ${claimed}초라는데 실측은 ${ro.sec.toFixed(1)}초입니다 — 문안을 고쳤으면 주석도 같은 커밋에서 고치세요`);
-  else console.log(`\nok narr-round-open 예상 ${ro.sec.toFixed(1)}초 · 전체 ${rank}위/${rows.length} · 주석 수치와 일치`);
+  /* ★★[ROUND_LEN_SENTS 2026-09-19] 문장 수도 주석에서 «읽는다» — 코드에 굳히지 않는다.
+     종전엔 정규식에 (5문장)이 박혀 있었다. 2026-09-19 ROUND_FREE 로 세 문장이 되자
+     검사가 «주석을 못 찾았다»고 답했다 — 수치가 틀린 것이 아니라 아예 못 읽은 것이다.
+     그러면 사람은 수치를 고칠 생각을 안 하고 검사를 지울 생각을 한다. CAP_NAME_READ 와 같은 처방:
+     이 검사가 지키려는 것은 «몇 문장인가»가 아니라 «주석과 실측이 같은가»다. */
+  const m = /31\.5초\(8문장\) → ([\d.]+)초\((\d+)문장\)/.exec(src);
+  if (m === null) no("ritual-data 주석에서 '31.5초(8문장) → N초(M문장)' 를 못 찾았습니다 — 수치를 지우지 말고 갱신하세요");
+  else if (Math.abs(Number(m[1]) - ro.sec) > 0.15) no(`주석은 ${m[1]}초라는데 실측은 ${ro.sec.toFixed(1)}초입니다 — 문안을 고쳤으면 주석도 같은 커밋에서 고치세요`);
+  else if (Number(m[2]) !== ro.n) no(`주석은 ${m[2]}문장이라는데 실제는 ${ro.n}문장입니다 — 문장을 넣거나 뺐으면 주석도 같은 커밋에서 고치세요`);
+  else console.log(`\nok narr-round-open 예상 ${ro.sec.toFixed(1)}초 · ${ro.n}문장 · 전체 ${rank}위/${rows.length} · 주석 수치와 일치`);
 
   /* ★★[CAP_NAME_READ 2026-09-09] 최장 클립의 «이름»도 주석에서 읽는다 — 코드에 굳히지 않는다.
      종전엔 'declare-1-solemn' 이 코드에 박혀 있어, 최장이 정당하게 바뀌면(감동 구간 문안을 넣어

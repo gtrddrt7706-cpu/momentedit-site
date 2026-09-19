@@ -28,6 +28,8 @@
  *       타입캐스트 «문장별 분리» 다운로드를 창고에 넣는다. 이름과 글을 대조해 넣고, 안 맞으면 안 넣는다.
  *   node scripts/sent-lib.mjs --patch --sent "<문장>" --wav <파일>
  *       그 문장이 있는 «모든» 자리의 소리를 새것으로 바꾼다.
+ *   node scripts/sent-lib.mjs --prune [--write]
+ *       문안에서 빠져 «주인이 없어진» 자리를 창고에서도 뺀다. 기본은 미리보기.
  *   node scripts/sent-lib.mjs --stage <나갈폴더> [--clip =12_bless-father,…]
  *       창고에서 꺼내 조립기가 먹는 모양(번호순 낱개)으로 깔아 준다. 그 뒤 assemble-narration 을 부른다.
  */
@@ -54,12 +56,26 @@ let man; try { man = JSON.parse(fs.readFileSync(MAN, 'utf8')); }
 catch (e) { console.log('✗ 대장을 못 읽었다 — ' + e.message); process.exit(2); }
 
 /* 대장이 정하는 «모든 자리» */
+/* ★★[SENT_RETIRED 2026-09-19] 폐지한 클립의 자리는 «다시 받을 것»에 세지 않는다.
+   ★왜 자리 자체는 남기나 — 폐지해도 파일·번호는 그대로 둔다(SONG_RETIRED). 창고에서 지우면
+     되살릴 때 다시 받아야 하고, 지금 당장은 sent-lib-check 가 «대장에 없는 자리»로 붉어진다.
+   ★왜 그래도 가르나 — ROUND_FREE 직후 실측: 폐지한 두 클립 때문에 --status 가 「다시 받아야 할 것
+     3문장」이라고 했는데, 정작 다시받기 목록(build-redub-byvoice)은 0줄이었다. 둘이 어긋나면
+     사람이 «있지도 않은 할 일»을 하러 간다. 세는 자와 시키는 자가 같은 것을 봐야 한다. */
+const RETIRED_CLIP = (() => {
+  try {
+    const cue = fs.readFileSync(P('assets/ritual-cue.js'), 'utf8');
+    const b = /var RETIRED = \{([\s\S]*?)\};/.exec(cue);
+    return new Set(b ? [...b[1].matchAll(/'([^']+)'\s*:\s*1/g)].map((m) => m[1]) : []);
+  } catch { return new Set(); }
+})();
 const slots = [];
 for (const c of man.clips) {
   if (c.mix) continue;
   if (isWholeTake(c)) continue;   // [LETTER_WHOLE_TAKE] 통낭독은 문장 단위 창고가 해당 없다
   const key = pad2(c.no) + '_' + c.file;
-  c.sents.forEach((s) => slots.push({ key, i: s.i, id: key + '#' + s.i, text: s.text, role: s.role || c.role }));
+  const off = RETIRED_CLIP.has(c.file);   // [SENT_RETIRED] 자리는 남기고 «안 나간다»고만 적는다
+  c.sents.forEach((s) => slots.push({ key, i: s.i, id: key + '#' + s.i, text: s.text, role: s.role || c.role, off }));
 }
 const VOICE = man.voice || {};
 const bySlot = new Map(slots.map((s) => [s.id, s]));
@@ -89,7 +105,9 @@ function status() {
   console.log(`   ★글이 바뀌어 낡은 자리    : ${stale.length}`);
   console.log(`   · 아직 소리가 없는 자리   : ${none.length}`);
   const byVoice = {};
-  for (const s of [...stale, ...none]) { const v = VOICE[s.role] || '★미정'; (byVoice[v] ??= []).push(s); }
+  const offN = [...stale, ...none].filter((s) => s.off).length;   // [SENT_RETIRED]
+  for (const s of [...stale, ...none]) { if (s.off) continue; const v = VOICE[s.role] || '★미정'; (byVoice[v] ??= []).push(s); }
+  if (offN) console.log(`   (그중 ${offN}자리는 폐지한 클립이라 «다시 받을 것»에 세지 않습니다)`);
   if (Object.keys(byVoice).length) {
     console.log('\n   다시 받아야 할 것 (성우별)');
     for (const [v, l] of Object.entries(byVoice).sort((a, b) => b[1].length - a[1].length))
@@ -98,7 +116,7 @@ function status() {
   if (stale.length) {
     console.log('\n   ★낡은 자리 (글이 바뀌었다 · 옛 소리를 그대로 쓰면 안 된다)');
     for (const s of stale.slice(0, 12)) {
-      console.log(`     ${s.id}  ${VOICE[s.role] || '★미정'}`);
+      console.log(`     ${s.id}  ${VOICE[s.role] || '★미정'}${s.off ? '  · 폐지된 클립(안 나갑니다)' : ''}`);
       console.log(`        지금 글 「${s.text}」`);
       console.log(`        창고 글 「${j.slots[s.id].text}」`);
     }
@@ -215,6 +233,34 @@ function importFrom(src) {
   if (ambig) console.log(`   ★같은 문장이 여럿이라 못 가른 것 ${ambig}건`);
   if (miss) console.log(`   · 그 순서표의 ${miss}줄은 이번 묶음에 없었다(다른 배치일 것)`);
   if (skipSlot) console.log(`   ★대장과 글이 달라 «안 넣은» 자리 ${skipSlot}건 — 대본이 그 사이 바뀐 자리입니다`);
+}
+
+/* ── 대장에서 사라진 자리를 창고에서도 뺀다 ──────────── */
+/* ★★[SENT_PRUNE 2026-09-19] 문안에서 문장을 «빼면» 창고에 주인 없는 소리가 남는다.
+     sent-lib-check 가 그걸 잡고 «_index.json 에서도 빼세요»라고 안내하는데,
+     그 말은 곧 «JSON 을 손으로 고치세요»다. 자동생성물을 손으로 고치는 것이
+     이 저장소가 반복해 다친 자리라, 안내 대신 명령을 둔다.
+   ★폐지한 클립(RETIRED)은 «대장에 남아 있다» — 번호를 지키려고 일부러 남긴 것이다.
+     그러니 여기서 안 지워진다. 지워지는 것은 «문장이 실제로 사라진» 자리뿐이다.
+   ★기본은 미리보기다. --write 를 붙여야 지운다. */
+function prune() {
+  const j = loadIdx();
+  const live = new Set(slots.map((s) => s.id));
+  const dead = Object.keys(j.slots || {}).filter((id) => !live.has(id));
+  if (!dead.length) { console.log('[SENT_PRUNE] 주인 없는 자리 없음 — 창고와 대장이 같습니다.'); return; }
+  console.log(`[SENT_PRUNE] 대장에 없는 자리 ${dead.length}개`);
+  for (const id of dead) console.log(`   ${id}  「${(j.slots[id] || {}).text || ''}」`);
+  if (!has('--write')) { console.log('\n(미리보기) --write 를 붙이면 소리 파일과 대장 줄을 함께 지웁니다.'); return; }
+  let gone = 0;
+  for (const id of dead) {
+    const f = fileOf(id);
+    if (fs.existsSync(f)) { fs.unlinkSync(f); gone++; }
+    delete j.slots[id];
+    const d = path.dirname(f);
+    try { if (!fs.readdirSync(d).length) fs.rmdirSync(d); } catch { /* 남아 있으면 그대로 둔다 */ }
+  }
+  saveIdx(j);
+  console.log(`\n지웠습니다 — 대장 줄 ${dead.length}개 · 소리 파일 ${gone}개`);
 }
 
 /* ── 한 자리 갈아 끼우기 ──────────────────────────────── */
@@ -449,6 +495,7 @@ if (has('--pick')) pick();
 else if (has('--rebind')) rebind();
 else if (has('--todo')) todo();
 else if (has('--import')) importFrom(arg('--import'));
+else if (has('--prune')) prune();
 else if (has('--patch')) patch();
 else if (has('--stage')) stage();
 else status();

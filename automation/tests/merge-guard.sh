@@ -8455,3 +8455,39 @@ chk '오늘의 예식은 여기까지입니다' assets/ritual-cue.js 2
 #   기계는 낱말을 못 듣는다(ASR 차단). 이 사실은 검사로 재생산할 수 없어, 지우면 영영 사라진다.
 #   ★문안을 고치거나 mp3 를 다시 받으면 이 칸을 지우고 다시 확인받는다 — 그때는 이 chk 도 함께 뺀다.
 chk 'heard_ok' 'docs/plans/식순연구/parents-letter-대기.json' 1
+
+# ★★[ROUND_FREE 2026-09-19 사장님 지시 *"자리를 돌며 인사드리는 시간 … 처음 여는 멘트만 넣고
+#   자유롭게 할 수 있도록 하자 · 중간 20 남았다 이런 거 빼고 · 사진 요청 멘트 남기고"*]
+#   인사 돌기를 진행이 아니라 «자유»로 돌려놨다. 되살아나면 두 분이 녹음이 정한 시계에 맞춰 돌게 된다.
+#   ① 여는 말에서 뺀 두 문장 — 동선(「자리마다 차례로」)과 시간(「이십 분쯤」)
+nochk '자리마다 차례로 찾아뵙겠습니다' assets/ritual-data.js
+nochk '이십 분쯤 걸리니' assets/ritual-data.js
+#   ② 사장님이 «남기고»라고 짚으신 두 문장은 반드시 살아 있어야 한다
+chk '사진이 필요하시면 작가님을 부르셔도 좋습니다' assets/ritual-data.js 1
+chk '앉으신 채로 편히 맞아 주시면 됩니다' assets/ritual-data.js 1
+#   ③ 가운데 안내 클립 폐지 — 파일·번호는 남기고 RETIRED 로만 끈다(SONG_RETIRED 와 같은 처방)
+chk "'narr-round-mid': 1" assets/ritual-cue.js 1
+chk 'ROUND_FREE' scripts/apply-round-free.mjs 3
+chk 'ROUND_FREE' assets/ritual-data.js 1
+chk 'ROUND_FREE' assets/ritual-cue.js 1
+
+# ★[HELPER_RETIRED 2026-09-19] 콘솔 보조 클립 목록이 RETIRED 를 안 봐서, 2026-09-06 에 폐지한
+#   대기·재개 브릿지 둘이 아직 «눌리는 버튼»으로 남아 있었다. 손으로 지우지 않고 걸러서 막는다 —
+#   손으로 지우면 다음 폐지 때 또 샌다. 정본은 ritual-cue.js 의 RETIRED 하나다 [ONE_SPEC].
+chk 'HELPER_RETIRED' console.html 1
+chk 'RitualCue.RETIRED' console.html 1
+
+# ★[SENT_PRUNE · SENT_RETIRED 2026-09-19] 문장 창고를 사람 손에서 떼어 놓는다.
+#   ① 문안에서 문장을 빼면 창고에 주인 없는 소리가 남는데, 종전 안내는 «_index.json 을 손으로
+#      고치세요»였다. 자동생성물 손편집은 이 저장소가 반복해 다친 자리다 — 명령으로 바꿨다.
+#   ② --status 가 폐지 클립을 「다시 받아야 할 것」에 세어, 다시받기 목록(0줄)과 어긋났다.
+#      세는 자와 시키는 자가 같은 것을 봐야 한다.
+chk 'SENT_PRUNE' scripts/sent-lib.mjs 2
+chk 'SENT_RETIRED' scripts/sent-lib.mjs 3
+chk "has('--prune')" scripts/sent-lib.mjs 1
+
+# ★[ROUND_LEN_SENTS 2026-09-19] 문장 수를 정규식에 굳혀 두었더니, 문장이 줄자 검사가 «주석을
+#   못 찾았다»고 답했다 — 수치가 틀린 것이 아니라 아예 못 읽은 것이다. 그러면 사람은 수치를 고칠
+#   생각을 안 하고 검사를 지울 생각을 한다. 이름도 수도 주석에서 읽는다(CAP_NAME_READ 와 같은 처방).
+chk 'ROUND_LEN_SENTS' scripts/check-narr-len.mjs 1
+chk '실제는 ${ro.n}문장입니다' scripts/check-narr-len.mjs 1
