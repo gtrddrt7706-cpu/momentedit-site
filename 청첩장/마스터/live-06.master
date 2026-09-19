@@ -941,7 +941,10 @@ details.env-acc-item[open] > .env-acc-q{
       <!-- 스튜디오 — 한 줄 이탤릭 캡션 -->
       <div class="date-studio-line">
         <span class="at">於</span>
-        <span class="name">Moment Edit</span>, 성수
+        <!-- [DTL16] ', 성수' 하드코딩 제거 — 실제 스튜디오는 경기 고양 향동이라 시안 잔재 지명이
+             실하객에게 틀린 지역으로 나가고 있었다. 사본(i/cover-06)은 2026-08 에 고쳤는데
+             이 «원천»이 남아 있었다(2026-09-19 전수조사 2차). 되살리지 말 것. -->
+        <span class="name">Moment Edit</span>
       </div>
     </div>
   </section>
