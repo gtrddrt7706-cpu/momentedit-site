@@ -4164,7 +4164,10 @@ chk 'ESSAY2_TOFAQ' index.html 2
 chk 'DIR_FACT_FIRST' index.html 1
 chk 'id="faq-140"' index.html 1
 chk 'data-faq-open' index.html 3
-chk '스물다섯 분까지 착석으로 모십니다' index.html 1
+# ★[SEATED30 2026-09-19] 「스물다섯 분까지 착석」 → 「서른 분까지 전원 착석」(2026-09-13 검토38).
+#   기능을 정당히 폐지해 마커가 사라졌으므로 같은 커밋에서 가드 목록을 갱신한다(병렬 세션 규칙).
+chk '서른 분까지 전원 착석으로 모십니다' index.html 1
+nochk '스물다섯 분까지 착석' index.html                  # 되살리지 말 것 — 좌석 편집기가 30석을 그린다
 chk '저희도 줄여 드리지 못합니다' index.html 1
 # ★낭독 대본(docs/plans/저널낭독/*.txt)과 화면 글이 갈라지지 않는지 기계가 맞댄다 [JOURNAL_SCRIPT_TRUTH]
 #   화면 문장만 고치고 대본을 안 고치면 스피커에서 옛말이 난다 — 식순 쪽에서 실제로 겪은 사고와 같은 구조.
@@ -4238,11 +4241,27 @@ chk 'JOURNAL_AUDIO_SYNC' scripts/audit/journal-audio-sync.mjs 1
 chk 'PAR_ORDER' parents.html 1
 chk 'PAR_DINE' parents.html 1
 
-# [PAR_PYEBAEK 2026-09-12 사용자 지시 「폐백 예단은 안해」] 폐백 방침은 «세 곳이 같은 말»이어야 한다.
-#   어른 페이지·챗봇·식순 KB 중 하나만 고치면 어른은 「안 한다」를 읽고 챗봇에 물으면 다른 말을 듣는다.
-#   ★문장을 세게 만들지 말 것 — 부모님 헌정은 두 분이 뺄 수 있다(order-preview.html NEVEROFF={entry:1}).
-#     「큰절을 올립니다」로 단정하면 헌정을 뺀 예식에서 거짓이 된다. 「고르십니다」가 맞는 말이다.
-chk 'PAR_PYEBAEK' parents.html 1
+# ★★[PAR_NO_TRADITION 2026-09-19 사장님 지시 *"전통절차는아예없어 삭제해"*]
+#   종전에는 «폐백 방침을 세 곳이 같은 말로» 라고 적고 chk 넷으로 그 문장을 «지키고» 있었다.
+#   사장님이 그 전제를 거두셨다 — *"이미 다 알고 있어, 갑자기 어디서 튀어나왔는지 모르겠네"*.
+#   없는 것을 굳이 없다고 말하는 자리였다. 그래서 고객 노출을 전부 지우고, 방향을 뒤집는다:
+#   «같은 말을 하는가»가 아니라 «다시 나타나지 않는가»를 잰다.
+#   ★문자열 nochk 로 안 하는 이유 — 종전 nochk 는 옛 문장 하나만 막았고, 같은 회피가 말만 바꿔
+#     살아 있었다(「그 밖의 전통 절차는 디렉터가 상담에서 함께 정리해 드립니다」).
+#     그래서 «렌더된 고객 글»에서 낱말로 센다. 주석은 안 센다 — 근거를 적는 것이 빨강이 되면
+#     다음 사람이 근거를 지우게 된다.
+chk 'PAR_NO_TRADITION' parents.html 1
+chk 'PAR_NO_TRADITION' scripts/audit/no-tradition.mjs 2
+
+# ★★[PLAN_CLEAN 2026-09-19 사장님 *"홈페이지 구석구석 남아있으면 전부 찾아서 삭제"*]
+#   고객 화면만 지우면 다시 자란다. 실제로 이런 줄들이 남아 있었다:
+#     · 「전통 절차 수용 여부」 — 아직 «안 정한 항목»으로 열려 있었다. 다음 세션이 이걸 근거로 다시 꺼낸다.
+#     · 「…(현장 변수 → 직접 추가+상담)」 — «직접 추가로 넣을 수 있다»고 적힌 설계 기록이 둘.
+#   CLAUDE.md 의 교훈 그대로다 — «닫힌 항목은 그 자리만 고치면 되살아난다».
+#   ★docs/국가지원금 은 면제다. 거기 것은 **외부 웨딩 시장의 통점**(「폐백·이바지의 강요」)이지
+#     우리 상품 설명이 아니고, 신청서가 그걸 근거로 «우리는 그 강요를 없앴다»고 말한다(실측 10건 살아 있음).
+#   ★근거 표식이 달린 줄도 면제다 — 금지 근거를 적으려면 그 낱말을 써야 한다.
+chk 'PLAN_CLEAN' scripts/audit/no-tradition.mjs 2
 
 # [COPY_TRUTH 2026-09-12] 마이페이지 복사 버튼 13곳이 «복사가 안 돼도» 「복사됐어요」라고 했다.
 #   legacyCopy 가 catch(e){} 로 execCommand 실패를 삼켰고 호출부가 무조건 성공 콜백을 불렀다.
@@ -4285,11 +4304,12 @@ chk '멀리 계셔도' i/cover-01.html 1
 chk '한 자리를 마련했습니다' i-family/family-01.html 1
 chk '귀한 마음만 더해' i/cover-04.html 1
 chk '참석이 어려운' i/cover-08.html 1
-# ★[PAR_PYEBAEK_OUT 2026-09-19] 편지에서는 뺐다 — 위 chk 를 nochk 로 뒤집었다(8225행).
-#   챗봇 쪽은 남는다: «물었을 때 답하는 것»이라 성격이 다르다(편지는 묻지 않은 것을 먼저 꺼내는 자리).
-chk '별도의 폐백 순서는 두지 않습니다' assets/advisor-kb.js 1
-chk '별도의 폐백 순서는 두지 않는다' api/_ritual-kb.js 1
-chk '별도의 폐백 순서는 없다' api/_ritual-kb.js 1
+
+
+# ★[PAR_NO_TRADITION 2026-09-19] 여기 있던 폐백 chk 셋을 지웠다 — main 이 같은 날 더 넓게 정했다.
+#   내 브랜치는 «편지에서만» 뺐고 챗봇은 남기려 했는데, main 은 *"전통절차는아예없어"* 로
+#   챗봇·KB 까지 통째로 지웠다. 그쪽이 사장님 말씀에 더 가깝다 — 내 쪽을 접는다.
+#   지금은 scripts/audit/no-tradition.mjs 가 그 자리를 대신 지킨다(게이트가 실행한다).
 nochk '폐백 등 전통 절차의 진행 여부와 방식은 상담에서' assets/advisor-kb.js
 chk '식사 자리' parents.html 1
 chk '보증하지 않습니다' parents.html 1
@@ -4465,8 +4485,11 @@ chk "id=\"pReset\"" order-preview.html 1
 nochk '다섯 코스에서 골라' index.html                    # 코스는 셋([THREE_COURSES 2026-08-07])
 nochk '촬영·예식·다이닝·디지털 참석이 통합된' index.html   # 다이닝은 파트너사 직결제(제3조②)
 nochk '본식영상 데이터 + 수정본' index.html               # 계약서 용어는 '편집본'
-chk '25명 초과 스탠딩' index.html 1                       # 제3조⑥ 1인 50,000원·최대 30명(값이 비어 있었다)
-chk '총 30명으로 진행하실 수 있습니다' index.html 2        # 30명 상한 고지(화면에 0건이었다)
+nochk '25명 초과 스탠딩' index.html                       # ★2026-09-13 대표 결정으로 스탠딩 추가요금 폐지 — 되살리지 말 것(제거 지시 보존). 30명 상한 고지는 아래 줄이 지킨다
+# ★[SEATED30] 「25명을 넘으면 스탠딩을 더해 총 30명」 문장이 폐지되어 이 마커도 바뀐다.
+#   지키려던 것은 «30명 상한을 화면이 고지하는가»이므로 새 문장으로 같은 것을 지킨다.
+chk '공간·안전상 30명이 상한입니다' index.html 2
+nochk '스탠딩 좌석을 최대 5명까지' index.html            # 폐지된 개념(검토38)
 chk '드레스를 시착하신 경우에만' index.html 1              # 제4조⑧ — '전액 환불' 단서 없던 자리
 # 제7조② — 23스크린 접힘 안에만 있던 사실을 가격 카드로 끌어올린 것이 이 가드의 뜻이다.
 #   ★2026-08-18 문구만 바뀌었다(「위약금 없이 전액 환급」→「전액 돌려드립니다」·[PRICE_NOTE_TONE]).
@@ -5834,6 +5857,54 @@ if command -v node >/dev/null 2>&1; then
          printf '%s\n' "$_dcOut" | sed 's/^/    | /'; fail=1; }
 fi
 chk 'DEPLOY_CHECK' automation/platform/99_deployCheck.gs 1
+# ★[DEPLOY_CONTRACT 2026-09-19] 값 계약 — 표식이 «있는가»가 아니라 값이 «맞는가»를 본다.
+#   실제 사고: 하객 추가금을 50000 → 0 으로 고치고 표식을 달았는데, 그 파일을 GAS 에 안 붙여도
+#   deployCheck 가 「누락 0건」이라고 답했다(①표식 목록이 main 에서 와서 새 표식이 대상 밖 ②값은 안 봄).
+#   그 사이 28명 계약자에게 15만 원이 계속 청구된다. 조용한 실패라 사람이 못 찾는다.
+#   ★계약만 적고 코드를 바꾸면 둘이 갈라진다 — 갈라지는 순간 여기서 막는다.
+if command -v node >/dev/null 2>&1; then
+  _ctOut=$(node scripts/audit/deploy-contracts.mjs 2>&1) \
+    || { echo 'FAIL deploy-contracts: 값 계약이 코드와 어긋난다 — node scripts/audit/deploy-contracts.mjs'
+         printf '%s\n' "$_ctOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'DEPLOY_CONTRACT' automation/platform/99_contractCheck.gs 1
+chk 'DEPLOY_CONTRACT' scripts/audit/deploy-contracts.mjs 1
+chk 'DEPLOY_CONTRACT' deploy-marks.json 1
+
+# ★[GUEST30_NOFEE 2026-09-19 점검] 값 계약(deploy-contracts)은 «상수·사이트 문장»을 본다.
+#   그런데 그 값을 «말로 풀어 쓴 자리»가 따로 넷 더 있었고, 거기까지 전파가 안 갔다(실측):
+#   관리자 메일·처리이력이 26~30명에서 「추가 0원 잔금 합산 청구」를 찍었고(운영자가 없는 요금을
+#   더할 수 있다), 챗봇 고정 답변은 「합산 25명 이내」라 26~30명 커플을 돌려보내고 있었다.
+#   상수는 내내 맞았다 — 그래서 값 계약은 초록이었다. 자리 목록을 따로 고정한다.
+if command -v node >/dev/null 2>&1; then
+  _gcOut=$(node scripts/audit/guest-cap-truth.mjs 2>&1) \
+    || { echo 'FAIL guest-cap-truth: 하객 정원·추가금을 말하는 자리가 어긋난다 — node scripts/audit/guest-cap-truth.mjs'
+         printf '%s\n' "$_gcOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'GUEST30_NOFEE' scripts/audit/guest-cap-truth.mjs 1
+chk 'SEATED30' scripts/audit/guest-cap-truth.mjs 1
+chk 'SEATED30' automation/platform/80_production.gs 1
+chk 'STALE_EXTRA_FEE' automation/platform/70_journey.gs 1
+chk 'STALE_EXTRA_FEE' scripts/audit/balance-sim.mjs 1
+chk 'ADMIN_NOFEE_LINE' automation/platform/95_notify.gs 1
+# ★[SHIP_NOW 2026-09-19 사용자 지시 "앞으로 작업끝나면 바로메인에 올려"] 브랜치 푸시는 «작업 끝»이 아니다.
+#   실사고 — 브랜치가 main 보다 188커밋 앞서고 83커밋 뒤처진 채 열흘을 갔다. 그 사이
+#   ①고친 계약서가 라이브에 안 가 고객이 15만 원을 청구받을 뻔했고 ②점검 목록이 main 기준이라
+#   그 열흘치가 통째로 검사 사각지대였고 ③내가 83커밋 뒤처진 판을 보고 멀쩡한 문구를 «모순»이라 고쳤다.
+chk 'SHIP_NOW' CLAUDE.md 1
+
+# ★[APPLY_TO_GATE] 아래는 audit·apply 스크립트가 이름 지어 둔 결정들이다.
+#   decision-guard 가 요구한다 — 이름을 지었으면 게이트에 걸어야 «다음 판이 지우면 빨개진다».
+#   이름 없는 결정은 «그때 그렇게 생각했다»는 일기이지, 지켜지는 결정이 아니다.
+chk 'SHOT_LEGIBLE' scripts/audit/admin-ops-shot.mjs 1
+chk 'SHOT_BLANK' scripts/audit/apply-shots-full.mjs 1
+chk 'SHOT_CONFLICT' scripts/audit/apply-shots-full.mjs 1
+chk 'SHOT_FLOAT' scripts/audit/shot-variants.mjs 3
+chk 'SHOT_TIGHTEN' scripts/audit/shot-variants.mjs 2
+chk 'GUEST30_NOFEE' scripts/audit/balance-sim.mjs 1
+chk 'COPY_RULE_CONTRACT' scripts/audit/copy-rule.mjs 1
+chk 'CONTRACT_FALLBACK' scripts/audit/deploy-contracts.mjs 1
+
 # ★[MARKS_REMOTE 2026-08-30] 아래 넷은 «점검 목록»에 그 항목이 살아 있는지 보는 줄이다.
 #   목록이 99_deployCheck.gs → deploy-marks.json 으로 옮겨 갔으므로 보는 곳도 옮긴다.
 #   ★.gs 를 계속 보게 두면 목록이 통째로 사라져도 이 줄들이 조용히 초록을 낸다.
@@ -6291,9 +6362,66 @@ nochk '저장돼요 — 마이페이지로 열면' order-preview.html
 #   ★FILE_COVER_SINCE 는 앞당기지 말 것 — 규칙 이전 커밋까지 소급하면 고칠 수 없는 빨강이 된다.
 chk 'FILE_COVER' scripts/audit/deploycheck-coverage.mjs 2
 chk 'FILE_COVER_SINCE' scripts/audit/deploycheck-coverage.mjs 2
+chk 'GRANT_FACTS' docs/국가지원금/근거데이터_외부통계.md 1   # 외부 숫자 단일 보관처 — 지우지 말 것
 chk 'FILE_COVER' CLAUDE.md 1
 chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
 
+# [RULE_MEASURED 2026-09-11] 잰 것과 낸 것이 같은 물건인가 — 재고 나서 고치면 잰 값은 죽는다.
+#   코워크가 len() 으로 제대로 쟀는데 +99 로 틀렸다. 재고 나서 문장을 고쳤고 다시 안 쟀다(실제 +96).
+#   [NOT_THE_SOURCE] 는 「도구로 재라」인데, 이건 그 다음 구멍이다 — 도구로 쟀어도 대상이 바뀌면 죽는다.
+chk 'RULE_MEASURED' CLAUDE.md 1
+
+# [OPS_ANSWER_0911 2026-09-11] 운영기관 2차 답변 — 권역 비율은 비례배분과 «함께» 적용된다(내 종전 판단 정정)
+#   + 회수하기 실재하나 «회수 중 기관이 100% 차면 그 기관 선택 불가» 함정. 회수-수정 전략 폐기 근거.
+chk 'OPS_ANSWER_0911' docs/국가지원금/운영기관답변_2026-09-11.md 1
+
+# [STRENGTH_COUPLE 2026-09-11] 강점을 「심사위원 눈」이 아니라 「예비부부 눈」으로 다시 뽑은 문서.
+#   종전 리스트는 코드로 증명하기 쉬운 것을 골랐고, 원본 전체·보증인원 없음·150일 전 전액 환불을 빠뜨렸다.
+chk 'STRENGTH_COUPLE' docs/국가지원금/강점_예비부부관점_재정리.md 1
+
+# [RULE_EASY 2026-09-11] 증명하기 쉬운 것이 중요한 것을 밀어낸다 — 대표가 「이게 강점 확실해?」로 잡았다.
+#   참인 것만 골랐는데 중요하지 않은 것을 골랐다. 그 사이 원본 전체·보증인원 없음·150일 전액환불을 빠뜨렸다.
+chk 'RULE_EASY' CLAUDE.md 1
+
+# [DECISION_GATE 2026-09-13] 대표가 정한 것이 신청서 본문에 들어갔는가 — 푸시를 막는 게이트.
+#   사고: 대표가 답해 준 「세 곳을 넘긴 이유」와 「스마트스토어 1등」을 길게 칭찬만 하고
+#   파일에 넣지 않았다. 칭찬은 반영이 아닌데 내 쪽에는 「처리했다」는 느낌이 남는다.
+#   대화는 저장소가 아니라 화제가 옮겨가면 사라지고, 파일에 흔적이 없으니 아무도 못 찾는다.
+#   누락을 잡은 건 대표가 물어봐 준 덕이지 절차가 아니었다 → 사람이 지킬 규칙을 구조로 바꾼다.
+#   대장(docs/국가지원금/대표결정_반영대장.tsv)에 MUST/NEVER 를 적고 본문과 대조한다.
+#   자수도 함께 본다 — 줄바꿈이 \r\n 으로 저장되면 문단마다 1자씩 늘어난다
+#   (실측 2026-09-13: Q2 2,018 · Q3-1 2,019 로 잘릴 상태였다).
+#   ★적대적 시험 3/3 통과 확인 — MUST 삭제·NEVER 부활·자수 초과를 각각 잡는다(죽은 게이트 아님).
+chk 'DECISION_LEDGER' docs/국가지원금/대표결정_반영대장.tsv 1
+chk 'DECISION_GATE' scripts/audit/application-decisions.py 1
+# [REVIEW_GATE 2026-09-13] 대표가 올린 지적이 조용히 사라지지 않는가.
+#   대표 지시: "개선사항 계속해서 올릴 거니깐 누락 없이 취합해놔 한 번에 반영하게"
+#   검토함의 줄은 상태가 있어야 하고, '완료'라고 적으려면 대장에 [검토N] 이 있어야 한다.
+#   그러면 그 줄의 검증문자열을 MUST 검사가 본문에서 다시 확인한다 — 완료 표시가 본문까지 이어진다.
+chk 'REVIEW_INBOX' docs/국가지원금/대표검토_지적사항_20260913.md 1
+chk 'REVIEW_GATE' scripts/audit/application-decisions.py 1
+chk 'SPLIT_FACTS' scripts/audit/application-decisions.py 2   # 한 발언에 사실이 여럿이면 하위 항목으로 쪼갠다
+# [SUBMIT_BUILD 2026-09-13] 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
+chk 'SUBMIT_BUILD' scripts/audit/build-submission-txt.py 1
+# [TWIN_DRIFT 2026-09-13] 정본과 _v2 는 같은 파일이어야 한다 — 게이트는 정본만 읽는다.
+#   사고: _v2 가 윤문 전 판으로 굳어 있었다. 이름이 「v2」라 더 새 것으로 읽히는데 실제로는 낡은 것이었고,
+#   대표검토 문서가 그것을 「3중 대조 대상」으로 가리키고 있었다 — 틀린 쪽을 근거로 삼을 뻔했다.
+#   둘 중 무엇을 붙여 넣을지 사람이 고르게 두지 않는다. 다르면 빨강.
+if [ -f docs/국가지원금/모두의창업_신청서_최종본_v2.md ]; then
+  if cmp -s docs/국가지원금/모두의창업_신청서_최종본.md docs/국가지원금/모두의창업_신청서_최종본_v2.md; then
+    echo 'ok 신청서 정본 == _v2 (갈라지지 않았다)'
+  else
+    echo 'FAIL 신청서 _v2 가 정본과 갈라졌다 — cp 로 맞추거나 _v2 를 지운다'; fail=1
+  fi
+fi
+if command -v python3 >/dev/null 2>&1; then
+  _sb=$(python3 scripts/audit/build-submission-txt.py --check 2>&1) && printf '%s\n' "$_sb" \
+    || { printf '%s\n' "$_sb"; fail=1; }
+else echo 'skip build-submission-txt (python3 없음)'; fi
+if command -v python3 >/dev/null 2>&1; then
+  _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
+    || { printf '%s\n' "$_ad"; fail=1; }
+else echo 'skip application-decisions (python3 없음)'; fi
 # ★★[CSS_COMMENT_NEST 2026-09-06 실기기 제보 "플레이버튼 전에꺼가더 좋왔던거같은데"]
 #   CSS 주석은 중첩되지 않는다. 주석 안에서 다시 열면 «첫» 닫는 표시가 바깥까지 함께 닫고,
 #   그 뒤 설명문이 CSS 로 읽힌다. 파서는 회복하려고 다음 { } 블록 하나를 통째로 삼킨다.
@@ -7024,6 +7152,31 @@ chk 'VOICE_CHANGED' scripts/assemble-narration.mjs 1
 #   ★낭독 전용 줄(장 번호·여는 말·맺음)은 «모양»으로 가른다. 문장을 베껴 적으면 이 검사가 또 한 벌이 된다.
 chk 'LETTER_MIRROR' scripts/audit/letter-mirror.mjs 3
 
+# ★★[LETTER_BOTH 2026-09-19 사장님 결정 — 갈래 1 「소리를 화면에 맞춘다」]
+#   위 검사가 «초록인 채로» 편지가 갈려 있었다. 한 방향(소리 → 화면)만 봤기 때문이다.
+#   그 구멍으로 둘이 샜다: ⓐ화면에만 있던 문단 둘(7문장) ⓑ장 차례 뒤바뀜.
+#   ⓐ는 하필 첫 장 앞머리라 «듣기를 누르면 시작하자마자» 통째로 건너뛰어졌고,
+#   재생바는 이미 「편지를 읽어 드려요」라고 약속하고 있었다 — 부분만 읽는 길은 이 페이지에 없다.
+#   ⓑ는 화면이 나중이다(PAR_ORDER 2026-09-12). 글은 눈이 건너뛰지만 소리는 순서대로만 온다.
+#   ★그래서 양방향 + 장 차례로 넓혔다. 되돌리지 말 것.
+chk 'LETTER_BOTH' scripts/audit/letter-mirror.mjs 2
+
+# ★★[LETTER_PENDING] 녹음은 사람이 밖에서 받아 온다 — 결정과 소리 사이에 늘 시차가 있다.
+#   그 시차를 빨강으로 두면 사람이 곧 검사를 무시하고, 초록으로 두면 그대로 잊힌다.
+#   그래서 셋째 자리(대기)를 두고, 대기함에 적힌 것만 통과시킨다.
+#   ★대기함은 스스로 청소된다 — 적어 둔 것이 이미 소리에 있으면 «목록이 낡았다»고 막는다.
+#   ★대기 파일을 지우면 느슨해지는 게 아니라 엄격해진다(실측: 지우면 rc=1).
+chk 'LETTER_PENDING' scripts/audit/letter-mirror.mjs 1
+chk 'pending_sents' 'docs/plans/식순연구/parents-letter-대기.json' 1
+
+# ★★[PAR_RERECORD] 다시 받을 문장을 손으로 적지 않는다 — 적는 순간 «세 번째 벌»이 생긴다.
+#   실제로 이 건의 지시문 두 벌이 재녹음 수를 7과 9로 다르게 적고 있었다(2026-09-19).
+#   ★9가 맞다. 장 번호는 번호와 제목이 «한 문장»이라(「하나, 인원을 절제하는 이유.」)
+#     차례를 바꾸면 그 두 자리의 글이 바뀐다 → 창고 규칙 [SRC_STALE] 로 다시 받아야 한다.
+#     글자 수는 31 → 31 로 같아 길이는 안 변한다 — 늘어나는 36초는 온전히 새 7문장 몫이다.
+chk 'PAR_RERECORD' scripts/make-parents-rerecord.mjs 3
+chk '우성: 하나, 갖출 것은 갖춘 예식' 'docs/plans/식순연구/타입캐스트/재더빙_혼주편지_20260919.txt' 1
+
 # ★★[SENT_LIB 2026-09-13 사장님 「보수하기쉽게셋팅해 여러번 한문장씩수정하는부분들이 있을거야」]
 #   문장 «한 자리»의 받은 그대로를 창고(assets/audio/_src)에 둔다. 고친 문장만 갈아 끼워 클립을 다시 붙인다.
 #   ★원본 문장 wav 가 «0개»여서, 4문장 중 한 줄만 고쳐도 클립을 통째로 다시 받아야 했다
@@ -7183,6 +7336,10 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
   || { echo 'FAIL letter-mirror: 어른께 드리는 편지의 화면과 소리가 갈렸습니다 — node scripts/audit/letter-mirror.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/make-parents-rerecord.mjs --check >/dev/null 2>&1 \
+  || { echo 'FAIL make-parents-rerecord: 화면 문안과 녹음 대기함이 어긋났습니다 — node scripts/make-parents-rerecord.mjs --check'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/no-tradition.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL no-tradition: 전통 절차가 고객이 읽는 글에 다시 나타났습니다 — node scripts/audit/no-tradition.mjs'; fail=1; }; fi
 # ★★[NOT_RUDE] 「오시지 못하는 분이 결례가 되지 않도록」 — 못 오신 분이 결례의 주체로 읽힌다.
 #   어른께 드리는 편지에서 가장 조심할 자리다. 주어를 우리 쪽으로 돌렸다. 되돌리지 말 것.
 nochk '결례가 되지 않도록' parents.html
@@ -8232,8 +8389,9 @@ chk '그 자리의 글이 한 글자까지 같을 때만' scripts/build-listen-t
 #   되살아나면 안 되는 것은 «결정» 쪽이다: 차례와 폐백 삭제.
 chk 'PARENTS_B' scripts/apply-parents-b.mjs 2
 chk 'PAR_PYEBAEK_OUT' scripts/apply-parents-b.mjs 3
-chk 'PAR_PYEBAEK_OUT' parents.html 1
-nochk '별도의 폐백 순서는 두지 않습니다' parents.html
+# ★parents.html 쪽 마커·nochk 는 뺐다 — 그 파일은 main 의 PAR_NO_TRADITION 판을 취했다.
+#   내 PAR_PYEBAEK_OUT 은 이제 «낭독 대본에서 뺀 것»만 가리킨다(apply-parents-b.mjs).
+nochk '별도의 폐백 순서는 두지 않습니다' scripts/build-dubbing-script.mjs
 # ★[NO_BOOKING_HELP 2026-09-19 사용자 「예약 관련 우리가 도움을 주는 건 없어」] 여덟 자리를 한 번에 고쳤다.
 #   되살아나면 «우리가 안 하는 일»을 약속하는 문구가 된다 — 고객이 기다리다 예약을 못 하는 사고가 난다.
 chk 'NO_BOOKING_HELP' scripts/apply-no-booking-help.mjs 1
@@ -8241,3 +8399,8 @@ nochk '대신 움직입니다' index.html
 nochk '대신 움직입니다' parents.html
 nochk '디렉터가 도와드립니다' index.html
 nochk '디렉터에게 요청' mypage.html
+
+# ★[ALREADY_DONE] apply 스크립트가 «이미 되어 있는 자리»를 실패로 세지 않게 한 장치.
+#   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.
+#   그걸 틀림으로 세면 «반만 고친 판»을 막으려던 가드가 거꾸로 «전부 못 고치게» 막는다.
+chk 'ALREADY_DONE' scripts/apply-no-booking-help.mjs 1

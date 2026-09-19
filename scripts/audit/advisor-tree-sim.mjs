@@ -96,8 +96,8 @@ console.log('\n══ ② 챗봇 답 vs 홈 화면 숫자 ══');
   /* 화면에 있는 값만 말해야 한다. 값이 갈리면 어느 쪽이 맞는지는 사람이 정할 문제 → 여기선 «갈렸다»를 잡는다 */
   const MUST = [
     ['330만', '주말·공휴일 올인원'], ['250만', '평일 올인원'],
-    ['25명', '착석 상한'], ['2.5~4만', '인근 식당 1인 [FAQ_DINE_BAND]'],
-    ['60~100만', '25명 환산 [FAQ_DINE_BAND]'],
+    ['30명', '전원 착석 상한 [SEATED30]'], ['2.5~4만', '인근 식당 1인 [FAQ_DINE_BAND]'],
+    ['75~120만', '30명 환산 [FAQ_DINE_BAND]'],
   ];
   for (const [num, what] of MUST) {
     const inKb = all.includes(num), inSite = html.includes(num);
@@ -147,7 +147,7 @@ console.log('\n══ ③ 위젯을 열어 실제로 눌러 본다 ══');
   else {
     ok('눌러 들어간 경로: ' + trail.steps.join(' › '));
     /2\.5~4만/.test(trail.last) ? ok('화면에 뜬 답에 «1인 2.5~4만» 이 있다 [FAQ_DINE_BAND]') : no('화면 답에 가격대가 없다: ' + trail.last.slice(0, 90));
-    /60~100만/.test(trail.last) ? ok('화면에 뜬 답에 «25명 약 60~100만» 이 있다') : no('화면 답에 25명 환산이 없다');
+    /75~120만/.test(trail.last) ? ok('화면에 뜬 답에 «30명 약 75~120만» 이 있다') : no('화면 답에 30명 환산이 없다');
     !/—/.test(trail.last) ? ok('화면에 뜬 답에 전각 줄표 없음') : no('화면 답에 전각 줄표');
   }
 }

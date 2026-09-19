@@ -1394,7 +1394,17 @@ function _balanceExtraInfo(r) {
     out.finalDone = true;
     var f = d.finalDraft || {};
     out.standing = Number(f.standing) || 0;
-    out.amount = Math.max(0, Number(f.extraFee) || 0);
+    /* ★[STALE_EXTRA_FEE 2026-09-19 점검] 저장된 extraFee 를 그대로 믿으면 안 된다.
+       확정 시점의 단가가 셀에 박혀 있어서, 2026-09-19 대표 지시로 초과단가를 50,000 → 0 으로
+       내린 뒤에도 «그 전에 확정한» 고객은 잔금에 15만 원이 계속 붙었다(하객 28명 실측:
+       잔금 1,050,000 이어야 하는데 1,200,000). 홈페이지·계약서는 「30명까지 추가금 없음」인데
+       청구만 옛 단가였다 — 표시·광고와 실청구가 갈리는, 이번 변경이 막으려던 바로 그 사고다.
+       그래서 «현행 단가로 다시 센 값»을 상한으로 쓴다. 단가를 되살리면 그때부터 다시 청구된다.
+       ★내리기만 한다(Math.min) — 저장값보다 올려 받는 일은 어떤 경우에도 없어야 한다. */
+    var _unit = (typeof FINAL_CONFIRM !== 'undefined' && FINAL_CONFIRM && FINAL_CONFIRM.초과단가 != null)
+      ? (Number(FINAL_CONFIRM.초과단가) || 0) : null;
+    var _stored = Math.max(0, Number(f.extraFee) || 0);
+    out.amount = (_unit === null) ? _stored : Math.min(_stored, out.standing * _unit);
   } catch (e) {}
   return out;
 }

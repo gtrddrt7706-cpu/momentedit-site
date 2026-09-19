@@ -98,11 +98,23 @@ function _ensureProductionBase(cust, prodDraft, invDraft) {
   return prodDraft.base;
 }
 
-// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(착석 25 · 초과는 스탠딩 1인 50,000원 · 최대 30명)
+// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(서른 분 전원 착석 · 최대 30명 · ★추가금 없음)
 // ★단일 출처는 여기(실청구·검증). 값 변경 시 아래 5곳의 문구·상수도 반드시 함께 동기화(놓치면 계약서·안내와 청구액이 충돌):
 //   ① mypage.html MP_FINAL_POLICY(표시 기본값 · 서버 finalPolicy가 덮음) ② contract/v1-1.html 8조 법문구(고객이 서명하는 문서)
 //   ③ inquiry.html 안내문+인원 검증(30명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
-var FINAL_CONFIRM = { 착석: 25, 최대: 30, 초과단가: 50000 };
+var FINAL_CONFIRM = { 착석: 30, 최대: 30, 초과단가: 0 };
+//   ★[SEATED30] 착석 25 → 30 · 스탠딩 폐지 (2026-09-13 대표 지시 검토38 "서른 분까지 앉아서 식을 볼 수 있게 할 거야").
+//     되살리지 말 것 — 근거가 셋이다:
+//       ①우리 좌석 편집기가 이미 30석을 그린다(mypage.html autoSeatTables `[SEAT_PER5]` 6테이블×5석 =30,
+//         2026-09-14 대표 확인 "5명이 맞다"). 「스탠딩 5」는 **우리 자신의 좌석표와 모순**이었다.
+//       ②제출한 신청서 Q3-2 가 「서른 분 모두 앉아서 식을 보실 수 있게 자리를 놓습니다」라고 적었다.
+//       ③대표결정_반영대장.tsv 에 MUST 두 줄(검토6·검토38)로 있고, 체크리스트에 미완료로 남아 있었다.
+//     ★2026-09-19 점검에서 드러난 사고 — 이 지시가 9/13 에 나왔는데 코드에 안 내려온 사이,
+//       내가 같은 자리를 「착석 25 + 스탠딩 5, 추가금 0」으로 고쳐 **폐지된 개념을 계약서에 되살렸다**
+//       (제거 지시 보존 규칙 위반). 지시는 문서에만 있으면 죽는다 — 그래서 guest-cap-truth 게이트에 건다.
+//   ★초과단가 50000 → 0 (2026-09-19 대표 지시 "30명 추가금없음"). 착석 30이면 standing 이 늘 0 이라
+//     단가는 이제 아무 데도 안 곱해지지만, 상수는 남긴다 — 되살릴 때 곱할 자리가 있어야 하고
+//     balance-sim 이 그 배선을 unitOn() 으로 계속 검증한다.
 
 // ══ [PROD_COL_SPLIT 2026-07-25 · Wave 4 PR-B] 제작 데이터 = 트랙별 컬럼 + 메타 컬럼 ══
 //   왜: 단일 셀(제작임시저장) 시절엔 한 트랙이 셀 한도(5만)를 밀어올리면 그 고객의 '모든' 트랙 저장이 마비됐다.
@@ -410,6 +422,7 @@ function handleSaveProductionTrack(body) {
       if (!String(fdr.drink || '').trim()) return { ok: false, error: '건배·웰컴 음료를 골라 주세요.' };
     }
     fdr.headcount = _h ? String(_h) : '';
+    // [GUEST30_NOFEE] 스탠딩은 세되 요금은 0 — 좌석 배치에 스탠딩 수가 필요하다
     fdr.standing = Math.max(0, Math.min(_h, FINAL_CONFIRM.최대) - FINAL_CONFIRM.착석);
     fdr.extraFee = fdr.standing * FINAL_CONFIRM.초과단가;
     if (String(fdr.drink || '').indexOf('논알콜') === 0) fdr.softCount = '';   // 전원 논알콜이면 잔 수 구분 무의미
@@ -571,7 +584,8 @@ function handleSaveProductionTrack(body) {
          ★시트에 이력 배열을 새로 만들지는 않는다 — 제작 메타는 셀 한도가 걸려 있어(_prodSizeError) 커지면
            저장 자체가 막힌다. 되짚을 곳은 처리이력·메일 둘로 충분하다. */
       var _cLine = '예식 확인서 확정 · ' + code + ' · 하객 ' + (String(_fd.headcount || '-')) + '명'
-        + ((Number(_fd.standing) || 0) > 0 ? (' · 스탠딩 ' + _fd.standing + '명 · 추가 ' + (Number(_fd.extraFee) || 0).toLocaleString() + '원') : '')
+        /* GUEST30_NOFEE — 초과단가 0 이면 스탠딩이 있어도 청구가 없다. 돈 문장만 extraFee 로 가른다(위 주석 참조) */
+        + ((Number(_fd.standing) || 0) > 0 ? (' · 스탠딩 ' + _fd.standing + '명' + ((Number(_fd.extraFee) || 0) > 0 ? (' · 추가 ' + Number(_fd.extraFee).toLocaleString() + '원') : ' · 추가 요금 없음')) : '')
         + (_fd.drink ? (' · ' + _fd.drink) : '') + ' · 식순 ' + (String((_rd.summary || {}).course || '-')) + ' 코스'
         + ' · 좌석 ' + _tc + '테이블 ' + _pn + '명 · ' + d.confirm.at;
       try { if (typeof _recordHandler === 'function') _recordHandler(code, '예식 확인서 확정(하객 ' + (String(_fd.headcount || '-')) + '명)'); } catch (e) {}

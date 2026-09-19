@@ -65,6 +65,12 @@ for (const [f, n, from, to] of E) {
   let src;
   try { src = fs.readFileSync(P(f), 'utf8'); } catch (e) { console.log(`✗ ${f} 를 못 읽었다`); bad++; continue; }
   const got = src.split(from).length - 1;
+  /* ★[ALREADY_DONE] 이미 고쳐진 자리는 «틀림»이 아니다.
+     병렬 세션이 같은 파일을 건드려 main 을 합친 뒤 다시 돌릴 일이 생긴다. 그때 옛 문구가 0개인 것은
+     정상이고, 새 문구가 제 개수만큼 있으면 그 자리는 끝난 것이다. 그걸 실패로 세면 «반만 고친 판»을
+     막으려던 가드가 거꾸로 «전부 못 고치게» 막는다. */
+  /* ★지우는 자리(to 가 빈 문자열)는 «옛 문구가 0개»인 것 자체가 끝난 증거다 */
+  if (got === 0 && (to === '' || (src.split(to).length - 1) >= n)) { console.log(`ok ${f} — 이미 되어 있음(${n}자리)`); continue; }
   if (got !== n) { console.log(`✗ ${f} — 「${from.slice(0, 34)}…」 ${n}개를 바랐는데 ${got}개다`); bad++; continue; }
   plan.push([f, from, to, n]);
   console.log(`ok ${f} — ${n}자리`);
