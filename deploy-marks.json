@@ -500,6 +500,18 @@
    "fn": "handleSaveProductionTrack",
    "mark": "GUEST30_NOFEE",
    "why": "하객 30명까지 추가금 없음 — FINAL_CONFIRM.초과단가 0(2026-09-19 대표 지시). 옛 판이 배포돼 있으면 1인 5만 원이 계속 청구된다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminText",
+   "mark": "ADMIN_NOFEE_LINE",
+   "why": "관리자 알림에서 «추가 0원 잔금 합산 청구» 제거 — 초과단가 0 이면 돈 문장을 끈다. 옛 판이 배포돼 있으면 운영자가 없는 요금을 잔금에 더할 수 있다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_balanceExtraInfo",
+   "mark": "STALE_EXTRA_FEE",
+   "why": "저장된 extraFee 를 현행 단가로 상한 — 정책 변경 전에 확정한 고객이 잔금에서 15만 원을 더 내던 것을 막는다(하객 28명 실측 1,200,000→1,050,000). 옛 판이 배포돼 있으면 그 청구가 계속된다"
   }
  ],
  "fns": {
@@ -1326,9 +1338,10 @@
   {
    "file": "ScreenA_apply",
    "marks": [
-    "BUSY_ONE"
+    "BUSY_ONE",
+    "SEATED30"
    ],
-   "bytes": 141212
+   "bytes": 141169
   },
   {
    "file": "ScreenB_schedule",
@@ -1345,7 +1358,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-19 03:56 · c50a2fe9",
+ "_생성": "2026-09-19 05:33 · e6542f49",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1724,8 +1737,8 @@
   {
    "kind": "gas",
    "expr": "FINAL_CONFIRM.착석",
-   "eq": 25,
-   "why": "착석 정원 25명 — 스탠딩 5명 산출의 기준",
+   "eq": 30,
+   "why": "서른 분 전원 착석 — 2026-09-13 대표 지시(검토38). 25 로 되돌아가면 계약서·신청서·좌석 편집기(6테이블×5석=30)와 모두 어긋난다",
    "file": "80_production"
   },
   {

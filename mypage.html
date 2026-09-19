@@ -7202,7 +7202,9 @@ function prodConfirmHtml(p, inv){
     var _P=(typeof MP_FINAL_POLICY!=='undefined')?MP_FINAL_POLICY:{seats:25,unit:0};
     var _hn=_fHas?String(fd.headcount):String(_named);
     var _stn=_fHas?(Number(fd.standing)||0):Math.max(0,_named-_P.seats);
-    var _fee=_fHas?(Number(fd.extraFee)||0):(_stn*_P.unit);
+    /* [STALE_EXTRA_FEE] 저장된 extraFee 는 «확정 시점» 단가다 — 현행 단가로 상한한다(서버와 같은 규칙).
+       내리기만 한다: 저장값보다 올려 보여 주는 일은 없어야 한다. */
+    var _fee=_fHas?Math.min(Number(fd.extraFee)||0,_stn*(Number(_P.unit)||0)):(_stn*_P.unit);
     fv='하객 '+escapeHtml(_hn)+'명'+(_stn>0?(' · 스탠딩 '+_stn+'명'+(_fee>0?(' · <b style="color:var(--seal)">추가 '+_fee.toLocaleString()+'원</b>(잔금과 함께)'):' · 추가 요금 없이')):'');
     /* ★★[CF_DRINK_ONE 2026-08-16 사용자 지시 "너가 직접보면서 확인점검해봐" — 눈으로 보고 잡았다]
        음료 집계가 **두 줄에 각각** 있었다. 병렬 세션 둘이 같은 것을 같은 날 서로 다른 자리에 넣었고
@@ -7504,7 +7506,11 @@ function commitSeatEdit(box){ _seatWriteEdit(box); if(SEATFLOW.edit) SEATFLOW._e
 // [최종 확정 = 좌석 화면 통합 · 별도 인원/대표음료 입력 폐지 2026-07-19 사용자 지시: "고르고 인원 정하는 탭 전부 제거 · 자리 클릭하면 3가지 음료가 나오게"]
 //   ★별도 인원 입력·대표음료 칩·상단 seat-ftop 블록 복원 금지 — 인원=이름 있는 자리 수로 자동 계산 · 음료=자리별 3선택(샴페인/레드와인/논알콜 스파클링).
 function _seatNamedCount(){ var n=0; if(SEATFLOW&&SEATFLOW.tables) SEATFLOW.tables.forEach(function(t){ (t.seats||[]).forEach(function(v){ if(String(v||'').trim()) n++; }); }); return n; }
-// 이름 있는 자리 수 → 착석/스탠딩/추가요금 안내(별도 인원 입력 대체). 25명 초과 시 경고색.
+/* 이름 있는 자리 수 → 착석 안내(별도 인원 입력 대체). 정원 초과 시 경고색.
+   ★[SEATED30] 정책이 「서른 분 전원 착석」(seats===max)이라 아래 스탠딩 갈래는 지금 **안 탄다** —
+     n>max 가 먼저 돌려보내기 때문이다. 지우지 않는 이유는 하나뿐이다: 정책을 되돌려 seats<max 가
+     되는 날 이 갈래가 다시 유일한 정답이 되고, 없으면 그때 초과 인원이 조용히 0원으로 찍힌다.
+     스탠딩 «문구»를 고객 화면에 새로 쓰지는 말 것(2026-09-13 대표 지시로 폐지된 개념이다). */
 function _seatFeeHtml(n){
   var P=MP_FINAL_POLICY;
   n=Number(n); if(!isFinite(n)||n<0) n=0;   // 화면에 Infinity·NaN 이 찍히지 않게(퍼즈로 잡음)
@@ -7854,7 +7860,7 @@ function bindSeat(box){
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
 var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, final:{ label:'좌석 · 음료', steps:3 } };   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
-var MP_FINAL_POLICY = { seats:25, max:30, unit:0 };   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
+var MP_FINAL_POLICY = { seats:30, max:30, unit:0 };   // [SEATED30] 서른 분 전원 착석(2026-09-13 검토38) — seats 를 25 로 되돌리지 말 것   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   bkKill(INVFLOW); INVFLOW.active=false;                          // 한 번에 하나의 위저드만(렌더 가드는 INVFLOW 우선) · 남은 뒤로가기 층 정리
