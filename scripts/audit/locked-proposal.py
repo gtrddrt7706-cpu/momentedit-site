@@ -13,12 +13,19 @@
 import json, re, glob, sys, io
 
 GATE = io.open('automation/tests/merge-guard.sh', encoding='utf-8').read()
-TARGET = 'assets/ritual-data.js'          # 문안의 원천 한 벌만 본다(나머지 둘은 copy-three 가 맞춘다)
+# ★★[TARGET_FOUR 2026-09-20] 한 파일만 보다 놓쳤다. 07w#1 「오늘 오신 분들은…」 은
+#   `배역_예시_대사.txt` 를 겨눈 chk 가 지키고 있어서 이 검사를 그냥 통과했다.
+#   문안은 네 곳에 산다([SRC_FOUR]) — 게이트가 어디를 겨누든 제안은 같은 말을 친다.
+TARGETS = ['assets/ritual-data.js', 'assets/ritual-cue.js', 'order-preview.html',
+           'docs/plans/식순연구/배역_예시_대사.txt', 'scripts/build-dubbing-script.mjs']
 
 def rules(kind):
     # chk '문자열' 파일 N   /   nochk '문자열' 파일
-    pat = r"^%s\s+(['\"])(.+?)\1\s+'?%s'?(?:\s+(\d+))?\s*(?:#.*)?$" % (kind, re.escape(TARGET))
-    return [(m.group(2), m.group(3)) for m in re.finditer(pat, GATE, re.M)]
+    out = []
+    for t in TARGETS:
+        pat = r"^%s\s+(['\"])(.+?)\1\s+'?%s'?(?:\s+(\d+))?\s*(?:#.*)?$" % (kind, re.escape(t))
+        out += [(m.group(2), m.group(3)) for m in re.finditer(pat, GATE, re.M)]
+    return out
 
 NO  = [s for s, _ in rules('nochk')]
 YES = [(s, int(n or 1)) for s, n in rules('chk') if (n or '1') != '0']

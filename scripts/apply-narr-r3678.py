@@ -47,6 +47,27 @@ OVERRIDE = {
               '「디지털 참석」은 상품 용어다(위 실측). 빼면 혼주가 그게 무엇인지 모른다.'),
 }
 
+# ★★[CLIP_CTX 2026-09-20] 문장만 보고 고치면 «다른 클립»을 친다. 실제로 세 번 갈렸다:
+#   · old ⊂ new  — 이미 고친 자리를 또 쳐서 「잠시, 잠시, 서로를…」이 된다
+#   · new ⊂ old  — 줄이는 수정이 통째로 «이미 있음»으로 샌다(07w#1 이 그렇게 빠졌다)
+#   · old 가 **남의 클립**에 있다 — 「두 사람이 섰습니다」는 79 에 없고 케이크 클립에만 4곳 있었다.
+#     그대로 갔으면 「케이크 앞에 두 사람이 «나란히 있습니다»」가 됐다([SLUG_NOT_KEY] 의 문장판이다).
+#   ★그래서 «그 클립의 지금 문면»을 manifest 에서 읽어, 거기 old 가 있을 때만 고친다.
+_M = json.loads(io.open('docs/plans/식순연구/타입캐스트/manifest.json', encoding='utf-8').read())
+_ALIAS = {'10b':'10','11b':'11','12b':'12','13b':'13','14b':'14','27b':'27','06w':'06','07w':'07',
+          '19c':'19','21c':'21','22c':'22','01a':'01','02a':'02','03a':'03','04a':'04',
+          '01c':'01','02c':'02','03c':'03','04c':'04'}
+# ★문장을 «통째로 이어 붙이면» 부분 문자열 함정이 그대로 돌아온다
+#   (「서로를 바라봐 주세요」 ⊂ 「잠시, 서로를 바라봐 주세요」). manifest 는 이미 **문장 배열**을 갖고 있으니
+#   이어 붙이지 말고 **한 문장씩 정확히** 맞댄다. 그러면 세 함정이 한꺼번에 사라진다.
+_norm = lambda t: re.sub(r'\s+', ' ', t or '').strip()
+_CLIP = {}
+for _c in _M['clips']:
+    _CLIP.setdefault(_c['no'].lstrip('0') or '0', []).extend(_norm(x['text']) for x in _c['sents'])
+def clip_now(no):
+    k = _ALIAS.get(no, no)
+    return _CLIP.get(k.lstrip('0') or '0', [])
+
 srcs = {f: io.open(f, encoding='utf-8').read() for f in FILES}
 orig = dict(srcs)
 syl = lambda s: len(re.findall(r'[가-힣]', s))
@@ -64,12 +85,19 @@ for f in sorted(glob.glob('scripts/audit/copycheck/round[0-9].json')):
                 new = OVERRIDE[k][0]
             if old == new or not old.strip():
                 continue
-            # ★★[SUB_TRAP] «이미 들어갔나»를 **먼저** 본다. old 가 new 의 부분 문자열이면
-            #   (「서로를 바라봐 주세요」 ⊂ 「잠시, 서로를 바라봐 주세요」) 이미 고친 자리가 다시 잡혀
-            #   「잠시, 잠시, 서로를…」이 된다. 드라이런에서 13곳이 그렇게 걸렸다.
-            if new.strip() and any(new in srcs[f2] for f2 in FILES):
-                skip.append((c['no'], s['i'], new)); continue
+            # ★★[SUB_TRAP] 한쪽만 보면 반드시 한쪽이 샌다. **둘 다** 부분 문자열일 수 있다.
+            #   · old ⊂ new  「서로를 바라봐 주세요」 ⊂ 「잠시, 서로를 바라봐 주세요」
+            #       → new 만 보면 되지만, old 로 판정하면 이미 고친 자리가 또 잡혀 「잠시, 잠시, …」가 된다
+            #   · new ⊂ old  「오신 분들은 …」 ⊂ 「오늘 오신 분들은 …」  ← **문장을 줄이는 수정 전부**
+            #       → new 만 보면 «이미 있다»로 건너뛴다. 07w#1 이 그렇게 조용히 빠졌다.
+            #   ★그래서 판정은 **old 의 존재가 우선**이고, 「이미 적용」은 old ⊂ new 일 때만이다.
+            #   ★첫 판은 new 쪽만 봤다. 한 방향을 막고 다 막았다고 여긴 것이 이 사고의 전부다.
+            now = clip_now(c['no'])
             hits = sum(srcs[f2].count(old) for f2 in FILES)
+            if _norm(old) not in now:           # ★그 «클립»에 옛 문면이 없다 — 남의 클립을 치지 않는다
+                if new.strip() and _norm(new) in now: skip.append((c['no'], s['i'], new))
+                else:                                 unknown.append((c['no'], s['i'], old, new))
+                continue
             if hits == 0:
                 unknown.append((c['no'], s['i'], old, new)); continue
             # ★문장 «삭제» 제안(new 가 빈 칸)은 치환이 아니다 — 붙어 있는 공백까지 함께 걷어낸다.
