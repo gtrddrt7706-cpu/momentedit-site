@@ -200,6 +200,33 @@ if (uncovered.length) {
   process.exit(1);
 }
 
+/* ★[LIST_AGE 2026-09-20] 목록의 «만든 때»가 실제 내용보다 낡으면 안 된다.
+   사장님이 돌린 contractCheck 가 「목록이 최신입니다 (1일 전 · 2026-09-19)」라고 답했는데,
+   그 목록에는 그날(9/20) 넣은 SIG_STRICT 가 이미 들어 있었다 — 내용은 오늘 것인데 나이는 어제라고 말한 것이다.
+   원인: `_생성` 은 생성기가 fns/vars 가 바뀔 때만 갱신한다. marks 만 손으로 더하면 그대로 남는다.
+   ★위험한 쪽은 반대 방향이다 — 목록이 진짜 낡았는데 다른 이유로 `_생성` 만 새것이면
+     contractCheck 가 「최신」이라고 안심시킨다. 나이 지표가 나이를 안 재는 것이다([NOT_THE_SOURCE]).
+   그래서 여기서 «가장 최근 GAS 커밋 날짜»와 맞대 본다. 목록이 더 오래됐으면 빨강. */
+{
+  const made = String((JSON.parse(checkSrc)['_생성']) || '').slice(0, 10);
+  let newest = '';
+  try {
+    newest = execSync("git log -1 --format=%ad --date=short -- 'automation/**/*.gs' 'automation/**/*.html'",
+      { encoding: 'utf8' }).trim();
+  } catch (e) { newest = ''; }
+  if (!made) {
+    console.log('❌ [LIST_AGE] deploy-marks.json 에 _생성 이 없다 — contractCheck 가 목록 나이를 못 잰다');
+    process.exit(1);
+  }
+  if (newest && made < newest) {
+    console.log(`❌ [LIST_AGE] 목록의 _생성(${made}) 이 가장 최근 GAS 변경(${newest}) 보다 낡았다.`);
+    console.log('   contractCheck 가 「목록이 최신입니다」라고 말해도 그 말은 그만큼만 믿을 수 있다.');
+    console.log('   고치는 법 — deploy-marks.json 의 _생성 을 오늘 날짜 + 현재 sha 로 갱신한다(들여쓰기 1 유지).');
+    process.exit(1);
+  }
+  console.log(`  목록 나이 ok — _생성 ${made} · 최근 GAS 변경 ${newest || '(없음)'}`);
+}
+
 console.log(`최근 ${DAYS}일 GAS 표식 ${alive.length}개 · 점검 목록에 있는 것 ${alive.length - missing.length}개`);
 if (!missing.length) { console.log('✅ 빠진 표식 없음 — deploy-marks.json 이 최근 변경을 전부 덮는다.'); process.exit(0); }
 console.log(`❌ 점검 목록에 없는 표식 ${missing.length}개 — 이 변경들은 «옛 코드인 채로도» 통과한다:`);

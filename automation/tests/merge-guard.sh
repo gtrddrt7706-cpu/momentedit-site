@@ -7481,6 +7481,14 @@ fi
 # 탐지기는 .claude/settings.json 의 Stop 훅으로 매 턴 끝에 돈다 — 여기선 «지워지지 않았는지»만 지킨다.
 [ -x scripts/audit/stale-waiters.sh ] || { echo 'REVERT? stale-waiters.sh 가 없거나 실행권한이 없다 — 찌꺼기 탐지가 꺼진다'; fail=1; }
 grep -q 'stale-waiters' .claude/settings.json 2>/dev/null || { echo 'REVERT? .claude/settings.json 에서 STALE_WAIT 훅 배선이 사라졌다'; fail=1; }
+# ── [LIST_AGE] 목록 «나이»가 나이를 안 재고 있었다 (2026-09-20 · 사장님이 돌린 점검에서 드러남) ──
+# contractCheck 가 「목록이 최신입니다 (1일 전 · 2026-09-19)」라고 답했는데,
+#   그 목록에는 그날(9/20) 넣은 SIG_STRICT 가 이미 들어 있었다 — 내용은 오늘 것인데 나이는 어제라고 말했다.
+#   원인: `_생성` 은 생성기가 fns/vars 가 바뀔 때만 갱신한다. marks 만 손으로 더하면 그대로 남는다.
+# ★위험한 쪽은 반대다 — 목록이 진짜 낡았는데 다른 이유로 `_생성` 만 새것이면 「최신」이라고 안심시킨다.
+#   deploycheck-coverage 가 «가장 최근 GAS 커밋 날짜»와 맞대 본다(merge-guard 가 그걸 실행한다).
+# ★깨 보고 믿었다 — 날짜 되돌리기 · _생성 삭제, 둘 다 빨강. 원복 후 초록.
+chk 'LIST_AGE' scripts/audit/deploycheck-coverage.mjs 1
 chk 'STALE_WAIT' scripts/audit/stale-waiters.sh 1
 chk 'STALE_WAIT' CLAUDE.md 1                      # 왜 만들었는지가 사라지면 다음 세션이 또 만든다
 chk 'SIG_NODE' scripts/audit/sign-node.mjs 1
