@@ -7647,6 +7647,21 @@ chk 'SUB_TRAP' scripts/apply-narr-r3678.py 1
 # ★★[GATE_LOCK_EXPORT] 위 검사의 «코워크 쪽 판»이 읽는 tsv 를 뽑는 자리.
 #   손으로 추리면 그때마다 빠진다 — 실제로 경로 따옴표 한 꼴을 안 잡아 63줄이 통째로 샜다([PATH_QUOTED]).
 chk 'GATE_LOCK_EXPORT' scripts/audit/export-gate-locks.py 1
+# ★★[TONE_TEXT_GATE] 위 [LOCKED_PROPOSAL] 의 **반대쪽** — 받기로 한 문면이 정말 들어갔는가.
+#   열여덟 건이 통째로 샜다. 「넣었습니다」를 아무도 확인하지 않았고, 그 사이 [ENTRY_PROMOTE] 가
+#   **고치기 전 문면을 기본값으로 승격**시켰다. 사람이 확인하는 자리는 언젠가 빈다.
+chk 'TONE_TEXT_GATE' scripts/audit/tone-text-applied.py 1
+# ★★[CUE_ORDER_TEXT] 코워크가 «식순»을 손으로 지어내고 있었다. 그 위에 세운 판정이 흔들린다 —
+#   실측하니 둘이 **사실과 반대**였다(63→65 차례 · 22번이 서약 «전»). 순서는 엔진에서 뽑아 보낸다.
+chk 'CUE_ORDER_TEXT' scripts/audit/cue-order-text.mjs 1
+chk 'ENGINE_CALLS' scripts/audit/cue-order-text.mjs 1
+chk 'SPOT_NOT_BLOB' scripts/audit/tone-text-applied.py 1
+chk 'PARSE_ZERO' scripts/audit/tone-text-applied.py 2
+chk 'TONE_TEXT_APPLY' scripts/apply-tone-text.py 1
+chk 'NO_SILENT_SKIP' scripts/apply-tone-text.py 2
+chk 'TONE_ARRAY' scripts/apply-tone-text.py 1
+if command -v python3 >/dev/null 2>&1; then python3 scripts/audit/tone-text-applied.py >/dev/null 2>&1 \
+  || { echo 'FAIL tone-text-applied: 코워크 문면이 저장소에 안 들어간 자리가 있다 — python3 scripts/audit/tone-text-applied.py'; fail=1; }; fi
 chk 'PATH_QUOTED' scripts/audit/export-gate-locks.py 1
 chk 'LOCK_SNAPSHOT' scripts/audit/export-gate-locks.py 1
 if command -v python3 >/dev/null 2>&1; then
