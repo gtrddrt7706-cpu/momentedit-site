@@ -3076,11 +3076,31 @@ chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
 #   로그인 뒤 제작 카드·좌석 캔버스·위저드·음료 시트는 한 번도 재지 않았다.
 #   실측 2026-08-10: index 못 잰 것 34+ · mypage 9+(잰 것보다 많다).
 #   ★실패로 세지 않는다 — 접힌 아코디언·닫힌 모달은 정당히 숨어 있다. 초록은 그대로다.
-# [RAIL_OVERLAP_OK 2026-08-10] 고정 아이콘 레일이 본문 위에 겹치는 것은 **의도된 것**이라는
-#   사용자 확인("계획된거야")과 그 실측(89줄)이 advisor-widget.js 에 적혀 있다. 지우지 말 것 —
-#   지우면 다음 세션이 같은 측정을 하고 같은 제안을 다시 들고 온다(이미 두 세션이 그랬다).
+# [RAIL_OVERLAP_OK 2026-08-10 · 2026-09-20 재확인] 고정 아이콘 레일이 본문 위에 겹치는 것은
+#   **의도된 것**이라는 확인("계획된거야" · "손대지마 따로 여백을 두지도마 의도된거야")과
+#   그 실측이 advisor-widget.js 에 적혀 있다. 지우지 말 것.
 chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1
 chk '계획된거야' assets/advisor-widget.js 1
+chk '따로 여백을 두지도마' assets/advisor-widget.js 1
+# ★★이 세 줄로는 **못 막았다.** 2026-09-20 에 네 번째로 되살아났다 — 주석도 chk 도 멀쩡한 채로.
+#   chk 는 «결정의 글»이 지워지는 것만 막는다. 그런데 되살린 경로는 글을 지우는 것이 아니라
+#   **index.html 을 렌더해서 다시 재는 것**이었고, 재는 사람은 advisor-widget.js 를 열지 않는다.
+#   게다가 docs/handoff/design-round.md §3 이 「다시 재라 · 선택지 3개를 내라」고 지시하고 있었다
+#   (§2-9 가 세 줄 위에서 「종결」이라 닫아 놓고). round-protocol.md §6 은 제목이 「보류」였다.
+#   → 문서 둘은 닫았고, «재는 자리»에 verdict 를 두는 검사를 새로 걸었다. 극성이 거꾸로다 —
+#     겹침이 **사라지면** 붉는다. 누가 본문에 오른쪽 여백을 줘서 «고치면» 그때 잡힌다.
+#   반증 확인(2026-09-20 · 실제로 넣어 보고 적는다): index.html 에 body{padding-right:34px} 를
+#   넣으니 **390px 가 붉고 종료 1** 이 됐다. 빼니 0. 통과만 하는 게이트가 아니다.
+#   ★320px 는 그 여백에도 초록이었다(겹침 44→27px) — 히어로 워드마크가 워낙 오른쪽까지 가서다.
+#     즉 이 검사는 «여백이 얼마든 잡는다»가 아니라 «본문이 레일 왼쪽으로 물러나면 잡는다»이다.
+#     처음에 나는 「320·390 이 붉었다」고 적었다가 실측을 보고 고쳤다 — 재지 않은 수를 적지 말 것.
+chk 'RAIL_OVERLAP_OK' scripts/audit/rail-overlap-intent.mjs 1
+chk 'OVERLAP_REQUIRED_UPTO' scripts/audit/rail-overlap-intent.mjs 1
+# 닫힌 문서 둘 — 「보류」·「다음 세션이 할 일」이 되돌아오면 같은 일이 다섯 번째로 일어난다
+chk 'RAIL_OVERLAP_OK' docs/handoff/design-round.md 1
+chk 'RAIL_OVERLAP_OK' docs/handoff/round-protocol.md 1
+nochk '## 2. 남은 것 — 우측 아이콘 레일' docs/handoff/design-round.md 0
+nochk '## 6. 【보류' docs/handoff/round-protocol.md 0
 # [CANT_LOOK 2026-08-10 코워크 제안 · 코드 세션 구현] 못 잰 것(2)과 재서 틀린 것(1)을 종료 코드로 가른다.
 #   코워크가 서버 없이 tap-targets 를 돌려 '✗ 겹침·작다 1건'을 보고 없는 결함을 고칠 뻔했다.
 #   실측 확인 — 통과 0 · 진짜 결함 1 · 서버 없음 2. 둘 다 0 이 아니라 게이트는 여전히 막는다.
