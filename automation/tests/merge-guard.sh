@@ -877,7 +877,11 @@ chk 'uptoName' assets/ritual-cue.js 3
 nochk '개 순서는 아직' console.html                    # ★수를 말하지 말 것 — 큐와 순서는 단위가 다르다
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
 chk 'entryOutBy' assets/ritual-data.js 1
-chk '두 사람이 나란히 있습니다' assets/ritual-data.js 1   # B 문안 — 갈래가 통째로 사라지면 붉어진다
+# ★[ENTRY_OUT_B_DROP 2026-09-20] B 문안 폐지 — 52(A) 「같은 자리에 두 사람이 있습니다」와 뜻이 같다.
+#   ★그냥 지우지 않고 nochk 로 뒤집는다 — «없어진 것»이 아니라 «지우기로 한 것»이다.
+#   ★갈래가 통째로 사라지는 사고는 이제 check-ritual-mirror 가 지킨다:
+#     「남은 갈래 + 일부러 뺀 것 = 6」. 숫자만 내리면 죽는 그물이라 그렇게 짰다.
+nochk '두 사람이 나란히 있습니다' assets/ritual-data.js
 # ★[NARR_B1 2026-09-20] 옛 열쇠는 '두 사람이 섰습니다' 였는데, 그 문장은 사장님이 실청에서
 #   「두사람이 나란히 있습니다」로 손수 고치신 자리다. 잠금이 그 수정을 막고 있었다 —
 #   문안만 고치면 grep 이 0이 되어 RED 였고, 원인을 못 찾으면 사장님 수정을 되돌리는 쪽으로 간다.
@@ -7673,6 +7677,18 @@ chk 'PICK_BACK_BUILD' scripts/build-pick-back.mjs 1
 #   44 가 그랬다 — 안내 목소리가 한 문장 나왔다 여섯 클립 뒤에 돌아왔다.
 #   저장소의 어떤 검사도 «큐 차례»와 «역할»을 함께 보지 않았다. 순서표가 생겨서 된다.
 chk 'VOICE_RUNS' scripts/check-voice-runs.mjs 1
+# ★[RETIRED_SLOT] 폐지한 클립의 «창고 자리»는 빨강이 아니다 — 자리를 남기는 것이 이 저장소 관례다.
+#   ★폐지 원천이 **두 곳**이라 한 곳만 보면 절반이 샌다:
+#     ritual-cue 의 RETIRED(나레이션) · build-typecast-import 의 CAST_HOLD(배역)
+chk 'RETIRED_SLOT' scripts/audit/sent-lib-check.mjs 2
+chk 'NEW_CLIP_NOSOUND' scripts/check-listen-cover.mjs 2
+chk 'TOAST_NONE' assets/ritual-cue.js 3
+chk 'TOAST_NONE' assets/ritual-story.js 1
+chk 'ENTRY_OUT_B_DROP' assets/ritual-cue.js 1
+chk 'OUT_DROPPED' scripts/check-ritual-mirror.js 3
+chk 'WELCOME_OUT_DROP' assets/ritual-cue.js 1
+chk 'narr-toast-none' assets/ritual-cue.js 3
+nochk "'15_toast'" assets/ritual-story.js
 chk 'VOICE_44_HOST' scripts/build-typecast-import.mjs 3
 if command -v node >/dev/null 2>&1; then node scripts/check-voice-runs.mjs >/dev/null 2>&1 \
   || { echo 'FAIL voice-runs: 혼자 끼어드는 목소리가 있다 — node scripts/check-voice-runs.mjs'; fail=1; }; fi
@@ -8426,7 +8442,11 @@ chk 'roundMid' assets/ritual-data.js 2
 #   지킬 것은 «절반쯤 왔다고 알려 주는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
 #   ★a606d699 가 문안만 고치고 이 줄을 안 옮겨 게이트가 하루 붉었다. 문안을 고치면 같은 커밋에서 여기도 고친다.
 chk '두 분이 절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
-chk 'N_FILES = 86' scripts/check-ritual-cue.js 1
+# ★[TOAST_NONE 2026-09-20] 87_narr-toast-none 이 FILES 맨 끝에 붙어 86 → 87.
+#   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
+#     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
+chk 'N_FILES = 87' scripts/check-ritual-cue.js 1
+nochk 'N_FILES = 86' scripts/check-ritual-cue.js
 
 # ★[FLOW_SHAPE] 흐름을 시간축으로 펼쳐 «모양»을 재는 검사. 문장이 아니라 구조를 본다 —
 #   한 목소리가 연속으로 끄는 시간 · 말 없이 흘러가는 구간 · 하객 동작 지시가 몰린 자리 · 블록별 배분.
