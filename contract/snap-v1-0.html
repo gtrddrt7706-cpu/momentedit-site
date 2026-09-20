@@ -555,7 +555,18 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
       var _sdEl=document.querySelector('[data-fill="sealDate"]');   // 직인 날짜 = 체결일 자동 각인(2026. 07. 09) · 서명 전엔 공백
       if(_sdEl){ var _sm=String(d.signDate||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); _sdEl.textContent=_sm?(_sm[1]+'. '+_sm[2]+'. '+_sm[3]):String(d.signDate||''); }
       var gs=document.getElementById('sigGroom');
-      if(gs){ gs.innerHTML = d.signImage ? '<img src="'+d.signImage+'" alt="의뢰인 전자서명" style="height:38px;max-width:150px;object-fit:contain;vertical-align:middle">' : '✓ 전자서명 완료'; }
+      if(gs){
+        /* ★[SIG_NODE 2026-09-20] 문자열로 <img src="…"> 를 조립하지 말 것 — 되돌리면 저장형 XSS 가 된다.
+           서명 dataUrl 은 고객이 POST 로 보내는 값이고, 서버 검증(70_journey.gs _saveSignature)은
+           **접두사와 길이만** 본다. 그래서 `data:image/png;base64,AAA" onerror="…` 가 저장되고,
+           여기서 이어붙이면 속성을 빠져나가 실행된다(2026-09-20 브라우저로 재현 · window.__pwn=1).
+           그 값은 admin.html:3377 을 타고 **관리자 브라우저**에서도 열린다(관리자 토큰이 localStorage 에 있다).
+           contract/fitting.html:120 이 처음부터 이 방식이었다 — 셋 중 둘만 낡아 있었다. */
+        gs.textContent = '';
+        if(d.signImage){ var _si=document.createElement('img'); _si.src=d.signImage; _si.alt='의뢰인 전자서명';
+          _si.style.cssText='height:38px;max-width:150px;object-fit:contain;vertical-align:middle'; gs.appendChild(_si); }
+        else { gs.textContent = '\u2713 전자서명 완료'; }
+      }
       var bs=document.getElementById('sigBride'); if(bs) bs.textContent='(대표 서명으로 갈음)';
       try{ var _sg=document.getElementById('sign'); if(_sg) setTimeout(function(){ _sg.scrollIntoView({behavior:'smooth',block:'start'}); },140); }catch(e){}   // 서명본 재열람 → 서명란으로 안내
     }
