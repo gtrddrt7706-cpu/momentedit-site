@@ -164,7 +164,12 @@ function setupSignatures() {
 // 서명 저장 — dataUrl 형식·크기 검증 후 append. 성공 true / 미서명·형식오류 false.
 function _saveSignature(code, type, dataUrl, signedAt, version) {
   dataUrl = String(dataUrl || '');
-  if (!/^data:image\/(png|jpeg);base64,/.test(dataUrl)) return false;   // 형식 검증(미서명이면 빈값 → false)
+  // ★[SIG_STRICT 2026-09-20] 접두사만 보던 검사를 **전체 문자 집합**으로 바꾼다.
+  //   종전 정규식은 앞부분만 확인해서 `data:image/png;base64,AAA" onerror="…` 가 그대로 저장됐다.
+  //   그 값이 계약서 화면에서 문자열로 <img src="…"> 에 이어붙여져 실행됐다
+  //   (2026-09-20 브라우저 재현 · window.__pwn=1). 프런트는 SIG_NODE 로 고쳤고, 여기서 한 겹 더 막는다.
+  //   base64 알파벳(A-Z a-z 0-9 + / =)과 줄바꿈만 허용 — 따옴표·꺾쇠는 통과할 수 없다.
+  if (!/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=\r\n]+$/.test(dataUrl)) return false;   // 형식 검증(미서명이면 빈값 → false)
   if (dataUrl.length > 800000) return false;                           // ~0.6MB↑ 과대 차단(셀 한도 보호)
   try {
     var ss = SpreadsheetApp.getActive();

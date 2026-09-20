@@ -524,6 +524,12 @@
    "fn": "deployCheck",
    "mark": "STAMP_NEEDS_HIT",
    "why": "④ 안내에 «재배포 뒤 /exec 를 한 번 타야 지문이 찍힌다»를 넣은 자리 — 옛 판은 «재배포하세요»만 말해 이미 재배포한 사람이 같은 동작을 세 번 반복했다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_saveSignature",
+   "mark": "SIG_STRICT",
+   "why": "서명 dataUrl 검증을 접두사에서 base64 «전체 문자 집합»으로 — 옛 판은 `data:image/png;base64,AAA\" onerror=\"…` 를 그대로 저장했고 그 값이 계약서 화면에서 실행됐다(2026-09-20 브라우저 재현). 옛 판이 배포돼 있으면 서버 방어선이 없다"
   }
  ],
  "fns": {
