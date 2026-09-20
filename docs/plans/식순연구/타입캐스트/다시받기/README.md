@@ -9,19 +9,20 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 49 | 19 |
+| 1_우성.txt | 우성 | 80 | 31 |
 | 2_이겸.txt | 이겸 | 27 | 2 |
 | 3_주하.txt | 주하 | 17 | 1 |
 | 4_권일.txt | 권일 | 15 | 1 |
 | 5_서진.txt | 서진 | 13 | 1 |
-| 6_정숙.txt | 정숙 | 4 | 1 |
+| 6_진희.txt | 진희 | 8 | 3 |
+| 7_정숙.txt | 정숙 | 4 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 우성 — 49줄 · 19클립
+# 우성 — 80줄 · 31클립
 node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =05_entry-A,=07_entry-C,=08_entry-D,=09_entry-E,=10_entry-F,=22_narr-bless-open,=23_narr-bless-mid,=24_narr-bless-end,=25_narr-bless-end-long,=27_letter-parent,=28_letter-each,=29_letter-both,=38_tribute-in,=52_narr-entry-out,=79_narr-entry-out-B,=80_narr-entry-out-C,=81_narr-entry-out-D,=82_narr-entry-out-E,=83_narr-entry-out-F
+  --clip =05_entry-A,=07_entry-C,=08_entry-D,=09_entry-E,=10_entry-F,=13_narr-vow-in,=14_narr-vow-out,=22_narr-bless-open,=23_narr-bless-mid,=24_narr-bless-end,=25_narr-bless-end-long,=26_narr-close,=27_letter-parent,=28_letter-each,=29_letter-both,=38_tribute-in,=40_toast-toast,=41_toast-cake,=42_toast-both,=76_toast-both-b,=52_narr-entry-out,=79_narr-entry-out-B,=80_narr-entry-out-C,=81_narr-entry-out-D,=82_narr-entry-out-E,=83_narr-entry-out-F,=56_narr-toast-out,=61_narr-round-open,=62_narr-online-in,=63_narr-final-warn,=64_narr-final-call
 ```
 
 ```
@@ -46,6 +47,12 @@ node scripts/assemble-narration.mjs --in <권일_받은폴더> \
 # 서진 — 13줄 · 1클립
 node scripts/assemble-narration.mjs --in <서진_받은폴더> \
   --clip =10_letter-parent
+```
+
+```
+# 진희 — 8줄 · 3클립
+node scripts/assemble-narration.mjs --in <진희_받은폴더> \
+  --clip =85_narr-photo-send,=45_end-1a-farewell,=47_end-2-goodbye
 ```
 
 ```
