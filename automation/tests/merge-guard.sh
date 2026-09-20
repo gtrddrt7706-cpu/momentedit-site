@@ -6210,6 +6210,12 @@ chk 'FNS_MORE' scripts/gen-deploy-fns.mjs 1
 chk 'SIM_WORLD' scripts/audit/deploycheck-sim.mjs 3
 chk 'SIM_WORLD_ORDER' scripts/audit/deploycheck-sim.mjs 1
 chk 'MARKS_AGE' scripts/gen-deploy-fns.mjs 1
+# ★[MARKS_STAMP] 표식(marks)이 바뀌면 「목록 만든 때」도 새로 찍는다 — 2026-09-20 점검에서 나왔다.
+#   marks 는 사람이 손으로 더하는 배열이라 생성기의 PACK 비교에 안 잡혔고, 그래서 표식만 늘어난
+#   커밋에서는 _생성 이 어제 날짜로 남았다. contractCheck 가 그 값으로 「목록이 최신입니다」를 말한다.
+#   ★막다른 빨강이기도 했다 — [LIST_AGE] 가 「_생성 이 최신 .gs 커밋보다 낡다」고 막는데,
+#     그 상태에서 생성기를 돌려도 fns 가 안 바뀌어 _생성 이 그대로였다(처방이 듣지 않는 빨강).
+chk 'MARKS_STAMP' scripts/gen-deploy-fns.mjs 3
 chk 'MARKS_AGE' automation/platform/99_deployCheck.gs 1
 chk 'LIST_PARTIAL' automation/platform/99_deployCheck.gs 1
 chk 'SIM_STALE' scripts/audit/deploycheck-sim.mjs 1
