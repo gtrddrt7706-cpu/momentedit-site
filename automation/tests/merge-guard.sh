@@ -1214,6 +1214,23 @@ chk 'img-webp.mjs' scripts/audit/img-webp.mjs 1  # 위 구조 상시 회귀(파�
 # ── 2026-07-26 /점검 · 나레이션 대본 교차점검
 chk 'RINGWARM_NO_MIN' order-preview.html 1     # 링워밍 '하객 전체' 카드의 '약 2분 더'·'스물다섯 분' 복원 금지(recoTxt '인원에 따라 달라져요'와 정면 모순 · 수치 약속 금지)
 chk 'DECL_PAUSE_POS' scripts/build-dubbing-script.mjs 1   # 선언 무음이 '마지막 문장'이 아니라 '끝에서 두 번째'(선언문) 기준임 — 구 지시 복원 금지
+# ★★[DECL_PAUSE_LIVE 2026-09-20] 위 chk 는 **통과만 하는 게이트였다.** 마커 «문자열»은 내내
+#   살아 있었는데 정작 무음을 얹는 조건(build-typecast-import.mjs 의 DECL_LINE)이 사문화돼 있었다 —
+#   [PERF_CANON_2] 가 호명 「신랑 신부,」를 빼면서 문면이 바뀌었는데 상수는 옛 문장 그대로였다.
+#   그래서 2026-08-17 이후 선언문 앞뒤 무음이 **한 번도 안 들어갔다**(manifest 전 문장 after=0.45 균일).
+#   ★사장님이 실청에서 「다다다」라고 하신 것의 «소리 쪽» 원인이다 — 문면이 아니라 간격이었다.
+#   ★그래서 문자열이 아니라 **값을 재는** 검사를 붙인다.
+#   ★[GAP_IS_SUM] 고치면서 나도 한 번 틀렸다 — after 만 보고 「선언문 뒤가 좁다」고 붉혔는데
+#     실제 앞 침묵은 «앞 문장 after + 이 문장 before» = 0.70 으로 이미 넓었다. 한 칸만 보면 틀린다.
+#   ★세 방향으로 깨 보고 믿었다: ①DECL_LINE 을 옛 문장으로 되돌리니 빨강 ②찾을 문면을 없는 것으로
+#     바꾸니 「하나도 못 찾았다」로 빨강(조용한 통과 없음) ③원복하니 초록.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/decl-pause.mjs >/dev/null 2>&1 \
+    || { echo 'FAIL decl-pause: 선언 무음이 실제로 안 얹힌다 — node scripts/audit/decl-pause.mjs'; fail=1; }
+fi
+chk 'DECL_PAUSE_LIVE' scripts/audit/decl-pause.mjs 2
+chk 'GAP_IS_SUM' scripts/audit/decl-pause.mjs 1
+chk 'DECL_DEAD' scripts/build-typecast-import.mjs 1
 chk 'N0_STAY' scripts/build-dubbing-script.mjs 1          # N0가 '자리를 옮기실 때'로 되돌아가면 폐식 G3-15 '자리에서 그대로'와 다시 충돌
 # ── 2026-07-26 홈 문구·정보 정리(사용자 결정)
 chk 'HOME_PRICE_FMT' index.html 1              # 금액 표기 규칙 주석 — 삭제 금지(INVEST=₩전체자릿수 / 산문=250만 원 / 계약서 미러 조항은 50,000원 유지)
@@ -9050,3 +9067,36 @@ chk '봐주기를 끕니다' scripts/check-listen-cover.mjs 1
 #     (조용히 통과하지 않는다 · 실제로 ROOT/root 오타를 이 줄이 잡아 줬다) ③원복하니 초록.
 chk 'RATE_PENDING' scripts/check-syl-rate.mjs 3
 chk '보류를 끕니다' scripts/check-syl-rate.mjs 1
+# ★★[COPY_SELFCHECK 2026-09-20] 코워크가 만든 문안 자가검사(17항목)를 저장소에 넣었다.
+chk 'COPY_SELFCHECK' scripts/audit/copycheck/README.md 1
+#   scripts/audit/copycheck/ — check-copy.py · selftest-check.py · round0~3.json · README
+#   ★믿기 전에 깨 봤다. 코워크는 「10건 중 10건」이라 했는데 이쪽에서 처음 돌리니 한 건도
+#     못 돌았다 — 묶음에 본문_여섯편.txt 가 빠져 있었고, 그 인자를 «주면서 파일이 없으면»
+#     FileNotFoundError 로 죽는다(README 의 「없어도 돕니다」는 인자를 «안 줄 때» 이야기다).
+#     그래서 scripts/build-body-six.py 로 본문을 원천에서 뽑게 했다 — 손 사본은 반드시 낡는다.
+#   ★그다음엔 9/10 이었다. 「선취」 케이스가 본문 문면(「한 번 말렸다」)에 묶여 있었는데
+#     사장님 지시로 본문이 「선뜻 반기지 못했다」로 바뀌어 겹칠 대상을 잃었다.
+#     검사는 멀쩡했고 «넣어 둔 고장이 상한» 것이다. 케이스를 새 본문에 맞춰 10/10 으로 돌렸다.
+#     → [CASE_TIED_TO_BODY] 본문에 묶인 케이스는 본문을 고친 그 커밋에서 함께 고친다.
+# ★chk 는 주석 «바로 뒤»에 둔다 — decision-guard 는 주석도 검사도 아닌 줄이 먼저 나오면
+#   그 덩어리를 끝난 것으로 보고 break 한다. if 블록을 앞에 두면 검사가 있어도 «없다»가 된다.
+chk 'CASE_TIED_TO_BODY' scripts/audit/copycheck/selftest-check.py 1
+chk 'BODY_SIX' scripts/build-body-six.py 1
+if command -v python3 >/dev/null 2>&1; then
+  ( cd scripts/audit/copycheck && python3 selftest-check.py >/dev/null 2>&1 ) \
+    || { echo 'FAIL copycheck-selftest: 일부러 넣은 고장을 못 잡는다 — cd scripts/audit/copycheck && python3 selftest-check.py'; fail=1; }
+  ( cd scripts/audit/copycheck && python3 check-copy.py round0.json round1.json round2.json round3.json 본문_여섯편.txt >/dev/null 2>&1 ) \
+    || { echo 'FAIL check-copy: 문안에 빨간 줄이 있다 — cd scripts/audit/copycheck && python3 check-copy.py round*.json 본문_여섯편.txt'; fail=1; }
+  python3 scripts/build-body-six.py > /dev/null 2>&1 \
+    || { echo 'FAIL build-body-six: 여섯 편 본문을 못 뽑는다 — 원천 파일 모양이 바뀌었을 수 있다'; fail=1; }
+fi
+# ★★[NARV_UNWIRED 2026-09-20] 「NARV 여섯은 어조 칸이 없다」는 내 보고가 **틀렸다.**
+chk 'NARV_UNWIRED' scripts/audit/pick-basis.mjs 1
+chk 'NARV_UNWIRED' 'docs/plans/식순연구/추리기_기준_20260920.md' 1
+#   Object.keys(D.NARV) 로 키만 세고 안을 안 봤다 — 각 키가 «담백·서정·다정» 3벌짜리 배열이고
+#   셋이 서로 다른 글이다. 코워크가 반박해 줘서 드러났다(「07번 163행은 정반대로 적혀 있다」).
+#   ★결론은 그대로이고 이유가 다르다 — NARV 를 **엔진도 화면도 읽지 않는다**
+#     (ritual-cue.js·order-preview.html 에 0건). 즉 «글은 있고 배선이 없다».
+#     문안을 더 쓸 일이 아니라 칩을 달고 엔진이 읽게 하는 «코드 몫»이다.
+#   ★교훈 — 「칸이 없다」와 「칸은 있는데 안 이어져 있다」는 다른 문장이다.
+#     앞엣것으로 잘못 보고하면 남이 «없는 글»을 쓰러 간다. 실제로 코워크가 그럴 뻔했다.
