@@ -7644,6 +7644,17 @@ chk 'LOCKED_PROPOSAL' scripts/audit/locked-proposal.py 1
 chk 'JUDGED' scripts/audit/locked-proposal.py 1
 chk 'SRC_FOUR' scripts/apply-narr-r3678.py 1
 chk 'SUB_TRAP' scripts/apply-narr-r3678.py 1
+# ★★[GATE_LOCK_EXPORT] 위 검사의 «코워크 쪽 판»이 읽는 tsv 를 뽑는 자리.
+#   손으로 추리면 그때마다 빠진다 — 실제로 경로 따옴표 한 꼴을 안 잡아 63줄이 통째로 샜다([PATH_QUOTED]).
+chk 'GATE_LOCK_EXPORT' scripts/audit/export-gate-locks.py 1
+chk 'PATH_QUOTED' scripts/audit/export-gate-locks.py 1
+chk 'LOCK_SNAPSHOT' scripts/audit/export-gate-locks.py 1
+if command -v python3 >/dev/null 2>&1; then
+  # ★[SH_NOT_BASH] 이 파일은 `#!/bin/sh` 로 돈다. `$'\t'` 는 bash 문법이라 dash 에서 **글자 그대로**가 돼
+  #   무엇에도 안 맞고 0건이 된다. 내가 손으로 bash 에서 돌릴 땐 66건이라 통과했다 — 게이트가 잡았다.
+  _glx=$(python3 scripts/audit/export-gate-locks.py 2>/dev/null | grep -c '배역_예시_대사\.txt' || true)
+  [ "${_glx:-0}" -ge 40 ] || { echo "FAIL export-gate-locks: 한글 경로 줄이 $_glx 건 — 경로 따옴표를 다시 놓쳤다([PATH_QUOTED])"; fail=1; }
+fi
 if command -v python3 >/dev/null 2>&1; then python3 scripts/audit/locked-proposal.py >/dev/null 2>&1 \
   || { echo 'FAIL locked-proposal: 잠긴 결정과 부딪치는 제안이 있습니다 — python3 scripts/audit/locked-proposal.py'; fail=1; }; fi
 
