@@ -27,6 +27,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const ROOT = process.cwd();
 const SRC = {};
@@ -229,12 +230,23 @@ const colN = columns.reduce((a, c) => a + c.need.length, 0);
 const PACK = { fns, vars, triggers, columns, html, props, projects };
 const P = path.join(ROOT, 'deploy-marks.json');
 const cur = JSON.parse(fs.readFileSync(P, 'utf8'));
-const same = ['fns', 'vars', 'triggers', 'columns', 'html', 'props', 'projects']
+/* ★★[MARKS_STAMP 2026-09-20] marks 는 «사람이 손으로 더하는» 배열이라 PACK 비교에 안 잡힌다.
+   그래서 표식만 늘어난 커밋에서는 아래 _생성 이 갱신되지 않았다 — 목록 내용은 오늘 것인데
+   「목록 만든 때」는 어제 것으로 남고, contractCheck 가 그 값으로 「최신입니다」를 말했다.
+   ★더 나쁜 것은 막다른 빨강이다 — deploycheck-coverage 의 [LIST_AGE] 는 «_생성 이 최신 .gs 커밋보다
+     낡으면» 빨강인데, 그 상태에서 생성기를 돌려도 fns 가 안 바뀌었으니 _생성 이 그대로다.
+     처방이 듣지 않는 빨강은 사람이 손으로 자동생성 파일을 고치게 만든다(집 규칙이 금지한 짓이다).
+   그래서 표식 내용의 서명을 파일에 남기고, 달라지면 «내용이 바뀐 것»으로 친다.
+   [FILE_COVER] 가 .gs 커밋마다 표식 한 줄을 요구하니, 이 서명은 .gs 변경을 그대로 따라간다. */
+const marksSig = createHash('sha256').update(JSON.stringify(cur.marks || [])).digest('hex').slice(0, 12);
+const marksSame = cur._표식서명 === marksSig;
+const same = marksSame && ['fns', 'vars', 'triggers', 'columns', 'html', 'props', 'projects']
   .every((k) => JSON.stringify(cur[k] ?? null) === JSON.stringify(PACK[k]));
 
 if (process.argv.includes('--check')) {
   if (same) { console.log(`✅ 목록 최신 — 함수 ${total} · var ${varN} · 트리거 ${triggers.length} · 컬럼 ${colN} · HTML ${html.length}벌 · 속성 ${props.length} · 별도프로젝트 ${projects.length}`); process.exit(0); }
   console.error('★deploy-marks.json 의 점검 목록이 낡았습니다 → node scripts/gen-deploy-fns.mjs 로 갱신하세요');
+  if (!marksSame) console.error('  표식(marks)이 바뀌었습니다 — 「목록 만든 때」를 새로 찍어야 합니다 [MARKS_STAMP]');
   for (const k of ['vars', 'triggers', 'columns', 'html', 'props', 'projects'])
     if (JSON.stringify(cur[k] ?? null) !== JSON.stringify(PACK[k])) console.error(`  ${k} 가 다릅니다`);
   const before = cur.fns || {};
@@ -254,6 +266,7 @@ if (!same || !cur._생성) {
   try { sha = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT }).toString().trim(); } catch (e) {}
   cur._생성 = new Date().toISOString().slice(0, 16).replace('T', ' ') + (sha ? (' · ' + sha) : '');
 }
+cur._표식서명 = marksSig;   /* [MARKS_STAMP] 다음 실행이 «표식이 바뀌었나»를 알 수 있게 */
 Object.assign(cur, PACK);
 fs.writeFileSync(P, JSON.stringify(cur, null, 1) + '\n');
 console.log(`✅ 갱신 — 함수 ${total} · var ${varN} · 트리거 ${triggers.length} · 컬럼 ${colN} · HTML ${html.length}벌 · 속성 ${props.length} · 별도프로젝트 ${projects.length} · ${(fs.statSync(P).size / 1024).toFixed(1)}KB`);
