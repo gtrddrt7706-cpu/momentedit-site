@@ -7567,6 +7567,12 @@ chk 'make-parents-rerecord' automation/tests/merge-guard.sh 2
 chk 'NO_QUOTA' scripts/audit/pick-list.mjs 1
 chk 'WORD_OVERLAP' scripts/audit/pick-list.mjs 1
 chk 'NAR2' scripts/audit/pick-list.mjs 1
+# ★★[CUR_ORPHAN 2026-09-20] 갈래를 TONE 에서 돌면 **어조판이 0개가 된 갈래가 통째로 빠진다.**
+#   생성기는 어조가 하나도 없는 칸을 아예 안 만들기 때문이다. [CULL_2] 로 entry.A 의 마지막 어조판을
+#   버리자 A 가 TONE 에서 사라졌고, 도구가 입장을 11 이 아니라 **10** 으로 셌다.
+#   ★하마터면 「입장 10벌」을 사장님과 코워크 양쪽에 보고할 뻔했다 — 지우면 지울수록 더 틀리는 자다.
+#   갈래 목록은 **현행 쪽**(D.ENTRY·D.DECLARE…)에서 세우고 어조판은 있으면 붙인다.
+chk 'CUR_ORPHAN' scripts/audit/pick-list.mjs 1
 # ★★[TONE_ARRAY 2026-09-20] TONE 값이 **문자열이 아닐 수 있다** — toast.both 의 plain·warm 은
 #   두 조각짜리 배열이다(케이크 + 축배). String() 으로 뭉개면 배열이 쉼표로 이어져
 #   「…한 조각입니다**.,**이어서 축배입니다」가 되고, 그 출력이 코워크에게 건너가
