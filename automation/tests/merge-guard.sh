@@ -7562,6 +7562,9 @@ chk 'TONE_CULL' scripts/apply-tone-cull.py 1
 chk 'CULL_ORDER' scripts/apply-tone-cull.py 1
 chk 'TRIBUTE_KEEP' scripts/apply-tone-cull.py 1
 chk 'TONE_CULL' scripts/build-tone-table.mjs 1
+# ★어조를 버리면 «녹음 대본 쪽 기준»도 함께 내려가야 한다. 안 내리면 그 검사가 영영 붉다.
+#   60(TONE 38 + NARV 22) → 45(TONE 23 + NARV 22). 두 자리를 한 커밋에서 같이 고친다.
+chk 'TONE_CULL' scripts/build-tone-dub.mjs 1
 # ★★[CLIP_WHOLE] 문장 단위(old→new)로는 29자리가 «못 찾음»으로 남았다. 코워크의 old 가
 #   **남의 판**이라 이쪽 문면과 어긋나기 때문이다. 열쇠를 «지금 이쪽 문면»(manifest 전문)으로 옮겼다.
 #   ★[SLUG_STRICT] 슬러그가 안 맞으면 **건너뛴다.** 첫 판은 «전문이 저장소에 있는 아무 후보»로 떨어져
