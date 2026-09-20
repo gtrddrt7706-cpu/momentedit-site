@@ -2217,6 +2217,30 @@ chk 'meBreath 1.7s' order-preview.html 1
 chk 'meBreath 1.7s' admin.html 1
 chk 'meBreath 1.7s' automation/consultation/ScreenA_apply.html 1
 chk 'meBreath 1.7s' automation/consultation/ScreenB_schedule.html 1
+
+# ★★[CONSULT_REFUND_TRUTH 2026-09-20 점검] 상담 예약금 환불 문구 · 화면과 실제가 반대였다.
+#   ScreenB(돈 내기 «전»에 보는 화면)가 「상담 24시간 전까지 가능 · 이후 반환 불가」라고 적어
+#   10만 원을 몰취한다고 말했다. 확정 메일(consultation-booking.gs:1261)은 처음부터
+#   「드레스 시착 전 취소는 예약금이 전액 환불됩니다」라고 말하고 있었다 · 두 문장이 정면 충돌했다.
+#   ★단일 원천은 _consultRefundQuote 한 줄이다 — 시착동의상태 !== '동의완료' 이면 그대로 전액 반환.
+#     환불은 «시착을 했는가»로만 갈리고 24시간과 무관하다. 24시간은 «스스로 온라인으로 고치는» 기한일 뿐이다.
+#   아래 넷이 한 몸이다. 하나만 고치면 또 갈린다.
+chk 'CONSULT_REFUND_TRUTH' automation/consultation/ScreenB_schedule.html 1
+chk '이후 카카오톡 문의' automation/consultation/ScreenB_schedule.html 1
+chk '드레스 시착 전에 취소하시면 예약금은 전액 환불해 드립니다' automation/consultation/ScreenB_schedule.html 1
+chk '시착 전 → 전액 환불' automation/consultation/consultation-booking.gs 1
+
+# ★★[FITTING_PRECOND 2026-09-20 점검] 같은 화면의 옆줄 · 시착의 전제 조건이 원천 다섯 곳과 어긋났다.
+#   ScreenB 가 「드레스 시착은 상담 당일 «본 계약을 체결하신 경우»에 한해 가능」이라고 적고 있었다.
+#   단일 원천(70_journey.gs FITTING_CONSENT · 시착동의-v4)은 정반대다 —
+#   「드레스 시착 «후» 계약을 진행하지 않으시면 … 나머지는 전액 환불」 · 계약 없이도 시착이 성립한다.
+#   nextNotice 도 「드레스 시착 «후», 계약서를 24시간 내에」라 순서를 못박는다.
+#   ★처음엔 이것을 «대표 결정 대기»로 올렸는데, 코드가 이미 답을 갖고 있었다(KB_SETTLED 와 같은 모양).
+#     묻기 전에 원천을 먼저 세어 본다.
+chk 'FITTING_PRECOND' automation/consultation/ScreenB_schedule.html 1
+chk '드레스 시착도 상담 당일 진행하실 수 있고' automation/consultation/ScreenB_schedule.html 1
+chk '드레스 시착 후 계약을 진행하지 않으시면' automation/platform/70_journey.gs 1
+chk '드레스 시착 후, 계약서를 24시간 내에' automation/platform/70_journey.gs 1
 chk 'meBreath 1.7s' automation/admin/Admin.html 1
 chk 'PREV_NO_CHROME' scripts/build-preview-annot.mjs 2   # 예시에서 고정·스티키 화면 장치 제거 · 빼면 '‹ 갤러리' 알약이 16장 한복판에 박힌다
 chk 'vertical' scripts/build-preview-annot.mjs 2         # 세로쓰기는 요소 상자로 · Range 잉크가 62px 짧게 잡혀 점선이 첫·끝 글자를 문다
