@@ -7588,6 +7588,14 @@ grep -q 'stale-waiters' .claude/settings.json 2>/dev/null || { echo 'REVERT? .cl
 #   잘리는 것은 «뒤쪽»이니 결론을 앞으로 옮기면 어느 함수를 돌려도 보인다.
 # ★샌드박스로 세 갈래(기록없음·다르다·같다) 전부 «첫 줄»에 나오는 것을 확인했다.
 chk 'STAMP_FIRST' automation/platform/99_deployCheck.gs 2
+# ★★[STAMP_FN_ONLY 2026-09-20] 내가 대표에게 잘못 안내한 자리다 · 지문은 «함수»만 본다.
+#   ScreenB_schedule.html 을 고쳐 드리고 「deployStampCheck 로 확인하세요」라고 했는데,
+#   _dsGlobalSig 는 typeof === 'function' 인 것만 모은다 — HTML 은 지문에 아예 안 들어간다.
+#   붙여넣었든 안 넣었든 OK 가 나오는 판정으로 「확인하세요」라고 한 것이다.
+#   화면 파일은 deployCheck ①-C(본문 길이 대조)가 잡는다. 그 안내를 출력에 박아 두고 여기서 지킨다.
+chk 'STAMP_FN_ONLY' automation/platform/99_deployCheck.gs 1
+chk '화면 파일(Admin·ScreenA·B·C .html)은 지문에 안 들어갑니다' automation/platform/99_deployCheck.gs 1
+chk "typeof g\[k\] === 'function'" automation/platform/00_platform-config.gs 1
 chk '★배포 확인' automation/platform/99_deployCheck.gs 3   # 세 갈래 문장이 살아 있는가
 chk 'STAMP_ONLY' automation/platform/99_deployCheck.gs 2
 chk 'deployStampCheck' automation/platform/99_deployCheck.gs 2   # 함수 정의 + 허용목록
