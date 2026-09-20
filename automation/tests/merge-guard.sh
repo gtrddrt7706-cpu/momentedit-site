@@ -7455,6 +7455,30 @@ if command -v node >/dev/null 2>&1; then
     echo "FAIL xss-guest: 뜻 모를 종료 코드 $_xg — node scripts/audit/xss-check-guest.mjs"; fail=1
   fi
 fi
+# ── [SIG_NODE][SIG_STRICT] 전자서명 dataUrl 저장형 XSS (2026-09-20 점검 라운드 2) ──
+# 무엇이 있었나: contract/v1-1.html · snap-v1-0.html 이 gs.innerHTML = '<img src="'+d.signImage+'"…' 였다.
+#   signImage 는 고객이 POST 로 보내는 값이고 서버 검증은 **접두사와 길이만** 봤다.
+#   그래서 `data:image/png;base64,AAA" onerror="…` 가 저장돼 속성을 빠져나갔다 — 브라우저로 재현(window.__pwn=1).
+#   그 값은 admin.html:3377 을 타고 **관리자 브라우저**에서도 열린다(관리자 토큰이 localStorage 에 있다).
+# ★contract/fitting.html:120 은 처음부터 img.src 속성 대입이었다 — 셋 중 둘만 낡아 있었다.
+# ★깨 보고 믿었다 — v1-1 을 문자열 조립으로 되돌리니 pwn:1 로 빨강. 원복 후 초록.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/sign-node.mjs >/dev/null 2>&1; _sn=$?
+  if [ "$_sn" = 1 ]; then
+    echo 'FAIL sign-node: 서명 dataUrl 이 문자열로 조립된다(저장형 XSS) — node scripts/audit/sign-node.mjs'; fail=1
+  elif [ "$_sn" = 2 ]; then
+    echo 'skip sign-node: 이번엔 재지 못했습니다(브라우저 없음 또는 서명칸 미도달) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_sn" != 0 ]; then
+    echo "FAIL sign-node: 뜻 모를 종료 코드 $_sn — node scripts/audit/sign-node.mjs"; fail=1
+  fi
+fi
+chk 'SIG_NODE' scripts/audit/sign-node.mjs 1
+chk 'SIG_NODE' contract/v1-1.html 1              # 되살리기 금지 근거가 파일 안에 남아 있는가
+chk 'SIG_NODE' contract/snap-v1-0.html 1
+chk 'SIG_STRICT' automation/platform/70_journey.gs 1   # 서버 방어선(base64 전체 문자 집합)
+nochk "'<img src=\"'+d.signImage" contract/v1-1.html          # 문자열 조립 복귀 금지
+nochk "'<img src=\"'+d.signImage" contract/snap-v1-0.html
+
 chk 'XSS_CANARY' scripts/audit/xss-check-guest.mjs 1
 chk 'CANARY7788' scripts/audit/xss-check-guest.mjs 4   # 페이로드 3종 + 대조 상수 — 하나라도 빠지면 도달 판정이 헐거워진다
 chk "seat.html?t=" scripts/audit/xss-check-guest.mjs 3  # 주소가 ?s= 로 되돌아가면 또 못 잰다
