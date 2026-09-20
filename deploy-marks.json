@@ -548,6 +548,12 @@
    "fn": "deployStampCheck",
    "mark": "STAMP_FN_ONLY",
    "why": "④ 판정이 «함수만» 본다고 밝히는 자리 — 화면 파일(.html)은 지문에 안 들어가니 deployCheck ①-C 로 가라고 알려 준다. 옛 판이면 HTML 을 안 붙여넣고도 OK 로 보여 잘못 안내하게 된다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "serveScheduleB",
+   "mark": "REVISIT_PICKED",
+   "why": "다시 들어온 분께 «무엇이 접수돼 있는지» 한 줄로 알리는 자리 — 종전엔 server 에 현재 예약이 없어 백지 달력만 보였다. PICKED 단계에서 고객에게 가는 알림이 0건이라(admin.slotPicked 는 to:'admin') 화면 모달이 유일한 기록인데, 그 화면에 계좌번호와 예약금 10만원이 함께 뜬다. 옛 판이면 이 줄이 안 내려와 배너가 영영 안 뜬다"
   }
  ],
  "fns": {
@@ -1384,9 +1390,11 @@
    "file": "ScreenB_schedule",
    "marks": [
     "BUSY_ONE",
-    "SIG_NODE"
+    "REVISIT_PICKED",
+    "SIG_NODE",
+    "NAME_NODE"
    ],
-   "bytes": 96629
+   "bytes": 99230
   },
   {
    "file": "ScreenC_change",
@@ -1396,7 +1404,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-20 12:25 · 7c7a4cb5",
+ "_생성": "2026-09-20 12:54 · 09f92b5d",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1804,5 +1812,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "e1ee4788743c"
+ "_표식서명": "c4bbc7faca0b"
 }

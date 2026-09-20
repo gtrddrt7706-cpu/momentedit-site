@@ -199,7 +199,22 @@ function serveScheduleB(token, fromMypage) {
     full: data.full,
     names: coupleNames(row),
     token: token,
-    me: !!fromMypage            // 마이페이지에서 진입했으면 완료 후 마이페이지로 복귀(세션 유지)
+    me: !!fromMypage,           // 마이페이지에서 진입했으면 완료 후 마이페이지로 복귀(세션 유지)
+    /* ★★[REVISIT_PICKED 2026-09-20 점검 라운드 8] 이미 신청한 분이 다시 들어왔을 때
+       «무엇이 접수돼 있는지»를 화면이 알 수 있게 내려준다 · 빼지 말 것.
+       종전엔 server 에 현재 예약이 아예 없어서, 어제 11:30 을 신청한 분이 메일 링크로
+       다시 들어오면 **백지 달력**을 봤다. 그 화면에는 계좌번호와 예약금 10만원이 같이 떠 있다.
+       ★그리고 PICKED 단계에서 «고객»에게 가는 알림이 0건이다 — notifyKakao('admin.slotPicked')
+         는 to:'admin' 이고(95_notify.gs), 고객 안내는 관리자 승인 뒤에야 나간다.
+         즉 화면 모달을 닫는 순간 고객에게 남는 기록이 하나도 없다.
+         입금까지 했다면 「내 신청이 어디 갔나」가 된다. 그래서 여기서 내려준다. */
+    picked: (function () {
+      var _st = String(row.get('상태') || '').trim();
+      var _d = row.get('선택날짜'), _t = row.get('선택시간');
+      if (!_d || !_t) return null;
+      if (_st === ST.CANCELLED) return null;          // 취소 건은 «접수됨»으로 보이면 안 된다
+      return { date: normalizeDateKey(_d), time: String(_t).trim(), status: _st };
+    })()
   };
 
   var t = HtmlService.createTemplateFromFile(SYS.HTML_B);
