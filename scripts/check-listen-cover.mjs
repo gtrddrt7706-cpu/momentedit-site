@@ -180,7 +180,28 @@ if (dead.length) console.log(`· 화면에만 있고 엔진이 안 부르는 줄
     drift.forEach((x) => { console.log(`  [${x.id}]${x.live ? ' ※엔진이 부르는 자리' : ' (손으로 고르는·폴백·폐지 자리)'}`);
       console.log(`     대장 "${x.want}"`); console.log(`     녹음 "${x.said}"`); });
     /* 엔진이 부르는 자리에서 어긋났으면 그건 check-text-audio 가 잡았어야 한다 — 그때는 붉힌다 */
-    if (drift.some((x) => x.live)) no('엔진이 부르는 자리에서 글과 소리가 다릅니다 — check-text-audio 가 놓친 자리입니다');
+    /* ★★[REDUB_PENDING 2026-09-20] 단, «다시받기 파일에 등록해 둔» 클립은 봐준다.
+       문안을 고치면 소리는 반드시 한동안 뒤처진다(성우 녹음은 사람이 하는 일이다).
+       그 창을 빨강으로 두면 «재녹음이 끝날 때까지 main 에 못 올리는» 구조가 되고,
+       그러면 고친 것이 브랜치에 쌓인다 — 2026-09-19 에 열흘치가 그렇게 묵어 사고가 났다([SHIP_NOW]).
+       ★그렇다고 전부 봐주면 «모르고 어긋난 것»까지 통과한다. 그래서 «등록했나»로 가른다:
+         등록됨 = 사람이 알고 다시 받기로 한 것 · 등록 안 됨 = 아무도 모르는 어긋남(빨강)
+       등록 자체는 redub-covers 가 따로 지킨다 — 어긋난 클립이 목록에 «전부» 있어야 초록이다.
+       즉 두 검사가 사슬이다: 여기서 봐준 것은 저기서 «목록에 있나»로 다시 확인된다. */
+    let PEND = new Set();
+    try {
+      const J = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/타입캐스트/다시받기/_순서.json'), 'utf8'));
+      for (const arr of Object.values(J)) for (const r of arr) PEND.add(r.clip);
+    } catch (e) {
+      /* ★목록을 못 읽으면 «조용히» 넘어가지 않는다 — 봐주기가 통째로 꺼진 채로
+         「빨강이네」만 보면 원인을 못 찾는다(실제로 이 줄을 넣을 때 한 번 그랬다). */
+      console.log(`· [REDUB_PENDING] 다시받기 목록을 못 읽어 봐주기를 끕니다: ${e.message}`);
+    }
+    const live = drift.filter((x) => x.live);
+    const unknown = live.filter((x) => !PEND.has(x.id));
+    const pending = live.filter((x) => PEND.has(x.id));
+    if (pending.length) console.log(`· 재녹음 대기 ${pending.length}개는 봐줍니다 [REDUB_PENDING]: ${pending.map((x) => x.id).join(' · ')}`);
+    if (unknown.length) no(`엔진이 부르는 자리에서 글과 소리가 다릅니다 — check-text-audio 가 놓친 자리입니다: ${unknown.map((x) => x.id).join(' · ')}`);
   }
 }
 
