@@ -42,6 +42,13 @@ D = {'clips': [c for d in _parts for c in d['clips']],
 RND = {c['no']: c.get('_round', '?') for c in D['clips']}
 SRC = ' + '.join(SRCS)
 S = [(c['no'], s['i'], s['new']) for c in D['clips'] for s in c['sents']]
+# ★[갈래 2026-09-20] «배역 본문»은 진행자 나레이션과 다른 물건이다.
+#   두 사람·부모님이 «자기 이야기»를 반말·해요체로 하는 글이라, 진행자 기준으로 만든 항목 몇은
+#   아예 적용 대상이 아니다. 무엇이 안 맞는지 적어 두지 않으면 다음 사람이 그걸 결함으로 읽는다.
+#   · 선취 — 이 글이 «본문 그 자체»다. 본문과 견주면 전부 걸린다.
+#   · 수량 단정 — 제 이야기 속의 수는 그날 달라지지 않는다(「편지 두 통」과 다르다).
+#   · 부탁 어미 섞임 · 예우 · 책임 어미 — 진행자가 하객에게 하는 말의 자다.
+BODY_NOS = {c['no'] for c in D['clips'] if c.get('body')}
 red, warn = [], []
 
 # ── 공용 — «한 예식에서 실제로 같이 들리는 묶음» 만들기
@@ -63,6 +70,41 @@ def ceremonies():
         yield set(_FIXED) | pick
 
 
+# ── ★[셈법 교정 2026-09-20 · 스물두 번째] 전수 열거를 버린다.
+#   7회차까지 오니 배타 조합이 38,880가지가 됐고 검사가 2분을 넘겼다. 자가시험은 검사를
+#   열두 번 돌리므로 아예 안 끝난다. **안 돌아가는 검사는 없는 검사다.**
+#   ★열거하지 않고도 «최악»은 정확히 구할 수 있다.
+#     ①세는 검사 — 묶음마다 «그 낱말이 제일 많이 나오는 칸»을 고르면 그게 최악이다(합이라 서로 독립).
+#     ②짝 검사 — 두 클립이 «같은 묶음의 다른 칸»이면 한 예식에 같이 못 나간다. 그것만 보면 된다.
+#   근사가 아니라 같은 답이고, 38,880번 대신 한 번에 끝난다.
+_SLOT = {}          # 클립 → (묶음 번호, 칸 번호)
+_ALTS = []          # 묶음마다 [ [클립…], [클립…] … ]
+for _gi, _g in enumerate(_EX):
+    alts = []
+    for _ai, _alt in enumerate(_g):
+        cs = _alt if isinstance(_alt, list) else [_alt]
+        alts.append(cs)
+        for _c in cs: _SLOT[_c] = (_gi, _ai)
+    _ALTS.append(alts)
+
+def cooccur(a, b):
+    """두 클립이 한 예식에 같이 나갈 수 있나."""
+    sa, sb = _SLOT.get(a), _SLOT.get(b)
+    return not (sa and sb and sa[0] == sb[0] and sa[1] != sb[1])
+
+def worst_count(per_clip):
+    """per_clip(클립) → 개수. 한 예식에서 나올 수 있는 최대 합과 그때 고른 클립들."""
+    tot = sum(per_clip(c) for c in _FIXED)
+    keep = set(_FIXED)
+    for alts in _ALTS:
+        best, bestcs = -1, alts[0]
+        for cs in alts:
+            v = sum(per_clip(c) for c in cs)
+            if v > best: best, bestcs = v, cs
+        tot += best; keep.update(bestcs)
+    return tot, keep
+
+
 # ── 넘긴 것 [HANDED_OVER] — 문안으로는 못 고치는 자리
 #   여기 있는 것은 «괜찮다»가 아니라 «내 손으로 못 고친다»는 뜻이다. 양쪽 문장이 둘 다
 #   얼린 줄이라 글을 고칠 수 없고, 고쳐야 할 곳이 대본이 아니라 큐 엔진인 자리들.
@@ -78,6 +120,14 @@ HANDED = {
         '「가족사진은 작가님이 순서대로 불러 드립니다」 — 「사진은 작가」·「순서대로」가 붙어 샌다. '
         '게이트가 이 문장을 글자로 지키고(chk merge-guard:7696) 「작가님」 호칭 통일은 가드 셋이 걸린 별도 작업이라 '
         '문안으로는 못 고친다. 성우에게 «이 줄은 또박또박 끊어 읽어 달라»로 넘길 자리.',
+    ('03a', 0, '치찰음 연쇄'):
+        '「예식 시작 오 분 전입니다」 — 「식·시·작」이 붙어 샌다. 하객 귀 검사가 «언제 시작하나»를 '
+        '「분 뒤 시작」·「분 전입니다」 두 어형으로만 보고 있어 이 문장을 바꾸려면 코드 쪽 정규식을 '
+        '같은 커밋에서 넓혀야 한다. 성우 쪽에 넘긴다.',
+    ('-', '-', '닳은 낱말'):
+        '★「사진」 네 번 가운데 넷이 전부 게이트가 글자로 지키는 줄이다 — 60(가족사진 안내) · '
+        '61(사진 요청 · 사장님 「남기고」) · 84(사진 보내기 예고) · 04a#5(사진은 편히 남기셔도 좋습니다). '
+        '사진 순서가 실제로 있는 예식에서 네 번은 병이 아니고, 무엇보다 문안으로 줄일 자리가 없다.',
     ('84', 0, '치찰음 연쇄'):
         '「오늘 찍으신 사진은 나중에…」 — 「찍으신 사진」이 붙어 샌다. 게이트가 이 문장을 글자로 지킨다'
         '(chk merge-guard:7913). 같은 이유로 성우 쪽에 넘긴다.',
@@ -145,14 +195,22 @@ def _askkind(x):
 #   ★효과음 큐(fx)는 셈에서 뺀다. 한 줄짜리 동작 큐이고 디렉터가 필요할 때만 누르며,
 #     여기서 어미를 흩으면 큐가 무거워져 제 일을 못 한다. 「~해 주세요」가 이 자리의 표준이다.
 FX_NOS = {'69', '70', '71', '72', '73', '74', '75'}
-_ask = [(no, i, _askkind(t_)) for no, i, t_ in S if _askkind(t_) and no not in FX_NOS]
+_ask = [(no, i, _askkind(t_)) for no, i, t_ in S
+        if _askkind(t_) and no not in FX_NOS and no not in BODY_NOS]
 _mix_worst, _mix_share = None, 0.0
-for _keep in ceremonies():
-    cur = collections.Counter(k for no, i, k in _ask if no in _keep)
+_askby = collections.defaultdict(collections.Counter)
+for no, i, k in _ask: _askby[no][k] += 1
+for _kind in ASK_END:
+    # 이 꼴이 가장 많이 나오게 칸을 고른다 → 그 예식이 이 꼴에 대한 최악이다
+    _, keep = worst_count(lambda c, kk=_kind: _askby[c][kk])
+    cur = collections.Counter()
+    for no, i, k in _ask:
+        if no in keep: cur[k] += 1
     tot = sum(cur.values())
-    if tot < 8: continue   # 여덟 개는 모여야 «분포»라 부를 수 있다
-    kind, n = cur.most_common(1)[0]
-    if n / tot > _mix_share: _mix_worst, _mix_share = (cur, kind, n, tot, _keep), n / tot
+    if tot < 8: continue
+    n = cur[_kind]
+    if n and n / tot > _mix_share:
+        _mix_worst, _mix_share = (cur, _kind, n, tot, keep), n / tot
 if _mix_worst:
     cur, kind, n, tot, keep = _mix_worst
     MIXLINE = ' · '.join(f'{k} {v}' for k, v in cur.most_common())
@@ -162,7 +220,7 @@ if _mix_worst:
                 R('부탁 어미 쏠림', no, i,
                   f'한 예식의 부탁 어미 {tot}개 중 {kind} 가 {n}개({_mix_share:.0%})입니다 — {MIXLINE}')
                 break
-    elif _mix_share >= 0.38:   # 코드 실측에서 41%(주세요 17/41)를 「압도적」이라 불렀다
+    elif _mix_share >= 0.38:
         W('부탁 어미 쏠림', kind, '', f'한 예식 부탁 어미 {tot}개 중 {n}개({_mix_share:.0%}) — {MIXLINE}')
     MIX_REPORT = f'부탁 어미 섞임 (가장 쏠린 예식) · {MIXLINE}  → 최다 {kind} {_mix_share:.0%}'
 else:
@@ -184,13 +242,12 @@ else:
 WORN_CAP = {'지켜봐': (6, 1), '천천히': (6, 1), '사진': (11, 3), '마음': (9, 1), '소리 내어': (2, 1)}
 WORN = {k: v[0] for k, v in WORN_CAP.items()}
 _worst = collections.Counter()
-for _keep in ceremonies():
-    _c = collections.Counter()
-    for no, i, t in S:
-        if no not in _keep: continue
-        for w in WORN:
-            if w in t: _c[w] += 1
-    for k, v in _c.items(): _worst[k] = max(_worst[k], v)
+_wc = collections.defaultdict(collections.Counter)
+for no, i, t in S:
+    for w in WORN:
+        if w in t: _wc[no][w] += 1
+for w in WORN:
+    _worst[w] = worst_count(lambda c, ww=w: _wc[c][ww])[0]
 for w, n in _worst.items():
     if n > WORN_CAP[w][1]:
         R('닳은 낱말', '-', '-',
@@ -228,10 +285,12 @@ if BODY:
                   오늘 내일 어제 자리 마음 약속 생각 이야기 그때 지금 여기 우리 저희 당신
                   결혼 가족 집안 두분 여러분 하객 신랑 신부 시간 걸음 박수 축하 사진
                   하나 기다리 함께 서로 다시 처음 이제 그냥 정말 조금 많이 순간
-                  그러 한마디 그렇 이렇 저렇 주셔 않았 계셨 되었 하셨'''.split())
+                  그러 한마디 그렇 이렇 저렇 주셔 않았 계셨 되었 하셨
+                  아니라 못하 어른 사람들 어려운 두었 이유'''.split())
     #   ★정지낱말에 «감정 낱말»은 넣지 않는다 — 고맙·미안·사랑·걱정 같은 말을 예고가 먼저
     #     쓰면 그건 진짜 선취다. 걸러야 할 것은 누구나 쓰는 기능어와 흔한 동사뿐이다.
     for no, i, t in S:
+        if no in BODY_NOS: continue     # 이 글이 본문 그 자체다
         hits = [s for s in (stem(w) for w in re.findall(r'[가-힣]{3,}', t))
                 if len(s) >= 2 and s in bw and s not in STOP]
         if hits: W('선취 후보', no, i, '배역 본문과 같은 낱말: ' + ' · '.join(sorted(set(hits))))
@@ -250,26 +309,31 @@ MANDATED = ('고정', '게이트 고정')
 #       서로 배타라 한 예식에 하나만 울린다. 배타를 보고 세면 남는 것은 진짜 겹침뿐이다.
 _pairs = [(c['no'], s_['i'], s_['new'], s_.get('tag', '')) for c in D['clips'] for s_ in c['sents']]
 _dup = {}
-for _keep in ceremonies():
-    seen = {}
-    for no, i, t, tag in _pairs:
-        if no not in _keep or not t.strip() or tag in MANDATED: continue
-        if t in seen: _dup[(no, i)] = seen[t]
-        else: seen[t] = (no, i)
+_bytxt = collections.defaultdict(list)
+for no, i, t, tag in _pairs:
+    if not t.strip() or tag in MANDATED: continue
+    _bytxt[t].append((no, i))
+for t, hits in _bytxt.items():
+    for a in range(len(hits)):
+        for b in range(a + 1, len(hits)):
+            if hits[a][0] != hits[b][0] and cooccur(hits[a][0], hits[b][0]):
+                _dup[hits[b]] = hits[a]
 for (no, i), src in sorted(_dup.items()):
     R('클립 간 겹침', no, i, f'[{src[0]}]#{src[1]} 과 글자까지 같습니다 — 이 둘은 한 예식에 같이 나갑니다')
 _reported = set()
-for keep in ceremonies():
-    heads = {}
-    for no, i, t, tag in _pairs:
-        if no not in keep or not t.strip() or tag in MANDATED: continue
-        h = (RND[no], t[:6])
-        if h in heads and heads[h][0] != no:
-            k = tuple(sorted([(no, i), heads[h]]))
-            if k not in _reported:
-                _reported.add(k)
-                W('앞머리 겹침', no, i, f'[{heads[h][0]}]#{heads[h][1]} 과 앞 6자가 같습니다 — 「{h[1]}」 (한 예식에서 잇달아 들립니다)')
-        heads.setdefault(h, (no, i))
+_byhead = collections.defaultdict(list)
+for no, i, t, tag in _pairs:
+    if not t.strip() or tag in MANDATED: continue
+    _byhead[(RND[no], t[:6])].append((no, i))
+for h, hits in sorted(_byhead.items()):
+    for a in range(len(hits)):
+        for b in range(a + 1, len(hits)):
+            if hits[a][0] == hits[b][0] or not cooccur(hits[a][0], hits[b][0]): continue
+            k = tuple(sorted([hits[a], hits[b]]))
+            if k in _reported: continue
+            _reported.add(k)
+            W('앞머리 겹침', hits[b][0], hits[b][1],
+              f'[{hits[a][0]}]#{hits[a][1]} 과 앞 6자가 같습니다 — 「{h[1]}」 (한 예식에서 잇달아 들립니다)')
 
 # 7 한 문장에 주어 둘 (은/는 + 만/이 조합)
 for no, i, t in S:
@@ -295,6 +359,7 @@ for no, i, t in S:
     #     원래 잡으려던 것은 「편지 두 통」처럼 «틀릴 수 있는 수»다. 「마지막으로 한 장」은 안 틀린다.
     #   ★[오탐 교정 2026-09-20 · 열아홉 번째] 「한 분씩」·「한 분 한 분」·「한 분도」는 수를 세는 말이
     #     아니라 «빠짐없이 차례로»라는 관용이다. 뒤에 씩/도/한 이 붙으면 수량 단정이 아니다.
+    if no in BODY_NOS: continue        # 제 이야기 속의 수는 그날 달라지지 않는다
     m = re.search(r'(한|세|네|다섯)\s*(통|명|분|개)(?![도씩]|\s*한)|(한)\s*장(?!도)(?=\s*(을|에|이|은)?\s*(더|씩))|(두)\s*(통|명|개|장)', t)
     if m: R('수량 단정', no, i, f'「{m.group(0)}」 — 예식마다 달라질 수 있습니다')
 
@@ -317,7 +382,10 @@ for no, i, t_ in S:
 
 # 11 주체 높임 누락 — 높임 주어(분/부모님/어머니/아버지)인데 서술어가 안 높음
 for no, i, t in S:
-    if re.search(r'(신 분|하신 분|부모님)(은|이|께서)?', t):
+    # ★[오탐 교정 2026-09-20 · 스물셋] 조사를 «필수»로 바꾼다. 「오지 않으신 분**의** 몫까지 치르는
+    #   일이 없습니다」에서 「분」은 임자가 아니라 소유주이고, 「없습니다」의 임자는 「일」이다.
+    #   조사를 선택으로 두면 «높임 낱말이 문장 어딘가에 있기만 하면» 빨개진다.
+    if re.search(r'(신 분|하신 분|부모님)\s*(은|이|께서)\s', t):
         if re.search(r'(없을|있을|없습니다|있습니다|없다|한다)\s*(겁니다|것입니다)?\.?$', t):
             R('주체 높임', no, i, '높임 주어인데 서술어가 안 높습니다 — 「안 계실」·「계십니다」 계열로')
 
@@ -329,14 +397,15 @@ for no, i, t in S:
 #     하객에게 하는 말과 두 사람에게 하는 말을 귀로 구분시키려고 우리가 일부러 넣은 것이라,
 #     여기서 걸면 수신자 규칙과 검사가 서로를 막는다. 「두 사람이」·「두 분은」은 그대로 센다.
 worst = collections.Counter()
-for keep in ceremonies():
-    h = collections.Counter()
-    for no, i, t in S:
-        if no not in keep: continue
-        if t.startswith('두 분,'): continue
-        m = re.match(r'^([가-힣]{1,3})', t)
-        if m: h[(RND[no], m.group(1))] += 1
-    for k, v in h.items(): worst[k] = max(worst[k], v)
+_hc = collections.defaultdict(collections.Counter)
+_keys = set()
+for no, i, t in S:
+    if t.startswith('두 분,'): continue
+    m = re.match(r'^([가-힣]{1,3})', t)
+    if m:
+        k = (RND[no], m.group(1)); _hc[no][k] += 1; _keys.add(k)
+for k in _keys:
+    worst[k] = worst_count(lambda c, kk=k: _hc[c][kk])[0]
 for h, n in worst.items():
     if n >= 3: W('문두 반복', h[0] + '회차', '-', f'「{h[1]}」(으)로 여는 문장이 잇달아 {n}개 — 같은 박자로 출발합니다')
 
@@ -382,19 +451,38 @@ for c in D['clips']:
 #   ★[오탐 교정] 「주십시오」·「주시기」 같은 높임 어미가 원래 치찰음 셋이다. 어미를 뺀 몸통에서만 센다.
 SIB = set('ㅅㅆㅈㅉㅊ')
 for no, i, t in S:
+    # ★[오탐 교정 2026-09-20 · 스물한 번째] 높임 어미 «덩어리»를 더 넣는다. 「주셔서」·「주신」·「주시면」도
+    #   「주십시오」와 같은 집안이고 원래 치찰음 셋이다. 「와 주셔서 감사합니다」는 한국어에서 가장 흔한
+    #   인사인데 그걸 «새는 자리»로 잡으면 고칠 방법이 없다. 어미가 아니라 몸통에서만 센다.
     body = re.sub(r'(주십시오|주시기 바랍니다|하십시오|주세요|주셨습니다|계십니다)\.?$', '', t)
+    body = re.sub(r'(주셔서|주셔도|주시고|주신|주시면|주시는|드려서|드리는)', '', body)
     # ★[오탐 교정] 쉼표·마침표는 말할 때 쉬는 자리라 연쇄가 거기서 끊긴다.
     #   「잠시, 서로를」을 ㅈㅅㅅ 3연쇄로 세면 안 된다 — 쉼표에서 숨을 쉰다.
-    k = [c if ('가' <= c <= '힣') else '|' for c in body if ('가' <= c <= '힣' or c in ',.·')]
-    run = best = 0
+    # ★[오탐 교정 2026-09-20 · 스물다섯] 한 낱말 «안»의 연쇄는 세지 않는다.
+    #   「청첩장」(ㅊㅊㅈ)은 한 덩어리 낱말이라 입이 알아서 굴리고, 무엇보다 바꿀 말이 없다 —
+    #   청첩장을 청첩장이라 안 부를 수 없다. 실제로 새는 것은 «낱말 경계를 넘는» 연쇄다:
+    #   「직접 / 정하십니다」·「참석 / 자리」. 연쇄가 띄어쓰기를 적어도 한 번 건너야 셈에 넣는다.
+    k = [c if ('가' <= c <= '힣') else ('␣' if c == ' ' else '|')
+         for c in body if ('가' <= c <= '힣' or c in ' ,.·')]
+    run = best = 0; spanned = crossed = False
     for c in k:
-        run = run + 1 if (c != '|' and jamo(c)[0] in SIB) else 0
-        best = max(best, run)
-    if best >= 3: W('치찰음 연쇄', no, i, f'어미를 뺀 몸통에 치찰음 음절이 {best}개 연달아 — 마이크에서 샙니다')
+        if c == '␣':
+            if run: crossed = True      # 연쇄 도중에 띄어쓰기를 건넜다
+            continue
+        if c != '|' and jamo(c)[0] in SIB:
+            run += 1
+            if run > best: best, spanned = run, crossed
+        else:
+            run = 0; crossed = False
+    if best >= 3 and spanned:
+        W('치찰음 연쇄', no, i, f'어미를 뺀 몸통에 치찰음 음절이 {best}개 연달아 — 마이크에서 샙니다')
 
 # 15 한 숨에 못 읽는 길이 — 쉼표 없이 긴 문장
 for no, i, t in S:
-    for seg in re.split(r'[,·]', t):
+    # ★[오탐 교정 2026-09-20 · 스물넷] 마침표를 쉬는 자리로 안 봤다. 쉼표만 보고 있었다.
+    #   43번의 35음절 한 문장을 두 문장으로 갈랐는데도 여전히 한 덩어리로 세어 빨갰다.
+    #   마침표는 쉼표보다 «더 크게» 쉬는 자리다. 물음표·느낌표도 같다.
+    for seg in re.split(r'[,·.!?]', t):
         n = len([c for c in seg if '가' <= c <= '힣'])
         if n > 32: R('한 숨 초과', no, i, f'쉼표 없이 {n}음절 — 낭독하면 숨이 끊깁니다')
 
