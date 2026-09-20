@@ -39,6 +39,16 @@ CULL = [
  ('toast','cake','plain','뒤 두 문장이 cake·warm 과 글자까지 같다. 다른 건 첫 문장뿐인데 warm 쪽이 뒤의 「천천히」와 이어진다'),
  ('toast','toast','plain','★65음절로 현행(58)보다 길다. 담백판이 현행보다 길면 담백판이 아니다. 「하고 선창하면」은 4회차에 고친 자리의 옛 꼴'),
  ('toast','both','plain','cake·plain 을 지우면 앞부분이 사라진다. 129음절이다'),
+ # ★★[CULL_2 2026-09-20 사장님 「너의 추천대로 진행해」] 입장 한 벌을 더 버린다.
+ #   코워크는 넷(`A·warm`·`C·현행`·`E·현행`·`F·warm`)을 제안했고, 나는 «`A·warm` 만»을 추천했다.
+ #   · `A·warm` 은 **현장 전제**라 버리는 게 맞다 — 「이 방에 계신」은 야외나 다른 공간에서 **틀린 말**이 된다.
+ #     저장소 규칙에도 「녹음은 현장을 단정하지 않는다」가 있고, 코워크 검사도 여기를 빨강으로 잡는다.
+ #   · `C·현행`·`E·현행` 은 성격이 다르다 — 어조판 하나를 빼는 게 아니라 **그 갈래의 기본 문안을
+ #     warm 판으로 갈아 끼우는 일**이라 되돌리기가 한 단계 더 비싸다. 사장님 판단으로 남겼다.
+ #   ★내 분류가 한 군데 거칠었다 — `F·warm` 은 어조판이라 C·E 와 성격이 다른데 «나머지 셋»으로 묶어 올렸다.
+ #     사장님 결정이 「추천대로」였으므로 임의로 늘리지 않는다. 필요하면 그때 한 줄 더 버리면 된다.
+ ('entry','A','warm','★현장 전제 — 「이 방에 계신 여러분은」은 야외나 다른 공간에서 틀린 말이 된다. '
+                     '게다가 하는 일(하객을 주인공으로 세우기)이 C·warm·F·warm 과 셋이 같다'),
 ]
 # ★[TRIBUTE_KEEP] 코워크가 «지우지 말라»고 못박은 자리 — 표에는 넣지 않았지만 근거를 남긴다.
 #   tribute 의 plain 셋은 틀이 같지만 «어조 갈래»가 아니라 «다른 행동»이다(꽃 / 큰절 / 안기).
@@ -64,17 +74,19 @@ for i, raw in enumerate(lines):
         tone = None; continue
     if l.startswith('>') and key and tone: mark[i] = (g[0], key, tone, 'body')
 
-drop, miss = set(), []
+# ★★[IDEMPOTENT] 이미 지운 자리는 «못 찾음»이 아니라 «이미 지움»이다.
+#   첫 판은 한 번 돌고 나면 두 번째부터 전부 miss 로 떨어져 멈췄다 — 한 줄을 더 버리려는데
+#   앞서 버린 열넷 때문에 아무것도 못 하게 됐다. 이 스크립트는 «지울 목록»이지 «이번에 지울 목록»이 아니다.
+drop, miss, already = set(), [], 0
 for ev, k, t, why in CULL:
     idx = [i for i, m in enumerate(mark) if m and m[0] == ev and m[1] == k and m[2] == t]
-    if not idx: miss.append((ev, k, t)); continue
+    if not idx:
+        already += 1; continue
     print('✓ %-8s %-7s %-6s  %d줄  %s' % (ev, k, RTONE[t], len(idx), why[:58]))
     drop.update(idx)
-if miss:
-    print('\n✗ 원천에서 못 찾은 자리 %d개 — 아무것도 안 지웠습니다:' % len(miss))
-    for m in miss: print('   ', m)
-    sys.exit(1)
-print('\n지울 블록 %d개 · 줄 %d개' % (len(CULL), len(drop)))
+print('\n이미 지워져 있던 자리 %d개 · 이번에 지울 블록 %d개 · 줄 %d개' % (already, len(drop and CULL) and len([1 for _ in drop]) and sum(1 for ev,k,t,_ in CULL if any(m and m[0]==ev and m[1]==k and m[2]==t for m in mark)), len(drop)))
+if not drop:
+    print('(지울 것이 없습니다 — 이미 전부 지워져 있습니다)'); sys.exit(0)
 if not WRITE:
     print('(드라이런 · --write 로 실제 삭제)'); sys.exit(0)
 io.open(SRC, 'w', encoding='utf-8').write('\n'.join(l for i, l in enumerate(lines) if i not in drop))
