@@ -117,8 +117,22 @@ console.log('  종류별 —', Object.entries(kindTally).map(([k, v]) => `${k} $
 
 if (noRow.length) no(`엔진이 부르는데 실청 화면에 **줄이 없는** 자리 ${noRow.length}개:\n    `
   + noRow.map(([id, v]) => `${id} (${v.kind})`).join('\n    '));
-if (noSnd.length) no(`줄은 있는데 **소리가 안 실린** 자리 ${noSnd.length}개:\n    `
-  + noSnd.map(([id, v]) => `${id} (${v.kind})`).join('\n    '));
+/* ★★[NEW_CLIP_NOSOUND 2026-09-20] «아직 한 번도 안 받은» 클립은 당연히 소리가 없다.
+   87_narr-toast-none 이 그랬다 — 새로 만든 자리라 mp3 가 있을 수가 없는데 빨강이 됐다.
+   ★그렇다고 전부 봐주면 «모르고 빠진 것»까지 통과한다. [REDUB_PENDING] 과 **같은 자로** 가른다:
+     다시받기 목록에 등록됨 = 사람이 알고 받기로 한 것 · 등록 안 됨 = 아무도 모르는 빈자리(빨강)
+   ★목록을 못 읽으면 봐주기를 끄고 그 사실을 찍는다(아래 catch) — 조용히 넓어지지 않는다. */
+let NEWPEND = new Set();
+try {
+  const J = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/타입캐스트/다시받기/_순서.json'), 'utf8'));
+  for (const arr of Object.values(J)) for (const r of arr) NEWPEND.add(r.clip);
+} catch (e) { console.log(`· [NEW_CLIP_NOSOUND] 다시받기 목록을 못 읽어 봐주기를 끕니다: ${e.message}`); }
+const noSndKnown = noSnd.filter(([id]) => NEWPEND.has(id));
+const noSndReal = noSnd.filter(([id]) => !NEWPEND.has(id));
+if (noSndKnown.length) console.log(`· 아직 안 받은 자리 ${noSndKnown.length}개는 봐줍니다 [NEW_CLIP_NOSOUND]: `
+  + noSndKnown.map(([id]) => id).join(' · '));
+if (noSndReal.length) no(`줄은 있는데 **소리가 안 실린** 자리 ${noSndReal.length}개:\n    `
+  + noSndReal.map(([id, v]) => `${id} (${v.kind})`).join('\n    '));
 if (dead.length) console.log(`· 화면에만 있고 엔진이 안 부르는 줄 ${dead.length}개(폐지·예비): ${dead.join(' · ')}`);
 
 /* ④ 어조 63클립 — 붙여넣기 대본의 문장 수와 화면의 문장 수가 같은가 */

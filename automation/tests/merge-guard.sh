@@ -3873,7 +3873,12 @@ chk "PERF_CANON = '이제 두 사람은 부부입니다'" scripts/check-narr-rul
 chk 'VOICE_GROOM_2' scripts/build-typecast-import.mjs 1
 chk 'VOICE_FRIEND_2' scripts/build-typecast-import.mjs 1
 chk "신랑: '이겸'" scripts/build-typecast-import.mjs 1
-chk "하객대표: '규민'" scripts/build-typecast-import.mjs 1
+# ★[TOAST_NONE 2026-09-20] 하객대표 자리가 폐지돼 배정을 지웠다 — 아래는 «되살리지 말 것»으로 뒤집는다.
+#   [VOICE_GAP] 이 「규민 148Hz vs 우성 151Hz 는 사실상 같은 목소리」라며 교체 후보를 찾던 중이었는데
+#   **자리 자체가 사라져** 그 숙제가 함께 닫혔다. F0 실측과 후보(세진)를 적은 주석은 파일에 남아 있다.
+nochk "하객대표: '규민'" scripts/build-typecast-import.mjs
+chk 'TOAST_NONE' scripts/build-typecast-import.mjs 2
+chk 'N_HOST' scripts/build-typecast-import.mjs 4
 #   ★부재는 nochk 로 쏜다(chk 셋째 인자는 «최소 개수»다 — CHK_ARG_SPACE 참고).
 #   ★이름 통짜로 세지 않는다 — 배역 «가상 인물»이 이준호(31)라서 '이준' 이 정당하게 남고,
 #     근거 주석에도 옛 이름이 남아야 한다(왜 바꿨는지). 대장 줄 모양 그대로만 없는지 본다.

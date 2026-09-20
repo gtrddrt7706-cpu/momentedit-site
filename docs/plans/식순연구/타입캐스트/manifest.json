@@ -32,9 +32,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 14,
-      "sents": 39,
-      "chars": 1056
+      "clips": 13,
+      "sents": 37,
+      "chars": 1000
     },
     {
       "file": "2_진행_전반.txt",
@@ -106,7 +106,7 @@
       "dir": "assets/audio/narration",
       "clips": 32,
       "sents": 51,
-      "chars": 1252
+      "chars": 1267
     },
     {
       "file": "5_배역.txt",
@@ -522,31 +522,6 @@
         {
           "i": 1,
           "text": "이제, 멈춘 자리에서 다시 이어가겠습니다.",
-          "before": 0,
-          "after": 0
-        }
-      ]
-    },
-    {
-      "no": "87",
-      "id": "N9",
-      "label": "축사 없음 안내 (축배 앞)",
-      "file": "narr-toast-none",
-      "role": "안내",
-      "part": "1_안내.txt",
-      "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 0.45,
-      "sents": [
-        {
-          "i": 0,
-          "text": "오늘은 축사를 따로 두지 않았습니다.",
-          "before": 0,
-          "after": 0.45
-        },
-        {
-          "i": 1,
-          "text": "여기 계신 분들이 이미 두 사람을 잘 아십니다.",
           "before": 0,
           "after": 0
         }
@@ -2040,6 +2015,31 @@
       ]
     },
     {
+      "no": "87",
+      "id": "N9",
+      "label": "축사 없음 안내 (축배 앞)",
+      "file": "narr-toast-none",
+      "role": "진행",
+      "part": "6_예식뒤.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘은 축사를 따로 두지 않았습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "여기 계신 분들이 이미 두 사람을 잘 아십니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
       "no": "52",
       "id": "G12-1",
       "label": "입장 닫는 말",
@@ -2053,31 +2053,6 @@
         {
           "i": 0,
           "text": "같은 자리에 두 사람이 있습니다.",
-          "before": 0,
-          "after": 0.45
-        },
-        {
-          "i": 1,
-          "text": "잠시, 서로를 바라봐 주세요.",
-          "before": 0,
-          "after": 0
-        }
-      ]
-    },
-    {
-      "no": "79",
-      "id": "G12-1B",
-      "label": "입장 닫는 말 · 짧고 강하게",
-      "file": "narr-entry-out-B",
-      "role": "진행",
-      "part": "6_예식뒤.txt",
-      "dir": "assets/audio/narration",
-      "head": 0.4,
-      "tail": 0.45,
-      "sents": [
-        {
-          "i": 0,
-          "text": "두 사람이 나란히 있습니다.",
           "before": 0,
           "after": 0.45
         },
