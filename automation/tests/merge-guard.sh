@@ -1515,6 +1515,8 @@ chk 'NOWRAP_CLIP_FIX' index.html 1                          # 390px서 17px 잘�
 chk 'MOCKUP_ARIA_HIDDEN' index.html 1                       # 장식 목업 스크린리더 제외 · 목업에 포커스 요소 추가 시 함께 재검토
 chk 'SECTION_RHYTHM' index.html 2                           # 섹션 간격은 .divider 단독(--gap×2+40) · 새는 마진 차단 규칙 + about 인라인 마진
 chk 'SECTION_RHYTHM_TIER2' index.html 1                    # 장 전환 4경계 divider +32px(264/312) · 기본 200/248과 2단 리듬 유지
+# ★위 두 줄은 «주석이 살아 있나»만 본다 — 값은 안 본다(2026-09-20 반증: --gap 104→88 이 그냥 통과했다).
+#   실제 수치를 지키는 것은 아래쪽 [RHYTHM_LOCK] 의 scripts/audit/section-rhythm.mjs 다.
 chk 'TYPO_SCALE7' index.html 1                              # 본문·라벨 7단계(11~20) · 반px 금지 · 목업 구역 예외
 chk 'TYPO_RHYTHM' index.html 1                              # 타임라인 항목 padding 40px — 벽처럼 붙는 회귀 금지
 chk 'HOME_MASTHEAD_WORDMARK' index.html 2                       # 홈 마스트헤드 = 워드마크 이미지(width 148/130px) · height 기준으로 되돌리면 이 면만 크기가 어긋난다(원본 비율 7.3:1)
@@ -7567,6 +7569,34 @@ chk 'FOOTER_UNIFY' parents.html 1
 #   반증 실측: privacy.html 을 치우면 rc=2, 화면은 두고 <footer> 만 지우면 rc=1 로 갈린다.
 chk 'SERVED_OURS' scripts/audit/footer-parity.mjs 2
 chk 'freePort' scripts/audit/footer-parity.mjs 2
+
+# ★★[RHYTHM_LOCK 2026-09-20 사장님 「메인홈페이지 섹션과의 간격 지금이 적절한지 디자이너 관점으로」]
+#   판정은 「현행 유지 · 줄이지 않는다」였다. 그 판정을 여기 건다.
+#
+#   왜 필요했나 — 위 1510~1511 줄의 chk 둘은 «주석 문자열»만 센다. 값은 안 본다.
+#   2026-09-20 에 반증해 보니 `--gap: 104px` → `88px` 로 바꿔 **모든 섹션 경계가
+#   248 → 216px 으로 좁아졌는데도** merge-guard 가 「ALL MARKERS OK · rc=0」 이라 답했다.
+#   [DECISION_GUARD] 가 적어 둔 실패 모양 그대로다 — 「결정이 주석에만 적히고 실행이 안 됐다」.
+#
+#   ★이 값에는 사고 이력이 있다. 200/248 단일값으로 통일했다가 배포 직후 사장님이
+#     답답함을 느껴 되돌렸다(momentedit-design 「섹션 리듬」). 조용히 좁히면 안 되는 자리다.
+#   ★2026-09-20 실측 근거: 섹션 «안»의 소제목 간격이 113px 이라 경계 248px 은 그 2.2배뿐 —
+#     디자인 문서의 자기 기준(최소 3배)에 이미 못 미친다. 줄이는 방향은 근거가 없다.
+#   ★반증으로 고정했다: ①--gap 104→88 ②장 전환 +32px 삭제 ③한 경계만 +8px(드리프트 모사)
+#     → 셋 다 rc=1, 원복하면 rc=0.
+#   ★숫자를 일부러 바꾸려면 scripts/audit/section-rhythm.mjs 의 EXPECT 도 같은 커밋에서 바꿀 것.
+#   ★재는 곳은 여기가 아니다 — merge-guard.yml 은 브라우저를 안 깔아 늘 2(못 쟀다)로 빠진다.
+#     실제 측정은 nightly-screen.yml(run-all.mjs 가 자동 등록). 여기서는 «검사를 지우는 것»을 막는다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/section-rhythm.mjs >/dev/null 2>&1; _sr=$?
+  case "$_sr" in
+    0) echo 'ok section-rhythm: 섹션 리듬 2단 그대로 (기본 200/248 · 장 전환 264/312)' ;;
+    1) echo 'FAIL section-rhythm: 섹션 세로 리듬이 정해진 2단과 다릅니다 — node scripts/audit/section-rhythm.mjs'; fail=1 ;;
+    *) echo 'ok section-rhythm: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'RHYTHM_LOCK' scripts/audit/section-rhythm.mjs 1
+chk 'SERVED_OURS' scripts/audit/section-rhythm.mjs 2
+chk 'freePort' scripts/audit/section-rhythm.mjs 2
 
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
