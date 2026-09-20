@@ -3391,6 +3391,22 @@ chk 'PRICE_2026_08' contract/v1-1.html 1
 chk 'PRICE_2026_08' admin.html 3
 chk 'PRICE_2026_08' automation/admin/Admin.html 1
 chk 'PRICE_SYNC' scripts/check-price-sync.mjs 1
+# ★★[PRICE_RUN] 위 chk 는 «파일 안에 글자가 있나»만 본다 — 검사를 «돌리지»는 않았다.
+#   2026-09-20 점검에서 드러났다: check-price-sync.mjs 는 만들어 놓고 게이트가 한 번도 실행한 적이 없다.
+#   즉 주말가가 330→300 으로 어긋나도 게이트는 초록이었다. 금액은 조용히 틀리면 안 되는 값이다.
+#   ★깨 보고 믿었다 — index.html 의 330 을 300 으로 바꾸니 종료 1 로 빨강. 원복 후 종료 0.
+if command -v node >/dev/null 2>&1; then
+  node scripts/check-price-sync.mjs >/dev/null 2>&1; _prs=$?
+  if [ "$_prs" = 1 ]; then
+    echo 'FAIL price-sync: 가격 사본이 어긋났다 — node scripts/check-price-sync.mjs'; fail=1
+  elif [ "$_prs" = 2 ]; then
+    echo 'skip price-sync: 이번엔 재지 못했습니다(단일 출처를 못 읽음) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_prs" != 0 ]; then
+    echo "FAIL price-sync: 뜻 모를 종료 코드 $_prs — node scripts/check-price-sync.mjs"; fail=1
+  else
+    echo 'ok price-sync (가격 사본 전부 일치)'
+  fi
+fi
 # ★[PRICE_2026_08_15] 평일 240 → 250 (2026-08-15 사용자 지시 "가격은 지금 바로 바꾸는거야").
 #   인상이 두 번이라 **구가가 두 세대**다 — 관리자 드롭다운에서 셋 다 지우지 말 것:
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
