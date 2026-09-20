@@ -49,7 +49,7 @@ for d in parts:
             elif same: box = '<div class="t keep">바꾸지 않습니다</div>'
             else:      box = f"<div class='t new'>{e(s['new'])}</div>"
             rows.append(f"""
-<div class="s{' same' if same else ''}" data-id="{e(sid)}" data-h="{hashlib.sha1(s['new'].encode()).hexdigest()[:4]}">
+<div class="s{' same' if same else ''}{'' if s.get('must') else ' dele'}" data-id="{e(sid)}" data-h="{hashlib.sha1(s['new'].encode()).hexdigest()[:4]}">
   <div class=hd><b>#{s['i']}</b><span class=tag>{e(s.get('tag',''))}</span></div>
   <div class=lbl>지금</div><div class="t old">{e(s['old'])}</div>
   <div class=lbl>바꿀 글</div>{box}
@@ -116,6 +116,8 @@ h2{{font-size:16px;margin:26px 0 6px;padding-top:14px;border-top:2px solid var(-
 .s.redo .rz{{display:block}}
 body.chg .s.same{{display:none}}
 body.chg .c:not(:has(.s:not(.same))){{display:none}}
+body.mst .s.same,body.mst .s.dele{{display:none}}
+body.mst .c:not(:has(.s:not(.same):not(.dele))){{display:none}}
 .out{{width:100%;height:230px;font-family:ui-monospace,monospace;font-size:12px;padding:10px;border:1px solid var(--bd);border-radius:9px;margin-top:8px}}
 .go{{width:100%;min-height:48px;background:var(--gd);color:#fff;border:0;border-radius:10px;font-size:15px;cursor:pointer;font-family:inherit;margin-top:10px}}
 @media(prefers-color-scheme:dark){{.cn{{background:#262219;color:#c8bfb4}}:root{{--bg:#1b1917;--bg2:#252220;--tx:#eae6e0;--lt:#9c948b;--bd:#37332f}}.c,.b,.rz,.out,.tg button{{background:#211e1c;color:var(--tx)}}.old,.keep{{background:#2a2725;color:#a8a099}}.new{{background:#1e2a21}}.cut{{background:#2a1f1c;color:#d9a294}}}}
@@ -132,7 +134,7 @@ body.chg .c:not(:has(.s:not(.same))){{display:none}}
 <div class=bar>
   <div id=st>0 / {nchg}</div><div class=pg><i id=pgi></i></div>
   <div class=tg><span>보기</span>
-    <button id=f1 class=on>바꾼 것만</button><button id=f2>전부</button>
+    <button id=f0 class=on>꼭 보실 것</button><button id=f1>바꾼 것 전부</button><button id=f2>전부</button>
   </div>
 </div>
 {''.join(blocks)}
@@ -168,8 +170,12 @@ document.addEventListener('input',function(ev){{
   var ta=ev.target.closest('.rz'); if(!ta) return;
   var id=ta.closest('.s').dataset.id; V[id]=V[id]||{{}}; V[id].r=ta.value; save();
 }});
-document.getElementById('f1').onclick=function(){{document.body.classList.add('chg');this.classList.add('on');document.getElementById('f2').classList.remove('on')}};
-document.getElementById('f2').onclick=function(){{document.body.classList.remove('chg');this.classList.add('on');document.getElementById('f1').classList.remove('on')}};
+function pick(m){{var b=document.body;b.classList.remove('chg','mst');if(m)b.classList.add(m);
+  ['f0','f1','f2'].forEach(function(x){{document.getElementById(x).classList.remove('on')}});}}
+document.getElementById('f0').onclick=function(){{pick('mst');this.classList.add('on')}};
+document.getElementById('f1').onclick=function(){{pick('chg');this.classList.add('on')}};
+document.getElementById('f2').onclick=function(){{pick('');this.classList.add('on')}};
+document.body.classList.remove('chg');document.body.classList.add('mst');
 document.getElementById('mk').onclick=function(){{
   var L=['### COPY_PICK v2 · 전 회차 · key={stamp}'];
   document.querySelectorAll('.rd').forEach(function(rd){{

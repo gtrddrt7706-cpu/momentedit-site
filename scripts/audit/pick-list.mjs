@@ -42,8 +42,17 @@ out.push('# 추리기 — 다섯 이벤트 전 벌 (자동 생성 · 2026-09-20)
 
 for (const ev of ['entry', 'declare', 'letter', 'tribute', 'toast']) {
   const g = D.TONE[ev] || {};
+  /* ★★[CUR_ORPHAN 2026-09-20] 갈래를 `TONE` 에서 돌면 **어조판이 0개가 된 갈래가 통째로 빠진다.**
+     생성기는 어조가 하나도 없는 칸을 아예 안 만들기 때문이다.
+     [CULL_2] 로 `entry.A` 의 마지막 어조판을 버리자 A 가 사라졌고, 도구가 입장을 11 이 아니라 **10** 으로 셌다.
+     ★고객이 고를 수 있는 것은 «현행 + 어조판»이다. 현행은 `D.ENTRY`·`D.DECLARE` … 쪽에 산다.
+       그러니 갈래 목록은 **현행 쪽**에서 세우고, 어조판은 있으면 붙인다. */
+  const BASE = { entry: D.ENTRY, declare: D.DECLARE, letter: D.LETTER,
+                 toast: D.TOAST, tribute: (D.TRIBUTE || {}).modes || {} };
+  const keys = [...new Set([...Object.keys(BASE[ev] || {}), ...Object.keys(g)])];
   const rows = [];
-  for (const [b, tones] of Object.entries(g)) {
+  for (const b of keys) {
+    const tones = g[b] || {};
     const c = CUR[ev] ? CUR[ev](b) : '';
     if (c) rows.push([b, '현행', c]);
     for (const [t, v] of Object.entries(tones)) rows.push([b, t, cut(v)]);
