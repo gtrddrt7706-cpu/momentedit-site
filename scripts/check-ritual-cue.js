@@ -40,7 +40,12 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★맨 끝에 붙였다 — 위 ENTRY_OUT_TONE 이 실제로 당한 그 사고를 안 되풀이한다.
 // [ROUND_MID 2026-09-12] 인사 사진 «가운데» 안내 1개 추가(86_narr-round-mid) → 86.
 //   그 구간 라이브가 1020초(17분)인데 그동안 스피커에서 한 마디도 안 나갔다(flow-shape.js 실측).
-const N_FILES = 86;
+// [TOAST_NONE 2026-09-20 사장님 확정 「친구부분멘트 아예 삭제」] 축사 없음 안내 1개(87_narr-toast-none) → 87.
+//   배역 15_toast(하객대표 7문장)를 폐지하고 그 자리를 «왜 없는지» 한 줄로 닫는다.
+//   ★맨 끝에 붙였다 — 위 ENTRY_OUT_TONE 이 실제로 당한 그 사고를 안 되풀이한다.
+//   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
+//     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
+const N_FILES = 87;
 if (C.FILES.length !== N_FILES) no(`FILES ${N_FILES}개가 아니다 (${C.FILES.length})`);
 else if (new Set(C.FILES).size !== N_FILES) no('FILES에 중복 슬러그가 있다');
 else ok(`FILES ${N_FILES}개 · 중복 없음`);
@@ -86,12 +91,21 @@ else ok(`FILES ${N_FILES}개 · 중복 없음`);
    첫인사는 '사람의 시간'이고, 사람의 시간 뒤에는 언제나 수동 누름이 붙는다(위 LEAD_OUT 주석과 같은 규칙).
    ★두 큐 다 예전부터 엔진에 있었다 — 담백에서 첫인사가 팔레트로 내려가며 빠져 있었을 뿐이다
      (THREE_COURSES 주석의 '12 welcome-out' 이 그것). 되돌아온 것이지 새로 생긴 것이 아니다. */
-const A3_MANUAL = ['01', '05', '52', '12', '14', '16', '20', '56', '44', '60', '61', '63', '65', '47'];
-//                  guest-1 entry-A entry-out welcome-out vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
+/* ★[WELCOME_OUT_DROP 2026-09-20] 12(welcome-out) 를 큐에서 빼자 **수동 누름이 13 으로 옮겨갔다.**
+   자리가 사라진 게 아니다 — 11(welcome-in) 뒤에 «두 분이 직접 인사»하는 사람 구간이 있고,
+   그게 끝나면 디렉터가 다음 큐를 누른다. 종전엔 12 가 그 자리였고 이제 13(vow-in)이다.
+   ★수동 큐 **수는 그대로 14개**다. 줄어든 게 아니라 한 칸 밀린 것이다 —
+     수만 보고 「설계대로」라고 넘기지 말 것(위 67~74행이 같은 함정을 적어 뒀다). */
+const A3_MANUAL = ['01', '05', '52', '13', '14', '16', '20', '56', '44', '60', '61', '63', '65', '47'];
+//                  guest-1 entry-A entry-out vow-in vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
-const A3_CHAIN = ['11', '13', '15', '30', '27', '40', '26', '64', '45'];
-//                 welcome-in vow-in ring-in declare-1-solemn letter-parent toast close final-call farewell
+/* ★[WELCOME_OUT_DROP] 13(vow-in)이 체인에서 «수동»으로 올라갔다 — 12 가 빠진 자리를 이어받았다.
+   ★[TOAST_NONE] 87(narr-toast-none)이 체인으로 들어왔다 — 편지 뒤에 이어 붙어 축배를 연다.
+     사람이 누를 자리가 아니다. 편지가 끝나면 바로 「오늘은 축사를 따로 두지 않았습니다」가 흐르고
+     이어서 축배가 시작된다. 그 사이에 누름을 두면 «왜 멈췄지» 하는 빈 자리가 생긴다. */
+const A3_CHAIN = ['11', '15', '30', '27', '87', '40', '26', '64', '45'];
+//                 welcome-in ring-in declare-1-solemn letter-parent toast-none toast close final-call farewell
 {
   const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');

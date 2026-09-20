@@ -169,9 +169,18 @@ vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
      둘이 **같은 A 로** 떨어지니 「적힌 것과 들리는 것이 같은가」를 보는 위 그물은 만족한다.
      고객만 G 를 고르고 A 의 닫는 말을 듣는다. 조용한 강등이라 아무도 모른다.
      ★그래서 두 표의 **키 집합**을 묶어 둔다 — 느낌을 늘리는 날 닫는 말도 같이 쓰게. */
-  const feel = Object.keys(D.ENTRY || {}).sort().join(',');
+  /* ★★[ENTRY_OUT_B_DROP 2026-09-20] 일부러 뺀 갈래는 여기 적는다 — **조용한 강등과 가르기 위해서다.**
+     위 주석이 막으려는 것은 「느낌을 더하고 닫는 말을 잊는」 사고다. 그건 아무도 모른 채 A 로 떨어진다.
+     이번 건은 반대다 — B 의 닫는 말(79)이 A(52)와 **뜻이 같아서** 일부러 뺐고, B 를 고른 두 분은
+     알고서 A 를 듣는다. 두 문장 다 «두 사람이 함께 서 있다» 하나를 말한다.
+     ★그래도 검사를 끄지 않고 **목록으로** 둔다. 여기 이름이 없으면 종전대로 빨강이다 —
+       다음에 누가 G 를 더하고 닫는 말을 잊으면 그대로 잡힌다.
+     ★되살릴 때는 이 목록에서 빼고 entryOutBy.B 를 채운다. «A 와 다른 그림»을 말하는 문장이어야 한다. */
+  const OUT_DROPPED = ['B'];
+  const feel = Object.keys(D.ENTRY || {}).filter((k) => !OUT_DROPPED.includes(k)).sort().join(',');
   const outs = keys.slice().sort().join(',');
-  ok(`입장 느낌과 도착 멘트가 같은 갈래다 (느낌 ${feel} · 멘트 ${outs})`, !!feel && feel === outs);
+  ok(`입장 느낌과 도착 멘트가 같은 갈래다 (느낌 ${feel} · 멘트 ${outs} · 일부러 뺀 것 ${OUT_DROPPED.join(',') || '없음'})`,
+     !!feel && feel === outs);
 }
 
 // ★[ENTRY_SELF_MIRROR 2026-08-04] 입장 인사 예시문(ENTRY[v].self)도 인라인 사본이다 — 위 NAR_MIRROR 는 .nar 만 훑어서 안 걸렸다.
