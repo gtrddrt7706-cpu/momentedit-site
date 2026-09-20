@@ -336,6 +336,14 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
   .greet-title{font-size:24px}.greet-sub{font-size:15px}.cal{padding:16px 14px 20px}.time{padding:0 14px 20px}
   .deposit{margin:0 14px 4px}
 }
+
+/* ★[REVISIT_PICKED] 다시 오신 분께 «무엇이 접수돼 있는지» 한 줄. 장식 없이 씰 왼선 하나만. */
+.revisit{margin:0 0 18px;padding:13px 15px;background:var(--bg2,#F5F3EF);
+  border-left:2px solid var(--seal,#6B2A24);border-radius:2px;
+  font-family:var(--serif-ko);font-size:13px;line-height:1.7;color:var(--sub,#5A554C);
+  letter-spacing:0.02em;word-break:keep-all}
+.revisit b{font-weight:500;color:var(--text,#1C1B19)}
+.revisit .rv-sub{display:block;margin-top:5px;font-size:12px;color:var(--light,#6E6959)}
 </style>
 </head>
 <body>
@@ -384,6 +392,13 @@ footer{text-align:center;padding:30px 22px 38px;border-top:1px solid var(--hairl
     </div>
     <div class="keyinfo-note">입금 확인 후 24시간 이내 확정 메일이 발송되며, 메일을 받으신 시점에 예약이 완료됩니다. 드레스 시착 전에 취소하시면 예약금은 전액 환불해 드립니다. 자세한 안내는 시간 선택 후 확인하실 수 있습니다.</div>
   </div>
+
+  <!-- ★★[REVISIT_PICKED 2026-09-20 점검 라운드 8] 이미 신청한 분이 다시 들어왔을 때 보이는 줄 · 지우지 말 것.
+       종전엔 어제 11:30 을 신청한 분이 메일 링크로 다시 들어오면 «백지 달력»을 봤다.
+       그 화면에는 계좌번호와 예약금 10만원이 같이 떠 있고, PICKED 단계에서 고객에게 가는
+       알림은 0건이다(95_notify.gs 의 admin.slotPicked 는 to:'admin'). 모달을 닫으면 기록이 없다.
+       ★서버가 picked 를 안 내려주면(구 배포) 이 줄은 조용히 안 나온다 — 화면이 깨지지 않는다. -->
+  <div class="revisit" id="revisit" hidden></div>
 
   <!-- 날짜 -->
   <div class="card fade d2">
@@ -686,8 +701,30 @@ function doSubmit(){
   const etc=document.getElementById('flexEtc').value;
   const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent='이 시간으로 신청하기';};
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
+  /* ★★[OK_FALSE_GUARD 2026-09-20 점검 라운드 6] 성공 핸들러가 «반환값»을 봐야 한다 · 되돌리지 말 것.
+     종전엔 function(){...} 으로 인자를 아예 안 받았다. 그런데 서버 submitSchedule 은
+     오류 대부분을 throw 하면서도 **락 안의 두 갈래만 return { ok:false }** 로 돌려준다
+     (consultation-booking.gs · 「방금 마감되었어요」 슬롯 선점 · 「서버 혼잡」 락 15초 초과).
+     google.script.run 은 return 을 «성공»으로 취급하므로 그 둘이 이 핸들러로 온다.
+     ★브라우저로 재현했다 — 서버가 「방금 마감되었어요」를 돌려준 상태에서 화면은
+       「신청이 접수되었습니다 · 9월 21일(월) · 11:30」 확정 모달을 띄웠다.
+       시트 기록·관리자 알림은 그 return 아래에 있어 **아무것도 일어나지 않는다.**
+       고객은 오지 않을 연락을 기다리고, 하필 두 사람이 같은 시간을 고른 순간에 터진다.
+     ★throw 로 바꾸지 않고 여기서 받는다 — slotTaken 은 «달력을 다시 그려야 하는» 신호라
+       서버가 구조화된 값으로 주는 것이 맞다. 고칠 자리는 그걸 안 읽던 화면 쪽이다. */
   google.script.run
-    .withSuccessHandler(function(){
+    .withSuccessHandler(function(res){
+      // 서버가 «안 됐다»고 했으면 확정 모달을 띄우지 않는다
+      if(res && res.ok===false){
+        var sum=document.getElementById('summary');
+        sum.textContent=res.error||'신청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+        sum.classList.remove('on'); sum.style.color='var(--seal)';
+        sum.scrollIntoView({behavior:'smooth',block:'center'});
+        // 슬롯이 선점됐으면 그 시간을 지우고 달력을 새로 그린다 — 같은 버튼을 다시 누르지 못하게
+        if(res.slotTaken){ selTime=null; renderTime(); updateSummary(); }
+        restore();
+        return;
+      }
       const dateStr=fmtDate(selDate);
       /* ★★[NAME_NODE 2026-09-20 점검 라운드 4] 여기는 innerHTML 이었다 · 되돌리지 말 것.
          SERVER.names 는 고객이 신청서에 직접 쓴 성함(coupleNames = 성함(신랑)·성함(신부))이다.
@@ -714,6 +751,54 @@ function doSubmit(){
     })
     .submitSchedule(SERVER.token, key(selDate), selTime, flex, etc);
 }
+
+/* ★★[REVISIT_PICKED 2026-09-20 점검 라운드 8] 이미 접수된 예약을 한 줄로 알린다 · 지우지 말 것.
+   왜 필요했나 — PICKED 단계에서 «고객»에게 가는 알림이 0건이다(95_notify.gs 의
+   admin.slotPicked 는 to:'admin' 이고, 고객 안내는 관리자 승인 뒤에 나간다).
+   그래서 신청 직후 뜨는 모달이 고객이 가진 «유일한» 기록인데, 그 화면에는
+   계좌번호와 예약금 10만원이 함께 떠 있다. 모달을 닫고 다음 날 메일 링크로 다시 오면
+   백지 달력만 보였다 — 입금까지 한 분에게는 「내 신청이 어디 갔나」가 된다.
+   ★문구 규칙: 전각 줄표 금지(·로 잇는다) · 장식 이모지 금지 ·
+     안심 문구에는 근거를 붙인다(누가·무엇을 한다). 화면의 나머지 어조(합쇼체)에 맞춘다.
+   ★textContent 로만 넣는다 — 성함·날짜가 들어가는 자리라 [NAME_NODE] 와 같은 처방이다. */
+(function renderRevisit(){
+  var pk = SERVER && SERVER.picked;
+  var box = document.getElementById('revisit');
+  if(!box || !pk || !pk.date || !pk.time) return;
+  var m = String(pk.date).match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(!m) return;
+  var d = new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+  /* ★[REVISIT_DATE_ROLL 2026-09-20 점검 라운드 10] 되돌린 날짜인지 확인한다 · 빼지 말 것.
+     JS Date 는 «넘치는» 값을 조용히 굴린다 — 「2026-13-45」를 넣으면 예외가 아니라
+     2027-02-14 가 나온다(실측). 시트 값이 망가졌을 때 엉뚱한 날짜를 당당히 보여 주는 것이
+     아무것도 안 보여 주는 것보다 나쁘다. 2월 30일 같은 것도 여기서 걸린다. */
+  if(d.getFullYear()!==Number(m[1]) || d.getMonth()+1!==Number(m[2]) || d.getDate()!==Number(m[3])) return;
+  /* ★취소 건은 서버가 이미 걸러 내려보내지 않는다(serveScheduleB 의 ST.CANCELLED 검사).
+     여기서 한 번 더 보는 것은 «접수됨»으로 보이는 쪽이 훨씬 비싸기 때문이다. */
+  if(pk.status === '취소') return;
+  var when = fmtDate(d) + ' · ' + pk.time;
+  var head = document.createElement('span');
+  var sub = document.createElement('span');
+  sub.className = 'rv-sub';
+  var b = document.createElement('b');
+  b.textContent = when;
+  if(pk.status === '확정' || pk.status === '승인완료'){
+    head.appendChild(document.createTextNode('상담이 '));
+    head.appendChild(b);
+    head.appendChild(document.createTextNode(' 으로 확정되어 있습니다.'));
+    /* ★기한(24시간)을 여기 다시 적지 않는다 — 바로 위 「변경 · 취소」 칸이 이미 말하고 있고,
+       화면에 이미 세 곳(391·393·476행 취지)에 적혀 있어 네 번째 사본이 되면 값이 갈린다. */
+    sub.textContent = '시간을 바꾸시려면 아래에서 다시 선택해 주세요.';
+  } else {
+    head.appendChild(document.createTextNode('신청하신 '));
+    head.appendChild(b);
+    head.appendChild(document.createTextNode(' 이 접수되어 있습니다.'));
+    sub.textContent = '디렉터가 확인한 뒤 최종 안내를 보내 드립니다. 시간을 바꾸시려면 아래에서 다시 선택해 주세요.';
+  }
+  box.appendChild(head);
+  box.appendChild(sub);
+  box.hidden = false;
+})();
 
 document.getElementById('prevM').onclick=()=>{if(viewM===0){viewM=11;viewY--;}else viewM--;renderCal();};
 document.getElementById('nextM').onclick=()=>{if(viewM===11){viewM=0;viewY++;}else viewM++;renderCal();};

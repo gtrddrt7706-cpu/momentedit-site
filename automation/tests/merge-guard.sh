@@ -3110,6 +3110,25 @@ chk 'TWO_COUNTS' scripts/check-tap-targets.mjs 1
 # [RAIL_OVERLAP_OK 2026-08-10 · 2026-09-20 재확인] 고정 아이콘 레일이 본문 위에 겹치는 것은
 #   **의도된 것**이라는 확인("계획된거야" · "손대지마 따로 여백을 두지도마 의도된거야")과
 #   그 실측이 advisor-widget.js 에 적혀 있다. 지우지 말 것.
+# ════ [OK_FALSE_GUARD 2026-09-20 점검 라운드 6] 서버의 return {ok:false} 를 화면이 읽는가 ════
+#   google.script.run 은 «throw 하면 failureHandler · return 하면 successHandler» 다.
+#   그래서 서버가 오류를 return { ok:false } 로 돌려주면 그것도 성공 핸들러로 간다.
+#   ScreenB_schedule 의 successHandler 가 function(){...} 로 인자를 안 받고 있었고,
+#   submitSchedule 은 락 안의 두 갈래를 return 으로 돌려준다(슬롯 선점 · 락 15초 초과).
+#   ★브라우저로 재현했다 — 서버가 「방금 마감되었어요」를 돌려준 상태에서 화면은
+#     「신청이 접수되었습니다 · 9월 21일(월) · 11:30」 확정 모달을 띄웠다.
+#     시트 기록·관리자 알림은 그 return «아래»에 있어 아무것도 일어나지 않는다.
+#   ★반증 셋 다 빨강 확인(2026-09-20): ①인자 제거 ②ok===false 안 봄
+#     ③서버 submitApplication 에 return {ok:false} 한 줄 추가 → ScreenA 가 즉시 걸렸다.
+#     ③이 이 검사의 존재 이유다 — 지금 ScreenA·C 가 안전한 것은 «우연»이라 사람이 못 지킨다.
+node scripts/audit/okfalse-handled.mjs >/dev/null 2>&1; _okf=$?
+case "$_okf" in
+  0) echo "ok okfalse-handled: 화면이 서버의 {ok:false} 를 읽는다 [OK_FALSE_GUARD]" ;;
+  2) echo "ok okfalse-handled: 재지 못했다(파일 없음) — 화면 결함 아님" ;;
+  *) echo "FAIL okfalse-handled: 서버가 «안 됐다»고 했는데 화면이 «됐다»를 띄운다 [OK_FALSE_GUARD] · node scripts/audit/okfalse-handled.mjs"; fail=1 ;;
+esac
+chk 'OK_FALSE_GUARD' automation/consultation/ScreenB_schedule.html 1
+chk 'OK_FALSE_GUARD' scripts/audit/okfalse-handled.mjs 1
 chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1
 chk '계획된거야' assets/advisor-widget.js 1
 chk '따로 여백을 두지도마' assets/advisor-widget.js 1
