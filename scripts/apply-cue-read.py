@@ -35,7 +35,12 @@ for r in rows:
     old, new = r['전'].strip(), r['후'].strip()
     tag = '%s_%s#%s' % (r['번호'], r['슬러그'], r['문장'])
     hits = [p for p in SRC if old in buf[p]]
-    if not hits: skip.append((tag, '어느 파일에서도 못 찾음')); continue
+    if not hits:
+        # ★★[IDEMPOTENT] 표는 회차마다 «쌓인다». 이미 넣은 줄은 「전」이 없고 「후」가 있다.
+        #   그걸 「못 찾음」으로 세면 **한 줄만 새로 넣어도 전체가 멈춘다.**
+        #   apply-tone-cull 에서 같은 실수를 한 번 했다 — 두 번째 실행이 통째로 실패했다.
+        if any(new in buf[p] for p in SRC): done.append((tag, '이미 반영됨')); continue
+        skip.append((tag, '전·후 어느 쪽도 못 찾음')); continue
     for p in hits: buf[p] = buf[p].replace(old, new)
     done.append((tag, '%d파일 · %s' % (len(hits), ', '.join(x.split('/')[-1] for x in hits))))
 
