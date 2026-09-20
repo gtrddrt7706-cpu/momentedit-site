@@ -1394,7 +1394,7 @@
     "SIG_NODE",
     "NAME_NODE"
    ],
-   "bytes": 99230
+   "bytes": 99734
   },
   {
    "file": "ScreenC_change",
@@ -1404,7 +1404,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-20 12:54 · 09f92b5d",
+ "_생성": "2026-09-20 12:57 · 96896c3b",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
