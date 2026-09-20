@@ -435,6 +435,12 @@ function deployStampCheck() {
         L.push('  OK  배포본이 지금 저장된 코드와 «같다» — 재배포가 먹었습니다.');
         L.push('      마지막 확인 ' + at.slice(0, 16).replace('T', ' ')
           + (gs ? (' · 지문 범위 전역 함수 ' + gs.split('#')[0] + '개') : ' · ★전역 서명이 비었습니다(핵심 5개만 봄)'));
+        /* ★★[STAMP_FN_ONLY 2026-09-20] 이 줄이 없어서 내가 대표에게 잘못 안내했다.
+           지문은 _dsGlobalSig 가 «typeof === function» 인 것만 모아 만든다. HTML 파일(Admin·ScreenA·B·C)은
+           함수가 아니라 지문에 아예 안 들어간다 — 붙여넣었든 안 넣었든 여기는 똑같이 OK 라고 답한다.
+           실제로 ScreenB_schedule.html 을 고쳐 드리고 「이걸로 확인하세요」라고 했는데, 확인될 수가 없었다. */
+        L.push('      ★이 판정은 «함수»만 봅니다. 화면 파일(Admin·ScreenA·B·C .html)은 지문에 안 들어갑니다 —');
+        L.push('        그쪽은 deployCheck 의 ①-C(본문 길이 대조)가 잡습니다. .html 을 붙여넣었으면 deployCheck 를 도세요.');
       } else {
         L.push('  ✗   배포본이 저장된 코드와 «다르다» — 아직 안 먹었습니다.');
         L.push('      → ①배포 관리에서 «새 버전»으로 재배포  ②momentedit.kr/admin.html 한 번 열기  ③이것을 다시 실행');
