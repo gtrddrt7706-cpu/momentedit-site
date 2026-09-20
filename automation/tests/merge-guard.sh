@@ -7642,6 +7642,11 @@ chk 'SLUG_STRICT' scripts/apply-clip-whole.py 1
 nochk '하고 선창하면' assets/ritual-data.js
 chk 'LOCKED_PROPOSAL' scripts/audit/locked-proposal.py 1
 chk 'JUDGED' scripts/audit/locked-proposal.py 1
+# ★★[JUDGED_TSV] 판정한 자리는 apply 스크립트 «둘»에 산다. 한쪽만 읽으면 이미 끝낸 것이 다시 뜬다.
+#   ★면제는 «그 말 하나»에만 준다 — 처음에 (번호,문장) 으로 자리째 면제했더니 그 자리의 새 제안이
+#     **전부 영원히 통과**했다(26#1 에 잠금말을 되살리는 제안을 넣어 확인). 깨뜨려 보고서야 보였다.
+chk 'JUDGED_TSV' scripts/audit/locked-proposal.py 2
+chk '_RETIRED_WORDS' scripts/audit/locked-proposal.py 3
 chk 'SRC_FOUR' scripts/apply-narr-r3678.py 1
 chk 'SUB_TRAP' scripts/apply-narr-r3678.py 1
 # ★★[GATE_LOCK_EXPORT] 위 검사의 «코워크 쪽 판»이 읽는 tsv 를 뽑는 자리.
@@ -7654,6 +7659,28 @@ chk 'TONE_TEXT_GATE' scripts/audit/tone-text-applied.py 1
 # ★★[CUE_ORDER_TEXT] 코워크가 «식순»을 손으로 지어내고 있었다. 그 위에 세운 판정이 흔들린다 —
 #   실측하니 둘이 **사실과 반대**였다(63→65 차례 · 22번이 서약 «전»). 순서는 엔진에서 뽑아 보낸다.
 chk 'CUE_ORDER_TEXT' scripts/audit/cue-order-text.mjs 1
+# ★[CUE_READ_APPLY] 순서를 알고서야 보인 것들. 표가 목록이고 코드에 문면을 안 박는다.
+chk 'CUE_READ_APPLY' scripts/apply-cue-read.py 1
+# ★★[PICK_BACK_BUILD] 되돌리기 화면은 **손으로 만들면 하루도 못 간다** — 첫 판이 올린 당일 낡았다.
+#   「지금 문장」은 반드시 저장소 실측에서 온다(선택지도 pick-list 실측 · 표를 쓰면 두 번 바뀐 자리가 거짓이 된다).
+chk 'PICK_BACK_BUILD' scripts/build-pick-back.mjs 1
+chk 'pick-list.mjs' scripts/build-pick-back.mjs 1
+chk 'pick-final.html' pick-396ca38a.html 2      # 옛 링크는 최종판으로 보낸다
+chk 'TSV_IS_THE_LIST' scripts/apply-cue-read.py 1
+chk 'SRC_FOUR' scripts/apply-cue-read.py 1
+# ★[CUE_READ] 이웃한 클립 사이의 겹침을 되돌리지 말 것 — 클립 안 검사로는 안 잡힌다
+nochk '이제 다 같이 남기는 순서입니다' assets/ritual-data.js
+nochk '이제 나눠서 담겠습니다' assets/ritual-data.js
+nochk '여기서부터는 작가님이 안내해' assets/ritual-cue.js
+nochk '두 사람 곁으로 모이시면' assets/ritual-data.js
+nochk '편히 일어나셔서 움직이세요' assets/ritual-cue.js
+# ★[ECHO_44_26] 코워크 안 「사진 순서입니다」는 바로 앞 26 「남기는 순서입니다」와 이웃해
+#   check-echo-inrun 이 0→6건으로 잡았다. 「남기다」는 26·63 이 쓰고 「찍다」는 이 대본이
+#   하객에게 안 쓰는 말이라(표준은 「남기다」 16회), 동사를 빼는 것이 유일한 출구였다.
+chk '여기서부터는 사진입니다' assets/ritual-cue.js 1
+nochk '여기서부터는 사진 순서입니다' assets/ritual-cue.js
+chk '가까이 모여 주시면 됩니다' assets/ritual-data.js 1
+chk '편히 움직이셔도 좋습니다' assets/ritual-cue.js 1
 chk 'ENGINE_CALLS' scripts/audit/cue-order-text.mjs 1
 chk 'SPOT_NOT_BLOB' scripts/audit/tone-text-applied.py 1
 chk 'PARSE_ZERO' scripts/audit/tone-text-applied.py 2
@@ -8130,7 +8157,11 @@ chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
 #   ★「0 은 건드리지 말 것」 주석의 뜻은 «다른 글로 갈아치우지 말라»이지 «NARR 과 어긋나게 두라»가 아니다.
 # ★[LEAD_COMMA 2026-09-20] 앞머리 쉼표절만 풀었다 — 지키는 것은 «첫인사를 예고한다»이지 「먼저,」가 아니다.
 #   「먼저」는 다음이 첫인사라는 것만 말하는데 그건 문장이 이미 「첫 인사」로 말하고 있다.
-chk '두 사람이 준비한 첫 인사가 있습니다' assets/ritual-data.js 2
+# ★[LEAD_COMMA 갱신 2026-09-20] 문면이 바뀌었다 — 지키는 것은 «첫인사를 예고한다»이지 그 글자가 아니다.
+#   바로 뒤 07w 가 「먼저 이렇게 인사드리고」로 열어 「인사」·「먼저」가 겹쳤다. 둘 다 피한 문면으로 간다.
+#   ★앞머리 쉼표절(「먼저,」)로 되돌아가지 말 것 — 그것이 이 잠금의 본뜻이다.
+chk '이 자리 첫마디는 두 사람 몫입니다' assets/ritual-data.js 2
+nochk '먼저, 두 사람이' assets/ritual-data.js
 nochk '두 사람이 자리에 섰습니다' assets/ritual-data.js
 chk 'NARV_ZERO' scripts/apply-nospoil.mjs 1
 
@@ -9138,7 +9169,9 @@ chk 'SOFT_TONE' scripts/apply-soft-narration.mjs 1
 chk '읽어 주시면 됩니다' assets/ritual-data.js 3                    # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면
 chk '두 분, 차례로 읽어 주시면 됩니다' assets/ritual-data.js 1
 chk '서로의 손에 반지를 끼워 주시면 됩니다' assets/ritual-data.js 2
-chk '이제 여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
+# ★[CUE_READ 2026-09-20] 「이제」를 뺐다 — 큐 순서에서 18·20·21 이 연달아 「이제」로 열고 있었다.
+#   문중이라 문두 반복 검사에 안 걸렸고, 셋이 다른 클립이라 클립 안 검사에도 안 걸렸다.
+chk '여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
 chk '오늘의 예식은 여기까지입니다' assets/ritual-cue.js 2
 # ★[LETTER_HEARD_OK 2026-09-19] 편지 낱말을 사장님이 귀로 확인하셨다는 기록.
 #   기계는 낱말을 못 듣는다(ASR 차단). 이 사실은 검사로 재생산할 수 없어, 지우면 영영 사라진다.
