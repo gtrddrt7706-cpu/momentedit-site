@@ -7536,6 +7536,13 @@ grep -q 'stale-waiters' .claude/settings.json 2>/dev/null || { echo 'REVERT? .cl
 # ★샌드박스로 세 갈래를 전부 돌려 봤다 — 기록 없음 · 다르다 · 같다. 셋 다 제 문장이 나온다.
 # ★이 파일 자신의 함수는 fns 목록에 없으므로(생성기가 비워 둔다) deployCheck 의 허용목록에도 이름을 더했다.
 #   빠뜨리면 「모르는 함수」로 매번 찍힌다 — deploycheck-sim 6-C 가 그것을 잡는다.
+# ── [STAMP_FIRST] ④ 를 맨 위로 (2026-09-20 · 대표가 세 번 돌리고도 못 봤다) ──
+# deployStampCheck 를 만들어 드렸는데도 대표는 deployCheck 를 다시 돌리셨다 —
+#   «드롭다운에서 다른 이름을 고르는» 것 자체가 수고였다. 사람에게 수고를 시키지 말고 출력 순서를 바꾼다.
+#   잘리는 것은 «뒤쪽»이니 결론을 앞으로 옮기면 어느 함수를 돌려도 보인다.
+# ★샌드박스로 세 갈래(기록없음·다르다·같다) 전부 «첫 줄»에 나오는 것을 확인했다.
+chk 'STAMP_FIRST' automation/platform/99_deployCheck.gs 2
+chk '★배포 확인' automation/platform/99_deployCheck.gs 3   # 세 갈래 문장이 살아 있는가
 chk 'STAMP_ONLY' automation/platform/99_deployCheck.gs 2
 chk 'deployStampCheck' automation/platform/99_deployCheck.gs 2   # 함수 정의 + 허용목록
 chk 'deployStampCheck' CLAUDE.md 1                               # 실행 함수 위치표에 있는가(집 규칙)

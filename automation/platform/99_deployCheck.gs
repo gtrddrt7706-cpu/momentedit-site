@@ -31,6 +31,26 @@
 function deployCheck() {
   var L = [];
   var okN = 0, badN = 0;
+
+  /* ★★[STAMP_FIRST 2026-09-20 대표가 세 번 돌리고도 못 봤다] ④ 판정을 «맨 위»에 한 줄로 먼저 찍는다.
+     GAS 는 로그가 길면 「Logging output too large」 로 **뒷부분을 자른다.**
+     ④ 「배포가 먹었는가」 는 목록 한가운데라, 이 함수를 몇 번을 돌려도 영영 안 보였다(실측 3회).
+     재배포가 실제로 먹었는지 판정하는 **유일한 줄**인데 그랬다.
+     별도 함수(deployStampCheck)를 만들어 드렸지만 그것도 «드롭다운에서 다른 이름을 고르는» 수고를 요구한다.
+     ★사람에게 수고를 시키지 말고 출력 순서를 바꾼다 — 잘리는 것은 뒤쪽이니 앞으로 옮기면 된다.
+     아래 ④ 자리의 자세한 안내는 그대로 두고, 여기서는 결론 한 줄만 먼저 보여 준다. */
+  try {
+    if (typeof deployFingerprint === 'function') {
+      var _f0 = deployFingerprint();
+      var _r0 = String(PropertiesService.getScriptProperties().getProperty('DEPLOY_CODE_FINGERPRINT') || '');
+      L.push(!_r0
+        ? '★배포 확인: 아직 모름 — 재배포 뒤 momentedit.kr 을 한 번 열고 다시 실행하세요(실패 아님).'
+        : (_r0.split('|')[0] === _f0   /* [STAMP_FIRST] 이 세 줄이 결론이다 — 순서를 아래로 내리지 말 것 */
+          ? '★배포 확인: OK — 배포본이 지금 저장된 코드와 같습니다(재배포가 먹었습니다).'
+          : '★배포 확인: ✗ 아직 안 먹었습니다 — ①«새 버전»으로 재배포 ②momentedit.kr 한 번 열기 ③다시 실행.'));
+      L.push('');
+    }
+  } catch (e) {}
   function chk(label, cond, hint) {
     if (cond) { okN++; L.push('  OK   ' + label); }
     else { badN++; L.push('  MISS ' + label + (hint ? ('   → ' + hint) : '')); }
