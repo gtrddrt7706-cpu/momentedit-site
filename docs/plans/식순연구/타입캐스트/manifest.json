@@ -134,7 +134,7 @@
       "dir": "assets/audio/cast",
       "clips": 23,
       "sents": 148,
-      "chars": 4260
+      "chars": 4263
     }
   ],
   "clips": [
@@ -3534,7 +3534,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "사실 나는 이 결혼을 한 번 말렸다.",
+          "text": "사실 나는 이 결혼을 선뜻 반기지 못했다.",
           "before": 0,
           "after": 0.45
         },
