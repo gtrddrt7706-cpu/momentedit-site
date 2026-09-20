@@ -10,10 +10,10 @@
  *   그래서 「현행을 어느 결 칸에 넣을까」를 풀려고 하면 반드시 어딘가가 어긋난다.
  *   대신 **없으면 현행**으로 읽는다 — 표에는 새로 쓴 것만 담고, 빈 칸은 곧 현행이라는 뜻이다.
  *   `S.tone` 자체가 없으면 전 자리가 빈 칸이니 **전부 현행**이 된다(52 §7 이 요구한 폴백).
- *   덤으로 표의 크기가 곧 새 클립 수다 — 23 이 아니면 뭔가 빠진 것이다.
+ *   덤으로 표의 크기가 곧 새 클립 수다 — 22 이 아니면 뭔가 빠진 것이다.
  *
  * ★★[TONE_CULL 2026-09-20 사장님 「겹치거나 별로인 거 전부 삭제해 과감하게 갯수 상관없이」]
- *   38 → **23**. 코워크가 50벌을 문면으로 읽어 열넷을 버렸다(숫자로 고른 것은 하나도 없다).
+ *   38 → **22**. 코워크가 50벌을 문면으로 읽어 열다섯을 버렸다(숫자로 고른 것은 하나도 없다).
  *   지운 열넷 가운데 **열둘이 `plain`** 이다 — 담백판이 «어조»가 아니라 «짧은 판»이 되어 있었다.
  *   근거는 scripts/apply-tone-cull.py 에 자리마다 한 줄씩 적어 두었다. 되살리려면 그 근거부터 읽을 것.
  *
@@ -94,7 +94,7 @@ function render(o) {
 const { out, n, err } = extract();
 if (err) { console.log('못 잼: ' + err); process.exit(2); }
 
-// 표의 크기 = 새로 나는 클립 수. 52 §3 은 +38 이었고, [TONE_CULL] 로 23 이 됐다.
+// 표의 크기 = 새로 나는 클립 수. 52 §3 은 +38 이었고, [TONE_CULL] 로 22 가 됐다.
 let clips = 0;
 for (const g of Object.keys(out)) for (const k of Object.keys(out[g]))
   for (const t of Object.keys(out[g][k])) clips += Array.isArray(out[g][k][t]) ? out[g][k][t].length : 1;
@@ -116,8 +116,8 @@ if (process.argv.includes('--write')) {
 if (i < 0 || j <= i) { console.log('못 잼: ritual-data.js 에 TONE_TABLE 표식이 없다'); process.exit(2); }
 const have = src.slice(i, j + END.length);
 const same = have.trim() === lit.trim();
-console.log(`문안 ${n}벌 · 클립 ${clips}개 ([TONE_CULL] 뒤 기준 23)`);
+console.log(`문안 ${n}벌 · 클립 ${clips}개 ([TONE_CULL] 뒤 기준 22)`);
 console.log((same ? 'ok   ' : 'FAIL ') + '문서(21_B §3)와 ritual-data.js 의 TONE 이 같다');
-if (clips !== 23) console.log(`FAIL 클립 수가 23 이 아니다 — 문서에서 빠졌거나 더 들어왔다 (지금 ${clips})`);
+if (clips !== 22) console.log(`FAIL 클립 수가 22 이 아니다 — 문서에서 빠졌거나 더 들어왔다 (지금 ${clips})`);
 if (!same) console.log('   → node scripts/build-tone-table.mjs --write 로 다시 뽑을 것');
-process.exit((same && clips === 23) ? 0 : 1);
+process.exit((same && clips === 22) ? 0 : 1);
