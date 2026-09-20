@@ -27,8 +27,13 @@ const CUR = {
   tribute: (k) => cut((((D.TRIBUTE || {}).modes || {})[k] || {}).nar || ''),
   letter: (k) => both(D.LETTER[k]),
   toast:  (k) => both(D.TOAST[k]),
+  /* ★★[ENTRY_OUT_LIST 2026-09-20 코워크 지적] 「여는 말」이 이 목록에서 **통째로 빠져 있었다.**
+     고객이 칩으로 고르는 선택지인데, 이름이 「어조표」가 아니라는 이유로 한 번도 안 쟀다.
+     ★이름이 다르다고 다른 물건이 아니다 — 「이벤트당 3~8」 자는 «고객이 고르는 모든 목록»에 댄다.
+     ★현행(A)은 D.NARR.entryOutBy 에 산다. 어조판은 없다(TONE 에 entryOut 칸이 없다). */
+  entryOut: (k) => cut((D.NARR || {}).entryOutBy ? D.NARR.entryOutBy[k] : ''),
 };
-const NAME = { entry: '입장', declare: '성혼 선언', letter: '편지 예고', tribute: '부모님 헌정', toast: '축배·케이크' };
+const NAME = { entry: '입장', declare: '성혼 선언', letter: '편지 예고', tribute: '부모님 헌정', toast: '축배·케이크', entryOut: '입장 뒤 여는 말' };
 /* ★★[NO_QUOTA 2026-09-20 사장님 「겹치거나 별로인 거 전부 삭제해 과감하게 갯수 상관없이」]
    종전 기준은 「각 이벤트당 3~8개」였다. 그 뒤 지시가 바뀌었다 — **개수를 맞추는 일이 아니라
    «남길 이유가 있는 것만 남기는» 일**이다. 8벌을 채우려고 별로인 것을 남기지 않는다.
@@ -40,7 +45,7 @@ out.push('# 추리기 — 다섯 이벤트 전 벌 (자동 생성 · 2026-09-20)
   '★ 사장님 지시(2026-09-20) — **「겹치거나 별로인 거 전부 삭제해. 과감하게, 개수 상관없이」**',
   '   앞선 「각 이벤트당 3~8개」는 이 지시가 덮었다. 개수를 맞추는 일이 아니라 «남길 이유가 있는 것만» 남긴다.', '');
 
-for (const ev of ['entry', 'declare', 'letter', 'tribute', 'toast']) {
+for (const ev of ['entry', 'declare', 'letter', 'tribute', 'toast', 'entryOut']) {   // [ENTRY_OUT_LIST]
   const g = D.TONE[ev] || {};
   /* ★★[CUR_ORPHAN 2026-09-20] 갈래를 `TONE` 에서 돌면 **어조판이 0개가 된 갈래가 통째로 빠진다.**
      생성기는 어조가 하나도 없는 칸을 아예 안 만들기 때문이다.
@@ -48,7 +53,8 @@ for (const ev of ['entry', 'declare', 'letter', 'tribute', 'toast']) {
      ★고객이 고를 수 있는 것은 «현행 + 어조판»이다. 현행은 `D.ENTRY`·`D.DECLARE` … 쪽에 산다.
        그러니 갈래 목록은 **현행 쪽**에서 세우고, 어조판은 있으면 붙인다. */
   const BASE = { entry: D.ENTRY, declare: D.DECLARE, letter: D.LETTER,
-                 toast: D.TOAST, tribute: (D.TRIBUTE || {}).modes || {} };
+                 toast: D.TOAST, tribute: (D.TRIBUTE || {}).modes || {},
+                 entryOut: (D.NARR || {}).entryOutBy || {} };   // [ENTRY_OUT_LIST]
   const keys = [...new Set([...Object.keys(BASE[ev] || {}), ...Object.keys(g)])];
   const rows = [];
   for (const b of keys) {
@@ -63,6 +69,16 @@ for (const ev of ['entry', 'declare', 'letter', 'tribute', 'toast']) {
   rows.forEach((r) => { (seen[r[2]] = seen[r[2]] || []).push(`${r[0]}.${r[1]}`); });
   const dup = Object.values(seen).filter((a) => a.length > 1);
   out.push(`## ${NAME[ev]} \`${ev}\` — ${rows.length}벌`, '');
+  /* ★★[COMMON_TAIL 2026-09-20] 갈래 «전부»가 같은 말로 닫으면 겹침 수치가 그만큼 부풀려진다.
+     그건 중복이 아니라 **설계**다 — 입장은 「신랑 신부, 입장!」, 여는 말은 「잠시, 서로를 바라봐 주세요」.
+     ★숫자를 깎지 않고 **알리기만** 한다. 깎으면 사장님이 이미 그 수치로 내리신 판단의 근거가 흔들린다.
+       숫자만으로 «별로»라고 하지 않는다([RULE_EASY]) — 그 판단은 문면을 보고 하는 것이다. */
+  if (rows.length > 1) {
+    const last = (t) => (t.match(/[^.!?]+[.!?]\s*$/) || [''])[0].trim();
+    const tails = rows.map((r) => last(r[2]));
+    if (tails[0] && tails.every((t) => t === tails[0]))
+      out.push(`★ 이 갈래는 **전부 같은 말로 닫는다** — 「${tails[0]}」. 아래 겹침 수치는 그만큼 부풀려져 있다(설계이지 중복이 아니다).`, '');
+  }
   if (dup.length) {
     const after = rows.length - dup.reduce((s, a) => s + a.length - 1, 0);
     out.push(`★ **글자가 완전히 같은 벌**: ${dup.map((a) => a.join(' ≡ ')).join(' / ')} → 이 중복만 정리해도 ${after}벌`, '');
