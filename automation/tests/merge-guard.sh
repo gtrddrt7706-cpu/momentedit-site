@@ -877,7 +877,11 @@ chk 'uptoName' assets/ritual-cue.js 3
 nochk '개 순서는 아직' console.html                    # ★수를 말하지 말 것 — 큐와 순서는 단위가 다르다
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
 chk 'entryOutBy' assets/ritual-data.js 1
-chk '두 사람이 섰습니다' assets/ritual-data.js 1     # B 문안 — 갈래가 통째로 사라지면 붉어진다
+chk '두 사람이 나란히 있습니다' assets/ritual-data.js 1   # B 문안 — 갈래가 통째로 사라지면 붉어진다
+# ★[NARR_B1 2026-09-20] 옛 열쇠는 '두 사람이 섰습니다' 였는데, 그 문장은 사장님이 실청에서
+#   「두사람이 나란히 있습니다」로 손수 고치신 자리다. 잠금이 그 수정을 막고 있었다 —
+#   문안만 고치면 grep 이 0이 되어 RED 였고, 원인을 못 찾으면 사장님 수정을 되돌리는 쪽으로 간다.
+#   ★교훈: 문장을 열쇠로 쓰면 «그 문장을 고치는 일» 자체가 막힌다. 열쇠는 갈래가 살아 있는지만 보게 둔다.
 chk 'narr-entry-out-F' assets/ritual-cue.js 1        # 다섯이 FILES 에 살아 있는가
 chk 'S.entryOut' assets/ritual-cue.js 1        # ★[ENTRY_OUT_PICK] 이제 읽는다(값은 빌더 칩이 만든다)
 chk '진짜 끝' assets/ritual-cue.js 1            # 번호 충돌 사고의 근거 — 지우면 다시 옆에 끼운다
@@ -3941,7 +3945,11 @@ chk 'ONLINE_ALREADY_ENDED' assets/ritual-cue.js 2
 chk 'MIC_PIN' docs/plans/식순연구/개편_진행판.md 1
 nochk '마이크가 전해지면, 편하게' assets/ritual-data.js
 nochk '마이크가 전해지면, 편하게' order-preview.html
-chk '마이크가 전해지면, 편히' assets/ritual-data.js 2
+chk '마이크를 받으시면' assets/ritual-data.js 1
+# ★[NARR_B1 2026-09-20] 옛 열쇠는 「마이크가 전해지면, 편히」 2건이었다. 새 문안에서
+#   [22]는 「마이크를 받으시면」으로 건네받는 그림을 지켰지만 [23](blessMid)에는 마이크가 없다.
+#   MIC_PIN 의 금지(신랑신부 자리에 핸드 그림)는 지켜지므로 빨강으로 두지 않되,
+#   [23] 은 «편지 뒤 자리»라 마이크가 아직 부모님께 안 가 있을 수 있다 — 코워크에 확인 요청했다.
 nochk "S.digital ? 'end-1b-farewell-online'" assets/ritual-cue.js
 chk 'SELF_PARSE' scripts/build-listen-all.mjs 1
 chk 'EXPORT_TRUTH' scripts/build-listen-all.mjs 1
@@ -7059,7 +7067,7 @@ nochk '가장 오랜 사랑 앞으로' assets/ritual-data.js
 nochk '그 사랑이 있어 오늘의 두 사람이 있습니다' assets/ritual-data.js
 # ★[SOFT_NARRATION 2026-09-19] 문안이 「걸어갑니다」→「천천히 걸음을 옮겨 주시면 됩니다」로 바뀌었다.
 #   지킬 것은 «헌정을 여는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
-chk '키워 주신 분들 앞으로, 천천히 걸음을 옮겨 주시면 됩니다' assets/ritual-data.js 1
+chk '키워 주신 분들이 앞에 계십니다' assets/ritual-data.js 1        # [NARR_B1] 사장님 「주십시요」 반영 + N2(한 문장 안 3인칭+2인칭) 때문에 문장을 갈랐다
 # ⑦입장 닫는 말 C — 25명 예식의 하객 대부분은 가족·친구다. 「먼 길 함께 걸어와 주신」은 미화였다.
 nochk '먼 길 함께 걸어와 주신' assets/ritual-data.js
 # ⑧★★되살아난 흠 — 「다 지웠어」가 서약과 편지 양쪽에 있었다.
@@ -7078,9 +7086,9 @@ nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_�
 nochk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt'
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOW_OPENS_COLD] 「다 지웠어」 프레임은 새 [11]에도 없다 — nochk 가 이미 막는다
-chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
-chk '두 사람이 서로에게 쓴 편지가 있습니다' assets/ritual-data.js 1
-chk '두 사람이 편지를 두 통 썼습니다' assets/ritual-data.js 1
+chk '부모님께 읽어 드릴 편지를 써 왔습니다' assets/ritual-data.js 1  # [NARR_B1] 예고가 좌석·감정을 선취하지 않는다
+chk '서로에게 쓴 편지를 읽겠습니다' assets/ritual-data.js 1
+chk '편지가 두 번 이어집니다' assets/ritual-data.js 1
 
 # ★★[SPEECH_LEVEL 2026-09-12 사장님 "아버지 존대하는거 조금 어색해"] 아버님 덕담의 말단계를 반말로 통일했다.
 #   실측: 습니다(2~9) → 반말(10~13) → 습니다(14~15) → 반말(16). 한 사람 안에서 왕복 네 번이었다.
@@ -7747,8 +7755,8 @@ chk 'NO_SPOIL' scripts/apply-nospoil.mjs 2
 #   ★이 규칙은 ritual-data.js NARV 주석 ③(「감정을 설명하지 않는다」)과 같은 것이다. 되돌리지 말 것.
 nochk '그 말씀 안에 다 있었습니다' assets/ritual-data.js
 nochk '말로 다 못 한 감사를' assets/ritual-data.js
-chk '한 번에 다 말해지지 않습니다' assets/ritual-data.js 1
-chk '나머지는 두 사람이 살면서 듣습니다' assets/ritual-data.js 1
+chk '다 하신 분은 아마 안 계실 겁니다' assets/ritual-data.js 1       # [NO_VERDICT] 단정하지 않는다 — 새 문안으로 옮겨 건다
+chk '못 하신 말씀은 두 사람이 살면서 듣게 됩니다' assets/ritual-data.js 1   # 사장님 「듣겠습니다」를 주어와 맞춰 「듣게 됩니다」로
 chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
 
 # ★★[NARV_ZERO] 첫인사 여는 말은 원천에 «두 곳»이다 — NARR.welcome 과 NARV.welcome[0].
@@ -7874,13 +7882,13 @@ nochk '나머지 분들은 그대로 계셔도 좋습니다' assets/ritual-data.
 chk 'TIC_CUT' scripts/apply-tic-cut.mjs 2
 chk 'COUNT_BY_CUE' scripts/apply-tic-cut.mjs 1
 # ★[SOFT_NARRATION] 디지털 참석자를 가르지 않는 문장으로 바꿨다 — 마커도 함께 옮긴다.
-chk '오늘 이 순간에만 있었습니다' assets/ritual-data.js 1
+chk '오늘 이 자리에 계신 분들만 들으셨습니다' assets/ritual-data.js 1
 chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 # ★[NO_FUSS 2026-09-12] 「앉아 계십니다」 → 「앞자리에 부모님이 계십니다」.
 #   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
 #   새 문장도 주어가 사람이고, 하객의 시선을 부모님께 돌리는 기능도 그대로다. 형태만 짧아졌다.
 #   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
-chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
+chk '부모님께 읽어 드릴 편지를 써 왔습니다' assets/ritual-data.js 1  # [NARR_B1] 예고가 좌석·감정을 선취하지 않는다
 nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
 chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
 nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
@@ -7945,7 +7953,9 @@ chk 'CAST_COUNT = 26' scripts/build-typecast-import.mjs 1
 #     ring 서정 「방금 나눈 말을」은 서약이 «꺼지는» 조합(record + 편지)에서만 틀린 말이 된다 — 실행해서 확인했다.
 chk 'WF_FINDINGS' scripts/apply-wf-findings.mjs 2
 chk 'WF_FINDINGS' assets/ritual-cue.js 1
-chk '마이크가 전해지면, 편히 말씀해 주시면 됩니다' assets/ritual-data.js 2
+chk '마이크를 받으시면 편히 말씀해 주십시오' assets/ritual-data.js 1   # [NARR_B1] 옛 열쇠 2건 → 새 문안 1건
+#   ★[23] blessMid 에는 마이크 그림이 없어졌다. MIC_PIN 금지(신랑신부 자리)는 지켜지지만
+#     [23]은 «편지 뒤 자리»라 마이크가 아직 부모님께 안 가 있을 수 있다 — 코워크 확인 대기.
 nochk '다른 분들은 잠시 잊으셔도 됩니다' assets/ritual-data.js
 nochk '두 사람이 서로에게 다 전했습니다' assets/ritual-data.js
 nochk '한 분도 빠지지 않게' assets/ritual-data.js
@@ -8741,8 +8751,8 @@ chk 'SOFT_TONE' scripts/apply-soft-narration.mjs 1
 # ★옛 문구를 nochk 로 막으려다 멀쩡한 자리를 잡았다 — ritual-data 의 TONE_TABLE 블록은
 #   «어조 60벌»(21_B_제안.md §3 에서 생성)이고 그쪽은 이미 186개를 녹음해 둔 다른 묶음이다.
 #   같은 문장이라도 자리가 다르면 다르게 본다(SOFT_NOT_BLANKET) — 그래서 새 문구가 있는지로만 지킨다.
-chk '지금 직접 읽어 주시면 됩니다' assets/ritual-data.js 2
-chk '차례로 읽어 주시면 됩니다' assets/ritual-data.js 1
+chk '읽어 주시면 됩니다' assets/ritual-data.js 3                    # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면
+chk '두 분, 차례로 읽어 주시면 됩니다' assets/ritual-data.js 1
 chk '서로의 손에 반지를 끼워 주시면 됩니다' assets/ritual-data.js 2
 chk '이제 여러분 곁으로 찾아뵙겠습니다' assets/ritual-data.js 1
 chk '오늘의 예식은 여기까지입니다' assets/ritual-cue.js 2
@@ -8976,3 +8986,11 @@ chk '죠|십시오' scripts/check-speech-level.mjs 1
 #     (조용히 통과하지 않는다) ③원복하니 초록.
 chk 'REDUB_PENDING' scripts/check-listen-cover.mjs 3
 chk '봐주기를 끕니다' scripts/check-listen-cover.mjs 1
+# ★★[RATE_PENDING 2026-09-20] 재녹음 대기 중에는 음절속도 «판정을 보류»한다 — 범위를 넓히지 않는다.
+#   check-syl-rate 주석이 못박은 대로, 범위를 넓히면 «상수와 실측이 맞다»는 거짓을 박는 것이 된다.
+#   보류는 다른 말이다: 「지금은 잴 수 없는 상태」라고 사실대로 말하고 넘긴다.
+#   [REDUB_PENDING] 과 같은 사슬 — 판별은 다시받기 명단이고, 명단이 비면 종전대로 판정한다.
+#   ★세 방향으로 깨 보고 믿었다: ①명단을 비우니 빨강 ②파일을 지우니 «못 읽었다»고 말하고 빨강
+#     (조용히 통과하지 않는다 · 실제로 ROOT/root 오타를 이 줄이 잡아 줬다) ③원복하니 초록.
+chk 'RATE_PENDING' scripts/check-syl-rate.mjs 3
+chk '보류를 끕니다' scripts/check-syl-rate.mjs 1

@@ -80,5 +80,18 @@ if (process.argv.includes('--table')) process.exit(0);
      ★그때 이 범위를 넓혀 초록으로 만들면 «상수와 실측이 맞다»는 거짓을 박는 것이 된다.
        새 mp3 가 오면 저절로 돌아온다. 범위는 성우·상수가 «실제로» 바뀌었을 때만 손댄다.
      ★그래서 메시지가 세 원인을 다 말하게 했다. 빨간 줄이 틀린 원인을 대면 다음 사람이 엉뚱한 것을 고친다. */
-if (ratio < 1.2 || ratio > 1.5) no(`상수와 실측의 폭이 ${ratio.toFixed(2)}배입니다 — 지금까지 1.2~1.5배였습니다.\n       원인 셋 중 하나입니다: ①문안을 고쳤는데 녹음이 아직 옛 판(가장 흔함 · check-text-audio 도 같이 빨갛습니다 · 새 mp3 가 오면 저절로 돌아옵니다)\n       ②성우가 바뀌었다 ③상수를 손댔다. ②③이면 이 범위도 같은 커밋에서 고치세요 — ①이면 범위를 건드리지 마세요`);
+/* ★★[RATE_PENDING 2026-09-20] 재녹음 대기 중에는 «판정을 보류»한다 — 범위를 넓히지 않는다.
+   위 주석이 못박은 대로 범위를 넓히면 «상수와 실측이 맞다»는 거짓을 박는 것이 된다.
+   보류는 다른 말이다: 「지금은 잴 수 없는 상태」라고 사실대로 말하고 넘긴다.
+   ★판별은 다시받기 명단이다(REDUB_PENDING 과 같은 사슬). 명단이 비면 종전대로 판정한다.
+   ★조용히 넘어가지 않는다 — 보류할 때마다 몇 클립이 대기 중인지 함께 찍는다. */
+let PENDN = 0;
+try {
+  const J = JSON.parse(fs.readFileSync(path.join(root, 'docs/plans/식순연구/타입캐스트/다시받기/_순서.json'), 'utf8'));
+  const s2 = new Set(); for (const arr of Object.values(J)) for (const r of arr) s2.add(r.clip);
+  PENDN = s2.size;
+} catch (e) { console.log(`· [RATE_PENDING] 다시받기 명단을 못 읽어 보류를 끕니다: ${e.message}`); }
+if (PENDN && (ratio < 1.2 || ratio > 1.5)) {
+  console.log(`· [RATE_PENDING] 재녹음 대기 ${PENDN}클립이라 폭 판정을 보류합니다 — 새 mp3 가 오면 저절로 돌아옵니다`);
+} else if (ratio < 1.2 || ratio > 1.5) no(`상수와 실측의 폭이 ${ratio.toFixed(2)}배입니다 — 지금까지 1.2~1.5배였습니다.\n       원인 셋 중 하나입니다: ①문안을 고쳤는데 녹음이 아직 옛 판(가장 흔함 · check-text-audio 도 같이 빨갛습니다 · 새 mp3 가 오면 저절로 돌아옵니다)\n       ②성우가 바뀌었다 ③상수를 손댔다. ②③이면 이 범위도 같은 커밋에서 고치세요 — ①이면 범위를 건드리지 마세요`);
 if (!bad) console.log('SYL RATE OK');
