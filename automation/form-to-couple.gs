@@ -433,6 +433,11 @@ function vimeoGuardDaily() {
     if (!id || id === 'test-couple') return;
     var da = String(g(row, 'digitalAttendance') || '').trim().toUpperCase();
     if (colOf['digitalAttendance'] && da === 'N') return;   // 디지털 참석 안 하는 예식은 제외
+    /* ★[VIMEO_GUARD_OFF 2026-09-20 사장님 「이게 왜 계속 날라오지? 관리자페이지 진행중이던거 취소처리 전부했는데」]
+       이 검사는 «부부폼 프로젝트의 Couples 시트»만 본다. 관리자 페이지가 다루는 Customers 시트와
+       연결돼 있지 않아, 관리자에서 취소해도 여기서는 알 방법이 없었다 — 그래서 취소한 예식의
+       경고가 계속 나갔다. Couples 에 'cancelled' 열을 두면 그 행을 건너뛴다(열이 없으면 무해). */
+    if (colOf['cancelled'] && String(g(row, 'cancelled') || '').trim()) return;   // 취소·연기 표시된 행은 제외
     var d = g(row, 'weddingDate');
     var ds = (d instanceof Date) ? Utilities.formatDate(d, tz, 'yyyy-MM-dd')
                                  : String(d || '').trim().slice(0, 10).replace(/[./]/g, '-');
@@ -445,7 +450,11 @@ function vimeoGuardDaily() {
   notifyStudio('[Moment Edit] 예식 임박 영상 미등록 ' + missing.length + '건',
     '3일 안 예식인데 Couples 시트에 vimeoId가 비어 있습니다. D-3 사전등록 확인이 필요합니다.\n\n' +
     missing.join('\n') +
-    '\n\n등록 순서: Vimeo 라이브 이벤트 생성 → 시트 vimeoId·vimeoHash 열 입력 → live.html?e=예식ID&fresh=1 열어 확인',
+    '\n\n등록 순서: Vimeo 라이브 이벤트 생성 → 시트 vimeoId·vimeoHash 열 입력 → live.html?e=예식ID&fresh=1 열어 확인' +
+    /* [VIMEO_GUARD_OFF] 끄는 법을 함께 적는다. 종전엔 «등록하라»만 있어서, 취소된 예식인데도
+       관리자 페이지에서 취소한 뒤 다시 메일을 받고 「왜 또 오지?」가 됐다(2026-09-20). */
+    '\n\n취소·연기된 예식이라면: Couples 시트에서 그 행의 weddingDate 를 비우거나 cancelled 열에 Y 를 적으면 멈춥니다.' +
+    '\n(관리자 페이지에서 취소해도 이 메일은 안 멈춥니다 — 여기는 Customers 가 아니라 Couples 시트를 봅니다)',
     'vimeo_guard_' + today);
   Logger.log('[vimeoGuard] 경고 메일 발송: ' + missing.join(' / '));
 }
