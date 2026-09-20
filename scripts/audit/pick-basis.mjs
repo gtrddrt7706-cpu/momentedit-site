@@ -59,10 +59,22 @@ for (const [tk, g] of Object.entries(D.TONE)) {
   }
 }
 
-// 선택지가 하나뿐인 갈래 (어조 칸이 아예 없는 곳)
+/* 선택지가 하나뿐인 갈래
+   ★★[NARV_UNWIRED 2026-09-20 정정] 처음에 「NARV 여섯은 어조 칸이 아예 없다」고 적었는데 **틀렸다.**
+     `Object.keys(D.NARV)` 로 키만 세고 안을 안 봤다 — 각 키가 «담백·서정·다정» 3벌짜리 배열이고
+     셋이 서로 다른 글이다. 코워크가 「07번 163행은 정반대로 적혀 있다」며 반박해 줘서 드러났다.
+   ★그런데 결론은 그대로다. 이유가 달랐을 뿐이다 —
+     `NARV` 를 **엔진도 화면도 읽지 않는다**(ritual-cue.js·order-preview.html 에 0건).
+     엔진은 단일 `NARR.vow`·`NARR.ring` 을 쓰고, NARV 는 더빙 대본 생성기만 본다.
+     build-tone-dub.mjs:52 주석도 「NARV 여섯 자리는 아직 더빙이 없다」고 적고 있다.
+     즉 **글은 이미 쓰여 있고 배선이 없어서** 고객이 못 고른다. 문안을 더 쓸 일이 아니라
+     order-preview 에 고르는 칩을 달고 엔진이 그 값을 읽게 하는 «코드 몫»이다.
+   ★교훈 — 「칸이 없다」와 「칸은 있는데 안 이어져 있다」는 다른 문장이다.
+     앞엣것으로 잘못 보고하면 남이 «없는 글»을 쓰러 간다. 실제로 그럴 뻔했다. */
 const lone = [];
-for (const k of Object.keys(D.NARV || {})) lone.push(`NARV.${k}`);
-for (const k of Object.keys(D.RINGWARM || {})) lone.push(`RINGWARM.${k}`);
+for (const [k, v] of Object.entries(D.NARV || {}))
+  lone.push(`NARV.${k}(글 ${Array.isArray(v) ? v.length : 1}벌 · 배선 없음)`);
+for (const k of Object.keys(D.RINGWARM || {})) lone.push(`RINGWARM.${k}(1벌)`);
 
 console.log('\n멘트 추리기 — 무엇을 뺄 수 있나 [PICK_BASIS]\n');
 const byEv = {};
@@ -87,7 +99,8 @@ if (!empty.length) console.log('     없음');
 
 console.log(`\n  ③ 선택지가 하나뿐인 갈래 — ${lone.length}곳 (★사장님이 「다시」를 누른 곳이 여기다)`);
 console.log(`     ${lone.join(' · ')}`);
-console.log('     → 여기는 «추릴» 곳이 아니라 «채울» 곳이다.\n');
+console.log('     → NARV 여섯은 «글은 있고 배선이 없다» — 코드 몫이다(문안을 더 쓸 일이 아니다).');
+console.log('       RINGWARM 둘만 진짜로 한 벌뿐이다.\n');
 
 const bad = dup.length + empty.length;
 if (!bad) { console.log('  → 뺄 후보가 없다. 개수를 줄이려면 화면에서 접는 쪽으로 간다.\n'); process.exit(0); }
