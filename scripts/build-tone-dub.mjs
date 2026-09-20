@@ -1,7 +1,7 @@
-// 어조 45벌의 붙여넣기 대본을 뽑는다 [TONE_DUB]
+// 어조 44벌의 붙여넣기 대본을 뽑는다 [TONE_DUB]
 //
 // ★★[TONE_CULL 2026-09-20 사장님 「겹치거나 별로인 거 전부 삭제해 과감하게 갯수 상관없이」]
-//   60 → **45**. TONE 이 38 에서 23 으로 줄었다(NARV 22 는 그대로).
+//   60 → **44**. TONE 이 38 에서 22 로 줄었다(NARV 22 는 그대로).
 //   코워크가 50벌을 문면으로 읽어 열넷을 버렸고, 그중 열둘이 `plain` 이었다 —
 //   담백판이 «어조»가 아니라 «짧은 판»이 되어 있었다. 근거는 scripts/apply-tone-cull.py 에.
 //
@@ -9,7 +9,7 @@
 //   node scripts/build-tone-dub.mjs --write   파일 씀
 //
 // ★왜 따로 만드나 — `build-typecast-import.mjs` 는 `manifest.json` 을 원천으로 돈다.
-//   어조 45벌은 아직 manifest 에 없다(엔진 배선·생성기 재실행이 끝난 뒤에 들어온다).
+//   어조 44벌은 아직 manifest 에 없다(엔진 배선·생성기 재실행이 끝난 뒤에 들어온다).
 //   그런데 더빙은 그 전에 시작할 수 있다. 문안은 이미 `TONE` 표에 다 있기 때문이다.
 //   **대본을 먼저 뽑아 두면 사람이 기다리지 않는다.** 그게 이 파일의 존재 이유다.
 //
@@ -105,11 +105,11 @@ const no = (m) => { console.error('✗ ' + m); bad++; };
 const allLines = rows.flatMap((r) => r.sents.map((s) => `${VOICE}: ${s}`));
 allLines.forEach((l) => { if (!LINE.test(l)) no(`줄 꼴이 규격과 다르다: ${l.slice(0, 40)}`); });
 if (!rows.length) no('TONE 표에서 뽑힌 문안이 0벌이다');
-/* ★45 = TONE 23 + NARV 22 ([TONE_CULL] 뒤). **사이 순서(valley)는 넣지 않는다.**
+/* ★44 = TONE 22 + NARV 22 ([TONE_CULL] 뒤). **사이 순서(valley)는 넣지 않는다.**
    사용자 지시: "사이순서 없에고 어차피 축배 부분있으니깐 좋은소스들 있으면 축배쪽에 추가하고 없으면 제거".
    지금 GADD·gamdong opt 에 살아 있는 것은 제거가 미실행일 뿐이다 —
    곧 지울 자리에 더빙 돈과 사람이 듣는 시간을 쓰지 않는다. valley 를 여기 되살리지 말 것. */
-if (rows.length !== 45) no(`문안이 ${rows.length}벌이다 — TONE 23 + NARV 22 = 45 여야 한다`);
+if (rows.length !== 44) no(`문안이 ${rows.length}벌이다 — TONE 22 + NARV 22 = 44 여야 한다`);
 { const seen = new Set(); rows.forEach((r) => { if (seen.has(r.slug)) no(`슬러그 중복: ${r.slug}`); seen.add(r.slug); }); }
 
 /* ── 산출물 ───────────────────────────────────────────────────────────────── */
@@ -117,7 +117,7 @@ const paste = allLines.join('\n') + '\n';
 const list = [
   /* ★첫 줄이 스스로 버전을 말한다 [TONE_DUB_SELFID]
      같은 대본이 세 번 옛 판으로 전달됐다. 사람은 파일 이름으로 구별을 못 한다 —
-     이름은 `어조_명단.txt` 로 고정이고, 안이 23벌인지 45벌인지는 열어야 안다.
+     이름은 `어조_명단.txt` 로 고정이고, 안이 22벌인지 44벌인지는 열어야 안다.
      그래서 **첫 줄에 벌 수를 박되 손으로 적지 않는다**(rows.length 를 쓴다).
      손으로 적으면 하드체크만 올리고 머리말은 안 고쳐 「60벌」이라 적힌 64벌 파일이 나온다. */
   `# [TONE_DUB] 어조 ${rows.length}벌 · 더빙 명단`,
