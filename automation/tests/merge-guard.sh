@@ -7664,6 +7664,13 @@ chk 'CUE_READ_APPLY' scripts/apply-cue-read.py 1
 # ★★[PICK_BACK_BUILD] 되돌리기 화면은 **손으로 만들면 하루도 못 간다** — 첫 판이 올린 당일 낡았다.
 #   「지금 문장」은 반드시 저장소 실측에서 온다(선택지도 pick-list 실측 · 표를 쓰면 두 번 바뀐 자리가 거짓이 된다).
 chk 'PICK_BACK_BUILD' scripts/build-pick-back.mjs 1
+# ★★[VOICE_RUNS] 한 목소리가 «한 클립만» 끼어드는 자리. 코워크가 눈으로 찾은 것을 기계가 센다.
+#   44 가 그랬다 — 안내 목소리가 한 문장 나왔다 여섯 클립 뒤에 돌아왔다.
+#   저장소의 어떤 검사도 «큐 차례»와 «역할»을 함께 보지 않았다. 순서표가 생겨서 된다.
+chk 'VOICE_RUNS' scripts/check-voice-runs.mjs 1
+chk 'VOICE_44_HOST' scripts/build-typecast-import.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/check-voice-runs.mjs >/dev/null 2>&1 \
+  || { echo 'FAIL voice-runs: 혼자 끼어드는 목소리가 있다 — node scripts/check-voice-runs.mjs'; fail=1; }; fi
 chk 'pick-list.mjs' scripts/build-pick-back.mjs 1
 chk 'pick-final.html' pick-396ca38a.html 2      # 옛 링크는 최종판으로 보낸다
 chk 'TSV_IS_THE_LIST' scripts/apply-cue-read.py 1
