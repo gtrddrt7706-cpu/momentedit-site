@@ -7507,6 +7507,13 @@ chk 'ROSTER_SRC' 'scripts/audit/copycheck/전수표.py' 1
 chk 'ROSTER_92' 'scripts/audit/copycheck/전수표.py' 1
 if command -v python3 >/dev/null 2>&1; then python3 'scripts/audit/copycheck/전수표.py' >/dev/null 2>&1 \
   || { echo 'FAIL 전수표: «미착수» 클립이 남아 있습니다 — python3 scripts/audit/copycheck/전수표.py'; fail=1; }; fi
+# ★★[SELFTEST_GATE 2026-09-20 코워크 부탁] **검사만 걸고 «검사의 검사»를 안 걸면 검사가 죽어도 초록이 난다.**
+#   두 번 겪었다 — ①치찰음 검사가 패치가 안 써져 셈이 늘 0이었는데 자가시험 11/11 이 그대로 초록이었다
+#   (치찰음 «시험»이 없었기 때문이다) ②시험 하나를 `02c#1` 에 걸어 뒀는데 짝인 `02a#1` 이 원문으로
+#   돌아가자 «고친 문장»이 아니게 되어 19/19 가 18/19 로 조용히 내려앉았다([CASE_TIED_TO_BODY] 와 같은 종류).
+#   ★항목마다 «빨개지는 고장»이 없으면 그 항목은 있으나 마나다. 그것을 지키는 것이 이 줄이다.
+if command -v python3 >/dev/null 2>&1; then (cd scripts/audit/copycheck && python3 selftest-check.py) >/dev/null 2>&1 \
+  || { echo 'FAIL 문안 자가시험: 일부러 넣은 고장을 검사가 못 잡습니다 — cd scripts/audit/copycheck && python3 selftest-check.py'; fail=1; }; fi
 
 # ★★[LOCKED_PROPOSAL 2026-09-20] 밖에서 온 제안이 «게이트에 잠긴 결정»을 깨는지 넣기 전에 본다.
 #   코워크 7회차 여덟 클립 중 셋이 사장님 결정을 되돌렸다 — 악의가 아니라 게이트를 안 읽고 썼을 뿐인데
@@ -7540,6 +7547,31 @@ chk 'make-parents-rerecord' automation/tests/merge-guard.sh 2
 chk 'NO_QUOTA' scripts/audit/pick-list.mjs 1
 chk 'WORD_OVERLAP' scripts/audit/pick-list.mjs 1
 chk 'NAR2' scripts/audit/pick-list.mjs 1
+# ★★[TONE_ARRAY 2026-09-20] TONE 값이 **문자열이 아닐 수 있다** — toast.both 의 plain·warm 은
+#   두 조각짜리 배열이다(케이크 + 축배). String() 으로 뭉개면 배열이 쉼표로 이어져
+#   「…한 조각입니다**.,**이어서 축배입니다」가 되고, 그 출력이 코워크에게 건너가
+#   「생성 버그다 · 급하다」는 오진을 낳았다. **저장소는 멀쩡했다.**
+#   ★내가 만든 중간 산출물을 남이 원본으로 믿은 것이 이번 주에만 두 번째다(91↔92 클립도 같은 꼴).
+chk 'TONE_ARRAY' scripts/audit/pick-list.mjs 1
+# ★★[TONE_CULL] 어조 열넷을 버렸다(50 → 36). 근거는 scripts/apply-tone-cull.py 에 자리마다 한 줄씩.
+#   ★[CULL_ORDER] 코워크는 「어조표 옛 문안을 지우기 전에 고치라」 했는데 순서를 뒤집었다 —
+#     지울 열넷 안에 그 옛 문안이 둘 들어 있었다. 버릴 것을 고치는 것이야말로 두 번 일이다.
+#   ★[TRIBUTE_KEEP] 헌정 plain 셋은 틀이 같아도 «다른 행동»(꽃/큰절/안기)이라 안 지운다.
+#     declare·family·plain 도 남긴다 — 32번 폴백의 원문이자 가족이 손에 들고 읽는 인쇄 선언문이다.
+chk 'TONE_CULL' scripts/apply-tone-cull.py 1
+chk 'CULL_ORDER' scripts/apply-tone-cull.py 1
+chk 'TRIBUTE_KEEP' scripts/apply-tone-cull.py 1
+chk 'TONE_CULL' scripts/build-tone-table.mjs 1
+# ★★[CLIP_WHOLE] 문장 단위(old→new)로는 29자리가 «못 찾음»으로 남았다. 코워크의 old 가
+#   **남의 판**이라 이쪽 문면과 어긋나기 때문이다. 열쇠를 «지금 이쪽 문면»(manifest 전문)으로 옮겼다.
+#   ★[SLUG_STRICT] 슬러그가 안 맞으면 **건너뛴다.** 첫 판은 «전문이 저장소에 있는 아무 후보»로 떨어져
+#     `19c`(1인칭 입장 B)를 **노래 클립**에, `21c` 를 선언 예고에, `22c` 를 덕담 예고에 붙일 뻔했다.
+#     번호는 열쇠가 아니다([SLUG_NOT_KEY] 의 세 번째 판본).
+chk 'CLIP_WHOLE' scripts/apply-clip-whole.py 1
+chk 'SLUG_STRICT' scripts/apply-clip-whole.py 1
+# ★[TOAST_CALL_ONCE] 예고에서 선창어를 미리 말해 버리면 실제 선창과 같은 말이 두 번 나간다.
+#   현행(40·76)은 4회차에 그것을 풀었는데 어조표만 옛 꼴로 남아 있었다.
+nochk '하고 선창하면' assets/ritual-data.js
 chk 'LOCKED_PROPOSAL' scripts/audit/locked-proposal.py 1
 chk 'JUDGED' scripts/audit/locked-proposal.py 1
 chk 'SRC_FOUR' scripts/apply-narr-r3678.py 1

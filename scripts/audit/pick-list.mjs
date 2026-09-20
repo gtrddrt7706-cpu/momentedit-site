@@ -9,7 +9,12 @@
 import { createRequire } from 'node:module';
 const D = createRequire(import.meta.url)('../../assets/ritual-data.js');
 
-const cut = (s) => String(s || '').replace(/\s+/g, ' ').trim();
+/* ★★[TONE_ARRAY 2026-09-20] TONE 값이 **문자열이 아닐 수 있다.** `toast.both.plain`·`warm` 은
+   두 조각짜리 배열이다(케이크 + 축배). String() 으로 뭉개면 배열이 쉼표로 이어져
+   「…한 조각입니다**.,**이어서 축배입니다」가 된다.
+   ★실제로 그 출력이 코워크에게 건너가 「생성 버그다 · 급하다」는 오진을 낳았다. **저장소는 멀쩡했다.**
+   내가 만든 중간 산출물을 남이 원본으로 믿은 것이 이번 주에만 두 번째다(91↔92 클립). */
+const cut = (s) => (Array.isArray(s) ? s.join(' ') : String(s || '')).replace(/\s+/g, ' ').trim();
 const syl = (s) => (s.match(/[가-힣]/g) || []).length;
 /* ★★[NAR2 2026-09-20] `nar` 만 읽으면 틀린다. TOAST.both 는 **두 조각**이다 —
    nar(케이크) + nar2(축배). 한 조각만 재다가 「both.현행 이 cake.현행 과 글자까지 같다」는
