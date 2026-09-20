@@ -1379,7 +1379,7 @@
    "marks": [
     "BUSY_ONE"
    ],
-   "bytes": 92853
+   "bytes": 93341
   },
   {
    "file": "ScreenC_change",
@@ -1389,7 +1389,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-20 07:48 · d0129a76",
+ "_생성": "2026-09-20 07:56 · 77e1d5ab",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
