@@ -7430,6 +7430,38 @@ if command -v node >/dev/null 2>&1; then
   fi
 fi
 chk 'INV_RENDER' scripts/audit/invitation-render.mjs 1
+# ── [INV_SAMPLE][DOW_MATCH] 공개 표본 9판 + 날짜·요일 대조 (2026-09-20 점검) ──
+# 왜: i/invitations/*.html 은 토큰 0개짜리 «손으로 채운» 표본이라 hydrate 를 안 탄다.
+#   그래서 #747 의 렌더 검사가 이 9판을 안 봤고, invitation-08-noir 가
+#   「일요일요일 · 오후 두 시」를 띄운 채 공개돼 있었다(2026-09-20 실측 · 갤러리에서 바로 열린다).
+#   ★요일은 사람이 눈대중하는 자리다 — CLAUDE.md [DATE_DOW] 가 「9/8(월)」을 틀린 것과 같은 뿌리다.
+#   이제 기계가 잰다: 이중 접미 + 날짜로 계산한 요일과 화면 라벨의 대조.
+#   깨 보고 믿었다 — ①「요일요일」 되살리기 ②2026-08-23 에 「월요일」 심기. 둘 다 빨강.
+# ── [XSS_GUEST] 하객 화면 주입 점검 (2026-09-20 · 체크리스트 J4 「다음 점검 라운드 1순위」) ──
+# 왜: 기존 xss-check.mjs 는 **mypage.html 하나만** 연다(실측). 하객이 여는 seat·guide 는 아무도 안 봤다.
+#   거기 꽂히는 문자열은 부부가 직접 타이핑한 것이다 — 하객 이름·테이블 이름·식당 이름/메뉴/전화·예약자명.
+#   서버는 String() 으로 감쌀 뿐 이스케이프하지 않는다(80_production.gs). 그리고 이 화면엔 로그인이 없다.
+# ★[XSS_CANARY] 페이로드마다 CANARY7788 을 붙여 «화면에 닿았는지»를 함께 잰다.
+#   첫 판이 seat.html 을 ?s= 로 열어(실제는 ?t=) 「잘못된 주소예요」만 띄웠는데 주입 0건이라 초록이 나왔다.
+#   0건은 깨끗이 아니라 못 잰 것일 수 있다 — 이제 canary 가 없으면 통과가 아니라 종료코드 2 다.
+# ★깨 보고 믿었다 — seat.html 의 esc() 두 곳을 떼니 3경로가 xss:1 로 빨개졌다. 원복 후 초록.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/xss-check-guest.mjs >/dev/null 2>&1; _xg=$?
+  if [ "$_xg" = 1 ]; then
+    echo 'FAIL xss-guest: 하객 화면(seat·guide)에 주입이 통한다 — node scripts/audit/xss-check-guest.mjs'; fail=1
+  elif [ "$_xg" = 2 ]; then
+    echo 'skip xss-guest: 이번엔 재지 못했습니다(playwright 없음 또는 페이로드 미도달) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_xg" != 0 ]; then
+    echo "FAIL xss-guest: 뜻 모를 종료 코드 $_xg — node scripts/audit/xss-check-guest.mjs"; fail=1
+  fi
+fi
+chk 'XSS_CANARY' scripts/audit/xss-check-guest.mjs 1
+chk 'CANARY7788' scripts/audit/xss-check-guest.mjs 4   # 페이로드 3종 + 대조 상수 — 하나라도 빠지면 도달 판정이 헐거워진다
+chk "seat.html?t=" scripts/audit/xss-check-guest.mjs 3  # 주소가 ?s= 로 되돌아가면 또 못 잰다
+
+chk 'INV_SAMPLE' scripts/audit/invitation-render.mjs 1
+chk 'DOW_MATCH' scripts/audit/invitation-render.mjs 1
+chk 'invitation-08-noir' scripts/audit/invitation-render.mjs 1   # 표본 목록에서 빠지면 그 자리가 다시 사각지대
 chk 'LIVE_FEAT_REAL' 청첩장/마스터/live-04.master 1   # 원천에 되살리기 금지 근거가 남아 있는가
 chk 'LIVE_FEAT_REAL' 청첩장/마스터/live-08.master 1
 chk 'DTL16' 청첩장/마스터/live-06.master 1
