@@ -7642,6 +7642,11 @@ chk 'SLUG_STRICT' scripts/apply-clip-whole.py 1
 nochk '하고 선창하면' assets/ritual-data.js
 chk 'LOCKED_PROPOSAL' scripts/audit/locked-proposal.py 1
 chk 'JUDGED' scripts/audit/locked-proposal.py 1
+# ★★[JUDGED_TSV] 판정한 자리는 apply 스크립트 «둘»에 산다. 한쪽만 읽으면 이미 끝낸 것이 다시 뜬다.
+#   ★면제는 «그 말 하나»에만 준다 — 처음에 (번호,문장) 으로 자리째 면제했더니 그 자리의 새 제안이
+#     **전부 영원히 통과**했다(26#1 에 잠금말을 되살리는 제안을 넣어 확인). 깨뜨려 보고서야 보였다.
+chk 'JUDGED_TSV' scripts/audit/locked-proposal.py 2
+chk '_RETIRED_WORDS' scripts/audit/locked-proposal.py 3
 chk 'SRC_FOUR' scripts/apply-narr-r3678.py 1
 chk 'SUB_TRAP' scripts/apply-narr-r3678.py 1
 # ★★[GATE_LOCK_EXPORT] 위 검사의 «코워크 쪽 판»이 읽는 tsv 를 뽑는 자리.
@@ -7664,7 +7669,11 @@ nochk '이제 나눠서 담겠습니다' assets/ritual-data.js
 nochk '여기서부터는 작가님이 안내해' assets/ritual-cue.js
 nochk '두 사람 곁으로 모이시면' assets/ritual-data.js
 nochk '편히 일어나셔서 움직이세요' assets/ritual-cue.js
-chk '여기서부터는 사진 순서입니다' assets/ritual-cue.js 1
+# ★[ECHO_44_26] 코워크 안 「사진 순서입니다」는 바로 앞 26 「남기는 순서입니다」와 이웃해
+#   check-echo-inrun 이 0→6건으로 잡았다. 「남기다」는 26·63 이 쓰고 「찍다」는 이 대본이
+#   하객에게 안 쓰는 말이라(표준은 「남기다」 16회), 동사를 빼는 것이 유일한 출구였다.
+chk '여기서부터는 사진입니다' assets/ritual-cue.js 1
+nochk '여기서부터는 사진 순서입니다' assets/ritual-cue.js
 chk '가까이 모여 주시면 됩니다' assets/ritual-data.js 1
 chk '편히 움직이셔도 좋습니다' assets/ritual-cue.js 1
 chk 'ENGINE_CALLS' scripts/audit/cue-order-text.mjs 1

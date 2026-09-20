@@ -38,6 +38,27 @@ JUDGED = set()
 for m in re.finditer(r"^\s*\('([^']+)',\s*(\d+)\):", APPLY, re.M):
     JUDGED.add((m.group(1), int(m.group(2))))
 
+# ★★[JUDGED_TSV] 판정한 자리는 apply 스크립트 «둘»에 산다. 한쪽만 읽으면 이미 끝낸 것이 다시 뜬다.
+#   실제로 [CUE_READ_APPLY] 로 반영한 26·64·45 가, 그 옛 문면을 든 round5 때문에 셋 다 빨갛게 떴다.
+#   내가 방금 건 nochk 를 내 옛 회차가 깨는 꼴이라 «사고»가 아니라 «이미 처리»다.
+#   ★표를 못 읽으면 조용히 넘기지 않는다 — 0줄이면 그 자체로 이상이다.
+import csv, os
+_TSV = 'docs/plans/식순연구/큐순서읽기_반영_20260920.tsv'
+if os.path.exists(_TSV):
+    _rows = list(csv.DictReader(io.open(_TSV, encoding='utf-8'), delimiter='\t'))
+    if len(_rows) < 5:
+        print('[LOCKED_PROPOSAL] FAIL %s 를 %d줄밖에 못 읽었다 — 표 모양이 깨졌다' % (_TSV, len(_rows)))
+        raise SystemExit(1)
+    # ★문장 번호로 맞추면 안 된다 — 제안이 든 판에서는 그 클립의 «문장 수»가 달랐다.
+    #   실제로 64 는 옛 판에서 2문장이라 제안이 #1 인데 지금은 1문장(#0)이다.
+    #   그래서 «그 잠금말이 내가 방금 일부러 지운 말인가»로 본다. 번호와 무관하게 참이다.
+    #   ★★그리고 «자리»째로 면제하면 안 된다. 처음에 (번호, 문장) 을 JUDGED 에 넣었더니
+    #     그 자리의 **모든 새 제안이 영원히 통과**했다 — 일부러 잠금말을 되살리는 제안을
+    #     26#1 에 넣어 보니 조용히 지나갔다. 면제는 «그 말 하나»에만 준다.
+    _RETIRED_WORDS = [_r['전'].strip() for _r in _rows if _r.get('전', '').strip()]
+else:
+    _RETIRED_WORDS = []
+
 props = []
 for f in sorted(glob.glob('scripts/audit/copycheck/round[0-9].json')):
     d = json.load(io.open(f, encoding='utf-8'))
@@ -46,12 +67,18 @@ for f in sorted(glob.glob('scripts/audit/copycheck/round[0-9].json')):
             if s['old'] != s['new']:
                 props.append((d['round'], c['no'], s['i'], s['old'], s['new']))
 
-bad = []
+bad, skipped = [], []
 for rd, no, i, old, new in props:
     if (no, i) in JUDGED:
         continue
     for s in NO:
         if s in new:
+            # ★[JUDGED_TSV] 그 nochk 가 «내가 방금 일부러 지운 말»이면 이 제안은 이미 판정된 옛 판이다.
+            #   문장 번호로는 못 거른다 — 제안이 든 판에서는 그 클립의 문장 수가 달랐다(64 는 2→1문장).
+            #   ★조용히 넘기지 않는다 — 걸러낸 것을 세어 찍는다. 이 자루가 소리 없이 커지면
+            #     「경고가 0이라 안전하다」가 거짓이 된다.
+            if any(s in w for w in _RETIRED_WORDS):
+                skipped.append((rd, no, i, s)); continue
             bad.append((rd, no, i, 'nochk', s, new))
     for s, n in YES:
         # 잠긴 말을 «지우는» 제안인가 — 옛 문면에 있고 새 문면에 없다
@@ -59,6 +86,9 @@ for rd, no, i, old, new in props:
             bad.append((rd, no, i, 'chk', s, new))
 
 print('제안 %d건 · 게이트 잠금 chk %d · nochk %d' % (len(props), len(YES), len(NO)))
+if skipped:
+    print('  · 이미 판정한 자리라 넘긴 것 %d건 (표: %s)' % (len(skipped), _TSV.split('/')[-1]))
+    for rd, no, i, w in skipped[:6]: print('      R%s [%s]#%s  %s' % (rd, no, i, w[:30]))
 if not bad:
     print('\n✓ 잠긴 결정과 부딪치는 제안이 없습니다.')
     sys.exit(0)

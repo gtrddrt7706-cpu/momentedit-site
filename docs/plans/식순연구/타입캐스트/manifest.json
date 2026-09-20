@@ -35,7 +35,7 @@
       "dir": "assets/audio/narration",
       "clips": 14,
       "sents": 38,
-      "chars": 1023
+      "chars": 1020
     },
     {
       "file": "2_진행_전반.txt",
@@ -337,7 +337,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "여기서부터는 사진 순서입니다.",
+          "text": "여기서부터는 사진입니다.",
           "before": 0,
           "after": 0
         }
