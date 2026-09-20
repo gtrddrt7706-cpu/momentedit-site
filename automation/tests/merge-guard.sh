@@ -7661,6 +7661,11 @@ chk 'TONE_TEXT_GATE' scripts/audit/tone-text-applied.py 1
 chk 'CUE_ORDER_TEXT' scripts/audit/cue-order-text.mjs 1
 # ★[CUE_READ_APPLY] 순서를 알고서야 보인 것들. 표가 목록이고 코드에 문면을 안 박는다.
 chk 'CUE_READ_APPLY' scripts/apply-cue-read.py 1
+# ★★[PICK_BACK_BUILD] 되돌리기 화면은 **손으로 만들면 하루도 못 간다** — 첫 판이 올린 당일 낡았다.
+#   「지금 문장」은 반드시 저장소 실측에서 온다(선택지도 pick-list 실측 · 표를 쓰면 두 번 바뀐 자리가 거짓이 된다).
+chk 'PICK_BACK_BUILD' scripts/build-pick-back.mjs 1
+chk 'pick-list.mjs' scripts/build-pick-back.mjs 1
+chk 'pick-final.html' pick-396ca38a.html 2      # 옛 링크는 최종판으로 보낸다
 chk 'TSV_IS_THE_LIST' scripts/apply-cue-read.py 1
 chk 'SRC_FOUR' scripts/apply-cue-read.py 1
 # ★[CUE_READ] 이웃한 클립 사이의 겹침을 되돌리지 말 것 — 클립 안 검사로는 안 잡힌다

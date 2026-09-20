@@ -1,0 +1,121 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>문안 되돌리기</title>
+<style>
+:root{--ink:#2B2723;--sub:#6E6959;--line:#E3DED3;--bg:#FAF8F4;--card:#fff;--keep:#4C7A5A;--back:#A8603C}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 130px}
+header{padding:26px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px}
+h1{font-size:22px;margin:0 0 8px;letter-spacing:-.01em}
+.lead{color:var(--sub);font-size:14.5px;margin:0 0 6px}
+.url{font-size:12.5px;margin:0 0 10px}
+.url a{color:var(--sub)}
+.bar{position:sticky;top:0;z-index:9;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin:0 -16px 16px}
+.bar .in{max-width:720px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cnt{font-size:14px;font-weight:600;margin-right:auto}
+.cnt b{font-size:18px}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 12px}
+.mini{font-size:13.5px;padding:7px 11px;color:var(--sub)}
+h2{font-size:15px;margin:26px 0 11px;padding-bottom:7px;border-bottom:1px solid var(--line);color:var(--sub);font-weight:600}
+h2 span{color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px 15px 12px;margin:0 0 12px}
+.card.done{opacity:.5}
+.tag{font-size:12.5px;color:var(--sub);margin:0 0 9px}
+.tag .n{font-variant-numeric:tabular-nums}
+.row{margin:0 0 8px;padding:10px 12px;border-radius:9px;border:1px solid var(--line)}
+.row .k{font-size:12px;color:var(--sub);display:block;margin-bottom:3px}
+.now{background:#F3F7F3;border-color:#CFE0D3}
+.was{background:#FBF6F2;border-color:#EBDACB}
+.why{font-size:13.5px;color:var(--sub);margin:9px 0 0;padding-left:11px;border-left:2px solid var(--line);max-height:5.25em;overflow:hidden;position:relative}
+.why::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.75em;background:linear-gradient(rgba(255,255,255,0),#fff)}
+.why.open{max-height:none}
+.why.open::after{display:none}
+.more{font-size:13px;color:var(--sub);background:none;border:none;padding:4px 0;text-decoration:underline;margin-top:2px}
+.pick{display:flex;gap:8px;margin-top:11px}
+.pick button{flex:1;padding:11px 8px;font-size:14.5px}
+.pick button.on{color:#fff;border-color:transparent;font-weight:600}
+.pick .keep.on{background:var(--keep)}
+.pick .back.on{background:var(--back)}
+.out{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:11px 16px calc(11px + env(safe-area-inset-bottom))}
+.out .in{max-width:720px;margin:0 auto;display:flex;gap:9px}
+.out button{flex:1;padding:13px;font-weight:600;background:var(--ink);color:#fff;border-color:transparent}
+.out button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);flex:0 0 auto}
+textarea{width:100%;max-width:720px;margin:12px auto 0;display:block;height:180px;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line);border-radius:9px;padding:11px}
+.hid{display:none}
+@media (max-width:420px){.pick{flex-direction:column}}
+</style></head><body><div class="wrap">
+<header>
+<h1>문안 되돌리기</h1>
+<p class="url"><a href="https://momentedit.kr/pick-final.html">momentedit.kr/pick-final.html</a></p>
+<p class="lead">아래 <b>__N__곳</b>은 <b>이미 바뀌어 저장소에 들어가 있습니다.</b> 식순 순서대로 놓았습니다. 읽어 보시고 <b>예전 문장이 더 낫다 싶은 것만</b> 골라 주세요.</p>
+<p class="lead">그대로 두실 것은 <b>누르지 않으셔도 됩니다.</b> 중간에 닫으셔도 누른 것은 남습니다.</p>
+</header>
+<div class="bar"><div class="in">
+<span class="cnt">되돌릴 것 <b id="nback">0</b>건 · 본 것 <span id="nseen">0</span>/<span id="ntot">0</span></span>
+<button class="mini" id="rst">처음부터</button>
+</div></div>
+<div id="list"></div>
+</div>
+<div class="out"><div class="in">
+<button id="fin">결과 만들기</button>
+<button class="ghost" id="cpy">복사</button>
+</div></div>
+<textarea id="res" class="hid" readonly></textarea>
+<script>
+var D = __DATA__, KEY = 'pickback___KEY__';
+var st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ st = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function draw(){
+  var L = document.getElementById('list'); L.innerHTML = ''; var seen = {};
+  D.forEach(function(x, n){
+    var sec = x.kind === '선택지' ? '커플이 고르는 선택지' : '식순 문안';
+    if (!seen[sec]) { seen[sec] = 1;
+      var h = document.createElement('h2');
+      h.innerHTML = '<span>' + esc(sec) + '</span> · ' + D.filter(function(y){ return y.kind === x.kind; }).length + '곳';
+      L.appendChild(h); }
+    var k = x.id, v = st[k], c = document.createElement('div');
+    c.className = 'card' + (v ? ' done' : '');
+    var why = x.why ? '<p class="why">' + esc(x.why) + '</p><button class="more">이유 더 보기</button>' : '';
+    var meta = [esc(x.id)];
+    if (x.label) meta.push(esc(x.label));
+    if (x.voice) meta.push(esc(x.voice));
+    if (x.kind === '문안' && x.live === false) meta.push('이 설정에선 안 나감');
+    c.innerHTML =
+      '<p class="tag"><span class="n">' + (n + 1) + '.</span> ' + meta.join(' · ') + '</p>' +
+      '<div class="row now"><span class="k">지금 (바뀐 문장)</span>' + esc(x.now) + '</div>' +
+      '<div class="row was"><span class="k">예전 문장</span>' + esc(x.was) + '</div>' + why +
+      '<div class="pick"><button class="keep' + (v === 'keep' ? ' on' : '') + '">지금 그대로 좋다</button>' +
+      '<button class="back' + (v === 'back' ? ' on' : '') + '">예전 게 낫다</button></div>';
+    var bs = c.querySelectorAll('.pick button');
+    bs[0].onclick = function(){ st[k] = st[k] === 'keep' ? null : 'keep'; save(); draw(); };
+    bs[1].onclick = function(){ st[k] = st[k] === 'back' ? null : 'back'; save(); draw(); };
+    var mb = c.querySelector('.more');
+    if (mb) mb.onclick = function(){ var p = c.querySelector('.why'); p.classList.toggle('open');
+      mb.textContent = p.classList.contains('open') ? '접기' : '이유 더 보기'; };
+    L.appendChild(c);
+  });
+  var nb = 0, ns = 0;
+  D.forEach(function(x){ var v = st[x.id]; if (v) ns++; if (v === 'back') nb++; });
+  document.getElementById('nback').textContent = nb;
+  document.getElementById('nseen').textContent = ns;
+  document.getElementById('ntot').textContent = D.length;
+}
+document.getElementById('rst').onclick = function(){
+  if (confirm('누르신 것을 전부 지웁니다. 계속할까요?')) { st = {}; save(); draw(); } };
+document.getElementById('fin').onclick = function(){
+  var back = D.filter(function(x){ return st[x.id] === 'back'; });
+  var t = '# 되돌릴 문장 ' + back.length + '건 (__KEY__)\n';
+  back.forEach(function(x){ t += '\n' + x.id + '\t' + x.was; });
+  if (!back.length) t += '\n(없음 — 전부 지금 그대로 둡니다)';
+  var r = document.getElementById('res'); r.classList.remove('hid'); r.value = t;
+  r.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+document.getElementById('cpy').onclick = function(){
+  var r = document.getElementById('res'), b = this;
+  if (r.classList.contains('hid')) document.getElementById('fin').click();
+  r.select(); try { document.execCommand('copy'); b.textContent = '복사됨'; } catch(e){}
+  setTimeout(function(){ b.textContent = '복사'; }, 1600); };
+draw();
+</script></body></html>
