@@ -8762,3 +8762,40 @@ chk "id=\"sndChk\"" scripts/build-listen-all.mjs 1
 _PLAYS=$(grep -c 'a\.play()' scripts/build-listen-all.mjs 2>/dev/null | tr -d ' ')
 if [ "$_PLAYS" = "2" ]; then echo "ok IOS_GESTURE: play() 자리가 둘이다(kick · sndCheck · 둘 다 누른 자리)"
 else echo "REVERT? IOS_GESTURE: play() 자리가 ${_PLAYS}곳 — 콜백 안에서 부르면 아이폰에서 조용히 막힌다"; fail=1; fi
+
+# ════════════════════════════════════════════════════════════════════
+# [LETTER_REWRITE] 편지·덕담 여섯 묶음 — 틀이 한 공식으로 몰리지 않았나 (2026-09-20 사장님 지시)
+#   사장님 원문: 「어머니 아버지 신랑 신부 편지부분도 전부 다시 짤거야」
+#   실청 판정은 「억지감동」이었는데, 세어 보니 원인이 문장이 아니라 **틀**이었다 —
+#   호명으로 여는 편 6/6 · 짧은 여운으로 닫는 편 6/6 · 「이제 안다」 공식 3/6 ·
+#   아버님 덕담은 12/12 가 한 어미(사장님 「다 로 끝나는 모자란듯한 컨셉」).
+#   한 편만 들으면 안 보이고 미리듣기에서 연달아 들으면 보인다.
+#   ★이 여섯은 cast = 미리듣기다. 고객이 계약 전에 듣고 «나도 쓰겠다»를 판단하는 본보기라,
+#     틀이 하나면 고객의 편지도 그 틀로만 나온다. 그래서 「흩어짐」을 잰다.
+#   ★지금은 **보고만** 한다(종료 0). 재작성 전이라 목표 미달이 정상이고,
+#     넣는 날부터 빨간 검사는 고칠 수 없는 빨강이 된다([TERM_DIGITAL] 교훈).
+#     재작성이 끝나면 아래 호출을 `LETTER_STRICT=1` 로 바꾼다 — 그 한 줄이 «완료» 표시다.
+#   ★네 방향으로 깨 보고 믿었다(2026-09-20 실측):
+#     ①평소 0 ②STRICT+현재 1 ③표 모양 깨짐 1(0줄 읽고 조용히 통과하지 않는다) ④흩어진 판+STRICT 0
+if command -v python3 >/dev/null 2>&1; then
+  _lfOut=$(python3 scripts/audit/letter-formula.py 2>&1) \
+    || { echo 'FAIL letter-formula: 편지 여섯 묶음을 읽지 못했다 — python3 scripts/audit/letter-formula.py'
+         printf '%s\n' "$_lfOut" | sed 's/^/    | /'; fail=1; }
+  printf '%s\n' "$_lfOut" | sed -n '/✓\|✗\|→ 틀이/p' | sed 's/^/  /'
+fi
+chk 'LETTER_REWRITE' scripts/audit/letter-formula.py 2
+chk 'LETTER_REWRITE' 'docs/plans/식순연구/편지_재작성_20260920.md' 1
+# ★★[SLUG_NOT_KEY 2026-09-20] 클립 열쇠는 `file` 이 아니다 — 슬러그가 여덟 쌍 겹친다.
+#   entry-A~F 여섯 쌍 + letter-parent·letter-each 두 쌍. 같은 이름인데 전혀 다른 글이다:
+#   cast 쪽 letter-parent 는 «신부가 부모님께 읽는 편지», narration 쪽은 우성이
+#   「지금 직접 읽어 주시면 됩니다」라고 넘겨주는 진행 안내다. `no` 도 유일하지 않다(27 이 둘).
+#   ★실제 사고: 진행표 첫 판이 file 로만 걸러 재작성 목록에 우성 두 줄이 끼었고
+#     「8묶음 79문장 · 전부 미리듣기」로 적혔다(참값 6묶음 75문장).
+#     그 직전에 {file: clip} 딕셔너리로 확인할 때는 뒤엣것이 앞엣것을 덮어써 안 보였다.
+#   build-ment-plan.py 가 겹침 목록을 세어 달라지면 종료 1 로 멈춘다 — 조용히 내보내지 않는다.
+if command -v python3 >/dev/null 2>&1; then
+  python3 scripts/build-ment-plan.py >/dev/null 2>&1 \
+    || { echo 'FAIL SLUG_NOT_KEY: 겹치는 슬러그가 달라졌다 — python3 scripts/build-ment-plan.py'; fail=1; }
+fi
+chk 'SLUG_NOT_KEY' scripts/build-ment-plan.py 3
+chk 'MENT_PLAN' scripts/build-ment-plan.py 1
