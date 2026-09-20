@@ -8829,3 +8829,16 @@ if command -v python3 >/dev/null 2>&1; then
 fi
 chk 'SLUG_NOT_KEY' scripts/build-ment-plan.py 3
 chk 'MENT_PLAN' scripts/build-ment-plan.py 1
+# ★[DIAG_FIRST 2026-09-20] 편지 재작성 지침은 «이미 있는 진단»을 가리켜야 한다.
+#   docs/plans/식순연구/진단/진단_3_편지덕담헌정.md (333줄) 이 humanize-korean 71패턴으로
+#   이 여섯을 이미 진단해 두었는데, 2026-09-20 에 내가 그걸 모르고 처음부터 다시 셌다.
+#   결론은 같았지만(P4 C-1 기계적 병렬) 반나절을 버렸다 — [NOT_THE_SOURCE] 「안을 먼저 본다」.
+#   ★진단이 인용한 17문장 중 13개가 아직 살아 있다. 낡은 칸은 아버님 덕담 하나뿐이다
+#     (정류장 장면으로 갈아친 뒤라 「보일러」·「한 달 걸렸다」·「잘 살아라」가 없다).
+#   지침이 이 링크를 잃으면 다음 사람도 같은 자리에서 다시 센다.
+chk 'DIAG_FIRST' 'docs/plans/식순연구/편지_재작성_20260920.md' 1
+chk '진단_3_편지덕담헌정' 'docs/plans/식순연구/편지_재작성_20260920.md' 2
+chk 'humanize-korean' 'docs/plans/식순연구/편지_재작성_20260920.md' 2
+test -f 'docs/plans/식순연구/진단/진단_3_편지덕담헌정.md' \
+  && echo 'ok DIAG_FIRST: 진단_3 원본이 제자리에 있다' \
+  || { echo 'REVERT? DIAG_FIRST: docs/plans/식순연구/진단/진단_3_편지덕담헌정.md 가 사라졌다 — 지침이 빈 링크를 가리킨다'; fail=1; }
