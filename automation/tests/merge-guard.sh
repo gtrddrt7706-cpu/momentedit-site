@@ -7521,6 +7521,16 @@ grep -q 'stale-waiters' .claude/settings.json 2>/dev/null || { echo 'REVERT? .cl
 # ★위험한 쪽은 반대다 — 목록이 진짜 낡았는데 다른 이유로 `_생성` 만 새것이면 「최신」이라고 안심시킨다.
 #   deploycheck-coverage 가 «가장 최근 GAS 커밋 날짜»와 맞대 본다(merge-guard 가 그걸 실행한다).
 # ★깨 보고 믿었다 — 날짜 되돌리기 · _생성 삭제, 둘 다 빨강. 원복 후 초록.
+# ── [STAMP_ONLY] ④ 만 찍는 함수 (2026-09-20 · 대표 실행 두 번 모두 로그가 ③ 에서 잘렸다) ──
+# deployCheck 는 출력이 길어 GAS 가 「Logging output too large」 로 자른다.
+#   ④ 「배포가 먹었는가」 는 목록 한가운데라 **몇 번을 돌려도 영영 안 보인다** — 재배포 판정의 유일한 줄인데 그렇다.
+#   그래서 그 항목만 떼어 deployStampCheck() 를 만들었다. 출력 서너 줄이라 잘릴 수가 없다.
+# ★샌드박스로 세 갈래를 전부 돌려 봤다 — 기록 없음 · 다르다 · 같다. 셋 다 제 문장이 나온다.
+# ★이 파일 자신의 함수는 fns 목록에 없으므로(생성기가 비워 둔다) deployCheck 의 허용목록에도 이름을 더했다.
+#   빠뜨리면 「모르는 함수」로 매번 찍힌다 — deploycheck-sim 6-C 가 그것을 잡는다.
+chk 'STAMP_ONLY' automation/platform/99_deployCheck.gs 2
+chk 'deployStampCheck' automation/platform/99_deployCheck.gs 2   # 함수 정의 + 허용목록
+chk 'deployStampCheck' CLAUDE.md 1                               # 실행 함수 위치표에 있는가(집 규칙)
 chk 'LIST_AGE' scripts/audit/deploycheck-coverage.mjs 1
 chk 'STALE_WAIT' scripts/audit/stale-waiters.sh 1
 chk 'STALE_WAIT' CLAUDE.md 1                      # 왜 만들었는지가 사라지면 다음 세션이 또 만든다
