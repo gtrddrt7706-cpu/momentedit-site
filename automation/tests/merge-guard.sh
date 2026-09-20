@@ -9145,8 +9145,13 @@ chk '봐주기를 끕니다' scripts/check-listen-cover.mjs 1
 chk 'RATE_PENDING' scripts/check-syl-rate.mjs 3
 chk '보류를 끕니다' scripts/check-syl-rate.mjs 1
 # ★★[COPY_SELFCHECK 2026-09-20] 코워크가 만든 문안 자가검사(17항목)를 저장소에 넣었다.
-chk 'COPY_SELFCHECK' scripts/audit/copycheck/README.md 1
-#   scripts/audit/copycheck/ — check-copy.py · selftest-check.py · round0~3.json · README
+chk 'COPY_SELFCHECK' scripts/audit/copycheck/check-copy.py 2
+#   ★열쇠를 README 에서 check-copy.py 로 옮겼다 — 코워크 최종판 README 에는 그 이름이
+#     없었다(문서는 다시 쓰이지만 코드 머리 주석은 남는다). 문서보다 코드에 거는 게 오래 산다.
+#   scripts/audit/copycheck/ — check-copy.py · selftest-check.py · build-copy-pick.py ·
+#     round0~6.json · 본문_여섯편.txt(생성물) · README
+#   ★2026-09-20 최종판 — 여섯 회차 176문장 · 자가시험 11/11. 코워크 판에는 [CASE_TIED_TO_BODY]
+#     주석이 없었다(파일을 못 받으셨다). 코워크 지시대로 이쪽 것을 살리고 새 것을 위에 더했다.
 #   ★믿기 전에 깨 봤다. 코워크는 「10건 중 10건」이라 했는데 이쪽에서 처음 돌리니 한 건도
 #     못 돌았다 — 묶음에 본문_여섯편.txt 가 빠져 있었고, 그 인자를 «주면서 파일이 없으면»
 #     FileNotFoundError 로 죽는다(README 의 「없어도 돕니다」는 인자를 «안 줄 때» 이야기다).
@@ -9162,7 +9167,7 @@ chk 'BODY_SIX' scripts/build-body-six.py 1
 if command -v python3 >/dev/null 2>&1; then
   ( cd scripts/audit/copycheck && python3 selftest-check.py >/dev/null 2>&1 ) \
     || { echo 'FAIL copycheck-selftest: 일부러 넣은 고장을 못 잡는다 — cd scripts/audit/copycheck && python3 selftest-check.py'; fail=1; }
-  ( cd scripts/audit/copycheck && python3 check-copy.py round0.json round1.json round2.json round3.json 본문_여섯편.txt >/dev/null 2>&1 ) \
+  ( cd scripts/audit/copycheck && python3 check-copy.py round0.json round1.json round2.json round3.json round4.json round5.json round6.json 본문_여섯편.txt >/dev/null 2>&1 ) \
     || { echo 'FAIL check-copy: 문안에 빨간 줄이 있다 — cd scripts/audit/copycheck && python3 check-copy.py round*.json 본문_여섯편.txt'; fail=1; }
   python3 scripts/build-body-six.py > /dev/null 2>&1 \
     || { echo 'FAIL build-body-six: 여섯 편 본문을 못 뽑는다 — 원천 파일 모양이 바뀌었을 수 있다'; fail=1; }
