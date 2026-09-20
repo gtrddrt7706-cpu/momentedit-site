@@ -36,9 +36,17 @@ for k, v in slots.items():
         continue                       # 자리가 그대로 있다
     t = (v.get('text') or '').strip()
     # 그 글이 대장 어딘가에 살아 있고, 그 자리의 소리가 아직 그 글이 아니면 → 옮길 수 있다
-    cand = [y for y in by_text.get(t, []) if (slots.get(y, {}).get('text') or '').strip() != t]
-    if cand:
-        moves.append((k, cand[0], t, v))
+    # ★★[SAME_CLIP_FIRST 2026-09-20] «글자가 같은 아무 자리»를 집으면 **남의 클립을 친다.**
+    #   「신랑 신부, 입장!」처럼 여러 클립에 있는 문장이 그렇다 — 실제로 `07#3` 과 `09#3` 이
+    #   **둘 다 `07#2` 로** 가려 했고, 뒤엣것이 앞엣것을 덮을 참이었다. 드라이런이 잡았다.
+    #   ★같은 클립 안을 먼저 찾고, 이미 누가 가기로 한 자리는 비켜 간다. 없으면 옮기지 않는다.
+    clip = k.rsplit('#', 1)[0]
+    taken = {y for _, y, _, _ in moves}
+    cand = [y for y in by_text.get(t, [])
+            if (slots.get(y, {}).get('text') or '').strip() != t and y not in taken]
+    mine = [y for y in cand if y.rsplit('#', 1)[0] == clip]
+    if mine:
+        moves.append((k, mine[0], t, v))
     else:
         drop.append((k, t))
 
