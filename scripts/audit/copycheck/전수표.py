@@ -6,11 +6,6 @@
 #   ★남이 나눈 구간표를 물려받지 않는다. 클립 전수 목록에서 시작해 하나씩 지운다.
 #   이 표에 «미착수»가 하나라도 있으면 끝난 게 아니다.
 import json, re, glob, sys, collections, os
-
-# ★★[ROSTER_SRC 2026-09-20] 코워크 판은 `01_현재_나가는_문안_전체.txt` 를 읽었다. 그 파일은
-#   내가 코워크에게 보내려고 뽑아 둔 **중간 산출물**이라 저장소에 없고, 뽑은 날짜로 굳어 있다.
-#   목록을 지키자고 만든 검사가 낡은 목록을 읽으면 그게 제일 나쁘다([NOT_THE_SOURCE]).
-#   → 원천(manifest + ritual-cue 의 RETIRED)에서 바로 세운다. 어디서 실행해도 같은 답이 나온다.
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,6 +27,11 @@ for f in sorted(glob.glob(os.path.join(HERE, 'round[0-9].json'))):
         ch = sum(1 for s in c['sents'] if s['old'] != s['new'])
         done[key] = (d['round'], ch, len(c['sents']))
 
+# ★★[ROSTER_SRC · 저장소 판] 코워크 판은 여전히 `01_현재_나가는_문안_전체.txt` 를 읽고 주석만 달았다.
+#   그 파일은 **내가 뽑아 보낸 중간 산출물**이라 저장소에 없고, 뽑은 날짜로 굳어 있다.
+#   ★목록을 지키자고 만든 검사가 낡은 목록을 읽으면 그게 제일 나쁘다([NOT_THE_SOURCE]).
+#   → 원천(manifest + ritual-cue 의 RETIRED)에서 바로 세운다. 어디서 실행해도 같은 답이 나온다.
+#   ★그래서 코워크가 손으로 붙인 `26_vow-both` 한 줄도 여기서는 필요 없다 — 원천이 이미 갖고 있다.
 _M = json.load(open(os.path.join(ROOT, 'docs/plans/식순연구/타입캐스트/manifest.json'), encoding='utf-8'))
 _cue = open(os.path.join(ROOT, 'assets/ritual-cue.js'), encoding='utf-8').read()
 _b = re.search(r'var RETIRED = \{(.*?)\};', _cue, re.S)
@@ -39,6 +39,15 @@ _RET = set(re.findall(r"'([^']+)'\s*:\s*1", _b.group(1))) if _b else set()
 _V = _M.get('voice', {})
 rows = [(c['no'], c['file'], c.get('role', '?'), _V.get(c.get('role'), '?'), len(c['sents']))
         for c in _M['clips'] if c['file'] not in _RET]
+
+# ★★[ROSTER_SRC 2026-09-20 · 코드 회신] 이 표의 «원천»이 틀렸습니다.
+#   01_현재_나가는_문안_전체.txt 는 **제가 뽑아 보낸 중간 산출물**이라 저장소에 없고 날짜로 굳어 있습니다.
+#   클로드코드가 원천(manifest + RETIRED)에서 바로 세웠더니 **91이 아니라 92**로 나왔습니다.
+#   빠진 하나가 26_vow-both 이고 **빠뜨린 것은 제 파일**입니다. 저는 그 91을 전수로 믿었습니다.
+#   ★교훈이 앞의 둘과 같습니다 — «남이 만든 목록»이 아니라 «원천»에서 세워야 합니다.
+#     제 손으로 전수표를 만들면서도 입력은 또 물려받은 것을 썼습니다. 네 번째입니다.
+#   ★여기서는 빠진 하나를 손으로 붙여 둡니다. 저장소 쪽은 원천에서 세우도록 고쳐졌습니다.
+# ★위 [ROSTER_SRC] 로 원천에서 세우므로 손으로 붙이지 않는다(코워크 판의 그 줄은 뺐다).
 
 # 일부러 안 건드린 것 — 이유를 반드시 적는다. 이유 없는 «안 함»은 누락이다.
 SKIP = {
@@ -49,12 +58,8 @@ SKIP = {
  ('18','entry-A'):     '짝인 3인칭 05(A)를 1회차에서 고쳤다 — 함께 볼 자리이나 배역 녹음이 걸려 별도 판단이 필요하다',
  ('20','entry-C'):     '위와 같음(짝 07)',
  ('23','entry-F'):     '위와 같음(짝 10)',
+ ('26','vow-both'):    '24·25를 겹쳐 만드는 합창 결과물이라 내 문안이 따로 없다. 24·25를 고치지 않기로 한 판단이 이 클립을 덮는다',
  ('15','toast'):       '사장님 「친구부분멘트 아예 삭제」 — 삭제 대상이라 문안을 고치지 않는다',
- # ★★[ROSTER_92 2026-09-20] 이 줄이 «전수표를 원천에 물린» 첫 수확이다.
- #   코워크는 91클립을 전수로 알고 「미착수 0」이라 보고했는데, 원천(manifest)은 **92**다.
- #   빠진 하나가 이것이고, 빠뜨린 것은 코워크가 아니라 **내가 뽑아 보낸 중간 파일**이다.
- #   목록을 지키자고 만든 검사가 낡은 목록을 읽으면 그게 제일 나쁘다 — 그래서 입력을 원천으로 바꿨다.
- ('26','vow-both'):    '24·25 를 겹쳐 만드는 합창 결과물이라 제 문안이 없다. 24·25 를 고치면 따라 바뀐다',
 }
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}

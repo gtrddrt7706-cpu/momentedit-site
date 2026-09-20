@@ -8,6 +8,9 @@
 #   ★기본은 «바꾼 것만» 보인다. 176문장 중 126이 바뀐 것이고 50은 그대로인데,
 #     안 바뀐 것까지 판정을 받으면 지치기만 하고 판정의 질이 떨어진다.
 #
+# ★★[2026-09-20 둘째 판] 문장마다 도장(@xxxx)을 함께 찍는다. 문서 열쇠 하나로만 대조하면
+#   판정 중에 문안이 한 글자만 바뀌어도 판정 전체가 거부된다 — 사장님이 누르신 152개를 버리게 된다.
+#   문장 도장이 있으면 «그 사이에 내가 고친 문장»만 골라 다시 여쭐 수 있다(apply-pick.py 참조).
 # ★[LISTEN_KEY_STAMP 교훈] 저장 열쇠를 내용에서 뽑는다. 고정 문자열이면 글이 바뀌었는데도
 #   지난 판정이 되살아나 «그대로»로 찍힌 자리가 초록으로 남는다.
 #
@@ -46,7 +49,7 @@ for d in parts:
             elif same: box = '<div class="t keep">바꾸지 않습니다</div>'
             else:      box = f"<div class='t new'>{e(s['new'])}</div>"
             rows.append(f"""
-<div class="s{' same' if same else ''}" data-id="{e(sid)}">
+<div class="s{' same' if same else ''}" data-id="{e(sid)}" data-h="{hashlib.sha1(s['new'].encode()).hexdigest()[:4]}">
   <div class=hd><b>#{s['i']}</b><span class=tag>{e(s.get('tag',''))}</span></div>
   <div class=lbl>지금</div><div class="t old">{e(s['old'])}</div>
   <div class=lbl>바꿀 글</div>{box}
@@ -174,7 +177,7 @@ document.getElementById('mk').onclick=function(){{
     rd.querySelectorAll('.s').forEach(function(s){{
       var id=s.dataset.id, o=V[id]||{{}};
       if(!o.v && s.classList.contains('same')) return;
-      L.push('O '+id+' = '+(o.v||'미정'));
+      L.push('O '+id+' = '+(o.v||'미정')+' @'+s.dataset.h);
       if(o.r&&o.r.trim()) L.push('# '+o.r.trim().replace(/\\n/g,' '));
     }});
   }});
