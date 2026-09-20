@@ -37,7 +37,10 @@ const TRAIL = /(데|지만|니까)[.…]?$/;
 const hasBieup = (c) => { const i = c.charCodeAt(0) - 0xac00; return i >= 0 && i < 11172 && i % 28 === 17; };
 const POLITE = (s) => {
   const t = s.replace(/[.?!…]+$/, '');
-  if (/(요|십시오)$/.test(t)) return true;
+  /* ★[JYO_TRAP 2026-09-20] 「-죠」를 빠뜨리면 해요체가 평대로 세어진다.
+     실사고 — 신부 편지 「…열어 보셨죠.」가 평대로 잡혀 가짜 왕복 2회가 났다.
+     「죠」는 「지요」의 준말이라 해요체다. 같은 계열로 「-네요·-군요」도 요로 끝나 이미 잡힌다. */
+  if (/(요|죠|십시오)$/.test(t)) return true;
   return /니다$/.test(t) && hasBieup(t[t.length - 3] || '');
 };
 /* ★평대는 어미를 «열거하지 않는다» — 열거는 늘 빠뜨린다(게·래·해·워·자·마…).

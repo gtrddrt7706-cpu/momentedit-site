@@ -6798,8 +6798,10 @@ nochk '그날을 넘기지' 'docs/plans/식순연구/배역_예시_대사.txt'
 #     2행에서 「고맙다는 말을 제대로 한 적이 없어요」라고 해 놓고, 6행에서 그 말을 «처음으로» 한다.
 #     닳은 문장이 이 편지 안에서는 «벼르던 말»이 된다. 끝에 있으면 그냥 상투구였다.
 #   ★착지는 여전히 「다음에 갈 때도 빈손으로 갈게요」가 맡는다(LETTER_LAND). 순서를 바꾸지 말 것.
-chk '낳아주셔서, 키워주셔서, 참아주셔서 고맙습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '낳아주셔서, 키워주셔서, 참아주셔서 고맙습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [THREE_BEAT] 2026-09-20 사장님 결정 「새 글대로 보낸다」. ★세 박자를 다시 넣지 않는다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [THREE_BEAT] 2026-09-20 사장님 결정 「새 글대로 보낸다」. ★세 박자를 다시 넣지 않는다
 nochk '여기 계신 분들 앞에서' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '려무나' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '단다' 'docs/plans/식순연구/배역_예시_대사.txt'
@@ -6810,8 +6812,10 @@ chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/�
 #   「버스 시간을 알면서도 삼십 분씩 일찍 나갔다」 — 성격을 규정하지 않고 행동으로 보여 준다.
 #   ★보일러를 버린 이유는 좋은 장면이 아니어서가 아니다. «사위가 한 일»이라 그걸 중심에 두면
 #     딸을 보내는 아버지가 자기 딸을 두 줄만 말하게 된다. 근거는 apply-bless-scene.mjs 에 있다.
-chk '버스 시간을 알면서도 삼십 분씩 일찍 나갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '버스 시간을 알면서도 삼십 분씩 일찍 나갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_SCENE] 구체 장면은 새 글도 한다(아버님 「싸운 날도 있었을 텐데 나는 한 번도 못 봤다」). 옛 정류장 문장만 사라졌다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
+#   ← [PEAK_ONE] 정점 하나 — 어머님 17문장 > 아버님 15문장으로 유지된다
 
 # ★★[LETTER_LAND 2026-09-11 사장님 "최선인지 검토"] 선언을 뺐으면 «종결 장치»를 대신 넣어야 한다.
 #   앞 커밋에서 선언을 전부 빼자 편지가 흐지부지 끝났다. 조사로 원인이 둘 특정됐다.
@@ -6827,9 +6831,12 @@ chk 'LETTER_LAND' scripts/apply-letter-landing.mjs 1
 chk 'VOW_ECHO' scripts/apply-letter-landing.mjs 2
 chk '오늘부터 너는 혼자 참지 않아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '너는 나에게 먼저 말해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '그래서 오늘 여기 서 있어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
-chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '그래서 오늘 여기 서 있어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [VOW_ECHO] 서약 짝(08·09)은 안 건드렸다. 편지 쪽 문장만 사라졌다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
+#   ← [PEAK_ONE] 정점 하나 — 어머님 17문장 > 아버님 15문장으로 유지된다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [PEAK_ONE] 정점 하나 — 어머님 17문장 > 아버님 15문장으로 유지된다
 
 # ★★[LETTER_COST 2026-09-11 사장님 "젊은 예비부부들이 뭉클하게"] 값을 치르는 문장을 넣었다.
 #   앞 두 판(LETTER_REAL·LETTER_LAND)은 «감점을 없애는» 일이었다 — 클리셰를 지우고 끝을 착지시켰다.
@@ -6849,12 +6856,16 @@ chk '다음에 갈 때도 빈손으로 가겠습니다' 'docs/plans/식순연구
 chk 'LETTER_COST' scripts/apply-letter-cost.mjs 1
 chk 'CROSS_ECHO' scripts/apply-letter-cost.mjs 1
 chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '엄마가 걱정할까 봐 그랬답니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '엄마가 걱정할까 봐 그랬답니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [TIME_GAP] 나이 계산 장치가 사라졌다. 새 [14]는 「이유 세 개」로 다른 장치를 쓴다
 chk '괜찮다고 해도 한 번은 더 물을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [TIME_GAP] 나이 계산 장치가 사라졌다. 새 [14]는 「이유 세 개」로 다른 장치를 쓴다
 chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '이 사람과 함께 늙고 싶어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [TIME_GAP] 나이 계산 장치가 사라졌다. 새 [14]는 「이유 세 개」로 다른 장치를 쓴다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '이 사람과 함께 늙고 싶어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [TIME_GAP] 나이 계산 장치가 사라졌다. 새 [14]는 「이유 세 개」로 다른 장치를 쓴다
 
 # ★★[LETTER_FORMAL 2026-09-11 사장님 "조금더 격식을 차리는듯한 멘트로 개선"] 격식을 한 단 올렸다.
 #   앞 판은 오글거림을 피하려다 구어로 너무 내려가, 하객 앞에서 읽는 글이 문자메시지처럼 읽혔다.
@@ -6867,9 +6878,11 @@ chk '이 사람과 함께 늙고 싶어' 'docs/plans/식순연구/배역_예시_
 #   ★고백의 흐린 말끝은 건드리지 않는다 — 「아직도 마음이 그래」·「저 하나도 버거운데」.
 #     여기를 정제하면 LETTER_COST 가 죽는다.
 chk 'LETTER_FORMAL' scripts/apply-letter-formal.mjs 1
-chk '앞으로는 자주 찾아뵙겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '앞으로는 자주 찾아뵙겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [LETTER_FORMAL] 격식 한 단 — 새 [14] 합쇼체가 잇는다
 chk '아직도 마음이 그래' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '저 하나도 버거운데' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [LETTER_FORMAL] 격식 한 단 — 새 [14] 합쇼체가 잇는다
 nochk '진짜로요' 'docs/plans/식순연구/배역_예시_대사.txt'
 # ★★[NAME_PREFIX 2026-09-11 사장님 "대본 자동으로 성우이름까지 적용될수있게해서 파일만들어"]
 #   0_전체_화자표기.txt 는 줄마다 «화자: 대사» 다 — 타입캐스트가 그 이름으로 화자를 배정한다.
@@ -6912,9 +6925,12 @@ chk 'WITNESS' scripts/apply-letter-witness.mjs 1
 #   ★[음식을 두 번 쓰지 않는다] 신부 서약에 이미 「밥 먹었냐고 물었어」가 있어
 #     신랑 편지 장면에서는 음식을 뺐다(박스를 같이 날랐다). 예식 전체에서 음식 장면은 두 번뿐이다.
 chk 'LETTER_SCENE' scripts/apply-letter-scene.mjs 1
-chk '화를 내도 되는 사람이 화를 안 내니까' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '저는 그때 허락받았다고만 생각했어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '사진 뒤에 날짜가 적혀 있길래 세어 봤습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '화를 내도 되는 사람이 화를 안 내니까' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [LETTER_SCENE] 요약 아닌 장면 — 새 여섯 편이 전부 장면으로 열린다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '저는 그때 허락받았다고만 생각했어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [LETTER_SCENE] 요약 아닌 장면 — 새 여섯 편이 전부 장면으로 열린다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '사진 뒤에 날짜가 적혀 있길래 세어 봤습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [LETTER_SCENE] 요약 아닌 장면 — 새 여섯 편이 전부 장면으로 열린다
 
 # ★★[BLESS_TURN 2026-09-11 사장님 "부모님이 신랑신부에게 하는말 부분"] 조언을 «관찰»로 돌렸다.
 #   아버님 — 「살다 보면 서로 미운 날이」 세 줄이 앞뒤 어디와도 안 이어지는 조언 덩어리였고,
@@ -6936,12 +6952,17 @@ chk 'BLESS_TURN' scripts/apply-bless-turn.mjs 1
 #     항목별 근거는 scripts/apply-bless-scene.mjs 주석에 있다. 되살리려면 거기부터 읽을 것.
 chk 'BLESS_SCENE' scripts/apply-bless-scene.mjs 1
 # 장갑 세 박자 — 이 글에서 감정을 한 글자도 안 쓰고 감정을 만드는 장치다. 하나라도 빠지면 죽는다.
-chk '겨울이면 장갑을 하나 더 챙겼다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '하윤이는 늘 맨손으로 내렸다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '그날은 장갑을 꺼내지 않았다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '겨울이면 장갑을 하나 더 챙겼다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_TURN] 조언을 관찰로 돌린 취지는 유지 — 새 아버님은 마지막 한 줄만 당부한다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '하윤이는 늘 맨손으로 내렸다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_TURN] 조언을 관찰로 돌린 취지는 유지 — 새 아버님은 마지막 한 줄만 당부한다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '그날은 장갑을 꺼내지 않았다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_TURN] 조언을 관찰로 돌린 취지는 유지 — 새 아버님은 마지막 한 줄만 당부한다
 # 「앞쪽/뒤쪽」이 문자 그대로의 자리로 돌아온 자리. 추상으로 되돌리지 말 것.
-chk '나는 뒤에서 갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '너는 계속 옆에서 가라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '나는 뒤에서 갔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_TURN] 조언을 관찰로 돌린 취지는 유지 — 새 아버님은 마지막 한 줄만 당부한다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '너는 계속 옆에서 가라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_TURN] 조언을 관찰로 돌린 취지는 유지 — 새 아버님은 마지막 한 줄만 당부한다
 nochk '말로 하는 사람이 있고' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '너는 앞쪽이지' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '잘 살아라' 'docs/plans/식순연구/배역_예시_대사.txt'
@@ -6988,9 +7009,12 @@ chk 'ALGOE_TRAIT' scripts/apply-peak-one.mjs 1
 chk 'LAND_VOCATIVE' scripts/apply-peak-one.mjs 1
 nochk '이 손은 셋이 잡습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '네 옆에 사람이 생겼으니까' 'docs/plans/식순연구/배역_예시_대사.txt'
-chk '한 번 더 묻는 사람이구나 싶었습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '네가 한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '저는 그날 이 걱정을 내려놓았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '한 번 더 묻는 사람이구나 싶었습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [CRY_OK] 우는 사람에게 이름을 붙여 주는 일은 새 [27] 「저렇게 우는 건 오늘 처음 본다」가 맡는다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '네가 한 번 더 물었지요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [CRY_OK] 우는 사람에게 이름을 붙여 주는 일은 새 [27] 「저렇게 우는 건 오늘 처음 본다」가 맡는다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '저는 그날 이 걱정을 내려놓았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [CRY_OK] 우는 사람에게 이름을 붙여 주는 일은 새 [27] 「저렇게 우는 건 오늘 처음 본다」가 맡는다
 # ★★[CRY_OK 폐지 — 2026-09-12 사용자 지시로 삭제 · 되살리지 말 것]
 #   사장님 원문: 「이거 너무 오글거려 별로야 울컥감동은 강요하지말고 하객이 자연스럽게 느끼는거지
 #                 호들갑부리지마 수정개선」
@@ -7052,7 +7076,8 @@ nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_�
 #     서약은 호명하고 바로 본론으로 연다 — 「하윤아. / 아는 것만 말할게.」
 #   ★되살리지 말 것. 되살리면 신랑이 두 번 연달아 «말이 잘 안 나온다»고 말하는 사람이 된다.
 nochk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt'
-chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [VOW_OPENS_COLD] 「다 지웠어」 프레임은 새 [11]에도 없다 — nochk 가 이미 막는다
 chk '앞자리에 부모님이 계십니다' assets/ritual-data.js 1
 chk '두 사람이 서로에게 쓴 편지가 있습니다' assets/ritual-data.js 1
 chk '두 사람이 편지를 두 통 썼습니다' assets/ritual-data.js 1
@@ -7068,7 +7093,8 @@ chk '두 사람이 편지를 두 통 썼습니다' assets/ritual-data.js 1
 #   ★[HONORIFIC] 「그때 아버지가 지금 제 나이였습니다」는 주어가 아버지인데 서술어가 평대였다.
 #     아들이 아버지 앞에서 읽는 문장이라 문체가 아니라 «틀린 말»이다 → 「제 나이셨습니다」.
 nochk '제 나이였습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
-chk '그때 아버지가 지금 제 나이셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '그때 아버지가 지금 제 나이셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [HONORIFIC] 아버지가 주어면 서술어도 존대 — 새 [14] 「아버지는 … 물으셨습니다」가 잇는다
 chk 'POLITE_NIDA' scripts/apply-son-daughter.mjs 1
 chk 'SPEECH_LEVEL' scripts/apply-son-daughter.mjs 2
 
@@ -7085,8 +7111,10 @@ chk 'SPEECH_LEVEL' scripts/apply-son-daughter.mjs 2
 #     사장님이 살리라 한 「낳아주셔서, 키워주셔서, 참아주셔서」가 그 전환 위에 얹힌다.
 #     ★앞단을 -습니다체로 올려 «통일»하지 말 것. 통일하면 딸의 목소리가 아들 것과 같아진다.
 chk 'SON_DAUGHTER' scripts/apply-son-daughter.mjs 2
-chk '쉬운 밤이 아니었다는 건 이제 압니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '그 얼굴도 버티는 중이었다는 걸 이제 압니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '쉬운 밤이 아니었다는 건 이제 압니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [SON_DAUGHTER] 아들딸 한 쌍 — 딸 13문장 · 아들 12문장으로 유지된다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '그 얼굴도 버티는 중이었다는 걸 이제 압니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [SON_DAUGHTER] 아들딸 한 쌍 — 딸 13문장 · 아들 12문장으로 유지된다
 # ★★[FRAME_OUT 2026-09-13] 「두 분」 → 「아버지」. 사진 안에 있는 사람이 그 사진을 찍을 수는 없다.
 #   [14]가 어머니를 프레임 «안»에 넣어 놨는데([아버지가 업고 / 뒤에서 어머니가 웃고 / 사진 속 두 분]),
 #   그 뒤에 붙는 [27]이 「그 사진, 엄마가 찍은 거야」로 연다. 같은 큐의 같은 라이브 창이라
@@ -7381,7 +7409,8 @@ chk "시어머님: '정숙'" scripts/build-typecast-import.mjs 1
 #     아버지를 서준+30 안팎에 두어 62세쯤. 2025 평균 초혼(여 31.6)의 부모대와 맞는다.
 #   ★되돌리지 말 것.
 nochk '양호실' 'docs/plans/식순연구/배역_예시_대사.txt'
-chk '하윤이는 이미 보건실에 누워 있었어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '하윤이는 이미 보건실에 누워 있었어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [ERA_NOW] 보건실 장면이 통째로 사라졌다. 낡은 표현 금지는 nochk 로 이어받는다
 
 # ★★[SCRIPT_WINS 2026-09-14 사장님 결정 「대본준대로 수정 나머지선택은 그대로유지」]
 #   타입캐스트 화면에서 고쳐져 녹음된 두 줄 — 대본이 이긴다. 소리를 다시 받는다.
@@ -7392,7 +7421,8 @@ chk '하윤이는 이미 보건실에 누워 있었어요' 'docs/plans/식순연
 #     「감사합니다」로 바꾸면 2행이 그 말을 못 받는다([THREE_BEAT] 의 「자리를 옮겨 상투가 기능이 됐다」가 풀린다).
 #   ★이 둘은 창고가 «안 받고» 막아 세운 덕에 드러났다 — 글이 다르면 안 넣는다는 규칙이 일했다.
 #     그 규칙을 느슨하게 하지 말 것. 느슨했으면 옛 소리가 새 글의 자리에 조용히 들어갔다.
-chk '다음 날 아침에 아빠가 밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '다음 날 아침에 아빠가 밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [THREE_BEAT] 2026-09-20 사장님 결정 「새 글대로 보낸다」. ★세 박자를 다시 넣지 않는다
 nochk '원하면 해 보라고' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '참아주셔서 감사합니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 
@@ -7401,9 +7431,12 @@ nochk '참아주셔서 감사합니다' 'docs/plans/식순연구/배역_예시_�
 #      올렸으나 사장님이 유지로 정하셨다. ★다시 꺼내지 말 것. 「역·터미널」이나 차 마중으로 바꾸지 말 것.
 #   ② 하윤 «스물아홉» — 평균(2025 여 31.6)보다 2.6년 어리지만 그대로 간다.
 #      ★「서른하나」류로 올리지 말 것. 「스물넷에 회사를 그만두겠다고」도 그 나이에 맞춰 둔 것이라 함께 고정이다.
-chk '정류장에 먼저 나가 있었다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '스물아홉 해 동안' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '스물넷에 회사를 그만두겠다고' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '정류장에 먼저 나가 있었다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [KEEP_AS_IS] 2026-09-20 사장님 결정 「새 글대로 보낸다」로 정류장 유지 결정이 덮였다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '스물아홉 해 동안' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [KEEP_AS_IS] 2026-09-20 사장님 결정 「새 글대로 보낸다」로 정류장 유지 결정이 덮였다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '스물넷에 회사를 그만두겠다고' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [KEEP_AS_IS] 2026-09-20 사장님 결정 「새 글대로 보낸다」로 정류장 유지 결정이 덮였다
 if command -v node >/dev/null 2>&1; then node scripts/audit/sent-lib-check.mjs >/dev/null 2>&1 \
   || { echo 'FAIL sent-lib-check: 문장 창고가 대장과 어긋났습니다 — node scripts/audit/sent-lib-check.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/letter-mirror.mjs >/dev/null 2>&1 \
@@ -7635,19 +7668,23 @@ chk 'RETIRED_SILENT' scripts/audit/order-audio-check.mjs 1
 chk 'FREE_PORT_5' scripts/audit/orphan-copy.mjs 1
 chk 'PAREN_DEPTH' scripts/audit/ritual-order-sim.mjs 1
 chk 'FUZZ_LINK_STAGES' scripts/audit/rollback-fuzz.mjs 1
-chk '저는 사진 속 아버지가 원래 어른인 줄 알았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '아버지가 저를 업고 계셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '저는 사진 속 아버지가 원래 어른인 줄 알았습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_SCENE] 구체 장면은 새 글도 한다(아버님 「싸운 날도 있었을 텐데 나는 한 번도 못 봤다」). 옛 정류장 문장만 사라졌다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '아버지가 저를 업고 계셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_SCENE] 구체 장면은 새 글도 한다(아버님 「싸운 날도 있었을 텐데 나는 한 번도 못 봤다」). 옛 정류장 문장만 사라졌다
 nochk '뒤에서 어머니가 웃고 계셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '사진 속 두 분' 'docs/plans/식순연구/배역_예시_대사.txt'
 # ★사진이 «찍힌 쪽»과 «찍은 쪽»이 갈려 있어야 한다. 한쪽이라도 무너지면 [27]이 성립하지 않는다.
-chk '그 사진, 엄마가 찍은 거야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '그 사진, 엄마가 찍은 거야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [BLESS_SCENE] 구체 장면은 새 글도 한다(아버님 「싸운 날도 있었을 텐데 나는 한 번도 못 봤다」). 옛 정류장 문장만 사라졌다
 # ★[FRAME_OUT ②] 축배 — 나레이션이 선창을 끝낸 뒤에 축사가 「자, 다 같이 잔 들겠습니다」로 또 불렀다.
 #   이미 마신 방에 대고 다시 부르는 셈이다(다섯 각도가 같은 것을 잡았다).
 #   ★구조를 바꾸는 쪽(축사를 선창 «앞»으로)은 사장님 결정 대기다. 여기서는 겹치는 한 줄만 뺐다 —
 #     어느 쪽으로 결정되든 이 줄은 빼는 것이 맞다.
 nochk '자, 다 같이 잔 들겠습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 chk '엄마, 아빠' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '어머니, 아버지' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '어머니, 아버지' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [FRAME_OUT] 사진이 여섯 편에서 0건이 되어 프레임 모순 자체가 없어졌다
 nochk '이제 조금 알 것 같습니다' 'docs/plans/식순연구/배역_예시_대사.txt'
 
 # ★★[SPEECH_LEVEL_CHECK 2026-09-12] 말단계 왕복은 눈으로 안 보인다 — 코드가 센다.
@@ -7872,8 +7909,10 @@ chk 'GROOM_PARENT' assets/ritual-cue.js 1
 chk 'GROOM_PARENT' scripts/build-typecast-import.mjs 1
 chk 'VOICE_PENDING' scripts/build-redub-byvoice.mjs 1
 chk 'R-tribute-reply' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '그 사진, 엄마가 찍은 거야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '그래도 다음 주에 또 업더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '그 사진, 엄마가 찍은 거야' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [VOICE_PENDING] 생성기 두 곳 동기화 규칙은 살아 있다 — 문장이 아니라 구조라 다른 열쇠로 옮긴다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '그래도 다음 주에 또 업더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [VOICE_PENDING] 생성기 두 곳 동기화 규칙은 살아 있다 — 문장이 아니라 구조라 다른 열쇠로 옮긴다
 chk '신랑 어머님 한 마디' assets/ritual-data.js 3
 chk 'CAST_COUNT = 26' scripts/build-typecast-import.mjs 1
 
@@ -8037,8 +8076,10 @@ chk 'CAST_HOLD' scripts/build-typecast-import.mjs 1
 chk 'BREATH' scripts/apply-breath.mjs 1   # ★넣은 날부터 파일에 1개뿐이었다(2를 요구한 것이 내 착각)
 chk '너는 다 듣고 나서 밥 먹었냐고 물었어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 chk '대신 다 따지고 나서 내가 먼저 밥 먹었냐고 물을게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '낳아주셔서, 키워주셔서, 참아주셔서' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '밥 먹다가 해 보라고 하셨어요' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [TIC_CUT] 상투 반복 줄이기는 letter-formula 의 틀 검사가 이어받는다
+# [LETTER_REWRITE2 2026-09-20 폐지] chk '낳아주셔서, 키워주셔서, 참아주셔서' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+#   ← [TIC_CUT] 상투 반복 줄이기는 letter-formula 의 틀 검사가 이어받는다
 nochk '다 듣고 나서,' 'docs/plans/식순연구/배역_예시_대사.txt'
 
 # ★★[PHOTO_OK 2026-09-12 사장님 "듣는 청중 하객입장에서 좀더 디테일하게 점검"]
@@ -8860,3 +8901,68 @@ if command -v python3 >/dev/null 2>&1; then
 fi
 chk 'LETTER_NOW' scripts/build-letter-now.py 2
 chk 'LETTER_NOW' 'docs/plans/식순연구/편지_지금글_여섯편.md' 1
+# ★[PICK_BASIS 2026-09-20] 멘트를 추릴 때 «무엇을 뺄 수 있나»를 기계가 뽑는다.
+#   사장님 지시 — 「너무 많아도 고객 입장에서 혼란스러워. 각 이벤트당 3~8개」
+#   ★전제가 실측으로 뒤집혔다: 같은 갈래 «안» 겹침은 1건뿐(entry.D)이고 나머지 17칸은
+#     앞머리 0자 겹침이다. 버릴 것이 쌓여서 많은 게 아니라 한 화면에 다 펼쳐서 많다.
+#     그래서 결론이 「지운다」가 아니라 「화면에서 접는다」가 됐다.
+#   ★기계가 잡은 겹침 하나는 가짜였다 — 축배 both 는 cake 를 품는 포함 관계다.
+#     그래서 갈래끼리는 안 재고 «같은 갈래 안»에서만 잰다. [NOT_THE_SOURCE]
+#   ★반대쪽도 찍는다 — 선택지가 하나뿐인 갈래 8곳(NARV 6 · RINGWARM 2).
+#     사장님이 실청에서 「다시」를 누른 자리가 거기다. 대안이 없어서 재녹음뿐이었다.
+#   지금은 보고만 한다(종료 0). 정리가 끝나면 PICK_STRICT=1 로 조인다.
+#   ★깨 보고 믿었다 — STRICT+현재 1 · entry.D plain 을 다르게 고치니 0건에 종료 0.
+if command -v node >/dev/null 2>&1; then
+  _pbOut=$(node scripts/audit/pick-basis.mjs 2>&1) \
+    || { echo 'FAIL pick-basis: 추리기 기준을 못 잰다 — node scripts/audit/pick-basis.mjs'
+         printf '%s\n' "$_pbOut" | sed 's/^/    | /'; fail=1; }
+  printf '%s\n' "$_pbOut" | sed -n '/①\|②\|③/p' | sed 's/^/  /'
+fi
+chk 'PICK_BASIS' scripts/audit/pick-basis.mjs 2
+chk 'PICK_BASIS' 'docs/plans/식순연구/추리기_기준_20260920.md' 1
+chk 'NOT_THE_SOURCE' scripts/audit/pick-basis.mjs 1
+
+# ════════════════════════════════════════════════════════════════════
+# ★★[LETTER_REWRITE2 2026-09-20 사장님 「어머니 아버지 신랑 신부 편지부분도 전부 다시 짤거야」]
+#   편지·덕담 여섯을 통째로 새로 썼다(75→76문장). 옛 문안에 매여 있던 chk 41건은 위쪽에
+#   「[LETTER_REWRITE2 … 폐지]」 주석으로 내려 두었다 — 지우지 않은 것은 «왜 없어졌나»를
+#   다음 판이 읽을 수 있게 하기 위해서다(제거 지시 보존 규칙과 같은 이유).
+#
+#   ★사장님이 그 자리에서 정하신 둘 (2026-09-20)
+#     ①THREE_BEAT 「낳아주셔서, 키워주셔서, 참아주셔서」 → **새 글대로 보낸다**
+#       (2026-09-11 「이거는 살렸으면좋겠어」를 나중 결정이 덮었다)
+#     ②KEEP_AS_IS 정류장 마중 장면 → **새 글대로 보낸다**
+#       (2026-09-14 「나머지선택은 그대로유지」를 나중 결정이 덮었다)
+#     ★둘 다 «되살리지 않는다». 다음 판이 「유실된 문장 복원」으로 다루지 말 것.
+#
+#   아래는 옛 결정들의 «취지»를 새 문안에서 잇는 자리다. 문장이 바뀌어도 취지는 남는다.
+chk '저렇게 우는 건 오늘 처음 본다' 'docs/plans/식순연구/배역_예시_대사.txt' 1        # [CRY_OK] 우는 사람에게 이름을 붙여 준다
+chk '이유를 세 개씩 물으셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1          # [HONORIFIC] 아버지가 주어면 서술어도 존대
+chk '싸운 날 밤에 등 돌리고 자지는 마라' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [BLESS_TURN] 당부는 «한 줄»까지 · 조언 덩어리 금지
+chk '사실 나는 이 결혼을 한 번 말렸다' 'docs/plans/식순연구/배역_예시_대사.txt' 1     # [LETTER_SCENE] 여섯이 서로 다른 문으로 연다 · 여기는 «거절 고백»
+chk '나머지 얘기는 이따 저쪽 자리에서 하자' 'docs/plans/식순연구/배역_예시_대사.txt' 1 # [SPEECH_LEVEL] 13~17은 사위에게 · 어미를 올리면 하객으로 되돌아가 왕복이 된다
+# ★되살아나면 안 되는 것 — 위 사장님 결정 ①②와 낡은 표현
+nochk '낳아주셔서, 키워주셔서, 참아주셔서' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '정류장에 먼저 나가' 'docs/plans/식순연구/배역_예시_대사.txt'
+nochk '양호실' 'docs/plans/식순연구/배역_예시_대사.txt'
+# ★[JYO_TRAP] 「-죠」를 해요체로 세지 않으면 신부 편지가 가짜 왕복으로 잡힌다(실사고 2026-09-20)
+chk 'JYO_TRAP' scripts/check-speech-level.mjs 1
+chk '죠|십시오' scripts/check-speech-level.mjs 1
+# ★[PAIR_READ] 헌정 짝을 나란히 읽었다 (2026-09-20 · 새 문안)
+#   아들 「어머니, 오늘은 두드리지 않으셔도 됩니다. 그냥 들어오세요.」
+#   어머니 「문은 오늘부터 네가 두드려라, 엄마가 갈 테니까.」
+#   → 아들이 문을 열어 주니 어머니가 「그럼 이제 내가 찾아가마」로 되받는다. 짝이 맞는다.
+#   부딪히는 사실도 없다 — 아들이 「아버지, 이제 물어보셔도 됩니다」라 하고
+#   어머니가 「네 아버지가 우는 건 처음 본다」로 받는다. 질문 대신 눈물이라 어긋나지 않는다.
+# PAIR_READ 14_tribute+27_tribute-reply 12.4
+# ★★[REDUB_PENDING 2026-09-20] 문안을 고치면 소리는 반드시 한동안 뒤처진다(성우 녹음은 사람이 한다).
+#   그 창을 빨강으로 두면 «재녹음이 끝날 때까지 main 에 못 올리는» 구조가 되고, 고친 것이
+#   브랜치에 쌓인다 — 2026-09-19 에 열흘치가 그렇게 묵어 사고가 났다([SHIP_NOW]).
+#   그렇다고 전부 봐주면 «모르고 어긋난 것»까지 통과한다. 그래서 «등록했나»로 가른다:
+#     등록됨 = 사람이 알고 다시 받기로 한 것 · 등록 안 됨 = 아무도 모르는 어긋남(빨강)
+#   ★두 검사가 사슬이다 — 여기서 봐준 것은 redub-covers 가 「목록에 전부 있나」로 다시 확인한다.
+#   ★세 방향으로 깨 보고 믿었다(2026-09-20 실측):
+#     ①목록에서 한 클립을 빼니 그것만 빨강 ②목록 파일을 감추니 봐주기가 꺼지고 «못 읽었다»고 말한다
+#     (조용히 통과하지 않는다) ③원복하니 초록.
+chk 'REDUB_PENDING' scripts/check-listen-cover.mjs 3
+chk '봐주기를 끕니다' scripts/check-listen-cover.mjs 1
