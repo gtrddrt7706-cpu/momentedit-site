@@ -27,12 +27,23 @@ for c in M['clips']:
     NOW.setdefault(c['no'].lstrip('0') or '0', []).append(
         (c['file'], ' '.join(norm(s['text']) for s in c['sents'])))
 
+# ★★[REJECT_38 2026-09-20] 코워크 38번 제안은 **안 받는다.**
+#   제안: 「두 사람을 키워 주신 분들**께 인사를 드립니다.** 천천히 걸음을 옮겨 주십시오.
+#         **인사를 드리는 동안**, 하객 여러분께서는 자리에 계셔 주시기 바랍니다.」
+#   ① 한 클립에 「인사」가 **두 번**이다 — 코워크 자신의 «닳은 낱말» 기준에 걸린다.
+#   ② 순서가 어긋난다 — «인사를 드립니다»(완료) → «걸음을 옮겨 주십시오»(이동) → «인사를 드리는 동안»(진행).
+#      인사를 먼저 선언해 놓고 걸어가라고 한다.
+#   지금 판(「분들**이 앞에 계십니다**」)은 상황 → 이동 → 진행으로 이어진다. 이 문장은 2026-09-20 에
+#   N2 위반(한 문장 3인칭+2인칭 혼용)을 풀며 둘로 가른 결과이고, 게이트가 그것을 지키고 있다.
+REJECT_CLIP = {('38', 'tribute-in')}
+
 srcs = {f: io.open(f, encoding='utf-8').read() for f in FILES}
 orig = dict(srcs)
 done, same, miss = [], 0, []
 for f in sorted(glob.glob('scripts/audit/copycheck/round[0-9].json')):
     d = json.loads(io.open(f, encoding='utf-8').read())
     for c in d['clips']:
+        if (c['no'], c['slug']) in REJECT_CLIP: continue
         want = ' '.join(norm(s['new']) for s in c['sents'] if norm(s['new']))
         if not want: continue
         key = ALIAS.get(c['no'], c['no']).lstrip('0') or '0'
