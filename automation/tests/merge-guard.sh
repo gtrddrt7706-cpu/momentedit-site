@@ -6094,6 +6094,15 @@ chk 'FIT_EXTRA_N2' contract/fitting.html 1
 chk 'CAL_320_FIT' i/invitations/invitation-08-noir.html 1
 # [PRICE_DERIVED] 구가 파생 금액(18만/14만/11만) 스캔 — mypage 미리보기·_kb "14만원 인용"·sim 정답 잠금 3중 실사고의 그물.
 chk 'PRICE_DERIVED' scripts/check-price-sync.mjs 2
+# ★★[DEPOSIT_ONE 2026-09-20 점검 라운드 2] 예약금 100,000 이 세 상수에 따로 살고 있었다 —
+#   CONFIG.DEPOSIT(상담 화면이 청구) · PAYMENT.예약금(계약·정산이 차감) · FITTING_CONSENT.예약금(시착동의서 표시).
+#   그리고 check-price-sync 자신도 `n/10 - 100000` 으로 그 숫자를 손으로 박아 두고 있었다.
+#   ★그래서 예약금을 올리면 한 곳만 고쳐도 검사가 「전부 일치」라고 답한다 — 기준선이 함께 낡기 때문이다.
+#   이제 PAYMENT.예약금 을 단일 출처로 읽고 나머지 둘을 대조한다.
+#   ★깨 보고 믿었다 — CONFIG.DEPOSIT 만 15만으로 · FITTING_CONSENT 만 20만으로 각각 바꾸니 둘 다 종료 1.
+#   ★FITTING_TERMS_BY_VERSION 의 이력(v1~v3 의 200,000)은 건드리지 않는다 — 서명 시점 스냅샷이다([OLD_SIGNER_TERMS]).
+chk 'DEPOSIT_ONE' scripts/check-price-sync.mjs 2
+chk 'PAYMENT.예약금 을 단일 출처로' automation/tests/merge-guard.sh 1
 # ★★[AI_PRICE_LOCK 2026-09-05] AI «정답 잠금»은 맨숫자(/280/ · ['280'])로 적혀 총액 스캔이 못 봤다.
 #   게이트 목적문은 「AI 상담사가 옛 가격을 답한다」를 막겠다고 적어 놓고 정작 이걸 놓쳤다.
 #   구가를 정답으로 잠그면 «회귀했을 때 초록»이 된다 — 검사가 거꾸로 서는 자리라 총액보다 위험하다. 실측 3곳.
