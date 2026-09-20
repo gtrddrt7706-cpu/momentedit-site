@@ -8850,3 +8850,13 @@ chk 'humanize-korean' 'docs/plans/식순연구/편지_재작성_20260920.md' 2
 test -f 'docs/plans/식순연구/진단/진단_3_편지덕담헌정.md' \
   && echo 'ok DIAG_FIRST: 진단_3 원본이 제자리에 있다' \
   || { echo 'REVERT? DIAG_FIRST: docs/plans/식순연구/진단/진단_3_편지덕담헌정.md 가 사라졌다 — 지침이 빈 링크를 가리킨다'; fail=1; }
+# ★[LETTER_NOW 2026-09-20] 재작성 대상의 «지금 글»을 한 파일로 뽑아 둔다.
+#   코워크에 넘기려면 「무엇을 고치나」가 손에 있어야 하는데, 원천 배역_예시_대사.txt 는
+#   345줄에 배역 전체가 섞여 있어 그대로 넘기기 나쁘다. 자동 생성이라 손으로 옮겨 적지 않는다 —
+#   실청 원문을 요약해 옮겼다가 없는 모순을 만든 적이 있다.
+if command -v python3 >/dev/null 2>&1; then
+  python3 scripts/build-letter-now.py >/dev/null 2>&1 \
+    || { echo 'FAIL LETTER_NOW: 지금 글 여섯을 못 뽑는다 — python3 scripts/build-letter-now.py'; fail=1; }
+fi
+chk 'LETTER_NOW' scripts/build-letter-now.py 2
+chk 'LETTER_NOW' 'docs/plans/식순연구/편지_지금글_여섯편.md' 1
