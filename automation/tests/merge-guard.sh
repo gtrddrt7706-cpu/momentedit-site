@@ -7472,6 +7472,15 @@ if command -v node >/dev/null 2>&1; then
     echo "FAIL sign-node: 뜻 모를 종료 코드 $_sn — node scripts/audit/sign-node.mjs"; fail=1
   fi
 fi
+# ── [STALE_WAIT] 영영 안 끝나는 대기 루프 탐지기 (2026-09-20 사장님 지시) ──
+# 백그라운드 대기 작업 5개 중 4개가 찌꺼기였고 제일 오래된 게 1시간 27분째였다.
+#   원인은 하나 — `until ! pgrep -f "merge-guard.sh"` 가 **자기 명령줄에도 걸린다**.
+#   조건이 수학적으로 안 풀리고, 알림만 계속 올라와 토큰을 먹는다.
+# 탐지기는 .claude/settings.json 의 Stop 훅으로 매 턴 끝에 돈다 — 여기선 «지워지지 않았는지»만 지킨다.
+[ -x scripts/audit/stale-waiters.sh ] || { echo 'REVERT? stale-waiters.sh 가 없거나 실행권한이 없다 — 찌꺼기 탐지가 꺼진다'; fail=1; }
+grep -q 'stale-waiters' .claude/settings.json 2>/dev/null || { echo 'REVERT? .claude/settings.json 에서 STALE_WAIT 훅 배선이 사라졌다'; fail=1; }
+chk 'STALE_WAIT' scripts/audit/stale-waiters.sh 1
+chk 'STALE_WAIT' CLAUDE.md 1                      # 왜 만들었는지가 사라지면 다음 세션이 또 만든다
 chk 'SIG_NODE' scripts/audit/sign-node.mjs 1
 chk 'SIG_NODE' contract/v1-1.html 1              # 되살리기 금지 근거가 파일 안에 남아 있는가
 chk 'SIG_NODE' contract/snap-v1-0.html 1
