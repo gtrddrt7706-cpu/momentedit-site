@@ -2241,6 +2241,34 @@ chk 'FITTING_PRECOND' automation/consultation/ScreenB_schedule.html 1
 chk '드레스 시착도 상담 당일 진행하실 수 있고' automation/consultation/ScreenB_schedule.html 1
 chk '드레스 시착 후 계약을 진행하지 않으시면' automation/platform/70_journey.gs 1
 chk '드레스 시착 후, 계약서를 24시간 내에' automation/platform/70_journey.gs 1
+
+# ★★[CONSULT_RENDER 2026-09-20 점검 라운드 1] 상담 3화면을 «실제로 띄워» 본다.
+#   ScreenA·B·C 는 고객이 예약금 100,000원을 내기까지 지나는 화면인데,
+#   저장소의 어떤 감사도 이것을 렌더한 적이 없었다(copy-rule·guest-cap-truth 는 grep 만 하고,
+#   render-check.mjs 목록에도 셋 다 없다). 그 사각지대에서 둘이 나왔다:
+#     [SLOTS_SPAN]  .slots 3칸 그리드에 .time-empty 가 grid-column 없이 들어가 «1/3 폭»에 갇혔다.
+#                   ★지표로는 안 잡혔다 — pageerror 0 · 가로넘침 0 인데 글이 네 줄로 쪼개져 있었다.
+#                   스크린샷을 눈으로 보고서야 알았고, 그래서 이 검사는 «폭 비율»로 잰다(31% vs 100%).
+#     [DEPOSIT_HERE] 「상담 예약금 · 신청 시 안내」 — 여기가 바로 그 신청 화면인데 그렇게 적혀 있었다.
+#   ★깨 보고 믿었다 — grid-column 을 떼니 31% 로 FAIL(종료 1) · 「반환 불가」를 되살리니 2건 FAIL.
+#     원복하니 둘 다 종료 0.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/consult-render.mjs >/dev/null 2>&1; _csr=$?
+  if [ "$_csr" = 1 ]; then
+    echo 'FAIL consult-render: 상담 3화면 렌더가 틀렸다 — node scripts/audit/consult-render.mjs'; fail=1
+  elif [ "$_csr" = 2 ]; then
+    echo 'skip consult-render: 이번엔 재지 못했습니다(브라우저 없음 또는 CONFIG 를 못 읽음) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_csr" != 0 ]; then
+    echo "FAIL consult-render: 뜻 모를 종료 코드 $_csr — node scripts/audit/consult-render.mjs"; fail=1
+  else
+    echo 'ok consult-render (상담 3화면 · 390/1280 · 클릭까지)'
+  fi
+fi
+chk 'CONSULT_RENDER' scripts/audit/consult-render.mjs 1
+chk 'SLOTS_SPAN' automation/consultation/ScreenB_schedule.html 1
+chk 'SLOTS_SPAN' scripts/audit/consult-render.mjs 2
+chk 'grid-column:1/-1' automation/consultation/ScreenB_schedule.html 2
+chk 'DEPOSIT_HERE' automation/consultation/ScreenB_schedule.html 1
 chk 'meBreath 1.7s' automation/admin/Admin.html 1
 chk 'PREV_NO_CHROME' scripts/build-preview-annot.mjs 2   # 예시에서 고정·스티키 화면 장치 제거 · 빼면 '‹ 갤러리' 알약이 16장 한복판에 박힌다
 chk 'vertical' scripts/build-preview-annot.mjs 2         # 세로쓰기는 요소 상자로 · Range 잉크가 62px 짧게 잡혀 점선이 첫·끝 글자를 문다
