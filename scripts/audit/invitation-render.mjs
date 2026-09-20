@@ -52,6 +52,14 @@ for (let i = 1; i <= 8; i++) {
   PAGES.push(`/i/cover-0${i}.html`);
   PAGES.push(`/i-family/family-0${i}.html`);
 }
+/* ★[INV_SAMPLE 2026-09-20] 공개 표본 9판도 연다.
+   이 폴더는 토큰이 0개인 «손으로 채운» 표본이라 hydrate 를 안 탄다. 그래서 종전 검사가 안 봤고,
+   실제로 invitation-08-noir 가 「일요일요일 · 오후 두 시」를 띄운 채 공개돼 있었다(2026-09-20 실측).
+   갤러리에서 하객·예비부부가 그대로 여는 주소다 — 사본이 아니라 제품이다. */
+for (const n of ['01-classic', '02-editorial', '03-letterpress', '04-Vermilion',
+                 '05-botanical', '06-hangeul', '07-architect', '08-noir', '09-guide']) {
+  PAGES.push(`/i/invitations/invitation-${n}.html`);
+}
 
 function serve(port) {
   return new Promise((res) => {
@@ -88,6 +96,30 @@ function checkMasters() {
 }
 
 /* ── 렌더 글만 뽑기 — 주석·script·style 은 걷는다([ATTR_BLIND] 과 같은 이유로 «보이는 글»만) ── */
+/* ★[DOW_MATCH 2026-09-20] 날짜와 요일이 맞는가 — CLAUDE.md [DATE_DOW] 를 기계가 재게 한 것.
+   사람은 요일을 눈대중한다. 실제로 이 저장소는 «9/8(월)»을 적었다가 화요일인 것을 나중에 알았고,
+   청첩장 표본에서는 「일요일요일」이 살아남았다. 둘 다 눈으로는 안 걸린다.
+   ①「요일요일」 같은 이중 접미는 그 자리에서 실패 ②날짜가 하나로 특정되면 모든 요일 라벨을 대조.
+   날짜가 여럿이면 어느 것에 걸린 라벨인지 알 수 없으므로 «못 쟀다»로 넘긴다(거짓 빨강을 만들지 않는다). */
+const DOW = ['월', '화', '수', '목', '금', '토', '일'];
+function checkDow(text) {
+  const bad = [];
+  if (/요일\s*요일/.test(text)) bad.push('「요일요일」 이중 접미가 화면 글에 있다');
+  const ds = new Set();
+  const re = /(20\d{2})\s*[·.\-/년]\s*(\d{1,2})\s*[·.\-/월]\s*(\d{1,2})/g;
+  let m;
+  while ((m = re.exec(text))) {
+    const [y, mo, d] = [+m[1], +m[2], +m[3]];
+    if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) ds.add(`${y}-${mo}-${d}`);
+  }
+  const labels = Array.from(new Set((text.match(/[월화수목금토일]요일/g) || [])));
+  if (ds.size !== 1 || !labels.length) return bad;   // 특정 못 하면 조용히 넘긴다
+  const [y, mo, d] = Array.from(ds)[0].split('-').map(Number);
+  const want = DOW[(new Date(Date.UTC(y, mo - 1, d)).getUTCDay() + 6) % 7] + '요일';
+  for (const l of labels) if (l !== want) bad.push(`${y}-${mo}-${d} 는 ${want} 인데 화면은 「${l}」`);
+  return bad;
+}
+
 const VISIBLE = `(() => {
   const left = document.documentElement.innerHTML.match(/\\{\\{[A-Z0-9_]+\\}\\}/g) || [];
   const t = document.body ? (document.body.innerText || '') : '';
@@ -113,6 +145,8 @@ async function main() {
       say(got.left.length === 0, `${p} — 남은 토큰 ${got.left.length}건${got.left.length ? ' · ' + got.left.slice(0, 6).join(' ') : ''}`);
       const bad = BAD.filter(([w]) => got.text.includes(w));
       if (bad.length) for (const [w, why] of bad) say(false, `${p} 렌더 글 — 「${w}」 (${why})`);
+      const dow = checkDow(got.text);
+      for (const d of dow) say(false, `${p} 날짜·요일 — ${d}`);
       const real = errors.filter((e) => !/favicon|net::ERR/i.test(e));
       if (real.length) say(false, `${p} — pageerror ${real.length}건 · ${real[0].slice(0, 120)}`);
     }
@@ -120,7 +154,7 @@ async function main() {
     server.close();
     await eng.close();
   }
-  console.log(fail ? '\n[INV_RENDER] 빨강 — 위 줄을 고칠 것' : `\n[INV_RENDER] 통과 — 16판 렌더 0건 · 원천 0건`);
+  console.log(fail ? '\n[INV_RENDER] 빨강 — 위 줄을 고칠 것' : `\n[INV_RENDER] 통과 — ${PAGES.length}판 렌더 0건 · 날짜·요일 0건 · 원천 0건`);
   process.exit(fail);
 }
 
