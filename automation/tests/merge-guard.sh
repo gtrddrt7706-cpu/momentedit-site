@@ -1504,7 +1504,12 @@ chk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1 
 #     서정·다정판이 살아 있어 chk 는 멀쩡히 통과하고 있었고, 다만 «지켜야 할 것»을 안 지켰다.
 #     실측 없이 주석을 쓰면 이렇게 된다([NOT_THE_SOURCE]).
 #   이제 담백판을 건다 — NARV 는 배선이 없어 예식에서 안 나간다([NARV_UNWIRED]).
-chk '모두 앞으로 나오셔서, 두 분 곁에 서 주세요' assets/ritual-data.js 2     # 폐식 → 전체 하객컷 전환 (NARR.close + NARV.close[0])
+# ★★[VOICE_2ND_GAP 2026-09-20] 「두 분」 → 「두 사람」 + **문장을 갈랐다.** 규칙 둘 다 이 꼴을 안 다뤘다.
+#   [VOICE_2ND]의 「동작 문장은 두 분」은 «신랑신부에게» 시키는 문장을 말한다. 여기는 «하객에게» 시키면서
+#   신랑신부를 가리킨다 — 「두 분」이면 하객이 자기를 부른 줄 알고 한 박자 멈추고(코워크 지적),
+#   「두 사람」으로 바꾸면 N2(한 문장 3인칭+2인칭 혼용)에 걸린다. 낱말만으로는 못 푼다.
+#   ★N2 주석이 답을 적어 두었다 — 「문장을 갈라 3인칭→2인칭으로 가는 것은 VOICE_2ND 의 설계다」.
+chk '모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다' assets/ritual-data.js 2     # 폐식 → 전체 하객컷 전환 (NARR.close + NARV.close[0])
 chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 0              # 옛 문안이 되살아나면 실패
 chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
 chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
@@ -7485,6 +7490,74 @@ chk 'GUEST_TONE' scripts/apply-guest-tone.mjs 1
 #   ★두 벌짜리 클립을 «과반»으로 가른다. 한 문장이라도 겹치면 두 벌로 보면 우연에 걸린다
 #     (10_letter-parent 가 13문장 중 1문장만 겹쳐 12건을 헛되이 물었다 · 첫 판 실측).
 chk 'COPY_THREE' scripts/audit/copy-three.mjs 2
+
+# ★★[FULL_ROSTER 2026-09-20 코워크 요청] 회차를 «남이 나눠 놓은 구간표»에서 물려받지 않는다.
+#   코워크가 하객맞이 여덟을 통째로 빠뜨렸고, 그 직전 회차에서 「첫인사 구간이 없어 17클립이 대상 밖이었다」를
+#   **찾아 놓고도** 같은 짓을 했다. 원인이 같다 — 진단서가 나눈 표에서 시작했다.
+#   → 클립 전수 목록에서 시작해 하나씩 지운다. 제외하려면 이유를 적어야 하고, 이유 없는 «안 함»은 누락이다.
+# ★★[ROSTER_SRC] 그 목록을 **원천**(manifest + RETIRED)에서 세운다. 코워크 판은 내가 뽑아 보낸
+#   중간 텍스트를 읽었는데, 그것이 `26_vow-both` 하나를 빠뜨려 «91 전수»가 실은 92 중 91이었다.
+#   목록을 지키자는 검사가 낡은 목록을 읽으면 그게 제일 나쁘다([NOT_THE_SOURCE]).
+chk 'FULL_ROSTER' 'scripts/audit/copycheck/전수표.py' 1
+chk 'ROSTER_SRC' 'scripts/audit/copycheck/전수표.py' 1
+chk 'ROSTER_92' 'scripts/audit/copycheck/전수표.py' 1
+if command -v python3 >/dev/null 2>&1; then python3 'scripts/audit/copycheck/전수표.py' >/dev/null 2>&1 \
+  || { echo 'FAIL 전수표: «미착수» 클립이 남아 있습니다 — python3 scripts/audit/copycheck/전수표.py'; fail=1; }; fi
+
+# ★★[LOCKED_PROPOSAL 2026-09-20] 밖에서 온 제안이 «게이트에 잠긴 결정»을 깨는지 넣기 전에 본다.
+#   코워크 7회차 여덟 클립 중 셋이 사장님 결정을 되돌렸다 — 악의가 아니라 게이트를 안 읽고 썼을 뿐인데
+#   결과는 같다. 그리고 하나는 nochk 를 **우회**했다: 막은 것이 「편히 드시면」이라 「편히 드십시오」로 샜다.
+#   문자열 하나를 열쇠로 쓰면 그 말의 «다른 꼴»로 언제든 새어 나간다. 그래서 사람이 91클립을 다시 읽는 대신
+#   게이트 목록을 기계로 읽어 제안 전체를 대조한다.
+# ★[JUDGED] 이미 판정한 것은 다시 묻지 않는다 — 판정과 근거가 apply 스크립트의 REJECT 에 함께 산다.
+#   깨 보고 믿었다: 가짜 제안에 「핑거 푸드」·「편히 드시면」을 넣으니 둘 다 잡고 종료코드 1, 원복하니 0.
+# ★★[SENT_RELOCATE 2026-09-20] 한 클립에서 문장을 지우면 뒤 문장의 «자리 번호»가 전부 당겨진다.
+#   창고(sent-lib)는 자리로 소리를 갖고 있어서 그것을 «대장에 없는 자리»로 읽고, 그대로 --prune 하면
+#   **멀쩡한 소리를 버리고 다시 녹음하게 된다.** 오늘 6자리가 떴고 그중 둘이 살아 있는 문장이었다 —
+#   「이제 두 사람은 부부입니다」(사장님이 실청으로 확인하신 성혼선언)와 「큰 박수로 축하해 주세요」.
+#   글자로 따라가 옮기니 «다시 받을 것»이 135 → 137 로 줄었다. 두 번 녹음하지 않아도 된다.
+chk 'SENT_RELOCATE' scripts/sent-relocate.py 1
+# ★★[PARENTS_OWN_LANE 2026-09-20] 43_parents-letter 를 redub-covers 에서 뺐다 — 조립기가 달라
+#   다시받기/_순서.json 에 영영 안 들어오기 때문이다. ★«안 본다»가 아니라 «저쪽이 본다»이다.
+#   아래 둘이 그 자리를 맡는다. 둘 중 하나라도 게이트에서 빠지면 43 은 아무도 안 보게 된다.
+chk 'PARENTS_OWN_LANE' scripts/audit/redub-covers.mjs 1
+chk 'letter-mirror.mjs' automation/tests/merge-guard.sh 2
+chk 'make-parents-rerecord' automation/tests/merge-guard.sh 2
+chk 'LOCKED_PROPOSAL' scripts/audit/locked-proposal.py 1
+chk 'JUDGED' scripts/audit/locked-proposal.py 1
+chk 'SRC_FOUR' scripts/apply-narr-r3678.py 1
+chk 'SUB_TRAP' scripts/apply-narr-r3678.py 1
+if command -v python3 >/dev/null 2>&1; then python3 scripts/audit/locked-proposal.py >/dev/null 2>&1 \
+  || { echo 'FAIL locked-proposal: 잠긴 결정과 부딪치는 제안이 있습니다 — python3 scripts/audit/locked-proposal.py'; fail=1; }; fi
+
+# ★★[EAR_WHAT_NOT_HOW 2026-09-20 코워크 요청 A] 「언제 시작하나」를 «어형»으로 재던 것을 «지킬 말»로 넓혔다.
+#   [G8_OUT_SPLIT] 이 이미 답을 낸 자리다 — 형태를 지키던 검사가 틀렸던 것이지 글이 틀린 게 아니다.
+chk 'EAR_WHAT_NOT_HOW' scripts/audit/guest-ear.js 1
+chk '십 분쯤 뒤에 시작합니다' assets/ritual-data.js 1        # 02a — 세 번 듣는 시각 안내의 문형 통일
+chk '오 분쯤 뒤에 시작합니다' assets/ritual-data.js 1        # 03a — 위와 같은 꼴
+# ★★[ASK_REORDER 2026-09-20 사장님 「유도가 약하다 · 따라 해야 하나 싶을 것 같다」]
+#   응답형 선언에서 **질문이 시연보다 앞**에 있었다. 하객은 답을 배우기 전에 질문을 듣는 셈이라
+#   「다 같이」가 «따라 읽어라»로 들린다. 시연 → 예고 → 질문으로 세웠다.
+#   ★게이트는 순서를 안 막는다 — chk 는 시연 두 줄의 **존재**만 요구한다([ASK_RESTORE] 의 취지도 그것이다).
+chk '제가 여쭙고 나면, 다 같이 답해 주십시오' assets/ritual-data.js 1
+chk '이 약속은 두 사람만의 것이 아닙니다' assets/ritual-data.js 1   # 35 — 하객이 답한 것을 받고 선언으로 간다
+# ★[RING_FRAME 2026-09-20 사장님 「박수유도는?」] 반지 구간에 «왜 반지인가»와 «박수»가 둘 다 없었다.
+#   박수를 여는 진행 클립이 13개인데 반지만 0개였고, 서른 명 예식은 누가 먼저 치지 않으면 박수가 안 난다.
+#   ★수식어 없이 「박수」만 — 「큰 박수」는 성혼선언 네 갈래가, 「따뜻한 박수」는 입장 여섯 갈래가 이미 쓴다.
+chk '반지는 날마다 눈에 띕니다' assets/ritual-data.js 2
+chk '축하의 박수를 청합니다' assets/ritual-data.js 2
+chk '준비되시면 그대로 읽어 주십시오' assets/ritual-data.js 1   # 21 — 가족이 마이크를 든 채 시작 신호가 없었다
+# ★★[PAIR_READ 2026-09-20] 첫인사 둘을 나란히 읽었다 — 한 라이브 창에 붙어 나가는 자리다.
+#   [06 신랑] 안녕하세요, 신랑 이서준입니다 / 오늘 이 자리에 오시느라 각자의 하루를 비우셨을 겁니다 /
+#             그 소중한 시간이 아깝지 않게, 저희가 잘 만들어 가겠습니다
+#   [07 신부] 신부 정하윤입니다 / 오늘 오신 분들은 저희가 다 아는 분들입니다 /
+#             먼저 이렇게 인사드리고, 이따 한 분씩 찾아뵙겠습니다
+#   ★서로 부딪히는 사실은 없다. 「이따 한 분씩 찾아뵙겠습니다」는 61_narr-round-open 의
+#     「자리마다 차례로 찾아뵙습니다」와 맞고, [ROUND_FREE] 로 뺀 것은 «시간·이탈 안내»이지 이 약속이 아니다.
+#   ★남겨 둘 것 하나 — 양쪽 둘째 문장이 둘 다 「오늘」로 연다(「오늘 이 자리에」·「오늘 오신 분들은」).
+#     붙어 나가는 자리라 귀에는 「오늘…오늘」로 들린다. 다만 신부 쪽은 [GUEST_TONE2]④ 로 사장님이 고르신
+#     문장이고 신랑 쪽은 사장님이 손수 고치신 클립이라, 근거 없이 또 건드리지 않는다. 실청에서 걸리면 그때 본다.
+# PAIR_READ 06_welcome-groom+07_welcome-bride 3.3
 # ★★[GUEST_TONE2 2026-09-14] 사장님 *"이 대사 전부 한번 비슷하게 검토"* — 80줄을 같은 눈으로 다시 보고 넷.
 #   ② 「그 편지는 두 분이 가져갑니다」 → 「받으신 분이 간직하십니다」  ★갈래에 따라 «틀린 말»이었다
 #      이 대본에서 「두 분」은 신랑·신부인데, 이 한 문장이 편지 «세 갈래 전부»의 닫는 말이다.
@@ -7511,7 +7584,12 @@ nochk '지금 이 문장도' assets/ritual-data.js
 nochk '진동으로 바꿔' assets/ritual-data.js
 nochk '절반쯤 돌았습니다' assets/ritual-data.js
 chk '한쪽에 간단한 다과와 음료를 준비해 두었습니다' assets/ritual-data.js 1
-chk '오늘의 순서도, 지금 들으시는 이 안내도' assets/ritual-data.js 2
+# ★★[AI고지_2ND 2026-09-20] 고지 **둘째 줄**만 줄였다. 첫 줄(「미리 준비한 안내 음성으로 진행합니다」)은
+#   한 글자도 안 건드렸고 계약 사슬과 묶인 고지 본체도 그대로다.
+#   ★★코워크안은 「두 사람이 **골랐습니다**」였는데 **안 받았다** — [GUEST_TONE]③ 이 명시적으로 뺀 낱말이다.
+#     「고른」은 «남이 차린 것에서 집었다»는 말이라, 두 사람이 직접 만든 예식이라는 이 상품의 뿌리와
+#     정면으로 어긋난다. 「정했습니다」로 바꾸니 그 결정을 지키면서 27음절→16음절 낙차는 그대로 얻었다.
+chk '순서도 이 안내도' assets/ritual-data.js 2
 chk '휴대폰 소리는 잠시 꺼 주시면 됩니다' assets/ritual-data.js 1
 chk '절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
 # ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
@@ -7901,7 +7979,9 @@ chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
 #   index 0 은 따로 녹음하지 않고 NARR 녹음을 그대로 쓴다(build-tone-dub.mjs 가 0 을 안 뽑는다).
 #   그래서 둘은 «항상 같아야» 한다 — 한쪽만 고치면 화면 글과 소리가 갈린다.
 #   ★「0 은 건드리지 말 것」 주석의 뜻은 «다른 글로 갈아치우지 말라»이지 «NARR 과 어긋나게 두라»가 아니다.
-chk '먼저, 두 사람이 준비한 첫 인사가 있습니다' assets/ritual-data.js 2
+# ★[LEAD_COMMA 2026-09-20] 앞머리 쉼표절만 풀었다 — 지키는 것은 «첫인사를 예고한다»이지 「먼저,」가 아니다.
+#   「먼저」는 다음이 첫인사라는 것만 말하는데 그건 문장이 이미 「첫 인사」로 말하고 있다.
+chk '두 사람이 준비한 첫 인사가 있습니다' assets/ritual-data.js 2
 nochk '두 사람이 자리에 섰습니다' assets/ritual-data.js
 chk 'NARV_ZERO' scripts/apply-nospoil.mjs 1
 
@@ -8401,13 +8481,21 @@ chk 'TONE_POLISH2' scripts/apply-tone-polish2.mjs 1
 #     유일하게 허용한 미화였다(재생 문안 전체에서 「빛」 1회). 닫는 말은 닫기만 한다([LEAD_OUT]).
 nochk '오늘이 더 빛납니다' assets/ritual-data.js
 nochk '오늘이 더 빛납니다' order-preview.html
-chk '두 사람이 오늘 처음 건넨 말이었습니다' assets/ritual-data.js 2
+# ★★[NO_SCENE_CLAIM 2026-09-20] 「오늘 처음 건넨 말」은 **녹음이 확인할 수 없는 단정**이다.
+#   두 사람은 아침부터 하객을 맞으며 이미 여러 말을 건넸을 수 있다. 24번 진단이 세운 규칙
+#   «녹음은 현장을 평가하거나 단정할 수 없다»가 미진단 클립에는 안 닿아 규칙이 반쪽이었다.
+chk '지금 들으신 것이 두 사람의 첫 인사였습니다' assets/ritual-data.js 2
 #   ② 성혼 선언 「따뜻하게」 — 「세상에 단 하나뿐인 사람」은 이 대본이 다른 어디서도 안 쓰는 상투구였고,
 #     한 클립에 「함께」 3회·「주시기 바랍니다」 2회·「이제 두 사람은」 2회가 겹쳐 있었다.
 #     ★짝인 「엄숙하게」의 시그니처(「서로의 평생이 되었습니다」)를 빌려 오지 않았다 —
 #       빌리면 두 갈래가 같은 말을 한다. 갈래의 차이는 어조이지 격이 아니어야 한다.
 nochk '세상에 단 하나뿐인 사람' assets/ritual-data.js
-chk '서로에게 가장 가까운 사람이 되었습니다' assets/ritual-data.js 1
+# ★★[WARM_ONLY_ONE 2026-09-20] 「가장 가까운」 → 「하나뿐인」. 2026-09-12 결정을 뒤집는다.
+#   그때 상투구로 버린 것은 「**세상에 단** 하나뿐인 사람」이고, 지금 쓰는 것은 「**서로에게** 하나뿐인」이다.
+#   앞엣것은 과장이고 뒤엣것은 관계 안의 배타성이라 다른 말이다 — 아래 nochk 도 그대로 살아 안 막는다.
+#   ★성혼선언은 «배타적 결합»을 선언하는 자리인데 「가장 가까운」은 친구·가족과 견주는 비교급이라
+#     정도의 문제가 된다. 선언이 할 일은 종류를 가르는 것이다.
+chk '서로에게 하나뿐인 사람이 되었습니다' assets/ritual-data.js 1
 #   ③ 「이제」로 여는 클립이 «붙어» 나가던 자리. 개수가 아니라 «연속 쌍»을 센다 —
 #     한 예식에 몇 번 나오느냐가 아니라 두 클립이 이어 나가느냐가 귀에 걸리는 것이기 때문이다.
 #     ★짝 중 한쪽은 그 자리의 한 방이라 건드리지 않았다(반지 닫는 말 · 「이제 두 사람은 부부입니다」).

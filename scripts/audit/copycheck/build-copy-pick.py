@@ -19,6 +19,13 @@ out  = [a for a in sys.argv[1:] if a.endswith('.html')][0]
 parts = [json.load(open(f, encoding='utf-8')) for f in SRCS]
 e = lambda s: html.escape(str(s), quote=True)
 
+# ★근거 글에 **굵게** 표시를 써 놓은 자리가 일흔 군데 있다. 이 화면은 글을 그대로 escape 하므로
+#   별표가 별표로 찍힌다. 브라우저로 직접 열어 보고서야 보였다 — 만들어 놓고 안 여는 것이
+#   이 작업에서 제일 많이 당한 사고다. 굵게로 살려서 찍는다.
+import re as _re
+def ew(s):
+    return _re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', e(s))
+
 stamp = hashlib.sha1(json.dumps(
     [[[s['new'] for s in c['sents']] for c in d['clips']] for d in parts],
     ensure_ascii=False).encode()).hexdigest()[:8]
@@ -43,7 +50,7 @@ for d in parts:
   <div class=hd><b>#{s['i']}</b><span class=tag>{e(s.get('tag',''))}</span></div>
   <div class=lbl>지금</div><div class="t old">{e(s['old'])}</div>
   <div class=lbl>바꿀 글</div>{box}
-  <div class=why>{e(s['why'])}</div>
+  <div class=why>{ew(s['why'])}</div>
   <div class=btns>
     <button class=b data-v="채택">채택</button>
     <button class=b data-v="그대로">지금 글로</button>
@@ -54,12 +61,13 @@ for d in parts:
         cards.append(f"""
 <div class=c>
   <div class=ch><b>[{e(c['no'])}] {e(c['slug'])}</b><span class=v>{e(c['label'])} · {e(c['voice'])}</span></div>
+  {('<div class=cn>' + ew(c['clipnote']) + '</div>') if c.get('clipnote') else ''}
   {''.join(rows)}
 </div>""")
     blocks.append(f"""
 <section class=rd data-round="{e(d['round'])}">
   <h2>{e(d['round'])}회차 · {e(d['title'])}</h2>
-  <div class=note>{e(d['note'])}</div>
+  <div class=note>{ew(d["note"])}</div>
   {''.join(cards)}
 </section>""")
 
@@ -85,6 +93,7 @@ h2{{font-size:16px;margin:26px 0 6px;padding-top:14px;border-top:2px solid var(-
 .c{{border:1px solid var(--bd);border-radius:12px;background:#fff;margin:0 0 12px;overflow:hidden}}
 .ch{{background:var(--bg2);padding:9px 13px;font-size:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}}
 .ch .v{{color:var(--lt);font-size:12.5px}}
+.cn{{background:#f9f6f0;border-bottom:1px solid var(--bd);padding:10px 13px;font-size:13px;color:#5c554e;white-space:pre-wrap}}
 .s{{padding:12px 13px;border-top:1px solid var(--bd)}}
 .hd{{display:flex;gap:8px;align-items:center;margin-bottom:6px}}
 .tag{{font-size:11.5px;color:var(--gd);background:#f6f2ea;border-radius:5px;padding:1px 7px}}
@@ -106,7 +115,7 @@ body.chg .s.same{{display:none}}
 body.chg .c:not(:has(.s:not(.same))){{display:none}}
 .out{{width:100%;height:230px;font-family:ui-monospace,monospace;font-size:12px;padding:10px;border:1px solid var(--bd);border-radius:9px;margin-top:8px}}
 .go{{width:100%;min-height:48px;background:var(--gd);color:#fff;border:0;border-radius:10px;font-size:15px;cursor:pointer;font-family:inherit;margin-top:10px}}
-@media(prefers-color-scheme:dark){{:root{{--bg:#1b1917;--bg2:#252220;--tx:#eae6e0;--lt:#9c948b;--bd:#37332f}}.c,.b,.rz,.out,.tg button{{background:#211e1c;color:var(--tx)}}.old,.keep{{background:#2a2725;color:#a8a099}}.new{{background:#1e2a21}}.cut{{background:#2a1f1c;color:#d9a294}}}}
+@media(prefers-color-scheme:dark){{.cn{{background:#262219;color:#c8bfb4}}:root{{--bg:#1b1917;--bg2:#252220;--tx:#eae6e0;--lt:#9c948b;--bd:#37332f}}.c,.b,.rz,.out,.tg button{{background:#211e1c;color:var(--tx)}}.old,.keep{{background:#2a2725;color:#a8a099}}.new{{background:#1e2a21}}.cut{{background:#2a1f1c;color:#d9a294}}}}
 </style>
 <div class=w>
 <h1>문안 판정 · 전 회차</h1>
