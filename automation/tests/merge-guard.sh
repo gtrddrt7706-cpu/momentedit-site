@@ -7527,6 +7527,19 @@ chk 'SENT_RELOCATE' scripts/sent-relocate.py 1
 chk 'PARENTS_OWN_LANE' scripts/audit/redub-covers.mjs 1
 chk 'letter-mirror.mjs' automation/tests/merge-guard.sh 2
 chk 'make-parents-rerecord' automation/tests/merge-guard.sh 2
+# ★★[NO_QUOTA][WORD_OVERLAP][NAR2 2026-09-20 사장님 「겹치거나 별로인 거 전부 삭제해 과감하게 갯수 상관없이」]
+#   · NO_QUOTA     — 앞선 「각 이벤트당 3~8개」를 이 지시가 덮었다. 개수를 맞추는 일이 아니라
+#                    «남길 이유가 있는 것만» 남기는 일이다. 그래서 「몇 벌 줄여야 함」을 안 찍는다 —
+#                    그 숫자가 곧 «여기까지만 지우면 된다»로 읽힌다.
+#   · WORD_OVERLAP — «앞머리 몇 자»로는 한 건도 안 잡혔다. 실제로 겹치는 것은 **쓰는 낱말**이다.
+#                    편지 plain 셋은 앞머리가 다른데 「이제, … 이제, 그 목소리가 이어집니다」 틀이 같아 75%가 겹친다.
+#                    ★숫자만으로 «별로»라 하지 않는다([RULE_EASY]) — 표에 문면을 함께 실어 눈으로 받치게 둔다.
+#   · NAR2         — `nar` 만 읽으면 틀린다. TOAST.both 는 nar(케이크)+nar2(축배) 두 조각이라,
+#                    한 조각만 재다가 「both.현행 이 cake.현행 과 같다 → 축배가 누락됐다」고 읽을 뻔했다.
+#                    실제 클립으로 대조해 바로잡았다(41·42 는 같고 76 이 축배를 맡는다).
+chk 'NO_QUOTA' scripts/audit/pick-list.mjs 1
+chk 'WORD_OVERLAP' scripts/audit/pick-list.mjs 1
+chk 'NAR2' scripts/audit/pick-list.mjs 1
 chk 'LOCKED_PROPOSAL' scripts/audit/locked-proposal.py 1
 chk 'JUDGED' scripts/audit/locked-proposal.py 1
 chk 'SRC_FOUR' scripts/apply-narr-r3678.py 1
