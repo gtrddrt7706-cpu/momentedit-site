@@ -7651,6 +7651,10 @@ chk 'GATE_LOCK_EXPORT' scripts/audit/export-gate-locks.py 1
 #   열여덟 건이 통째로 샜다. 「넣었습니다」를 아무도 확인하지 않았고, 그 사이 [ENTRY_PROMOTE] 가
 #   **고치기 전 문면을 기본값으로 승격**시켰다. 사람이 확인하는 자리는 언젠가 빈다.
 chk 'TONE_TEXT_GATE' scripts/audit/tone-text-applied.py 1
+# ★★[CUE_ORDER_TEXT] 코워크가 «식순»을 손으로 지어내고 있었다. 그 위에 세운 판정이 흔들린다 —
+#   실측하니 둘이 **사실과 반대**였다(63→65 차례 · 22번이 서약 «전»). 순서는 엔진에서 뽑아 보낸다.
+chk 'CUE_ORDER_TEXT' scripts/audit/cue-order-text.mjs 1
+chk 'ENGINE_CALLS' scripts/audit/cue-order-text.mjs 1
 chk 'SPOT_NOT_BLOB' scripts/audit/tone-text-applied.py 1
 chk 'PARSE_ZERO' scripts/audit/tone-text-applied.py 2
 chk 'TONE_TEXT_APPLY' scripts/apply-tone-text.py 1

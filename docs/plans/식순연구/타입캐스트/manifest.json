@@ -107,7 +107,7 @@
       "dir": "assets/audio/narration",
       "clips": 31,
       "sents": 50,
-      "chars": 1240
+      "chars": 1231
     },
     {
       "file": "5_배역.txt",
@@ -2317,7 +2317,7 @@
       "sents": [
         {
           "i": 0,
-          "text": "방금 그 순서는 두 사람이 직접 골랐습니다.",
+          "text": "함께 봐 주셔서 고맙습니다.",
           "before": 0,
           "after": 0
         }
