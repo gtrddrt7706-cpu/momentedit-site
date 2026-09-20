@@ -530,6 +530,12 @@
    "fn": "_saveSignature",
    "mark": "SIG_STRICT",
    "why": "서명 dataUrl 검증을 접두사에서 base64 «전체 문자 집합»으로 — 옛 판은 `data:image/png;base64,AAA\" onerror=\"…` 를 그대로 저장했고 그 값이 계약서 화면에서 실행됐다(2026-09-20 브라우저 재현). 옛 판이 배포돼 있으면 서버 방어선이 없다"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployStampCheck",
+   "mark": "STAMP_ONLY",
+   "why": "④ 「배포가 먹었는가」만 찍는 짧은 함수 — deployCheck 로그가 GAS 한도로 ③ 에서 잘려 ④ 를 몇 번을 돌려도 못 보던 자리(2026-09-20 대표 실행 두 번 모두). 이 파일이 옛 판이면 그 함수가 없어 배포 판정을 여전히 못 한다"
   }
  ],
  "fns": {
@@ -1377,7 +1383,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-20 05:40 · ecbb6125",
+ "_생성": "2026-09-20 07:13 · a5172642",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",

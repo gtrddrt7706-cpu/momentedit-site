@@ -159,7 +159,10 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
           'decodeURIComponent encodeURI encodeURIComponent escape unescape globalThis undefined NaN Infinity ' +
           /* [V8_NEW_GLOBALS 2026-09-06 실기] 런타임이 올라가며 늘어난 전역 — 목록에 없다고 매번 «모르는 함수 4개»를 찍었다. */
           'SuppressedError DisposableStack AsyncDisposableStack Float16Array ' +
-          'AggregateError FinalizationRegistry WeakRef Atomics Intl Iterator AsyncIterator console deployCheck projectCheck').split(' ');
+          'AggregateError FinalizationRegistry WeakRef Atomics Intl Iterator AsyncIterator console deployCheck projectCheck '
+          /* [STAMP_ONLY] 이 파일 자신의 함수는 fns 목록에 없다(자기를 점검하는 파일이라 생성기가 비워 둔다).
+             새로 만들면 여기 손으로 더해야 «모르는 함수»로 매번 찍히지 않는다 — deploycheck-sim 6-C 가 잡아 준다. */
+          + 'deployStampCheck').split(' ');
         for (var si = 0; si < _std.length; si++) _known[_std[si]] = 1;
         var _extra = [];
         for (var ai = 0; ai < _all.length; ai++) {
@@ -379,6 +382,49 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
   L.push('※ 이 점검 밖 — 초록이어도 이 둘은 안 본 것이다:');
   L.push('   · 별도 GAS 프로젝트(form-to-couple 부부폼 · guest-letter-webhook · 가족청첩장빌드) — 각각 따로 배포한다.');
   L.push('   · consultation-booking 의 const 5개(CONFIG·SYS·HEADERS·ST·LOCKED_STATES) — 그 파일은 함수 130개로 덮인다.');
+  var out = L.join('\n');
+  Logger.log(out);
+  return out;
+}
+
+/* ★[STAMP_ONLY 2026-09-20 대표 실행에서 드러남] ④ 만 찍는다 — deployCheck 로그가 잘려서 못 보던 자리.
+ *
+ *   무엇이 있었나: 대표가 deployCheck 를 두 번 돌렸는데 두 번 다 GAS 가
+ *   「Logging output too large. Truncating output.」 로 ③ 에서 잘랐다.
+ *   ④ 「배포가 «먹었는가»」 는 목록의 한가운데라 **몇 번을 돌려도 영영 안 보인다.**
+ *   재배포가 실제로 먹었는지 판정하는 유일한 줄인데 그것만 못 보는 구조였다.
+ *
+ *   그래서 그 한 항목만 떼어 낸다. 출력이 서너 줄이라 잘릴 수가 없다.
+ *   ★재배포할 때마다 이것만 돌리면 된다 — deployCheck 는 «붙여넣기» 점검이고, 이건 «배포» 점검이다.
+ */
+function deployStampCheck() {
+  var L = [];   // [STAMP_ONLY]
+  L.push('══ 배포가 «먹었는가» (저장만으론 /exec 에 안 먹는다) ══');
+  try {
+    if (typeof deployFingerprint !== 'function') {
+      L.push('  --  판정 불가 — 00_platform-config 가 옛 판입니다(deployFingerprint 없음). 그 파일부터 붙여넣으세요.');
+    } else {
+      var saved = deployFingerprint();
+      var rec = String(PropertiesService.getScriptProperties().getProperty('DEPLOY_CODE_FINGERPRINT') || '');
+      var live = rec.split('|')[0], at = rec.split('|')[1] || '';
+      if (!rec) {
+        L.push('  --  아직 모름 — 배포 뒤 사이트에 요청이 한 번도 안 들어왔습니다(실패 아님).');
+        L.push('      → momentedit.kr/admin.html 을 한 번 열고 이것을 다시 실행하세요.');
+      } else if (live === saved) {
+        var gs = (typeof _dsGlobalSig === 'function') ? String(_dsGlobalSig() || '') : '';
+        L.push('  OK  배포본이 지금 저장된 코드와 «같다» — 재배포가 먹었습니다.');
+        L.push('      마지막 확인 ' + at.slice(0, 16).replace('T', ' ')
+          + (gs ? (' · 지문 범위 전역 함수 ' + gs.split('#')[0] + '개') : ' · ★전역 서명이 비었습니다(핵심 5개만 봄)'));
+      } else {
+        L.push('  ✗   배포본이 저장된 코드와 «다르다» — 아직 안 먹었습니다.');
+        L.push('      → ①배포 관리에서 «새 버전»으로 재배포  ②momentedit.kr/admin.html 한 번 열기  ③이것을 다시 실행');
+        L.push('      ★②를 건너뛰면 재배포를 해도 이 줄이 그대로 나옵니다.');
+        L.push('      (배포본 ' + live + ' · 저장본 ' + saved + ')');
+      }
+    }
+  } catch (e) {
+    L.push('  --  확인 불가(실패 아님): ' + ((e && e.message) || e));
+  }
   var out = L.join('\n');
   Logger.log(out);
   return out;
