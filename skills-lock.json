@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "skills": {
+    "redesign-existing-projects": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/redesign-skill/SKILL.md",
+      "computedHash": "b405eee0e0e80fc243f731d9aa368bca307e356db7e6157d27101d369dac6726"
+    }
+  },
+  "_note": "★2026-09-20 점검 — taste-skill 설치 시 13개가 들어왔고 그중 하나만 남겼다. 나머지 12는 이 저장소의 브랜드 규칙과 부딪히거나(다크모드·글래스모피즘·GSAP 스크롤 고정·브루탈리즘) momentedit-design 과 중복이라 지웠다. 이 목록을 되돌리면 복원 명령 한 번으로 전부 되살아난다. 지운 것: brandkit, design-taste-frontend, design-taste-frontend-v1, full-output-enforcement, gpt-taste, high-end-visual-design, image-to-code, imagegen-frontend-mobile, imagegen-frontend-web, industrial-brutalist-ui, minimalist-ui, stitch-design-taste"
+}
