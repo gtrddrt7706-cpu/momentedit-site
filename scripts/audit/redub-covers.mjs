@@ -74,6 +74,15 @@ const missing = [];
 let mismatch = 0;
 for (const c of man.clips || []) {
   if (c.mix || RETIRED.has(c.file)) continue;            // 합성 클립[MIX_MADE]·폐지 클립은 받지 않는다
+  /* ★★[PARENTS_OWN_LANE 2026-09-20] 43_parents-letter 만 조립기가 다르다 —
+     타입캐스트가 문장이 아니라 **문단 10개**로 나눠 줘서 assemble-parents-letter.mjs 가 따로 받는다.
+     그래서 다시받기/_순서.json 에 영영 안 들어오고, 여기서는 늘 «받을 길이 없다»로 붉었다.
+     ★그냥 건너뛰면 구멍이 된다. 이 자리는 **다른 검사 둘이 맡는다** —
+       · scripts/audit/letter-mirror.mjs        화면 글 ↔ 소리가 갈렸나
+       · scripts/make-parents-rerecord.mjs --check  화면 문안 ↔ 녹음 대기함이 맞나
+     둘 다 merge-guard 가 돌린다. 여기서 빼는 것은 «안 본다»가 아니라 «저쪽이 본다»는 뜻이다.
+     ★저 둘을 게이트에서 빼면 이 자리는 아무도 안 보게 된다. 뺄 때 이 주석부터 읽을 것. */
+  if (c.file === 'parents-letter') continue;
   const key = pad2(c.no) + '_' + c.file;
   const said = rec[(c.dir || NAR) + '|' + key];
   if (said === undefined) continue;                     // 아직 한 번도 안 받은 클립은 이 검사 밖이다
