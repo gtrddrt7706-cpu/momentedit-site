@@ -877,7 +877,11 @@ chk 'uptoName' assets/ritual-cue.js 3
 nochk '개 순서는 아직' console.html                    # ★수를 말하지 말 것 — 큐와 순서는 단위가 다르다
 chk 'ENTRY_OUT_MIRROR' scripts/check-ritual-mirror.js 1
 chk 'entryOutBy' assets/ritual-data.js 1
-chk '두 사람이 나란히 있습니다' assets/ritual-data.js 1   # B 문안 — 갈래가 통째로 사라지면 붉어진다
+# ★[ENTRY_OUT_B_DROP 2026-09-20] B 문안 폐지 — 52(A) 「같은 자리에 두 사람이 있습니다」와 뜻이 같다.
+#   ★그냥 지우지 않고 nochk 로 뒤집는다 — «없어진 것»이 아니라 «지우기로 한 것»이다.
+#   ★갈래가 통째로 사라지는 사고는 이제 check-ritual-mirror 가 지킨다:
+#     「남은 갈래 + 일부러 뺀 것 = 6」. 숫자만 내리면 죽는 그물이라 그렇게 짰다.
+nochk '두 사람이 나란히 있습니다' assets/ritual-data.js
 # ★[NARR_B1 2026-09-20] 옛 열쇠는 '두 사람이 섰습니다' 였는데, 그 문장은 사장님이 실청에서
 #   「두사람이 나란히 있습니다」로 손수 고치신 자리다. 잠금이 그 수정을 막고 있었다 —
 #   문안만 고치면 grep 이 0이 되어 RED 였고, 원인을 못 찾으면 사장님 수정을 되돌리는 쪽으로 간다.
@@ -3873,7 +3877,12 @@ chk "PERF_CANON = '이제 두 사람은 부부입니다'" scripts/check-narr-rul
 chk 'VOICE_GROOM_2' scripts/build-typecast-import.mjs 1
 chk 'VOICE_FRIEND_2' scripts/build-typecast-import.mjs 1
 chk "신랑: '이겸'" scripts/build-typecast-import.mjs 1
-chk "하객대표: '규민'" scripts/build-typecast-import.mjs 1
+# ★[TOAST_NONE 2026-09-20] 하객대표 자리가 폐지돼 배정을 지웠다 — 아래는 «되살리지 말 것»으로 뒤집는다.
+#   [VOICE_GAP] 이 「규민 148Hz vs 우성 151Hz 는 사실상 같은 목소리」라며 교체 후보를 찾던 중이었는데
+#   **자리 자체가 사라져** 그 숙제가 함께 닫혔다. F0 실측과 후보(세진)를 적은 주석은 파일에 남아 있다.
+nochk "하객대표: '규민'" scripts/build-typecast-import.mjs
+chk 'TOAST_NONE' scripts/build-typecast-import.mjs 2
+chk 'N_HOST' scripts/build-typecast-import.mjs 4
 #   ★부재는 nochk 로 쏜다(chk 셋째 인자는 «최소 개수»다 — CHK_ARG_SPACE 참고).
 #   ★이름 통짜로 세지 않는다 — 배역 «가상 인물»이 이준호(31)라서 '이준' 이 정당하게 남고,
 #     근거 주석에도 옛 이름이 남아야 한다(왜 바꿨는지). 대장 줄 모양 그대로만 없는지 본다.
@@ -7668,6 +7677,22 @@ chk 'PICK_BACK_BUILD' scripts/build-pick-back.mjs 1
 #   44 가 그랬다 — 안내 목소리가 한 문장 나왔다 여섯 클립 뒤에 돌아왔다.
 #   저장소의 어떤 검사도 «큐 차례»와 «역할»을 함께 보지 않았다. 순서표가 생겨서 된다.
 chk 'VOICE_RUNS' scripts/check-voice-runs.mjs 1
+# ★[RETIRED_SLOT] 폐지한 클립의 «창고 자리»는 빨강이 아니다 — 자리를 남기는 것이 이 저장소 관례다.
+#   ★폐지 원천이 **두 곳**이라 한 곳만 보면 절반이 샌다:
+#     ritual-cue 의 RETIRED(나레이션) · build-typecast-import 의 CAST_HOLD(배역)
+chk 'RETIRED_SLOT' scripts/audit/sent-lib-check.mjs 2
+# ★[DROPPED_BRANCH] 표는 «문면 교체»용이고 «갈래 폐지»는 짝이 없다 — 성격이 달라 목록을 나눴다.
+#   79 를 표에 억지로 넣었다가 「전」이 폐지 근거 주석에도 있어 apply 가 주석까지 칠 뻔했다.
+chk 'DROPPED_BRANCH' scripts/audit/locked-proposal.py 1
+chk '두 사람이 나란히 있습니다' scripts/audit/locked-proposal.py 1
+chk 'NEW_CLIP_NOSOUND' scripts/check-listen-cover.mjs 2
+chk 'TOAST_NONE' assets/ritual-cue.js 3
+chk 'TOAST_NONE' assets/ritual-story.js 1
+chk 'ENTRY_OUT_B_DROP' assets/ritual-cue.js 1
+chk 'OUT_DROPPED' scripts/check-ritual-mirror.js 3
+chk 'WELCOME_OUT_DROP' assets/ritual-cue.js 1
+chk 'narr-toast-none' assets/ritual-cue.js 3
+nochk "'15_toast'" assets/ritual-story.js
 chk 'VOICE_44_HOST' scripts/build-typecast-import.mjs 3
 if command -v node >/dev/null 2>&1; then node scripts/check-voice-runs.mjs >/dev/null 2>&1 \
   || { echo 'FAIL voice-runs: 혼자 끼어드는 목소리가 있다 — node scripts/check-voice-runs.mjs'; fail=1; }; fi
@@ -8421,7 +8446,11 @@ chk 'roundMid' assets/ritual-data.js 2
 #   지킬 것은 «절반쯤 왔다고 알려 주는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
 #   ★a606d699 가 문안만 고치고 이 줄을 안 옮겨 게이트가 하루 붉었다. 문안을 고치면 같은 커밋에서 여기도 고친다.
 chk '두 분이 절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
-chk 'N_FILES = 86' scripts/check-ritual-cue.js 1
+# ★[TOAST_NONE 2026-09-20] 87_narr-toast-none 이 FILES 맨 끝에 붙어 86 → 87.
+#   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
+#     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
+chk 'N_FILES = 87' scripts/check-ritual-cue.js 1
+nochk 'N_FILES = 86' scripts/check-ritual-cue.js
 
 # ★[FLOW_SHAPE] 흐름을 시간축으로 펼쳐 «모양»을 재는 검사. 문장이 아니라 구조를 본다 —
 #   한 목소리가 연속으로 끄는 시간 · 말 없이 흘러가는 구간 · 하객 동작 지시가 몰린 자리 · 블록별 배분.

@@ -548,25 +548,25 @@
   },
   {
    "n": 92,
+   "clip": "87_narr-toast-none",
+   "i": 0,
+   "text": "오늘은 축사를 따로 두지 않았습니다."
+  },
+  {
+   "n": 93,
+   "clip": "87_narr-toast-none",
+   "i": 1,
+   "text": "여기 계신 분들이 이미 두 사람을 잘 아십니다."
+  },
+  {
+   "n": 94,
    "clip": "52_narr-entry-out",
    "i": 0,
    "text": "같은 자리에 두 사람이 있습니다."
   },
   {
-   "n": 93,
-   "clip": "52_narr-entry-out",
-   "i": 1,
-   "text": "잠시, 서로를 바라봐 주세요."
-  },
-  {
-   "n": 94,
-   "clip": "79_narr-entry-out-B",
-   "i": 0,
-   "text": "두 사람이 나란히 있습니다."
-  },
-  {
    "n": 95,
-   "clip": "79_narr-entry-out-B",
+   "clip": "52_narr-entry-out",
    "i": 1,
    "text": "잠시, 서로를 바라봐 주세요."
   },

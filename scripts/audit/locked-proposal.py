@@ -59,6 +59,17 @@ if os.path.exists(_TSV):
 else:
     _RETIRED_WORDS = []
 
+# ★★[DROPPED_BRANCH] 표는 «문면 교체»용이다 — 「전 → 후」 한 쌍이 있어야 쓴다.
+#   그런데 «갈래 폐지»는 짝이 없다. 그 자리가 통째로 사라지고 폴백이 대신한다.
+#   실제로 79 를 표에 억지로 넣었다가, 「전」이 폐지 근거를 적은 **주석에도 있어서**
+#   apply 가 주석까지 치환할 뻔했다. 성격이 다른 것을 한 표에 담으면 그렇게 된다.
+#   ★그래서 여기 따로 적는다. 이 문면을 되살리자는 제안이 오면 «이미 판정된 옛 판»으로 넘긴다.
+#   ★되살릴 때는 이 목록에서 빼고 entryOutBy 와 order-preview 사본을 **함께** 채운다.
+_RETIRED_WORDS += [
+    '두 사람이 나란히 있습니다.',   # 79_narr-entry-out-B — 52(A) 와 뜻이 같아 폐지 [ENTRY_OUT_B_DROP]
+    '지금 들으신 것이 두 사람의 첫 인사였습니다.',  # 12_narr-welcome-out — 큐째로 폐지 [WELCOME_OUT_DROP]
+]
+
 props = []
 for f in sorted(glob.glob('scripts/audit/copycheck/round[0-9].json')):
     d = json.load(io.open(f, encoding='utf-8'))
