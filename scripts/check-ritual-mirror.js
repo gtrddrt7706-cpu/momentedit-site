@@ -149,7 +149,14 @@ vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
 {
   const inline = (html.match(/var ENTRY_OUT=\{([\s\S]*?)\n\};/) || [])[1] || '';
   const keys = Object.keys(D.NARR.entryOutBy || {});
-  ok('NARR.entryOutBy 여섯 갈래', keys.length === 6);
+  /* ★[ENTRY_OUT_B_DROP 2026-09-20] 여섯 → 다섯. B 를 뺐다(52 와 뜻이 같다).
+     ★숫자만 내리지 않는다 — 아래 «일부러 뺀 것» 목록과 **더해서** 여섯이어야 한다.
+       그래야 「하나가 조용히 사라진 날」이 여전히 잡힌다. 숫자만 고치면 그물이 죽는다. */
+  /* ★[ENTRY_OUT_B_DROP] 일부러 뺀 갈래 — 아래 「조용한 강등」 그물과 **같은 목록**을 쓴다.
+     두 곳에 따로 적으면 한쪽만 고치는 날이 온다. */
+  const OUT_DROPPED = ['B'];
+  ok(`NARR.entryOutBy ${keys.length}갈래 + 일부러 뺀 것 ${OUT_DROPPED.length} = 6`,
+     keys.length + OUT_DROPPED.length === 6);
   keys.forEach((k) => {
     const g = new RegExp(k + ':"([^"]+)"').exec(inline);
     ok(`ENTRY_OUT.${k} 사본이 원천과 같다`, !!g && g[1] === D.NARR.entryOutBy[k]);
@@ -176,7 +183,6 @@ vbMiss.forEach((t) => console.log('   DRIFT VOWBOTH : ' + t));
      ★그래도 검사를 끄지 않고 **목록으로** 둔다. 여기 이름이 없으면 종전대로 빨강이다 —
        다음에 누가 G 를 더하고 닫는 말을 잊으면 그대로 잡힌다.
      ★되살릴 때는 이 목록에서 빼고 entryOutBy.B 를 채운다. «A 와 다른 그림»을 말하는 문장이어야 한다. */
-  const OUT_DROPPED = ['B'];
   const feel = Object.keys(D.ENTRY || {}).filter((k) => !OUT_DROPPED.includes(k)).sort().join(',');
   const outs = keys.slice().sort().join(',');
   ok(`입장 느낌과 도착 멘트가 같은 갈래다 (느낌 ${feel} · 멘트 ${outs} · 일부러 뺀 것 ${OUT_DROPPED.join(',') || '없음'})`,
