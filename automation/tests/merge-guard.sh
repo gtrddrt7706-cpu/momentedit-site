@@ -2258,6 +2258,46 @@ chk 'FITTING_PRECOND' automation/consultation/ScreenB_schedule.html 1
 chk '드레스 시착도 상담 당일 진행하실 수 있고' automation/consultation/ScreenB_schedule.html 1
 chk '드레스 시착 후 계약을 진행하지 않으시면' automation/platform/70_journey.gs 1
 chk '드레스 시착 후, 계약서를 24시간 내에' automation/platform/70_journey.gs 1
+
+# ★★[CONSULT_RENDER 2026-09-20 점검 라운드 1] 상담 3화면을 «실제로 띄워» 본다.
+#   ScreenA·B·C 는 고객이 예약금 100,000원을 내기까지 지나는 화면인데,
+#   저장소의 어떤 감사도 이것을 렌더한 적이 없었다(copy-rule·guest-cap-truth 는 grep 만 하고,
+#   render-check.mjs 목록에도 셋 다 없다). 그 사각지대에서 둘이 나왔다:
+#     [SLOTS_SPAN]  .slots 3칸 그리드에 .time-empty 가 grid-column 없이 들어가 «1/3 폭»에 갇혔다.
+#                   ★지표로는 안 잡혔다 — pageerror 0 · 가로넘침 0 인데 글이 네 줄로 쪼개져 있었다.
+#                   스크린샷을 눈으로 보고서야 알았고, 그래서 이 검사는 «폭 비율»로 잰다(31% vs 100%).
+#     [DEPOSIT_HERE] 「상담 예약금 · 신청 시 안내」 — 여기가 바로 그 신청 화면인데 그렇게 적혀 있었다.
+#   ★깨 보고 믿었다 — grid-column 을 떼니 31% 로 FAIL(종료 1) · 「반환 불가」를 되살리니 2건 FAIL.
+#     원복하니 둘 다 종료 0.
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/consult-render.mjs >/dev/null 2>&1; _csr=$?
+  if [ "$_csr" = 1 ]; then
+    echo 'FAIL consult-render: 상담 3화면 렌더가 틀렸다 — node scripts/audit/consult-render.mjs'; fail=1
+  elif [ "$_csr" = 2 ]; then
+    echo 'skip consult-render: 이번엔 재지 못했습니다(브라우저 없음 또는 CONFIG 를 못 읽음) — 통과가 아니라 안 본 것입니다'
+  elif [ "$_csr" != 0 ]; then
+    echo "FAIL consult-render: 뜻 모를 종료 코드 $_csr — node scripts/audit/consult-render.mjs"; fail=1
+  else
+    echo 'ok consult-render (상담 3화면 · 390/1280 · 클릭까지)'
+  fi
+fi
+chk 'CONSULT_RENDER' scripts/audit/consult-render.mjs 1
+chk 'SLOTS_SPAN' automation/consultation/ScreenB_schedule.html 1
+chk 'SLOTS_SPAN' scripts/audit/consult-render.mjs 2
+chk 'grid-column:1/-1' automation/consultation/ScreenB_schedule.html 2
+chk 'DEPOSIT_HERE' automation/consultation/ScreenB_schedule.html 1
+# ★★[NAME_NODE 2026-09-20 점검 라운드 4] 고객이 쓴 성함이 화면에서 «실행»되던 자리.
+#   ScreenB 의 modalPick 이 innerHTML 이었고 SERVER.names 는 신청서에 직접 쓴 성함이다.
+#   서버의 replace 는 스크립트 조기 종료만 막지 innerHTML 에는 아무 방어가 안 된다.
+#   ★브라우저로 재현했다 — 도달 1회 · 실행 1회 · 이미지 태그 1개. 고친 뒤 도달 1 · 실행 0.
+#   ★도달을 먼저 증명한다 — sink 가 google.script.run.withSuccessHandler 안이라 스텁이 없으면
+#     «영영 안 돈다». 처음에 그것 없이 재고 「xss 0」 을 보고 안전하다 할 뻔했다([XSS_CANARY]).
+#   ★이 주석과 코드 주석에 태그 문법을 쓰지 말 것 — 처음에 닫는 스크립트 태그를 글자 그대로
+#     적었다가 스크립트가 거기서 끊겼다(pageerror 3). 고치려던 그 버그를 주석으로 만든 셈이다.
+chk 'NAME_NODE' automation/consultation/ScreenB_schedule.html 1
+chk 'NAME_NODE' scripts/audit/consult-render.mjs 2
+chk 'createTextNode(dateStr' automation/consultation/ScreenB_schedule.html 1
+nochk "modalPick').innerHTML" automation/consultation/ScreenB_schedule.html
 chk 'meBreath 1.7s' automation/admin/Admin.html 1
 chk 'PREV_NO_CHROME' scripts/build-preview-annot.mjs 2   # 예시에서 고정·스티키 화면 장치 제거 · 빼면 '‹ 갤러리' 알약이 16장 한복판에 박힌다
 chk 'vertical' scripts/build-preview-annot.mjs 2         # 세로쓰기는 요소 상자로 · Range 잉크가 62px 짧게 잡혀 점선이 첫·끝 글자를 문다
@@ -6083,6 +6123,15 @@ chk 'FIT_EXTRA_N2' contract/fitting.html 1
 chk 'CAL_320_FIT' i/invitations/invitation-08-noir.html 1
 # [PRICE_DERIVED] 구가 파생 금액(18만/14만/11만) 스캔 — mypage 미리보기·_kb "14만원 인용"·sim 정답 잠금 3중 실사고의 그물.
 chk 'PRICE_DERIVED' scripts/check-price-sync.mjs 2
+# ★★[DEPOSIT_ONE 2026-09-20 점검 라운드 2] 예약금 100,000 이 세 상수에 따로 살고 있었다 —
+#   CONFIG.DEPOSIT(상담 화면이 청구) · PAYMENT.예약금(계약·정산이 차감) · FITTING_CONSENT.예약금(시착동의서 표시).
+#   그리고 check-price-sync 자신도 `n/10 - 100000` 으로 그 숫자를 손으로 박아 두고 있었다.
+#   ★그래서 예약금을 올리면 한 곳만 고쳐도 검사가 「전부 일치」라고 답한다 — 기준선이 함께 낡기 때문이다.
+#   이제 PAYMENT.예약금 을 단일 출처로 읽고 나머지 둘을 대조한다.
+#   ★깨 보고 믿었다 — CONFIG.DEPOSIT 만 15만으로 · FITTING_CONSENT 만 20만으로 각각 바꾸니 둘 다 종료 1.
+#   ★FITTING_TERMS_BY_VERSION 의 이력(v1~v3 의 200,000)은 건드리지 않는다 — 서명 시점 스냅샷이다([OLD_SIGNER_TERMS]).
+chk 'DEPOSIT_ONE' scripts/check-price-sync.mjs 2
+chk 'PAYMENT.예약금 을 단일 출처로' automation/tests/merge-guard.sh 1
 # ★★[AI_PRICE_LOCK 2026-09-05] AI «정답 잠금»은 맨숫자(/280/ · ['280'])로 적혀 총액 스캔이 못 봤다.
 #   게이트 목적문은 「AI 상담사가 옛 가격을 답한다」를 막겠다고 적어 놓고 정작 이걸 놓쳤다.
 #   구가를 정답으로 잠그면 «회귀했을 때 초록»이 된다 — 검사가 거꾸로 서는 자리라 총액보다 위험하다. 실측 3곳.

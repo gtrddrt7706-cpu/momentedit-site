@@ -24,7 +24,25 @@ if (!m) { console.log('못 잼: 70_journey.gs 에서 PRICING 을 못 읽었다')
 const WD = Number(m[1]), WE = Number(m[2]);
 const man = (n) => String(n / 10000);                       // 2400000 → '240'
 const comma = (n) => n.toLocaleString('en-US');             // 2400000 → '2,400,000'
-const deposit = (n) => n / 10 - 100000;                     // 계약금 10% − 예약금 10만
+/* ★★[DEPOSIT_ONE 2026-09-20 점검 라운드 2] 예약금 100,000 이 «세 상수»에 따로 살고 있었다.
+     consultation-booking.gs  CONFIG.DEPOSIT        ← 상담 화면이 청구하는 값
+     70_journey.gs            PAYMENT.예약금         ← 계약·정산 엔진이 차감하는 값
+     70_journey.gs            FITTING_CONSENT.예약금 ← 시착동의서가 «지금» 표시하는 값
+   그리고 이 검사 자신도 `n/10 - 100000` 으로 그 숫자를 손으로 박아 두고 있었다.
+   ★그래서 예약금을 올리면 한 곳만 고쳐도 이 검사가 「가격 사본 전부 일치」라고 답한다 —
+     기준선이 함께 낡기 때문이다. 검사가 틀린 값을 «확인해 주는» 모양이라 가장 나쁘다.
+   이제 PAYMENT.예약금 을 단일 출처로 읽고, 나머지 둘이 그것과 같은지 본다.
+   ★FITTING_CONSENT 의 «이력»(FITTING_TERMS_BY_VERSION v1~v3 의 200,000)은 건드리지 않는다 —
+     서명 시점 스냅샷이라 구서명자는 그 값을 그대로 유지하는 것이 맞다([OLD_SIGNER_TERMS]). */
+const DEP = Number((src.match(/PAYMENT\s*=\s*\{[\s\S]{0,400}?예약금:\s*(\d+)/) || [])[1]);
+if (!DEP) { console.log('못 잼: 70_journey.gs 에서 PAYMENT.예약금 을 못 읽었다'); process.exit(2); }
+{
+  const fit = Number((src.match(/FITTING_CONSENT\s*=\s*\{[\s\S]{0,600}?예약금:\s*(\d+)/) || [])[1]);
+  const cfg = Number((R('automation/consultation/consultation-booking.gs').match(/DEPOSIT:\s*(\d+)/) || [])[1]);
+  if (fit !== DEP) bad.push(`예약금이 갈렸다 — PAYMENT.예약금 ${comma(DEP)} vs FITTING_CONSENT.예약금 ${comma(fit)} [DEPOSIT_ONE]`);
+  if (cfg !== DEP) bad.push(`예약금이 갈렸다 — PAYMENT.예약금 ${comma(DEP)} vs CONFIG.DEPOSIT ${comma(cfg)} [DEPOSIT_ONE]`);
+}
+const deposit = (n) => n / 10 - DEP;                        // 계약금 10% − 예약금(단일 출처)
 console.log(`  · 단일 출처 — 주말 ${comma(WE)} / 평일 ${comma(WD)} · 계약 시 납입 ${comma(deposit(WE))} / ${comma(deposit(WD))}`);
 
 /* ── 사본들 — [파일, 반드시 있어야 할 문자열들] ── */
