@@ -65,12 +65,17 @@ const SUB = {
 };
 
 /* ── 템플릿 태그를 서버와 같은 방식으로 채운다 ── */
+const gesc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const TMP = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'consult-'));
 for (const [f, sub] of Object.entries(SUB)) {
   let h = fs.readFileSync(path.join(SRC, f + '.html'), 'utf8');
-  h = h.replace(/<\?!?=\s*JSON\.stringify\((\w+)\)\s*\?>/g, (m, k) => JSON.stringify(sub[k] ?? ''))
-    .replace(/<\?=\s*(\w+)\s*\|\|\s*'([^']*)'\s*\?>/g, (m, k, d) => (sub[k] || d))
-    .replace(/<\?!?=\s*(\w+)\s*\?>/g, (m, k) => sub[k] ?? '');
+  /* ★GAS 를 그대로 흉내낸다 — <?= ?> 는 HTML 을 «자동 escape» 하고 <?!= ?> 만 날것이다.
+     처음에 둘을 똑같이 치환했더니, GAS 가 막아 주는 자리까지 주입이 통해 「2건」으로 보였다.
+     하네스가 제품보다 무르면 없는 버그를 만든다. */
+  h = h.replace(/<\?!=\s*JSON\.stringify\((\w+)\)\s*\?>/g, (m, k) => JSON.stringify(sub[k] ?? ''))
+    .replace(/<\?=\s*(\w+)\s*\|\|\s*'([^']*)'\s*\?>/g, (m, k, d) => gesc(sub[k] || d))
+    .replace(/<\?!=\s*(\w+)\s*\?>/g, (m, k) => sub[k] ?? '')
+    .replace(/<\?=\s*(\w+)\s*\?>/g, (m, k) => gesc(sub[k] ?? ''));
   const left = (h.match(/<\?/g) || []).length;
   say(left === 0, `${f} 템플릿 태그 치환 (남은 것 ${left}개)`);
   fs.writeFileSync(path.join(TMP, f + '.html'), h);
@@ -172,6 +177,52 @@ for (const f of Object.keys(SUB)) {
     const after = await page.evaluate(() => document.querySelectorAll('.slot').length);
     say(after > 0, `가능일 ${clicked}일 클릭 → 시간 슬롯 ${after}개 열림`);
     say(errors.length === 0, `클릭 뒤 pageerror ${errors.length}${errors.length ? ' · ' + errors[0] : ''}`);
+  }
+  await page.close();
+}
+
+
+/* ── ⑤ [NAME_NODE] 고객이 쓴 성함이 화면에서 «실행»되지 않는가 (카나리) ──
+   ScreenB:modalPick 이 innerHTML 이었다. SERVER.names 는 고객이 신청서에 직접 쓴 성함이고,
+   서버의 replace 는 스크립트 조기 종료만 막지 innerHTML 을 안전하게 만들지 않는다.
+   ★도달을 먼저 증명한다 — 이 화면의 sink 는 google.script.run.withSuccessHandler 안이라,
+     스텁이 없으면 «영영 안 돈다». 처음에 그것 없이 재고 「xss 0」 을 보고 안전하다 할 뻔했다.
+     도달 0 이면 통과가 아니라 «못 잼»(종료 2)으로 센다([XSS_CANARY] 와 같은 규약). */
+{
+  const X = '<img src=x onerror="window.__xss=(window.__xss||0)+1">CANARY7788';
+  const srv2 = { ...server, names: X };
+  const sub2 = { ...SUB.ScreenB_schedule, names: X, serverJson: JSON.stringify(srv2).replace(/</g, '\\u003c') };
+  let h = fs.readFileSync(path.join(SRC, 'ScreenB_schedule.html'), 'utf8');
+  h = h.replace(/<\?!=\s*(\w+)\s*\?>/g, (m, k) => sub2[k] ?? '')
+    .replace(/<\?=\s*(\w+)\s*\?>/g, (m, k) => gesc(sub2[k] ?? ''));
+  fs.writeFileSync(path.join(TMP, 'xss.html'), h);
+
+  const { page, errors } = await eng.newPage({ port, viewport: { width: 390, height: 900 } });
+  await page.addInitScript(() => {
+    window.__ran = 0; let ok = null; const t = {};
+    const proxy = new Proxy(t, { get: (o, k) => {
+      if (k === 'withSuccessHandler') return (f) => { ok = f; return proxy; };
+      if (k === 'withFailureHandler') return () => proxy;
+      return () => { window.__ran++; setTimeout(() => ok && ok({ ok: true }), 10); };
+    } });
+    window.google = { script: { run: proxy, host: { close() {}, setHeight() {} } } };
+  });
+  await page.goto(`http://localhost:${port}/xss.html`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(400);
+  await page.evaluate(() => { const d = [...document.querySelectorAll('.day')].find((e) => e.querySelector('.dot') || e.classList.contains('avail')); if (d) d.click(); });
+  await page.waitForTimeout(250);
+  await page.evaluate(() => { const s = document.querySelector('.slot:not(.full)'); if (s) s.click(); });
+  await page.waitForTimeout(250);
+  await page.evaluate(() => { const b = document.getElementById('submitBtn'); if (b && !b.disabled) b.click(); });
+  await page.waitForTimeout(600);
+  const r = await page.evaluate(() => ({ ran: window.__ran || 0, xss: window.__xss || 0, imgs: document.querySelectorAll('img[src="x"]').length, seen: (document.body.innerText || '').includes('CANARY7788') }));
+  if (!r.ran) {
+    console.log('skip [NAME_NODE] 카나리가 sink 에 도달하지 못했습니다(모달 경로 변경?) — 통과가 아니라 안 본 것입니다');
+    unmeasured = 1;
+  } else {
+    say(r.xss === 0 && r.imgs === 0, `[NAME_NODE] 성함 주입 · 도달 ${r.ran}회 · 실행 ${r.xss}회 · 태그 ${r.imgs}개 (실행·태그 모두 0이어야 함)`);
+    say(r.seen, '[NAME_NODE] 카나리가 «글자»로는 보인다(값이 지워진 것이 아니라 escape 된 것)');
+    say(errors.length === 0, `[NAME_NODE] pageerror ${errors.length}${errors.length ? ' · ' + errors[0] : ''}`);
   }
   await page.close();
 }

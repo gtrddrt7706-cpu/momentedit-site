@@ -1383,9 +1383,10 @@
   {
    "file": "ScreenB_schedule",
    "marks": [
-    "BUSY_ONE"
+    "BUSY_ONE",
+    "SIG_NODE"
    ],
-   "bytes": 94633
+   "bytes": 95441
   },
   {
    "file": "ScreenC_change",
@@ -1395,7 +1396,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-20 08:51 · 5b92a873",
+ "_생성": "2026-09-20 09:02 · fd8d7588",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",

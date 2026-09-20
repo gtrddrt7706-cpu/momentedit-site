@@ -2269,6 +2269,18 @@ chk 'SLOTS_SPAN' automation/consultation/ScreenB_schedule.html 1
 chk 'SLOTS_SPAN' scripts/audit/consult-render.mjs 2
 chk 'grid-column:1/-1' automation/consultation/ScreenB_schedule.html 2
 chk 'DEPOSIT_HERE' automation/consultation/ScreenB_schedule.html 1
+# ★★[NAME_NODE 2026-09-20 점검 라운드 4] 고객이 쓴 성함이 화면에서 «실행»되던 자리.
+#   ScreenB 의 modalPick 이 innerHTML 이었고 SERVER.names 는 신청서에 직접 쓴 성함이다.
+#   서버의 replace 는 스크립트 조기 종료만 막지 innerHTML 에는 아무 방어가 안 된다.
+#   ★브라우저로 재현했다 — 도달 1회 · 실행 1회 · 이미지 태그 1개. 고친 뒤 도달 1 · 실행 0.
+#   ★도달을 먼저 증명한다 — sink 가 google.script.run.withSuccessHandler 안이라 스텁이 없으면
+#     «영영 안 돈다». 처음에 그것 없이 재고 「xss 0」 을 보고 안전하다 할 뻔했다([XSS_CANARY]).
+#   ★이 주석과 코드 주석에 태그 문법을 쓰지 말 것 — 처음에 닫는 스크립트 태그를 글자 그대로
+#     적었다가 스크립트가 거기서 끊겼다(pageerror 3). 고치려던 그 버그를 주석으로 만든 셈이다.
+chk 'NAME_NODE' automation/consultation/ScreenB_schedule.html 1
+chk 'NAME_NODE' scripts/audit/consult-render.mjs 2
+chk 'createTextNode(dateStr' automation/consultation/ScreenB_schedule.html 1
+nochk "modalPick').innerHTML" automation/consultation/ScreenB_schedule.html
 chk 'meBreath 1.7s' automation/admin/Admin.html 1
 chk 'PREV_NO_CHROME' scripts/build-preview-annot.mjs 2   # 예시에서 고정·스티키 화면 장치 제거 · 빼면 '‹ 갤러리' 알약이 16장 한복판에 박힌다
 chk 'vertical' scripts/build-preview-annot.mjs 2         # 세로쓰기는 요소 상자로 · Range 잉크가 62px 짧게 잡혀 점선이 첫·끝 글자를 문다

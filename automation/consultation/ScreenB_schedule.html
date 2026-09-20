@@ -689,7 +689,19 @@ function doSubmit(){
   google.script.run
     .withSuccessHandler(function(){
       const dateStr=fmtDate(selDate);
-      document.getElementById('modalPick').innerHTML=SERVER.names+' 님<br>'+dateStr+' · '+selTime;
+      /* ★★[NAME_NODE 2026-09-20 점검 라운드 4] 여기는 innerHTML 이었다 · 되돌리지 말 것.
+         SERVER.names 는 고객이 신청서에 직접 쓴 성함(coupleNames = 성함(신랑)·성함(신부))이다.
+         서버의 JSON.stringify(...).replace 는 스크립트 태그 조기 종료만 막는다 ·
+         JS 파서가 유니코드 이스케이프를 원래 글자로 되돌리므로 innerHTML 에는 아무 방어가 안 된다.
+         ★브라우저로 재현했다 · 성함에 onerror 를 단 이미지 태그를 넣으니 window.__xss 가 올라갔다.
+         같은 화면의 names 출력 스크립틀릿은 GAS 가 자동 escape 해서 멀쩡했다 · 구멍은 이 한 줄이었다.
+         오늘 계약서 전자서명에서 고친 [SIG_NODE] 와 같은 처방 · 문자열을 조립하지 말고 노드를 만든다.
+         ★★이 주석 자체로 한 번 사고를 냈다 · 처음엔 닫는 스크립트 태그와 이미지 태그를 «글자 그대로»
+           적었고, 그 순간 스크립트가 거기서 끊기고 그 태그가 진짜로 파싱됐다(pageerror 3).
+           고치려던 바로 그 버그를 주석으로 만든 것이다. 여기에 태그 문법을 쓰지 말 것. */      var _mp = document.getElementById('modalPick');
+      _mp.textContent = SERVER.names + ' 님';
+      _mp.appendChild(document.createElement('br'));
+      _mp.appendChild(document.createTextNode(dateStr + ' · ' + selTime));
       document.getElementById('modal').classList.add('show');
       restore();
     })
