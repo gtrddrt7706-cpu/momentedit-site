@@ -7681,6 +7681,10 @@ chk 'VOICE_RUNS' scripts/check-voice-runs.mjs 1
 #   ★폐지 원천이 **두 곳**이라 한 곳만 보면 절반이 샌다:
 #     ritual-cue 의 RETIRED(나레이션) · build-typecast-import 의 CAST_HOLD(배역)
 chk 'RETIRED_SLOT' scripts/audit/sent-lib-check.mjs 2
+# ★[DROPPED_BRANCH] 표는 «문면 교체»용이고 «갈래 폐지»는 짝이 없다 — 성격이 달라 목록을 나눴다.
+#   79 를 표에 억지로 넣었다가 「전」이 폐지 근거 주석에도 있어 apply 가 주석까지 칠 뻔했다.
+chk 'DROPPED_BRANCH' scripts/audit/locked-proposal.py 1
+chk '두 사람이 나란히 있습니다' scripts/audit/locked-proposal.py 1
 chk 'NEW_CLIP_NOSOUND' scripts/check-listen-cover.mjs 2
 chk 'TOAST_NONE' assets/ritual-cue.js 3
 chk 'TOAST_NONE' assets/ritual-story.js 1
