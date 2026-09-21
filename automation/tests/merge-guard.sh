@@ -9333,6 +9333,10 @@ chk 'CITE_BRACKET' scripts/audit/deploycheck-coverage.mjs 1
 # [SIM_OLD_ALL] «옛 판» 모의는 표식을 전부 지운다 — 첫 하나만 지우면 같은 표식이 여러 번 있는
 #   파일(Admin.html 의 CONTACT_FIX 6회)에서 나머지가 남아 모의가 거짓으로 빨개진다.
 chk 'SIM_OLD_ALL' scripts/audit/deploycheck-sim.mjs 1
+# [LOADING_ONE] 취소 페이지의 «하는 중» 두 자리 — 숨쉬는 점이 이미 말하므로 말줄임표를 겹치지 않는다.
+#   (2026-09-21 사장님 지적 「점갯수에따라 글자가 좌우로 흔들리는데」와 같은 자리)
+chk 'bdot' cancel.html 3
+nochk '…' cancel.html   # ★주석에도 이 글자를 쓰지 말 것 — 제 주석을 잡아 빨개진다
 # ── [CONTACT_FIX] 관리자 연락처 정정 — 두 화면(momentedit.kr/admin.html · /exec?admin=1 Admin.html)
 #   ★핵심은 «버튼이 조건부가 아니다»이다. 고쳐야 하는 상황이 바로 번호가 비었거나 이상한 상황인데,
 #     옆 버튼들은 d.phone 이 있어야 그려진다. 조건을 달면 정확히 필요한 때에 손잡이가 사라진다.
