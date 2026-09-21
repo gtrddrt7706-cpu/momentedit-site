@@ -1396,11 +1396,12 @@
   {
    "file": "Admin",
    "marks": [
+    "CONTACT_FIX",
     "BUSY_ONE",
     "ADMIN_NOFEE_LINE",
     "PRICE_2026_08"
    ],
-   "bytes": 94321
+   "bytes": 99127
   },
   {
    "file": "ScreenA_apply",
@@ -1429,7 +1430,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-21 13:04 · ddd32be0",
+ "_생성": "2026-09-21 13:12 · 7b022759",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",

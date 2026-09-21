@@ -9330,6 +9330,9 @@ chk 'dn-gate-card:disabled' mypage.html 1
 # [CITE_BRACKET] 주석에서 «다른 파일의» 표식을 대괄호로 인용하면 그 파일의 표식으로 잡힌다 —
 #   실패 메시지가 그 함정을 짚게 한 결정(2026-09-21 에 두 번 걸렸다). 지우면 다음 사람이 같은 데서 헤맨다.
 chk 'CITE_BRACKET' scripts/audit/deploycheck-coverage.mjs 1
+# [SIM_OLD_ALL] «옛 판» 모의는 표식을 전부 지운다 — 첫 하나만 지우면 같은 표식이 여러 번 있는
+#   파일(Admin.html 의 CONTACT_FIX 6회)에서 나머지가 남아 모의가 거짓으로 빨개진다.
+chk 'SIM_OLD_ALL' scripts/audit/deploycheck-sim.mjs 1
 # ── [CONTACT_FIX] 관리자 연락처 정정 — 두 화면(momentedit.kr/admin.html · /exec?admin=1 Admin.html)
 #   ★핵심은 «버튼이 조건부가 아니다»이다. 고쳐야 하는 상황이 바로 번호가 비었거나 이상한 상황인데,
 #     옆 버튼들은 d.phone 이 있어야 그려진다. 조건을 달면 정확히 필요한 때에 손잡이가 사라진다.
