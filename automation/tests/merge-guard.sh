@@ -7687,6 +7687,24 @@ chk 'DROPPED_BRANCH' scripts/audit/locked-proposal.py 1
 # ★[ENTRY_OUT_LIST] 「여는 말」이 추리기에서 통째로 빠져 있었다(코워크 지적).
 #   이름이 「어조표」가 아니라는 이유로 한 번도 안 쟀다 — 이름이 다르다고 다른 물건이 아니다.
 chk 'ENTRY_OUT_LIST' scripts/audit/pick-list.mjs 3
+# ★★[ASK_RETIRED 2026-09-21 사장님 지시] 「하객이 함께 답하기」 폐지 — 「네, 그러겠습니다」.
+#   사장님 원문: *「ai성우라서 한계가잇어 자연스럽지못해」*
+#   저장소가 이미 적어 둔 근거와 같다 — 한 명이 말하면 군중이 아니라 한 사람의 대답으로 들린다.
+#   ★되살릴 조건은 «문안 수정»이 아니라 **사람 목소리**다. 문안은 문제가 아니었다.
+# ★★[CHORUS_RETIRED 2026-09-21 사장님 지시] 「하객이 다 함께 · 합송」 폐지.
+#   ★폐지 이유가 [ASK_RETIRED] 와 «다르다» — 이쪽은 **애초에 배선이 안 돼 있었다.**
+#     반지 마무리 뒤 곧바로 침묵이고, 스물다섯 명이 그 침묵에서 스스로 시작해야 했다.
+#     nar 문안은 데이터에 있었지만 큐에 안 붙어 있어 **한 번도 쓰이지 않았다.**
+#   ★되살리려면 문안이 아니라 **도입·마무리 큐를 먼저 세워야** 한다.
+chk 'CHORUS_RETIRED' assets/ritual-data.js 1
+nochk "chorus:{d:'하객이 다 함께" assets/ritual-data.js
+chk 'ASK_RETIRED' assets/ritual-data.js 1
+chk 'ASK_RETIRED' assets/ritual-cue.js 1
+nochk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js
+chk "'declare-ask-a': 1" assets/ritual-cue.js 1
+# ★[EVENT_SCRIPT] 성우별은 «녹음»의 자, 이벤트별은 «판단»의 자 — 진희 문제가 성우별에 숨어 있었다
+chk 'EVENT_SCRIPT' scripts/audit/event-script.mjs 1
+chk 'castMainOf' scripts/audit/event-script.mjs 1
 # ★[COMMON_TAIL] 갈래 전부가 같은 말로 닫으면 겹침 수치가 부풀려진다 — 설계이지 중복이 아니다.
 chk 'COMMON_TAIL' scripts/audit/pick-list.mjs 1
 # ★[WELCOME_OUT_DROP] 12 를 RETIRED 에도 넣었다 — 큐에서 뺀 것만으로는 재녹음 목록에 남았다.
