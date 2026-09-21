@@ -7697,10 +7697,16 @@ chk 'ENTRY_OUT_LIST' scripts/audit/pick-list.mjs 3
 #     nar 문안은 데이터에 있었지만 큐에 안 붙어 있어 **한 번도 쓰이지 않았다.**
 #   ★되살리려면 문안이 아니라 **도입·마무리 큐를 먼저 세워야** 한다.
 chk 'CHORUS_RETIRED' assets/ritual-data.js 1
-nochk "chorus:{d:'하객이 다 함께" assets/ritual-data.js
 chk 'ASK_RETIRED' assets/ritual-data.js 1
 chk 'ASK_RETIRED' assets/ritual-cue.js 1
-nochk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js
+# ★★[DECLWHO_LIVE] 「갈래가 되살아났나」는 **글자가 아니라 데이터 상태**다.
+#   폐지 문안은 주석으로 남기는 것이 이 저장소 관례라(되살릴 때 근거), 문자열 nochk 로 재면
+#   **내가 남긴 주석을 내가 잡는다.** 실제로 그렇게 걸렸다.
+#   그래서 실행 검사로 바꾼다 — DECLWHO 에 그 열쇠가 «있나»를 직접 본다.
+if command -v node >/dev/null 2>&1; then
+  _dw=$(node -e "const D=require('./assets/ritual-data.js');console.log(Object.keys(D.DECLWHO).sort().join(','))" 2>/dev/null)
+  [ "$_dw" = "family,narr" ] || { echo "REVERT? 성혼 선언 갈래가 'family,narr' 가 아니다 (지금: $_dw) — [ASK_RETIRED]·[CHORUS_RETIRED] 확인"; fail=1; }
+fi
 chk "'declare-ask-a': 1" assets/ritual-cue.js 1
 # ★[EVENT_SCRIPT] 성우별은 «녹음»의 자, 이벤트별은 «판단»의 자 — 진희 문제가 성우별에 숨어 있었다
 chk 'EVENT_SCRIPT' scripts/audit/event-script.mjs 1

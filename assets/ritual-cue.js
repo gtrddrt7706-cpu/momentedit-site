@@ -163,7 +163,10 @@
   // ── S 정규화 — order-preview.html:413 기본값 + COURSE_DEF(코스별 추천)
   var COURSE_DEF = {
     damback: { entry: 'A', declareWho: 'narr', declare: '1', letter: 'parent' },
-    gamdong: { entry: 'D', declareWho: 'ask', declare: '1', letter: 'parent' },
+    /* ★[ASK_RETIRED 2026-09-21] declareWho 'ask' → 'narr'. 그 갈래가 폐지됐다.
+       ★주석의 취지(주례도 권위자도 없다)는 narr 로도 지켜진다 — **성우는 주례가 아니다.**
+         family 는 가족이 선언해 권위자 쪽에 가까우니 이 코스엔 안 맞는다. */
+    gamdong: { entry: 'D', declareWho: 'narr', declare: '1', letter: 'parent' },
     family: { entry: 'E', declareWho: 'family', declare: '1', letter: 'parent' },
     minimal: { entry: 'B', declareWho: 'narr', declare: '1', letter: 'parent' },
     festive: { entry: 'F', declareWho: 'narr', declare: '2', letter: 'parent' },
@@ -171,7 +174,7 @@
        entry 'F'(이야기의 시작) — 행진이 아니라 "지금부터 시작된다"는 말이라 걸어오는 동선과 맞는다.
        declareWho 'ask'(하객이 함께) — ★주례도 권위자도 없는 게 이 코스의 핵심이고, 동시에
          격식 축을 지키는 최소 형식이다. 선언을 빼면 "화보만 찍었다"가 된다. */
-    record: { entry: 'F', declareWho: 'ask', declare: '1', letter: 'parent', ring: 'off' }
+    record: { entry: 'F', declareWho: 'narr', declare: '1', letter: 'parent', ring: 'off' }   // [ASK_RETIRED] 위와 같다
   };
   function norm(S) {
     var s = {}, k;
@@ -191,7 +194,14 @@
     };
     for (k in def) if (s[k] === undefined || s[k] === null) s[k] = def[k];
     if (!D.ENTRY[s.entry]) s.entry = cd.entry;
+    /* ★★[DECLWHO_FALLBACK 2026-09-21] 폴백이 **자기 자신으로 떨어질 수 있다.**
+       [ASK_RETIRED] 로 ask 를 지웠더니 코스 기본값이 ask 인 둘(감동·기록)에서
+       `cd.declareWho` 도 ask 라 폴백이 헛돌고 **전 조합 검사가 3456건 터졌다.**
+       ★나는 한 조합(`{declareWho:'ask'}`)만 돌려 보고 「폴백된다」고 단정했다 — 그게 틀렸다.
+       ★그래서 **마지막 그물**을 둔다: 코스 기본값도 없는 값이면 첫 갈래로 간다.
+         갈래를 지우는 날 코스 기본값을 같이 고치는 것이 옳지만, 안 고쳐도 터지지는 않게. */
     if (!D.DECLWHO[s.declareWho]) s.declareWho = cd.declareWho;
+    if (!D.DECLWHO[s.declareWho]) s.declareWho = Object.keys(D.DECLWHO)[0];
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
     /* ★[ALL_OPTIONAL 2026-08-07] 코스의 순서는 '추천 조합'이지 '못 빼는 목록'이 아니다.

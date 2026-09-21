@@ -1468,7 +1468,9 @@ var SLUG_CUE={entryOut:'narr-entry-out'};
    ★표를 여기 한 곳에만 둔다. scripts/check-option-audio.mjs 가 이 표를 읽어
      ①표에 있으면 반드시 조용하고 ②조용하면 반드시 표에 있어야 한다 를 양방향으로 강제한다.
      클립이 생겨 소리가 나기 시작하면 검사가 "명단이 낡았다"고 먼저 화를 낸다. */
-var NO_PLAY={'declareWho=chorus':'합송은 당일 하객분들 목소리라 미리듣기가 없어요 · 글로 확인해 주세요'};
+/* ★[CHORUS_RETIRED 2026-09-21] 합송 갈래가 폐지돼 이 줄이 필요 없어졌다.
+   ★비워 둔다 — 「미리듣기가 없는 자리」가 또 생기면 여기 적는다. 검사가 이 목록과 실제를 맞댄다. */
+var NO_PLAY={};
 function _srcs(g,k,ovV){
   var fk=OPT_CUE[k]||k;   // [OPT_KEY] 거를 때 쓰는 이름 · 값을 넣을 때는 원래 옵션 키(k)를 그대로 쓴다
   var fs=SLUG_CUE[k]||'';  // [ENTRY_SECT] 파일 이름으로 거르는 옵션(자리 하나짜리 클립)
