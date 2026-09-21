@@ -2152,13 +2152,19 @@ function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
 // fetch (단순 요청 → CORS preflight 회피)
 function api(payload){   // MPD_E3 12초 타임아웃 — GAS 콜드스타트·불안정 망에서 무한 스피너 방지(각 호출부 catch가 재시도 안내)
   var ac=(typeof AbortController!=='undefined')?new AbortController():null;
-  var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} }, 12000):null;
+  /* ★[LOAD_WHY 2026-09-21 사장님 「이건 무슨문제가있는거야? 원인파악」]
+     시간 초과인지 아닌지를 여기서 표시해 둔다. 종전엔 이 catch 가 네 가지를 한 덩어리로 삼켰다 —
+     ①12초 초과 ②망 끊김 ③CORS·권한 ④**200 인데 JSON 이 아님**(GAS 가 오류 HTML 을 돌려줄 때).
+     그래서 화면이 늘 「연결이 느려요」라고만 말했고, 백엔드가 깨진 경우에도 고객은
+     «내 인터넷이 느린가» 하며 계속 재시도만 하게 된다. 아래 _loadSlowRetry 가 이 표시를 읽는다. */
+  var tm=ac?setTimeout(function(){ try{ ac.__meTimeout=1; ac.abort(); }catch(e){} }, 12000):null;
   return fetch(EXEC_URL, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload),
     signal:ac?ac.signal:undefined
-  }).then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; });
+  }).then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); try{ if(ac&&ac.__meTimeout) e.__meTimeout=1; }catch(_){} throw e; })
+    .then(null, function(e){ if(tm) clearTimeout(tm); try{ if(ac&&ac.__meTimeout) e.__meTimeout=1; }catch(_){} throw e; });   /* [LOAD_WHY] r.json() 실패(오류 HTML)도 같은 자리로 모은다 */
 }
 
 function qp(name){
@@ -2253,7 +2259,7 @@ function loadMyState(opts){
     if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
     else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
     _fin();
-  }).catch(function(){ if(getToken()!==_tok){ _fin(); return; } var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(); } _fin(); });   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
+  }).catch(function(e){ if(getToken()!==_tok){ _fin(); return; } var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(e); } _fin(); });   /* [LOAD_WHY] 실패 이유를 그대로 넘겨 화면이 «느림»과 «그 밖»을 갈라 말하게 */   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
 }
 
 /* [BUSY_ONE] 동작을 마치고 돌아올 때의 갱신 — 화면을 비우지 않는다.
@@ -2263,9 +2269,18 @@ function _mpRefresh(label){
   _flowBusy(true, label || '불러오는 중…');
   loadMyState({ silent: true, done: function(){ _flowBusy(false); } });
 }
-function _loadSlowRetry(){   // MPD_E3 무한 스피너 → "연결이 느려요 · 다시 시도" 전환(첫 로드·캐시 없음 한정)
+function _loadSlowRetry(err){   // MPD_E3 무한 스피너 → 재시도 안내 전환(첫 로드·캐시 없음 한정)
   var el=$('loading'); if(!el){ show('loginView'); return; }
-  el.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.75">연결이 느려요.<br>잠시 후 다시 시도해 주세요.</div>'
+  /* ★[LOAD_WHY] 종전엔 무슨 일이 났든 「연결이 느려요」 한 문장이었다. 그런데 이 자리는
+     «200 인데 JSON 이 아님»(GAS 오류 HTML)에서도 똑같이 뜬다 — 즉 우리 쪽이 깨졌을 때도
+     고객에게 «당신 인터넷이 느리다»라고 말하고 있었다. 확인하지 않은 원인을 단정하지 않는다.
+     ★그리고 [MPD_B13](에러 문구엔 재시도 + 문의 출구를 함께)을 이 화면만 안 지키고 있었다.
+     다시 시도해도 안 되는 고객에게 «다음 한 걸음»이 없으면 그대로 막힌다. */
+  var slow = !!(err && err.__meTimeout);
+  var msg = slow
+    ? '연결이 느려요.<br>잠시 후 다시 시도해 주세요.'
+    : '불러오지 못했어요.<br>다시 시도해도 안 되면 카카오톡으로 디렉터에게 알려 주세요.';
+  el.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.75">'+msg+'</div>'
     +'<button type="button" class="cc-btn" style="width:auto;padding:11px 26px;margin-top:14px" id="mp_retryLoad">다시 시도</button>';
   show('loading');
   var bt=$('mp_retryLoad'); if(bt) bt.addEventListener('click', function(){ el.innerHTML='<div class="busy-row"><span class="spinner"></span><span>불러오는 중…</span></div>'; loadMyState(); });
