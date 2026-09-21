@@ -48,6 +48,31 @@ export function dropGuard() {
   /* ③ 폐지한 자리 — 이미 식장에서 안 난다. 여기만이 «비워도 된다»의 근거가 된다 */
   const RET = Cue.RETIRED || {};
 
+  /* ★★[NO_SUCH_CLIP 2026-09-21] ④ «그런 클립이 있기는 한가» — 있는 이름만 판정한다.
+     실측으로 잡았다: 내가 `43_declare-3-warm` 이라는 **없는 이름**을 물었더니 「확인 필요」라고 답했다.
+     43 은 실제로 `parents-letter` 다(FILES[42]). 번호가 층마다 겹쳐 생긴 헛이름이었다([SLUG_NOT_KEY]).
+     ★왜 위험한가 — 「확인 필요」는 «있는데 모르겠다»는 뜻이라 사람이 그 자리를 찾아 나선다.
+       없는 이름에 그 답을 주면 **없는 자리를 찾느라** 시간을 쓰고, 더 나쁘게는 «폴백으로 난다»로 읽혀
+       멀쩡한 판단이 흐려진다. 모르는 이름에는 «모르는 이름»이라고 답해야 한다.
+     ★던지지 않고 kind 로 답한다 — 이 판정기는 표를 그리는 데 쓰이고, 한 줄 때문에 표가 멎으면 안 된다. */
+  const KNOWN = new Set([...(Cue.FILES || []), ...Object.keys(RET)]);
+
+  /* ★★[RUNTIME_SWAP 2026-09-21 코워크 §7-G] ⑤ «런타임에 갈아끼우는 자리» — 난다.
+     코워크가 25·32 를 「난다/폐지」로 정해 달라 했다. 「확인 필요」는 안전한 답이지 **답이 아니다** —
+     영영 그대로 두면 사람이 매번 같은 자리를 다시 판정한다.
+     ★손으로 목록에 박지 않는다. 코드에서 끌어낸다 — 박아 두면 갈래가 늘거나 줄 때 조용히 틀린다.
+       ㉮ `alt: { … slug:'X' }`  큐가 조건이 맞으면 X 로 갈아끼운다(25 = 덕담이 3분을 넘겼을 때)
+       ㉯ `D.DECLWHO` 의 갈래   고객이 고르는 선언 갈래의 본 클립(32 = 가족 낭독)
+     ★이 둘은 엔진 «정적» 분석에 안 잡힌다 — 조건이 그날 정해지기 때문이다. 그러나 **난다.**
+       [DROP_GUARD] 가 애초에 세운 말이 이것이다: 「엔진은 식순대로 갔을 때 나는 소리만 안다.」 */
+  const cueSrc = fs.readFileSync(path.join(ROOT, 'assets/ritual-cue.js'), 'utf8');
+  const SWAP = new Map();
+  for (const m of cueSrc.matchAll(/alt:\s*\{[^}]*?slug:\s*'([^']+)'/gs))
+    SWAP.set(m[1], '큐가 조건이 맞으면 이 클립으로 갈아끼운다(alt)');
+  const Data = require_(path.join(ROOT, 'assets/ritual-data.js'));
+  for (const k of Object.keys(Data.DECLWHO || {}))
+    if (KNOWN.has('declare-' + k)) SWAP.set('declare-' + k, `성혼 선언 「${k}」 갈래의 본 클립 — 고객이 그 갈래를 고르면 난다`);
+
   const of = (id) => {
     const s = String(id || ''), slug = s.replace(/^\d+_/, '');
     if (callsLive(want, s))
@@ -58,6 +83,10 @@ export function dropGuard() {
       return { empty: false, kind: '콘솔에서 손으로 고르는 판', why: '진행자가 콘솔에서 눌러 튼다' };
     if (RET[slug])
       return { empty: true, kind: '폐지한 자리', why: 'Cue.RETIRED 에 있다 — 이미 식장에서 안 난다' };
+    if (SWAP.has(slug))
+      return { empty: false, kind: '런타임에 갈아끼우는 자리', why: SWAP.get(slug) };
+    if (!KNOWN.has(slug))
+      return { empty: null, kind: '그런 클립 없음', why: `[NO_SUCH_CLIP] 「${slug}」 은 FILES 에도 RETIRED 에도 없다 — 이름을 다시 볼 것(번호는 층마다 겹친다)` };
     return { empty: null, kind: '확인 필요', why: '엔진은 안 부르지만 폴백·런타임 조건으로 나갈 수 있다 — 사람이 봐야 한다' };
   };
   return { of, want };

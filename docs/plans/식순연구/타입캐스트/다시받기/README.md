@@ -11,8 +11,8 @@
 |---|---|---|---|
 | 1_우성.txt | 우성 | 108 | 46 |
 | 2_이겸.txt | 이겸 | 43 | 9 |
-| 3_서진.txt | 서진 | 29 | 8 |
-| 4_진희.txt | 진희 | 25 | 8 |
+| 3_서진.txt | 서진 | 25 | 7 |
+| 4_진희.txt | 진희 | 20 | 7 |
 | 5_주하.txt | 주하 | 17 | 1 |
 | 6_권일.txt | 권일 | 15 | 1 |
 | 7_정숙.txt | 정숙 | 4 | 1 |
@@ -33,16 +33,16 @@ node scripts/assemble-narration.mjs --in <이겸_받은폴더> \
 ★19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E 은 두 사람이 한 클립에 섞여 있습니다. 이겸 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
 ```
-# 서진 — 29줄 · 8클립
+# 서진 — 25줄 · 7클립
 node scripts/assemble-narration.mjs --in <서진_받은폴더> \
-  --clip =02_guest-2,=04_guest-4,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=07_welcome-bride,=10_letter-parent
+  --clip =04_guest-4,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=07_welcome-bride,=10_letter-parent
 ```
 ★19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E 은 두 사람이 한 클립에 섞여 있습니다. 서진 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
 ```
-# 진희 — 25줄 · 8클립
+# 진희 — 20줄 · 7클립
 node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =01_guest-1-arrival,=02_guest-2-10min,=03_guest-3-5min,=04_guest-4-1min,=85_narr-photo-send,=45_end-1a-farewell,=47_end-2-goodbye,=48_online-3-welcome
+  --clip =01_guest-1-arrival,=03_guest-3-5min,=04_guest-4-1min,=85_narr-photo-send,=45_end-1a-farewell,=47_end-2-goodbye,=48_online-3-welcome
 ```
 
 ```

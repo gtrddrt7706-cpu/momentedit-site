@@ -62,12 +62,25 @@ catch (e) { console.log('✗ 대장을 못 읽었다 — ' + e.message); process
    ★왜 그래도 가르나 — ROUND_FREE 직후 실측: 폐지한 두 클립 때문에 --status 가 「다시 받아야 할 것
      3문장」이라고 했는데, 정작 다시받기 목록(build-redub-byvoice)은 0줄이었다. 둘이 어긋나면
      사람이 «있지도 않은 할 일»을 하러 간다. 세는 자와 시키는 자가 같은 것을 봐야 한다. */
+/* ★★[RETIRED_TWO_SOURCES 2026-09-21] 폐지 원천이 **두 곳**이다 — 한 곳만 보면 절반이 샌다.
+     ① assets/ritual-cue.js 의 RETIRED          (나레이션 · 예: 79_narr-entry-out-B)
+     ② build-typecast-import.mjs 의 CAST_HOLD   (배역 · 예: 15_toast)
+   sent-lib-check 는 이미 둘을 본다([RETIRED_SLOT]). 이 파일은 ①만 봤다 —
+   그래서 «세는 자»와 «시키는 자»가 또 갈라져 있었다. 위 64행이 경계한 바로 그 어긋남이다.
+   ★실제로 걸렸다: --prune 이 15_toast 7자리를 «주인 없는 자리»로 보고 지우려 했다.
+     그건 사장님 지시로 끈 클립이지 없앤 클립이 아니다(2026-09-20 「친구부분멘트 아예 삭제」). */
 const RETIRED_CLIP = (() => {
+  const out = new Set();
   try {
     const cue = fs.readFileSync(P('assets/ritual-cue.js'), 'utf8');
     const b = /var RETIRED = \{([\s\S]*?)\};/.exec(cue);
-    return new Set(b ? [...b[1].matchAll(/'([^']+)'\s*:\s*1/g)].map((m) => m[1]) : []);
-  } catch { return new Set(); }
+    if (b) for (const m of b[1].matchAll(/'([^']+)'\s*:\s*1/g)) out.add(m[1]);
+  } catch { /* 못 읽으면 아무것도 봐주지 않는다 — 조용히 넓어지는 쪽으로 틀리지 않는다 */ }
+  try {
+    const ti = fs.readFileSync(P('scripts/build-typecast-import.mjs'), 'utf8');
+    if (/\/\^R-toast\$\/\.test\(id\)/.test(ti)) out.add('toast');
+  } catch { /* 같음 */ }
+  return out;
 })();
 const slots = [];
 for (const c of man.clips) {
@@ -246,7 +259,20 @@ function importFrom(src) {
 function prune() {
   const j = loadIdx();
   const live = new Set(slots.map((s) => s.id));
-  const dead = Object.keys(j.slots || {}).filter((id) => !live.has(id));
+  /* ★★[PRUNE_KEEPS_RETIRED 2026-09-21] 폐지한 클립의 소리는 **안 지운다.**
+     이 저장소의 오랜 규칙이다 — 「파일·문안은 그대로 둔다. 되살릴 결정이 오면 근거가 된다」
+     (VEIL_RETIRED · SONG_RETIRED · ENTRY_OUT_B_DROP 주석이 전부 그렇게 적혀 있다).
+     ★실제로 막았다: 2026-09-21 에 창고 자리 3개를 치우려고 --prune 을 돌렸더니
+       33·34·35(하객이 답하기)·79 의 **원본 flac 까지 지우려** 했다. 그 넷은 어제 폐지한 것이고,
+       폐지는 «끄는 것»이지 «없애는 것»이 아니다. 지우면 되살릴 근거가 사라진다.
+     ★대장(_index.json) 줄도 함께 남긴다 — 소리만 남고 어느 문장이었는지 잃으면 반쪽이다. */
+  /* ★RETIRED_CLIP 은 이 파일이 **이미 갖고 있다**(59행 [SENT_RETIRED]). 새로 읽지 않는다 —
+     같은 것을 두 번 읽으면 언젠가 둘이 갈라진다. 실제로 두 번째 판을 만들다 이 줄을 발견했다. */
+  const isRetired = (id) => RETIRED_CLIP.has(String(id).replace(/^\d+_/, '').replace(/#\d+$/, ''));
+  const all = Object.keys(j.slots || {}).filter((id) => !live.has(id));
+  const kept = all.filter(isRetired);
+  const dead = all.filter((id) => !isRetired(id));
+  if (kept.length) console.log(`[SENT_PRUNE] 폐지 클립 ${kept.length}자리는 **남깁니다**([PRUNE_KEEPS_RETIRED]) — ${[...new Set(kept.map((x) => x.replace(/#\d+$/, '')))].join(' · ')}`);
   if (!dead.length) { console.log('[SENT_PRUNE] 주인 없는 자리 없음 — 창고와 대장이 같습니다.'); return; }
   console.log(`[SENT_PRUNE] 대장에 없는 자리 ${dead.length}개`);
   for (const id of dead) console.log(`   ${id}  「${(j.slots[id] || {}).text || ''}」`);
@@ -393,12 +419,25 @@ function todo() {
    ★한 클립 «안»에서만, «글자까지 같은» 것끼리만 묶는다 — 그 둘을 어기면 남의 소리가 들어온다.
    ★실제로 겪었다: [NOT_RUDE] 로 두 문장을 하나로 합치자 43_parents-letter 의 16자리가 낡음이 됐는데,
      그중 15는 소리가 그대로였다. 다시 받았으면 15줄을 헛녹음하실 뻔했다. */
+/* ★★[REBIND_SAFE 2026-09-21] 세 가지를 고쳤다. 셋 다 **내가 당하고 나서** 고쳤다.
+   ① **미리보기가 기본이다.** 옛 판은 `--rebind` 만으로 바로 썼다. 형제인 `--prune` 은 미리보기가
+      기본이라 나는 이쪽도 그런 줄 알고 돌렸고, **flac 192개가 지워졌다.** 커밋 전이라 되돌렸다.
+      ★형제 명령의 기본값이 서로 반대인 것 자체가 함정이다. 맞춘다 — 둘 다 `--write` 가 있어야 쓴다.
+   ② **글자가 안 맞는 소리를 지우지 않는다.** 옛 판은 클립 안의 소리를 전부 임시로 옮긴 뒤
+      «글자가 맞는 것»만 도로 썼다. 나머지는 tmp 와 함께 사라졌다. 문면을 고치는 중인 클립은
+      전부 «안 맞는» 상태라, 고치는 중이라는 이유만으로 원본이 날아간다.
+      ★이 저장소가 창고를 만든 이유가 «다시 받지 않으려고»인데, 그 창고가 스스로를 비우고 있었다.
+   ③ **클립을 좁힐 수 있다**(`--clip`). 한 자리를 고치려고 저장소 전체를 건드리지 않는다. */
 function rebind() {
+  const WRITE = has('--write');
+  const only = arg('--clip');
+  const want = only ? new Set(only.split(',').map((x) => x.trim()).filter(Boolean)) : null;
   const j = loadIdx();
   const byClip = new Map();
   for (const s of slots) { if (!byClip.has(s.key)) byClip.set(s.key, []); byClip.get(s.key).push(s); }
-  let moved = 0; const left = [];
+  let moved = 0, keptStale = 0; const left = [], plan = [];
   for (const [key, list] of byClip) {
+    if (want && !want.has(key)) continue;
     /* 이 클립에 창고가 들고 있는 것 — ★«창고 대장»에서 훑는다. 지금 자리 번호로 훑으면
        문장이 줄었을 때 «옛 마지막 번호»를 못 본다(첫 판이 그래서 #39 를 놓쳤고,
        「모먼트에디트 올림.」이 다시 받아야 할 것으로 잘못 떴다). */
@@ -423,8 +462,21 @@ function rebind() {
       used.add(h.i);
       neo[key + '#' + s.i] = { file: path.join(tmp, h.i + '.flac'), voice: h.voice, from: h.i };
     }
-    /* 이 클립의 옛 기록·파일을 걷어내고 새로 쓴다 */
-    for (const h of held) { try { fs.unlinkSync(fileOf(key + '#' + h.i)); } catch {} delete j.slots[key + '#' + h.i]; }
+    /* ★[REBIND_SAFE ②] 옮길 것이 하나도 없으면 이 클립은 **손대지 않는다.**
+       옛 판은 그래도 held 를 전부 지우고 다시 썼다 — 그 한 줄이 192개를 날린 자리다. */
+    const movingFrom = new Set(Object.values(neo).map((v) => v.from));
+    if (!movingFrom.size) { keptStale += held.length; fs.rmSync(tmp, { recursive: true, force: true }); continue; }
+    if (!WRITE) {
+      for (const [id, v] of Object.entries(neo))
+        if (String(v.from) !== id.split('#')[1]) plan.push(`   ${key}#${v.from} → #${id.split('#')[1]}  「${(bySlot.get(id) || {}).text?.slice(0, 30) || ''}」`);
+      keptStale += held.filter((h) => !movingFrom.has(h.i)).length;
+      fs.rmSync(tmp, { recursive: true, force: true }); continue;
+    }
+    /* ★옮기는 자리만 걷어낸다. 글자가 안 맞아 남는 소리는 **그대로 둔다**([REBIND_SAFE ②]). */
+    for (const h of held) {
+      if (!movingFrom.has(h.i)) { keptStale++; continue; }
+      try { fs.unlinkSync(fileOf(key + '#' + h.i)); } catch {} delete j.slots[key + '#' + h.i];
+    }
     for (const [id, v] of Object.entries(neo)) {
       const out = fileOf(id); fs.mkdirSync(path.dirname(out), { recursive: true });
       fs.copyFileSync(v.file, out);
@@ -433,6 +485,12 @@ function rebind() {
       if (String(v.from) !== id.split('#')[1]) { moved++; console.log(`   ${key}#${v.from} → #${id.split('#')[1]}  「${s.text.slice(0, 30)}」`); }
     }
     fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  if (!WRITE) {
+    console.log('[REBIND] (미리보기) 옮길 소리 ' + plan.length + '개 · 글자가 달라 그대로 두는 소리 ' + keptStale + '개');
+    plan.forEach((x) => console.log(x));
+    console.log('\n  --write 를 붙여야 실제로 옮깁니다. --clip 12_bless-father,85_narr-photo-send 로 좁힐 수 있습니다.');
+    return;
   }
   saveIdx(j);
   console.log(`\n[REBIND] 자리를 옮긴 소리 ${moved}개 · 그래도 빈 자리 ${left.length}개`);
