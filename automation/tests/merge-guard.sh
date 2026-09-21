@@ -3172,6 +3172,11 @@ chk 'CONTACT_FIX' automation/admin/admin.gs 3
 chk 'CONTACT_SHADOW' automation/admin/admin.gs 2
 chk '_stampConsentKey(sheet, colOf, cust.num' automation/admin/admin.gs 1
 chk '계약정보이력' automation/admin/admin.gs 1
+# [SILENT_BANNER] adminSilentContacts 를 «부르는 손» — 서버 함수만 있고 호출이 0건이면 없는 것과 같다.
+#   2026-09-21 에 실제로 그 상태로 내보냈다(FNS 등록도 함께 빠져 있었다).
+chk 'SILENT_BANNER' admin.html 3
+chk 'function renderSilentContacts' admin.html 1
+chk 'renderSilentContacts();' admin.html 1
 chk 'OK_FALSE_GUARD' automation/consultation/ScreenB_schedule.html 1
 chk 'OK_FALSE_GUARD' scripts/audit/okfalse-handled.mjs 1
 chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1
