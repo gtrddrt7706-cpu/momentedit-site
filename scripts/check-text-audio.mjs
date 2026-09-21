@@ -264,6 +264,21 @@ const voiceOf = (slug) => (man.voice || {})[ROLE_OF.get(slug)] || VOICE;
 const fileOfId = (id) => String(id || '').replace(/^\d+_/, '');
 const voiceOfRow = (r) => (man.voice || {})[ROLE_OF.get(fileOfId(r.ids && r.ids[0]))] || voiceOf(r.slug);
 const twinKey = (r) => (r.ids && r.ids.length ? r.ids.join('|') : r.slug);
+/* ★★[SENT_VOICE 2026-09-21] 목소리는 **클립이 아니라 문장**에 붙는다.
+   배역 입장(18~23)은 role 이 「신랑|신부」라 한 클립 안에서 두 사람이 번갈아 읽는다(ENTRY_ALT).
+   클립 하나에 목소리 하나를 주면 그 이름이 voice 표에 없어 기본값(우성)으로 떨어진다.
+   ★실제로 났다: 2026-09-21 에 18_entry-A 가 처음 재녹음 목록에 들어오자 세 줄이 전부
+     「우성:」으로 적혔다. 그대로 붙여넣으면 **신랑·신부 대사를 진행자가 읽는다.**
+     check-entry-alt 가 「화자 우성 ≠ 이겸」으로 잡아 줬다.
+   ★대장이 이미 문장마다 role 을 들고 있다(실측: #0 신랑 · #1 신부 · #2 신랑). 그것을 쓴다. */
+const sentRoles = new Map();   // 'NN_slug' → [role, ...]
+for (const c of man.clips) sentRoles.set(c.no + '_' + c.file, c.sents.map((x) => x.role || c.role));
+const voiceLines = (r, texts) => {
+  const id = (r.ids && r.ids[0]) || ((r.no || '') + '_' + r.slug);
+  const roles = sentRoles.get(id) || [];
+  const fallback = r.ids ? voiceOfRow(r) : voiceOf(r.slug);
+  return texts.map((t, i) => ((man.voice || {})[roles[i]] || fallback) + ': ' + t);
+};
 
 if (process.argv.includes('--redub')) {
   /* ★★[WAIT_TWO_COUNTS 2026-08-10 · 코드 세션] 머리의 수와 아래 항목 수가 **다른 것을 세고 있었다.**
@@ -299,14 +314,14 @@ if (process.argv.includes('--redub')) {
     if (_listed.has(twinKey(r))) continue; _listed.add(twinKey(r));   // [REDUB_TWIN] 슬러그가 아니라 녹음으로 접는다
     lines.push('[' + (r.ids[0] || '').split('_')[0] + '] ' + r.slug + (r.missing.length ? '   (신규)' : '   (수정)')
       + (r.ids && r.ids.length ? '   ← ' + r.ids.join(' + ') : ''));   // [REDUB_TWIN] 같은 슬러그가 둘일 때 어느 녹음인지 사람이 구분할 수 있게
-    for (const t of sentsOf(r.screen)) lines.push(voiceOfRow(r) + ': ' + t);
+    for (const l of voiceLines(r, sentsOf(r.screen))) lines.push(l);   // [SENT_VOICE]
     lines.push('');
   }
   // [NO_AUDIO] 소리가 아예 없는 클립 — 미리듣기에 안 나와도 녹음은 필요하다
   for (const r of noAudio) {
     if (bad.some((b) => b.slug === r.slug)) continue;
     lines.push('[' + r.no + '] ' + r.slug + '   (신규)');
-    for (const t of sentsOf(r.screen)) lines.push(voiceOf(r.slug) + ': ' + t);
+    for (const l of voiceLines(r, sentsOf(r.screen))) lines.push(l);   // [SENT_VOICE]
     lines.push('');
   }
   fs.writeFileSync(REDUB, lines.join('\n'));
@@ -355,7 +370,8 @@ if (process.argv.includes('--redub')) {
     let sents = sentsOf(r.screen);
     if (!sents.length && mc && mc.sents) sents = mc.sents.map((x) => x.text);
     ordered.push({ no, idx: IDX_OF.has(id) ? IDX_OF.get(id) : Infinity, part: PART_OF.get(id) || '',
-      slug: r.slug, sents: sents, voice: r.ids ? voiceOfRow(r) : voiceOf(r.slug) });
+      slug: r.slug, sents: sents, voice: r.ids ? voiceOfRow(r) : voiceOf(r.slug),
+      id: id });   // [SENT_VOICE] 줄마다 화자를 다시 찾으려면 id 가 있어야 한다
   }
   ordered.sort((a, b) => (a.idx - b.idx) || (a.no - b.no));
   /* ★[PASTE_VOICE 2026-08-09] 화자 이름을 **붙인다** — 사용자 요청 *"파일붙이면 우성도 자동으로 나오게"*.
@@ -367,7 +383,13 @@ if (process.argv.includes('--redub')) {
        그 형식을 그대로 따른다. 빈 줄도 넣지 않는다(그 파일에 없다).
      ★배역(5_배역.txt)은 화자가 여럿이라 줄마다 다른 이름이 붙는다 — 같은 문법이다. */
   const pl = [];
-  for (const c of ordered) for (const t of c.sents) pl.push((c.voice || voiceOf(c.slug)) + ': ' + t);
+  /* ★★[SENT_VOICE 2026-09-21] 여기도 클립 하나에 목소리 하나였다 — 붙여넣기 파일이라 **더 위험하다.**
+     대기 명단은 사람이 읽고 고칠 수 있지만, 이 파일은 사장님이 **그대로 타입캐스트에 붙이는** 것이다.
+     입장 18~23 이 전부 「우성:」으로 나가면 신랑·신부 대사를 진행자 목소리로 받게 된다. */
+  for (const c of ordered) {
+    const roles = sentRoles.get(c.id) || [];
+    c.sents.forEach((t, i) => pl.push(((man.voice || {})[roles[i]] || c.voice || voiceOf(c.slug)) + ': ' + t));
+  }
   /* ★대기가 0이면 파일을 **지운다.** 빈 파일을 남기면 ①형식 검사가 빈 줄을 물고
      ②다음에 열어 본 사람이 "붙여넣을 게 있나?" 하고 한 번 더 확인하게 된다.
      없는 것이 없다고 말하는 가장 정확한 방법은 파일이 없는 것이다. */
