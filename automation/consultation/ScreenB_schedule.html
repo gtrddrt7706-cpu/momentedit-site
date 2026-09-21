@@ -250,7 +250,8 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .btn .ar{position:relative;z-index:1;transition:transform 0.3s var(--ease-out)}
 .btn:hover:not(:disabled) .ar{transform:translateX(4px)}
 .btn:disabled{opacity:0.32;cursor:not-allowed}
-.btn.loading{opacity:0.8;cursor:wait}
+.btn.loading{opacity:1;cursor:wait}.btn.loading span{letter-spacing:0.08em;text-transform:none}.btn.loading .ar{opacity:0;animation:none}.btn.loading span::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}@media(prefers-reduced-motion:reduce){.btn.loading span::before{animation:none;opacity:0.7}}/* ★[LOADING_ONE 2026-09-21] opacity 0.8 이었다 · 되돌리지 말 것. 흐림으로 «진행 중»을 표현하면 대비가 깎인다.
+   진행은 글자 앞 숨쉬는 점이 말한다. 화살표의 meBreath 는 scale 이 폭을 흔들어 껐다(실측 0.6px). */
 /* [BUSY_ONE] 도는 화살표 → 사이트 공통 '숨쉬는 점'. 회전은 이 지면의 언어가 아니고,
    마이페이지·식순·관리자가 전부 같은 점을 쓰는데 상담 일정만 돌고 있었다(2026-08-04 전수조사). */
 .btn.loading .ar{animation:meBreath 1.7s ease-in-out infinite;transform-origin:center}
@@ -695,7 +696,11 @@ function doSubmit(){
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
   btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
-  btn.querySelector('span').textContent='신청 중...';
+  btn.querySelector('span').textContent='신청 중';   /* ★[LOADING_ONE 2026-09-21] '신청 중...' 이었다 · 되돌리지 말 것.
+     점 셋이 «글자에 박혀» 있어 움직이지도 않으면서 자간 0.2em 을 타고 「신청 중 · · ·」로 벌어졌다.
+     점은 CSS .btn.loading span::before 하나가 맡는다 — 사이트 공통 [BUSY_ONE].
+     ★innerHTML 로 점 span 을 넣지 말 것: 화살표 SVG 가 날아가고 restore() 가 그 점 span 에
+       라벨을 넣어 버린다(한 번 그렇게 만들었다가 되돌렸다). */
   // 그 외 가능 시간대(체크) + 기타 자유입력 수집
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;
