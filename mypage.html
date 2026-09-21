@@ -822,6 +822,19 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-gate-card .dgc-d{display:block;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
 .dn-gate-card.dn-gate-skip{background:var(--bg2,#F5F3EF)}
 .dn-gate-card.dn-gate-skip .dgc-t{color:var(--sub)}   /* '안 함' 카드는 톤 낮춤 — 주 액션은 만들기 */
+/* ★★[GATE_CARD_BUSY 2026-09-21 사장님 지적 「식사안하고 웨딩 이후 마무리한다 부분있는데
+   클릭해도 별다른 변화가없어 … 고객입장에서 당황스러울거같은포인트」]
+   원인은 둘이었다. ①이 카드를 누르면 서버에 «안 함»을 적는데(saveTrkDraft) 그 왕복 동안
+   화면이 **아무것도 안 바뀐다.** 코드는 `_nn.disabled=true` 만 했는데 위에 `:disabled`
+   스타일이 **하나도 없어서**(실측) 보이는 것이 종전과 똑같았다. GAS 콜드스타트면 몇 초다 —
+   고객은 «안 눌렸나» 하고 다시 누른다. ②실패하면 되돌리는데, 그 코드가 카드를 부쉈다(아래 JS).
+   → 숨쉬는 점 하나로 «받았고 하는 중»을 말한다([LOADING_ONE] 과 같은 언어 · meBreath 재사용).
+   ★흐리게(opacity) 처리하지 않는다 — 대비가 내려간다([LOADING_CONTRAST]). */
+.dn-gate-card:disabled{cursor:default}
+.dn-gate-card.busy{border-color:var(--gold-deep)}
+.dn-gate-card.busy .dgc-d{color:var(--accent)}
+.dn-gate-card.busy .dgc-d::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--seal);margin-right:7px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.dn-gate-card.busy .dgc-d::before{animation:none;opacity:.7}}
 .dn-seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0 0 9px}
 .dn-segbtn{flex:1;border:none;border-right:1px solid var(--border);background:#fff;padding:11px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;transition:background .15s,color .15s}
 .dn-segbtn:last-child{border-right:none}
@@ -8508,12 +8521,25 @@ function renderDining(box){
        종전엔 결과를 버리고 곧바로 '안내 없이 진행해요' 완료 화면을 그렸다 — 실패해도 결정이 기록된 것처럼 보였다. */
     var _nn=$('dn_none'); if(_nn) _nn.addEventListener('click',function(){
       collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N';
-      var _t0=_nn.textContent; _nn.disabled=true;
+      /* ★★[GATE_CARD_BUSY] 종전: `var _t0=_nn.textContent; _nn.disabled=true;`
+         ①신호가 없었다 — `:disabled` 스타일이 없어 눌러도 화면이 그대로였다(CSS 주석 참고).
+         ②★그리고 되돌리는 줄이 카드를 부쉈다. 이 카드 안은 <span> 셋이다(dgc-ico·dgc-t·dgc-d).
+           `_nn.textContent = _t0` 은 그 셋을 **전부 지우고** 한 덩어리 글자로 바꾼다 —
+           즉 저장이 실패하면 카드가 「🍃예식만으로 조용히 마무리애프터…」로 뭉개진 채 남는다.
+           실패는 «다시 누르시면 돼요»여야 하는데, 다시 누를 카드가 망가져 있었다.
+         → 설명 줄(dgc-d)만 갈았다 넣는다. 바깥 구조는 건드리지 않는다.
+         ★reject 도 받는다 — 종전엔 .catch 가 없어 네트워크가 끊기면 버튼이 영영 잠긴 채였다. */
+      var _nd=_nn.querySelector('.dgc-d'), _d0=_nd?_nd.textContent:'';
+      var _undo=function(msg){
+        _nn.disabled=false; _nn.classList.remove('busy'); if(_nd) _nd.textContent=_d0;
+        d.venuePick=''; d.dining_on=''; syncVenue();   // 화면도 되돌린다 — 서버가 모르는 결정을 화면만 기억하지 않게
+        try{ mpToast(msg||'저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){}
+      };
+      _nn.disabled=true; _nn.classList.add('busy'); if(_nd) _nd.textContent='저장하는 중이에요';
       saveTrkDraft(true).then(function(r){
-        if(!(r && r.ok)){ _nn.disabled=false; _nn.textContent=_t0; d.venuePick=''; d.dining_on=''; syncVenue();   // 화면도 되돌린다 — 서버가 모르는 결정을 화면만 기억하지 않게
-          try{ mpToast((r&&r.error)||'저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){} return; }
+        if(!(r && r.ok)){ _undo(r&&r.error); return; }
         TRKFLOW.step=1; renderDining(box);
-      });
+      }, function(){ _undo('저장이 안 됐어요 · 연결을 확인하고 다시 눌러 주세요'); });
     });   // 안 함 = 완결된 결정 → 완료(dining_on='N')로 저장 · _step=1(재진입 시 안내없이 화면) · 행은 '안 함' 배지
 
     return;   // 게이트만 렌더(하단 '다음' 없음 · 나가기는 data-wiz-exit 전역 위임 · 뒤로가기는 TRKFLOW._bk)

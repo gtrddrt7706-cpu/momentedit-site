@@ -1337,6 +1337,115 @@ function _recordHandler(code, action) {
   } catch (e) { Logger.log('처리이력 기록 실패: ' + e.message); }
 }
 
+
+// ============================ 연락처·이메일 정정 ============================
+/* ★★[CONTACT_FIX 2026-09-21 사장님 지적 「고객이 핸드폰번호를 잘못입력했는데 … 관리자 페이지
+   어디를 봐도 전화번호 수정 할수있는 부분이없는데」] 이 함수를 지우지 말 것.
+
+   ★왜 치명적이었나 — 셋이 겹쳐 있었다.
+     ①고칠 길이 «아무 데도» 없었다. 연락처는 40_signup.gs 가입 시 한 번 쓰고 그 뒤로
+       쓰는 경로가 0건이었다(전수 grep). 고객도 관리자도 못 고친다.
+     ②그런데 알림톡이 그 번호로 간다. 95_notify.gs 가 형식을 보고
+       `if (!/^01[016789][0-9]{7,8}$/.test(phone)) { Logger.log(...); return false; }`
+       — **조용히 생략**한다. 잘못된 번호면 그 고객의 모든 알림이 안 간다.
+     ③관리자는 그 사실을 모른다. 로그만 남고 로그를 보는 사람이 없다.
+   실제 사례: 연락처가 `821-0734-9770`(+82 10 을 잘못 붙인 것)로 들어간 고객.
+   `01` 로 시작하지 않아 알림톡이 전부 생략되고 있었다.
+
+   ★화면은 「정보가 다르면 카카오톡으로 알려 주세요」라고 안내한다(mypage 계약 요청 폼).
+     고객이 알려 와도 받아 줄 손이 없으면 그 안내는 거짓말이다. 그 손을 만든다.
+
+   가드는 이 파일의 기존 관례를 그대로 따른다 — _requireAdmin · 사유 필수 · 형식 검증 ·
+   멱등(같은 값이면 안 씀) · 처리이력 · 미리보기(dry-run).
+   ★개인정보 파기(purgeStaleCustomers)와 충돌하지 않는다 — 정정은 파기 대상 판정을 안 바꾼다. */
+function adminSetContactPreview(code, phone, email) {
+  _requireAdmin();
+  return _setContactCore(code, phone, email, '', true);
+}
+function adminSetContact(code, phone, email, reason) {
+  _requireAdmin();
+  return _setContactCore(code, phone, email, reason, false);
+}
+function _setContactCore(code, phone, email, reason, dry) {
+  /* [CONTACT_FIX] 연락처·이메일 정정 본체 — 위 설명 블록 참고.
+     ★이 줄을 지우지 말 것: [FILE_COVER] 의 mark() 는 «함수 소스»를 읽는다.
+       표식이 함수 밖 주석에만 있으면 deployCheck 가 영영 «누락»으로만 뜬다
+       (2026-09-21 에 실제로 그렇게 넣었다가 붙여넣기 점검이 이 파일을 못 보게 될 뻔했다). */
+  code = String(code || '').trim().toUpperCase();
+  var cust = findCustomerByCode(code);
+  if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+
+  var curP = String(cust.get('연락처') || '').trim();
+  var curE = String(cust.get('이메일') || '').trim();
+  var newP = String(phone == null ? '' : phone).replace(/[^0-9]/g, '');
+  var newE = String(email == null ? '' : email).trim();
+
+  var set = {}, lines = [];
+  if (newP) {
+    /* 95_notify.gs 의 발송 판정과 «같은 자»로 검증한다 — 여기서 통과한 번호는 알림이 나간다.
+       자를 따로 쓰면 「저장은 됐는데 알림은 안 가는」 상태가 또 생긴다. */
+    if (!/^01[016789][0-9]{7,8}$/.test(newP)) {
+      return { ok: false, error: '휴대폰 번호 형식이 아닙니다. 010·011·016·017·018·019 로 시작하는 10~11자리여야 알림톡이 나갑니다. (받은 값: ' + newP + ')' };
+    }
+    if (newP !== curP.replace(/[^0-9]/g, '')) { set['연락처'] = newP; lines.push('연락처 ' + _maskPhone(curP) + ' → ' + _maskPhone(newP)); }
+  }
+  if (newE) {
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(newE)) return { ok: false, error: '이메일 형식이 아닙니다. (받은 값: ' + newE + ')' };
+    if (newE.toLowerCase() !== curE.toLowerCase()) { set['이메일'] = newE; lines.push('이메일 ' + _maskEmail(curE) + ' → ' + _maskEmail(newE)); }
+  }
+  if (!lines.length) return { ok: true, already: true, message: '바뀌는 값이 없습니다.' };
+
+  var wasSilent = !/^01[016789][0-9]{7,8}$/.test(curP.replace(/[^0-9]/g, ''));
+  if (dry) {
+    return { ok: true, preview: true, changes: lines, wasSilent: wasSilent,
+      note: wasSilent ? '★지금 연락처는 형식이 맞지 않아 이 고객에게 알림톡이 «전부 생략»되고 있었습니다. 고치면 이후 알림부터 나갑니다.' : '' };
+  }
+  if (!String(reason || '').trim()) return { ok: false, error: '사유를 적어 주세요. (고객 요청 경로를 남겨야 나중에 근거가 됩니다)' };
+
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  touchCustomer(sheet, colOf, cust.num, set);
+  _recordHandler(code, '연락처 정정 — ' + lines.join(' · ') + ' (사유: ' + String(reason).trim().slice(0, 120) + ')');
+  return { ok: true, changes: lines, wasSilent: wasSilent };
+}
+// 처리이력에 번호를 통째로 남기지 않는다 — 이력은 관리자 여럿이 보는 칸이다(최소수집 원칙)
+function _maskPhone(v) {
+  var d = String(v || '').replace(/[^0-9]/g, '');
+  if (!d) return '(없음)';
+  return d.length <= 4 ? d : d.slice(0, 3) + '****' + d.slice(-4);
+}
+function _maskEmail(v) {
+  var t = String(v || '').trim();
+  if (!t) return '(없음)';
+  var i = t.indexOf('@');
+  if (i < 1) return '****';
+  return t.slice(0, 1) + '****' + t.slice(i);
+}
+
+/* ★[CONTACT_SILENT 2026-09-21] 알림이 «조용히» 생략되고 있는 고객 목록.
+   95_notify.gs 는 형식이 틀리면 Logger 에만 남기고 return false 한다 — 아무도 안 본다.
+   관리자 홈이 이 목록을 띄워 «지금 알림이 안 가는 고객»이 눈에 보이게 한다.
+   읽기 전용 · 아무것도 쓰지 않는다. */
+function adminSilentContacts() {
+  _requireAdmin();
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var last = sheet.getLastRow();
+  if (last < 2) return { ok: true, list: [] };
+  var vals = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
+  var cP = colOf['연락처'], cC = colOf['개인코드'], cG = colOf['신랑이름'], cB = colOf['신부이름'], cS = colOf['현재단계'];
+  var out = [];
+  for (var i = 0; i < vals.length; i++) {
+    var code = String(vals[i][cC - 1] || '').trim();
+    if (!code) continue;
+    var stage = String(vals[i][cS - 1] || '').trim();
+    if (stage === '종료' || stage === '아카이브') continue;      // 끝난 고객은 알림이 없다
+    var p = String(vals[i][cP - 1] || '').replace(/[^0-9]/g, '');
+    if (/^01[016789][0-9]{7,8}$/.test(p)) continue;              // 정상
+    out.push({ code: code, names: (String(vals[i][cG - 1] || '') + ' · ' + String(vals[i][cB - 1] || '')).trim(),
+      stage: stage, phone: String(vals[i][cP - 1] || ''), why: p ? '형식 불일치' : '비어 있음' });
+  }
+  return { ok: true, list: out };
+}
+
 // ============================ 상담 동작 (작업4) — 기존 함수 호출 + 가드 ============================
 // 모든 동작: _requireAdmin(보안 O) · 최신 재조회(Q) · 취소건 가드(K) · 처리자 기록(D)
 

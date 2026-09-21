@@ -9289,7 +9289,9 @@ nochk '디렉터에게 요청' mypage.html
 # [NOW_NO_MONEY] NOW 카드는 금액을 말하지 않는다 — 금액·계산·계좌는 아래 실행 카드 한 곳.
 #   두 계산이 갈라지면 화면 안에서 금액이 어긋난다(돈 화면에서 가장 비싼 버그).
 chk 'NOW_NO_MONEY' mypage.html 2
-nochk '을 아래 계좌로 보내 주세요' mypage.html          # 되살아나면 금액이 두 곳에서 갈린다
+# ★패턴은 «코드 형태»만 잡게 좁혔다 — 넓게 잡으면 바로 위 주석의 「종전 문면: …」 기록까지
+#   걸려 빨개진다(실제로 그랬다). 기록은 남겨야 한다(제거 지시 보존 규칙) — 되살아나는 것은 코드다.
+nochk '을 아래 계좌로 보내 주세요\. 확인되면' mypage.html   # 되살아나면 금액이 두 곳에서 갈린다
 nochk '예식이 가까워 한 번에 받아요. 아래' mypage.html   # NOW·카드가 같은 문장을 두 번 말하던 자리
 # [DOC_OVER_LED] 문서 뷰어를 열기 «전에» 작은 창을 닫는다 — 시착·계약서 두 갈래 모두.
 #   안 닫으면 뷰어가 모달 뒤에서 열리고, 뒤로가기 층이 거꾸로 꽂혀 «유령 층»이 남는다.
@@ -9307,6 +9309,14 @@ chk '^\.sp-note{' mypage.html 1
 chk '\.inv-nav + \.sp-note{' mypage.html 1
 # [MODAL_ACT_STICKY] 긴 모달에서 버튼·제목이 붙어 따라온다(스크롤이 있는지 몰라 못 찾던 자리)
 chk 'MODAL_ACT_STICKY' mypage.html 2
+# [GATE_CARD_BUSY] 「예식만으로 조용히 마무리」 카드 — 누른 순간 신호가 있어야 한다.
+#   :disabled 스타일이 없어 눌러도 화면이 그대로였다(서버 왕복 동안 고객은 «안 눌렸나» 한다).
+chk 'GATE_CARD_BUSY' mypage.html 2
+chk '\.dn-gate-card\.busy \.dgc-d::before' mypage.html 1
+chk 'dn-gate-card:disabled' mypage.html 1
+# ★실패 복구가 카드를 부수던 줄 — 카드 안 <span> 셋을 통째로 지운다. 되살리지 말 것.
+nochk '_nn\.textContent=_t0' mypage.html
+chk '_nd\.textContent=_d0' mypage.html 1
 
 # ★[ALREADY_DONE] apply 스크립트가 «이미 되어 있는 자리»를 실패로 세지 않게 한 장치.
 #   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.
