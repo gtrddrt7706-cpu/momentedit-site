@@ -706,7 +706,23 @@ function api(payload){
   _busy(true);
   var off=function(){ _busy(false); };
   return fetch(EXEC_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) })
-    .then(function(r){ return r.json(); })
+    /* ★[LOAD_WHY 2026-09-21 사장님 「오류 이런게뜨는데 확인개선」]
+       종전엔 r.json() 을 맨몸으로 불렀다. 그래서 GAS 가 JSON 대신 «오류 HTML» 을 돌려주면
+       화면에 날것 그대로 떴다 — 실제 캡처: `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`.
+       그 문장은 «무엇이 잘못됐는지»도 «무엇을 하면 되는지»도 말하지 않는다.
+       GAS 가 HTML 을 돌려주는 경우는 정해져 있다: ①스크립트가 컴파일/실행에 실패(붙여넣다 잘림 포함)
+       ②배포 접근 권한이 «모든 사용자»가 아님 → 구글 로그인 페이지 ③배포 URL 이 죽음.
+       셋 다 «우리 쪽»이라 재시도로는 안 풀린다. 그래서 다음 한 걸음까지 문장에 넣는다. */
+    .then(function(r){ return r.text().then(function(t){
+      try { return JSON.parse(t); }
+      catch(_p){
+        var isHtml = /^\s*(<!DOCTYPE|<html)/i.test(t||'');
+        var err = new Error('서버가 JSON 대신 ' + (isHtml ? '오류 페이지(HTML)' : '알 수 없는 응답') + '를 돌려줬어요 (HTTP ' + r.status + '). '
+          + 'GAS 배포가 깨졌거나 접근 권한이 바뀐 상태입니다. 99_deployCheck 파일의 deployStampCheck 를 실행해 확인해 주세요.');
+        err.__meHtml = 1;
+        throw err;
+      }
+    }); })
     .then(function(j){ off(); return j; }, function(e){ off(); throw e; });
 }
 /* [ADM_NETFAIL 2026-08-04] gas() 52곳 중 .catch는 3곳뿐 — 오프라인·GAS 다운이면 대부분의 화면이
