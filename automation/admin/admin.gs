@@ -1368,7 +1368,8 @@ function adminSetContact(code, phone, email, reason) {
 }
 function _setContactCore(code, phone, email, reason, dry) {
   /* [CONTACT_FIX] 연락처·이메일 정정 본체 — 위 설명 블록 참고.
-     ★이 줄을 지우지 말 것: [FILE_COVER] 의 mark() 는 «함수 소스»를 읽는다.
+     ★이 줄을 지우지 말 것: FILE_COVER 규칙의 mark() 는 «함수 소스»를 읽는다.
+       (표식 이름을 대괄호로 인용하면 이 파일이 그 표식을 갖는 것으로 잡힌다 — 그래서 맨몸으로 쓴다.)
        표식이 함수 밖 주석에만 있으면 deployCheck 가 영영 «누락»으로만 뜬다
        (2026-09-21 에 실제로 그렇게 넣었다가 붙여넣기 점검이 이 파일을 못 보게 될 뻔했다). */
   code = String(code || '').trim().toUpperCase();
