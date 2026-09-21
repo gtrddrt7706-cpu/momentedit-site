@@ -9333,12 +9333,17 @@ chk 'CITE_BRACKET' scripts/audit/deploycheck-coverage.mjs 1
 # ── [CONTACT_FIX] 관리자 연락처 정정 — 두 화면(momentedit.kr/admin.html · /exec?admin=1 Admin.html)
 #   ★핵심은 «버튼이 조건부가 아니다»이다. 고쳐야 하는 상황이 바로 번호가 비었거나 이상한 상황인데,
 #     옆 버튼들은 d.phone 이 있어야 그려진다. 조건을 달면 정확히 필요한 때에 손잡이가 사라진다.
-for _f in admin.html automation/admin/Admin.html; do
-  chk 'CONTACT_FIX' "$_f" 3
-  chk 'contact-bad' "$_f" 2
-  chk '_phoneOk' "$_f" 3
-  chk "h+='<button id=\"editContact\">연락처 정정</button>'" "$_f" 1
-done
+# ★루프로 묶지 말 것 — 이 게이트는 «파일 안의 `^chk ` 줄 수»를 기대값으로 쓴다(GATE_RAN).
+#   루프 안 chk 는 들여쓰기돼 안 세어지는데 실행은 여러 번 되어 «중단됐다»로 빨개진다.
+#   2026-09-21 에 실제로 그렇게 8개가 어긋났다(3363/3355). 파일마다 한 줄씩 펴서 적는다.
+chk 'CONTACT_FIX' admin.html 3
+chk 'contact-bad' admin.html 2
+chk '_phoneOk' admin.html 3
+chk "h+='<button id=\"editContact\">연락처 정정</button>'" admin.html 1
+chk 'CONTACT_FIX' automation/admin/Admin.html 3
+chk 'contact-bad' automation/admin/Admin.html 2
+chk '_phoneOk' automation/admin/Admin.html 3
+chk "h+='<button id=\"editContact\">연락처 정정</button>'" automation/admin/Admin.html 1
 # 같은 자로 재야 한다 — 화면·저장·발송 셋이 갈리면 「저장은 됐는데 알림은 안 가는」 상태가 또 생긴다
 chk '01\[016789\]\[0-9\]{7,8}' admin.html 1
 chk '01\[016789\]\[0-9\]{7,8}' automation/admin/admin.gs 1
