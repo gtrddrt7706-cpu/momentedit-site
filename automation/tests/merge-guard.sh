@@ -9298,6 +9298,63 @@ nochk '대신 움직입니다' parents.html
 nochk '디렉터가 도와드립니다' index.html
 nochk '디렉터에게 요청' mypage.html
 
+# ── 2026-09-21 마이페이지 디자인·층 수정 [DECISION_GUARD] ──────────────────────────────
+# [NOW_NO_MONEY] NOW 카드는 금액을 말하지 않는다 — 금액·계산·계좌는 아래 실행 카드 한 곳.
+#   두 계산이 갈라지면 화면 안에서 금액이 어긋난다(돈 화면에서 가장 비싼 버그).
+chk 'NOW_NO_MONEY' mypage.html 2
+# ★패턴은 «코드 형태»만 잡게 좁혔다 — 넓게 잡으면 바로 위 주석의 「종전 문면: …」 기록까지
+#   걸려 빨개진다(실제로 그랬다). 기록은 남겨야 한다(제거 지시 보존 규칙) — 되살아나는 것은 코드다.
+nochk '을 아래 계좌로 보내 주세요\. 확인되면' mypage.html   # 되살아나면 금액이 두 곳에서 갈린다
+nochk '예식이 가까워 한 번에 받아요. 아래' mypage.html   # NOW·카드가 같은 문장을 두 번 말하던 자리
+# [DOC_OVER_LED] 문서 뷰어를 열기 «전에» 작은 창을 닫는다 — 시착·계약서 두 갈래 모두.
+#   안 닫으면 뷰어가 모달 뒤에서 열리고, 뒤로가기 층이 거꾸로 꽂혀 «유령 층»이 남는다.
+chk 'DOC_OVER_LED' mypage.html 4
+chk 'BK_ORPHAN' mypage.html 1
+# [ALERT_BK] 알림창(취소 없는 것)에만 뒤로가기 층. 확인 대화상자는 층을 만들지 않는다(종전 설계).
+#   ★아래 nochk 가 핵심 — 조건이 사라지면 확인 대화상자까지 뒤로가기로 닫혀 «저장 없이 나가기»가 된다.
+chk 'ALERT_BK' mypage.html 2
+chk 'o.cancel===false){ try{ _bkId=bkOpen' mypage.html 1
+# [INV_EG_FULL]·[WIZ_NOTE_STYLE] 청첩장 마법사 — 「전체 청첩장 보기」를 액션으로, 자동저장 안내에 스타일을.
+#   sp-note 는 .seat-privacy 안에서만 정의돼 있어 청첩장에선 맨몸으로 떨어졌다. 기본값을 밖으로 꺼냈다.
+chk 'INV_EG_FULL' mypage.html 1
+chk 'WIZ_NOTE_STYLE' mypage.html 1
+chk '^\.sp-note{' mypage.html 1
+chk '\.inv-nav + \.sp-note{' mypage.html 1
+# [MODAL_ACT_STICKY] 긴 모달에서 버튼·제목이 붙어 따라온다(스크롤이 있는지 몰라 못 찾던 자리)
+chk 'MODAL_ACT_STICKY' mypage.html 2
+# [GATE_CARD_BUSY] 「예식만으로 조용히 마무리」 카드 — 누른 순간 신호가 있어야 한다.
+#   :disabled 스타일이 없어 눌러도 화면이 그대로였다(서버 왕복 동안 고객은 «안 눌렸나» 한다).
+chk 'GATE_CARD_BUSY' mypage.html 2
+chk '\.dn-gate-card\.busy \.dgc-d::before' mypage.html 1
+chk 'dn-gate-card:disabled' mypage.html 1
+# [CITE_BRACKET] 주석에서 «다른 파일의» 표식을 대괄호로 인용하면 그 파일의 표식으로 잡힌다 —
+#   실패 메시지가 그 함정을 짚게 한 결정(2026-09-21 에 두 번 걸렸다). 지우면 다음 사람이 같은 데서 헤맨다.
+chk 'CITE_BRACKET' scripts/audit/deploycheck-coverage.mjs 1
+# [SIM_OLD_ALL] «옛 판» 모의는 표식을 전부 지운다 — 첫 하나만 지우면 같은 표식이 여러 번 있는
+#   파일(Admin.html 의 CONTACT_FIX 6회)에서 나머지가 남아 모의가 거짓으로 빨개진다.
+chk 'SIM_OLD_ALL' scripts/audit/deploycheck-sim.mjs 1
+# ── [CONTACT_FIX] 관리자 연락처 정정 — 두 화면(momentedit.kr/admin.html · /exec?admin=1 Admin.html)
+#   ★핵심은 «버튼이 조건부가 아니다»이다. 고쳐야 하는 상황이 바로 번호가 비었거나 이상한 상황인데,
+#     옆 버튼들은 d.phone 이 있어야 그려진다. 조건을 달면 정확히 필요한 때에 손잡이가 사라진다.
+# ★루프로 묶지 말 것 — 이 게이트는 «파일 안의 `^chk ` 줄 수»를 기대값으로 쓴다(GATE_RAN).
+#   루프 안 chk 는 들여쓰기돼 안 세어지는데 실행은 여러 번 되어 «중단됐다»로 빨개진다.
+#   2026-09-21 에 실제로 그렇게 8개가 어긋났다(3363/3355). 파일마다 한 줄씩 펴서 적는다.
+chk 'CONTACT_FIX' admin.html 3
+chk 'contact-bad' admin.html 2
+chk '_phoneOk' admin.html 3
+chk "h+='<button id=\"editContact\">연락처 정정</button>'" admin.html 1
+chk 'CONTACT_FIX' automation/admin/Admin.html 3
+chk 'contact-bad' automation/admin/Admin.html 2
+chk '_phoneOk' automation/admin/Admin.html 3
+chk "h+='<button id=\"editContact\">연락처 정정</button>'" automation/admin/Admin.html 1
+# 같은 자로 재야 한다 — 화면·저장·발송 셋이 갈리면 「저장은 됐는데 알림은 안 가는」 상태가 또 생긴다
+chk '01\[016789\]\[0-9\]{7,8}' admin.html 1
+chk '01\[016789\]\[0-9\]{7,8}' automation/admin/admin.gs 1
+chk '01\[016789\]\[0-9\]{7,8}' automation/platform/95_notify.gs 1
+# ★실패 복구가 카드를 부수던 줄 — 카드 안 <span> 셋을 통째로 지운다. 되살리지 말 것.
+nochk '_nn\.textContent=_t0' mypage.html
+chk '_nd\.textContent=_d0' mypage.html 1
+
 # ★[ALREADY_DONE] apply 스크립트가 «이미 되어 있는 자리»를 실패로 세지 않게 한 장치.
 #   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.
 #   그걸 틀림으로 세면 «반만 고친 판»을 막으려던 가드가 거꾸로 «전부 못 고치게» 막는다.

@@ -115,6 +115,9 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
 .contact{display:flex;gap:8px;margin:10px 0 16px}
 .contact a,.contact button{flex:1;text-align:center;border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--serif-ko);font-size:13px;color:var(--accent);text-decoration:none;background:#fff;cursor:pointer}
 .contact a:active,.contact button:active{background:var(--paper2)}
+/* [CONTACT_FIX] 「이 번호로는 알림이 안 나간다」를 화면이 말한다 */
+.contact-bad{margin:-8px 0 16px;padding:9px 11px;border:1px solid var(--red,#B4443A);border-radius:8px;background:var(--redbg,#FBF1EF);font-family:var(--serif-ko);font-size:12px;line-height:1.6;word-break:keep-all}
+.ec-hint{margin-top:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--paper2,#F5F3EF);font-size:12px;line-height:1.6}
 
 .fields-toggle{font-family:var(--serif-ko);font-size:12.5px;color:var(--gold-deeper);background:var(--paper2);border:1px solid var(--gold-line);border-radius:8px;padding:10px 12px;cursor:pointer;width:100%;text-align:left;margin-bottom:12px}
 .fields{display:none;background:#fff;border:1px solid var(--border);border-radius:9px;padding:6px 14px;margin-bottom:12px}
@@ -539,6 +542,76 @@ function doSearch(){
 }
 
 /* ════════ 상세 ════════ */
+/* ★[CONTACT_FIX] 95_notify.gs 의 발송 판정·admin.gs 의 저장 판정과 «같은 자»다.
+   자를 따로 쓰면 「화면은 괜찮다는데 알림은 안 가는」 상태가 또 생긴다. 셋이 같아야 한다. */
+function _phoneOk(v){ return /^01[016789][0-9]{7,8}$/.test(String(v||'').replace(/[^0-9]/g,'')); }
+function _emailOk(v){ return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(v||'').trim()); }
+/* [CONTACT_FIX] 연락처·이메일 정정 — 미리보기 먼저, 그다음 실행(ADM_AC1 과 같은 2단 관례).
+   ★사유를 받는 이유: 이력에 «누가 왜 바꿨는지»가 남아야 나중에 근거가 된다.
+     번호 자체는 이력에 마스킹으로만 남는다(서버 _maskPhone · 이력은 여럿이 보는 칸이라). */
+function doEditContact(code, names, d){
+  /* ★★[CONTACT_FIX] 미리보기 → 실행 2단(ADM_AC1 관례). 단, **입력칸을 지우지 않는다.**
+     종전 판은 미리보기 결과를 cm_extra 에 덮어썼는데, 입력칸이 바로 그 cm_extra 안에 있다 —
+     두 번째 클릭에서 $('ecPhone') 이 null 이 되어 «정정 실행»이 아무 일도 안 했다.
+     실렌더 하네스가 잡았다(서버 호출이 미리보기 1건뿐이었다). 눈으로는 버튼 글자가 바뀌어
+     «되는 것처럼» 보였다 — 화면이 멀쩡해 보이는 고장이라 더 위험했다.
+     ★그리고 입력칸을 남겨야 «미리보기를 보고 오타를 발견한» 관리자가 그 자리에서 고칠 수 있다.
+       입력이 바뀌면 단계를 되돌려(edit) 다시 확인하게 한다 — 낡은 미리보기로 실행하지 않는다. */
+  var stage = 'edit';
+  var curP = String(d.phone||''), curE = String(d.email||'');
+  var form =
+    '<label>휴대폰 번호</label><input type="tel" id="ecPhone" inputmode="numeric" placeholder="01012345678" value="'+esc(curP)+'">'+
+    '<label>이메일</label><input type="email" id="ecEmail" placeholder="name@example.com" value="'+esc(curE)+'">'+
+    '<label>사유 (필수)</label><input type="text" id="ecReason" placeholder="예: 고객이 카카오톡으로 번호 정정 요청">'+
+    '<div id="ecHint" class="ec-hint" style="display:none"></div>';
+  function vals(){ return { ph:($('ecPhone')||{}).value||'', em:($('ecEmail')||{}).value||'', rs:($('ecReason')||{}).value||'' }; }
+  function gate(){
+    var v=vals(), hint=$('ecHint'); if(!$('ecPhone')) return;
+    if(stage==='confirm'){ stage='edit'; mBusy(false,'바뀔 내용 확인'); mErr(''); }   // 값이 바뀌면 미리보기는 낡았다
+    var msgs=[];
+    if(v.ph.trim() && !_phoneOk(v.ph)) msgs.push('휴대폰 번호 형식이 아니에요 · 010·011·016·017·018·019 로 시작하는 10~11자리');
+    if(v.em.trim() && !_emailOk(v.em)) msgs.push('이메일 형식이 아니에요');
+    if(!v.ph.trim() && !v.em.trim()) msgs.push('바꿀 값을 하나는 적어 주세요');
+    if(hint){ hint.innerHTML = msgs.length ? msgs.map(li).join('') : ''; hint.style.display = msgs.length ? '' : 'none'; }
+    $('cm_yes').disabled = !!msgs.length || !v.rs.trim();
+  }
+  openModal({
+    title:'연락처 정정', yes:'바뀔 내용 확인',
+    text:b(names)+li('여기서 고친 값으로 이후 알림톡·문자·메일이 나가요')+li('처리 이력에 남아요(번호는 가려서 기록돼요)'),
+    extra:form,
+    init:function(){
+      ['ecPhone','ecEmail','ecReason'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', gate); });
+      gate();
+    },
+    onYes:function(){
+      var v=vals();
+      if(stage==='edit'){
+        mBusy(true);
+        gas('adminSetContactPreview', code, v.ph, v.em).then(function(r){
+          if(!(r&&r.ok)){ mBusy(false,'바뀔 내용 확인'); mErr((r&&r.error)||'확인하지 못했어요'); return; }
+          if(r.already){ mBusy(false,'바뀔 내용 확인'); mErr(r.message||'바뀌는 값이 없어요'); return; }
+          stage='confirm';
+          var hint=$('ecHint');   // ★입력칸은 그대로 두고 그 «아래»에만 쓴다
+          if(hint){
+            hint.innerHTML = (r.changes||[]).map(li).join('')
+              + (r.wasSilent ? li('★지금 번호로는 알림이 전부 생략되고 있었어요 · 고치면 이후 알림부터 나가요') : '')
+              + li('사유: '+v.rs.trim());
+            hint.style.display='';
+          }
+          mBusy(false,'정정 실행'); mErr('');
+        }).catch(function(e){ mBusy(false,'바뀔 내용 확인'); mErr('오류: '+(e&&e.message||e)); });
+        return;
+      }
+      mBusy(true);
+      gas('adminSetContact', code, v.ph, v.em, v.rs).then(function(r){
+        if(!(r&&r.ok)){ mBusy(false,'정정 실행'); mErr((r&&r.error)||'정정하지 못했어요'); return; }
+        closeModal();
+        toast(r.wasSilent ? '연락처 정정 완료 · 이제 알림이 나가요' : '연락처 정정 완료');
+        openDetail(code);   // 새 값으로 다시 그린다 — 경고 줄도 함께 사라진다
+      }).catch(function(e){ mBusy(false,'정정 실행'); mErr('오류: '+(e&&e.message||e)); });
+    }
+  });
+}
 function openDetail(code, origin){
   if(origin) _origin=origin;
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
@@ -563,7 +636,15 @@ function renderDetail(d){
   if(d.phone) h+='<a href="tel:'+esc(d.phone.replace(/[^0-9+]/g,''))+'">📞 전화</a>';
   if(d.phone) h+='<button id="copyPhone">연락처 복사</button>';
   if(d.email) h+='<a href="mailto:'+esc(d.email)+'">✉ 메일</a>';
+  /* ★★[CONTACT_FIX] 조건부로 만들지 말 것 — 고쳐야 하는 상황이 바로 «번호가 비었거나 이상한»
+     상황이고, 위 세 개는 d.phone 이 있어야 그려진다. 없으면 고칠 손잡이까지 함께 사라진다.
+     (momentedit.kr/admin.html 과 같은 결정 · 이쪽은 /exec?admin=1 로 서빙되는 화면) */
+  h+='<button id="editContact">연락처 정정</button>';
   h+='</div>';
+  if(!_phoneOk(d.phone)){
+    h+='<div class="contact-bad">⚠ '+(d.phone?('연락처 형식이 이상해요 · '+esc(d.phone)):'연락처가 비어 있어요')
+      +' — 이 고객에게는 알림톡·문자가 <b>나가지 않아요</b>. 위 «연락처 정정»으로 고쳐 주세요.</div>';
+  }
   // 취소 환불 — 환불계좌 + 송금 완료 처리(취소 고객만)
   if(d.stage==='취소' && c && c.refund){
     if(d.refundDone){
@@ -903,6 +984,7 @@ function advancedBox(d){
 
 function bindDetail(d){
   var cp=$('copyPhone'); if(cp) cp.addEventListener('click', function(){ copyText(d.phone, cp); });
+  var ec=$('editContact'); if(ec) ec.addEventListener('click', function(){ doEditContact(d.code, d.names||'', d); });   // [CONTACT_FIX]
   var ft=$('fldToggle'); if(ft) ft.addEventListener('click', function(){ var b=$('fldBox'); b.classList.toggle('open'); ft.textContent=b.classList.contains('open')?'신청 내용 접기 ▴':'신청 내용 보기 ▾'; });
   var ms=$('memoSave'); if(ms) ms.addEventListener('click', saveMemo);
   var ci=$('copyInv'); if(ci){ var inv=d.mirror&&d.mirror.invitation, u=inv&&inv.published&&inv.published.urls; if(u) ci.addEventListener('click', function(){ copyText(u.online||u.offline||'', ci); }); }
