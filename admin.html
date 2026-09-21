@@ -349,7 +349,14 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal{background:#fff;border-radius:12px;max-width:390px;width:100%;padding:24px 22px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
 .modal h3{font-family:var(--serif-ko);font-size:16.5px;font-weight:600;color:var(--accent);text-align:center;margin-bottom:9px}
 .modal .mbody-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;line-height:1.7;margin-bottom:14px}
-.modal .mbody-t .li{display:block;font-size:12px;color:var(--light);margin-top:3px}
+.modal .mbody-t .li{display:block;font-size:12px;color:var(--light);margin-top:3px;text-align:left;padding-left:9px;text-indent:-9px}/* ★★[MODAL_LI_LEFT 2026-09-21 사장님 지적 「가운데정렬인데 맞는지」] 되돌리지 말 것.
+   .li 는 .mbody-t{text-align:center} 안에 있어 가운데 정렬을 물려받고 있었다.
+   ①목록인데 가운데로 세우면 «·» 셋이 서로 다른 x 좌표에 서서 기준선이 없어진다 —
+     줄 길이가 13·21·19자로 제각각이라 계단처럼 어긋나 보였다.
+   ②이 모달은 «고객에게 카톡이 자동으로 가고 단계가 넘어가는» 확인창이다.
+     세 줄을 실제로 읽어야 하는 자리인데, 가운데 정렬은 훑기를 막는다.
+   ③제목(.modal h3)과 대상 이름(b())은 한 줄짜리라 가운데가 맞다 — 그 둘은 안 건드린다.
+   text-indent -9px 은 «내어쓰기» — 줄이 넘어가면 둘째 줄이 «·» 가 아니라 글자에 맞춰 선다. */
 .modal.danger h3{color:var(--seal)}
 .modal .field{margin-bottom:11px}
 .modal label{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin-bottom:5px}
@@ -706,7 +713,23 @@ function api(payload){
   _busy(true);
   var off=function(){ _busy(false); };
   return fetch(EXEC_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) })
-    .then(function(r){ return r.json(); })
+    /* ★[LOAD_WHY 2026-09-21 사장님 「오류 이런게뜨는데 확인개선」]
+       종전엔 r.json() 을 맨몸으로 불렀다. 그래서 GAS 가 JSON 대신 «오류 HTML» 을 돌려주면
+       화면에 날것 그대로 떴다 — 실제 캡처: `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`.
+       그 문장은 «무엇이 잘못됐는지»도 «무엇을 하면 되는지»도 말하지 않는다.
+       GAS 가 HTML 을 돌려주는 경우는 정해져 있다: ①스크립트가 컴파일/실행에 실패(붙여넣다 잘림 포함)
+       ②배포 접근 권한이 «모든 사용자»가 아님 → 구글 로그인 페이지 ③배포 URL 이 죽음.
+       셋 다 «우리 쪽»이라 재시도로는 안 풀린다. 그래서 다음 한 걸음까지 문장에 넣는다. */
+    .then(function(r){ return r.text().then(function(t){
+      try { return JSON.parse(t); }
+      catch(_p){
+        var isHtml = /^\s*(<!DOCTYPE|<html)/i.test(t||'');
+        var err = new Error('서버가 JSON 대신 ' + (isHtml ? '오류 페이지(HTML)' : '알 수 없는 응답') + '를 돌려줬어요 (HTTP ' + r.status + '). '
+          + 'GAS 배포가 깨졌거나 접근 권한이 바뀐 상태입니다. 99_deployCheck 파일의 deployStampCheck 를 실행해 확인해 주세요.');
+        err.__meHtml = 1;
+        throw err;
+      }
+    }); })
     .then(function(j){ off(); return j; }, function(e){ off(); throw e; });
 }
 /* [ADM_NETFAIL 2026-08-04] gas() 52곳 중 .catch는 3곳뿐 — 오프라인·GAS 다운이면 대부분의 화면이

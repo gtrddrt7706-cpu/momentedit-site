@@ -7858,6 +7858,19 @@ chk 'LOCK_NO_DOT' scripts/build-script-review.mjs 1
 if command -v node >/dev/null 2>&1; then
   node scripts/build-script-review.mjs >/dev/null 2>&1 \
     || { echo 'FAIL [SCRIPT_REVIEW] 대본 정리본이 안 뽑힌다(나는 소리가 빠졌을 수 있다) — node scripts/build-script-review.mjs'; fail=1; }
+  # ★★[REVIEW_FRESH 2026-09-21] «뽑히나»만 보고 «커밋본이 최신인가»는 안 봤다.
+  #   그래서 script-review.html 이 낡은 채로 main 에 있었다(실측: 「검토중」이 파일엔 15개인데
+  #   실제로 다시 뽑으면 1개 · 확정 221→228 · 잠김 43→50). 이 파일은 사장님이 한 번에 읽는
+  #   대본 정리본이라, 낡으면 **이미 확정·잠김된 14줄을 «아직 검토중»으로 보시게 된다** —
+  #   파일의 존재 이유를 정면으로 깨뜨린다. 게이트는 매번 이걸 다시 쓰면서도 조용했다.
+  #   ★생성기가 결정적인 것을 확인하고 걸었다(같은 입력 두 번 → 바이트 동일). 아니면 영원한 빨강이 된다.
+  if command -v git >/dev/null 2>&1 && ! git diff --quiet -- script-review.html 2>/dev/null; then
+    echo 'FAIL [REVIEW_FRESH] script-review.html 이 낡았습니다 — node scripts/build-script-review.mjs 로 다시 뽑아 같은 커밋에 넣을 것'
+    fail=1
+  fi
+  # ★게이트가 파일을 고쳐 놓지 않는다 — gen-fresh 와 같은 규칙(「재고 나서 원래대로 되돌린다」).
+  #   종전엔 이 생성기만 작업 트리를 더럽혀, 매 실행 뒤 «내가 안 고친 파일»이 수정됨으로 남았다.
+  command -v git >/dev/null 2>&1 && git checkout -- script-review.html 2>/dev/null || true
 fi
 # ★[SELF_COMMENT_TRAP] 여기 `nochk '안 남'` 을 넣었다가 **내 주석을 내가 잡았다** — 폐지 사유를
 #   주석으로 남기는 것이 이 저장소 규칙이라(제거 지시 보존), 문자열 검사와 늘 부딪친다([DECLWHO_LIVE] 재발).

@@ -1361,7 +1361,21 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* 예식일 임시 고정 배너 (①) */
     .hold-card{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border-radius:9px;border:1px solid var(--hairline,#E6E1D8);background:var(--bg2,#F7F4EE);margin-bottom:4px}
     .hold-card.hold-ok{border-color:#cdb98a;background:#faf6ed}
-    .hold-ic{font-size:15px;line-height:1.4;flex-shrink:0}
+    .hold-ic{font-size:15px;line-height:1.4;flex-shrink:0;width:15px;height:21px;display:inline-flex;align-items:center;justify-content:center}/* ★★[HOLD_IC_NONE 2026-09-21 사장님 지적 「앞에 ... 점3개 왜있는거야?」 → 「삭제검토」] 되돌리지 말 것.
+   대기 상태에는 아이콘을 «두지 않는다». 승인되면 ✓ 하나만 뜬다.
+   ①종전 «…»(U+2026)는 말줄임표다 — «생략»·«말끝 흐림»을 뜻하는 구두점이지 «대기»가 아니다.
+     채팅의 typing… 에서 빌려온 몇 초짜리 글리프인데, 여기는 디렉터가 확인해 카카오톡으로
+     알려 주는 몇 시간~며칠짜리 상태라 뜻이 어긋난다. 그래서 아이콘으로 안 읽히고
+     «문장 앞에 점 세 개가 떠 있는» 것으로 보였다.
+   ②카드가 이미 「예식일 임시 고정을 검토 중이에요」라고 «글로» 말한다. 아이콘이 더하는 정보가 없다.
+     비워 두면 승인 시 나타나는 ✓ 가 «변화»로 읽혀 오히려 강해진다.
+   ③width·height 를 고정해 두 상태의 글줄 시작점이 안 어긋나게 한다(실측 82px 동일).
+   ★★내가 한 번 틀렸다 — 처음엔 «빈 원»으로 바꾸고 「바로 위 단계 표시가 이미 빈 원/채운 원으로
+     진행을 말하니 한 화면에 두 언어다」를 근거로 댔다. **그 근거가 틀렸다.**
+     단계 표시는 «10단계 여정의 어디쯤»이고 이 아이콘은 «별개 요청이 승인됐나»다 — 다른 뜻이라
+     달라 보이는 것이 맞다. 게다가 빈 원으로 바꾸면 미래 단계 점(.dot.future)과 똑같이 생겨서
+     내가 없앤다던 혼동을 내가 만드는 꼴이었다. 사장님이 잡아 주셨다.
+     → 다음에 이 자리에 «무언가를 넣자»는 제안이 오면 위 ②를 먼저 볼 것. */
     .hold-t{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);line-height:1.5}
     .hold-s{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.65;margin-top:3px}
     .hold-s b{font-weight:500;color:var(--accent)}
@@ -1624,7 +1638,16 @@ function bkOpen(closeFn, isModal){ var id=++_bkSeq; _bkStack.push({id:id, fn:clo
 function bkDone(id){
   if(_bkFromPop||!_bkStack.length) return;
   var top=_bkStack[_bkStack.length-1];
-  if(id!==undefined && top.id!==id) return;
+  if(id!==undefined && top.id!==id){
+    /* ★★[BK_ORPHAN 2026-09-21] 종전엔 여기서 그냥 return 해 «유령 층»이 남았다.
+       맨 위가 아닌 층을 닫는 일은 원래 없어야 하지만(겹치면 위부터 닫는다) 실제로 났다 —
+       My Records 를 열어 둔 채 문서 뷰어를 열면 보이는 순서와 층 순서가 거꾸로 꽂힌다([DOC_OVER_LED]).
+       그 뿌리는 그쪽에서 막았고, 여기서는 «그래도 났을 때» 유령이 안 남게 한다.
+       ★history.back() 은 하지 않는다 — 맨 위가 아닌 층을 되감으면 위 층까지 같이 닫힌다.
+         스택에서만 걷어내고, 히스토리 항목 하나는 위 층이 닫힐 때 함께 소비된다. */
+    for(var _i=_bkStack.length-2;_i>=0;_i--){ if(_bkStack[_i].id===id){ _bkStack.splice(_i,1); break; } }
+    return;
+  }
   _bkStack.pop(); _bkClosing=true; try{ history.back(); }catch(e){ _bkClosing=false; }
 }
 function bkKill(flow){ if(flow && flow._bk){ bkDone(flow._bk); flow._bk=null; } }   // 위저드 전환·강제 종료 시 그 흐름의 층 정리
@@ -2152,13 +2175,19 @@ function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
 // fetch (단순 요청 → CORS preflight 회피)
 function api(payload){   // MPD_E3 12초 타임아웃 — GAS 콜드스타트·불안정 망에서 무한 스피너 방지(각 호출부 catch가 재시도 안내)
   var ac=(typeof AbortController!=='undefined')?new AbortController():null;
-  var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} }, 12000):null;
+  /* ★[LOAD_WHY 2026-09-21 사장님 「이건 무슨문제가있는거야? 원인파악」]
+     시간 초과인지 아닌지를 여기서 표시해 둔다. 종전엔 이 catch 가 네 가지를 한 덩어리로 삼켰다 —
+     ①12초 초과 ②망 끊김 ③CORS·권한 ④**200 인데 JSON 이 아님**(GAS 가 오류 HTML 을 돌려줄 때).
+     그래서 화면이 늘 「연결이 느려요」라고만 말했고, 백엔드가 깨진 경우에도 고객은
+     «내 인터넷이 느린가» 하며 계속 재시도만 하게 된다. 아래 _loadSlowRetry 가 이 표시를 읽는다. */
+  var tm=ac?setTimeout(function(){ try{ ac.__meTimeout=1; ac.abort(); }catch(e){} }, 12000):null;
   return fetch(EXEC_URL, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload),
     signal:ac?ac.signal:undefined
-  }).then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; });
+  }).then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); try{ if(ac&&ac.__meTimeout) e.__meTimeout=1; }catch(_){} throw e; })
+    .then(null, function(e){ if(tm) clearTimeout(tm); try{ if(ac&&ac.__meTimeout) e.__meTimeout=1; }catch(_){} throw e; });   /* [LOAD_WHY] r.json() 실패(오류 HTML)도 같은 자리로 모은다 */
 }
 
 function qp(name){
@@ -2253,7 +2282,7 @@ function loadMyState(opts){
     if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
     else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
     _fin();
-  }).catch(function(){ if(getToken()!==_tok){ _fin(); return; } var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(); } _fin(); });   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
+  }).catch(function(e){ if(getToken()!==_tok){ _fin(); return; } var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(e); } _fin(); });   /* [LOAD_WHY] 실패 이유를 그대로 넘겨 화면이 «느림»과 «그 밖»을 갈라 말하게 */   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
 }
 
 /* [BUSY_ONE] 동작을 마치고 돌아올 때의 갱신 — 화면을 비우지 않는다.
@@ -2263,9 +2292,18 @@ function _mpRefresh(label){
   _flowBusy(true, label || '불러오는 중…');
   loadMyState({ silent: true, done: function(){ _flowBusy(false); } });
 }
-function _loadSlowRetry(){   // MPD_E3 무한 스피너 → "연결이 느려요 · 다시 시도" 전환(첫 로드·캐시 없음 한정)
+function _loadSlowRetry(err){   // MPD_E3 무한 스피너 → 재시도 안내 전환(첫 로드·캐시 없음 한정)
   var el=$('loading'); if(!el){ show('loginView'); return; }
-  el.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.75">연결이 느려요.<br>잠시 후 다시 시도해 주세요.</div>'
+  /* ★[LOAD_WHY] 종전엔 무슨 일이 났든 「연결이 느려요」 한 문장이었다. 그런데 이 자리는
+     «200 인데 JSON 이 아님»(GAS 오류 HTML)에서도 똑같이 뜬다 — 즉 우리 쪽이 깨졌을 때도
+     고객에게 «당신 인터넷이 느리다»라고 말하고 있었다. 확인하지 않은 원인을 단정하지 않는다.
+     ★그리고 [MPD_B13](에러 문구엔 재시도 + 문의 출구를 함께)을 이 화면만 안 지키고 있었다.
+     다시 시도해도 안 되는 고객에게 «다음 한 걸음»이 없으면 그대로 막힌다. */
+  var slow = !!(err && err.__meTimeout);
+  var msg = slow
+    ? '연결이 느려요.<br>잠시 후 다시 시도해 주세요.'
+    : '불러오지 못했어요.<br>다시 시도해도 안 되면 카카오톡으로 디렉터에게 알려 주세요.';
+  el.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.75">'+msg+'</div>'
     +'<button type="button" class="cc-btn" style="width:auto;padding:11px 26px;margin-top:14px" id="mp_retryLoad">다시 시도</button>';
   show('loading');
   var bt=$('mp_retryLoad'); if(bt) bt.addEventListener('click', function(){ el.innerHTML='<div class="busy-row"><span class="spinner"></span><span>불러오는 중…</span></div>'; loadMyState(); });
@@ -3059,7 +3097,21 @@ function renderLedger(l){
     renderChangeWizard(window._mpStateD||{}, pn);   // 모달 안 인라인(창 밖 이동 없음)
   });
   var lx=$('mp_ledChgCancel'); if(lx) lx.addEventListener('click', function(){ closeLedModal(); doCancelWeddingChange(); });
-  var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){ if(window._fittingDoc){ openFittingView(); } else { showFittingTerms(l.documents); } });
+  var fv=box.querySelector('[data-doc="fitting"]'); if(fv) fv.addEventListener('click', function(){
+    /* ★★[DOC_OVER_LED 2026-09-21 사장님 지적 「앞에 작은창이 없어지거나 하는게 좀더 자연스러울거같아」 · 「그다음화면에서 멈춰있는 버그」] 되돌리지 말 것.
+       종전엔 My Records 를 «열어 둔 채» 문서 뷰어를 열었다. 두 가지가 동시에 틀어졌다 —
+       ①보이는 순서: 뷰어(z-index 9999)가 모달 «뒤»에서 열려, 작은 창은 그대로인데 뒷배경만 바뀌었다.
+       ②★뒤로가기 층 순서가 «거꾸로» 꽂혔다. 화면엔 모달이 위인데 뒤로가기 스택엔 뷰어가 위다.
+         bkDone(id) 는 «그 층이 맨 위일 때만» 소비하므로, X 로 모달을 닫아도 그 층이 안 없어진다.
+         브라우저로 재현했다 — ①열기 층=[1] ②보기 층=[1,2] ③X 층=[1,2] ← 안 줄어듦 ④닫기 층=[1]
+         → 유령 층 [1] 이 남아 «뒤로가기 한 번»을 통째로 먹는다. 그게 「멈춰 있다」의 정체였다.
+       → 문서를 열기 «전에» 모달을 닫는다. 그 순간 모달 층이 맨 위라 정상 소비되고,
+         뷰어는 새 맨 위 층으로 열린다. 보이는 순서와 뒤로가기 순서가 같아진다. */
+    closeLedModal();
+    var _go=function(){ if(window._fittingDoc){ openFittingView(); } else { showFittingTerms(l.documents); } };
+    /* 모달 닫힘 전환이 끝난 뒤 연다 — 같은 틱에 새 층을 쌓으면 bkDone 의 history.back()(비동기)과 순서가 엉킨다. */
+    setTimeout(_go, 180);
+  });
   var bv=$('mp_ledBalView'); if(bv) bv.addEventListener('click', function(){
     var pn=$('mp_ledBalPanel'); if(!pn) return;
     var open=pn.style.display!=='none';
@@ -3129,7 +3181,7 @@ function renderHold(h){   // MPD_B14 보완(2026-07-25): 가예약 검토 아이
     ? ('<div class="hold-date">'+when+'</div>'+(h.expires&&typeof fmtWedKo==='function'?('<div class="hold-meta">'+escapeHtml(fmtWedKo(h.expires))+'까지 보호 · 본계약 진행 시 확정</div>'):'<div class="hold-meta">본계약 진행 시 이 날짜로 확정</div>'))
     : ('<div class="hold-date">'+when+'</div><div class="hold-meta">디렉터가 확인하고 있어요 · 승인 시 카카오톡으로 안내</div>');
   var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
-  box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'…')+'</span><div class="hold-body"><div class="hold-t" style="margin-bottom:7px">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
+  box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic" aria-hidden="true">'+(approved?'✓':'')+'</span><div class="hold-body"><div class="hold-t" style="margin-bottom:7px">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
     +'<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="'+_hb+'" id="mp_holdEdit">예식일 변경</button><button type="button" class="cc-btn-textlink" id="mp_holdCancel">고정 취소</button></div>'
     +'</div></div>';
   box.style.display='block';
