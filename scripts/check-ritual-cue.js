@@ -273,6 +273,12 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   let out = '';
   try { out = fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/더빙_녹음_대본_최종.txt'), 'utf8'); } catch (e) { out = ''; }
   const miss = Object.keys(C.EXTRA).filter((k) => {
+    /* ★★[RETIRED_EXTRA 2026-09-21] 폐지한 클립은 녹음 대본에 «안 실리는 것이 맞다».
+       [ASK_RETIRED] 로 declare-ask-a·c 를 끄자 이 검사가 「생성기에 없는 문안」으로 잡았다 —
+       **옳게 고쳤는데 검사가 옛 상태를 요구하는** 자리였다.
+       ★문안은 EXTRA 에 남긴다(관례 · 되살릴 근거). 남았다고 녹음까지 해야 하는 것은 아니다.
+       ★RETIRED 가 아닌 키는 종전대로 «사본이 같은가»를 본다 — 이 완화를 넓히지 말 것. */
+    if ((C.RETIRED || {})[k]) return false;
     const v = C.EXTRA[k];
     if (typeof v !== 'string') return true;
     if (src.indexOf(v) >= 0) return false;          // 사본이 있고 같다

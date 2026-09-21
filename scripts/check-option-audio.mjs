@@ -108,6 +108,28 @@ function loopVals(text, ocAt, ident) {
     return [...new Set([...from.matchAll(/'([a-zA-Z0-9_-]*)'/g)].map((x) => x[1]).filter(Boolean))];
   };
   if (src.includes('[')) return grab(src);
+  /* ★★[OBJ_KEYS 2026-09-21] `Object.keys(MAP).forEach(...)` 꼴을 읽는다.
+     빌더가 선택지를 «손으로 안 적고 원천에서 읽게» 바뀌면서 이 검사가 목록을 못 찾아 빨개졌다
+     ([BUILDER_FROM_SOURCE]). **더 안전해졌는데 검사가 몰라서 막는** 자리였다.
+     ★그래서 MAP 의 정의를 찾아 그 «첫 단계 키»를 편다. 손으로 적은 배열과 똑같이 다룬다. */
+  const ok2 = src.match(/^Object\.keys\(\s*([a-zA-Z_$][\w$]*)\s*\)$/);
+  if (ok2) {
+    const def = text.match(new RegExp(`\\bvar\\s+${ok2[1]}\\s*=\\s*\\{`));
+    if (!def) return [];
+    let i = text.indexOf('{', def.index), depth = 0, keys = [];
+    for (let j = i; j < text.length; j++) {
+      const ch = text[j];
+      if (ch === '{') { depth++; continue; }
+      if (ch === '}') { if (--depth === 0) break; continue; }
+      if (depth === 1) {
+        const m2 = /^\s*([a-zA-Z_$][\w$]*|'[^']+')\s*:/.exec(text.slice(j, j + 40));
+        if (m2 && (text[j - 1] === '{' || text[j - 1] === ',' || text[j - 1] === '\n')) {
+          keys.push(m2[1].replace(/'/g, '')); j += m2[0].length - 1;
+        }
+      }
+    }
+    return [...new Set(keys)];
+  }
   const nm = src.match(/([a-zA-Z_$][\w$]*)$/);
   if (!nm) return [];
   const dv = text.slice(0, ocAt).match(new RegExp(`\\bvar\\s+${nm[1]}\\s*=([^\\n;]*)`, 'g'));

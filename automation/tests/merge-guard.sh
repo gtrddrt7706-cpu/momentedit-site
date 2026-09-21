@@ -1503,7 +1503,11 @@ chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js
 #   ★지킬 것을 «말»로 바꾼다 — 사라지면 안 되는 것은 문장 모양이 아니라
 #     「두 집안이 서로의 가족이 되었다」는 선언이다(G8-out 관계 강화). 쪼개든 붙이든 그 말은 남는다.
 #   ★이 검사는 그날부터 조용히 빨갰다. 내가 게이트 출력을 grep 으로 걸러 보느라 못 봤다.
-chk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 — 모양이 아니라 이 말이 원천
+# ★[ECHO_TRIBUTE_DECLARE 2026-09-21] 문면이 바뀌었다 — 지키는 것은 «관계 강화»이지 그 글자가 아니다.
+#   [ASK_RETIRED] 로 감동 코스 선언이 30 으로 바뀌자 바로 뒤 문장과 「되었습니다」가 겹쳤다.
+#   ★「오늘로」가 «변화»를 안고 간다 — 그냥 「입니다」면 «오늘 가족이 됐다»가 사라진다.
+chk '두 집안은 한 가족입니다' assets/ritual-data.js 1
+nochk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js
 # ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
 #   ①규칙 6 위반(정의문으로 열기) ②'마지막'이 사실과 다르다(예식 뒤 30분이 더 있다)
 #   ③"자리에서 그대로"가 새 설계와 정면으로 어긋난다(이제 전원이 앞으로 모인다)
@@ -1524,7 +1528,10 @@ chk '모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다' a
 chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 0              # 옛 문안이 되살아나면 실패
 chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
 chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
-chk "'narr','ask','chorus','family'" order-preview.html 1
+# ★[BUILDER_FROM_SOURCE 2026-09-21] 목록을 손으로 안 적고 DECLWHO 에서 읽는다 —
+#   하드코딩 배열을 지키는 대신 «원천에서 읽는다»를 지킨다. 그러면 어긋날 수가 없다.
+chk 'Object.keys(DECLWHO).forEach' order-preview.html 1
+nochk "'narr','ask','chorus','family'" order-preview.html
 chk 'DECL_ADMIN_MIRROR' scripts/check-ritual-mirror.js 1   # 운영자 화면 2곳이 선언 주체 4종을 다루는지
 chk '_declWhoLabel' admin.html 2                            # 선언 주체 라벨은 원천(DECLWHO)에서 읽는다 · 하드코딩 맵 복귀 금지
 chk 'assets/ritual-data.js' admin.html 1                    # 위 함수가 참조할 원천 로드
@@ -7684,6 +7691,44 @@ chk 'RETIRED_SLOT' scripts/audit/sent-lib-check.mjs 2
 # ★[DROPPED_BRANCH] 표는 «문면 교체»용이고 «갈래 폐지»는 짝이 없다 — 성격이 달라 목록을 나눴다.
 #   79 를 표에 억지로 넣었다가 「전」이 폐지 근거 주석에도 있어 apply 가 주석까지 칠 뻔했다.
 chk 'DROPPED_BRANCH' scripts/audit/locked-proposal.py 1
+# ★[ENTRY_OUT_LIST] 「여는 말」이 추리기에서 통째로 빠져 있었다(코워크 지적).
+#   이름이 「어조표」가 아니라는 이유로 한 번도 안 쟀다 — 이름이 다르다고 다른 물건이 아니다.
+chk 'ENTRY_OUT_LIST' scripts/audit/pick-list.mjs 3
+# ★★[ASK_RETIRED 2026-09-21 사장님 지시] 「하객이 함께 답하기」 폐지 — 「네, 그러겠습니다」.
+#   사장님 원문: *「ai성우라서 한계가잇어 자연스럽지못해」*
+#   저장소가 이미 적어 둔 근거와 같다 — 한 명이 말하면 군중이 아니라 한 사람의 대답으로 들린다.
+#   ★되살릴 조건은 «문안 수정»이 아니라 **사람 목소리**다. 문안은 문제가 아니었다.
+# ★★[CHORUS_RETIRED 2026-09-21 사장님 지시] 「하객이 다 함께 · 합송」 폐지.
+#   ★폐지 이유가 [ASK_RETIRED] 와 «다르다» — 이쪽은 **애초에 배선이 안 돼 있었다.**
+#     반지 마무리 뒤 곧바로 침묵이고, 스물다섯 명이 그 침묵에서 스스로 시작해야 했다.
+#     nar 문안은 데이터에 있었지만 큐에 안 붙어 있어 **한 번도 쓰이지 않았다.**
+#   ★되살리려면 문안이 아니라 **도입·마무리 큐를 먼저 세워야** 한다.
+chk 'CHORUS_RETIRED' assets/ritual-data.js 1
+chk 'ASK_RETIRED' api/_ritual-kb.js 1          # AI 상담사가 «없는 갈래»를 안내하면 안 된다
+chk 'ASK_RETIRED' assets/ritual-story.js 1     # 사람 구간 설명 표
+chk 'ASK_RETIRED' scripts/build-dubbing-script.mjs 1
+chk 'BUILDER_FROM_SOURCE' scripts/check-ritual-mirror.js 1
+chk 'Object.keys(DECLWHO).forEach' order-preview.html 1   # 목록을 손으로 안 적는다
+chk 'ECHO_TRIBUTE_DECLARE' assets/ritual-data.js 1
+nochk '두 집안은 서로의 가족이 되었습니다' order-preview.html
+chk 'ASK_RETIRED' assets/ritual-data.js 1
+chk 'ASK_RETIRED' assets/ritual-cue.js 1
+# ★★[DECLWHO_LIVE] 「갈래가 되살아났나」는 **글자가 아니라 데이터 상태**다.
+#   폐지 문안은 주석으로 남기는 것이 이 저장소 관례라(되살릴 때 근거), 문자열 nochk 로 재면
+#   **내가 남긴 주석을 내가 잡는다.** 실제로 그렇게 걸렸다.
+#   그래서 실행 검사로 바꾼다 — DECLWHO 에 그 열쇠가 «있나»를 직접 본다.
+if command -v node >/dev/null 2>&1; then
+  _dw=$(node -e "const D=require('./assets/ritual-data.js');console.log(Object.keys(D.DECLWHO).sort().join(','))" 2>/dev/null)
+  [ "$_dw" = "family,narr" ] || { echo "REVERT? 성혼 선언 갈래가 'family,narr' 가 아니다 (지금: $_dw) — [ASK_RETIRED]·[CHORUS_RETIRED] 확인"; fail=1; }
+fi
+chk "'declare-ask-a': 1" assets/ritual-cue.js 1
+# ★[EVENT_SCRIPT] 성우별은 «녹음»의 자, 이벤트별은 «판단»의 자 — 진희 문제가 성우별에 숨어 있었다
+chk 'EVENT_SCRIPT' scripts/audit/event-script.mjs 1
+chk 'castMainOf' scripts/audit/event-script.mjs 1
+# ★[COMMON_TAIL] 갈래 전부가 같은 말로 닫으면 겹침 수치가 부풀려진다 — 설계이지 중복이 아니다.
+chk 'COMMON_TAIL' scripts/audit/pick-list.mjs 1
+# ★[WELCOME_OUT_DROP] 12 를 RETIRED 에도 넣었다 — 큐에서 뺀 것만으로는 재녹음 목록에 남았다.
+chk "'narr-welcome-out': 1" assets/ritual-cue.js 1
 chk '두 사람이 나란히 있습니다' scripts/audit/locked-proposal.py 1
 chk 'NEW_CLIP_NOSOUND' scripts/check-listen-cover.mjs 2
 chk 'TOAST_NONE' assets/ritual-cue.js 3

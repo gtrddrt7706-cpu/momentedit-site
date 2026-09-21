@@ -204,11 +204,19 @@ selfMiss.forEach(([k]) => console.log('   DRIFT ENTRY.' + k + '.self'));
 //   실사고(2026-07-26): 응답형(W2)이 택1인데 코드·KB·생성기가 '선언 뒤에 덧붙임'으로 서술 →
 //   그대로 녹음했으면 성혼 선언이 20초 간격으로 두 번 나갈 뻔했다(W2-c가 선언문 자체).
 const declKeys = Object.keys(D.DECLWHO);
+/* ★★[BUILDER_FROM_SOURCE 2026-09-21] 빌더가 목록을 **손으로 안 적고 DECLWHO 에서 읽으면**
+   이 검사가 지키려던 어긋남이 «정의상» 일어날 수 없다. 그게 하드코딩보다 강하다.
+   ★[ASK_RETIRED] 로 갈래를 지우다 빌더 배열을 Object.keys 로 바꿨더니 이 검사가
+     「배열 파싱 실패」로 붉었다 — **더 안전해졌는데 검사가 몰라서 막는** 꼴이었다.
+   ★그래도 «읽는다»는 사실 자체는 지킨다 — 아래 fromSource 가 그 줄을 찾는다.
+     누가 다시 하드코딩으로 되돌리면 그때는 개수를 센다. */
+const fromSource = /Object\.keys\(DECLWHO\)\.forEach\(function\(w\)\{/.test(html);
 const pickM = html.match(/\[([^\]]*)\]\.forEach\(function\(w\)\{\s*var sel=S\.declareWho===w/);
 const builderKeys = pickM ? (pickM[1].match(/'([^']+)'/g) || []).map((x) => x.replace(/'/g, '')) : null;
-ok('빌더 선언 선택지 배열이 DECLWHO ' + declKeys.length + '종과 일치'
-  + (builderKeys ? ' (빌더 ' + builderKeys.length + '종)' : ' — 배열 파싱 실패'),
-  !!builderKeys && builderKeys.length === declKeys.length && declKeys.every((k) => builderKeys.includes(k)));
+ok('빌더 선언 선택지가 DECLWHO ' + declKeys.length + '종과 일치'
+  + (fromSource ? ' (원천에서 직접 읽는다 — 어긋날 수 없다)'
+    : builderKeys ? ' (빌더 ' + builderKeys.length + '종)' : ' — 배열 파싱 실패'),
+  fromSource || (!!builderKeys && builderKeys.length === declKeys.length && declKeys.every((k) => builderKeys.includes(k))));
 
 const gen = fs.readFileSync(path.join(root, 'scripts/build-dubbing-script.mjs'), 'utf8');
 const genM = gen.match(/선언 (\d+)종/);

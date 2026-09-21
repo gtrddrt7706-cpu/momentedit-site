@@ -317,8 +317,18 @@ const clips = parse(SRC);
                 숫자가 같다고 «안 바뀐 것»이 아니다. 두 변경이 서로를 가린다.
                 그래서 연혁에 **둘 다** 적는다. 숫자만 보면 이 커밋이 통째로 안 보인다.
               79 는 52 와 뜻이 같아 뺐고(코워크 제안), entryOutBy 폴백이 B 를 A 로 보낸다.
-              파일·번호는 FILES 에 남아 있어 뒤 번호는 안 밀린다. */
-const CLIP_COUNT = 85;
+              파일·번호는 FILES 에 남아 있어 뒤 번호는 안 밀린다.
+     85 → 82 [ASK_RETIRED 2026-09-21 사장님 지시] 「하객이 답하기」 갈래를 통째로 폐지해 셋이 빠졌다.
+              33_declare-ask-a · 34_declare-ask-b · 35_declare-ask-c (생성기 G5 택1 그룹째 제거)
+              사장님 원문: *「그부분 삭제하자 않될거같아 ai성우라서 한계가잇어 자연스럽지못해」*
+              ★셋이 대본에서 «빠진» 이유는 RETIRED 라서가 아니다 — RETIRED 는 18개가 대본에 그대로
+                남아 있다(콘솔에서 손으로 트는 판이 거기 들어 있어서다). 이 셋은 그것과 다르다:
+                D.DECLWHO.ask 자체가 없어져 **고를 수 있는 갈래가 아니다.** 그래서 생성기 목록에서 뺐다.
+                → 「RETIRED 에 넣었으니 대본에서도 빠지겠지」로 읽지 말 것. 둘은 다른 목록이다.
+              ★번호 33·34·35 는 FILES 에 남겨 뒤 번호를 안 밀었다(2026-08-11 실측 사고와 같은 이유).
+              ★합송(chorus)도 같은 날 폐지했지만 **개수는 안 움직였다** — 그쪽은 나레이션 클립이 아니라
+                STORY.LIVE 의 지문이었다. 같은 지시로 지웠다고 같은 목록에서 빠지는 것이 아니다. */
+const CLIP_COUNT = 82;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

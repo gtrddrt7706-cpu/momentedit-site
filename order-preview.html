@@ -777,7 +777,7 @@ var RINGWARM={
 };
 var TRIBUTE={
  nar:"두 사람을 키워 주신 분들이 앞에 계십니다. 천천히 걸음을 옮겨 주십시오. 인사를 드리는 동안, 하객 여러분께서는 자리에 계셔 주시기 바랍니다.",   /* [VOICE_2ND_ONE] 원천 ritual-data.js 의 사본 — 근거는 그쪽 주석 */
- end:"오늘 두 집안은 서로의 가족이 되었습니다.",
+ end:"오늘로 두 집안은 한 가족입니다.",   // [ECHO_TRIBUTE_DECLARE 2026-09-21] 원천과 같게
  modes:{
   flower:{d:'꽃 헌정',how:'꽃을 전하고 포옹해요 · 키워 주신 다른 분께도 좋아요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹'},
   bow:{d:'큰절',how:'큰절을 올리고 일어나 포옹해요 · 깊은 목례로 바꿔도 돼요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로(큰절은 앉으신 채로 받으심) → 나레이션 흐르는 동안 → 두 분이 다가가 큰절(또는 깊은 목례) · 일어나 포옹'},
@@ -1468,7 +1468,9 @@ var SLUG_CUE={entryOut:'narr-entry-out'};
    ★표를 여기 한 곳에만 둔다. scripts/check-option-audio.mjs 가 이 표를 읽어
      ①표에 있으면 반드시 조용하고 ②조용하면 반드시 표에 있어야 한다 를 양방향으로 강제한다.
      클립이 생겨 소리가 나기 시작하면 검사가 "명단이 낡았다"고 먼저 화를 낸다. */
-var NO_PLAY={'declareWho=chorus':'합송은 당일 하객분들 목소리라 미리듣기가 없어요 · 글로 확인해 주세요'};
+/* ★[CHORUS_RETIRED 2026-09-21] 합송 갈래가 폐지돼 이 줄이 필요 없어졌다.
+   ★비워 둔다 — 「미리듣기가 없는 자리」가 또 생기면 여기 적는다. 검사가 이 목록과 실제를 맞댄다. */
+var NO_PLAY={};
 function _srcs(g,k,ovV){
   var fk=OPT_CUE[k]||k;   // [OPT_KEY] 거를 때 쓰는 이름 · 값을 넣을 때는 원래 옵션 키(k)를 그대로 쓴다
   var fs=SLUG_CUE[k]||'';  // [ENTRY_SECT] 파일 이름으로 거르는 옵션(자리 하나짜리 클립)
@@ -1709,13 +1711,13 @@ window.mtlGo=function(k){ if(!_seenK[k]) return; for(var i=0;i<STEPS.length;i++)
 //   과거 사고: 배지 조건이 w==='narr'로 하드코딩돼 있어, 코드 기본값과 화면이 서로 다른 말을 했다.
 var COURSE_DEF={
  damback:{entry:'A',declareWho:'narr', declare:'1',letter:'parent'},
- gamdong:{entry:'D',declareWho:'ask',  declare:'1',letter:'parent'},
+ gamdong:{entry:'D',declareWho:'narr',declare:'1',letter:'parent'},   // [ASK_RETIRED]
  family :{entry:'E',declareWho:'family',declare:'1',letter:'parent'},
  minimal:{entry:'B',declareWho:'narr', declare:'1',letter:'parent'},
  festive:{entry:'F',declareWho:'narr', declare:'2',letter:'parent'},
  /* ★[RECORD_COURSE 2026-08-07] 기록형 — 선언은 하객이 함께(ask). 주례 없는 게 이 코스의 핵심이면서
     동시에 격식 축을 지키는 최소 형식이다. 원천은 assets/ritual-cue.js 의 COURSE_DEF — 한쪽만 고치지 말 것. */
- record :{entry:'F',declareWho:'ask',  declare:'1',letter:'parent',ring:'off'}
+ record :{entry:'F',declareWho:'narr',declare:'1',letter:'parent',ring:'off'}   // [ASK_RETIRED]
 };
 function cdef(c){ return COURSE_DEF[c]||COURSE_DEF.damback; }
 /* [ORD_LEAN] '안심' 줄을 걷어냈다. 열에 여덟이 '대부분 X를 골라요'였는데,
@@ -2544,7 +2546,10 @@ function renderStep(k){
   }
   else if(k==='declare'){
     h+=clip('declare');
-    ['narr','ask','chorus','family'].forEach(function(w){
+    /* ★[ASK_RETIRED]·[CHORUS_RETIRED] 2026-09-21 — 넷에서 둘로. 목록을 손으로 적지 않는다:
+       DECLWHO 에서 바로 읽는다. 갈래를 지우는 날 이 줄을 같이 고치는 것을 잊으면
+       «화면에는 있는데 고르면 폴백되는» 유령 선택지가 생긴다. */
+    Object.keys(DECLWHO).forEach(function(w){
       var sel=S.declareWho===w, showNar=sel&&w!=='narr';
       h+=oc('declareWho',w,DECLWHO[w].d,DECLWHO[w].desc,showNar?DECLWHO[w].nar:null,(w==='family'&&sel)?OUT_DECLARE_FAMILY:null,null,(sel&&DECLWHO[w].prep)?('준비물 · '+DECLWHO[w].prep):null,w===cdef(S.course).declareWho);   // 코스별 실제 기본값에 '기본' 배지 — COURSE_DEF_MAP
       if(sel&&w==='narr'){

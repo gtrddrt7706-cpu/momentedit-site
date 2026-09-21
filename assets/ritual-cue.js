@@ -163,7 +163,10 @@
   // ── S 정규화 — order-preview.html:413 기본값 + COURSE_DEF(코스별 추천)
   var COURSE_DEF = {
     damback: { entry: 'A', declareWho: 'narr', declare: '1', letter: 'parent' },
-    gamdong: { entry: 'D', declareWho: 'ask', declare: '1', letter: 'parent' },
+    /* ★[ASK_RETIRED 2026-09-21] declareWho 'ask' → 'narr'. 그 갈래가 폐지됐다.
+       ★주석의 취지(주례도 권위자도 없다)는 narr 로도 지켜진다 — **성우는 주례가 아니다.**
+         family 는 가족이 선언해 권위자 쪽에 가까우니 이 코스엔 안 맞는다. */
+    gamdong: { entry: 'D', declareWho: 'narr', declare: '1', letter: 'parent' },
     family: { entry: 'E', declareWho: 'family', declare: '1', letter: 'parent' },
     minimal: { entry: 'B', declareWho: 'narr', declare: '1', letter: 'parent' },
     festive: { entry: 'F', declareWho: 'narr', declare: '2', letter: 'parent' },
@@ -171,7 +174,7 @@
        entry 'F'(이야기의 시작) — 행진이 아니라 "지금부터 시작된다"는 말이라 걸어오는 동선과 맞는다.
        declareWho 'ask'(하객이 함께) — ★주례도 권위자도 없는 게 이 코스의 핵심이고, 동시에
          격식 축을 지키는 최소 형식이다. 선언을 빼면 "화보만 찍었다"가 된다. */
-    record: { entry: 'F', declareWho: 'ask', declare: '1', letter: 'parent', ring: 'off' }
+    record: { entry: 'F', declareWho: 'narr', declare: '1', letter: 'parent', ring: 'off' }   // [ASK_RETIRED] 위와 같다
   };
   function norm(S) {
     var s = {}, k;
@@ -191,7 +194,14 @@
     };
     for (k in def) if (s[k] === undefined || s[k] === null) s[k] = def[k];
     if (!D.ENTRY[s.entry]) s.entry = cd.entry;
+    /* ★★[DECLWHO_FALLBACK 2026-09-21] 폴백이 **자기 자신으로 떨어질 수 있다.**
+       [ASK_RETIRED] 로 ask 를 지웠더니 코스 기본값이 ask 인 둘(감동·기록)에서
+       `cd.declareWho` 도 ask 라 폴백이 헛돌고 **전 조합 검사가 3456건 터졌다.**
+       ★나는 한 조합(`{declareWho:'ask'}`)만 돌려 보고 「폴백된다」고 단정했다 — 그게 틀렸다.
+       ★그래서 **마지막 그물**을 둔다: 코스 기본값도 없는 값이면 첫 갈래로 간다.
+         갈래를 지우는 날 코스 기본값을 같이 고치는 것이 옳지만, 안 고쳐도 터지지는 않게. */
     if (!D.DECLWHO[s.declareWho]) s.declareWho = cd.declareWho;
+    if (!D.DECLWHO[s.declareWho]) s.declareWho = Object.keys(D.DECLWHO)[0];
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
     /* ★[ALL_OPTIONAL 2026-08-07] 코스의 순서는 '추천 조합'이지 '못 빼는 목록'이 아니다.
@@ -248,6 +258,21 @@
        ★파일·문안은 그대로 둔다 — 번호 보존 · 되살릴 결정이 오면 근거가 된다.
        ★여는 말 선택지 6 → 5. 사장님 「이벤트당 3~8」 안이다. */
     'narr-entry-out-B': 1,
+    /* ★★[WELCOME_OUT_DROP 2026-09-20] 12 도 RETIRED 에 넣는다 — **큐에서 뺀 것만으로는 부족했다.**
+       ★실제 낭비를 잡았다: 큐 배열에서만 빼고 여기 안 넣었더니 **재녹음 목록이 여전히 12 를 받으라고**
+         했다(우성 49클립 안에 들어 있었다). 그대로 녹음하면 «안 쓸 소리»에 돈과 시간을 쓴다.
+       ★[DROP_GUARD] 가 「버림은 «클립을 지운다»지 «순서를 없앤다»가 아니다」라고 경고하는데,
+         그 반대도 참이다 — **순서를 없앴으면 클립도 «끈다»고 적어야** 목록에서 빠진다.
+       ★25_narr-bless-end-long · 32_declare-family 는 여기 넣지 않는다.
+         엔진 정적 분석으로는 「안 부른다」로 보이지만 **런타임 조건·폴백으로 실제로 나간다**
+         ([DROP_GUARD] 가 「비우면 안 되는 자리」로 적어 둔 그 둘이다). */
+    'narr-welcome-out': 1,
+    /* ★★[ASK_RETIRED 2026-09-21 사장님 지시] 「하객이 함께 답하기」 세 클립.
+       사장님 원문: *「하객한테 젤문던지는부분 네그렇습이다 그부분 삭제하자
+       않될거같아 **ai성우라서 한계가잇어 자연스럽지못해**」*
+       ★배역 R-declare-ask 는 「기획서 §6 결정 7 대기」로 보류돼 있었다 — **그 결정이 내려졌다.**
+       ★파일·번호는 남긴다(관례). 되살릴 조건은 «문안 수정»이 아니라 **사람 목소리**다. */
+    'declare-ask-a': 1, 'declare-ask-b': 1, 'declare-ask-c': 1,
     /* ★★[WAIT_BRIDGE_RETIRED 2026-09-06 사장님 결정] 대기·재개 브릿지 3클립(6문장) 폐지.
          잠시 이대로 두겠습니다 / 오늘은 서두를 일이 없습니다 /
          준비가 조금 남아 잠시 쉬어 가겠습니다 / 금방 이어집니다 /
