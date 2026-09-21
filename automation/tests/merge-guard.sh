@@ -881,7 +881,15 @@ chk 'entryOutBy' assets/ritual-data.js 1
 #   ★그냥 지우지 않고 nochk 로 뒤집는다 — «없어진 것»이 아니라 «지우기로 한 것»이다.
 #   ★갈래가 통째로 사라지는 사고는 이제 check-ritual-mirror 가 지킨다:
 #     「남은 갈래 + 일부러 뺀 것 = 6」. 숫자만 내리면 죽는 그물이라 그렇게 짰다.
-nochk '두 사람이 나란히 있습니다' assets/ritual-data.js
+# ★★[ENTRY_OUT_A_REWORD 2026-09-21] 뒤집는다 — 이제 **이 문장이 A 다.**
+#   옛 nochk 는 «B 갈래가 A 와 겹친다»를 막던 것인데, B 갈래가 없어졌으므로 막을 겹침이 없다
+#   (실측: `entryOutBy` 키 0개 · A 는 `entryOut` 과 짝으로만 존재).
+#   ★사장님께 여쭌 자리다 — 「같은 자리에 두 사람이 있습니다」로 되돌리라 하시면 이 둘을 도로 바꾼다.
+chk '두 사람이 나란히 있습니다' assets/ritual-data.js 2
+# ★[SELF_COMMENT_TRAP] 여기 nochk 를 뒀다가 **내 주석을 내가 잡았다**(이 세션 두 번째다).
+#   왜 뒀는지를 주석에 적는 것이 이 저장소 규칙이라, 문자열 nochk 와 늘 부딪힌다.
+#   ★지키려던 것은 위 chk 가 이미 지킨다 — A 가 「두 사람이 나란히 있습니다」 둘이면
+#     옛 문면으로 돌아간 것이 아니다. 같은 것을 두 번 재지 않는다.
 # ★[NARR_B1 2026-09-20] 옛 열쇠는 '두 사람이 섰습니다' 였는데, 그 문장은 사장님이 실청에서
 #   「두사람이 나란히 있습니다」로 손수 고치신 자리다. 잠금이 그 수정을 막고 있었다 —
 #   문안만 고치면 grep 이 0이 되어 RED 였고, 원인을 못 찾으면 사장님 수정을 되돌리는 쪽으로 간다.
@@ -7031,7 +7039,7 @@ chk '너는 말수가 줄면 설거지를 오래 해' 'docs/plans/식순연구/�
 chk 'LETTER_LAND' scripts/apply-letter-landing.mjs 1
 chk 'VOW_ECHO' scripts/apply-letter-landing.mjs 2
 chk '오늘부터 너는 혼자 참지 않아' 'docs/plans/식순연구/배역_예시_대사.txt' 1
-chk '너는 나에게 먼저 말해' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '힘든 날엔 나한테 먼저 말해 줘' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '그래서 오늘 여기 서 있어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOW_ECHO] 서약 짝(08·09)은 안 건드렸다. 편지 쪽 문장만 사라졌다
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '엄마 이제 밤에 잘 잔다' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [PEAK_ONE] 설명형 「네 옆에 사람이 생겼으니까」를 관찰형으로
@@ -7280,8 +7288,8 @@ nochk '잘 쓰려고 하다가 다 지웠어' 'docs/plans/식순연구/배역_�
 nochk '무슨 말을 할지 한참 못 정했어' 'docs/plans/식순연구/배역_예시_대사.txt'
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '멋있는 말을 잔뜩 적었다가 다 지웠어' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOW_OPENS_COLD] 「다 지웠어」 프레임은 새 [11]에도 없다 — nochk 가 이미 막는다
-chk '부모님께 읽어 드릴 편지를 써 왔습니다' assets/ritual-data.js 1  # [NARR_B1] 예고가 좌석·감정을 선취하지 않는다
-chk '서로에게 쓴 편지를 읽겠습니다' assets/ritual-data.js 1
+chk '쑥스러워 말로는 다 못 한 이야기를' assets/ritual-data.js 1  # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로
+chk '두 사람이 서로에게 쓴 편지입니다' assets/ritual-data.js 1   # 28 — 진행자가 읽는 것처럼 들렸다
 chk '편지가 두 번 이어집니다' assets/ritual-data.js 1
 
 # ★★[SPEECH_LEVEL 2026-09-12 사장님 "아버지 존대하는거 조금 어색해"] 아버님 덕담의 말단계를 반말로 통일했다.
@@ -7828,6 +7836,23 @@ chk 'DIFF_NOT_LIST' scripts/build-script-review.mjs 1
 chk 'REBIND_SAFE' scripts/sent-lib.mjs 2
 chk 'PRUNE_KEEPS_RETIRED' scripts/sent-lib.mjs 2
 chk 'RETIRED_TWO_SOURCES' scripts/sent-lib.mjs 1
+# ★★[SENT_VOICE 2026-09-21] 목소리는 «클립»이 아니라 «문장»에 붙는다.
+#   배역 입장(18~23)은 role 이 「신랑|신부」라 한 클립 안에서 두 사람이 번갈아 읽는데,
+#   클립 하나에 목소리 하나를 주면 voice 표에 없는 이름이라 **기본값(우성)으로 떨어졌다.**
+#   ★붙여넣기 파일이 그랬다 — 사장님이 그대로 타입캐스트에 넣으시는 파일이다.
+#     신랑·신부 대사 열네 줄을 진행자 목소리로 받을 뻔했고, check-entry-alt 가 잡았다.
+#   ★깨 보고 믿었다: 문장별 화자를 무시하게 하니 다시 빨강(rc=1), 되돌리니 0.
+chk 'SENT_VOICE' scripts/check-text-audio.mjs 3
+# ★[REDUB_PENDING] 문면을 고쳤는데 소리를 아직 못 받은 클립은 «문장 경계»를 못 잰다 — 봐준다.
+#   ★그냥 끄지 않는다: 재녹음 대기 명단에 있는 것만 봐주고 개수를 찍는다.
+#     반증 — 명단에서 이름을 지우니 23_entry-F 가 다시 붉어졌다.
+chk 'REDUB_PENDING' scripts/check-entry-voice.mjs 2
+# ★[CAST_LINES]·[CAST_COUNT] 배역 대본은 문장을 줄마다 담는다(「신랑: …」).
+#   클립을 한 줄로 이어 붙이는 치환은 그 파일에 안 닿아 화면과 대본이 조용히 갈라졌다(18·23 실측).
+chk 'CAST_LINES' scripts/apply-cowork-table.py 1
+chk 'CAST_COUNT' scripts/apply-cowork-table.py 1
+chk 'COWORK_TABLE' scripts/apply-cowork-table.py 1
+chk 'NOT_A_SENTENCE' scripts/apply-cowork-table.py 1
 chk "const WRITE = has('--write')" scripts/sent-lib.mjs 1
 chk 'LOCK_NO_DOT' scripts/build-script-review.mjs 1
 if command -v node >/dev/null 2>&1; then
@@ -7852,7 +7877,9 @@ chk '이 약속은 두 사람만의 것이 아닙니다' assets/ritual-data.js 1
 # ★[RING_FRAME 2026-09-20 사장님 「박수유도는?」] 반지 구간에 «왜 반지인가»와 «박수»가 둘 다 없었다.
 #   박수를 여는 진행 클립이 13개인데 반지만 0개였고, 서른 명 예식은 누가 먼저 치지 않으면 박수가 안 난다.
 #   ★수식어 없이 「박수」만 — 「큰 박수」는 성혼선언 네 갈래가, 「따뜻한 박수」는 입장 여섯 갈래가 이미 쓴다.
-chk '반지는 날마다 눈에 띕니다' assets/ritual-data.js 2
+chk '반지는 날마다 이 순간을 떠올리게 합니다' assets/ritual-data.js 2   # 15 — 왜 하는 순서인지 들리게
+# ★코워크 물음 「두 곳 중 하나가 어디냐」 — 실측: NARR.ring 본문과 어조표 «담백»(COURSES 갈래) 둘이다.
+#   둘은 같은 문장을 들고 있어 **함께** 바꿔야 한다. 한쪽만 고치면 코스에 따라 옛 말이 나간다.
 chk '축하의 박수를 청합니다' assets/ritual-data.js 2
 chk '준비되시면 그대로 읽어 주십시오' assets/ritual-data.js 1   # 21 — 가족이 마이크를 든 채 시작 신호가 없었다
 # ★★[PAIR_READ 2026-09-20] 첫인사 둘을 나란히 읽었다 — 한 라이브 창에 붙어 나가는 자리다.
@@ -7901,7 +7928,7 @@ chk '한쪽에 간단한 다과와 음료를 준비해 두었습니다' assets/r
 #   ★★코워크안은 「두 사람이 **골랐습니다**」였는데 **안 받았다** — [GUEST_TONE]③ 이 명시적으로 뺀 낱말이다.
 #     「고른」은 «남이 차린 것에서 집었다»는 말이라, 두 사람이 직접 만든 예식이라는 이 상품의 뿌리와
 #     정면으로 어긋난다. 「정했습니다」로 바꾸니 그 결정을 지키면서 27음절→16음절 낙차는 그대로 얻었다.
-chk '순서도 이 안내도' assets/ritual-data.js 2
+chk '순서도, 이 목소리도' assets/ritual-data.js 2        # 04a·04c — 앞 줄 「안내 음성」과 겹쳐서
 chk '휴대폰 소리는 잠시 꺼 주시면 됩니다' assets/ritual-data.js 1
 chk '절반쯤 인사를 나누셨습니다' assets/ritual-data.js 1
 # ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
@@ -8205,6 +8232,13 @@ chk 'freePort' scripts/audit/section-rhythm.mjs 2
 #   ⑤덕담 — 아버님은 «안 놓는 사람»(「그때도 먼저 나가 있을 거다」), 어머님은 «놓는 사람»(「엄마 이제 밤에 잘 잔다」).
 #     설계대로 갈려 있다. 호명 순서가 서로 반대인 것도 자연스럽다(아버지는 사위 먼저, 어머니는 딸 먼저).
 # PAIR_READ 12_bless-father+13_bless-mother 15.17
+# PAIR_READ 14_tribute+27_tribute-reply 12.5
+#   ★나란히 읽었다(2026-09-21) — 부딪히는 사실 없음. 오히려 대구가 맞물린다:
+#     헌정  어머니가 «아들 방문»을 두드리셨다 → 「오늘은 두드리지 않으셔도 됩니다. 그냥 들어오세요.」
+#     답사  「이제는 네가 «우리 집 문»을 두드려라. 엄마가 열어 줄게.」
+#     문이 다르고 여는 사람이 뒤바뀐다. 이름(서준·하윤)도 일관 · 합쇼체↔반말 층위 분리는 의도.
+#   ★현장 전제 하나만 적어 둔다 — 답사의 「네 아버지가 저렇게 우는 건 오늘 처음」은
+#     아버님이 안 계신 예식에서는 못 쓴다. 견본이라 고객이 자기 말로 바꿔 쓰는 자리다.
 
 # ── apply·audit 스크립트가 선언한 결정 이름을 게이트에 건다 (decision-guard 가 요구한 아홉 건)
 chk 'TIER_COUNT' scripts/audit/btn-tier.mjs 1
@@ -8286,7 +8320,7 @@ chk 'NO_SPOIL' scripts/apply-nospoil.mjs 2
 nochk '그 말씀 안에 다 있었습니다' assets/ritual-data.js
 nochk '말로 다 못 한 감사를' assets/ritual-data.js
 chk '다 하신 분은 아마 안 계실 겁니다' assets/ritual-data.js 1       # [NO_VERDICT] 단정하지 않는다 — 새 문안으로 옮겨 건다
-chk '못 하신 말씀은 두 사람이 살면서 듣게 됩니다' assets/ritual-data.js 1   # 사장님 「듣겠습니다」를 주어와 맞춰 「듣게 됩니다」로
+chk '못 하신 말씀은 두 사람이 살면서 듣겠습니다' assets/ritual-data.js 1   # 25 — 사장님이 직접 고쳐 주신 어미   # 사장님 「듣겠습니다」를 주어와 맞춰 「듣게 됩니다」로
 chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
 
 # ★★[NARV_ZERO] 첫인사 여는 말은 원천에 «두 곳»이다 — NARR.welcome 과 NARV.welcome[0].
@@ -8303,7 +8337,9 @@ chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
 #   09·82·11·22·24 에서 「오늘」이 다섯 연속이었다. 앞 근거는 «기본 코스만» 재고 쓴 값이었다.
 #   ★「이 자리」도 빼는 이유: 기본 코스에서 바로 앞 52 가 「같은 자리에」, 가족코스에서 24 가 「이 자리에」다.
 #     입장 직후라 아직 아무도 말하지 않은 때여서 「첫마디」가 꾸밈 없이 스스로 선다.
-chk '첫마디는 두 사람 몫입니다' assets/ritual-data.js 2
+chk '두 사람이 하객 여러분께 첫인사를 직접 드리겠습니다' assets/ritual-data.js 2
+# ★11 은 오늘 하루에만 «이 자리 첫마디는» → «첫마디는» → 지금 문면으로 **두 번** 바뀌었다.
+#   표에 없던 것을 전수 대조가 잡았다. 잠금을 손으로 따라가면 이런 자리가 남는다.
 nochk '이 자리 첫마디는' assets/ritual-data.js
 nochk '오늘 첫마디는' assets/ritual-data.js
 nochk '먼저, 두 사람이' assets/ritual-data.js
@@ -8369,7 +8405,7 @@ chk '너한테는 삼십 분을 따지면서, 정작 내가 힘들다는 말은 
 #   귀는 같은 말이 다시 나올 때만 «아, 그 얘기»라고 잇는다. 표현이 바뀌면 연결이 안 들린다.
 #   그래서 신랑이 쓴 낱말을 그대로 되받게 했다. 20분 전 문장이 여기서 닫힌다.
 #   ★「정작」은 그대로 둔다 — 뒷절 주어가 「너」로 들리던 것을 잡는 말이다.
-chk '나도 해 볼게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
+chk '나도 그렇게 해 볼게' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 # ★★[CHAR_LAND] 「나는 따지는 사람이야」는 «성격 전체»를 말하는 딱지였다.
 #   그 딱지가 붙은 뒤 해소 문장까지 네 줄(약 20초)이 걸렸고, 바로 앞 순서에서 신랑이
 #   「한 번도 힘들다는 말을 안 했어 · 몇 번을 혼자 참았을지」라고 말해 둔 참이었다.
@@ -8425,13 +8461,13 @@ nochk '나머지 분들은 그대로 계셔도 좋습니다' assets/ritual-data.
 chk 'TIC_CUT' scripts/apply-tic-cut.mjs 2
 chk 'COUNT_BY_CUE' scripts/apply-tic-cut.mjs 1
 # ★[SOFT_NARRATION] 디지털 참석자를 가르지 않는 문장으로 바꿨다 — 마커도 함께 옮긴다.
-chk '오늘 이 자리에 계신 분들만 들으셨습니다' assets/ritual-data.js 1
+chk '오늘이 두 사람에게 더 특별한 날이 되었습니다' assets/ritual-data.js 1   # 24 — 온라인 하객이 있으면 「이 자리에 계신 분들만」은 사실이 아니다
 chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 # ★[NO_FUSS 2026-09-12] 「앉아 계십니다」 → 「앞자리에 부모님이 계십니다」.
 #   지키려던 것은 «문장의 주어가 사람»이라는 것이다(추상 주어 「마음이 … 함께합니다」로 돌아가지 않기).
 #   새 문장도 주어가 사람이고, 하객의 시선을 부모님께 돌리는 기능도 그대로다. 형태만 짧아졌다.
 #   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
-chk '부모님께 읽어 드릴 편지를 써 왔습니다' assets/ritual-data.js 1  # [NARR_B1] 예고가 좌석·감정을 선취하지 않는다
+chk '쑥스러워 말로는 다 못 한 이야기를' assets/ritual-data.js 1  # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로
 nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
 chk '그 편지는 받으신 분이 간직하십니다' assets/ritual-data.js 1
 nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
@@ -9315,7 +9351,10 @@ chk 'SOFT_TONE' scripts/apply-soft-narration.mjs 1
 # ★옛 문구를 nochk 로 막으려다 멀쩡한 자리를 잡았다 — ritual-data 의 TONE_TABLE 블록은
 #   «어조 60벌»(21_B_제안.md §3 에서 생성)이고 그쪽은 이미 186개를 녹음해 둔 다른 묶음이다.
 #   같은 문장이라도 자리가 다르면 다르게 본다(SOFT_NOT_BLANKET) — 그래서 새 문구가 있는지로만 지킨다.
-chk '읽어 주시면 됩니다' assets/ritual-data.js 3                    # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면
+chk '읽어 주시면 됩니다' assets/ritual-data.js 2                    # [SOFT_NARRATION] 권유형 어미 — 사장님 실청 문면
+# ★셋에서 둘로 준 까닭 — 27#1 이 「직접 읽어 드리시면 됩니다」로 바뀌었다(부모님께 읽는 것이라 높임).
+#   숫자만 내리지 않고 **옮겨 간 자리를 함께 잠근다** — 안 그러면 그 한 줄이 아무 검사도 안 받는다.
+chk '직접 읽어 드리시면 됩니다' assets/ritual-data.js 1
 chk '두 분, 차례로 읽어 주시면 됩니다' assets/ritual-data.js 1
 chk '서로의 손에 반지를 끼워 주시면 됩니다' assets/ritual-data.js 2
 # ★[CUE_READ 2026-09-20] 「이제」를 뺐다 — 큐 순서에서 18·20·21 이 연달아 「이제」로 열고 있었다.
