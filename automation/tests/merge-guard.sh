@@ -7780,8 +7780,69 @@ if command -v python3 >/dev/null 2>&1; then python3 scripts/audit/locked-proposa
 # ★★[EAR_WHAT_NOT_HOW 2026-09-20 코워크 요청 A] 「언제 시작하나」를 «어형»으로 재던 것을 «지킬 말»로 넓혔다.
 #   [G8_OUT_SPLIT] 이 이미 답을 낸 자리다 — 형태를 지키던 검사가 틀렸던 것이지 글이 틀린 게 아니다.
 chk 'EAR_WHAT_NOT_HOW' scripts/audit/guest-ear.js 1
-chk '십 분쯤 뒤에 시작합니다' assets/ritual-data.js 1        # 02a — 세 번 듣는 시각 안내의 문형 통일
-chk '오 분쯤 뒤에 시작합니다' assets/ritual-data.js 1        # 03a — 위와 같은 꼴
+# ★★[TIME_STAIR 2026-09-21 사장님 지적 · 코워크 자진 정정] 위 두 줄은 **틀린 규칙이 글자로 잠긴 것**이었다.
+#   사장님 원문: *「오분쯤 시작합니다 오분뒤 시작합니다 이런건 전에꺼가 더괜찮았는데」*
+#   ★사고의 모양 — 코워크 진단이 「시각 고지 세 칸을 같은 문형으로 통일한다」였고, 그 통일안이
+#     check-copy 26 [TIME_FORM] 으로 박히고, 다시 여기 chk 로 잠겼다. 그래서 **사장님이 옳게 짚으셔도
+#     저장소가 되돌릴 수 없었다.** 검사가 옛 글을 요구하고 있었기 때문이다.
+#   ★교훈(코워크 문장 그대로): 「틀린 규칙을 검사로 박으면, 사람이 옳게 고쳐도 검사가 되돌립니다.」
+#     그래서 지우는 데서 멈추지 않고 **반대 방향으로** 세웠다 — check-copy 26 이 이제 «두 칸이 같은 꼴이면 빨강»이다.
+#   ★「옛 판 통째 되돌리기」가 아니다. 옛 부부판도 02c·03c 가 어미만 다른 같은 꼴이라 같은 병이었다.
+#     지금은 셋이 다른 꼴로 «다가온다»를 만든다 — 얼마 뒤 / 카운트다운 / 곧.
+chk '오늘의 예식이 약 십 분 뒤 시작됩니다' assets/ritual-data.js 1   # 02a — 얼마 뒤(주어 있음)
+chk '예식 시작 오 분 전입니다' assets/ritual-data.js 1               # 03a — 카운트다운
+chk '곧 예식이 시작됩니다' assets/ritual-data.js 1                   # 04a — 곧
+nochk '십 분쯤 뒤에 시작합니다' assets/ritual-data.js
+nochk '오 분쯤 뒤에 시작합니다' assets/ritual-data.js
+chk '저희 예식이 약 십 분 뒤 시작됩니다' assets/ritual-data.js 1     # 02c — 부부판도 같은 계단
+chk '저희 예식까지 오 분 남았어요' assets/ritual-data.js 1           # 03c
+chk '곧 저희 예식이 시작됩니다' assets/ritual-data.js 1              # 04c
+chk 'TIME_STAIR' scripts/audit/copycheck/check-copy.py 1             # 검사가 반대로 세워져 있는가
+chk 'TIME_STAIR' scripts/audit/guest-ear.js 1                        # 「남았」도 시각의 답이다(03c)
+# ★★[DROP_ANSWER 2026-09-21 코워크 §7-G] 「확인 필요」를 답으로 두지 않는다.
+#   코워크가 12·25·32·43 을 「난다/폐지」로 정해 달라 했다. 12 는 폐지, 43 은 콘솔이었고,
+#   25·32 는 **런타임에 갈아끼우는 자리**라 «엔진 정적 분석»에는 영영 안 잡힌다.
+#   ★손 목록으로 박지 않고 코드에서 끌어냈다 — `alt:{slug}` 와 `D.DECLWHO` 갈래.
+#     반증으로 확인했다: DECLWHO 에서 family 를 빼니 32 가 다시 「확인 필요」로 돌아갔다.
+#     손으로 박았으면 갈래가 바뀌어도 «난다»라고 조용히 거짓말했을 자리다.
+#   ★[NO_SUCH_CLIP] 도 같은 커밋에 — 없는 이름에 「확인 필요」라고 답하던 구멍.
+#     내가 `43_declare-3-warm` 이라는 헛이름을 물었더니 판정을 내줬다(43 은 실제로 parents-letter).
+chk 'RUNTIME_SWAP' scripts/lib/drop-guard.mjs 1
+chk 'NO_SUCH_CLIP' scripts/lib/drop-guard.mjs 1
+chk 'CUE_ORDER_DROP' scripts/audit/cue-order-text.mjs 1
+# ★★[SCRIPT_REVIEW 2026-09-21 코워크 요청] 사장님이 한 번에 읽는 대본 정리본.
+#   ★[COVER_ALL] — 나는 소리가 하나라도 빠지면 생성기가 **멎는다**. 반쪽 문서를 드리면
+#     사장님은 «여기 없으니 없는 말»이라고 읽으신다. 반증으로 확인했다(그물을 빼니 15개를 잡고 rc=1).
+#   ★[DIFF_NOT_LIST] — «검토중»을 손 목록이 아니라 **origin/main 과의 문장 차이**로 잰다.
+#     손 목록은 ①클립 단위라 사장님 문면까지 물들이고 ②다음 판에 반드시 낡는다.
+#   ★[LOCK_NO_DOT] — 게이트 chk 에는 마침표가 없어 `has(문장)` 으로는 **0건**이었다(실측).
+chk 'COVER_ALL' scripts/build-script-review.mjs 2
+chk 'DIFF_NOT_LIST' scripts/build-script-review.mjs 1
+# ★★[REBIND_SAFE 2026-09-21] **내가 flac 192개를 지웠다가 되돌린 자리다.** 커밋 전이라 살았다.
+#   원인 둘: ①형제 명령 `--prune` 은 미리보기가 기본인데 `--rebind` 는 **바로 썼다**
+#            ②rebind 가 «글자가 안 맞는» 소리를 전부 지웠다 — 문면을 고치는 중이면 다 안 맞는다.
+#   창고를 만든 이유가 «다시 안 받으려고»인데 그 창고가 스스로를 비우고 있었다.
+# ★★[PRUNE_KEEPS_RETIRED] 폐지 클립의 소리는 안 지운다. 폐지는 «끄는 것»이지 «없애는 것»이 아니다.
+# ★★[RETIRED_TWO_SOURCES] 폐지 원천이 둘(cue RETIRED · CAST_HOLD)이다. 하나만 보면 15_toast 가 샌다.
+#   ★깨 보고 믿었다 — CAST_HOLD 인식을 끊으니 15_toast 7자리가 지울 목록에 되올라왔다.
+chk 'REBIND_SAFE' scripts/sent-lib.mjs 2
+chk 'PRUNE_KEEPS_RETIRED' scripts/sent-lib.mjs 2
+chk 'RETIRED_TWO_SOURCES' scripts/sent-lib.mjs 1
+chk "const WRITE = has('--write')" scripts/sent-lib.mjs 1
+chk 'LOCK_NO_DOT' scripts/build-script-review.mjs 1
+if command -v node >/dev/null 2>&1; then
+  node scripts/build-script-review.mjs >/dev/null 2>&1 \
+    || { echo 'FAIL [SCRIPT_REVIEW] 대본 정리본이 안 뽑힌다(나는 소리가 빠졌을 수 있다) — node scripts/build-script-review.mjs'; fail=1; }
+fi
+# ★[SELF_COMMENT_TRAP] 여기 `nochk '안 남'` 을 넣었다가 **내 주석을 내가 잡았다** — 폐지 사유를
+#   주석으로 남기는 것이 이 저장소 규칙이라(제거 지시 보존), 문자열 검사와 늘 부딪친다([DECLWHO_LIVE] 재발).
+#   그래서 «글자»가 아니라 «표의 값»을 본다. 표에 「안 남」 칸이 하나도 없어야 한다.
+if command -v node >/dev/null 2>&1; then
+  _cod=$(node scripts/audit/cue-order-text.mjs 2>/dev/null | awk -F'\t' '$2=="안 남"' | wc -l)
+  [ "${_cod:-0}" -eq 0 ] || { echo "FAIL [CUE_ORDER_DROP] 「안 남」 칸이 $_cod 줄 — dropGuard 배선이 끊겼다"; fail=1; }
+  _cod2=$(node scripts/audit/cue-order-text.mjs 2>/dev/null | awk -F'\t' '$2=="★이름오류"' | wc -l)
+  [ "${_cod2:-0}" -eq 0 ] || { echo "FAIL [NO_SUCH_CLIP] 표에 없는 클립 이름이 $_cod2 줄"; fail=1; }
+fi
 # ★★[ASK_REORDER 2026-09-20 사장님 「유도가 약하다 · 따라 해야 하나 싶을 것 같다」]
 #   응답형 선언에서 **질문이 시연보다 앞**에 있었다. 하객은 답을 배우기 전에 질문을 듣는 셈이라
 #   「다 같이」가 «따라 읽어라»로 들린다. 시연 → 예고 → 질문으로 세웠다.
@@ -8237,7 +8298,14 @@ chk 'NO_VERDICT' scripts/apply-nospoil.mjs 3
 # ★[LEAD_COMMA 갱신 2026-09-20] 문면이 바뀌었다 — 지키는 것은 «첫인사를 예고한다»이지 그 글자가 아니다.
 #   바로 뒤 07w 가 「먼저 이렇게 인사드리고」로 열어 「인사」·「먼저」가 겹쳤다. 둘 다 피한 문면으로 간다.
 #   ★앞머리 쉼표절(「먼저,」)로 되돌아가지 말 것 — 그것이 이 잠금의 본뜻이다.
-chk '이 자리 첫마디는 두 사람 몫입니다' assets/ritual-data.js 2
+# ★[WELCOME_IN_NOW 2026-09-21 코워크 자진 정정 3회차] 「이 자리」도 뺀다.
+#   코워크가 앞서 「오늘 첫마디는」을 부탁했다가 **거뒀다** — 가족코스를 큐 순서로 다시 읽으니
+#   09·82·11·22·24 에서 「오늘」이 다섯 연속이었다. 앞 근거는 «기본 코스만» 재고 쓴 값이었다.
+#   ★「이 자리」도 빼는 이유: 기본 코스에서 바로 앞 52 가 「같은 자리에」, 가족코스에서 24 가 「이 자리에」다.
+#     입장 직후라 아직 아무도 말하지 않은 때여서 「첫마디」가 꾸밈 없이 스스로 선다.
+chk '첫마디는 두 사람 몫입니다' assets/ritual-data.js 2
+nochk '이 자리 첫마디는' assets/ritual-data.js
+nochk '오늘 첫마디는' assets/ritual-data.js
 nochk '먼저, 두 사람이' assets/ritual-data.js
 nochk '두 사람이 자리에 섰습니다' assets/ritual-data.js
 chk 'NARV_ZERO' scripts/apply-nospoil.mjs 1

@@ -26,6 +26,11 @@ const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/
  *   그래서 차례만으로 세면 절반이 「안 불림」이 된다. 「엔진이 부르는가」는 [ENGINE_CALLS] 에 묻는다 —
  *   저장소에 그 계산을 한 군데만 두기로 한 규칙이다. */
 const { want: ENGINE, retired: RETIRED } = (await import('../lib/engine-calls.mjs')).engineCalls();
+/* ★★[CUE_ORDER_DROP 2026-09-21 코워크 §7-G] 「식장에서」 칸을 dropGuard 에 물린다.
+   종전 세 값(난다·폐지·안 남)에서 «안 남»이 너무 넓었다 — 엔진이 식순대로 안 부르는 것을
+   전부 그리로 몰아넣어서, 실제로는 **진행자가 콘솔에서 트는 판**과 **런타임 폴백**이 거기 섞였다.
+   코워크가 12·25·32·43 을 물어본 것이 정확히 그 자리다. dropGuard 가 이미 네 갈래로 답한다. */
+const DG = (await import('../lib/drop-guard.mjs')).dropGuard();
 
 /* ★대표 설정 넷은 «읽기 쉬운 차례»를 주고, 그 뒤 전 축을 돌려 «안 빠지게» 한다.
  *   ★처음엔 넷만 돌렸더니 109 중 35개만 불렸다 — 엔진이 실제로 부르는 것은 87이다.
@@ -99,14 +104,29 @@ for (const id of ids) {
     if (others.length) pos += ' | 다른 설정: ' + others.join(',') + '번째';
   }
   else { uncalled++; pos = '(이 설정들에선 안 불림)'; }
-  const live = ENGINE.has(id) ? '난다' : (RETIRED.includes(id) ? '폐지' : '안 남');
+  /* 엔진이 식순대로 부르면 그것으로 끝. 아니면 dropGuard 가 «왜 나는지»를 답한다. */
+  let live;
+  if (ENGINE.has(id)) live = '난다';
+  else {
+    const g = DG.of(id);
+    live = g.kind === '폐지한 자리' ? '폐지'
+         : g.kind === '그런 클립 없음' ? '★이름오류'
+         : g.empty === false ? '난다(' + g.kind + ')'
+         : '확인 필요';
+  }
   text.get(id).forEach((t, i) => out.push([pos, live, id, m.layer, m.role, '#' + i, t].join('\t')));
 }
 out.push('#');
 const liveN = ids.filter(i => ENGINE.has(i)).length;
 out.push('# 클립 ' + ids.length + ' — 차례가 잡힌 것 ' + called + ' · 못 잡은 것 ' + uncalled);
-out.push('# 「식장에서」 칸이 진짜 답이다 — 난다 ' + liveN + ' · 폐지 ' + RETIRED.length);
+out.push('# 「식장에서」 칸이 진짜 답이다 — 엔진이 부르는 것 ' + liveN + ' · 폐지 ' + RETIRED.length);
+{ /* dropGuard 갈래별 집계 — «안 남» 한 덩어리로 뭉뚱그리지 않는다 */
+  const tally = {};
+  for (const id of ids) if (!ENGINE.has(id)) { const k = DG.of(id).kind; tally[k] = (tally[k] || 0) + 1; }
+  out.push('# 엔진 밖 ' + Object.entries(tally).map(([k, v]) => k + ' ' + v).join(' · '));
+  out.push('# ※ 「확인 필요」는 «안 난다»가 아니다 — 폴백·런타임 조건으로 나간다. 비우지 말 것([DROP_GUARD]).');
+}
 out.push('# ※ 차례를 못 잡았어도 「난다」면 식장에서 나는 소리다(배역 클립은 나레이션을 대신해 붙어');
-out.push('#   큐의 파일 이름으로는 안 잡힌다). 「안 남」일 때만 안 나간다.');
+out.push('#   큐의 파일 이름으로는 안 잡힌다). 「폐지」일 때만 안 나간다.');
 process.stdout.write(out.join('\n') + '\n');
 process.stderr.write('[CUE_ORDER_TEXT] 클립 ' + ids.length + ' · 줄 ' + out.length + '\n');

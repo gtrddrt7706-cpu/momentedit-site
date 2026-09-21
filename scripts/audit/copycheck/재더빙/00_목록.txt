@@ -1,0 +1,12 @@
+재더빙 묶음
+
+서진          2클립  seojin_2clips.txt
+신랑·신부       3클립  couple_3clips.txt
+우성         48클립  woosung_48clips.txt
+이겸          4클립  igyeom_4clips.txt
+주하          1클립  jooha_1clips.txt
+진희          7클립  jinhee_7clips.txt
+
+★파일명은 영문입니다 — 한글 파일명이 든 압축을 한국 프로그램이 못 여는 일이 있었습니다.
+★문안이 안 바뀐 클립은 여기 없습니다. 성우를 바꾸시는 경우에는 그 성우의 «모든» 클립을
+  받아야 하니 이 명단만 믿으면 안 됩니다 — 앞에 그 사고가 한 번 났습니다.
