@@ -1361,7 +1361,21 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     /* 예식일 임시 고정 배너 (①) */
     .hold-card{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border-radius:9px;border:1px solid var(--hairline,#E6E1D8);background:var(--bg2,#F7F4EE);margin-bottom:4px}
     .hold-card.hold-ok{border-color:#cdb98a;background:#faf6ed}
-    .hold-ic{font-size:15px;line-height:1.4;flex-shrink:0}
+    .hold-ic{font-size:15px;line-height:1.4;flex-shrink:0;width:15px;height:21px;display:inline-flex;align-items:center;justify-content:center}/* ★★[HOLD_IC_NONE 2026-09-21 사장님 지적 「앞에 ... 점3개 왜있는거야?」 → 「삭제검토」] 되돌리지 말 것.
+   대기 상태에는 아이콘을 «두지 않는다». 승인되면 ✓ 하나만 뜬다.
+   ①종전 «…»(U+2026)는 말줄임표다 — «생략»·«말끝 흐림»을 뜻하는 구두점이지 «대기»가 아니다.
+     채팅의 typing… 에서 빌려온 몇 초짜리 글리프인데, 여기는 디렉터가 확인해 카카오톡으로
+     알려 주는 몇 시간~며칠짜리 상태라 뜻이 어긋난다. 그래서 아이콘으로 안 읽히고
+     «문장 앞에 점 세 개가 떠 있는» 것으로 보였다.
+   ②카드가 이미 「예식일 임시 고정을 검토 중이에요」라고 «글로» 말한다. 아이콘이 더하는 정보가 없다.
+     비워 두면 승인 시 나타나는 ✓ 가 «변화»로 읽혀 오히려 강해진다.
+   ③width·height 를 고정해 두 상태의 글줄 시작점이 안 어긋나게 한다(실측 82px 동일).
+   ★★내가 한 번 틀렸다 — 처음엔 «빈 원»으로 바꾸고 「바로 위 단계 표시가 이미 빈 원/채운 원으로
+     진행을 말하니 한 화면에 두 언어다」를 근거로 댔다. **그 근거가 틀렸다.**
+     단계 표시는 «10단계 여정의 어디쯤»이고 이 아이콘은 «별개 요청이 승인됐나»다 — 다른 뜻이라
+     달라 보이는 것이 맞다. 게다가 빈 원으로 바꾸면 미래 단계 점(.dot.future)과 똑같이 생겨서
+     내가 없앤다던 혼동을 내가 만드는 꼴이었다. 사장님이 잡아 주셨다.
+     → 다음에 이 자리에 «무언가를 넣자»는 제안이 오면 위 ②를 먼저 볼 것. */
     .hold-t{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);line-height:1.5}
     .hold-s{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);line-height:1.65;margin-top:3px}
     .hold-s b{font-weight:500;color:var(--accent)}
@@ -3129,7 +3143,7 @@ function renderHold(h){   // MPD_B14 보완(2026-07-25): 가예약 검토 아이
     ? ('<div class="hold-date">'+when+'</div>'+(h.expires&&typeof fmtWedKo==='function'?('<div class="hold-meta">'+escapeHtml(fmtWedKo(h.expires))+'까지 보호 · 본계약 진행 시 확정</div>'):'<div class="hold-meta">본계약 진행 시 이 날짜로 확정</div>'))
     : ('<div class="hold-date">'+when+'</div><div class="hold-meta">디렉터가 확인하고 있어요 · 승인 시 카카오톡으로 안내</div>');
   var _hb='background:transparent;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent';
-  box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic">'+(approved?'✓':'…')+'</span><div class="hold-body"><div class="hold-t" style="margin-bottom:7px">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
+  box.innerHTML='<div class="hold-card '+(approved?'hold-ok':'hold-wait')+'"><span class="hold-ic" aria-hidden="true">'+(approved?'✓':'')+'</span><div class="hold-body"><div class="hold-t" style="margin-bottom:7px">'+(approved?'예식일이 임시로 고정됐어요':'예식일 임시 고정을 검토 중이에요')+'</div><div class="hold-s">'+sub+'</div>'
     +'<div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" style="'+_hb+'" id="mp_holdEdit">예식일 변경</button><button type="button" class="cc-btn-textlink" id="mp_holdCancel">고정 취소</button></div>'
     +'</div></div>';
   box.style.display='block';

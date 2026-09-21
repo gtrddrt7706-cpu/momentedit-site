@@ -1376,15 +1376,16 @@
     "ADMIN_NOFEE_LINE",
     "PRICE_2026_08"
    ],
-   "bytes": 93835
+   "bytes": 94321
   },
   {
    "file": "ScreenA_apply",
    "marks": [
     "BUSY_ONE",
-    "SEATED30"
+    "SEATED30",
+    "LOADING_ONE"
    ],
-   "bytes": 141224
+   "bytes": 142197
   },
   {
    "file": "ScreenB_schedule",
@@ -1394,7 +1395,7 @@
     "SIG_NODE",
     "NAME_NODE"
    ],
-   "bytes": 99734
+   "bytes": 100589
   },
   {
    "file": "ScreenC_change",
@@ -1404,7 +1405,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-20 12:57 · 96896c3b",
+ "_생성": "2026-09-21 12:07 · 79c2ce99",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
