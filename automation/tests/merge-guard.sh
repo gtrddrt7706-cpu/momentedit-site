@@ -1503,7 +1503,11 @@ chk '오래 쥐지 마시고, 다음 분께 바로 전해' assets/ritual-data.js
 #   ★지킬 것을 «말»로 바꾼다 — 사라지면 안 되는 것은 문장 모양이 아니라
 #     「두 집안이 서로의 가족이 되었다」는 선언이다(G8-out 관계 강화). 쪼개든 붙이든 그 말은 남는다.
 #   ★이 검사는 그날부터 조용히 빨갰다. 내가 게이트 출력을 grep 으로 걸러 보느라 못 봤다.
-chk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js 1  # G8-out 관계 강화 — 모양이 아니라 이 말이 원천
+# ★[ECHO_TRIBUTE_DECLARE 2026-09-21] 문면이 바뀌었다 — 지키는 것은 «관계 강화»이지 그 글자가 아니다.
+#   [ASK_RETIRED] 로 감동 코스 선언이 30 으로 바뀌자 바로 뒤 문장과 「되었습니다」가 겹쳤다.
+#   ★「오늘로」가 «변화»를 안고 간다 — 그냥 「입니다」면 «오늘 가족이 됐다»가 사라진다.
+chk '두 집안은 한 가족입니다' assets/ritual-data.js 1
+nochk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js
 # ★[CLOSE_V2 2026-08-08] 폐식 문안 교체 — 옛 마커('오늘 예식의 마지막 순서입니다')는 폐기.
 #   ①규칙 6 위반(정의문으로 열기) ②'마지막'이 사실과 다르다(예식 뒤 30분이 더 있다)
 #   ③"자리에서 그대로"가 새 설계와 정면으로 어긋난다(이제 전원이 앞으로 모인다)
@@ -1524,7 +1528,10 @@ chk '모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다' a
 chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 0              # 옛 문안이 되살아나면 실패
 chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
 chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
-chk "'narr','ask','chorus','family'" order-preview.html 1
+# ★[BUILDER_FROM_SOURCE 2026-09-21] 목록을 손으로 안 적고 DECLWHO 에서 읽는다 —
+#   하드코딩 배열을 지키는 대신 «원천에서 읽는다»를 지킨다. 그러면 어긋날 수가 없다.
+chk 'Object.keys(DECLWHO).forEach' order-preview.html 1
+nochk "'narr','ask','chorus','family'" order-preview.html
 chk 'DECL_ADMIN_MIRROR' scripts/check-ritual-mirror.js 1   # 운영자 화면 2곳이 선언 주체 4종을 다루는지
 chk '_declWhoLabel' admin.html 2                            # 선언 주체 라벨은 원천(DECLWHO)에서 읽는다 · 하드코딩 맵 복귀 금지
 chk 'assets/ritual-data.js' admin.html 1                    # 위 함수가 참조할 원천 로드
@@ -7697,6 +7704,13 @@ chk 'ENTRY_OUT_LIST' scripts/audit/pick-list.mjs 3
 #     nar 문안은 데이터에 있었지만 큐에 안 붙어 있어 **한 번도 쓰이지 않았다.**
 #   ★되살리려면 문안이 아니라 **도입·마무리 큐를 먼저 세워야** 한다.
 chk 'CHORUS_RETIRED' assets/ritual-data.js 1
+chk 'ASK_RETIRED' api/_ritual-kb.js 1          # AI 상담사가 «없는 갈래»를 안내하면 안 된다
+chk 'ASK_RETIRED' assets/ritual-story.js 1     # 사람 구간 설명 표
+chk 'ASK_RETIRED' scripts/build-dubbing-script.mjs 1
+chk 'BUILDER_FROM_SOURCE' scripts/check-ritual-mirror.js 1
+chk 'Object.keys(DECLWHO).forEach' order-preview.html 1   # 목록을 손으로 안 적는다
+chk 'ECHO_TRIBUTE_DECLARE' assets/ritual-data.js 1
+nochk '두 집안은 서로의 가족이 되었습니다' order-preview.html
 chk 'ASK_RETIRED' assets/ritual-data.js 1
 chk 'ASK_RETIRED' assets/ritual-cue.js 1
 # ★★[DECLWHO_LIVE] 「갈래가 되살아났나」는 **글자가 아니라 데이터 상태**다.
