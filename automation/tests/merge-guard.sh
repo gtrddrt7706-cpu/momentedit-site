@@ -3153,6 +3153,30 @@ case "$_okf" in
   2) echo "ok okfalse-handled: 재지 못했다(파일 없음) — 화면 결함 아님" ;;
   *) echo "FAIL okfalse-handled: 서버가 «안 됐다»고 했는데 화면이 «됐다»를 띄운다 [OK_FALSE_GUARD] · node scripts/audit/okfalse-handled.mjs"; fail=1 ;;
 esac
+# ★★[ADMINCALL_WIRED] 관리자 화면이 부르는 서버 함수가 adminCall 화이트리스트(FNS)에 있나.
+#   없으면 `{ok:false, error:'알 수 없는 요청: …'}` 가 돌아온다 — 화면은 멀쩡하고 모달도 뜨는데
+#   «누르는 순간에만» 죽는다. 2026-09-21 에 [CONTACT_FIX] 를 그 상태로 내보냈다(네 호출 전부 죽음).
+#   같은 함정이 admin.gs 의 aiDraftAnswer 옆에 주석으로 이미 있었다 — 사람이 읽어야 작동하는
+#   주석은 7,000줄 앞에서 작동하지 않는다. 그래서 기계에 건다.
+node scripts/audit/admincall-wired.mjs >/dev/null 2>&1; _acw=$?
+case "$_acw" in
+  0) echo "ok admincall-wired: 화면 호출이 전부 FNS 에 있다 [ADMINCALL_WIRED]" ;;
+  2) echo "REVERT? admincall-wired: 재지 못했다(FNS 블록·gas 호출을 못 읽음) — node scripts/audit/admincall-wired.mjs"; fail=1 ;;
+  *) echo "FAIL admincall-wired: 화면이 부르는데 화이트리스트에 없는 서버 함수가 있다 — 그 버튼은 죽어 있다 · node scripts/audit/admincall-wired.mjs"; fail=1 ;;
+esac
+chk 'ADMINCALL_WIRED' scripts/audit/admincall-wired.mjs 1
+chk 'CONTACT_FIX' automation/admin/admin.gs 3
+# [CONTACT_SHADOW] 연락처를 고치면 «계약서가 읽는 사본»(동의기록.계약정보.groomPhone)까지 따라간다.
+#   70_journey 의 buildContractState 는 그 사본이 «이긴다» — 연락처만 고치면 서명된 계약서엔
+#   틀린 번호가 남는다. 사본이 옛 연락처와 «같을 때만» 고치고, 다르면 미리보기로 알린다.
+chk 'CONTACT_SHADOW' automation/admin/admin.gs 2
+chk '_stampConsentKey(sheet, colOf, cust.num' automation/admin/admin.gs 1
+chk '계약정보이력' automation/admin/admin.gs 1
+# [SILENT_BANNER] adminSilentContacts 를 «부르는 손» — 서버 함수만 있고 호출이 0건이면 없는 것과 같다.
+#   2026-09-21 에 실제로 그 상태로 내보냈다(FNS 등록도 함께 빠져 있었다).
+chk 'SILENT_BANNER' admin.html 3
+chk 'function renderSilentContacts' admin.html 1
+chk 'renderSilentContacts();' admin.html 1
 chk 'OK_FALSE_GUARD' automation/consultation/ScreenB_schedule.html 1
 chk 'OK_FALSE_GUARD' scripts/audit/okfalse-handled.mjs 1
 chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1

@@ -182,6 +182,13 @@ function adminCall(token, fn, args) {
       adminUndoRefunded: adminUndoRefunded,   // [ADM_AC2]
       adminForceStagePreview: adminForceStagePreview,   // [ADM_AC3]
       adminNotifyText: adminNotifyText,   // [ADM_AC5]
+      /* ★★[CONTACT_FIX] 여기 등록을 빠뜨리면 화면·서버를 다 만들어도 기능이 통째로 죽는다 —
+         adminCall 이 `{ok:false, error:'알 수 없는 요청: …'}` 를 돌려주고, 화면은 멀쩡히 그려지며
+         모달까지 뜬 뒤 «누르는 순간에만» 죽는다. 2026-09-21 에 실제로 그렇게 내보냈다.
+         바로 아래 aiDraftAnswer 주석이 같은 함정을 이미 적어 뒀는데 그 옆에서 또 밟았다 —
+         그래서 이제 기계가 본다(scripts/audit/admincall-wired.mjs · merge-guard 가 실행). */
+      adminSetContact: adminSetContact, adminSetContactPreview: adminSetContactPreview,
+      adminSilentContacts: adminSilentContacts,
       adminIssueCashReceipt: adminIssueCashReceipt, adminUndoCashReceipt: adminUndoCashReceipt, adminMarkRefunded: adminMarkRefunded, adminFittingDoc: adminFittingDoc, adminSetFittingCount: adminSetFittingCount, adminConfirmMidBalance: adminConfirmMidBalance,
       adminConfirmWeddingChange: adminConfirmWeddingChange, adminDeclineWeddingChange: adminDeclineWeddingChange,
       aiCostSummary24h: aiCostSummary24h, aiTestScenarios: aiTestScenarios, aiTestScenariosSave: aiTestScenariosSave,
@@ -1357,7 +1364,13 @@ function _recordHandler(code, action) {
 
    가드는 이 파일의 기존 관례를 그대로 따른다 — _requireAdmin · 사유 필수 · 형식 검증 ·
    멱등(같은 값이면 안 씀) · 처리이력 · 미리보기(dry-run).
-   ★개인정보 파기(purgeStaleCustomers)와 충돌하지 않는다 — 정정은 파기 대상 판정을 안 바꾼다. */
+   ★개인정보 파기(purgeStaleCustomers)와 충돌하지 않는다 — «보관/파기» 판정은 안 바뀐다.
+     _custRetained(20_customers-data.gs:169)는 계약상태·계약서명일시·입금·계약총액만 보고,
+     연락처는 안 본다. ★다만 touchCustomer 가 «최종수정»을 찍으므로(20_customers-data.gs:127)
+     미계약 고객을 정정하면 183일 파기 시계가 **리셋된다.** 해롭지는 않다 — 고객이 실제로
+     연락해 온 재활동이고, 그 리셋은 purgeStaleCustomers 가 의도한 보호(:209)와 같은 동작이다.
+     종전 이 줄은 「판정을 안 바꾼다」고만 적어 시계 리셋을 가렸다. 다음 사람이 그 문장을
+     근거로 «아무 영향 없다»고 오판하지 않게 여기 적어 둔다. */
 function adminSetContactPreview(code, phone, email) {
   _requireAdmin();
   return _setContactCore(code, phone, email, '', true);
@@ -1395,6 +1408,26 @@ function _setContactCore(code, phone, email, reason, dry) {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(newE)) return { ok: false, error: '이메일 형식이 아닙니다. (받은 값: ' + newE + ')' };
     if (newE.toLowerCase() !== curE.toLowerCase()) { set['이메일'] = newE; lines.push('이메일 ' + _maskEmail(curE) + ' → ' + _maskEmail(newE)); }
   }
+  /* ★★[CONTACT_SHADOW 2026-09-21] 연락처 칸만 고치면 **계약서는 안 고쳐진다.**
+     70_journey.gs 의 buildContractState 는 `groomPhone: _ci.groomPhone || 연락처` 로 만든다 —
+     동의기록.계약정보.groomPhone 이 «이긴다». 그리고 그 값이 contract/v1-1.html 의
+     data-fill="groomPhone" 로 **서명된 계약서 당사자 연락처 칸**에 그대로 들어간다.
+     게다가 mypage 의 계약서 요청 폼(mp_ciGP)은 그 칸을 **연락처 값으로 프리필**하므로,
+     오타 번호는 폼을 내는 순간 두 벌이 된다. 경고 배너는 사라지는데 계약서는 틀린 채 남는다.
+     → 사본이 «옛 연락처와 같으면»(=프리필 그대로 낸 것) 함께 고친다.
+       ★다르면 건드리지 않는다 — 고객이 일부러 다른 번호를 적은 것이므로 관리자가 보고 고르게
+         미리보기에만 적는다. 이름·금액·예식일은 이 함수가 절대 만지지 않는다. */
+  var _ci = null, _shadow = null;
+  try {
+    var _rec = _parseJsonSafe(cust.get('동의기록'));
+    _ci = (_rec && _rec['계약정보']) || null;
+  } catch (_e) {}
+  if (set['연락처'] && _ci) {
+    var _gp = String(_ci.groomPhone || '').replace(/[^0-9]/g, '');
+    var _old = curP.replace(/[^0-9]/g, '');
+    if (_gp && _gp === _old) { _shadow = 'same'; lines.push('계약서 신랑 연락처 ' + _maskPhone(_gp) + ' → ' + _maskPhone(newP)); }
+    else if (_gp) { _shadow = 'diff'; lines.push('계약서 신랑 연락처는 따로 입력된 값이라 그대로 둡니다 (' + _maskPhone(_gp) + ')'); }
+  }
   if (!lines.length) return { ok: true, already: true, message: '바뀌는 값이 없습니다.' };
 
   var wasSilent = !/^01[016789][0-9]{7,8}$/.test(curP.replace(/[^0-9]/g, ''));
@@ -1406,8 +1439,21 @@ function _setContactCore(code, phone, email, reason, dry) {
 
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   touchCustomer(sheet, colOf, cust.num, set);
+  /* [CONTACT_SHADOW] 동의기록은 **반드시 재읽기→병합→쓰기**(_stampConsentKey) 로 — 고객 서명·
+     가예약 승인이 같은 칸을 쓴다. 스냅샷을 통째로 JSON.stringify 하면 그 사이 기록이 사라진다.
+     ★서명된 계약서의 당사자 칸을 사후에 바꾸는 일이라 흔적을 남긴다 — 처리이력 한 줄로는 부족하다. */
+  if (_shadow === 'same') {
+    _stampConsentKey(sheet, colOf, cust.num, function (rec) {
+      var ci = rec['계약정보'] || (rec['계약정보'] = {});
+      var from = String(ci.groomPhone || '');
+      ci.groomPhone = newP;
+      var hist = rec['계약정보이력'] || (rec['계약정보이력'] = []);
+      hist.push({ at: fmtKST(new Date()), by: _CURRENT_ADMIN || '관리자', field: 'groomPhone',
+        from: _maskPhone(from), to: _maskPhone(newP), reason: String(reason).trim().slice(0, 120) });
+    });
+  }
   _recordHandler(code, '연락처 정정 — ' + lines.join(' · ') + ' (사유: ' + String(reason).trim().slice(0, 120) + ')');
-  return { ok: true, changes: lines, wasSilent: wasSilent };
+  return { ok: true, changes: lines, wasSilent: wasSilent, shadow: _shadow };
 }
 // 처리이력에 번호를 통째로 남기지 않는다 — 이력은 관리자 여럿이 보는 칸이다(최소수집 원칙)
 function _maskPhone(v) {
