@@ -1367,6 +1367,7 @@ function adminSetContact(code, phone, email, reason) {
   return _setContactCore(code, phone, email, reason, false);
 }
 function _setContactCore(code, phone, email, reason, dry) {
+  var _cfMark = '[CONTACT_FIX]';   // 배포 점검 표식 — 99_deployCheck 가 이 줄로 «이 파일이 최신인가»를 본다. 지우지 말 것
   /* [CONTACT_FIX] 연락처·이메일 정정 본체 — 위 설명 블록 참고.
      ★이 줄을 지우지 말 것: FILE_COVER 규칙의 mark() 는 «함수 소스»를 읽는다.
        (표식 이름을 대괄호로 인용하면 이 파일이 그 표식을 갖는 것으로 잡힌다 — 그래서 맨몸으로 쓴다.)
@@ -1427,6 +1428,7 @@ function _maskEmail(v) {
    관리자 홈이 이 목록을 띄워 «지금 알림이 안 가는 고객»이 눈에 보이게 한다.
    읽기 전용 · 아무것도 쓰지 않는다. */
 function adminSilentContacts() {
+  var _slMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 함수 «본문 안»에 있어야 mark() 가 읽는다. 지우지 말 것
   _requireAdmin();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();

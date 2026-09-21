@@ -176,6 +176,7 @@ function _kakaoSend(to, event, code, extra, opts) {
   if (!cust) { Logger.log('[notify] 고객 조회 실패: ' + code + ' — 발송 생략'); return false; }
   var phone = String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
   if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
+    var _csMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 지우지 말 것(99_deployCheck 가 이 줄을 읽는다)
     /* ★★[CONTACT_SILENT 2026-09-21 사장님 지적에서 드러났다] 종전엔 Logger 한 줄만 남기고 조용히 끝냈다 · 되돌리지 말 것.
        로그는 «보는 사람이 있을 때만» 알림이다. 실제로는 아무도 안 봤고, 연락처가 `821-0734-9770`
        (+82 10 을 잘못 붙인 값)로 들어간 고객의 알림톡이 전부 생략되고 있었는데 관리자는 몰랐다.

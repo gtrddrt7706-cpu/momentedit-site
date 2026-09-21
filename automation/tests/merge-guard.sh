@@ -9327,6 +9327,22 @@ chk 'MODAL_ACT_STICKY' mypage.html 2
 chk 'GATE_CARD_BUSY' mypage.html 2
 chk '\.dn-gate-card\.busy \.dgc-d::before' mypage.html 1
 chk 'dn-gate-card:disabled' mypage.html 1
+# [CITE_BRACKET] 주석에서 «다른 파일의» 표식을 대괄호로 인용하면 그 파일의 표식으로 잡힌다 —
+#   실패 메시지가 그 함정을 짚게 한 결정(2026-09-21 에 두 번 걸렸다). 지우면 다음 사람이 같은 데서 헤맨다.
+chk 'CITE_BRACKET' scripts/audit/deploycheck-coverage.mjs 1
+# ── [CONTACT_FIX] 관리자 연락처 정정 — 두 화면(momentedit.kr/admin.html · /exec?admin=1 Admin.html)
+#   ★핵심은 «버튼이 조건부가 아니다»이다. 고쳐야 하는 상황이 바로 번호가 비었거나 이상한 상황인데,
+#     옆 버튼들은 d.phone 이 있어야 그려진다. 조건을 달면 정확히 필요한 때에 손잡이가 사라진다.
+for _f in admin.html automation/admin/Admin.html; do
+  chk 'CONTACT_FIX' "$_f" 3
+  chk 'contact-bad' "$_f" 2
+  chk '_phoneOk' "$_f" 3
+  chk "h+='<button id=\"editContact\">연락처 정정</button>'" "$_f" 1
+done
+# 같은 자로 재야 한다 — 화면·저장·발송 셋이 갈리면 「저장은 됐는데 알림은 안 가는」 상태가 또 생긴다
+chk '01\[016789\]\[0-9\]{7,8}' admin.html 1
+chk '01\[016789\]\[0-9\]{7,8}' automation/admin/admin.gs 1
+chk '01\[016789\]\[0-9\]{7,8}' automation/platform/95_notify.gs 1
 # ★실패 복구가 카드를 부수던 줄 — 카드 안 <span> 셋을 통째로 지운다. 되살리지 말 것.
 nochk '_nn\.textContent=_t0' mypage.html
 chk '_nd\.textContent=_d0' mypage.html 1
