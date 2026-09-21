@@ -9285,6 +9285,29 @@ nochk '대신 움직입니다' parents.html
 nochk '디렉터가 도와드립니다' index.html
 nochk '디렉터에게 요청' mypage.html
 
+# ── 2026-09-21 마이페이지 디자인·층 수정 [DECISION_GUARD] ──────────────────────────────
+# [NOW_NO_MONEY] NOW 카드는 금액을 말하지 않는다 — 금액·계산·계좌는 아래 실행 카드 한 곳.
+#   두 계산이 갈라지면 화면 안에서 금액이 어긋난다(돈 화면에서 가장 비싼 버그).
+chk 'NOW_NO_MONEY' mypage.html 2
+nochk '을 아래 계좌로 보내 주세요' mypage.html          # 되살아나면 금액이 두 곳에서 갈린다
+nochk '예식이 가까워 한 번에 받아요. 아래' mypage.html   # NOW·카드가 같은 문장을 두 번 말하던 자리
+# [DOC_OVER_LED] 문서 뷰어를 열기 «전에» 작은 창을 닫는다 — 시착·계약서 두 갈래 모두.
+#   안 닫으면 뷰어가 모달 뒤에서 열리고, 뒤로가기 층이 거꾸로 꽂혀 «유령 층»이 남는다.
+chk 'DOC_OVER_LED' mypage.html 4
+chk 'BK_ORPHAN' mypage.html 1
+# [ALERT_BK] 알림창(취소 없는 것)에만 뒤로가기 층. 확인 대화상자는 층을 만들지 않는다(종전 설계).
+#   ★아래 nochk 가 핵심 — 조건이 사라지면 확인 대화상자까지 뒤로가기로 닫혀 «저장 없이 나가기»가 된다.
+chk 'ALERT_BK' mypage.html 2
+chk 'o.cancel===false){ try{ _bkId=bkOpen' mypage.html 1
+# [INV_EG_FULL]·[WIZ_NOTE_STYLE] 청첩장 마법사 — 「전체 청첩장 보기」를 액션으로, 자동저장 안내에 스타일을.
+#   sp-note 는 .seat-privacy 안에서만 정의돼 있어 청첩장에선 맨몸으로 떨어졌다. 기본값을 밖으로 꺼냈다.
+chk 'INV_EG_FULL' mypage.html 1
+chk 'WIZ_NOTE_STYLE' mypage.html 1
+chk '^\.sp-note{' mypage.html 1
+chk '\.inv-nav + \.sp-note{' mypage.html 1
+# [MODAL_ACT_STICKY] 긴 모달에서 버튼·제목이 붙어 따라온다(스크롤이 있는지 몰라 못 찾던 자리)
+chk 'MODAL_ACT_STICKY' mypage.html 2
+
 # ★[ALREADY_DONE] apply 스크립트가 «이미 되어 있는 자리»를 실패로 세지 않게 한 장치.
 #   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.
 #   그걸 틀림으로 세면 «반만 고친 판»을 막으려던 가드가 거꾸로 «전부 못 고치게» 막는다.
