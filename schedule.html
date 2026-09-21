@@ -307,8 +307,19 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .btn:disabled{background:transparent;color:var(--light);border:1px solid var(--border);
   box-shadow:none;opacity:1;cursor:not-allowed}
 .btn:disabled::before{opacity:0 !important}
-.btn.loading{opacity:0.8;cursor:wait}
-.btn.loading .ar{opacity:0}.btn.loading span::after{content:'';animation:meDots 1.6s infinite}@keyframes meDots{0%,100%{content:''}25%{content:' ·'}50%{content:' · ·'}75%{content:' · · ·'}}
+.btn.loading{opacity:1;cursor:wait}/* ★★[LOADING_ONE 2026-09-21] opacity 0.8 이었다 · 되돌리지 말 것.
+   고스트 버튼(투명 배경·먹색 글자)에 0.8 을 깔면 실측 **3.49:1 로 AA(4.5) 미달**이다.
+   흐림으로 «진행 중»을 말하지 않는다 — 진행은 글자 앞 숨쉬는 점이 말한다.
+   ScreenA(3.01)·ScreenB 와 같은 처방이고, 셋 다 흐림을 걷어 대비를 되찾았다. */
+.btn.loading .ar{opacity:0}.btn.loading span::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}@media(prefers-reduced-motion:reduce){.btn.loading span::before{animation:none;opacity:0.7}}/* ★★[LOADING_ONE 2026-09-21 사장님 지시 「로딩부분의 버튼들효과를 통일하고싶은데」] 되돌리지 말 것.
+   종전: .btn.loading span::after{content:'';animation:meDots 1.6s infinite}
+   meDots 는 점을 «글자 뒤»에 ''→' ·'→' · ·'→' · · ·' 로 붙였다 뗐다. 버튼 글자는 가운데
+   정렬이라 점이 늘 때마다 글자가 왼쪽으로 밀린다 — 1.6초마다 좌우로 흔들렸다.
+   ★사장님 지적: 「점갯수에따라 글자가 좌우로 흔들리는데」.
+   ★inquiry.html 이 [SUBMIT_LOADING] 으로 **이미 같은 이유로 폐지**했는데 여기만 남아 있었다
+     (그쪽 주석: 「글자 뒤에 점이 붙었다 떨어지며 버튼 안이 흔들렸다」).
+   → [BUSY_ONE] 공통 표준인 .bdot(글자 «앞» 7px 점 · opacity·scale 만 숨쉼)로 모은다.
+     폭이 안 변하니 흔들림이 구조적으로 불가능하다. 이것이 이 표준을 고른 이유다. *//* [LOADING_ONE] meDots 키프레임 삭제 — 쓰는 곳이 없어졌다. 되살리면 흔들림이 돌아온다. */
 .bdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
 @keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 /* [BUSY_ONE] 회전 스피너 정의 삭제 — 쓰는 곳이 없었고, 되살리면 사이트 대기 표시가 두 언어가 된다 */
@@ -643,7 +654,15 @@ h2.card-title,h3.card-title{margin:0;display:inline}
         </button>
         <div id="holdRuleNote" role="alert" style="display:none;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:12px 0 0;padding:10px 12px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;text-align:left;word-break:keep-all">
           <div style="font-weight:500;margin-bottom:4px">선택하신 상담일이 오늘로부터 7일 이후예요.</div>
-          <div>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우에만 적용돼요. 상담일을 앞당기시거나, 고정 없이 진행해 주세요.</div>
+          <!-- ★★[HOLD_OPTIONAL 2026-09-21 사장님 지적 「고정없이 상담예약이 가능한거야?」] 되돌리지 말 것.
+     종전 문구는 「상담일을 앞당기시거나, 고정 없이 진행해 주세요」 였다.
+     ①무엇을 누르라는 말이 없어 «고정 없이 진행»이 별도 경로처럼 읽힌다.
+     ②같은 상황의 경고창(_holdDeadlineOk 실패 시)은 「임시 고정 체크를 해제해 주세요」 라고
+       구체적으로 말한다 — 한 상황에 두 문구가 서로 다른 말을 하고 있었다.
+     ③그래서 사장님이 읽고 «고정 없이 예약이 되긴 하나»를 물으셨다. 실제로는 된다 —
+       #holdChk 는 체크박스일 뿐이고, 끄면 _holdPayload() 가 null 이라 고정만 안 실린다.
+       막히는 것은 «고정»이지 «상담 예약»이 아니다. 그 사실을 문구가 직접 말하게 했다. -->
+          <div>임시 고정은 상담을 <b>7일 안에</b> 진행하시는 경우에만 적용돼요. 상담일을 앞당기시거나, <b>위 임시 고정 체크를 해제</b>해 주세요. <span style="color:var(--sub)">체크를 해제하셔도 상담 예약은 그대로 진행돼요.</span></div>
         </div>
         <div id="holdBox" style="display:none;margin-top:12px;text-align:left">
           <div style="font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.75;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:11px 13px;margin-bottom:12px;word-break:keep-all">디렉터 확인 후 승인 여부를 <b>마이페이지</b>로 안내드려요. 변경·취소도 마이페이지에서 가능하고, 확정은 <b>본계약 서명</b>으로 이루어져요.</div>
@@ -1090,13 +1109,15 @@ function doSubmit(){
   }
   var _hChk=document.getElementById('holdChk');
   if(_hChk&&_hChk.checked){
-    if(!_holdDeadlineOk()){ var _hW=document.getElementById('holdWrap'); if(_hW) _hW.scrollIntoView({behavior:'smooth',block:'center'}); _syncHoldRule(); meAlert({lead:'선택하신 상담일이 오늘로부터 7일 이후예요.',items:['임시 고정은 상담을 7일 안에 진행하시는 경우에만 적용돼요.','상담일을 앞당기시거나, 임시 고정 체크를 해제해 주세요.']}); return; }
+    if(!_holdDeadlineOk()){ var _hW=document.getElementById('holdWrap'); if(_hW) _hW.scrollIntoView({behavior:'smooth',block:'center'}); _syncHoldRule(); meAlert({lead:'선택하신 상담일이 오늘로부터 7일 이후예요.',items:['임시 고정은 상담을 7일 안에 진행하시는 경우에만 적용돼요.','상담일을 앞당기시거나, 임시 고정 체크를 해제해 주세요.','체크를 해제하셔도 상담 예약은 그대로 진행돼요.']/* [HOLD_OPTIONAL] 화면 안내와 같은 말로 맞춘다 — 막히는 것은 «고정»이지 «상담 예약»이 아니다 */}); return; }
     var _hDate=(document.getElementById('holdDate')||{}).value||'', _hSlot=(document.getElementById('holdSlot')||{}).value||''; if(!_hDate||!_hSlot){ var _hBox=document.getElementById('holdBox'); if(_hBox) _hBox.scrollIntoView({behavior:'smooth',block:'center'}); meAlert({lead:'예식 날짜와 시간을 모두 선택해 주세요.',items:['예식일 임시 고정을 요청하시려면 두 가지가 모두 필요해요.','원치 않으시면 임시 고정 체크를 해제하시면 돼요.']}); return; }
   }
   const btn=document.getElementById('submitBtn');
   const sbtn=document.getElementById('stickyBtn');
   btn.classList.add('loading'); btn.disabled=true; if(sbtn) sbtn.disabled=true;
-  btn.querySelector('span').textContent='신청 중';
+  btn.querySelector('span').textContent='신청 중';   /* [LOADING_ONE] 점은 CSS .btn.loading span::before 가 그린다 —
+     innerHTML 로 점 span 을 «넣으면» 버튼 안 화살표 SVG 가 날아가고, restore() 의
+     querySelector('span') 이 그 점 span 을 집어 거기에 라벨을 넣는다(실제로 한 번 그렇게 만들었다). */
   // 그 외 가능 시간대(체크) + 기타 자유입력 수집
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;

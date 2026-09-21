@@ -349,7 +349,14 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .modal{background:#fff;border-radius:12px;max-width:390px;width:100%;padding:24px 22px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
 .modal h3{font-family:var(--serif-ko);font-size:16.5px;font-weight:600;color:var(--accent);text-align:center;margin-bottom:9px}
 .modal .mbody-t{font-family:var(--serif-ko);font-size:13px;color:var(--sub);text-align:center;line-height:1.7;margin-bottom:14px}
-.modal .mbody-t .li{display:block;font-size:12px;color:var(--light);margin-top:3px}
+.modal .mbody-t .li{display:block;font-size:12px;color:var(--light);margin-top:3px;text-align:left;padding-left:9px;text-indent:-9px}/* ★★[MODAL_LI_LEFT 2026-09-21 사장님 지적 「가운데정렬인데 맞는지」] 되돌리지 말 것.
+   .li 는 .mbody-t{text-align:center} 안에 있어 가운데 정렬을 물려받고 있었다.
+   ①목록인데 가운데로 세우면 «·» 셋이 서로 다른 x 좌표에 서서 기준선이 없어진다 —
+     줄 길이가 13·21·19자로 제각각이라 계단처럼 어긋나 보였다.
+   ②이 모달은 «고객에게 카톡이 자동으로 가고 단계가 넘어가는» 확인창이다.
+     세 줄을 실제로 읽어야 하는 자리인데, 가운데 정렬은 훑기를 막는다.
+   ③제목(.modal h3)과 대상 이름(b())은 한 줄짜리라 가운데가 맞다 — 그 둘은 안 건드린다.
+   text-indent -9px 은 «내어쓰기» — 줄이 넘어가면 둘째 줄이 «·» 가 아니라 글자에 맞춰 선다. */
 .modal.danger h3{color:var(--seal)}
 .modal .field{margin-bottom:11px}
 .modal label{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin-bottom:5px}
