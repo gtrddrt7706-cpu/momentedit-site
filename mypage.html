@@ -8507,7 +8507,19 @@ function renderDining(box){
        그려진다. 그러니 «담은 곳이 있다»가 나중이자 더 구체적인 신호다. 옛 결정 쪽을 접는다.
      ★화면 분기에 조건을 덧대지 않고 **값에서** 푼다 — 분기를 덧대면 partner·dining_on 은 여전히
        「안 함」으로 남아 관리자 화면과 하객 안내가 또 갈린다(DN_PARTNER_STALE 과 같은 뿌리). */
-  if((d._favs||[]).length && d.venuePick==='다이닝 없이 진행할게요'){ d.venuePick=''; d.dining_on=''; }
+  if((d._favs||[]).length && d.venuePick==='다이닝 없이 진행할게요'){
+    d.venuePick=''; d.dining_on='';
+    /* ★★[DN_SKIP_PERSIST] 화면만 고치면 모자란다 — 80_production.gs 의
+         `diningOn = dining_on !== 'N' && (담은 곳 있음)`
+       때문에 'N' 이 저장에 남아 있으면 **하객 안내에서 식사 구역이 통째로 사라진다.**
+       두 분 화면엔 담은 곳이 보이는데 하객은 어디로 갈지 모르는 상태다.
+       ★그런데 «변경 없이 나가기»는 저장을 안 한다(_wizExit → exitBare) — 열었다 바로 닫으면
+         고친 값이 메모리에서 사라지고 하객 안내는 계속 비어 있다. 그래서 여기서 한 번 적는다.
+       ★조용한 저장을 이 집은 꺼리지만, 이건 «사용자가 고친 것»이 아니라 **있을 수 없는 상태를
+         되돌리는 수선**이다. 두 분은 이미 두 곳을 담아 «한다»고 정했고, 저장을 그 결정에 맞출 뿐이다.
+       ★한 번만 돈다 — 지우고 나면 위 조건이 거짓이 되어 다시 들어오지 않는다. */
+    try{ saveTrkDraft(false); }catch(_e){}
+  }
   function syncVenue(){
     if(d.venuePick && d.venuePick!=='직접 섭외할게요' && d.venuePick!=='상담 때 함께 정할게요' && d.venuePick!=='다이닝 없이 진행할게요'){ d.venue=d.venuePick; d.partner='모먼트에디트 연계'; }
     else {
