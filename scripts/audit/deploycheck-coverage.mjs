@@ -221,7 +221,9 @@ if (uncovered.length) {
   if (newest && made < newest) {
     console.log(`❌ [LIST_AGE] 목록의 _생성(${made}) 이 가장 최근 GAS 변경(${newest}) 보다 낡았다.`);
     console.log('   contractCheck 가 「목록이 최신입니다」라고 말해도 그 말은 그만큼만 믿을 수 있다.');
-    console.log('   고치는 법 — deploy-marks.json 의 _생성 을 오늘 날짜 + 현재 sha 로 갱신한다(들여쓰기 1 유지).');
+    console.log('   고치는 법 — node scripts/gen-deploy-fns.mjs --stamp   [STAMP_FORCE]');
+  console.log('     ★손으로 고치지 말 것. 내용이 그대로여도 --stamp 는 날짜를 새로 찍는다 —');
+  console.log('       스쿼시 병합이 «내용은 그대로인데 .gs 커밋 날짜만» 앞으로 옮기는 경우가 그것이다.');
     process.exit(1);
   }
   console.log(`  목록 나이 ok — _생성 ${made} · 최근 GAS 변경 ${newest || '(없음)'}`);

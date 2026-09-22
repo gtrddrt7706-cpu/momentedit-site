@@ -3177,6 +3177,30 @@ chk '계약정보이력' automation/admin/admin.gs 1
 chk 'SILENT_BANNER' admin.html 3
 chk 'function renderSilentContacts' admin.html 1
 chk 'renderSilentContacts();' admin.html 1
+# ── 2026-09-22 애프터 웨딩 트랙 순서 [DN_*] ─────────────────────────────────────────
+# 입구 게이트는 «단계»가 아니다 — 번호를 주면 바로 다음 식당 목록과 둘 다 «1 / 2» 가 된다
+# (실측: 게이트 1/2 → 목록 1/2 → 정리 2/2 · 같은 번호가 두 화면에 붙어 «안 넘어갔나»로 읽힌다).
+chk 'DN_STEP_LABEL' mypage.html 1
+nochk "· 1 / '+m.steps" mypage.html
+# 「역시 애프터 웨딩 만들래요」는 이미 결정을 말한 버튼이다 — 게이트로 되돌려 다시 묻지 않는다.
+chk 'DN_AGAIN_DIRECT' mypage.html 1
+chk 'TRKFLOW._dnPick=true; TRKFLOW.step=0' mypage.html 1
+# 「다이닝 없이 진행할게요」가 partner 에 남으면 관리자 화면이 «안 하기로 했다»로 읽는다.
+chk 'DN_PARTNER_STALE' mypage.html 1
+# [DN_SKIP_VS_FAVS] 담은 곳이 있는데 venuePick 이 「다이닝 없이」면 정리 자리가 그 분기를 먼저 타
+#   담아 둔 곳이 통째로 안 보인다(실측: 2곳 담았는데 「없이 진행해요」 화면). 값에서 푼다.
+chk 'DN_SKIP_VS_FAVS' mypage.html 1
+chk "d._favs||\[\]).length && d.venuePick==='다이닝 없이 진행할게요'" mypage.html 1
+# [DN_SKIP_PERSIST] 화면만 고치면 모자란다 — 80_production 의 diningOn 이 dining_on!=='N' 을 보므로
+#   'N' 이 저장에 남으면 하객 안내에서 식사 구역이 통째로 사라진다. 수선을 저장까지 내보낸다.
+chk 'DN_SKIP_PERSIST' mypage.html 1
+# 예약은 두 분이 직접 · 비워 두면 그 줄만 빠진다(guide.html:503 이 근거) — 화면이 말해야 한다.
+chk 'DN_RSV_WHY' mypage.html 1
+chk '두 분이 직접</b> 해주세요' mypage.html 1
+# [STAMP_FORCE] --stamp 는 «내용이 그대로여도» 목록 날짜를 새로 찍는다 — 스쿼시 병합이 .gs
+#   커밋 날짜만 앞으로 옮겨 [LIST_AGE] 가 빨개지는, 처방이 듣지 않는 막다른 빨강을 푼다.
+chk 'STAMP_FORCE' scripts/gen-deploy-fns.mjs 1
+chk "includes('--stamp')" scripts/gen-deploy-fns.mjs 1
 chk 'OK_FALSE_GUARD' automation/consultation/ScreenB_schedule.html 1
 chk 'OK_FALSE_GUARD' scripts/audit/okfalse-handled.mjs 1
 chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1
