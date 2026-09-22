@@ -3187,6 +3187,10 @@ chk 'DN_AGAIN_DIRECT' mypage.html 1
 chk 'TRKFLOW._dnPick=true; TRKFLOW.step=0' mypage.html 1
 # 「다이닝 없이 진행할게요」가 partner 에 남으면 관리자 화면이 «안 하기로 했다»로 읽는다.
 chk 'DN_PARTNER_STALE' mypage.html 1
+# [DN_SKIP_VS_FAVS] 담은 곳이 있는데 venuePick 이 「다이닝 없이」면 정리 자리가 그 분기를 먼저 타
+#   담아 둔 곳이 통째로 안 보인다(실측: 2곳 담았는데 「없이 진행해요」 화면). 값에서 푼다.
+chk 'DN_SKIP_VS_FAVS' mypage.html 1
+chk "d._favs||\[\]).length && d.venuePick==='다이닝 없이 진행할게요'" mypage.html 1
 # 예약은 두 분이 직접 · 비워 두면 그 줄만 빠진다(guide.html:503 이 근거) — 화면이 말해야 한다.
 chk 'DN_RSV_WHY' mypage.html 1
 chk '두 분이 직접</b> 해주세요' mypage.html 1

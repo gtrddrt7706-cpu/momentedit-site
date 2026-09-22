@@ -8498,6 +8498,16 @@ function renderDining(box){
   var d=TRKFLOW.draft;
   // 옛 저장값 호환: venuePick이 없으면 venue·구 파트너 선택에서 복원(구 '식사 형태'는 표시만 안 하고 보존)
   if(!d.venuePick) d.venuePick = d.venue || ((d.partner==='직접 섭외할게요'||d.partner==='상담 때 함께 정할게요')?d.partner:'');
+  /* ★★[DN_SKIP_VS_FAVS 2026-09-22 사장님 지적 「담은곳보기 누르면 애프터웨딩없이 진행해요 라는 페이지가나오는데」]
+     담은 곳이 있는데 venuePick 이 「다이닝 없이 진행할게요」인 저장값이 들어오면, 정리 자리(step 1)가
+     그 분기를 먼저 타서 **담아 둔 곳이 통째로 안 보인다.** 브라우저로 재현했다 —
+     담은곳 2곳 · venuePick=「다이닝 없이」 → 2/2 화면이 「애프터 웨딩 안내 없이 진행해요」.
+     두 분은 분명히 두 곳을 담았는데 «안 하기로 한» 화면을 본다. 담은 것이 사라진 줄 안다.
+     ★둘은 원래 양립하지 않는다 — 「이번엔 괜찮아요」·「조용히 마무리」 버튼은 담은 곳이 0일 때만
+       그려진다. 그러니 «담은 곳이 있다»가 나중이자 더 구체적인 신호다. 옛 결정 쪽을 접는다.
+     ★화면 분기에 조건을 덧대지 않고 **값에서** 푼다 — 분기를 덧대면 partner·dining_on 은 여전히
+       「안 함」으로 남아 관리자 화면과 하객 안내가 또 갈린다(DN_PARTNER_STALE 과 같은 뿌리). */
+  if((d._favs||[]).length && d.venuePick==='다이닝 없이 진행할게요'){ d.venuePick=''; d.dining_on=''; }
   function syncVenue(){
     if(d.venuePick && d.venuePick!=='직접 섭외할게요' && d.venuePick!=='상담 때 함께 정할게요' && d.venuePick!=='다이닝 없이 진행할게요'){ d.venue=d.venuePick; d.partner='모먼트에디트 연계'; }
     else {
