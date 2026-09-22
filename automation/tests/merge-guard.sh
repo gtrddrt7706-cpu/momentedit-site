@@ -3191,6 +3191,9 @@ chk 'DN_PARTNER_STALE' mypage.html 1
 #   담아 둔 곳이 통째로 안 보인다(실측: 2곳 담았는데 「없이 진행해요」 화면). 값에서 푼다.
 chk 'DN_SKIP_VS_FAVS' mypage.html 1
 chk "d._favs||\[\]).length && d.venuePick==='다이닝 없이 진행할게요'" mypage.html 1
+# [DN_SKIP_PERSIST] 화면만 고치면 모자란다 — 80_production 의 diningOn 이 dining_on!=='N' 을 보므로
+#   'N' 이 저장에 남으면 하객 안내에서 식사 구역이 통째로 사라진다. 수선을 저장까지 내보낸다.
+chk 'DN_SKIP_PERSIST' mypage.html 1
 # 예약은 두 분이 직접 · 비워 두면 그 줄만 빠진다(guide.html:503 이 근거) — 화면이 말해야 한다.
 chk 'DN_RSV_WHY' mypage.html 1
 chk '두 분이 직접</b> 해주세요' mypage.html 1
