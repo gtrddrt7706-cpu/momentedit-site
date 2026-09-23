@@ -4734,7 +4734,8 @@ chk 'PHOTO_ASK' order-preview.html 2
 chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 84·85 가 「엔진이 안 부르는 줄」로 잡힌다(실측 89→91)
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
-chk "INJECT = \['digital', 'photoShare'\]" assets/ritual-preview-link.js 1
+# ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
+chk "INJECT = \['digital', 'photoShare', 'meal'\]" assets/ritual-preview-link.js 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -8018,7 +8019,11 @@ chk '준비되시면 그대로 읽어 주십시오' assets/ritual-data.js 1   # 
 #      ★ritual-data 의 「얼굴을 한 분씩 «보면서»」는 «다른 문장»이다(마지막 인사) — 앞자락이 같다고 함께 치지 말 것.
 #   ★감정 구간은 손대지 않았다 — 게이트에 결정이 잠겨 있고 사장님이 받으신 판이다.
 chk 'GUEST_TONE2' scripts/apply-guest-tone2.mjs 1
-chk '편지는 받으신 분이 간직하십니다.' assets/ritual-data.js 1
+# ★[LETTER_KEEP_DROP 2026-09-23 사장님 결정] ②의 문장을 통째로 지웠다 — «누가»를 고친 판도 결국 첫마디가 보관 안내였다.
+#   코워크 세 눈 점검: 「울먹이며 끝냈는데 서류 안내처럼 들렸다」. 이제 「방금 그 마음에…」가 3초 침묵을 받는다.
+nochk '편지는 받으신 분이 간직하십니다' assets/ritual-data.js
+nochk '편지는 받으신 분이 간직하십니다' order-preview.html
+chk 'LETTER_KEEP_DROP' assets/ritual-data.js 1
 chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니다' assets/ritual-data.js 1
 # ★[WELCOME_TODAY 2026-09-20] 앞머리 「오늘」을 뺐다. [GUEST_TONE2]④ 가 지키는 것은
 #   «저희가 다 아는 분들»이지 「오늘」이 아니다. 바로 앞 06w#1 이 「오늘 이 자리에 오시느라…」로 열어
@@ -8599,7 +8604,6 @@ chk '오늘 이 자리를 기억해 주시겠습니까' assets/ritual-data.js 1
 #   ★위 nochk 들이 「마음이…」류로 되돌아가는 것을 따로 막는다.
 chk '평소엔 쑥스러워 다 못 한 이야기를, 한 장의 편지에 담았습니다.' assets/ritual-data.js 1   # [NARR_B1] 27 — 온기 한 줄을 앞에 두고 한 문장으로
 nochk '사랑해 준 마음이, 오늘 이 자리에 함께합니다' assets/ritual-data.js
-chk '편지는 받으신 분이 간직하십니다.' assets/ritual-data.js 1
 nochk '오늘 이 자리를 가득 채웠습니다' assets/ritual-data.js
 nochk '오늘 이 자리를 함께 채워 주셔서' assets/ritual-cue.js
 nochk '두 사람의 가슴에도 오래 남을 것입니다' assets/ritual-data.js
@@ -8728,8 +8732,15 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 # ★[TOAST_NONE 2026-09-20] 87_narr-toast-none 이 FILES 맨 끝에 붙어 86 → 87.
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
-chk 'N_FILES = 87' scripts/check-ritual-cue.js 1
+# ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
+chk 'N_FILES = 88' scripts/check-ritual-cue.js 1
+nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
+chk 'MEAL_GUIDE' assets/ritual-cue.js 3
+chk 'MEAL_GUIDE' assets/ritual-preview-link.js 2
+chk 'mealOf' mypage.html 2
+chk 'CUSTMEAL' order-preview.html 4
+chk 'LETTER_KEEP_DROP' automation/tests/merge-guard.sh 1
 
 # ★[FLOW_SHAPE] 흐름을 시간축으로 펼쳐 «모양»을 재는 검사. 문장이 아니라 구조를 본다 —
 #   한 목소리가 연속으로 끄는 시간 · 말 없이 흘러가는 구간 · 하객 동작 지시가 몰린 자리 · 블록별 배분.

@@ -59,7 +59,11 @@
        값은 **유무 boolean 뿐이다.** URL 은 절대 싣지 않는다 — 미리듣기 주소는 하객이 볼 수도 있는
        공개 링크이고, 이 저장소는 주소·큐에 고객 데이터를 안 싣는다(PREVIEW_KEYS 와 같은 규칙).
        원천은 사진 트랙의 `guideinfo.photoShareUrl` 이다(마이페이지가 저장 · guide 가 버튼으로 씀). */
-    'photoShare'                               // 하객 사진 링크 유무 — ★INJECT · 식순 S 에는 없다
+    'photoShare',                              // 하객 사진 링크 유무 — ★INJECT · 식순 S 에는 없다
+    /* ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 한 줄의 스위치 — ★INJECT · 식순 S 에는 없다.
+       원천은 애프터 웨딩 트랙의 `diningDraft.venuePick`(모일 식당)이다. 값은 **유무 boolean 뿐** —
+       식당 이름은 싣지 않는다(photoShare 와 같은 규칙). */
+    'meal'                                     // 모일 식당을 골랐나 — ★INJECT · 식순 S 에는 없다
   ];
 
   /* ★INJECT = 엔진은 읽는데 식순 초안 S 에는 없는 키 [PREVIEW_DIGITAL]
@@ -70,7 +74,7 @@
      이 목록이 있어야 [PREVIEW_KEYS] 검사가 "엔진은 읽는데 아무도 값을 안 만드는 키"를 잡을 수 있다.
      (2026-08-02 실제 사고: digital 이 KEYS 에만 있고 값을 넣는 곳이 없어, 디지털 참석 예식도 미리듣기는
       늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
-  var INJECT = ['digital', 'photoShare'];   // [PHOTO_ASK] 사진 링크 유무도 밖에서 받아 얹는다
+  var INJECT = ['digital', 'photoShare', 'meal'];   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
 
   // 고를 것만 골라 담는다. undefined·null 은 넣지 않는다 — 미리듣기 쪽 기본값이 그대로 서게(병합 주입).
   function pick(S) {
@@ -99,6 +103,18 @@
   function photoShareOf(gi) {
     var u = gi && (gi.photoShareUrl || gi.photoShare);
     return /^https?:\/\//i.test(String(u || ''));
+  }
+
+  /* ★[MEAL_GUIDE 2026-09-23] 모일 식당을 «골랐나»만 읽는다 — 이름은 안 옮긴다.
+     규칙의 원문은 서버 80_production.gs 의 하객 안내 조립이다:
+       dining_on !== 'N' 이고 venuePick 이 위저드 자리표시 문구(DN_PLACEHOLDER)가 아니다.
+     ★자리표시 목록을 여기 옮겨 적지 않는다 — 부르는 쪽(mypage)이 자기 DN_PLACEHOLDER 를 넘긴다.
+       옮겨 적으면 선택지가 바뀌는 날 이 사본만 옛 목록을 지킨다. 목록이 안 오면 «안 골랐다»로 본다(안전한 쪽). */
+  function mealOf(dd, placeholders) {
+    if (!dd || String(dd.dining_on || '').trim() === 'N') return false;
+    var p = String(dd.venuePick || '').trim();
+    if (!p || !placeholders || !placeholders.length) return false;
+    return placeholders.indexOf(p) === -1;
   }
 
   function digitalOf(inv) {
@@ -134,5 +150,5 @@
     return url(rd.S, extra);
   }
 
-  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf };
+  w.RitualPreviewLink = { KEYS: KEYS, INJECT: INJECT, pick: pick, url: url, urlFromDraft: urlFromDraft, digitalOf: digitalOf, photoShareOf: photoShareOf, mealOf: mealOf };
 })(window);

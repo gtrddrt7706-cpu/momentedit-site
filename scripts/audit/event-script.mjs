@@ -41,7 +41,7 @@ for (const c of man.clips) {
 const D_ = require_(path.join(ROOT, 'assets/ritual-data.js'));
 const SETS = [{ course: 'damback' }, { course: 'family', bless: 'on' }, { course: 'record' },
               { course: 'festive' }, { course: 'gamdong' }, { course: 'minimal' },
-              { digital: true }, { photoShare: true }, { free: 'on' }, { ring: 'off' },
+              { digital: true }, { photoShare: true }, { meal: true }, { free: 'on' }, { ring: 'off' },
               { song: 'live' }, { ringwarm: 'all' }, { blessProxy: true }];
 const AX = { entry: ['A','B','C','D','E','F'], entryVoice: ['nar','couple'], guestVoice: ['nar','couple'],
              declare: ['1','2'], declareWho: Object.keys(D_.DECLWHO), letter: Object.keys(D_.LETTER),
