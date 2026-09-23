@@ -76,10 +76,25 @@ for (const c of man.clips) {
   meta.set(id, { role: c.role, layer: String(c.dir).split('/').pop(), label: c.label || '' });
 }
 
+/* ★★[NOW_TEXT_SHA 2026-09-23] 머리줄에 **커밋 해시**를 박는다 — 날짜만으론 못 쓴다.
+     왜 — 이 파일은 코워크가 «지금 문면»의 기준으로 읽는 물건이다. 그런데 날짜만 적혀 있으면
+     같은 날 세 번 병합돼도 셋 다 「2026-09-21」이라, 어느 판을 보고 만든 표인지 알 길이 없다.
+     실제로 코워크 판마다 [STALE_NEW] 가 났다 — 그쪽 json 의 `new` 가 **자기 스냅샷**이라
+     내가 이미 고친 문면(39_tribute-out · 진희 합쇼체)을 되돌릴 뻔했다. 두 번 다 표로 걸렀다.
+     해시가 박혀 있으면 코워크가 「이 표는 <해시> 기준」이라고 적을 수 있고, 내가 그 해시와
+     origin/main 을 대조해 **낡은 제안을 기계로** 가려낼 수 있다. */
+const NOW_SHA = (() => {
+  try {
+    return require_('node:child_process')
+      .execSync('git rev-parse --short HEAD', { cwd: ROOT, encoding: 'utf8' }).trim();
+  } catch { return '(해시없음)'; }
+})();
+
 const out = [];
-out.push('# 92클립 · 지금 저장소 문면 + 큐 순서  (자동 생성 · ' + new Date().toISOString().slice(0, 10) + ')');
+out.push('# 92클립 · 지금 저장소 문면 + 큐 순서  (자동 생성 · ' + new Date().toISOString().slice(0, 10) + ' · 기준 커밋 ' + NOW_SHA + ')');
 out.push('#');
 out.push('# ★손으로 적지 않는다 — node scripts/audit/cue-order-text.mjs > 이 파일');
+out.push('# ★이 표를 근거로 제안을 만들면 «기준 커밋» 을 함께 적어 주세요 — 낡은 판인지 기계로 가립니다.');
 out.push('# ★순서는 큐 엔진이 실제로 부르는 차례다(대장이 아니다).');
 out.push('# ★설정마다 차례가 다르다. 「차례」 칸은 설정별 자리를 함께 적는다 — 한 줄만 보고 «유일한 순서»로 굳히지 말 것.');
 out.push('#   돌린 설정: ' + SETS.map(s => s[0]).join(' · '));
