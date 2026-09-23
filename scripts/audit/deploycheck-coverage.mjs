@@ -221,7 +221,9 @@ if (uncovered.length) {
   if (newest && made < newest) {
     console.log(`❌ [LIST_AGE] 목록의 _생성(${made}) 이 가장 최근 GAS 변경(${newest}) 보다 낡았다.`);
     console.log('   contractCheck 가 「목록이 최신입니다」라고 말해도 그 말은 그만큼만 믿을 수 있다.');
-    console.log('   고치는 법 — deploy-marks.json 의 _생성 을 오늘 날짜 + 현재 sha 로 갱신한다(들여쓰기 1 유지).');
+    console.log('   고치는 법 — node scripts/gen-deploy-fns.mjs --stamp   [STAMP_FORCE]');
+  console.log('     ★손으로 고치지 말 것. 내용이 그대로여도 --stamp 는 날짜를 새로 찍는다 —');
+  console.log('       스쿼시 병합이 «내용은 그대로인데 .gs 커밋 날짜만» 앞으로 옮기는 경우가 그것이다.');
     process.exit(1);
   }
   console.log(`  목록 나이 ok — _생성 ${made} · 최근 GAS 변경 ${newest || '(없음)'}`);
@@ -235,4 +237,12 @@ console.log('\n고치는 법 — 저장소 루트 deploy-marks.json 의 marks �
 console.log('   { "file": "파일", "fn": "함수", "mark": "표식", "why": "한 줄 설명" } 을 추가한다.');
 console.log('   ★GAS 에 다시 붙여넣을 것은 «그 .gs 파일 하나»뿐이다 — 99_deployCheck 는 이 JSON 을 실행할 때 읽어 간다.');
 console.log('   ★표식은 반드시 그 함수 «본문 안»에 둘 것. 닫는 } 뒤 꼬리 주석은 영영 안 잡힌다.');
+/* ★[CITE_BRACKET 2026-09-21] 여기서 한 번 헤맸다 — 목록에 분명히 넣었는데 계속 빨갰다.
+   원인은 «다른 파일의 표식을 대괄호로 인용한 주석»이었다. 이 검사는 `[이름` 이 보이면
+   «이 파일이 그 표식을 갖고 있다»로 읽으므로, 95_notify.gs 안의
+   「(admin.gs [CONTACT_FIX] 에서 만들었다)」 한 줄이 95_notify|CONTACT_FIX 를 요구했다.
+   ★검사를 느슨하게 하지 않는다 — 대괄호가 곧 «이 파일의 표식»이라는 약속이 이 게이트의 전부다.
+     대신 왜 빨간지를 여기서 말해 준다. 고치는 쪽은 인용에서 대괄호를 빼는 것이다. */
+console.log('   ★다른 파일의 표식을 주석에서 «대괄호로» 인용했는지 보라 — 그것도 «이 파일의 표식»으로 잡힌다.');
+console.log('     그때는 목록에 줄을 더하는 게 아니라, 인용에서 대괄호를 빼는 것이 맞다(예: admin.gs 의 CONTACT_FIX).');
 process.exit(1);

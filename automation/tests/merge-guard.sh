@@ -3153,6 +3153,54 @@ case "$_okf" in
   2) echo "ok okfalse-handled: 재지 못했다(파일 없음) — 화면 결함 아님" ;;
   *) echo "FAIL okfalse-handled: 서버가 «안 됐다»고 했는데 화면이 «됐다»를 띄운다 [OK_FALSE_GUARD] · node scripts/audit/okfalse-handled.mjs"; fail=1 ;;
 esac
+# ★★[ADMINCALL_WIRED] 관리자 화면이 부르는 서버 함수가 adminCall 화이트리스트(FNS)에 있나.
+#   없으면 `{ok:false, error:'알 수 없는 요청: …'}` 가 돌아온다 — 화면은 멀쩡하고 모달도 뜨는데
+#   «누르는 순간에만» 죽는다. 2026-09-21 에 [CONTACT_FIX] 를 그 상태로 내보냈다(네 호출 전부 죽음).
+#   같은 함정이 admin.gs 의 aiDraftAnswer 옆에 주석으로 이미 있었다 — 사람이 읽어야 작동하는
+#   주석은 7,000줄 앞에서 작동하지 않는다. 그래서 기계에 건다.
+node scripts/audit/admincall-wired.mjs >/dev/null 2>&1; _acw=$?
+case "$_acw" in
+  0) echo "ok admincall-wired: 화면 호출이 전부 FNS 에 있다 [ADMINCALL_WIRED]" ;;
+  2) echo "REVERT? admincall-wired: 재지 못했다(FNS 블록·gas 호출을 못 읽음) — node scripts/audit/admincall-wired.mjs"; fail=1 ;;
+  *) echo "FAIL admincall-wired: 화면이 부르는데 화이트리스트에 없는 서버 함수가 있다 — 그 버튼은 죽어 있다 · node scripts/audit/admincall-wired.mjs"; fail=1 ;;
+esac
+chk 'ADMINCALL_WIRED' scripts/audit/admincall-wired.mjs 1
+chk 'CONTACT_FIX' automation/admin/admin.gs 3
+# [CONTACT_SHADOW] 연락처를 고치면 «계약서가 읽는 사본»(동의기록.계약정보.groomPhone)까지 따라간다.
+#   70_journey 의 buildContractState 는 그 사본이 «이긴다» — 연락처만 고치면 서명된 계약서엔
+#   틀린 번호가 남는다. 사본이 옛 연락처와 «같을 때만» 고치고, 다르면 미리보기로 알린다.
+chk 'CONTACT_SHADOW' automation/admin/admin.gs 2
+chk '_stampConsentKey(sheet, colOf, cust.num' automation/admin/admin.gs 1
+chk '계약정보이력' automation/admin/admin.gs 1
+# [SILENT_BANNER] adminSilentContacts 를 «부르는 손» — 서버 함수만 있고 호출이 0건이면 없는 것과 같다.
+#   2026-09-21 에 실제로 그 상태로 내보냈다(FNS 등록도 함께 빠져 있었다).
+chk 'SILENT_BANNER' admin.html 3
+chk 'function renderSilentContacts' admin.html 1
+chk 'renderSilentContacts();' admin.html 1
+# ── 2026-09-22 애프터 웨딩 트랙 순서 [DN_*] ─────────────────────────────────────────
+# 입구 게이트는 «단계»가 아니다 — 번호를 주면 바로 다음 식당 목록과 둘 다 «1 / 2» 가 된다
+# (실측: 게이트 1/2 → 목록 1/2 → 정리 2/2 · 같은 번호가 두 화면에 붙어 «안 넘어갔나»로 읽힌다).
+chk 'DN_STEP_LABEL' mypage.html 1
+nochk "· 1 / '+m.steps" mypage.html
+# 「역시 애프터 웨딩 만들래요」는 이미 결정을 말한 버튼이다 — 게이트로 되돌려 다시 묻지 않는다.
+chk 'DN_AGAIN_DIRECT' mypage.html 1
+chk 'TRKFLOW._dnPick=true; TRKFLOW.step=0' mypage.html 1
+# 「다이닝 없이 진행할게요」가 partner 에 남으면 관리자 화면이 «안 하기로 했다»로 읽는다.
+chk 'DN_PARTNER_STALE' mypage.html 1
+# [DN_SKIP_VS_FAVS] 담은 곳이 있는데 venuePick 이 「다이닝 없이」면 정리 자리가 그 분기를 먼저 타
+#   담아 둔 곳이 통째로 안 보인다(실측: 2곳 담았는데 「없이 진행해요」 화면). 값에서 푼다.
+chk 'DN_SKIP_VS_FAVS' mypage.html 1
+chk "d._favs||\[\]).length && d.venuePick==='다이닝 없이 진행할게요'" mypage.html 1
+# [DN_SKIP_PERSIST] 화면만 고치면 모자란다 — 80_production 의 diningOn 이 dining_on!=='N' 을 보므로
+#   'N' 이 저장에 남으면 하객 안내에서 식사 구역이 통째로 사라진다. 수선을 저장까지 내보낸다.
+chk 'DN_SKIP_PERSIST' mypage.html 1
+# 예약은 두 분이 직접 · 비워 두면 그 줄만 빠진다(guide.html:503 이 근거) — 화면이 말해야 한다.
+chk 'DN_RSV_WHY' mypage.html 1
+chk '두 분이 직접</b> 해주세요' mypage.html 1
+# [STAMP_FORCE] --stamp 는 «내용이 그대로여도» 목록 날짜를 새로 찍는다 — 스쿼시 병합이 .gs
+#   커밋 날짜만 앞으로 옮겨 [LIST_AGE] 가 빨개지는, 처방이 듣지 않는 막다른 빨강을 푼다.
+chk 'STAMP_FORCE' scripts/gen-deploy-fns.mjs 1
+chk "includes('--stamp')" scripts/gen-deploy-fns.mjs 1
 chk 'OK_FALSE_GUARD' automation/consultation/ScreenB_schedule.html 1
 chk 'OK_FALSE_GUARD' scripts/audit/okfalse-handled.mjs 1
 chk 'RAIL_OVERLAP_OK' assets/advisor-widget.js 1
@@ -9333,6 +9381,67 @@ nochk '대신 움직입니다' index.html
 nochk '대신 움직입니다' parents.html
 nochk '디렉터가 도와드립니다' index.html
 nochk '디렉터에게 요청' mypage.html
+
+# ── 2026-09-21 마이페이지 디자인·층 수정 [DECISION_GUARD] ──────────────────────────────
+# [NOW_NO_MONEY] NOW 카드는 금액을 말하지 않는다 — 금액·계산·계좌는 아래 실행 카드 한 곳.
+#   두 계산이 갈라지면 화면 안에서 금액이 어긋난다(돈 화면에서 가장 비싼 버그).
+chk 'NOW_NO_MONEY' mypage.html 2
+# ★패턴은 «코드 형태»만 잡게 좁혔다 — 넓게 잡으면 바로 위 주석의 「종전 문면: …」 기록까지
+#   걸려 빨개진다(실제로 그랬다). 기록은 남겨야 한다(제거 지시 보존 규칙) — 되살아나는 것은 코드다.
+nochk '을 아래 계좌로 보내 주세요\. 확인되면' mypage.html   # 되살아나면 금액이 두 곳에서 갈린다
+nochk '예식이 가까워 한 번에 받아요. 아래' mypage.html   # NOW·카드가 같은 문장을 두 번 말하던 자리
+# [DOC_OVER_LED] 문서 뷰어를 열기 «전에» 작은 창을 닫는다 — 시착·계약서 두 갈래 모두.
+#   안 닫으면 뷰어가 모달 뒤에서 열리고, 뒤로가기 층이 거꾸로 꽂혀 «유령 층»이 남는다.
+chk 'DOC_OVER_LED' mypage.html 4
+chk 'BK_ORPHAN' mypage.html 1
+# [ALERT_BK] 알림창(취소 없는 것)에만 뒤로가기 층. 확인 대화상자는 층을 만들지 않는다(종전 설계).
+#   ★아래 nochk 가 핵심 — 조건이 사라지면 확인 대화상자까지 뒤로가기로 닫혀 «저장 없이 나가기»가 된다.
+chk 'ALERT_BK' mypage.html 2
+chk 'o.cancel===false){ try{ _bkId=bkOpen' mypage.html 1
+# [INV_EG_FULL]·[WIZ_NOTE_STYLE] 청첩장 마법사 — 「전체 청첩장 보기」를 액션으로, 자동저장 안내에 스타일을.
+#   sp-note 는 .seat-privacy 안에서만 정의돼 있어 청첩장에선 맨몸으로 떨어졌다. 기본값을 밖으로 꺼냈다.
+chk 'INV_EG_FULL' mypage.html 1
+chk 'WIZ_NOTE_STYLE' mypage.html 1
+chk '^\.sp-note{' mypage.html 1
+chk '\.inv-nav + \.sp-note{' mypage.html 1
+# [MODAL_ACT_STICKY] 긴 모달에서 버튼·제목이 붙어 따라온다(스크롤이 있는지 몰라 못 찾던 자리)
+chk 'MODAL_ACT_STICKY' mypage.html 2
+# [GATE_CARD_BUSY] 「예식만으로 조용히 마무리」 카드 — 누른 순간 신호가 있어야 한다.
+#   :disabled 스타일이 없어 눌러도 화면이 그대로였다(서버 왕복 동안 고객은 «안 눌렸나» 한다).
+chk 'GATE_CARD_BUSY' mypage.html 2
+chk '\.dn-gate-card\.busy \.dgc-d::before' mypage.html 1
+chk 'dn-gate-card:disabled' mypage.html 1
+# [CITE_BRACKET] 주석에서 «다른 파일의» 표식을 대괄호로 인용하면 그 파일의 표식으로 잡힌다 —
+#   실패 메시지가 그 함정을 짚게 한 결정(2026-09-21 에 두 번 걸렸다). 지우면 다음 사람이 같은 데서 헤맨다.
+chk 'CITE_BRACKET' scripts/audit/deploycheck-coverage.mjs 1
+# [SIM_OLD_ALL] «옛 판» 모의는 표식을 전부 지운다 — 첫 하나만 지우면 같은 표식이 여러 번 있는
+#   파일(Admin.html 의 CONTACT_FIX 6회)에서 나머지가 남아 모의가 거짓으로 빨개진다.
+chk 'SIM_OLD_ALL' scripts/audit/deploycheck-sim.mjs 1
+# [LOADING_ONE] 취소 페이지의 «하는 중» 두 자리 — 숨쉬는 점이 이미 말하므로 말줄임표를 겹치지 않는다.
+#   (2026-09-21 사장님 지적 「점갯수에따라 글자가 좌우로 흔들리는데」와 같은 자리)
+chk 'bdot' cancel.html 3
+nochk '…' cancel.html   # ★주석에도 이 글자를 쓰지 말 것 — 제 주석을 잡아 빨개진다
+# ── [CONTACT_FIX] 관리자 연락처 정정 — 두 화면(momentedit.kr/admin.html · /exec?admin=1 Admin.html)
+#   ★핵심은 «버튼이 조건부가 아니다»이다. 고쳐야 하는 상황이 바로 번호가 비었거나 이상한 상황인데,
+#     옆 버튼들은 d.phone 이 있어야 그려진다. 조건을 달면 정확히 필요한 때에 손잡이가 사라진다.
+# ★루프로 묶지 말 것 — 이 게이트는 «파일 안의 `^chk ` 줄 수»를 기대값으로 쓴다(GATE_RAN).
+#   루프 안 chk 는 들여쓰기돼 안 세어지는데 실행은 여러 번 되어 «중단됐다»로 빨개진다.
+#   2026-09-21 에 실제로 그렇게 8개가 어긋났다(3363/3355). 파일마다 한 줄씩 펴서 적는다.
+chk 'CONTACT_FIX' admin.html 3
+chk 'contact-bad' admin.html 2
+chk '_phoneOk' admin.html 3
+chk "h+='<button id=\"editContact\">연락처 정정</button>'" admin.html 1
+chk 'CONTACT_FIX' automation/admin/Admin.html 3
+chk 'contact-bad' automation/admin/Admin.html 2
+chk '_phoneOk' automation/admin/Admin.html 3
+chk "h+='<button id=\"editContact\">연락처 정정</button>'" automation/admin/Admin.html 1
+# 같은 자로 재야 한다 — 화면·저장·발송 셋이 갈리면 「저장은 됐는데 알림은 안 가는」 상태가 또 생긴다
+chk '01\[016789\]\[0-9\]{7,8}' admin.html 1
+chk '01\[016789\]\[0-9\]{7,8}' automation/admin/admin.gs 1
+chk '01\[016789\]\[0-9\]{7,8}' automation/platform/95_notify.gs 1
+# ★실패 복구가 카드를 부수던 줄 — 카드 안 <span> 셋을 통째로 지운다. 되살리지 말 것.
+nochk '_nn\.textContent=_t0' mypage.html
+chk '_nd\.textContent=_d0' mypage.html 1
 
 # ★[ALREADY_DONE] apply 스크립트가 «이미 되어 있는 자리»를 실패로 세지 않게 한 장치.
 #   병렬 세션이 같은 파일을 고쳐 main 을 합친 뒤 다시 돌리면 옛 문구가 0개인 것이 정상이다.

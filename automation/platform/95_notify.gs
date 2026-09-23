@@ -175,7 +175,29 @@ function _kakaoSend(to, event, code, extra, opts) {
   try { cust = findCustomerByCode(String(code || '').trim()); } catch (e) {}
   if (!cust) { Logger.log('[notify] 고객 조회 실패: ' + code + ' — 발송 생략'); return false; }
   var phone = String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
-  if (!/^01[016789][0-9]{7,8}$/.test(phone)) { Logger.log('[notify] 연락처 형식 아님(' + code + ') — 발송 생략'); return false; }
+  if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
+    var _csMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 지우지 말 것(99_deployCheck 가 이 줄을 읽는다)
+    /* ★★[CONTACT_SILENT 2026-09-21 사장님 지적에서 드러났다] 종전엔 Logger 한 줄만 남기고 조용히 끝냈다 · 되돌리지 말 것.
+       로그는 «보는 사람이 있을 때만» 알림이다. 실제로는 아무도 안 봤고, 연락처가 `821-0734-9770`
+       (+82 10 을 잘못 붙인 값)로 들어간 고객의 알림톡이 전부 생략되고 있었는데 관리자는 몰랐다.
+       게다가 그때는 관리자가 연락처를 «고칠 길»도 없었다(admin.gs 의 CONTACT_FIX 에서 만들었다 · ★대괄호로 쓰지 말 것 — 아래 참고).
+       → 관리자 메일로 한 번 알린다. 그래야 고칠 수 있다.
+       ★하루 한 번으로 묶는다 — 한 고객에게 알림이 여러 번 나가는 날 메일이 쏟아지면
+         그건 다시 «아무도 안 보는 알림»이 된다(알림 피로는 침묵과 같은 결과를 낸다).
+       ★다른 파일의 표식을 인용할 때 대괄호를 쓰지 않는다 — deploycheck-coverage 는
+         `[이름` 을 «이 파일이 그 표식을 갖고 있다»로 읽어, 목록에 없는 짝으로 빨개진다
+         (2026-09-21 실측: 이 주석 한 줄 때문에 95_notify|CONTACT_FIX 를 요구했다). */
+    Logger.log('[notify] 연락처 형식 아님(' + code + ') — 발송 생략');
+    try {
+      var _sk = 'NF_BADPHONE_' + code + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMdd');
+      var _sp = PropertiesService.getScriptProperties();
+      if (!_sp.getProperty(_sk)) {
+        _sp.setProperty(_sk, '1');
+        _nfAdminLineEmail('알림 못 보냄 — 연락처 형식 이상: ' + code + ' (' + phone + ') · 관리자 화면에서 연락처를 정정해 주세요');
+      }
+    } catch (_e) {}
+    return false;
+  }
   var name = _nfCoupleName(cust);
 
   // 상품별 단어 — 스냅은 '상담'→'촬영', '예식'→'촬영' (확정·D-1·제안·잔금 문구가 두 상품 공용이라 단어만 분기)
