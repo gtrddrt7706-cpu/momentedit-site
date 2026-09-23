@@ -7009,7 +7009,7 @@ chk 'MUNAN_REST' scripts/apply-munan-rest.mjs 1
 #   이 클립은 화면을 보고 있는 그 순간에 직접 말을 거는 자리라 「보고 계신」이 더 정확하다.
 #   ★[MUNAN_REST] 가 지키는 것은 «사장님 지적 33개가 반영돼 있나»이고, 그 지적은 이 낱말이 아니었다.
 chk '화면으로 보고 계신 분들, 반갑습니다' assets/ritual-cue.js 1
-chk '두 분 손에 같은 것이 하나씩 생겼습니다.' assets/ritual-data.js 3
+chk '손에 같은 것이 하나씩 생겼습니다' assets/ritual-data.js 3
 chk '이제 두 사람은 부부입니다. 다 함께 축하해 주세요' assets/ritual-data.js 1
 nochk '선언은 가족의 목소리로 남았습니다' assets/ritual-data.js
 nochk '두 사람이 한 바퀴를 거의 마쳤습니다' assets/ritual-data.js
@@ -7989,7 +7989,7 @@ chk '준비되시면 그대로 읽어 주십시오' assets/ritual-data.js 1   # 
 #   ★감정 구간은 손대지 않았다 — 게이트에 결정이 잠겨 있고 사장님이 받으신 판이다.
 chk 'GUEST_TONE2' scripts/apply-guest-tone2.mjs 1
 chk '편지는 받으신 분이 간직하십니다.' assets/ritual-data.js 1
-chk '신랑 신부가 절반쯤 인사를 나눴고, 남은 자리도 차례로 찾아뵙겠습니다.' assets/ritual-data.js 1
+chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니다' assets/ritual-data.js 1
 # ★[WELCOME_TODAY 2026-09-20] 앞머리 「오늘」을 뺐다. [GUEST_TONE2]④ 가 지키는 것은
 #   «저희가 다 아는 분들»이지 「오늘」이 아니다. 바로 앞 06w#1 이 「오늘 이 자리에 오시느라…」로 열어
 #   붙어 나가는 두 클립이 「오늘…오늘」로 들렸다 — PAIR_READ 로 나란히 읽다 보인 자리다.
@@ -8012,7 +8012,7 @@ chk '한쪽에 간단한 다과와 음료를 준비해 두었습니다' assets/r
 #     정면으로 어긋난다. 「정했습니다」로 바꾸니 그 결정을 지키면서 27음절→16음절 낙차는 그대로 얻었다.
 chk '순서도 목소리도' assets/ritual-data.js 2        # 04a·04c — 앞 줄 「안내 음성」과 겹쳐서
 chk '휴대폰은 잠시 진동 모드로 부탁드립니다.' assets/ritual-data.js 1
-chk '신랑 신부가 절반쯤 인사를 나눴고, 남은 자리도 차례로 찾아뵙겠습니다.' assets/ritual-data.js 1
+chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니다' assets/ritual-data.js 1
 # ★★[TODO_ONLY 2026-09-13 사장님 「새로 녹음해야하는 파일들 올려죠」]
 #   창고에 «없거나 낡은» 자리만 뽑아 붙여넣기 판을 만든다(--todo).
 #   ★이미 받은 자리를 다시 요구하지 않는다 — 그게 이 창고를 만든 이유다.
@@ -8694,7 +8694,7 @@ chk 'roundMid' assets/ritual-data.js 2
 # ★[ROUND_MID_WORD 2026-09-14] 문안이 「돌았습니다」→「인사를 나누셨습니다」로 바뀌었다(GUEST_TONE ⑤).
 #   지킬 것은 «절반쯤 왔다고 알려 주는 문장이 있다»이지 옛 낱말이 아니다 — 새 문안으로 옮겨 건다.
 #   ★a606d699 가 문안만 고치고 이 줄을 안 옮겨 게이트가 하루 붉었다. 문안을 고치면 같은 커밋에서 여기도 고친다.
-chk '신랑 신부가 절반쯤 인사를 나눴고, 남은 자리도 차례로 찾아뵙겠습니다.' assets/ritual-data.js 1
+chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니다' assets/ritual-data.js 1
 # ★[TOAST_NONE 2026-09-20] 87_narr-toast-none 이 FILES 맨 끝에 붙어 86 → 87.
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
@@ -9724,7 +9724,7 @@ chk 'NOT_THE_SOURCE' scripts/audit/pick-basis.mjs 1
 #   아래는 옛 결정들의 «취지»를 새 문안에서 잇는 자리다. 문장이 바뀌어도 취지는 남는다.
 chk '엄마는 네 아버지 우는 거, 결혼하고 한 번도 못 봤다.' 'docs/plans/식순연구/배역_예시_대사.txt' 1        # [CRY_OK] 우는 사람에게 이름을 붙여 준다
 chk '이유를 세 개씩 물으셨습니다' 'docs/plans/식순연구/배역_예시_대사.txt' 1          # [HONORIFIC] 아버지가 주어면 서술어도 존대
-chk '등 돌리고 자지만 마라' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [BLESS_TURN] 당부는 «한 줄»까지 · 조언 덩어리 금지
+chk '등 돌리고 잠들지는 마라' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [BLESS_TURN] 당부는 «한 줄»까지 · 조언 덩어리 금지
 chk '사실은 믿고 싶었는데, 아버지라서 쉽게 믿어 주지 못했습니다.' 'docs/plans/식순연구/배역_예시_대사.txt' 1   # [LETTER_SCENE] 여섯이 서로 다른 문으로 연다 · 여기는 «거절 고백»
 # ★2026-09-20 사장님 결정 — 「말렸다」에서 수위를 낮췄다. 미리듣기 견본이라 계약 전
 #   예비부부가 듣는 자리이고, 결혼식 견본에 «반대»가 세게 들어가면 거부감이 앞선다.
