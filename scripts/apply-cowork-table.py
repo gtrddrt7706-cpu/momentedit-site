@@ -23,13 +23,22 @@
 import io, json, re, sys
 
 WRITE = '--write' in sys.argv
-TSV = 'docs/plans/식순연구/코워크_2차표_20260921.tsv'
+# ★[TABLE_ARG 2026-09-23] 표를 인자로 받는다 — 회차마다 표가 새로 온다.
+#   인자가 없으면 마지막 표를 쓴다(옛 호출이 그대로 돈다).
+TSV = next((a for a in sys.argv[1:] if a.endswith('.tsv')),
+           'docs/plans/식순연구/코워크_10차표_20260922.tsv')
 MAN = 'docs/plans/식순연구/타입캐스트/manifest.json'
 # ★[SRC_FOUR] 문안은 **다섯** 곳에 산다. ritual-cue.js 를 빠뜨리면 식순 «밖» 클립(EXTRA)이 안 잡힌다.
 SRC = ['assets/ritual-data.js', 'assets/ritual-cue.js', 'order-preview.html',
        'docs/plans/식순연구/배역_예시_대사.txt', 'scripts/build-dubbing-script.mjs']
 
 norm = lambda t: re.sub(r'\s+', ' ', t or '').strip()
+
+# ★[ENTRY_ALT_REBUILD] 손으로 적지 않는다 — 원천에서 읽는다. 배역이 늘면 따라온다.
+_rd = io.open('assets/ritual-data.js', encoding='utf-8').read()
+_m = re.search(r'var\s+ENTRY_ALT\s*=\s*\[([^\]]*)\]', _rd)
+ENTRY_ALT = re.findall(r'"([^"]+)"|\'([^\']+)\'', _m.group(1)) if _m else []
+ENTRY_ALT = [a or b for a, b in ENTRY_ALT] or ['신랑', '신부']
 
 man = json.loads(io.open(MAN, encoding='utf-8').read())
 NOW = {}
@@ -75,7 +84,14 @@ for slug, layer, now, new in rows:
         continue
     hit = cur
     n = 0
+    CAST = 'docs/plans/식순연구/배역_예시_대사.txt'
     for f in SRC:
+        # ★★[CAST_NOT_FLAT] 배역 파일은 여기서 건드리지 않는다 — 아래 줄 단위 길로만 간다.
+        #   아래 치환은 `\s+` 로 잇기 때문에 **줄바꿈까지 먹는다.** 배역 덕담은 한 문장 한 줄로
+        #   열다섯 줄인데, 그 열다섯 줄이 **한 줄로 뭉개진 뒤** 줄 수 검사에 걸렸다(실측).
+        #   더 나쁜 경우엔 뭉갠 채로 그냥 써져서, 성우가 읽을 줄 나눔이 통째로 사라진다.
+        if f == CAST:
+            continue
         # 원문은 공백이 접혀 있지 않을 수 있다 — 정규화한 자리를 원문에서 되찾는다
         pat = re.compile(r'\s+'.join(map(re.escape, hit.split(' '))))
         srcs[f], k = pat.subn(new, srcs[f]); n += k
@@ -86,7 +102,6 @@ for slug, layer, now, new in rows:
     #     게이트가 없었으면 «화면에 적힌 말»과 «성우가 읽는 말»이 다른 채로 녹음까지 갔다.
     #   ★문장 수가 같을 때만 줄 단위로 갈아 끼운다 — 수가 다르면 어느 줄이 어느 줄인지 정할 수 없다.
     #     그때는 아래 stop 으로 떨어져 사람이 본다(짐작해서 넣지 않는다).
-    CAST = 'docs/plans/식순연구/배역_예시_대사.txt'
     if CAST in SRC:
         head = re.compile(r'^\[%s\]\s.*?→\s*%s_%s\.mp3\s*$' % (m.group(1), m.group(1), re.escape(m.group(2))), re.M)
         hm = head.search(srcs[CAST])
@@ -97,7 +112,31 @@ for slug, layer, now, new in rows:
                 blk.append(lines[i2]); i2 += 1
             olds = [re.sub(r'^[^:]{1,8}:\s*', '', x).strip() for x in blk]
             news = [t.strip() for t in re.split(r'(?<=[.!?])\s+', new) if t.strip()]
-            if blk and len(olds) != len(news):
+            # ★★[CAST_SHAPE] 배역 블록은 **세 가지 꼴**이다. 하나로 다루면 반드시 어긋난다.
+            #   ① 화자 접두(「신랑: …」)  입장 여섯 — 누가 어느 줄을 읽는지가 뜻이다. 수가 맞아야 한다
+            #   ② 통낭독 한 줄          합창·서약 — 한 줄에 여러 문장. 그 한 줄을 통째로 간다
+            #   ③ 접두 없는 여러 줄      덕담·편지·헌정 — 화자가 하나라 줄 나눔은 «읽기 편하라고» 나눈 것.
+            #                            수가 달라도 새 문장대로 다시 나누면 된다(뜻을 잃지 않는다)
+            has_prefix = bool(blk) and all(re.match(r'^[^:]{1,8}:\s', x) for x in blk)
+            whole_take = len(blk) == 1 and len(news) > 1 and not has_prefix
+            if blk and not has_prefix and not whole_take and len(olds) != len(news):
+                # ③ 접두가 없으면 새 문장 수대로 블록을 다시 쓴다
+                head_end = hm.end() + 1
+                old_block = '\n'.join(blk)
+                srcs[CAST] = srcs[CAST].replace(old_block, '\n'.join(news), 1); n += 1
+            elif whole_take:
+                # ② 한 줄 통낭독 — 그 줄을 통째로 새 문면으로
+                srcs[CAST] = srcs[CAST].replace(blk[0], new, 1); n += 1
+            elif blk and has_prefix and len(olds) != len(news) and set(
+                    re.match(r'^([^:]{1,8}):', x).group(1) for x in blk) <= set(ENTRY_ALT):
+                # ★★[ENTRY_ALT_REBUILD] 화자 배치는 **짐작이 아니라 규칙**이다 —
+                #   `D.ENTRY_ALT` 가 「한 문장씩 번갈아」이고 첫 문장이 ENTRY_ALT[0] 이다.
+                #   그래서 문장 수가 달라져도 누가 어느 줄을 읽을지 **계산된다.**
+                #   ★이 길은 블록의 화자가 ENTRY_ALT 안에 있을 때만 쓴다 — 아버님·어머님이 섞인
+                #     블록에까지 번갈아 규칙을 들이대면 남의 대사가 남의 입에 붙는다.
+                rebuilt = '\n'.join('%s: %s' % (ENTRY_ALT[i % len(ENTRY_ALT)], t) for i, t in enumerate(news))
+                srcs[CAST] = srcs[CAST].replace('\n'.join(blk), rebuilt, 1); n += 1
+            elif blk and has_prefix and len(olds) != len(news):
                 # ★★[CAST_COUNT] 문장 수가 다르면 **조용히 건너뛰지 않는다.**
                 #   첫 판이 그랬다 — ritual-data.js 만 바뀌어 n>0 이 되니 «됨»으로 세고,
                 #   배역 대본은 옛 줄 수 그대로 남았다. 23_entry-F 가 «화면 2문장 ≠ 대본 3문장»으로
@@ -110,6 +149,12 @@ for slug, layer, now, new in rows:
                         srcs[CAST] = srcs[CAST].replace(raw, raw.replace(a, b), 1); n += 1
     if n:
         done.append((slug, hit, new, n))
+    elif any(new in v for v in srcs.values()):
+        # ★★[TWIN_TEXT] 못 찾았는데 새 문면이 이미 있다 = **앞 줄이 함께 바꿔 놓은 것**이다.
+        #   실측: 41_toast-cake 와 42_toast-both 는 지금 문면도 갈 문면도 **글자까지 같다.**
+        #   ritual-data.js 에 그 문장이 두 벌 있어 41 을 바꿀 때 둘 다 바뀌고, 42 차례엔 찾을 것이 없었다.
+        #   ★이것을 «멈춤»으로 두면 멀쩡한 판이 통째로 안 써진다([NO_SILENT_SKIP] 이 전부를 막으므로).
+        same.append(slug)
     else:
         stop.append((slug, '문면이 대장에는 있는데 원천 다섯 파일 어디에도 없다'))
 
