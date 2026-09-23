@@ -7925,6 +7925,7 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk "const WRITE = has('--write')" scripts/sent-lib.mjs 1
 chk 'LOCK_NO_DOT' scripts/build-script-review.mjs 1
+chk 'REVIEW_FRESH_ONMAIN' automation/tests/merge-guard.sh 2
 if command -v node >/dev/null 2>&1; then
   node scripts/build-script-review.mjs >/dev/null 2>&1 \
     || { echo 'FAIL [SCRIPT_REVIEW] 대본 정리본이 안 뽑힌다(나는 소리가 빠졌을 수 있다) — node scripts/build-script-review.mjs'; fail=1; }
@@ -7934,7 +7935,24 @@ if command -v node >/dev/null 2>&1; then
   #   대본 정리본이라, 낡으면 **이미 확정·잠김된 14줄을 «아직 검토중»으로 보시게 된다** —
   #   파일의 존재 이유를 정면으로 깨뜨린다. 게이트는 매번 이걸 다시 쓰면서도 조용했다.
   #   ★생성기가 결정적인 것을 확인하고 걸었다(같은 입력 두 번 → 바이트 동일). 아니면 영원한 빨강이 된다.
-  if command -v git >/dev/null 2>&1 && ! git diff --quiet -- script-review.html 2>/dev/null; then
+  # ★★[REVIEW_FRESH_ONMAIN 2026-09-23] **main 위에서는 이 검사를 걸지 않는다.**
+  #   왜 — 「검토중」은 `git show origin/main:manifest.json` 과의 문장 차이로 잰다([DIFF_NOT_LIST]).
+  #   그러니 **기준이 움직이는 자**다. 브랜치에서 문안을 고치면 그 줄은 「검토중」으로 박혀 커밋되고,
+  #   병합된 «뒤» main 위에서 다시 뽑으면 origin/main 이 곧 HEAD 라 같은 줄이 「확정」으로 나온다.
+  #   두 판은 반드시 다르다 → 문안을 건드린 병합마다 main 이 빨개진다.
+  #   실측(2026-09-23) — main 0a7ce4b8(PR #796 스쿼시) Merge Guard **failure**,
+  #   같은 내용을 담은 브랜치 커밋 c142132a 는 success. 내용이 아니라 **기준 ref** 가 갈랐다.
+  #   ★영영 빨간 게이트는 게이트가 아니다 — 사람이 빨강을 읽지 않게 만든다.
+  #   그래서 «고칠 수 있는 자리»(브랜치)에서만 묻는다. 다음 PR 이 이 파일을 다시 뽑아 간다.
+  _rf_on_main=0
+  if command -v git >/dev/null 2>&1; then
+    _rf_head=$(git rev-parse HEAD 2>/dev/null)
+    _rf_main=$(git rev-parse origin/main 2>/dev/null)
+    [ -n "$_rf_head" ] && [ "$_rf_head" = "$_rf_main" ] && _rf_on_main=1
+  fi
+  if [ "$_rf_on_main" = 1 ]; then
+    echo 'ok [REVIEW_FRESH_ONMAIN] main 위라 대본 정리본 최신성 검사는 건너뜁니다(기준 ref 가 곧 자기 자신)'
+  elif command -v git >/dev/null 2>&1 && ! git diff --quiet -- script-review.html 2>/dev/null; then
     echo 'FAIL [REVIEW_FRESH] script-review.html 이 낡았습니다 — node scripts/build-script-review.mjs 로 다시 뽑아 같은 커밋에 넣을 것'
     fail=1
   fi
