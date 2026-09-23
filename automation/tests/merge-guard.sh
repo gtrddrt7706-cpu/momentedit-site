@@ -7927,7 +7927,16 @@ fi
 chk "const WRITE = has('--write')" scripts/sent-lib.mjs 1
 chk 'LOCK_NO_DOT' scripts/build-script-review.mjs 1
 chk 'REVIEW_FRESH_ONMAIN' automation/tests/merge-guard.sh 2
+chk 'REVIEW_RESTORE_WT' automation/tests/merge-guard.sh 3
 if command -v node >/dev/null 2>&1; then
+  # ★★[REVIEW_RESTORE_WT 2026-09-23] 뽑기 «전» 작업 트리 판을 떠 둔다 — 끝에서 그 판으로 돌려놓는다.
+  #   종전엔 끝에서 `git checkout --` 으로 **HEAD 판**으로 돌렸다. 그러면 「다시 뽑기 → 게이트 → 커밋」
+  #   순서로 일하는 사람의 **방금 뽑은 새 판이 조용히 옛 판으로 덮인다.** 그 옛 판이 그대로 커밋된다.
+  #   실측 — 오늘 두 번 당했다. 두 번 다 커밋 뒤 게이트가 [REVIEW_FRESH] 로 빨갰고, 파일을 봐도
+  #   `git status` 가 깨끗해 원인이 안 보였다(게이트가 끝에서 흔적까지 지웠기 때문이다).
+  #   「재고 나서 원래대로」의 «원래»는 HEAD 가 아니라 **게이트를 돌리기 직전의 작업 트리**다.
+  _rf_keep=''
+  if [ -f script-review.html ]; then _rf_keep=$(mktemp) && cp script-review.html "$_rf_keep"; fi
   node scripts/build-script-review.mjs >/dev/null 2>&1 \
     || { echo 'FAIL [SCRIPT_REVIEW] 대본 정리본이 안 뽑힌다(나는 소리가 빠졌을 수 있다) — node scripts/build-script-review.mjs'; fail=1; }
   # ★★[REVIEW_FRESH 2026-09-21] «뽑히나»만 보고 «커밋본이 최신인가»는 안 봤다.
@@ -7959,7 +7968,7 @@ if command -v node >/dev/null 2>&1; then
   fi
   # ★게이트가 파일을 고쳐 놓지 않는다 — gen-fresh 와 같은 규칙(「재고 나서 원래대로 되돌린다」).
   #   종전엔 이 생성기만 작업 트리를 더럽혀, 매 실행 뒤 «내가 안 고친 파일»이 수정됨으로 남았다.
-  command -v git >/dev/null 2>&1 && git checkout -- script-review.html 2>/dev/null || true
+  if [ -n "$_rf_keep" ]; then cp "$_rf_keep" script-review.html && rm -f "$_rf_keep"; fi   # [REVIEW_RESTORE_WT]
 fi
 # ★[SELF_COMMENT_TRAP] 여기 `nochk '안 남'` 을 넣었다가 **내 주석을 내가 잡았다** — 폐지 사유를
 #   주석으로 남기는 것이 이 저장소 규칙이라(제거 지시 보존), 문자열 검사와 늘 부딪친다([DECLWHO_LIVE] 재발).
