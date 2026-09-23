@@ -1810,7 +1810,8 @@ function openRitualBuilder(p, inv){
       var _dig=false; try{ _dig=!!(window.RitualPreviewLink && RitualPreviewLink.digitalOf(inv)); }catch(e3){}
       // [PHOTO_ASK 2026-08-16] 사진 링크 «유무»만 — 주소는 안 보낸다(빌더는 하객이 볼 수도 있는 판이다)
       var _pho=false; try{ _pho=!!(window.RitualPreviewLink && RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)); }catch(e4){}
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
+      var _meal=false; try{ _meal=!!(window.RitualPreviewLink && RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)); }catch(e5){}   // [MEAL_GUIDE] 모일 식당 «유무»만(이름 아님)
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -1901,7 +1902,8 @@ function openRitualPreview(p, inv){
      ★S 에 써 넣지 않는다 — _embedSave 가 S 를 서버 초안에 굳혀, 링크를 나중에 지워도 옛 값이 남는다. */
   try{ src=(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(p&&p.ritualDraft, {
     digital:RitualPreviewLink.digitalOf(inv),
-    photoShare:RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)
+    photoShare:RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft),
+    meal:RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)   // [MEAL_GUIDE] 모일 식당 «유무»만
   }))||''; }catch(e){}
   if(!src){ _miniToast('식순을 먼저 만들면 미리 들어볼 수 있어요'); return null; }   // 버튼이 안 떠 있어야 정상이지만, 떠 있었다면 빈 화면 대신 이유를 말한다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]

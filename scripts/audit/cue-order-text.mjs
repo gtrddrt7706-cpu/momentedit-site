@@ -52,6 +52,7 @@ const AX = {
   toast: Object.keys(D_.TOAST), bless: ['on','off'], blessProxy: [false,true],
   ring: ['on','off'], song: ['family','live','off'], digital: [false,true],
   photoShare: [false,true],
+  meal: [false,true],   // [MEAL_GUIDE] 88_guide-meal
 };
 for (const k of Object.keys(AX)) for (const v of AX[k])
   SETS.push(['·' + k + '=' + v, { course: 'damback', [k]: v }]);

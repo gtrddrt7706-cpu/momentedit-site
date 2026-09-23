@@ -327,8 +327,11 @@ const clips = parse(SRC);
                 → 「RETIRED 에 넣었으니 대본에서도 빠지겠지」로 읽지 말 것. 둘은 다른 목록이다.
               ★번호 33·34·35 는 FILES 에 남겨 뒤 번호를 안 밀었다(2026-08-11 실측 사고와 같은 이유).
               ★합송(chorus)도 같은 날 폐지했지만 **개수는 안 움직였다** — 그쪽은 나레이션 클립이 아니라
-                STORY.LIVE 의 지문이었다. 같은 지시로 지웠다고 같은 목록에서 빠지는 것이 아니다. */
-const CLIP_COUNT = 82;
+                STORY.LIVE 의 지문이었다. 같은 지시로 지웠다고 같은 목록에서 빠지는 것이 아니다.
+     82 → 83 [MEAL_GUIDE 2026-09-23 코워크 세 눈 점검 · 사장님 반영] 식사 자리 안내 1개(88_guide-meal).
+              배웅 45 뒤 · 애프터 웨딩에서 모일 식당을 고른 날만. 신부·하객·혼주 셋이 똑같이 짚은 빈자리.
+              ★코워크 표에는 87 로 왔다 — 저장소 87 은 narr-toast-none 이다. 번호는 FILES 맨 끝 **88**. */
+const CLIP_COUNT = 83;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

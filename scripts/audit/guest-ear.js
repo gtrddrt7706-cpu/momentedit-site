@@ -107,7 +107,7 @@ for (const [k, v] of Object.entries(CALL)) if (v) console.log(`   ${String(v).pa
 
 console.log('\n⑤ 조건이 맞아야만 나가는 안내 (아니면 그 답이 아예 없다)');
 const base = new Set(cues.map((c) => c.slug));
-for (const [why, opt] of [['사진 부탁', { photoShare: true }], ['온라인 인사', { digital: true }]]) {
+for (const [why, opt] of [['사진 부탁', { photoShare: true }], ['온라인 인사', { digital: true }], ['식사 안내', { meal: true }]]) {   // [MEAL_GUIDE]
   const more = RC.build({ course, ...opt }, { mode: 'console' }).cues.filter((c) => c.text && !base.has(c.slug));
   for (const c of more) console.log(`   ★ ${why} · ${c.slug} — ${sents(c.text)[0].slice(0, 50)}`);
 }
