@@ -7866,6 +7866,7 @@ chk 'TIME_STAIR' scripts/audit/guest-ear.js 1                        # 「남았
 chk 'RUNTIME_SWAP' scripts/lib/drop-guard.mjs 1
 chk 'NO_SUCH_CLIP' scripts/lib/drop-guard.mjs 1
 chk 'CUE_ORDER_DROP' scripts/audit/cue-order-text.mjs 1
+chk 'NOW_TEXT_SHA' scripts/audit/cue-order-text.mjs 1
 # ★★[SCRIPT_REVIEW 2026-09-21 코워크 요청] 사장님이 한 번에 읽는 대본 정리본.
 #   ★[COVER_ALL] — 나는 소리가 하나라도 빠지면 생성기가 **멎는다**. 반쪽 문서를 드리면
 #     사장님은 «여기 없으니 없는 말»이라고 읽으신다. 반증으로 확인했다(그물을 빼니 15개를 잡고 rc=1).
@@ -7949,6 +7950,17 @@ if command -v node >/dev/null 2>&1; then
   [ "${_cod:-0}" -eq 0 ] || { echo "FAIL [CUE_ORDER_DROP] 「안 남」 칸이 $_cod 줄 — dropGuard 배선이 끊겼다"; fail=1; }
   _cod2=$(node scripts/audit/cue-order-text.mjs 2>/dev/null | awk -F'\t' '$2=="★이름오류"' | wc -l)
   [ "${_cod2:-0}" -eq 0 ] || { echo "FAIL [NO_SUCH_CLIP] 표에 없는 클립 이름이 $_cod2 줄"; fail=1; }
+  # ★★[NOW_TEXT_SHA] 「지금 문면」 표의 머리줄에 **기준 커밋 해시**가 실리는가.
+  #   왜 — 코워크가 이 표를 보고 다음 판 제안을 만든다. 날짜만 있으면 같은 날 세 번 병합돼도
+  #   셋 다 같은 줄이라 «어느 판 기준인지» 알 길이 없고, 실제로 [STALE_NEW] 가 두 번 났다.
+  #   ★재는 것은 «배선이 살아 있는가»뿐이다 — 커밋된 파일의 해시가 HEAD 와 같은지는 **안 본다.**
+  #     그 파일은 커밋되는 순간 «직전 해시»를 담게 되므로, 같기를 요구하면 영영 빨간 게이트가 된다.
+  _nts=$(node scripts/audit/cue-order-text.mjs 2>/dev/null | head -1)
+  case "$_nts" in
+    *"기준 커밋 (해시없음)"*) echo "FAIL [NOW_TEXT_SHA] 머리줄이 해시를 못 읽었다 — git 호출 배선을 보라"; fail=1;;
+    *"기준 커밋 "*) : ;;
+    *) echo "FAIL [NOW_TEXT_SHA] 「지금 문면」 표 머리줄에 기준 커밋이 없다"; fail=1;;
+  esac
 fi
 # ★★[ASK_REORDER 2026-09-20 사장님 「유도가 약하다 · 따라 해야 하나 싶을 것 같다」]
 #   응답형 선언에서 **질문이 시연보다 앞**에 있었다. 하객은 답을 배우기 전에 질문을 듣는 셈이라
