@@ -9388,6 +9388,44 @@ nochk 'gv-meta-num\{[^}]*color:var\(--gold\)' invitation-gallery.html
 chk 'LIVE_MAIN' live.html 1
 # [SEAT_STATE_H1] 오류·만료 화면에 h1 이 하나도 없었다. 상태 문장이 그 화면의 제목이다.
 chk 'SEAT_STATE_H1' seat.html 1
+
+# ★★[DESIGN_SKILLS_12 2026-09-25 사장님 4편 «릴스의 디자인 스킬을 저장소에 들여 직접 쓰기»]
+#   impeccable · web-design-guidelines · frontend-design 셋을 .claude/skills/ 에 넣었다 → 12개.
+#   순서(어긋나면 위가 이긴다): momentedit-design > MOMENTEDIT_EXCEPTIONS > wdg > impeccable > frontend-design > 나머지.
+#   ★셋 다 범용이라 이 사이트를 모른다. 특히 impeccable craft-floor 의 «아이브로우 금지(ban · no brief earns it back)»는
+#     이 사이트 타이포의 뼈대(.sec-label 17개)를 통째로 지우라는 말이다 → [EXC_EYEBROW] 로 닫고, 스킬이 UI 수정 직전에
+#     읽는 craft-floor.md 끝에 [IMP_LOCAL] 로 그 예외를 가리켰다. 이 줄이 사라지면 다음 polish 가 17개를 지운다.
+#   ★npx impeccable install · 엔진 바이너리 둘 다 프록시 403 — raw.githubusercontent.com 에서 받았다(SOURCE.md). 프록시는 안 푼다.
+chk 'DESIGN_SKILLS_12' CLAUDE.md 2
+chk 'DESIGN_SKILLS_12' .claude/skills/momentedit-design/SKILL.md 2
+nochk '디자인 스킬이 8개' CLAUDE.md
+chk '^name: impeccable' .claude/skills/impeccable/SKILL.md 1
+chk '^name: web-design-guidelines' .claude/skills/web-design-guidelines/SKILL.md 1
+chk '^name: frontend-design' .claude/skills/frontend-design/SKILL.md 1
+chk 'craft-floor' .claude/skills/impeccable/SKILL.md 1
+chk 'IMP_LOCAL' .claude/skills/impeccable/SKILL.md 1
+chk 'IMP_LOCAL' .claude/skills/impeccable/reference/craft-floor.md 1
+chk 'EXC_EYEBROW' .claude/skills/impeccable/reference/craft-floor.md 1
+chk 'WDG_VENDORED' .claude/skills/web-design-guidelines/SKILL.md 1
+chk '^### Accessibility' .claude/skills/web-design-guidelines/web-interface-guidelines.md 1
+chk 'FD_LOCAL' .claude/skills/frontend-design/SKILL.md 1
+chk 'Apache License' .claude/skills/impeccable/LICENSE 1
+chk 'MIT License' .claude/skills/web-design-guidelines/LICENSE 1
+chk '라이선스 파일이 없었다' .claude/skills/frontend-design/SOURCE.md 1
+# [SKILL_404_BODY] curl -o 는 404 여도 본문(「404: Not Found」 14바이트)을 파일로 쓴다 — frontend-design/LICENSE 가 그렇게
+#   «라이선스 파일»로 커밋될 뻔했다(2026-09-25 · 커밋 직후 크기 14 로 발견). 받은 파일 어디에도 그 본문이 있으면 안 된다.
+_s404=$(grep -rl '^404: Not Found' .claude/skills/ 2>/dev/null | wc -l)
+if [ "$_s404" -gt 0 ]; then echo "REVERT? .claude/skills: 404 본문이 파일로 저장됨 ($_s404) — $(grep -rl '^404: Not Found' .claude/skills/ | tr '\n' ' ')"; fail=1; else echo 'ok [SKILL_404_BODY] .claude/skills 404 본문 0'; fi
+# [EXC_*] 예외 11개 — 이름이 곧 열쇠다. 점검이 같은 지적을 다시 올리면 여기서 닫혔는지 본다.
+chk '^### \[EXC_' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 11
+chk 'EXC_EYEBROW' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_NO_DARK' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_SECTION_NUM' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_MOTION_TWO' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+# 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
+chk '화면 PR 점검 3단' CLAUDE.md 1
+chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html
