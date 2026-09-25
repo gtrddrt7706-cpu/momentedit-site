@@ -8639,6 +8639,17 @@ fi
 chk 'SOLAPI_RELAY' api/solapi-report.js 1
 chk 'RELAY_WAIT' api/solapi-report.js 1
 chk 'RELAY_UNWRAP' api/solapi-report.js 1   # 솔라피 화면의 Request Data 가 {"data":[…]} — GAS doPost 는 배열만 리포트로 읽는다(2026-09-25 반증: 그대로 넣으면 처리기에 0건)
+# ★[RELAY_WWW 2026-09-25] 솔라피 수신 URL 은 www — www 없는 주소는 베르셀이 307 로 넘기고 솔라피는 안 따라가 실패로 센다.
+#   새로 만든 웹훅의 첫 실행이 «307 · redirect https://www…» 였다. 문서가 www 없는 주소를 적으면 다음 등록이 또 실패한다.
+#   ★95_notify.gs 의 설정 주석은 아직 옛 주소 — 주석만 고치면 FILE_COVER 가 재배포를 요구해 그 파일을 다음에 고칠 때 고치고 여기 nochk 를 더한다.
+chk 'RELAY_WWW' api/solapi-report.js 1
+chk 'RELAY_WWW' CLAUDE.md 1
+chk 'RELAY_WWW' docs/데이터흐름_현황.md 1
+chk 'RELAY_WWW' automation/알림톡_템플릿_신청문안.md 1
+nochk 'https://momentedit.kr/api/solapi-report' CLAUDE.md
+nochk 'https://momentedit.kr/api/solapi-report' docs/데이터흐름_현황.md
+nochk 'https://momentedit.kr/api/solapi-report' automation/알림톡_템플릿_신청문안.md
+nochk 'https://momentedit.kr/api/solapi-report' api/solapi-report.js
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
