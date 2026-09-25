@@ -102,7 +102,7 @@ export function engineCalls() {
       for (const x of live) add(x.id, '배역 상황극(사람 구간)', MODE);   // ★여태 아무도 안 본 자리
     }
   }
-  const pad2 = (n) => ('0' + n).slice(-2);
+  const pad2 = (n) => String(n).padStart(2, '0');   // [PAD3]
   const NOBY = new Map(man.clips.map((c) => [c.file, pad2(c.no) + '_' + c.file]));
   for (const g of [].concat(D.PHOTOCUE.call, D.PHOTOCUE.fx))
     add(NOBY.get(g.slug) || g.slug, '골라 트는 판(촬영 신호)', 'photocue');

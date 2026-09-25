@@ -2041,8 +2041,8 @@ chk 'ref-time' scripts/check-source-drift.mjs 1
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '10~30m | The Ceremony' index.html 2   # [OPEN_RANGE 2026-09-25 설계 명세 1] 16~25 → 10~30 (순간 먼저 · 예시 넷의 폭)
-chk '25~45m | Group Record' index.html 2   # [OPEN_RANGE] 30~39 → 25~45 · 두 시간의 합 55분은 그대로
+chk '15~30m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 15~30 (스냅 50 · (가) 안)
+chk '20~35m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 20~35 · 두 시간의 합 50분
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
 #   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
@@ -8987,7 +8987,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 99' scripts/check-ritual-cue.js 1
+chk 'N_FILES = 107' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -10179,3 +10179,35 @@ chk 'CONTRACT_RANGE_WAIT' scripts/check-source-drift.mjs 1   # 계약서는 이�
 chk 'NO_EXTRA_COST' order-preview.html 1           # «추가 비용은 미리 안내» 문구 폐지(Q6)
 chk 'NOT_COURSE' admin.html 2
 chk 'summary.open' mypage.html 1                  # [OPEN_COURSE] 마이페이지 요약 «순간 n개 · 본식 약 a~b분»
+# ★★[코워크 회신 둘째 판 2026-09-25] 스냅 50 · 식순 고르기 둘째 판 · 마이페이지 · 사이트 — 원문 docs/handoff/코워크회신_구현보고1_0925_둘째판.md
+chk 'SNAP_50' assets/ritual-data.js 1                 # 스냅 45 → 50(입장 준비 5) · 본식 10:10 · 합 50
+chk 'snap: 50' assets/ritual-data.js 1
+chk 'SNAP_50' assets/sequence-modal.js 2
+chk 'PREVIDEO_ALWAYS' assets/ritual-open.js 2         # 식전 영상은 늘 있다(사장님 결정 2)
+chk 'PREVIDEO_AT_4' assets/ritual-cue.js 2            # 영상은 03 과 04 사이 · 본식 4분 전 시각고정
+chk 'SPEECH_IN_FREE' assets/ritual-open.js 1          # «축하의 말» 칸은 거뒀다 — 축사는 준비한 순서의 한 판
+nochk "'narr-speech-in'" assets/ritual-cue.js 0
+nochk "speech: { n: '축하의 말'" assets/ritual-open.js 0
+chk 'FREE_WHAT' assets/ritual-open.js 2               # 준비한 순서 무엇을 × 길이
+chk 'FREE_OWN' order-preview.html 3                   # 맨 아래 묶음 · ② 더하기 단추 · ③ 한 줄
+chk 'FREE_RESCUE' console.html 2                      # 재생 안 됨 한 줄(105) · 맺는 말 건너뜀
+chk 'BOW_GROOM' assets/ritual-data.js 1               # 큰절은 원하면 신랑만 · 옛 bow 는 닫힌 채
+chk 'BOW_RETIRED' order-preview.html 1
+chk 'TOAST_POUR_B' assets/ritual-cue.js 1             # P2 · 붓는 날은 «잔이 가는 동안»을 뺀 줄(107)
+chk 'CLOSE_NO_MIN' assets/ritual-data.js 1            # P1 · 닫는 말에서 «삼십 분쯤» 뺌
+nochk '사진과 인사가 삼십 분쯤' assets/ritual-data.js 0
+nochk '사진과 인사가 삼십 분쯤' order-preview.html 0
+chk 'PAD3' assets/ritual-cue.js 1                     # 번호를 두 자리로 자르지 않는다(100 → «00» 사고)
+chk 'PAD3' scripts/check-ritual-cue.js 2
+nochk "function pad2(n) { return ('0' + n).slice(-2); }" assets/ritual-cue.js 0
+chk 'PHOTO_CAP_RD' mypage.html 3                      # 단체 사진 상한을 두 분 식순에서 센다(사장님 «인사는 금방»)
+chk 'SCENE_BY_PICK' mypage.html 2                     # 그날 남는 사진 — 큰절 · 준비한 순서 판에 따라
+chk 'OPEN_STORY' assets/ritual-story.js 2
+chk 'OPEN_SWEEP' scripts/build-course-story.mjs 1     # 장면 설명 검사가 새 코스 전 조합을 훑는다
+chk 'FAQ_DAY_0925' index.html 1                       # 행진 · 폐백 · 축가 · 축사 · 이름 · 대기실 · 드레스
+chk 'FAQ_DAY_0925' api/_kb.js 1
+chk 'SLOT_LINE' inquiry.html 2                        # 시간대를 고르면 한 줄
+# [PARENTS_DAY] 는 넣지 않았다 — parents.html 은 녹음(어른께 드리는 편지 · letter-mirror)과 한 몸이라 글을 더하면 소리와 갈린다(구현 보고 2 · 제안)
+chk 'NO_WAITROOM' guide.html 2
+chk 'BOUQUET_WAIT' docs/handoff/부케_옵션_문구_대기.md 1   # 부케는 사장님 결정 전 — 문구만 준비 · 올리지 않음
+chk 'OPEN_TIME_MEASURE' scripts/audit/open-time-measure.mjs 1   # P3 · 녹음 실측 도구(덮기는 녹음 들어온 뒤)

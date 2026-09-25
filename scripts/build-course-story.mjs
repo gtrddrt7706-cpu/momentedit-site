@@ -118,6 +118,24 @@ for (const course of Object.keys(D.COURSES)) {
       absorb({ course, extra: { ...ex }, [AX[i][0]]: a, [AX[j][0]]: b }, 'preview');
 }
 
+/* ④★[OPEN_SWEEP 2026-09-25] 새 코스(순간 먼저)는 extra 가 아니라 S.on 으로 담는다 — 위 ①~③ 은 이 코스에서
+     «아무것도 안 담은 판» 하나만 돌았다(식전 영상이 늘 들어오게 되자 그제야 빈자리가 보였다).
+     담은 순간 전 조합(2^12) + 판 칩 전부를 모두 담은 판 위에서 흔든다. */
+{
+  const O = require(path.join(ROOT, 'assets/ritual-open.js'));
+  for (let m = 0; m < (1 << O.PICKABLE.length); m++) {
+    const on = {}; O.PICKABLE.forEach((k, i) => { if (m & (1 << i)) on[k] = 1; });
+    absorb({ course: 'open', on }, 'console');
+  }
+  const ALL = {}; O.PICKABLE.forEach((k) => { ALL[k] = 1; });
+  const OPEN_SWEEP = { declare: O.CHIPS.declare.map((c) => c[0]), tribute: O.CHIPS.tribute.map((c) => c[0]), letter: O.CHIPS.letter.map((c) => c[0]),
+    toast: O.CHIPS.toast.map((c) => c[0]), wine: O.CHIPS.wine.map((c) => c[0]), free: O.CHIPS.free.map((c) => c[0]), freeLen: O.CHIPS.freeLen.map((c) => c[0]) };
+  for (const how of ['flower', 'bowGroom']) for (const cw of O.CANDLE_WHO.map((c) => c[0])) for (const [ax, vals] of Object.entries(OPEN_SWEEP)) for (const v of vals) for (const mode of ['console', 'preview']) {
+    const S = { course: 'open', on: { ...ALL }, tribute: how, candleWho: cw }; O.setChip(S, ax, v);
+    absorb(S, mode);
+  }
+}
+
 // ── 2. 커버리지 판정
 console.log(`[STORY_COVER] 빌드 ${builds}회 · 블록 ${seenBlock.size}종 · 사람 구간 ${seenLive.size}종`);
 

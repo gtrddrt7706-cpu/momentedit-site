@@ -47,7 +47,7 @@ const no = (m) => { console.error('✗ ' + m); bad++; };
    여기서 한 번 더 세면 언젠가 셋이 서로 다르게 세고, 그날 «비워도 되는 자리»의 답이 갈린다.
    축(AX)을 늘릴 일이 있으면 lib 를 고친다. 여기에 다시 적지 말 것. */
 const { want, retired } = engineCalls();
-const pad2 = (n) => ('0' + n).slice(-2);
+const pad2 = (n) => String(n).padStart(2, '0');   // [PAD3] 100 넘는 번호를 자르지 않는다
 
 /* ── 오른쪽: 만들어진 그 파일 ─────────────────────────────────────────────── */
 const html = fs.readFileSync(FILE, 'utf8');

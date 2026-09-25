@@ -147,7 +147,7 @@ function scan(needle) {
   const okRange = (lo, hi, want) => lo >= want[0] && hi <= want[1];
 
   // 지나간 것을 보존하는 자리는 본다고 달라지지 않는다.
-  const FROZEN = /(^|\/)(contract\/archive|docs\/국가지원금|docs\/plans|node_modules|_deploy-patch|\.git)\//;
+  const FROZEN = /(^|\/)(contract\/archive|docs\/국가지원금|docs\/plans|docs\/handoff|node_modules|_deploy-patch|\.git)\//;   // [SNAP_50] docs/handoff = 주고받은 전달문 원문(그날의 기록)
   const EXT = /\.(html|js|mjs|gs|md|json)$/;
   const files = [];
   (function walk(dir) {
@@ -185,7 +185,7 @@ function scan(needle) {
   /* [SUM_GATE 2026-08-30 정합] 대표값 쌍은 반올림이 아니라 «둘의 합 = SUM(55)»이 되게 잡는다 —
      구현이 round(20.5)+round(34.5)=21+35=141 로 게이트 스스로 합 141을 승인하고 있었다(위 MID_FORM 주석의
      '큰 숫자 칸에 20 · 35' 가 원의도). 본식 = floor(가운데) · 인사 사진 = SUM − 본식. */
-  const midCE = Math.floor((CE[0] + CE[1]) / 2);
+  const midCE = (O.RANGE && O.RANGE.rep) || Math.floor((CE[0] + CE[1]) / 2);   // [SNAP_50] 대표값은 원천 RANGE.rep(20) · 없으면 가운데
   const wantMid = [String(D.DAY.ready), String(D.DAY.snap), String(midCE), String(SUM - midCE), String(D.DAY.farewell)];
   /* ★숫자와 단위 사이에 태그가 낀다 — `20<span>min</span>` · `30<small>min</small>`.
      이걸 빼먹어서 index.html 의 **보이는** 시간표 한 벌을 통째로 못 읽고 있었다(THIN).
@@ -249,6 +249,8 @@ function scan(needle) {
             /* ★줄 전체로 면제하지 않는다. order-preview 의 고객 문구 뒤에 붙은
                `// … 옛 '30분 안팎'은 …` 주석 하나가 그 줄을 통째로 눈감게 했다(실측). */
             if (EXEMPT.test(src.slice(Math.max(0, m.index - 40), m.index + m[0].length + 40))) continue;
+            /* [SNAP_50] 판 이력 주석(`v1.5(2026-08-09): … Group Record 30~39분`)은 그 판의 기록이다 — 지금 값과 같을 수가 없다. */
+            if (/v\d+\.\d+\(20\d\d-\d\d-\d\d\)/.test(src.slice(Math.max(0, m.index - 120), m.index + m[0].length + 60))) continue;
             const g = m.slice(1).filter((x) => x !== undefined);
             const lo = +g[0], hi = +(g[1] || g[0]);
             if (okRange(lo, hi, wantR)) continue;

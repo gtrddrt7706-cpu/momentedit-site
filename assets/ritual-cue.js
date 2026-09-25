@@ -121,7 +121,16 @@
        98 toast-pour-mix    : 두 와인을 한 잔에 · 99 toast-pour-family : 양가 여는 말(사연 한 줄 없음 · 사장님 9/25) */
     'guest-4-1min-pre', 'narr-prevideo-in',
     'narr-candle-in-mothers', 'narr-candle-in-parents', 'narr-candle-in-fathers', 'narr-candle-in-others', 'narr-candle-out',
-    'declare-clap-a', 'declare-clap-b', 'toast-pour-mix', 'toast-pour-family'
+    'declare-clap-a', 'declare-clap-b', 'toast-pour-mix', 'toast-pour-family',
+    /* ★★[NAR_0925 2026-09-25 코워크 회신 둘째 판] 새 줄 8개 — 번호 100~107. **맨 끝에 붙였다**(위 경고 그대로).
+       100~103 narr-free-in-video/stage/gift/speech : 준비한 순서 여는 말 판별 넷(FREE_WHAT · 축사는 이 판 하나 · SPEECH_IN_FREE)
+       104 narr-free-out-clap : 맺는 말(공통)
+       105 narr-free-fail   : 재생이 안 될 때 디렉터가 누르는 한 줄(콘솔 «재생 안 됨» · FREE_RESCUE)
+       106 tribute-bow-groom: 신랑 큰절 판(BOW_GROOM)
+       107 toast-both-pour-b: 와인을 붓는 날의 선창(P2 · «두 사람에게 잔이 가는 동안»을 뺀 줄 · 붓는 동안 이미 잔이 가 있다)
+       ★옛 코스는 이 여덟을 한 번도 부르지 않는다 — 새 코스(open)일 때만 나간다. */
+    'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail',
+    'tribute-bow-groom', 'toast-both-pour-b'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -181,13 +190,18 @@
     'narr-candle-in-fathers': O.NAR.candleIn.fathers, 'narr-candle-in-others': O.NAR.candleIn.others,
     'narr-candle-out': O.NAR.candleOut,
     'declare-clap-a': O.NAR.clapAsk, 'declare-clap-b': O.NAR.clapDeclare,
-    'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily
+    'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
+    'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
+    'narr-free-out-clap': O.NAR.freeOut, 'narr-free-fail': O.NAR.freeFail,
+    'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour
   };
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
   function sylSec(s) { return Math.round((syl(s) / PARAM.spm) * 60); }   // 대본 생성기와 동일 공식
-  function pad2(n) { return ('0' + n).slice(-2); }
+  /* ★★[PAD3 2026-09-25] 두 자리로 «채우기만» 하고 자르지 않는다 — 옛 판 ('0'+n).slice(-2) 는 100 을 «00», 107 을 «07» 로 잘라
+     새 줄이 이미 녹음된 07_vow-groom 자리에 앉을 뻔했다(녹음 대본에 07_toast-both-pour-b.mp3 로 찍혀 드러났다). */
+  function pad2(n) { n = String(n); return n.length < 2 ? '0' + n : n; }
   function fileOf(slug) { var n = SLUG[slug]; return n ? pad2(n) + '_' + slug : ''; }
   function noOf(slug) { var n = SLUG[slug]; return n ? pad2(n) : ''; }
 
@@ -275,11 +289,16 @@
       if (!O.CHIPS.tribute.some(function (c) { return c[0] === s.tributeSay; })) s.tributeSay = O.DEF.tributeSay;
       if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
+      if (!O.CHIPS.free.some(function (c) { return c[0] === s.freeWhat; })) s.freeWhat = O.DEF.freeWhat;   // [FREE_WHAT]
+      if (!O.CHIPS.freeLen.some(function (c) { return c[0] === String(s.freeLen); })) s.freeLen = O.DEF.freeLen; else s.freeLen = String(s.freeLen);
+      /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
+      if (s.tribute !== 'flower' && s.tribute !== 'bowGroom') s.tribute = 'flower';
     } else {
       /* 옛 코스는 새 판이 없던 때와 **소리가 같아야** 한다 — 와인 붓기는 **값과 상관없이** 없다.
          ★빌더의 새 기본 S(wine:'mix')가 옛 초안에 섞여 들어와도 옛 예식에 붓는 말이 끼지 않게(scripts/audit/open-course.mjs 가 잡았다). */
       s.wine = 'none';
       if (s.declare === 'clap') s.declare = '1';
+      if (s.tribute === 'bowGroom') s.tribute = 'flower';   // [BOW_GROOM] 새 판은 새 코스에만
     }
     return s;
   }
@@ -445,7 +464,8 @@
       live: o.live || null, post: o.post || [], hint: o.hint || '',
       k: o.k || '', blockN: o.blockN || '', pick: o.pick || '', own: !!o.own,
       fire: o.fire || '', atMin: (o.atMin === undefined ? null : o.atMin),
-      note: o.note || '', alt: null
+      note: o.note || '', alt: null,
+      rescue: o.rescue ? { slug: o.rescue.slug, no: noOf(o.rescue.slug), file: fileOf(o.rescue.slug), name: o.rescue.name || '', text: o.rescue.text || '' } : null   // [FREE_RESCUE] 콘솔이 사람 구간 동안 «재생 안 됨»으로 쓴다
     };
     if (c.live && c.live.duck === undefined) c.live.duck = c.duck;
     if (c.live && !c.live.est) c.live.est = 30;
@@ -472,7 +492,9 @@
       var vi = (S.guestVoice === 'couple') ? 2 : 1;   // GUEST[i] = [라벨, 나레이션, 두분목소리]
       /* [OPEN_COURSE] 화촉이나 식전 영상이 입장보다 먼저면 04 첫 줄 «곧 문이 열리고»가 틀린 말이 된다(문이 아직 안 열린다).
          그날만 89(guest-4-1min-pre)로 바꾼다. 두 분 목소리 판은 첫 줄이 이미 «곧 저희 예식이 시작됩니다»라 그대로 맞다. */
-      var preFirst = vi === 1 && seq && (seq.indexOf('prevideo') > -1 || seq.indexOf('candle') > -1);
+      /* ★[PREVIDEO_ALWAYS 2026-09-25] 식전 영상이 늘 있게 되면서 영상은 04 **앞**(본식 시작 4분 전)으로 옮겼다 — 04 는 영상이 끝난 뒤 나간다.
+         그래서 04 의 첫 줄 판은 «뒤에 오는 것»만 본다(코워크 3장): 화촉이면 89, 바로 입장이면 지금 줄 그대로(문이 곧 열린다). */
+      var preFirst = vi === 1 && seq && seq.indexOf('candle') > -1;
       var own = S.guestVoice === 'couple';
       var at = [null, -10, -5, -1], out = [];
       for (var i = 0; i < 4; i++) {
@@ -504,7 +526,8 @@
       return [cue({
         k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-in', name: '식전 영상 소개',
         text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech,
-        note: '영상 파일은 D-3 까지 받는다 · 상영 중 배경음은 끈다',
+        fire: 'clock', atMin: -4,   // [PREVIDEO_AT_4] 불을 낮추고 본식 시작 4분 전에
+        note: '영상 파일은 D-3 까지 받는다(없으면 두 분이 보낸 사진 30~40장으로 저희가 3분 영상 · 첫 장에 이름 · 날짜) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }
       })];
     },
@@ -731,7 +754,30 @@
        ★무엇이 올지 모르므로 문안이 **지목하지 않는다**. "노래를"·"영상을" 이라 적는 순간
          다른 것을 넣은 예식에서 거짓말이 된다. 그게 이 두 줄이 이렇게 밋밋한 이유다.
        ★길이도 모른다 → est 는 넉넉히 잡고 끝은 사람이 낸다(앞에 live 가 있어 다음 큐가 자동 manual). */
-    free: function () {
+    free: function (S) {
+      /* ★★[FREE_WHAT 2026-09-25 코워크 4-4] 새 코스는 무엇을 · 길이를 안다 — 여는 말이 그것을 지목해도 거짓말이 안 된다.
+         (옛 판이 «지목하지 않았던» 까닭은 무엇이 올지 몰라서였다 · 옛 코스는 아래 그대로)
+         ★재생이 안 되면 디렉터가 [재생 안 됨]을 누른다 — 한 줄 뒤 곧장 다음 순간으로(맺는 말은 건너뛴다 · FREE_RESCUE). */
+      if (D.COURSES[S.course].open) {
+        var fk = O.FREE_KIND[S.freeWhat] || 'video', len = +S.freeLen || 3;   // norm 이 값을 이미 맞춰 둔다(FREE_WHAT)
+        var nm = O.chipLabel('free', S);
+        var play = (fk === 'video' || fk === 'stage');   // 파일을 트는 판만 «재생 안 됨»이 있다
+        var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)',
+          gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
+        return [cue({
+          k: 'free', blockN: '두 사람이 준비한 순서', slug: 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,
+          text: EXTRA['narr-free-in-' + fk], duck: PARAM.duckMusic, pick: nm,
+          rescue: play ? { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] } : null,
+          /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
+          live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 6 : 60 * len + 8, duck: PARAM.duckOff, self: true,
+            doing: fk === 'video' ? 'watch' : fk === 'speech' ? 'say' : 'move',
+            fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로'
+              : fk === 'speech' ? '3분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }
+        }), cue({
+          k: 'free', blockN: '두 사람이 준비한 순서', slug: 'narr-free-out-clap', name: '준비한 순서 마무리',
+          text: EXTRA['narr-free-out-clap'], duck: PARAM.duckMusic
+        })];
+      }
       return [cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-in', name: '자유 한 칸 시작',
         text: D.NARR.freeIn, duck: PARAM.duckMusic, pick: '두 분이 정한 순서',
@@ -783,9 +829,12 @@
       }));
       if (pour.length && S.toast === 'toast') Array.prototype.splice.apply(seq, [1, 0].concat(pour));   // 축배만: 선창 앞
       if (pour.length && S.toast === 'both') Array.prototype.push.apply(seq, pour);                     // 둘 다: 케이크 뒤 · 선창 앞
+      /* ★[TOAST_POUR_B 2026-09-25 코워크 P2 · 사장님 답] 와인을 붓는 날은 붓는 사이에 두 분 손에 이미 잔이 있다 —
+         «두 사람에게 잔이 가는 동안»을 뺀 108 로 간다. 붓지 않는 날은 지금 줄(81) 그대로. */
+      var pourB = pour.length && S.toast === 'both';
       if (t.nar2) seq.push(cue({
-        k: 'toast', blockN: '축배 · 케이크', slug: 'toast-both-b', name: '축배 · 잔을 들고 선창',
-        text: t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가면', note: t.note2,
+        k: 'toast', blockN: '축배 · 케이크', slug: pourB ? 'toast-both-pour-b' : 'toast-both-b', name: '축배 · 잔을 들고 선창',
+        text: pourB ? EXTRA['toast-both-pour-b'] : t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가면', note: t.note2,
         live: { t: t.cue2, est: t.est2, duck: 0, self: true, doing: 'say' }
       }));
       seq.push(cue({
@@ -820,7 +869,7 @@
 
     tribute: function (S) {
       var m = D.TRIBUTE.modes[S.tribute] || D.TRIBUTE.modes.flower;
-      return [
+      var out = [
         cue({
           k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-in', name: '부모님 헌정 시작', text: D.TRIBUTE.nar,
           /* ★★[GROOM_PARENT 2026-09-12] est 70 → 95. 헌정 끝에 «신랑 어머님 한 마디»가 붙었다.
@@ -840,6 +889,14 @@
           hint: '두 분이 자리로 돌아오면'
         })
       ];
+      /* ★[BOW_GROOM 2026-09-25 사장님 결정 5] 신랑 큰절 판 — 여는 말 뒤에 한 줄을 더 얹고, 사람 구간은 그 줄 뒤로 옮긴다.
+         방석은 신랑 부모님 앞 → 신부 부모님 앞(놓는 분은 인력표). 새 코스에만 있다(norm 이 옛 코스에서 flower 로 되돌린다). */
+      if (D.COURSES[S.course].open && S.tribute === 'bowGroom') {
+        var lv = out[0].live; out[0].live = null;
+        out.splice(1, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-bow-groom', name: '부모님께 인사 · 신랑 큰절',
+          text: EXTRA['tribute-bow-groom'], live: lv, note: '방석 둘 — 신랑 부모님 앞 먼저, 신부 부모님 앞 다음' }));
+      }
+      return out;
     },
 
     bless: function (S) {
@@ -901,7 +958,11 @@
     seq.forEach(function (k) {
       if (!BUILD[k]) return;
       if (k === 'declare' && askOn && !askPre) cues.push(askCue());
+      /* ★★[PREVIDEO_AT_4 2026-09-25 코워크 3장] 식전 영상은 본식 시작 4분 전(10:06)에 시작하고, 끝나면 1분 전 안내(04), 그다음 본식이다.
+         seq 에서는 guest 다음이지만 **소리는 03 과 04 사이**다 — guest 를 만든 자리에서 04 앞에 끼운다. */
+      if (k === 'prevideo' && seq.indexOf('guest') > -1) return;
       var got = BUILD[k](S, seq) || [];   // [OPEN_COURSE] guest 가 seq 를 본다(04 판)
+      if (k === 'guest' && seq.indexOf('prevideo') > -1 && got.length) Array.prototype.splice.apply(got, [got.length - 1, 0].concat(BUILD.prevideo(S)));
       for (var i = 0; i < got.length; i++) cues.push(got[i]);
       // 하객 맞이 뒤에는 식전 고정 클립 2개가 붙는다(코스와 무관)
       if (k === 'guest') {

@@ -795,8 +795,8 @@ $('#fClips').onchange = function(e){
     var f = fs[i], nm = f.name.replace(/\.[^.]+$/, '');
     if (!/\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(f.name)) continue;
     var u = URL.createObjectURL(f), hit = false;
-    var mno = nm.match(/^(\d{1,2})\b/);
-    if (mno) { CLIPS[('0' + mno[1]).slice(-2)] = u; hit = true; }
+    var mno = nm.match(/^(\d{1,3})\b/);   // [PAD3] 100번대 파일(100_narr-free-in-video)까지
+    if (mno) { CLIPS[String(+mno[1]).padStart(2, '0')] = u; hit = true; }
     RitualCue.FILES.forEach(function(sl){ if (nm.indexOf(sl) >= 0) { CLIPS[sl] = u; hit = true; } });
     if (hit) n++;
   }
@@ -1165,6 +1165,11 @@ function gBlock(bn){
 
 function render(){
   if (!R) return;
+  // [FREE_RESCUE] 사람 구간이 «재생 안 됨»을 가진 큐면 대기 클립 단추의 이름을 바꾼다 — 누르면 할 일이 이름이다.
+  var _bw = $('#bWait');
+  if (_bw) { var _rs = (phase === 'live' && R.cues[cur] && R.cues[cur].rescue);
+    var _lb = _rs ? '재생 안 됨<small>사진 시간으로 미룸</small>' : '대기 클립<small>지금 기다립니다</small>';
+    if (_bw.innerHTML !== _lb) _bw.innerHTML = _lb; }
   // ★[GUEST_PREV] 첫 순서에서는 되돌아갈 데가 없다 — 살아 있는 버튼으로 두지 않는다
   var _gp = $('#gPrev'); if (_gp) _gp.disabled = !GUEST || (phase !== 'end' && cur <= 0);
   // [GUEST_PAUSE] 멈춤 버튼 — 끝난 뒤엔 멈출 것이 없다. 라벨은 지금 상태가 아니라 **누르면 될 일**을 적는다.
@@ -1414,6 +1419,17 @@ function panic(){
 //   디렉터가 클립 파일을 불러오면 CLIPS 에 번호 열쇠가 생기므로(위 파일 적재부),
 //   당일 '대기' 를 눌렀을 때 재개 안내가 나갔을 자리다. 번호는 언제나 noOf 에서 온다.
 $('#bWait').onclick = function(){
+  /* ★[FREE_RESCUE 2026-09-25 코워크 4-4] 준비한 순서(영상 · 음원)가 흐르는 동안에는 이 단추가 «재생 안 됨»이다.
+     누르면 «이 순서는 잠시 뒤, 사진 시간에 함께 보겠습니다» 한 줄을 틀고, 맺는 말(박수 부탁)은 건너뛴다 —
+     안 나온 순서에 박수를 청하면 어색하다. 다음 순간은 [다음]으로 곧장 간다. */
+  var rc = (phase === 'live' && R && R.cues[cur] && R.cues[cur].rescue) ? R.cues[cur] : null;
+  if (rc) {
+    playLoose(rc.rescue.slug, rc.rescue.name, rc.rescue.text);
+    if (R.cues[cur + 1] && R.cues[cur + 1].k === rc.k) cur = cur + 1;
+    phase = 'done'; render();
+    toast('사진 시간으로 미뤘습니다 · 준비되면 [다음]');
+    return;
+  }
   clearT(); audioOn();
   var slug = 'bridge-4-wait-emotion';
   var u = CLIPS[RitualCue.noOf(slug)] || CLIPS[slug] || (PARAM.clipDir + RitualCue.fileOf(slug) + '.mp3');
