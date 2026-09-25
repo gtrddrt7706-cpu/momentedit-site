@@ -9567,6 +9567,8 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# [TEST_CUSTOMER_0734 2026-09-25 사장님] 821 0734 9770 은 테스트 고객 — 전화 확인을 할 일로 되살리지 않는다(CLAUDE.md 반복 금지).
+chk 'TEST_CUSTOMER_0734' CLAUDE.md 1
 
 # ★★[ATTIRE_SINGLE_LINE 2026-09-25 코워크 3편 ⑥] 「Nº 03 의상」 아래 겹선(28px 간격 두 줄) + 같은 글자 라벨 반복.
 #   윗선 0 · 라벨은 화면에서만 숨김(radiogroup aria-label="의상" 유지) · 1280 격자에서 선택지가 한 줄 전체를 왼쪽부터.
