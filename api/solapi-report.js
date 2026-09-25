@@ -5,6 +5,12 @@
 //   솔라피는 그 답을 실패로 보고 다시 보낸다. 그대로 두면 8번째에 웹훅이 꺼지고,
 //   카톡 «전달 실패 → 고객 메일»(95_notify handleSolapiReport · KAKAO_FAIL_MAIL)이 조용히 멈춘다.
 //   → 여기서 받아 GAS 로 넘기고 솔라피에는 200 으로 답한다. 같은 리포트가 두 번 와도 GAS 가 messageId 로 한 번만 처리한다.
+// ★[RELAY_WWW 2026-09-25] 솔라피에 거는 주소는 반드시 www — https://www.momentedit.kr/api/solapi-report
+//   www 없는 주소는 베르셀이 이 함수에 오기도 전에 www 로 307 을 돌려준다. 솔라피는 넘김을 따라가지 않아
+//   «웹훅 URL로 전송 실패»로 센다(새로 만든 웹훅의 첫 실행 Response Data: redirect www… · status 307).
+//   이 파일 안에서는 고칠 수 없는 문제다 — 주소를 등록하는 쪽(솔라피 콘솔)과 문서가 www 를 지켜야 한다.
+//   ★95_notify.gs 설정 주석(«수신 URL = …»)은 아직 www 없는 옛 주소다. 주석만 고치면 FILE_COVER 가 표식과
+//     재배포를 요구해 그 파일을 다음에 고칠 때 함께 고친다. 정본은 CLAUDE.md 위치표(handleSolapiReport 줄)다.
 // ★GAS 주소는 _livehook 에서만 꺼낸다(PREVIEW_GUARD_API) — 미리보기 배포에서는 운영 시트에 쓰지 않는다.
 // ★리포트 모양(배열 · 또는 messageId/statusCode 가 있고 action 이 없는 객체 · 또는 그 배열을 data 로 감싼 객체)만 넘긴다.
 //   감싼 것은 풀어서 넘긴다 — GAS doPost 가 리포트로 읽는 모양(배열)으로 맞춘다(RELAY_UNWRAP).

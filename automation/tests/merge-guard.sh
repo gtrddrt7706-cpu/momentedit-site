@@ -8677,6 +8677,17 @@ fi
 chk 'SOLAPI_RELAY' api/solapi-report.js 1
 chk 'RELAY_WAIT' api/solapi-report.js 1
 chk 'RELAY_UNWRAP' api/solapi-report.js 1   # 솔라피 화면의 Request Data 가 {"data":[…]} — GAS doPost 는 배열만 리포트로 읽는다(2026-09-25 반증: 그대로 넣으면 처리기에 0건)
+# ★[RELAY_WWW 2026-09-25] 솔라피 수신 URL 은 www — www 없는 주소는 베르셀이 307 로 넘기고 솔라피는 안 따라가 실패로 센다.
+#   새로 만든 웹훅의 첫 실행이 «307 · redirect https://www…» 였다. 문서가 www 없는 주소를 적으면 다음 등록이 또 실패한다.
+#   ★95_notify.gs 의 설정 주석은 아직 옛 주소 — 주석만 고치면 FILE_COVER 가 재배포를 요구해 그 파일을 다음에 고칠 때 고치고 여기 nochk 를 더한다.
+chk 'RELAY_WWW' api/solapi-report.js 1
+chk 'RELAY_WWW' CLAUDE.md 1
+chk 'RELAY_WWW' docs/데이터흐름_현황.md 1
+chk 'RELAY_WWW' automation/알림톡_템플릿_신청문안.md 1
+nochk 'https://momentedit.kr/api/solapi-report' CLAUDE.md
+nochk 'https://momentedit.kr/api/solapi-report' docs/데이터흐름_현황.md
+nochk 'https://momentedit.kr/api/solapi-report' automation/알림톡_템플릿_신청문안.md
+nochk 'https://momentedit.kr/api/solapi-report' api/solapi-report.js
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
@@ -9605,6 +9616,8 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# [TEST_CUSTOMER_0734 2026-09-25 사장님] 821 0734 9770 은 테스트 고객 — 전화 확인을 할 일로 되살리지 않는다(CLAUDE.md 반복 금지).
+chk 'TEST_CUSTOMER_0734' CLAUDE.md 1
 
 # ★★[ATTIRE_SINGLE_LINE 2026-09-25 코워크 3편 ⑥] 「Nº 03 의상」 아래 겹선(28px 간격 두 줄) + 같은 글자 라벨 반복.
 #   윗선 0 · 라벨은 화면에서만 숨김(radiogroup aria-label="의상" 유지) · 1280 격자에서 선택지가 한 줄 전체를 왼쪽부터.
