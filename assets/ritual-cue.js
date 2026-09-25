@@ -289,16 +289,18 @@
       if (!O.CHIPS.tribute.some(function (c) { return c[0] === s.tributeSay; })) s.tributeSay = O.DEF.tributeSay;
       if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
-      if (!O.CHIPS.free.some(function (c) { return c[0] === s.freeWhat; })) s.freeWhat = O.DEF.freeWhat;   // [FREE_WHAT]
+      s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
       if (!O.CHIPS.freeLen.some(function (c) { return c[0] === String(s.freeLen); })) s.freeLen = O.DEF.freeLen; else s.freeLen = String(s.freeLen);
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       if (s.tribute !== 'flower' && s.tribute !== 'bowGroom') s.tribute = 'flower';
+      if (s.entryScene !== 'bow') s.entryScene = 'look';   // [ENTRY_SCENE]
     } else {
       /* 옛 코스는 새 판이 없던 때와 **소리가 같아야** 한다 — 와인 붓기는 **값과 상관없이** 없다.
          ★빌더의 새 기본 S(wine:'mix')가 옛 초안에 섞여 들어와도 옛 예식에 붓는 말이 끼지 않게(scripts/audit/open-course.mjs 가 잡았다). */
       s.wine = 'none';
       if (s.declare === 'clap') s.declare = '1';
       if (s.tribute === 'bowGroom') s.tribute = 'flower';   // [BOW_GROOM] 새 판은 새 코스에만
+      s.entryScene = 'look';   // [ENTRY_SCENE] 맞절 판은 새 코스에만 — 옛 예식의 도착 멘트는 그대로
     }
     return s;
   }
@@ -572,6 +574,8 @@
              ([PREVIEW_KEYS] 가 값 만드는 곳 없는 키를 막는다 · digital 2026-08-02 와 같은 꼴)
            ★A 는 슬러그를 안 바꾼다 — 종전 문안 그대로라 이미 녹음된 파일을 그대로 쓴다.
              바꾸면 멀쩡한 음원 하나가 이름만 달라져 통째로 다시 녹음해야 한다. */
+        /* ★[ENTRY_SCENE 2026-09-25 코워크 추가 전달 B7 · F] «첫 모습»(바라보기 · 맞절)은 **소리가 같다** — 모습(영상)만 달라진다.
+           한때 맞절 판에 새 도착 멘트(108)를 끼웠다가 거뒀다(녹음 전 · 병합 전). 여기에 소리 갈래를 만들지 말 것. */
         var t = String(S.entryOut || S.entry || 'A').toUpperCase();
         if (!D.NARR.entryOutBy[t]) t = 'A';
         return cue({
@@ -765,7 +769,7 @@
         var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)',
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         return [cue({
-          k: 'free', blockN: '두 사람이 준비한 순서', slug: 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,
+          k: 'free', blockN: '준비한 순서', slug: 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,
           text: EXTRA['narr-free-in-' + fk], duck: PARAM.duckMusic, pick: nm,
           rescue: play ? { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] } : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
@@ -774,7 +778,7 @@
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로'
               : fk === 'speech' ? '3분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }
         }), cue({
-          k: 'free', blockN: '두 사람이 준비한 순서', slug: 'narr-free-out-clap', name: '준비한 순서 마무리',
+          k: 'free', blockN: '준비한 순서', slug: 'narr-free-out-clap', name: '준비한 순서 마무리',
           text: EXTRA['narr-free-out-clap'], duck: PARAM.duckMusic
         })];
       }

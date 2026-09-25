@@ -902,6 +902,21 @@ function toast(m){
   clearTimeout(el._t); el._t = setTimeout(function(){ el.classList.remove('on'); }, 2200);
 }
 
+/* ★[TEXT_AUDIO_MATCH 2026-09-25 코워크 회신3 2-1] 미리듣기(preview)에서는 «녹음된 글 = 지금 글»일 때만 소리를 낸다.
+   빌더 ② 보고 듣기와 같은 규칙 · 같은 norm(글자 · 숫자 · 한글만). 다르면 문안 카드로 지난다(고객 화면엔 꼬리표 없음 · GUEST_SKIN).
+   ★현장(console) 모드는 건드리지 않는다 — 당일 진행은 파일이 있으면 그대로 튼다(규칙을 바꾸는 것은 사장님 결정).
+   녹음 기록을 못 읽으면 «모르면 글»(빈 표 → 전부 카드). */
+var REC_T = null;
+if (MODE === 'preview') fetch('/assets/audio/narration/_recorded.json').then(function(r){ return r.json(); })
+  .then(function(j){ REC_T = (j && j.clips) || {}; })['catch'](function(){ REC_T = {}; });
+function recOk(c){
+  if (MODE !== 'preview') return true;
+  if (CLIPS[c.no] || CLIPS[c.slug]) return true;   // 디렉터가 직접 불러온 파일은 그대로
+  var nz = function(s){ return String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, ''); };
+  var v = REC_T && c.file ? REC_T[c.file] : null; if (v == null) return false;
+  var t = typeof v === 'string' ? v : String(v.text || '');
+  return nz(t) !== '' && nz(t) === nz(c.text);
+}
 function srcOf(c){
   if (!c.slug) return '';
   if (CLIPS[c.no]) return CLIPS[c.no];
@@ -973,6 +988,7 @@ function playClip(c, done){
   if (cm.length) return playCastList(cm, done, function(){ fallbackCard(c, '녹음 없음', done); });
   var url = srcOf(c);
   if (!url) return fallbackCard(c, '녹음 없음', done);
+  if (!recOk(c)) return fallbackCard(c, '글 바뀜 · 재녹음 전', done);   // [TEXT_AUDIO_MATCH]
   playSrc(url, c.est || 3, function(ok, why){
     if (ok) return done();
     fallbackCard(c, why || '파일 없음', done);

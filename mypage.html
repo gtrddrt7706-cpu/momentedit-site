@@ -5337,14 +5337,14 @@ function _bouquetFold(base){
 function _ritPrepFold(rd, base, dd){
   var sm=rd&&rd.summary; if(!sm||!sm.open||!(sm.prep||sm.helpers)) return '';
   var wm=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  function dueTxt(n){ if(!wm) return n===3?'사흘 전까지':'7일 전까지'; var d=new Date(+wm[1],+wm[2]-1,+wm[3]-n); return (d.getMonth()+1)+'월 '+d.getDate()+'일까지('+(n===3?'사흘 전':'7일 전')+')'; }
+  function dueTxt(n){ if(!wm) return n===3?'예식 3일 전까지':'예식 7일 전까지'; var d=new Date(+wm[1],+wm[2]-1,+wm[3]-n); return (d.getMonth()+1)+'월 '+d.getDate()+'일까지('+(n===3?'예식 3일 전':'예식 7일 전')+')'; }
   var two=[], par=[];
-  (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*사흘 전까지$/,''); var li='<li>'+escapeHtml(w)+' <span class="due">· '+escapeHtml(dueTxt(q.due===3?3:7))+'</span></li>'; (q.who==='parents'?par:two).push(li); });
+  (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var li='<li>'+escapeHtml(w)+' <span class="due">· '+escapeHtml(dueTxt(q.due===3?3:7))+'</span></li>'; (q.who==='parents'?par:two).push(li); });
   var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
   var n=two.length+par.length+hp.length; if(!n) return '';
-  return '<details class="rit-prep"><summary>두 분 준비 · 도와주실 분 '+n+'가지</summary>'
-    +(two.length?'<h4>두 분 준비</h4><ul>'+two.join('')+'</ul>':'')
-    +(par.length?'<h4>부모님께 여쭐 것</h4><ul>'+par.join('')+'</ul>':'')
+  return '<details class="rit-prep"><summary>준비할 것 · 도와주실 분 '+n+'가지</summary>'   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 */
+    +(two.length?'<h4>두 분이 준비할 것</h4><ul>'+two.join('')+'</ul>':'')
+    +(par.length?'<h4>부모님께 부탁드릴 것</h4><ul>'+par.join('')+'</ul>':'')
     +(hp.length?'<h4>도와주실 분</h4><ul>'+hp.map(function(x){ return '<li>'+escapeHtml(String(x[0]))+' <span class="due">· '+escapeHtml(String(x[1]))+'</span></li>'; }).join('')+'</ul>':'')
     +'</details>';
 }
@@ -6833,20 +6833,21 @@ var PHOTO_SCENE=[
     인사 · 준비한 순서는 고른 판에 따라 장면이 달라 photoSceneList 가 초안(rd.S)을 보고 바꾼다(SCENE_BY_PICK). */
  {n:'화촉',          s:'초에 불이 옮겨붙는 순간 · 불빛에 비친 부모님 얼굴'},
  {n:'부모님께 인사', s:'꽃을 건네고 안기는 순간'},
- {n:'두 사람이 준비한 순서', s:'함께 보며 웃는 하객들'},
+ {n:'준비한 순서', s:'함께 보며 웃는 하객들'},   /* [DETAIL_0925 B3] 옛 이름 «두 사람이 준비한 순서»는 아래 flow 정규화가 받는다 */
  {n:'폐식·단체촬영', s:'예식을 맺는 한 컷 · 여기서 아래 구도로 이어져요'}
 ];
 // 식순 초안에서 '고른 순간'만 골라낸다 — 초안이 없거나 옛 판이면 null(칸을 통째로 안 그린다)
 function photoSceneList(rd){
   var flow=((rd||{}).summary||{}).flow;
   if(!flow||!flow.length) return null;
+  flow=flow.map(function(n){ return n==='두 사람이 준비한 순서'?'준비한 순서':n; });   // [DETAIL_0925 B3] 9/25 하루 저장된 초안의 옛 이름
   var on=PHOTO_SCENE.filter(function(x){ return flow.indexOf(x.n)>-1; });
   /* [SCENE_BY_PICK] 판에 따라 장면을 고른다 — 신랑 큰절이면 절하고 일어나는 얼굴까지 · 준비한 순서는 무엇을에 따라 */
   var St=(rd||{}).S||{};
-  var FREE_SCENE={video:'함께 보며 웃는 하객들',dance:'무대를 보며 웃는 두 분',show:'무대를 보며 웃는 두 분',gift:'선물을 건네받는 두 분',hand:'선물을 건네받는 두 분',speech:'말하는 분을 보며 웃는 두 분'};
+  var FREE_SCENE={video:'함께 보며 웃는 하객들',stage:'무대를 보며 웃는 두 분',dance:'무대를 보며 웃는 두 분',show:'무대를 보며 웃는 두 분',gift:'선물을 건네받는 두 분',hand:'선물을 건네받는 두 분',speech:'말하는 분을 보며 웃는 두 분'};
   on=on.map(function(x){
     if(x.n==='부모님께 인사' && St.tribute==='bowGroom') return {n:x.n, s:'꽃을 건네고 안기는 순간 · 절하고 일어나 마주 보는 얼굴'};
-    if(x.n==='두 사람이 준비한 순서' && FREE_SCENE[St.freeWhat]) return {n:x.n, s:FREE_SCENE[St.freeWhat]};
+    if(x.n==='준비한 순서' && FREE_SCENE[St.freeWhat]) return {n:x.n, s:FREE_SCENE[St.freeWhat]};
     return x;
   });
   return on.length?on:null;

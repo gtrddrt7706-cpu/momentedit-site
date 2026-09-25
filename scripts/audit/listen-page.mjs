@@ -1,0 +1,248 @@
+// [LISTEN_PAGE 2026-09-25 코워크 회신 4-7] ② 보고 듣기 · ① 장면 영상 — 받아들일 기준을 실브라우저로 잰다.
+//
+//   node scripts/audit/listen-page.mjs          # 390 · 1280 둘 다
+//
+// 보는 것(명세 4-7 그대로)
+//   ① pageerror 0 · 서버 호출 0(글꼴 밖) · 가로 넘침 0 — 390 · 1280
+//   ② 네 걸음(고르기 · 보고 듣기 · 글 적기 · 완성) · 새 코스 STEPS = intro,intro2,pick,listen,write,done
+//   ③ 자동 재생: ① 은 소리 없는 영상만 · 동시에 하나 · 누르면 멈춤 / ② 는 누른 뒤에만 소리
+//   ④ 움직임 줄이기에서 자동 재생 0
+//   ⑤ 키보드로 줄 열기 · 칩 · 재생 · Esc 로 크게 보기 닫기
+//   ⑥ 녹음 전 줄이 소리 없이 비지 않고 글로(«녹음 준비 중»)
+//   ⑦ 칩을 누르면 그 판으로 바로 다시 들린다 · 빼기 · 넣기 한 줄 안내(을/를)
+//   ⑧ 옛 코스(가족) 초안은 지금 화면 그대로 — 순간마다의 화면이 선다(회귀 0)
+//
+// ★장면 영상은 아직 한 편도 없다(VIDEO_READY 빈 목록). 그래서 ③·④ 는 ffmpeg 로 2초짜리 시험 영상을 만들어
+//   가짜로 두 편(candle · vow)을 «들어온 것처럼» 끼워 잰다. ffmpeg 이 없으면 그 두 줄은 «못 쟀다»로 찍고 종료코드 2.
+// ★종료 코드 [CANT_LOOK] 0 = 통과 · 1 = 실패 · 2 = 재지 못함(도구 없음)
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import http from 'node:http';
+import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
+if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
+let fail = 0, cant = 0;
+const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
+
+// 시험 영상(소리 없음 · 2초)
+let TV = null;
+/* ★시험 영상은 VP9(webm)로 만든다 — 헤드리스 Chromium(오픈소스 빌드)은 H.264 를 못 풀어 mp4 가 영영 안 돈다
+   (첫 판에서 «하나도 안 돈다»로 거짓 실패가 났다). 실제 파일은 명세대로 mp4(H.264) — 서버가 같은 주소로 webm 을 준다. */
+try { TV = path.join(os.tmpdir(), 'listen-page-test.webm'); execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'color=c=0xEDEBE6:s=320x180:d=2', '-c:v', 'libvpx-vp9', '-b:v', '100k', '-an', TV]); }
+catch (e) { TV = null; }
+
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.css': 'text/css', '.svg': 'image/svg+xml' };
+const srv = http.createServer((q, r) => {
+  const u = decodeURIComponent(q.url.split('?')[0]);
+  const p = (TV && /\/assets\/video\/moments\/.+\.mp4$/.test(u)) ? TV : path.join(ROOT, u);
+  fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': p === TV ? 'video/webm' : (TYPES[path.extname(p)] || 'application/octet-stream') }); r.end(b); });
+});
+await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
+const br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+
+async function open(w, opt) {
+  opt = opt || {};
+  const ctx = await br.newContext({ viewport: { width: w, height: 900 }, reducedMotion: opt.reduce ? 'reduce' : 'no-preference' });
+  const pg = await ctx.newPage();
+  const errs = [], ext = [];
+  pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); if (!/fonts\.g(oogleapis|static)\.com/.test(u)) ext.push(u.slice(0, 80)); return rt.fulfill({ status: 200, body: '' }); });
+  if (opt.videos) await pg.addInitScript((vs) => { window.__LISTEN_TEST_VIDEOS = vs; }, opt.videos);
+  if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
+  if (opt.videos) await pg.evaluate(() => { (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });
+  return { ctx, pg, errs, ext };
+}
+const toPick = async (pg) => { await pg.click('#next'); await pg.waitForTimeout(400); await pg.click('#next'); await pg.waitForTimeout(500); };
+
+for (const w of [390, 1280]) {
+  const { ctx, pg, errs, ext } = await open(w);
+  await toPick(pg);
+  ok(`${w} 새 코스 STEPS = 네 걸음`, (await pg.evaluate(() => STEPS.map((s) => s.k).join(','))) === 'intro,intro2,pick,listen,write,done');
+  ok(`${w} ① 에 걸음 표시(① 고르기가 지금)`, await pg.evaluate(() => { const o = document.querySelector('.op-steps li.on'); return !!o && /고르기/.test(o.textContent); }));
+  ok(`${w} ① 카드에 판 칩이 없다(② 로 옮김)`, await pg.evaluate(() => document.querySelectorAll('.op-card .op-chip').length === 0));
+  ok(`${w} ① 카드마다 장면 자리`, await pg.evaluate(() => [...document.querySelectorAll('.op-card')].every((c) => c.querySelector('.lv'))));
+  ok(`${w} ① 빈 채엔 아래 요약이 없다`, await pg.evaluate(() => !document.getElementById('opCta')));
+  await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  ok(`${w} ① 담으면 아래 «담은 순간 · 본식»`, await pg.evaluate(() => /고른 순간 \d+ · 본식 약 \d+~\d+분/.test((document.getElementById('opCta') || {}).textContent || '')));
+  ok(`${w} ① 지금 한 줄(«보고 듣기»에서 바꿀 수 있어요)`, await pg.evaluate(() => /지금 · .+«보고 듣기»에서 바꿀 수 있어요/.test(document.getElementById('stage').textContent)));
+  ok(`${w} ① 소제목에 동그라미 번호 없음 · 남는 사진`, await pg.evaluate(() => ![...document.querySelectorAll('.op-h')].some((h) => /[①②③]/.test(h.textContent)) && /남는 사진/.test(document.getElementById('stage').textContent) && !/남는 장면/.test(document.getElementById('stage').textContent)));
+  ok(`${w} ① 고객 화면에 «판» 없음`, await pg.evaluate(() => !/판 바꿈|고를 수 있는 판|그 판으로/.test(document.getElementById('stage').textContent)));
+  await pg.click('#next'); await pg.waitForTimeout(1500);
+  ok(`${w} ② 제목 · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '보고 듣기' && /보고 듣기/.test(document.querySelector('.op-steps li.on').textContent)));
+  const rows = await pg.evaluate(() => [...document.querySelectorAll('.ls-rows .ls-row')].map((r) => r.dataset.lk));
+  ok(`${w} ② 줄 = 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사`, rows[0] === 'guest' && rows[1] === 'prevideo' && rows[rows.length - 1] === '_close', rows.join(','));
+  ok(`${w} ② 들어가자마자 소리 없음(자동 재생 없음)`, await pg.evaluate(() => !LP.q.length && (!LP.el || LP.el.paused)));
+  // ⑤ 키보드로 줄 열기
+  await pg.focus('[data-fk="lsm:candle"]'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(400);
+  ok(`${w} ② 키보드 Enter 로 줄이 열린다`, await pg.evaluate(() => LS.open === 'candle' && !!document.querySelector('.ls-row.open .ls-flow')));
+  /* [TEXT_AUDIO_MATCH 2-1] 지금 녹음은 옛 대본이라 전부 글로 흐른다 — 줄마다 꼬리표 대신 «처음부터» 아래 한 줄 */
+  ok(`${w} ② 전부 녹음 전이면 한 줄만(«새 대본을 녹음하기 전이라…») · 줄 꼬리표 없음`, await pg.evaluate(() => LS.allPend && /새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요/.test((document.querySelector('.ls-allpend') || {}).textContent || '') && !document.querySelector('.ls-row.open .ls-flow .ls-new')));
+  ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px`, await pg.evaluate(() => { const c = document.querySelector('.ls-row.open .op-chip'); return !!c && c.getAttribute('role') === 'radio' && c.closest('[role=radiogroup]') && c.getBoundingClientRect().height >= 44; }));
+  ok(`${w} ② 고른 칩이 눈에 보인다(바탕이 다르다) [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.ls-row.open .op-chip[aria-checked="true"]'), off = document.querySelector('.ls-row.open .op-chip[aria-checked="false"]'); return !!on && !!off && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
+  // ⑦ 칩 → 바로 재생
+  await pg.click('[data-fk="lsc:candleWho:parents"]'); await pg.waitForTimeout(500);
+  ok(`${w} ② 칩을 누르면 값이 바뀌고 그 순간이 바로 들린다 · 누른 자리에 포커스`, await pg.evaluate(() => S.candleWho === 'parents' && LP.q.length > 0 && LP.cur === 'candle' && document.activeElement && document.activeElement.getAttribute('data-fk') === 'lsc:candleWho:parents'));
+  ok(`${w} ② 녹음 전 줄은 소리 없이 글로(src 없음 · 글 있음)`, await pg.evaluate(() => { const st = LP.q[0]; return !!st && st.pending && !st.src && st.txt.length > 10; }));
+  ok(`${w} ② 재생 중 작은 플레이어`, await pg.evaluate(() => getComputedStyle(document.getElementById('lsMini')).display === 'flex'));
+  await pg.evaluate(() => lsStop());
+  // 크게 보기 · Esc
+  await pg.click('.ls-hero'); await pg.waitForTimeout(700);
+  ok(`${w} ② «처음부터 보고 듣기» → 크게 보기 · 식전 표시 · 본식부터 단추 · 뒤는 inert`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /식전/.test(f.querySelector('.lf-h').textContent) && !!f.querySelector('[data-fk="lfskip"]') && f.querySelector('.lf-txt').textContent.length > 10 && document.querySelector('.wrap').hasAttribute('inert'); }));
+  await pg.click('[data-fk="lfskip"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 본식부터 보기 → «1 / N»`, await pg.evaluate(() => /^1 \/ \d+$/.test(document.querySelector('#lsFull .lf-h span').textContent.trim())));
+  ok(`${w} ② 크게 보기의 자막 = 엔진 큐 문안`, await pg.evaluate(() => { const st = LP.q[LP.i]; return st && document.querySelector('.lf-txt').textContent === st.txt; }));
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
+  ok(`${w} ② Esc 로 크게 보기가 닫힌다(작게 · 뒤 잠금 풀림)`, await pg.evaluate(() => document.getElementById('lsFull').hidden && !document.querySelector('.wrap').hasAttribute('inert')));
+  await pg.evaluate(() => lsStop());
+  // ⑦ 빼기 · 넣기 한 줄 안내
+  await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요) · 되돌리기`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test(document.querySelector('.ls-msg').textContent) && !RitualOpen.onOf(S, 'bless') && !!document.querySelector('[data-fk="lsundo"]')));
+  await pg.click('[data-fk="lsundo"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 되돌리기 → 다시 담긴다`, await pg.evaluate(() => RitualOpen.onOf(S, 'bless')));
+  await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
+  await pg.click('.ls-off summary'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsa:bless"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 담기 안내(n번째에 담았어요)`, await pg.evaluate(() => /«부모님 덕담»을 \d+번째에 담았어요/.test(document.querySelector('.ls-msg').textContent) && RitualOpen.onOf(S, 'bless')));
+  ok(`${w} ② 준비한 순서는 «담지 않은 순간»에 없다`, await pg.evaluate(() => !document.querySelector('.ls-off [data-lk="free"]')));
+  ok(`${w} ② 가로 넘침 0`, await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await pg.click('#next'); await pg.waitForTimeout(600);
+  ok(`${w} ③ 준비하기 — 두 분이 준비할 것 · 부모님께 부탁드릴 것 · 보낼 것 · 식전 영상 링크 · 도와주실 분`, await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.getElementById('stepHead').textContent === '준비하기' && /두 분이 준비할 것/.test(t) && /부모님께 부탁드릴 것/.test(t) && /보낼 것/.test(t) && !!document.querySelector('input[aria-label="식전 영상 링크"]') && /도와주실 분/.test(t) && !/사흘/.test(t); }));
+  await pg.click('#next'); await pg.waitForTimeout(600);
+  ok(`${w} ④ 듣기 단추 하나 = «처음부터 끝까지 보기»`, await pg.evaluate(() => { const b = [...document.querySelectorAll('.play-acts .rehearse-btn')]; return b.length === 1 && b[0].textContent === '처음부터 끝까지 보기'; }));
+  ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
+  ok(`${w} 서버 호출 0`, ext.length === 0, [...new Set(ext)].join(' '));
+  await ctx.close();
+}
+
+// [TEXT_AUDIO_MATCH 2026-09-25 코워크 회신3 2-1] 소리는 «녹음된 글 = 자막»일 때만 — 재녹음된 줄을 흉내 내(LREC 에 지금 글을 넣어) 본다
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  await pg.click('#next'); await pg.waitForTimeout(1500);
+  const nz = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, '');
+  // ① 녹음 기록 그대로(옛 대본): 소리 나는 줄이 있으면 전부 «녹음된 글 = 자막»이어야 한다
+  const chk = () => pg.evaluate(() => { const st = _lSteps(ENG, _lRows()); const nz = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, ''); const bad = st.filter((x) => x.src && nz(_lRecText(x.file)) !== nz(x.txt)); return { sound: st.filter((x) => x.src).length, bad: bad.map((x) => x.file) }; });
+  let r = await chk();
+  ok('2-1 옛 녹음 그대로 — 소리 나는 줄 중 자막과 다른 줄 0', r.bad.length === 0, JSON.stringify(r));
+  // ② 두 줄만 «재녹음»(녹음된 글 = 지금 글) → 그 둘만 소리 · 나머지는 글 · 줄 꼬리표가 돌아온다
+  await pg.evaluate(() => { const st = _lSteps(ENG, ['ring', 'declare']).filter((x) => x.file); st.forEach((x) => { LREC[x.file] = { text: x.txt }; }); window.__fix = st.map((x) => x.file); render(); });
+  await pg.waitForTimeout(300);
+  r = await chk();
+  const fix = await pg.evaluate(() => window.__fix);
+  ok('2-1 재녹음된 줄만 소리가 난다 · 모두 자막과 같다', r.sound === fix.length && r.bad.length === 0, JSON.stringify({ r, fix }));
+  ok('2-1 일부만 녹음 전이면 한 줄은 사라지고 줄마다 꼬리표', await pg.evaluate(() => !LS.allPend && !document.querySelector('.ls-allpend')));
+  // ③ 녹음된 글을 한 글자라도 바꾸면 그 줄은 다시 글로(= 깨 보고 믿기: 옛 규칙이면 여기서 소리가 난다)
+  await pg.evaluate(() => { const f = window.__fix[0]; LREC[f] = { text: LREC[f].text + ' 옛말' }; render(); });
+  await pg.waitForTimeout(300);
+  r = await chk();
+  ok('2-1 녹음된 글이 다르면 소리를 내지 않는다', r.sound === fix.length - 1 && r.bad.length === 0, JSON.stringify(r));
+  ok('2-1 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+// [EDIT_OPEN · EM30_RANGE 2026-09-25 코워크 회신3 2-2 · 2-3] ④ «변경» · «채우기»가 걸음을 옮긴다 · 취소하면 그대로 · 걸음 표시로 옮기면 수정 끝
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  const toDone = async () => { await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'done') { idx = i; render(); } }); await pg.waitForTimeout(500); };
+  await toDone();
+  ok('2-3 ④ 새 코스에 «30분을 살짝 넘어도» 줄 없음', await pg.evaluate(() => !/30분을 살짝 넘어도/.test(document.getElementById('stage').textContent)));
+  const keys = await pg.evaluate(() => [...document.querySelectorAll('.sr-c')].map((b) => b.getAttribute('data-fk')));
+  const snap0 = await pg.evaluate(() => JSON.stringify(S));
+  let moved = 0; const miss = [];
+  for (const fk of keys) {
+    await toDone();
+    const lab = await pg.evaluate((f) => { const b = document.querySelector(`[data-fk="${f}"]`); return b ? b.textContent : ''; }, fk);
+    await pg.click(`[data-fk="${fk}"]`); await pg.waitForTimeout(500);
+    const r = await pg.evaluate(() => ({ k: STEPS[idx].k, er: editReturn, open: LS.open, foc: document.activeElement ? (document.activeElement.getAttribute('aria-label') || document.activeElement.className) : '' }));
+    const good = lab === '채우기' ? (r.k === 'write' && r.er && /textarea|약속|편지|인사말/.test(r.foc)) : (r.k === 'listen' && r.er && !!r.open && /ls-main/.test(r.foc));
+    if (good) moved++; else miss.push(fk + ':' + lab + ':' + JSON.stringify(r));
+    await pg.click('#prev'); await pg.waitForTimeout(400);   // 취소
+  }
+  ok(`2-2 ④ «변경» · «채우기» ${keys.length}개가 전부 걸음을 옮긴다(② 줄 열림 · ③ 칸 포커스)`, keys.length > 0 && moved === keys.length, miss.join(' | '));
+  ok('2-2 취소하면 ④로 돌아오고 고른 것이 그대로', await pg.evaluate((s0) => STEPS[idx].k === 'done' && !editReturn && JSON.stringify(S) === s0, snap0));
+  // 걸음 표시로 옮기면 수정이 끝난다
+  await pg.click(`[data-fk="${keys.find((f) => /candle|ring|declare|toast/.test(f)) || keys[0]}"]`); await pg.waitForTimeout(500);
+  ok('2-2 수정 중 아래 단추 = «취소 / 저장 · 요약으로»', await pg.evaluate(() => editReturn && /저장 · 요약으로/.test(document.getElementById('next').textContent)));
+  await pg.click('[data-fk="ops:pick"]'); await pg.waitForTimeout(500);
+  ok('2-2 걸음 표시로 옮기면 수정 끝 · 아래 단추가 제 이름 · ① 요약 다시 보임', await pg.evaluate(() => !editReturn && STEPS[idx].k === 'pick' && !/저장 · 요약으로/.test(document.getElementById('next').textContent) && /이전/.test(document.getElementById('prev').textContent) && !!document.getElementById('opCta')));
+  ok('2-2 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+// [DETAIL_0925 C1 · C2 · G] 글자 대비(본문 4.5 · 큰 글 3) · 누를 곳 44px 실측 — ① · ② · 크게 보기 · ③ 를 390 · 1280 에서
+const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";
+for (const w of [390, 1280]) {
+  const { ctx, pg } = await open(w);
+  await pg.evaluate(MEASURE);
+  const m = async (sel) => pg.evaluate((q) => window.__measure(q ? document.querySelector(q) : document.body), sel || null);
+  const rep = (r) => JSON.stringify({ 대비: r.bad.slice(0, 3), 작은곳: r.small.slice(0, 3) });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  let r = await m(); ok(`${w} C ① 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
+  await pg.click('#next'); await pg.waitForTimeout(1200); await pg.click('[data-fk="lsm:candle"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = true; }));
+  r = await m(); ok(`${w} C ② 대비 미달 0 · 44px 미만 0(줄 · 접힘 모두 연 채)`, !r.bad.length && !r.small.length, rep(r));
+  await pg.click('.ls-hero'); await pg.waitForTimeout(700);
+  r = await m('#lsFull'); ok(`${w} C 크게 보기 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
+  await pg.click('#next'); await pg.waitForTimeout(700);
+  r = await m(); ok(`${w} C ③ 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
+  await ctx.close();
+}
+// [DETAIL_0925 A1 · G] 뒤로 가기 워크스루 — ① → ② → 크게 보기 → 뒤로 셋 · 새로고침 뒤 고른 것이 남는가
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg); await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
+  const picked0 = await pg.evaluate(() => RitualOpen.picked(S).join(','));
+  await pg.click('#next'); await pg.waitForTimeout(900);
+  await pg.click('.ls-hero'); await pg.waitForTimeout(600);
+  ok('A1 크게 보기가 열렸다', await pg.evaluate(() => !document.getElementById('lsFull').hidden));
+  await pg.goBack(); await pg.waitForTimeout(500);
+  ok('A1 뒤로 1 → 크게 보기만 닫힌다(② 그대로)', await pg.evaluate(() => document.getElementById('lsFull').hidden && STEPS[idx].k === 'listen'));
+  await pg.goBack(); await pg.waitForTimeout(500);
+  ok('A1 뒤로 2 → ① 고르기', await pg.evaluate(() => STEPS[idx].k === 'pick'));
+  await pg.goBack(); await pg.waitForTimeout(500);
+  ok('A1 뒤로 3 → 안내(사이트를 떠나지 않는다)', await pg.evaluate(() => location.pathname.endsWith('/order-preview.html') && /intro/.test(STEPS[idx].k)));
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(700);
+  ok('A1 새로고침 뒤 고른 것이 남는다', (await pg.evaluate(() => RitualOpen.picked(S).join(','))) === picked0, picked0);
+  ok('A1 워크스루 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+// ③ · ④ 장면 영상(시험 영상 두 편을 «들어온 것처럼»)
+if (!TV) { console.log('못 쟀다 — ffmpeg 없음(① 자동 재생 두 줄)'); cant++; }
+else {
+  for (const reduce of [false, true]) {
+    const { ctx, pg, errs } = await open(390, { videos: ['candle', 'vow'], reduce });
+    await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+    await pg.evaluate(() => document.querySelector('#opc_candle .lv').scrollIntoView({ block: 'center' })); await pg.waitForTimeout(1200);
+    const st = await pg.evaluate(() => [...document.querySelectorAll('.op-card video')].map((v) => ({ k: v.parentNode.dataset.vk, playing: !v.paused, muted: v.muted })));
+    if (!reduce) {
+      ok('① 영상은 모두 소리 없음(muted)', st.length === 2 && st.every((v) => v.muted), JSON.stringify(st));
+      ok('① 가운데 온 카드 하나만 돈다', st.filter((v) => v.playing).length === 1 && st.find((v) => v.k === 'candle').playing, JSON.stringify(st));
+      await pg.click('#opc_candle .lv'); await pg.waitForTimeout(300);
+      ok('① 누르면 멈춘다', await pg.evaluate(() => document.querySelector('#opc_candle video').paused));
+      await pg.evaluate(() => window.scrollBy(0, 1)); await pg.waitForTimeout(500);
+      ok('① 멈춘 카드는 스크롤해도 다시 돌지 않는다', await pg.evaluate(() => document.querySelector('#opc_candle video').paused));
+    } else {
+      ok('④ 움직임 줄이기에서 자동 재생 0', st.every((v) => !v.playing), JSON.stringify(st));
+    }
+    ok(`영상 판 pageerror 0 (reduce=${reduce})`, errs.length === 0, errs.join(' | '));
+    await ctx.close();
+  }
+}
+
+// ⑧ 옛 코스 초안 — 지금 화면 그대로
+{
+  const draft = { S: { course: 'family', on: {}, entry: 'E', welcome: 'self', vow: 'ok', ring: 'on', declare: '1', letter: 'parent', bless: 'off', tribute: 'flower', toast: 'both', off: {}, extra: {}, up: {}, guestVoice: 'nar', entryVoice: 'nar', declareWho: 'family' }, v: 2, idx: 3, sk: ['intro', 'intro2', 'course'], cs: true };
+  const { ctx, pg, errs } = await open(390, { draft });
+  const steps = await pg.evaluate(() => (window.STEPS || []).map((x) => x.k).join(','));
+  ok('⑧ 옛 코스 초안 → 순간마다의 화면이 선다(보고 듣기 없음)', !/listen/.test(steps) && /course|tune|guest/.test(steps), steps);
+  ok('⑧ 옛 코스 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+
+await br.close(); srv.close();
+console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
+process.exit(fail ? 1 : cant ? 2 : 0);

@@ -8456,6 +8456,50 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/footer-parity.mjs >/
   esac
 fi
 chk 'FOOTER_PARITY' scripts/audit/footer-parity.mjs 1
+# ── [LISTEN_PAGE 2026-09-25 코워크 회신 4장] 네 걸음 · ② 보고 듣기 · 장면 영상 ──
+#   받아들일 기준(4-7)을 실브라우저로 잰다 — 자동 재생 하나 · 움직임 줄이기 0 · 키보드 · Esc · 녹음 전 줄 글로 · 옛 코스 회귀 0.
+#   브라우저가 없으면(PR 잡) «재지 못했다»로 넘어간다 — 야간 · 로컬에서 실제로 잰다(footer-parity 와 같은 방식).
+if command -v node >/dev/null 2>&1; then node scripts/audit/listen-page.mjs >/dev/null 2>&1; _lp=$?
+  case "$_lp" in
+    0) echo 'ok listen-page: 네 걸음 · 보고 듣기 · 장면 영상 받아들일 기준 통과' ;;
+    1) echo 'FAIL listen-page: 보고 듣기 기준이 깨졌습니다 — node scripts/audit/listen-page.mjs'; fail=1 ;;
+    *) echo 'ok listen-page: 재지 못했습니다(브라우저 · ffmpeg 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'LISTEN_PAGE' order-preview.html 10
+chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)
+chk 'DETAIL_0925 C2' order-preview.html 3   # 누를 곳 44px
+if command -v node >/dev/null 2>&1; then node scripts/audit/inapp-sim.mjs >/dev/null 2>&1; _ia=$?
+  case $_ia in
+    0) echo 'ok inapp-sim: 카톡 안 브라우저(아이폰 규칙 · 안드로이드 재생 정책) 흉내 통과' ;;
+    1) echo 'FAIL inapp-sim: 카톡 안 브라우저 흉내가 깨졌습니다 — node scripts/audit/inapp-sim.mjs'; fail=1 ;;
+    *) echo 'ok inapp-sim: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac; fi
+chk 'INAPP_UNLOCK' order-preview.html 4   # 탭 순간 오디오 풀기 · AbortError 로 안 멈춤(깨 보고 믿음 — 빼니 빨강 2줄)
+chk 'INAPP_SIM' scripts/audit/inapp-sim.mjs 1
+chk 'SUMMARY_INLINE' order-preview.html 1   # 접힘 제목은 한 줄 글로 흐른다
+chk 'CHIP_CHECKED' order-preview.html 1   # radio 칩의 고른 표시
+chk 'CHIP_CHECKED' scripts/audit/listen-page.mjs 1
+chk 'DETAIL_0925 C1 · C2' scripts/audit/listen-page.mjs 1   # 대비 · 누를 곳 실측(깨 보고 믿음 — 되돌리니 빨강 4줄)
+nochk 'aria-pressed="true"\]{background:var(--gold-deep);' order-preview.html
+chk 'function renderListen' order-preview.html 1
+chk "if(k==='listen') return renderListen();" order-preview.html 1
+chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.write,STEPDEF.done' order-preview.html 1
+chk 'VIDEO_READY' assets/ritual-open.js 3
+chk 'ENTRY_SCENE' assets/ritual-cue.js 2
+nochk 'narr-entry-out-bow' assets/ritual-cue.js
+chk 'S.entryScene' order-preview.html 1
+nochk "'freeLen', 'entryScene'" assets/ritual-preview-link.js   # [ENTRY_SCENE] 소리가 같아 주소에 싣지 않는다(STORY_COVER 죽은 키)
+chk 'DETAIL_0925 B10' order-preview.html 1   # 녹음 전 판정은 규칙 하나(옛 L_STALE 목록은 폐지) — 규칙은 아래 TEXT_AUDIO_MATCH 로 좁혔다
+chk 'TEXT_AUDIO_MATCH' order-preview.html 2   # [코워크 회신3 2-1] 소리는 «녹음된 글 = 지금 글»일 때만(가족 예시 자막과 다른 소리 18 → 0)
+chk '_lNorm(r)===_lNorm(text)' order-preview.html 1
+chk 'TEXT_AUDIO_MATCH' console.html 2   # 음악까지 미리듣기(preview 모드)도 같은 규칙 · 현장 console 모드는 그대로
+chk 'TEXT_AUDIO_MATCH' scripts/audit/listen-page.mjs 1   # 깨 보고 믿음 — 옛 규칙으로 되돌리니 빨강 5줄
+chk 'EDIT_OPEN' order-preview.html 6   # [2-2] ④ 변경 → ② 그 줄 · 채우기 → ③ 그 칸 · 걸음 표시/뒤로 가기로 수정 끝(되돌리니 빨강 2줄)
+chk 'EM30_RANGE' order-preview.html 1   # [2-3] «16~23분»을 1623 으로 읽던 30분 줄 · 새 코스는 뺌
+nochk 'L_STALE=' order-preview.html
+nochk '그 판으로 바로' order-preview.html
+nochk '판 바꿈' assets/ritual-open.js
 chk 'TAP44-3' scripts/audit/footer-parity.mjs 1
 chk 'FOOTER_UNIFY' parents.html 1
 # ★[SERVED_OURS] 포트를 뺏기거나 서버가 안 떴을 때 «틀림(1)»이 아니라 «못 쟀다(2)»로 빠지는 장치.
@@ -9209,7 +9253,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 107' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107
+chk 'N_FILES = 107' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
