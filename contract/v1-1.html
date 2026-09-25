@@ -92,7 +92,10 @@ section.article{padding:26px 0;border-top:1px solid var(--hairline);scroll-margi
 section.article:first-of-type{border-top:none;padding-top:6px}
 .art-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
 .art-num{font-family:var(--serif);font-style:italic;font-size:17px;font-weight:500;color:var(--gold);letter-spacing:0.04em;line-height:1;flex-shrink:0;white-space:nowrap}
-.art-title{font-family:var(--serif-ko);font-size:17px;font-weight:600;color:var(--accent);letter-spacing:0.01em;line-height:1.4}
+/* [CONTRACT_TITLE_BALANCE 2026-09-25 코워크 실측 390] 「결과물의 인도·데이터 보관 및 멸실 시 /
+   **배상**」처럼 마지막 줄에 한 낱말만 남는 조항 제목이 있었다. text-wrap:balance 가 줄을 고르게 나눈다.
+   ★「중요」 표지(.key-badge)는 지금도 제목 끝줄에 붙는다 — 그대로. */
+.art-title{text-wrap:balance;font-family:var(--serif-ko);font-size:17px;font-weight:600;color:var(--accent);letter-spacing:0.01em;line-height:1.4}
 .art-body{font-family:var(--serif-ko);font-size:14px;font-weight:400;color:var(--text);line-height:1.95;letter-spacing:0.005em}
 .art-body>p{margin-bottom:12px}
 .art-body>p:last-child{margin-bottom:0}
@@ -158,8 +161,13 @@ td strong{color:var(--accent);font-weight:600}
 footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-top:50px}
 .f-mark{font-family:var(--serif);font-size:12px;font-weight:500;letter-spacing:0.3em;color:rgba(255,255,255,0.6)}
 .f-mark .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--seal);margin:0 4px;vertical-align:2px}
-.f-copy{font-family:var(--serif-ko);font-size:10.5px;color:rgba(255,255,255,0.34);margin-top:12px;letter-spacing:0.03em;line-height:1.9;max-width:560px;margin-left:auto;margin-right:auto;word-break:keep-all}
-.f-ver{font-family:var(--sans);font-size:10px;color:rgba(184,154,117,0.6);margin-top:10px;letter-spacing:0.05em}
+/* ★★[CONTRACT_FOOTER_AA 2026-09-25 코워크 실측] 푸터 글자가 rgba(255,255,255,0.34) = **3.12:1** 이었다.
+   이 두 면은 footer-parity 대상이 아니어서 **아무 검사도 이 자리를 안 보고 있었다.**
+   parents 푸터와 같은 값으로 맞춘다(5.11:1). 문구·자리표시는 한 글자도 안 바꿨다. */
+.f-copy{font-family:var(--serif-ko);font-size:10.5px;color:rgba(192,180,160,0.72);margin-top:12px;letter-spacing:0.03em;line-height:1.9;max-width:560px;margin-left:auto;margin-right:auto;word-break:keep-all}
+/* [CONTRACT_FOOTER_AA] ★명세엔 없던 자리 — 같은 푸터의 판본 줄도 같은 색(3.24:1)이었다.
+   같은 면·같은 결함이라 함께 고친다(코워크 확인 요청). */
+.f-ver{font-family:var(--sans);font-size:10px;color:rgba(192,180,160,0.72);margin-top:10px;letter-spacing:0.05em}
 
 /* Print */
 @media print{
@@ -624,7 +632,7 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 
 <footer>
   <div class="f-mark">MOMENT<span class="dot"></span>EDIT</div>
-  <div class="f-copy">상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796 · 통신판매업 신고 <span style="color:rgba(184,154,117,0.6)">[신고번호]</span><br>경기 고양시 덕양구 향동동 <span style="color:rgba(184,154,117,0.6)">[정식주소 · 이전 후 확정]</span> · contact@momentedit.kr</div>
+  <div class="f-copy">상호 모먼트에디트 · 대표 정희준 · 사업자등록번호 218-01-42796 · 통신판매업 신고 <span>[신고번호]</span><br>경기 고양시 덕양구 향동동 <span>[정식주소 · 이전 후 확정]</span> · contact@momentedit.kr</div>
   <div class="f-ver">웨딩 촬영·예식 서비스 이용계약서 v1.8 / 과도기 단일서명본</div>
 </footer>
 
