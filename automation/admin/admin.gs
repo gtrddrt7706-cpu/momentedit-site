@@ -176,7 +176,7 @@ function adminCall(token, fn, args) {
       adminApprove: adminApprove, adminAcceptProposal: adminAcceptProposal, adminCancel: adminCancel, adminProposeTime: adminProposeTime, adminAvailability: adminAvailability,
       adminGetSignature: adminGetSignature, adminListAiHandoffs: adminListAiHandoffs, adminResolveAiHandoff: adminResolveAiHandoff, adminListWeddingBlocks: adminListWeddingBlocks, adminSetWeddingBlock: adminSetWeddingBlock, adminRemoveWeddingBlock: adminRemoveWeddingBlock, adminSendContract: adminSendContract, adminConfirmPayment: adminConfirmPayment, adminConfirmBalance: adminConfirmBalance, adminConfirmMid: adminConfirmMid, adminOpenFittingConsent: adminOpenFittingConsent,
       adminMarkConsultDone: adminMarkConsultDone, adminSetResultLinks: adminSetResultLinks, adminMarkEventDone: adminMarkEventDone, adminMarkDelivered: adminMarkDelivered,
-      adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey,
+      adminConfirmExtra: adminConfirmExtra, adminStartRetouch: adminStartRetouch, adminGrantWeddingHold: adminGrantWeddingHold, adminDeclineWeddingHold: adminDeclineWeddingHold, adminSkipSurvey: adminSkipSurvey, adminSurveySeen: adminSurveySeen,   // [SV_SEEN]
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
       adminUndoConfirmPayment: adminUndoConfirmPayment, adminUndoConfirmPreview: adminUndoConfirmPreview,   // [ADM_AC1]
       adminUndoRefunded: adminUndoRefunded,   // [ADM_AC2]
@@ -547,7 +547,8 @@ function adminHome() {
   var pipe = {}; pipe[P.PRODUCT_SIGNATURE] = {}; pipe[P.PRODUCT_SNAP] = {};
   function pushQ(it) { queueCodes[it.code] = true; if (it._urgent) urgent.push(it); else normal.push(it); }
   // 만족도 설문 집계(전 고객 — 완료자는 아카이브여도 포함)
-  var surveyAgg = { n: 0, byProduct: {}, q: {}, recent: [] };
+  var surveyAgg = { n: 0, byProduct: {}, q: {}, recent: [], unseen: 0 };
+  var _svAll = [];   // [SV_UNSEEN] 제출된 응답 전부 — 순회가 끝나면 날짜순으로 줄 세운다
   function surveyTally(rv, code, names, product) {
     if (String(cget(rv, '설문상태') || '').trim() !== '완료') return;
     var parsed; try { parsed = JSON.parse(String(cget(rv, '설문응답') || '') || '{}'); } catch (e) { parsed = {}; }
@@ -555,7 +556,8 @@ function adminHome() {
     surveyAgg.n++;
     surveyAgg.byProduct[product] = (surveyAgg.byProduct[product] || 0) + 1;
     for (k in ans) { if (ans.hasOwnProperty(k)) { var v = String(ans[k] || ''); if (!v) continue; if (!surveyAgg.q[k]) surveyAgg.q[k] = {}; surveyAgg.q[k][v] = (surveyAgg.q[k][v] || 0) + 1; } }
-    if (surveyAgg.recent.length < 40) surveyAgg.recent.push({ code: code, names: names, product: product, overall: String(ans.overall || ''), recommend: String(ans.recommend || ''), gap: String(ans.gap || ''), review: String(parsed.review || ''), reviewPublic: String(parsed.reviewPublic || ''), date: String(cget(rv, '설문일시') || ''),
+    _svAll.push({ code: code, names: names, product: product, overall: String(ans.overall || ''), recommend: String(ans.recommend || ''), gap: String(ans.gap || ''), review: String(parsed.review || ''), reviewPublic: String(parsed.reviewPublic || ''), date: String(cget(rv, '설문일시') || ''),
+      seen: String((parsed && parsed.seen) || ''), _p: parsed,   // [SV_UNSEEN] 확인 여부 · _p 는 새 후기 원문을 싣고 나서 지운다
       notesN: (function () { var nn = 0, nt = (parsed && parsed.notes) || {}, x; for (x in nt) { if (nt.hasOwnProperty(x) && String(nt[x] || '').trim()) nn++; } return nn; })() });
     /* ★[SV_HOME_NOTESN 2026-09-25] notesN — 이 응답에 문항별 기타 의견이 몇 건 있는지.
        홈은 집계만 보여 주므로, 수기 의견이 있는 응답을 «열어 볼 가치가 있다»고 표시할 근거가 필요하다.
@@ -1026,6 +1028,21 @@ function adminHome() {
     return out;
   }
   function countPipe(g) { var n = 0; Object.keys(g).forEach(function (k) { n += (g[k] || []).length; }); return n; }
+  /* ★★[SV_UNSEEN 2026-09-25 사장님 「퍼센트는 필요 없고 · 피드백만 따로 들어가서 보게 · 리뷰 남기면 알람 뜨고
+     확인하면 알람 없어지고 · 커피 쿠폰 미발송은 지금처럼 메인에」] 후기 목록을 «새 후기 먼저»로 세운다.
+     ★종전엔 순회 중 앞 40건만 담아서, 시트 앞쪽(옛 고객)만 들어가고 새 후기가 목록 밖으로 밀릴 수 있었다.
+       알림을 세는 목록이 새 후기를 빠뜨리면 알림이 거짓말을 한다 — 그래서 새 후기는 상한 없이 전부 싣는다.
+     ★새 후기 10건까지는 원문(full)을 함께 싣는다 — 알림을 누르면 한 번에 읽고 확인하게. 확인한 것은 요약만.
+     ★쿠폰 미발송(CPN_QUEUE)은 여기와 무관하다 — «확인»은 후기를 읽었다는 표시일 뿐, 쿠폰 큐는 발급될 때까지 남는다. */
+  var _svMarkU = '[SV_UNSEEN]';
+  _svAll.sort(function (a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+  var _svNew = _svAll.filter(function (x) { return !x.seen; }), _svOld = _svAll.filter(function (x) { return !!x.seen; });
+  _svNew.forEach(function (x, i) {
+    if (i < 10 && x._p) x.full = { answers: x._p.answers || {}, notes: x._p.notes || {}, snap: x._p.snap || [], review: String(x._p.review || ''), reviewPublic: String(x._p.reviewPublic || '') };
+  });
+  _svAll.forEach(function (x) { delete x._p; });
+  surveyAgg.unseen = _svNew.length;
+  surveyAgg.recent = _svNew.concat(_svOld.slice(0, 40));
 
   return {
     ok: true, name: name, today: today,
@@ -2338,6 +2355,33 @@ function adminRevokeCoupon(code) {
     touchCustomer(sheet, colOf, cust.num, { '쿠폰상태': '회수', '쿠폰데이터': '' });
     _recordHandler(code, '커피쿠폰 회수');
     return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+/* ★★[SV_SEEN 2026-09-25] 후기 «확인» — 관리자가 읽었다는 표시. 알림(새 후기 N건)이 이걸로 사라진다.
+   ★설문응답 JSON 안에 seen(시각)을 넣는다 — 시트 컬럼을 늘리지 않는다(스키마 변경은 되돌리기 비싸다).
+     되돌리기로 설문이 초기화되면 seen 도 함께 사라지니 «초기화된 후기에 확인 표시가 남는» 일이 없다.
+   ★고객 글은 한 글자도 안 바꾼다 — 읽고(parse) seen 만 더해 쓴다. 칸을 못 읽으면 쓰지 않는다(덮어쓰면 원문이 사라진다).
+   ★쿠폰 미발송 큐(CPN_QUEUE)는 건드리지 않는다 — 쿠폰은 발급될 때까지 홈에 남는다(사장님 지시). */
+function adminSurveySeen(code) {
+  _requireAdmin();
+  var _svMarkS = '[SV_SEEN]';
+  code = String(code || '').trim().toUpperCase();
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    if (String(cust.get('설문상태') || '').trim() !== '완료') return { ok: false, error: '제출된 후기가 없어요 · 새로고침해 주세요' };
+    var raw = String(cust.get('설문응답') || ''), sp;
+    try { sp = JSON.parse(raw); } catch (eP) { sp = null; }
+    if (!sp || typeof sp !== 'object' || Object.prototype.toString.call(sp) === '[object Array]') {
+      return { ok: false, error: '후기 원문을 읽지 못해 확인 표시를 남기지 않았어요 · 시트의 설문응답 칸을 확인해 주세요' };
+    }
+    if (sp.seen) return { ok: true, already: true, seen: String(sp.seen) };   // 두 번 눌러도 처음 시각을 지킨다
+    sp.seen = fmtKST(new Date());
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    touchCustomer(sheet, colOf, cust.num, { '설문응답': JSON.stringify(sp) });
+    _recordHandler(code, '후기 확인');
+    return { ok: true, seen: sp.seen };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 function adminSkipSurvey(code) {

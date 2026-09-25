@@ -1750,9 +1750,12 @@ chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 
 # ── 청첩장 CTA 통일 · 관리자 설문 요약화 (2026-08-01) ──────────
 chk 'BTN_TIER' index.html 7                                  # 버튼 2단 체계 · 청첩장 미리보기도 외곽 마룬으로 편입(세 번째 스타일 금지)
 chk 'journal-guide-link' index.html 10                       # 외곽 마룬 버튼 3곳(청첩장·하객 안내·부모님)이 같은 클래스를 쓴다
-chk 'SV_DIGEST' admin.html 3                                 # 설문 요약화 · neg 정의 + renderSurvey + 접힘 CSS
-chk 'sv-fold' admin.html 8                                   # 문항별 분포·후기 접기 · 풀면 응답 1건에 막대 12개가 다시 깔린다
-chk 'sv-watch' admin.html 5                                  # '눈여겨볼 응답'만 추리는 요약 카드 · 이게 빠지면 요약이 평균 3개뿐이 된다
+chk 'SV_DIGEST' admin.html 1                                 # neg 정의(아쉬움 쪽 답) — 후기 화면이 붉게 칠하는 근거 · 요약 카드는 아래 폐지
+# ★2026-09-25 사장님 지시로 퍼센트 집계 폐지 — 「여기 퍼센트 부분은 굳이 관리자 입장에서 필요 없을 거 같아 · 피드백 부분만」.
+#   종전 줄(sv-fold 8 · sv-watch 5 · SV_DIGEST 3)은 그 요약 카드를 지키던 것이라 함께 내렸다. 되살아나지 않게 막는다(SV_UNSEEN).
+nochk 'function _svPct(' admin.html
+nochk 'var SURVEY_PILLARS=' admin.html
+nochk 'sv-pill-pct' admin.html
 chk 'GUIDE_DEMO' guide.html 4                                # ?g=demo 표본 · GAS 무호출 · 좌석 결과 선표시(배너는 2026-08-01 사용자 지시로 제거)
 chk "g==='demo'" guide.html 1                                # 데모 분기는 boot 맨 앞 · 실제 하객 경로는 이 코드를 지나가지 않는다
 chk 'GUIDE_DEMO_CTA' index.html 1                            # 하객 안내를 '설명'에서 '열어볼 수 있는 것'으로
@@ -6369,7 +6372,10 @@ chk 'FP_BROAD' automation/platform/00_platform-config.gs 2
 chk 'FP_BROAD' automation/platform/99_deployCheck.gs 1
 chk '_dsGlobalSig' automation/platform/00_platform-config.gs 2   # 정의 1 + deployFingerprint 안 호출 1
 chk 'FP_BROAD' scripts/audit/deploy-fp.mjs 2
-chk 'grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
+# [HOME_RIGHT_STACK] 처리할 일은 왼쪽 한 줄기 · 오늘 상담→진행 중→결과물→후기는 오른쪽 — 그대로다.
+#   ★2026-09-25(SV_UNSEEN) 맨 위에 전폭 알림 줄 둘(silent·alarm)을 더했다 — 연락처 경고·새 후기 알림.
+#     이름 없이 두면 «비어 있는 첫 칸»으로 자동 배치돼 한 칸 폭이 됐다(main 판 실측 559px).
+chk 'grid-template-areas:"search search" "recent recent" "silent silent" "alarm alarm" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
 chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
 chk 'SAFE_HREF' admin.html 6
@@ -8490,16 +8496,39 @@ chk 'notes:notes, snap:snap' mypage.html 1
 chk 'data-note-open=' mypage.html 2
 chk 'srv-note-t\[hidden\]' mypage.html 1   # ★inline-flex 가 [hidden] 을 이겨 「+ 기타 의견 적기」가 칸을 연 뒤에도 남았다(실측)
 nochk "\['etc','그 외'\]" mypage.html
-chk 'SV_RESP_VIEW' admin.html 5
+chk 'SV_RESP_VIEW' admin.html 4
 chk 'SV_ALL_SHOWN' admin.html 1
 chk 'SV_OPEN_RETRY' admin.html 1   # 펼침 요청을 서버가 거절하면 알리고 재시도 가능 — 종전엔 «찾지 못했어요»로 굳었다(고치기 전 코드로 되돌려 4건 빨강 확인)
 chk 'function svResponseHtml' admin.html 1
-chk 'svResponseHtml(' admin.html 3
+chk 'svResponseHtml(' admin.html 4
 chk 'data-sv-open' admin.html 3
 nochk "etc:'그외'" admin.html
 chk 'SV_RESP_VIEW' scripts/audit/admin-inject.mjs 1
-chk '홈 설문 펼침' scripts/audit/admin-inject.mjs 2
+chk '후기 화면' scripts/audit/admin-inject.mjs 5
 chk '상세 설문' scripts/audit/admin-inject.mjs 1
+
+# ★★[SV_UNSEEN]·[SV_SEEN] 2026-09-25 사장님 「퍼센트는 필요 없고 · 피드백만 따로 들어가서 보게 · 리뷰 남기면 알람 뜨고
+#   확인하면 알람 없어지고 · 하지만 커피 쿠폰 미발송 시 계속 메인 화면에는 지금처럼」
+#   홈엔 «새 후기 N건» 알림 한 줄 + 후기 입구만 · 후기 화면에서 새 후기는 원문을 펼친 채 「확인」 · 확인은 설문응답 JSON 에 seen 으로
+#   (시트 컬럼을 늘리지 않는다) · 쿠폰 큐(CPN_QUEUE)는 확인과 무관하게 발급될 때까지 남는다 — survey-notes ⑥⑦ 이 실행으로 본다.
+chk 'SV_UNSEEN' automation/admin/admin.gs 4
+chk 'SV_SEEN' automation/admin/admin.gs 3
+chk 'adminSurveySeen: adminSurveySeen' automation/admin/admin.gs 1   # ★화이트리스트에 없으면 확인 버튼이 «알 수 없는 요청»으로 죽는다(ADMINCALL_WIRED)
+chk 'SV_UNSEEN' admin.html 10
+chk 'SV_SEEN' admin.html 1
+chk "gas('adminSurveySeen'" admin.html 1
+chk 'id="reviewView"' admin.html 1
+chk 'id="rvAlarmWrap"' admin.html 1
+chk '#rvAlarmWrap{grid-area:alarm}' admin.html 1   # 이름이 없으면 «비어 있는 첫 칸»으로 자동 배치돼 한 칸 폭이 된다
+chk '⑥ 새 후기 알림' scripts/audit/survey-notes.mjs 1
+chk '⑦ 쿠폰 미발송' scripts/audit/survey-notes.mjs 1
+# ★★[SV_DONE_CLOSE]·[SV_LABEL_KO] 2026-09-25 사장님 「여기 부분 디자이너 관점으로 개선」 — 고객 후기 완료 카드
+#   끝난 뒤엔 「마지막 단계」를 달지 않는다 · 가운데로 모아 맺는다(쿠폰 카드와 같은 말투) · 강조는 진사 「오래」 한 점.
+#   「마지막 단계」 라벨은 한글 소라벨로 — 영문 눈썹 서식(Cormorant 기울임·.22em)을 한글에 걸면 가짜 기울임에 흩어진다.
+chk 'SV_DONE_CLOSE' mypage.html 3
+chk 'SV_LABEL_KO' mypage.html 1
+chk 'res-panel done srv-done' mypage.html 1
+nochk '.srv-step-label{text-align:center;font-family:var(--serif);font-style:italic' mypage.html
 
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
