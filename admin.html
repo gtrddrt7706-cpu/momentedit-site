@@ -255,6 +255,36 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .sv-rev.pub{border-left:3px solid var(--gold-deeper,#9A7B3F)}
 .sv-rev-m{font-size:10.5px;color:var(--label-soft);margin-bottom:3px}
 .sv-rev-m span{color:var(--sub)}
+/* ★★[SV_RESP_VIEW 2026-09-25 사장님 지시 「관리자 페이지 설문조사 고객 페이지랑 동일하게 보여줘
+   선택한 거 전부 수기로 작성한 부분까지」] 한 고객의 설문을 **고객이 본 모양 그대로** 그린다.
+   질문 원문 → 보기 전부(고른 것만 채움) → 그 문항의 기타 의견 → 맨 아래 한마디.
+   ★고른 칩은 고객 화면의 .srv-opts button.on 과 같은 색(#4E3F31)이다 — «같은 화면»의 뜻이 그것이다.
+   ★다만 관리자에겐 하나를 더 한다: 아쉬움 쪽 답(SURVEY_Q.neg)은 붉은 톤으로 칠한다.
+     고객 화면엔 없는 표시지만, 관리자가 이 화면을 여는 이유가 «무엇을 고쳐야 하나»이기 때문이다. */
+.svr{border:1px solid var(--line,#E5E0D8);border-radius:10px;background:#fff;padding:4px 12px 12px;margin:8px 0 4px}
+.svr-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;font-size:12px;color:var(--sub);padding:9px 0 4px}
+.svr-h b{font-size:13px;color:var(--ink,#3A332B);font-weight:600}
+.svr-q{padding:11px 0 0;margin-top:9px;border-top:1px solid #F0ECE5}
+.svr-q:first-of-type{border-top:none;margin-top:0}
+.svr-qt{font-size:13px;color:var(--ink,#3A332B);line-height:1.5;margin-bottom:7px}
+.svr-qt .rq{color:#7A5F37;margin-left:2px}
+.svr-opts{display:flex;flex-wrap:wrap;gap:6px}
+.svr-o{font-size:12px;line-height:1.4;padding:6px 10px;border:1px solid var(--line,#E5E0D8);border-radius:8px;color:var(--label-soft,#7C766A);background:#fff}
+.svr-o.on{background:#4E3F31;border-color:#4E3F31;color:#fff;font-weight:500}
+.svr-o.on.neg{background:#8E3B32;border-color:#8E3B32}
+.svr-none{font-size:12px;color:var(--label-soft,#7C766A)}
+.svr-note{margin-top:8px;padding:8px 10px;border-left:3px solid #7A5F37;background:#FAF7F1;border-radius:0 6px 6px 0;font-size:12.5px;line-height:1.65;color:var(--ink,#3A332B);white-space:pre-wrap;word-break:keep-all}
+.svr-note i{font-style:normal;font-size:11px;color:#7A5F37;display:block;margin-bottom:2px}
+.svr-rev{margin-top:12px;padding:10px 12px;border-radius:8px;background:#FAF7F1;font-size:13px;line-height:1.7;color:var(--ink,#3A332B);white-space:pre-wrap;word-break:keep-all}
+.svr-rev i{font-style:normal;font-size:11px;color:#7A5F37;display:block;margin-bottom:3px}
+.svr-legacy{font-size:11px;color:var(--label-soft,#7C766A);margin-top:10px}
+.svr-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:8px;padding:9px 11px;margin-bottom:7px;font-size:12.5px}
+.svr-row .nm{font-weight:600;color:var(--ink,#3A332B)}
+.svr-row .mt{color:var(--sub);font-size:11.5px}
+.svr-row .tg{font-size:11px;padding:2px 7px;border-radius:999px;background:#F3EDE2;color:#7A5F37}
+.svr-row .tg.neg{background:#FBF1EF;color:#8E3B32}
+.svr-row .rv{flex-basis:100%;color:var(--ink,#3A332B);line-height:1.6;white-space:pre-wrap;word-break:keep-all}
+.svr-row button{margin-left:auto;border:1px solid var(--line,#E5E0D8);background:#fff;border-radius:7px;padding:7px 11px;font-size:12px;color:var(--ink,#3A332B);cursor:pointer;min-height:36px}
 .sv-rev-m b{color:var(--gold-deeper,#9A7B3F)}.sv-rev-m i{color:var(--label-soft);font-style:normal}
 /* [SV_DIGEST] 설문 결과 요약화(2026-08-01) — 응답 1건인데도 14개 문항 막대가 전부 '100%'로
    깔려 화면이 정신없다는 지적. 막대는 '분포'를 보라고 만든 물건인데 n이 작을 땐 분포가 없다.
@@ -1951,8 +1981,8 @@ var SURVEY_Q = {
   styling:{t:'스타일링',o:{great:'만족',ok:'보통',poor:'아쉬움'},neg:['poor']},
   overall:{t:'종합 만족',o:{very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'},neg:['neutral','low']},
   recommend:{t:'추천 의향',o:{definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'},neg:['unsure']},
-  source:{t:'유입 경로',o:{insta:'인스타그램',friend:'지인소개',search:'검색',sns:'유튜브·블로그',etc:'그외'}},
-  reason:{t:'결정 이유',o:{mood:'감성·분위기',allinone:'올인원',price:'가격·투명성',review:'후기·평판',etc:'그외'}},
+  source:{t:'유입 경로',o:{insta:'인스타그램',friend:'지인소개',search:'검색',sns:'유튜브·블로그',etc:'기타'}},
+  reason:{t:'결정 이유',o:{mood:'감성·분위기',allinone:'올인원',price:'가격·투명성',review:'후기·평판',etc:'기타'}},
   gap:{t:'놓친 부분(안전망)',o:{none:'없음',minor:'사소',some:'있음'},neg:['minor','some']}
 };
 var SURVEY_ORDER=['pace','transparency','family','result','ceremony','space','dining','shoot','styling','source','reason','overall','recommend','gap'];
@@ -1970,6 +2000,50 @@ function _svTop(q){   // 한 문항에서 가장 많이 나온 값 → {v, c}
   return best;
 }
 function _svLabel(k,val){ var m=SURVEY_Q[k]; return (m && m.o[val]) || val; }
+/* ★★[SV_RESP_VIEW] 한 고객의 설문 응답을 «고객이 본 모양 그대로» 그린다 — 상세와 홈이 함께 쓴다.
+   sp = 설문응답 JSON({answers, notes, snap, review, reviewPublic}).
+   ★snap(제출 시점 화면)이 있으면 그것으로 그린다 — 질문·보기 문구가 고객이 본 원문이다.
+   ★snap 이 없는 옛 응답은 SURVEY_Q(관리자 약칭)로 그리고, 그렇다고 한 줄 밝힌다.
+     옛 응답을 새 문구로 «고객이 본 척» 그리지 않는다 — 그 고객이 본 화면이 아니기 때문이다. */
+function svResponseHtml(sp, head){
+  sp=sp||{}; var ans=sp.answers||{}, notes=sp.notes||{}, items=[], legacy=false;
+  if(sp.snap && sp.snap.length){
+    items=sp.snap.map(function(x){ return { k:x.k, q:x.q, req:!!x.req, v:(ans[x.k]!=null?String(ans[x.k]):String(x.v||'')), o:(x.o||[]) }; });
+  } else {
+    legacy=true;
+    SURVEY_ORDER.forEach(function(k){ var m=SURVEY_Q[k]; if(!m) return;
+      if(ans[k]==null && !notes[k]) return;   // 옛 응답은 상품별 문항이 달라 — 받은 문항만 그린다
+      items.push({ k:k, q:m.t, req:(k==='overall'||k==='recommend'), v:String(ans[k]||''), o:Object.keys(m.o).map(function(v){ return [v,m.o[v]]; }) });
+    });
+  }
+  /* ★[SV_ALL_SHOWN 2026-09-25] 위에서 그린 문항에 없는 답·기타 의견도 버리지 않는다 — 「수기로 적은 부분까지 전부」.
+     종전엔 snap 에 없는 문항의 기타 의견이 조용히 빠졌다(주입 감사가 잡았다: 의견 2건 중 1건만 보였다).
+     새 응답은 화면에 그린 문항만 보내 이런 일이 없지만, 옛 응답·문항표에 없는 키·잘린 snap 은 여기로 온다.
+     원문 질문을 모르니 관리자 약칭(없으면 키)으로 적고, 고른 답 하나만 보인다. */
+  var seen=Object.create(null); items.forEach(function(it){ seen[it.k]=1; });
+  Object.keys(ans).concat(Object.keys(notes)).forEach(function(k){
+    if(seen[k]) return; seen[k]=1;
+    var m=SURVEY_Q[k], v=(ans[k]!=null?String(ans[k]):'');
+    items.push({ k:k, q:(m?m.t:k), v:v, o:(v?[[v,_svLabel(k,v)]]:[]) });
+  });
+  var h='<div class="svr">'+(head?('<div class="svr-h">'+head+'</div>'):'');
+  items.forEach(function(it){
+    var neg=(SURVEY_Q[it.k]&&SURVEY_Q[it.k].neg)||[];
+    h+='<div class="svr-q"><div class="svr-qt">'+esc(it.q)+(it.req?'<span class="rq">*</span>':'')+'</div>';
+    if(it.o.length){
+      h+='<div class="svr-opts">'+it.o.map(function(o){
+        var on=(String(o[0])===it.v);
+        return '<span class="svr-o'+(on?' on':'')+(on&&neg.indexOf(it.v)>=0?' neg':'')+'">'+esc(o[1])+'</span>';
+      }).join('')+'</div>';
+    }
+    if(!it.v) h+='<div class="svr-none">답하지 않음</div>';
+    if(notes[it.k]) h+='<div class="svr-note"><i>기타 의견</i>'+esc(notes[it.k])+'</div>';
+    h+='</div>';
+  });
+  if(sp.review) h+='<div class="svr-rev"><i>한마디'+(sp.reviewPublic==='Y'?' · 소개에 써도 좋아요(공개동의)':'')+'</i>'+esc(sp.review)+'</div>';
+  if(legacy) h+='<div class="svr-legacy">이 응답은 문항 원문이 함께 저장되기 전(2026-09-25 이전) 것이라 관리자 약칭으로 보여요.</div>';
+  return h+'</div>';
+}
 function renderSurvey(d){
   var wrap=$('surveyWrap'); if(!wrap) return;
   var sv=d.survey||{n:0,q:{},recent:[]};
@@ -2023,16 +2097,62 @@ function renderSurvey(d){
     html+='<details class="sv-fold"><summary>문항별 분포 <span class="n">'+qCount+'문항</span></summary><div class="sv-fold-in">'+qs+'</div></details>';
   }
 
-  // ── ⑦ [접힘] 후기 전문
-  var revs=(sv.recent||[]).filter(function(x){ return x.review; });
-  if(revs.length){
-    var pub=revs.filter(function(x){ return x.reviewPublic==='Y'; }).length;
-    var rv=revs.slice(0,12).map(function(x){ return '<div class="sv-rev'+(x.reviewPublic==='Y'?' pub':'')+'"><div class="sv-rev-m">'+esc(x.names||x.code)+' <span>'+esc(prodLabel(x.product))+'</span>'+(x.reviewPublic==='Y'?' <b>공개동의</b>':' <i>비공개</i>')+(x.gap&&x.gap!=='none'?' <b style="color:#8a5a1a">개선의견</b>':'')+'</div>“'+esc(x.review)+'”</div>'; }).join('');
-    html+='<details class="sv-fold"><summary>후기 <span class="n">'+revs.length+'건'+(pub?(' · 공개동의 '+pub):'')+'</span></summary><div class="sv-fold-in">'+rv+'</div></details>';
+  /* ── ⑦ [접힘] 응답 원문 — ★★[SV_RESP_VIEW 2026-09-25]
+     종전엔 «후기(한마디)를 쓴 응답»만 모았다. 한마디를 안 쓰고 보기만 고른 응답은 여기서 아예 안 보였고,
+     고른 답도 종합·추천 두 개만 알 수 있었다. 이제 **모든 응답**을 한 줄씩 늘어놓고,
+     「전체 응답 보기」를 누르면 그 자리에서 고객이 본 화면 그대로(보기 전부·기타 의견·한마디) 펼친다.
+     ★펼칠 때 상세를 한 번 불러온다 — 홈 데이터에 원문을 다 실으면 조용한 갱신마다 무거워진다. */
+  var all=(sv.recent||[]);
+  if(all.length){
+    var pub=all.filter(function(x){ return x.reviewPublic==='Y'; }).length;
+    /* 요약의 «기타 의견 N»은 의견 «개수»다 — 줄마다 붙는 「기타 의견 2」와 같은 것을 센다.
+       응답 수를 세면 요약은 1, 바로 아래 줄은 2 가 되어 같은 이름이 다른 것을 센다. */
+    var withNotes=all.reduce(function(a,x){ return a+(Number(x.notesN)>0?Number(x.notesN):0); },0);
+    var withRev=all.filter(function(x){ return x.review; }).length;
+    var lbO={very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'}, lbR={definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'};
+    var rows=all.slice(0,20).map(function(x,i){
+      var negO=(x.overall==='neutral'||x.overall==='low'), negR=(x.recommend==='unsure'), negG=(x.gap==='minor'||x.gap==='some');
+      return '<div class="svr-row" data-sv-row="'+i+'">'
+        +'<span class="nm">'+esc(x.names||x.code)+'</span><span class="mt">'+esc(prodLabel(x.product))+(x.date?(' · '+esc(x.date)):'')+'</span>'
+        +(x.overall?'<span class="tg'+(negO?' neg':'')+'">종합 '+esc(lbO[x.overall]||x.overall)+'</span>':'')
+        +(x.recommend?'<span class="tg'+(negR?' neg':'')+'">추천 '+esc(lbR[x.recommend]||x.recommend)+'</span>':'')
+        +(negG?'<span class="tg neg">놓친 부분 있음</span>':'')
+        +(Number(x.notesN)>0?'<span class="tg">기타 의견 '+Number(x.notesN)+'</span>':'')
+        +(x.reviewPublic==='Y'?'<span class="tg">공개동의</span>':'')
+        +'<button type="button" data-sv-open="'+esc(x.code)+'" data-sv-i="'+i+'">전체 응답 보기</button>'
+        +(x.review?'<div class="rv">'+esc(x.review)+'</div>':'')
+        +'<div class="sv-full" data-sv-full="'+i+'" hidden></div>'
+        +'</div>';
+    }).join('');
+    var bits2=[all.length+'건']; if(withNotes) bits2.push('기타 의견 '+withNotes); if(withRev) bits2.push('한마디 '+withRev); if(pub) bits2.push('공개동의 '+pub);
+    html+='<details class="sv-fold"'+(withNotes?' open':'')+'><summary>응답 원문 <span class="n">'+bits2.join(' · ')+'</span></summary><div class="sv-fold-in">'+rows
+      +(all.length>20?'<div class="svr-legacy">최근 20건만 보여요 · 더 오래된 응답은 고객 상세에서 볼 수 있어요.</div>':'')+'</div></details>';
   }
 
   wrap.innerHTML=html;
 }
+/* [SV_RESP_VIEW] 홈 「응답 원문」의 «전체 응답 보기» — 누를 때 상세를 한 번 불러와 그 자리에 펼친다.
+   ★실패하면 말한다(조용히 빈 칸을 남기지 않는다) · 두 번째 누름은 접기. */
+document.addEventListener('click', function(e){
+  var b=e.target&&e.target.closest?e.target.closest('[data-sv-open]'):null; if(!b) return;
+  var i=b.getAttribute('data-sv-i'), box=document.querySelector('[data-sv-full="'+i+'"]'); if(!box) return;
+  /* ★펼치면 줄의 한마디 미리보기를 숨긴다 — 펼친 화면 맨 아래에 같은 한마디가 또 나온다.
+     같은 말을 한 화면에 두 번 두지 않는다(NOW_NO_MONEY 와 같은 이유). 접으면 다시 보인다. */
+  var row=b.closest('.svr-row'), pv=row&&row.querySelector('.rv');
+  if(!box.hidden){ box.hidden=true; if(pv) pv.hidden=false; b.textContent='전체 응답 보기'; return; }
+  if(box.getAttribute('data-loaded')==='1'){ box.hidden=false; if(pv) pv.hidden=true; b.textContent='접기'; return; }
+  b.disabled=true; b.textContent='불러오는 중';
+  gas('adminDetail', b.getAttribute('data-sv-open')).then(function(d){
+    b.disabled=false;
+    /* ★[SV_OPEN_RETRY] 서버가 거절하면(세션 만료 등) «원문이 없다»로 읽지 않는다 — 실패는 알리고, 캐시하지 않아 다시 누르면 재시도한다.
+       종전엔 거절도 「찾지 못했어요」로 적고 data-loaded 를 박아, 다시 눌러도 그 문장만 나왔다. openDetail 과 같은 처리다. */
+    if(!d||!d.ok){ b.textContent='전체 응답 보기'; toast((d&&d.error)||'불러오지 못했어요 · 잠시 후 다시 눌러 주세요'); return; }
+    var rawS=d.raw&&d.raw['설문응답'];
+    if(!rawS){ box.innerHTML='<div class="svr-legacy">응답 원문을 찾지 못했어요 · 고객 상세에서 확인해 주세요.</div>'; }
+    else { try{ box.innerHTML=svResponseHtml(JSON.parse(rawS), ''); }catch(_e){ box.innerHTML='<div class="svr-legacy">응답을 읽지 못했어요 · 시트의 설문응답 칸을 확인해 주세요.</div>'; } }
+    box.setAttribute('data-loaded','1'); box.hidden=false; if(pv) pv.hidden=true; b.textContent='접기';
+  }).catch(function(){ b.disabled=false; b.textContent='전체 응답 보기'; toast('불러오지 못했어요 · 잠시 후 다시 눌러 주세요'); });
+});
 function renderResults(d){
   var wrap=$('resultsWrap'); if(!wrap) return;
   var list=d.results||[];
@@ -2714,9 +2834,12 @@ function cardResult(d,isSnap){
   if(ex && ex!=='대기'){ var exu=(exq>0&&exa>0)?Math.round(exa/exq):20000;
     raw+='<div class="res-ex">추가 보정 <b>'+esc(ex)+'</b> · '+exq+'컷 × '+exu.toLocaleString()+' = <b>'+exa.toLocaleString()+'원</b>'+(r['추가보정입금자명']?(' · 입금자 '+esc(r['추가보정입금자명'])):'')+'</div>'; }
   // 마지막 설문(만족도)
-  if(r['설문응답']){ try{ var sp=JSON.parse(r['설문응답']); var sa=sp.answers||{}; var bits=[];
-    SURVEY_ORDER.forEach(function(k){ if(sa[k]){ var q=SURVEY_Q[k]; bits.push((q?q.t:k)+' '+((q&&q.o[sa[k]])||sa[k])); } });
-    raw+='<div class="res-ex">설문'+(r['설문일시']?(' · '+esc(r['설문일시'])):'')+(sp.reviewPublic==='Y'?' · <b style="color:var(--gold-deeper)">공개동의</b>':'')+(bits.length?('<div class="res-sel-list">'+esc(bits.join(' · '))+'</div>'):'')+(sp.review?'<div class="res-sel-list">“'+esc(sp.review)+'”</div>':'')+'</div>'; }catch(e){} }
+  /* ★★[SV_RESP_VIEW] 종전엔 한 줄 요약(「140분 호흡 딱 좋음 · 올인원 투명성 투명 · …」)이었다 —
+     약칭이라 고객이 본 문구가 아니고, 안 고른 보기가 안 보여 «셋 중 무엇을 골랐나»를 모르고,
+     수기로 쓴 말은 아예 없었다. 이제 고객 화면 그대로 전부 그린다. */
+  if(r['설문응답']){ try{ var sp=JSON.parse(r['설문응답']);
+    raw+=svResponseHtml(sp, '<b>설문 응답</b>'+(r['설문일시']?(' · '+esc(r['설문일시'])):'')+(sp.reviewPublic==='Y'?' · <b style="color:var(--gold-deeper)">공개동의</b>':''));
+  }catch(e){ raw+='<div class="res-ex">설문 응답을 읽지 못했어요 · 시트의 설문응답 칸을 확인해 주세요</div>'; } }
   var b='', st=d.stage, exPay=(ex==='결제대기'), rstt=stt;
   /* ★★[EVENT_BTN_WIDE 2026-08-17 stage-reach 도달성 검사가 찾음] 시그니처는 «입금완료»에서도 낸다.
      서버는 이미 입금완료·제작중 둘 다 받는다(admin.gs 1845 EVENT_GATE_WIDE) · 홈 큐도 둘 다 띄운다(admin.gs 819).

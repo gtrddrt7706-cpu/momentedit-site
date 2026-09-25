@@ -10,8 +10,13 @@ const { launchBrowser } = await import('./_browser.mjs');
 const PORT = 8139; const { G, world } = openWorld();
 const XSS = '<img src=x onerror="window.__xss=1">'; const XSS2 = '"><svg onload="window.__xss=2">'; const JSU = 'javascript:window.__xss=3';
 const REC = JSON.stringify({ 시착:'2026-07-01', 계약:'2026-07-02' });
-const A = { 개인코드:'ME-A', 신랑이름: XSS, 신부이름: XSS2, 연락처:'010-1234-5678', 이메일:'t@example.com', 현재단계:'제작중', 계약상태:'서명완료', 계약총액:'2500000', 예식일:'2026-10-26', 입금상태:'확인', 입금자명: XSS, 입금완료신호:'2026-07-01 10:00', 시착동의상태:'동의완료', 관리자메모: XSS, 원본링크: JSU, 동의기록:REC };
-const HOME = { ok:true, name: XSS, counts:{ total:2, urgent:1 }, queue:{ urgent:[ {kind:'입금확인', code:'ME-A', names: XSS, sub: XSS2, badge:{ level:'red', text: XSS }} ], normal:[ {kind:'상담완료', code:'ME-A', names:'정상 · 이름', sub:'부제 ' + XSS, badge:{ level:'yellow', text:'벌수 미기록' }} ] }, results:[ { code:'ME-A', names: XSS, stage:'결과물전달', sub: XSS2 } ], pipeline:{ '제작중':[{ code:'ME-A', names: XSS }] }, survey:[ { code:'ME-A', names: XSS, text: XSS2, score: 5 } ], blocks:[], stageFlow:{}, stageEx:[] };
+/* [SV_RESP_VIEW 2026-09-25] 설문 원문 — 관리자 화면이 고객이 쓴 글을 그대로 그린다(기타 의견·한마디·문항 원문).
+   종전 픽스처는 홈 설문을 옛 모양(배열)으로 흉내 내 설문 영역이 «빈 상태»로만 그려졌다 — 검사한다고 적혀 있었지만 실제로는 안 봤다. */
+const SVX = JSON.stringify({ product:'시그니처', answers:{ overall:'very', recommend:'definitely', source:'etc' },
+  notes:{ overall: XSS, source: XSS2 }, snap:[ { k:'source', q: XSS2, req:0, v:'etc', o:[ ['etc', XSS], ['sns', '인스타그램'] ] } ],
+  review: XSS, reviewPublic:'Y' });
+const A = { 개인코드:'ME-A', 신랑이름: XSS, 신부이름: XSS2, 연락처:'010-1234-5678', 이메일:'t@example.com', 현재단계:'제작중', 계약상태:'서명완료', 계약총액:'2500000', 예식일:'2026-10-26', 입금상태:'확인', 입금자명: XSS, 입금완료신호:'2026-07-01 10:00', 시착동의상태:'동의완료', 관리자메모: XSS, 원본링크: JSU, 동의기록:REC, 설문상태:'완료', 설문응답: SVX, 설문일시:'2026-09-24 15:20' };
+const HOME = { ok:true, name: XSS, counts:{ total:2, urgent:1 }, queue:{ urgent:[ {kind:'입금확인', code:'ME-A', names: XSS, sub: XSS2, badge:{ level:'red', text: XSS }} ], normal:[ {kind:'상담완료', code:'ME-A', names:'정상 · 이름', sub:'부제 ' + XSS, badge:{ level:'yellow', text:'벌수 미기록' }} ] }, results:[ { code:'ME-A', names: XSS, stage:'결과물전달', sub: XSS2 } ], pipeline:{ '제작중':[{ code:'ME-A', names: XSS }] }, survey:{ n:1, byProduct:{ '시그니처':1 }, q:{ overall:{ very:1 }, recommend:{ definitely:1 } }, recent:[ { code:'ME-A', names: XSS, product: XSS2, overall:'very', recommend:'definitely', gap:'', review: XSS, reviewPublic:'Y', date: XSS2, notesN:2 } ] }, blocks:[], stageFlow:{}, stageEx:[] };
 let MODE = 'ok';
 function serverCall(p) { try { if (p.action !== 'adminCall') return { ok:true }; const fn = String(p.fn||''); if (MODE === 'badtoken') return { ok:false, error:'로그인이 필요해요 · 세션 만료' }; if (fn === 'adminHome') return HOME; if (fn === 'adminSearch') return { ok:true, results:[{ code:'ME-A', names: XSS, product: XSS2, stage: XSS, wedding: XSS2 }] }; world(Object.assign({}, A), { 개인코드:'ME-A', 상태:'확정', '성함(신랑)': XSS, '성함(신부)': XSS2 }); if (typeof G[fn] !== 'function') return { ok:false, error:'없는 함수: '+fn }; const r = G[fn].apply(null, p.args||[]); return r === undefined ? { ok:true } : r; } catch (e) { return { ok:false, error:String(e&&e.message||e) }; } }
 const server = spawn('python3', ['-m','http.server',String(PORT),'--directory',SITE], { stdio:'ignore' }); process.on('exit', () => { try { server.kill(); } catch {} });
@@ -35,10 +40,18 @@ const probe = (page, root) => page.evaluate((root) => { const r = document.query
   console.log('\n[S3] 홈(큐·결과·파이프·후기)·검색·최근·상세·토스트에 넣은 태그가 실행되지 않고 글자로만 남는다');
   MODE = 'ok'; await page.evaluate(() => localStorage.setItem('me_admin_token','SHOT-TOKEN')); await page.goto(`http://localhost:${PORT}/admin.html`, { waitUntil:'domcontentloaded' }); await page.waitForTimeout(900);
   const h = await probe(page, '#homeView'); ok(h.xss === undefined && h.img === 0, '홈: 주입 태그 미실행(img/svg 0)', JSON.stringify(h)); ok(h.literal, '홈: 주입 문자열이 글자로 보인다(이스케이프)', JSON.stringify(h));
+  { const sv0 = await page.evaluate(() => ({ rows: document.querySelectorAll('#surveyWrap .svr-row').length, btn: !!document.querySelector('#surveyWrap [data-sv-open]') }));
+    ok(sv0.rows === 1 && sv0.btn, '홈 설문: 응답 줄이 그려진다(빈 상태가 아니다)', JSON.stringify(sv0));
+    await page.evaluate(() => { const b = document.querySelector('#surveyWrap [data-sv-open]'); if (b) b.click(); }); await page.waitForTimeout(700);
+    const sv1 = await page.evaluate(() => { const f = document.querySelector('#surveyWrap .sv-full'); return { open: !!f && !f.hidden, notes: f ? f.querySelectorAll('.svr-note').length : 0, txt: f ? f.textContent.indexOf('<img') !== -1 : false }; });
+    ok(sv1.open && sv1.notes === 2 && sv1.txt, '홈 설문 펼침: 원문·기타 의견이 글자로 보인다', JSON.stringify(sv1));
+    const sv2 = await probe(page, '#surveyWrap'); ok(sv2.xss === undefined && sv2.img === 0, '홈 설문 펼침: 주입 태그 미실행(기타 의견·문항·보기·한마디)', JSON.stringify(sv2)); }
   await page.evaluate(() => { document.getElementById('q').value = 'x'; window.doSearch(); }); await page.waitForTimeout(700);
   const sr = await probe(page, '#queueWrap'); ok(sr.xss === undefined && sr.img === 0, '검색 결과: 미실행', JSON.stringify(sr));
   await page.evaluate(() => window.openDetail('ME-A','home')); await page.waitForTimeout(900);
   const d = await probe(page, '#detailView'); ok(d.xss === undefined && d.img === 0, '상세: 미실행(이름·입금자명·메모)', JSON.stringify(d)); ok(d.js === 0, '상세: javascript: 링크 없음', 'js=' + d.js);
+  { const dv = await page.evaluate(() => { const v = document.querySelector('#detailView'); const svr = v && v.querySelector('.svr'); return { svr: !!svr, notes: svr ? svr.querySelectorAll('.svr-note').length : 0, opts: svr ? svr.querySelectorAll('.svr-o').length : 0, txt: svr ? svr.textContent.indexOf('<img') !== -1 : false }; });
+    ok(dv.svr && dv.notes === 2 && dv.opts >= 2 && dv.txt, '상세 설문: 고객 화면 그대로(보기·기타 의견)가 글자로 보인다', JSON.stringify(dv)); }
   const memo = await page.evaluate(() => { const t = document.querySelector('#detailBody textarea'); return t ? t.value : ''; }); ok(memo.indexOf('<img') !== -1 || memo === '', '메모 입력칸엔 원문 그대로(값), 실행은 없음', memo.slice(0,60));
   await page.evaluate(() => window.loadHome()); await page.waitForTimeout(700);
   const rc = await probe(page, '#recentWrap'); ok(rc.xss === undefined && rc.img === 0, '최근 본 고객 칩: 미실행', JSON.stringify(rc));

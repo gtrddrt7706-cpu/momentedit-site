@@ -555,7 +555,12 @@ function adminHome() {
     surveyAgg.n++;
     surveyAgg.byProduct[product] = (surveyAgg.byProduct[product] || 0) + 1;
     for (k in ans) { if (ans.hasOwnProperty(k)) { var v = String(ans[k] || ''); if (!v) continue; if (!surveyAgg.q[k]) surveyAgg.q[k] = {}; surveyAgg.q[k][v] = (surveyAgg.q[k][v] || 0) + 1; } }
-    if (surveyAgg.recent.length < 40) surveyAgg.recent.push({ code: code, names: names, product: product, overall: String(ans.overall || ''), recommend: String(ans.recommend || ''), gap: String(ans.gap || ''), review: String(parsed.review || ''), reviewPublic: String(parsed.reviewPublic || ''), date: String(cget(rv, '설문일시') || '') });
+    if (surveyAgg.recent.length < 40) surveyAgg.recent.push({ code: code, names: names, product: product, overall: String(ans.overall || ''), recommend: String(ans.recommend || ''), gap: String(ans.gap || ''), review: String(parsed.review || ''), reviewPublic: String(parsed.reviewPublic || ''), date: String(cget(rv, '설문일시') || ''),
+      notesN: (function () { var nn = 0, nt = (parsed && parsed.notes) || {}, x; for (x in nt) { if (nt.hasOwnProperty(x) && String(nt[x] || '').trim()) nn++; } return nn; })() });
+    /* ★[SV_HOME_NOTESN 2026-09-25] notesN — 이 응답에 문항별 기타 의견이 몇 건 있는지.
+       홈은 집계만 보여 주므로, 수기 의견이 있는 응답을 «열어 볼 가치가 있다»고 표시할 근거가 필요하다.
+       원문은 싣지 않는다(홈은 조용한 갱신마다 오간다 · 40건 × 의견이면 무겁다) — 상세에서 본다. */
+    var _shMark = '[SV_HOME_NOTESN]';
   }
 
   // ── Customers 순회: 여정 트리거 + 현황 ──
