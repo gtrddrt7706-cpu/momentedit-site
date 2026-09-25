@@ -767,6 +767,54 @@
    "fn": "_nfCustomerEmailFallback",
    "mark": "MAIL_FOCUS_URL",
    "why": "알림톡 대신 나가는 고객 메일에서 주소를 버튼으로 옮기는 자리. 이 파일이 옛것이면 메일 본문 끝에 momentedit.kr/mypage.html?focus=… 가 글자로 찍힌다"
+  },
+  {
+   "file": "00_platform-config",
+   "fn": "_crKR",
+   "mark": "PHONE_AUTOFILL_82",
+   "why": "현금영수증 번호의 «8210…»(자동완성 +82 를 숫자만 남긴 값)을 010 으로 바꾸는 자리. 이 파일이 옛것이면 70_journey 가 숫자만 남기기로 물러나 «821073497706» 이 그대로 저장되고 관리자가 그 번호를 홈택스에 넣는다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_crNum",
+   "mark": "PHONE_AUTOFILL_82",
+   "why": "계약 요청·입금 신고·번호 등록·발급 대상 읽기 다섯 곳이 거치는 현금영수증 정규화 자리. 이 파일이 옛것이면 자동완성 +82 번호가 12자리로 저장된다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "PHONE_AUTOFILL_82",
+   "why": "상담 예약 화면에서 받은 현금영수증 번호를 010 으로 바꾸는 자리. 이 파일이 옛것이면 예약 단계 번호가 «8210…» 으로 저장된다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_maskPII",
+   "mark": "PHONE_AUTOFILL_82",
+   "why": "AI 상담 질문 로그에서 «+82 10-…» 꼴 번호를 가리는 자리. 이 파일이 옛것이면 국가번호 꼴 번호가 가려지지 않은 채 90일 저장된다"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "sendFindCodeKakao",
+   "mark": "PHONE_AUTOFILL_82",
+   "why": "코드 찾기 알림톡을 보내기 전에 번호를 010 으로 바꾸고, 틀린 번호면 메일로 돌리는 자리. 이 파일이 옛것이면 «8210…» 로 알림톡이 반려되고 오류 메일만 남는다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_kakaoSend",
+   "mark": "BADPHONE_MAIL",
+   "why": "연락처가 틀린 고객에게 알림톡 대신 메일을 보내는 자리. 이 파일이 옛것이면 그런 고객은 알림톡도 메일도 아무것도 못 받는다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_kakaoSend",
+   "mark": "MAIL_COUNTS_AS_SENT",
+   "why": "알림톡 대신 메일이 간 알림을 «전달됨»으로 돌려주는 자리. 이 파일이 옛것이면 밤사이 보류 알림이 같은 메일로 아침마다 최대 세 번 가고 관리자에게 「세 번 실패」 메일까지 간다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "REVIEW_EXIT_HIDE",
+   "why": "취소·노쇼·미계약 고객의 후기를 후기 목록·새 후기 알림·집계에서 빼는 자리. 이 파일이 옛것이면 취소한 고객 후기가 «확인한 후기»에 그대로 남는다"
   }
  ],
  "fns": {
@@ -774,6 +822,7 @@
    "stageFlowFor",
    "nextActionFor",
    "_phoneKR",
+   "_crKR",
    "_dsGlobalScope",
    "_dsGlobalSig",
    "deployFingerprint",
@@ -900,6 +949,7 @@
    "buildChangeState",
    "handlePaymentSignal",
    "_saveCashReceipt",
+   "_crNum",
    "_cashReceiptOf",
    "handleSaveCashReceipt",
    "_cashReceiptLedger",
@@ -1634,19 +1684,21 @@
    "marks": [
     "CONTACT_FIX",
     "BUSY_ONE",
+    "PHONE_AUTOFILL_82",
     "ADMIN_NOFEE_LINE",
     "PRICE_2026_08"
    ],
-   "bytes": 99127
+   "bytes": 99982
   },
   {
    "file": "ScreenA_apply",
    "marks": [
     "BUSY_ONE",
     "SEATED30",
-    "LOADING_ONE"
+    "LOADING_ONE",
+    "PHONE_AUTOFILL_82"
    ],
-   "bytes": 142197
+   "bytes": 143051
   },
   {
    "file": "ScreenB_schedule",
@@ -1666,7 +1718,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-25 10:07 · 9147ad78",
+ "_생성": "2026-09-25 12:06 · ae96253",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1970,5 +2022,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "da1eb4975cf0"
+ "_표식서명": "55982e8a5ab0"
 }

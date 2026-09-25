@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="/shared/preview-guard.js"></script><!-- [PREVIEW_GUARD] 운영 주소가 아니면 GAS 연결을 막는다 · 운영에서는 아무 일도 안 한다 · 맨 앞이어야 한다 -->
+<script src="/shared/tel-kr.js"></script><!-- [PHONE_AUTOFILL_82] 자동완성 «+82 10-…» 를 010… 으로 · 번호 칸 oninput 이 부른다 -->
 <base target="_top">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
@@ -1644,7 +1645,7 @@ function prodLabel(p){ return snap(p)?'스냅':'시그'; }
 /* 시각 표기 — "YYYY-MM-DD HH:mm" → "M/D HH:mm"(올해 연도 생략) */
 function fmtDT(s){ var m=String(s||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/); if(!m) return esc(s||''); var yr=(+m[1]!==new Date().getFullYear())?(m[1]+'/'):''; return yr+(+m[2])+'/'+(+m[3])+' '+m[4]+':'+m[5]; }
 function fmtDate(ymd){ var m=String(ymd||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return esc(ymd||''); var d=new Date(+m[1],+m[2]-1,+m[3]); return (+m[2])+'/'+(+m[3])+'('+WD[d.getDay()]+')'; }
-function fmtCRTarget(s){ var n=String(s||'').replace(/[^0-9]/g,''); if(n.length===11) return n.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3'); if(n.length===10) return n.replace(/(\d{3})(\d{2})(\d{5})/,'$1-$2-$3'); return String(s||''); }   // 휴대폰(11)/사업자(10) 가독성
+function fmtCRTarget(s){ var n=window.meTelDigits?meTelDigits(s):String(s||'').replace(/[^0-9]/g,'');   /* [PHONE_AUTOFILL_82] 저장된 «8210…» 도 010 으로 읽는다 */ if(n.length===11) return n.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3'); if(n.length===10) return n.replace(/(\d{3})(\d{2})(\d{5})/,'$1-$2-$3'); return String(s||''); }   // 휴대폰(11)/사업자(10) 가독성
 function ddayLabel(n,isSnap){ if(n==null) return ''; var w=isSnap?'촬영':'예식'; if(n>0) return w+' D-'+n; if(n<0) return w+' D+'+(-n); return w+' D-day'; }
 function stageStyle(s){ var c=STAGE_COLOR[s]||['#EEE','#555']; return 'background:'+c[0]+';color:'+c[1]; }
 function designLabel(v){ var n=('0'+String(v||'').replace(/[^0-9]/g,'')).slice(-2); return DESIGNS[n]?(n+' '+DESIGNS[n]):(v?('디자인 '+n):''); }
@@ -2299,7 +2300,7 @@ function renderDetail(d){
      '<span class="pchip">'+esc(d.product||'-')+'</span><span class="code">'+esc(d.code)+'</span></div></div>';
   // 연락
   h+='<div class="contact">';
-  if(d.phone) h+='<a href="tel:'+esc(d.phone.replace(/[^0-9+]/g,''))+'">전화</a>';
+  if(d.phone) h+='<a href="tel:'+esc(window.meTelDigits?meTelDigits(d.phone):d.phone.replace(/[^0-9+]/g,''))+'">전화</a>';   // [PHONE_AUTOFILL_82] «8210…» 로 걸면 엉뚱한 번호가 된다
   if(d.phone) h+='<button id="copyPhone">연락처 복사</button>';
   if(d.email) h+='<a href="mailto:'+esc(d.email)+'">메일</a>';
   /* ★★[CONTACT_FIX 2026-09-21 사장님 지적 「고객이 핸드폰번호를 잘못입력했는데 … 관리자 페이지
@@ -3151,7 +3152,7 @@ function renderSilentContacts(){
 }
 /* ★[CONTACT_FIX] 95_notify.gs 의 발송 판정·admin.gs 의 저장 판정과 «같은 자»다.
    자를 따로 쓰면 「화면은 괜찮다는데 알림은 안 가는」 상태가 또 생긴다. 셋이 같아야 한다. */
-function _phoneOk(v){ return /^01[016789][0-9]{7,8}$/.test(String(v||'').replace(/[^0-9]/g,'')); }
+function _phoneOk(v){ return /^01[016789][0-9]{7,8}$/.test(window.meTelDigits?meTelDigits(v):String(v||'').replace(/[^0-9]/g,'')); }   // [PHONE_AUTOFILL_82] «+82 10-…» 도 서버(_phoneKR)처럼 받는다
 function _emailOk(v){ return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(v||'').trim()); }
 /* [CONTACT_FIX] 연락처·이메일 정정 — 미리보기 먼저, 그다음 실행(ADM_AC1 과 같은 2단 관례).
    ★사유를 받는 이유: 이력에 «누가 왜 바꿨는지»가 남아야 나중에 근거가 된다.

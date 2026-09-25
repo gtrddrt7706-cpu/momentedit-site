@@ -108,6 +108,7 @@ var NOTIFY_EVENTS = {
  */
 function notifyKakao(event, code, extra) {
   // [NOTIFY_SENT_RET 2026-07-25] 발송 결과 반환 — true(발송)·'held'(야간 보류=아침 발송 예정)·'off'(전역 발송 OFF=의도된 미발송)·false(미발송).
+  //   ·'mailed'(알림톡은 못 갔지만 대체 메일이 감 · MAIL_COUNTS_AS_SENT 2026-09-25)
   //   기존 호출부는 반환값을 안 쓰므로 호환 유지. admin.gs 결과물 전달의 '알림 이중 실패 감지'가 사용('held'·'off'는 실패로 안 침).
   try {
     var meta = NOTIFY_EVENTS[event];
@@ -150,6 +151,7 @@ function _nfProps() {
  */
 function _kakaoSend(to, event, code, extra, opts) {
   // [NOTIFY_SENT_RET 2026-07-25] 반환: true(발송 시도 성공)·'held'(야간 보류)·false(미발송). 기존 호출부 반환 미사용(호환).
+  //   ·'mailed'(알림톡 대신 메일이 감 — 번호가 틀렸거나 템플릿이 없을 때 · MAIL_COUNTS_AS_SENT)
   var cfg = _nfProps();
   /* ★★[ADMIN_MAIL_UNCHAINED 2026-08-21 알림 전수점검에서 잡음] 솔라피 설정 검사를 **고객 분기로 내렸다.**
      종전엔 이 검사가 관리자 분기보다 «앞»에 있었다. 그런데 관리자 알림은 2026-06-29 에 **메일 전용**으로
@@ -179,11 +181,12 @@ function _kakaoSend(to, event, code, extra, opts) {
      모양을 «만드는» 것이 아니라, 같은 번호의 다른 표기를 같게 읽는 것이다(00_platform-config). */
   var phone = (typeof _phoneKR === 'function') ? _phoneKR(cust.get('연락처'))
                                               : String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
+  var _badPhone = false;
   if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
     var _csMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 지우지 말 것(99_deployCheck 가 이 줄을 읽는다)
     /* ★★[CONTACT_SILENT 2026-09-21 사장님 지적에서 드러났다] 종전엔 Logger 한 줄만 남기고 조용히 끝냈다 · 되돌리지 말 것.
        로그는 «보는 사람이 있을 때만» 알림이다. 실제로는 아무도 안 봤고, 연락처가 `821-0734-9770`
-       (+82 10 을 잘못 붙인 값)로 들어간 고객의 알림톡이 전부 생략되고 있었는데 관리자는 몰랐다.
+       (자동완성 +82 10-7349-7706 을 문의서 칸이 11자리로 자르며 끝자리를 잃은 값 · 2026-09-25 정정)로 들어간 고객의 알림톡이 전부 생략되고 있었는데 관리자는 몰랐다.
        게다가 그때는 관리자가 연락처를 «고칠 길»도 없었다(admin.gs 의 CONTACT_FIX 에서 만들었다 · ★대괄호로 쓰지 말 것 — 아래 참고).
        → 관리자 메일로 한 번 알린다. 그래야 고칠 수 있다.
        ★하루 한 번으로 묶는다 — 한 고객에게 알림이 여러 번 나가는 날 메일이 쏟아지면
@@ -200,7 +203,11 @@ function _kakaoSend(to, event, code, extra, opts) {
         _nfAdminLineEmail('알림 못 보냄 — 연락처 형식 이상: ' + code + ' (' + phone + ') · 관리자 화면에서 연락처를 정정해 주세요');
       }
     } catch (_e) {}
-    return false;
+    /* ★★[BADPHONE_MAIL 2026-09-25 PHONE_AUTOFILL_82 점검에서 드러났다] 종전엔 여기서 `return false` 였다 · 되돌리지 말 것.
+       그 한 줄이 아래 «이메일 대체 발송»까지 건너뛰어, 연락처가 틀린 고객은 알림톡도 메일도 **아무것도** 못 받았다.
+       (문의서 칸이 끝자리를 자른 번호 `821-0734-9770` 이 실제로 그렇게 됐다)
+       → 틀린 번호로 알림톡은 보내지 않는다(남의 번호일 수 있다). 대신 아래 메일로 간다. */
+    _badPhone = true;
   }
   var name = _nfCoupleName(cust);
 
@@ -215,7 +222,7 @@ function _kakaoSend(to, event, code, extra, opts) {
   //   알림톡에 disableSms:true → 카톡 실패해도 SMS 대체발송 안 함. from은 솔라피 식별용(고객 비노출).
   var tplId = String(cfg.templates[event] || '').trim();
   var sentKakao = false;
-  if (tplId && cfg.pfId) {
+  if (tplId && cfg.pfId && !_badPhone) {
     var msg = { to: phone, from: cfg.sender, text: m.text,
       kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } };
     var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
@@ -241,7 +248,13 @@ function _kakaoSend(to, event, code, extra, opts) {
      ★신청 문서(automation/알림톡_템플릿_신청문안.md) 마지막 기록으로는 19종 중 승인이 6묶음뿐이다 — 흔한 경우다.
      → 고객 상세 처리이력에 한 줄 + 관리자 메일(하루 한 통 · 고객이 아무것도 못 받았으면 그 고객 기준 하루 한 통). */
   var _tsMark = '[TPL_SILENT]';
-  if (!(tplId && cfg.pfId)) _nfTplSilent(event, String(code || '').trim(), (_mailed || _elsewhere), !cfg.pfId, _elsewhere);
+  // [BADPHONE_MAIL] 번호가 틀린 고객에게는 템플릿 경고를 얹지 않는다 — 이 고객이 못 받은 까닭은 번호다(CONTACT_SILENT 메일이 이미 갔다)
+  if (!(tplId && cfg.pfId) && !_badPhone) _nfTplSilent(event, String(code || '').trim(), (_mailed || _elsewhere), !cfg.pfId, _elsewhere);
+  /* ★[MAIL_COUNTS_AS_SENT 2026-09-25] 알림톡은 못 갔어도 대체 메일이 갔으면 'mailed' 를 돌려준다.
+     종전엔 false 라서 야간 보류 큐(flushHeldNotifies)가 «실패»로 읽고 같은 메일을 아침마다 다시 보냈다(최대 3번),
+     그러고는 관리자에게 「세 번 시도해도 실패」까지 보냈다 — 고객은 이미 받은 알림이다.
+     호출부 확인: 'mailed' 를 true 로 읽는 곳 없음(admin.gs 결과물 전달은 메일을 따로 보내 이 값이 안 나온다). */
+  if (!sentKakao && _mailed) return 'mailed';
   return sentKakao;   // [NOTIFY_SENT_RET] 알림톡 발송 성공 여부(이메일 폴백은 별도 best-effort)
 }
 

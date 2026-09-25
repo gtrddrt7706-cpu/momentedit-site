@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="/shared/preview-guard.js"></script><!-- [PREVIEW_GUARD] 운영 주소가 아니면 GAS 연결을 막는다 · 운영에서는 아무 일도 안 한다 · 맨 앞이어야 한다 -->
+<script src="/shared/tel-kr.js"></script><!-- [PHONE_AUTOFILL_82] 자동완성 «+82 10-…» 를 010… 으로 · 번호 칸 oninput 이 부른다 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin"><!-- 개인정보: URL의 토큰·재설정 파라미터가 Referer로 제3자(폰트·GA)에 새지 않게 origin만 전송 -->
 <script src="/shared/analytics.js" defer></script>
@@ -3266,7 +3267,7 @@ function renderLedger(l){
 // [②] 소득공제(현금영수증) 번호 상시 등록/변경 — 결제 카드 밖에서도.
 function doEditCashReceipt(tail){
   var cur=tail?('<br><span style="color:var(--light)">현재 등록 · 끝 '+escapeHtml(tail)+'</span>'):'';
-  mpModalOpen({ title:'소득공제 번호', bodyHtml:'<div style="font-size:13px;color:var(--sub);line-height:1.65;margin-bottom:11px;text-align:left;word-break:keep-all">현금영수증을 <b>소득공제</b>로 받으실 휴대폰 번호나 사업자번호를 적어 주세요. 비우고 저장하면 등록이 해제돼요(자진발급).'+cur+'</div><input type="tel" inputmode="numeric" id="mp_crEdit" class="cc-input" placeholder="휴대폰 또는 사업자번호" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">', confirmText:'저장', cancelText:'취소' }).then(function(ok){
+  mpModalOpen({ title:'소득공제 번호', bodyHtml:'<div style="font-size:13px;color:var(--sub);line-height:1.65;margin-bottom:11px;text-align:left;word-break:keep-all">현금영수증을 <b>소득공제</b>로 받으실 휴대폰 번호나 사업자번호를 적어 주세요. 비우고 저장하면 등록이 해제돼요(자진발급).'+cur+'</div><input type="tel" inputmode="numeric" id="mp_crEdit" class="cc-input" placeholder="휴대폰 또는 사업자번호" autocomplete="off" oninput="this.value=meTelDigits(this.value)">', confirmText:'저장', cancelText:'취소' }).then(function(ok){
     if(!ok) return;
     var v=(($('mp_crEdit')&&$('mp_crEdit').value)||'').trim();
     api({action:'saveCashReceipt', token:getToken(), cashReceipt:v}).then(function(d){
@@ -3569,9 +3570,16 @@ function renderContractReqForm(ctx){
     +'<div class="cc-title" style="text-align:center">예식일을 정하고 계약서를 요청하세요</div>'
     +'<div class="cc-sub" style="text-align:center">계약서에 들어갈 정보예요. 확인하고 빈 칸을 채워 주세요.</div>'
     +ex
-    +((!ci.weddingDate&&hd.date)?'<div class="cc-note" style="text-align:left;margin:2px 0 8px">임시 고정하신 예식 일정으로 미리 채워뒀어요. 바꾸셔도 괜찮아요.</div>':'')
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:preWed})
-    +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
+    +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div>'
+    /* ★[HOLD_PREFILL_CHANGE 2026-09-25 사장님 「임시고정 날짜로 기본 셋팅된 건 좋은데 변경 가능하다는 멘트가 있으면 «변경 가능한가?» 문의를 하나 줄일 수 있겠다」]
+       종전 문구 「임시 고정하신 예식 일정으로 미리 채워뒀어요. 바꾸셔도 괜찮아요.」는 확인 상자 «아래·날짜 칸 위»에 붙어
+       상자의 꼬리말처럼 읽혔고, 바꾸면 무슨 일이 생기는지는 말하지 않았다. → 날짜·시간 칸 «바로 아래»로 옮기고,
+       되물을 것(바꿔도 되나 · 원래 날짜는 어떻게 되나)을 한 번에 답한다.
+       근거(서버 70_journey 계약 요청): 요청 일정이 임시 고정과 다르면 새 일정을 가예약으로 잡고 옛 고정은 푼다.
+       새 일정이 이미 찼으면 요청 자체를 거절해 옛 고정은 그대로다 — 그래서 «요청하시면»에 걸어 말한다. */
+    +((!ci.weddingDate&&hd.date)?'<div class="cc-note" id="mp_ciHoldNote" style="margin:8px 0 0;text-align:left;line-height:1.7;word-break:keep-all">임시 고정하신 일정으로 채워 두었어요. <b style="color:var(--sub);font-weight:500">날짜·시간은 바꾸셔도 돼요.</b> 요청하시면 바꾼 일정으로 다시 잡아 드리고, 먼저 고정한 일정은 풀려요.</div>':'')
+    +'</div>'
     +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(preSlot)+'">'
     +weddingSequenceRef('시간대를 고르실 때 참고할 요약 시간표예요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
     +'<button type="button" class="seq-open-btn" data-seq-open="full" style="margin-top:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>시간대별 전체 진행 시간표 보기</button>'
@@ -3582,7 +3590,7 @@ function renderContractReqForm(ctx){
     +'<div class="cc-note" style="text-align:left;margin:10px 0 3px;color:var(--light);line-height:1.6">연락처 · 이메일은 <b style="color:var(--sub);font-weight:500">선택</b>이에요. 다만 이메일을 두 분 각각 남겨 두시면, 축하해 주신 분들이 남긴 편지가 <b style="color:var(--sub);font-weight:500">각자에게 직접</b> 도착해요.</div>'
     +'<label class="pf-l" style="margin-top:2px">신랑 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
-    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>'
+    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=meTelDigits(this.value)" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>'
     +'<label class="srv-consent" style="margin-top:14px;justify-content:center;text-align:left;max-width:fit-content;margin-left:auto;margin-right:auto"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0;text-align:center"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -3622,11 +3630,14 @@ function _softHint(el, test, msg){
   el.addEventListener('input', function(){ var h=document.getElementById((el.id||'f')+'_softhint'); if(h && String(el.value||'').trim() && test(String(el.value).trim())) h.remove(); });
 }
 function _fmtEmailOk(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
-function _fmtPhoneOk(v){ var d=v.replace(/[^0-9]/g,''); return d.length>=9 && d.length<=11; }
+function _fmtPhoneOk(v){ var d=window.meTelDigits?meTelDigits(v):v.replace(/[^0-9]/g,''); return d.length>=9 && d.length<=11; }   // [PHONE_AUTOFILL_82] «+82 10-…» 도 맞는 번호다
+/* [PHONE_AUTOFILL_82] 계약서에 찍히는 연락처 — 자동완성 «+82 10-7349-7706» 을 «010-7349-7706» 으로. 국내 표기로 적은 값은 적은 그대로 둔다 */
+function _telClean(v){ var s=String(v||'').trim(); if(!/^(\+|00)/.test(s)||!window.meTelDigits) return s; var d=meTelDigits(s); return /^01[016789][0-9]{7,8}$/.test(d)?d.replace(/^(\d{3})(\d{3,4})(\d{4})$/,'$1-$2-$3'):s; }
 function _fmtAcctOk(v){ return /\d{6,}/.test(v.replace(/[^0-9]/g,'')); }
 function _wireCiHints(){
   _softHint($('mp_ciGP'), _fmtPhoneOk, '연락처 숫자가 맞는지 확인해 주세요.');
   _softHint($('mp_ciBP'), _fmtPhoneOk, '연락처 숫자가 맞는지 확인해 주세요.');
+  ['mp_ciGP','mp_ciBP'].forEach(function(id){ var e=$(id); if(e) e.addEventListener('blur', function(){ var c=_telClean(e.value); if(c!==e.value.trim()) e.value=c; }); });   // [PHONE_AUTOFILL_82] 칸을 떠날 때 국내 표기로 보여 준다
   _softHint($('mp_ciGE'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.');
   _softHint($('mp_ciBE'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.');
 }
@@ -3637,7 +3648,7 @@ function doRequestContract(){
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
   var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'),
     groomAddrRoad:v('mp_ciGA_road'), groomAddrDetail:v('mp_ciGA_detail'), brideAddrRoad:v('mp_ciBA_road'), brideAddrDetail:v('mp_ciBA_detail'),   // 분리 원본 · 재수정 시 상세주소 칸 복원용
-    groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
+    groomPhone:_telClean(v('mp_ciGP')), groomEmail:v('mp_ciGE'), bridePhone:_telClean(v('mp_ciBP')), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
   if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
   if(!info.weddingTime) return fail('예식 시간대를 선택해 주세요.');
   if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');
@@ -4184,7 +4195,7 @@ function cashReceiptField(id, val){
     var tail=val.length>=4?val.slice(-4):val;
     return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증은 <b>등록된 번호</b>(끝 '+escapeHtml(tail)+')로 자동 발급돼요</div>';
   }
-  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">'
+  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=meTelDigits(this.value)">'
     + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>';
 }
 function doBalanceSignal(){

@@ -575,7 +575,11 @@ function adminHome() {
     var names = _names(cget(rv, '신랑이름'), cget(rv, '신부이름'));
     var createdYmd = _ymdOf(cget(rv, '생성일시'));
     custStageMap[code] = { stage: stage, product: product, names: names, created: createdYmd };
-    surveyTally(rv, code, names, product);
+    /* ★[REVIEW_EXIT_HIDE 2026-09-25 사장님 「후기 남긴 고객도 취소 처리하면 후기 지워지게」]
+       취소·노쇼·미계약으로 닫힌 고객의 후기는 후기 목록·새 후기 알림·집계에서 뺀다.
+       종전엔 단계를 안 보고 «설문상태=완료»면 다 셌다 — 취소한 테스트 고객 후기가 «확인한 후기»에 남아 있었다.
+       ★이것은 «보이지 않게»만 한다. 시트의 설문 칸을 실제로 비우는 것은 되돌릴 수 없는 삭제라 따로 간다. */
+    if (STAGE_EXCEPTIONS.indexOf(stage) === -1) surveyTally(rv, code, names, product);
     var survStatus = String(cget(rv, '설문상태') || '').trim();
     var surveyClosed = (survStatus === '완료' || survStatus === '건너뜀');   // 후기 마감(제출/넘기기) = 아카이브 조건
     // ★STAGE_REVIEW: 아카이브 판정 = 예외 단계 이거나 (결과물전달·후기 중 하나 + 설문 마감).
@@ -1378,7 +1382,7 @@ function _recordHandler(code, action) {
        `if (!/^01[016789][0-9]{7,8}$/.test(phone)) { Logger.log(...); return false; }`
        — **조용히 생략**한다. 잘못된 번호면 그 고객의 모든 알림이 안 간다.
      ③관리자는 그 사실을 모른다. 로그만 남고 로그를 보는 사람이 없다.
-   실제 사례: 연락처가 `821-0734-9770`(+82 10 을 잘못 붙인 것)로 들어간 고객.
+   실제 사례: 연락처가 `821-0734-9770` 로 들어간 고객 — 자동완성 +82 10-7349-7706 을 문의서 칸이 11자리로 자르며 끝자리를 잃은 값이다(2026-09-25 정정).
    `01` 로 시작하지 않아 알림톡이 전부 생략되고 있었다.
 
    ★화면은 「정보가 다르면 카카오톡으로 알려 주세요」라고 안내한다(mypage 계약 요청 폼).
@@ -1414,7 +1418,7 @@ function _setContactCore(code, phone, email, reason, dry) {
 
   var curP = String(cust.get('연락처') || '').trim();
   var curE = String(cust.get('이메일') || '').trim();
-  /* [PHONE_KR_NORM] 관리자가 «화면에 보이는 대로»(+82 10-7349-9770) 붙여넣어도 통과해야 한다 —
+  /* [PHONE_KR_NORM] 관리자가 «화면에 보이는 대로»(+82 10-…) 붙여넣어도 통과해야 한다 —
      고치라고 만든 화면이 그 값을 다시 거절하면 고칠 길이 없다. */
   var newP = (typeof _phoneKR === 'function') ? _phoneKR(phone)
                                              : String(phone == null ? '' : phone).replace(/[^0-9]/g, '');
