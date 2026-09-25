@@ -76,7 +76,7 @@ var NOTIFY_EVENTS = {
   'cust.resultDelivered': { to: 'customer', need: true,  desc: '결과물 전달 — 다운로드' },
   'cust.resultOriginal':  { to: 'customer', need: true,  desc: '원본 도착 — 보정 컷 선택 요청 · RESULT_NOTIFY_STEPS' },
   'cust.resultRetouch':   { to: 'customer', need: true,  desc: '보정본 도착 — 확인(컨펌) 요청 · RESULT_NOTIFY_STEPS' },
-  'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 · 마이페이지에서 계약 진행 요청(예식일·정보 입력) · 카톡+메일' },
+  'cust.consultDone':     { to: 'customer', need: true,  desc: '상담 완료 · 마이페이지에서 계약 진행 요청(예식일·정보 입력) · 카톡(못 가면 메일 · KAKAO_FIRST)' },
   'cust.depositToProduction':{ to: 'customer', need: true, desc: '계약금 입금 확인 + 다음 단계 안내(시그=제작 정보 입력 / 스냅=촬영 준비) · 2026-06-23 신규' },
   'cust.refundAcctReq':   { to: 'customer', need: true,  desc: '취소됨 · 환불 계좌 입력 요청(강제취소 등 계좌 미입력·수령분 있음 시 1회) · REFUND_ACCT_REQ' },
   // ── 고객: 안내성 — off:true는 발송 안 함(2026-06-12 사용자 결정: '없으면 진행 막히는 알림'만 유지 · 줄 지우면 즉시 복구) ──
@@ -210,10 +210,13 @@ function _kakaoSend(to, event, code, extra, opts) {
   }
   // 이메일: 카톡을 못 보낸 경우(템플릿 미승인 → 솔라피 미발송 · 또는 전송 실패)에만 발송 = '실패 시에만'.
   //   카톡이 정상 발송되면 이메일은 보내지 않음(중복 없음). 요즘 거의 다 카톡을 써서 카톡으로 사실상 전원 도달.
-  //   consultDone·resultDelivered는 admin.gs에서 이미 메일 → 중복 방지로 제외.
+  //   상담 확정은 확정 메일(sendConfirmEmail)이 켜져 있으면 이미 메일이 갔으니 제외(KAKAO_FIRST · 2026-09-25).
   var _mailed = false, _elsewhere = false;
   try {
-    var emailedElsewhere = (event === 'cust.consultDone' || event === 'cust.resultDelivered');
+    /* [KAKAO_FIRST 2026-09-25] 메일이 «따로» 나가는 알림은 이제 상담 확정 하나다 — 확정 메일(sendConfirmEmail)이 켜져 있을 때.
+       그 메일에는 카톡에 없는 것(캘린더 추가 버튼 · 변경·환불 규정)이 있어 남겼다. 상담 완료·결과물 전달·임시고정 만료는
+       카톡이 안 갈 때만 여기서 메일로 보낸다(종전엔 카톡과 메일이 늘 같이 갔다). */
+    var emailedElsewhere = (event === 'cust.consultConfirmed' && typeof CONFIG !== 'undefined' && CONFIG && CONFIG.SEND_CONFIRM_MAIL === true);
     _elsewhere = emailedElsewhere;
     var custEmail = String(cust.get('이메일') || '').trim();
     if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && !sentKakao) {
@@ -838,7 +841,7 @@ function importKakaoTemplates() {
   return _nfTplMerge(found);   // [TPL_KEEP] 덮어쓰지 않고 더한다 — 목록에 안 잡힌 기존 매핑도 그대로 둔다
 }
 
-// 고객 메일 1통(best-effort) — 중요 시점(상담완료·결과물전달 등)에 카톡과 함께 메일도 보낸다.
+// 고객 메일 1통(best-effort) — 2026-09-25 부터 부르는 곳이 없다(KAKAO_FIRST · 카톡과 함께 보내던 메일을 없앴다). 다시 쓸 때를 위해 남겨 둔다.
 //   emailShell·centerP·emailBtn·smallP·esc·SYS·P 는 같은 GAS 프로젝트(consultation-booking·00_platform-config)의 것을 재사용.
 //   발송 실패는 본 흐름(상담완료·전달 처리)을 절대 막지 않는다 — 호출부도 try 안에서 부른다.
 function _notifyCustomerEmail(code, subject, headline, innerHtml) {
@@ -981,7 +984,8 @@ function _nfMaybeBalanceCheck() {
 // 알림톡은 '접수 성공(2xx)' 후 실제 전달 성공/실패가 비동기로 통보됨(솔라피 리포트 웹훅 → 이 웹앱 /exec로 POST).
 //   발송 성공 시 messageId↔code↔text를 '알림톡추적' 시트에 기록 → 리포트가 '실패'면 그 고객에게 이메일(카톡 미수신 커버).
 //   ★보수적: '명확한 실패'만 이메일. 성공/불명확은 발송 안 함(카톡 받은 고객에 오발송 방지). 형식은 로그로 확인·튜닝 가능.
-// 설정: 솔라피 «개발 → Webhooks → 새로운 웹훅 생성» · EVENT «메시지 리포트» · 수신 URL = 이 웹앱 배포 /exec 주소 · Secret 은 비움(GAS 는 요청 헤더를 못 읽는다) — 2026-09-25 등록 완료.
+// 설정: 솔라피 «개발 → Webhooks → 새로운 웹훅 생성» · EVENT «메시지 리포트» · 수신 URL = https://momentedit.kr/api/solapi-report (베르셀 중계가 이 웹앱 /exec 로 넘긴다).
+//   ★/exec 에 바로 걸지 말 것 — GAS 는 처리 뒤 302 로 답해 솔라피가 실패로 세고 8회면 웹훅을 끈다(2026-09-25 실측 · api/solapi-report.js).
 var NF_TRACK_SHEET = '알림톡추적';
 function _nfTrackSheet() {
   var ss = SpreadsheetApp.getActive();

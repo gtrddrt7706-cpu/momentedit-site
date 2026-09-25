@@ -8548,7 +8548,7 @@ nochk '미리 채워뒀어요. 바꾸셔도 괜찮아요' mypage.html
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
 if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
   case "$_ne" in
-    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수 · 까닭 무관 메일' ;;
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수 · 까닭 무관 메일 · 카톡 먼저' ;;
     1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
     *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -8589,6 +8589,34 @@ chk 'KAKAO_FAIL_MAIL' automation/platform/95_notify.gs 6
 chk "return sentKakao ? true : ((_mailed || _elsewhere) ? 'mail' : false);" automation/platform/95_notify.gs 1   # 메일로 닿았으면 아침 재시도 없음
 chk 'var failed = hardFail || (!success && !pending && !!sc);' automation/platform/95_notify.gs 1                # 목록 밖 실패 코드도 실패
 nochk "고객 발송 생략'); return false; }" automation/platform/95_notify.gs                                        # 설정 누락이 고객 메일까지 막던 옛 줄
+
+# ★★[KAKAO_FIRST] 2026-09-25 사장님 «중복 이유? 카톡 안 가면 메일로 가게 되어 있는데… 없으면 카톡 미발송 시 메일로 전환 이것으로 하자»
+#   상담 완료·결과물 전달·임시고정 만료는 카톡과 메일이 늘 같이 갔다(06-23 «중요 단계» — 그때는 카톡 실패 → 메일 전환이 없었다 · 06-28 에 생김).
+#   이제 카톡이 가면 메일 없음 · 못 가면 95_notify 가 메일로. 상담 확정 메일(캘린더 추가·변경·환불 규정)은 남기고, 카톡이 실패해도 두 통 가지 않게.
+#   notify-e2e ⑬ 이 지킨다(깨 보고 믿었다 · 옛 제외 목록 · 상담 완료 메일 부활 · 임시고정 메일 부활 셋 다 빨강).
+chk 'KAKAO_FIRST' automation/admin/admin.gs 3
+chk 'KAKAO_FIRST' automation/platform/70_journey.gs 1
+chk 'KAKAO_FIRST' automation/platform/95_notify.gs 3
+nochk "_notifyCustomerEmail(code, '.Moment Edit. 상담이 마무리되었습니다" automation/admin/admin.gs      # 되살리기 금지 — 2026-09-25 사용자 지시로 삭제
+nochk "_notifyCustomerEmail(code, '.Moment Edit. 결과물이 준비되었습니다" automation/admin/admin.gs      # 되살리기 금지 — 2026-09-25 사용자 지시로 삭제
+nochk "GmailApp.sendEmail(email, '.Moment Edit. 예식일 임시 고정이 곧 풀려요" automation/platform/70_journey.gs   # 되살리기 금지 — 2026-09-25 사용자 지시로 삭제
+
+# ★★[SOLAPI_RELAY] 2026-09-25 솔라피 «웹훅 실패 알림»(실패 3회 · 8회면 비활성화) — GAS /exec 가 처리 뒤 302 로 답해 솔라피가 실패로 셌다.
+#   베르셀 중계(api/solapi-report.js)가 받아 GAS 로 넘기고 200 으로 답한다. 리포트 모양만 넘긴다 · 미리보기는 운영 시트에 안 쓴다.
+#   깨 보고 믿었다 — 리포트 거르기 제거 · GAS 오류에도 200 · 미리보기 막기 제거 · 지연을 실패로, 넷 다 빨강.
+#   ★[RELAY_WAIT] GAS 기다림 한도 4초 이하 — 솔라피가 몇 초까지 기다리는지 모른다(실패 메일에 이유 없음 · 문서 사이트 막힘).
+#     7초로 되돌리면 solapi-relay 첫 줄이 빨강(깨 보고 믿었다). 실제 시간으로도 4,007ms 에 끊고 200 을 주는 것을 쟀다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/solapi-relay.mjs >/dev/null 2>&1; _sr=$?
+  case "$_sr" in
+    0) echo 'ok solapi-relay: 리포트 중계 · GAS 오류 502 · 4초 넘으면 200 · 리포트 아닌 것 거부 · 미리보기 차단' ;;
+    1) echo 'FAIL solapi-relay: 솔라피 리포트 중계가 틀렸습니다 — node scripts/audit/solapi-relay.mjs'; fail=1 ;;
+    *) echo 'ok solapi-relay: 재지 못했습니다(모듈 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'SOLAPI_RELAY' api/solapi-report.js 1
+chk 'RELAY_WAIT' api/solapi-report.js 1
+chk "require('./_livehook')" api/solapi-report.js 1
+chk 'SOLAPI_RELAY' CLAUDE.md 1
 
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
