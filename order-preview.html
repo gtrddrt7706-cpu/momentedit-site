@@ -2315,7 +2315,7 @@ function renderIntro2(){
   if(isOpen()){
     h+='<div class="intro-lead">네 걸음이면 끝이에요.</div><div class="intro-pts">';
     [['① 고르기','담고 싶은 순간을 골라요 · 고르기 어려우면 예시에서 시작하셔도 돼요.'],['② 보고 듣기','고른 차례대로 장면과 나레이션을 보고 들으며 말투 · 누가 할지를 바꿔요.'],['③ 준비하기','두 분이 준비할 것과 부모님께 부탁드릴 것을 한곳에서 봐요.'],['④ 완성','완성된 순서를 저장하고, 대본을 복사하거나 파일로 받아 둬요.']]
-      .forEach(function(x,i){ h+='<div class="ipt"><span class="n">'+(i+1)+'</span><b>'+esc(x[0].slice(2))+'</b> · '+esc(x[1])+'</div>'; });
+      .forEach(function(x,i){ h+='<div class="ipt"><span class="n">'+(i+1)+'</span><span><b>'+esc(x[0].slice(2))+'</b> · '+esc(x[1])+'</span></div>'; });
     h+='</div><div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
     h+='<div class="pf-i pf-key"><b class="pf-k">진행은 저희가</b>순서와 흐름은 나레이션·디렉터가 맡아요. 두 분은 서약 낭독·인사처럼 고른 순간에만 나서요.</div>';
     h+='<div class="pf-i pf-key"><b class="pf-k">준비는 ③ 한 곳에</b>쓸 글 · 보낼 것 · 챙길 것 · 부모님께 부탁드릴 것이 모두 모여요.</div>';
@@ -3126,8 +3126,8 @@ function _opPad(){
    «파일 올리기 → ✓ 파일이름»만 남아 올렸다고 믿고 안 보내면 당일 두 분 목소리가 빠질 수 있었다.
    그래서 단추 · 상태 글을 사실대로 쓰고, 보낼 길(카톡 채널 · 메일)을 칸 안에 늘 보이게 둔다. 채널 주소는 상담 창과 같은 곳(advisor-kb). */
 var SEND_KAKAO='https://pf.kakao.com/_CfxcxlX/chat', SEND_MAIL='contact@momentedit.kr';
-function _sendHow(what){
-  return '<div class="send-how"><p>'+esc(what)+' · 파일은 여기서 올라가지 않아요. 예식 7일 전까지 카톡이나 메일로 보내 주세요.</p>'
+function _sendHow(what,due){
+  return '<div class="send-how"><p>'+esc(what)+' · 파일은 여기서 올라가지 않아요. 예식 '+(due||7)+'일 전까지 카톡이나 메일로 보내 주세요.</p>'
     +'<span class="send-b"><a class="rowbtn" href="'+SEND_KAKAO+'" target="_blank" rel="noopener">카톡으로 보내기</a>'
     +'<a class="rowbtn" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] '+what)+'">메일로 보내기</a></span></div>';
 }
@@ -3166,8 +3166,10 @@ function _openWrite(){
   h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
   h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
   h+='<div class="wd" style="margin-top:6px">휴대폰으로 가로로 찍은 영상 · 3분 안 · 영상이 없으면 사진 30~40장을 보내 주세요. 저희가 3분 영상으로 만들어요.</div>';   // [UPLOAD_HONEST 2-8] 쉬운 말
-  h+=_sendHow('식전 영상 사진');
-  if(send.length){ h+='<ul class="wr-list" style="margin-top:10px">'+send.map(li).join('')+'</ul>'; if(send.some(function(q){ return q.k==='free'; })) h+=_sendHow('준비한 순서 파일'); }
+  if(send.length) h+='<ul class="wr-list" style="margin-top:10px">'+send.map(li).join('')+'</ul>';
+  /* 보낼 길은 한 상자로 — 식전 영상 사진(3일 전) · 준비한 순서 파일(3일 전) */
+  var _fs=send.filter(function(q){ return q.k==='free' && q.due===3; }).length;
+  h+=_sendHow('식전 영상 사진'+(_fs?' · 준비한 순서 파일':''),3);
   if(S.guestVoice==='couple'||S.entryVoice==='couple'){
     h+='<div class="wr-sub" style="margin-top:16px">두 분 목소리 녹음 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div><div class="mth-how">대본은 <b>참고용</b>이에요 · 두 분 말로 바꿔 조용한 곳에서 한 번에 녹음해 올려 주세요(휴대폰 음성 메모로 충분해요).</div>'
       +'<p class="ls-note">'+esc(VOICE_LATE)+'</p>';   // [VOICE_LATE 코워크 회신3 4-5]
