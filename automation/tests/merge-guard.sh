@@ -9262,6 +9262,16 @@ chk 'NAV_FOCUS_REVEAL' index.html 1
 chk 'FAQ_MORE_INERT' index.html 2
 # [ARIA_ROLELESS_DIV] 역할 없는 div 의 aria-label 은 읽히지 않는다 — hero-logo·archive-grid.
 chk 'ARIA_ROLELESS_DIV' index.html 2
+
+# ★★[CV_NO_EARLY_MEASURE] 코워크 설계 명세 ⑥ — 성능 점수가 문서 기록(88)보다 크게 낮았다.
+#   Lighthouse 모바일 3회 60/53/62 · Style&Layout 4.1~4.5s · TBT 1.3~1.9s.
+#   원인 하나가 이 자리다 — GA 목업이 로드 직후 250ms×12회 fit() 을 돌려
+#   box.clientWidth/Height 를 읽었다. 그 상자는 #live 안이고 #live 는 content-visibility:auto
+#   ([PERF_CV_SECTIONS]) 라, 건너뛴 구역을 재면 브라우저가 강제로 레이아웃한다 —
+#   로드 시점에 PERF_CV_SECTIONS 의 효과를 되돌리는 구조였다(강제 리플로 142~417ms).
+#   → 화면 가까이 올 때 한 번 재고, 그 뒤는 ResizeObserver 가 알린다.
+#   ★[FAQ_DODGE] 쪽 강제 리플로(215~268ms)는 **손대지 않았다** — 레일 코드다([RAIL_LOCKED]).
+chk 'CV_NO_EARLY_MEASURE' index.html 1
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html
