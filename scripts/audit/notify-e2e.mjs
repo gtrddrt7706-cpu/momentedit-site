@@ -12,21 +12,23 @@
 //   종료 코드: 0 통과 · 1 재서 틀렸다 · 2 재지 못했다
 import { makeSandbox, loadGas } from './gas-lint.mjs';
 
-const W = { props: new Map(), fetches: [], mails: [], logs: [], hist: [], night: false, http: 200, cust: null };
+const W = { props: new Map(), fetches: [], mails: [], logs: [], hist: [], night: false, http: 200, cust: null, tplList: [] };
 const sb = makeSandbox();
 sb.PropertiesService = { getScriptProperties: () => ({
   getProperty: (k) => (W.props.has(k) ? W.props.get(k) : null), setProperty: (k, v) => { W.props.set(k, String(v)); },
   deleteProperty: (k) => { W.props.delete(k); }, getProperties: () => Object.fromEntries(W.props) }) };
 sb.UrlFetchApp = { fetch: (url, opt) => { let body = null; try { body = JSON.parse((opt && opt.payload) || 'null'); } catch (e) {}
+  if (/\/kakao\/v2\/templates/.test(url)) return { getResponseCode: () => 200, getContentText: () => JSON.stringify({ templateList: W.tplList }) };   // importKakaoTemplates 가 읽는 솔라피 목록
   W.fetches.push({ url, body });
   return { getResponseCode: () => W.http, getContentText: () => (W.http === 200 ? '{"messageId":"M1","statusCode":"2000"}' : '{"errorCode":"ValidationError"}') }; } };
-const mail = { sendEmail: (...a) => { const o = typeof a[0] === 'object' ? a[0] : { to: a[0], subject: a[1] }; W.mails.push({ to: String(o.to || ''), subject: String(o.subject || '') }); } };
+const mail = { sendEmail: (...a) => { const o = typeof a[0] === 'object' ? a[0] : { to: a[0], subject: a[1], body: a[2], htmlBody: (a[3] || {}).htmlBody };
+  W.mails.push({ to: String(o.to || ''), subject: String(o.subject || ''), body: String(o.body || ''), html: String(o.htmlBody || '') }); } };
 sb.MailApp = mail; sb.GmailApp = mail;
 sb.Logger = { log: (s) => { W.logs.push(String(s)); } };
 const { errors } = loadGas(sb);
 if (errors.length) { console.log('━━ notify-e2e — GAS 로드 실패 · 재지 못했습니다: ' + errors[0].file + ' ' + errors[0].message); process.exit(2); }
 const G = sb;
-for (const fn of ['notifyKakao', '_kakaoSend', '_nfTplSilent', 'notifySetupCheck', 'notifyFailYesterday']) {
+for (const fn of ['notifyKakao', '_kakaoSend', '_nfTplSilent', 'notifySetupCheck', 'notifyFailYesterday', 'importKakaoTemplates', 'setKakaoTemplates', '_nfCustomerMsg']) {
   if (typeof G[fn] !== 'function') { console.log(`━━ notify-e2e — ${fn} 이 없습니다 · 재지 못했습니다`); process.exit(2); }
 }
 if (!G.NOTIFY_EVENTS) { console.log('━━ notify-e2e — NOTIFY_EVENTS 가 없습니다 · 재지 못했습니다'); process.exit(2); }
@@ -105,6 +107,42 @@ console.log('━━ ⑦ 하루 한 번 표식은 7일 지나면 치운다');
   G.notifyFailYesterday();
   say(!W.props.has('NF_NOTPL_20200101') && !W.props.has('NF_NOTPL_NONE_ME-X_20200101') && !W.props.has('NF_BADPHONE_ME-X_20200101'), '옛 표식 셋 삭제', [...W.props.keys()].join(','));
   say(W.props.has('NF_NOTPL_' + today) && W.props.has('NF_BADPHONE_ME-X_' + today), '오늘 표식은 남긴다', ''); }
+
+console.log('━━ ⑧ 솔라피에서 승인 템플릿을 불러오면 켜진 고객 알림이 전부 이어진다 · 기존 매핑은 지우지 않는다 [TPL_KEEP]');
+{ const tl = (n, st, id) => ({ name: 'T' + String(n).padStart(2, '0') + ' 시험', templateId: id || ('KA01TP_T' + n), status: st || 'APPROVED' });
+  cfg({ KAKAO_TEMPLATES: '{}' }); fresh(); W.tplList = Array.from({ length: 30 }, (_, i) => tl(i + 1));
+  G.importKakaoTemplates();
+  let got = {}; try { got = JSON.parse(W.props.get('KAKAO_TEMPLATES') || '{}'); } catch (e) {}
+  const miss = EV.filter((e) => !got[e]);
+  say(!miss.length, `T01~T30 이 전부 승인이면 켜진 고객 알림 ${EV.length}종 전부 매핑(번호가 빠진 알림 없음)`, miss.join(', '));
+  cfg({ KAKAO_TEMPLATES: JSON.stringify({ 'cust.consultDone': 'OLD17', 'cust.handMade': 'HAND' }) }); fresh();
+  W.tplList = [tl(1, 'APPROVED', 'NEW01'), tl(17, 'REJECTED', 'REJ17'), tl(20, 'INSPECTING', 'WAIT20'), tl(21, 'APPROVED', 'NEW21')];
+  G.importKakaoTemplates();
+  got = {}; try { got = JSON.parse(W.props.get('KAKAO_TEMPLATES') || '{}'); } catch (e) {}
+  say(got['cust.consultDone'] === 'OLD17' && got['cust.handMade'] === 'HAND', '목록에 안 잡힌 기존 매핑(반려된 새 판 · 이름이 T## 가 아닌 것)은 그대로 둔다', JSON.stringify(got));
+  say(got['cust.consultConfirmed'] === 'NEW01' && got['cust.resultRetouch'] === 'NEW21' && !got['cust.resultOriginal'], '승인된 것만 더하고 · 검수 중인 것은 넣지 않는다', JSON.stringify(got));
+  const L = W.logs.join('\n');
+  say(/아직 템플릿이 없는 고객 알림/.test(L) && L.indexOf('cust.resultOriginal') >= 0, '저장 뒤 아직 빠진 알림을 이름으로 알려 준다', L.slice(-300)); }
+
+console.log('━━ ⑨ setKakaoTemplates 를 칸이 빈 채로 눌러도 매핑이 지워지지 않는다 [TPL_KEEP]');
+{ const before = tplAll(); cfg({ KAKAO_TEMPLATES: before }); fresh(); G.setKakaoTemplates();
+  say(W.props.get('KAKAO_TEMPLATES') === before, `매핑 ${EV.length}건 그대로`, String(W.props.get('KAKAO_TEMPLATES')).slice(0, 120)); }
+
+console.log('━━ ⑩ 대체 메일 — 주소는 버튼으로 · 본문에 글자 주소가 찍히지 않는다 [MAIL_FOCUS_URL]');
+{ const bad = [], generic = [], lost = [];
+  for (const ev of EV.filter((e) => ELSEWHERE.indexOf(e) < 0)) {
+    cfg({ KAKAO_TEMPLATES: '{}' }); fresh(); send(ev, cust('010-1234-5678', COUPLE));
+    const m = W.mails.find((x) => x.to === COUPLE); if (!m) { bad.push(ev + '(메일 없음)'); continue; }
+    const vis = m.html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ');
+    if (/momentedit\.kr\/mypage/i.test(vis)) bad.push(ev);
+    if (/안내드립니다$/.test(m.subject) && !/일정을 안내드립니다$/.test(m.subject)) generic.push(ev);
+    const txt = (G._nfCustomerMsg(ev, '김희준·이미쿠', { amount: 1100000, dday: 10, date: '2026-10-26', time: '13:20' }) || {}).text || '';
+    const f = (txt.match(/\?focus=([a-z]+)\s*$/i) || [])[1];
+    if (f && m.html.indexOf('href="https://momentedit.kr/mypage.html?focus=' + f + '"') < 0) lost.push(ev + '→' + f);
+  }
+  say(!bad.length, '본문에 «momentedit.kr/mypage…» 글자가 없다', bad.join(', '));
+  say(!lost.length, '버튼이 그 카드로 바로 간다(?focus= 유지)', lost.join(', '));
+  say(!generic.length, '제목이 «안내드립니다» 하나로 뭉개진 알림이 없다', generic.join(', ')); }
 
 console.log(rc ? '━━ notify-e2e — 틀린 곳이 있습니다' : '━━ notify-e2e — 전부 통과');
 process.exit(rc);

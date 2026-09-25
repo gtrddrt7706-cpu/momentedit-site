@@ -8460,7 +8460,7 @@ chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
 if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
   case "$_ne" in
-    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리' ;;
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일' ;;
     1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
     *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -8471,6 +8471,17 @@ chk 'TPL_COVER' automation/platform/95_notify.gs 2
 chk 'function _nfTplSilent(' automation/platform/95_notify.gs 1
 chk "NF_NOTPL_NONE_" automation/platform/95_notify.gs 1   # ★아무것도 못 받은 고객은 하루 한 통 표식과 따로 알린다
 nochk 'SMS로 발송' automation/platform/95_notify.gs          # 고객 문자는 2026-06-29 부터 안 쓴다 — 설정 점검·설명이 «문자로 대체»라는 옛말을 하지 않게
+
+# ★★[TPL_KEEP]·[MAIL_FOCUS_URL] 2026-09-25 — 사장님 notifySetupCheck 결과(템플릿 15/19 · 빠진 4종)로 신청 문안을 준비하다 드러났다.
+#   ① setKakaoTemplates 는 칸이 빈 채로 파일에 있는데 «통째로 덮어쓰기»였다 — 드롭다운에서 한 번 잘못 누르면 매핑 0건 → 알림톡 전부 멈춤.
+#      importKakaoTemplates 도 덮어쓰기라 이름이 T## 가 아닌 기존 매핑이 빠졌다. → 둘 다 «더하기만» · 지우기는 addKakaoTemplate 로만.
+#   ② 새 템플릿 셋(T20 원본·T21 보정본·T22 환불 계좌)에 번호가 없어, 승인나도 불러오기가 잇지 못했다.
+#   ③ 템플릿이 없는 동안 고객이 받는 대체 메일 본문 끝에 «momentedit.kr/mypage.html?focus=…» 가 글자로 찍혔다.
+#   notify-e2e ⑧⑨⑩ 이 지킨다 — 깨 보고 믿었다(덮어쓰기·T20 누락·검수 중 매핑·옛 정리식·focus 버림·환불 제목 전부 빨강).
+chk 'TPL_KEEP' automation/platform/95_notify.gs 5
+chk 'MAIL_FOCUS_URL' automation/platform/95_notify.gs 3
+chk 'function _nfTplMerge(' automation/platform/95_notify.gs 1
+chk "'22': \['cust.refundAcctReq'" automation/platform/95_notify.gs 1   # T22 — 번호가 없으면 승인나도 불러오기가 못 잇는다
 
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
