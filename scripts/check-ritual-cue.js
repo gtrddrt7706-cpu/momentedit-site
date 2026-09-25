@@ -46,7 +46,13 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
 //     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
-const N_FILES = 88;
+const N_FILES = 107;
+/* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
+{
+  const bad3 = C.FILES.filter((f, i) => C.noOf(f) !== String(i + 1).padStart(2, '0'));
+  if (bad3.length) { console.log(`REVERT? cue: [PAD3] 번호가 인덱스+1 과 다르다 — ${bad3.slice(0, 3).map((f) => f + '→' + C.noOf(f)).join(' · ')}`); process.exitCode = 1; }
+  else console.log(`ok cue: [PAD3] 번호 ${C.FILES.length}개 모두 인덱스+1 (마지막 ${C.noOf(C.FILES[C.FILES.length - 1])})`);
+}   // [OPEN_COURSE 2026-09-25] 새 코스 새 줄 11개(89~99)
 if (C.FILES.length !== N_FILES) no(`FILES ${N_FILES}개가 아니다 (${C.FILES.length})`);
 else if (new Set(C.FILES).size !== N_FILES) no('FILES에 중복 슬러그가 있다');
 else ok(`FILES ${N_FILES}개 · 중복 없음`);
@@ -185,7 +191,8 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
                       //   그 자리들이 옳은지는 위 §3-A 22큐 판정표 검사가 이미 고정하고 있다.
                       //   (식전 안내 2클립은 guest 뒤에 붙지만 규칙이 계산하는 자리다)
                       // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-                      const pinned = (i === 0 || c.k === 'entry' ||
+                      // [PREVIDEO_AT_4 2026-09-25] 식전 영상은 본식 시작 4분 전 시각고정(clock) — 03 과 04 사이에 엔진이 직접 박는다.
+                      const pinned = (i === 0 || c.k === 'entry' || c.k === 'prevideo' ||
                         (c.k === 'guest' && c.blockN !== '식전 안내'));
                       if (pinned) {
                         if (c.fire === 'chain') {

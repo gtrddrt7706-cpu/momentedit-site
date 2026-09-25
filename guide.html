@@ -687,6 +687,9 @@ function photoShareHtml(url){
 //     `seatFull: (String(gi.seatMode||'') !== 'mine')` · mypage.html 7097행 `(gi.seatMode==='mine')?'mine':'all'`.
 //     둘 다 '안 고르면 전체 공개'다. 다음 사람이 "기본이 안전한 쪽"이라고 믿고 넘어가지 않게 사실대로 적는다.
 //     (기본을 바꾸는 것은 제품 결정이라 코드가 아니라 사용자가 정한다 — 2026-07-19 지시로 지금 값이 정해졌다.)
+/* [NO_WAITROOM 2026-09-25 코워크 5-6] 하객이 먼저 찾는 것 — 신부 대기실. 없다는 것을 자리 안내 곁에 한 줄로 알린다.
+   ★견본 글(두 분이 하객에게 보내는 글)은 저장소에 따로 없어 그 글이 하는 일을 여기서 대신한다(구현 보고 2). */
+var NO_WAITROOM='<div class="privacy">신부 대기실은 따로 없어요. 예식 뒤 두 분이 자리마다 찾아가 인사드려요.</div>';
 var SEAT=null, SEAT_STATE='loading';   // loading | ok | fail — 로딩 전 조회·실패를 피드백(죽은 입력 방지)
 function seatFindHtml(full){
   // 전체 공개 = 검색 없이 성함이 그대로 보이는 배치도(종이 좌석표처럼) · '내 자리만' = 검색 방식(명단 비수신)
@@ -694,11 +697,11 @@ function seatFindHtml(full){
   if(full){
     return '<div class="sec"><div class="sec-h"><h2 class="sec-t">좌석 배치도</h2><span class="sec-n">Seating</span></div>'
       +'<div class="mtb-wrap" id="seatMap"><div class="state" style="padding:20px"><span class="bdot"></span>좌석 안내를 불러오는 중이에요…</div></div>'
-      +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div></div>';
+      +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div>'+NO_WAITROOM+'</div>';
   }
   return '<div class="sec"><div class="sec-h"><h2 class="sec-t">내 자리 찾기</h2><span class="sec-n">Your Table</span></div>'
     +'<div class="find"><input id="q" type="text" inputmode="search" autocomplete="off" aria-label="성함" placeholder="성함을 입력하세요"><div class="find-res" id="fr" role="status" aria-live="polite" aria-atomic="true"></div></div>'
-    +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div></div>';
+    +'<div class="privacy">연락처 없이 성함과 테이블만 안내돼요.</div>'+NO_WAITROOM+'</div>';
 }
 // [GUIDE_RT_SR] 번호 알약은 눈으로 테이블을 찾는 표시다. 귀로 들으면 '3테이블 3 자리예요'로 숫자가 두 번 나온다.
 //   알약은 숨기고, 테이블에 따로 이름이 있어(예: '가족석') 문장에 번호가 없을 때만 번호를 말로 넣는다.

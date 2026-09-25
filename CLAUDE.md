@@ -311,13 +311,65 @@ git push -u origin <브랜치>
 
 ## 디자인 판단의 권위 = `momentedit-design` 하나 (2026-09-06 사용자 지시) [DESIGN_AUTHORITY]
 
-`.claude/skills/` 에 디자인 스킬이 8개 있고 발동 조건이 겹친다. **어긋나면 `momentedit-design` 이 이긴다.**
+`.claude/skills/` 에 디자인 스킬이 **12개** 있고 발동 조건이 겹친다. **어긋나면 `momentedit-design` 이 이긴다.**
+  ★9/25 에 셋을 들였다 — `impeccable` · `web-design-guidelines` · `frontend-design`. 순서는 바로 아래 `[DESIGN_SKILLS_12]`.
+  (종전에 이 줄이 「8개」였는데 실제 폴더는 9개였다 — `redesign-existing-projects` 가 목록에서 빠져 있었다. 실측으로 고쳤다.)
 - 이 사이트는 **정적 HTML**(빌드 없음 · 외부 CSS `<link>` 0개)이라 `ui-styling`(Tailwind 134·shadcn 104)·
   `ui-ux-pro-max`(React 327)의 전제는 **이 사이트에 해당하지 않는다** — 그런 조언은 버린다.
 - `ui-ux-pro-max` 의 범용 팔레트 192종보다 **브랜드 팔레트가 앞선다.**
 - 다크모드·글래스모피즘·네온·튀는 모션·이모지는 다른 스킬이 권해도 **금지**(momentedit-design 「절대 하지 말 것」).
 - 다른 스킬은 이 문서가 **안 다루는 주제**(배너·로고·슬라이드 산출물)에서만 참고한다.
 - **오른쪽 아이콘 레일(`.me-fab-stack`)은 `[RAIL_LOCKED]` — 제안·재질문 금지.** 계획된 디자인이다. 점검에서 «본문과 겹친다»가 나와도 보고하지 않는다(2026-09-25 사용자 지시 「디자인 규칙에 넣어서 다신 안 묻게」). 근거는 `momentedit-design` 의 해당 절.
+
+### ★★2026-09-25 사장님 지시 — 릴스의 디자인 스킬을 저장소에 들여 직접 쓴다 [DESIGN_SKILLS_12]
+
+셋을 `.claude/skills/` 에 넣었다. 폴더마다 `SOURCE.md`(원천·버전·라이선스·받은 날)와 `LICENSE` 를 함께 뒀다.
+
+| 스킬 | 무엇에 쓰나 | 원천 · 라이선스 |
+|---|---|---|
+| `impeccable` | 화면을 **고칠 때** — 21개 갈래(polish·layout·typeset·clarify·harden·critique…)의 절차와 안티패턴 | pbakaus/impeccable 4.4.0 · Apache-2.0 |
+| `web-design-guidelines` | 화면을 **점검할 때** — 규칙 190행을 `file:line` 형식으로 훑는다. 동봉본이 있어 네트워크가 막혀도 돈다 | vercel-labs · MIT |
+| `frontend-design` | **새 화면의 미감 방향**을 잡을 때만 — impeccable 이 「여기서 시작했다」고 밝힌 원조라 주제가 거의 겹친다 | anthropics/skills · ★라이선스 미표기(SOURCE.md) |
+
+#### 순서 — 어긋나면 위가 이긴다
+
+1. **`momentedit-design`** — 팔레트·타이포·여백·금지 표현·`[RAIL_LOCKED]`·`[SEC_TITLE_DEVICE]`·`[HERO_SUB_OPEN]`.
+   이 사이트를 실측해서 쓴 유일한 문서다. **여기 적힌 것이 최종이다.**
+2. **`MOMENTEDIT_EXCEPTIONS.md`**(`.claude/skills/` 루트) — 새 셋이 권하는데 **이 사이트에선 틀린 것**.
+   점검이 같은 지적을 반복해 올리면 여기에 적어 닫는다.
+3. **`web-design-guidelines`** — 점검용. 접근성·폼·키보드처럼 «객관적으로 틀린 것»에 강하다.
+4. **`impeccable`** — 고치는 절차. ★**미감 제안은 2·1번을 통과한 것만** 받는다.
+5. **`frontend-design`** — 새 화면을 처음 세울 때만.
+6. 나머지 일곱(`ui-ux-pro-max`·`ui-styling`·`design`·`design-system`·`brand`·`banner-design`·`slides`·`redesign-existing-projects`) — 종전과 같다.
+   Tailwind·shadcn·React 전제는 이 사이트에 해당하지 않는다.
+
+**★새 셋도 「절대 하지 말 것」을 이기지 못한다.** 다크모드·글래스모피즘·네온·튀는 모션·이모지·
+보라·청록·형광은 세 스킬 중 무엇이 권해도 **금지**다. `impeccable` 의 `bolder`·`delight`·`overdrive`·
+`animate` 갈래가 특히 그 방향으로 민다 — 그 갈래를 쓸 때는 1번을 먼저 읽는다.
+
+#### ★`impeccable` 의 결정형 검사 61개는 이 환경에서 못 돈다 (실측 2026-09-25)
+
+`npx impeccable install` 은 **서명 번들 403**, 엔진 바이너리는 **GitHub 릴리스 403** 이다
+(`github.com/.../releases/latest` · `api.github.com/...` 둘 다). 프록시는 풀지 않는다([DEPLOY_ONE]).
+그래서 파일은 `raw.githubusercontent.com`(허용 · 200) 에서 받았고 **글로 된 부분은 전부 쓸 수 있다.**
+못 쓰는 것은 `scripts/impeccable <verb>` 로 도는 결정형 엔진 하나다.
+
+- SKILL.md 가 스스로 정한 폴백을 따른다 — 「Context loading did not run」을 알리고 문맥을 직접 읽는다.
+- 그 자리는 **우리 검사가 이미 메운다** — `scripts/audit/` 의 `home-a11y`·`footer-parity`·
+  `section-rhythm`·`check-css-tokens`·`tap-targets`. 61개가 없다고 점검이 비는 것이 아니다.
+- 바이너리를 다른 길로 끌어오지 않는다. 릴리스가 열리면 `SOURCE.md` 에 적어 두고 그때 받는다.
+
+#### 화면 PR 점검 3단 (화면을 바꾼 PR 마다 · 순서대로)
+
+1. **집 자(`sh scripts/gate.sh`)** — 마커·토큰·리듬·대비·탭 순서. **여기가 빨강이면 2·3 은 의미 없다.**
+2. **`web-design-guidelines`** — 바꾼 파일만 `file:line` 으로. 나온 지적은 셋으로 가른다:
+   ①객관적으로 틀림 → 고친다 ②이 사이트에선 틀림 → `MOMENTEDIT_EXCEPTIONS.md` 에 적어 닫는다
+   ③취향 → **코워크에 올린다. 내가 정하지 않는다**([COWORK_SPLIT_0925]).
+3. **390 · 1280 실렌더** — 스크린샷을 **눈으로 연다.** 「오류 없음」과 「맞게 보인다」는 다른 문장이다([NOT_THE_SOURCE]).
+   ★`body`·`section` 은 `opacity:0` 으로 시작하고 `.reveal` 도 그렇다 · `content-visibility:auto` 섹션은 건너뛴다.
+   셋을 강제로 열지 않으면 **빈 스크린샷**을 보고 「괜찮다」고 하게 된다(실사고).
+
+★이 세 단은 **더하는 것이지 대신하는 것이 아니다.** 2번이 초록이어도 1번이 빨강이면 푸시가 막힌다.
 
 ## 문구 규칙
 

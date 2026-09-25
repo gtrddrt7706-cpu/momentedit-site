@@ -148,6 +148,28 @@ const G = [
        ★위 note 의 「식사·이동 정보는 넣지 않았다」와 부딪치지 않는다 — 이 줄은 **식당 이름도 길도 말하지 않는다.**
          «있다»와 «입구에서 알려 드린다»만 말하고, 회장마다 달라지는 정보는 여전히 스태프 육성이 맡는다. */
     ['N10', '식사 자리 안내 (배웅 · 고른 날만)', 'guide-meal', RC.EXTRA['guide-meal']],
+    /* ★[OPEN_COURSE 2026-09-25 설계 명세 1 · 7장] 새 코스의 새 줄 11개(89~99). 문안은 RC.EXTRA(원천 assets/ritual-open.js)에서 읽는다.
+       ★말맛·실청은 사장님 몫 — 여기 문안은 코워크 초안 그대로다(«아버님 두 분»만 같은 틀로 코드가 채움). */
+    ['N11', '하객 맞이 1분 전 · 화촉이나 식전 영상이 먼저인 날', 'guest-4-1min-pre', RC.EXTRA['guest-4-1min-pre']],
+    ['N12', '식전 영상 여는 말', 'narr-prevideo-in', RC.EXTRA['narr-prevideo-in']],
+    ['N13-a', '화촉 여는 말 · 양가 어머님', 'narr-candle-in-mothers', RC.EXTRA['narr-candle-in-mothers']],
+    ['N13-b', '화촉 여는 말 · 어머님과 아버님', 'narr-candle-in-parents', RC.EXTRA['narr-candle-in-parents']],
+    ['N13-c', '화촉 여는 말 · 아버님 두 분', 'narr-candle-in-fathers', RC.EXTRA['narr-candle-in-fathers']],
+    ['N13-d', '화촉 여는 말 · 다른 두 분', 'narr-candle-in-others', RC.EXTRA['narr-candle-in-others']],
+    ['N14', '화촉 맺는 말', 'narr-candle-out', RC.EXTRA['narr-candle-out']],
+    ['N15-a', '성혼 선언 · 박수 판 · 증인 청하기', 'declare-clap-a', RC.EXTRA['declare-clap-a']],
+    ['N15-b', '성혼 선언 · 박수 판 · 박수 뒤 선언', 'declare-clap-b', RC.EXTRA['declare-clap-b']],
+    ['N16-a', '축배 · 두 와인을 한 잔에', 'toast-pour-mix', RC.EXTRA['toast-pour-mix']],
+    ['N16-b', '축배 · 양가가 한 병씩(여는 말)', 'toast-pour-family', RC.EXTRA['toast-pour-family']],
+    /* [NAR_0925 2026-09-25 코워크 회신 둘째 판] 100~107 */
+    ['N17-a', '준비한 순서 여는 말 · 영상', 'narr-free-in-video', RC.EXTRA['narr-free-in-video']],
+    ['N17-b', '준비한 순서 여는 말 · 춤 · 공연', 'narr-free-in-stage', RC.EXTRA['narr-free-in-stage']],
+    ['N17-c', '준비한 순서 여는 말 · 깜짝 선물 · 전달', 'narr-free-in-gift', RC.EXTRA['narr-free-in-gift']],
+    ['N17-d', '준비한 순서 여는 말 · 친구 · 가족의 축사', 'narr-free-in-speech', RC.EXTRA['narr-free-in-speech']],
+    ['N17-e', '준비한 순서 맺는 말', 'narr-free-out-clap', RC.EXTRA['narr-free-out-clap']],
+    ['N17-f', '준비한 순서 · 재생이 안 될 때(디렉터가 누름)', 'narr-free-fail', RC.EXTRA['narr-free-fail']],
+    ['N18', '부모님께 인사 · 신랑 큰절', 'tribute-bow-groom', RC.EXTRA['tribute-bow-groom']],
+    ['N19', '축배 선창 · 와인을 붓는 날', 'toast-both-pour-b', RC.EXTRA['toast-both-pour-b']],
   ], note: 'N1-a와 N1-b는 택1 · N4와 N5도 택1이다.\nN2는 하객이 듣는 마지막 소리다 · 정보를 0으로 두고 감정만 남겼으니 가장 느리게.\nN3 재생 조건: Couples 시트 digitalAttendance = Y인 날만. 예식 시작 직전(G1-4 뒤, 입장 전).\nN4는 지연 사유를 절대 말하지 않는다 · 틀고 나서 아무것도 하지 않는다(다음 큐는 디렉터 판단).\n식사·이동처럼 회장마다 달라지는 정보는 넣지 않았다 · 그 자리는 스태프 육성이 맡는다.\n★이 그룹이 왜 생겼나: 폐식(G3-15) 뒤로 단체 기록 30분 + 배웅 20분, 도합 50분을 클립 하나도 담당하지 않았다. 하객이 공간을 떠나는 순간이 실제 "엔드"인데, 그 구조는 가장 공들인 폐식 나레이션을 중간에 써 버리고 있었다.\nN4(감정)와 N5(준비)를 나눈 이유: 멈추는 사유가 두 종류이고 대응 톤이 정반대다. 오열로 멈춘 자리에 사무적인 멘트를 틀면 그 순간을 사고로 만들고, 장비 문제인데 감정 멘트를 틀면 우스워진다.\nN3가 삽입구가 아니라 독립 클립인 이유: 삽입구면 입장 6종 × 온라인 유무 = 12개로 녹음이 배가 된다. 빌더에 별도 토글도 만들지 않는다(이중 토글 폐지 지시).' },
   /* ★[AFTER_PARTY 2026-08-08] 아래 셋은 나중에 생긴 클립이라 대본에 없었다 —
      생성기가 51개만 알고 실제 클립은 75개였다. 대본을 읽는 사람은 51개가 전부인 줄 안다.

@@ -79,6 +79,9 @@ export function grab(src, needle, optional = false) {
 
 export const DECLS = [
   ['var COURSES={', false], ['var GADD={', false], ['var RANK={', false],
+  /* [OPEN_COURSE 2026-09-25] curSeq·momOn 이 첫 줄에서 isOpen() 을 본다 — 없으면 엔진이 안 선다(SIM_ALIVE 가 잡았다).
+     이 시뮬레이터는 옛 코스만 돌린다(isOpen()=false → RitualOpen 은 안 닿는다). 새 코스는 scripts/audit/open-course.mjs 가 잰다. */
+  ['function isOpen(', false],
   ['var RANK_OV={', true], ['function rankOf(', true],
   ['function isGAdd(', false], ['function isOptK(', false],
   /* ★[PALETTE_MISSING 2026-08-15 점검] `paletteCand` 가 빠져 있었다 — 세 번째로 같은 병이다.

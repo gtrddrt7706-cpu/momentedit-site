@@ -2049,8 +2049,8 @@ nochk "'>'+LABELS\[t\]+' '+t+'</option>'" mypage.html
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '16~25m | The Ceremony' index.html 2
-chk '30~39m | Group Record' index.html 2
+chk '15~30m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 15~30 (스냅 50 · (가) 안)
+chk '20~35m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 20~35 · 두 시간의 합 50분
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
 #   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
@@ -3657,7 +3657,7 @@ chk 'base:{damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}' ass
 chk 'base={damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}' order-preview.html 1
 # [MIN_RING_OFF] 기록 카드 라벨은 base(17)가 아니라 '고객이 보게 될 시간'(16)이다 — 반지 기본 빼기가 1분을 뺀다
 chk 'MIN_RING_OFF' assets/ritual-data.js 1
-chk "record:{nm:'기록', badge:'사진이 중심', ready:true, min:'약 16분'" assets/ritual-data.js 1
+chk "record:{nm:'기록', badge:'사진이 중심', ready:true, hidden:true, min:'약 16분'" assets/ritual-data.js 1   # [OPEN_COURSE 2026-09-25] 기록도 숨김(초안 호환 · 지우지 않는다)
 
 # ── [FREE_BLOCK] 자유 한 칸이 완성 순서표에서 빠져 있었다 (2026-08-14 · 검사가 발견) ──
 # 엔진(ritual-cue.js)에는 narr-free-in/out 큐가 처음부터 있는데 빌더의 BLOCK 지도에만 free 가 없어,
@@ -9077,7 +9077,8 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 88' scripts/check-ritual-cue.js 1
+chk 'N_FILES = 107' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107
+nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
 chk 'MEAL_GUIDE' assets/ritual-cue.js 3
@@ -9451,6 +9452,44 @@ nochk 'gv-meta-num\{[^}]*color:var\(--gold\)' invitation-gallery.html
 chk 'LIVE_MAIN' live.html 1
 # [SEAT_STATE_H1] 오류·만료 화면에 h1 이 하나도 없었다. 상태 문장이 그 화면의 제목이다.
 chk 'SEAT_STATE_H1' seat.html 1
+
+# ★★[DESIGN_SKILLS_12 2026-09-25 사장님 4편 «릴스의 디자인 스킬을 저장소에 들여 직접 쓰기»]
+#   impeccable · web-design-guidelines · frontend-design 셋을 .claude/skills/ 에 넣었다 → 12개.
+#   순서(어긋나면 위가 이긴다): momentedit-design > MOMENTEDIT_EXCEPTIONS > wdg > impeccable > frontend-design > 나머지.
+#   ★셋 다 범용이라 이 사이트를 모른다. 특히 impeccable craft-floor 의 «아이브로우 금지(ban · no brief earns it back)»는
+#     이 사이트 타이포의 뼈대(.sec-label 17개)를 통째로 지우라는 말이다 → [EXC_EYEBROW] 로 닫고, 스킬이 UI 수정 직전에
+#     읽는 craft-floor.md 끝에 [IMP_LOCAL] 로 그 예외를 가리켰다. 이 줄이 사라지면 다음 polish 가 17개를 지운다.
+#   ★npx impeccable install · 엔진 바이너리 둘 다 프록시 403 — raw.githubusercontent.com 에서 받았다(SOURCE.md). 프록시는 안 푼다.
+chk 'DESIGN_SKILLS_12' CLAUDE.md 2
+chk 'DESIGN_SKILLS_12' .claude/skills/momentedit-design/SKILL.md 2
+nochk '디자인 스킬이 8개' CLAUDE.md
+chk '^name: impeccable' .claude/skills/impeccable/SKILL.md 1
+chk '^name: web-design-guidelines' .claude/skills/web-design-guidelines/SKILL.md 1
+chk '^name: frontend-design' .claude/skills/frontend-design/SKILL.md 1
+chk 'craft-floor' .claude/skills/impeccable/SKILL.md 1
+chk 'IMP_LOCAL' .claude/skills/impeccable/SKILL.md 1
+chk 'IMP_LOCAL' .claude/skills/impeccable/reference/craft-floor.md 1
+chk 'EXC_EYEBROW' .claude/skills/impeccable/reference/craft-floor.md 1
+chk 'WDG_VENDORED' .claude/skills/web-design-guidelines/SKILL.md 1
+chk '^### Accessibility' .claude/skills/web-design-guidelines/web-interface-guidelines.md 1
+chk 'FD_LOCAL' .claude/skills/frontend-design/SKILL.md 1
+chk 'Apache License' .claude/skills/impeccable/LICENSE 1
+chk 'MIT License' .claude/skills/web-design-guidelines/LICENSE 1
+chk '라이선스 파일이 없었다' .claude/skills/frontend-design/SOURCE.md 1
+# [SKILL_404_BODY] curl -o 는 404 여도 본문(「404: Not Found」 14바이트)을 파일로 쓴다 — frontend-design/LICENSE 가 그렇게
+#   «라이선스 파일»로 커밋될 뻔했다(2026-09-25 · 커밋 직후 크기 14 로 발견). 받은 파일 어디에도 그 본문이 있으면 안 된다.
+_s404=$(grep -rl '^404: Not Found' .claude/skills/ 2>/dev/null | wc -l)
+if [ "$_s404" -gt 0 ]; then echo "REVERT? .claude/skills: 404 본문이 파일로 저장됨 ($_s404) — $(grep -rl '^404: Not Found' .claude/skills/ | tr '\n' ' ')"; fail=1; else echo 'ok [SKILL_404_BODY] .claude/skills 404 본문 0'; fi
+# [EXC_*] 예외 11개 — 이름이 곧 열쇠다. 점검이 같은 지적을 다시 올리면 여기서 닫혔는지 본다.
+chk '^### \[EXC_' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 11
+chk 'EXC_EYEBROW' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_NO_DARK' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_SECTION_NUM' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_MOTION_TWO' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+# 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
+chk '화면 PR 점검 3단' CLAUDE.md 1
+chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html
@@ -10388,3 +10427,55 @@ if [ "${_kbask:-x}" = "0" ]; then echo 'ok [KB_DECLARE_2WAY] AI 상담 지식에
 else echo "FAIL [KB_DECLARE_2WAY] AI 상담 지식에 «하객 응답·합송»이 ${_kbask}건 — 챗봇이 없는 갈래를 안내한다"; fail=1; fi
 # [LAUNCH_LIST 2026-09-25] 오픈 직전 목록 한 파일 — 비공개 전환 때 한꺼번에 할 일
 chk 'LAUNCH_LIST' docs/plans/오픈직전_목록.md 1
+# ★★[OPEN_COURSE 2026-09-25 설계 명세 1 · 코워크] 「우리 예식 짓기」(순간 먼저) — 원천 ritual-open.js 한 곳.
+#   예시 네 개의 시간(명세 5장 원문 값) · 빈 채 시작 2~3/53 · 알림 셋 · 옛 코스 여섯이 새 줄 없이 지금 소리 그대로 · 붓는 말이 옛 코스에 새지 않음
+#   ★실브라우저 판은 `node scripts/audit/open-course.mjs --live`(390 · 1280) — 게이트는 정적만 돈다(NO_GATE 와 같은 까닭).
+node scripts/audit/open-course.mjs >/dev/null 2>&1 && echo 'ok [OPEN_COURSE] 새 코스 원천·시간·알림·옛 코스 무변화' \
+  || { echo 'FAIL [OPEN_COURSE] node scripts/audit/open-course.mjs'; fail=1; }
+chk 'OPEN_COURSE' assets/ritual-cue.js 10
+chk 'OPEN_COURSE' order-preview.html 20
+chk 'OPEN_COURSE' assets/ritual-data.js 3
+chk 'OPEN_COURSE' api/_ritual-kb.js 3
+chk "src=\"/assets/ritual-open.js\"" order-preview.html 1
+chk 'ritual-open.js' console.html 1
+chk 'ritual-open.js' order-audit.html 1
+chk 'DECLARE_CLAP' assets/ritual-cue.js 1          # 박수로 답하는 선언(사장님 결정 3) · ask/chorus 가 아니다
+chk 'TOAST_WINE' assets/ritual-cue.js 1            # 와인 붓기 — 옛 코스는 값과 상관없이 none
+chk "s.wine = 'none';" assets/ritual-cue.js 1      # 옛 코스 붓는 말 누출 차단(open-course.mjs 가 잡았다)
+chk 'OPEN_RANGE' assets/ritual-open.js 1           # 본식 10~30 · 사진과 인사 25~45 의 원천
+chk 'CONTRACT_RANGE_WAIT' scripts/check-source-drift.mjs 1   # 계약서는 이번에 안 건드린다(명세 11장) · 고쳐지면 드리프트가 알려 준다
+chk 'NO_EXTRA_COST' order-preview.html 1           # «추가 비용은 미리 안내» 문구 폐지(Q6)
+chk 'NOT_COURSE' admin.html 2
+chk 'summary.open' mypage.html 1                  # [OPEN_COURSE] 마이페이지 요약 «순간 n개 · 본식 약 a~b분»
+# ★★[코워크 회신 둘째 판 2026-09-25] 스냅 50 · 식순 고르기 둘째 판 · 마이페이지 · 사이트 — 원문 docs/handoff/코워크회신_구현보고1_0925_둘째판.md
+chk 'SNAP_50' assets/ritual-data.js 1                 # 스냅 45 → 50(입장 준비 5) · 본식 10:10 · 합 50
+chk 'snap: 50' assets/ritual-data.js 1
+chk 'SNAP_50' assets/sequence-modal.js 2
+chk 'PREVIDEO_ALWAYS' assets/ritual-open.js 2         # 식전 영상은 늘 있다(사장님 결정 2)
+chk 'PREVIDEO_AT_4' assets/ritual-cue.js 2            # 영상은 03 과 04 사이 · 본식 4분 전 시각고정
+chk 'SPEECH_IN_FREE' assets/ritual-open.js 1          # «축하의 말» 칸은 거뒀다 — 축사는 준비한 순서의 한 판
+nochk "'narr-speech-in'" assets/ritual-cue.js 0
+nochk "speech: { n: '축하의 말'" assets/ritual-open.js 0
+chk 'FREE_WHAT' assets/ritual-open.js 2               # 준비한 순서 무엇을 × 길이
+chk 'FREE_OWN' order-preview.html 3                   # 맨 아래 묶음 · ② 더하기 단추 · ③ 한 줄
+chk 'FREE_RESCUE' console.html 2                      # 재생 안 됨 한 줄(105) · 맺는 말 건너뜀
+chk 'BOW_GROOM' assets/ritual-data.js 1               # 큰절은 원하면 신랑만 · 옛 bow 는 닫힌 채
+chk 'BOW_RETIRED' order-preview.html 1
+chk 'TOAST_POUR_B' assets/ritual-cue.js 1             # P2 · 붓는 날은 «잔이 가는 동안»을 뺀 줄(107)
+chk 'CLOSE_NO_MIN' assets/ritual-data.js 1            # P1 · 닫는 말에서 «삼십 분쯤» 뺌
+nochk '사진과 인사가 삼십 분쯤' assets/ritual-data.js 0
+nochk '사진과 인사가 삼십 분쯤' order-preview.html 0
+chk 'PAD3' assets/ritual-cue.js 1                     # 번호를 두 자리로 자르지 않는다(100 → «00» 사고)
+chk 'PAD3' scripts/check-ritual-cue.js 2
+nochk "function pad2(n) { return ('0' + n).slice(-2); }" assets/ritual-cue.js 0
+chk 'PHOTO_CAP_RD' mypage.html 3                      # 단체 사진 상한을 두 분 식순에서 센다(사장님 «인사는 금방»)
+chk 'SCENE_BY_PICK' mypage.html 2                     # 그날 남는 사진 — 큰절 · 준비한 순서 판에 따라
+chk 'OPEN_STORY' assets/ritual-story.js 2
+chk 'OPEN_SWEEP' scripts/build-course-story.mjs 1     # 장면 설명 검사가 새 코스 전 조합을 훑는다
+chk 'FAQ_DAY_0925' index.html 1                       # 행진 · 폐백 · 축가 · 축사 · 이름 · 대기실 · 드레스
+chk 'FAQ_DAY_0925' api/_kb.js 1
+chk 'SLOT_LINE' inquiry.html 2                        # 시간대를 고르면 한 줄
+# [PARENTS_DAY] 는 넣지 않았다 — parents.html 은 녹음(어른께 드리는 편지 · letter-mirror)과 한 몸이라 글을 더하면 소리와 갈린다(구현 보고 2 · 제안)
+chk 'NO_WAITROOM' guide.html 2
+chk 'BOUQUET_WAIT' docs/handoff/부케_옵션_문구_대기.md 1   # 부케는 사장님 결정 전 — 문구만 준비 · 올리지 않음
+chk 'OPEN_TIME_MEASURE' scripts/audit/open-time-measure.mjs 1   # P3 · 녹음 실측 도구(덮기는 녹음 들어온 뒤)
