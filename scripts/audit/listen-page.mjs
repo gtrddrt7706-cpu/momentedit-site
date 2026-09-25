@@ -204,6 +204,7 @@ for (const w of [390, 1280]) {
   ok('3-2 «파일로 저장»이 실제로 내려받기를 건다(SAVE_TXT_LIVE)', saved === 1, saved);
   ok('3장 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
+}
 // [코워크 추가전달 1-1 · 1-2 · 1-3] 운영에 있던 셋 — 파일로 저장 · «하객 박수로 답하기» · 임베드 Esc
 {
   const { ctx, pg, errs } = await open(390);
