@@ -9242,6 +9242,26 @@ chk 'A11Y_ANCESTOR_OPACITY' index.html 1
 #   #journey 12건이 그 사이에 숨어 있었다. 색·대비를 재는 자리 직전에만 고정한다 —
 #   레일 겹침 측정은 «실제 렌더 상태»로 재야 하므로 그보다 앞에 둔다.
 chk 'CV_FORCE_RENDER' scripts/audit/home-a11y.mjs 2
+
+# ★★코워크 설계 명세 ②~⑤·⑦ (2026-09-25 실서비스 실측) — 키보드로 못 쓰던 것들
+# [GA_LIST_BTN] #live 목록이 div 에 click 위임만 걸려 있어 **Tab 으로 도달조차 못 했다.**
+#   같은 구조의 #journey 는 이미 <button class="jr-step-btn"> 였다 — 한 쪽만 빠져 있었다.
+#   ★항목 안에 팝업 버튼(.gpm-open)이 드는 줄이 있어 항목 전체를 button 으로 못 감싼다
+#     (버튼 안의 버튼은 키보드로 도달 불가). 그래서 «칸»과 «누르는 것»을 나눴다.
+chk 'GA_LIST_BTN' index.html 4
+# [ROTATE_USER_STOP] 자동 넘김 멈춤이 mouseenter/leave 에만 걸려 폰에서는 계속 돌았고,
+#   누르면 start()/play() 가 되살렸다 — 읽는 중에 넘어간다(WCAG 2.2.2 · 디자인 규칙의
+#   「자동 재생 캐러셀 금지」 취지). 한 번이라도 직접 조작하면 영구 정지한다.
+#   ★되살리는 경로를 남기지 않으려 start()/play() «안»에서 막는다 — 바깥 호출처를 하나라도
+#     놓치면 되살아난다(실제로 mouseleave·IntersectionObserver 두 곳이 더 있었다).
+chk 'ROTATE_USER_STOP' index.html 3
+# [NAV_FOCUS_REVEAL] 1280 맨 위에서 Tab → 로고+메뉴 8개가 화면 밖(-40~-50px)·투명 상태로
+#   포커스됐다. 키보드 사용자는 자기가 어디 있는지 못 본다(WCAG 2.4.7 · 2.4.11).
+chk 'NAV_FOCUS_REVEAL' index.html 1
+# [FAQ_MORE_INERT] max-height:0 으로만 접어서 접힌 7문항이 Tab 순서에 남아 있었다.
+chk 'FAQ_MORE_INERT' index.html 2
+# [ARIA_ROLELESS_DIV] 역할 없는 div 의 aria-label 은 읽히지 않는다 — hero-logo·archive-grid.
+chk 'ARIA_ROLELESS_DIV' index.html 2
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html
