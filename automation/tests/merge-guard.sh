@@ -9810,6 +9810,10 @@ chk 'PAR_TIME_SCALE' parents.html 1
 chk 'font-size:calc(var(--letter-size) \* 0.8286)' parents.html 1
 nochk '\.par-time table{[^}]*font-size:13.5px' parents.html
 chk '  \.tools{justify-content:center}' parents.html 1
+# [PAR_TIME_JUMP 2026-09-25 사장님 「추천대로」] 제목 아래 「예식 날 부모님 시간 보기 ↓」 — 카드가 쪽 끝(81~83%)이라 찾는 길. 전화번호는 공개 번호가 없어 두지 않음
+chk 'PAR_TIME_JUMP' parents.html 2
+chk 'class="hero-jump" href="#parTimeH"' parents.html 1
+chk 'id="parTimeH"' parents.html 1
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html
