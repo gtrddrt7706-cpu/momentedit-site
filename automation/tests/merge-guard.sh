@@ -9558,6 +9558,18 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+
+# ★★[LOADING_CENTER 2026-09-25 코워크 3편 ① · 사장님 선택 «한국어로»] 상담 신청 제출 버튼.
+#   로딩 묶음이 버튼 가운데보다 14px 왼쪽에 섰다(.arrow 가 opacity:0 으로 자리를 차지) → display:none 으로 0px.
+#   기본 글자 Submit Inquiry → 「신청서 보내기」(humanize-korean route_hint=light). 기본·로딩 모두 13px(폼 전송 별격).
+chk 'LOADING_CENTER' inquiry.html 4
+chk '\.submit-btn\.loading \.arrow{display:none}' inquiry.html 1
+nochk '\.submit-btn\.loading \.arrow{opacity:0}' inquiry.html
+chk "setAttribute('aria-busy', 'true')" inquiry.html 1
+chk "removeAttribute('aria-busy')" inquiry.html 1
+chk '신청서 보내기' inquiry.html 2
+nochk 'Submit Inquiry' inquiry.html
+# ▲3편 자리 — 다음 항목은 이 줄 위에 붙인다
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html
