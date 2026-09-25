@@ -55,6 +55,10 @@ function deployCheck() {
     if (cond) { okN++; L.push('  OK   ' + label); }
     else { badN++; L.push('  MISS ' + label + (hint ? ('   → ' + hint) : '')); }
   }
+  /* [LOG_COMPACT] ② 전용 — OK 는 자리표만 두고 끝에서 «OK N항목» 한 줄로 접는다(MISS 는 그대로). */
+  function chkQ(label, cond, hint) {
+    if (cond) { okN++; L.push('\u0000OK'); } else chk(label, cond, hint);
+  }
   function has(name) { try { return eval('typeof ' + name) === 'function'; } catch (e) { return false; } }
   function src(name) { try { return eval('String(' + name + ')'); } catch (e) { return ''; } }
   function mark(fn, m) { var s = src(fn); return s && s.indexOf(m) >= 0; }
@@ -252,11 +256,11 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
   else {
     for (var j2 = 0; j2 < REMOTE.newfn.length; j2++) {
       var f = REMOTE.newfn[j2];
-      chk('[' + f.file + '] ' + f.fn + ' — ' + f.why, has(f.fn), '그 파일이 옛 버전입니다');
+      chkQ('[' + f.file + '] ' + f.fn + ' — ' + f.why, has(f.fn), '그 파일이 옛 버전입니다');
     }
     for (var k = 0; k < REMOTE.marks.length; k++) {
       var m = REMOTE.marks[k];
-      chk('[' + m.file + '] ' + m.fn + ' 안의 ' + m.mark + ' — ' + m.why, mark(m.fn, m.mark), '그 파일이 옛 버전이거나 붙여넣다 잘렸습니다');
+      chkQ('[' + m.file + '] ' + m.fn + ' 안의 ' + m.mark + ' — ' + m.why, mark(m.fn, m.mark), '그 파일이 옛 버전이거나 붙여넣다 잘렸습니다');
     }
   }
 
@@ -402,6 +406,23 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
   L.push('※ 이 점검 밖 — 초록이어도 이 둘은 안 본 것이다:');
   L.push('   · 별도 GAS 프로젝트(form-to-couple 부부폼 · guest-letter-webhook · 가족청첩장빌드) — 각각 따로 배포한다.');
   L.push('   · consultation-booking 의 const 5개(CONFIG·SYS·HEADERS·ST·LOCKED_STATES) — 그 파일은 함수 130개로 덮인다.');
+  /* ★★[LOG_COMPACT 2026-09-25 대표 실행에서 드러남] OK 줄을 접고, 결과 한 줄을 맨 위로 올린다.
+     GAS 는 로그가 길면 「Logging output too large」 로 **뒤를 자른다.** 표식은 목록 끝에 새로 붙으니
+     잘리는 자리가 곧 «가장 최근 변경»이다 — 가장 빠지기 쉬운 것을 가장 못 보는 구조였다.
+     9/25 실행에서 ② 가 STALE_EXTRA_FEE 에서 끊겨 뒤의 17개(연락처 정정·+82 번호·REVISIT_PICKED …)가
+     한 줄도 안 보였고, 맨 끝 「결과 — 누락 N건」도 안 보였다.
+     OK 는 개수만 알면 되고 이름이 필요한 건 MISS 뿐이다. 그래서 ② 의 OK 를 연달아 나온 만큼 한 줄로 접는다
+     (①·①-B·①-C 는 줄 수가 적고 deploycheck-sim 이 그 OK 줄을 읽으므로 그대로 둔다). */
+  var _C = [], _okRun = 0, _res = '';
+  for (var _i = 0; _i < L.length; _i++) {
+    if (L[_i] === '\u0000OK') { _okRun++; continue; }
+    if (_okRun) { _C.push('  OK   ' + _okRun + '항목 (줄 생략 · MISS 만 이름을 찍습니다)'); _okRun = 0; }
+    if (L[_i].indexOf('결과 — ') === 0) _res = L[_i];
+    _C.push(L[_i]);
+  }
+  if (_okRun) _C.push('  OK   ' + _okRun + '항목 (줄 생략 · MISS 만 이름을 찍습니다)');
+  if (_res) _C.splice(_C[0] && _C[0].indexOf('★배포 확인') === 0 ? 2 : 0, 0, _res, '');   // ④ 결론 바로 아래에 결과
+  L = _C;
   var out = L.join('\n');
   Logger.log(out);
   return out;
