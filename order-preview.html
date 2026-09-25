@@ -3213,7 +3213,7 @@ function rowVal(k){
    //   예전엔 ring·bless가 '넣기'를 돌려줘 카드엔 '연출 · 넣기', 요약엔 '반지 교환 — 넣기'로 찍혔다.
    //   넣고 뺀 사실은 카드의 알약과 요약의 번호·'뺌' 배지가 이미 말한다. 고를 연출이 없으면 빈 값을 돌린다(양쪽 다 빈 값을 건너뛴다).
    case 'ring': return '';
-   case 'declare': return DECLWHO[S.declareWho].d+(S.declareWho==='narr'?' · '+DECLARE[S.declare].d:'');
+   case 'declare': return DECLWHO[S.declareWho].d+(S.declareWho==='narr'?' · '+(DECLARE[S.declare]?DECLARE[S.declare].d:(window.RitualOpen?RitualOpen.chipLabel('declare',S):'')):'');   // [SAVED_OK] 'clap' 은 옛 표에 없다
    case 'valley': return S.valley==='none'?'없음':S.valley==='wine'?'와인 세리머니':'케이크 커팅';
    case 'toast': return TOAST[S.toast].d;
    case 'song': return S.song==='live'?'어쿠스틱 라이브 연주':'가족·지인이 직접';
@@ -4063,7 +4063,9 @@ function scriptText(){
 window.saveScriptTxt=function(){
   var blob=new Blob([scriptText()],{type:'text/plain;charset=utf-8'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=isOpen()?'우리예식대본.txt':('우리예식대본_'+COURSES[S.course].nm+'코스.txt');   // [OPEN_COURSE] document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  a.download=isOpen()?'우리예식대본.txt':('우리예식대본_'+COURSES[S.course].nm+'코스.txt');   /* [OPEN_COURSE] */
+  /* ★[SAVE_TXT_LIVE 2026-09-25] 윗줄 꼬리 주석이 이 세 동작을 삼켜 «파일로 저장»이 아무것도 안 했다(#815 부터). 주석은 블록으로만 · 동작은 제 줄에. */
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 };
 window.copyScript=function(){
   var txt=scriptText();
@@ -4462,7 +4464,7 @@ var _who='';   // ORDER_OWNER: 현 초안의 소유 계정(개인코드) — 임
 function _applySaved(_sv){
   if(!(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs)) return false;
   for(var _k in _sv.S){ S[_k]=_sv.S[_k]; }
-  if(!ENTRY[S.entry])S.entry='A'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare])S.declare='1'; if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
+  if(!ENTRY[S.entry])S.entry='A'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare]&&!(window.RitualOpen&&RitualOpen.savedOk('declare',S.declare)))S.declare='1';   /* [SAVED_OK] 새 코스 값(clap)은 지키기 */ if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
   courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; _who=_sv.who||_who; buildSteps();
   // [ORD_INTRO2] 안내가 두 화면이 되며 단계가 하나 늘었다 — v 없는 옛 초안은 idx를 한 칸 밀어 같은 자리로 되돌린다
   var _si=_sv.idx||0; if(!(_sv.v>=2) && _si>0) _si++;
@@ -4613,6 +4615,12 @@ if(EMBED){
   var _slot=document.getElementById('obExitSlot'); if(_slot) _slot.appendChild(_cb);
   document.addEventListener('keydown',function(e){
     if(e.key!=='Escape'||e.repeat) return;
+    /* ★[EMBED_ESC_YIELD 2026-09-25 코워크 추가전달 1-3] 위에 떠 있는 것이 있으면 Esc 는 그것 몫이다 — 크게 보기 · 확인 판 · 상담 창.
+       종전엔 미리듣기 창 하나만 비켜서서, 크게 보기에서 Esc 를 누르면 식순 창이 통째로 닫히거나(저장된 상태) 나가기 확인이 떴다. */
+    if(e.defaultPrevented) return;
+    if(typeof LP!=='undefined'&&LP.big) return;
+    if(_ordOv) return;
+    if(document.querySelector('.me-adv-panel.open')) return;
     if(document.getElementById('ob_rpViewer')) return;   // [PREVIEW_LINK_V1] 미리듣기가 떠 있으면 Esc 는 그 화면 몫 — 여기서 받으면 듣다 말고 빌더가 통째로 닫힌다(미리듣기가 자기 Esc 를 따로 듣는다 · 이 핸들러가 먼저 등록돼 있어 순서는 항상 여기가 먼저다)
     window._obExit();
   });

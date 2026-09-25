@@ -120,6 +120,11 @@
   }
   function labelOf(k, v) { var c = (CHIPS[k] || []).filter(function (x) { return x[0] === v; })[0]; return c ? c[1] : ''; }
   // 손으로 처음 담을 때의 기본 판(명세 5장)
+  /* ★[SAVED_OK 2026-09-25 코워크 추가전달 1-2] 새 코스가 S 에 적는 값 중 옛 표(DECLARE 등)에 없는 것 — 판정은 여기 한 곳.
+     «하객 박수로 답하기»(S.declare='clap')가 옛 표에 없어 ④ rowVal 이 TypeError 로 멈추고(‹기록› 예시가 ④ 를 못 열었다),
+     새로고침하면 _applySaved 가 '1'(엄숙하게)로 말없이 바꿔 그대로 저장했다. */
+  var SAVED_OK = { declare: ['1', '2', 'clap'] };
+  function savedOk(key, v) { return !!SAVED_OK[key] && SAVED_OK[key].indexOf(String(v)) > -1; }
   var DEF = { entry: 'A', declareWho: 'narr', declare: '1', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'mix', candleWho: 'mothers', freeWhat: 'video', freeLen: '3', entryScene: 'look' };
 
   /* ── 화촉 서는 분(연출 단계 · S.candleWho) ── */
@@ -479,7 +484,7 @@
 
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, secTxt: secTxt,
-    prepList: prepList, PREP_CAT: PREP_CAT,
+    prepList: prepList, PREP_CAT: PREP_CAT, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS,
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
