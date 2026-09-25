@@ -379,7 +379,8 @@ function scan(needle) {
 }
 
 /* 6-c) ★어른의 예식 날 시각 [PARENTS_TIME 2026-09-25 코워크 P6] — parents.html 편지 밖 카드의 표.
-   본식 = 도착 + 준비 + 스냅 · 도착 40분 전 · 하객 맞이 20분 전(= 하객 입장 시작 · LEAD) · 자리로 4분 전(식전 영상 시작). */
+   본식 = 도착 + 준비 + 스냅 · 도착·하객 맞이 20분 전(= 하객 입장 시작 · LEAD) · 자리로 4분 전(식전 영상 시작).
+   ★[PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님은 하객과 같은 시각에 오신다 — 종전 «도착 40분 전» 칸을 없앴다(4칸 → 3칸). */
 {
   const hhmm = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
   const toMin = (x) => +x.slice(0, 2) * 60 + +x.slice(3, 5);
@@ -387,10 +388,10 @@ function scan(needle) {
   const sm = jr.match(/SLOTS:\s*\[([^\]]*)\]/);
   const arrives = sm ? [...sm[1].matchAll(/'(\d{2}:\d{2})'/g)].map((m) => m[1]) : [];
   const src = fs.readFileSync(path.join(root, 'parents.html'), 'utf8');
-  const rows = [...src.matchAll(/<tr data-pt><td>[^<]+<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><\/tr>/g)].map((m) => m.slice(1, 5).join(' · '));
-  const want = arrives.map((a) => { const c = toMin(a) + D.DAY.ready + D.DAY.snap; return [c - 40, c - 20, c - 4, c].map(hhmm).join(' · '); });
+  const rows = [...src.matchAll(/<tr data-pt><td>[^<]+<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><\/tr>/g)].map((m) => m.slice(1, 4).join(' · '));
+  const want = arrives.map((a) => { const c = toMin(a) + D.DAY.ready + D.DAY.snap; return [c - 20, c - 4, c].map(hhmm).join(' · '); });
   if (rows.length !== 3 || rows.join() !== want.join()) no(`parents.html 어른 시각표 ${rows.join(' / ') || '못 읽음'} ≠ 계산 ${want.join(' / ')} [PARENTS_TIME]`);
-  else ok(`어른 시각표 3줄 일치 (${want.map((w) => w.split(' · ')[3]).join(' · ')} 기준)`);
+  else ok(`어른 시각표 3줄 일치 (${want.map((w) => w.split(' · ')[2]).join(' · ')} 기준)`);
 }
 
 /* ─────────────────────────────────────────────────────────────────

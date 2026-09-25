@@ -1100,6 +1100,42 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   letter-spacing:0.02em;
   box-sizing:border-box;
 }
+/* ★[LETTER_PREVIEW_PAPER 2026-09-25 코워크 5편 ③] 미리보기도 실제 폼과 같은 종이로 — 종전엔 To. 줄만 새 모양이고
+   아래는 흰 상자(테두리) 안 안내 + 테두리 네모 칸 둘이라 «종이 안에 상자»였다. 홈 목업 03 Letter 가 여는 화면이라
+   예비 부부가 편지 화면을 처음 보는 곳이다.
+   ★.lp-message-box 는 히어로 안내 둘(.live-notloaded-box · .link-unknown-box)도 쓴다 — 그래서 .letter-preview 로 좁힌다.
+     히어로 안내는 상자 그대로다(모바일 블록의 .lp-message-box 규칙도 그쪽 몫).
+   ★괘선 격자는 .lf-message 와 같다 — 줄높이 32 · 괘선 31px 째 · 배경 위치 8px. 안내 세 줄은 첫 줄을 비우고(위 40px)
+     32px 칸마다 한 줄씩 앉는다. 한쪽만 고치지 말 것. */
+.letter-preview .lp-message-box{
+  min-height:328px;
+  padding:40px 2px 0;
+  background:none;
+  border:0;
+  border-top:1px solid var(--hairline);
+  border-bottom:1px solid var(--hairline);
+  border-radius:0;
+  gap:0;
+  background-image:linear-gradient(to bottom, transparent 31px, rgba(28,27,25,.075) 31px);
+  background-size:100% 32px;
+  background-position:0 8px;
+  background-repeat:repeat;
+}
+.letter-preview .lp-message-box > *{line-height:32px;margin:0}
+.letter-preview .lf-input-ph{
+  padding:8px 2px;
+  background:none;
+  border:0;
+  border-bottom:1px solid var(--hairline);
+  border-radius:0;
+  font-size:16px;
+  font-weight:300;
+  line-height:normal;
+}
+@media (max-width:680px){
+  .letter-preview .lp-message-box{min-height:256px;padding:40px 2px 0}
+  .letter-preview .lf-input-ph{padding:12px 2px}
+}
 .lp-cta-preview{
   cursor:default;
   /* [AUD16] opacity 0.55는 버튼 전체(배경+흰 글자)를 함께 흐려 3.31:1로 무너뜨렸다(2026-08-02 인접 화면 점검).
@@ -1215,22 +1251,25 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   word-break:keep-all;
 }
 .le-retry{
+  /* [LETTER_BTN_SIB 2026-09-25 코워크 5편 ④] .ls-again 과 같은 값 — 종전 Cormorant 11px · 자간 0.22em · 대문자 변환이
+     한글에 걸려 「다 시 시 도」로 흩어졌고 높이 41px · transition:all 이었다(형제 .ls-again 만 고쳐졌었다). */
   background:none;
   border:1px solid var(--border);
   border-radius:2px;
   padding:12px 32px;
-  font-family:var(--serif);
-  font-size:11px;
-  font-weight:500;
-  letter-spacing:0.22em;
-  text-transform:uppercase;
+  min-height:44px;
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:400;
+  letter-spacing:0.02em;
+  text-transform:none;
   color:var(--sub);
   cursor:pointer;
-  transition:all 0.25s ease;
+  transition:color 0.3s var(--ease), border-color 0.3s var(--ease);
 }
 .le-retry:hover{
-  border-color:var(--accent);
-  color:var(--accent);
+  border-color:var(--seal);
+  color:var(--seal);
 }
 
 /* ─── 금지어 차단 전용 화면 ─── */
@@ -1291,33 +1330,40 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   word-break:keep-all;
 }
 .lb-back{
+  /* [LETTER_BTN_SIB] 「돌아가기」 — .ls-again · .le-retry 와 같은 값. margin-top 8px 은 그대로. */
   background:none;
   border:1px solid var(--border);
   border-radius:2px;
   padding:12px 36px;
-  font-family:var(--serif);
-  font-size:11px;
-  font-weight:500;
-  letter-spacing:0.22em;
-  text-transform:uppercase;
+  min-height:44px;
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:400;
+  letter-spacing:0.02em;
+  text-transform:none;
   color:var(--sub);
   cursor:pointer;
-  transition:all 0.25s ease;
+  transition:color 0.3s var(--ease), border-color 0.3s var(--ease);
   margin-top:8px;
 }
 .lb-back:hover{
-  border-color:var(--gold);
-  color:var(--accent);
+  border-color:var(--seal);
+  color:var(--seal);
 }
 
 /* 모바일 */
 @media(max-width:680px){
   .letter-form{padding:24px 24px 32px}
   .lf-q{font-size:16px}
-  .lf-message{min-height:240px;font-size:16px;padding:16px 18px}
+  /* ★[LETTER_PAPER_M 2026-09-25 코워크 5편 ①] 여기 있던 옛 본문칸 줄(최소높이 240 · 여백 16·18)을 지웠다 —
+     [LETTER_PAPER] 모바일 규칙(256px)보다 파일 «뒤»라 이겨서, 폰에서 괘선이 첫 줄 글자 밑동을 그었다(글자밑−괘선 +0.3px ·
+     PC 는 −8px). 글 시작도 To. 보다 18px 안쪽이었다. 되살리지 말 것 — 여백은 기본 규칙 8px 2px 0 이 맡는다. */
   /* [LETTER_PAPER] 종전엔 flex 세로쌓기였다 — 이제 2열 그리드라 From. 라벨이 떨어져 나간다. 간격만 좁힌다 */
   .lf-row{column-gap:12px;row-gap:8px}
-  .lf-input{font-size:16px;padding:12px 14px}
+  /* [LETTER_PAPER_M] 좌우 14px → 2px — 이름·관계 글자가 밑줄 시작선에서 선다(PC 와 같다). 높이 48 은 그대로(위아래 12).
+     글자가 PC 보다 4px 내려가니 From. 도 4px 내린다(From. 밑선 = 이름 글자 밑선 · 실측으로 맞춘 값). */
+  .lf-input{font-size:16px;padding:12px 2px}
+  .lf-row .lf-mark{padding-top:14px}
   .lf-cta{width:100%;padding:14px 24px;min-width:0}
   .lf-note{font-size:10.5px}
   .letter-preview{padding:24px 24px 32px}
@@ -1785,6 +1831,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 
       <!-- 이름 / 관계 input (비활성 데모) -->
       <div class="lf-row">
+        <span class="lf-mark" aria-hidden="true">From.</span>
         <div class="lf-field lf-field-half">
           <div class="lf-input-ph">이름</div>
         </div>

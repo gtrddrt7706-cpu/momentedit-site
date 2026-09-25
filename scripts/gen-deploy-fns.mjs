@@ -274,7 +274,10 @@ if (process.argv.includes('--check')) {
 if (!same || !cur._생성 || process.argv.includes('--stamp')) {
   let sha = '';
   try { sha = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT }).toString().trim(); } catch (e) {}
-  cur._생성 = new Date().toISOString().slice(0, 16).replace('T', ' ') + (sha ? (' · ' + sha) : '');
+  /* ★[STAMP_KST 2026-09-25] 한국 시각으로 찍는다. 종전엔 UTC(toISOString)였는데 [LIST_AGE] 가 견주는
+     커밋 날짜(git %ad)는 저자 시각(+0900)이라, 한국 자정~09시에 병합된 .gs 가 있으면 --stamp 를 돌려도
+     «9/25 < 9/26» 으로 빨강이 안 풀렸다(#843 · 00:10 KST 병합 뒤 실측). 사장님·GAS 도 한국 시각을 쓴다. */
+  cur._생성 = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace('T', ' ') + (sha ? (' · ' + sha) : '');
 }
 cur._표식서명 = marksSig;   /* [MARKS_STAMP] 다음 실행이 «표식이 바뀌었나»를 알 수 있게 */
 Object.assign(cur, PACK);

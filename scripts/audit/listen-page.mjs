@@ -204,6 +204,38 @@ for (const w of [390, 1280]) {
   ok('3-2 «파일로 저장»이 실제로 내려받기를 건다(SAVE_TXT_LIVE)', saved === 1, saved);
   ok('3장 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
+// [코워크 추가전달 1-1 · 1-2 · 1-3] 운영에 있던 셋 — 파일로 저장 · «하객 박수로 답하기» · 임베드 Esc
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg);
+  let opened = 0;
+  for (const ex of await pg.evaluate(() => RitualOpen.EXAMPLES.map((e) => e.k))) {
+    await pg.click(`[data-fk="opx:${ex}"]`); await pg.waitForTimeout(300);
+    const n0 = errs.length;
+    await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'done') { idx = i; render(); } }); await pg.waitForTimeout(500);
+    if (errs.length === n0 && await pg.evaluate(() => STEPS[idx].k === 'done' && !!document.querySelector('.sumrow'))) opened++;
+    await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'pick') { idx = i; render(); } }); await pg.waitForTimeout(300);
+  }
+  ok(`1-2 예시 넷 모두 ④ 가 열린다(${opened}/4) [SAVED_OK]`, opened === 4, errs.join(' | '));
+  await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800);
+  ok('1-2 «하객 박수로 답하기»가 새로고침 뒤에도 그대로(clap)', await pg.evaluate(() => S.declare === 'clap'));
+  const saved = await pg.evaluate(() => { let n = 0, nm = ''; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) { n++; nm = this.download; } }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return { n, nm, first: scriptText().split('\n')[0] }; });
+  ok('1-1 «파일로 저장»이 내려받기를 건다 · 파일 이름 · 첫 줄 [SAVE_TXT_LIVE]', saved.n === 1 && saved.nm === '우리예식대본.txt' && /^우리 예식 대본 · /.test(saved.first), JSON.stringify(saved));
+  await ctx.close();
+  // 1-3 임베드(?embed=1)에서 크게 보기 중 Esc — 크게 보기만 닫히고 빌더는 남는다
+  const c2 = await br.newContext({ viewport: { width: 390, height: 900 } }); const p2 = await c2.newPage();
+  await p2.route('**/*', (rt) => { const u = rt.request().url(); return u.startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }); });
+  await p2.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await p2.waitForTimeout(800);
+  await p2.evaluate(() => { window.__exits = 0; const o = window._obExit; window._obExit = function () { window.__exits++; }; });
+  await p2.click('#next'); await p2.waitForTimeout(400); await p2.click('#next'); await p2.waitForTimeout(500);
+  await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await p2.click('#next'); await p2.waitForTimeout(1300);
+  await p2.click('.ls-hero'); await p2.waitForTimeout(600);
+  await p2.keyboard.press('Escape'); await p2.waitForTimeout(300);
+  ok('1-3 임베드 크게 보기 Esc → 크게 보기만 닫힘 · 빌더 나가기 안 불림 [EMBED_ESC_YIELD]', await p2.evaluate(() => document.getElementById('lsFull').hidden && window.__exits === 0));
+  await p2.keyboard.press('Escape'); await p2.waitForTimeout(300);
+  ok('1-3 떠 있는 것이 없으면 Esc 는 종전대로 나가기', await p2.evaluate(() => window.__exits === 1));
+  await c2.close();
 }
 // [DETAIL_0925 C1 · C2 · G] 글자 대비(본문 4.5 · 큰 글 3) · 누를 곳 44px 실측 — ① · ② · 크게 보기 · ③ 를 390 · 1280 에서
 const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";

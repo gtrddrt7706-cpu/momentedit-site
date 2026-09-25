@@ -58,7 +58,9 @@ GSAP·bounce·spring·패럴랙스(132) · 이모지(44).
 
 ## 이 사이트가 무엇인가
 
-경기 고양시의 **프라이빗 스몰웨딩 스튜디오**. 하객 25명 이하, 가족 중심 예식.
+경기 고양시의 **프라이빗 스몰웨딩 스튜디오**. 하객 30명까지(추가금 없음), 가족 중심 예식.
+★인원은 `index.html` 의 `[SEATED30]`(「30명까지 추가금 없음」)이 정본이다 — 어긋나면 `index.html` 을 믿고 이 줄을 고칠 것.
+  (2026-09-25 코워크 5편 ⑦ · 종전 «25명 이하»는 고객이 추가금을 낼 뻔한 옛 숫자였다 · 아래 「페이지 구조」 4번의 «25명 제한»도 같이 고쳤다 [SKILL_SEATED30])
 평일 250만 원 / 주말 330만 원, 부가세 포함 전액 공개.
 ★가격은 `index.html` 의 `Standard Investment` 블록이 정본이다 — 여기 숫자는 사본이니,
   어긋나면 `index.html` 을 믿고 이 줄을 고칠 것(2026-09-06 실측: 문서가 210/280 으로 낡아 있었다). 140분 시그니처 시퀀스가 핵심 상품.
@@ -971,7 +973,7 @@ index가 16px/0.02em으로 어긋나 있던 것을 통일함.)
 1. 내비게이션 (About / Archive / Service / Invitation / Experience / FAQ / RSVP / My Page)
 2. 히어로 — "Private Wedding Studio"
 3. THE REALITY — 기존 결혼식의 문제 제기
-4. ABOUT — 140분 시그니처 시퀀스, 25명 제한
+4. ABOUT — 140분 시그니처 시퀀스, 30명까지(추가금 없음 · [SEATED30])
 5. Visual Archive — 인스타그램 갤러리
 6. SERVICE GUIDE — 140분 타임라인, Candle/White 존, 스타일링
 7. SELECTIVE PRESENCE — 디지털 참석(중계·편지·축의)

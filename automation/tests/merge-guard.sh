@@ -8413,6 +8413,16 @@ chk 'STAMP_ONLY' automation/platform/99_deployCheck.gs 2
 chk 'deployStampCheck' automation/platform/99_deployCheck.gs 2   # 함수 정의 + 허용목록
 chk 'deployStampCheck' CLAUDE.md 1                               # 실행 함수 위치표에 있는가(집 규칙)
 chk 'LIST_AGE' scripts/audit/deploycheck-coverage.mjs 1
+# ── [LIST_AGE_KST] 목록 날짜와 커밋 날짜를 같은 시계(한국 시각)로 (2026-09-26 · #843 병합 직후 main 이 이것 하나로 빨갰다) ──
+#   `_생성` 은 UTC 인데 `--date=short` 는 커밋의 시간대(스쿼시 병합 +09:00)로 찍어, 한국 00~09시 병합은 하루 앞서
+#   보였다 — 그 창에서는 --stamp 도 안 듣는 막다른 빨강. 30분 안에 두 세션이 반대로 고쳐(#844 견주기 UTC · #845 찍기 한국)
+#   시계가 다시 갈렸다. 나중 결정(#845 STAMP_KST)에 맞춰 견주는 쪽도 한국 시각으로. 둘 다 «+9시간» 산술이라 짝으로 묶는다.
+# ★깨 보고 믿었다 — _생성 을 하루 되돌리면 빨강 · UTC 셸과 한국 셸이 같은 답 · 찍기 한국/견주기 UTC(#844 판)로는 못 잡던 하루가 잡힌다.
+chk 'LIST_AGE_KST' scripts/audit/deploycheck-coverage.mjs 1
+chk '9 \* 3600e3' scripts/audit/deploycheck-coverage.mjs 1   # 견주는 쪽 — 한국 시각
+chk '9 \* 3600e3' scripts/gen-deploy-fns.mjs 1                # 찍는 쪽 — 한국 시각(STAMP_KST) · 한쪽만 바뀌면 시계가 또 갈린다
+nochk "TZ: 'UTC'" scripts/audit/deploycheck-coverage.mjs
+nochk '%ad --date=short' scripts/audit/deploycheck-coverage.mjs
 chk 'STALE_WAIT' scripts/audit/stale-waiters.sh 1
 chk 'STALE_WAIT' CLAUDE.md 1                      # 왜 만들었는지가 사라지면 다음 세션이 또 만든다
 chk 'SIG_NODE' scripts/audit/sign-node.mjs 1
@@ -8549,14 +8559,19 @@ nochk '반지를 담은 날' assets/ritual-open.js
 chk 'LAB_FIX' order-preview.html 4   # ② 이름표를 고객 말로(엔진 이름은 그대로)
 chk 'BLESS_PREV' assets/ritual-cue.js 1   # 덕담 갈래 = 바로 앞(편지) · 바로 뒤(서약) — 새 코스가 늘 «편지 뒤»였다 · 문안은 사장님 대본 점검 몫
 chk 'SCRIPT_ENGINE' order-preview.html 1   # 새 코스 대본 = 엔진 큐(옛 표는 옛 코스만)
-chk 'SAVE_TXT_LIVE' order-preview.html 1   # «파일로 저장»이 꼬리 주석에 먹혀 먹통이었다(#815~)
 nochk '// \[OPEN_COURSE\] document.body.appendChild(a)' order-preview.html
 chk 'DONE_UNIFY' order-preview.html 4   # ④ = ② 줄 머리 · ③ 준비 목록과 같은 원천
 chk 'HEAD_ONE' order-preview.html 3   # 새 코스 머리 = 네 걸음 표시 하나
 chk 'NO_EMPTY_BOX' order-preview.html 3   # 영상이 하나도 없으면 큰 빈 상자 없음
 chk 'P10 코워크 회신3' assets/ritual-open.js 1
 chk 'RAIL_OVERLAP_SCAN' scripts/audit/rail-overlap.mjs 1
-chk 'LIST_AGE_UTC' scripts/audit/deploycheck-coverage.mjs 1   # 목록 나이는 두 날짜 모두 UTC 로(한국 00~09시 막다른 빨강 · 낡은 목록은 여전히 빨강 — 깨 보고 믿음)   # 말풍선 겹침 재기만(RAIL_LOCKED · 옮기는 것은 사장님 결정)   # [2-3] «16~23분»을 1623 으로 읽던 30분 줄 · 새 코스는 뺌
+# ── [코워크 추가전달 1-1 · 1-2 · 1-3 · 2026-09-25] 운영에 있던 셋 ──
+chk 'SAVE_TXT_LIVE' order-preview.html 1   # «파일로 저장»이 꼬리 주석에 먹혀 #815 부터 먹통
+if command -v python3 >/dev/null 2>&1; then python3 scripts/audit/comment-swallow.py >/dev/null 2>&1 && echo 'ok comment-swallow: 줄 끝 // 주석이 코드를 삼킨 곳 0' || { echo 'FAIL comment-swallow: 줄 끝 // 주석이 코드를 삼켰다 — python3 scripts/audit/comment-swallow.py'; fail=1; }; fi
+chk 'COMMENT_SWALLOW' scripts/audit/comment-swallow.py 1   # 깨 보고 믿음 — 옛 main 판에서 saveScriptTxt 한 줄을 잡았다
+chk 'SAVED_OK' assets/ritual-open.js 1   # 새 코스 값(declare clap) 판정은 한 곳 — ④ TypeError · 새로고침에 엄숙하게로 바뀌던 것
+chk 'SAVED_OK' order-preview.html 2
+chk 'EMBED_ESC_YIELD' order-preview.html 1   # 임베드 Esc 는 크게 보기 · 확인 판 · 상담 창이 떠 있으면 비켜선다
 nochk 'L_STALE=' order-preview.html
 nochk '그 판으로 바로' order-preview.html
 nochk '판 바꿈' assets/ritual-open.js
@@ -9726,6 +9741,38 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# ★★[PAR_PC_POLISH · PAR_FOOTER_TIGHT · PAR_TIME_TIDY 2026-09-25 사장님 「어른께 드리는 안내 PC 직접 보면서 개선」]
+#   제목 27 → 34px(PC) · «궁금한 점 물어보기» 진사 덩어리(600×58) → 먹갈색 글자 크기만큼(240×54) · 시간표 본문 시작선 · 푸터 241 → 201px.
+chk 'PAR_PC_POLISH' parents.html 1
+# [PAR_PC_CENTER 2026-09-25 사장님 「이 2개는 센터가 좋을 것 같은데」] 제목 블록 · 버튼 · 시간 카드 = 화면 가운데 축(PC)
+chk '\.closing \.contact-ask{display:block;width:max-content' parents.html 1
+chk 'PAR_PC_CENTER' parents.html 2
+nochk '\.hero{text-align:left;padding-top:132px}' parents.html
+nochk '\.contact-ask{[^}]*background:var(--seal)' parents.html
+nochk '\.hero-label{[^}]*color:var(--gold);' parents.html
+chk 'PAR_FOOTER_TIGHT' parents.html 3
+# [PAR_FOOTER_TIGHT2 2026-09-25 사장님 「푸터 간격 더 좁히기」] 1280 201 → 160 · 390 243 → 208 · 링크 44px 칸은 그대로
+chk 'PAR_FOOTER_TIGHT2' parents.html 5
+chk '\.f-legal{margin-top:-8px}' parents.html 1
+chk 'PAR_TIME_TIDY' parents.html 1
+# [PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님 도착 = 하객 입장(본식 20분 전). 표 4칸 → 3칸 · check-source-drift (6-c) 가 계산해 대조.
+chk 'PARENT_ARRIVE_GUEST' parents.html 1
+chk 'PARENT_ARRIVE_GUEST' scripts/check-source-drift.mjs 1
+chk 'STAMP_KST' scripts/gen-deploy-fns.mjs 1
+nochk '<li>본식 시작 40분 전' parents.html
+# [코워크 5편 2026-09-25] 편지 모바일 괘선 · 미리보기 종이 · 형제 버튼 · 홈 Tab 메뉴 바탕 · 마이페이지 주 버튼 자간 · 디자인 문서 30명
+chk 'LETTER_PAPER_M' live.html 2
+nochk '\.lf-message{min-height:240px' live.html
+nochk '\.lf-input{font-size:16px;padding:12px 14px}' live.html
+chk 'LETTER_BTN_SIB' live.html 2
+chk 'LETTER_PREVIEW_PAPER' live.html 1
+chk '^\.letter-preview \.lp-message-box{' live.html 1
+chk '<span class="lf-mark" aria-hidden="true">From.</span>' live.html 2
+chk 'NAV_FOCUS_BG' index.html 1
+chk 'CC_BTN_TRACK' mypage.html 1
+nochk 'letter-spacing:\.16em;background:#4E3F31' mypage.html
+chk 'SKILL_SEATED30' .claude/skills/momentedit-design/SKILL.md 1
+nochk '하객 25명 이하' .claude/skills/momentedit-design/SKILL.md
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html
