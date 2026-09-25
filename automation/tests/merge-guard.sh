@@ -6225,6 +6225,28 @@ for _old in automation/form-to-couple.gs automation/guest-letter-webhook.gs 'aut
   [ -e "$_old" ] && { echo "FAIL LETTER_RETIRED: 은퇴한 옛 Letter System 파일이 되살아났다 — $_old (원본은 automation/platform/87_letter.gs)"; fail=1; }
 done
 chk 'LETTER_SIM' scripts/audit/letter-sim.mjs 1
+# ★[LETTER_SWITCH 2026-09-25] 사이트가 부부 정보·하객 편지를 본 GAS(87_letter)로 부른다 — 옛 Letter System 웹훅 주소로 되돌리지 말 것
+#   (옛 시트는 letterMigrate 뒤로 갱신되지 않는다 — 되돌리면 청첩장이 옛 내용을 보이고 편지는 옛 시트에만 쌓인다).
+#   ★편지 POST 의 action:'guestLetter' 를 빼면 본 GAS doPost 의 case '' (상담 신청)로 떨어진다.
+#   (반복문 안에 chk 를 넣지 않는다 — merge-guard 가 chk 실행 횟수를 줄 수와 대조한다)
+nochk 'AKfycbwWuUVCgRRclss' shared/hydrate.js
+nochk 'AKfycbwWuUVCgRRclss' live.html
+nochk 'AKfycbwWuUVCgRRclss' api/og-inv.js
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' shared/hydrate.js 1
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' live.html 1
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' api/og-inv.js 1
+chk "action: 'guestLetter'," live.html 1
+chk 'FORM_TO_MYPAGE' form.html 1
+chk 'LETTER_SWITCH_E2E' scripts/audit/letter-switch.mjs 2
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/letter-switch.mjs >/dev/null 2>&1; _lsw=$?
+  case "$_lsw" in
+    0) echo 'ok letter-switch: 청첩장·가족·라이브가 본 GAS 로 부르고 편지가 action 을 달고 간다' ;;
+    2) echo 'skip letter-switch (브라우저 없음 — 통과가 아니라 안 본 것입니다)' ;;
+    *) echo 'FAIL letter-switch: 사이트가 본 GAS 로 제대로 부르지 않는다 — node scripts/audit/letter-switch.mjs'; fail=1 ;;
+  esac
+fi
+nochk 'docs.google.com/forms' form.html      # 은퇴한 구글폼 부부폼으로 보내지 않는다
 chk 'GAS_NAME_CLASH' scripts/audit/gas-name-clash.mjs 1
 chk 'LETTER_MERGED' automation/platform/87_letter.gs 3
 chk 'LETTER_FALLBACK' automation/platform/87_letter.gs 2

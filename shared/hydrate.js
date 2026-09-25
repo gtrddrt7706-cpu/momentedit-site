@@ -21,7 +21,9 @@
 (function () {
   'use strict';
 
-  var WEBHOOK = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+  // [LETTER_SWITCH 2026-09-25] 부부 정보 조회를 본 GAS(87_letter)로 — 옛 Letter System 웹훅에서 옮겼다(LETTER_MERGED).
+  //  응답 모양은 옛 웹훅과 같다(scripts/audit/letter-sim.mjs 가 대조). 옛 주소로 되돌리지 말 것 — 옛 시트는 더 갱신되지 않는다.
+  var WEBHOOK = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
 
   // 프리뷰(직접 접속·?e 없음)용 샘플 — 디자인 확인용 더미
   var SAMPLE = {
