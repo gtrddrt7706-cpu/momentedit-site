@@ -74,16 +74,16 @@ io.open(p,'w',encoding='utf-8').write(s[:i]+b+s[i+len(a):])
 # 시간표가 적힌 열 자리 + 원천(MIN.base) 자체
 run index.html '>20<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM·SUM_GATE] 본식 대표값 20(합 140 정합 · 구 21은 합 141) — 겨눌 자리가 칸으로 옮겼다
 run index.html '>35<span>min' '>44<span>min'                              # 같은 표 · 인사 사진 칸(가운데값)도 낡으면 잡히는지
-run index.html '16~25m | The Ceremony' '30m | The Ceremony'               # FAQ 블록
-run index.html 'Ceremony 16~25분' 'Ceremony 30분'                          # Service JSON-LD
-run assets/sequence-modal.js "'16~25분'" "'30분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
-run order-preview.html "'16~25분'" "'30분'"                                # 식순 만들기 표
-run order-preview.html '본식 16~25분' '본식 30분'                           # 표 밖 산문
-run assets/advisor-kb.js 'Ceremony 16~25분' 'Ceremony 30분'                # AI 상담사
-run api/_kb.js '16~25분 The Ceremony' '30분 The Ceremony'                  # 서버 지식
-run contract/v1-1.html '(16~25분)' '(30분)'                                # 계약서 3조
-run docs/smartstore/상세페이지_원본.html '16~25<small>' '30<small>'         # 스마트스토어 원본
-run assets/ritual-data.js "min:'약 16분'" "min:'약 12분'"                          # 원천이 바뀌면 열 벌이 함께 틀린다
+run index.html '10~30m | The Ceremony' '30m | The Ceremony'               # FAQ 블록
+run index.html 'Ceremony 10~30분' 'Ceremony 30분'                          # Service JSON-LD
+run assets/sequence-modal.js "'10~30분쯤'" "'30분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
+run order-preview.html "'10~30분쯤'" "'30분'"                                # 식순 만들기 표
+run order-preview.html '따라 10~30분쯤' '따라 40분쯤'   # ★30 은 새 범위 10~30 안이라 «맞는 값»이다 — 범위 밖 값으로 깨야 한다                           # 표 밖 산문
+run assets/advisor-kb.js 'Ceremony 10~30분' 'Ceremony 30분'                # AI 상담사
+run api/_kb.js '10~30분쯤 The Ceremony' '30분쯤 The Ceremony'                  # 서버 지식
+run contract/v1-1.html '(16~25분)' '(30분)'                                # 계약서 3조 · ★[CONTRACT_RANGE_WAIT] 보류 중에도 «옛 값 그대로»를 지킨다 — 다른 값이 되면 잡힌다
+run docs/smartstore/상세페이지_원본.html '10~30<small>' '30<small>'         # 스마트스토어 원본
+run assets/ritual-open.js 'body: [10, 30]' 'body: [12, 30]'                     # [OPEN_RANGE 2026-09-25] 원천이 옛 코스 min 에서 ritual-open.js RANGE 로 옮겼다 · 바뀌면 열 벌이 함께 틀린다
 
 restore
 echo ""

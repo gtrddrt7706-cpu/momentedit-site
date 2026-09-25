@@ -1284,13 +1284,13 @@ function openAiTeam(){
        테스트는 «전 직원 점검»과 같은 일을 두 화면에서 하고 있었다. 렌더 함수는 남겨 둔다
        (rReport·테스트 블록) — 되살릴 일이 생기면 탭 목록에 이름만 다시 넣으면 된다.
      ★탭을 다시 늘리기 전에 물을 것: «이건 사장이 눌러야만 도는가?» 그렇다면 자동으로 만들 자리다. */
-  var TABS=[['핵심정보'],['가르치기'],['기록']]; var btns={};   // 이모지 열 제거(2026-07-25 사용자 지시 · 최소 사용)
+  var TABS=[['핵심정보'],['가르치기'],['기록']]; var btns={};   // [NOT_COURSE] «기록»은 탭 이름이다(코스 아님)   // 이모지 열 제거(2026-07-25 사용자 지시 · 최소 사용)
   TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[0]; b.style.cssText='padding:7px 11px;border:1px solid #eee5d9;background:#f4f1ea;border-radius:7px;font-size:12.5px;cursor:pointer;color:#5a554c'; b.addEventListener('click',function(){ show(t[0]); }); tabs.appendChild(b); btns[t[0]]=b; });
   function show(name){
     Object.keys(btns).forEach(function(k){ var on=(k===name); btns[k].style.background=on?'#6B2A24':'#f4f1ea'; btns[k].style.color=on?'#fff':'#5a554c'; });
     if(name==='핵심정보') return rFacts();
     if(name==='가르치기') return rTeach();     // [AI_TABS3] 교육 + 개선을 한 화면에
-    if(name==='기록') return rRecords();       // [AI_TABS3] 인계기록 + 인건비 + 명단
+    if(name==='기록') return rRecords();   // [NOT_COURSE] 탭 이름       // [AI_TABS3] 인계기록 + 인건비 + 명단
     if(name==='명단') return rRoster();        // (탭에서 내렸지만 호출 경로는 남긴다 — 기록 탭이 부른다)
     if(name==='교육') return rEdu();
     if(name==='개선') return rImprove();

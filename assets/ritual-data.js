@@ -204,7 +204,8 @@ var COURSES={
      코드는 S.welcome='self' 고정이다. 첫인사를 대신 읽어 주는 선택지를 되살리지 말 것.
      ★이 주석이 「약속」(damback)의 '환영·첫인사' 상세 안에 있었는데, [THREE_COURSES]로 그 상세가 빠지면서
        함께 사라질 뻔했다(merge-guard 가 잡았다). 순서 목록에 얹지 말고 여기 코스 밖에 둔다. */
-  damback:{nm:'약속', badge:'두 사람이 중심', ready:true, min:'약 23분',   // ★[COURSE_NAME 2026-08-08] 표시 이름만 '담백'→'약속' (사용자 결정: 기록·약속·가족 세 명사로 대구를 맞춤). 키 damback 은 그대로 — 저장된 초안이 이 키를 쥐고 있다
+  damback:{nm:'약속', badge:'두 사람이 중심', ready:true, hidden:true, min:'약 23분',   // ★[OPEN_COURSE 2026-09-25] 새 코스(open)로 바뀌며 숨김 — 저장된 초안은 그대로 돈다([COURSE_HIDDEN])
+   // ★[COURSE_NAME 2026-08-08] 표시 이름만 '담백'→'약속' (사용자 결정: 기록·약속·가족 세 명사로 대구를 맞춤). 키 damback 은 그대로 — 저장된 초안이 이 키를 쥐고 있다
     /* [EVENT_BUDGET] 이벤트 3개 = 서약·반지·편지 → 20분. 첫인사·덕담·와인/케이크는
        팔레트(GADD)로 내렸다 — 없앤 게 아니라 원하면 더한다. */
     /* ★★[TOAST_DEFAULT 2026-08-09 사용자 결정 "추천대로"] 축배를 약속 코스 기본으로.
@@ -256,7 +257,8 @@ var COURSES={
       {k:'_close', n:'폐식·단체촬영', how:'나레이션이 따뜻하게 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요.', fx:'벅찬 여운을 그대로 사진에 담아요.', fix:true}
     ],
 },
-  family:{nm:'가족', badge:'어른이 중심', ready:true, min:'약 25분',
+  family:{nm:'가족', badge:'어른이 중심', ready:true, hidden:true, min:'약 25분',   // [OPEN_COURSE] 숨김(초안 호환)
+
     /* ★★[RINGWARM_RETIRED 2026-08-07] 링 워밍 폐지 — 사용자 지시 "링워밍은 유치하고 별로인거같아 제거하자".
        처음엔 기본에서만 내리고 팔레트에 남겼는데("[뺄 이벤트] … 링 워밍"), 그 뒤 완전 폐지로 바뀌었다.
        되살리지 말 것 — 팔레트(GADD)에서 뺐으므로 새로 넣을 길이 없다.
@@ -292,7 +294,8 @@ var COURSES={
      base 는 반지를 포함해 세는데 기록의 기본은 반지 빼기(ring:'off')라 estMin 이 1분을 뺀다.
      첫인사(+1) 편입으로 base 는 17이 됐지만, 고객이 보는 기본 구성은 여전히 16분이다.
      ★min 라벨은 '그 코스를 고르면 보게 될 시간'이어야 한다 — base 를 그대로 옮겨 적지 말 것. */
-  record:{nm:'기록', badge:'사진이 중심', ready:true, min:'약 16분', peakOne:true,
+  record:{nm:'기록', badge:'사진이 중심', ready:true, hidden:true, min:'약 16분', peakOne:true,   // [OPEN_COURSE] 숨김(초안 호환)
+
    seq:['guest','entry','welcome','vow','ring','declare','toast'],   // [WELCOME_DEFAULT] 첫인사 기본 포함
    opt:[{k:'letter',at:3},{k:'free',at:5}],   // [WELCOME_DEFAULT] seq 가 한 칸 길어져 at 2→3·4→5(같은 자리=서약 앞·선언 앞)
    one:'사진이 가장 많이 남는 코스 · 마음이 움직이는 순간만 두세 개',
@@ -312,6 +315,16 @@ var COURSES={
     {k:'toast', n:'축배', how:'곧바로 잔을 들어요. 길게 끄는 순서 없이 짧고 밝게 지나가요.', fx:'모두의 표정이 한 장에 담기는 자리예요.', pick:'축배 / 케이크 / 둘 다'},
     {k:'_close', n:'폐식·단체촬영', how:'길게 닫는 인사 없이 예식을 닫고, 나레이션이 곧바로 인사 사진 시간으로 이어 줘요.', fx:'여운이 식기 전에 자연스럽게 촬영 시간으로 넘어가요.', fix:true}
    ],
+},
+  /* ★★[OPEN_COURSE 2026-09-25 설계 명세 1 · 코워크 Q7-1 채택] «순간 먼저» — 새 코스 하나.
+     v4 전체 순서를 담고, 두 분은 **담을 것만** 고른다(빈 채로 시작 · 입장과 닫는 인사만 늘 있다).
+     ★옛 코스 여섯을 지우지 않는 이유 — 저장된 초안이 그 키를 쥐고 있다(Q1 ①). 모두 hidden 으로 둔다.
+     ★이 코스가 읽는 것(순간 표 · 판 · 시간 · 예시 · 알림 · 새 문안)은 전부 assets/ritual-open.js 한 곳이다.
+       seq 는 그 파일의 ORDER 와 같아야 한다(scripts/audit/open-course.mjs 가 대조).
+     ★hidden 인 까닭 — 옛 «코스 고르기» 카드 목록에 새 코스가 끼어들지 않게. 새 화면(고르기)이 따로 있다. */
+  open:{nm:'직접 고른', badge:'순간 먼저', ready:true, hidden:true, open:true, min:'',
+    seq:['guest','prevideo','candle','entry','welcome','bless','vow','ring','declare','tribute','free','letter','toast'],
+    opt:[], one:'필요한 순간만 담으면 예식 순서대로 제자리에 들어가요', feel:'', flow:[], detail:[]
 },
   minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, hidden:true, min:'약 18분',   // [COURSE_HIDDEN] 기록에 흡수
     seq:['guest','entry','vow','ring','declare'],

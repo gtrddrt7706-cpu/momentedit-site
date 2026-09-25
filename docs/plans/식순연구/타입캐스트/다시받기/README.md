@@ -11,8 +11,8 @@
 |---|---|---|---|
 | 1_우성.txt | 우성 | 122 | 52 |
 | 2_이겸.txt | 이겸 | 56 | 13 |
-| 3_서진.txt | 서진 | 42 | 12 |
-| 4_진희.txt | 진희 | 29 | 10 |
+| 3_진희.txt | 진희 | 53 | 21 |
+| 4_서진.txt | 서진 | 42 | 12 |
 | 5_권일.txt | 권일 | 18 | 1 |
 | 6_주하.txt | 주하 | 17 | 1 |
 | 7_정숙.txt | 정숙 | 5 | 1 |
@@ -33,17 +33,17 @@ node scripts/assemble-narration.mjs --in <이겸_받은폴더> \
 ★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 이겸 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
 ```
+# 진희 — 53줄 · 21클립
+node scripts/assemble-narration.mjs --in <진희_받은폴더> \
+  --clip =01_guest-1-arrival,=02_guest-2-10min,=03_guest-3-5min,=04_guest-4-1min,=84_narr-photo-ask,=85_narr-photo-send,=45_end-1a-farewell,=47_end-2-goodbye,=48_online-3-welcome,=88_guide-meal,=89_guest-4-1min-pre,=90_narr-prevideo-in,=91_narr-candle-in-mothers,=92_narr-candle-in-parents,=93_narr-candle-in-fathers,=94_narr-candle-in-others,=95_narr-candle-out,=96_declare-clap-a,=97_declare-clap-b,=98_toast-pour-mix,=99_toast-pour-family
+```
+
+```
 # 서진 — 42줄 · 12클립
 node scripts/assemble-narration.mjs --in <서진_받은폴더> \
   --clip =02_guest-2,=04_guest-4,=18_entry-A,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=23_entry-F,=07_welcome-bride,=09_vow-bride,=25_vow-both-2,=10_letter-parent
 ```
 ★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 서진 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
-
-```
-# 진희 — 29줄 · 10클립
-node scripts/assemble-narration.mjs --in <진희_받은폴더> \
-  --clip =01_guest-1-arrival,=02_guest-2-10min,=03_guest-3-5min,=04_guest-4-1min,=84_narr-photo-ask,=85_narr-photo-send,=45_end-1a-farewell,=47_end-2-goodbye,=48_online-3-welcome,=88_guide-meal
-```
 
 ```
 # 권일 — 18줄 · 1클립

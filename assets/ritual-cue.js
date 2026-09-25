@@ -18,9 +18,10 @@
 //     손으로 적으면 반드시 어긋난다. 사람 구간의 유무만이 원천이다.
 (function (root, factory) {
   var D;
-  if (typeof module !== 'undefined' && module.exports) { D = require('./ritual-data.js'); module.exports = factory(D); }
-  else { root.RitualCue = factory(root); }   // 브라우저: ritual-data.js가 bare 전역(ENTRY·COURSES…)으로 이미 올라와 있다
-})(typeof self !== 'undefined' ? self : this, function (D) {
+  /* [OPEN_COURSE] 새 코스의 순간 표·시간·알림·새 문안은 ritual-open.js 한 곳에서 읽는다(브라우저는 root.RitualOpen). */
+  if (typeof module !== 'undefined' && module.exports) { D = require('./ritual-data.js'); module.exports = factory(D, require('./ritual-open.js')); }
+  else { root.RitualCue = factory(root, root.RitualOpen); }   // 브라우저: ritual-data.js가 bare 전역(ENTRY·COURSES…)으로 이미 올라와 있다
+})(typeof self !== 'undefined' ? self : this, function (D, O) {
 
   // ── 튜닝 상수 (큐시트·런북 §11-C 이관 · 숫자를 코드 본문에 흩지 않는다)
   var PARAM = {
@@ -108,7 +109,19 @@
        ★코워크 표에는 87 로 적혀 왔다 — 저장소 87 은 이미 narr-toast-none 이다. **맨 끝(88)에 붙인다.**
        ★모일 곳을 고른 날만 나간다(S.meal). 조건은 하객 안내 페이지가 「여기로 모여요」를 띄우는 조건과 같다
          (애프터 웨딩에서 실제 식당을 골랐나 · 위저드 자리표시 문구는 식당이 아니다). */
-    'guide-meal'
+    'guide-meal',
+    /* ★★[OPEN_COURSE 2026-09-25 설계 명세 1 · 7장] 새 코스의 새 줄 11개 — 번호 89~99. **맨 끝에 붙였다.**
+       중간에 끼우면 앞 88개가 전부 개명된다(2026-08-11 에 실제로 당했다).
+       89 guest-4-1min-pre   : 04 의 나레이션 판 · 화촉이나 식전 영상이 먼저일 때 첫 줄만 «곧 예식을 시작하겠습니다»
+                              ★명세는 «첫 줄 판 한 줄»이었다 — 04 는 여섯 문장이 한 파일이라 첫 줄만 갈아 끼울 수 없어
+                                전체를 한 판 더 받는다(구현 보고 · 명세와 다르게 한 것)
+       90 narr-prevideo-in  : 식전 영상 여는 말
+       91~94 narr-candle-in-* : 화촉 여는 말(서는 분 넷) · 95 narr-candle-out 맺는 말
+       96 declare-clap-a    : 박수 판 · 증인 청하기  · 97 declare-clap-b : 박수 뒤 선언(박수를 전제하지 않는다)
+       98 toast-pour-mix    : 두 와인을 한 잔에 · 99 toast-pour-family : 양가 여는 말(사연 한 줄 없음 · 사장님 9/25) */
+    'guest-4-1min-pre', 'narr-prevideo-in',
+    'narr-candle-in-mothers', 'narr-candle-in-parents', 'narr-candle-in-fathers', 'narr-candle-in-others', 'narr-candle-out',
+    'declare-clap-a', 'declare-clap-b', 'toast-pour-mix', 'toast-pour-family'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -160,7 +173,15 @@
     'online-3-welcome': '화면으로 보고 계신 분들, 반갑습니다. 이 하루를, 신랑 신부는 여러분과도 나누고 싶었습니다. 같은 시간에 계신 것만으로 충분합니다.',
     'bridge-4-wait-emotion': '잠시 이대로 두겠습니다. 이 시간도, 예식의 한 부분입니다.',
     'bridge-5-wait-setup': '다음 순서를 준비하겠습니다. 잠시만 기다려 주시기 바랍니다.',
-    'bridge-6-resume': '기다려 주셔서 감사합니다. 이어서 진행하겠습니다.'
+    'bridge-6-resume': '기다려 주셔서 감사합니다. 이어서 진행하겠습니다.',
+    /* [OPEN_COURSE] 새 줄 11개 — 원천은 assets/ritual-open.js 의 NAR 다(여기는 이름표만 붙인다 · 글자를 옮겨 적지 않는다). */
+    'guest-4-1min-pre': O.NAR.guest4Pre,
+    'narr-prevideo-in': O.NAR.prevideoIn,
+    'narr-candle-in-mothers': O.NAR.candleIn.mothers, 'narr-candle-in-parents': O.NAR.candleIn.parents,
+    'narr-candle-in-fathers': O.NAR.candleIn.fathers, 'narr-candle-in-others': O.NAR.candleIn.others,
+    'narr-candle-out': O.NAR.candleOut,
+    'declare-clap-a': O.NAR.clapAsk, 'declare-clap-b': O.NAR.clapDeclare,
+    'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily
   };
 
   // ── 유틸
@@ -184,7 +205,9 @@
        entry 'F'(이야기의 시작) — 행진이 아니라 "지금부터 시작된다"는 말이라 걸어오는 동선과 맞는다.
        declareWho 'ask'(하객이 함께) — ★주례도 권위자도 없는 게 이 코스의 핵심이고, 동시에
          격식 축을 지키는 최소 형식이다. 선언을 빼면 "화보만 찍었다"가 된다. */
-    record: { entry: 'F', declareWho: 'narr', declare: '1', letter: 'parent', ring: 'off' }   // [ASK_RETIRED] 위와 같다
+    record: { entry: 'F', declareWho: 'narr', declare: '1', letter: 'parent', ring: 'off' },   // [ASK_RETIRED] 위와 같다
+    /* [OPEN_COURSE] 손으로 처음 담을 때의 기본 판 — 원천은 ritual-open.js 의 DEF(명세 5장) */
+    open: { entry: O.DEF.entry, declareWho: O.DEF.declareWho, declare: O.DEF.declare, letter: O.DEF.letter }
   };
   function norm(S) {
     var s = {}, k;
@@ -239,6 +262,25 @@
        카메라를 놓아야 한다(끝을 사람이 재야 하는 자리라서). 그러면 이 코스가 성립하지 않는다.
        ★고르는 것은 고객이다 — 편지를 **더한** 쪽을 정점으로 본다(기본은 서약). */
     if (D.COURSES[s.course].peakOne && s.extra.letter) s.vow = 'off';
+    /* ★★[OPEN_COURSE] 새 코스 — 담긴 것은 S.on 한 곳이다. 옛 갈래 키(ring·bless·vow)는 S.on 에서 **따라 정한다**
+       (BUILD 가 그 키를 보기 때문이다 · 새 번역을 만들지 않는다). 옛 코스의 extra·off·ord 는 이 코스에 없다.
+       ★옛 코스 초안에는 아무것도 안 바뀐다 — 아래는 open 일 때만 돈다(Q1 ② · 초안을 옮기지 않는다). */
+    if (D.COURSES[s.course].open) {
+      var on = {};
+      if (s.on && typeof s.on === 'object') for (k in s.on) if (s.on[k] && O.PICKABLE.indexOf(k) > -1) on[k] = 1;
+      s.on = on; s.extra = {}; s.off = {}; s.ord = null;
+      s.ring = on.ring ? 'on' : 'off'; s.bless = on.bless ? 'on' : 'off'; s.vow = 'ok';
+      if (!O.CHIPS.toast.some(function (c) { return c[0] === s.toast; })) s.toast = O.DEF.toast;
+      if (!O.CHIPS.wine.some(function (c) { return c[0] === s.wine; })) s.wine = O.DEF.wine;
+      if (!O.CHIPS.tribute.some(function (c) { return c[0] === s.tributeSay; })) s.tributeSay = O.DEF.tributeSay;
+      if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
+      if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
+    } else {
+      /* 옛 코스는 새 판이 없던 때와 **소리가 같아야** 한다 — 와인 붓기는 **값과 상관없이** 없다.
+         ★빌더의 새 기본 S(wine:'mix')가 옛 초안에 섞여 들어와도 옛 예식에 붓는 말이 끼지 않게(scripts/audit/open-course.mjs 가 잡았다). */
+      s.wine = 'none';
+      if (s.declare === 'clap') s.declare = '1';
+    }
     return s;
   }
 
@@ -377,6 +419,7 @@
     return s;
   }
   function seqOf(S) {
+    if (D.COURSES[S.course].open) return O.seqOf({ on: S.on });   // [OPEN_COURSE] 순서는 고정(v4) · 담은 것(S.on)만
     var def = defaultOrd(S), o = def;
     if (Array.isArray(S.ord)) {
       o = S.ord.filter(function (k) { return def.indexOf(k) > -1; });
@@ -425,14 +468,17 @@
   var BUILD = {
 
     // 식전 하객 맞이 — 01은 문 열림(수동) · 02~04는 시각 고정(자동)
-    guest: function (S) {
+    guest: function (S, seq) {
       var vi = (S.guestVoice === 'couple') ? 2 : 1;   // GUEST[i] = [라벨, 나레이션, 두분목소리]
+      /* [OPEN_COURSE] 화촉이나 식전 영상이 입장보다 먼저면 04 첫 줄 «곧 문이 열리고»가 틀린 말이 된다(문이 아직 안 열린다).
+         그날만 89(guest-4-1min-pre)로 바꾼다. 두 분 목소리 판은 첫 줄이 이미 «곧 저희 예식이 시작됩니다»라 그대로 맞다. */
+      var preFirst = vi === 1 && seq && (seq.indexOf('prevideo') > -1 || seq.indexOf('candle') > -1);
       var own = S.guestVoice === 'couple';
       var at = [null, -10, -5, -1], out = [];
       for (var i = 0; i < 4; i++) {
         out.push(cue({
-          k: 'guest', blockN: '하객 맞이', slug: FILES[i], name: '하객 맞이 · ' + D.GUEST[i][0],
-          text: D.GUEST[i][vi], own: own, duck: PARAM.duckSpeech,
+          k: 'guest', blockN: '하객 맞이', slug: (i === 3 && preFirst) ? 'guest-4-1min-pre' : FILES[i], name: '하객 맞이 · ' + D.GUEST[i][0],
+          text: (i === 3 && preFirst) ? EXTRA['guest-4-1min-pre'] : D.GUEST[i][vi], own: own, duck: PARAM.duckSpeech,
           fire: i === 0 ? 'manual' : 'clock', atMin: at[i],
           hint: i === 0 ? '문이 열리고 하객이 들어오기 시작하면' : '',
           note: i === 0 ? '입장 시간 동안 5~7분 간격으로 반복 재생(반복은 콘솔이 자동)' :
@@ -451,6 +497,31 @@
     },
 
     // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
+
+    /* ★[OPEN_COURSE] 식전 영상 — 하객이 앉는 동안(04 뒤 · 입장 앞) 상영한다. 본식 시간에 들지 않는다.
+       ★영상이 끝나는 때는 사람이 본다 — live 가 있어 다음 큐(화촉 또는 입장)는 manual 이다. */
+    prevideo: function () {
+      return [cue({
+        k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-in', name: '식전 영상 소개',
+        text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech,
+        note: '영상 파일은 D-3 까지 받는다 · 상영 중 배경음은 끈다',
+        live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }
+      })];
+    },
+    /* ★[OPEN_COURSE] 화촉 — 입장 바로 앞. 서는 분(S.candleWho)에 따라 여는 말만 달라진다(명세 7장). */
+    candle: function (S) {
+      var who = O.CANDLE_WHO.some(function (c) { return c[0] === S.candleWho; }) ? S.candleWho : O.DEF.candleWho;
+      var nm = ''; O.CANDLE_WHO.forEach(function (c) { if (c[0] === who) nm = c[1]; });
+      return [cue({
+        k: 'candle', blockN: '화촉', slug: 'narr-candle-in-' + who, name: '화촉 시작',
+        text: EXTRA['narr-candle-in-' + who], duck: PARAM.duckMusic, pick: '서는 분 · ' + nm,
+        live: { t: '서는 두 분이 앞으로 나와 초에 불을 밝히고 자리로', est: 70, self: true, doing: 'move' }
+      }), cue({
+        k: 'candle', blockN: '화촉', slug: 'narr-candle-out', name: '화촉 마무리',
+        text: EXTRA['narr-candle-out'], duck: PARAM.duckMusic,
+        hint: '두 분이 자리에 앉으시면'
+      })];
+    },
 
     entry: function (S) {
       var e = D.ENTRY[S.entry], own = S.entryVoice === 'couple';
@@ -607,6 +678,20 @@
           live: { t: '하객 전원이 인쇄된 선언문을 함께 낭독', est: 25, self: true, doing: 'say' }
         })];
       }
+      /* ★★[DECLARE_CLAP 2026-09-25 사장님 결정] 하객이 «박수로» 답하는 판 — 폐지한 ask·chorus 를 되살린 것이 아니다.
+         ask 를 폐지한 까닭은 «AI 성우가 군중의 말소리를 못 낸다»였다. 여기서 하객은 **말하지 않는다** — 박수만 친다.
+         ★[NO_ANSWER_CLAIM] 둘째 줄은 박수가 나왔다고 말하지 않는다. 박수가 작아도 거짓말이 되지 않는 문장이다. */
+      if (S.declare === 'clap') {
+        return [cue({
+          k: 'declare', blockN: '성혼 선언', slug: 'declare-clap-a', name: '성혼 선언 · 증인 청하기',
+          text: EXTRA['declare-clap-a'], duck: PARAM.duckOff, pick: '하객이 박수로 답하는',
+          live: { t: '하객 박수 (말없이)', est: 15, self: true, doing: 'move' }
+        }), cue({
+          k: 'declare', blockN: '성혼 선언', slug: 'declare-clap-b', name: '성혼 선언',
+          text: EXTRA['declare-clap-b'], duck: PARAM.duckOff, hint: '박수가 잦아들면',
+          post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }, { wait: PARAM.declare.applauseMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.declare.toLetterMs }]
+        })];
+      }
       var dv = D.DECLARE[S.declare] || D.DECLARE['1'];
       return [cue({
         k: 'declare', blockN: '성혼 선언', slug: (S.declare === '2' ? 'declare-2-warm' : 'declare-1-solemn'),
@@ -683,6 +768,21 @@
         duck: PARAM.duckMusic, pick: t.d, note: t.note,
         live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing }
       })];
+      /* ★★[TOAST_WINE 2026-09-25 사장님 결정 · 와인은 축배 안으로] 축배가 있는 판에만 «붓기»를 얹는다.
+         둘 다 → 케이크 뒤 · 선창 앞 / 축배만 → 선창 앞. 케이크만은 잔이 없어 안 붙는다.
+         ★옛 코스는 norm 이 wine='none' 으로 두어 소리가 지금과 같다. 폐지한 17·54(valley)는 되살리지 않았다. */
+      var wine = (S.toast === 'cake') ? 'none' : (S.wine || 'none');
+      var pour = [];
+      /* 두 와인 → 붓는 말 한 줄 · 양가 → 양가 여는 말 한 줄(«두 분이 각자 고른» 문장은 양가 판과 맞지 않아 안 붙인다).
+         붓는 동안(사람의 시간)은 그 한 줄이 안고 간다 — 뒤 선창은 붓기가 끝난 걸 보고 사람이 낸다. */
+      if (wine === 'mix' || wine === 'family') pour.push(cue({
+        k: 'toast', blockN: '축배 · 케이크', slug: 'toast-pour-' + wine,
+        name: wine === 'mix' ? '축배 · 두 와인 붓기' : '축배 · 양가 와인 붓기',
+        text: EXTRA['toast-pour-' + wine], duck: PARAM.duckMusic, pick: wine === 'mix' ? '두 와인을 한 잔에' : '양가가 한 병씩',
+        live: { t: '두 분이 두 와인을 한 잔에 붓기', est: 25, duck: 0, self: true, doing: 'move' }
+      }));
+      if (pour.length && S.toast === 'toast') Array.prototype.splice.apply(seq, [1, 0].concat(pour));   // 축배만: 선창 앞
+      if (pour.length && S.toast === 'both') Array.prototype.push.apply(seq, pour);                     // 둘 다: 케이크 뒤 · 선창 앞
       if (t.nar2) seq.push(cue({
         k: 'toast', blockN: '축배 · 케이크', slug: 'toast-both-b', name: '축배 · 잔을 들고 선창',
         text: t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가면', note: t.note2,
@@ -729,7 +829,11 @@
                받는 자리에서 짧게 답하면 희소해서 오히려 세다. 길어야 20초로 못박는다.
              ★예시 음성은 27_tribute-reply(배역) 이지만 당일 콘솔은 배역 클립을 재생하지 않는다 —
                그래서 «여기 live 지문»에 자리를 만들어야 실제 예식에서 그 순간이 생긴다. */
-          pick: m.d, live: { t: m.cue, est: 95, self: true, doing: 'move' }
+          pick: m.d + (D.COURSES[S.course].open && S.tributeSay !== 'none' ? ' · ' + (S.tributeSay === 'long' ? '준비한 말 400자씩' : '한마디씩') : ''),
+          /* [OPEN_COURSE] 새 코스는 인사의 «말»을 고른다(한마디씩 · 400자씩 · 말 없이). 옛 코스는 지금 그대로 말 없이다. */
+          live: (D.COURSES[S.course].open && S.tributeSay !== 'none')
+            ? { t: '두 분이 부모님께 ' + (S.tributeSay === 'long' ? '준비한 말(400자씩)' : '한마디씩') + ' 전한 뒤 · ' + m.cue, est: 95 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
+            : { t: m.cue, est: 95, self: true, doing: 'move' }
         }),
         cue({
           k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-out', name: '부모님 헌정 마무리', text: D.TRIBUTE.end,
@@ -797,7 +901,7 @@
     seq.forEach(function (k) {
       if (!BUILD[k]) return;
       if (k === 'declare' && askOn && !askPre) cues.push(askCue());
-      var got = BUILD[k](S) || [];
+      var got = BUILD[k](S, seq) || [];   // [OPEN_COURSE] guest 가 seq 를 본다(04 판)
       for (var i = 0; i < got.length; i++) cues.push(got[i]);
       // 하객 맞이 뒤에는 식전 고정 클립 2개가 붙는다(코스와 무관)
       if (k === 'guest') {
@@ -904,8 +1008,9 @@
           if (c.live && c.live.est) fixed += c.live.est;
           if (c.slug === (S.digital ? 'narr-online-in' : 'narr-round-open')) carrier = c;
         }
-        var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell)
-          - (D.MIN.base[S.course] || D.MIN.base.damback);   // 분 · 다 함께 몫
+        /* [OPEN_COURSE] 새 코스는 본식이 고른 만큼 달라진다 — «55 − 본식(넉넉 합)»으로 잡는다(명세 6장). */
+        var bodyMin = D.COURSES[S.course].open ? Math.round(O.bodySec(S)[1] / 60) : (D.MIN.base[S.course] || D.MIN.base.damback);
+        var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell) - bodyMin;   // 분 · 다 함께 몫
         var round = Math.max(600, budget * 60 - fixed - 120);   // 120초 = 나레이션 여덟 클립의 말 시간
         if (carrier && carrier.live) carrier.live.est += round;
       })();
@@ -1034,6 +1139,9 @@
      대신 **소리 내어 알린다**. 화면이 이 문장을 띄우지 않으면 고객은 빈 예식을 만들어 놓고 모른다.
      ★셋 다 '예식이 성립하는가'를 보는 것이지 취향이 아니다. 취향 항목을 여기에 늘리지 말 것. */
   function warnOf(seq, S) {
+    /* [OPEN_COURSE] 새 코스는 이 세 경고를 쓰지 않는다(빈 채로 열면 셋이 한꺼번에 뜬다 · 명세 3-6).
+       대신 ritual-open.js 의 알림 셋 가운데 하나만 — 규칙은 그 파일 한 곳이다. */
+    if (D.COURSES[S.course].open) { var n = O.noticeOf(S); return n ? [n] : []; }
     var has = {}, w = [];
     seq.forEach(function (k) { has[k] = 1; });
     if (S.extra) for (var e in S.extra) if (S.extra[e]) has[e] = 1;
@@ -1058,7 +1166,7 @@
       course: S.course, courseNm: c0.nm, mode: mode,
       total: cues.length, manual: manual, chain: chain, clock: clock,
       clipSec: clipSec, liveSec: liveSec, totalSec: clipSec + liveSec + cues.length * (PARAM.gapMs / 1000),
-      noClip: missing, minLabel: c0.min, warn: warnOf(seq, S)
+      noClip: missing, minLabel: (c0.open ? '본식 ' + O.span(S).body : c0.min), warn: warnOf(seq, S)
     };
   }
 

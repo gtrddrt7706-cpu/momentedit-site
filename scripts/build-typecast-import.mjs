@@ -330,8 +330,12 @@ const clips = parse(SRC);
                 STORY.LIVE 의 지문이었다. 같은 지시로 지웠다고 같은 목록에서 빠지는 것이 아니다.
      82 → 83 [MEAL_GUIDE 2026-09-23 코워크 세 눈 점검 · 사장님 반영] 식사 자리 안내 1개(88_guide-meal).
               배웅 45 뒤 · 애프터 웨딩에서 모일 식당을 고른 날만. 신부·하객·혼주 셋이 똑같이 짚은 빈자리.
-              ★코워크 표에는 87 로 왔다 — 저장소 87 은 narr-toast-none 이다. 번호는 FILES 맨 끝 **88**. */
-const CLIP_COUNT = 83;
+              ★코워크 표에는 87 로 왔다 — 저장소 87 은 narr-toast-none 이다. 번호는 FILES 맨 끝 **88**.
+     83 → 94 [OPEN_COURSE 2026-09-25 설계 명세 1 · 7장] 새 코스(순간 먼저)의 새 줄 11개(89~99).
+              89 04 의 나레이션 판(화촉·식전 영상이 먼저인 날) · 90 식전 영상 여는 말 · 91~94 화촉 여는 말(서는 분 넷) ·
+              95 화촉 맺는 말 · 96·97 선언 박수 판 두 줄 · 98 두 와인 붓는 말 · 99 양가 여는 말.
+              ★문안은 코워크 초안(«아버님 두 분»만 같은 틀로 코드가 채움) · 말맛과 실청은 사장님. */
+const CLIP_COUNT = 94;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

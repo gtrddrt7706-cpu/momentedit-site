@@ -40,7 +40,9 @@ const FACING = ['index.html', 'mypage.html', 'order-preview.html', 'guide.html',
    면제가 늘수록 검사가 눈을 감는다. 늘리기 전에 "정말 적어 둬야 하는 글인가"를 먼저 물 것.
    ★`"nm":` 는 원천에서 뽑은 **사본 데이터**다(숨긴 코스도 데이터에는 있어야 한다 —
      저장된 초안이 그 키를 쥐고 있으면 이름 없이 키만 뜬다). 화면에 뜨는지는 hidden 이 정한다. */
-const EXEMPT = /RETIRED|HIDDEN|폐지|되살리|금지|주석|옛 |COURSE_NAME|TONE_LABELS|LEGACY_LABEL|"nm":|COURSES\[k\]\.nm/;
+/* ★[NOT_COURSE 2026-09-25] 「기록」이 코스가 아닌 뜻(관리자 탭 이름)으로 쓰인 줄 — [OPEN_COURSE] 로 기록 코스도 숨겨지며
+   처음 걸렸다. 낱말을 면제하지 않고 **그 줄에 표시를 단 것만** 면제한다(표시 없는 새 줄은 여전히 잡힌다). */
+const EXEMPT = /RETIRED|HIDDEN|폐지|되살리|금지|주석|옛 |COURSE_NAME|TONE_LABELS|LEGACY_LABEL|NOT_COURSE|"nm":|COURSES\[k\]\.nm/;
 
 /* ★맨눈 문자열로 훑으면 못 쓴다 — 「감동」·「축하」는 평범한 낱말이기도 하다.
    첫 판에서 "함께 축하해요" · "감동은 도입부로" 같은 산문이 34건 잡혔다.
@@ -132,7 +134,11 @@ function scan(needle) {
      (base 를 읽던 옛 판은 base 와 라벨이 우연히 같아서 안 드러났다 · WELCOME_DEFAULT 로 갈렸다) */
   const mins = Object.keys(D.COURSES).filter((k) => !D.COURSES[k].hidden)
     .map((k) => { const m = String(D.COURSES[k].min || '').match(/(\d+)/); return m ? +m[1] : D.MIN.base[k]; });
-  const CE = [Math.min(...mins), Math.max(...mins)];       // 본식 16~25 (기록 16 ~ 가족 25)
+  /* ★[OPEN_RANGE 2026-09-25 설계 명세 1] 보이는 코스가 없어졌다(순간 먼저 · 옛 코스는 모두 hidden).
+     그러면 위 min/max 가 Infinity 가 된다 — 그대로 두면 이 검사가 «열 벌이 다 틀렸다»고 말하는 죽은 검사가 된다.
+     새 범위의 원천은 ritual-open.js 의 RANGE 다(본식 10~30분쯤 · 사진과 인사 25~45분쯤). */
+  const O = require(path.join(root, 'assets/ritual-open.js'));
+  const CE = mins.length ? [Math.min(...mins), Math.max(...mins)] : O.RANGE.body.slice();   // 본식 10~30
   /* ★합계도 손으로 적지 않는다 — D.DAY 에서 계산한다. [DAY_PLAN 2026-08-09]
      2026-08-08 에는 합이 60분이었고 하루 뒤 55분이 됐다. 그때 이 줄이 60 으로 박혀 있었으면
      열 벌을 다 고쳐 놓고도 검사만 옛 숫자를 들고 빨개졌을 것이다. */
@@ -231,7 +237,8 @@ function scan(needle) {
        단체 기록 → 인사와 사진 → 다 함께 → 하객과 함께 → **인사 사진**(현재 · 사용자 지시).
        옛 이름을 목록에서 빼지 않는다: 어딘가에 옛 이름이 남아 있는데 규칙에서 빠지면
        그 줄의 숫자를 아무도 안 보게 된다('없으면 통과'와 같은 병). 이름이 늘 뿐 줄지 않는 이유다. */
-    const pairs = [['(?:본식|The Ceremony)', CE, '본식'], ['(?:인사 사진|하객과 함께|다 함께|인사와 사진|Group Record)', GR, '인사 사진']];
+    const pairs = [['(?:본식|The Ceremony|순간에 따라)', CE, '본식'],   // [OPEN_RANGE] «본식은 담은 순간에 따라 10~30분쯤» — 이름과 숫자 사이에 말이 끼는 새 문장(test.sh 가 MISSED 로 잡았다)
+      ['(?:인사 사진|하객과 함께|다 함께|인사와 사진|Group Record)', GR, '인사 사진']];
     for (const f of files) {
       if (f === 'scripts/check-source-drift.mjs') continue;
       const src = fs.readFileSync(path.join(root, f), 'utf8');
@@ -257,6 +264,26 @@ function scan(needle) {
      복사본을 정당히 지웠다면 이 숫자를 같은 커밋에서 내릴 것. */
   const FLOOR = 10;
   if (tables < FLOOR) bad.push(`시간표를 ${tables}벌밖에 못 읽었다(최소 ${FLOOR}) — 형식이 바뀌어 검사가 눈감고 있다`);
+  /* ★★[CONTRACT_RANGE_WAIT 2026-09-25 설계 명세 1 · 8장] 계약서의 본식 시간은 **사장님 결정 대기**다 —
+     명세가 「계약서 새 판 문구는 사장님 확인 대기 · 이 PR 에서는 건드리지 않는다」고 못박았다.
+     그래서 계약서 한 벌만 «실패» 대신 «보류»로 크게 찍는다. 조용히 빼지 않는다([NO_SILENT_SKIP]).
+     ★사장님이 새 판 문구를 정해 계약서를 고치는 커밋에서 이 목록을 **같이 비운다**. 비우지 않으면
+       아래 «보류인데 이미 맞다» 줄이 빨강을 낸다 — 보류가 영영 남지 않게. */
+  const WAIT = { 'contract/v1-1.html': '계약서 새 판 문구 · 사장님 확인 대기(설계 명세 1 · 8장)' };
+  /* ★보류는 «아무 값이나 괜찮다»가 아니다 — 보류하는 동안에도 **옛 값 그대로**여야 한다.
+       안 그러면 계약서가 엉뚱한 숫자로 바뀌어도 «보류»로 조용히 초록이 된다(check-source-drift.test.sh 가 MISSED 로 잡았다). */
+  const WAIT_KEEP = { 'contract/v1-1.html': '(16~25분)' };
+  Object.keys(WAIT_KEEP).forEach((f) => {
+    const t = fs.existsSync(path.join(root, f)) ? fs.readFileSync(path.join(root, f), 'utf8') : '';
+    if (t.indexOf(WAIT_KEEP[f]) < 0 && bad.some((b) => b.startsWith(f + ':'))) bad.push(`${f}: 보류 중인데 옛 값 ${WAIT_KEEP[f]} 도 새 값도 아니다 — 누가 손댔다 [CONTRACT_RANGE_WAIT]`);
+  });
+  const waiting = bad.filter((b) => Object.keys(WAIT).some((f) => b.startsWith(f + ':')) && b.indexOf('누가 손댔다') < 0);
+  const real = bad.filter((b) => waiting.indexOf(b) < 0);
+  Object.keys(WAIT).forEach((f) => {
+    if (waiting.some((b) => b.startsWith(f + ':'))) console.log(`WAIT drift: ${f} — 옛 시간표 그대로 · ${WAIT[f]} [CONTRACT_RANGE_WAIT]`);
+    else real.push(`${f} — 보류 목록(WAIT)에 있는데 이미 맞다 · 같은 커밋에서 WAIT 를 비울 것 [CONTRACT_RANGE_WAIT]`);
+  });
+  bad.length = 0; real.forEach((b) => bad.push(b));
   if (bad.length) no(`140분 시간표가 어긋난다 — 열 벌을 함께 고칠 것\n    ${[...new Set(bad)].join('\n    ')}`);
   else ok(`140분 시간표 ${tables}벌 일치 (본식 ${CE[0]}~${CE[1]}분 · 인사 사진 ${GR[0]}~${GR[1]}분 · 합 ${SUM}분)`);
 }

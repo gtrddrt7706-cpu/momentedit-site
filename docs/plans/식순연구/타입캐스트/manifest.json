@@ -32,9 +32,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 14,
-      "sents": 38,
-      "chars": 1156
+      "clips": 25,
+      "sents": 62,
+      "chars": 1849
     },
     {
       "file": "2_진행_전반.txt",
@@ -541,6 +541,293 @@
         {
           "i": 1,
           "text": "나가시는 길에, 입구에서 안내해 드리겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "89",
+      "id": "N11",
+      "label": "하객 맞이 1분 전 · 화촉이나 식전 영상이 먼저인 날",
+      "file": "guest-4-1min-pre",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "곧 예식을 시작하겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "오늘 예식은 미리 준비한 안내 음성으로 진행되고, 순서도 목소리도 신랑 신부가 정했습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 2,
+          "text": "휴대폰은 잠시 진동 모드로 부탁드립니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 3,
+          "text": "입장 때 따로 일어서실 것 없습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 4,
+          "text": "사진은 마음껏 남겨 주셔도 좋습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 5,
+          "text": "이제, 두 사람을 기다리겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "90",
+      "id": "N12",
+      "label": "식전 영상 여는 말",
+      "file": "narr-prevideo-in",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "두 분이 준비한 영상을 함께 보시겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "91",
+      "id": "N13-a",
+      "label": "화촉 여는 말 · 양가 어머님",
+      "file": "narr-candle-in-mothers",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "예식의 시작을 알리는 촛불을 밝히겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "양가 어머님께서 앞으로 나와 주시겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "92",
+      "id": "N13-b",
+      "label": "화촉 여는 말 · 어머님과 아버님",
+      "file": "narr-candle-in-parents",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "예식의 시작을 알리는 촛불을 밝히겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "양가 부모님께서 앞으로 나와 주시겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "93",
+      "id": "N13-c",
+      "label": "화촉 여는 말 · 아버님 두 분",
+      "file": "narr-candle-in-fathers",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "예식의 시작을 알리는 촛불을 밝히겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "양가 아버님께서 앞으로 나와 주시겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "94",
+      "id": "N13-d",
+      "label": "화촉 여는 말 · 다른 두 분",
+      "file": "narr-candle-in-others",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "예식의 시작을 알리는 촛불을 밝히겠습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "양가를 대표하는 두 분께서 앞으로 나와 주시겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "95",
+      "id": "N14",
+      "label": "화촉 맺는 말",
+      "file": "narr-candle-out",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "두 집의 불이 밝혀졌습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "따뜻한 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "96",
+      "id": "N15-a",
+      "label": "성혼 선언 · 박수 판 · 증인 청하기",
+      "file": "declare-clap-a",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "여러분은 방금 두 사람의 약속을 함께 지켜보셨습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "이 약속의 증인이 되어 주신다면, 큰 박수로 답해 주십시오.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "97",
+      "id": "N15-b",
+      "label": "성혼 선언 · 박수 판 · 박수 뒤 선언",
+      "file": "declare-clap-b",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘 이 자리에서, 두 사람은 서로의 평생이 되었습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "이제 두 사람은 부부입니다.",
+          "before": 0.25,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "98",
+      "id": "N16-a",
+      "label": "축배 · 두 와인을 한 잔에",
+      "file": "toast-pour-mix",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "두 분이 각자 고른 와인을 한 잔에 붓습니다.",
+          "before": 0,
+          "after": 0.45
+        },
+        {
+          "i": 1,
+          "text": "한 번 어우러진 맛은 다시 나뉘지 않지요.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "99",
+      "id": "N16-b",
+      "label": "축배 · 양가가 한 병씩(여는 말)",
+      "file": "toast-pour-family",
+      "role": "안내",
+      "part": "1_안내.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "양가에서 한 병씩 고른 와인을, 이제 한 잔에 모읍니다.",
           "before": 0,
           "after": 0
         }

@@ -647,6 +647,56 @@ h3.sec-l{font-size:11px;font-weight:600}
 
 /* [SCHED_PALETTE 2026-08-04] 체크 표시는 진사로 — 기본 파랑은 이 지면에 없는 색이다(마이페이지·예약·신청과 통일) */
 input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
+/* ★★[OPEN_COURSE 2026-09-25 설계 명세 1] 「우리 예식 짓기」 — 순간 먼저 고르는 화면.
+   ★브랜드 팔레트만 쓴다(momentedit-design) · 장식 이모지 없음 · 전각 줄표 없음.
+   ★띠(.op-band)는 화면을 내려도 위에 붙는다 — 담을 때마다 본식과 사진 시간이 함께 움직이는 것이 이 화면의 뜻이다. */
+.op-jump{display:inline-block;margin:10px 0 2px;font-size:12.5px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px}
+.op-band{position:sticky;top:0;z-index:55;background:var(--bg);padding:10px 0 8px;margin:10px 0 4px;border-bottom:1px solid var(--border)}
+.op-band .t1{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--sub)}
+.op-band .t1 b{color:var(--accent);font-weight:600}
+.op-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;margin:7px 0 3px;background:var(--bg2)}
+.op-bar .c{background:var(--gold-deep)} .op-bar .p{background:#E6DCCB}
+.op-leg{display:flex;justify-content:space-between;font-size:10.5px;color:var(--light)}
+.op-mf{display:flex;align-items:center;gap:4px;overflow-x:auto;white-space:nowrap;margin-top:7px;font-size:12px;color:var(--ink2);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.op-mf::-webkit-scrollbar{display:none}
+.op-mf .i{padding:3px 8px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.op-mf .i.pre{border-style:dashed;color:var(--light)} .op-mf .a{color:var(--gold)} .op-mf .h{color:var(--light);font-size:11.5px}
+.op-note{margin-top:8px;font-size:12.5px;line-height:1.55;color:var(--ink2);background:#F3ECDF;border-radius:8px;padding:8px 10px;word-break:keep-all}
+.op-h{font-family:var(--serif);font-size:18px;color:var(--accent);margin:26px 0 8px;font-weight:600}
+.op-sec{margin:16px 0 4px} .op-sec .sn{font-size:13px;font-weight:600;color:var(--gold-deeper)} .op-sec .sd{font-size:11.5px;color:var(--light);margin-top:1px}
+.op-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-top:8px}
+.op-card.on{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
+.op-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.op-nm{font-size:15px;font-weight:600;color:var(--accent);word-break:keep-all}
+.op-tg{flex-shrink:0;min-height:36px;padding:0 13px;border-radius:18px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer}
+.op-tg[aria-pressed="true"]{background:var(--gold-deep);color:#fff}
+.op-tg:disabled{border-color:var(--border);color:var(--light);background:var(--bg2);cursor:default}
+.op-one{font-size:13px;line-height:1.6;color:var(--sub);margin-top:6px;word-break:keep-all}
+.op-shot{font-size:12px;color:var(--gold-deeper);margin-top:4px;word-break:keep-all}
+.op-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--light);margin-top:6px}
+.op-slot{font-size:11.5px;color:var(--ink2);margin-top:4px}
+.op-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px} .op-chips .cl{width:100%;font-size:11px;color:var(--light)}
+.op-chip{min-height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--border);background:var(--bg);color:var(--ink2);font:inherit;font-size:12.5px;cursor:pointer}
+.op-chip[aria-pressed="true"]{border-color:var(--gold-deep);background:#F3ECDF;color:var(--accent);font-weight:600}
+.op-more{margin-top:8px;padding:6px 0;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12px;cursor:pointer}
+.op-det{font-size:12.5px;line-height:1.65;color:var(--sub);border-top:1px dashed var(--border);padding-top:7px;margin-top:2px;word-break:keep-all}
+.op-det p{margin:3px 0}
+.op-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 14px}
+.op-org{font-size:13px;color:var(--ink2);word-break:keep-all}
+.op-undo{margin-left:8px;padding:4px 10px;border-radius:14px;border:1px solid var(--border);background:var(--bg);font:inherit;font-size:11.5px;color:var(--gold-deeper);cursor:pointer}
+.op-ol{list-style:none;padding:0;margin:10px 0 0}
+.op-ol li{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--bg2);font-size:13.5px;color:var(--accent)}
+.op-ol .no{flex:0 0 30px;color:var(--gold-deep);font-size:12px;padding-top:1px}
+.op-ol .vn{color:var(--light);font-size:12px}
+.op-peak,.op-prep,.op-off{font-size:12.5px;line-height:1.65;color:var(--sub);margin-top:10px;word-break:keep-all}
+.op-prep ul{margin:3px 0 6px;padding-left:18px}
+.op-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.op-q{font-size:14px;color:var(--accent);font-weight:600} .op-qn{font-size:12px;color:var(--light);margin:3px 0 8px}
+.op-ex{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-top:8px;font:inherit;color:var(--accent);cursor:pointer}
+.op-ex[aria-pressed="true"]{border-color:var(--gold-deep);background:#F3ECDF}
+.op-ex b{display:block;font-size:14.5px} .op-ex .t{display:block;font-size:12px;color:var(--ink2);margin-top:3px} .op-ex .l{display:block;font-size:11.5px;color:var(--light);margin-top:3px;word-break:keep-all}
+.op-star{color:var(--gold-deep)}
+.op-card button:focus-visible,.op-ex:focus-visible,.op-jump:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -668,9 +718,10 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
     <button class="btn btn-next" id="next">다음</button>
   </div>
 </div>
+<script src="/assets/ritual-open.js"></script><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
-var S={course:'damback',off:{},entry:'A',welcome:'self',vow:'ok',ring:'on',declare:'1',valley:'none',letter:'parent',bless:'off',
-       ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,
+var S={course:'open',on:{},wine:'mix',tributeSay:'one',candleWho:'mothers',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
+       ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
        tune:{entry:true}, extra:{}, up:{}};
@@ -817,6 +868,7 @@ var COURSES={
   "nm": "약속",
   "badge": "두 사람이 중심",
   "ready": true,
+  "hidden": true,
   "min": "약 23분",
   "seq": [
    "guest",
@@ -991,6 +1043,7 @@ var COURSES={
   "nm": "가족",
   "badge": "어른이 중심",
   "ready": true,
+  "hidden": true,
   "min": "약 25분",
   "seq": [
    "guest",
@@ -1083,6 +1136,7 @@ var COURSES={
   "nm": "기록",
   "badge": "사진이 중심",
   "ready": true,
+  "hidden": true,
   "min": "약 16분",
   "peakOne": true,
   "seq": [
@@ -1165,6 +1219,34 @@ var COURSES={
     "fix": true
    }
   ]
+ },
+ "open": {
+  "nm": "직접 고른",
+  "badge": "순간 먼저",
+  "ready": true,
+  "hidden": true,
+  "open": true,
+  "min": "",
+  "seq": [
+   "guest",
+   "prevideo",
+   "candle",
+   "entry",
+   "welcome",
+   "bless",
+   "vow",
+   "ring",
+   "declare",
+   "tribute",
+   "free",
+   "letter",
+   "toast"
+  ],
+  "opt": [],
+  "one": "필요한 순간만 담으면 예식 순서대로 제자리에 들어가요",
+  "feel": "",
+  "flow": [],
+  "detail": []
  },
  "minimal": {
   "nm": "미니멀",
@@ -1433,7 +1515,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={};
-  ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){
+  ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){
     return fetch(u,{credentials:'same-origin'}).then(function(r){ if(!r.ok) throw new Error(u); return r.text(); });
   })).then(function(src){
     src.forEach(function(t,i){ (new Function('self','module','exports',t+'\n//# sourceURL=engine'+i+'.js'))(g); });
@@ -1592,6 +1674,10 @@ var STEPDEF={
  // ★코스 개수를 문구에 적지 않는다 — 코스가 늘거나 줄면 이 문장만 낡는다(실제로 다섯→여섯이 됐다).
  course:{k:'course',title:'어떤 분위기로 흐를까요?',sub:'마음 가는 하나를 눌러 상세를 보세요.'},
  tune:{k:'tune',title:'어떤 순간을 직접 고를까요?',sub:''},
+ /* [OPEN_COURSE] 새 코스는 코스 고르기 · 순서 다듬기 대신 이 한 화면이다(명세 2장). */
+ pick:{k:'pick',title:'우리 예식 짓기',sub:'예식에 담을 수 있는 순간을 모두 펼쳐 두었어요. 필요한 순간만 담으시면 예식 순서대로 제자리에 들어갑니다. 순서는 저희가 맞춰 두었고, 무엇을 담아도 값은 같아요.'},
+ prevideo:{k:'prevideo',title:'식전 영상, 이렇게 상영돼요',sub:''},
+ candle:{k:'candle',title:'화촉, 누가 불을 밝힐까요?',sub:''},
  guest:{k:'guest',title:'하객 맞이, 이렇게 안내됩니다',sub:''},
  entry:{k:'entry',title:'입장, 어떻게 열까요?',sub:'여섯 가지 멘트를 들어보고 두 분다운 느낌을 골라요. 마지막은 "신랑 신부, 입장!"으로 터집니다.'},
  welcome:{k:'welcome',title:'두 분의 첫인사, 이렇게 진행돼요',sub:''},
@@ -1602,7 +1688,7 @@ var STEPDEF={
  valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
  toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
  song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
- free:{k:'free',title:'자유 한 칸, 무엇을 넣을까요?',sub:'축가·영상·깜짝 순서처럼 두 분이 따로 준비한 것을 여기 넣어요. 나레이션은 무엇인지 지목하지 않고 앞뒤만 열고 닫아 드려요.'},
+ free:{k:'free',title:'두 사람이 준비한 순서',sub:'두 분이 준비한 영상이나 가족의 깜짝 축하 같은 순서예요(3분 안). 라이브 노래는 받지 않아요 · 영상 속 노래는 괜찮아요. 나레이션은 무엇인지 지목하지 않고 앞뒤만 열고 닫아 드려요.'},
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
@@ -1686,8 +1772,11 @@ function ordNow(){   // 표시·진행 순서의 단일 출처(2026-07-18 사용
   });
   return o;
 }
-function curSeq(){ return ordNow().filter(function(k){ return (!isOptK(k)||S.extra[k]) && momOn(k); }); }   // 실제 진행 순서 = 조정된 순서에서 켜진 것만 ([ALL_OPTIONAL] 뺀 것 제외)
+/* ★[OPEN_COURSE] 새 코스 판별 — 순서·켜짐은 ritual-open.js 가 정한다(↑↓ 없음 · ord 없음). */
+function isOpen(){ return !!(COURSES[S.course]&&COURSES[S.course].open); }
+function curSeq(){ if(isOpen()) return RitualOpen.seqOf(S); return ordNow().filter(function(k){ return (!isOptK(k)||S.extra[k]) && momOn(k); }); }   // 실제 진행 순서 = 조정된 순서에서 켜진 것만 ([ALL_OPTIONAL] 뺀 것 제외)
 window.momMove=function(k,d){   // 순서 위/아래 이동 — 고정 순간(FIXPOS)은 움직이지도, 밀려나지도 않는다
+  if(isOpen()) return;   // [OPEN_COURSE] 새 코스는 순서를 두 분이 바꾸지 않는다(사장님 9/25)
   if(FIXPOS[k]) return;   // 자기가 고정
   var o=ordNow().slice(), i=o.indexOf(k), j=i+d;
   if(i<0||j<0||j>=o.length) return;
@@ -1698,6 +1787,8 @@ window.momMove=function(k,d){   // 순서 위/아래 이동 — 고정 순간(FI
 function buildSteps(){
   var seq=curSeq();
   CEREMONY=seq.slice();
+  /* [OPEN_COURSE] 새 코스: 안내 둘 → 고르기 하나 → 담은 순간의 연출 → 글 → 완성(명세 2장) */
+  if(isOpen()){ STEPS=[STEPDEF.intro,STEPDEF.intro2,STEPDEF.pick].concat(seq.map(function(k){return STEPDEF[k];}).filter(Boolean)).concat([STEPDEF.write,STEPDEF.done]); return; }
   STEPS=[STEPDEF.intro,STEPDEF.intro2,STEPDEF.course,STEPDEF.tune]
     .concat(seq.map(function(k){return STEPDEF[k];}))   // 전 순간 방문 고정 (2026-07-15 사용자 지시 · 건너뛰기 옵션 폐지)
     .concat([STEPDEF.write, STEPDEF.done]);   // 글 적기(서약·편지·인사말)는 마지막에 한 번에 (2026-07-16 사용자 지시 · 통합)
@@ -1717,7 +1808,8 @@ var COURSE_DEF={
  festive:{entry:'F',declareWho:'narr', declare:'2',letter:'parent'},
  /* ★[RECORD_COURSE 2026-08-07] 기록형 — 선언은 하객이 함께(ask). 주례 없는 게 이 코스의 핵심이면서
     동시에 격식 축을 지키는 최소 형식이다. 원천은 assets/ritual-cue.js 의 COURSE_DEF — 한쪽만 고치지 말 것. */
- record :{entry:'F',declareWho:'narr',declare:'1',letter:'parent',ring:'off'}   // [ASK_RETIRED]
+ record :{entry:'F',declareWho:'narr',declare:'1',letter:'parent',ring:'off'},   // [ASK_RETIRED]
+ open   :{entry:'A',declareWho:'narr',declare:'1',letter:'each',ring:'off'}   // [OPEN_COURSE] 원천 ritual-open.js DEF(명세 5장) · ring 은 S.on 이 정한다
 };
 function cdef(c){ return COURSE_DEF[c]||COURSE_DEF.damback; }
 /* [ORD_LEAN] '안심' 줄을 걷어냈다. 열에 여덟이 '대부분 X를 골라요'였는데,
@@ -1729,7 +1821,7 @@ function recoTxt(k){
     bless:'1~2분 원고 템플릿을 드려요 · 담백하게 가려면 빼도 좋아요',
     ringwarm:'하객 전체로 돌리면 인원에 따라 시간이 달라져요'
   };
-  var ov={ family:{bless:'가족 코스의 시그니처예요 · 1~2분 원고 템플릿을 드려요'} };
+  var ov={ family:{bless:'가족 코스의 시그니처예요 · 1~2분 원고 템플릿을 드려요'} };   // [LEGACY_LABEL] 옛 가족 코스 초안에만 뜬다(새 코스는 recoTxt 를 안 쓴다)
   return (ov[c]&&ov[c][k])||base[k];
 }
 
@@ -1739,6 +1831,8 @@ function recoTxt(k){
    ★규칙: 부제는 제목이 말하지 않은 것만 말한다. 말할 게 없으면 비운다(빈 t는 화면에서 줄이 사라진다).
    ★감정이 핵심인 순간(편지)은 남긴다 — 그 한 줄이 정보이기도 하다. */
 var MOMENT={
+ prevideo:{ph:'식전 영상',t:'하객이 자리에 앉는 동안 상영해요 · 본식 시간에 들지 않아요',act:'영상 링크만 붙여 두시면 돼요.'},
+ candle:{ph:'화촉',t:'촛불로 예식의 시작을 알리는 자리예요',act:'불을 밝힐 두 분을 골라 주세요.'},
  guest:{ph:'예식의 시작 · 하객 맞이',t:'여기서 예식이 시작돼요 · 하객이 앉는 동안 안내가 흘러요',act:'나레이션이 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
  entry:{ph:'식이 열려요',t:'멘트가 첫 장면을 만들어요',act:'나레이션 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
  welcome:{ph:'첫인사',t:'두 분이 하객분들께 직접 인사해요',act:'짧은 인사말만 준비하면 돼요. 어떻게 진행되는지 아래에서 보세요.',info:true},
@@ -1754,7 +1848,7 @@ var MOMENT={
  tribute:{ph:'부모님 헌정',t:'몸짓으로 감사를 전하는 순서예요',act:'꽃과 포옹 중 골라주세요.'   /* [BOW_RETIRED] 큰절 되살리지 말 것 */},
  bless:{ph:'부모님 덕담',t:'부모님이 짧게 말씀을 전해요',act:'넣을지 뺄지 골라주세요.'}
 };
-var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',guest:'하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'}; /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
+var PHASE={intro:'하루의 흐름',intro2:'준비할 것',course:'코스 고르기',tune:'맞춤 고르기',pick:'우리 예식 짓기',prevideo:'식전 영상',candle:'화촉',guest:'하객 맞이',entry:'입장',welcome:'환영 · 첫인사',vow:'혼인 서약',ringwarm:'링 워밍',ring:'반지 교환',declare:'성혼 선언',valley:'사이 순서',toast:'축배 · 케이크',song:'축가',letter:'편지 낭독',tribute:'부모님 헌정',bless:'부모님 덕담',write:'글 적어두기',done:'완성'}; /* [LEGACY_LABEL · RINGWARM_RETIRED] 폐지된 순서의 폴백 라벨 — 저장된 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
 
 var _navKey='';
 /* [THIN_WARN] 엔진이 계산한 경고를 렌더 뒤에 얹는다. 규칙은 엔진 한 곳에만 있다. */
@@ -1788,7 +1882,8 @@ function render(){
   try{ _autoPaint(); }catch(e){}
   var st=STEPS[idx];
   _seenK[st.k]=1;   // 방문 기록 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
-  var pre=(st.k==='intro'||st.k==='intro2'||st.k==='course'||st.k==='tune');
+  var pre=(st.k==='intro'||st.k==='intro2'||st.k==='course'||st.k==='tune'||st.k==='pick');
+  if(st.k==='pick'&&!courseStarted){ courseStarted=true; }   // [OPEN_COURSE] 고르기 화면에 닿으면 이 기기에 이어 만들 수 있게 저장한다
   /* [ORD_INTRO2] 안내 두 화면은 '아직 아무것도 안 만든' 상태다 — 퍼센트에서 뺀다.
      예전엔 읽기만 했는데도 막대가 9%로 차 있어 '뭔가 진행됐다'고 잘못 말했다.
      실제 작업 단계만 분모로 삼고, 안내 중에는 막대를 비워 둔다(오른쪽에 1/2·2/2로 위치를 알린다). */
@@ -1800,14 +1895,14 @@ function render(){
   // [ORD_NEXTNAME] 'tune' 한 단계를 세 가지 이름으로 부르고 있었다 —
   //   예고는 '함께 볼 순간 확인(전체 기본)' · 진행 라벨은 '기본 식순이 준비됐어요' · 화면 제목은 '어떤 순간을 직접 고를까요?'.
   //   부부는 예고를 보고 눌렀는데 다른 이름의 화면에 도착한다. 예고와 라벨을 화면이 하는 일('순서 다듬기')로 맞춘다.
-  document.getElementById('pnow').textContent=_isIntro?('안내 · '+(PHASE[st.k]||'')):(st.k==='tune')?'준비 · 순서 다듬기':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
-  document.getElementById('ppct').textContent=_isIntro?((st.k==='intro'?'1':'2')+' / 2'):(st.k==='tune')?'다듬기만 남음':(st.k==='write')?'선택 입력':pre?'예식 시작 전':(stepNoLabel(st.k)+' · '+estMin());
+  document.getElementById('pnow').textContent=_isIntro?('안내 · '+(PHASE[st.k]||'')):(st.k==='tune')?'준비 · 순서 다듬기':(st.k==='pick')?'준비 · 우리 예식 짓기':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
+  document.getElementById('ppct').textContent=_isIntro?((st.k==='intro'?'1':'2')+' / 2'):(st.k==='tune')?'다듬기만 남음':(st.k==='pick')?('본식 '+estMin()):(st.k==='write')?'선택 입력':pre?'예식 시작 전':(stepNoLabel(st.k)+' · '+estMin());
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   // ★[ORD_NEXTLABEL] '다음 · X'는 우상단에 놓인 탓에 버튼으로 읽혔다 — 실제로 자동 점검 중 네 번 눌러
   //   네 번 아무 일도 일어나지 않았다(2026-08-01). 이건 누르는 것이 아니라 **다음 단계의 이름표**다.
   //   조사 '은'을 반드시 남길 것. 빼면 다시 명령형으로 읽힌다.
   if(st.k==='intro') pnextEl.textContent='다음은 · 두 분이 하실 일';
-  else if(st.k==='intro2') pnextEl.textContent='다음은 · 코스 고르기';
+  else if(st.k==='intro2') pnextEl.textContent=isOpen()?'다음은 · 우리 예식 짓기':'다음은 · 코스 고르기';
   else if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
   else if(st.k==='course') pnextEl.textContent='다음은 · 순서 다듬기';
   else if(nx2 && nx2.k==='done' && st.k==='tune') pnextEl.textContent='다음은 · 추천 그대로, 완성 보기';
@@ -1916,7 +2011,7 @@ function renderMiniTL(k){
      (그 화면의 예고는 '다음은 · 완성 보기'인데 아래 큰 버튼이 이미 「완성 보기」라 겹말이다). */
 function _paintReset(k){
   var b=document.getElementById('pReset'); if(!b) return;
-  var show=!!courseStarted && !editReturn && k!=='done' && k!=='course' && k!=='intro' && k!=='intro2';
+  var show=!!courseStarted && !editReturn && k!=='done' && k!=='course' && k!=='pick' && k!=='intro' && k!=='intro2';
   b.style.display=show?'inline-flex':'none';
   if(show){ var pn=document.getElementById('pnext'); if(pn) pn.style.display='none'; }
 }
@@ -1936,7 +2031,7 @@ function _mtlEdge(rail){
 /* [ORD_INTRO2] 안내 ①/2 — '우리가 만드는 게 뭔가'. 제목 · 한 줄 · 하루의 흐름 그림, 딱 셋. */
 function renderIntro(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">우리 예식, 우리가 만들어요</h2>';   // [ORD_H2]
-  h+='<div class="intro-lead">두 분이 고르고 다듬으면, 본식 16~25분의 식순과 나레이션 대본이 만들어져요.</div>';   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
+  h+='<div class="intro-lead">본식은 담은 순간에 따라 10~30분쯤이에요. 순서와 나레이션 대본은 저희가 맞춰 드려요.</div>';   // [OPEN_COURSE] 명세 8장 · 옛 16~25분은 코스 셋의 범위였다   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
   // [ORD_TIMEBUDGET] 본식은 벽이 아니라 사진과 맞바꾸는 예산이다(2026-08-01 사용자 확인:
   //   "많이 늦어지거나 줄어들지만 않으면 ±10분 정도 괜찮다 · 사진을 좀 늘리거나 줄이면 되니까").
@@ -1949,13 +2044,13 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['16~25분','본식','The Ceremony','고른 코스에 따라 · 이벤트 2~4개',true],['30~39분','인사 사진','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['45분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20'],['10~30분쯤','본식','The Ceremony','담은 순간에 따라',true],['25~45분쯤','인사 사진','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 앞절「앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요」 삭제 · 복원 금지.
      위 표가 이미 하루 다섯 마디를 순서대로 보여 주고 있어, 같은 말을 글로 한 번 더 한 것이었다. */
-  h+='<div class="dmnote">본식이 짧은 코스를 고르셔도 <b>하루 140분은 그대로</b>예요. 짧아진 만큼 인사와 사진의 자유 시간이 늘어나요.</div></div>';
+  h+='<div class="dmnote">본식과 사진·인사를 더하면 <b>55분</b>이에요. 본식이 짧은 만큼 사진과 인사가 길어지고, <b>하루 140분은 그대로</b>예요.</div></div>';
   return h;
 }
 
@@ -1968,7 +2063,7 @@ function renderIntro2(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">두 분이 하실 일</h2>';   // [ORD_H2]
   h+='<div class="intro-lead">고르고, 들어보고, 익히면 끝이에요.</div>';
   h+='<div class="intro-pts">';
-  h+='<div class="ipt"><span class="n">1</span>마음에 드는 코스를 고르는 것부터 시작해요.</div>';
+  h+='<div class="ipt"><span class="n">1</span>'+(isOpen()?'필요한 순간을 고르는 것부터 시작해요. 고르기 어려우면 예시에서 시작하셔도 돼요.':'마음에 드는 코스를 고르는 것부터 시작해요.')+'</div>';
   // (구 2번 '순간마다 진행 안내를 미리 들어보고 골라요' 줄 삭제 — 2026-07-18 사용자 지시. 안내 듣기는 각 카드에서 자연히 발견됨)
   /* ★[REHEARSE_MERGED 2026-08-12] 「연습 공간에서」를 뺐다 — **그 화면이 없어졌는데 글만 남아 있었다.**
      고객이 이 줄을 읽고 연습 공간을 찾으면 아무 데도 없다. 화면을 지울 때 그 화면을 가리키는
@@ -2161,7 +2256,10 @@ var TUNE={
  song:{n:'축가',c:'가족·지인이 축가로 마음을 전해요'}, /* [LEGACY_LABEL · SONG_RETIRED] 폐지된 순서의 폴백 라벨 — 옛 초안이 이 키를 쥐고 있을 때 이름 없이 키만 뜨는 것을 막는다. 새로 고를 길은 없다(GADD 에서 뺐다). */
  /* [OPEN_PALETTE 2026-08-09] 자유 한 칸 — 팔레트 카드는 TUNE 에 문안이 있어야 그려진다
     (paletteCand 가 `if(!t) return;` 로 조용히 건너뛴다). GADD 만 열고 여기를 안 적으면 아무 일도 안 난다. */
- free:{n:'자유 한 칸',c:'두 분이 따로 준비한 순서를 넣는 자리예요 · 축가·영상·깜짝 순서 무엇이든'},
+ /* ★[OPEN_COURSE · SONG 2026-09-25 사장님 결정] 라이브 노래(축가)는 받지 않는다 · 영상 속 노래와 가족의 깜짝 축하는 괜찮다. */
+ free:{n:'두 사람이 준비한 순서',c:'두 분이 준비한 영상이나 가족의 깜짝 축하 같은 순서예요(3분 안) · 라이브 노래는 받지 않아요'},
+ prevideo:{n:'식전 영상',c:'하객이 앉는 동안 두 분이 준비한 영상을 상영해요'},
+ candle:{n:'화촉',c:'촛불을 밝혀 예식의 시작을 알려요'},
  letter:{n:'편지 낭독',c:'눌러 담은 마음을 편지로 읽어요'},
  tribute:{n:'부모님 헌정',c:'부모님께 꽃과 감사를 전해요'},
  bless:{n:'부모님 덕담',c:'양가 부모님이 짧은 덕담으로 축복해요'}
@@ -2187,8 +2285,126 @@ var NEVEROFF={entry:1};                        // ★입장만 고정 — 늘리
 function offable(k){ return !NEVEROFF[k]; }
 var OFFTGL=new Proxy({},{ get:function(t,k){ return offable(String(k))?1:undefined; } });
 function momOn(k){
+  if(isOpen()) return RitualOpen.onOf(S,k);   // [OPEN_COURSE]
   if(OFFKEY[k]) return k==='ring'?S.ring==='on':k==='bless'?S.bless==='on':S.valley!=='none';
   return !(S.off&&S.off[k]);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ★★[OPEN_COURSE 2026-09-25 설계 명세 1] 「우리 예식 짓기」 — 순간 먼저 고르는 화면
+   ★계산(순서·시간·알림·자리 문구·절정·준비할 것)은 **여기서 하지 않는다** — assets/ritual-open.js 가 한다.
+     엔진(콘솔 큐)도 같은 파일을 읽으니 화면과 당일이 갈라질 수 없다([THIN_WARN] 과 같은 원칙).
+   ★S.on 에 담긴 것을 적고, 옛 갈래 키(ring·bless·vow·growth)는 opSync 가 따라 정한다 —
+     연출 단계·미리듣기·마이페이지가 이미 읽는 자리라 새 번역을 만들지 않는다.
+   ═══════════════════════════════════════════════════════════════════════════ */
+var _opOpen={}, _opPrev=null;
+function opSync(){
+  if(!S.on||typeof S.on!=='object') S.on={};
+  S.ring=S.on.ring?'on':'off'; S.bless=S.on.bless?'on':'off'; S.vow='ok';
+  S.growth=S.on.prevideo?'on':'off';   // 관리자·마이페이지가 식전 영상 링크를 growth 로 읽는다
+  S.extra={}; S.off={}; S.ord=null;
+  buildSteps(); _persist(); render();
+}
+window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(!S.on) S.on={}; if(S.on[k]) delete S.on[k]; else S.on[k]=1; _opPrev=null; opSync(); };
+window.opChip=function(k,v){ RitualOpen.setChip(S,k,v); opSync(); };
+window.opMore=function(k){ _opOpen[k]=!_opOpen[k]; render(); };
+window.opEx=function(k){
+  var had=RitualOpen.picked(S).length && !RitualOpen.sameAsExample(S,k);
+  _opPrev=had?JSON.stringify({on:S.on,entry:S.entry,declareWho:S.declareWho,declare:S.declare,tributeSay:S.tributeSay,letter:S.letter,toast:S.toast,wine:S.wine,pickFrom:S.pickFrom||''}):null;
+  RitualOpen.applyExample(S,k); opSync();
+  setTimeout(function(){ var m=document.getElementById('opMine'); if(m&&m.scrollIntoView) m.scrollIntoView({block:'start'}); },0);
+};
+window.opUndo=function(){ if(!_opPrev) return; var o=JSON.parse(_opPrev); for(var x in o) S[x]=o[x]; if(!S.pickFrom) delete S.pickFrom; _opPrev=null; opSync(); };
+window.opJump=function(e){ if(e) e.preventDefault(); var el=document.getElementById('opEx'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'start'}); };
+function opChips(k,on){
+  if(!on) return '';
+  var rows=[];
+  if(k==='toast'){ rows.push(['무엇을','toast']); if(RitualOpen.chipOf('toast',S)!=='cake') rows.push(['와인','wine']); }
+  else if(RitualOpen.CHIPS[k]) rows.push(['',k]);
+  if(!rows.length) return '';
+  var h='';
+  rows.forEach(function(r){
+    var cur=RitualOpen.chipOf(r[1],S);
+    h+='<div class="op-chips" role="group" aria-label="'+esc(RitualOpen.CARDS[k].n+(r[0]?' · '+r[0]:''))+'">'+(r[0]?'<span class="cl">'+esc(r[0])+'</span>':'');
+    RitualOpen.CHIPS[r[1]].forEach(function(c){ h+='<button type="button" class="op-chip" aria-pressed="'+(cur===c[0]?'true':'false')+'" data-fk="op:'+r[1]+':'+c[0]+'" onclick="opChip(\''+r[1]+'\',\''+c[0]+'\')">'+esc(c[1])+'</button>'; });
+    h+='</div>';
+  });
+  return h;
+}
+function opChipLabel(k){
+  var c=(k==='toast')?'toast':k; if(!RitualOpen.CHIPS[c]) return '';
+  var v=RitualOpen.chipOf(c,S), l=''; RitualOpen.CHIPS[c].forEach(function(x){ if(x[0]===v) l=x[1]; });
+  if(k==='toast'&&v!=='cake'){ var w=RitualOpen.chipOf('wine',S); RitualOpen.CHIPS.wine.forEach(function(x){ if(x[0]===w&&w!=='none') l+=' · '+x[1]; }); }
+  return l;
+}
+function renderPick(){
+  var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S), note=R.noticeOf(S), h='<div class="op">';
+  h+='<a class="op-jump" href="#opEx" onclick="opJump(event)">고르기 어려우시면 맨 아래 예시에서 시작하셔도 돼요 ↓</a>';
+  // 띠
+  h+='<div class="op-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>사진과 인사 <b>'+esc(sp.photo)+'</b></span></div>';
+  var mid=Math.max(0,Math.min(R.DAYMIN,sp.midMin));
+  h+='<div class="op-bar" aria-hidden="true"><div class="c" style="flex:'+mid.toFixed(2)+'"></div><div class="p" style="flex:'+(R.DAYMIN-mid).toFixed(2)+'"></div></div>';
+  h+='<div class="op-leg"><span>본식</span><span>둘을 더하면 '+R.DAYMIN+'분</span><span>사진과 인사</span></div>';
+  var shown=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }).concat(['_close']);
+  h+='<div class="op-mf" aria-label="고른 순서">'+shown.map(function(k,i){ return (i?'<span class="a" aria-hidden="true">›</span>':'')+'<span class="i'+(R.PRE[k]?' pre':'')+'">'+(k===peak?'<span class="op-star">★</span> ':'')+esc(R.CARDS[k].sn)+'</span>'; }).join('')
+    +(R.picked(S).length?'':'<span class="h">&nbsp;← 아래에서 담아 보세요</span>')+'</div>';
+  if(note) h+='<div class="op-note" role="status">'+esc(note)+'</div>';
+  h+='</div>';
+  // ① 모든 순간
+  h+='<h3 class="op-h">① 모든 순간 · 예식 순서대로</h3>';
+  R.SECTIONS.forEach(function(sec){
+    h+='<div class="op-sec"><div class="sn">'+esc(sec.n)+'</div><div class="sd">'+esc(sec.d)+'</div></div>';
+    sec.ks.forEach(function(k){
+      var c=R.CARDS[k], lock=(k==='entry'||k==='_close'), on=lock||R.onOf(S,k), op=!!_opOpen[k];
+      h+='<div class="op-card'+(on&&!lock?' on':'')+'">';
+      h+='<div class="op-top"><div class="op-nm">'+esc(c.n)+'</div>';
+      h+=lock?'<button type="button" class="op-tg" disabled>늘 있어요</button>'
+             :'<button type="button" class="op-tg" aria-pressed="'+(on?'true':'false')+'" data-fk="opt:'+k+'" onclick="opTgl(\''+k+'\')">'+(on?'담았어요 ✓':'+ 담기')+'</button>';
+      h+='</div>';
+      h+='<div class="op-one">'+esc(c.one)+'</div>';
+      h+='<div class="op-shot">남는 장면 · '+esc(c.shot)+'</div>';
+      h+='<div class="op-meta"><span>'+esc(R.momentLabel(k,S))+'</span><span>누가 · '+esc(c.who)+'</span></div>';
+      h+='<div class="op-slot">'+esc(R.slotText(k,S))+'</div>';
+      h+=opChips(k,on&&!lock);
+      var ps=R.prepOf(k,S), det=[];
+      det.push('<p><b>준비할 것</b> · '+(ps.length?ps.map(function(q){ return (q[0]==='parents'?'부모님께 여쭐 것 · ':'')+esc(q[1]); }).join(' / '):'따로 없어요')+'</p>');
+      if(c.why) det.push('<p><b>이 자리인 까닭</b> · '+esc(c.why)+'</p>');
+      if(!on){ var cs=(k==='toast')?['toast','wine']:(R.CHIPS[k]?[k]:[]);
+        if(cs.length) det.push('<p><b>고를 수 있는 방식</b> · '+cs.map(function(x){ return R.CHIPS[x].map(function(y){return esc(y[1]);}).join(' / '); }).join(' · ')+'</p>'); }
+      h+='<button type="button" class="op-more" aria-expanded="'+(op?'true':'false')+'" data-fk="opm:'+k+'" onclick="opMore(\''+k+'\')">'+(op?'접기 ▴':'자세히 ▾')+'</button>';
+      if(op) h+='<div class="op-det">'+det.join('')+'</div>';
+      h+='</div>';
+    });
+  });
+  // ② 우리 예식
+  h+='<h3 class="op-h" id="opMine" tabindex="-1">② 우리 예식 · 고른 순간이 이 순서로 흘러요</h3><div class="op-box">';
+  h+='<div class="op-org">'+esc(R.originOf(S))+(_opPrev?'<button type="button" class="op-undo" onclick="opUndo()">예시 전으로 되돌리기</button>':'')+'</div>';
+  var no=0;
+  h+='<ol class="op-ol">'+shown.map(function(k){
+    var vl=opChipLabel(k);
+    return '<li><span class="no">'+(R.PRE[k]?'식전':(++no))+'</span><span>'+(k===peak?'<span class="op-star">★</span> ':'')+esc(R.CARDS[k].n)+(vl?' <span class="vn">· '+esc(vl)+'</span>':'')+'</span></li>';
+  }).join('')+'</ol>';
+  h+='<div class="op-peak">'+(peak?('<span class="op-star">★</span> 이 예식의 절정은 <b>'+esc(R.CARDS[peak].n)+'</b> · '+esc(R.CARDS[peak].shot)):'절정이 될 순간(선언 · 편지 · 부모님께 인사)을 하나 담아 보세요.')+'</div>';
+  var two=[], par=[];
+  shown.forEach(function(k){ R.prepOf(k,S).forEach(function(q){ (q[0]==='parents'?par:two).push(q[1]); }); });
+  h+='<div class="op-prep"><b>두 분 준비 '+two.length+'가지</b><ul>'+two.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'
+    +(par.length?'<b>부모님께 여쭐 것 '+par.length+'가지</b><ul>'+par.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'')+'</div>';
+  var off=R.PICKABLE.filter(function(k){ return !R.onOf(S,k); });
+  h+='<div class="op-off">'+(off.length?('<b>넣지 않은 순간 '+off.length+'가지</b> · '+off.map(function(k){return esc(R.CARDS[k].sn);}).join(' · ')+'<br>빼 두어도 예식은 자연스럽게 이어져요. 부모님과 한 번 같이 보세요.'):'<b>모든 순간을 담았어요.</b>')+'</div>';
+  /* 「부모님께 보여 드리기」는 지금 공유 기능이 없어 7단계로 미룬다(명세 3-4 · 없으면 미룸). 미리듣기는 완성 화면의 것과 같은 창이다. */
+  if(window.RitualPreviewLink && RitualPreviewLink.url(S,{digital:!!CUSTDIG,photoShare:!!CUSTPHOTO,meal:!!CUSTMEAL}))
+    h+='<div class="op-acts"><button type="button" class="rowbtn" onclick="openRitualPreview()">'+ICO_PLAY+'우리 예식 미리듣기</button></div>';
+  h+='</div>';
+  // ③ 예시
+  h+='<h3 class="op-h" id="opEx" tabindex="-1">③ 예시 · 고르기 어려우실 때</h3>';
+  h+='<div class="op-q">예식에서 가장 남기고 싶은 것은?</div><div class="op-qn">예시를 누르면 그 순간들이 위에 담겨요. 그다음 더하고 빼셔도 돼요.</div>';
+  R.EXAMPLES.forEach(function(ex){
+    var T=R.applyExample({},ex.k), es=R.span(T), pressed=R.sameAsExample(S,ex.k);
+    var list=R.ORDER.filter(function(k){ return !R.ALWAYS[k] && T.on[k]; }).map(function(k){ return R.CARDS[k].sn; }).join(' · ');
+    h+='<button type="button" class="op-ex" aria-pressed="'+(pressed?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')"><b>'+esc(ex.title)+'</b><span class="t">‹'+esc(ex.nm)+'› 예시 · 본식 '+esc(es.body)+' · 사진과 인사 '+esc(es.photo)+'</span><span class="l">'+esc(list)+'</span></button>';
+  });
+  h+='</div>';
+  return h;
 }
 var _tprev=''; var _foldOpen={};
 /* (구)MCVIS 장면 보유 맵 삭제 — 전 카드 확장으로 바뀌며(2026-07-17) 소비처 소멸. 장면 유무는 clip(x)||diag(x) 폴백이 직접 처리 */
@@ -2242,7 +2458,16 @@ function renderStep(k){
        (약속·가족·기록). 숨김 처리는 데이터가 하고 **순서는 사람이 정한다** — 둘을 섞지 말 것.
      ★목록에 없는 코스는 안 보인다. 새 코스를 만들면 여기에도 넣을 것. */
   var CARD_ORDER=['record','damback','family','minimal','gamdong','festive'];
+  if(k==='course' && !isOpen()){
+    /* ★[OPEN_COURSE] 옛 코스 여섯은 hidden 이다 — 옛 초안이 이 화면으로 돌아오면 카드가 하나도 없게 된다.
+       그 초안의 코스 하나만 그대로 보여 주고, 새 방식은 «처음부터»로만 연다(초안을 옮기지 않는다 · Q1 ②). */
+    return '<div style="margin-top:18px"><div class="reassure">지금 만들고 계신 식순은 «'+esc(COURSES[S.course].nm)+'» 코스예요 · 그대로 이어서 다듬으시면 돼요.</div>'
+      +courseCard(S.course)
+      +'<div class="ex-n" style="margin:14px 2px 0">필요한 순간만 담는 새 방식으로 처음부터 만드실 수도 있어요.</div>'
+      +'<button type="button" class="copy-btn2" style="margin-top:8px" onclick="resetAll()">처음부터 다시 만들기</button></div>';
+  }
   if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+CARD_ORDER.filter(function(k){ return COURSES[k] && !COURSES[k].hidden; }).map(courseCard).join('')+'</div>'; }
+  if(k==='pick') return renderPick();   // [OPEN_COURSE]
   if(k==='tune'){
     /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 입장 빼고 전부 뺄 수 있게 되면서
        '입장만 남은 예식'을 만들어 놓고 모를 수 있게 됐다. 막지는 않는다 — 사용자가 그렇게 결정했다.
@@ -2321,7 +2546,7 @@ function renderStep(k){
       h+='<div class="mc-hd"><button type="button" class="mc-t" aria-expanded="'+(_open?'true':'false')+'" aria-describedby="mcd_'+x+'" data-fk="mc:'+x+'" onclick="tprev(\''+x+'\')"><span class="mc-nmw">'+esc(t.n)+'</span>'+(_min?'<span class="mc-min">'+_min+'</span>':'')+(_pill?'<span class="tcap'+(_off?'':' fx')+'">'+_pill+'</span>':'')+'</button><span class="mc-r">'+_mv+_tg+'<span class="mc-chev" aria-hidden="true">›</span></span></div>';   // [ORD_KEY][ORD_DESC]
       /* [ORD_ADD_ALL] 준비물 비용 안내는 접힌 상자에만 있던 말이다 — 상자를 없앴으니 카드가 받는다.
          아직 안 더한 순간에만 붙인다(더한 뒤엔 이미 아는 사실이라 줄이 늘 뿐이다). */
-      h+='<div class="mc-e" id="mcd_'+x+'">'+esc(t.c)+((_off&&_PAL_COST[x])?' · 실물·연주는 저희가 준비하고 추가 비용은 미리 안내드려요':'')+'</div>';
+      h+='<div class="mc-e" id="mcd_'+x+'">'+esc(t.c)+'</div>';   // ★[NO_EXTRA_COST 2026-09-25 사장님 결정] 「추가 비용은 미리 안내」 삭제 · 되살리지 말 것 — 무엇을 담아도 값은 같다
       // ★'지금 ·'은 예식 맥락에서 "예식이 지금 여기까지 왔다"로 읽혔다(2026-08-01). 이 줄이 말하는 건 **고른 연출**이다.
       var _mcs=(!_off && x!=='welcome')?rowVal(x):'';
       if(_mcs) h+='<div class="mc-s">연출 · '+esc(_mcs)+'</div>';   // [ORD_BADGE_AXIS] 고를 연출이 없는 순간(반지 교환)은 이 줄 자체를 안 그린다
@@ -2419,6 +2644,7 @@ function renderStep(k){
        빠져(비우면 저희가 고름) 「두 분이 준비한 음악」이라는 전제부터 낡았다.
        두 분 목소리 갈래의 띠는 남긴다 — 마감 D-7·녹음 요령은 **고객이 해야 할 일**이다. */
     if(cpl) h+='<div class="banner">담아 두신 파일은 당일 그대로 재생돼요 · 조용한 곳에서 또렷하게 한 번에 녹음해 주세요. 마감 D-7.</div>';
+    if(!isOpen()){   // [OPEN_COURSE] 새 코스는 식전 영상을 고르기 화면에서 담는다 — 여기서 두 번 묻지 않는다
     h+='<div class="dlabel" style="margin-top:18px">식전에 더할 수 있어요 (선택)</div>';
     h+='<div class="wcard" style="margin-top:8px"><label class="tgl"><input type="checkbox" '+(S.growth==='on'?'checked':'')+' onchange="setGrowth(this)"><span class="tk"></span>식전에 성장영상을 상영할까요?</label><div class="wd" style="margin-top:7px">식전에 상영해, 본식 시간은 그대로예요.</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(나머지 안내를 나레이션이 흐름 속에서 챙긴다는 설명) 삭제 · 복원 금지 — 켤지 말지를 정하는 데 안 쓰이는 뒷무대 설명이었다 */
     if(S.growth==='on'){
@@ -2430,9 +2656,30 @@ function renderStep(k){
       h+='<div class="wd" id="growHint" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
       h+='<div class="wd" style="margin-top:6px">가로 mp4 3~4분 이내 · D-3까지 · 링크만 붙여두면 저희가 받아둬요.</div>';
     }
+    }   // [OPEN_COURSE] if(!isOpen())
     h+='</div>';
     h+='</div>';
     return h;
+  }
+  /* [OPEN_COURSE] 화촉 — 서는 분만 고른다(명세 4장). 여는 말이 서는 분에 따라 한 구절 달라진다. */
+  if(k==='candle'){
+    var h='<div style="margin-top:16px">', who=RitualOpen.CANDLE_WHO.some(function(c){return c[0]===S.candleWho;})?S.candleWho:RitualOpen.DEF.candleWho;
+    RitualOpen.CANDLE_WHO.forEach(function(c,i){
+      var on=who===c[0];
+      h+='<div class="oc'+(on?' on':'')+'"'+(i?' style="margin-top:11px"':'')+'><button type="button" class="oc-nm" aria-pressed="'+(on?'true':'false')+'" data-fk="candleWho:'+c[0]+'" onclick="pick(\'candleWho\',\''+c[0]+'\')">'+esc(c[1])+(c[0]===RitualOpen.DEF.candleWho?' <span class="oc-rec">기본</span>':'')+'</button>'
+        +(on?narBox(RitualOpen.NAR.candleIn[c[0]],RitualOpen.NAR.candleOut):'')+'</div>';
+    });
+    h+='<div class="reassure" style="margin-top:12px">초와 불은 저희가 준비해요 · 두 분은 문 밖에서 기다리시면 돼요</div>';
+    h+='</div>'; return h;
+  }
+  /* [OPEN_COURSE] 식전 영상 — 담았으니 링크만 받는다(옛 하객 맞이 화면의 켜기 칸이 이 단계로 옮겨 왔다). */
+  if(k==='prevideo'){
+    var h='<div style="margin-top:16px">';
+    h+=narBox(RitualOpen.NAR.prevideoIn,null);
+    h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등" style="margin-top:12px">';
+    h+='<div class="wd" id="growHint" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
+    h+='<div class="wd" style="margin-top:6px">가로 mp4 3분 이내 · D-3까지 · 링크만 붙여 두시면 저희가 받아 둬요.</div>';
+    h+='</div>'; return h;
   }
   if(k==='entry'){
     var ecpl=S.entryVoice==='couple';
@@ -2544,6 +2791,14 @@ function renderStep(k){
     h+=oc('ring','off','빼기','바로 성혼 선언으로 이어져요','');
     if(S.ring==='on') h+=tip('반지가 잘 안 들어가면 첫 마디에만 살짝 끼우고 자연스럽게 넘어가세요.');   /* [TIP_QUIET] 뒷절은 앞절을 되풀이하는 위로였다 */
   }
+  else if(k==='declare' && isOpen()){
+    /* [OPEN_COURSE] 새 코스의 선언 — 고르기 화면과 같은 판 넷(명세 4장). 박수 판은 새 녹음 전이라 소리 대신 글로 보여 준다. */
+    h+=clip('declare')+opChips('declare',true);
+    var dc=RitualOpen.chipOf('declare',S);
+    if(dc==='clap') h+=narBox(RitualOpen.NAR.clapAsk,RitualOpen.NAR.clapDeclare)+'<div class="noplay">새로 녹음하는 판이라 아직 소리가 없어요</div>';
+    else if(dc==='family') h+=narBox(DECLWHO.family.nar,OUT_DECLARE_FAMILY)+'<div class="prep-hint">준비물 · '+esc(DECLWHO.family.prep)+'</div>';
+    else if(DECLARE[S.declare]) h+=narBox(DECLARE[S.declare].nar,null)+playBtn('declare',S.declare);
+  }
   else if(k==='declare'){
     h+=clip('declare');
     /* ★[ASK_RETIRED]·[CHORUS_RETIRED] 2026-09-21 — 넷에서 둘로. 목록을 손으로 적지 않는다:
@@ -2576,7 +2831,7 @@ function renderStep(k){
   }
   else if(k==='letter'){
     h+=clip('letter');
-    var lopts=(S.course==='gamdong')?['parent','each','both']:['parent','each'];
+    var lopts=(S.course==='gamdong')?['parent','each','both']:isOpen()?['each','parent']:['parent','each'];   // [OPEN_COURSE] 새 코스엔 both 가 없다(명세 4장)
     lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'방금 그 마음에, 따뜻한 박수를 보내 주세요.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 함께해요</label>';
     h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 배우자가 이어서 읽어 주면 돼요.');   // [NO_DIRECTOR_READ] 서약 카드와 같은 사다리 — 디렉터 대독은 실제로 없다
@@ -2605,6 +2860,7 @@ function renderStep(k){
      클립·문안·RINGWARM 상수는 그대로 둔다(FILES 번호가 인덱스+1이라 빼면 뒤가 전부 밀린다). */
   else if(k==='tribute'){
     h+=clip('tribute');
+    if(isOpen()) h+='<div class="dlabel">인사의 말</div>'+opChips('tribute',true)+'<div class="dlabel" style="margin-top:14px">인사 방식</div>';   // [OPEN_COURSE] 말의 길이는 고르기 화면과 같은 판
     /* ★★[BOW_RETIRED 2026-09-06 사장님 지시] 큰절 폐지 — *"큰절은 빼자 드레스에 큰절은 아닌 거 같아"*.
        되살리지 말 것. 리뷰가 「빠진 선택지」로 복원하지 않게 여기에 근거를 남긴다.
        ★모드 정의(MODE.bow)와 어조 문안(TONE.bow)은 지우지 않는다 — 이미 고른 고객의 옛 초안을
@@ -2612,7 +2868,7 @@ function renderStep(k){
          «고를 수 있나»만 닫는다. 이 저장소가 SONG_RETIRED·WINE_RETIRED 에서 쓴 방식 그대로다. */
     ['flower','hug'].forEach(function(v){
       var m=TRIBUTE.modes[v];
-      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
+      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 저희가 준비해요':null);   // [NO_EXTRA_COST]
     });
     h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시면 돼요</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(타이밍은 디렉터가 안내한다) 삭제 · 복원 금지. 앞절이 이미 "일어나지 않으셔도 된다"를 말해 걱정에 답한다 */
   }
@@ -2621,13 +2877,24 @@ function renderStep(k){
     h+=oc('song','family','가족·지인이 직접','가까운 분이 불러 주는 한 곡 · 소규모라 더 뭉클해요',null,OUT_SONG,null,'D-14까지 부르실 분께 미리 부탁 · 반주 음원은 저희가 준비해요');
     h+=oc('song','live','어쿠스틱 라이브 연주','저희가 연주자를 연결해요 · 추가 비용은 미리 안내드려요');
   }
+  else if(k==='toast' && isOpen()){
+    /* [OPEN_COURSE] 무엇을(케이크와 축배 · 축배만 · 케이크만) + 와인(축배가 있을 때). 폐지한 사이 순서(와인 17·54)는 되살리지 않았다. */
+    h+=clip('toast')+opChips('toast',true);
+    var tv=RitualOpen.chipOf('toast',S), wv=(tv==='cake')?'none':RitualOpen.chipOf('wine',S);
+    var tt=[TOAST[tv].nar];
+    if(wv==='mix') tt.push(RitualOpen.NAR.pourMix); if(wv==='family') tt.push(RitualOpen.NAR.pourFamily);
+    if(TOAST[tv].nar2) tt.push(TOAST[tv].nar2);
+    h+=narBox(tt.join(' '),TOAST[tv].out==='cakeOut'?OUT_CAKE:OUT_TOAST)+playBtn('toast',tv);
+    if(wv!=='none') h+='<div class="noplay">와인을 붓는 말은 새로 녹음하는 줄이라 아직 소리가 없어요</div>';
+    h+='<div class="prep-hint">실물(샴페인·케이크)은 저희가 준비해요'+(wv==='mix'?' · 두 분은 색이 다른 와인 두 병(또는 음료 둘)을 골라 주세요':wv==='family'?' · 양가에서 와인을 한 병씩 골라 주세요':'')+'</div>';
+  }
   else if(k==='toast'){
     h+=clip('toast');
     ['toast','cake','both'].forEach(function(v){
       /* [TOAST_SCENE] 고른 판만 문안을 편다 — 둘 다는 문안이 둘이라 사이 문장까지 보여 준다.
          마무리도 모드에서 고른다(케이크만 고르면 잔 이야기가 아니라 나이프 이야기로 닫힌다). */
       var _tn=(S.toast===v)?(TOAST[v].nar+(TOAST[v].nar2?' '+TOAST[v].nar2:'')):null;
-      h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요 · 추가 비용은 미리 안내드려요':null);
+      h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요':null);   // [NO_EXTRA_COST]
     });
   }
   else if(k==='write'){
@@ -2709,7 +2976,7 @@ function courseFlow(v){
        ★되돌려 넣지 말 것: 넣으려면 「약 N분」도 식전을 세는 값으로 함께 바꿔야 한다. */
     if(k==='guest')  return false;
     if(k==='ring')   return (d.ring||'on')==='on';   // 기록형은 반지가 기본 빠짐(COURSE_DEF.record.ring)
-    if(k==='bless')  return v==='family';            // applyCourse: 가족 코스만 켬
+    if(k==='bless')  return v==='family';            // applyCourse: 가족 코스만 켬 · [LEGACY_LABEL] 옛 코스 카드 전용
     if(k==='valley') return false;                   // applyCourse: 늘 비움에서 시작
     return true;
   }).map(function(k){ return {k:k, n:(TUNE[k]||{}).n||k, e:det[k]||null}; });
@@ -2817,6 +3084,14 @@ function fillBlanks(){
 
 var BLOCK={
   guest:function(){ return null; }, // 식전 안내 트랙 · 본식 대본에는 미포함
+  /* [OPEN_COURSE] 새 코스의 두 순간 — 문안 원천은 ritual-open.js 의 NAR */
+  prevideo:function(){
+    return {n:'식전 영상',nar:RitualOpen.NAR.prevideoIn,cue:'하객이 앉는 동안 두 분이 준비한 영상 상영(3분 안) · 두 분은 문 밖에서 대기 · 본식 시간에 들지 않아요'};
+  },
+  candle:function(){
+    var w=S.candleWho, nm=''; RitualOpen.CANDLE_WHO.forEach(function(c){ if(c[0]===w) nm=c[1]; }); if(!nm){ w=RitualOpen.DEF.candleWho; nm='양가 어머님'; }
+    return {n:'화촉',nar:RitualOpen.NAR.candleIn[w],self:'서는 분 · '+nm,end:RitualOpen.NAR.candleOut,cue:'나레이션 안내 → 서는 두 분이 앞으로 나와 초에 불을 밝힘 → 자리로 돌아가 앉으시면 맺는 말'};
+  },
   entry:function(){
     var eCouple=S.entryVoice==='couple';
     return {n:'신랑·신부 입장',nar:eCouple?ENTRY[S.entry].self:ENTRY[S.entry].nar,self:eCouple?'두 분 목소리로 인사 (녹음·AI)':null,cue:eCouple?'두 분 목소리 인사가 흐름 → 나레이션 "입장!" 큐·입장곡 → 손잡고 함께 입장':'나레이션 안내 후 "입장!" 소리 → 두 분이 손잡고 함께 걸어 들어오기'};
@@ -2836,6 +3111,7 @@ var BLOCK={
   },
   declare:function(){
     var dw=S.declareWho;
+    if(dw!=='family' && S.declare==='clap') return {n:'성혼 선언',nar:RitualOpen.NAR.clapAsk,self:'하객 박수 (말없이)',end:RitualOpen.NAR.clapDeclare,cue:'나레이션이 증인이 되어 달라 청함 → 하객 박수 → 박수가 잦아들면 나레이션 선언 · 음악'};   // [DECLARE_CLAP]
     var dnar=dw==='ask'?DECLWHO.ask.nar:dw==='chorus'?DECLWHO.chorus.nar:dw==='family'?'두 사람의 성혼은, 가족께서 선언하십니다. 준비되시면 그대로 읽어 주십시오. (가족 대표 낭독: '+DECLWHO.family.nar+')':DECLARE[S.declare].nar;
     var dcue=dw==='ask'?'개식 직후 예고 클립 1회 → (선언 자리에서) 나레이션 질문 → 하객 다 함께 네, 그러겠습니다 → 나레이션이 성혼 선언 · 박수':dw==='chorus'?'나레이션 선창 → 하객 전원이 인쇄물로 함께 낭독 (집단적 벅참의 정점) → 짧은 여운':dw==='family'?'나레이션 소개 → 디렉터가 대표께 마이크와 큰 글씨 선언문 전달 → 대표 낭독 → 짧은 정적 → 마이크 회수':'선언 직전 음악 완전 정지(2~3초) → 나레이션 선언 → 정적 유지 → 음악 하드 인 · 두 분은 정면을 향해 서 있기';
     return {n:'성혼 선언',nar:dnar,end:(dw==='ask')?DECLWHO.ask.end:null,self:dw==='ask'?'하객 다 함께 · 네, 그러겠습니다':dw==='chorus'?'하객 다 함께 합송':dw==='family'?'가족 낭독':null,cue:dcue};
@@ -2852,19 +3128,24 @@ var BLOCK={
      2026-08-09 OPEN_PALETTE 로 free 를 전 코스에 열 때 이 지도만 안 고친 것이다.
      ★문안은 무엇인지 지목하지 않는다 — 자유 한 칸의 약속이 "앞뒤만 열고 닫아 드려요" 이다. */
   free:function(){
-    return {n:'자유 한 칸',nar:FREE_IN,self:'두 분이 정한 순서',end:FREE_OUT,cue:'나레이션이 앞을 열어 줌 → 두 분이 준비한 순서 진행 → 끝나면 나레이션이 닫음(무엇인지 지목하지 않아요)'};
+    return {n:isOpen()?'두 사람이 준비한 순서':'자유 한 칸',nar:FREE_IN,self:'두 분이 정한 순서',end:FREE_OUT,   // [OPEN_COURSE] 명세 8장 이름 · 옛 코스는 그대로
+      cue:'나레이션이 앞을 열어 줌 → 두 분이 준비한 순서 진행 → 끝나면 나레이션이 닫음(무엇인지 지목하지 않아요)'};
   },
   song:function(){
     return {n:'축가',nar:"두 사람을 위해 준비한 노래가 있습니다. 잠시, 음악에 귀를 기울여 주시기 바랍니다.",self:S.song==='live'?'어쿠스틱 라이브 연주(저희가 연결·추가 비용 안내)':'가족·지인이 직접 노래',cue:'나레이션 소개 → 노래 1곡 → 박수와 함께 다음 순서로'};
   },
   toast:function(){
-    return {n:'축배 · 케이크',nar:TOAST[S.toast].nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue};
+    /* [TOAST_WINE] 새 코스는 붓는 말까지 순서표에 적는다 — 옛 코스는 wine 이 없어 지금 그대로다. */
+    var wv=(isOpen()&&S.toast!=='cake')?RitualOpen.chipOf('wine',S):'none';
+    var nar=TOAST[S.toast].nar+(wv==='mix'?' '+RitualOpen.NAR.pourMix:wv==='family'?' '+RitualOpen.NAR.pourFamily:'');
+    return {n:'축배 · 케이크',nar:nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue+(wv!=='none'?' · 두 분이 두 와인을 한 잔에 붓기':'')};
   },
   letter:function(){
     return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"방금 그 마음에, 따뜻한 박수를 보내 주세요.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
   },
   tribute:function(){
-    return {n:'부모님 헌정',nar:TRIBUTE.nar,self:'두 분이 부모님께 · '+TRIBUTE.modes[S.tribute].d,end:TRIBUTE.end,cue:TRIBUTE.modes[S.tribute].cue};
+    var say=(isOpen()&&S.tributeSay!=='none')?(' · '+(S.tributeSay==='long'?'준비한 말 400자씩':'한마디씩')):'';   // [OPEN_COURSE] 인사의 말
+    return {n:isOpen()?'부모님께 인사':'부모님 헌정',nar:TRIBUTE.nar,self:'두 분이 부모님께 · '+TRIBUTE.modes[S.tribute].d+say,end:TRIBUTE.end,cue:TRIBUTE.modes[S.tribute].cue};
   },
   bless:function(){
     if(S.bless!=='on') return null;
@@ -2903,12 +3184,19 @@ function inSeq(k){ return curSeq().indexOf(k)>-1; }
    ★죽은 가드를 남기면 다음 사람이 «케이크 이중 예약은 막혀 있다»고 믿는다 — 막는 것이 없는데.
      경고가 아니라 **구조**가 막는다: 케이크를 고를 수 있는 자리가 「축배·케이크」 하나뿐이다.
    ★되살리지 말 것 — 되살리려면 사이 순서부터 되돌려야 하고 그건 사용자 지시에 반한다. */
+/* [OPEN_COURSE] 완성 화면 · 대본 머리 · 파일 이름에 쓰는 «무엇을 만들었나» 한 줄.
+   새 코스는 코스 이름이 없다 — «순간 n개 · 본식 약 a~b분»(명세 8장 · 마이페이지 요약과 같은 말). 옛 코스는 종전 그대로. */
+function headLine(bsLen){
+  if(isOpen()) return '순간 '+RitualOpen.picked(S).length+'개 · 본식 '+estMin();
+  return COURSES[S.course].nm+' 코스 · '+bsLen+'개 순서 · '+estMin();
+}
 function estMin(){
+  if(isOpen()) return RitualOpen.span(S).body;   // [OPEN_COURSE] 담은 순간의 합(부록 A) · 원천 ritual-open.js
   /* ★[BASE_MIRROR] 아래 base 는 assets/ritual-data.js 의 MIN.base 사본이다. 한쪽만 고치지 말 것
      (check-ritual-mirror.js 가 키·값을 대조한다 · XM 과 같은 방식).
      엔진을 동기로 못 읽어서(engine()이 비동기) 사본을 두지만, 값이 갈리면 고객이 모순을 본다 —
      실제로 갈려 있었다: family 30(원천 24) · damback 25(원천 20) · gamdong 29(원천 28) ·
-     record 키 누락으로 ||25(원천 16). 가족 코스를 고르면 카드는 '약 24분'인데 다듬기 화면은
+     record 키 누락으로 ||25(원천 16). 옛 가족 코스를 고르면 카드는 '약 24분'인데 다듬기 화면은
      아무것도 안 더했는데 '지금 약 30분이에요 · 25분 안쪽이 편안해요' 경고를 띄웠다. */
   var base={damback:23,minimal:18,gamdong:28,family:25,festive:30,record:17}[S.course]||20, m=base;   // [TOAST_DEFAULT 2026-08-09] 약속 20→22(축배 기본 편입) · [WELCOME_DEFAULT 2026-08-14] 첫인사 1분 편입(22→23·24→25·16→17) · 원천은 assets/ritual-data.js MIN.base
   if(S.ring==='off') m-=1;
@@ -2936,7 +3224,7 @@ function prep(){
   return p;
 }
 function scriptText(){
-  var bs=fullBlocks(), lines=['우리 예식 대본 · '+COURSES[S.course].nm+' 코스 · '+estMin(),''];
+  var bs=fullBlocks(), lines=['우리 예식 대본 · '+(isOpen()?headLine(bs.length):(COURSES[S.course].nm+' 코스 · '+estMin())),''];   // [OPEN_COURSE]
   var no=0;
   bs.forEach(function(b){
     no++;
@@ -2956,7 +3244,7 @@ function scriptText(){
 window.saveScriptTxt=function(){
   var blob=new Blob([scriptText()],{type:'text/plain;charset=utf-8'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='우리예식대본_'+COURSES[S.course].nm+'코스.txt'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  a.download=isOpen()?'우리예식대본.txt':('우리예식대본_'+COURSES[S.course].nm+'코스.txt');   // [OPEN_COURSE] document.body.appendChild(a); a.click(); document.body.removeChild(a);
 };
 window.copyScript=function(){
   var txt=scriptText();
@@ -2983,7 +3271,7 @@ function renderDone(){
   var bs=fullBlocks();
   // RESTORE_HONEST_HEAD(2026-07-25 사용자 발견): 저장 전 초안을 '이어서' 복원해 이 화면으로 착지할 때 헤드라인이 '완성됐어요'라 첫인상이 모순(글 비어 있음 배지와 충돌 · 처음 온 것처럼 느껴짐). 복원 상태는 '불러왔어요' 헤드로 정직하게 — 같은 말이던 배너는 헤드로 승격·제거. 방금 완주(비복원)·저장 후는 종전 그대로.
   var _resumeHead=_restored&&!_doneSaved;
-  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+(_resumeHead?'만들던 식순을 불러왔어요':'두 분의 예식이 완성됐어요')+'</h2><div class="s">'+esc(COURSES[S.course].nm)+' 코스 · '+bs.length+'개 순서 · '+estMin()+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
+  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+(_resumeHead?'만들던 식순을 불러왔어요':'두 분의 예식이 완성됐어요')+'</h2><div class="s">'+esc(headLine(bs.length))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
   // [ORD_SAVE_WHERE] 저장처는 열린 경로에 따라 다르다 — 임베드는 서버(마이페이지), 독립 열람은 이 기기뿐.
   if(_doneSaved) h+='<div class="banner" style="text-align:center">'+(EMBED
     ?'마이페이지에 저장됐어요 · D-14까지 언제든 다시 열어 고칠 수 있어요.'
@@ -3408,7 +3696,12 @@ var CUSTMEAL=false;   // [MEAL_GUIDE] 모일 식당을 골랐나 — mypage 가 
 function _ordPayload(fin){
   try{ S.seen = fin ? [] : Object.keys(_seenK); }catch(e){}
   var _bs=fullBlocks();
-  return {S:S, summary:{course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})}};
+  var _sm={course:COURSES[S.course].nm, count:_bs.length, min:estMin(), flow:_bs.map(function(b){return b.n;})};
+  /* [OPEN_COURSE] 새 코스는 코스 이름이 없다 — 마이페이지가 «○○ 코스» 대신 «순간 n개 · 본식 약 a~b분»을 쓴다.
+     예시에서 시작했으면 그 이름도 싣는다(«‹가족› 예시에서 시작»). 옛 코스 요약은 한 글자도 안 바뀐다. */
+  if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
+    _sm.open=true; _sm.moments=RitualOpen.picked(S).length; _sm.photo=_sp.photo; _sm.from=_ex?_ex.nm:''; }
+  return {S:S, summary:_sm};
 }
 function _embedSave(){
   if(!EMBED) return;

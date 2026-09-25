@@ -6735,6 +6735,11 @@ var PHOTO_SCENE=[
  {n:'부모님 덕담',   s:'말씀하시는 얼굴 · 나란히 듣는 두 분'},
  {n:'축배 · 케이크', s:'잔을 든 방 전체 · 부딪히는 순간'},
  {n:'자유 한 칸',    s:'두 분이 정한 순서 그대로'},
+ /* [OPEN_COURSE 2026-09-25 설계 명세 1] 새 코스(순간 먼저)는 이름이 셋 다르다 — 이름으로 맞추므로 없으면 장면이 통째로 빠진다.
+    옛 이름 줄은 지우지 않는다(옛 초안이 그 이름으로 저장돼 있다). */
+ {n:'화촉',          s:'초에 불이 옮겨붙는 순간 · 불을 밝히는 두 분의 손'},
+ {n:'부모님께 인사', s:'큰절·포옹의 순간 · 일어나 마주 보는 얼굴'},
+ {n:'두 사람이 준비한 순서', s:'두 분이 정한 순서 그대로'},
  {n:'폐식·단체촬영', s:'예식을 맺는 한 컷 · 여기서 아래 구도로 이어져요'}
 ];
 // 식순 초안에서 '고른 순간'만 골라낸다 — 초안이 없거나 옛 판이면 null(칸을 통째로 안 그린다)
@@ -7373,7 +7378,13 @@ function prodConfirmHtml(p, inv){
   if(_ivv&&_imL) _ivv+=' · '+_imL; if(_ivv&&_dz.length) _ivv+='<br><span class="cc-mini">디자인 · '+_dz.map(function(x){ return '<span style="white-space:nowrap">'+escapeHtml(x)+'</span>'; }).join(' · ')+'</span>';   // [CF_WRAP_BALANCE] 「오프라인 / 05」로 숫자만 떨어지면 오독한다
   L+=line('청첩장', _ivv);
   var rv='';
-  if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
+  if(_rDone && rd._v===3 && rd.summary && rd.summary.open){
+    /* [OPEN_COURSE 2026-09-25 설계 명세 1 · 8장] 새 코스는 코스 이름이 없다 — «순간 n개 · 본식 약 a~b분»
+       예시에서 시작했으면 한 줄 더(«‹가족› 예시에서 시작»). 옛 코스 요약(아래 else)은 한 글자도 안 바뀐다. */
+    rv='순간 '+escapeHtml(String(rd.summary.moments||0))+'개 · 본식 '+escapeHtml(String(rd.summary.min||''));
+    if(rd.summary.from) rv+='<br><span class="cc-mini">‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작</span>';
+    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('인사말'); if(_wo.length) rv+=' · '+_wo.join('·')+' 작성됨'; } }
+  else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
     if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
   else if(_rDone){ rv='완료'; }
   L+=line('식순', rv);
