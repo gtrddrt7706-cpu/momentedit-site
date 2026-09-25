@@ -207,12 +207,20 @@ if (uncovered.length) {
    ★위험한 쪽은 반대 방향이다 — 목록이 진짜 낡았는데 다른 이유로 `_생성` 만 새것이면
      contractCheck 가 「최신」이라고 안심시킨다. 나이 지표가 나이를 안 재는 것이다([NOT_THE_SOURCE]).
    그래서 여기서 «가장 최근 GAS 커밋 날짜»와 맞대 본다. 목록이 더 오래됐으면 빨강. */
+/* ★★[LIST_AGE_UTC 2026-09-26] 두 날짜를 «같은 시계»로 잰다 — 둘 다 UTC.
+   `_생성` 은 생성기가 toISOString() 으로 찍는다 = UTC. 그런데 `--date=short` 는 커밋을 «그 커밋의 시간대»로
+   찍는다 — GitHub 스쿼시 병합은 +09:00(한국 시간)이다. 그래서 한국 시간 00~09시에 병합하면 커밋 날짜가
+   `_생성` 보다 하루 앞서 보이고, 처방인 --stamp 를 돌려도 UTC 로는 아직 어제라 안 풀린다.
+   [MARKS_STAMP] · [STAMP_FORCE] 가 막으려던 «처방이 듣지 않는 막다른 빨강»의 세 번째 길이다.
+   실측 — #843 병합(e02f6124 · 2026-09-26T00:10:51+09:00) 직후 main 게이트가 이것 하나로 빨갰다(_생성 2026-09-25 14:44 UTC).
+   ★검사를 무르게 한 것이 아니다 — 같은 순간을 같은 시계로 읽을 뿐이다. 목록이 정말 하루 낡았으면 여전히 빨강이다.
+   ★TZ 를 여기서 못 박는다 — 러너(GitHub Actions 는 UTC)나 사람 컴퓨터(한국 시간)에 따라 답이 갈리면 안 된다. */
 {
   const made = String((JSON.parse(checkSrc)['_생성']) || '').slice(0, 10);
   let newest = '';
   try {
-    newest = execSync("git log -1 --format=%ad --date=short -- 'automation/**/*.gs' 'automation/**/*.html'",
-      { encoding: 'utf8' }).trim();
+    newest = execSync("git log -1 --format=%ad --date=format-local:%Y-%m-%d -- 'automation/**/*.gs' 'automation/**/*.html'",
+      { encoding: 'utf8', env: { ...process.env, TZ: 'UTC' } }).trim();
   } catch (e) { newest = ''; }
   if (!made) {
     console.log('❌ [LIST_AGE] deploy-marks.json 에 _생성 이 없다 — contractCheck 가 목록 나이를 못 잰다');
