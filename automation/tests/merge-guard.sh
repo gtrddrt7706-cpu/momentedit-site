@@ -8200,6 +8200,25 @@ chk 'RHYTHM_LOCK' scripts/audit/section-rhythm.mjs 1
 chk 'SERVED_OURS' scripts/audit/section-rhythm.mjs 2
 chk 'freePort' scripts/audit/section-rhythm.mjs 2
 
+# ★★[HOLD_DROP_ON_ROLLBACK 2026-09-25 사장님 「전에 진행중이던 계정은 취소처리했는데 이 부분에서 누락됐나?」]
+#   맞았다. NOTIFY_HOLD(야간 보류 알림 큐)를 «적재»와 «발송» 두 곳에서만 건드렸고,
+#   취소·되돌리기는 이 큐를 몰랐다. 그래서 2026-09-24 에 이런 메일이 왔다:
+#     「밤사이 보류 알림 5건이 세 번 시도해도 실패해 큐에서 내렸습니다 · TD7CGH/cust.fittingRequest …」
+#   취소한 고객에게 보낼 알림 5건이 사흘 동안 매일 아침 재시도되다 버려진 것이고,
+#   사장님은 영문 모를 메일을 받으셨다. 재시도하는 동안 연락처가 살아 있었다면 **실제로 발송됐다.**
+#   ★이 검사는 브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다(렌더 검사들과 다른 점).
+if command -v node >/dev/null 2>&1; then node scripts/audit/hold-drop.mjs >/dev/null 2>&1; _hd=$?
+  case "$_hd" in
+    0) echo 'ok hold-drop: 되돌리기가 그 고객의 대기 알림만 내린다 (배선·기록 포함)' ;;
+    1) echo 'FAIL hold-drop: 되돌리기가 대기 알림을 제대로 못 내립니다 — node scripts/audit/hold-drop.mjs'; fail=1 ;;
+    *) echo 'ok hold-drop: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'HOLD_DROP_ON_ROLLBACK' scripts/audit/hold-drop.mjs 1
+chk 'HOLD_DROP_ON_ROLLBACK' automation/platform/95_notify.gs 1
+chk 'HOLD_DROP_ON_ROLLBACK' automation/admin/admin.gs 2
+chk 'SERVED_OURS' scripts/audit/hold-drop.mjs 1
+
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
 #     부딪히는 사실 없음. 신부의 「오늘은 이렇게 먼저」는 예식 뒤 인사 사진에서 실제로 자리를 도는 것과 맞다.
