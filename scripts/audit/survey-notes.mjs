@@ -28,6 +28,9 @@ const say = (c, m, d) => {
 let G, world;
 try { ({ G, world } = openWorld()); }
 catch (e) { console.log('━━ survey-notes — GAS 세계를 못 만들었습니다 · 재지 못했습니다: ' + e.message); process.exit(2); }
+// [REVIEW_KEEP_ROWS] 세계(world)는 setCustomerStage 를 빈 함수로 갈아 끼운다(다른 장면 격리용). 취소 경로를 «진짜로» 태우려고
+//   갈아 끼우기 전의 원본을 여기서 잡아 둔다 — 원본은 호출 때 G 의 findCustomerByCode·touchCustomer(세계 판)를 쓴다.
+const _realSetStage = G.setCustomerStage;
 for (const fn of ['handleSubmitSurvey', 'buildResultState', 'adminHome', 'adminSurveySeen']) {
   if (typeof G[fn] !== 'function') { console.log(`━━ survey-notes — ${fn} 이 없습니다 · 재지 못했습니다`); process.exit(2); }
 }
@@ -169,6 +172,22 @@ for (const st of ['취소', '노쇼', '미계약']) {
   let h; try { h = G.adminHome(); } catch (e) { h = { ok: false, error: 'THROW ' + e.message }; }
   const it = (((h || {}).survey || {}).recent || []).find((x) => x.code === 'ME-SV');
   say(!!it, '진행 중(후기 단계) 고객의 후기는 그대로 보인다 — 거르는 자가 과하지 않다', JSON.stringify(h && h.survey));
+}
+
+{
+  /* ★[REVIEW_KEEP_ROWS 2026-09-25 사장님 결정 «추천대로»] 취소 고객의 후기는 «숨김만» — 시트에서 지우지 않는다.
+     까닭: 취소를 되돌리면(강제 단계 변경) 후기도 함께 돌아와야 하고, 지운 것은 복구할 수 없다.
+     실제 취소 경로(setCustomerStage cancel — adminCancel 이 부른다)를 태워 «설문 칸이 그대로인지»를 잰다.
+     누가 «지워 달라 했으니»하며 여기서 설문 칸을 비우는 코드를 넣으면 이 줄이 빨개진다. */
+  const resp = JSON.stringify({ product: '시그니처', answers: { overall: 'very' }, review: '남겨 둘 후기' });
+  const w = mk({ 현재단계: '후기', 설문상태: '완료', 설문응답: resp, 설문일시: '2026-09-25 16:04' });
+  let moved = false; try { moved = (typeof _realSetStage === 'function') ? _realSetStage('ME-SV', 'cancel') : 'setCustomerStage 없음'; } catch (e) { moved = 'THROW ' + e.message; }
+  say(w.C['현재단계'] === '취소', '실제 취소 경로(setCustomerStage cancel)로 단계가 «취소»가 된다', JSON.stringify({ moved, stage: w.C['현재단계'] }));
+  say(w.C['설문응답'] === resp && w.C['설문상태'] === '완료', '취소해도 후기(설문 칸)는 시트에 그대로 남는다 — 숨김이지 삭제가 아니다 [REVIEW_KEEP_ROWS]', JSON.stringify({ 설문상태: w.C['설문상태'], 같음: w.C['설문응답'] === resp }));
+  G._AUTHED = true;
+  let h; try { h = G.adminHome(); } catch (e) { h = { ok: false, error: 'THROW ' + e.message }; }
+  const it = (((h || {}).survey || {}).recent || []).find((x) => x.code === 'ME-SV');
+  say(!it, '그리고 관리자 후기 목록에서는 빠진다', JSON.stringify(h && h.survey));
 }
 
 console.log(rc ? '━━ survey-notes — 틀린 곳이 있습니다' : '━━ survey-notes — 전부 통과');
