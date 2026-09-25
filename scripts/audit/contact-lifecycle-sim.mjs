@@ -38,7 +38,8 @@ function grab(src, name, file) {
   for (const ln of lines) { out.push(ln); if (ln === '}') break; }
   return out[out.length - 1] === '}' ? out.join('\n') : null;
 }
-const NEED = { _phoneKR: cfgSrc, _kakaoSend: nfSrc, _nfHoldPush: nfSrc, _nfHoldDrop: nfSrc, flushHeldNotifies: nfSrc };
+// [MAIL_ONCE 2026-09-25] _kakaoSend 가 대체 메일 기준을 _nfEmailedElsewhere 에 묻는다 — 같이 꺼내지 않으면 기준에서 멈춰 메일이 0통이 된다(실측 빨강 3건).
+const NEED = { _phoneKR: cfgSrc, _kakaoSend: nfSrc, _nfEmailedElsewhere: nfSrc, _nfHoldPush: nfSrc, _nfHoldDrop: nfSrc, flushHeldNotifies: nfSrc };
 const bodies = {};
 for (const [fn, src] of Object.entries(NEED)) {
   const b = grab(src, fn);
