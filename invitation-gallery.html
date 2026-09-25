@@ -590,7 +590,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}@media (p
   // 트랙 빌드
   const track = document.getElementById('gv-track');
   INVITATIONS.forEach(function(inv,i){
-    const card = document.createElement('article');
+    const card = document.createElement('div');   /* ★[GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] article 에 role=tabpanel 을 얹으면 axe aria-allowed-role(11건). 탭 패널은 div 가 맞다 — article 로 되돌리지 말 것 */
     card.className = 'gv-card';
     card.dataset.idx = String(i);
     card.setAttribute('role','tabpanel');
