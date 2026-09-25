@@ -1,7 +1,8 @@
 // 카톡·SNS 미리보기 봇 전용 — 청첩장 OG 메타에 부부 이름 주입 (Vercel 서버리스)
 // vercel.json routes가 '미리보기 봇 UA + /i/cover-NN.html·/i-family/family-NN.html'만 이리로 보낸다.
 // 하객(사람) 트래픽은 라우트에 안 걸려 정적 파일 그대로 — 속도 영향 없음. 실패 시 원본 그대로 응답(안전 폴백).
-const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+// [LETTER_SWITCH 2026-09-25] 본 GAS(87_letter) — 옛 Letter System 웹훅은 은퇴
+const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
 const PAGE_RE = /^\/(?:i\/cover-\d{2}|i-family\/family-\d{2})\.html$/;
 
 module.exports = async (req, res) => {

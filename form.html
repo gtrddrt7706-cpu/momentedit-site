@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Moment Edit · 청첩장 정보 입력</title>
-  <meta name="description" content="두 분의 청첩장에 담길 내용을 입력해 주세요. 제출하시면 완성된 청첩장 링크를 이메일로 보내드립니다.">
+  <meta name="description" content="두 분의 청첩장은 마이페이지에서 만들어요.">
   <link rel="canonical" href="https://momentedit.kr/form">
   <!-- ★[FORM_ONE 2026-09-11 점검] 이 파일이 /form · /form/ · /form.html 을 모두 내주는 «한 장»이다.
        form/index.html 이라는 사본이 있었는데, 아무도 가리키지 않으면서 따로 늙었다 —
@@ -16,14 +16,16 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Moment Edit">
   <meta property="og:title" content="MOMENT EDIT · Invitation Form">
-  <meta property="og:description" content="두 분의 청첩장에 담길 내용을 적어 주세요. 완성 링크를 보내드려요.">
+  <meta property="og:description" content="두 분의 청첩장은 마이페이지에서 만들어요.">
   <meta property="og:image" content="https://momentedit.kr/assets/og/og-espresso.png?v=5">
   <meta property="og:url" content="https://momentedit.kr/form">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="robots" content="noindex">
-  <!-- 폼으로 즉시 이동 -->
-  <meta http-equiv="refresh" content="0; url=https://docs.google.com/forms/d/e/1FAIpQLScOqdtYiQNm_u7Pc3ZIeASzY15CwGJIdqRrEZzbguqeg9uIPQ/viewform">
-  <script>location.replace("https://docs.google.com/forms/d/e/1FAIpQLScOqdtYiQNm_u7Pc3ZIeASzY15CwGJIdqRrEZzbguqeg9uIPQ/viewform");</script>
+  <!-- ★[FORM_TO_MYPAGE 2026-09-25] 구글폼 부부폼은 은퇴했다(LETTER_MERGED) — 청첩장은 마이페이지에서 만든다.
+       옛 폼은 처리기가 없어 제출해도 청첩장이 안 생기고 메일도 안 간다. 그래서 /form 은 마이페이지로 보낸다.
+       ★구글폼 주소로 되돌리지 말 것. -->
+  <meta http-equiv="refresh" content="0; url=/mypage.html">
+  <script>location.replace("/mypage.html");</script>
   <style>
 /* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
 html,body{scrollbar-width:none;-ms-overflow-style:none}
@@ -45,8 +47,8 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
 <body>
   <div>
     <p class="ey">MOMENT EDIT</p>
-    <p class="ms">청첩장 정보 입력 폼으로 이동 중입니다…</p>
-    <p style="font-size:13px;font-weight:300;">자동으로 넘어가지 않으면 <a href="https://docs.google.com/forms/d/e/1FAIpQLScOqdtYiQNm_u7Pc3ZIeASzY15CwGJIdqRrEZzbguqeg9uIPQ/viewform">여기를 눌러 주세요</a>.</p>
+    <p class="ms">마이페이지로 이동 중입니다…</p>
+    <p style="font-size:13px;font-weight:300;">자동으로 넘어가지 않으면 <a href="/mypage.html">여기를 눌러 주세요</a>.</p>
   </div>
 </body>
 </html>

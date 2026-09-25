@@ -2024,7 +2024,8 @@ window.addEventListener('load', () => {
 //   · 네트워크 실패 / 부부 미등록 → 프리뷰 모드로 fallback
 //   · 빈 필드(부모정보 등) → 해당 행 hide 처리
 // ═══════════════════════════════════════════════════════════════
-const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+// [LETTER_SWITCH 2026-09-25] 조회·편지 모두 본 GAS(87_letter)로 — 옛 Letter System 웹훅은 은퇴(LETTER_MERGED)
+const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
 
 // 부부 자유입력(이름·혼주·예금주)을 innerHTML에 넣기 전 이스케이프 — 저장형 XSS 방지(정상 텍스트엔 무영향)
 function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
@@ -2544,7 +2545,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
 // ═══════════════════════════════════════════════════════════════
 (function initLetterSystem(){
   // Google Apps Script 웹 앱 URL
-  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwWuUVCgRRclss-i0gO_RAwyVVtgVh_fPUgYpFg40gFQJlmo4Su4IxGwj3s-qDvrqbAyg/exec';
+  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';   // [LETTER_SWITCH] 본 GAS — ★아래 payload 의 action 을 빼면 상담 신청으로 들어간다
 
   // URL 파라미터에서 예식 ID 읽기 (?e=test-couple)
   const params = new URLSearchParams(window.location.search);
@@ -2702,6 +2703,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
     submitBtn.disabled = true;
 
     const payload = {
+      action: 'guestLetter',   // [LETTER_SWITCH] 본 GAS doPost 가 이 이름표로 편지를 받는다 — 없으면 case '' (상담 신청)로 떨어진다
       eventId: eventId,
       guestName: guestName,
       relation: relation,
