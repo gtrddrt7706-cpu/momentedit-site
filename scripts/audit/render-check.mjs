@@ -11,7 +11,10 @@ import { createRequire } from 'node:module';
 
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const PAGES = ['mypage.html', 'admin.html', 'index.html', 'schedule.html', 'inquiry.html',
-  'contract/v1-1.html', 'contract/snap-v1-0.html'];
+  'contract/v1-1.html', 'contract/snap-v1-0.html',
+  /* ★[SYNTAX_BUILDER 2026-09-25] 식순 빌더 · 콘솔 · 부모님 · 하객 안내도 구문을 본다 — `//` 꼬리 주석이 같은 줄 뒤 코드를 삼켜
+     order-preview 인라인 스크립트가 통째로 죽었는데(Unexpected end of input) 이 검사는 목록에 없어 «구문 0» 이라 답했다. */
+  'order-preview.html', 'console.html', 'parents.html', 'guide.html'];
 const DRIVE = ['mypage.html', 'admin.html'];   // puppeteer로 실제 로드해 pageerror 수집할 페이지
 const PORT = 8111;
 

@@ -2729,7 +2729,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('부모님 헌정', ({flower:'꽃',bow:'큰절',hug:'포옹'})[s3d.tribute]||'')
       +row('축배·케이크', ({toast:'축배',cake:'케이크','2':'둘 다',both:'둘 다'})[s3d.toast]||'')
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
-      +row('직접 쓰는 글', [s3d.vowText?'서약문':null, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null].filter(function(x){return x;}).join(' · ')||'아직 없음')
+      +row('직접 쓰는 글', [s3d.vowText?'서약문':null, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null].filter(function(x){return x;}).join(' · ')||'아직 없음')
       +(s3d.growth==='on'?lrow('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');   /* [ADM_LINK_CLICK] */
   }
   else if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }

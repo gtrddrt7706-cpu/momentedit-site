@@ -8558,6 +8558,17 @@ chk 'GOODS_CHOICE' admin.html 1
 chk '저희에게 맡기시면 따로 비용이 있어요' order-preview.html 1   # [GOODS_CHOICE] ① «값은 같아요» 옆 한 줄(코워크 5-1)
 chk 'v1-9.html' admin.html 1   # [CONTRACT_V110] v1.9 서명자 보존본
 chk 'v1-9.html' mypage.html 1
+# ── 2026-09-25 코워크 회신4 4장 · P13 · 사장님 «부모님 말은 칸은 두되 선택»
+chk 'TRIB_CARD_OPT' order-preview.html 3           # ③ 부모님께 드릴 말 선택 칸 · 대본 · 셈 줄 밖
+chk 'TRIB_CARD_OPT' assets/ritual-open.js 1
+chk 'ONE_CAT_TAG' order-preview.html 1             # 4-b 갈래 하나면 꼬리표 없음
+chk 'PREVIDEO_NAME' order-preview.html 1           # 4-c 식전 영상 항목 이름 한 원천
+chk 'MAIL_TEXT' order-preview.html 2               # 4-d 메일 주소를 글로도
+chk 'STEP_BASELINE' order-preview.html 1           # 4-e 걸음 글줄
+chk 'WHY_BLESS' assets/ritual-open.js 1            # 4-f 서약 없을 때 «약속의 문» 아님
+nochk "bless: '부모님 말씀으로 약속의 문을" assets/ritual-open.js
+chk 'PLAY_BESIDE_NUM' order-preview.html 3         # P13 ▶ 는 번호 옆 그림 위(RAIL_LOCKED — 비키는 쪽은 이 단추)
+chk 'SYNTAX_BUILDER' scripts/audit/render-check.mjs 1   # 빌더 인라인 스크립트 구문도 본다
 chk 'VOICE_LATE' order-preview.html 5   # 두 분 목소리 — 7일 전까지 녹음이 없으면 나레이션(자동 되돌리기 대신 안내 한 줄)
 chk 'HELPER_WORDS' assets/ritual-open.js 2
 nochk '반지를 담은 날' assets/ritual-open.js
