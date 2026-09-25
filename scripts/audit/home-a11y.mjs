@@ -62,8 +62,26 @@ const PROBE = `(() => {
       node = node.parentElement;
     }
     if (!bg) return;
-    const ratio = (Math.max(lum(...fg.slice(0,3)), lum(...bg.slice(0,3))) + 0.05)
-                / (Math.min(lum(...fg.slice(0,3)), lum(...bg.slice(0,3))) + 0.05);
+    /* ★★[A11Y_ANCESTOR_OPACITY 2026-09-25 코워크 실측에서 드러났다]
+       종전엔 getComputedStyle(el).color 를 그대로 재서, «부모에 걸린 opacity» 를 못 봤다.
+       흐림은 .mockup-item · .jr-step-btn 같은 «상자»에 걸려 있고 글자의 계산 색에는 안 나타난다
+       → 검사기는 흐리기 전 색(예 --sub 7.08:1)으로 재고 통과시켰다. 그래서 [DIM_READABLE] 의
+       틀린 계산(「0.55 면 4.5:1 을 넘긴다」)이 초록으로 남아 있었고, 실제로는 2.2~3.3:1 이었다.
+       ★el 부터 html 까지 opacity 를 전부 곱해 «눈에 보이는 알파»를 구하고, 배경과 섞어서 잰다.
+       ★투명도가 0.15 이하면 vis() 가 이미 걸러 낸다 — 여기선 보이는 것만 다룬다. */
+    let aEff = (fg[3] === undefined ? 1 : fg[3]);
+    for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+      const o = parseFloat(getComputedStyle(n).opacity);
+      if (!isNaN(o)) aEff *= o;
+    }
+    /* ★조상이 «거의 투명»하면 대비 문제가 아니라 «안 보이는 것»이다 — 재지 않는다.
+       처음 고쳤을 때 이걸 빠뜨려 위반이 16 → 628 건으로 튀었다(2026-09-25 실측).
+       숨은 메뉴(nav.nav-hidden · opacity 0) 안의 링크가 전부 1.00:1 로 잡혔다.
+       vis() 가 «제 opacity» 만 보는 것과 같은 문턱(0.15)을 여기선 «조상까지 곱한 값»에 건다. */
+    if (aEff < 0.15) return;
+    const mix = fg.slice(0, 3).map((v, i) => v * aEff + bg[i] * (1 - aEff));
+    const ratio = (Math.max(lum(...mix), lum(...bg.slice(0,3))) + 0.05)
+                / (Math.min(lum(...mix), lum(...bg.slice(0,3))) + 0.05);
     const size = parseFloat(cs.fontSize), need = (size >= 24 || (size >= 18.66 && +cs.fontWeight >= 700)) ? 3.0 : 4.5;
     if (ratio < need) out.contrast.push(label + '  ' + ratio.toFixed(2) + ':1 (필요 ' + need + ' · ' + size + 'px)');
   });
@@ -120,9 +138,25 @@ for (const W of [390, 1280]) {
   await page.waitForTimeout(1100);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
+  /* ★★[CV_FORCE_RENDER 2026-09-25 코워크 실측 함정] content-visibility:auto 구역은 화면 밖이면
+     «건너뛴 것»이라 getComputedStyle 이 배치·색을 제대로 안 준다. 그래서 #journey 처럼
+     [PERF_CV_SECTIONS] 로 묶인 구역이 검사에서 통째로 빠진다 — 코워크가 axe 로 같은 함정을
+     실측했다(기본 12건 → 강제로 그리면 24건).
+     ★여기서는 «색·대비»를 재는 PROBE 직전에만 강제로 그린다. 위의 스크롤·레일 겹침 측정은
+       실제 렌더 상태로 재야 하므로 그보다 뒤에 둔다 — 순서를 바꾸면 겹침 수가 달라진다. */
+  await page.addStyleTag({ content: '*{content-visibility:visible !important;contain-intrinsic-size:auto !important}'
+    /* ★[CV_FORCE_RENDER] 등장 애니메이션도 «끝난 상태»로 고정한다. .reveal 은 나타나기 전 opacity:0 이라,
+       조상 불투명도를 곱해 재는 [A11Y_ANCESTOR_OPACITY] 가 그걸 «안 보이는 것»으로 보고 건너뛴다.
+       실제로 #journey 12건이 통째로 빠져 있었다(2026-09-25 · 내부 계측으로 확인).
+       ★고객이 실제로 읽는 상태는 «나타난 뒤»다. 그 상태로 재는 것이 맞다. */
+    + ' .reveal,.reveal--hero,.reveal--price{opacity:1 !important;transform:none !important}' });
+  await page.waitForTimeout(500);
   const r = await page.evaluate(PROBE);
   console.log(`\n══ ${W}px ══`);
-  const say = (name, arr) => { if (arr.length) { bad += arr.length; console.log(`✗ ${name} ${arr.length}건`); arr.slice(0, 8).forEach((x) => console.log('   ' + x)); }
+  /* ★slice(0, 8) 이었다. 2026-09-25 에 «12건» 이라고 찍어 놓고 8줄만 보여 줘서,
+     내가 그 8줄을 세고 「16건」이라고 보고했다 — #journey 4건이 9~12번째라 잘려 있었다.
+     목록을 세는 것은 사람이니 «세어야 할 것»을 잘라서 보여 주지 않는다(NOT_THE_SOURCE). */
+  const say = (name, arr) => { if (arr.length) { bad += arr.length; console.log(`✗ ${name} ${arr.length}건`); arr.slice(0, 24).forEach((x) => console.log('   ' + x)); }
     else console.log(`✓ ${name} 0`); };
   say('장식 골드(--gold)를 글자로 쓴 자리', r.gold);
   say('그 밖의 대비 미달', r.contrast);
