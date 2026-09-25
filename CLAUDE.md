@@ -378,7 +378,7 @@ git push -u origin <브랜치>
 | `deployStampCheck` | **99_deployCheck** | ★배포가 «먹었는가»만 찍는다(서너 줄). deployCheck 로그가 GAS 한도로 ③ 에서 잘려 ④ 를 몇 번을 돌려도 못 보던 자리 — 2026-09-20 대표 실행 두 번 모두 그랬다. **재배포할 때마다 이것만 돌리면 된다.** deployCheck 는 «붙여넣기» 점검이고 이건 «배포» 점검이다. ★기록이 없으면 «아직 모름»이다 — 재배포 뒤 momentedit.kr 을 한 번 열어야 지문이 찍힌다. ★★[STAMP_FN_ONLY] **이 판정은 «함수»만 본다** — `_dsGlobalSig` 가 `typeof === 'function'` 인 것만 모은다. 화면 파일(`Admin`·`ScreenA`·`ScreenB`·`ScreenC` `.html`)은 지문에 **안 들어가서**, 붙여넣었든 안 넣었든 똑같이 OK 가 나온다. **`.html` 을 붙여넣었으면 `deployCheck`(같은 `99_deployCheck` 파일)를 돌려 ①-C 본문 길이를 봐야 한다.** 2026-09-20 에 내가 `ScreenB_schedule.html` 을 고쳐 드리고 이걸로 확인하라고 안내했는데, 확인될 수가 없는 조합이었다 |
 | `contractCheck` | **99_contractCheck** | ★값 계약 점검 — deployCheck 와 **짝**이다. 그쪽은 «표식이 있는가», 이쪽은 «값이 맞는가». GAS 상수(FINAL_CONFIRM 등)를 실제로 평가하고, 배포된 사이트 문장까지 대조한다. 목록이 없으면 파일 안 폴백으로 GAS 값만 본다 |
 | `contractCheckHelp` | **99_contractCheck** | 위 점검의 사용법 출력(발송·변경 없음). 파일 끝을 지키는 함수이기도 하다 — 이 이름이 사라지면 붙여넣다 뒤가 잘린 것이다 |
-| `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) |
+| `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) · ★켜진 고객 알림 중 **알림톡 템플릿이 빠진 것을 이름으로 나열**(TPL_COVER) — 「알림톡이 안 나간다」면 여기부터. 템플릿이 없으면 알림톡은 안 나가고 이메일로만 대체되며, 그 사실은 고객 상세 처리이력·관리자 메일(하루 한 통)로 드러난다(TPL_SILENT) |
 | `notifyTestAdminSms` | 95_notify | 관리자 폰 테스트 문자 1건(실발송) |
 | `notifyTestCustomerByCode('코드')` | 95_notify | 고객 알림 테스트(실발송·야간보류 무시) |
 | `notifyTestKakao('번호'[,'이벤트'])` | 95_notify | 카톡(알림톡) 직접 테스트 — 지정 번호로 승인·매핑된 템플릿 1건 실발송(카톡만·SMS 대체 끔). 템플릿ID 미매핑이면 로그로 안내 |
