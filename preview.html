@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light only"><!-- [META_LIGHT_ONLY 2026-09-25 코워크 3편 ⑨] 이 셋만 빠져 안드로이드 크롬 자동 어둡게 대상이었다 -->
+<meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
 <title>청첩장 미리보기 · Moment Edit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +17,8 @@
      ★브랜드 세리프는 그대로다. 로드 «시점»만 바꿨다. 폰트가 아예 안 와도 화면은 읽힌다. -->
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet"></noscript>
 <style>
+html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편 ③ · 사장님 선택 «바로 세우기»] 한글 글꼴(Noto Serif·Sans KR)엔 기울임꼴이 없어 italic 이 걸린 한글을 브라우저가 억지로 비틀었다(합성 기울임). 굵기 합성만 허용하고 기울임 합성을 끈다 — 한글은 바로 서고, Cormorant 처럼 진짜 기울임꼴이 있는 영문은 그대로 기운다. 지우지 말 것 · 공통 CSS 파일이 없어 고객 화면마다 한 줄씩 있다. */
+
 /* 스크롤바 전역 숨김(스크롤 기능은 유지) — 브랜드 규칙: 바는 보이지 않게 */
 html,body{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}

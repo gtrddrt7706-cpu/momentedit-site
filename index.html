@@ -338,6 +338,8 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Grand+Hotel&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+JP:wght@300;400&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Grand+Hotel&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+JP:wght@300;400&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
+html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편 ③ · 사장님 선택 «바로 세우기»] 한글 글꼴(Noto Serif·Sans KR)엔 기울임꼴이 없어 italic 이 걸린 한글을 브라우저가 억지로 비틀었다(합성 기울임). 굵기 합성만 허용하고 기울임 합성을 끈다 — 한글은 바로 서고, Cormorant 처럼 진짜 기울임꼴이 있는 영문은 그대로 기운다. 지우지 말 것 · 공통 CSS 파일이 없어 고객 화면마다 한 줄씩 있다. */
+
 /* iOS 입력 포커스 자동확대(줌) 방지 — 입력 폰트 16px 보장. 손가락 수동 확대(접근성)는 유지(viewport 안 건드림) */
 input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
 textarea,
@@ -1656,6 +1658,16 @@ section:not(#rsvp) > *:last-child {
    한글 부분만 8%로 낮춘다 — 영문 트래킹은 그대로 두어 한 덩어리로 읽히게. 17개 라벨 전부 적용. */
 .sec-label .ll-ko {
   letter-spacing: 0.08em;
+}
+/* ★★[KO_TRACK_SPLIT 2026-09-25 코워크 3편 ④] 같은 병이 .sec-label 밖에도 넷 있었다 — 「Guest Access · 하객이 만나는 화면」 0.32em ·
+   「Delivered · 두 분의 받은편지함으로」 0.28em · 「Opening Honor · 운영 초기 한정」 0.14em · 「더 자세한 질문 보기」 0.14em.
+   한글 부분만 .ll-ko 로 나눠 0.08em([LABEL_KO_TRACK]) — 영문 부분의 자간·대문자는 그대로. .ll-ko 는 어디에 있든 0.08em 이다. */
+.ll-ko {
+  letter-spacing: 0.08em;
+}
+.faq-more-toggle .more-text-open,
+.faq-more-toggle .more-text-close {
+  letter-spacing: 0.08em;   /* [KO_TRACK_SPLIT] 버튼 글자가 전부 한글이다 */
 }
 .sec-title {
   font-family: var(--serif);
@@ -6255,7 +6267,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
        ★탭 라벨에 Online/Offline 을 쓰되 위 「두 편의 청첩장」과 뜻이 이어진다 —
          청첩장이 두 편이니 그 다음 화면도 두 편이라는 체계가 여기서 완성된다. -->
   <div class="mockup-intro">
-    <span class="mockup-intro-label">Guest Access · 하객이 만나는 화면</span>
+    <span class="mockup-intro-label">Guest Access ·<span class="ll-ko"> 하객이 만나는 화면</span></span>
     <p class="mockup-intro-text" id="gaIntro"></p>
     <div class="ga-tabs" role="tablist" aria-label="하객이 만나는 두 화면">
       <button type="button" class="ga-tab on" role="tab" aria-selected="true" data-ga="on">온라인 · 디지털 참석</button>
@@ -6349,7 +6361,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <!-- DELIVERED TO THE COUPLE — 두 분의 받은편지함 -->
 <div class="delivered-wrap reveal">
   <div class="delivered-divider"></div>
-  <div class="delivered-eyebrow">Delivered · 두 분의 받은편지함으로</div>
+  <div class="delivered-eyebrow">Delivered ·<span class="ll-ko"> 두 분의 받은편지함으로</span></div>
 
   <p class="delivered-intro">
     축하해 주신 분이 편지 페이지에 남긴 한 통은,<br>
@@ -6535,7 +6547,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <!-- WEEKDAY EDITORIAL SNAP — Opening Archive Honor -->
 <div class="reveal">
   <div class="snap-block">
-    <div style="display:inline-block;font-size:11px;letter-spacing: 0.14em;color:var(--gold-text);border:1px solid var(--gold);border-radius: 4px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor · 운영 초기 한정</div>
+    <div style="display:inline-block;font-size:11px;letter-spacing: 0.14em;color:var(--gold-text);border:1px solid var(--gold);border-radius: 4px;padding:4px 14px;margin-bottom:14px;font-weight:500;text-transform:uppercase">Opening Honor ·<span class="ll-ko"> 운영 초기 한정</span></div>
     <h3 class="sec-label">Weekday Editorial Snap ·<span class="ll-ko"> 평일 웨딩스냅</span></h3>
     <div style="font-family:var(--serif);font-size:18px;font-weight:300;color:var(--sub);margin-bottom:8px;line-height:1.4">평일의 여유 속에서 완성하는<br>두 분만의 웨딩스냅</div>
     <p class="t-body" style="margin:14px 0 0;font-size:13px">본식 없이, 기록에만 온전히 집중하는 시간입니다. <br>캔들존과 화이트존 두 공간에서 약 60~90분간 진행되는 프라이빗 포토 세션입니다.</p>
