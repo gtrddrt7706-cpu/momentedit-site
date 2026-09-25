@@ -9568,6 +9568,22 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
 
+# ★★[ATTIRE_SINGLE_LINE 2026-09-25 코워크 3편 ⑥] 「Nº 03 의상」 아래 겹선(28px 간격 두 줄) + 같은 글자 라벨 반복.
+#   윗선 0 · 라벨은 화면에서만 숨김(radiogroup aria-label="의상" 유지) · 1280 격자에서 선택지가 한 줄 전체를 왼쪽부터.
+chk 'ATTIRE_SINGLE_LINE' inquiry.html 1
+chk '\.sec-head + \.compact-group{border-top:0}' inquiry.html 1
+chk 'role="radiogroup" aria-label="의상"' inquiry.html 1
+# ★★[NAV_FOCUS_REVEAL · OPTION_FOCUS 2026-09-25 코워크 3편 ⑦] 상담 신청 키보드 포커스 두 곳.
+#   Tab 첫 두 칸이 화면 밖(−58px)·투명 → 보임 · 카드형 선택지 포커스가 뒤 outline:none 에 덮여 0 → 2px --seal.
+chk 'nav\.nav-hidden:focus-within{transform:none;opacity:1}' inquiry.html 1
+chk 'OPTION_FOCUS' inquiry.html 2
+chk '\.option input:focus-visible + \.option-label{outline:2px solid var(--seal)' inquiry.html 1
+nochk '\.option input:focus-visible + \.option-label,\.field input:focus-visible' inquiry.html
+# [COND_HIDDEN_NOTAB · CONSENT_SUMMARY_FOCUS] 4편 시범 점검 ①-1·①-2 — 접힌 칸 안 입력 8칸에 Tab(→0) · 동의 summary 포커스 0픽셀.
+chk 'COND_HIDDEN_NOTAB' inquiry.html 1
+chk '\.conditional\.show{[^}]*visibility:visible' inquiry.html 1
+chk '\.consent-details summary:focus-visible{outline:2px solid var(--seal)' inquiry.html 1
+
 # ★★[LOADING_CENTER 2026-09-25 코워크 3편 ① · 사장님 선택 «한국어로»] 상담 신청 제출 버튼.
 #   로딩 묶음이 버튼 가운데보다 14px 왼쪽에 섰다(.arrow 가 opacity:0 으로 자리를 차지) → display:none 으로 0px.
 #   기본 글자 Submit Inquiry → 「신청서 보내기」(humanize-korean route_hint=light). 기본·로딩 모두 13px(폼 전송 별격).
