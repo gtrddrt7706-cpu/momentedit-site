@@ -45,7 +45,7 @@ console.log('━━ solapi-relay — 솔라피 전달결과 리포트 중계 [SO
 {
   const src = (await import('node:fs')).readFileSync(new URL('../../api/solapi-report.js', import.meta.url), 'utf8');
   const m = src.match(/const WAIT_MS = (\d+);/);
-  say(!!m && +m[1] <= 4000, 'GAS 기다림 한도가 4초 이하다(RELAY_WAIT · 솔라피 한도를 모른다)', m ? m[1] + 'ms' : '못 찾음');
+  say(!!m && +m[1] <= 3000, 'GAS 기다림 한도가 3초 이하다(RELAY_WAIT · 솔라피 기본 Timeout 5초 − 콜드스타트 여유)', m ? m[1] + 'ms' : '못 찾음');
 }
 let r = await call('GET');
 say(r.statusCode === 200 && calls.length === 0, 'GET(연결 확인)은 200 · GAS 를 부르지 않는다', r.statusCode);
@@ -56,6 +56,14 @@ say(r.statusCode === 200 && calls.length === 1 && calls[0].url === HOOK && calls
   '리포트는 받은 그대로 GAS 로 넘기고 200', `${r.statusCode} · 호출 ${calls.length}`);
 r = await call('POST', { messageId: 'M4V2', statusCode: '3104' });
 say(r.statusCode === 200 && calls.length === 1, '객체 한 건 리포트도 넘긴다', r.statusCode);
+const WRAP = { data: [{ messageId: 'M4V3', statusCode: '4000' }, { messageId: 'M4V4', statusCode: '3104' }] };
+r = await call('POST', WRAP);
+say(r.statusCode === 200 && calls.length === 1 && calls[0].opt.body === JSON.stringify(WRAP.data),
+  '{"data":[…]} 로 감싼 리포트는 풀어서 배열로 넘긴다(RELAY_UNWRAP · GAS doPost 가 배열만 리포트로 읽는다)', `${r.statusCode} · ${calls[0] && String(calls[0].opt.body).slice(0, 60)}`);
+r = await call('POST', { data: [] });
+say(r.statusCode === 400 && calls.length === 0, '빈 data 는 넘기지 않는다', r.statusCode);
+r = await call('POST', { data: [{ messageId: 'M' }], action: 'adminHome' });
+say(r.statusCode === 400 && calls.length === 0, 'action 이 붙은 감싼 객체도 넘기지 않는다', `${r.statusCode} · 호출 ${calls.length}`);
 
 gasReply = { status: 200, body: { ok: false, error: 'x' } };
 r = await call('POST', REP);
@@ -66,7 +74,7 @@ say(r.statusCode === 502, 'GAS 가 500 이면 502', r.statusCode);
 
 gasReply = { status: 200, body: { ok: true } }; gasThrow = 'AbortError';
 r = await call('POST', REP);
-say(r.statusCode === 200 && calls.length === 1, 'GAS 가 늦으면(4초) 넘긴 것으로 치고 200 — 실패가 쌓이지 않게', r.statusCode);
+say(r.statusCode === 200 && calls.length === 1, 'GAS 가 늦으면(3초) 넘긴 것으로 치고 200 — 실패가 쌓이지 않게', r.statusCode);
 gasThrow = 'TypeError';
 r = await call('POST', REP);
 say(r.statusCode === 502, '넘기지도 못했으면(연결 오류) 502', r.statusCode);

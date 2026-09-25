@@ -8626,17 +8626,19 @@ nochk "GmailApp.sendEmail(email, '.Moment Edit. 예식일 임시 고정이 곧 �
 # ★★[SOLAPI_RELAY] 2026-09-25 솔라피 «웹훅 실패 알림»(실패 3회 · 8회면 비활성화) — GAS /exec 가 처리 뒤 302 로 답해 솔라피가 실패로 셌다.
 #   베르셀 중계(api/solapi-report.js)가 받아 GAS 로 넘기고 200 으로 답한다. 리포트 모양만 넘긴다 · 미리보기는 운영 시트에 안 쓴다.
 #   깨 보고 믿었다 — 리포트 거르기 제거 · GAS 오류에도 200 · 미리보기 막기 제거 · 지연을 실패로, 넷 다 빨강.
-#   ★[RELAY_WAIT] GAS 기다림 한도 4초 이하 — 솔라피가 몇 초까지 기다리는지 모른다(실패 메일에 이유 없음 · 문서 사이트 막힘).
-#     7초로 되돌리면 solapi-relay 첫 줄이 빨강(깨 보고 믿었다). 실제 시간으로도 4,007ms 에 끊고 200 을 주는 것을 쟀다.
+#   ★[RELAY_WAIT] GAS 기다림 한도 3초 이하 — 솔라피 웹훅 Timeout 이 기본 5초(최대 15초 · 콘솔 «추가 설정» · 2026-09-25 화면 확인).
+#     콜드스타트까지 넣어 5초 안에 답하려고 3초로 둔다. 늘리면 solapi-relay 첫 줄이 빨강(깨 보고 믿었다).
+#     같은 화면 «최근 실행»에 302 · script.google.com/…/exec 가 찍혀 있었다 — 중계를 만든 까닭(302)이 원본으로 확인됐다.
 if command -v node >/dev/null 2>&1; then node scripts/audit/solapi-relay.mjs >/dev/null 2>&1; _sr=$?
   case "$_sr" in
-    0) echo 'ok solapi-relay: 리포트 중계 · GAS 오류 502 · 4초 넘으면 200 · 리포트 아닌 것 거부 · 미리보기 차단' ;;
+    0) echo 'ok solapi-relay: 리포트 중계 · 감싼 data 풀기 · GAS 오류 502 · 3초 넘으면 200 · 리포트 아닌 것 거부 · 미리보기 차단' ;;
     1) echo 'FAIL solapi-relay: 솔라피 리포트 중계가 틀렸습니다 — node scripts/audit/solapi-relay.mjs'; fail=1 ;;
     *) echo 'ok solapi-relay: 재지 못했습니다(모듈 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
 chk 'SOLAPI_RELAY' api/solapi-report.js 1
 chk 'RELAY_WAIT' api/solapi-report.js 1
+chk 'RELAY_UNWRAP' api/solapi-report.js 1   # 솔라피 화면의 Request Data 가 {"data":[…]} — GAS doPost 는 배열만 리포트로 읽는다(2026-09-25 반증: 그대로 넣으면 처리기에 0건)
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
