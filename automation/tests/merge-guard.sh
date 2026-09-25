@@ -9584,6 +9584,57 @@ chk 'VG_CENTER_RHYTHM' mypage.html 2
 chk '\.visit-guide\.vg-center{margin-top:28px;padding-top:22px}' mypage.html 1
 chk '\.visit-guide\.vg-center \.vg-row{display:block;text-align:center;padding:0;border-top:0}' mypage.html 1
 nochk 'visit-guide vg-center" style="margin-top:14px"' mypage.html
+# ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편 ③ · 사장님 선택 «바로 세우기 (사이트 전체)»]
+#   한글 글꼴엔 기울임꼴이 없어 italic 걸린 한글이 억지로 비틀렸다. 고객 화면 17 + 계약서 3 + 청첩장 25 = 42개 파일에
+#   html{font-synthesis:weight} 한 줄. 실측(진짜 웹폰트 · 대조군 촬영): 비틀리던 한글 요소 115 → 0.
+#   ★측정 함정 둘 — ①감사용 브라우저가 폰트 요청에 빈 응답을 줘 Cormorant 영문까지 «비틀림»으로 잡혔다(76건 착시)
+#     ②애니메이션 요소가 «바뀜»으로 잡혔다 → 같은 조건 두 번 찍어 다른 것은 뺐다. 그 뒤 순수 영문 변화는 모노그램 하나.
+#   ★모노그램(Cinzel · 기울임꼴 없음)은 한글이 아니고 청첩장 모양이 바뀌어 예외로 종전 모양 유지 — 코워크 확인 대기.
+# (반복문 대신 낱줄 — merge-guard 는 «^chk » 줄 수로 실행 수를 맞춘다 · GATE_RAN)
+chk 'KO_NO_FAUX_ITALIC' index.html 1
+chk 'KO_NO_FAUX_ITALIC' inquiry.html 1
+chk 'KO_NO_FAUX_ITALIC' mypage.html 1
+chk 'KO_NO_FAUX_ITALIC' schedule.html 1
+chk 'KO_NO_FAUX_ITALIC' parents.html 1
+chk 'KO_NO_FAUX_ITALIC' live.html 1
+chk 'KO_NO_FAUX_ITALIC' privacy.html 1
+chk 'KO_NO_FAUX_ITALIC' cancel.html 1
+chk 'KO_NO_FAUX_ITALIC' guide.html 1
+chk 'KO_NO_FAUX_ITALIC' seat.html 1
+chk 'KO_NO_FAUX_ITALIC' preview.html 1
+chk 'KO_NO_FAUX_ITALIC' order-preview.html 1
+chk 'KO_NO_FAUX_ITALIC' form.html 1
+chk 'KO_NO_FAUX_ITALIC' invitation-gallery.html 1
+chk 'KO_NO_FAUX_ITALIC' contract/fitting.html 1
+chk 'KO_NO_FAUX_ITALIC' contract/snap-v1-0.html 1
+chk 'KO_NO_FAUX_ITALIC' contract/v1-1.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-01.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-02.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-03.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-04.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-05.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-06.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-07.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-08.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-01.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-02.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-03.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-04.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-05.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-06.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-07.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-08.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-01-classic.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-02-editorial.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-03-letterpress.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-04-Vermilion.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-05-botanical.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-06-hangeul.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-07-architect.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-08-noir.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-09-guide.html 1
+chk '\.mono-line{font-synthesis:weight style}' i/cover-03.html 1
+chk '\.mono-line{font-synthesis:weight style}' i-family/family-03.html 1
 # ▲3편 자리 — 다음 항목은 이 줄 위에 붙인다
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
