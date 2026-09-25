@@ -8536,7 +8536,26 @@ chk '_lNorm(r)===_lNorm(text)' order-preview.html 1
 chk 'TEXT_AUDIO_MATCH' console.html 2   # 음악까지 미리듣기(preview 모드)도 같은 규칙 · 현장 console 모드는 그대로
 chk 'TEXT_AUDIO_MATCH' scripts/audit/listen-page.mjs 1   # 깨 보고 믿음 — 옛 규칙으로 되돌리니 빨강 5줄
 chk 'EDIT_OPEN' order-preview.html 6   # [2-2] ④ 변경 → ② 그 줄 · 채우기 → ③ 그 칸 · 걸음 표시/뒤로 가기로 수정 끝(되돌리니 빨강 2줄)
-chk 'EM30_RANGE' order-preview.html 1   # [2-3] «16~23분»을 1623 으로 읽던 30분 줄 · 새 코스는 뺌
+chk 'EM30_RANGE' order-preview.html 1
+# ── [코워크 회신3 3장 2026-09-25] ①②③④ 가 같은 말을 한다 ──
+chk 'PREP_DUE' assets/ritual-open.js 3   # 마감은 항목 데이터(3 · 7 · 0=당일 · 없음) — 글에서 «3일 전»을 읽지 않는다
+nochk "due: /3일 전/.test" assets/ritual-open.js
+chk 'PREP_DUE' mypage.html 1   # 마이페이지 준비 칸도 같은 말(당일 · 마감 없음)
+chk 'STUDIO_PREP' assets/ritual-open.js 1   # 케이크 · 부모님께 드릴 꽃은 스튜디오 준비(사장님 9/25 · P11) — 계약서 ⑥ · 홈페이지 Included 문구는 사장님 결정 대기
+chk 'STUDIO_PREP' order-preview.html 3
+chk 'VOICE_LATE' order-preview.html 5   # 두 분 목소리 — 7일 전까지 녹음이 없으면 나레이션(자동 되돌리기 대신 안내 한 줄)
+chk 'HELPER_WORDS' assets/ritual-open.js 2
+nochk '반지를 담은 날' assets/ritual-open.js
+chk 'LAB_FIX' order-preview.html 4   # ② 이름표를 고객 말로(엔진 이름은 그대로)
+chk 'BLESS_PREV' assets/ritual-cue.js 1   # 덕담 갈래 = 바로 앞(편지) · 바로 뒤(서약) — 새 코스가 늘 «편지 뒤»였다 · 문안은 사장님 대본 점검 몫
+chk 'SCRIPT_ENGINE' order-preview.html 1   # 새 코스 대본 = 엔진 큐(옛 표는 옛 코스만)
+chk 'SAVE_TXT_LIVE' order-preview.html 1   # «파일로 저장»이 꼬리 주석에 먹혀 먹통이었다(#815~)
+nochk '// \[OPEN_COURSE\] document.body.appendChild(a)' order-preview.html
+chk 'DONE_UNIFY' order-preview.html 4   # ④ = ② 줄 머리 · ③ 준비 목록과 같은 원천
+chk 'HEAD_ONE' order-preview.html 3   # 새 코스 머리 = 네 걸음 표시 하나
+chk 'NO_EMPTY_BOX' order-preview.html 3   # 영상이 하나도 없으면 큰 빈 상자 없음
+chk 'P10 코워크 회신3' assets/ritual-open.js 1
+chk 'RAIL_OVERLAP_SCAN' scripts/audit/rail-overlap.mjs 1   # 말풍선 겹침 재기만(RAIL_LOCKED · 옮기는 것은 사장님 결정)   # [2-3] «16~23분»을 1623 으로 읽던 30분 줄 · 새 코스는 뺌
 nochk 'L_STALE=' order-preview.html
 nochk '그 판으로 바로' order-preview.html
 nochk '판 바꿈' assets/ritual-open.js

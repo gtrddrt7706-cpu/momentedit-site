@@ -172,6 +172,39 @@ for (const w of [390, 1280]) {
   ok('2-2 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
+// [코워크 회신3 3장] ①②③④ 가 같은 말을 한다 — DONE_UNIFY · SCRIPT_ENGINE · LAB_FIX · PREP_DUE · HEAD_ONE · NO_EMPTY_BOX · STUDIO_PREP
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg);
+  ok('3-5 ① 머리 = 네 걸음 표시 하나(옛 눈썹 · 막대 · 순서 n/N 숨김) · 처음부터 다시 만들기는 걸음 아래', await pg.evaluate(() => document.body.classList.contains('op4') && getComputedStyle(document.getElementById('pnow')).display === 'none' && getComputedStyle(document.querySelector('.prog-bar')).display === 'none'));
+  await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  ok('3-5 담은 뒤 걸음 아래 «처음부터 다시 만들기»', await pg.evaluate(() => !!document.querySelector('.op-reset [data-fk="opreset"]')));
+  await pg.click('#next'); await pg.waitForTimeout(1500);
+  ok('3-7 영상이 없으면 ② 머리에 큰 빈 상자가 없다', await pg.evaluate(() => !RitualOpen.VIDEO_READY.length && !document.querySelector('.ls-hero .lv')));
+  const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
+  ok('3-3 ② 이름표에 엔진 이름이 안 보인다(편지 뒤 자리 · 축사 없음 안내 · 둘 다 · 폐식 · 꽃 헌정)', !/편지 뒤 자리|축사 없음 안내|(^|\|)둘 다(\||$)|폐식|꽃 헌정/.test(labs), labs);
+  ok('3-3 가족 예시 덕담은 서약 바로 앞 → «서약의 문을 여는» 갈래(편지 뒤 갈래 아님)', await pg.evaluate(() => ENG.RitualCue.build(S, { mode: 'preview' }).cues.some((c) => c.slug === 'narr-bless-open')));
+  await pg.click('.ls-hero'); await pg.waitForTimeout(700);
+  ok('3-7 크게 보기에도 빈 상자 없음 · 글이 위로', await pg.evaluate(() => !document.querySelector('#lsFull .lv')));
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
+  await pg.click('#next'); await pg.waitForTimeout(700);
+  const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, cats: document.querySelectorAll('#stage .wr-cat').length, cnt: (document.getElementById('wcCount') || {}).textContent || '' }));
+  ok('3-4 ③ 머리 «비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요» · D-7 없음', /비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요/.test(w.t) && !/D-7|D-14/.test(w.t));
+  ok('3-4 ③ 갈래 안에 갈래 꼬리표가 없다', w.cats === 0, w.cats);
+  ok('3-4 반지 = 당일 가져오기 · 부모님께 드릴 말 = 당일 직접 읽어요 · 양가 와인 = 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 말[^\n]*당일 직접 읽어요 · 보내지 않아도 돼요/.test(w.t) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(w.t), w.t.slice(0, 400));
+  ok('3-4 셈 줄은 무엇을 세는지 말한다(«여기에 적는 글 2개 중 0개»)', /^여기에 적는 글 \d+개 중 \d+개 적었어요\.$/.test(w.cnt), w.cnt);
+  ok('3-4 도와주실 분 문구 · 저희가 준비해요(케이크 · 부모님께 드릴 꽃)', /반지 교환을 담았을 때/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && /저희가 준비해요/.test(w.t) && /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t), JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t)]) + ' … ' + w.t.slice(-250));
+  await pg.click('#next'); await pg.waitForTimeout(900);
+  const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + (k === RitualOpen.peakOf(S) ? '★ ' : '') + _lName(k)) }));
+  ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · ★)', JSON.stringify(d.rows) === JSON.stringify(d.want), JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
+  ok('3-1 ④ «고른 순간 N» · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /고른 순간 \d+ · 본식/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③ 준비하기에서 보기/.test(d.t) && /저희가 준비해요/.test(d.t), d.t.slice(0, 300));
+  const sc = await pg.evaluate(() => scriptText());
+  ok('3-2 대본 = 엔진 큐(케이크 · 축배 큐가 GLASS_READY · 편지 낭독 중 잔 없음 · 번호 ② 와 같음)', /큐: 커팅 · 포즈 동안/.test(sc) && !/편지 낭독 중 하객 잔/.test(sc) && /\n1\. 화촉/.test(sc) && !/폐식·단체촬영/.test(sc) && !/D-7/.test(sc), sc.slice(0, 500));
+  const saved = await pg.evaluate(() => { let n = 0; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) n++; }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return n; });
+  ok('3-2 «파일로 저장»이 실제로 내려받기를 건다(SAVE_TXT_LIVE)', saved === 1, saved);
+  ok('3장 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
 // [DETAIL_0925 C1 · C2 · G] 글자 대비(본문 4.5 · 큰 글 3) · 누를 곳 44px 실측 — ① · ② · 크게 보기 · ③ 를 390 · 1280 에서
 const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";
 for (const w of [390, 1280]) {
