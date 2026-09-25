@@ -390,9 +390,24 @@ chk 'SNAP_PREP_STEP' mypage.html 1                 # (폐지 2026-07-25 사용�
 chk 'SNAP_PREP_FLOW' mypage.html 1                 # SNAPFLOW 전용 화면 블록
 chk 'SNAP_PREP_OVERLAY' mypage.html 1              # 스냅 기획 전체화면 오버레이(식순 빌더처럼 집중)
 # 2026-07-20 정보중심 개편: 무드 색 타일(SNAP_MOOD_META·smt-grid) 폐지 → 어떤 작가여도 도움되는 실무 정보(인물·관계·각도·꼭 담을 것)로 전환. 색 타일 복원 금지.
-chk 'SNAP_PEOPLE' mypage.html 2                     # 스냅 인물·관계 정보(누가 함께 담기나요) — 무드 색타일 폐지 대체
+chk 'SNAP_PEOPLE' mypage.html 2                     # 무드 색타일 폐지 주석 + 옛 저장분 해석용 상수(화면 질문 «누가 함께»는 SNAP_COUPLE_ONLY 로 삭제 2026-09-25)
 chk 'aboutNote' mypage.html 3                       # 각도·신경 쓰이는 점(작가 브리핑) 필드 — 렌더+저장+수집
-chk 'mustPeople' mypage.html 3                       # 꼭 챙겨 담고 싶은 분 필드
+chk 'mustPeople' mypage.html 3                       # 옛 저장분 «꼭 챙길 분» 보존(불러오기·저장·채움 판정) — 입력칸은 SNAP_COUPLE_ONLY 로 삭제
+# ★★[SNAP_COUPLE_ONLY 2026-09-25 사장님 「스냅 기획은 본식 전 스냅 · 누르면 어떤 시간인지 설명 · ‘누가 함께 담기나요’는 맞지 않는 질문 — 부부 웨딩스냅」]
+#   ①스냅 기획을 열면 맨 위에 «언제의 스냅인지»(도착 › 단독 스냅 › 본식)를 먼저 보여 준다 — 분은 진행표 원천의 사본이라 snap-when 이 대조한다.
+#   ②«누가 함께 담기나요» 칩(data-sppl)과 «꼭 챙길 분» 칸(mp_snapMustPeople)은 되살리지 않는다. 가족·친구 사진은 본식 뒤, 명단은 «단체 사진».
+#   ★문구 검사로 «누가 함께 담기나요» 를 막지 않는다 — 삭제 사유 주석이 그 문구를 인용한다([SELF_COMMENT_TRAP]). 화면 모양은 snap-when 이 본다.
+chk 'SNAP_COUPLE_ONLY' mypage.html 4
+nochk 'data-sppl' mypage.html
+nochk 'mp_snapMustPeople' mypage.html
+chk 'SNAP_COUPLE_ONLY' scripts/audit/snap-when.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/snap-when.mjs >/dev/null 2>&1; _sw=$?
+  case "$_sw" in
+    0) echo 'ok snap-when: 스냅 기획 안내의 분 = 진행표(단독 스냅) · 삭제한 «누가 함께» 질문 0건' ;;
+    1) echo 'FAIL snap-when: 스냅 기획 안내가 진행표와 다르거나 삭제한 질문이 돌아왔습니다 — node scripts/audit/snap-when.mjs'; fail=1 ;;
+    *) echo 'ok snap-when: 재지 못했습니다(원천·화면 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 _smttile=$(grep -c 'class="smt' mypage.html 2>/dev/null); _smttile=${_smttile:-0}; if [ "$_smttile" -gt 0 ]; then echo "REVERT? mypage.html: 폐지된 무드 색 타일(.smt) 부활($_smttile)"; fail=1; else echo "ok mypage.html: 무드 색 타일 폐지 유지(정보중심)"; fi
 # PROD_FS_OVERLAY·.mp-fs 재등록(2026-07-19) — 청첩장·다이닝/최종·좌석 3종 편집을 mp_production .mp-fs로 전체화면화(단체사진은 전용 오버레이 PROD_OVERLAY, 스냅은 SNAP_PREP_OVERLAY).
 chk 'PROD_FS_OVERLAY' mypage.html 1                 # 청첩장·다이닝·최종·좌석 3종 전체화면(.mp-fs 클래스 토글)
@@ -652,8 +667,8 @@ chk '_mpNextToast' mypage.html 3                    # 지연 토스트 배선(�
 chk 'DRINK_SHEET' mypage.html 3                     # 음료 = 바닥 시트(2026-08-09) · 구 MPD4_F4 '떠 있는 작은 판' 폐지
 # ── 2026-07-25 마이페이지 4차 스프린트 PR③(F2 SR 골격·포커스 복귀 · F3 칩 키보드화)
 chk 'MPD4_F2' mypage.html 5                         # sr-only CSS+h1+NEXT h2+포커스 저장/복원
-chk 'MPD4_F3' mypage.html 4                         # _kbChip 헬퍼+스냅·사진·큐시트 배선
-chk '_kbChip' mypage.html 6                         # 헬퍼 정의+호출 5곳
+chk 'MPD4_F3' mypage.html 3                         # _kbChip 헬퍼+스냅(꼭 담을 컷)·사진·큐시트 배선 — 스냅 «누가 함께» 칩 배선은 SNAP_COUPLE_ONLY 로 삭제(2026-09-25 · 4→3)
+chk '_kbChip' mypage.html 5                         # 헬퍼 정의+호출 4곳 — 스냅 «누가 함께» 호출은 SNAP_COUPLE_ONLY 로 삭제(2026-09-25 · 6→5)
 # ── 2026-07-25 마이페이지 4차 스프린트 PR④(C3 명도 계단 · H3 blur 힌트 · H4 접기+내 완성물 · H5 1단계)
 chk 'MPD4_C3' mypage.html 1                         # 잠긴 단계 명도 계단
 chk 'MPD4_H3' mypage.html 3                         # blur 형식 힌트(헬퍼+ci+환불+이메일)

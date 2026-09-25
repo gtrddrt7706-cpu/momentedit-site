@@ -7218,7 +7218,7 @@ function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 �
 // ── 스냅 사전기획(촬영 전 · '예식 준비' 앞 여정 스텝) — Private Snap(부부 단독) 중심. 좌석·단체사진과 같은 전용 화면(SNAPFLOW·저장 후 나가기). snap 트랙에 저장(2026-07-19 · marker: SNAP_PREP_FLOW) ──
 //   설계 원칙(딥리서치 검증): '강제 컷 목록'이 아니라 무드·성향을 전하는 영감 보드. 필수컷은 소수(≤3)로 제한, 포즈·동선은 촬영 중 디렉터가 리드. 세부 칩 라벨은 사장님 감수 대상.
 // ★스냅 무드 색 타일(SNAP_MOOD_META·smt-grid) 폐지 — 2026-07-20 사용자 지시("느낌이 안 오고 별로 · 어떤 작가여도 미리 알면 도움되는 정보 위주로"). 추상 색 스와치로 작가 스타일을 대신 정하는 대신, 어떤 작가가 와도 미리 알면 촬영에 실제 도움되는 실무 브리핑(누가 함께·각도/주의·꼭 담을 것)으로 전환. 리뷰·복구에서 색 타일 되살리지 말 것. marker: SNAP_PEOPLE
-var SNAP_PEOPLE=['두 분 중심','양가 가족','친구들','반려동물 동반'];   // 누가 함께 담기나요(다중) — 작가가 동선·구성을 미리 잡게
+var SNAP_PEOPLE=['두 분 중심','양가 가족','친구들','반려동물 동반'];   // (옛 저장분 해석용 · 화면 질문은 SNAP_COUPLE_ONLY 로 삭제)
 var SNAP_MUSTHAVES=['반지·손 클로즈업','뒷모습·베일','창가 역광·실루엣','걸으며 무빙컷','이마 맞대기','백허그','함께 웃는 순간'];   // '꼭 담고 싶은 것'(강제 아님·최대 3)
 var SNAP_TONES=['자연스러운·캔디드','정적 에디토리얼','무빙·발랄'];   // 촬영 톤(단일 선택)
 var SNAP_COMFORTS=['리드 많이 해 주세요','적당히','자유롭게 둘게요'];   // 카메라 앞 편안함(단일 선택) — 디렉터 리드 강도 참고
@@ -7271,12 +7271,27 @@ function renderSnapFlow(box){
   var h='<div class="consult-card" style="text-align:left">';
   h+='<div class="cc-eyebrow en-22">Snap Planning</div>';
   h+='<div class="cc-title" style="margin:0 0 8px">스냅 기획</div>';
+  /* ★[SNAP_COUPLE_ONLY 2026-09-25 사장님 「스냅 기획은 본식 전 스냅에 해당하는 부분 · 누르면 어떤 시간인지 간략히 설명 ·
+       ‘누가 함께 담기나요’ 같은 건 맞지 않는 질문이지, 부부 웨딩스냅인데」]
+     ①누르자마자 «언제의 스냅인지»부터 보여 준다. 원천은 assets/sequence-modal.js ROWS 의 «단독 스냅 촬영»
+       (SNAP_50 · 도착 20분 뒤 · 캔들존 20 · 이동 5 · 화이트존 20 · 입장 준비 5 · 하객과 분리). 분이 바뀌면 여기도 — scripts/audit/snap-when.mjs 가 대조한다.
+     ②★그 질문(두 분 중심·양가 가족·친구들·반려동물 동반 · 꼭 챙길 분)은 금지 — 2026-09-25 사장님 지시로 삭제.
+       단독 스냅은 두 분만 담는 시간이고, 가족·친구 사진은 본식 뒤 «인사 사진» 시간에 담는다.
+       옛 «꼭 챙길 분» 칸이 하던 일(누구와 꼭 한 장)은 «단체 사진» 트랙이 맡는다 — 안내가 그쪽을 가리킨다.
+       옛 저장분의 people·mustPeople 은 지우지 않는다(보이지만 않을 뿐 · 저장해도 그대로 실려 간다). */
+  h+='<div class="snap-when" style="margin:0 0 12px;padding:14px 15px;background:var(--bg2);border:1px solid var(--hairline,#E6E1D8);border-radius:8px">'
+    +'<div style="font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);margin-bottom:9px">본식 전, 두 분만 담는 단독 스냅이에요</div>'
+    +'<div class="snap-flow" role="list" aria-label="이 스냅의 순서" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">'
+    +  '<span role="listitem" style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);padding:5px 10px;border:1px solid var(--hairline,#E6E1D8);border-radius:999px;background:#fff">도착 · 20분</span>'
+    +  '<span aria-hidden="true" style="color:var(--gold-deep,#7A5F37);position:relative;top:-1px">›</span>'
+    +  '<span role="listitem" aria-current="step" style="font-family:var(--serif-ko);font-size:12px;font-weight:500;color:#fff;padding:5px 11px;border-radius:999px;background:var(--seal,#6B2A24)">단독 스냅 · 50분</span>'
+    +  '<span aria-hidden="true" style="color:var(--gold-deep,#7A5F37);position:relative;top:-1px">›</span>'
+    +  '<span role="listitem" style="font-family:var(--serif-ko);font-size:12px;color:var(--sub);padding:5px 10px;border:1px solid var(--hairline,#E6E1D8);border-radius:999px;background:#fff">본식</span>'
+    +'</div>'
+    +'<div class="cc-note" style="text-align:left;margin:10px 0 0;line-height:1.7;word-break:keep-all">도착해 착장을 정돈한 뒤, 하객과 마주치지 않게 캔들존 20분·화이트존 20분으로 나눠 담아요.</div>'
+    +'<div class="cc-note" style="text-align:left;margin:4px 0 0;line-height:1.7;word-break:keep-all">가족·친구와의 사진은 본식 뒤에 찍어요 · 단체&nbsp;사진에서 미리 정해 두실 수 있어요.</div>'
+    +'</div>';
   h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">촬영 전, 어떤 사진작가님이 오셔도 미리 알면 좋을 것들만 남겨 주세요. 전부 선택이에요 · 안 채워도 괜찮아요. 남겨 주시면 촬영이 더 두 분다워져요.</div>';
-  // 1) 누가 함께 담기나요 — 인물·관계(작가가 동선·구성을 미리 잡게) · marker: SNAP_PEOPLE
-  h+='<div class="ph-sec" style="border-top:none;padding-top:0;margin-top:2px">누가 함께 담기나요 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">두 분만인지, 가족·친구가 함께인지 미리 알면 동선과 구성을 준비하기 좋아요.</div>';
-  h+='<div class="ph-chips" data-sgrp="ppl">'+SNAP_PEOPLE.map(function(n){ return _chip(n, D.people.indexOf(n)>-1, 'data-sppl'); }).join('')+'</div>';
-  h+='<input class="cc-input" id="mp_snapMustPeople" maxlength="120" autocomplete="off" placeholder="꼭 챙길 분 (예: 할머니 · 친구)" value="'+escapeHtml(D.mustPeople||'')+'" style="margin-top:8px">';   // 단일라인 잘림 방지 — 짧게(2026-07-21)
   // 2) 카메라 앞, 두 분은 — 리드 강도 + 각도·신경 쓰이는 점(작가가 앵글 잡을 때 도움)
   h+='<div class="ph-sec">카메라 앞, 두 분은 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
   h+='<div class="cc-note" style="margin:2px 0 0">얼마나 리드해 드리면 좋을지 골라 주세요.</div><div class="ph-chips" data-sgrp="comf">'+SNAP_COMFORTS.map(function(n){ return _chip(n, D.comfort===n, 'data-scomf'); }).join('')+'</div>';
@@ -7289,7 +7304,7 @@ function renderSnapFlow(box){
   SNAP_MUSTHAVES.forEach(function(n){ h+=_chip(n, D.mustHaves.indexOf(n)>-1, 'data-smust'); });
   D.mustHaves.filter(function(n){ return SNAP_MUSTHAVES.indexOf(n)<0; }).forEach(function(n){ h+='<span class="ph-chip fxon" data-smust="'+escapeHtml(n)+'">'+escapeHtml(n)+' ✕</span>'; });
   h+='</div>';
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapMust" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 반려견)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapMustBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_snapMust" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 부케 클로즈업)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapMustBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   h+='<div class="cc-note" style="margin:12px 0 6px;font-weight:600;color:var(--sub)">소품 · 의상 메모</div>';
   h+='<div class="cc-note" style="margin:2px 0 8px">드레스 시착 2벌·착용 1벌이 포함돼요. 신랑 셔츠·바지·구두는 직접, 헤어·메이크업은 외부에서 준비하시면 돼요.</div>';
   h+='<textarea class="cc-input" id="mp_snapProps" maxlength="300" placeholder="가져올 소품이나 의상 관련 메모가 있으면 적어 주세요." style="min-height:56px">'+escapeHtml(D.propsNote||'')+'</textarea>';
@@ -7306,14 +7321,13 @@ function renderSnapFlow(box){
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   function collect(){   // 자유 텍스트는 rerender 전에 취합(포커스 유실·값 소실 방지 — 좌석/다이닝 위저드와 동일 패턴)
-    var mp=$('mp_snapMustPeople'); if(mp) D.mustPeople=mp.value;
     var ab=$('mp_snapAbout'); if(ab) D.aboutNote=ab.value;
     var mn=$('mp_snapMoodNote'); if(mn) D.moodNote=mn.value;
     var pr=$('mp_snapProps'); if(pr) D.propsNote=pr.value;
     var dr=$('mp_snapDirector'); if(dr) D.directorNote=dr.value;
   }
   function rerender(){ collect(); renderSnapFlow(box); }
-  Array.prototype.forEach.call(box.querySelectorAll('[data-sppl]'), function(el){ _kbChip(el, function(){ if(_snapToggle(D.people, el.getAttribute('data-sppl'), SNAP_PEOPLE_MAX)) rerender(); }); });   // 누가 함께(다중) · MPD4_F3 키보드화
+  // [SNAP_COUPLE_ONLY] «누가 함께» 칩 배선은 질문과 함께 삭제 — 2026-09-25 사장님 지시
   Array.prototype.forEach.call(box.querySelectorAll('[data-smust]'), function(el){ _kbChip(el, function(){ if(_snapToggle(D.mustHaves, el.getAttribute('data-smust'), SNAP_MUST_MAX, '원하는 컷이 많아요. 대표적인 것 3개까지 골라 주세요.')) rerender(); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-stone]'), function(el){ el.addEventListener('click', function(){ var v=el.getAttribute('data-stone'); D.toneStyle=(D.toneStyle===v)?'':v; rerender(); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-scomf]'), function(el){ el.addEventListener('click', function(){ var v=el.getAttribute('data-scomf'); D.comfort=(D.comfort===v)?'':v; rerender(); }); });
@@ -7346,7 +7360,6 @@ function saveSnap(){
 }
 function _snapCollect(){   // [WIZ_EXIT_ONE] 화면의 글상자 → SNAPFLOW.d. 저장·나가기·변경검사가 같은 값을 본다
   if(!SNAPFLOW.d) return;
-  var _mp=$('mp_snapMustPeople'); if(_mp) SNAPFLOW.d.mustPeople=_mp.value;
   var _ab=$('mp_snapAbout'); if(_ab) SNAPFLOW.d.aboutNote=_ab.value;
   var mn=$('mp_snapMoodNote'); if(mn) SNAPFLOW.d.moodNote=mn.value;
   var pr=$('mp_snapProps'); if(pr) SNAPFLOW.d.propsNote=pr.value;
@@ -7374,7 +7387,7 @@ function exitSnapFlow(){ _mpHoldScroll();   // 식순 빌더와 동일 — 저�
 function _snapSummary(sd){   // 요약 = '결' 한 마디만 — 카운트 나열(무드 N개·컷 N)은 폼 진행바처럼 읽혀 제거(미니멀 · 2026-07-19 사용자 지시). 스타일 > 대표 무드 > 한 줄 메모 순
   sd=sd||{};
   if(sd.toneStyle) return String(sd.toneStyle);
-  if(((sd.people)||[]).length) return sd.people.slice(0,2).join(' · ');
+  // [SNAP_COUPLE_ONLY] 옛 저장분의 «누가 함께»(people)는 요약에 쓰지 않는다 — 화면에서 뺀 질문이 카드 한 줄로 되살아나면 안 된다
   var mn=String(sd.moodNote||'').trim(); if(mn) return mn.length>18?(mn.slice(0,18)+'…'):mn;
   var m=((sd.moodCandle)||[]).concat((sd.moodWhite)||[]); if(m.length) return m.slice(0,2).join(' · ');   // 옛 저장분 하위호환
   if(((sd.mustHaves)||[]).length||String(sd.aboutNote||'').trim()||String(sd.mustPeople||'').trim()) return '원하는 것 담음';
