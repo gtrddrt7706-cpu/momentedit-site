@@ -9569,6 +9569,12 @@ chk "setAttribute('aria-busy', 'true')" inquiry.html 1
 chk "removeAttribute('aria-busy')" inquiry.html 1
 chk '신청서 보내기' inquiry.html 2
 nochk 'Submit Inquiry' inquiry.html
+# ★★[VG_CENTER_RHYTHM 2026-09-25 코워크 3편 ② · 사장님 선택 A] 마이페이지 가운데 안내 묶음(진행 흐름 · 시착 완료 안내 · 계약 안내).
+#   버튼→묶음 14→28px · 제목 Cormorant 10px 대문자 0.2em(「진 행 흐 름」) → 한글 12px 0.08em 가운데 · 줄마다 선 → 여백 12px.
+chk 'VG_CENTER_RHYTHM' mypage.html 2
+chk '\.visit-guide\.vg-center{margin-top:28px;padding-top:22px}' mypage.html 1
+chk '\.visit-guide\.vg-center \.vg-row{display:block;text-align:center;padding:0;border-top:0}' mypage.html 1
+nochk 'visit-guide vg-center" style="margin-top:14px"' mypage.html
 # ▲3편 자리 — 다음 항목은 이 줄 위에 붙인다
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
