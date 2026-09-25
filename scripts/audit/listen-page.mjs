@@ -73,6 +73,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 소제목에 동그라미 번호 없음 · 남는 사진`, await pg.evaluate(() => ![...document.querySelectorAll('.op-h')].some((h) => /[①②③]/.test(h.textContent)) && /남는 사진/.test(document.getElementById('stage').textContent) && !/남는 장면/.test(document.getElementById('stage').textContent)));
   ok(`${w} ① 고객 화면에 «판» 없음`, await pg.evaluate(() => !/판 바꿈|고를 수 있는 판|그 판으로/.test(document.getElementById('stage').textContent)));
   await pg.click('#next'); await pg.waitForTimeout(1500);
+  ok(`${w} [STEP_BASELINE 4-e] 걸음 표시 — 지난 걸음과 지금 걸음의 글줄이 같다`, await pg.evaluate(() => { const ys = [...document.querySelectorAll('.op-steps li')].map((li) => { const tw = document.createTreeWalker(li, NodeFilter.SHOW_TEXT); let t = tw.nextNode(); while (t && !t.textContent.trim()) t = tw.nextNode(); const r = document.createRange(); r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }); return ys.length === 4 && Math.max(...ys) - Math.min(...ys) <= 1; }));
   ok(`${w} ② 제목 · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '보고 듣기' && /보고 듣기/.test(document.querySelector('.op-steps li.on').textContent)));
   const rows = await pg.evaluate(() => [...document.querySelectorAll('.ls-rows .ls-row')].map((r) => r.dataset.lk));
   ok(`${w} ② 줄 = 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사`, rows[0] === 'guest' && rows[1] === 'prevideo' && rows[rows.length - 1] === '_close', rows.join(','));
@@ -191,8 +192,11 @@ for (const w of [390, 1280]) {
   const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, cats: document.querySelectorAll('#stage .wr-cat').length, cnt: (document.getElementById('wcCount') || {}).textContent || '' }));
   ok('3-4 ③ 머리 «비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요» · D-7 없음', /비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요/.test(w.t) && !/D-7|D-14/.test(w.t));
   ok('3-4 ③ 갈래 안에 갈래 꼬리표가 없다', w.cats === 0, w.cats);
-  ok('3-4 반지 = 당일 가져오기 · 부모님께 드릴 말 = 당일 직접 읽어요 · 양가 와인 = 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 말[^\n]*당일 직접 읽어요 · 보내지 않아도 돼요/.test(w.t) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(w.t), w.t.slice(0, 400));
+  ok('3-4 반지 = 당일 가져오기 · 부모님께 드릴 말 = 당일 직접 읽어요 · 양가 와인 = 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 말 · 선택/.test(w.t) && /적어 두시면 카드로 인쇄해 드려요\. 비워 두시면 당일 직접 말씀하시면 돼요/.test(w.t) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(w.t), w.t.slice(0, 400));
   ok('3-4 셈 줄은 무엇을 세는지 말한다(«여기에 적는 글 2개 중 0개»)', /^여기에 적는 글 \d+개 중 \d+개 적었어요\.$/.test(w.cnt), w.cnt);
+  /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 선택 칸은 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
+  const tb = await pg.evaluate(() => { const t = document.querySelector('textarea[aria-label="부모님께 드릴 말"]'); const n0 = document.querySelectorAll('.wc-stat').length; t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, n0, inScript: /부모님께 드릴 말\(두 분 작성 · 카드로 인쇄\):\n엄마 아빠 고마워요/.test(sc), gone: !/카드로 인쇄\):/.test(scriptText()) }; });
+  ok('사장님 · 부모님께 드릴 말 선택 칸 — 셈 줄 밖(wc-stat 2) · 적으면 대본에 · 비우면 없음', tb.has && tb.n0 === 2 && tb.inScript && tb.gone, JSON.stringify(tb));
   ok('3-4 도와주실 분 문구 · [GOODS_CHOICE] 기본은 직접 준비 → 케이크 · 꽃이 «챙길 것»에 · «저희가 준비해요» 없음', /반지 교환을 담았을 때/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && !/저희가 준비해요/.test(w.t) && /케이크 · 크기 · 도착 시각은 상담 때 안내해 드려요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 꽃 · 크기 · 도착 시각은 상담 때 안내해 드려요 · 당일 가져오기/.test(w.t), JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t)]) + ' … ' + w.t.slice(-250));
   await pg.click('#next'); await pg.waitForTimeout(900);
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + (k === RitualOpen.peakOf(S) ? '★ ' : '') + _lName(k)) }));
@@ -254,7 +258,7 @@ for (const w of [390, 1280]) {
 {
   const { ctx, pg, errs } = await open(390);
   await pg.click('#next'); await pg.waitForTimeout(400);
-  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 준비는 ③ 한 곳에 · 순서 2주 · 글 7일', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.querySelectorAll('.ipt .n').length === 4 && /준비는 ③ 한 곳에/.test(t) && /순서는 예식 2주 전까지, 글은 예식 7일 전까지/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
+  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 준비는 ③ 한 곳에 · 순서 14일 · 글 7일', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.querySelectorAll('.ipt .n').length === 4 && /준비는 ③ 한 곳에/.test(t) && /순서는 예식 14일 전까지, 글은 예식 7일 전까지/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
   await pg.click('#next'); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   const h0 = await pg.evaluate(() => history.length);
@@ -274,9 +278,10 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => { document.querySelectorAll('details').forEach((d) => { d.open = true; }); });
   await pg.click(`[data-fk="lsp:${off}"]`); await pg.waitForTimeout(500);
   ok(`2-1 담지 않은 순간(${off}) ▶ → 재생 목록이 선다 · 고른 것은 그대로`, await pg.evaluate((a) => LP.q.length > 0 && LP.cur === a[0] && JSON.stringify(S.on) === a[1], [off, on0]));
-  await pg.evaluate(() => lsStop());
-  await pg.click(`[data-fk="lst:${off}"]`); await pg.waitForTimeout(600);
-  ok('2-1 담지 않은 순간 작은 그림 → 크게 보기가 끝 화면이 아니라 그 순간으로 · «담지 않은 순간» 표시', await pg.evaluate(() => !document.getElementById('lsFull').hidden && !!LP.q.length && !/다 보셨어요/.test(document.getElementById('lsFull').textContent) && /담지 않은 순간/.test(document.querySelector('#lsFull .lf-h').textContent)));
+  /* [PLAY_BESIDE_NUM P13] ▶ 는 번호 옆 그림 위 — 오른쪽 끝에 ▶ 가 없다 · 그림이 44px 이상 · 원은 이름보다 작다 */
+  ok('P13 ② 줄 ▶ = 그림 위(오른쪽 끝 없음) · 누를 곳 44 이상 · 원 24 이하', await pg.evaluate(() => { const r = document.querySelector('.ls-row'); const b = r.querySelector('.ls-th.ls-play'); const pi = b && b.querySelector('.ls-pi'); const rb = b && b.getBoundingClientRect(), rp = pi && pi.getBoundingClientRect(); return !!b && !r.querySelector('.ls-acts .ls-play') && rb.height >= 44 && rb.width >= 44 && rp.width <= 24; }));
+  await pg.click('#lsMini .lm-t'); await pg.waitForTimeout(600);
+  ok('2-1 담지 않은 순간 ▶ → 작은 플레이어 제목으로 크게 보기 → 끝 화면이 아니라 그 순간 · «담지 않은 순간» 표시', await pg.evaluate(() => !document.getElementById('lsFull').hidden && !!LP.q.length && !/다 보셨어요/.test(document.getElementById('lsFull').textContent) && /담지 않은 순간/.test(document.querySelector('#lsFull .lf-h').textContent)));
   ok('3장 크게 보기 동안 상담 말풍선도 잠긴다(inert)', await pg.evaluate(() => { const b = document.getElementById('meAdvStack'); return !b || b.hasAttribute('inert'); }));
   await pg.evaluate(() => { LP.i = LP.q.length; _lShow(); }); await pg.waitForTimeout(300);
   ok('2-10 ② 끝 화면 = [다시 보기] [다음 · 준비하기] 둘 · 큰 ↻ 없음', await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !!f.querySelector('[data-fk="lfagain"]') && !!f.querySelector('[data-fk="lfnextstep"]') && !f.querySelector('[data-fk="lfdone"]') && !f.querySelector('[data-fk="lftog"]'); }));

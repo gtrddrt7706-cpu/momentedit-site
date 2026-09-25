@@ -262,10 +262,11 @@
      ★종전엔 글에 «3일 전»이 있으면 3, 없으면 7 이었다 — 반지 · 와인까지 «예식 7일 전까지»가 붙었다.
      ★고객 화면의 마감 말은 «예식 7일 전» · «예식 3일 전» · «당일» 셋뿐이다([P12] · dueWord 한 곳에서 만든다). */
   var NOTE_READ = '당일 직접 읽어요 · 보내지 않아도 돼요', NOTE_ASK = '미리 말씀드려 두세요';
+  var NOTE_TRIB = '적어 두시면 카드로 드려요 · 비워 두셔도 돼요';   // ★[TRIB_CARD_OPT 2026-09-25 사장님 «칸은 두되 선택»] ③ 에 선택 칸이 생겼다
   function prepOf(k, S) {
     switch (k) {
       case 'guest': return S && S.guestVoice === 'couple' ? [['couple', '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];
-      case 'prevideo': return [['couple', '영상 링크(3분 안) 또는 사진 30~40장', 'send', 3]];   // [PREVIDEO_ALWAYS]
+      case 'prevideo': return [['couple', '식전 영상 링크(3분 안) 또는 사진 30~40장', 'send', 3]];   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask', null, NOTE_ASK]]; }
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
@@ -274,7 +275,7 @@
       case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자
       case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring', 0]];
       case 'declare': return chipOf('declare', S) === 'family' ? [['parents', '선언을 읽을 가족 한 분', 'ask', null, NOTE_ASK]] : [];
-      case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', t === 'long' ? '부모님께 드릴 말 · 한 분 400자 안팎' : crossTribute(S) ? '서로의 부모님께 드릴 한마디씩' : '부모님께 드릴 한마디씩', 'write', null, NOTE_READ]];
+      case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', t === 'long' ? '부모님께 드릴 말 · 한 분 400자 안팎' : crossTribute(S) ? '서로의 부모님께 드릴 한마디씩' : '부모님께 드릴 한마디씩', 'write', null, NOTE_TRIB]];
         return tr.concat(goodsPrep('tribute', S)); }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
         var fk = FREE_KIND[chipOf('free', S)], n = chipOf('freeLen', S);
@@ -471,7 +472,7 @@
   /* ★[WHY_NEIGHBOR 2026-09-25 코워크 추가전달 2-7] «이 자리인 까닭»은 이웃 순간을 담았을 때만 그 이름을 말한다.
      고정 글이라 편지를 안 담아도 «편지 앞이에요»가 나왔다. 이웃이 없으면 까닭만 말한다. */
   var WHY_ALONE = {
-    bless: '부모님 말씀으로 약속의 문을 여는 자리예요.',
+    bless: '부모님 말씀으로 두 분의 시작을 여는 자리예요.',   // [WHY_BLESS 코워크 회신4 4-f] 서약을 뺐을 때라 «약속의 문»이 맞지 않았다
     tribute: '부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).',
     free: '마지막 큰 순간이 앞에 몰리지 않도록 뒤쪽에 둬요.'
   };

@@ -7539,9 +7539,9 @@ function prodConfirmHtml(p, inv){
        예시에서 시작했으면 한 줄 더(«‹가족› 예시에서 시작»). 옛 코스 요약(아래 else)은 한 글자도 안 바뀐다. */
     rv='순간 '+escapeHtml(String(rd.summary.moments||0))+'개 · 본식 '+escapeHtml(String(rd.summary.min||''));
     if(rd.summary.from) rv+='<br><span class="cc-mini">‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작</span>';
-    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('인사말'); if(_wo.length) rv+=' · '+_wo.join('·')+' 작성됨'; } }
+    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('인사말'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); if(_wo.length) rv+=' · '+_wo.join('·')+' 작성됨'; } }
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
-    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
+    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
   else if(_rDone){ rv='완료'; }
   L+=line('식순', rv);
   var dv='';

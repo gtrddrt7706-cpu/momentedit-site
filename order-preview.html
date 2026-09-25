@@ -92,6 +92,8 @@ body.op4 .prog-top{min-height:0}
 .send-how{margin:10px 0 4px;font-size:12px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [UPLOAD_HONEST] 보낼 길 — 칸 안에 늘 보이게 */
 .send-how p{margin:0 0 8px}
 .send-how .send-b{display:flex;flex-wrap:wrap;gap:8px}
+.send-how .send-mail{margin:8px 0 0;font-size:12px;color:var(--sub)}
+.send-how .send-addr{color:var(--accent);-webkit-user-select:all;user-select:all}   /* [MAIL_TEXT] 한 번 눌러 통째로 고르게 */
 .send-how .rowbtn{text-decoration:none}
 .op-reset .prog-reset{display:inline-flex;margin:0;padding:0 2px}
 /* ★★[ORD_AUTOSAVE 2026-08-12] 저장 상태는 **줄을 새로 만들지 않는다.** 「순서 2 / 7 · 약 22분」
@@ -741,8 +743,8 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .wr-cat{display:inline-block;font-size:12px;line-height:1.5;color:var(--gold-deeper);border:1px solid var(--border);border-radius:4px;padding:0 5px;margin-right:2px;white-space:nowrap}
 .wr-item{font-size:13px;color:var(--sub);margin:4px 0 8px}
 .op-gnote{font-size:12px;color:var(--light);margin:-2px 0 8px}
-.op-stepb{border:0;background:none;padding:0;min-height:44px;width:100%;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:flex;align-items:flex-start;justify-content:center}   /* [POLISH_0925 2-11] 지난 걸음 글줄을 지금 걸음과 맞춘다(단추는 가운데 정렬이라 몇 px 낮게 앉았다) */
-.op-steps li.done{padding-top:0}
+.op-stepb{border:0;background:none;padding:6px 0 0;min-height:44px;width:100%;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:flex;align-items:flex-start;justify-content:center}   /* [POLISH_0925 2-11] 지난 걸음 글줄을 지금 걸음과 맞춘다(단추는 가운데 정렬이라 몇 px 낮게 앉았다) */
+.op-steps li.done{padding-top:0}   /* [STEP_BASELINE 코워크 회신4 4-e] 글줄은 단추 안 6px 로 맞춘다 — li 여백을 빼고 단추 padding 0 이던 때 지난 걸음이 6px 위에 앉았다 */
 .op-note{display:flex;flex-direction:column;gap:6px}
 .op-note-t{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:default;line-height:1.55}
 .op-note-a{display:flex;flex-wrap:wrap;gap:8px}
@@ -802,15 +804,17 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 @keyframes lsAdd{from{background:#F3ECDF}to{background:transparent}}
 .ls-no{font-size:12px;color:var(--light);text-align:right;white-space:nowrap}
 .ls-th,.ls-main{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
-.ls-th{min-height:44px;display:flex;align-items:center}   /* [DETAIL_0925 C2] 그림은 64×36 그대로 · 누를 곳만 44 */
+.ls-th{min-height:44px;display:flex;align-items:center;position:relative}   /* [DETAIL_0925 C2] 그림은 64×36 그대로 · 누를 곳만 44 */
+.ls-th .ls-pi{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:rgba(250,250,248,.82);color:var(--accent);display:grid;place-items:center;pointer-events:none}   /* [PLAY_BESIDE_NUM P13] 작게 · 반투명 — 이름보다 가볍게 */
+.ls-th .ls-pi svg{width:12px;height:12px}
+.ls-th:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .ls-main{display:flex;flex-direction:column;gap:1px;min-width:0;min-height:44px;justify-content:center}
 .ls-main .nm{font-size:14.5px;font-weight:600;color:var(--accent);word-break:keep-all}
 .ls-row.off .ls-main .nm{font-weight:500;color:var(--ink2)}
 .ls-main .nm::after{content:'';display:inline-block;width:6px;height:6px;margin:0 0 3px 8px;border-right:1px solid var(--light);border-bottom:1px solid var(--light);transform:rotate(45deg);vertical-align:middle}
 .ls-row.open .ls-main .nm::after{transform:rotate(-135deg);margin-bottom:-1px}
 .ls-main .sp{font-size:12px;color:var(--sub);line-height:1.5;word-break:keep-all}
-.ls-acts{display:flex;gap:6px;align-items:center}
-.ls-play{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.ls-acts{display:flex;gap:6px;align-items:center;min-width:44px;justify-content:flex-end}   /* [PLAY_BESIDE_NUM P13] ▶ 가 떠난 오른쪽 끝은 «비워 둔 칸»으로 남긴다 — 없애면 이름 단추가 말풍선 밑까지 늘어난다 */
 .ls-add{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
 .ls-x{grid-column:1 / -1;padding:4px 2px 6px 32px;font-size:12.5px;color:var(--sub);line-height:1.65;word-break:keep-all}
 .ls-x b{color:var(--accent);font-size:12.5px;font-weight:600}
@@ -2339,7 +2343,7 @@ function renderIntro2(){
     h+='<div class="pf-i pf-key"><b class="pf-k">준비는 글만</b>서약문·편지·인사말 정도예요. 무엇을 언제까지인지는 완성 화면에 정리돼요.</div>';
   }
   h+='<div class="pf-i pf-key"><b class="pf-k">비워도 돼요</b>지금 못 정한 건 나중에 채우면 돼요.</div>';
-  h+='<div class="pf-i pf-key"><b class="pf-k">'+(isOpen()?'고칠 수 있는 때':'예식 14일 전까지 수정')+'</b>'+(isOpen()?'순서는 예식 2주 전까지, 글은 예식 7일 전까지 고칠 수 있어요.':'저장하면 그때까지 언제든 고쳐요.')+(EMBED?'':' 다만 그냥 열어 만든 건 <b>이 기기에만</b> 저장돼요. 마이페이지로 열면 다른 기기에서도 이어 만들어요.')+'</div>';
+  h+='<div class="pf-i pf-key"><b class="pf-k">'+(isOpen()?'고칠 수 있는 때':'예식 14일 전까지 수정')+'</b>'+(isOpen()?'순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.':'저장하면 그때까지 언제든 고쳐요.')+(EMBED?'':' 다만 그냥 열어 만든 건 <b>이 기기에만</b> 저장돼요. 마이페이지로 열면 다른 기기에서도 이어 만들어요.')+'</div>';
   h+='</div>';
   return h;
 }
@@ -2841,11 +2845,14 @@ function _lRow(k,on,no,peak){
   var open=(LS.open===k), cur=(LP.q.length&&LP.cur===k);
   var h='<div class="ls-row'+(on?'':' off')+(open?' open':'')+(cur?' now':'')+(LS.flash===k?' added':'')+'" data-lk="'+k+'" id="lsr_'+k+'">';
   h+='<span class="ls-no">'+esc(no)+'</span>';
-  h+='<button type="button" class="ls-th" aria-label="'+esc(_lName(k))+' 크게 보고 듣기" data-fk="lst:'+k+'" onclick="lsBig(\''+k+'\')">'+_lVid(k,{mini:true})+'</button>';
+  /* ★[PLAY_BESIDE_NUM 2026-09-25 코워크 회신4 P13] ▶ 는 오른쪽 끝이 아니라 번호 옆 작은 그림 위 — 그림 전체가 누르는 곳(44px 이상).
+     오른쪽 끝의 ▶ 가 상담 말풍선([RAIL_LOCKED])과 같은 세로줄이라 11~12곳이 가려졌다. 비켜서는 쪽은 이 단추다(선례 LISTEN_BESIDE_NUM).
+     원은 이름보다 가볍게(작게 · 그림 위 반투명) — 줄에서 먼저 눈에 드는 것은 이름이다(LISTEN_ROW_WEIGHT).
+     그림을 누르면 작은 플레이어로 그 순간이 들린다 · 크게 보기는 작은 플레이어 제목과 «처음부터 보고 듣기»가 맡는다. */
+  var _pl=(LP.q.length&&LP.cur===k&&!LP.paused);   /* [A11Y_PLAYTOG 3장] 이 줄이 재생 중이면 ▶ 대신 «멈춤»(다시 누르면 처음부터 다시 틀던 것) */
+  h+='<button type="button" class="ls-th ls-play" aria-label="'+esc(_lName(k))+(_pl?' 멈춤':' 듣기')+'" data-fk="lsp:'+k+'" data-pl="'+(_pl?'1':'0')+'" onclick="'+(_pl?'lsToggle()':'lsPlay(\''+k+'\')')+'">'+_lVid(k,{mini:true})+'<span class="ls-pi" aria-hidden="true">'+(_pl?ICO_PAUSE:ICO_PLAY)+'</span></button>';
   h+='<button type="button" class="ls-main" aria-expanded="'+(open?'true':'false')+'" data-fk="lsm:'+k+'" onclick="lsOpen(\''+k+'\')"><span class="nm">'+(on&&k===peak?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(_lName(k))+'</span><span class="sp">'+esc(on?_lSum(k):'담지 않았어요')+'</span></button>';
-  /* [A11Y_PLAYTOG 3장] 이 줄이 재생 중이면 ▶ 대신 «멈춤»(다시 누르면 처음부터 다시 틀던 것) */
-  var _pl=(LP.q.length&&LP.cur===k&&!LP.paused);
-  h+='<span class="ls-acts"><button type="button" class="ls-play" aria-label="'+esc(_lName(k))+(_pl?' 멈춤':' 듣기')+'" data-fk="lsp:'+k+'" onclick="'+(_pl?'lsToggle()':'lsPlay(\''+k+'\')')+'">'+(_pl?ICO_PAUSE:ICO_PLAY)+'</button>'+(on?'':'<button type="button" class="ls-add" aria-label="'+esc(_lName(k))+' 담기" data-fk="lsa:'+k+'" onclick="lsAdd(\''+k+'\')">+ 담기</button>')+'</span>';
+  h+='<span class="ls-acts">'+(on?'':'<button type="button" class="ls-add" aria-label="'+esc(_lName(k))+' 담기" data-fk="lsa:'+k+'" onclick="lsAdd(\''+k+'\')">+ 담기</button>')+'</span>';
   if(open) h+='<div class="ls-x">'+_lExp(k,on)+'</div>';
   return h+'</div>';
 }
@@ -2992,7 +2999,7 @@ function _lPaint(){
   var el=_lMini(), st=LP.q[LP.i];
   document.querySelectorAll('.ls-row').forEach(function(r){ var k=r.getAttribute('data-lk'), on=!!st && k===st.k; r.classList.toggle('now', on);
     var b=r.querySelector('.ls-play'), pl=on&&!LP.paused; if(b&&b.getAttribute('data-pl')!==(pl?'1':'0')){ b.setAttribute('data-pl',pl?'1':'0');   // [A11Y_PLAYTOG] 재생 중인 줄은 «멈춤»
-      b.innerHTML=pl?ICO_PAUSE:ICO_PLAY; b.setAttribute('aria-label',_lName(k)+(pl?' 멈춤':' 듣기')); b.setAttribute('onclick',pl?'lsToggle()':"lsPlay('"+k+"')"); } });
+      var pi=b.querySelector('.ls-pi'); if(pi) pi.innerHTML=pl?ICO_PAUSE:ICO_PLAY;   /* [PLAY_BESIDE_NUM] 그림은 두고 원 안 아이콘만 바꾼다 */ b.setAttribute('aria-label',_lName(k)+(pl?' 멈춤':' 듣기')); b.setAttribute('onclick',pl?'lsToggle()':"lsPlay('"+k+"')"); } });
   if(st&&LP.last!==st.k){ LP.last=st.k; _lSay(_lName(st.k)+' · '+_lNoOf(st.k)); }
   if(!st||LP.big){ el.style.display='none'; }
   else {
@@ -3136,7 +3143,8 @@ var SEND_KAKAO='https://pf.kakao.com/_CfxcxlX/chat', SEND_MAIL='contact@momented
 function _sendHow(what,due){
   return '<div class="send-how"><p>'+esc(what)+' · 파일은 여기서 올라가지 않아요. 예식 '+(due||7)+'일 전까지 카톡이나 메일로 보내 주세요.</p>'
     +'<span class="send-b"><a class="rowbtn" href="'+SEND_KAKAO+'" target="_blank" rel="noopener">카톡으로 보내기</a>'
-    +'<a class="rowbtn" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] '+what)+'">메일로 보내기</a></span></div>';
+    +'<a class="rowbtn" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] '+what)+'">메일로 보내기</a></span>'
+    +'<p class="send-mail">메일 주소 · <span class="send-addr">'+esc(SEND_MAIL)+'</span></p></div>';   // [MAIL_TEXT 코워크 회신4 4-d] 카톡 안 브라우저에서 mailto 가 안 열리면 길게 눌러 복사
 }
 var VOICE_LATE='예식 7일 전까지 녹음이 오지 않으면 나레이션으로 진행해요';
 /* [STUDIO_PREP P11] 담은 순간에서 스튜디오가 준비하는 것 — 케이크 · 부모님께 드릴 꽃 */
@@ -3157,19 +3165,23 @@ function _openWrite(){
   h+='<h3 class="sec-l wr-top">두 분이 준비할 것 · '+two.length+'가지</h3>';
   // 쓸 글 — 글 칸(서약 · 편지 · 첫인사)은 여기서 바로 적는다 · 나머지 쓸 글은 목록으로
   var witems=[]; if(R.onOf(S,'welcome') && S.welcome==='self') witems.push('welcome'); if(R.onOf(S,'vow')) witems.push('vow'); if(R.onOf(S,'letter')) witems.push('letter');
-  var wrest=two.filter(function(q){ return q.cat==='write' && q.k!=='welcome' && q.k!=='vow' && q.k!=='letter'; });
-  if(witems.length||wrest.length){
+  var wrest=two.filter(function(q){ return q.cat==='write' && q.k!=='welcome' && q.k!=='vow' && q.k!=='letter' && q.k!=='tribute'; });
+  /* ★[TRIB_CARD_OPT 2026-09-25 사장님 «칸은 두되 선택»] 부모님께 드릴 말 — 적어 두면 카드로 드리고, 비워 두면 당일 직접 말씀하신다.
+     선택이라 셈 줄(«여기에 적는 글 N개 중 M개»)에는 넣지 않는다(wc-stat 없음). */
+  var trib=R.onOf(S,'tribute') && R.chipOf('tribute',S)!=='none';
+  if(witems.length||wrest.length||trib){
     h+='<div class="wr-sec"><div class="wr-sub">쓸 글</div>';
     if(witems.length){ var wd=witems.filter(function(x){ return _wcFilled(x); }).length;
       h+='<div class="write-check"><b id="wcCount" data-pre="여기에 적는 글 ">여기에 적는 글 '+witems.length+'개 중 '+wd+'개 적었어요.</b></div>';   // [WR_COUNT 3-4(b) · P12] 목록은 셋인데 셈은 칸 있는 것만 — 무엇을 세는지 말한다 · 마감 말은 머리 한 줄로
       witems.forEach(function(x){ h+=writeCard(x,true); }); }
     if(wrest.length) h+='<ul class="wr-list">'+wrest.map(li).join('')+'</ul>';
+    if(trib) h+=writeCard('tribute',false);
     h+='</div>';
   }
   // 보낼 것 — 식전 영상 링크 칸 · 녹음 올리기 · 나머지 목록
   var send=two.filter(function(q){ return q.cat==='send' && q.k!=='guest' && q.k!=='entry' && q.k!=='prevideo'; });
   h+='<div class="wr-sec"><div class="wr-sub">보낼 것</div>';
-  h+='<div class="wr-item">식전 영상 링크 <span class="wr-due">· '+esc(R.dueWord({due:3},wed))+'</span></div>';
+  h+='<div class="wr-item">'+esc(R.prepOf('prevideo',S)[0][1])+' <span class="wr-due">· '+esc(R.dueWord({due:3},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 한 원천
   h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
   h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
   h+='<div class="wd" style="margin-top:6px">휴대폰으로 가로로 찍은 영상 · 3분 안 · 영상이 없으면 사진 30~40장을 보내 주세요. 저희가 3분 영상으로 만들어요.</div>';   // [UPLOAD_HONEST 2-8] 쉬운 말
@@ -3832,6 +3844,11 @@ function writeCard(kind, showStatus){
       +'<div class="prep-hint">서로 한 줄씩 번갈아 읽고, 마지막 한 문장은 하객분들 쪽으로 돌아서서 함께 읽어요. "'+esc(VOWBOTH_T)+'" · 이 문장은 저희가 준비해 둬요.</div>'
       +'<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
   }
+  if(kind==='tribute'){   // [TRIB_CARD_OPT] 선택 칸 · 길이는 칩(한마디씩 / 1분쯤씩)을 따른다
+    var lg=RitualOpen.chipOf('tribute',S)==='long';
+    return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'한 분 400자 안팎':'한 분 한두 문장')+' · 적어 두시면 카드로 인쇄해 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta" maxlength="4000" aria-label="부모님께 드릴 말" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\')" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
+      +'<div class="lenhint">'+wcCntSpan('tribCnt',S.tributeText)+'</div></div>';
+  }
   if(kind==='letter'){
     return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">한 분 400자쯤 · 한 분 1분 남짓</div><textarea class="ta" maxlength="4000" aria-label="부모님께 드리는 편지" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\')" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
       +'<div class="lenhint">'+wcCntSpan('letterCnt',S.letterText)+'두 분 것을 한 칸에 적으면 모두 800자쯤이에요.</div>'
@@ -3844,7 +3861,7 @@ function wcStat(kind){ var f=_wcFilled(kind); return '<div class="wc-stat'+(f?' 
 function _wcLen(n){ return n?(n+'자 · 약 '+Math.max(1,Math.round(n/300))+'분 '):''; }   // 글자수·예상시간 문구 단일 공식(로드 초기화·입력 갱신 공용)
 /* ★[WC_LIMIT 2026-09-25 코워크 추가전달 2-5] 경고색은 칸마다 권장량의 약 1.2배 — 한 숫자(360)로 모든 칸을 재서 두 분 서약(583자)이 경고색이었다.
    권장량은 엔진 예상 초와 같은 자(약 5.8자/초): 서약 두 분 600자쯤(엔진 100초) · 편지 한 분 400자 · 한 칸에 두 분이면 800자. */
-var WC_LIM={vowCnt:720, letterCnt:960, welCnt:360};
+var WC_LIM={vowCnt:720, letterCnt:960, welCnt:360, tribCnt:960};   // [TRIB_CARD_OPT] 1분쯤씩 두 분 = 800자쯤
 function _wcLim(id){ return WC_LIM[id]||360; }
 function wcCntSpan(id,v){ var n=(v||'').length, col=n?(n>_wcLim(id)?';color:var(--seal)':';color:var(--gold-deeper)'):''; return '<span id="'+id+'" style="font-weight:600'+col+'">'+_wcLen(n)+'</span>'; }   // 저장분 다시 열 때도 자·분 즉시 표시
 function wcCnt(t,id){ var c=document.getElementById(id); if(c){ c.textContent=_wcLen(t.value.length); c.style.color=t.value.length>_wcLim(id)?'var(--seal)':'var(--gold-deeper)'; } }
@@ -4170,8 +4187,9 @@ function _doneOpen(){
   if(!ENG) engine().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='done') render(); });   // 대본 복사가 엔진 큐를 쓴다
   var two=pl.filter(function(q){ return q.who!=='parents'; }), par=pl.filter(function(q){ return q.who==='parents'; });
   function grp(list){ var by={}; list.forEach(function(q){ (by[q.cat]=by[q.cat]||[]).push(q); });
-    return ['write','send','bring','ask'].filter(function(c){ return by[c]; }).map(function(c){
-      return '<div class="pr"><span class="dday">'+esc(R.PREP_CAT[c])+'</span><span>'+by[c].map(function(q){ return esc(q.what)+' <span class="wr-due">· '+esc(R.dueWord(q,wed))+'</span>'; }).join('<br>')+'</span></div>'; }).join(''); }
+    var cs=['write','send','bring','ask'].filter(function(c){ return by[c]; });
+    return cs.map(function(c){   // [ONE_CAT_TAG 코워크 회신4 4-b] 무리에 갈래가 하나뿐이면 꼬리표가 제목을 되풀이한다(«부모님께 부탁드릴 것» 아래 «부탁드릴 것») → 뺀다
+      return '<div class="pr">'+(cs.length>1?'<span class="dday">'+esc(R.PREP_CAT[c])+'</span>':'')+'<span>'+by[c].map(function(q){ return esc(q.what)+' <span class="wr-due">· '+esc(R.dueWord(q,wed))+'</span>'; }).join('<br>')+'</span></div>'; }).join(''); }
   h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><div class="prep">';
   if(two.length) h+='<div class="pr-g">두 분이 준비할 것</div>'+grp(two);
   if(par.length) h+='<div class="pr-g">부모님께 부탁드릴 것</div>'+grp(par);
@@ -4204,6 +4222,7 @@ function scriptTextOpen(){
     if(k==='welcome' && S.welcomeText) lines.push('인사말(두 분 작성):\n'+S.welcomeText);
     if(k==='vow') lines.push(S.vowText?('서약문(두 분 작성):\n'+S.vowText):'(서약문 미입력 · 예식 7일 전까지 적으면 여기 담겨요)');   // [P12]
     if(k==='letter') lines.push(S.letterText?('편지(두 분 작성):\n'+S.letterText):'(편지 미입력 · 적으면 여기 담겨요)');
+    if(k==='tribute' && S.tributeText) lines.push('부모님께 드릴 말(두 분 작성 · 카드로 인쇄):\n'+S.tributeText);   // [TRIB_CARD_OPT] 선택 — 비었으면 당일 직접
     var seen={}; r.cues.filter(function(c){ var row=(c.k==='guest'&&/1min/.test(c.slug||''))?'prevideo':c.k; return row===k && c.live && c.live.t; })
       .forEach(function(c){ if(seen[c.live.t]) return; seen[c.live.t]=1; lines.push('큐: '+c.live.t); });
     lines.push('');
