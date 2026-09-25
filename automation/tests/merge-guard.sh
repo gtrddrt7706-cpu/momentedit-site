@@ -8659,17 +8659,30 @@ nochk "GmailApp.sendEmail(email, '.Moment Edit. 예식일 임시 고정이 곧 �
 # ★★[SOLAPI_RELAY] 2026-09-25 솔라피 «웹훅 실패 알림»(실패 3회 · 8회면 비활성화) — GAS /exec 가 처리 뒤 302 로 답해 솔라피가 실패로 셌다.
 #   베르셀 중계(api/solapi-report.js)가 받아 GAS 로 넘기고 200 으로 답한다. 리포트 모양만 넘긴다 · 미리보기는 운영 시트에 안 쓴다.
 #   깨 보고 믿었다 — 리포트 거르기 제거 · GAS 오류에도 200 · 미리보기 막기 제거 · 지연을 실패로, 넷 다 빨강.
-#   ★[RELAY_WAIT] GAS 기다림 한도 4초 이하 — 솔라피가 몇 초까지 기다리는지 모른다(실패 메일에 이유 없음 · 문서 사이트 막힘).
-#     7초로 되돌리면 solapi-relay 첫 줄이 빨강(깨 보고 믿었다). 실제 시간으로도 4,007ms 에 끊고 200 을 주는 것을 쟀다.
+#   ★[RELAY_WAIT] GAS 기다림 한도 3초 이하 — 솔라피 웹훅 Timeout 이 기본 5초(최대 15초 · 콘솔 «추가 설정» · 2026-09-25 화면 확인).
+#     콜드스타트까지 넣어 5초 안에 답하려고 3초로 둔다. 늘리면 solapi-relay 첫 줄이 빨강(깨 보고 믿었다).
+#     같은 화면 «최근 실행»에 302 · script.google.com/…/exec 가 찍혀 있었다 — 중계를 만든 까닭(302)이 원본으로 확인됐다.
 if command -v node >/dev/null 2>&1; then node scripts/audit/solapi-relay.mjs >/dev/null 2>&1; _sr=$?
   case "$_sr" in
-    0) echo 'ok solapi-relay: 리포트 중계 · GAS 오류 502 · 4초 넘으면 200 · 리포트 아닌 것 거부 · 미리보기 차단' ;;
+    0) echo 'ok solapi-relay: 리포트 중계 · 감싼 data 풀기 · GAS 오류 502 · 3초 넘으면 200 · 리포트 아닌 것 거부 · 미리보기 차단' ;;
     1) echo 'FAIL solapi-relay: 솔라피 리포트 중계가 틀렸습니다 — node scripts/audit/solapi-relay.mjs'; fail=1 ;;
     *) echo 'ok solapi-relay: 재지 못했습니다(모듈 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
 chk 'SOLAPI_RELAY' api/solapi-report.js 1
 chk 'RELAY_WAIT' api/solapi-report.js 1
+chk 'RELAY_UNWRAP' api/solapi-report.js 1   # 솔라피 화면의 Request Data 가 {"data":[…]} — GAS doPost 는 배열만 리포트로 읽는다(2026-09-25 반증: 그대로 넣으면 처리기에 0건)
+# ★[RELAY_WWW 2026-09-25] 솔라피 수신 URL 은 www — www 없는 주소는 베르셀이 307 로 넘기고 솔라피는 안 따라가 실패로 센다.
+#   새로 만든 웹훅의 첫 실행이 «307 · redirect https://www…» 였다. 문서가 www 없는 주소를 적으면 다음 등록이 또 실패한다.
+#   ★95_notify.gs 의 설정 주석은 아직 옛 주소 — 주석만 고치면 FILE_COVER 가 재배포를 요구해 그 파일을 다음에 고칠 때 고치고 여기 nochk 를 더한다.
+chk 'RELAY_WWW' api/solapi-report.js 1
+chk 'RELAY_WWW' CLAUDE.md 1
+chk 'RELAY_WWW' docs/데이터흐름_현황.md 1
+chk 'RELAY_WWW' automation/알림톡_템플릿_신청문안.md 1
+nochk 'https://momentedit.kr/api/solapi-report' CLAUDE.md
+nochk 'https://momentedit.kr/api/solapi-report' docs/데이터흐름_현황.md
+nochk 'https://momentedit.kr/api/solapi-report' automation/알림톡_템플릿_신청문안.md
+nochk 'https://momentedit.kr/api/solapi-report' api/solapi-report.js
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
@@ -9598,6 +9611,42 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# [TEST_CUSTOMER_0734 2026-09-25 사장님] 821 0734 9770 은 테스트 고객 — 전화 확인을 할 일로 되살리지 않는다(CLAUDE.md 반복 금지).
+chk 'TEST_CUSTOMER_0734' CLAUDE.md 1
+
+# ★★[ATTIRE_SINGLE_LINE 2026-09-25 코워크 3편 ⑥] 「Nº 03 의상」 아래 겹선(28px 간격 두 줄) + 같은 글자 라벨 반복.
+#   윗선 0 · 라벨은 화면에서만 숨김(radiogroup aria-label="의상" 유지) · 1280 격자에서 선택지가 한 줄 전체를 왼쪽부터.
+chk 'ATTIRE_SINGLE_LINE' inquiry.html 1
+chk '\.sec-head + \.compact-group{border-top:0}' inquiry.html 1
+chk 'role="radiogroup" aria-label="의상"' inquiry.html 1
+# ★★[NAV_FOCUS_REVEAL · OPTION_FOCUS 2026-09-25 코워크 3편 ⑦] 상담 신청 키보드 포커스 두 곳.
+#   Tab 첫 두 칸이 화면 밖(−58px)·투명 → 보임 · 카드형 선택지 포커스가 뒤 outline:none 에 덮여 0 → 2px --seal.
+chk 'nav\.nav-hidden:focus-within{transform:none;opacity:1}' inquiry.html 1
+chk 'OPTION_FOCUS' inquiry.html 2
+chk '\.option input:focus-visible + \.option-label{outline:2px solid var(--seal)' inquiry.html 1
+nochk '\.option input:focus-visible + \.option-label,\.field input:focus-visible' inquiry.html
+# [COND_HIDDEN_NOTAB · CONSENT_SUMMARY_FOCUS] 4편 시범 점검 ①-1·①-2 — 접힌 칸 안 입력 8칸에 Tab(→0) · 동의 summary 포커스 0픽셀.
+chk 'COND_HIDDEN_NOTAB' inquiry.html 1
+chk '\.conditional\.show{[^}]*visibility:visible' inquiry.html 1
+chk '\.consent-details summary:focus-visible{outline:2px solid var(--seal)' inquiry.html 1
+# ★★[KO_TRACK_SPLIT 2026-09-25 코워크 3편 ④] 한글에 영문 자간(0.14~0.32em)이 걸려 낱글자로 흩어지던 여섯 자리 → 한글 부분만 0.08em.
+chk 'Guest Access ·<span class="ll-ko"> 하객이 만나는 화면' index.html 1
+chk 'Delivered ·<span class="ll-ko"> 두 분의 받은편지함으로' index.html 1
+chk 'Opening Honor ·<span class="ll-ko"> 운영 초기 한정' index.html 1
+chk 'KO_TRACK_SPLIT' index.html 2
+chk 'KO_TRACK_SPLIT' mypage.html 1
+nochk '\.btn{[^}]*letter-spacing:\.16em' mypage.html
+chk '\.gv-skel-sub\.ko{letter-spacing:0\.08em}' invitation-gallery.html 1
+# [GUIDE_Q_16 2026-09-25 코워크 3편 ⑤] 하객 이름 검색칸 15 → 16px — 아이폰 사파리 확대 방지.
+chk 'GUIDE_Q_16' guide.html 1
+nochk '\.find input{[^}]*font-size:15px' guide.html
+# [META_LIGHT_ONLY 2026-09-25 코워크 3편 ⑨] 세 면에만 빠져 있던 color-scheme · theme-color.
+chk '<meta name="color-scheme" content="light only">' order-preview.html 1
+chk '<meta name="color-scheme" content="light only">' preview.html 1
+chk '<meta name="color-scheme" content="light only">' contract/fitting.html 1
+chk '<meta name="theme-color" content="#FAFAF8"' order-preview.html 2
+chk '<meta name="theme-color" content="#FAFAF8"' preview.html 2
+chk '<meta name="theme-color" content="#FAFAF8"' contract/fitting.html 2
 
 # ★★[LOADING_CENTER 2026-09-25 코워크 3편 ① · 사장님 선택 «한국어로»] 상담 신청 제출 버튼.
 #   로딩 묶음이 버튼 가운데보다 14px 왼쪽에 섰다(.arrow 가 opacity:0 으로 자리를 차지) → display:none 으로 0px.
@@ -9615,6 +9664,57 @@ chk 'VG_CENTER_RHYTHM' mypage.html 2
 chk '\.visit-guide\.vg-center{margin-top:28px;padding-top:22px}' mypage.html 1
 chk '\.visit-guide\.vg-center \.vg-row{display:block;text-align:center;padding:0;border-top:0}' mypage.html 1
 nochk 'visit-guide vg-center" style="margin-top:14px"' mypage.html
+# ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편 ③ · 사장님 선택 «바로 세우기 (사이트 전체)»]
+#   한글 글꼴엔 기울임꼴이 없어 italic 걸린 한글이 억지로 비틀렸다. 고객 화면 17 + 계약서 3 + 청첩장 25 = 42개 파일에
+#   html{font-synthesis:weight} 한 줄. 실측(진짜 웹폰트 · 대조군 촬영): 비틀리던 한글 요소 115 → 0.
+#   ★측정 함정 둘 — ①감사용 브라우저가 폰트 요청에 빈 응답을 줘 Cormorant 영문까지 «비틀림»으로 잡혔다(76건 착시)
+#     ②애니메이션 요소가 «바뀜»으로 잡혔다 → 같은 조건 두 번 찍어 다른 것은 뺐다. 그 뒤 순수 영문 변화는 모노그램 하나.
+#   ★모노그램(Cinzel · 기울임꼴 없음)은 한글이 아니고 청첩장 모양이 바뀌어 예외로 종전 모양 유지 — 코워크 확인 대기.
+# (반복문 대신 낱줄 — merge-guard 는 «^chk » 줄 수로 실행 수를 맞춘다 · GATE_RAN)
+chk 'KO_NO_FAUX_ITALIC' index.html 1
+chk 'KO_NO_FAUX_ITALIC' inquiry.html 1
+chk 'KO_NO_FAUX_ITALIC' mypage.html 1
+chk 'KO_NO_FAUX_ITALIC' schedule.html 1
+chk 'KO_NO_FAUX_ITALIC' parents.html 1
+chk 'KO_NO_FAUX_ITALIC' live.html 1
+chk 'KO_NO_FAUX_ITALIC' privacy.html 1
+chk 'KO_NO_FAUX_ITALIC' cancel.html 1
+chk 'KO_NO_FAUX_ITALIC' guide.html 1
+chk 'KO_NO_FAUX_ITALIC' seat.html 1
+chk 'KO_NO_FAUX_ITALIC' preview.html 1
+chk 'KO_NO_FAUX_ITALIC' order-preview.html 1
+chk 'KO_NO_FAUX_ITALIC' form.html 1
+chk 'KO_NO_FAUX_ITALIC' invitation-gallery.html 1
+chk 'KO_NO_FAUX_ITALIC' contract/fitting.html 1
+chk 'KO_NO_FAUX_ITALIC' contract/snap-v1-0.html 1
+chk 'KO_NO_FAUX_ITALIC' contract/v1-1.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-01.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-02.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-03.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-04.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-05.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-06.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-07.html 1
+chk 'KO_NO_FAUX_ITALIC' i-family/family-08.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-01.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-02.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-03.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-04.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-05.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-06.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-07.html 1
+chk 'KO_NO_FAUX_ITALIC' i/cover-08.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-01-classic.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-02-editorial.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-03-letterpress.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-04-Vermilion.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-05-botanical.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-06-hangeul.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-07-architect.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-08-noir.html 1
+chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-09-guide.html 1
+chk '\.mono-line{font-synthesis:weight style}' i/cover-03.html 1
+chk '\.mono-line{font-synthesis:weight style}' i-family/family-03.html 1
 # ▲3편 자리 — 다음 항목은 이 줄 위에 붙인다
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1

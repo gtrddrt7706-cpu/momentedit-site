@@ -3,12 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light only"><!-- [META_LIGHT_ONLY 2026-09-25 코워크 3편 ⑨] 이 셋만 빠져 안드로이드 크롬 자동 어둡게 대상이었다 -->
+<meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
 <title>식순 미리보기 · Moment Edit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
+html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편 ③ · 사장님 선택 «바로 세우기»] 한글 글꼴(Noto Serif·Sans KR)엔 기울임꼴이 없어 italic 이 걸린 한글을 브라우저가 억지로 비틀었다(합성 기울임). 굵기 합성만 허용하고 기울임 합성을 끈다 — 한글은 바로 서고, Cormorant 처럼 진짜 기울임꼴이 있는 영문은 그대로 기운다. 지우지 말 것 · 공통 CSS 파일이 없어 고객 화면마다 한 줄씩 있다. */
+
 :root{
   --bg:#FAFAF8; --card:#FFFFFF; --accent:#3A2D22; --sub:#5A554C; --light:#6E6959;
   --gold:#B89A75; --gold-deep:#9A7B4F; --gold-deeper:#7A5F37;--ink2:#4A3E30; --gold-btn:#C2A988; --seal:#6B2A24; --border:#DDD8D1; --bg2:#F5F3EF;

@@ -30,6 +30,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
+html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편 ③ · 사장님 선택 «바로 세우기»] 한글 글꼴(Noto Serif·Sans KR)엔 기울임꼴이 없어 italic 이 걸린 한글을 브라우저가 억지로 비틀었다(합성 기울임). 굵기 합성만 허용하고 기울임 합성을 끈다 — 한글은 바로 서고, Cormorant 처럼 진짜 기울임꼴이 있는 영문은 그대로 기운다. 지우지 말 것 · 공통 CSS 파일이 없어 고객 화면마다 한 줄씩 있다. */
+
 :root{
   --bg:#FAFAF8; --accent:#3A2D22; --sub:#5A554C; --light:#6E6959; --faint:#A49D8E;
   --gold:#B89A75; --gold-deep:#9A7B4F; --seal:#6B2A24; --border:#DDD8D1; --bg2:#F5F3EF; --hair:#EAE5DD;
@@ -75,7 +77,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .act svg{width:12px;height:12px;stroke:var(--gold-deep);fill:none;stroke-width:1.6}
 .subh{font-size:11px;letter-spacing:.04em;color:var(--light);margin:16px 0 6px}
 
-.find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:15px;color:var(--accent);padding:12px 13px;min-height:44px}/* [GUIDE_TAP44] 43px 이던 것 — 표류가 아니라 계산 결과다(내용 17 + 패딩 24 + 테두리 2).
+.find input{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);padding:12px 13px;min-height:44px}/* ★[GUIDE_Q_16 2026-09-25 코워크 3편 ⑤] 15 → 16px — 아이폰 사파리는 16px 보다 작은 입력칸을 누르면 화면을 확대한다. 하객이 자기 자리를 찾으려 이름칸을 누르는 순간 화면이 커졌다. 16 아래로 내리지 말 것 *//* [GUIDE_TAP44] 43px 이던 것 — 표류가 아니라 계산 결과다(내용 17 + 패딩 24 + 테두리 2).
    패딩을 반px 로 올릴 수는 없으니(램프 규칙) min-height 로 1px 을 채운다. */
 .find input:focus{outline:none;border-color:var(--gold-deep)}
 .find-res{min-height:20px;text-align:center;font-size:13px;color:var(--gold-deep);margin-top:10px}
