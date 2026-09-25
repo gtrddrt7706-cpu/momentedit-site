@@ -626,6 +626,18 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .res-panel.done{background:transparent;border-top:1px solid var(--divider,#EDEAE4);border-radius:0;padding:13px 2px 2px;margin-top:14px}
 .res-panel.done .res-panel-t{color:var(--label-soft)}
 .res-panel.done .res-n{color:var(--gold)}
+/* ★[SV_DONE_CLOSE 2026-09-25 사장님 「디자이너 관점으로 개선」] 후기 완료 = 여정의 마지막 장. 가운데로 모아 맺는다.
+   종전: 가운데 라벨 + 왼쪽 본문(정렬 축 둘) · 제목은 회색 14px 인데 본문 속 이름이 굵어 눈이 이름에 먼저 갔다
+   · 강조가 셋(제목·굵은 이름·진사 「오래」)이라 SURVEY_DONE_TONE 의 «악센트 1점»이 흐려졌다.
+   ★같은 감사 계열인 쿠폰 카드(.cpn-card)도 가운데 정렬이다 — 두 카드가 같은 말투로 읽힌다.
+   ★라벨 자리에는 글 대신 금색 짧은 선(장식은 --gold · 선 전용). 「마지막 단계」는 끝난 뒤에는 낡은 말이고,
+     페이지 위 진행 표시가 이미 「여정 완료 · STEP 10/10」을 말한다.
+   ★.res-panel.done 은 ④ 보정본 확인 패널도 쓴다 — srv-done 으로 범위를 좁혀 그쪽은 건드리지 않는다. */
+.res-panel.done.srv-done{border-top:none;margin-top:0;padding:4px 4px 2px;text-align:center}
+.res-panel.done.srv-done::before{content:'';display:block;width:24px;height:1px;background:var(--gold);margin:0 auto 16px}
+.res-panel.done.srv-done .res-panel-t{justify-content:center;font-size:16px;color:var(--accent);margin-bottom:10px}
+.res-panel.done.srv-done .cc-sub{margin-top:0;text-align:center}
+.res-panel.done.srv-done .srv-done-cpn{display:block;margin-top:16px;line-height:1.7;text-wrap:balance;word-break:keep-all}
 .res-panel-t{display:flex;align-items:center;gap:7px;font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);margin-bottom:11px}
 .res-panel-t .res-n{font-family:var(--serif);font-size:16px;line-height:1;color:var(--gold-deep)}
 /* 추가 보정 수량 입력 — 가운데 정렬 + '컷' 접미 / 우측 '합계 금액' */
@@ -645,7 +657,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .deliv-body{padding:6px 4px 2px}
 .dl-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--hairline);font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .dl-row:last-child{border-bottom:none}
-.srv-step-label{text-align:center;font-family:var(--serif);font-style:italic;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);margin:20px 0 10px}
+/* [SV_LABEL_KO 2026-09-25] 「마지막 단계」는 한글이다. 종전엔 영문 눈썹 서식(Cormorant 기울임·자간 .22em·대문자)을
+   그대로 걸어, Cormorant 에 없는 한글이 기기마다 다른 대체 글꼴로 떨어지고 «가짜 기울임»에 자간까지 벌어져
+   「마 지 막  단 계」로 흩어졌다. 한글 소라벨 자리(자간 램프 .04em)로 옮긴다 — 기울임·대문자는 한글에 뜻이 없다. */
+.srv-step-label{text-align:center;font-family:var(--serif-ko);font-style:normal;font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--gold-deep);margin:20px 0 10px}
 /* 마지막 설문 — 객관식 선택지
    [SURVEY_READ 2026-07-25 사용자 지적 "안쪽 색이 전부 노란색이라 가독성이 안 좋다"]
    원인: 패널(.res-panel)과 선택지 칩이 배경색이 같아(둘 다 --bg2 #F5F3EF) 1px 연한 테두리로만 구분돼,
@@ -4675,10 +4690,13 @@ function _surveyCardHtml(res, nm, code){
   var _cpn=((window._mpStateD||{}).coupon)||null;
   var _hasCpn=!!(_cpn&&_cpn.images&&_cpn.images.length);
   // SURVEY_DONE_TONE 2026-07-23 · 여정 종점 = 감정 문장으로 닫고 쿠폰 로지스틱은 cc-mini로 분리(이모지 없음 · 진사 악센트 '오래' 1점)
-  if(sv.status==='완료') return '<div class="res-panel done"><div class="res-panel-t">후기, 감사히 받았어요</div><div class="cc-sub" style="text-align:left">'+(nm?'<b>'+escapeHtml(nm)+'</b> 님, ':'')+'두 분의 이야기가 잘 닿았어요.<br>두 분의 하루를, 저희가 <span class="em-seal">오래</span> 간직할게요.</div><div class="cc-mini" style="display:block;margin-top:12px">'
+  /* [SV_DONE_CLOSE] 이름은 굵게 하지 않는다 — 강조는 진사 「오래」 한 점(SURVEY_DONE_TONE).
+     쿠폰 줄에서 「사용기한 안에 여유롭게 즐겨 주세요」를 뺐다 — 바로 위 쿠폰 카드가 정확한 날짜로 이미 말한다.
+     바코드가 아직이면 사용기한 이야기는 이르다(쓸 바코드가 없다). */
+  if(sv.status==='완료') return '<div class="res-panel done srv-done"><div class="res-panel-t">후기, 감사히 받았어요</div><div class="cc-sub">'+(nm?escapeHtml(nm)+' 님, ':'')+'두 분의 이야기가 잘 닿았어요.<br>두 분의 하루를, 저희가 <span class="em-seal">오래</span> 간직할게요.</div><div class="cc-mini srv-done-cpn">'
     +(_hasCpn
-      ? '감사의 마음으로 준비한 스타벅스 커피 2잔, 위쪽 카드에 바코드가 있어요.<br>사용기한 안에 여유롭게 즐겨 주세요.'
-      : '감사의 마음으로 스타벅스 커피 2잔을 준비해요.<br>준비되면 위쪽에 바코드가 떠요 · 사용기한 안에 여유롭게 즐겨 주세요.')
+      ? '감사의 마음으로 준비한 스타벅스 커피&nbsp;2잔,<br>위쪽 카드에 바코드가 있어요.'   /* 쉼표에서 나눈다 — 균형 줄바꿈이 「커피 / 2잔」으로 갈랐다(390px 실측) */
+      : '감사의 마음으로 스타벅스 커피&nbsp;2잔을 준비해요.<br>준비되면 위쪽에 바코드가 떠요.')
     +'</div></div>';
   var body='';
   /* ★★[SV_NOTE_UI 2026-09-25 사장님 지시 「각각의 문항마다 기타로 해서 수기로 적을 수 있는 공간까지
@@ -4797,7 +4815,8 @@ function renderResult(res, nm, code){
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
     var inner='';
     if(ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') inner+=_extraPanelHtml(res);   // 전달 후에도 미완료 추가 보정은 마무리
-    inner+='<div class="srv-step-label" style="margin:0 0 10px">마지막 단계</div>'+_surveyCardHtml(res,nm,code);
+    /* [SV_DONE_CLOSE] 끝난 뒤에는 「마지막 단계」를 달지 않는다 — 할 일이 남았을 때의 말이다 */
+    inner+=((res.survey&&res.survey.status==='완료')?'':'<div class="srv-step-label" style="margin:0 0 10px">마지막 단계</div>')+_surveyCardHtml(res,nm,code);
     hd+='<div class="consult-card" style="text-align:left;margin-top:12px">'+inner+'</div>';
     box.innerHTML=hd; box.style.display='block';   // 결과물 토글은 본계약서 보기 바로 밑(카드 없이), 설문만 카드로
     var tg=$('mp_delivToggle'); if(tg) tg.addEventListener('click',function(){ var body=$('mp_delivBody'); var open=(body.style.display==='none'); body.style.display=open?'block':'none'; tg.classList.toggle('open',open); tg.innerHTML=(open?'받은 결과물 접기 ':'받은 결과물 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>'; try{localStorage.setItem('me_deliv_'+(code||'x'), open?'o':'c');}catch(e){} });
