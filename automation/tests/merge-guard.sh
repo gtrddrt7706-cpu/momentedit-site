@@ -9719,16 +9719,35 @@ chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
 # ★★[PAR_PC_POLISH · PAR_FOOTER_TIGHT · PAR_TIME_TIDY 2026-09-25 사장님 「어른께 드리는 안내 PC 직접 보면서 개선」]
 #   제목 27 → 34px(PC) · «궁금한 점 물어보기» 진사 덩어리(600×58) → 먹갈색 글자 크기만큼(240×54) · 시간표 본문 시작선 · 푸터 241 → 201px.
 chk 'PAR_PC_POLISH' parents.html 1
-chk '\.closing \.contact-ask{display:inline-block;width:auto' parents.html 1
+# [PAR_PC_CENTER 2026-09-25 사장님 「이 2개는 센터가 좋을 것 같은데」] 제목 블록 · 버튼 · 시간 카드 = 화면 가운데 축(PC)
+chk '\.closing \.contact-ask{display:block;width:max-content' parents.html 1
+chk 'PAR_PC_CENTER' parents.html 2
+nochk '\.hero{text-align:left;padding-top:132px}' parents.html
 nochk '\.contact-ask{[^}]*background:var(--seal)' parents.html
 nochk '\.hero-label{[^}]*color:var(--gold);' parents.html
 chk 'PAR_FOOTER_TIGHT' parents.html 3
+# [PAR_FOOTER_TIGHT2 2026-09-25 사장님 「푸터 간격 더 좁히기」] 1280 201 → 160 · 390 243 → 208 · 링크 44px 칸은 그대로
+chk 'PAR_FOOTER_TIGHT2' parents.html 5
+chk '\.f-legal{margin-top:-8px}' parents.html 1
 chk 'PAR_TIME_TIDY' parents.html 1
 # [PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님 도착 = 하객 입장(본식 20분 전). 표 4칸 → 3칸 · check-source-drift (6-c) 가 계산해 대조.
 chk 'PARENT_ARRIVE_GUEST' parents.html 1
 chk 'PARENT_ARRIVE_GUEST' scripts/check-source-drift.mjs 1
 chk 'STAMP_KST' scripts/gen-deploy-fns.mjs 1
 nochk '<li>본식 시작 40분 전' parents.html
+# [코워크 5편 2026-09-25] 편지 모바일 괘선 · 미리보기 종이 · 형제 버튼 · 홈 Tab 메뉴 바탕 · 마이페이지 주 버튼 자간 · 디자인 문서 30명
+chk 'LETTER_PAPER_M' live.html 2
+nochk '\.lf-message{min-height:240px' live.html
+nochk '\.lf-input{font-size:16px;padding:12px 14px}' live.html
+chk 'LETTER_BTN_SIB' live.html 2
+chk 'LETTER_PREVIEW_PAPER' live.html 1
+chk '^\.letter-preview \.lp-message-box{' live.html 1
+chk '<span class="lf-mark" aria-hidden="true">From.</span>' live.html 2
+chk 'NAV_FOCUS_BG' index.html 1
+chk 'CC_BTN_TRACK' mypage.html 1
+nochk 'letter-spacing:\.16em;background:#4E3F31' mypage.html
+chk 'SKILL_SEATED30' .claude/skills/momentedit-design/SKILL.md 1
+nochk '하객 25명 이하' .claude/skills/momentedit-design/SKILL.md
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html
