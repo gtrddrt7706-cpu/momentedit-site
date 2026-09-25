@@ -9578,6 +9578,26 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
+chk 'GV_CARD_DIV' invitation-gallery.html 1
+nochk "createElement\('article'\)" invitation-gallery.html
+# [TO_HANG 2026-09-25 코워크 회신 ⑤] 편지 To. 줄 — To. 한 칸 + 선택지 묶음(.lf-seg-group) 한 칸 · 줄바꿈은 묶음 안에서만(320 에서 셋째가 x=0 → 32).
+chk 'TO_HANG' live.html 1
+chk 'class="lf-seg-group"' live.html 2
+# [MESEQ_INERT 2026-09-25 코워크 회신 ④] 진행 시간표 시트 — 닫힌 동안·닫히는 0.32초 동안 inert, 열 때 해제.
+chk 'MESEQ_INERT' assets/sequence-modal.js 3
+chk 'ov.inert = false' assets/sequence-modal.js 1
+# ★★[GLASS_MENU_OWNER 2026-09-25 사장님 결정 · 코워크 회신 ③] 모바일 메뉴 반투명(크림 40% + blur 20px)은 글래스모피즘 금지의 «유일한 예외».
+#   같은 문장이 세 문서 + index.html 규칙 옆에 있다. 알려진 대가(한글 소제목 약 1.5:1)까지 함께 적었다.
+#   ★«넓히지 않는다»도 지킨다 — index.html 의 backdrop-filter 줄 수를 지금 값(9: 메뉴 · 메뉴 닫힘 none · 죽은 .ph-note · 상담 패널 뒤판 · 주석 1)보다 늘리지 못한다.
+chk 'GLASS_MENU_OWNER' CLAUDE.md 1
+chk 'GLASS_MENU_OWNER' .claude/skills/momentedit-design/SKILL.md 1
+chk 'GLASS_MENU_OWNER' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'GLASS_MENU_OWNER' index.html 1
+chk '글래스모피즘 금지의 \*\*유일한 예외\*\*' CLAUDE.md 1
+chk '글래스모피즘 금지의 \*\*유일한 예외\*\*' .claude/skills/momentedit-design/SKILL.md 1
+chk '글래스모피즘 금지의 \*\*유일한 예외\*\*' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+nochk 'backdrop-filter' index.html 9
 # [TEST_CUSTOMER_0734 2026-09-25 사장님] 821 0734 9770 은 테스트 고객 — 전화 확인을 할 일로 되살리지 않는다(CLAUDE.md 반복 금지).
 chk 'TEST_CUSTOMER_0734' CLAUDE.md 1
 
@@ -9636,7 +9656,7 @@ nochk 'visit-guide vg-center" style="margin-top:14px"' mypage.html
 #   html{font-synthesis:weight} 한 줄. 실측(진짜 웹폰트 · 대조군 촬영): 비틀리던 한글 요소 115 → 0.
 #   ★측정 함정 둘 — ①감사용 브라우저가 폰트 요청에 빈 응답을 줘 Cormorant 영문까지 «비틀림»으로 잡혔다(76건 착시)
 #     ②애니메이션 요소가 «바뀜»으로 잡혔다 → 같은 조건 두 번 찍어 다른 것은 뺐다. 그 뒤 순수 영문 변화는 모노그램 하나.
-#   ★모노그램(Cinzel · 기울임꼴 없음)은 한글이 아니고 청첩장 모양이 바뀌어 예외로 종전 모양 유지 — 코워크 확인 대기.
+#   ★모노그램(Cinzel · 기울임꼴 없음)은 처음엔 예외로 종전 모양을 지켰다가 사장님 결정으로 바로 세웠다 — 아래 [MONO_UPRIGHT].
 # (반복문 대신 낱줄 — merge-guard 는 «^chk » 줄 수로 실행 수를 맞춘다 · GATE_RAN)
 chk 'KO_NO_FAUX_ITALIC' index.html 1
 chk 'KO_NO_FAUX_ITALIC' inquiry.html 1
@@ -9680,8 +9700,10 @@ chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-06-hangeul.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-07-architect.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-08-noir.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-09-guide.html 1
-chk '\.mono-line{font-synthesis:weight style}' i/cover-03.html 1
-chk '\.mono-line{font-synthesis:weight style}' i-family/family-03.html 1
+# ★[MONO_UPRIGHT 2026-09-25 사장님 결정 «바로 세우기» · 코워크 회신 ②] 모노그램(Cinzel · 기울임꼴 없는 서체)의 예외를 지웠다 —
+#   억지 기울임을 끄고 Cinzel 본래 모양으로 선다. 가운데 & 는 Cormorant 진짜 이탤릭이라 그대로 기운다. 예외를 되살리지 말 것.
+nochk 'mono-line{font-synthesis' i/cover-03.html
+nochk 'mono-line{font-synthesis' i-family/family-03.html
 # ▲3편 자리 — 다음 항목은 이 줄 위에 붙인다
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
