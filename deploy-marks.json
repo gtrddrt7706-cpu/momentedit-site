@@ -149,6 +149,16 @@
    "file": "95_notify",
    "fn": "_nfTplSilent",
    "why": "알림톡 템플릿이 없어 카톡을 못 보낸 알림을 처리이력·관리자 메일로 드러내는 함수"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfTplMerge",
+   "why": "알림톡 템플릿 매핑을 기존 것을 지우지 않고 더하는 함수(importKakaoTemplates·setKakaoTemplates 가 부른다)"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfTplMissing",
+   "why": "켜진 고객 알림 중 템플릿이 빠진 것의 목록(notifySetupCheck·매핑 저장 뒤 로그가 같이 쓴다)"
   }
  ],
  "marks": [
@@ -739,6 +749,24 @@
    "fn": "notifySetupCheck",
    "mark": "TPL_COVER",
    "why": "설정 점검이 켜진 고객 알림 중 템플릿이 빠진 것을 이름으로 나열하는 자리. 이 파일이 옛것이면 «몇 건 등록»만 나와 무엇을 승인받아야 할지 모른다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfTplMerge",
+   "mark": "TPL_KEEP",
+   "why": "템플릿 매핑을 덮어쓰지 않고 더하는 자리. 이 파일이 옛것이면 setKakaoTemplates 를 칸이 빈 채로 한 번 누를 때 매핑이 0건이 되어 고객 알림톡이 전부 멈춘다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "importKakaoTemplates",
+   "mark": "TPL_KEEP",
+   "why": "솔라피 승인 템플릿을 이름 T## 로 불러오는 자리(T20 원본·T21 보정본·T22 환불 계좌 포함). 이 파일이 옛것이면 새 템플릿 셋이 승인나도 이어지지 않고, 이름이 다른 기존 매핑은 지워진다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfCustomerEmailFallback",
+   "mark": "MAIL_FOCUS_URL",
+   "why": "알림톡 대신 나가는 고객 메일에서 주소를 버튼으로 옮기는 자리. 이 파일이 옛것이면 메일 본문 끝에 momentedit.kr/mypage.html?focus=… 가 글자로 찍힌다"
   }
  ],
  "fns": {
@@ -1071,6 +1099,8 @@
    "testKakaoT17",
    "testKakaoAll",
    "setKakaoTemplates",
+   "_nfTplMerge",
+   "_nfTplMissing",
    "importKakaoTemplates",
    "_notifyCustomerEmail",
    "_solapiBalance",
@@ -1636,7 +1666,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-25 09:34 · 97a36eea",
+ "_생성": "2026-09-25 10:07 · 9147ad78",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1940,5 +1970,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "7c5a1ae7d497"
+ "_표식서명": "da1eb4975cf0"
 }
