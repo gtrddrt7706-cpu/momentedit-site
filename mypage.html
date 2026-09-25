@@ -5346,9 +5346,16 @@ function _bouquetFold(base){
 function _ritPrepFold(rd, base, dd){
   var sm=rd&&rd.summary; if(!sm||!sm.open||!(sm.prep||sm.helpers)) return '';
   var wm=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  function dueTxt(n){ if(!wm) return n===3?'예식 3일 전까지':'예식 7일 전까지'; var d=new Date(+wm[1],+wm[2]-1,+wm[3]-n); return (d.getMonth()+1)+'월 '+d.getDate()+'일까지('+(n===3?'예식 3일 전':'예식 7일 전')+')'; }
+  /* [PREP_DUE 코워크 회신3 3-4(a)] 빌더 RitualOpen.dueWord 와 같은 말 — 3 · 7 · 0(당일 가져오기) · 없음(그 항목의 한 줄).
+     옛 초안(마감 칸 없음 · 글에 «3일 전»)은 종전대로 읽는다. */
+  function dueTxt(q){
+    var n=q.due;
+    if(n===null) return String(q.note||'');
+    if(n===0) return '당일 가져오기';
+    if(n!==3&&n!==7) n=/(3일 전|사흘 전)/.test(String(q.what||''))?3:7;
+    if(!wm) return '예식 '+n+'일 전까지'; var d=new Date(+wm[1],+wm[2]-1,+wm[3]-n); return (d.getMonth()+1)+'월 '+d.getDate()+'일까지(예식 '+n+'일 전)'; }
   var two=[], par=[];
-  (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var li='<li>'+escapeHtml(w)+' <span class="due">· '+escapeHtml(dueTxt(q.due===3?3:7))+'</span></li>'; (q.who==='parents'?par:two).push(li); });
+  (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
   var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
   var n=two.length+par.length+hp.length; if(!n) return '';
   return '<details class="rit-prep"><summary>준비할 것 · 도와주실 분 '+n+'가지</summary>'   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 */

@@ -64,7 +64,7 @@
        letter  → S.letter   (both 는 새 코스 칩에 없다 · 옛 코스엔 그대로)
        toast   → S.toast · S.wine (새 키 · 축배가 있을 때만) */
   var CHIPS = {
-    declare: [['solemn', '성우 · 엄숙하게'], ['warm', '성우 · 따뜻하게'], ['clap', '하객 박수로 답하기'], ['family', '가족이 낭독']],
+    declare: [['solemn', '나레이션 · 엄숙하게'], ['warm', '나레이션 · 따뜻하게'],   /* [LAB_FIX2 코워크 추가전달 2-6] «성우» → «나레이션»(목소리가 AI 나레이션 · 흐름 · 요약 · ④와 같게) */ ['clap', '하객 박수로 답하기'], ['family', '가족이 낭독']],
     tribute: [['one', '한마디씩'], ['long', '1분쯤씩'], ['none', '말 없이']],   /* [DETAIL_0925 E] 준비 목록에는 «한 분 400자 안팎» */
     letter: [['each', '서로에게'], ['parent', '각자 부모님께']],
     toast: [['both', '케이크와 축배'], ['toast', '축배만'], ['cake', '케이크만']],
@@ -249,35 +249,57 @@
      ★마감은 글에 «예식 3일 전까지»가 들어 있으면 3일 · 없으면 7일(prepList).
      ★케이크 · 부모님께 드릴 꽃은 누가 준비하는지 지금 코드 문구에 없어 넣지 않았다(코워크 F · 사장님 결정 대기). */
   var CANDLE_ASK = { mothers: '양가 어머님께서', parents: '양가 어머님과 아버님께서', fathers: '양가 아버님께서' };
+  /* ★★[PREP_DUE 2026-09-25 코워크 회신3 3-4(a)] 마감은 글에서 읽지 않고 항목 데이터로 둔다.
+     항목 = [누가, 무엇(마감 말 없이), 갈래, 마감, 마감 없을 때 한 줄]
+       마감 3 = 예식 3일 전까지 · 7 = 예식 7일 전까지 · 0 = 당일 가져오기 · null = 마감 없음(한 줄로 말한다)
+     ★종전엔 글에 «3일 전»이 있으면 3, 없으면 7 이었다 — 반지 · 와인까지 «예식 7일 전까지»가 붙었다.
+     ★고객 화면의 마감 말은 «예식 7일 전» · «예식 3일 전» · «당일» 셋뿐이다([P12] · dueWord 한 곳에서 만든다). */
+  var NOTE_READ = '당일 직접 읽어요 · 보내지 않아도 돼요', NOTE_ASK = '미리 말씀드려 두세요';
   function prepOf(k, S) {
     switch (k) {
-      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send']] : [];
-      case 'prevideo': return [['couple', '영상 링크(3분 안) 또는 사진 30~40장 · 예식 3일 전까지', 'send']];   // [PREVIDEO_ALWAYS]
+      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];
+      case 'prevideo': return [['couple', '영상 링크(3분 안) 또는 사진 30~40장', 'send', 3]];   // [PREVIDEO_ALWAYS]
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
-        return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask']] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask']]; }
-      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send']] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
-      case 'welcome': return [['couple', '첫인사 한두 문장', 'write']];
-      case 'bless': return [['parents', '덕담 원고 · 한 분 400자 안팎(저희가 받아 큰 글씨로)', 'ask']];
-      case 'vow': return [['couple', '서약문(비슷한 길이로)', 'write']];
-      case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring']];
-      case 'declare': return chipOf('declare', S) === 'family' ? [['parents', '선언을 읽을 가족 한 분', 'ask']] : [];
-      case 'tribute': { var t = chipOf('tribute', S); return t === 'none' ? [] : [['couple', t === 'long' ? '부모님께 드릴 말 · 한 분 400자 안팎' : crossTribute(S) ? '서로의 부모님께 드릴 한마디씩' : '부모님께 드릴 한마디씩', 'write']]; }
+        return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask', null, NOTE_ASK]]; }
+      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
+      case 'welcome': return [['couple', '첫인사 한두 문장', 'write', 7]];
+      case 'bless': return [['parents', '덕담 원고 · 한 분 400자 안팎(저희가 받아 큰 글씨로)', 'ask', 7]];
+      case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자
+      case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring', 0]];
+      case 'declare': return chipOf('declare', S) === 'family' ? [['parents', '선언을 읽을 가족 한 분', 'ask', null, NOTE_ASK]] : [];
+      case 'tribute': { var t = chipOf('tribute', S); return t === 'none' ? [] : [['couple', t === 'long' ? '부모님께 드릴 말 · 한 분 400자 안팎' : crossTribute(S) ? '서로의 부모님께 드릴 한마디씩' : '부모님께 드릴 한마디씩', 'write', null, NOTE_READ]]; }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
         var fk = FREE_KIND[chipOf('free', S)], n = chipOf('freeLen', S);
-        if (fk === 'video') return [['couple', '영상 파일(가로 · ' + n + '분 안) · 예식 3일 전까지', 'send']];
-        if (fk === 'stage') return [['couple', '음원 파일(' + n + '분 안) · 설 자리 폭 알려 주기 · 예식 3일 전까지', 'send']];
-        if (fk === 'speech') return [['couple', '축사하실 분께 부탁드리기 · 원고(분당 300자 안팎) · 예식 3일 전까지(큰 글씨로 돌려드려요) · 원고에 전 연인 · 술자리 이야기는 빼 주세요', 'ask']];
-        return [['couple', '무엇을 누가 건넬지 알려 주기(저희가 자리를 맞춰요)', 'send']];
+        if (fk === 'video') return [['couple', '준비한 순서 영상(휴대폰으로 가로로 찍은 영상 · ' + n + '분 안)', 'send', 3]];   // [SEND_WORDS 2-8] 이름 없이 붙던 «영상 파일»
+        if (fk === 'stage') return [['couple', '준비한 순서 음원(' + n + '분 안) · 설 자리 폭 알려 주기', 'send', 3]];
+        if (fk === 'speech') return [['couple', '축사하실 분께 부탁드리기 · 원고는 분당 300자 안팎 · 받으면 큰 글씨로 돌려드려요 · 전 연인 · 술자리 이야기는 빼 주세요', 'ask', 3]];
+        return [['couple', '무엇을 누가 건넬지 알려 주기(저희가 자리를 맞춰요)', 'send', 7]];
       }
-      case 'letter': return [['couple', chipOf('letter', S) === 'each' ? '서로에게 편지 400자씩' : '부모님께 편지 400자씩', 'write']];
+      case 'letter': return [['couple', chipOf('letter', S) === 'each' ? '서로에게 편지 · 한 분 400자쯤' : '부모님께 편지 · 한 분 400자쯤', 'write', null, NOTE_READ]];
       case 'toast': {
         var w = chipOf('toast', S), wine = (w === 'cake') ? 'none' : chipOf('wine', S), out = [];
-        if (wine === 'family') out.push(['parents', '양가에서 와인 한 병씩', 'ask']);
-        if (wine === 'mix') out.push(['couple', '색이 다른 와인 두 병(또는 음료 둘)', 'bring']);
-        if (w !== 'cake') out.push(['couple', '하객 자리마다 축배 음료 정하기(좌석표에서)', 'send']);
+        if (wine === 'family') out.push(['parents', '양가에서 와인 한 병씩', 'ask', 0]);
+        if (wine === 'mix') out.push(['couple', '색이 다른 와인 두 병(또는 음료 둘)', 'bring', 0]);
+        if (w !== 'cake') out.push(['couple', '자리마다 축배 음료 알려 주기 · 마이페이지 «좌석 · 음료»에서', 'send', 7]);   // [P10 코워크 회신3] «정하기» → «알려 주기»(같은 갈래 «건넬지 알려 주기»와 같은 꼴)
         return out;
       }
     }
+    return [];
+  }
+  /* [PREP_DUE · P12] 마감 말 한 곳 — 날짜를 알면 «9월 18일까지(예식 7일 전)» · 모르면 «예식 7일 전까지» ·
+     당일 가져오기 · 마감 없음은 그 항목의 한 줄. 빌더 ③ · ④ · 마이페이지가 이 함수만 쓴다. */
+  function dueWord(q, wed) {
+    if (q.due == null) return q.note || '';
+    if (q.due === 0) return '당일 가져오기';
+    var m = String(wed || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return '예식 ' + q.due + '일 전까지';
+    var x = new Date(+m[1], +m[2] - 1, +m[3] - q.due); return (x.getMonth() + 1) + '월 ' + x.getDate() + '일까지(예식 ' + q.due + '일 전)';
+  }
+  /* ★[STUDIO_PREP 2026-09-25 사장님 결정 · 코워크 회신3 P11] 케이크 · 부모님께 드릴 꽃은 스튜디오가 준비한다.
+     두 분 준비 목록에 넣지 않고 «저희가 준비해요» 한 줄로 말한다. ★계약서 ⑥ · 홈페이지 «Included»에는 아직 없다(문구는 사장님 결정). */
+  function studioOf(k, S) {
+    if (k === 'toast' && chipOf('toast', S) !== 'toast') return ['케이크'];
+    if (k === 'tribute') return ['부모님께 드릴 꽃'];
     return [];
   }
   var PREP_CAT = { write: '쓸 글', send: '보낼 것', bring: '챙길 것', ask: '부탁드릴 것' };
@@ -350,7 +372,7 @@
 
   /* ── 시작점 줄(명세 3-4) — 예시에서 시작했으면 무엇이 달라졌나 ── */
   function originOf(S) {
-    if (!picked(S).length) return '아직 담은 순간이 없어요. 입장과 닫는 인사는 늘 있어요.';
+    if (!picked(S).length) return '아직 담은 순간이 없어요. 식전 영상 · 입장 · 닫는 인사는 늘 있어요.';   // [WHY_NEIGHBOR 2-7] PREVIDEO_ALWAYS
     var ex = exampleOf(S.pickFrom);
     if (!ex) return '직접 고르셨어요.';
     var base = {}, bits = [], diff = 0;
@@ -419,9 +441,9 @@
     opt = opt || {};
     var out = [];
     if (onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'video') out.push(['준비한 순서를 맡을 분', '담은 날 · 축사 · 공연 · 선물 전달을 하실 분']);
-    if (onOf(S, 'ring')) out.push(['반지를 건넬 아이나 가족', '반지를 담은 날']);
+    if (onOf(S, 'ring')) out.push(['반지를 건넬 아이나 가족', '반지 교환을 담았을 때']);   // [HELPER_WORDS 3-4(f)]
     out.push(['어르신을 모실 분', '양가 한 분 · 사진 때']);
-    out.push(['축의 받을 분', '받는 날만 · 두 분이 정해요']);
+    out.push(['축의 받을 분', '축의금을 받으실 때만 · 두 분이 정해요']);   // [HELPER_WORDS 3-4(f)]
     if (opt.mealGuide) out.push(['식사 자리로 안내할 분', '애프터 웨딩을 고른 날']);
     return out;
   }
@@ -429,10 +451,24 @@
   /* ★[PREP_LIST 2026-09-25 코워크 P8 · 사장님 «만듭니다»] 마이페이지 «두 분 준비 · 도와주실 분» 의 원천 — 빌더와 같은 prepOf.
      due = 예식 며칠 전까지(«사흘 전»이 적힌 것은 3 · 나머지는 7). 빌더가 저장할 때 summary.prep 로 싣는다
      (마이페이지는 이 파일을 싣지 않는다 — ritual-data 와 같은 까닭). */
+  /* ★[WHY_NEIGHBOR 2026-09-25 코워크 추가전달 2-7] «이 자리인 까닭»은 이웃 순간을 담았을 때만 그 이름을 말한다.
+     고정 글이라 편지를 안 담아도 «편지 앞이에요»가 나왔다. 이웃이 없으면 까닭만 말한다. */
+  var WHY_ALONE = {
+    bless: '부모님 말씀으로 약속의 문을 여는 자리예요.',
+    tribute: '부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).',
+    free: '마지막 큰 순간이 앞에 몰리지 않도록 뒤쪽에 둬요.'
+  };
+  var WHY_NEXT = { bless: 'vow', free: 'letter' }, WHY_PREV = { tribute: 'declare' };
+  function whyOf(k, S) {
+    var c = CARDS[k]; if (!c || !c.why) return '';
+    if (WHY_NEXT[k] && S && !onOf(S, WHY_NEXT[k])) return WHY_ALONE[k];
+    if (WHY_PREV[k] && S && !onOf(S, WHY_PREV[k])) return WHY_ALONE[k];
+    return c.why;
+  }
   function prepList(S) {
     var out = [];
     ORDER.filter(function (k) { return onOf(S, k); }).forEach(function (k) {
-      prepOf(k, S).forEach(function (q) { out.push({ k: k, who: q[0], what: q[1], cat: q[2] || 'send', due: /3일 전/.test(q[1]) ? 3 : 7 }); });
+      prepOf(k, S).forEach(function (q) { out.push({ k: k, who: q[0], what: q[1], cat: q[2] || 'send', due: q[3] === undefined ? 7 : q[3], note: q[4] || '' }); });   // [PREP_DUE]
     });
     return out;
   }
@@ -484,7 +520,7 @@
 
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, secTxt: secTxt,
-    prepList: prepList, PREP_CAT: PREP_CAT, savedOk: savedOk,
+    prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, savedOk: savedOk,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS,
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,

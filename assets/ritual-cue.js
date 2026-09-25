@@ -903,15 +903,23 @@
       return out;
     },
 
-    bless: function (S) {
+    bless: function (S, seq) {
       if (S.bless !== 'on') return [];
-      var famOpen = (S.course === 'family');
+      var famOpen = (S.course === 'family'), afterLetter = !famOpen;
+      /* ★[BLESS_PREV 2026-09-25 코워크 회신3 3-3] 새 코스(open)는 famOpen 이 늘 거짓이라 늘 «편지 뒤» 갈래였다
+         (큐 «편지 뒤라 한 톤 낮춰»). 그런데 새 차례에서 덕담은 늘 편지보다 앞이다. 판정을 «바로 앞 · 바로 뒤»로 바꾼다:
+         바로 앞이 편지면 편지 뒤 갈래 · 바로 뒤가 서약이면 «서약의 문을 여는» 갈래 · 둘 다 아니면 가운데 문안(편지 뒤라는 말 없이).
+         ★어느 문안을 쓸지(글 자체)는 사장님 대본 점검 몫 — 코드는 판정만 고쳤다. 옛 코스는 종전 그대로. */
+      if (S.course === 'open' && seq) {
+        var bi = seq.indexOf('bless'), prev = bi > 0 ? seq[bi - 1] : '', next = seq[bi + 1] || '';
+        afterLetter = prev === 'letter'; famOpen = !afterLetter && next === 'vow';
+      }
       return [
         cue({
           k: 'bless', blockN: '부모님 덕담',
           slug: famOpen ? 'narr-bless-open' : 'narr-bless-mid', name: '부모님 덕담 시작',
           text: famOpen ? D.NARR.blessOpenFamily : D.NARR.blessMid,
-          pick: S.blessProxy ? '나레이션이 대독' : (famOpen ? '예식의 문을 여는 자리' : '편지 뒤 자리'),
+          pick: S.blessProxy ? '나레이션이 대독' : (famOpen ? '예식의 문을 여는 자리' : afterLetter ? '편지 뒤 자리' : ''),
           live: {
             t: S.blessProxy ? '나레이션이 미리 받은 말씀을 대독' : '부모님 말씀 (디렉터가 마이크 전달)',
             est: 100, self: !S.blessProxy, doing: 'say',
