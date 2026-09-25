@@ -8384,6 +8384,24 @@ chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
 chk 'PHONE_KR_NORM' automation/admin/admin.gs 3
 chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 
+# ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
+#   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
+#   «줄지어 도는 동안» 생겼다 — 번호가 82… 로 앉고 → 밤에 큐에 쌓이고 → 취소했는데 큐는
+#   몰랐고 → 아침마다 재시도되다 사흘째 버려지며 메일이 됐다. 그 줄을 통째로 돌린다.
+#   ★함수를 베껴 쓰지 않는다 — 95_notify·00_platform-config 에서 소스를 그대로 꺼내 평가한다.
+#     베껴 쓰면 «코드는 바뀌었는데 검사는 옛 규칙»이 되어 조용히 초록이 된다(NOT_THE_SOURCE).
+#   ★장면 4 는 «고치기 전»을 재현한다 — 사장님이 2026-09-24 에 받으신 메일 문면 그대로.
+#     무엇을 고쳤는지 증명하지 못하는 검사는 다음 판이 되돌려도 안 잡는다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/contact-lifecycle-sim.mjs >/dev/null 2>&1; _cl=$?
+  case "$_cl" in
+    0) echo 'ok contact-lifecycle-sim: 신청→야간보류→취소→아침발송 네 장면 전부 기대대로' ;;
+    1) echo 'FAIL contact-lifecycle-sim: 연락처 생애 시뮬레이션이 틀렸습니다 — node scripts/audit/contact-lifecycle-sim.mjs'; fail=1 ;;
+    *) echo 'ok contact-lifecycle-sim: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'CONTACT_LIFECYCLE_SIM' scripts/audit/contact-lifecycle-sim.mjs 1
+chk 'SERVED_OURS' scripts/audit/contact-lifecycle-sim.mjs 1
+
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
 #     부딪히는 사실 없음. 신부의 「오늘은 이렇게 먼저」는 예식 뒤 인사 사진에서 실제로 자리를 도는 것과 맞다.
