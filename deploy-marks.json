@@ -1600,7 +1600,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-25 08:51 · 1a29c077",
+ "_생성": "2026-09-25 08:57 · a6abeebb",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1855,123 +1855,7 @@
    "b": ""
   }
  ],
- "projects": [
-  {
-   "name": "form-to-couple",
-   "why": "부부폼(예식 영상·D-3 점검)",
-   "sentinel": "onCoupleFormSubmit",
-   "fns": [
-    "onCoupleFormSubmit",
-    "buildHeaderIndex",
-    "makeEventId",
-    "resolveEventId",
-    "_randEventSuffix",
-    "findLastEventIdRow",
-    "_deFormula",
-    "writeCell",
-    "pad2",
-    "isValidYmd",
-    "ynShow",
-    "notifyStudio",
-    "vimeoGuardDaily",
-    "setupVimeoGuard",
-    "purgeCoupleData",
-    "previewCoupleData",
-    "_purgeGuestSheet",
-    "sendCoupleEmail",
-    "buildCoupleEmailHtml",
-    "buildDateRetryEmailHtml",
-    "addFormImage",
-    "createCoupleForm",
-    "createCoupleFormForce",
-    "diagnoseFormSetup",
-    "ensureTrigger",
-    "extractFormId_",
-    "addAccountDisplayCheckbox",
-    "openFormForEdit_",
-    "verifyAccountCheckbox",
-    "addChildTitleQuestions",
-    "ensureSheetHeaders",
-    "setFormConfirmationMessage",
-    "verifyChildTitleQuestions"
-   ],
-   "vars": [
-    "CFG"
-   ]
-  },
-  {
-   "name": "guest-letter-webhook",
-   "why": "하객 편지 웹훅",
-   "sentinel": "getCoupleByEventId",
-   "fns": [
-    "doGet",
-    "doPost",
-    "getCoupleByEventId",
-    "_acctVisibleForView",
-    "getCoupleByEventIdFull",
-    "normalizeDate",
-    "normalizeTime",
-    "normalizeRecipient",
-    "recipientLabelKo",
-    "recipientLabelEn",
-    "_glDeFormula",
-    "withRowLock",
-    "appendMessage",
-    "appendModeration",
-    "_glRateCheck",
-    "sendToRecipients",
-    "buildEmailHtml",
-    "escapeHtml",
-    "jsonResponse",
-    "notifyStudioOnce",
-    "getBannedList",
-    "normalizeMessage",
-    "checkBannedWords",
-    "checkModeration",
-    "testGetCouple",
-    "diagnoseWebhookSheet",
-    "testGetCoupleByEventId",
-    "testSendToGroom",
-    "testSendToBride",
-    "testSendToBoth",
-    "testModeration",
-    "testBannedFilter",
-    "onOpen"
-   ],
-   "vars": []
-  },
-  {
-   "name": "가족청첩장빌드",
-   "why": "가족 청첩장 빌드",
-   "sentinel": "FC_addFamilyMenu",
-   "fns": [
-    "FC_addFamilyMenu",
-    "FC_buildFromSelectedRow",
-    "FC_buildFromEventIdPrompt",
-    "FC_buildAllActive",
-    "FC_buildFamilyCard",
-    "FC_loadCoupleData",
-    "FC_loadAllActiveCouples",
-    "FC_validateRequiredFields",
-    "FC_findFullDesignCode",
-    "FC_loadMasterHtml",
-    "FC_transformPlaceholders",
-    "FC_transformEnName",
-    "FC_splitCamelCase",
-    "FC_transformDate",
-    "FC_yearToEnglish",
-    "FC_transformTime",
-    "FC_generateCalendarCells",
-    "FC_processOptionalMarkers",
-    "FC_pushToGithub",
-    "FC_logBuild",
-    "FC_testGithubConnection",
-    "FC_replaceAll",
-    "FC_escapeHtml"
-   ],
-   "vars": []
-  }
- ],
+ "projects": [],
  "_계약설명": "★[DEPLOY_CONTRACT] 표식은 «그 줄이 있는가»만 본다. 값이 맞는가는 안 본다 — 실제로 FINAL_CONFIRM.초과단가가 50000 인 채로 표식만 붙어도 초록이었다. contracts 는 «값 자체»를 대조한다. kind=gas 는 GAS 안에서 식을 평가하고, kind=web 은 배포된 사이트를 가져와 문자열이 있는지/없는지 본다. scripts/audit/deploy-contracts.mjs 가 저장소 쪽에서 같은 계약을 검사해 «계약과 코드가 갈라지는 것»을 막는다.",
  "contracts": [
   {

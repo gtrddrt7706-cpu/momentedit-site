@@ -1929,18 +1929,14 @@ chk 'IG_MARK' index.html 1                               # 제목 옆 인스타 
 chk 'archive-grid-ig' index.html 14                      # 사진 9장 우상단 마크(마크업 9 + CSS) · 정중앙 흰 원으로 되돌리면 인물 얼굴 위에 다시 얹힌다
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 # ── 편지 전달 점검 (2026-08-03 사용자 "편지 전달되는 부분 점검해보자 시스템이나 연동이나 디자인부분도")
-chk 'LETTER_RATE' automation/guest-letter-webhook.gs 2         # 예식별 전송 속도 제한 · 없애면 한 예식으로 편지를 무제한 쏟아부을 수 있다
-chk 'LETTER_DELIVERED' automation/guest-letter-webhook.gs 2    # 메일이 실제로 나갔는지 응답에 담는다 · 지우면 '받을 주소 없음'인데 하객은 전해졌다고 믿는 상태로 되돌아간다
+# ★[LETTER_MERGED 2026-09-25] 위·아래 편지 검사 중 guest-letter-webhook.gs·form-to-couple.gs 를 보던 줄은 옮겼다 —
+#   옛 Letter System 을 본 프로젝트 87_letter.gs 로 합치면서 옛 파일을 은퇴시켰다. 같은 표식(LETTER_RATE·DELIVERED·PLAIN·
+#   PREHEADER·TARGET·금지어 대상·DM_FOOT_SIGN)은 87_letter.gs 를 보는 줄이 [LETTER_MERGED] 블록에 있다.
+#   부부폼 메일 2종(DM_FOOT_SIGN ×2)은 구글폼 부부폼을 안 가져와 함께 끝났다(마이페이지 청첩장이 대체).
 chk 'LETTER_DELIVERED' live.html 2                             # 그 응답을 받아 '스튜디오가 직접 전해드릴게요'를 띄우는 쪽
-chk 'LETTER_PLAIN' automation/guest-letter-webhook.gs 1        # 텍스트 대체본 · 빈 문자열로 되돌리면 HTML 못 그리는 클라이언트에서 편지가 통째로 사라진다
-chk 'LETTER_PREHEADER' automation/guest-letter-webhook.gs 1    # 받은편지함 미리보기 줄 · 없으면 누가 보낸 편지인지 열어야만 안다
-chk 'LETTER_TARGET' automation/guest-letter-webhook.gs 1       # 수신 주소 유무만 참/거짓으로(주소는 계속 비공개)
 chk 'LETTER_TARGET' live.html 1                                # 받을 곳 없는 수신인은 고르지 못하게
 chk 'LETTER_SEND' live.html 2                                  # 재진입 차단 + '서버가 ok라고 할 때만 성공' · 2xx만 보고 성공 처리로 되돌리면 한 통도 안 나갔는데 전해졌다고 뜬다
 chk 'LETTER_UI' live.html 2                                    # 글자수 위치 · 카드 세로 가운데
-chk '[guestName, relation, message]' automation/guest-letter-webhook.gs 1  # 금지어 검사 대상 · 본문만 보면 이름·관계 칸으로 그대로 새어 나간다
-chk 'DM_FOOT_SIGN' automation/guest-letter-webhook.gs 1  # ★실제 하객이 보내고 두 분이 받는 편지 메일 — 홈 예시만 고치면 진짜 편지는 옛 모습으로 남는다(2026-08-03 사용자 확인)
-chk 'DM_FOOT_SIGN' automation/form-to-couple.gs 2        # 청첩장 전달 메일 2종(안내·재제출)
 chk 'DM_FOOT_SIGN' automation/consultation/consultation-booking.gs 1  # 상담 메일(흰 지면) — 금색을 글자로 쓰면 대비 2.3                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 # ★[GA_TABS 2026-08-18] 'MOCK_SAMPLE_SYNC' 마커 폐지 — **구조적으로 불필요해졌다.**
 #   이 마커는 손으로 베낀 목업의 표본일이 청첩장 SAMPLE 과 어긋나는 것을 막던 것이다.
@@ -6219,6 +6215,12 @@ if command -v node >/dev/null 2>&1; then
     process.exit(a>0 && b>0 && a<b ? 0 : 1);" \
     || { echo 'FAIL LETTER_ROUTE: doGet 에서 getCouple 이 handleAction 보다 아래거나 없다 — 청첩장 조회가 메일 버튼 처리로 떨어진다'; fail=1; }
 fi
+# ★[LETTER_RETIRED 2026-09-25] 옛 Letter System 파일은 은퇴 — 되살리지 말 것(제거 지시 보존 규칙과 같은 뜻).
+#   옛 브랜치에서 되살아나 병합되면, 거기 고친 것은 GAS 어디에도 안 올라가는 «가짜 원본»이 된다
+#   (옛 프로젝트는 트리거를 지우고 쉬게 한다 · 쓰는 부분은 87_letter 가 원본이다). 근거가 필요하면 git 기록에서 꺼낸다.
+for _old in automation/form-to-couple.gs automation/guest-letter-webhook.gs 'automation/가족청첩장빌드.gs' automation/99_projectCheck.gs; do
+  [ -e "$_old" ] && { echo "FAIL LETTER_RETIRED: 은퇴한 옛 Letter System 파일이 되살아났다 — $_old (원본은 automation/platform/87_letter.gs)"; fail=1; }
+done
 chk 'LETTER_SIM' scripts/audit/letter-sim.mjs 1
 chk 'GAS_NAME_CLASH' scripts/audit/gas-name-clash.mjs 1
 chk 'LETTER_MERGED' automation/platform/87_letter.gs 3
@@ -6513,13 +6515,8 @@ chk 'SIM_PROPS' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_REVERSE' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_NOT_MINE' scripts/audit/deploycheck-sim.mjs 1
 
-# [PROJECT_CHECK] 별도 GAS 프로젝트 3곳(부부폼·하객편지·가족청첩장)은 deployCheck 가 못 닿는다 —
-#   typeof 는 같은 프로젝트 안에서만 통한다. 그래서 각자 스스로 세는 파일을 따로 둔다.
-#   그 파일도 «점검받지 않은 코드»가 되지 않게, 전 함수를 하나씩 빼 보는 시뮬레이터를 물린다.
-chk 'PROJECT_CHECK' automation/99_projectCheck.gs 1
-chk 'PROJECT_CHECK_SIM' scripts/audit/projectcheck-sim.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/projectcheck-sim.mjs >/dev/null 2>&1 \
-  || { echo 'FAIL projectcheck-sim: 별도 프로젝트 점검이 빠진 함수를 못 잡는다 — node scripts/audit/projectcheck-sim.mjs'; fail=1; }; fi
+# [PROJECT_CHECK] 별도 GAS 프로젝트 점검기(99_projectCheck)는 2026-09-25 은퇴 — 그 세 곳(부부폼·하객편지·가족청첩장)이
+#   한 프로젝트(Letter System)였고, 쓰는 부분은 본 프로젝트 87_letter 로 합쳤다(LETTER_MERGED). 이제 deployCheck 가 전부 본다.
 
 # ★[MARKS_REACH] 점검 목록이 «사이트로 나가는 길»을 지킨다 — 이 길이 끊기면 모든 것이 조용히 무너진다.
 #   GAS 는 https://momentedit.kr/deploy-marks.json 에서 목록을 읽는다. 그 파일이 배포에서 빠지거나
@@ -10057,7 +10054,7 @@ chk "require('./_livehook')" api/lead.js 2
 chk 'preview\*) exit 1' vercel.json 1
 # ★★[RAW_OFF_GITHUB 2026-09-25 사장님 결정 «저장소 비공개 전환»] 부부폼 미리보기 그림을 깃허브 raw 가 아니라
 #   사이트에서 받는다. 비공개가 되면 raw 주소는 토큰 없이 404 다.
-chk "RAW: 'https://www.momentedit.kr/assets/preview/'" automation/form-to-couple.gs 1
-chk 'RAW_OFF_GITHUB' automation/form-to-couple.gs 2
+#   ★(2026-09-25 LETTER_MERGED) 이 두 줄이 지키던 form-to-couple.gs 의 폼 생성 그림 주소는 구글폼 부부폼을 은퇴시키며 함께 끝났다.
+#     폼을 새로 만드는 createCoupleForm 만 쓰던 값이다 — 이미 만들어진 폼의 그림은 구글이 들고 있다.
 # ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
 chk 'COWORK_SPLIT_0925' CLAUDE.md 1
