@@ -12,6 +12,7 @@
 //   종료 코드: 0 통과 · 1 재서 틀렸다 · 2 재지 못했다
 import { makeSandbox, loadGas } from './gas-lint.mjs';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const W = { props: new Map(), fetches: [], mails: [], logs: [], hist: [], night: false, http: 200, cust: null, tplList: [] };
 const sb = makeSandbox();
@@ -40,7 +41,10 @@ G._nfIsNight = () => W.night;
 let rc = 0;
 const say = (c, m, d) => { console.log(`  ${c ? '✅' : '❌'} ${m}${c || d === undefined ? '' : ' → ' + String(d).slice(0, 220)}`); if (!c) rc = 1; };
 const EV = Object.keys(G.NOTIFY_EVENTS).filter((k) => G.NOTIFY_EVENTS[k].to === 'customer' && !G.NOTIFY_EVENTS[k].off);
-const ELSEWHERE = ['cust.consultDone', 'cust.resultDelivered'];   // 메일은 admin.gs 처리에서 따로 나간다
+/* [KAKAO_FIRST 2026-09-25] 메일이 «따로» 나가는 알림은 상담 확정 하나 — 확정 메일 설정(CONFIG.SEND_CONFIRM_MAIL)이 켜져 있을 때.
+   종전엔 상담 완료·결과물 전달이 여기 있었다(카톡과 메일이 늘 같이 갔다). 설정값은 GAS 소스에서 그대로 읽는다(베껴 쓰지 않는다). */
+const CONFIRM_MAIL_ON = (() => { try { return vm.runInContext('typeof CONFIG !== "undefined" && CONFIG.SEND_CONFIRM_MAIL === true', sb) === true; } catch (e) { return false; } })();
+const ELSEWHERE = CONFIRM_MAIL_ON ? ['cust.consultConfirmed'] : [];
 const COUPLE = 'couple@example.com';
 const cfg = (over) => { W.props = new Map(Object.entries(Object.assign({ NOTIFY_ENABLED: 'true', SOLAPI_API_KEY: 'k', SOLAPI_API_SECRET: 's',
   SOLAPI_SENDER: '0212345678', SOLAPI_PF_ID: 'KA01PF', ADMIN_EMAIL: 'contact@momentedit.kr' }, over || {}))); };
@@ -200,6 +204,27 @@ console.log('━━ ⑫ 알림톡이 못 나가면 까닭과 상관없이 고객
   say(!badRep.length, '전달결과 리포트 — 목록 밖 실패 코드도 메일 · 성공·진행 중은 메일 없음 · «비정상»은 성공 아님', badRep.join(' | '));
   const st = rep('3104', '카카오톡 미사용자', '');
   say(st === '이메일' && toCouple() === 0 && toAdmin() === 1 && W.hist.some((h) => /카톡 전달 실패/.test(h)), '전달 실패 + 메일도 없음 — 처리이력 한 줄 + 관리자 1통', `${st} · 관리자 ${toAdmin()} · 이력 ${W.hist.join(' | ')}`); }
+
+console.log('━━ ⑬ 카톡이 가면 메일은 안 간다 · 못 가면 그때 메일 — 상담 완료·결과물 전달·임시고정 만료 [KAKAO_FIRST]');
+{ const bad = [];
+  for (const ev of ['cust.consultDone', 'cust.resultDelivered', 'cust.holdExpiring']) {
+    cfg({ KAKAO_TEMPLATES: tplAll() }); fresh(); send(ev, cust('010-1234-5678', COUPLE));
+    if (kakao().length !== 1 || toCouple() !== 0) bad.push(`${ev} 카톡 성공인데 메일 ${toCouple()}`);
+    cfg({ KAKAO_TEMPLATES: '{}' }); fresh(); const r = send(ev, cust('010-1234-5678', COUPLE));
+    if (toCouple() !== 1 || r !== 'mail') bad.push(`${ev} 카톡 없음인데 메일 ${toCouple()} · 반환 ${r}`);
+  }
+  say(!bad.length, '셋 다 «카톡 1건·메일 0» 또는 «카톡 0·메일 1» — 둘이 같이 가지 않는다', bad.join(' | '));
+  const src = (f) => readFileSync(new URL('../../automation/' + f, import.meta.url), 'utf8');
+  const adm = src('admin/admin.gs'), jr = src('platform/70_journey.gs');
+  const back = [];
+  if (/_notifyCustomerEmail\(code, '\[Moment Edit\] 상담이 마무리되었습니다/.test(adm)) back.push('상담 완료 메일');
+  if (/_notifyCustomerEmail\(code, '\[Moment Edit\] 결과물이 준비되었습니다'/.test(adm)) back.push('결과물 전달 메일');
+  if (/예식일 임시 고정이 곧 풀려요/.test(jr)) back.push('임시고정 만료 메일');
+  say(!back.length, '카톡과 함께 가던 메일 셋이 되살아나지 않았다(2026-09-25 사용자 지시로 삭제)', back.join(', '));
+  if (CONFIRM_MAIL_ON) {
+    cfg({ KAKAO_TEMPLATES: '{}' }); fresh(); send('cust.consultConfirmed', cust('010-1234-5678', COUPLE));
+    say(toCouple() === 0, '상담 확정은 확정 메일이 이미 갔으니 카톡이 실패해도 대체 메일을 또 보내지 않는다(종전 2통)', `메일 ${toCouple()}`);
+  } }
 
 console.log(rc ? '━━ notify-e2e — 틀린 곳이 있습니다' : '━━ notify-e2e — 전부 통과');
 process.exit(rc);
