@@ -43,11 +43,16 @@ function deployCheck() {
     if (typeof deployFingerprint === 'function') {
       var _f0 = deployFingerprint();
       var _r0 = String(PropertiesService.getScriptProperties().getProperty('DEPLOY_CODE_FINGERPRINT') || '');
+      /* ★[STAMP_HIT_ADMIN 2026-09-25 대표 실행 로그에서 잡음] 이 두 줄이 «사이트 주소만» 열라고 했다.
+         그런데 홈(index.html)은 GAS 를 한 번도 부르지 않는다(/exec 호출 0곳) — 홈을 열어도 지문이 안 찍혀
+         다시 돌리면 같은 ✗ 가 나온다. 9/19 [STAMP_NEEDS_HIT] 에 재배포를 세 번 반복한 것과 같은 함정이다.
+         아래 ④ 와 deployStampCheck 는 이미 «관리자 페이지»라고 말한다 — 세 곳이 같은 말을 하게 맞췄다.
+         ★«GAS 를 부르는 화면»으로만 안내할 것(관리자·마이페이지·상담 예약). 홈으로 되돌리지 말 것. */
       L.push(!_r0
-        ? '★배포 확인: 아직 모름 — 재배포 뒤 momentedit.kr 을 한 번 열고 다시 실행하세요(실패 아님).'
+        ? '★배포 확인: 아직 모름 — 재배포 뒤 관리자 페이지(momentedit.kr/admin.html)를 한 번 열고 다시 실행하세요(실패 아님).'
         : (_r0.split('|')[0] === _f0   /* [STAMP_FIRST] 이 세 줄이 결론이다 — 순서를 아래로 내리지 말 것 */
           ? '★배포 확인: OK — 배포본이 지금 저장된 코드와 같습니다(재배포가 먹었습니다).'
-          : '★배포 확인: ✗ 아직 안 먹었습니다 — ①«새 버전»으로 재배포 ②momentedit.kr 한 번 열기 ③다시 실행.'));
+          : '★배포 확인: ✗ 아직 안 먹었습니다 — ①«새 버전»으로 재배포 ②관리자 페이지(momentedit.kr/admin.html) 한 번 열기 ③다시 실행.'));
       L.push('');
     }
   } catch (e) {}
