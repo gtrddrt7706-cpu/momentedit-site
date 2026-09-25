@@ -19,7 +19,7 @@
  *       — const 는 전역 속성이 아니라 렉시컬 바인딩이라, 시뮬레이터(node vm)가 파일을 따로 올리는 순간
  *         파일 밖에서 안 보인다(실측). 진짜 GAS 에서는 보일 수 있지만 «여기서 확인할 수 없는 검사»는
  *         넣지 않는다 — 틀리면 있지도 않은 누락을 쫓게 만든다. 그 파일은 함수 130개로 덮인다.
- *     · 별도 GAS 프로젝트(form-to-couple · guest-letter-webhook · 가족청첩장빌드)는 이 점검 밖이다.
+ *     · (2026-09-25) 옛 별도 GAS 프로젝트(Letter System)는 본 프로젝트 87_letter 로 합쳐 이제 점검 안이다.
  *
  *   node scripts/gen-deploy-fns.mjs          → deploy-marks.json 갱신
  *   node scripts/gen-deploy-fns.mjs --check  → 낡았으면 종료코드 1 (감사·CI 용)
@@ -137,12 +137,14 @@ const PROPS = {
   PAY_CARD_ENABLED: ['switch', '카드결제 (true 면 켜짐)'],
   ADMIN_NOTIFY_INFO: ['switch', '관리자 정보성 알림'],
   CUSTOMER_PURGE_OFF: ['switch', "미계약 개인정보 자동파기 정지 (Y 면 «꺼짐»)"],
+  COUPLE_PURGE_OFF: ['switch', "청첩장·편지 개인정보 자동파기 정지 (Y 면 «꺼짐» · 87_letter)"],
   LEAD_CONFIRM_SMS: ['switch', '상담 접수 확인 문자 (N 면 «끔»)'],
 
   /* tuning */
   SOLAPI_LOW_BALANCE: ['tuning', '잔액 경고 임계 (기본 3000원)'],
   AIH_EXPIRE_DAYS: ['tuning', '인계 만료 일수 (기본 30일)'],
   CUSTOMER_PURGE_DAYS: ['tuning', '개인정보 파기 일수 (기본값 있음)'],
+  COUPLE_PURGE_DAYS: ['tuning', '청첩장·편지 파기 일수 (기본 183일 · 87_letter)'],
   SOLAPI_PRICE: ['tuning', '문자 단가표 (기본 {})'],
   DBG_RESET: ['tuning', '디버그용'],
 
@@ -191,11 +193,10 @@ const props = Object.keys(PROPS).sort().map((k) => ({ key: k, kind: PROPS[k][0],
 /* ── 별도 GAS 프로젝트 — 이 저장소에 있지만 «다른 프로젝트»라 deployCheck 가 못 닿는다.
    한 프로젝트 안에서만 typeof 가 통하므로, 각자에게 자기 몫 목록을 주고 스스로 세게 한다
    (99_projectCheck.gs 를 세 곳에 붙여넣으면, 자기가 어느 프로젝트인지 알아보고 자기 것만 본다). */
-const PROJECTS = [
-  ['form-to-couple', 'automation/form-to-couple.gs', '부부폼(예식 영상·D-3 점검)'],
-  ['guest-letter-webhook', 'automation/guest-letter-webhook.gs', '하객 편지 웹훅'],
-  ['가족청첩장빌드', 'automation/가족청첩장빌드.gs', '가족 청첩장 빌드'],
-];
+/* ★[LETTER_MERGED 2026-09-25] 비었다 — 세 곳은 사실 한 프로젝트(Moment Edit Letter System)였고, 사이트가 쓰는 부분은
+   본 프로젝트 87_letter 로 합쳤다(구글폼 부부폼·가족청첩장 빌드는 안 가져옴). 옛 파일과 99_projectCheck 는 은퇴.
+   다시 별도 프로젝트가 생기면 [이름, 파일, 설명] 으로 여기에 적는다. */
+const PROJECTS = [];
 const projects = PROJECTS.map(([name, rel, why]) => {
   const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   const list = [...src.matchAll(/^function\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/gm)].map((m) => m[1]);

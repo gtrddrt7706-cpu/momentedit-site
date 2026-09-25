@@ -435,8 +435,9 @@ git push -u origin <브랜치>
 | `awMonthlyAudit` | 88_place_audit | 월간 검증 본체(트리거 자동·수동 1회 실행 가능). 폐업·상호변경 의심 발견 시 ADMIN_PHONE으로 알림 |
 | `collectDinePool` | 88_place_audit | 스튜디오 반경 7km 업종 스윕으로 후보 식당·카페 대량 수집 → AW_장소후보 시트(검토 O → 사이트 승격) |
 | `collectDinePoolDeep` | 88_place_audit | 후보 최대 수집(3×3 격자 셀별 스윕 — 기본 수집의 2~3배). 3~5분·6분 한도 전 자동 종료 |
-| `vimeoGuardDaily` | form-to-couple(부부폼 GAS·별도 프로젝트) | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 경고 메일(하루 1통·수동 점검 가능). D-3 영상 사전등록 SOP 누락 방지 |
-| `setupVimeoGuard` | form-to-couple(부부폼 GAS·별도 프로젝트) | vimeoGuardDaily 매일 07시 트리거 등록(1회·중복 자동 정리) |
+| `letterMigrate` | **87_letter** | ★1회 실행 — 옛 「Moment Edit Letter System」 스프레드시트의 탭 4개(Couples·Messages·Moderation·Banned)를 본 스프레드시트로 복사 → 화면 값이 원본과 한 칸도 다르지 않은지 대조(어긋나면 사본 지우고 멈춤) → `LETTER_MIGRATED=Y` → `setupAllTriggers` 로 매일 07시 점검까지 건다. 다시 돌려도 안전(이미 옮긴 탭은 건너뜀). 옛 스프레드시트는 백업으로 남는다 [LETTER_MERGED 2026-09-25] |
+| `vimeoGuardDaily` | **87_letter** | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 관리자 메일(하루 1통·수동 점검 가능) + 첫 줄에서 `purgeCoupleData`. ★관리자 페이지에서 미계약·취소·노쇼로 닫은 예식은 건너뛴다(Customers 조회 실패면 «모르면 보낸다») [VIMEO_GUARD_XPROJ]. 트리거는 `setupAllTriggers`(70_journey)가 매일 07시로 건다 — 옛 `setupVimeoGuard`(부부폼 프로젝트)는 가져오지 않았다 |
+| `purgeCoupleData`·`previewCoupleData` | **87_letter** | 예식 + 6개월(기본 183일 · `COUPLE_PURGE_DAYS`) 지난 예식의 청첩장·편지 개인정보 비우기(행 보존) · `COUPLE_PURGE_OFF='Y'` 면 정지. preview 는 아무것도 안 바꾸고 대상만 로그 |
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)
 

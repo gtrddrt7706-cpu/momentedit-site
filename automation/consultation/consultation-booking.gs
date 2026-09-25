@@ -159,6 +159,9 @@ function doGet(e) {
   try {
     if (p.admin === '1') return serveAdmin(e);       // [관리자 v1] 구글 로그인 + Admins 화이트리스트
     if (p.action === 'payconfirm') return servePayConfirm(p);   // [메일 원클릭] 입금 확인(서명·14일·멱등)
+    // [LETTER_MERGED] 청첩장 16종·라이브·공유 미리보기의 부부 정보 조회(87_letter · 옛 Letter System 웹훅에서 옮김).
+    //  ★반드시 아래 handleAction 보다 위 — action 이 붙은 GET 은 전부 메일 버튼으로 떨어진다.
+    if (p.action === 'getCouple') return jsonOut(ltGetCouple(p));
     if (p.action) return handleAction(p);            // 메일 버튼(승인/변경/수락/재선택)
     if (p.page === 'schedule' && p.token) return serveScheduleB(p.token, p.me === '1'); // 화면 B (me=1: 마이페이지 진입)
     return serveApplyA();                             // 기본: 화면 A (신청 폼, 공개)
@@ -2218,6 +2221,8 @@ function doPost(e) {
       case 'saveInvitationDraft':return jsonOut(handleSaveInvitationDraft(body));
       case 'saveInvitationPreview':return jsonOut(saveInvitationPreview(body));
       case 'publishInvitation':  return jsonOut(handlePublishInvitation(body));
+      // [LETTER_MERGED] 라이브 하객 편지(87_letter). ★live.html 이 action 을 꼭 붙인다 — 없으면 아래 case '' 가 상담 신청으로 받는다.
+      case 'guestLetter':        return jsonOut(ltGuestLetter(body));
       // ── ⑧ 관리자 (momentedit.kr/admin → fetch). 인증=토큰. adminCall이 게이트웨이 ──
       case 'adminLogin':  return jsonOut(adminLogin(body.id, body.pw));
       case 'adminLogout': return jsonOut(adminLogout(body.token));
