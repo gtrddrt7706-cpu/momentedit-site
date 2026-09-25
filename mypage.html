@@ -293,7 +293,17 @@ details.acc>.consult-card{margin-top:10px}
 .vg-t{flex:0 0 auto;font-family:var(--serif-ko);font-size:12px;font-weight:500;color:var(--accent);white-space:nowrap;text-align:right;line-height:1.65}   /* RESULT_WAIT_POLISH · 전달 기간 우측 정렬 열(A안 · 2026-07-26 사용자 선택) */
 .vg-sub{display:inline-block;margin-top:3px;font-size:11px;color:var(--light);line-height:1.55}
 .vg-row:first-child{border-top:none}
-.visit-guide.vg-center .vg-row{display:block;text-align:center;padding:12px 0}
+.visit-guide.vg-center .vg-row{display:block;text-align:center;padding:0;border-top:0}
+/* ★★[VG_CENTER_RHYTHM 2026-09-25 코워크 3편 ② · 사장님 선택 A «여백 정리 · 제목 가운데»] 가운데 정렬 안내 묶음(진행 흐름 등 세 곳).
+   실측(390 · 신청접수): 「일정 선택」 버튼과 묶음 사이 14px 라 한 덩어리로 읽혔고, 제목 「진행 흐름」이 Cormorant 10px ·
+   자간 0.2em · 대문자라 한글이 「진 행 흐 름」으로 흩어졌다(한글에 라틴 규칙 금지). 제목만 왼쪽 · 줄은 가운데로 두 축이 섞였고,
+   줄마다 전폭 선이 있었다([ADV_INDEX] «선은 가장 시끄러운 구분자 — 여백으로 나눠라»).
+   → 버튼→묶음 28px · 맨 위 헤어라인 한 줄 아래 22px · 제목 한글 12px/0.08em 가운데 · 제목 아래 12px · 줄 사이 선 없이 12px.
+   ★vg-center 에만 건다. 왼쪽 정렬 표(방문 전 안내 등 .visit-guide)는 그대로다. */
+.visit-guide.vg-center{margin-top:28px;padding-top:22px}
+.visit-guide.vg-center .vg-title{font-family:var(--serif-ko);font-size:12px;font-weight:400;letter-spacing:.08em;text-transform:none;color:var(--gold-deep);text-align:center;margin:0 0 12px}
+.visit-guide.vg-center .vg-row + .vg-row{margin-top:12px}
+.visit-guide.vg-center .vg-sub{display:block;margin-top:2px}
 .visit-guide.vg-center .vg-k{display:none}
 .visit-guide.vg-center .vg-v{display:block}
 .vg-v.vg-muted{color:var(--light)}
@@ -3408,7 +3418,7 @@ function renderConsult(c, product){
     + '</div>';
 
   // MPD_D1 신청접수 시점 신뢰 블록 — 진행 흐름·장소가 승인완료 전엔 0이던 것(§7-1-①). 확정 카드 vg 카피 재사용 · 승인되면 기존 '방문 전 안내'가 대체
-  var TRUST_MINI = '<div class="visit-guide vg-center" style="margin-top:14px"><div class="vg-title">진행 흐름</div>'
+  var TRUST_MINI = '<div class="visit-guide vg-center"><div class="vg-title">진행 흐름</div>'   /* [VG_CENTER_RHYTHM] 버튼과의 28px 는 CSS 가 맡는다 — 인라인 14px 를 되살리지 말 것 */
     + (isSnap?'':'<div class="vg-row"><span class="vg-k">상담 · 시착</span><span class="vg-v">드레스 시착은 상담 당일 함께 진행돼요.</span></div>')
     + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v">정식 계약은 상담 후 보내드리는 <b>본 계약서 서명</b>으로 확정돼요.</span></div>'
     + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="vg-sub">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 '+L+' 전에 안내드려요</span></span></div>'
