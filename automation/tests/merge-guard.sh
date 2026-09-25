@@ -9726,6 +9726,19 @@ chk 'PARENT_ARRIVE_GUEST' parents.html 1
 chk 'PARENT_ARRIVE_GUEST' scripts/check-source-drift.mjs 1
 chk 'STAMP_KST' scripts/gen-deploy-fns.mjs 1
 nochk '<li>본식 시작 40분 전' parents.html
+# [코워크 5편 2026-09-25] 편지 모바일 괘선 · 미리보기 종이 · 형제 버튼 · 홈 Tab 메뉴 바탕 · 마이페이지 주 버튼 자간 · 디자인 문서 30명
+chk 'LETTER_PAPER_M' live.html 2
+nochk '\.lf-message{min-height:240px' live.html
+nochk '\.lf-input{font-size:16px;padding:12px 14px}' live.html
+chk 'LETTER_BTN_SIB' live.html 2
+chk 'LETTER_PREVIEW_PAPER' live.html 1
+chk '^\.letter-preview \.lp-message-box{' live.html 1
+chk '<span class="lf-mark" aria-hidden="true">From.</span>' live.html 2
+chk 'NAV_FOCUS_BG' index.html 1
+chk 'CC_BTN_TRACK' mypage.html 1
+nochk 'letter-spacing:\.16em;background:#4E3F31' mypage.html
+chk 'SKILL_SEATED30' .claude/skills/momentedit-design/SKILL.md 1
+nochk '하객 25명 이하' .claude/skills/momentedit-design/SKILL.md
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html
