@@ -8440,6 +8440,14 @@ fi
 chk 'LISTEN_PAGE' order-preview.html 10
 chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)
 chk 'DETAIL_0925 C2' order-preview.html 3   # 누를 곳 44px
+if command -v node >/dev/null 2>&1; then node scripts/audit/inapp-sim.mjs >/dev/null 2>&1; _ia=$?
+  case $_ia in
+    0) echo 'ok inapp-sim: 카톡 안 브라우저(아이폰 규칙 · 안드로이드 재생 정책) 흉내 통과' ;;
+    1) echo 'FAIL inapp-sim: 카톡 안 브라우저 흉내가 깨졌습니다 — node scripts/audit/inapp-sim.mjs'; fail=1 ;;
+    *) echo 'ok inapp-sim: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac; fi
+chk 'INAPP_UNLOCK' order-preview.html 4   # 탭 순간 오디오 풀기 · AbortError 로 안 멈춤(깨 보고 믿음 — 빼니 빨강 2줄)
+chk 'INAPP_SIM' scripts/audit/inapp-sim.mjs 1
 chk 'SUMMARY_INLINE' order-preview.html 1   # 접힘 제목은 한 줄 글로 흐른다
 chk 'CHIP_CHECKED' order-preview.html 1   # radio 칩의 고른 표시
 chk 'CHIP_CHECKED' scripts/audit/listen-page.mjs 1

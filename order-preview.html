@@ -2818,11 +2818,22 @@ function _lAud(){
     LP.el.addEventListener('error',function(){ var st=LP.q[LP.i]; if(st&&st.src&&LP.el.getAttribute('src')){ st.src=null; st.pending=true; _lPaint(); _lTimer(st.ms); } }); }
   return LP.el;
 }
+/* ★[INAPP_UNLOCK 2026-09-25] 탭한 «그 순간»에 오디오 요소를 무음으로 한 번 풀어 둔다.
+   아이폰(카톡 · 사파리)과 안드로이드 WebView 는 «손가락 탭 안에서 한 번 재생된 요소»만 뒤에도 재생을 허락한다.
+   첫 줄이 녹음 전(글만)이면 요소가 한 번도 안 풀린 채 다음 소리 줄로 넘어가 막혔다 — «케이크 · 축배»에서
+   실제 Chromium 재생 정책으로 재현(scripts/audit/inapp-sim.mjs). 무음 wav 는 0.0초라 들리지 않는다. */
+var L_SILENT='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+function _lUnlock(){
+  var a=_lAud(); if(LP.unlocked) return;
+  try{ a.src=L_SILENT; var p=a.play(); LP.unlocked=true;
+    if(p&&p['catch']) p['catch'](function(e){ if(e&&e.name==='NotAllowedError') LP.unlocked=false; }); }catch(e){}
+}
+function _lPlayErr(e){ if(e&&e.name==='NotAllowedError'){ LP.paused=true; _lPaint(); } }   // [INAPP_UNLOCK] 빠르게 넘길 때 나는 AbortError 로는 멈추지 않는다
 function _lPreload(){ var n=LP.q[LP.i+1]; if(!n||!n.src) return; if(!LP.pre){ LP.pre=new Audio(); LP.pre.preload='auto'; } try{ LP.pre.src=n.src; }catch(e){} }
 function _lTimer(ms){ clearTimeout(LP.t); var me=LP.tok; LP.t=setTimeout(function(){ if(me===LP.tok&&!LP.paused) _lNext(); },ms); }
 function _lNext(){ LP.i++; _lShow(); }
 function _lStart(ks,all){
-  _stopAud();
+  _stopAud(); _lUnlock();   // [INAPP_UNLOCK] 탭 호출 스택 안에서
   LP.range={ks:ks.slice(),all:!!all}; LP.ended=null;
   function go(){ LP.q=_lSteps(ENG,ks); LP.i=0; LP.paused=false; LP.all=!!all; LP.tok++; LP.last=null; _lShow(); }
   if(ENG&&LREC) go();
@@ -2836,7 +2847,7 @@ function _lShow(){
   if(LP.paused) return;
   if(st.src){
     a.src=st.src;
-    var p=a.play(); if(p&&p['catch']) p['catch'](function(){ LP.paused=true; _lPaint(); });   // 폰이 막으면 멈춘 채로 — ▶ 로 이어서
+    var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr);   // 폰이 막으면 멈춘 채로 — ▶ 로 이어서
   } else { try{ a.pause(); a.removeAttribute('src'); }catch(e){} _lTimer(st.ms); }
 }
 function _lEnd(){
@@ -2861,9 +2872,10 @@ window.lsFromBody=function(){ var rs=_lRows().filter(function(k){ return k!=='gu
 window.lsToggle=function(){
   if(!LP.q.length){ if(LP.ended) lsAgain(); else lsPlayAll(); return; }
   LP.paused=!LP.paused;
+  if(!LP.paused) _lUnlock();
   var st=LP.q[LP.i], a=_lAud();
   if(LP.paused){ try{ a.pause(); }catch(e){} clearTimeout(LP.t); }
-  else if(st&&st.src&&a.getAttribute('src')){ var p=a.play(); if(p&&p['catch']) p['catch'](function(){}); }
+  else if(st&&st.src&&a.getAttribute('src')===st.src){ var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr); }   // [INAPP_UNLOCK] 무음으로 풀었으면 src 가 바뀌었으니 아래 _lShow 로 다시 건다
   else _lShow();
   _lPaint();
 };
