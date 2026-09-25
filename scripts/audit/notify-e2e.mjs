@@ -226,5 +226,30 @@ console.log('━━ ⑬ 카톡이 가면 메일은 안 간다 · 못 가면 그�
     say(toCouple() === 0, '상담 확정은 확정 메일이 이미 갔으니 카톡이 실패해도 대체 메일을 또 보내지 않는다(종전 2통)', `메일 ${toCouple()}`);
   } }
 
+console.log('━━ ⑭ 솔라피 결과(도착 실패)로도 메일이 겹치지 않는다 — 상담 확정 · 같은 묶음 중복 [MAIL_ONCE]');
+{ const sheets = {}; const mk = () => { const rows = []; return { rows, appendRow: (x) => rows.push(x.slice()), getLastRow: () => rows.length, setFrozenRows() {},
+    getRange: (a, b, na, nb) => ({ getValues: () => Array.from({ length: na || 1 }, (_, i) => Array.from({ length: nb || 1 }, (_, j) => (rows[a - 1 + i] || [])[b - 1 + j])), setValue: (v) => { rows[a - 1][b - 1] = v; } }) }; };
+  G.SpreadsheetApp = { getActive: () => ({ getSheetByName: (n) => sheets[n] || null, insertSheet: (n) => (sheets[n] = mk()) }) };
+  // 추적 시트에 한 줄(발송) 두고 · 리포트 묶음을 넣는다 → 고객 메일 수 · 관리자 메일 수 · 상태 · 처리이력
+  const run = (ev, email, batch) => { cfg({ KAKAO_TEMPLATES: tplAll() }); fresh(); W.cust = cust('010-1234-5678', email);
+    sheets['알림톡추적'] = mk(); sheets['알림톡추적'].appendRow(['messageId', '시각', 'code', 'event', 'text', '상태']);
+    sheets['알림톡추적'].appendRow(['MID', new Date(), 'ME-SIM', ev, '[모먼트에디트] 김희준·이미쿠님, 안내 momentedit.kr/mypage.html', '발송']);
+    G.handleSolapiReport(batch); return { cm: toCouple(), am: toAdmin(), st: sheets['알림톡추적'].rows[1][5], h: W.hist.join(' | ') }; };
+  const FAIL = [{ messageId: 'MID', statusCode: '3104', statusMessage: '카카오톡 미사용자' }];
+  let r = run('cust.consultConfirmed', COUPLE, FAIL);
+  const wantA = CONFIRM_MAIL_ON ? 0 : 1;
+  say(r.cm === wantA && r.am === 0 && r.st === '이메일' && (!CONFIRM_MAIL_ON || /확정 메일로 이미 안내됨/.test(r.h)),
+    `상담 확정 카톡이 도착 실패해도 대체 메일 ${wantA}통(확정 메일이 이미 감 · 종전 1통 더) · 관리자 0 · 처리이력에 사유`, `고객 ${r.cm} · 관리자 ${r.am} · ${r.st} · ${r.h}`);
+  r = run('cust.consultConfirmed', '', FAIL);
+  say(r.cm === 0 && r.am === 1, '상담 확정 + 메일 주소 없음 — 확정 메일도 못 갔으니 관리자 1통(직접 연락)', `고객 ${r.cm} · 관리자 ${r.am}`);
+  r = run('cust.consultDone', COUPLE, FAIL);
+  say(r.cm === 1 && r.st === '이메일', '다른 알림은 종전대로 — 도착 실패면 대체 메일 1통', `고객 ${r.cm} · ${r.st}`);
+  r = run('cust.consultDone', COUPLE, [FAIL[0], Object.assign({}, FAIL[0])]);
+  say(r.cm === 1, '같은 묶음에 같은 messageId 가 두 번 실려 와도 메일은 1통', `고객 ${r.cm}`);
+  r = run('cust.consultDone', COUPLE, [{ messageId: 'MID', statusCode: '3000', statusMessage: '이통사 접수 예정' }, FAIL[0]]);
+  say(r.cm === 1 && r.st === '이메일', '진행 중(3000) 다음 실패(3104)가 한 묶음에 와도 메일 1통 · 상태 «이메일»', `고객 ${r.cm} · ${r.st}`);
+  r = run('cust.consultDone', COUPLE, [FAIL[0]]); const again = (G.handleSolapiReport(FAIL), toCouple());
+  say(r.cm === 1 && again === 1, '같은 실패 결과가 다음 묶음(재시도)에 또 와도 메일은 1통', `처음 ${r.cm} · 다시 받은 뒤 ${again}`); }
+
 console.log(rc ? '━━ notify-e2e — 틀린 곳이 있습니다' : '━━ notify-e2e — 전부 통과');
 process.exit(rc);

@@ -1398,6 +1398,35 @@ chk 'SCH_ALERT' schedule.html 2                # 제출이 막힌 이유가 글�
 chk 'SCH_DONEFOCUS' schedule.html 1            # 신청 접수 순간에 포커스가 body에 남아 완료 안내가 안 읽혔다 → 대화상자 안으로 이동
 chk 'SCH_AMOUNT' schedule.html 1               # ★맨 위 '상담 예약금 · 신청 시 안내'인데 같은 페이지 아래엔 금액이 크게 있었다 — 돈 이야기 첫 줄이 '아직 안 알려드려요'로 읽히던 것. 같은 서버 값으로 채움
 chk 'SCH_REQUIRED' schedule.html 1             # 입금자명이 없으면 제출이 막히는데 라벨·힌트가 선택 입력처럼 읽혔다
+# ── [HOLD_FIRST] · [CR_OPTIN] 예약 화면 두 결정 (2026-09-25 사장님 시안 승인 «추천대로») ──
+#   ①임시 고정 체크를 상담 달력 «앞»에 두고, 체크하면 7일 안 상담일만 연다 — 7일 규칙에 걸려 일정을 두 번 고르던 것을 없앤다.
+#   ②현금영수증은 «제 번호로 받을게요»를 고를 때만 칸이 열린다. 안 고르면 빈 값 = 자진발급(010-000-1234) · 종전 «번호 미등록» 체크와 같은 길.
+#   ★문자열로는 안 막는다 — 삭제 사유 주석이 옛 문구를 인용한다([SELF_COMMENT_TRAP]). 동작은 hold-first 가 눌러 보고 잰다(돌연변이 5자리 확인).
+#   ★카드 탭(시안의 결제 방법 두 갈래)은 여기 없다 — 서버 «예약금» 단계와 함께 따로 올린다(코워크 검토). 시안용 우회가 섞여 들어오면 막는다.
+chk 'HOLD_FIRST' schedule.html 7
+chk 'CR_OPTIN' schedule.html 5
+chk 'HOLD_FIRST' scripts/audit/hold-first.mjs 1
+chk 'CR_OPTIN' scripts/audit/hold-first.mjs 1
+nochk 'depCRNone' schedule.html
+nochk 'preview_card' schedule.html
+nochk '시안 화면이에요' schedule.html
+# ★[COPY_ACCT_GLOBAL] 계좌 옆 «복사» 버튼이 main 에서 죽어 있었다 — copyAcct 가 boot() 안에 있어 onclick 이 못 찾았다(«copyAcct is not defined»).
+chk 'COPY_ACCT_GLOBAL' schedule.html 1
+chk 'window.copyAcct=copyAcct' schedule.html 1
+# ★[SCH_LIVE]·[SCH_INERT]·[SCH_REDUCED_MOTION] 같은 PR 의 web-design-guidelines 점검에서 나온 «객관적 결함» 넷(예약금·임시고정 자리)
+#   날짜를 비운 까닭·복사 결과를 늘 있는 라이브 영역(#srLive)으로 · 접힌 영역 inert · 되살린 체크에 칸 열기 · 움직임 줄이기.
+#   동작은 hold-first ⑪⑫⑬⑧ 이 잰다(돌연변이 4자리 확인).
+chk 'SCH_LIVE' schedule.html 3
+chk 'SCH_INERT' schedule.html 3
+chk 'SCH_REDUCED_MOTION' schedule.html 1
+chk 'id="srLive"' schedule.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/hold-first.mjs >/dev/null 2>&1; _hf=$?
+  case "$_hf" in
+    0) echo 'ok hold-first: 임시 고정 체크가 달력 앞 · 7일 창 · 잠금/풀림 · 현금영수증 «제 번호로» 선택형(빈 값=자진발급)' ;;
+    1) echo 'FAIL hold-first: 예약 화면 임시 고정·현금영수증 동작이 결정과 다릅니다 — node scripts/audit/hold-first.mjs'; fail=1 ;;
+    *) echo 'ok hold-first: 재지 못했습니다(브라우저·파일 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 # ── 2026-07-30 privacy·cancel·preview 1라운드(고객 입장 실측 · 414/360px)
 chk 'PRV_CONTRAST' privacy.html 1              # 라벨·조항번호가 --gold(2.54:1)였다 → 글자만 --gold-text(5.71:1)
 chk '푸터 손대기 금지' privacy.html 1           # ★2026-07-30 사용자 지시 — 어두운 푸터는 실측상 2.05~2.71:1·링크 12px지만 지금 톤이 의도된 것. 감사가 다시 집어내도 되살리지 말 것
@@ -8580,9 +8609,13 @@ chk 'PHONE_AUTOFILL_82' automation/platform/50_auth-handlers.gs 1
 chk 'SERVED_OURS' scripts/audit/tel-autofill.mjs 1
 
 # ★[REVIEW_EXIT_HIDE 2026-09-25 사장님 「후기 남긴 고객도 취소 처리하면 후기 지워지게」] 취소·노쇼·미계약 고객 후기는
-#   관리자 후기 목록·새 후기 알림·집계에서 뺀다(survey-notes ⑧ 이 실제 adminHome 으로 잰다). 시트 칸을 비우는 것은 따로 간다.
+#   관리자 후기 목록·새 후기 알림·집계에서 뺀다(survey-notes ⑧ 이 실제 adminHome 으로 잰다).
+#   ★[REVIEW_KEEP_ROWS 2026-09-25 사장님 결정 «추천대로»] 시트 칸은 비우지 않는다 — «숨김만». 취소를 되돌리면 후기도 돌아와야 하고
+#     지운 것은 복구가 안 된다. survey-notes ⑧ 끝 장면이 실제 취소 경로(setCustomerStage cancel)를 태워 설문 칸이 그대로인지 잰다
+#     (취소 때 설문 칸을 비우게 바꾸면 빨개지는 것을 확인했다).
 chk 'REVIEW_EXIT_HIDE' automation/admin/admin.gs 1
 chk 'REVIEW_EXIT_HIDE' scripts/audit/survey-notes.mjs 1
+chk 'REVIEW_KEEP_ROWS' scripts/audit/survey-notes.mjs 2
 
 # ★★[UNPAID_KIND 2026-09-25 사장님 「중도금 고객인데 아직 입금도 안 했는데 처리할 일에 중도금확인이 떠 있는 건 왜?」]
 #   입금 신호 없는 기한 카드가 고객 입금 신호 카드와 같은 이름(중도금확인·잔금확인·중도금잔금확인)·같은 확인 버튼이었고,
@@ -8694,6 +8727,17 @@ nochk 'https://momentedit.kr/api/solapi-report' CLAUDE.md
 nochk 'https://momentedit.kr/api/solapi-report' docs/데이터흐름_현황.md
 nochk 'https://momentedit.kr/api/solapi-report' automation/알림톡_템플릿_신청문안.md
 nochk 'https://momentedit.kr/api/solapi-report' api/solapi-report.js
+# ★[RELAY_RETRY_NOTE 2026-09-25] «주소를 고쳐도 다음 전달 시간 전엔 안 온다»는 틀렸다 — 22:49 실측에서 주소를 고치고 보낸 테스트 결과가 8초 만에 왔다.
+#   그 문장이 되살아나면 다음 사람이 필요 없는 «지우고 새로 만들기»부터 한다.
+nochk '주소를 고쳐도 그 시각 전엔 안 온다' docs/데이터흐름_현황.md
+chk 'slow:true} 는 정상' docs/데이터흐름_현황.md 1
+# ★[MAIL_ONCE 2026-09-25 사장님 「메일이 중복 도착한다든가 기존 시스템이랑 겹치는 상황은 없겠지 · 최종 점검」]
+#   카톡을 부르는 함수 23개를 전수로 보니 같은 함수에서 고객 메일도 부르는 곳이 넷 — 계약서 도착·상담 전날은 메일 스위치가 꺼져 있고
+#   (SEND_CONTRACT_MAIL · SEND_REMIND_MAIL false), 보관 만료는 카톡이 꺼져 있다(off). 겹치는 곳은 상담 확정 하나였는데, 보내는 순간 실패는
+#   막았지만 «보내진 뒤 도착 실패»(솔라피 결과)는 대체 메일을 한 통 더 보냈다. 같은 묶음에 같은 결과가 두 번 오면 메일도 두 통이었다.
+#   notify-e2e ⑭ 가 잰다 · 깨 보고 믿었다(확정 메일 기준 제거 → 빨강 · 읽어 둔 표 안 고침 → 고객 2통).
+chk 'MAIL_ONCE' automation/platform/95_notify.gs 4
+chk 'function _nfEmailedElsewhere' automation/platform/95_notify.gs 1
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
@@ -9622,6 +9666,26 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
+chk 'GV_CARD_DIV' invitation-gallery.html 1
+nochk "createElement\('article'\)" invitation-gallery.html
+# [TO_HANG 2026-09-25 코워크 회신 ⑤] 편지 To. 줄 — To. 한 칸 + 선택지 묶음(.lf-seg-group) 한 칸 · 줄바꿈은 묶음 안에서만(320 에서 셋째가 x=0 → 32).
+chk 'TO_HANG' live.html 1
+chk 'class="lf-seg-group"' live.html 2
+# [MESEQ_INERT 2026-09-25 코워크 회신 ④] 진행 시간표 시트 — 닫힌 동안·닫히는 0.32초 동안 inert, 열 때 해제.
+chk 'MESEQ_INERT' assets/sequence-modal.js 3
+chk 'ov.inert = false' assets/sequence-modal.js 1
+# ★★[GLASS_MENU_OWNER 2026-09-25 사장님 결정 · 코워크 회신 ③] 모바일 메뉴 반투명(크림 40% + blur 20px)은 글래스모피즘 금지의 «유일한 예외».
+#   같은 문장이 세 문서 + index.html 규칙 옆에 있다. 알려진 대가(한글 소제목 약 1.5:1)까지 함께 적었다.
+#   ★«넓히지 않는다»도 지킨다 — index.html 의 backdrop-filter 줄 수를 지금 값(9: 메뉴 · 메뉴 닫힘 none · 죽은 .ph-note · 상담 패널 뒤판 · 주석 1)보다 늘리지 못한다.
+chk 'GLASS_MENU_OWNER' CLAUDE.md 1
+chk 'GLASS_MENU_OWNER' .claude/skills/momentedit-design/SKILL.md 1
+chk 'GLASS_MENU_OWNER' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'GLASS_MENU_OWNER' index.html 1
+chk '글래스모피즘 금지의 \*\*유일한 예외\*\*' CLAUDE.md 1
+chk '글래스모피즘 금지의 \*\*유일한 예외\*\*' .claude/skills/momentedit-design/SKILL.md 1
+chk '글래스모피즘 금지의 \*\*유일한 예외\*\*' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+nochk 'backdrop-filter' index.html 9
 # [TEST_CUSTOMER_0734 2026-09-25 사장님] 821 0734 9770 은 테스트 고객 — 전화 확인을 할 일로 되살리지 않는다(CLAUDE.md 반복 금지).
 chk 'TEST_CUSTOMER_0734' CLAUDE.md 1
 
@@ -9680,7 +9744,7 @@ nochk 'visit-guide vg-center" style="margin-top:14px"' mypage.html
 #   html{font-synthesis:weight} 한 줄. 실측(진짜 웹폰트 · 대조군 촬영): 비틀리던 한글 요소 115 → 0.
 #   ★측정 함정 둘 — ①감사용 브라우저가 폰트 요청에 빈 응답을 줘 Cormorant 영문까지 «비틀림»으로 잡혔다(76건 착시)
 #     ②애니메이션 요소가 «바뀜»으로 잡혔다 → 같은 조건 두 번 찍어 다른 것은 뺐다. 그 뒤 순수 영문 변화는 모노그램 하나.
-#   ★모노그램(Cinzel · 기울임꼴 없음)은 한글이 아니고 청첩장 모양이 바뀌어 예외로 종전 모양 유지 — 코워크 확인 대기.
+#   ★모노그램(Cinzel · 기울임꼴 없음)은 처음엔 예외로 종전 모양을 지켰다가 사장님 결정으로 바로 세웠다 — 아래 [MONO_UPRIGHT].
 # (반복문 대신 낱줄 — merge-guard 는 «^chk » 줄 수로 실행 수를 맞춘다 · GATE_RAN)
 chk 'KO_NO_FAUX_ITALIC' index.html 1
 chk 'KO_NO_FAUX_ITALIC' inquiry.html 1
@@ -9724,8 +9788,10 @@ chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-06-hangeul.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-07-architect.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-08-noir.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-09-guide.html 1
-chk '\.mono-line{font-synthesis:weight style}' i/cover-03.html 1
-chk '\.mono-line{font-synthesis:weight style}' i-family/family-03.html 1
+# ★[MONO_UPRIGHT 2026-09-25 사장님 결정 «바로 세우기» · 코워크 회신 ②] 모노그램(Cinzel · 기울임꼴 없는 서체)의 예외를 지웠다 —
+#   억지 기울임을 끄고 Cinzel 본래 모양으로 선다. 가운데 & 는 Cormorant 진짜 이탤릭이라 그대로 기운다. 예외를 되살리지 말 것.
+nochk 'mono-line{font-synthesis' i/cover-03.html
+nochk 'mono-line{font-synthesis' i-family/family-03.html
 # ▲3편 자리 — 다음 항목은 이 줄 위에 붙인다
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1

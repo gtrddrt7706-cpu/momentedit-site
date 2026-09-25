@@ -216,7 +216,7 @@ function _kakaoSend(to, event, code, extra, opts) {
     /* [KAKAO_FIRST 2026-09-25] 메일이 «따로» 나가는 알림은 이제 상담 확정 하나다 — 확정 메일(sendConfirmEmail)이 켜져 있을 때.
        그 메일에는 카톡에 없는 것(캘린더 추가 버튼 · 변경·환불 규정)이 있어 남겼다. 상담 완료·결과물 전달·임시고정 만료는
        카톡이 안 갈 때만 여기서 메일로 보낸다(종전엔 카톡과 메일이 늘 같이 갔다). */
-    var emailedElsewhere = (event === 'cust.consultConfirmed' && typeof CONFIG !== 'undefined' && CONFIG && CONFIG.SEND_CONFIRM_MAIL === true);
+    var emailedElsewhere = _nfEmailedElsewhere(event);   // [MAIL_ONCE] 결과를 받을 때(handleSolapiReport)도 같은 기준을 쓴다
     _elsewhere = emailedElsewhere;
     var custEmail = String(cust.get('이메일') || '').trim();
     if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && !sentKakao) {
@@ -1003,6 +1003,16 @@ function _nfTrackSend(resp, ctx, message) {
   sh.appendRow([mid, new Date(), String(ctx.code || ''), String(ctx.event || ''), String((message && message.text) || '').slice(0, 1000), '발송']);
 }
 // 솔라피 전달결과 리포트 처리(doPost가 배열/리포트 형태 감지 시 호출). 명확한 실패만 고객 이메일.
+/* 이 알림은 카톡과 «따로» 고객 메일이 이미 나가는가 — 그렇다면 카톡이 못 가도 대체 메일을 또 보내지 않는다.
+   지금은 상담 확정 하나다(확정 메일 sendConfirmEmail 이 켜져 있을 때 · KAKAO_FIRST). */
+function _nfEmailedElsewhere(event) {
+  /* ★[MAIL_ONCE 2026-09-25 사장님 「메일이 중복 도착한다든가 기존 시스템이랑 겹치는 상황은 없겠지」]
+     보내는 순간 실패(_kakaoSend)는 이 기준으로 막았는데, «보내진 뒤 도착 실패»(솔라피 결과 · handleSolapiReport)는
+     기준을 안 봤다 — 상담 확정 카톡이 카카오톡 미사용 등으로 도착하지 못하면 확정 메일에 대체 메일이 한 통 더 갔다.
+     두 자리가 이 함수 하나를 쓴다. 새 알림에 따로 메일을 붙이면 여기에 더한다. */
+  return event === 'cust.consultConfirmed' && typeof CONFIG !== 'undefined' && !!CONFIG && CONFIG.SEND_CONFIRM_MAIL === true;
+}
+
 function handleSolapiReport(raw) {
   try {
     Logger.log('[notify] 솔라피 리포트 수신: ' + String(JSON.stringify(raw)).slice(0, 700));
@@ -1042,15 +1052,20 @@ function handleSolapiReport(raw) {
               var to = cust ? String(cust.get('이메일') || '').trim() : '';
               var name = cust ? _nfCoupleName(cust) : '';
               var _sentMail = false;
-              if (to && to.indexOf('@') > 0 && text) { _sentMail = (_nfCustomerEmailFallback(to, name, event, text) === true); if (_sentMail) emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
+              /* [MAIL_ONCE] 확정 메일이 이미 간 알림(상담 확정)은 대체 메일을 또 보내지 않는다 — 메일 주소가 있을 때만(없으면 확정 메일도 못 갔다) */
+              var _viaOther = _nfEmailedElsewhere(event) && !!to && to.indexOf('@') > 0;
+              if (!_viaOther && to && to.indexOf('@') > 0 && text) { _sentMail = (_nfCustomerEmailFallback(to, name, event, text) === true); if (_sentMail) emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
               if (code && code !== 'TEST') {   // 시험 발송(testKakao…)은 고객이 아니다 — 흔적·경고를 남기지 않는다
-                if (typeof _recordHandler === 'function') _recordHandler(code, '[알림] ' + event + ' 카톡 전달 실패(' + (sc || '-') + ') · ' + (_sentMail ? '이메일로 대체' : '이메일도 없어 아무것도 못 받음'));
-                if (!_sentMail && typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카톡 전달 실패 — ' + code + ' · ' + event + ' · 이메일로도 못 보내 고객이 아무것도 못 받았어요(직접 연락이 필요해요)');
+                if (typeof _recordHandler === 'function') _recordHandler(code, '[알림] ' + event + ' 카톡 전달 실패(' + (sc || '-') + ') · ' + (_viaOther ? '확정 메일로 이미 안내됨(대체 메일 안 보냄)' : (_sentMail ? '이메일로 대체' : '이메일도 없어 아무것도 못 받음')));
+                if (!_sentMail && !_viaOther && typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카톡 전달 실패 — ' + code + ' · ' + event + ' · 이메일로도 못 보내 고객이 아무것도 못 받았어요(직접 연락이 필요해요)');
               }
             } catch (e) {}
             sh.getRange(i + 2, 6).setValue('이메일');
+            rows[i][5] = '이메일';   // [MAIL_ONCE] 같은 묶음에 같은 messageId 가 또 실려 와도 메일은 한 통 — 읽어 둔 표도 함께 고친다
           } else {
-            sh.getRange(i + 2, 6).setValue(success ? '완료' : '확인');   // 불명확은 '확인'(이메일 안 함 · 후속 리포트 재처리 가능)
+            var _st = success ? '완료' : '확인';
+            sh.getRange(i + 2, 6).setValue(_st);   // 불명확은 '확인'(이메일 안 함 · 후속 리포트 재처리 가능)
+            rows[i][5] = _st;
           }
           return;
         }

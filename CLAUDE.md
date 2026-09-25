@@ -319,6 +319,7 @@ git push -u origin <브랜치>
   `ui-ux-pro-max`(React 327)의 전제는 **이 사이트에 해당하지 않는다** — 그런 조언은 버린다.
 - `ui-ux-pro-max` 의 범용 팔레트 192종보다 **브랜드 팔레트가 앞선다.**
 - 다크모드·글래스모피즘·네온·튀는 모션·이모지는 다른 스킬이 권해도 **금지**(momentedit-design 「절대 하지 말 것」).
+  - ★[GLASS_MENU_OWNER 2026-09-25 사장님 결정] 글래스모피즘 금지의 **유일한 예외** — `index.html` 모바일 메뉴(`.mobile-menu` · 크림 40% + `backdrop-filter: blur(20px)`)는 사장님이 지금 그대로 두기로 정했다. 알려진 대가: 첫 화면(진사) 위에서 열면 한글 소제목(`.mm-ko` · `--light` 12px) 대비 약 1.5:1, 영문 메뉴(`--accent`) 약 3~3.7:1(코워크 실측). 이 예외를 다른 요소로 넓히지 않는다 — 새 반투명·흐림 면은 여전히 금지다.
 - 다른 스킬은 이 문서가 **안 다루는 주제**(배너·로고·슬라이드 산출물)에서만 참고한다.
 - **오른쪽 아이콘 레일(`.me-fab-stack`)은 `[RAIL_LOCKED]` — 제안·재질문 금지.** 계획된 디자인이다. 점검에서 «본문과 겹친다»가 나와도 보고하지 않는다(2026-09-25 사용자 지시 「디자인 규칙에 넣어서 다신 안 묻게」). 근거는 `momentedit-design` 의 해당 절.
 
@@ -441,7 +442,7 @@ git push -u origin <브랜치>
 | `importKakaoTemplates` | 95_notify | ★알림톡 템플릿 승인 뒤 **이것 하나**로 잇는다 — 솔라피에서 **승인된** 템플릿을 불러와 이름의 T 번호(T01~T22)로 알림에 매핑. 기존 매핑은 지우지 않고 **더한다**(TPL_KEEP · 2026-09-25 전에는 통째로 덮어써 이름이 T## 가 아닌 매핑이 빠졌다). 검수 중인 것은 건너뛰니 승인날 때마다 다시 돌려도 된다. 저장 뒤 아직 빠진 알림을 이름으로 로그. ★템플릿 이름이 `T20 원본 도착`처럼 번호로 시작해야 찾는다. 같은 파일 `setKakaoTemplates` 는 칸이 비면 아무것도 안 바꾼다 |
 | `flushHeldNotifies` | 95_notify | 야간 보류 알림 즉시 발송(평소엔 8시 트리거 자동) |
 | `notifyBalanceCheck` | 95_notify | 솔라피 잔액이 임계(`SOLAPI_LOW_BALANCE`·기본 3000원·자동충전 5000보다 낮게) 이하면 관리자에게 GAS 이메일 경고 1통(하루 1통). aiDaily 매일 + 발송 활동 시 시간당 1회(_nfMaybeBalanceCheck) 호출. 솔라피 안 거치는 메일이라 잔액 0이어도 발송됨 |
-| `handleSolapiReport` | 95_notify | 솔라피 전달결과 리포트 웹훅 처리(doPost가 배열/messageId 형태 감지 시 호출). 알림톡 '전달 실패'면 그 고객에게 이메일(카톡 미수신 커버). 발송 시 `알림톡추적` 시트에 messageId↔code 기록 · purgeNfTrack가 7일 정리. ★웹훅 등록 완료 2026-09-25 [SOLAPI_WEBHOOK_ON] — 솔라피 «개발 → Webhooks → 새로운 웹훅 생성» · EVENT «메시지 리포트» · 수신 URL=`https://www.momentedit.kr/api/solapi-report`(★www 필수 [RELAY_WWW] — www 없는 주소는 베르셀이 307 로 넘기고 솔라피는 안 따라가 실패로 센다 · 베르셀 중계 · SOLAPI_RELAY — GAS /exec 에 바로 걸면 GAS 가 302 로 답해 솔라피가 실패로 세고 8회면 웹훅을 끈다 · 2026-09-25 «웹훅 실패 알림» 메일로 드러남) · Secret HTTP Header 는 비움. 확인법: 같은 파일 `testKakaoT17` 실행 → 1~2분 뒤 시트 «알림톡추적» F열이 «완료». 다시 등록하라고 하지 말 것 — 솔라피 Webhooks 에 «현재 1개»로 떠 있다 |
+| `handleSolapiReport` | 95_notify | 솔라피 전달결과 리포트 웹훅 처리(doPost가 배열/messageId 형태 감지 시 호출). 알림톡 '전달 실패'면 그 고객에게 이메일(카톡 미수신 커버 · ★상담 확정은 확정 메일이 이미 가서 대체 메일을 안 보낸다 · 같은 결과가 두 번 와도 메일 1통 [MAIL_ONCE]). 발송 시 `알림톡추적` 시트에 messageId↔code 기록 · purgeNfTrack가 7일 정리. ★웹훅 등록 완료 2026-09-25 [SOLAPI_WEBHOOK_ON] — 솔라피 «개발 → Webhooks → 새로운 웹훅 생성» · EVENT «메시지 리포트» · 수신 URL=`https://www.momentedit.kr/api/solapi-report`(★www 필수 [RELAY_WWW] — www 없는 주소는 베르셀이 307 로 넘기고 솔라피는 안 따라가 실패로 센다 · 베르셀 중계 · SOLAPI_RELAY — GAS /exec 에 바로 걸면 GAS 가 302 로 답해 솔라피가 실패로 세고 8회면 웹훅을 끈다 · 2026-09-25 «웹훅 실패 알림» 메일로 드러남) · Secret HTTP Header 는 비움. 확인법: 같은 파일 `testKakaoT17` 실행 → 1~2분 뒤 시트 «알림톡추적» F열이 «완료». 다시 등록하라고 하지 말 것 — 솔라피 Webhooks 에 «현재 1개»로 떠 있다 |
 | `solapiUsageSummary` | 95_notify | 문자·알림톡 잔액+이번달/24h 발송 건수·추정비용(관리자 인건비 패널·adminCall) |
 | `setupAllTriggers` | 70_journey | 자동 트리거 일괄 등록(재배포 후·트리거 변경 시 1회) |
 | `weeklyBackup` | 70_journey | 전체 스프레드시트를 'ME_백업' 폴더에 주간 날짜 사본·최근 8주 보관(첫 실행 시 Drive 권한 승인 · setupAllTriggers가 매주 등록) |
