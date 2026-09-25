@@ -211,8 +211,11 @@ if (uncovered.length) {
   const made = String((JSON.parse(checkSrc)['_생성']) || '').slice(0, 10);
   let newest = '';
   try {
-    newest = execSync("git log -1 --format=%ad --date=short -- 'automation/**/*.gs' 'automation/**/*.html'",
-      { encoding: 'utf8' }).trim();
+    /* ★[LIST_AGE_UTC 2026-09-26] 두 날짜를 같은 시간대(UTC)로 잰다. _생성 은 생성기가 toISOString(UTC)으로 찍는데
+       여기는 커밋 저자 시간대(+0900)로 읽고 있었다 — 한국 시각 00~09시에는 .gs 날짜가 하루 앞서
+       --stamp 를 몇 번 돌려도 빨강이 안 풀렸다(막다른 빨강 · 2026-09-26 00:35 KST 실측). */
+    newest = execSync("git log -1 --format=%ad --date=format-local:%Y-%m-%d -- 'automation/**/*.gs' 'automation/**/*.html'",
+      { encoding: 'utf8', env: Object.assign({}, process.env, { TZ: 'UTC' }) }).trim();
   } catch (e) { newest = ''; }
   if (!made) {
     console.log('❌ [LIST_AGE] deploy-marks.json 에 _생성 이 없다 — contractCheck 가 목록 나이를 못 잰다');
