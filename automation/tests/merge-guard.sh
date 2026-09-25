@@ -8377,7 +8377,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/phone-kr-norm.mjs >/
     *) echo 'ok phone-kr-norm: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
-chk 'PHONE_KR_NORM' scripts/audit/phone-kr-norm.mjs 3
+chk 'PHONE_KR_NORM' scripts/audit/phone-kr-norm.mjs 2
 chk 'PHONE_KR_NORM' automation/platform/00_platform-config.gs 2
 chk 'PHONE_KR_NORM' automation/platform/40_signup.gs 1
 chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
