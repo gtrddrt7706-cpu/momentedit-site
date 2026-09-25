@@ -8323,6 +8323,13 @@ grep -q 'stale-waiters' .claude/settings.json 2>/dev/null || { echo 'REVERT? .cl
 #   잘리는 것은 «뒤쪽»이니 결론을 앞으로 옮기면 어느 함수를 돌려도 보인다.
 # ★샌드박스로 세 갈래(기록없음·다르다·같다) 전부 «첫 줄»에 나오는 것을 확인했다.
 chk 'STAMP_FIRST' automation/platform/99_deployCheck.gs 2
+# ── [STAMP_HIT_ADMIN] 맨 위 결론 줄이 «관리자 페이지»를 열라고 말한다 (2026-09-25 대표 실행 로그) ──
+#   종전 두 줄은 사이트 주소만 말했다. 홈(index.html)은 GAS 를 부르지 않아(/exec 0곳) 홈을 열어도 지문이 안 찍힌다.
+#   ④ 와 deployStampCheck 는 이미 «관리자 페이지» — 세 곳이 같은 말을 하게 맞췄고, 옛 문구가 돌아오면 막는다.
+chk 'STAMP_HIT_ADMIN' automation/platform/99_deployCheck.gs 1
+chk '관리자 페이지(momentedit.kr/admin.html)' automation/platform/99_deployCheck.gs 2
+nochk 'momentedit.kr 을 한 번 열고' automation/platform/99_deployCheck.gs
+nochk '②momentedit.kr 한 번 열기' automation/platform/99_deployCheck.gs
 # ★★[STAMP_FN_ONLY 2026-09-20] 내가 대표에게 잘못 안내한 자리다 · 지문은 «함수»만 본다.
 #   ScreenB_schedule.html 을 고쳐 드리고 「deployStampCheck 로 확인하세요」라고 했는데,
 #   _dsGlobalSig 는 typeof === 'function' 인 것만 모은다 — HTML 은 지문에 아예 안 들어간다.
