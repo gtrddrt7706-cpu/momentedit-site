@@ -891,7 +891,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
     writeCell(sheet, colOf, row.num, '상태', ST.PICKED);
     // [현금영수증] 예약 단계에서 발급 번호 등록 — 동의기록.현금영수증(계약금·중도금·잔금 공유). 빈값/자진발급은 미설정 유지.
     try {
-      var _crIn = String(cashReceipt == null ? '' : cashReceipt).replace(/[^0-9]/g, '').slice(0, 30);
+      var _crIn = ((typeof _crKR === 'function') ? _crKR(cashReceipt) : String(cashReceipt == null ? '' : cashReceipt).replace(/[^0-9]/g, '')).slice(0, 30);   // [PHONE_AUTOFILL_82] «8210…» 을 010 으로
       if (_crIn) {
         var _crCust = findCustomerByCode(String(row.get('개인코드') || '').trim());
         if (_crCust) {
@@ -2253,7 +2253,9 @@ function jsonOut(obj) {
 // 메인홈 위젯이 자유질문을 보낼 때마다 질문만 익명 적재(답변·IP 미저장) — 자주 묻는 것을 보고 KB·FAQ를 보강하는 근거.
 // 개인정보 방어: 전화·이메일·긴 숫자열 마스킹 후 저장, 300자 컷, 90일 후 자동 정리(purgeAdvisorLog · 주간 트리거).
 function _maskPII(s) {
+  var _mk = '[PHONE_AUTOFILL_82]';   // «+82 10-7349-7706» · «82-10-…» 는 아래 01x 규칙에 안 걸려 그대로 저장됐다 — 국가번호 꼴을 먼저 가린다
   return String(s || '')
+    .replace(/(?:\+\s*|00\s*)?82[\s.\-]*(?:\(0\)[\s.\-]*)?0?1[016789][\s.\-]?\d{3,4}[\s.\-]?\d{4}/g, '+82 1*-****-****')
     .replace(/01[016789][\s.\-]?\d{3,4}[\s.\-]?\d{4}/g, '01*-****-****')   // 구분자 공백·점·하이픈 모두(010.1234.5678 포함)
     .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, '***@***')
     .replace(/\d{6,}/g, function (m) { return m.slice(0, 2) + '****'; });

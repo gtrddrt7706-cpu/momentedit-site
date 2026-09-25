@@ -1162,10 +1162,28 @@ form.addEventListener('submit', (e) => {
     .submitApplication(buildPayload());
 });
 
-/* TEL 입력 자동 포맷 (한국 휴대폰 번호) */
+/* TEL 입력 자동 포맷 (한국 휴대폰 번호)
+   [PHONE_AUTOFILL_82] 국가번호를 «자르기 전에» 0 으로 — 자동완성 «+82 10-7349-7706» 이 «821-0734-9770»(끝자리 잘림)이 되던 것.
+   GAS 가 내보내는 화면이라 /shared/tel-kr.js 를 못 읽어 같은 함수를 품는다 — 한 글자도 같아야 한다(scripts/audit/tel-autofill.mjs) */
+function meTelDigits(v) {
+  var s = String(v == null ? '' : v);
+  var d = s.replace(/[^0-9]/g, '');
+  if (/^\s*(\+|00)/.test(s)) {                       // «+82» · «0082» — 국가번호가 확실하다
+    var t = d.replace(/^00/, '');
+    if (t.slice(0, 2) === '82') {
+      var r = t.slice(2);
+      if (r.charAt(0) === '0') r = r.slice(1);       // «+82 010…» 처럼 0 을 한 번 더 적은 값
+      // 010 은 8자리가 붙어야 온전하다(11자). 7자리면 한 자리가 빠진 것이라 되살리지 않는다(_phoneKR 과 같다)
+      if (/^(10\d{8}|1[16789]\d{7,8}|[2-7]\d{7,9})$/.test(r)) return '0' + r;
+    }
+    return d;
+  }
+  var m = d.match(/^82(10\d{8}|1[16789]\d{7,8})$/);    // «+» 없이 82 — 휴대폰 꼴(11~12자리)만
+  return m ? '0' + m[1] : d;
+}
 const phoneInput = document.getElementById('phone');
 phoneInput.addEventListener('input', (e) => {
-  let v = e.target.value.replace(/[^\d]/g, '');
+  let v = meTelDigits(e.target.value);
   if (v.length > 11) v = v.slice(0, 11);
   if (v.length >= 7) {
     e.target.value = v.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
