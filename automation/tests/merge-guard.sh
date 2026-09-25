@@ -9716,7 +9716,10 @@ chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
 # ★★[PAR_PC_POLISH · PAR_FOOTER_TIGHT · PAR_TIME_TIDY 2026-09-25 사장님 「어른께 드리는 안내 PC 직접 보면서 개선」]
 #   제목 27 → 34px(PC) · «궁금한 점 물어보기» 진사 덩어리(600×58) → 먹갈색 글자 크기만큼(240×54) · 시간표 본문 시작선 · 푸터 241 → 201px.
 chk 'PAR_PC_POLISH' parents.html 1
-chk '\.closing \.contact-ask{display:inline-block;width:auto' parents.html 1
+# [PAR_PC_CENTER 2026-09-25 사장님 「이 2개는 센터가 좋을 것 같은데」] 제목 블록 · 버튼 · 시간 카드 = 화면 가운데 축(PC)
+chk '\.closing \.contact-ask{display:block;width:max-content' parents.html 1
+chk 'PAR_PC_CENTER' parents.html 2
+nochk '\.hero{text-align:left;padding-top:132px}' parents.html
 nochk '\.contact-ask{[^}]*background:var(--seal)' parents.html
 nochk '\.hero-label{[^}]*color:var(--gold);' parents.html
 chk 'PAR_FOOTER_TIGHT' parents.html 3
