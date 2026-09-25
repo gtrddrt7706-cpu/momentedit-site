@@ -494,6 +494,12 @@ function _nfMy(focus) { return NF_MYPAGE + (focus ? ('?focus=' + focus) : ''); }
 function _nfCustomerMsg(event, name, x) {
   x = x || {};
   var d;
+  /* ★[SLOT_CLOCK 2026-09-25] 예식 슬롯은 «도착 시각»(12:20)으로 저장된다. 옛 판은 그 값을 그대로 #{일시}에 넣어
+     고객에게 «2026년 11월 26일 12:20»으로 갔다 — 문의 화면은 «오후 (13:25)»(본예식)라 같은 예식이 두 시각으로 읽혔다.
+     본예식 시각으로 바꿔 넣는다. 값은 mypage.html SLOT_CLOCK 과 같다(check-source-drift (7)이 대조). 저장값은 그대로다. */
+  var NF_SLOT_CLOCK = { '09:00': '10:10', '12:20': '13:30', '15:40': '16:50', '10:00': '10:10', '13:20': '13:30', '16:40': '16:50' };
+  var NF_SLOT_LAB = { '09:00': '오전', '12:20': '오후', '15:40': '늦은 오후', '10:00': '오전', '13:20': '오후', '16:40': '늦은 오후' };
+  var slotKo = function (t) { t = String(t || '').trim(); return NF_SLOT_CLOCK[t] ? (NF_SLOT_LAB[t] + ' ' + NF_SLOT_CLOCK[t]) : t; };
   switch (event) {
     case 'cust.consultConfirmed':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
@@ -553,19 +559,19 @@ function _nfCustomerMsg(event, name, x) {
           + '을 마이페이지에 올려 두었어요. 바코드를 매장에서 보여주시면 됩니다.'
           + (d ? (' 사용기한은 ' + d + '까지예요.') : '') + ' ' + _nfMy('coupon') };
     case 'cust.holdGranted':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
         text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 이 자리는 두 분을 위해 비워둡니다. 상담에서 확정하시면 그대로 이어져요. ' + _nfMy('hold') };
     case 'cust.holdReleased':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
         text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 해제되었습니다. 마음이 정해지시면 마이페이지에서 언제든 다시 요청하실 수 있어요. ' + _nfMy('consult') };
     case 'cust.holdExpiring':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d, '#{남은일}': String(x.left != null ? x.left : '') },
         text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ') 만료가 ' + (x.left != null ? (x.left + '일') : '곧') + ' 남았어요. 기간이 지나면 자리는 자동으로 풀립니다. 상담을 확정하시면 그대로 유지돼요. ' + _nfMy('hold') };
     case 'cust.changeConfirmed':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
         text: '[모먼트에디트] ' + name + '님, 요청하신 예식일 변경이 적용되었습니다. 새 일시는 ' + d + '입니다. 이후 안내는 새 날짜 기준으로 정리해 두었어요. ' + _nfMy('contract') };
     case 'cust.changeDeclined':

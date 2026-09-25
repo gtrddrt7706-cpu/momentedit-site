@@ -84,6 +84,13 @@ run api/_kb.js '15~30분쯤 The Ceremony' '40분쯤 The Ceremony'               
 run contract/v1-1.html '(16~25분)' '(30분)'                                # 계약서 3조 · ★[CONTRACT_RANGE_WAIT] 보류 중에도 «옛 값 그대로»를 지킨다 — 다른 값이 되면 잡힌다
 run docs/smartstore/상세페이지_원본.html '15~30<small>' '40<small>'         # 스마트스토어 원본
 run assets/ritual-open.js 'body: [15, 30]' 'body: [17, 30]'                     # [OPEN_RANGE 2026-09-25] 원천이 옛 코스 min 에서 ritual-open.js RANGE 로 옮겼다 · 바뀌면 열 벌이 함께 틀린다
+# [SLOT_CLOCK 2026-09-25] 슬롯 → 본예식 시각 표 여섯 벌 — 옛 ID 값(13:20)으로 되돌리면 잡혀야 한다
+run mypage.html "'12:20':'13:30'" "'12:20':'13:20'"
+run admin.html "'13:20':'13:30'" "'13:20':'13:20'"
+run automation/admin/Admin.html "'16:40':'16:50'" "'16:40':'16:40'"
+run shared/hydrate.js "'13:20': '13:30'" "'13:20': '13:20'"
+run live.html "'10:00': '10:10'" "'10:00': '10:00'"
+run automation/platform/95_notify.gs "'12:20': '13:30'" "'12:20': '13:20'"
 
 restore
 echo ""
