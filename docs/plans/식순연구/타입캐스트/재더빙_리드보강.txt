@@ -5,11 +5,11 @@
 # 목소리는 클립마다 다릅니다 — 줄 앞의 이름 그대로 배정하세요 [REDUB_VOICE].
 # ★이 파일은 「재더빙 대기 명단」이기도 합니다 — scripts/check-text-audio.mjs 가
 #   어긋난 자리와 이 파일을 양방향으로 대조합니다. 손으로 고치지 말고 --redub 로 다시 뽑으세요.
-# 대기 63클립   (화면 자리 53곳 · 한 자리에 녹음이 둘인 곳이 있습니다 [REDUB_TWIN])
+# 대기 82클립   (화면 자리 72곳 · 한 자리에 녹음이 둘인 곳이 있습니다 [REDUB_TWIN])
 
 [26] narr-close   (수정)   ← 26_narr-close
 우성: 이것으로 본식을 마칩니다.
-우성: 사진과 인사가 삼십 분쯤 이어집니다.
+우성: 이어서 가족, 하객 여러분과 함께 사진을 남기겠습니다.
 우성: 오늘 함께해 주신 분들 모두가, 두 사람의 사진에 오래 남으셨으면 좋겠습니다.
 우성: 모두 앞으로 나와 주세요.
 우성: 두 사람 곁에 서시면 됩니다.
@@ -229,6 +229,9 @@
 [20] narr-letter-end   (수정)   ← 20_narr-letter-end
 우성: 방금 그 마음에, 따뜻한 박수를 보내 주세요.
 
+[90] narr-prevideo-in   (수정)   ← 90_narr-prevideo-in
+진희: 두 분이 준비한 영상을 함께 보시겠습니다.
+
 [15] narr-ring-in   (수정)   ← 15_narr-ring-in
 우성: 반지는 날마다 이 순간을 떠올리게 해 줄 거예요.
 우성: 서로의 손에 반지를 끼워 주시면 됩니다.
@@ -295,3 +298,39 @@
 우성: 신랑 신부가 하객 여러분께, 첫인사를 직접 드리겠습니다.
 
 [88] guide-meal   (신규)
+
+[89] guest-4-1min-pre   (신규)
+
+[91] narr-candle-in-mothers   (신규)
+
+[92] narr-candle-in-parents   (신규)
+
+[93] narr-candle-in-fathers   (신규)
+
+[94] narr-candle-in-others   (신규)
+
+[95] narr-candle-out   (신규)
+
+[96] declare-clap-a   (신규)
+
+[97] declare-clap-b   (신규)
+
+[98] toast-pour-mix   (신규)
+
+[99] toast-pour-family   (신규)
+
+[100] narr-free-in-video   (신규)
+
+[101] narr-free-in-stage   (신규)
+
+[102] narr-free-in-gift   (신규)
+
+[103] narr-free-in-speech   (신규)
+
+[104] narr-free-out-clap   (신규)
+
+[105] narr-free-fail   (신규)
+
+[106] tribute-bow-groom   (신규)
+
+[107] toast-both-pour-b   (신규)

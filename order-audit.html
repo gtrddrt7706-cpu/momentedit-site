@@ -140,7 +140,7 @@
 var G = null;
 function engine(){
   var g = {};
-  return Promise.all(['/assets/ritual-data.js','/assets/ritual-cue.js','/assets/ritual-story.js']
+  return Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js']
     .map(function(u){ return fetch(u,{credentials:'same-origin'}).then(function(r){
       if(!r.ok) throw new Error(u); return r.text(); }); }))
     .then(function(src){

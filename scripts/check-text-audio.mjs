@@ -41,7 +41,7 @@ const ALL = process.argv.includes('--all');
 //     지금은 이름을 겹치지 않게 지어 두었지만, 그 약속을 지키는 건 사람이다. 세는 쪽이 폴더를 보면
 //     약속이 깨지는 날에도 검사기는 틀린 자리를 짚는다 — 조용히 한쪽을 덮지 않는다.
 const NAR = 'assets/audio/narration', CST = 'assets/audio/cast';
-const pad2 = (n) => ('0' + n).slice(-2);
+const pad2 = (n) => String(n).padStart(2, '0');   // [PAD3] 100 넘는 번호를 자르지 않는다
 const SAY = new Map();
 for (const c of man.clips) SAY.set((c.dir || NAR) + '|' + pad2(c.no) + '_' + c.file, { text: c.sents.map((s) => s.text).join(' '), role: c.role, dir: c.dir });
 

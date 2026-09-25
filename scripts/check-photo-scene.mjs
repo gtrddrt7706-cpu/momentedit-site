@@ -25,7 +25,8 @@ const mypage = readFileSync(join(ROOT, 'mypage.html'), 'utf8');
 const builder = readFileSync(join(ROOT, 'order-preview.html'), 'utf8');
 
 // 빌더가 실제로 만들 수 있는 블록 이름 전부 — {n:'…'} 리터럴을 그대로 긁는다
-const made = new Set([...builder.matchAll(/\{n:'([^']+)'/g)].map((m) => m[1]));
+// [OPEN_COURSE 2026-09-25] 새 코스는 이름이 갈린다 — `{n:isOpen()?'부모님께 인사':'부모님 헌정'` 의 두 이름을 다 긁는다
+const made = new Set([...builder.matchAll(/\{n:(?:isOpen\(\)\?)?'([^']+)'(?::'([^']+)')?/g)].flatMap((m) => [m[1], m[2]]).filter(Boolean));
 if (made.size < 10) {
   console.log(`✖ order-preview.html 에서 블록 이름을 ${made.size}개밖에 못 읽었다 — 리터럴 형태가 바뀐 듯하다`);
   process.exit(1);
