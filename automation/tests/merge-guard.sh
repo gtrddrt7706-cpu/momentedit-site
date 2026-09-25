@@ -1750,9 +1750,12 @@ chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 
 # ── 청첩장 CTA 통일 · 관리자 설문 요약화 (2026-08-01) ──────────
 chk 'BTN_TIER' index.html 7                                  # 버튼 2단 체계 · 청첩장 미리보기도 외곽 마룬으로 편입(세 번째 스타일 금지)
 chk 'journal-guide-link' index.html 10                       # 외곽 마룬 버튼 3곳(청첩장·하객 안내·부모님)이 같은 클래스를 쓴다
-chk 'SV_DIGEST' admin.html 3                                 # 설문 요약화 · neg 정의 + renderSurvey + 접힘 CSS
-chk 'sv-fold' admin.html 8                                   # 문항별 분포·후기 접기 · 풀면 응답 1건에 막대 12개가 다시 깔린다
-chk 'sv-watch' admin.html 5                                  # '눈여겨볼 응답'만 추리는 요약 카드 · 이게 빠지면 요약이 평균 3개뿐이 된다
+chk 'SV_DIGEST' admin.html 1                                 # neg 정의(아쉬움 쪽 답) — 후기 화면이 붉게 칠하는 근거 · 요약 카드는 아래 폐지
+# ★2026-09-25 사장님 지시로 퍼센트 집계 폐지 — 「여기 퍼센트 부분은 굳이 관리자 입장에서 필요 없을 거 같아 · 피드백 부분만」.
+#   종전 줄(sv-fold 8 · sv-watch 5 · SV_DIGEST 3)은 그 요약 카드를 지키던 것이라 함께 내렸다. 되살아나지 않게 막는다(SV_UNSEEN).
+nochk 'function _svPct(' admin.html
+nochk 'var SURVEY_PILLARS=' admin.html
+nochk 'sv-pill-pct' admin.html
 chk 'GUIDE_DEMO' guide.html 4                                # ?g=demo 표본 · GAS 무호출 · 좌석 결과 선표시(배너는 2026-08-01 사용자 지시로 제거)
 chk "g==='demo'" guide.html 1                                # 데모 분기는 boot 맨 앞 · 실제 하객 경로는 이 코드를 지나가지 않는다
 chk 'GUIDE_DEMO_CTA' index.html 1                            # 하객 안내를 '설명'에서 '열어볼 수 있는 것'으로
@@ -6222,6 +6225,28 @@ for _old in automation/form-to-couple.gs automation/guest-letter-webhook.gs 'aut
   [ -e "$_old" ] && { echo "FAIL LETTER_RETIRED: 은퇴한 옛 Letter System 파일이 되살아났다 — $_old (원본은 automation/platform/87_letter.gs)"; fail=1; }
 done
 chk 'LETTER_SIM' scripts/audit/letter-sim.mjs 1
+# ★[LETTER_SWITCH 2026-09-25] 사이트가 부부 정보·하객 편지를 본 GAS(87_letter)로 부른다 — 옛 Letter System 웹훅 주소로 되돌리지 말 것
+#   (옛 시트는 letterMigrate 뒤로 갱신되지 않는다 — 되돌리면 청첩장이 옛 내용을 보이고 편지는 옛 시트에만 쌓인다).
+#   ★편지 POST 의 action:'guestLetter' 를 빼면 본 GAS doPost 의 case '' (상담 신청)로 떨어진다.
+#   (반복문 안에 chk 를 넣지 않는다 — merge-guard 가 chk 실행 횟수를 줄 수와 대조한다)
+nochk 'AKfycbwWuUVCgRRclss' shared/hydrate.js
+nochk 'AKfycbwWuUVCgRRclss' live.html
+nochk 'AKfycbwWuUVCgRRclss' api/og-inv.js
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' shared/hydrate.js 1
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' live.html 1
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' api/og-inv.js 1
+chk "action: 'guestLetter'," live.html 1
+chk 'FORM_TO_MYPAGE' form.html 1
+chk 'LETTER_SWITCH_E2E' scripts/audit/letter-switch.mjs 2
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/letter-switch.mjs >/dev/null 2>&1; _lsw=$?
+  case "$_lsw" in
+    0) echo 'ok letter-switch: 청첩장·가족·라이브가 본 GAS 로 부르고 편지가 action 을 달고 간다' ;;
+    2) echo 'skip letter-switch (브라우저 없음 — 통과가 아니라 안 본 것입니다)' ;;
+    *) echo 'FAIL letter-switch: 사이트가 본 GAS 로 제대로 부르지 않는다 — node scripts/audit/letter-switch.mjs'; fail=1 ;;
+  esac
+fi
+nochk 'docs.google.com/forms' form.html      # 은퇴한 구글폼 부부폼으로 보내지 않는다
 chk 'GAS_NAME_CLASH' scripts/audit/gas-name-clash.mjs 1
 chk 'LETTER_MERGED' automation/platform/87_letter.gs 3
 chk 'LETTER_FALLBACK' automation/platform/87_letter.gs 2
@@ -6369,7 +6394,10 @@ chk 'FP_BROAD' automation/platform/00_platform-config.gs 2
 chk 'FP_BROAD' automation/platform/99_deployCheck.gs 1
 chk '_dsGlobalSig' automation/platform/00_platform-config.gs 2   # 정의 1 + deployFingerprint 안 호출 1
 chk 'FP_BROAD' scripts/audit/deploy-fp.mjs 2
-chk 'grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
+# [HOME_RIGHT_STACK] 처리할 일은 왼쪽 한 줄기 · 오늘 상담→진행 중→결과물→후기는 오른쪽 — 그대로다.
+#   ★2026-09-25(SV_UNSEEN) 맨 위에 전폭 알림 줄 둘(silent·alarm)을 더했다 — 연락처 경고·새 후기 알림.
+#     이름 없이 두면 «비어 있는 첫 칸»으로 자동 배치돼 한 칸 폭이 됐다(main 판 실측 559px).
+chk 'grid-template-areas:"search search" "recent recent" "silent silent" "alarm alarm" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
 chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
 chk 'SAFE_HREF' admin.html 6
@@ -8424,6 +8452,26 @@ chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
 chk 'PHONE_KR_NORM' automation/admin/admin.gs 3
 chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 
+# ★★[TPL_SILENT]·[TPL_COVER] 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 저 알람 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」
+#   연락처 쪽은 검사가 있었는데(PHONE_KR_NORM·CONTACT_LIFECYCLE_SIM) «알림 종류마다 알림톡이 실제로 나가는가»는 없었다.
+#   실제 95_notify 를 돌려 보니 템플릿 ID 가 없으면(반려·미등록) 알림톡은 시도조차 없이 이메일로만 대체되고
+#   관리자에게 아무 말이 없었다 — 고객 이메일까지 비면 고객도 관리자도 아무것도 못 받았다(19종 전부).
+#   → 처리이력 한 줄 + 관리자 메일(하루 한 통 · 아무것도 못 받은 고객은 따로) · 설정 점검이 빠진 알림을 이름으로.
+#   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
+if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
+  case "$_ne" in
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리' ;;
+    1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
+    *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'SERVED_OURS' scripts/audit/notify-e2e.mjs 1
+chk 'TPL_SILENT' automation/platform/95_notify.gs 5
+chk 'TPL_COVER' automation/platform/95_notify.gs 2
+chk 'function _nfTplSilent(' automation/platform/95_notify.gs 1
+chk "NF_NOTPL_NONE_" automation/platform/95_notify.gs 1   # ★아무것도 못 받은 고객은 하루 한 통 표식과 따로 알린다
+nochk 'SMS로 발송' automation/platform/95_notify.gs          # 고객 문자는 2026-06-29 부터 안 쓴다 — 설정 점검·설명이 «문자로 대체»라는 옛말을 하지 않게
+
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
 #   «줄지어 도는 동안» 생겼다 — 번호가 82… 로 앉고 → 밤에 큐에 쌓이고 → 취소했는데 큐는
@@ -8490,16 +8538,40 @@ chk 'notes:notes, snap:snap' mypage.html 1
 chk 'data-note-open=' mypage.html 2
 chk 'srv-note-t\[hidden\]' mypage.html 1   # ★inline-flex 가 [hidden] 을 이겨 「+ 기타 의견 적기」가 칸을 연 뒤에도 남았다(실측)
 nochk "\['etc','그 외'\]" mypage.html
-chk 'SV_RESP_VIEW' admin.html 5
+chk 'SV_RESP_VIEW' admin.html 4
 chk 'SV_ALL_SHOWN' admin.html 1
 chk 'SV_OPEN_RETRY' admin.html 1   # 펼침 요청을 서버가 거절하면 알리고 재시도 가능 — 종전엔 «찾지 못했어요»로 굳었다(고치기 전 코드로 되돌려 4건 빨강 확인)
 chk 'function svResponseHtml' admin.html 1
-chk 'svResponseHtml(' admin.html 3
+chk 'svResponseHtml(' admin.html 4
 chk 'data-sv-open' admin.html 3
 nochk "etc:'그외'" admin.html
 chk 'SV_RESP_VIEW' scripts/audit/admin-inject.mjs 1
-chk '홈 설문 펼침' scripts/audit/admin-inject.mjs 2
+chk '후기 화면' scripts/audit/admin-inject.mjs 5
 chk '상세 설문' scripts/audit/admin-inject.mjs 1
+
+# ★★[SV_UNSEEN]·[SV_SEEN] 2026-09-25 사장님 「퍼센트는 필요 없고 · 피드백만 따로 들어가서 보게 · 리뷰 남기면 알람 뜨고
+#   확인하면 알람 없어지고 · 하지만 커피 쿠폰 미발송 시 계속 메인 화면에는 지금처럼」
+#   홈엔 «새 후기 N건» 알림 한 줄 + 후기 입구만 · 후기 화면에서 새 후기는 원문을 펼친 채 「확인」 · 확인은 설문응답 JSON 에 seen 으로
+#   (시트 컬럼을 늘리지 않는다) · 쿠폰 큐(CPN_QUEUE)는 확인과 무관하게 발급될 때까지 남는다 — survey-notes ⑥⑦ 이 실행으로 본다.
+chk 'SV_UNSEEN' automation/admin/admin.gs 4
+chk 'SV_SEEN' automation/admin/admin.gs 3
+chk 'adminSurveySeen: adminSurveySeen' automation/admin/admin.gs 1   # ★화이트리스트에 없으면 확인 버튼이 «알 수 없는 요청»으로 죽는다(ADMINCALL_WIRED)
+chk 'SV_UNSEEN' admin.html 10
+chk 'SV_SEEN' admin.html 1
+chk "gas('adminSurveySeen'" admin.html 1
+chk 'id="reviewView"' admin.html 1
+chk 'id="rvAlarmWrap"' admin.html 1
+chk '#rvAlarmWrap{grid-area:alarm}' admin.html 1   # 이름이 없으면 «비어 있는 첫 칸»으로 자동 배치돼 한 칸 폭이 된다
+chk 'SV_UNSEEN_CAP' admin.html 3   # ★재배포 전 옛 서버엔 unseen 이 없다 — 그때 «모두 확인했어요»(거짓)·죽는 「확인」을 내지 않는다(깨 보니 빨강)
+chk '⑥ 새 후기 알림' scripts/audit/survey-notes.mjs 1
+chk '⑦ 쿠폰 미발송' scripts/audit/survey-notes.mjs 1
+# ★★[SV_DONE_CLOSE]·[SV_LABEL_KO] 2026-09-25 사장님 「여기 부분 디자이너 관점으로 개선」 — 고객 후기 완료 카드
+#   끝난 뒤엔 「마지막 단계」를 달지 않는다 · 가운데로 모아 맺는다(쿠폰 카드와 같은 말투) · 강조는 진사 「오래」 한 점.
+#   「마지막 단계」 라벨은 한글 소라벨로 — 영문 눈썹 서식(Cormorant 기울임·.22em)을 한글에 걸면 가짜 기울임에 흩어진다.
+chk 'SV_DONE_CLOSE' mypage.html 3
+chk 'SV_LABEL_KO' mypage.html 1
+chk 'res-panel done srv-done' mypage.html 1
+nochk '.srv-step-label{text-align:center;font-family:var(--serif);font-style:italic' mypage.html
 
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.

@@ -5,7 +5,8 @@
  *
  * 발송 정책
  *  - 고객(customer): 알림톡(승인된 템플릿 코드가 있을 때) → 실패 시 SMS 자동 대체.
- *                    템플릿 코드가 아직 없으면 같은 내용을 SMS로 발송(승인 전에도 운영 가능).
+ *                    템플릿 코드가 없으면 알림톡은 안 나가고 이메일로만 대체된다(2026-06-29 부터 고객 문자 미사용 ·
+ *                    그 사실은 처리이력·관리자 메일로 드러난다 — _nfTplSilent · TPL_SILENT).
  *  - 관리자(admin):  SMS/LMS (템플릿 승인 불필요 · ADMIN_PHONE으로).
  *                    [최소 발송 · 2026-06-11] 행동 게이트(need:true · 관리자가 처리해야 고객 진행이 풀리는 일)만 발송.
  *                    안내성(need:false)은 기본 생략 — 아침 브리핑 메일·관리자 페이지에서 확인.
@@ -223,13 +224,24 @@ function _kakaoSend(to, event, code, extra, opts) {
   // 이메일: 카톡을 못 보낸 경우(템플릿 미승인 → 솔라피 미발송 · 또는 전송 실패)에만 발송 = '실패 시에만'.
   //   카톡이 정상 발송되면 이메일은 보내지 않음(중복 없음). 요즘 거의 다 카톡을 써서 카톡으로 사실상 전원 도달.
   //   consultDone·resultDelivered는 admin.gs에서 이미 메일 → 중복 방지로 제외.
+  var _mailed = false, _elsewhere = false;
   try {
     var emailedElsewhere = (event === 'cust.consultDone' || event === 'cust.resultDelivered');
+    _elsewhere = emailedElsewhere;
     var custEmail = String(cust.get('이메일') || '').trim();
     if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && !sentKakao) {
       _nfCustomerEmailFallback(custEmail, name, event, m.text);
+      _mailed = true;
     }
   } catch (e) {}
+  /* ★★[TPL_SILENT 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」]
+     템플릿 ID 가 없으면(반려·미등록) 알림톡은 «시도조차» 하지 않고 이메일로만 대체된다 — 종전엔 로그 한 줄도 없었다.
+     실제 코드로 시뮬레이션하니 켜진 고객 알림 19종 전부가 템플릿이 없을 때 관리자에게 아무 말이 없었고,
+     고객 이메일까지 비어 있으면 고객도 관리자도 아무것도 받지 못했다(CONTACT_SILENT 와 같은 모양의 조용한 실패).
+     ★신청 문서(automation/알림톡_템플릿_신청문안.md) 마지막 기록으로는 19종 중 승인이 6묶음뿐이다 — 흔한 경우다.
+     → 고객 상세 처리이력에 한 줄 + 관리자 메일(하루 한 통 · 고객이 아무것도 못 받았으면 그 고객 기준 하루 한 통). */
+  var _tsMark = '[TPL_SILENT]';
+  if (!(tplId && cfg.pfId)) _nfTplSilent(event, String(code || '').trim(), (_mailed || _elsewhere), !cfg.pfId, _elsewhere);
   return sentKakao;   // [NOTIFY_SENT_RET] 알림톡 발송 성공 여부(이메일 폴백은 별도 best-effort)
 }
 
@@ -264,6 +276,26 @@ function _solapiSend(cfg, message, ctx) {
     _notifyFailMark(ctx, (e && e.message) || '예외');
     return false;
   }
+}
+
+/* [TPL_SILENT] 템플릿이 없어 카톡을 «시도하지 않은» 알림을 드러낸다. 실패(_notifyFailMark)와 따로 둔다 —
+   저쪽은 «보냈는데 거절됐다»이고 이쪽은 «보낼 수단이 없었다»라 고치는 곳이 다르다(솔라피 잔액 vs 템플릿 승인).
+   ★메일은 하루 한 통으로 묶는다 — 템플릿이 여럿 빠져 있으면 하루에도 수십 번 걸린다. 쏟아지면 아무도 안 본다.
+   ★단, 고객이 «아무것도» 못 받은 경우는 그 고객 기준으로 따로 알린다 — 그 두 분은 지금 소식이 끊긴 상태다. */
+function _nfTplSilent(event, code, reached, noPf, elsewhere) {
+  try {
+    var _tsMark = '[TPL_SILENT]';
+    var why = noPf ? '카카오 채널(SOLAPI_PF_ID) 미설정' : '알림톡 템플릿 미등록';
+    var how = elsewhere ? '메일은 관리자 처리에서 따로 발송' : (reached ? '이메일로 대체' : '이메일도 없어 아무것도 못 받음');
+    if (code && typeof _recordHandler === 'function') _recordHandler(code, '[알림] ' + event + ' 카톡 못 보냄(' + why + ') · ' + how);
+    var p = PropertiesService.getScriptProperties(), d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMdd');
+    var k = reached ? ('NF_NOTPL_' + d) : ('NF_NOTPL_NONE_' + code + '_' + d);
+    if (p.getProperty(k)) return;
+    p.setProperty(k, '1');
+    _nfAdminLineEmail('알림톡 못 보냄 — ' + why + ' · ' + event + (code ? (' · ' + code) : '') + ' · ' + how
+      + (reached ? ' (오늘 첫 건 · 나머지는 고객 상세 처리이력에)' : ' · ★이 고객은 소식을 하나도 못 받았어요')
+      + ' · 95_notify 파일의 notifySetupCheck 로 빠진 템플릿을 확인해 주세요');
+  } catch (e) {}
 }
 
 // 고객 알림 실패 → 처리이력 기록 + 일별 실패 카운터(아침 브리핑 집계용). 베스트에포트 · 본 흐름 절대 불간섭.
@@ -301,6 +333,9 @@ function notifyFailYesterday() {
       if (k.indexOf('NOTIFY_FAIL_') === 0) {
         var d = k.slice('NOTIFY_FAIL_'.length);
         if (_shiftYmd(d, 7) < _kstYmd(new Date())) p.deleteProperty(k);
+      } else if (k.indexOf('NF_NOTPL_') === 0 || k.indexOf('NF_BADPHONE_') === 0) {   // [TPL_SILENT] 하루 한 번 표식(끝 8자리=날짜)
+        var t8 = k.slice(-8);
+        if (/^\d{8}$/.test(t8) && _shiftYmd(t8.slice(0, 4) + '-' + t8.slice(4, 6) + '-' + t8.slice(6, 8), 7) < _kstYmd(new Date())) p.deleteProperty(k);
       }
     }
     return n;
@@ -565,11 +600,25 @@ function notifySetupCheck() {
   Logger.log('SOLAPI_API_KEY = ' + (cfg.key ? '설정됨(' + cfg.key.slice(0, 4) + '…)' : '❌ 없음'));
   Logger.log('SOLAPI_API_SECRET = ' + (cfg.secret ? '설정됨' : '❌ 없음'));
   Logger.log('SOLAPI_SENDER = ' + (cfg.sender || '❌ 없음(발신번호 사전등록 필요)'));
-  Logger.log('SOLAPI_PF_ID = ' + (cfg.pfId || '(없음 — 알림톡 미사용, 전부 SMS로 발송)'));
+  Logger.log('SOLAPI_PF_ID = ' + (cfg.pfId || '(없음 — 알림톡이 한 건도 안 나갑니다 · 고객에겐 이메일만)'));   // [TPL_COVER] 옛말(문자로 대체) 정정
   Logger.log('ADMIN_PHONE = ' + (cfg.adminPhone || '❌ 없음(관리자 알림 불가)'));
   Logger.log('ADMIN_NOTIFY_INFO = ' + (_adminInfoOn() ? 'true(안내성 알림도 발송)' : '(기본 — 행동 게이트만 발송)'));
   var keys = Object.keys(cfg.templates);
-  Logger.log('KAKAO_TEMPLATES = ' + keys.length + '건 등록' + (keys.length ? (' (' + keys.join(', ') + ')') : ' — 전부 SMS로 발송됨'));
+  Logger.log('KAKAO_TEMPLATES = ' + keys.length + '건 등록' + (keys.length ? (' (' + keys.join(', ') + ')') : ''));
+  /* ★[TPL_COVER 2026-09-25] 종전엔 «몇 건 등록»만 찍어, 켜진 알림 중 무엇이 빠졌는지 알 수 없었다.
+     그리고 «문자(SMS)로 대체된다»는 안내는 틀린 말이었다 — 2026-06-29 부터 고객 문자는 안 쓴다(템플릿이 없으면 이메일만, 없으면 아무것도).
+     켜진 고객 알림을 하나씩 대조해 «빠진 것»을 이름으로 찍는다. 이 목록이 곧 솔라피 콘솔에서 승인받을 목록이다. */
+  var _tcMark = '[TPL_COVER]';
+  if (!cfg.pfId) Logger.log('★SOLAPI_PF_ID 가 비어 있어 알림톡이 한 건도 나가지 않습니다(이메일만) — 카카오 채널 pfId 를 넣어 주세요');
+  var on = Object.keys(NOTIFY_EVENTS).filter(function (ev) { var m = NOTIFY_EVENTS[ev]; return m.to === 'customer' && !m.off; });
+  var miss = on.filter(function (ev) { return !String(cfg.templates[ev] || '').trim(); });
+  Logger.log('켜진 고객 알림 ' + on.length + '종 · 알림톡 템플릿 있음 ' + (on.length - miss.length) + ' · 없음 ' + miss.length);
+  if (miss.length) {
+    Logger.log('★템플릿이 없어 알림톡이 안 나가는 알림(이메일로만 · 고객 이메일이 없으면 아무것도):');
+    miss.forEach(function (ev) { Logger.log('   · ' + ev + ' — ' + (NOTIFY_EVENTS[ev].desc || '')); });
+  } else {
+    Logger.log('켜진 고객 알림 전부 알림톡 템플릿이 있습니다.');
+  }
 }
 
 // 2) 관리자 SMS 테스트 — ADMIN_PHONE으로 1건 실발송(요금 발생)
