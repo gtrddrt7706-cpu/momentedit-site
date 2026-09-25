@@ -8542,6 +8542,7 @@ chk "gas('adminSurveySeen'" admin.html 1
 chk 'id="reviewView"' admin.html 1
 chk 'id="rvAlarmWrap"' admin.html 1
 chk '#rvAlarmWrap{grid-area:alarm}' admin.html 1   # 이름이 없으면 «비어 있는 첫 칸»으로 자동 배치돼 한 칸 폭이 된다
+chk 'SV_UNSEEN_CAP' admin.html 3   # ★재배포 전 옛 서버엔 unseen 이 없다 — 그때 «모두 확인했어요»(거짓)·죽는 「확인」을 내지 않는다(깨 보니 빨강)
 chk '⑥ 새 후기 알림' scripts/audit/survey-notes.mjs 1
 chk '⑦ 쿠폰 미발송' scripts/audit/survey-notes.mjs 1
 # ★★[SV_DONE_CLOSE]·[SV_LABEL_KO] 2026-09-25 사장님 「여기 부분 디자이너 관점으로 개선」 — 고객 후기 완료 카드

@@ -2031,19 +2031,23 @@ function svResponseHtml(sp, head){
      여섯째를 넣으면 「새로고침」·「로그아웃」이 테두리를 넘는다.
    ★쿠폰 미발송은 여기가 아니라 «처리할 일» 큐(CPN_QUEUE)가 지금처럼 맡는다 — 후기를 확인해도 쿠폰 큐는 발급될 때까지 남는다. */
 function renderSurvey(d){
-  var sv=(d&&d.survey)||{}, n=Number(sv.n)||0, unseen=Number(sv.unseen)||0;
+  /* ★[SV_UNSEEN_CAP 2026-09-25] 화면(Vercel)은 병합 즉시 바뀌고 GAS 는 재배포해야 바뀐다. 그 사이 옛 서버는 unseen 을
+     안 보낸다 — 그때 «새 후기는 모두 확인했어요»라고 쓰면 거짓이고, 「확인」은 «알 수 없는 요청»으로 죽는다.
+     그래서 서버가 unseen 을 보낼 때만 알림·확인을 켠다(SV_NOTES_CAP 과 같은 방식). */
+  var sv=(d&&d.survey)||{}, n=Number(sv.n)||0, cap=('unseen' in sv), unseen=Number(sv.unseen)||0;
   renderReviewAlarm(sv);
   var wrap=$('surveyWrap'); if(!wrap) return;
   var html='<div class="sect-h"><span class="tt">후기</span>'+(unseen?'<span class="urg-badge">새 후기 '+unseen+'</span>':'')+'<span class="ct">'+n+'</span></div>';
   if(!n){ wrap.innerHTML=html+'<div class="empty">아직 받은 후기가 없어요 · 들어오면 맨 위에 알려 드려요</div>'; return; }
   html+='<button type="button" class="rv-entry" data-rv-open>'
-    +'<span>'+(unseen?('<b>새 후기 '+unseen+'건</b> · 읽고 확인해 주세요'):'새 후기는 모두 확인했어요')+'</span>'
+    +'<span>'+(!cap?('받은 후기 '+n+'건'):(unseen?('<b>새 후기 '+unseen+'건</b> · 읽고 확인해 주세요'):'새 후기는 모두 확인했어요'))+'</span>'
     +'<span class="rv-entry-n">후기 '+n+'건 보기 ›</span></button>';
   wrap.innerHTML=html;
 }
 /* [SV_UNSEEN] 홈 맨 위 알림 — 확인 안 한 후기가 있을 때만 뜬다. «확인»하면 사라진다(서버에 기록 · 폰·PC 같은 상태). */
 function renderReviewAlarm(sv){
   var box=$('rvAlarmWrap'); if(!box) return;
+  if(!('unseen' in (sv||{}))){ box.style.display='none'; box.innerHTML=''; return; }   // [SV_UNSEEN_CAP] 옛 서버는 새 후기를 가려내지 못한다
   var list=((sv&&sv.recent)||[]).filter(function(x){ return !x.seen; });
   if(!list.length){ box.style.display='none'; box.innerHTML=''; return; }
   var who=list.slice(0,3).map(function(x){ return esc(x.names||x.code||''); }).join(' · ')+(list.length>3?(' 외 '+(list.length-3)+'명'):'');
@@ -2071,7 +2075,7 @@ function _rvRow(x, key, isNew){
     +(Number(x.notesN)>0?'<span class="tg">기타 의견 '+Number(x.notesN)+'</span>':'')
     +(x.reviewPublic==='Y'?'<span class="tg">공개동의</span>':'')
     +(isNew?'<button type="button" class="rv-ok" data-rv-ok="'+esc(x.code)+'">확인</button>'
-           :'<span class="rv-seen">확인함 · '+esc(String(x.seen||'').slice(5,16))+'</span>');
+           :(x.seen?'<span class="rv-seen">확인함 · '+esc(String(x.seen).slice(5,16))+'</span>':''));
   if(isNew && x.full){ h+='<div class="rv-full">'+svResponseHtml(x.full,'')+'</div>'; }   // 새 후기는 펼친 채 — 알림을 누른 이유가 «읽기»다
   else {
     h+='<button type="button" data-sv-open="'+esc(x.code)+'" data-sv-i="'+key+'">전체 응답 보기</button>'
@@ -2081,14 +2085,16 @@ function _rvRow(x, key, isNew){
   return h+'</div>';
 }
 function renderReviews(d){
-  var sv=(d&&d.survey)||{}, all=sv.recent||[];
-  var nw=all.filter(function(x){ return !x.seen; }), old=all.filter(function(x){ return !!x.seen; });
+  var sv=(d&&d.survey)||{}, all=sv.recent||[], cap=('unseen' in sv);
+  /* [SV_UNSEEN_CAP] 옛 서버면 «새 후기»를 가려낼 수 없다 — 전부 한 목록으로 보여 주고 「확인」은 달지 않는다 */
+  var nw=cap?all.filter(function(x){ return !x.seen; }):[], old=cap?all.filter(function(x){ return !!x.seen; }):all;
   var ct=$('rvCount'); if(ct) ct.innerHTML=(nw.length?('<b>새 후기 '+nw.length+'</b> · '):'')+'전체 '+(Number(sv.n)||all.length)+'건';
   var h='';
   if(!all.length) h='<div class="empty">아직 받은 후기가 없어요</div>';
   if(nw.length) h+='<div class="rv-grp">새 후기 · 읽고 「확인」을 누르면 알림이 사라져요</div>'+nw.map(function(x,i){ return _rvRow(x,'n'+i,true); }).join('');
+  if(!cap && all.length) h+='<div class="svr-legacy" style="margin:0 2px 8px">새 후기 알림·확인은 서버(GAS) 새 버전 재배포 뒤에 켜져요.</div>';
   if(old.length){
-    h+='<div class="rv-grp">확인한 후기</div>'+old.map(function(x,i){ return _rvRow(x,'o'+i,false); }).join('');
+    h+='<div class="rv-grp">'+(cap?'확인한 후기':'받은 후기')+'</div>'+old.map(function(x,i){ return _rvRow(x,'o'+i,false); }).join('');
     if((Number(sv.n)||0)>all.length) h+='<div class="svr-legacy">확인한 후기는 최근 40건만 보여요 · 더 오래된 후기는 고객 상세에서 볼 수 있어요.</div>';
   }
   var body=$('reviewBody'); if(body) body.innerHTML=h;
