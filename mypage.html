@@ -2503,6 +2503,7 @@ function renderMyPage(d){
     if(!wt && d.contract && d.contract.fill && d.contract.fill.weddingTime){ var _wm={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; wt=_wm[d.contract.fill.weddingTime]||''; }
     // DDAY_TIME(2026-07-25 사용자 지시 "디데이에 시간 같이 조화롭게"): 시간을 날짜 줄 꼬리에서 D-day 줄로 이동 —
     //   'D-81 · 오후 1:20' 형태(강조는 D-81 하나 · 시간은 연한 보조 표기). 예식이 지난 뒤에는 시간 생략.
+    if(wt) wt=slotClock(wt);   // [SLOT_CLOCK] ID(13:20) → 실제 본예식(표 참고)
     var wtKo=''; if(wt){ var _wh=+wt.slice(0,2), _wm2=wt.slice(3,5); wtKo=(_wh<12?('오전 '+_wh):('오후 '+(_wh===12?12:_wh-12)))+':'+_wm2; }
     var _tTail=(wtKo && dd>=0)?' <span style="font-size:12px;font-weight:300;color:var(--sub)">· '+wtKo+'</span>':'';
     el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+' <span style="font-weight:300">·</span> <span class="wed-dday">'+lab+_tTail+'</span>';   // DDAY_ONELINE(2026-07-25 사용자 지시) 한 줄 병기: 예식 2026.10.14 · D-80 · 오후 1:20 — 강조는 D-day 하나(줄당 강조 1개 유지) · 좁은 화면은 D-day 덩어리째 줄바꿈(nowrap) · 구 MPD_B1 별도 줄 승격 대체 · 당일 중립 톤(G12)은 lab 계산이 유지
@@ -3316,10 +3317,10 @@ function renderHold(h){   // MPD_B14 보완(2026-07-25): 가예약 검토 아이
 // [임시고정 셀프 관리] 변경 — 새 날짜·슬롯으로 재요청(디렉터 재확인 · 승인됐던 것도 '요청'으로 돌아감). 닫힌 슬롯은 선택 불가.
 function doHoldEdit(h){
   var SLOTS=['09:00','12:20','15:40'], LABELS={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
-  var opts='<option value="">선택해 주세요</option>'+SLOTS.map(function(t){return '<option value="'+t+'"'+(h&&h.slot===t?' selected':'')+'>'+LABELS[t]+' '+t+'</option>';}).join('');
+  var opts='<option value="">선택해 주세요</option>'+SLOTS.map(function(t){return '<option value="'+t+'"'+(h&&h.slot===t?' selected':'')+'>'+LABELS[t]+' '+(SLOT_CLOCK[t]||t)+'</option>';}).join('');
   var bodyHtml='<div style="text-align:left">'
     +'<div style="font-size:12px;color:var(--sub);margin:0 0 6px">예식 날짜</div>'+dtPickerHtml('mphe','mp_heDate','날짜를 선택해 주세요',{value:(h&&h.date)||''})
-    +'<div style="font-size:12px;color:var(--sub);margin:12px 0 6px">예식 시간 · 140분</div><select id="mp_heSlot" class="cc-input">'+opts+'</select>'
+    +'<div style="font-size:12px;color:var(--sub);margin:12px 0 6px">예식 시간 · 본예식 시작 기준</div><select id="mp_heSlot" class="cc-input">'+opts+'</select>'
     +'<div class="cc-mini" style="margin-top:8px;color:var(--light);line-height:1.6;text-align:left">변경을 요청하시면 디렉터가 다시 확인한 뒤 안내드려요.</div></div>';
   var p=mpModalOpen({ title:'예식일 변경', bodyHtml:bodyHtml, confirmText:'변경 요청', cancelText:'닫기' });
   var taken={};
@@ -3571,7 +3572,7 @@ function renderContractReqForm(ctx){
     +ex
     +((!ci.weddingDate&&hd.date)?'<div class="cc-note" style="text-align:left;margin:2px 0 8px">임시 고정하신 예식 일정으로 미리 채워뒀어요. 바꾸셔도 괜찮아요.</div>':'')
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:preWed})
-    +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
+    +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 본예식 시작 기준</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
     +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(preSlot)+'">'
     +weddingSequenceRef('시간대를 고르실 때 참고할 요약 시간표예요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
     +'<button type="button" class="seq-open-btn" data-seq-open="full" style="margin-top:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>시간대별 전체 진행 시간표 보기</button>'
@@ -3596,7 +3597,7 @@ function renderContractReqForm(ctx){
     var td=(_wedAvail.taken&&_wedAvail.taken[ymd])||[], hid=$('mp_ciWedTime'), sel=(hid&&hid.value)||'';
     if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
     row.innerHTML=_wedAvail.slots.map(function(t){ var lab=(_wedAvail.labels&&_wedAvail.labels[t])||''; var tk=td.indexOf(t)!==-1;
-      return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
+      return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(SLOT_CLOCK[t]||t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
     if(note) note.textContent=(td.length>=_wedAvail.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
     row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_ciWedTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); }); });
   }
@@ -3872,7 +3873,7 @@ function renderChangeWizard(ctx, host){
     +'<div style="text-align:center;margin-top:8px"><button type="button" class="cc-btn-ghost" id="mp_chgAskAi" style="display:inline-block;width:auto;padding:8px 18px">무상 변경·면제 물어보기</button></div>'
     +'</div></details>'
     +'<label class="pf-l" style="margin-top:12px">변경할 예식 날짜</label>'+dtPickerHtml('mpchg','mp_chgDate','날짜를 선택해 주세요',{})
-    +'<div id="mp_chgSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 140분</span></label><div class="wed-slot-row" id="mp_chgSlotRow"></div><div class="cc-note" id="mp_chgSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
+    +'<div id="mp_chgSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 본예식 시작 기준</span></label><div class="wed-slot-row" id="mp_chgSlotRow"></div><div class="cc-note" id="mp_chgSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
     +'<input type="hidden" id="mp_chgTime" value="">'
     +'<div id="mp_chgQuote"></div>'
     +'<div id="mp_chgErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -3900,7 +3901,7 @@ function renderChangeWizard(ctx, host){
     var td=(_av.taken&&_av.taken[ymd])||[], hid=$('mp_chgTime'), sel=(hid&&hid.value)||'';
     if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
     row.innerHTML=_av.slots.map(function(t){ var lab=(_av.labels&&_av.labels[t])||''; var tk=td.indexOf(t)!==-1;
-      return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
+      return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(SLOT_CLOCK[t]||t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
     if(note) note.textContent=(td.length>=_av.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
     row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_chgTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); _fetchQuote(); }); });
     _resetQuote(); _fetchQuote();   // 날짜만 다시 고른 경우 — 기존 슬롯 유지면 즉시 재견적
@@ -4490,7 +4491,7 @@ function coverName(en){
 function weddingTimeOptions(sel){
   sel=String(sel||'').slice(0,5);
   // 예약페이지(inquiry) 희망 예식 시간대와 동일한 고정 슬롯만 — 다른 시간 선택 불가
-  var SLOTS=[['10:00','오전 (10:00)'],['13:20','오후 (13:20)'],['16:40','늦은 오후 (16:40)']];
+  var SLOTS=[['10:00','오전 ('+SLOT_CLOCK['10:00']+')'],['13:20','오후 ('+SLOT_CLOCK['13:20']+')'],['16:40','늦은 오후 ('+SLOT_CLOCK['16:40']+')']];   // [SLOT_CLOCK] 값(ID)은 그대로 · 보이는 시각만 본예식
   var html='<option value="">시간 선택</option>', found=false;
   SLOTS.forEach(function(s){ if(s[0]===sel) found=true; html+='<option value="'+s[0]+'"'+(s[0]===sel?' selected':'')+'>'+s[1]+'</option>'; });
   if(sel && !found) html+='<option value="'+sel+'" selected>'+sel+' (기존)</option>';   // 과거 저장값 보존
@@ -5247,11 +5248,19 @@ function fmtWedKo(ymd){
 }
 // 예식 시간 표시 — 계약 슬롯(09:00·12:20·15:40)·본예식 시간 둘 다 받아 '오전 10:00' 같은 본예식 기준 라벨로 통일.
 //   예약·계약은 날짜와 시간이 한 몸 — 예식 일정이 나오는 모든 곳에서 같은 표기를 쓴다.
+/* ★[SLOT_CLOCK 2026-09-25 사장님 «시간이 안 맞는 곳이 간혹 있다»] 슬롯 → 실제 본예식 시각. 저장값은 그대로 둔다
+     (계약 슬롯 09:00·12:20·15:40 = 도착 · 제작 base 10:00·13:20·16:40 = 슬롯 ID · 다이닝 키가 이 ID 를 쓴다 [J5]).
+   옛 판은 ID 를 그대로 «본예식 시각»으로 찍었다 — 스냅이 40분이던 때만 맞았고, 45분이 된 8/9 부터 5분 어긋났다
+   (하객 입장 13:05 인데 «오후 13:20» → 청첩장을 본 하객은 13:00 에 와서 대기 공간 없이 기다린다).
+   본예식 = 도착 + 준비(ritual-data DAY.ready) + 단독 스냅(DAY.snap). 스냅이 바뀌면 check-source-drift (7)이 이 표를 잡는다.
+   같은 표가 admin.html · Admin.html · shared/hydrate.js · live.html · 95_notify.gs 에 있다(각자 따로 로드되는 화면이라). */
+var SLOT_CLOCK={'09:00':'10:05','12:20':'13:25','15:40':'16:45','10:00':'10:05','13:20':'13:25','16:40':'16:45'};
+function slotClock(t){ t=String(t||'').slice(0,5); return SLOT_CLOCK[t]||t; }
+var SLOT_LAB={'09:00':'오전','12:20':'오후','15:40':'늦은 오후','10:00':'오전','13:20':'오후','16:40':'늦은 오후'};
 function wedTimeKo(t){
   t=String(t||'').slice(0,5); if(!t) return '';
-  var BASE={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; if(BASE[t]) t=BASE[t];   // 계약 슬롯 → 본예식 시간
-  var LAB={'10:00':'오전','13:20':'오후','16:40':'늦은 오후'};
-  return (LAB[t]?LAB[t]+' ':'')+t;
+  var lab=SLOT_LAB[t]; if(SLOT_CLOCK[t]) t=SLOT_CLOCK[t];   // 계약 슬롯·슬롯 ID → 본예식 시각
+  return (lab?lab+' ':'')+t;
 }
 // 날짜 + 시간 한 줄 — fmtWedKo(날짜) · wedTimeKo(시간). 시간이 없으면 날짜만.
 function fmtWedKoT(ymd,t){
@@ -6055,7 +6064,7 @@ function invStepDone(box, r){
     if(!d&&!time) return '';
     return (d||'')+(d&&time?' · ':'')+(time||'')+' 예식';
   }
-  var when=_doneWhen(base.weddingDate, base.weddingTime);
+  var when=_doneWhen(base.weddingDate, slotClock(base.weddingTime));   // [SLOT_CLOCK]
   function linkCard(kind,title,desc,url){
     if(!url) return '';
     var ic = (kind==='online')
@@ -7382,7 +7391,7 @@ function prodConfirmHtml(p, inv){
   var L='';
   // 예식 일시 — 확인서의 기준 정보(스냅샷에도 기록 · 2026-07-18 사용자 요청 상세화)
   var _bw=p.base||{}, _wm=String(_bw.weddingDate||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(_wm) L+=line('예식 일시', escapeHtml(_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'+(_bw.weddingTime?(' · '+_bw.weddingTime):'')));
+  if(_wm) L+=line('예식 일시', escapeHtml(_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'+(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')));
   L+=line('예식 장소', '경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="cc-mini" style="display:block;margin-top:2px">3호선 원당역에서 버스 약 15분 · 전용 주차 가능 · 정확한 위치는 예식 전에 안내드려요</span>');   // MPD_D1 D-7에 장소·오시는 길을 되찾을 경로가 없던 것(§7-1-③) — 상담 카드는 상담완료 후 숨김이라 확인서에 상시화
   // 청첩장 — 구성·디자인 번호까지(발행됨 한 단어로는 무엇을 발행했는지 알 수 없음)
   var _ivd=(inv.draft||{}), _im=String(_ivd.method||'');
@@ -8940,7 +8949,7 @@ window.ME_ADV_PAGE = {
       var base = d.production && d.production.base;
       var wd = (base && base.weddingDate) ? String(base.weddingDate).trim() : '';
       if (/^\d{4}-\d{2}-\d{2}$/.test(wd)) {
-        var wt = (base.weddingTime && /^\d{2}:\d{2}$/.test(base.weddingTime)) ? (' ' + base.weddingTime) : '';
+        var wt = (base.weddingTime && /^\d{2}:\d{2}$/.test(base.weddingTime)) ? (' ' + slotClock(base.weddingTime)) : '';   // [SLOT_CLOCK] AI 에게도 실제 본예식 시각
         var diff = Math.round((new Date(wd + 'T00:00:00') - new Date(new Date().toDateString())) / 86400000);
         var dl = diff > 0 ? ('D-' + diff) : (diff === 0 ? 'D-day' : (-diff) + '일 지남');
         L.push((d.product === '웨딩스냅' ? '촬영일' : '예식일') + ': ' + wd + wt + ' (' + dl + ')');
