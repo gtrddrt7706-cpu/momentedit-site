@@ -1413,6 +1413,13 @@ nochk '시안 화면이에요' schedule.html
 # ★[COPY_ACCT_GLOBAL] 계좌 옆 «복사» 버튼이 main 에서 죽어 있었다 — copyAcct 가 boot() 안에 있어 onclick 이 못 찾았다(«copyAcct is not defined»).
 chk 'COPY_ACCT_GLOBAL' schedule.html 1
 chk 'window.copyAcct=copyAcct' schedule.html 1
+# ★[SCH_LIVE]·[SCH_INERT]·[SCH_REDUCED_MOTION] 같은 PR 의 web-design-guidelines 점검에서 나온 «객관적 결함» 넷(예약금·임시고정 자리)
+#   날짜를 비운 까닭·복사 결과를 늘 있는 라이브 영역(#srLive)으로 · 접힌 영역 inert · 되살린 체크에 칸 열기 · 움직임 줄이기.
+#   동작은 hold-first ⑪⑫⑬⑧ 이 잰다(돌연변이 4자리 확인).
+chk 'SCH_LIVE' schedule.html 3
+chk 'SCH_INERT' schedule.html 3
+chk 'SCH_REDUCED_MOTION' schedule.html 1
+chk 'id="srLive"' schedule.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/hold-first.mjs >/dev/null 2>&1; _hf=$?
   case "$_hf" in
     0) echo 'ok hold-first: 임시 고정 체크가 달력 앞 · 7일 창 · 잠금/풀림 · 현금영수증 «제 번호로» 선택형(빈 값=자진발급)' ;;

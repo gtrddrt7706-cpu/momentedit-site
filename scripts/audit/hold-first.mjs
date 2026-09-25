@@ -13,6 +13,8 @@
 //     ⑧ 골랐는데 비우면 신청이 막히고 까닭이 보인다
 //     ⑨ 자동완성 «+82 10-…»는 010 으로 간다([PHONE_AUTOFILL_82] 가 이 칸에서도 산다)
 //   ★[COPY_ACCT_GLOBAL] ⑩ 계좌 옆 «복사» 버튼이 실제로 복사하고(오류 없음) 높이 40px 이상이다 — 버튼이 조용히 죽어 있던 것을 여기서 잡았다.
+//   ★[SCH_LIVE] ⑪ 날짜를 비운 까닭 · 복사 결과가 늘 있는 라이브 영역으로 간다(나타났다 사라지는 상자는 낭독기가 제때 못 읽는다)
+//   ★⑫ 새로고침이 체크만 되살려도 예식 날짜·시간 칸이 열린다 · ★[SCH_INERT] ⑬ 접힌 예약금 영역은 시간을 고르기 전 inert
 //   ★[SERVED_OURS] 파일·브라우저가 없으면 «틀렸다(1)»가 아니라 «못 쟀다(2)».
 import fs from 'node:fs';
 import path from 'node:path';
@@ -115,6 +117,9 @@ await step({ server: NEAR }, async (page, errors) => {
   const sel = await page.$('#calGrid button.day.sel');
   ok(!sel, '③ 먼 날짜를 골라 둔 채 체크했는데 그 날짜가 그대로 선택돼 있다');
   ok(await shown(page, '#holdCalNote'), '③ 날짜를 비웠는데 «비워 두었어요» 안내가 안 보인다');
+  await page.waitForTimeout(150);
+  const live = await page.$eval('#srLive', (e) => e.textContent).catch(() => '');
+  ok(/비워 두었어요/.test(live), `⑪ [SCH_LIVE] 날짜를 비운 까닭이 라이브 영역(#srLive)에 없다 — 낭독기가 못 읽는다(«${live}»)`);
   // 좁힘 — 보이는 달의 가능일이 전부 오늘+7일 안인가(달을 넘겨 가며 전부)
   let seen = [];
   for (let k = 0; k < 3; k++) {
@@ -141,6 +146,12 @@ await step({ server: NEAR }, async (page, errors) => {
   ok(/표시된 날짜만/.test(back), '체크를 풀었는데 달력 아래 안내가 «7일 안»으로 남아 있다');
 });
 
+// ── ⑫ 새로고침·뒤로가기가 체크만 되살린 상태(change 없음)에서도 예식 날짜·시간 칸이 함께 열린다
+await step({ server: NEAR }, async (page) => {
+  const vis = await page.evaluate(() => { const c = document.getElementById('holdChk'); c.checked = true; if (window.__holdApply) window.__holdApply(); const b = document.getElementById('holdBox'); return getComputedStyle(b).display; });
+  ok(vis === 'block', `⑫ 체크가 되살아났는데 예식 날짜·시간 칸(#holdBox)이 닫혀 있다(display ${vis}) — 제출하면 안 보이는 칸으로 스크롤한다`);
+});
+
 // ── ④ 7일 안 빈 상담이 없으면 잠금 · ⑤ 캐시엔 없고 서버엔 있으면 풀림
 await step({ server: FAR_ONLY }, async (page, errors) => {
   ok(await page.$eval('#holdChk', (e) => e.disabled), '④ 7일 안 상담이 없는데 임시 고정 체크가 열려 있다');
@@ -154,7 +165,9 @@ await step({ server: NEAR, cache: FAR_ONLY, delay: 500 }, async (page, errors) =
 // ── ⑦⑧⑨ 현금영수증 · ⑥ 임시 고정 값
 await step({ server: NEAR }, async (page, errors) => {
   ok(!(await shown(page, '#depCRBox')), '⑦ 처음부터 현금영수증 번호 칸이 열려 있다 — «제 번호로 받을게요»를 고를 때만 열린다');
+  ok(await page.$eval('#guide', (g) => g.inert === true), '⑬ [SCH_INERT] 시간을 고르기 전 접힌 예약금 영역이 inert 가 아니다 — Tab·낭독기에 잡힌다');
   await pickDay(page, nearOff); await pickSlot(page);
+  ok(await page.$eval('#guide', (g) => g.inert === false), '⑬ 시간을 골랐는데 예약금 영역이 아직 inert 다 — 입금자명을 못 적는다');
   await page.fill('#depPayer', '정하윤');
   ok(await shown(page, '#depCRAuto'), '⑦ 번호 칸이 닫혀 있는데 «안 적으셔도 발급돼요» 안내가 안 보인다');
   // ⑩ [COPY_ACCT_GLOBAL] 계좌 옆 «복사» 버튼이 실제로 동작하는가(onclick 이 전역 함수를 찾는다)
@@ -162,6 +175,8 @@ await step({ server: NEAR }, async (page, errors) => {
   await page.click('#acctCopyBtn'); await page.waitForTimeout(200);
   const copied = await page.$eval('#acctCopyBtn', (b) => b.textContent.trim());
   ok(copied === '복사됨' && errors.length === nErr, `⑩ 계좌 «복사» 버튼을 눌렀는데 동작하지 않는다(버튼 «${copied}» · 오류 ${errors.slice(nErr).join(' | ') || '없음'})`);
+  const said = await page.$eval('#srLive', (e) => e.textContent).catch(() => '');
+  ok(/복사했어요/.test(said), `⑩ 복사 결과가 라이브 영역(#srLive)에 없다 — 낭독기가 복사됐는지 모른다(«${said}»)`);
   const bh = await page.$eval('#acctCopyBtn', (b) => Math.round(b.getBoundingClientRect().height));
   ok(bh >= 40, `⑩ 계좌 «복사» 버튼 높이가 ${bh}px — [SCH_TAP40] 은 40px 이상이다`);
   await page.click('#submitBtn'); await page.waitForTimeout(500);
@@ -174,6 +189,7 @@ await step({ server: NEAR }, async (page, errors) => {
   await page.fill('#depPayer', '정하윤');
   await page.click('label.cr-want'); await page.waitForTimeout(200);
   ok(await shown(page, '#depCRBox'), '⑧ «제 번호로 받을게요»를 골랐는데 번호 칸이 안 열린다');
+  ok(await page.evaluate(() => document.activeElement && document.activeElement.id !== 'depCR'), '⑧ 체크하자마자 번호 칸으로 초점이 옮겨졌다 — 폰에서 자판이 바로 튀어나온다(WCAG 3.2.2)');
   await page.click('#submitBtn'); await page.waitForTimeout(400);
   ok((await submits(page)).length === 0, '⑧ 번호를 비운 채 신청이 나갔다');
   ok(await shown(page, '#depCRErr'), '⑧ 신청을 막았는데 까닭(#depCRErr)이 안 보인다');

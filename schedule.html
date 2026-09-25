@@ -411,6 +411,7 @@ body.sticky-on footer{padding-bottom:104px}
 
 /* 페이드인 */
 .fade{opacity:0;transform:translateY(14px);animation:fade 0.9s var(--ease) forwards}
+@media (prefers-reduced-motion: reduce){.fade{animation:none;opacity:1;transform:none}.guide{transition:none}}   /* [SCH_REDUCED_MOTION 2026-09-25] 움직임 줄이기를 켠 분께는 떠오르기·펼치기 없이 바로 */
 .fade.d1{animation-delay:0.05s}.fade.d2{animation-delay:0.13s}.fade.d3{animation-delay:0.22s}
 @keyframes fade{to{opacity:1;transform:translateY(0)}}
 
@@ -623,6 +624,9 @@ h2.card-title,h3.card-title{margin:0;display:inline}
     </div>
   </div>
 
+  <!-- [SCH_LIVE] 화면에 이미 있는 라이브 영역 — 나타났다 사라지는 상자(display 전환)는 낭독기가 제때 읽지 못한다. 알릴 말은 여기에 넣는다 -->
+  <div id="srLive" class="sr-only" role="status" aria-live="polite"></div>
+
   <!-- 날짜 -->
   <div class="card fade d2">
     <div class="card-head"><span class="card-num">i</span>
@@ -637,7 +641,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
         <div class="wd sun">Sun</div><div class="wd">Mon</div><div class="wd">Tue</div>
         <div class="wd">Wed</div><div class="wd">Thu</div><div class="wd">Fri</div><div class="wd sat">Sat</div>
       </div>
-      <div id="holdCalNote" role="status" style="display:none;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:10px 12px">임시 고정은 7일 안 상담에만 적용돼서, 고르신 날짜를 비워 두었어요. 표시된 날짜에서 다시 골라 주세요.</div>
+      <div id="holdCalNote" style="display:none;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin:0 0 10px;text-align:left;word-break:keep-all;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px;padding:10px 12px">임시 고정은 7일 안 상담에만 적용돼서, 고르신 날짜를 비워 두었어요. 표시된 날짜에서 다시 골라 주세요.</div>
       <div class="cal-grid" id="calGrid"><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i><i class="day-skel"></i></div>
       <div class="cal-legend"><span class="lg-box"><span class="lg-dot"></span>예약 가능일</span><span class="lg-muted" id="calLegendMuted">표시된 날짜만 선택하실 수 있습니다</span></div>
     </div>
@@ -676,7 +680,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
 
   <!-- SCHED_AI_ROUTE(2026-07-25 사용자 지시 "카카오 연결 대신 AI가 스케줄 확인"): 임시고정·AI 카드를 별도 래퍼로 분리 —
        마감·가능일 0 같은 막다른 안내에서 openSchedAi()로 이 카드만 먼저 열 수 있게(시간 선택 전에도 접근 가능) -->
-  <div class="guide" id="holdReveal">
+  <div class="guide" id="holdReveal" inert>
 
     <!-- AI 스케줄 도우미 — 임시 고정 체크는 [HOLD_FIRST]로 달력 앞에 옮겼다. 이 카드는 도우미·시간표 링크만 남는다 -->
     <div class="holdcard">
@@ -704,7 +708,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
   </div>
 
   <!-- 안내 (선택 후) -->
-  <div class="guide" id="guide">
+  <div class="guide" id="guide" inert>   <!-- [SCH_INERT] 시간을 고르기 전엔 max-height:0 으로만 접혀 Tab·낭독기에 잡혔다 → inert · revealGuide 가 푼다 -->
     <div class="deposit">
       <div class="deposit-label" aria-hidden="true">Reservation Deposit</div>
       <div class="deposit-amt"><span class="won">₩</span><span id="t_deposit"></span></div>
@@ -712,7 +716,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
       <div class="deposit-note" style="font-size:12px;color:var(--light,#A39C8E);margin-top:4px">계약을 진행하지 않으시고 드레스 시착도 하지 않으셨다면 예약금은 전액 환불해 드려요.</div>
       <div class="deposit-acct">
         <span class="acct-label">입금 계좌</span>
-        <span class="acct-line"><span class="acct-no" id="t_account"></span><button type="button" class="acct-copy-btn" id="acctCopyBtn" onclick="copyAcct()">복사</button></span>
+        <span class="acct-line"><span class="acct-no" id="t_account"></span><button type="button" class="acct-copy-btn" id="acctCopyBtn" aria-label="계좌번호 복사" onclick="copyAcct()">복사</button></span>
         <span class="muted">예금주 <span id="t_holder"></span></span>
       </div>
       <div class="deposit-payer">
@@ -729,7 +733,7 @@ h2.card-title,h3.card-title{margin:0;display:inline}
            그래서 체크 문구를 「발급 원해요」가 아니라 「제 번호로 받을게요」로 둔다 — 체크를 안 하면 발급이 안 되는 것처럼 읽히면 안 된다.
            ★종전의 «소득공제 없이 발급할게요 · 번호 미등록» 체크는 이 체크의 «안 고름»과 같은 길이라 뺐다 — 되살리지 말 것(두 체크가 서로 반대말을 하게 된다). -->
       <div class="deposit-cr">
-        <label class="cr-want" for="depCRWant"><input type="checkbox" id="depCRWant" aria-controls="depCRBox" onchange="var b=document.getElementById('depCRBox'),a=document.getElementById('depCRAuto');b.hidden=!this.checked;a.hidden=this.checked;var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none';if(this.checked){var i=document.getElementById('depCR');if(i)i.focus();}"><span>현금영수증을 제 번호로 받을게요</span></label>
+        <label class="cr-want" for="depCRWant"><input type="checkbox" id="depCRWant" aria-controls="depCRBox" onchange="var b=document.getElementById('depCRBox'),a=document.getElementById('depCRAuto');b.hidden=!this.checked;a.hidden=this.checked;var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none';var i=document.getElementById('depCR');if(i)i.removeAttribute('aria-invalid');"><span>현금영수증을 제 번호로 받을게요</span></label>
         <div id="depCRBox" hidden>
           <input type="tel" id="depCR" inputmode="numeric" maxlength="20" autocomplete="tel" aria-label="현금영수증 받을 번호" aria-describedby="depCRErr" placeholder="휴대폰 또는 사업자번호" oninput="this.value=meTelDigits(this.value);this.removeAttribute('aria-invalid');var _e=document.getElementById('depCRErr');if(_e)_e.style.display='none'">
           <div class="deposit-payer-hint">한 번 등록하면 계약금·중도금·잔금까지 같은 번호로 발급돼요.</div>
@@ -851,8 +855,10 @@ var EXEC_URL="https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8
 // ── 커스텀 날짜 선택 컴포넌트(마이페이지 계약서 폼과 동일) — 예식일 임시고정용. OS 기본 달력 대신 우리 폼 달력 사용 ──
 function _g(i){return document.getElementById(i);}
 // SCHED_AI_ROUTE: 막다른 안내(전 슬롯 마감·가능일 0·임시고정 시간 마감)에서 AI 스케줄 도우미만 먼저 열고 이동
+function _say(t){ var l=document.getElementById('srLive'); if(!l) return; l.textContent=''; setTimeout(function(){ l.textContent=t; },60); }   // [SCH_LIVE] 비웠다가 넣어야 같은 말도 다시 읽힌다
+function _guideOpen(el){ if(!el) return; el.classList.add('show'); el.removeAttribute('inert'); }   // [SCH_INERT] 펼칠 때 키보드·낭독기 접근도 함께 연다
 function openSchedAi(){
-  var hr=document.getElementById('holdReveal'); if(hr) hr.classList.add('show');
+  var hr=document.getElementById('holdReveal'); _guideOpen(hr);
   var ai=document.getElementById('schedAi');
   if(ai) setTimeout(function(){ ai.scrollIntoView({behavior:'smooth',block:'center'}); },80);
   var inp=document.getElementById('schedAiInput');
@@ -1087,8 +1093,8 @@ function updateSummary(){
   }
 }
 function revealGuide(){
-  var _hr=document.getElementById('holdReveal'); if(_hr) _hr.classList.add('show');   // SCHED_AI_ROUTE: 임시고정·AI 카드 래퍼 함께 열기
-  document.getElementById('guide').classList.add('show');
+  var _hr=document.getElementById('holdReveal'); _guideOpen(_hr);   // SCHED_AI_ROUTE: 임시고정·AI 카드 래퍼 함께 열기
+  _guideOpen(document.getElementById('guide'));   // [SCH_INERT]
   document.getElementById('flexTimes').classList.add('show');
   if(selDate){
     const d=fmtDate(selDate);
@@ -1130,7 +1136,7 @@ function _legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.valu
 function copyAcct(){
   var t=((document.getElementById('t_account')||{}).textContent||'').trim(); if(!t) return;
   var btn=document.getElementById('acctCopyBtn');
-  var ok=function(){ if(btn){ btn.textContent='복사됨'; setTimeout(function(){ btn.textContent='복사'; },1500); } };   // [CR_OPTIN] 계좌 옆 버튼 — «복사됐습니다»는 360px 에서 버튼을 다음 줄로 밀어 1.5초 동안 화면이 출렁였다(홈과 같은 «복사됨»)
+  var ok=function(){ if(btn){ btn.textContent='복사됨'; setTimeout(function(){ btn.textContent='복사'; },1500); } _say('계좌번호를 복사했어요'); };   // [CR_OPTIN] 계좌 옆 버튼 — «복사됐습니다»는 360px 에서 버튼을 다음 줄로 밀어 1.5초 동안 화면이 출렁였다(홈과 같은 «복사됨»)
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ _legacyCopy(t); ok(); }); } else { _legacyCopy(t); ok(); } }catch(e){ _legacyCopy(t); ok(); }
 }
 window.copyAcct=copyAcct;   /* ★[COPY_ACCT_GLOBAL 2026-09-25 실측] 이 함수는 boot() 안에 있어 전역이 아니다. 계좌 옆 버튼의 onclick="copyAcct()" 가
@@ -1262,6 +1268,8 @@ if(_hdw){
     if(on){ var f=_firstHoldDay(); if(f && (viewY!==f.getFullYear()||viewM!==f.getMonth()) && !(selDate)){ viewY=f.getFullYear(); viewM=f.getMonth(); } }
     renderCal(); updateSummary();
     var cn=document.getElementById('holdCalNote'); if(cn) cn.style.display=cleared?'block':'none';
+    if(cleared) _say('임시 고정은 7일 안 상담에만 적용돼서, 고르신 날짜를 비워 두었어요. 표시된 날짜에서 다시 골라 주세요.');   // [SCH_LIVE]
+    var hb=document.getElementById('holdBox'); if(hb) hb.style.display=on?'block':'none';   // [HOLD_FIRST] 새로고침·뒤로가기가 체크를 되살려도 예식 날짜·시간 칸이 함께 열린다
     var lm=document.getElementById('calLegendMuted'); if(lm) lm.textContent=on?'임시 고정은 7일 안 상담일만 고르실 수 있어요':'표시된 날짜만 선택하실 수 있습니다';
   }
   if(_chk){
