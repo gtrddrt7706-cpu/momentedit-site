@@ -212,6 +212,15 @@ main{max-width:var(--max);margin:0 auto;padding:8px 28px 32px}   /* [PAR_FOOTER_
 }
 
 /* 맺음·서명 */
+.par-time{margin:40px 0 0;padding:24px 22px 20px;border:1px solid var(--hairline);border-radius:6px;background:#fff;font-size:14.5px;line-height:1.8;color:var(--sub)}
+.par-time h2{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);letter-spacing:0.03em;margin:0 0 6px}
+.par-time .pt-note{font-size:13px;color:var(--sub);margin:0 0 14px}
+.par-time ol{margin:0 0 16px;padding:0 0 0 20px}
+.par-time table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.par-time th,.par-time td{padding:7px 4px;border-top:1px solid var(--hairline);text-align:center;font-weight:300}
+.par-time th{font-weight:500;color:var(--accent);font-size:12.5px}
+.par-time td:first-child,.par-time th:first-child{text-align:left}
+@media print{.par-time{border:0;padding:0;margin-top:10pt}}
 .closing{padding:30px 0 0;border-top:1px solid var(--hairline);margin-top:16px}
 .sign{margin-top:30px;text-align:right}
 .sign .sign-from{font-size:0.92em;color:var(--light);margin-bottom:4px}
@@ -483,6 +492,28 @@ nav .nav-links a, .nav-links a, .f-links a {
   </div>
 
 </div>
+
+<!-- ★[PARENTS_TIME 2026-09-25 코워크 P6 · 사장님 «① 편지 아래 녹음 밖 카드»] 어른의 예식 날 시각.
+     편지(#letter)는 녹음과 한 몸이라 글을 더하면 재녹음이 따른다(letter-mirror) — 그래서 편지 «밖»에 따로 둔다.
+     시각은 본식 시작에서 셉니다: 도착 40분 전 · 입구에서 하객 맞이 20분 전(하객 입장 시작과 같다) · 자리로 4분 전(식전 영상 시작).
+     표의 숫자는 check-source-drift (6-c)가 ritual-data DAY 로 계산해 대조한다. 손으로 고치지 말 것. -->
+<section class="par-time" aria-labelledby="parTimeH">
+  <h2 id="parTimeH">예식 날, 어른께서 오실 시각</h2>
+  <p class="pt-note">편지와 따로 적어 둡니다. 모든 시각은 본식 시작에서 셉니다.</p>
+  <ol>
+    <li>본식 시작 40분 전 · 스튜디오에 도착하십니다.</li>
+    <li>본식 시작 20분 전 · 입구에서 하객분들을 맞으십니다.</li>
+    <li>본식 시작 4분 전 · 자리에 앉으십니다. 이때 식전 영상이 시작됩니다.</li>
+  </ol>
+  <table>
+    <thead><tr><th scope="col">예식 시간</th><th scope="col">도착</th><th scope="col">하객 맞이</th><th scope="col">자리로</th><th scope="col">본식</th></tr></thead>
+    <tbody>
+      <tr data-pt><td>오전</td><td>09:30</td><td>09:50</td><td>10:06</td><td>10:10</td></tr>
+      <tr data-pt><td>오후</td><td>12:50</td><td>13:10</td><td>13:26</td><td>13:30</td></tr>
+      <tr data-pt><td>늦은 오후</td><td>16:10</td><td>16:30</td><td>16:46</td><td>16:50</td></tr>
+    </tbody>
+  </table>
+</section>
 </main>
 
 <footer>

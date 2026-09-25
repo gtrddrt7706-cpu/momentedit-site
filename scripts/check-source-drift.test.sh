@@ -74,16 +74,16 @@ io.open(p,'w',encoding='utf-8').write(s[:i]+b+s[i+len(a):])
 # 시간표가 적힌 열 자리 + 원천(MIN.base) 자체
 run index.html '>20<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM·SUM_GATE] 본식 대표값 20(합 140 정합 · 구 21은 합 141) — 겨눌 자리가 칸으로 옮겼다
 run index.html '>30<span>min' '>44<span>min'                              # 같은 표 · 인사 사진 칸(가운데값)도 낡으면 잡히는지
-run index.html '15~30m | The Ceremony' '40m | The Ceremony'   # [SNAP_50] 15~30 → 범위 밖 40 으로 깬다               # FAQ 블록
-run index.html 'Ceremony 15~30분' 'Ceremony 40분'                          # Service JSON-LD
-run assets/sequence-modal.js "'15~30분쯤'" "'40분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
-run order-preview.html "'15~30분쯤'" "'40분'"                                # 식순 만들기 표
-run order-preview.html '따라 15~30분쯤' '따라 40분쯤'   # ★30 은 새 범위 10~30 안이라 «맞는 값»이다 — 범위 밖 값으로 깨야 한다                           # 표 밖 산문
-run assets/advisor-kb.js 'Ceremony 15~30분' 'Ceremony 40분'                # AI 상담사
-run api/_kb.js '15~30분쯤 The Ceremony' '40분쯤 The Ceremony'                  # 서버 지식
-run contract/v1-1.html '(16~25분)' '(30분)'                                # 계약서 3조 · ★[CONTRACT_RANGE_WAIT] 보류 중에도 «옛 값 그대로»를 지킨다 — 다른 값이 되면 잡힌다
-run docs/smartstore/상세페이지_원본.html '15~30<small>' '40<small>'         # 스마트스토어 원본
-run assets/ritual-open.js 'body: [15, 30]' 'body: [17, 30]'                     # [OPEN_RANGE 2026-09-25] 원천이 옛 코스 min 에서 ritual-open.js RANGE 로 옮겼다 · 바뀌면 열 벌이 함께 틀린다
+run index.html '12~25m | The Ceremony' '40m | The Ceremony'   # [SNAP_50] 12~25 → 범위 밖 40 으로 깬다               # FAQ 블록
+run index.html 'Ceremony 12~25분' 'Ceremony 40분'                          # Service JSON-LD
+run assets/sequence-modal.js "'12~25분쯤'" "'40분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
+run order-preview.html "'12~25분쯤'" "'40분'"                                # 식순 만들기 표
+run order-preview.html '따라 12~25분쯤' '따라 40분쯤'   # ★30 은 새 범위 10~30 안이라 «맞는 값»이다 — 범위 밖 값으로 깨야 한다                           # 표 밖 산문
+run assets/advisor-kb.js 'Ceremony 12~25분' 'Ceremony 40분'                # AI 상담사
+run api/_kb.js '12~25분쯤 The Ceremony' '40분쯤 The Ceremony'                  # 서버 지식
+run contract/v1-1.html '약 12~25분)' '약 40분)'                              # 계약서 3조 · [CONTRACT_V19] 보류가 풀려 새 범위를 잰다
+run docs/smartstore/상세페이지_원본.html '12~25<small>' '40<small>'         # 스마트스토어 원본
+run assets/ritual-open.js 'body: [12, 25]' 'body: [14, 25]'                     # [OPEN_RANGE 2026-09-25] 원천이 옛 코스 min 에서 ritual-open.js RANGE 로 옮겼다 · 바뀌면 열 벌이 함께 틀린다
 # [SLOT_CLOCK 2026-09-25] 슬롯 → 본예식 시각 표 여섯 벌 — 옛 ID 값(13:20)으로 되돌리면 잡혀야 한다
 run mypage.html "'12:20':'13:30'" "'12:20':'13:20'"
 run admin.html "'13:20':'13:30'" "'13:20':'13:20'"

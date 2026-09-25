@@ -271,10 +271,10 @@ function scan(needle) {
      그래서 계약서 한 벌만 «실패» 대신 «보류»로 크게 찍는다. 조용히 빼지 않는다([NO_SILENT_SKIP]).
      ★사장님이 새 판 문구를 정해 계약서를 고치는 커밋에서 이 목록을 **같이 비운다**. 비우지 않으면
        아래 «보류인데 이미 맞다» 줄이 빨강을 낸다 — 보류가 영영 남지 않게. */
-  const WAIT = { 'contract/v1-1.html': '계약서 새 판 문구 · 사장님 확인 대기(설계 명세 1 · 8장)' };
+  const WAIT = {};   // [CONTRACT_V19 2026-09-25] 계약서 v1.9 로 풀렸다(코워크 회신 2-4) — 다시 보류할 자리가 생기면 여기에
   /* ★보류는 «아무 값이나 괜찮다»가 아니다 — 보류하는 동안에도 **옛 값 그대로**여야 한다.
        안 그러면 계약서가 엉뚱한 숫자로 바뀌어도 «보류»로 조용히 초록이 된다(check-source-drift.test.sh 가 MISSED 로 잡았다). */
-  const WAIT_KEEP = { 'contract/v1-1.html': '(16~25분)' };
+  const WAIT_KEEP = {};
   Object.keys(WAIT_KEEP).forEach((f) => {
     const t = fs.existsSync(path.join(root, f)) ? fs.readFileSync(path.join(root, f), 'utf8') : '';
     if (t.indexOf(WAIT_KEEP[f]) < 0 && bad.some((b) => b.startsWith(f + ':'))) bad.push(`${f}: 보류 중인데 옛 값 ${WAIT_KEEP[f]} 도 새 값도 아니다 — 누가 손댔다 [CONTRACT_RANGE_WAIT]`);
@@ -376,6 +376,21 @@ function scan(needle) {
   if (tables < FILES.length) bad.push(`SLOT_CLOCK 표를 ${tables}벌밖에 못 읽었다(최소 ${FILES.length})`);
   if (bad.length) no(`슬롯 → 본예식 시각이 어긋난다 — 스냅 길이를 바꿨으면 SLOT_CLOCK 여섯 벌을 함께 고칠 것\n    ${[...new Set(bad)].join('\n    ')}`);
   else ok(`슬롯 → 본예식 시각 ${tables}벌 + 문의 라벨 일치 (${wantLab.join(' · ')})`);
+}
+
+/* 6-c) ★어른의 예식 날 시각 [PARENTS_TIME 2026-09-25 코워크 P6] — parents.html 편지 밖 카드의 표.
+   본식 = 도착 + 준비 + 스냅 · 도착 40분 전 · 하객 맞이 20분 전(= 하객 입장 시작 · LEAD) · 자리로 4분 전(식전 영상 시작). */
+{
+  const hhmm = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+  const toMin = (x) => +x.slice(0, 2) * 60 + +x.slice(3, 5);
+  const jr = fs.readFileSync(path.join(root, 'automation/platform/70_journey.gs'), 'utf8');
+  const sm = jr.match(/SLOTS:\s*\[([^\]]*)\]/);
+  const arrives = sm ? [...sm[1].matchAll(/'(\d{2}:\d{2})'/g)].map((m) => m[1]) : [];
+  const src = fs.readFileSync(path.join(root, 'parents.html'), 'utf8');
+  const rows = [...src.matchAll(/<tr data-pt><td>[^<]+<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><\/tr>/g)].map((m) => m.slice(1, 5).join(' · '));
+  const want = arrives.map((a) => { const c = toMin(a) + D.DAY.ready + D.DAY.snap; return [c - 40, c - 20, c - 4, c].map(hhmm).join(' · '); });
+  if (rows.length !== 3 || rows.join() !== want.join()) no(`parents.html 어른 시각표 ${rows.join(' / ') || '못 읽음'} ≠ 계산 ${want.join(' / ')} [PARENTS_TIME]`);
+  else ok(`어른 시각표 3줄 일치 (${want.map((w) => w.split(' · ')[3]).join(' · ')} 기준)`);
 }
 
 /* ─────────────────────────────────────────────────────────────────
