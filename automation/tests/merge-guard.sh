@@ -9306,6 +9306,21 @@ chk 'CV_NO_EARLY_MEASURE' index.html 1
 chk 'LETTER_PAPER' live.html 18
 chk 'min-height:44px' live.html 3
 nochk 'color:#B53A3A' live.html
+
+# ★★[NO_SIDE_STRIPE 2026-09-25 사장님 «선택하면 밑에 열리는 왼쪽 황금색 칸 — 너무 올드한 느낌.
+#   이런 형태가 들어가는 곳 조사해서 전부 개선하자»]
+#   고객 화면 전부를 border-left 2px 이상 · inset 그림자 · 세로 가상요소로 훑어 **두 파일 7곳**을 찾았다
+#   (pick-final.html 에도 border-left 가 있지만 내부 도구 「문안 되돌리기」이고 색도 중립 --line 이다).
+#   문법 셋 — 가(따라 열리는 입력): 선택지 «글자 시작선»에 맞춰 들여쓰기 ·
+#   나(도움말): 세로줄 제거 + 작은 라벨 · 다(주의·오류): 글자 --seal + 씰 점.
+#   ★들여쓰기는 숫자를 박지 않고 선택지와 같은 계산(--opt-indent)으로 — 한쪽만 바뀌면 줄이 어긋난다.
+#   ★재유입 금지 — 이 두 파일에 굵은 세로줄이 다시 들어오면 빨강.
+chk 'NO_SIDE_STRIPE' inquiry.html 2
+chk 'NO_SIDE_STRIPE' order-preview.html 5
+chk 'NO_SIDE_STRIPE' .claude/skills/momentedit-design/SKILL.md 1
+chk 'opt-indent' inquiry.html 3
+nochk 'border-left:[2-9]px' inquiry.html
+nochk 'border-left:[2-9]px' order-preview.html
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html

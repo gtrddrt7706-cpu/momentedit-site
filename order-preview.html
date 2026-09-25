@@ -136,7 +136,10 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    ★처방은 새로 만들지 않는다 — 이 지면이 2026-08-09 에 같은 문제를 이미 풀었다([AI_TIP · MINIMAL]:
      "팁은 본문이 아니라 곁말이라 상자를 벗기고 왼쪽 실선 하나로만 표시한다"). 그 자와 똑같이 맞춘다.
    ★상자로 되돌리지 말 것. 팁이 눈에 두 번째로 들어오면 그 화면은 이미 진 것이다. */
-.tip{border-left:2px solid var(--gold-line,#E7E3DC);padding:0 0 0 10px;margin-top:12px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+/* ★★[NO_SIDE_STRIPE 2026-09-25 사장님 «왼쪽 황금색 칸 — 너무 올드한 느낌»]
+   세로줄을 걷고 여백과 작은 라벨로 구분한다. 「팁」은 라벨이 되고 본문은 보조색 그대로. */
+.tip{border-left:0;padding:0;margin-top:14px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.tip b{display:inline-block;margin-right:7px;font-family:var(--serif-ko);font-size:11px;font-weight:500;color:var(--gold-text);letter-spacing:0.04em}
 .tip b{color:var(--gold-deeper);font-weight:700;margin-right:3px}
 .prep-hint b{color:var(--accent)}
 .proc{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:13px 15px}
@@ -260,7 +263,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .cdet{margin-top:15px;border-top:1px solid #E7E3DC;padding-top:13px}
 .cdet-l{font-size:12px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:700;margin-bottom:10px}   /* [DAYMAP_AIR] */
 /* [CRS_OPEN_CALM · AI_TIP·MINIMAL] 상자 대신 왼쪽 선 — 같은 말인데 면적이 1/4 이다 */
-.cdet-note{font-size:12.5px;line-height:1.7;color:var(--sub);border-left:2px solid var(--gold-line,#E7E3DC);padding:0 0 0 10px;margin-bottom:14px}
+.cdet-note{font-size:12.5px;line-height:1.7;color:var(--sub);border-left:0;padding:0;margin-bottom:16px}   /* [NO_SIDE_STRIPE] 여백만으로 구분 */
 .ev{padding:13px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
 .ev-n{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
 .ev-n .step{font-size:10.5px;color:var(--sub);background:#fff;border:1px solid var(--border);font-family:var(--sans);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -273,7 +276,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mth{margin:13px 0 6px;padding:13px;background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px}
 .mth-l{font-size:10px;font-weight:600;color:var(--gold-deeper);margin-bottom:9px;word-break:keep-all}
 .mth-how{font-size:12px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
-.mth-ai{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--sub);border-left:2px solid var(--gold-line,#E7E3DC);padding:0 0 0 10px;margin-top:12px;line-height:1.7;word-break:keep-all}
+.mth-ai{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--sub);border-left:0;padding:0;margin-top:14px;line-height:1.7;word-break:keep-all}   /* [NO_SIDE_STRIPE] */
 .mth-ai-x{color:var(--light);font-size:11px}
 .mth-ai .copy-btn2{margin:0}
 .copy-btn2{background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:9px 13px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;margin-right:8px}
@@ -303,7 +306,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .mc-mv{display:inline-flex;gap:4px}
 .mvb{width:27px;height:27px;border:1px solid var(--border);background:var(--card);border-radius:8px;color:var(--sub);cursor:pointer;font-size:13px;line-height:1;padding:0}
 .mvb:active{border-color:var(--gold-deep);color:var(--gold-deep)}
-.ordwarn{background:#fdf0eb;border-left:3px solid #b34a2a;border-radius:8px;padding:9px 11px;margin:0 2px 10px;font-size:12.5px;line-height:1.6;color:#7a2f16;word-break:keep-all}
+/* [NO_SIDE_STRIPE] 상자·세로줄·배경을 걷고 씰 점 하나로. #fdf0eb·#b34a2a·#7a2f16 은 팔레트 밖이었다. */
+.ordwarn{position:relative;background:none;border-left:0;border-radius:0;padding:0 0 0 13px;margin:0 2px 10px;font-size:12.5px;line-height:1.6;color:var(--seal);word-break:keep-all}
+.ordwarn::before{content:'';position:absolute;left:0;top:0.62em;width:5px;height:5px;border-radius:50%;background:var(--seal)}
 /* [ORD_ROWCTL] 넣기·빼기 — ↑↓와 같은 크기·같은 자리. 빼기는 한 톤 진하게(되돌릴 수 있는 조작이라 진사는 쓰지 않는다) */
 .mvb-del,.mvb-add{font-size:16px;font-weight:600;color:var(--gold-deeper);margin-left:2px}
 .mvb-add{background:#F6F2EA;border-color:var(--gold-btn)}
@@ -459,7 +464,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    0% 를 바탕으로 두면 남은 폭을 똑같이 나눈다. 하나만 남는 날에도 그 하나가 한 줄을 다 쓴다. */
 .done-acts .copy-btn2{margin-right:0;flex:1 1 0%;min-width:0;padding:11px 12px;font-size:11.5px;word-break:keep-all}
 /* [ORD_SAVE_STATE] 저장 실패 알림 — 진사는 좌측 키라인과 제목에만(넓은 면적 금지 규칙) */
-.save-err{margin-top:12px;border:1px solid #E4CFCB;border-left:3px solid var(--seal);background:#FBF6F5;border-radius:11px;padding:11px 13px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+/* [NO_SIDE_STRIPE] 같은 문법 — #E4CFCB·#FBF6F5 도 팔레트 밖이었다. 제목은 씰 700 그대로. */
+.save-err{position:relative;margin-top:14px;border:0;background:none;border-radius:0;padding:0 0 0 13px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.save-err::before{content:'';position:absolute;left:0;top:0.55em;width:5px;height:5px;border-radius:50%;background:var(--seal)}
 .save-err b{display:block;color:var(--seal);font-weight:700;font-size:12.5px;margin-bottom:2px}
 .save-err span{display:block;margin-top:5px;color:var(--gold-deeper)}
 .save-err span b{display:inline;color:inherit;font-size:inherit;margin:0}
