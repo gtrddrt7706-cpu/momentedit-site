@@ -159,7 +159,10 @@ function sendFindCodeKakao(phone, names, code) {
   var PFID = P_.getProperty('SOLAPI_PFID') || P_.getProperty('SOLAPI_PF_ID');
   var TPL = P_.getProperty('SOLAPI_TPL_FINDCODE');   // [SOLAPI_NAME_ALIAS] 템플릿만 별개
   if (!KEY || !SEC || !PFID || !TPL) return false;                 // 미설정 → 메일 폴백
-  var to = String(phone).replace(/[^0-9]/g, ''); if (!to) return false;
+  /* [PHONE_AUTOFILL_82] 숫자만 남기면 «+82 10-…» 이 «8210…» 이 되어 알림톡이 반려되고 오류 메일만 남았다.
+     발송 자를 통과 못 하면 false — 호출부가 메일로 보낸다(위 «미설정 → 메일 폴백»과 같은 길). */
+  var to = (typeof _phoneKR === 'function') ? _phoneKR(phone) : String(phone).replace(/[^0-9]/g, '');
+  if (!/^01[016789][0-9]{7,8}$/.test(to)) return false;
   var date = new Date().toISOString(), salt = Utilities.getUuid().replace(/-/g, '');
   var sig = Utilities.computeHmacSha256Signature(date + salt, SEC);
   var hex = sig.map(function (b) { b = (b < 0 ? b + 256 : b).toString(16); return b.length === 1 ? '0' + b : b; }).join('');

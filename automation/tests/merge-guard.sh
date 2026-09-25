@@ -1559,7 +1559,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행' assets/ritual-data.js 2   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2034,6 +2034,31 @@ chk 'ref-time' scripts/check-source-drift.mjs 1
 # [SLOT_CLOCK 2026-09-25] 표 밖의 예식 시각(마이페이지 D-day·임시고정·관리자·청첩장·라이브·알림톡)은 슬롯 ID(13:20)를
 #   본예식으로 찍고 있었다 — 8/9 부터 5분 어긋남. 이제 SLOT_CLOCK 한 표를 거치고, drift (6-b)가 여섯 벌을 DAY 로 잰다.
 chk 'SLOT_CLOCK' scripts/check-source-drift.mjs 2
+# ── [검토회신3 2026-09-25 코워크 회신 2장 · 사장님 결정] ──
+chk "v1-8.html" mypage.html 1                     # [CONTRACT_V19] v1.8 서명자 보존본 경로
+chk "archive/v1-8.html" admin.html 1               # 관리자도 같은 보존본(v1.6·v1.7 도 함께 빠져 있었다)
+chk 'Private Snap (45분)' contract/archive/v1-8.html 1   # v1.8 보존본은 옛 시간 그대로여야 한다
+chk 'Private Snap (50분)' contract/v1-1.html 1
+chk "'갑'이 직접 준비한 순서" contract/v1-1.html 1
+nochk '부케·생화 커스텀' contract/v1-1.html            # 별도 비용 칸에서 뺐다 — 저희가 받는 돈이 아니다
+chk 'FREE_NEUTRAL' assets/ritual-open.js 1
+nochk "두 분을 위해 준비한 영상이 있습니다" assets/ritual-open.js
+nochk "두 분께 건넬 선물이 있습니다" assets/ritual-open.js
+chk 'BOUQUET_FLORIST' index.html 1
+chk 'BOUQUET_FLORIST' api/_kb.js 1
+nochk '생화 부케를 주문해 드' index.html
+nochk '생화 부케를 주문해 드' api/_kb.js
+chk 'NO_HANBOK_SHOT' api/_kb.js 1
+nochk '직접 준비해 오시면 착용하고 촬영' assets/advisor-kb.js
+chk 'GLASS_READY' assets/ritual-data.js 2
+nochk '편지 낭독 중 하객 잔 미리 채움' assets/ritual-data.js
+chk 'RANGE_EX4' assets/ritual-open.js 1
+chk 'EXT_SYNTAX' scripts/audit/render-check.mjs 1   # 외부 스크립트 구문 — 꼬리 주석이 쉼표를 삼킨 사고(advisor-kb)
+chk 'PARENTS_TIME' parents.html 1
+chk 'PARENTS_TIME' scripts/check-source-drift.mjs 1
+chk 'PREP_LIST' mypage.html 2
+chk 'prepList' order-preview.html 1
+chk 'BOUQUET_FLORISTS' mypage.html 2
 chk 'SLOT_CLOCK' mypage.html 5
 chk 'slotClock(c.weddingTime)' shared/hydrate.js 1
 chk 'slotKo(x.slot)' automation/platform/95_notify.gs 4
@@ -2049,8 +2074,8 @@ nochk "'>'+LABELS\[t\]+' '+t+'</option>'" mypage.html
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '15~30m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 15~30 (스냅 50 · (가) 안)
-chk '20~35m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 20~35 · 두 시간의 합 50분
+chk '12~25m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 12~25 (스냅 50 · (가) 안)
+chk '25~38m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 25~38 [RANGE_EX4] · 두 시간의 합 50분
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
 #   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
@@ -2072,7 +2097,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -3631,8 +3656,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1.8' contract/v1-1.html 5   # [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1
+chk 'v1.9' contract/v1-1.html 5   # [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -8444,7 +8469,8 @@ chk 'SERVED_OURS' scripts/audit/hold-drop.mjs 1
 #   ★되살릴 수 없는 값은 되살리지 않는다 — 010 은 처음부터 11자리로 태어난 번호라
 #     82 를 떼서 「010 + 7자리」가 나오면 숫자 하나가 빠진 것이고, 그걸 그럴싸하게 만들면
 #     **남의 번호로 예식 알림이 나간다.** 실측: 시트의 `821 0734 9770` 은 11자,
-#     온전한 `+82 10-7349-9770` 은 12자다. 아무도 복원할 수 없는 값이었다.
+#     온전한 `+82 10-XXXX-XXXX` 는 12자다. 아무도 복원할 수 없는 값이었다.
+#   ★정정(같은 날 · PHONE_AUTOFILL_82): 원래 번호는 `+82 10-7349-7706` — 끝자리를 자른 것은 우리 문의서 칸이었다.
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다.
 if command -v node >/dev/null 2>&1; then node scripts/audit/phone-kr-norm.mjs >/dev/null 2>&1; _pk=$?
   case "$_pk" in
@@ -8459,6 +8485,60 @@ chk 'PHONE_KR_NORM' automation/platform/40_signup.gs 1
 chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
 chk 'PHONE_KR_NORM' automation/admin/admin.gs 3
 chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
+
+# ★★[PHONE_AUTOFILL_82 2026-09-25 사장님 「번호 적는 모든 곳에 +82 가 나와도 정상적으로 돌아가게 시스템 점검하자」]
+#   자동완성은 «+82 10-7349-7706» 을 넣는다. 숫자만 남기는 칸은 «821073497706»(현금영수증 칸 5곳이 그대로 저장),
+#   11자로 자르는 문의서 칸은 «821-0734-9770» — 끝자리를 잘랐다(#800 이 쫓던 값의 진짜 원인).
+#   공용 함수 /shared/tel-kr.js(meTelDigits) · GAS 화면 사본 2곳 · 서버 _crKR 이 같은 규칙을 쓰는지 본다.
+#   ★번호가 틀린 고객에게 메일이 가는 것·메일이 간 알림을 재발송하지 않는 것은 같은 날 다른 세션의 KAKAO_FAIL_MAIL(#822)이 맡는다.
+#     contact-lifecycle-sim 장면 6 은 «문의서 칸 → 저장 → 발송»을 실제로 돌린다.
+chk 'PHONE_AUTOFILL_82' scripts/audit/contact-lifecycle-sim.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tel-autofill.mjs >/dev/null 2>&1; _ta=$?
+  case "$_ta" in
+    0) echo 'ok tel-autofill: 자동완성 +82 가 번호 칸 어디서도 010 으로 · GAS 사본 일치 · 서버 저장 배선' ;;
+    1) echo 'FAIL tel-autofill: 자동완성 +82 번호 처리가 틀렸습니다 — node scripts/audit/tel-autofill.mjs'; fail=1 ;;
+    *) echo 'ok tel-autofill: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'PHONE_AUTOFILL_82' shared/tel-kr.js 1
+chk 'PHONE_AUTOFILL_82' inquiry.html 2
+chk 'PHONE_AUTOFILL_82' schedule.html 1
+chk 'PHONE_AUTOFILL_82' mypage.html 3
+chk 'PHONE_AUTOFILL_82' admin.html 3
+chk 'PHONE_AUTOFILL_82' automation/admin/Admin.html 3
+chk 'PHONE_AUTOFILL_82' automation/consultation/ScreenA_apply.html 1
+chk 'PHONE_AUTOFILL_82' automation/platform/00_platform-config.gs 2
+chk 'PHONE_AUTOFILL_82' automation/platform/70_journey.gs 5
+chk 'PHONE_AUTOFILL_82' automation/consultation/consultation-booking.gs 2
+chk 'PHONE_AUTOFILL_82' automation/platform/50_auth-handlers.gs 1
+chk 'SERVED_OURS' scripts/audit/tel-autofill.mjs 1
+
+# ★[REVIEW_EXIT_HIDE 2026-09-25 사장님 「후기 남긴 고객도 취소 처리하면 후기 지워지게」] 취소·노쇼·미계약 고객 후기는
+#   관리자 후기 목록·새 후기 알림·집계에서 뺀다(survey-notes ⑧ 이 실제 adminHome 으로 잰다). 시트 칸을 비우는 것은 따로 간다.
+chk 'REVIEW_EXIT_HIDE' automation/admin/admin.gs 1
+chk 'REVIEW_EXIT_HIDE' scripts/audit/survey-notes.mjs 1
+
+# ★★[UNPAID_KIND 2026-09-25 사장님 「중도금 고객인데 아직 입금도 안 했는데 처리할 일에 중도금확인이 떠 있는 건 왜?」]
+#   입금 신호 없는 기한 카드가 고객 입금 신호 카드와 같은 이름(중도금확인·잔금확인·중도금잔금확인)·같은 확인 버튼이었고,
+#   149일 안에 맺은 임박 계약은 서명하는 날 «미납 D+87 · 해제 절차» 빨강이 떴다. 실제 adminHome 으로 재서 지킨다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/unpaid-kind.mjs >/dev/null 2>&1; _uk=$?
+  case "$_uk" in
+    0) echo 'ok unpaid-kind: 신호 없는 기한 카드 = «…미납» · 임박 계약은 서명일부터 · 관리자 화면 두 벌이 새 이름을 안다' ;;
+    1) echo 'FAIL unpaid-kind: 미납 카드와 입금 확인 카드가 다시 섞였거나 임박 계약 기한이 틀렸습니다 — node scripts/audit/unpaid-kind.mjs'; fail=1 ;;
+    *) echo 'ok unpaid-kind: 재지 못했습니다(세계·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'UNPAID_KIND' automation/admin/admin.gs 3
+chk 'UNPAID_KIND' admin.html 1
+chk 'UNPAID_KIND' automation/admin/Admin.html 1
+chk 'SERVED_OURS' scripts/audit/unpaid-kind.mjs 1
+
+# ★[HOLD_PREFILL_CHANGE 2026-09-25 사장님 「변경 가능하다는 멘트가 있으면 문의를 하나 줄일 수 있겠다」]
+#   계약서 요청 화면 — 임시 고정 일정으로 채운 날짜·시간 «바로 아래»에서 바꿔도 되는지·바꾸면 어떻게 되는지를 답한다.
+chk 'HOLD_PREFILL_CHANGE' mypage.html 1
+chk 'id="mp_ciHoldNote"' mypage.html 1
+chk '날짜·시간은 바꾸셔도 돼요' mypage.html 1
+nochk '미리 채워뒀어요. 바꾸셔도 괜찮아요' mypage.html
 
 # ★★[TPL_SILENT]·[TPL_COVER] 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 저 알람 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」
 #   연락처 쪽은 검사가 있었는데(PHONE_KR_NORM·CONTACT_LIFECYCLE_SIM) «알림 종류마다 알림톡이 실제로 나가는가»는 없었다.

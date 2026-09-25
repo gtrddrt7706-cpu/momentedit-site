@@ -363,7 +363,7 @@ function prodLabel(p){ return snap(p)?'스냅':'시그'; }
 /* 시각 표기 — "YYYY-MM-DD HH:mm" → "M/D HH:mm"(올해 연도 생략) */
 function fmtDT(s){ var m=String(s||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/); if(!m) return esc(s||''); var yr=(+m[1]!==new Date().getFullYear())?(m[1]+'/'):''; return yr+(+m[2])+'/'+(+m[3])+' '+m[4]+':'+m[5]; }
 function fmtDate(ymd){ var m=String(ymd||'').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return esc(ymd||''); var d=new Date(+m[1],+m[2]-1,+m[3]); return (+m[2])+'/'+(+m[3])+'('+WD[d.getDay()]+')'; }
-function fmtCRTarget(s){ var n=String(s||'').replace(/[^0-9]/g,''); if(n.length===11) return n.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3'); if(n.length===10) return n.replace(/(\d{3})(\d{2})(\d{5})/,'$1-$2-$3'); return String(s||''); }   // 휴대폰(11)/사업자(10) 가독성
+function fmtCRTarget(s){ var n=meTelDigits(s);   /* [PHONE_AUTOFILL_82] 저장된 «8210…» 도 010 으로 읽는다 */ if(n.length===11) return n.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3'); if(n.length===10) return n.replace(/(\d{3})(\d{2})(\d{5})/,'$1-$2-$3'); return String(s||''); }   // 휴대폰(11)/사업자(10) 가독성
 function ddayLabel(n,isSnap){ if(n==null) return ''; var w=isSnap?'촬영':'예식'; if(n>0) return w+' D-'+n; if(n<0) return w+' D+'+(-n); return w+' D-day'; }
 function consultLabel(n){ if(n==null) return ''; if(n===0) return '오늘'; if(n===1) return '내일'; if(n===2) return '모레'; if(n>2) return 'D-'+n; return 'D+'+(-n); }   // 대면상담까지 D-day(상담확정·촬영확정 그룹)
 function stageStyle(s){ var c=STAGE_COLOR[s]||['#EEE','#555']; return 'background:'+c[0]+';color:'+c[1]; }
@@ -424,9 +424,10 @@ function loadHome(){
 var curHome=null;
 
 function queueRow(it){
-  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','잔금확인':'confirmBalance','추가보정확인':'confirmExtra','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered' };
+  /* [UNPAID_KIND 2026-09-25] 입금 신호 없는 기한 카드(중도금미납·잔금미납·중도금잔금미납)는 «…확인»(고객 입금 신호)과 이름이 다르다 — 버튼은 통장을 보고 누르는 «입금 확인» */
+  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','중도금미납':'confirmMid','잔금미납':'confirmBalance','중도금잔금미납':'confirmMidBal','잔금확인':'confirmBalance','추가보정확인':'confirmExtra','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered' };
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','잔금확인':'잔금 확인','추가보정확인':'추가보정 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','보정시작':'보정본 등록','계약만료':'재발송','현금영수증발행':'현금영수증 발행','환불송금':'환불 처리' }[it.kind]||'처리';
+  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'시착 동의 보내기','상담완료':'상담완료','입금확인':'입금 확인','중도금확인':'중도금 확인','중도금미납':'입금 확인','잔금미납':'입금 확인','중도금잔금미납':'입금 확인','잔금확인':'잔금 확인','추가보정확인':'추가보정 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달','계약발송':'계약서 발송','결과물등록':'결과물 등록','보정시작':'보정본 등록','계약만료':'재발송','현금영수증발행':'현금영수증 발행','환불송금':'환불 처리' }[it.kind]||'처리';
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
   var btn = act
@@ -547,7 +548,24 @@ function doSearch(){
 /* ════════ 상세 ════════ */
 /* ★[CONTACT_FIX] 95_notify.gs 의 발송 판정·admin.gs 의 저장 판정과 «같은 자»다.
    자를 따로 쓰면 「화면은 괜찮다는데 알림은 안 가는」 상태가 또 생긴다. 셋이 같아야 한다. */
-function _phoneOk(v){ return /^01[016789][0-9]{7,8}$/.test(String(v||'').replace(/[^0-9]/g,'')); }
+/* [PHONE_AUTOFILL_82] /shared/tel-kr.js 의 meTelDigits 와 한 글자도 같아야 한다 — scripts/audit/tel-autofill.mjs 가 대조한다 */
+function meTelDigits(v) {
+  var s = String(v == null ? '' : v);
+  var d = s.replace(/[^0-9]/g, '');
+  if (/^\s*(\+|00)/.test(s)) {                       // «+82» · «0082» — 국가번호가 확실하다
+    var t = d.replace(/^00/, '');
+    if (t.slice(0, 2) === '82') {
+      var r = t.slice(2);
+      if (r.charAt(0) === '0') r = r.slice(1);       // «+82 010…» 처럼 0 을 한 번 더 적은 값
+      // 010 은 8자리가 붙어야 온전하다(11자). 7자리면 한 자리가 빠진 것이라 되살리지 않는다(_phoneKR 과 같다)
+      if (/^(10\d{8}|1[16789]\d{7,8}|[2-7]\d{7,9})$/.test(r)) return '0' + r;
+    }
+    return d;
+  }
+  var m = d.match(/^82(10\d{8}|1[16789]\d{7,8})$/);    // «+» 없이 82 — 휴대폰 꼴(11~12자리)만
+  return m ? '0' + m[1] : d;
+}
+function _phoneOk(v){ return /^01[016789][0-9]{7,8}$/.test(meTelDigits(v)); }   // [PHONE_AUTOFILL_82] «+82 10-…» 도 서버(_phoneKR)처럼 받는다
 function _emailOk(v){ return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(v||'').trim()); }
 /* [CONTACT_FIX] 연락처·이메일 정정 — 미리보기 먼저, 그다음 실행(ADM_AC1 과 같은 2단 관례).
    ★사유를 받는 이유: 이력에 «누가 왜 바꿨는지»가 남아야 나중에 근거가 된다.
@@ -636,7 +654,7 @@ function renderDetail(d){
      '<span class="pchip">'+esc(d.product||'—')+'</span><span class="code">'+esc(d.code)+'</span></div></div>';
   // 연락
   h+='<div class="contact">';
-  if(d.phone) h+='<a href="tel:'+esc(d.phone.replace(/[^0-9+]/g,''))+'">📞 전화</a>';
+  if(d.phone) h+='<a href="tel:'+esc(meTelDigits(d.phone))+'">📞 전화</a>';   // [PHONE_AUTOFILL_82]
   if(d.phone) h+='<button id="copyPhone">연락처 복사</button>';
   if(d.email) h+='<a href="mailto:'+esc(d.email)+'">✉ 메일</a>';
   /* ★★[CONTACT_FIX] 조건부로 만들지 말 것 — 고쳐야 하는 상황이 바로 «번호가 비었거나 이상한»

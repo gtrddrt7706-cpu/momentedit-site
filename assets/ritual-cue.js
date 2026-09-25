@@ -834,7 +834,7 @@
       var pourB = pour.length && S.toast === 'both';
       if (t.nar2) seq.push(cue({
         k: 'toast', blockN: '축배 · 케이크', slug: pourB ? 'toast-both-pour-b' : 'toast-both-b', name: '축배 · 잔을 들고 선창',
-        text: pourB ? EXTRA['toast-both-pour-b'] : t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가면', note: t.note2,
+        text: pourB ? EXTRA['toast-both-pour-b'] : t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가고 «잔 됨» 신호가 오면', note: t.note2,
         live: { t: t.cue2, est: t.est2, duck: 0, self: true, doing: 'say' }
       }));
       seq.push(cue({

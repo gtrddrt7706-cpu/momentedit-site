@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="/shared/preview-guard.js"></script><!-- [PREVIEW_GUARD] 운영 주소가 아니면 GAS 연결을 막는다 · 운영에서는 아무 일도 안 한다 · 맨 앞이어야 한다 -->
+<script src="/shared/tel-kr.js"></script><!-- [PHONE_AUTOFILL_82] 자동완성 «+82 10-…» 를 010… 으로 · 번호 칸 oninput 이 부른다 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/shared/analytics.js" defer></script>
 <!-- [EDGE_BACK] 왼쪽 가장자리 스와이프 → 뒤로가기. iOS는 시스템 제스처와 충돌하므로 스크립트 내부에서 자동 제외. -->
@@ -1607,7 +1608,11 @@ form.addEventListener('change', function(e){
 /* TEL 입력 자동 포맷 (한국 휴대폰 번호) */
 const phoneInput = document.getElementById('phone');
 phoneInput.addEventListener('input', (e) => {
-  let v = e.target.value.replace(/[^\d]/g, '');
+  /* ★★[PHONE_AUTOFILL_82 2026-09-25] 국가번호를 «자르기 전에» 0 으로 바꾼다 — 되돌리지 말 것.
+     종전엔 숫자만 남기고 11자리로 잘라서, 자동완성 «+82 10-7349-7706» 이 «821-0734-9770» 이 됐다.
+     끝자리 6 이 잘린 것이다. 그 번호로는 알림톡이 나가지 않았고(#800 이 쫓던 값이 이것이다),
+     한 번 잘린 값은 서버에서 되살릴 수 없다. meTelDigits 는 /shared/tel-kr.js 에 있다. */
+  let v = window.meTelDigits ? meTelDigits(e.target.value) : e.target.value.replace(/[^\d]/g, '');
   if (v.length > 11) v = v.slice(0, 11);
   if (v.length >= 7) {
     e.target.value = v.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');

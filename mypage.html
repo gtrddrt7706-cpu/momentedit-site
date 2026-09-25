@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="/shared/preview-guard.js"></script><!-- [PREVIEW_GUARD] 운영 주소가 아니면 GAS 연결을 막는다 · 운영에서는 아무 일도 안 한다 · 맨 앞이어야 한다 -->
+<script src="/shared/tel-kr.js"></script><!-- [PHONE_AUTOFILL_82] 자동완성 «+82 10-…» 를 010… 으로 · 번호 칸 oninput 이 부른다 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin"><!-- 개인정보: URL의 토큰·재설정 파라미터가 Referer로 제3자(폰트·GA)에 새지 않게 origin만 전송 -->
 <script src="/shared/analytics.js" defer></script>
@@ -556,6 +557,14 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    실측 사용 0건이었다. 되살리려면 카드 UI 자체를 되살려야 하는데 그건 사용자 결정으로 폐지된 것이다.
    카드 대신 쓰는 요청 상자 규칙은 위 .wsh-* 다. */
 /* ★스냅 무드 색 타일(.smt*) CSS 폐지 — 2026-07-20 사용자 지시("느낌이 안 오고 별로 · 어떤 작가여도 도움되는 정보 위주로"). 추상 색 스와치 대신 인물·관계·각도 등 실무 브리핑으로 전환. 리뷰·복구에서 되살리지 말 것. */
+.rit-prep{border-bottom:1px solid var(--border);padding:2px 2px 10px;text-align:left}
+.rit-prep>summary{cursor:pointer;list-style:none;font-size:12.5px;color:var(--sub);padding:10px 0;min-height:44px;box-sizing:border-box;display:flex;align-items:center;gap:6px}
+.rit-prep>summary::-webkit-details-marker{display:none}
+.rit-prep>summary::after{content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 4px}
+.rit-prep[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
+.rit-prep h4{font-size:12px;font-weight:500;color:var(--text);margin:8px 0 4px}
+.rit-prep ul{margin:0;padding:0 0 0 16px;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.rit-prep .due{color:var(--label-soft);white-space:nowrap}
 .trk-sub{font-size:12px;color:var(--label-soft);text-align:left;padding:3px 2px 11px;margin-top:0;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all}
 .trk-panel{text-align:left;padding:12px 2px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:0 0 8px 8px;padding-left:12px;padding-right:12px}   /* 행 버튼으로 여닫는 내용 패널(확인서·하객 안내) — 행과 같은 리듬, 살짝 다른 바탕으로 소속 표시 */
 .trk-sep{display:flex;align-items:center;gap:10px;margin:20px 0 2px;color:var(--label-soft);font-size:11px;letter-spacing:.14em;font-weight:600}   /* 준비 트랙과 확인·전달(하객 안내·예식 확인서) 구분 — 성격이 달라 섞여 보이던 것 분리(2026-07-18 사용자 지시) */
@@ -1586,7 +1595,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.5') return '/contract/archive/v1-5.html';   // [CONTRACT_V16] v1.5 서명자는 AI 음성 안내 확인 줄이 없던 보존본으로 열람(서명 안 한 줄이 '확인했습니다'로 보이면 안 된다)
   if(v==='v1.6') return '/contract/archive/v1-6.html';   // [PRICE_2026_08] 인상 전(280/210만) 서명자는 그 금액이 적힌 보존본으로 열람
   if(v==='v1.7') return '/contract/archive/v1-7.html';   // [PRICE_2026_08_15] 평일 240만 서명자(8/14~8/15 이틀 창) — 창이 짧다고 빼지 말 것. 한 분이라도 있으면 새 금액 문서를 보게 된다
-  return '/contract/v1-1.html';   // 현행(v1.8) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  if(v==='v1.8') return '/contract/archive/v1-8.html';   // [CONTRACT_V19] v1.8 서명자는 스냅 45 · 본식 16~25 · 합 55 · «부케·생화 커스텀» 이 적힌 보존본으로
+  return '/contract/v1-1.html';   // 현행(v1.9) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -3267,7 +3277,7 @@ function renderLedger(l){
 // [②] 소득공제(현금영수증) 번호 상시 등록/변경 — 결제 카드 밖에서도.
 function doEditCashReceipt(tail){
   var cur=tail?('<br><span style="color:var(--light)">현재 등록 · 끝 '+escapeHtml(tail)+'</span>'):'';
-  mpModalOpen({ title:'소득공제 번호', bodyHtml:'<div style="font-size:13px;color:var(--sub);line-height:1.65;margin-bottom:11px;text-align:left;word-break:keep-all">현금영수증을 <b>소득공제</b>로 받으실 휴대폰 번호나 사업자번호를 적어 주세요. 비우고 저장하면 등록이 해제돼요(자진발급).'+cur+'</div><input type="tel" inputmode="numeric" id="mp_crEdit" class="cc-input" placeholder="휴대폰 또는 사업자번호" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">', confirmText:'저장', cancelText:'취소' }).then(function(ok){
+  mpModalOpen({ title:'소득공제 번호', bodyHtml:'<div style="font-size:13px;color:var(--sub);line-height:1.65;margin-bottom:11px;text-align:left;word-break:keep-all">현금영수증을 <b>소득공제</b>로 받으실 휴대폰 번호나 사업자번호를 적어 주세요. 비우고 저장하면 등록이 해제돼요(자진발급).'+cur+'</div><input type="tel" inputmode="numeric" id="mp_crEdit" class="cc-input" placeholder="휴대폰 또는 사업자번호" autocomplete="off" oninput="this.value=meTelDigits(this.value)">', confirmText:'저장', cancelText:'취소' }).then(function(ok){
     if(!ok) return;
     var v=(($('mp_crEdit')&&$('mp_crEdit').value)||'').trim();
     api({action:'saveCashReceipt', token:getToken(), cashReceipt:v}).then(function(d){
@@ -3570,9 +3580,16 @@ function renderContractReqForm(ctx){
     +'<div class="cc-title" style="text-align:center">예식일을 정하고 계약서를 요청하세요</div>'
     +'<div class="cc-sub" style="text-align:center">계약서에 들어갈 정보예요. 확인하고 빈 칸을 채워 주세요.</div>'
     +ex
-    +((!ci.weddingDate&&hd.date)?'<div class="cc-note" style="text-align:left;margin:2px 0 8px">임시 고정하신 예식 일정으로 미리 채워뒀어요. 바꾸셔도 괜찮아요.</div>':'')
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:preWed})
-    +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 본예식 시작 기준</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
+    +'<div id="mp_ciSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 본예식 시작 기준</span></label><div class="wed-slot-row" id="mp_ciSlotRow"></div><div class="cc-note" id="mp_ciSlotNote" style="margin:5px 0 0;text-align:left"></div>'
+    /* ★[HOLD_PREFILL_CHANGE 2026-09-25 사장님 「임시고정 날짜로 기본 셋팅된 건 좋은데 변경 가능하다는 멘트가 있으면 «변경 가능한가?» 문의를 하나 줄일 수 있겠다」]
+       종전 문구(«미리 채워 뒀다» + «괜찮다» 두 문장)는 확인 상자 «아래·날짜 칸 위»에 붙어
+       상자의 꼬리말처럼 읽혔고, 바꾸면 무슨 일이 생기는지는 말하지 않았다. → 날짜·시간 칸 «바로 아래»로 옮기고,
+       되물을 것(바꿔도 되나 · 원래 날짜는 어떻게 되나)을 한 번에 답한다.
+       근거(서버 70_journey 계약 요청): 요청 일정이 임시 고정과 다르면 새 일정을 가예약으로 잡고 옛 고정은 푼다.
+       새 일정이 이미 찼으면 요청 자체를 거절해 옛 고정은 그대로다 — 그래서 «요청하시면»에 걸어 말한다. */
+    +((!ci.weddingDate&&hd.date)?'<div class="cc-note" id="mp_ciHoldNote" style="margin:8px 0 0;text-align:left;line-height:1.7;word-break:keep-all">임시 고정하신 일정으로 채워 두었어요. <b style="color:var(--sub);font-weight:500">날짜·시간은 바꾸셔도 돼요.</b> 요청하시면 바꾼 일정으로 다시 잡아 드리고, 먼저 고정한 일정은 풀려요.</div>':'')
+    +'</div>'
     +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(preSlot)+'">'
     +weddingSequenceRef('시간대를 고르실 때 참고할 요약 시간표예요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
     +'<button type="button" class="seq-open-btn" data-seq-open="full" style="margin-top:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>시간대별 전체 진행 시간표 보기</button>'
@@ -3583,7 +3600,7 @@ function renderContractReqForm(ctx){
     +'<div class="cc-note" style="text-align:left;margin:10px 0 3px;color:var(--light);line-height:1.6">연락처 · 이메일은 <b style="color:var(--sub);font-weight:500">선택</b>이에요. 다만 이메일을 두 분 각각 남겨 두시면, 축하해 주신 분들이 남긴 편지가 <b style="color:var(--sub);font-weight:500">각자에게 직접</b> 도착해요.</div>'
     +'<label class="pf-l" style="margin-top:2px">신랑 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
     +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
-    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>'
+    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=meTelDigits(this.value)" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>'
     +'<label class="srv-consent" style="margin-top:14px;justify-content:center;text-align:left;max-width:fit-content;margin-left:auto;margin-right:auto"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0;text-align:center"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -3623,11 +3640,14 @@ function _softHint(el, test, msg){
   el.addEventListener('input', function(){ var h=document.getElementById((el.id||'f')+'_softhint'); if(h && String(el.value||'').trim() && test(String(el.value).trim())) h.remove(); });
 }
 function _fmtEmailOk(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
-function _fmtPhoneOk(v){ var d=v.replace(/[^0-9]/g,''); return d.length>=9 && d.length<=11; }
+function _fmtPhoneOk(v){ var d=window.meTelDigits?meTelDigits(v):v.replace(/[^0-9]/g,''); return d.length>=9 && d.length<=11; }   // [PHONE_AUTOFILL_82] «+82 10-…» 도 맞는 번호다
+/* [PHONE_AUTOFILL_82] 계약서에 찍히는 연락처 — 자동완성 «+82 10-7349-7706» 을 «010-7349-7706» 으로. 국내 표기로 적은 값은 적은 그대로 둔다 */
+function _telClean(v){ var s=String(v||'').trim(); if(!/^(\+|00)/.test(s)||!window.meTelDigits) return s; var d=meTelDigits(s); return /^01[016789][0-9]{7,8}$/.test(d)?d.replace(/^(\d{3})(\d{3,4})(\d{4})$/,'$1-$2-$3'):s; }
 function _fmtAcctOk(v){ return /\d{6,}/.test(v.replace(/[^0-9]/g,'')); }
 function _wireCiHints(){
   _softHint($('mp_ciGP'), _fmtPhoneOk, '연락처 숫자가 맞는지 확인해 주세요.');
   _softHint($('mp_ciBP'), _fmtPhoneOk, '연락처 숫자가 맞는지 확인해 주세요.');
+  ['mp_ciGP','mp_ciBP'].forEach(function(id){ var e=$(id); if(e) e.addEventListener('blur', function(){ var c=_telClean(e.value); if(c!==e.value.trim()) e.value=c; }); });   // [PHONE_AUTOFILL_82] 칸을 떠날 때 국내 표기로 보여 준다
   _softHint($('mp_ciGE'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.');
   _softHint($('mp_ciBE'), _fmtEmailOk, '이메일 형식이 맞는지 확인해 주세요.');
 }
@@ -3638,7 +3658,7 @@ function doRequestContract(){
   var err=$('mp_ciErr'); function fail(m){ if(err) err.textContent=m; }
   var info={ weddingDate:v('mp_ciWed'), weddingTime:v('mp_ciWedTime'), groomBirth:birth('mp_ciGB'), brideBirth:birth('mp_ciBB'), groomAddr:addr('mp_ciGA'), brideAddr:addr('mp_ciBA'),
     groomAddrRoad:v('mp_ciGA_road'), groomAddrDetail:v('mp_ciGA_detail'), brideAddrRoad:v('mp_ciBA_road'), brideAddrDetail:v('mp_ciBA_detail'),   // 분리 원본 · 재수정 시 상세주소 칸 복원용
-    groomPhone:v('mp_ciGP'), groomEmail:v('mp_ciGE'), bridePhone:v('mp_ciBP'), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
+    groomPhone:_telClean(v('mp_ciGP')), groomEmail:v('mp_ciGE'), bridePhone:_telClean(v('mp_ciBP')), brideEmail:v('mp_ciBE'), cashReceipt:v('mp_ciCR'), consent:!!($('mp_ciConsent')&&$('mp_ciConsent').checked) };
   if(!info.weddingDate) return fail('예식 날짜를 선택해 주세요.');
   if(!info.weddingTime) return fail('예식 시간대를 선택해 주세요.');
   if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');
@@ -4185,7 +4205,7 @@ function cashReceiptField(id, val){
     var tail=val.length>=4?val.slice(-4):val;
     return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증은 <b>등록된 번호</b>(끝 '+escapeHtml(tail)+')로 자동 발급돼요</div>';
   }
-  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')">'
+  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=meTelDigits(this.value)">'
     + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>';
 }
 function doBalanceSignal(){
@@ -5286,6 +5306,36 @@ function updateCover(){
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
 var _cfOpenNext=false;   // 확인 저장 직후 재렌더에서 확인서 패널을 열어 '확인하셨어요' 배너가 보이게(1회 소비)
+/* ★[PREP_LIST 2026-09-25 코워크 P8 · 사장님 «만듭니다»] 식순 행 아래 접힌 «두 분 준비 · 도와주실 분».
+   원천은 빌더와 같은 prepOf · helpersOf — 빌더가 저장할 때 summary.prep · summary.helpers 로 싣는다(이 파일은 ritual-open 을 안 싣는다).
+   마감 = 예식일 − due(7일 · 사흘). 옛 초안(prep 없음)은 아무것도 그리지 않는다. 식사 자리 안내 분은 애프터 웨딩을 고른 날만 더한다. */
+/* ★[BOUQUET_FLORIST 2026-09-25 사장님 둘째 결정 · 코워크 2-2] 부케 = 협력 플로리스트 «소개». 주문 · 결제는 두 분과 플로리스트 사이.
+   저희가 안내하는 것은 받는 시각(두 분 도착 10분 전)과 장소뿐이다. ★목록은 사장님이 주시면 여기 넣는다 —
+   비어 있는 동안 이 칸은 **그리지 않는다**(칸만 만들고 숨김). 항목: {n:'이름', url:'https://…', note:'한 줄'} */
+var BOUQUET_FLORISTS=[];
+function _bouquetFold(base){
+  if(!BOUQUET_FLORISTS.length) return '';
+  var t=String((base&&base.weddingTime)||'').slice(0,5), m=t.match(/^(\d{2}):(\d{2})$/), when='';
+  if(m){ var a=(+m[1])*60+(+m[2])-60-10; if(/^(09:00|12:20|15:40)$/.test(t)) a+=60; when=String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0'); }   // 슬롯 ID(도착+60) · 계약 슬롯(도착) 둘 다
+  return '<details class="rit-prep"><summary>부케 · 협력 플로리스트</summary>'
+    +'<ul>'+BOUQUET_FLORISTS.map(function(f){ var u=safeUrl?safeUrl(f.url):''; return '<li>'+(u?'<a href="'+escapeHtml(u)+'" target="_blank" rel="noopener">'+escapeHtml(f.n)+'</a>':escapeHtml(f.n))+(f.note?' <span class="due">· '+escapeHtml(f.note)+'</span>':'')+'</li>'; }).join('')+'</ul>'
+    +'<h4>받는 시각 · 장소</h4><ul><li>예식 당일 '+(when?escapeHtml(when)+'까지':'두 분 도착 10분 전까지')+' · 스튜디오로 보내 주세요 <span class="due">· 퀵이나 직접 가져오기 모두 괜찮아요</span></li>'
+    +'<li>주문 · 결제는 플로리스트와 직접 하시면 돼요</li><li>부케 없이 오시거나 따로 준비하셔도 괜찮아요</li></ul></details>';
+}
+function _ritPrepFold(rd, base, dd){
+  var sm=rd&&rd.summary; if(!sm||!sm.open||!(sm.prep||sm.helpers)) return '';
+  var wm=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  function dueTxt(n){ if(!wm) return n===3?'사흘 전까지':'7일 전까지'; var d=new Date(+wm[1],+wm[2]-1,+wm[3]-n); return (d.getMonth()+1)+'월 '+d.getDate()+'일까지('+(n===3?'사흘 전':'7일 전')+')'; }
+  var two=[], par=[];
+  (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*사흘 전까지$/,''); var li='<li>'+escapeHtml(w)+' <span class="due">· '+escapeHtml(dueTxt(q.due===3?3:7))+'</span></li>'; (q.who==='parents'?par:two).push(li); });
+  var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
+  var n=two.length+par.length+hp.length; if(!n) return '';
+  return '<details class="rit-prep"><summary>두 분 준비 · 도와주실 분 '+n+'가지</summary>'
+    +(two.length?'<h4>두 분 준비</h4><ul>'+two.join('')+'</ul>':'')
+    +(par.length?'<h4>부모님께 여쭐 것</h4><ul>'+par.join('')+'</ul>':'')
+    +(hp.length?'<h4>도와주실 분</h4><ul>'+hp.map(function(x){ return '<li>'+escapeHtml(String(x[0]))+' <span class="due">· '+escapeHtml(String(x[1]))+'</span></li>'; }).join('')+'</ul>':'')
+    +'</details>';
+}
 function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};
   t=t||{}; inv=inv||{};
@@ -5364,7 +5414,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리듣기'}; }catch(e){}
   var _prepRows=[
     { done: ist==='완료', html: row('청첩장', ist, 'mp_invStart', ilabel, null, {tag:_ivStepTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },
+    { done: true, html: _ritPrepFold(rd, base, dd) },
+    { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
@@ -8417,7 +8469,7 @@ var DN_PRESETS=[
 ];
 // 예식 후 가볼 만한 곳 — 향동 기준 디렉터 큐레이션(지도 검색이 빈약한 동네라 고정 추천). 거리·설명은 디렉터가 다듬을 수 있음.
 var DN_ATTRACTIONS=[
-  {n:'서오릉', t:'사적·솔숲 산책', d:'차로 10분', desc:'조선왕릉 솔숲길. 한복·예복 차림 산책과 가족 사진에 좋아요.'},
+  {n:'서오릉', t:'사적·솔숲 산책', d:'차로 10분', desc:'조선왕릉 솔숲길. 예복 차림 산책과 가족 사진에 좋아요.'},
   {n:'북한산 둘레길 구름정원길', t:'가벼운 숲길', d:'차로 10~15분', desc:'경사 완만한 데크길. 어르신도 부담 없이 짧게 걷기 좋아요.'},
   {n:'하늘공원·노을공원', t:'한강뷰·억새', d:'차로 15분', desc:'한강과 도심을 내려다보는 억새 언덕. 노을 사진 명소예요.'},
   {n:'행주산성 역사공원', t:'역사·전망', d:'차로 15분', desc:'한강이 내려다보이는 산성길. 완만해 가족 나들이로 무난해요.'},

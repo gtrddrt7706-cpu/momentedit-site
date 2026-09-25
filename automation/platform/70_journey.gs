@@ -205,7 +205,7 @@ function handleGetSignature(body) {
 // 계약서는 시착보다 무거운 게이트 — 서명 = 효력 발생·취소/파기 불가. 발송 +72h 기한, 미서명 자동 파기.
 var CONTRACT = {
   version: '계약서명-v1',
-  docVersion: 'v1.8',               // 계약서 '문서' 버전(시그니처) — v1.8(2026-08-15): 평일 금액 인상(240→250만 · 계약 시 납입 14만→15만 · 주말 330만 무변경 · PRICE_2026_08_15 · 조항 무변경). v1.7(2026-08-14): 금액 인상(주말 280→330만·평일 210→240만 · 계약 시 납입 잔액 18만→23만·11만→14만 · PRICE_2026_08 · 조항 무변경). v1.6(2026-08-13): 서명란에 AI 음성 안내 확인 줄 신설(★AI고지_부부 승인 자리 · CONTRACT_V16 · 조항 무변경). v1.5(2026-08-09): 3조① Private Snap 45분(캔들존 20·이동 5·화이트존 20)·본식 16~25분·Group Record 30~39분(합 55분 고정). v1.4(2026-08-08): 본식 16~25·GR 36~44(합 60). v1.3(2026-06-12): 예약금 100,000·계약금 잔액 납입·시착 2벌/5만. 서명 시 동의기록.계약.docVersion 스냅샷, 열람은 그 버전 문서로
+  docVersion: 'v1.9',               // 계약서 '문서' 버전(시그니처) — ★[CONTRACT_V19] v1.9(2026-09-25): 3조① 스냅 50 · 본식 «예시 기준 약 12~25분» · GR «약 25~38분» · 합 50 · ①-2 준비한 순서 3분 · ② 식전 영상·착장 도움 · 부케 = 협력 플로리스트 소개(비용 직지급) · ⑥ «부케·생화 커스텀» 뺌. v1.8 은 archive/v1-8.html. v1.8(2026-08-15): 평일 금액 인상(240→250만 · 계약 시 납입 14만→15만 · 주말 330만 무변경 · PRICE_2026_08_15 · 조항 무변경). v1.7(2026-08-14): 금액 인상(주말 280→330만·평일 210→240만 · 계약 시 납입 잔액 18만→23만·11만→14만 · PRICE_2026_08 · 조항 무변경). v1.6(2026-08-13): 서명란에 AI 음성 안내 확인 줄 신설(★AI고지_부부 승인 자리 · CONTRACT_V16 · 조항 무변경). v1.5(2026-08-09): 3조① Private Snap 45분(캔들존 20·이동 5·화이트존 20)·본식 16~25분·Group Record 30~39분(합 55분 고정). v1.4(2026-08-08): 본식 16~25·GR 36~44(합 60). v1.3(2026-06-12): 예약금 100,000·계약금 잔액 납입·시착 2벌/5만. 서명 시 동의기록.계약.docVersion 스냅샷, 열람은 그 버전 문서로
   snapDocVersion: 'snap-v1.2',      // 웨딩스냅 계약서 문서 버전 — snap-v1.2(2026-06-12): 추가 착용 1벌당 50,000원. 구버전 서명자는 archive 보존본으로 열람
   서명기한시간: 72,                 // 발송 +72h 안에 서명
   리마인드시간: 24,                 // 마감 24h 전 리마인드(1차=마이페이지 표시, 알림톡 2차)
@@ -273,6 +273,7 @@ function handleSignContract(body) {
     prev.계약 = {
       type: '계약서명',
       version: CONTRACT.version,
+      /* [CONTRACT_V19] 이 파일이 옛것이면 v1.9 문서에 서명한 분이 'v1.8' 로 찍혀, 나중에 옛 보존본(스냅 45)을 보게 된다 */
       docVersion: (String(cust.get('상품타입') || '').trim() === '웨딩스냅') ? CONTRACT.snapDocVersion : CONTRACT.docVersion,   // 서명한 계약서 문서 버전(16조③ 버전 고정의 데이터 짝)
       signedAt: now,
       code: code,
@@ -505,7 +506,7 @@ function handleRequestContract(body) {
       groomAddrRoad: String(info.groomAddrRoad || '').trim(), groomAddrDetail: String(info.groomAddrDetail || '').trim(),   // 분리 원본 · 폼 재수정 시 상세주소 칸 복원(계약서는 합본 groomAddr 사용)
       brideAddrRoad: String(info.brideAddrRoad || '').trim(), brideAddrDetail: String(info.brideAddrDetail || '').trim(),
       weddingDate: wed, weddingTime: wT, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
-    var _cr = String(info.cashReceipt || '').replace(/[^0-9]/g, '').slice(0, 30); if (_cr) rec.현금영수증 = _cr;   // 현금영수증 발급번호(선택) · 계약 충당분·중도금·잔금 발급에 공통 사용
+    var _cr = _crNum(info.cashReceipt).slice(0, 30); if (_cr) rec.현금영수증 = _cr;   // [PHONE_AUTOFILL_82] «8210…» 을 010 으로   // 현금영수증 발급번호(선택) · 계약 충당분·중도금·잔금 발급에 공통 사용
     touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준·슬롯 점유 · 당사자 정보=계약서 자동기입용
     notifyKakao('admin.contractReq', code, { weddingDate: wed });   // 관리자: 계약서 요청됨 · 발송 필요(카톡)
     return { ok: true };
@@ -1213,7 +1214,7 @@ function handlePaymentSignal(body) {
     var rec = _parseJsonSafe(cust.get('동의기록'));
     var _prevBk = (rec.수납묶음 && rec.수납묶음.keys) || [];   // 재신고 시 기존 스냅샷과 합집합(이미 완료신호가 된 구성원이 재계산에서 빠져 스냅샷이 비는 것 방지)
     rec.수납묶음 = { keys: _prevBk.concat(_bk.filter(function (k) { return _prevBk.indexOf(k) === -1; })), at: fmtKST(new Date()) };
-    var _crIn = String((body && body.cashReceipt) || '').replace(/[^0-9]/g, '').slice(0, 40);   // 현금영수증(선택) — 같은 동의기록에 1회 쓰기(별도 _saveCashReceipt 호출이 이 쓰기를 덮던 순서 문제 방지)
+    var _crIn = _crNum(body && body.cashReceipt).slice(0, 40);   // [PHONE_AUTOFILL_82]   // 현금영수증(선택) — 같은 동의기록에 1회 쓰기(별도 _saveCashReceipt 호출이 이 쓰기를 덮던 순서 문제 방지)
     if (_crIn) rec.현금영수증 = _crIn;
     var upd = { '입금자명': payer, '입금완료신호': fmtKST(new Date()), '입금상태': '완료신호', '동의기록': JSON.stringify(rec) };
     if (_bk.indexOf('중도금') !== -1) upd['중도금상태'] = '완료신호';
@@ -1230,11 +1231,17 @@ function handlePaymentSignal(body) {
 //   금액은 계약총액에서 산출(없으면 amounts=null → "디렉터 확인 후 안내"). 내부값 비노출.
 // 현금영수증 번호(선택) — 동의기록 JSON에 저장(시트 컬럼 추가 불필요)·조회. 결제 카드 자동채움 + 관리자 발급용.
 function _saveCashReceipt(cust, sheet, colOf, raw) {
-  var cr = String(raw || '').replace(/[^0-9]/g, '').slice(0, 40);   // 숫자만 — submitSchedule·saveCashReceipt 경로와 표기 통일
+  var cr = _crNum(raw).slice(0, 40);   // 숫자만 — submitSchedule·saveCashReceipt 경로와 표기 통일 · [PHONE_AUTOFILL_82] «8210…» 은 010 으로
   if (!cr) return;
   try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
 }
-function _cashReceiptOf(r) { try { return String(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
+/* [PHONE_AUTOFILL_82] 현금영수증 번호 정규화 — 본체 _crKR 은 00_platform-config 에 있다.
+   그 파일을 아직 안 붙여넣은 상태에서도 결제 신고·계약 요청이 멈추지 않게 없으면 «숫자만 남기기»로 물러난다. */
+function _crNum(v) {
+  var _mk = '[PHONE_AUTOFILL_82]';
+  return (typeof _crKR === 'function') ? _crKR(v) : String(v == null ? '' : v).replace(/[^0-9]/g, '');
+}
+function _cashReceiptOf(r) { try { /* [PHONE_AUTOFILL_82] 이미 «8210…» 으로 저장된 번호도 읽을 때 010 으로 — 관리자가 그 값을 홈택스에 넣는다 */ return _crNum(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
 // [②] 현금영수증 발급 번호(소득공제용) 상시 등록/변경 — 결제 카드 밖(마이페이지 '내 내역')에서도 저장·수정. 빈값이면 등록 해제.
 function handleSaveCashReceipt(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
@@ -1247,7 +1254,7 @@ function handleSaveCashReceipt(body) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-    var num = String((body && body.cashReceipt) || '').replace(/[^0-9]/g, '').slice(0, 40);   // 휴대폰/사업자번호 · 숫자만
+    var num = _crNum(body && body.cashReceipt).slice(0, 40);   // 휴대폰/사업자번호 · 숫자만 · [PHONE_AUTOFILL_82]
     var rec = _parseJsonSafe(cust.get('동의기록'));
     if (String(rec.현금영수증 || '') === num) return { ok: true, already: true };
     rec.현금영수증 = num;   // 빈값이면 등록 해제(자진발급 전환)
