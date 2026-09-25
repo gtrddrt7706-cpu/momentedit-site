@@ -264,23 +264,23 @@
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '첫인사 한두 문장', 'write', 7]];
       case 'bless': return [['parents', '덕담 원고 · 한 분 400자 안팎(저희가 받아 큰 글씨로)', 'ask', 7]];
-      case 'vow': return [['couple', '서약문(비슷한 길이로)', 'write', 7]];
+      case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자
       case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring', 0]];
       case 'declare': return chipOf('declare', S) === 'family' ? [['parents', '선언을 읽을 가족 한 분', 'ask', null, NOTE_ASK]] : [];
       case 'tribute': { var t = chipOf('tribute', S); return t === 'none' ? [] : [['couple', t === 'long' ? '부모님께 드릴 말 · 한 분 400자 안팎' : crossTribute(S) ? '서로의 부모님께 드릴 한마디씩' : '부모님께 드릴 한마디씩', 'write', null, NOTE_READ]]; }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
         var fk = FREE_KIND[chipOf('free', S)], n = chipOf('freeLen', S);
-        if (fk === 'video') return [['couple', '영상 파일(가로 · ' + n + '분 안)', 'send', 3]];
-        if (fk === 'stage') return [['couple', '음원 파일(' + n + '분 안) · 설 자리 폭 알려 주기', 'send', 3]];
-        if (fk === 'speech') return [['couple', '축사하실 분께 부탁드리기 · 원고(분당 300자 안팎 · 큰 글씨로 돌려드려요) · 원고에 전 연인 · 술자리 이야기는 빼 주세요', 'ask', 3]];
+        if (fk === 'video') return [['couple', '준비한 순서 영상(휴대폰으로 가로로 찍은 영상 · ' + n + '분 안)', 'send', 3]];   // [SEND_WORDS 2-8] 이름 없이 붙던 «영상 파일»
+        if (fk === 'stage') return [['couple', '준비한 순서 음원(' + n + '분 안) · 설 자리 폭 알려 주기', 'send', 3]];
+        if (fk === 'speech') return [['couple', '축사하실 분께 부탁드리기 · 원고는 분당 300자 안팎 · 받으면 큰 글씨로 돌려드려요 · 전 연인 · 술자리 이야기는 빼 주세요', 'ask', 3]];
         return [['couple', '무엇을 누가 건넬지 알려 주기(저희가 자리를 맞춰요)', 'send', 7]];
       }
-      case 'letter': return [['couple', chipOf('letter', S) === 'each' ? '서로에게 편지 400자씩' : '부모님께 편지 400자씩', 'write', null, NOTE_READ]];
+      case 'letter': return [['couple', chipOf('letter', S) === 'each' ? '서로에게 편지 · 한 분 400자쯤' : '부모님께 편지 · 한 분 400자쯤', 'write', null, NOTE_READ]];
       case 'toast': {
         var w = chipOf('toast', S), wine = (w === 'cake') ? 'none' : chipOf('wine', S), out = [];
         if (wine === 'family') out.push(['parents', '양가에서 와인 한 병씩', 'ask', 0]);
         if (wine === 'mix') out.push(['couple', '색이 다른 와인 두 병(또는 음료 둘)', 'bring', 0]);
-        if (w !== 'cake') out.push(['couple', '자리마다 축배 음료 알려 주기(좌석표에서)', 'send', 7]);   // [P10 코워크 회신3] «정하기» → «알려 주기»(같은 갈래 «건넬지 알려 주기»와 같은 꼴)
+        if (w !== 'cake') out.push(['couple', '자리마다 축배 음료 알려 주기 · 마이페이지 «좌석 · 음료»에서', 'send', 7]);   // [P10 코워크 회신3] «정하기» → «알려 주기»(같은 갈래 «건넬지 알려 주기»와 같은 꼴)
         return out;
       }
     }

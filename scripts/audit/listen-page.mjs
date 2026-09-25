@@ -238,6 +238,56 @@ for (const w of [390, 1280]) {
   ok('1-3 떠 있는 것이 없으면 Esc 는 종전대로 나가기', await p2.evaluate(() => window.__exits === 1));
   await c2.close();
 }
+// [코워크 추가전달 2장 · 3장] OFF_LISTEN · INTRO_FOUR · PREV_BACK · UPLOAD_HONEST · WC_LIMIT · LAB_FIX2 · BIG_END · A11Y_*
+{
+  const { ctx, pg, errs } = await open(390);
+  await pg.click('#next'); await pg.waitForTimeout(400);
+  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 준비는 ③ 한 곳에 · 순서 2주 · 글 7일', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.querySelectorAll('.ipt .n').length === 4 && /준비는 ③ 한 곳에/.test(t) && /순서는 예식 2주 전까지, 글은 예식 7일 전까지/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
+  await pg.click('#next'); await pg.waitForTimeout(500);
+  await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
+  const h0 = await pg.evaluate(() => history.length);
+  await pg.click('#next'); await pg.waitForTimeout(1300); await pg.click('#next'); await pg.waitForTimeout(700);
+  await pg.click('#prev'); await pg.waitForTimeout(500); await pg.click('#prev'); await pg.waitForTimeout(500);
+  const h1 = await pg.evaluate(() => ({ n: history.length, k: STEPS[idx].k }));
+  await pg.goBack(); await pg.waitForTimeout(500);
+  ok('2-3 «이전»은 뒤로 가기와 같은 길 — ①→②→③→이전 둘 뒤 휴대폰 뒤로가 앞 걸음으로 가지 않는다', h1.k === 'pick' && await pg.evaluate(() => STEPS[idx].k !== 'listen' && STEPS[idx].k !== 'write'), JSON.stringify({ h0, h1 }));
+  await pg.goForward(); await pg.waitForTimeout(500);
+  await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } }); await pg.waitForTimeout(1200);
+  const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
+  ok('2-6 이름표(박수를 청하는 말 · 하객 입장 때 · 여는 말) · «성우» 없음', /박수를 청하는 말/.test(labs) && /하객 입장 때/.test(labs) && !/하객이 박수로 답하는|입장 직후|성우/.test(labs), labs);
+  ok('2-6 선언 칩 «나레이션 · 엄숙하게»', await pg.evaluate(() => RitualOpen.CHIPS.declare[0][1] === '나레이션 · 엄숙하게'));
+  // 2-1 담지 않은 순간도 들려준다(고른 것은 그대로)
+  const off = await pg.evaluate(() => _lOffRows()[0]);
+  const on0 = await pg.evaluate(() => JSON.stringify(S.on));
+  await pg.evaluate(() => { document.querySelectorAll('details').forEach((d) => { d.open = true; }); });
+  await pg.click(`[data-fk="lsp:${off}"]`); await pg.waitForTimeout(500);
+  ok(`2-1 담지 않은 순간(${off}) ▶ → 재생 목록이 선다 · 고른 것은 그대로`, await pg.evaluate((a) => LP.q.length > 0 && LP.cur === a[0] && JSON.stringify(S.on) === a[1], [off, on0]));
+  await pg.evaluate(() => lsStop());
+  await pg.click(`[data-fk="lst:${off}"]`); await pg.waitForTimeout(600);
+  ok('2-1 담지 않은 순간 작은 그림 → 크게 보기가 끝 화면이 아니라 그 순간으로 · «담지 않은 순간» 표시', await pg.evaluate(() => !document.getElementById('lsFull').hidden && !!LP.q.length && !/다 보셨어요/.test(document.getElementById('lsFull').textContent) && /담지 않은 순간/.test(document.querySelector('#lsFull .lf-h').textContent)));
+  ok('3장 크게 보기 동안 상담 말풍선도 잠긴다(inert)', await pg.evaluate(() => { const b = document.getElementById('meAdvStack'); return !b || b.hasAttribute('inert'); }));
+  await pg.evaluate(() => { LP.i = LP.q.length; _lShow(); }); await pg.waitForTimeout(300);
+  ok('2-10 ② 끝 화면 = [다시 보기] [다음 · 준비하기] 둘 · 큰 ↻ 없음', await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !!f.querySelector('[data-fk="lfagain"]') && !!f.querySelector('[data-fk="lfnextstep"]') && !f.querySelector('[data-fk="lfdone"]') && !f.querySelector('[data-fk="lftog"]'); }));
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
+  // 3장 radiogroup 방향키
+  await pg.click('[data-fk="lsm:candle"]'); await pg.waitForTimeout(300);
+  const c0 = await pg.evaluate(() => S.candleWho || RitualOpen.DEF.candleWho);
+  await pg.focus('.ls-row.open [role=radio][aria-checked="true"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);
+  ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => (S.candleWho || '') !== c && document.activeElement.getAttribute('role') === 'radio' && document.activeElement.getAttribute('aria-checked') === 'true', c0));
+  ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.ls-row.open [role=radio]')].every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
+  await pg.click('[data-fk="lsm:ring"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:ring"]'); await pg.waitForTimeout(400);
+  ok('3장 빼기 뒤 포커스 = «되돌리기» · 읽기 칸에 안내', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'lsundo' && /뺐어요/.test((document.getElementById('lsLive') || {}).textContent || '')));
+  await pg.click('[data-fk="lsundo"]'); await pg.waitForTimeout(400);
+  ok('3장 되돌리기 뒤 포커스 = 그 줄 머리', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'lsm:ring'));
+  await pg.click('#next'); await pg.waitForTimeout(700);
+  const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, send: document.querySelectorAll('.send-how a[href^="https://pf.kakao.com"], .send-how a[href^="mailto:"]').length }));
+  ok('2-4 · 2-8 ③ 보낼 길(카톡 · 메일)이 칸 안에 늘 보인다 · 쉬운 말', w.send >= 2 && /파일은 여기서 올라가지 않아요/.test(w.t) && /휴대폰으로 가로로 찍은 영상/.test(w.t) && !/가로 mp4/.test(w.t), w.send);
+  ok('2-5 서약 · 편지 분량이 한 숫자(한 분 300자쯤 · 모두 600자쯤 · 한 분 400자쯤) · 비밀로 둬도 돼요 없음', /한 분 300자쯤\(모두 600자쯤\)/.test(w.t) && !/비밀로 둬도 돼요/.test(w.t) && !/두 줄이면 충분해요/.test(w.t));
+  const warn = await pg.evaluate(() => { const t = document.querySelector('textarea[aria-label="서로에게 하는 약속(서약문)"]'); t.value = 'ㄱ'.repeat(600); t.dispatchEvent(new Event('input', { bubbles: true })); const a = getComputedStyle(document.getElementById('vowCnt')).color; t.value = 'ㄱ'.repeat(750); t.dispatchEvent(new Event('input', { bubbles: true })); return [a, getComputedStyle(document.getElementById('vowCnt')).color]; });
+  ok('2-5 서약 600자는 경고색 아님 · 750자는 경고색', warn[0] !== warn[1], JSON.stringify(warn));
+  ok('추가전달 2 · 3장 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
 // [DETAIL_0925 C1 · C2 · G] 글자 대비(본문 4.5 · 큰 글 3) · 누를 곳 44px 실측 — ① · ② · 크게 보기 · ③ 를 390 · 1280 에서
 const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";
 for (const w of [390, 1280]) {

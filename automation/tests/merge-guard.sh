@@ -8571,7 +8571,30 @@ if command -v python3 >/dev/null 2>&1; then python3 scripts/audit/comment-swallo
 chk 'COMMENT_SWALLOW' scripts/audit/comment-swallow.py 1   # 깨 보고 믿음 — 옛 main 판에서 saveScriptTxt 한 줄을 잡았다
 chk 'SAVED_OK' assets/ritual-open.js 1   # 새 코스 값(declare clap) 판정은 한 곳 — ④ TypeError · 새로고침에 엄숙하게로 바뀌던 것
 chk 'SAVED_OK' order-preview.html 2
-chk 'EMBED_ESC_YIELD' order-preview.html 1   # 임베드 Esc 는 크게 보기 · 확인 판 · 상담 창이 떠 있으면 비켜선다
+chk 'EMBED_ESC_YIELD' order-preview.html 1
+# ── [코워크 추가전달 2장 · 3장 · 4장 2026-09-25] 고객이 겪는 것 · 키보드 · 화면 읽기 ──
+chk 'OFF_LISTEN' order-preview.html 2   # 담지 않은 순간도 들려준다(고른 것은 그대로)
+chk 'INTRO_FOUR' order-preview.html 1   # 안내 2/2 = 네 걸음
+chk 'PREV_BACK' order-preview.html 1   # «이전» = 뒤로 가기와 같은 길
+chk 'UPLOAD_HONEST' order-preview.html 5   # 파일은 올라가지 않는다 — 사실대로 · 보낼 길(카톡 · 메일) 늘 보임
+nochk "ICO_UP+'파일 올리기<" order-preview.html
+chk 'WC_LIMIT' order-preview.html 1   # 경고색은 칸마다 권장량의 1.2배
+nochk '비밀로 둬도 돼요' order-preview.html
+chk 'LAB_FIX2' order-preview.html 3
+nochk "'성우 · 엄숙하게'" assets/ritual-open.js
+chk 'WHY_NEIGHBOR' assets/ritual-open.js 2   # 이웃을 담았을 때만 그 이름
+chk 'BAND_THIN_LISTEN' order-preview.html 1
+chk 'BIG_END' order-preview.html 3
+chk 'POLISH_0925' order-preview.html 8
+chk 'A11Y_FOCUS' order-preview.html 7
+chk 'A11Y_RADIO' order-preview.html 1
+chk 'A11Y_PLAYTOG' order-preview.html 2
+chk 'A11Y_LIVE' order-preview.html 2
+chk 'A11Y_TAP44' order-preview.html 1
+chk 'A11Y_FONT12' order-preview.html 1
+chk 'A11Y_LAND' order-preview.html 1
+chk 'SEND_WORDS' assets/ritual-open.js 1
+chk 'PT_NOTE' parents.html 1   # 임베드 Esc 는 크게 보기 · 확인 판 · 상담 창이 떠 있으면 비켜선다
 nochk 'L_STALE=' order-preview.html
 nochk '그 판으로 바로' order-preview.html
 nochk '판 바꿈' assets/ritual-open.js
