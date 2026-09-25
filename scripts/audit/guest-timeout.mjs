@@ -69,6 +69,7 @@ await new Promise(r => setTimeout(r, 1500));
 let bad = 0;
 for (const [pg, label, wantRe, wantBtn, seedKey] of PAGES) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.addInitScript('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');   // [PREVIEW_GUARD_TEST_OFF]
   if (seedKey) await page.addInitScript((k) => { try { localStorage.setItem(k, 'T'); } catch (e) {} }, seedKey);
   await page.route('**', (route) => {
     const u = route.request().url();

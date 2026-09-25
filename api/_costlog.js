@@ -5,7 +5,7 @@
 // opts.isTest([AI_TEST_TAG]): 테스트 호출도 항상 적재하되 태그만 부가 — GAS 집계(aiCostSummary24h)가 제외 처리.
 module.exports = async function logAiCost(surface, model, usage, opts) {
   try {
-    const hook = process.env.HANDOFF_WEBHOOK_URL;
+    const hook = require('./_livehook')();   // [PREVIEW_GUARD_API] 미리보기에서는 운영 시트에 안 쓴다
     if (!hook || !/^https:\/\//.test(hook) || !usage) return;
     const payload = JSON.stringify({
       action: 'aiCostLog',

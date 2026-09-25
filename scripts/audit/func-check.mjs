@@ -37,6 +37,7 @@ async function fresh(gasReply) {
   let page;
   if (kind === 'pptr') {
     page = await browser.newPage();
+    await page.evaluateOnNewDocument('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');   // [PREVIEW_GUARD_TEST_OFF]
     page.on('pageerror', e => fails.push('PAGEERR ' + e.message));
     await page.setRequestInterception(true);
     page.on('request', req => {
@@ -52,6 +53,7 @@ async function fresh(gasReply) {
     await page.goto(`http://localhost:${PORT}/inquiry.html`, { waitUntil: 'networkidle0', timeout: 30000 });
   } else {
     page = await browser.newPage();
+    await page.addInitScript('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');   // [PREVIEW_GUARD_TEST_OFF]
     page.on('pageerror', e => fails.push('PAGEERR ' + e.message));
     await page.route('**/*', async route => {
       const req = route.request();

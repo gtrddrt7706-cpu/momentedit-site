@@ -80,6 +80,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 for (const w of [560]) {
   const page = await eng.newPage({ viewport: { width: w, height: 1000 }, deviceScaleFactor: 2 });
+  await page.addInitScript('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');   // [PREVIEW_GUARD_TEST_OFF]
   await page.addInitScript(() => {
     localStorage.setItem('me_admin_token', 'SHOT-TOKEN');
     localStorage.setItem('me_admin_filter', '시그니처');

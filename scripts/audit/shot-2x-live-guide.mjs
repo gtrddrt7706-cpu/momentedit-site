@@ -22,6 +22,7 @@ await new Promise(r=>setTimeout(r,1400));
 const b=await chromium.launch();
 for(const t of T){
   const page=await b.newPage({viewport:{width:t.w,height:1000},deviceScaleFactor:2});
+  await page.addInitScript('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');   // [PREVIEW_GUARD_TEST_OFF]
   await page.route('**script.google.com**', r=>r.fulfill({status:200,contentType:'application/json',
     headers:{'Access-Control-Allow-Origin':'*'},body:'{"ok":true}'}));
   await page.goto(`http://localhost:${PORT}${t.url}`,{waitUntil:'domcontentloaded'});

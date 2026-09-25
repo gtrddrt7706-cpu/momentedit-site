@@ -105,7 +105,7 @@ module.exports = async (req, res) => {
 
     // 관리자에게 전달 (GAS 웹훅 설정 시). 실패해도 고객 응답은 성공 처리.
     let delivered = false;
-    const hook = process.env.HANDOFF_WEBHOOK_URL;
+    const hook = require('./_livehook')();   // [PREVIEW_GUARD_API] 미리보기에서는 관리자 인계를 운영 시트에 안 쓴다
     if (hook && /^https:\/\//.test(hook) && !(body && body.test)) {   // 관리자 테스트는 관리자 인계 목록에 안 남김
       try {
         const r = await fetch(hook, {

@@ -10,6 +10,9 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
+/* ★[PREVIEW_GUARD_TEST_OFF] 로컬(127.0.0.1)은 운영 주소가 아니라 shared/preview-guard.js 가 GAS 요청을 막는다.
+   이 어댑터는 GAS 응답을 가짜로 채워 화면을 띄우는 것이 일이므로, 페이지가 뜨기 전에 장치를 꺼 둔다. */
+export const GUARD_TEST_OFF = 'window.__ME_PREVIEW_GUARD_TEST_OFF = true;';
 
 function findChromium() {
   // playwright 실행 파일 후보 — PLAYWRIGHT_BROWSERS_PATH(원격 점검 환경) → 흔한 설치 경로 순서로 스캔
@@ -47,6 +50,7 @@ export async function launchBrowser() {
            기본값(undefined)이면 종전과 완전히 같다 — 기존 감사들의 렌더는 1픽셀도 안 바뀐다. */
         async newPage({ port, gasBody = '{"ok":true}', viewport = { width: 414, height: 900 }, deviceScaleFactor } = {}) {
           const page = await browser.newPage(deviceScaleFactor ? { viewport, deviceScaleFactor } : { viewport });
+          await page.addInitScript(GUARD_TEST_OFF);   // [PREVIEW_GUARD_TEST_OFF] 가짜 GAS 응답을 쓰려면 미리보기 장치를 꺼 둔다
           const errors = [];
           page.on('pageerror', (e) => errors.push(String(e && e.message || e)));
           page.on('console', (m) => { if (m.type() === 'error') errors.push('console.error: ' + m.text()); });
@@ -73,6 +77,7 @@ export async function launchBrowser() {
     close: () => browser.close(),
     async newPage({ port, gasBody = '{"ok":true}' } = {}) {
       const page = await browser.newPage();
+      await page.evaluateOnNewDocument(GUARD_TEST_OFF);   // [PREVIEW_GUARD_TEST_OFF]
       const errors = [];
       page.on('pageerror', (e) => errors.push(e.message));
       page.on('console', (m) => { if (m.type() === 'error') errors.push('console.error: ' + m.text()); });

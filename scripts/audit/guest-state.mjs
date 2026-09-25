@@ -69,6 +69,7 @@ for (const [pg, label] of PAGES) {
   console.log(`\n  ═══ ${label} ═══`);
   for (const [name, body, want, exitRule] of SHAPES) {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await page.addInitScript('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');   // [PREVIEW_GUARD_TEST_OFF]
     await page.route('**', (route) => {
       const u = route.request().url();
       if (u.includes('script.google.com')) return route.fulfill({ status: 200, contentType: 'application/json',
