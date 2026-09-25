@@ -8452,6 +8452,26 @@ chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
 chk 'PHONE_KR_NORM' automation/admin/admin.gs 3
 chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 
+# ★★[TPL_SILENT]·[TPL_COVER] 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 저 알람 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」
+#   연락처 쪽은 검사가 있었는데(PHONE_KR_NORM·CONTACT_LIFECYCLE_SIM) «알림 종류마다 알림톡이 실제로 나가는가»는 없었다.
+#   실제 95_notify 를 돌려 보니 템플릿 ID 가 없으면(반려·미등록) 알림톡은 시도조차 없이 이메일로만 대체되고
+#   관리자에게 아무 말이 없었다 — 고객 이메일까지 비면 고객도 관리자도 아무것도 못 받았다(19종 전부).
+#   → 처리이력 한 줄 + 관리자 메일(하루 한 통 · 아무것도 못 받은 고객은 따로) · 설정 점검이 빠진 알림을 이름으로.
+#   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
+if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
+  case "$_ne" in
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리' ;;
+    1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
+    *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'SERVED_OURS' scripts/audit/notify-e2e.mjs 1
+chk 'TPL_SILENT' automation/platform/95_notify.gs 5
+chk 'TPL_COVER' automation/platform/95_notify.gs 2
+chk 'function _nfTplSilent(' automation/platform/95_notify.gs 1
+chk "NF_NOTPL_NONE_" automation/platform/95_notify.gs 1   # ★아무것도 못 받은 고객은 하루 한 통 표식과 따로 알린다
+nochk 'SMS로 발송' automation/platform/95_notify.gs          # 고객 문자는 2026-06-29 부터 안 쓴다 — 설정 점검·설명이 «문자로 대체»라는 옛말을 하지 않게
+
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
 #   «줄지어 도는 동안» 생겼다 — 번호가 82… 로 앉고 → 밤에 큐에 쌓이고 → 취소했는데 큐는
