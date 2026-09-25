@@ -139,7 +139,9 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 /* ★★[NO_SIDE_STRIPE 2026-09-25 사장님 «왼쪽 황금색 칸 — 너무 올드한 느낌»]
    세로줄을 걷고 여백과 작은 라벨로 구분한다. 「팁」은 라벨이 되고 본문은 보조색 그대로. */
 .tip{border-left:0;padding:0;margin-top:14px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
-.tip b{display:inline-block;margin-right:7px;font-family:var(--serif-ko);font-size:11px;font-weight:500;color:var(--gold-text);letter-spacing:0.04em}
+/* ★이 파일의 토큰 이름은 다르다 — --gold-text 가 아니라 --gold-deeper(#7A5F37 · 같은 값),
+   --serif-ko 는 없고 --serif 가 한글 폴백까지 품는다. 게이트(check-css-tokens)가 잡아 줬다. */
+.tip b{display:inline-block;margin-right:7px;font-family:var(--serif);font-size:11px;font-weight:500;color:var(--gold-deeper);letter-spacing:0.04em}
 .tip b{color:var(--gold-deeper);font-weight:700;margin-right:3px}
 .prep-hint b{color:var(--accent)}
 .proc{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:13px 15px}
