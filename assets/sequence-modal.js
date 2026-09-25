@@ -104,6 +104,8 @@
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var ov = document.createElement('div'); ov.className = 'meseq-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', '140분 진행 시간표');
+  ov.inert = true;   /* ★[MESEQ_INERT 2026-09-25 코워크 회신 ④] 닫힌 동안은 포커스·낭독에서 뺀다. 닫힌 틀은 원래 display:none 이라 평소엔 Tab 이 안 닿지만(실측 0회),
+                       닫히는 0.32초(show 가 남아 있는 동안)엔 틈이 있었다. 닫기 «시작»에 잠그고 열 때 푼다 */
   ov.innerHTML = ''
     + '<div class="meseq">'
     + '  <div class="meseq-head">'
@@ -186,6 +188,7 @@
   var _lockY = 0, _locked = false;
   function open(m) {
     applyMode(m);
+    ov.inert = false;   // [MESEQ_INERT]
     ov.classList.add('show');
     var _sbw = window.innerWidth - document.documentElement.clientWidth; if (_sbw > 0) document.documentElement.style.paddingRight = _sbw + 'px';   // 실제 스크롤바만 보정 · 모바일 팬텀 거터 방지
     document.documentElement.style.overflow = 'hidden';
@@ -195,6 +198,7 @@
     requestAnimationFrame(function () { ov.classList.add('open'); });
   }
   function close() {
+    ov.inert = true;   // [MESEQ_INERT] 사라지는 동안에도 Tab 이 안 들어가게
     ov.classList.remove('open'); document.documentElement.style.overflow = ''; document.documentElement.style.paddingRight = '';
     if (_locked) {
       var b = document.body;

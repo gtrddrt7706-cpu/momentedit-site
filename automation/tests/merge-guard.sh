@@ -9578,6 +9578,9 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# [MESEQ_INERT 2026-09-25 코워크 회신 ④] 진행 시간표 시트 — 닫힌 동안·닫히는 0.32초 동안 inert, 열 때 해제.
+chk 'MESEQ_INERT' assets/sequence-modal.js 3
+chk 'ov.inert = false' assets/sequence-modal.js 1
 # ★★[GLASS_MENU_OWNER 2026-09-25 사장님 결정 · 코워크 회신 ③] 모바일 메뉴 반투명(크림 40% + blur 20px)은 글래스모피즘 금지의 «유일한 예외».
 #   같은 문장이 세 문서 + index.html 규칙 옆에 있다. 알려진 대가(한글 소제목 약 1.5:1)까지 함께 적었다.
 #   ★«넓히지 않는다»도 지킨다 — index.html 의 backdrop-filter 줄 수를 지금 값(9: 메뉴 · 메뉴 닫힘 none · 죽은 .ph-note · 상담 패널 뒤판 · 주석 1)보다 늘리지 못한다.
