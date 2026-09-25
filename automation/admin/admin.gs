@@ -2617,6 +2617,11 @@ function adminForceStage(code, targetStage, reason, releaseSlot) {   // [ROLLBAC
     //   설문응답·설문일시는 지우지 않는다(재제출 시 덮어씀 · 과거 답변 보존). 제거 금지.
     if (targetStage === '후기' && colOf['설문상태']) upd['설문상태'] = '대기';
     touchCustomer(sheet, colOf, cust.num, upd);
+    /* ★[HOLD_DROP_ON_ROLLBACK 2026-09-25] 되돌린 고객에게 «보낼 예정이던» 야간 알림을 함께 내린다.
+       안 내리면 그 알림이 매일 아침 재시도되다 사흘째 실패로 버려지며, 관리자에게
+       「밤사이 보류 알림 N건이 세 번 시도해도 실패해 큐에서 내렸습니다」가 날아온다(실사고).
+       시트 쓰기가 끝난 «뒤»에 부른다 — 쓰기가 실패하면 단계가 안 바뀐 것이고, 그때는 알림도 유효하다. */
+    var _hdN = 0; try { if (typeof _nfHoldDrop === 'function') _hdN = _nfHoldDrop(code); } catch (eHd) { Logger.log('보류 알림 정리 실패: ' + (eHd && eHd.message)); }
     // [ADM_AC3FIX] 가예약 캘린더 이벤트 해제 — 시트에서 '가예약'이 실제로 지워진 뒤에만(미리보기에서는 여기까지 오지 않는다).
     //   실패해도 단계 변경 자체는 이미 끝났으므로 막지 않는다(로그만).
     /* ★[ROLLBACK_SLOT] 다만 «계약전환»된 이벤트는 지우지 않는다 — 그건 임시고정이 아니라 **확정된 예식**이다.
@@ -2726,6 +2731,10 @@ function adminForceStage(code, targetStage, reason, releaseSlot) {   // [ROLLBAC
       + (bookingReset ? ' · 상담예약 초기화(캘린더 해제)' : '')
       + (_rfWas ? (' · [REFUND_MARK_TRACE] 환불완료 표시 해제(원래 ' + _rfWas + ') · 실제 송금 여부는 위 «환불 송금 완료» 기록으로 확인') : '')
       + _rbSlotWord
+      /* ★[HOLD_DROP_ON_ROLLBACK] 비운 사실을 남긴다 — 이 저장소는 «지운 사실이 어디에도 안 남았다»를
+         이미 한 번 결함으로 적었다([REFUND_MARK_TRACE]). 같은 실수를 여기서 되풀이하지 않는다.
+         0건이면 아무 말도 안 한다(지운 게 없으면 지웠다고 말하지 않는다 · FORCE_WARN_TRUTH 와 같은 결). */
+      + (_hdN ? (' · 대기 중이던 고객 알림 ' + _hdN + '건 내림(되돌린 단계의 안내라 보내지 않음)') : '')
       + ' · 사유: ' + reason);
     /* ★★[FORCE_WARN_TRUTH 2026-08-17 사용자 고립 사례] 지운 것이 없으면 «지웠다»고 말하지 않는다.
        종전엔 결과 문구가 무조건 «이후 단계 진행 데이터를 초기화했습니다» 였다. 앞으로 가는 이동

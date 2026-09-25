@@ -578,6 +578,18 @@
    "fn": "_setContactCore",
    "mark": "CONTACT_SHADOW",
    "why": "연락처를 고칠 때 «계약서가 읽는 사본»(동의기록.계약정보.groomPhone)까지 따라가는 블록. 옛 판이면 연락처 칸만 바뀌고 서명된 계약서엔 틀린 번호가 그대로 남는다 — 화면 경고는 사라지는데 계약서는 안 고쳐진 상태라 «고쳤다»고 오판하기 가장 쉬운 자리다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfHoldDrop",
+   "mark": "HOLD_DROP_ON_ROLLBACK",
+   "why": "되돌린 고객의 야간 보류 알림을 큐에서 내리는 본체. 이 파일이 옛것이면 취소한 고객에게 보낼 알림이 사흘간 재시도되다 «큐에서 내렸습니다» 메일로 돌아온다(2026-09-24 실사고) · 연락처가 살아 있었다면 실제로 발송된다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminForceStage",
+   "mark": "HOLD_DROP_ON_ROLLBACK",
+   "why": "되돌리기가 _nfHoldDrop 을 부르는 자리 + 처리이력에 비운 건수를 남기는 줄. 이 파일이 옛것이면 큐가 그대로 남는다"
   }
  ],
  "fns": {
@@ -858,6 +870,7 @@
    "notifyFailYesterday",
    "_nfIsNight",
    "_nfHoldPush",
+   "_nfHoldDrop",
    "flushHeldNotifies",
    "_nfCoupleName",
    "_nfDate",
@@ -1436,7 +1449,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-22 11:46 · 2858be6e",
+ "_생성": "2026-09-25 06:57 · 08da2440",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1844,5 +1857,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "b214b2e81fa3"
+ "_표식서명": "78d964128b89"
 }

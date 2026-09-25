@@ -325,6 +325,33 @@ function _nfHoldPush(event, code, extra) {
     Logger.log('[notify] 보류 적재 실패: ' + (e2 && e2.message));
   } finally { try { if (lock) lock.releaseLock(); } catch (e3) {} }
 }
+/* ★★[HOLD_DROP_ON_ROLLBACK 2026-09-25 사장님 「전에 진행중이던 계정은 취소처리했는데 이 부분에서 누락됐나?」]
+   맞다. 종전엔 NOTIFY_HOLD 를 «적재»와 «발송» 두 곳에서만 건드렸고, 취소·되돌리기는 이 큐를
+   전혀 몰랐다. 그래서 이런 일이 실제로 났다(2026-09-24 메일):
+     ①테스트 고객 TD7CGH 로 단계를 밟는 동안 야간 알림 5건이 큐에 쌓였다
+      (cust.fittingRequest x2 · consultDone · contractArrived · depositToProduction)
+     ②그 고객을 취소 처리 → 연락처·행 데이터가 정리됨
+     ③매일 아침 8시 재시도 → _kakaoSend 가 «고객 조회 실패»/«연락처 형식 아님»으로 false
+     ④사흘째 3회 실패로 버려지며 관리자에게 「큐에서 내렸습니다」 메일 1통
+   취소한 고객에게 보낼 알림이 사흘 동안 살아 있었던 것이고, 관리자는 영문 모를 메일을 받았다.
+   ★이제 되돌리기가 그 고객의 대기 알림을 함께 내린다. 비운 건수를 돌려줘 처리이력에 남긴다. */
+function _nfHoldDrop(code) {
+  // [HOLD_DROP_ON_ROLLBACK] 되돌린 고객의 대기 알림만 큐에서 내린다 — 표식은 반드시 «함수 본문 안»에(FILE_COVER)
+  var c = String(code || '').trim();
+  if (!c) return 0;
+  var lock = null, n = 0;
+  try { lock = LockService.getScriptLock(); lock.waitLock(15000); } catch (e) { lock = null; }
+  try {
+    var p = PropertiesService.getScriptProperties(), arr = [];
+    try { arr = JSON.parse(p.getProperty('NOTIFY_HOLD') || '[]'); } catch (e2) { arr = []; }
+    if (!arr.length) return 0;
+    var left = arr.filter(function (x) { return String(x && x.c || '').trim() !== c; });
+    n = arr.length - left.length;
+    if (n) { p.setProperty('NOTIFY_HOLD', JSON.stringify(left)); Logger.log('[notify] 되돌리기로 보류 알림 ' + n + '건 내림 · ' + c); }
+  } catch (e3) { Logger.log('[notify] 보류 큐 정리 실패: ' + (e3 && e3.message)); }
+  finally { try { if (lock) lock.releaseLock(); } catch (e4) {} }
+  return n;
+}
 // [트리거·매일 8시] 보류 알림 발송 — 큐를 비우고 순차 발송(개별 실패는 _notifyFailMark가 기록, 재적재 없음)
 function flushHeldNotifies() {
   // [버그수정 2026-06-28] OFF면 큐를 비우지 말고 그대로 유지 — 예전엔 큐를 먼저 지우고 OFF면 폐기라
