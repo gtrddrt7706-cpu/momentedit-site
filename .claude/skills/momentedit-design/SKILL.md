@@ -7,9 +7,10 @@ description: momentedit.kr(모먼트에딧 프라이빗 웨딩 스튜디오) 사
 
 ## ★★이 문서가 디자인 판단의 최종 권위다 (2026-09-06 사용자 지시)
 
-**다른 디자인 스킬과 어긋나면 이 문서가 이긴다.** 저장소에 디자인 스킬이 8개 있고
+**다른 디자인 스킬과 어긋나면 이 문서가 이긴다.** 저장소에 디자인 스킬이 **12개** 있고
 (`momentedit-design` · `ui-ux-pro-max` · `design` · `design-system` · `brand` ·
-`ui-styling` · `banner-design` · `slides`) 발동 조건이 서로 겹치는데,
+`ui-styling` · `banner-design` · `slides` · `redesign-existing-projects` ·
+**9/25 추가** `impeccable` · `web-design-guidelines` · `frontend-design`) 발동 조건이 서로 겹치는데,
 **우선순위를 선언한 곳이 어디에도 없었다** — 다른 7개 중 이 문서를 아는 것은 하나도 없다(실측 0건).
 
 ### 전제가 다르다 (실측 2026-09-06)
@@ -33,7 +34,26 @@ GSAP·bounce·spring·패럴랙스(132) · 이모지(44).
    (배너·로고·슬라이드 제작 같은 «산출물 만들기»가 그렇다).
 3. 어긋나면 **1번이 이긴다.** 「최신 트렌드」·「일반적 베스트 프랙티스」는 근거가 되지 못한다.
 
-★이 절을 지우지 말 것 — 지우면 8개가 다시 같은 무게로 부딪힌다.
+### ★9/25 에 들인 셋 — 무엇을 믿고 무엇을 버리나 [DESIGN_SKILLS_12]
+
+순서 전체는 `CLAUDE.md` 의 `[DESIGN_SKILLS_12]` 가 정한다. 여기에는 **이 문서와 부딪히는 자리**만 적는다.
+금지 항목 언급 수를 셌다(2026-09-25 · `grep -rhoiE` · 셀 수가 아니라 줄 수):
+
+| 스킬 | 다크 | 글래스 | 네온·글로우 | bounce류 | 이모지 | React |
+|---|---:|---:|---:|---:|---:|---:|
+| `impeccable` | 6 | 3 | 6 | 23 | 8 | 29 |
+| `web-design-guidelines` | 3 | 0 | 0 | 0 | 0 | 9 |
+| `frontend-design` | 0 | 0 | 0 | 0 | 0 | 0 |
+
+★**숫자만 보고 판정하지 말 것.** 문맥을 읽으니 `impeccable` 의 bounce 23건은 대부분 **«쓰지 마라»**였다
+(「Never bounce or elastic」). 앞의 `ui-ux-pro-max`(권함 쪽)와 방향이 반대다.
+진짜로 부딪히는 것은 셋뿐이고, 셋 다 `MOMENTEDIT_EXCEPTIONS.md` 에 적어 닫았다:
+
+1. **`impeccable` audit 이 «다크모드 변형 없음»을 결함(Broken dark mode)으로 채점한다** → 이 사이트는 다크를 **막는** 것이 설계다.
+2. **이모지를 아이콘 대용으로 쓰면 결함으로 본다** → 허용된 기능 아이콘(🍽🍃 · 🔊🎵)과 D-day 🤍 1곳은 CLAUDE.md 가 정한 예외다.
+3. **`cubic-bezier(0.16, 1, 0.3, 1)` 을 리터럴로 권한다** → 값은 우리 `--ease` 와 같다. 리터럴로 쓰지 말고 `var(--ease)`([MOTION_RAMP5]).
+
+★이 절을 지우지 말 것 — 지우면 12개가 다시 같은 무게로 부딪힌다.
 
 
 ## 이 사이트가 무엇인가
