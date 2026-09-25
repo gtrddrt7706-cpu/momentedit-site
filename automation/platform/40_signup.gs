@@ -23,7 +23,9 @@ function handleSignup(body) {
   // 2) 필수값
   var groom = String(body.groom || '').trim();
   var bride = String(body.bride || '').trim();
-  var phone = String(body.phone || '').trim();
+  /* [PHONE_KR_NORM] 국제표기(+82 10-…)를 국내표기(010…)로 바꿔 «저장 전에» 잡는다 —
+     시트에 82… 로 들어가면 95_notify 의 발송 자가 떨어뜨려 그 고객 알림이 전부 생략된다. */
+  var phone = (typeof _phoneKR === 'function') ? _phoneKR(body.phone) : String(body.phone || '').trim();
   var email = String(body.email || '').trim();
   var memo = String(body.memo || '').trim();
   var detail = String(body.detail || '').trim();
