@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우리 예식 짓기 시안 3</title>
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface2:#fbfaf7; --ink:#1b1a17; --ink2:#55534d; --muted:#6d6a63;
+  --line:#e6e3dc; --accent:#1e6ecb; --accent-soft:#e6effa; --on-accent:#ffffff; --photo:#1baf7a; --photo-soft:#e3f5ee;
+  --lock:#78766f; --note:#fff7e6; --note-line:#f0d9a8; --star:#935f07;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141412; --surface:#1d1c1a; --surface2:#23221f; --ink:#f1efea; --ink2:#c4c1b9; --muted:#96938b;
+    --line:#34322e; --accent:#5b9be6; --accent-soft:#1f2c3d; --on-accent:#141412; --photo:#35c08f; --photo-soft:#17302a;
+    --lock:#9a978f; --note:#2d2718; --note-line:#5a4a26; --star:#e0a53f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141412; --surface:#1d1c1a; --surface2:#23221f; --ink:#f1efea; --ink2:#c4c1b9; --muted:#96938b;
+  --line:#34322e; --accent:#5b9be6; --accent-soft:#1f2c3d; --on-accent:#141412; --photo:#35c08f; --photo-soft:#17302a;
+  --lock:#9a978f; --note:#2d2718; --note-line:#5a4a26; --star:#e0a53f;
+}
+/* 색 대비: 글자는 모두 4.5:1 넘게(라이트 · 다크 실측 · 저장소 DIM_AA_COLOR 규칙과 같은 기준) */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--tbh,80px) + 12px);scroll-padding-bottom:100px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+.wrap{max-width:460px;margin:0 auto;padding:16px 16px 130px}
+.sr{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}   /* left · top 0 — 가로 스크롤 띠 밖으로 새어 나가 휴대폰 화면을 넓히던 것(실측) */
+.tag{display:inline-block;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 8px;margin-bottom:8px}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+h1:focus,h2[tabindex="-1"]:focus{outline:none}
+.sub{color:var(--ink2);font-size:13.5px;margin:0 0 8px}
+.linkbtn{border:0;background:none;color:var(--accent);font:inherit;font-size:13px;padding:10px 0;min-height:44px;cursor:pointer;text-align:left}
+h2{font-size:13.5px;color:var(--ink2);font-weight:700;margin:24px 0 8px;letter-spacing:.01em}
+.h2row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:24px 0 6px}
+.h2row h2{margin:0}
+.gline{font-size:12.5px;color:var(--ink2);margin:0 0 6px}
+/* 걸음 표시 */
+.steps{display:flex;gap:4px;margin:0 0 12px;padding:0;list-style:none;font-size:12px;color:var(--muted)}
+.steps li{flex:1;text-align:center;padding-top:6px;border-top:3px solid var(--line);white-space:nowrap}
+.steps li.on{color:var(--ink);font-weight:700;border-top-color:var(--accent)}
+.steps li.done{color:var(--ink2);border-top-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.stepbtn{border:0;background:none;font:inherit;color:inherit;padding:0;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+/* 늘 붙어 있는 띠 */
+.timebar{position:sticky;top:0;z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px 8px;margin:0 0 6px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+.pv-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--ink2)}
+.pv-title b{color:var(--ink);font-size:14px;white-space:nowrap}
+.bar{display:flex;height:10px;margin:7px 0 5px;gap:2px}
+.bar .c{background:var(--accent);border-radius:5px 0 0 5px}
+.bar .p{background:var(--photo);border-radius:0 5px 5px 0}
+.legend{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2)}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+.legend .lc::before{background:var(--accent)} .legend .lp::before{background:var(--photo)} .legend .mid::before{display:none}
+.mf{position:relative;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;margin-top:7px;padding-top:7px;border-top:1px solid var(--line);font-size:12px;white-space:nowrap}
+.mf::-webkit-scrollbar{display:none}
+.mf.more{-webkit-mask-image:linear-gradient(to right,#000 86%,transparent);mask-image:linear-gradient(to right,#000 86%,transparent)}
+.mf .mc{padding:1px 7px;border-radius:6px;background:var(--accent-soft);color:var(--ink);font-weight:600}
+.mf .mc.pre{background:var(--surface2);color:var(--ink2);border:1px solid var(--line);font-weight:500}
+.mf .mc.lk{background:transparent;border:1px solid var(--line);color:var(--ink2);font-weight:500}
+.mf .mc.peak{box-shadow:0 0 0 1.5px var(--star) inset}
+.mf .ar{color:var(--muted);padding:0 3px}
+.mf .hint{color:var(--ink2);font-size:12px;white-space:normal}
+.star{color:var(--star)}
+.timebar.thin .bar,.timebar.thin .legend{display:none}
+.timebar.thin .mf{margin-top:5px;padding-top:5px}
+#p2 .timebar .bar,#p2 .timebar .mf,#p2 .timebar .legend .lc,#p2 .timebar .legend .lp{display:none}
+#p2 .timebar .legend{justify-content:center;margin-top:2px}
+/* 알림 — 띠 안 · 얇은 띠에서는 한 줄(누르면 펼침) */
+.note{display:none;margin:8px 0 0;padding:7px 10px;background:var(--note);border:1px solid var(--note-line);border-radius:10px;font-size:12.5px;color:var(--ink)}
+.note .nt b{font-size:12px;color:var(--ink2);margin-right:6px}
+.note .na{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.note .na:empty{display:none}
+.note .na button{min-height:36px;border:1px solid var(--note-line);background:var(--surface);color:var(--ink);border-radius:999px;padding:0 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.timebar.thin .note:not(.open) .nt{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.timebar.thin .note:not(.open) .na{display:none}
+/* 순간 카드(1쪽) */
+.group{margin-top:16px}
+.group h3{font-size:14.5px;margin:0 0 2px}
+.group p.gd{font-size:12.5px;color:var(--ink2);margin:0 0 8px}
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.ev.on{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.ev .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ev .nm{font-weight:700;font-size:15.5px}
+.ev .why{font-size:13.5px;color:var(--ink2);margin-top:4px}
+.ev .shot{font-size:13px;color:var(--ink);margin-top:4px}
+.ev .shot::before{content:"남는 사진 · ";color:var(--ink2)}
+.ev .meta{font-size:12.5px;color:var(--ink2);display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:4px}
+.ev .slot{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.ev.on .slot{color:var(--accent);font-weight:600}
+.ev .note2{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.ev .more{margin-top:2px;border:0;background:none;color:var(--ink2);font:inherit;font-size:12.5px;padding:0;min-height:44px;cursor:pointer}
+.ev .det{font-size:12.5px;color:var(--ink2);background:var(--surface2);border-radius:8px;padding:8px 10px}
+.ev .det p{margin:0 0 4px} .ev .det p:last-child{margin:0}
+.ev .det b{color:var(--ink);font-weight:600}
+.tg{flex:none;border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:999px;padding:0 14px;min-height:44px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.ev.on .tg{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tg[disabled],.ev.on .tg[disabled]{cursor:default;background:transparent;color:var(--lock);border:1px dashed var(--line)}
+/* 장면 영상 자리 — 실제는 <video muted loop playsinline preload="none" poster> · 시안은 촛불빛 자리 */
+.vid{position:relative;display:block;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#241b15;isolation:isolate;color:#f6efe6}
+.vid::before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(55% 65% at 50% 78%,rgba(255,190,110,.55),rgba(255,150,70,.14) 55%,transparent 76%),linear-gradient(180deg,#3b2d23,#1c1511)}
+.vid::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70%;z-index:-1;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0))}
+.vid.on::before{animation:flick 2.2s ease-in-out infinite alternate}
+body.paused .vid.on::before{animation-play-state:paused}
+@keyframes flick{0%{filter:brightness(.9)}35%{filter:brightness(1.08)}65%{filter:brightness(.96)}100%{filter:brightness(1.05)}}
+.vid .vn{position:absolute;left:12px;right:12px;bottom:10px;font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;font-size:13.5px;line-height:1.45;text-shadow:0 1px 8px rgba(0,0,0,.45)}
+.vid .vn small{display:block;font-family:system-ui,sans-serif;font-size:10.5px;opacity:.85;margin-bottom:2px}
+.vid .ai{position:absolute;left:8px;top:8px;font-size:10.5px;background:rgba(0,0,0,.4);border-radius:4px;padding:1px 6px}
+.vid .vp{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.4);display:grid;place-items:center;transition:opacity .3s}
+.vid.on .vp{opacity:0}
+.vid .vs{position:absolute;right:8px;top:8px;font-size:10.5px;background:rgba(0,0,0,.4);border-radius:4px;padding:1px 6px;display:none}
+.vid.on .vs{display:block}
+.vid.mini{width:78px;border-radius:6px}
+.vid.mini::after{display:none}
+.ev .vid{margin:-2px -2px 10px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.vid.on::before{animation:none}}
+/* 칩 — 누를 곳 44px */
+.chip{display:inline-flex;align-items:center;min-height:44px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:999px;padding:0 14px;font:inherit;font-size:13px;cursor:pointer}
+.chip[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink);font-weight:700}
+/* 우리 예식 */
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.origin{font-size:13px;color:var(--ink2);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.undo{border:1px solid var(--line);background:var(--surface2);color:var(--accent);border-radius:999px;padding:0 12px;min-height:40px;font:inherit;font-size:12.5px;cursor:pointer}
+.order{margin:10px 0 0;padding:0;list-style:none;font-size:13.5px}
+.order li{display:flex;gap:8px;padding:5px 0;border-top:1px dashed var(--line)}
+.order li:first-child{border-top:0}
+.order li .no{flex:none;min-width:24px;white-space:nowrap;color:var(--ink2);text-align:right}
+.order li .vn{color:var(--ink2);font-size:12.5px}
+.peakline{font-size:13px;color:var(--ink2);margin-top:10px}
+.prepbox,.offbox{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:13px;color:var(--ink2)}
+.prepbox b,.offbox b{color:var(--ink)}
+.prepbox ul{margin:4px 0 6px;padding-left:18px}
+.ty{display:inline-block;font-size:11px;font-weight:700;color:var(--ink2);border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:1px}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.primary{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:0 18px;min-height:46px;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer}
+.primary[disabled]{opacity:.45;cursor:default}
+.ghost{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:999px;padding:0 14px;min-height:44px;font:inherit;font-size:13px;cursor:pointer}
+.ic{width:15px;height:15px;fill:currentColor;flex:none}
+/* 예시 */
+.q{font-size:16px;font-weight:700;margin:2px 0 4px}
+.qn{font-size:13px;color:var(--ink2);margin:0 0 10px}
+.exs{display:grid;gap:8px}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left;cursor:pointer;color:var(--ink);font:inherit;width:100%}
+.ex b{display:block;font-size:15px;line-height:1.35}
+.ex .t{display:block;font-size:12.5px;color:var(--ink2);margin-top:3px}
+.ex .l{display:block;font-size:12px;color:var(--ink2);margin-top:3px;word-break:keep-all}.ex .l span{white-space:nowrap}.ex .l span:not(:last-child)::after{content:' ·'}
+.ex[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;background:var(--accent-soft)}
+/* 시안 메모(고객 화면에는 없음) */
+.memo{margin-top:24px;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--ink2)}
+.memo b{font-size:12px}
+.memo ul{margin:6px 0 0;padding-left:16px}
+.memo li{margin-bottom:3px}
+/* 아래에 붙는 다음 단추(1쪽) */
+.cta{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:min(428px,calc(100% - 32px));display:none;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 8px 8px 14px;box-shadow:0 8px 24px rgba(0,0,0,.16);z-index:30}
+.cta .ct{flex:1;min-width:0;font-size:13px;color:var(--ink2);line-height:1.35}
+.cta .ct b{color:var(--ink);white-space:nowrap}
+body.hascta .cta{display:flex}
+/* 2쪽 */
+.hero{display:block;width:100%;border:0;padding:0;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit;margin:6px 0 8px}
+.hero .vid{border-radius:12px}
+.hero .hl{display:flex;align-items:center;gap:10px;margin-top:8px}
+.hero .hb{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
+.hero .ht b{display:block;font-size:15.5px}
+.hero .ht .len{display:block;color:var(--ink2);font-size:12.5px}
+.pk{font-size:12.5px;color:var(--ink2);margin:4px 0 6px}
+.lrow{display:grid;grid-template-columns:26px 78px minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);border-radius:10px;scroll-margin-top:calc(var(--tbh,80px) + 12px)}
+.lrow.now{background:var(--accent-soft)}
+.lrow.open{background:var(--surface);box-shadow:0 0 0 1px var(--line) inset}
+.lrow.added{animation:flash 1.8s ease-out}
+@keyframes flash{from{background:var(--photo-soft)}to{background:transparent}}
+.lrow .no{text-align:right;font-size:11.5px;color:var(--ink2);white-space:nowrap}
+.lthumb,.lmain{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.lmain{display:flex;flex-direction:column;justify-content:center;gap:1px;min-width:0;min-height:44px}
+.lmain .nm{font-weight:700;font-size:14.5px}
+.lmain .nm::after{content:" ▾";content:" ▾" / "";color:var(--muted);font-size:11px;font-weight:400}
+.lrow.open .lmain .nm::after{content:" ▴";content:" ▴" / ""}
+.lmain .sp{font-size:12.5px;color:var(--ink2)}
+.lrow .acts{display:flex;gap:6px;align-items:center}
+.lplay{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:44px;height:44px;display:grid;place-items:center;cursor:pointer}
+.ladd{border:1px solid var(--line);background:var(--surface2);color:var(--accent);border-radius:999px;padding:0 12px;min-height:44px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.lrow.off{grid-template-columns:minmax(0,1fr) auto}
+.lx{grid-column:1 / -1;padding:4px 4px 8px 36px;font-size:13px;color:var(--ink2)}
+.lx b{color:var(--ink);font-size:12.5px}
+.lx .hint{color:var(--ink2);font-weight:400}
+.lx .flow ol{margin:4px 0 10px;padding-left:18px}
+.lx .flow li{margin:2px 0}
+.lx .flow li.talk{color:var(--ink)}
+.lx .flow li .nw{font-size:11.5px;color:var(--star);font-weight:700;margin-left:4px}
+.lx .vars{display:flex;flex-direction:column;gap:8px;margin:2px 0 10px}
+.cg{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cg .gl{font-size:12px;color:var(--ink2);min-width:56px}
+.cg .gh{flex-basis:100%;font-size:12px;color:var(--ink2);margin:-2px 0 0}
+.lx .items{margin:0 0 10px;padding:0;list-style:none}
+.lx .items li{margin:3px 0}
+.lx .items .tail{display:block;font-size:12px;color:var(--ink2)}
+.lx .fix{font-size:12.5px;color:var(--ink2);margin:0 0 8px}
+.lx .lrm{border:1px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;color:var(--ink);background:var(--surface2);font:inherit;font-size:13px;cursor:pointer}
+.lmsg{font-size:13px;color:var(--ink2);min-height:1.2em;margin:8px 2px 0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.lmsg button{min-height:40px}
+.loff{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:0 12px}
+.loff summary{cursor:pointer;font-size:13.5px;padding:12px 0;color:var(--ink)}
+.loff .lnote{font-size:12.5px;color:var(--ink2);margin:6px 0 12px}
+.loff b{font-size:13px}
+.loff ul{margin:4px 0 10px;padding-left:0;list-style:none;font-size:13px;color:var(--ink2)}
+.loff ul li{margin:4px 0}
+.lfoot{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin:18px 0 8px;flex-wrap:wrap}
+.nextwrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.nextwrap small{font-size:11.5px;color:var(--ink2)}
+/* 작은 플레이어 */
+.player{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:min(428px,calc(100% - 32px));background:var(--ink);color:var(--bg);border-radius:12px;padding:6px 8px 6px 6px;display:none;align-items:center;gap:8px;z-index:40;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.player .pv{border:0;padding:0;background:none;border-radius:6px;cursor:pointer;flex:none}
+.player .pt{flex:1;min-width:0;border:0;background:none;color:inherit;text-align:left;font:inherit;font-size:13px;line-height:1.35;padding:0;min-height:44px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.player .pt small{display:block;opacity:.85;font-size:12px}
+.player .pb{flex:none;border:0;background:color-mix(in srgb,currentColor 14%,transparent);color:inherit;border-radius:999px;width:44px;height:44px;display:grid;place-items:center;cursor:pointer}
+.player button:focus-visible{outline-color:currentColor}
+/* 크게 보기 */
+.fp{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto}
+.fpin{max-width:460px;min-height:100%;margin:0 auto;padding:10px 16px 0;display:flex;flex-direction:column}
+.fph{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink2);margin-bottom:8px}
+.fph button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:44px;height:44px;display:grid;place-items:center;cursor:pointer}
+.fp .vid{border-radius:12px}
+.fpseg{display:flex;gap:3px;margin:10px 0 12px}
+.fpseg span{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.fpseg span.done{background:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.fpseg span.on{background:var(--accent)}
+.fp h3{margin:0;font-size:18px}
+.fplab{font-size:13px;color:var(--ink2);margin-top:2px}
+.fptxt{font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;font-size:16.5px;line-height:1.75;margin:10px 0 12px;min-height:3.4em;color:var(--ink)}
+.fptxt.talk{font-family:inherit;font-size:14.5px;color:var(--ink2);background:var(--surface2);border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.fptxt.new{border-left:3px solid var(--star);padding-left:10px}
+.fpvars{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.fpskip{align-self:flex-start;margin-bottom:10px}
+.fpctl{margin-top:auto;position:sticky;bottom:0;z-index:1;background:var(--bg);display:flex;justify-content:center;align-items:center;gap:18px;padding:10px 0 calc(14px + env(safe-area-inset-bottom))}
+.fpctl button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:50%;width:48px;height:48px;display:grid;place-items:center;cursor:pointer}
+.fpctl button.big{width:62px;height:62px;background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.fpctl button.big .ic{width:21px;height:21px}
+.fpctl button[hidden]{display:none}
+.fpend{text-align:center;font-size:14px;color:var(--ink2);margin:6px 0 10px}
+.fpend .row{display:flex;justify-content:center;gap:8px;margin-top:8px}
+body.fpopen{overflow:hidden}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible,summary:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-height:500px){.timebar{position:static}}
+
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+<div id="p1">
+  <span class="tag">제안 시안 3판(세부 점검 반영) · 9/25 · 순간 영상 자리 · 실제 화면 아님</span>
+  <ol class="steps" aria-label="진행 단계"><li class="on" aria-current="step">① 고르기</li><li>② 보고 듣기</li><li>③ 준비하기</li><li>④ 완성</li></ol>
+  <h1 id="p1h" tabindex="-1">우리 예식 짓기</h1>
+  <p class="sub">예식에 담을 수 있는 순간을 모두 펼쳐 두었어요. 필요한 순간만 담으시면 예식 순서대로 제자리에 들어가요. 순서는 저희가 맞춰 두었고, 무엇을 담아도 값은 같아요.</p>
+  <button class="linkbtn" type="button" id="jumpEx">고르기 어려우시면 — 맨 아래 예시에서 시작하셔도 돼요 ↓</button>
+
+  <div class="timebar" id="timebar">
+    <div class="pv-title"><span>본식 <b id="tCer">—</b></span><span>사진과 인사 <b id="tPho">—</b></span></div>
+    <div class="bar" aria-hidden="true"><div class="c" id="barC"></div><div class="p" id="barP"></div></div>
+    <div class="legend"><span class="lc">본식</span><span class="mid">둘을 더하면 50분</span><span class="lp">사진과 인사</span></div>
+    <div class="mf" id="mf" role="group" aria-label="예식 흐름"></div>
+    <div class="note" id="note" role="status"><div class="nt" id="noteT"><b>알림</b><span id="noteTxt"></span></div><div class="na" id="noteAct"></div></div>
+  </div>
+
+  <div class="h2row"><h2>모든 순간 — 예식 순서대로</h2><button class="linkbtn" type="button" id="vAuto" aria-pressed="true">영상 자동 재생 끄기</button></div>
+  <p class="gline">하객 맞이 안내는 늘 있어요 — 하객이 들어오실 때 저절로 흘러요.</p>
+  <div id="groups"></div>
+
+  <h2 id="mineH" tabindex="-1">우리 예식 — 고른 순간이 흐르는 차례</h2>
+  <div class="box" id="mine">
+    <div class="origin" id="origin"></div>
+    <ol class="order" id="order"></ol>
+    <div class="peakline" id="peak"></div>
+    <div class="prepbox" id="prep"></div>
+    <div class="offbox" id="off"></div>
+    <div class="actions"><button class="primary" type="button" id="toListen">다음 · 보고 듣기 →</button></div>
+  </div>
+
+  <h2 id="examples" tabindex="-1">예시 — 고르기 어려우실 때</h2>
+  <div class="q">예식에서 가장 남기고 싶은 것은?</div>
+  <p class="qn">예시를 누르면 그 순간들이 위에 담겨요. 그다음 담고 빼셔도 돼요. 특별히 준비한 순서(영상 · 축사 등)가 있으면 어느 예시에서든 담을 수 있어요.</p>
+  <div class="exs" id="exs"></div>
+
+  <div class="memo"><b>시안 메모 — 고객 화면에는 없어요</b><ul>
+    <li>시간은 대본 길이 ~ 넉넉히(천천히 읽고 걷고, 동작에 여유를 둔 값)입니다. 식전 영상은 하객이 앉는 동안 상영해 본식 시간에 들지 않아요.</li>
+    <li>본식과 사진과 인사를 더하면 50분입니다(스냅 50분). 가장 긴 판에 준비한 순서(3분)까지 더한 드문 날은 사진과 인사가 19분까지 줄 수 있어요 — 23분 아래로 줄 수 있으면 알림을 띄웁니다.</li>
+    <li>«예시»라는 말은 검증에 맞춰 바꿔 답니다: 모의 예식 전 «예시» → 맞춰 본 뒤 «리허설로 맞춰 본 흐름» → 운영 뒤 «많이 고른 조합».</li>
+  </ul></div>
+</div>
+
+<div id="p2" hidden>
+  <span class="tag">제안 시안 3판 · 보고 듣기 · 소리와 영상은 흉내만</span>
+  <ol class="steps" aria-label="진행 단계"><li class="done"><button type="button" class="stepbtn" id="stepPick">① 고르기</button></li><li class="on" aria-current="step">② 보고 듣기</li><li>③ 준비하기</li><li>④ 완성</li></ol>
+  <button class="linkbtn" type="button" id="toPickTop">← 고르기로</button>
+  <h1 id="p2h" tabindex="-1">보고 듣기</h1>
+  <p class="sub">고른 순간을 예식 순서대로 보며 나레이션을 들어 보세요. 이름을 누르면 흐름과 바꿀 수 있는 것이 열려요.</p>
+  <button class="hero" type="button" id="playAll"><span class="vid"><span class="ai">AI로 만든 장면</span><span class="vp" id="heroIc"></span></span><span class="hl"><span class="hb" id="heroB"></span><span class="ht"><b>처음부터 보고 듣기</b><span class="len" id="playLen"></span></span></span></button>
+  <p class="pk" id="pkLegend"></p>
+  <div id="lrows"></div>
+  <div class="lmsg" id="lmsg" role="status"></div>
+  <details class="loff" id="prepBox"><summary id="prepSum"></summary><div id="prepList"></div></details>
+  <details class="loff" id="loffBox"><summary id="loffSum"></summary><div id="loff"></div><p class="lnote">준비한 순서는 특별히 준비한 것이 있을 때만 담아요 — «← 고르기로» 맨 아래에서 담을 수 있어요.</p></details>
+  <div class="lfoot"><button class="ghost" type="button" id="toPick">← 고르기로</button><span class="nextwrap"><button class="primary" type="button" disabled>다음 · 준비하기 →</button><small>시안은 여기까지예요</small></span></div>
+  <div class="memo"><b>시안 메모 — 고객 화면에는 없어요</b><ul>
+    <li>이어 듣기는 당일과 같은 파일을 같은 차례로 틀어요(엔진 큐 그대로). 음악 · 걸음 같은 말 없는 자리는 건너뛰고, 사람이 말하는 자리는 글 카드를 3초 보여 준 뒤 넘어가요.</li>
+    <li>자막은 대본 원천 문안 그대로예요. 녹음 파일이 없는 줄은 «아직 녹음 전» 표시와 함께 글로 보여 줘요.</li>
+    <li>시안의 재생은 흉내라 글 길이만큼(초당 9자쯤) 머물러요.</li>
+  </ul></div>
+</div>
+</div>
+<div class="cta" id="cta"><div class="ct" id="ctaTxt"></div><button class="primary" type="button" id="ctaGo">다음 · 보고 듣기 →</button></div>
+<div class="player" id="player"><button type="button" class="pv" id="pOpen" tabindex="-1" aria-hidden="true"><span class="vid mini on"></span></button><button type="button" class="pt" id="ptxt"></button><button type="button" class="pb" id="pToggle" aria-label="멈춤"></button><button type="button" class="pb" id="pNext" aria-label="다음 순간"></button><button type="button" class="pb" id="pClose" aria-label="듣기 끝내기"></button></div>
+<div class="fp" id="fp" hidden role="dialog" aria-modal="true" aria-labelledby="fpName">
+  <div class="fpin">
+    <div class="fph"><button type="button" id="fpMin" aria-label="작게 보기"></button><span id="fpPos"></span><span style="width:44px"></span></div>
+    <div class="vid on" id="fpVid"><span class="ai">AI로 만든 장면이에요 · 사람과 옷은 실제와 달라요</span><span class="vn" id="fpVn"></span></div>
+    <div class="fpseg" id="fpSeg" aria-hidden="true"></div>
+    <h3 id="fpName"></h3>
+    <div class="fplab" id="fpLab"></div>
+    <p class="fptxt" id="fpTxt"></p>
+    <button class="ghost fpskip" type="button" id="fpSkipPre" hidden>본식부터 보기 ⏭</button>
+    <div class="fpvars" id="fpVars"></div>
+    <div class="fpend" id="fpEnd" hidden></div>
+    <div class="fpctl"><button type="button" id="fpPrev" aria-label="앞 순간"></button><button type="button" class="big" id="fpToggle" aria-label="멈춤"></button><button type="button" id="fpNext" aria-label="다음 순간"></button></div>
+  </div>
+  <p class="sr" id="fpAnn" aria-live="polite"></p>
+</div>
+
+<script>
+// ── 순간(고정 순서 v4 · 와인 포함) — 시안 3판 · 세부 점검 반영(9/25) ──
+//   데이터 줄 안에는 // 주석을 쓰지 않는다(뒤 코드를 삼킨 일이 두 번 있었다 · /* */만)
+const EV=[
+ {id:'guest', nm:'하객 맞이 안내', sn:'맞이', grp:0, pre:true, hide1:true, fixed:true, scene:'하객들이 자리에 앉는 동안 촛불이 흔들려요', why:'하객이 들어오실 때 자리 안내와 시작 안내가 흘러요.', shot:'', who:'나레이션 또는 두 분 목소리',
+   xg:[{k:'guestVoice',l:'안내 목소리',list:[['nar','나레이션'],['couple','두 분 목소리']]}]},
+ {id:'video', nm:'식전 영상', sn:'식전 영상', grp:0, pre:true, lock:true, scene:'불을 낮춘 방에서 하객들이 영상을 봐요', why:'하객이 자리에 앉는 동안 두 분의 영상(3분 안)을 상영해요. 영상이 없으면 보내 주신 사진으로 저희가 3분 영상을 만들어요.', shot:'영상을 보는 가족들의 얼굴', who:'하객(두 분은 문 밖에서 기다려요)'},
+ {id:'candle', nm:'화촉', sn:'화촉', grp:0, scene:'두 손이 긴 초에 불을 옮겨요', why:'두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요.', shot:'초에 불이 옮겨붙는 순간 · 불빛에 비친 얼굴', who:'@candle',
+   vars:[['어머님','양가 어머님'],['부모님','어머님과 아버님'],['아버님','아버님 두 분'],['다른','다른 두 분']], vl:'서는 분'},
+ {id:'entry', nm:'입장', sn:'입장', grp:0, lock:true, scene:'문이 열리고 두 분이 함께 걸어 들어와요', why:'두 분이 함께 걸어 들어와, 서로 바라보거나 맞절하는 첫 모습을 남겨요.', shot:'문이 열리는 순간 · 두 분의 첫 모습', who:'두 분',
+   vars:[['A','서사형'],['B','짧고 강하게'],['C','격식과 따뜻함'],['D','감성 · 시적'],['E','감사 · 가족'],['F','이야기의 시작']], vl:'멘트',
+   xg:[{k:'entryVoice',l:'입장 목소리',list:[['nar','나레이션'],['couple','두 분 목소리']]},{k:'entryScene',l:'첫 모습',list:[['look','서로 바라보기'],['bow','맞절']],quiet:true}]},
+ {id:'greet', nm:'첫인사', sn:'첫인사', grp:0, scene:'두 분이 하객을 향해 고개 숙여 인사해요', why:'두 분이 하객께 짧게 첫인사를 드려요.', shot:'하객을 바라보며 인사하는 두 분', who:'두 분'},
+ {id:'bless', nm:'부모님 덕담', sn:'덕담', grp:1, scene:'자리에서 마이크를 든 부모님과 듣는 두 분', why:'부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤).', shot:'말씀하시는 부모님과 듣는 두 분', who:'부모님 한 분~네 분', because:'서약 바로 앞 — 부모님 말씀으로 약속의 문을 여는 자리예요.'},
+ {id:'vow', nm:'혼인 서약', sn:'서약', grp:1, scene:'마주 선 두 분이 카드를 들고 약속해요', why:'두 분이 서로에게 하는 약속을 읽어요(한 분 1분쯤).', shot:'서로를 보며 약속하는 옆얼굴', who:'두 분'},
+ {id:'ring', nm:'반지 교환', sn:'반지', grp:1, scene:'두 손이 서로 반지를 끼워 줘요', brief:'말 없이 반지를 끼워요 · 앞뒤로 나레이션', why:'서로의 손에 반지를 끼워 줘요. 평소 끼던 반지여도 괜찮아요.', shot:'반지를 끼워 주는 두 손', who:'두 분(건네는 손은 가족 · 아이도 돼요)'},
+ {id:'decl', nm:'성혼 선언', sn:'선언', grp:1, scene:'하객들이 박수로 두 분을 축복해요', why:'두 분이 부부가 되었음을 알려요. 누가 어떤 말투로 선언할지 고를 수 있어요.', shot:'서른 분이 박수 치는 넓은 모습', who:'성우 또는 가족 한 분 · 하객은 박수',
+   vars:[['격식','성우 · 엄숙하게'],['다정','성우 · 따뜻하게'],['박수','하객 박수로 답하기'],['가족','가족이 낭독']], vl:'누가 · 말투'},
+ {id:'trib', nm:'부모님께 인사', sn:'부모님 인사', grp:2, scene:'두 분이 부모님께 꽃을 건네고 안겨요', why:'부부가 되어 처음 부모님께 드리는 인사 — 꽃과 인사, 포옹으로 고마움을 전해요. 원하시면 신랑은 큰절로 해요(신부는 드레스라 서서 인사해요).', shot:'부모님께 안기는 순간', who:'두 분 · 양가 부모님',
+   because:'선언 뒤 — 부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).',
+   vars:[['한마디','한마디씩'],['긴말','1분쯤씩'],['없이','말 없이']], vl:'드릴 말', how:[['꽃','꽃과 포옹'],['큰절','신랑 큰절']], hl:'방식'},
+ {id:'prep', nm:'준비한 순서', sn:'준비한 순서', grp:5, scene:'하객들이 앞을 보며 함께 웃어요', why:'두 분이나 가족 · 친구가 특별히 준비한 것이 있을 때 담아요 — 영상, 춤 · 공연(음원에 맞춰), 깜짝 선물 · 전달, 친구 · 가족의 축사(3분 안). 라이브 노래 · 연주는 받지 않아요.', shot:'함께 보며 웃는 하객들', who:'두 분 · 준비한 가족이나 친구',
+   vars2:[['영상','영상'],['공연','춤 · 공연'],['전달','깜짝 선물 · 전달'],['축사','친구 · 가족의 축사']], vars:[['3','3분'],['2','2분'],['1','1분']], v2l:'무엇', vl:'길이', because:'편지 앞 — 편지가 마지막 큰 순간이 되도록.'},
+ {id:'letter', nm:'편지 낭독', sn:'편지', grp:2, scene:'편지를 읽는 손과 듣는 사람', why:'부모님께, 또는 서로에게 쓴 편지를 읽어요.', shot:'편지를 읽는 목소리와 듣는 얼굴', who:'두 분',
+   vars:[['서로','서로에게'],['부모님','각자 부모님께']], vl:'받는 분'},
+ {id:'cake', nm:'케이크 · 축배', sn:'케이크 · 축배', grp:3, scene:'두 와인이 한 잔에 섞이고 모두 잔을 들어요', why:'케이크를 함께 자르고, 모두 잔을 들어 «위하여». 잔을 드는 자리는 여기 하나예요.', shot:'자르는 손 · 섞이는 잔 · 서른 개의 잔', who:'두 분 · 하객 모두',
+   because:'와인도 여기서 — 두 와인을 한 잔에 붓는 것도 이 자리에서 해요(잔 드는 순간이 둘로 갈리지 않게).',
+   vars2:[['둘','케이크와 축배'],['축배','축배만'],['케이크','케이크만']], vars:[['붓기','두 와인을 한 잔에'],['양가','양가 와인 한 병씩'],['잔만','붓지 않음']], v2l:'무엇', vl:'와인'},
+ {id:'close', nm:'닫는 인사', sn:'닫는 인사', grp:4, lock:true, scene:'두 분이 인사하고 모두 앞으로 모여요', brief:'닫는 말 → 그 자리에서 단체 사진', why:'두 분이 인사를 드리고 본식을 마쳐요. 이어서 가족 · 하객과 사진을 남겨요.', shot:'두 분 뒤로 보이는 하객들 · 단체 사진', who:'두 분 · 하객 모두'},
+];
+const GRP=[['여는 순간','예식이 시작되는 자리'],['약속의 순간','말과 반지로 부부가 되는 자리'],['마음의 순간','부부가 되어 처음 건네는 마음'],['축하의 순간','모두 함께 잔을 드는 자리'],['닫는 순간','인사와 사진'],['특별히 준비한 것이 있다면','특별히 준비한 순서가 있을 때만 담아요. 없어도 예식은 자연스럽게 이어져요.']];
+const EX={
+ '기록':{title:'부부가 되는 순간, 모두의 박수', on:['video','candle','entry','greet','vow','ring','decl','trib','cake','close'], v:{entry:'A',decl:'박수',trib:'없이',cake:'붓기'}},
+ '약속':{title:'서로에게 쓴 말', on:['video','candle','entry','greet','vow','ring','decl','trib','letter','cake','close'], v:{entry:'F',decl:'다정',trib:'한마디',letter:'서로',cake:'붓기'}},
+ '가족':{title:'부모님과 나누는 순간', on:['video','candle','entry','greet','bless','vow','ring','decl','trib','cake','close'], v:{entry:'E',decl:'격식',trib:'긴말',cake:'양가'}},
+ '전부':{title:'하나도 빼고 싶지 않아요', on:EV.filter(e=>e.id!=='prep'&&!e.hide1).map(e=>e.id), v:{entry:'A',decl:'격식',trib:'한마디',letter:'부모님',cake:'붓기'}},   /* 준비한 순서 · 하객 맞이는 예시에 넣지 않음 */
+};
+const DEF_V={guestVoice:'nar',entryVoice:'nar',entryScene:'look',candle:'어머님',entry:'A',decl:'격식',trib:'한마디',tribHow:'꽃',letter:'서로',cake:'붓기',cakeWhat:'둘',prep:'3',prepWhat:'영상'};
+const LOCKS=EV.filter(e=>e.lock).map(e=>e.id);
+const PREP_KIND={영상:'video',공연:'stage',전달:'gift',축사:'speech'};   /* 코드 FREE_KIND의 넷 갈래와 같음 */
+// ── 길이 모델(6단계 엔진과 같은 값 · 초) ──
+const cap=(c,l)=>c*0.70/4.5+0.6*l;
+const BLOCK=50, FLOOR=23;
+function parts(id,v,seq){
+  const i=seq.indexOf(id), nxt=seq[i+1];
+  switch(id){
+    case 'candle': return [12.5,0,70,38];
+    case 'entry': return [{A:23,B:11,C:16,D:18,E:20,F:17}[v.entry]||23,0,25,42];
+    case 'greet': return [5,26,8,0];
+    case 'bless': return [17,153,8,20];
+    case 'vow': return [21,100,8,10];
+    case 'ring': return [20,0,60+8+(nxt==='decl'?12:0),2];
+    case 'decl': return ({격식:[16,0,8,36],박수:[30,0,15,15],다정:[12,0,8,40],가족:[11,15,8,30]})[v.decl];
+    case 'trib': return v.trib==='없이'?[42.5,0,25,30]:[38, v.trib==='긴말'?2*cap(400,12):2*cap(100,3), 25, 30];
+    case 'prep': return PREP_KIND[v.prepWhat]==='speech' ? [14,Math.max(0,60*Number(v.prep||3)-20),12,10] : [12,0,60*Number(v.prep||3)+8,5];
+    case 'letter': return v.letter==='서로'?[19,122,16,10]:[16,2*cap(400,12),16,10];
+    case 'cake': { const w=v.cakeWhat||'둘'; if(w==='케이크') return [28,0,45,60];
+      const base = w==='축배'?[25,0,30,60]:[41,0,63,106];
+      if(v.cake==='잔만') return base;
+      return [base[0]+6+(v.cake==='양가'?6:0),0,base[2]+25,base[3]+10]; }
+    case 'close': { const both=!seq.includes('trib'); return [39,0,both?13:8,both?8:13]; }
+  }
+  return [0,0,0,0];
+}
+function totals(seq,v){ let a=0,b=0; for(const id of seq){ const [n,h,act,sl]=parts(id,v,seq); a+=n+h+act; b+=n+1.25*h+act+sl; } return [a,b]; }
+function level(id,v){ if(id==='decl'||id==='letter') return 5; if(id==='trib') return v.trib==='긴말'?5:4; return 3; }
+// ── 준비할 것 — 네 갈래(쓸 글 · 보낼 것 · 챙길 것 · 부탁드릴 것) · 모두 ③ 준비하기에 모임 ──
+const TY={write:'쓸 글',send:'보낼 것',bring:'챙길 것',ask:'부탁드릴 것'};
+const P=(who,t,ty)=>({who,t,ty});
+function prepOf(id,v){
+  const n=Number(v.prep||3);
+  switch(id){
+    case 'guest': return v.guestVoice==='couple'?[P('두 분','하객 맞이 안내 녹음 — 대본을 드려요(휴대폰 음성 메모로 충분해요) · 예식 7일 전까지','send')]:[];
+    case 'video': return [P('두 분','식전 영상 — 영상 링크(3분 안) 또는 사진 30~40장 · 예식 3일 전까지','send')];
+    case 'candle': { const f=(EV.find(e=>e.id==='candle').vars.find(x=>x[0]===v.candle)||[])[1]||'양가 어머님';
+      return v.candle==='다른'?[P('두 분','화촉을 밝혀 주실 두 분께 부탁드리기','ask')]:[P('부모님',`화촉 — ${f}께서 불을 밝혀 주세요`,'ask')]; }
+    case 'entry': return v.entryVoice==='couple'?[P('두 분','입장 인사 녹음 — 대본을 드려요(휴대폰 음성 메모로 충분해요) · 예식 7일 전까지','send')]:[];
+    case 'greet': return [P('두 분','첫인사 한두 문장','write')];
+    case 'bless': return [P('부모님','덕담 원고 — 말씀하실 분마다 400자 안팎(1분쯤) · 예식 7일 전까지 보내 주시면 큰 글씨로 뽑아 드려요','ask')];
+    case 'vow': return [P('두 분','서약문 — 두 분이 비슷한 길이로(한 분 1분쯤)','write')];
+    case 'ring': return [P('두 분','반지 두 개 — 평소 끼던 반지여도 괜찮아요','bring')];
+    case 'decl': return v.decl==='가족'?[P('부모님','성혼 선언을 읽어 주실 가족 한 분(선언문은 큰 글씨로 드려요)','ask')]:[];
+    case 'trib': if(v.trib==='없이') return [P('두 분','부모님께 드릴 꽃','bring')];
+      if(crossTrib(v)) return [P('두 분','서로의 부모님께 드릴 한마디씩(신랑 → 장인 · 장모님, 신부 → 시부모님)','write')];
+      return [P('두 분', v.trib==='긴말'?'부모님께 드릴 말 — 한 분 400자 안팎(1분쯤)':'부모님께 드릴 한마디씩','write')];
+    case 'prep': { const k=PREP_KIND[v.prepWhat]||'video';
+      if(k==='speech') return [P('두 분',`축사하실 분께 부탁 — 원고 ${n*300}자 안팎(${n}분) · 예식 3일 전까지 보내 주시면 큰 글씨로 뽑아 드려요`,'ask')];
+      if(k==='stage') return [P('두 분',`음원 파일(${n}분 안) · 설 자리 폭 알려 주기 · 예식 3일 전까지`,'send')];
+      if(k==='gift') return [P('두 분','무엇을 누가 건넬지 알려 주기(저희가 자리를 맞춰요)','send')];
+      return [P('두 분',`영상 파일(가로 · ${n}분 안) · 예식 3일 전까지`,'send')]; }
+    case 'letter': return [P('두 분', v.letter==='서로'?'서로에게 쓸 편지 — 한 분 400자 안팎':'각자 부모님께 쓸 편지 — 한 분 400자 안팎','write')];
+    case 'cake': { const w=v.cakeWhat||'둘', drink=P('두 분','하객 자리마다 축배 음료 정하기(좌석표에서)','send');
+      if(w==='케이크') return [P('두 분','케이크 모양 고르기(케이크는 저희가 준비해요)','send')];
+      if(v.cake==='양가') return [P('부모님','양가에서 와인 한 병씩','ask'),drink];
+      if(v.cake==='붓기') return [P('두 분','색이 다른 와인 두 병(또는 음료 둘)','bring'),drink];
+      return [drink]; }
+  }
+  return [];
+}
+const crossTrib=v=>v.trib==='한마디' && sel.has('trib') && sel.has('letter') && v.letter==='부모님';
+const preps=(id,v)=>prepOf(id,v);
+// ── 상태 — 이 기기에 잠시 보관(뒤로 가기 · 새로고침에도 남게 · 실제는 지금 빌더의 초안 저장) ──
+const $=q=>document.getElementById(q);
+let sel=new Set(LOCKS), from=null, vv={...DEF_V}, prev=null, autoVid=true;
+const openDet=new Set(), noteOff=new Set();
+try{ const s=JSON.parse(sessionStorage.getItem('me_pick_s3')||'null'); if(s){ sel=new Set(s.sel); from=s.from; vv={...DEF_V,...s.vv}; autoVid=s.autoVid!==false; } }catch(e){}
+function save(){ try{ sessionStorage.setItem('me_pick_s3',JSON.stringify({sel:[...sel],from,vv,autoVid})); }catch(e){} }
+const idx=id=>EV.findIndex(e=>e.id===id);
+const byId=id=>EV[idx(id)];
+function ceremonySeq(){ return EV.filter(e=>sel.has(e.id)&&!e.pre).map(e=>e.id); }
+function picked(){ return [...sel].filter(id=>!LOCKS.includes(id)&&!byId(id).hide1); }
+const fm=s=>Math.round(s/60);
+const rng=(x,y)=>x===y?`약 ${x}분`:`약 ${x}~${y}분`;
+const photoLow=b=>Math.max(0,Math.round(BLOCK-b/60));
+function sameSet(a,list){ return list.length===a.size && list.every(x=>a.has(x)); }
+const josa=(w,a,b)=>{ const c=w.charCodeAt(w.length-1); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28) ? a : b; };
+// 고른 것 이름 — 입장은 목소리를 늘 보임
+function varLabel(e){ let t='';
+  if(e.vars){
+    if(e.id==='trib'&&crossTrib(vv)) t='서로의 부모님께 한마디씩';
+    else if(e.id==='prep'){ const w=(e.vars2.find(x=>x[0]===vv.prepWhat)||[])[1]||''; t=w+' · '+(vv.prep||'3')+'분'; }
+    else { const f=e.vars.find(x=>x[0]===vv[e.id]); t=f?f[1]:'';
+      if(e.id==='entry') t=`멘트 «${t}» · ${vv.entryVoice==='couple'?'두 분 목소리':'나레이션'}`;
+      if(e.vars2){ const g=e.vars2.find(x=>x[0]===vv[e.id+'What']); if(g){ t = g[0]==='케이크' ? g[1] : (g[0]==='둘' ? t : g[1]+' · '+t); } } }
+  }
+  if(e.how && vv[e.id+'How'] && vv[e.id+'How']!==e.how[0][0]){ const h=e.how.find(x=>x[0]===vv[e.id+'How']); if(h) t+=' · '+h[1]; }
+  for(const g of (e.xg||[])) if(g.k!=='entryVoice' && vv[g.k] && vv[g.k]!==g.list[0][0]){ const h=g.list.find(x=>x[0]===vv[g.k]); if(h) t+=(t?' · ':'')+h[1]; }
+  return t; }
+const varKeys=e=>[e.id].concat(e.vars2?[e.id+'What']:[], e.how?[e.id+'How']:[], (e.xg||[]).map(g=>g.k));
+function slotText(e,seq){
+  if(e.pre) return '하객이 앉는 동안 · 본식 앞';
+  const i=idx(e.id); let p=null,n=null;
+  for(let k=i-1;k>=0;k--){ const x=EV[k]; if(!x.pre&&sel.has(x.id)){p=x;break;} }
+  for(let k=i+1;k<EV.length;k++){ const x=EV[k]; if(!x.pre&&sel.has(x.id)){n=x;break;} }
+  if(sel.has(e.id)) return `${seq.indexOf(e.id)+1}번째 · ${p?p.nm+' 다음':'맨 처음'}`;
+  if(p&&n) return `담으면 ${p.nm} 다음, ${n.nm} 앞에 들어가요`;
+  if(n) return `담으면 맨 처음, ${n.nm} 앞에 들어가요`;
+  return p?`담으면 ${p.nm} 다음에 들어가요`:'';
+}
+function whoOf(e){ if(e.who==='@candle'){ const f=(e.vars.find(x=>x[0]===vv.candle)||[])[1]; return f||'양가 어머님'; } return e.who; }
+function applyEx(k){
+  const ex=EX[k];
+  prev = (picked().length && !sameSet(sel,ex.on)) ? {sel:new Set(sel), vv:{...vv}, from} : null;
+  sel=new Set(ex.on); from=k; vv={...DEF_V,...ex.v}; noteOff.clear(); render();
+  $('mineH').scrollIntoView({block:'start'}); $('mineH').focus({preventScroll:true});
+}
+// ── 포커스 지키기 — 다시 그려도 누른 자리에 머물게(지금 빌더의 data-fk 규칙과 같음) ──
+function fkOf(el){ const x=el&&el.closest&&el.closest('[data-fk]'); return x?x.dataset.fk:null; }
+function refocus(fk){ if(!fk) return; const el=document.querySelector(`[data-fk="${CSS.escape(fk)}"]`); if(el&&el.offsetParent!==null) el.focus({preventScroll:true}); }
+function render(){ const fk=fkOf(document.activeElement); draw(); refocus(fk); save(); }
+function draw(){
+  const seq=ceremonySeq(); const [a,b]=totals(seq,vv);
+  let peak=null; for(const id of seq) if(level(id,vv)===5) peak=id;
+  $('tCer').textContent=rng(fm(a),fm(b));
+  $('tPho').textContent=rng(photoLow(b),Math.round(BLOCK-a/60));
+  const mid=(a+b)/2/60; $('barC').style.flex=String(mid); $('barP').style.flex=String(BLOCK-mid);
+  const mf=$('mf'); mf.innerHTML='';
+  const shown=EV.filter(e=>sel.has(e.id)&&!e.hide1);
+  shown.forEach((e,i)=>{
+    const c=document.createElement('span');
+    c.className='mc'+(e.pre?' pre':'')+(e.lock?' lk':'')+(e.id===peak?' peak':'');
+    c.innerHTML=(e.id===peak?'<span class="star" aria-hidden="true">★</span><span class="sr">절정</span> ':'')+e.sn;
+    mf.appendChild(c);
+    if(i<shown.length-1){ const s=document.createElement('span'); s.className='ar'; s.textContent='›'; s.setAttribute('aria-hidden','true'); mf.appendChild(s); }
+  });
+  requestAnimationFrame(()=>mf.classList.toggle('more', mf.scrollWidth>mf.clientWidth+2));
+  if(!picked().length){ const h=document.createElement('span'); h.className='hint'; h.textContent='  ↓ 아래 카드에서 담아 보세요'; mf.appendChild(h); }
+  // 모든 순간
+  const gw=$('groups'); gw.innerHTML='';
+  GRP.forEach((g,gi)=>{
+    const box=document.createElement('div'); box.className='group';
+    box.innerHTML=`<h3>${g[0]}</h3><p class="gd">${g[1]}</p>`;
+    EV.filter(e=>e.grp===gi&&!e.hide1).forEach(e=>{
+      const on=sel.has(e.id);
+      const d=document.createElement('div'); d.className='ev'+(on?' on':''); d.dataset.id=e.id;
+      let t;
+      if(!e.pre){ const tmp=[...new Set([...seq,e.id])].sort((x,y)=>idx(x)-idx(y));
+        const [n,h,act,sl]=parts(e.id,vv,tmp); t=rng(Math.max(1,Math.round((n+h+act)/60)),Math.max(1,Math.round((n+1.25*h+act+sl)/60))); }
+      else t='본식 시간에 들지 않아요';
+      const ps=preps(e.id,vv), det=[];
+      det.push(`<p><b>준비할 것</b> · ${ps.length?ps.map(q=>`<span class="ty">${TY[q.ty]}</span>`+(q.who==='부모님'?'부모님께 — ':'')+q.t).join('<br>'):'따로 없어요'}</p>`);
+      if(e.because) det.push(`<p><b>이 자리인 까닭</b> · ${e.because}</p>`);
+      const gs=[e.vars2?(e.v2l||'무엇')+': '+e.vars2.map(x=>x[1]).join(' / '):'', e.vars?(e.vl?e.vl+': ':'')+e.vars.map(x=>x[1]).join(' / '):'', e.how?(e.hl||'방식')+': '+e.how.map(x=>x[1]).join(' / '):'', ...(e.xg||[]).map(g=>g.l+': '+g.list.map(x=>x[1]).join(' / '))].filter(Boolean);
+      if(gs.length) det.push(`<p><b>바꿀 수 있는 것</b> · ${gs.join(' · ')} — «보고 듣기»에서 들어 보고 바꿔요</p>`);
+      const open=openDet.has(e.id);
+      const vl=on&&(e.vars||e.xg)?varLabel(e):'';
+      d.innerHTML=`<div class="vid" data-v="${e.id}" data-fk="vid:${e.id}" role="button" tabindex="0" aria-pressed="false" aria-label="${e.nm} 장면 영상 재생 · 멈춤"><span class="ai">AI로 만든 장면</span><span class="vs">❚❚ 누르면 멈춰요</span><span class="vp">${IC.play}</span><span class="vn"><small>장면 영상 자리</small>${e.scene||e.nm}</span></div>
+        <div class="top"><div class="nm">${e.nm}</div>
+          <button class="tg" type="button" data-fk="tg:${e.id}" ${e.lock?'disabled':''} aria-pressed="${on}" aria-label="${e.nm} 담기">${e.lock?'늘 있어요':(on?'담았어요 ✓':'+ 담기')}</button></div>
+        <div class="why">${e.why}</div>
+        ${e.shot?`<div class="shot">${e.shot}</div>`:''}
+        <div class="meta"><span>${t}</span><span>누가 · ${whoOf(e)}</span></div>
+        <div class="slot">${slotText(e,seq)}</div>
+        ${vl?`<div class="note2">지금 · ${vl} — «보고 듣기»에서 바꿀 수 있어요</div>`:''}
+        ${(e.id==='trib'&&on&&crossTrib(vv))?'<div class="note2">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</div>':''}
+        <button class="more" type="button" data-fk="more:${e.id}" aria-expanded="${open}" aria-label="${e.nm} 자세히">${open?'접기 ▴':'자세히 ▾'}</button>
+        <div class="det" ${open?'':'hidden'}>${det.join('')}</div>`;
+      if(!e.lock) d.querySelector('.tg').onclick=()=>{ on?sel.delete(e.id):sel.add(e.id); prev=null; render(); };
+      d.querySelector('.more').onclick=()=>{ open?openDet.delete(e.id):openDet.add(e.id); render(); };
+      box.appendChild(d);
+    });
+    gw.appendChild(box);
+  });
+  // 우리 예식
+  const og=$('origin');
+  if(!picked().length) og.textContent='아직 담은 순간이 없어요 — 식전 영상 · 입장 · 닫는 인사는 늘 있어요.';
+  else if(!from) og.textContent='직접 고르셨어요.';
+  else {
+    const ex=EX[from], base=new Set(ex.on), bits=[];
+    for(const e of EV){ if(e.hide1) continue; if(sel.has(e.id)&&!base.has(e.id)) bits.push('+ '+e.sn); if(base.has(e.id)&&!sel.has(e.id)) bits.push('− '+e.sn); }
+    const pv={...DEF_V,...ex.v}; let vc=0; for(const e of EV) if((e.vars||e.xg)&&sel.has(e.id)&&varKeys(e).some(k=>pv[k]!==vv[k])) vc++;
+    if(vc) bits.push('바꾼 것 '+vc+'가지');
+    og.textContent = bits.length ? `«${from}» 예시에서 시작 · ${bits.join(' · ')}` : `«${from}» 예시 그대로`;
+  }
+  if(!sel.has('prep')){ const a=document.createElement('button'); a.className='undo'; a.type='button'; a.dataset.fk='addprep'; a.textContent='+ 준비한 순서 담기';
+    a.onclick=()=>{ sel.add('prep'); render(); const c=document.querySelector('.ev[data-id="prep"]'); if(c){ c.scrollIntoView({block:'center'}); const tg=c.querySelector('.tg'); if(tg) tg.focus({preventScroll:true}); } }; og.appendChild(a); }
+  if(prev){ const u=document.createElement('button'); u.className='undo'; u.type='button'; u.dataset.fk='undoex'; u.textContent='예시 전으로 되돌리기';
+    u.onclick=()=>{ sel=prev.sel; vv=prev.vv; from=prev.from; prev=null; render(); }; og.appendChild(u); }
+  const ol=$('order'); ol.innerHTML=''; let no=0;
+  for(const e of EV) if(sel.has(e.id)&&!e.hide1){
+    const li=document.createElement('li'); const vl=(e.vars&&!e.lock)?varLabel(e):'';
+    li.innerHTML=`<span class="no">${e.pre?'식전':(++no)}</span><span>${e.id===peak?'<span class="star" aria-hidden="true">★</span><span class="sr">절정</span> ':''}${e.nm}${vl?` <span class="vn">· ${vl}</span>`:''}</span>`;
+    ol.appendChild(li);
+  }
+  $('peak').innerHTML = peak ? `<span class="star" aria-hidden="true">★</span> 이 예식의 절정은 <b>${byId(peak).nm}</b> — ${byId(peak).shot}` : '절정(★)이 될 순간을 하나 담아 보세요 — 성혼 선언 · 편지 낭독, 또는 1분쯤씩 전하는 부모님께 인사.';
+  const two=[],par=[];
+  for(const e of EV) if(sel.has(e.id)||e.id==='guest'){ for(const q of preps(e.id,vv)) (q.who==='부모님'?par:two).push(q); }
+  const li=q=>`<li><span class="ty">${TY[q.ty]}</span>${q.t}</li>`;
+  $('prep').innerHTML=`<b>두 분이 준비할 것 ${two.length}가지</b><ul>${two.map(li).join('')}</ul>`+(par.length?`<b>부모님께 부탁드릴 것 ${par.length}가지</b><ul>${par.map(li).join('')}</ul>`:'')+'<span>모두 ③ 준비하기에 모여요.</span>';
+  const off=EV.filter(e=>!sel.has(e.id)&&!e.hide1&&e.id!=='prep');
+  $('off').innerHTML = off.length ? `<b>담지 않은 순간 ${off.length}가지</b> · ${off.map(e=>e.sn).join(' · ')}<br>빼 두어도 예식은 자연스럽게 이어져요. 담지 않은 순간도 부모님과 한 번 같이 보세요.` : '<b>모든 순간을 담았어요.</b>';
+  // 예시
+  const xw=$('exs'); xw.innerHTML='';
+  for(const [k,ex] of Object.entries(EX)){
+    const s=EV.filter(e=>ex.on.includes(e.id)&&!e.pre).map(e=>e.id); const [x,y]=totals(s,{...DEF_V,...ex.v});
+    const list=EV.filter(e=>ex.on.includes(e.id)&&!e.lock).map(e=>'<span>'+e.sn+'</span>').join(' ');
+    const btn=document.createElement('button'); btn.className='ex'; btn.type='button'; btn.dataset.fk='ex:'+k;
+    btn.setAttribute('aria-pressed',String(from===k&&sameSet(sel,ex.on)));
+    btn.innerHTML=`<b>${ex.title}</b><span class="t">«${k}» 예시 · 본식 ${rng(fm(x),fm(y))} · 사진과 인사 ${rng(photoLow(y),Math.round(BLOCK-x/60))}</span><span class="l">${list}</span>`;
+    btn.onclick=()=>applyEx(k);
+    xw.appendChild(btn);
+  }
+  notice(seq);
+  updCta(seq);
+  setupVids();
+  if(!$('p2').hidden) renderListen();
+}
+// ── 알림 — 한 번에 하나 · 할 수 있는 일(단추)과 함께 · «괜찮아요»로 닫기 ──
+const isSit=id=> ['bless','vow','letter'].includes(id) || (id==='trib' && vv.trib!=='없이') || (id==='prep' && PREP_KIND[vv.prepWhat]==='speech');   /* 말 없이 인사는 앉아 듣기가 아님(코드 heavy()와 같음) */
+let noteKey='';
+function notice(seq){
+  let key='', msg='', acts=[];
+  if(picked().length){
+    let run=[], best=[];
+    for(const id of seq){ if(isSit(id)){ run.push(id); if(run.length>best.length) best=run.slice(); } else run=[]; }
+    const lastBody=seq[seq.length-2];
+    if(best.length>=3){
+      const names=best.map(id=>byId(id).nm).join(' → ');
+      if(best.includes('trib') && !(best[0]==='bless'||best[0]==='vow')){ key='sitB'; msg=`${names} — 말로 듣는 순서가 셋 이어져요. 부모님께 인사를 «말 없이»로 하면 사이가 풀려요.`; acts=[['인사를 말 없이로',()=>{ vv.trib='없이'; render(); }]]; }
+      else { key='sitA'; msg=`${names} — 말로 듣는 순서가 셋 이어져요. «반지 교환»이나 «성혼 선언»을 담으면 사이가 풀려요.`; acts=[]; if(!sel.has('ring')) acts.push(['반지 교환 담기',()=>{ sel.add('ring'); render(); }]); if(!sel.has('decl')) acts.push(['성혼 선언 담기',()=>{ sel.add('decl'); render(); }]); }
+    } else if(seq.includes('trib')&&vv.trib==='긴말'&&seq.includes('letter')&&vv.letter==='부모님'){
+      key='twice'; msg='부모님께 드리는 말이 두 번이에요(인사 1분쯤씩 · 편지 각자 부모님께). 인사를 «한마디씩»으로 바꾸면 겹치지 않아요.'; acts=[['인사를 한마디씩으로',()=>{ vv.trib='한마디'; render(); }]];
+    } else if(picked().length>=3 && (!seq.includes('cake')||vv.cakeWhat==='케이크') && (isSit(lastBody)||lastBody==='decl'||!seq.includes('decl'))){
+      key='toast'; msg='끝이 조용한 편이에요. «케이크 · 축배»를 담으면 서른 분이 함께 잔을 들며 밝게 끝나요(술 대신 음료도 돼요).'; acts=[[seq.includes('cake')?'축배도 하기':'케이크 · 축배 담기',()=>{ sel.add('cake'); if(vv.cakeWhat==='케이크') vv.cakeWhat='둘'; render(); }]];
+    } else { const lo=photoLow(totals(seq,vv)[1]); if(lo<FLOOR){ key='short'; msg=`천천히 진행되면 사진과 인사가 약 ${lo}분으로 줄어요. 단체 · 가족 사진은 그대로 찍고, 테이블 인사와 두 분 쉬는 시간을 줄여요.`; } }
+  }
+  if(key && noteOff.has(key)) { key=''; msg=''; }
+  const n=$('note');
+  if(!msg){ n.style.display='none'; noteKey=''; return; }
+  n.style.display='block';
+  if(key!==noteKey || $('noteTxt').textContent!==msg){ $('noteTxt').textContent=msg; noteKey=key; n.classList.remove('open'); }
+  const na=$('noteAct'); na.innerHTML='';
+  for(const [label,fn] of acts){ const b=document.createElement('button'); b.type='button'; b.textContent=label; b.dataset.fk='note:'+label; b.onclick=fn; na.appendChild(b); }
+  if(key!=='short'){ const b=document.createElement('button'); b.type='button'; b.textContent='괜찮아요'; b.dataset.fk='note:ok'; b.onclick=()=>{ noteOff.add(key); render(); }; na.appendChild(b); }
+}
+$('noteT').onclick=()=>$('note').classList.toggle('open');
+
+// ── 2쪽 «보고 듣기» — 시안은 소리 · 영상 없이 흉내만(실제는 엔진 큐의 mp3 + 순간 영상) [WATCH_LISTEN 9/25] ──
+const IC={play:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>',
+  pause:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z"/></svg>',
+  again:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.6 9.3l1.9-.7A5 5 0 1 0 12 7v3L7.5 6 12 2z"/></svg>',
+  prev:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5v14L9 12zM5 5h2.5v14H5z"/></svg>',
+  next:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14l10-7zM16.5 5h2.5v14h-2.5z"/></svg>',
+  x:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4z"/></svg>',
+  down:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4L19.8 10 12 17.8 4.2 10z"/></svg>'};
+const NT={"guestIn": ["두 사람의 결혼식을 찾아 주셔서 감사드립니다. 앉으실 자리는, 신랑 신부가 한 분 한 분을 떠올리며 마련했습니다. 미리 받으신 안내 페이지에서 확인하실 수 있고, 자리가 헷갈리시면 입구에서 도와드리겠습니다. 기다리시는 동안, 편안히 머물러 주십시오.", "저희 두 사람의 결혼식에 와 주셔서 감사합니다. 앉으실 자리는, 저희가 한 분 한 분 떠올리며 정했어요. 미리 받으신 안내 페이지에서 확인하실 수 있어요. 자리 찾기가 어려우시면, 입구에 도와드릴 분이 계세요."], "guest10": ["오늘의 예식이 십 분 뒤 시작됩니다. 한쪽에 간단한 다과와 음료를 준비해 두었습니다. 자리에 앉아 주시면 됩니다.", "저희 예식이 십 분 뒤 시작됩니다. 자리에 앉아 주시면 됩니다."], "guest4Pre": "곧 예식을 시작하겠습니다. 오늘 예식은 미리 준비한 안내 음성으로 진행되고, 순서도 목소리도 신랑 신부가 정했습니다. 휴대폰은 잠시 진동 모드로 부탁드립니다. 입장 때 따로 일어서실 것 없습니다. 사진은 마음껏 남겨 주셔도 좋습니다. 이제, 두 사람을 기다리겠습니다.", "prevideoIn": "두 분이 준비한 영상을 함께 보시겠습니다.", "entry": {"A": ["서사형", "저 문 너머에서, 두 사람도 이 순간을 기다리고 있습니다. 오늘까지 서로 다른 길을 걸어왔지만, 그 두 길이 여기서 하나로 이어집니다. 하객 여러분, 따뜻한 박수로 맞이해 주시면 감사하겠습니다. 신랑 신부, 입장!"], "B": ["짧고 강하게", "드디어, 시작입니다. 여기 계신 모든 분, 큰 박수 부탁드립니다. 신랑 신부, 입장!"], "C": ["격식과 따뜻함", "귀한 걸음 해 주신 여러분 앞으로, 두 사람이 들어옵니다. 박수로 반겨 주시면 감사하겠습니다. 신랑 신부, 입장!"], "D": ["감성·시적", "봄이 몇 번, 겨울이 몇 번 지나서야 이 하루가 왔습니다. 그 시간을 아시는 여러분이, 박수로 맞아 주시면 감사하겠습니다. 신랑 신부, 입장!"], "E": ["감사·가족", "부모님께는 여전히 아이 같은 두 사람이, 어른의 약속을 하러 들어옵니다. 오늘만큼은 어른으로 맞아 주십시오. 따뜻한 박수를 부탁드립니다. 신랑 신부, 입장!"], "F": ["이야기의 시작", "각자 써 내려온 두 권의 이야기가, 오늘 한 권으로 묶입니다. 그 첫 장을, 큰 박수로 열어 주시면 감사하겠습니다. 신랑 신부, 입장!"]}, "entrySelf": {"A": "저희 두 사람은 오늘까지 각자의 길을 걸어왔습니다. 이제 그 두 길을, 여기서 하나로 잇습니다. 이 첫걸음을, 박수로 맞이해 주세요.", "B": "저희 두 사람이 함께 걸어갈 길이 오늘 여기서 열립니다. 힘찬 박수 부탁드립니다.", "C": "저희는 이 순간을 오래 그려 왔습니다. 귀한 걸음 해 주신 여러분, 박수로 반겨 주세요.", "D": "봄이 몇 번, 겨울이 몇 번 지나서야, 저희에게 이 하루가 왔습니다. 그 시간을 아시는 여러분, 박수로 맞아 주세요.", "E": "오늘은, 저희를 아껴 주신 분들 앞에 서는 날입니다. 평생의 약속을 향한 첫걸음에, 따뜻한 박수를 부탁드립니다.", "F": "오랜 시간 저희가 각자 써 내려온 두 권의 이야기가, 오늘 한 권으로 묶입니다. 그 첫 장을, 박수로 열어 주세요."}, "welcome": {"nar": "신랑 신부가 하객 여러분께, 첫인사를 직접 드리겠습니다.", "end": "지금 들으신 것이 두 사람의 첫 인사였습니다."}, "vow": {"nar": "오늘을 위해 두 사람이 몇 번이고 고쳐 쓴 말이 있습니다. 이제 그 말이, 서로에게 닿을 차례입니다. 두 분, 한 걸음씩 다가서 주세요. 신랑부터 시작하겠습니다.", "end": "약속은 말로 끝나지 않습니다. 두 사람의 삶으로 이어집니다."}, "ring": {"nar": "반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다. 말없이 지나가는 순서이니, 그대로 함께 봐 주세요.", "end": "두 사람 손에 같은 것이 하나씩 생겼습니다. 오래 기억되도록, 박수를 부탁드립니다."}, "close": "이것으로 본식을 마칩니다. 이어서 가족, 하객 여러분과 함께 사진을 남기겠습니다. 오늘 함께해 주신 분들 모두가, 두 사람의 사진에 오래 남으셨으면 좋겠습니다. 모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다.", "blessOpen": "서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.", "declare": {"1": "오늘 두 사람은, 이 자리에 계신 모든 분을 증인으로, 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다. 하객 여러분, 두 사람의 앞날을 큰 박수로 축복해 주시면 감사하겠습니다.", "2": "오늘 두 사람은, 서로에게 하나뿐인 사람이 되었습니다. 이제 두 사람은 부부입니다. 하객 여러분, 큰 박수로 답해 주시면 감사하겠습니다."}, "declFamilyIntro": "두 사람의 성혼은, 가족께서 선언하십니다. 준비되시면 그대로 읽어 주십시오.", "tribute": ["두 사람을 키워 주신 분들이 앞에 계십니다. 신랑 신부, 천천히 걸음을 옮겨 주십시오. 인사를 올리는 동안, 하객 여러분께서도 조용히 함께해 주십시오.", "오늘로 두 집안은 한 가족입니다. 양가 어른들께, 따뜻한 박수를 부탁드립니다."], "letter": {"each": "가장 가까운 사이라서, 오히려 한 번도 못 한 말이 있습니다. 그 말을, 서로에게 쓴 편지에 담아 왔습니다. 두 분, 마주 보고 전해 주세요.", "parent": "평소엔 쑥스러워 다 못 한 이야기를, 한 장의 편지에 담았습니다. 그 편지를, 부모님께 들려 드리세요."}, "toast": {"both": "케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡아 주세요. 서두르실 것 없습니다. 신랑 신부가 자르고 나면, 큰 박수 부탁드립니다.", "toast": "이제 우리 다 같이, 잔을 들어요. 제가 위하여, 하면 다 함께 위하여, 하고 답해 주세요. 두 사람의 새로운 시작을 위하여!", "cake": "케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡아 주세요. 서두르실 것 없습니다. 신랑 신부가 자르고 나면, 큰 박수 부탁드립니다."}, "toastOut": "잔은 편하게 내려놓으세요.", "cakeOut": "두 사람이 함께 해낸 첫 번째 일이었습니다. 나이프는 그 자리에 놓으시면 됩니다.", "candleIn": {"mothers": "예식의 시작을 알리는 촛불을 밝히겠습니다. 양가 어머님께서 앞으로 나와 주시겠습니다.", "parents": "예식의 시작을 알리는 촛불을 밝히겠습니다. 양가 부모님께서 앞으로 나와 주시겠습니다.", "fathers": "예식의 시작을 알리는 촛불을 밝히겠습니다. 양가 아버님께서 앞으로 나와 주시겠습니다.", "others": "예식의 시작을 알리는 촛불을 밝히겠습니다. 양가를 대표하는 두 분께서 앞으로 나와 주시겠습니다."}, "candleOut": "두 집의 불이 밝혀졌습니다. 따뜻한 박수 부탁드립니다.", "clapAsk": "여러분은 방금 두 사람의 약속을 함께 지켜보셨습니다. 이 약속의 증인이 되어 주신다면, 큰 박수로 답해 주십시오.", "clapDeclare": "오늘 이 자리에서, 두 사람은 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다.", "pourMix": "두 분이 각자 고른 와인을 한 잔에 붓습니다. 한 번 어우러진 맛은 다시 나뉘지 않지요.", "pourFamily": "양가에서 한 병씩 고른 와인을, 이제 한 잔에 모읍니다.", "freeOut": "따뜻한 박수 부탁드립니다.", "bowGroom": "신랑은 큰절로, 신부는 고개 숙여, 부모님께 감사를 올립니다.", "toastBothPour": "다음은 축배입니다. 우리도 다 같이 잔을 들어요. 제가 위하여, 하면 다 함께 위하여, 하고 답해 주세요. 두 사람의 새로운 시작을 위하여!"};
+const PREP_OPEN={video:'오늘을 위해 준비한 영상이 있습니다. 함께 보시겠습니다.',stage:'오늘을 위해 준비한 작은 무대가 있습니다. 함께 보시겠습니다.',gift:'오늘을 위해 마음을 담아 준비한 선물이 있습니다.',speech:'두 분을 오래 지켜본 분께서, 축하의 말을 준비하셨습니다.'};
+const CANDLE_KEY={어머님:'mothers',부모님:'parents',아버님:'fathers',다른:'others'};
+const secTxt=x=> x<55 ? `약 ${Math.max(10,Math.round(x/10)*10)}초` : `약 ${Math.round(x/60)}분`;
+function peakOf(seq){ let pk=null; for(const id of seq) if(level(id,vv)===5) pk=id; return pk; }
+function groupsOf(e){
+  const g=[];
+  if(e.vars2) g.push({k:e.id+'What',l:e.v2l||'무엇',list:e.vars2});
+  if(e.vars && !(e.vars2&&vv[e.id+'What']==='케이크')) g.push({k:e.id,l:e.vl||'',list:e.vars,gh:(e.id==='entry'&&vv.entryVoice==='couple')?'두 분이 녹음하실 대본도 이 멘트에 맞춰 드려요.':''});
+  if(e.how) g.push({k:e.id+'How',l:e.hl||'방식',list:e.how});
+  for(const x of (e.xg||[])) g.push({...x,gh:x.quiet?'소리는 같아요 — 모습만 달라져요.':''});
+  return g;
+}
+const chipRow=(g,scope)=>`<div class="cg" role="radiogroup" aria-label="${g.l}">${g.l?`<span class="gl" aria-hidden="true">${g.l}</span>`:''}${g.list.map(([k,l])=>`<button class="chip" type="button" role="radio" data-fk="${scope}:${g.k}:${k}" data-key="${g.k}" data-k="${k}" aria-checked="${vv[g.k]===k}">${l}</button>`).join('')}${g.gh?`<p class="gh">${g.gh}</p>`:''}</div>`;
+// 사람이 말하는 자리 — 글 카드(말 없는 준비한 순서는 «흐르는 자리»)
+function talkLine(e,seq){
+  if(e.pre) return '';
+  if(e.id==='prep'){ const w=(e.vars2.find(x=>x[0]===vv.prepWhat)||[])[1]||'', n=vv.prep||3; return PREP_KIND[vv.prepWhat]==='speech' ? `준비한 분이 축하의 말을 해요 · 약 ${n}분` : `준비한 ${w}${josa(w,'이','가')} 흘러요 · 약 ${n}분`; }
+  const pr=parts(e.id,vv,seq); if(!pr||!pr[1]) return '';
+  const say={greet:'두 분이 하객께 첫인사를 해요', bless:'부모님이 덕담을 들려주세요', vow:'두 분이 서약을 읽어요', decl:'가족 한 분이 성혼 선언문을 읽어요',
+    trib: crossTrib(vv)?'두 분이 서로의 부모님께 한마디씩 해요':(vv.trib==='긴말'?'두 분이 부모님께 1분쯤씩 말을 전해요':'두 분이 부모님께 한마디씩 해요'),
+    letter: vv.letter==='서로'?'두 분이 서로에게 쓴 편지를 읽어요':'두 분이 각자 부모님께 쓴 편지를 읽어요'}[e.id]||'준비한 분이 말해요';
+  return `${say} · ${secTxt(pr[1])}`;
+}
+// 줄 요약 — 사람 말이 있으면 그 한 줄(판은 그 안에 이미 있음) + 드러나지 않는 것만 덧붙임
+function summaryOf(e,seq){
+  if(e.id==='guest') return `${vv.guestVoice==='couple'?'두 분 목소리':'나레이션'} · 하객이 들어오실 때 · 예식 10분 전`;
+  if(e.id==='video') return '여는 말 → 두 분의 영상(3분 안) → 1분 전 안내';
+  if(e.id==='entry') return varLabel(e);
+  const t=talkLine(e,seq);
+  if(t){ const extra=[]; if(e.how&&vv[e.id+'How']==='큰절') extra.push('신랑 큰절'); return [t,...extra].join(' · '); }
+  return varLabel(e)||e.brief||'';
+}
+// 한 순간의 줄 차례 — R: 녹음 있음 · N: 아직 녹음 전(글로) · C: 두 분이 녹음하실 글(예시) · 'TALK': 사람이 말하는 자리
+const dwell=t=>Math.max(3000,110*(t||'').length);   /* 시안: 초당 9자쯤 머묾 · 실제는 mp3 길이 */
+const R=(lab,txt)=>({lab,txt,rec:'yes',ms:dwell(txt)});
+const N=(lab,txt)=>({lab,txt,rec:'no',ms:dwell(txt)});
+const C=(lab,txt)=>({lab,txt,rec:'couple',ms:dwell(txt)});
+function lineSteps(e,seq){
+  switch(e.id){
+    case 'guest': { const c=vv.guestVoice==='couple'?1:0, F=c?C:R, w=c?'두 분 목소리':'나레이션'; return [F(w+' · 하객이 들어오실 때',NT.guestIn[c]), F(w+' · 예식 10분 전',NT.guest10[c])]; }
+    case 'video': return [R('여는 말',NT.prevideoIn), {lab:'두 분의 영상(3분 안)',txt:'여기서 두 분의 영상이 흘러요 · 미리 보기에서는 넘겨요',rec:'yes',ms:3000,skip:true,flowText:'두 분의 영상(3분 안)'}, N('1분 전 안내',NT.guest4Pre)];
+    case 'candle': { const f=e.vars.find(x=>x[0]===vv.candle)||e.vars[0]; return [N('여는 말 · '+f[1],NT.candleIn[CANDLE_KEY[f[0]]]), N('맺는 말',NT.candleOut)]; }
+    case 'entry': { const f=e.vars.find(x=>x[0]===vv.entry)||e.vars[0]; return vv.entryVoice==='couple' ? [C('입장 인사 · 두 분 목소리',NT.entrySelf[vv.entry])] : [R('멘트 «'+f[1]+'»',NT.entry[vv.entry][1])]; }
+    case 'greet': return [R('여는 말',NT.welcome.nar),'TALK',R('맺는 말',NT.welcome.end)];
+    case 'bless': return [R('여는 말',NT.blessOpen),'TALK'];
+    case 'vow': return [R('여는 말',NT.vow.nar),'TALK',R('맺는 말',NT.vow.end)];
+    case 'ring': return [R('여는 말',NT.ring.nar),R('맺는 말',NT.ring.end)];
+    case 'decl': if(vv.decl==='박수') return [N('박수 부탁',NT.clapAsk),N('선언',NT.clapDeclare)];
+                 if(vv.decl==='가족') return [R('여는 말',NT.declFamilyIntro),'TALK'];
+                 return [R(vv.decl==='다정'?'성우 · 따뜻하게':'성우 · 엄숙하게', NT.declare[vv.decl==='다정'?'2':'1'])];
+    case 'trib': { const a=[R('여는 말',NT.tribute[0])]; if(vv.trib!=='없이') a.push('TALK'); if(vv.tribHow==='큰절') a.push(N('신랑 큰절',NT.bowGroom)); a.push(R('맺는 말',NT.tribute[1])); return a; }
+    case 'prep': return [N('여는 말',PREP_OPEN[PREP_KIND[vv.prepWhat]||'video']),'TALK',N('맺는 말',NT.freeOut)];
+    case 'letter': return [R(vv.letter==='서로'?'여는 말 · 서로에게':'여는 말 · 각자 부모님께', NT.letter[vv.letter==='서로'?'each':'parent']),'TALK'];
+    case 'cake': { const w=vv.cakeWhat||'둘', a=[];
+      if(w!=='축배') a.push(R('케이크',NT.toast.cake), R('케이크 맺는 말',NT.cakeOut));
+      if(w!=='케이크'){ if(vv.cake==='붓기') a.push(N('두 와인을 한 잔에',NT.pourMix), N('축배',NT.toastBothPour));
+                       else if(vv.cake==='양가') a.push(N('양가 와인 한 병씩',NT.pourFamily), N('축배',NT.toastBothPour));
+                       else a.push(N('축배',NT.toast.toast));
+                       a.push(R('잔 내려놓기',NT.toastOut)); }
+      return a; }
+    case 'close': return [N('닫는 말',NT.close)];
+  }
+  return [R('나레이션',''),'TALK'];
+}
+function stepsFor(ids){
+  const seq=ceremonySeq(), out=[];
+  for(const id of ids){ const e=byId(id); if(!e) continue;
+    for(const it of lineSteps(e,seq)){
+      if(it==='TALK'){ const t=talkLine(e,seq); if(!t) continue; const flowing=e.id==='prep'&&PREP_KIND[vv.prepWhat]!=='speech';
+        out.push({id,a:e.nm,lab:flowing?'준비한 순서가 흐르는 자리':'사람이 말하는 자리',txt:'여기서 '+t+(flowing?' · 미리 보기에서는 넘겨요':''),talk:true,rec:'yes',ms:3000}); }
+      else out.push({id,a:e.nm,...it});
+    }
+  } return out;
+}
+const recNote=r=> r==='no'?'아직 녹음 전 — 글로 먼저 보여 드려요':(r==='couple'?'두 분이 녹음하실 글(예시)':'');
+let openRow=null, flash=null, undo=null;
+const listIds=()=>EV.filter(e=>e.id==='guest'||sel.has(e.id)).map(e=>e.id);
+function say(t,withUndo){ const m=$('lmsg'); m.innerHTML=''; if(!t) return; const s=document.createElement('span'); s.textContent=t; m.appendChild(s);
+  if(withUndo&&undo){ const b=document.createElement('button'); b.type='button'; b.className='undo'; b.dataset.fk='undo'; b.textContent='되돌리기'; b.onclick=()=>{ const u=undo; undo=null; sel.add(u.id); openRow=u.id; flash=u.id; say(`«${u.nm}»${josa(u.nm,'을','를')} 다시 담았어요.`); render(); scrollRow(u.id); }; m.appendChild(b); } }
+function scrollRow(id){ requestAnimationFrame(()=>{ const r=document.querySelector(`#lrows .lrow[data-id="${id}"]`); if(r) r.scrollIntoView({block:'nearest'}); }); }
+function expansion(e,on,seq){
+  const st=stepsFor([e.id]);
+  let h=`<div class="flow"><b>이렇게 흘러요</b><ol>${st.map(x=>`<li class="${x.talk?'talk':''}">${x.talk?x.txt.replace(/^여기서 /,''):(x.flowText||x.lab)}${x.rec==='no'?'<span class="nw">아직 녹음 전</span>':''}</li>`).join('')}</ol></div>`;
+  if(e.fixed) h+=`<p class="fix">늘 있어요 — 하객이 들어오실 때 저절로 흘러요.</p>`;
+  else if(e.lock) h+=`<p class="fix">늘 있는 순간이에요.</p>`;
+  if(on){ const gs=groupsOf(e); if(gs.length) h+=`<div class="vars"><b>바꿀 수 있는 것 <span class="hint">— 누르면 바로 그렇게 들려 드려요</span></b>${gs.map(g=>chipRow(g,'row')).join('')}</div>`; }
+  if(e.id==='trib'&&crossTrib(vv)) h+=`<p class="fix">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>`;
+  const w=preps(e.id,vv); if(w.length) h+=`<ul class="items">${w.map(q=>`<li><span class="ty">${TY[q.ty]}</span>${q.who==='부모님'?'부모님께 — ':''}${q.t}</li>`).join('')}<li><span class="tail">③ 준비하기에 모두 모여요 — 여기서는 보기만 해요.</span></li></ul>`;
+  if(on && !e.lock && !e.pre) h+=`<button type="button" class="lrm" data-fk="lrm:${e.id}" aria-label="${e.nm} 빼기">이 순간 빼기</button>`;
+  if(!on) h+=`<p class="fix">${slotText(e,seq)}</p>`;
+  return h;
+}
+function rowEl(e,on,noTxt,seq,pk){
+  const r=document.createElement('div'); r.className='lrow'+(on?'':' off')+(PL.cur===e.id?' now':'')+(openRow===e.id?' open':''); r.dataset.id=e.id;
+  const star=on&&e.id===pk?'<span class="star" aria-hidden="true">★</span><span class="sr">절정,</span> ':'';
+  if(on) r.innerHTML=`<span class="no">${noTxt}</span>`+
+    `<button type="button" class="lthumb" data-fk="lthumb:${e.id}" aria-label="${e.nm} 크게 보고 듣기"><span class="vid mini${PL.cur===e.id?' on':''}"></span></button>`+
+    `<button type="button" class="lmain" data-fk="lmain:${e.id}" aria-expanded="${openRow===e.id}"><span class="nm">${star}${e.nm}</span><span class="sp">${summaryOf(e,seq)}</span></button>`+
+    `<span class="acts"><button type="button" class="lplay" data-fk="lplay:${e.id}" aria-label="${e.nm} 듣기">${IC.play}</button></span>`+
+    (openRow===e.id?`<div class="lx">${expansion(e,on,seq)}</div>`:'');
+  else r.innerHTML=`<button type="button" class="lmain" data-fk="lmain:${e.id}" aria-expanded="${openRow===e.id}"><span class="nm">${e.nm}</span><span class="sp">${slotText(e,seq)}</span></button>`+
+    `<span class="acts"><button type="button" class="lplay" data-fk="lplay:${e.id}" aria-label="${e.nm} 들어 보기">${IC.play}</button><button type="button" class="ladd" data-fk="ladd:${e.id}" aria-label="${e.nm} 담기">+ 담기</button></span>`+
+    (openRow===e.id?`<div class="lx">${expansion(e,on,seq)}</div>`:'');
+  const th=r.querySelector('.lthumb'); if(th) th.onclick=()=>{ startPlay([e.id]); openFP(th); };
+  r.querySelector('.lplay').onclick=()=>startPlay([e.id]);
+  r.querySelector('.lmain').onclick=()=>{ openRow=(openRow===e.id?null:e.id); render(); };
+  const rm=r.querySelector('.lrm'); if(rm) rm.onclick=()=>{ if(PL.cur===e.id) stopPlay(); else PL.q=PL.q.filter((x,k)=>k<=PL.i||x.id!==e.id);
+    sel.delete(e.id); prev=null; openRow=null; undo={id:e.id,nm:e.nm};
+    say(e.id==='prep'?`«${e.nm}»${josa(e.nm,'을','를')} 뺐어요. 나중에 다시 담으려면 «← 고르기로» 맨 아래에서 담아요.`:`«${e.nm}»${josa(e.nm,'을','를')} 뺐어요.`, true); render();
+    const f=document.querySelector('#lmsg .undo'); if(f) f.focus({preventScroll:true}); };
+  const ad=r.querySelector('.ladd'); if(ad) ad.onclick=()=>{ if(PL.cur===e.id) stopPlay(); sel.add(e.id); prev=null; flash=e.id; openRow=e.id;
+    say(`«${e.nm}»${josa(e.nm,'을','를')} ${ceremonySeq().indexOf(e.id)+1}번째에 담았어요.`); render(); scrollRow(e.id);
+    const f=document.querySelector(`[data-fk="lmain:${e.id}"]`); if(f) f.focus({preventScroll:true}); };
+  r.querySelectorAll('.chip').forEach(c=>c.onclick=()=>setVar(c.dataset.key,c.dataset.k,e.id));
+  return r;
+}
+const QUIET_KEYS=new Set(['entryScene']);   /* 나레이션이 바뀌지 않는 선택 — 소리는 다시 틀지 않음(실제는 영상 판만 바뀜) */
+function setVar(key,k,id){ vv[key]=k; const all=PL.all&&PL.q.length>0; if(openRow&&openRow!==id&&!FP.open) openRow=id; render();
+  if(QUIET_KEYS.has(key)) return;
+  if(all){ const ids=listIds(); startPlay(ids.slice(ids.indexOf(id)),true); } else startPlay([id]); }
+function renderListen(){
+  const seq=ceremonySeq(), pk=peakOf(seq), box=$('lrows'); box.innerHTML=''; let no=0;
+  for(const e of EV.filter(x=>x.id==='guest'||sel.has(x.id))) box.appendChild(rowEl(e,true,e.pre?'식전':String(++no),seq,pk));
+  $('pkLegend').textContent = pk ? '★ 표시는 이 예식의 절정이에요.' : '';
+  // 준비할 것 한데 모아 보기
+  const two=[],par=[]; for(const id of listIds()) for(const q of preps(id,vv)) (q.who==='부모님'?par:two).push(q);
+  $('prepSum').innerHTML=`준비할 것 — 두 분 <b>${two.length}</b>가지${par.length?` · 부모님께 부탁드릴 것 <b>${par.length}</b>가지`:''}`;
+  const li=q=>`<li><span class="ty">${TY[q.ty]}</span>${q.t}</li>`;
+  $('prepList').innerHTML=`<ul>${two.map(li).join('')}</ul>${par.length?`<b>부모님께 부탁드릴 것</b><ul>${par.map(li).join('')}</ul>`:''}<p class="lnote">③ 준비하기에서 쓰고 보내고 챙길 것을 한 번에 봐요.</p>`;
+  // 담지 않은 순간
+  const off=EV.filter(e=>!sel.has(e.id)&&!e.hide1&&e.id!=='prep');
+  $('loffBox').hidden=!off.length;
+  $('loffSum').innerHTML=`담지 않은 순간 <b>${off.length}</b> · 들어 보고 담을 수 있어요`;
+  const ob=$('loff'); ob.innerHTML=''; for(const e of off) ob.appendChild(rowEl(e,false,'',seq,pk));
+  if(flash){ const f=box.querySelector(`.lrow[data-id="${flash}"]`); if(f) f.classList.add('added'); flash=null; }
+  const secs=stepsFor(listIds()).reduce((t,x)=>t+(x.talk||x.skip?3:Math.round((x.txt||'').length*0.16)),0);   /* 들을 길이 ≈ 글자 × 0.16초 + 글 카드 3초 (실제는 mp3 길이 합) */
+  const mins=Math.max(1,Math.round(secs/60));
+  $('playLen').textContent=`다 보는 데 약 ${mins}분 · 말하는 자리는 짧게 넘겨요`;
+  $('playAll').setAttribute('aria-label',`처음부터 보고 듣기, 다 보는 데 약 ${mins}분`);
+  if(FP.open) renderFP(true);
+}
+// ── 재생 흉내 — 작은 플레이어(아래) · 크게 보기(전체 화면) ──
+const PL={q:[],i:0,cur:null,t:null,paused:false,all:false,ended:false};
+const FP={open:false,opener:null,lastId:null};
+function setToggles(){ const end=PL.ended&&!PL.q.length;
+  const ic=end?IC.again:(PL.paused?IC.play:IC.pause), lb=end?'다시 듣기':(PL.paused?'이어서 듣기':'멈춤');
+  for(const id of ['pToggle','fpToggle']){ $(id).innerHTML=ic; $(id).setAttribute('aria-label',lb); }
+  document.body.classList.toggle('paused',PL.paused||end); }
+function showStep(){
+  const st=PL.q[PL.i]; if(!st){ endPlay(); return; }
+  const moved=st.id!==PL.cur; PL.cur=st.id;
+  document.querySelectorAll('.lrow').forEach(r=>{ const on=r.dataset.id===st.id; r.classList.toggle('now',on); const v=r.querySelector('.vid'); if(v) v.classList.toggle('on',on); });
+  $('ptxt').innerHTML=`<b>${st.a}</b><small>${st.talk?st.txt:st.lab}${st.rec==='no'?' · 아직 녹음 전':''}</small>`;
+  if(FP.open) renderFP(moved);
+  clearTimeout(PL.t); if(!PL.paused) PL.t=setTimeout(()=>{ PL.i++; showStep(); }, st.ms);
+}
+function posOf(id){ const e=byId(id); if(e.pre) return '식전'; const s=ceremonySeq(); return `${s.indexOf(id)+1} / ${s.length}`; }
+function renderFP(moved){
+  const st=PL.q[PL.i];
+  if(!st){ return; }
+  $('fpEnd').hidden=true;
+  const e=byId(st.id), seq=ceremonySeq(), ids=listIds(), pos=ids.indexOf(st.id);
+  $('fpPos').textContent=posOf(st.id);
+  $('fpSeg').innerHTML=ids.map((id,k)=>`<span class="${k<pos?'done':k===pos?'on':''}"></span>`).join('');
+  $('fpVn').innerHTML=`<small>장면 영상 자리</small>${e.scene||e.nm}`;
+  $('fpName').innerHTML=(e.id===peakOf(seq)?'<span class="star" aria-hidden="true">★</span><span class="sr">절정,</span> ':'')+e.nm;
+  $('fpLab').textContent=st.lab+(recNote(st.rec)?' · '+recNote(st.rec):'');
+  const tx=$('fpTxt'); tx.textContent=st.txt||''; tx.className='fptxt'+(st.talk?' talk':'')+(st.rec==='no'?' new':'');
+  $('fpSkipPre').hidden=!(e.pre && PL.all);
+  const single=new Set(PL.q.map(x=>x.id)).size<=1; $('fpPrev').hidden=single; $('fpNext').hidden=single;
+  if(moved!==false || FP.lastId!==e.id){ const changed=FP.lastId!==e.id; FP.lastId=e.id;
+    const fk=fkOf(document.activeElement), inVars=$('fpVars').contains(document.activeElement);
+    const gs=(sel.has(e.id)||e.id==='guest')?groupsOf(e):[];
+    $('fpVars').innerHTML=gs.map(g=>chipRow(g,'fp')).join('');
+    if(inVars){ if(changed) $('fpToggle').focus({preventScroll:true}); else refocus(fk); }
+    $('fpVars').querySelectorAll('.chip').forEach(c=>c.onclick=()=>setVar(c.dataset.key,c.dataset.k,e.id));
+    $('fpAnn').textContent=`${e.nm} · ${posOf(e.id)}`;
+  } else $('fpVars').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-checked',String(vv[c.dataset.key]===c.dataset.k)));
+  setToggles();
+}
+function startPlay(ids,all){ PL.q=stepsFor(ids); PL.i=0; PL.paused=false; PL.all=!!all; PL.ended=false; PL.cur=null; setToggles(); $('player').style.display='flex'; document.body.classList.add('playing'); showStep(); }
+function stopPlay(){ clearTimeout(PL.t); PL.q=[]; PL.i=0; PL.cur=null; PL.all=false; $('player').style.display='none'; document.body.classList.remove('playing');
+  document.querySelectorAll('.lrow').forEach(r=>{ r.classList.remove('now'); const v=r.querySelector('.vid'); if(v) v.classList.remove('on'); }); }
+let lastRange=null;
+function endPlay(){ const wasAll=PL.all, ids=[...new Set(PL.q.map(x=>x.id))]; lastRange={ids,all:wasAll}; stopPlay(); PL.ended=true;
+  if(FP.open){ const [a,b]=totals(ceremonySeq(),vv); const end=$('fpEnd'); end.hidden=false;
+    end.innerHTML=(wasAll?`끝까지 보셨어요 · 본식 ${rng(fm(a),fm(b))} · 사진과 인사 ${rng(photoLow(b),Math.round(BLOCK-a/60))}`:'이 순간을 다 보셨어요')+
+      `<div class="row"><button type="button" class="ghost" id="fpAgain" data-fk="fpAgain">다시 보기</button><button type="button" class="ghost" id="fpDone" data-fk="fpDone">목록으로</button></div>`;
+    $('fpAgain').onclick=()=>replay(); $('fpDone').onclick=()=>closeFP(true); $('fpAgain').focus(); }
+  setToggles(); }
+function replay(){ const r=lastRange||{ids:listIds(),all:true}; startPlay(r.all?listIds():r.ids.filter(id=>id==='guest'||sel.has(id)), r.all); }
+function jump(d){ const cur=PL.cur; if(!PL.q.length) return;
+  if(d>0){ while(PL.q[PL.i]&&PL.q[PL.i].id===cur) PL.i++; }
+  else { let s0=PL.i; while(s0>0&&PL.q[s0-1].id===cur) s0--; if(PL.i>s0) PL.i=s0; else { let p=s0-1; if(p<0){ PL.i=0; } else { const pid=PL.q[p].id; while(p>0&&PL.q[p-1].id===pid) p--; PL.i=p; } } }
+  showStep(); }
+// 크게 보기 — 열면 뒤는 잠그고(inert), 닫으면 누른 자리로 포커스를 돌려줌 · 휴대폰 «뒤로»는 크게 보기만 닫음
+function openFP(opener){ if(FP.open) return; FP.open=true; FP.opener=opener||document.activeElement; FP.lastId=null;
+  $('fp').hidden=false; document.body.classList.add('fpopen'); for(const id of ['wrap','player','cta']) $(id).inert=true;
+  try{ history.pushState({v:'fp'},''); }catch(e){}
+  renderFP(true); $('fpMin').focus(); }
+function closeFP(viaUi){ if(!FP.open) return; FP.open=false; $('fp').hidden=true; document.body.classList.remove('fpopen'); for(const id of ['wrap','player','cta']) $(id).inert=false;
+  if(viaUi){ try{ if(history.state&&history.state.v==='fp') history.back(); }catch(e){} }
+  const o=FP.opener; const key=o&&o.dataset?o.dataset.fk:null; const el=key?document.querySelector(`[data-fk="${CSS.escape(key)}"]`):o; if(el&&el.isConnected) el.focus({preventScroll:true}); }
+$('playAll').onclick=()=>{ startPlay(listIds(),true); openFP($('playAll')); };
+$('pToggle').onclick=$('fpToggle').onclick=()=>{ if(!PL.q.length){ replay(); return; } PL.paused=!PL.paused; setToggles(); if(!PL.paused) showStep(); else clearTimeout(PL.t); };
+$('pNext').onclick=$('fpNext').onclick=()=>jump(1);
+$('fpPrev').onclick=()=>jump(-1);
+$('fpSkipPre').onclick=()=>{ const i=PL.q.findIndex(x=>!byId(x.id).pre); if(i>-1){ PL.i=i; showStep(); } };
+$('pClose').onclick=()=>{ stopPlay(); PL.ended=false; };
+$('pOpen').onclick=$('ptxt').onclick=()=>openFP($('ptxt'));
+$('fpMin').onclick=()=>closeFP(true);
+document.addEventListener('keydown',ev=>{ if(ev.key==='Escape'&&FP.open) closeFP(true); });
+// ── 1쪽 장면 영상 — 화면 가운데 온 카드 하나만 소리 없이 · 누르면 멈춤/재생 · «영상 자동 재생 끄기» · 움직임 줄이기면 자동 재생 없음 ──
+let vidIO=null; const vidPaused=new Set();
+const reduceMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function setupVids(){
+  if(vidIO) vidIO.disconnect();
+  const vs=[...document.querySelectorAll('#p1 .vid')];
+  const mark=()=>vs.forEach(v=>v.setAttribute('aria-pressed',String(v.classList.contains('on'))));
+  vs.forEach(v=>{ const t=()=>{ const id=v.dataset.v; if(v.classList.contains('on')){ vidPaused.add(id); v.classList.remove('on'); } else { vidPaused.delete(id); vs.forEach(x=>x.classList.remove('on')); v.classList.add('on'); } mark(); };
+    v.onclick=t; v.onkeydown=ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); t(); } }; });
+  if(!autoVid||reduceMotion()||!('IntersectionObserver' in window)){ mark(); return; }
+  const ratio=new Map();
+  vidIO=new IntersectionObserver(es=>{ es.forEach(x=>ratio.set(x.target,x.intersectionRatio)); let best=null,br=.6; ratio.forEach((r,el)=>{ if(r>=br&&!vidPaused.has(el.dataset.v)){ best=el; br=r; } }); vs.forEach(v=>v.classList.toggle('on',v===best)); mark(); },{threshold:[0,.3,.6,.8,1]});
+  vs.forEach(v=>vidIO.observe(v));
+}
+function setAuto(on){ autoVid=on; $('vAuto').setAttribute('aria-pressed',String(on)); $('vAuto').textContent=on?'영상 자동 재생 끄기':'영상 자동 재생 켜기';
+  if(!on) document.querySelectorAll('#p1 .vid').forEach(v=>{ v.classList.remove('on'); v.setAttribute('aria-pressed','false'); }); save(); setupVids(); }
+$('vAuto').onclick=()=>setAuto(!autoVid);
+// ── 1쪽 아래 «다음» 단추 · 띠 높이(가림 막기) · 띠 얇게(흔들림 없게 ±50px 여유) ──
+function updCta(seq){ const n=picked().length, onP1=!$('p1').hidden; document.body.classList.toggle('hascta',onP1&&n>0);
+  if(n){ const [a,b]=totals(seq,vv); $('ctaTxt').innerHTML=`고른 순간 <b>${n}</b> · 본식 <b>${rng(fm(a),fm(b))}</b>`; } }
+if('ResizeObserver' in window) new ResizeObserver(()=>document.documentElement.style.setProperty('--tbh',$('timebar').offsetHeight+'px')).observe($('timebar'));
+addEventListener('scroll',()=>{ const tb=$('timebar'); if($('p1').hidden){ tb.classList.remove('thin'); return; }
+  const y0=$('jumpEx').getBoundingClientRect().bottom+scrollY, T=y0+60, on=tb.classList.contains('thin');
+  if(!on&&scrollY>T+50) tb.classList.add('thin'); else if(on&&scrollY<T-50) tb.classList.remove('thin'); },{passive:true});
+$('jumpEx').onclick=()=>{ $('examples').scrollIntoView({block:'start'}); $('examples').focus({preventScroll:true}); };   /* 앵커 이동 대신 — 뒤로 가기 기록을 만들지 않음 */
+// ── 쪽 넘기기 — 휴대폰 «뒤로»가 한 걸음씩 돌아오게(쪽 · 크게 보기마다 기록 한 칸) ──
+function showListen(push){ $('p1').hidden=true; $('p2').hidden=false; $('p2').insertBefore($('timebar'), $('playAll')); say(''); openRow=null; undo=null;
+  if(push){ try{ history.pushState({v:'p2'},''); }catch(e){} }
+  render(); window.scrollTo(0,0); $('p2h').focus({preventScroll:true}); }
+function showPick(){ stopPlay(); PL.ended=false; if(FP.open) closeFP(false); $('p2').hidden=true; $('p1').hidden=false; $('p1').insertBefore($('timebar'), $('p1').querySelector('.h2row')); render(); window.scrollTo(0,0); $('p1h').focus({preventScroll:true}); }
+function goBackToPick(){ try{ if(history.state&&history.state.v==='p2'){ history.back(); return; } }catch(e){} showPick(); }
+$('toListen').onclick=$('ctaGo').onclick=()=>showListen(true);
+$('toPick').onclick=$('toPickTop').onclick=$('stepPick').onclick=goBackToPick;
+addEventListener('popstate',ev=>{ const v=ev.state&&ev.state.v;
+  if(FP.open && v!=='fp'){ closeFP(false); return; }
+  if(v==='p2'){ if($('p2').hidden) showListen(false); return; }
+  if(!$('p2').hidden) showPick(); });
+for(const [id,ic] of [['heroIc','play'],['heroB','play'],['pNext','next'],['pClose','x'],['fpMin','down'],['fpPrev','prev'],['fpNext','next']]) $(id).innerHTML=IC[ic];
+setAuto(autoVid);
+render();
+try{ const v=history.state&&history.state.v; if(v==='p2'||v==='fp') showListen(false); }catch(e){}
+
+</script>
+</body>
+</html>
