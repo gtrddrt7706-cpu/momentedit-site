@@ -9578,6 +9578,12 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
+chk 'GV_CARD_DIV' invitation-gallery.html 1
+nochk "createElement\('article'\)" invitation-gallery.html
+# [TO_HANG 2026-09-25 코워크 회신 ⑤] 편지 To. 줄 — To. 한 칸 + 선택지 묶음(.lf-seg-group) 한 칸 · 줄바꿈은 묶음 안에서만(320 에서 셋째가 x=0 → 32).
+chk 'TO_HANG' live.html 1
+chk 'class="lf-seg-group"' live.html 2
 # [MESEQ_INERT 2026-09-25 코워크 회신 ④] 진행 시간표 시트 — 닫힌 동안·닫히는 0.32초 동안 inert, 열 때 해제.
 chk 'MESEQ_INERT' assets/sequence-modal.js 3
 chk 'ov.inert = false' assets/sequence-modal.js 1
