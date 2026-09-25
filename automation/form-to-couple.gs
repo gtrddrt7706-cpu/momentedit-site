@@ -51,7 +51,11 @@ var CFG = {
   SITE_BASE: 'https://momentedit.kr',
   CACHE_KEY_PREFIX: 'couple_',
   STUDIO_EMAIL: 'contact@momentedit.kr',
-  RAW: 'https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/main/assets/preview/',
+  /* ★[RAW_OFF_GITHUB 2026-09-25 사장님 결정 «저장소 비공개 전환»] 깃허브 raw 주소를 쓰지 않는다.
+     저장소가 비공개가 되면 깃허브 raw 주소는 토큰 없이 404 를 준다. 같은 그림이
+     사이트에도 그대로 있다(assets/preview/ · Vercel 이 서빙 · www 는 307 없이 바로 200).
+     쓰는 곳은 createCoupleForm 하나 — 폼을 «새로 만들 때» 미리보기 그림 16장을 폼에 넣는다. */
+  RAW: 'https://www.momentedit.kr/assets/preview/',
 
   // 브랜치 구분자(" · 가족 01번" 등) 앞의 "베이스 제목" → 시트 필드
   MAP: {
@@ -709,7 +713,7 @@ function createCoupleForm() {
     '내용을 고치고 싶으시면 같은 성함·날짜로 다시 제출하시면 자동으로 갱신됩니다.\n\n— Moment Edit');
 
   var designs = ['01', '02', '03', '04', '05', '06', '07', '08'];
-  var R = CFG.RAW, T = CFG.TAG;
+  var R = CFG.RAW, T = CFG.TAG;   // [RAW_OFF_GITHUB] 그림은 사이트에서 받는다(깃허브 raw 아님 · 저장소 비공개 대비)
   var req = function (title, help) { var it = form.addTextItem().setTitle(title).setRequired(true); if (help) it.setHelpText(help); return it; };
   var opt = function (title, help) { var it = form.addTextItem().setTitle(title).setRequired(false); if (help) it.setHelpText(help); return it; };
   var optPara = function (title, help) { var it = form.addParagraphTextItem().setTitle(title).setRequired(false); if (help) it.setHelpText(help); return it; };

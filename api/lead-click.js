@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
   const done = (code) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store'); res.end(JSON.stringify({ ok: code === 200 })); };
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return done(405); }
   if (!rateGate(req, 30, 500)) return done(200);   // 비콘이라 조용히 삼킨다(클라이언트 재시도 유발 금지) — 정상 클릭은 닿지 않는 한도
-  const hook = process.env.HANDOFF_WEBHOOK_URL;
+  const hook = require('./_livehook')();   // [PREVIEW_GUARD_API] 미리보기에서는 운영 시트에 안 쓴다
   if (!hook || !/^https:\/\//.test(hook)) return done(200);   // 미설정이어도 조용히 OK(집계는 부가기능)
   try {
     const body = await readJson(req);
