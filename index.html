@@ -405,7 +405,7 @@ select {
   --serif-ko: "Noto Serif KR", "Noto Serif KR Fallback", "Nanum Myeongjo", serif;
   --serif-jp: "Noto Serif JP", "Noto Serif KR", "Noto Serif KR Fallback", "Nanum Myeongjo", serif;
   --sans: "Noto Sans KR", "Noto Sans KR Fallback", -apple-system, sans-serif;
-  --gap: 104px;
+  --gap: 152px;   /* [RHYTHM_G2] 104 → 152 */
   /* [WEIGHT_RAMP4] 굵기는 300 / 400 / 500 / 600 네 단계만. 350은 쓰지 말 것 —
      로드된 웨이트가 300;400;500;600이라 350은 CSS 폰트 매칭으로 300에 붙어
      '있어 보이지만 없는 값'이 된다(실측: Noto Serif KR 350·300 모두 353px). */
@@ -3453,7 +3453,7 @@ footer {
 }
 @media (max-width: 680px) {
   :root {
-    --gap: 80px;
+    --gap: 112px;   /* [RHYTHM_G2] 80 → 112 */
   }
   footer {
     margin-top: 40px;
