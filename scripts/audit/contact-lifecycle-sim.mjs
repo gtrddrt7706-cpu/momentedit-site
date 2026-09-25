@@ -53,6 +53,7 @@ const world = {
   sheet: {},              // 개인코드 → { 연락처, 이메일, 상품타입 }
   sent: [],               // 실제로 «나간» 알림
   adminMails: [],         // 관리자에게 간 메일
+  custMails: [],          // 고객에게 간 대체 메일 [KAKAO_FAIL_MAIL]
   night: false,
 };
 const STUBS = `
@@ -79,7 +80,7 @@ function findCustomerByCode(code) {
 function _nfCoupleName() { return '신랑·신부'; }
 function _nfCustomerMsg(event) { return { vars: {}, text: '문구:' + event }; }
 function _solapiSend(cfg, msg) { __W.sent.push({ to: msg.to, text: msg.text }); return true; }
-function _nfCustomerEmailFallback() {}
+function _nfCustomerEmailFallback(to, n, e) { __W.custMails.push(String(to) + '|' + e); return true; }   // 진짜처럼 «보냈다»를 돌려준다
 function _nfAdminLineEmail(t) { __W.adminMails.push(String(t)); }
 function _nfAdminText(e) { return 'admin:' + e; }
 function _nfPayConfirmAction() { return null; }
@@ -97,9 +98,9 @@ try {
 
 const bad = [];
 const ok = (cond, label) => { if (!cond) bad.push(label); };
-const reset = (phone) => {
-  world.props = {}; world.sent = []; world.adminMails = []; world.night = false; log.length = 0;
-  world.sheet = { AB12CD: { 연락처: phone, 이메일: 'a@b.kr', 상품타입: '예식' } };
+const reset = function (phone) {
+  world.props = {}; world.sent = []; world.adminMails = []; world.custMails = []; world.night = false; log.length = 0;
+  world.sheet = { AB12CD: { 연락처: phone, 이메일: (arguments.length > 1 ? arguments[1] : 'a@b.kr'), 상품타입: '예식' } };
 };
 const queue = () => JSON.parse(world.props.NOTIFY_HOLD || '[]');
 
@@ -132,7 +133,8 @@ console.log('\n【장면 2】 시트에 이미 있는 «821 0734 9770»(한 자�
   reset('821 0734 9770');
   const r = F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
   console.log(`  발송 시도 → ${r} · 나간 알림 ${world.sent.length}건 · 관리자 메일 ${world.adminMails.length}통`);
-  ok(r === false && world.sent.length === 0, '★복원할 수 없는 번호로 «발송»되면 안 된다(오배송)');
+  ok(r !== true && world.sent.length === 0, '★복원할 수 없는 번호로 «발송»되면 안 된다(오배송)');
+  ok(r === 'mail' && world.custMails.length === 1, `★알림톡은 못 보내도 고객에겐 메일로 가야 한다(KAKAO_FAIL_MAIL) — 반환 ${r} · 메일 ${world.custMails.length}통`);
   ok(world.adminMails.length === 1, '대신 관리자에게 한 번 알려야 한다 — 그래야 고칠 수 있다');
   ok(/연락처 형식 이상/.test(world.adminMails[0] || ''), `관리자 메일 문면이 다르다: ${world.adminMails[0]}`);
 
@@ -166,9 +168,11 @@ console.log('\n【장면 3】 밤에 알림 5건이 쌓인 고객을 «취소»�
 }
 
 // ── 장면 4. 고치기 전이었다면? (이 수정이 실제로 무엇을 막았는지 반대로 확인한다)
-console.log('\n【장면 4】 되돌려 보기 — 취소가 큐를 안 내렸다면 (종전 동작)');
+console.log('\n【장면 4】 되돌려 보기 — 취소가 큐를 안 내렸다면 (종전 동작 · 메일도 없는 고객)');
 {
-  reset('821 0734 9770');
+  /* ★2026-09-25 부터 메일이 있는 고객은 첫 아침에 메일로 받고 재시도가 없다(KAKAO_FAIL_MAIL · 장면 5).
+     «세 번 시도해도 실패» 메일은 이제 «아무것도 안 닿는» 고객에게만 생긴다 — 그 조건으로 재현한다. */
+  reset('821 0734 9770', '');
   world.night = true;
   for (let i = 0; i < 5; i++) F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
   world.night = false;
@@ -180,11 +184,25 @@ console.log('\n【장면 4】 되돌려 보기 — 취소가 큐를 안 내렸�
   ok(/AB12CD\/cust\.fittingRequest/.test(drop[0] || ''), '메일에 고객코드·이벤트가 찍혀야 한다');
 }
 
+// ── 장면 5. 번호가 틀렸지만 메일은 있는 고객 — 아침에 메일 한 통, 재시도 없음 [KAKAO_FAIL_MAIL]
+console.log('\n【장면 5】 밤에 쌓인 알림 · 번호가 틀렸고 메일은 있다');
+{
+  reset('821 0734 9770');
+  world.night = true;
+  F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  world.night = false;
+  for (let day = 1; day <= 3; day++) { world.props = { NOTIFY_HOLD: world.props.NOTIFY_HOLD }; F.flushHeldNotifies(); }
+  console.log(`  사흘 치 아침 → 고객 메일 ${world.custMails.length}통 · 남은 큐 ${queue().length}건 · «세 번 실패» 메일 ${world.adminMails.filter(m => /세 번 시도해도 실패/.test(m)).length}통`);
+  ok(world.custMails.length === 1, `★같은 메일이 아침마다 또 가면 안 된다 — ${world.custMails.length}통`);
+  ok(queue().length === 0, '메일로 닿았으면 큐에서 내려야 한다');
+  ok(!world.adminMails.some(m => /세 번 시도해도 실패/.test(m)), '★닿았는데 «세 번 실패»라고 알리면 안 된다');
+}
+
 console.log('');
 if (bad.length) {
   console.log('━━ contact-lifecycle-sim — 빨강 ' + bad.length + '건');
   for (const b of bad) console.log('   · ' + b);
   process.exit(1);
 }
-console.log('━━ contact-lifecycle-sim OK — 네 장면 전부 기대대로 (실제 GAS 소스 5개를 그대로 실행)');
+console.log('━━ contact-lifecycle-sim OK — 다섯 장면 전부 기대대로 (실제 GAS 소스 5개를 그대로 실행)');
 process.exit(0);
