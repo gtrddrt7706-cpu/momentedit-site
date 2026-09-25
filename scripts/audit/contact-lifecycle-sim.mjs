@@ -53,7 +53,7 @@ const world = {
   sheet: {},              // 개인코드 → { 연락처, 이메일, 상품타입 }
   sent: [],               // 실제로 «나간» 알림
   adminMails: [],         // 관리자에게 간 메일
-  custMails: [],          // 고객에게 간 대체 메일 [BADPHONE_MAIL]
+  custMails: [],          // 고객에게 간 대체 메일 [KAKAO_FAIL_MAIL]
   night: false,
 };
 const STUBS = `
@@ -80,8 +80,7 @@ function findCustomerByCode(code) {
 function _nfCoupleName() { return '신랑·신부'; }
 function _nfCustomerMsg(event) { return { vars: {}, text: '문구:' + event }; }
 function _solapiSend(cfg, msg) { __W.sent.push({ to: msg.to, text: msg.text }); return true; }
-function _nfCustomerEmailFallback(to, name, event) { __W.custMails.push(String(to) + '|' + String(event)); }
-function _nfTplSilent() { __W.tplSilent = (__W.tplSilent || 0) + 1; }
+function _nfCustomerEmailFallback(to, n, e) { __W.custMails.push(String(to) + '|' + e); return true; }   // 진짜처럼 «보냈다»를 돌려준다
 function _nfAdminLineEmail(t) { __W.adminMails.push(String(t)); }
 function _nfAdminText(e) { return 'admin:' + e; }
 function _nfPayConfirmAction() { return null; }
@@ -99,9 +98,9 @@ try {
 
 const bad = [];
 const ok = (cond, label) => { if (!cond) bad.push(label); };
-const reset = (phone) => {
+const reset = function (phone) {
   world.props = {}; world.sent = []; world.adminMails = []; world.custMails = []; world.night = false; log.length = 0;
-  world.sheet = { AB12CD: { 연락처: phone, 이메일: 'a@b.kr', 상품타입: '예식' } };
+  world.sheet = { AB12CD: { 연락처: phone, 이메일: (arguments.length > 1 ? arguments[1] : 'a@b.kr'), 상품타입: '예식' } };
 };
 const queue = () => JSON.parse(world.props.NOTIFY_HOLD || '[]');
 
@@ -129,15 +128,14 @@ console.log('【장면 1】 아이폰 자동완성 «+82 10-…»(가상 번호)
 }
 
 // ── 장면 2. 이미 시트에 앉아 있는 «복원 불가» 값 — 억지로 보내면 안 된다
-//   ★[PHONE_AUTOFILL_82 2026-09-25 정정] 이 값은 «+82 10-7349-7706» 을 우리 문의서 칸이 11자리로 잘라 끝자리 6 을 잃은 것이다.
-//   ★[BADPHONE_MAIL] 종전엔 여기서 고객이 «아무것도» 못 받았다(메일 대체까지 건너뜀). 이제 알림톡은 안 보내고 메일은 보낸다.
+// ★[PHONE_AUTOFILL_82 2026-09-25 정정] 이 값은 «+82 10-7349-7706» 을 우리 문의서 칸이 11자리로 자르며 끝자리 6 을 잃은 것이다(장면 6).
 console.log('\n【장면 2】 시트에 이미 있는 «821 0734 9770»(끝자리가 잘린 값)');
 {
   reset('821 0734 9770');
   const r = F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
-  console.log(`  발송 시도 → ${r} · 나간 알림톡 ${world.sent.length}건 · 고객 메일 ${world.custMails.length}통 · 관리자 메일 ${world.adminMails.length}통`);
-  ok(world.sent.length === 0, '★복원할 수 없는 번호로 알림톡이 «발송»되면 안 된다(오배송)');
-  ok(r === 'mailed' && world.custMails.length === 1, `★[BADPHONE_MAIL] 대신 고객에게 메일은 가야 한다 — 반환 ${r} · 고객 메일 ${world.custMails.length}통`);
+  console.log(`  발송 시도 → ${r} · 나간 알림 ${world.sent.length}건 · 관리자 메일 ${world.adminMails.length}통`);
+  ok(r !== true && world.sent.length === 0, '★복원할 수 없는 번호로 «발송»되면 안 된다(오배송)');
+  ok(r === 'mail' && world.custMails.length === 1, `★알림톡은 못 보내도 고객에겐 메일로 가야 한다(KAKAO_FAIL_MAIL) — 반환 ${r} · 메일 ${world.custMails.length}통`);
   ok(world.adminMails.length === 1, '대신 관리자에게 한 번 알려야 한다 — 그래야 고칠 수 있다');
   ok(/연락처 형식 이상/.test(world.adminMails[0] || ''), `관리자 메일 문면이 다르다: ${world.adminMails[0]}`);
 
@@ -171,10 +169,11 @@ console.log('\n【장면 3】 밤에 알림 5건이 쌓인 고객을 «취소»�
 }
 
 // ── 장면 4. 고치기 전이었다면? (이 수정이 실제로 무엇을 막았는지 반대로 확인한다)
-console.log('\n【장면 4】 되돌려 보기 — 취소가 큐를 안 내렸다면 (종전 동작)');
+console.log('\n【장면 4】 되돌려 보기 — 취소가 큐를 안 내렸다면 (종전 동작 · 메일도 없는 고객)');
 {
-  reset('821 0734 9770');
-  world.sheet.AB12CD.이메일 = '';   // [BADPHONE_MAIL] 메일도 없는 고객 — 어디로도 못 보내는 경우라야 «세 번 실패»가 재현된다
+  /* ★2026-09-25 부터 메일이 있는 고객은 첫 아침에 메일로 받고 재시도가 없다(KAKAO_FAIL_MAIL · 장면 5).
+     «세 번 시도해도 실패» 메일은 이제 «아무것도 안 닿는» 고객에게만 생긴다 — 그 조건으로 재현한다. */
+  reset('821 0734 9770', '');
   world.night = true;
   for (let i = 0; i < 5; i++) F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
   world.night = false;
@@ -186,8 +185,23 @@ console.log('\n【장면 4】 되돌려 보기 — 취소가 큐를 안 내렸�
   ok(/AB12CD\/cust\.fittingRequest/.test(drop[0] || ''), '메일에 고객코드·이벤트가 찍혀야 한다');
 }
 
-// ── 장면 5. [PHONE_AUTOFILL_82] 자동완성 «+82 10-7349-7706» 이 문의서 칸 → 저장 → 발송까지
-console.log('\n【장면 5】 자동완성 «+82 10-7349-7706» 이 문의서 칸을 지나 저장·발송되기까지');
+// ── 장면 5. 번호가 틀렸지만 메일은 있는 고객 — 아침에 메일 한 통, 재시도 없음 [KAKAO_FAIL_MAIL]
+console.log('\n【장면 5】 밤에 쌓인 알림 · 번호가 틀렸고 메일은 있다');
+{
+  reset('821 0734 9770');
+  world.night = true;
+  F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  world.night = false;
+  for (let day = 1; day <= 3; day++) { world.props = { NOTIFY_HOLD: world.props.NOTIFY_HOLD }; F.flushHeldNotifies(); }
+  console.log(`  사흘 치 아침 → 고객 메일 ${world.custMails.length}통 · 남은 큐 ${queue().length}건 · «세 번 실패» 메일 ${world.adminMails.filter(m => /세 번 시도해도 실패/.test(m)).length}통`);
+  ok(world.custMails.length === 1, `★같은 메일이 아침마다 또 가면 안 된다 — ${world.custMails.length}통`);
+  ok(queue().length === 0, '메일로 닿았으면 큐에서 내려야 한다');
+  ok(!world.adminMails.some(m => /세 번 시도해도 실패/.test(m)), '★닿았는데 «세 번 실패»라고 알리면 안 된다');
+}
+
+// ── 장면 6. [PHONE_AUTOFILL_82] 자동완성 «+82 10-7349-7706» 이 문의서 칸 → 저장 → 발송까지
+//   장면 2 의 «잘린 값»이 어디서 생겼는지 — 문의서 칸이 숫자만 남긴 12자를 11자로 잘랐다. 그 칸을 실제로 돌린다.
+console.log('\n【장면 6】 자동완성 «+82 10-7349-7706» 이 문의서 칸을 지나 저장·발송되기까지');
 {
   const vm = await import('node:vm');
   const w = {}; vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'shared/tel-kr.js'), 'utf8'), { window: w });
@@ -204,20 +218,6 @@ console.log('\n【장면 5】 자동완성 «+82 10-7349-7706» 이 문의서 �
     ok(field.value === '010-7349-7706', `★문의서 칸이 「${field.value}」 — 끝자리를 자르면 안 된다(종전 821-0734-9770)`);
     ok(stored === '01073497706' && r === true && world.sent.length === 1 && world.sent[0].to === '01073497706', '그 번호로 알림톡이 실제로 나가야 한다');
   }
-}
-
-// ── 장면 6. [MAIL_COUNTS_AS_SENT] 템플릿이 없는 알림이 밤에 보류됐다 → 아침에 메일 «한 번»
-console.log('\n【장면 6】 템플릿 없는 알림이 밤에 보류 → 아침 발송 (메일이 사흘 반복되던 것)');
-{
-  reset('01073497706');
-  world.night = true;
-  F._kakaoSend('customer', 'cust.noTemplate', 'AB12CD', null);
-  world.night = false;
-  for (let day = 1; day <= 3; day++) F.flushHeldNotifies();
-  const drop = world.adminMails.filter(m => /세 번 시도해도 실패/.test(m));
-  console.log(`  사흘 치 아침 → 고객 메일 ${world.custMails.length}통 · 알림톡 ${world.sent.length}건 · 「세 번 실패」 메일 ${drop.length}통 · 남은 큐 ${queue().length}건`);
-  ok(world.custMails.length === 1, `★같은 알림 메일이 ${world.custMails.length}번 갔다 — 한 번이어야 한다`);
-  ok(drop.length === 0 && queue().length === 0, '★메일로 전달된 알림을 «실패»로 세면 안 된다');
 }
 
 console.log('');

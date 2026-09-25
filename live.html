@@ -1581,6 +1581,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 </head>
 <body>
 
+<!-- ★[LIVE_MAIN 2026-09-25 코워크 실측] 이 페이지에 <main> 이 없었다(axe landmark-one-main).
+     화면낭독기 사용자가 «본문으로 건너뛰기»를 할 표적이 없다. 머리띠(header) 뒤부터 감싼다.
+     ★`body >` 로 시작하는 선택자가 없는 것을 확인하고 넣었다 — 있으면 한 겹이 끼어 깨진다. -->
 <!-- ═══ STICKY HEADER ═══ -->
 <header class="brand-strip">
   <div class="brand-strip-in">
@@ -1594,6 +1597,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <span class="on-air"><span class="live-dot"></span>On Air</span>
   </div>
 </header>
+<main>
 <script>
 /* [LIVE_INFRAME] 갤러리 프레임 안에서의 조정 — 홈 링크 무력화 + 브랜드 띠 고정 해제.
    ★헤더 안에 두었더니 파싱 중 스크립트가 통째로 사라졌다(파일 4개 vs DOM 3개, 실측).
@@ -2364,7 +2368,9 @@ function applyCoupleInfo(couple){
 
   // 3. 날짜 / 요일 / 시간
   const date = couple.weddingDate || '';
-  const time24 = couple.weddingTime || '10:00';
+  /* ★[SLOT_CLOCK 2026-09-25] 슬롯 ID(13:20) → 실제 본예식 시각 — 값은 mypage.html SLOT_CLOCK 과 같다(shared/hydrate.js 참고) */
+  const SLOT_CLOCK = { '09:00': '10:05', '12:20': '13:25', '15:40': '16:45', '10:00': '10:05', '13:20': '13:25', '16:40': '16:45' };
+  const time24 = SLOT_CLOCK[String(couple.weddingTime || '').trim()] || couple.weddingTime || SLOT_CLOCK['10:00'];
 
   if (date) {
     const [y, m, d] = date.split('-');
@@ -2988,6 +2994,7 @@ body.live-notloaded #envelope{display:none}
       개인적인 말을 쓰게 만드는 안심 문구라 읽히지 않으면 의미가 없다. */
 .lf-cta{font-family:var(--serif-ko);font-size:14.5px;font-weight:400;letter-spacing:0.02em;text-transform:none}
 </style>
+</main>
 <script src="/shared/gv-back.js?v=20260804" defer></script>
 </body>
 </html>

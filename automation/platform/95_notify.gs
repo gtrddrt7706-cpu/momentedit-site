@@ -90,7 +90,7 @@ var NOTIFY_EVENTS = {
        holdGranted)는 여전히 off 인데 이것만 켜는 이유가 있다 — 저 셋은 **고객이 이미 아는 사실**의
        확인이지만(입금했으니 확인될 것을 안다), 이건 **모르면 영영 못 받는** 안내다.
        화면이 «준비되면 위쪽에 바코드가 떠요»라고만 말해 두고 끝나서, 다시 열어보지 않으면 받은 줄을 모른다.
-       ★알림톡 템플릿이 아직 없으면 같은 내용이 SMS 로 나간다(건당 비용) → 승인되면 T19 로 매핑. */
+       ★알림톡 템플릿이 아직 없으면 같은 내용이 고객 이메일로 나간다 → 승인되면 T19 로 매핑(2026-09-25 신청). */
   'cust.couponIssued':    { to: 'customer', need: false, desc: '커피쿠폰 발급됨 · 마이페이지에 바코드 표시(CPN_NOTIFY · 2026-08-18 사용자 «추천대로» 켬)' },
   'cust.changeConfirmed': { to: 'customer', need: false, desc: '예식일 변경 적용됨(2026-06-23 켬 · 요청 결과 통보)' },
   'cust.changeDeclined':  { to: 'customer', need: true,  desc: '예식일 변경 거절됨 — 재조율 필요' },
@@ -108,7 +108,6 @@ var NOTIFY_EVENTS = {
  */
 function notifyKakao(event, code, extra) {
   // [NOTIFY_SENT_RET 2026-07-25] 발송 결과 반환 — true(발송)·'held'(야간 보류=아침 발송 예정)·'off'(전역 발송 OFF=의도된 미발송)·false(미발송).
-  //   ·'mailed'(알림톡은 못 갔지만 대체 메일이 감 · MAIL_COUNTS_AS_SENT 2026-09-25)
   //   기존 호출부는 반환값을 안 쓰므로 호환 유지. admin.gs 결과물 전달의 '알림 이중 실패 감지'가 사용('held'·'off'는 실패로 안 침).
   try {
     var meta = NOTIFY_EVENTS[event];
@@ -145,13 +144,12 @@ function _nfProps() {
 }
 
 /**
- * 실제 발송 — admin=SMS / customer=알림톡(템플릿 있으면)→SMS 대체.
+ * 실제 발송 — admin=메일 / customer=알림톡(템플릿 있으면) → 못 보내면 까닭과 상관없이 고객 메일로 대체(KAKAO_FAIL_MAIL).
  * notifyKakao의 try 안에서만 호출되므로 여기서 예외가 나도 본 흐름은 안전.
  * opts.skipHold=true 면 야간 보류를 건너뛰고 즉시 발송(아침 플러시·테스트용).
  */
 function _kakaoSend(to, event, code, extra, opts) {
   // [NOTIFY_SENT_RET 2026-07-25] 반환: true(발송 시도 성공)·'held'(야간 보류)·false(미발송). 기존 호출부 반환 미사용(호환).
-  //   ·'mailed'(알림톡 대신 메일이 감 — 번호가 틀렸거나 템플릿이 없을 때 · MAIL_COUNTS_AS_SENT)
   var cfg = _nfProps();
   /* ★★[ADMIN_MAIL_UNCHAINED 2026-08-21 알림 전수점검에서 잡음] 솔라피 설정 검사를 **고객 분기로 내렸다.**
      종전엔 이 검사가 관리자 분기보다 «앞»에 있었다. 그런데 관리자 알림은 2026-06-29 에 **메일 전용**으로
@@ -168,7 +166,15 @@ function _kakaoSend(to, event, code, extra, opts) {
     if (typeof _nfAdminLineEmail === 'function') { _nfAdminLineEmail(_nfAdminText(event, code, extra), _nfPayConfirmAction(event, code, extra)); return true; }
     return false;
   }
-  if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 고객 발송 생략'); return false; }   // [ADMIN_MAIL_UNCHAINED] 고객 알림만 막는다
+  /* ★★[KAKAO_FAIL_MAIL 2026-09-25 사장님 «알림톡이 어떤 이유로 불발나면 이메일로 가게 해놨는데 잘 되어 있는 거지?»] 되돌리지 말 것.
+     까닭마다 실제 코드로 돌려 보니 넷이 어긋났다 — ①솔라피 설정(키·발신번호) 누락 ②연락처 형식 이상은
+     고객 메일까지 건너뛰었고 ③접수 뒤 «전달 실패» 리포트가 목록 밖 코드면 메일을 안 보냈다(handleSolapiReport)
+     ④밤에 보류됐다가 아침에 보낼 때 알림톡이 안 나가면, 메일을 보내 놓고도 «실패»로 쳐서 사흘 동안 같은 메일을 또 보냈다.
+     → 까닭과 상관없이 알림톡이 안 나가면 고객 메일로 대신 보내고, 메일이 나갔으면 'mail' 을 돌려준다
+       (아침 재시도는 false 일 때만 · 고객에게 아무것도 안 닿았을 때만 다시 한다). 관리자에게는 까닭별로 하루 한 통. */
+  var _kfMark = '[KAKAO_FAIL_MAIL]';
+  var _noCfg = (!cfg.key || !cfg.secret || !cfg.sender);   // [ADMIN_MAIL_UNCHAINED] 고객 알림만 막는다 — 이제 막는 것은 알림톡뿐(메일은 간다)
+  if (_noCfg) Logger.log('[notify] 설정 누락(SOLAPI_API_KEY/SECRET/SENDER) — 알림톡 생략 · 이메일로 대체');
 
   // [야간 보류] 고객 알림은 21시~익일 8시엔 보류 큐로 적재 → 아침 8시 트리거가 발송(정보성이라도 새벽 카톡 방지). 관리자 알림은 즉시.
   if (!(opts && opts.skipHold) && _nfIsNight()) { _nfHoldPush(event, code, extra); return 'held'; }
@@ -181,34 +187,8 @@ function _kakaoSend(to, event, code, extra, opts) {
      모양을 «만드는» 것이 아니라, 같은 번호의 다른 표기를 같게 읽는 것이다(00_platform-config). */
   var phone = (typeof _phoneKR === 'function') ? _phoneKR(cust.get('연락처'))
                                               : String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
-  var _badPhone = false;
-  if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
-    var _csMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 지우지 말 것(99_deployCheck 가 이 줄을 읽는다)
-    /* ★★[CONTACT_SILENT 2026-09-21 사장님 지적에서 드러났다] 종전엔 Logger 한 줄만 남기고 조용히 끝냈다 · 되돌리지 말 것.
-       로그는 «보는 사람이 있을 때만» 알림이다. 실제로는 아무도 안 봤고, 연락처가 `821-0734-9770`
-       (자동완성 +82 10-7349-7706 을 문의서 칸이 11자리로 자르며 끝자리를 잃은 값 · 2026-09-25 정정)로 들어간 고객의 알림톡이 전부 생략되고 있었는데 관리자는 몰랐다.
-       게다가 그때는 관리자가 연락처를 «고칠 길»도 없었다(admin.gs 의 CONTACT_FIX 에서 만들었다 · ★대괄호로 쓰지 말 것 — 아래 참고).
-       → 관리자 메일로 한 번 알린다. 그래야 고칠 수 있다.
-       ★하루 한 번으로 묶는다 — 한 고객에게 알림이 여러 번 나가는 날 메일이 쏟아지면
-         그건 다시 «아무도 안 보는 알림»이 된다(알림 피로는 침묵과 같은 결과를 낸다).
-       ★다른 파일의 표식을 인용할 때 대괄호를 쓰지 않는다 — deploycheck-coverage 는
-         `[이름` 을 «이 파일이 그 표식을 갖고 있다»로 읽어, 목록에 없는 짝으로 빨개진다
-         (2026-09-21 실측: 이 주석 한 줄 때문에 95_notify|CONTACT_FIX 를 요구했다). */
-    Logger.log('[notify] 연락처 형식 아님(' + code + ') — 발송 생략');
-    try {
-      var _sk = 'NF_BADPHONE_' + code + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMdd');
-      var _sp = PropertiesService.getScriptProperties();
-      if (!_sp.getProperty(_sk)) {
-        _sp.setProperty(_sk, '1');
-        _nfAdminLineEmail('알림 못 보냄 — 연락처 형식 이상: ' + code + ' (' + phone + ') · 관리자 화면에서 연락처를 정정해 주세요');
-      }
-    } catch (_e) {}
-    /* ★★[BADPHONE_MAIL 2026-09-25 PHONE_AUTOFILL_82 점검에서 드러났다] 종전엔 여기서 `return false` 였다 · 되돌리지 말 것.
-       그 한 줄이 아래 «이메일 대체 발송»까지 건너뛰어, 연락처가 틀린 고객은 알림톡도 메일도 **아무것도** 못 받았다.
-       (문의서 칸이 끝자리를 자른 번호 `821-0734-9770` 이 실제로 그렇게 됐다)
-       → 틀린 번호로 알림톡은 보내지 않는다(남의 번호일 수 있다). 대신 아래 메일로 간다. */
-    _badPhone = true;
-  }
+  var _badPhone = !/^01[016789][0-9]{7,8}$/.test(phone);
+  if (_badPhone) Logger.log('[notify] 연락처 형식 아님(' + code + ') — 알림톡 생략 · 이메일로 대체');
   var name = _nfCoupleName(cust);
 
   // 상품별 단어 — 스냅은 '상담'→'촬영', '예식'→'촬영' (확정·D-1·제안·잔금 문구가 두 상품 공용이라 단어만 분기)
@@ -222,7 +202,7 @@ function _kakaoSend(to, event, code, extra, opts) {
   //   알림톡에 disableSms:true → 카톡 실패해도 SMS 대체발송 안 함. from은 솔라피 식별용(고객 비노출).
   var tplId = String(cfg.templates[event] || '').trim();
   var sentKakao = false;
-  if (tplId && cfg.pfId && !_badPhone) {
+  if (!_noCfg && !_badPhone && tplId && cfg.pfId) {
     var msg = { to: phone, from: cfg.sender, text: m.text,
       kakaoOptions: { pfId: cfg.pfId, templateId: tplId, variables: m.vars, disableSms: true } };
     var sent = _solapiSend(cfg, msg, { code: String(code || '').trim(), event: event });
@@ -237,8 +217,7 @@ function _kakaoSend(to, event, code, extra, opts) {
     _elsewhere = emailedElsewhere;
     var custEmail = String(cust.get('이메일') || '').trim();
     if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && !sentKakao) {
-      _nfCustomerEmailFallback(custEmail, name, event, m.text);
-      _mailed = true;
+      _mailed = (_nfCustomerEmailFallback(custEmail, name, event, m.text) === true);   // [KAKAO_FAIL_MAIL] 보냈다고 치지 말고 실제 결과로
     }
   } catch (e) {}
   /* ★★[TPL_SILENT 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」]
@@ -247,15 +226,49 @@ function _kakaoSend(to, event, code, extra, opts) {
      고객 이메일까지 비어 있으면 고객도 관리자도 아무것도 받지 못했다(CONTACT_SILENT 와 같은 모양의 조용한 실패).
      ★신청 문서(automation/알림톡_템플릿_신청문안.md) 마지막 기록으로는 19종 중 승인이 6묶음뿐이다 — 흔한 경우다.
      → 고객 상세 처리이력에 한 줄 + 관리자 메일(하루 한 통 · 고객이 아무것도 못 받았으면 그 고객 기준 하루 한 통). */
+  var _how = _elsewhere ? '메일은 관리자 처리에서 따로 발송' : (_mailed ? '이메일로 대체' : '이메일도 없어 아무것도 못 받음');
+  if (_badPhone) {
+    var _csMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 지우지 말 것(99_deployCheck 가 이 줄을 읽는다)
+    /* ★★[CONTACT_SILENT 2026-09-21 사장님 지적에서 드러났다] 종전엔 Logger 한 줄만 남기고 조용히 끝냈다 · 되돌리지 말 것.
+       로그는 «보는 사람이 있을 때만» 알림이다. 실제로는 아무도 안 봤고, 연락처가 `821-0734-9770`
+       (+82 10 을 잘못 붙인 값)로 들어간 고객의 알림톡이 전부 생략되고 있었는데 관리자는 몰랐다.
+       게다가 그때는 관리자가 연락처를 «고칠 길»도 없었다(admin.gs 의 CONTACT_FIX 에서 만들었다 · ★대괄호로 쓰지 말 것 — 아래 참고).
+       → 관리자 메일로 한 번 알린다. 그래야 고칠 수 있다.
+       ★하루 한 번으로 묶는다 — 한 고객에게 알림이 여러 번 나가는 날 메일이 쏟아지면
+         그건 다시 «아무도 안 보는 알림»이 된다(알림 피로는 침묵과 같은 결과를 낸다).
+       ★다른 파일의 표식을 인용할 때 대괄호를 쓰지 않는다 — deploycheck-coverage 는
+         `[이름` 을 «이 파일이 그 표식을 갖고 있다»로 읽어, 목록에 없는 짝으로 빨개진다
+         (2026-09-21 실측: 이 주석 한 줄 때문에 95_notify|CONTACT_FIX 를 요구했다). */
+    /* ★2026-09-25 부터 고객 메일은 위에서 먼저 보낸다(KAKAO_FAIL_MAIL) — 번호가 틀려 못 보내는 것은 알림톡뿐이다.
+       관리자 메일에는 고객이 무엇을 받았는지(메일로 대체 / 아무것도 못 받음)를 함께 적는다. */
+    try { if (code && typeof _recordHandler === 'function') _recordHandler(code, '[알림] ' + event + ' 알림톡 생략(연락처 형식 이상) · ' + _how); } catch (_r) {}
+    try {
+      var _sk = 'NF_BADPHONE_' + code + '_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMdd');
+      var _sp = PropertiesService.getScriptProperties();
+      if (!_sp.getProperty(_sk)) {
+        _sp.setProperty(_sk, '1');
+        _nfAdminLineEmail('알림 못 보냄 — 연락처 형식 이상: ' + code + ' (' + phone + ') · 고객: ' + _how + ' · 관리자 화면에서 연락처를 정정해 주세요');
+      }
+    } catch (_e) {}
+    return (_mailed || _elsewhere) ? 'mail' : false;
+  }
+  if (_noCfg) {
+    try { if (code && typeof _recordHandler === 'function') _recordHandler(code, '[알림] ' + event + ' 알림톡 생략(솔라피 설정 누락) · ' + _how); } catch (_r) {}
+    try {
+      var _nk = 'NF_NOCFG_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMdd');
+      var _np = PropertiesService.getScriptProperties();
+      if (!_np.getProperty(_nk)) {
+        _np.setProperty(_nk, '1');
+        _nfAdminLineEmail('알림톡 못 보냄 — 솔라피 설정(SOLAPI_API_KEY·SECRET·SENDER) 누락 · 고객 알림은 이메일로만 나갑니다 · 95_notify 파일의 notifySetupCheck 로 확인해 주세요');
+      }
+    } catch (_e) {}
+    return (_mailed || _elsewhere) ? 'mail' : false;
+  }
   var _tsMark = '[TPL_SILENT]';
-  // [BADPHONE_MAIL] 번호가 틀린 고객에게는 템플릿 경고를 얹지 않는다 — 이 고객이 못 받은 까닭은 번호다(CONTACT_SILENT 메일이 이미 갔다)
-  if (!(tplId && cfg.pfId) && !_badPhone) _nfTplSilent(event, String(code || '').trim(), (_mailed || _elsewhere), !cfg.pfId, _elsewhere);
-  /* ★[MAIL_COUNTS_AS_SENT 2026-09-25] 알림톡은 못 갔어도 대체 메일이 갔으면 'mailed' 를 돌려준다.
-     종전엔 false 라서 야간 보류 큐(flushHeldNotifies)가 «실패»로 읽고 같은 메일을 아침마다 다시 보냈다(최대 3번),
-     그러고는 관리자에게 「세 번 시도해도 실패」까지 보냈다 — 고객은 이미 받은 알림이다.
-     호출부 확인: 'mailed' 를 true 로 읽는 곳 없음(admin.gs 결과물 전달은 메일을 따로 보내 이 값이 안 나온다). */
-  if (!sentKakao && _mailed) return 'mailed';
-  return sentKakao;   // [NOTIFY_SENT_RET] 알림톡 발송 성공 여부(이메일 폴백은 별도 best-effort)
+  if (!(tplId && cfg.pfId)) _nfTplSilent(event, String(code || '').trim(), (_mailed || _elsewhere), !cfg.pfId, _elsewhere);
+  /* [NOTIFY_SENT_RET] true=알림톡 · 'mail'=알림톡은 못 보냈고 고객 메일이 대신 나감(KAKAO_FAIL_MAIL) · false=아무것도 안 닿음.
+     아침 재시도(flushHeldNotifies)는 false 만 다시 보낸다 — 'mail' 을 false 로 돌려주면 같은 메일이 사흘 동안 또 나간다. */
+  return sentKakao ? true : ((_mailed || _elsewhere) ? 'mail' : false);
 }
 
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
@@ -346,7 +359,7 @@ function notifyFailYesterday() {
       if (k.indexOf('NOTIFY_FAIL_') === 0) {
         var d = k.slice('NOTIFY_FAIL_'.length);
         if (_shiftYmd(d, 7) < _kstYmd(new Date())) p.deleteProperty(k);
-      } else if (k.indexOf('NF_NOTPL_') === 0 || k.indexOf('NF_BADPHONE_') === 0) {   // [TPL_SILENT] 하루 한 번 표식(끝 8자리=날짜)
+      } else if (k.indexOf('NF_NOTPL_') === 0 || k.indexOf('NF_BADPHONE_') === 0 || k.indexOf('NF_NOCFG_') === 0) {   // [TPL_SILENT] 하루 한 번 표식(끝 8자리=날짜)
         var t8 = k.slice(-8);
         if (/^\d{8}$/.test(t8) && _shiftYmd(t8.slice(0, 4) + '-' + t8.slice(4, 6) + '-' + t8.slice(6, 8), 7) < _kstYmd(new Date())) p.deleteProperty(k);
       }
@@ -453,7 +466,7 @@ function flushHeldNotifies() {
 
 // ============================ 문구 빌더 ============================
 // 알림톡 변수(vars)는 automation/알림톡_템플릿_신청문안.md 의 #{변수명}과 1:1.
-// text는 템플릿 미승인·알림톡 실패 시 나가는 SMS 문구(자유 문구).
+// text는 알림톡을 못 보냈을 때 나가는 대체 메일 본문(자유 문구 · 끝 주소는 메일에서 버튼으로 옮겨진다). 고객 문자는 2026-06-29 부터 안 쓴다.
 
 function _nfCoupleName(cust) {
   var g = String(cust.get('신랑이름') || '').trim(), b = String(cust.get('신부이름') || '').trim();
@@ -481,6 +494,12 @@ function _nfMy(focus) { return NF_MYPAGE + (focus ? ('?focus=' + focus) : ''); }
 function _nfCustomerMsg(event, name, x) {
   x = x || {};
   var d;
+  /* ★[SLOT_CLOCK 2026-09-25] 예식 슬롯은 «도착 시각»(12:20)으로 저장된다. 옛 판은 그 값을 그대로 #{일시}에 넣어
+     고객에게 «2026년 11월 26일 12:20»으로 갔다 — 문의 화면은 «오후 (13:25)»(본예식)라 같은 예식이 두 시각으로 읽혔다.
+     본예식 시각으로 바꿔 넣는다. 값은 mypage.html SLOT_CLOCK 과 같다(check-source-drift (7)이 대조). 저장값은 그대로다. */
+  var NF_SLOT_CLOCK = { '09:00': '10:05', '12:20': '13:25', '15:40': '16:45', '10:00': '10:05', '13:20': '13:25', '16:40': '16:45' };
+  var NF_SLOT_LAB = { '09:00': '오전', '12:20': '오후', '15:40': '늦은 오후', '10:00': '오전', '13:20': '오후', '16:40': '늦은 오후' };
+  var slotKo = function (t) { t = String(t || '').trim(); return NF_SLOT_CLOCK[t] ? (NF_SLOT_LAB[t] + ' ' + NF_SLOT_CLOCK[t]) : t; };
   switch (event) {
     case 'cust.consultConfirmed':
       d = _nfDate(x.date) + (x.time ? (' ' + x.time) : '');
@@ -540,19 +559,19 @@ function _nfCustomerMsg(event, name, x) {
           + '을 마이페이지에 올려 두었어요. 바코드를 매장에서 보여주시면 됩니다.'
           + (d ? (' 사용기한은 ' + d + '까지예요.') : '') + ' ' + _nfMy('coupon') };
     case 'cust.holdGranted':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
         text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 승인되었습니다. 14일 동안 이 자리는 두 분을 위해 비워둡니다. 상담에서 확정하시면 그대로 이어져요. ' + _nfMy('hold') };
     case 'cust.holdReleased':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
         text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ')이 해제되었습니다. 마음이 정해지시면 마이페이지에서 언제든 다시 요청하실 수 있어요. ' + _nfMy('consult') };
     case 'cust.holdExpiring':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d, '#{남은일}': String(x.left != null ? x.left : '') },
         text: '[모먼트에디트] ' + name + '님, 예식일 임시고정(' + d + ') 만료가 ' + (x.left != null ? (x.left + '일') : '곧') + ' 남았어요. 기간이 지나면 자리는 자동으로 풀립니다. 상담을 확정하시면 그대로 유지돼요. ' + _nfMy('hold') };
     case 'cust.changeConfirmed':
-      d = _nfDate(x.date) + (x.slot ? (' ' + x.slot) : '');
+      d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
         text: '[모먼트에디트] ' + name + '님, 요청하신 예식일 변경이 적용되었습니다. 새 일시는 ' + d + '입니다. 이후 안내는 새 날짜 기준으로 정리해 두었어요. ' + _nfMy('contract') };
     case 'cust.changeDeclined':
@@ -962,7 +981,7 @@ function _nfMaybeBalanceCheck() {
 // 알림톡은 '접수 성공(2xx)' 후 실제 전달 성공/실패가 비동기로 통보됨(솔라피 리포트 웹훅 → 이 웹앱 /exec로 POST).
 //   발송 성공 시 messageId↔code↔text를 '알림톡추적' 시트에 기록 → 리포트가 '실패'면 그 고객에게 이메일(카톡 미수신 커버).
 //   ★보수적: '명확한 실패'만 이메일. 성공/불명확은 발송 안 함(카톡 받은 고객에 오발송 방지). 형식은 로그로 확인·튜닝 가능.
-// 설정: 솔라피 콘솔 > 설정 > 리포트(전달결과) 웹훅 URL = 이 웹앱 배포 /exec 주소.
+// 설정: 솔라피 «개발 → Webhooks → 새로운 웹훅 생성» · EVENT «메시지 리포트» · 수신 URL = 이 웹앱 배포 /exec 주소 · Secret 은 비움(GAS 는 요청 헤더를 못 읽는다) — 2026-09-25 등록 완료.
 var NF_TRACK_SHEET = '알림톡추적';
 function _nfTrackSheet() {
   var ss = SpreadsheetApp.getActive();
@@ -990,6 +1009,8 @@ function handleSolapiReport(raw) {
     var failKw = /fail|error|reject|undeliver|expire|실패|거부|미수신|차단|반려|오류|만료|없는/i;
     var failCodes = { '3008': 1, '3014': 1, '4040': 1, '5000': 1, '6000': 1 };   // 알려진 실패코드(테스트 후 보강)
     var okKw = /성공|완료|정상|delivered|complete|sent/i;
+    var negKw = /비정상|미완료|미수신|불가/;                       // «정상·완료»를 품은 실패 낱말
+    var pendKw = /처리\s*중|대기|진행\s*중|pending|processing/i;    // 아직 끝나지 않은 상태
     var emailed = 0;
     arr.forEach(function (r) {
       try {
@@ -997,8 +1018,15 @@ function handleSolapiReport(raw) {
         if (!mid) return;
         var sc = String((r && (r.statusCode || r.status)) || '').trim();
         var msg = String((r && (r.statusMessage || r.reason || r.statusMsg)) || '');
-        var failed = (sc && failCodes[sc]) || failKw.test(msg);
-        var success = (sc === '4000') || okKw.test(msg);
+        /* ★[KAKAO_FAIL_MAIL 2026-09-25] 종전엔 «알려진 실패 코드 5개 · 실패 낱말»에 걸려야만 고객 메일을 보냈다.
+           그 밖의 코드는 «불명확»으로 남겨 메일을 안 보냈다 — 시뮬: 3104 «카카오톡 미사용자»가 그렇게 빠졌다.
+           메시지 리포트는 발송이 «끝났을 때» 온다. 그래서 코드가 있는데 성공(4000)도 진행 중(2000·3000)도 아니면
+           실패로 친다. 코드도 낱말도 없을 때만 «확인»으로 둔다(다음 리포트가 다시 처리한다).
+           ★성공 낱말(정상·완료)은 «비정상·미완료» 안에도 들어 있다 — 그 꼴이면 성공으로 치지 않는다. */
+        var hardFail = !!((sc && failCodes[sc]) || failKw.test(msg));
+        var success = !hardFail && ((sc === '4000') || (okKw.test(msg) && !negKw.test(msg)));
+        var pending = !hardFail && !success && (sc === '2000' || sc === '3000' || pendKw.test(msg));
+        var failed = hardFail || (!success && !pending && !!sc);
         for (var i = rows.length - 1; i >= 0; i--) {
           if (String(rows[i][0]).trim() !== mid) continue;
           var st = String(rows[i][5]).trim();
@@ -1009,7 +1037,12 @@ function handleSolapiReport(raw) {
               var cust = findCustomerByCode(code);
               var to = cust ? String(cust.get('이메일') || '').trim() : '';
               var name = cust ? _nfCoupleName(cust) : '';
-              if (to && to.indexOf('@') > 0 && text) { _nfCustomerEmailFallback(to, name, event, text); emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
+              var _sentMail = false;
+              if (to && to.indexOf('@') > 0 && text) { _sentMail = (_nfCustomerEmailFallback(to, name, event, text) === true); if (_sentMail) emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
+              if (code && code !== 'TEST') {   // 시험 발송(testKakao…)은 고객이 아니다 — 흔적·경고를 남기지 않는다
+                if (typeof _recordHandler === 'function') _recordHandler(code, '[알림] ' + event + ' 카톡 전달 실패(' + (sc || '-') + ') · ' + (_sentMail ? '이메일로 대체' : '이메일도 없어 아무것도 못 받음'));
+                if (!_sentMail && typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카톡 전달 실패 — ' + code + ' · ' + event + ' · 이메일로도 못 보내 고객이 아무것도 못 받았어요(직접 연락이 필요해요)');
+              }
             } catch (e) {}
             sh.getRange(i + 2, 6).setValue('이메일');
           } else {
@@ -1093,7 +1126,8 @@ function _nfCustomerEmailFallback(to, name, event, text) {
     GmailApp.sendEmail(to, '[Moment Edit] ' + meta.subj, String(body).slice(0, 500) + '\n\n' + href,   // 글자 메일(HTML 못 여는 곳)에도 주소는 남긴다
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 고객 이메일 → ' + to + ' · ' + event);
-  } catch (e) { try { Logger.log('[notify] 고객 이메일 실패: ' + (e && e.message)); } catch (_) {} }
+    return true;   // KAKAO_FAIL_MAIL — 부르는 쪽이 «정말 나갔나»로 재시도를 가른다
+  } catch (e) { try { Logger.log('[notify] 고객 이메일 실패: ' + (e && e.message)); } catch (_) {} return false; }
 }
 
 // ============================ 문자/알림톡 사용량 (관리자 💰) ============================

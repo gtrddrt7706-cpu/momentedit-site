@@ -172,7 +172,7 @@ body.listening{padding-bottom:var(--bar-h, calc(70px + env(safe-area-inset-botto
 @media print{body.listening{padding-bottom:0}}
 
 /* Letter */
-main{max-width:var(--max);margin:0 auto;padding:8px 28px 72px}
+main{max-width:var(--max);margin:0 auto;padding:8px 28px 32px}   /* [PAR_FOOTER_GROUP] 본문 끝과 푸터 사이 132 → 92px */
 .letter{font-size:var(--letter-size);line-height:2;color:var(--sub);font-weight:300}
 .letter p{margin-bottom:1.15em}
 .letter strong{color:var(--accent);font-weight:500}
@@ -188,6 +188,29 @@ main{max-width:var(--max);margin:0 auto;padding:8px 28px 72px}
 .choice-list li::before{content:'·';position:absolute;left:6px;top:0;color:var(--gold);font-weight:600}
 .choice-list li em{font-style:normal;color:var(--light);font-size:0.88em}
 
+/* ★★[PARENTS_PC_LAYOUT 2026-09-25 사장님 선택 «A (장 제목을 왼쪽 칸으로)»]
+   사장님: 「PC 버전은 어른께 전하는 편지 중간에 쏠리게 하지 말고 자연스럽게 글자가 보이게」
+   실측(1280) — --max:640px 가 .hero·.tools·main 에 걸려 본문 584px 가 화면 가운데(왼쪽 348px)에 섰다.
+   양옆 348px 가 비어서 «가운데로 쏠림»이 된다.
+   → 1024px 이상에서만 920px 로 넓히고, 장 번호·제목(一二三四)을 왼쪽 208px 칸으로 보낸다.
+     본문 칸은 600px — 지금 584px 와 거의 같은 글줄이라 읽는 리듬은 그대로다.
+   ★모바일(1023px 이하)과 인쇄는 한 줄도 바뀌지 않는다 — 이 블록은 min-width 쿼리 안에만 있다.
+   ★position:sticky 의 top 은 상단 nav 높이 기준이다. nav 가 커지면 제목이 가린다 — 함께 볼 것.
+   ★글자 크기 도구 4단계(15.5~21.5px)에서 모두 칸이 안 무너지는 것을 실렌더로 확인했다. */
+@media screen and (min-width:1024px){
+  .hero,.tools,main{max-width:920px;padding-left:32px;padding-right:32px}
+  .hero{text-align:left;padding-top:132px}
+  .hero .hero-divider{margin-left:0;margin-right:auto}
+  .greeting,.closing{margin-left:256px}
+  .part{display:grid;grid-template-columns:208px minmax(0,1fr);column-gap:48px;align-items:start}
+  .part>.part-head{grid-column:1;grid-row:1 / span 40;display:block;position:sticky;top:104px;margin:2px 0 0}
+  .part>.part-head .part-num{display:block;margin-bottom:12px;font-size:1.25em}
+  .part>*:not(.part-head){grid-column:2}
+  /* 서명·문의·도구도 본문 칸 시작선에 맞춘다 — 왼쪽 칸은 장 제목만 쓴다 */
+  .sign,.contact-box,.contact-ask{margin-left:256px}
+  .tools{justify-content:flex-end}
+}
+
 /* 맺음·서명 */
 .closing{padding:30px 0 0;border-top:1px solid var(--hairline);margin-top:16px}
 .sign{margin-top:30px;text-align:right}
@@ -200,7 +223,7 @@ main{max-width:var(--max);margin:0 auto;padding:8px 28px 72px}
 .contact-ask:hover{opacity:0.9}
 
 /* Footer */
-footer{text-align:center;padding:36px 28px;background:var(--footer-bg);margin-top:56px}
+footer{text-align:center;padding:40px 28px;background:var(--footer-bg);margin-top:56px}   /* [PAR_FOOTER_GROUP] 36 → 40 */
 .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 auto}
 .f-copy{font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);margin-top:14px;letter-spacing:0.04em;line-height:1.85;word-break:keep-all}
 .f-copy a{color:inherit;text-decoration:none}
@@ -266,6 +289,21 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 .nav-in{padding-top:6px;padding-bottom:6px}
 @media(max-width:680px){.nav-in{padding-top:4px;padding-bottom:4px}}
 .f-copy a{display:inline-block;min-height:44px;line-height:44px}   /* [TAP44-3] */
+
+/* [PAR_FOOTER_GROUP] 링크 한 줄 + 법정 정보 한 덩어리 */
+.f-nav{margin-top:18px}
+.f-grp{white-space:nowrap}
+.f-sep,.f-sep-mid{margin:0 11px;color:rgba(192,180,160,0.3)}
+.f-privacy{font-weight:500;color:rgba(224,214,198,.92)}
+.f-legal{margin-top:12px}
+.f-legal .f-copy{margin:0;line-height:1.9}
+.f-rights{font-family:var(--serif);font-style:italic;color:rgba(188,174,154,0.7);letter-spacing:0.08em}
+/* ★520px 이하에서 두 줄로 — 한 줄 폭이 약 412px 이라 481px 에서 겨우 들어간다(코워크 정정 3).
+   480 으로 두면 481~520 구간에서 가운데 점이 줄 끝에 매달린다. */
+@media(max-width:520px){
+  .f-nav .f-grp{display:block}
+  .f-sep-mid{display:none}
+}
 
 /* [PAR_KO_TRACK] 영문용 트래킹(.08em)이 한글 '뒤로'에 걸려 있었다. */
 .nav-back{letter-spacing:0.02em}
@@ -453,10 +491,22 @@ nav .nav-links a, .nav-links a, .f-links a {
   <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="f-footer-logo-link" aria-label="페이지 최상단으로 이동">
     <picture><source type="image/webp" srcset="/assets/brand/wordmark-only.webp"><img class="f-footer-logo" src="/assets/brand/wordmark-only.png" alt="MOMENT EDIT" loading="lazy" decoding="async"></picture>
   </a>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);letter-spacing:0.04em;line-height:1.85;margin-top:16px"><a href="mailto:contact@momentedit.kr" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">contact@momentedit.kr</a><span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="https://instagram.com/momentedit.kr" target="_blank" rel="noopener" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">Instagram</a><span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="mypage.html" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">My Page</a></div>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);letter-spacing:0.04em;line-height:1.85;margin-top:0.5px;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">경기 고양시 덕양구 향동동<span style="margin:0 11px;color:rgba(192,180,160,0.3)" aria-hidden="true">·</span><a href="privacy.html" style="font-family:var(--serif-ko);font-size:11px;letter-spacing:0.04em;color:inherit;text-decoration:none">개인정보처리방침</a></div>
-  <div class="f-copy" style="font-family:var(--serif-ko);font-size:11px;color:rgba(192,180,160,0.7);letter-spacing:0.04em;line-height:1.85;margin-top:0.5px;max-width:600px;margin-left:auto;margin-right:auto;word-break:keep-all">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796</div>
-  <div class="f-copy" style="font-family:var(--serif);font-style:italic;font-size:11px;color:rgba(188,174,154,0.7);margin-top:3px;letter-spacing:0.08em">&copy; 2026 Moment Edit. All rights reserved.</div>
+  <!-- ★★[PAR_FOOTER_GROUP 2026-09-25 사장님 「하단 푸터 조금 어중간하지 않아?」 「푸터 간격이 조금 이상해」]
+       실측 — 푸터 안 글줄 사이가 30 / 29 / 17 / 8px 로 들쭉날쭉했다. 링크가 든 두 줄은 [TAP44-3] 로
+       44px 줄상자를 차지하고 링크 없는 두 줄은 20px 라서다. 게다가 「주소 · 개인정보처리방침」 줄이
+       링크 묶음과 법정 정보 «사이»에 끼어 어느 쪽인지 안 읽혔다.
+       → 링크 넷을 한 줄로 모으고(묶음 둘 · 각 nowrap), 법정 정보 셋을 한 덩어리로 내린다.
+       ★2026-08-09 에 링크를 한 줄 flex 로 모았다가 사장님이 「푸터 이상한데 그냥 전으로 돌려」
+         하신 적이 있다([TAP44_FOOT_OFF]). 그때는 flex 칸이었고 이번은 «점으로 이은 글자 줄» —
+         모양이 다르고, 사장님이 전후 사진을 보고 고르셨다.
+       ★개인정보처리방침만 한 단계 밝게 + 500 — 처리방침 작성지침이 「글자 크기, 색상 등을 활용하여
+         다른 고지사항과 구분」하라고 적고 있다. 법률 판단이 아니라 표시 관행을 따르는 것이다. -->
+  <div class="f-copy f-nav"><span class="f-grp"><a href="mailto:contact@momentedit.kr">contact@momentedit.kr</a><span class="f-sep" aria-hidden="true">·</span><a href="https://instagram.com/momentedit.kr" target="_blank" rel="noopener">Instagram</a></span><span class="f-sep-mid" aria-hidden="true">·</span><span class="f-grp"><a href="mypage.html">My Page</a><span class="f-sep" aria-hidden="true">·</span><a class="f-privacy" href="privacy.html">개인정보처리방침</a></span></div>
+  <div class="f-legal">
+    <div class="f-copy">경기 고양시 덕양구 향동동</div>
+    <div class="f-copy">상호 모먼트에디트 &middot; 대표 정희준 &middot; 사업자등록번호 218-01-42796</div>
+    <div class="f-copy f-rights">&copy; 2026 Moment Edit. All rights reserved.</div>
+  </div>
 </footer>
 
 <script>

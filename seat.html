@@ -222,7 +222,10 @@ var EXIT_HTML='<div class="state-x">'
   +'<a class="state-x-b" href="https://pf.kakao.com/_CfxcxlX/chat" target="_blank" rel="noopener">카카오톡으로 문의하기</a>'
   +'<a class="state-x-b sub" href="mailto:contact@momentedit.kr">메일로 문의 · contact@momentedit.kr</a>'
   +'</div>';
-function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div>'+(x?EXIT_HTML:'')+'</div>'; }
+/* ★[SEAT_STATE_H1 2026-09-25 코워크 실측] 오류·만료 화면에 h1 이 하나도 없었다 —
+   화면낭독기 사용자는 «이 문서가 무엇인지» 들을 길이 없다(axe page-has-heading-one).
+   상태 문장 자체가 그 화면의 제목이다. 모양은 .state 클래스가 그대로 지므로 보이는 것은 안 바뀐다. */
+function stateHtml(msg, sm, x){ return '<div class="card"><h1 class="state" role="status">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</h1>'+(x?EXIT_HTML:'')+'</div>'; }
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
 var NUMS={};     // 배열 인덱스 → 행순서 표시 번호(지도 배지·검색 결과가 같은 번호를 쓰게)
@@ -426,9 +429,9 @@ function renderMineOnly(seat, t){
 //   이 페이지는 '명단을 기기로 받지 않는다'는 원칙('내 자리만' 모드)이 설계의 뼈대라, 캐시가 그걸 뒤집는다.
 //   느린 회선 대비는 자동 재시도와 버튼으로만 한다.
 function seatFailHtml(){
-  return '<div class="card"><div class="state" role="status">좌석 안내를 불러오지 못했어요.'
+  return '<div class="card"><h1 class="state" role="status">좌석 안내를 불러오지 못했어요.'
     +'<div class="sm">네트워크 상태를 확인한 뒤 다시 눌러 주세요.</div>'
-    +'<button type="button" class="retry-btn" id="retryBtn">다시 불러오기</button></div></div>';
+    +'<button type="button" class="retry-btn" id="retryBtn">다시 불러오기</button></h1></div>';
 }
 (function boot(){
   var t=qp('t');

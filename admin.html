@@ -585,7 +585,10 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){retu
 function _safeHref(u){ var v=String(u==null?'':u).trim(); return (/^https?:\/\//i.test(v)||v.charAt(0)==='/')?v:''; }
 function _chipLink(lb,v){ var h=_safeHref(v); return h?('<a href="'+esc(h)+'" target="_blank" rel="noopener">'+esc(lb)+'</a>'):('<span title="'+esc(String(v))+'">'+esc(lb)+' · 주소 형식이 아니에요</span>'); }   /* [SAFE_HREF] 링크 칩 공통 */
 // 예식 시간 표기 — 계약 슬롯(09:00·12:20·15:40)·본예식 시간 둘 다 받아 '오전 10:00' 본예식 기준으로 통일(고객·계약서와 동일 표기).
-function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var B={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; if(B[t]) t=B[t]; var L={'10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; return (L[t]?L[t]+' ':'')+t; }
+/* ★[SLOT_CLOCK 2026-09-25] 슬롯(도착 09:00 · ID 10:00) → 실제 본예식 시각. 옛 판은 ID(13:20)를 본예식으로 찍어 고객 화면·청첩장과 5분 어긋났다.
+   값은 mypage.html SLOT_CLOCK 과 같다 — 스냅 길이가 바뀌면 check-source-drift (7)이 잡는다. 저장값은 그대로다. */
+var SLOT_CLOCK={'09:00':'10:05','12:20':'13:25','15:40':'16:45','10:00':'10:05','13:20':'13:25','16:40':'16:45'};
+function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var L={'09:00':'오전','12:20':'오후','15:40':'늦은 오후','10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; var lab=L[t]; if(SLOT_CLOCK[t]) t=SLOT_CLOCK[t]; return (lab?lab+' ':'')+t; }
 function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
 
 /* ════════ [ADM_MODAL 2026-08-03] 브라우저 기본 팝업 대체 ════════
@@ -3335,7 +3338,7 @@ function doMarkRefunded(code,names,d){ var acct=(d&&d.consult&&d.consult.refund)
     extra: acct?('<div class="field"><label>환불 계좌</label><div style="display:flex;gap:8px;align-items:center"><div style="flex:1;background:#faf7f0;border:1px solid #ece3d0;border-radius:6px;padding:8px 10px;font-size:13px">'+esc(acct)+'</div><button type="button" class="btn-line" style="padding:8px 12px;font-size:12px" onclick="copyText(\''+esc(String(acct).replace(/['"\\<>]/g,''))+'\',this)">복사</button></div></div>'):'',
     yes:'환불 완료', onYes:function(){ runAct(['adminMarkRefunded',code],code,'환불 완료'); } }); }
 function doStartRetouch(code,names){ openModal({ title:'보정을 시작할까요?', text:b(names)+li('고객 화면에 \"보정 중\"으로 표시돼요'), yes:'보정 착수', onYes:function(){ runAct(['adminStartRetouch',code],code,'보정 착수'); } }); }
-function doGrantHold(code,names,d){ var h=(d&&d.hold)||{}, lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[h.slot]||''; openModal({ title:'예식일 임시고정을 승인할까요?', text:b(names)+li((h.date||'')+' '+lab+' '+(h.slot||''))+li('그 날짜·슬롯이 다른 고객에게 잠겨요(가예약)')+li('14일 내 미전환 시 자동 해제 · 고객에게 안내가 가요'), yes:'임시고정 승인', onYes:function(){ runAct(['adminGrantWeddingHold',code],code,'임시고정 승인'); } }); }
+function doGrantHold(code,names,d){ var h=(d&&d.hold)||{}, lab={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'}[h.slot]||''; openModal({ title:'예식일 임시고정을 승인할까요?', text:b(names)+li((h.date||'')+' '+(wedTimeKo(h.slot)||lab))+li('그 날짜·슬롯이 다른 고객에게 잠겨요(가예약)')+li('14일 내 미전환 시 자동 해제 · 고객에게 안내가 가요'), yes:'임시고정 승인', onYes:function(){ runAct(['adminGrantWeddingHold',code],code,'임시고정 승인'); } }); }
 function doDeclineHold(code,names,d){ var h=(d&&d.hold)||{}; openModal({ title:(h.status==='승인'?'임시고정을 해제할까요?':'임시고정 요청을 거절할까요?'), danger:true, text:b(names)+li('가예약이 풀려 그 슬롯이 다시 열려요')+li('고객에게 안내가 가요'), yes:(h.status==='승인'?'해제':'거절'), onYes:function(){ runAct(['adminDeclineWeddingHold',code],code,'임시고정 해제'); } }); }
 function doAccept(code,names){ openModal({ title:'변경 제안을 수락할까요?', text:b(names)+li('제안한 시간으로 확정돼요'), yes:'수락', onYes:function(){ runAct(['adminAcceptProposal',code],code,'수락'); } }); }
 function doConsultDone(code,names,fitN,fitSaved){

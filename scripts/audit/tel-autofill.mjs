@@ -115,13 +115,11 @@ ok(/function _phoneOk\(v\)\{ return \/\^01\[016789\]\[0-9\]\{7,8\}\$\/\.test\(wi
 const j = read('automation/platform/70_journey.gs');
 const cb = read('automation/consultation/consultation-booking.gs');
 const au = read('automation/platform/50_auth-handlers.gs');
-const nf = read('automation/platform/95_notify.gs');
-if (!j || !cb || !au || !nf) cant('GAS 파일을 읽지 못했습니다');
+if (!j || !cb || !au) cant('GAS 파일을 읽지 못했습니다');
 ok((j.match(/_crNum\(/g) || []).length >= 6, `70_journey 현금영수증 저장·읽기 5곳이 _crNum 을 거치지 않는다 (${(j.match(/_crNum\(/g) || []).length}곳)`);
 ok(!/cashReceipt[^;\n]*\.replace\(\/\[\^0-9\]\/g, ''\)\.slice\(0, (30|40)\)/.test(j.replace(/String\(v == null \? '' : v\)\.replace\(\/\[\^0-9\]\/g, ''\)/, '')), '70_journey 에 «숫자만 남기기»로 저장하는 현금영수증 자리가 남아 있다');
 ok(/var _crIn = \(\(typeof _crKR === 'function'\) \? _crKR\(cashReceipt\)/.test(cb), 'consultation-booking submitSchedule 현금영수증이 _crKR 을 안 거친다');
 ok(/_phoneKR\(phone\)[\s\S]{0,80}\^01\[016789\]/.test(au), '50_auth-handlers 코드 찾기 알림톡이 _phoneKR 을 안 거친다');
-ok(/_badPhone = true;/.test(nf) && !/연락처를 정정해 주세요'\);\n\s*\}\n\s*\} catch \(_e\) \{\}\n\s*return false;/.test(nf), '95_notify: 번호가 틀리면 메일 대체까지 건너뛰던 return false 가 돌아왔다(BADPHONE_MAIL)');
 
 // ── ⑤ 실렌더 — 브라우저가 있으면 문의서·예약 화면 칸에 자동완성 값을 실제로 넣어 본다
 let rendered = 'skip';

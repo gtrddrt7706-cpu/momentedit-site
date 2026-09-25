@@ -2031,6 +2031,14 @@ chk 'D.DAY' scripts/check-source-drift.mjs 3
 #   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
 chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
 chk 'ref-time' scripts/check-source-drift.mjs 1
+# [SLOT_CLOCK 2026-09-25] 표 밖의 예식 시각(마이페이지 D-day·임시고정·관리자·청첩장·라이브·알림톡)은 슬롯 ID(13:20)를
+#   본예식으로 찍고 있었다 — 8/9 부터 5분 어긋남. 이제 SLOT_CLOCK 한 표를 거치고, drift (6-b)가 여섯 벌을 DAY 로 잰다.
+chk 'SLOT_CLOCK' scripts/check-source-drift.mjs 2
+chk 'SLOT_CLOCK' mypage.html 5
+chk 'slotClock(c.weddingTime)' shared/hydrate.js 1
+chk 'slotKo(x.slot)' automation/platform/95_notify.gs 4
+nochk "var BASE={'09:00':'10:00'" mypage.html
+nochk "'>'+LABELS\[t\]+' '+t+'</option>'" mypage.html
 # ── [FAQ_MID_HOLD 2026-08-10] FAQ·JSON-LD 두 자리는 **범위 꼴로 둔다** ──
 # 이 두 자리를 가운데값(20m/35m)으로 통일하면 보기엔 깔끔한데, 그 대가로 **감시망에서 빠진다.**
 # 주변 산문에 숫자가 많아서(140분·45분·5분·55분·20분·9시 45분…) check-source-drift 가
@@ -8457,8 +8465,9 @@ chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 #   자동완성은 «+82 10-7349-7706» 을 넣는다. 숫자만 남기는 칸은 «821073497706»(현금영수증 칸 5곳이 그대로 저장),
 #   11자로 자르는 문의서 칸은 «821-0734-9770» — 끝자리를 잘랐다(#800 이 쫓던 값의 진짜 원인).
 #   공용 함수 /shared/tel-kr.js(meTelDigits) · GAS 화면 사본 2곳 · 서버 _crKR 이 같은 규칙을 쓰는지 본다.
-#   ★[BADPHONE_MAIL] 번호가 틀려도 고객에게 메일은 간다 · ★[MAIL_COUNTS_AS_SENT] 메일이 간 알림은 아침마다 재발송하지 않는다
-#     — 둘은 contact-lifecycle-sim 장면 2·6 과 notify-e2e 가 실제 소스로 돌려 지킨다.
+#   ★번호가 틀린 고객에게 메일이 가는 것·메일이 간 알림을 재발송하지 않는 것은 같은 날 다른 세션의 KAKAO_FAIL_MAIL(#822)이 맡는다.
+#     contact-lifecycle-sim 장면 6 은 «문의서 칸 → 저장 → 발송»을 실제로 돌린다.
+chk 'PHONE_AUTOFILL_82' scripts/audit/contact-lifecycle-sim.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/tel-autofill.mjs >/dev/null 2>&1; _ta=$?
   case "$_ta" in
     0) echo 'ok tel-autofill: 자동완성 +82 가 번호 칸 어디서도 010 으로 · GAS 사본 일치 · 서버 저장 배선' ;;
@@ -8477,10 +8486,6 @@ chk 'PHONE_AUTOFILL_82' automation/platform/00_platform-config.gs 2
 chk 'PHONE_AUTOFILL_82' automation/platform/70_journey.gs 5
 chk 'PHONE_AUTOFILL_82' automation/consultation/consultation-booking.gs 2
 chk 'PHONE_AUTOFILL_82' automation/platform/50_auth-handlers.gs 1
-chk 'BADPHONE_MAIL' automation/platform/95_notify.gs 2
-chk 'MAIL_COUNTS_AS_SENT' automation/platform/95_notify.gs 2
-chk 'BADPHONE_MAIL' scripts/audit/contact-lifecycle-sim.mjs 2
-chk 'MAIL_COUNTS_AS_SENT' scripts/audit/contact-lifecycle-sim.mjs 1
 chk 'SERVED_OURS' scripts/audit/tel-autofill.mjs 1
 
 # ★[REVIEW_EXIT_HIDE 2026-09-25 사장님 「후기 남긴 고객도 취소 처리하면 후기 지워지게」] 취소·노쇼·미계약 고객 후기는
@@ -8518,7 +8523,7 @@ nochk '미리 채워뒀어요. 바꾸셔도 괜찮아요' mypage.html
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
 if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
   case "$_ne" in
-    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수' ;;
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수 · 까닭 무관 메일' ;;
     1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
     *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -8550,6 +8555,15 @@ chk 'SOLAPI_WEBHOOK_ON' CLAUDE.md 1
 chk 'SOLAPI_WEBHOOK_ON' docs/데이터흐름_현황.md 1
 nochk '리포트 웹훅 URL=/exec 등록 필요' CLAUDE.md
 nochk '웹훅 URL(/exec) 등록이 전제' docs/데이터흐름_현황.md
+
+# ★★[KAKAO_FAIL_MAIL] 2026-09-25 사장님 「알림톡이 어떤 이유로 불발나면 이메일로 가게 해놨는데 잘 되어 있는 거지?」
+#   까닭마다 실제 코드로 돌려 보니 넷이 어긋났다 — 솔라피 설정 누락·연락처 형식 이상은 고객 메일까지 건너뛰었고,
+#   전달 실패 리포트가 목록 밖 코드(예: 카카오톡 미사용자)면 메일이 없었고, 밤에 보류됐다 아침에 메일로 나간 알림은
+#   «실패»로 쳐서 사흘 동안 같은 메일이 또 나갔다. notify-e2e ⑫ 가 지킨다(깨 보고 믿었다 · 6건 전부 빨강).
+chk 'KAKAO_FAIL_MAIL' automation/platform/95_notify.gs 6
+chk "return sentKakao ? true : ((_mailed || _elsewhere) ? 'mail' : false);" automation/platform/95_notify.gs 1   # 메일로 닿았으면 아침 재시도 없음
+chk 'var failed = hardFail || (!success && !pending && !!sc);' automation/platform/95_notify.gs 1                # 목록 밖 실패 코드도 실패
+nochk "고객 발송 생략'); return false; }" automation/platform/95_notify.gs                                        # 설정 누락이 고객 메일까지 막던 옛 줄
 
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
@@ -9364,6 +9378,79 @@ chk 'CV_NO_EARLY_MEASURE' index.html 1
 chk 'LETTER_PAPER' live.html 18
 chk 'min-height:44px' live.html 3
 nochk 'color:#B53A3A' live.html
+
+# ★★[NO_SIDE_STRIPE 2026-09-25 사장님 «선택하면 밑에 열리는 왼쪽 황금색 칸 — 너무 올드한 느낌.
+#   이런 형태가 들어가는 곳 조사해서 전부 개선하자»]
+#   고객 화면 전부를 border-left 2px 이상 · inset 그림자 · 세로 가상요소로 훑어 **두 파일 7곳**을 찾았다
+#   (pick-final.html 에도 border-left 가 있지만 내부 도구 「문안 되돌리기」이고 색도 중립 --line 이다).
+#   문법 셋 — 가(따라 열리는 입력): 선택지 «글자 시작선»에 맞춰 들여쓰기 ·
+#   나(도움말): 세로줄 제거 + 작은 라벨 · 다(주의·오류): 글자 --seal + 씰 점.
+#   ★들여쓰기는 숫자를 박지 않고 선택지와 같은 계산(--opt-indent)으로 — 한쪽만 바뀌면 줄이 어긋난다.
+#   ★재유입 금지 — 이 두 파일에 굵은 세로줄이 다시 들어오면 빨강.
+chk 'NO_SIDE_STRIPE' inquiry.html 2
+chk 'NO_SIDE_STRIPE' order-preview.html 5
+chk 'NO_SIDE_STRIPE' .claude/skills/momentedit-design/SKILL.md 1
+chk 'opt-indent' inquiry.html 3
+nochk 'border-left:[2-9]px' inquiry.html
+nochk 'border-left:[2-9]px' order-preview.html
+
+# ★★[PARENTS_PC_LAYOUT 2026-09-25 사장님 선택 «A (장 제목을 왼쪽 칸으로)»]
+#   사장님: 「PC 버전은 어른께 전하는 편지 중간에 쏠리게 하지 말고 자연스럽게 글자가 보이게」
+#   실측(1280) — --max:640px 가 걸려 본문 584px 가 가운데 서고 양옆 348px 가 비었다.
+#   → 1024px 이상에서만 920px · 장 번호·제목(一二三四)을 왼쪽 208px 칸으로 · 본문 600px.
+#   ★모바일(1023px 이하)과 인쇄는 한 줄도 안 바뀐다 — min-width 쿼리 «안»에만 둔다.
+#     이 블록을 쿼리 밖으로 꺼내면 어른이 폰으로 읽는 화면이 2열로 쪼개진다.
+#   ★sticky top:104px 은 상단 nav 높이 기준이다 — nav 가 커지면 장 제목이 가린다.
+chk 'PARENTS_PC_LAYOUT' parents.html 1
+chk 'min-width:1024px' parents.html 1
+chk 'grid-template-columns:208px' parents.html 1
+
+# ★★[PAR_FOOTER_GROUP 2026-09-25 사장님 「하단 푸터 조금 어중간하지 않아?」 「푸터 간격이 조금 이상해」]
+#   실측 — 푸터 글줄 사이가 30/29/17/8px 로 들쭉날쭉했다. 링크가 든 줄은 [TAP44-3] 로 44px 줄상자를
+#   차지하고 링크 없는 줄은 20px 라서다. 「주소 · 개인정보처리방침」 줄이 링크 묶음과 법정 정보
+#   사이에 끼어 어느 쪽인지 안 읽혔다. → 링크 넷 한 줄 + 법정 정보 한 덩어리.
+#   ★2026-08-09 에 링크를 한 줄 flex 로 모았다가 「푸터 이상한데 그냥 전으로 돌려」를 들었다
+#     ([TAP44_FOOT_OFF]). 이번은 flex 칸이 아니라 «점으로 이은 글자 줄»이고 사장님이 고르셨다.
+#   ★520px 이하에서 두 줄 — 한 줄 폭이 약 412px 이라 481px 에서 겨우 들어간다(코워크 정정).
+#     480 으로 두면 481~520 구간에서 가운데 점이 줄 끝에 매달린다.
+#   ★index·inquiry·privacy 는 손대지 않는다 — 문장 속 인라인 방식이고 「통일하지 말 것」이다.
+chk 'PAR_FOOTER_GROUP' parents.html 4
+chk 'max-width:520px' parents.html 1
+# ★[FOOTER_WORDSET] footer-parity ① 을 «줄 단위»에서 «낱말 묶음»으로 바꿨다 — 이 검사가 태어난
+#   이유는 «줄이 통째로 빠짐·표기 표류·대비»이지 «줄 배치»가 아니다. 면마다 줄을 어떻게 나누는지는
+#   그 면의 사정이다. ★빠짐은 그대로 잡는다 — 「대표 정희준」을 지워 반증했다(그 낱말을 집어 빨강).
+chk 'FOOTER_WORDSET' scripts/audit/footer-parity.mjs 1
+
+# ★★[RHYTHM_G2 2026-09-25 사장님 「섹션 간의 간격을 좀 더 벌리고 싶어」 · 선택 «g2»]
+#   --gap 둘만 바꿨다(104→152 · 680px 이하 80→112). 장 전환 +32px 상수·.divider 구조는 그대로.
+#   기본 경계 200/248 → 264/344 · 장 전환 264/312 → 328/408. 안쪽 113px 대비 2.2배 → **3.0배**.
+#   ★section-rhythm.mjs 의 EXPECT 를 «같은 커밋에서» 고쳤다. 먼저 안 고치고 돌려 빨강을 본 뒤
+#     고쳤다(반증) — 실측이 정확히 264/328 · 344/408 로 나왔다.
+chk 'RHYTHM_G2' index.html 2
+chk 'RHYTHM_G2' scripts/audit/section-rhythm.mjs 1
+chk 'RHYTHM_G2' .claude/skills/momentedit-design/SKILL.md 1
+
+# ★★[CONTRACT_FOOTER_AA 2026-09-25] 계약서 두 면의 푸터 글자가 3.12:1 이었다.
+#   이 두 면은 footer-parity 대상이 아니라 **아무 검사도 이 자리를 안 보고 있었다.**
+#   parents 푸터와 같은 값(5.11:1)으로. 문구·자리표시는 한 글자도 안 바꿨다.
+#   ★명세에 없던 .f-ver(판본 줄)도 같은 색이라 함께 고쳤다 — 같은 면·같은 결함.
+chk 'CONTRACT_FOOTER_AA' contract/v1-1.html 2
+chk 'CONTRACT_FOOTER_AA' contract/snap-v1-0.html 2
+nochk 'rgba\(255,255,255,0.34\)' contract/v1-1.html
+nochk 'rgba\(255,255,255,0.34\)' contract/snap-v1-0.html
+# [CONTRACT_TITLE_BALANCE] 조항 제목 마지막 줄에 한 낱말만 남던 것 — text-wrap:balance
+chk 'CONTRACT_TITLE_BALANCE' contract/v1-1.html 1
+chk 'CONTRACT_TITLE_BALANCE' contract/snap-v1-0.html 1
+
+# ★★2편 ⑦ 자잘한 것 — 화면에 없는 것이 Tab 을 먼저 가져가던 것들
+# [SEO_BLOCK_NOTAB] 1px 로 잘린 SEO 블록의 링크 11개가 Tab 순서 맨 앞에 있었다.
+#   tabindex="-1" 은 «포커스만» 뺀다 — 검색엔진·화면낭독기는 그대로 읽는다(그 블록의 목적).
+chk 'SEO_BLOCK_NOTAB' invitation-gallery.html 2
+nochk 'gv-meta-num\{[^}]*color:var\(--gold\)' invitation-gallery.html
+# [LIVE_MAIN] <main> 이 없어 «본문으로 건너뛰기» 표적이 없었다(axe landmark-one-main).
+chk 'LIVE_MAIN' live.html 1
+# [SEAT_STATE_H1] 오류·만료 화면에 h1 이 하나도 없었다. 상태 문장이 그 화면의 제목이다.
+chk 'SEAT_STATE_H1' seat.html 1
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html
