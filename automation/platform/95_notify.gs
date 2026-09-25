@@ -174,7 +174,10 @@ function _kakaoSend(to, event, code, extra, opts) {
   var cust = null;
   try { cust = findCustomerByCode(String(code || '').trim()); } catch (e) {}
   if (!cust) { Logger.log('[notify] 고객 조회 실패: ' + code + ' — 발송 생략'); return false; }
-  var phone = String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
+  /* [PHONE_KR_NORM] 이미 시트에 들어간 82… 행도 여기서 살린다 — 아래 자를 통과시키려고
+     모양을 «만드는» 것이 아니라, 같은 번호의 다른 표기를 같게 읽는 것이다(00_platform-config). */
+  var phone = (typeof _phoneKR === 'function') ? _phoneKR(cust.get('연락처'))
+                                              : String(cust.get('연락처') || '').replace(/[^0-9]/g, '');
   if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
     var _csMark = '[CONTACT_SILENT]';   // 배포 점검 표식 — 지우지 말 것(99_deployCheck 가 이 줄을 읽는다)
     /* ★★[CONTACT_SILENT 2026-09-21 사장님 지적에서 드러났다] 종전엔 Logger 한 줄만 남기고 조용히 끝냈다 · 되돌리지 말 것.

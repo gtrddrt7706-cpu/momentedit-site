@@ -8359,6 +8359,31 @@ chk 'HOLD_DROP_ON_ROLLBACK' automation/platform/95_notify.gs 1
 chk 'HOLD_DROP_ON_ROLLBACK' automation/admin/admin.gs 2
 chk 'SERVED_OURS' scripts/audit/hold-drop.mjs 1
 
+# ★★[PHONE_KR_NORM 2026-09-25 사장님 「오류발생」 · ⚠ 연락처 형식이 이상해요 · 821 0734 9770]
+#   아이폰이 자동완성한 `+82 10-…` 이 시트에 그대로 앉았고, 95_notify 의 발송 자
+#   (/^01[016789][0-9]{7,8}$/)가 82… 를 떨어뜨려 **그 고객 알림이 전부 생략**됐다.
+#   야간 보류 큐의 것도 아침마다 같은 자에서 떨어져 실패로 남아 관리자 메일이 됐다.
+#   종전 두 판은 «드러내기»(CONTACT_SILENT 메일)와 «고치기»(연락처 정정 화면)뿐 —
+#   둘 다 사람 손이 필요하고 다음 고객에게 또 난다. 이번 판은 «막기»다.
+#   ★되살릴 수 없는 값은 되살리지 않는다 — 010 은 처음부터 11자리로 태어난 번호라
+#     82 를 떼서 「010 + 7자리」가 나오면 숫자 하나가 빠진 것이고, 그걸 그럴싸하게 만들면
+#     **남의 번호로 예식 알림이 나간다.** 실측: 시트의 `821 0734 9770` 은 11자,
+#     온전한 `+82 10-7349-9770` 은 12자다. 아무도 복원할 수 없는 값이었다.
+#   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/phone-kr-norm.mjs >/dev/null 2>&1; _pk=$?
+  case "$_pk" in
+    0) echo 'ok phone-kr-norm: +82 표기를 국내표기로 · 복원 불가 값은 그대로 두고 드러낸다 (배선 5곳 포함)' ;;
+    1) echo 'FAIL phone-kr-norm: 휴대폰 번호 정규화가 틀렸습니다 — node scripts/audit/phone-kr-norm.mjs'; fail=1 ;;
+    *) echo 'ok phone-kr-norm: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'PHONE_KR_NORM' scripts/audit/phone-kr-norm.mjs 2
+chk 'PHONE_KR_NORM' automation/platform/00_platform-config.gs 2
+chk 'PHONE_KR_NORM' automation/platform/40_signup.gs 1
+chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
+chk 'PHONE_KR_NORM' automation/admin/admin.gs 3
+chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
+
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
 #     부딪히는 사실 없음. 신부의 「오늘은 이렇게 먼저」는 예식 뒤 인사 사진에서 실제로 자리를 도는 것과 맞다.

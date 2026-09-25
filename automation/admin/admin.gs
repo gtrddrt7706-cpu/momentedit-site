@@ -1392,7 +1392,10 @@ function _setContactCore(code, phone, email, reason, dry) {
 
   var curP = String(cust.get('연락처') || '').trim();
   var curE = String(cust.get('이메일') || '').trim();
-  var newP = String(phone == null ? '' : phone).replace(/[^0-9]/g, '');
+  /* [PHONE_KR_NORM] 관리자가 «화면에 보이는 대로»(+82 10-7349-9770) 붙여넣어도 통과해야 한다 —
+     고치라고 만든 화면이 그 값을 다시 거절하면 고칠 길이 없다. */
+  var newP = (typeof _phoneKR === 'function') ? _phoneKR(phone)
+                                             : String(phone == null ? '' : phone).replace(/[^0-9]/g, '');
   var newE = String(email == null ? '' : email).trim();
 
   var set = {}, lines = [];
@@ -1430,7 +1433,7 @@ function _setContactCore(code, phone, email, reason, dry) {
   }
   if (!lines.length) return { ok: true, already: true, message: '바뀌는 값이 없습니다.' };
 
-  var wasSilent = !/^01[016789][0-9]{7,8}$/.test(curP.replace(/[^0-9]/g, ''));
+  var wasSilent = !/^01[016789][0-9]{7,8}$/.test((typeof _phoneKR === 'function') ? _phoneKR(curP) : curP.replace(/[^0-9]/g, ''));   // [PHONE_KR_NORM] 95_notify 와 같은 자로 봐야 «조용했다»가 맞는다
   if (dry) {
     return { ok: true, preview: true, changes: lines, wasSilent: wasSilent,
       note: wasSilent ? '★지금 연락처는 형식이 맞지 않아 이 고객에게 알림톡이 «전부 생략»되고 있었습니다. 고치면 이후 알림부터 나갑니다.' : '' };
@@ -1487,7 +1490,9 @@ function adminSilentContacts() {
     if (!code) continue;
     var stage = String(vals[i][cS - 1] || '').trim();
     if (stage === '종료' || stage === '아카이브') continue;      // 끝난 고객은 알림이 없다
-    var p = String(vals[i][cP - 1] || '').replace(/[^0-9]/g, '');
+    /* [PHONE_KR_NORM] 95_notify 의 발송 자와 «같은 자»로 본다 — 여기가 더 엄하면
+       실제로는 알림이 나가는 고객을 «조용하다»고 목록에 올려, 관리자가 멀쩡한 번호를 고치게 된다. */
+    var p = (typeof _phoneKR === 'function') ? _phoneKR(vals[i][cP - 1]) : String(vals[i][cP - 1] || '').replace(/[^0-9]/g, '');
     if (/^01[016789][0-9]{7,8}$/.test(p)) continue;              // 정상
     out.push({ code: code, names: (String(vals[i][cG - 1] || '') + ' · ' + String(vals[i][cB - 1] || '')).trim(),
       stage: stage, phone: String(vals[i][cP - 1] || ''), why: p ? '형식 불일치' : '비어 있음' });
