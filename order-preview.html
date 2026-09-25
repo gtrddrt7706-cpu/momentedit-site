@@ -2046,7 +2046,7 @@ function _mtlEdge(rail){
 /* [ORD_INTRO2] 안내 ①/2 — '우리가 만드는 게 뭔가'. 제목 · 한 줄 · 하루의 흐름 그림, 딱 셋. */
 function renderIntro(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">우리 예식, 우리가 만들어요</h2>';   // [ORD_H2]
-  h+='<div class="intro-lead">본식은 담은 순간에 따라 15~30분쯤이에요. 순서와 나레이션 대본은 저희가 맞춰 드려요.</div>';   // [OPEN_COURSE] 명세 8장 · 옛 16~25분은 코스 셋의 범위였다   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
+  h+='<div class="intro-lead">본식은 담은 순간에 따라 12~25분쯤이에요. 순서와 나레이션 대본은 저희가 맞춰 드려요.</div>';   // [OPEN_COURSE] 명세 8장 · 옛 16~25분은 코스 셋의 범위였다   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
   // [ORD_TIMEBUDGET] 본식은 벽이 아니라 사진과 맞바꾸는 예산이다(2026-08-01 사용자 확인:
   //   "많이 늦어지거나 줄어들지만 않으면 ±10분 정도 괜찮다 · 사진을 좀 늘리거나 줄이면 되니까").
@@ -2059,7 +2059,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['50분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20 · 입장 준비 5'],['15~30분쯤','본식','The Ceremony','담은 순간에 따라',true],['20~35분쯤','인사 사진','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['50분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20 · 입장 준비 5'],['12~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['25~38분쯤','인사 사진','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
@@ -3746,7 +3746,8 @@ function _ordPayload(fin){
      예시에서 시작했으면 그 이름도 싣는다(«‹가족› 예시에서 시작»). 옛 코스 요약은 한 글자도 안 바뀐다. */
   if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
     _sm.open=true; _sm.moments=RitualOpen.picked(S).length; _sm.photo=_sp.photo; _sm.from=_ex?_ex.nm:'';
-    _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])]; }   // [PHOTO_CAP_RD] 마이페이지 단체 사진 상한이 이 초로 센다(엔진을 안 읽으므로)
+    _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])];
+    _sm.prep=RitualOpen.prepList(S); _sm.helpers=RitualOpen.helpersOf(S,{}); }   // [PREP_LIST] 마이페이지 준비 목록(P8) — 식사 안내 분은 마이페이지가 애프터 웨딩을 보고 더한다   // [PHOTO_CAP_RD] 마이페이지 단체 사진 상한이 이 초로 센다(엔진을 안 읽으므로)
   return {S:S, summary:_sm};
 }
 function _embedSave(){

@@ -1574,7 +1574,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행' assets/ritual-data.js 2   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2049,6 +2049,31 @@ chk 'ref-time' scripts/check-source-drift.mjs 1
 # [SLOT_CLOCK 2026-09-25] 표 밖의 예식 시각(마이페이지 D-day·임시고정·관리자·청첩장·라이브·알림톡)은 슬롯 ID(13:20)를
 #   본예식으로 찍고 있었다 — 8/9 부터 5분 어긋남. 이제 SLOT_CLOCK 한 표를 거치고, drift (6-b)가 여섯 벌을 DAY 로 잰다.
 chk 'SLOT_CLOCK' scripts/check-source-drift.mjs 2
+# ── [검토회신3 2026-09-25 코워크 회신 2장 · 사장님 결정] ──
+chk "v1-8.html" mypage.html 1                     # [CONTRACT_V19] v1.8 서명자 보존본 경로
+chk "archive/v1-8.html" admin.html 1               # 관리자도 같은 보존본(v1.6·v1.7 도 함께 빠져 있었다)
+chk 'Private Snap (45분)' contract/archive/v1-8.html 1   # v1.8 보존본은 옛 시간 그대로여야 한다
+chk 'Private Snap (50분)' contract/v1-1.html 1
+chk "'갑'이 직접 준비한 순서" contract/v1-1.html 1
+nochk '부케·생화 커스텀' contract/v1-1.html            # 별도 비용 칸에서 뺐다 — 저희가 받는 돈이 아니다
+chk 'FREE_NEUTRAL' assets/ritual-open.js 1
+nochk "두 분을 위해 준비한 영상이 있습니다" assets/ritual-open.js
+nochk "두 분께 건넬 선물이 있습니다" assets/ritual-open.js
+chk 'BOUQUET_FLORIST' index.html 1
+chk 'BOUQUET_FLORIST' api/_kb.js 1
+nochk '생화 부케를 주문해 드' index.html
+nochk '생화 부케를 주문해 드' api/_kb.js
+chk 'NO_HANBOK_SHOT' api/_kb.js 1
+nochk '직접 준비해 오시면 착용하고 촬영' assets/advisor-kb.js
+chk 'GLASS_READY' assets/ritual-data.js 2
+nochk '편지 낭독 중 하객 잔 미리 채움' assets/ritual-data.js
+chk 'RANGE_EX4' assets/ritual-open.js 1
+chk 'EXT_SYNTAX' scripts/audit/render-check.mjs 1   # 외부 스크립트 구문 — 꼬리 주석이 쉼표를 삼킨 사고(advisor-kb)
+chk 'PARENTS_TIME' parents.html 1
+chk 'PARENTS_TIME' scripts/check-source-drift.mjs 1
+chk 'PREP_LIST' mypage.html 2
+chk 'prepList' order-preview.html 1
+chk 'BOUQUET_FLORISTS' mypage.html 2
 chk 'SLOT_CLOCK' mypage.html 5
 chk 'slotClock(c.weddingTime)' shared/hydrate.js 1
 chk 'slotKo(x.slot)' automation/platform/95_notify.gs 4
@@ -2064,8 +2089,8 @@ nochk "'>'+LABELS\[t\]+' '+t+'</option>'" mypage.html
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '15~30m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 15~30 (스냅 50 · (가) 안)
-chk '20~35m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 20~35 · 두 시간의 합 50분
+chk '12~25m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 12~25 (스냅 50 · (가) 안)
+chk '25~38m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 25~38 [RANGE_EX4] · 두 시간의 합 50분
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
 #   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
@@ -2087,7 +2112,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -3646,8 +3671,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1.8' contract/v1-1.html 5   # [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.8'" automation/platform/70_journey.gs 1
+chk 'v1.9' contract/v1-1.html 5   # [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
