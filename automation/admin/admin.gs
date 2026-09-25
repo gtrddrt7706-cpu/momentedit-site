@@ -869,22 +869,44 @@ function adminHome() {
     var _wd = _ymdOf(cget(rv, '예식일')) || _ymdOf((_crRec.계약정보 || {}).weddingDate); if (!_wd) return;   // 예식일 셀 빈값(스냅 등)이면 동의기록 폴백
     var _dd = _dayDiff(_wd, today);   // 예식까지 남은 일수
     var _pend = function (h) { var v = String(cget(rv, h) || '').trim(); return v === '' || v === '대기'; };   // 미납 = 빈값 포함(시트는 신호 전까지 빈칸 — '대기' 문자열만 보면 영구 미탐지)
+    /* ★★[UNPAID_KIND 2026-09-25 사장님 「중도금 고객인데 아직 입금도 안 했는데 처리할 일에 중도금확인이 떠 있는 건 왜?」 · 되돌리지 말 것]
+       ①이 자리(«입금 신호 없는» 기한 알림)가 고객이 «입금했어요»를 누른 카드와 같은 이름(중도금확인·잔금확인·중도금잔금확인)과
+         같은 «중도금 확인» 버튼을 썼다 → 입금 안 한 고객이 «입금 확인 대기»로 보였다. 이름을 «…미납»으로 가른다.
+         (고객이 신호 없이 이체하는 경우가 있어 확인 버튼은 남긴다 — 통장을 보고 누르는 버튼이라 라벨만 «입금 확인»)
+       ②기한을 예식 D-149·D-9 로만 쟀다 → 149일 안에 맺은 임박 계약은 «서명하는 날 이미 D+87»로 빨간 «해제 절차» 카드가 떴다.
+         고객 화면은 이 경우 기한 대신 «계약 시 함께 납부»라고 말한다(70_journey _midDuePast · 기한일 < 서명일).
+         → 기한이 서명 전에 이미 지났으면 «서명일»을 기한으로 센다. 그리고 계약금이 아직 확인 전이면 이 카드는 띄우지 않는다 —
+           임박 계약의 중도금은 계약금과 함께 내는 돈이라, 그동안은 계약금(입금확인) 카드가 그 일을 맡는다. */
+    var _unpaidMk = '[UNPAID_KIND]';
+    var _signedYmd = _ymdOf(cget(rv, '계약서명일시'));
+    var _depOk = (입금 === '확인');
+    var _dueOf = function (daysBefore) {   // → { over: 기한부터 오늘까지(0=기한 당일) , imminent: 서명일을 기한으로 셌나 }
+      var _d = _shiftYmd(_wd, -daysBefore);
+      var _imm = !!(_signedYmd && _d && _d < _signedYmd);
+      return { over: _dayDiff(today, _imm ? _signedYmd : _d), imminent: _imm };
+    };
     if (!isSnap && _pend('중도금상태') && !String(cget(rv, '중도금입금신호') || '').trim() && _dd != null && _dd <= PAYMENT.중도금일수전 && _dd > PAYMENT.잔금일수전) {
-      var _over = PAYMENT.중도금일수전 - _dd;   // 0=기한 당일(고객 리마인더와 같은 날 관리자도 인지) · 1~=기한 경과
-      pushQ({ code: code, names: names, product: product, kind: '중도금확인',
-        sub: _over === 0 ? '중도금 기한일(오늘) · 입금 확인 대기' : ('중도금 미납 D+' + _over + ' · 7일 최고 후 해제 절차(계약 11조)'),
-        badge: _over === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
-        _urgent: _over > 0, _stage: 5, _wait: createdYmd });
+      var _m = _dueOf(PAYMENT.중도금일수전), _over = _m.over;   // 0=기한 당일(고객 리마인더와 같은 날 관리자도 인지) · 1~=기한 경과
+      if (!(_m.imminent && !_depOk) && _over != null && _over >= 0) {
+        pushQ({ code: code, names: names, product: product, kind: '중도금미납',
+          sub: _m.imminent
+            ? ('중도금 미납 · 계약 시 함께 납부(예식 149일 안 계약)' + (_over === 0 ? ' · 입금 신호 없음' : (' · 서명 D+' + _over + ' · 7일 최고 후 해제 절차(계약 11조)')))
+            : (_over === 0 ? '중도금 기한일(오늘) · 입금 신호 없음 · 통장 확인' : ('중도금 미납 D+' + _over + ' · 입금 신호 없음 · 7일 최고 후 해제 절차(계약 11조)')),
+          badge: _over === 0 ? { level: 'yellow', text: _m.imminent ? '입금 대기' : '기한 당일' } : { level: 'red', text: '기한 경과' },
+          _urgent: _over > 0, _stage: 5, _wait: createdYmd });
+      }
     }
     var _balDays = isSnap ? PAYMENT.잔금일수전_스냅 : PAYMENT.잔금일수전;   // [SNAP_BALANCE_D7] 스냅 잔금은 촬영 D-7(계약서 §4)
-    if (_pend('잔금상태') && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= _balDays) {
-      var _over2 = _balDays - _dd;   // 기한 당일부터 노출 — 중도금 카드(기한 초과 구간)와 빈틈 없이 이어짐
+    var _b2 = _dueOf(_balDays);   // [UNPAID_KIND] 잔금도 같은 자로 — 9일 안 계약이면 서명일부터 센다
+    if (_pend('잔금상태') && !String(cget(rv, '잔금입금신호') || '').trim() && _dd != null && _dd <= _balDays
+        && !(_b2.imminent && !_depOk) && _b2.over != null && _b2.over >= 0) {
+      var _over2 = _b2.over;   // 기한 당일부터 노출 — 중도금 카드(기한 초과 구간)와 빈틈 없이 이어짐
       // [B-7] 잔금 기한 이내 중도금까지 통미납이면 합산 1카드 — 고객 화면(묶음 입금 안내)·확인 처리(중도금잔금확인)와 짝
       var _midAlso = !isSnap && _pend('중도금상태') && !String(cget(rv, '중도금입금신호') || '').trim();
       var _ovLbl = _midAlso ? '중도금·잔금' : '잔금';
       var _ovAmt = (_midAlso && _crAmt) ? (' · ' + Math.round(_crAmt['중도금'] + _crAmt['잔금']).toLocaleString() + '원 (한 번에 입금 안내됨)') : '';
-      pushQ({ code: code, names: names, product: product, kind: _midAlso ? '중도금잔금확인' : '잔금확인',
-        sub: _over2 === 0 ? (_ovLbl + ' 기한일(오늘) · 입금 확인 대기' + _ovAmt) : (_ovLbl + ' 미납 D+' + _over2 + _ovAmt + ' · 7일 최고 후 해제 절차(계약 11조)'),
+      pushQ({ code: code, names: names, product: product, kind: _midAlso ? '중도금잔금미납' : '잔금미납',   // [UNPAID_KIND]
+        sub: _over2 === 0 ? (_ovLbl + ' 기한일(오늘) · 입금 신호 없음' + _ovAmt) : (_ovLbl + ' 미납 D+' + _over2 + _ovAmt + ' · 입금 신호 없음 · 7일 최고 후 해제 절차(계약 11조)'),
         badge: _over2 === 0 ? { level: 'yellow', text: '기한 당일' } : { level: 'red', text: '기한 경과' },
         _urgent: _over2 > 0, _stage: 6, _wait: createdYmd });
     }
@@ -892,9 +914,9 @@ function adminHome() {
     //   위 두 분기(중도금 기한 초과 구간 · 잔금 미납)를 모두 비켜가 카드가 0장이 됨 — 중도금 단독 카드로 메움
     if (!isSnap && _pend('중도금상태') && !String(cget(rv, '중도금입금신호') || '').trim()
         && String(cget(rv, '잔금상태') || '').trim() === '확인' && _dd != null && _dd <= PAYMENT.잔금일수전) {
-      var _overM = PAYMENT.중도금일수전 - _dd;
-      pushQ({ code: code, names: names, product: product, kind: '중도금확인',
-        sub: '중도금 미납 D+' + _overM + ' (잔금은 확인됨) · 7일 최고 후 해제 절차(계약 11조)',
+      var _overM = _dueOf(PAYMENT.중도금일수전).over;   // [UNPAID_KIND] 임박 계약이면 서명일부터
+      pushQ({ code: code, names: names, product: product, kind: '중도금미납',
+        sub: '중도금 미납 D+' + _overM + ' (잔금은 확인됨) · 입금 신호 없음 · 7일 최고 후 해제 절차(계약 11조)',
         badge: { level: 'red', text: '기한 경과' }, _urgent: true, _stage: 5, _wait: createdYmd });
     }
     })();

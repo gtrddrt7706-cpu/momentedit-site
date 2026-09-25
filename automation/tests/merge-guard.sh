@@ -8488,6 +8488,21 @@ chk 'SERVED_OURS' scripts/audit/tel-autofill.mjs 1
 chk 'REVIEW_EXIT_HIDE' automation/admin/admin.gs 1
 chk 'REVIEW_EXIT_HIDE' scripts/audit/survey-notes.mjs 1
 
+# ★★[UNPAID_KIND 2026-09-25 사장님 「중도금 고객인데 아직 입금도 안 했는데 처리할 일에 중도금확인이 떠 있는 건 왜?」]
+#   입금 신호 없는 기한 카드가 고객 입금 신호 카드와 같은 이름(중도금확인·잔금확인·중도금잔금확인)·같은 확인 버튼이었고,
+#   149일 안에 맺은 임박 계약은 서명하는 날 «미납 D+87 · 해제 절차» 빨강이 떴다. 실제 adminHome 으로 재서 지킨다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/unpaid-kind.mjs >/dev/null 2>&1; _uk=$?
+  case "$_uk" in
+    0) echo 'ok unpaid-kind: 신호 없는 기한 카드 = «…미납» · 임박 계약은 서명일부터 · 관리자 화면 두 벌이 새 이름을 안다' ;;
+    1) echo 'FAIL unpaid-kind: 미납 카드와 입금 확인 카드가 다시 섞였거나 임박 계약 기한이 틀렸습니다 — node scripts/audit/unpaid-kind.mjs'; fail=1 ;;
+    *) echo 'ok unpaid-kind: 재지 못했습니다(세계·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'UNPAID_KIND' automation/admin/admin.gs 3
+chk 'UNPAID_KIND' admin.html 1
+chk 'UNPAID_KIND' automation/admin/Admin.html 1
+chk 'SERVED_OURS' scripts/audit/unpaid-kind.mjs 1
+
 # ★[HOLD_PREFILL_CHANGE 2026-09-25 사장님 「변경 가능하다는 멘트가 있으면 문의를 하나 줄일 수 있겠다」]
 #   계약서 요청 화면 — 임시 고정 일정으로 채운 날짜·시간 «바로 아래»에서 바꿔도 되는지·바꾸면 어떻게 되는지를 답한다.
 chk 'HOLD_PREFILL_CHANGE' mypage.html 1
