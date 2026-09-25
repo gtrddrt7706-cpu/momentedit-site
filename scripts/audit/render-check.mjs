@@ -40,6 +40,22 @@ for (const f of PAGES) {
   else console.log(`  ✅ ${f} (${r.blocks} blocks)`);
 }
 
+// ---------- 1-b) 외부 스크립트(assets/*.js · api/*.js) 구문 [EXT_SYNTAX 2026-09-25] ----------
+// ★실사고: advisor-kb.js 항목 뒤에 꼬리 주석을 달다 쉼표를 주석 안으로 넣었다. 1)은 인라인만 봐서 초록이었고,
+//   브라우저 단계에서 «Unexpected token» 한 줄(파일 이름 없음)로만 드러났다. 이제 파일 이름으로 잡는다.
+{
+  const dirs = ['assets', 'api', 'shared'];
+  for (const d of dirs) {
+    const abs = path.join(SITE, d); if (!fs.existsSync(abs)) continue;
+    for (const f of fs.readdirSync(abs).filter((x) => x.endsWith('.js'))) {
+      const src = fs.readFileSync(path.join(abs, f), 'utf8');
+      if (/^\s*(import|export)\s/m.test(src)) continue;   // ES 모듈(서버 함수)은 new Function 으로 못 잰다
+      try { new Function(src); } catch (e) { synFail++; console.log(`  ❌ ${d}/${f}: ${e.message}`); }
+    }
+  }
+  console.log('  · 외부 스크립트 구문 검사 끝');
+}
+
 // ---------- 2) 브라우저 렌더(playwright 우선·puppeteer 폴백 — _browser.mjs) ----------
 const { launchBrowser } = await import('./_browser.mjs');
 const eng = await launchBrowser();

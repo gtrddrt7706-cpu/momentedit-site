@@ -556,6 +556,14 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    실측 사용 0건이었다. 되살리려면 카드 UI 자체를 되살려야 하는데 그건 사용자 결정으로 폐지된 것이다.
    카드 대신 쓰는 요청 상자 규칙은 위 .wsh-* 다. */
 /* ★스냅 무드 색 타일(.smt*) CSS 폐지 — 2026-07-20 사용자 지시("느낌이 안 오고 별로 · 어떤 작가여도 도움되는 정보 위주로"). 추상 색 스와치 대신 인물·관계·각도 등 실무 브리핑으로 전환. 리뷰·복구에서 되살리지 말 것. */
+.rit-prep{border-bottom:1px solid var(--border);padding:2px 2px 10px;text-align:left}
+.rit-prep>summary{cursor:pointer;list-style:none;font-size:12.5px;color:var(--sub);padding:10px 0;min-height:44px;box-sizing:border-box;display:flex;align-items:center;gap:6px}
+.rit-prep>summary::-webkit-details-marker{display:none}
+.rit-prep>summary::after{content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 4px}
+.rit-prep[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
+.rit-prep h4{font-size:12px;font-weight:500;color:var(--text);margin:8px 0 4px}
+.rit-prep ul{margin:0;padding:0 0 0 16px;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.rit-prep .due{color:var(--label-soft);white-space:nowrap}
 .trk-sub{font-size:12px;color:var(--label-soft);text-align:left;padding:3px 2px 11px;margin-top:0;border-bottom:1px solid var(--border);line-height:1.6;word-break:keep-all}
 .trk-panel{text-align:left;padding:12px 2px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:0 0 8px 8px;padding-left:12px;padding-right:12px}   /* 행 버튼으로 여닫는 내용 패널(확인서·하객 안내) — 행과 같은 리듬, 살짝 다른 바탕으로 소속 표시 */
 .trk-sep{display:flex;align-items:center;gap:10px;margin:20px 0 2px;color:var(--label-soft);font-size:11px;letter-spacing:.14em;font-weight:600}   /* 준비 트랙과 확인·전달(하객 안내·예식 확인서) 구분 — 성격이 달라 섞여 보이던 것 분리(2026-07-18 사용자 지시) */
@@ -1586,7 +1594,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.5') return '/contract/archive/v1-5.html';   // [CONTRACT_V16] v1.5 서명자는 AI 음성 안내 확인 줄이 없던 보존본으로 열람(서명 안 한 줄이 '확인했습니다'로 보이면 안 된다)
   if(v==='v1.6') return '/contract/archive/v1-6.html';   // [PRICE_2026_08] 인상 전(280/210만) 서명자는 그 금액이 적힌 보존본으로 열람
   if(v==='v1.7') return '/contract/archive/v1-7.html';   // [PRICE_2026_08_15] 평일 240만 서명자(8/14~8/15 이틀 창) — 창이 짧다고 빼지 말 것. 한 분이라도 있으면 새 금액 문서를 보게 된다
-  return '/contract/v1-1.html';   // 현행(v1.8) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  if(v==='v1.8') return '/contract/archive/v1-8.html';   // [CONTRACT_V19] v1.8 서명자는 스냅 45 · 본식 16~25 · 합 55 · «부케·생화 커스텀» 이 적힌 보존본으로
+  return '/contract/v1-1.html';   // 현행(v1.9) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -5286,6 +5295,36 @@ function updateCover(){
   var el=$('mp_cover'); if(el) el.textContent = (g||b) ? ('표지: '+g+(g&&b?' & ':'')+b) : '';
 }
 var _cfOpenNext=false;   // 확인 저장 직후 재렌더에서 확인서 패널을 열어 '확인하셨어요' 배너가 보이게(1회 소비)
+/* ★[PREP_LIST 2026-09-25 코워크 P8 · 사장님 «만듭니다»] 식순 행 아래 접힌 «두 분 준비 · 도와주실 분».
+   원천은 빌더와 같은 prepOf · helpersOf — 빌더가 저장할 때 summary.prep · summary.helpers 로 싣는다(이 파일은 ritual-open 을 안 싣는다).
+   마감 = 예식일 − due(7일 · 사흘). 옛 초안(prep 없음)은 아무것도 그리지 않는다. 식사 자리 안내 분은 애프터 웨딩을 고른 날만 더한다. */
+/* ★[BOUQUET_FLORIST 2026-09-25 사장님 둘째 결정 · 코워크 2-2] 부케 = 협력 플로리스트 «소개». 주문 · 결제는 두 분과 플로리스트 사이.
+   저희가 안내하는 것은 받는 시각(두 분 도착 10분 전)과 장소뿐이다. ★목록은 사장님이 주시면 여기 넣는다 —
+   비어 있는 동안 이 칸은 **그리지 않는다**(칸만 만들고 숨김). 항목: {n:'이름', url:'https://…', note:'한 줄'} */
+var BOUQUET_FLORISTS=[];
+function _bouquetFold(base){
+  if(!BOUQUET_FLORISTS.length) return '';
+  var t=String((base&&base.weddingTime)||'').slice(0,5), m=t.match(/^(\d{2}):(\d{2})$/), when='';
+  if(m){ var a=(+m[1])*60+(+m[2])-60-10; if(/^(09:00|12:20|15:40)$/.test(t)) a+=60; when=String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0'); }   // 슬롯 ID(도착+60) · 계약 슬롯(도착) 둘 다
+  return '<details class="rit-prep"><summary>부케 · 협력 플로리스트</summary>'
+    +'<ul>'+BOUQUET_FLORISTS.map(function(f){ var u=safeUrl?safeUrl(f.url):''; return '<li>'+(u?'<a href="'+escapeHtml(u)+'" target="_blank" rel="noopener">'+escapeHtml(f.n)+'</a>':escapeHtml(f.n))+(f.note?' <span class="due">· '+escapeHtml(f.note)+'</span>':'')+'</li>'; }).join('')+'</ul>'
+    +'<h4>받는 시각 · 장소</h4><ul><li>예식 당일 '+(when?escapeHtml(when)+'까지':'두 분 도착 10분 전까지')+' · 스튜디오로 보내 주세요 <span class="due">· 퀵이나 직접 가져오기 모두 괜찮아요</span></li>'
+    +'<li>주문 · 결제는 플로리스트와 직접 하시면 돼요</li><li>부케 없이 오시거나 따로 준비하셔도 괜찮아요</li></ul></details>';
+}
+function _ritPrepFold(rd, base, dd){
+  var sm=rd&&rd.summary; if(!sm||!sm.open||!(sm.prep||sm.helpers)) return '';
+  var wm=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  function dueTxt(n){ if(!wm) return n===3?'사흘 전까지':'7일 전까지'; var d=new Date(+wm[1],+wm[2]-1,+wm[3]-n); return (d.getMonth()+1)+'월 '+d.getDate()+'일까지('+(n===3?'사흘 전':'7일 전')+')'; }
+  var two=[], par=[];
+  (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*사흘 전까지$/,''); var li='<li>'+escapeHtml(w)+' <span class="due">· '+escapeHtml(dueTxt(q.due===3?3:7))+'</span></li>'; (q.who==='parents'?par:two).push(li); });
+  var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
+  var n=two.length+par.length+hp.length; if(!n) return '';
+  return '<details class="rit-prep"><summary>두 분 준비 · 도와주실 분 '+n+'가지</summary>'
+    +(two.length?'<h4>두 분 준비</h4><ul>'+two.join('')+'</ul>':'')
+    +(par.length?'<h4>부모님께 여쭐 것</h4><ul>'+par.join('')+'</ul>':'')
+    +(hp.length?'<h4>도와주실 분</h4><ul>'+hp.map(function(x){ return '<li>'+escapeHtml(String(x[0]))+' <span class="due">· '+escapeHtml(String(x[1]))+'</span></li>'; }).join('')+'</ul>':'')
+    +'</details>';
+}
 function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};
   t=t||{}; inv=inv||{};
@@ -5364,7 +5403,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리듣기'}; }catch(e){}
   var _prepRows=[
     { done: ist==='완료', html: row('청첩장', ist, 'mp_invStart', ilabel, null, {tag:_ivStepTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },
+    { done: true, html: _ritPrepFold(rd, base, dd) },
+    { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
@@ -8417,7 +8458,7 @@ var DN_PRESETS=[
 ];
 // 예식 후 가볼 만한 곳 — 향동 기준 디렉터 큐레이션(지도 검색이 빈약한 동네라 고정 추천). 거리·설명은 디렉터가 다듬을 수 있음.
 var DN_ATTRACTIONS=[
-  {n:'서오릉', t:'사적·솔숲 산책', d:'차로 10분', desc:'조선왕릉 솔숲길. 한복·예복 차림 산책과 가족 사진에 좋아요.'},
+  {n:'서오릉', t:'사적·솔숲 산책', d:'차로 10분', desc:'조선왕릉 솔숲길. 예복 차림 산책과 가족 사진에 좋아요.'},
   {n:'북한산 둘레길 구름정원길', t:'가벼운 숲길', d:'차로 10~15분', desc:'경사 완만한 데크길. 어르신도 부담 없이 짧게 걷기 좋아요.'},
   {n:'하늘공원·노을공원', t:'한강뷰·억새', d:'차로 15분', desc:'한강과 도심을 내려다보는 억새 언덕. 노을 사진 명소예요.'},
   {n:'행주산성 역사공원', t:'역사·전망', d:'차로 15분', desc:'한강이 내려다보이는 산성길. 완만해 가족 나들이로 무난해요.'},

@@ -203,10 +203,13 @@
      사이트 · 빌더 안내 · AI 상담 · 진행표가 모두 이 값을 쓴다(scripts/check-source-drift.mjs 가 열 벌을 대조).
      ★«쯤»인 까닭 — 빈 채(입장·닫는 인사만)는 2~3분이고, 가장 긴 조합의 넉넉 합은 30.5분이다.
        예시 넷(11~28분)이 모두 이 안에 든다(scripts/audit/open-course.mjs 가 전 조합을 잰다). */
-  /* ★★[SNAP_50 2026-09-25] 스냅 50 으로 합이 55 → 50. 범위는 (가) 안 — 개편과 한 번에 «본식 15~30분쯤 · 사진과 인사 20~35분쯤».
+  /* ★★[SNAP_50 2026-09-25] 스냅 50 으로 합이 55 → 50. 범위는 (가) 안 — 개편과 한 번에 «본식 12~25분쯤 · 사진과 인사 25~38분쯤».
      rep 은 «가운데로 적는 한 칸»(랜딩 카드 · 인사 사진 시작 시각 10:30 = 10:10 + 20)이다. 범위의 산술 가운데(22)가 아니라
      예시 넷의 가운데쯤을 사장님 표(«약 20 · 약 30»)대로 둔다. 검사(check-source-drift)가 이 값을 읽는다. */
-  var RANGE = { body: [15, 30], photo: [20, 35], rep: 20 };
+  /* ★★[RANGE_EX4 2026-09-25 코워크 회신 2-1 (가)] 15~30 · 20~35 → 12~25 · 25~38. «예시 넷 기준»으로 좁혔다
+     (기록 11:33~ · 전부 ~24:41 을 분으로 둥글림 · 둘을 더해 50). 빈 채 · 가장 긴 조합은 이 밖으로 나갈 수 있다 — 띠가
+     그 판의 실제 값을 따로 보여 주므로 이 한 줄은 «대개 이만큼»이다. 가운데 한 칸(rep)은 그대로. */
+  var RANGE = { body: [12, 25], photo: [25, 38], rep: 20 };
   var DAYMIN = 50;   // 본식 + 사진과 인사 = DAY.total − ready − snap − farewell (ritual-data.js [DAY_PLAN]) · open-course.mjs 가 대조
   function rng(x, y) { return x === y ? ('약 ' + x + '분') : ('약 ' + x + '~' + y + '분'); }
   // 띠 한 줄에 필요한 모든 값
@@ -351,10 +354,13 @@
        freeIn.*·freeOut : 준비한 순서 판별 넷(FREE_WHAT · 영상 / 무대 / 선물 / 축사) · 맺는 말은 공통
        freeFail     : 영상 · 음원이 재생되지 않을 때 디렉터가 누르는 한 줄(콘솔 · 곧장 다음 순간으로)
        bowGroom     : 신랑 큰절 판(BOW_GROOM) · toastBothPour : 와인을 붓는 날의 toast-both-b(P2 · «잔이 가는 동안»을 뺀 줄) */
+    /* ★[FREE_NEUTRAL 2026-09-25 코워크 회신 2-6] 영상 · 무대 · 선물은 두 분이 직접 준비한 날도 있다(두 분의 영상 · 춤 ·
+       부모님께 드리는 선물). «두 분을 위해 …» · «두 분께 건넬 …»은 그날 틀린 말이라 «오늘을 위해 …»로 — 누가 준비했든 맞다.
+       축사(speech)는 늘 다른 분이 하므로 그대로. 되돌리지 말 것. */
     freeIn: {
-      video: '두 분을 위해 준비한 영상이 있습니다. 함께 보시겠습니다.',
-      stage: '두 분을 위해 준비한 작은 무대가 있습니다.',
-      gift: '두 분께 건넬 선물이 있습니다.',
+      video: '오늘을 위해 준비한 영상이 있습니다. 함께 보시겠습니다.',
+      stage: '오늘을 위해 준비한 작은 무대가 있습니다. 함께 보시겠습니다.',
+      gift: '오늘을 위해 마음을 담아 준비한 선물이 있습니다.',
       speech: '두 분을 오래 지켜본 분께서, 축하의 말을 준비하셨습니다.'
     },
     freeOut: '따뜻한 박수 부탁드립니다.',
@@ -380,7 +386,19 @@
     return out;
   }
 
+  /* ★[PREP_LIST 2026-09-25 코워크 P8 · 사장님 «만듭니다»] 마이페이지 «두 분 준비 · 도와주실 분» 의 원천 — 빌더와 같은 prepOf.
+     due = 예식 며칠 전까지(«사흘 전»이 적힌 것은 3 · 나머지는 7). 빌더가 저장할 때 summary.prep 로 싣는다
+     (마이페이지는 이 파일을 싣지 않는다 — ritual-data 와 같은 까닭). */
+  function prepList(S) {
+    var out = [];
+    ORDER.filter(function (k) { return k !== 'guest' && onOf(S, k); }).forEach(function (k) {
+      prepOf(k, S).forEach(function (q) { out.push({ k: k, who: q[0], what: q[1], due: /사흘 전/.test(q[1]) ? 3 : 7 }); });
+    });
+    return out;
+  }
+
   return {
+    prepList: prepList,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS,
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
