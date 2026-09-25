@@ -10151,6 +10151,13 @@ chk 'preview\*) exit 1' vercel.json 1
 #   사이트에서 받는다. 비공개가 되면 raw 주소는 토큰 없이 404 다.
 #   ★(2026-09-25 LETTER_MERGED) 이 두 줄이 지키던 form-to-couple.gs 의 폼 생성 그림 주소는 구글폼 부부폼을 은퇴시키며 함께 끝났다.
 #     폼을 새로 만드는 createCoupleForm 만 쓰던 값이다 — 이미 만들어진 폼의 그림은 구글이 들고 있다.
+# ★★[LETTER_GAS_IDLE 2026-09-25 최종 점검] 그래서 «전환 직전 사장님 몫: 레터 GAS 한 줄 교체»도 닫았다 — 옛 프로젝트는 열 일이 없다.
+#   CLAUDE.md 와 오픈 직전 목록 두 곳에 적혀 있었다. 한 곳만 닫으면 남은 곳을 근거로 되살아난다(두원공대 전화 사고와 같은 모양).
+#   올라가는 GAS 26개의 메일 그림은 전부 momentedit.kr 이고 87_letter 메일엔 그림이 없다(실측) — 비공개 전환이 깰 것이 없다.
+chk 'LETTER_GAS_IDLE' CLAUDE.md 1
+chk 'LETTER_GAS_IDLE' docs/plans/오픈직전_목록.md 1
+nochk '사장님 몫: 레터 GAS' CLAUDE.md
+nochk 'form-to-couple' docs/plans/오픈직전_목록.md
 # ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
 chk 'COWORK_SPLIT_0925' CLAUDE.md 1
 # [PREVIEW_GUARD 보강 2026-09-25 코워크 검토] form.submit() · 막힌 XHR 의 readyState · 장치가 못 막는 길(location/iframe/img) · 옛 사본 삭제
