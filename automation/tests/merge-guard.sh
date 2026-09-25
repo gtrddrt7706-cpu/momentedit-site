@@ -9717,6 +9717,7 @@ chk 'PAR_TIME_TIDY' parents.html 1
 # [PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님 도착 = 하객 입장(본식 20분 전). 표 4칸 → 3칸 · check-source-drift (6-c) 가 계산해 대조.
 chk 'PARENT_ARRIVE_GUEST' parents.html 1
 chk 'PARENT_ARRIVE_GUEST' scripts/check-source-drift.mjs 1
+chk 'STAMP_KST' scripts/gen-deploy-fns.mjs 1
 nochk '<li>본식 시작 40분 전' parents.html
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
