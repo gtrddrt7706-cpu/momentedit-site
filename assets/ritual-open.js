@@ -64,7 +64,7 @@
        letter  → S.letter   (both 는 새 코스 칩에 없다 · 옛 코스엔 그대로)
        toast   → S.toast · S.wine (새 키 · 축배가 있을 때만) */
   var CHIPS = {
-    declare: [['solemn', '성우 · 엄숙하게'], ['warm', '성우 · 따뜻하게'], ['clap', '하객 박수로 답하기'], ['family', '가족이 낭독']],
+    declare: [['solemn', '나레이션 · 엄숙하게'], ['warm', '나레이션 · 따뜻하게'],   /* [LAB_FIX2 코워크 추가전달 2-6] «성우» → «나레이션»(목소리가 AI 나레이션 · 흐름 · 요약 · ④와 같게) */ ['clap', '하객 박수로 답하기'], ['family', '가족이 낭독']],
     tribute: [['one', '한마디씩'], ['long', '1분쯤씩'], ['none', '말 없이']],   /* [DETAIL_0925 E] 준비 목록에는 «한 분 400자 안팎» */
     letter: [['each', '서로에게'], ['parent', '각자 부모님께']],
     toast: [['both', '케이크와 축배'], ['toast', '축배만'], ['cake', '케이크만']],
@@ -367,7 +367,7 @@
 
   /* ── 시작점 줄(명세 3-4) — 예시에서 시작했으면 무엇이 달라졌나 ── */
   function originOf(S) {
-    if (!picked(S).length) return '아직 담은 순간이 없어요. 입장과 닫는 인사는 늘 있어요.';
+    if (!picked(S).length) return '아직 담은 순간이 없어요. 식전 영상 · 입장 · 닫는 인사는 늘 있어요.';   // [WHY_NEIGHBOR 2-7] PREVIDEO_ALWAYS
     var ex = exampleOf(S.pickFrom);
     if (!ex) return '직접 고르셨어요.';
     var base = {}, bits = [], diff = 0;
@@ -446,6 +446,20 @@
   /* ★[PREP_LIST 2026-09-25 코워크 P8 · 사장님 «만듭니다»] 마이페이지 «두 분 준비 · 도와주실 분» 의 원천 — 빌더와 같은 prepOf.
      due = 예식 며칠 전까지(«사흘 전»이 적힌 것은 3 · 나머지는 7). 빌더가 저장할 때 summary.prep 로 싣는다
      (마이페이지는 이 파일을 싣지 않는다 — ritual-data 와 같은 까닭). */
+  /* ★[WHY_NEIGHBOR 2026-09-25 코워크 추가전달 2-7] «이 자리인 까닭»은 이웃 순간을 담았을 때만 그 이름을 말한다.
+     고정 글이라 편지를 안 담아도 «편지 앞이에요»가 나왔다. 이웃이 없으면 까닭만 말한다. */
+  var WHY_ALONE = {
+    bless: '부모님 말씀으로 약속의 문을 여는 자리예요.',
+    tribute: '부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).',
+    free: '마지막 큰 순간이 앞에 몰리지 않도록 뒤쪽에 둬요.'
+  };
+  var WHY_NEXT = { bless: 'vow', free: 'letter' }, WHY_PREV = { tribute: 'declare' };
+  function whyOf(k, S) {
+    var c = CARDS[k]; if (!c || !c.why) return '';
+    if (WHY_NEXT[k] && S && !onOf(S, WHY_NEXT[k])) return WHY_ALONE[k];
+    if (WHY_PREV[k] && S && !onOf(S, WHY_PREV[k])) return WHY_ALONE[k];
+    return c.why;
+  }
   function prepList(S) {
     var out = [];
     ORDER.filter(function (k) { return onOf(S, k); }).forEach(function (k) {
@@ -501,7 +515,7 @@
 
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, secTxt: secTxt,
-    prepList: prepList, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf,
+    prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS,
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
