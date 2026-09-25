@@ -9583,6 +9583,24 @@ nochk '\.option input:focus-visible + \.option-label,\.field input:focus-visible
 chk 'COND_HIDDEN_NOTAB' inquiry.html 1
 chk '\.conditional\.show{[^}]*visibility:visible' inquiry.html 1
 chk '\.consent-details summary:focus-visible{outline:2px solid var(--seal)' inquiry.html 1
+# ★★[KO_TRACK_SPLIT 2026-09-25 코워크 3편 ④] 한글에 영문 자간(0.14~0.32em)이 걸려 낱글자로 흩어지던 여섯 자리 → 한글 부분만 0.08em.
+chk 'Guest Access ·<span class="ll-ko"> 하객이 만나는 화면' index.html 1
+chk 'Delivered ·<span class="ll-ko"> 두 분의 받은편지함으로' index.html 1
+chk 'Opening Honor ·<span class="ll-ko"> 운영 초기 한정' index.html 1
+chk 'KO_TRACK_SPLIT' index.html 2
+chk 'KO_TRACK_SPLIT' mypage.html 1
+nochk '\.btn{[^}]*letter-spacing:\.16em' mypage.html
+chk '\.gv-skel-sub\.ko{letter-spacing:0\.08em}' invitation-gallery.html 1
+# [GUIDE_Q_16 2026-09-25 코워크 3편 ⑤] 하객 이름 검색칸 15 → 16px — 아이폰 사파리 확대 방지.
+chk 'GUIDE_Q_16' guide.html 1
+nochk '\.find input{[^}]*font-size:15px' guide.html
+# [META_LIGHT_ONLY 2026-09-25 코워크 3편 ⑨] 세 면에만 빠져 있던 color-scheme · theme-color.
+chk '<meta name="color-scheme" content="light only">' order-preview.html 1
+chk '<meta name="color-scheme" content="light only">' preview.html 1
+chk '<meta name="color-scheme" content="light only">' contract/fitting.html 1
+chk '<meta name="theme-color" content="#FAFAF8"' order-preview.html 2
+chk '<meta name="theme-color" content="#FAFAF8"' preview.html 2
+chk '<meta name="theme-color" content="#FAFAF8"' contract/fitting.html 2
 
 # ★★[LOADING_CENTER 2026-09-25 코워크 3편 ① · 사장님 선택 «한국어로»] 상담 신청 제출 버튼.
 #   로딩 묶음이 버튼 가운데보다 14px 왼쪽에 섰다(.arrow 가 opacity:0 으로 자리를 차지) → display:none 으로 0px.
