@@ -6190,6 +6190,16 @@ chk 'SEATED30' scripts/audit/guest-cap-truth.mjs 1
 chk 'SEATED30' automation/platform/80_production.gs 1
 chk 'STALE_EXTRA_FEE' automation/platform/70_journey.gs 1
 chk 'STALE_EXTRA_FEE' scripts/audit/balance-sim.mjs 1
+# ★[SYNC_MAP_FULL 2026-09-25] GAS 자동 동기화 대응표(scripts/gas-sync.mjs MAP)가 저장소의 GAS 파일을
+#   전부 덮는가. 99_contractCheck·99_deployCheck 를 만들며 대응표를 안 고쳐, 자동 배포 열쇠를 넣는 날
+#   첫 실행이 「모르는 원격 파일」로 멈출 참이었다. 새 .gs/.html 을 만들면 대응표도 같은 커밋에서.
+if command -v node >/dev/null 2>&1; then
+  _smOut=$(node scripts/audit/sync-map-full.mjs 2>&1) \
+    || { echo 'FAIL sync-map-full: GAS 파일이 자동 동기화 대응표에서 빠졌다 — node scripts/audit/sync-map-full.mjs'
+         printf '%s\n' "$_smOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'SYNC_MAP_FULL' scripts/gas-sync.mjs 1
+chk 'SYNC_MAP_FULL' scripts/audit/sync-map-full.mjs 1
 chk 'ADMIN_NOFEE_LINE' automation/platform/95_notify.gs 1
 # ★[SHIP_NOW 2026-09-19 사용자 지시 "앞으로 작업끝나면 바로메인에 올려"] 브랜치 푸시는 «작업 끝»이 아니다.
 #   실사고 — 브랜치가 main 보다 188커밋 앞서고 83커밋 뒤처진 채 열흘을 갔다. 그 사이
