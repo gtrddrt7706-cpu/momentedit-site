@@ -9284,6 +9284,19 @@ chk 'ARIA_ROLELESS_DIV' index.html 2
 #   → 화면 가까이 올 때 한 번 재고, 그 뒤는 ResizeObserver 가 알린다.
 #   ★[FAQ_DODGE] 쪽 강제 리플로(215~268ms)는 **손대지 않았다** — 레일 코드다([RAIL_LOCKED]).
 chk 'CV_NO_EARLY_MEASURE' index.html 1
+
+# ★★[LETTER_PAPER 2026-09-25 사장님 선택 «시안 A 편지지»] 편지 쓰는 화면이 «투박»했다.
+#   원인 다섯 — ①상자 안의 상자(한 화면에 사각 테두리 7개) ②받는 메일은 편지 카드인데 쓰는 쪽은 양식
+#   ③보낸 뒤 이름이 장식용 골드(2.54:1) ④「또 다른 편지」가 한글에 영문 자간 0.22em + transition:all
+#   ⑤.lf-seg 40px(기준 44 미달) · 방향키 없음 · .le-title 팔레트 밖 · scroll-padding-top 0(띠 57px).
+#   → 흰 종이 한 장 + To./From. 장식 라벨 + 괘선 편지지 + 밑줄 입력칸.
+#   ★[LIVE_TAP40] 의 40px 은 «파일 맨 끝»에 또 있어서 위에서 44 로 올려도 되돌아갔다(실측).
+#     두 자리를 함께 고쳤다 — 한 쪽만 고치면 조용히 40 으로 돌아간다.
+#   ★16px 미만 입력칸 금지 — 아이폰 사파리가 화면을 확대한다(코워크 정정).
+#   ★360px 이하에서 To. 줄은 wrap — 320px 글줄 236px 에 셋이 안 들어간다(코워크 정정).
+chk 'LETTER_PAPER' live.html 18
+chk 'min-height:44px' live.html 3
+nochk 'color:#B53A3A' live.html
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html
