@@ -8683,6 +8683,17 @@ nochk 'https://momentedit.kr/api/solapi-report' CLAUDE.md
 nochk 'https://momentedit.kr/api/solapi-report' docs/데이터흐름_현황.md
 nochk 'https://momentedit.kr/api/solapi-report' automation/알림톡_템플릿_신청문안.md
 nochk 'https://momentedit.kr/api/solapi-report' api/solapi-report.js
+# ★[RELAY_RETRY_NOTE 2026-09-25] «주소를 고쳐도 다음 전달 시간 전엔 안 온다»는 틀렸다 — 22:49 실측에서 주소를 고치고 보낸 테스트 결과가 8초 만에 왔다.
+#   그 문장이 되살아나면 다음 사람이 필요 없는 «지우고 새로 만들기»부터 한다.
+nochk '주소를 고쳐도 그 시각 전엔 안 온다' docs/데이터흐름_현황.md
+chk 'slow:true} 는 정상' docs/데이터흐름_현황.md 1
+# ★[MAIL_ONCE 2026-09-25 사장님 「메일이 중복 도착한다든가 기존 시스템이랑 겹치는 상황은 없겠지 · 최종 점검」]
+#   카톡을 부르는 함수 23개를 전수로 보니 같은 함수에서 고객 메일도 부르는 곳이 넷 — 계약서 도착·상담 전날은 메일 스위치가 꺼져 있고
+#   (SEND_CONTRACT_MAIL · SEND_REMIND_MAIL false), 보관 만료는 카톡이 꺼져 있다(off). 겹치는 곳은 상담 확정 하나였는데, 보내는 순간 실패는
+#   막았지만 «보내진 뒤 도착 실패»(솔라피 결과)는 대체 메일을 한 통 더 보냈다. 같은 묶음에 같은 결과가 두 번 오면 메일도 두 통이었다.
+#   notify-e2e ⑭ 가 잰다 · 깨 보고 믿었다(확정 메일 기준 제거 → 빨강 · 읽어 둔 표 안 고침 → 고객 2통).
+chk 'MAIL_ONCE' automation/platform/95_notify.gs 4
+chk 'function _nfEmailedElsewhere' automation/platform/95_notify.gs 1
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
