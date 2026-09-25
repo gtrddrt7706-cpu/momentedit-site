@@ -1643,7 +1643,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.10'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행' assets/ritual-data.js 2   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2181,7 +2181,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.10'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -3740,8 +3740,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1.9' contract/v1-1.html 5   # [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.9'" automation/platform/70_journey.gs 1
+chk 'v1\.10' contract/v1-1.html 5   # [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.10'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -8551,8 +8551,13 @@ chk 'EM30_RANGE' order-preview.html 1
 chk 'PREP_DUE' assets/ritual-open.js 3   # 마감은 항목 데이터(3 · 7 · 0=당일 · 없음) — 글에서 «3일 전»을 읽지 않는다
 nochk "due: /3일 전/.test" assets/ritual-open.js
 chk 'PREP_DUE' mypage.html 1   # 마이페이지 준비 칸도 같은 말(당일 · 마감 없음)
-chk 'STUDIO_PREP' assets/ritual-open.js 1   # 케이크 · 부모님께 드릴 꽃은 스튜디오 준비(사장님 9/25 · P11) — 계약서 ⑥ · 홈페이지 Included 문구는 사장님 결정 대기
-chk 'STUDIO_PREP' order-preview.html 3
+chk 'STUDIO_PREP' assets/ritual-open.js 1   # (역사) 스튜디오 준비 → [GOODS_CHOICE] 로 바뀌었다(사장님 9/25 밤 «고르게 · 부탁은 별도»)
+chk 'GOODS_CHOICE' assets/ritual-open.js 3
+chk 'GOODS_CHOICE' mypage.html 1
+chk 'GOODS_CHOICE' admin.html 1
+chk '저희에게 맡기시면 따로 비용이 있어요' order-preview.html 1   # [GOODS_CHOICE] ① «값은 같아요» 옆 한 줄(코워크 5-1)
+chk 'v1-9.html' admin.html 1   # [CONTRACT_V110] v1.9 서명자 보존본
+chk 'v1-9.html' mypage.html 1
 chk 'VOICE_LATE' order-preview.html 5   # 두 분 목소리 — 7일 전까지 녹음이 없으면 나레이션(자동 되돌리기 대신 안내 한 줄)
 chk 'HELPER_WORDS' assets/ritual-open.js 2
 nochk '반지를 담은 날' assets/ritual-open.js
@@ -10890,6 +10895,15 @@ chk "s.wine = 'none';" assets/ritual-cue.js 1      # 옛 코스 붓는 말 누�
 chk 'OPEN_RANGE' assets/ritual-open.js 1           # 본식 10~30 · 사진과 인사 25~45 의 원천
 chk 'CONTRACT_RANGE_WAIT' scripts/check-source-drift.mjs 1   # 계약서는 이번에 안 건드린다(명세 11장) · 고쳐지면 드리프트가 알려 준다
 chk 'NO_EXTRA_COST' order-preview.html 1           # «추가 비용은 미리 안내» 문구 폐지(Q6)
+chk 'GOODS_CHOICE' order-preview.html 2          # [GOODS_CHOICE 2026-09-25 사장님] 케이크 · 부모님께 드릴 꽃 = 두 분 준비 또는 부탁(비용 별도)
+chk 'GOODS_CHOICE' index.html 1                   # 홈페이지 «별도» 목록에 둘
+nochk "'꽃은 저희가 준비해요'" order-preview.html     # ★값이 드는 꽃을 공짜로 약속하지 말 것
+nochk "'실물(샴페인·케이크)은 저희가 준비해요'" order-preview.html   # ★케이크도 같다
+nochk '케이크 커스텀' index.html                    # ★«커스텀만 별도»로 읽혀 기본 케이크가 공짜로 보인다
+# ★[AI_VOICE_NAME 2026-09-25 사장님 · 코워크 회신4 5-2] 고객이 읽는 곳의 «성우»는 늘 «AI 성우» — 실제는 AI 음성인데
+#   «성우 나레이션»만 적혀 사람 성우로 읽혔다(AI 라는 말은 계약서 서명란 확인 줄에만 있었다). 코드 주석 · 녹음 문안은 대상 아님.
+_aiv=$(grep -o '.\{0,3\}성우' index.html assets/advisor-kb.js api/_kb.js api/_ritual-kb.js mypage.html contract/v1-1.html docs/smartstore/상세페이지_원본.html 2>/dev/null | grep -v 'AI 성우' | grep -vc '사람 성우')
+if [ "${_aiv:-0}" -gt 0 ]; then echo "REVERT? [AI_VOICE_NAME] «AI» 없는 «성우» ${_aiv}곳 — 고객 문구는 «AI 성우 나레이션»"; fail=1; else echo "ok [AI_VOICE_NAME] «AI» 없는 «성우» 0"; fi
 chk 'NOT_COURSE' admin.html 2
 chk 'summary.open' mypage.html 1                  # [OPEN_COURSE] 마이페이지 요약 «순간 n개 · 본식 약 a~b분»
 # ★★[코워크 회신 둘째 판 2026-09-25] 스냅 50 · 식순 고르기 둘째 판 · 마이페이지 · 사이트 — 원문 docs/handoff/코워크회신_구현보고1_0925_둘째판.md

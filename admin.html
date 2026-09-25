@@ -2717,6 +2717,9 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('순서 흐름', (Array.isArray(sm3.flow)&&sm3.flow.length)?sm3.flow.join(' → '):'')   /* [ADM_SUM_ESC] 배열 아니면(깨진 초안) 행만 비운다 — join 이 던져 상세가 통째로 죽던 것 */
       +row('성혼 선언', _declWhoLabel(s3d.declareWho))   // ★DECL_ADMIN_MIRROR — 하드코딩 맵 금지 · 원천(DECLWHO)을 읽는다
       +row('반지 교환', s3d.ring==='off'?'뺌':'')
+      /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 부모님께 드릴 꽃 — 맡긴 예식은 주문해야 한다(별도 비용).
+         초안(summary.goods)은 고객 기기가 만든 값이라 배열이 아니면 행을 비운다([ADM_SUM_ESC]). */
+      +row('케이크 · 꽃', Array.isArray(sm3.goods)?sm3.goods.map(function(g){ return String((g&&g.what)||'')+' '+((g&&g.by)==='studio'?'저희가 준비(별도 비용 · 주문 필요)':'두 분이 준비'); }).join(' · '):'')
       /* ★[VEIL_RETIRED 2026-08-03] 베일 다운 행 삭제 — 전 예식 동시입장이라 실행 불가.
          값을 만들 경로가 코스·팔레트·큐 어디에도 없어 늘 빈 줄이었다. 되살리지 말 것. */
       /* ★[RINGWARM_RETIRED 2026-08-07 · LEGACY_LABEL] 링 워밍은 폐지됐고 새로 고를 길이 없다.
@@ -3584,7 +3587,8 @@ function contractPath(product, docVersion){
   if(v==='v1.6') return '/contract/archive/v1-6.html';   // [CONTRACT_V19] 관리자 쪽이 v1.6·v1.7 을 빠뜨려 그 서명자에게 현행을 보여 주고 있었다(mypage 와 짝 맞춤)
   if(v==='v1.7') return '/contract/archive/v1-7.html';
   if(v==='v1.8') return '/contract/archive/v1-8.html';
-  return '/contract/v1-1.html';   // 현행(v1.9) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
+  if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 «성우 나레이션» · 케이크 · 꽃 줄 없는 보존본으로
+  return '/contract/v1-1.html';   // 현행(v1.10) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

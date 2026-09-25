@@ -1608,7 +1608,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.6') return '/contract/archive/v1-6.html';   // [PRICE_2026_08] 인상 전(280/210만) 서명자는 그 금액이 적힌 보존본으로 열람
   if(v==='v1.7') return '/contract/archive/v1-7.html';   // [PRICE_2026_08_15] 평일 240만 서명자(8/14~8/15 이틀 창) — 창이 짧다고 빼지 말 것. 한 분이라도 있으면 새 금액 문서를 보게 된다
   if(v==='v1.8') return '/contract/archive/v1-8.html';   // [CONTRACT_V19] v1.8 서명자는 스냅 45 · 본식 16~25 · 합 55 · «부케·생화 커스텀» 이 적힌 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.9) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 그 판 보존본으로
+  return '/contract/v1-1.html';   // 현행(v1.10) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -4683,7 +4684,7 @@ function _surveySchema(isSnap){
     {k:'transparency',q:'‘숨은 비용 없는 올인원’은 지켜졌나요?',pillar:1,o:[['kept','약속대로 투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
     {k:'family',q:'부모님·가족은 편안하고 좋아하셨나요?',pillar:1,o:[['great','아주 만족하셨어요'],['ok','무난했어요'],['poor','아쉬워하셨어요']]},
     {k:'result',q:'결과물(스냅·예식 영상·청첩장)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
-    {k:'ceremony',q:'설계하신 식순 + 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
+    {k:'ceremony',q:'설계하신 식순 + AI 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
     {k:'dining',q:'애프터 웨딩(식사·카페 안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
     {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','기타']]},
@@ -5357,10 +5358,13 @@ function _ritPrepFold(rd, base, dd){
   var two=[], par=[];
   (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
   var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
-  var n=two.length+par.length+hp.length; if(!n) return '';
+  /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 맡긴 케이크 · 꽃 — 직접 준비분은 이미 prep(챙길 것)에 있다 */
+  var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.by==='studio'; }).map(function(g){ return String(g.what||''); });
+  var n=two.length+par.length+hp.length+stu.length; if(!n) return '';
   return '<details class="rit-prep"><summary>준비할 것 · 도와주실 분 '+n+'가지</summary>'   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 */
     +(two.length?'<h4>두 분이 준비할 것</h4><ul>'+two.join('')+'</ul>':'')
     +(par.length?'<h4>부모님께 부탁드릴 것</h4><ul>'+par.join('')+'</ul>':'')
+    +(stu.length?'<h4>저희가 준비해요</h4><ul>'+stu.map(function(w){ return '<li>'+escapeHtml(w)+' <span class="due">· 별도 비용 · 금액은 상담 때 안내해 드려요</span></li>'; }).join('')+'</ul>':'')
     +(hp.length?'<h4>도와주실 분</h4><ul>'+hp.map(function(x){ return '<li>'+escapeHtml(String(x[0]))+' <span class="due">· '+escapeHtml(String(x[1]))+'</span></li>'; }).join('')+'</ul>':'')
     +'</details>';
 }
