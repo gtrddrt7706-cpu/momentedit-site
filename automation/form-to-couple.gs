@@ -442,6 +442,23 @@ function vimeoGuardDaily() {
        연결돼 있지 않아, 관리자에서 취소해도 여기서는 알 방법이 없었다 — 그래서 취소한 예식의
        경고가 계속 나갔다. Couples 에 'cancelled' 열을 두면 그 행을 건너뛴다(열이 없으면 무해). */
     if (colOf['cancelled'] && String(g(row, 'cancelled') || '').trim()) return;   // 취소·연기 표시된 행은 제외
+    /* ★★[VIMEO_GUARD_XPROJ 2026-09-25 사장님 「지금 부부폼 이쪽을 한쪽으로 통합하는 작업을 하고 있는데」]
+       위 cancelled 열은 «사람이 손으로 적어 줘야» 듣는 임시 출구다. 근본 원인은 이 검사가
+       Couples 만 보고 Customers(관리자 페이지가 다루는 시트)를 못 본다는 것이고,
+       그건 **두 프로젝트가 따로라 함수를 부를 수 없어서**였다.
+       → 통합되는 순간 그 벽이 사라진다. 그때 저절로 켜지도록 미리 심어 둔다.
+       ★지금은 아무 일도 안 한다(typeof 가 false → 종전과 완전히 동일). 새 실패를 만들지 않는다.
+       ★합쳐지면: eventId 로 고객을 찾아 현재단계가 «끝난 것»이면 건너뛴다.
+         관리자에서 취소하면 그 순간부터 이 메일이 멈춘다 — 사람이 시트를 만질 일이 없어진다.
+       ★모르면 «보낸다» 쪽으로 기운다 — 조회 실패·예외는 그냥 통과시킨다. 이 메일을 한 번 더 받는
+         것보다 «예식 3일 전인데 영상이 없는 것»을 놓치는 쪽이 훨씬 비싸다. */
+    if (typeof _findCustomerBy === 'function') {
+      try {
+        var _xc = _findCustomerBy('eventId', id);
+        var _xs = _xc ? String(_xc.get('현재단계') || '').trim() : '';
+        if (_xs === '취소' || _xs === '노쇼' || _xs === '미계약') return;
+      } catch (_xe) { /* 모르면 보낸다 */ }
+    }
     var d = g(row, 'weddingDate');
     var ds = (d instanceof Date) ? Utilities.formatDate(d, tz, 'yyyy-MM-dd')
                                  : String(d || '').trim().slice(0, 10).replace(/[./]/g, '-');
