@@ -67,7 +67,11 @@ const ROUND_FREE = 'ROUND_FREE 2026-09-19 사장님 지시 「처음 여는 멘�
 console.log('\n③ 하객이 궁금할 것에 답이 있는가');
 const ALL = cues.map((c) => c.text).join(' ');
 for (const [q, re, why] of [
-  ['자리를 못 찾으면', /자리를 못 찾|입구 쪽에서 안내/],
+  /* ★★[SEAT_HELP 2026-09-21] 「찾기 어려우시면」을 더한다 — «자리를 못 찾다»만 보던 자였다.
+     코워크가 일부러 바꾼 말이다: 「못 찾으시면」은 손님 탓으로 들리고 「찾기 어려우시면」은 아니다.
+     ★[TIME_STAIR] 와 같은 종류다 — 검사가 낱말을 붙들면 «더 나은 말»로 못 간다.
+       재는 것은 «자리를 못 찾은 사람이 어디로 가면 되는지 아는가» 하나다. */
+  ['자리를 못 찾으면', /자리를 못 찾|자리 찾기가 어려|찾기 어려우시면|입구 쪽에서 안내|입구에서 도와/],
   ['먹을 것이 있나', /핑거 푸드|음료/],
   /* ★★[EAR_WHAT_NOT_HOW 2026-09-20] 이 줄은 «어형»을 지키고 있었다 — 「분 뒤 시작」·「분 전입니다」.
      하객이 같은 정보를 세 번 듣는데 세 번 다 다른 꼴이라 코워크가 문형을 맞췄고, 그 순간 이 검사가 빨개졌다.
@@ -79,7 +83,9 @@ for (const [q, re, why] of [
      전체 검사는 02c·04c 가 덮어 초록이었다 — «어딘가 답이 있다»와 «이 줄이 답을 한다»는 다른 문장이다.
      ★규칙이 아니라 **어휘**를 넓힌 것이다. 여전히 시각을 아예 안 알리면 붉어진다(반증 확인함). */
   ['언제 시작하나', /(분|곧)[^.!?]{0,8}시작|시작[^.!?]{0,8}분 (전|뒤)|분[^.!?]{0,4}남았/],
-  ['사진 찍어도 되나', /찍으셔도|마음껏 찍|사진은 편히/],
+  /* ★[PHOTO_OK 2026-09-23] 「마음껏 남겨 주셔도」를 더한다 — 「사진은 편히」만 보던 자였다.
+     [TIME_STAIR]·[SEAT_HELP] 와 같은 종류다. 재는 것은 «사진을 찍어도 되는지 아는가» 하나다. */
+  ['사진 찍어도 되나', /찍으셔도|마음껏 찍|사진은 편히|사진은 마음껏|남겨 주셔도/],
   ['휴대폰은', /휴대폰/],
   ['얼마나 걸리나', /이십 분쯤|분쯤 걸리니/, ROUND_FREE],
   ['자리를 떠도 되나', /자리를 비우|돌아가셔도|편히 계시면/, ROUND_FREE],
@@ -101,7 +107,7 @@ for (const [k, v] of Object.entries(CALL)) if (v) console.log(`   ${String(v).pa
 
 console.log('\n⑤ 조건이 맞아야만 나가는 안내 (아니면 그 답이 아예 없다)');
 const base = new Set(cues.map((c) => c.slug));
-for (const [why, opt] of [['사진 부탁', { photoShare: true }], ['온라인 인사', { digital: true }]]) {
+for (const [why, opt] of [['사진 부탁', { photoShare: true }], ['온라인 인사', { digital: true }], ['식사 안내', { meal: true }]]) {   // [MEAL_GUIDE]
   const more = RC.build({ course, ...opt }, { mode: 'console' }).cues.filter((c) => c.text && !base.has(c.slug));
   for (const c of more) console.log(`   ★ ${why} · ${c.slug} — ${sents(c.text)[0].slice(0, 50)}`);
 }

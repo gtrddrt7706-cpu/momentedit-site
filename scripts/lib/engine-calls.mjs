@@ -57,6 +57,7 @@ export function engineCalls() {
        실측: 축을 넣기 전 84·85 가 «화면에만 있고 엔진이 안 부르는 줄»로 잡혔다 — 엔진은 부르는데
        검사가 부를 상태를 안 만든 것이다. 축이 늘면 여기도 같이 늘려야 한다(EXTRA_CROSS 와 같은 교훈). */
     photoShare: [false, true],
+    meal: [false, true],   // ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 도 이 축을 안 흔들면 «엔진이 안 부르는 줄»로 잡힌다
   };
   /* ★축을 **두 개씩** 흔든다 — check-text-audio 와 같은 규칙이다.
      한 축씩만 흔들면 「두 분 목소리 × 느낌 C」처럼 두 값이 만나야 생기는 자리가 통째로 빠진다. */

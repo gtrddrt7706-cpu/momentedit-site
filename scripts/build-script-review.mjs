@@ -85,6 +85,7 @@ const AX = { entry: ['A', 'B', 'C', 'D', 'E', 'F'], declare: ['1', '2'],
              entryVoice: ['nar', 'couple'], guestVoice: ['nar', 'couple'], bless: ['on', 'off'],
              valley: ['none', 'wine', 'cake', 'both'], song: ['none', 'live'], ring: ['on', 'off'] };
 const OPT = [['photoShare', { photoShare: true }, '사진 보내기를 켰을 때'],
+             ['meal', { meal: true }, '모일 식당을 골랐을 때'],   // [MEAL_GUIDE] 88_guide-meal
              ['digital', { digital: true }, '온라인 참석을 켰을 때'],
              ['guestVoice', { guestVoice: 'couple' }, '하객 안내를 두 분 목소리로 골랐을 때'],
              ['family', { course: 'family', bless: 'on' }, '가족 코스일 때'],

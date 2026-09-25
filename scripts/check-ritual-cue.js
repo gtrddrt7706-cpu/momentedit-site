@@ -45,7 +45,8 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★맨 끝에 붙였다 — 위 ENTRY_OUT_TONE 이 실제로 당한 그 사고를 안 되풀이한다.
 //   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
 //     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
-const N_FILES = 87;
+// [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
+const N_FILES = 88;
 if (C.FILES.length !== N_FILES) no(`FILES ${N_FILES}개가 아니다 (${C.FILES.length})`);
 else if (new Set(C.FILES).size !== N_FILES) no('FILES에 중복 슬러그가 있다');
 else ok(`FILES ${N_FILES}개 · 중복 없음`);

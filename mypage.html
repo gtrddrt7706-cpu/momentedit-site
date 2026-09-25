@@ -728,6 +728,17 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .inv-fields{margin:8px 0 2px}
 .inv-row{display:flex;gap:6px;margin:6px 0}
 .inv-row .cc-input{margin-bottom:0}
+/* ★★[WIZ_NOTE_STYLE 2026-09-21 사장님 지적 「폰트가 좀 부자연스러운거같은데 위치도 어중간하고」]
+   원인은 취향이 아니라 **스타일이 아예 안 걸려 있었다는 것**이다. `.sp-note` 는 `.seat-privacy .sp-note`
+   로만 정의돼 있었는데(1142행), 청첩장 마법사가 그 패턴만 가져오고(MPD_E7 「자동저장 신호 표준화」)
+   CSS 는 같이 오지 않았다. 그래서 이 줄만 부모 글꼴을 물려받아 **왼쪽에 붙은 채** 떠 있었다 —
+   「이전」 버튼 밑에 걸려 무엇을 설명하는 글인지도 어긋나 보였다(설명 대상은 「다음」이다).
+   → 좌석 규칙의 선언을 **그대로** 전역 기본값으로 꺼낸다. `.seat-privacy .sp-note` 가 특이도로 계속
+     이기고 값도 같으니 좌석 화면 렌더는 한 픽셀도 안 바뀐다. 다음에 이 클래스를 또 가져다 써도
+     맨몸으로 떨어지지 않는다 — 이 사고가 난 자리를 구조로 막는다.
+   글꼴·자간·여백은 청첩장 버튼 행 바로 뒤에만 얹어 행 전체의 캡션으로 가운데 정렬한다. */
+.sp-note{text-align:center;font-size:11px;color:var(--label-soft);margin-top:2px}
+.inv-nav + .sp-note{font-family:var(--serif-ko);letter-spacing:.04em;margin-top:9px}
 .inv-nav{display:flex;gap:8px;margin-top:18px}
 .inv-nav .cc-btn,.inv-nav .cc-btn-ghost{flex:1}
 .inv-side{margin:12px 0}
@@ -811,6 +822,19 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-gate-card .dgc-d{display:block;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
 .dn-gate-card.dn-gate-skip{background:var(--bg2,#F5F3EF)}
 .dn-gate-card.dn-gate-skip .dgc-t{color:var(--sub)}   /* '안 함' 카드는 톤 낮춤 — 주 액션은 만들기 */
+/* ★★[GATE_CARD_BUSY 2026-09-21 사장님 지적 「식사안하고 웨딩 이후 마무리한다 부분있는데
+   클릭해도 별다른 변화가없어 … 고객입장에서 당황스러울거같은포인트」]
+   원인은 둘이었다. ①이 카드를 누르면 서버에 «안 함»을 적는데(saveTrkDraft) 그 왕복 동안
+   화면이 **아무것도 안 바뀐다.** 코드는 `_nn.disabled=true` 만 했는데 위에 `:disabled`
+   스타일이 **하나도 없어서**(실측) 보이는 것이 종전과 똑같았다. GAS 콜드스타트면 몇 초다 —
+   고객은 «안 눌렸나» 하고 다시 누른다. ②실패하면 되돌리는데, 그 코드가 카드를 부쉈다(아래 JS).
+   → 숨쉬는 점 하나로 «받았고 하는 중»을 말한다([LOADING_ONE] 과 같은 언어 · meBreath 재사용).
+   ★흐리게(opacity) 처리하지 않는다 — 대비가 내려간다([LOADING_CONTRAST]). */
+.dn-gate-card:disabled{cursor:default}
+.dn-gate-card.busy{border-color:var(--gold-deep)}
+.dn-gate-card.busy .dgc-d{color:var(--accent)}
+.dn-gate-card.busy .dgc-d::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--seal);margin-right:7px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.dn-gate-card.busy .dgc-d::before{animation:none;opacity:.7}}
 .dn-seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0 0 9px}
 .dn-segbtn{flex:1;border:none;border-right:1px solid var(--border);background:#fff;padding:11px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;transition:background .15s,color .15s}
 .dn-segbtn:last-child{border-right:none}
@@ -906,7 +930,17 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .inv-eg-frame{display:flex;align-items:center;justify-content:center;height:150px;padding:7px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(28,27,25,.10)}
 .inv-eg-frame img{max-width:100%;max-height:100%;width:auto;height:auto;display:block}
 .inv-eg-name{font-family:var(--serif-ko);font-size:11px;color:var(--sub);text-align:center;margin-top:7px;letter-spacing:.02em}
-.inv-eg-full{display:block;text-align:center;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37);text-decoration:none}
+/* ★★[INV_EG_FULL 2026-09-21 사장님 지적 「눈에 잘안들어와서 있는지 모를수도있을거같아」]
+   종전엔 12px · 밑줄 없음 · 3번째 액자 바로 아래라, 옆의 「모바일 참석 화면」 같은 **사진 설명**으로 읽혔다.
+   ★사장님이 주신 다른 안(우측 아래 빈칸에 넣기)은 **성립하지 않는다** — 액자는 d.method 에 따라
+     3개(온라인 포함) 또는 **2개**다. 2개면 2×1 로 꽉 차 빈칸 자체가 없어, 청첩장마다 자리가 달라진다
+     (「모든 청첩장 동일하게」와 어긋난다). 액자 격자 안의 글자 링크는 «사진이 안 뜬 칸»으로도 읽힌다.
+   → 격자에서 **가는 선으로 떼어** 예시와 다른 층임을 보이고, 집 링크 관용(밑줄 + gold-deep)을 입히고,
+     높이 44px 로 엄지 타깃을 채운다. 채운 버튼은 쓰지 않는다 — 이 화면의 주인공은 「다음」이다.
+   ★색은 --gold-deep(#7A5F37 · 5.71:1 AA). 글자이므로 장식용 --gold(2.54:1) 를 쓰지 않는다. */
+.inv-eg-full{display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;margin-top:10px;padding-top:9px;border-top:1px solid var(--border);font-family:var(--serif-ko);font-size:13px;letter-spacing:.04em;color:var(--gold-deep,#7A5F37);text-decoration:none}
+.inv-eg-full span{text-decoration:underline;text-underline-offset:3px}
+.inv-eg-full::after{content:'↗';font-size:11px;line-height:1;opacity:.75}
 .inv-eg-full:hover{color:var(--accent)}
 /* 예시·전체 청첩장 창모드 뷰어 — preview.html 프레임 톤을 페이지 안 모달로(새탭 이동 대체) */
 .pv-modal{position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(40,32,24,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
@@ -1394,9 +1428,28 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .flow-busy-spin{width:9px;height:9px;background:var(--seal);border-radius:50%;animation:meBreath 1.7s ease-in-out infinite;flex:0 0 auto}
     .mp-modal.open{display:flex}
     .mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-radius:6px;max-width:344px;width:100%;padding:26px 22px 18px;box-shadow:0 14px 44px rgba(40,28,16,0.20);text-align:center;animation:mpPop .22s var(--ease,ease);max-height:88vh;overflow-y:auto}
-    .mp-modal-title{font-family:var(--serif-ko,serif);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.5;margin-bottom:8px;word-break:keep-all}
+    .mp-modal-title{font-family:var(--serif-ko,serif);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.5;margin-bottom:8px;word-break:keep-all;position:sticky;top:-26px;z-index:1;background:var(--bg,#FAFAF8);padding:26px 0 10px;margin-top:-26px;box-shadow:0 12px 14px -12px rgba(40,28,16,0.12)}/* ★★[MODAL_TITLE_STICKY 2026-09-21 사장님 지적 「스크롤이있는지몰라서 몰랐네」] 되돌리지 말 것.
+   [MODAL_ACT_STICKY] 로 버튼은 바닥에 고정했는데, 스크롤을 내리면 **제목이 통째로 사라졌다** —
+   「계약서 서명」이 화면 밖으로 나가 «여기가 어디인지»를 잃는다(사장님 두 번째 캡처가 그 상태다).
+   제목을 머리에 고정하면 카드가 «머리 고정 · 본문 스크롤 · 발 고정»이 되어,
+   본문이 머리와 발 밑으로 «미끄러져 들어가는 것»이 보인다. 그 움직임 자체가 스크롤 신호다.
+   ★그림자 둘(머리 아래·발 위)이 «가려진 내용이 더 있다»를 말한다 — 종전엔 카드가 그냥
+     잘려 보여서 «여기가 끝»으로 읽혔다. 그래서 사장님이 버튼을 못 찾으셨다.
+   top:-26px · margin-top:-26px 는 카드의 padding-top:26px 를 상쇄해 머리에 딱 붙인다.
+   ★짧은 모달에는 영향이 없다 — 넘치지 않으면 sticky 는 아무 일도 안 한다. */
     .mp-modal-body{font-family:var(--serif-ko,serif);font-size:14px;color:var(--sub,#5A554C);line-height:1.75;margin-bottom:20px;word-break:keep-all}
-    .mp-modal-actions{display:flex;flex-direction:column;gap:8px}
+    .mp-modal-actions{display:flex;flex-direction:column;gap:8px;position:sticky;bottom:-18px;background:var(--bg,#FAFAF8);padding:10px 0 18px;margin-bottom:-18px;box-shadow:0 -12px 14px -12px rgba(40,28,16,0.12)}/* ★★[MODAL_ACT_STICKY 2026-09-21 사장님 지적 「여기서 다시계약서를보기위해 창을닫으려고해도
+   닫을수있는 버튼이없어」] 되돌리지 말 것.
+   .mp-modal-card 는 max-height:88vh · overflow-y:auto 라 **카드 전체가 스크롤**된다 —
+   행동 버튼까지 함께. 본문이 길면(계약서 서명 = 중요조항 체크 4개 + 서명판 + 안내문)
+   확인·지우기·«취소»가 통째로 스크롤 아래로 밀려 **처음 화면에 안 보인다.**
+   ★그래서 고객이 갇혔다. 이 모달은 [SIG_FOCUS] 결정으로 Esc·바깥클릭 닫기가 «일부러» 없다
+     (그리던 서명이 한 번에 날아가서). 그 결정의 전제가 「보이는 «취소»가 닫는 길이다」인데,
+     그 취소가 안 보이면 나가는 길이 **하나도 없는 모달**이 된다.
+   → 결정은 그대로 두고(Esc 안 단다) 버튼을 카드 바닥에 고정한다. 전제를 되살리는 쪽이 맞다.
+   bottom:-18px · margin-bottom:-18px 는 카드의 padding-bottom:18px 를 상쇄해 바닥에 딱 붙인다.
+   위쪽 그림자는 «위에 더 있다»를 알리는 신호다(스크롤 여부가 눈에 안 보이던 자리).
+   ★짧은 모달에는 영향이 없다 — 넘치지 않으면 sticky 는 아무 일도 안 한다. */
     .mp-modal-btn{padding:13px 18px;border-radius:6px;font-family:var(--serif-ko,serif);font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
     .mp-modal-btn-primary{background:#4E3F31;color:#fff;letter-spacing:.04em;box-shadow:0 3px 10px rgba(78,63,49,0.28)}
     .mp-modal-btn-primary:hover{background:#3A2D22}
@@ -1757,7 +1810,8 @@ function openRitualBuilder(p, inv){
       var _dig=false; try{ _dig=!!(window.RitualPreviewLink && RitualPreviewLink.digitalOf(inv)); }catch(e3){}
       // [PHOTO_ASK 2026-08-16] 사진 링크 «유무»만 — 주소는 안 보낸다(빌더는 하객이 볼 수도 있는 판이다)
       var _pho=false; try{ _pho=!!(window.RitualPreviewLink && RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)); }catch(e4){}
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
+      var _meal=false; try{ _meal=!!(window.RitualPreviewLink && RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)); }catch(e5){}   // [MEAL_GUIDE] 모일 식당 «유무»만(이름 아님)
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -1848,7 +1902,8 @@ function openRitualPreview(p, inv){
      ★S 에 써 넣지 않는다 — _embedSave 가 S 를 서버 초안에 굳혀, 링크를 나중에 지워도 옛 값이 남는다. */
   try{ src=(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(p&&p.ritualDraft, {
     digital:RitualPreviewLink.digitalOf(inv),
-    photoShare:RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)
+    photoShare:RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft),
+    meal:RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)   // [MEAL_GUIDE] 모일 식당 «유무»만
   }))||''; }catch(e){}
   if(!src){ _miniToast('식순을 먼저 만들면 미리 들어볼 수 있어요'); return null; }   // 버튼이 안 떠 있어야 정상이지만, 떠 있었다면 빈 화면 대신 이유를 말한다
   /* ★이미 떠 있으면 그 판을 그대로 쓴다 — 연타(빠르게 두 번 누름) [PREVIEW_LINK_V1]
@@ -1932,7 +1987,23 @@ function openFittingView(){
 // '계약서 보기'(.js-view-contract) 클릭 위임 — 카드가 매 렌더마다 다시 그려져도 동작.
 document.addEventListener('click', function(e){
   var b=(e.target&&e.target.closest)?e.target.closest('.js-view-contract'):null;
-  if(b){ e.preventDefault(); openContractView(); }
+  if(!b) return;
+  e.preventDefault();
+  /* ★★[DOC_OVER_LED] 계약서 「보기」도 시착 동의서와 같은 자리다 — 2026-09-21 사장님 지적
+     「계약서보기도 마찬가지야 작은화면이 안없어져」. 시착 쪽만 고치고 이 갈래를 안 봤다.
+     이 버튼은 두 곳에서 쓰인다: 내 정보 모달 안의 서류 줄(js-view-contract)과, 카드의
+     「계약서 보기」 고스트 버튼. **모달 안에서 눌렀을 때만** 모달을 먼저 닫는다 —
+     뷰어(z-index 9999)가 모달 «뒤»에서 열려 작은 창이 그대로 남고, 뒤로가기 층도
+     거꾸로 꽂혀 유령 층이 남는다(시착 주석의 재현 기록과 같은 모양).
+     카드 버튼일 때는 닫을 모달이 없으니 지연 없이 바로 연다. */
+  var _inLed = b.closest && b.closest('#mp_ledger');
+  var _led = document.getElementById('mp_ledger');
+  if(_inLed && _led && _led.classList.contains('open')){
+    closeLedModal();
+    setTimeout(function(){ openContractView(); }, 180);
+    return;
+  }
+  openContractView();
 });
 // ── iOS 안전 배경 스크롤 잠금 (overflow:hidden만으론 iOS Safari 터치 스크롤이 안 막힘 → position:fixed body 고정) · 중첩 카운터 ──
 var _mpLockN=0, _mpLockY=0;
@@ -2002,8 +2073,10 @@ function _mpModalOpenNow(o){
     if(o.bodyHtml){ b.innerHTML=o.bodyHtml; b.style.display=''; }
     else if(o.body){ b.innerHTML=String(o.body).split('\n').map(function(x){return escapeHtml(x);}).join('<br>'); b.style.display=''; }
     else { b.innerHTML=''; b.style.display='none'; }
-    a.innerHTML=''; var done=false;
-    function close(v){ if(done) return; done=true; ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); document.removeEventListener('keydown',onKey); ov.onclick=null; setTimeout(function(){ resolve(v); },0); }
+    a.innerHTML=''; var done=false, _bkId=null;
+    function close(v){ if(done) return; done=true;
+      if(_bkId){ var _i=_bkId; _bkId=null; bkDone(_i); }   /* [ALERT_BK] 뒤로가기로 들어왔으면 bkDone 이 알아서 no-op 이다(_bkFromPop) */
+      ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); _mpUnlock(); document.removeEventListener('keydown',onKey); ov.onclick=null; setTimeout(function(){ resolve(v); },0); }
     var prim=document.createElement('button');
     prim.type='button'; prim.className='mp-modal-btn '+(o.confirmSeal?'mp-modal-btn-seal':'mp-modal-btn-primary'); prim.textContent=o.confirmText||'확인';
     prim.addEventListener('click',function(){ close(true); });
@@ -2019,6 +2092,17 @@ function _mpModalOpenNow(o){
        나가기 판에서 이게 없으면 Esc 가 곧 「그냥 나가기」가 된다(취소하려다 변경을 버린다). */
     function onKey(e){ if(e.key==='Escape' && o.cancel!==false) close(o.dismissNull?null:false); }
     document.addEventListener('keydown',onKey);
+    /* ★★[ALERT_BK 2026-09-21] 알림창(취소 없는 것)에만 뒤로가기 층을 준다.
+       mpModal 계열은 «일부러» 층을 안 만들어 왔다 — popstate 핸들러가 「확인 대화상자가 떠 있는
+       동안 뒤로가기는 무시」로 막는 설계다(습관적 뒤로가기가 «저장 없이 나가기»가 되는 것을 방지).
+       ★그 보호는 **스택에 층이 남아 있을 때만** 작동한다. `!_bkStack.length` 면 그 전에 return 해
+       브라우저 기본 동작(페이지 이탈)으로 빠진다. [DOC_OVER_LED] 로 문서를 열기 전에 모달을 닫게
+       하면서 «스택 0 + 알림창» 조합이 실제로 생겼다(실측: 시착 동의 내용 보기 → 층 1→0).
+       그 상태에서 뒤로가기를 누르면 **동의 내용 창은 그대로인데 마이페이지를 떠난다.**
+       → 알림창은 정보성이라 뒤로가기로 닫는 것이 맞다. modal:true 로 올려 popstate 가
+         «무시»하지 않고 이 층을 소비하게 한다. 확인 대화상자(cancel!==false)는 종전 그대로 —
+         층을 안 만들고, 위 보호에 계속 기댄다. */
+    if(o.cancel===false){ try{ _bkId=bkOpen(function(){ close(true); }, true); }catch(_e){} }
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _mpLock();
     try{ prim.focus(); }catch(_){}
   });
@@ -2453,12 +2537,27 @@ function renderMyPage(d){
         var _pa = d.payment.amounts, _pb = d.payment.bundle || [];
         if (_pb.length && d.payment.bundleTotal != null) {
           head = '결제만 남았어요';
-          sub = '예식이 가까워 한 번에 받아요. 총 ' + fmtWon(d.payment.bundleTotal) + ' 입금이 확인되면 ' + _prep + '가 시작돼요.';
+          /* [NOW_NO_MONEY] 묶음 갈래. 종전엔 「예식이 가까워 한 번에 받아요」를 여기서 말했는데,
+             아래 결제 카드가 **글자 하나 안 틀리고 같은 문장**을 또 말하고 있었다(실렌더로 확인).
+             그 «왜»는 카드에 둔다 — 놀라는 자리가 총액 1,150,000원을 보는 순간이라, 이유는
+             숫자 옆에 붙어 있어야 값이 있다. NOW 는 계약금 갈래와 같은 모양으로 «무엇을»만 말한다. */
+          sub = '아래에서 한 번에 보내 주시면, 확인 후 ' + _prep + '가 시작돼요.';
         } else {
         head = '계약금 입금만 남았어요';   // MPD_G11 계약 성사 환대 1줄(§9-2-⑤)
         var _dep = Number((_pa && _pa.예약금) || 0);   // MPD_G1 ★예약금 결측 폴백(100000) 재도입 금지 — 스냅 예약금 0을 결측 오인해 허위 '100,000 차감' 표시(2026-07-25 수정) · 차감 문구는 예약금>0일 때만
+        /* ★★[NOW_NO_MONEY 2026-09-21 사장님 지적 「윗부분이 금액이 직접적으로 나오니깐 조금
+           지저분한느낌인데 아래랑중복되는거같기도하고」] 금액을 여기서 다시 말하지 말 것.
+           종전 문면: 「계약금 잔액 150,000원(예약금 100,000원 차감)을 아래 계좌로 보내 주세요」
+           바로 아래 계약금 카드가 같은 것을 **세 번** 이미 말한다 —
+             「납부하실 금액 · 150,000원」 · 「계약금 250,000원 − 예약금 100,000원」 · 「입금 계좌 …」
+           ①고객이 같은 숫자를 두 번 읽는다 ②NOW 가 «지금 무엇을 하나»를 말하는 자리인데
+           숫자·계산식이 들어가 문장이 무거워진다(괄호까지 붙는다) ③★두 계산이 갈라질 수 있다 —
+           여기는 _pa.납부액·_pa.예약금 을 직접 읽어 문장을 만들고, 카드는 카드대로 만든다.
+           한쪽만 고치면 화면 안에서 금액이 어긋나고, 그건 돈 화면에서 가장 비싼 종류의 버그다.
+           → NOW 는 «감사 · 무엇을 · 그다음»만. 금액·계산·계좌는 아래 카드 한 곳이 맡는다.
+           ★_dep 는 아래 [MPD_G1] 주석 때문에 남겨 둔다 — 스냅 예약금 0 판정에 쓰인다. */
         sub = '함께하기로 해 주셔서 고마워요.\n' + ((_pa && Number(_pa.납부액) > 0)
-          ? ('계약금 ' + (_dep > 0 ? ('잔액 ' + fmtWon(_pa.납부액) + '(예약금 ' + fmtWon(_dep) + ' 차감)') : fmtWon(_pa.납부액)) + '을 아래 계좌로 보내 주세요. 확인되면 ' + _prep + '가 시작돼요.')
+          ? ('아래에서 계약금을 보내 주시면, 확인 후 ' + _prep + '가 시작돼요.')
           : ('아래 안내에 따라 계약금을 입금해 주시면, 확인 후 ' + _prep + '가 시작돼요.'));
         }
       }
@@ -5664,7 +5763,7 @@ function _invEgParents(){
     +     '<span class="inv-eg-frame"><img loading="lazy" decoding="async" src="/assets/preview/sec-live-account.png" alt="모바일 참석 화면 계좌 표기 예시"></span>'
     +     '<div class="inv-eg-name">모바일 참석 화면</div></a>' : '')
     + '</div>'
-    + '<a class="inv-eg-full" href="'+_pvUrl(F,n+' '+nm+' 청첩장 전체')+'" target="_blank" rel="noopener">전체 청첩장 보기</a>'
+    + '<a class="inv-eg-full" href="'+_pvUrl(F,n+' '+nm+' 청첩장 전체')+'" target="_blank" rel="noopener"><span>전체 청첩장 보기</span></a>'
     + '</div>';
 }
 function designBlock(side,label){
@@ -8379,7 +8478,18 @@ function dineFilterUI(d, wt){
 }
 // 예약 정보(시간·예약자) 입력 — 다이닝 위저드 마지막 단계 전용(2026-07-17 사용자 지시 · 확인서에서 이동). 하객 안내 식사 섹션에 표기됨.
 function _dnRsvHtml(d){
-  return '<div class="gi-row" style="margin-top:14px"><label class="gi-l" for="dn_rtime">식사 예약 시간 <span class="cc-mini" style="color:var(--label-soft)">예약을 마쳤다면 · 하객 안내에 보여요</span></label><input class="cc-input" id="dn_rtime" type="text" autocomplete="off" maxlength="40" value="'+escapeHtml(d.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
+  /* ★★[DN_RSV_WHY 2026-09-22 사장님 지적 「예약자 성함 시간 안 적어도 어떤 시스템으로 진행되는지」]
+     종전엔 칸 두 개와 「예약을 마쳤다면 · 하객 안내에 보여요」 한 마디뿐이었다. 그래서
+     ①예약을 누가 하는지(우리가 대신 해주는 줄 아는 분이 생긴다) ②안 적으면 어떻게 되는지
+     둘 다 화면에 없었다. 비워 두는 것이 «미완»인지 «괜찮은 것»인지 몰라 멈추는 자리다.
+     ★사실대로 적는다 — guide.html:503 은 rtime·rname 이 비면 **그 줄만 안 그린다.**
+       장소·지도·전화는 그대로 나간다. 그러니 「비워 두셔도 괜찮아요」는 근거 있는 안심이다
+       (책임질 수 없는 안심 금지 규칙 — 무엇이 어떻게 되는지까지 말한다). */
+  return '<div class="cc-note" style="text-align:left;margin:14px 0 4px;color:var(--sub);line-height:1.7">'
+      +'예약은 <b style="color:var(--accent);font-weight:500">두 분이 직접</b> 해주세요 · 위 전화번호와 통화 문구를 그대로 쓰시면 돼요.<br>'
+      +'마치고 아래를 적어 두시면 하객 안내에 함께 보여드려요. '
+      +'<span style="color:var(--light)">비워 두셔도 괜찮아요 · 이 줄만 빠지고 장소·지도·전화는 그대로 나가요.</span></div>'
+    +'<div class="gi-row" style="margin-top:4px"><label class="gi-l" for="dn_rtime">식사 예약 시간</label><input class="cc-input" id="dn_rtime" type="text" autocomplete="off" maxlength="40" value="'+escapeHtml(d.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
     +'<div class="gi-row"><label class="gi-l" for="dn_rname">예약자 이름</label><input class="cc-input" id="dn_rname" type="text" autocomplete="off" maxlength="30" value="'+escapeHtml(d.reserveName||'')+'" placeholder="예: 김신랑"></div>';
 }
 function _dnRsvWire(d){   // 입력 즉시 draft에 반영 — '저장 후 나가기'(collect 미경유)로 나가도 값이 실리게
@@ -8390,6 +8500,28 @@ function renderDining(box){
   var d=TRKFLOW.draft;
   // 옛 저장값 호환: venuePick이 없으면 venue·구 파트너 선택에서 복원(구 '식사 형태'는 표시만 안 하고 보존)
   if(!d.venuePick) d.venuePick = d.venue || ((d.partner==='직접 섭외할게요'||d.partner==='상담 때 함께 정할게요')?d.partner:'');
+  /* ★★[DN_SKIP_VS_FAVS 2026-09-22 사장님 지적 「담은곳보기 누르면 애프터웨딩없이 진행해요 라는 페이지가나오는데」]
+     담은 곳이 있는데 venuePick 이 「다이닝 없이 진행할게요」인 저장값이 들어오면, 정리 자리(step 1)가
+     그 분기를 먼저 타서 **담아 둔 곳이 통째로 안 보인다.** 브라우저로 재현했다 —
+     담은곳 2곳 · venuePick=「다이닝 없이」 → 2/2 화면이 「애프터 웨딩 안내 없이 진행해요」.
+     두 분은 분명히 두 곳을 담았는데 «안 하기로 한» 화면을 본다. 담은 것이 사라진 줄 안다.
+     ★둘은 원래 양립하지 않는다 — 「이번엔 괜찮아요」·「조용히 마무리」 버튼은 담은 곳이 0일 때만
+       그려진다. 그러니 «담은 곳이 있다»가 나중이자 더 구체적인 신호다. 옛 결정 쪽을 접는다.
+     ★화면 분기에 조건을 덧대지 않고 **값에서** 푼다 — 분기를 덧대면 partner·dining_on 은 여전히
+       「안 함」으로 남아 관리자 화면과 하객 안내가 또 갈린다(DN_PARTNER_STALE 과 같은 뿌리). */
+  if((d._favs||[]).length && d.venuePick==='다이닝 없이 진행할게요'){
+    d.venuePick=''; d.dining_on='';
+    /* ★★[DN_SKIP_PERSIST] 화면만 고치면 모자란다 — 80_production.gs 의
+         `diningOn = dining_on !== 'N' && (담은 곳 있음)`
+       때문에 'N' 이 저장에 남아 있으면 **하객 안내에서 식사 구역이 통째로 사라진다.**
+       두 분 화면엔 담은 곳이 보이는데 하객은 어디로 갈지 모르는 상태다.
+       ★그런데 «변경 없이 나가기»는 저장을 안 한다(_wizExit → exitBare) — 열었다 바로 닫으면
+         고친 값이 메모리에서 사라지고 하객 안내는 계속 비어 있다. 그래서 여기서 한 번 적는다.
+       ★조용한 저장을 이 집은 꺼리지만, 이건 «사용자가 고친 것»이 아니라 **있을 수 없는 상태를
+         되돌리는 수선**이다. 두 분은 이미 두 곳을 담아 «한다»고 정했고, 저장을 그 결정에 맞출 뿐이다.
+       ★한 번만 돈다 — 지우고 나면 위 조건이 거짓이 되어 다시 들어오지 않는다. */
+    try{ saveTrkDraft(false); }catch(_e){}
+  }
   function syncVenue(){
     if(d.venuePick && d.venuePick!=='직접 섭외할게요' && d.venuePick!=='상담 때 함께 정할게요' && d.venuePick!=='다이닝 없이 진행할게요'){ d.venue=d.venuePick; d.partner='모먼트에디트 연계'; }
     else {
@@ -8398,7 +8530,12 @@ function renderDining(box){
       else {   // 대표 미지정: 담아 둔 식당 후보가 있으면 관리자 화면에도 보이게 partner에 표시(운영자가 '아무것도 안 정한 고객'으로 오인해 헛접근하는 일 방지)
         var _rn=(d._favs||[]).filter(function(v){return v&&v.src!=='attr';}).length;
         if(_rn) d.partner='후보 '+_rn+'곳 비교 중';
-        else if(/^후보 \d+곳 비교 중$/.test(String(d.partner||''))) d.partner='';   // 후보를 다 비웠으면 우리가 쓴 표시만 정리(레거시 partner 값은 보존)
+        /* ★[DN_PARTNER_STALE 2026-09-22] 「다이닝 없이 진행할게요」도 **우리가 쓴 표시**라 같이 정리한다.
+           종전엔 이 정규식이 «후보 N곳 비교 중»만 지워서, 「없이 진행」을 골랐다가 「역시 만들래요」로
+           되돌린 부부의 partner 에 그 문장이 그대로 남았다(실측 ③). 관리자 화면은 partner 를 읽으므로
+           «이 부부는 안 하기로 했다»로 보인다 — 정작 dining_on 은 비어 있는데.
+           ★식당을 담으면 «후보 N곳»으로 덮여 저절로 나았지만, 아무것도 안 담고 나가면 그대로 남았다. */
+        else if(/^후보 \d+곳 비교 중$/.test(String(d.partner||'')) || String(d.partner||'')==='다이닝 없이 진행할게요') d.partner='';   // 우리가 쓴 표시만 정리(레거시 partner 값은 보존)
       }
     }
   }
@@ -8412,7 +8549,12 @@ function renderDining(box){
   if(TRKFLOW.step===0 && !((d._favs&&d._favs.length) || String(d.venuePick||'').trim() || TRKFLOW._dnPick)){
     var m=TRK_META[TRKFLOW.track];
     box.innerHTML='<div class="consult-card inv-wrap">'
-      +'<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+' · 1 / '+m.steps+'</span>'+wizActs()+'</div>'
+      /* ★★[DN_STEP_LABEL 2026-09-22 사장님 지적 「순서도 이상하고」] 입구 게이트는 «단계»가 아니다.
+         종전엔 여기가 «1 / 2» 를 차지해, 바로 다음 식당 목록 화면도 «1 / 2» 였다 — 같은 번호가
+         두 화면에 붙어 «안 넘어갔나»로 읽힌다(실측: 게이트 1/2 → 목록 1/2 → 정리 2/2).
+         게이트는 «만들까 말까»를 고르는 자리이지 만드는 과정의 한 걸음이 아니므로 번호를 뺀다.
+         그러면 1/2=식당 목록 · 2/2=담은 곳 정리 로 걸음과 번호가 1:1 이 된다. */
+      +'<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+'</span>'+wizActs()+'</div>'
       +'<div class="inv-q">예식 뒤의 시간, 어떻게 할까요?</div>'
       +'<div class="inv-sub">예식 후 식사·카페 자리를 하객분들께 안내할지 정해요. 꼭 하지 않으셔도 괜찮아요.</div>'
       +'<div class="dn-gate">'
@@ -8424,12 +8566,25 @@ function renderDining(box){
        종전엔 결과를 버리고 곧바로 '안내 없이 진행해요' 완료 화면을 그렸다 — 실패해도 결정이 기록된 것처럼 보였다. */
     var _nn=$('dn_none'); if(_nn) _nn.addEventListener('click',function(){
       collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N';
-      var _t0=_nn.textContent; _nn.disabled=true;
+      /* ★★[GATE_CARD_BUSY] 종전: `var _t0=_nn.textContent; _nn.disabled=true;`
+         ①신호가 없었다 — `:disabled` 스타일이 없어 눌러도 화면이 그대로였다(CSS 주석 참고).
+         ②★그리고 되돌리는 줄이 카드를 부쉈다. 이 카드 안은 <span> 셋이다(dgc-ico·dgc-t·dgc-d).
+           `_nn.textContent = _t0` 은 그 셋을 **전부 지우고** 한 덩어리 글자로 바꾼다 —
+           즉 저장이 실패하면 카드가 「🍃예식만으로 조용히 마무리애프터…」로 뭉개진 채 남는다.
+           실패는 «다시 누르시면 돼요»여야 하는데, 다시 누를 카드가 망가져 있었다.
+         → 설명 줄(dgc-d)만 갈았다 넣는다. 바깥 구조는 건드리지 않는다.
+         ★reject 도 받는다 — 종전엔 .catch 가 없어 네트워크가 끊기면 버튼이 영영 잠긴 채였다. */
+      var _nd=_nn.querySelector('.dgc-d'), _d0=_nd?_nd.textContent:'';
+      var _undo=function(msg){
+        _nn.disabled=false; _nn.classList.remove('busy'); if(_nd) _nd.textContent=_d0;
+        d.venuePick=''; d.dining_on=''; syncVenue();   // 화면도 되돌린다 — 서버가 모르는 결정을 화면만 기억하지 않게
+        try{ mpToast(msg||'저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){}
+      };
+      _nn.disabled=true; _nn.classList.add('busy'); if(_nd) _nd.textContent='저장하는 중이에요';
       saveTrkDraft(true).then(function(r){
-        if(!(r && r.ok)){ _nn.disabled=false; _nn.textContent=_t0; d.venuePick=''; d.dining_on=''; syncVenue();   // 화면도 되돌린다 — 서버가 모르는 결정을 화면만 기억하지 않게
-          try{ mpToast((r&&r.error)||'저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){} return; }
+        if(!(r && r.ok)){ _undo(r&&r.error); return; }
         TRKFLOW.step=1; renderDining(box);
-      });
+      }, function(){ _undo('저장이 안 됐어요 · 연결을 확인하고 다시 눌러 주세요'); });
     });   // 안 함 = 완결된 결정 → 완료(dining_on='N')로 저장 · _step=1(재진입 시 안내없이 화면) · 행은 '안 함' 배지
 
     return;   // 게이트만 렌더(하단 '다음' 없음 · 나가기는 data-wiz-exit 전역 위임 · 뒤로가기는 TRKFLOW._bk)
@@ -8472,7 +8627,11 @@ function renderDining(box){
       box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.',
         '<div style="text-align:center;margin-top:2px"><button type="button" class="cc-btn-ghost" id="dn_again" style="width:auto;padding:9px 18px;font-size:12px">역시 애프터 웨딩 만들래요</button></div>',true,'저장하고 닫기');
       bindTrk(box,renderDining,collect,{ last:true });
-      var _dnAgain=$('dn_again'); if(_dnAgain) _dnAgain.addEventListener('click',function(){ d.venuePick=''; d.dining_on=''; syncVenue(); TRKFLOW._dnPick=false; TRKFLOW.step=0; saveTrkDraft(false); renderDining(box); });   // 안 함 되돌리기 → 입구 게이트로
+      /* ★★[DN_AGAIN_DIRECT 2026-09-22 사장님 지적] 「역시 애프터 웨딩 만들래요」는 **이미 결정을 말한 버튼**이다.
+         종전엔 _dnPick=false 로 두어 입구 게이트(만들기 vs 안 함)로 되돌아갔다 — 방금 «만들래요»라고
+         한 사람에게 «만들까요?»를 다시 묻는 꼴이라, 한 결정에 두 번 눌러야 했다(실측: ③에서 식당 0곳).
+         → 게이트를 건너뛰고 식당 목록으로 바로 간다. 되돌릴 길은 그 화면의 「이번엔 괜찮아요」에 있다. */
+      var _dnAgain=$('dn_again'); if(_dnAgain) _dnAgain.addEventListener('click',function(){ d.venuePick=''; d.dining_on=''; syncVenue(); TRKFLOW._dnPick=true; TRKFLOW.step=0; saveTrkDraft(false); renderDining(box); });   // 안 함 되돌리기 → 식당 목록으로 바로
     } else {
       var wt2=(TRKFLOW.base&&TRKFLOW.base.weddingTime)||'', arr2=_DN_ARR[wt2]||'', head2=(String(d.headcount||'').match(/\d+/)||[''])[0];   // 숫자만 — '25명' 입력 시 '25명 명' 방지
       var dpart='', wd=(TRKFLOW.base&&TRKFLOW.base.weddingDate)||'', mm=wd.match(/^(\d{4})-(\d{2})-(\d{2})/); if(mm) dpart=mm[1]+'년 '+Number(mm[2])+'월 '+Number(mm[3])+'일';   // 연도 포함 — 내년 예식을 올해로 오인해 예약하는 사고 방지

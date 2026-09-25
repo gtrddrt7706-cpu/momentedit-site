@@ -556,10 +556,34 @@
    "why": "다시 들어온 분께 «무엇이 접수돼 있는지» 한 줄로 알리는 자리 — 종전엔 server 에 현재 예약이 없어 백지 달력만 보였다. PICKED 단계에서 고객에게 가는 알림이 0건이라(admin.slotPicked 는 to:'admin') 화면 모달이 유일한 기록인데, 그 화면에 계좌번호와 예약금 10만원이 함께 뜬다. 옛 판이면 이 줄이 안 내려와 배너가 영영 안 뜬다"
   },
   {
+   "file": "admin",
+   "fn": "_setContactCore",
+   "mark": "CONTACT_FIX",
+   "why": "관리자가 고객 연락처·이메일을 정정하는 유일한 길. 옛 판이면 이 함수가 없어 관리자 화면 버튼이 «함수를 찾을 수 없음»으로 죽는다. 가입 때 한 번 쓰고 끝이던 값이라, 오타가 들어가면 알림톡이 통째로 생략되는데 고칠 방법이 아무 데도 없었다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_kakaoSend",
+   "mark": "CONTACT_SILENT",
+   "why": "연락처 형식이 틀려 알림을 못 보낼 때 관리자에게 메일로 알린다(하루 1통). 옛 판이면 Logger 한 줄만 남기고 조용히 끝나, 고객이 알림을 못 받는 것을 아무도 모른다. admin 의 CONTACT_FIX 와 짝 — 알아야 고친다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSilentContacts",
+   "mark": "CONTACT_SILENT",
+   "why": "알림이 «조용히» 생략되는 고객 목록을 관리자 화면에 띄우는 함수. 95_notify 쪽 같은 이름 표식과 «짝»이다 — 한 파일 몫만 목록에 있으면 다른 파일은 옛 판을 붙여도 안 잡힌다(COVER_PAIR). 옛 판이면 관리자 홈이 이 목록을 못 불러 «알림 안 가는 고객»이 다시 안 보이게 된다"
+  },
+  {
+   "file": "admin",
+   "fn": "_setContactCore",
+   "mark": "CONTACT_SHADOW",
+   "why": "연락처를 고칠 때 «계약서가 읽는 사본»(동의기록.계약정보.groomPhone)까지 따라가는 블록. 옛 판이면 연락처 칸만 바뀌고 서명된 계약서엔 틀린 번호가 그대로 남는다 — 화면 경고는 사라지는데 계약서는 안 고쳐진 상태라 «고쳤다»고 오판하기 가장 쉬운 자리다"
+  },
+  {
    "file": "95_notify",
    "fn": "_nfHoldDrop",
    "mark": "HOLD_DROP_ON_ROLLBACK",
-   "why": "되돌린 고객의 야간 보류 알림을 큐에서 내리는 본체. 이 파일이 옛것이면 취소한 고객에게 보낼 알림이 사흘간 재시도되다 «큐에서 내렸습니다» 메일로 돌아온다(2026-09-24 실사고)"
+   "why": "되돌린 고객의 야간 보류 알림을 큐에서 내리는 본체. 이 파일이 옛것이면 취소한 고객에게 보낼 알림이 사흘간 재시도되다 «큐에서 내렸습니다» 메일로 돌아온다(2026-09-24 실사고) · 연락처가 살아 있었다면 실제로 발송된다"
   },
   {
    "file": "admin",
@@ -1020,6 +1044,12 @@
    "adminArchive",
    "adminSaveMemo",
    "_recordHandler",
+   "adminSetContactPreview",
+   "adminSetContact",
+   "_setContactCore",
+   "_maskPhone",
+   "_maskEmail",
+   "adminSilentContacts",
    "adminApprove",
    "adminAcceptProposal",
    "adminCancel",
@@ -1385,11 +1415,12 @@
   {
    "file": "Admin",
    "marks": [
+    "CONTACT_FIX",
     "BUSY_ONE",
     "ADMIN_NOFEE_LINE",
     "PRICE_2026_08"
    ],
-   "bytes": 94321
+   "bytes": 99127
   },
   {
    "file": "ScreenA_apply",
@@ -1418,7 +1449,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-25 06:48 · 87fb982b",
+ "_생성": "2026-09-25 06:57 · 08da2440",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1826,5 +1857,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "38cfc881c626"
+ "_표식서명": "78d964128b89"
 }

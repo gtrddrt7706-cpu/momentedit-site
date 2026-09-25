@@ -146,8 +146,13 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
            두 분이 아직 안 붙여넣은 그 모양이다. 표식 검사만으로는 안 잡힌다. */
         if (bodyEdit === nm) raw = raw + '\n<!-- 다른 세션이 고친 자리 -->\n';
         if (oldAdmin === nm) {
+          /* ★[SIM_OLD_ALL 2026-09-21] 전부 바꾼다 — 종전엔 `replace` 로 **첫 하나만** 지웠다.
+             한 파일에 같은 표식이 여러 번 있으면 나머지가 남아 deployCheck 가 «최신»으로 읽고,
+             모의는 «못 잡았다»고 빨개진다. 실제로 Admin.html 의 [CONTACT_FIX] 가 6번이라 그랬다.
+             ★진짜 «옛 판»에는 그 표식이 **하나도 없다.** 덜 흉내 낸 쪽이 모의였다 —
+               검사를 느슨하게 한 것이 아니라, 흉내를 사실에 맞춘 것이다. */
           const m = (MARKS.html || []).find((h) => h.file === nm);
-          if (m) raw = raw.replace('[' + m.marks[0] + ']', '[OLD_VERSION]');
+          if (m) raw = raw.split('[' + m.marks[0] + ']').join('[OLD_VERSION]');
         }
         return raw;
       },
