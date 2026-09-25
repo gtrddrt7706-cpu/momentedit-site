@@ -159,6 +159,26 @@
    "file": "95_notify",
    "fn": "_nfTplMissing",
    "why": "켜진 고객 알림 중 템플릿이 빠진 것의 목록(notifySetupCheck·매핑 저장 뒤 로그가 같이 쓴다)"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "_depositCardConfirm",
+   "why": "상담 예약금 카드 승인·자동 확정"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "_depositCardConfig",
+   "why": "예약 화면 카드결제 설정"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "_depositCardBlock",
+   "why": "예약금 카드결제를 막는 까닭 판정"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_depositCardOf",
+   "why": "카드로 받은 상담 예약금 조회(환불 경로 분기)"
   }
  ],
  "marks": [
@@ -863,6 +883,72 @@
    "fn": "_kakaoSend",
    "mark": "KAKAO_FIRST",
    "why": "카톡이 가면 메일은 안 가고 못 가면 그때 메일(2026-09-25 사장님 지시). 이 파일이 옛것이면 상담 완료·결과물 전달이 카톡에 실패해도 대체 메일이 안 가고, 상담 확정은 카톡 실패 때 메일이 두 통 간다"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "handleCardConfirm",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 카드로 낸 상담 예약금이 계약금 경로로 가 «결제 정보가 올바르지 않습니다»로 끝난다(돈은 토스에 승인만 된 채 남는다)"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "handleCardPayConfig",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 예약 화면에 카드결제 탭이 안 뜬다"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "_depositCardConfirm",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 락 안에서 입금확인·결제수단·카드키 기록, 락 밖에서 자동 확정"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 카드로 낼 신청도 관리자에게 «승인 필요»로 가, 결제 전에 승인을 누르면 돈 없이 확정된다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "_maybeRefundAcctReq",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 카드로 낸 예약금만 있는 취소 고객에게 환불 계좌를 여쭙는다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "handleCancelReservation",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 카드 예약금 고객이 마이페이지에서 취소해도 운영자 환불 메일이 안 간다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminText",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 관리자 한 줄 알림이 카드 예약금도 «환불 송금 필요»·«승인 필요»로 적는다"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "buildConsultState",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 마이페이지 취소 패널이 카드 예약금 고객에게도 환불 계좌를 받는다"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "buildRefundBankState",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 카드 예약금뿐인 종료 고객에게도 환불 계좌 칸이 뜬다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 처리할 일이 카드 예약금 취소를 «송금 필요 · 계좌 요청»으로, 카드 결제 대기 신청을 그냥 «신규 신청»으로 보인다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminForceStage",
+   "mark": "DEPOSIT_CARD",
+   "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 이 파일이 옛것이면 강제 취소 때 카드 예약금뿐인 고객에게 환불 계좌를 여쭙는다"
   }
  ],
  "fns": {
@@ -1302,6 +1388,12 @@
    "_payMarkCard",
    "_payLog",
    "_payPreValidate",
+   "_payDepositAmount",
+   "_depositCardBlock",
+   "_depositCardKeep",
+   "_depositCardTrace",
+   "_depositCardConfig",
+   "_depositCardConfirm",
    "handleCardConfirm",
    "handleCardPayConfig",
    "ZZ_tossPing"
@@ -1423,6 +1515,7 @@
    "actApprove",
    "actAccept",
    "_releaseWeddingHoldOnCancel",
+   "_depositCardOf",
    "_maybeRefundAcctReq",
    "actCancel",
    "serveCancelD",
@@ -1766,7 +1859,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-25 13:01 · 089b7136",
+ "_생성": "2026-09-25 14:24 · 366cf5ae",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2070,5 +2163,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "54618661446b"
+ "_표식서명": "132ce5cc009d"
 }

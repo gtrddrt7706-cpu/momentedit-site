@@ -107,11 +107,131 @@ function _payPreValidate(cust, milestone) {
   return '';
 }
 
+/* ★★[DEPOSIT_CARD 2026-09-25 사장님 «추천대로» — 「예약금에도 카드결제 되게」] 상담 예약금(상담 예약 시트)도 카드로.
+   ① 설정 조회(cardPayConfig · milestone '예약금') — 예약 행 기준으로 «받을 수 있나»만 본다(아직 시간 선택 전이어도 된다).
+   ② 승인(cardConfirm · milestone '예약금') — 락 안에서: 막을 까닭 · 시간선택완료 · 슬롯 비어 있음 · 금액 → 토스 승인 → 입금확인·결제수단·카드키 기록.
+      락을 푼 «뒤»에 확정(actApprove)을 부른다 — actApprove 는 스크립트 락을 스스로 잡고 finally 에서 풀어서, 안에서 부르면
+      바깥 락이 먼저 풀린다([PAY_LOCK_REENTRANT] 와 같은 함정). 확정은 슬롯을 다시 확인하니, 그 사이 슬롯이 찼으면 확정만 안 되고
+      관리자에게 «결제는 끝남 · 변경 제안 필요» 메일이 간다(돈은 받았는데 아무도 모르는 창을 없앤다).
+   ③ 환불 — 카드로 받은 예약금은 «카드 결제 취소»로 돌려준다(계좌 요청 · 송금 큐 문구가 갈린다: consultation-booking · admin · cancel.html).
+      취소에 쓸 paymentKey·orderId 를 동의기록.카드결제.예약금 에 남긴다(토스 관리자 화면 검색 · 나중 API 취소 모두).
+   ★스냅은 막는다 — 스냅의 원장 키 '예약금'은 이미 «계약금 카드분»이라(아래 _pmDepKey) 같은 키를 두 돈이 나눠 쓰게 된다.
+   ★PAY_CARD_ENABLED 가 꺼져 있으면 아무 일도 안 한다(위 두 함수 첫 줄) — 켜기 전까지 라이브 영향 0. */
+function _payDepositAmount() {
+  return Number((typeof PAYMENT !== 'undefined' && PAYMENT && PAYMENT.예약금) || (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.DEPOSIT) || 100000) || 100000;
+}
+function _depositCardBlock(consult, cust) {   // 카드로 예약금을 받을 수 없는 까닭(없으면 '') — 설정 조회·승인이 같은 자로 본다
+  if (!consult) return '상담 신청 정보를 찾을 수 없어요.';
+  if (cust && String(cust.get('상품타입') || '').trim() === '웨딩스냅') return '스냅은 예약금 카드결제를 쓰지 않아요.';
+  if (cust && typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';
+  if (String(consult.get('상태') || '').trim() === ST.CANCELLED) return '취소된 예약이에요.';
+  if (String(consult.get('입금확인') || '').trim() === '확인') return '이미 예약금이 확인됐어요.';
+  var pm = {}; try { pm = _parseJsonSafe(cust ? cust.get('동의기록') : '').결제수단 || {}; } catch (e) { pm = {}; }
+  if (pm.예약금 === '카드') return '이미 카드로 결제된 예약금이에요.';
+  return '';
+}
+function _depositCardKeep(code, info) {   // 환불(카드 취소)에 쓸 키 — 동의기록을 최신으로 다시 읽어 이 키만 병합
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  var cust = findCustomerByCode(code); if (!cust) return;
+  var rec = _parseJsonSafe(cust.get('동의기록'));
+  if (!rec.카드결제) rec.카드결제 = {};
+  rec.카드결제.예약금 = info;
+  touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
+}
+function _depositCardTrace(code, text) {   // 처리이력 — _recordHandler 는 누른 사람을 «관리자»로 적어 고객 결제에 맞지 않는다
+  try {
+    var cust = findCustomerByCode(code); if (!cust) return;
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+    var prev = String(cust.get('처리이력') || ''), line = '[' + fmtKST(new Date()) + '] 카드결제: ' + text;
+    touchCustomer(sheet, colOf, cust.num, { '처리이력': prev ? (prev + '\n' + line) : line });
+  } catch (e) {}
+}
+function _depositCardConfig(body, cfg) {
+  var _mk = '[DEPOSIT_CARD]';
+  var a = (typeof _sessionToConsult === 'function') ? _sessionToConsult(String((body && body.token) || '').trim()) : { ok: false, error: '예약 정보를 불러올 수 없습니다.' };
+  if (!a.ok) return { ok: false, error: a.error };
+  var why = _depositCardBlock(a.consult, a.cust);
+  if (why) return { ok: true, enabled: false, reason: why };
+  return { ok: true, enabled: true, clientKey: cfg.clientKey, amount: _payDepositAmount(), orderName: '모먼트에디트 상담 예약금' };
+}
+function _depositCardConfirm(body, cfg) {
+  var _mk = '[DEPOSIT_CARD]';
+  var a = (typeof _sessionToConsult === 'function') ? _sessionToConsult(String((body && body.token) || '').trim()) : { ok: false, error: '예약 정보를 불러올 수 없습니다.' };
+  if (!a.ok) return { ok: false, error: a.error };
+  var code = a.code, milestone = '예약금';
+  var paymentKey = String((body && body.paymentKey) || '').trim();
+  var orderId = String((body && body.orderId) || '').trim();
+  var amount = Math.round(Number((body && body.amount) || 0));
+  if (!paymentKey || !orderId || !(amount > 0)) return { ok: false, error: '결제 정보가 올바르지 않습니다.' };
+  var lock = _payLock();
+  if (!lock) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
+  var rowNum = null, _dk = '', _tm = '';
+  try {
+    var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
+    var cr = findRowByPersonalCode(code);
+    if (!cr) return { ok: false, error: '상담 신청 정보를 찾을 수 없습니다.' };
+    var r = row(sheet, colOf, cr.num), cust = findCustomerByCode(code);
+    // 같은 주문의 재호출(복귀 화면 새로고침 · 중복 요청) — 이미 끝난 결제를 «성공»으로 다시 알려 준다(«결제 안 됨»으로 오인시키지 않는다)
+    var _prev = null; try { _prev = (_parseJsonSafe(cust ? cust.get('동의기록') : '').카드결제 || {}).예약금 || null; } catch (e) { _prev = null; }
+    if (_prev && _prev.orderId && _prev.orderId === orderId) {
+      var _st0 = String(r.get('상태') || '').trim();
+      return { ok: true, recorded: true, repeat: true, approved: (_st0 === ST.APPROVED || _st0 === ST.CONFIRMED),
+        date: (typeof prettyDate === 'function' && r.get('선택날짜')) ? prettyDate(r.get('선택날짜')) : '', time: String(r.get('선택시간') || '') };
+    }
+    var why = _depositCardBlock(r, cust);
+    if (why) {
+      var dup = /이미/.test(why);
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: dup ? '중복' : '실패', memo: why });
+      return dup ? { ok: true, already: true, alreadyMsg: why + ' 카드결제는 진행되지 않았어요.' } : { ok: false, error: why };
+    }
+    if (String(r.get('상태') || '').trim() !== ST.PICKED) {   // 신청(시간 선택)이 먼저 들어가 있어야 한다 — 신청 없이 돈만 받는 창을 막는다
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, result: '실패', memo: '상태 ' + String(r.get('상태') || '') });
+      return { ok: false, error: '신청이 접수된 뒤에 결제할 수 있어요. 화면을 새로 고쳐 주세요. 결제는 진행되지 않았어요.' };
+    }
+    var dateKey = r.get('선택날짜'), time = r.get('선택시간');
+    if (!dateKey || !time) return { ok: false, error: '선택하신 시간이 없어요. 결제는 진행되지 않았어요.' };
+    if (typeof _slotTaken === 'function' && _slotTaken(dateKey, time, r.num)) {   // 캡처 «전»에 막는다 — 찬 시간에 돈부터 받지 않게
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, result: '실패', memo: '슬롯 마감' });
+      return { ok: false, slotTaken: true, error: '그 시간이 방금 다른 예약으로 마감됐어요. 결제는 진행되지 않았어요. 다른 시간을 골라 주세요.' };
+    }
+    var expected = _payDepositAmount();
+    if (amount !== expected) {
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, result: '실패', memo: '금액불일치 기대' + expected });
+      return { ok: false, error: '결제 금액이 일치하지 않습니다. 다시 시도해 주세요.' };
+    }
+    var t = _tossConfirm(cfg, paymentKey, orderId, amount);
+    if (!t.ok) {
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스실패', memo: (t.error || '') + ' ' + (t.code || '') });
+      return { ok: false, error: '결제 승인에 실패했습니다. ' + (t.error || '') };
+    }
+    writeCell(sheet, colOf, r.num, '입금확인', '확인');   // 계좌이체의 «입금 확인»과 같은 칸 — 확정·환불 큐·관리자 화면이 이 칸을 본다
+    try { _payMarkCard(code, '예약금'); } catch (e) {}   // 카드=매출전표 → 현금영수증 발급 큐에서 제외 · 환불은 카드 취소로
+    try { _depositCardKeep(code, { orderId: orderId, paymentKey: paymentKey, amount: amount, at: fmtKST(new Date()) }); } catch (e) {}
+    _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: '입금확인 기록' });
+    rowNum = cr.num; _dk = dateKey; _tm = String(time || '');
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+
+  var approved = false;   // 락 «밖»에서 확정 — 슬롯은 actApprove 가 다시 확인한다
+  try {
+    var sh2 = getSheet(), co2 = buildHeaderIndex(sh2);
+    actApprove(sh2, co2, row(sh2, co2, rowNum));
+    var after = String(row(sh2, co2, rowNum).get('상태') || '').trim();
+    approved = (after === ST.APPROVED || after === ST.CONFIRMED);
+  } catch (e) { approved = false; }
+  _depositCardTrace(code, '상담 예약금 ' + Number(amount).toLocaleString() + '원 · ' + (approved ? '예약 자동 확정' : '자동 확정 못 함(변경 제안 필요)'));
+  try {
+    if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카드 결제 확인 · ' + code + ' · 상담 예약금 ' + Number(amount).toLocaleString() + '원 · '
+      + (approved ? '예약 자동 확정됨(처리할 일 없음)' : '자동 확정 못 함 — 그 시간이 먼저 찼거나 오류 · 결제는 완료 · 변경 제안을 보내 주세요'));
+  } catch (e) {}
+  return { ok: true, recorded: true, approved: approved, date: (typeof prettyDate === 'function' && _dk) ? prettyDate(_dk) : '', time: _tm };
+}
+
 /** 카드결제 승인 수신 (doPost action='cardConfirm') */
 function handleCardConfirm(body) {
   var cfg = _payCfg();
   if (!cfg.enabled) return { ok: false, error: '카드결제는 현재 사용하지 않습니다.' };   // 플래그 OFF — 안전 차단
   if (!cfg.secret)  return { ok: false, error: '결제 설정이 준비되지 않았습니다.' };
+  if (String((body && body.milestone) || '').trim() === '예약금') return _depositCardConfirm(body, cfg);   // [DEPOSIT_CARD] 상담 예약금 — 예약 시트 기준 · 락 밖에서 확정
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var milestone = String((body && body.milestone) || '').trim();
@@ -260,6 +380,7 @@ function handleCardConfirm(body) {
 function handleCardPayConfig(body) {
   var cfg = _payCfg();
   if (!cfg.enabled || !cfg.clientKey) return { ok: true, enabled: false };
+  if (String((body && body.milestone) || '').trim() === '예약금') return _depositCardConfig(body, cfg);   // [DEPOSIT_CARD] 상담 예약금 — 예약 화면(schedule.html)이 부른다
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var cust = findCustomerByCode(String(s.row.get('개인코드') || '').trim());
