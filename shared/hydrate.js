@@ -179,6 +179,13 @@
     };
   }
 
+  /* ★[SLOT_CLOCK 2026-09-25] 슬롯 ID → 실제 본예식 시각. 부부 시트 weddingTime 은 슬롯 ID(10:00·13:20·16:40)로 저장된다
+     (다이닝 키가 이 값을 쓴다 [J5] · 스냅 상품은 청첩장 단계가 없어 ID 가 아닌 값이 올 일이 없다).
+     옛 판은 ID 를 그대로 찍어 청첩장이 «오후 1:20»이었다 — 본예식 13:25 · 내빈 입장 13:05 인데
+     «본예식 20분 전부터 입장»을 읽은 하객은 13:00 에 온다(대기 공간 없음). 값은 mypage.html SLOT_CLOCK 과 같다. */
+  var SLOT_CLOCK = { '09:00': '10:05', '12:20': '13:25', '15:40': '16:45', '10:00': '10:05', '13:20': '13:25', '16:40': '16:45' };
+  function slotClock(t) { t = String(t || '').trim(); return SLOT_CLOCK[t] || t; }
+
   // 시간 '14:00' → {display:'오후 2:00', kor:'오후 두 시'}
   function transformTime(weddingTime) {
     var s = String(weddingTime || '14:00').trim();
@@ -231,7 +238,7 @@
     var groomEn = transformEnName(c.groomNameEn);
     var brideEn = transformEnName(c.brideNameEn);
     var date = transformDate(c.weddingDate);
-    var time = transformTime(c.weddingTime);
+    var time = transformTime(slotClock(c.weddingTime));   // [SLOT_CLOCK]
     var gAcct = coupleAccount(c.groomBank, c.groomAccount);
     var bAcct = coupleAccount(c.brideBank, c.brideAccount);
     // 측 라벨: 부모 계좌가 함께 표시되면 "신랑측/신부측"(여러 명), 본인만이면 "신랑/신부". 측별 독립 판단.
@@ -463,8 +470,8 @@
         if (_ldEl && couple.groomName && couple.brideName) {
           var _ld = JSON.parse(_ldEl.textContent || '{}');
           _ld.name = couple.groomName + ' · ' + couple.brideName + ' 결혼식';
-          var _lm = String(couple.weddingDate || '').match(/^\d{4}-\d{2}-\d{2}$/) && String(couple.weddingTime || '').match(/^\d{2}:\d{2}$/);
-          if (_lm) _ld.startDate = couple.weddingDate + 'T' + couple.weddingTime + ':00+09:00';
+          var _lm = String(couple.weddingDate || '').match(/^\d{4}-\d{2}-\d{2}$/) && String(slotClock(couple.weddingTime)).match(/^\d{2}:\d{2}$/);
+          if (_lm) _ld.startDate = couple.weddingDate + 'T' + slotClock(couple.weddingTime) + ':00+09:00';   // [SLOT_CLOCK]
           if (venue.nameKo) _ld.location = { '@type': 'Place', name: venue.nameKo, address: venue.address || '' };
           _ldEl.textContent = JSON.stringify(_ld);
         }

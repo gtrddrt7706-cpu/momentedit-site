@@ -78,6 +78,13 @@ run index.html '16~25m | The Ceremony' '30m | The Ceremony'               # FAQ 
 run index.html 'Ceremony 16~25분' 'Ceremony 30분'                          # Service JSON-LD
 run assets/sequence-modal.js "'16~25분'" "'30분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
 run order-preview.html "'16~25분'" "'30분'"                                # 식순 만들기 표
+# [SLOT_CLOCK 2026-09-25] 슬롯 → 본예식 시각 표 여섯 벌 — 옛 ID 값(13:20)으로 되돌리면 잡혀야 한다
+run mypage.html "'12:20':'13:25'" "'12:20':'13:20'"
+run admin.html "'13:20':'13:25'" "'13:20':'13:20'"
+run automation/admin/Admin.html "'16:40':'16:45'" "'16:40':'16:40'"
+run shared/hydrate.js "'13:20': '13:25'" "'13:20': '13:20'"
+run live.html "'10:00': '10:05'" "'10:00': '10:00'"
+run automation/platform/95_notify.gs "'12:20': '13:25'" "'12:20': '13:20'"
 run order-preview.html '본식 16~25분' '본식 30분'                           # 표 밖 산문
 run assets/advisor-kb.js 'Ceremony 16~25분' 'Ceremony 30분'                # AI 상담사
 run api/_kb.js '16~25분 The Ceremony' '30분 The Ceremony'                  # 서버 지식

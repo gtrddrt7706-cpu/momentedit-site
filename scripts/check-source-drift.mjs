@@ -304,6 +304,51 @@ function scan(needle) {
   else ok(`절대 시각 시간표 ${slots}칸 일치 (본예식 = 도착+${D.DAY.ready + D.DAY.snap}분 · 입장 그 ${LEAD}분 전 · 종료 도착+${D.DAY.total}분)`);
 }
 
+/* 6-b) ★슬롯 → 본예식 시각 표 [SLOT_CLOCK 2026-09-25 사장님 «시간이 안 맞는 곳이 간혹 있다»]
+   (6)은 «표»만 봤다. 그런데 예식 시각은 표 밖에서 더 많이 찍힌다 — 마이페이지 D-day 줄·임시고정 카드·
+   관리자 상세·청첩장·라이브 페이지·알림톡. 그 자리들은 슬롯 ID(10:00·13:20·16:40 = 도착+60)를 그대로
+   «본예식»으로 찍고 있었고, 스냅이 45분이 된 8/9 부터 5분 어긋났다(검사는 전부 초록이었다).
+   이제 그 자리는 저마다 SLOT_CLOCK 표 하나를 거친다. 여기서 그 표 여섯 벌과 문의 화면 라벨을 D.DAY 로 잰다.
+   ★키: 계약 슬롯(도착 · 70_journey WEDDING_SLOT.SLOTS)과 슬롯 ID(도착+60) 둘 다 있어야 한다 — 하나라도 빠지면
+     그 값으로 저장된 고객만 옛 시각을 본다. */
+{
+  const hhmm = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+  const toMin = (x) => +x.slice(0, 2) * 60 + +x.slice(3, 5);
+  const bad = [];
+  const jr = fs.readFileSync(path.join(root, 'automation/platform/70_journey.gs'), 'utf8');
+  const sm = jr.match(/SLOTS:\s*\[([^\]]*)\]/);
+  const arrives = sm ? [...sm[1].matchAll(/'(\d{2}:\d{2})'/g)].map((m) => m[1]) : [];
+  if (arrives.length !== 3) bad.push(`70_journey.gs WEDDING_SLOT.SLOTS 를 ${arrives.length}개 읽었다(3이어야 한다) — 형식이 바뀌어 검사가 눈감는다`);
+  const want = {};
+  for (const a of arrives) {
+    const c = hhmm(toMin(a) + D.DAY.ready + D.DAY.snap);
+    want[a] = c; want[hhmm(toMin(a) + 60)] = c;
+  }
+  const FILES = ['mypage.html', 'admin.html', 'automation/admin/Admin.html', 'shared/hydrate.js', 'live.html', 'automation/platform/95_notify.gs'];
+  let tables = 0;
+  for (const f of FILES) {
+    const src = fs.readFileSync(path.join(root, f), 'utf8');
+    const hits = [...src.matchAll(/SLOT_CLOCK\s*=\s*\{([^}]*)\}/g)];
+    if (!hits.length) { bad.push(`${f}: SLOT_CLOCK 표가 없다 — 이 화면은 슬롯 ID 를 본예식으로 찍는다`); continue; }
+    for (const h of hits) {
+      tables++;
+      const got = Object.fromEntries([...h[1].matchAll(/'(\d{2}:\d{2})'\s*:\s*'(\d{2}:\d{2})'/g)].map((m) => [m[1], m[2]]));
+      for (const k of Object.keys(want)) {
+        if (got[k] !== want[k]) bad.push(`${f}: SLOT_CLOCK['${k}'] = ${got[k] || '없음'} ≠ 본예식 ${want[k]} (도착+준비${D.DAY.ready}+스냅${D.DAY.snap})`);
+      }
+      for (const k of Object.keys(got)) if (!(k in want)) bad.push(`${f}: SLOT_CLOCK 에 모르는 키 '${k}'`);
+    }
+  }
+  // 문의 화면 라디오 라벨 «오후 (13:25)» — 표가 아니라 글자로 적힌 본예식 시각
+  const inq = fs.readFileSync(path.join(root, 'inquiry.html'), 'utf8');
+  const labs = [...inq.matchAll(/compact-text">(?:오전|오후|늦은 오후) \((\d{2}:\d{2})\)</g)].map((m) => m[1]);
+  const wantLab = arrives.map((a) => want[a]);
+  if (labs.join() !== wantLab.join()) bad.push(`inquiry.html 시간대 라벨 ${labs.join(' · ') || '못 읽음'} ≠ 본예식 ${wantLab.join(' · ')}`);
+  if (tables < FILES.length) bad.push(`SLOT_CLOCK 표를 ${tables}벌밖에 못 읽었다(최소 ${FILES.length})`);
+  if (bad.length) no(`슬롯 → 본예식 시각이 어긋난다 — 스냅 길이를 바꿨으면 SLOT_CLOCK 여섯 벌을 함께 고칠 것\n    ${[...new Set(bad)].join('\n    ')}`);
+  else ok(`슬롯 → 본예식 시각 ${tables}벌 + 문의 라벨 일치 (${wantLab.join(' · ')})`);
+}
+
 /* ─────────────────────────────────────────────────────────────────
    7) 문서가 **자기 자신을 세어 적은 자리** [DOC_SELF_COUNT 2026-08-11]
 

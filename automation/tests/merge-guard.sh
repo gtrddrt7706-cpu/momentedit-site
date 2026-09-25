@@ -2031,6 +2031,14 @@ chk 'D.DAY' scripts/check-source-drift.mjs 3
 #   이 세 벌만 옛 시각으로 남았다(검사 전부 초록). 길이만 보는 검사는 시계 숫자를 못 본다.
 chk 'CLOCK_TABLE' scripts/check-source-drift.mjs 1
 chk 'ref-time' scripts/check-source-drift.mjs 1
+# [SLOT_CLOCK 2026-09-25] 표 밖의 예식 시각(마이페이지 D-day·임시고정·관리자·청첩장·라이브·알림톡)은 슬롯 ID(13:20)를
+#   본예식으로 찍고 있었다 — 8/9 부터 5분 어긋남. 이제 SLOT_CLOCK 한 표를 거치고, drift (6-b)가 여섯 벌을 DAY 로 잰다.
+chk 'SLOT_CLOCK' scripts/check-source-drift.mjs 2
+chk 'SLOT_CLOCK' mypage.html 5
+chk 'slotClock(c.weddingTime)' shared/hydrate.js 1
+chk 'slotKo(x.slot)' automation/platform/95_notify.gs 4
+nochk "var BASE={'09:00':'10:00'" mypage.html
+nochk "'>'+LABELS\[t\]+' '+t+'</option>'" mypage.html
 # ── [FAQ_MID_HOLD 2026-08-10] FAQ·JSON-LD 두 자리는 **범위 꼴로 둔다** ──
 # 이 두 자리를 가운데값(20m/35m)으로 통일하면 보기엔 깔끔한데, 그 대가로 **감시망에서 빠진다.**
 # 주변 산문에 숫자가 많아서(140분·45분·5분·55분·20분·9시 45분…) check-source-drift 가
