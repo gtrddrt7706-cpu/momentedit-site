@@ -57,11 +57,15 @@ ok('① 뒤쪽 사슬(인사 · 축사 · 편지) → 뒤쪽 문구', O.noticeOf
 ok('① 인사 «말 없이»면 앉아 듣는 순간이 아니다', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, tributeSay: 'none', freeWhat: 'speech', freeLen: '1' }) !== O.NOTICE.heavyBack);
 ok('① 준비한 순서가 영상이면 사슬이 끊긴다', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'video', freeLen: '1' }) === '');
 ok('② 인사 400자 + 편지 부모님께 → 알림 ②', O.noticeOf({ on: { tribute: 1, declare: 1, letter: 1, ring: 1, toast: 1 }, tributeSay: 'long', letter: 'parent' }) === O.NOTICE.twice);
-ok('③ 축배 없음 + 끝이 선언 → 알림 ③', O.noticeOf({ on: { declare: 1 } }) === O.NOTICE.toast
-  && O.noticeOf({ on: { toast: 1 }, toast: 'cake' }) === O.NOTICE.toast
-  && O.noticeOf({ on: { declare: 1, toast: 1 }, toast: 'cake' }) === ''
-  && O.noticeOf({ on: { declare: 1, toast: 1 } }) === '');
-ok('④ 전부 + 준비한 순서 3분 → 알림 ④(사진과 인사 < 23분 · 내림)', (() => { const S = O.applyExample({}, 'all'); S.on.free = 1; const n = O.noticeOf(S); return n === O.NOTICE.short(Math.floor(O.DAYMIN - O.bodySec(S)[1] / 60)) && Math.floor(O.DAYMIN - O.bodySec(S)[1] / 60) < 23; })());
+/* [DETAIL_0925 A2] 알림 ③ 은 고른 순간이 넷 이상일 때만 — 셋 이하면 «끝이 조용하다»를 말하지 않는다 */
+ok('③ 축배 없음 + 끝이 선언 → 알림 ③(고른 순간 넷 이상일 때만)', O.noticeOf({ on: { declare: 1 } }) === ''
+  && O.noticeOf({ on: { bless: 1, ring: 1, vow: 1, declare: 1 } }) === O.NOTICE.toast
+  && O.noticeOf({ on: { bless: 1, ring: 1, vow: 1, toast: 1 }, toast: 'cake' }) === O.NOTICE.toast
+  && O.noticeOf({ on: { bless: 1, ring: 1, record: 1, declare: 1 } }) === ''
+  && O.noticeOf({ on: { bless: 1, ring: 1, declare: 1, toast: 1 }, toast: 'cake' }) === ''
+  && O.noticeOf({ on: { bless: 1, ring: 1, declare: 1, toast: 1 } }) === '');
+/* [DETAIL_0925 A2] ④ 의 N 은 띠의 «사진과 인사» 아래 값(span.pa)과 같은 수 — 알림과 띠가 다른 숫자를 말하지 않는다 */
+ok('④ 전부 + 준비한 순서 3분 → 알림 ④(사진과 인사 < 23분 · 띠와 같은 값)', (() => { const S = O.applyExample({}, 'all'); S.on.free = 1; const pa = O.span(S).pa; return O.noticeOf(S) === O.NOTICE.short(pa) && pa < 23; })());
 ok('준비한 순서 칩이 시간 · 준비 목록에 곧장', (() => { const S = { on: { free: 1 } }; const a = O.bodySec(S)[0]; O.setChip(S, 'freeLen', '1'); const b = O.bodySec(S)[0]; O.setChip(S, 'free', 'speech'); O.setChip(S, 'freeLen', '2'); const c = O.bodySec(S);
   return a - b === 120 && Math.round(O.partsOf('free', S).reduce((x, y) => x + y) - 10) === 126 - 0 && /축사하실 분/.test(O.prepOf('free', S)[0][1]); })());
 ok('축사 2분 = 대본 126초 · 넉넉 161초', (() => { const S = { on: { free: 1 }, freeWhat: 'speech', freeLen: '2' }; const p = O.partsOf('free', S); return p[0] + p[1] + p[2] === 126 && Math.round(p[0] + 1.25 * p[1] + p[2] + p[3]) === 161; })());
@@ -90,15 +94,14 @@ ok('준비한 순서 판별 넷 → 여는 말 100~103 · 맺는 말 104', ['vid
 ok('영상 · 무대 판만 «재생 안 됨»(105)을 든다', (() => { const f = (w) => C.build({ course: 'open', on: { free: 1 }, freeWhat: w }, { mode: 'console' }).cues.filter((c) => c.k === 'free')[0].rescue; return f('video').slug === 'narr-free-fail' && f('show').slug === 'narr-free-fail' && !f('gift') && !f('speech'); })());
 ok('신랑 큰절 → 106 · 사람 구간이 그 줄 뒤로', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'tribute-in,tribute-bow-groom,tribute-out' && !r[0].live && !!r[1].live; })());
 ok('옛 코스에선 신랑 큰절이 꽃으로 돌아간다', slugs({ course: 'family', tribute: 'bowGroom' }).indexOf('tribute-bow-groom') < 0);
-ok('[ENTRY_SCENE] 새 코스 · 맞절이면 도착 멘트가 108 로 바뀐다', slugs({ course: 'open', on: {}, entryScene: 'bow' }).indexOf('narr-entry-out-bow') > -1 && slugs({ course: 'open', on: {}, entryScene: 'bow' }).indexOf('narr-entry-out') < 0);
-ok('[ENTRY_SCENE] 옛 코스는 맞절 값이 와도 도착 멘트 그대로', slugs({ course: 'family', entryScene: 'bow' }).indexOf('narr-entry-out-bow') < 0);
+ok('[ENTRY_SCENE] 첫 모습은 소리가 같다(맞절이어도 큐 목록이 바라보기와 같다)', JSON.stringify(slugs({ course: 'open', on: {}, entryScene: 'bow' })) === JSON.stringify(slugs({ course: 'open', on: {}, entryScene: 'look' })));
 ok('새 코스에 옛 경고 셋이 안 뜬다', C.build({ course: 'open', on: {} }, {}).meta.warn.length === 0);
 ok('예시 넷 · 콘솔 큐가 선다', O.EXAMPLES.every((e) => C.build(O.applyExample({ course: 'open' }, e.k), { mode: 'console' }).cues.length > 8));
 
 /* ── 6. 옛 코스는 소리가 한 줄도 안 바뀐다(Q1 ② · 초안을 옮기지 않는다) ── */
 const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', 'narr-candle-in-parents', 'narr-candle-in-fathers', 'narr-candle-in-others', 'narr-candle-out', 'declare-clap-a', 'declare-clap-b', 'toast-pour-mix', 'toast-pour-family',
-  'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail', 'tribute-bow-groom', 'toast-both-pour-b', 'narr-entry-out-bow'];
-ok('FILES 맨 끝 89~108 이 새 줄 20개(108 = 첫 장면 · 맞절 [ENTRY_SCENE])', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail', 'tribute-bow-groom', 'toast-both-pour-b'];
+ok('FILES 맨 끝 89~107 이 새 줄 19개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
 ok('옛 코스 여섯 · 전 판 — 새 줄이 안 나온다', ['damback', 'gamdong', 'family', 'minimal', 'festive', 'record'].every((c) =>
   ['toast', 'cake', 'both'].every((t) => slugs({ course: c, toast: t, extra: { toast: 1, free: 1 }, wine: 'mix', declare: 'clap', tribute: 'bowGroom', freeWhat: 'speech' }).every((x) => NEW.indexOf(x) < 0))));
 
@@ -124,7 +127,7 @@ if (process.argv.includes('--live')) {
     await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
     await pg.click('#next'); await pg.waitForTimeout(600); await pg.click('#next'); await pg.waitForTimeout(600);
-    const g = () => pg.evaluate(() => ({ band: (document.querySelector('.op-band .t1') || {}).textContent || '', note: (document.querySelector('.op-note') || {}).textContent || '', ow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    const g = () => pg.evaluate(() => ({ band: (document.querySelector('.op-band .t1') || {}).textContent || '', note: (document.querySelector('.op-note .op-note-t') || {}).textContent || '', ow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       moves: document.querySelectorAll('.mvb').length, locks: [...document.querySelectorAll('.op-tg:disabled')].length, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
     let s = await g();
     ok(`${w} 빈 채 띠 «본식 약 2~3분 · 사진과 인사 약 48분»`, /본식 약 2~3분/.test(s.band) && /약 48분/.test(s.band), s.band);

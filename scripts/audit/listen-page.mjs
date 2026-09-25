@@ -68,8 +68,9 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 카드마다 장면 자리`, await pg.evaluate(() => [...document.querySelectorAll('.op-card')].every((c) => c.querySelector('.lv'))));
   ok(`${w} ① 빈 채엔 아래 요약이 없다`, await pg.evaluate(() => !document.getElementById('opCta')));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
-  ok(`${w} ① 담으면 아래 «담은 순간 · 본식»`, await pg.evaluate(() => /담은 순간 \d+ · 본식 약 \d+~\d+분/.test((document.getElementById('opCta') || {}).textContent || '')));
-  ok(`${w} ① 고른 것 한 줄(«보고 듣기»에서 바꿔요)`, await pg.evaluate(() => /고른 것 · .+«보고 듣기»에서/.test(document.getElementById('stage').textContent)));
+  ok(`${w} ① 담으면 아래 «담은 순간 · 본식»`, await pg.evaluate(() => /고른 순간 \d+ · 본식 약 \d+~\d+분/.test((document.getElementById('opCta') || {}).textContent || '')));
+  ok(`${w} ① 지금 한 줄(«보고 듣기»에서 바꿀 수 있어요)`, await pg.evaluate(() => /지금 · .+«보고 듣기»에서 바꿀 수 있어요/.test(document.getElementById('stage').textContent)));
+  ok(`${w} ① 소제목에 동그라미 번호 없음 · 남는 사진`, await pg.evaluate(() => ![...document.querySelectorAll('.op-h')].some((h) => /[①②③]/.test(h.textContent)) && /남는 사진/.test(document.getElementById('stage').textContent) && !/남는 장면/.test(document.getElementById('stage').textContent)));
   ok(`${w} ① 고객 화면에 «판» 없음`, await pg.evaluate(() => !/판 바꿈|고를 수 있는 판|그 판으로/.test(document.getElementById('stage').textContent)));
   await pg.click('#next'); await pg.waitForTimeout(1500);
   ok(`${w} ② 제목 · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '보고 듣기' && /보고 듣기/.test(document.querySelector('.op-steps li.on').textContent)));
@@ -79,29 +80,36 @@ for (const w of [390, 1280]) {
   // ⑤ 키보드로 줄 열기
   await pg.focus('[data-fk="lsm:candle"]'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(400);
   ok(`${w} ② 키보드 Enter 로 줄이 열린다`, await pg.evaluate(() => LS.open === 'candle' && !!document.querySelector('.ls-row.open .ls-flow')));
-  ok(`${w} ② 녹음 전 줄은 «녹음 준비 중»(화촉 여는 말)`, await pg.evaluate(() => /녹음 준비 중/.test(document.querySelector('.ls-row.open .ls-flow').textContent)));
+  ok(`${w} ② 녹음 전 줄은 «아직 녹음 전»(화촉 여는 말)`, await pg.evaluate(() => /아직 녹음 전/.test(document.querySelector('.ls-row.open .ls-flow').textContent)));
+  ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px`, await pg.evaluate(() => { const c = document.querySelector('.ls-row.open .op-chip'); return !!c && c.getAttribute('role') === 'radio' && c.closest('[role=radiogroup]') && c.getBoundingClientRect().height >= 44; }));
+  ok(`${w} ② 고른 칩이 눈에 보인다(바탕이 다르다) [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.ls-row.open .op-chip[aria-checked="true"]'), off = document.querySelector('.ls-row.open .op-chip[aria-checked="false"]'); return !!on && !!off && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
   // ⑦ 칩 → 바로 재생
   await pg.click('[data-fk="lsc:candleWho:parents"]'); await pg.waitForTimeout(500);
-  ok(`${w} ② 칩을 누르면 값이 바뀌고 그 순간이 바로 들린다`, await pg.evaluate(() => S.candleWho === 'parents' && LP.q.length > 0 && LP.cur === 'candle'));
+  ok(`${w} ② 칩을 누르면 값이 바뀌고 그 순간이 바로 들린다 · 누른 자리에 포커스`, await pg.evaluate(() => S.candleWho === 'parents' && LP.q.length > 0 && LP.cur === 'candle' && document.activeElement && document.activeElement.getAttribute('data-fk') === 'lsc:candleWho:parents'));
   ok(`${w} ② 녹음 전 줄은 소리 없이 글로(src 없음 · 글 있음)`, await pg.evaluate(() => { const st = LP.q[0]; return !!st && st.pending && !st.src && st.txt.length > 10; }));
   ok(`${w} ② 재생 중 작은 플레이어`, await pg.evaluate(() => getComputedStyle(document.getElementById('lsMini')).display === 'flex'));
   await pg.evaluate(() => lsStop());
   // 크게 보기 · Esc
   await pg.click('.ls-hero'); await pg.waitForTimeout(700);
-  ok(`${w} ② «처음부터 보고 듣기» → 크게 보기 · 자막`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /1 \/ \d+/.test(f.textContent) && f.querySelector('.lf-txt').textContent.length > 10; }));
+  ok(`${w} ② «처음부터 보고 듣기» → 크게 보기 · 식전 표시 · 본식부터 단추 · 뒤는 inert`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /식전/.test(f.querySelector('.lf-h').textContent) && !!f.querySelector('[data-fk="lfskip"]') && f.querySelector('.lf-txt').textContent.length > 10 && document.querySelector('.wrap').hasAttribute('inert'); }));
+  await pg.click('[data-fk="lfskip"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 본식부터 보기 → «1 / N»`, await pg.evaluate(() => /^1 \/ \d+$/.test(document.querySelector('#lsFull .lf-h span').textContent.trim())));
   ok(`${w} ② 크게 보기의 자막 = 엔진 큐 문안`, await pg.evaluate(() => { const st = LP.q[LP.i]; return st && document.querySelector('.lf-txt').textContent === st.txt; }));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
-  ok(`${w} ② Esc 로 크게 보기가 닫힌다`, await pg.evaluate(() => document.getElementById('lsFull').hidden));
+  ok(`${w} ② Esc 로 크게 보기가 닫힌다(작게 · 뒤 잠금 풀림)`, await pg.evaluate(() => document.getElementById('lsFull').hidden && !document.querySelector('.wrap').hasAttribute('inert')));
   await pg.evaluate(() => lsStop());
   // ⑦ 빼기 · 넣기 한 줄 안내
   await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요)`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test(document.querySelector('.ls-msg').textContent) && !RitualOpen.onOf(S, 'bless')));
+  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요) · 되돌리기`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test(document.querySelector('.ls-msg').textContent) && !RitualOpen.onOf(S, 'bless') && !!document.querySelector('[data-fk="lsundo"]')));
+  await pg.click('[data-fk="lsundo"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 되돌리기 → 다시 담긴다`, await pg.evaluate(() => RitualOpen.onOf(S, 'bless')));
+  await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
   await pg.click('.ls-off summary'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsa:bless"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 넣기 안내(n번째에 넣었어요)`, await pg.evaluate(() => /«부모님 덕담»을 \d+번째에 넣었어요/.test(document.querySelector('.ls-msg').textContent) && RitualOpen.onOf(S, 'bless')));
-  ok(`${w} ② 준비한 순서는 «넣지 않은 순간»에 없다`, await pg.evaluate(() => !document.querySelector('.ls-off [data-lk="free"]')));
+  ok(`${w} ② 담기 안내(n번째에 담았어요)`, await pg.evaluate(() => /«부모님 덕담»을 \d+번째에 담았어요/.test(document.querySelector('.ls-msg').textContent) && RitualOpen.onOf(S, 'bless')));
+  ok(`${w} ② 준비한 순서는 «담지 않은 순간»에 없다`, await pg.evaluate(() => !document.querySelector('.ls-off [data-lk="free"]')));
   ok(`${w} ② 가로 넘침 0`, await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await pg.click('#next'); await pg.waitForTimeout(600);
-  ok(`${w} ③ 글 적기 — 보낼 것 · 식전 영상 링크 · 도와주실 분`, await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return /보낼 것/.test(t) && !!document.querySelector('input[aria-label="식전 영상 링크"]') && /도와주실 분/.test(t); }));
+  ok(`${w} ③ 준비하기 — 두 분이 준비할 것 · 부모님께 부탁드릴 것 · 보낼 것 · 식전 영상 링크 · 도와주실 분`, await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.getElementById('stepHead').textContent === '준비하기' && /두 분이 준비할 것/.test(t) && /부모님께 부탁드릴 것/.test(t) && /보낼 것/.test(t) && !!document.querySelector('input[aria-label="식전 영상 링크"]') && /도와주실 분/.test(t) && !/사흘/.test(t); }));
   await pg.click('#next'); await pg.waitForTimeout(600);
   ok(`${w} ④ 듣기 단추 하나 = «처음부터 끝까지 보기»`, await pg.evaluate(() => { const b = [...document.querySelectorAll('.play-acts .rehearse-btn')]; return b.length === 1 && b[0].textContent === '처음부터 끝까지 보기'; }));
   ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
@@ -109,6 +117,44 @@ for (const w of [390, 1280]) {
   await ctx.close();
 }
 
+// [DETAIL_0925 C1 · C2 · G] 글자 대비(본문 4.5 · 큰 글 3) · 누를 곳 44px 실측 — ① · ② · 크게 보기 · ③ 를 390 · 1280 에서
+const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";
+for (const w of [390, 1280]) {
+  const { ctx, pg } = await open(w);
+  await pg.evaluate(MEASURE);
+  const m = async (sel) => pg.evaluate((q) => window.__measure(q ? document.querySelector(q) : document.body), sel || null);
+  const rep = (r) => JSON.stringify({ 대비: r.bad.slice(0, 3), 작은곳: r.small.slice(0, 3) });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  let r = await m(); ok(`${w} C ① 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
+  await pg.click('#next'); await pg.waitForTimeout(1200); await pg.click('[data-fk="lsm:candle"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = true; }));
+  r = await m(); ok(`${w} C ② 대비 미달 0 · 44px 미만 0(줄 · 접힘 모두 연 채)`, !r.bad.length && !r.small.length, rep(r));
+  await pg.click('.ls-hero'); await pg.waitForTimeout(700);
+  r = await m('#lsFull'); ok(`${w} C 크게 보기 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
+  await pg.click('#next'); await pg.waitForTimeout(700);
+  r = await m(); ok(`${w} C ③ 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
+  await ctx.close();
+}
+// [DETAIL_0925 A1 · G] 뒤로 가기 워크스루 — ① → ② → 크게 보기 → 뒤로 셋 · 새로고침 뒤 고른 것이 남는가
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg); await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
+  const picked0 = await pg.evaluate(() => RitualOpen.picked(S).join(','));
+  await pg.click('#next'); await pg.waitForTimeout(900);
+  await pg.click('.ls-hero'); await pg.waitForTimeout(600);
+  ok('A1 크게 보기가 열렸다', await pg.evaluate(() => !document.getElementById('lsFull').hidden));
+  await pg.goBack(); await pg.waitForTimeout(500);
+  ok('A1 뒤로 1 → 크게 보기만 닫힌다(② 그대로)', await pg.evaluate(() => document.getElementById('lsFull').hidden && STEPS[idx].k === 'listen'));
+  await pg.goBack(); await pg.waitForTimeout(500);
+  ok('A1 뒤로 2 → ① 고르기', await pg.evaluate(() => STEPS[idx].k === 'pick'));
+  await pg.goBack(); await pg.waitForTimeout(500);
+  ok('A1 뒤로 3 → 안내(사이트를 떠나지 않는다)', await pg.evaluate(() => location.pathname.endsWith('/order-preview.html') && /intro/.test(STEPS[idx].k)));
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(700);
+  ok('A1 새로고침 뒤 고른 것이 남는다', (await pg.evaluate(() => RitualOpen.picked(S).join(','))) === picked0, picked0);
+  ok('A1 워크스루 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
 // ③ · ④ 장면 영상(시험 영상 두 편을 «들어온 것처럼»)
 if (!TV) { console.log('못 쟀다 — ffmpeg 없음(① 자동 재생 두 줄)'); cant++; }
 else {

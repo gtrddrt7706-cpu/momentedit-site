@@ -130,8 +130,7 @@
        107 toast-both-pour-b: 와인을 붓는 날의 선창(P2 · «두 사람에게 잔이 가는 동안»을 뺀 줄 · 붓는 동안 이미 잔이 가 있다)
        ★옛 코스는 이 여덟을 한 번도 부르지 않는다 — 새 코스(open)일 때만 나간다. */
     'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail',
-    'tribute-bow-groom', 'toast-both-pour-b',
-    'narr-entry-out-bow'   // 108 [ENTRY_SCENE] 맞절 판의 도착 멘트
+    'tribute-bow-groom', 'toast-both-pour-b'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -194,7 +193,7 @@
     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
     'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
     'narr-free-out-clap': O.NAR.freeOut, 'narr-free-fail': O.NAR.freeFail,
-    'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour, 'narr-entry-out-bow': O.NAR.entryBow
+    'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour
   };
 
   // ── 유틸
@@ -290,7 +289,7 @@
       if (!O.CHIPS.tribute.some(function (c) { return c[0] === s.tributeSay; })) s.tributeSay = O.DEF.tributeSay;
       if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
-      if (!O.CHIPS.free.some(function (c) { return c[0] === s.freeWhat; })) s.freeWhat = O.DEF.freeWhat;   // [FREE_WHAT]
+      s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
       if (!O.CHIPS.freeLen.some(function (c) { return c[0] === String(s.freeLen); })) s.freeLen = O.DEF.freeLen; else s.freeLen = String(s.freeLen);
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       if (s.tribute !== 'flower' && s.tribute !== 'bowGroom') s.tribute = 'flower';
@@ -575,11 +574,8 @@
              ([PREVIEW_KEYS] 가 값 만드는 곳 없는 키를 막는다 · digital 2026-08-02 와 같은 꼴)
            ★A 는 슬러그를 안 바꾼다 — 종전 문안 그대로라 이미 녹음된 파일을 그대로 쓴다.
              바꾸면 멀쩡한 음원 하나가 이름만 달라져 통째로 다시 녹음해야 한다. */
-        /* ★[ENTRY_SCENE 2026-09-25] 새 코스의 «첫 장면 · 맞절»이면 도착 멘트 자리에 맞절 한 줄(108)을 바꿔 끼운다.
-           길이가 같은 한 줄이라 시간표는 그대로다. 바라보기(기본)는 지금 소리 그대로. */
-        if (D.COURSES[S.course] && D.COURSES[S.course].open && S.entryScene === 'bow') {
-          return cue({ k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-out-bow', name: '입장 마무리 · 맞절', text: EXTRA['narr-entry-out-bow'], duck: -12 });
-        }
+        /* ★[ENTRY_SCENE 2026-09-25 코워크 추가 전달 B7 · F] «첫 모습»(바라보기 · 맞절)은 **소리가 같다** — 모습(영상)만 달라진다.
+           한때 맞절 판에 새 도착 멘트(108)를 끼웠다가 거뒀다(녹음 전 · 병합 전). 여기에 소리 갈래를 만들지 말 것. */
         var t = String(S.entryOut || S.entry || 'A').toUpperCase();
         if (!D.NARR.entryOutBy[t]) t = 'A';
         return cue({
@@ -773,7 +769,7 @@
         var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)',
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         return [cue({
-          k: 'free', blockN: '두 사람이 준비한 순서', slug: 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,
+          k: 'free', blockN: '준비한 순서', slug: 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,
           text: EXTRA['narr-free-in-' + fk], duck: PARAM.duckMusic, pick: nm,
           rescue: play ? { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] } : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
@@ -782,7 +778,7 @@
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로'
               : fk === 'speech' ? '3분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }
         }), cue({
-          k: 'free', blockN: '두 사람이 준비한 순서', slug: 'narr-free-out-clap', name: '준비한 순서 마무리',
+          k: 'free', blockN: '준비한 순서', slug: 'narr-free-out-clap', name: '준비한 순서 마무리',
           text: EXTRA['narr-free-out-clap'], duck: PARAM.duckMusic
         })];
       }

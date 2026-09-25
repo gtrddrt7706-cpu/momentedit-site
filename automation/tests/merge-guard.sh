@@ -8416,15 +8416,23 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/listen-page.mjs >/de
   esac
 fi
 chk 'LISTEN_PAGE' order-preview.html 10
+chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)
+chk 'DETAIL_0925 C2' order-preview.html 3   # 누를 곳 44px
+chk 'SUMMARY_INLINE' order-preview.html 1   # 접힘 제목은 한 줄 글로 흐른다
+chk 'CHIP_CHECKED' order-preview.html 1   # radio 칩의 고른 표시
+chk 'CHIP_CHECKED' scripts/audit/listen-page.mjs 1
+chk 'DETAIL_0925 C1 · C2' scripts/audit/listen-page.mjs 1   # 대비 · 누를 곳 실측(깨 보고 믿음 — 되돌리니 빨강 4줄)
+nochk 'aria-pressed="true"\]{background:var(--gold-deep);' order-preview.html
 chk 'function renderListen' order-preview.html 1
 chk "if(k==='listen') return renderListen();" order-preview.html 1
 chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.write,STEPDEF.done' order-preview.html 1
 chk 'VIDEO_READY' assets/ritual-open.js 3
-chk 'ENTRY_SCENE' assets/ritual-cue.js 3
-chk 'narr-entry-out-bow' assets/ritual-cue.js 3
+chk 'ENTRY_SCENE' assets/ritual-cue.js 2
+nochk 'narr-entry-out-bow' assets/ritual-cue.js
 chk 'S.entryScene' order-preview.html 1
-chk "'entryScene'" assets/ritual-preview-link.js 1
-chk 'L_STALE' order-preview.html 2
+nochk "'freeLen', 'entryScene'" assets/ritual-preview-link.js   # [ENTRY_SCENE] 소리가 같아 주소에 싣지 않는다(STORY_COVER 죽은 키)
+chk 'DETAIL_0925 B10' order-preview.html 1   # 녹음 전 판정은 규칙 하나 — 파일이 있으면 소리 · 없으면 글(옛 L_STALE 목록은 폐지)
+nochk 'L_STALE=' order-preview.html
 nochk '그 판으로 바로' order-preview.html
 nochk '판 바꿈' assets/ritual-open.js
 chk 'TAP44-3' scripts/audit/footer-parity.mjs 1
@@ -9124,7 +9132,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 108' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107 · [ENTRY_SCENE] 108
+chk 'N_FILES = 107' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js

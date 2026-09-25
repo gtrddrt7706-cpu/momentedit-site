@@ -344,7 +344,7 @@ const clips = parse(SRC);
               105 재생이 안 될 때 한 줄(콘솔 «재생 안 됨») · 106 신랑 큰절 · 107 와인을 붓는 날의 선창(P2).
               ★첫째 판의 «축하의 말» 두 줄(여는·맺는 말)은 거뒀다 — 축사는 준비한 순서의 한 판(103)이다.
               ★문안은 코워크 회신 원문 그대로 · 말맛과 실청은 사장님. */
-const CLIP_COUNT = 103;   // [ENTRY_SCENE] +1 narr-entry-out-bow
+const CLIP_COUNT = 102;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

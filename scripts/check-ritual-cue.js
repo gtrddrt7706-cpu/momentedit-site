@@ -46,7 +46,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
 //     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
-const N_FILES = 108;   // [ENTRY_SCENE] 108 narr-entry-out-bow
+const N_FILES = 107;
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
   const bad3 = C.FILES.filter((f, i) => C.noOf(f) !== String(i + 1).padStart(2, '0'));
