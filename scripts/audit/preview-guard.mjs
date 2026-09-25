@@ -53,8 +53,8 @@ ok('venue.js 가 운영이 아닐 때만 장치를 끼운다', /document\.write\
 
 /* ── ② 배선 ── GAS 주소를 품은 페이지는 <head> 맨 앞에서 장치를 부른다 */
 const SKIP_DIRS = new Set(['docs', 'automation', 'scripts', 'node_modules', '.git', '.claude', '.agents', '_workspace', '_asr', 'contract', 'api', 'i', 'i-family', '청첩장']);
-/* ★MomentEdit_청첩장_프리뷰_16개 — 옛 v3 사본이다. 어디서도 링크하지 않고, 템플릿이라 손으로 고치지 않는다.
-   그 대신 «빠진 것»을 숫자로 남겨 둔다(아래 LEGACY). 늘어나면 빨강. */
+/* ★[LEGACY_GONE 2026-09-25 사장님 결정 · 코드 제안 1 채택] MomentEdit_청첩장_프리뷰_16개(옛 v3 사본)는 지웠다.
+   어디서도 링크하지 않는데 미리보기 주소에서 장치 없이 GAS 를 부르던 유일한 곳이었다. 되살아나면 빨강(아래). */
 const LEGACY = 'MomentEdit_청첩장_프리뷰_16개';
 const pages = [];
 (function walk(dir) {
@@ -76,9 +76,27 @@ for (const rel of pages) {
   wired++;
 }
 ok('배선 대상 페이지를 찾았다(0 이면 검사가 죽은 것)', wired >= 8, `${wired}개`);
-const legacyN = fs.readdirSync(P(LEGACY), { recursive: true }).filter((f) => /\.html$/.test(f)
-  && /script\.google(usercontent)?\.com\/macros/.test(fs.readFileSync(P(path.join(LEGACY, f)), 'utf8'))).length;
-ok(`${LEGACY} — 장치 없이 GAS 를 부르는 옛 사본이 16개를 넘지 않는다`, legacyN <= 16, `${legacyN}개`);
+
+/* ── ②-b 장치가 못 막는 길 [PREVIEW_GUARD_UNCOVERED 2026-09-25 코워크 검토]
+   location 으로 GAS 에 가는 것 · <iframe>/<img> 로 GAS 를 부르는 것은 가로챌 수 없다(브라우저가 막을 틈을 안 준다).
+   지금은 0건이다 — 새로 생기면 빨강. GAS 주소를 직접 쓰거나, GAS 주소를 담은 변수를 쓰는 줄을 본다. */
+const GAS_LIT = /script\.google(usercontent)?\.com/;
+const SINK = /(\blocation(\.href)?\s*=[^=]|\blocation\.(assign|replace)\s*\(|<iframe\b|<img\b|\bnew\s+Image\b|\.src\s*=[^=])/;
+const scan = [...pages, ...['shared', 'assets'].flatMap((d) => fs.readdirSync(P(d)).filter((f) => /\.js$/.test(f)).map((f) => d + '/' + f))];
+let sinkHits = [];
+for (const rel of scan) {
+  const s = fs.readFileSync(P(rel), 'utf8');
+  if (!GAS_LIT.test(s)) continue;
+  const names = [...s.matchAll(/\b(?:var|let|const)\s+([A-Za-z_$][\w$]*)\s*=\s*['"`][^'"`]*script\.google/g)].map((m) => m[1]);
+  const nameRe = names.length ? new RegExp('\\b(' + names.join('|') + ')\\b') : null;
+  s.split('\n').forEach((line, i) => {
+    if (!SINK.test(line)) return;
+    if (/preview-guard\.js/.test(rel)) return;
+    if (GAS_LIT.test(line) || (nameRe && nameRe.test(line))) sinkHits.push(`${rel}:${i + 1}`);
+  });
+}
+ok('location · iframe · img 로 GAS 에 가는 줄이 없다(장치가 못 막는 길)', sinkHits.length === 0, sinkHits.slice(0, 6).join(' '));
+ok(`${LEGACY} — 지운 옛 사본이 되살아나지 않았다 [LEGACY_GONE]`, !fs.existsSync(P(LEGACY)));
 
 /* ── ③ 실브라우저 ── */
 if (process.argv.includes('--live')) await live();
@@ -113,6 +131,13 @@ async function live() {
     r.xhr = await new Promise((res) => { const x = new XMLHttpRequest(); x.open('GET', U + '?p=xhr'); x.onerror = () => res('blocked'); x.onload = () => res('sent'); x.send(); setTimeout(() => res('timeout'), 3000); });
     r.jsonp = await new Promise((res) => { const s = document.createElement('script'); s.onerror = () => res('blocked-or-failed'); s.onload = () => res('sent'); s.src = U + '?p=jsonp'; document.head.appendChild(s); setTimeout(() => res('timeout'), 3000); });
     r.beacon = navigator.sendBeacon ? String(navigator.sendBeacon(U + '?p=beacon', 'x')) : 'none';
+    /* [PREVIEW_GUARD_XHR_DONE] 막힌 XHR 은 readyState 4 로 끝나야 한다 · [PREVIEW_GUARD_FORMSUBMIT] form.submit() 도 막혀야 한다 */
+    r.xhrState = await new Promise((res) => { const x = new XMLHttpRequest(); x.open('GET', U + '?p=xhr2'); x.onloadend = () => res(x.readyState); x.send(); setTimeout(() => res('timeout'), 3000); });
+    const ifr = document.createElement('iframe'); ifr.name = 'zzProbeFrame'; ifr.style.display = 'none'; document.body.appendChild(ifr);
+    const f = document.createElement('form'); f.method = 'GET'; f.action = U; f.target = 'zzProbeFrame';
+    const inp = document.createElement('input'); inp.name = 'p'; inp.value = 'formsubmit'; f.appendChild(inp); document.body.appendChild(f);
+    try { f.submit(); r.formSubmit = 'called'; } catch (e) { r.formSubmit = 'threw'; }
+    await new Promise((res) => setTimeout(res, 800));
     return r;
   })()`;
   async function run(base, host) {
@@ -146,7 +171,7 @@ async function live() {
 
   console.log('\n── 미리보기 흉내 (127.0.0.1 · 390px) ──');
   for (const r of prev) {
-    const good = r.total === 0 && r.bar && r.bar.h > 0 && r.bar.top === 0;
+    const good = r.total === 0 && r.bar && r.bar.h > 0 && r.bar.top === 0 && r.probe && r.probe.xhrState === 4;
     ok(`${r.pg} — GAS 요청 ${r.total}건(로드 ${r.onLoad}) · 띠 ${r.bar ? r.bar.w + '×' + r.bar.h : '없음'} · 막은 수 ${r.guard ? r.guard.blocked : '-'}`, good,
       JSON.stringify(r.probe) + (r.errs.length ? ' · pageerror ' + r.errs.length : ''));
   }

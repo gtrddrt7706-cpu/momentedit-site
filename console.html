@@ -769,6 +769,11 @@ function summarize(){
     '큐 <b>' + m.total + '개</b> · 손으로 누르는 자리 <b>' + m.manual + '번</b> · 저절로 넘어가는 자리 <b>' + (m.chain + m.clock) + '번</b>',
     '들리는 말 <b>' + fmt(m.clipSec) + '</b> · 사람의 시간 <b>' + fmt(m.liveSec) + '</b> · 통틀어 <b>약 ' + fmtMin(m.totalSec) + '</b> <span style="color:var(--dim)">(기준 ' + m.minLabel + ')</span>'
   ];
+  /* [COURSE_LOST_LOUD] 저장된 코스를 엔진이 모르면 틀기 전에 운영자를 멈춰 세운다(한 번). */
+  if (m.lostCourse) {
+    lines.unshift('<span style="color:#b3261e;font-weight:700">⚠ 저장된 코스 «' + esc(m.lostCourse) + '» 를 모릅니다 — 지금 이 큐는 «약속» 코스로 대신 만든 것입니다. 고객이 고른 식순과 다를 수 있으니 틀기 전에 확인하세요.</span>');
+    if (!window.__meLostAlerted) { window.__meLostAlerted = true; try { alert('저장된 코스 «' + m.lostCourse + '» 를 모릅니다.\n지금 큐는 «약속» 코스로 대신 만든 것이라 고객이 고른 식순과 다를 수 있어요.\n틀기 전에 식순을 확인하세요.'); } catch (e) {} }
+  }
   if (m.noClip) lines.push('<span style="color:var(--gold-text)">녹음이 없는 자리 ' + m.noClip + '곳 — 문안 카드로 지나갑니다</span>');
   $('#sum').innerHTML = lines.join('<br>');
 }

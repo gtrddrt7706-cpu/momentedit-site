@@ -6730,7 +6730,6 @@ nochk '저장돼요 — 마이페이지로 열면' order-preview.html
 #   ★FILE_COVER_SINCE 는 앞당기지 말 것 — 규칙 이전 커밋까지 소급하면 고칠 수 없는 빨강이 된다.
 chk 'FILE_COVER' scripts/audit/deploycheck-coverage.mjs 2
 chk 'FILE_COVER_SINCE' scripts/audit/deploycheck-coverage.mjs 2
-chk 'GRANT_FACTS' docs/국가지원금/근거데이터_외부통계.md 1   # 외부 숫자 단일 보관처 — 지우지 말 것
 chk 'FILE_COVER' CLAUDE.md 1
 chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
 
@@ -6739,19 +6738,17 @@ chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
 #   [NOT_THE_SOURCE] 는 「도구로 재라」인데, 이건 그 다음 구멍이다 — 도구로 쟀어도 대상이 바뀌면 죽는다.
 chk 'RULE_MEASURED' CLAUDE.md 1
 
-# [OPS_ANSWER_0911 2026-09-11] 운영기관 2차 답변 — 권역 비율은 비례배분과 «함께» 적용된다(내 종전 판단 정정)
+# [OPS_ANSWER_0911 2026-09-11] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 운영기관 2차 답변 — 권역 비율은 비례배분과 «함께» 적용된다(내 종전 판단 정정)
 #   + 회수하기 실재하나 «회수 중 기관이 100% 차면 그 기관 선택 불가» 함정. 회수-수정 전략 폐기 근거.
-chk 'OPS_ANSWER_0911' docs/국가지원금/운영기관답변_2026-09-11.md 1
 
-# [STRENGTH_COUPLE 2026-09-11] 강점을 「심사위원 눈」이 아니라 「예비부부 눈」으로 다시 뽑은 문서.
+# [STRENGTH_COUPLE 2026-09-11] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 강점을 「심사위원 눈」이 아니라 「예비부부 눈」으로 다시 뽑은 문서.
 #   종전 리스트는 코드로 증명하기 쉬운 것을 골랐고, 원본 전체·보증인원 없음·150일 전 전액 환불을 빠뜨렸다.
-chk 'STRENGTH_COUPLE' docs/국가지원금/강점_예비부부관점_재정리.md 1
 
 # [RULE_EASY 2026-09-11] 증명하기 쉬운 것이 중요한 것을 밀어낸다 — 대표가 「이게 강점 확실해?」로 잡았다.
 #   참인 것만 골랐는데 중요하지 않은 것을 골랐다. 그 사이 원본 전체·보증인원 없음·150일 전액환불을 빠뜨렸다.
 chk 'RULE_EASY' CLAUDE.md 1
 
-# [DECISION_GATE 2026-09-13] 대표가 정한 것이 신청서 본문에 들어갔는가 — 푸시를 막는 게이트.
+# [DECISION_GATE 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 대표가 정한 것이 신청서 본문에 들어갔는가 — 푸시를 막는 게이트.
 #   사고: 대표가 답해 준 「세 곳을 넘긴 이유」와 「스마트스토어 1등」을 길게 칭찬만 하고
 #   파일에 넣지 않았다. 칭찬은 반영이 아닌데 내 쪽에는 「처리했다」는 느낌이 남는다.
 #   대화는 저장소가 아니라 화제가 옮겨가면 사라지고, 파일에 흔적이 없으니 아무도 못 찾는다.
@@ -6760,36 +6757,29 @@ chk 'RULE_EASY' CLAUDE.md 1
 #   자수도 함께 본다 — 줄바꿈이 \r\n 으로 저장되면 문단마다 1자씩 늘어난다
 #   (실측 2026-09-13: Q2 2,018 · Q3-1 2,019 로 잘릴 상태였다).
 #   ★적대적 시험 3/3 통과 확인 — MUST 삭제·NEVER 부활·자수 초과를 각각 잡는다(죽은 게이트 아님).
-chk 'DECISION_LEDGER' docs/국가지원금/대표결정_반영대장.tsv 1
-chk 'DECISION_GATE' scripts/audit/application-decisions.py 1
-# [REVIEW_GATE 2026-09-13] 대표가 올린 지적이 조용히 사라지지 않는가.
+# [REVIEW_GATE 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 대표가 올린 지적이 조용히 사라지지 않는가.
 #   대표 지시: "개선사항 계속해서 올릴 거니깐 누락 없이 취합해놔 한 번에 반영하게"
 #   검토함의 줄은 상태가 있어야 하고, '완료'라고 적으려면 대장에 [검토N] 이 있어야 한다.
 #   그러면 그 줄의 검증문자열을 MUST 검사가 본문에서 다시 확인한다 — 완료 표시가 본문까지 이어진다.
-chk 'REVIEW_INBOX' docs/국가지원금/대표검토_지적사항_20260913.md 1
-chk 'REVIEW_GATE' scripts/audit/application-decisions.py 1
-chk 'SPLIT_FACTS' scripts/audit/application-decisions.py 2   # 한 발언에 사실이 여럿이면 하위 항목으로 쪼갠다
-# [SUBMIT_BUILD 2026-09-13] 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
-chk 'SUBMIT_BUILD' scripts/audit/build-submission-txt.py 1
-# [TWIN_DRIFT 2026-09-13] 정본과 _v2 는 같은 파일이어야 한다 — 게이트는 정본만 읽는다.
+# [SUBMIT_BUILD 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
+# [TWIN_DRIFT 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 정본과 _v2 는 같은 파일이어야 한다 — 게이트는 정본만 읽는다.
 #   사고: _v2 가 윤문 전 판으로 굳어 있었다. 이름이 「v2」라 더 새 것으로 읽히는데 실제로는 낡은 것이었고,
 #   대표검토 문서가 그것을 「3중 대조 대상」으로 가리키고 있었다 — 틀린 쪽을 근거로 삼을 뻔했다.
 #   둘 중 무엇을 붙여 넣을지 사람이 고르게 두지 않는다. 다르면 빨강.
-if [ -f docs/국가지원금/모두의창업_신청서_최종본_v2.md ]; then
-  if cmp -s docs/국가지원금/모두의창업_신청서_최종본.md docs/국가지원금/모두의창업_신청서_최종본_v2.md; then
-    echo 'ok 신청서 정본 == _v2 (갈라지지 않았다)'
-  else
-    echo 'FAIL 신청서 _v2 가 정본과 갈라졌다 — cp 로 맞추거나 _v2 를 지운다'; fail=1
-  fi
-fi
-if command -v python3 >/dev/null 2>&1; then
-  _sb=$(python3 scripts/audit/build-submission-txt.py --check 2>&1) && printf '%s\n' "$_sb" \
-    || { printf '%s\n' "$_sb"; fail=1; }
-else echo 'skip build-submission-txt (python3 없음)'; fi
-if command -v python3 >/dev/null 2>&1; then
-  _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
-    || { printf '%s\n' "$_ad"; fail=1; }
-else echo 'skip application-decisions (python3 없음)'; fi
+# ★★[GRANT_MOVED_0925 2026-09-25 사장님 결정] 위 GRANT_FACTS · OPS_ANSWER_0911 · STRENGTH_COUPLE ·
+#   DECISION_LEDGER · DECISION_GATE · REVIEW_INBOX · REVIEW_GATE · SPLIT_FACTS · SUBMIT_BUILD · TWIN_DRIFT 검사는
+#   자료와 함께 momentedit-docs(비공개) grant/ · grant/tools/ 로 옮겼다. 이 저장소는 오픈 때까지 공개라서다.
+#   신청서는 9/14 제출됐고, 도구는 거기서 그대로 돈다(python3 grant/tools/application-decisions.py · 옮긴 뒤 실측 203건 · 0).
+#   되살아나면 빨강 — 공개 저장소에 신청서·손익 자료가 다시 올라오는 것을 막는다.
+for _gm in docs/국가지원금/모두의창업_신청서_최종본.md docs/국가지원금/대표결정_반영대장.tsv _handout.html \
+           scripts/audit/application-decisions.py scripts/audit/build-handout.py scripts/audit/build-submission-txt.py; do
+  if git ls-files --error-unmatch "$_gm" >/dev/null 2>&1; then echo "FAIL [GRANT_MOVED_0925] 비공개로 옮긴 파일이 되살아났다: $_gm"; fail=1; fi
+done
+_gn=$(git -c core.quotepath=off ls-files docs/국가지원금 | grep -v '^docs/국가지원금/README.md$' | wc -l)
+if [ "$_gn" -eq 0 ]; then echo 'ok [GRANT_MOVED_0925] docs/국가지원금 에는 안내 한 줄(README)만 남아 있다'
+else echo "FAIL [GRANT_MOVED_0925] docs/국가지원금 에 파일이 다시 생겼다(${_gn}개) — 비공개 저장소로"; fail=1; fi
+chk 'momentedit-docs' docs/국가지원금/README.md 1
+chk 'momentedit-docs' 나중에할일_체크리스트.md 1
 # ★★[CSS_COMMENT_NEST 2026-09-06 실기기 제보 "플레이버튼 전에꺼가더 좋왔던거같은데"]
 #   CSS 주석은 중첩되지 않는다. 주석 안에서 다시 열면 «첫» 닫는 표시가 바깥까지 함께 닫고,
 #   그 뒤 설명문이 CSS 로 읽힌다. 파서는 회복하려고 다음 { } 블록 하나를 통째로 삼킨다.
@@ -10058,3 +10048,22 @@ chk 'preview\*) exit 1' vercel.json 1
 #     폼을 새로 만드는 createCoupleForm 만 쓰던 값이다 — 이미 만들어진 폼의 그림은 구글이 들고 있다.
 # ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
 chk 'COWORK_SPLIT_0925' CLAUDE.md 1
+# [PREVIEW_GUARD 보강 2026-09-25 코워크 검토] form.submit() · 막힌 XHR 의 readyState · 장치가 못 막는 길(location/iframe/img) · 옛 사본 삭제
+chk 'PREVIEW_GUARD_FORMSUBMIT' shared/preview-guard.js 1
+chk 'PREVIEW_GUARD_XHR_DONE' shared/preview-guard.js 1
+chk 'PREVIEW_GUARD_UNCOVERED' scripts/audit/preview-guard.mjs 1
+chk 'LEGACY_GONE' scripts/audit/preview-guard.mjs 2
+# [COURSE_LOST_LOUD 2026-09-25 코워크 Q1③] 모르는 코스는 조용히 «약속»으로 떨어지지 않고 운영자에게 알린다
+chk 'COURSE_LOST_LOUD' assets/ritual-cue.js 2
+chk 'COURSE_LOST_LOUD' console.html 1
+node scripts/audit/course-lost-loud.mjs >/dev/null 2>&1 && echo 'ok [COURSE_LOST_LOUD] 모르는 코스 → 큰 소리 · 아는/빈 코스 → 조용' \
+  || { echo 'FAIL [COURSE_LOST_LOUD] node scripts/audit/course-lost-loud.mjs'; fail=1; }
+# [DECLARE_HOW_ASKFIX · KB_DECLARE_2WAY 2026-09-25] 폐지한 «하객 응답 · 합송»이 빌더 설명과 AI 상담 지식에 남아 있었다
+chk 'DECLARE_HOW_ASKFIX' assets/ritual-data.js 1
+chk 'KB_DECLARE_2WAY' api/_ritual-kb.js 1
+nochk "pick:'[^']*하객 응답" assets/ritual-data.js 0
+_kbask=$(node -e "const k=require('./api/_ritual-kb.js');const t=String(typeof k==='function'?k():(k.build?k.build():JSON.stringify(k)));console.log((t.match(/하객 응답|합송|물음에 하객/g)||[]).length)" 2>/dev/null)
+if [ "${_kbask:-x}" = "0" ]; then echo 'ok [KB_DECLARE_2WAY] AI 상담 지식에 폐지한 선언 갈래 0건'
+else echo "FAIL [KB_DECLARE_2WAY] AI 상담 지식에 «하객 응답·합송»이 ${_kbask}건 — 챗봇이 없는 갈래를 안내한다"; fail=1; fi
+# [LAUNCH_LIST 2026-09-25] 오픈 직전 목록 한 파일 — 비공개 전환 때 한꺼번에 할 일
+chk 'LAUNCH_LIST' docs/plans/오픈직전_목록.md 1
