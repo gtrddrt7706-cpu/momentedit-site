@@ -8412,6 +8412,24 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/contact-lifecycle-si
 fi
 chk 'CONTACT_LIFECYCLE_SIM' scripts/audit/contact-lifecycle-sim.mjs 1
 chk 'SERVED_OURS' scripts/audit/contact-lifecycle-sim.mjs 1
+
+# ★★[GAS_MERGE_COLLIDE 2026-09-25 사장님 「부부폼 이쪽을 한쪽으로 통합하는 작업을 하고 있는데」]
+#   GAS 는 한 프로젝트 안 모든 .gs 가 전역 하나를 공유한다 — 같은 이름이 둘이면 오류도 경고도
+#   없이 «나중 것»이 이긴다. 합치는 순간 어느 쪽이 이길지는 파일 순서가 정한다.
+#   실측(2026-09-25): 겹치는 이름 6건 · 그중 구현이 «다른» 것 5건 ·
+#   ★진입점(doGet·doPost) 2건 — 지면 guest-letter-webhook 이 통째로 죽는다.
+#   이 검사는 «합치지 마라»가 아니라 «합치기 전에 무엇을 정리해야 하나»를 목록으로 준다.
+#   기준선을 박아 둔다 — 0 을 요구하면 지금 못 고치는 빨강이 되어 아무도 안 본다.
+#   파일이 옮겨져 사라지면 종료 2(못 쟀다)로 빠진다 — 통합이 끝나면 자연히 조용해진다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/gas-project-merge.mjs >/dev/null 2>&1; _gm=$?
+  case "$_gm" in
+    0) echo 'ok gas-project-merge: 프로젝트 합칠 때 겹치는 이름이 기준선 이내' ;;
+    1) echo 'FAIL gas-project-merge: 합치면 조용히 죽는 이름이 늘었다 — node scripts/audit/gas-project-merge.mjs'; fail=1 ;;
+    *) echo 'ok gas-project-merge: 재지 못했습니다(파일 없음·통합됨) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'GAS_MERGE_COLLIDE' scripts/audit/gas-project-merge.mjs 1
+chk 'SERVED_OURS' scripts/audit/gas-project-merge.mjs 1
 # ★★[SV_NOTES 2026-09-25 사장님 「관리자페이지 설문조사 고객페이지랑 동일하게 보여줘 · 선택한 거 전부
 #   수기로 작성한 부분까지 · 고객 설문 각 문항마다 기타로 수기로 적을 수 있는 공간」]
 #   ①고객(mypage) — 문항마다 「+ 기타 의견 적기」 칸(SV_NOTE_UI). 「기타」 보기를 고르면 저절로 열린다.
