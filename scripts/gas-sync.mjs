@@ -55,6 +55,7 @@ const MAP = {
   'platform/80_production.gs': '80_production',
   'platform/85_invitation.gs': '85_invitation',
   'platform/86_dining_ai.gs': '86_dining_ai',
+  'platform/87_letter.gs': '87_letter',                             // [LETTER_MERGED 2026-09-25] 옛 Letter System 에서 옮긴 청첩장 조회·하객 편지
   'platform/88_place_audit.gs': '88_place_audit',
   'platform/90_test-utils.gs': '90_test-utils',
   'platform/95_notify.gs': '95_notify',

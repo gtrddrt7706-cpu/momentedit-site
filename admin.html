@@ -91,9 +91,12 @@ main{max-width:580px;margin:0 auto;padding:14px 14px 64px}
        (바쁜 날 1276px) 오른쪽 아래가 700px 비고 결과물은 @1411 로 밀려 스크롤해야 보였다.
        오른쪽에 쌓으니 문서 1902→1483px(-419) · 결과물이 첫 화면(@812)으로 들어온다(실측). */
   #homeView{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:start;
-    grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"}
+    grid-template-areas:"search search" "recent recent" "silent silent" "alarm alarm" "queue today" "queue pipe" "queue results" "queue survey"}
   #homeView>.search{grid-area:search} #recentWrap{grid-area:recent} #queueWrap{grid-area:queue}
   #todayWrap{grid-area:today} #resultsWrap{grid-area:results} #pipeWrap{grid-area:pipe} #surveyWrap{grid-area:survey}
+  /* [SV_UNSEEN] 알림 줄 둘(연락처 경고·새 후기)은 격자 이름으로 맨 위 전폭에 세운다 — 이름이 없으면 «비어 있는 첫 칸»으로
+     자동 배치돼 폭이 한 칸(main 판 실측 559px)이 되고, 어느 칸이 비었는지에 따라 자리가 달라진다 */
+  #silentWrap{grid-area:silent} #rvAlarmWrap{grid-area:alarm}
   /* 아카이브 — 끝난 고객 목록. 행이 독립 항목이라 2열(왼→오) · 제목·빈 안내는 전폭 */
   #archiveBody{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;align-items:start}
   #archiveBody>:not(.arow){grid-column:1/-1}
@@ -234,27 +237,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .res-sel-list{margin-top:4px;font-size:12px;color:var(--ink,#3A332B);background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:6px;padding:7px 9px;max-height:120px;overflow:auto;white-space:pre-wrap;word-break:break-word}
 .res-ex{margin-top:6px;font-size:12.5px;color:var(--sub)}
 
-/* 설문 대시보드 */
-.sv-pillars{display:flex;gap:8px;margin:2px 2px 10px}
-.sv-pill{flex:1;text-align:center;background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:9px;padding:12px 6px}
-.sv-pill-pct{font-family:var(--serif,Georgia);font-size:24px;font-weight:500;color:var(--gold-deeper,#9A7B3F);line-height:1}
-.sv-pill-lb{font-size:11px;color:var(--sub);margin-top:5px;letter-spacing:.01em}
-.sv-sum{font-size:12.5px;color:var(--sub);text-align:center;margin:0 0 12px}
-.sv-sum b{color:var(--accent,#2C2722)}
-.sv-qs{display:flex;flex-direction:column;gap:11px}
-.sv-qrow{}
-.sv-qt{font-size:12px;font-weight:600;color:var(--accent,#2C2722);margin-bottom:4px}
-.sv-bar{display:flex;height:18px;border-radius:5px;overflow:hidden;background:#EEE9E1}
-.sv-seg{display:flex;align-items:center;justify-content:center;font-size:9.5px;color:#fff;font-weight:500;min-width:0;overflow:hidden;white-space:nowrap}
-.sv-seg-0{background:#9A7B3F}.sv-seg-1{background:#C2A86A}.sv-seg-2{background:#CFC3A6}.sv-seg-3{background:#B9B0A0}
-.sv-leg{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
-.sv-lg{font-size:10.5px;color:var(--sub);display:inline-flex;align-items:center;gap:4px}
-.sv-dot{width:8px;height:8px;border-radius:2px;display:inline-block}
-.sv-rev-h{font-size:12px;font-weight:600;color:var(--accent,#2C2722);margin:16px 2px 8px}
-.sv-rev{background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:8px;padding:9px 11px;margin-bottom:7px;font-size:12.5px;color:var(--ink,#3A332B);line-height:1.5}
-.sv-rev.pub{border-left:3px solid var(--gold-deeper,#9A7B3F)}
-.sv-rev-m{font-size:10.5px;color:var(--label-soft);margin-bottom:3px}
-.sv-rev-m span{color:var(--sub)}
+/* 설문 — 후기 화면·상세. ★퍼센트 집계(이행률 카드·문항별 막대·눈여겨볼 응답·유입 TOP) 스타일은 2026-09-25 사장님 지시로 삭제(SV_UNSEEN) — 되살리지 말 것 */
 /* ★★[SV_RESP_VIEW 2026-09-25 사장님 지시 「관리자 페이지 설문조사 고객 페이지랑 동일하게 보여줘
    선택한 거 전부 수기로 작성한 부분까지」] 한 고객의 설문을 **고객이 본 모양 그대로** 그린다.
    질문 원문 → 보기 전부(고른 것만 채움) → 그 문항의 기타 의견 → 맨 아래 한마디.
@@ -285,31 +268,27 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .svr-row .tg.neg{background:#FBF1EF;color:#8E3B32}
 .svr-row .rv{flex-basis:100%;color:var(--ink,#3A332B);line-height:1.6;white-space:pre-wrap;word-break:keep-all}
 .svr-row button{margin-left:auto;border:1px solid var(--line,#E5E0D8);background:#fff;border-radius:7px;padding:7px 11px;font-size:12px;color:var(--ink,#3A332B);cursor:pointer;min-height:36px}
-.sv-rev-m b{color:var(--gold-deeper,#9A7B3F)}.sv-rev-m i{color:var(--label-soft);font-style:normal}
-/* [SV_DIGEST] 설문 결과 요약화(2026-08-01) — 응답 1건인데도 14개 문항 막대가 전부 '100%'로
-   깔려 화면이 정신없다는 지적. 막대는 '분포'를 보라고 만든 물건인데 n이 작을 땐 분포가 없다.
-   → 평소엔 '봐야 할 것'만 남기고(부정 응답·유입·평균), 막대와 후기 전문은 접어 둔다. */
-.sv-note{font-size:12px;color:var(--sub);line-height:1.6;margin:0 2px 12px}
-.sv-note b{color:var(--accent,#2C2722);font-weight:600}
-.sv-watch{background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:8px;padding:10px 12px;margin:0 2px 10px}
-.sv-watch-h{font-size:11px;font-weight:600;color:var(--gold-deeper,#9A7B3F);letter-spacing:.02em;margin-bottom:6px}
-.sv-watch ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
-.sv-watch li{font-size:12px;color:var(--ink,#3A332B);line-height:1.5}
-.sv-watch li b{font-weight:600}
-.sv-ok{font-size:12px;color:var(--sub);margin:0 2px 10px;line-height:1.5}
-.sv-fold{border:1px solid var(--line,#E5E0D8);border-radius:8px;background:#fff;margin:0 2px 8px;overflow:hidden}
-.sv-fold>summary{list-style:none;cursor:pointer;padding:11px 12px;font-size:12px;font-weight:600;
-  color:var(--accent,#2C2722);display:flex;align-items:center;justify-content:space-between;gap:8px;
-  min-height:44px;box-sizing:border-box}
-.sv-fold>summary::-webkit-details-marker{display:none}
-.sv-fold>summary::after{content:"›";color:var(--gold-deeper,#9A7B3F);font-size:17px;line-height:1;
-  transition:transform .3s cubic-bezier(0.16,1,0.3,1);flex:0 0 auto}
-.sv-fold[open]>summary::after{transform:rotate(90deg)}
-.sv-fold>summary .n{font-weight:400;color:var(--label-soft)}
-.sv-fold-in{padding:2px 12px 13px;border-top:1px solid var(--line,#E5E0D8)}
-.sv-fold-in .sv-qs{margin-top:11px}
-.sv-fold-in .sv-rev:last-child{margin-bottom:0}
-@media (prefers-reduced-motion: reduce){ .sv-fold>summary::after{transition:none} }
+/* ★[SV_UNSEEN 2026-09-25] 새 후기 알림 · 후기 화면.
+   ★알림은 «좋은 소식»이라 경고색(빨강 테두리)을 쓰지 않는다 — 진사 점 하나로 «읽을 것이 있다»만 말한다.
+     바로 위 연락처 경고(.silent-banner)는 «할 일» 경고라 빨강이다. 둘이 같은 색이면 급한 것이 안 보인다. */
+.rv-alarm{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 14px;padding:10px 12px;border:1px solid var(--gold-line);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:13px;line-height:1.6;word-break:keep-all}
+.rv-alarm b{font-weight:600;color:var(--accent)}
+.rv-dot{width:8px;height:8px;border-radius:50%;background:var(--seal);flex:none}
+.rv-alarm-t{flex:1 1 180px;min-width:0}
+.rv-alarm-who{display:block;font-size:12px;color:var(--sub)}
+.rv-go{border:1px solid var(--seal);border-radius:7px;background:#fff;padding:0 12px;min-height:36px;font-family:var(--serif-ko);font-size:12px;color:var(--seal);cursor:pointer;flex:none}
+.rv-entry{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;padding:10px 12px;margin:0 0 8px;border:1px solid var(--line,#E5E0D8);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:13px;color:var(--ink,#3A332B);text-align:left;cursor:pointer}
+.rv-entry b{color:var(--seal);font-weight:600}
+.rv-entry-n{font-size:12px;color:var(--gold-deeper,#9A7B3F);white-space:nowrap}
+.rv-grp{font-family:var(--serif-ko);font-size:12px;font-weight:600;color:var(--sub);margin:18px 2px 8px}
+.rv-grp:first-child{margin-top:4px}
+.rv-row.is-new{border-color:var(--gold-line);box-shadow:inset 3px 0 0 var(--seal)}
+.svr-row .rv-nm{margin:0;padding:0;border:none;background:none;min-height:0;font-size:13px;font-weight:600;color:var(--ink,#3A332B);cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--border)}
+.svr-row .rv-ok{border-color:var(--seal);color:var(--seal);font-weight:600;padding:7px 16px}
+.rv-seen{margin-left:auto;font-size:11px;color:var(--label-soft)}
+.svr-row .rv-seen+button{margin-left:0}   /* 「확인함 · 날짜」를 버튼 바로 앞에 — 둘 다 auto 면 빈자리를 나눠 가져 줄 가운데 뜬다 */
+.rv-full{flex-basis:100%}
+.rv-full .svr{margin:4px 0 0}
 
 /* 메모·이력 */
 .memo-area{width:100%;border:1px solid var(--border);border-radius:8px;padding:11px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;resize:vertical;min-height:62px;outline:none;line-height:1.6}
@@ -481,6 +460,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
     <div id="recentWrap" class="recent" style="display:none"></div><!-- [ADM_AA6] 최근 본 고객 -->
     <div id="todayWrap" style="display:none"></div><!-- [TODAY_CONSULT] 오늘 상담 · 없으면 아예 안 그린다 -->
     <div id="silentWrap" style="display:none"></div><!-- [SILENT_BANNER] 알림이 조용히 안 나가는 고객 -->
+    <div id="rvAlarmWrap" style="display:none"></div><!-- [SV_UNSEEN] 새 후기 알림 · 확인하면 사라진다 -->
     <div id="queueWrap"></div>
     <div id="resultsWrap"></div>
     <div id="pipeWrap"></div>
@@ -503,6 +483,13 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
     </div>
     <div class="achips" id="aChips"></div>
     <div id="archiveBody"></div>
+  </section>
+
+  <!-- 후기 [SV_UNSEEN] — 새 후기(확인 전)는 맨 위에 원문을 펼친 채 · 확인한 후기는 한 줄씩 -->
+  <section id="reviewView" style="display:none">
+    <button class="back" id="btnRvBack">← 목록</button>
+    <div class="sect-h"><span class="tt">후기</span><span class="ct" id="rvCount"></span></div>
+    <div id="reviewBody"></div>
   </section>
 </main>
 
@@ -715,13 +702,14 @@ function _admSlowArm(){
   }, 15000);
 }
 function show(view){
-  _view = (view==='detail'||view==='archive') ? view : (view==='login'?'login':'home');
+  _view = (view==='detail'||view==='archive'||view==='reviews') ? view : (view==='login'?'login':'home');   /* [SV_UNSEEN] reviews */
   $('loading').style.display = (view==='loading')?'block':'none';
   if(view==='loading'){ _loadingSince=Date.now(); _admSlowArm(); } else { _admSlowClear(); }   /* [NAV_SEQ][ADM_SLOW_NOTE] */
   $('loginView').style.display = (view==='login')?'block':'none';
   $('homeView').style.display = (view==='home')?'':'none';   /* [ADM_WIDE] 보일 땐 시트가 정한다(데스크톱 grid) · 인라인 block 이 grid 를 덮던 자리 */
   $('detailView').style.display = (view==='detail')?'block':'none';
   $('archiveView').style.display = (view==='archive')?'block':'none';
+  $('reviewView').style.display = (view==='reviews')?'block':'none';   /* [SV_UNSEEN] */
 }
 /* [ADMIN_BACK_NAV 2026-07-25] 관리자 SPA 뒤로가기 — 상세·아카이브에서 브라우저/기기 뒤로가기 시 사이트를 이탈하지 않고 이전 목록으로 복귀.
    상세/아카이브 진입 때 history 항목을 1회 push하고, popstate에서 소비해 home(또는 archive)으로 되돌린다. 같은 뷰 새로고침·popstate 유발 호출은 push 제외. */
@@ -735,10 +723,10 @@ function _admHistInit(){
     /* [NAV_SEQ] 상세·아카이브를 «불러오는 중»에도 뒤로가기는 목록 복귀다 — show('loading') 이 _view 를 home 으로 두어 종전엔 여기서
        빠져나갔고, 해골만 남다가 늦게 온 상세가 그 위에 떴다(실측 T1a). 이동으로 세어 순번을 올리면 늦은 응답은 버려진다. */
     var _ldg=($('loading').style.display==='block');
-    if(_view!=='detail' && _view!=='archive' && !_ldg) return;   // home/login이면 관여 안 함(자연 이탈)
+    if(_view!=='detail' && _view!=='archive' && _view!=='reviews' && !_ldg) return;   // home/login이면 관여 안 함(자연 이탈) · [SV_UNSEEN] 후기 화면도 목록 복귀
     var target=(ev && ev.state && ev.state.admV) || 'home';
     _admFromPop=true;
-    try{ if(target==='archive' && _view!=='archive') loadArchive(); else loadHome(); }
+    try{ if(target==='archive' && _view!=='archive') loadArchive(); else if(target==='reviews' && _view!=='reviews') openReviews(); else loadHome(); }
     finally{ _admFromPop=false; }
   });
 }
@@ -1729,11 +1717,12 @@ function openBlocksModal(){
 }
 $('btnBack').addEventListener('click', goBack);
 $('btnArcBack').addEventListener('click', loadHome);
+$('btnRvBack').addEventListener('click', loadHome);   /* [SV_UNSEEN] 목록으로 — 홈을 새로 받아 알림 수를 서버 기준으로 맞춘다 */
 $('btnSearch').addEventListener('click', doSearch);
 $('q').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
 $('btnAsearch').addEventListener('click', function(){ _arcQuery=$('aq').value.trim(); loadArchive(); });
 $('aq').addEventListener('keydown', function(e){ if(e.key==='Enter'){ _arcQuery=$('aq').value.trim(); loadArchive(); } });
-function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='search'&&_lastQuery){ $('q').value=_lastQuery; doSearch(); } else { loadHome(); } }
+function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='reviews'){ openReviews(); } else if(_origin==='search'&&_lastQuery){ $('q').value=_lastQuery; doSearch(); } else { loadHome(); } }
 
 /* ── 로그인·세션 ── */
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
@@ -1966,7 +1955,7 @@ function onQueueAct(act,code,names,isSnap,el){
 
 /* ════════ 결과물 관리 — 원본→선택→보정→전달 보드 (전달완료=아카이브로 빠짐) ════════ */
 // 설문 라벨(mypage 스키마와 1:1) — 집계·카드 표시 공용
-/* [SV_DIGEST] neg = '눈여겨봐야 할 응답' 값들. 요약 카드는 이것만 골라 보여준다.
+/* [SV_DIGEST] neg = '눈여겨봐야 할 응답' 값들. 후기 화면이 이 값을 붉게 칠하고 줄 태그(놓친 부분 있음 등)로 알린다.
    ★중립(무난·보통·이용 안 함)은 넣지 않는다 — 넣으면 요약이 다시 전체 목록이 되어 의미가 없다.
    ★source·reason은 품질이 아니라 마케팅 데이터라 neg가 없다(따로 한 줄로 요약). */
 var SURVEY_Q = {
@@ -1986,19 +1975,9 @@ var SURVEY_Q = {
   gap:{t:'놓친 부분(안전망)',o:{none:'없음',minor:'사소',some:'있음'},neg:['minor','some']}
 };
 var SURVEY_ORDER=['pace','transparency','family','result','ceremony','space','dining','shoot','styling','source','reason','overall','recommend','gap'];
-var SURVEY_PILLARS=[{k:'pace',label:'140분 적절',good:['good']},{k:'transparency',label:'투명성 약속 이행',good:['kept','mostly']},{k:'family',label:'가족 만족',good:['great']}];
-function _svPct(q,goods){ if(!q) return null; var tot=0,hit=0,v; for(v in q){ if(q.hasOwnProperty(v)){ tot+=q[v]; if(goods.indexOf(v)>=0) hit+=q[v]; } } return tot?{pct:Math.round(hit/tot*100),n:tot}:null; }
-/* [SV_DIGEST] 설문 결과 = '요약 먼저, 자세히는 접어서'(2026-08-01 사용자 지적 반영).
-   전에는 응답 1건에도 14개 문항 막대가 전부 100%로 깔렸다. 막대는 분포를 읽으라는 물건인데
-   n이 1이면 읽을 분포가 없다. 그래서 화면은 꽉 찼는데 정작 '무엇을 해야 하나'는 안 보였다.
-   지금 구조: ① 개선 신호  ② 3축 이행률  ③ 추천·종합  ④ 눈여겨볼 응답만  ⑤ 유입·결정 한 줄
-              ⑥ [접힘] 문항별 분포 전체  ⑦ [접힘] 후기 전문
-   ★막대와 후기를 '지우지' 않았다 — details 안에 그대로 있다. 판단 근거는 언제든 펴서 봐야 한다. */
-function _svTop(q){   // 한 문항에서 가장 많이 나온 값 → {v, c}
-  var best=null,v;
-  for(v in q){ if(q.hasOwnProperty(v) && q[v]>0 && (!best || q[v]>best.c)) best={v:v,c:q[v]}; }
-  return best;
-}
+/* ★퍼센트 집계(SURVEY_PILLARS·_svPct·_svTop — 이행률 카드·문항별 막대·유입/결정 TOP)는 2026-09-25 사장님 지시로 삭제 —
+   되살리지 말 것. 「여기 퍼센트 부분은 굳이 관리자 입장에서 필요 없을 거 같아 · 피드백 부분만 체크해서 반영할 수 있게」.
+   응답이 몇 건뿐이라 100% 가 줄지어 떴고, 관리자의 일은 «비율 보기»가 아니라 «읽고 반영하기»였다. [SV_UNSEEN] */
 function _svLabel(k,val){ var m=SURVEY_Q[k]; return (m && m.o[val]) || val; }
 /* ★★[SV_RESP_VIEW] 한 고객의 설문 응답을 «고객이 본 모양 그대로» 그린다 — 상세와 홈이 함께 쓴다.
    sp = 설문응답 JSON({answers, notes, snap, review, reviewPublic}).
@@ -2044,94 +2023,99 @@ function svResponseHtml(sp, head){
   if(legacy) h+='<div class="svr-legacy">이 응답은 문항 원문이 함께 저장되기 전(2026-09-25 이전) 것이라 관리자 약칭으로 보여요.</div>';
   return h+'</div>';
 }
+/* ★★[SV_UNSEEN 2026-09-25 사장님 「여기 퍼센트 부분은 굳이 관리자 입장에서 필요 없을 거 같아 · 피드백 부분만 체크해서
+   반영할 수 있게 그 부분만 따로 들어가면 볼 수 있게 · 리뷰 남기면 알람 뜨고 확인하면 알람 없어지고 ·
+   하지만 커피 쿠폰 미발송 시 계속 메인 화면에는 지금처럼 나와야지」]
+   ★홈에는 둘만 남긴다 — ①새 후기 알림(맨 위 한 줄 · 확인하면 사라진다) ②후기 화면으로 들어가는 문.
+   ★알림을 상단 버튼 배지로 달지 않은 이유 — 320px 에서 상단 버튼 다섯 개가 이미 한 줄을 꽉 채운다([TB_TAP44] 실측).
+     여섯째를 넣으면 「새로고침」·「로그아웃」이 테두리를 넘는다.
+   ★쿠폰 미발송은 여기가 아니라 «처리할 일» 큐(CPN_QUEUE)가 지금처럼 맡는다 — 후기를 확인해도 쿠폰 큐는 발급될 때까지 남는다. */
 function renderSurvey(d){
+  /* ★[SV_UNSEEN_CAP 2026-09-25] 화면(Vercel)은 병합 즉시 바뀌고 GAS 는 재배포해야 바뀐다. 그 사이 옛 서버는 unseen 을
+     안 보낸다 — 그때 «새 후기는 모두 확인했어요»라고 쓰면 거짓이고, 「확인」은 «알 수 없는 요청»으로 죽는다.
+     그래서 서버가 unseen 을 보낼 때만 알림·확인을 켠다(SV_NOTES_CAP 과 같은 방식). */
+  var sv=(d&&d.survey)||{}, n=Number(sv.n)||0, cap=('unseen' in sv), unseen=Number(sv.unseen)||0;
+  renderReviewAlarm(sv);
   var wrap=$('surveyWrap'); if(!wrap) return;
-  var sv=d.survey||{n:0,q:{},recent:[]};
-  var html='<div class="sect-h"><span class="tt">설문 결과</span><span class="ct">'+(sv.n||0)+'</span></div>';
-  if(!sv.n){ wrap.innerHTML=html+'<div class="empty">아직 제출된 설문이 없어요. 전달 완료 고객이 후기를 남기면 여기에 집계돼요</div>'; return; }
-
-  // ── ① 개선 신호 — '놓친 부분 있었음'은 항상 맨 위에 (안전망)
-  var _gq=sv.q.gap||{}; var _gapN=(Number(_gq.minor)||0)+(Number(_gq.some)||0);
-  if(_gapN){ html+='<div style="margin:8px 0 12px;padding:9px 12px;border:1px solid #d8b06a;border-radius:8px;background:#fdf6ec;color:#8a5a1a;font-size:12.5px;line-height:1.5">개선 신호 · 고객이 <b>놓친 부분 있었음</b>으로 답한 설문 <b>'+_gapN+'건</b> · 아래 후기에서 확인해 주세요</div>'; }
-
-  // ── ② 브랜드 약속 3축 이행률
-  html+='<div class="sv-pillars">';
-  SURVEY_PILLARS.forEach(function(p){ var r=_svPct(sv.q[p.k],p.good); html+='<div class="sv-pill"><div class="sv-pill-pct">'+(r?r.pct+'%':'-')+'</div><div class="sv-pill-lb">'+esc(p.label)+'</div></div>'; });
-  html+='</div>';
-
-  // ── ③ 추천 의향 + 종합
-  var rec=_svPct(sv.q.recommend,['definitely','maybe']), ov=_svPct(sv.q.overall,['very','satisfied']);
-  html+='<div class="sv-sum">추천 의향 <b>'+(rec?rec.pct+'%':'-')+'</b> · 종합 만족 <b>'+(ov?ov.pct+'%':'-')+'</b></div>';
-
-  // ── ④ 눈여겨볼 응답만 추려서 (없으면 한 줄로 '없음')
-  var watch=[];
-  SURVEY_ORDER.forEach(function(k){
-    var meta=SURVEY_Q[k], q=sv.q[k]; if(!meta || !meta.neg || !q) return;
-    meta.neg.forEach(function(val){ var c=Number(q[val])||0; if(c) watch.push({t:meta.t,l:meta.o[val],c:c}); });
-  });
-  if(watch.length){
-    html+='<div class="sv-watch"><div class="sv-watch-h">눈여겨볼 응답 '+watch.length+'건</div><ul>';
-    watch.forEach(function(w){ html+='<li>'+esc(w.t)+' — <b>'+esc(w.l)+'</b> '+w.c+'명</li>'; });
-    html+='</ul></div>';
-  } else {
-    html+='<div class="sv-ok">아쉬움으로 답한 문항 없음 · 전 문항 긍정</div>';
-  }
-
-  // ── ⑤ 유입·결정은 품질이 아니라 마케팅 데이터 — 최다 응답만 한 줄로
-  var st=_svTop(sv.q.source||{}), rt=_svTop(sv.q.reason||{}), bits=[];
-  if(st) bits.push('유입 <b>'+esc(_svLabel('source',st.v))+'</b> '+st.c);
-  if(rt) bits.push('결정 이유 <b>'+esc(_svLabel('reason',rt.v))+'</b> '+rt.c);
-  if(bits.length) html+='<div class="sv-note">'+bits.join(' · ')+'</div>';
-
-  // ── ⑥ [접힘] 문항별 분포 전체
-  var qCount=0; SURVEY_ORDER.forEach(function(k){ if(sv.q[k]) qCount++; });
-  if(qCount){
-    var qs='<div class="sv-qs">';
-    SURVEY_ORDER.forEach(function(k){ var q=sv.q[k]; if(!q) return; var meta=SURVEY_Q[k]; var tot=0,v; for(v in q){ if(q.hasOwnProperty(v)) tot+=q[v]; } if(!tot) return;
-      qs+='<div class="sv-qrow"><div class="sv-qt">'+esc(meta?meta.t:k)+'</div><div class="sv-bar">';
-      var order=meta?Object.keys(meta.o):Object.keys(q);
-      order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; var pc=Math.round(c/tot*100); qs+='<span class="sv-seg sv-seg-'+(i)+'" style="width:'+pc+'%" title="'+esc((meta&&meta.o[val])||val)+' '+c+'명">'+(pc>=14?(pc+'%'):'')+'</span>'; });
-      qs+='</div><div class="sv-leg">'; order.forEach(function(val,i){ var c=q[val]||0; if(!c) return; qs+='<span class="sv-lg"><i class="sv-dot sv-seg-'+i+'"></i>'+esc((meta&&meta.o[val])||val)+' '+c+'</span>'; }); qs+='</div></div>';
-    });
-    qs+='</div>';
-    html+='<details class="sv-fold"><summary>문항별 분포 <span class="n">'+qCount+'문항</span></summary><div class="sv-fold-in">'+qs+'</div></details>';
-  }
-
-  /* ── ⑦ [접힘] 응답 원문 — ★★[SV_RESP_VIEW 2026-09-25]
-     종전엔 «후기(한마디)를 쓴 응답»만 모았다. 한마디를 안 쓰고 보기만 고른 응답은 여기서 아예 안 보였고,
-     고른 답도 종합·추천 두 개만 알 수 있었다. 이제 **모든 응답**을 한 줄씩 늘어놓고,
-     「전체 응답 보기」를 누르면 그 자리에서 고객이 본 화면 그대로(보기 전부·기타 의견·한마디) 펼친다.
-     ★펼칠 때 상세를 한 번 불러온다 — 홈 데이터에 원문을 다 실으면 조용한 갱신마다 무거워진다. */
-  var all=(sv.recent||[]);
-  if(all.length){
-    var pub=all.filter(function(x){ return x.reviewPublic==='Y'; }).length;
-    /* 요약의 «기타 의견 N»은 의견 «개수»다 — 줄마다 붙는 「기타 의견 2」와 같은 것을 센다.
-       응답 수를 세면 요약은 1, 바로 아래 줄은 2 가 되어 같은 이름이 다른 것을 센다. */
-    var withNotes=all.reduce(function(a,x){ return a+(Number(x.notesN)>0?Number(x.notesN):0); },0);
-    var withRev=all.filter(function(x){ return x.review; }).length;
-    var lbO={very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'}, lbR={definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'};
-    var rows=all.slice(0,20).map(function(x,i){
-      var negO=(x.overall==='neutral'||x.overall==='low'), negR=(x.recommend==='unsure'), negG=(x.gap==='minor'||x.gap==='some');
-      return '<div class="svr-row" data-sv-row="'+i+'">'
-        +'<span class="nm">'+esc(x.names||x.code)+'</span><span class="mt">'+esc(prodLabel(x.product))+(x.date?(' · '+esc(x.date)):'')+'</span>'
-        +(x.overall?'<span class="tg'+(negO?' neg':'')+'">종합 '+esc(lbO[x.overall]||x.overall)+'</span>':'')
-        +(x.recommend?'<span class="tg'+(negR?' neg':'')+'">추천 '+esc(lbR[x.recommend]||x.recommend)+'</span>':'')
-        +(negG?'<span class="tg neg">놓친 부분 있음</span>':'')
-        +(Number(x.notesN)>0?'<span class="tg">기타 의견 '+Number(x.notesN)+'</span>':'')
-        +(x.reviewPublic==='Y'?'<span class="tg">공개동의</span>':'')
-        +'<button type="button" data-sv-open="'+esc(x.code)+'" data-sv-i="'+i+'">전체 응답 보기</button>'
-        +(x.review?'<div class="rv">'+esc(x.review)+'</div>':'')
-        +'<div class="sv-full" data-sv-full="'+i+'" hidden></div>'
-        +'</div>';
-    }).join('');
-    var bits2=[all.length+'건']; if(withNotes) bits2.push('기타 의견 '+withNotes); if(withRev) bits2.push('한마디 '+withRev); if(pub) bits2.push('공개동의 '+pub);
-    html+='<details class="sv-fold"'+(withNotes?' open':'')+'><summary>응답 원문 <span class="n">'+bits2.join(' · ')+'</span></summary><div class="sv-fold-in">'+rows
-      +(all.length>20?'<div class="svr-legacy">최근 20건만 보여요 · 더 오래된 응답은 고객 상세에서 볼 수 있어요.</div>':'')+'</div></details>';
-  }
-
+  var html='<div class="sect-h"><span class="tt">후기</span>'+(unseen?'<span class="urg-badge">새 후기 '+unseen+'</span>':'')+'<span class="ct">'+n+'</span></div>';
+  if(!n){ wrap.innerHTML=html+'<div class="empty">아직 받은 후기가 없어요 · 들어오면 맨 위에 알려 드려요</div>'; return; }
+  html+='<button type="button" class="rv-entry" data-rv-open>'
+    +'<span>'+(!cap?('받은 후기 '+n+'건'):(unseen?('<b>새 후기 '+unseen+'건</b> · 읽고 확인해 주세요'):'새 후기는 모두 확인했어요'))+'</span>'
+    +'<span class="rv-entry-n">후기 '+n+'건 보기 ›</span></button>';
   wrap.innerHTML=html;
 }
-/* [SV_RESP_VIEW] 홈 「응답 원문」의 «전체 응답 보기» — 누를 때 상세를 한 번 불러와 그 자리에 펼친다.
+/* [SV_UNSEEN] 홈 맨 위 알림 — 확인 안 한 후기가 있을 때만 뜬다. «확인»하면 사라진다(서버에 기록 · 폰·PC 같은 상태). */
+function renderReviewAlarm(sv){
+  var box=$('rvAlarmWrap'); if(!box) return;
+  if(!('unseen' in (sv||{}))){ box.style.display='none'; box.innerHTML=''; return; }   // [SV_UNSEEN_CAP] 옛 서버는 새 후기를 가려내지 못한다
+  var list=((sv&&sv.recent)||[]).filter(function(x){ return !x.seen; });
+  if(!list.length){ box.style.display='none'; box.innerHTML=''; return; }
+  var who=list.slice(0,3).map(function(x){ return esc(x.names||x.code||''); }).join(' · ')+(list.length>3?(' 외 '+(list.length-3)+'명'):'');
+  box.innerHTML='<div class="rv-alarm" role="status"><span class="rv-dot" aria-hidden="true"></span>'
+    +'<span class="rv-alarm-t"><b>새 후기 '+list.length+'건</b>이 도착했어요<span class="rv-alarm-who">'+who+'</span></span>'
+    +'<button type="button" class="rv-go" data-rv-open>후기 보기</button></div>';
+  box.style.display='';
+}
+/* [SV_UNSEEN] 후기 화면 — 홈이 받아 둔 데이터로 바로 그린다(왕복 없음). 목록으로 돌아가면 홈을 새로 받아 서버 기준으로 맞춘다. */
+function openReviews(){
+  _admHistInit(); if(_view!=='reviews') _admPushView('reviews');
+  if(!curHome){ loadHome(); return; }
+  renderReviews(curHome); show('reviews');
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function _rvRow(x, key, isNew){
+  var lbO={very:'매우 만족',satisfied:'만족',neutral:'보통',low:'아쉬움'}, lbR={definitely:'꼭 추천',maybe:'추천할 만함',unsure:'글쎄'};
+  var negO=(x.overall==='neutral'||x.overall==='low'), negR=(x.recommend==='unsure'), negG=(x.gap==='minor'||x.gap==='some');
+  var h='<div class="svr-row rv-row'+(isNew?' is-new':'')+'">'
+    +'<button type="button" class="nm rv-nm" data-rv-detail="'+esc(x.code)+'" title="고객 상세 열기">'+esc(x.names||x.code)+'</button>'
+    +'<span class="mt">'+esc(prodLabel(x.product))+(x.date?(' · '+esc(x.date)):'')+'</span>'
+    +(x.overall?'<span class="tg'+(negO?' neg':'')+'">종합 '+esc(lbO[x.overall]||x.overall)+'</span>':'')
+    +(x.recommend?'<span class="tg'+(negR?' neg':'')+'">추천 '+esc(lbR[x.recommend]||x.recommend)+'</span>':'')
+    +(negG?'<span class="tg neg">놓친 부분 있음</span>':'')
+    +(Number(x.notesN)>0?'<span class="tg">기타 의견 '+Number(x.notesN)+'</span>':'')
+    +(x.reviewPublic==='Y'?'<span class="tg">공개동의</span>':'')
+    +(isNew?'<button type="button" class="rv-ok" data-rv-ok="'+esc(x.code)+'">확인</button>'
+           :(x.seen?'<span class="rv-seen">확인함 · '+esc(String(x.seen).slice(5,16))+'</span>':''));
+  if(isNew && x.full){ h+='<div class="rv-full">'+svResponseHtml(x.full,'')+'</div>'; }   // 새 후기는 펼친 채 — 알림을 누른 이유가 «읽기»다
+  else {
+    h+='<button type="button" data-sv-open="'+esc(x.code)+'" data-sv-i="'+key+'">전체 응답 보기</button>'
+      +(x.review?'<div class="rv">'+esc(x.review)+'</div>':'')
+      +'<div class="sv-full" data-sv-full="'+key+'" hidden></div>';
+  }
+  return h+'</div>';
+}
+function renderReviews(d){
+  var sv=(d&&d.survey)||{}, all=sv.recent||[], cap=('unseen' in sv);
+  /* [SV_UNSEEN_CAP] 옛 서버면 «새 후기»를 가려낼 수 없다 — 전부 한 목록으로 보여 주고 「확인」은 달지 않는다 */
+  var nw=cap?all.filter(function(x){ return !x.seen; }):[], old=cap?all.filter(function(x){ return !!x.seen; }):all;
+  var ct=$('rvCount'); if(ct) ct.innerHTML=(nw.length?('<b>새 후기 '+nw.length+'</b> · '):'')+'전체 '+(Number(sv.n)||all.length)+'건';
+  var h='';
+  if(!all.length) h='<div class="empty">아직 받은 후기가 없어요</div>';
+  if(nw.length) h+='<div class="rv-grp">새 후기 · 읽고 「확인」을 누르면 알림이 사라져요</div>'+nw.map(function(x,i){ return _rvRow(x,'n'+i,true); }).join('');
+  if(!cap && all.length) h+='<div class="svr-legacy" style="margin:0 2px 8px">새 후기 알림·확인은 서버(GAS) 새 버전 재배포 뒤에 켜져요.</div>';
+  if(old.length){
+    h+='<div class="rv-grp">'+(cap?'확인한 후기':'받은 후기')+'</div>'+old.map(function(x,i){ return _rvRow(x,'o'+i,false); }).join('');
+    if((Number(sv.n)||0)>all.length) h+='<div class="svr-legacy">확인한 후기는 최근 40건만 보여요 · 더 오래된 후기는 고객 상세에서 볼 수 있어요.</div>';
+  }
+  var body=$('reviewBody'); if(body) body.innerHTML=h;
+}
+/* [SV_SEEN] 「확인」 — 서버에 읽음 표시를 남기고 알림 수를 줄인다. 실패하면 말하고 버튼을 되살린다(조용히 사라지지 않게). */
+document.addEventListener('click', function(e){
+  var t=e.target&&e.target.closest?e.target:null; if(!t) return;
+  if(t.closest('[data-rv-open]')){ openReviews(); return; }
+  var dt=t.closest('[data-rv-detail]'); if(dt){ openDetail(dt.getAttribute('data-rv-detail'), 'reviews'); return; }
+  var b=t.closest('[data-rv-ok]'); if(!b) return;
+  var code=b.getAttribute('data-rv-ok'); b.disabled=true; b.textContent='확인 중';
+  gas('adminSurveySeen', code).then(function(r){
+    if(!r||!r.ok){ b.disabled=false; b.textContent='확인'; toast((r&&r.error)||'확인 표시를 남기지 못했어요 · 다시 눌러 주세요'); return; }
+    var sv=(curHome&&curHome.survey)||{};
+    (sv.recent||[]).forEach(function(x){ if(x.code===code){ x.seen=r.seen||'확인'; delete x.full; } });
+    sv.unseen=(sv.recent||[]).filter(function(x){ return !x.seen; }).length;
+    if(curHome){ renderReviews(curHome); try{ renderSurvey(curHome); }catch(_e){} }
+    toast('확인했어요');
+  }).catch(function(){ b.disabled=false; b.textContent='확인'; toast('연결이 안 돼요 · 잠시 후 다시 눌러 주세요'); });
+});
+/* [SV_RESP_VIEW] 후기 화면의 «전체 응답 보기» — 누를 때 상세를 한 번 불러와 그 자리에 펼친다.
    ★실패하면 말한다(조용히 빈 칸을 남기지 않는다) · 두 번째 누름은 접기. */
 document.addEventListener('click', function(e){
   var b=e.target&&e.target.closest?e.target.closest('[data-sv-open]'):null; if(!b) return;

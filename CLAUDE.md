@@ -28,7 +28,7 @@
 - **반복 금지(2026-09-14)**: **월 고정비 실제 금액**(관리비·전기·인터넷·보안·보험·세무 기장) — **임대차 계약 전에는 존재하지 않는 숫자다.** 대표에게 물어도 나올 수 없는 것을 「대표가 주셔야 하는 것」으로 분류한 내 오분류였다. 신청서 본문이 이미 「상한·가정」이라고 밝히고 있다. **다시 여는 조건은 계약서 도장 하나뿐.** ★교훈: '네가 할 일'에 올리기 전에 **「이 사람이 지금 이걸 알 수 있나」를 먼저 묻는다.** 모르는 것을 묻는 칸이 아니라 **할 수 있는 것을 적는 칸**이다.
 - **★주제 이탈 금지 (2026-08-02 사용자 지적)**: 이 칸에는 **지금 하고 있는 작업과 관련된 것만** 올린다.
   다른 작업에서 남은 결정 대기 항목(예: 나레이션 작업 중에 `index.html` 결제 문구)을 끼워 넣지 않는다.
-  그런 항목은 `나중에할일_체크리스트.md`에만 적어 두고, **그 작업으로 돌아왔을 때** 꺼낸다.
+  그런 항목은 `나중에할일_체크리스트.md`(9/25부터 momentedit-docs `operations/` · 아래 메모 규칙)에만 적어 두고, **그 작업으로 돌아왔을 때** 꺼낸다.
   > 사용자 원문: *"근데지금 나래이션 관련작업을 하는데 … 이건무슨상관이있어? 갑자기 튀어나와서 얘끼하는거야?"*
   - 이미 같은 이유로 영구 제외된 것: ①부가세 확정신고 ⑧GitHub 토큰 교체 (*"1,8번 그만 말해"*)
   - **★`index.html` 결제 문구(주말 18만/평일 11만) 확인 — 이후 응답에서 먼저 꺼내지 않는다.**
@@ -378,7 +378,7 @@ git push -u origin <브랜치>
 | `deployStampCheck` | **99_deployCheck** | ★배포가 «먹었는가»만 찍는다(서너 줄). deployCheck 로그가 GAS 한도로 ③ 에서 잘려 ④ 를 몇 번을 돌려도 못 보던 자리 — 2026-09-20 대표 실행 두 번 모두 그랬다. **재배포할 때마다 이것만 돌리면 된다.** deployCheck 는 «붙여넣기» 점검이고 이건 «배포» 점검이다. ★기록이 없으면 «아직 모름»이다 — 재배포 뒤 momentedit.kr 을 한 번 열어야 지문이 찍힌다. ★★[STAMP_FN_ONLY] **이 판정은 «함수»만 본다** — `_dsGlobalSig` 가 `typeof === 'function'` 인 것만 모은다. 화면 파일(`Admin`·`ScreenA`·`ScreenB`·`ScreenC` `.html`)은 지문에 **안 들어가서**, 붙여넣었든 안 넣었든 똑같이 OK 가 나온다. **`.html` 을 붙여넣었으면 `deployCheck`(같은 `99_deployCheck` 파일)를 돌려 ①-C 본문 길이를 봐야 한다.** 2026-09-20 에 내가 `ScreenB_schedule.html` 을 고쳐 드리고 이걸로 확인하라고 안내했는데, 확인될 수가 없는 조합이었다 |
 | `contractCheck` | **99_contractCheck** | ★값 계약 점검 — deployCheck 와 **짝**이다. 그쪽은 «표식이 있는가», 이쪽은 «값이 맞는가». GAS 상수(FINAL_CONFIRM 등)를 실제로 평가하고, 배포된 사이트 문장까지 대조한다. 목록이 없으면 파일 안 폴백으로 GAS 값만 본다 |
 | `contractCheckHelp` | **99_contractCheck** | 위 점검의 사용법 출력(발송·변경 없음). 파일 끝을 지키는 함수이기도 하다 — 이 이름이 사라지면 붙여넣다 뒤가 잘린 것이다 |
-| `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) |
+| `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) · ★켜진 고객 알림 중 **알림톡 템플릿이 빠진 것을 이름으로 나열**(TPL_COVER) — 「알림톡이 안 나간다」면 여기부터. 템플릿이 없으면 알림톡은 안 나가고 이메일로만 대체되며, 그 사실은 고객 상세 처리이력·관리자 메일(하루 한 통)로 드러난다(TPL_SILENT) |
 | `notifyTestAdminSms` | 95_notify | 관리자 폰 테스트 문자 1건(실발송) |
 | `notifyTestCustomerByCode('코드')` | 95_notify | 고객 알림 테스트(실발송·야간보류 무시) |
 | `notifyTestKakao('번호'[,'이벤트'])` | 95_notify | 카톡(알림톡) 직접 테스트 — 지정 번호로 승인·매핑된 템플릿 1건 실발송(카톡만·SMS 대체 끔). 템플릿ID 미매핑이면 로그로 안내 |
@@ -435,8 +435,9 @@ git push -u origin <브랜치>
 | `awMonthlyAudit` | 88_place_audit | 월간 검증 본체(트리거 자동·수동 1회 실행 가능). 폐업·상호변경 의심 발견 시 ADMIN_PHONE으로 알림 |
 | `collectDinePool` | 88_place_audit | 스튜디오 반경 7km 업종 스윕으로 후보 식당·카페 대량 수집 → AW_장소후보 시트(검토 O → 사이트 승격) |
 | `collectDinePoolDeep` | 88_place_audit | 후보 최대 수집(3×3 격자 셀별 스윕 — 기본 수집의 2~3배). 3~5분·6분 한도 전 자동 종료 |
-| `vimeoGuardDaily` | form-to-couple(부부폼 GAS·별도 프로젝트) | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 경고 메일(하루 1통·수동 점검 가능). D-3 영상 사전등록 SOP 누락 방지 |
-| `setupVimeoGuard` | form-to-couple(부부폼 GAS·별도 프로젝트) | vimeoGuardDaily 매일 07시 트리거 등록(1회·중복 자동 정리) |
+| `letterMigrate` | **87_letter** | ★1회 실행 — 옛 「Moment Edit Letter System」 스프레드시트의 탭 4개(Couples·Messages·Moderation·Banned)를 본 스프레드시트로 복사 → 화면 값이 원본과 한 칸도 다르지 않은지 대조(어긋나면 사본 지우고 멈춤) → `LETTER_MIGRATED=Y` → `setupAllTriggers` 로 매일 07시 점검까지 건다. 다시 돌려도 안전(이미 옮긴 탭은 건너뜀). 옛 스프레드시트는 백업으로 남는다 [LETTER_MERGED 2026-09-25] |
+| `vimeoGuardDaily` | **87_letter** | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 관리자 메일(하루 1통·수동 점검 가능) + 첫 줄에서 `purgeCoupleData`. ★관리자 페이지에서 미계약·취소·노쇼로 닫은 예식은 건너뛴다(Customers 조회 실패면 «모르면 보낸다») [VIMEO_GUARD_XPROJ]. 트리거는 `setupAllTriggers`(70_journey)가 매일 07시로 건다 — 옛 `setupVimeoGuard`(부부폼 프로젝트)는 가져오지 않았다 |
+| `purgeCoupleData`·`previewCoupleData` | **87_letter** | 예식 + 6개월(기본 183일 · `COUPLE_PURGE_DAYS`) 지난 예식의 청첩장·편지 개인정보 비우기(행 보존) · `COUPLE_PURGE_OFF='Y'` 면 정지. preview 는 아무것도 안 바꾸고 대상만 로그 |
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)
 
@@ -746,6 +747,10 @@ until ! pgrep -f "merge-guard.sh" >/dev/null 2>&1; do sleep 10; done
 
 ## 나중에 할 일 메모 규칙 (2026-06-12 사용자 지시)
 
+★★[GRANT_MOVED_0925 2026-09-25 사장님 결정] 이 파일은 **비공개 저장소 momentedit-docs 의 `operations/나중에할일_체크리스트.md`** 로 옮겼다.
+사이트 저장소가 오픈 때까지 공개라서다. 사이트 루트에는 «옮김» 한 줄만 남아 있다 — **거기에 적지 않는다.**
+세션 소스에 momentedit-docs 가 있어야 적을 수 있다. 없으면 메모를 응답에 적고 «docs 저장소에 옮겨 적을 것»을 표시한다.
+
 사용자가 "메모해놔 / 체크리스트에 남겨줘 / 나중에 하자"고 하면 루트 **`나중에할일_체크리스트.md`** 에 추가한다 — 흩어두지 말고 항상 이 한 파일(단일 보관처). 완료 항목은 `[x]` 체크. (SEO 상세는 `docs/plans/PLAN_SEO_체크리스트.md`가 별도 관리되며 통합 파일에서 링크)
 
 ## 사용자 결정 대기함 규칙 (2026-07-14 사용자 지시)
@@ -806,7 +811,7 @@ until ! pgrep -f "merge-guard.sh" >/dev/null 2>&1; do sleep 10; done
 ### 규칙 — 대표가 무언가를 정하면 그 자리에서 둘을 함께 한다
 
 1. **신청서 본문을 고친다**
-2. **`docs/국가지원금/대표결정_반영대장.tsv` 에 한 줄 적는다**
+2. **`docs/국가지원금/대표결정_반영대장.tsv` 에 한 줄 적는다** (★9/25부터 momentedit-docs `grant/대표결정_반영대장.tsv` · [GRANT_MOVED_0925] — 신청서는 9/14 제출됐고 이 게이트는 사이트 merge-guard 에서 빠졌다. 도구는 `python3 grant/tools/application-decisions.py`)
 
 둘 중 하나만 하면 `merge-guard` 가 푸시를 막는다. 순서는 상관없다.
 답을 받은 그 응답 안에서 끝내고, 못 끝낼 사정이면 대장에 먼저 적는다 —

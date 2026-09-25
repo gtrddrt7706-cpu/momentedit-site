@@ -6,7 +6,8 @@
  *   eventId 를 Customers(15) 에 배선(개인코드 ↔ eventId).
  *
  * [⚠️ B 전제] INV.LETTER_SYSTEM_ID 운영자 입력 필요(Couples 탭이 있는 시트 ID).
- *   plat 프로젝트와 청첩장 프로젝트는 별도라 makeEventId 등은 여기서 '복제'(호출 불가).
+ *   (2026-09-25 청첩장 조회·편지가 87_letter 로 합쳐졌다 — 옛 부부폼의 makeEventId 등을 여기서 복제해 두었던 사정은 끝났지만,
+ *    부부폼은 가져오지 않았으므로 이 파일의 _inv* 가 유일한 원본이다.)
  *   Couples 는 HEADER_ROW=3 → 자체 헬퍼(_couplesColOf, 1행 헤더인 buildHeaderIndex와 안 섞음).
  * [재사용] resolveSession(30)·findCustomerByCode/touchCustomer(20)·getCustomersSheet/buildHeaderIndex·_parseJsonSafe(70)
  */
@@ -22,10 +23,9 @@ function _invConfigured() { return INV.LETTER_SYSTEM_ID && INV.LETTER_SYSTEM_ID.
 // ── Couples 시트 접근(교차) + 3행 헤더 헬퍼 (복제, onCoupleFormSubmit과 동일 동작) ──
 function _couplesSheet() {
   if (!_invConfigured()) throw new Error('청첩장 연동 미설정: INV.LETTER_SYSTEM_ID를 채워 주세요.');
-  var ss = SpreadsheetApp.openById(INV.LETTER_SYSTEM_ID);
-  var sh = ss.getSheetByName(INV.SHEET);
-  if (!sh) throw new Error("Couples 시트('" + INV.SHEET + "')를 찾을 수 없습니다.");
-  return sh;
+  // [LETTER_MERGED 2026-09-25] Couples 는 본 스프레드시트로 옮겼다(87_letter letterMigrate). 옮기기 전에는 옛 Letter System 을 읽는다.
+  //  ★여기서 openById 로 옛 시트를 직접 열지 말 것 — 조회(getCouple)와 발행이 서로 다른 시트를 보게 된다.
+  return _ltSheet(INV.SHEET);
 }
 function _couplesColOf(sheet) {
   var headers = sheet.getRange(INV.HEADER_ROW, 1, 1, sheet.getLastColumn()).getValues()[0];
@@ -238,7 +238,7 @@ function handlePublishInvitation(body) {
     touchCustomer(custSheet, custCol, cust.num, _updPub);
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 위저드 재진입(_step='confirm' 복원) 시 발행만 호출돼 전이가 빠지던 경로(코워크 교차검증 치명1)
 
-    // 캐시 무효화: webhook(별 프로젝트)의 ScriptCache는 여기서 못 지움 → 재발행 시 TTL만큼 지연 가능(신규는 무관).
+    _ltBustCouple(eventId);   // [LETTER_MERGED] 조회가 같은 프로젝트로 와서 캐시를 바로 지울 수 있다(종전엔 최대 60초 옛 내용)
     return { ok: true, eventId: eventId, urls: urls };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }
 }
@@ -302,6 +302,7 @@ function saveInvitationPreview(body) {
     if (_szI4) return { ok: false, error: _szI4 };
     touchCustomer(custSheet, custCol, cust.num, _prodStoreCols(d, { 'eventId': eventId }, { track: 'invitation', cust: cust }));   // PROD_ACCESSOR
     setCustomerStage(code, 'produce');   // PRODUCE_ENTRY_FIX — 죽은 액션이지만 되살아날 때를 대비해 다른 청첩장 진입점과 동일 전이 유지
+    _ltBustCouple(eventId);   // [LETTER_MERGED] 발행과 같이 캐시를 지운다
 
     return { ok: true, eventId: eventId, urls: urls };
   } finally { try { lock.releaseLock(); } catch (e) {} _nq.forEach(function (f) { try { f(); } catch (e) {} }); }

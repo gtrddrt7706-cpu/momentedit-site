@@ -1750,9 +1750,12 @@ chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 
 # ── 청첩장 CTA 통일 · 관리자 설문 요약화 (2026-08-01) ──────────
 chk 'BTN_TIER' index.html 7                                  # 버튼 2단 체계 · 청첩장 미리보기도 외곽 마룬으로 편입(세 번째 스타일 금지)
 chk 'journal-guide-link' index.html 10                       # 외곽 마룬 버튼 3곳(청첩장·하객 안내·부모님)이 같은 클래스를 쓴다
-chk 'SV_DIGEST' admin.html 3                                 # 설문 요약화 · neg 정의 + renderSurvey + 접힘 CSS
-chk 'sv-fold' admin.html 8                                   # 문항별 분포·후기 접기 · 풀면 응답 1건에 막대 12개가 다시 깔린다
-chk 'sv-watch' admin.html 5                                  # '눈여겨볼 응답'만 추리는 요약 카드 · 이게 빠지면 요약이 평균 3개뿐이 된다
+chk 'SV_DIGEST' admin.html 1                                 # neg 정의(아쉬움 쪽 답) — 후기 화면이 붉게 칠하는 근거 · 요약 카드는 아래 폐지
+# ★2026-09-25 사장님 지시로 퍼센트 집계 폐지 — 「여기 퍼센트 부분은 굳이 관리자 입장에서 필요 없을 거 같아 · 피드백 부분만」.
+#   종전 줄(sv-fold 8 · sv-watch 5 · SV_DIGEST 3)은 그 요약 카드를 지키던 것이라 함께 내렸다. 되살아나지 않게 막는다(SV_UNSEEN).
+nochk 'function _svPct(' admin.html
+nochk 'var SURVEY_PILLARS=' admin.html
+nochk 'sv-pill-pct' admin.html
 chk 'GUIDE_DEMO' guide.html 4                                # ?g=demo 표본 · GAS 무호출 · 좌석 결과 선표시(배너는 2026-08-01 사용자 지시로 제거)
 chk "g==='demo'" guide.html 1                                # 데모 분기는 boot 맨 앞 · 실제 하객 경로는 이 코드를 지나가지 않는다
 chk 'GUIDE_DEMO_CTA' index.html 1                            # 하객 안내를 '설명'에서 '열어볼 수 있는 것'으로
@@ -1929,18 +1932,14 @@ chk 'IG_MARK' index.html 1                               # 제목 옆 인스타 
 chk 'archive-grid-ig' index.html 14                      # 사진 9장 우상단 마크(마크업 9 + CSS) · 정중앙 흰 원으로 되돌리면 인물 얼굴 위에 다시 얹힌다
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 # ── 편지 전달 점검 (2026-08-03 사용자 "편지 전달되는 부분 점검해보자 시스템이나 연동이나 디자인부분도")
-chk 'LETTER_RATE' automation/guest-letter-webhook.gs 2         # 예식별 전송 속도 제한 · 없애면 한 예식으로 편지를 무제한 쏟아부을 수 있다
-chk 'LETTER_DELIVERED' automation/guest-letter-webhook.gs 2    # 메일이 실제로 나갔는지 응답에 담는다 · 지우면 '받을 주소 없음'인데 하객은 전해졌다고 믿는 상태로 되돌아간다
+# ★[LETTER_MERGED 2026-09-25] 위·아래 편지 검사 중 guest-letter-webhook.gs·form-to-couple.gs 를 보던 줄은 옮겼다 —
+#   옛 Letter System 을 본 프로젝트 87_letter.gs 로 합치면서 옛 파일을 은퇴시켰다. 같은 표식(LETTER_RATE·DELIVERED·PLAIN·
+#   PREHEADER·TARGET·금지어 대상·DM_FOOT_SIGN)은 87_letter.gs 를 보는 줄이 [LETTER_MERGED] 블록에 있다.
+#   부부폼 메일 2종(DM_FOOT_SIGN ×2)은 구글폼 부부폼을 안 가져와 함께 끝났다(마이페이지 청첩장이 대체).
 chk 'LETTER_DELIVERED' live.html 2                             # 그 응답을 받아 '스튜디오가 직접 전해드릴게요'를 띄우는 쪽
-chk 'LETTER_PLAIN' automation/guest-letter-webhook.gs 1        # 텍스트 대체본 · 빈 문자열로 되돌리면 HTML 못 그리는 클라이언트에서 편지가 통째로 사라진다
-chk 'LETTER_PREHEADER' automation/guest-letter-webhook.gs 1    # 받은편지함 미리보기 줄 · 없으면 누가 보낸 편지인지 열어야만 안다
-chk 'LETTER_TARGET' automation/guest-letter-webhook.gs 1       # 수신 주소 유무만 참/거짓으로(주소는 계속 비공개)
 chk 'LETTER_TARGET' live.html 1                                # 받을 곳 없는 수신인은 고르지 못하게
 chk 'LETTER_SEND' live.html 2                                  # 재진입 차단 + '서버가 ok라고 할 때만 성공' · 2xx만 보고 성공 처리로 되돌리면 한 통도 안 나갔는데 전해졌다고 뜬다
 chk 'LETTER_UI' live.html 2                                    # 글자수 위치 · 카드 세로 가운데
-chk '[guestName, relation, message]' automation/guest-letter-webhook.gs 1  # 금지어 검사 대상 · 본문만 보면 이름·관계 칸으로 그대로 새어 나간다
-chk 'DM_FOOT_SIGN' automation/guest-letter-webhook.gs 1  # ★실제 하객이 보내고 두 분이 받는 편지 메일 — 홈 예시만 고치면 진짜 편지는 옛 모습으로 남는다(2026-08-03 사용자 확인)
-chk 'DM_FOOT_SIGN' automation/form-to-couple.gs 2        # 청첩장 전달 메일 2종(안내·재제출)
 chk 'DM_FOOT_SIGN' automation/consultation/consultation-booking.gs 1  # 상담 메일(흰 지면) — 금색을 글자로 쓰면 대비 2.3                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 # ★[GA_TABS 2026-08-18] 'MOCK_SAMPLE_SYNC' 마커 폐지 — **구조적으로 불필요해졌다.**
 #   이 마커는 손으로 베낀 목업의 표본일이 청첩장 SAMPLE 과 어긋나는 것을 막던 것이다.
@@ -6200,6 +6199,76 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'SYNC_MAP_FULL' scripts/gas-sync.mjs 1
 chk 'SYNC_MAP_FULL' scripts/audit/sync-map-full.mjs 1
+# ★★[LETTER_MERGED 2026-09-25 대표 지시 「한쪽에서 관리」「필요한 것만」「정상작동이 최우선」]
+#   옛 「Moment Edit Letter System」 GAS 프로젝트에서 사이트가 실제로 부르는 것(청첩장 조회·하객 편지·
+#   영상 D-3 점검·개인정보 파기)만 본 프로젝트 87_letter 로 옮겼다. 구글폼 부부폼·가족청첩장 빌드는 안 가져왔다.
+#   ① letter-sim — 옛 코드와 새 코드를 같은 시험 데이터로 돌려 응답·시트 기록·메일을 한 글자씩 대조(기준값 letter-golden.json)
+#   ② gas-name-clash — 한 프로젝트 안 전역 이름 겹침 0 (GAS 는 겹치면 나중 파일이 조용히 이긴다)
+#   ③ 입구 순서 — doGet 의 getCouple 이 handleAction 보다 위(아래면 청첩장 조회가 메일 버튼으로 떨어진다)
+if command -v node >/dev/null 2>&1; then
+  _lsOut=$(TZ=Asia/Seoul node scripts/audit/letter-sim.mjs 2>&1) \
+    || { echo 'FAIL letter-sim: 청첩장 조회·하객 편지가 옛 Letter System 과 다르게 돈다 — TZ=Asia/Seoul node scripts/audit/letter-sim.mjs'
+         printf '%s\n' "$_lsOut" | sed 's/^/    | /'; fail=1; }
+  _ncOut=$(node scripts/audit/gas-name-clash.mjs 2>&1) \
+    || { echo 'FAIL gas-name-clash: 본 GAS 프로젝트 안에서 전역 이름이 겹친다 — node scripts/audit/gas-name-clash.mjs'
+         printf '%s\n' "$_ncOut" | sed 's/^/    | /'; fail=1; }
+  node -e "
+    const s=require('fs').readFileSync('automation/consultation/consultation-booking.gs','utf8');
+    const a=s.indexOf(\"if (p.action === 'getCouple') return jsonOut(ltGetCouple(p));\"), b=s.indexOf('if (p.action) return handleAction(p);');
+    process.exit(a>0 && b>0 && a<b ? 0 : 1);" \
+    || { echo 'FAIL LETTER_ROUTE: doGet 에서 getCouple 이 handleAction 보다 아래거나 없다 — 청첩장 조회가 메일 버튼 처리로 떨어진다'; fail=1; }
+fi
+# ★[LETTER_RETIRED 2026-09-25] 옛 Letter System 파일은 은퇴 — 되살리지 말 것(제거 지시 보존 규칙과 같은 뜻).
+#   옛 브랜치에서 되살아나 병합되면, 거기 고친 것은 GAS 어디에도 안 올라가는 «가짜 원본»이 된다
+#   (옛 프로젝트는 트리거를 지우고 쉬게 한다 · 쓰는 부분은 87_letter 가 원본이다). 근거가 필요하면 git 기록에서 꺼낸다.
+for _old in automation/form-to-couple.gs automation/guest-letter-webhook.gs 'automation/가족청첩장빌드.gs' automation/99_projectCheck.gs; do
+  [ -e "$_old" ] && { echo "FAIL LETTER_RETIRED: 은퇴한 옛 Letter System 파일이 되살아났다 — $_old (원본은 automation/platform/87_letter.gs)"; fail=1; }
+done
+chk 'LETTER_SIM' scripts/audit/letter-sim.mjs 1
+# ★[LETTER_SWITCH 2026-09-25] 사이트가 부부 정보·하객 편지를 본 GAS(87_letter)로 부른다 — 옛 Letter System 웹훅 주소로 되돌리지 말 것
+#   (옛 시트는 letterMigrate 뒤로 갱신되지 않는다 — 되돌리면 청첩장이 옛 내용을 보이고 편지는 옛 시트에만 쌓인다).
+#   ★편지 POST 의 action:'guestLetter' 를 빼면 본 GAS doPost 의 case '' (상담 신청)로 떨어진다.
+#   (반복문 안에 chk 를 넣지 않는다 — merge-guard 가 chk 실행 횟수를 줄 수와 대조한다)
+nochk 'AKfycbwWuUVCgRRclss' shared/hydrate.js
+nochk 'AKfycbwWuUVCgRRclss' live.html
+nochk 'AKfycbwWuUVCgRRclss' api/og-inv.js
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' shared/hydrate.js 1
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' live.html 1
+chk 'AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g' api/og-inv.js 1
+chk "action: 'guestLetter'," live.html 1
+chk 'FORM_TO_MYPAGE' form.html 1
+chk 'LETTER_SWITCH_E2E' scripts/audit/letter-switch.mjs 2
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/letter-switch.mjs >/dev/null 2>&1; _lsw=$?
+  case "$_lsw" in
+    0) echo 'ok letter-switch: 청첩장·가족·라이브가 본 GAS 로 부르고 편지가 action 을 달고 간다' ;;
+    2) echo 'skip letter-switch (브라우저 없음 — 통과가 아니라 안 본 것입니다)' ;;
+    *) echo 'FAIL letter-switch: 사이트가 본 GAS 로 제대로 부르지 않는다 — node scripts/audit/letter-switch.mjs'; fail=1 ;;
+  esac
+fi
+nochk 'docs.google.com/forms' form.html      # 은퇴한 구글폼 부부폼으로 보내지 않는다
+chk 'GAS_NAME_CLASH' scripts/audit/gas-name-clash.mjs 1
+chk 'LETTER_MERGED' automation/platform/87_letter.gs 3
+chk 'LETTER_FALLBACK' automation/platform/87_letter.gs 2
+chk 'LETTER_MIGRATE' automation/platform/87_letter.gs 1
+chk 'LETTER_MERGED' automation/consultation/consultation-booking.gs 2
+chk "case 'guestLetter':        return jsonOut(ltGuestLetter(body));" automation/consultation/consultation-booking.gs 1
+chk 'LETTER_MERGED' automation/platform/85_invitation.gs 3
+chk 'return _ltSheet(INV.SHEET);' automation/platform/85_invitation.gs 1
+nochk 'SpreadsheetApp.openById(INV.LETTER_SYSTEM_ID)' automation/platform/85_invitation.gs   # 발행이 옛 시트를 직접 열면 조회와 갈라진다
+chk "{ fn: 'vimeoGuardDaily'," automation/platform/70_journey.gs 1
+chk 'VIMEO_GUARD_OFF' automation/platform/87_letter.gs 1
+chk 'VIMEO_GUARD_XPROJ' automation/platform/87_letter.gs 2      # 관리자에서 취소한 예식은 경고 멈춤 · 모르면 보낸다
+chk "colOf\\['cancelled'\\]" automation/platform/87_letter.gs 1   # cancelled 열 출구도 계속 존중 (대괄호는 정규식이라 이스케이프)
+nochk 'notifyStudio(' automation/platform/87_letter.gs          # 본 프로젝트의 notifyStudio 는 SEND_ADMIN_MAIL=false 로 꺼져 있다 — 경고가 조용히 사라진다
+chk 'LETTER_RATE' automation/platform/87_letter.gs 2
+chk 'LETTER_DELIVERED' automation/platform/87_letter.gs 2
+chk 'LETTER_PLAIN' automation/platform/87_letter.gs 1
+chk 'LETTER_PREHEADER' automation/platform/87_letter.gs 1
+chk 'LETTER_TARGET' automation/platform/87_letter.gs 1
+chk '\[guestName, relation, message\]' automation/platform/87_letter.gs 1   # 금지어 검사 대상 셋 (대괄호 이스케이프 — 안 하면 아무 줄에나 걸린다)
+chk 'DM_FOOT_SIGN' automation/platform/87_letter.gs 1
+nochk '— Moment Edit' automation/platform/87_letter.gs          # 고객 편지 메일 텍스트본 — 전각 줄표 금지
 chk 'ADMIN_NOFEE_LINE' automation/platform/95_notify.gs 1
 # ★[SHIP_NOW 2026-09-19 사용자 지시 "앞으로 작업끝나면 바로메인에 올려"] 브랜치 푸시는 «작업 끝»이 아니다.
 #   실사고 — 브랜치가 main 보다 188커밋 앞서고 83커밋 뒤처진 채 열흘을 갔다. 그 사이
@@ -6325,7 +6394,10 @@ chk 'FP_BROAD' automation/platform/00_platform-config.gs 2
 chk 'FP_BROAD' automation/platform/99_deployCheck.gs 1
 chk '_dsGlobalSig' automation/platform/00_platform-config.gs 2   # 정의 1 + deployFingerprint 안 호출 1
 chk 'FP_BROAD' scripts/audit/deploy-fp.mjs 2
-chk 'grid-template-areas:"search search" "recent recent" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
+# [HOME_RIGHT_STACK] 처리할 일은 왼쪽 한 줄기 · 오늘 상담→진행 중→결과물→후기는 오른쪽 — 그대로다.
+#   ★2026-09-25(SV_UNSEEN) 맨 위에 전폭 알림 줄 둘(silent·alarm)을 더했다 — 연락처 경고·새 후기 알림.
+#     이름 없이 두면 «비어 있는 첫 칸»으로 자동 배치돼 한 칸 폭이 됐다(main 판 실측 559px).
+chk 'grid-template-areas:"search search" "recent recent" "silent silent" "alarm alarm" "queue today" "queue pipe" "queue results" "queue survey"' admin.html 1
 chk 'e.detail>0' admin.html 1                          # 마우스만 거른다 — 이 조건을 빼면 키보드 Enter 도 350ms 동안 먹지 않는다
 # ★[SAFE_HREF 2026-09-05 점검 라운드5·주입] 저장값에서 온 주소(원본·보정본·영상·양식·청첩장·참고링크)는 http(s)·경로만 링크로 — javascript: 값이 링크가 되던 것
 chk 'SAFE_HREF' admin.html 6
@@ -6471,13 +6543,8 @@ chk 'SIM_PROPS' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_REVERSE' scripts/audit/deploycheck-sim.mjs 1
 chk 'SIM_NOT_MINE' scripts/audit/deploycheck-sim.mjs 1
 
-# [PROJECT_CHECK] 별도 GAS 프로젝트 3곳(부부폼·하객편지·가족청첩장)은 deployCheck 가 못 닿는다 —
-#   typeof 는 같은 프로젝트 안에서만 통한다. 그래서 각자 스스로 세는 파일을 따로 둔다.
-#   그 파일도 «점검받지 않은 코드»가 되지 않게, 전 함수를 하나씩 빼 보는 시뮬레이터를 물린다.
-chk 'PROJECT_CHECK' automation/99_projectCheck.gs 1
-chk 'PROJECT_CHECK_SIM' scripts/audit/projectcheck-sim.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/projectcheck-sim.mjs >/dev/null 2>&1 \
-  || { echo 'FAIL projectcheck-sim: 별도 프로젝트 점검이 빠진 함수를 못 잡는다 — node scripts/audit/projectcheck-sim.mjs'; fail=1; }; fi
+# [PROJECT_CHECK] 별도 GAS 프로젝트 점검기(99_projectCheck)는 2026-09-25 은퇴 — 그 세 곳(부부폼·하객편지·가족청첩장)이
+#   한 프로젝트(Letter System)였고, 쓰는 부분은 본 프로젝트 87_letter 로 합쳤다(LETTER_MERGED). 이제 deployCheck 가 전부 본다.
 
 # ★[MARKS_REACH] 점검 목록이 «사이트로 나가는 길»을 지킨다 — 이 길이 끊기면 모든 것이 조용히 무너진다.
 #   GAS 는 https://momentedit.kr/deploy-marks.json 에서 목록을 읽는다. 그 파일이 배포에서 빠지거나
@@ -6691,7 +6758,6 @@ nochk '저장돼요 — 마이페이지로 열면' order-preview.html
 #   ★FILE_COVER_SINCE 는 앞당기지 말 것 — 규칙 이전 커밋까지 소급하면 고칠 수 없는 빨강이 된다.
 chk 'FILE_COVER' scripts/audit/deploycheck-coverage.mjs 2
 chk 'FILE_COVER_SINCE' scripts/audit/deploycheck-coverage.mjs 2
-chk 'GRANT_FACTS' docs/국가지원금/근거데이터_외부통계.md 1   # 외부 숫자 단일 보관처 — 지우지 말 것
 chk 'FILE_COVER' CLAUDE.md 1
 chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
 
@@ -6700,19 +6766,17 @@ chk 'git log -1 --format=%H' scripts/audit/deploycheck-coverage.mjs 1
 #   [NOT_THE_SOURCE] 는 「도구로 재라」인데, 이건 그 다음 구멍이다 — 도구로 쟀어도 대상이 바뀌면 죽는다.
 chk 'RULE_MEASURED' CLAUDE.md 1
 
-# [OPS_ANSWER_0911 2026-09-11] 운영기관 2차 답변 — 권역 비율은 비례배분과 «함께» 적용된다(내 종전 판단 정정)
+# [OPS_ANSWER_0911 2026-09-11] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 운영기관 2차 답변 — 권역 비율은 비례배분과 «함께» 적용된다(내 종전 판단 정정)
 #   + 회수하기 실재하나 «회수 중 기관이 100% 차면 그 기관 선택 불가» 함정. 회수-수정 전략 폐기 근거.
-chk 'OPS_ANSWER_0911' docs/국가지원금/운영기관답변_2026-09-11.md 1
 
-# [STRENGTH_COUPLE 2026-09-11] 강점을 「심사위원 눈」이 아니라 「예비부부 눈」으로 다시 뽑은 문서.
+# [STRENGTH_COUPLE 2026-09-11] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 강점을 「심사위원 눈」이 아니라 「예비부부 눈」으로 다시 뽑은 문서.
 #   종전 리스트는 코드로 증명하기 쉬운 것을 골랐고, 원본 전체·보증인원 없음·150일 전 전액 환불을 빠뜨렸다.
-chk 'STRENGTH_COUPLE' docs/국가지원금/강점_예비부부관점_재정리.md 1
 
 # [RULE_EASY 2026-09-11] 증명하기 쉬운 것이 중요한 것을 밀어낸다 — 대표가 「이게 강점 확실해?」로 잡았다.
 #   참인 것만 골랐는데 중요하지 않은 것을 골랐다. 그 사이 원본 전체·보증인원 없음·150일 전액환불을 빠뜨렸다.
 chk 'RULE_EASY' CLAUDE.md 1
 
-# [DECISION_GATE 2026-09-13] 대표가 정한 것이 신청서 본문에 들어갔는가 — 푸시를 막는 게이트.
+# [DECISION_GATE 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 대표가 정한 것이 신청서 본문에 들어갔는가 — 푸시를 막는 게이트.
 #   사고: 대표가 답해 준 「세 곳을 넘긴 이유」와 「스마트스토어 1등」을 길게 칭찬만 하고
 #   파일에 넣지 않았다. 칭찬은 반영이 아닌데 내 쪽에는 「처리했다」는 느낌이 남는다.
 #   대화는 저장소가 아니라 화제가 옮겨가면 사라지고, 파일에 흔적이 없으니 아무도 못 찾는다.
@@ -6721,36 +6785,29 @@ chk 'RULE_EASY' CLAUDE.md 1
 #   자수도 함께 본다 — 줄바꿈이 \r\n 으로 저장되면 문단마다 1자씩 늘어난다
 #   (실측 2026-09-13: Q2 2,018 · Q3-1 2,019 로 잘릴 상태였다).
 #   ★적대적 시험 3/3 통과 확인 — MUST 삭제·NEVER 부활·자수 초과를 각각 잡는다(죽은 게이트 아님).
-chk 'DECISION_LEDGER' docs/국가지원금/대표결정_반영대장.tsv 1
-chk 'DECISION_GATE' scripts/audit/application-decisions.py 1
-# [REVIEW_GATE 2026-09-13] 대표가 올린 지적이 조용히 사라지지 않는가.
+# [REVIEW_GATE 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 대표가 올린 지적이 조용히 사라지지 않는가.
 #   대표 지시: "개선사항 계속해서 올릴 거니깐 누락 없이 취합해놔 한 번에 반영하게"
 #   검토함의 줄은 상태가 있어야 하고, '완료'라고 적으려면 대장에 [검토N] 이 있어야 한다.
 #   그러면 그 줄의 검증문자열을 MUST 검사가 본문에서 다시 확인한다 — 완료 표시가 본문까지 이어진다.
-chk 'REVIEW_INBOX' docs/국가지원금/대표검토_지적사항_20260913.md 1
-chk 'REVIEW_GATE' scripts/audit/application-decisions.py 1
-chk 'SPLIT_FACTS' scripts/audit/application-decisions.py 2   # 한 발언에 사실이 여럿이면 하위 항목으로 쪼갠다
-# [SUBMIT_BUILD 2026-09-13] 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
-chk 'SUBMIT_BUILD' scripts/audit/build-submission-txt.py 1
-# [TWIN_DRIFT 2026-09-13] 정본과 _v2 는 같은 파일이어야 한다 — 게이트는 정본만 읽는다.
+# [SUBMIT_BUILD 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 제출용 txt 는 정본에서 다시 만든다 — 손으로 고치면 문면과 자수가 갈라진다.
+# [TWIN_DRIFT 2026-09-13] (★이 저장소의 검사는 폐지 — 비공개 저장소로 옮김 [GRANT_MOVED_0925]) 정본과 _v2 는 같은 파일이어야 한다 — 게이트는 정본만 읽는다.
 #   사고: _v2 가 윤문 전 판으로 굳어 있었다. 이름이 「v2」라 더 새 것으로 읽히는데 실제로는 낡은 것이었고,
 #   대표검토 문서가 그것을 「3중 대조 대상」으로 가리키고 있었다 — 틀린 쪽을 근거로 삼을 뻔했다.
 #   둘 중 무엇을 붙여 넣을지 사람이 고르게 두지 않는다. 다르면 빨강.
-if [ -f docs/국가지원금/모두의창업_신청서_최종본_v2.md ]; then
-  if cmp -s docs/국가지원금/모두의창업_신청서_최종본.md docs/국가지원금/모두의창업_신청서_최종본_v2.md; then
-    echo 'ok 신청서 정본 == _v2 (갈라지지 않았다)'
-  else
-    echo 'FAIL 신청서 _v2 가 정본과 갈라졌다 — cp 로 맞추거나 _v2 를 지운다'; fail=1
-  fi
-fi
-if command -v python3 >/dev/null 2>&1; then
-  _sb=$(python3 scripts/audit/build-submission-txt.py --check 2>&1) && printf '%s\n' "$_sb" \
-    || { printf '%s\n' "$_sb"; fail=1; }
-else echo 'skip build-submission-txt (python3 없음)'; fi
-if command -v python3 >/dev/null 2>&1; then
-  _ad=$(python3 scripts/audit/application-decisions.py 2>&1) && printf '%s\n' "$_ad" \
-    || { printf '%s\n' "$_ad"; fail=1; }
-else echo 'skip application-decisions (python3 없음)'; fi
+# ★★[GRANT_MOVED_0925 2026-09-25 사장님 결정] 위 GRANT_FACTS · OPS_ANSWER_0911 · STRENGTH_COUPLE ·
+#   DECISION_LEDGER · DECISION_GATE · REVIEW_INBOX · REVIEW_GATE · SPLIT_FACTS · SUBMIT_BUILD · TWIN_DRIFT 검사는
+#   자료와 함께 momentedit-docs(비공개) grant/ · grant/tools/ 로 옮겼다. 이 저장소는 오픈 때까지 공개라서다.
+#   신청서는 9/14 제출됐고, 도구는 거기서 그대로 돈다(python3 grant/tools/application-decisions.py · 옮긴 뒤 실측 203건 · 0).
+#   되살아나면 빨강 — 공개 저장소에 신청서·손익 자료가 다시 올라오는 것을 막는다.
+for _gm in docs/국가지원금/모두의창업_신청서_최종본.md docs/국가지원금/대표결정_반영대장.tsv _handout.html \
+           scripts/audit/application-decisions.py scripts/audit/build-handout.py scripts/audit/build-submission-txt.py; do
+  if git ls-files --error-unmatch "$_gm" >/dev/null 2>&1; then echo "FAIL [GRANT_MOVED_0925] 비공개로 옮긴 파일이 되살아났다: $_gm"; fail=1; fi
+done
+_gn=$(git -c core.quotepath=off ls-files docs/국가지원금 | grep -v '^docs/국가지원금/README.md$' | wc -l)
+if [ "$_gn" -eq 0 ]; then echo 'ok [GRANT_MOVED_0925] docs/국가지원금 에는 안내 한 줄(README)만 남아 있다'
+else echo "FAIL [GRANT_MOVED_0925] docs/국가지원금 에 파일이 다시 생겼다(${_gn}개) — 비공개 저장소로"; fail=1; fi
+chk 'momentedit-docs' docs/국가지원금/README.md 1
+chk 'momentedit-docs' 나중에할일_체크리스트.md 1
 # ★★[CSS_COMMENT_NEST 2026-09-06 실기기 제보 "플레이버튼 전에꺼가더 좋왔던거같은데"]
 #   CSS 주석은 중첩되지 않는다. 주석 안에서 다시 열면 «첫» 닫는 표시가 바깥까지 함께 닫고,
 #   그 뒤 설명문이 CSS 로 읽힌다. 파서는 회복하려고 다음 { } 블록 하나를 통째로 삼킨다.
@@ -8395,6 +8452,26 @@ chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
 chk 'PHONE_KR_NORM' automation/admin/admin.gs 3
 chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 
+# ★★[TPL_SILENT]·[TPL_COVER] 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 저 알람 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」
+#   연락처 쪽은 검사가 있었는데(PHONE_KR_NORM·CONTACT_LIFECYCLE_SIM) «알림 종류마다 알림톡이 실제로 나가는가»는 없었다.
+#   실제 95_notify 를 돌려 보니 템플릿 ID 가 없으면(반려·미등록) 알림톡은 시도조차 없이 이메일로만 대체되고
+#   관리자에게 아무 말이 없었다 — 고객 이메일까지 비면 고객도 관리자도 아무것도 못 받았다(19종 전부).
+#   → 처리이력 한 줄 + 관리자 메일(하루 한 통 · 아무것도 못 받은 고객은 따로) · 설정 점검이 빠진 알림을 이름으로.
+#   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
+if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
+  case "$_ne" in
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리' ;;
+    1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
+    *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'SERVED_OURS' scripts/audit/notify-e2e.mjs 1
+chk 'TPL_SILENT' automation/platform/95_notify.gs 5
+chk 'TPL_COVER' automation/platform/95_notify.gs 2
+chk 'function _nfTplSilent(' automation/platform/95_notify.gs 1
+chk "NF_NOTPL_NONE_" automation/platform/95_notify.gs 1   # ★아무것도 못 받은 고객은 하루 한 통 표식과 따로 알린다
+nochk 'SMS로 발송' automation/platform/95_notify.gs          # 고객 문자는 2026-06-29 부터 안 쓴다 — 설정 점검·설명이 «문자로 대체»라는 옛말을 하지 않게
+
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
 #   «줄지어 도는 동안» 생겼다 — 번호가 82… 로 앉고 → 밤에 큐에 쌓이고 → 취소했는데 큐는
@@ -8461,16 +8538,40 @@ chk 'notes:notes, snap:snap' mypage.html 1
 chk 'data-note-open=' mypage.html 2
 chk 'srv-note-t\[hidden\]' mypage.html 1   # ★inline-flex 가 [hidden] 을 이겨 「+ 기타 의견 적기」가 칸을 연 뒤에도 남았다(실측)
 nochk "\['etc','그 외'\]" mypage.html
-chk 'SV_RESP_VIEW' admin.html 5
+chk 'SV_RESP_VIEW' admin.html 4
 chk 'SV_ALL_SHOWN' admin.html 1
 chk 'SV_OPEN_RETRY' admin.html 1   # 펼침 요청을 서버가 거절하면 알리고 재시도 가능 — 종전엔 «찾지 못했어요»로 굳었다(고치기 전 코드로 되돌려 4건 빨강 확인)
 chk 'function svResponseHtml' admin.html 1
-chk 'svResponseHtml(' admin.html 3
+chk 'svResponseHtml(' admin.html 4
 chk 'data-sv-open' admin.html 3
 nochk "etc:'그외'" admin.html
 chk 'SV_RESP_VIEW' scripts/audit/admin-inject.mjs 1
-chk '홈 설문 펼침' scripts/audit/admin-inject.mjs 2
+chk '후기 화면' scripts/audit/admin-inject.mjs 5
 chk '상세 설문' scripts/audit/admin-inject.mjs 1
+
+# ★★[SV_UNSEEN]·[SV_SEEN] 2026-09-25 사장님 「퍼센트는 필요 없고 · 피드백만 따로 들어가서 보게 · 리뷰 남기면 알람 뜨고
+#   확인하면 알람 없어지고 · 하지만 커피 쿠폰 미발송 시 계속 메인 화면에는 지금처럼」
+#   홈엔 «새 후기 N건» 알림 한 줄 + 후기 입구만 · 후기 화면에서 새 후기는 원문을 펼친 채 「확인」 · 확인은 설문응답 JSON 에 seen 으로
+#   (시트 컬럼을 늘리지 않는다) · 쿠폰 큐(CPN_QUEUE)는 확인과 무관하게 발급될 때까지 남는다 — survey-notes ⑥⑦ 이 실행으로 본다.
+chk 'SV_UNSEEN' automation/admin/admin.gs 4
+chk 'SV_SEEN' automation/admin/admin.gs 3
+chk 'adminSurveySeen: adminSurveySeen' automation/admin/admin.gs 1   # ★화이트리스트에 없으면 확인 버튼이 «알 수 없는 요청»으로 죽는다(ADMINCALL_WIRED)
+chk 'SV_UNSEEN' admin.html 10
+chk 'SV_SEEN' admin.html 1
+chk "gas('adminSurveySeen'" admin.html 1
+chk 'id="reviewView"' admin.html 1
+chk 'id="rvAlarmWrap"' admin.html 1
+chk '#rvAlarmWrap{grid-area:alarm}' admin.html 1   # 이름이 없으면 «비어 있는 첫 칸»으로 자동 배치돼 한 칸 폭이 된다
+chk 'SV_UNSEEN_CAP' admin.html 3   # ★재배포 전 옛 서버엔 unseen 이 없다 — 그때 «모두 확인했어요»(거짓)·죽는 「확인」을 내지 않는다(깨 보니 빨강)
+chk '⑥ 새 후기 알림' scripts/audit/survey-notes.mjs 1
+chk '⑦ 쿠폰 미발송' scripts/audit/survey-notes.mjs 1
+# ★★[SV_DONE_CLOSE]·[SV_LABEL_KO] 2026-09-25 사장님 「여기 부분 디자이너 관점으로 개선」 — 고객 후기 완료 카드
+#   끝난 뒤엔 「마지막 단계」를 달지 않는다 · 가운데로 모아 맺는다(쿠폰 카드와 같은 말투) · 강조는 진사 「오래」 한 점.
+#   「마지막 단계」 라벨은 한글 소라벨로 — 영문 눈썹 서식(Cormorant 기울임·.22em)을 한글에 걸면 가짜 기울임에 흩어진다.
+chk 'SV_DONE_CLOSE' mypage.html 3
+chk 'SV_LABEL_KO' mypage.html 1
+chk 'res-panel done srv-done' mypage.html 1
+nochk '.srv-step-label{text-align:center;font-family:var(--serif);font-style:italic' mypage.html
 
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
@@ -10015,7 +10116,26 @@ chk "require('./_livehook')" api/lead.js 2
 chk 'preview\*) exit 1' vercel.json 1
 # ★★[RAW_OFF_GITHUB 2026-09-25 사장님 결정 «저장소 비공개 전환»] 부부폼 미리보기 그림을 깃허브 raw 가 아니라
 #   사이트에서 받는다. 비공개가 되면 raw 주소는 토큰 없이 404 다.
-chk "RAW: 'https://www.momentedit.kr/assets/preview/'" automation/form-to-couple.gs 1
-chk 'RAW_OFF_GITHUB' automation/form-to-couple.gs 2
+#   ★(2026-09-25 LETTER_MERGED) 이 두 줄이 지키던 form-to-couple.gs 의 폼 생성 그림 주소는 구글폼 부부폼을 은퇴시키며 함께 끝났다.
+#     폼을 새로 만드는 createCoupleForm 만 쓰던 값이다 — 이미 만들어진 폼의 그림은 구글이 들고 있다.
 # ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
 chk 'COWORK_SPLIT_0925' CLAUDE.md 1
+# [PREVIEW_GUARD 보강 2026-09-25 코워크 검토] form.submit() · 막힌 XHR 의 readyState · 장치가 못 막는 길(location/iframe/img) · 옛 사본 삭제
+chk 'PREVIEW_GUARD_FORMSUBMIT' shared/preview-guard.js 1
+chk 'PREVIEW_GUARD_XHR_DONE' shared/preview-guard.js 1
+chk 'PREVIEW_GUARD_UNCOVERED' scripts/audit/preview-guard.mjs 1
+chk 'LEGACY_GONE' scripts/audit/preview-guard.mjs 2
+# [COURSE_LOST_LOUD 2026-09-25 코워크 Q1③] 모르는 코스는 조용히 «약속»으로 떨어지지 않고 운영자에게 알린다
+chk 'COURSE_LOST_LOUD' assets/ritual-cue.js 2
+chk 'COURSE_LOST_LOUD' console.html 1
+node scripts/audit/course-lost-loud.mjs >/dev/null 2>&1 && echo 'ok [COURSE_LOST_LOUD] 모르는 코스 → 큰 소리 · 아는/빈 코스 → 조용' \
+  || { echo 'FAIL [COURSE_LOST_LOUD] node scripts/audit/course-lost-loud.mjs'; fail=1; }
+# [DECLARE_HOW_ASKFIX · KB_DECLARE_2WAY 2026-09-25] 폐지한 «하객 응답 · 합송»이 빌더 설명과 AI 상담 지식에 남아 있었다
+chk 'DECLARE_HOW_ASKFIX' assets/ritual-data.js 1
+chk 'KB_DECLARE_2WAY' api/_ritual-kb.js 1
+nochk "pick:'[^']*하객 응답" assets/ritual-data.js 0
+_kbask=$(node -e "const k=require('./api/_ritual-kb.js');const t=String(typeof k==='function'?k():(k.build?k.build():JSON.stringify(k)));console.log((t.match(/하객 응답|합송|물음에 하객/g)||[]).length)" 2>/dev/null)
+if [ "${_kbask:-x}" = "0" ]; then echo 'ok [KB_DECLARE_2WAY] AI 상담 지식에 폐지한 선언 갈래 0건'
+else echo "FAIL [KB_DECLARE_2WAY] AI 상담 지식에 «하객 응답·합송»이 ${_kbask}건 — 챗봇이 없는 갈래를 안내한다"; fail=1; fi
+# [LAUNCH_LIST 2026-09-25] 오픈 직전 목록 한 파일 — 비공개 전환 때 한꺼번에 할 일
+chk 'LAUNCH_LIST' docs/plans/오픈직전_목록.md 1

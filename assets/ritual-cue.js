@@ -189,7 +189,17 @@
   function norm(S) {
     var s = {}, k;
     for (k in (S || {})) if (Object.prototype.hasOwnProperty.call(S, k)) s[k] = S[k];
-    if (!D.COURSES[s.course]) s.course = 'damback';
+    /* ★★[COURSE_LOST_LOUD 2026-09-25 코워크 Q1③ 채택] 모르는 코스는 «큰 소리로» 실패한다.
+       종전엔 여기서 조용히 «약속»(damback)으로 떨어졌다 — 화면은 멀쩡한데 고객이 고른 것과 다른 예식이 흐른다
+       ([COURSE_HIDDEN] 이 막으려던 바로 그 사고). 콘솔이 멈추면 당일이 더 위험하니 폴백은 남기고,
+       그 사실을 meta.lostCourse 로 올려 콘솔이 틀기 전에 운영자에게 알린다(console.html).
+       ★빈 값(코스를 아직 안 고른 초안)은 사고가 아니라 기본값이라 알리지 않는다. */
+    if (!D.COURSES[s.course]) {
+      if (s.course != null && String(s.course) !== '') {
+        try { console.error('[COURSE_LOST_LOUD] 모르는 코스 «' + String(s.course) + '» — 약속 코스로 대신 흐릅니다. 식순을 확인하세요.'); } catch (e) {}
+      }
+      s.course = 'damback';
+    }
     var cd = COURSE_DEF[s.course];
     var def = {
       /* ★[RING_OPT 2026-08-07] 반지 교환 기본값은 코스가 정한다 — 하드코딩 'on' 이었다.
@@ -1012,7 +1022,11 @@
 
     /* [PREVIEW_UPTO] 자른 사실을 **결과에 실어** 보낸다 — 화면이 「이 뒤는 아직」이라고 말할 근거다.
        ★소리로는 아무 말도 만들지 않는다(새 음원 없음). 화면 글로만 닫는다. */
-    return { cues: cues, S: S, seq: seq, mode: mode, upto: upto, uptoName: uptoName, uptoAfter: uptoAfter, meta: meta(cues, S, mode, seq) };
+    var M = meta(cues, S, mode, seq);
+    /* [COURSE_LOST_LOUD] 들어온 초안(S0)의 코스를 엔진이 모르면 그 키를 meta 에 싣는다 — 폴백 뒤의 S 에는 흔적이 없다.
+       ★S 에 얹지 않는다: S 는 고객이 고른 값만 담는 자리다(미리듣기 KEYS 대조가 그걸 센다). */
+    M.lostCourse = (S0 && S0.course != null && String(S0.course) !== '' && !D.COURSES[S0.course]) ? String(S0.course) : '';
+    return { cues: cues, S: S, seq: seq, mode: mode, upto: upto, uptoName: uptoName, uptoAfter: uptoAfter, meta: M };
   }
 
   /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 전부 뺄 수 있게 되면서 '입장만 남은 예식'이 만들어질 수 있다.

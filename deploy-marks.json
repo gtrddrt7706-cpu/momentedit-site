@@ -78,6 +78,10 @@
   {
    "file": "99_contractCheck",
    "fn": "contractCheck"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGetCouple"
   }
  ],
  "newfn": [
@@ -120,6 +124,31 @@
    "file": "96_ai_cost",
    "fn": "aiDraftAnswer",
    "why": "AI 원클릭 교육"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGetCouple",
+   "why": "청첩장 16종·라이브·공유 미리보기의 부부 정보 조회 — 옛 Letter System 웹훅에서 옮김"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGuestLetter",
+   "why": "라이브 하객 편지(금지어 검수·기록·두 분께 메일) — 옛 웹훅에서 옮김"
+  },
+  {
+   "file": "87_letter",
+   "fn": "letterMigrate",
+   "why": "청첩장·편지 시트 4개를 본 스프레드시트로 옮기는 1회 실행 함수"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSurveySeen",
+   "why": "후기 «확인» — 새 후기 알림을 내리는 서버 함수(관리자 후기 화면의 확인 버튼이 부른다)"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfTplSilent",
+   "why": "알림톡 템플릿이 없어 카톡을 못 보낸 알림을 처리이력·관리자 메일로 드러내는 함수"
   }
  ],
  "marks": [
@@ -638,6 +667,78 @@
    "fn": "deployCheck",
    "mark": "LOG_COMPACT",
    "why": "② 의 OK 줄을 접고 결과 한 줄을 맨 위로 — 옛 판이면 로그가 GAS 한도로 잘려 가장 최근 변경(목록 끝)이 안 보인다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGetCouple",
+   "mark": "LETTER_MERGED",
+   "why": "옛 Letter System 을 본 프로젝트로 합친 조회 — 이 파일이 없거나 옛것이면 사이트 전환 뒤 청첩장이 표본으로 떨어진다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "vimeoGuardDaily",
+   "mark": "VIMEO_GUARD_XPROJ",
+   "why": "관리자 페이지에서 취소한 예식은 영상 미등록 경고를 멈춘다(모르면 보낸다) — 옛것이면 취소해도 메일이 계속 온다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "LETTER_MERGED",
+   "why": "getCouple 을 메일 버튼(handleAction)보다 먼저 받는 자리 — 옛것이면 청첩장 조회가 «예약을 찾을 수 없습니다» HTML 로 떨어진다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "LETTER_MERGED",
+   "why": "하객 편지(guestLetter)를 받는 자리 — 옛것이면 «알 수 없는 요청»으로 편지가 한 통도 안 간다"
+  },
+  {
+   "file": "85_invitation",
+   "fn": "_couplesSheet",
+   "mark": "LETTER_MERGED",
+   "why": "마이페이지 청첩장 발행이 조회와 같은 Couples 를 보게 — 옛것이면 발행은 옛 시트, 조회는 새 시트로 갈라진다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "setupAllTriggers",
+   "mark": "LETTER_MERGED",
+   "why": "영상 미등록 D-3 점검·개인정보 파기(vimeoGuardDaily) 매일 07시 트리거 — 옛것이면 트리거가 안 걸린다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltSheet",
+   "mark": "LETTER_FALLBACK",
+   "why": "옮기기 전에는 옛 Letter System 을 읽고, 옮긴 뒤 탭이 없으면 옛 데이터로 새지 않고 멈춘다 — 옛것이면 순서가 어긋날 때 청첩장·편지가 멈춘다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "letterMigrate",
+   "mark": "LETTER_MIGRATE",
+   "why": "시트 4개 복사 → 원본과 값 대조 → 어긋나면 사본을 지우고 멈춤 → 트리거까지 — 옛것이면 어긋난 사본이 남아 다음 실행이 건너뛴다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "SV_UNSEEN",
+   "why": "관리자 홈이 «새 후기 수(unseen)»를 세고 새 후기를 목록 맨 앞에 원문과 함께 싣는 자리. 이 파일이 옛것이면 홈에 새 후기 알림이 안 뜨고 후기 화면이 비어 보인다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminSurveySeen",
+   "mark": "SV_SEEN",
+   "why": "후기 «확인»을 설문응답에 기록하는 자리. 이 파일이 옛것이면 확인 버튼이 «알 수 없는 요청»으로 실패하고 알림이 영영 안 내려간다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_kakaoSend",
+   "mark": "TPL_SILENT",
+   "why": "템플릿이 없어 알림톡을 못 보낸 알림을 알리는 자리. 이 파일이 옛것이면 알림톡이 안 나가도 관리자는 모른다(고객 이메일이 없으면 고객도 아무것도 못 받는다)"
+  },
+  {
+   "file": "95_notify",
+   "fn": "notifySetupCheck",
+   "mark": "TPL_COVER",
+   "why": "설정 점검이 켜진 고객 알림 중 템플릿이 빠진 것을 이름으로 나열하는 자리. 이 파일이 옛것이면 «몇 건 등록»만 나와 무엇을 승인받아야 할지 모른다"
   }
  ],
  "fns": {
@@ -873,6 +974,37 @@
    "saveInvitationPreview",
    "buildInvitationState"
   ],
+  "87_letter": [
+   "_ltSrcId",
+   "_ltSheet",
+   "_ltBustCouple",
+   "_ltAdminMail",
+   "ltGetCouple",
+   "_ltAcctVisible",
+   "_ltCoupleFull",
+   "_ltYmd",
+   "_ltHm",
+   "ltGuestLetter",
+   "_ltCoupleMin",
+   "_ltRecipient",
+   "_ltRecipientKo",
+   "_ltRateCheck",
+   "_ltWithLock",
+   "_ltAppendMessage",
+   "_ltAppendModeration",
+   "_ltSendToRecipients",
+   "_ltLetterHtml",
+   "_ltEsc",
+   "_ltBannedList",
+   "_ltCheckBanned",
+   "vimeoGuardDaily",
+   "_ltClosedEvents",
+   "purgeCoupleData",
+   "previewCoupleData",
+   "_ltPurgeGuestSheet",
+   "_ltSnap",
+   "letterMigrate"
+  ],
   "88_place_audit": [
    "aw_setKey",
    "_awKey_",
@@ -915,6 +1047,7 @@
    "_nfProps",
    "_kakaoSend",
    "_solapiSend",
+   "_nfTplSilent",
    "_notifyFailMark",
    "notifyFailYesterday",
    "_nfIsNight",
@@ -1127,6 +1260,7 @@
    "adminMarkDelivered",
    "adminIssueCoupon",
    "adminRevokeCoupon",
+   "adminSurveySeen",
    "adminSkipSurvey",
    "_rbPaidAny",
    "_clearForwardData",
@@ -1333,6 +1467,9 @@
   "85_invitation": [
    "INV"
   ],
+  "87_letter": [
+   "LT"
+  ],
   "88_place_audit": [
    "AW_STUDIO",
    "AW_DB_NAMES",
@@ -1390,7 +1527,8 @@
   "weeklyBackup",
   "weeklyReceiptAudit",
   "purgeAdvisorLog",
-  "warmAvailCache"
+  "warmAvailCache",
+  "vimeoGuardDaily"
  ],
  "columns": [
   {
@@ -1498,7 +1636,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-25 07:57 · 2a3c746a",
+ "_생성": "2026-09-25 09:34 · 97a36eea",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -1570,6 +1708,18 @@
    "key": "AI_WIDGET_SECRET",
    "kind": "option",
    "a": "AI 위젯 API 인증",
+   "b": ""
+  },
+  {
+   "key": "COUPLE_PURGE_DAYS",
+   "kind": "tuning",
+   "a": "청첩장·편지 파기 일수 (기본 183일 · 87_letter)",
+   "b": ""
+  },
+  {
+   "key": "COUPLE_PURGE_OFF",
+   "kind": "switch",
+   "a": "청첩장·편지 개인정보 자동파기 정지 (Y 면 «꺼짐» · 87_letter)",
    "b": ""
   },
   {
@@ -1741,123 +1891,7 @@
    "b": ""
   }
  ],
- "projects": [
-  {
-   "name": "form-to-couple",
-   "why": "부부폼(예식 영상·D-3 점검)",
-   "sentinel": "onCoupleFormSubmit",
-   "fns": [
-    "onCoupleFormSubmit",
-    "buildHeaderIndex",
-    "makeEventId",
-    "resolveEventId",
-    "_randEventSuffix",
-    "findLastEventIdRow",
-    "_deFormula",
-    "writeCell",
-    "pad2",
-    "isValidYmd",
-    "ynShow",
-    "notifyStudio",
-    "vimeoGuardDaily",
-    "setupVimeoGuard",
-    "purgeCoupleData",
-    "previewCoupleData",
-    "_purgeGuestSheet",
-    "sendCoupleEmail",
-    "buildCoupleEmailHtml",
-    "buildDateRetryEmailHtml",
-    "addFormImage",
-    "createCoupleForm",
-    "createCoupleFormForce",
-    "diagnoseFormSetup",
-    "ensureTrigger",
-    "extractFormId_",
-    "addAccountDisplayCheckbox",
-    "openFormForEdit_",
-    "verifyAccountCheckbox",
-    "addChildTitleQuestions",
-    "ensureSheetHeaders",
-    "setFormConfirmationMessage",
-    "verifyChildTitleQuestions"
-   ],
-   "vars": [
-    "CFG"
-   ]
-  },
-  {
-   "name": "guest-letter-webhook",
-   "why": "하객 편지 웹훅",
-   "sentinel": "getCoupleByEventId",
-   "fns": [
-    "doGet",
-    "doPost",
-    "getCoupleByEventId",
-    "_acctVisibleForView",
-    "getCoupleByEventIdFull",
-    "normalizeDate",
-    "normalizeTime",
-    "normalizeRecipient",
-    "recipientLabelKo",
-    "recipientLabelEn",
-    "_glDeFormula",
-    "withRowLock",
-    "appendMessage",
-    "appendModeration",
-    "_glRateCheck",
-    "sendToRecipients",
-    "buildEmailHtml",
-    "escapeHtml",
-    "jsonResponse",
-    "notifyStudioOnce",
-    "getBannedList",
-    "normalizeMessage",
-    "checkBannedWords",
-    "checkModeration",
-    "testGetCouple",
-    "diagnoseWebhookSheet",
-    "testGetCoupleByEventId",
-    "testSendToGroom",
-    "testSendToBride",
-    "testSendToBoth",
-    "testModeration",
-    "testBannedFilter",
-    "onOpen"
-   ],
-   "vars": []
-  },
-  {
-   "name": "가족청첩장빌드",
-   "why": "가족 청첩장 빌드",
-   "sentinel": "FC_addFamilyMenu",
-   "fns": [
-    "FC_addFamilyMenu",
-    "FC_buildFromSelectedRow",
-    "FC_buildFromEventIdPrompt",
-    "FC_buildAllActive",
-    "FC_buildFamilyCard",
-    "FC_loadCoupleData",
-    "FC_loadAllActiveCouples",
-    "FC_validateRequiredFields",
-    "FC_findFullDesignCode",
-    "FC_loadMasterHtml",
-    "FC_transformPlaceholders",
-    "FC_transformEnName",
-    "FC_splitCamelCase",
-    "FC_transformDate",
-    "FC_yearToEnglish",
-    "FC_transformTime",
-    "FC_generateCalendarCells",
-    "FC_processOptionalMarkers",
-    "FC_pushToGithub",
-    "FC_logBuild",
-    "FC_testGithubConnection",
-    "FC_replaceAll",
-    "FC_escapeHtml"
-   ],
-   "vars": []
-  }
- ],
+ "projects": [],
  "_계약설명": "★[DEPLOY_CONTRACT] 표식은 «그 줄이 있는가»만 본다. 값이 맞는가는 안 본다 — 실제로 FINAL_CONFIRM.초과단가가 50000 인 채로 표식만 붙어도 초록이었다. contracts 는 «값 자체»를 대조한다. kind=gas 는 GAS 안에서 식을 평가하고, kind=web 은 배포된 사이트를 가져와 문자열이 있는지/없는지 본다. scripts/audit/deploy-contracts.mjs 가 저장소 쪽에서 같은 계약을 검사해 «계약과 코드가 갈라지는 것»을 막는다.",
  "contracts": [
   {
@@ -1906,5 +1940,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "46bf0140a2f3"
+ "_표식서명": "7c5a1ae7d497"
 }

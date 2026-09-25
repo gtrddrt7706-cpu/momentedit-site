@@ -1904,7 +1904,9 @@ function setupAllTriggers() {
     { fn: 'weeklyBackup',            hour: 5,  weekly: true, label: '주간 데이터 백업(스프레드시트 사본·최근 8주 보관)' },
     { fn: 'weeklyReceiptAudit',      hour: 9,  weekly: true, label: '현금영수증 미발행 주간 점검(월)' },
     { fn: 'purgeAdvisorLog',         hour: 4,  weekly: true, label: '상담사 질문 로그 90일 정리(월)' },
-    { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' }
+    { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' },
+    // [LETTER_MERGED 2026-09-25] 옛 Letter System 프로젝트의 setupVimeoGuard 가 걸던 것 — 87_letter 로 옮겨 여기서 건다
+    { fn: 'vimeoGuardDaily',         hour: 7,  label: '청첩장 영상 미등록 D-3 점검 + 예식 6개월 뒤 청첩장·편지 개인정보 파기' }
   ];
   var names = plan.map(function (p) { return p.fn; });
   var purge = names.concat(['sendMorningBrief']);   // 통합·폐지된 구 트리거(아침 브리핑→aiMorningReport)도 함께 제거

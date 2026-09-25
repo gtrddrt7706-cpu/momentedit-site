@@ -28,7 +28,7 @@ const say = (c, m, d) => {
 let G, world;
 try { ({ G, world } = openWorld()); }
 catch (e) { console.log('━━ survey-notes — GAS 세계를 못 만들었습니다 · 재지 못했습니다: ' + e.message); process.exit(2); }
-for (const fn of ['handleSubmitSurvey', 'buildResultState', 'adminHome']) {
+for (const fn of ['handleSubmitSurvey', 'buildResultState', 'adminHome', 'adminSurveySeen']) {
   if (typeof G[fn] !== 'function') { console.log(`━━ survey-notes — ${fn} 이 없습니다 · 재지 못했습니다`); process.exit(2); }
 }
 
@@ -105,6 +105,52 @@ for (const [label, raw, want] of [
     const me = ((r && r.survey && r.survey.recent) || []).find((x) => x.code === 'ME-SV');
     say(!!me && me.notesN === want, label + ' → notesN = ' + want, JSON.stringify(me));
   }
+}
+
+console.log('━━ survey-notes — ⑥ 새 후기 알림 · 확인하면 사라진다 [SV_UNSEEN]·[SV_SEEN]');
+/* 사장님 지시 — 「리뷰 남기면 알람 뜨고 확인하면 알람 없어지고 · 하지만 커피 쿠폰 미발송 시 계속 메인 화면에는 지금처럼」 */
+{
+  const SP = { product: '시그니처', answers: { overall: 'very', recommend: 'definitely' }, notes: { pace: '사진 구간이 조금 더 여유 있었으면' },
+    snap: [{ k: 'pace', q: '140분의 호흡은 어떠셨어요?', req: 0, v: 'good', o: [['good', '딱 좋았어요']] }], review: '좋았어요', reviewPublic: 'Y' };
+  const w = mk({ 현재단계: '후기', 설문상태: '완료', 설문응답: JSON.stringify(SP), 설문일시: '2026-09-24 15:20', 쿠폰상태: '' });
+  G._AUTHED = true;
+  let h1; try { h1 = G.adminHome(); } catch (e) { h1 = { ok: false, error: 'THROW ' + e.message }; }
+  const it1 = (((h1 || {}).survey || {}).recent || []).find((x) => x.code === 'ME-SV');
+  say(!!h1 && h1.survey && h1.survey.unseen === 1, '새 후기 1건 → 알림 수 1', JSON.stringify(h1 && h1.survey && h1.survey.unseen));
+  say(!!it1 && it1.seen === '' && !!it1.full && !!it1.full.notes && it1.full.notes.pace === SP.notes.pace, '새 후기엔 원문이 함께 실린다(알림을 누르면 바로 읽고 확인)', JSON.stringify(it1));
+  say(!!it1 && !('_p' in it1), '서버 안쪽 참조(_p)는 화면으로 나가지 않는다', JSON.stringify(Object.keys(it1 || {})));
+  let r; try { r = G.adminSurveySeen('ME-SV'); } catch (e) { r = { ok: false, error: 'THROW ' + e.message }; }
+  say(!!r && r.ok === true && !!r.seen, '확인 → ok · 확인 시각', JSON.stringify(r));
+  let after = null; try { after = JSON.parse(w.C['설문응답']); } catch (e) {}
+  say(!!after && after.seen === (r && r.seen) && JSON.stringify(Object.assign({}, after, { seen: undefined })) === JSON.stringify(SP),
+    '고객이 쓴 글은 한 글자도 안 바뀐다(seen 만 더해진다)', w.C['설문응답']);
+  let h2; try { h2 = G.adminHome(); } catch (e) { h2 = { ok: false, error: 'THROW ' + e.message }; }
+  const it2 = (((h2 || {}).survey || {}).recent || []).find((x) => x.code === 'ME-SV');
+  say(!!h2 && h2.survey && h2.survey.unseen === 0, '확인 뒤 알림 수 0', JSON.stringify(h2 && h2.survey && h2.survey.unseen));
+  say(!!it2 && !!it2.seen && !it2.full, '확인한 후기는 목록에 남되 요약만 싣는다', JSON.stringify(it2));
+  let r2; try { r2 = G.adminSurveySeen('ME-SV'); } catch (e) { r2 = { ok: false, error: 'THROW ' + e.message }; }
+  say(!!r2 && r2.ok === true && r2.already === true && r2.seen === (r && r.seen), '두 번 눌러도 처음 확인 시각을 지킨다', JSON.stringify(r2));
+  console.log('━━ survey-notes — ⑦ 쿠폰 미발송은 확인과 무관하게 홈에 남는다 [CPN_QUEUE]');
+  const q2 = [...((h2 && h2.queue && h2.queue.urgent) || []), ...((h2 && h2.queue && h2.queue.normal) || [])].filter((x) => x.code === 'ME-SV' && x.kind === '쿠폰발급');
+  say(q2.length === 1, '후기를 확인해도 «쿠폰발급»은 처리할 일에 그대로 있다', JSON.stringify(q2));
+}
+{
+  mk({ 현재단계: '후기', 설문상태: '완료', 설문응답: JSON.stringify({ product: '시그니처', answers: { overall: 'very' }, seen: '2026-09-25 10:00' }), 설문일시: '2026-09-24 15:20', 쿠폰상태: '발급' });
+  G._AUTHED = true;
+  let h3; try { h3 = G.adminHome(); } catch (e) { h3 = { ok: false, error: 'THROW ' + e.message }; }
+  const q3 = [...((h3 && h3.queue && h3.queue.urgent) || []), ...((h3 && h3.queue && h3.queue.normal) || [])].filter((x) => x.code === 'ME-SV' && x.kind === '쿠폰발급');
+  say(q3.length === 0, '쿠폰을 발급하면 그때 처리할 일에서 빠진다', JSON.stringify(q3));
+}
+{
+  mk({ 설문상태: '' });
+  let r; try { r = G.adminSurveySeen('ME-SV'); } catch (e) { r = { ok: false, error: 'THROW ' + e.message }; }
+  say(!!r && r.ok === false && !/THROW/.test(String(r.error)), '제출 전이면 «확인할 후기가 없다»고 알린다(던지지 않는다)', JSON.stringify(r));
+}
+{
+  const w = mk({ 현재단계: '후기', 설문상태: '완료', 설문응답: '{깨짐' });
+  const before = w.C['설문응답'];
+  let r; try { r = G.adminSurveySeen('ME-SV'); } catch (e) { r = { ok: false, error: 'THROW ' + e.message }; }
+  say(!!r && r.ok === false && w.C['설문응답'] === before, '못 읽는 칸은 덮어쓰지 않는다(원문 보존)', JSON.stringify(r) + ' ' + w.C['설문응답']);
 }
 
 console.log(rc ? '━━ survey-notes — 틀린 곳이 있습니다' : '━━ survey-notes — 전부 통과');
