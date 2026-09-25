@@ -9666,6 +9666,18 @@ chk 'EXC_KO_COPY' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 # 화면 PR 점검 3단 · 시범 점검 결과(3편 세션이 읽는다)
 chk '화면 PR 점검 3단' CLAUDE.md 1
 chk 'SKILL_TRIAL_0925' docs/plans/디자인스킬_시범점검_20260925.md 1
+# ★★[PAR_PC_POLISH · PAR_FOOTER_TIGHT · PAR_TIME_TIDY 2026-09-25 사장님 「어른께 드리는 안내 PC 직접 보면서 개선」]
+#   제목 27 → 34px(PC) · «궁금한 점 물어보기» 진사 덩어리(600×58) → 먹갈색 글자 크기만큼(240×54) · 시간표 본문 시작선 · 푸터 241 → 201px.
+chk 'PAR_PC_POLISH' parents.html 1
+chk '\.closing \.contact-ask{display:inline-block;width:auto' parents.html 1
+nochk '\.contact-ask{[^}]*background:var(--seal)' parents.html
+nochk '\.hero-label{[^}]*color:var(--gold);' parents.html
+chk 'PAR_FOOTER_TIGHT' parents.html 3
+chk 'PAR_TIME_TIDY' parents.html 1
+# [PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님 도착 = 하객 입장(본식 20분 전). 표 4칸 → 3칸 · check-source-drift (6-c) 가 계산해 대조.
+chk 'PARENT_ARRIVE_GUEST' parents.html 1
+chk 'PARENT_ARRIVE_GUEST' scripts/check-source-drift.mjs 1
+nochk '<li>본식 시작 40분 전' parents.html
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html
