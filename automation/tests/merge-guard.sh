@@ -1398,6 +1398,35 @@ chk 'SCH_ALERT' schedule.html 2                # 제출이 막힌 이유가 글�
 chk 'SCH_DONEFOCUS' schedule.html 1            # 신청 접수 순간에 포커스가 body에 남아 완료 안내가 안 읽혔다 → 대화상자 안으로 이동
 chk 'SCH_AMOUNT' schedule.html 1               # ★맨 위 '상담 예약금 · 신청 시 안내'인데 같은 페이지 아래엔 금액이 크게 있었다 — 돈 이야기 첫 줄이 '아직 안 알려드려요'로 읽히던 것. 같은 서버 값으로 채움
 chk 'SCH_REQUIRED' schedule.html 1             # 입금자명이 없으면 제출이 막히는데 라벨·힌트가 선택 입력처럼 읽혔다
+# ── [HOLD_FIRST] · [CR_OPTIN] 예약 화면 두 결정 (2026-09-25 사장님 시안 승인 «추천대로») ──
+#   ①임시 고정 체크를 상담 달력 «앞»에 두고, 체크하면 7일 안 상담일만 연다 — 7일 규칙에 걸려 일정을 두 번 고르던 것을 없앤다.
+#   ②현금영수증은 «제 번호로 받을게요»를 고를 때만 칸이 열린다. 안 고르면 빈 값 = 자진발급(010-000-1234) · 종전 «번호 미등록» 체크와 같은 길.
+#   ★문자열로는 안 막는다 — 삭제 사유 주석이 옛 문구를 인용한다([SELF_COMMENT_TRAP]). 동작은 hold-first 가 눌러 보고 잰다(돌연변이 5자리 확인).
+#   ★카드 탭(시안의 결제 방법 두 갈래)은 여기 없다 — 서버 «예약금» 단계와 함께 따로 올린다(코워크 검토). 시안용 우회가 섞여 들어오면 막는다.
+chk 'HOLD_FIRST' schedule.html 7
+chk 'CR_OPTIN' schedule.html 5
+chk 'HOLD_FIRST' scripts/audit/hold-first.mjs 1
+chk 'CR_OPTIN' scripts/audit/hold-first.mjs 1
+nochk 'depCRNone' schedule.html
+nochk 'preview_card' schedule.html
+nochk '시안 화면이에요' schedule.html
+# ★[COPY_ACCT_GLOBAL] 계좌 옆 «복사» 버튼이 main 에서 죽어 있었다 — copyAcct 가 boot() 안에 있어 onclick 이 못 찾았다(«copyAcct is not defined»).
+chk 'COPY_ACCT_GLOBAL' schedule.html 1
+chk 'window.copyAcct=copyAcct' schedule.html 1
+# ★[SCH_LIVE]·[SCH_INERT]·[SCH_REDUCED_MOTION] 같은 PR 의 web-design-guidelines 점검에서 나온 «객관적 결함» 넷(예약금·임시고정 자리)
+#   날짜를 비운 까닭·복사 결과를 늘 있는 라이브 영역(#srLive)으로 · 접힌 영역 inert · 되살린 체크에 칸 열기 · 움직임 줄이기.
+#   동작은 hold-first ⑪⑫⑬⑧ 이 잰다(돌연변이 4자리 확인).
+chk 'SCH_LIVE' schedule.html 3
+chk 'SCH_INERT' schedule.html 3
+chk 'SCH_REDUCED_MOTION' schedule.html 1
+chk 'id="srLive"' schedule.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/hold-first.mjs >/dev/null 2>&1; _hf=$?
+  case "$_hf" in
+    0) echo 'ok hold-first: 임시 고정 체크가 달력 앞 · 7일 창 · 잠금/풀림 · 현금영수증 «제 번호로» 선택형(빈 값=자진발급)' ;;
+    1) echo 'FAIL hold-first: 예약 화면 임시 고정·현금영수증 동작이 결정과 다릅니다 — node scripts/audit/hold-first.mjs'; fail=1 ;;
+    *) echo 'ok hold-first: 재지 못했습니다(브라우저·파일 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 # ── 2026-07-30 privacy·cancel·preview 1라운드(고객 입장 실측 · 414/360px)
 chk 'PRV_CONTRAST' privacy.html 1              # 라벨·조항번호가 --gold(2.54:1)였다 → 글자만 --gold-text(5.71:1)
 chk '푸터 손대기 금지' privacy.html 1           # ★2026-07-30 사용자 지시 — 어두운 푸터는 실측상 2.05~2.71:1·링크 12px지만 지금 톤이 의도된 것. 감사가 다시 집어내도 되살리지 말 것
@@ -8536,9 +8565,13 @@ chk 'PHONE_AUTOFILL_82' automation/platform/50_auth-handlers.gs 1
 chk 'SERVED_OURS' scripts/audit/tel-autofill.mjs 1
 
 # ★[REVIEW_EXIT_HIDE 2026-09-25 사장님 「후기 남긴 고객도 취소 처리하면 후기 지워지게」] 취소·노쇼·미계약 고객 후기는
-#   관리자 후기 목록·새 후기 알림·집계에서 뺀다(survey-notes ⑧ 이 실제 adminHome 으로 잰다). 시트 칸을 비우는 것은 따로 간다.
+#   관리자 후기 목록·새 후기 알림·집계에서 뺀다(survey-notes ⑧ 이 실제 adminHome 으로 잰다).
+#   ★[REVIEW_KEEP_ROWS 2026-09-25 사장님 결정 «추천대로»] 시트 칸은 비우지 않는다 — «숨김만». 취소를 되돌리면 후기도 돌아와야 하고
+#     지운 것은 복구가 안 된다. survey-notes ⑧ 끝 장면이 실제 취소 경로(setCustomerStage cancel)를 태워 설문 칸이 그대로인지 잰다
+#     (취소 때 설문 칸을 비우게 바꾸면 빨개지는 것을 확인했다).
 chk 'REVIEW_EXIT_HIDE' automation/admin/admin.gs 1
 chk 'REVIEW_EXIT_HIDE' scripts/audit/survey-notes.mjs 1
+chk 'REVIEW_KEEP_ROWS' scripts/audit/survey-notes.mjs 2
 
 # ★★[UNPAID_KIND 2026-09-25 사장님 「중도금 고객인데 아직 입금도 안 했는데 처리할 일에 중도금확인이 떠 있는 건 왜?」]
 #   입금 신호 없는 기한 카드가 고객 입금 신호 카드와 같은 이름(중도금확인·잔금확인·중도금잔금확인)·같은 확인 버튼이었고,
