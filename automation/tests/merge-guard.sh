@@ -9726,6 +9726,9 @@ nochk '\.hero{text-align:left;padding-top:132px}' parents.html
 nochk '\.contact-ask{[^}]*background:var(--seal)' parents.html
 nochk '\.hero-label{[^}]*color:var(--gold);' parents.html
 chk 'PAR_FOOTER_TIGHT' parents.html 3
+# [PAR_FOOTER_TIGHT2 2026-09-25 사장님 「푸터 간격 더 좁히기」] 1280 201 → 160 · 390 243 → 208 · 링크 44px 칸은 그대로
+chk 'PAR_FOOTER_TIGHT2' parents.html 5
+chk '\.f-legal{margin-top:-8px}' parents.html 1
 chk 'PAR_TIME_TIDY' parents.html 1
 # [PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님 도착 = 하객 입장(본식 20분 전). 표 4칸 → 3칸 · check-source-drift (6-c) 가 계산해 대조.
 chk 'PARENT_ARRIVE_GUEST' parents.html 1
