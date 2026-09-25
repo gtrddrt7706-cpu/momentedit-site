@@ -8413,12 +8413,15 @@ chk 'STAMP_ONLY' automation/platform/99_deployCheck.gs 2
 chk 'deployStampCheck' automation/platform/99_deployCheck.gs 2   # 함수 정의 + 허용목록
 chk 'deployStampCheck' CLAUDE.md 1                               # 실행 함수 위치표에 있는가(집 규칙)
 chk 'LIST_AGE' scripts/audit/deploycheck-coverage.mjs 1
-# ── [LIST_AGE_UTC] 두 날짜를 같은 시계(UTC)로 (2026-09-26 00:10 KST · #843 병합 직후 main 이 이것 하나로 빨갰다) ──
-#   `_생성` 은 UTC 인데 `--date=short` 는 커밋의 시간대(스쿼시 병합 +09:00)로 찍어, 한국 시간 00~09시 병합은
-#   하루 앞서 보였다 — 그 창에서는 --stamp 도 안 듣는 막다른 빨강. TZ=UTC 로 못 박은 줄이 살아 있는지 본다.
-# ★깨 보고 믿었다 — _생성 을 하루 되돌리면 빨강 · 한국 시간 셸(TZ=Asia/Seoul)에서 돌려도 같은 답 · 옛 줄로 되돌리면 빨강.
-chk 'LIST_AGE_UTC' scripts/audit/deploycheck-coverage.mjs 1
-chk "TZ: 'UTC'" scripts/audit/deploycheck-coverage.mjs 1
+# ── [LIST_AGE_KST] 목록 날짜와 커밋 날짜를 같은 시계(한국 시각)로 (2026-09-26 · #843 병합 직후 main 이 이것 하나로 빨갰다) ──
+#   `_생성` 은 UTC 인데 `--date=short` 는 커밋의 시간대(스쿼시 병합 +09:00)로 찍어, 한국 00~09시 병합은 하루 앞서
+#   보였다 — 그 창에서는 --stamp 도 안 듣는 막다른 빨강. 30분 안에 두 세션이 반대로 고쳐(#844 견주기 UTC · #845 찍기 한국)
+#   시계가 다시 갈렸다. 나중 결정(#845 STAMP_KST)에 맞춰 견주는 쪽도 한국 시각으로. 둘 다 «+9시간» 산술이라 짝으로 묶는다.
+# ★깨 보고 믿었다 — _생성 을 하루 되돌리면 빨강 · UTC 셸과 한국 셸이 같은 답 · 찍기 한국/견주기 UTC(#844 판)로는 못 잡던 하루가 잡힌다.
+chk 'LIST_AGE_KST' scripts/audit/deploycheck-coverage.mjs 1
+chk '9 \* 3600e3' scripts/audit/deploycheck-coverage.mjs 1   # 견주는 쪽 — 한국 시각
+chk '9 \* 3600e3' scripts/gen-deploy-fns.mjs 1                # 찍는 쪽 — 한국 시각(STAMP_KST) · 한쪽만 바뀌면 시계가 또 갈린다
+nochk "TZ: 'UTC'" scripts/audit/deploycheck-coverage.mjs
 nochk '%ad --date=short' scripts/audit/deploycheck-coverage.mjs
 chk 'STALE_WAIT' scripts/audit/stale-waiters.sh 1
 chk 'STALE_WAIT' CLAUDE.md 1                      # 왜 만들었는지가 사라지면 다음 세션이 또 만든다
@@ -8551,7 +8554,6 @@ chk 'COMMENT_SWALLOW' scripts/audit/comment-swallow.py 1   # 깨 보고 믿음 �
 chk 'SAVED_OK' assets/ritual-open.js 1   # 새 코스 값(declare clap) 판정은 한 곳 — ④ TypeError · 새로고침에 엄숙하게로 바뀌던 것
 chk 'SAVED_OK' order-preview.html 2
 chk 'EMBED_ESC_YIELD' order-preview.html 1   # 임베드 Esc 는 크게 보기 · 확인 판 · 상담 창이 떠 있으면 비켜선다
-chk 'LIST_AGE_UTC' scripts/audit/deploycheck-coverage.mjs 1   # 목록 나이는 두 날짜 모두 UTC(한국 00~09시 막다른 빨강)   # [2-3] «16~23분»을 1623 으로 읽던 30분 줄 · 새 코스는 뺌
 nochk 'L_STALE=' order-preview.html
 nochk '그 판으로 바로' order-preview.html
 nochk '판 바꿈' assets/ritual-open.js

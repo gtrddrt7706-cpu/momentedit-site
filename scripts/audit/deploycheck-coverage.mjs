@@ -207,16 +207,34 @@ if (uncovered.length) {
    ★위험한 쪽은 반대 방향이다 — 목록이 진짜 낡았는데 다른 이유로 `_생성` 만 새것이면
      contractCheck 가 「최신」이라고 안심시킨다. 나이 지표가 나이를 안 재는 것이다([NOT_THE_SOURCE]).
    그래서 여기서 «가장 최근 GAS 커밋 날짜»와 맞대 본다. 목록이 더 오래됐으면 빨강. */
+/* ★★[LIST_AGE_KST 2026-09-26] 두 날짜를 «같은 시계»로 잰다 — 둘 다 한국 시각.
+   `_생성` 은 [STAMP_KST](gen-deploy-fns · #845)부터 한국 시각으로 찍힌다 — 사장님이 그 값을 읽고,
+   99_contractCheck 가 GAS 한국 시각 달력으로 «N일 전»을 센다. 그래서 커밋 날짜도 찍는 쪽과 똑같은 식
+   (+9시간 → toISOString)으로 읽는다.
+   경위 — #843 병합(e02f6124 · 2026-09-26T00:10:51+09:00) 직후 main 게이트가 [LIST_AGE] 로 빨갰다.
+   `_생성` 은 UTC, `--date=short` 는 커밋의 시간대(스쿼시 병합 +09:00)여서 한국 00~09시 병합은 하루 앞서
+   보였고 --stamp 도 안 들었다([MARKS_STAMP] · [STAMP_FORCE] 가 막으려던 막다른 빨강의 세 번째 길).
+   같은 30분 안에 두 세션이 반대로 고쳤다 — #844 는 여기를 UTC 로, #845 는 찍는 쪽을 한국 시각으로.
+   둘이 합쳐지자 시계가 다시 갈렸다(찍기 한국 · 견주기 UTC → 검사가 최대 9시간 무르다).
+   나중 결정(#845)에 맞춰 여기를 한국 시각으로 옮긴다. 목록이 정말 하루 낡았으면 여전히 빨강이다.
+   ★TZ 환경변수에 기대지 않는다 — 'Asia/Seoul' 은 tzdata 가 없는 러너에서 조용히 UTC 로 떨어진다.
+     찍는 쪽과 같은 +9시간 산술이라 러너·사람 셸 시간대와 무관하다(한국은 서머타임이 없다). */
 {
   const made = String((JSON.parse(checkSrc)['_생성']) || '').slice(0, 10);
   let newest = '';
+  let iso = '';
   try {
-    /* ★[LIST_AGE_UTC 2026-09-26] 두 날짜를 같은 시간대(UTC)로 잰다. _생성 은 생성기가 toISOString(UTC)으로 찍는데
-       여기는 커밋 저자 시간대(+0900)로 읽고 있었다 — 한국 시각 00~09시에는 .gs 날짜가 하루 앞서
-       --stamp 를 몇 번 돌려도 빨강이 안 풀렸다(막다른 빨강 · 2026-09-26 00:35 KST 실측). */
-    newest = execSync("git log -1 --format=%ad --date=format-local:%Y-%m-%d -- 'automation/**/*.gs' 'automation/**/*.html'",
-      { encoding: 'utf8', env: Object.assign({}, process.env, { TZ: 'UTC' }) }).trim();
-  } catch (e) { newest = ''; }
+    iso = execSync("git log -1 --format=%aI -- 'automation/**/*.gs' 'automation/**/*.html'",
+      { encoding: 'utf8' }).trim();
+  } catch (e) { iso = ''; }
+  if (iso) {
+    const t = Date.parse(iso);
+    if (Number.isNaN(t)) {   /* 못 읽은 날짜로 «초록»을 내지 않는다 */
+      console.log(`❌ [LIST_AGE] 최근 GAS 커밋 날짜를 못 읽었다: ${iso}`);
+      process.exit(1);
+    }
+    newest = new Date(t + 9 * 3600e3).toISOString().slice(0, 10);
+  }
   if (!made) {
     console.log('❌ [LIST_AGE] deploy-marks.json 에 _생성 이 없다 — contractCheck 가 목록 나이를 못 잰다');
     process.exit(1);
