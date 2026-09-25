@@ -211,7 +211,7 @@ main{max-width:var(--max);margin:0 auto;padding:8px 28px 32px}   /* [PAR_FOOTER_
   .part>*:not(.part-head){grid-column:2}
   /* 서명·문의·도구도 본문 칸 시작선에 맞춘다 — 왼쪽 칸은 장 제목만 쓴다 */
   .sign,.contact-box,.contact-ask{margin-left:256px}
-  .tools{justify-content:flex-end}
+  .tools{justify-content:center}   /* [PAR_PC_CENTER] 제목 블록을 가운데로 옮긴 뒤 도구 줄만 오른쪽(본문 칸 끝)에 붙어 축이 둘이었다 — 제목과 같은 가운데 축 */
   /* ★★[PAR_PC_POLISH 2026-09-25 사장님 「PC 버전 직접 보면서 개선 · 제목이랑 질문하기 버튼 사이즈 · 색은 진사 말고」]
      1280 실측 — 제목 27px 가 본문(15px)과 한 단계 차이뿐이라 표지처럼 안 섰고, 한글 제목에 0.06em 자간이 걸려 있었다.
      «궁금한 점 물어보기»는 본문 폭 전체(600×58)의 진사 덩어리라 편지 끝에서 가장 무겁게 보였다.
@@ -228,13 +228,16 @@ main{max-width:var(--max);margin:0 auto;padding:8px 28px 32px}   /* [PAR_FOOTER_
 }
 
 /* 맺음·서명 */
-.par-time{margin:40px 0 0;padding:24px 22px 20px;border:1px solid var(--hairline);border-radius:6px;background:#fff;font-size:14.5px;line-height:1.8;color:var(--sub)}
-.par-time h2{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);letter-spacing:0.03em;margin:0 0 6px}
-.par-time .pt-note{font-size:13px;color:var(--sub);margin:0 0 14px}
+/* ★[PAR_TIME_SCALE 2026-09-25 사장님 「고객 입장에서 개선점」] 글자 크기 도구(가− 가+)가 편지 본문만 키우고 이 카드는 px 고정이라
+   «아주 크게»에서도 16 · 14.5 · 13.5px 그대로였다 — 어른이 가장 실용적으로 보는 칸만 안 커졌다(390 실측).
+   카드 크기를 --letter-size 에 비례시킨다(보통 17.5 → 14.5px 로 종전과 같다). 안쪽은 em. px 로 되돌리지 말 것. */
+.par-time{margin:40px 0 0;padding:24px 22px 20px;border:1px solid var(--hairline);border-radius:6px;background:#fff;font-size:calc(var(--letter-size) * 0.8286);line-height:1.8;color:var(--sub)}
+.par-time h2{font-family:var(--serif-ko);font-size:1.103em;font-weight:500;color:var(--accent);letter-spacing:0.03em;margin:0 0 6px}
+.par-time .pt-note{font-size:0.897em;color:var(--sub);margin:0 0 14px}
 .par-time ol{margin:0 0 16px;padding:0 0 0 20px}
-.par-time table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.par-time table{width:100%;border-collapse:collapse;font-size:0.931em;font-variant-numeric:tabular-nums}
 .par-time th,.par-time td{padding:7px 4px;border-top:1px solid var(--hairline);text-align:center;font-weight:300}
-.par-time th{font-weight:500;color:var(--accent);font-size:12.5px}
+.par-time th{font-weight:500;color:var(--accent);font-size:0.926em}
 .par-time td:first-child,.par-time th:first-child{text-align:left}
 /* [PAR_TIME_TIDY 2026-09-25 사장님 「추가로 개선할 부분」] 칸이 셋으로 줄자 폭이 들쭉날쭉했다(«도착 · 하객 맞이»만 넓음) —
    첫 칸은 넓게, 시각 세 칸은 같은 폭. 목록 끝 낱말 하나(«맞으십니다.»)가 홀로 줄을 넘던 것은 고르게 끊는다. */
