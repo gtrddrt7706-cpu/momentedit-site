@@ -9755,6 +9755,10 @@ chk 'CC_BTN_TRACK' mypage.html 1
 nochk 'letter-spacing:\.16em;background:#4E3F31' mypage.html
 chk 'SKILL_SEATED30' .claude/skills/momentedit-design/SKILL.md 1
 nochk '하객 25명 이하' .claude/skills/momentedit-design/SKILL.md
+# [PAPER_TOP_RULE · SEG_ROW_TIGHT 2026-09-25 사장님 「직접 보면서 디테일 점검」] 편지지 윗선 겹선 가림(폼·미리보기) · 320 받는 사람 둘째 줄 간격
+chk 'PAPER_TOP_RULE' live.html 2
+chk 'background-size:100% 8px, 100% 32px' live.html 2
+chk 'SEG_ROW_TIGHT' live.html 1
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html

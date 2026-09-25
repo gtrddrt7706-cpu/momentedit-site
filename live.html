@@ -863,7 +863,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 .lf-seg-group{display:flex;align-items:baseline;gap:14px;flex-wrap:nowrap;min-width:0}
 @media (max-width:360px){
   .lf-recipient-segment{gap:10px;flex-wrap:nowrap}
-  .lf-seg-group{flex:1 1 auto;gap:10px;flex-wrap:wrap}
+  .lf-seg-group{flex:1 1 auto;gap:10px;flex-wrap:wrap;row-gap:0}   /* [SEG_ROW_TIGHT 2026-09-25 디테일 점검] 줄이 넘어가면 줄 사이가 44+10=54px 로 벌어졌다 — 누르는 칸 44 는 그대로 두고 줄 간격만 0 */
 }
 
 .lf-field{
@@ -898,11 +898,14 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   transition:border-color 0.3s var(--ease), opacity 0.22s ease;
   box-sizing:border-box;
   word-break:keep-all;
-  background-image:linear-gradient(to bottom, transparent 31px, rgba(28,27,25,.075) 31px);
-  background-size:100% 32px;
-  background-position:0 8px;
+  /* ★[PAPER_TOP_RULE 2026-09-25 사장님 「직접 보면서 디테일 점검」] 괘선은 위로도 반복돼 윗선 7px 아래에 한 줄이 더 그어져
+     «겹선»으로 보였다(390·1280 실측). 맨 위 8px 에만 종이색(#fff · .form-frame 과 같다) 한 겹을 덮어 그 줄을 가린다.
+     글과 함께 움직이게(local) 두 겹 모두 같은 attachment 다. */
+  background-image:linear-gradient(#fff,#fff), linear-gradient(to bottom, transparent 31px, rgba(28,27,25,.075) 31px);
+  background-size:100% 8px, 100% 32px;
+  background-position:0 0, 0 8px;
   background-attachment:local;
-  background-repeat:repeat;
+  background-repeat:no-repeat, repeat;
 }
 @media (max-width:680px){
   /* [LETTER_PAPER] 종전 모바일 규칙(min-height:220px; padding:18px 20px)은 괘선 격자를 깨뜨린다 —
@@ -1116,10 +1119,11 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   border-bottom:1px solid var(--hairline);
   border-radius:0;
   gap:0;
-  background-image:linear-gradient(to bottom, transparent 31px, rgba(28,27,25,.075) 31px);
-  background-size:100% 32px;
-  background-position:0 8px;
-  background-repeat:repeat;
+  /* [PAPER_TOP_RULE] 실제 폼과 같이 맨 위 8px 겹선을 가린다 */
+  background-image:linear-gradient(#fff,#fff), linear-gradient(to bottom, transparent 31px, rgba(28,27,25,.075) 31px);
+  background-size:100% 8px, 100% 32px;
+  background-position:0 0, 0 8px;
+  background-repeat:no-repeat, repeat;
 }
 .letter-preview .lp-message-box > *{line-height:32px;margin:0}
 .letter-preview .lf-input-ph{
