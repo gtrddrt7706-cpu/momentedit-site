@@ -10707,6 +10707,9 @@ nochk '사장님 몫: 레터 GAS' CLAUDE.md
 nochk 'form-to-couple' docs/plans/오픈직전_목록.md
 # ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
 chk 'COWORK_SPLIT_0925' CLAUDE.md 1
+# ★[COWORK_WHEN_INVOLVED 2026-09-25 사장님 지적 «너가 왜 코워크한테 보고를 해?»] 코워크 검토는 코워크와 함께 하는 작업에만 —
+#   사장님과 나만 주고받은 작업(#843)에 검토를 걸어 사장님께 전달 심부름을 만들었다. 규칙이 지워지면 다음 세션이 같은 자리에서 또 건다.
+chk 'COWORK_WHEN_INVOLVED' CLAUDE.md 1
 # [PREVIEW_GUARD 보강 2026-09-25 코워크 검토] form.submit() · 막힌 XHR 의 readyState · 장치가 못 막는 길(location/iframe/img) · 옛 사본 삭제
 chk 'PREVIEW_GUARD_FORMSUBMIT' shared/preview-guard.js 1
 chk 'PREVIEW_GUARD_XHR_DONE' shared/preview-guard.js 1
