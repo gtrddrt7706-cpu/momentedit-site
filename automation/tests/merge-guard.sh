@@ -1402,14 +1402,54 @@ chk 'SCH_REQUIRED' schedule.html 1             # 입금자명이 없으면 제�
 #   ①임시 고정 체크를 상담 달력 «앞»에 두고, 체크하면 7일 안 상담일만 연다 — 7일 규칙에 걸려 일정을 두 번 고르던 것을 없앤다.
 #   ②현금영수증은 «제 번호로 받을게요»를 고를 때만 칸이 열린다. 안 고르면 빈 값 = 자진발급(010-000-1234) · 종전 «번호 미등록» 체크와 같은 길.
 #   ★문자열로는 안 막는다 — 삭제 사유 주석이 옛 문구를 인용한다([SELF_COMMENT_TRAP]). 동작은 hold-first 가 눌러 보고 잰다(돌연변이 5자리 확인).
-#   ★카드 탭(시안의 결제 방법 두 갈래)은 여기 없다 — 서버 «예약금» 단계와 함께 따로 올린다(코워크 검토). 시안용 우회가 섞여 들어오면 막는다.
+#   ★카드 탭(결제 방법 두 갈래)은 아래 [PAY_METHOD]·[DEPOSIT_CARD] 가 지킨다 — 서버 «예약금» 단계와 한 PR 로 들어왔다(코워크 검토).
+#     시안의 «시안 화면이에요» 우회는 여전히 막는다 — 미리보기(?preview_card=1)는 «미리보기 화면이에요»로 신청·결제를 안 보낸다(deposit-card-screen ⑧).
 chk 'HOLD_FIRST' schedule.html 7
 chk 'CR_OPTIN' schedule.html 5
 chk 'HOLD_FIRST' scripts/audit/hold-first.mjs 1
 chk 'CR_OPTIN' scripts/audit/hold-first.mjs 1
 nochk 'depCRNone' schedule.html
-nochk 'preview_card' schedule.html
 nochk '시안 화면이에요' schedule.html
+# ── [DEPOSIT_CARD] · [PAY_METHOD] 상담 예약금 카드결제 (2026-09-25 사장님 «추천대로» · 카드 승인 = 예약 확정이라 코워크 검토 후 병합) ──
+#   서버: 98_pay_card 가 milestone '예약금' 을 예약 시트 기준으로 받는다 — 락 안에서 마감 확인·금액·토스 승인·기록, 락 «밖»에서 자동 확정(actApprove).
+#   ★신청을 먼저 넣고(payBy:'card') 결제창을 연다 — 그래서 관리자 알림·처리할 일이 «카드 결제 대기 · 먼저 승인하지 말 것»을 말해야 한다.
+#   ★환불: 카드 예약금뿐이면 계좌를 여쭙지 않는다(카드 결제 취소) — 셀프·이메일·강제 취소·처리할 일·마이페이지·취소 화면 모두.
+#   ★스냅은 뺀다 — 스냅의 원장 키 '예약금'은 이미 «계약금 카드분»이다.
+#   동작은 deposit-card(서버 · 돌연변이 9자리) · deposit-card-screen(화면 · 돌연변이 11자리)이 실제로 태워 본다.
+chk 'DEPOSIT_CARD' automation/platform/98_pay_card.gs 5
+chk 'DEPOSIT_CARD' automation/consultation/consultation-booking.gs 12
+chk 'DEPOSIT_CARD' automation/admin/admin.gs 6
+chk 'DEPOSIT_CARD' automation/platform/60_mypage.gs 4
+chk 'DEPOSIT_CARD' automation/platform/95_notify.gs 2
+chk 'DEPOSIT_CARD' mypage.html 3
+chk 'DEPOSIT_CARD' cancel.html 2
+chk 'PAY_METHOD' schedule.html 8
+chk '_depositCardConfirm' automation/platform/98_pay_card.gs 2
+chk "=== '예약금') return _depositCardConfirm(body, cfg)" automation/platform/98_pay_card.gs 1
+chk "=== '예약금') return _depositCardConfig(body, cfg)" automation/platform/98_pay_card.gs 1
+chk 'payBy' schedule.html 2
+chk 'me_pay_tok' schedule.html 3
+chk 'DEPOSIT_CARD' scripts/audit/deposit-card.mjs 2
+chk 'DEPOSIT_CARD' scripts/audit/deposit-card-screen.mjs 1
+# ★[DEPOSIT_B1] 토스 승인(돈 캡처) 뒤 기록이 실패해도 던지지 않는다 — 관리자 «기록실패·수동확인» 메일 · 화면엔 «결제가 끝났어요».
+#   기존 카드 경로 B-1 과 같은 처방. deposit-card ⑪-2 가 시트 쓰기를 실패시켜 잰다(돌연변이 확인: 안전망을 빼면 THROW 로 붉어진다).
+chk 'DEPOSIT_B1' automation/platform/98_pay_card.gs 1
+chk '⑪-2' scripts/audit/deposit-card.mjs 2
+# ★카드 단위 스위트(pay-card.test.js)는 함수를 이름으로 골라 싣는다 — 새 예약금 함수를 안 실으면 퍼즈 '예약금' 표본이 던진다(게이트가 잡음 · throws=45)
+chk "extractFunction(SRC_CARD, '_depositCardConfirm')" automation/tests/pay-card.test.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/deposit-card.mjs >/dev/null 2>&1; _dcs=$?
+  case "$_dcs" in
+    0) echo 'ok deposit-card: 예약금 카드 — 꺼짐 무영향 · 승인→기록→자동 확정 · 재호출 멱등 · 결제 전 마감 · 금액 · 스냅 제외 · 카드 대기 알림 · 카드 환불 경로' ;;
+    1) echo 'FAIL deposit-card: 상담 예약금 카드결제 서버 동작이 결정과 다릅니다 — node scripts/audit/deposit-card.mjs'; fail=1 ;;
+    *) echo 'ok deposit-card: 재지 못했습니다(GAS 세계·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+  node scripts/audit/deposit-card-screen.mjs >/dev/null 2>&1; _dcw=$?
+  case "$_dcw" in
+    0) echo 'ok deposit-card-screen: 결제 방법 탭 · 카드 신청 값 · 결제창 · 재결제 · 복귀(성공·미확정·취소) · 취소 화면 · 마이페이지' ;;
+    1) echo 'FAIL deposit-card-screen: 예약금 카드결제 화면 동작이 결정과 다릅니다 — node scripts/audit/deposit-card-screen.mjs'; fail=1 ;;
+    *) echo 'ok deposit-card-screen: 재지 못했습니다(브라우저·파일 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 # ★[COPY_ACCT_GLOBAL] 계좌 옆 «복사» 버튼이 main 에서 죽어 있었다 — copyAcct 가 boot() 안에 있어 onclick 이 못 찾았다(«copyAcct is not defined»).
 chk 'COPY_ACCT_GLOBAL' schedule.html 1
 chk 'window.copyAcct=copyAcct' schedule.html 1
@@ -10723,6 +10763,9 @@ nochk '사장님 몫: 레터 GAS' CLAUDE.md
 nochk 'form-to-couple' docs/plans/오픈직전_목록.md
 # ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
 chk 'COWORK_SPLIT_0925' CLAUDE.md 1
+# ★[COWORK_WHEN_INVOLVED 2026-09-25 사장님 지적 «너가 왜 코워크한테 보고를 해?»] 코워크 검토는 코워크와 함께 하는 작업에만 —
+#   사장님과 나만 주고받은 작업(#843)에 검토를 걸어 사장님께 전달 심부름을 만들었다. 규칙이 지워지면 다음 세션이 같은 자리에서 또 건다.
+chk 'COWORK_WHEN_INVOLVED' CLAUDE.md 1
 # [PREVIEW_GUARD 보강 2026-09-25 코워크 검토] form.submit() · 막힌 XHR 의 readyState · 장치가 못 막는 길(location/iframe/img) · 옛 사본 삭제
 chk 'PREVIEW_GUARD_FORMSUBMIT' shared/preview-guard.js 1
 chk 'PREVIEW_GUARD_XHR_DONE' shared/preview-guard.js 1

@@ -103,12 +103,16 @@ function buildRefundBankState(r) {
   // [REFUND_CARD_NOTE 2026-07-25] 카드 수령분 여부 — 동의기록.결제수단에 '카드' 마커가 하나라도 있으면 true(카드결제 OFF면 항상 false·휴면). 마이페이지 환불카드가 '카드분은 카드로 취소' 안내를 띄우는 근거.
   var _pmR = {}; try { _pmR = _parseJsonSafe(r.get('동의기록')).결제수단 || {}; } catch (e) {}
   var _hasCard = false; for (var _pk in _pmR) { if (_pmR.hasOwnProperty(_pk) && _pmR[_pk] === '카드') { _hasCard = true; break; } }
+  // [DEPOSIT_CARD 2026-09-25] 받은 돈이 «카드로 낸 상담 예약금»뿐이면 계좌를 여쭐 일이 없다 — 결제하신 카드로 취소한다
+  var _cuPaidR = String(r.get('입금상태') || '').trim() === '확인';
+  var _cardOnly = !_cuPaidR && String(r.get('상품타입') || '').trim() !== '웨딩스냅' && _pmR.예약금 === '카드' && !!(bk && String(bk.get('입금확인') || '').trim() === '확인');   // 스냅의 '예약금' 키는 계약금 카드분
   return {
     acct: bk ? String(bk.get('환불계좌') || '').trim() : '',
     refund: refund,
     needCount: !!(q && q.needCount),
     fitCount: q ? Math.round(Number(q.fitCount) || 0) : 0,
-    card: _hasCard   // [REFUND_CARD_NOTE] 카드 수령분 있음
+    card: _hasCard,   // [REFUND_CARD_NOTE] 카드 수령분 있음
+    cardOnly: _cardOnly   // [DEPOSIT_CARD] 카드 예약금뿐 — 화면이 계좌 칸 대신 «카드 취소» 안내를 띄운다
   };
 }
 
@@ -234,6 +238,9 @@ function buildConsultState(code) {
   var locked = (status === ST.APPROVED || status === ST.CONFIRMED);  // LOCKED_STATES
   var within = locked ? withinCancelDeadline(dateKey, time) : false; // 변경/취소 = 확정 + 24h 전(KST)
   var picked = (status === ST.PICKED);                               // 시간선택완료(디렉터 확인 대기) · 확정 전이라 자유 변경/취소
+  // [DEPOSIT_CARD 2026-09-25] 예약금을 카드로 받았나 — 취소 패널이 계좌 칸 대신 «결제하신 카드로 취소» 안내를 띄운다
+  var byCard = false;
+  try { byCard = String(cr.get('입금확인') || '').trim() === '확인' && typeof _depositCardOf === 'function' && !!_depositCardOf(code); } catch (e) { byCard = false; }
 
   return {
     status: status,                                  // 신청접수·시간선택완료·승인완료·확정·변경제안·취소
@@ -241,6 +248,7 @@ function buildConsultState(code) {
     time: time,
     canChange: within || picked,
     canCancel: within || picked,
+    byCard: byCard,                                  // [DEPOSIT_CARD] 카드로 낸 예약금 — 환불은 카드 취소(계좌 불요)
     scheduleUrl: consultToken ? (scheduleUrl(consultToken) + '&me=1') : '',  // ?page=schedule&token=&me=1 (마이페이지 진입 → 완료 후 마이페이지 복귀)
     cancelUrl: (within && consultToken) ? cancelPageUrl(consultToken) : '',  // [③-1] 예약취소 → 자사몰 momentedit.kr/cancel(이메일 취소와 동일 경로 · GAS HtmlService Drive오류 우회). 확정+24h前에만.
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',

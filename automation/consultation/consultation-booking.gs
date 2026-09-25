@@ -472,6 +472,18 @@ function _releaseWeddingHoldOnCancel(code) {
 // [REFUND_ACCT_REQ · FU4 2026-07-25] 취소 전이 시 환불계좌 미입력 + 수령분 있으면 고객에게 계좌 요청 1회(관리자 상담취소·이메일취소 경로 · adminForceStage Q5와 동일 알림).
 //   ★환불계좌는 시트에서 즉시 재조회 — row() 래퍼는 스냅샷 캐시라 handleCancelReservation의 계좌 writeCell(actCancel 직전)이 r.get엔 안 보임. 캐시로 판정하면 셀프취소 오발송.
 //   수령분 = 예약금(Bookings.입금확인=확인) 또는 계약금(Customers.입금상태=확인). try/catch로 취소 처리 본연을 막지 않음.
+// [DEPOSIT_CARD 2026-09-25] 상담 예약금을 카드로 받았나 — 환불은 계좌 송금이 아니라 «카드 결제 취소»로 간다.
+//   98_pay_card 가 동의기록.결제수단.예약금='카드' 와 카드결제.예약금({orderId·paymentKey·amount·at})을 남긴다. 없으면 null.
+function _depositCardOf(code) {
+  var _mk = '[DEPOSIT_CARD]';
+  try {
+    var c = findCustomerByCode(String(code || '').trim()); if (!c) return null;
+    if (String(c.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅의 원장 키 '예약금'은 «계약금 카드분»이다(98 _pmDepKey) — 상담 예약금이 아니다
+    var rec = _parseJsonSafe(c.get('동의기록'));
+    if ((rec.결제수단 || {}).예약금 !== '카드') return null;
+    return (rec.카드결제 || {}).예약금 || { orderId: '' };
+  } catch (e) { return null; }
+}
 function _maybeRefundAcctReq(sheet, colOf, r) {
   try {
     var code = String(r.get('개인코드') || '').trim(); if (!code) return;
@@ -481,6 +493,7 @@ function _maybeRefundAcctReq(sheet, colOf, r) {
     var bkPaid = String(r.get('입금확인') || '').trim() === '확인';   // 예약금 수령(Bookings)
     var cuPaid = false; try { var _cu = findCustomerByCode(code); cuPaid = !!_cu && String(_cu.get('입금상태') || '').trim() === '확인'; } catch (e) {}   // 계약금 수령(Customers)
     if (!bkPaid && !cuPaid) return;   // 수령분 없음 → 송금할 것 없음, 생략
+    if (bkPaid && !cuPaid && _depositCardOf(code)) return;   // [DEPOSIT_CARD] 받은 돈이 카드 예약금뿐 — 카드 결제 취소로 돌려준다(계좌를 여쭐 일이 없다)
     notifyKakao('cust.refundAcctReq', code);
   } catch (e) {}
 }
@@ -615,7 +628,8 @@ function doCustomerCancel(sheet, colOf, row, p) {
   // 2) 운영자에게 송금 요청 메일 (계좌 포함)
   try { sendRefundRequestEmail(row, dateKey, time, acct); }
   catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', names + ' · ' + e.message); }
-  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });   // 관리자: 취소 · 환불 송금 필요(카톡)
+  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct,   // 관리자: 취소 · 환불 송금 필요(카톡)
+    card: (String(row.get('입금확인') || '').trim() === '확인') && !!_depositCardOf(String(row.get('개인코드') || '').trim()) });   // [DEPOSIT_CARD] 카드 예약금이면 «카드 결제 취소»로
 
   // 3) 고객에게 취소 완료 메일
   var to = row.get('이메일');
@@ -674,6 +688,8 @@ function handleEmailCancelInfo(body) {
     kakao: (CONFIG.KAKAO_URL && CONFIG.KAKAO_URL.charAt(0) !== '[') ? CONFIG.KAKAO_URL : '' };
   // [환불 예상] 예약금-시착 공제(계약서 4조⑧) — cancel.html 금액 박스용. 실패해도 취소 안내는 그대로(베스트에포트).
   try { out.refund = _consultRefundQuote(String(row.get('개인코드') || '').trim()); } catch (e) {}
+  // [DEPOSIT_CARD] 예약금을 카드로 받았으면 cancel.html 이 계좌 칸 대신 «결제하신 카드로 취소» 안내를 보인다
+  try { out.byCard = String(row.get('입금확인') || '').trim() === '확인' && !!_depositCardOf(String(row.get('개인코드') || '').trim()); } catch (e) {}
   return out;
 }
 function handleEmailCancel(body) {
@@ -694,7 +710,9 @@ function handleEmailCancel(body) {
   if (acct) writeCell(sheet, colOf, row.num, '환불계좌', acct);
   try { sendRefundRequestEmail(row, dateKey, time, acct); } catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', names + ' · ' + e.message); }
   _maybeRefundAcctReq(sheet, colOf, row);   // [REFUND_ACCT_REQ · FU4] 이메일취소도 계좌 미입력+수령분 있으면 고객 계좌 요청 1회(actCancel 미경유 경로 · 상태전이 가드 안이라 재발송 없음)
-  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct });
+  // [DEPOSIT_CARD] 카드로 받은 예약금이면 관리자 알림도 «송금»이 아니라 «카드 결제 취소»로 — 상세 메일(sendRefundRequestEmail)과 같은 말을 한다
+  var _cardDepE = (String(row.get('입금확인') || '').trim() === '확인') && !!_depositCardOf(String(row.get('개인코드') || '').trim());
+  notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct, card: _cardDepE });
   var to = row.get('이메일'); if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'cancel');
   _releaseWeddingHoldOnCancel(String(row.get('개인코드') || '').trim());   // 이메일 취소도 가예약 해제(actCancel 미경유 경로)
@@ -821,7 +839,13 @@ function _slotTaken(dateKey, time, exceptRowNum) {
 }
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
-function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer) {
+function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer, payBy) {
+  /* [DEPOSIT_CARD 2026-09-25] 카드로 낼 신청이면 관리자 알림이 «승인 필요»가 아니라 «카드 결제 대기 · 결제되면 자동 확정»이어야 한다.
+     화면은 신청을 «먼저» 넣고 토스 결제창을 연다 — 그 사이 관리자가 승인을 누르면 actApprove 가 입금확인을 적어 버려
+     결제 없이 확정된다. 그래서 알림·관리자 큐가 카드 대기를 알게 한다(동의기록.예약금결제='카드').
+     카드결제가 꺼져 있으면(PAY_CARD_ENABLED) 무시한다 — 낼 수 없는 카드를 «대기»로 적지 않는다. */
+  var _byCard = false;
+  try { _byCard = String(payBy || '') === 'card' && typeof _payCfg === 'function' && !!_payCfg().enabled; } catch (e) { _byCard = false; }
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -908,11 +932,19 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
         if (_pyCust) { var _pyCs = getCustomersSheet(), _pyCo = buildHeaderIndex(_pyCs); if (_pyCo['입금자명']) touchCustomer(_pyCs, _pyCo, _pyCust.num, { '입금자명': _pyr }); }
       }
     } catch (e) { Logger.log('입금자명 예약등록 실패: ' + (e && e.message)); }
-    notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time });   // 관리자: 슬롯 선택됨 · 승인 필요(카톡)
+    try {   // [DEPOSIT_CARD] 결제 방법 기록 — 카드면 '카드', 계좌이체로 다시 신청하면 지운다(관리자 큐 «카드 결제 대기» 표시의 근거)
+      var _pbCust = findCustomerByCode(String(row.get('개인코드') || '').trim());
+      if (_pbCust) {
+        var _pbRec = _parseJsonSafe(_pbCust.get('동의기록')), _pbWas = _pbRec.예약금결제 || '';
+        if (_byCard) _pbRec.예약금결제 = '카드'; else delete _pbRec.예약금결제;
+        if ((_pbRec.예약금결제 || '') !== _pbWas) { var _pbCs = getCustomersSheet(), _pbCo = buildHeaderIndex(_pbCs); touchCustomer(_pbCs, _pbCo, _pbCust.num, { '동의기록': JSON.stringify(_pbRec) }); }
+      }
+    } catch (e) { Logger.log('결제방법 기록 실패: ' + (e && e.message)); }
+    notifyKakao('admin.slotPicked', String(row.get('개인코드') || '').trim(), { names: coupleNames(row), date: dateKey, time: time, card: _byCard });   // 관리자: 슬롯 선택됨 · 승인 필요(카톡) — 카드면 «결제되면 자동 확정»
 
     var mailOk = false, mailErrMsg = '';
     try {
-      sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''));
+      sendAdminNotifyEmail(row, dateKey, time, flex, String(etc || ''), _byCard);
       mailOk = true;
     } catch (mailErr) {
       mailErrMsg = (mailErr && mailErr.message) || String(mailErr);
@@ -1228,7 +1260,7 @@ function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) {
 }
 
 // 메일② — 새 신청 알림 (시간선택완료, 미쿠) · [승인]/[변경제안] 버튼
-function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
+function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard) {
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') {
     Logger.log('  (ADMIN_EMAIL 미설정 · 미쿠 알림 건너뜀)'); return;
   }
@@ -1252,7 +1284,9 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc) {
     // ① 핵심: 일정 카드 + 결정 버튼을 위로
     dateCard('Requested', prettyDate(dateKey), esc(time)) +
     flag +
-    '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A4564E;text-align:center;margin:18px 0 12px;">⚠️ <b style="color:#8C3F38">입금 확인 후</b> 승인해 주세요.</p>' +
+    (byCard   // [DEPOSIT_CARD] 카드로 낼 신청 — 결제가 끝나면 서버가 확정한다. 먼저 승인하면 결제 없이 확정된다
+      ? '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A4564E;text-align:center;margin:18px 0 12px;">⚠️ <b style="color:#8C3F38">카드 결제 대기</b> · 결제되면 자동으로 확정돼요. 승인을 먼저 누르지 마세요.</p>'
+      : '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#A4564E;text-align:center;margin:18px 0 12px;">⚠️ <b style="color:#8C3F38">입금 확인 후</b> 승인해 주세요.</p>') +
     emailBtn(approveUrl, '✓ 승인하기') +
     emailBtnOutline(changeUrl, '시간 변경 제안') +
     // ② 상세는 아래로
@@ -1303,14 +1337,20 @@ function sendRefundRequestEmail(row, dateKey, time, acct) {
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
   var names = coupleNames(row);
   var depositTxt = (CONFIG.DEPOSIT ? (Number(CONFIG.DEPOSIT).toLocaleString() + '원') : '예약금');
+  // [DEPOSIT_CARD] 카드로 받은 예약금은 송금이 아니라 토스 관리자 화면에서 «결제 취소» — 주문번호로 찾는다
+  var _card = (String(row.get('입금확인') || '').trim() === '확인') ? _depositCardOf(String(row.get('개인코드') || '').trim()) : null;
   var rows =
     infoRow('성함', names) +
     infoRow('연락처', telLink(row.get('연락처'))) +
     infoRow('취소된 일정', '<b style="color:#3A2D22">' + (dateKey ? prettyDate(dateKey) + ' · ' + esc(time) : '—') + '</b>') +
     infoRow('환불 금액', '<b style="color:#6B2A24">' + depositTxt + '</b>') +
-    infoRow('환불 계좌', '<b style="color:#3A2D22;font-size:15px">' + (acct ? esc(acct) : '— (미입력)') + '</b>');
+    (_card
+      ? infoRow('환불 방법', '<b style="color:#3A2D22;font-size:15px">카드 결제 취소</b> · 토스 주문번호 ' + esc(String(_card.orderId || '—')))
+      : infoRow('환불 계좌', '<b style="color:#3A2D22;font-size:15px">' + (acct ? esc(acct) : '— (미입력)') + '</b>'));
   var inner =
-    centerP('고객이 예약을 취소했습니다.<br>아래 계좌로 <b style="color:#6B2A24;font-weight:600">예약금 환불</b>을 진행해 주세요.') +
+    centerP(_card
+      ? '고객이 예약을 취소했습니다.<br>토스 관리자 화면에서 이 주문의 <b style="color:#6B2A24;font-weight:600">카드 결제를 취소</b>해 예약금을 환불해 주세요.'
+      : '고객이 예약을 취소했습니다.<br>아래 계좌로 <b style="color:#6B2A24;font-weight:600">예약금 환불</b>을 진행해 주세요.') +
     '<div style="background:#FBF7F2;padding:6px 20px;border:1px solid #E8DCCB;border-radius:6px;margin:18px 0 0;">' + rows + '</div>' +
     smallP('캘린더 일정은 자동 삭제되었고, 고객에게는 취소 완료 안내가 발송되었습니다.');
   CONFIG.SEND_ADMIN_MAIL && GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, adminSubject('⚠️환불요청', row, dateKey, time), '',
@@ -2103,7 +2143,7 @@ function handleSubmitSchedule(body) {
     return { ok: false, cancelled: true, error: '취소된 예약이라 일정을 선택할 수 없어요.' };
   }
   var consultToken = String(a.consult.get('토큰') || '');
-  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null, body.cashReceipt, body.payer);
+  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null, body.cashReceipt, body.payer, body.payBy);   // [DEPOSIT_CARD] payBy='card' — 카드로 낼 신청
 }
 
 // cancelReservation — 상담/촬영 취소(환불 없음: 입금 전). 확정상태면 24h 기한 KST 재확인.
@@ -2125,9 +2165,11 @@ function handleCancelReservation(body) {
   }
   var acct = String((body && body.acct) || '').trim();
   var dateKey = r.get('선택날짜'), time = r.get('선택시간');
+  // [DEPOSIT_CARD] 예약금을 카드로 받았으면 계좌 없이도 운영자에게 «카드 결제 취소» 요청 메일이 가야 한다(메일이 카드/계좌를 스스로 가른다)
+  var _cardDep = (String(r.get('입금확인') || '').trim() === '확인') && !!_depositCardOf(String(r.get('개인코드') || '').trim());
   if (acct) writeCell(sheet, colOf, r.num, '환불계좌', acct);   // 환불 계좌 기록(취소 처리 전)
   actCancel(sheet, colOf, r);  // 캘린더 삭제 + 상태='취소' + 고객 취소메일 + setCustomerStage + 가예약 해제(공통)
-  if (acct) {                  // 운영자에게 환불 송금 요청(계좌 포함)
+  if (acct || _cardDep) {      // 운영자에게 환불 요청(계좌 송금 · 또는 카드 결제 취소)
     try { sendRefundRequestEmail(r, dateKey, time, acct); }
     catch (e) { notifyStudio('[상담] ⚠️오류 · 환불요청 메일 실패', coupleNames(r) + ' · ' + e.message); }
   }
