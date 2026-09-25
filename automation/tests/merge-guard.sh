@@ -8546,7 +8546,14 @@ chk '_lNorm(r)===_lNorm(text)' order-preview.html 1
 chk 'TEXT_AUDIO_MATCH' console.html 2   # 음악까지 미리듣기(preview 모드)도 같은 규칙 · 현장 console 모드는 그대로
 chk 'TEXT_AUDIO_MATCH' scripts/audit/listen-page.mjs 1   # 깨 보고 믿음 — 옛 규칙으로 되돌리니 빨강 5줄
 chk 'EDIT_OPEN' order-preview.html 6   # [2-2] ④ 변경 → ② 그 줄 · 채우기 → ③ 그 칸 · 걸음 표시/뒤로 가기로 수정 끝(되돌리니 빨강 2줄)
-chk 'EM30_RANGE' order-preview.html 1   # [2-3] «16~23분»을 1623 으로 읽던 30분 줄 · 새 코스는 뺌
+chk 'EM30_RANGE' order-preview.html 1
+# ── [코워크 추가전달 1-1 · 1-2 · 1-3 · 2026-09-25] 운영에 있던 셋 ──
+chk 'SAVE_TXT_LIVE' order-preview.html 1   # «파일로 저장»이 꼬리 주석에 먹혀 #815 부터 먹통
+if command -v python3 >/dev/null 2>&1; then python3 scripts/audit/comment-swallow.py >/dev/null 2>&1 && echo 'ok comment-swallow: 줄 끝 // 주석이 코드를 삼킨 곳 0' || { echo 'FAIL comment-swallow: 줄 끝 // 주석이 코드를 삼켰다 — python3 scripts/audit/comment-swallow.py'; fail=1; }; fi
+chk 'COMMENT_SWALLOW' scripts/audit/comment-swallow.py 1   # 깨 보고 믿음 — 옛 main 판에서 saveScriptTxt 한 줄을 잡았다
+chk 'SAVED_OK' assets/ritual-open.js 1   # 새 코스 값(declare clap) 판정은 한 곳 — ④ TypeError · 새로고침에 엄숙하게로 바뀌던 것
+chk 'SAVED_OK' order-preview.html 2
+chk 'EMBED_ESC_YIELD' order-preview.html 1   # 임베드 Esc 는 크게 보기 · 확인 판 · 상담 창이 떠 있으면 비켜선다
 nochk 'L_STALE=' order-preview.html
 nochk '그 판으로 바로' order-preview.html
 nochk '판 바꿈' assets/ritual-open.js
