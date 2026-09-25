@@ -11,6 +11,7 @@
 //
 //   종료 코드: 0 통과 · 1 재서 틀렸다 · 2 재지 못했다
 import { makeSandbox, loadGas } from './gas-lint.mjs';
+import { readFileSync } from 'node:fs';
 
 const W = { props: new Map(), fetches: [], mails: [], logs: [], hist: [], night: false, http: 200, cust: null, tplList: [] };
 const sb = makeSandbox();
@@ -143,6 +144,30 @@ console.log('━━ ⑩ 대체 메일 — 주소는 버튼으로 · 본문에 �
   say(!bad.length, '본문에 «momentedit.kr/mypage…» 글자가 없다', bad.join(', '));
   say(!lost.length, '버튼이 그 카드로 바로 간다(?focus= 유지)', lost.join(', '));
   say(!generic.length, '제목이 «안내드립니다» 하나로 뭉개진 알림이 없다', generic.join(', ')); }
+
+console.log('━━ ⑪ 신청 문안의 변수 = 코드가 넣는 변수 · 켜진 알림은 전부 문안이 있다 [TPL_KEEP]');
+//   ★솔라피는 템플릿의 #{…} 를 코드가 보낸 값으로 채운다. 문안에서 이름을 하나 바꿔 신청하면 승인이 나도 발송이 거절된다.
+//     문안 파일이 곧 «콘솔에 붙여넣을 원본»이라 여기서 코드와 맞춘다(2026-09-25 T20~T22 를 쓰며 만든 검사).
+{ let doc = '';
+  try { doc = readFileSync(new URL('../../automation/알림톡_템플릿_신청문안.md', import.meta.url), 'utf8'); } catch (e) {}
+  say(doc.length > 1000, '신청 문안 파일을 읽었다', 'automation/알림톡_템플릿_신청문안.md 없음');
+  const lines = doc.split('\n'), seen = new Set(), wrong = [];
+  const sample = { date: '2026-10-26', time: '13:20', slot: '12:20', dday: 10, kind: '중도금', amount: 300000, reason: '사유', left: 2, expires: '2026-12-01', title: '스타벅스 커피 2잔', expiry: '2026-12-31' };
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^### T\d+ · /.test(lines[i])) continue;
+    const evs = (lines[i].match(/`cust\.[A-Za-z]+`/g) || []).map((x) => x.slice(1, -1));
+    let j = i + 1; while (j < lines.length && !/^```/.test(lines[j]) && !/^### /.test(lines[j])) j++;
+    if (j >= lines.length || !/^```/.test(lines[j])) continue;
+    let k = j + 1; const body = []; while (k < lines.length && !/^```/.test(lines[k])) body.push(lines[k++]);
+    const dv = [...new Set((body.join('\n').match(/#\{[^}]+\}/g) || []))].sort();
+    for (const ev of evs) { seen.add(ev);
+      const m = G._nfCustomerMsg(ev, '김희준·이미쿠', sample); if (!m) { wrong.push(ev + ' 코드에 문구 없음'); continue; }
+      const cv = Object.keys(m.vars || {}).sort();
+      if (dv.join(',') !== cv.join(',')) wrong.push(`${ev} 문안 ${dv.join(' ')} ≠ 코드 ${cv.join(' ')}`); }
+  }
+  say(!wrong.length, '문안마다 #{…} 가 코드가 보내는 변수와 같다', wrong.join(' | '));
+  const noDoc = EV.filter((e) => !seen.has(e));
+  say(!noDoc.length, `켜진 고객 알림 ${EV.length}종 전부 신청 문안이 있다`, noDoc.join(', ')); }
 
 console.log(rc ? '━━ notify-e2e — 틀린 곳이 있습니다' : '━━ notify-e2e — 전부 통과');
 process.exit(rc);

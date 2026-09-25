@@ -8460,7 +8460,7 @@ chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
 if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
   case "$_ne" in
-    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일' ;;
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수' ;;
     1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
     *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -8482,6 +8482,7 @@ chk 'TPL_KEEP' automation/platform/95_notify.gs 5
 chk 'MAIL_FOCUS_URL' automation/platform/95_notify.gs 3
 chk 'function _nfTplMerge(' automation/platform/95_notify.gs 1
 chk "'22': \['cust.refundAcctReq'" automation/platform/95_notify.gs 1   # T22 — 번호가 없으면 승인나도 불러오기가 못 잇는다
+chk '^### T2[012] · ' automation/알림톡_템플릿_신청문안.md 3   # T20 원본 · T21 보정본 · T22 환불 계좌 — 콘솔에 붙여넣을 원본(변수 대조는 notify-e2e ⑪)
 
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
