@@ -161,6 +161,11 @@
    "why": "켜진 고객 알림 중 템플릿이 빠진 것의 목록(notifySetupCheck·매핑 저장 뒤 로그가 같이 쓴다)"
   },
   {
+   "file": "95_notify",
+   "fn": "_nfEmailedElsewhere",
+   "why": "이 알림은 카톡과 따로 고객 메일이 이미 나가는가(상담 확정) — 대체 메일을 겹쳐 보내지 않게 _kakaoSend·handleSolapiReport 가 함께 쓴다"
+  },
+  {
    "file": "98_pay_card",
    "fn": "_depositCardConfirm",
    "why": "상담 예약금 카드 승인·자동 확정"
@@ -885,6 +890,24 @@
    "why": "카톡이 가면 메일은 안 가고 못 가면 그때 메일(2026-09-25 사장님 지시). 이 파일이 옛것이면 상담 완료·결과물 전달이 카톡에 실패해도 대체 메일이 안 가고, 상담 확정은 카톡 실패 때 메일이 두 통 간다"
   },
   {
+   "file": "95_notify",
+   "fn": "handleSolapiReport",
+   "mark": "MAIL_ONCE",
+   "why": "같은 고객에게 메일이 두 통 가지 않게(2026-09-25 사장님 «메일 중복 도착·기존 시스템과 겹침 없게»). 이 파일이 옛것이면 상담 확정 카톡이 도착 실패할 때 확정 메일에 대체 메일이 한 통 더 가고, 같은 묶음에 같은 결과가 두 번 오면 메일도 두 통 간다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfEmailedElsewhere",
+   "mark": "MAIL_ONCE",
+   "why": "같은 고객에게 메일이 두 통 가지 않게(2026-09-25 사장님 «메일 중복 도착·기존 시스템과 겹침 없게»). 보내는 순간과 결과 받을 때가 같은 기준(따로 메일이 나가는 알림 = 상담 확정)을 쓴다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_kakaoSend",
+   "mark": "MAIL_ONCE",
+   "why": "같은 고객에게 메일이 두 통 가지 않게(2026-09-25 사장님 «메일 중복 도착·기존 시스템과 겹침 없게»). 보내는 순간의 대체 메일 기준을 _nfEmailedElsewhere 하나로 모았다"
+  },
+  {
    "file": "98_pay_card",
    "fn": "handleCardConfirm",
    "mark": "DEPOSIT_CARD",
@@ -1296,6 +1319,7 @@
    "_nfMaybeBalanceCheck",
    "_nfTrackSheet",
    "_nfTrackSend",
+   "_nfEmailedElsewhere",
    "handleSolapiReport",
    "purgeNfTrack",
    "_nfCustomerEmailFallback",
@@ -1859,7 +1883,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-25 14:24 · 366cf5ae",
+ "_생성": "2026-09-25 14:38 · 79d4e1e5",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2163,5 +2187,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "132ce5cc009d"
+ "_표식서명": "ecc3c59a03df"
 }
