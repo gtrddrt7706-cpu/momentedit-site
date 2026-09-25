@@ -51,9 +51,14 @@ const ORDER = ['reality', 'about', 'archive', 'service', 'live', 'invest', 'jour
 const CHAPTER = new Set(['about→archive', 'live→invest', 'invest→journey', 'journey→director']);
 
 /* ★정본 수치. --gap(104/80) × 2 + 스탬프 40 = 기본 · 장 전환은 (--gap+32) × 2 + 40 */
+/* ★★[RHYTHM_G2 2026-09-25 사장님 「섹션 간의 간격을 좀 더 벌리고 싶어」 · 선택 «g2»]
+   --gap 둘만 바꿨다(104→152 · 680px 이하 80→112). 장 전환 +32px 상수와 .divider 구조는 그대로.
+   안쪽 113px 대비 2.2배 → **3.0배** — 스킬 문서가 적어 둔 「섹션 사이는 안쪽의 최소 3배」를 이제 만족한다.
+   ★이 숫자를 또 바꾸려면 여기 EXPECT 를 «같은 커밋에서» 고친다. 먼저 안 고치고 돌려 붉는 것을
+     확인한 뒤 고쳤다(반증) — 실측이 정확히 264/328 · 344/408 로 나왔다. */
 const EXPECT = {
-  390:  { base: 200, chapter: 264 },
-  1280: { base: 248, chapter: 312 },
+  390:  { base: 264, chapter: 328 },
+  1280: { base: 344, chapter: 408 },
 };
 
 /* divider 가 없는 두 경계 — 값을 고정하지 않고 «있다»만 확인한다.
