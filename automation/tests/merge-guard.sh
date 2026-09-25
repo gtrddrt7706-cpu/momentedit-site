@@ -8519,6 +8519,15 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/gas-project-merge.mj
 fi
 chk 'GAS_MERGE_COLLIDE' scripts/audit/gas-project-merge.mjs 1
 chk 'SERVED_OURS' scripts/audit/gas-project-merge.mjs 1
+
+# ★★[RAIL_LOCKED 2026-09-25 사장님 「오른쪽 레일은 손대지 마. 계획된 거야.
+#   디자인 규칙에 넣어서 다신 안 묻게.」]
+#   이 결정은 2026-09-06 부터 있었는데 코드 주석([LISTEN_BESIDE_NUM]) 안에만 있었다.
+#   momentedit-design 과 CLAUDE.md 에는 한 줄도 없어서(실측 grep 0건), 점검을 돌릴 때마다
+#   «레일이 본문과 겹친다»가 새 문제로 올라왔다 — 사장님이 같은 답을 반복해야 했다.
+#   → 권위 문서 두 곳에 새기고 여기서 잠근다. 지우면 그 질문이 되살아난다.
+chk 'RAIL_LOCKED' .claude/skills/momentedit-design/SKILL.md 1
+chk 'RAIL_LOCKED' CLAUDE.md 1
 # ★★[SV_NOTES 2026-09-25 사장님 「관리자페이지 설문조사 고객페이지랑 동일하게 보여줘 · 선택한 거 전부
 #   수기로 작성한 부분까지 · 고객 설문 각 문항마다 기타로 수기로 적을 수 있는 공간」]
 #   ①고객(mypage) — 문항마다 「+ 기타 의견 적기」 칸(SV_NOTE_UI). 「기타」 보기를 고르면 저절로 열린다.
@@ -9222,6 +9231,60 @@ chk 'BDOT_REDUCED' guide.html 1
 chk 'BDOT_REDUCED' seat.html 1
 #   ⑥ 대비 — opacity 로 위계를 내려다 «안 읽힘»이 된 자리들. 위계는 크기가 이미 내고 있었다.
 chk 'DIM_READABLE' index.html 2
+
+# ★★[DIM_AA_COLOR 2026-09-25 코워크 axe 실측] 위 DIM_READABLE 주석의 계산이 **틀렸다.**
+#   「0.55 면 4.5:1 을 넘긴다」고 적었지만 크림 배경(#FAFAF8) 위 실측은
+#   번호 2.22 · 제목 3.29 · 설명 2.52:1 이었다. 4.5:1 을 넘기려면 --sub 는 0.82,
+#   --light 는 0.93 이 필요했다 — 그건 «흐림»이라 부를 수 없는 값이다. 방법이 틀렸던 것이다.
+#   → opacity 로 위계를 내지 않는다. opacity:1 + 팔레트 한 단계 아래 색으로 낸다.
+#   ★DIM_READABLE 표식은 지우지 않았다(정정문을 덧붙였다) — 옛 주석만 읽고 0.55 로
+#     되돌리는 일을 막기 위해서다.
+chk 'DIM_AA_COLOR' index.html 9
+
+# ★★[A11Y_ANCESTOR_OPACITY] 왜 게이트가 위 24건을 못 잡았나 — 검사기가 «조상 불투명도»를 안 봤다.
+#   흐림은 상자(.mockup-item · .jr-step-btn)의 opacity 에 걸려 있어 자식 글자의 계산 색에는
+#   안 나타난다 → 검사기는 흐리기 전 색(--sub 7.08:1)으로 재고 통과시켰다. 틀린 주석이
+#   초록으로 남아 있던 이유다. 이제 el→html 의 opacity 를 곱해 배경과 섞어서 잰다.
+#   ★조상이 거의 투명하면(<0.15) 재지 않는다 — 이 가드를 빠뜨렸더니 숨은 메뉴 안 링크까지
+#     1.00:1 로 잡혀 위반이 16 → 628 건으로 튀었다(실측).
+chk 'A11Y_ANCESTOR_OPACITY' scripts/audit/home-a11y.mjs 2
+chk 'A11Y_ANCESTOR_OPACITY' index.html 1
+
+# ★★[CV_FORCE_RENDER] content-visibility:auto 구역과 등장 전 .reveal 은 검사에서 통째로 빠진다.
+#   실측(2026-09-25): 그냥 재면 12건 · 둘을 고정해 재면 **24건**(코워크 axe 결과와 일치).
+#   #journey 12건이 그 사이에 숨어 있었다. 색·대비를 재는 자리 직전에만 고정한다 —
+#   레일 겹침 측정은 «실제 렌더 상태»로 재야 하므로 그보다 앞에 둔다.
+chk 'CV_FORCE_RENDER' scripts/audit/home-a11y.mjs 2
+
+# ★★코워크 설계 명세 ②~⑤·⑦ (2026-09-25 실서비스 실측) — 키보드로 못 쓰던 것들
+# [GA_LIST_BTN] #live 목록이 div 에 click 위임만 걸려 있어 **Tab 으로 도달조차 못 했다.**
+#   같은 구조의 #journey 는 이미 <button class="jr-step-btn"> 였다 — 한 쪽만 빠져 있었다.
+#   ★항목 안에 팝업 버튼(.gpm-open)이 드는 줄이 있어 항목 전체를 button 으로 못 감싼다
+#     (버튼 안의 버튼은 키보드로 도달 불가). 그래서 «칸»과 «누르는 것»을 나눴다.
+chk 'GA_LIST_BTN' index.html 4
+# [ROTATE_USER_STOP] 자동 넘김 멈춤이 mouseenter/leave 에만 걸려 폰에서는 계속 돌았고,
+#   누르면 start()/play() 가 되살렸다 — 읽는 중에 넘어간다(WCAG 2.2.2 · 디자인 규칙의
+#   「자동 재생 캐러셀 금지」 취지). 한 번이라도 직접 조작하면 영구 정지한다.
+#   ★되살리는 경로를 남기지 않으려 start()/play() «안»에서 막는다 — 바깥 호출처를 하나라도
+#     놓치면 되살아난다(실제로 mouseleave·IntersectionObserver 두 곳이 더 있었다).
+chk 'ROTATE_USER_STOP' index.html 3
+# [NAV_FOCUS_REVEAL] 1280 맨 위에서 Tab → 로고+메뉴 8개가 화면 밖(-40~-50px)·투명 상태로
+#   포커스됐다. 키보드 사용자는 자기가 어디 있는지 못 본다(WCAG 2.4.7 · 2.4.11).
+chk 'NAV_FOCUS_REVEAL' index.html 1
+# [FAQ_MORE_INERT] max-height:0 으로만 접어서 접힌 7문항이 Tab 순서에 남아 있었다.
+chk 'FAQ_MORE_INERT' index.html 2
+# [ARIA_ROLELESS_DIV] 역할 없는 div 의 aria-label 은 읽히지 않는다 — hero-logo·archive-grid.
+chk 'ARIA_ROLELESS_DIV' index.html 2
+
+# ★★[CV_NO_EARLY_MEASURE] 코워크 설계 명세 ⑥ — 성능 점수가 문서 기록(88)보다 크게 낮았다.
+#   Lighthouse 모바일 3회 60/53/62 · Style&Layout 4.1~4.5s · TBT 1.3~1.9s.
+#   원인 하나가 이 자리다 — GA 목업이 로드 직후 250ms×12회 fit() 을 돌려
+#   box.clientWidth/Height 를 읽었다. 그 상자는 #live 안이고 #live 는 content-visibility:auto
+#   ([PERF_CV_SECTIONS]) 라, 건너뛴 구역을 재면 브라우저가 강제로 레이아웃한다 —
+#   로드 시점에 PERF_CV_SECTIONS 의 효과를 되돌리는 구조였다(강제 리플로 142~417ms).
+#   → 화면 가까이 올 때 한 번 재고, 그 뒤는 ResizeObserver 가 알린다.
+#   ★[FAQ_DODGE] 쪽 강제 리플로(215~268ms)는 **손대지 않았다** — 레일 코드다([RAIL_LOCKED]).
+chk 'CV_NO_EARLY_MEASURE' index.html 1
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
 nochk 'color:#B89A75' form.html

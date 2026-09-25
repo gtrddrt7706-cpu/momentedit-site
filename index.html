@@ -507,6 +507,14 @@ nav.nav-hidden {
   transform: translateY(-100%);
   opacity: 0;
 }
+/* ★★[NAV_FOCUS_REVEAL 2026-09-25 코워크 실측 1280] 페이지 맨 위에서 Tab 을 누르면
+   「본문 바로가기」 다음 **9번**(로고 + 메뉴 8개)이 화면 밖(-40~-50px)·투명 상태로 포커스됐다.
+   키보드 사용자는 자기가 어디 있는지 전혀 못 본다(WCAG 2.4.7 · 2.4.11).
+   → 그 안으로 포커스가 들어오면 메뉴를 내려 보여 준다. 마우스 사용자에게는 아무 변화가 없다. */
+nav.nav-hidden:focus-within {
+  transform: none;
+  opacity: 1;
+}
 .nav-in {
   max-width: 1200px;
   margin: 0 auto;
@@ -4398,27 +4406,47 @@ footer {
   gap: 32px;
   max-width: 360px;
 }
+/* ★★[GA_LIST_BTN 2026-09-25 코워크 실측] 종전엔 div 에 click 위임만 걸어 두어
+   **Tab 으로 도달조차 못 했다**(tabindex·role 없음). 같은 구조의 #journey 는 이미
+   <button class="jr-step-btn"> 로 돼 있었다 — 한 쪽만 빠져 있었던 것이다.
+   ★항목 안에 팝업 여는 버튼(.gpm-open)이 들어가는 줄이 있어 «항목 전체»를 button 으로
+     감쌀 수 없다(버튼 안의 버튼은 금지). 그래서 «칸(.mockup-item)»과 «누르는 것(.mockup-btn)»을
+     나눈다. active 는 종전대로 칸에 붙어 아래 색 규칙이 그대로 산다. */
 .mockup-item {
+  display: block;
+}
+.mockup-btn {
   display: flex;
   gap: 22px;
   align-items: flex-start;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
   /* ★[DIM_READABLE 2026-09-12] 0.32 는 실측 1.54~1.65:1 이다. 위계가 아니라 «안 읽힘»이었다.
      ★크기 위계(20/11/12px)가 이미 나 있어서 opacity 는 위계에 기여하지 않고 대비만 깎았다.
-       [CTA_EYEBROW] 가 같은 이유로 3.1 → 5.0 으로 올린 전례가 있다. 0.55 면 4.5:1 을 넘긴다.
-     ★disabled 가 아니라 «누를 수 있는» 항목이라 비활성 컨트롤 예외도 안 걸린다. */
-  opacity: 0.55;
-  transition: opacity 0.45s var(--ease);
+       [CTA_EYEBROW] 가 같은 이유로 3.1 → 5.0 으로 올린 전례가 있다.
+     ★disabled 가 아니라 «누를 수 있는» 항목이라 비활성 컨트롤 예외도 안 걸린다.
+     ★★[DIM_AA_COLOR 2026-09-25 정정] 위 주석의 「0.55 면 4.5:1 을 넘긴다」는 **틀렸다.**
+       코워크 axe 실측 — 크림 배경(#FAFAF8) 위 0.55 에서 번호 2.22 · 제목 3.30 · 설명 2.52:1.
+       4.5:1 을 넘기려면 --text 0.61 · --accent 0.67 · --sub 0.82 · --light 0.93 이 필요했다.
+       즉 «읽히는 불투명도»는 흐림이라 부를 수 없는 값이다. 애초에 방법이 틀렸다.
+       → 불투명도로 위계를 내지 않는다(스킬 문서 「옅어 보이게 하고 싶으면 색이 아니라 크기와
+         자간으로」). opacity 는 1 로 두고 **팔레트 한 단계 아래 색**으로 위계를 낸다.
+         번호 gold-text(5.71)↔light(5.25) · 제목 accent(12.73)↔sub(7.08) · 설명 sub↔light.
+       ★opacity 를 다시 넣지 말 것 — 조상 불투명도는 자식 글자의 계산 색에 안 나타나서
+         검사기가 못 본다. 그 구멍이 이 틀린 주석을 초록으로 남겨 뒀다([A11Y_ANCESTOR_OPACITY]). */
+  opacity: 1;
   cursor: pointer;
   padding: 4px 0;
 }
-.mockup-item.active {
-  opacity: 1;
-}
-.mockup-item:hover {
-  opacity: 0.7;
-}
-.mockup-item.active:hover {
-  opacity: 1;
+/* [GA_LIST_BTN] 버튼 안은 흐름 콘텐츠를 못 쓴다 — div·p 를 span 으로 바꿨으니 블록으로 세운다 */
+.mockup-title,
+.mockup-desc {
+  display: block;
 }
 .mockup-num {
   font-family: var(--serif);
@@ -4444,24 +4472,39 @@ footer {
   font-family: var(--serif);
   font-size: 19px;
   font-weight: 500;
-  color: var(--accent);
+  color: var(--sub);   /* [DIM_AA_COLOR] 비활성 7.08:1 — .active 에서 --accent 로 올라간다 */
   letter-spacing: 0.03em;
   margin-bottom: 4px;
   line-height: 1.3;
+  transition: color 0.45s var(--ease);
+}
+.mockup-item.active .mockup-title,
+.mockup-item:hover .mockup-title {
+  color: var(--accent);   /* [DIM_AA_COLOR] hover 도 불투명도 대신 색으로 — 번호는 안 바꾼다(활성 신호 유지) */
 }
 .mockup-title .ko {
   font-family: var(--sans);
   font-size: 11px;
-  color: var(--sub);
+  color: var(--light);   /* [DIM_AA_COLOR] 비활성 5.25:1 */
   font-weight: 400;
   margin-left: 8px;
   letter-spacing: 0.06em;
+  transition: color 0.45s var(--ease);
+}
+.mockup-item.active .mockup-title .ko,
+.mockup-item:hover .mockup-title .ko {
+  color: var(--sub);
 }
 .mockup-desc {
   font-size: 13px;
-  color: var(--sub);
+  color: var(--light);   /* [DIM_AA_COLOR] 비활성 5.25:1 — 실제 정보 문장이라 반드시 읽혀야 한다 */
   line-height: 1.85;
   margin: 0;
+  transition: color 0.45s var(--ease);
+}
+.mockup-item.active .mockup-desc,
+.mockup-item:hover .mockup-desc {
+  color: var(--sub);
 }
 .phone-pages {
   display: flex;
@@ -4557,7 +4600,7 @@ footer {
     max-width: 340px;
     gap: 24px;
   }
-  .mockup-item {
+  .mockup-btn {
     gap: 18px;
   }
   .mockup-num {
@@ -5588,19 +5631,12 @@ body {
   cursor: pointer;
   padding: 4px 0;
   position: relative;
-  opacity: 0.55;   /* ★[DIM_READABLE] 위 .mockup-item 과 같은 이유 — 0.32 는 1.54~1.88:1 이었다 */
-  transition: opacity 0.45s var(--ease);
+  /* ★[DIM_READABLE] 위 .mockup-item 과 같은 이유 — 0.32 는 1.54~1.88:1 이었다.
+     ★★[DIM_AA_COLOR 2026-09-25 정정] 0.55 도 모자랐다 — 실측 번호 2.22 · 제목 3.30 · 설명 2.52:1.
+       .mockup-item 과 같은 처방: opacity 1 + 팔레트 한 단계 아래 색. 되돌리지 말 것. */
+  opacity: 1;
   font: inherit;
   color: inherit;
-}
-.jr-step.on .jr-step-btn {
-  opacity: 1;
-}
-.jr-step-btn:hover {
-  opacity: 0.7;
-}
-.jr-step.on .jr-step-btn:hover {
-  opacity: 1;
 }
 .jr-step .jr-n {
   display: block;
@@ -5631,17 +5667,27 @@ body {
   font-family: var(--serif-ko);
   font-weight: 500;
   font-size: 18px;
-  color: var(--accent);
+  color: var(--sub);   /* [DIM_AA_COLOR] 비활성 7.08:1 — .jr-step.on 에서 --accent 로 */
   letter-spacing: 0.03em;
   line-height: 1.3;
+  transition: color 0.45s var(--ease);
+}
+.jr-step.on .jr-step-tx b,
+.jr-step-btn:hover .jr-step-tx b {
+  color: var(--accent);   /* [DIM_AA_COLOR] hover 도 색으로 — 번호는 그대로 두어 «활성»이 구분된다 */
 }
 .jr-step-tx i {
   font-style: normal;
   font-size: 13px;
   font-weight: 300;
-  color: var(--sub);
+  color: var(--light);   /* [DIM_AA_COLOR] 비활성 5.25:1 */
   line-height: 1.85;
   margin: 0;
+  transition: color 0.45s var(--ease);
+}
+.jr-step.on .jr-step-tx i,
+.jr-step-btn:hover .jr-step-tx i {
+  color: var(--sub);
 }
 .jr-step-bar {
   display: none;
@@ -5770,7 +5816,9 @@ body {
 <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">평일 결혼식</h2>
 <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">단독 하우스웨딩</h2>
 <div class="hero">
-  <div class="hero-logo" aria-label="MOMENT EDIT · Private Wedding Studio">
+  <!-- ★[ARIA_ROLELESS_DIV 2026-09-25 코워크 실측] 역할 없는 div 의 aria-label 은 화면 읽기
+       프로그램이 «읽지 않는다». 글자로 그린 로고이므로 그림으로 선언해 이름이 실제로 읽히게 한다. -->
+  <div class="hero-logo" role="img" aria-label="MOMENT EDIT · Private Wedding Studio">
   <div class="hero-logo-wordmark">MOMENT EDIT</div>
   <!-- ★[HERO_NO_HAIR 2026-08-10 사용자 지시] 워드마크와 태그라인 사이 가로 줄(.hl-short) 삭제.
        두 줄짜리 로고 자물쇠에 구분선이 끼면 요소가 셋이 되어, 이미 자간으로 종속이 드러나는
@@ -5936,7 +5984,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <h3 class="sec-label">Visual Archive ·<span class="ll-ko"> 기록 갤러리</span></h3>
   <div class="sec-title"><a class="sec-title-link ig-title" href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" aria-label="Moment Edit Instagram 바로가기">@momentedit.kr</a></div>
 </div>
-<div class="reveal archive-grid" data-archive-grid aria-label="Visual Archive · 인스타그램에서 더 보기">
+<!-- [ARIA_ROLELESS_DIV] 같은 이유 — 링크 9개를 묶은 덩어리라 group 으로 선언한다(안쪽 링크는 그대로 읽힌다) -->
+<div class="reveal archive-grid" data-archive-grid role="group" aria-label="Visual Archive · 인스타그램에서 더 보기">
   <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm" aria-label="Wedding moment 01 on Instagram">
     <picture><source type="image/webp" srcset="/assets/home/gallery-01.webp"><img src="/assets/home/gallery-01.jpg" alt="스몰웨딩 스냅 촬영 예시 1" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
@@ -7354,12 +7403,16 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
       /* ★[GA_POPLINK 2026-08-18 사용자 제안 "고객이 누르면 직관적으로 확인할수있게"]
          'pop' 로 표시된 줄에는 설명 팝업을 여는 한 줄을 붙인다. 폰 안은 장식이라(inert) 누를 수 없어서,
          누를 수 있는 자리를 그 옆에 둔다. 표본 화면에서는 버튼을 직접 눌러 같은 답을 듣는다(guide.html DEMO_TIP). */
+      /* [GA_LIST_BTN] 누르는 것은 .mockup-btn 이다 — div·p 는 버튼 안에 못 넣어서 span 으로 바꿨다(CSS 로 블록).
+         .gpm-open 은 «버튼 밖»에 둔다 — 버튼 안의 버튼은 키보드로 도달할 수 없다. */
       return '<div class="mockup-item' + (i === 0 ? ' active' : '') + '" data-item="' + i + '">'
-        + '<div class="mockup-num">0' + (i + 1) + '</div>'
-        + '<div class="mockup-content"><div class="mockup-title">' + r[0] + '<span class="ko">' + r[1] + '</span></div>'
-        + '<p class="mockup-desc">' + r[2] + '</p>'
+        + '<button type="button" class="mockup-btn" data-item="' + i + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">'
+        + '<span class="mockup-num">0' + (i + 1) + '</span>'
+        + '<span class="mockup-content"><span class="mockup-title">' + r[0] + '<span class="ko">' + r[1] + '</span></span>'
+        + '<span class="mockup-desc">' + r[2] + '</span>'
+        + '</span></button>'
         + (r[4] === 'pop' ? '<button type="button" class="gpm-open" data-gpm-open aria-haspopup="dialog">어떻게 오는지 보기<span class="gpm-chev" aria-hidden="true">›</span></button>' : '')
-        + '</div></div>';
+        + '</div>';
     }).join('');
     for (var i = 0; i < tabs.length; i++) {
       var on = tabs[i].getAttribute('data-ga') === key;
@@ -7385,7 +7438,11 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
     if (!TAB[cur] || !TAB[cur].list[i]) return;
     idx = i;
     var items = listEl.querySelectorAll('.mockup-item');
-    for (var k = 0; k < items.length; k++) items[k].classList.toggle('active', k === i);
+    for (var k = 0; k < items.length; k++) {
+      items[k].classList.toggle('active', k === i);
+      var _b = items[k].querySelector('.mockup-btn');   // [GA_LIST_BTN] 화면 읽기 프로그램에도 «지금 이것»을 알린다
+      if (_b) _b.setAttribute('aria-pressed', k === i ? 'true' : 'false');
+    }
     var pgs = document.querySelectorAll('#gaPages span[data-page]');
     for (var m = 0; m < pgs.length; m++) pgs[m].classList.toggle('active', m === i);
     var el = target(i); if (!el) return;
@@ -7430,14 +7487,22 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
   /* ★모션 최소화 설정이면 저절로 넘기지 않는다 — 목록을 짚으면 그때만 움직인다(브랜드 모션 규칙).
      ★화면 밖으로 나가면 멈춘다 — 보이지도 않는 것을 계속 돌릴 이유가 없다(배터리·연산). */
   var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-  function start() { stop(); if (RM) return; timer = setInterval(function () { show((idx + 1) % TAB[cur].list.length); }, STEP); }
+  /* ★★[ROTATE_USER_STOP 2026-09-25 코워크 실측] #journey 와 같은 문제 — 멈춤이 마우스에만 걸려 있어
+     폰에서는 계속 돌았고, 누르면 start() 가 자동 넘김을 되살렸다(읽는 중에 넘어간다 · WCAG 2.2.2).
+     → 한 번이라도 직접 조작하면 영구히 멈춘다. 되살리는 경로를 남기지 않으려 start() 안에서 막는다. */
+  var userStopped = false;
+  function start() { stop(); if (RM) return; if (userStopped) return; timer = setInterval(function () { show((idx + 1) % TAB[cur].list.length); }, STEP); }   /* 두 판정을 합치지 않는다 — journey 쪽에서 합쳤다가 표식이 깨졌다 */
+  function userStop() { userStopped = true; stop(); }
+  ['click', 'touchstart', 'keydown', 'focusin'].forEach(function (ev) {
+    listEl.addEventListener(ev, userStop, { passive: true });
+  });
 
   paint('on');   // 글·목록은 처음부터 그린다(자바스크립트가 늦어도 빈 칸이 안 남게) · 화면은 아래에서
 
   /* 목록을 짚으면 그 화면으로 — 누르는 것도, 마우스를 올리는 것도 같은 뜻으로 받는다 */
   listEl.addEventListener('click', function (e) {
     var t = e.target.closest('.mockup-item'); if (!t) return;
-    stop(); show(+t.getAttribute('data-item')); start();
+    userStop(); show(+t.getAttribute('data-item'));   // [ROTATE_USER_STOP] 누른 뒤 start() 를 다시 부르지 않는다
   });
   listEl.addEventListener('mouseover', function (e) {
     var t = e.target.closest('.mockup-item'); if (!t) return;
@@ -7468,7 +7533,33 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
       es.forEach(function (e) { if (e.isIntersecting) { if (shown) start(); } else stop(); });
     }, { threshold: 0.1 }).observe(wrap);
   }
-  var n = 0, tick = setInterval(function () { fit(); if (++n > 12) clearInterval(tick); }, 250);
+  /* ★★[CV_NO_EARLY_MEASURE 2026-09-25 코워크 Lighthouse 실측] 종전엔 로드 직후부터
+     **250ms × 12회** fit() 을 돌렸다. fit() 은 box.clientWidth/clientHeight 를 읽는데,
+     그 상자는 #live 안이고 #live 는 [PERF_CV_SECTIONS] 로 content-visibility:auto 다.
+     건너뛴 구역을 재면 브라우저가 그 구역을 **강제로 레이아웃**한다 —
+     로드 시점에 [PERF_CV_SECTIONS] 의 효과를 그대로 되돌리는 구조였다.
+     Lighthouse 가 이 자리를 강제 리플로 142~417ms 로 짚었고, 모바일 점수가 88(문서 기록) 대비
+     60/53/62 까지 내려가 있었다(Style&Layout 4.1~4.5s · TBT 1.3~1.9s).
+     → 로드 시점 폴링을 없앤다. #live 가 화면 가까이 올 때 한 번 재고, 그 뒤 크기 변화는
+       ResizeObserver 가 알려 준다. 폰 목업 배율·자리잡기 동작은 그대로다.
+     ★ResizeObserver 가 없는 브라우저에서만 옛 폴링으로 돌아간다 — 그때는 이미 보이는 구역이라
+       강제 레이아웃의 대가가 없다(건너뛴 구역이 아니다). */
+  var fitArmed = false;
+  function armFit() {
+    if (fitArmed) return; fitArmed = true;
+    fit();
+    var box = frame.parentElement;
+    if (box && 'ResizeObserver' in window) {
+      try { new ResizeObserver(function () { fit(); }).observe(box); return; } catch (e) {}
+    }
+    var n = 0, tick = setInterval(function () { fit(); if (++n > 12) clearInterval(tick); }, 250);
+  }
+  if (wrap && 'IntersectionObserver' in window) {
+    var ioFit = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { armFit(); ioFit.disconnect(); } });
+    }, { rootMargin: '300px 0px' });   /* 화면에 닿기 300px 전에 재 둔다 — 나타날 때 배율이 이미 맞아 있다 */
+    ioFit.observe(wrap);
+  } else { armFit(); }
   window.addEventListener('resize', fit, { passive: true });
 })();
 /* ★★[ESSAY_CLOSE_ANCHOR 2026-08-16 사용자 지적 "클로즈 누르면 화면이 이상하게 내려가는 현상"]
@@ -7682,9 +7773,15 @@ function toggleEssay(btn){
   var btn = document.getElementById('faqMoreToggle');
   var panel = document.getElementById('faqMoreList');
   if(!btn || !panel) return;
+  /* ★★[FAQ_MORE_INERT 2026-09-25 코워크 실측] max-height:0 + overflow:hidden 으로만 접어 두어
+     **접힌 7문항이 Tab 순서에 그대로 남아 있었다.** 포커스가 「더 자세한 질문 7 보기」 버튼 뒤의
+     «안 보이는 질문»으로 들어가고, 화면 읽기 프로그램도 읽었다.
+     → 접혀 있는 동안 inert. 초기값도 inert 다(페이지는 접힌 채로 시작한다). */
+  panel.inert = true;
   btn.addEventListener('click', function(){
     var isOpen = btn.classList.toggle('open');
     panel.classList.toggle('open', isOpen);
+    panel.inert = !isOpen;   // [FAQ_MORE_INERT]
     btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     if (isOpen) {
       panel.style.maxHeight = panel.scrollHeight + 'px';
@@ -9170,8 +9267,25 @@ nav .nav-links a, .nav-links a, .f-links a {
      ★같은 파일 7338행의 목업 캐러셀이 이미 정답을 갖고 있었다:
        「모션 최소화 설정이면 저절로 넘기지 않는다 — 브랜드 모션 규칙」.
        규칙은 있었고 한 곳에만 적용돼 있었다. 누른 버튼으로 넘기는 길은 그대로다. */
-  function play(){ stop(); if(reduce) return; timer=setInterval(function(){ show(cur+1); }, DUR); }
-  for(var k=0;k<n;k++){ (function(idx){ steps[idx].querySelector('.jr-step-btn').addEventListener('click', function(){ show(idx); play(); }); })(k); }
+  /* ★★[ROTATE_USER_STOP 2026-09-25 코워크 실측] 멈춤이 mouseenter·mouseleave 에만 걸려 있어
+     **폰에서는 계속 돌았다.** 항목을 눌러도 play() 가 자동 넘김을 되살려, 읽는 중에 넘어갔다.
+     WCAG 2.2.2(5초 넘게 저절로 바뀌는 것은 멈출 수 있어야 한다)에 걸리고, 디자인 규칙의
+     「자동 재생 캐러셀 금지」 취지와도 어긋난다.
+     → 사용자가 **한 번이라도 직접 조작하면**(누름·손가락·키보드·포커스) 영구히 멈춘다.
+     ★멈춘 뒤에는 play() 가 아무 일도 안 한다 — 되살리는 경로를 남기지 않으려고 함수 안에서 막는다.
+       바깥에서 play() 를 부르는 자리(mouseleave 등)를 하나라도 놓치면 되살아나기 때문이다.
+     ★reduce(모션 최소화) 처리는 [JR_REDUCED] 그대로 둔다 — 다른 이유로 멈추는 길이다. */
+  var userStopped = false;
+  /* ★두 판정을 «한 줄로 합치지 않는다» — 게이트가 [JR_REDUCED] 를 그 한 줄의 문자열로
+     고정해 두었고(merge-guard 의 chk), 합치는 순간 그 표식이 사라진다 — 2026-09-25 에
+     실제로 `REVERT? index.html: 'if(reduce) …' (0<1)` 로 빨강이 떴다.
+     멈추는 이유가 둘(모션 최소화 · 사용자 정지)이라 줄을 나누는 편이 읽기에도 낫다. */
+  function play(){ stop(); if(reduce) return; if(userStopped) return; timer=setInterval(function(){ show(cur+1); }, DUR); }
+  function userStop(){ userStopped = true; stop(); }
+  ['click','touchstart','keydown','focusin'].forEach(function(ev){
+    sc.addEventListener(ev, userStop, { passive: true });
+  });
+  for(var k=0;k<n;k++){ (function(idx){ steps[idx].querySelector('.jr-step-btn').addEventListener('click', function(){ userStop(); show(idx); }); })(k); }
 
   /* ★[JR_HOVER 2026-08-30 사용자 지시 "위쪽 목업 처럼 클릭하지않아도 마우스 올려도 전환되게 해죠"]
      짚기만 해도 그 화면으로 넘어간다 — 위쪽 「하객이 만나는 화면」 목록과 같은 방식이다.
