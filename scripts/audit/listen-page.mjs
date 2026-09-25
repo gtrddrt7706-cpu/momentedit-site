@@ -80,7 +80,8 @@ for (const w of [390, 1280]) {
   // ⑤ 키보드로 줄 열기
   await pg.focus('[data-fk="lsm:candle"]'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(400);
   ok(`${w} ② 키보드 Enter 로 줄이 열린다`, await pg.evaluate(() => LS.open === 'candle' && !!document.querySelector('.ls-row.open .ls-flow')));
-  ok(`${w} ② 녹음 전 줄은 «아직 녹음 전»(화촉 여는 말)`, await pg.evaluate(() => /아직 녹음 전/.test(document.querySelector('.ls-row.open .ls-flow').textContent)));
+  /* [TEXT_AUDIO_MATCH 2-1] 지금 녹음은 옛 대본이라 전부 글로 흐른다 — 줄마다 꼬리표 대신 «처음부터» 아래 한 줄 */
+  ok(`${w} ② 전부 녹음 전이면 한 줄만(«새 대본을 녹음하기 전이라…») · 줄 꼬리표 없음`, await pg.evaluate(() => LS.allPend && /새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요/.test((document.querySelector('.ls-allpend') || {}).textContent || '') && !document.querySelector('.ls-row.open .ls-flow .ls-new')));
   ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px`, await pg.evaluate(() => { const c = document.querySelector('.ls-row.open .op-chip'); return !!c && c.getAttribute('role') === 'radio' && c.closest('[role=radiogroup]') && c.getBoundingClientRect().height >= 44; }));
   ok(`${w} ② 고른 칩이 눈에 보인다(바탕이 다르다) [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.ls-row.open .op-chip[aria-checked="true"]'), off = document.querySelector('.ls-row.open .op-chip[aria-checked="false"]'); return !!on && !!off && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
   // ⑦ 칩 → 바로 재생
@@ -117,6 +118,60 @@ for (const w of [390, 1280]) {
   await ctx.close();
 }
 
+// [TEXT_AUDIO_MATCH 2026-09-25 코워크 회신3 2-1] 소리는 «녹음된 글 = 자막»일 때만 — 재녹음된 줄을 흉내 내(LREC 에 지금 글을 넣어) 본다
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  await pg.click('#next'); await pg.waitForTimeout(1500);
+  const nz = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, '');
+  // ① 녹음 기록 그대로(옛 대본): 소리 나는 줄이 있으면 전부 «녹음된 글 = 자막»이어야 한다
+  const chk = () => pg.evaluate(() => { const st = _lSteps(ENG, _lRows()); const nz = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, ''); const bad = st.filter((x) => x.src && nz(_lRecText(x.file)) !== nz(x.txt)); return { sound: st.filter((x) => x.src).length, bad: bad.map((x) => x.file) }; });
+  let r = await chk();
+  ok('2-1 옛 녹음 그대로 — 소리 나는 줄 중 자막과 다른 줄 0', r.bad.length === 0, JSON.stringify(r));
+  // ② 두 줄만 «재녹음»(녹음된 글 = 지금 글) → 그 둘만 소리 · 나머지는 글 · 줄 꼬리표가 돌아온다
+  await pg.evaluate(() => { const st = _lSteps(ENG, ['ring', 'declare']).filter((x) => x.file); st.forEach((x) => { LREC[x.file] = { text: x.txt }; }); window.__fix = st.map((x) => x.file); render(); });
+  await pg.waitForTimeout(300);
+  r = await chk();
+  const fix = await pg.evaluate(() => window.__fix);
+  ok('2-1 재녹음된 줄만 소리가 난다 · 모두 자막과 같다', r.sound === fix.length && r.bad.length === 0, JSON.stringify({ r, fix }));
+  ok('2-1 일부만 녹음 전이면 한 줄은 사라지고 줄마다 꼬리표', await pg.evaluate(() => !LS.allPend && !document.querySelector('.ls-allpend')));
+  // ③ 녹음된 글을 한 글자라도 바꾸면 그 줄은 다시 글로(= 깨 보고 믿기: 옛 규칙이면 여기서 소리가 난다)
+  await pg.evaluate(() => { const f = window.__fix[0]; LREC[f] = { text: LREC[f].text + ' 옛말' }; render(); });
+  await pg.waitForTimeout(300);
+  r = await chk();
+  ok('2-1 녹음된 글이 다르면 소리를 내지 않는다', r.sound === fix.length - 1 && r.bad.length === 0, JSON.stringify(r));
+  ok('2-1 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+// [EDIT_OPEN · EM30_RANGE 2026-09-25 코워크 회신3 2-2 · 2-3] ④ «변경» · «채우기»가 걸음을 옮긴다 · 취소하면 그대로 · 걸음 표시로 옮기면 수정 끝
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  const toDone = async () => { await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'done') { idx = i; render(); } }); await pg.waitForTimeout(500); };
+  await toDone();
+  ok('2-3 ④ 새 코스에 «30분을 살짝 넘어도» 줄 없음', await pg.evaluate(() => !/30분을 살짝 넘어도/.test(document.getElementById('stage').textContent)));
+  const keys = await pg.evaluate(() => [...document.querySelectorAll('.sr-c')].map((b) => b.getAttribute('data-fk')));
+  const snap0 = await pg.evaluate(() => JSON.stringify(S));
+  let moved = 0; const miss = [];
+  for (const fk of keys) {
+    await toDone();
+    const lab = await pg.evaluate((f) => { const b = document.querySelector(`[data-fk="${f}"]`); return b ? b.textContent : ''; }, fk);
+    await pg.click(`[data-fk="${fk}"]`); await pg.waitForTimeout(500);
+    const r = await pg.evaluate(() => ({ k: STEPS[idx].k, er: editReturn, open: LS.open, foc: document.activeElement ? (document.activeElement.getAttribute('aria-label') || document.activeElement.className) : '' }));
+    const good = lab === '채우기' ? (r.k === 'write' && r.er && /textarea|약속|편지|인사말/.test(r.foc)) : (r.k === 'listen' && r.er && !!r.open && /ls-main/.test(r.foc));
+    if (good) moved++; else miss.push(fk + ':' + lab + ':' + JSON.stringify(r));
+    await pg.click('#prev'); await pg.waitForTimeout(400);   // 취소
+  }
+  ok(`2-2 ④ «변경» · «채우기» ${keys.length}개가 전부 걸음을 옮긴다(② 줄 열림 · ③ 칸 포커스)`, keys.length > 0 && moved === keys.length, miss.join(' | '));
+  ok('2-2 취소하면 ④로 돌아오고 고른 것이 그대로', await pg.evaluate((s0) => STEPS[idx].k === 'done' && !editReturn && JSON.stringify(S) === s0, snap0));
+  // 걸음 표시로 옮기면 수정이 끝난다
+  await pg.click(`[data-fk="${keys.find((f) => /candle|ring|declare|toast/.test(f)) || keys[0]}"]`); await pg.waitForTimeout(500);
+  ok('2-2 수정 중 아래 단추 = «취소 / 저장 · 요약으로»', await pg.evaluate(() => editReturn && /저장 · 요약으로/.test(document.getElementById('next').textContent)));
+  await pg.click('[data-fk="ops:pick"]'); await pg.waitForTimeout(500);
+  ok('2-2 걸음 표시로 옮기면 수정 끝 · 아래 단추가 제 이름 · ① 요약 다시 보임', await pg.evaluate(() => !editReturn && STEPS[idx].k === 'pick' && !/저장 · 요약으로/.test(document.getElementById('next').textContent) && /이전/.test(document.getElementById('prev').textContent) && !!document.getElementById('opCta')));
+  ok('2-2 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
 // [DETAIL_0925 C1 · C2 · G] 글자 대비(본문 4.5 · 큰 글 3) · 누를 곳 44px 실측 — ① · ② · 크게 보기 · ③ 를 390 · 1280 에서
 const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";
 for (const w of [390, 1280]) {

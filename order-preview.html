@@ -2086,6 +2086,7 @@ function render(){
   if(st.k==='pick') try{ _pickVids(); }catch(e){}   // [LISTEN_PAGE] ① 카드 장면 영상
   _paintCta(st.k);
   try{ _opPad(); }catch(e){}   // [DETAIL_0925 C4]
+  try{ _edFocusApply(); }catch(e){}   // [EDIT_OPEN]
   fillWarn();   // [THIN_WARN] 규칙은 엔진에만 · 여기선 자리만 채운다
   if(_fk){ _fk=_fk.replace(/"/g,'');
     var _rf=el.querySelector('[data-fk="'+_fk+'"]');
@@ -2154,7 +2155,7 @@ window.addEventListener('popstate',function(ev){
   if(!isOpen()) return;
   var st=ev.state||{};
   if(typeof LP!=='undefined'&&LP.big&&!st.big){ _lCloseBig(); if(st.opIdx===idx) return; }
-  if(st.opIdx!=null&&st.opIdx!==idx&&st.opIdx<STEPS.length){ _opPop=true; idx=st.opIdx; render(); }
+  if(st.opIdx!=null&&st.opIdx!==idx&&st.opIdx<STEPS.length){ if(editReturn){ editReturn=false; _editSnap=null; _doneSaved=false; } _opPop=true; idx=st.opIdx; render(); }   // [EDIT_OPEN] 뒤로 가기도 수정 끝냄
 });
 /* 걸음 옮기기 — 바로 앞 걸음으로 돌아가는 것은 기록을 한 칸 되감는다(뒤로와 같은 길) · 그 밖은 새 칸 */
 function _opGo(i){
@@ -2162,6 +2163,12 @@ function _opGo(i){
   idx=i; render();
 }
 window.opGoStep=function(k){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ _opGo(i); return; } } };
+/* ★[EDIT_OPEN 2026-09-25 코워크 회신3 2-2] 걸음 표시 · «← 고르기로»로 옮기면 ④ 에서 온 수정(editReturn)을 끝낸다.
+   옛 스트립 이동(STRIP 1952줄)과 같은 뜻 — 바꾼 것은 그대로 두고 «취소 / 저장 · 요약으로» 단추를 제 이름으로 돌린다. */
+window.opStepNav=function(k){
+  if(editReturn){ editReturn=false; _editSnap=null; _doneSaved=false; _edGo(k); return; }   // ④ 에서 건너왔으면 바로 앞 기록은 ④다 — 되감지 않고 새 칸으로
+  opGoStep(k);
+};
 function _opSteps(k){
   if(!isOpen()) return '';
   var W=[['pick','① 고르기'],['listen','② 보고 듣기'],['write','③ 준비하기'],['done','④ 완성']], at=-1;   // [DETAIL_0925 B2] ③ «글 적기» → «준비하기»
@@ -2169,7 +2176,7 @@ function _opSteps(k){
   if(at<0) return '';
   return '<ol class="op-steps" aria-label="진행 단계">'+W.map(function(w,i){
     var lab=w[1];
-    if(i<at) lab='<button type="button" class="op-stepb" data-fk="ops:'+w[0]+'" onclick="opGoStep(\''+w[0]+'\')">'+lab+'</button>';   // [DETAIL_0925 A1] 지난 걸음은 누를 수 있다
+    if(i<at) lab='<button type="button" class="op-stepb" data-fk="ops:'+w[0]+'" onclick="opStepNav(\''+w[0]+'\')">'+lab+'</button>';   // [DETAIL_0925 A1] 지난 걸음은 누를 수 있다 · [EDIT_OPEN] 수정 끝냄
     return '<li class="'+(i===at?'on':i<at?'done':'')+'"'+(i===at?' aria-current="step"':'')+'>'+lab+'</li>'; }).join('')+'</ol>';
 }
 /* [LISTEN_PAGE 코워크 4-2] ① 에서 하나라도 담으면 아래 단추 위에 «담은 순간 N · 본식 약 a~b분» — 13장을 끝까지 내려가지 않아도 된다 */
@@ -2604,7 +2611,14 @@ function _lrec(){
     .then(function(j){ LREC=(j&&j.clips)||{}; return LREC; })['catch'](function(){ LREC={}; return LREC; });
   return LRECP;
 }
-function _lHasSound(file){ return !!(LREC && file && LREC[file]!=null); }   // [DETAIL_0925 B10] 규칙 하나 — 파일이 있으면 소리
+/* ★[TEXT_AUDIO_MATCH 2026-09-25 코워크 회신3 2-1] 규칙 하나 — 소리는 «녹음된 글 = 지금 글»일 때만 낸다.
+   녹음된 글은 _recorded.json 의 clips[파일](문자열이거나 {text}) · 비교는 check-text-audio 와 같은 norm(글자 · 숫자 · 한글만).
+   글이 다르거나 파일이 없으면 글로 보여 준다(«아직 녹음 전»). 재녹음하면 assemble-narration 이 _recorded.json 을
+   고치니 그 줄부터 저절로 소리로 돌아온다. ② 줄 · 작은 플레이어 · 크게 보기 · ④ 처음부터 끝까지가 모두 여기를 따른다.
+   종전(B10)은 «파일이 있으면 소리»였다 — 가족 예시 소리 18줄이 전부 자막과 다른 말을 했다(사장님 TEXT_AUDIO 원칙 위반). */
+function _lNorm(s){ return String(s||'').replace(/[^0-9A-Za-z가-힣]+/g,''); }
+function _lRecText(file){ var v=LREC&&file?LREC[file]:null; return v==null?null:(typeof v==='string'?v:String(v.text||'')); }
+function _lHasSound(file,text){ var r=_lRecText(file); return r!=null && _lNorm(r)!=='' && _lNorm(r)===_lNorm(text); }
 function _lName(k){ return k==='guest'?'하객 맞이 안내':(RitualOpen.CARDS[k]?RitualOpen.CARDS[k].n:k); }
 function _lRows(){ var R=RitualOpen; return ['guest'].concat(R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); })).concat(['_close']); }
 function _lOffRows(){ var R=RitualOpen; return R.PICKABLE.filter(function(k){ return k!=='free' && !R.onOf(S,k); }); }   // 준비한 순서는 «있을 때만» — ① 에서 담는다
@@ -2683,8 +2697,8 @@ function _lSteps(g,ks){
         else if(!ownDone){ ownDone=true; var et=ENTRY[S.entry].self||''; out.push({k:k,lab:'두 분이 녹음하실 글(예시)',txt:et,own:true,ms:Math.max(2600,Math.round(String(et).length*160))}); }
       }
       else if(c.file){
-        var snd=_lHasSound(c.file);
-        out.push({k:k,lab:lab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',ms:Math.max(2400,Math.round(String(c.text||'').length*160))});
+        var snd=_lHasSound(c.file,c.text);
+        out.push({k:k,lab:lab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',file:c.file,ms:Math.max(2400,Math.round(String(c.text||'').length*160))});
       }
       if(c.live){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요 · 미리 보기에서는 넘겨요',skip:true,ms:1600}); }   // [DETAIL_0925 B9]
@@ -2719,13 +2733,17 @@ function renderListen(){
   if(!ENG){ engine().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   var h='<div class="op ls">';
-  h+='<button type="button" class="ls-back" data-fk="lsback" onclick="opGoStep(\'pick\')">← 고르기로</button>';   // [DETAIL_0925 A1]
+  h+='<button type="button" class="ls-back" data-fk="lsback" onclick="opStepNav(\'pick\')">← 고르기로</button>';   // [DETAIL_0925 A1] · [EDIT_OPEN]
   h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>사진과 인사 <b>'+esc(sp.photo)+'</b></span></div>'+_noteHtml()+'</div>';
   // 맨 위 큰 단추 — 누르기 전에는 움직이지 않는다 · 들을 길이는 예식 길이가 아니다(DETAIL B12)
-  var len=ENG?_lLen(_lSteps(ENG,_lRows())):0;
+  var _allSt=ENG?_lSteps(ENG,_lRows()):[], len=ENG?_lLen(_allSt):0;
+  /* [TEXT_AUDIO_MATCH 2-1] 말하는 줄이 전부 녹음 전이면 줄마다 꼬리표를 달지 않고 여기 한 줄로 말한다 · 일부만이면 줄마다 */
+  var _voiced=_allSt.filter(function(x){ return !x.talk&&!x.skip&&!x.own; });
+  LS.allPend=_voiced.length>0&&_voiced.every(function(x){ return x.pending; });
   h+='<button type="button" class="ls-hero" data-fk="lsall" onclick="lsPlayAll()">'+_lVid('entry',{art:false,cap:'우리 예식, 처음부터'})
     +'<span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 보고 듣기</b></span>'
     +'<span class="ls-len">'+(len?('다 보는 데 약 '+Math.max(1,Math.round(len/60))+'분 · 말하는 자리는 짧게 넘겨요'):'')+'</span></button>';
+  if(LS.allPend) h+='<p class="ls-note ls-allpend">새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요</p>';
   h+='<p class="ls-peak">'+(peak?'<span class="op-star" role="img" aria-label="절정">★</span> 표시는 이 예식의 절정이에요.':esc(PEAK_NONE))+'</p>';   // [DETAIL_0925 B13]
   h+='<div class="ls-rows">';
   _lRows().forEach(function(k){ h+=_lRow(k,true,_lNo(k),peak); });
@@ -2760,7 +2778,7 @@ function _lExp(k,on){
   var R=RitualOpen, h='';
   if(ENG){
     var st=_lSteps(ENG,[k]);
-    if(st.length) h+='<div class="ls-flow"><b>이렇게 흘러요</b><ol>'+st.map(function(x){ return '<li class="'+(x.talk||x.skip?'talk':'')+'">'+esc((x.talk||x.skip)?x.txt.replace(/^여기서 /,''):x.lab)+(x.pending?' <span class="ls-new">아직 녹음 전</span>':'')+'</li>'; }).join('')+'</ol></div>';
+    if(st.length) h+='<div class="ls-flow"><b>이렇게 흘러요</b><ol>'+st.map(function(x){ return '<li class="'+(x.talk||x.skip?'talk':'')+'">'+esc((x.talk||x.skip)?x.txt.replace(/^여기서 /,''):x.lab)+(x.pending&&!LS.allPend?' <span class="ls-new">아직 녹음 전</span>':'')+'</li>'; }).join('')+'</ol></div>';
   } else h+='<div class="ls-flow"><b>이렇게 흘러요</b><p class="ls-note">불러오는 중이에요…</p></div>';
   if(k==='tribute'&&on&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';   // [DETAIL_0925 B16]
   if(on || k==='guest'){
@@ -2901,7 +2919,7 @@ function _lPaint(){
   if(!st||LP.big){ el.style.display='none'; }
   else {
     el.style.display='flex';
-    el.innerHTML='<button type="button" class="lm-t" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+'</b><small>'+esc(st.talk||st.skip||st.own?st.txt:st.lab)+(st.pending?' · 아직 녹음 전':'')+'</small></button>'
+    el.innerHTML='<button type="button" class="lm-t" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+'</b><small>'+esc(st.talk||st.skip||st.own?st.txt:st.lab)+(st.pending&&!LS.allPend?' · 아직 녹음 전':'')+'</small></button>'
       +'<button type="button" class="lm-b" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
       +(LP.range&&LP.range.ks.length>1?'<button type="button" class="lm-b" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>':'')
       +'<button type="button" class="lm-b lm-x" onclick="lsStop()" aria-label="듣기 끝내기">'+ICO_X+'</button>';
@@ -2939,7 +2957,7 @@ function _lFull(){
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
     h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(_lName(st.k))+'</h3>';
-    h+='<div class="lf-lab">'+esc(st.lab)+(st.pending?' <span class="ls-new">아직 녹음 전 · 글로 먼저 보여 드려요</span>':'')+'</div>';
+    h+='<div class="lf-lab">'+esc(st.lab)+(st.pending?' <span class="ls-new">'+(LS.allPend?'글로 먼저 보여 드려요':'아직 녹음 전 · 글로 먼저 보여 드려요')+'</span>':'')+'</div>';
     h+='<p class="lf-txt'+(st.talk||st.skip?' talk':'')+'">'+esc(st.txt||'')+'</p>';
     if(!LP.noChips && (R.onOf(S,st.k)||st.k==='guest')){ var gs=_lGroups(st.k); if(gs.length) h+='<div class="lf-vars">'+gs.map(function(g){ return _lChipRow(g).replace(/data-fk="lsc:/g,'data-fk="lfc:'); }).join('')+'</div>'; }
   } else if(LP.ended){
@@ -3850,7 +3868,26 @@ window.jumpTo=function(k){
   for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; render(); return; } }
 };
 var editReturn=false, _editSnap=null;
-window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); jumpTo(k); };
+window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); if(isOpen()){ _editOpen(k); return; } jumpTo(k); };
+/* ★[EDIT_OPEN 2026-09-25 코워크 회신3 2-2] 새 코스 STEPS 에는 순간 화면이 없어 jumpTo(k) 가 아무 데도 못 가고
+   editReturn 만 남았다(④ «변경» · «채우기»가 먹통 · ③ ① 의 아래 단추가 «취소 / 저장 · 요약으로»로 바뀐 채).
+   «채우기» = ③ 그 글 칸에 포커스 · «변경» = ② 그 줄을 연 채로(줄 머리에 포커스) · 돌아오는 길은 옛 editReturn 흐름 그대로. */
+var _edFocus=null;
+var WR_LABEL={welcome:'하객 맞이 인사말',vow:'서로에게 하는 약속(서약문)',letter:'부모님께 드리는 편지'};
+function _editOpen(k){
+  var fill=WR_LABEL[k] && !_wcFilled(k) && (k!=='welcome'||S.welcome==='self');
+  if(fill){ _edFocus={step:'write',sel:'textarea[aria-label="'+WR_LABEL[k]+'"]'}; _edGo('write'); return; }
+  var rows=_lRows(), rk=rows.indexOf(k)>-1?k:(k==='guest'&&rows.indexOf('prevideo')>-1)?'prevideo':null;
+  LS.open=rk; _edFocus={step:'listen',sel:rk?'#lsr_'+rk+' .ls-main':null,row:rk};
+  _edGo('listen');
+}
+/* 수정하러 갈 때는 기록을 되감지 않고(=뒤로 가기 아님) 새 칸으로 간다 — 되감으면 popstate 가 수정을 끝내 버린다 */
+function _edGo(k){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; render(); return; } } }
+function _edFocusApply(){
+  var f=_edFocus; if(!f||!STEPS[idx]||STEPS[idx].k!==f.step) return; _edFocus=null;
+  setTimeout(function(){ var el=f.sel&&document.querySelector(f.sel); if(!el) return; try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
+    if(el.scrollIntoView) el.scrollIntoView({block:'center'}); },30);
+}
 function fillBlanks(){
   var b=[];
   if(inSeq('vow') && !S.vowText) b.push(['write','서약문']);
@@ -4095,8 +4132,10 @@ function renderDone(){
     +'</div>';   // [DONE_ACTS] 셋이 한 덩어리 — 사이에 아무것도 끼우지 말 것
   { var _prepD=''; prep().forEach(function(p){ _prepD+='<div class="pr"><span class="dday">'+p[0]+'</span><span>'+esc(p[1])+'</span></div>'; });
     h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><div class="prep">'+_prepD+'</div>'; }
-  var _em=estMin(), _emN=parseInt(String(_em).replace(/[^0-9]/g,''))||0;
-  if(_emN>30) h+='<div class="tot">'+_em+' · 30분을 살짝 넘어도 괜찮아요 · 당일은 디렉터가 자연스럽게 이끌어요</div>';
+  /* ★[EM30_RANGE 2026-09-25 코워크 회신3 2-3] «약 16~23분»의 숫자를 다 이어 붙이면 1623 이 돼 «30분 넘음»이 떴다.
+     새 코스는 이 줄을 뺀다(① · ② 시간 막대와 알림 ④가 이미 말한다) · 옛 코스는 범위의 큰 수로 비교한다. */
+  var _em=estMin(), _emN=Math.max.apply(null,(String(_em).match(/\d+/g)||['0']).map(Number));
+  if(!isOpen()&&_emN>30) h+='<div class="tot">'+_em+' · 30분을 살짝 넘어도 괜찮아요 · 당일은 디렉터가 자연스럽게 이끌어요</div>';
   // ★'아직 비워둔 칸' 별도 배지 폐지 — 글 적어두기(2차 확인)와 중복. 대신 아래 요약 행에 '글 비어 있음'을 인라인 표시(변경 버튼이 곧 채우기) — 2026-07-22 사용자 지시 · WRITE_2CHECK
   h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry">';   // [ORD_H2]
   var _num=0;

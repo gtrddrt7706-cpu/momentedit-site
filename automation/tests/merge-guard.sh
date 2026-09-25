@@ -8461,7 +8461,13 @@ chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
 chk 'S.entryScene' order-preview.html 1
 nochk "'freeLen', 'entryScene'" assets/ritual-preview-link.js   # [ENTRY_SCENE] 소리가 같아 주소에 싣지 않는다(STORY_COVER 죽은 키)
-chk 'DETAIL_0925 B10' order-preview.html 1   # 녹음 전 판정은 규칙 하나 — 파일이 있으면 소리 · 없으면 글(옛 L_STALE 목록은 폐지)
+chk 'DETAIL_0925 B10' order-preview.html 1   # 녹음 전 판정은 규칙 하나(옛 L_STALE 목록은 폐지) — 규칙은 아래 TEXT_AUDIO_MATCH 로 좁혔다
+chk 'TEXT_AUDIO_MATCH' order-preview.html 2   # [코워크 회신3 2-1] 소리는 «녹음된 글 = 지금 글»일 때만(가족 예시 자막과 다른 소리 18 → 0)
+chk '_lNorm(r)===_lNorm(text)' order-preview.html 1
+chk 'TEXT_AUDIO_MATCH' console.html 2   # 음악까지 미리듣기(preview 모드)도 같은 규칙 · 현장 console 모드는 그대로
+chk 'TEXT_AUDIO_MATCH' scripts/audit/listen-page.mjs 1   # 깨 보고 믿음 — 옛 규칙으로 되돌리니 빨강 5줄
+chk 'EDIT_OPEN' order-preview.html 6   # [2-2] ④ 변경 → ② 그 줄 · 채우기 → ③ 그 칸 · 걸음 표시/뒤로 가기로 수정 끝(되돌리니 빨강 2줄)
+chk 'EM30_RANGE' order-preview.html 1   # [2-3] «16~23분»을 1623 으로 읽던 30분 줄 · 새 코스는 뺌
 nochk 'L_STALE=' order-preview.html
 nochk '그 판으로 바로' order-preview.html
 nochk '판 바꿈' assets/ritual-open.js

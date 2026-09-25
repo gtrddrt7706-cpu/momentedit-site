@@ -54,7 +54,8 @@ for (const P of PROFILES) {
   ok(`${W} ② 들어감 · 엔진 · 녹음표 준비됨(첫 탭 전에)`, await pg.evaluate(() => STEPS[idx].k === 'listen' && !!ENG && !!LREC));
 
   // ① 첫 줄이 «녹음 전»(글만)이고 뒤에 소리 줄이 있는 순간 — 요소가 탭 안에서 한 번도 안 풀린 채 다음 소리로 가는 자리
-  const k = await pg.evaluate(() => { for (const k of _lRows()) { const q = _lSteps(ENG, [k]); if (q.length > 1 && !q[0].src && q.slice(1).some((s) => s.src)) return k; } return ''; });
+  /* [TEXT_AUDIO_MATCH] 지금은 옛 녹음이라 소리 나는 줄이 없다 — 첫 줄은 글로 두고 뒤 줄들만 «재녹음된 것»처럼(LREC = 지금 글) 만든다 */
+  const k = await pg.evaluate(() => { for (const k of _lRows()) { const q = _lSteps(ENG, [k]); if (q.length > 1 && q[0].file && q.slice(1).some((s) => s.file)) { q.slice(1).forEach((s) => { if (s.file) LREC[s.file] = { text: s.txt }; }); delete LREC[q[0].file]; return k; } } return ''; });
   ok(`${W} 시험할 순간이 있다(첫 줄 글 → 뒤에 소리)`, !!k, k);
   if (k) {
     await pg.evaluate(() => { window.__playLog = []; });
