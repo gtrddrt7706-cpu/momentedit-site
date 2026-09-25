@@ -102,11 +102,12 @@ check('notifyKakao 무예외', threw === 0, threw + '건 예외');
   });
 })();
 
-// ⑦ md 템플릿 ↔ vars 1:1 — 등록 14종+발송안함 4종 본문 변수가 코드 vars와 정확히 일치
+// ⑦ md 템플릿 ↔ vars 1:1 — 등록 18종+발송안함 4종 본문 변수가 코드 vars와 정확히 일치
+//   (2026-09-25 T20~T22 추가 · 설명 줄이 여럿인 블록도 읽는다 — 종전 식은 «심리» 한 줄짜리만 읽어 T19(세 줄)를 조용히 건너뛰었다)
 (function(){
   const md = fs.readFileSync(path.join(__dirname, '..', '알림톡_템플릿_신청문안.md'), 'utf8');
   const sec = md.split('## 1. 등록 템플릿')[1].split('## 2. 승인 후')[0];
-  const re = /### T\d+[^\n]*— `([^`]+)`[^\n]*\n[^\n]*\n```\n([\s\S]*?)```/g;
+  const re = /### T\d+[^\n]*— `([^`]+)`[^\n]*\n(?:(?!```|###)[^\n]*\n)*```\n([\s\S]*?)```/g;
   let m, seen = 0;
   while ((m = re.exec(sec))) {
     seen++;
@@ -121,7 +122,7 @@ check('notifyKakao 무예외', threw === 0, threw + '건 예외');
       check('md ' + ev + ' 본문 전각줄표 없음', m[2].indexOf('—') === -1);
     });
   }
-  check('md 템플릿 블록 18종 파싱(14+4)', seen === 18, seen + '종');
+  check('md 템플릿 블록 22종 파싱(18+4)', seen === 22, seen + '종');
 })();
 
 console.log('\n────────────────────────────────────');

@@ -611,7 +611,7 @@ function notifySetupCheck() {
   var _tcMark = '[TPL_COVER]';
   if (!cfg.pfId) Logger.log('★SOLAPI_PF_ID 가 비어 있어 알림톡이 한 건도 나가지 않습니다(이메일만) — 카카오 채널 pfId 를 넣어 주세요');
   var on = Object.keys(NOTIFY_EVENTS).filter(function (ev) { var m = NOTIFY_EVENTS[ev]; return m.to === 'customer' && !m.off; });
-  var miss = on.filter(function (ev) { return !String(cfg.templates[ev] || '').trim(); });
+  var miss = _nfTplMissing(cfg.templates);
   Logger.log('켜진 고객 알림 ' + on.length + '종 · 알림톡 템플릿 있음 ' + (on.length - miss.length) + ' · 없음 ' + miss.length);
   if (miss.length) {
     Logger.log('★템플릿이 없어 알림톡이 안 나가는 알림(이메일로만 · 고객 이메일이 없으면 아무것도):');
@@ -699,8 +699,9 @@ function addT17() { return addKakaoTemplate('cust.consultDone', 'KA01TP260612112
 function testKakaoT17() { return notifyTestKakao(null, 'cust.consultDone'); }   // ADMIN_PHONE으로 발송(하드코딩 개인번호 제거)
 function testKakaoAll() { return notifyTestKakaoAll(); }                        // ADMIN_PHONE으로 발송
 
-// 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래에 채우고 1회 실행하면 KAKAO_TEMPLATES에 저장.
-//   ⚠️ 전체 덮어쓰기라 1개만 추가할 땐 addKakaoTemplate()을 쓸 것. midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
+// 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래 빈칸에 채우고 1회 실행하면 KAKAO_TEMPLATES에 더한다.
+//   ★빈칸은 건드리지 않는다(이미 매핑된 알림은 그대로 · TPL_KEEP). 보통은 이것 대신 importKakaoTemplates 가 편하다(이름 T## 으로 자동).
+//   midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
 function setKakaoTemplates() {
   var map = {
     'cust.consultConfirmed':    '',   // T01 상담확정
@@ -714,23 +715,62 @@ function setKakaoTemplates() {
     'cust.balancePre':          '',   // T09 잔금
     'cust.balanceDue':          '',   // T09 잔금(같은 코드)
     'cust.resultDelivered':     '',   // T10 결과물
-    'cust.resultOriginal':      '',   // 원본 도착(신규 · 솔라피 템플릿 승인 후 채우기 · 그 전엔 이메일 폴백) RESULT_NOTIFY_STEPS
-    'cust.resultRetouch':       '',   // 보정본 도착(신규 · 동일) RESULT_NOTIFY_STEPS
+    'cust.resultOriginal':      '',   // T20 원본 도착(승인 후 채우기 · 그 전엔 이메일 폴백) RESULT_NOTIFY_STEPS
+    'cust.resultRetouch':       '',   // T21 보정본 도착(동일) RESULT_NOTIFY_STEPS
+    'cust.refundAcctReq':       '',   // T22 취소 후 환불 계좌 요청(동일) REFUND_ACCT_REQ
     'cust.holdExpiring':        '',   // T13 임시고정만료
     'cust.changeConfirmed':     '',   // T14 예식일변경적용
     'cust.changeDeclined':      '',   // T15 예식일변경보류
     'cust.consultDone':         '',   // T17 상담완료(승인 후 채우기)
-    'cust.couponIssued':        ''    // T19 후기감사 선물(신규 · 승인 후 채우기 · 그 전엔 SMS/이메일 폴백) CPN_NOTIFY
+    'cust.couponIssued':        ''    // T19 후기감사 선물(승인 후 채우기 · 그 전엔 이메일 폴백) CPN_NOTIFY
   };
-  var clean = {};
-  Object.keys(map).forEach(function (k) { var v = String(map[k] || '').trim(); if (v) clean[k] = v; });
-  PropertiesService.getScriptProperties().setProperty('KAKAO_TEMPLATES', JSON.stringify(clean));
-  Logger.log('KAKAO_TEMPLATES 저장 완료: ' + Object.keys(clean).length + '건 → ' + JSON.stringify(clean));
-  return clean;
+  var filled = Object.keys(map).filter(function (k) { return String(map[k] || '').trim(); });
+  if (!filled.length) {   // [TPL_KEEP] 칸이 전부 빈 채로 실행돼도 기존 매핑을 지우지 않는다
+    Logger.log('채운 칸이 없어요 — 아무것도 바꾸지 않았습니다(기존 매핑 ' + Object.keys(_nfProps().templates).length + '건 그대로). 보통은 importKakaoTemplates 를 실행하세요.');
+    return _nfProps().templates;
+  }
+  return _nfTplMerge(map);
 }
 
-// 3-3) ★자동 등록 — 솔라피의 알림톡 템플릿 목록을 불러와 이름(T##)으로 이벤트에 자동 매핑 후 KAKAO_TEMPLATES 저장.
+/* ★[TPL_KEEP 2026-09-25] 템플릿 매핑은 «더하기만» 한다 — 이미 매핑된 알림을 지우지 않는다 · 되돌리지 말 것.
+   종전엔 setKakaoTemplates·importKakaoTemplates 둘 다 KAKAO_TEMPLATES 를 «통째로 덮어썼다».
+   ① setKakaoTemplates 는 칸이 전부 빈 채로 파일에 있다 — 드롭다운에서 잘못 한 번 누르면 매핑이 0건이 되고,
+      그 순간부터 고객 알림톡이 한 건도 안 나간다(이메일로만).
+   ② importKakaoTemplates 는 솔라피에서 이름이 'T##' 꼴인 «승인» 템플릿만 다시 적는다 — 이름이 다르게 등록된
+      기존 매핑은 소리 없이 빠졌다.
+   지우는 일은 addKakaoTemplate(이벤트, '') 로만 한다(하나씩 · 의도가 분명할 때).
+   저장 뒤에는 켜진 고객 알림 중 아직 템플릿이 없는 것을 이름으로 찍는다(notifySetupCheck 와 같은 목록). */
+function _nfTplMerge(add) {
+  var _tkMark = '[TPL_KEEP]';
+  var p = PropertiesService.getScriptProperties();
+  var raw = p.getProperty('KAKAO_TEMPLATES') || '{}', cur = {};
+  try { cur = JSON.parse(raw) || {}; } catch (e) {
+    cur = {};   // 읽을 수 없는 값은 _nfProps 도 빈 매핑으로 읽는다 — 이미 알림톡이 안 나가던 상태라 새 값으로 바꾸는 편이 낫다
+    Logger.log('기존 KAKAO_TEMPLATES 가 JSON 이 아니어서 읽지 못했어요(그동안 알림톡이 안 나갔을 수 있어요) · 원문 앞부분: ' + String(raw).slice(0, 300));
+  }
+  var out = {}, added = [], changed = [];
+  Object.keys(cur).forEach(function (k) { out[k] = cur[k]; });
+  Object.keys(add || {}).forEach(function (ev) {
+    var id = String(add[ev] || '').trim(); if (!id) return;
+    if (!String(out[ev] || '').trim()) added.push(ev); else if (String(out[ev]).trim() !== id) changed.push(ev);
+    out[ev] = id;
+  });
+  p.setProperty('KAKAO_TEMPLATES', JSON.stringify(out));
+  Logger.log('KAKAO_TEMPLATES 저장: 총 ' + Object.keys(out).length + '건 · 새로 ' + added.length + (added.length ? (' (' + added.join(', ') + ')') : '')
+    + ' · 바뀜 ' + changed.length + (changed.length ? (' (' + changed.join(', ') + ')') : '') + ' · 기존 매핑은 지우지 않음');
+  var miss = _nfTplMissing(out);
+  Logger.log(miss.length ? ('아직 템플릿이 없는 고객 알림 ' + miss.length + '종(이메일로만 나감): ' + miss.join(', ')) : '켜진 고객 알림 전부 알림톡 템플릿이 있습니다.');
+  return out;
+}
+// 켜진 고객 알림 중 템플릿이 비어 있는 것(notifySetupCheck·_nfTplMerge 공용)
+function _nfTplMissing(tpls) {
+  tpls = tpls || {};
+  return Object.keys(NOTIFY_EVENTS).filter(function (ev) { var m = NOTIFY_EVENTS[ev]; return m.to === 'customer' && !m.off && !String(tpls[ev] || '').trim(); });
+}
+
+// 3-3) ★자동 등록 — 솔라피의 알림톡 템플릿 목록을 불러와 이름(T##)으로 이벤트에 자동 매핑 후 KAKAO_TEMPLATES 에 더한다.
 //   템플릿 이름이 'T01 …' 'T05 …' 형식이어야 자동 인식 · 승인(APPROVED/승인)만 매핑 · 1회 실행이면 끝.
+//   기존 매핑은 지우지 않는다(TPL_KEEP) — 검수 중인 템플릿이 있어도 승인난 것부터 돌리고, 나중에 한 번 더 돌리면 된다.
 //   응답 형식이 예상과 다르면 원문을 로그로 남김(그걸 보여주면 맞춰줌).
 function importKakaoTemplates() {
   var cfg = _nfProps();
@@ -740,7 +780,8 @@ function importKakaoTemplates() {
     '4': ['cust.fittingRequest'], '5': ['cust.contractArrived'], '8': ['cust.midPre', 'cust.midDue'],
     '9': ['cust.balancePre', 'cust.balanceDue'], '10': ['cust.resultDelivered'], '13': ['cust.holdExpiring'],
     '14': ['cust.changeConfirmed'], '15': ['cust.changeDeclined'], '17': ['cust.consultDone'], '18': ['cust.depositToProduction'],
-    '19': ['cust.couponIssued']   // CPN_NOTIFY
+    '19': ['cust.couponIssued'],   // CPN_NOTIFY
+    '20': ['cust.resultOriginal'], '21': ['cust.resultRetouch'], '22': ['cust.refundAcctReq']   // TPL_KEEP 2026-09-25 신청분
   };
   var date = new Date().toISOString();
   var salt = Utilities.getUuid().replace(/-/g, '');
@@ -752,18 +793,17 @@ function importKakaoTemplates() {
   var data; try { data = JSON.parse(txt); } catch (e) { Logger.log('JSON 파싱 실패: ' + String(txt).slice(0, 400)); return; }
   var list = data.templateList || data.data || data.list || (Array.isArray(data) ? data : []);
   if (!list || !list.length) { Logger.log('템플릿 0건 — 응답 원문: ' + String(txt).slice(0, 500)); return; }
-  var map = {}, matched = [], skipped = [];
+  var found = {}, matched = [], skipped = [];
   list.forEach(function (t) {
     var name = String(t.name || t.templateName || ''), id = String(t.templateId || t.id || ''), st = String(t.status || t.inspectionStatus || '').toUpperCase();
     var mm = name.match(/T0*(\d+)/i);
     if (!mm || !T2E[mm[1]] || !id) { skipped.push(name + (st ? ('(' + st + ')') : '')); return; }
     if (st && st.indexOf('APPROV') < 0 && st.indexOf('승인') < 0) { skipped.push(name + '(' + st + ')'); return; }
-    T2E[mm[1]].forEach(function (ev) { map[ev] = id; });
+    T2E[mm[1]].forEach(function (ev) { found[ev] = id; });
     matched.push(name + '→' + id);
   });
-  PropertiesService.getScriptProperties().setProperty('KAKAO_TEMPLATES', JSON.stringify(map));
-  Logger.log('KAKAO_TEMPLATES 저장: ' + Object.keys(map).length + '개 이벤트\n[매핑] ' + (matched.join(' · ') || '없음') + '\n[제외] ' + (skipped.join(' · ') || '없음'));
-  return map;
+  Logger.log('[승인·매핑] ' + (matched.join(' · ') || '없음') + '\n[제외] ' + (skipped.join(' · ') || '없음'));
+  return _nfTplMerge(found);   // [TPL_KEEP] 덮어쓰지 않고 더한다 — 목록에 안 잡힌 기존 매핑도 그대로 둔다
 }
 
 // 고객 메일 1통(best-effort) — 중요 시점(상담완료·결과물전달 등)에 카톡과 함께 메일도 보낸다.
@@ -1001,6 +1041,7 @@ var NF_EMAIL_TITLE = {
   'cust.resultDelivered':     { subj: '결과물이 준비되었습니다', head: '결과물이 준비되었어요', btn: '결과물 확인' },
   'cust.resultOriginal':      { subj: '원본 사진이 도착했습니다', head: '원본이 도착했어요', btn: '보정 컷 고르기' },
   'cust.resultRetouch':       { subj: '보정본이 도착했습니다', head: '보정본이 도착했어요', btn: '보정본 확인' },
+  'cust.refundAcctReq':       { subj: '예약 취소 · 환불 계좌 안내', head: '환불 계좌 안내', btn: '환불 계좌 남기기' },   /* [MAIL_FOCUS_URL] 종전엔 제목이 «안내드립니다»뿐이었다 */
   'cust.couponIssued':        { subj: '후기 감사 선물이 도착했습니다', head: '작은 선물을 올려 두었어요', btn: '바코드 확인' }   /* [CPN_NOTIFY] */
 };
 
@@ -1012,13 +1053,22 @@ function _nfCustomerEmailFallback(to, name, event, text) {
     var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
     var meta = NF_EMAIL_TITLE[event] || { subj: '안내드립니다', head: '모먼트에디트 안내' };
     // 본문 정리: 태그·끝 URL 제거. 'OOO님,'으로 시작하면 그게 인사라 그대로 두고, 아니면 인사 한 줄 추가.
-    var body = String(text || '').replace(/^\[모먼트에디트\]\s*/, '').replace(/\s*momentedit\.kr\/mypage\.html\s*$/i, '').trim();
+    /* ★[MAIL_FOCUS_URL 2026-09-25] 끝 주소에 ?focus= 가 붙으면서(알림 → 카드 딥링크 · 2026-07-25) 옛 정리식이 안 맞았다 —
+       대체 메일 본문 끝에 «momentedit.kr/mypage.html?focus=result» 가 글자 그대로 찍혔다(시뮬 실측 · 주소가 붙는 알림 전부).
+       알림톡 템플릿이 없는 동안 고객이 받는 것이 바로 이 메일이다. 주소는 본문에서 떼어 버튼으로 옮긴다 —
+       버튼도 그 카드로 바로 내려앉게 focus 를 넘긴다(focus 값은 영문 한 단어만 · 그 밖은 버린다). */
+    var _mfMark = '[MAIL_FOCUS_URL]';
+    var body = String(text || '').replace(/^\[모먼트에디트\]\s*/, '');
+    var href = 'https://momentedit.kr/mypage.html';
+    var _fu = body.match(/\s*(?:https?:\/\/)?momentedit\.kr\/mypage\.html(\?\S*)?\s*$/i);
+    if (_fu) { if (_fu[1] && /^\?focus=[a-z]+$/i.test(_fu[1])) href += _fu[1]; body = body.slice(0, _fu.index); }
+    body = body.trim();
     if (!body) body = (name || '고객') + '님께 안내드립니다.';
     var hasGreet = /^[^\s,]{1,20}\s*[·][^\s,]{1,20}\s*님|^[^\s,]{1,20}\s*님/.test(body);
     var inner = (typeof centerP === 'function')
       ? centerP((hasGreet ? '' : (name ? (safe(name) + '님,<br>') : '')) + safe(body).replace(/\n/g, '<br>'))
       : ('<p>' + safe(body) + '</p>');
-    if (typeof emailBtn === 'function' && !meta.nobtn) inner += emailBtn('https://momentedit.kr/mypage.html', meta.btn || '마이페이지 열기');
+    if (typeof emailBtn === 'function' && !meta.nobtn) inner += emailBtn(href, meta.btn || '마이페이지 열기');
     if (typeof smallP === 'function') {
       // 카톡으로 닿지 않아 보내는 메일 → 다시 카톡으로 안내하면 모순(카톡 없는 고객은 막힘).
       //   항상 닿는 채널(마이페이지·메일 회신)로만 문의를 유도한다.
@@ -1027,7 +1077,7 @@ function _nfCustomerEmailFallback(to, name, event, text) {
         + '에서 또는 이 메일에 회신해 주시면 됩니다.');
     }
     var html = (typeof emailShell === 'function') ? emailShell(meta.head, inner) : inner;
-    GmailApp.sendEmail(to, '[Moment Edit] ' + meta.subj, String(body).slice(0, 500),
+    GmailApp.sendEmail(to, '[Moment Edit] ' + meta.subj, String(body).slice(0, 500) + '\n\n' + href,   // 글자 메일(HTML 못 여는 곳)에도 주소는 남긴다
       { htmlBody: html, name: (typeof SYS !== 'undefined' ? SYS.FROM_NAME : 'Moment Edit') });
     Logger.log('[notify] 고객 이메일 → ' + to + ' · ' + event);
   } catch (e) { try { Logger.log('[notify] 고객 이메일 실패: ' + (e && e.message)); } catch (_) {} }
