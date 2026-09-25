@@ -8460,7 +8460,7 @@ chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
 if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
   case "$_ne" in
-    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수' ;;
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수 · 까닭 무관 메일' ;;
     1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
     *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -8492,6 +8492,15 @@ chk 'SOLAPI_WEBHOOK_ON' CLAUDE.md 1
 chk 'SOLAPI_WEBHOOK_ON' docs/데이터흐름_현황.md 1
 nochk '리포트 웹훅 URL=/exec 등록 필요' CLAUDE.md
 nochk '웹훅 URL(/exec) 등록이 전제' docs/데이터흐름_현황.md
+
+# ★★[KAKAO_FAIL_MAIL] 2026-09-25 사장님 「알림톡이 어떤 이유로 불발나면 이메일로 가게 해놨는데 잘 되어 있는 거지?」
+#   까닭마다 실제 코드로 돌려 보니 넷이 어긋났다 — 솔라피 설정 누락·연락처 형식 이상은 고객 메일까지 건너뛰었고,
+#   전달 실패 리포트가 목록 밖 코드(예: 카카오톡 미사용자)면 메일이 없었고, 밤에 보류됐다 아침에 메일로 나간 알림은
+#   «실패»로 쳐서 사흘 동안 같은 메일이 또 나갔다. notify-e2e ⑫ 가 지킨다(깨 보고 믿었다 · 6건 전부 빨강).
+chk 'KAKAO_FAIL_MAIL' automation/platform/95_notify.gs 6
+chk "return sentKakao ? true : ((_mailed || _elsewhere) ? 'mail' : false);" automation/platform/95_notify.gs 1   # 메일로 닿았으면 아침 재시도 없음
+chk 'var failed = hardFail || (!success && !pending && !!sc);' automation/platform/95_notify.gs 1                # 목록 밖 실패 코드도 실패
+nochk "고객 발송 생략'); return false; }" automation/platform/95_notify.gs                                        # 설정 누락이 고객 메일까지 막던 옛 줄
 
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이

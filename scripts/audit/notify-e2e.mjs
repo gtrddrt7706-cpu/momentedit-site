@@ -172,5 +172,34 @@ console.log('━━ ⑪ 신청 문안의 변수 = 코드가 넣는 변수 · 켜
   const noDoc = EV.filter((e) => !seen.has(e));
   say(!noDoc.length, `켜진 고객 알림 ${EV.length}종 전부 신청 문안이 있다`, noDoc.join(', ')); }
 
+console.log('━━ ⑫ 알림톡이 못 나가면 까닭과 상관없이 고객 메일로 · 아침 재시도는 아무것도 안 닿았을 때만 [KAKAO_FAIL_MAIL]');
+{ const ev = EV.find((e) => ELSEWHERE.indexOf(e) < 0);
+  const run = (over, phone, email) => { cfg(Object.assign({ KAKAO_TEMPLATES: tplAll() }, over || {})); fresh(); const r = send(ev, cust(phone || '010-1234-5678', email === undefined ? COUPLE : email)); return r; };
+  let r = run({ SOLAPI_API_KEY: '' });
+  say(r === 'mail' && kakao().length === 0 && toCouple() === 1 && toAdmin() === 1, '솔라피 키 누락 — 알림톡 없이 고객 메일 1통 · 관리자 1통 · 반환 mail', `${r} · 카톡 ${kakao().length} · 고객 ${toCouple()} · 관리자 ${toAdmin()}`);
+  r = run({}, '02-123-4567');
+  say(r === 'mail' && kakao().length === 0 && toCouple() === 1 && toAdmin() === 1, '연락처 형식 이상 — 고객 메일 1통(종전 0통) · 관리자 1통', `${r} · 카톡 ${kakao().length} · 고객 ${toCouple()} · 관리자 ${toAdmin()}`);
+  r = run({}, '02-123-4567', '');
+  say(r === false && toCouple() === 0 && toAdmin() === 1, '연락처 이상 + 메일도 없음 — 반환 false(아침에 다시) · 관리자 1통', `${r} · 관리자 ${toAdmin()}`);
+  r = run({ KAKAO_TEMPLATES: '{}' });
+  say(r === 'mail', '템플릿 없음 — 메일이 나갔으면 반환 mail(종전 false 라 아침마다 같은 메일이 또 나갔다)', String(r));
+  cfg({ KAKAO_TEMPLATES: '{}' }); fresh(); W.night = true; send(ev, cust('010-1234-5678', COUPLE)); W.night = false;
+  G.flushHeldNotifies(); const d1 = toCouple(); const q1 = JSON.parse(W.props.get('NOTIFY_HOLD') || '[]').length;
+  W.mails = []; G.flushHeldNotifies(); G.flushHeldNotifies(); const d23 = toCouple();
+  say(d1 === 1 && q1 === 0 && d23 === 0, '밤 보류 → 아침 메일 1통 · 큐 비움 · 다음 날들 0통', `첫날 ${d1} · 남은 큐 ${q1} · 이후 ${d23}`);
+  const sheets = {}; const mk = () => { const rows = []; return { rows, appendRow: (x) => rows.push(x.slice()), getLastRow: () => rows.length, setFrozenRows() {},
+    getRange: (a, b, na, nb) => ({ getValues: () => Array.from({ length: na || 1 }, (_, i) => Array.from({ length: nb || 1 }, (_, j) => (rows[a - 1 + i] || [])[b - 1 + j])), setValue: (v) => { rows[a - 1][b - 1] = v; } }) }; };
+  G.SpreadsheetApp = { getActive: () => ({ getSheetByName: (n) => sheets[n] || null, insertSheet: (n) => (sheets[n] = mk()) }) };
+  const rep = (sc, msg, email) => { cfg({ KAKAO_TEMPLATES: tplAll() }); fresh(); W.cust = cust('010-1234-5678', email === undefined ? COUPLE : email);
+    sheets['알림톡추적'] = mk(); sheets['알림톡추적'].appendRow(['messageId', '시각', 'code', 'event', 'text', '상태']);
+    sheets['알림톡추적'].appendRow(['MID', new Date(), 'ME-SIM', ev, '[모먼트에디트] 김희준·이미쿠님, 안내 momentedit.kr/mypage.html', '발송']);
+    G.handleSolapiReport([{ messageId: 'MID', statusCode: sc, statusMessage: msg }]); return sheets['알림톡추적'].rows[1][5]; };
+  const cases = [['3104', '카카오톡 미사용자', '이메일', 1], ['3999', '', '이메일', 1], ['3050', '비정상 번호', '이메일', 1], ['4000', '수신완료', '완료', 0], ['3000', '이통사 접수 예정', '확인', 0], ['', '성공', '완료', 0]];
+  const badRep = [];
+  for (const [sc, msg, want, mails] of cases) { const st = rep(sc, msg); if (st !== want || toCouple() !== mails) badRep.push(`${sc || '-'}«${msg}» → ${st} · 메일 ${toCouple()}`); }
+  say(!badRep.length, '전달결과 리포트 — 목록 밖 실패 코드도 메일 · 성공·진행 중은 메일 없음 · «비정상»은 성공 아님', badRep.join(' | '));
+  const st = rep('3104', '카카오톡 미사용자', '');
+  say(st === '이메일' && toCouple() === 0 && toAdmin() === 1 && W.hist.some((h) => /카톡 전달 실패/.test(h)), '전달 실패 + 메일도 없음 — 처리이력 한 줄 + 관리자 1통', `${st} · 관리자 ${toAdmin()} · 이력 ${W.hist.join(' | ')}`); }
+
 console.log(rc ? '━━ notify-e2e — 틀린 곳이 있습니다' : '━━ notify-e2e — 전부 통과');
 process.exit(rc);
