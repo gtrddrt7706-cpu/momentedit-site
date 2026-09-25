@@ -8484,6 +8484,15 @@ chk 'function _nfTplMerge(' automation/platform/95_notify.gs 1
 chk "'22': \['cust.refundAcctReq'" automation/platform/95_notify.gs 1   # T22 — 번호가 없으면 승인나도 불러오기가 못 잇는다
 chk '^### T2[012] · ' automation/알림톡_템플릿_신청문안.md 3   # T20 원본 · T21 보정본 · T22 환불 계좌 — 콘솔에 붙여넣을 원본(변수 대조는 notify-e2e ⑪)
 
+# ★★[SOLAPI_WEBHOOK_ON] 2026-09-25 — 솔라피 전달결과 웹훅이 «현재 0개»였다(시험 발송 13건이 전부 «발송»에서 멈춤).
+#   전달 실패 → 고객 이메일 대체가 한 번도 돌 수 없던 상태였다. 사장님이 «개발 → Webhooks» 에 «메시지 리포트»로 등록했고
+#   testKakaoT17 뒤 알림톡추적 F열 «완료»로 확인했다. 문서 두 곳이 «등록 필요»라고 적고 있어 닫았다 —
+#   닫힌 항목은 그 자리만 고치면 되살아난다(CLAUDE.md 반복 금지 교훈). 옛 문구가 돌아오면 여기서 막는다.
+chk 'SOLAPI_WEBHOOK_ON' CLAUDE.md 1
+chk 'SOLAPI_WEBHOOK_ON' docs/데이터흐름_현황.md 1
+nochk '리포트 웹훅 URL=/exec 등록 필요' CLAUDE.md
+nochk '웹훅 URL(/exec) 등록이 전제' docs/데이터흐름_현황.md
+
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
 #   «줄지어 도는 동안» 생겼다 — 번호가 82… 로 앉고 → 밤에 큐에 쌓이고 → 취소했는데 큐는
