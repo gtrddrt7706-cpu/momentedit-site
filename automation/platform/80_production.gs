@@ -1248,7 +1248,10 @@ function buildResultState(r) {
     stage: stage,
     status: status,                                        // 대기/원본전달/선택완료/보정중/컨펌대기/컨펌완료/전달완료
     delivered: stage === '결과물전달',
-    survey: { status: String(r.get('설문상태') || '').trim() || '대기' },   // 마지막 설문(전달완료 후)
+    /* ★[SV_NOTES_CAP 2026-09-25] notes:1 = «이 서버는 문항별 기타 의견을 저장한다».
+       화면(Vercel)은 병합 즉시 바뀌지만 GAS 는 재배포해야 바뀐다. 그 사이 옛 서버는 notes 를 모르고
+       조용히 버린다 — 고객이 공들여 쓴 의견이 사라진다. 그래서 화면은 이 표시가 있을 때만 칸을 연다. */
+    survey: { status: String(r.get('설문상태') || '').trim() || '대기', notes: 1 },   // 마지막 설문(전달완료 후)
     isSnap: String(r.get('상품타입') || '').trim() === '웨딩스냅',
     원본: String(r.get('원본링크') || '').trim(),
     보정본: String(r.get('보정본폴더') || '').trim(),
@@ -1550,7 +1553,33 @@ function handleSubmitSurvey(body) {
        탭 두 개·뒤로가기 재제출 전부 여기서 멱등 처리. */
     if (String(cust.get('설문상태') || '').trim() === '완료') return { ok: true, already: true };
     var product = String(cust.get('상품타입') || '').trim() || (typeof P !== 'undefined' ? P.PRODUCT_SIGNATURE : '시그니처');
-    var payload = { product: product, answers: clean, review: review, reviewPublic: reviewPublic };
+    /* ★★[SV_NOTES 2026-09-25 사장님 지시 「각각의 문항마다 기타로 해서 수기로 적을 수 있는 공간」
+       · 「관리자 페이지 설문조사 고객 페이지랑 동일하게 보여줘 선택한 거 전부 수기로 작성한 부분까지」]
+       ①notes — 문항별 기타 의견. answers 에 섞지 않는다: answers 값은 위에서 40자로 잘리고,
+         집계(adminHome surveyTally)가 값을 «보기»로 세기 때문에 수기 문장이 섞이면 막대가 깨진다.
+       ②snap — 고객이 **실제로 본** 질문·보기·고른 답. 관리자는 이걸로 그린다.
+         ★관리자 쪽 문항표(SURVEY_Q)는 줄임말이라(«딱 좋음») 고객 화면(«딱 좋았어요 · 매 순간 또렷»)과
+           다르다. 그리고 문구는 앞으로도 바뀐다 — 그때 옛 응답을 새 문구로 그리면 «그 고객이 본 화면»이
+           아니게 된다. 설문 도구들이 제출 시점 문항을 함께 남기는 이유와 같다.
+       ★크기 상한을 둔다 — 문항 20 · 보기 8 · 질문 160자 · 보기 80자 · 의견 500자. 셀 한도(5만 자) 안쪽. */
+    var _svMark = '[SV_NOTES]';   // 배포 점검 표식 — 함수 «본문 안»에 있어야 mark() 가 읽는다
+    var notes = {}, notesN = 0, rawN = (body && body.notes && typeof body.notes === 'object') ? body.notes : {};
+    for (k in rawN) {
+      if (!rawN.hasOwnProperty(k) || notesN >= 20) continue;
+      var _nk = String(k).slice(0, 40), _nv = String(rawN[k] == null ? '' : rawN[k]).trim().slice(0, 500);
+      if (_nk && _nv) { notes[_nk] = _nv; notesN++; }
+    }
+    var snap = [], rawS = (body && Array.isArray(body.snap)) ? body.snap : [];
+    for (var _si = 0; _si < rawS.length && _si < 20; _si++) {
+      var _it = rawS[_si] || {}, _ro = Array.isArray(_it.o) ? _it.o : [], _so = [];
+      for (var _oi = 0; _oi < _ro.length && _oi < 8; _oi++) {
+        var _pr = Array.isArray(_ro[_oi]) ? _ro[_oi] : [];
+        _so.push([String(_pr[0] == null ? '' : _pr[0]).slice(0, 40), String(_pr[1] == null ? '' : _pr[1]).slice(0, 80)]);
+      }
+      var _sk = String(_it.k || '').slice(0, 40);
+      if (_sk) snap.push({ k: _sk, q: String(_it.q || '').slice(0, 160), v: String(_it.v || '').slice(0, 40), req: _it.req ? 1 : 0, o: _so });
+    }
+    var payload = { product: product, answers: clean, notes: notes, snap: snap, review: review, reviewPublic: reviewPublic };
     touchCustomer(sheet, colOf, cust.num, { '설문상태': '완료', '설문응답': JSON.stringify(payload), '설문일시': fmtKST(new Date()) });
     /* [STAGE_REVIEW_DOOR] 후기를 받으면 마지막 칸('후기')으로 올린다 — 여정이 끝난 자리.
        ★'결과물전달'에서만 올린다. RESULT_STAGES 는 예식완료까지 넓어서, 조건 없이 올리면
@@ -1574,6 +1603,11 @@ function handleSubmitSurvey(body) {
         code + ' · ' + product + '\n' + headLine + gapFlag
         + '\n스타벅스 2잔 발송 대상 (후기 감사 · 제출=지급) · 관리자 상세에서 커피쿠폰 발급 버튼으로 바코드 등록 → 고객 마이페이지 표시 · 연락처 ' + String(cust.get('연락처') || '')
         + (review ? ('\n후기' + (reviewPublic ? '(공개동의)' : '') + ': ' + review) : '')
+        + (function () {   // [SV_NOTES] 문항별 기타 의견 — 질문 문구는 고객이 본 그대로(snap)
+          var qOf = {}; snap.forEach(function (x) { qOf[x.k] = x.q; });
+          var out = []; for (var nk2 in notes) { if (notes.hasOwnProperty(nk2)) out.push('· ' + (qOf[nk2] || nk2) + '\n  ' + notes[nk2]); }
+          return out.length ? ('\n\n[문항별 기타 의견 ' + out.length + '건]\n' + out.join('\n')) : '';
+        })()
         + '\n\n(전체) ' + sum);
     } catch (e) {}
     return { ok: true };

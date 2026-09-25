@@ -6190,6 +6190,16 @@ chk 'SEATED30' scripts/audit/guest-cap-truth.mjs 1
 chk 'SEATED30' automation/platform/80_production.gs 1
 chk 'STALE_EXTRA_FEE' automation/platform/70_journey.gs 1
 chk 'STALE_EXTRA_FEE' scripts/audit/balance-sim.mjs 1
+# ★[SYNC_MAP_FULL 2026-09-25] GAS 자동 동기화 대응표(scripts/gas-sync.mjs MAP)가 저장소의 GAS 파일을
+#   전부 덮는가. 99_contractCheck·99_deployCheck 를 만들며 대응표를 안 고쳐, 자동 배포 열쇠를 넣는 날
+#   첫 실행이 「모르는 원격 파일」로 멈출 참이었다. 새 .gs/.html 을 만들면 대응표도 같은 커밋에서.
+if command -v node >/dev/null 2>&1; then
+  _smOut=$(node scripts/audit/sync-map-full.mjs 2>&1) \
+    || { echo 'FAIL sync-map-full: GAS 파일이 자동 동기화 대응표에서 빠졌다 — node scripts/audit/sync-map-full.mjs'
+         printf '%s\n' "$_smOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'SYNC_MAP_FULL' scripts/gas-sync.mjs 1
+chk 'SYNC_MAP_FULL' scripts/audit/sync-map-full.mjs 1
 chk 'ADMIN_NOFEE_LINE' automation/platform/95_notify.gs 1
 # ★[SHIP_NOW 2026-09-19 사용자 지시 "앞으로 작업끝나면 바로메인에 올려"] 브랜치 푸시는 «작업 끝»이 아니다.
 #   실사고 — 브랜치가 main 보다 188커밋 앞서고 83커밋 뒤처진 채 열흘을 갔다. 그 사이
@@ -8214,6 +8224,7 @@ chk 'STAMP_FIRST' automation/platform/99_deployCheck.gs 2
 #   붙여넣었든 안 넣었든 OK 가 나오는 판정으로 「확인하세요」라고 한 것이다.
 #   화면 파일은 deployCheck ①-C(본문 길이 대조)가 잡는다. 그 안내를 출력에 박아 두고 여기서 지킨다.
 chk 'STAMP_FN_ONLY' automation/platform/99_deployCheck.gs 1
+chk 'LOG_COMPACT' automation/platform/99_deployCheck.gs 2
 chk '화면 파일(Admin·ScreenA·B·C .html)은 지문에 안 들어갑니다' automation/platform/99_deployCheck.gs 1
 chk "typeof g\[k\] === 'function'" automation/platform/00_platform-config.gs 1
 chk '★배포 확인' automation/platform/99_deployCheck.gs 3   # 세 갈래 문장이 살아 있는가
@@ -8401,6 +8412,47 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/contact-lifecycle-si
 fi
 chk 'CONTACT_LIFECYCLE_SIM' scripts/audit/contact-lifecycle-sim.mjs 1
 chk 'SERVED_OURS' scripts/audit/contact-lifecycle-sim.mjs 1
+# ★★[SV_NOTES 2026-09-25 사장님 「관리자페이지 설문조사 고객페이지랑 동일하게 보여줘 · 선택한 거 전부
+#   수기로 작성한 부분까지 · 고객 설문 각 문항마다 기타로 수기로 적을 수 있는 공간」]
+#   ①고객(mypage) — 문항마다 「+ 기타 의견 적기」 칸(SV_NOTE_UI). 「기타」 보기를 고르면 저절로 열린다.
+#     ★보기를 하나 더 붙인 게 아니라 «덧붙이는 칸»이다 — 척도 문항(만족·추천)의 집계가 안 깨진다.
+#   ②제출 순간의 문항 원문(snap)을 함께 저장(SV_SNAP) — 나중에 문구를 고쳐도 관리자는 고객이 본 그대로 본다.
+#   ③관리자(admin) — 상세·홈 모두 «고객이 본 모양 그대로»(SV_RESP_VIEW).
+#     그린 문항 밖의 답·의견도 버리지 않는다(SV_ALL_SHOWN · 주입 감사가 «의견 2건 중 1건만 보인다»를 잡았다).
+#   ④능력 표시(SV_NOTES_CAP) — 화면은 병합 즉시 바뀌고 GAS 는 재배포해야 바뀐다. 그 사이 옛 서버는
+#     notes 를 모르고 버린다. 그래서 화면은 서버가 survey.notes 로 «받는다»고 말할 때만 칸을 연다.
+#   ★이 검사는 브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(저장 줄·능력 표시·
+#     500자 상한·홈 notesN 을 하나씩 지우니 넷 다 종료 1).
+if command -v node >/dev/null 2>&1; then node scripts/audit/survey-notes.mjs >/dev/null 2>&1; _svn=$?
+  case "$_svn" in
+    0) echo 'ok survey-notes: 기타 의견·문항 원문 저장 · 상한 · 능력 표시 · 관리자 홈 표시' ;;
+    1) echo 'FAIL survey-notes: 설문 기타 의견이 저장·표시되지 않습니다 — node scripts/audit/survey-notes.mjs'; fail=1 ;;
+    *) echo 'ok survey-notes: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'SERVED_OURS' scripts/audit/survey-notes.mjs 1
+chk 'SV_NOTES_CAP' automation/platform/80_production.gs 1
+chk '\[SV_NOTES\]' automation/platform/80_production.gs 2
+chk 'notes: notes, snap: snap' automation/platform/80_production.gs 1
+chk 'SV_HOME_NOTESN' automation/admin/admin.gs 2
+chk 'notesN:' automation/admin/admin.gs 1
+chk 'SV_NOTE_UI' mypage.html 3
+chk 'SV_SNAP' mypage.html 1
+chk 'res.survey && res.survey.notes' mypage.html 1
+chk 'notes:notes, snap:snap' mypage.html 1
+chk 'data-note-open=' mypage.html 2
+chk 'srv-note-t\[hidden\]' mypage.html 1   # ★inline-flex 가 [hidden] 을 이겨 「+ 기타 의견 적기」가 칸을 연 뒤에도 남았다(실측)
+nochk "\['etc','그 외'\]" mypage.html
+chk 'SV_RESP_VIEW' admin.html 5
+chk 'SV_ALL_SHOWN' admin.html 1
+chk 'SV_OPEN_RETRY' admin.html 1   # 펼침 요청을 서버가 거절하면 알리고 재시도 가능 — 종전엔 «찾지 못했어요»로 굳었다(고치기 전 코드로 되돌려 4건 빨강 확인)
+chk 'function svResponseHtml' admin.html 1
+chk 'svResponseHtml(' admin.html 3
+chk 'data-sv-open' admin.html 3
+nochk "etc:'그외'" admin.html
+chk 'SV_RESP_VIEW' scripts/audit/admin-inject.mjs 1
+chk '홈 설문 펼침' scripts/audit/admin-inject.mjs 2
+chk '상세 설문' scripts/audit/admin-inject.mjs 1
 
 # ── 나란히 읽었다는 표식 (2026-09-13 · 다섯 짝 전부 실제로 읽고 대조함)
 #   ①첫인사 — 신랑이 「하루를 비우셨을 겁니다」, 신부가 「얼굴을 한 분씩 다 알고 있습니다」.
