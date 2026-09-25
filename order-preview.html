@@ -1001,6 +1001,11 @@ var TRIBUTE={
   hug:{d:'포옹',how:'부모님께 다가가 말없이 포옹해요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 말없이 포옹'}
  }
 };
+/* ★[GOODS_CHOICE 2026-09-25 사장님 결정] 케이크 · 부모님께 드릴 꽃은 값에 들지 않는다 — 두 분이 준비하거나 저희에게 부탁(비용 별도).
+   사장님 원문: «케이크 꽃은 별도로 돈받아야지» · «선택하게 해 고객이 준비하거나 우리한테 요청하거나» · 업체 소개는 하지 않는다(«그냥 우리가»).
+   [NO_EXTRA_COST](무엇을 담아도 값은 같다)의 예외는 이 둘뿐이다 · 샴페인은 그대로 저희가 준비한다.
+   ★「꽃은 저희가 준비해요」 · 「실물(샴페인·케이크)은 저희가 준비해요」 되살리지 말 것 — 값이 드는 것을 공짜로 약속한다. */
+var GOODS_WORD='두 분이 준비하시거나 저희에게 부탁하실 수 있어요(비용 별도)';
 var TOAST={
  /* ★[TOAST_SCENE 2026-08-09] 원천 assets/ritual-data.js 의 TOAST 사본 — 글자까지 같아야 한다.
     한 덩어리 문안을 '가르치고 → 부르고 → 받는' 장면으로 다시 썼다(경위는 원천 주석에).
@@ -1841,7 +1846,7 @@ var STEPDEF={
  course:{k:'course',title:'어떤 분위기로 흐를까요?',sub:'마음 가는 하나를 눌러 상세를 보세요.'},
  tune:{k:'tune',title:'어떤 순간을 직접 고를까요?',sub:''},
  /* [OPEN_COURSE] 새 코스는 코스 고르기 · 순서 다듬기 대신 이 한 화면이다(명세 2장). */
- pick:{k:'pick',title:'우리 예식 짓기',sub:'예식에 담을 수 있는 순간을 모두 펼쳐 두었어요. 필요한 순간만 담으시면 예식 순서대로 제자리에 들어가요. 순서는 저희가 맞춰 두었고, 무엇을 담아도 값은 같아요.'},
+ pick:{k:'pick',title:'우리 예식 짓기',sub:'예식에 담을 수 있는 순간을 모두 펼쳐 두었어요. 필요한 순간만 담으시면 예식 순서대로 제자리에 들어가요. 순서는 저희가 맞춰 두었고, 무엇을 담아도 값은 같아요. 케이크 · 부모님께 드릴 꽃을 저희에게 맡기시면 따로 비용이 있어요.'},   // [GOODS_CHOICE]
  prevideo:{k:'prevideo',title:'식전 영상, 이렇게 상영돼요',sub:''},
  candle:{k:'candle',title:'화촉, 누가 불을 밝힐까요?',sub:''},
  guest:{k:'guest',title:'하객 맞이, 이렇게 안내됩니다',sub:''},
@@ -2692,12 +2697,14 @@ function _lGroups(k){
     L('entryOut','맺는 말',[['',ENTRY_OUT[S.entry]?'입장과 같이':'기본']].concat(   /* [LAB_FIX2 2-6] 흐름에서 그 줄 이름 · «짧고 강하게»는 제 맺는 말이 없어 «기본» */['A','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; })),ENTRY_OUT[S.entryOut]?S.entryOut:'');
   }
   if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
-  if(k==='tribute'){ L('tribute','말',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower'); }
+  if(k==='tribute'){ L('tribute','말',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower'); _lGoods('tribute',L); }
   if(k==='free'){ L('free','무엇',R.CHIPS.free,R.chipOf('free',S)); L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
   if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));
-  if(k==='toast'){ L('toast','무엇',R.CHIPS.toast,R.chipOf('toast',S)); if(R.chipOf('toast',S)!=='cake') L('wine','와인',R.CHIPS.wine,R.chipOf('wine',S)); }
+  if(k==='toast'){ L('toast','무엇',R.CHIPS.toast,R.chipOf('toast',S)); if(R.chipOf('toast',S)!=='cake') L('wine','와인',R.CHIPS.wine,R.chipOf('wine',S)); _lGoods('toast',L); }
   return g;
 }
+/* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
+function _lGoods(k,L){ var R=RitualOpen; R.goodsOf(S,k).forEach(function(g){ L(g.key,g.k==='toast'?'케이크 준비':'꽃 준비',R.CHIPS[g.key],g.by,true,g.by==='studio'?R.GOODS_COST:'당일 가져오시면 돼요 · '+'크기 · 도착 시각은 상담 때 안내해 드려요'); }); }
 function _lSet(key,v){
   var R=RitualOpen;
   if(key==='guestVoice') S.guestVoice=v;
@@ -3193,7 +3200,7 @@ function _openWrite(){
   if(bring.length) h+='<div class="wr-sec"><div class="wr-sub">챙길 것</div><ul class="wr-list">'+bring.map(li).join('')+'</ul></div>';
   if(ask.length) h+='<div class="wr-sec"><div class="wr-sub">부탁드릴 것</div><ul class="wr-list">'+ask.map(li).join('')+'</ul></div>';
   if(par.length) h+='<h3 class="sec-l wr-top">부모님께 부탁드릴 것 · '+par.length+'가지</h3><ul class="wr-list">'+par.map(li).join('')+'</ul>';
-  var stu=_studioList(); if(stu.length) h+='<h3 class="sec-l wr-top">저희가 준비해요</h3><ul class="wr-list"><li>'+esc(stu.join(' · '))+'</li></ul>';   // [STUDIO_PREP P11]
+  var stu=_studioList(); if(stu.length) h+='<h3 class="sec-l wr-top">저희가 준비해요</h3><ul class="wr-list"><li>'+esc(stu.join(' · '))+' <span class="wr-due">· '+esc(R.GOODS_COST)+'</span></li></ul>';   // [GOODS_CHOICE] 맡긴 것만 · 별도 비용(포함처럼 읽히던 STUDIO_PREP 줄 대신)
   var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});
   h+='<h3 class="sec-l wr-top">도와주실 분</h3><ul class="wr-list">'+hp.map(function(x){ return '<li>'+esc(x[0])+' <span class="wr-due">· '+esc(x[1])+'</span></li>'; }).join('')+'</ul>';
   return h;
@@ -3757,7 +3764,7 @@ function renderStep(k){
     /* [BOW_GROOM 2026-09-25 사장님 결정 5] 새 코스는 «꽃과 포옹 · 신랑 큰절» 둘이다(옛 두 분 큰절 bow 는 닫힌 채 · 옛 코스는 지금 그대로). */
     (isOpen()?['flower','bowGroom']:['flower','hug']).forEach(function(v){
       var m=TRIBUTE.modes[v];
-      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 저희가 준비해요':null);   // [NO_EXTRA_COST]
+      h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 '+GOODS_WORD:null);   // [NO_EXTRA_COST] [GOODS_CHOICE]
     });
     h+='<div class="reassure" style="margin-top:12px">부모님은 앉은 자리에서 받으시면 돼요</div>';   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 뒷절(타이밍은 디렉터가 안내한다) 삭제 · 복원 금지. 앞절이 이미 "일어나지 않으셔도 된다"를 말해 걱정에 답한다 */
   }
@@ -3784,7 +3791,7 @@ function renderStep(k){
     if(TOAST[tv].nar2) tt.push((wv!=='none'&&tv==='both')?RitualOpen.NAR.toastBothPour:TOAST[tv].nar2);   // [TOAST_POUR_B] 붓는 날은 «잔이 가는 동안»을 뺀 줄
     h+=narBox(tt.join(' '),TOAST[tv].out==='cakeOut'?OUT_CAKE:OUT_TOAST)+playBtn('toast',tv);
     if(wv!=='none') h+='<div class="noplay">와인을 붓는 말은 새로 녹음하는 줄이라 아직 소리가 없어요</div>';
-    h+='<div class="prep-hint">실물(샴페인·케이크)은 저희가 준비해요'+(wv==='mix'?' · 두 분은 색이 다른 와인 두 병(또는 음료 둘)을 골라 주세요':wv==='family'?' · 양가에서 와인을 한 병씩 골라 주세요':'')+'</div>';
+    h+='<div class="prep-hint">샴페인은 저희가 준비해요'+(S.toast!=='toast'?' · 케이크는 '+GOODS_WORD:'')+(wv==='mix'?' · 두 분은 색이 다른 와인 두 병(또는 음료 둘)을 골라 주세요':wv==='family'?' · 양가에서 와인을 한 병씩 골라 주세요':'')+'</div>';
   }
   else if(k==='toast'){
     h+=clip('toast');
@@ -3792,7 +3799,7 @@ function renderStep(k){
       /* [TOAST_SCENE] 고른 판만 문안을 편다 — 둘 다는 문안이 둘이라 사이 문장까지 보여 준다.
          마무리도 모드에서 고른다(케이크만 고르면 잔 이야기가 아니라 나이프 이야기로 닫힌다). */
       var _tn=(S.toast===v)?(TOAST[v].nar+(TOAST[v].nar2?' '+TOAST[v].nar2:'')):null;
-      h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요':null);   // [NO_EXTRA_COST]
+      h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?('샴페인은 저희가 준비해요'+(v!=='toast'?' · 케이크는 '+GOODS_WORD:'')):null);   // [NO_EXTRA_COST]
     });
   }
   else if(k==='write' && isOpen()){ h+=_openWrite(); }   // [LISTEN_PAGE 코워크 4-5] 새 코스의 ③ — 옛 코스는 아래 그대로
@@ -4168,7 +4175,7 @@ function _doneOpen(){
   h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><div class="prep">';
   if(two.length) h+='<div class="pr-g">두 분이 준비할 것</div>'+grp(two);
   if(par.length) h+='<div class="pr-g">부모님께 부탁드릴 것</div>'+grp(par);
-  var stu=_studioList(); if(stu.length) h+='<div class="pr-g">저희가 준비해요</div><div class="pr"><span>'+esc(stu.join(' · '))+'</span></div>';   // [STUDIO_PREP]
+  var stu=_studioList(); if(stu.length) h+='<div class="pr-g">저희가 준비해요</div><div class="pr"><span>'+esc(stu.join(' · '))+' · '+esc(RitualOpen.GOODS_COST)+'</span></div>';   // [GOODS_CHOICE]
   h+='</div><button type="button" class="ls-back" data-fk="done2write" onclick="opGoStep(\'write\')">③ 준비하기에서 보기</button>';
   h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry">';
   _lRows().forEach(function(k){
@@ -4693,7 +4700,7 @@ function _ordPayload(fin){
   if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
     _sm.open=true; _sm.moments=RitualOpen.picked(S).length; _sm.photo=_sp.photo; _sm.from=_ex?_ex.nm:'';
     _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])];
-    _sm.prep=RitualOpen.prepList(S); _sm.helpers=RitualOpen.helpersOf(S,{}); }   // [PREP_LIST] 마이페이지 준비 목록(P8) — 식사 안내 분은 마이페이지가 애프터 웨딩을 보고 더한다   // [PHOTO_CAP_RD] 마이페이지 단체 사진 상한이 이 초로 센다(엔진을 안 읽으므로)
+    _sm.prep=RitualOpen.prepList(S); _sm.helpers=RitualOpen.helpersOf(S,{}); _sm.goods=RitualOpen.goodsOf(S).map(function(g){ return {what:g.what,by:g.by}; }); }   /* [GOODS_CHOICE] 맡긴 예식은 주문해야 한다 — 관리자 · 마이페이지가 읽는다 */   // [PREP_LIST] 마이페이지 준비 목록(P8) — 식사 안내 분은 마이페이지가 애프터 웨딩을 보고 더한다   // [PHOTO_CAP_RD] 마이페이지 단체 사진 상한이 이 초로 센다(엔진을 안 읽으므로)
   return {S:S, summary:_sm};
 }
 function _embedSave(){

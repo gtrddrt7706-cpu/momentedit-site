@@ -193,11 +193,23 @@ for (const w of [390, 1280]) {
   ok('3-4 ③ 갈래 안에 갈래 꼬리표가 없다', w.cats === 0, w.cats);
   ok('3-4 반지 = 당일 가져오기 · 부모님께 드릴 말 = 당일 직접 읽어요 · 양가 와인 = 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 말[^\n]*당일 직접 읽어요 · 보내지 않아도 돼요/.test(w.t) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(w.t), w.t.slice(0, 400));
   ok('3-4 셈 줄은 무엇을 세는지 말한다(«여기에 적는 글 2개 중 0개»)', /^여기에 적는 글 \d+개 중 \d+개 적었어요\.$/.test(w.cnt), w.cnt);
-  ok('3-4 도와주실 분 문구 · 저희가 준비해요(케이크 · 부모님께 드릴 꽃)', /반지 교환을 담았을 때/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && /저희가 준비해요/.test(w.t) && /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t), JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t)]) + ' … ' + w.t.slice(-250));
+  ok('3-4 도와주실 분 문구 · [GOODS_CHOICE] 기본은 직접 준비 → 케이크 · 꽃이 «챙길 것»에 · «저희가 준비해요» 없음', /반지 교환을 담았을 때/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && !/저희가 준비해요/.test(w.t) && /케이크 · 크기 · 도착 시각은 상담 때 안내해 드려요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 꽃 · 크기 · 도착 시각은 상담 때 안내해 드려요 · 당일 가져오기/.test(w.t), JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t)]) + ' … ' + w.t.slice(-250));
   await pg.click('#next'); await pg.waitForTimeout(900);
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + (k === RitualOpen.peakOf(S) ? '★ ' : '') + _lName(k)) }));
   ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · ★)', JSON.stringify(d.rows) === JSON.stringify(d.want), JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
-  ok('3-1 ④ «고른 순간 N» · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /고른 순간 \d+ · 본식/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③ 준비하기에서 보기/.test(d.t) && /저희가 준비해요/.test(d.t), d.t.slice(0, 300));
+  ok('3-1 ④ «고른 순간 N» · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /고른 순간 \d+ · 본식/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③ 준비하기에서 보기/.test(d.t), d.t.slice(0, 300));
+  /* ★[GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 꽃 — ② 칩(담았을 때만 · 큰절이면 꽃 없음) · 맡기면 ③ 「저희가 준비해요 · 별도 비용」 · 초안에 실림 */
+  const gd = await pg.evaluate(() => {
+    const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};
+    out.chips = _lGroups('toast').map((g) => g.key).concat(_lGroups('tribute').map((g) => g.key));
+    S.cakeBy = 'studio'; S.flowerBy = 'studio'; out.w = _openWrite(); out.sm = _ordPayload(false).summary.goods; out.bring = R.prepList(S).filter((q) => q.cat === 'bring').map((q) => q.what).join('|');
+    S.tribute = 'bowGroom'; out.bow = _lGroups('tribute').map((g) => g.key); out.bowGoods = R.goodsOf(S).map((g) => g.what);
+    S.toast = 'toast'; out.toastOnly = R.goodsOf(S).length;
+    S = keep; Object.keys(T).forEach((k) => { S[k] = T[k]; }); delete S.cakeBy; delete S.flowerBy;
+    return out;
+  });
+  ok('5-1 ② 칩 «케이크 준비» · «꽃 준비»가 그 순간에만 · 신랑 큰절이면 꽃 칩 없음 · 축배만이면 케이크 없음', gd.chips.includes('cakeBy') && gd.chips.includes('flowerBy') && !gd.bow.includes('flowerBy') && gd.bowGoods.join() === '케이크' && gd.toastOnly === 0, JSON.stringify(gd.chips) + JSON.stringify(gd.bow) + gd.toastOnly);
+  ok('5-1 맡기면 ③ «저희가 준비해요 · 별도 비용» · 챙길 것에서 빠짐 · 초안 summary.goods 에 실림', /저희가 준비해요/.test(gd.w) && /별도 비용 · 금액은 상담 때 안내해 드려요/.test(gd.w) && !/케이크 · 크기/.test(gd.bring) && JSON.stringify(gd.sm) === JSON.stringify([{ what: '케이크', by: 'studio' }, { what: '부모님께 드릴 꽃', by: 'studio' }]), JSON.stringify(gd.sm) + ' ' + gd.bring);
   const sc = await pg.evaluate(() => scriptText());
   ok('3-2 대본 = 엔진 큐(케이크 · 축배 큐가 GLASS_READY · 편지 낭독 중 잔 없음 · 번호 ② 와 같음)', /큐: 커팅 · 포즈 동안/.test(sc) && !/편지 낭독 중 하객 잔/.test(sc) && /\n1\. 화촉/.test(sc) && !/폐식·단체촬영/.test(sc) && !/D-7/.test(sc), sc.slice(0, 500));
   const saved = await pg.evaluate(() => { let n = 0; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) n++; }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return n; });

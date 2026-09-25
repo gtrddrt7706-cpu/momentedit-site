@@ -363,7 +363,7 @@ function card(e, m){
   if(chips.length) h.push('<div class="chips">'+chips.join('')+'</div>');
 
   h.push(e.text ? '<p class="tx">'+esc(e.text)+'</p>'
-                : '<p class="tx none">나레이션 문안이 없는 자리예요(대본은 성우 대본에 있어요).</p>');
+                : '<p class="tx none">나레이션 문안이 없는 자리예요(대본은 AI 성우 대본에 있어요).</p>');
   if(e.hint) h.push('<p class="hint">언제 — '+esc(e.hint)+'</p>');
   if(e.live && e.live.t) h.push('<p class="hint">현장 — '+esc(e.live.t)+'</p>');
   if(e.note) h.push('<div class="note">'+esc(e.note)+'</div>');
