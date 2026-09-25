@@ -9636,7 +9636,7 @@ nochk 'visit-guide vg-center" style="margin-top:14px"' mypage.html
 #   html{font-synthesis:weight} 한 줄. 실측(진짜 웹폰트 · 대조군 촬영): 비틀리던 한글 요소 115 → 0.
 #   ★측정 함정 둘 — ①감사용 브라우저가 폰트 요청에 빈 응답을 줘 Cormorant 영문까지 «비틀림»으로 잡혔다(76건 착시)
 #     ②애니메이션 요소가 «바뀜»으로 잡혔다 → 같은 조건 두 번 찍어 다른 것은 뺐다. 그 뒤 순수 영문 변화는 모노그램 하나.
-#   ★모노그램(Cinzel · 기울임꼴 없음)은 한글이 아니고 청첩장 모양이 바뀌어 예외로 종전 모양 유지 — 코워크 확인 대기.
+#   ★모노그램(Cinzel · 기울임꼴 없음)은 처음엔 예외로 종전 모양을 지켰다가 사장님 결정으로 바로 세웠다 — 아래 [MONO_UPRIGHT].
 # (반복문 대신 낱줄 — merge-guard 는 «^chk » 줄 수로 실행 수를 맞춘다 · GATE_RAN)
 chk 'KO_NO_FAUX_ITALIC' index.html 1
 chk 'KO_NO_FAUX_ITALIC' inquiry.html 1
@@ -9680,8 +9680,10 @@ chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-06-hangeul.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-07-architect.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-08-noir.html 1
 chk 'KO_NO_FAUX_ITALIC' i/invitations/invitation-09-guide.html 1
-chk '\.mono-line{font-synthesis:weight style}' i/cover-03.html 1
-chk '\.mono-line{font-synthesis:weight style}' i-family/family-03.html 1
+# ★[MONO_UPRIGHT 2026-09-25 사장님 결정 «바로 세우기» · 코워크 회신 ②] 모노그램(Cinzel · 기울임꼴 없는 서체)의 예외를 지웠다 —
+#   억지 기울임을 끄고 Cinzel 본래 모양으로 선다. 가운데 & 는 Cormorant 진짜 이탤릭이라 그대로 기운다. 예외를 되살리지 말 것.
+nochk 'mono-line{font-synthesis' i/cover-03.html
+nochk 'mono-line{font-synthesis' i-family/family-03.html
 # ▲3편 자리 — 다음 항목은 이 줄 위에 붙인다
 chk 'MIN_UNIT_CONTRAST' index.html 1
 chk 'FORM_EXIT_CONTRAST' form.html 1
