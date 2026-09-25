@@ -300,6 +300,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .pay-method input{position:absolute;opacity:0;pointer-events:none}
 .pay-method label{flex:1 1 0;display:flex;align-items:center;justify-content:center;min-height:40px;padding:0 6px;border-radius:999px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;letter-spacing:0.02em;transition:background .3s var(--ease),color .3s var(--ease)}
 .pay-method input:checked+label{background:#fff;color:var(--accent);font-weight:500;box-shadow:0 1px 2px rgba(28,27,25,0.08)}
+.pay-method input:not(:checked)+label:hover{color:var(--accent)}   /* 고르지 않은 칸도 누를 수 있다는 신호 — 색만(미세 호버) */
 .pay-method input:focus-visible+label{outline:2px solid var(--seal);outline-offset:2px}
 .deposit-card-note{margin-top:18px;padding-top:16px;border-top:1px solid var(--hairline);font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.8;word-break:keep-all}
 

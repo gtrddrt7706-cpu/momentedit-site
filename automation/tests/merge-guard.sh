@@ -1431,6 +1431,12 @@ chk 'payBy' schedule.html 2
 chk 'me_pay_tok' schedule.html 3
 chk 'DEPOSIT_CARD' scripts/audit/deposit-card.mjs 2
 chk 'DEPOSIT_CARD' scripts/audit/deposit-card-screen.mjs 1
+# ★[DEPOSIT_B1] 토스 승인(돈 캡처) 뒤 기록이 실패해도 던지지 않는다 — 관리자 «기록실패·수동확인» 메일 · 화면엔 «결제가 끝났어요».
+#   기존 카드 경로 B-1 과 같은 처방. deposit-card ⑪-2 가 시트 쓰기를 실패시켜 잰다(돌연변이 확인: 안전망을 빼면 THROW 로 붉어진다).
+chk 'DEPOSIT_B1' automation/platform/98_pay_card.gs 1
+chk '⑪-2' scripts/audit/deposit-card.mjs 2
+# ★카드 단위 스위트(pay-card.test.js)는 함수를 이름으로 골라 싣는다 — 새 예약금 함수를 안 실으면 퍼즈 '예약금' 표본이 던진다(게이트가 잡음 · throws=45)
+chk "extractFunction(SRC_CARD, '_depositCardConfirm')" automation/tests/pay-card.test.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/deposit-card.mjs >/dev/null 2>&1; _dcs=$?
   case "$_dcs" in
     0) echo 'ok deposit-card: 예약금 카드 — 꺼짐 무영향 · 승인→기록→자동 확정 · 재호출 멱등 · 결제 전 마감 · 금액 · 스냅 제외 · 카드 대기 알림 · 카드 환불 경로' ;;

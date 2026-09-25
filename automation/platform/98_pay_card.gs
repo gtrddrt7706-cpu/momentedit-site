@@ -204,9 +204,18 @@ function _depositCardConfirm(body, cfg) {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스실패', memo: (t.error || '') + ' ' + (t.code || '') });
       return { ok: false, error: '결제 승인에 실패했습니다. ' + (t.error || '') };
     }
-    writeCell(sheet, colOf, r.num, '입금확인', '확인');   // 계좌이체의 «입금 확인»과 같은 칸 — 확정·환불 큐·관리자 화면이 이 칸을 본다
+    // ★[DEPOSIT_B1] 여기부터는 돈을 이미 받았다(토스 승인 완료). 기록이 실패해도 던지지 않는다 — 던지면 화면은 «실패»를 보고 관리자는 아무것도 모른다.
+    //   기존 카드 경로의 B-1 과 같은 처방: 관리자에게 즉시 메일(수동 보정) · 화면엔 «결제가 끝났어요 · 디렉터가 확인 뒤 메일로».
+    var _recErr = '';
+    try { writeCell(sheet, colOf, r.num, '입금확인', '확인'); }   // 계좌이체의 «입금 확인»과 같은 칸 — 확정·환불 큐·관리자 화면이 이 칸을 본다
+    catch (eW) { _recErr = (eW && eW.message) || String(eW); }
     try { _payMarkCard(code, '예약금'); } catch (e) {}   // 카드=매출전표 → 현금영수증 발급 큐에서 제외 · 환불은 카드 취소로
     try { _depositCardKeep(code, { orderId: orderId, paymentKey: paymentKey, amount: amount, at: fmtKST(new Date()) }); } catch (e) {}
+    if (_recErr) {
+      try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카드결제 기록실패·수동확인 | 코드 ' + code + ' | 상담 예약금 ' + Number(amount).toLocaleString() + '원 | 토스 주문 ' + orderId + ' | ' + _recErr + ' / 입금확인 수동 기록 필요'); } catch (e) {}
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: '기록경고(수동확인 필요·관리자메일) ' + _recErr });
+      return { ok: true, recorded: false, approved: false, date: (typeof prettyDate === 'function' && dateKey) ? prettyDate(dateKey) : '', time: String(time || '') };
+    }
     _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '성공', memo: '입금확인 기록' });
     rowNum = cr.num; _dk = dateKey; _tm = String(time || '');
   } finally { try { lock.releaseLock(); } catch (e) {} }

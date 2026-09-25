@@ -11,6 +11,7 @@
 //     ⑦ 금액이 다르면 막는다 · ⑧ 시간 선택 전(신청접수)이면 막는다 · ⑨ 스냅은 쓰지 않는다
 //     ⑩ 토스가 거절하면 아무것도 적지 않는다
 //     ⑪ 결제는 됐는데 확정 순간 그 시간이 찼으면 → 결제 기록은 남고 «변경 제안 필요» 관리자 알림
+//     ⑪-2 돈은 받았는데 기록이 실패하면(B-1) → 던지지 않고 관리자에게 «기록실패·수동확인» 메일
 //     ⑫ 신청이 «카드로 낼 신청»임을 적고, 관리자 알림이 «승인 필요»가 아니라 «카드 결제 대기»가 된다(꺼져 있으면 무시)
 //     ⑬ 환불 — 카드 예약금뿐이면 계좌를 여쭙지 않고, 처리할 일·마이페이지·취소 화면이 «카드 결제 취소»로 말한다
 //
@@ -145,6 +146,19 @@ console.log('━━ deposit-card — ⑪ 결제 뒤 확정 순간 그 시간이 
   say(r && r.ok && r.recorded && r.approved === false, '결제는 기록 · 확정은 못 함(approved:false)', JSON.stringify(r));
   say(w.B['입금확인'] === '확인' && w.B['상태'] === '시간선택완료', '돈을 받았다는 사실은 남는다(입금확인) · 상태는 그대로', w.B['입금확인'] + '/' + w.B['상태']);
   say(adminLines.some((t) => /변경 제안/.test(t)), '관리자에게 «변경 제안을 보내 주세요»', adminLines.join(' | '));
+}
+
+console.log('━━ deposit-card — ⑪-2 돈은 받았는데 기록이 실패(B-1) → 던지지 않고 관리자 메일 · 화면엔 «결제가 끝났어요»');
+{
+  const w = mk(); cardOn(true);
+  const realWrite = G.writeCell;
+  G.writeCell = function (sh, co, n, h, v) { if (h === '입금확인') throw new Error('시트 쓰기 실패'); return realWrite.apply(this, arguments); };
+  const r = call('handleCardConfirm', BODY());
+  G.writeCell = realWrite;
+  say(r && r.ok === true && r.recorded === false && r.approved === false, '던지지 않고 recorded:false 로 돌려준다(화면이 «실패»로 오인하지 않게)', JSON.stringify(r));
+  say(tossCalls === 1, '토스는 한 번(이미 받은 돈)', tossCalls);
+  say(adminLines.some((t) => /기록실패/.test(t) && /MD_1/.test(t)), '관리자에게 «기록실패·수동확인» 메일(주문번호 포함)', adminLines.join(' | '));
+  say(w.B['상태'] === '시간선택완료', '기록이 안 됐으면 자동 확정도 하지 않는다', w.B['상태']);
 }
 
 console.log('━━ deposit-card — ⑫ «카드로 낼 신청» 기록 · 관리자 알림');
