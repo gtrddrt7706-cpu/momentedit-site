@@ -86,6 +86,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;
 .hero-title{font-family:var(--serif-ko);font-size:27px;font-weight:400;color:var(--accent);letter-spacing:0.06em;margin-bottom:10px;line-height:1.5}
 .hero-sub{font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--sub);letter-spacing:0.02em;margin-bottom:24px}
 .hero-divider{width:36px;height:1px;background:var(--gold);margin:0 auto}
+/* [PAR_TIME_JUMP] 글자 링크 한 줄 — 누르는 칸은 44px, 밑줄은 글자 바로 아래(골드 장식선) */
+.hero-jump{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:14px;font-family:var(--serif-ko);font-size:14px;font-weight:400;color:var(--sub);letter-spacing:0.02em;text-decoration:none;transition:color .3s var(--ease,ease)}
+.hero-jump .hj-text{text-decoration:underline;text-decoration-color:var(--gold);text-decoration-thickness:1px;text-underline-offset:5px}   /* 밑줄은 글자에만 — 화살표까지 그으면 두 토막으로 끊겨 보였다 */
+.hero-jump:hover{color:var(--accent)}
+.hero-jump:focus-visible{outline:2px solid var(--seal);outline-offset:2px;border-radius:2px}
+.hero-jump .hj-arrow{color:var(--gold-text)}
+#parTimeH{scroll-margin-top:88px}
 @media(max-width:680px){.hero{padding:100px 22px 30px}.hero-title{font-size:23px}.hero-sub{font-size:14px}}
 
 /* 읽기 도구: 글자 크기 · 인쇄 */
@@ -156,7 +163,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;
 }
 .play-bar-stop:hover{opacity:0.88}
 @media(prefers-reduced-motion:reduce){.play-bar{transition:none}}
-@media print{.play-bar{display:none!important}}
+@media print{.play-bar{display:none!important}.hero-jump{display:none!important}}
 /* ★막대가 뜬 동안엔 그 높이만큼 아래를 비워 준다 — 안 그러면 맨 아래 한 줄이 통째로 가린다.
    실측: 끝까지 내리면 「상호 모먼트에디트 · 대표 …」 사업자 정보 줄이 완전히 덮였다(법적 표시 의무가 있는 줄).
    ★여백은 문서 «맨 아래»에 붙으므로 읽던 자리가 밀리지 않는다(스크롤 위치는 그대로 유지된다). */
@@ -409,6 +416,9 @@ nav .nav-links a, .nav-links a, .f-links a {
   <h1 class="hero-title">어른께 드리는 안내</h1>
   <div class="hero-sub">어른을 더 정중하게 모시기 위하여</div>
   <div class="hero-divider"></div>
+  <!-- ★[PAR_TIME_JUMP 2026-09-25 사장님 「추천대로」] 어른이 이 쪽을 열고 가장 먼저 찾는 것은 «몇 시에 가면 되나»인데
+       그 카드가 긴 편지 끝(쪽의 81~83% 지점)에 있다. 편지·녹음은 그대로 두고 찾는 길만 위에 한 줄 낸다. #letter 밖이라 letter-mirror 와 무관. -->
+  <a class="hero-jump" href="#parTimeH"><span class="hj-text">예식 날 부모님 시간 보기</span><span class="hj-arrow" aria-hidden="true">↓</span></a>
 </div>
 
 <div class="tools" role="group" aria-label="읽기 도구">
