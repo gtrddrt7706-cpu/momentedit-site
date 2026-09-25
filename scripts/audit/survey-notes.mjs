@@ -153,5 +153,23 @@ console.log('━━ survey-notes — ⑥ 새 후기 알림 · 확인하면 사�
   say(!!r && r.ok === false && w.C['설문응답'] === before, '못 읽는 칸은 덮어쓰지 않는다(원문 보존)', JSON.stringify(r) + ' ' + w.C['설문응답']);
 }
 
+console.log('━━ survey-notes — ⑧ 취소·노쇼·미계약 고객의 후기는 목록·알림·집계에서 빠진다 [REVIEW_EXIT_HIDE]');
+/* 사장님 지시(2026-09-25) — 「후기 남긴 고객도 취소 처리하면 후기 지워지게」. 이 판은 «안 보이게»까지다. */
+for (const st of ['취소', '노쇼', '미계약']) {
+  mk({ 현재단계: st, 설문상태: '완료', 설문응답: JSON.stringify({ product: '시그니처', answers: { overall: 'very', recommend: 'definitely' }, review: '테스트' }), 설문일시: '2026-09-25 16:04' });
+  G._AUTHED = true;
+  let h; try { h = G.adminHome(); } catch (e) { h = { ok: false, error: 'THROW ' + e.message }; }
+  const sv = (h && h.survey) || {};
+  const it = (sv.recent || []).find((x) => x.code === 'ME-SV');
+  say(!!h && h.ok !== false && !it && sv.unseen === 0 && sv.n === 0, `단계 ${st} → 후기 목록·새 후기 알림·집계에 없다`, JSON.stringify({ it, unseen: sv.unseen, n: sv.n }));
+}
+{
+  mk({ 현재단계: '후기', 설문상태: '완료', 설문응답: JSON.stringify({ product: '시그니처', answers: { overall: 'very' }, review: '좋았어요' }), 설문일시: '2026-09-25 16:04' });
+  G._AUTHED = true;
+  let h; try { h = G.adminHome(); } catch (e) { h = { ok: false, error: 'THROW ' + e.message }; }
+  const it = (((h || {}).survey || {}).recent || []).find((x) => x.code === 'ME-SV');
+  say(!!it, '진행 중(후기 단계) 고객의 후기는 그대로 보인다 — 거르는 자가 과하지 않다', JSON.stringify(h && h.survey));
+}
+
 console.log(rc ? '━━ survey-notes — 틀린 곳이 있습니다' : '━━ survey-notes — 전부 통과');
 process.exit(rc);

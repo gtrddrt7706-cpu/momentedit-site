@@ -506,7 +506,7 @@ function handleRequestContract(body) {
       groomAddrRoad: String(info.groomAddrRoad || '').trim(), groomAddrDetail: String(info.groomAddrDetail || '').trim(),   // 분리 원본 · 폼 재수정 시 상세주소 칸 복원(계약서는 합본 groomAddr 사용)
       brideAddrRoad: String(info.brideAddrRoad || '').trim(), brideAddrDetail: String(info.brideAddrDetail || '').trim(),
       weddingDate: wed, weddingTime: wT, groomPhone: String(info.groomPhone || '').trim(), groomEmail: String(info.groomEmail || '').trim(), bridePhone: String(info.bridePhone || '').trim(), brideEmail: String(info.brideEmail || '').trim(), requestedAt: fmtKST(new Date()), privacyConsentAt: fmtKST(new Date()) };
-    var _cr = String(info.cashReceipt || '').replace(/[^0-9]/g, '').slice(0, 30); if (_cr) rec.현금영수증 = _cr;   // 현금영수증 발급번호(선택) · 계약 충당분·중도금·잔금 발급에 공통 사용
+    var _cr = _crNum(info.cashReceipt).slice(0, 30); if (_cr) rec.현금영수증 = _cr;   // [PHONE_AUTOFILL_82] «8210…» 을 010 으로   // 현금영수증 발급번호(선택) · 계약 충당분·중도금·잔금 발급에 공통 사용
     touchCustomer(sheet, colOf, cust.num, { '예식일': wed, '동의기록': JSON.stringify(rec) });  // 예식일=돈 계산 기준·슬롯 점유 · 당사자 정보=계약서 자동기입용
     notifyKakao('admin.contractReq', code, { weddingDate: wed });   // 관리자: 계약서 요청됨 · 발송 필요(카톡)
     return { ok: true };
@@ -1214,7 +1214,7 @@ function handlePaymentSignal(body) {
     var rec = _parseJsonSafe(cust.get('동의기록'));
     var _prevBk = (rec.수납묶음 && rec.수납묶음.keys) || [];   // 재신고 시 기존 스냅샷과 합집합(이미 완료신호가 된 구성원이 재계산에서 빠져 스냅샷이 비는 것 방지)
     rec.수납묶음 = { keys: _prevBk.concat(_bk.filter(function (k) { return _prevBk.indexOf(k) === -1; })), at: fmtKST(new Date()) };
-    var _crIn = String((body && body.cashReceipt) || '').replace(/[^0-9]/g, '').slice(0, 40);   // 현금영수증(선택) — 같은 동의기록에 1회 쓰기(별도 _saveCashReceipt 호출이 이 쓰기를 덮던 순서 문제 방지)
+    var _crIn = _crNum(body && body.cashReceipt).slice(0, 40);   // [PHONE_AUTOFILL_82]   // 현금영수증(선택) — 같은 동의기록에 1회 쓰기(별도 _saveCashReceipt 호출이 이 쓰기를 덮던 순서 문제 방지)
     if (_crIn) rec.현금영수증 = _crIn;
     var upd = { '입금자명': payer, '입금완료신호': fmtKST(new Date()), '입금상태': '완료신호', '동의기록': JSON.stringify(rec) };
     if (_bk.indexOf('중도금') !== -1) upd['중도금상태'] = '완료신호';
@@ -1231,11 +1231,17 @@ function handlePaymentSignal(body) {
 //   금액은 계약총액에서 산출(없으면 amounts=null → "디렉터 확인 후 안내"). 내부값 비노출.
 // 현금영수증 번호(선택) — 동의기록 JSON에 저장(시트 컬럼 추가 불필요)·조회. 결제 카드 자동채움 + 관리자 발급용.
 function _saveCashReceipt(cust, sheet, colOf, raw) {
-  var cr = String(raw || '').replace(/[^0-9]/g, '').slice(0, 40);   // 숫자만 — submitSchedule·saveCashReceipt 경로와 표기 통일
+  var cr = _crNum(raw).slice(0, 40);   // 숫자만 — submitSchedule·saveCashReceipt 경로와 표기 통일 · [PHONE_AUTOFILL_82] «8210…» 은 010 으로
   if (!cr) return;
   try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
 }
-function _cashReceiptOf(r) { try { return String(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
+/* [PHONE_AUTOFILL_82] 현금영수증 번호 정규화 — 본체 _crKR 은 00_platform-config 에 있다.
+   그 파일을 아직 안 붙여넣은 상태에서도 결제 신고·계약 요청이 멈추지 않게 없으면 «숫자만 남기기»로 물러난다. */
+function _crNum(v) {
+  var _mk = '[PHONE_AUTOFILL_82]';
+  return (typeof _crKR === 'function') ? _crKR(v) : String(v == null ? '' : v).replace(/[^0-9]/g, '');
+}
+function _cashReceiptOf(r) { try { /* [PHONE_AUTOFILL_82] 이미 «8210…» 으로 저장된 번호도 읽을 때 010 으로 — 관리자가 그 값을 홈택스에 넣는다 */ return _crNum(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
 // [②] 현금영수증 발급 번호(소득공제용) 상시 등록/변경 — 결제 카드 밖(마이페이지 '내 내역')에서도 저장·수정. 빈값이면 등록 해제.
 function handleSaveCashReceipt(body) {
   var s = resolveSession(String((body && body.token) || '').trim());
@@ -1248,7 +1254,7 @@ function handleSaveCashReceipt(body) {
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
     var cust = findCustomerByCode(code);
     if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-    var num = String((body && body.cashReceipt) || '').replace(/[^0-9]/g, '').slice(0, 40);   // 휴대폰/사업자번호 · 숫자만
+    var num = _crNum(body && body.cashReceipt).slice(0, 40);   // 휴대폰/사업자번호 · 숫자만 · [PHONE_AUTOFILL_82]
     var rec = _parseJsonSafe(cust.get('동의기록'));
     if (String(rec.현금영수증 || '') === num) return { ok: true, already: true };
     rec.현금영수증 = num;   // 빈값이면 등록 해제(자진발급 전환)

@@ -107,7 +107,7 @@ const queue = () => JSON.parse(world.props.NOTIFY_HOLD || '[]');
 console.log('━━ 연락처 한 건의 생애 — 실제 GAS 소스로 돌린다\n');
 
 // ── 장면 1. 사장님이 겪은 일 그대로 (고친 뒤에는 어떻게 되나)
-console.log('【장면 1】 아이폰 자동완성 «+82 10-7349-9770» 으로 신청이 들어온다');
+console.log('【장면 1】 아이폰 자동완성 «+82 10-…»(가상 번호) 으로 신청이 들어온다');
 {
   const stored = F._phoneKR('+82 10-7349-9770');        // 40_signup 이 저장 전에 부르는 그 함수
   reset(stored);
@@ -128,7 +128,8 @@ console.log('【장면 1】 아이폰 자동완성 «+82 10-7349-9770» 으로 �
 }
 
 // ── 장면 2. 이미 시트에 앉아 있는 «복원 불가» 값 — 억지로 보내면 안 된다
-console.log('\n【장면 2】 시트에 이미 있는 «821 0734 9770»(한 자리 빠진 값)');
+// ★[PHONE_AUTOFILL_82 2026-09-25 정정] 이 값은 «+82 10-7349-7706» 을 우리 문의서 칸이 11자리로 자르며 끝자리 6 을 잃은 것이다(장면 6).
+console.log('\n【장면 2】 시트에 이미 있는 «821 0734 9770»(끝자리가 잘린 값)');
 {
   reset('821 0734 9770');
   const r = F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
@@ -198,11 +199,32 @@ console.log('\n【장면 5】 밤에 쌓인 알림 · 번호가 틀렸고 메일
   ok(!world.adminMails.some(m => /세 번 시도해도 실패/.test(m)), '★닿았는데 «세 번 실패»라고 알리면 안 된다');
 }
 
+// ── 장면 6. [PHONE_AUTOFILL_82] 자동완성 «+82 10-7349-7706» 이 문의서 칸 → 저장 → 발송까지
+//   장면 2 의 «잘린 값»이 어디서 생겼는지 — 문의서 칸이 숫자만 남긴 12자를 11자로 잘랐다. 그 칸을 실제로 돌린다.
+console.log('\n【장면 6】 자동완성 «+82 10-7349-7706» 이 문의서 칸을 지나 저장·발송되기까지');
+{
+  const vm = await import('node:vm');
+  const w = {}; vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'shared/tel-kr.js'), 'utf8'), { window: w });
+  const inq = fs.readFileSync(path.join(ROOT, 'inquiry.html'), 'utf8');
+  const fmtSrc = (inq.match(/phoneInput\.addEventListener\('input', \(e\) => \{([\s\S]*?)\n\}\);/) || [])[1];
+  if (!fmtSrc || !w.meTelDigits) { bad.push('문의서 칸 포맷터나 meTelDigits 를 꺼내지 못했다 — 구조가 바뀌었으면 이 장면을 고칠 것'); }
+  else {
+    const field = { value: '+82 10-7349-7706' };
+    new Function('e', 'window', 'meTelDigits', fmtSrc)({ target: field }, { meTelDigits: w.meTelDigits }, w.meTelDigits);
+    const stored = F._phoneKR(field.value);               // 40_signup 이 저장 전에 부르는 그 함수
+    reset(stored);
+    const r = F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+    console.log(`  칸에 보이는 값 ${field.value} → 시트 ${stored} → 발송 ${r} (받는 번호 ${world.sent[0] && world.sent[0].to})`);
+    ok(field.value === '010-7349-7706', `★문의서 칸이 「${field.value}」 — 끝자리를 자르면 안 된다(종전 821-0734-9770)`);
+    ok(stored === '01073497706' && r === true && world.sent.length === 1 && world.sent[0].to === '01073497706', '그 번호로 알림톡이 실제로 나가야 한다');
+  }
+}
+
 console.log('');
 if (bad.length) {
   console.log('━━ contact-lifecycle-sim — 빨강 ' + bad.length + '건');
   for (const b of bad) console.log('   · ' + b);
   process.exit(1);
 }
-console.log('━━ contact-lifecycle-sim OK — 다섯 장면 전부 기대대로 (실제 GAS 소스 5개를 그대로 실행)');
+console.log('━━ contact-lifecycle-sim OK — 여섯 장면 전부 기대대로 (실제 GAS 소스 5개 + 문의서 칸을 그대로 실행)');
 process.exit(0);

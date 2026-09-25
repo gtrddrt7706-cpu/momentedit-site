@@ -8469,7 +8469,8 @@ chk 'SERVED_OURS' scripts/audit/hold-drop.mjs 1
 #   ★되살릴 수 없는 값은 되살리지 않는다 — 010 은 처음부터 11자리로 태어난 번호라
 #     82 를 떼서 「010 + 7자리」가 나오면 숫자 하나가 빠진 것이고, 그걸 그럴싸하게 만들면
 #     **남의 번호로 예식 알림이 나간다.** 실측: 시트의 `821 0734 9770` 은 11자,
-#     온전한 `+82 10-7349-9770` 은 12자다. 아무도 복원할 수 없는 값이었다.
+#     온전한 `+82 10-XXXX-XXXX` 는 12자다. 아무도 복원할 수 없는 값이었다.
+#   ★정정(같은 날 · PHONE_AUTOFILL_82): 원래 번호는 `+82 10-7349-7706` — 끝자리를 자른 것은 우리 문의서 칸이었다.
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다.
 if command -v node >/dev/null 2>&1; then node scripts/audit/phone-kr-norm.mjs >/dev/null 2>&1; _pk=$?
   case "$_pk" in
@@ -8484,6 +8485,60 @@ chk 'PHONE_KR_NORM' automation/platform/40_signup.gs 1
 chk 'PHONE_KR_NORM' automation/platform/95_notify.gs 1
 chk 'PHONE_KR_NORM' automation/admin/admin.gs 3
 chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
+
+# ★★[PHONE_AUTOFILL_82 2026-09-25 사장님 「번호 적는 모든 곳에 +82 가 나와도 정상적으로 돌아가게 시스템 점검하자」]
+#   자동완성은 «+82 10-7349-7706» 을 넣는다. 숫자만 남기는 칸은 «821073497706»(현금영수증 칸 5곳이 그대로 저장),
+#   11자로 자르는 문의서 칸은 «821-0734-9770» — 끝자리를 잘랐다(#800 이 쫓던 값의 진짜 원인).
+#   공용 함수 /shared/tel-kr.js(meTelDigits) · GAS 화면 사본 2곳 · 서버 _crKR 이 같은 규칙을 쓰는지 본다.
+#   ★번호가 틀린 고객에게 메일이 가는 것·메일이 간 알림을 재발송하지 않는 것은 같은 날 다른 세션의 KAKAO_FAIL_MAIL(#822)이 맡는다.
+#     contact-lifecycle-sim 장면 6 은 «문의서 칸 → 저장 → 발송»을 실제로 돌린다.
+chk 'PHONE_AUTOFILL_82' scripts/audit/contact-lifecycle-sim.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tel-autofill.mjs >/dev/null 2>&1; _ta=$?
+  case "$_ta" in
+    0) echo 'ok tel-autofill: 자동완성 +82 가 번호 칸 어디서도 010 으로 · GAS 사본 일치 · 서버 저장 배선' ;;
+    1) echo 'FAIL tel-autofill: 자동완성 +82 번호 처리가 틀렸습니다 — node scripts/audit/tel-autofill.mjs'; fail=1 ;;
+    *) echo 'ok tel-autofill: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'PHONE_AUTOFILL_82' shared/tel-kr.js 1
+chk 'PHONE_AUTOFILL_82' inquiry.html 2
+chk 'PHONE_AUTOFILL_82' schedule.html 1
+chk 'PHONE_AUTOFILL_82' mypage.html 3
+chk 'PHONE_AUTOFILL_82' admin.html 3
+chk 'PHONE_AUTOFILL_82' automation/admin/Admin.html 3
+chk 'PHONE_AUTOFILL_82' automation/consultation/ScreenA_apply.html 1
+chk 'PHONE_AUTOFILL_82' automation/platform/00_platform-config.gs 2
+chk 'PHONE_AUTOFILL_82' automation/platform/70_journey.gs 5
+chk 'PHONE_AUTOFILL_82' automation/consultation/consultation-booking.gs 2
+chk 'PHONE_AUTOFILL_82' automation/platform/50_auth-handlers.gs 1
+chk 'SERVED_OURS' scripts/audit/tel-autofill.mjs 1
+
+# ★[REVIEW_EXIT_HIDE 2026-09-25 사장님 「후기 남긴 고객도 취소 처리하면 후기 지워지게」] 취소·노쇼·미계약 고객 후기는
+#   관리자 후기 목록·새 후기 알림·집계에서 뺀다(survey-notes ⑧ 이 실제 adminHome 으로 잰다). 시트 칸을 비우는 것은 따로 간다.
+chk 'REVIEW_EXIT_HIDE' automation/admin/admin.gs 1
+chk 'REVIEW_EXIT_HIDE' scripts/audit/survey-notes.mjs 1
+
+# ★★[UNPAID_KIND 2026-09-25 사장님 「중도금 고객인데 아직 입금도 안 했는데 처리할 일에 중도금확인이 떠 있는 건 왜?」]
+#   입금 신호 없는 기한 카드가 고객 입금 신호 카드와 같은 이름(중도금확인·잔금확인·중도금잔금확인)·같은 확인 버튼이었고,
+#   149일 안에 맺은 임박 계약은 서명하는 날 «미납 D+87 · 해제 절차» 빨강이 떴다. 실제 adminHome 으로 재서 지킨다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/unpaid-kind.mjs >/dev/null 2>&1; _uk=$?
+  case "$_uk" in
+    0) echo 'ok unpaid-kind: 신호 없는 기한 카드 = «…미납» · 임박 계약은 서명일부터 · 관리자 화면 두 벌이 새 이름을 안다' ;;
+    1) echo 'FAIL unpaid-kind: 미납 카드와 입금 확인 카드가 다시 섞였거나 임박 계약 기한이 틀렸습니다 — node scripts/audit/unpaid-kind.mjs'; fail=1 ;;
+    *) echo 'ok unpaid-kind: 재지 못했습니다(세계·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'UNPAID_KIND' automation/admin/admin.gs 3
+chk 'UNPAID_KIND' admin.html 1
+chk 'UNPAID_KIND' automation/admin/Admin.html 1
+chk 'SERVED_OURS' scripts/audit/unpaid-kind.mjs 1
+
+# ★[HOLD_PREFILL_CHANGE 2026-09-25 사장님 「변경 가능하다는 멘트가 있으면 문의를 하나 줄일 수 있겠다」]
+#   계약서 요청 화면 — 임시 고정 일정으로 채운 날짜·시간 «바로 아래»에서 바꿔도 되는지·바꾸면 어떻게 되는지를 답한다.
+chk 'HOLD_PREFILL_CHANGE' mypage.html 1
+chk 'id="mp_ciHoldNote"' mypage.html 1
+chk '날짜·시간은 바꾸셔도 돼요' mypage.html 1
+nochk '미리 채워뒀어요. 바꾸셔도 괜찮아요' mypage.html
 
 # ★★[TPL_SILENT]·[TPL_COVER] 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 저 알람 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」
 #   연락처 쪽은 검사가 있었는데(PHONE_KR_NORM·CONTACT_LIFECYCLE_SIM) «알림 종류마다 알림톡이 실제로 나가는가»는 없었다.
