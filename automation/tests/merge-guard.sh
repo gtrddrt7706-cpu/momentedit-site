@@ -8460,7 +8460,7 @@ chk 'SERVED_OURS' scripts/audit/phone-kr-norm.mjs 1
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
 if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
   case "$_ne" in
-    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리' ;;
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수' ;;
     1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
     *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -8471,6 +8471,18 @@ chk 'TPL_COVER' automation/platform/95_notify.gs 2
 chk 'function _nfTplSilent(' automation/platform/95_notify.gs 1
 chk "NF_NOTPL_NONE_" automation/platform/95_notify.gs 1   # ★아무것도 못 받은 고객은 하루 한 통 표식과 따로 알린다
 nochk 'SMS로 발송' automation/platform/95_notify.gs          # 고객 문자는 2026-06-29 부터 안 쓴다 — 설정 점검·설명이 «문자로 대체»라는 옛말을 하지 않게
+
+# ★★[TPL_KEEP]·[MAIL_FOCUS_URL] 2026-09-25 — 사장님 notifySetupCheck 결과(템플릿 15/19 · 빠진 4종)로 신청 문안을 준비하다 드러났다.
+#   ① setKakaoTemplates 는 칸이 빈 채로 파일에 있는데 «통째로 덮어쓰기»였다 — 드롭다운에서 한 번 잘못 누르면 매핑 0건 → 알림톡 전부 멈춤.
+#      importKakaoTemplates 도 덮어쓰기라 이름이 T## 가 아닌 기존 매핑이 빠졌다. → 둘 다 «더하기만» · 지우기는 addKakaoTemplate 로만.
+#   ② 새 템플릿 셋(T20 원본·T21 보정본·T22 환불 계좌)에 번호가 없어, 승인나도 불러오기가 잇지 못했다.
+#   ③ 템플릿이 없는 동안 고객이 받는 대체 메일 본문 끝에 «momentedit.kr/mypage.html?focus=…» 가 글자로 찍혔다.
+#   notify-e2e ⑧⑨⑩ 이 지킨다 — 깨 보고 믿었다(덮어쓰기·T20 누락·검수 중 매핑·옛 정리식·focus 버림·환불 제목 전부 빨강).
+chk 'TPL_KEEP' automation/platform/95_notify.gs 5
+chk 'MAIL_FOCUS_URL' automation/platform/95_notify.gs 3
+chk 'function _nfTplMerge(' automation/platform/95_notify.gs 1
+chk "'22': \['cust.refundAcctReq'" automation/platform/95_notify.gs 1   # T22 — 번호가 없으면 승인나도 불러오기가 못 잇는다
+chk '^### T2[012] · ' automation/알림톡_템플릿_신청문안.md 3   # T20 원본 · T21 보정본 · T22 환불 계좌 — 콘솔에 붙여넣을 원본(변수 대조는 notify-e2e ⑪)
 
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이
@@ -10119,6 +10131,13 @@ chk 'preview\*) exit 1' vercel.json 1
 #   사이트에서 받는다. 비공개가 되면 raw 주소는 토큰 없이 404 다.
 #   ★(2026-09-25 LETTER_MERGED) 이 두 줄이 지키던 form-to-couple.gs 의 폼 생성 그림 주소는 구글폼 부부폼을 은퇴시키며 함께 끝났다.
 #     폼을 새로 만드는 createCoupleForm 만 쓰던 값이다 — 이미 만들어진 폼의 그림은 구글이 들고 있다.
+# ★★[LETTER_GAS_IDLE 2026-09-25 최종 점검] 그래서 «전환 직전 사장님 몫: 레터 GAS 한 줄 교체»도 닫았다 — 옛 프로젝트는 열 일이 없다.
+#   CLAUDE.md 와 오픈 직전 목록 두 곳에 적혀 있었다. 한 곳만 닫으면 남은 곳을 근거로 되살아난다(두원공대 전화 사고와 같은 모양).
+#   올라가는 GAS 26개의 메일 그림은 전부 momentedit.kr 이고 87_letter 메일엔 그림이 없다(실측) — 비공개 전환이 깰 것이 없다.
+chk 'LETTER_GAS_IDLE' CLAUDE.md 1
+chk 'LETTER_GAS_IDLE' docs/plans/오픈직전_목록.md 1
+nochk '사장님 몫: 레터 GAS' CLAUDE.md
+nochk 'form-to-couple' docs/plans/오픈직전_목록.md
 # ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
 chk 'COWORK_SPLIT_0925' CLAUDE.md 1
 # [PREVIEW_GUARD 보강 2026-09-25 코워크 검토] form.submit() · 막힌 XHR 의 readyState · 장치가 못 막는 길(location/iframe/img) · 옛 사본 삭제
