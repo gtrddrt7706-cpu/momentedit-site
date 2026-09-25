@@ -6200,6 +6200,48 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'SYNC_MAP_FULL' scripts/gas-sync.mjs 1
 chk 'SYNC_MAP_FULL' scripts/audit/sync-map-full.mjs 1
+# ★★[LETTER_MERGED 2026-09-25 대표 지시 「한쪽에서 관리」「필요한 것만」「정상작동이 최우선」]
+#   옛 「Moment Edit Letter System」 GAS 프로젝트에서 사이트가 실제로 부르는 것(청첩장 조회·하객 편지·
+#   영상 D-3 점검·개인정보 파기)만 본 프로젝트 87_letter 로 옮겼다. 구글폼 부부폼·가족청첩장 빌드는 안 가져왔다.
+#   ① letter-sim — 옛 코드와 새 코드를 같은 시험 데이터로 돌려 응답·시트 기록·메일을 한 글자씩 대조(기준값 letter-golden.json)
+#   ② gas-name-clash — 한 프로젝트 안 전역 이름 겹침 0 (GAS 는 겹치면 나중 파일이 조용히 이긴다)
+#   ③ 입구 순서 — doGet 의 getCouple 이 handleAction 보다 위(아래면 청첩장 조회가 메일 버튼으로 떨어진다)
+if command -v node >/dev/null 2>&1; then
+  _lsOut=$(TZ=Asia/Seoul node scripts/audit/letter-sim.mjs 2>&1) \
+    || { echo 'FAIL letter-sim: 청첩장 조회·하객 편지가 옛 Letter System 과 다르게 돈다 — TZ=Asia/Seoul node scripts/audit/letter-sim.mjs'
+         printf '%s\n' "$_lsOut" | sed 's/^/    | /'; fail=1; }
+  _ncOut=$(node scripts/audit/gas-name-clash.mjs 2>&1) \
+    || { echo 'FAIL gas-name-clash: 본 GAS 프로젝트 안에서 전역 이름이 겹친다 — node scripts/audit/gas-name-clash.mjs'
+         printf '%s\n' "$_ncOut" | sed 's/^/    | /'; fail=1; }
+  node -e "
+    const s=require('fs').readFileSync('automation/consultation/consultation-booking.gs','utf8');
+    const a=s.indexOf(\"if (p.action === 'getCouple') return jsonOut(ltGetCouple(p));\"), b=s.indexOf('if (p.action) return handleAction(p);');
+    process.exit(a>0 && b>0 && a<b ? 0 : 1);" \
+    || { echo 'FAIL LETTER_ROUTE: doGet 에서 getCouple 이 handleAction 보다 아래거나 없다 — 청첩장 조회가 메일 버튼 처리로 떨어진다'; fail=1; }
+fi
+chk 'LETTER_SIM' scripts/audit/letter-sim.mjs 1
+chk 'GAS_NAME_CLASH' scripts/audit/gas-name-clash.mjs 1
+chk 'LETTER_MERGED' automation/platform/87_letter.gs 3
+chk 'LETTER_FALLBACK' automation/platform/87_letter.gs 2
+chk 'LETTER_MIGRATE' automation/platform/87_letter.gs 1
+chk 'LETTER_MERGED' automation/consultation/consultation-booking.gs 2
+chk "case 'guestLetter':        return jsonOut(ltGuestLetter(body));" automation/consultation/consultation-booking.gs 1
+chk 'LETTER_MERGED' automation/platform/85_invitation.gs 3
+chk 'return _ltSheet(INV.SHEET);' automation/platform/85_invitation.gs 1
+nochk 'SpreadsheetApp.openById(INV.LETTER_SYSTEM_ID)' automation/platform/85_invitation.gs   # 발행이 옛 시트를 직접 열면 조회와 갈라진다
+chk "{ fn: 'vimeoGuardDaily'," automation/platform/70_journey.gs 1
+chk 'VIMEO_GUARD_OFF' automation/platform/87_letter.gs 1
+chk 'VIMEO_GUARD_XPROJ' automation/platform/87_letter.gs 2      # 관리자에서 취소한 예식은 경고 멈춤 · 모르면 보낸다
+chk "colOf\\['cancelled'\\]" automation/platform/87_letter.gs 1   # cancelled 열 출구도 계속 존중 (대괄호는 정규식이라 이스케이프)
+nochk 'notifyStudio(' automation/platform/87_letter.gs          # 본 프로젝트의 notifyStudio 는 SEND_ADMIN_MAIL=false 로 꺼져 있다 — 경고가 조용히 사라진다
+chk 'LETTER_RATE' automation/platform/87_letter.gs 2
+chk 'LETTER_DELIVERED' automation/platform/87_letter.gs 2
+chk 'LETTER_PLAIN' automation/platform/87_letter.gs 1
+chk 'LETTER_PREHEADER' automation/platform/87_letter.gs 1
+chk 'LETTER_TARGET' automation/platform/87_letter.gs 1
+chk '\[guestName, relation, message\]' automation/platform/87_letter.gs 1   # 금지어 검사 대상 셋 (대괄호 이스케이프 — 안 하면 아무 줄에나 걸린다)
+chk 'DM_FOOT_SIGN' automation/platform/87_letter.gs 1
+nochk '— Moment Edit' automation/platform/87_letter.gs          # 고객 편지 메일 텍스트본 — 전각 줄표 금지
 chk 'ADMIN_NOFEE_LINE' automation/platform/95_notify.gs 1
 # ★[SHIP_NOW 2026-09-19 사용자 지시 "앞으로 작업끝나면 바로메인에 올려"] 브랜치 푸시는 «작업 끝»이 아니다.
 #   실사고 — 브랜치가 main 보다 188커밋 앞서고 83커밋 뒤처진 채 열흘을 갔다. 그 사이

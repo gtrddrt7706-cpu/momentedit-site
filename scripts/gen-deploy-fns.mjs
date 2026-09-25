@@ -137,12 +137,14 @@ const PROPS = {
   PAY_CARD_ENABLED: ['switch', '카드결제 (true 면 켜짐)'],
   ADMIN_NOTIFY_INFO: ['switch', '관리자 정보성 알림'],
   CUSTOMER_PURGE_OFF: ['switch', "미계약 개인정보 자동파기 정지 (Y 면 «꺼짐»)"],
+  COUPLE_PURGE_OFF: ['switch', "청첩장·편지 개인정보 자동파기 정지 (Y 면 «꺼짐» · 87_letter)"],
   LEAD_CONFIRM_SMS: ['switch', '상담 접수 확인 문자 (N 면 «끔»)'],
 
   /* tuning */
   SOLAPI_LOW_BALANCE: ['tuning', '잔액 경고 임계 (기본 3000원)'],
   AIH_EXPIRE_DAYS: ['tuning', '인계 만료 일수 (기본 30일)'],
   CUSTOMER_PURGE_DAYS: ['tuning', '개인정보 파기 일수 (기본값 있음)'],
+  COUPLE_PURGE_DAYS: ['tuning', '청첩장·편지 파기 일수 (기본 183일 · 87_letter)'],
   SOLAPI_PRICE: ['tuning', '문자 단가표 (기본 {})'],
   DBG_RESET: ['tuning', '디버그용'],
 
