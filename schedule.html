@@ -294,6 +294,15 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .cr-want{display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 #depCRBox{margin-top:12px}
 .deposit-cr .deposit-payer-hint{word-break:keep-all}
+/* [PAY_METHOD 2026-09-25] 결제 방법 두 갈래 — 알약 두 칸(고른 쪽만 채움). 카드결제가 꺼져 있으면 통째로 숨는다(서버 cardPayConfig) */
+.pay-method[hidden]{display:none}
+.pay-method{position:relative;display:flex;gap:6px;margin:20px 0 0;padding:4px;background:var(--bg2);border:1px solid var(--hairline);border-radius:999px}
+.pay-method input{position:absolute;opacity:0;pointer-events:none}
+.pay-method label{flex:1 1 0;display:flex;align-items:center;justify-content:center;min-height:40px;padding:0 6px;border-radius:999px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;letter-spacing:0.02em;transition:background .3s var(--ease),color .3s var(--ease)}
+.pay-method input:checked+label{background:#fff;color:var(--accent);font-weight:500;box-shadow:0 1px 2px rgba(28,27,25,0.08)}
+.pay-method input:not(:checked)+label:hover{color:var(--accent)}   /* 고르지 않은 칸도 누를 수 있다는 신호 — 색만(미세 호버) */
+.pay-method input:focus-visible+label{outline:2px solid var(--seal);outline-offset:2px}
+.deposit-card-note{margin-top:18px;padding-top:16px;border-top:1px solid var(--hairline);font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.8;word-break:keep-all}
 
 /* ── 제출 ── */
 .submit-wrap{padding:8px 0 40px;text-align:center}
@@ -528,6 +537,9 @@ body.sticky-on footer{padding-bottom:104px}
   outline:2px solid var(--seal);outline-offset:3px;border-radius:4px}
 /* ★:where()는 특이도 0이라 #depPayer:focus{outline:none}(1,0,1)을 못 이긴다 — 같은 깊이로 다시 쓴다. */
 #depPayer:focus-visible,#depCR:focus-visible,#flexEtc:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+/* [PAY_METHOD] 완료 대화상자 «틀»(tabindex=-1)은 Tab 으로 갈 수 없는 자리다 — 포커스는 낭독기가 읽기 시작할 곳일 뿐이라 테두리가 필요 없다([SCH_DONEFOCUS]).
+   토스에서 돌아와 누른 것 없이 창이 열리면 크롬이 이 틀에 진사 테두리를 그려 오류 창처럼 보였다. 안의 «확인» 버튼 포커스 표시는 그대로다. */
+.modal:focus-visible{outline:none}
 
 /* [SCH_DAY40] 좁은 화면(360px)에서 날짜 칸이 38×38로 내려앉았다.
    이 페이지에서 가장 많이 누르는 것이 날짜 칸이다 — 좌우 여백과 칸 사이를 줄여 40px을 지킨다. */
@@ -716,6 +728,14 @@ h2.card-title,h3.card-title{margin:0;display:inline}
       <div class="deposit-amt"><span class="won">₩</span><span id="t_deposit"></span></div>
       <div class="deposit-note">상담 예약금은 본 계약 시 계약금의 일부로 전환됩니다.</div>
       <div class="deposit-note" style="font-size:12px;color:var(--light,#A39C8E);margin-top:4px">계약을 진행하지 않으시고 드레스 시착도 하지 않으셨다면 예약금은 전액 환불해 드려요.</div>
+      <!-- ★[PAY_METHOD 2026-09-25 사장님 「예약금에도 카드결제 되게」 · «추천대로»] 결제 방법 — 카드결제가 «켜졌을 때만» 보인다(cardPayConfig · milestone 예약금).
+           꺼져 있으면(토스 라이브 전) 지금처럼 계좌이체 한 길뿐이라 고를 것이 없다. ?preview_card=1 이면 결제 없이 배치만 본다.
+           ★카드는 신청을 먼저 넣고(payBy:'card' · 관리자에게 «카드 결제 대기») 토스 결제창을 연다 → 복귀(?me_pay=1)하면 서버가 승인하고 바로 확정한다. -->
+      <div class="pay-method" id="payMethod" role="radiogroup" aria-label="결제 방법" hidden>
+        <input type="radio" name="payM" id="payM_bank" value="bank" checked><label for="payM_bank">계좌이체</label>
+        <input type="radio" name="payM" id="payM_card" value="card"><label for="payM_card">카드결제</label>
+      </div>
+      <div id="payBank">
       <div class="deposit-acct">
         <span class="acct-label">입금 계좌</span>
         <span class="acct-line"><span class="acct-no" id="t_account"></span><button type="button" class="acct-copy-btn" id="acctCopyBtn" aria-label="계좌번호 복사" onclick="copyAcct()">복사</button></span>
@@ -742,6 +762,10 @@ h2.card-title,h3.card-title{margin:0;display:inline}
           <div class="deposit-payer-hint" id="depCRErr" role="alert" style="display:none;color:var(--seal)">휴대폰이나 사업자번호를 적어 주세요.</div>
         </div>
         <div class="deposit-payer-hint" id="depCRAuto">소득공제·지출증빙용이에요. 안 적으셔도 현금영수증은 국세청 지정번호로 발급되고, 나중에 홈택스에서 본인 것으로 돌리실 수 있어요.</div>
+      </div>
+      </div><!-- /#payBank -->
+      <div id="payCard" hidden>
+        <div class="deposit-card-note">카드로 결제하실 수 있어요.<br>결제가 끝나면 예약이 바로 확정되고 확정 메일을 보내 드려요. 현금영수증 대신 카드 매출전표가 발급돼요.</div>
       </div>
     </div>
 
@@ -1144,8 +1168,26 @@ function copyAcct(){
 window.copyAcct=copyAcct;   /* ★[COPY_ACCT_GLOBAL 2026-09-25 실측] 이 함수는 boot() 안에 있어 전역이 아니다. 계좌 옆 버튼의 onclick="copyAcct()" 가
    전역에서 찾다가 «copyAcct is not defined» 로 끝나 — 예약금 계좌 «복사» 버튼이 아무 일도 안 하고 있었다(main 에서 재현).
    boot 가 캐시→서버 두 번 돌면 마지막 것이 덮어쓴다(DOM 만 읽으니 어느 것이든 같다). 이 줄을 지우지 말 것 — hold-first ⑩ 이 잰다. */
+/* ★[PAY_METHOD 2026-09-25] 결제 방법 — 카드는 «신청 → 토스 결제창 → 복귀 시 서버 승인·확정»이다.
+   화면에 탭이 보일 때(카드결제 켜짐 또는 ?preview_card=1)만 카드가 고를 수 있다. 계좌이체 흐름은 한 글자도 안 바뀐다. */
+function _payM(){ var c=document.getElementById('payM_card'), pm=document.getElementById('payMethod'); return (c&&c.checked&&pm&&!pm.hidden)?'card':'bank'; }
+function _payLabel(){ return _payM()==='card'?'카드로 결제하고 신청하기':'이 시간으로 신청하기'; }
+function _payApply(){ var card=_payM()==='card';
+  var b=document.getElementById('payBank'), c=document.getElementById('payCard'); if(b) b.hidden=card; if(c) c.hidden=!card;
+  var btn=document.getElementById('submitBtn'), sb=btn&&btn.querySelector('span'); if(sb && !btn.classList.contains('loading')) sb.textContent=_payLabel();
+  var sk=document.getElementById('stickyBtn'); if(sk) sk.textContent=card?'결제하기':'신청하기'; }
+window._payApply=_payApply;
+function _loadToss(cb, onFail){   // 마이페이지 meCardPay 와 같은 SDK(v1) — 카드를 고르고 누를 때만 불러온다
+  if(window.TossPayments){ cb(); return; }
+  var s=document.createElement('script'); s.src='https://js.tosspayments.com/v1/payment';
+  s.onload=function(){ cb(); }; s.onerror=function(){ if(onFail) onFail(); };
+  document.head.appendChild(s);
+}
 function doSubmit(){
   if(!selDate||!selTime) return;
+  var _card=_payM()==='card';
+  if(_card && window.__depCardPreview){ meAlert({lead:'미리보기 화면이에요.',items:['카드결제를 켜면 여기서 토스 결제창이 열려요.','결제가 끝나면 예약이 바로 확정돼요.']}); return; }
+  if(!_card){   // 계좌이체만 입금자명·현금영수증을 본다 — 카드는 매출전표라 둘 다 필요 없다
   var _payerEl=document.getElementById('depPayer');
   if(_payerEl && !_payerEl.value.trim()){ _payerEl.setAttribute('aria-invalid','true'); _payerEl.focus(); _payerEl.scrollIntoView({behavior:'smooth',block:'center'}); var _h=document.getElementById('depPayerHint'); if(_h){ _h.style.color='var(--seal)'; _h.textContent='입금자명을 입력해 주세요.'; } return; }   // [SCH_ALERT]   // SCHED_UX: 힌트만 붉어지는 대신 무엇을 해야 하는지 문구로
   var _crEl=document.getElementById('depCR');
@@ -1153,6 +1195,7 @@ function doSubmit(){
   var _crWant=document.getElementById('depCRWant');
   if(_crWant&&_crWant.checked){
     if(_crVal.length<10){ var _ce=document.getElementById('depCRErr'); if(_ce)_ce.style.display=''; if(_crEl){_crEl.setAttribute('aria-invalid','true');_crEl.focus();_crEl.scrollIntoView({behavior:'smooth',block:'center'});} return; }   // [SCH_ALERT]
+  }
   }
   var _hChk=document.getElementById('holdChk');
   if(_hChk&&_hChk.checked){
@@ -1168,12 +1211,34 @@ function doSubmit(){
   // 그 외 가능 시간대(체크) + 기타 자유입력 수집
   const flex=[].map.call(document.querySelectorAll('.flex-chips input:checked'),function(c){return c.value;});
   const etc=document.getElementById('flexEtc').value;
-  const payer=(document.getElementById('depPayer')?document.getElementById('depPayer').value:'').trim();
-  const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent='이 시간으로 신청하기';};
+  const payer=_card?'':(document.getElementById('depPayer')?document.getElementById('depPayer').value:'').trim();
+  const restore=function(){btn.classList.remove('loading');btn.disabled=false;if(sbtn) sbtn.disabled=false;btn.querySelector('span').textContent=_payLabel();};
+  /* [PAY_METHOD] 카드 — 신청이 들어간 뒤 토스 결제창을 연다. 같은 신청으로 다시 결제할 때는 신청을 또 넣지 않는다(관리자 알림이 두 번 가지 않게) */
+  const _sel={d:key(selDate),t:selTime,h:_holdPayload()}, _sig=JSON.stringify(_sel);
+  const _openPay=function(){
+    var cfg=window.__depCard;
+    if(!cfg||!cfg.clientKey||!(cfg.amount>0)){ restore(); meAlert('카드결제를 불러오지 못했어요. 잠시 후 다시 시도하시거나 계좌이체로 진행해 주세요.'); return; }
+    btn.querySelector('span').textContent='결제창 여는 중';
+    _loadToss(function(){
+      try{
+        try{ sessionStorage.setItem('me_pay_sel',_sig); sessionStorage.setItem('me_pay_tok',SERVER.token); }catch(e){}
+        var _me=new URLSearchParams(location.search).get('me');
+        var base=location.origin+location.pathname+'?'+(_me?('me='+encodeURIComponent(_me)+'&'):'');
+        var pr=window.TossPayments(cfg.clientKey).requestPayment('카드',{
+          amount:cfg.amount, orderId:'MD'+Date.now()+Math.floor(Math.random()*1e6), orderName:cfg.orderName||'모먼트에디트 상담 예약금',
+          successUrl:base+'me_pay=1&m='+encodeURIComponent('예약금'), failUrl:base+'me_pay=0'
+        });
+        // 결제창을 그냥 닫으면(PC 창) promise 가 USER_CANCEL 로 끝난다 — 버튼을 풀어 다시 누를 수 있게
+        if(pr&&pr.catch) pr.catch(function(err){ restore(); meAlert((err&&err.code==='USER_CANCEL')?{lead:'결제를 취소했어요.',items:['고르신 시간은 신청으로 접수돼 있어요.','버튼을 한 번 더 누르시면 다시 결제하실 수 있어요. 계좌이체로 바꾸셔도 돼요.']}:'결제를 진행하지 못했어요. 잠시 후 다시 시도해 주세요.'); });
+      }catch(e){ restore(); meAlert('결제창을 열지 못했어요. 잠시 후 다시 시도하시거나 계좌이체로 진행해 주세요.'); }
+    }, function(){ restore(); meAlert('결제창을 불러오지 못했어요. 잠시 후 다시 시도하시거나 계좌이체로 진행해 주세요.'); });
+  };
+  if(_card && window.__cardSubmitted===_sig){ _openPay(); return; }
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
-  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((document.getElementById('depCRWant')&&document.getElementById('depCRWant').checked)?((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,''):''),hold:_holdPayload()})})
+  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((!_card&&document.getElementById('depCRWant')&&document.getElementById('depCRWant').checked)?((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,''):''),hold:_holdPayload(),payBy:(_card?'card':'bank')})})
     .then(function(r){return r.json();})
     .then(function(res){
+      if(res&&res.ok&&_card){ window.__cardSubmitted=_sig; try{ localStorage.removeItem('me_state_v1'); }catch(e){} _openPay(); return; }
       if(res&&res.ok){
         try{ localStorage.removeItem('me_state_v1'); }catch(e){}   // 마이페이지 상태 캐시 무효화 → 복귀 시 옛 화면(신청 전) 깜빡임 방지 · 최신 상태만 노출
         const dateStr=fmtDate(selDate);
@@ -1233,6 +1298,61 @@ document.getElementById('flexEtc').addEventListener('input',(e)=>{
 });
 
 renderCal();renderTime();updateSummary();
+// [PAY_METHOD] 카드결제가 켜져 있으면(서버 cardPayConfig · milestone 예약금) 결제 방법 두 갈래를 연다 — boot 가 두 번 돌아도 한 번만 묻는다
+(function(){ var pm=document.getElementById('payMethod'); if(!pm||pm.dataset.bound) return; pm.dataset.bound='1';
+  pm.addEventListener('change', function(){ if(window._payApply) window._payApply(); });
+  var prev=/[?&]preview_card=1/.test(location.search);
+  var open=function(){ pm.hidden=false; if(window.__wantCard){ var c=document.getElementById('payM_card'); if(c) c.checked=true; } if(window._payApply) window._payApply(); };
+  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cardPayConfig',token:SERVER.token,milestone:'예약금'})})
+    .then(function(r){return r.json();})
+    .then(function(d){ if(d&&d.ok&&d.enabled&&d.clientKey&&d.amount>0){ window.__depCard=d; open(); } else if(prev){ window.__depCardPreview=true; open(); } })
+    .catch(function(){ if(prev){ window.__depCardPreview=true; open(); } });
+})();
+// [PAY_METHOD] 토스에서 돌아왔을 때(?me_pay=1 성공 · ?me_pay=0 취소·실패) — 한 번만 처리하고 주소를 지운다
+(function(){
+  if(window.__payRetDone) return;
+  var q; try{ q=new URLSearchParams(location.search); }catch(e){ return; }
+  if(q.get('me_pay')==null) return;
+  window.__payRetDone=true;
+  var clean=function(keepSel){ try{ if(!keepSel) sessionStorage.removeItem('me_pay_sel'); sessionStorage.removeItem('me_pay_tok'); }catch(e){}
+    try{ var _me=q.get('me'); history.replaceState(null,'',location.pathname+(_me?('?me='+encodeURIComponent(_me)):'')); }catch(e){} };
+  if(q.get('me_pay')!=='1'){   // 취소·실패 — 고르셨던 시간을 되살려 바로 다시 결제할 수 있게(신청은 이미 들어가 있다)
+    try{ var sv=JSON.parse(sessionStorage.getItem('me_pay_sel')||'null');
+      if(sv&&sv.d&&sv.t){ var a=String(sv.d).split('-'), d=new Date(+a[0],+a[1]-1,+a[2]);
+        if(isAvail(d) && slotsFor(d).indexOf(sv.t)!==-1 && ((SERVER.full||{})[sv.d]||[]).indexOf(sv.t)===-1){
+          window.__schedTouched=true; selDate=d; selTime=sv.t; viewY=d.getFullYear(); viewM=d.getMonth();
+          renderCal(); renderTime(); updateSummary(); revealGuide();
+          window.__wantCard=true; var _pc=document.getElementById('payM_card'), _pm=document.getElementById('payMethod'); if(_pc&&_pm&&!_pm.hidden){ _pc.checked=true; _payApply(); }
+          if(!sv.h) window.__cardSubmitted=JSON.stringify(sv);   // 임시 고정은 다시 체크해야 하니, 고정을 요청했던 신청은 한 번 더 넣는다
+        } } }catch(e){}
+    clean(true);
+    meAlert({lead:'결제를 취소했어요.',items:['고르신 시간은 신청으로 접수돼 있어요.','버튼을 한 번 더 누르시면 다시 결제하실 수 있어요. 계좌이체로 바꾸셔도 돼요.']});
+    return;
+  }
+  var pk=q.get('paymentKey'), oid=q.get('orderId'), amt=Math.round(Number(q.get('amount'))||0);
+  if(!pk||!oid||!(amt>0)){ clean(); return; }
+  var sum=document.getElementById('summary'); if(sum){ sum.textContent='결제를 확인하고 있어요…'; sum.style.color=''; }
+  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cardConfirm',token:SERVER.token,milestone:'예약금',paymentKey:pk,orderId:oid,amount:amt})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      clean();
+      if(sum) updateSummary();
+      if(d&&d.ok&&d.already){ meAlert(d.alreadyMsg||'이미 처리된 결제예요.'); return; }
+      if(!(d&&d.ok)){ meAlert((d&&d.error)||'결제 확인을 마치지 못했어요. 카카오톡으로 알려 주시면 결제 상태를 확인해 드릴게요.'); return; }
+      try{ localStorage.removeItem('me_state_v1'); }catch(e){}
+      var md=document.querySelector('#modal .modal'), lab=md&&md.querySelector('.modal-label'), body=md&&md.querySelector('.modal-body'), warn=md&&md.querySelector('.modal-warn'), help=md&&md.querySelector('.modal-help');
+      if(lab) lab.textContent=d.approved?'Reservation Confirmed':'Payment Received';
+      document.getElementById('modalTitle').textContent=d.approved?'예약이 확정되었어요':'결제가 끝났어요';
+      document.getElementById('modalPick').innerHTML=_esc(SERVER.names||'')+' 님'+((d.date||d.time)?('<br>'+_esc(d.date||'')+' · '+_esc(d.time||'')):'');
+      if(body) body.innerHTML=d.approved?'카드 결제가 끝났어요.<br>확정 메일도 보내 드렸어요.':'예약 확정은 디렉터가 확인한 뒤 메일로 알려 드릴게요.<br>고르신 시간이 먼저 찼다면 가까운 시간을 제안드려요.';
+      if(warn) warn.style.display='none';
+      if(help){ var _ka=help.querySelector('#t_kakao'); help.textContent='메일이 보이지 않으면 스팸함을 확인해 주세요. 궁금한 점은 ';
+        if(_ka){ help.appendChild(_ka); help.appendChild(document.createTextNode('으로 문의해 주세요.')); } else help.appendChild(document.createTextNode('카카오톡으로 문의해 주세요.')); }
+      document.getElementById('modal').classList.add('show');
+      setTimeout(function(){ if(md&&md.focus){ try{ md.focus({preventScroll:true}); }catch(e){ try{ md.focus(); }catch(e2){} } } }, 60);
+    })
+    .catch(function(){ clean(); if(sum) updateSummary(); meAlert('결제 확인을 마치지 못했어요. 카카오톡으로 알려 주시면 결제 상태를 확인해 드릴게요.'); });
+})();
 // 예식일 임시고정 — 커스텀 달력 주입 + 실시간 점유 반영(weddingAvailability: 서명완료·승인 홀드 점유 맵).
 //   전 슬롯(3타임) 마감일은 달력에서 선택 불가, 일부 마감이면 시간 셀렉트에서 해당 슬롯만 '마감' 비활성.
 var _hdw=document.getElementById('holdDateWrap');
@@ -1349,7 +1469,9 @@ if(_hdw){
     document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'
       +'<h1 style="font:inherit;margin:0">'+_head+'</h1>'+_rest
       +'<br><br><a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>'; }
-  var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'');
+  var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'')
+    ||(function(){try{return sessionStorage.getItem('me_pay_tok')||'';}catch(e){return'';}})();   // [PAY_METHOD] 토스 복귀 주소엔 토큰이 없다 — 결제창을 열 때 이 탭에만 적어 둔 것
+
   var me=new URLSearchParams(location.search).get('me');
   if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.'); return; }
   // ORDER_OWNER 자매 수정(2026-07-25): 가능일 캐시에 고객 성함·선택날짜가 담김 — 계정 전환 시 이전 계정 캐시가 잠깐 그려지지 않게 토큰별 키로 분리(+옛 공용 키 1회 정리)

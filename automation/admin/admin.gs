@@ -574,11 +574,13 @@ function adminHome() {
     var stage = String(cget(rv, '현재단계') || '').trim() || '신청접수';
     var names = _names(cget(rv, '신랑이름'), cget(rv, '신부이름'));
     var createdYmd = _ymdOf(cget(rv, '생성일시'));
-    custStageMap[code] = { stage: stage, product: product, names: names, created: createdYmd };
+    custStageMap[code] = { stage: stage, product: product, names: names, created: createdYmd,
+      depCard: String(cget(rv, '동의기록') || '').indexOf('"예약금결제":"카드"') !== -1 };   // [DEPOSIT_CARD] 카드로 낼 상담 신청(submitSchedule 이 적는다)
     /* ★[REVIEW_EXIT_HIDE 2026-09-25 사장님 「후기 남긴 고객도 취소 처리하면 후기 지워지게」]
        취소·노쇼·미계약으로 닫힌 고객의 후기는 후기 목록·새 후기 알림·집계에서 뺀다.
        종전엔 단계를 안 보고 «설문상태=완료»면 다 셌다 — 취소한 테스트 고객 후기가 «확인한 후기»에 남아 있었다.
-       ★이것은 «보이지 않게»만 한다. 시트의 설문 칸을 실제로 비우는 것은 되돌릴 수 없는 삭제라 따로 간다. */
+       ★이것은 «보이지 않게»만 한다 — [REVIEW_KEEP_ROWS 2026-09-25 사장님 «추천대로»] 시트의 설문 칸은 비우지 않는다(숨김만).
+         다시 정상 단계로 되돌리면 후기가 그대로 돌아온다. 되돌릴 수 없는 삭제를 여기 넣지 말 것. */
     if (STAGE_EXCEPTIONS.indexOf(stage) === -1) surveyTally(rv, code, names, product);
     var survStatus = String(cget(rv, '설문상태') || '').trim();
     var surveyClosed = (survStatus === '완료' || survStatus === '건너뜀');   // 후기 마감(제출/넘기기) = 아카이브 조건
@@ -635,7 +637,11 @@ function adminHome() {
         if ((_racct || _rPaidC) && !_rdone) {
           var _rcd = _rbk ? _ymdOf(bget(_rbk, '취소일시')) : '';
           var _rdays = _dayDiff(today, _rcd);
-          var _rsub = '예약금 환불 송금 필요';
+          /* [DEPOSIT_CARD 2026-09-25] 예약금을 카드로 받았으면 «송금»이 아니라 토스 관리자 화면의 «결제 취소»다.
+             받은 돈이 카드 예약금뿐이면 계좌를 여쭐 일도 없다. 계약금까지 계좌로 받았다면 계좌 환불은 그대로 두고 카드분만 따로 적는다. */
+          var _rCardDep = !isSnap && !!(_rbk && String(bget(_rbk, '입금확인') || '').trim() === '확인' && (_parseJsonSafe(cget(rv, '동의기록')).결제수단 || {}).예약금 === '카드');   // 스냅의 '예약금' 키는 계약금 카드분이라 뺀다
+          var _rCardOnly = _rCardDep && String(cget(rv, '입금상태') || '').trim() !== '확인';
+          var _rsub = _rCardOnly ? '예약금 카드 결제 취소 필요(토스)' : ('예약금 환불 송금 필요' + (_rCardDep ? ' · 예약금분은 카드 결제 취소' : ''));
           var _rZeroC = false;   // [REFUND_QUEUE_CANCEL_NOACCT · FU2 2026-07-25] 산정 환불액 0원(공제 등·needCount 아님) 여부
           try {   // [02-8] 송금액 견적(계약서 7조·9조·4조⑧ · _refundQuote) — 기준일=취소일시(없으면 오늘). 스냅·산정 불가면 기본 문구 유지.
             var _rq = _refundQuote({ get: function (h) { var c = cc[h]; return c ? rv[c - 1] : ''; } }, _rcd || today);
@@ -649,7 +655,7 @@ function adminHome() {
           } catch (e) {}
           // [REFUND_QUEUE_CANCEL_NOACCT · FU2 2026-07-25] 계좌 미입력 신규 노출분은 환불액 0원이면 큐 생략(고객 환불카드도 안 떠 계좌 받을 일 자체가 없음 · 노쇼·미계약 분기와 동일). 계좌 입력 건은 사람 판단 위해 유지(변화 0).
           if (_racct || !_rZeroC) {
-            if (!_racct) _rsub += ' · 환불 계좌 요청 필요(카톡)';   // [REFUND_QUEUE_CANCEL_NOACCT] 계좌 미입력 취소 건 — 관리자에게 계좌 요청 필요 신호
+            if (!_racct && !_rCardOnly) _rsub += ' · 환불 계좌 요청 필요(카톡)';   // [DEPOSIT_CARD] 카드 예약금뿐이면 계좌를 여쭙지 않는다   // [REFUND_QUEUE_CANCEL_NOACCT] 계좌 미입력 취소 건 — 관리자에게 계좌 요청 필요 신호
             pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub,
               badge: (_rdays != null && _rdays >= 1) ? { level: 'red', text: '취소 ' + _rdays + '일째' } : { level: 'yellow', text: '환불 대기' },
               _urgent: (_rdays != null && _rdays >= 1), _loss: 2, _stage: 9, _wait: createdYmd });
@@ -664,7 +670,8 @@ function adminHome() {
         var _rPaid2 = (_rbk2 && String(bget(_rbk2, '입금확인') || '').trim() === '확인') || String(cget(rv, '입금상태') || '').trim() === '확인';
         if (_rPaid2 && !_rdone2) {
           var _racct2 = _rbk2 ? String(bget(_rbk2, '환불계좌') || '').trim() : '';
-          var _rsub2 = stage + ' 처리 · 예약금 환불 확인', _show2 = true;
+          var _rCardOnly2 = !isSnap && !!(_rbk2 && String(bget(_rbk2, '입금확인') || '').trim() === '확인' && (_parseJsonSafe(cget(rv, '동의기록')).결제수단 || {}).예약금 === '카드') && String(cget(rv, '입금상태') || '').trim() !== '확인';   // [DEPOSIT_CARD]
+          var _rsub2 = stage + ' 처리 · ' + (_rCardOnly2 ? '예약금 카드 결제 취소 확인(토스)' : '예약금 환불 확인'), _show2 = true;
           /* ★★[EXIT_QUOTE_TS 2026-08-25 환불 경계값 점검 F6] 기준일 = 취소일시(없으면 오늘).
              '취소' 큐(위)는 취소일시 기준인데 **노쇼·미계약 큐만 today 고정**이었다 —
              FORCE_EXIT_TS(2390)가 노쇼·미계약에도 취소일시를 찍어 두는데 이 분기만 안 읽었다.
@@ -681,7 +688,7 @@ function adminHome() {
             }
           } catch (e) {}
           if (_show2) {
-            if (!_racct2) _rsub2 += ' · 환불 계좌 요청 필요(카톡)';
+            if (!_racct2 && !_rCardOnly2) _rsub2 += ' · 환불 계좌 요청 필요(카톡)';
             pushQ({ code: code, names: names, product: product, kind: '환불송금', sub: _rsub2,
               badge: { level: 'yellow', text: '환불 확인' }, _urgent: false, _loss: 2, _stage: 9, _wait: createdYmd });
           }
@@ -1023,7 +1030,11 @@ function adminHome() {
     var createdYmd = meta ? meta.created : _ymdOf(bget(rv, '신청일시'));
     var nd = _dayDiff(today, createdYmd);
     var badge = (nd != null && nd >= 4) ? { level: 'red', text: '신청 ' + nd + '일째' } : ((nd != null && nd >= 2) ? { level: 'yellow', text: '신청 ' + nd + '일째' } : null);
-    var it = { code: code, names: names, product: product, kind: '신규신청', sub: '신규 신청', badge: badge, _wait: createdYmd };
+    // [DEPOSIT_CARD] 시간선택완료인데 예약금이 이미 확인됨 = 카드로 받았는데 그 시간이 먼저 차 자동 확정을 못 했거나, 확정 뒤 고객이 시간을 다시 고른 건 — 통장을 찾을 일이 없다
+    var _pickPaid = String(bget(rv, '입금확인') || '').trim() === '확인';
+    var it = { code: code, names: names, product: product, kind: '신규신청',
+      sub: _pickPaid ? '신규 신청 · 예약금 받음(시간 확인 필요)' : ((meta && meta.depCard) ? '신규 신청 · 카드 결제 대기(결제되면 자동 확정 · 먼저 승인하지 말 것)' : '신규 신청'),
+      badge: badge, _wait: createdYmd };
     if (badge && badge.level === 'red') { it._urgent = true; it._loss = 3; } else { it._urgent = false; it._stage = 1; }
     pushQ(it);
   });
@@ -2720,7 +2731,9 @@ function adminForceStage(code, targetStage, reason, releaseSlot) {   // [ROLLBAC
         // [REFUND_ACCT_REQ 2026-07-25] 강제취소 고객이 수령분(입금확인/입금상태=확인) 있고 환불계좌 미입력이면 고객에게 계좌 입력 요청 1회(카톡→SMS→메일 폴백). 이 블록은 취소로 '전환'될 때만 도달(같은 단계 재지정은 상단 noop). 계좌 있으면 생략.
         var _acctF = _bkTs ? String(_bkTs.get('환불계좌') || '').trim() : '';
         var _paidF = String(cust.get('입금상태') || '').trim() === '확인' || (_bkTs && String(_bkTs.get('입금확인') || '').trim() === '확인');
-        if (!_acctF && _paidF) { try { notifyKakao('cust.refundAcctReq', code); } catch (eNf) {} }
+        // [DEPOSIT_CARD] 받은 돈이 카드로 낸 상담 예약금뿐이면 계좌를 여쭙지 않는다(카드 결제 취소로 돌려준다)
+        var _cardOnlyF = String(cust.get('상품타입') || '').trim() !== '웨딩스냅' && String(cust.get('입금상태') || '').trim() !== '확인' && (_parseJsonSafe(cust.get('동의기록')).결제수단 || {}).예약금 === '카드';
+        if (!_acctF && _paidF && !_cardOnlyF) { try { notifyKakao('cust.refundAcctReq', code); } catch (eNf) {} }
       } catch (eTs) {}
     }
     // FORCE_SEAT_INV · 제작임시저장(좌석 데이터 원천)이 초기화되면 하객 좌석 공개 조회 캐시도 즉시 무효화 — 6분 톰스톤(wedchg-seat-inv 동일 패턴 · 2026-07-25 점검)

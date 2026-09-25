@@ -108,7 +108,17 @@ const code = [
   extractFunction(SRC_CARD, '_payMarkCard'),
   extractFunction(SRC_CARD, '_payLog'),
   extractFunction(SRC_CARD, 'handleCardConfirm'),
-  extractFunction(SRC_CARD, 'handleCardPayConfig')
+  extractFunction(SRC_CARD, 'handleCardPayConfig'),
+  /* [DEPOSIT_CARD 2026-09-25] handleCardConfirm·handleCardPayConfig 가 milestone '예약금' 을 이 함수들로 넘긴다.
+     안 실으면 퍼즈의 '예약금' 표본이 ReferenceError 로 던진다(게이트가 잡았다 · throws=45).
+     예약 시트 쪽(_sessionToConsult·actApprove)은 이 하네스에 없다 — typeof 가드로 «못 찾음»을 돌려주고 던지지 않는 것까지가 여기 몫이고,
+     돈의 길 전체는 scripts/audit/deposit-card.mjs 가 실제 세계에서 태운다. */
+  extractFunction(SRC_CARD, '_payDepositAmount'),
+  extractFunction(SRC_CARD, '_depositCardBlock'),
+  extractFunction(SRC_CARD, '_depositCardKeep'),
+  extractFunction(SRC_CARD, '_depositCardTrace'),
+  extractFunction(SRC_CARD, '_depositCardConfig'),
+  extractFunction(SRC_CARD, '_depositCardConfirm')
 ].join('\n\n');
 
 /* ── 인메모리 Customers 시트 + GAS 전역 스텁 ── */

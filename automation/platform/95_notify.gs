@@ -598,7 +598,7 @@ function _nfAdminText(event, code, x) {
   var c = code ? (' · ' + code) : '';
   switch (event) {
     case 'admin.newSignup':      return tag + ' 신규 신청 ' + (x.names || '') + ' (' + (x.product || '') + ')' + c + ' / 일정 잡기';
-    case 'admin.slotPicked':     return tag + ' 상담 슬롯 선택 ' + (x.names || '') + ' ' + (x.date || '') + ' ' + (x.time || '') + c + ' / 승인 필요';
+    case 'admin.slotPicked':     return tag + ' 상담 슬롯 선택 ' + (x.names || '') + ' ' + (x.date || '') + ' ' + (x.time || '') + c + (x.card ? ' / 카드 결제 대기 · 결제되면 자동 확정' : ' / 승인 필요');   // [DEPOSIT_CARD]
     case 'admin.contractReq':    return tag + ' 계약서 요청' + c + ' (예식 ' + (x.weddingDate || '-') + ') / 발송 필요';
     case 'admin.depositSignal':  return tag + ' 계약금 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.midSignal':      return tag + ' 중도금 입금신호' + c + ' (입금자 ' + (x.payer || '-') + (x.withBalance ? ' · 잔금 동시' : '') + ') / 확인 필요';
@@ -609,7 +609,7 @@ function _nfAdminText(event, code, x) {
     case 'admin.contractSigned': return tag + ' 계약 서명 완료' + c + ' (' + (x.product || '') + ')';
     case 'admin.resultPicked':   return tag + ' 보정본 선택 완료' + c + ' (' + (x.count || 0) + '컷) / 작업 착수';
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
-    case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + ' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '');
+    case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + (x.card ? ' / 예약금 카드 결제 취소 필요(토스)' : (' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '')));   // [DEPOSIT_CARD] 카드 예약금은 송금이 아니라 카드 취소
     case 'admin.diningConsult':  return tag + ' 다이닝: 식당을 못 정한 채 마무리' + c + ' / 디렉터가 추천·예약 도와줄 것';
     case 'admin.finalConfirm':   return tag + ' 예식 최종 확정' + (x.changed ? '(변경·재확인)' : '') + c + ' / 하객 ' + (x.head || '-') + '명'
       /* ADMIN_NOFEE_LINE 2026-09-19 — 초과단가 0(하객 30명까지 추가금 없음)이면 스탠딩이 있어도 청구가 없다.

@@ -3379,6 +3379,12 @@ function renderRefundBank(rb){
   box.id='mp_refundBank';
   box.className='consult-card';   // 표준 여정 카드 양식 — cc-input·cc-btn 스타일이 .consult-card 스코프라 그동안 기본 입력창으로 노출되던 문제 해결
   box.style.cssText='margin:16px auto 0;max-width:420px';
+  if(rb.cardOnly){   // [DEPOSIT_CARD 2026-09-25] 받은 돈이 카드로 낸 예약금뿐 — 계좌 칸 없이 «카드 취소» 안내만
+    box.innerHTML='<div class="cc-eyebrow en-22">Refund</div>'
+      +'<div class="cc-title">환불 안내</div>'
+      +'<div class="cc-sub">'+amt+'<br>결제하신 카드로 취소해 드려요. 카드사에 따라 반영까지 며칠 걸릴 수 있어요.</div>';
+    host.appendChild(box); return;
+  }
   box.innerHTML='<div class="cc-eyebrow en-22">Refund</div>'
     +'<div class="cc-title">환불 계좌 안내</div>'
     +'<div class="cc-sub">'+amt+'<br>'+(rb.acct?'입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.':'환불 받으실 계좌를 남겨 주시면 송금해 드릴게요.')+'</div>'
@@ -3412,9 +3418,12 @@ function renderConsult(c, product){
   function fixGas(u){ if(!u||typeof EXEC_URL==='undefined') return u||''; var q=u.indexOf('?'); return q>=0 ? EXEC_URL+u.slice(q) : u; }
   var body = '', cta = '', extra = '';
   // 취소 패널(환불 계좌 입력) — 시간선택완료(대기)·확정 공용
+  // [DEPOSIT_CARD 2026-09-25] 예약금을 카드로 받았으면(c.byCard) 계좌를 여쭙지 않는다 — 결제하신 카드로 취소한다
   var CANCEL_PANEL = '<div id="mp_cancelPanel" style="display:none;margin-top:12px;padding:15px 16px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);text-align:left">'
-    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;line-height:1.65">취소하시면 예약금은 입력하신 계좌로 환불해 드려요. <span class="cc-mini">환불은 영업일 기준 수일이 걸릴 수 있어요.</span></div>'
-    + '<input type="text" class="cc-input" id="mp_refundAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주">'
+    + (c.byCard
+      ? '<div class="cc-note" style="text-align:left;margin:0 0 10px;line-height:1.65">취소하시면 예약금은 결제하신 카드로 취소돼요. <span class="cc-mini">카드사에 따라 반영까지 며칠 걸릴 수 있어요.</span></div>'
+      : '<div class="cc-note" style="text-align:left;margin:0 0 10px;line-height:1.65">취소하시면 예약금은 입력하신 계좌로 환불해 드려요. <span class="cc-mini">환불은 영업일 기준 수일이 걸릴 수 있어요.</span></div>'
+        + '<input type="text" class="cc-input" id="mp_refundAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주">')
     + '<div id="mp_refundErr" class="cc-mini" style="text-align:left;color:var(--seal);min-height:14px;margin:7px 0 0"></div>'
     + '<div class="cc-actions" style="margin-top:8px"><button type="button" class="cc-btn" id="mp_cancelConfirm">취소 확정</button></div>'
     + '</div>';
@@ -3479,7 +3488,7 @@ function renderConsult(c, product){
 function doCancelRes(){
   var acctEl=$('mp_refundAcct'), errEl=$('mp_refundErr');
   var acct=(acctEl&&acctEl.value||'').trim();
-  if(acct.length<5){ if(errEl) errEl.textContent='환불 계좌를 입력해 주세요. (은행·계좌번호·예금주)'; if(acctEl) acctEl.focus(); return; }
+  if(acctEl && acct.length<5){ if(errEl) errEl.textContent='환불 계좌를 입력해 주세요. (은행·계좌번호·예금주)'; acctEl.focus(); return; }   // [DEPOSIT_CARD] 카드 예약금이면 계좌 칸이 없다 — 그대로 취소
   var btn=$('mp_cancelConfirm'); if(btn){ btn.disabled=true; btn.textContent='취소 처리 중…'; }
   function reset(msg){ if(errEl) errEl.textContent=msg||''; if(btn){ btn.disabled=false; btn.textContent='취소 확정'; } }
   api({action:'cancelReservation', token:getToken(), acct:acct}).then(function(d){
