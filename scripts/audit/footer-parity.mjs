@@ -140,12 +140,26 @@ const B = got[base];
 
 console.log(`━━ footer-parity — 기준 ${base} · 네 면 대조 (390px 실렌더)`);
 
-// ① 문구가 글자 하나까지 같은가
+/* ★★[FOOTER_WORDSET 2026-09-25] ① 을 «줄 단위»에서 «낱말 묶음»으로 바꾼다.
+   왜 — 이 검사가 태어난 이유는 «줄이 통째로 빠짐 · 표기 표류 · 대비»이지 «줄 배치»가 아니다.
+   parents 가 링크 넷을 한 줄로 모으자([PAR_FOOTER_GROUP]) 낱말은 하나도 안 달라졌는데 붉었다.
+   면마다 줄을 어떻게 나누는지는 그 면의 사정이다 — 무엇이 적혀 있는지가 같으면 된다.
+   ★그래도 «빠짐»은 그대로 잡는다: 낱말 하나가 사라지면 묶음이 달라진다(반증으로 확인).
+   ★구분자(·)는 세지 않는다 — 좁은 화면에서 가운데 점이 숨는 구조가 있어 개수가 달라진다. */
+const wordSet = (texts) => texts.join(' ').split(/[\s·]+/).filter(Boolean).sort();
+
+// ① 무엇이 적혀 있는가 — 낱말 묶음이 같은가
 for (const p of PAGES) {
   if (!got[p]) continue;
-  const a = JSON.stringify(got[p].texts), b = JSON.stringify(B.texts);
-  if (a === b) ok(`${p}: 문구 ${got[p].texts.length}줄 동일`);
-  else no(`${p}: 문구가 ${base} 와 다르다\n        ${base}: ${b}\n        ${p}: ${a}`);
+  const aw = wordSet(got[p].texts), bw = wordSet(B.texts);
+  const a = JSON.stringify(aw), b = JSON.stringify(bw);
+  if (a === b) ok(`${p}: 낱말 ${aw.length}개 동일 (${got[p].texts.length}줄)`);
+  else {
+    const only = (x, y) => x.filter((w) => !y.includes(w));
+    no(`${p}: 적힌 낱말이 ${base} 와 다르다`
+      + `\n        ${base} 에만: ${JSON.stringify(only(bw, aw))}`
+      + `\n        ${p} 에만: ${JSON.stringify(only(aw, bw))}`);
+  }
 }
 
 // ② 링크가 같은 곳을 같은 순서로 가리키는가
