@@ -2094,14 +2094,9 @@ function adminMarkConsultDone(code) {
     setCustomerStage(code, 'complete');
     _recordHandler(code, '상담완료 처리');
     notifyKakao('cust.consultDone', code);   // 고객: 다음 단계(마이페이지 계약 진행 요청) 안내 · 없으면 여기서 여정 정체(카톡)
-    try {   // [2026-06-23] 상담완료는 카톡+메일 둘 다(중요 단계 · 사용자 결정). best-effort — 실패해도 처리는 완료.
-      var _cdNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
-      _notifyCustomerEmail(code, '[Moment Edit] 상담이 마무리되었습니다 · 다음 단계 안내', '상담이 마무리되었습니다',
-        centerP(esc(_cdNm) + ' 님,<br>상담에 함께해 주셔서 감사합니다.') +
-        centerP('다음 단계로 마이페이지에서<br>예식일과 기본 정보를 입력해 계약 진행을 요청해 주세요.') +
-        emailBtn(P.MYPAGE_URL, 'My Page') +
-        smallP('확인 후 이용계약서를 보내드립니다.'));
-    } catch (e) {}
+    /* ★[KAKAO_FIRST 2026-09-25 사용자 지시 «카톡 미발송 시 메일로 전환 이것으로 하자»] 카톡과 함께 보내던 메일 되살리기 금지.
+       2026-06-23 에 «중요 단계라 둘 다»로 정했을 때는 카톡이 실패해도 메일로 바꿔 보내는 길이 없었다(06-28 에 생겼다).
+       이제 카톡이 안 가면 95_notify 가 같은 내용을 고객 메일로 보낸다 — 카톡이 가면 메일은 안 간다(중복 없음). */
     return { ok: true, stage: '상담완료' };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
@@ -2310,21 +2305,15 @@ function adminMarkDelivered(code, force) {
     touchCustomer(sheet, colOf, cust.num, { '결과물상태': '전달완료', '동의기록': JSON.stringify(_dRec) });
     if (!_stageAlreadyDeliv) setCustomerStage(code, 'deliver');   // 단계가 이미 결과물전달이면(강제 변경 복구) 상태·기록·알림만 마감 · DELIV_FORCE_RESUME
     _recordHandler(code, '결과물 전달 완료' + (_unpaid.length ? (' · 미수금(' + _unpaid.join('·') + ') 경고 확인 후 전달') : ''));
-    var _dlvKakao = notifyKakao('cust.resultDelivered', code);   // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡). 반환 true/'held'/'off'/false — NOTIFY_SENT_RET
-    var _dlvMail = false;
-    try {   // [2026-06-23] 결과물 전달은 카톡+메일 둘 다(다운로드 링크를 메일에도 남겨 6개월 내 찾기 쉽게). best-effort.
-      var _rdNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
-      _dlvMail = _notifyCustomerEmail(code, '[Moment Edit] 결과물이 준비되었습니다', '결과물이 준비되었습니다',
-        centerP(esc(_rdNm) + ' 님,<br>두 분의 시간이 담긴 결과물이 준비되었습니다.') +
-        centerP('전달일부터 6개월 보관됩니다.<br>마이페이지에서 다운로드해 꼭 옮겨 보관해 주세요.') +
-        emailBtn(P.MYPAGE_URL, 'My Page') +
-        smallP('보관 기간이 끝나면 파일이 삭제될 수 있어요.')) === true;
-    } catch (e) {}
+    var _dlvKakao = notifyKakao('cust.resultDelivered', code);   // 고객: 결과물 준비 완료 · 다운로드 안내(가장 중요 · 카톡). 반환 true/'mail'/'held'/'off'/false — NOTIFY_SENT_RET
+    /* ★[KAKAO_FIRST 2026-09-25 사용자 지시] 카톡과 함께 보내던 «결과물이 준비되었습니다» 메일 되살리기 금지.
+       그 메일은 마이페이지 버튼 하나였다(다운로드 주소가 들어 있지 않았다) — 카톡 메시지와 같은 내용이다.
+       카톡이 안 가면 95_notify 가 같은 내용을 메일로 대신 보내고 'mail' 을 돌려준다. */
     // [SILENT_FAIL_ALERT 2026-07-25] 알림톡·메일 둘 다 미도달이면 관리자 메일 — 고객이 결과물 준비 소식을 모른 채 방치되는 조용한 실패 방지.
     //   야간 보류('held')는 아침 발송 예정, 전역 OFF('off')는 의도된 미발송(테스트 모드)이라 둘 다 실패로 치지 않음(더블체크 리뷰 반영).
     //   메일 발송 자체 실패가 전달 처리를 막지 않게 try로 감쌈.
     try {
-      if (_dlvKakao !== true && _dlvKakao !== 'held' && _dlvKakao !== 'off' && !_dlvMail) {
+      if (_dlvKakao !== true && _dlvKakao !== 'mail' && _dlvKakao !== 'held' && _dlvKakao !== 'off') {   // KAKAO_FIRST — 'mail' 은 대체 메일로 닿은 것
         var _dlvNm = _names(cust.get('신랑이름'), cust.get('신부이름'));
         _nfAdminEmail('[Moment Edit] 결과물 전달 알림 미도달: ' + _dlvNm + ' / ' + code,
           '결과물 전달 처리(' + code + ' · ' + _dlvNm + ')는 완료됐지만,<br>'

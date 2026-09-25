@@ -390,9 +390,24 @@ chk 'SNAP_PREP_STEP' mypage.html 1                 # (폐지 2026-07-25 사용�
 chk 'SNAP_PREP_FLOW' mypage.html 1                 # SNAPFLOW 전용 화면 블록
 chk 'SNAP_PREP_OVERLAY' mypage.html 1              # 스냅 기획 전체화면 오버레이(식순 빌더처럼 집중)
 # 2026-07-20 정보중심 개편: 무드 색 타일(SNAP_MOOD_META·smt-grid) 폐지 → 어떤 작가여도 도움되는 실무 정보(인물·관계·각도·꼭 담을 것)로 전환. 색 타일 복원 금지.
-chk 'SNAP_PEOPLE' mypage.html 2                     # 스냅 인물·관계 정보(누가 함께 담기나요) — 무드 색타일 폐지 대체
+chk 'SNAP_PEOPLE' mypage.html 2                     # 무드 색타일 폐지 주석 + 옛 저장분 해석용 상수(화면 질문 «누가 함께»는 SNAP_COUPLE_ONLY 로 삭제 2026-09-25)
 chk 'aboutNote' mypage.html 3                       # 각도·신경 쓰이는 점(작가 브리핑) 필드 — 렌더+저장+수집
-chk 'mustPeople' mypage.html 3                       # 꼭 챙겨 담고 싶은 분 필드
+chk 'mustPeople' mypage.html 3                       # 옛 저장분 «꼭 챙길 분» 보존(불러오기·저장·채움 판정) — 입력칸은 SNAP_COUPLE_ONLY 로 삭제
+# ★★[SNAP_COUPLE_ONLY 2026-09-25 사장님 「스냅 기획은 본식 전 스냅 · 누르면 어떤 시간인지 설명 · ‘누가 함께 담기나요’는 맞지 않는 질문 — 부부 웨딩스냅」]
+#   ①스냅 기획을 열면 맨 위에 «언제의 스냅인지»(도착 › 단독 스냅 › 본식)를 먼저 보여 준다 — 분은 진행표 원천의 사본이라 snap-when 이 대조한다.
+#   ②«누가 함께 담기나요» 칩(data-sppl)과 «꼭 챙길 분» 칸(mp_snapMustPeople)은 되살리지 않는다. 가족·친구 사진은 본식 뒤, 명단은 «단체 사진».
+#   ★문구 검사로 «누가 함께 담기나요» 를 막지 않는다 — 삭제 사유 주석이 그 문구를 인용한다([SELF_COMMENT_TRAP]). 화면 모양은 snap-when 이 본다.
+chk 'SNAP_COUPLE_ONLY' mypage.html 4
+nochk 'data-sppl' mypage.html
+nochk 'mp_snapMustPeople' mypage.html
+chk 'SNAP_COUPLE_ONLY' scripts/audit/snap-when.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/snap-when.mjs >/dev/null 2>&1; _sw=$?
+  case "$_sw" in
+    0) echo 'ok snap-when: 스냅 기획 안내의 분 = 진행표(단독 스냅) · 삭제한 «누가 함께» 질문 0건' ;;
+    1) echo 'FAIL snap-when: 스냅 기획 안내가 진행표와 다르거나 삭제한 질문이 돌아왔습니다 — node scripts/audit/snap-when.mjs'; fail=1 ;;
+    *) echo 'ok snap-when: 재지 못했습니다(원천·화면 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 _smttile=$(grep -c 'class="smt' mypage.html 2>/dev/null); _smttile=${_smttile:-0}; if [ "$_smttile" -gt 0 ]; then echo "REVERT? mypage.html: 폐지된 무드 색 타일(.smt) 부활($_smttile)"; fail=1; else echo "ok mypage.html: 무드 색 타일 폐지 유지(정보중심)"; fi
 # PROD_FS_OVERLAY·.mp-fs 재등록(2026-07-19) — 청첩장·다이닝/최종·좌석 3종 편집을 mp_production .mp-fs로 전체화면화(단체사진은 전용 오버레이 PROD_OVERLAY, 스냅은 SNAP_PREP_OVERLAY).
 chk 'PROD_FS_OVERLAY' mypage.html 1                 # 청첩장·다이닝·최종·좌석 3종 전체화면(.mp-fs 클래스 토글)
@@ -652,8 +667,8 @@ chk '_mpNextToast' mypage.html 3                    # 지연 토스트 배선(�
 chk 'DRINK_SHEET' mypage.html 3                     # 음료 = 바닥 시트(2026-08-09) · 구 MPD4_F4 '떠 있는 작은 판' 폐지
 # ── 2026-07-25 마이페이지 4차 스프린트 PR③(F2 SR 골격·포커스 복귀 · F3 칩 키보드화)
 chk 'MPD4_F2' mypage.html 5                         # sr-only CSS+h1+NEXT h2+포커스 저장/복원
-chk 'MPD4_F3' mypage.html 4                         # _kbChip 헬퍼+스냅·사진·큐시트 배선
-chk '_kbChip' mypage.html 6                         # 헬퍼 정의+호출 5곳
+chk 'MPD4_F3' mypage.html 3                         # _kbChip 헬퍼+스냅(꼭 담을 컷)·사진·큐시트 배선 — 스냅 «누가 함께» 칩 배선은 SNAP_COUPLE_ONLY 로 삭제(2026-09-25 · 4→3)
+chk '_kbChip' mypage.html 5                         # 헬퍼 정의+호출 4곳 — 스냅 «누가 함께» 호출은 SNAP_COUPLE_ONLY 로 삭제(2026-09-25 · 6→5)
 # ── 2026-07-25 마이페이지 4차 스프린트 PR④(C3 명도 계단 · H3 blur 힌트 · H4 접기+내 완성물 · H5 1단계)
 chk 'MPD4_C3' mypage.html 1                         # 잠긴 단계 명도 계단
 chk 'MPD4_H3' mypage.html 3                         # blur 형식 힌트(헬퍼+ci+환불+이메일)
@@ -8548,7 +8563,7 @@ nochk '미리 채워뒀어요. 바꾸셔도 괜찮아요' mypage.html
 #   ★브라우저가 필요 없다 — PR 게이트에서 «실제로» 돈다. 깨 보고 믿었다(알림 호출·따로 알림·목록·표식 정리 넷 다 빨강).
 if command -v node >/dev/null 2>&1; then node scripts/audit/notify-e2e.mjs >/dev/null 2>&1; _ne=$?
   case "$_ne" in
-    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수 · 까닭 무관 메일' ;;
+    0) echo 'ok notify-e2e: 알림 19종 × 정상·템플릿 없음·메일 없음·채널 없음·번호·밤·거절 · 설정 점검 · 표식 정리 · 매핑 보존 · 대체 메일 · 문안↔코드 변수 · 까닭 무관 메일 · 카톡 먼저' ;;
     1) echo 'FAIL notify-e2e: 알림톡이 안 나갈 때 드러나지 않는 길이 있습니다 — node scripts/audit/notify-e2e.mjs'; fail=1 ;;
     *) echo 'ok notify-e2e: 재지 못했습니다(파일·함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -8589,6 +8604,34 @@ chk 'KAKAO_FAIL_MAIL' automation/platform/95_notify.gs 6
 chk "return sentKakao ? true : ((_mailed || _elsewhere) ? 'mail' : false);" automation/platform/95_notify.gs 1   # 메일로 닿았으면 아침 재시도 없음
 chk 'var failed = hardFail || (!success && !pending && !!sc);' automation/platform/95_notify.gs 1                # 목록 밖 실패 코드도 실패
 nochk "고객 발송 생략'); return false; }" automation/platform/95_notify.gs                                        # 설정 누락이 고객 메일까지 막던 옛 줄
+
+# ★★[KAKAO_FIRST] 2026-09-25 사장님 «중복 이유? 카톡 안 가면 메일로 가게 되어 있는데… 없으면 카톡 미발송 시 메일로 전환 이것으로 하자»
+#   상담 완료·결과물 전달·임시고정 만료는 카톡과 메일이 늘 같이 갔다(06-23 «중요 단계» — 그때는 카톡 실패 → 메일 전환이 없었다 · 06-28 에 생김).
+#   이제 카톡이 가면 메일 없음 · 못 가면 95_notify 가 메일로. 상담 확정 메일(캘린더 추가·변경·환불 규정)은 남기고, 카톡이 실패해도 두 통 가지 않게.
+#   notify-e2e ⑬ 이 지킨다(깨 보고 믿었다 · 옛 제외 목록 · 상담 완료 메일 부활 · 임시고정 메일 부활 셋 다 빨강).
+chk 'KAKAO_FIRST' automation/admin/admin.gs 3
+chk 'KAKAO_FIRST' automation/platform/70_journey.gs 1
+chk 'KAKAO_FIRST' automation/platform/95_notify.gs 3
+nochk "_notifyCustomerEmail(code, '.Moment Edit. 상담이 마무리되었습니다" automation/admin/admin.gs      # 되살리기 금지 — 2026-09-25 사용자 지시로 삭제
+nochk "_notifyCustomerEmail(code, '.Moment Edit. 결과물이 준비되었습니다" automation/admin/admin.gs      # 되살리기 금지 — 2026-09-25 사용자 지시로 삭제
+nochk "GmailApp.sendEmail(email, '.Moment Edit. 예식일 임시 고정이 곧 풀려요" automation/platform/70_journey.gs   # 되살리기 금지 — 2026-09-25 사용자 지시로 삭제
+
+# ★★[SOLAPI_RELAY] 2026-09-25 솔라피 «웹훅 실패 알림»(실패 3회 · 8회면 비활성화) — GAS /exec 가 처리 뒤 302 로 답해 솔라피가 실패로 셌다.
+#   베르셀 중계(api/solapi-report.js)가 받아 GAS 로 넘기고 200 으로 답한다. 리포트 모양만 넘긴다 · 미리보기는 운영 시트에 안 쓴다.
+#   깨 보고 믿었다 — 리포트 거르기 제거 · GAS 오류에도 200 · 미리보기 막기 제거 · 지연을 실패로, 넷 다 빨강.
+#   ★[RELAY_WAIT] GAS 기다림 한도 4초 이하 — 솔라피가 몇 초까지 기다리는지 모른다(실패 메일에 이유 없음 · 문서 사이트 막힘).
+#     7초로 되돌리면 solapi-relay 첫 줄이 빨강(깨 보고 믿었다). 실제 시간으로도 4,007ms 에 끊고 200 을 주는 것을 쟀다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/solapi-relay.mjs >/dev/null 2>&1; _sr=$?
+  case "$_sr" in
+    0) echo 'ok solapi-relay: 리포트 중계 · GAS 오류 502 · 4초 넘으면 200 · 리포트 아닌 것 거부 · 미리보기 차단' ;;
+    1) echo 'FAIL solapi-relay: 솔라피 리포트 중계가 틀렸습니다 — node scripts/audit/solapi-relay.mjs'; fail=1 ;;
+    *) echo 'ok solapi-relay: 재지 못했습니다(모듈 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'SOLAPI_RELAY' api/solapi-report.js 1
+chk 'RELAY_WAIT' api/solapi-report.js 1
+chk "require('./_livehook')" api/solapi-report.js 1
+chk 'SOLAPI_RELAY' CLAUDE.md 1
 
 # ★★[CONTACT_LIFECYCLE_SIM 2026-09-25 사장님 「너가 직접 테스트해봐 시뮬레이션 통해서」]
 #   단위 검사(phone-kr-norm · hold-drop)는 함수 하나씩만 본다. 실제로 난 일은 그 함수들이

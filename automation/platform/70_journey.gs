@@ -1778,13 +1778,9 @@ function sendHoldExpiryNotices() {
     if (left == null || left > 3) continue;                                             // 만료 D-3 ~ D-0
     var code = String(row[c('개인코드') - 1] || '').trim();
     notifyKakao('cust.holdExpiring', code, { date: h.date, slot: h.slot, left: left });
-    var email = String(row[c('이메일') - 1] || '').trim();
-    if (email) {
-      try {
-        GmailApp.sendEmail(email, '[Moment Edit] 예식일 임시 고정이 곧 풀려요 (D-' + left + ')',
-          '잡아두신 예식 일정(' + h.date + ')의 임시 고정이 ' + h.expires + '에 해제될 예정이에요.\n계속 진행을 원하시면 상담·본계약을 진행해 주시고, 일정 조율이 필요하시면 카카오톡으로 편하게 말씀해 주세요.\n\nMoment Edit');
-      } catch (e) {}
-    }
+    /* ★[KAKAO_FIRST 2026-09-25 사용자 지시 «카톡 미발송 시 메일로 전환 이것으로 하자»] 함께 보내던 «임시 고정이 곧 풀려요» 메일 되살리기 금지.
+       다른 안내 메일은 카톡을 들일 때 설정으로 모두 껐는데 이것만 스위치가 없어 늘 카톡과 메일이 같이 갔다.
+       카톡이 안 가면 95_notify 가 같은 내용을 고객 메일로 대신 보낸다. */
     _stampConsentKey(sheet, colOf, P.DATA_START_ROW + i, function (fresh) {   // 재읽기+병합 — 메일 발송 중 끼어든 홀드 승인/거절·계약정보 보존
       if (fresh.가예약) fresh.가예약.expiryNoticed = fmtKST(new Date());        // 그 사이 거절(가예약 삭제)됐으면 통지 마킹 생략(정상)
     });
