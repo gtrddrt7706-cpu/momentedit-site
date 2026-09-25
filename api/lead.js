@@ -6,7 +6,9 @@
 module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.statusCode = 405; res.setHeader('Allow', 'POST'); return res.end(JSON.stringify({ error: 'method_not_allowed' })); }
   if (!require('./_ratelimit')(req, 3, 15)) { res.statusCode = 429; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'rate_limited' })); }
-  const hook = process.env.HANDOFF_WEBHOOK_URL;
+  /* [PREVIEW_GUARD_API] 미리보기에서는 문의 리드를 운영 시트에 넣지 않는다 — 이름·연락처가 실데이터로 섞인다 */
+  if (require('./_livehook').isPreview()) { res.statusCode = 503; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'preview', message: '미리보기에서는 접수하지 않아요.' })); }
+  const hook = require('./_livehook')();
   if (!hook || !/^https:\/\//.test(hook)) { res.statusCode = 503; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'unconfigured' })); }
   try {
     const body = await readJson(req);

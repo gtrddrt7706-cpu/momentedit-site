@@ -6,7 +6,7 @@ const SHAKY = /(정확하지\s?않을\s?수|정확히는\s?모르|확실하지\s
 
 module.exports = async function logQuestion(surface, q, opts) {
   try {
-    const hook = process.env.HANDOFF_WEBHOOK_URL;
+    const hook = require('./_livehook')();   // [PREVIEW_GUARD_API] 미리보기에서는 운영 시트에 안 쓴다
     if (!hook || !/^https:\/\//.test(hook)) return;
     q = String(q || '').slice(0, 300);
     if (!q) return;

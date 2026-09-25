@@ -1,3 +1,15 @@
+/* ★★[PREVIEW_GUARD 2026-09-25] 운영 주소가 아니면 «서버 연결 막는 장치»를 먼저 끼워 넣는다.
+   청첩장 템플릿(i/ · i-family/)은 손으로 고치지 않는다 — 대신 템플릿이 모두 «동기로 먼저» 부르는
+   이 파일에서 끼운다. 파서가 이 스크립트를 실행하는 중이라 document.write 로 넣은 스크립트가
+   hydrate.js(defer)보다 먼저 돈다. ★운영 주소에서는 판정 한 줄만 돌고 아무것도 안 한다.
+   ★운영 주소 목록은 shared/preview-guard.js 의 PROD_HOSTS 와 같아야 한다(scripts/audit/preview-guard.mjs 가 대조). */
+(function () {
+  var h = String((window.location && window.location.hostname) || '').toLowerCase().replace(/\.$/, '');
+  if (h !== 'momentedit.kr' && h !== 'www.momentedit.kr' && !window.__mePreviewGuardInstalled) {
+    document.write('<script src="/shared/preview-guard.js"><\/script>');
+  }
+})();
+
 /*
  * Moment Edit · 고정 식장 정보 (모든 청첩장 공통)
  * ──────────────────────────────────────────────────────────────

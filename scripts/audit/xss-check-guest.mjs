@@ -67,6 +67,7 @@ const PORT = 8143;
   const failures = [], unmeasured = [];
   for (const c of CASES) {
     const ctx = await browser.newContext();
+    await ctx.addInitScript('window.__ME_PREVIEW_GUARD_TEST_OFF = true;');   // [PREVIEW_GUARD_TEST_OFF]
     await ctx.route('**/*', async (route) => {
       const req = route.request(), u = req.url();
       if (u.includes('script.google.com')) {

@@ -9897,3 +9897,37 @@ chk 'NARV_UNWIRED' 'docs/plans/식순연구/추리기_기준_20260920.md' 1
 #     문안을 더 쓸 일이 아니라 칩을 달고 엔진이 읽게 하는 «코드 몫»이다.
 #   ★교훈 — 「칸이 없다」와 「칸은 있는데 안 이어져 있다」는 다른 문장이다.
 #     앞엣것으로 잘못 보고하면 남이 «없는 글»을 쓰러 간다. 실제로 코워크가 그럴 뻔했다.
+# ★★[PREVIEW_GUARD 2026-09-25 사장님 결정 «가지 미리보기를 켜되 안전장치를 먼저»]
+#   운영 주소(momentedit.kr · www)가 아닌 곳에서는 페이지가 GAS 를 못 부르게 한다 — fetch·XHR·JSONP·
+#   sendBeacon·링크·폼 여섯 길 전부. 페이지에 GAS 주소가 고정으로 박혀 있고 테스트용 시트가 없어,
+#   미리보기에서 누른 것이 실제 예약 시트에 들어가기 때문이다. 운영 주소에서는 아무것도 안 바뀐다.
+#   ★템플릿(i/ · i-family/)은 손대지 않았다 — 템플릿이 모두 먼저 부르는 shared/venue.js 가 끼운다.
+#   ★검사가 새 페이지까지 본다 — GAS 주소를 품은 .html 이 <head> 맨 앞에서 장치를 안 부르면 빨강.
+#   실브라우저 판(--live)은 브라우저가 필요해 게이트에서는 안 돌린다: node scripts/audit/preview-guard.mjs --live
+chk 'PREVIEW_GUARD' shared/preview-guard.js 1
+chk 'PREVIEW_GUARD' shared/venue.js 1
+chk 'PREVIEW_GUARD' scripts/audit/preview-guard.mjs 1
+chk 'PREVIEW_GUARD_TEST_OFF' shared/preview-guard.js 1
+chk 'GUARD_TEST_OFF' scripts/audit/_browser.mjs 3
+if command -v node >/dev/null 2>&1; then
+  node scripts/audit/preview-guard.mjs >/dev/null 2>&1 \
+    || { echo 'FAIL [PREVIEW_GUARD] 미리보기 안전장치가 빠졌거나 판정식이 틀렸다 — node scripts/audit/preview-guard.mjs'; fail=1; }
+fi
+# ★★[PREVIEW_GUARD_API] 서버(api/)도 막는다 — 페이지 장치는 브라우저만 막고, 미리보기 주소의 /api 는
+#   HANDOFF_WEBHOOK_URL 로 운영 시트에 쓴다(문의리드·AI 인계·질문/비용/클릭 로그). 쓰는 다섯 곳이
+#   전부 api/_livehook.js 를 거쳐야 한다. 읽기(_facts·_kbnotes·빈 날짜 조회)는 시트를 안 바꿔 그대로 둔다.
+chk 'PREVIEW_GUARD_API' api/_livehook.js 1
+chk "require('./_livehook')" api/_costlog.js 1
+chk "require('./_livehook')" api/_qlog.js 1
+chk "require('./_livehook')" api/lead-click.js 1
+chk "require('./_livehook')" api/handoff.js 1
+chk "require('./_livehook')" api/lead.js 2
+# ★★[PREVIEW_BRANCH_ONLY] 가지 미리보기는 이름에 preview 가 든 가지만 만든다 — 세션 가지마다 쌓이지 않게.
+#   main 은 종전 규칙 그대로(automation/·*.md 만 바뀐 커밋은 건너뜀).
+chk 'preview\*) exit 1' vercel.json 1
+# ★★[RAW_OFF_GITHUB 2026-09-25 사장님 결정 «저장소 비공개 전환»] 부부폼 미리보기 그림을 깃허브 raw 가 아니라
+#   사이트에서 받는다. 비공개가 되면 raw 주소는 토큰 없이 404 다.
+chk "RAW: 'https://www.momentedit.kr/assets/preview/'" automation/form-to-couple.gs 1
+chk 'RAW_OFF_GITHUB' automation/form-to-couple.gs 2
+# ★★[COWORK_SPLIT_0925] 설계=코워크 · 구현=코드 · 서로 검토·제안 — CLAUDE.md 「분업」 절(사장님 9/25)
+chk 'COWORK_SPLIT_0925' CLAUDE.md 1
