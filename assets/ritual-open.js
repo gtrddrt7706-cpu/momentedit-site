@@ -71,7 +71,10 @@
     wine: [['mix', '두 와인을 한 잔에'], ['family', '양가가 한 병씩'], ['none', '붓지 않음']],
     /* ★[FREE_WHAT 2026-09-25 코워크 4-4] 준비한 순서 — 무엇을 × 길이. 라이브 노래 · 연주는 받지 않는다(사장님 결정 1 · 4). */
     free: [['video', '영상'], ['dance', '춤'], ['show', '공연'], ['gift', '깜짝 선물'], ['hand', '전달'], ['speech', '친구 · 가족의 축사']],
-    freeLen: [['3', '3분'], ['2', '2분'], ['1', '1분']]
+    freeLen: [['3', '3분'], ['2', '2분'], ['1', '1분']],
+    /* ★[ENTRY_SCENE 2026-09-25 코워크 회신 4-3 · 새 키] 입장의 «첫 장면» — 도착한 뒤 서로 바라보기(지금 소리) · 맞절(새 한 줄 108).
+       길이는 같다(도착 멘트 한 줄을 바꿔 끼울 뿐 · 시간표 그대로). 새 코스에만 · 옛 코스는 norm 이 look 으로 둔다. */
+    entryScene: [['look', '서로 바라보기'], ['bow', '맞절']]
   };
   // 준비한 순서의 무엇을 → 여는 말 · 준비할 것 · 남는 장면의 갈래(영상 / 무대 / 건네기)
   var FREE_KIND = { video: 'video', dance: 'stage', show: 'stage', gift: 'gift', hand: 'gift', speech: 'speech' };
@@ -85,6 +88,7 @@
     if (k === 'wine') return CHIP_OK('wine', S.wine) ? S.wine : 'mix';
     if (k === 'free') return CHIP_OK('free', S.freeWhat) ? S.freeWhat : 'video';
     if (k === 'freeLen') return CHIP_OK('freeLen', String(S.freeLen)) ? String(S.freeLen) : '3';
+    if (k === 'entryScene') return S.entryScene === 'bow' ? 'bow' : 'look';
     return '';
   }
   function CHIP_OK(k, v) { return (CHIPS[k] || []).some(function (c) { return c[0] === v; }); }
@@ -99,6 +103,7 @@
     else if (k === 'wine') S.wine = v;
     else if (k === 'free') S.freeWhat = v;
     else if (k === 'freeLen') S.freeLen = v;
+    else if (k === 'entryScene') S.entryScene = v;
     return S;
   }
   /* 판 이름(목록 · 띠) — 칩 이름과 같되 둘만 다르다.
@@ -113,7 +118,7 @@
   }
   function labelOf(k, v) { var c = (CHIPS[k] || []).filter(function (x) { return x[0] === v; })[0]; return c ? c[1] : ''; }
   // 손으로 처음 담을 때의 기본 판(명세 5장)
-  var DEF = { entry: 'A', declareWho: 'narr', declare: '1', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'mix', candleWho: 'mothers', freeWhat: 'video', freeLen: '3' };
+  var DEF = { entry: 'A', declareWho: 'narr', declare: '1', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'mix', candleWho: 'mothers', freeWhat: 'video', freeLen: '3', entryScene: 'look' };
 
   /* ── 화촉 서는 분(연출 단계 · S.candleWho) ── */
   var CANDLE_WHO = [['mothers', '양가 어머님'], ['parents', '어머님과 아버님'], ['fathers', '아버님 두 분'], ['others', '다른 두 분']];
@@ -236,7 +241,8 @@
     switch (k) {
       case 'prevideo': return [['couple', '영상 링크(3분 안) 또는 사진 30~40장 · 사흘 전까지']];   // [PREVIDEO_ALWAYS]
       case 'candle': return [['parents', '화촉 · 불을 밝힐 두 분']];
-      case 'entry': return [['couple', '선창 말투 · 첫 장면 고르기']];
+      /* [LISTEN_PAGE 2026-09-25] 입장의 «말투 · 첫 장면»은 ② 보고 듣기에서 들어 보고 고른다 — 준비할 것(보낼 것)이 아니다. 두 분 목소리 녹음은 목소리 칩이 더한다 */
+      case 'entry': return [];
       case 'welcome': return [['couple', '첫인사 한두 문장']];
       case 'bless': return [['parents', '덕담 원고 400자 안팎(저희가 받아 큰 글씨로)']];
       case 'vow': return [['couple', '서약문(비슷한 길이로)']];
@@ -324,7 +330,7 @@
       var home = c === 'wine' ? 'toast' : c === 'freeLen' ? 'free' : c;
       if (onOf(S, home) && chipOf(c, S) !== chipOf(c, T)) diff++;
     });
-    if (diff) bits.push('판 바꿈 ' + diff);
+    if (diff) bits.push('바꾼 것 ' + diff);   // [LISTEN_PAGE 코워크 4-2] 고객 화면에 «판»을 두지 않는다
     return bits.length ? ('‹' + ex.nm + '› 예시에서 시작 · ' + bits.join(' · ')) : ('‹' + ex.nm + '› 예시 그대로');
   }
   function sameAsExample(S, k) {
@@ -364,6 +370,8 @@
       speech: '두 분을 오래 지켜본 분께서, 축하의 말을 준비하셨습니다.'
     },
     freeOut: '따뜻한 박수 부탁드립니다.',
+    /* [ENTRY_SCENE] 맞절 판의 도착 멘트(108 · 녹음 전 · 말맛은 사장님) — 바라보기 판의 도착 멘트 자리에 바꿔 끼운다 */
+    entryBow: '두 사람이 나란히 있습니다. 서로를 향해, 맞절로 첫인사를 나눠 주세요.',
     freeFail: '이 순서는 잠시 뒤, 사진 시간에 함께 보겠습니다.',
     bowGroom: '신랑은 큰절로, 신부는 고개 숙여, 부모님께 감사를 올립니다.',
     toastBothPour: '다음은 축배입니다. 우리도 다 같이 잔을 들어요. 제가 위하여, 하면 다 함께 위하여, 하고 답해 주세요. 두 사람의 새로운 시작을 위하여!'
@@ -397,7 +405,53 @@
     return out;
   }
 
+  /* ★★[LISTEN_PAGE 2026-09-25 코워크 회신 4장 · 사장님 결정] ② 보고 듣기 · 순간 영상의 원천.
+     SCENE      장면 영상이 없을 때 자리에 쓰는 한 줄(무엇이 보일지)
+     VIDEO_READY 들어온 장면 영상 이름 — ★파일이 오면 이 목록에 이름만 더한다(① 카드 · ② · ④ 가 함께 바뀐다).
+                 파일: /assets/video/moments/<이름>.mp4 (16:9 · 1280×720 · 5~8초 · 소리 없음) + <이름>.webp(첫 장면)
+     videoKeys  한 순간이 쓰는 장면 이름들(판에 따라 · 차례대로) — 케이크만 cake · 축배만 toast · 둘 다 cake → toast
+     talkOf     사람이 말하는 자리의 글 카드(«여기서 … · 약 n분») — 보고 듣기는 그 자리를 기다리지 않고 3초 보여 주고 넘어간다 */
+  var SCENE = {
+    guest: '테이블에 앉는 하객들 사이로 촛불이 흔들려요', prevideo: '불을 낮춘 방 · 화면 빛을 받는 하객들의 뒷모습',
+    candle: '두 손이 긴 초에 불을 옮겨요', entry: '문이 열리고 두 분이 함께 걸어 들어와요',
+    welcome: '두 분이 하객 쪽으로 서서 고개 숙여 인사해요', bless: '자리에서 마이크를 든 부모님 · 듣는 두 분의 뒷모습',
+    vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
+    tribute: '두 분이 부모님께 꽃을 건네고 안겨요', free: '앞을 바라보며 웃는 하객들', letter: '편지지를 든 손 · 듣는 사람의 흐린 옆얼굴',
+    toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요'
+  };
+  var VIDEO_DIR = '/assets/video/moments/';
+  var VIDEO_READY = [];
+  function videoKeys(k, S) {
+    if (k === 'toast') { var w = chipOf('toast', S), pour = w !== 'cake' && chipOf('wine', S) !== 'none';
+      return (w === 'toast' ? [] : ['cake']).concat(w === 'cake' ? [] : (pour ? ['toast-pour', 'toast'] : ['toast'])); }
+    if (k === 'entry') return ['entry', chipOf('entryScene', S) === 'bow' ? 'entry-bow' : 'entry-look'];
+    if (k === 'tribute') return S && S.tribute === 'bowGroom' ? ['tribute', 'tribute-bow'] : ['tribute'];
+    if (k === '_close') return ['close'];
+    return [k];
+  }
+  function videoOf(name) { return VIDEO_READY.indexOf(name) < 0 ? null : { mp4: VIDEO_DIR + name + '.mp4', poster: VIDEO_DIR + name + '.webp' }; }
+  function firstVideo(k, S) { var ks = videoKeys(k, S); for (var i = 0; i < ks.length; i++) { if (videoOf(ks[i])) return videoOf(ks[i]); } return null; }
+  function secTxt(x) { return x < 55 ? ('약 ' + Math.max(10, Math.round(x / 10) * 10) + '초') : ('약 ' + Math.round(x / 60) + '분'); }
+  function talkOf(k, S) {
+    var fk, n, p = 0;
+    try { p = (partsOf(k, S) || [])[1] || 0; } catch (e) { p = 0; }
+    switch (k) {
+      case 'welcome': return '두 분이 하객께 첫인사를 해요 · ' + secTxt(p || 30);
+      case 'bless': return '부모님이 덕담을 하세요 · ' + secTxt(p || 150);
+      case 'vow': return '두 분이 서약을 읽어요 · ' + secTxt(p || 100);
+      case 'declare': return chipOf('declare', S) === 'family' ? '가족 한 분이 성혼 선언문을 읽어요 · ' + secTxt(p || 15) : '';
+      case 'tribute': { var t = chipOf('tribute', S); if (t === 'none') return '';
+        return (crossTribute(S) ? '두 분이 서로의 부모님께 한마디씩 해요' : t === 'long' ? '두 분이 부모님께 준비한 말을 전해요' : '두 분이 부모님께 한마디씩 해요') + ' · ' + secTxt(p || 30); }
+      case 'letter': return (chipOf('letter', S) === 'each' ? '두 분이 서로에게 쓴 편지를 읽어요' : '두 분이 각자 부모님께 쓴 편지를 읽어요') + ' · ' + secTxt(p || 120);
+      case 'free': fk = FREE_KIND[chipOf('free', S)]; n = chipOf('freeLen', S);
+        if (fk === 'speech') return '준비한 분이 축하의 말을 해요 · 약 ' + n + '분';
+        return chipLabel('free', S) + ' · 보고 듣기에서는 건너뛰어요';
+    }
+    return '';
+  }
+
   return {
+    SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, secTxt: secTxt,
     prepList: prepList,
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS,
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,

@@ -711,6 +711,107 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-sec.own{margin-top:26px;padding-top:14px;border-top:1px dashed var(--border)}
 .op-addfree{display:block;margin-top:8px;background:none;border:1px dashed var(--gold-deep);border-radius:10px;padding:8px 12px;font:inherit;font-size:12.5px;color:var(--gold-deeper);cursor:pointer;min-height:40px}
 .op-addfree:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
+/* ════ [LISTEN_PAGE 2026-09-25] 네 걸음 · 장면 자리 · ② 보고 듣기 — 브랜드 팔레트만(momentedit-design) ════
+   ★시안 3판의 파란 강조 · 촛불빛 그라디언트는 가져오지 않았다(팔레트 밖 · 글로우 금지). 구조만 옮겼다.
+   ★녹음 전 줄 표시는 왼쪽 굵은 선이 아니라 작은 라벨이다([NO_SIDE_STRIPE]). */
+.wr-sec{margin-top:18px}
+.wr-sec .sec-l{margin-bottom:8px}
+.wr-list{margin:0;padding-left:18px;font-size:13px;line-height:1.75;color:var(--sub);word-break:keep-all}
+.wr-due{color:var(--light);font-size:12px}
+.wr-sub{font-size:13px;font-weight:600;color:var(--accent);margin:14px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.op-steps{display:flex;gap:4px;list-style:none;padding:0;margin:14px 0 4px;font-size:11.5px;color:var(--light)}
+.op-steps li{flex:1;text-align:center;padding-top:6px;border-top:2px solid var(--border);white-space:nowrap}
+.op-steps li.on{color:var(--accent);font-weight:600;border-top-color:var(--accent)}
+.op-steps li.done{color:var(--ink2);border-top-color:var(--gold-deep)}
+.op-band.thin .op-bar,.op-band.thin .op-leg{display:none}
+.op-band.thin .op-mf{margin-top:4px}
+.lv{position:relative;display:block;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
+.lv video{display:block;width:100%;height:100%;object-fit:cover}
+.lv-ai{position:absolute;left:8px;top:8px;font-size:11px;line-height:1.4;color:var(--sub);background:rgba(250,250,248,.9);border-radius:4px;padding:1px 6px}
+.lv.none{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 16px;text-align:center}
+.lv .lv-sc{font-family:var(--serif);font-size:14px;color:var(--ink2);line-height:1.5;word-break:keep-all}
+.lv .lv-soon{font-size:11px;color:var(--light)}
+.lv.art{background:var(--card);display:flex;align-items:center}
+.lv.art .mclip{width:100%;border:0;margin:0;background:none}
+.lv.mini{width:64px;border-radius:6px}
+.lv.mini .lv-dot{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--gold)}
+.op-card .lv{margin:-1px -2px 10px;cursor:pointer}
+.op-card .op-vl{font-size:12px;color:var(--ink2);margin-top:6px;word-break:keep-all}
+.op-card .op-vl span{color:var(--light)}
+.nav{flex-wrap:wrap}
+.op-cta{flex:0 0 100%;font-size:12px;color:var(--sub);text-align:center;margin:-4px 0 -2px;word-break:keep-all}
+.op-cta b{color:var(--accent);font-weight:600;white-space:nowrap}
+/* ② */
+.ls-band .t1{font-size:13px}
+.ls-hero{display:block;width:100%;border:0;padding:0;margin:12px 0 10px;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.ls-hl{display:flex;align-items:center;gap:9px;margin-top:9px}
+.ls-hl b{font-size:15px;font-weight:600;color:var(--accent)}
+.ls-hb{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#FAFAF8;display:grid;place-items:center;flex:none}
+.ls-len{font-size:12.5px;color:var(--sub)}
+.ls-rows{border-top:1px solid var(--border)}
+.ls-row{display:grid;grid-template-columns:26px 64px minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--border)}
+.ls-row.now{background:var(--bg2)}
+.ls-row.open{background:var(--card)}
+.ls-row.added{animation:lsAdd 1.2s var(--ease,ease-out)}
+@keyframes lsAdd{from{background:#F3ECDF}to{background:transparent}}
+.ls-no{font-size:11px;color:var(--light);text-align:right;white-space:nowrap}
+.ls-th,.ls-main{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.ls-main{display:flex;flex-direction:column;gap:1px;min-width:0;min-height:44px;justify-content:center}
+.ls-main .nm{font-size:14.5px;font-weight:600;color:var(--accent);word-break:keep-all}
+.ls-row.off .ls-main .nm{font-weight:500;color:var(--ink2)}
+.ls-main .nm::after{content:'';display:inline-block;width:6px;height:6px;margin:0 0 3px 8px;border-right:1px solid var(--light);border-bottom:1px solid var(--light);transform:rotate(45deg);vertical-align:middle}
+.ls-row.open .ls-main .nm::after{transform:rotate(-135deg);margin-bottom:-1px}
+.ls-main .sp{font-size:12px;color:var(--sub);line-height:1.5;word-break:keep-all}
+.ls-acts{display:flex;gap:6px;align-items:center}
+.ls-play{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.ls-add{min-height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.ls-x{grid-column:1 / -1;padding:4px 2px 6px 32px;font-size:12.5px;color:var(--sub);line-height:1.65;word-break:keep-all}
+.ls-x b{color:var(--accent);font-size:12.5px;font-weight:600}
+.ls-flow ol{margin:4px 0 10px;padding-left:18px}
+.ls-flow li{margin:1px 0}
+.ls-flow li.talk{color:var(--accent)}
+.ls-new{font-size:11px;color:var(--gold-deeper);white-space:nowrap}
+.ls-vars{display:flex;flex-direction:column;gap:7px;margin:2px 0 10px}
+.ls-hint{font-weight:400;color:var(--light);font-size:11.5px}
+.ls-cg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ls-cg .gl{font-size:11.5px;color:var(--light);min-width:48px}
+.ls-wr{display:flex;gap:6px;align-items:flex-start;margin:2px 0 10px}
+.ls-wr svg{margin-top:4px;color:var(--light);flex:none}
+.ls-wr em{font-style:normal;color:var(--light)}
+.ls-rm{min-height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--border);background:var(--bg);color:var(--sub);font:inherit;font-size:12px;cursor:pointer}
+.ls-note{font-size:12px;color:var(--light);margin:6px 0 8px}
+.ls-msg{font-size:12.5px;color:var(--ink2);min-height:1.2em;margin:10px 2px 0}
+.ls-off{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:0 10px}
+.ls-off summary{cursor:pointer;font-size:13px;padding:12px 0;color:var(--ink2);min-height:44px;box-sizing:border-box}
+.ls-off .ls-row{border-bottom-color:var(--bg2)}
+.ls-mini{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(484px,calc(100% - 32px));display:none;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--accent);color:#FAFAF8;z-index:80}
+.ls-mini .lm-t{flex:1;min-width:0;border:0;background:none;color:inherit;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;min-height:40px;justify-content:center}
+.ls-mini .lm-t b{font-size:13px;font-weight:600}
+.ls-mini .lm-t small{font-size:11.5px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mini .lm-b{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:rgba(250,250,248,.14);color:inherit;display:grid;place-items:center;cursor:pointer}
+.ls-full{position:fixed;inset:0;z-index:2147482000;background:var(--bg);overflow:auto}
+.ls-full[hidden]{display:none}
+body.lsfull{overflow:hidden}
+.lf-in{max-width:520px;margin:0 auto;padding:12px 18px calc(28px + env(safe-area-inset-bottom))}
+.lf-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--sub);margin-bottom:10px}
+.lf-min{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.lf-seg{display:flex;gap:3px;margin:12px 0 14px}
+.lf-seg span{flex:1;height:3px;border-radius:2px;background:var(--border)}
+.lf-seg span.done{background:var(--gold)}
+.lf-seg span.on{background:var(--accent)}
+.ls-full h3{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--accent);margin:0}
+.lf-lab{font-size:12.5px;color:var(--light);margin-top:2px}
+.lf-txt{font-family:var(--serif);font-size:16px;line-height:1.85;color:var(--accent);margin:12px 0 14px;min-height:3.6em;word-break:keep-all}
+.lf-txt.talk{font-family:var(--sans);font-size:14px;color:var(--sub);background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px}
+.lf-vars{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.lf-vars .gl{font-size:11.5px;color:var(--light);min-width:48px}
+.lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:6px}
+.lf-ctl button{width:48px;height:48px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.lf-ctl button.big{width:60px;height:60px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
+.lf-end{text-align:center;font-size:14px;color:var(--ink2);margin:24px 0 0;line-height:1.7;word-break:keep-all}
+.lf-endb{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.ls button:focus-visible,.ls-full button:focus-visible,.ls-mini button:focus-visible,.op-card .lv:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.ls-row.added{animation:none}}
 </style>
 </head>
 <body>
@@ -734,7 +835,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 </div>
 <script src="/assets/ritual-open.js"></script><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
-var S={course:'open',on:{},wine:'mix',tributeSay:'one',candleWho:'mothers',freeWhat:'video',freeLen:'3',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
+var S={course:'open',on:{},wine:'mix',tributeSay:'one',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
@@ -1707,6 +1808,8 @@ var STEPDEF={
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
+ /* [LISTEN_PAGE] 새 코스의 ② — 고른 순서대로 장면을 보며 나레이션을 듣는 한 쪽(순간마다 한 화면을 대신한다) */
+ listen:{k:'listen',title:'보고 듣기',sub:'고른 순서대로 장면을 보며 나레이션을 들어 보세요. 줄을 누르면 흐름과 고를 것이 열려요.'},
  write:{k:'write',title:'글 적어두기',sub:'비워둬도 돼요 · D-7까지 채우면 대본에 담겨요'},
  done:{k:'done',title:''}
 };
@@ -1803,7 +1906,11 @@ function buildSteps(){
   var seq=curSeq();
   CEREMONY=seq.slice();
   /* [OPEN_COURSE] 새 코스: 안내 둘 → 고르기 하나 → 담은 순간의 연출 → 글 → 완성(명세 2장) */
-  if(isOpen()){ STEPS=[STEPDEF.intro,STEPDEF.intro2,STEPDEF.pick].concat(seq.map(function(k){return STEPDEF[k];}).filter(Boolean)).concat([STEPDEF.write,STEPDEF.done]); return; }
+  /* ★★[LISTEN_PAGE 2026-09-25 코워크 회신 4-1] 새 코스: 안내 둘 → ① 고르기 → ② 보고 듣기 → ③ 글 적기 → ④ 완성.
+     담은 순간마다의 연출 화면(STEPDEF[k])은 새 코스에서 부르지 않는다 — 그 일은 ② 한 쪽과 ③ 이 한다(renderListen 머리 주석 표).
+     ★옛 코스 여섯 · 옛 초안은 아래 줄 그대로다. STEPDEF 의 순간 화면을 지우지 말 것(옛 코스가 쓴다).
+     ★「모든 순간을 한 번은 거친다」(2026-07-15)는 ② 의 «처음부터 보고 듣기»가 대신한다. */
+  if(isOpen()){ STEPS=[STEPDEF.intro,STEPDEF.intro2,STEPDEF.pick,STEPDEF.listen,STEPDEF.write,STEPDEF.done]; return; }
   STEPS=[STEPDEF.intro,STEPDEF.intro2,STEPDEF.course,STEPDEF.tune]
     .concat(seq.map(function(k){return STEPDEF[k];}))   // 전 순간 방문 고정 (2026-07-15 사용자 지시 · 건너뛰기 옵션 폐지)
     .concat([STEPDEF.write, STEPDEF.done]);   // 글 적기(서약·편지·인사말)는 마지막에 한 번에 (2026-07-16 사용자 지시 · 통합)
@@ -1896,6 +2003,7 @@ function render(){
      (실측: 완성 화면에 「저장 안 됨 · 다시 시도」가 남아 있었다 — 검사가 잡았다). */
   try{ _autoPaint(); }catch(e){}
   var st=STEPS[idx];
+  if(st.k!=='listen'&&st.k!=='done'&&typeof LP!=='undefined'&&LP.q.length) lsStop();   // [LISTEN_PAGE] ② 를 떠나면 소리를 멈춘다
   _seenK[st.k]=1;   // 방문 기록 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
   var pre=(st.k==='intro'||st.k==='intro2'||st.k==='course'||st.k==='tune'||st.k==='pick');
   if(st.k==='pick'&&!courseStarted){ courseStarted=true; }   // [OPEN_COURSE] 고르기 화면에 닿으면 이 기기에 이어 만들 수 있게 저장한다
@@ -1910,14 +2018,16 @@ function render(){
   // [ORD_NEXTNAME] 'tune' 한 단계를 세 가지 이름으로 부르고 있었다 —
   //   예고는 '함께 볼 순간 확인(전체 기본)' · 진행 라벨은 '기본 식순이 준비됐어요' · 화면 제목은 '어떤 순간을 직접 고를까요?'.
   //   부부는 예고를 보고 눌렀는데 다른 이름의 화면에 도착한다. 예고와 라벨을 화면이 하는 일('순서 다듬기')로 맞춘다.
-  document.getElementById('pnow').textContent=_isIntro?('안내 · '+(PHASE[st.k]||'')):(st.k==='tune')?'준비 · 순서 다듬기':(st.k==='pick')?'준비 · 우리 예식 짓기':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
-  document.getElementById('ppct').textContent=_isIntro?((st.k==='intro'?'1':'2')+' / 2'):(st.k==='tune')?'다듬기만 남음':(st.k==='pick')?('본식 '+estMin()):(st.k==='write')?'선택 입력':pre?'예식 시작 전':(stepNoLabel(st.k)+' · '+estMin());
+  document.getElementById('pnow').textContent=_isIntro?('안내 · '+(PHASE[st.k]||'')):(st.k==='tune')?'준비 · 순서 다듬기':(st.k==='pick')?'준비 · 우리 예식 짓기':(st.k==='listen')?'확인 · 보고 듣기':(st.k==='write')?'마지막 · 글 적어두기':(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
+  document.getElementById('ppct').textContent=_isIntro?((st.k==='intro'?'1':'2')+' / 2'):(st.k==='tune')?'다듬기만 남음':(st.k==='pick'||st.k==='listen')?('본식 '+estMin()):(st.k==='write')?'선택 입력':pre?'예식 시작 전':(stepNoLabel(st.k)+' · '+estMin());
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   // ★[ORD_NEXTLABEL] '다음 · X'는 우상단에 놓인 탓에 버튼으로 읽혔다 — 실제로 자동 점검 중 네 번 눌러
   //   네 번 아무 일도 일어나지 않았다(2026-08-01). 이건 누르는 것이 아니라 **다음 단계의 이름표**다.
   //   조사 '은'을 반드시 남길 것. 빼면 다시 명령형으로 읽힌다.
   if(st.k==='intro') pnextEl.textContent='다음은 · 두 분이 하실 일';
   else if(st.k==='intro2') pnextEl.textContent=isOpen()?'다음은 · 우리 예식 짓기':'다음은 · 코스 고르기';
+  else if(st.k==='pick') pnextEl.textContent='다음은 · 보고 듣기';   // [LISTEN_PAGE]
+  else if(st.k==='listen') pnextEl.textContent='다음은 · 글 적기';
   else if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
   else if(st.k==='course') pnextEl.textContent='다음은 · 순서 다듬기';
   else if(nx2 && nx2.k==='done' && st.k==='tune') pnextEl.textContent='다음은 · 추천 그대로, 완성 보기';
@@ -1927,12 +2037,14 @@ function render(){
   else pnextEl.textContent='';
   document.getElementById('nav').style.display='flex';
   var el=document.getElementById('stage'), h='';
-  if(st.k==='done'){ h=renderDone(); }
+  if(st.k==='done'){ h=_opSteps('done')+renderDone(); }
   else if(st.k==='intro'){ h=renderIntro(); }
   else if(st.k==='intro2'){ h=renderIntro2(); }
   else {
     var mo=MOMENT[st.k];
-    h+='<h2 class="q-title" id="stepHead" tabindex="-1">'+esc(st.title)+'</h2>'+((mo&&mo.t)?'<div class="q-sub">'+esc(mo.t)+'</div>':(st.sub?'<div class="q-sub">'+esc(st.sub)+'</div>':''));   // [ORD_H2]
+    h+=_opSteps(st.k);   // [LISTEN_PAGE] 새 코스의 네 걸음 표시(안내 둘은 번호 없이 그 앞)
+    var _ttl=(isOpen()&&st.k==='write')?'글 적기':st.title;
+    h+='<h2 class="q-title" id="stepHead" tabindex="-1">'+esc(_ttl)+'</h2>'+((mo&&mo.t)?'<div class="q-sub">'+esc(mo.t)+'</div>':(st.sub?'<div class="q-sub">'+esc(st.sub)+'</div>':''));   // [ORD_H2]
     if(recoTxt(st.k)) h+='<div class="reassure">'+esc(recoTxt(st.k))+'</div>';
     h+=renderStep(st.k);
   }
@@ -1940,6 +2052,8 @@ function render(){
   //   키보드·낭독기 사용자는 '아버지가'를 고른 순간 자기 위치를 잃는다. 같은 자리로 되돌려 준다.
   var _fk=(_ae0&&_ae0.getAttribute)?_ae0.getAttribute('data-fk'):null;
   el.innerHTML=h;
+  if(st.k==='pick') try{ _pickVids(); }catch(e){}   // [LISTEN_PAGE] ① 카드 장면 영상
+  _paintCta(st.k);
   fillWarn();   // [THIN_WARN] 규칙은 엔진에만 · 여기선 자리만 채운다
   if(_fk){ _fk=_fk.replace(/"/g,'');
     var _rf=el.querySelector('[data-fk="'+_fk+'"]');
@@ -1967,7 +2081,7 @@ function render(){
       :_doneSaved?(EMBED?'마이페이지로 나가기':'저장됨 · D-14까지 언제든 고쳐요')
       :_saveErr?'다시 저장하기':'이대로 저장하기')
     : '다음';
-  var _nxHtml=editReturn?'저장 · 요약으로':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(idx===STEPS.length-2)?'완성 보기':_lastN;
+  var _nxHtml=editReturn?'저장 · 요약으로':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(st.k==='pick'&&isOpen())?'다음 · 보고 듣기':(st.k==='listen')?'다음 · 글 적기':(idx===STEPS.length-2)?'완성 보기':_lastN;
   nx.innerHTML=_nxHtml;
   /* [ORD_SAVE_STATE] '저장 중'은 disabled 가 아니라 busy 다.
      처음엔 nx.disabled 를 걸었는데, 공용 규칙 .btn:disabled{opacity:.4} 가 버튼 전체를 흐려
@@ -1992,8 +2106,27 @@ function render(){
   }
   if(courseStarted) _persist();
 }
+/* [LISTEN_PAGE 2026-09-25 코워크 4-1] 네 걸음 표시 — 새 코스의 ①~④ 에서만. 안내 둘은 번호 없이 그 앞이다. */
+function _opSteps(k){
+  if(!isOpen()) return '';
+  var W=[['pick','① 고르기'],['listen','② 보고 듣기'],['write','③ 글 적기'],['done','④ 완성']], at=-1;
+  W.forEach(function(w,i){ if(w[0]===k) at=i; });
+  if(at<0) return '';
+  return '<ol class="op-steps" aria-label="진행 단계">'+W.map(function(w,i){ return '<li class="'+(i===at?'on':i<at?'done':'')+'"'+(i===at?' aria-current="step"':'')+'>'+w[1]+'</li>'; }).join('')+'</ol>';
+}
+/* [LISTEN_PAGE 코워크 4-2] ① 에서 하나라도 담으면 아래 단추 위에 «담은 순간 N · 본식 약 a~b분» — 13장을 끝까지 내려가지 않아도 된다 */
+function _paintCta(k){
+  var nav=document.getElementById('nav'); if(!nav) return;
+  var c=document.getElementById('opCta');
+  var show=isOpen()&&k==='pick'&&RitualOpen.picked(S).length>0&&!editReturn;
+  if(!show){ if(c) c.remove(); return; }
+  if(!c){ c=document.createElement('div'); c.id='opCta'; c.className='op-cta'; nav.insertBefore(c,nav.firstChild); }
+  c.innerHTML='담은 순간 <b>'+RitualOpen.bodySeq(S).length+'</b> · 본식 <b>'+esc(RitualOpen.span(S).body)+'</b>';
+}
 function renderMiniTL(k){
   var el=document.getElementById('minitl'), pn=document.getElementById('pnext');
+  /* [LISTEN_PAGE] 새 코스는 순간마다의 화면이 없다 — 레일 대신 네 걸음 표시(_opSteps)가 위치를 알린다 */
+  if(isOpen()){ el.style.display='none'; if(pn) pn.style.display='block'; return; }
   var isWrite=(k==='write');   // 글 적어두기 단계에서도 레일 항시 노출 → 각 순간으로 자유 이동·수정 (2026-07-22 사용자 지시 · WRITE_2CHECK)
   var blocks=k?fullBlocks():[];
   var cur=-1; for(var i=0;i<blocks.length;i++){ if(blocks[i].k===k){ cur=i; break; } }
@@ -2361,6 +2494,419 @@ window.opAddFree=function(){   // [FREE_OWN] ② 의 «+ 직접 준비한 순서
   if(!S.on) S.on={}; S.on.free=1; _opOpen.free=true; opSync();
   setTimeout(function(){ var el=document.getElementById('opc_free'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'center'}); },0);
 };
+/* ════════ ★★[LISTEN_PAGE 2026-09-25 코워크 회신 4장 · 사장님 결정] ② 보고 듣기 ════════
+   새 코스(open)만: 안내 둘 → ① 고르기 → ② 보고 듣기 → ③ 글 적기 → ④ 완성.
+   담은 순간마다의 연출 화면(STEPDEF[k])은 새 코스에서 부르지 않는다 — 옛 코스 여섯 · 옛 초안은 그대로(지우지 않음).
+   옛 연출 화면이 하던 일은 이 한 쪽과 ③ 으로 옮겼다(코워크 4-4 표):
+     장면 그림 · 이 순간 들어보기 → 줄의 작은 장면 · ▶ · 크게 보기 / «이렇게 진행돼요» → «이렇게 흘러요»(엔진 큐에서 저절로)
+     나레이션 글 → 크게 보기 자막 / 판 고르기 → 줄 안 «고를 것» / 두 분 목소리 → 목소리 칩 + ③ 녹음 올리기
+     바로 적기 → ③ 한 곳 / 식전 영상 링크 → ③ / AI 상담 추천 질문 → 열린 줄의 순간 키로
+   ★줄 차례 · 자막은 엔진 큐(assets/ritual-cue.js)에서 그대로 뽑는다 — 대본과 화면이 갈라질 수 없다.
+   ★녹음 전 줄 = 소리 파일이 없는 줄(_recorded.json 에 없음) + 뜻이 바뀌어 옛 소리가 틀린 말을 하는 줄(L_STALE)
+     → 소리 없이 글로 보여 주고 글자 × 0.16초 머문 뒤 다음.
+   ★사람이 말하는 자리는 기다리지 않는다 — «여기서 … · 약 n분» 글 카드를 3초 보여 주고 넘어간다.
+   ★자동 재생 없음 — 누른 뒤에만 소리. 음악 · 걸음 같은 말 없는 자리는 건너뛴다. */
+var LS={open:null, msg:'', flash:null};
+var ICO_PAUSE='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z"/></svg>';
+var ICO_NEXT='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 5v14l10-7zM16.5 5h2.5v14h-2.5z"/></svg>';
+var ICO_PREV='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 5v14L9 12zM5 5h2.5v14H5z"/></svg>';
+var ICO_X='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4z"/></svg>';
+var ICO_DOWN='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4L19.8 10 12 17.8 4.2 10z"/></svg>';
+var ICO_PEN='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 17.2V20h2.8L17.4 9.4l-2.8-2.8zM19.7 7.1a1 1 0 0 0 0-1.4l-1.4-1.4a1 1 0 0 0-1.4 0l-1.1 1.1 2.8 2.8z"/></svg>';
+var LREC=null, LRECP=null;
+/* 뜻이 바뀐 줄 — 파일은 있지만 옛 소리가 지금 대본과 다른 말을 한다(P1 · «삼십 분쯤»을 뺐다). 녹음이 들어오면 여기서 지운다. */
+var L_STALE={'26_narr-close':1};
+function _lrec(){
+  if(LREC) return Promise.resolve(LREC);
+  if(LRECP) return LRECP;
+  LRECP=fetch('/assets/audio/narration/_recorded.json',{credentials:'same-origin'}).then(function(r){ return r.ok?r.json():{clips:{}}; })
+    .then(function(j){ LREC=(j&&j.clips)||{}; return LREC; })['catch'](function(){ LREC={}; return LREC; });
+  return LRECP;
+}
+function _lHasSound(file){ return !!(LREC && file && LREC[file]!=null && !L_STALE[file]); }
+function _lName(k){ return k==='guest'?'하객 맞이 안내':(RitualOpen.CARDS[k]?RitualOpen.CARDS[k].n:k); }
+function _lRows(){ var R=RitualOpen; return ['guest'].concat(R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); })).concat(['_close']); }
+function _lOffRows(){ var R=RitualOpen; return R.PICKABLE.filter(function(k){ return k!=='free' && !R.onOf(S,k); }); }   // 준비한 순서는 «있을 때만» — ① 에서 더한다
+function _josa(w,a,b){ var c=String(w).charCodeAt(String(w).length-1); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b; }
+
+/* 줄 안 «고를 것» — 키는 지금 S 그대로. 새 키는 첫 장면(entryScene) 하나. */
+function _lGroups(k){
+  var R=RitualOpen, g=[];
+  function L(key,l,list,cur){ g.push({key:key,l:l,list:list,cur:cur}); }
+  if(k==='guest') L('guestVoice','목소리',[['nar','나레이션'],['couple','두 분 목소리']],S.guestVoice==='couple'?'couple':'nar');
+  if(k==='candle') L('candleWho','서는 분',R.CANDLE_WHO,R.CANDLE_WHO.some(function(c){return c[0]===S.candleWho;})?S.candleWho:R.DEF.candleWho);
+  if(k==='entry'){
+    L('entry','멘트',['A','B','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; }),S.entry);
+    L('entryVoice','목소리',[['nar','나레이션'],['couple','두 분 목소리']],S.entryVoice==='couple'?'couple':'nar');
+    L('entryScene','첫 장면',R.CHIPS.entryScene,R.chipOf('entryScene',S));
+    /* [ENTRY_OUT_PICK 2026-08-12 사장님 «따로따로»] 도착 멘트를 따로 고르는 판 — 바라보기 판에서만(맞절은 자기 한 줄) */
+    if(R.chipOf('entryScene',S)==='look') L('entryOut','도착 멘트',[['','입장과 같이']].concat(['A','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; })),ENTRY_OUT[S.entryOut]?S.entryOut:'');
+  }
+  if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
+  if(k==='tribute'){ L('tribute','말',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower'); }
+  if(k==='free'){ L('free','무엇',R.CHIPS.free,R.chipOf('free',S)); L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
+  if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));
+  if(k==='toast'){ L('toast','무엇',R.CHIPS.toast,R.chipOf('toast',S)); if(R.chipOf('toast',S)!=='cake') L('wine','와인',R.CHIPS.wine,R.chipOf('wine',S)); }
+  return g;
+}
+function _lSet(key,v){
+  var R=RitualOpen;
+  if(key==='guestVoice') S.guestVoice=v;
+  else if(key==='entryVoice') S.entryVoice=v;
+  else if(key==='candleWho') S.candleWho=v;
+  else if(key==='entry') S.entry=v;
+  else if(key==='entryOut') S.entryOut=v;
+  else if(key==='entryScene') S.entryScene=(v==='bow'?'bow':'look');   // [ENTRY_SCENE] 새 키
+  else if(key==='tributeHow') S.tribute=(v==='bowGroom'?'bowGroom':'flower');
+  else R.setChip(S,key,v);
+}
+/* 줄 한 줄 요약 — 판 이름 + 사람 말. 판도 말도 없으면 짧은 설명. */
+var L_BRIEF={ring:'말 없이 반지를 끼워요 · 여는 말과 맺는 말',_close:'닫는 말 → 그 자리에서 단체 사진',welcome:'',vow:'',bless:''};
+function _lSum(k){
+  var R=RitualOpen;
+  if(k==='guest') return (S.guestVoice==='couple'?'두 분 목소리':'나레이션')+' · 문이 열릴 때 · 10분 전 · 5분 전';
+  if(k==='prevideo') return '여는 말 → 영상(건너뜀) → 1분 전 안내';
+  var bits=[], vl=(k==='entry')?('멘트 «'+ENTRY[S.entry].d+'»'+(S.entryVoice==='couple'?' · 두 분 목소리':'')+(R.chipOf('entryScene',S)==='bow'?' · 맞절':'')):(typeof opChipLabel==='function'?opChipLabel(k):'');
+  if(k==='candle') vl=(R.CANDLE_WHO.filter(function(c){return c[0]===(S.candleWho||R.DEF.candleWho);})[0]||[0,''])[1];
+  if(k==='tribute' && S.tribute==='bowGroom') vl=(vl?vl+' · ':'')+'신랑 큰절';
+  if(vl) bits.push(vl);
+  var t=R.talkOf(k,S); if(t) bits.push(t);
+  return bits.length?bits.join(' · '):(L_BRIEF[k]||'');
+}
+/* 한 순간(또는 여럿)의 들을 차례 — 엔진 큐 그대로. g = engine() 결과 */
+function _lSteps(g,ks){
+  var r; try{ r=g.RitualCue.build(S,{mode:'preview'}); }catch(e){ return []; }
+  var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[];
+  ks.forEach(function(k){
+    var talked=false, ownDone=false;
+    var cs=r.cues.filter(function(c){
+      var row=(c.k==='guest' && /1min/.test(c.slug||''))?'prevideo':c.k;   // 1분 전 안내는 식전 영상 줄에서 듣는다
+      return row===k;
+    });
+    if(k==='prevideo'){ var pre=cs.filter(function(c){ return c.k==='prevideo'; }), one=cs.filter(function(c){ return c.k!=='prevideo'; }); cs=pre.concat(one); }
+    cs.forEach(function(c,i){
+      var own=(k==='guest'&&S.guestVoice==='couple')||(k==='entry'&&S.entryVoice==='couple'&&/^entry-/.test(c.slug||''));
+      var lab=c.pick||(/시작$/.test(c.name||'')?'여는 말':/마무리$/.test(c.name||'')?'맺는 말':(c.name||'').replace(/^하객 맞이 · /,''));
+      if(own){ if(!ownDone){ ownDone=true; out.push({k:k,lab:'두 분 목소리',txt:'두 분이 직접 녹음해 올리실 자리예요 · ③ 글 적기에서 대본을 드려요',talk:true,ms:2600}); } }
+      else if(c.file){
+        var snd=_lHasSound(c.file);
+        out.push({k:k,lab:lab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',ms:Math.max(2400,Math.round(String(c.text||'').length*160))});
+      }
+      if(c.live){
+        if(k==='prevideo'){ out.push({k:k,lab:'영상 3분',txt:'두 분의 영상 · 보고 듣기에서는 건너뛰어요',skip:true,ms:1300}); }
+        else if(!talked){ var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:(k==='free'&&!/축하의 말/.test(t))?t:('여기서 '+t),talk:true,ms:3000}); } }
+      }
+    });
+  });
+  return out;
+}
+
+/* ── 장면 자리: 들어온 영상 → 선 그림(clip) → «장면 영상 준비 중» ── */
+function _lVid(k,opt){
+  opt=opt||{}; var R=RitualOpen, v=R.firstVideo(k,S);
+  if(opt.name){ var vv=R.videoOf(opt.name); if(vv) v=vv; }
+  if(v) return '<div class="lv"><video muted loop playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video><span class="lv-ai">'+(opt.big?'AI로 만든 장면 · 실제 예식과 사람 · 옷이 달라요':'AI로 만든 장면')+'</span></div>';
+  if(opt.mini) return '<div class="lv mini" aria-hidden="true"><span class="lv-dot"></span></div>';
+  var c=(opt.art!==false)?clip(k==='_close'?'':k):'';
+  if(c) return '<div class="lv art">'+c+'</div>';
+  return '<div class="lv none"><span class="lv-sc">'+esc(opt.cap||R.SCENE[k]||_lName(k))+'</span><span class="lv-soon">장면 영상 준비 중</span></div>';
+}
+
+/* ── ② 화면 ── */
+function renderListen(){
+  var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S);
+  if(!ENG){ engine().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
+  if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
+  var note=R.noticeOf(S), h='<div class="op ls">';
+  h+='<div class="op-band ls-band"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>사진과 인사 <b>'+esc(sp.photo)+'</b></span></div>'+(note?'<div class="op-note" role="status">'+esc(note)+'</div>':'')+'</div>';
+  // 맨 위 큰 단추 — 들을 길이 ≈ 글자 × 0.16초 + 글 카드 3초
+  var len=0;
+  if(ENG){ _lSteps(ENG,_lRows()).forEach(function(x){ len+=x.talk?3:x.skip?0:Math.round(String(x.txt||'').length*0.16); }); }
+  h+='<button type="button" class="ls-hero" data-fk="lsall" onclick="lsPlayAll()">'+_lVid('entry',{art:false,cap:'우리 예식, 처음부터'})
+    +'<span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 보고 듣기</b><span class="ls-len">'+(len?('약 '+Math.max(1,Math.round(len/60))+'분'):'')+'</span></span></button>';
+  var no=0; h+='<div class="ls-rows">';
+  _lRows().forEach(function(k){ h+=_lRow(k,true,(k==='guest'||R.PRE[k])?'식전':String(++no),peak); });
+  h+='</div>';
+  h+='<p class="ls-msg" role="status" aria-live="polite">'+esc(LS.msg||'')+'</p>';
+  var off=_lOffRows();
+  if(off.length){
+    h+='<details class="ls-off"'+(LS.offOpen?' open':'')+' ontoggle="LS.offOpen=this.open"><summary>넣지 않은 순간 <b>'+off.length+'</b> · 들어 보고 넣을 수 있어요</summary>';
+    off.forEach(function(k){ h+=_lRow(k,false,'',peak); });
+    h+='<p class="ls-note">직접 준비한 순서는 ① 고르기에서 더해요 · 특별히 준비한 것이 있을 때만요.</p></details>';
+  }
+  LS.flash=null;
+  h+='</div>';
+  return h;
+}
+function _lRow(k,on,no,peak){
+  var R=RitualOpen, open=(LS.open===k), cur=(LP.q.length&&LP.cur===k);
+  var h='<div class="ls-row'+(on?'':' off')+(open?' open':'')+(cur?' now':'')+(LS.flash===k?' added':'')+'" data-lk="'+k+'">';
+  h+='<span class="ls-no">'+esc(no)+'</span>';
+  h+='<button type="button" class="ls-th" aria-label="'+esc(_lName(k))+' · 크게 보고 듣기" onclick="lsBig(\''+k+'\')">'+_lVid(k,{mini:true})+'</button>';
+  h+='<button type="button" class="ls-main" aria-expanded="'+(open?'true':'false')+'" data-fk="lsm:'+k+'" onclick="lsOpen(\''+k+'\')"><span class="nm">'+(on&&k===peak?'<span class="op-star">★</span> ':'')+esc(_lName(k))+'</span><span class="sp">'+esc(on?_lSum(k):'넣지 않았어요')+'</span></button>';
+  h+='<span class="ls-acts"><button type="button" class="ls-play" aria-label="'+esc(_lName(k))+' 듣기" data-fk="lsp:'+k+'" onclick="lsPlay(\''+k+'\')">'+ICO_PLAY+'</button>'+(on?'':'<button type="button" class="ls-add" data-fk="lsa:'+k+'" onclick="lsAdd(\''+k+'\')">+ 넣기</button>')+'</span>';
+  if(open) h+='<div class="ls-x">'+_lExp(k,on)+'</div>';
+  return h+'</div>';
+}
+function _lExp(k,on){
+  var R=RitualOpen, h='';
+  if(ENG){
+    var st=_lSteps(ENG,[k]);
+    if(st.length) h+='<div class="ls-flow"><b>이렇게 흘러요</b><ol>'+st.map(function(x){ return '<li class="'+(x.talk?'talk':'')+'">'+esc(x.talk?x.txt.replace(/^여기서 /,''):x.lab)+(x.pending?' <span class="ls-new">녹음 준비 중</span>':'')+'</li>'; }).join('')+'</ol></div>';
+  } else h+='<div class="ls-flow"><b>이렇게 흘러요</b><p class="ls-note">불러오는 중이에요…</p></div>';
+  if(on || k==='guest'){
+    var gs=_lGroups(k);
+    if(gs.length) h+='<div class="ls-vars"><b>고를 것 <span class="ls-hint">· 누르면 고른 것으로 바로 들려드려요</span></b>'+gs.map(_lChipRow).join('')+'</div>';
+  }
+  var ps=R.prepOf(k,S);
+  if(k==='guest'&&S.guestVoice==='couple') ps=ps.concat([['couple','하객 맞이 안내 녹음(대본을 드려요) · 예식 7일 전까지']]);
+  if(k==='entry'&&S.entryVoice==='couple') ps=ps.concat([['couple','입장 인사 녹음(mp3 · m4a) · 예식 7일 전까지']]);
+  if(ps.length) h+='<div class="ls-wr">'+ICO_PEN+'<span>'+ps.map(function(q){ return (q[0]==='parents'?'부모님께 여쭐 것 · ':'')+esc(q[1]); }).join(' / ')+' <em>· ③ 글 적기에서 한 번에</em></span></div>';
+  if(on && !R.ALWAYS[k] && k!=='_close' && k!=='guest') h+='<button type="button" class="ls-rm" data-fk="lsr:'+k+'" onclick="lsRemove(\''+k+'\')">이 순간 빼기</button>';
+  if(!on) h+='<p class="ls-note">'+esc(R.slotText(k,S))+'</p>';
+  return h;
+}
+function _lChipRow(g){
+  return '<div class="ls-cg" role="group" aria-label="'+esc(g.l)+'"><span class="gl">'+esc(g.l)+'</span>'+g.list.map(function(c){ var on=(c[0]===g.cur);
+    return '<button type="button" class="op-chip" aria-pressed="'+(on?'true':'false')+'" data-fk="lsc:'+g.key+':'+c[0]+'" onclick="lsChip(\''+g.key+'\',\''+c[0]+'\')">'+esc(c[1])+'</button>'; }).join('')+'</div>';
+}
+window.lsOpen=function(k){ LS.open=(LS.open===k?null:k); render(); };
+window.lsChip=function(key,v){
+  var k=LS.open||(LP.q.length?LP.cur:null);
+  _lSet(key,v); buildSteps(); LS.msg='';
+  render();
+  /* 칩을 누르면 고른 대로 곧장 다시 들린다 · «처음부터» 중이었으면 그 순간부터 끝까지 이어서 */
+  if(k){ var all=LP.all&&LP.q.length; if(all){ var rs=_lRows(), i=rs.indexOf(k); _lStart(i>=0?rs.slice(i):[k],true); } else _lStart([k],false); }
+};
+window.lsRemove=function(k){
+  if(LP.cur===k) lsStop();
+  if(RitualOpen.onOf(S,k)){ S.on[k]=0; delete S.on[k]; }
+  LS.open=null; LS.msg='«'+_lName(k)+'»'+_josa(_lName(k),'을','를')+' 뺐어요 · 아래 «넣지 않은 순간»에서 다시 넣을 수 있어요.';
+  buildSteps(); render();
+};
+window.lsAdd=function(k){
+  if(LP.cur===k) lsStop();
+  S.on[k]=1; LS.open=k; LS.flash=k;
+  var R=RitualOpen, pos=R.bodySeq(S).indexOf(k)+1;
+  LS.msg='«'+_lName(k)+'»'+_josa(_lName(k),'을','를')+' '+pos+'번째에 넣었어요.';
+  buildSteps(); render();
+};
+
+/* ── 재생 · 작은 플레이어 · 크게 보기 ── */
+var LP={q:[],i:0,cur:null,t:null,paused:false,all:false,tok:0,big:false,el:null};
+function _lAud(){
+  if(!LP.el){ LP.el=new Audio(); LP.el.preload='auto';
+    LP.el.addEventListener('ended',function(){ _lNext(); });
+    LP.el.addEventListener('error',function(){ var st=LP.q[LP.i]; if(st&&st.src&&LP.el.getAttribute('src')){ st.src=null; st.pending=true; _lPaint(); _lTimer(st.ms); } }); }
+  return LP.el;
+}
+function _lTimer(ms){ clearTimeout(LP.t); var me=LP.tok; LP.t=setTimeout(function(){ if(me===LP.tok&&!LP.paused) _lNext(); },ms); }
+function _lNext(){ LP.i++; _lShow(); }
+function _lStart(ks,all){
+  _stopAud();
+  function go(){ LP.q=_lSteps(ENG,ks); LP.i=0; LP.paused=false; LP.all=!!all; LP.tok++; _lShow(); }
+  if(ENG&&LREC) go();
+  else engine().then(function(g){ if(!g){ LS.msg='소리를 불러오지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; } _lrec().then(go); });
+}
+function _lShow(){
+  var st=LP.q[LP.i], a=_lAud();
+  clearTimeout(LP.t);
+  if(!st){ _lEnd(); return; }
+  LP.cur=st.k; _lPaint();
+  if(LP.paused) return;
+  if(st.src){
+    a.src=st.src;
+    var p=a.play(); if(p&&p['catch']) p['catch'](function(){ LP.paused=true; _lPaint(); });   // 폰이 막으면 멈춘 채로 — ▶ 로 이어서
+  } else { try{ a.pause(); a.removeAttribute('src'); }catch(e){} _lTimer(st.ms); }
+}
+function _lEnd(){
+  var wasAll=LP.all, big=LP.big;
+  lsStop(true);
+  if(big) _lFull(wasAll?'all':'one');
+}
+window.lsStop=function(keepBig){
+  clearTimeout(LP.t); LP.tok++; LP.q=[]; LP.i=0; LP.cur=null; LP.all=false; LP.paused=false;
+  if(LP.el){ try{ LP.el.pause(); LP.el.removeAttribute('src'); LP.el.load(); }catch(e){} }
+  _lPaint();
+  if(!keepBig) lsCloseBig();
+};
+window.lsPlay=function(k){ _lStart([k],false); };
+window.lsPlayAll=function(){ LP.noChips=!!(STEPS[idx]&&STEPS[idx].k==='done'); LP.big=true; _lStart(_lRows(),true); _lFull(); };   // ④ 에서는 고를 것 칩 없이
+window.lsBig=function(k){ LP.noChips=false; LP.big=true; _lStart([k],false); _lFull(); };
+window.lsToggle=function(){
+  if(!LP.q.length){ lsPlayAll(); return; }
+  LP.paused=!LP.paused;
+  var st=LP.q[LP.i], a=_lAud();
+  if(LP.paused){ try{ a.pause(); }catch(e){} clearTimeout(LP.t); }
+  else if(st&&st.src&&a.getAttribute('src')){ var p=a.play(); if(p&&p['catch']) p['catch'](function(){}); }
+  else _lShow();
+  _lPaint();
+};
+window.lsJump=function(d){
+  if(!LP.q.length) return;
+  var cur=LP.cur;
+  if(d>0){ while(LP.q[LP.i]&&LP.q[LP.i].k===cur) LP.i++; }
+  else { var s0=LP.i; while(s0>0&&LP.q[s0-1].k===cur) s0--;
+    if(LP.i>s0) LP.i=s0; else { var p=s0-1; if(p<0) LP.i=0; else { var pk=LP.q[p].k; while(p>0&&LP.q[p-1].k===pk) p--; LP.i=p; } } }
+  _lShow();
+};
+/* 작은 플레이어(재생 중에만) */
+function _lMini(){
+  var el=document.getElementById('lsMini');
+  if(!el){ el=document.createElement('div'); el.id='lsMini'; el.className='ls-mini'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite'); document.body.appendChild(el); }
+  return el;
+}
+function _lPaint(){
+  var el=_lMini(), st=LP.q[LP.i];
+  document.querySelectorAll('.ls-row').forEach(function(r){ r.classList.toggle('now', !!st && r.getAttribute('data-lk')===st.k); });
+  if(!st||LP.big){ el.style.display='none'; }
+  else {
+    el.style.display='flex';
+    el.innerHTML='<button type="button" class="lm-t" onclick="lsOpenBig()" aria-label="크게 보기"><b>'+esc(_lName(st.k))+'</b><small>'+esc(st.talk?st.txt:st.lab)+(st.pending?' · 녹음 준비 중':'')+'</small></button>'
+      +'<button type="button" class="lm-b" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
+      +'<button type="button" class="lm-b" onclick="lsJump(1)" aria-label="다음 순간으로">'+ICO_NEXT+'</button>'
+      +'<button type="button" class="lm-b" onclick="lsStop()" aria-label="닫기">'+ICO_X+'</button>';
+  }
+  if(LP.big) _lFull();
+}
+window.lsOpenBig=function(){ LP.big=true; _lFull(); };
+window.lsCloseBig=function(){
+  LP.big=false; var f=document.getElementById('lsFull'); if(f){ f.hidden=true; document.body.classList.remove('lsfull'); }
+  _lPaint();
+};
+/* 크게 보기(전체 화면 · Esc 로 닫기 · ⌄ 로 작게) */
+function _lFull(end){
+  var f=document.getElementById('lsFull');
+  if(!f){ f=document.createElement('div'); f.id='lsFull'; f.className='ls-full'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-label','보고 듣기 · 크게'); document.body.appendChild(f); }
+  var st=LP.q[LP.i], R=RitualOpen, h='<div class="lf-in">';
+  var ks=[]; LP.q.forEach(function(x){ if(ks.indexOf(x.k)<0) ks.push(x.k); });
+  var pos=st?ks.indexOf(st.k):-1;
+  h+='<div class="lf-h"><button type="button" class="lf-min" onclick="lsCloseBig()" aria-label="작게 보기">'+ICO_DOWN+'</button><span>'+(st?(ks.length>1?(pos+1)+' / '+ks.length:'한 순간 듣기'):'')+'</span><span style="width:40px"></span></div>';
+  if(st){
+    var nm=_lSceneName(st);
+    h+=_lVid(st.k,{big:true,name:nm});
+    h+='<div class="lf-seg" aria-hidden="true">'+ks.map(function(k,i){ return '<span class="'+(i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
+    h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star">★</span> ':'')+esc(_lName(st.k))+'</h3>';
+    h+='<div class="lf-lab">'+esc(st.talk?'사람이 말하는 자리':st.lab)+(st.pending?' <span class="ls-new">녹음 준비 중 · 글로 보여 드려요</span>':'')+'</div>';
+    h+='<p class="lf-txt'+(st.talk||st.skip?' talk':'')+'" aria-live="polite">'+esc(st.txt||'')+'</p>';
+    if(!LP.noChips && (R.onOf(S,st.k)||st.k==='guest')){ var gs=_lGroups(st.k); if(gs.length) h+='<div class="lf-vars">'+gs.map(_lChipRow).join('')+'</div>'; }
+    h+='<div class="lf-ctl"><button type="button" onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button><button type="button" class="big" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button><button type="button" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button></div>';
+  } else if(end){
+    var sp=R.span(S);
+    h+='<div class="lf-end">'+(end==='all'?('끝까지 보셨어요 · 본식 '+esc(sp.body)+' · 사진과 인사 '+esc(sp.photo)):'이 순간을 다 들으셨어요')
+      +'<div class="lf-endb">'+(end==='all'?'<button type="button" class="rowbtn" onclick="lsPlayAll()">처음부터 다시</button>':'')
+      +((LP.noChips&&window.RitualPreviewLink&&RitualPreviewLink.url(S,{digital:!!CUSTDIG,photoShare:!!CUSTPHOTO,meal:!!CUSTMEAL}))?'<button type="button" class="rowbtn" onclick="lsCloseBig();openRitualPreview()">음악까지 미리듣기</button>':'')
+      +'<button type="button" class="rowbtn" onclick="lsCloseBig()">'+(LP.noChips?'완성 화면으로':'목록으로')+'</button></div></div>';
+  }
+  h+='</div>';
+  f.innerHTML=h; f.hidden=false; document.body.classList.add('lsfull');
+  var v=f.querySelector('video'); if(v){ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(!rm){ var pp=v.play(); if(pp&&pp['catch']) pp['catch'](function(){}); } }
+  var mb=f.querySelector('.lf-min'); if(mb&&document.activeElement&&!f.contains(document.activeElement)){ try{ mb.focus({preventScroll:true}); }catch(e){} }
+}
+/* 케이크 · 축배는 줄에 맞춰 장면이 바뀐다 · 첫 장면(바라보기 · 맞절) · 큰절 */
+function _lSceneName(st){
+  var s=st.slug||'';
+  if(st.k==='toast'){ if(/^toast-(both|cake)$|cake-out/.test(s)) return 'cake'; if(/pour/.test(s)&&!/pour-b/.test(s)) return 'toast-pour'; return 'toast'; }
+  if(st.k==='entry'&&/entry-out/.test(s)) return RitualOpen.chipOf('entryScene',S)==='bow'?'entry-bow':'entry-look';
+  if(st.k==='tribute'&&/bow-groom/.test(s)) return 'tribute-bow';
+  if(st.k==='_close') return 'close';
+  return st.k;
+}
+document.addEventListener('keydown',function(ev){ if(ev.key==='Escape'&&LP.big){ var f=document.getElementById('lsFull'); if(f&&!f.hidden){ lsCloseBig(); } } });
+
+/* ── ① 카드 장면 영상 — 화면 가운데 온 카드 하나만 소리 없이 · 누르면 멈춤/재생 · 움직임 줄이기 · 데이터 절약이면 자동 재생 없음 ── */
+var _pvIO=null, _pvPaused={};
+function _pickVids(){
+  if(_pvIO){ try{ _pvIO.disconnect(); }catch(e){} _pvIO=null; }
+  var vs=[].slice.call(document.querySelectorAll('.op-card video'));
+  if(!vs.length) return;
+  vs.forEach(function(v){
+    var box=v.parentNode, key=box.getAttribute('data-vk');
+    function t(){ if(!v.paused){ _pvPaused[key]=1; v.pause(); } else { delete _pvPaused[key]; vs.forEach(function(x){ if(x!==v) x.pause(); }); var p=v.play(); if(p&&p['catch']) p['catch'](function(){}); } }
+    box.onclick=t; box.onkeydown=function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); t(); } };
+  });
+  var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches, save=!!(navigator.connection&&navigator.connection.saveData);
+  if(rm||save||!('IntersectionObserver' in window)) return;
+  var ratio=new Map();
+  _pvIO=new IntersectionObserver(function(es){
+    es.forEach(function(x){ ratio.set(x.target,x.intersectionRatio); });
+    var best=null, br=.6; ratio.forEach(function(r,el){ var key=el.parentNode.getAttribute('data-vk'); if(r>=br&&!_pvPaused[key]){ best=el; br=r; } });
+    vs.forEach(function(v){ if(v===best){ if(v.paused){ var p=v.play(); if(p&&p['catch']) p['catch'](function(){}); } } else if(!v.paused) v.pause(); });
+  },{threshold:[0,.3,.6,.8,1]});
+  vs.forEach(function(v){ _pvIO.observe(v); });
+}
+/* ① 띠 — 붙은 뒤 60px 더 내려가면 막대 · 범례를 접고 숫자 · 흐름만 */
+window.addEventListener('scroll',function(){
+  var b=document.getElementById('opBand'); if(!b) return;
+  var j=document.querySelector('.op-jump'); var y0=j?(j.getBoundingClientRect().bottom+window.scrollY):0;
+  b.classList.toggle('thin', window.scrollY>y0+60);
+},{passive:true});
+
+/* ★★[LISTEN_PAGE 2026-09-25 코워크 4-5] ③ 글 적기 — 두 분이 쓸 말 · 보낼 것 · 녹음을 한곳에(각 순간에서의 1차 입력을 여기로 모음).
+   원천은 빌더와 같은 prepOf(prepList · 마감 7일 · 사흘 전) — 마이페이지 «두 분 준비 · 도와주실 분»과 같은 목록이다.
+   비워 두고 넘어가도 된다(지금과 같음). 옛 코스의 글 적어두기는 그대로다. */
+function _dueDate(n){
+  var d=(CUST&&CUST.weddingDate)||'', m=String(d).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return n===3?'사흘 전까지':'예식 7일 전까지';
+  var x=new Date(+m[1],+m[2]-1,+m[3]-n); return (x.getMonth()+1)+'월 '+x.getDate()+'일까지('+(n===3?'사흘 전':'7일 전')+')';
+}
+function _openWrite(){
+  var R=RitualOpen, h='';
+  var witems=[]; if(R.onOf(S,'welcome') && S.welcome==='self') witems.push('welcome'); if(R.onOf(S,'vow')) witems.push('vow'); if(R.onOf(S,'letter')) witems.push('letter');
+  h+='<div class="wr-sec"><h3 class="sec-l">두 분이 쓸 말</h3>';
+  if(witems.length){ var wd=witems.filter(function(x){ return _wcFilled(x); }).length;
+    h+='<div class="write-check"><b id="wcCount">'+witems.length+'개 중 '+wd+'개 적었어요.</b> 비워 두고 넘어가셔도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요.</div>';
+    witems.forEach(function(x){ h+=writeCard(x,true); }); }
+  else h+='<div class="write-check">직접 읽는 글이 없는 구성이에요.</div>';
+  h+='</div>';
+  // 보낼 것 · 마감 — prepList(부모님 몫은 따로)
+  var two=[], par=[];
+  R.prepList(S).forEach(function(q){ if(q.k==='welcome'||q.k==='vow'||q.k==='letter') return; (q.who==='parents'?par:two).push(q); });
+  h+='<div class="wr-sec"><h3 class="sec-l">보낼 것 · 준비할 것</h3><ul class="wr-list">';
+  two.forEach(function(q){ h+='<li>'+esc(String(q.what).replace(/\s*·\s*사흘 전까지$/,''))+' <span class="wr-due">· '+esc(_dueDate(q.due))+'</span></li>'; });
+  h+='</ul>';
+  // 식전 영상 링크(옛 식전 영상 화면에서 옮김 · 같은 칸 S.growthLink)
+  h+='<div class="wr-sub">식전 영상 링크</div>';
+  h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
+  h+='<div class="wd" id="growHint" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
+  h+='<div class="wd" style="margin-top:6px">가로 mp4 3분 이내 · 사흘 전까지 · 영상이 없으면 사진 30~40장을 보내 주세요. 저희가 3분 영상으로 만들어요.</div>';
+  h+='</div>';
+  // 두 분 목소리 녹음(하객 맞이 · 입장) — 옛 순간 화면의 올리기를 그대로 옮김(S.up 같은 칸)
+  if(S.guestVoice==='couple'||S.entryVoice==='couple'){
+    h+='<div class="wr-sec"><h3 class="sec-l">두 분 목소리 녹음</h3><div class="mth-how">대본은 <b>참고용</b>이에요 · 두 분 말로 바꿔 조용한 곳에서 한 번에 녹음해 올려 주세요. 예식 7일 전까지.</div>';
+    if(S.guestVoice==='couple'){
+      h+='<div class="wr-sub">하객 맞이 안내 <button class="copy-btn2" onclick="copyGuestScript()">대본 복사</button></div>';
+      GUEST.forEach(function(g,i){
+        h+='<div class="gt"><div class="gt-t">'+esc(g[0])+' <span class="gt-tag">참고 예시</span></div><div class="gt-x">'+esc(g[2])+'</div>';
+        h+='<div class="uprow">'+(S.up['g'+i]?'<span class="upst done">✓ '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" aria-label="'+esc(g[0])+' 파일 바꾸기" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" aria-label="'+esc(g[0])+' 파일 올리기" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'파일 올리기</button>')+'</div></div>';
+      });
+    }
+    if(S.entryVoice==='couple'){
+      h+='<div class="wr-sub">입장 인사 · '+esc(ENTRY[S.entry].d)+'</div>';
+      var eb=''; entryAlt(ENTRY[S.entry].self).forEach(function(x){ eb+='<div class="alt"><span class="altw">'+esc(x[0])+'</span><span>'+esc(x[1])+'</span></div>'; });
+      h+='<div class="oc on" style="cursor:default"><div class="nar"><span class="lb">참고 예시 · 한 문장씩 번갈아</span>'+eb+'</div></div>';
+      h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="mockUpload(\'entry\')">'+ICO_UP+'파일 올리기</button><span class="upst">mp3 · m4a</span></span>')+'</div>';
+    }
+    h+='</div>';
+  }
+  if(par.length){ h+='<div class="wr-sec"><h3 class="sec-l">부모님께 여쭐 것</h3><ul class="wr-list">'+par.map(function(q){ return '<li>'+esc(q.what)+' <span class="wr-due">· '+esc(_dueDate(q.due))+'</span></li>'; }).join('')+'</ul></div>'; }
+  var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});
+  h+='<div class="wr-sec"><h3 class="sec-l">도와주실 분</h3><ul class="wr-list">'+hp.map(function(x){ return '<li>'+esc(x[0])+' <span class="wr-due">· '+esc(x[1])+'</span></li>'; }).join('')+'</ul></div>';
+  return h;
+}
+function _pickVid(k){
+  var R=RitualOpen, v=R.firstVideo(k,S);
+  if(v) return '<div class="lv" data-vk="'+k+'" role="button" tabindex="0" aria-label="'+esc(R.CARDS[k].n)+' 장면 영상 · 누르면 재생 · 멈춤"><video muted loop playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'"></video><span class="lv-ai">AI로 만든 장면</span></div>';
+  return _lVid(k);
+}
+function _pickVl(k){
+  var R=RitualOpen;
+  if(k==='candle') return (R.CANDLE_WHO.filter(function(c){ return c[0]===(S.candleWho||R.DEF.candleWho); })[0]||[0,''])[1];
+  if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'»'+(S.entryVoice==='couple'?' · 두 분 목소리':'')+(R.chipOf('entryScene',S)==='bow'?' · 맞절':'');
+  var v=(typeof opChipLabel==='function')?opChipLabel(k):'';
+  if(k==='tribute'&&S.tribute==='bowGroom') v=(v?v+' · ':'')+'신랑 큰절';
+  return v;
+}
 function renderPick(){
   var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S), note=R.noticeOf(S), h='<div class="op">';
   h+='<a class="op-jump" href="#opEx" onclick="opJump(event)">고르기 어려우시면 맨 아래 예시에서 시작하셔도 돼요 ↓</a>';
@@ -2381,6 +2927,7 @@ function renderPick(){
     sec.ks.forEach(function(k){
       var c=R.CARDS[k], lock=(!!R.ALWAYS[k]||k==='_close'), on=lock||R.onOf(S,k), op=!!_opOpen[k];   // [PREVIDEO_ALWAYS] 입장 · 식전 영상 · 닫는 인사는 늘 있어요
       h+='<div class="op-card'+(on&&!lock?' on':'')+'" id="opc_'+k+'">';
+      h+=_pickVid(k);   // [LISTEN_PAGE 코워크 4-2] 카드 맨 위 장면(16:9 · 카드 폭 가득) — 영상 → 선 그림 → «준비 중»
       h+='<div class="op-top"><div class="op-nm">'+esc(c.n)+'</div>';
       h+=lock?'<button type="button" class="op-tg" disabled>늘 있어요</button>'
              :'<button type="button" class="op-tg" aria-pressed="'+(on?'true':'false')+'" data-fk="opt:'+k+'" onclick="opTgl(\''+k+'\')">'+(on?'담았어요 ✓':'+ 담기')+'</button>';
@@ -2389,12 +2936,14 @@ function renderPick(){
       h+='<div class="op-shot">남는 장면 · '+esc(R.shotOf(k,S)||c.shot)+'</div>';
       h+='<div class="op-meta"><span>'+esc(R.momentLabel(k,S))+'</span><span>누가 · '+esc(c.who)+'</span></div>';
       h+='<div class="op-slot">'+esc(R.slotText(k,S))+'</div>';
-      h+=opChips(k,on&&!lock);
+      /* ★[LISTEN_PAGE 코워크 4-2] 판 칩은 카드에서 뺐다 — ② 보고 듣기에서 들어 보고 고른다. 담은 카드에는 한 줄만.
+         (opChips 는 지우지 않는다 · 준비한 순서 단계 화면 등 옛 자리가 쓴다) */
+      if(on && k!=='prevideo' && k!=='_close'){ var _vl=_pickVl(k); if(_vl) h+='<div class="op-vl">고른 것 · '+esc(_vl)+' <span>· «보고 듣기»에서 들어 보고 바꿔요</span></div>'; }
       var ps=R.prepOf(k,S), det=[];
       det.push('<p><b>준비할 것</b> · '+(ps.length?ps.map(function(q){ return (q[0]==='parents'?'부모님께 여쭐 것 · ':'')+esc(q[1]); }).join(' / '):'따로 없어요')+'</p>');
       if(c.why) det.push('<p><b>이 자리인 까닭</b> · '+esc(c.why)+'</p>');
       if(!on){ var cs=(k==='toast')?['toast','wine']:(k==='free')?['free','freeLen']:(R.CHIPS[k]?[k]:[]);
-        if(cs.length) det.push('<p><b>고를 수 있는 방식</b> · '+cs.map(function(x){ return R.CHIPS[x].map(function(y){return esc(y[1]);}).join(' / '); }).join(' · ')+'</p>'); }
+        if(cs.length) det.push('<p><b>고를 수 있는 것</b> · '+cs.map(function(x){ return R.CHIPS[x].map(function(y){return esc(y[1]);}).join(' / '); }).join(' · ')+' · 담으면 «보고 듣기»에서 들어 보고 골라요</p>'); }
       h+='<button type="button" class="op-more" aria-expanded="'+(op?'true':'false')+'" data-fk="opm:'+k+'" onclick="opMore(\''+k+'\')">'+(op?'접기 ▴':'자세히 ▾')+'</button>';
       if(op) h+='<div class="op-det">'+det.join('')+'</div>';
       h+='</div>';
@@ -2497,6 +3046,7 @@ function renderStep(k){
   }
   if(k==='course'){ return '<div style="margin-top:18px"><div style="font-size:11px;color:var(--gold-deeper);margin:0 2px 12px;word-break:keep-all">표시된 순서는 두 분이 바꾸거나 뺄 수 있어요</div>'+CARD_ORDER.filter(function(k){ return COURSES[k] && !COURSES[k].hidden; }).map(courseCard).join('')+'</div>'; }
   if(k==='pick') return renderPick();   // [OPEN_COURSE]
+  if(k==='listen') return renderListen();   // [LISTEN_PAGE]
   if(k==='tune'){
     /* ★[THIN_WARN 2026-08-07] [ALL_OPTIONAL] 로 입장 빼고 전부 뺄 수 있게 되면서
        '입장만 남은 예식'을 만들어 놓고 모를 수 있게 됐다. 막지는 않는다 — 사용자가 그렇게 결정했다.
@@ -2938,6 +3488,7 @@ function renderStep(k){
       h+=oc('toast',v,TOAST[v].d,'',_tn,S.toast===v?(TOAST[v].out==='cakeOut'?OUT_CAKE:OUT_TOAST):null,null,(S.toast===v)?'실물(샴페인·케이크)은 저희가 준비해요':null);   // [NO_EXTRA_COST]
     });
   }
+  else if(k==='write' && isOpen()){ h+=_openWrite(); }   // [LISTEN_PAGE 코워크 4-5] 새 코스의 ③ — 옛 코스는 아래 그대로
   else if(k==='write'){
     // 글 적어두기 = 2차 확인 — 각 순간에서 1차로 적고, 여기선 적음/비움을 한눈에 점검·마저 채움 (2026-07-22 사용자 지시 · WRITE_2CHECK)
     var witems=[];
@@ -3338,7 +3889,10 @@ function renderDone(){
        (완성 직후 가장 하고 싶은 일이라 크게), 대본 둘이 그 아래 반씩 나눈다. */
   h+='<div class="play-acts">';   /* ★이름 주의 — 화면 맨 아래 .done-acts 와 다른 덩어리다(그쪽은 나가는 동작) */
   /* [PREVIEW_LINK_V1] 주소가 없으면(코스 없음) 미리듣기는 빠지고 아래 둘만 남는다 — flex 라 그대로 정렬된다 */
-  if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO, meal:!!CUSTMEAL}))
+  /* ★[LISTEN_PAGE 코워크 4-5] 새 코스의 ④ — «처음부터 끝까지 보기»가 ② 크게 보기와 같은 플레이어로 연다(고를 것 칩 없이).
+     듣기 단추는 하나로 둔다([REHEARSE_MERGED]) — 음악까지 들리는 옛 미리듣기는 그 플레이어의 끝 화면에서 연다. */
+  if(isOpen()) h+='<button class="rehearse-btn" onclick="lsPlayAll()">처음부터 끝까지 보기</button>';
+  else if(window.RitualPreviewLink && RitualPreviewLink.url(S, {digital:!!CUSTDIG, photoShare:!!CUSTPHOTO, meal:!!CUSTMEAL}))
     h+='<button class="rehearse-btn" onclick="openRitualPreview()">미리듣기</button>';
   /* ★★[REHEARSE_MERGED 2026-08-12 사용자 지시 "연습공간 없에고 미리듣기로 통합하자"]
      ★「연습 공간 열기」 단추 **폐지 — 되살리지 말 것.**
@@ -3919,7 +4473,14 @@ var RITUAL_CHIPS={
  tribute:['헌정은 어떤 방식들이 있나요?','헌정을 빼도 괜찮을까요?','헌정 꽃은 어떻게 준비되나요?'],
  bless:['덕담은 누가 하는 게 좋을까요?','부모님이 부담스러워하시면요?','덕담은 몇 분 정도인가요?'],
  write:['글은 지금 다 써야 하나요?','쓴 글은 어디에 저장되나요?','글 쓰는 공식이 있나요?'],
- done:['지금 구성이면 몇 분인가요?','저장하면 언제까지 고칠 수 있나요?','다음엔 뭘 준비하면 되나요?']
+ done:['지금 구성이면 몇 분인가요?','저장하면 언제까지 고칠 수 있나요?','다음엔 뭘 준비하면 되나요?'],
+ /* [LISTEN_PAGE 코워크 4-4] ② 에서 줄을 열면 그 순간의 질문 · 아무 줄도 안 열렸으면 listen */
+ listen:['고른 것은 어떻게 바꾸나요?','녹음 준비 중은 무엇인가요?','영상은 실제 예식 영상인가요?'],
+ pick:['뭘 기준으로 고르면 좋을까요?','하나도 안 담아도 되나요?','예시에서 시작하면 나중에 바꿀 수 있나요?'],
+ candle:['화촉은 누가 밝히나요?','초와 불은 누가 준비하나요?','화촉을 빼도 되나요?'],
+ prevideo:['식전 영상은 어떻게 보내나요?','영상이 없으면 어떻게 하나요?','영상은 몇 분까지 되나요?'],
+ free:['어떤 순서를 준비할 수 있나요?','친구가 축가를 불러도 되나요?','영상은 언제까지 보내나요?'],
+ _close:['단체 사진은 어떻게 찍나요?','닫는 인사는 무슨 말을 하나요?','사진과 인사는 몇 분인가요?']
 };
 function ritualAiState(){
   try{
@@ -3957,7 +4518,7 @@ function ritualAiStateData(){
 window.ME_ADV_PAGE={
   page:'식순', endpoint:'/api/ritual-advisor', stateMax:2600,
   greeting:'식순을 만들다 순서가 궁금하면 물어보세요. 코스와 순간 하나하나의 진행 방식과 문안을 알고 있어요.',
-  chips:function(){ var k=(typeof STEPS!=='undefined'&&STEPS[idx]&&STEPS[idx].k)||'_def'; var a=RITUAL_CHIPS[k]||RITUAL_CHIPS._def; return a.map(function(t){ return {label:t}; }); },
+  chips:function(){ var k=(typeof STEPS!=='undefined'&&STEPS[idx]&&STEPS[idx].k)||'_def'; if(k==='listen'&&typeof LS!=='undefined'&&LS.open&&RITUAL_CHIPS[LS.open]) k=LS.open;   /* [LISTEN_PAGE] 열린 줄의 순간 질문 */ var a=RITUAL_CHIPS[k]||RITUAL_CHIPS._def; return a.map(function(t){ return {label:t}; }); },
   state:ritualAiState,
   customer:function(){ return CUST?{name:CUST.name||'',code:CUST.code||'',phone:CUST.phone||'',stage:'식순 작성'}:null; },
   advExtra:function(){ return { embed:(EMBED&&!!CUST), customer:(CUST?{name:CUST.name||'',code:CUST.code||''}:undefined), auth:((CUST&&CUST.aiToken)||undefined), stateData:(ritualAiStateData()||undefined) }; },   // [AI_WIDGET_HMAC] GAS 서명 토큰 전송(없으면 생략 · 서버가 시크릿 미설정이면 종전 동작)

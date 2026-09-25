@@ -90,13 +90,15 @@ ok('준비한 순서 판별 넷 → 여는 말 100~103 · 맺는 말 104', ['vid
 ok('영상 · 무대 판만 «재생 안 됨»(105)을 든다', (() => { const f = (w) => C.build({ course: 'open', on: { free: 1 }, freeWhat: w }, { mode: 'console' }).cues.filter((c) => c.k === 'free')[0].rescue; return f('video').slug === 'narr-free-fail' && f('show').slug === 'narr-free-fail' && !f('gift') && !f('speech'); })());
 ok('신랑 큰절 → 106 · 사람 구간이 그 줄 뒤로', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'tribute-in,tribute-bow-groom,tribute-out' && !r[0].live && !!r[1].live; })());
 ok('옛 코스에선 신랑 큰절이 꽃으로 돌아간다', slugs({ course: 'family', tribute: 'bowGroom' }).indexOf('tribute-bow-groom') < 0);
+ok('[ENTRY_SCENE] 새 코스 · 맞절이면 도착 멘트가 108 로 바뀐다', slugs({ course: 'open', on: {}, entryScene: 'bow' }).indexOf('narr-entry-out-bow') > -1 && slugs({ course: 'open', on: {}, entryScene: 'bow' }).indexOf('narr-entry-out') < 0);
+ok('[ENTRY_SCENE] 옛 코스는 맞절 값이 와도 도착 멘트 그대로', slugs({ course: 'family', entryScene: 'bow' }).indexOf('narr-entry-out-bow') < 0);
 ok('새 코스에 옛 경고 셋이 안 뜬다', C.build({ course: 'open', on: {} }, {}).meta.warn.length === 0);
 ok('예시 넷 · 콘솔 큐가 선다', O.EXAMPLES.every((e) => C.build(O.applyExample({ course: 'open' }, e.k), { mode: 'console' }).cues.length > 8));
 
 /* ── 6. 옛 코스는 소리가 한 줄도 안 바뀐다(Q1 ② · 초안을 옮기지 않는다) ── */
 const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', 'narr-candle-in-parents', 'narr-candle-in-fathers', 'narr-candle-in-others', 'narr-candle-out', 'declare-clap-a', 'declare-clap-b', 'toast-pour-mix', 'toast-pour-family',
-  'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail', 'tribute-bow-groom', 'toast-both-pour-b'];
-ok('FILES 맨 끝 89~107 이 새 줄 19개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail', 'tribute-bow-groom', 'toast-both-pour-b', 'narr-entry-out-bow'];
+ok('FILES 맨 끝 89~108 이 새 줄 20개(108 = 첫 장면 · 맞절 [ENTRY_SCENE])', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
 ok('옛 코스 여섯 · 전 판 — 새 줄이 안 나온다', ['damback', 'gamdong', 'family', 'minimal', 'festive', 'record'].every((c) =>
   ['toast', 'cake', 'both'].every((t) => slugs({ course: c, toast: t, extra: { toast: 1, free: 1 }, wine: 'mix', declare: 'clap', tribute: 'bowGroom', freeWhat: 'speech' }).every((x) => NEW.indexOf(x) < 0))));
 
@@ -136,13 +138,14 @@ if (process.argv.includes('--live')) {
     if (addBtn) { await addBtn.click(); await pg.waitForTimeout(500); }
     const fOn = await pg.evaluate(() => !!(S.on && S.on.free) && !document.querySelector('[data-fk="opaddfree"]'));
     ok(`${w} 누르면 준비한 순서가 담기고 단추가 사라진다`, fOn);
-    const b3 = (await g()).band; await pg.click('[data-fk="op:freeLen:1"]'); await pg.waitForTimeout(400); const b1 = (await g()).band;
-    ok(`${w} 길이 칩(3분 → 1분)이 띠에 곧장`, b3 !== b1, b3 + ' → ' + b1);
+    /* [LISTEN_PAGE] 판 칩은 ② 로 옮겼다 — ① 에서는 값을 바로 넣어 띠가 따라오는지만 본다(칩 자체는 listen-page.mjs 가 ② 에서 누른다) */
+    const b3 = (await g()).band; await pg.evaluate(() => { S.freeLen = '1'; render(); }); await pg.waitForTimeout(400); const b1 = (await g()).band;
+    ok(`${w} 길이(3분 → 1분)가 띠에 곧장`, b3 !== b1, b3 + ' → ' + b1);
     await pg.click('[data-fk="opt:free"]'); await pg.waitForTimeout(400);
-    await pg.click('[data-fk="opt:letter"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="op:letter:parent"]'); await pg.waitForTimeout(300); s = await g();
+    await pg.click('[data-fk="opt:letter"]'); await pg.waitForTimeout(300); await pg.evaluate(() => { S.letter = 'parent'; render(); }); await pg.waitForTimeout(300); s = await g();
     ok(`${w} 인사 400자 + 편지 부모님께 → 알림 ②`, s.note === O.NOTICE.twice, s.note);
     const steps = await pg.evaluate(() => (window.STEPS || []).map((x) => x.k).join(','));
-    ok(`${w} 연출 단계 = 담은 순간만(v4 순서)`, steps === 'intro,intro2,pick,guest,prevideo,candle,entry,welcome,bless,vow,ring,declare,tribute,letter,toast,write,done', steps);
+    ok(`${w} 네 걸음 = 고르기 · 보고 듣기 · 글 적기 · 완성 [LISTEN_PAGE]`, steps === 'intro,intro2,pick,listen,write,done', steps);
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
   }

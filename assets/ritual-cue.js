@@ -130,7 +130,8 @@
        107 toast-both-pour-b: 와인을 붓는 날의 선창(P2 · «두 사람에게 잔이 가는 동안»을 뺀 줄 · 붓는 동안 이미 잔이 가 있다)
        ★옛 코스는 이 여덟을 한 번도 부르지 않는다 — 새 코스(open)일 때만 나간다. */
     'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail',
-    'tribute-bow-groom', 'toast-both-pour-b'
+    'tribute-bow-groom', 'toast-both-pour-b',
+    'narr-entry-out-bow'   // 108 [ENTRY_SCENE] 맞절 판의 도착 멘트
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -193,7 +194,7 @@
     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
     'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
     'narr-free-out-clap': O.NAR.freeOut, 'narr-free-fail': O.NAR.freeFail,
-    'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour
+    'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour, 'narr-entry-out-bow': O.NAR.entryBow
   };
 
   // ── 유틸
@@ -293,12 +294,14 @@
       if (!O.CHIPS.freeLen.some(function (c) { return c[0] === String(s.freeLen); })) s.freeLen = O.DEF.freeLen; else s.freeLen = String(s.freeLen);
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       if (s.tribute !== 'flower' && s.tribute !== 'bowGroom') s.tribute = 'flower';
+      if (s.entryScene !== 'bow') s.entryScene = 'look';   // [ENTRY_SCENE]
     } else {
       /* 옛 코스는 새 판이 없던 때와 **소리가 같아야** 한다 — 와인 붓기는 **값과 상관없이** 없다.
          ★빌더의 새 기본 S(wine:'mix')가 옛 초안에 섞여 들어와도 옛 예식에 붓는 말이 끼지 않게(scripts/audit/open-course.mjs 가 잡았다). */
       s.wine = 'none';
       if (s.declare === 'clap') s.declare = '1';
       if (s.tribute === 'bowGroom') s.tribute = 'flower';   // [BOW_GROOM] 새 판은 새 코스에만
+      s.entryScene = 'look';   // [ENTRY_SCENE] 맞절 판은 새 코스에만 — 옛 예식의 도착 멘트는 그대로
     }
     return s;
   }
@@ -572,6 +575,11 @@
              ([PREVIEW_KEYS] 가 값 만드는 곳 없는 키를 막는다 · digital 2026-08-02 와 같은 꼴)
            ★A 는 슬러그를 안 바꾼다 — 종전 문안 그대로라 이미 녹음된 파일을 그대로 쓴다.
              바꾸면 멀쩡한 음원 하나가 이름만 달라져 통째로 다시 녹음해야 한다. */
+        /* ★[ENTRY_SCENE 2026-09-25] 새 코스의 «첫 장면 · 맞절»이면 도착 멘트 자리에 맞절 한 줄(108)을 바꿔 끼운다.
+           길이가 같은 한 줄이라 시간표는 그대로다. 바라보기(기본)는 지금 소리 그대로. */
+        if (D.COURSES[S.course] && D.COURSES[S.course].open && S.entryScene === 'bow') {
+          return cue({ k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-out-bow', name: '입장 마무리 · 맞절', text: EXTRA['narr-entry-out-bow'], duck: -12 });
+        }
         var t = String(S.entryOut || S.entry || 'A').toUpperCase();
         if (!D.NARR.entryOutBy[t]) t = 'A';
         return cue({

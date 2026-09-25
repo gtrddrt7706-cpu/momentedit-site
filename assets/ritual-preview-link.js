@@ -25,7 +25,7 @@
     'course',                                  // 코스(기록·약속·가족 · 숨긴 것 미니멀·감동·축하)
     /* ★[OPEN_COURSE 2026-09-25] 새 코스(open)의 담은 순간 · 판. 빠지면 미리듣기가 고른 것과 다른 예식을 들려준다.
        on 은 {키:1} 목록일 뿐 글이 아니다. wine·tributeSay·candleWho 는 판 이름이다. */
-    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen',
+    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen', 'entryScene',
     'ord', 'extra',                            // 순서 조정 · 더한 순서(둘 다 키 목록일 뿐 · 글은 없다)
     /* ★[ALL_OPTIONAL 2026-08-07] 뺀 순서. 빠지면 미리듣기가 고객이 뺀 자리를 그대로 들려준다
        (화면은 멀쩡한데 들리는 예식이 다르다 — 이 파일이 15~19행에서 경고하는 바로 그 사고).

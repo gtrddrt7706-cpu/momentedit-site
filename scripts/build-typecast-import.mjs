@@ -141,7 +141,7 @@ const ROLE_OF = (id) => {
        이웃이 전부 진행(우성)이라 진행으로 뺀다. N11(04 판) · N12(식전 영상)는 03 · 04 사이의 식전이라 안내 그대로.
        ★처음에 N 그룹 기본값(안내)을 그대로 받아 진희로 잡혔다 — 107 이 짝인 81(우성)과 목소리가 갈려 [VOICE_REGISTER] 가 잡았다.
          녹음 전이라 바로잡는 비용은 0 이다. */
-  if (/^N(0|9)$/.test(id) || /^N1[3-9](-|$)/.test(id)) return '진행';      // [N_HOST] · 구 [VOICE_44_HOST] · [N_HOST_OPEN]
+  if (/^N(0|9)$/.test(id) || /^N(1[3-9]|20)(-|$)/.test(id)) return '진행';      // [N_HOST] · 구 [VOICE_44_HOST] · [N_HOST_OPEN]
   if (/^N\d/.test(id)) return '안내';          // 폐식 후 브릿지
   if (/^G10$/.test(id)) return '편지';         // 혼주 편지 3분
   return '진행';                                // 나머지 전부 — 한 사람이 예식을 끌고 간다
@@ -152,8 +152,8 @@ const ROLE_OF = (id) => {
 //    편집기 렉 보고(협의안 §3-②)가 있어 한 파트를 60줄 안쪽으로 유지한다.
 const PARTS = [
   // ★[VOICE_44_HOST] N0 은 위에서 «진행»이 됐으므로 이 파트에서도 뺀다 — 안 빼면 한 파일에 두 목소리가 섞인다
-  { f: '1_안내.txt',   t: '식전 안내 + 폐식 브릿지', role: '안내', has: (id) => /^G1-|^N\d/.test(id) && !/^N(0|9)$/.test(id) && !/^N1[3-9](-|$)/.test(id) },   // [N_HOST] [N_HOST_OPEN]
-  { f: '2_진행_전반.txt', t: '입장 + 고정 진행 나레이션', role: '진행', has: (id) => /^G2-|^G3-/.test(id) || /^N1[34](-|$)/.test(id) },   // [N_HOST_OPEN] 화촉은 입장 바로 앞
+  { f: '1_안내.txt',   t: '식전 안내 + 폐식 브릿지', role: '안내', has: (id) => /^G1-|^N\d/.test(id) && !/^N(0|9)$/.test(id) && !/^N(1[3-9]|20)(-|$)/.test(id) },   // [N_HOST] [N_HOST_OPEN]
+  { f: '2_진행_전반.txt', t: '입장 + 고정 진행 나레이션', role: '진행', has: (id) => /^G2-|^G3-/.test(id) || /^N(1[34]|20)(-|$)/.test(id) },   // [N_HOST_OPEN] 화촉은 입장 바로 앞
   // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
   //   G6(베일)은 사라졌지만 has 패턴에는 남겨 둔다 — 남은 그룹 번호를 당기지 않았으므로
   //   빈 접두사를 지우는 것과 같고, 나중에 G6이 다른 용도로 생기면 이 파트가 맞는 자리다.
@@ -344,7 +344,7 @@ const clips = parse(SRC);
               105 재생이 안 될 때 한 줄(콘솔 «재생 안 됨») · 106 신랑 큰절 · 107 와인을 붓는 날의 선창(P2).
               ★첫째 판의 «축하의 말» 두 줄(여는·맺는 말)은 거뒀다 — 축사는 준비한 순서의 한 판(103)이다.
               ★문안은 코워크 회신 원문 그대로 · 말맛과 실청은 사장님. */
-const CLIP_COUNT = 102;
+const CLIP_COUNT = 103;   // [ENTRY_SCENE] +1 narr-entry-out-bow
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

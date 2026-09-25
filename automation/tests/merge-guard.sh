@@ -8405,6 +8405,28 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/footer-parity.mjs >/
   esac
 fi
 chk 'FOOTER_PARITY' scripts/audit/footer-parity.mjs 1
+# ── [LISTEN_PAGE 2026-09-25 코워크 회신 4장] 네 걸음 · ② 보고 듣기 · 장면 영상 ──
+#   받아들일 기준(4-7)을 실브라우저로 잰다 — 자동 재생 하나 · 움직임 줄이기 0 · 키보드 · Esc · 녹음 전 줄 글로 · 옛 코스 회귀 0.
+#   브라우저가 없으면(PR 잡) «재지 못했다»로 넘어간다 — 야간 · 로컬에서 실제로 잰다(footer-parity 와 같은 방식).
+if command -v node >/dev/null 2>&1; then node scripts/audit/listen-page.mjs >/dev/null 2>&1; _lp=$?
+  case "$_lp" in
+    0) echo 'ok listen-page: 네 걸음 · 보고 듣기 · 장면 영상 받아들일 기준 통과' ;;
+    1) echo 'FAIL listen-page: 보고 듣기 기준이 깨졌습니다 — node scripts/audit/listen-page.mjs'; fail=1 ;;
+    *) echo 'ok listen-page: 재지 못했습니다(브라우저 · ffmpeg 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'LISTEN_PAGE' order-preview.html 10
+chk 'function renderListen' order-preview.html 1
+chk "if(k==='listen') return renderListen();" order-preview.html 1
+chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.write,STEPDEF.done' order-preview.html 1
+chk 'VIDEO_READY' assets/ritual-open.js 3
+chk 'ENTRY_SCENE' assets/ritual-cue.js 3
+chk 'narr-entry-out-bow' assets/ritual-cue.js 3
+chk 'S.entryScene' order-preview.html 1
+chk "'entryScene'" assets/ritual-preview-link.js 1
+chk 'L_STALE' order-preview.html 2
+nochk '그 판으로 바로' order-preview.html
+nochk '판 바꿈' assets/ritual-open.js
 chk 'TAP44-3' scripts/audit/footer-parity.mjs 1
 chk 'FOOTER_UNIFY' parents.html 1
 # ★[SERVED_OURS] 포트를 뺏기거나 서버가 안 떴을 때 «틀림(1)»이 아니라 «못 쟀다(2)»로 빠지는 장치.
@@ -9102,7 +9124,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 107' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107
+chk 'N_FILES = 108' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107 · [ENTRY_SCENE] 108
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
