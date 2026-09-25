@@ -73,7 +73,12 @@
       if (!this.__meBlocked) return _send.apply(this, arguments);
       hit('xhr');
       var x = this;
-      setTimeout(function () { try { x.dispatchEvent(new Event('error')); x.dispatchEvent(new Event('loadend')); } catch (e) {} }, 0);
+      /* [PREVIEW_GUARD_XHR_DONE 2026-09-25 코워크 검토] readyState 가 1 에 머물면 readystatechange 만 보는 코드가
+         «아직 기다리는 중»으로 남는다. 진짜 연결 실패처럼 4 · status 0 으로 끝낸다(인스턴스에만 덮는다). */
+      setTimeout(function () {
+        try { Object.defineProperty(x, 'readyState', { configurable: true, value: 4 }); Object.defineProperty(x, 'status', { configurable: true, value: 0 }); } catch (e) {}
+        try { x.dispatchEvent(new Event('readystatechange')); x.dispatchEvent(new Event('error')); x.dispatchEvent(new Event('loadend')); } catch (e) {}
+      }, 0);
     };
   }
 
@@ -109,6 +114,13 @@
     var a = e.target && e.target.closest && e.target.closest('a[href]');
     if (a && isBlocked(a.href)) { e.preventDefault(); e.stopPropagation(); hit('link'); }
   }, true);
+  /* [PREVIEW_GUARD_FORMSUBMIT 2026-09-25 코워크 검토] form.submit() 은 submit 이벤트를 안 쏜다 — 아래 듣개로는 못 막는다.
+     requestSubmit() 은 이벤트를 쏘지만 함께 감싼다. 지금 페이지에는 둘 다 0건이다(검사가 새로 생기는 것을 본다). */
+  try {
+    var FP = w.HTMLFormElement.prototype, _fsubmit = FP.submit, _freq = FP.requestSubmit;
+    FP.submit = function () { if (this.action && isBlocked(this.action)) { hit('form'); return; } return _fsubmit.apply(this, arguments); };
+    if (_freq) FP.requestSubmit = function () { if (this.action && isBlocked(this.action)) { hit('form'); return; } return _freq.apply(this, arguments); };
+  } catch (e) {}
   d.addEventListener('submit', function (e) {
     var f = e.target;
     if (f && f.action && isBlocked(f.action)) { e.preventDefault(); e.stopPropagation(); hit('form'); }
