@@ -61,6 +61,12 @@ const MAP = {
   'platform/96_ai_cost.gs': '96_ai_cost',
   'platform/97_ai-handoff.gs': '97_aihandoff',                      // ★하이픈 없음
   'platform/98_pay_card.gs': '98_pay_card',
+  /* ★[SYNC_MAP_FULL 2026-09-25] 아래 둘이 빠져 있었다 — 원격엔 있는데 대응표엔 없어서,
+     열쇠(CLASPRC_JSON)를 넣는 날 첫 실행이 「모르는 원격 파일」로 중단될 참이었다.
+     점검 함수 파일을 새로 만들 때 여기를 안 고친 것이다. 이제 audit/sync-map-full.mjs 가
+     «저장소의 GAS 파일이 전부 대응표에 있는가»를 게이트에서 본다. */
+  'platform/99_contractCheck.gs': '99_contractCheck',
+  'platform/99_deployCheck.gs': '99_deployCheck',
 };
 
 const args = new Set(process.argv.slice(2));
