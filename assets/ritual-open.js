@@ -354,7 +354,7 @@
   /* 준비 한 줄 [D5] — 0가지인 쪽은 뺀다 · «것 N가지»는 붙는 공백으로 */
   function prepCount(S) { var c = 0, pp = 0; prepList(S).forEach(function (q) { if (q.who === 'parents') pp++; else c++; }); return { couple: c, parents: pp }; }
   function prepLine(S) { var n = prepCount(S), a = [];
-    if (n.couple) a.push('두 분이 준비할 것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께 부탁드릴 것' + NB + n.parents + '가지');
+    if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께 부탁드릴' + NB + '것' + NB + n.parents + '가지');   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
     return a.length ? a.join(' · ') + ' · ③에서 모아 봐요' : ''; }
 
   /* ══ [TILE_PICK 2026-09-26 코워크 회신 6 3-5] 칸 글 — «무엇인지»만(두 줄 안) · CARDS.one 은 미리 보기 창에서 쓴다 ══ */

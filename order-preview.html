@@ -841,6 +841,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-tile.opt{border-style:dashed}
 .pk-open{display:block;width:100%;height:100%;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .pk-open:focus-visible,.pk-sel:focus-visible,.pk-ex:focus-visible,.pk-link:focus-visible,.pk-go:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:-2px}
+@supports selector(:has(*)){ .pk-open:focus-visible{outline:none} .pk-tile:has(.pk-open:focus-visible){outline:2px solid var(--gold-deeper);outline-offset:2px} }   /* 칸 그림이 안쪽 테두리를 가려 두 변만 보였다 — 칸 바깥에 두른다 */
 .pk-media{position:relative;display:grid;place-items:center;aspect-ratio:16/9;background:var(--bg2);overflow:hidden}
 .pk-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .pk-media .mclip{width:100%;border:0;margin:0;background:none}
@@ -893,6 +894,7 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .pv-shot b{font-weight:600;color:var(--ink2)}
 .pv-act{display:flex;align-items:center;gap:8px;margin-top:14px}
 .pv-act button{min-height:48px;padding:0 16px;border-radius:12px;font:inherit;font-weight:600;cursor:pointer}
+.pv-again{display:inline-flex;align-items:center;gap:6px}
 .pv-again{background:var(--card);border:1px solid var(--border);color:var(--accent)}
 .pv-add{flex:1;background:var(--ink2);border:0;color:#fff}
 .pv-add.out{flex:0 0 auto;background:var(--card);border:1px solid var(--border);color:var(--accent)}
@@ -2741,7 +2743,7 @@ function momOn(k){
    ★S.on 에 담긴 것을 적고, 옛 갈래 키(ring·bless·vow·growth)는 opSync 가 따라 정한다 —
      연출 단계·미리듣기·마이페이지가 이미 읽는 자리라 새 번역을 만들지 않는다.
    ═══════════════════════════════════════════════════════════════════════════ */
-var _opOpen={}, _opPrev=null;
+var _opPrev=null;   // [PICK_V2] 옛 카드 «자세히»(_opOpen · opMore)는 칸 · 미리 보기 창으로 바뀌어 거뒀다
 function opSync(){
   if(!S.on||typeof S.on!=='object') S.on={};
   S.ring=S.on.ring?'on':'off'; S.bless=S.on.bless?'on':'off'; S.vow='ok';
@@ -2754,11 +2756,12 @@ var _pkMsg='';
 function _pkSayOf(k,on){ var R=RitualOpen, nm=R.CARDS[k].n, sp=R.span(S); return nm+_josa(nm,'을','를')+(on?' 담았어요':' 뺐어요')+(R.picked(S).length?' · 본식 '+sp.body+' · 단체 사진 '+sp.photo:''); }
 window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; _opPrev=null; _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); };
 window.opChip=function(k,v){ RitualOpen.setChip(S,k,v); opSync(); };
-window.opMore=function(k){ _opOpen[k]=!_opOpen[k]; render(); };
 /* ★★[PICK_V2 3-1 · 3-2] 예시를 누르면 그 자리에서 바뀌고(화면은 옮기지 않는다) 6초 «‹가족› 예시로 바꿨어요 · 되돌리기» ·
    «빈 칸에서 직접 고를게요»도 같은 알림 줄. 되돌리기는 예시가 바꾸는 키만 되돌린다(applyExample 과 같은 목록). */
 var _PK_KEYS=['on','entry','declareWho','declare','tributeSay','letter','toast','wine','freeWhat','freeLen','pickFrom'];
-function _pkSnap(){ var o={}; _PK_KEYS.forEach(function(x){ o[x]=(x==='on')?JSON.parse(JSON.stringify(S.on||{})):(S[x]===undefined?null:S[x]); }); return JSON.stringify(o); }
+function _pkSnap(){   // 예시가 바꾸는 키를 그대로 적어 둔다(applyExample · setChip 과 같은 목록)
+  var o={on:JSON.parse(JSON.stringify(S.on||{})),entry:S.entry,declareWho:S.declareWho,declare:S.declare,tributeSay:S.tributeSay,letter:S.letter,toast:S.toast,wine:S.wine,freeWhat:S.freeWhat,freeLen:S.freeLen,pickFrom:S.pickFrom};
+  _PK_KEYS.forEach(function(x){ if(o[x]===undefined) o[x]=null; }); return JSON.stringify(o); }
 var _undoT=null;
 function _pkUndo(msg){
   var u=document.getElementById('pkUndo');
@@ -2787,7 +2790,6 @@ window.opUndo=function(){
   _pkUndo(''); _pkMsg='되돌렸어요'; _fxNext='[data-fk="'+(S.pickFrom?'opx:'+S.pickFrom:'opblank')+'"]';   // [A11Y_FOCUS] 되돌리기 단추가 사라지니 예시 칸으로
   opSync();
 };
-window.opJump=function(e){ if(e) e.preventDefault(); var el=document.getElementById('opEx'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'start'}); if(el) try{ el.focus({preventScroll:true}); }catch(x){} };   // [A11Y_FOCUS] 화면만 옮기지 않고 포커스도
 function opChips(k,on){
   if(!on) return '';
   var rows=[];
@@ -2812,8 +2814,6 @@ function opChipLabel(k){
     return v==='both'?(wl||R.labelOf('toast','both')):(R.labelOf('toast',v)+(wl?' · '+wl:'')); }   // [LAB_FIX2 2-6] 붓지 않음이면 요약이 비었다 → «케이크와 축배»
   return R.chipLabel(k,S);
 }
-/* [LIST_WRAP 2026-09-25 코워크 4-8] 목록 항목은 줄 끝에서 쪼개지지 않고, 구분점 «·»는 앞 항목 끝에 붙는다 */
-function nwList(arr){ return arr.map(function(x,i){ return '<span class="nw">'+esc(x)+(i<arr.length-1?' ›':'')+'</span>'; }).join(' '); }   // [POLISH_0925 2-11] 목록 구분은 «›» — 이름 안의 «·»(케이크 · 축배)와 갈리게
 /* [DETAIL_0925 B13] 절정이 없을 때 — 한마디씩 인사는 절정이 아니다(1분쯤씩이 절정) */
 var PEAK_NONE='절정(★)이 될 순간을 하나 담아 보세요 · 성혼 선언 · 편지 낭독, 또는 1분쯤씩 전하는 부모님께 인사.';
 function _candleWho(){ var R=RitualOpen; return (R.CANDLE_WHO.filter(function(c){ return c[0]===(S.candleWho||R.DEF.candleWho); })[0]||[0,''])[1]; }
@@ -2837,10 +2837,6 @@ window.opNoteAct=function(i){
   if(a[1]==='on'){ if(!S.on) S.on={}; S.on[a[2]]=1; } else RitualOpen.setChip(S,a[1],a[2]);
   _fxNext='#stepHead';   // [A11Y_FOCUS] 알림이 풀리면 단추가 사라진다
   buildSteps(); render();
-};
-window.opAddFree=function(){   // [FREE_OWN] ② 의 «+ 준비한 순서 담기» — 담고 그 카드로
-  if(!S.on) S.on={}; S.on.free=1; _opOpen.free=true; opSync();
-  setTimeout(function(){ var el=document.getElementById('opc_free'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'center'}); },0);
 };
 /* ════════ ★★[LISTEN_PAGE 2026-09-25 코워크 회신 4장 · 추가 전달(세부 점검) · 사장님 결정] ② 보고 듣기 ════════
    새 코스(open)만: 안내 둘 → ① 고르기 → ② 보고 듣기 → ③ 준비하기 → ④ 완성.
@@ -3293,30 +3289,6 @@ document.addEventListener('keydown',function(ev){
 });
 document.addEventListener('keydown',function(ev){ if(ev.key==='Escape'&&LP.big){ var f=document.getElementById('lsFull'); if(f&&!f.hidden){ lsCloseBig(); } } });   // Esc = 작게 보기
 
-/* ── ① 카드 장면 영상 — 화면 가운데 온 카드 하나만 소리 없이 · 누르면 멈춤/재생 · 움직임 줄이기 · 데이터 절약 · «자동 재생 끄기»면 자동 재생 없음 ── */
-var _pvIO=null, _pvPaused={};
-function _pvOff(){ try{ return localStorage.getItem('me_vid_off')==='1'; }catch(e){ return false; } }
-window.opVidOff=function(){ var off=!_pvOff(); try{ localStorage.setItem('me_vid_off',off?'1':'0'); }catch(e){} document.querySelectorAll('.op-card video').forEach(function(v){ v.pause(); }); render(); };   // [DETAIL_0925 B17] 이 기기에 기억
-function _pickVids(){
-  if(_pvIO){ try{ _pvIO.disconnect(); }catch(e){} _pvIO=null; }
-  var vs=[].slice.call(document.querySelectorAll('.op-card video'));
-  if(!vs.length) return;
-  vs.forEach(function(v){
-    var box=v.parentNode, key=box.getAttribute('data-vk');
-    function t(){ if(!v.paused){ _pvPaused[key]=1; v.pause(); } else { delete _pvPaused[key]; vs.forEach(function(x){ if(x!==v) x.pause(); }); var p=v.play(); if(p&&p['catch']) p['catch'](function(){}); } }
-    box.onclick=t; box.onkeydown=function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); t(); } };
-    v.addEventListener('play',function(){ box.classList.add('playing'); }); v.addEventListener('pause',function(){ box.classList.remove('playing'); });
-  });
-  var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches, save=!!(navigator.connection&&navigator.connection.saveData);
-  if(rm||save||_pvOff()||!('IntersectionObserver' in window)) return;
-  var ratio=new Map();
-  _pvIO=new IntersectionObserver(function(es){
-    es.forEach(function(x){ ratio.set(x.target,x.intersectionRatio); });
-    var best=null, br=.6; ratio.forEach(function(r,el){ var key=el.parentNode.getAttribute('data-vk'); if(r>=br&&!_pvPaused[key]){ best=el; br=r; } });
-    vs.forEach(function(v){ if(v===best){ if(v.paused){ var p=v.play(); if(p&&p['catch']) p['catch'](function(){}); } } else if(!v.paused) v.pause(); });
-  },{threshold:[0,.3,.6,.8,1]});
-  vs.forEach(function(v){ _pvIO.observe(v); });
-}
 /* ① 띠 — 붙은 뒤 60px 더 내려가면 막대 · 범례를 접고 숫자 · 흐름만 · [DETAIL_0925 A4] ±50px 여유(히스테리시스) —
    두꺼움 ↔ 얇음 높이 차를 스크롤 앵커링이 보정하며 경계를 다시 넘어 1초에 60번 깜빡이던 것을 막는다 */
 window.addEventListener('scroll',function(){
@@ -3421,19 +3393,6 @@ function _openWrite(){
   var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});
   h+='<h3 class="sec-l wr-top">도와주실 분</h3><ul class="wr-list">'+hp.map(function(x){ return '<li>'+esc(x[0])+' <span class="wr-due">· '+esc(x[1])+'</span></li>'; }).join('')+'</ul>';
   return h;
-}
-function _pickVid(k){
-  var R=RitualOpen, v=R.firstVideo(k,S);
-  if(v) return '<div class="lv" data-vk="'+k+'" role="button" tabindex="0" aria-label="'+esc(R.CARDS[k].n)+' 장면 영상 · 누르면 재생 · 멈춤"><video muted loop playsinline preload="none" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'"></video><span class="lv-ai">AI로 만든 장면</span><span class="lv-pause" aria-hidden="true">❚❚ 누르면 멈춰요</span></div>';   // [DETAIL_0925 B17] 멈출 수 있음을 보인다(WCAG 2.2.2)
-  return _lVid(k);
-}
-function _pickVl(k){
-  var R=RitualOpen;
-  if(k==='candle') return (R.CANDLE_WHO.filter(function(c){ return c[0]===(S.candleWho||R.DEF.candleWho); })[0]||[0,''])[1];
-  if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'»'+(S.entryVoice==='couple'?' · 두 분 목소리':'')+(R.chipOf('entryScene',S)==='bow'?' · 맞절':'');
-  var v=(typeof opChipLabel==='function')?opChipLabel(k):'';
-  if(k==='tribute'&&S.tribute==='bowGroom') v=(v?v+' · ':'')+'신랑 큰절';
-  return v;
 }
 /* ════ ★★[PICK_V2 2026-09-26 코워크 회신 6 3장 · 추가 전달 2(D1~D11) · 3(E · F)] ① 고르기 — 예시 → 감동 흐름 → 네 막 칸 ════
    휴대폰: 걸음 → 머리 → 예시 넷 → 감동 흐름 판 → 순간 칸(네 막) → 아래 막대 · PC(폭 1000 이상): 예시 가로 넷 · 흐름 띠 · 막마다 한 줄 · 얇은 띠.
@@ -3644,7 +3603,7 @@ function _pvActs(ln){
   if(ln===undefined) ln=_pvLine(k);
   var a=el.querySelector('#pvAct'), had=!!(document.activeElement&&a.contains(document.activeElement)), wasAgain=had&&document.activeElement.classList.contains('pv-again');
   var always=!!R.ALWAYS[k]||k==='_close', on=always||R.onOf(S,k);
-  a.innerHTML='<button type="button" class="pv-again" onclick="_pvPlay()">↻ '+((ln&&ln.src)?'다시 듣기':'처음부터')+'</button>'   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
+  a.innerHTML='<button type="button" class="pv-again" onclick="_pvPlay()">'+ICO_AGAIN+' '+((ln&&ln.src)?'다시 듣기':'처음부터')+'</button>'   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
     +(always?'<span class="pv-fixed">늘 있는 순간이에요</span>'
       :(on?'<span class="pv-in">✓ 담겨 있어요</span><button type="button" class="pv-add out" onclick="opTgl(\''+k+'\')">빼기</button>'
           :'<button type="button" class="pv-add" onclick="opTgl(\''+k+'\')">'+(k==='free'?'담기 · 준비한 게 있을 때':'이 순간 담기')+'</button>'));

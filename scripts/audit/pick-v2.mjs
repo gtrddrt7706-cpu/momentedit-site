@@ -136,6 +136,28 @@ for (const w of [390, 360]) {
   ok('PC pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
+// ④-b [F2 · G3] 창의 «② 보고 듣기에서 고를 것» = ② 줄의 묶음 이름(_lGroups) — 한쪽만 고치면 창과 ② 가 갈린다
+{
+  const { ctx, pg } = await open(390);
+  const miss = await pg.evaluate(() => {
+    const R = RitualOpen, out = [], S0 = JSON.parse(JSON.stringify(S));
+    try {
+      Object.keys(R.CHOOSE_AT_LISTEN).forEach((k) => {
+        R.applyExample(S, 'family'); S.on[k] = 1; S.toast = 'both'; S.wine = 'mix'; S.tribute = ''; S.cakeBy = 'self'; S.flowerBy = 'self';
+        const labs = _lGroups(k).map((g) => g.l);
+        /* 한 묶음 이름 안에도 « · »가 있다(선언 «누가 · 말투») — 긴 이름부터 통째로 맞춘다 */
+        const t = R.CHOOSE_AT_LISTEN[k].split(' · ');
+        for (let i = 0; i < t.length;) {
+          let hit = 0; for (let n = t.length - i; n >= 1; n--) { if (labs.indexOf(t.slice(i, i + n).join(' · ')) > -1) { hit = n; break; } }
+          if (!hit) { out.push(k + ': «' + t[i] + '» 가 ② 에 없다(② = ' + labs.join(' / ') + ')'); i++; } else i += hit;
+        }
+      });
+    } finally { S = S0; }
+    return out;
+  });
+  ok('창 «② 보고 듣기에서 고를 것»의 말이 모두 ② 묶음 이름이다 [F2 · G3]', miss.length === 0, miss.join(' | '));
+  await ctx.close();
+}
 // ⑤ 좁은 화면에서는 얇은 띠가 안 보인다(시안에서 한 번 났던 버그 — 흐름 띠가 숨은 것을 «나갔다»로 읽음)
 {
   const { ctx, pg } = await open(390);
