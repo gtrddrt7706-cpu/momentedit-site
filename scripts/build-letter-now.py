@@ -18,6 +18,7 @@ SIX = [('letter-parent', '신부 → 부모님 편지', '실청 「어조전부 
        ('tribute', '헌정(신랑 → 부모님)', '실청 「억지 감동멘트 스토리 어색 전부」'),
        ('tribute-reply', '어머니 답사', '실청 「멘트 구려 · 스토리 지어서 수정」')]
 by = {c['file']: c for c in M['clips'] if not c.get('mix') and (c.get('dir') or '') == CAST}
+SIX = [x for x in SIX if x[0] in by]   # [STEPMOM_RETIRE 2026-09-26] 폐지한 배역(tribute-reply)은 대장에 없다 — 있는 것만 뽑는다
 syl = lambda s: len(re.findall(r'[가-힣]', s))
 
 def end(t):
