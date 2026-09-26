@@ -390,14 +390,16 @@ chk 'SNAP_PREP_STEP' mypage.html 1                 # (폐지 2026-07-25 사용�
 chk 'SNAP_PREP_FLOW' mypage.html 1                 # SNAPFLOW 전용 화면 블록
 chk 'SNAP_PREP_OVERLAY' mypage.html 1              # 스냅 기획 전체화면 오버레이(식순 빌더처럼 집중)
 # 2026-07-20 정보중심 개편: 무드 색 타일(SNAP_MOOD_META·smt-grid) 폐지 → 어떤 작가여도 도움되는 실무 정보(인물·관계·각도·꼭 담을 것)로 전환. 색 타일 복원 금지.
-chk 'SNAP_PEOPLE' mypage.html 2                     # 무드 색타일 폐지 주석 + 옛 저장분 해석용 상수(화면 질문 «누가 함께»는 SNAP_COUPLE_ONLY 로 삭제 2026-09-25)
-chk 'aboutNote' mypage.html 3                       # 각도·신경 쓰이는 점(작가 브리핑) 필드 — 렌더+저장+수집
-chk 'mustPeople' mypage.html 3                       # 옛 저장분 «꼭 챙길 분» 보존(불러오기·저장·채움 판정) — 입력칸은 SNAP_COUPLE_ONLY 로 삭제
+# ★[SNAP_PICK_V2 2026-09-26] 옛 칸(누가 함께·꼭 챙길 분·각도·톤…)은 화면에서 모두 빠졌다. 옛 저장분은 «서버»가 지키고(SNAP_LEGACY_KEEP)
+#   부부 화면은 «남긴 것이 있나» 판정에만 읽는다 — 그래서 검사 자리를 서버로 옮겼다(종전: SNAP_PEOPLE 2 · aboutNote 3 · mustPeople 3 · 전부 mypage).
+chk "SNAP_LEGACY_KEYS = \['people', 'mustPeople', 'aboutNote'" automation/platform/80_production.gs 1   # 옛 칸 목록 — 어느 판이 저장해도 지난 저장분에서 그대로 싣는다
+chk 'String(D.aboutNote' mypage.html 1              # 옛 저장분도 «남긴 것»으로 친다(트랙 ✓ 가 옛 고객에게서 갑자기 사라지지 않게)
+chk 'String(D.mustPeople' mypage.html 1
 # ★★[SNAP_COUPLE_ONLY 2026-09-25 사장님 「스냅 기획은 본식 전 스냅 · 누르면 어떤 시간인지 설명 · ‘누가 함께 담기나요’는 맞지 않는 질문 — 부부 웨딩스냅」]
 #   ①스냅 기획을 열면 맨 위에 «언제의 스냅인지»(도착 › 단독 스냅 › 본식)를 먼저 보여 준다 — 분은 진행표 원천의 사본이라 snap-when 이 대조한다.
 #   ②«누가 함께 담기나요» 칩(data-sppl)과 «꼭 챙길 분» 칸(mp_snapMustPeople)은 되살리지 않는다. 가족·친구 사진은 본식 뒤, 명단은 «단체 사진».
 #   ★문구 검사로 «누가 함께 담기나요» 를 막지 않는다 — 삭제 사유 주석이 그 문구를 인용한다([SELF_COMMENT_TRAP]). 화면 모양은 snap-when 이 본다.
-chk 'SNAP_COUPLE_ONLY' mypage.html 4
+chk 'SNAP_COUPLE_ONLY' mypage.html 2                # [SNAP_PICK_V2] 새 블록의 금지 주석 + 이날의 스냅 안내 줄(가족·친구 사진은 본식 뒤) · 종전 4
 nochk 'data-sppl' mypage.html
 nochk 'mp_snapMustPeople' mypage.html
 chk 'SNAP_COUPLE_ONLY' scripts/audit/snap-when.mjs 1
@@ -409,6 +411,40 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/snap-when.mjs >/dev/
   esac
 fi
 _smttile=$(grep -c 'class="smt' mypage.html 2>/dev/null); _smttile=${_smttile:-0}; if [ "$_smttile" -gt 0 ]; then echo "REVERT? mypage.html: 폐지된 무드 색 타일(.smt) 부활($_smttile)"; fail=1; else echo "ok mypage.html: 무드 색 타일 폐지 유지(정보중심)"; fi
+# ★★[SNAP_PICK_V2 2026-09-26 사장님 회의 «고르는 스냅 기획»] 다섯 걸음 · 공간별 기본 4 + 고르기 4 · 사진 3 + 링크 3 · 묻는 칸 하나 · 마감 14일 전 · 잠금 3일 전
+#   ①분·시각·장면 목록·한도·마감이 곳곳에서 같은 값인지 → scripts/audit/snap-plan.mjs(아래에서 실행)
+#   ②서버 동작(저장 형식·옛 칸 보존·잠금·마감 뒤 메일·올리기·확인·브리프·파기) → automation/tests/snap-plan.test.js(UNIT_SUITES_RUN 목록)
+#   ③지운 질문(꼭 담고 싶은 컷·촬영 톤·분위기 한 줄·링크 묶음·리드 강도·소품/자유 메모)은 되살리지 않는다 — snap-plan 이 id 로 본다
+chk 'SNAP_PICK_V2' mypage.html 3
+chk 'SNAP_V2_GATE' mypage.html 1                    # 서버가 새 기획을 알 때만 연다 — 옛 서버는 새 칸을 걸러 버린다(화면엔 «저장됐어요»)
+chk 'SNAP_NUDGE' mypage.html 1                      # D2 예식 3주 전부터 «지금 할 일» 한 줄
+chk 'SNAP_STEP_SAVE' mypage.html 1                  # 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(고객 입장 걸어 보기 2026-09-26)
+chk 'SNAP_FLOW_WRAP' mypage.html 2                  # 흐름 줄 화살표 = 다음 칸과 한 덩어리 · PC 한 줄 · 폰 셋·셋(«본식»만 떨어지던 자리)
+chk 'SNAP_V2_FROM' automation/platform/80_production.gs 6   # 새 스냅 기획은 처리방침 시행일(2026-10-03)부터 — 상태 표시·저장·사진 올리기·브리프 만들기(snap-plan 이 privacy.html 과 날짜 대조)
+chk 'SNAP_LEGACY_KEEP' automation/platform/80_production.gs 2
+chk 'SNAP_LOCK' automation/platform/80_production.gs 1
+chk 'SNAP_LATE_MAIL' automation/platform/80_production.gs 1
+chk 'SNAP_UPLOAD' automation/platform/80_production.gs 1
+chk 'SNAP_CONFIRM' automation/platform/80_production.gs 1
+chk 'SNAP_BRIEF' automation/platform/80_production.gs 2
+chk 'SNAP_PURGE' automation/platform/80_production.gs 1
+chk 'snapV2: _snapV2Live()' automation/platform/80_production.gs 1   # 부부 화면 표시는 서버가 준다(SNAP_V2_GATE) · true 로 박지 않고 처리방침 시행일부터(SNAP_V2_FROM)
+chk 'SNAP_PURGE' automation/consultation/consultation-booking.gs 1
+chk "case 'snapRefUpload'" automation/consultation/consultation-booking.gs 1
+chk "case 'snapBriefImg'" automation/consultation/consultation-booking.gs 1
+chk 'adminSnapConfirm: adminSnapConfirm' automation/admin/admin.gs 1
+chk 'data-snapact="confirm"' admin.html 1
+chk 'SNAP_BRIEF' brief.html 1
+chk 'noindex, nofollow' brief.html 1
+chk '촬영(스냅)' privacy.html 1                      # D12 처리방침 위탁 한 줄
+chk '2026년 10월 3일' privacy.html 2                 # 시행일(공고 9/26 · 자기 규정 «7일 전 공지»)
+if command -v node >/dev/null 2>&1; then node scripts/audit/snap-plan.mjs >/dev/null 2>&1; _spl=$?
+  case "$_spl" in
+    0) echo 'ok snap-plan: 목록 = 진행표 · 서버 한도 · 촬영 목록표 · 다섯 걸음 · 지운 질문 0건' ;;
+    1) echo 'FAIL snap-plan: 스냅 기획 값이 곳곳에서 어긋났습니다 — node scripts/audit/snap-plan.mjs'; fail=1 ;;
+    *) echo 'ok snap-plan: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 # PROD_FS_OVERLAY·.mp-fs 재등록(2026-07-19) — 청첩장·다이닝/최종·좌석 3종 편집을 mp_production .mp-fs로 전체화면화(단체사진은 전용 오버레이 PROD_OVERLAY, 스냅은 SNAP_PREP_OVERLAY).
 chk 'PROD_FS_OVERLAY' mypage.html 1                 # 청첩장·다이닝·최종·좌석 3종 전체화면(.mp-fs 클래스 토글)
 chk '\.mp-fs{' mypage.html 1                        # 전체화면 클래스 CSS
@@ -668,7 +704,7 @@ chk 'DRINK_SHEET' mypage.html 3                     # 음료 = 바닥 시트(202
 # ── 2026-07-25 마이페이지 4차 스프린트 PR③(F2 SR 골격·포커스 복귀 · F3 칩 키보드화)
 chk 'MPD4_F2' mypage.html 5                         # sr-only CSS+h1+NEXT h2+포커스 저장/복원
 chk 'MPD4_F3' mypage.html 3                         # _kbChip 헬퍼+스냅(꼭 담을 컷)·사진·큐시트 배선 — 스냅 «누가 함께» 칩 배선은 SNAP_COUPLE_ONLY 로 삭제(2026-09-25 · 4→3)
-chk '_kbChip' mypage.html 5                         # 헬퍼 정의+호출 4곳 — 스냅 «누가 함께» 호출은 SNAP_COUPLE_ONLY 로 삭제(2026-09-25 · 6→5)
+chk '_kbChip' mypage.html 4                         # 헬퍼 정의+호출 3곳 — 스냅 «누가 함께» 호출은 SNAP_COUPLE_ONLY 로 삭제(2026-09-25 · 6→5) · «꼭 담고 싶은 컷» 칩은 SNAP_PICK_V2 로 삭제(2026-09-26 · 5→4 · 새 장면 타일은 진짜 button)
 # ── 2026-07-25 마이페이지 4차 스프린트 PR④(C3 명도 계단 · H3 blur 힌트 · H4 접기+내 완성물 · H5 1단계)
 chk 'MPD4_C3' mypage.html 1                         # 잠긴 단계 명도 계단
 chk 'MPD4_H3' mypage.html 3                         # blur 형식 힌트(헬퍼+ci+환불+이메일)
@@ -6739,7 +6775,7 @@ chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
 #   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
 #   ★스위트를 추가하면 이 목록에도 넣을 것.
 if command -v node >/dev/null 2>&1; then
-  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg; do
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan; do
     node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
       || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
   done

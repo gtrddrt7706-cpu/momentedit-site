@@ -2247,6 +2247,10 @@ function doPost(e) {
       case 'seatView':           return jsonOut(handleSeatView(body));   // 좌석 배치도 공개 조회(무인증·토큰) — seat.html
       case 'guideView':          return jsonOut(handleGuideView(body));  // 하객 안내 허브 공개 조회(무인증·토큰) — guide.html
       case 'guestPhoto':         return jsonOut(handleGuestPhoto(body));  // [GUEST_PHOTO_IN] 하객 사진 업로드 1건(무인증·토큰) — guide.html · 80_production
+      case 'snapRefUpload':      return jsonOut(handleSnapRefUpload(body));   // [SNAP_PICK_V2] 스냅 기획 «찾던 그림» 올리기(세션 인증) — mypage · 80_production
+      case 'snapThumbs':         return jsonOut(handleSnapThumbs(body));      // [SNAP_PICK_V2] 올린 그림의 작은 그림(세션 인증 · 이 고객 것만)
+      case 'snapBrief':          return jsonOut(handleSnapBrief(body));       // [SNAP_BRIEF] 촬영 브리프(무인증 · 추측 불가 주소 · 촬영 7일 뒤 만료) — brief.html
+      case 'snapBriefImg':       return jsonOut(handleSnapBriefImg(body));    // [SNAP_BRIEF] 브리프의 올린 사진 1장(그 기획에 실린 것만)
 
       case 'saveRefundAccount':  return jsonOut(handleSaveRefundAccount(body));   // [환불 안전망] 종료 고객 환불 계좌 셀프 제출
       // ── 97 · AI 상담 인계·가용성 (Vercel /api/handoff·/api/schedule-advisor → 이 웹앱) ──
@@ -2436,6 +2440,7 @@ function purgeAdvisorLog() {
   try { if (typeof purgeAiHandoff === 'function') purgeAiHandoff(); } catch (e) {}   // 97 · 30일 넘긴 '대기' 인계 자동 만료(미처리 알림 누적 방지)
   try { if (typeof purgeSmsLog === 'function') purgeSmsLog(); } catch (e) {}         // 95 · 문자발송로그 180일 정리(20000행 상한 도달 방지)
   try { if (typeof purgeNfTrack === 'function') purgeNfTrack(); } catch (e) {}       // 95 · 알림톡추적(전달결과 매칭) 7일 정리
+  try { if (typeof purgeSnapRefs === 'function') purgeSnapRefs(false); } catch (e) {} // 80 · [SNAP_PURGE] 예식 183일 뒤 스냅 기획의 올린 사진·링크·메모 파기(처리방침 약속)
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {
