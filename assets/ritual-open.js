@@ -244,7 +244,7 @@
   // 띠 한 줄에 필요한 모든 값
   function span(S) {
     var s = bodySec(S), a = Math.round(s[0] / 60), b = Math.round(s[1] / 60);
-    var pa = Math.round(DAYMIN - s[1] / 60), pb = Math.round(DAYMIN - s[0] / 60);
+    var pa = DAYMIN - b, pb = DAYMIN - a;   // ★[SPAN_SUM40 코워크 추가 점검 P2-2 2026-09-26] 반올림한 본식에서 뺀다 — 따로 반올림하면 «본식 17 + 단체 사진 24 = 41»이 보였다
     return { sec: s, a: a, b: b, pa: pa, pb: pb, body: rng(a, b), photo: rng(pa, pb), midMin: (s[0] + s[1]) / 120 };
   }
   // 카드의 «약 n분»(이 순간을 담으면)
@@ -315,7 +315,7 @@
     var iw = w - L - R, p = flowPeak(sg);
     var y = function (lv) { return T + (h - T - B) * (5 - lv) / 2; };
     var x = function (t) { return L + iw * t / total; };
-    var o = ['<svg class="flow-svg" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + fesc((opt.label || '감동 흐름') + (p ? ' · 가장 벅찬 순간 ' + CARDS[p.k].n : '')) + '">'];
+    var o = ['<svg class="flow-svg" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + fesc((opt.label || '감동 흐름') + (mini ? '' : ' · ' + sg.map(function (x) { return CARDS[x.k].n; }).filter(function (n, i, A) { return n !== A[i - 1]; }).join(', ')) + (p ? ' · 가장 벅찬 순간 ' + CARDS[p.k].n : '')) + '">'];   // [FLOW_ONE_IMG] 순서는 이름표로
     if (!sg.length) { o.push('</svg>'); return o.join(''); }
     if (!mini) o.push('<line x1="' + L + '" x2="' + (w - R) + '" y1="' + (h - B + 8) + '" y2="' + (h - B + 8) + '" stroke="#E6E1D9" stroke-width="1"/>');
     var env = flowEnv(sg, total), stp = Math.max(1, Math.round(total / iw * 3)), pts = [];
@@ -336,7 +336,7 @@
     }
     /* 누르는 칸 — 순간 가운데에 폭 24 이상(짧은 순간은 12px 까지 좁아진다 · WCAG 2.5.8) · 그림 안으로 붙인다 · 이웃과 겹치면 뒤 칸이 위 */
     if (!mini) { sg.forEach(function (s, i) { var x0 = x(s.st), x1 = x(s.st + s.d), hw = Math.max(24, x1 - x0), rx = Math.max(0, Math.min(w - hw, (x0 + x1) / 2 - hw / 2));
-      o.push('<rect class="flow-hit" data-i="' + i + '" x="' + rx.toFixed(1) + '" y="0" width="' + hw.toFixed(1) + '" height="' + h + '" fill="transparent" tabindex="0" role="button" aria-label="' + fesc(CARDS[s.k].n + (s === p ? ' · 가장 벅찬 순간' : '')) + '"/>'); }); }
+      o.push('<rect class="flow-hit" data-i="' + i + '" x="' + rx.toFixed(1) + '" y="0" width="' + hw.toFixed(1) + '" height="' + h + '" fill="transparent"/>'); }); }   // ★[FLOW_ONE_IMG 코워크 추가 점검 · 접근성] 칸은 누르거나 올려 볼 때만 — 초점 칸 · 단추 역할은 뺐다(그림 하나 = role=img 하나 · 이름 순서는 그림 이름표가 말한다)
     o.push('</svg>'); return o.join('');
   }
   /* 읽어 주는 한 줄 [D3] — 58~85% 면 «3분의 2쯤에 와서 끝까지 흐름이 이어져요» · 그 밖은 자리 말 없이 · 이에요/예요는 받침으로 */
@@ -486,37 +486,50 @@
     short: function (n) { return '천천히 진행되면 단체 사진이 약 ' + n + '분으로 줄어요. 전체 사진은 그대로 두고, 가족 구도는 앞쪽부터 담아요. 순간을 하나 덜면 여유가 생겨요.'; }
   };
   var SHORT_MIN = 16;   // [RANGE_40] 단체 사진이 이보다 짧아질 수 있으면(늦어진 날) 알림 ④ — 전체 사진 8 + 가족 구도 둘 6 + 두 분 숨 고르기 2
-  function noticeOf(S) {
-    if (!picked(S).length) return '';
-    var seq = bodySeq(S), run = 0, mx = 0, head = '', mxHead = '';
-    seq.forEach(function (k) { if (heavy(k, S)) { if (!run) head = k; run++; } else run = 0; if (run > mx) { mx = run; mxHead = head; } });
-    if (mx >= 3) return (mxHead === 'bless' || mxHead === 'vow') ? NOTICE.heavy : NOTICE.heavyBack;
-    if (seq.indexOf('tribute') > -1 && chipOf('tribute', S) === 'long' && seq.indexOf('letter') > -1 && chipOf('letter', S) === 'parent') return NOTICE.twice;
+  /* ★[NOTICE_QUEUE 코워크 추가 점검 P2-1 2026-09-26] 걸리는 알림을 «차례대로 모두» 센다 — 앞의 것을 «괜찮아요»로 닫으면 다음 것이 뜬다.
+     종전엔 첫 알림 하나만 돌려서, 앞의 것을 닫으면 뒤에 걸린 알림(④ 단체 사진 부족 포함)까지 함께 사라졌다.
+     엔진(meta.warn)은 종전대로 맨 앞 하나만 본다(noticeOf). */
+  function _heavyRun(S) {
+    var run = [], best = [];
+    bodySeq(S).forEach(function (k) { if (heavy(k, S)) { run.push(k); if (run.length > best.length) best = run.slice(); } else run = []; });
+    return best;
+  }
+  function noticeList(S) {
+    if (!picked(S).length) return [];
+    var seq = bodySeq(S), L = [], best = _heavyRun(S);
+    if (best.length >= 3) L.push((best[0] === 'bless' || best[0] === 'vow') ? NOTICE.heavy : NOTICE.heavyBack);
+    if (seq.indexOf('tribute') > -1 && chipOf('tribute', S) === 'long' && seq.indexOf('letter') > -1 && chipOf('letter', S) === 'parent') L.push(NOTICE.twice);
     var noToast = seq.indexOf('toast') < 0 || chipOf('toast', S) === 'cake';
     var last = seq[seq.length - 2];   // 닫는 인사 바로 앞
-    if (noToast && picked(S).length > 3 && (heavy(last, S) || last === 'declare' || seq.indexOf('declare') < 0)) return NOTICE.toast;   // [DETAIL_0925 A2] 고른 순간이 셋 넘을 때만
+    if (noToast && picked(S).length > 3 && (heavy(last, S) || last === 'declare' || seq.indexOf('declare') < 0)) L.push(NOTICE.toast);   // [DETAIL_0925 A2] 고른 순간이 셋 넘을 때만
     var pa = span(S).pa;   // [DETAIL_0925 A2] 띠의 «단체 사진» 아래 값과 같은 반올림
-    if (pa < SHORT_MIN) return NOTICE.short(pa);
-    return '';
+    if (pa < SHORT_MIN) L.push(NOTICE.short(pa));
+    return L;
   }
+  function noticeOf(S) { return noticeList(S)[0] || ''; }
   /* ★[DETAIL_0925 A2] 알림 한 덩어리 — 글 · 풀어 주는 단추 · 닫기.
      key 는 «같은 상황»을 가린다(괜찮아요로 닫은 알림은 같은 상황에선 다시 안 뜬다 · 상황이 바뀌면 다시 뜬다).
-     ④(사진 시간 부족)는 닫지 않는다. 단추 act = [키, 값] — 빌더가 그대로 적용한다(on:키 는 담기). */
-  function noticeFull(S) {
-    var msg = noticeOf(S); if (!msg) return null;
-    var seq = bodySeq(S), n = { msg: msg, acts: [], close: true, key: '' };
+     ④(사진 시간 부족)는 닫지 않는다. 단추 act = [키, 값] — 빌더가 그대로 적용한다(on:키 는 담기).
+     ★[NOTE_ACT_MATCH 코워크 추가 점검 P2-5] 단추는 글과 «같은 판정»으로 고른다 — 앞쪽 사슬(덕담 · 서약으로 시작)은 «반지나 선언»,
+       뒤쪽 사슬은 «인사를 «말 없이»로». 종전엔 글은 앞쪽인데 사슬에 인사가 있다고 «말 없이» 단추를 달아 글과 단추가 다른 말을 했다.
+     shut(선택): 닫은 key 모음 — 닫힌 것은 건너뛰고 다음 알림을 준다(P2-1). */
+  function _noticeOne(msg, S) {
+    var n = { msg: msg, acts: [], close: true, key: '' };
     if (msg === NOTICE.heavy || msg === NOTICE.heavyBack) {
-      var run = [], best = [];
-      seq.forEach(function (k) { if (heavy(k, S)) { run.push(k); if (run.length > best.length) best = run.slice(); } else run = []; });
-      var three = best.slice(0, 3);
+      var three = _heavyRun(S).slice(0, 3);
       n.msg = three.map(function (k) { return CARDS[k].n; }).join(' → ') + ' · 말로 듣는 순서가 셋 이어져요. ' + (msg === NOTICE.heavyBack ? '부모님께 인사를 «말 없이»로 하면 사이가 풀려요.' : '반지나 선언을 담으면 사이가 풀려요. 반지는 끼고 오셔도 할 수 있어요.');
-      if (best.indexOf('tribute') > -1) n.acts.push(['인사를 말 없이로', 'tribute', 'none']);
+      if (msg === NOTICE.heavyBack) n.acts.push(['인사를 «말 없이»로', 'tribute', 'none']);
       else { if (!onOf(S, 'ring')) n.acts.push(['반지 교환 담기', 'on', 'ring']); if (!onOf(S, 'declare')) n.acts.push(['성혼 선언 담기', 'on', 'declare']); }
       n.key = 'heavy:' + three.join(',');
-    } else if (msg === NOTICE.twice) { n.acts.push(['인사를 한마디씩으로', 'tribute', 'one']); n.key = 'twice'; }
+    } else if (msg === NOTICE.twice) { n.acts.push(['인사를 «한마디씩»으로', 'tribute', 'one']); n.key = 'twice'; }
     else if (msg === NOTICE.toast) { n.acts.push(onOf(S, 'toast') ? ['케이크와 축배로', 'toast', 'both'] : ['케이크 · 축배 담기', 'on', 'toast']); n.key = 'toast'; }
     else { n.close = false; n.key = 'short'; }
     return n;
+  }
+  function noticeFull(S, shut) {
+    var L = noticeList(S);
+    for (var i = 0; i < L.length; i++) { var n = _noticeOne(L[i], S); if (!shut || !shut[n.key] || !n.close) return n; }
+    return null;
   }
 
   /* ── 자리 문구(명세 3-3) ── */
@@ -695,7 +708,7 @@
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, rng: rng,
-    momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, slotText: slotText, originOf: originOf,
+    momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };

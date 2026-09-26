@@ -194,7 +194,7 @@ for (const w of [390, 1280]) {
   ok('3-7 크게 보기에도 빈 상자 없음 · 글이 위로', await pg.evaluate(() => !document.querySelector('#lsFull .lv')));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
   await clickNext(pg); await pg.waitForTimeout(700);
-  const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, cats: document.querySelectorAll('#stage .wr-cat').length, cnt: (document.getElementById('wcCount') || {}).textContent || '' }));
+  const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent.replace(/\u00a0/g, ' '), cats: document.querySelectorAll('#stage .wr-cat').length, cnt: (document.getElementById('wcCount') || {}).textContent || '' }));
   ok('3-4 ③ 머리 «비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요» · D-7 없음', /비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요/.test(w.t) && !/D-7|D-14/.test(w.t));
   ok('3-4 ③ 갈래 안에 갈래 꼬리표가 없다', w.cats === 0, w.cats);
   ok('3-4 반지 = 당일 가져오기 · 부모님께 드릴 말 = 당일 직접 읽어요 · 양가 와인 = 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 말 · 선택/.test(w.t) && /적어 두시면 카드로 인쇄해 드려요\. 비워 두시면 당일 직접 말씀하시면 돼요/.test(w.t) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(w.t), w.t.slice(0, 400));
