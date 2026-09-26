@@ -34,6 +34,52 @@ t(/photoFriend: gi\.photoFriend \? String\(gi\.photoFriend\) : undefined/.test(g
 const cf = slice(my, 'function prodConfirmHtml(', '\nfunction ');
 t(/var _phF=String\(gi\.photoFriend\|\|''\)\.trim\(\)/.test(cf) && /\|\|_phF\)\{ var _pv=''/.test(cf) && /친구들과 자유롭게 · /.test(cf), '예식 확인서 — 친구 부탁이 «가족 · 친구 스냅» 줄에 붙는다(부탁만 있어도 줄이 선다)');
 
+// [PHOTO_FLOW_LINE] 첫눈에 뼈대 · [PHOTO_FRIEND_EX] 누르면 담기는 예시(칸은 하나 그대로)
+t(/var _flw=\[\['다 함께 한 장',false\],\['가족 구도',true\],\['친구들과 자유롭게',!!PHOTOFLOW\.friendOk\]\];/.test(rp) && rp.indexOf('class="snp-flow"') > -1, '흐름 줄 — 다 함께 한 장 › 가족 구도 › 친구들과 자유롭게(친구 칸은 서버가 알 때만 칠한다)');
+t(/사진작가가 자연스럽게 이끌어요/.test(rp), '«가족 구도는 … 사진작가가 자연스럽게 이끌어요» — 세미웨딩 느낌 · 누가 하는지 붙임');
+t(/var PHOTO_FRIEND_EX=\['대기실처럼 편하게 모여서','친구들 폰으로도 몇 장','다 같이 셀카 한 장','부케 받는 친구와 한 장'\];/.test(my) && /<button type="button" class="ph-chip" data-pfex=/.test(rp), '친구 칸 예시 칩 넷(단추 · 44px 칩)');
+t(/if\(cur\.indexOf\(t\)>-1\) return;/.test(rp) && /dispatchEvent\(new Event\('input',\{bubbles:true\}\)\)/.test(rp), '칩은 이미 있는 말을 다시 안 붙이고 · input 을 흘려 저장 손잡이가 따라온다');
+
+// [GROUP_TIME_WORD] «본식 뒤 단체 사진 시간이» (코워크 명세 ③ · 최종판 2-6 고침)
+const capNote = slice(my, 'function photoCapNote(sel){', '\n}');
+t(capNote.indexOf("'두 분 식순이면 본식 뒤 단체 사진 시간이 약&nbsp;'") > -1 && my.indexOf("'두 분 식순이면 단체 사진이 약") === -1, '«두 분 식순이면 본식 뒤 단체 사진 시간이 약 A~B분이에요»');
+
+// [WISH_MIN_SAME] «지금 N컷 · 약 M분» = 단체 사진 줄(photoCapOf)과 같은 셈 — 진짜 함수를 꺼내 돌린다(사본을 재지 않는다)
+{
+  const cm = my.match(/var PHOTO_DAY=(\d+), PHOTO_PRE=(\d+), PHOTO_ALL=(\d+), PHOTO_PER=(\d+), PHOTO_ONLINE=(\d+);/);
+  const wm = my.match(/var PHOTO_WISH_MAX=(\d+);/), xm = my.match(/var PHOTO_MAX=(\d+)/);
+  const src = (a) => slice(my, a, '\n}') + '\n}';
+  const fns = ['function photoMinNote(sel){', 'function photoCapOf(rd, dig, wishN){', 'function photoWishN(){', 'function wishClean(list){'];
+  const miss = fns.filter((a) => my.indexOf(a) < 0);
+  const pm = (my.match(/function photoMins\(sel, w\)\{[^\n]*\}/) || [''])[0];
+  if (!cm || !wm || !xm || miss.length || !pm) t(false, '«약 M분» 셈을 꺼내지 못했다 — ' + (miss.join(' · ') || '상수/photoMins'));
+  else {
+    const one = (a) => a === 'function photoWishN(){' || a === 'function wishClean(list){' ? (my.match(new RegExp(a.replace(/[()[\]{}]/g, '\\$&') + '[^\\n]*'))[0]) : src(a);
+    const body = [pm, ...fns.map(one)].join('\n');
+    const mk = new Function('PHOTO_DAY', 'PHOTO_PRE', 'PHOTO_ALL', 'PHOTO_PER', 'PHOTO_ONLINE', 'PHOTO_WISH_MAX', 'PHOTO_MAX', 'PHOTOFLOW', 'wishNorm',
+      body + '\nreturn { note: photoMinNote, cap: photoCapOf, mins: photoMins };');
+    const PF = { wish: [] };
+    const F = mk(+cm[1], +cm[2], +cm[3], +cm[4], +cm[5], +wm[1], +xm[1], PF, (w) => ({ what: String((w && w.what) || '').trim() }));
+    const wrong = [];
+    // 약 M분 = 전체 하객 + 3분 × 구도 + 1분 × 글 있는 요청(둘까지) — 상한 셈의 all(= PHOTO_ALL + 요청)과 같은 상수
+    for (const n of [0, 1, 3]) for (const w of [0, 1, 2, 3]) {
+      const got = F.mins(new Array(n).fill('x'), w), want = +cm[3] + n * +cm[4] + Math.min(w, +wm[1]);
+      if (got !== want) wrong.push(`구도 ${n} · 요청 ${w}: ${got} ≠ ${want}`);
+    }
+    // 같은 식순에서 «약 M분 ≤ 단체 사진 − 숨 고르기»이면 그 구도 수가 «알맞은 수» 안이다(두 줄이 서로 어긋나지 않는다)
+    for (const w of [0, 2]) for (const late of [900, 1200, 1500]) {
+      const c = F.cap({ summary: { sec: [late - 300, late] } }, false, w), room = +cm[1] - late / 60 - +cm[2];
+      for (let n = 0; n <= 5; n++) { const fit = F.mins(new Array(n).fill('x'), w) <= room; if (fit !== (n <= c.k)) { wrong.push(`본식 ${late / 60}분 · 요청 ${w} · 구도 ${n}: «약 ${F.mins(new Array(n).fill('x'), w)}분» 과 k ${c.k} 가 어긋남`); break; } }
+    }
+    // 글 있는 칸만 센다 — 빈 요청 칸은 분도 개수도 잡지 않는다
+    PF.wish = [{ what: '할머니 옆 한 컷' }, { what: '' }];
+    const note = F.note(['양가 부모님']);
+    if (note !== '지금 <b>2컷 · 약 10분</b>이에요 · <b>요청 1개</b>') wrong.push('한 줄: ' + note);
+    t(!wrong.length, '«지금 N컷 · 약 M분» = 단체 사진 줄과 같은 셈(요청 하나 1분 · 둘까지 · 글 있는 칸만)' + (wrong.length ? ' — ' + wrong.join(' / ') : ''));
+  }
+}
+t(/var mn=document\.getElementById\('mp_photoMin'\); if\(mn\) mn\.innerHTML=photoMinNote\(sel\);/.test(rp), '요청 칸에 칠 때 «약 M분» 줄도 함께 고친다(다시 그리지 않는다 · 커서 그대로)');
+
 // 관리자 · 당일 콘솔 · 서버
 t(/row\('친구들과 자유롭게',_pfr\)/.test(adm) && /\|\|_pfr\) h\+=/.test(adm), '관리자 고객 상세 — «친구들과 자유롭게» 줄');
 t(/_cS\.photoFriend=String\(gi\.photoFriend\)\.slice\(0,200\)/.test(adm), '관리자 «당일 콘솔» 단추가 친구 부탁을 넘긴다');
