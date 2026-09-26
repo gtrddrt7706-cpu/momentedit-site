@@ -160,7 +160,9 @@ table.t th{font-weight:600;color:var(--sub);font-size:13px;border-top:0}
 .fp-h span strong{color:var(--ink)}
 .bar{position:sticky;left:0;right:0;bottom:0;z-index:4;background:linear-gradient(to top,var(--bg) calc(100% - 12px),rgba(250,250,248,0));padding:14px 18px 16px}
 .bar .sum{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--sub);margin-bottom:8px}
-.bar .sum svg{width:64px;height:18px}
+.bar .sum{flex-wrap:wrap;row-gap:0}
+.bar .sum .pair{white-space:nowrap}
+.bar .sum .pair+.pair::before{content:'·';margin:0 6px 0 0;color:var(--muted)}
 .bar .sum.flash b{animation:sumflash .7s ease-out}
 @keyframes sumflash{0%{color:var(--gold-deep)}100%{color:inherit}}
 .bar .btns{display:grid;grid-template-columns:96px 1fr;gap:8px}
@@ -414,7 +416,7 @@ table.t th{font-weight:600;color:var(--sub);font-size:13px;border-top:0}
       <li><b>언제 바뀌나</b>: 화면 폭 1000px 이상에서만 PC 배치. 그 아래는 지금 휴대폰 배치 그대로.</li>
       <li><b>폭</b>: 내용은 가운데 최대 1180px. 양옆은 88px 이상 비워요 — 오른쪽 레일(화면 끝 72~22px)에 아무것도 닿지 않게(RAIL_LOCKED · «비켜서는 쪽은 그 요소»).</li>
       <li><b>① 이야기판</b>: 예식의 네 막(여는 · 약속 · 마음 · 축하와 닫는)을 <b>막마다 한 줄</b>로. 왼쪽에 막 이름, 오른쪽에 그림이 위인 칸 네 개 — 만화처럼 왼쪽에서 오른쪽, 위에서 아래로 예식이 흘러요(9/26 오후 · 휴대폰 두 칸과 같은 칸). 준비한 순서는 실제 자리(인사와 편지 사이)에 점선 칸으로. 1000~1150px는 막 이름을 칸 위로 올려요.</li>
-      <li><b>흐름 띠</b>: 예시 아래 넓은 감동 흐름 선(선 아래 순간 이름) + 오른쪽에 시간 · 가장 벅찬 순간 한 줄 · 다음 단추. 스크롤해서 띠가 사라지면 위에 얇은 띠(작은 흐름선 · 고른 순간 · 본식 시간 · 다음)가 붙어 따라와요.</li>
+      <li><b>흐름 띠</b>: 예시 아래 넓은 감동 흐름 선(선 아래 순간 이름) + 오른쪽에 시간 · 가장 벅찬 순간 한 줄 · 다음 단추. 스크롤해서 띠가 사라지면 위에 얇은 띠(작은 흐름선 · 본식 · 단체 사진 시간 · 가장 벅찬 순간 · 다음)가 붙어 따라와요.</li>
       <li><b>② 극장</b>: 왼쪽에 큰 장면과 지금 흐르는 말, 오른쪽에 순서 목록. <b>③ 작업대</b>: 왼쪽 쓰는 칸(글 쓰기 좋은 폭 640px), 오른쪽 준비 목록이 따라와요. <b>④ 한 장 요약</b>: 위에 큰 흐름 그래프, 아래 순서 · 준비 두 칸.</li>
       <li><b>글자 · 누르는 곳</b>: PC 본문 15~16px(휴대폰보다 한 단계 크게) · 누르는 곳은 어디서나 40~44px 이상.</li>
       <li><b>마이페이지 안</b>(저장 · 나가기 위 띠)에서도 같은 배치예요. 가운데 한 줄로 좁히지 않아요.</li>
@@ -505,7 +507,7 @@ table.t th{font-weight:600;color:var(--sub);font-size:13px;border-top:0}
       <tr><td>3</td><td>분위기 그래프 — 전문적이고 실제로 도움이 되게</td><td>«우리 예식의 감동 흐름»(15에서 고침): 선 하나 · 높을수록 벅찬 순간 · 가장 벅찬 순간에 점 하나. 한 줄로 읽어 줘요: 가장 벅찬 순간이 어디쯤인지. 듣기만 셋 이어질 때 · 끝이 조용할 때만 알림. ④ 완성에도 크게 들어가요.</td></tr>
       <tr><td>4</td><td>쉽고 간단하고 읽기 좋게</td><td>휴대폰은 그림이 위인 칸 두 개씩(13 · 16 · 17), 칸에는 이름과 무엇인지 한 줄만. 순서 목록은 흐름 판 한 곳. 휴대폰 길이 약 8,060px → 약 2,900px(두 칸)(시안에서 잰 값).</td></tr>
       <tr><td>5</td><td>▶ 대표 나레이션 한 줄</td><td>칸을 누르면 미리 보기 창 — 장면 영상과 대표 한 줄(여는 말 앞 1~2문장 · 5~12초)이 함께, 글도 함께. ②에서는 지금처럼 전부. 녹음 전인 줄은 글로, 녹음되면 저절로 소리로.</td></tr>
-      <tr><td>6</td><td>고객 입장에서 더</td><td>흐름 판에 «두 분이 준비할 것 N가지 · 부모님께 부탁드릴 것 N가지» · 예시마다 분위기 한 줄 · 빈 첫 화면은 숫자 대신 안내 · 아래 막대(휴대폰) · 얇은 띠(PC)에 작은 흐름선 · 미리 보기 창에서 바로 담기.</td></tr>
+      <tr><td>6</td><td>고객 입장에서 더</td><td>흐름 판에 «두 분이 준비할 것 N가지 · 부모님께 부탁드릴 것 N가지» · 예시마다 분위기 한 줄 · 빈 첫 화면은 숫자 대신 안내 · 아래 막대(휴대폰)는 «본식 · 단체 사진» 시간 둘 · 얇은 띠(PC)에 작은 흐름선 · 미리 보기 창에서 바로 담기.</td></tr>
       <tr><td>7</td><td>직접 보며 체크</td><td>위 «지금 화면에서 직접 본 것» 여덟 줄.</td></tr>
       <tr><td>8</td><td>PC는 넓게 · 디자이너 관점 배치</td><td>① 이야기판(네 막 네 칸 · 흐름 띠 · 따라오는 얇은 띠) · ② 극장 · ③ 작업대 · ④ 한 장 요약. 오른쪽 레일 자리는 비워 둬요.</td></tr>
       <tr><td>9 · 10</td><td>스냅은 늘리고 인사 · 단체 사진은 줄이기 · 테이블 인사 생략</td><td>스냅 60 · 본식 + 단체 사진 40(정하심). 테이블 인사는 없애고 배웅 줄에서 인사. 흐름 판의 시간 줄도 «단체 사진 · 둘을 더하면 40분»으로 바꿨어요.</td></tr>
@@ -520,7 +522,7 @@ table.t th{font-weight:600;color:var(--sub);font-size:13px;border-top:0}
 
   <div class="box">
     <h2>▶ 대표 한 줄 — 순간마다 무엇이 나오나</h2>
-    <p class="muted" style="margin:0 0 8px">그 순간의 첫 여는 말이에요. 10초 안으로 짧은 여덟 줄은 있는 클립을 <b>통째로</b> 쓰고, 긴 다섯 줄(입장 · 서약 · 반지 · 선언 · 인사)은 <b>앞 두 문장만 새로 녹음</b>해요(새 줄 다섯 · 약 40초). 지금은 모두 녹음 전이라 글로 나와요.<br>권함: 이 13줄은 사장님 대본 점검 때 먼저 다듬고 <b>먼저 녹음</b>하면, ①에서 바로 소리로 느낌을 들을 수 있어요.</p>
+    <p class="muted" style="margin:0 0 8px">그 순간의 첫 여는 말이에요. 10초 안으로 짧은 여덟 줄은 있는 클립을 <b>통째로</b> 쓰고, 긴 다섯 줄(입장 · 서약 · 반지 · 선언 · 인사)은 같은 클립을 처음부터 틀다가 <b>둘째 문장 끝에서 멈춰요</b>. 새로 녹음할 줄은 없어요. 지금은 모두 녹음 전이라 글로 나와요.<br>재녹음 때 부모 클립만 녹음하면 이 13줄도 함께 소리로 살아나요.</p>
     <div class="tw"><table class="t" id="sampleTable"><tr><th>순간</th><th>대표 한 줄</th><th>나오는 곳</th></tr></table></div>
   </div>
 </div>
@@ -573,13 +575,13 @@ var S={
 var SAMPLE={
  prevideo:['두 분이 준비한 영상을 함께 보시겠습니다.','(90, narr-prevideo-in) 통째'],
  candle:['예식의 시작을 알리는 촛불을 밝히겠습니다. 양가 어머님께서 앞으로 나와 주시겠습니다.','(91, narr-candle-in-mothers) 통째'],
- entry:['저 문 너머에서, 두 사람도 이 순간을 기다리고 있습니다. 오늘까지 서로 다른 길을 걸어왔지만, 그 두 길이 여기서 하나로 이어집니다.','새 줄 sample-entry = (05, entry-A) 앞 두 문장'],
+ entry:['저 문 너머에서, 두 사람도 이 순간을 기다리고 있습니다. 오늘까지 서로 다른 길을 걸어왔지만, 그 두 길이 여기서 하나로 이어집니다.','(05, entry-A) 둘째 문장 끝에서 멈춤'],
  welcome:['신랑 신부가 하객 여러분께, 첫인사를 직접 드리겠습니다.','(11, narr-welcome-in) 통째'],
  bless:['서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.','(22, narr-bless-open) 통째'],
- vow:['오늘을 위해 두 사람이 몇 번이고 고쳐 쓴 말이 있습니다. 이제 그 말이, 서로에게 닿을 차례입니다.','새 줄 sample-vow = (13, narr-vow-in) 앞 두 문장'],
- ring:['반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다.','새 줄 sample-ring = (15, narr-ring-in) 앞 두 문장'],
- declare:['오늘 두 사람은, 이 자리에 계신 모든 분을 증인으로, 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다.','새 줄 sample-declare = (30, declare-1-solemn) 앞 두 문장'],
- tribute:['두 사람을 키워 주신 분들이 앞에 계십니다. 신랑 신부, 천천히 걸음을 옮겨 주십시오.','새 줄 sample-tribute = (38, tribute-in) 앞 두 문장'],
+ vow:['오늘을 위해 두 사람이 몇 번이고 고쳐 쓴 말이 있습니다. 이제 그 말이, 서로에게 닿을 차례입니다.','(13, narr-vow-in) 둘째 문장 끝에서 멈춤'],
+ ring:['반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다.','(15, narr-ring-in) 둘째 문장 끝에서 멈춤'],
+ declare:['오늘 두 사람은, 이 자리에 계신 모든 분을 증인으로, 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다.','(30, declare-1-solemn) 둘째 문장 끝에서 멈춤'],
+ tribute:['두 사람을 키워 주신 분들이 앞에 계십니다. 신랑 신부, 천천히 걸음을 옮겨 주십시오.','(38, tribute-in) 둘째 문장 끝에서 멈춤'],
  free:['오늘을 위해 준비한 영상이 있습니다. 함께 보시겠습니다.','(100, narr-free-in-video) 통째'],
  letter:['가장 가까운 사이라서, 오히려 한 번도 못 한 말이 있습니다. 그 말을, 서로에게 쓴 편지에 담아 왔습니다. 두 분, 마주 보고 전해 주세요.','(28, letter-each) 통째'],
  toast:['마지막으로, 다 같이 잔을 들어 주세요. 두 분이 «위하여» 하시면, 다 함께 «위하여» 하고 답해 주세요.','(107, toast-both-pour-b) 통째 · 화면은 따옴표 · 소리는 쉼표'],
@@ -589,7 +591,7 @@ var MOOD={candle:[3,1,0],entry:[4,1,0],welcome:[3,1,0],bless:[4,2,1],vow:[4,2,1]
 /* 순간마다 [대본 합, 넉넉 합](초) — 엔진 TIME(main 60f18ae · 구현 보고 6 닫는 인사 포함)에서 셈한 값 */
 var LH={candle:[82.5,120.5],welcome:[39,45.5],bless:[178,236.3],vow:[129,164],ring:[100,102],declare:[24,60],tribute:[97.7,136.4],free:[200,205],letter:[157,197.5],toast:[135,251],entry:[48,90],_close:[63,78]};
 var EX=[
- {k:'record',nm:'기록',title:'부부가 되는 순간, 모두의 박수',feel:'밝고 경쾌하게 · 하객이 박수로 함께해요',on:['candle','welcome','vow','ring','declare','tribute','toast'],lh:{candle:[82.5,120.5],entry:[48,90],welcome:[39,45.5],vow:[129,164],ring:[100,102],declare:[45,60],tribute:[67.5,97.5],toast:[135,251],_close:[63,78]},lv:{tribute:[4,2,0]}},
+ {k:'record',nm:'기록',title:'부부가 되는 순간, 모두의 박수',feel:'밝고 경쾌하게 · 단체 사진을 넉넉히',on:['candle','welcome','vow','ring','declare','tribute','toast'],lh:{candle:[82.5,120.5],entry:[48,90],welcome:[39,45.5],vow:[129,164],ring:[100,102],declare:[45,60],tribute:[67.5,97.5],toast:[135,251],_close:[63,78]},lv:{tribute:[4,2,0]}},
  {k:'promise',nm:'약속',title:'서로에게 쓴 말',feel:'서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹',on:['candle','welcome','vow','ring','declare','tribute','letter','toast'],lh:{candle:[82.5,120.5],entry:[42,84],welcome:[39,45.5],vow:[129,164],ring:[100,102],declare:[20,60],tribute:[67.5,97.5],letter:[157,197.5],toast:[135,251],_close:[63,78]},lv:{tribute:[4,2,0]}},
  {k:'family',nm:'가족',title:'부모님과 나누는 순간',feel:'격식 있고 뭉클하게 · 부모님이 말씀하세요',on:['candle','welcome','bless','vow','ring','declare','tribute','toast'],lh:{candle:[82.5,120.5],entry:[45,87],welcome:[39,45.5],bless:[178,236.3],vow:[129,164],ring:[100,102],declare:[24,60],tribute:[201.8,266.5],toast:[141,257],_close:[63,78]},lv:{tribute:[5,2,1]}},
  {k:'brief',nm:'간결',title:'짧게, 핵심만',feel:'짧고 단정하게 · 약속과 선언에 집중',on:['vow','ring','declare','toast'],lh:{entry:[48,90],vow:[129,164],ring:[100,102],declare:[24,60],toast:[135,251],_close:[68,78]}}
@@ -781,7 +783,7 @@ function renderPanelM(){
   var lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1));
   if(!picked()){ box.innerHTML='<div class="fp"><div class="fp-h"><b>우리 예식의 감동 흐름</b></div><p style="margin:10px 0 4px;font-size:13.5px;color:var(--sub)">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p><p class="tm">입장 · 닫는 인사 · 식전 영상은 늘 있어요.</p></div>'; return; }
   box.innerHTML='<div class="fp"><div class="fp-h"><b>우리 예식의 감동 흐름</b><span>본식 <strong>'+rng(lo,hi)+'</strong></span></div>'
-    +'<p class="tm" style="margin-top:2px">선이 높을수록 마음이 벅차오르는 순간이에요</p>'
+    +'<p class="tm" style="margin-top:2px">예식이 차오르고 가라앉는 모양이에요</p>'
     +'<div class="fg-wrap"><div class="fg"></div><div class="tip"></div></div>'
     +insights(sg)+'<p class="tm">'+ordLine(sg)+'</p>'+alertHTML(sg)
     +'<p class="tm">단체 사진 '+rng(DAYMIN-hi,DAYMIN-lo)+' · 본식과 합쳐 늘 40분이에요<br>'+prepLine()+'</p></div>';
@@ -794,7 +796,7 @@ function renderBandP(){
   var box=document.getElementById('bandP'), sg=segsOf();
   var lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1));
   if(!picked()){ box.innerHTML='<div class="band"><div><div class="fp-h"><b>우리 예식의 감동 흐름</b></div><p style="margin:12px 0;color:var(--sub)">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래 이야기판에서 하나씩 담아 보세요. 담는 대로 여기 흐름이 그려져요.</p></div><div class="side"><p class="tm">입장 · 닫는 인사 · 식전 영상은 늘 있어요.</p></div></div>'; return; }
-  box.innerHTML='<div class="band"><div><div class="fp-h"><b>우리 예식의 감동 흐름</b><span>선이 높을수록 마음이 벅차오르는 순간이에요</span></div>'
+  box.innerHTML='<div class="band"><div><div class="fp-h"><b>우리 예식의 감동 흐름</b><span>예식이 차오르고 가라앉는 모양이에요</span></div>'
     +'<div class="fg-wrap"><div class="fg"></div><div class="tip"></div></div></div>'
     +'<div class="side"><span class="big">본식<strong>'+rng(lo,hi)+'</strong>단체 사진 '+rng(DAYMIN-hi,DAYMIN-lo)+'<br>본식과 합쳐 늘 40분</span>'
     +insights(sg)+alertHTML(sg)+'<p class="tm">'+prepLine()+'</p><button type="button" class="go">다음 · 보고 듣기</button></div></div>';
@@ -804,7 +806,7 @@ function renderBandP(){
 }
 function renderSlim(){
   var el=document.getElementById('slim'), sg=segsOf(), lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1)), p=peakOf(sg);
-  el.innerHTML=picked()? ('<span class="sv"></span><span class="t">담은 순간 <b>'+picked()+'</b> · 본식 <b>'+rng(lo,hi)+'</b>'+(p?' · ★ '+esc(C[p.k].n):'')+'</span><button type="button" class="go">다음 · 보고 듣기</button>')
+  el.innerHTML=picked()? ('<span class="sv"></span><span class="t">본식 <b>'+rng(lo,hi)+'</b> · 단체 사진 <b>'+rng(DAYMIN-hi,DAYMIN-lo)+'</b>'+(p?' · ★ '+esc(C[p.k].n):'')+'</span><button type="button" class="go">다음 · 보고 듣기</button>')
     : '<span class="t">예시로 시작하거나 아래에서 담아 보세요</span><button type="button" class="go">다음 · 보고 듣기</button>';
   var sv=el.querySelector('.sv'); if(sv) sv.innerHTML=flowSVG(sg,180,{mini:true,h:34,label:'작은 흐름선'});
 }
@@ -827,8 +829,7 @@ function renderActs(){
 function renderBar(){
   var sg=segsOf(), bar=document.getElementById('bar'), lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1));
   var key=picked()+'|'+lo+'|'+hi, flash=(renderBar.last!=null&&renderBar.last!==key); renderBar.last=key;
-  bar.innerHTML='<div class="sum'+(flash?' flash':'')+'" aria-live="polite">'+(picked()?('<span class="bm"></span>담은 순간 <b>'+picked()+'</b> · 본식 <b>'+rng(lo,hi)+'</b>'):'예시로 시작하거나 아래에서 담아 보세요')+'</div><div class="btns"><button type="button" class="prev">이전</button><button type="button" class="go">다음 · 보고 듣기</button></div>';
-  var bm=bar.querySelector('.bm'); if(bm) bm.innerHTML=flowSVG(sg,64,{mini:true,h:18,label:'작은 흐름선'});
+  bar.innerHTML='<div class="sum'+(flash?' flash':'')+'" aria-live="polite">'+(picked()?('<span class="pair">본식 <b>'+rng(lo,hi)+'</b></span><span class="pair">단체'+NB+'사진 <b>'+rng(DAYMIN-hi,DAYMIN-lo)+'</b></span>'):'예시로 시작하거나 아래에서 담아 보세요')+'</div><div class="btns"><button type="button" class="prev">이전</button><button type="button" class="go">다음 · 보고 듣기</button></div>';
 }
 
 /* ▶ 미리 보기 창 — 장면 영상 + 대표 한 줄이 함께(시안은 그림 · 글 · 진행 막대로 흉내) */

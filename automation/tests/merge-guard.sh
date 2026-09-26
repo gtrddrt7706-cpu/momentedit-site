@@ -4426,9 +4426,11 @@ fi
 #   «예식 준비» 카드의 행 순서는 productionDashHtml 의 _prepRows 배열 하나가 정한다. 식순에 딸린 접힘 두 줄(준비 목록 · 부케)은 식순 바로 뒤.
 chk 'PREP_ORDER_0926' mypage.html 1
 chk 'CF_ORDER_0926' mypage.html 3                    # 예식 확인서 줄도 같은 순서(식순·애프터 웨딩 줄을 좌석 뒤에서 붙인다)
+chk 'GROUP_SNAP_NAME' mypage.html 4                  # «단체 사진» → «가족 · 친구 스냅»(사장님 선택 2026-09-26) — 목록 줄·화면 제목·저장 알림·확인서 줄 · 옛 이름 복귀는 prep-order 가 잡는다
+chk 'PHOTOG_CONTRACT' privacy.html 1                  # 촬영(스냅) 위탁 = 모먼트에디트와 계약한 사진작가 · 개인정보 조항은 작가 계약서에(사장님 2026-09-26) — 문구는 snap-plan 이 잰다
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
   case "$_pro" in
-    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 단체 사진 · 예식 확인서도 같은 순서' ;;
+    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 가족 · 친구 스냅 · 예식 확인서도 같은 순서' ;;
     1) echo 'FAIL prep-order: 예식 준비 카드(또는 예식 확인서) 순서가 사장님 지시(2026-09-26)와 다릅니다 — node scripts/audit/prep-order.mjs'; fail=1 ;;
     *) echo 'ok prep-order: 재지 못했습니다(배열 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -4911,7 +4913,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN'\]" assets/ritual-preview-link.js 1
+chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -11129,7 +11131,23 @@ chk '두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다.' assets
 chk '오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.' assets/ritual-data.js 1
 chk 'PHOTO_CAP_40' mypage.html 1
 chk 'PHOTO_CAP_CLAMP' mypage.html 1
-chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=8' mypage.html 1
+chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;' mypage.html 1
+# ★[WISH_COUNT · NO_ZERO_SHOT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-4~2-6] 꼭 담고 싶은 사진은 적은 만큼만 · «구도 0개» 금지 · 사진 est 는 GO→GO(말 포함)
+chk 'WISH_COUNT' mypage.html 3
+chk 'function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }' mypage.html 1
+chk 'NO_ZERO_SHOT' mypage.html 1
+chk '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 ' mypage.html 1
+chk '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.' mypage.html 1
+nochk "'알맞고, 제시간에 진행되면 '+_cap.max" mypage.html
+chk 'PHOTO_GO2GO' assets/ritual-cue.js 2
+chk "'end-0-photo': (_pw >= 0 ? 360 + 60 " assets/ritual-cue.js 1   # ★grep 은 * 를 반복으로 읽는다 — 세 조각으로 나눠 잰다
+chk "_pw : 480), 'narr-photo-split': (_pn > 0 ? 180 " assets/ritual-cue.js 1
+chk "_pn : 360), 'narr-online-in': 120 }" assets/ritual-cue.js 1
+nochk 'budget * 60 - fixed - 120' assets/ritual-cue.js
+chk 'PHOTO_GO2GO' scripts/check-ritual-cue.js 4
+chk 'WISH_COUNT' scripts/check-ritual-cue.js 3
+chk 'WISH_COUNT' admin.html 1
+chk "'photoWishN'," assets/ritual-preview-link.js 1
 chk 'SEQ_ROW_CLOCK' scripts/check-source-drift.mjs 2
 chk 'PARENT_AT_EMPTY' scripts/check-source-drift.mjs 1
 chk 'PARENT_AT_EMPTY' parents.html 1
@@ -11162,3 +11180,5 @@ chk 'GUESTS_ALL' assets/ritual-open.js 1
 nochk '서른 분이 박수' assets/ritual-open.js
 nochk '서른 개의 잔' assets/ritual-open.js
 nochk '서른 분이 함께 잔을' assets/ritual-open.js
+chk 'PHOTO_CAP_40 · WISH_COUNT · NO_ZERO_SHOT' scripts/check-ritual-cue.js 1   # 마이페이지 단체 사진 표(최종판 2-6)를 파일에서 꺼내 돌린다
+chk 'FREE_TO_FAREWELL' assets/ritual-cue.js 1   # [최종판 2-4] 배웅이 빠듯한 날은 자유 사진을 일찍 넘긴다(디렉터 GO)
