@@ -3960,7 +3960,7 @@ function renderContractPayment(c, p, ctx){
   // 시그니처: 계약금은 예약금으로 충당(납부액 0) → '입금해 주세요(0원)'·계좌·입금완료 대신 충당 완료 안내 + 디렉터 확인 대기
   if (a && Number(a.납부액) <= 0){
     h += '<div class="cc-title" style="margin-top:8px">계약금은 예약금으로 충당돼요</div>'
-       + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 제작 단계가 열려요.</div>'
+       + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 예식 준비가 열려요.</div>'   // [STAGE_NAME_PREP] 2026-09-26 사장님 결정 ⑤ · 진행 라벨이 「예식 준비」가 되자 같은 화면에서 이 카드만 «제작 단계»로 남았다 — NOW 의 «예식 준비(청첩장·식순)가 열려요»와 같은 이름으로
        + ((a.중도금>0||a.잔금)?('<div class="cc-note" style="margin-top:6px">다음 결제 · '+(a.중도금>0?('중도금 '+fmtWon(a.중도금)+' '+escapeHtml(a.중도금시점||'')+' · '):'')+'잔금 '+fmtWon(a.잔금)+' '+escapeHtml(a.잔금시점||'')+'</div>'):'')
        + '</div>';
     box.innerHTML=h; box.style.display='block'; return;
