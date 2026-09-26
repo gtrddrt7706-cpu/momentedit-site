@@ -607,10 +607,13 @@ document.addEventListener('click', function(e){
   b.disabled=true;
   if(act==='confirm'){ var inp=$('snapReply'); gas('adminSnapConfirm', code, inp?inp.value:'').then(function(r){ done(); if(r&&r.ok){ toast('스냅 기획 확인됨 · 두 분 카드에 보여요'); openDetail(code); } else toast((r&&r.error)||'실패'); }).catch(function(){ done(); toast('오류'); }); return; }
   if(act==='brief'||act==='renew'){
-    if(act==='renew' && !confirm('새 주소를 만들면 지금 주소는 바로 닫혀요. 작가에게 새 주소를 다시 보내야 해요. 만들까요?')){ done(); return; }
-    gas('adminSnapBrief', code, act==='renew').then(function(r){ done(); var o=$('snapBriefOut'); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
+    var runBrief=function(){ gas('adminSnapBrief', code, act==='renew').then(function(r){ done(); var o=$('snapBriefOut'); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
       if(o) o.innerHTML='<a href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+esc(r.url)+'</a> · '+esc(r.until||'')+'까지 열려요 · 작가에게만 보내 주세요';
-      try{ navigator.clipboard.writeText(r.url).then(function(){ toast('브리프 주소를 복사했어요'); }); }catch(e2){} }).catch(function(){ done(); toast('오류'); }); return; }
+      try{ navigator.clipboard.writeText(r.url).then(function(){ toast('브리프 주소를 복사했어요'); }); }catch(e2){} }).catch(function(){ done(); toast('오류'); }); };
+    if(act==='renew'){ done();   // 새 주소는 옛 주소를 닫는다 — 관리자 확인판으로 한 번 묻는다(브라우저 기본 확인창 금지 · merge-guard)
+      openModal({ title:'브리프 새 주소', text:li('지금 주소는 바로 닫혀요')+li('작가에게 새 주소를 다시 보내야 해요'), yes:'새 주소 만들기', danger:true,
+        onYes:function(){ closeModal(); b.disabled=true; runBrief(); } }); return; }
+    runBrief(); return; }
   if(act==='thumbs'){ gas('adminSnapThumbs', code).then(function(r){ done(); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
       var zs=((curDetail.mirror&&curDetail.mirror.production&&curDetail.mirror.production.snapDraft)||{}).zones||{};
       Array.prototype.forEach.call(document.querySelectorAll('[data-snapth]'), function(box){ var z=zs[box.getAttribute('data-snapth')]||{};
