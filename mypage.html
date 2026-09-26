@@ -2102,7 +2102,7 @@ function openRitualBuilder(p, inv){
       // 신원 번들 — 빌더 안 AI 상담 그라운딩·인계 식별용(이름·코드·전화·예식일·D-day · 기획 v3 §1-2). 서약·편지 본문은 보내지 않음.
       var _cb=(p&&p.production&&p.production.base)||(p&&p.base)||{};
       var _wd=String(_cb.weddingDate||'').trim(), _ddn=null;
-      if(/^\d{4}-\d{2}-\d{2}$/.test(_wd)) _ddn=Math.round((new Date(_wd+'T00:00:00')-new Date(new Date().toDateString()))/86400000);
+      if(/^\d{4}-\d{2}-\d{2}$/.test(_wd)) _ddn=_kstDdayOf(_wd);   // [KST_TODAY 2026-09-26 · 2라운드 R1] 빌더 AI 에 넘기는 D-day 도 머리와 같은 한국 날짜(기기 날짜로 세면 해외 기기에서 하루 어긋났다)
       var _ci=(p&&p.contractInfo)||{};   // 연락처는 contractInfo에 있음(p.phone은 존재하지 않음) — 인계 카드 회신 채널(기획 v3 §1-2)
       var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||'', aiToken:(p&&p.aiToken)||''};   // [AI_WIDGET_HMAC] GAS 서명 토큰 릴레이(미발급이면 빈값)
       try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } if(!_cu.aiToken){ _cu.aiToken=_ld.aiToken||''; } } }catch(e2){}
@@ -2939,7 +2939,7 @@ function renderMyPage(d){
           ? ('아래에서 계약금을 보내 주시면, 확인 후 ' + _prep + '가 시작돼요.')
           : ('아래 안내에 따라 계약금을 입금해 주시면, 확인 후 ' + _prep + '가 시작돼요.'));
         /* ★[NOW_DEP_COVER 2026-09-26 · 통합 점검 L3 · B4] 계약금이 예약금으로 충당된 계약(납부액 0 · 계약총액 100만 원 이하)은 지금 낼 돈이 없다.
-           종전엔 금액 결측과 같은 «아래 안내에 따라 계약금을 입금해 주시면»으로 빠져, 계좌도 버튼도 없는 카드(«추가로 내실 금액은 없어요») 위에서
+           종전엔 금액 결측과 같은 «아래 안내에 따라 계약금을 입금해 주시면»으로 빠져, 계좌도 버튼도 없는 카드(«더 내실 계약금은 없어요» · 2라운드 [COVER_SCOPE] 전에는 «추가로 내실 금액은 없어요») 위에서
            입금하라고 했다(진행 머리도 «계약금 입금»). 카드 조건(renderContractPayment «a && 납부액 <= 0»)과 같은 판정 · 금액은 말하지 않는다([NOW_NO_MONEY]).
            머리는 계약금만 가리킨다(«추가 입금은 없어요»는 중도금·잔금까지 없다고 읽힌다) · 13자 이내([NOW_ONELINE]). amounts 가 없을 때(결측)의 문장은 그대로.
            ★[NOW_DEP_COVER 검토] 부제는 인사 한 줄만 — «디렉터가 확인하면 예식 준비가 시작돼요»를 붙였더니 바로 아래 카드 «디렉터가 확인하면 예식 준비가 열려요»와
@@ -2956,7 +2956,11 @@ function renderMyPage(d){
        신고 뒤 머리는 계약금 신고 갈래와 같은 말(「입금을 확인하고 있어요」)을 쓴다. */
     if (d.product === '웨딩스냅' && d.stage === '입금완료' && d.balance && !d.balance.confirmed) {
       if (d.balance.status === '완료신호') { head = '입금을 확인하고 있어요'; sub = '보통 영업일 1~2일 안에 확인하고 알려드려요.'; }
-      else if (d.balance.dday != null && d.balance.dday <= _payDays(d).bal + 6) { head = '잔금 입금만 남았어요'; sub = '아래에서 잔금을 보내 주시면, 확인\u00a0후 촬영 준비가 마무리돼요.'; }   // [NOW_SNAP_BAL_NB 2026-09-26 · 통합 점검 L5] «확인 후»는 한 덩어리 — 320 에서 «…확인 / 후 촬영…»으로 의존명사만 줄 머리에 섰다
+      else if (d.balance.dday != null && d.balance.dday <= _payDays(d).bal + 6) { head = '잔금 입금만 남았어요';
+        /* [EVENT_PAST_NOW 2026-09-26 · 통합 점검 2라운드 R1] 촬영일이 지났는데 잔금이 남은 며칠 — 머리 «촬영을 마쳤어요» 아래에서 «확인 후 촬영 준비가 마무리돼요»(끝난 촬영의 준비)를 말했다.
+             지났으면 준비 권유를 뺀 앞 절만(새 문장을 만들지 않는다 · 제작중 결제 갈래 «_evPast ? ''»와 같은 원칙). 날짜는 머리와 같은 한국 날짜([KST_TODAY]). */
+        var _shPast = _kstDdayOf((d.contract && d.contract.fill && d.contract.fill.weddingDate) || '');   // [EVENT_PAST_NOW]
+        sub = (_shPast != null && _shPast < 0) ? '아래에서 잔금을 보내 주세요.' : '아래에서 잔금을 보내 주시면, 확인\u00a0후 촬영 준비가 마무리돼요.'; }   // [NOW_SNAP_BAL_NB 2026-09-26 · 통합 점검 L5] «확인 후»는 한 덩어리 — 320 에서 «…확인 / 후 촬영…»으로 의존명사만 줄 머리에 섰다
     }
     /* ★[EVENT_PAST_NOW] 스냅 — 촬영일이 지났는데 관리자가 아직 «촬영 완료»로 넘기지 않았으면(손으로 누른다) 서버 기본문
        «촬영을 준비하고 있어요 · 일정에 맞춰 안내드릴게요»가 머리 «촬영을 마쳤어요» 바로 아래에 섰다.
@@ -2968,13 +2972,18 @@ function renderMyPage(d){
     // [입금완료·임박 묶음결제] 중도금·잔금을 함께 받는 동안엔 결제가 유일한 할 일 — 제작 안내보다 우선(payPlan 단일 판정)
     var _pp = payPlan(d);
     if (_pp.hold) {
+      /* [EVENT_PAST_NOW 2026-09-26 · 통합 점검 2라운드 R1] 예식일이 지났는데 입금완료에 중도금·잔금이 함께 남은 며칠 — 머리 «예식을 마쳤어요» 아래에서
+           «입금이 확인되면 예식 준비(청첩장·식순)가 열려요»(끝난 예식의 준비)를 말했다. 지났으면 준비 약속을 뺀다 —
+           미신고는 결제 요청 머리만(제작중 결제 갈래 «_evPast ? ''»와 같다) · 신고 뒤는 다른 입금 신고 NOW 와 같은 확인 안내 문장. 날짜는 머리와 같은 한국 날짜([KST_TODAY]). */
+      var _hdPast = _kstDdayOf(((d.production && d.production.base && d.production.base.weddingDate) || (d.contract && d.contract.fill && d.contract.fill.weddingDate)) || '');   // [EVENT_PAST_NOW]
+      _hdPast = (_hdPast != null && _hdPast < 0);
       // '완료신호'(입금 신고 후 관리자 확인 대기)면 독촉 대신 확인중 안내 — 이미 보낸 고객에게 '입금해 주세요'를 띄워 이중 입금을 유도하던 자기모순 방지
       if (_pp.bothSig) {
         head = '입금을 확인하고 있어요';
-        sub  = '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';
+        sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';   // [EVENT_PAST_NOW]
       } else {
         head = '중도금·잔금을 입금해 주세요';
-        sub  = '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';
+        sub  = _hdPast ? '' : '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';   // [EVENT_PAST_NOW]
       }
     }
     /* ★★[NOW_PREP_TRUTH 2026-09-26 · prod-1 · inv-1 · x-1] «예식 준비가 끝났어요»는 **정말 끝났을 때만** 말한다.
@@ -3101,6 +3110,11 @@ function renderMyPage(d){
                   : ((_eta(DOWNLOAD_KEEP) ? ('결과물은 전달일부터 ' + DOWNLOAD_KEEP + ' 동안 여기서 다시 받으실 수 있어요.') : '결과물은 여기서 다시 받으실 수 있어요.') + '\n기기에도 옮겨 두세요.'); }   // 설문까지 끝 — stale '준비되었습니다' 대신 완료 톤(2026-07-23)
       // [NOW_EXTRA_PAYSIG · B3] «견적»도 «신청»과 같은 입금 요청이다 — ③ 패널(_extraPanelHtml)·행 칩·입금 신고 게이트(80_production)가 둘을 같게 다룬다(NOW 만 빠져 «고른 컷이 잘 전해졌어요»였다)
       if (_rx.status === '신청' || _rx.status === '견적') { head = '추가 보정 입금만 남았어요'; sub = '추가 보정 ' + (_rx.수량 || 0) + '컷 · 입금\u00a0후 알려 주세요.'; }   // [NOW_SUB_BAL] «입금 후» 한 덩어리 — 균형 줄바꿈이 320 에서 «…입금 / 후 알려 주세요.»로 의존명사를 줄 머리에 세웠다
+      /* [NOW_EXTRA_PAYSIG 2026-09-26 · 통합 점검 2라운드 R1] 전달이 끝난 뒤(전달완료 · 후기까지 마침) 추가 보정 입금을 알린 경우(결제대기)도 NOW 가 지금 일(입금 확인)을 말한다 —
+           결제대기 갈래가 선택완료 안에만 있어, NOW «모든 순간이 마무리됐어요 · 기기에도 옮겨 두세요» 바로 아래 ③ 이 «입금 확인 중이에요. 확인되면 보정에 들어가요»였다
+           (renderResult 는 전달 뒤에도 끝나지 않은 추가 보정 ③ 을 띄운다). 후기가 남았으면(«마지막으로 후기를 들려 주세요» · 실제 할 일) 덮지 않는다.
+           문장은 선택완료 갈래와 짝 — «추가 보정은»으로 무엇을 기다리는지 밝힌다(여기서 «보정»만 쓰면 이미 받은 보정본과 헷갈린다). */
+      else if (_rx.status === '결제대기' && _rs === '전달완료' && _svDone) { head = '입금을 확인하고 있어요'; sub = '추가 보정은 확인이 끝나면 시작해요.\n완성되면 카카오톡·메일로 알려드릴게요.'; }   // [NOW_EXTRA_PAYSIG]
     }
     /* [SNAP_NUDGE · SNAP_PICK_V2 D2 2026-09-26 사장님 결정] 스냅 기획이 비어 있으면 예식 3주 전부터 한 줄 — 마감은 예식 14일 전 · 3일 전부터는 잠겨 안 붙인다.
        선택 항목이라 헤드라인을 뺏지 않고 서브 끝에만 붙인다(지금 할 일의 주인공은 그대로). 결과물 단계엔 붙이지 않는다. */
@@ -3116,7 +3130,11 @@ function renderMyPage(d){
     if (sub) {
       subEl.textContent = '';
       String(sub).split('\n').forEach(function(t){ var sp=document.createElement('span'); sp.className='ln-bal';
-        sp.textContent=t.replace(/([가-힣A-Za-z0-9])·(?=[가-힣A-Za-z0-9])/g,'$1\u2060·\u2060').replace(/ · /g,'\u00a0·\u00a0').replace(/\)(?=[가-힣])/g,')\u2060');
+        sp.textContent=t.replace(/([가-힣A-Za-z0-9])·(?=[가-힣A-Za-z0-9])/g,'$1\u2060·\u2060').replace(/ · /g,'\u00a0·\u00a0').replace(/\)(?=[가-힣])/g,')\u2060')
+          /* [NOW_SUB_DATE 2026-09-26 · 통합 점검 2라운드 R1] 날짜 · «N일 전»도 한 덩어리 — 균형 줄바꿈이 스냅 기획 한 줄을 «9월 27일 / (일)까지»·«예식 3일 / 전까지»로 갈랐다
+               (날짜·시간은 한 몸 · [CHECKS_NO_DANGLE]). «(요일)» 앞만 이으면 «9월 / 27일(일)까지»로 옮겨 가서 «N월 N일» 사이도 붙인다(검증 실측). 글자는 그대로. */
+          .replace(/(\d+월) (\d+일)/g,'$1\u00a0$2').replace(/(\d일)\((?=[일월화수목금토]\))/g,'$1\u2060(')   // [NOW_SUB_DATE] «9월 27일(일)»
+          .replace(/(예식|촬영) (\d+일) (전)/g,'$1\u00a0$2\u00a0$3').replace(/(\d+일) (전)/g,'$1\u00a0$2');   // [NOW_SUB_DATE] «예식 3일 전»
         subEl.appendChild(sp); });
       subEl.style.display = 'block';
     }
@@ -3502,7 +3520,7 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
      잠긴 «다음»으로 섰다(«예식 완료 · 2026년 9월 25일 (금)» = 어제). 아래 [D2] 와 같은 원칙(지난 것은 미래처럼 보이지 않게)으로 뺀다.
      결제 줄도 셋째 칸이 '예식완료'라 라벨로 가린다(남은 결제는 카드가 말한다). 날짜는 한국 날짜로([KST_TODAY]). */
   var _evGone = _kstDdayOf(_wedFix);
-  if (_evGone != null && _evGone < 0) items = items.filter(function(r){ return !((r[0]==='예식 완료' && r[2]==='예식완료') || (r[0]==='촬영' && r[2]==='촬영완료')); });
+  if (_evGone != null && _evGone < 0) items = items.filter(function(r){ return !((r[0]==='예식 완료' && r[2]==='예식완료') || (r[0]==='촬영' && r[2]==='촬영완료') || (r[0]==='예식 준비' && r[2]==='제작중')); });   // [EVENT_PAST_NEXT 2026-09-26 · 2라운드 R1] 지난 예식의 «예식 준비 · 청첩장·식순» 자물쇠도 뺀다(입금완료 묶음결제 hold 동안 남던 줄 · 진행 머리 라벨은 그대로)
   // [D2] 현재단계 인식 — 이미 지났거나 현재 진입한 단계는 NEXT에서 숨김(지난 게 미래처럼 안 보이게)
   var list = stageList || [];
   if (typeof curIdx === 'number' && curIdx >= 0){
@@ -4542,7 +4560,7 @@ function renderContractPayment(c, p, ctx){
     var _ldP=((ctx&&ctx.ledger&&ctx.ledger.payments)||[]), _dp=_ldP.filter(function(x){ return x&&x.key==='계약금'; })[0];
     var _bdl=_signBundleKeys(ctx);   // [SIGN_NEXT_BUNDLE] 진행 머리 «다음»과 같은 판정 한 곳 · «오늘»은 한국 날짜([KST_TODAY])
     /* ★[SIGN_DEP_COVER 2026-09-26 · 통합 점검 L1] 계약금이 예약금으로 충당되는 계약(계약총액 100만 원 이하 · 서버가 '계약금' 행을 안 넣는다 · 60_mypage buildLedgerState)은
-         서명 뒤 같은 카드가 «계약금은 예약금으로 충당돼요 · 추가로 내실 금액은 없어요»라고 한다 — 서명 전에 «계약금 입금 안내가 이어져요»라 하면 지켜지지 않는 약속이다.
+         서명 뒤 같은 카드가 «계약금은 예약금으로 충당돼요 · 더 내실 계약금은 없어요»([COVER_SCOPE])라고 한다 — 서명 전에 «계약금 입금 안내가 이어져요»라 하면 지켜지지 않는 약속이다.
          판정은 «행이 없다»만으로 하지 않는다(행이 없던 옛 서버 330만 원을 충당으로 오인) — 행 합(예약금+중도금+잔금 · 추가 요금 뺌)이 총액 이상이면 충당이다
          (충당이면 100,000 + 0.9×총액 ≥ 총액 · 옛 서버 330만은 3,070,000 < 3,300,000). 10%를 화면에서 다시 계산하지 않는다.
          «서명하실 때»로 범위를 묶는다 — 중도금·잔금은 남아 있어 «더 낼 돈 없음»으로 읽히면 안 된다.
@@ -4571,7 +4589,7 @@ function renderContractPayment(c, p, ctx){
   if (p.status==='완료신호'){
     // 신고 시점 묶음(수납묶음 스냅샷)까지 확인 중으로 — '계약금만 확인 중'으로 축소돼 중도금·잔금이 대기·기한경과로 보이던 문제 방지
     var _sb=(p.signaledBundle||[]);
-    h += '<div class="cc-title" style="margin-top:8px">'+escapeHtml(_sb.length?('계약금·'+_sb.join('·')):'계약금')+' 입금 확인 중</div>'
+    h += '<div class="cc-title" style="margin-top:8px">'+escapeHtml(_sb.length?('계약금\u2060·\u2060'+_sb.join('\u2060·\u2060')):'계약금')+' 입금 확인 중</div>'   // [SIG_TITLE_WJ 2026-09-26 · 2라운드 R1] 가운뎃점 양옆 낱말 잇기(U+2060) — 320 에서 «계약금·중도금· / 잔금 입금 확인 중»으로 점이 줄 끝에 매달렸다([CHECKS_NO_DANGLE] · 서명 전 카드 [SIGN_DEP_TRUE] 선례)
        + '<div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div></div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
@@ -4582,22 +4600,29 @@ function renderContractPayment(c, p, ctx){
        3벌 이상 입은 분에게만 금액 아래 한 줄. 금액은 서명 당시 값(추가벌비용 × 추가 벌수) · 값이 없으면 숫자로 메우지 않는다([MPD_G1]). */
   var _fxF=ctx&&ctx.fitting, _fxN2=_fxF?(Number(_fxF.벌수)-Number(_fxF.기본벌수||2)):0, _fxP2=_fxF?Number(_fxF.추가벌비용):0;
   var _fxNote=(_fxN2>0)?('<div class="cc-note" style="margin-top:6px;text-wrap:balance">추가 시착 '+_fxN2+'벌'+(_fxP2>0?(' '+fmtWon(_fxN2*_fxP2)):' 비용')+'은 디렉터가 따로 안내드려요.</div>'):'';   // [FIT_EXTRA_APART]
-  if (a && Number(a.납부액) <= 0){
+  var _pb2 = p.bundle || [];
+  var _bundleActive = !!(_pb2.length && p.bundleTotal != null);   // 계약금+중도금(±잔금) 묶음 안내 상태 — 카드는 단일 단계만 지원하므로 이 경우 카드버튼 숨김
+  /* ★[COVER_BUNDLE 2026-09-26 · 통합 점검 2라운드 R1] 충당(납부액 0) 계약이어도 서버가 묶음(중도금±잔금)을 청구하면 묶음 카드로 간다 —
+       묶음 판정이 충당 return 뒤에 있어, 임박(예식 149일 안) 서명한 충당 계약은 NOW «결제만 남았어요 · 아래에서 한 번에 보내 주시면»·진행 머리
+       «계약금·중도금·잔금 입금»·서명 전 카드 «…입금 안내가 이어져요. 예식이 가까워 한 번에 받아요.»와 달리 이 카드만 «더 낼 돈 없음»을 말하고
+       계좌·[입금했어요]가 없었다(서버 bundleTotal 을 화면에서 낼 길이 없었다 · 지난 «예식 149일 전»도 예고했다).
+       NOW([NOW_DEP_COVER] 앞의 묶음 갈래)·서명 전 카드([SIGN_NEXT_BUNDLE] 가 [SIGN_DEP_COVER] 보다 먼저)와 같은 순서 — 묶음이 먼저, 충당 카드는 묶음이 없을 때만.
+       묶음 금액 줄의 계약금은 «0원»으로 쓰지 않는다(아래 amt · 「계약금(예약금으로 충당)」). 제목은 진행 머리·서명 전 카드와 같은 «계약금·…을 함께 입금해 주세요». */
+  if (a && Number(a.납부액) <= 0 && !_bundleActive){   // [COVER_BUNDLE]
     h += '<div class="cc-title" style="margin-top:8px">계약금은 예약금으로 충당돼요</div>'
-       + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 예식 준비가 열려요.</div>'   // [STAGE_NAME_PREP] 2026-09-26 사장님 결정 ⑤ · 진행 라벨이 「예식 준비」가 되자 같은 화면에서 이 카드만 «제작 단계»로 남았다 — NOW 의 «예식 준비(청첩장·식순)가 열려요»와 같은 이름으로
+       + '<div class="cc-sub">더 내실 계약금은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 예식 준비가 열려요.</div>'   // [STAGE_NAME_PREP] 2026-09-26 사장님 결정 ⑤ · 진행 라벨이 「예식 준비」가 되자 같은 화면에서 이 카드만 «제작 단계»로 남았다 — NOW 의 «예식 준비(청첩장·식순)가 열려요»와 같은 이름으로 · [COVER_SCOPE 2026-09-26 · 2라운드 R1] 첫 문장은 계약금으로 범위를 묶는다 — «추가로 내실 금액은 없어요»(범위 없음)가 두 줄 아래 «추가 시착 1벌 50,000원은 디렉터가 따로 안내드려요»·«다음 결제 · 중도금 …»과 부딪혔다([SIGN_DEP_COVER] «서명하실 때» · [NOW_DEP_COVER] «계약금 입금은 없어요»와 같은 원칙 · ㉘ 문장과 자리는 그대로)
        + _fxNote   // [FIT_EXTRA_APART] 충당이어도 추가 시착비는 따로
        + ((a.중도금>0||a.잔금)?('<div class="cc-note" style="margin-top:6px">다음 결제 · '+(a.중도금>0?('중도금 '+fmtWon(a.중도금)+' '+escapeHtml(a.중도금시점||'')+' · '):'')+'잔금 '+fmtWon(a.잔금)+' '+escapeHtml(a.잔금시점||'')+'</div>'):'')
        + '</div>';
     box.innerHTML=h; box.style.display='block'; return;
   }
-  var _pb2 = p.bundle || [];
-  var _bundleActive = !!(_pb2.length && p.bundleTotal != null);   // 계약금+중도금(±잔금) 묶음 안내 상태 — 카드는 단일 단계만 지원하므로 이 경우 카드버튼 숨김
   var amt = a
     ? (_bundleActive
        ? ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(p.bundleTotal)+'</b>'
           /* [BUNDLE_ITEM_NOWRAP 2026-09-26 점검 pay-17 ②] 항목 이름과 금액이 다른 줄로 갈리던 것(«+ 중도금 / 1,320,000원») —
              항목마다 «+»까지 한 덩어리로 묶는다. 줄은 덩어리 사이에서만 나뉜다. */
-          + '<br><span class="cc-mini"><span style="white-space:nowrap">계약금 '+fmtWon(a.납부액)+'</span><span style="white-space:nowrap">(예약금 '+fmtWon(a.예약금)+' 차감)</span>'
+          + '<br><span class="cc-mini">'+((Number(a.납부액)<=0)?'<span style="white-space:nowrap">계약금(예약금으로 충당)</span>'   // [COVER_BUNDLE] 충당 계약의 묶음 — «계약금 0원(예약금 100,000원 차감)»으로 쓰지 않는다
+            :('<span style="white-space:nowrap">계약금 '+fmtWon(a.납부액)+'</span><span style="white-space:nowrap">(예약금 '+fmtWon(a.예약금)+' 차감)</span>'))
           + (_pb2.indexOf('중도금')!==-1?(' <span style="white-space:nowrap">+ 중도금 '+fmtWon(a.중도금)+'</span>'):'')
           + (_pb2.indexOf('잔금')!==-1?(' <span style="white-space:nowrap">+ 잔금 '+fmtWon(a.잔금)+'</span>'):'')+'</span>'
           + '<br><span class="cc-mini">예식이 가까워 한 번에 받아요.</span></div>')
@@ -5080,8 +5105,13 @@ function renderMid(p, bal){
     /* [MID_PAST_WORD 2026-09-26 · 점검 L3] 계약 뒤에 기한을 넘긴 중도금(단순 연체)은 서버가 기한일을 그대로 준다 — 연체 사실을 지우지 않으려는 설계다(70_journey _midDuePast 주석).
          그런데 카드는 지난 날짜에 앞으로의 부탁을 붙였다(오늘 9/26 에 «2026년 9월 17일 (목)까지 입금 부탁드려요»).
          날짜는 남기고 말만 사실대로 «(날짜) 기한이 지났어요.» / «지금 바로 입금 부탁드려요» — 한 줄로 이으면 390 에서 가운뎃점이 줄 머리에 섰다(검증 실측) → 두 덩어리.
-         잔금 카드(_bPast)·묶음(_balPast)과 같은 «지금 바로». 날짜가 없는 임박 갈래(서버 dueDate '')는 그대로. */
+         잔금 카드(_bPast)·묶음(_balPast)과 같은 «지금 바로». 날짜가 없는 임박 갈래(서버 dueDate '')는 아래 [MID_WITH_WORD]. */
     var _mPast=!!midDateTxt && _duePastKst(p.dueDate);   // [KST_TODAY]
+    /* [MID_WITH_WORD 2026-09-26 · 통합 점검 2라운드 R1] 임박 계약(서버 dueDate '' · dueLabel «계약 시 함께 납부» · 70_journey _midDuePast)은 기한이 서명 때 이미 지났다 —
+         라벨 뒤에 «까지»를 붙여 «계약 시 함께 납부까지 입금 부탁드려요»(문장이 안 됨)였다. 잔금 카드 _bPast(balDue='<b>지금 바로</b>' · 꼬리 없음)와 같은 말.
+         꼬리 «· 계약 시 함께 납부»는 붙이지 않는다 — 320 에서 가운뎃점이 줄 머리에 섰다(검증 실측 · CHECKS_NO_DANGLE).
+         옛 서버 폴백(dueLabel «예식 149일 전» · 날짜 없음)은 종전대로 «…까지 입금 부탁드려요». */
+    var _mWith=!midDateTxt && String(p.dueLabel||'')==='계약 시 함께 납부';   // [MID_WITH_WORD]
     var _balPast=!!(bal && _duePastKst(bal.dueDate));   // [KST_TODAY] 기기 날짜가 아니라 한국 날짜
     var balDateTxt=(bal&&bal.dueDate&&!_balPast&&typeof fmtWedKo==='function')?fmtWedKo(bal.dueDate):'';
     var comboDue, comboTag;
@@ -5094,6 +5124,7 @@ function renderMid(p, bal){
     var when='<div class="cc-note">'+(
         forceCombo?('<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">'+comboDue+' 입금 부탁드려요'+comboTag+'</span>')
       : _mPast?('<span class="ln-bal"><b>'+escapeHtml(midDateTxt)+'</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 입금 부탁드려요</span>')
+      : _mWith?'<b>지금 바로</b> 입금 부탁드려요'   // [MID_WITH_WORD]
       : p.due?(midDue+' 입금 부탁드려요'+midTag)
       : (midDue+' 보내 주세요'+midTag)
     )+'</div>';
@@ -6321,8 +6352,11 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};
   t=t||{}; inv=inv||{};
   // 예식까지 남은 날 — 최종 확정 안내(D-30부터 강조 · 기한은 잔금과 같은 예식 9일 전)
+  /* [KST_TODAY 2026-09-26 · 통합 점검 2라운드 R1] 행 꼬리 «좌석 · 음료 D-n»도 머리 D-day(_kstDdayOf)와 같은 한국 날짜로 센다 —
+       기기 시각(Math.ceil((예식일 기기 자정 − 지금)/하루))으로 세던 때는 LA·UTC 기기에서 머리 «오늘이에요» 바로 아래 행이 «D-1»,
+       오클랜드 기기(KST 22시)에서는 전날 행이 «D-0»이었다(1라운드가 머리만 옮겨 한 화면의 두 값이 갈렸다). 한국 기기는 바뀌는 것이 없다. */
   var _dLeft=null;
-  try{ var _wd=base&&base.weddingDate; if(_wd){ var _w=new Date(String(_wd).slice(0,10)+'T00:00:00'); if(!isNaN(_w)) _dLeft=Math.ceil((_w-new Date())/86400000); } }catch(e){}
+  try{ _dLeft=_kstDdayOf(base&&base.weddingDate); }catch(e){}   // [KST_TODAY] 못 읽으면 null(꼬리 없음) 그대로
   // 청첩장 행과 동일한 형태로 통일 — 상태 텍스트를 따로 두지 않고 버튼 라벨에 녹임('완료 · 수정' 등)
   function actLabel(st){ return st==='완료' ? '완료 · 수정' : (st==='진행중' ? '이어하기' : '시작하기'); }
   function row(name, st, btnId, label, sub, opt){
@@ -7788,9 +7822,8 @@ function _guideLinkClosed(base){
   try{
     var b=base||(((window._mpStateD||{}).production||{}).base)||{};
     var m=String(b.weddingDate||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return false;
-    var w=new Date(+m[1],+m[2]-1,+m[3]); w.setHours(0,0,0,0);
-    var t=new Date(); t.setHours(0,0,0,0);
-    return Math.round((t-w)/86400000) > 30;   // 서버 _guideExpired(_dayDiff < -30)와 같은 경계 — 예식 +30일까지는 열림
+    var _gdd=_kstDdayOf(m[0]);   // [KST_TODAY 2026-09-26 · 2라운드 R1] 서버 _guideExpired 는 한국 날짜(_kstYmd)로 센다 — 기기 날짜로 세면 LA 기기는 서버가 닫은 날에도 링크를 권했다
+    return _gdd != null && _gdd < -30;   // 서버 _guideExpired(_dayDiff < -30)와 같은 경계 — 예식 +30일까지는 열림
   }catch(e){ return false; }
 }
 function guideClosedHtml(){
@@ -9523,7 +9556,7 @@ function _seatLeadNote(){
     var d=(window._mpStateD||{}), pr=d.production||{}, t=pr.tracks||{};
     var bal=_payDays().bal, wl=_payWord();
     var left=null, wd=(pr.base&&pr.base.weddingDate)?String(pr.base.weddingDate).slice(0,10):'';
-    if(/^\d{4}-\d{2}-\d{2}$/.test(wd)){ var w=new Date(wd+'T00:00:00'); if(!isNaN(w)){ var n=new Date(); n.setHours(0,0,0,0); left=Math.ceil((w-n)/86400000); } }
+    if(/^\d{4}-\d{2}-\d{2}$/.test(wd)) left=_kstDdayOf(wd);   // [KST_TODAY 2026-09-26 · 2라운드 R1] 좌석 화면 «… · D-n»도 머리·행과 같은 한국 날짜 — 기기 자정으로 세면 LA 기기에서 예식 당일이 «D-1»이었다
     var urg=(left!=null && left>=0 && left<=30);
     var out=wl+' '+(urg?(bal+'일 전까지'):('<b>'+bal+'일 전까지</b>'))+' 확정해 주세요'
       + (urg?(' · <b style="color:var(--seal)">D-'+left+'</b>'):'');   // MPD_B7 D-n(진사) 강조가 붙는 D-30 이내엔 기한 볼드 해제 — 줄당 강조 1개(디자인 헌장 1). 구 fNote에서 이 화면으로 이관(TRK_NO_SUB)
@@ -10699,7 +10732,7 @@ window.ME_ADV_PAGE = {
       var wd = (base && base.weddingDate) ? String(base.weddingDate).trim() : '';
       if (/^\d{4}-\d{2}-\d{2}$/.test(wd)) {
         var wt = (base.weddingTime && /^\d{2}:\d{2}$/.test(base.weddingTime)) ? (' ' + slotClock(base.weddingTime)) : '';   // [SLOT_CLOCK] AI 에게도 실제 본예식 시각
-        var diff = Math.round((new Date(wd + 'T00:00:00') - new Date(new Date().toDateString())) / 86400000);
+        var diff = _kstDdayOf(wd);   // [KST_TODAY 2026-09-26 · 2라운드 R1] 상담 AI 문맥의 D-day 도 머리와 같은 한국 날짜 — 기기 날짜로 세면 LA 기기에서 머리 «D-1» · AI «D-2»로 갈렸다
         var dl = diff > 0 ? ('D-' + diff) : (diff === 0 ? 'D-day' : (-diff) + '일 지남');
         L.push((d.product === '웨딩스냅' ? '촬영일' : '예식일') + ': ' + wd + wt + ' (' + dl + ')');
       }
