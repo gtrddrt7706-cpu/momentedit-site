@@ -8707,7 +8707,8 @@ chk 'STUDIO_PREP' assets/ritual-open.js 1   # (역사) 스튜디오 준비 → [
 chk 'GOODS_CHOICE' assets/ritual-open.js 3
 chk 'GOODS_CHOICE' mypage.html 1
 chk 'GOODS_CHOICE' admin.html 1
-chk '저희에게 맡기시면 따로 비용이 있어요' order-preview.html 1   # [GOODS_CHOICE] ① «값은 같아요» 옆 한 줄(코워크 5-1)
+# [PICK_V2 3-1 · 사장님 말씀 1 · 2026-09-26] ① 머리에서 비용 줄을 뺐다 — 케이크 · 꽃 비용은 ② «케이크 준비 · 꽃 준비» · ③ «저희가 준비해요 · 별도 비용»에 [GOODS_CHOICE]
+nochk '저희에게 맡기시면 따로 비용이 있어요' order-preview.html
 chk 'v1-9.html' admin.html 1   # [CONTRACT_V110] v1.9 서명자 보존본
 chk 'v1-9.html' mypage.html 1
 chk 'v1-10.html' admin.html 1   # [CONTRACT_V111] v1.10 서명자 보존본
@@ -8798,8 +8799,8 @@ nochk "'성우 · 엄숙하게'" assets/ritual-open.js
 chk 'WHY_NEIGHBOR' assets/ritual-open.js 2   # 이웃을 담았을 때만 그 이름
 chk 'BAND_THIN_LISTEN' order-preview.html 1
 chk 'BIG_END' order-preview.html 3
-chk 'POLISH_0925' order-preview.html 8
-chk 'A11Y_FOCUS' order-preview.html 7
+chk 'POLISH_0925' order-preview.html 5   # [PICK_V2 2026-09-26] 8 → 5 — 옛 ① 의 세 자리(nwList · 빈 상태 «↓ 아래 카드에서» · 담지 않은 목록)는 ① 개편으로 거뒀다
+chk 'A11Y_FOCUS' order-preview.html 6   # [PICK_V2 2026-09-26] 7 → 6 — op-jump(«맨 아래 예시 ↓»)를 거둬 opJump 의 한 자리가 사라졌다
 chk 'A11Y_RADIO' order-preview.html 1
 chk 'A11Y_PLAYTOG' order-preview.html 2
 chk 'A11Y_LIVE' order-preview.html 2
@@ -11178,7 +11179,10 @@ chk 'SPEECH_IN_FREE' assets/ritual-open.js 1          # «축하의 말» 칸은
 nochk "'narr-speech-in'" assets/ritual-cue.js 0
 nochk "speech: { n: '축하의 말'" assets/ritual-open.js 0
 chk 'FREE_WHAT' assets/ritual-open.js 2               # 준비한 순서 무엇을 × 길이
-chk 'FREE_OWN' order-preview.html 3                   # 맨 아래 묶음 · ② 더하기 단추 · ③ 한 줄
+# [ACTS_FOUR 2026-09-26 코워크 최종판 3-5] ① 맨 아래 «준비한 순서» 묶음([FREE_OWN])과 ② 더하기 단추를 거뒀다 — 네 막 «마음의 순간»의 «있을 때만» 칸으로. 되살리지 말 것.
+chk 'ACTS_FOUR' assets/ritual-open.js 1
+nochk '특별히 준비한 것이 있다면' order-preview.html
+nochk 'opAddFree' order-preview.html
 chk 'FREE_RESCUE' console.html 2                      # 재생 안 됨 한 줄(105) · 맺는 말 건너뜀
 chk 'BOW_GROOM' assets/ritual-data.js 1               # 큰절은 원하면 신랑만 · 옛 bow 는 닫힌 채
 chk 'BOW_RETIRED' order-preview.html 1
@@ -11280,6 +11284,46 @@ nochk '서른 개의 잔' assets/ritual-open.js
 nochk '서른 분이 함께 잔을' assets/ritual-open.js
 chk 'PHOTO_CAP_40 · WISH_COUNT · NO_ZERO_SHOT' scripts/check-ritual-cue.js 1   # 마이페이지 단체 사진 표(최종판 2-6)를 파일에서 꺼내 돌린다
 chk 'FREE_TO_FAREWELL' assets/ritual-cue.js 1   # [최종판 2-4] 배웅이 빠듯한 날은 자유 사진을 일찍 넘긴다(디렉터 GO)
+# ── ★★[PICK_V2 2026-09-26 코워크 최종판 3장] ① 고르기 개편 — 예시 → 감동 흐름 → 네 막 칸 → 아래 막대 · PC 이야기판 ──
+#   받아들일 기준(3-10)은 scripts/audit/pick-v2.mjs 가 실브라우저로 잰다 — 브라우저가 없으면 «재지 못했다»(listen-page 와 같은 방식).
+if command -v node >/dev/null 2>&1; then node scripts/audit/pick-v2.mjs >/dev/null 2>&1; _pk=$?
+  case "$_pk" in
+    0) echo 'ok pick-v2: ① 고르기 받아들일 기준 통과(길이 · 칸 · 창 · 흐름 그림 · PC)' ;;
+    1) echo 'FAIL pick-v2: ① 고르기 기준이 깨졌습니다 — node scripts/audit/pick-v2.mjs'; fail=1 ;;
+    *) echo 'ok pick-v2: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'PICK_V2' order-preview.html 7
+chk 'PICK_V2' scripts/audit/pick-v2.mjs 1
+chk 'FLOW_LINE' assets/ritual-open.js 2
+chk 'fill="none" stroke="#7A5F37"' assets/ritual-open.js 1   # 선 하나 · 한 색(색 · 회색 밑줄 · 옅은 절정 칸 · 눈금 · 범례 없음)
+chk 'TILE_PICK' assets/ritual-open.js 1
+chk 'TILE_PICK' order-preview.html 2
+chk 'PREVIEW_SHEET' order-preview.html 5
+chk 'BAR_SUM' order-preview.html 4
+nochk "'고른 순간 <b>'" order-preview.html   # 아래 막대는 개수 대신 «본식 · 단체 사진» 시간 둘(최종판 3-7)
+chk 'PC_STORY' order-preview.html 1
+chk 'SAMPLE_CUT' assets/ritual-open.js 1
+chk 'SAMPLE_CUT' order-preview.html 3
+nochk "slug: 'sample-" assets/ritual-open.js   # 대표 한 줄 새 녹음 다섯은 거뒀다 — 부모 클립 앞 두 문장에서 멈춘다(최종판 4장)
+chk 'POSTER_SMALL' scripts/video/encode-moment.sh 1
+chk 'POSTER_SMALL' assets/ritual-open.js 1
+chk "var PK_CAP='예식이 차오르고 가라앉는 모양이에요';" order-preview.html 1
+nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
+chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-open.js 1
+chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
+chk "L('tribute','말의 길이'" order-preview.html 1
+chk "'인사 방식'" order-preview.html 1
+chk '예시에서 시작해 순간을 더하고 빼요 · 칸을 누르면 미리 보고 들을 수 있어요.' order-preview.html 1   # [E3]
+chk "sub:'작은 예식은 보통 이런 흐름이에요. 마음에 드는 예시로 시작해서 더하고 빼면 돼요.'" order-preview.html 1
+nochk '_pickVids' order-preview.html   # ① 카드 자동 재생 영상은 거뒀다 — 칸은 첫 장면 사진만(최종판 3-5 · 사장님 확인)
+nochk 'opVidOff' order-preview.html
+# ── ★[SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 = 부모 클립 앞 두 문장에서 멈춤(새 녹음 0) ──
+#   멈춤 자리는 assemble-narration 이 mp3 를 만든 뒤 sample-cut.mjs 로 적는다. 게이트는 «소리 나는 대표 클립»에 자리가 있는지 경고만 한다(걸린 줄은 글로 흐른다).
+if command -v node >/dev/null 2>&1; then node scripts/sample-cut.mjs --check 2>/dev/null | tail -1; fi
+chk 'SAMPLE_CUT' scripts/sample-cut.mjs 1
+chk 'sample-cut.mjs' scripts/assemble-narration.mjs 1
+chk "stopMs=(rec&&typeof rec==='object')?(+rec.cut2Ms||0):0" order-preview.html 1   # 빌더는 cut2Ms 가 없으면 소리를 내지 않는다(글 + 진행 막대)
 
 # ═══ [MP_AUDIT_0926] 2026-09-26 사장님 「마이페이지도 고객 입장에서 좀 더 디테일한 개선점」 — 16갈래 점검 101건 → 수정 67 + 사장님 결정 ㉗ · 묶음 A·A2·B1·B2·C·D·E ═══
 # ── 묶음 A
