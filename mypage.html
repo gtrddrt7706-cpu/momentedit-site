@@ -763,10 +763,6 @@ button.snp-tile{cursor:pointer}
 .res-panel.done .res-panel-t{color:var(--label-soft)}
 .res-panel.done .res-n{color:var(--gold-deep)}   /* [DONE_N_GOLD_TEXT 2026-09-26] 끝난 패널의 번호(④ 보정본 확인)도 제목에 붙은 글자다 — 장식 --gold(#B89A75)는 흰 카드에서 2.65:1 이었다(점검 L6 · 16px).
    골드빛 글자는 --gold-deep(5.71:1 · momentedit-design «글자와 같은 줄이면 --gold-text»). 끝난 느낌은 옅은 색이 아니라 면 없는 선·제목 색(--label-soft)이 낸다. */
-/* [RES_INFO_12 2026-09-26] 결과물 카드의 기한·보관 줄은 정보다 — 보정본 «예식 후 4주 안에»(사장님 결정 ①)·보관 «전달일부터 6개월».
-   각주 크기(.consult-card .cc-mini 11px)를 물려받아 11px 였다(점검 L6). 12px 미만 한글은 정보 줄에 쓰지 않는다 — 이 두 줄만 12px, 다른 각주는 그대로.
-   받은 결과물 목록 각주(.deliv-body · DELIV_MINI_11)는 여기서 다루지 않는다. */
-.consult-card .cc-mini.res-info{font-size:12px}
 /* [SV_SKIP_QUIET 2026-09-26] 후기 카드 맨 위에 라벨이 없으면(건너뜀·완료) 첫 패널의 윗여백(14px)이 카드 안쪽 여백(22px)에 더해져
    위만 36px 로 떴다(옆은 20px · 390 실측). 첫 패널이면 윗여백을 뺀다 — 라벨이 있을 때는 첫 아이가 라벨이라 그대로다. */
 #mp_result .consult-card>.res-panel:first-child{margin-top:0}
@@ -5390,8 +5386,9 @@ function _surveyCardHtml(res, nm, code){
     +'</div>'   // MPD_B6 카피-실측 정직화(11~12문항 · 수치 약속 금지) + 필수 범례 · [CPN_SAY_ONCE] 이미 받은 분께 다시 약속하지 않는다
     + body
     /* [SV_REVIEW_4LINE 2026-09-26] 한마디 칸은 안내 글(placeholder)이 네 줄 다 보이는 높이로 — 320 에서 네 줄로 접히는데 칸이 세 줄분(92px)이라
-       넷째 줄 «볼게요.»가 반쯤 잘렸다(점검 L6 · 390·1280 은 세 줄 이하). 글자는 16px(41행 · 아이폰 확대 방지)·행간 1.65 라 네 줄 105.6px + 위 12px
-       ≈ 118px — 아래 여백을 조금 쓰지만 네 줄이 다 보인다(320·360·390·1280 실측). 글은 그대로다.
+       넷째 줄 «볼게요.»가 반쯤 잘렸다(점검 L6 · 390·1280 은 세 줄 이하). 안내 글은 14px(43행 textarea::placeholder)·행간 23.1px 라 네 줄 92.4px
+       + 위아래 여백 24px + 테두리 2px ≈ 118px — 120px 면 네 줄이 칸 안에 다 든다(320 네 줄 · 360·390 세 줄 · 1280 두 줄 실측). 글은 그대로다.
+       (적어 넣는 글은 16px(41행 · 아이폰 확대 방지)·행간 26.4px 이라 세 줄을 넘기면 칸 안에서 스크롤된다 — 입력 칸의 보통 동작이다.)
        [RES_FIELD_NAME] 칸 이름은 바로 위 질문 — 안내 글은 쓰기 시작하면 사라지고, 화면 읽기는 그 안내 글을 이름으로 읽었다. */
     +'<div class="srv-block"><div class="srv-q2" id="mp_svQ_review">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
     +'<textarea class="cc-input" id="mp_svReview" aria-labelledby="mp_svQ_review" style="min-height:120px" maxlength="2000" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
@@ -5536,7 +5533,7 @@ function renderResult(res, nm, code){
   //   제목이 가운데로 섰으니([RESULT_TITLE_CENTER]) 이 줄도 제목 밑 부제처럼 가운데(스냅 기획 카드와 같은 짜임).
   //   «완성되면 카톡·메일로 알려드려요»는 뺐다 — 세 절이면 320·390 에서 세 줄로 부서진다. 알림 예고는 대기 표 머리(DLV_SEC)와 NOW 가 한다.
   //   두 절은 «·»로 잇지 않고 문장으로 나눠 줄을 바꾼다 — 잇자 320·390 에서 «·»가 둘째 줄 머리에 걸렸다(실측 · CHECKS_NO_DANGLE 과 같은 결함).
-  var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini res-info" style="margin:2px 0 10px;color:var(--label-soft);text-align:center;text-wrap:balance">보정본은 '+_etaBase(res)+' '+_etaNum(DELIVERY_ETA.retouch).replace(/^약\s*/,'')+' 안에 전해드려요.<br>고르시는 게 늦어지면 그만큼 늦어져요.</div>' : '';
+  var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini" style="margin:2px 0 10px;color:var(--label-soft);text-align:center;text-wrap:balance">보정본은 '+_etaBase(res)+' '+_etaNum(DELIVERY_ETA.retouch).replace(/^약\s*/,'')+' 안에 전해드려요.<br>고르시는 게 늦어지면 그만큼 늦어져요.</div>' : '';
   h+='<div class="cc-title" style="text-align:center">결과물</div>'+_rEtaLine+'<div class="trk-list">'   // [RESULT_TITLE_CENTER 2026-09-26] 가운데 눈썹 DELIVERY 아래 제목만 왼쪽이었다(x-12) — 대기 제목·다른 카드처럼 가운데 · 행은 왼쪽 그대로
     + row('①','원본 사진', res.원본?link(res.원본,'원본 보기'):chip('준비 중'))
     + row('②','보정할 사진 고르기', r2)
@@ -5546,7 +5543,7 @@ function renderResult(res, nm, code){
     + '</div>';
   // 보관 안심 — 다운로드할 결과물이 생겼고 + 보관 기간이 설정돼 있을 때만(막연한 약속 방지)
   if((res.원본 || hasReto) && _eta(DOWNLOAD_KEEP)){
-    h+='<div class="cc-mini res-info" style="margin:2px 0 2px;color:var(--label-soft)">받으신 파일은 전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요<span style="white-space:nowrap">(만료 7일 전 안내).</span> 천천히 받으셔도 돼요.</div>';   // [RES_INFO_12] 12px 로 올리자 360·375 에서 «(만료 7일 전 / 안내)»로 괄호 안이 갈렸다(실측) — 괄호 덩어리는 한 줄에
+    h+='<div class="cc-mini" style="margin:2px 0 2px;color:var(--label-soft)">받으신 파일은 전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요<span style="white-space:nowrap">(만료 7일 전 안내).</span> 천천히 받으셔도 돼요.</div>';   // [KEEP_PAREN_NOWRAP 2026-09-26 · 검토] 괄호 덩어리는 한 줄에 — 11px 에서도 320 «(만료 7일 / 전 안내)»·340 «(만료 7일 전 / 안내)»로 괄호 안이 갈렸다(BASE 실측). 글자 크기는 11px 그대로(L6-KO-11PX 기각 · TYPO_SCALE7)
   }
   // ② 선택 패널 — '지금 할 수 있을 때'만(원본전달·선택완료). 잠금/완료는 위 개요 ✓로 충분 → 같은 제목 반복 제거.
   if(!locked && (st==='원본전달'||st==='선택완료')){
