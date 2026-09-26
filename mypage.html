@@ -4576,9 +4576,15 @@ function renderContractPayment(c, p, ctx){
   }
   var a = p.amounts;
   // 시그니처: 계약금은 예약금으로 충당(납부액 0) → '입금해 주세요(0원)'·계좌·입금완료 대신 충당 완료 안내 + 디렉터 확인 대기
+  /* [FIT_EXTRA_APART 2026-09-26 사장님 결정 ㉘ · 점검 L8-fit-extra-not-billed] 추가 시착비는 계약금과 **따로** 청구한다(관리자 «별도 청구»와 같다).
+       시착 카드의 «(추가 1벌 · 계약 시 50,000원)»(결정 ㉔)을 «계약금과 함께 낸다»로 읽은 분이 이 카드 금액에서 그 돈을 찾았다 —
+       3벌 이상 입은 분에게만 금액 아래 한 줄. 금액은 서명 당시 값(추가벌비용 × 추가 벌수) · 값이 없으면 숫자로 메우지 않는다([MPD_G1]). */
+  var _fxF=ctx&&ctx.fitting, _fxN2=_fxF?(Number(_fxF.벌수)-Number(_fxF.기본벌수||2)):0, _fxP2=_fxF?Number(_fxF.추가벌비용):0;
+  var _fxNote=(_fxN2>0)?('<div class="cc-note" style="margin-top:6px;text-wrap:balance">추가 시착 '+_fxN2+'벌'+(_fxP2>0?(' '+fmtWon(_fxN2*_fxP2)):' 비용')+'은 디렉터가 따로 안내드려요.</div>'):'';   // [FIT_EXTRA_APART]
   if (a && Number(a.납부액) <= 0){
     h += '<div class="cc-title" style="margin-top:8px">계약금은 예약금으로 충당돼요</div>'
        + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 예식 준비가 열려요.</div>'   // [STAGE_NAME_PREP] 2026-09-26 사장님 결정 ⑤ · 진행 라벨이 「예식 준비」가 되자 같은 화면에서 이 카드만 «제작 단계»로 남았다 — NOW 의 «예식 준비(청첩장·식순)가 열려요»와 같은 이름으로
+       + _fxNote   // [FIT_EXTRA_APART] 충당이어도 추가 시착비는 따로
        + ((a.중도금>0||a.잔금)?('<div class="cc-note" style="margin-top:6px">다음 결제 · '+(a.중도금>0?('중도금 '+fmtWon(a.중도금)+' '+escapeHtml(a.중도금시점||'')+' · '):'')+'잔금 '+fmtWon(a.잔금)+' '+escapeHtml(a.잔금시점||'')+'</div>'):'')
        + '</div>';
     box.innerHTML=h; box.style.display='block'; return;
@@ -4620,7 +4626,7 @@ function renderContractPayment(c, p, ctx){
         ? '<span style="display:block;text-wrap:balance">촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 입금 안내가 열려요.</span>'
         : '<span style="display:block;text-wrap:balance">기한이 가까워지면 이&nbsp;화면에 입금 안내가 열려요.</span>')
       +'</div>'):'';
-  h += '<div class="cc-title" style="margin-top:8px;text-wrap:balance">'+_depTitle+'</div>'+amt+acct   // 좁은 폭에서 «주세요»만 떨어지지 않게
+  h += '<div class="cc-title" style="margin-top:8px;text-wrap:balance">'+_depTitle+'</div>'+amt+_fxNote+acct   // 좁은 폭에서 «주세요»만 떨어지지 않게
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)

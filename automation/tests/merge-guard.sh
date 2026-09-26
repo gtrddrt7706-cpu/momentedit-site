@@ -12271,3 +12271,8 @@ nochk 'var t=new Date();t.setHours(0,0,0,0);return new Date(+m' mypage.html 0
 # [KST_TODAY] (G1b 검토 2026-09-26) 보관본 «계약 체결일»(_archiveSignedContract data.signDate)도 한국 날짜 — 서명 창 «오늘(…)»만 한국 날짜로 바꾸면 LA 기기에서 창은 9/26, 보관본은 9/25 로 갈린다(서버 계약서명일시는 한국 시각)
 chk 'var t=new Date(_snapKstToday()); data.signDate=t.getUTCFullYear().*t.getUTCMonth().*t.getUTCDate()' mypage.html 1
 nochk 'var t=new Date(); data.signDate' mypage.html 0
+# [FIT_EXTRA_APART 2026-09-26 사장님 결정 ㉘] 추가 시착비는 계약금과 따로 청구(관리자 «별도 청구»와 같다) — 3벌 이상이면 계약금 카드(충당 카드 포함) 금액 아래 «추가 시착 N벌 {금액}은 디렉터가 따로 안내드려요»
+chk 'FIT_EXTRA_APART' mypage.html 3
+chk '은 디렉터가 따로 안내드려요.</div>' mypage.html 1
+chk "+amt+_fxNote+acct" mypage.html 1
+chk '       + _fxNote   // \[FIT_EXTRA_APART\]' mypage.html 1
