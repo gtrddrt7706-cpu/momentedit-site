@@ -496,6 +496,11 @@ function handleSaveProductionTrack(body) {
       });
     }
     if (_pw.length) body.draft.photoWish = _pw;   // 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 위 photo·photoFx 와 같은 규칙)
+    /* ★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4] 가족사진 «불러 모아 주실 분» — 신랑 쪽 · 신부 쪽 한 줄씩(이름 · 관계 · 40자).
+       ★이 블록이 없으면 화이트리스트가 통째로 버린다(화면엔 «저장됐어요» · photoWish 가 겪은 그 사고). 둘 다 비면 키 미포함(위와 같은 규칙). */
+    var _pcr = (gir.photoCaller && typeof gir.photoCaller === 'object') ? gir.photoCaller : {};
+    var _pcg = String(_pcr.groom || '').replace(/[<>]/g, '').slice(0, 40).trim(), _pcb = String(_pcr.bride || '').replace(/[<>]/g, '').slice(0, 40).trim();
+    if (_pcg || _pcb) body.draft.photoCaller = { groom: _pcg, bride: _pcb };
     // 하객 사진 모으기 링크(선택) — 부부가 만든 외부 공유 앨범/오픈채팅. http(s)만·최대 300자. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
     var _psu = String(gir.photoShareUrl || '').trim().slice(0, 300);
     if (/^https?:\/\//i.test(_psu)) body.draft.photoShareUrl = _psu;

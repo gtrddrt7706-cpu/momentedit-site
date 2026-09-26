@@ -926,7 +926,7 @@ var OUT_TOAST="잔은 편하게 내려놓으세요.";
    잔이 없는 손에 "잔은 편히 내려놓으셔도 좋습니다" 는 장면을 깬다. */
 var OUT_CAKE="두 사람이 함께 해낸 첫 번째 일이었습니다. 나이프는 그 자리에 놓으시면 됩니다.";
 var OUT_DECLARE_FAMILY="이제 두 사람은 부부입니다. 다 함께 축하해 주세요.";
-var CLOSE_NAR="이것으로 본식을 마칩니다. 이어서 가족, 하객 여러분과 함께 사진을 남기겠습니다. 오늘 함께해 주신 분들 모두가, 두 사람의 사진에 오래 남으셨으면 좋겠습니다. 모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다.";   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
+var CLOSE_NAR="이제 사진을 남기겠습니다. 먼저 모두 함께 한 장, 이어서 가족사진입니다. 가족분들은 조금만 더 머물러 주세요. 모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다.";   // [CLOSE_BOW 2026-09-26] 원천 D.NARR.close 와 같게(끝 선언은 108 로 나뉘었다)   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
 window.growHint=function(v){ var el=document.getElementById('growHint'); if(!el) return; var s=String(v||'').trim(), bad=!!(s&&!/^https?:\/\//i.test(s)); el.style.display=bad?'block':'none';
@@ -997,7 +997,7 @@ var RINGWARM={
 };
 var TRIBUTE={
  nar:"두 사람을 키워 주신 분들이 앞에 계십니다. 신랑 신부, 천천히 걸음을 옮겨 주십시오. 인사를 올리는 동안, 하객 여러분께서도 조용히 함께해 주십시오.",   /* [VOICE_2ND_ONE] 원천 ritual-data.js 의 사본 — 근거는 그쪽 주석 */
- end:"오늘로 두 집안은 한 가족입니다. 양가 어른들께, 따뜻한 박수를 부탁드립니다.",   // [ECHO_TRIBUTE_DECLARE 2026-09-21] 원천과 같게
+ end:"오늘로 두 집안은 한 가족입니다.",   // [ECHO_TRIBUTE_DECLARE 2026-09-21] 원천과 같게
  modes:{
   flower:{d:'꽃 헌정',how:'꽃을 전하고 포옹해요 · 키워 주신 다른 분께도 좋아요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로 → 나레이션 흐르는 동안 → 두 분이 다가가 꽃 전달 · 포옹'},
   bow:{d:'큰절',how:'큰절을 올리고 일어나 포옹해요 · 깊은 목례로 바꿔도 돼요',cue:'양가 부모님은 단상에서 가장 가까운 정면 열에 앉으신 채로(큰절은 앉으신 채로 받으심) → 나레이션 흐르는 동안 → 두 분이 다가가 큰절(또는 깊은 목례) · 일어나 포옹'},
@@ -1014,9 +1014,9 @@ var TOAST={
  /* ★[TOAST_SCENE 2026-08-09] 원천 assets/ritual-data.js 의 TOAST 사본 — 글자까지 같아야 한다.
     한 덩어리 문안을 '가르치고 → 부르고 → 받는' 장면으로 다시 썼다(경위는 원천 주석에).
     ★둘 다는 문안이 둘이다(nar/nar2) — 나이프를 걷고 잔을 쥐여 드리는 사이가 옛 판엔 무음이었다. */
- toast:{d:'축배',nar:"이제 우리 다 같이, 잔을 들어요. 제가 위하여, 하면 다 함께 위하여, 하고 답해 주세요. 두 사람의 새로운 시작을 위하여!",cue:'가르치는 문장이 흐르는 동안 하객 잔 들기 → 선창 → 하객 "위하여!" → 잔 부딪기',out:'toastOut'},
- cake:{d:'케이크 커팅',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡아 주세요. 서두르실 것 없습니다. 신랑 신부가 자르고 나면, 큰 박수 부탁드립니다.",cue:'두 분 케이크 앞으로 → 나이프 함께 잡기 → 카운트에 맞춰 커팅 → 하객 박수 → 정면 포즈 · 서로 보는 포즈',out:'cakeOut'},
- both:{d:'둘 다',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡아 주세요. 서두르실 것 없습니다. 신랑 신부가 자르고 나면, 큰 박수 부탁드립니다.",nar2:"다음은 축배입니다. 두 사람에게 잔이 가는 동안, 우리도 다 같이 잔을 들어요. 제가 위하여, 하면 다 함께 위하여, 하고 답해 주세요. 두 사람의 새로운 시작을 위하여!",cue:'편지 낭독 중 하객 잔 미리 채움 → 커팅 · 포즈 → 디렉터가 나이프 회수하고 두 분께 잔 전달',cue2:'가르치는 문장이 흐르는 동안 하객 잔 들기 → 선창 → 하객 "위하여!" → 잔 부딪기',out:'toastOut'}
+ toast:{d:'축배',nar:"마지막으로, 다 같이 잔을 들어 주세요. 두 분이 위하여, 하시면 다 함께 위하여, 하고 답해 주세요.",cue:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'},   // [TOAST_COUPLE 2026-09-26]
+ cake:{d:'케이크 커팅',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡아 주세요. 서두르실 것 없습니다.",cue:'두 분 케이크 앞으로 → 나이프 함께 잡기 → 카운트에 맞춰 커팅 → 하객 박수 → 정면 포즈 · 서로 보는 포즈',out:'cakeOut'},
+ both:{d:'둘 다',nar:"케이크가 준비되어 있습니다. 두 분, 나이프를 함께 잡아 주세요. 서두르실 것 없습니다.",nar2:"마지막으로, 두 사람에게 잔이 가는 동안 다 같이 잔을 들어 주세요. 두 분이 위하여, 하시면 다 함께 위하여, 하고 답해 주세요.",cue:'편지 낭독 중 하객 잔 미리 채움 → 커팅 · 포즈 → 디렉터가 나이프 회수하고 두 분께 잔 전달',cue2:'하객 잔 들기 → 잔이 다 오르면 두 분께 손 신호 → 두 분 "위하여!" → 하객 "위하여!" → 음악',out:'toastOut'}
 };
 var GUEST=[
  ['입장 직후',
@@ -1599,11 +1599,12 @@ var COURSES={
 var VOWBOTH=["오늘 한 약속, 잊지 않고 살겠습니다.","가까이서 오래 지켜봐 주세요."];
 var VOWBOTH_T=VOWBOTH.join(' ');
 
+/* ★[WRITE_FRAME 2026-09-26 코워크 회신5 4-4] 예시 꼬리표 «눈물» → «장면 하나» — 감정을 요구하는 이름을 피한다(연구 B03). 글은 그대로. */
 var EXVOW=[
  ["담백","잘하겠다는 말은 안 할게요. 대신 오래 하겠습니다. 오늘부터 매일, 당신 쪽으로 한 걸음씩."],
  ["담백","저는 당신을 이렇게 압니다. 라면을 끓일 때 물을 반 컵 더 붓는 사람. 슬픈 영화를 보면 아닌 척 창밖을 보는 사람. 그걸 아는 데 칠 년이 걸렸으니, 앞으로의 시간은 아직 모르는 당신을 알아 가는 데 쓰겠습니다."],
- ["눈물","작년 겨울, 아프던 밤에 제 손을 놓지 않던 당신을 기억합니다. 이제는 제가 그 손이 되겠습니다. 당신이 약해지는 모든 밤에, 제가 먼저 깨어 있을게요."],
- ["눈물","할머니 병실 복도에서 새우잠을 자던 당신을 본 날, 이 사람과 살아야겠다고 생각했습니다. 저는 좋은 날의 당신하고만 결혼하는 게 아닙니다. 그 복도의 당신과 결혼합니다."],
+ ["장면 하나","작년 겨울, 아프던 밤에 제 손을 놓지 않던 당신을 기억합니다. 이제는 제가 그 손이 되겠습니다. 당신이 약해지는 모든 밤에, 제가 먼저 깨어 있을게요."],
+ ["장면 하나","할머니 병실 복도에서 새우잠을 자던 당신을 본 날, 이 사람과 살아야겠다고 생각했습니다. 저는 좋은 날의 당신하고만 결혼하는 게 아닙니다. 그 복도의 당신과 결혼합니다."],
  ["다정","큰 소리로 사랑한다 말하기보다, 매일 아침 당신 몫의 물 한 잔을 먼저 떠 놓는 사람이 되겠습니다."],
  ["다정","당신이 편의점 앞에서 나를 기다리던 겨울이 있었어요. 그때 내민 따뜻한 캔커피 같은 사람이 될게요. 요란하지 않게, 늘 그 자리에서."],
  ["유머+진심","양말은 계속 뒤집어 벗을지도 몰라요. 대신 당신이 화난 이유는 끝까지 물어볼게요. 고칠 건 고치면서 살겠습니다."],
@@ -1613,12 +1614,12 @@ var EXVOW=[
 ];
 var EXLETTER=[
  ["담백","엄마, 아빠. 저를 이만큼 키워 주셔서 감사합니다. 받은 사랑을, 이제 제가 만든 가정에서 그대로 이어 갈게요. 오래오래 건강하세요."],
- ["눈물","엄마, 도시락 반찬이 늘 같다고 투정 부리던 열일곱의 저는 몰랐습니다. 그 반찬이 새벽 다섯 시의 부엌에서 나온다는 걸요. 이제 제가 누군가의 새벽이 되러 갑니다."],
- ["눈물","아빠는 늘 표현이 서툰 분이었지만, 제 첫 출근 날 역까지 말없이 함께 걸어 주셨던 걸 잊은 적이 없습니다. 오늘도 그 걸음으로 저를 여기까지 데려다주셨네요. 이제 걱정 내려놓으셔도 돼요."],
+ ["장면 하나","엄마, 도시락 반찬이 늘 같다고 투정 부리던 열일곱의 저는 몰랐습니다. 그 반찬이 새벽 다섯 시의 부엌에서 나온다는 걸요. 이제 제가 누군가의 새벽이 되러 갑니다."],
+ ["장면 하나","아빠는 늘 표현이 서툰 분이었지만, 제 첫 출근 날 역까지 말없이 함께 걸어 주셨던 걸 잊은 적이 없습니다. 오늘도 그 걸음으로 저를 여기까지 데려다주셨네요. 이제 걱정 내려놓으셔도 돼요."],
  ["서로에게","무뚝뚝한 제가 이런 편지를 쓰는 걸 보면, 당신이 저를 얼마나 바꿔 놓았는지 알 것 같아요. 오늘부터, 조금씩 더 좋은 사람이 될게요."],
  ["담백","고맙다는 말이 늘 늦는 저였습니다. 오늘은 꼭 전하고 싶어요. 곁에 있어 주셔서, 제가 여기까지 올 수 있었습니다."],
  ["서로에게","연애 때 당신이 보낸 메시지를 아직 안 지웠습니다. 힘든 날마다 열어 봤거든요. 이제 그 말들을 매일 옆에서 직접 듣겠네요. 잘 부탁합니다."],
- ["눈물","엄마가 저 몰래 울던 밤을, 저도 몰래 본 적이 있습니다. 그날 못 한 말을 오늘 합니다. 이제 제 걱정은 내려놓으셔도 됩니다. 저, 정말 좋은 사람을 만났습니다."]
+ ["장면 하나","엄마가 저 몰래 울던 밤을, 저도 몰래 본 적이 있습니다. 그날 못 한 말을 오늘 합니다. 이제 제 걱정은 내려놓으셔도 됩니다. 저, 정말 좋은 사람을 만났습니다."]
 ];
 var EXWEL=[
  "바쁘신 중에 저희 두 사람의 시작을 함께해 주셔서 진심으로 감사합니다. 오늘 이 자리를, 오래 기억하겠습니다.",
@@ -3073,8 +3074,8 @@ function _lFull(){
 function _lSceneName(st){
   var s=st.slug||'';
   if(st.k==='toast'){ if(/^toast-(both|cake)$|cake-out/.test(s)) return 'cake'; if(/pour/.test(s)&&!/pour-b/.test(s)) return 'toast-pour'; return 'toast-raise'; }
-  if(st.k==='entry'&&/entry-out/.test(s)) return RitualOpen.chipOf('entryScene',S)==='bow'?'entry-bow':'entry-look';
-  if(st.k==='tribute'&&/bow-groom/.test(s)) return 'tribute-bow';
+  if(st.k==='entry'&&/entry-out/.test(s)) return 'entry-look';   // [BOW_VIDEO_OFF 2026-09-26] 맞절도 바라보기 영상 · 절 영상은 만들지 않는다
+  if(st.k==='tribute'&&/bow-groom/.test(s)) return 'tribute';      // [BOW_VIDEO_OFF] 신랑 큰절도 인사 영상
   if(st.k==='_close') return 'close';
   return st.k;
 }
@@ -3144,7 +3145,8 @@ function _sendHow(what,due){
   return '<div class="send-how"><p>'+esc(what)+' · 파일은 여기서 올라가지 않아요. 예식 '+(due||7)+'일 전까지 카톡이나 메일로 보내 주세요.</p>'
     +'<span class="send-b"><a class="rowbtn" href="'+SEND_KAKAO+'" target="_blank" rel="noopener">카톡으로 보내기</a>'
     +'<a class="rowbtn" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] '+what)+'">메일로 보내기</a></span>'
-    +'<p class="send-mail">메일 주소 · <span class="send-addr">'+esc(SEND_MAIL)+'</span></p></div>';   // [MAIL_TEXT 코워크 회신4 4-d] 카톡 안 브라우저에서 mailto 가 안 열리면 길게 눌러 복사
+    +'<p class="send-mail">메일 주소 · <span class="send-addr">'+esc(SEND_MAIL)+'</span></p>'
+    +(/사진/.test(what)?'<p class="send-mail">사진이 많으면 카톡으로 보내 주세요(메일은 한 통에 25MB 안팎까지라 30~40장이 다 안 들어가요)</p>':'')+'</div>';   /* ★[SEND_PHOTOS 2026-09-26 코워크 회신5 4-5 · 연구 E06] 지메일 첨부 25MB · 넘으면 드라이브 링크로 바뀐다 */   // [MAIL_TEXT 코워크 회신4 4-d] 카톡 안 브라우저에서 mailto 가 안 열리면 길게 눌러 복사
 }
 var VOICE_LATE='예식 7일 전까지 녹음이 오지 않으면 나레이션으로 진행해요';
 /* [STUDIO_PREP P11] 담은 순간에서 스튜디오가 준비하는 것 — 케이크 · 부모님께 드릴 꽃 */
@@ -3694,7 +3696,7 @@ function renderStep(k){
   }
   else if(k==='ring'){
     h+=clip('ring');
-    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다. 말없이 지나가는 순서이니, 그대로 함께 봐 주세요.','두 사람 손에 같은 것이 하나씩 생겼습니다. 오래 기억되도록, 박수를 부탁드립니다.',null,null,true);
+    h+=oc('ring','on','넣기','약속의 증표로 반지를 나눠요','반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다. 말없이 지나가는 순서이니, 그대로 함께 봐 주세요.','두 사람 손에 같은 것이 하나씩 생겼습니다.',null,null,true);
     h+=oc('ring','off','빼기','바로 성혼 선언으로 이어져요','');
     if(S.ring==='on') h+=tip('반지가 잘 안 들어가면 첫 마디에만 살짝 끼우고 자연스럽게 넘어가세요.');   /* [TIP_QUIET] 뒷절은 앞절을 되풀이하는 위로였다 */
   }
@@ -3739,7 +3741,7 @@ function renderStep(k){
   else if(k==='letter'){
     h+=clip('letter');
     var lopts=(S.course==='gamdong')?['parent','each','both']:isOpen()?['each','parent']:['parent','each'];   // [OPEN_COURSE] 새 코스엔 both 가 없다(명세 4장)
-    lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'방금 그 마음에, 따뜻한 박수를 보내 주세요.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
+    lopts.forEach(function(v){ var _s=S.letter===v; h+=oc('letter',v,LETTER[v].d,'',_s?LETTER[v].nar:null,'두 사람의 편지였습니다.',{who:'신랑신부 직접 낭독',t:''},'준비물 · '+LETTER[v].prep,cdef(S.course).letter===v); });   // COURSE_DEF_MAP
     if(S.course==='gamdong') h+='<label class="tgl"><input type="checkbox" '+(S.flash?'checked':'')+' onchange="settgl(\'flash\',this)"><span class="tk"></span>낭독할 때 조명을 낮추고, 하객 폰 불빛이 함께해요</label>';
     h+=tip('울컥해서 못 읽겠으면 배우자와 사인을 정해 두세요 · 배우자가 이어서 읽어 주면 돼요.');   // [NO_DIRECTOR_READ] 서약 카드와 같은 사다리 — 디렉터 대독은 실제로 없다
     h+=writeCard('letter',false);   // 1차 입력 — WRITE_2CHECK
@@ -3748,7 +3750,7 @@ function renderStep(k){
     var famOpen=(S.course==='family');
     // ★BLESS_LONG 1단(예방) — '말씀이 있습니다'는 열어만 두고 닫지 않아 길어진다. '한 말씀 청하겠습니다'가 분량을 함께 건넨다(런북 §8 1단 · §11-A).
     var blessNar=famOpen?'서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.':'이제 두 사람을 아껴 오신 부모님께, 덕담을 청하겠습니다. 편히 말씀해 주십시오.';
-    var onCard=oc('bless','on','넣기',(famOpen?'예식의 문을 여는, 이 코스의 시그니처 순서예요':'부모님이나 가족 어른이 짧게 말씀을 전해요'),blessNar,'방금 그 말씀으로, 이 예식이 더욱 특별해졌습니다. 부모님께 감사의 박수를 부탁드립니다.',{who:'부모님',t:'1~2분 덕담'},null);
+    var onCard=oc('bless','on','넣기',(famOpen?'예식의 문을 여는, 이 코스의 시그니처 순서예요':'부모님이나 가족 어른이 짧게 말씀을 전해요'),blessNar,'방금 그 말씀으로, 이 예식이 더욱 특별해졌습니다.',{who:'부모님',t:'1~2분 덕담'},null);
     var blessEx='<div class="ex-n" style="margin:12px 0 4px 2px">부모님께 보여드릴 참고 예시예요 · 그대로 전하셔도, 부모님 말씀으로 바꾸셔도 좋아요</div>'
       +'<div class="ex-i">"두 사람이 손잡고 있는 모습만 봐도 오늘 하루가 다 채워집니다. 서로 아끼며, 오래오래 지금처럼 웃고 살아라. 와 주신 모든 분께도 감사드립니다."</div>'
       +'<div class="ex-i">"처음 인사 오던 날이 생각나는구나. 좋은 날엔 함께 웃고, 힘든 날엔 먼저 안아 주며 살아라. 우리는 언제나 너희 편이다."</div>'
@@ -3847,11 +3849,13 @@ function writeCard(kind, showStatus){
   if(kind==='tribute'){   // [TRIB_CARD_OPT] 선택 칸 · 길이는 칩(한마디씩 / 1분쯤씩)을 따른다
     var lg=RitualOpen.chipOf('tribute',S)==='long';
     return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'한 분 400자 안팎':'한 분 한두 문장')+' · 적어 두시면 카드로 인쇄해 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta" maxlength="4000" aria-label="부모님께 드릴 말" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\')" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
-      +'<div class="lenhint">'+wcCntSpan('tribCnt',S.tributeText)+'</div></div>';
+      +'<div class="lenhint">'+wcCntSpan('tribCnt',S.tributeText)+'</div>'
+      +'<div class="prep-hint">이렇게 쓰면 쉬워요 · 부모님이 해 주신 일 한 장면 → 그때 내 마음 → 앞으로 한 줄</div></div>';   /* [WRITE_FRAME] */
   }
   if(kind==='letter'){
     return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">한 분 400자쯤 · 한 분 1분 남짓</div><textarea class="ta" maxlength="4000" aria-label="부모님께 드리는 편지" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\')" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
       +'<div class="lenhint">'+wcCntSpan('letterCnt',S.letterText)+'두 분 것을 한 칸에 적으면 모두 800자쯤이에요.</div>'
+      +'<div class="prep-hint">이렇게 쓰면 쉬워요 · 상대가 해 준 일 한 장면 → 그때 내 마음 → 앞으로의 약속 한 줄</div>'   /* ★[WRITE_FRAME 2026-09-26 코워크 회신5 4-4 · 연구 B03] 장면 · 상대의 행동을 짚는 글이 몰입과 가까움을 키운다 */
       +'<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div></div>';
   }
   return '';
@@ -4053,7 +4057,7 @@ var BLOCK={
   },
   ring:function(){
     if(S.ring!=='on') return null;
-    return {n:'반지 교환',nar:"반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다. 말없이 지나가는 순서이니, 그대로 함께 봐 주세요.",end:"두 사람 손에 같은 것이 하나씩 생겼습니다. 오래 기억되도록, 박수를 부탁드립니다.",cue:'나레이션이 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'};
+    return {n:'반지 교환',nar:"반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다. 말없이 지나가는 순서이니, 그대로 함께 봐 주세요.",end:"두 사람 손에 같은 것이 하나씩 생겼습니다.",cue:'나레이션이 흐르는 동안 → 신랑이 먼저, 신부가 다음으로 반지 끼우기'};
   },
   declare:function(){
     var dw=S.declareWho;
@@ -4091,7 +4095,7 @@ var BLOCK={
     return {n:'축배 · 케이크',nar:nar,self:'하객 모두 함께',cue:TOAST[S.toast].cue+(wv!=='none'?' · 두 분이 두 와인을 한 잔에 붓기':'')};
   },
   letter:function(){
-    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"방금 그 마음에, 따뜻한 박수를 보내 주세요.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
+    return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"두 사람의 편지였습니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
   },
   tribute:function(){
     var say=(isOpen()&&S.tributeSay!=='none')?(' · '+(S.tributeSay==='long'?'준비한 말 400자씩':'한마디씩')):'';   // [OPEN_COURSE] 인사의 말
@@ -4104,7 +4108,7 @@ var BLOCK={
     //   고객 화면에 '3분'을 노출하면 두 분이 부모님께 시간 제한을 전하게 되어 §8 1단(예방)의 의도와 정면으로 충돌한다.
     //   그래도 여기 두는 이유: assets/ritual-data.js가 원천이고 이 파일은 인라인 사본이라, 빠지면 두 곳의 문안이 갈린다.
     //   ★지우지 말 것 — scripts/check-ritual-mirror.js가 전수 대조해 즉시 실패한다.
-    return {n:'부모님 덕담',nar:famOpen?'서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.':'이제 두 사람을 아껴 오신 부모님께, 덕담을 청하겠습니다. 편히 말씀해 주십시오.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"방금 그 말씀으로, 이 예식이 더욱 특별해졌습니다. 부모님께 감사의 박수를 부탁드립니다.",endLong:"하고 싶은 말씀을 다 하신 분은 아마 안 계실 겁니다. 못 하신 말씀은 두 사람이 살면서 듣겠습니다. 부모님께 감사의 박수를 부탁드립니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)')};
+    return {n:'부모님 덕담',nar:famOpen?'서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.':'이제 두 사람을 아껴 오신 부모님께, 덕담을 청하겠습니다. 편히 말씀해 주십시오.',self:(S.blessProxy?'나레이션이 부모님 말씀 대독 (부담 완화)':'부모님 말씀'),end:"방금 그 말씀으로, 이 예식이 더욱 특별해졌습니다.",endLong:"하고 싶은 말씀을 다 하신 분은 아마 안 계실 겁니다. 못 하신 말씀은 두 사람이 살면서 듣겠습니다.",cue:(S.blessProxy?'나레이션 소개 → 미리 받은 말씀을 나레이션이 대독 (마이크 없이·부모 부담 완화) · 한 톤 낮춰 따뜻하게':famOpen?'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 서약으로':'나레이션 소개 → 부모님께 마이크 전달 · 말씀 끝나면 다음 · 편지 뒤라 한 톤 낮춰 따뜻하게(정점 반복 아님)')};
   }
 };
 function fullBlocks(){
@@ -4238,7 +4242,7 @@ function scriptText(){
     lines.push(no+'. '+b.n);
     lines.push('나레이션: '+b.nar); if(b.end) lines.push('나레이션: '+b.end);
     if(b.self) lines.push('직접: '+b.self);
-    if(b.n.indexOf('서약')>-1) lines.push(S.vowText?('서약문(두 분 작성):\n'+S.vowText):'(서약문 미입력 · D-7까지 적으면 여기 담겨요)');
+    if(b.n.indexOf('서약')>-1) lines.push(S.vowText?('서약문(두 분 작성):\n'+S.vowText):'(서약문 미입력 · 예식 7일 전까지 적으면 여기 담겨요)');
     // ★[VOW_CHORUS] 대본에서도 읽는 순서 그대로 — 각자 서약문 다음이 함께 읽는 한 문장이다.
     if(b.both) lines.push('함께: '+b.both);
     if(b.n.indexOf('편지')>-1) lines.push(S.letterText?('편지(두 분 작성):\n'+S.letterText):'(편지 미입력 · 적으면 여기 담겨요)');
@@ -4248,12 +4252,29 @@ function scriptText(){
   });
   return lines.join('\n');
 }
+/* ★★[SAVE_INAPP 2026-09-26 코워크 회신5 4-3 · 연구 E05] 앱 안 브라우저(카톡 · 인스타 · 네이버 · 라인 · 페북)는
+   브라우저가 만든 파일(blob)을 못 받는다 — 안드로이드는 blob 내려받기, 아이폰은 a.download 가 막힌다.
+   그때는 글을 폼 POST 로 /api/script-file 에 보내 서버가 attachment 로 돌려준다(글은 기록하지 않는다 · 그 파일 주석).
+   ★알림은 저장됐다고 단언하지 않는다 — 무엇을 했는지만 말한다([COPY_TRUTH]). */
+function _inApp(){ return /KAKAOTALK|Instagram|NAVER\(inapp|Line\/|FBAN|FBAV|DaumApps|everytimeApp/i.test(navigator.userAgent||''); }
 window.saveScriptTxt=function(){
-  var blob=new Blob([scriptText()],{type:'text/plain;charset=utf-8'});
+  var name=isOpen()?'우리예식대본.txt':('우리예식대본_'+COURSES[S.course].nm+'코스.txt');   /* [OPEN_COURSE] */
+  var txt=scriptText();
+  if(_inApp()){
+    var f=document.createElement('form'); f.method='POST'; f.action='/api/script-file'; f.style.display='none'; f.setAttribute('accept-charset','UTF-8');
+    var t=document.createElement('textarea'); t.name='text'; t.value=txt; f.appendChild(t);
+    var n=document.createElement('input'); n.type='hidden'; n.name='name'; n.value=name; f.appendChild(n);
+    document.body.appendChild(f); f.submit(); setTimeout(function(){ try{ document.body.removeChild(f); }catch(e){} },1000);
+    toast('파일 내려받기를 요청했어요 · 안 보이면 «대본 복사»로 옮겨 주세요');
+    return 'server';
+  }
+  var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=isOpen()?'우리예식대본.txt':('우리예식대본_'+COURSES[S.course].nm+'코스.txt');   /* [OPEN_COURSE] */
+  a.download=name;
   /* ★[SAVE_TXT_LIVE 2026-09-25] 윗줄 꼬리 주석이 이 세 동작을 삼켜 «파일로 저장»이 아무것도 안 했다(#815 부터). 주석은 블록으로만 · 동작은 제 줄에. */
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('파일 내려받기를 시작했어요');
+  return 'blob';
 };
 window.copyScript=function(){
   var txt=scriptText();

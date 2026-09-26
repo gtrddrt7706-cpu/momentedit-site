@@ -343,8 +343,11 @@ const clips = parse(SRC);
               100~103 준비한 순서 여는 말 판별 넷(영상 / 춤·공연 / 선물·전달 / 친구·가족의 축사) · 104 맺는 말 ·
               105 재생이 안 될 때 한 줄(콘솔 «재생 안 됨») · 106 신랑 큰절 · 107 와인을 붓는 날의 선창(P2).
               ★첫째 판의 «축하의 말» 두 줄(여는·맺는 말)은 거뒀다 — 축사는 준비한 순서의 한 판(103)이다.
-              ★문안은 코워크 회신 원문 그대로 · 말맛과 실청은 사장님. */
-const CLIP_COUNT = 102;
+              ★문안은 코워크 회신 원문 그대로 · 말맛과 실청은 사장님.
+     102 → 103 [CLOSE_BOW 2026-09-26 코워크 회신5 4-2 · 연구 A13 · B09] 108 narr-close-bow — 끝 선언 · 두 분 인사 · 마지막 박수.
+              26 narr-close 앞에 나간다(26 은 사진 안내로 바뀌었다). ★초안 · 재녹음은 사장님 대본 점검(7단계) 뒤 한 번에.
+              ★104 narr-free-out-clap 은 흐름에서 뺐지만 개수는 안 움직였다 — 클립 · 대본 줄은 둔다([CLAP_FEW] 되살릴 근거). */
+const CLIP_COUNT = 103;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

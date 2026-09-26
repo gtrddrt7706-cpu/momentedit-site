@@ -129,7 +129,8 @@ for (const course of Object.keys(D.COURSES)) {
   }
   const ALL = {}; O.PICKABLE.forEach((k) => { ALL[k] = 1; });
   const OPEN_SWEEP = { declare: O.CHIPS.declare.map((c) => c[0]), tribute: O.CHIPS.tribute.map((c) => c[0]), letter: O.CHIPS.letter.map((c) => c[0]),
-    toast: O.CHIPS.toast.map((c) => c[0]), wine: O.CHIPS.wine.map((c) => c[0]), free: O.CHIPS.free.map((c) => c[0]), freeLen: O.CHIPS.freeLen.map((c) => c[0]) };
+    toast: O.CHIPS.toast.map((c) => c[0]), wine: O.CHIPS.wine.map((c) => c[0]), free: O.CHIPS.free.map((c) => c[0]), freeLen: O.CHIPS.freeLen.map((c) => c[0]),
+    entryScene: O.CHIPS.entryScene.map((c) => c[0]) };   // [LOOK_HOLD 2026-09-26] 첫 모습(바라보기 · 맞절)이 콘솔 사람 순간을 가른다
   for (const how of ['flower', 'bowGroom']) for (const cw of O.CANDLE_WHO.map((c) => c[0])) for (const [ax, vals] of Object.entries(OPEN_SWEEP)) for (const v of vals) for (const mode of ['console', 'preview']) {
     const S = { course: 'open', on: { ...ALL }, tribute: how, candleWho: cw }; O.setChip(S, ax, v);
     absorb(S, mode);

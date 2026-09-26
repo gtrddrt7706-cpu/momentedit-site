@@ -2712,6 +2712,10 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
     // ★인쇄 버튼은 이 _v===3 분기 안에만 둔다 — 구세대 초안(else if)·식순 미작성(rd falsy)은 자동으로 버튼이 안 생긴다(좌석표 1800줄과 같은 방식).
     var _pbt='<button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" onclick="printOrderSheet()">식순지 프린트</button>'
       +(_DECL_CARD_WHO.indexOf(s3d.declareWho)>=0?'<button type="button" class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" onclick="printDeclareCard()">낭독 카드</button>':'');
+    /* ★[PHOTO_CALLER 2026-09-26 코워크 회신5 3-4] 당일 콘솔을 이 고객의 식순으로 연다 — 콘솔은 식순(S)을 주소로 받는다.
+       «불러 모아 주실 분»도 함께 실어 콘솔 «촬영 안내 골라 틀기» 판 머리에 보이게 한다(디렉터가 이 분께 먼저 말씀드린다). */
+    try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')};
+      _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'">당일 콘솔</a>'; }catch(e){}
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
       +row('순서 흐름', (Array.isArray(sm3.flow)&&sm3.flow.length)?sm3.flow.join(' → '):'')   /* [ADM_SUM_ESC] 배열 아니면(깨진 초안) 행만 비운다 — join 이 던져 상세가 통째로 죽던 것 */
@@ -2749,7 +2753,9 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   /* [WISH_FX_MIRROR] 요청이 있으면 photoFx 는 그 **거울**(서버 배포 전 유실 방지용)이라 같은 내용이 두 번 뜬다 —
      그때는 구 줄을 숨긴다. 요청이 없는 옛 저장분에서만 '함께 하는 동작(구)'가 보인다. */
   if(_pwh) _pfx='';
-  if(_pho||_pfx||_pwh||_psu) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
+  /* ★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4] 가족사진 «불러 모아 주실 분» — 디렉터가 이 분께 먼저 말씀드린다. 고객 기기 값이라 esc(row 가 한다). */
+  var _pcl=(gi&&gi.photoCaller)?[gi.photoCaller.groom?('신랑 쪽 · '+String(gi.photoCaller.groom)):'', gi.photoCaller.bride?('신부 쪽 · '+String(gi.photoCaller.bride)):''].filter(function(x){return x;}).join(' / '):'';
+  if(_pho||_pfx||_pwh||_psu||_pcl) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
   // 스냅 기획(촬영 전) — 부부가 남긴 무드·레퍼런스·원하는 컷·톤·요청. 강제 컷 목록이 아니라 영감·성향(디렉터가 현장에서 살림)
   if(sn){
     var _snMood=[]; if((sn.moodCandle||[]).length)_snMood.push('캔들존 '+sn.moodCandle.join('·')); if((sn.moodWhite||[]).length)_snMood.push('화이트존 '+sn.moodWhite.join('·'));
