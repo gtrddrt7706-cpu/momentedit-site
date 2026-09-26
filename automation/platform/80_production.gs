@@ -501,6 +501,11 @@ function handleSaveProductionTrack(body) {
     var _pcr = (gir.photoCaller && typeof gir.photoCaller === 'object') ? gir.photoCaller : {};
     var _pcg = String(_pcr.groom || '').replace(/[<>]/g, '').slice(0, 40).trim(), _pcb = String(_pcr.bride || '').replace(/[<>]/g, '').slice(0, 40).trim();
     if (_pcg || _pcb) body.draft.photoCaller = { groom: _pcg, bride: _pcb };
+    /* ★[PHOTO_FRIEND 2026-09-26 사장님 G1·G2] «친구들과 자유롭게» — 가족 구도를 다 찍은 뒤 친구들과 편하게 찍을 때 사진작가에게 부탁할 것(대략 · 한 칸 · 200자).
+       사장님 원문: «단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
+       ★이 블록이 없으면 화이트리스트가 통째로 버린다(photoWish · photoCaller 가 겪은 그 사고). 비면 키 미포함(위와 같은 규칙). */
+    var _pfr = String(gir.photoFriend || '').replace(/[<>]/g, '').slice(0, 200).trim();
+    if (_pfr) body.draft.photoFriend = _pfr;
     // 하객 사진 모으기 링크(선택) — 부부가 만든 외부 공유 앨범/오픈채팅. http(s)만·최대 300자. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
     var _psu = String(gir.photoShareUrl || '').trim().slice(0, 300);
     if (/^https?:\/\//i.test(_psu)) body.draft.photoShareUrl = _psu;
@@ -1564,6 +1569,7 @@ function buildProductionState(r) {
       snap: t.snap || '시작전'                 // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝)
     },
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
+    photoFriendOk: true,                       // [PHOTO_FRIEND] 이 서버는 «친구들과 자유롭게»(photoFriend)를 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용

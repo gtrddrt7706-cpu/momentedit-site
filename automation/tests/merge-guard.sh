@@ -4467,6 +4467,24 @@ chk 'PREP_ORDER_0926' mypage.html 1
 chk 'CF_ORDER_0926' mypage.html 3                    # 예식 확인서 줄도 같은 순서(식순·애프터 웨딩 줄을 좌석 뒤에서 붙인다)
 chk 'GROUP_SNAP_NAME' mypage.html 4                  # «단체 사진» → «가족 · 친구 스냅»(사장님 선택 2026-09-26) — 목록 줄·화면 제목·저장 알림·확인서 줄 · 옛 이름 복귀는 prep-order 가 잡는다
 chk 'PHOTOG_CONTRACT' privacy.html 1                  # 촬영(스냅) 위탁 = 모먼트에디트와 계약한 사진작가 · 개인정보 조항은 작가 계약서에(사장님 2026-09-26) — 문구는 snap-plan 이 잰다
+# ★★[PHOTO_FRIEND · PHOTO_FAMILY_ONLY 2026-09-26 사장님 G1·G2·G3] «가족 · 친구 스냅» — 계획된 구도는 전부 가족 · 그 뒤 친구들과 자유롭게(사진작가에게 부탁할 것 한 칸).
+#   사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
+#   ★guideinfo 는 트랙 통째 교체 — 화면 · 저장 · 좌석 통과 · 확인서 · 관리자 · 당일 콘솔 · 서버 화이트리스트 중 하나만 빠져도 «저장됐어요»인데 지워진다.
+#   화면·경로는 scripts/audit/photo-friend.mjs · 서버 동작은 automation/tests/photo-friend.test.js(UNIT_SUITES_RUN)
+chk 'PHOTO_FRIEND' mypage.html 8
+chk 'PHOTO_FRIEND' automation/platform/80_production.gs 2
+chk 'PHOTO_FRIEND' admin.html 2
+chk 'PHOTO_FRIEND' console.html 1
+chk 'PHOTO_FAMILY_ONLY' mypage.html 1
+chk 'PHOTO_FLOW_LINE' mypage.html 1                  # 첫눈에 뼈대 — 다 함께 한 장 › 가족 구도 › 친구들과 자유롭게(사장님 «센스있게 개선디테일»)
+chk 'PHOTO_FRIEND_EX' mypage.html 4                  # 친구 칸 예시 칩 · 글 길이만큼 늘어나는 칸
+if command -v node >/dev/null 2>&1; then node scripts/audit/photo-friend.mjs >/dev/null 2>&1; _pfa=$?
+  case $_pfa in
+    0) echo 'ok photo-friend: 구도는 가족만 · 친구들과 자유롭게 한 칸(화면·저장·좌석 통과·확인서·관리자·당일 콘솔·서버)' ;;
+    1) echo 'FAIL photo-friend: 친구들과 자유롭게 칸이 한 곳에서 빠졌습니다 — node scripts/audit/photo-friend.mjs'; fail=1 ;;
+    *) echo 'ok photo-friend: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
   case "$_pro" in
     0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 가족 · 친구 스냅 · 예식 확인서도 같은 순서' ;;
@@ -6817,7 +6835,7 @@ chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
 #   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
 #   ★스위트를 추가하면 이 목록에도 넣을 것.
 if command -v node >/dev/null 2>&1; then
-  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan; do
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend; do
     node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
       || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
   done
@@ -11214,7 +11232,15 @@ nochk '배웅 줄에서' index.html
 nochk '배웅 줄에서' assets/sequence-modal.js
 nochk '배웅 줄에서' api/_kb.js
 chk '식장을 한 번 둘러보시고 입구에서 하객분들을 맞으십니다.' parents.html 1
-chk '두 분 식순이면 단체 사진이 약&nbsp;' mypage.html 1
+chk '두 분 식순이면 본식 뒤 단체 사진 시간이 약&nbsp;' mypage.html 1   # [GROUP_TIME_WORD 2026-09-26 코워크 명세 ③ · 최종판 2-6 고침] 제목(가족 · 친구 스냅)과 다른 이름이 «시간»임을 보이게
+nochk '두 분 식순이면 단체 사진이 약' mypage.html
+chk 'GROUP_TIME_WORD' mypage.html 1
+# [GROUP_TIME_WORD · 최종판 5-2 H3 고침] ③ 준비하기 «도와주실 분» 줄은 아직 코드에 없다(GHI) — 넣을 때 옛 이름으로 넣지 않게
+nochk '단체 사진»에 적어' assets/ritual-open.js
+nochk '단체 사진»에 적어' mypage.html
+# [WISH_MIN_SAME 2026-09-26 코워크 명세 ④] 편집 화면 «지금 N컷 · 약 M분» = 단체 사진 줄과 같은 셈(요청 하나에 1분 · 둘까지 · 글 있는 칸만)
+chk 'function photoMins(sel, w){ return PHOTO_ALL + (sel||\[\]).length \* PHOTO_PER + Math.max(0, Math.min(PHOTO_WISH_MAX, +w||0)); }' mypage.html 1
+chk 'WISH_MIN_SAME' mypage.html 4
 chk 'GUESTS_ALL' assets/ritual-open.js 1
 nochk '서른 분이 박수' assets/ritual-open.js
 nochk '서른 개의 잔' assets/ritual-open.js
