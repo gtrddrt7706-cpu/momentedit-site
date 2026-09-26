@@ -2797,7 +2797,7 @@ function renderMyPage(d){
       } else if (_reqOk) {
         head = _pdn.confirmStale ? '다시 확정해 주세요' : (_payLn ? '예식 확인서가 남았어요' : '예식 확인서만 남았어요');
         sub  = '아래 「예식\u00a0확인서」\u2060에서 확정하시면 ' + (_pdn.confirmStale ? '바뀐' : '그') + ' 내용 그대로 준비해요.' + (_payLn ? ('\n' + _payLn) : '');
-      } else if (d.stage === '입금완료') {
+      } else if (d.stage === '입금완료' && _nxReq === '청첩장') {   // [NOW_PREP_WORD 검토 2026-09-26] «청첩장부터»는 청첩장이 남았을 때만 — 단계가 입금완료에 머문 채 청첩장을 끝낸 고객(전이 누락 · backfillProduceStage 대상)에게는 아래 «이어가요» 갈래가 첫 남은 행을 부른다
         head = '예식 준비를 시작해요';
         sub  = '이제 두 분의 예식을\u00a0함께\u00a0그려\u00a0볼게요.\n아래 「예식\u00a0준비」\u2060에서 청첩장부터 차례로 채워 주세요.' + (_payLn ? ('\n' + _payLn) : '');   // MPD_G11 입금 확인 직후 환대 1줄
       } else {   // 행 이름은 한 덩어리로 · 조사(에서·부터)는 」 뒤에 붙인다 — 360 에서 «「좌석 · 음료」 / 부터»로 조사만 다음 줄로 떨어졌다
@@ -2821,8 +2821,8 @@ function renderMyPage(d){
            계약서 §12①은 «예식(촬영) 후 4주 이내»다. 기한은 결과물 카드가 계약 기준으로 말한다(묶음 E) · 여기서 되풀이하지 않는다. */
       else if (_rs === '선택완료') {
         var _pInc = Number(d.result.포함컷) || 10, _pSel = Number(d.result.선택수) || 0, _pOver = (_pSel > _pInc) ? (_pSel - _pInc) : 0;
-        if (_pOver > 0 && (!_rx.status || _rx.status === '대기')) { head = '추가 보정을 정해 주세요'; sub = '포함 ' + _pInc + '컷보다 ' + _pOver + '컷 더 고르셨어요.\n③에서 신청하시거나 ②에서\u00a0줄여\u00a0주세요.'; }   // 320 에서도 두 줄로 끊기지 않게(«…줄여 / 주세요.» 꼬리 방지)
-        else { head = '고른 컷이 잘 전해졌어요'; sub = '보정 전까지는 ②에서 다시 고르실\u00a0수\u00a0있어요.\n완성되면 카카오톡·메일로 알려드릴게요.'; }   // MPD_B10 깜깜이 대기 보완(알림 예고 · 소요 기간은 결과물 카드가 계약 기준으로)
+        if (_pOver > 0 && (!_rx.status || _rx.status === '대기')) { head = '추가 보정을 정해 주세요'; sub = '포함 ' + _pInc + '컷보다 ' + _pOver + '컷 많이 고르셨어요.\n③에서 신청하시거나 ②에서\u00a0줄여\u00a0주세요.'; }   // 문구는 사장님 결정 ⑩ 그대로(검토 2026-09-26 · 구현 판의 «더»는 되돌림 — 꼬리 줄은 끊기지 않는 빈칸(\u00a0)으로 막힌다 · 320·360·390 실측) · «…줄여 / 주세요.» 꼬리 방지
+        else { head = '고른 컷이 잘 전해졌어요'; sub = '보정을 시작하기 전까지는 ②에서 다시 고르실\u00a0수\u00a0있어요.\n완성되면 카카오톡·메일로 알려드릴게요.'; }   // MPD_B10 깜깜이 대기 보완(알림 예고 · 소요 기간은 결과물 카드가 계약 기준으로)
       }
       else if (_rs === '보정중') { head = '보정 작업 중이에요'; sub = '마무리되는 대로 카카오톡·메일로 보정본을 올려드릴게요.'; }   // MPD_B10 ★'거의 다 됐어요' 재추가 금지 — 근거 없는 안심 금지 규칙(2026-07-15)
       /* ★[NOW_REVISION_WAIT 2026-09-26 · post-3] 수정 요청을 보낸 뒤(revision.pending)엔 ④ 패널에 확인 버튼이 없고 서버도 확인을 받지 않는다
@@ -2917,7 +2917,7 @@ function renderMyPage(d){
     while (nextStage && nextStage === nowLabel && _nxAt + 1 < _dispList.length) { _nxAt++; nextStage = stageLabel(_dispList[_nxAt], d.product); }
     if (nextStage === nowLabel) nextStage = '';
     // 제작중 부제: 실제 다음 할 일은 결제라 — 중도금·잔금 카드가 열리기 전(D-45·NEXT 자물쇠)엔 '중도금·잔금', 열리면 '예식 완료'
-    if (d.stage==='제작중' && nextStage && d.product!=='웨딩스냅' && !d.midpayment && !d.balance) nextStage='중도금·잔금';
+    if ((d.stage==='제작중' || (d.stage==='입금완료' && _nxAt > _dispCur + 1)) && nextStage && d.product!=='웨딩스냅' && !d.midpayment && !d.balance) nextStage='중도금·잔금';   // [STAGE_NEXT_SKIP 2026-09-26 · 검토] 입금완료가 제작중과 같은 이름(«예식 준비»)이라 한 칸 건너뛰었으면 같은 덮어쓰기를 건다 — 안 걸면 같은 결제 상황이 입금완료에선 «다음 · 예식 완료», 청첩장을 하나 저장해 제작중이 되면 «다음 · 중도금·잔금»으로 바뀌었다(A2 라벨 흉내 렌더로 확인)
     if (_ctSend) nextStage='계약금 입금';   // [STAGE_SIGN_NOW] 서명 다음은 계약금 입금(계약완료 머리와 같은 말)
     /* [JOURNEY_END_QUIET 2026-09-26 · post-2] 후기까지 끝나면(여정 완료 · STEP N/N) 부제를 비운다 — 종전엔 «여정 완료 · 마지막 단계예요»
        (끝났다는데 «아직 진행 중»으로 읽힌다) 또는 결과물전달 단계에서 NOW 머리와 같은 «모든 순간이 마무리됐어요»를 한 번 더 찍었다. */
@@ -3101,9 +3101,10 @@ function renderUpcoming(product, curIdx, stageList, contract, mid, bal, d){
      ★«예식 완료 · 예정일에 진행»(스냅 «촬영 · 예정일에 진행»)도 날짜를 알면 날짜로 · 날짜를 모르면 종전 문구 그대로. */
   var _wedFix = (d && d.production && d.production.base && d.production.base.weddingDate)
              || ((contract && contract.signed && contract.fill && contract.fill.weddingDate) || '');
-  function _nxDay(back){ var m=String(_wedFix||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return ''; var t=new Date(+m[1],+m[2]-1,+m[3]-back);
+  function _nxDay(back, fut){ var m=String(_wedFix||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return ''; var t=new Date(+m[1],+m[2]-1,+m[3]-back);
+    if(fut){ var _nt=new Date(); _nt.setHours(0,0,0,0); if(t<_nt) return ''; }   // [NEXT_PAY_PAST 2026-09-26 · 검토] 이미 지난 결제일은 «다음»에 날짜로 예고하지 않는다 — 촬영 7일 안에 서명한 스냅은 잔금 기한이 서명 전에 지나 «잔금 · 9월 24일 (목)»처럼 지난 날짜가 잠긴 다음 단계로 섰다(카드도 지난 기한은 날짜 대신 «지금 바로»라고 쓴다 · renderBalance _bPast)
     return fmtWedKo(t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2)); }
-  function _nxWhen(back, rel){ var dt=_nxDay(back); return dt ? (dt+' · '+rel) : rel; }
+  function _nxWhen(back, rel){ var dt=_nxDay(back, 1); return dt ? (dt+' · '+rel) : rel; }   // 결제 줄 전용 — 예식(촬영) 줄은 _nxDay(0)
   function _nxBalWhen(rel){ var dt=(bal && bal.dueDate) ? fmtWedKo(String(bal.dueDate).slice(0,10)) : ''; return dt ? (dt+' · '+rel) : _nxWhen(_pd.bal, rel); }   // 서버 잔금 카드는 서명 뒤에만 온다(날짜 확정)
   var items = (product === '웨딩스냅')
     ? [['본 계약 · 계약금','서명하고 계약금까지 한 번에','계약완료'],['촬영',(_nxDay(0)||'예정일에 진행'),'촬영완료'],['결과물 전달','촬영 후 · 마이페이지에서 확인','결과물전달'],['후기','결과물 받은 뒤 · 대부분 탭 한 번씩이에요','후기']]   // STAGE_REVIEW · 기준값 결과물전달→후기(로드맵에서 후기 행이 안 사라지던 문제)
