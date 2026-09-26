@@ -82,6 +82,16 @@ checkVoiceBatch('가짜 예슬 --voice(성우별 순서표)', '3_예슬.txt', '�
   ok('--stage → 그 자리 이름에 _JOINED_ (조립기가 안쪽 쉼을 안 깎는다) [ENTRY_GAP_KEEP]', names.some((n) => /_JOINED_\.flac$/.test(n)) && names.filter((n) => /_JOINED_/.test(n)).length === 1, names.join(' '));
   if (r.status !== 0) console.log(r.stdout.slice(-400), r.stderr.slice(-300));
 }
+/* ⑤ [CLIP_ORDER] 몇 클립만 다시 받은 묶음 — 08_vow-groom 10 + 24_vow-both-1 2 = 12(audio_0~11) → 그 12자리만 · 남의 자리 0 */
+{
+  const sel = man.clips.filter((c) => ['vow-groom', 'vow-both-1'].includes(c.file) && !c.mix).sort((a, b) => a.no - b.no);
+  const rows = []; let k = 0; const want = [];
+  for (const c of sel) for (const s of c.sents) { rows.push([k++, s.text]); want.push(String(c.no).padStart(2, '0') + '_' + c.file + '#' + s.i); }
+  const before = snap(); const d = batch('신랑 서약 다시', rows);
+  const r = run('--import', d, '--clip', sel.map((c) => '=' + String(c.no).padStart(2, '0') + '_' + c.file).join(','));
+  const ch = diff(before, snap());
+  ok(`--import --clip 부분 재녹음(${rows.length}) → 그 자리만 · 남의 자리 0 [CLIP_ORDER]`, ch.length === want.length && ch.every((id) => want.includes(id)), `${ch.length} · ${ch.filter((id) => !want.includes(id)).join(' ')} · ${r.stdout.split('\n').find((l) => /CLIP_ORDER/.test(l)) || r.stdout.slice(-200)}`);
+}
 /* ④ --todo 는 폐지 자리를 안 센다 */
 {
   const st = run('--status').stdout, td = run('--todo').stdout;

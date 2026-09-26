@@ -12428,3 +12428,8 @@ chk '엄마는 그거면 돼\.$' docs/plans/식순연구/배역_예시_대사.tx
 nochk '지금까지는 이기고 있습니다' docs/plans/식순연구/배역_예시_대사.txt
 chk '^대진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 18
 chk '^연화:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 15
+# ── [코워크 회신8 덧4 2026-09-26 사장님] 신랑 서약 한 줄 · 부분 재녹음은 --clip 순서표 ──
+chk '^대신 그 주에 너희 집 그릇이 다 반짝반짝했지\.' docs/plans/식순연구/배역_예시_대사.txt 1
+nochk '그릇이 다 반짝반짝했어\.' docs/plans/식순연구/배역_예시_대사.txt
+chk 'CLIP_ORDER' scripts/sent-lib.mjs 3
+chk 'CLIP_ORDER' scripts/audit/import-voice-lock.mjs 2

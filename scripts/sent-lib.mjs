@@ -24,7 +24,8 @@
  * 쓰기
  *   node scripts/sent-lib.mjs --status
  *       자리마다 있음/없음/낡음을 센다. 아무것도 안 쓴다.
- *   node scripts/sent-lib.mjs --import <폴더|zip> [--order <_전체_순서.json>] [--voice 서진]
+ *   node scripts/sent-lib.mjs --import <폴더|zip> [--order <_전체_순서.json>] [--voice 예슬] [--clip =08_vow-groom,=24_vow-both-1]
+ *       --clip 은 몇 클립만 다시 받았을 때 — 대장에서 그 클립들의 문장 차례로 순서표를 만든다([CLIP_ORDER]).
  *       타입캐스트 «문장별 분리» 다운로드를 창고에 넣는다. 이름과 글을 대조해 넣고, 안 맞으면 안 넣는다.
  *       묶음의 성우는 내용으로 알아내 그 성우의 줄에서만 찾는다([IMPORT_VOICE_LOCK]) · --voice 는 손으로 알려 주는 덤.
  *   node scripts/sent-lib.mjs --patch --sent "<문장>" --wav <파일> [--keep-gap]
@@ -145,7 +146,17 @@ function importFrom(src) {
   catch (e) { console.log('✗ 붙여넣기 순서표를 못 읽었다 — ' + e.message); process.exit(2); }
   /* ★[VOICE_ORDER 2026-09-26 코워크 회신8 덧2] --voice 한 사람이고 --order 가 없으면 다시받기/_순서.json 의 그 성우 줄로 순서표를 만든다.
      성우별 zip 은 audio_0 부터 그 성우 파일(예: 3_예슬.txt) 차례라 번호와 이름이 둘 다 맞는다 — 이름 찾기로 넘어가지 않는다(예슬 42/42 · 남의 자리 0 · 코워크 재현). */
-  const vOnly = arg('--voice') && !arg('--order') && !arg('--voice').includes(',') ? arg('--voice').trim() : '';
+  /* ★[CLIP_ORDER 2026-09-26 코워크 회신8 덧4] --clip =08_vow-groom,=24_vow-both-1 이면 대장에서 그 클립들의 문장 차례로 순서표를 만든다(부분 재녹음).
+     사장님이 몇 클립만 다시 받으면 audio_0 부터 그 클립들 차례다 — 다시받기 순서표는 조립 뒤엔 그 클립을 빼고 뽑혀(재현 195줄 중 0줄) 한 줄도 못 찾는다. */
+  if (arg('--clip') && !arg('--order')) {
+    const { selectClips } = require(P('scripts/clip-select.mjs'));
+    const sel = selectClips(man.clips, arg('--clip')).filter((c) => !c.mix);
+    if (!sel.length) { console.log('✗ --clip 에 맞는 클립이 없습니다: ' + arg('--clip')); process.exit(2); }
+    let n = 0; ord = [];
+    for (const c of sel) for (const s of c.sents) ord.push({ n: ++n, voice: VOICE[s.role || c.role] || null, text: s.text, at: [{ clip: pad2(c.no) + '_' + c.file, i: s.i }] });
+    console.log(`[CLIP_ORDER] --clip ${arg('--clip')} → 대장 문장 차례로 ${ord.length}줄(${sel.map((c) => pad2(c.no) + '_' + c.file).join(' · ')})`);
+  }
+  const vOnly = arg('--voice') && !arg('--order') && !arg('--clip') && !arg('--voice').includes(',') ? arg('--voice').trim() : '';
   if (vOnly) {
     let per = null; try { per = JSON.parse(fs.readFileSync(path.join(path.dirname(ORD), '_순서.json'), 'utf8')); } catch { /* 없으면 전체 순서표 그대로 */ }
     if (per && Array.isArray(per[vOnly])) {
