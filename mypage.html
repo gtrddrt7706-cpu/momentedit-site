@@ -6701,7 +6701,9 @@ document.addEventListener('click', function(e){
 document.addEventListener('click', function(e){
   if(!e.isTrusted) return;
   var b=(e.target&&e.target.closest)?e.target.closest('.wz-bar button'):null; if(!b) return;
-  var t=Date.now(); if(t-(window._wzBarAt||0)<450){ e.stopImmediatePropagation(); e.preventDefault(); return; }   // [WZ_BAR_DEBOUNCE]
+  /* [WZ_BAR_CLOCK] 2026-09-26 · 검토 — 기기 시계가 뒤로 맞춰지면(자동 시각 맞춤 · 사용자가 시각을 고침) 차이가 음수가 된다. 종전 식은 음수도 «450ms 안»으로 읽고,
+     버린 누름은 시각을 갱신하지 않아 시계가 옛 시각을 다시 지날 때까지 막대 단추가 전부 죽었다. 음수면 막지 않는다. */
+  var t=Date.now(), _dt=t-(window._wzBarAt||0); if(_dt>=0 && _dt<450){ e.stopImmediatePropagation(); e.preventDefault(); return; }   // [WZ_BAR_DEBOUNCE]
   window._wzBarAt=t;
 }, true);
 // [창모드 뷰어] 예시·전체 청첩장 이미지 — 새탭(preview.html) 대신 페이지 안 모달로(2026-07-11 사용자 지시)
@@ -6833,7 +6835,9 @@ function _invLinkAlive(inv, k){
   var dr=inv.draft, pu=inv.published.urls||{};
   if(dr && ('invitationUrls' in dr)){ var du=dr.invitationUrls||{}; return k ? !!(du[k] && pu[k]) : _invLiveUrls(dr); }
   if(!k) return _invLiveUrls({invitationUrls:_invKeylessPub(dr, inv)});   // [INV_SELFQR_OPEN] 행 라벨 = startInvFlow 가 여는 화면(같은 함수로 잰다)
-  return !!pu[k];
+  /* [INV_KEYLESS_K] 2026-09-26 · 검토 — k 갈래(하객 안내 설명)도 같은 함수로 잰다. 종전은 서버 링크만 봐서, 키 없는 초안이 «청첩장 없이»(none)인데 옛 오프라인 발행이 남은 판에서
+     행은 「다시 정하기」(위 줄)인데 하객 안내 설명은 «청첩장에 자동으로 들어가는 안내예요»였다 — [INV_LINK_LIVE] «행 라벨과 하객 안내 설명이 한 규칙»이 이 갈래에서만 갈렸다. */
+  return !!_invKeylessPub(dr, inv)[k];
 }
 /* ★[INV_SELFQR_OPEN 2026-09-26 통합 점검 2라운드 R3] 초안에 invitationUrls 키가 없을 때(옛 초안 · 발행 직후 초안 저장이 실패하고 「그냥 나가기」) 믿을 서버 발행 링크 —
    startInvFlow 폴백과 행 라벨(_invLinkAlive)이 이 한 함수를 쓴다. 종전 폴백은 온라인 · 오프라인 · 둘 다만 서버 링크를 믿고 개인 제작 QR 은 뺐는데,
