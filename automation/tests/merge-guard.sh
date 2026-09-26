@@ -11965,3 +11965,13 @@ chk 'TILE_SWALLOW' scripts/audit/comment-swallow.py 1
 chk 'TILE_SWALLOW' scripts/audit/open-course.mjs 1
 nochk '하나만 해도 돼요(② 보고 듣기에서 골라요)' assets/ritual-open.js
 chk 'SEAL_POINTS 코워크 회신8' order-preview.html 1
+# ── [코워크 회신8 2026-09-26] 녹음 들이기 도구 — 성우 잠금 · 이름 차례 순서 증명 · 입장 쉼 지킴 · todo 폐지 ──
+#   깨 보고 믿음: 옛 sent-lib 로 import-voice-lock 빨강 6(진희 세 · 이겸 둘 · 서진 넷 빈 채 · 정숙 «서준아.»…) · 옛 조립기로 stage-order-name 빨강 1(r=0.838 멈춤)
+if command -v node >/dev/null 2>&1 && command -v ffmpeg >/dev/null 2>&1; then
+  _vl=$(timeout 900 node scripts/audit/import-voice-lock.mjs 2>&1); _vlx=$?; echo "$_vl" | grep -E '^FAIL|결과' | head -8; if [ "$_vlx" = 1 ]; then echo "REVERT? scripts/audit/import-voice-lock.mjs: 녹음 들이기 성우 잠금 실패"; fail=1; fi
+  _so=$(timeout 900 node scripts/audit/stage-order-name.mjs 2>&1); _sox=$?; echo "$_so" | grep -E '^FAIL|결과' | head -4; if [ "$_sox" = 1 ]; then echo "REVERT? scripts/audit/stage-order-name.mjs: 이름 차례 순서 증명 실패"; fail=1; fi
+fi
+chk 'IMPORT_VOICE_LOCK' scripts/sent-lib.mjs 4
+chk 'ENTRY_GAP_KEEP' scripts/sent-lib.mjs 3
+chk 'TODO_RETIRED' scripts/sent-lib.mjs 1
+chk 'STAGE_ORDER_BY_NAME' scripts/assemble-narration.mjs 3

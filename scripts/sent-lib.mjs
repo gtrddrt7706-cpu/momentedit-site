@@ -24,10 +24,11 @@
  * 쓰기
  *   node scripts/sent-lib.mjs --status
  *       자리마다 있음/없음/낡음을 센다. 아무것도 안 쓴다.
- *   node scripts/sent-lib.mjs --import <폴더|zip> [--order <_전체_순서.json>]
+ *   node scripts/sent-lib.mjs --import <폴더|zip> [--order <_전체_순서.json>] [--voice 서진]
  *       타입캐스트 «문장별 분리» 다운로드를 창고에 넣는다. 이름과 글을 대조해 넣고, 안 맞으면 안 넣는다.
- *   node scripts/sent-lib.mjs --patch --sent "<문장>" --wav <파일>
- *       그 문장이 있는 «모든» 자리의 소리를 새것으로 바꾼다.
+ *       묶음의 성우는 내용으로 알아내 그 성우의 줄에서만 찾는다([IMPORT_VOICE_LOCK]) · --voice 는 손으로 알려 주는 덤.
+ *   node scripts/sent-lib.mjs --patch --sent "<문장>" --wav <파일> [--keep-gap]
+ *       그 문장이 있는 «모든» 자리의 소리를 새것으로 바꾼다. --keep-gap 이면 조립 때 안쪽 쉼을 안 깎는다([ENTRY_GAP_KEEP]).
  *   node scripts/sent-lib.mjs --prune [--write]
  *       문안에서 빠져 «주인이 없어진» 자리를 창고에서도 뺀다. 기본은 미리보기.
  *   node scripts/sent-lib.mjs --stage <나갈폴더> [--clip =12_bless-father,…]
@@ -192,22 +193,42 @@ function importFrom(src) {
     const f = foldName(g), w = fold(r.text);
     return (f.cut ? w.slice(0, f.s.length) === f.s : w === f.s) ? g : null;
   };
+  /* ★★[IMPORT_VOICE_LOCK 2026-09-26 코워크 회신8-3] 묶음에 든 성우를 «내용으로» 알아내고, 그 성우들의 줄에서만 찾는다.
+     왜 — 성우별 zip(서진 42줄)은 audio_0 부터 번호를 다시 매긴다. 번호가 안 맞으면 [NAME_FALLBACK] 이 _전체_순서의
+       «앞줄부터» 이름으로 찾았는데 성우를 안 봤다. 성우가 다르고 글자가 같은 줄이 다섯이라(진희·서진 둘 · 이겸·서진 둘 ·
+       서진·정숙 «서준아.») 앞줄(다른 성우)이 먼저 가져갔다 — 가짜 서진 묶음으로 재현: 진희 세 자리 · 이겸 두 자리가 서진 소리로,
+       서진 네 자리는 빈 채. 번호 맞추기도 같은 병이 있었다(서진 audio_1 «자리에 앉아…» = 진희 n=2 의 글).
+     ★성우 알아내기: 한 성우의 줄에만 있는 글로 맞은 파일들이 가리키는 성우들(--voice 서진 처럼 손으로 줄 수도 있다 · 덤).
+     ★성우가 다르고 글자가 같은 줄은 그 두 성우가 «한 묶음에 함께» 있을 때 번호가 맞아야만 넣는다. 안 맞으면 넣지 않고 적는다.
+     ★이미 «소리 있고 글 그대로»인 다른 성우 자리는 이름 찾기로 덮지 않는다. */
+  const vOf = new Map();
+  for (const r of ord) { const k = fold(r.text); if (!vOf.has(k)) vOf.set(k, new Set()); vOf.get(k).add(r.voice); }
+  const hitRows = (x) => ord.filter((r) => { const w = fold(r.text); return x.cut ? w.slice(0, x.s.length) === x.s : w === x.s; });
+  let V;
+  if (arg('--voice')) V = new Set(arg('--voice').split(',').map((s) => s.trim()).filter(Boolean));
+  else { V = new Set(); for (const x of pool) { const vs = new Set(hitRows(x).map((r) => r.voice)); if (vs.size === 1) V.add([...vs][0]); } }
+  if (!V.size) { console.log('✗ [IMPORT_VOICE_LOCK] 이 묶음이 어느 성우의 것인지 내용으로 알 수 없습니다. --voice <이름> 으로 알려 주세요.'); process.exit(2); }
+  console.log(`[IMPORT_VOICE_LOCK] 이 묶음의 성우: ${[...V].join(' · ')}${arg('--voice') ? ' (--voice)' : ' (내용으로 알아냄)'}`);
+  const rowsV = ord.filter((r) => V.has(r.voice));
+  const dupBoth = (r) => [...(vOf.get(fold(r.text)) || [])].filter((v) => V.has(v)).length > 1;   // 묶음 안 두 성우가 같은 글
+
   let byNumHit = 0;
-  for (const r of ord) if (matchByNum(r)) byNumHit++;
-  if (byNumHit < byNo.size) console.log(`[NAME_FALLBACK] 번호로 맞는 것 ${byNumHit}/${byNo.size} — 나머지는 «이름»으로 찾습니다.`);
+  for (const r of rowsV) if (matchByNum(r)) byNumHit++;
+  if (byNumHit < byNo.size) console.log(`[NAME_FALLBACK] 번호로 맞는 것 ${byNumHit}/${byNo.size} — 나머지는 «이름»으로 찾습니다(${[...V].join(' · ')} 의 줄에서만).`);
 
   const j = loadIdx();
-  let put = 0, skipSlot = 0, miss = 0, ambig = 0;
+  let put = 0, skipSlot = 0, miss = 0, ambig = 0, lockSkip = 0, keepOther = 0;
   /* 번호로 맞는 줄을 먼저 잡아 둔다 — 그 파일을 이름 찾기에서 빼기 위해서다(두 줄이 한 파일을 가져가지 않게). */
   const bound = new Map();
-  for (const r of ord) { const g = matchByNum(r); if (g) { bound.set(r.n, g); pool.find((x) => x.g === g).used = true; } }
+  for (const r of rowsV) { const g = matchByNum(r); if (g) { bound.set(r.n, g); pool.find((x) => x.g === g).used = true; } }
 
-  for (const r of ord) {
-    let g = bound.get(r.n);
+  for (const r of rowsV) {
+    let g = bound.get(r.n), byName = false;
     if (!g) {
+      if (dupBoth(r)) { console.log(`  [IMPORT_VOICE_LOCK] n=${r.n} ${r.voice} «${r.text}» — 같은 글을 이 묶음의 다른 성우도 읽어 번호로만 넣습니다(번호가 안 맞아 안 넣음)`); lockSkip++; continue; }
       const m = matchOf(r.text);                 // [NAME_FALLBACK] 번호가 어긋난 줄만 이름으로
       if (!m.length) { miss++; continue; }
-      const pick = m[0]; pick.used = true; g = pick.g;
+      const pick = m[0]; pick.used = true; g = pick.g; byName = true;
     }
     for (const a of r.at || []) {
       const id = a.clip + '#' + a.i;
@@ -222,7 +243,8 @@ function importFrom(src) {
            그 파일이 둘 중 무엇을 읽은 것인지 알 길이 없다 — 그러면 **안 넣는다.**
          ★추측해서 넣는 쪽이 아니라 비워 두는 쪽을 고른다. 비어 있으면 다음 검사가 잡지만,
            잘못 들어간 소리는 아무 검사도 못 잡고 식장에서 난다. */
-      const prevText = (j.slots[id] || {}).text;
+      const prevE = j.slots[id] || {}, prevText = prevE.text;
+      if (byName && prevE.voice && prevE.voice !== r.voice && prevText === s.text && fs.existsSync(fileOf(id))) { keepOther++; continue; }   // [IMPORT_VOICE_LOCK] 다른 성우의 멀쩡한 자리는 덮지 않는다
       const fn = pool.find((x) => x.g === g);
       if (fn && fn.cut && prevText && prevText !== s.text) {
         const pre = fold(prevText).slice(0, fn.s.length);
@@ -244,6 +266,8 @@ function importFrom(src) {
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`[SENT_LIB] 창고에 넣은 자리 ${put}개`);
   if (ambig) console.log(`   ★같은 문장이 여럿이라 못 가른 것 ${ambig}건`);
+  if (lockSkip) console.log(`   ★[IMPORT_VOICE_LOCK] 성우가 다르고 글이 같아 번호로만 넣는 줄 중 번호가 안 맞아 안 넣은 것 ${lockSkip}줄`);
+  if (keepOther) console.log(`   ★[IMPORT_VOICE_LOCK] 다른 성우의 멀쩡한 자리라 덮지 않은 것 ${keepOther}자리`);
   if (miss) console.log(`   · 그 순서표의 ${miss}줄은 이번 묶음에 없었다(다른 배치일 것)`);
   if (skipSlot) console.log(`   ★대장과 글이 달라 «안 넣은» 자리 ${skipSlot}건 — 대본이 그 사이 바뀐 자리입니다`);
 }
@@ -304,9 +328,12 @@ function patch() {
     fs.mkdirSync(path.dirname(out), { recursive: true });
     execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', wav, '-c:a', 'flac', out]);
     j.slots[s.id] = { text: s.text, voice: voices[0], when: new Date().toISOString().slice(0, 10) };
+    /* ★[ENTRY_GAP_KEEP 2026-09-26 사장님 «녹음 그대로 1.4초»] --keep-gap 이면 «안쪽 쉼 지킴»을 창고에 적는다 —
+       --stage 가 그 자리 파일 이름에 _JOINED_ 를 붙이고, 조립기는 JOINED_ 파일의 안쪽 쉼을 SENT_CAP(0.45초)로 깎지 않는다. */
+    if (has('--keep-gap')) j.slots[s.id].keepGap = true;
   }
   saveIdx(j);
-  console.log(`[SENT_LIB] ${voices[0]} 「${sent}」 → ${hit.length}자리에 넣었다`);
+  console.log(`[SENT_LIB] ${voices[0]} 「${sent}」 → ${hit.length}자리에 넣었다${has('--keep-gap') ? ' · 안쪽 쉼 지킴(--keep-gap)' : ''}`);
   for (const s of hit) console.log(`   ${s.id}`);
   console.log('\n   이제 그 클립을 다시 붙이세요:');
   console.log(`   node scripts/sent-lib.mjs --stage /tmp/붙일것 --clip ${[...new Set(hit.map((s) => '=' + s.key))].join(',')}`);
@@ -332,7 +359,7 @@ function stage() {
       const e = j.slots[id];
       if (!fs.existsSync(src) || !e || e.text !== s.text) { lack.push({ id, why: !e || !fs.existsSync(src) ? '소리 없음' : '글이 바뀜' }); continue; }
       n++;
-      fs.copyFileSync(src, path.join(out, String(n).padStart(4, '0') + '_' + id.replace('#', '_') + '.flac'));
+      fs.copyFileSync(src, path.join(out, String(n).padStart(4, '0') + '_' + id.replace('#', '_') + (e.keepGap ? '_JOINED_' : '') + '.flac'));   // [ENTRY_GAP_KEEP] 조립기가 안쪽 쉼을 안 깎는다
     }
   }
   if (lack.length) {
@@ -353,6 +380,7 @@ function todo() {
   const j = loadIdx();
   const need = [];
   for (const s of slots) {
+    if (s.off) continue;   // ★[TODO_RETIRED 2026-09-26 코워크 회신8-4] 폐지 클립 자리는 «받을 것»이 아니다 — --status 와 같은 자([SENT_RETIRED])
     const e = j.slots[s.id];
     if (e && fs.existsSync(fileOf(s.id)) && e.text === s.text) continue;   // 이미 있고 글도 그대로
     need.push(s);
