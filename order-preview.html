@@ -946,6 +946,10 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 @media (min-width:1000px) and (prefers-reduced-motion: reduce){ .pk-slim{transition:none} }
 /* ② */
 .ls-band .t1{font-size:13px}
+.ls-band .t1 .nw{white-space:nowrap}
+.ls-band .lsg{display:inline-flex;align-items:center;width:64px;height:18px;flex:none}
+.ls-band .lsg svg{display:block;width:64px;height:18px}
+@media (max-width:374px){ .ls-band .lsg{display:none} }   /* [G2] 360 에서는 시간 둘이 먼저 */
 .ls-hero{display:block;width:100%;border:0;padding:0;margin:12px 0 10px;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
 .ls-hl{display:flex;align-items:center;gap:9px;margin-top:9px}
 .ls-hl b{font-size:15px;font-weight:600;color:var(--accent)}
@@ -2024,7 +2028,7 @@ var STEPDEF={
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
  /* [LISTEN_PAGE] 새 코스의 ② — 고른 순서대로 장면을 보며 나레이션을 듣는 한 쪽(순간마다 한 화면을 대신한다) */
- listen:{k:'listen',title:'보고 듣기',sub:'고른 순서대로 장면을 보며 나레이션을 들어 보세요. 줄을 누르면 흐름과 고를 것이 열려요.'},
+ listen:{k:'listen',title:'보고 듣기',sub:'담은 순간을 예식 차례대로 보며 나레이션을 들어 보세요. 줄을 누르면 흐름과 고를 것이 열려요. 준비할 것은 모두 ③ 준비하기에 모여요.'},
  write:{k:'write',title:'글 적어두기',sub:'비워둬도 돼요 · D-7까지 채우면 대본에 담겨요'},
  done:{k:'done',title:''}
 };
@@ -2808,14 +2812,14 @@ function opChips(k,on){
 }
 function opChipLabel(k){
   var R=RitualOpen; if(!R.CHIPS[k]) return '';
-  /* [LIST_NAMES 2026-09-25 코워크 4-8] «케이크 · 축배 · 케이크와 축배»처럼 이름을 되풀이하지 않는다 —
-     무엇을이 «둘»이면 와인 판만. 판 이름은 원천(chipLabel)에서 — «서로의 부모님께 한마디씩» · «영상 · 3분». */
+  /* [LIST_NAMES 2026-09-25 코워크 4-8] 판 이름은 원천(chipLabel)에서 — «서로의 부모님께 한마디씩» · «영상 · 3분».
+     ★[G7 2026-09-26 코워크 최종판 5-1] 케이크 · 축배는 «무엇을 + 와인» — «케이크와 축배 · 양가 와인 한 병씩»(종전 «와인 판만»은 무엇을 했는지 안 보였다). */
   if(k==='toast'){ var v=R.chipOf('toast',S), w=(v==='cake')?'none':R.chipOf('wine',S), wl=(w!=='none')?R.labelOf('wine',w):'';
-    return v==='both'?(wl||R.labelOf('toast','both')):(R.labelOf('toast',v)+(wl?' · '+wl:'')); }   // [LAB_FIX2 2-6] 붓지 않음이면 요약이 비었다 → «케이크와 축배»
+    return R.labelOf('toast',v)+(wl?' · '+wl:''); }
   return R.chipLabel(k,S);
 }
 /* [DETAIL_0925 B13] 절정이 없을 때 — 한마디씩 인사는 절정이 아니다(1분쯤씩이 절정) */
-var PEAK_NONE='절정(★)이 될 순간을 하나 담아 보세요 · 성혼 선언 · 편지 낭독, 또는 1분쯤씩 전하는 부모님께 인사.';
+var PEAK_NONE='가장 벅찬 순간(★)이 될 것을 하나 담아 보세요 · 성혼 선언 · 편지 낭독, 또는 1분쯤씩 전하는 부모님께 인사.';   // [G1 2026-09-26 코워크 최종판 5-1] ①~④ 같은 말 «가장 벅찬 순간»
 function _candleWho(){ var R=RitualOpen; return (R.CANDLE_WHO.filter(function(c){ return c[0]===(S.candleWho||R.DEF.candleWho); })[0]||[0,''])[1]; }
 window.opToListen=function(){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k==='listen'){ _opGo(i); return; } } };
 /* ★[DETAIL_0925 A2] 알림 — 한 번에 하나 · 풀어 주는 단추 · «괜찮아요»(④ 사진 시간 부족은 닫지 않는다) ·
@@ -3011,7 +3015,9 @@ function renderListen(){
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   var h='<div class="op ls">';
   h+='<button type="button" class="ls-back" data-fk="lsback" onclick="opStepNav(\'pick\')">← 고르기로</button>';   // [DETAIL_0925 A1] · [EDIT_OPEN]
-  h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>단체 사진 <b>'+esc(sp.photo)+'</b></span></div>'+_noteHtml()+'</div>';
+  /* ★[G2 2026-09-26 코워크 최종판 5-1] 두 시간 사이에 작은 감동 흐름선(64×18) — 판을 바꾸면(예: 인사 «1분쯤씩» → «말 없이») 가장 벅찬 순간이 바뀌는 게 바로 보이게.
+     좁은 화면(375 아래)에서 한 줄에 안 들어가면 흐름선을 뺀다(시간 둘이 먼저). 그림은 ① 과 같은 함수(RitualOpen.flowSVG). */
+  h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span>'+(R.picked(S).length?'<span class="lsg" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),64,{mini:true,h:18,label:'작은 흐름선'})+'</span>':'')+'<span class="nw">단체 사진 <b>'+esc(_nb(sp.photo))+'</b></span></div>'+_noteHtml()+'</div>';
   // 맨 위 큰 단추 — 누르기 전에는 움직이지 않는다 · 들을 길이는 예식 길이가 아니다(DETAIL B12)
   var _allSt=ENG?_lSteps(ENG,_lRows()):[], len=ENG?_lLen(_allSt):0;
   /* [TEXT_AUDIO_MATCH 2-1] 말하는 줄이 전부 녹음 전이면 줄마다 꼬리표를 달지 않고 여기 한 줄로 말한다 · 일부만이면 줄마다 */
@@ -3021,7 +3027,7 @@ function renderListen(){
     +'<span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 보고 듣기</b></span>'
     +'<span class="ls-len">'+(len?('다 보는 데 약 '+Math.max(1,Math.round(len/60))+'분 · 말하는 자리는 짧게 넘겨요'):'')+'</span></button>';
   if(LS.allPend) h+='<p class="ls-note ls-allpend">새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요</p>';
-  h+='<p class="ls-peak">'+(peak?'<span class="op-star" role="img" aria-label="절정">★</span> 표시는 이 예식의 절정이에요.':esc(PEAK_NONE))+'</p>';   // [DETAIL_0925 B13]
+  h+='<p class="ls-peak">'+(peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> 표시는 이 예식에서 가장 벅찬 순간이에요.':esc(PEAK_NONE))+'</p>';   // [DETAIL_0925 B13]
   h+='<div class="ls-rows">';
   _lRows().forEach(function(k){ h+=_lRow(k,true,_lNo(k),peak); });
   h+='</div>';
@@ -3030,7 +3036,7 @@ function renderListen(){
   if(off.length){
     h+='<details class="ls-off"'+(LS.offOpen?' open':'')+' ontoggle="LS.offOpen=this.open"><summary>담지 않은 순간 <b>'+off.length+'</b> · 들어 보고 담을 수 있어요</summary>';
     off.forEach(function(k){ h+=_lRow(k,false,'',peak); });
-    h+='<p class="ls-note">준비한 순서는 ← 고르기 맨 아래에서 담아요 · 특별히 준비한 것이 있을 때만요.</p></details>';
+    h+='<p class="ls-note">준비한 순서는 ← 고르기의 «마음의 순간»에서 담아요 · 준비한 게 있을 때만요.</p></details>';   /* [ACTS_FOUR] 맨 아래 묶음은 거뒀다 */
   }
   // [DETAIL_0925 B2] 준비할 것 — 이름 한 쌍(두 분이 준비할 것 · 부모님께 부탁드릴 것) · ③ 준비하기에 모두 모인다
   var pl=R.prepList(S), two=pl.filter(function(q){ return q.who!=='parents'; }), par=pl.filter(function(q){ return q.who==='parents'; });
@@ -3051,7 +3057,7 @@ function _lRow(k,on,no,peak){
      그림을 누르면 작은 플레이어로 그 순간이 들린다 · 크게 보기는 작은 플레이어 제목과 «처음부터 보고 듣기»가 맡는다. */
   var _pl=(LP.q.length&&LP.cur===k&&!LP.paused);   /* [A11Y_PLAYTOG 3장] 이 줄이 재생 중이면 ▶ 대신 «멈춤»(다시 누르면 처음부터 다시 틀던 것) */
   h+='<button type="button" class="ls-th ls-play" aria-label="'+esc(_lName(k))+(_pl?' 멈춤':' 듣기')+'" data-fk="lsp:'+k+'" data-pl="'+(_pl?'1':'0')+'" onclick="'+(_pl?'lsToggle()':'lsPlay(\''+k+'\')')+'">'+_lVid(k,{mini:true})+'<span class="ls-pi" aria-hidden="true">'+(_pl?ICO_PAUSE:ICO_PLAY)+'</span></button>';
-  h+='<button type="button" class="ls-main" aria-expanded="'+(open?'true':'false')+'" data-fk="lsm:'+k+'" onclick="lsOpen(\''+k+'\')"><span class="nm">'+(on&&k===peak?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(_lName(k))+'</span><span class="sp">'+esc(on?_lSum(k):'담지 않았어요')+'</span></button>';
+  h+='<button type="button" class="ls-main" aria-expanded="'+(open?'true':'false')+'" data-fk="lsm:'+k+'" onclick="lsOpen(\''+k+'\')"><span class="nm">'+(on&&k===peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(k))+'</span><span class="sp">'+esc(on?_lSum(k):'담지 않았어요')+'</span></button>';
   h+='<span class="ls-acts">'+(on?'':'<button type="button" class="ls-add" aria-label="'+esc(_lName(k))+' 담기" data-fk="lsa:'+k+'" onclick="lsAdd(\''+k+'\')">+ 담기</button>')+'</span>';
   if(open) h+='<div class="ls-x">'+_lExp(k,on)+'</div>';
   return h+'</div>';
@@ -3068,7 +3074,7 @@ function _lExp(k,on){
     if(gs.length) h+='<div class="ls-vars"><b>바꿀 수 있는 것 <span class="ls-hint">· 누르면 바로 그렇게 들려 드려요</span></b>'+gs.map(_lChipRow).join('')+'</div>';   // [DETAIL_0925 B4]
   }
   var ps=R.prepOf(k,S);
-  if(ps.length) h+='<div class="ls-wr">'+ICO_PEN+'<span>'+ps.map(function(q){ return '<span class="wr-cat">'+esc(R.PREP_CAT[q[2]]||'')+'</span> '+(q[0]==='parents'?'부모님께 · ':'')+esc(q[1]); }).join(' / ')+' <em>· ③ 준비하기에 모두 모여요 · 여기서는 보기만 해요</em></span></div>';
+  if(ps.length) h+='<div class="ls-wr">'+ICO_PEN+'<span>'+ps.map(function(q){ return '<span class="wr-cat">'+esc(R.PREP_CAT[q[2]]||'')+'</span> '+(q[0]==='parents'?'부모님께 · ':'')+esc(q[1]); }).join(' / ')+' <em>→ ③에서</em></span></div>';   /* [G6 2026-09-26] 긴 말은 ② 머리에 한 번(«준비할 것은 모두 ③ 준비하기에 모여요.») */
   if(on && !R.ALWAYS[k] && k!=='_close' && k!=='guest') h+='<button type="button" class="ls-rm" aria-label="'+esc(_lName(k))+' 빼기" data-fk="lsr:'+k+'" onclick="lsRemove(\''+k+'\')">이 순간 빼기</button>';
   if(!on) h+='<p class="ls-note">'+esc(R.slotText(k,S))+'</p>';
   return h;
@@ -3241,8 +3247,8 @@ function _lFull(){
     var ks=[]; LP.q.forEach(function(x){ if(ks.indexOf(x.k)<0) ks.push(x.k); });
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
-    h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(_lName(st.k))+'</h3>';
-    h+='<div class="lf-lab">'+esc(st.lab)+(st.pending?' <span class="ls-new">'+(LS.allPend?'글로 먼저 보여 드려요':'아직 녹음 전 · 글로 먼저 보여 드려요')+'</span>':'')+'</div>';
+    h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(st.k))+'</h3>';
+    h+='<div class="lf-lab">'+esc(st.lab)+(st.pending?' · <span class="ls-new">녹음 전이라 글로 보여 드려요</span>':'')+'</div>';   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     h+='<p class="lf-txt'+(st.talk||st.skip?' talk':'')+'">'+esc(st.txt||'')+'</p>';
     if(!LP.noChips && (R.onOf(S,st.k)||st.k==='guest')){ var gs=_lGroups(st.k); if(gs.length) h+='<div class="lf-vars">'+gs.map(function(g){ return _lChipRow(g).replace(/data-fk="lsc:/g,'data-fk="lfc:'); }).join('')+'</div>'; }
   } else if(LP.ended){
@@ -4534,7 +4540,7 @@ function _doneOpen(){
   _lRows().forEach(function(k){
     var no=_lNo(k), empty=(k==='vow'&&!_wcFilled('vow'))||(k==='letter'&&!_wcFilled('letter'))||(k==='welcome'&&S.welcome==='self'&&!_wcFilled('welcome'));
     h+='<div class="sumrow">'+(no==='식전'?'<div class="sr-n sr-pre">식전</div>':'<div class="sr-n">'+esc(no)+'</div>')
-      +'<div class="sr-l">'+(k===peak?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(_lName(k))+'</div>'
+      +'<div class="sr-l">'+(k===peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(k))+'</div>'
       +'<div class="sr-v">'+esc(_lSum(k))+(empty?'<span class="sr-empty">글 비어 있음</span>':'')+'</div>'
       +'<button class="sr-c" aria-label="'+esc(_lName(k))+(empty?' 글 채우기':' 바꾸기')+'" data-fk="sum:'+k+'" onclick="editStep(\''+k+'\')">'+(empty?'채우기':'변경')+'</button></div>';
   });
