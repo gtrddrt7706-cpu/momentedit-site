@@ -11261,6 +11261,9 @@ chk "var _thx = S.meal ? 'end-1a-farewell' : 'end-1c-thanks-nomeal';" assets/rit
 chk 'THANKS_BOW' scripts/build-typecast-import.mjs 1
 chk "'마무리': {" assets/ritual-story.js 1
 chk 'PHOTO_THANKS=1' mypage.html 1
+chk 'PART_BY_NAME' scripts/check-typecast-handoff.mjs 2   # 1_안내 56 = 3_진행_후반 56 — 조립기가 이름으로 파트를 짚어 겹침을 막지 않는다
+chk 'THANKS_VOICE_WAIVED' scripts/check-voice-runs.mjs 2   # 감사 인사(45 · 110) 진희 혼자 — 이 두 클립만 봐준다(코워크 제안 대기)
+chk "meal: \[false, true\]" scripts/build-course-story.mjs 1   # 식사 있는 날 감사 인사 장면도 STORY_COVER 가 센다
 nochk '두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다.' assets/ritual-cue.js
 nochk '가족분들은 조금만 더 머물러 주세요.' assets/ritual-data.js 1
 nochk '가족분들은 조금만 더 머물러 주세요.' order-preview.html
@@ -11277,7 +11280,7 @@ nochk '한 분 한 분께 인사' order-preview.html
 chk '오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.' assets/ritual-data.js 1
 chk 'PHOTO_CAP_40' mypage.html 1
 chk 'PHOTO_CAP_CLAMP' mypage.html 1
-chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;' mypage.html 1
+chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2, PHOTO_THANKS=1;' mypage.html 1   # [PHOTO_THANKS 2026-09-26] 감사 인사 1분이 붙었다
 # ★[WISH_COUNT · NO_ZERO_SHOT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-4~2-6] 꼭 담고 싶은 사진은 적은 만큼만 · «구도 0개» 금지 · 사진 est 는 GO→GO(말 포함)
 chk 'WISH_COUNT' mypage.html 3
 chk 'function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }' mypage.html 1
@@ -11287,7 +11290,7 @@ chk '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도
 nochk "'알맞고, 제시간에 진행되면 '+_cap.max" mypage.html
 chk 'PHOTO_GO2GO' assets/ritual-cue.js 2
 chk "'end-0-photo': (_pw >= 0 ? 360 + 60 " assets/ritual-cue.js 1   # ★grep 은 * 를 반복으로 읽는다 — 세 조각으로 나눠 잰다
-chk "_pw : 480), 'narr-photo-split': (_pn > 0 ? 180 " assets/ritual-cue.js 1
+chk "_pw : 480), 'end-1a-farewell': 60, 'end-1c-thanks-nomeal': 60, 'narr-photo-split': (_pn > 0 ? 180 " assets/ritual-cue.js 1   # [PHOTO_THANKS 2026-09-26] 전체 사진과 가족 구도 사이에 감사 인사 60초
 chk "_pn : 360), 'narr-online-in': 120 }" assets/ritual-cue.js 1
 nochk 'budget * 60 - fixed - 120' assets/ritual-cue.js
 chk 'PHOTO_GO2GO' scripts/check-ritual-cue.js 4

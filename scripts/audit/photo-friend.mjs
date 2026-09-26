@@ -51,7 +51,7 @@ t(capNote.indexOf("'두 분 식순이면 본식 뒤 단체 사진 시간이 약&
 
 // [WISH_MIN_SAME] «지금 N컷 · 약 M분» = 단체 사진 줄(photoCapOf)과 같은 셈 — 진짜 함수를 꺼내 돌린다(사본을 재지 않는다)
 {
-  const cm = my.match(/var PHOTO_DAY=(\d+), PHOTO_PRE=(\d+), PHOTO_ALL=(\d+), PHOTO_PER=(\d+), PHOTO_ONLINE=(\d+);/);
+  const cm = my.match(/var PHOTO_DAY=(\d+), PHOTO_PRE=(\d+), PHOTO_ALL=(\d+), PHOTO_PER=(\d+), PHOTO_ONLINE=(\d+), PHOTO_THANKS=(\d+);/);   // [PHOTO_THANKS 2026-09-26] 감사 인사 1분이 상수 줄 끝에 붙었다
   const wm = my.match(/var PHOTO_WISH_MAX=(\d+);/), xm = my.match(/var PHOTO_MAX=(\d+)/);
   const src = (a) => slice(my, a, '\n}') + '\n}';
   const fns = ['function photoMinNote(sel){', 'function photoCapOf(rd, dig, wishN){', 'function photoWishN(){', 'function wishClean(list){'];
@@ -61,19 +61,19 @@ t(capNote.indexOf("'두 분 식순이면 본식 뒤 단체 사진 시간이 약&
   else {
     const one = (a) => a === 'function photoWishN(){' || a === 'function wishClean(list){' ? (my.match(new RegExp(a.replace(/[()[\]{}]/g, '\\$&') + '[^\\n]*'))[0]) : src(a);
     const body = [pm, ...fns.map(one)].join('\n');
-    const mk = new Function('PHOTO_DAY', 'PHOTO_PRE', 'PHOTO_ALL', 'PHOTO_PER', 'PHOTO_ONLINE', 'PHOTO_WISH_MAX', 'PHOTO_MAX', 'PHOTOFLOW', 'wishNorm',
+    const mk = new Function('PHOTO_DAY', 'PHOTO_PRE', 'PHOTO_ALL', 'PHOTO_PER', 'PHOTO_ONLINE', 'PHOTO_THANKS', 'PHOTO_WISH_MAX', 'PHOTO_MAX', 'PHOTOFLOW', 'wishNorm',
       body + '\nreturn { note: photoMinNote, cap: photoCapOf, mins: photoMins };');
     const PF = { wish: [] };
-    const F = mk(+cm[1], +cm[2], +cm[3], +cm[4], +cm[5], +wm[1], +xm[1], PF, (w) => ({ what: String((w && w.what) || '').trim() }));
+    const F = mk(+cm[1], +cm[2], +cm[3], +cm[4], +cm[5], +cm[6], +wm[1], +xm[1], PF, (w) => ({ what: String((w && w.what) || '').trim() }));
     const wrong = [];
     // 약 M분 = 전체 하객 + 3분 × 구도 + 1분 × 글 있는 요청(둘까지) — 상한 셈의 all(= PHOTO_ALL + 요청)과 같은 상수
     for (const n of [0, 1, 3]) for (const w of [0, 1, 2, 3]) {
       const got = F.mins(new Array(n).fill('x'), w), want = +cm[3] + n * +cm[4] + Math.min(w, +wm[1]);
       if (got !== want) wrong.push(`구도 ${n} · 요청 ${w}: ${got} ≠ ${want}`);
     }
-    // 같은 식순에서 «약 M분 ≤ 단체 사진 − 숨 고르기»이면 그 구도 수가 «알맞은 수» 안이다(두 줄이 서로 어긋나지 않는다)
+    // 같은 식순에서 «약 M분 ≤ 단체 사진 − 숨 고르기 − 감사 인사»이면 그 구도 수가 «알맞은 수» 안이다(두 줄이 서로 어긋나지 않는다)
     for (const w of [0, 2]) for (const late of [900, 1200, 1500]) {
-      const c = F.cap({ summary: { sec: [late - 300, late] } }, false, w), room = +cm[1] - late / 60 - +cm[2];
+      const c = F.cap({ summary: { sec: [late - 300, late] } }, false, w), room = +cm[1] - late / 60 - +cm[2] - +cm[6];   // [PHOTO_THANKS] 감사 인사 1분도 뺀다(photoCapOf 의 pre 와 같게)
       for (let n = 0; n <= 5; n++) { const fit = F.mins(new Array(n).fill('x'), w) <= room; if (fit !== (n <= c.k)) { wrong.push(`본식 ${late / 60}분 · 요청 ${w} · 구도 ${n}: «약 ${F.mins(new Array(n).fill('x'), w)}분» 과 k ${c.k} 가 어긋남`); break; } }
     }
     // 글 있는 칸만 센다 — 빈 요청 칸은 분도 개수도 잡지 않는다

@@ -48,7 +48,7 @@ const SWEEP = {
   bless: ['on', 'off'],
   ringwarm: ['family', 'all'], tribute: ['flower', 'bow', 'hug'],
   toast: ['toast', 'cake', 'both'], song: ['family', 'live'],
-  blessProxy: [false, true], ring: ['on', 'off'], digital: [false, true],
+  blessProxy: [false, true], ring: ['on', 'off'], digital: [false, true], meal: [false, true],   // [PHOTO_THANKS 2026-09-26] 식사 있는 날(45) · 없는 날(110) 감사 인사가 갈린다
   entry: Object.keys(D.ENTRY), guestVoice: ['nar', 'couple'], entryVoice: ['nar', 'couple'],
   welcome: ['self'], vow: ['ok']
 };

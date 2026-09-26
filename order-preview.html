@@ -2515,7 +2515,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 25 · 이동 5 · 화이트존 25 · 입장 준비 5'],['8~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['15~32분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞에서 한 분 한 분께 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 25 · 이동 5 · 화이트존 25 · 입장 준비 5'],['8~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['15~32분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
