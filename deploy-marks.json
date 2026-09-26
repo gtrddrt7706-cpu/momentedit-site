@@ -1104,6 +1104,12 @@
    "fn": "adminCall",
    "mark": "SNAP_CONSENT",
    "why": "관리자 «기획 지우기(동의 거둠)» — 이 파일이 옛것이면 잠긴 뒤 부탁받아도 관리자 단추가 «알 수 없는 요청»으로 죽는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_snapV2Norm",
+   "mark": "SNAP_ZONE_NOTE",
+   "why": "스냅 기획 공간별 «사진작가에게 전할 말»(zones[k].note) — 이 파일이 옛것이면 부부 화면에 칸이 안 열리고(snapZoneNoteOk 없음) 브리프·관리자에도 안 보인다"
   }
  ],
  "fns": {
@@ -1861,6 +1867,7 @@
    "GP_KEEP_DAYS",
    "SNAP_V2",
    "SNAP_ZONE_RE",
+   "SNAP_ZONE_NOTE_MAX",
    "SNAP_V2_KEYS",
    "SNAP_LEGACY_KEYS",
    "SNAP_ID_RE",
@@ -2050,7 +2057,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-26 17:50 · 4b907125",
+ "_생성": "2026-09-26 18:31 · f602a76b",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2360,5 +2367,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "d7a472899b5c"
+ "_표식서명": "3746f0710364"
 }

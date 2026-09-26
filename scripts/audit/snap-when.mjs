@@ -15,8 +15,9 @@ const m = seq.match(/\['단독 스냅 촬영',\s*'(\d+)분'/), a = seq.match(/\[
 if (!m || !a) { console.log('━━ snap-when — 진행표에서 «단독 스냅 촬영»·«신랑·신부 도착» 줄을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
 const bad = [];
 /* ★[SNAP_PICK_V2 2026-09-26] 안내의 분은 이제 화면 글자가 아니라 목록 파일(assets/snap-refs.js)에서 그려진다 —
-   «도착 · N분 › 캔들존 · N분 › 이동 · N분 › 화이트존 · N분 › 입장 준비 · N분 › 본식». 그래서 목록의 분을 진행표와 대조한다.
-   (공간별 분·시각·장면 목록은 scripts/audit/snap-plan.mjs 가 더 자세히 본다) */
+   ★★[SNAP_55 2026-09-26 사장님 «이동5분은 없어도돼 캔들존으로 포함» · «55분 촬영으로 뭉뚱그려서»] 이제는
+   «도착 N분 › 캔들존 · 화이트존 촬영 N분 › 입장 준비 N분 › 본식» — 두 공간은 한 칸(R.shoot = 캔들존 + 옮기기 + 화이트존).
+   목록의 분을 진행표와 대조하는 것은 그대로다(공간별 분·시각·장면 목록은 scripts/audit/snap-plan.mjs 가 더 자세히 본다) */
 const refs = read('assets/snap-refs.js');
 if (!refs) { console.log('━━ snap-when — assets/snap-refs.js 가 없습니다 · 재지 못했습니다'); process.exit(2); }
 const num = (re) => { const x = refs.match(re); return x ? +x[1] : NaN; };
@@ -25,7 +26,8 @@ const zmin = [...refs.matchAll(/key: '(?:candle|white)'[^}]*?min: (\d+)/g)].map(
 const total = zmin.reduce((a, b) => a + b, 0) + move + prep;
 if (arrive !== +a[1]) bad.push(`스냅 기획 안내의 도착 분(${arrive})이 진행표(${a[1]}분)와 다르다 — assets/snap-refs.js 의 arrive 를 고칠 것`);
 if (zmin.length !== 2 || total !== +m[1]) bad.push(`스냅 기획 안내의 분 합계(${total})가 진행표 «단독 스냅 촬영»(${m[1]}분)과 다르다 — 진행표가 바뀌었으면 assets/snap-refs.js 의 캔들존·화이트존 min · move · prep 를 같은 값으로 고칠 것`);
-if (!/function _spWhen\(D, R, due\)[\s\S]{0,400}R\.arrive[\s\S]{0,200}z\[0\]\.min[\s\S]{0,120}R\.move[\s\S]{0,120}z\[1\]\.min[\s\S]{0,120}R\.prep/.test(my)) bad.push('스냅 기획 안내가 목록 파일의 분으로 그려지지 않는다(_spWhen)');
+if (!/function _spWhen\(D, R, due\)[\s\S]{0,600}R\.arrive[\s\S]{0,200}R\.shoot[\s\S]{0,120}R\.prep/.test(my)) bad.push('스냅 기획 안내가 목록 파일의 분(도착 · 두 공간 촬영 R.shoot · 입장 준비)으로 그려지지 않는다(_spWhen · SNAP_55)');
+if (!/R\.shoot = R\.zones\.reduce\(function \(a, z\) \{ return a \+ z\.min; \}, 0\) \+ R\.move;/.test(refs)) bad.push('R.shoot 이 «캔들존 + 옮기기 + 화이트존»이 아니다(assets/snap-refs.js · SNAP_55)');
 if (/data-sppl/.test(my)) bad.push('«누가 함께» 칩(data-sppl)이 돌아왔다 — 2026-09-25 사장님 지시로 삭제한 질문');
 if (/>누가 함께 담기나요 <span/.test(my)) bad.push('«누가 함께 담기나요» 섹션 제목이 돌아왔다');
 if (/placeholder="꼭 챙길 분/.test(my)) bad.push('«꼭 챙길 분» 입력칸이 돌아왔다');
