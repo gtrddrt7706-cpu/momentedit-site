@@ -763,9 +763,10 @@ button.snp-tile{cursor:pointer}
    접힌 줄에도 「③ 추가 보정·결제」 이름은 남긴다(④ 패널·확인 모달이 «③ 추가 보정»을 가리킨다). 접힘은 .res-panel.done 과 같은 조용한 줄,
    펼치면 다른 패널과 같은 베이지 면. 포함 컷 초과·신청·견적·결제대기면 접지 않는다(_extraPanelHtml). */
 details.res-fold:not([open]){background:transparent;border-top:1px solid var(--divider,#EDEAE4);border-radius:0;padding:0 2px}
-details.res-fold>summary{list-style:none;cursor:pointer;min-height:44px;margin-bottom:0}
+details.res-fold>summary{list-style:none;cursor:pointer;min-height:44px;margin-bottom:0;position:relative}
 details.res-fold>summary::-webkit-details-marker{display:none}
 details.res-fold[open]>summary{margin-bottom:11px;min-height:0}
+details.res-fold[open]>summary::after{content:'';position:absolute;inset:-10px 0}   /* [FOLD_TAP44 2026-09-26 검토] 펼친 뒤 제목 줄은 25px 라 닫으려고 누르는 자리가 44px 아래였다 — 보이는 자리는 그대로 두고 누르는 자리만 45px(TRK_TAP44 와 같은 방식 · 위 16px 여백·아래 11px 간격 안) */
 .res-fold-s{margin-left:auto;font-size:12px;font-weight:400;color:var(--label-soft);white-space:nowrap}
 .res-fold-s .pt-ar{display:inline-block;font-size:10px;margin-left:4px}
 details.res-fold[open] .res-fold-s .pt-ar{transform:rotate(180deg)}
@@ -775,11 +776,14 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .vg-t .vg-tb{display:block;font-size:11px;font-weight:400;color:var(--label-soft)}
 .vg-row:has(>.vg-t)>.vg-v{text-wrap:balance}
 /* [VG_T_NARROW 2026-09-26] 320 에서 결과물 대기 표의 설명 칸이 63px·4줄로 부서졌다(post-12 실측) — 좁은 폭(≤360)에서만 기간을 설명 아래로 내린다.
-   기간 우측 열(A안 · 2026-07-26 사용자 선택)은 361px 이상에서 그대로다. vg-t 를 가진 줄(대기 표)에만 건다. */
+   기간 우측 열(A안 · 2026-07-26 사용자 선택)은 361px 이상에서 그대로다. vg-t 를 가진 줄(대기 표)에만 건다.
+   ★[VG_T_HAS_ALL 2026-09-26 검토] 세 줄 모두 :has 로 건다 — :has 를 모르는 브라우저는 그 규칙을 통째로 버리는데,
+     둘째·셋째 줄을 :has 없이 두면 첫 줄(줄바꿈)만 버려지고 «줄바꿈 없는 줄에 폭 100% 칸»이 살아 표가 카드 밖으로 넘쳤다
+     (흉내 실측 320 → 문서 폭 421px · 설명이 한 낱말씩 세로로). 셋 다 버려지면 361px 이상과 같은 오른쪽 두 줄 칸으로 남는다. */
 @media (max-width:360px){
   .vg-row:has(>.vg-t){flex-wrap:wrap;row-gap:0}
-  .vg-row>.vg-t{flex:1 0 100%;text-align:left;padding-left:80px}
-  .vg-t .vg-tb{display:inline}
+  .vg-row:has(>.vg-t)>.vg-t{flex:1 0 100%;text-align:left;padding-left:80px}
+  .vg-row:has(>.vg-t) .vg-tb{display:inline}
 }
 @media (min-width:600px){ .vg-t .vg-tb{display:inline} }   /* 넓은 화면은 설명이 한 줄이라 기간도 한 줄(«예식 후 약 4주») */
 /* [SV_LABEL_KO 2026-09-25] 「마지막 단계」는 한글이다. 종전엔 영문 눈썹 서식(Cormorant 기울임·자간 .22em·대문자)을
