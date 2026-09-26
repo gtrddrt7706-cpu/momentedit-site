@@ -470,6 +470,20 @@ chk 'SNAP_ZONE_NOTE' brief.html 1
 chk 'SNAP_TONE' mypage.html 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
+# ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
+#   입력 화면 겉틀 = 식순 빌더 — 위 «저장 · 나가기»(카드 맨 위 오른쪽) · 아래 붙는 «이전 · 다음» 막대(.wz-bar) · 오류 줄은 막대 안.
+#   단추 줄을 내용 끝으로 되돌리거나(긴 화면에서 «다음»을 찾으러 끝까지 내려가야 했다) 스냅 기획의 아래 손잡이 띠를 되살리면 빨강.
+chk 'WZ_BAR' mypage.html 8
+chk 'class="inv-nav wz-bar"' mypage.html 7
+chk 'class="snp-nav wz-bar"' mypage.html 1
+chk 'class="seat-actions wz-bar"' mypage.html 1
+chk 'id="mp_photoDone"' mypage.html 1
+chk 'WZ_BAR_EDGE' mypage.html 1
+chk 'WZ_BAR' .claude/skills/momentedit-design/SKILL.md 1
+nochk 'class="inv-nav">' mypage.html 0
+nochk "_fa.className='wiz-acts wiz-bar'" mypage.html 0
+nochk 'id="trk_err" style=' mypage.html 0
+nochk 'id="seat_err" style=' mypage.html 0
 nochk 'class="snp-steplabel"' mypage.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/snap-plan.mjs >/dev/null 2>&1; _spl=$?
   case "$_spl" in
