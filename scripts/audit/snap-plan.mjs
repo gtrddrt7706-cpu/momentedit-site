@@ -170,16 +170,22 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(!!pd && pd.slice(1, 4).join('.') === pd.slice(4, 7).join('.'), '[SNAP_OPEN_NOW] 시행일 = 공고일(바로 연다)');
 }
 
-// ── ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면의 진사는 «점»만 —
-//   고른 순서 번호(.snp-no) · 동의 체크 알림(경고) 둘. 걸음 · 흐름 칸 · 고른 장면 같은 면 · 테두리는 먹갈색/금빛(마이페이지 선택 칩과 같은 톤)
+// ── ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면의 진사는 «점»만.
+//   ★★같은 날 밤 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 점 다섯: 지금 걸음 동그라미 · 고른 순서 번호 · 흐름의 «촬영» 칸 글자 · «마감» 라벨 · 동의 알림.
+//   고른 장면 테두리는 금빛(마이페이지 선택 톤) · 흐름 칸은 글자만 진사(면은 옅은 기운) — 진사를 넓은 면 · 테두리로 넓히지 않는다.
+//   [SNAP_STEP_DOT] 걸음 동그라미 — 보이는 30px(지금 34px) · 누르는 칸 44px · 고딕 같은 폭 숫자 · 지나온 길은 금빛 선.
 {
   const css = (sel) => ((my.match(new RegExp('\\n' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\{([^}]*)\\}')) || [])[1] || '');
-  const face = ['.snp-step.on', '.snp-fl.on', '.snp-tile.on', '.snp-tile.on .snp-nm'];
-  t(face.every((k) => css(k) && css(k).indexOf('--seal') === -1), '걸음 · 흐름 칸 · 고른 장면에 진사 면/테두리가 없다 — ' + face.filter((k) => !css(k) || css(k).indexOf('--seal') > -1).join(', '));
-  t(/background:var\(--accent\)/.test(css('.snp-step.on')) && /--gold-bg/.test(css('.snp-fl.on')) && /--gold-deep/.test(css('.snp-tile.on')), '지금 걸음 = 버튼 먹갈색 · 고르는 칸/고른 장면 = 금빛(마이페이지 선택 톤)');
-  t(/background:var\(--seal\)/.test(css('.snp-no')), '진사 한 점 = 고른 순서 번호(인장처럼)');
+  t(/background:var\(--seal\)/.test(css('.snp-step.on::before')) && /width:34px/.test(css('.snp-step.on::before')), '진사 점 ① 지금 걸음 동그라미(34px · 진사)');
+  t(/background:var\(--seal\)/.test(css('.snp-no')), '진사 점 ② 고른 순서 번호');
+  t(/color:var\(--seal\)/.test(css('.snp-fl.on')) && !/background:var\(--seal\)/.test(css('.snp-fl.on')), '진사 점 ③ 흐름의 «촬영» 칸 — 글자만 진사(면을 진사로 칠하지 않는다)');
+  t(/color:var\(--seal\)/.test(css('.snp-due-k')), '진사 점 ④ «마감» 라벨');
+  t(!!css('.snp-tile.on') && css('.snp-tile.on').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-tile.on')) && css('.snp-tile.on .snp-nm').indexOf('--seal') === -1, '고른 장면 테두리 · 이름은 금빛/먹빛(진사 테두리로 되돌리지 않는다)');
   const snpSeal = (my.match(/\n\.snp-[^{]*\{[^}]*var\(--seal[^}]*\}/g) || []).map((x) => x.trim().split('{')[0]);
-  t(snpSeal.every((k) => ['.snp-no', '.snp-agree.need', '.snp-agree-need'].indexOf(k) > -1), '스냅 화면 진사 = 번호 · 동의 알림뿐 — 지금 ' + snpSeal.join(', '));
+  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-step.on::before', '.snp-fl.on', '.snp-due-k'];
+  t(snpSeal.every((k) => ok5.indexOf(k) > -1), '스냅 화면 진사 = 정한 점들뿐 — 지금 ' + snpSeal.join(', '));
+  t(/width:30px;height:30px/.test(css('.snp-step::before')) && /width:44px;height:44px/.test(css('.snp-step')) && /font-variant-numeric:lining-nums tabular-nums/.test(css('.snp-step')), '[SNAP_STEP_DOT] 보이는 동그라미 30px · 누르는 칸 44px · 같은 폭 숫자');
+  t(/style="--sp:'\+\(st\/\(SNAP_STEPS\.length-1\)\)\+'"/.test(my) && /width:calc\(\(100% - 44px\) \* var\(--sp,0\)\)/.test(my), '[SNAP_STEP_DOT] 지나온 길 = 금빛 선(지금 걸음 / 4)');
 }
 
 // ── 같은 원천을 읽는다

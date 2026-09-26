@@ -467,7 +467,8 @@ chk 'SNAP_ZONE_NOTE' mypage.html 4
 chk 'SNAP_ZONE_NOTE' admin.html 1
 chk 'SNAP_ZONE_NOTE' brief.html 1
 # ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면 진사 = 고른 순서 번호 · 동의 알림뿐(나머지는 먹갈색/금빛) — snap-plan 이 CSS 를 잰다
-chk 'SNAP_TONE' mypage.html 1
+chk 'SNAP_TONE' mypage.html 3                        # ★같은 날 밤 «진사 포인트 좀 주자 · 칙칙해» — 점 다섯(지금 걸음 · 순서 번호 · 촬영 칸 글자 · 마감 · 동의 알림) · snap-plan 이 CSS 를 잰다
+chk 'SNAP_STEP_DOT' mypage.html 3                    # 걸음 동그라미 — 보이는 30px(지금 34px 진사) · 누르는 칸 44px · 고딕 같은 폭 숫자 · 지나온 길 금빛 선
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
