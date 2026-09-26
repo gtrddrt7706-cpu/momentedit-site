@@ -157,7 +157,7 @@ export function guardScan(file = DEFAULT_TARGET) {
             const b = [];
             if (eng.inSeq('vow') && !S.vowText) b.push('서약문');
             if (eng.inSeq('letter') && !S.letterText) b.push('편지');
-            if (eng.inSeq('welcome') && S.welcome === 'self' && !S.welcomeText) b.push('인사말');
+            if (eng.inSeq('welcome') && S.welcome === 'self' && !S.welcomeText) b.push('첫인사');   // [H1_FIRST_HELLO] 빌더 fillBlanks 와 같은 말
             outp = b.join(',');
           }
           // 같은 코스·프로파일 안에서 그 필드 값이 만든 출력만 모은다(코스 기본분 차이가 섞이지 않게)

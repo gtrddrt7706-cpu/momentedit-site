@@ -11324,6 +11324,59 @@ if command -v node >/dev/null 2>&1; then node scripts/sample-cut.mjs --check 2>/
 chk 'SAMPLE_CUT' scripts/sample-cut.mjs 1
 chk 'sample-cut.mjs' scripts/assemble-narration.mjs 1
 chk "stopMs=(rec&&typeof rec==='object')?(+rec.cut2Ms||0):0" order-preview.html 1   # 빌더는 cut2Ms 가 없으면 소리를 내지 않는다(글 + 진행 막대)
+# ── ★[GHI 2026-09-26 코워크 최종판 5장] ② ③ ④ 다듬기 — 실브라우저 검사(ghi-polish.mjs)가 동작을 재고, 아래 줄은 표식이 살아 있는지 본다 ──
+#   깨 보고 믿음: 맺는 말 접기 · «위하여» 자리 · ④ 그림 채우기를 하나씩 빼면 ghi-polish 가 빨강 10건(390 · 1280)
+if command -v node >/dev/null 2>&1; then _ghi=$(timeout 400 node scripts/audit/ghi-polish.mjs 2>&1); _ghx=$?; echo "$_ghi" | grep -E '^FAIL|GHI' | head -12; if [ "$_ghx" = 1 ]; then echo "REVERT? scripts/audit/ghi-polish.mjs: ② ③ ④ 다듬기 검사 실패"; fail=1; fi; fi
+chk 'GHI' scripts/audit/ghi-polish.mjs 1
+chk 'aria-label="가장 벅찬 순간"' order-preview.html 4   # [G1] ★ 이름 «절정» → «가장 벅찬 순간»(①~④)
+nochk 'aria-label="절정"' order-preview.html
+chk '</span> 표시는 이 예식에서 가장 벅찬 순간이에요.' order-preview.html 1   # [G1] ★ 는 따로 이름을 단 span
+chk 'class="lsg"' order-preview.html 1   # [G2] ② 띠 두 시간 사이 흐름선 64×18
+chk 'ENTRY_OUT_MORE' order-preview.html 1   # [G4] 맺는 말은 «더 고르기» 뒤
+chk 'QUIET_LINES' order-preview.html 1   # [G5] 말 없는 사람 순간 — 옅은 줄
+chk 'TOAST_TALK_GLASS' order-preview.html 1   # [G5] «위하여» 줄은 잔 드는 큐 뒤
+chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)»
+chk "var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};" order-preview.html 1   # 잔 드는 큐 (107 · 40 · 76)
+chk '두 분이 서로 반지를 끼워요 · 말 없이' order-preview.html 1
+chk '하객 박수 · 두 분이 부부가 돼요' order-preview.html 1
+chk '양가 와인을 한 잔에 모아요' order-preview.html 1   # [POUR_BY_PICK 코워크 회신7] 붓기 줄은 고른 판의 말로
+chk '두 분이 고른 와인을 한 잔에 부어요' order-preview.html 1
+chk 'UNDO_CLOSE_ON_TGL' order-preview.html 1   # [코워크 회신7 #868-1] 담기 · 빼기면 되돌리기 알림도 닫힘
+chk 'UNDO_ABOVE_BAR' order-preview.html 3
+chk 'SLIM_OPAQUE' order-preview.html 1
+chk 'TILE_NO_GLOW' order-preview.html 1
+chk 'PICK_INTRO_BACK' order-preview.html 1
+chk 'ENTRY_LAB_QUOTE' order-preview.html 1
+chk 'TILE_FREE_COMMA' assets/ritual-open.js 1
+nochk '고른 순간에만 나서요' order-preview.html 1   # 옛 코스 갈래 한 줄만 남는다(새 코스는 «담은 순간에만»)
+chk '담은 순간에만 나서요' order-preview.html 1
+chk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.' assets/ritual-open.js 1
+chk '두 분이 하객께 목례 · 박수' order-preview.html 1
+chk '<em>→ ③에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번
+chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»
+chk 'G8 2026-09-26' order-preview.html 1   # [G8] 크게 보기 부제 «… · 녹음 전이라 글로 보여 드려요»
+chk '담은 순간을 예식 차례대로 보며 나레이션을 들어 보세요. 줄을 누르면 흐름과 고를 것이 열려요. 준비할 것은 모두 ③ 준비하기에 모여요.' order-preview.html 1   # [G9]
+nochk '고른 순서대로 장면을 보며 나레이션을 들어 보세요' order-preview.html   # [G9] «고른 순서대로»는 «내가 누른 차례»로 읽힌다
+nochk '고른 차례대로 장면과 나레이션을' order-preview.html   # [INTRO_ORDER_WORD] 안내 2 의 ② 줄도 같은 까닭
+chk 'H1_FIRST_HELLO' order-preview.html 1
+chk '<div class="wn">첫인사</div>' order-preview.html 1
+chk 'aria-label="첫인사"' order-preview.html 1
+chk '첫인사(두 분 작성):' order-preview.html 2
+nochk '인사말(두 분 작성)' order-preview.html
+nochk '인사말 예시 보기' order-preview.html   # [H1] 칸 안 예시 단추도 «첫인사 예시 보기»(390 실렌더에서 찾음)
+nochk "welcome:'하객 맞이 인사말'" order-preview.html
+chk "_wo.push('첫인사')" mypage.html 1   # [H1] 마이페이지 식순 요약(새 코스 갈래) · 옛 코스 요약은 그대로
+chk 'H2_SEND_LUMP' order-preview.html 1   # [H2] 식전 영상 한 덩어리 · 축배 음료 줄은 그 뒤
+chk 'H3_CALLER_HELPER' assets/ritual-open.js 1
+chk '가족사진 때 친척분들을 불러 모아 주실 분' assets/ritual-open.js 1
+chk 'I1_HEAD' order-preview.html 1
+chk 'I1_HEAD' mypage.html 1
+nochk "return '고른 순간 '" order-preview.html   # [I1] ④ 머리는 «담은 순간 N · 본식 · 단체 사진»
+chk 'I2_DONE_FLOW' order-preview.html 3
+chk 'data-fg="done"' order-preview.html 2
+chk 'I3_EDIT_WINDOW' order-preview.html 3
+chk "var EDIT_WINDOW='순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.';" order-preview.html 1   # [I3] ④ 머리 아래 · 쉼표에서 갈리게 두 덩어리(_doneEdit)
+chk '_doneEdit()' order-preview.html 2   # 그림 있을 때 · 없을 때
 
 # ═══ [MP_AUDIT_0926] 2026-09-26 사장님 「마이페이지도 고객 입장에서 좀 더 디테일한 개선점」 — 16갈래 점검 101건 → 수정 67 + 사장님 결정 ㉗ · 묶음 A·A2·B1·B2·C·D·E ═══
 # ── 묶음 A
