@@ -1897,6 +1897,25 @@ chk 'MENU_CLOSE_HIT' .claude/skills/momentedit-design/SKILL.md 1   # 교훈 — 
 #   전역 :where(…):focus-visible 테(0,1,0)를 이겨 681~1023px 에서 키보드로 本 MENU 에 와도 테가 없었다(실측 none 0px → 걷은 뒤 solid 2px).
 nochk '^\.nav-toggle:focus {' index.html 0                    # 되살리면 키보드 사용자가 本 MENU 위치를 못 본다
 chk 'NAV_TOGGLE_RING' index.html 1
+# ── [ANCHOR_LAND 2026-09-26 사장님 지시 「직접확인하고」 · 「완료후 직접보면서 점검까지 진행」] ──
+#   메뉴 · 상단 메뉴 · 가격 줄 링크 · 주소 바로가기(카카오 버튼 /#invest)가 목표 섹션을 지나치거나 못 미쳐 섰다.
+#   고치기 전 실측: 1280 FAQ −2136 · RSVP −1624 · 940 FAQ −2146 · 390 /#invest −641(13가지 중 12가지).
+#   원인 PERF_CV_SECTIONS 의 추정 키 — 가는 도중 섹션이 그려지며 목표가 움직였다. 성능 장치는 그대로 두고
+#   meLand 가 목표 앞 섹션을 한 프레임에 하나씩 먼저 그리고(.me-cv-now) 움직이면 다시 겨눈다. 되감김 0 · 목표 70px.
+#   ⓪ 정적(CSS 추정 키 목록 ↔ meLand 목록)은 여기 PR 에서도 돈다. 실측 13가지 · 되감김은 브라우저가 있는 야간·로컬에서.
+if command -v node >/dev/null 2>&1; then node scripts/audit/anchor-land.mjs >/dev/null 2>&1; _al=$?
+  case "$_al" in
+    0) echo 'ok anchor-land: 메뉴 · 상단 메뉴 · 가격 줄 · 주소 바로가기 · 움직임 줄이기 모두 목표 머리에 선다(되감김 0)' ;;
+    1) echo 'FAIL anchor-land: 섹션 링크가 목표에 못 서거나 가는 도중 되감깁니다 — node scripts/audit/anchor-land.mjs'; fail=1 ;;
+    *) echo 'ok anchor-land: ⓪ 정적 통과 · 실측은 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'ANCHOR_LAND' index.html 5                               # 본체 · CSS · 메뉴 항목 · FAQ 펼치기 · 주소 바로가기
+chk 'window.meLand(target)' index.html 1                     # 전체 메뉴 항목 → 겨누기
+chk 'window.meLand(item)' index.html 1                       # 저널 카드 → FAQ 펼쳐 데려오기 → 겨누기
+chk 'me-cv-now { content-visibility: visible !important; }' index.html 1   # 목표 앞 섹션 먼저 그리기 — 빼면 끝에서 되감긴다(실측 최대 2048px)
+chk 'ANCHOR_LAND' scripts/audit/anchor-land.mjs 1
+chk 'ANCHOR_LAND' .claude/skills/momentedit-design/SKILL.md 1
 chk '__meTCSync' index.html 2                                # 잠금 해제 시 캐시 비우고 재계산 · 없으면 닫은 뒤 테마색이 한 번 씹힌다
 chk 'ADV_OPEN_TOP' index.html 1                              # fab 클릭에 open을 그대로 넘기면 MouseEvent가 keepScroll로 들어가 목록 상단이 잘린다
 chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 없다 · 눌림 워시를 지우면 탭 피드백이 사라진다
