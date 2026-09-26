@@ -146,7 +146,7 @@
     /* ★★[EX_BRIEF 2026-09-26 사장님 결정 · 코워크 회신 9/26 3-2] 넷째 «전부» → «간결» · «약속»의 부모님께 인사 → 말 없이.
          «전부»(all)는 거뒀다 — 저장된 초안의 pickFrom:'all' 은 exampleOf 가 null 이라 originOf 가 «직접 고르셨어요.»로 조용히 보인다
          (담은 순간은 그대로). 되살리지 말 것. feel = 카드의 분위기 한 줄(① 개편 [PICK_V2] 이 쓴다). */
-    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객이 박수로 함께해요', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'A', declare: 'clap', tribute: 'none', toast: 'both', wine: 'mix' } },
+    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 단체 사진을 넉넉히', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'A', declare: 'clap', tribute: 'none', toast: 'both', wine: 'mix' } },
     { k: 'promise', nm: '약속', title: '서로에게 쓴 말', feel: '서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'letter', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'none', letter: 'each', toast: 'both', wine: 'mix' } },
     { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long', toast: 'both', wine: 'family' } },
     { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['vow', 'ring', 'declare', 'toast'], set: { entry: 'A', declare: 'solemn', toast: 'both', wine: 'mix' } }
@@ -334,7 +334,9 @@
         if (l < 0) { an2 = 'start'; nx = Math.max(nx - tw / 2, 2); l = nx; r = nx + tw; } if (r > w) { an2 = 'end'; nx = Math.min(nx + tw / 2, w - 2); r = nx; l = nx - tw; }
         for (var row = 0; row < 2; row++) { if (l > last[row] + 8) { o.push('<text x="' + nx.toFixed(1) + '" y="' + (h - B + 26 + row * 14) + '" font-size="11" text-anchor="' + an2 + '" fill="' + (s === p ? '#3A2D22' : '#5A554C') + '"' + (s === p ? ' font-weight="700"' : '') + '>' + fesc(s.n) + '</text>'); last[row] = r; break; } } });
     }
-    if (!mini) { sg.forEach(function (s, i) { o.push('<rect class="flow-hit" data-i="' + i + '" x="' + x(s.st).toFixed(1) + '" y="0" width="' + Math.max(12, x(s.st + s.d) - x(s.st)).toFixed(1) + '" height="' + h + '" fill="transparent" tabindex="0" role="button" aria-label="' + fesc(CARDS[s.k].n + (s === p ? ' · 가장 벅찬 순간' : '')) + '"/>'); }); }
+    /* 누르는 칸 — 순간 가운데에 폭 24 이상(짧은 순간은 12px 까지 좁아진다 · WCAG 2.5.8) · 그림 안으로 붙인다 · 이웃과 겹치면 뒤 칸이 위 */
+    if (!mini) { sg.forEach(function (s, i) { var x0 = x(s.st), x1 = x(s.st + s.d), hw = Math.max(24, x1 - x0), rx = Math.max(0, Math.min(w - hw, (x0 + x1) / 2 - hw / 2));
+      o.push('<rect class="flow-hit" data-i="' + i + '" x="' + rx.toFixed(1) + '" y="0" width="' + hw.toFixed(1) + '" height="' + h + '" fill="transparent" tabindex="0" role="button" aria-label="' + fesc(CARDS[s.k].n + (s === p ? ' · 가장 벅찬 순간' : '')) + '"/>'); }); }
     o.push('</svg>'); return o.join('');
   }
   /* 읽어 주는 한 줄 [D3] — 58~85% 면 «3분의 2쯤에 와서 끝까지 흐름이 이어져요» · 그 밖은 자리 말 없이 · 이에요/예요는 받침으로 */
@@ -367,20 +369,23 @@
   for (var _tk in TILE) if (CARDS[_tk]) CARDS[_tk].tile = TILE[_tk];
   function tileOf(k, S) { if (k === 'candle') { var w = (S && S.candleWho) || DEF.candleWho; if (TILE_CANDLE[w]) return TILE_CANDLE[w]; } return TILE[k] || ''; }
 
-  /* ══ [SAMPLE_LINE 2026-09-26 코워크 회신 6 4장] 대표 한 줄 — 칸 · 미리 보기 창에서 순간마다 고정(판 칩과 상관없이 · 화촉만 서는 분을 따라)
-     짧은 여는 말 여덟은 있는 클립을 통째로 · 긴 다섯은 부모 클립의 앞 두 문장(글은 원천에서 셈 · 손으로 옮겨 적지 않는다).
-     slug: 소리 파일 · from: 글을 가져올 클립 · cut: 앞 몇 문장 · screen: 화면 글(소리는 쉼표 · 화면은 따옴표). ══ */
+  /* ══ [SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 — 칸 · 미리 보기 창에서 순간마다 고정(판 칩과 상관없이 · 화촉만 서는 분을 따라)
+     짧은 여는 말(10초 안)은 클립을 통째로 · 긴 다섯은 **같은 부모 클립**을 처음부터 틀다 둘째 문장 끝에서 멈춘다(새 녹음 0).
+     멈출 자리는 녹음이 들어올 때 assemble 이 무음을 찾아 _recorded.json 에 적는다(cut2 · 자동생성) — 검사에 걸리면 글로.
+     화면 글은 부모 클립 글의 앞 두 문장을 원천에서 센다(손으로 옮겨 적지 않는다).
+     ★회신 6 의 새 녹음 다섯(sample-entry · sample-vow · sample-ring · sample-declare · sample-tribute)은 거뒀다 — 되살리지 말 것.
+     slug: 소리 파일 · cut: 앞 몇 문장(0 이면 통째) · screen: 화면 글(소리는 쉼표 · 화면은 따옴표). ══ */
   var SAMPLE = {
     prevideo: { slug: 'narr-prevideo-in' }, candle: { slug: 'narr-candle-in-', who: 1 },
-    entry: { slug: 'sample-entry', from: 'entry-A', cut: 2 }, welcome: { slug: 'narr-welcome-in' }, bless: { slug: 'narr-bless-open' },
-    vow: { slug: 'sample-vow', from: 'narr-vow-in', cut: 2 }, ring: { slug: 'sample-ring', from: 'narr-ring-in', cut: 2 },
-    declare: { slug: 'sample-declare', from: 'declare-1-solemn', cut: 2 }, tribute: { slug: 'sample-tribute', from: 'tribute-in', cut: 2 },
+    entry: { slug: 'entry-A', cut: 2 }, welcome: { slug: 'narr-welcome-in' }, bless: { slug: 'narr-bless-open' },
+    vow: { slug: 'narr-vow-in', cut: 2 }, ring: { slug: 'narr-ring-in', cut: 2 },
+    declare: { slug: 'declare-1-solemn', cut: 2 }, tribute: { slug: 'tribute-in', cut: 2 },
     free: { slug: 'narr-free-in-video' }, letter: { slug: 'letter-each' },
     toast: { slug: 'toast-both-pour-b', screen: '마지막으로, 다 같이 잔을 들어 주세요. 두 분이 «위하여» 하시면, 다 함께 «위하여» 하고 답해 주세요.' },
     _close: { slug: 'narr-close-bow' }
   };
-  function sampleOf(k, S) { var sm = SAMPLE[k]; if (!sm) return null; var o = { slug: sm.slug, from: sm.from || sm.slug, cut: sm.cut || 0, screen: sm.screen || '' };
-    if (sm.who) { o.slug = o.from = 'narr-candle-in-' + ((S && S.candleWho) || DEF.candleWho); } return o; }
+  function sampleOf(k, S) { var sm = SAMPLE[k]; if (!sm) return null; var o = { slug: sm.slug, cut: sm.cut || 0, screen: sm.screen || '' };
+    if (sm.who) o.slug = 'narr-candle-in-' + ((S && S.candleWho) || DEF.candleWho); return o; }
   function firstSentences(t, n) { var parts = String(t || '').match(/[^.?!]+[.?!]+/g) || [String(t || '')]; return parts.slice(0, n).join(' ').replace(/\s+/g, ' ').trim(); }
   /* 대표 한 줄을 들을 때 엔진을 부를 S — 모든 순간을 담고 판은 표의 판(입장 A · 엄숙 · 서로에게 · 케이크와 축배 · 와인 두 병 · 영상) */
   function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: 'narr', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'mix', freeWhat: 'video', freeLen: '3', candleWho: (S && S.candleWho) || DEF.candleWho }; }
@@ -656,7 +661,8 @@
     if (k === '_close') return ['close'];
     return [k];
   }
-  function videoOf(name) { return VIDEO_READY.indexOf(name) < 0 ? null : { mp4: VIDEO_DIR + name + '.mp4', poster: VIDEO_DIR + name + '.webp' }; }
+  /* [POSTER_SMALL 2026-09-26 코워크 최종판 3-5] small = 칸용 첫 장면(640px · encode-moment.sh 가 함께 굽는다) — 칸은 영상을 돌리지 않는다 */
+  function videoOf(name) { return VIDEO_READY.indexOf(name) < 0 ? null : { mp4: VIDEO_DIR + name + '.mp4', poster: VIDEO_DIR + name + '.webp', small: VIDEO_DIR + name + '-640.webp' }; }
   function firstVideo(k, S) { var ks = videoKeys(k, S); for (var i = 0; i < ks.length; i++) { if (videoOf(ks[i])) return videoOf(ks[i]); } return null; }
   function secTxt(x) { return x < 55 ? ('약 ' + Math.max(10, Math.round(x / 10) * 10) + '초') : ('약 ' + Math.round(x / 60) + '분'); }
   function talkOf(k, S) {
