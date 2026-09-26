@@ -738,7 +738,7 @@ button.snp-tile{cursor:pointer}
 .res-panel-t{display:flex;align-items:center;gap:7px;font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);margin-bottom:11px}
 .res-panel-t .res-n{font-family:var(--serif);font-size:16px;line-height:1;color:var(--gold-deep)}
 /* 추가 보정 수량 입력 — 가운데 정렬 + '컷' 접미 / 우측 '합계 금액' */
-.res-exrow{display:flex;align-items:center;gap:14px;margin:13px 0 4px}
+.res-exrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:13px 0 4px}   /* [EXROW_WRAP 2026-09-26] 320 에서 「합계 40,000원」이 패널 밖으로 21px 넘쳤다(실측 · 종전부터) — 자리가 모자라면 수량 아래로 내린다 */
 .res-qty{position:relative;flex:0 0 108px}
 .res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--border);border-radius:10px;padding:12px 30px 12px 14px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
 .res-qty input:focus{border-color:var(--gold)}
@@ -746,7 +746,7 @@ button.snp-tile{cursor:pointer}
 .res-qty input[type=number]{-moz-appearance:textfield}
 .res-qty-u{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-family:var(--serif-ko);font-size:13px;color:var(--label-soft);pointer-events:none}
 .res-exeq{font-family:var(--serif-ko);font-size:15px;color:var(--sub);white-space:nowrap}
-.res-exeq-k{font-family:var(--serif);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-right:6px}
+.res-exeq-k{font-family:var(--serif-ko);font-size:11px;letter-spacing:.04em;text-transform:none;color:var(--gold-deep);margin-right:6px}   /* [EXEQ_KO_LABEL 2026-09-26] 「합계」는 한글 소라벨 — 영문 눈썹 서식(Cormorant·자간 .14em·대문자)을 걸면 한글이 대체 글꼴로 떨어지고 자간이 0.08em 상한을 넘었다(post-12 실측 1.54px). SV_LABEL_KO 와 같은 처방 */
 .res-exeq b{font-size:17px;font-weight:600;color:var(--accent)}
 .res-panel .cc-btn,.res-panel .cc-btn-ghost{border-radius:9px}   /* 패널 곡률(12)·입력(10)과 결 맞춤 */
 /* 마지막 설문 — 별점 */
@@ -754,6 +754,38 @@ button.snp-tile{cursor:pointer}
 .deliv-body{padding:6px 4px 2px}
 .dl-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--hairline);font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .dl-row:last-child{border-bottom:none}
+/* [DELIV_MINI_11 2026-09-26] 받은 결과물 목록은 카드 밖이라 .consult-card .cc-mini(11px)가 안 걸려, 각주(보관 줄)가 본문 15px 로
+   목록 줄(13px)보다 커졌다 — 위계가 거꾸로였다(post-12 실측). 같은 11px 각주로 맞춘다. */
+.deliv-body .cc-mini{font-size:11px;color:var(--light)}
+/* [VIDEO_PENDING_ROW] 영상이 아직이면 «준비 중»을 링크 버튼과 같은 열(122px · TRK_ACT_ALIGN)에 세운다 */
+.dl-row .trk-st{flex:0 0 auto;min-width:122px;text-align:center}
+/* ★[EXTRA_FOLD 2026-09-26 사장님 결정 ⑪] ③ 추가 보정은 평소 접는다 — 선택 항목(유료)이 보정 중·확인 단계 화면에서 가장 진한 버튼이었다(post-10).
+   접힌 줄에도 「③ 추가 보정·결제」 이름은 남긴다(④ 패널·확인 모달이 «③ 추가 보정»을 가리킨다). 접힘은 .res-panel.done 과 같은 조용한 줄,
+   펼치면 다른 패널과 같은 베이지 면. 포함 컷 초과·신청·견적·결제대기면 접지 않는다(_extraPanelHtml). */
+details.res-fold:not([open]){background:transparent;border-top:1px solid var(--divider,#EDEAE4);border-radius:0;padding:0 2px}
+details.res-fold>summary{list-style:none;cursor:pointer;min-height:44px;margin-bottom:0;position:relative}
+details.res-fold>summary::-webkit-details-marker{display:none}
+details.res-fold[open]>summary{margin-bottom:11px;min-height:0}
+details.res-fold[open]>summary::after{content:'';position:absolute;inset:-10px 0}   /* [FOLD_TAP44 2026-09-26 검토] 펼친 뒤 제목 줄은 25px 라 닫으려고 누르는 자리가 44px 아래였다 — 보이는 자리는 그대로 두고 누르는 자리만 45px(TRK_TAP44 와 같은 방식 · 위 16px 여백·아래 11px 간격 안) */
+.res-fold-s{margin-left:auto;font-size:12px;font-weight:400;color:var(--label-soft);white-space:nowrap}
+.res-fold-s .pt-ar{display:inline-block;font-size:10px;margin-left:4px}
+details.res-fold[open] .res-fold-s .pt-ar{transform:rotate(180deg)}
+details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가 같은 단가를 말한다 — 두 번 말하지 않는다 */
+/* [RETOUCH_DUE_CONTRACT] 기간 칸의 기준점(«예식 후»·«촬영 후») — 작은 윗줄 · 기간(«약 4주»)이 주인공.
+   칸이 좁아진 만큼 설명 칸이 넓어져 «…가장 / 먼저»처럼 한 낱말만 떨어지던 것을 균형 줄바꿈으로 막는다(390 실측). */
+.vg-t .vg-tb{display:block;font-size:11px;font-weight:400;color:var(--label-soft)}
+.vg-row:has(>.vg-t)>.vg-v{text-wrap:balance}
+/* [VG_T_NARROW 2026-09-26] 320 에서 결과물 대기 표의 설명 칸이 63px·4줄로 부서졌다(post-12 실측) — 좁은 폭(≤360)에서만 기간을 설명 아래로 내린다.
+   기간 우측 열(A안 · 2026-07-26 사용자 선택)은 361px 이상에서 그대로다. vg-t 를 가진 줄(대기 표)에만 건다.
+   ★[VG_T_HAS_ALL 2026-09-26 검토] 세 줄 모두 :has 로 건다 — :has 를 모르는 브라우저는 그 규칙을 통째로 버리는데,
+     둘째·셋째 줄을 :has 없이 두면 첫 줄(줄바꿈)만 버려지고 «줄바꿈 없는 줄에 폭 100% 칸»이 살아 표가 카드 밖으로 넘쳤다
+     (흉내 실측 320 → 문서 폭 421px · 설명이 한 낱말씩 세로로). 셋 다 버려지면 361px 이상과 같은 오른쪽 두 줄 칸으로 남는다. */
+@media (max-width:360px){
+  .vg-row:has(>.vg-t){flex-wrap:wrap;row-gap:0}
+  .vg-row:has(>.vg-t)>.vg-t{flex:1 0 100%;text-align:left;padding-left:80px}
+  .vg-row:has(>.vg-t) .vg-tb{display:inline}
+}
+@media (min-width:600px){ .vg-t .vg-tb{display:inline} }   /* 넓은 화면은 설명이 한 줄이라 기간도 한 줄(«예식 후 약 4주») */
 /* [SV_LABEL_KO 2026-09-25] 「마지막 단계」는 한글이다. 종전엔 영문 눈썹 서식(Cormorant 기울임·자간 .22em·대문자)을
    그대로 걸어, Cormorant 에 없는 한글이 기기마다 다른 대체 글꼴로 떨어지고 «가짜 기울임»에 자간까지 벌어져
    「마 지 막  단 계」로 흩어졌다. 한글 소라벨 자리(자간 램프 .04em)로 옮긴다 — 기울임·대문자는 한글에 뜻이 없다. */
@@ -4730,6 +4762,13 @@ var DELIVERY_ETA = { orig:'예식 후 약 2주', retouch:'약 4주', video:'약 
 var DOWNLOAD_KEEP = '6개월';   // 계약서 §12③ 인도 완료 후 6개월 보관. '?'가 있으면 구체 기간은 숨김
 function _eta(s){ return String(s||'').indexOf('?')<0; }                          // 구체 기간(물음표 없음)인지
 function _resCount(s){ return String(s||'').split(/[\s,\n;·]+/).filter(Boolean).length; }   // 선택 토큰(컷) 수
+// [RETOUCH_DUE_CONTRACT · SNAP_ORIG_ETA 2026-09-26] 기간의 기준점 — 시그니처 «예식 후», 웨딩스냅 «촬영 후»(두 계약서 §12①).
+//   DELIVERY_ETA 값 자체는 그대로 둔다(다른 문장이 «약 4주»를 그대로 쓴다). _etaNum 은 값에서 기준점을 떼 기간만 남긴다('예식 후 약 2주' → '약 2주').
+function _etaBase(res){ return ((res&&res.isSnap)?'촬영':'예식')+' 후'; }
+function _etaNum(v){ return String(v||'').replace(/^(예식|촬영)\s*후\s*/,''); }
+// 대기 표 기간 칸 — 기준점을 작은 윗줄(.vg-tb)로 얹는다. 한 줄 «예식 후 약 4주»(79px)로 늘리면 375 에서 설명이 3줄·꼬리로 부서져(실측)
+//   두 줄로 쌓아 칸을 종전(51px)보다 좁게 한다. ≤360 에서는 [VG_T_NARROW] 가 설명 아래 한 줄로 편다.
+function _etaCell(res, v){ return '<span class="vg-tb">'+_etaBase(res)+'</span> '+_etaNum(v); }
 // 결과물 '준비 중' 안내 본문 — 대기 화면 + 구버전 폴백이 함께 사용(기간 '?'면 해당 문구 생략).
 function _resultWaitHtml(res){
   // [DELIV_WAIT_TITLE 2026-07-23] 제목을 단계 인식형으로 — 예식완료/촬영완료(직후)="무사히 끝났어요", 결과물전달 단계(res.delivered)="그날의 기록을 준비하고 있어요"(상단 진행바 '결과물 전달'과 매치 · 2026-07-23 사용자 지적)
@@ -4741,27 +4780,41 @@ function _resultWaitHtml(res){
     +'<div class="dlv-sec"><span class="t">전해드리는 순서</span> <span class="s">· 준비되는 대로 카톡·메일로 알려드려요</span></div>'   // DLV_SEC · RESULT_WAIT_POLISH · 제목+부연을 실제 한 줄로(2026-07-26 사용자 지시 · 두 줄 스택 복원 금지) · 부연 축약 '카톡·메일로'(2026-07-25 사용자 지시 2안 · 짧게)
     // RESULT_WAIT_POLISH · A안(2026-07-26 사용자 선택): 문장형 '전해드려요' 반복 대신 짧은 설명 + 기간 우측 정렬 열(vg-t).
     //   기간 미확정('?')이면 기간 열을 숨기고 문장형으로 폴백 — 근거 없는 수치 약속 금지 규칙 유지.
-    +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 가장 먼저'+(_eta(DELIVERY_ETA.orig)?'</span><span class="vg-t">'+DELIVERY_ETA.orig+'</span>':' 보내드려요.</span>')+'</div>'
-    +'<div class="vg-row"><span class="vg-k">보정본</span><span class="vg-v">마음에 드는 컷을 고르시면 한 장씩 곱게'+(_eta(DELIVERY_ETA.retouch)?'</span><span class="vg-t">'+DELIVERY_ETA.retouch+' 뒤</span>':' 손봐 드려요.</span>')+'</div>'
-    +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">예식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 엮어'+(_eta(DELIVERY_ETA.video)?'</span><span class="vg-t">'+DELIVERY_ETA.video+' 뒤</span>':' 드려요.</span>')+'</div>')
+    // ★[RETOUCH_DUE_CONTRACT 2026-09-26 사장님 결정 ①] 기간 칸은 줄마다 기준점을 적는다(«예식 후 · 약 4주»). 종전 «약 4주 뒤»는
+    //   바로 앞 «고르시면 … 곱게»에 붙어 «고른 뒤 4주»로 읽혔다 — 계약서 §12①은 «예식 후 4주 이내»다(post-1).
+    //   기준점은 작은 윗줄(_etaCell)이라 칸은 종전(51px)보다 좁다 — 320 이 무너지지 않게(결정 ①의 조건). ≤360 은 [VG_T_NARROW] 가 기간을 설명 아래로 내린다.
+    // ★[SNAP_ORIG_ETA 2026-09-26] 웨딩스냅은 «촬영만» 상품이다 — 기준은 촬영일(스냅 계약서 §12① «촬영 후 2주 · 4주»).
+    //   종전엔 스냅 대기 표도 «예식 후 약 2주»였다([SNAP_WORD] 감사가 이 표를 한 번도 그리지 않아 샜다 · post-7 · snap-7).
+    +'<div class="vg-row"><span class="vg-k">원본 사진</span><span class="vg-v">고른 컷 없이 전체 원본을 가장 먼저'+(_eta(DELIVERY_ETA.orig)?'</span><span class="vg-t">'+_etaCell(res,DELIVERY_ETA.orig)+'</span>':' 보내드려요.</span>')+'</div>'
+    +'<div class="vg-row"><span class="vg-k">보정본</span><span class="vg-v">마음에 드는 컷을 고르시면 한 장씩 곱게'+(_eta(DELIVERY_ETA.retouch)?'</span><span class="vg-t">'+_etaCell(res,DELIVERY_ETA.retouch)+'</span>':' 손봐 드려요.</span>')+'</div>'
+    +(res.isSnap?'':'<div class="vg-row"><span class="vg-k">예식 영상</span><span class="vg-v">예식의 흐름과 순간을 정성껏 엮어'+(_eta(DELIVERY_ETA.video)?'</span><span class="vg-t">'+_etaCell(res,DELIVERY_ETA.video)+'</span>':' 드려요.</span>')+'</div>')
     +'</div>'
     +'<div class="cc-note" style="text-align:center"><span class="cc-mini">기간은 작업 상황에 따라 조금 달라질 수 있어요.</span></div>';   // RESULT_WAIT_POLISH · 각주 가운데 정렬(cc-note는 공용 클래스라 이 카드만 인라인 적용 · 2026-07-25 사용자 지시 3안으로 가운데 복귀)
 }
 // 설문 문항(상품별 객관식) — 키는 GAS 집계와 1:1. pillar=브랜드 약속 3축.
+// ★[SV_REQ_FIRST 2026-09-26 사장님 결정 ⑫] 필수 두 문항(전체 만족 · 추천 · req:1)을 두 배열 모두 맨 앞에 둔다.
+//   NOW 가 «필수는 두 개뿐»이라 하는데 그 둘이 12문항 중 10·11번째였다(320 에서 첫 문항부터 3.7화면 · post-9 · x-7).
+//   키(k)는 그대로라 GAS 집계(80_production.gs 필수 검사)·관리자 SV_SNAP 과 무관하다. 순서를 되돌리지 말 것.
+//   배열 순서만 믿지 않고 _svReqFirst 가 필수(req)를 늘 앞으로 모은다 — 나중에 문항을 더해도 필수가 뒤로 밀리지 않는다.
+// [SNAP_Q_JOIN 2026-09-26] 스냅 «촬영 몰입·디렉션(60~90분)은요?»는 320 에서 「은요?」만 줄을 열었다(snap-12) —
+//   괄호 뒤를 U+2060(낱말 잇개)으로 붙인다(KO_WRAP_TAIL 선례). escapeHtml 을 거치므로 &#8288; 가 아니라 문자(\u2060)로 둔다.
+function _svReqFirst(a){ return a.filter(function(x){ return x.req; }).concat(a.filter(function(x){ return !x.req; })); }
 function _surveySchema(isSnap){
-  if(isSnap) return [
+  if(isSnap) return _svReqFirst([
+    {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
+    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은 어떠셨어요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
-    {k:'shoot',q:'촬영 몰입·디렉션(60~90분)은요?',o:[['great','편안하게 몰입했어요'],['ok','무난했어요'],['poor','아쉬웠어요']]},
+    {k:'shoot',q:'촬영 몰입·디렉션(60~90분)\u2060은요?',o:[['great','편안하게 몰입했어요'],['ok','무난했어요'],['poor','아쉬웠어요']]},
     {k:'result',q:'결과물(셀렉트 컷)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
     {k:'styling',q:'스타일링(드레스)은요?',o:[['great','만족'],['ok','보통'],['poor','아쉬웠어요']]},
     {k:'transparency',q:'추가 비용 안내는 투명했나요?',o:[['kept','투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
     {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','기타']]},
     {k:'reason',q:'결정에 가장 큰 이유는 무엇이었나요?',o:[['mood','감성·분위기'],['allinone','올인원의 편안함'],['price','가격·투명성'],['review','후기·평판'],['etc','기타']]},
+    {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
+  ]);
+  return _svReqFirst([
     {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
     {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]},
-    {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
-  ];
-  return [
     {k:'pace',q:'140분의 호흡은 어떠셨어요?',pillar:1,o:[['good','딱 좋았어요 · 매 순간 또렷'],['short','조금 짧게 느껴졌어요'],['long','조금 벅찼어요']]},
     {k:'transparency',q:'‘숨은 비용 없는 올인원’은 지켜졌나요?',pillar:1,o:[['kept','약속대로 투명했어요'],['mostly','대체로 그랬어요'],['unexpected','예상 밖 비용이 있었어요']]},
     {k:'family',q:'부모님·가족은 편안하고 좋아하셨나요?',pillar:1,o:[['great','아주 만족하셨어요'],['ok','무난했어요'],['poor','아쉬워하셨어요']]},
@@ -4771,16 +4824,15 @@ function _surveySchema(isSnap){
     {k:'dining',q:'애프터 웨딩(식사·카페 안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
     {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','기타']]},
     {k:'reason',q:'결정에 가장 큰 이유는 무엇이었나요?',o:[['mood','감성·분위기'],['allinone','올인원의 편안함'],['price','가격·투명성'],['review','후기·평판'],['etc','기타']]},
-    {k:'overall',q:'전체적으로 만족하셨나요?',req:1,o:[['very','매우 만족'],['satisfied','만족'],['neutral','보통'],['low','아쉬움']]},
-    {k:'recommend',q:'지인에게 추천하고 싶으세요?',req:1,o:[['definitely','꼭 추천하고 싶어요'],['maybe','추천할 만해요'],['unsure','잘 모르겠어요']]},
     {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
-  ];
+  ]);
 }
 // ③ 추가 보정 패널 HTML(완료면 ''). 진행 중·전달 후 양쪽에서 재사용.
 function _extraPanelHtml(res){
   var ex=res.extra||{}, inc=res.포함컷||10, unit=res.추가단가||20000;
   if(ex.status==='완료') return '';
-  var h='<div class="res-panel"><div class="res-panel-t"><span class="res-n">③</span> 추가 보정·결제</div>';
+  var _exT='<span class="res-n">③</span> 추가 보정·결제';   // [EXTRA_FOLD] 펼친 패널·접힌 줄이 같은 이름
+  var h='<div class="res-panel"><div class="res-panel-t">'+_exT+'</div>';
   if(ex.status==='결제대기'){
     h+='<div class="cc-sub" style="text-align:left">추가 보정 '+(ex.수량||0)+'컷 · <b>'+fmtWon(ex.금액||0)+'</b>'+(ex.payerName?(' · 입금자 '+escapeHtml(ex.payerName)):'')+'</div><div class="cc-note">입금 확인 중이에요. 확인되면 보정에 들어가요.</div>';
   } else if(ex.status==='신청'||ex.status==='견적'){
@@ -4791,10 +4843,17 @@ function _extraPanelHtml(res){
       + '<button type="button" class="cc-btn" id="mp_exSignal">입금했어요</button>';
   } else {
     var over=(res.선택수>inc)?(res.선택수-inc):0;
-    h+='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
+    var body='<div class="cc-note" style="margin-top:0">포함 보정 <b>'+inc+'컷</b> 외에 더 받고 싶은 컷이 있으면 추가하실 수 있어요. <b>컷당 '+fmtWon(unit)+'</b></div>'
       +(over>0?'<div class="cc-mini" style="color:var(--gold-deep);margin:0 0 6px">고르신 '+res.선택수+'컷이 포함 '+inc+'컷보다 <b>'+over+'컷</b> 많아, 추가 '+over+'컷을 기본으로 넣어뒀어요. 바꾸셔도 돼요.</div>':'')
       +'<div class="res-exrow"><div class="res-qty"><input id="mp_exQty" type="number" min="1" inputmode="numeric" placeholder="0" value="'+(over||'')+'"><span class="res-qty-u">컷</span></div><span class="res-exeq"><span class="res-exeq-k">합계</span><b id="mp_exAmt">'+fmtWon(over*unit)+'</b></span></div>'
       +'<button type="button" class="cc-btn" id="mp_exReq">추가 보정 신청</button>';
+    /* ★[EXTRA_FOLD 2026-09-26 사장님 결정 ⑪] 포함 컷 안에서 고르셨으면(초과 0) 평소엔 접어 둔다 — 할 일이 없는 보정 중·확인 단계에서
+       「0 컷 · 합계 0원」과 진한 [추가 보정 신청]이 화면에서 가장 강했다(post-10 · MPD_B5 톤다운과 같은 취지).
+       접힌 줄에 「③ 추가 보정·결제」 이름을 남긴다 — ④ 패널과 확인 모달이 «③ 추가 보정»을 가리킨다.
+       신청·견적·결제대기는 위 갈래에서, 초과 선택은 여기서 지금처럼 펼친 채 그린다. 여닫기는 details 가 맡는다(스크립트·바인딩 없음 ·
+       안의 수량·신청 버튼은 접혀 있어도 DOM 에 있어 _bindExtra 가 그대로 배선한다). */
+    if(!(over>0)) return '<details class="res-panel res-fold" id="mp_exFold"><summary class="res-panel-t">'+_exT+'<span class="res-fold-s"><span class="res-fold-p">컷당 '+fmtWon(unit)+'</span><span class="pt-ar" aria-hidden="true">▾</span></span></summary>'+body+'</details>';
+    h+=body;
   }
   return h+'</div>';
 }
@@ -4885,6 +4944,12 @@ function _bindSurvey(res, nm, code){
         _openNote(k, k==='source' ? '어떤 경로로 알게 되셨는지 적어 주세요' : (k==='reason' ? '결정하신 이유를 적어 주세요' : ''));
       });
     });
+    /* [GAP_NOTE_OPEN 2026-09-26] 「저희가 놓친 부분」에서 「있었어요 · 알려드릴게요」를 고르면 그 문항의 칸을 연다 —
+       «알려드릴게요»를 누른 분은 적을 곳이 열리기를 기대하는데 아무 일도 없었다(post-8 실측 · 열린 칸 0).
+       「+ 기타 의견 적기」 문구·유입/결정 문항의 링크는 그대로다(SV_NOTE_UI 사장님 지시 구조). */
+    Array.prototype.forEach.call(panel.querySelectorAll('.srv-opts[data-key="gap"] button[data-v="some"]'),function(bt){
+      bt.addEventListener('click',function(){ _openNote('gap','어떤 부분이었는지 편하게 적어 주세요'); });
+    });
   }
   var ss=$('mp_svSubmit'); if(ss) ss.addEventListener('click',function(){ doSubmitSurvey(res); });
 }
@@ -4922,18 +4987,31 @@ function renderResult(res, nm, code){
       ? ('<div class="cc-note" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin:2px 0 10px;color:var(--accent);text-align:left">'
         +(_expDN>=0?('다운로드 기한 <b style="color:var(--seal)">D-'+_expDN+'</b> · 지금 기기에 저장해 주세요.'):'다운로드 보관 기간이 지났어요. 파일이 필요하시면 카카오톡으로 디렉터에게 알려 주세요.')+'</div>')
       : '';
-    var clp=true; try{ clp=(localStorage.getItem('me_deliv_'+(code||'x'))!=='o'); }catch(e){}   // 후기 단계 = 결과물 접어두고 설문에 집중(연 적 있으면 기억)
+    /* ★[DELIV_FIRST_OPEN 2026-09-26 사장님 결정 ⑫] 받은 결과물은 처음엔 펼쳐 둔다 — «결과물이 준비됐다»는 알림을 받고 들어온 분이
+       처음 보는 것이 설문이고 받으려던 파일은 접힌 한 줄 안이었다(post-9). 접은 적이 있으면('c') 그대로 기억한다.
+       종전: 기록이 없으면 접힘(«후기 단계 = 결과물 접어두고 설문에 집중»). 되돌리지 말 것. */
+    var clp=false; try{ clp=(localStorage.getItem('me_deliv_'+(code||'x'))==='c'); }catch(e){}
     var dl='';
-    if(res.원본) dl+='<div class="dl-row"><span>① 원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
-    if(hasReto) dl+='<div class="dl-row"><span>④ 보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
-    if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>⑤ 예식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
+    /* [DELIV_LIST_PLAIN 2026-09-26] 받은 목록에는 과정 번호(①④⑤)를 달지 않는다 — «②③은 어디 갔지?»로 읽혔다(post-6). */
+    if(res.원본) dl+='<div class="dl-row"><span>원본 사진</span>'+link(res.원본,'원본 보기')+'</div>';
+    if(hasReto) dl+='<div class="dl-row"><span>보정본'+(res.선택수?(' · '+res.선택수+'컷'):'')+'</span>'+link(res.보정본,'보정본 받기')+'</div>';
+    if(!res.isSnap && res.영상) dl+='<div class="dl-row"><span>예식 영상</span>'+link(res.영상,'영상 보기')+'</div>';
+    /* [VIDEO_PENDING_ROW 2026-09-26] 전달 처리는 원본 링크만 있으면 되어(admin.gs adminMarkDelivered) 영상 없이 전달완료가 될 수 있다.
+       그때 영상 줄을 말없이 지우면 «빠진 건지 원래 없는 건지» 알 수 없다(post-6) — 시그니처는 계약 §12①에 영상이 들어 있다.
+       «준비 중»만 쓰고 주수는 쓰지 않는다(6주가 지나도 그대로 떠 지난 기한을 약속하게 된다). 영상 도착 알림은 따로 없어서 «알려드릴게요»라 하지 않는다. */
+    var _vidWait=!!dl && !res.isSnap && !res.영상;
+    if(_vidWait) dl+='<div class="dl-row"><span>예식 영상</span><span class="trk-st">준비 중</span></div>';
     if(!dl) dl='<div class="cc-mini" style="color:var(--label-soft)">파일 링크는 정리되는 대로 여기 표시되고, 카톡·메일로도 보내드려요.</div>';
+    if(_vidWait) dl+='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">예식 영상은 준비되는 대로 이 목록에 올려드릴게요.</div>';
     // [KEEP_UNTIL_DATE 2026-07-25] 보관 만료일을 날짜로 명시 — 전달일+6개월(서버 sendArchiveExpiryNotices와 동일 계산·같은 롤오버) · 전달일 없거나 '?'면 종전 기간 문구 폴백(회의 E-2)
-    var _keepLine='';
-    try{ if(_dm){ var _ku=new Date(+_dm[1],+_dm[2]-1+6,+_dm[3]);
-      var _kuY=_ku.getFullYear()+'-'+('0'+(_ku.getMonth()+1)).slice(-2)+'-'+('0'+_ku.getDate()).slice(-2);
-      _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)"><b>'+_kuY+'</b>까지 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>'; } }catch(e){}
-    if(!_keepLine && _eta(DOWNLOAD_KEEP)) _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
+    /* ★[KEEP_NEAR_END 2026-09-26] 만료 30일 안(위 배너가 «지금 기기에 저장해 주세요»라 하는 때)에는 «천천히 받으셔도 괜찮아요»를 빼고,
+       보관 기간이 지났으면 보관 줄을 아예 그리지 않는다 — 한 화면에서 «지금 저장»과 «천천히»가 함께 나왔다(post-2 · 계약 §12③ 6개월).
+       [KEEP_DATE_DOT] 날짜는 머리 날짜 줄과 같은 YYYY.MM.DD(종전 ISO 2027-03-23 · post-12). */
+    var _keepLine='', _nearEnd=(_expDN!=null && _expDN<=30), _calm=_nearEnd?'':' 천천히 받으셔도 괜찮아요.';
+    try{ if(_dm && !(_expDN!=null && _expDN<0)){ var _ku=new Date(+_dm[1],+_dm[2]-1+6,+_dm[3]);
+      var _kuY=_ku.getFullYear()+'.'+('0'+(_ku.getMonth()+1)).slice(-2)+'.'+('0'+_ku.getDate()).slice(-2);
+      _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)"><b>'+_kuY+'</b>까지 보관해요(만료 7일 전 안내).'+_calm+'</div>'; } }catch(e){}
+    if(!_keepLine && _expDN==null && _eta(DOWNLOAD_KEEP)) _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
     dl+=_keepLine;
     if(_expBanner) clp=false;   // MPD3_G5 만료 임박이면 받은 결과물 접힘 자동 펼침
     var hd=_expBanner+'<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
@@ -4951,12 +5029,18 @@ function renderResult(res, nm, code){
   // 스텝 개요 ①~⑤ (진행 중)
   // [PICK_TRUTH] ②행 — 선택 기록이 있을 때만 ✓. 기록 없이 상태만 앞서 있으면 사실대로 '디렉터가 진행'(회색 중립).
   var r2 = hasPick ? chipOk(Number(res.선택수)>0?(res.선택수+'컷 선택'):'선택 완료')
-    : (picked ? chip('디렉터가 진행') : (st==='원본전달'? chipGo('고르기 ↓') : chip('곧 열려요')));
+    : (picked ? chip('디렉터가 진행') : (st==='원본전달'? '<button type="button" class="cc-btn-ghost trk-act" id="mp_pickGo" aria-controls="mp_pickPanel">고르기</button>' : chip('곧 열려요')));   // [PICK_GO_BTN 2026-09-26] 금색 «고르기 ↓»는 누를 수 있어 보이는데 동작 없는 span 이었다(post-11) — ② 패널로 데려가는 진짜 버튼(행 레일 규격)
   var r3 = (ex.status==='완료') ? chipOk('결제 완료') : ((ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') ? chipGo('진행 중') : (picked?chip('추가 가능'):chip('곧 열려요')));   // MPD_B5 선택 항목 화살표 톤다운 — 필수 to-do 오독 방지(§6-7-②)
   var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중') : chip('곧 열려요'));
   // MPD_B12 가장 긴 침묵(컷 선택→보정본)에 예상표 유지 — 선택완료·보정중 구간 상단에 소요·알림 예고 1줄(DELIVERY_ETA.retouch 재사용 · '?'면 숨김)
-  var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini" style="margin:0 0 8px;color:var(--label-soft)">보정은 보통 '+DELIVERY_ETA.retouch+' 걸려요 · 완성되면 카톡·메일로 알려드려요.</div>' : '';
-  h+='<div class="cc-title" style="text-align:left">결과물</div>'+_rEtaLine+'<div class="trk-list">'
+  // ★[RETOUCH_DUE_CONTRACT 2026-09-26 사장님 결정 ①] «보정은 보통 약 4주 걸려요»는 «고른 뒤 4주»로 읽혔다 — 계약서 §12①은 «예식 후 4주 이내»
+  //   (스냅은 «촬영 후 4주 이내»), §12②는 갑 귀책(고르기 늦어짐) 지연을 뺀다. 그래서 기한과 «고르시는 게 늦어지면 그만큼 늦어져요»를 함께 적는다(post-1).
+  //   «약»을 떼는 까닭: 계약이 «이내»라 «약 4주 안에»는 말이 안 된다. 기간 값은 DELIVERY_ETA 하나에서 온다('?'면 줄을 숨기는 규칙 그대로).
+  //   제목이 가운데로 섰으니([RESULT_TITLE_CENTER]) 이 줄도 제목 밑 부제처럼 가운데(스냅 기획 카드와 같은 짜임).
+  //   «완성되면 카톡·메일로 알려드려요»는 뺐다 — 세 절이면 320·390 에서 세 줄로 부서진다. 알림 예고는 대기 표 머리(DLV_SEC)와 NOW 가 한다.
+  //   두 절은 «·»로 잇지 않고 문장으로 나눠 줄을 바꾼다 — 잇자 320·390 에서 «·»가 둘째 줄 머리에 걸렸다(실측 · CHECKS_NO_DANGLE 과 같은 결함).
+  var _rEtaLine=((st==='선택완료'||st==='보정중') && _eta(DELIVERY_ETA.retouch)) ? '<div class="cc-mini" style="margin:2px 0 10px;color:var(--label-soft);text-align:center;text-wrap:balance">보정본은 '+_etaBase(res)+' '+_etaNum(DELIVERY_ETA.retouch).replace(/^약\s*/,'')+' 안에 전해드려요.<br>고르시는 게 늦어지면 그만큼 늦어져요.</div>' : '';
+  h+='<div class="cc-title" style="text-align:center">결과물</div>'+_rEtaLine+'<div class="trk-list">'   // [RESULT_TITLE_CENTER 2026-09-26] 가운데 눈썹 DELIVERY 아래 제목만 왼쪽이었다(x-12) — 대기 제목·다른 카드처럼 가운데 · 행은 왼쪽 그대로
     + row('①','원본 사진', res.원본?link(res.원본,'원본 보기'):chip('준비 중'))
     + row('②','보정할 사진 고르기', r2)
     + row('③','추가 보정·결제', r3)
@@ -4969,7 +5053,7 @@ function renderResult(res, nm, code){
   }
   // ② 선택 패널 — '지금 할 수 있을 때'만(원본전달·선택완료). 잠금/완료는 위 개요 ✓로 충분 → 같은 제목 반복 제거.
   if(!locked && (st==='원본전달'||st==='선택완료')){
-    h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">②</span> 보정 사진 고르기</div>'
+    h+='<div class="res-panel" id="mp_pickPanel"><div class="res-panel-t"><span class="res-n">②</span> 보정 사진 고르기</div>'   // [PICK_GO_BTN] 도착점 — 갤러리·번호 입력 두 모드 모두 이 패널은 보인다
       +'<div id="mp_galWrap" style="display:none"></div>'   // MPD3_GALF 썸네일 갤러리 슬롯 — 로드 성공 시에만 표시(실패·구 GAS=아래 번호 입력 그대로)
       +'<div id="mp_pickManual">'
       +'<div class="cc-note" style="margin-top:0">원본을 보고, 마음에 드는 컷의 <b>파일명이나 번호</b>를 적어 주세요. 포함 보정은 <b>'+inc+'컷</b>이에요.<br>예: <span style="color:var(--gold-deep)">012, 045, 088</span> · 드라이브 사진 이름을 그대로 적으시면 돼요.</div>'
@@ -4990,7 +5074,11 @@ function renderResult(res, nm, code){
     var _rvp=res.revision||null;
     h+='<div class="res-panel"><div class="res-panel-t"><span class="res-n">④</span> 보정본 확인</div>';
     if(_rvp&&_rvp.pending){
-      h+='<div class="cc-note" style="margin-top:0">수정 요청이 디렉터에게 전해졌어요'+(_rvp.at?(' · '+escapeHtml(String(_rvp.at).slice(0,16))):'')+'.<br>반영해 보정본 링크로 다시 안내드릴게요.</div>'
+      /* [REV_AT_KO 2026-09-26] 접수 시각을 문장 안에 «9월 25일 오전 10:12에»로 — 종전 «전해졌어요 · 2026-09-25 10:12.»는 390 에서
+         날짜와 시각이 두 줄로 갈리고 마침표가 시각 뒤에 붙었다(post-3). 12시간제는 사장님 결정 ②(«오후 1:30»)와 같은 표기. 못 읽으면 시각 없이. */
+      var _rvAt=''; try{ var _rm=String(_rvp.at||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/);
+        if(_rm){ var _rh=+_rm[4]; _rvAt=(+_rm[2])+'월 '+(+_rm[3])+'일 '+(_rh<12?'오전 ':'오후 ')+((_rh%12)||12)+':'+_rm[5]; } }catch(e){}
+      h+='<div class="cc-note" style="margin-top:0">수정 요청이 '+(_rvAt?('<span style="white-space:nowrap">'+_rvAt+'</span>에 '):'')+'디렉터에게 전해졌어요.<br>반영해 보정본 링크로 다시 안내드릴게요.</div>'
         +'<a class="cc-btn-ghost res-relink" style="margin:2px 0 2px" href="'+escapeHtml(safeUrl(res.보정본))+'" target="_blank" rel="noopener">보정본 다시 보기</a>';
     } else {
       h+='<div class="cc-note" style="margin-top:0">보정본을 받아보셨나요? 마음에 드시면 아래 <b>확인</b>을 눌러 마무리해요. 받으신 컷을 다듬고 싶으시면 <b>수정 요청하기</b>로 알려 주세요(무료 1회). 새 컷 추가는 <b>③ 추가 보정</b>(컷당 20,000원)이에요.</div>'
@@ -5015,6 +5103,7 @@ function renderResult(res, nm, code){
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
   var sb=$('mp_pickSubmit'); if(sb) sb.addEventListener('click', doSubmitSelection);
+  var pg=$('mp_pickGo'); if(pg) pg.addEventListener('click',function(){ var pp=$('mp_pickPanel'); if(pp){ try{ pp.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ try{ window.scrollTo(0, pp.offsetTop-80); }catch(e2){} } } });   // [PICK_GO_BTN]
   if(res.갤러리 && !locked && (st==='원본전달'||st==='선택완료')) _galInit(res);   // MPD3_GALF B안 썸네일 갤러리(성공 시 번호 입력 대체)
   var cr=$('mp_confirmReto'); if(cr) cr.addEventListener('click', doConfirmRetouch);
   _bindRevision();   // [REVISION_LOOP] 수정 요청 폼(칩·사유·제출) 배선 — 폼이 없으면 조용히 통과
@@ -5097,9 +5186,12 @@ function _galRender(){
 function _galCount(){
   var g=_GAL, el=$('mp_galCount'); if(!g||!el) return;
   var n=g.order.length;
-  el.innerHTML='<b>'+n+'장</b> 선택됨'
-    +(n>g.inc?(' · 포함 '+g.inc+'컷 초과 <span style="color:var(--gold-deep)">초과분은 추가 보정(컷당 '+(g.unit?fmtWon(g.unit):'별도 안내')+')으로 진행돼요</span>'):(' · 포함 보정 '+g.inc+'컷'))
-    +(n>400?' · <span style="color:var(--seal)">한 번에 400컷까지 제출할 수 있어요</span>':'');
+  /* [GAL_COUNT_CUT 2026-09-26] «12장 선택됨 · 포함 10컷 초과 초과분은 …»은 «초과»가 겹치고 장/컷이 섞이며 몇 컷을 넘겼는지가 없었다(post-11).
+     고르는 단위는 컷이다(「더 보기 · 60/137장」은 사진 장수라 그대로). «진행돼요»라 하지 않는다 — 초과분은 ③에서 신청해야 보정한다(사장님 결정 ⑩). */
+  //   초과 안내는 제 줄로 내린다 — 한 줄에 이으면 390 에서 «(컷당 / 20,000원)»이 갈렸다(실측). 단가 괄호는 끊지 않는다.
+  el.innerHTML='<b>'+n+'컷</b> 선택 · 포함 '+g.inc+'컷'
+    +(n>g.inc?('<span style="display:block;color:var(--gold-deep)">초과 '+(n-g.inc)+'컷은 ③ 추가 보정<span style="white-space:nowrap">(컷당 '+(g.unit?fmtWon(g.unit):'별도 안내')+')이에요</span></span>'):'')
+    +(n>400?'<span style="display:block;color:var(--seal)">한 번에 400컷까지 제출할 수 있어요</span>':'');
 }
 function _galSubmit(){
   var g=_GAL; if(!g) return;
@@ -5224,7 +5316,7 @@ function renderResultLegacy(res, box){
                 : '<span class="trk-st">준비 중</span>');
       return '<div class="trk"><span class="trk-nm">'+n+' '+escapeHtml(label)+'</span>'+right+'</div>';   // TRK_ACT_RAIL — 구 결과물 뷰도 같은 레일. safeUrl 유지(SAFE_URL 가드)
     }
-    h+='<div class="cc-title" style="text-align:left">결과물</div><div class="trk-list">'
+    h+='<div class="cc-title" style="text-align:center">결과물</div><div class="trk-list">'   // [RESULT_TITLE_CENTER] 구 결과물 뷰도 같은 모양
       +step('①','원본 사진',res.원본,'원본 보기',false)
       +step('②','보정할 사진 고르기','','',true)
       +step('③','추가 보정·결제','','',true)
