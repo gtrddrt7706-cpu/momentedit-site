@@ -15,7 +15,7 @@ if (a < 0) { console.log('━━ prep-order — _prepRows 배열을 못 찾았�
 const b = my.indexOf('\n  ];', a);
 const blk = my.slice(a, b);
 const want = [["row('청첩장'", '청첩장'], ["row('좌석 · 음료'", '좌석 · 음료'], ["row('애프터 웨딩'", '애프터 웨딩'], ["row('식순'", '식순'],
-  ['_ritPrepFold(', '식순 준비 목록(식순에 딸림)'], ['_bouquetFold(', '부케(식순에 딸림)'], ["'단체 사진'", '단체 사진']];
+  ['_ritPrepFold(', '식순 준비 목록(식순에 딸림)'], ['_bouquetFold(', '부케(식순에 딸림)'], ["row('가족 · 친구 스냅'", '가족 · 친구 스냅']];
 const pos = want.map(([k, n]) => [blk.indexOf(k), n]);
 const bad = [];
 pos.forEach(([p, n]) => { if (p < 0) bad.push(`«${n}» 행을 배열에서 못 찾았다`); });
@@ -24,10 +24,13 @@ for (let i = 1; i < pos.length; i++) if (pos[i][0] >= 0 && pos[i - 1][0] >= 0 &&
 const ca = my.indexOf('function prodConfirmHtml('), cb = ca < 0 ? -1 : my.indexOf('\nfunction ', ca + 10);
 if (ca < 0 || cb < 0) { console.log('━━ prep-order — prodConfirmHtml 을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
 const cblk = my.slice(ca, cb);
-const cwant = [["L+=line('청첩장'", '확인서 청첩장'], ["L+=line('좌석 · 음료'", '확인서 좌석 · 음료'], ["L+=line('좌석 배치'", '확인서 좌석 배치'], ["L+=line('애프터 웨딩'", '확인서 애프터 웨딩'], ["L+=line('식순'", '확인서 식순'], ["L+=line('단체 사진'", '확인서 단체 사진']];
+const cwant = [["L+=line('청첩장'", '확인서 청첩장'], ["L+=line('좌석 · 음료'", '확인서 좌석 · 음료'], ["L+=line('좌석 배치'", '확인서 좌석 배치'], ["L+=line('애프터 웨딩'", '확인서 애프터 웨딩'], ["L+=line('식순'", '확인서 식순'], ["L+=line('가족 · 친구 스냅'", '확인서 가족 · 친구 스냅']];
 const cpos = cwant.map(([k, n]) => [cblk.indexOf(k), n, cblk.split(k).length - 1]);
 cpos.forEach(([p, n, c]) => { if (p < 0) bad.push(`«${n}» 줄을 못 찾았다`); else if (c !== 1) bad.push(`«${n}» 줄이 ${c}번 붙는다(한 번이어야 한다)`); });
 for (let i = 1; i < cpos.length; i++) if (cpos[i][0] >= 0 && cpos[i - 1][0] >= 0 && cpos[i][0] < cpos[i - 1][0]) bad.push(`«${cpos[i][1]}» 가 «${cpos[i - 1][1]}» 보다 앞에 붙는다`);
+// [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 옛 이름이 목록 줄·확인서 줄로 돌아오면 빨강
+if (blk.indexOf("row('단체 사진'") > -1) bad.push('예식 준비 목록에 옛 이름 «단체 사진»이 돌아왔다 — «가족 · 친구 스냅»(사장님 선택 2026-09-26)');
+if (cblk.indexOf("line('단체 사진'") > -1) bad.push('예식 확인서에 옛 이름 «단체 사진»이 돌아왔다 — «가족 · 친구 스냅»');
 if (bad.length) { console.log('━━ prep-order — 빨강 ' + bad.length + '건'); bad.forEach((x) => console.log('   · ' + x)); process.exit(1); }
-console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순(+준비 목록 · 부케) › 단체 사진 · 예식 확인서도 같은 순서');
+console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순(+준비 목록 · 부케) › 가족 · 친구 스냅 · 예식 확인서도 같은 순서');
 process.exit(0);
