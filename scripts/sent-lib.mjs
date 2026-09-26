@@ -244,7 +244,9 @@ function importFrom(src) {
          ★추측해서 넣는 쪽이 아니라 비워 두는 쪽을 고른다. 비어 있으면 다음 검사가 잡지만,
            잘못 들어간 소리는 아무 검사도 못 잡고 식장에서 난다. */
       const prevE = j.slots[id] || {}, prevText = prevE.text;
-      if (byName && prevE.voice && prevE.voice !== r.voice && prevText === s.text && fs.existsSync(fileOf(id))) { keepOther++; continue; }   // [IMPORT_VOICE_LOCK] 다른 성우의 멀쩡한 자리는 덮지 않는다
+      /* [IMPORT_VOICE_LOCK] 다른 성우의 멀쩡한 자리는 이름 찾기로 덮지 않는다 — «다른 성우»는 그 자리의 «지금 배정»(대장 성우표)으로 가른다.
+         ★창고에 적힌 옛 이름(prevE.voice)으로 가르면 성우를 바꾼 날(신랑 이겸 → 진한 [VOICE_GROOM_3]) 제 자리를 못 채운다 — 가짜 진한 묶음에서 08_vow-groom 여섯 자리가 빈 채로 남았다(실측). */
+      if (byName && VOICE[s.role] && VOICE[s.role] !== r.voice && prevText === s.text && fs.existsSync(fileOf(id))) { keepOther++; continue; }
       const fn = pool.find((x) => x.g === g);
       if (fn && fn.cut && prevText && prevText !== s.text) {
         const pre = fold(prevText).slice(0, fn.s.length);

@@ -32,8 +32,7 @@ const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/
 const { want: ENGINE } = (await import('./lib/engine-calls.mjs')).engineCalls();
 const DG = (await import('./lib/drop-guard.mjs')).dropGuard();
 
-const VOICE = { 진행: '우성', 안내: '진희', 편지: '김호인', 신랑: '이겸', 신부: '서진',
-                아버님: '권일', 어머님: '주하', 시어머님: '정숙' };
+const VOICE = man.voice || {};   // ★[VOICE_GROOM_3 2026-09-26] 손으로 적은 표(편지 김호인 · 신랑 이겸 — 낡음) 대신 대장 성우표 한 곳에서
 const SENTS = new Map(), META = new Map();
 for (const c of man.clips) {
   const id = c.no + '_' + c.file;

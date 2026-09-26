@@ -33,14 +33,16 @@ const REC = {
   cast: JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/audio/cast/_recorded.json'), 'utf8')).clips,
   narr: JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/audio/narration/_recorded.json'), 'utf8')).clips,
 };
-const V = { 진행: '우성', 안내: '진희', 편지: '김호인', 신랑: '이겸', 신부: '서진', 아버님: '권일', 어머님: '주하', 하객대표: '규민' };
+/* ★[VOICE_GROOM_3 2026-09-26] 손으로 적은 성우표(편지 «김호인» · 하객대표 «규민» · 신랑 «이겸»)가 낡아 있었다.
+   이제 «녹음된 그 소리의 성우»(_recorded.json 의 voice)를 먼저 믿고, 없으면 대장 성우표(manifest.voice)를 본다. */
+const V = M.voice || {};
 /* 몇 클립을 녹음했는가 — 바꿀 때 드는 값이다. 적을수록 갈아 끼우기 싸다. */
 const files = {};
 for (const c of M.clips) {
   if (c.mix) continue;
   const k = `${c.no}_${c.file}`, d = /cast/.test(c.dir) ? 'cast' : 'narr';
   if (!REC[d][k]) continue;
-  const v = V[c.role] || c.role;
+  const v = (typeof REC[d][k] === 'object' && REC[d][k].voice) || V[c.role] || c.role;   // [VOICE_GROOM_3] 녹음된 성우가 먼저
   (files[v] ||= []).push(path.join(ROOT, c.dir, `${k}.mp3`));
 }
 

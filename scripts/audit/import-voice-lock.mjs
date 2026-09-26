@@ -5,6 +5,7 @@
 //
 // ★저장소 창고(assets/audio/_src)는 건드리지 않는다 — 임시 폴더에 필요한 파일만 옮겨 그 안에서 돌린다.
 // 보는 것
+//   ⓪ 가짜 진한(신랑) 묶음(2_진한.txt 56줄) → 남의 자리 0 · 신랑 자리 전부
 //   ① 가짜 서진 묶음(3_서진.txt 42줄 · audio_0 부터) → 남의 자리 0 · 서진 자리 전부
 //   ② 가짜 정숙 묶음(7_정숙.txt 5줄) → 남의 자리 0 · 정숙 자리 전부(«서준아.» 는 정숙 27_tribute-reply 로)
 //   ③ 오늘 진희 + 우성 묶음 모양(0_전체_화자표기 1~155 · audio_35 «신랑 신부,» 없음 · audio_36 «입장!») → 175자리 · 남의 성우 0
@@ -56,6 +57,7 @@ function checkVoiceBatch(label, file, voice) {
   ok(`${label} 묶음 → ${voice} 자리 전부(${mine.length})`, missed.length === 0, `빈 채 ${missed.length}: ${missed.slice(0, 6).join(' · ')}`);
   if (r.status !== 0) console.log(r.stdout.slice(-400), r.stderr.slice(-300));
 }
+checkVoiceBatch('가짜 진한(신랑)', '2_진한.txt', '진한');   // [VOICE_GROOM_3] 신랑 56줄 — 남의 자리 0 · 신랑 자리 전부
 checkVoiceBatch('가짜 서진', '3_서진.txt', '서진');
 checkVoiceBatch('가짜 정숙', '7_정숙.txt', '정숙');
 

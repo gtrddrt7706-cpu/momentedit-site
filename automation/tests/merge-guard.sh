@@ -4178,7 +4178,14 @@ chk "PERF_CANON = '이제 두 사람은 부부입니다'" scripts/check-narr-rul
 #   전부 거기서 생성된다. 옛 이름이 한 곳이라도 남으면 타입캐스트가 그 줄만 옛 성우로 배정한다.
 chk 'VOICE_GROOM_2' scripts/build-typecast-import.mjs 1
 chk 'VOICE_FRIEND_2' scripts/build-typecast-import.mjs 1
-chk "신랑: '이겸'" scripts/build-typecast-import.mjs 1
+chk "신랑: '진한'" scripts/build-typecast-import.mjs 1   # ★[VOICE_GROOM_3 2026-09-26 사장님] 이겸 → 진한 (위 VOICE_CAST_2 의 이준→이겸 은 그때 기록)
+chk 'VOICE_GROOM_3' scripts/build-typecast-import.mjs 1
+nochk "신랑: '이겸'" scripts/build-typecast-import.mjs
+chk '진한:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 56
+nochk '이겸:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt"
+nochk "신랑: '이겸'" scripts/audit/voice-gap.js
+nochk "신랑: '이겸'" scripts/audit/event-script.mjs
+nochk "신랑: '이겸'" scripts/build-script-review.mjs
 # ★[TOAST_NONE 2026-09-20] 하객대표 자리가 폐지돼 배정을 지웠다 — 아래는 «되살리지 말 것»으로 뒤집는다.
 #   [VOICE_GAP] 이 「규민 148Hz vs 우성 151Hz 는 사실상 같은 목소리」라며 교체 후보를 찾던 중이었는데
 #   **자리 자체가 사라져** 그 숙제가 함께 닫혔다. F0 실측과 후보(세진)를 적은 주석은 파일에 남아 있다.
