@@ -11982,3 +11982,13 @@ chk 'IMPORT_VOICE_LOCK' scripts/sent-lib.mjs 4
 chk 'ENTRY_GAP_KEEP' scripts/sent-lib.mjs 3
 chk 'TODO_RETIRED' scripts/sent-lib.mjs 1
 chk 'STAGE_ORDER_BY_NAME' scripts/assemble-narration.mjs 3
+# ── [코워크 회신8 덧2 2026-09-26 사장님] 신부 서진 → 예슬 · 녹음하며 고친 두 줄 · 시어머님 바꿀 자리 · --voice 성우별 순서표 ──
+chk "신부: '예슬'" scripts/build-typecast-import.mjs 1
+chk 'VOICE_BRIDE_2' scripts/build-typecast-import.mjs 1
+chk 'STEPMOM_2' scripts/build-typecast-import.mjs 1
+chk '^예슬:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 42
+nochk '^서진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt"
+chk '^여기 와 계신 한 분 한 분 얼굴을 뵈니, 참 든든합니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '예전에 내가, 너한테 삼십 분을 따진 적이 있었지\.' docs/plans/식순연구/배역_예시_대사.txt 1
+nochk '너한테 삼십 분을 따진 적이 있어\.' docs/plans/식순연구/배역_예시_대사.txt
+chk 'VOICE_ORDER' scripts/sent-lib.mjs 1

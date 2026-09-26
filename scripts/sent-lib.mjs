@@ -143,6 +143,16 @@ function status() {
 function importFrom(src) {
   let ord; try { ord = JSON.parse(fs.readFileSync(arg('--order', ORD), 'utf8')); }
   catch (e) { console.log('✗ 붙여넣기 순서표를 못 읽었다 — ' + e.message); process.exit(2); }
+  /* ★[VOICE_ORDER 2026-09-26 코워크 회신8 덧2] --voice 한 사람이고 --order 가 없으면 다시받기/_순서.json 의 그 성우 줄로 순서표를 만든다.
+     성우별 zip 은 audio_0 부터 그 성우 파일(예: 3_예슬.txt) 차례라 번호와 이름이 둘 다 맞는다 — 이름 찾기로 넘어가지 않는다(예슬 42/42 · 남의 자리 0 · 코워크 재현). */
+  const vOnly = arg('--voice') && !arg('--order') && !arg('--voice').includes(',') ? arg('--voice').trim() : '';
+  if (vOnly) {
+    let per = null; try { per = JSON.parse(fs.readFileSync(path.join(path.dirname(ORD), '_순서.json'), 'utf8')); } catch { /* 없으면 전체 순서표 그대로 */ }
+    if (per && Array.isArray(per[vOnly])) {
+      ord = per[vOnly].map((x) => ({ n: x.n, voice: vOnly, text: x.text, at: [{ clip: x.clip, i: x.i }] }));
+      console.log(`[VOICE_ORDER] --voice ${vOnly} → 다시받기/_순서.json 의 ${vOnly} ${ord.length}줄로 맞춥니다(번호 = 그 성우 파일 차례)`);
+    }
+  }
 
   /* zip 이면 풀고, 폴더면 그대로 훑는다 */
   const tmp = fs.mkdtempSync('/tmp/sentlib-');

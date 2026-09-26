@@ -6,7 +6,7 @@
 // ★저장소 창고(assets/audio/_src)는 건드리지 않는다 — 임시 폴더에 필요한 파일만 옮겨 그 안에서 돌린다.
 // 보는 것
 //   ⓪ 가짜 진한(신랑) 묶음(2_진한.txt 56줄) → 남의 자리 0 · 신랑 자리 전부
-//   ① 가짜 서진 묶음(3_서진.txt 42줄 · audio_0 부터) → 남의 자리 0 · 서진 자리 전부
+//   ① 가짜 예슬(신부 · 옛 서진) 묶음(3_예슬.txt 42줄 · audio_0 부터) · --voice 예슬 로도(다시받기/_순서.json 성우별 순서표) → 남의 자리 0 · 서진 자리 전부
 //   ② 가짜 정숙 묶음(7_정숙.txt 5줄) → 남의 자리 0 · 정숙 자리 전부(«서준아.» 는 정숙 27_tribute-reply 로)
 //   ③ 오늘 진희 + 우성 묶음 모양(0_전체_화자표기 1~155 · audio_35 «신랑 신부,» 없음 · audio_36 «입장!») → 175자리 · 남의 성우 0
 //      + --patch "신랑 신부, 입장!" --keep-gap → 6자리 · 합 181 · --stage 파일 이름에 _JOINED_
@@ -45,10 +45,10 @@ function batch(name, rows) {   // rows: [[번호, 글]] → zip
 const slotsOfVoice = (v) => { const out = new Set(); for (const r of ord) if (r.voice === v) for (const a of r.at || []) out.add(a.clip + '#' + a.i); return out; };
 const lines = (f) => fs.readFileSync(path.join(DIR, f), 'utf8').split('\n').map((s) => s.trim()).filter(Boolean);
 
-function checkVoiceBatch(label, file, voice) {
+function checkVoiceBatch(label, file, voice, viaVoice) {
   const before = snap();
   const d = batch(label, lines(file).map((t, i) => [i, t]));
-  const r = run('--import', d);
+  const r = viaVoice ? run('--import', d, '--voice', voice) : run('--import', d);
   const ch = diff(before, snap());
   const other = ch.filter((id) => VOICE[roleOf.get(id)] !== voice);
   const mine = [...slotsOfVoice(voice)].filter((id) => roleOf.has(id));
@@ -58,8 +58,9 @@ function checkVoiceBatch(label, file, voice) {
   if (r.status !== 0) console.log(r.stdout.slice(-400), r.stderr.slice(-300));
 }
 checkVoiceBatch('가짜 진한(신랑)', '2_진한.txt', '진한');   // [VOICE_GROOM_3] 신랑 56줄 — 남의 자리 0 · 신랑 자리 전부
-checkVoiceBatch('가짜 서진', '3_서진.txt', '서진');
+checkVoiceBatch('가짜 예슬(신부)', '3_예슬.txt', '예슬');   // [VOICE_BRIDE_2] 옛 3_서진
 checkVoiceBatch('가짜 정숙', '7_정숙.txt', '정숙');
+checkVoiceBatch('가짜 예슬 --voice(성우별 순서표)', '3_예슬.txt', '예슬', true);   // [VOICE_ORDER]
 
 /* ③ 오늘 묶음 모양 — 1~155줄 · 36번째 줄이 «신랑 신부, / 입장!» 으로 쪼개져 35 없음 · 36 = «입장!» */
 {
