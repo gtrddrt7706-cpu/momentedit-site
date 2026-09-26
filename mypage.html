@@ -553,10 +553,11 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-steplabel{margin:8px 0 0;font-size:12px;color:var(--label-soft);text-align:center;letter-spacing:.04em}
 .snp-h{margin:20px 0 10px;font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);line-height:1.5;letter-spacing:-.02em;word-break:keep-all}
 .snp-h:focus{outline:none}
-.snp-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 14px}
-.snp-fl{font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.4;padding:5px 10px;border:1px solid var(--hairline,#E6E1D8);border-radius:999px;background:#fff}
+.snp-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 5px;margin:0 0 14px}
+.snp-fl{font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.4;padding:5px 8px;border:1px solid var(--hairline,#E6E1D8);border-radius:999px;background:#fff}
 .snp-fl.on{color:#fff;background:var(--seal);border-color:var(--seal);font-weight:500}
 .snp-arw{color:var(--gold-deep);position:relative;top:-1px}
+.snp-flg{display:inline-flex;align-items:center;gap:5px}   /* [SNAP_FLOW_WRAP] 칸 여백 8 · 사이 5 — PC 한 줄(폭 578 에 553) · 360~430 셋·셋 · 320 둘·둘·둘. «본식»만 떨어지던 자리(1280 에서 4px · 360 에서 10px 모자랐다) */
 .snp-points{margin:0;padding:0 0 0 18px;font-size:13px;color:var(--sub);line-height:1.7}
 .snp-points li{margin:0 0 6px;word-break:keep-all}
 .snp-points b,.snp-due b{font-weight:600;color:var(--accent)}
@@ -7497,7 +7498,9 @@ function _spNeedsOf(D){   // 고른 장면들의 준비물(중복 제거 · 먼�
 function _spWhen(D, R, due){
   var z=R.zones, flow=[['도착',R.arrive],[z[0].ko,z[0].min],['이동',R.move],[z[1].ko,z[1].min],['입장 준비',R.prep]];
   var h='<h3 class="snp-h" tabindex="-1">본식 전, 두 분만 담는 단독 스냅이에요</h3>';
-  h+='<div class="snp-flow" role="list" aria-label="이 스냅의 순서">'+flow.map(function(f,i){ return '<span role="listitem" class="snp-fl'+((i===1||i===3)?' on':'')+'">'+escapeHtml(f[0])+' · '+f[1]+'분</span>'; }).join('<span class="snp-arw" aria-hidden="true">›</span>')+'<span class="snp-arw" aria-hidden="true">›</span><span role="listitem" class="snp-fl">본식</span></div>';
+  /* [SNAP_FLOW_WRAP] 화살표는 «다음 칸»과 한 덩어리 — 따로 두면 줄 끝에 «›»가 매달리고(390) PC에선 «본식»만 홀로 둘째 줄로 떨어졌다(고객 입장 걸어 보기) */
+  var _fi=flow.map(function(f,i){ return { t:escapeHtml(f[0])+' · '+f[1]+'분', on:(i===1||i===3) }; }).concat([{ t:'본식', on:false }]);
+  h+='<div class="snp-flow" role="list" aria-label="이 스냅의 순서">'+_fi.map(function(x,i){ return '<span role="listitem" class="snp-flg">'+(i?'<span class="snp-arw" aria-hidden="true">›</span>':'')+'<span class="snp-fl'+(x.on?' on':'')+'">'+x.t+'</span></span>'; }).join('')+'</div>';
   h+='<ul class="snp-points">'
     +'<li>공간마다 <b>기본 4장면</b>은 늘 담아요. 여기에 마음에 드는 장면을 공간마다 <b>4장까지</b> 고르시면, 사진작가가 그 사진을 보고 찍어요.</li>'
     +'<li>안 고르셔도 기본 장면으로 찍어요.</li>'

@@ -84,6 +84,7 @@ t((blk.match(/<textarea/g) || []).length === 1, `묻는 칸은 하나(D9) — te
 ['mp_snapAbout', 'mp_snapProps', 'mp_snapMoodNote', 'mp_snapDirector', 'mp_snapRef"', 'mp_snapMust"', 'data-smust', 'data-stone', 'data-scomf', 'SNAP_TONES', 'SNAP_COMFORTS', 'SNAP_MUSTHAVES'].forEach((k) => t(my.indexOf(k) === -1, `지운 질문 «${k}» 이 돌아오지 않았다(2026-09-26 사장님 지시)`));
 t(/!p\.snapV2/.test(blk), '서버가 새 기획을 알 때만 연다(SNAP_V2_GATE)');
 t(!/["' ]sp-[a-z]/.test(blk), '스냅 블록은 snp- 이름만 — 좌석 화면이 .sp-opt·.sp-note 를 쓴다(이름이 겹쳐 좌석 화면 CSS 가 바뀔 뻔했다)');
+t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]*snp-arw/.test(blk) && my.indexOf('.snp-flg{display:inline-flex') !== -1, '흐름 줄 화살표는 다음 칸과 한 덩어리(SNAP_FLOW_WRAP) — 따로 두면 줄 끝에 «›»가 매달리고 «본식»만 떨어졌다');
 
 // ── 같은 원천을 읽는다
 [['mypage.html', my], ['admin.html', adm], ['brief.html', brief]].forEach(([f, s]) => t(s.indexOf('<script src="/assets/snap-refs.js"></script>') !== -1, `${f} 가 목록 파일을 읽는다`));

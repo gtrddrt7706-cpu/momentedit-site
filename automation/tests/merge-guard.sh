@@ -419,6 +419,7 @@ chk 'SNAP_PICK_V2' mypage.html 3
 chk 'SNAP_V2_GATE' mypage.html 1                    # 서버가 새 기획을 알 때만 연다 — 옛 서버는 새 칸을 걸러 버린다(화면엔 «저장됐어요»)
 chk 'SNAP_NUDGE' mypage.html 1                      # D2 예식 3주 전부터 «지금 할 일» 한 줄
 chk 'SNAP_STEP_SAVE' mypage.html 1                  # 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(고객 입장 걸어 보기 2026-09-26)
+chk 'SNAP_FLOW_WRAP' mypage.html 2                  # 흐름 줄 화살표 = 다음 칸과 한 덩어리 · PC 한 줄 · 폰 셋·셋(«본식»만 떨어지던 자리)
 chk 'SNAP_LEGACY_KEEP' automation/platform/80_production.gs 2
 chk 'SNAP_LOCK' automation/platform/80_production.gs 1
 chk 'SNAP_LATE_MAIL' automation/platform/80_production.gs 1
