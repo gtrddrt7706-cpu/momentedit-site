@@ -1077,44 +1077,53 @@
            첫 전체 사진에 합쳤다). 클립은 FILES 에 남긴다(번호를 지킨다). 되살리지 말 것.
          ★늦어진 날 줄이는 차례: 자유 사진 → 숨 고르기 → 뒤에 고른 구도. 배웅 시각은 지킨다.
          ★하루 배분은 코스와 상관없어 옛 코스도 같다. */
+      /* ★★[PHOTO_GO2GO 2026-09-26 코워크 최종판 2-4 · 2-5] 사진 구간의 시간은 «GO 에서 다음 GO 까지(그 큐의 나레이션 포함)»다.
+           목표 — 전체 하객 360 + 60 × 두 분이 적은 요청 수(모르면 480 · (26) 뒤 «하객이 앞으로 모임»부터 센다)
+                  · 가족 구도 180 × 고른 구도 수(모르면 360 · 구도 둘 · SHORT_MIN 과 같은 가정) · 온라인 인사 120
+                  · 자유 사진 = 남는 시간(최소 120 · 두 분 숨 고르기).
+           ★엔진은 말(c.est)을 사람 구간(live.est)과 따로 더하는 구조다 — 그래서 아래 2패스가 사람 구간 = 목표 − 그 큐의 말 길이로 넣는다.
+             회신 6 의 «말 시간 120초»는 거뒀다. 그래야 마이페이지(PHOTO_PRE 2 · PHOTO_ALL 6 + 요청) · SHORT_MIN 16 과 같은 셈이 된다.
+           S.photoN(고른 구도 수) · S.photoWishN(적은 요청 수)은 관리자 «당일 콘솔» 단추가 단체 사진 트랙에서 싣는다. */
+      var _pn = +S.photoN, _pw = (S.photoWishN === undefined || S.photoWishN === null || S.photoWishN === '') ? -1 : Math.max(0, Math.min(2, +S.photoWishN || 0));
+      var _go = { 'end-0-photo': (_pw >= 0 ? 360 + 60 * _pw : 480), 'narr-photo-split': (_pn > 0 ? 180 * _pn : 360), 'narr-online-in': 120 };
       cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: 'end-0-photo', name: '전체 하객컷', text: EXTRA['end-0-photo'], duck: -14,
-        live: { t: '전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(둘까지 · 골라 트는 판)', est: 480, note: '전체 하객 약 6분 + 꼭 담고 싶은 사진 둘까지 약 2분 [GROUP_PHOTO]' }
+        live: { t: '전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(골라 트는 판)', est: _go['end-0-photo'], note: '전체 하객 약 6분 + 꼭 담고 싶은 사진(두 분이 적은 만큼 · 하나에 1분 남짓) [GROUP_PHOTO] [WISH_COUNT]' }
       }));
-      /* 가족 구도 est = 3분 × 고른 구도 수(마이페이지 단체 사진 · 관리자 «당일 콘솔»이 S.photoN 으로 싣는다) · 모르면 240 */
-      var _pn = +S.photoN;
       cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: 'narr-photo-split', name: '나눠 담기 · 대기 안내', text: D.NARR.photoSplit, duck: -14,
         hint: '전체컷을 담고 나면',
         note: '★뒤 문장이 대기를 「알려진 대기」로 바꾼다 — 순번을 알려 주면 이탈이 준다(하버드)',
-        live: { t: '가족 구도 · 불러 모아 주실 분과 함께(호명은 골라 트는 판)', est: (_pn > 0 ? 180 * _pn : 240), self: true, doing: 'move' }
+        live: { t: '가족 구도 · 불러 모아 주실 분과 함께(호명은 골라 트는 판)', est: _go['narr-photo-split'], self: true, doing: 'move' }
       }));
       if (S.digital) cues.push(cue({
         k: '_photo', blockN: '단체 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
         note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
-        live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: 120, self: true, doing: 'say' }
+        live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: _go['narr-online-in'], self: true, doing: 'say' }
       }));
       cues.push(cue({
         k: '_final', blockN: '단체 사진', slug: 'narr-photo-out', name: '사진 닫는 말', text: D.NARR.photoOut, duck: -12,
         note: '★예식 전체에서 마지막으로 나가는 감정이다(피크엔드) · 없으면 배웅 안내로 끝난다',
         live: { t: '자유 사진 · 남는 시간만큼 · 두 분 숨 고르기 포함', est: 0, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다
       }));
-      /* [ROUND_FIT 2패스 본체 · GROUP_PHOTO] 단체 사진 블록의 est 합을 세고, 남는 시간을 자유 사진(narr-photo-out)에 준다.
-         남는 시간 = (40 − 본식 넉넉 합) − 사진 큐 est 합 − 말 시간 120초 · 최소 120초(두 분 숨 고르기). 온라인 날도 받는 큐는 같다. */
+      /* [ROUND_FIT 2패스 본체 · GROUP_PHOTO · PHOTO_GO2GO] 단체 사진 창 = 본식이 끝난 뒤((26) 말이 끝난 뒤)부터 배웅 GO 까지.
+         남는 시간(자유 사진) = (40 − 본식 넉넉 합) − 목표 합(전체 하객 · 가족 구도 · 온라인 인사) · 최소 120초(두 분 숨 고르기).
+         ★(108) · (26) 의 말과 목례 · 박수는 본식(닫는 인사 TIME)에 들어 있어 여기서 세지 않는다 — (26) 뒤 «하객이 앞으로 모임»은
+           전체 하객 사진 목표 안이다(전체 하객 약 6분에 모이는 시간도 든다). 온라인 날도 받는 큐는 (65, narr-photo-out) 하나다. */
       (function () {
-        var IN = { 'narr-close': 1, 'narr-close-bow': 1, 'end-0-photo': 1, 'narr-photo-split': 1, 'narr-online-in': 1, 'narr-photo-out': 1 };
-        var fixed = 0, carrier = null;
-        for (var i = 0; i < cues.length; i++) {
-          var c = cues[i];
-          if (!IN[c.slug]) continue;
-          if (c.slug === 'narr-photo-out') { carrier = c; continue; }   // 받는 큐 자신의 자리표시 est(30)는 세지 않는다
-          if (c.live && c.live.est) fixed += c.live.est;
-        }
-        /* [OPEN_COURSE] 새 코스는 본식이 고른 만큼 달라진다 — «40 − 본식(넉넉 합)»으로 잡는다. */
         var bodyMin = D.COURSES[S.course].open ? Math.round(O.bodySec(S)[1] / 60) : (D.MIN.base[S.course] || D.MIN.base.damback);
         var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell) - bodyMin;   // 분 · 단체 사진 몫
-        var free = Math.max(120, budget * 60 - fixed - 120);   // 120초 = 나레이션 말 시간 · 최소 120초 = 두 분 숨 고르기
-        if (carrier && carrier.live) carrier.live.est = free;
+        var by = {}, i;
+        for (i = 0; i < cues.length; i++) by[cues[i].slug] = cues[i];
+        var goals = 0; for (var g in _go) if (by[g]) goals += _go[g];
+        var goFree = Math.max(120, budget * 60 - goals);
+        var gather = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
+        function fit(c, goal, pre) { if (c && c.live) c.live.est = Math.max(10, Math.round(goal - (pre || 0) - (c.est || 0))); }
+        fit(by['end-0-photo'], _go['end-0-photo'], gather);
+        fit(by['narr-photo-split'], _go['narr-photo-split']);
+        fit(by['narr-online-in'], _go['narr-online-in']);
+        fit(by['narr-photo-out'], goFree);
+        if (by['narr-photo-out'] && by['narr-photo-out'].live) by['narr-photo-out'].live.goFree = goFree;   // 콘솔 · 검사가 읽는 «자유 사진 목표»(말 포함)
       })();
       /* ★★[ONLINE_ALREADY_ENDED 2026-08-16 사용자 지적] 배웅에서 온라인을 갈라 말하지 않는다.
          사용자 원문: *"본식끝나고 온라인 화면도 종료 한다고 우리 정했잖아 이건 그걸기억못하는듯한 진행인데"*
@@ -1129,6 +1138,9 @@
         k: '_farewell', blockN: '배웅', slug: 'end-1a-farewell',
         name: '촬영 종료 · 배웅 전환', text: EXTRA['end-1a-farewell'], duck: -14,
         hint: '자유 사진이 끝나면',   // [GROUP_PHOTO] 앞 큐(자유 사진)에 사람 구간이 있어 manual — 디렉터 GO
+        /* ★[FREE_TO_FAREWELL 2026-09-26 코워크 최종판 2-4] 자유 사진은 디렉터 GO 로 끝난다 — 하객이 많거나 사진이 늦어져 배웅이 빠듯한 날은
+           자유 사진을 일찍 끝내고 여기로 넘긴다(배웅 시각은 지킨다 · 한 분께 20초쯤). */
+        note: '배웅이 빠듯한 날은 자유 사진을 일찍 끝내고 GO — 배웅 시각을 지킨다(한 분께 20초쯤)',
         live: { t: '배웅 줄 · 두 분이 한 분 한 분께 인사', est: 600 }   // [NO_TABLE_ROUND] 30명 약 10분 · 환복 10분은 배웅 20 안
       }));
       /* ★★[MEAL_GUIDE] 45 바로 뒤 — 「자리를 옮기시기 전에」를 「식사하실 자리를」이 곧바로 받는다.
