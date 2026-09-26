@@ -17,6 +17,8 @@
    사용: node scripts/audit/copy-rule.mjs
 */
 import fs from 'node:fs';
+import path from 'node:path';
+const ROOT_CR = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');   // [COPY_RULE_REL 코워크 추가 점검] 저장소 기준 — 종전엔 /home/user/momentedit-site 를 박아 다른 폴더(작업 사본)에서 조용히 0건을 읽었다
 /* ★[COPY_RULE_CONTRACT 2026-09-19 점검] 계약서 2종과 상담 신청 화면이 검사 밖에 있었다.
    계약서는 고객이 «서명하는» 문서이고 상담 화면은 고객이 처음 만나는 화면인데
    문구 규칙(전각 줄표·장식 이모지·시간 약속) 전수에서 빠져 있었다. 목록에서 빼지 말 것. */
@@ -42,7 +44,7 @@ let dash=[], emoji=[], promise=[], vague=[];
    ★✓·❌ 는 «장식»이 아니라 상태를 읽게 하는 기호다. 규칙이 막는 것은 장식이지 기호가 아니다. */
 const EMOJI_OK=/🤍|🍽|🍃|🔊|🎵|⚠|★|🔴|🟡|✓|✔|✕|✖|❌|✅|›|»/;
 for(const f of F){
-  let src=''; try{ src=fs.readFileSync('/home/user/momentedit-site/'+f,'utf8'); }catch(e){ continue; }
+  let src=''; try{ src=fs.readFileSync(path.join(ROOT_CR,f),'utf8'); }catch(e){ continue; }
   for(const v of customerStrings(src)){
     if(v.indexOf('—')>=0) dash.push(f+' :: '+v);
     const e=v.match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu);
@@ -63,7 +65,7 @@ console.log('\n═══ 서버가 «고객에게» 보내는 문구(.gs) ══
    고객 문장이 사는 곳은 둘뿐이다: 알림 문구(_nfCustomerMsg)와 «지금 할 일»(nextActionFor). */
 {
   const pick = (file, from, to) => {
-    let src=''; try{ src=fs.readFileSync('/home/user/momentedit-site/'+file,'utf8'); }catch(e){ return ''; }
+    let src=''; try{ src=fs.readFileSync(path.join(ROOT_CR,file),'utf8'); }catch(e){ return ''; }
     const i=src.indexOf(from); if(i<0) return '';
     /* ★끝 표시는 «시작점 다음»부터 찾는다 — 그냥 indexOf(to,i) 하면 시작 자신을 다시 잡아
        구역이 0자가 되고, 검사는 «훑었다»면서 아무것도 안 본다(사문). 그 사문을 위 ok 가 잡았다. */

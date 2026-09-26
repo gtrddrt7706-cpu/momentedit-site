@@ -111,7 +111,7 @@ for (const f of KB_FILES) {
       for (let i = 0; i < kbLines.length; i++) {
         const ln = kbLines[i];
         if (!ln.includes(n)) continue;                    // (주석은 위에서 이미 비웠다)
-        if (/폐지|RETIRED|자유 한 칸/.test(ln)) continue;   // 그 줄이 스스로 폐지라고 말하거나 옮겨 간 자리를 가리킨다
+        if (/폐지|RETIRED|자유 한 칸|준비한 순서/.test(ln)) continue;   // [NO_LIVE_SONG_KB] «자유 한 칸»의 새 이름 «준비한 순서»도 옮겨 간 자리다   // 그 줄이 스스로 폐지라고 말하거나 옮겨 간 자리를 가리킨다
         no(`${f}:${i + 1} 가 「${n}」 을 말하는데 그 줄에 '폐지' 표시가 없다 — AI 가 고를 수 있는 순간으로 읽고 권한다\n     ${ln.trim().slice(0, 90)}`);
       }
     }

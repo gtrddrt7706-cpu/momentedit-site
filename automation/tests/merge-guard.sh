@@ -467,9 +467,24 @@ chk 'SNAP_ZONE_NOTE' mypage.html 4
 chk 'SNAP_ZONE_NOTE' admin.html 1
 chk 'SNAP_ZONE_NOTE' brief.html 1
 # ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면 진사 = 고른 순서 번호 · 동의 알림뿐(나머지는 먹갈색/금빛) — snap-plan 이 CSS 를 잰다
-chk 'SNAP_TONE' mypage.html 1
+chk 'SNAP_TONE' mypage.html 3                        # ★같은 날 밤 «진사 포인트 좀 주자 · 칙칙해» — 점 다섯(지금 걸음 · 순서 번호 · 촬영 칸 글자 · 마감 · 동의 알림) · snap-plan 이 CSS 를 잰다
+chk 'SNAP_STEP_DOT' mypage.html 3                    # 걸음 동그라미 — 보이는 30px(지금 34px 진사) · 누르는 칸 44px · 고딕 같은 폭 숫자 · 지나온 길 금빛 선
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
+# ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
+#   입력 화면 겉틀 = 식순 빌더 — 위 «저장 · 나가기»(카드 맨 위 오른쪽) · 아래 붙는 «이전 · 다음» 막대(.wz-bar) · 오류 줄은 막대 안.
+#   단추 줄을 내용 끝으로 되돌리거나(긴 화면에서 «다음»을 찾으러 끝까지 내려가야 했다) 스냅 기획의 아래 손잡이 띠를 되살리면 빨강.
+chk 'WZ_BAR' mypage.html 8
+chk 'class="inv-nav wz-bar"' mypage.html 7
+chk 'class="snp-nav wz-bar"' mypage.html 1
+chk 'class="seat-actions wz-bar"' mypage.html 1
+chk 'id="mp_photoDone"' mypage.html 1
+chk 'WZ_BAR_EDGE' mypage.html 1
+chk 'WZ_BAR' .claude/skills/momentedit-design/SKILL.md 1
+nochk 'class="inv-nav">' mypage.html 0
+nochk "_fa.className='wiz-acts wiz-bar'" mypage.html 0
+nochk 'id="trk_err" style=' mypage.html 0
+nochk 'id="seat_err" style=' mypage.html 0
 nochk 'class="snp-steplabel"' mypage.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/snap-plan.mjs >/dev/null 2>&1; _spl=$?
   case "$_spl" in
@@ -5025,7 +5040,7 @@ chk 'KB_ALL_THREE' scripts/check-retired-scene.mjs 1
 chk 'MUSIC_GONE' scripts/check-retired-scene.mjs 3
 chk 'MUSIC_GONE' assets/advisor-kb.js 1
 chk 'MUSIC_GONE' api/_kb.js 1
-chk '자유 한 칸' assets/advisor-kb.js 3       # 축가는 없앤 게 아니라 옮긴 것 — 어디로 옮겼는지를 고객에게 적는다
+chk '자유 한 칸\|준비한 순서' assets/advisor-kb.js 3       # 축가는 없앤 게 아니라 옮긴 것 — 어디로 옮겼는지를 고객에게 적는다 · [NO_LIVE_SONG_KB 2026-09-26] 그 자리의 새 이름 «준비한 순서»도 센다
 nochk '입퇴장 음악·축가 등 구성을 직접 입력' assets/advisor-kb.js   # ★없는 칸을 있다고 하던 줄
 chk 'WINE_RETIRED' mypage.html 1
 chk 'WINE_RETIRED' api/_ritual-kb.js 3
@@ -11259,7 +11274,7 @@ nochk '인사 사진' assets/advisor-kb.js
 nochk "'인사 사진'" assets/sequence-modal.js
 chk "['단체 사진', '15~32분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1
 chk 'Private Snap 60분 · Ceremony 8~25분 · 단체 사진 15~32분' index.html 1
-chk '하객분들은 <strong>10시 입장 · 11시 10분 배웅</strong>' index.html 1
+chk '하객분들은 <strong>10시 입장 · 10시 20분 본식 · 11시 10분 배웅</strong>' index.html 1   # [FAQ_SLOT_WORD 코워크 추가 점검 P3] 본식 시각을 함께
 nochk '9시 50분 입장' index.html
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' automation/platform/95_notify.gs 1
@@ -11888,3 +11903,58 @@ chk 'details\.res-fold\[open\]>summary::after{content:.*;position:absolute;inset
 # [SNAP_DDAY_CHIP · HEAD_TIME_ONE 병합] 스냅 촬영 시각은 SLOT_CLOCK 를 거치지 않는 12시간제 — wedTimeKo 로 바꾸면 자유 입력 변경 시각(13:20)이 1:40 으로 바뀌어 보인다
 chk "wtKo=(_sh<12?'오전 ':'오후 ')+((_sh%12)||12)+':'+_st\[1\]; }   // \[SNAP_DDAY_CHIP\]" mypage.html 1
 chk 'SNAP_BTN_GHOST' mypage.html 1
+# ── ★[MERGE_EXTRA_0926 2026-09-26 코워크 «병합 중 추가 점검»] P1 · P2 · P3 · 접근성 — 실브라우저 · 엔진 검사(merge-extra-0926.mjs)가 동작을 재고, 아래 줄은 표식이 살아 있는지 본다 ──
+#   깨 보고 믿음: 같은 검사를 고치기 전 main(783d8bae)에 돌리면 빨강 25건 · 고친 판 0건
+if command -v node >/dev/null 2>&1; then _mx=$(timeout 600 node scripts/audit/merge-extra-0926.mjs 2>&1); _mxx=$?; echo "$_mx" | grep -E '^FAIL|결과' | head -12; if [ "$_mxx" = 1 ]; then echo "REVERT? scripts/audit/merge-extra-0926.mjs: 병합 중 추가 점검 검사 실패"; fail=1; fi; fi
+chk 'STEP_NO_REWIND' order-preview.html 4
+chk 'hs.from===i' order-preview.html 1
+chk 'RP_BACK' order-preview.html 2
+chk 'OP_SYNC_ALL' order-preview.html 4
+chk 'SCENE_FROM_SEQ' order-preview.html 1
+chk 'SCENE_FROM_SEQ' mypage.html 1
+chk 'NO_LIVE_SONG_KB' assets/advisor-kb.js 2
+nochk '축가·영상 상영처럼' assets/advisor-kb.js
+chk 'SPEECH_NO_NONE' assets/ritual-cue.js 2
+chk 'SCRIPT_LAB' order-preview.html 3
+chk 'PV_TOP' order-preview.html 1
+chk 'NOTICE_QUEUE' assets/ritual-open.js 1
+chk 'NOTICE_QUEUE' order-preview.html 1
+chk 'NOTE_ACT_MATCH' assets/ritual-open.js 1
+nochk "'인사를 말 없이로'" assets/ritual-open.js
+chk 'SPAN_SUM40' assets/ritual-open.js 1
+chk 'MINI_ROOM' order-preview.html 3
+chk 'PV_ACT_STICKY' order-preview.html 4
+chk 'FREE_BACK_WORD' order-preview.html 1
+chk 'REC_SEND_WORD' order-preview.html 1
+chk 'AI_CHIP_WORDS' order-preview.html 1
+nochk '헌정은 어떤 방식들이' order-preview.html
+nochk '코스와 순간 하나하나' order-preview.html
+chk 'RESET_WORD' order-preview.html 1
+chk '본식 시작 4분 전에는 불을 낮추고' assets/sequence-modal.js 1   # «본식 4분 전»은 check-source-drift 가 본식 길이(4분)로 읽는다 — «시작»을 끼운다
+nochk '예식 시작 4분 전' assets/sequence-modal.js
+nochk '청첩장·식순은 언제든' index.html
+chk '순서와 이음은 저희가 맞춥니다' index.html 3
+nochk '어떤 순서로 진행할지, 어떤 문장으로 안내할지는 계약 후' index.html
+chk 'INQ_WAIT_WORD' inquiry.html 1
+nochk '내빈 입장 시작 시간' inquiry.html
+chk 'PREP_COUNT_SPLIT' mypage.html 1
+chk 'DOT_GLUE' order-preview.html 3
+chk 'FLOW_ONE_IMG' assets/ritual-open.js 2
+nochk 'fill="transparent" tabindex="0"' assets/ritual-open.js
+chk 'UNDO_NO_STATUS' order-preview.html 1
+chk 'NOTE_SAY_ONCE' order-preview.html 1
+chk 'NOTE_PARA' order-preview.html 2
+chk 'PKEX_RING' order-preview.html 1
+chk 'TILE_3LINE' order-preview.html 1
+chk 'COPY_44' order-preview.html 1
+chk 'SLIM_SCROLL_PAD' order-preview.html 2
+chk 'COPY_RULE_REL' scripts/audit/copy-rule.mjs 1
+nochk '/home/user/momentedit-site/' scripts/audit/copy-rule.mjs
+# ── [사장님 피드백 1 2026-09-26] 크게 보기 단추 한자리 · PC 오른쪽 칸 · 진사 포인트 · 케이크 한 줄 — merge-extra-0926.mjs 가 잰다 ──
+chk 'BIG_CTL_FIXED' order-preview.html 2
+chk 'lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;margin-top:auto' order-preview.html 1
+chk 'PC_SIDE_AIR' order-preview.html 2
+chk 'SEAL_POINTS' order-preview.html 4
+chk 'SEAL_POINTS' assets/ritual-open.js 1
+chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
+chk 'TOAST_ONE_OR' assets/ritual-open.js 1
