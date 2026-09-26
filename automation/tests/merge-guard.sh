@@ -4933,7 +4933,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN'\]" assets/ritual-preview-link.js 1
+chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -11151,7 +11151,23 @@ chk '두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다.' assets
 chk '오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.' assets/ritual-data.js 1
 chk 'PHOTO_CAP_40' mypage.html 1
 chk 'PHOTO_CAP_CLAMP' mypage.html 1
-chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=8' mypage.html 1
+chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;' mypage.html 1
+# ★[WISH_COUNT · NO_ZERO_SHOT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-4~2-6] 꼭 담고 싶은 사진은 적은 만큼만 · «구도 0개» 금지 · 사진 est 는 GO→GO(말 포함)
+chk 'WISH_COUNT' mypage.html 3
+chk 'function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }' mypage.html 1
+chk 'NO_ZERO_SHOT' mypage.html 1
+chk '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 ' mypage.html 1
+chk '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.' mypage.html 1
+nochk "'알맞고, 제시간에 진행되면 '+_cap.max" mypage.html
+chk 'PHOTO_GO2GO' assets/ritual-cue.js 2
+chk "'end-0-photo': (_pw >= 0 ? 360 + 60 " assets/ritual-cue.js 1   # ★grep 은 * 를 반복으로 읽는다 — 세 조각으로 나눠 잰다
+chk "_pw : 480), 'narr-photo-split': (_pn > 0 ? 180 " assets/ritual-cue.js 1
+chk "_pn : 360), 'narr-online-in': 120 }" assets/ritual-cue.js 1
+nochk 'budget * 60 - fixed - 120' assets/ritual-cue.js
+chk 'PHOTO_GO2GO' scripts/check-ritual-cue.js 4
+chk 'WISH_COUNT' scripts/check-ritual-cue.js 3
+chk 'WISH_COUNT' admin.html 1
+chk "'photoWishN'," assets/ritual-preview-link.js 1
 chk 'SEQ_ROW_CLOCK' scripts/check-source-drift.mjs 2
 chk 'PARENT_AT_EMPTY' scripts/check-source-drift.mjs 1
 chk 'PARENT_AT_EMPTY' parents.html 1
@@ -11184,3 +11200,5 @@ chk 'GUESTS_ALL' assets/ritual-open.js 1
 nochk '서른 분이 박수' assets/ritual-open.js
 nochk '서른 개의 잔' assets/ritual-open.js
 nochk '서른 분이 함께 잔을' assets/ritual-open.js
+chk 'PHOTO_CAP_40 · WISH_COUNT · NO_ZERO_SHOT' scripts/check-ritual-cue.js 1   # 마이페이지 단체 사진 표(최종판 2-6)를 파일에서 꺼내 돌린다
+chk 'FREE_TO_FAREWELL' assets/ritual-cue.js 1   # [최종판 2-4] 배웅이 빠듯한 날은 자유 사진을 일찍 넘긴다(디렉터 GO)
