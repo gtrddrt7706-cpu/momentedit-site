@@ -14,7 +14,12 @@
       "script": "docs/plans/저널낭독/1_혼주라는이름.txt",
       "mp3": "assets/audio/essay/1_honju.mp3",
       "script_sha256": "0aa215d69763ac3880a417631967540d28270e43e1ff65270680d0329a30535b",
-      "built_at": "2026-09-19"
+      "built_at": "2026-09-19",
+      "pending_rerecord": {
+        "expect_sha256": "6b1eeefa537a2a42ed51f41d60d7b09b885bd15231331ff3aab8349b6a1e4e8b",
+        "since": "2026-09-26",
+        "why": "[NO_TABLE_ROUND] 15줄 «예식 안에는 자리마다 찾아가 인사» → «예식이 끝나면 배웅하며 한 분 한 분께» — 화면(index.html 저널 카드)과 같게. 재녹음은 대본 점검(7단계) 뒤 한 번에"
+      }
     },
     "2": {
       "script": "docs/plans/저널낭독/2_신혼여행첫날.txt",

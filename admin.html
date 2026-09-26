@@ -587,7 +587,7 @@ function _chipLink(lb,v){ var h=_safeHref(v); return h?('<a href="'+esc(h)+'" ta
 // 예식 시간 표기 — 계약 슬롯(09:00·12:20·15:40)·본예식 시간 둘 다 받아 '오전 10:00' 본예식 기준으로 통일(고객·계약서와 동일 표기).
 /* ★[SLOT_CLOCK 2026-09-25] 슬롯(도착 09:00 · ID 10:00) → 실제 본예식 시각. 옛 판은 ID(13:20)를 본예식으로 찍어 고객 화면·청첩장과 5분 어긋났다.
    값은 mypage.html SLOT_CLOCK 과 같다 — 스냅 길이가 바뀌면 check-source-drift (7)이 잡는다. 저장값은 그대로다. */
-var SLOT_CLOCK={'09:00':'10:10','12:20':'13:30','15:40':'16:50','10:00':'10:10','13:20':'13:30','16:40':'16:50'};
+var SLOT_CLOCK={'09:00':'10:20','12:20':'13:40','15:40':'17:00','10:00':'10:20','13:20':'13:40','16:40':'17:00'};   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
 function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var L={'09:00':'오전','12:20':'오후','15:40':'늦은 오후','10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; var lab=L[t]; if(SLOT_CLOCK[t]) t=SLOT_CLOCK[t]; return (lab?lab+' ':'')+t; }
 function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
 
@@ -2714,7 +2714,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +(_DECL_CARD_WHO.indexOf(s3d.declareWho)>=0?'<button type="button" class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" onclick="printDeclareCard()">낭독 카드</button>':'');
     /* ★[PHOTO_CALLER 2026-09-26 코워크 회신5 3-4] 당일 콘솔을 이 고객의 식순으로 연다 — 콘솔은 식순(S)을 주소로 받는다.
        «불러 모아 주실 분»도 함께 실어 콘솔 «촬영 안내 골라 틀기» 판 머리에 보이게 한다(디렉터가 이 분께 먼저 말씀드린다). */
-    try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')};
+    try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')}; if(gi&&Array.isArray(gi.photo)) _cS.photoN=gi.photo.length;   /* [GROUP_PHOTO 2026-09-26] 가족 구도 수 — 콘솔 narr-photo-split 의 est(3분 × 구도 수) */
       _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'">당일 콘솔</a>'; }catch(e){}
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
@@ -3593,8 +3593,9 @@ function contractPath(product, docVersion){
   if(v==='v1.6') return '/contract/archive/v1-6.html';   // [CONTRACT_V19] 관리자 쪽이 v1.6·v1.7 을 빠뜨려 그 서명자에게 현행을 보여 주고 있었다(mypage 와 짝 맞춤)
   if(v==='v1.7') return '/contract/archive/v1-7.html';
   if(v==='v1.8') return '/contract/archive/v1-8.html';
+  if(v==='v1.10') return '/contract/archive/v1-10.html';   // [CONTRACT_V111] v1.10 서명자는 스냅 50 · 합 50 · 테이블 인사가 있던 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 «성우 나레이션» · 케이크 · 꽃 줄 없는 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.10) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
+  return '/contract/v1-1.html';   // 현행(v1.11) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

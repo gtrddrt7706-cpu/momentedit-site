@@ -41,6 +41,7 @@
 
   /* ── 카드 문구(시안 2판 EV + 명세 4장 고침) ──
      n 화면 이름 · sn 짧은 이름(띠·목록) · one 한 줄 설명 · shot 남는 장면 · who 누가 · why 이 자리인 까닭 */
+  /* [GUESTS_ALL 2026-09-26 사장님 · 코워크 추가 전달 2 D13] «서른 분» → «하객 모두» — 하객이 스무 분인 두 분에게 «서른»은 틀린 말이 된다(정원 글은 그대로) */
   var CARDS = {
     prevideo: { n: '식전 영상', sn: '식전 영상', one: '두 분이 준비한 영상(3분 안)을 하객이 자리에 앉는 동안 상영해요. 영상이 없으면 보내 주신 사진으로 저희가 3분 영상을 만들어요.', shot: '영상을 보는 가족들의 얼굴', who: '하객(두 분은 문 밖에서 기다려요)' },
     candle: { n: '화촉', sn: '화촉', one: '두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요.', shot: '초에 불이 옮겨붙는 순간 · 불빛에 비친 얼굴',   /* [DETAIL_0925 B15] 서는 분에 따라 «누가»는 빌더가 바꾼다 */ who: '양가 어머님(누가 서실지는 두 분이 정해요)' },
@@ -49,11 +50,11 @@
     bless: { n: '부모님 덕담', sn: '덕담', one: '부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤).', shot: '말씀하시는 부모님과 듣는 두 분', who: '부모님 한 분~네 분', why: '서약 바로 앞이에요. 부모님 말씀으로 약속의 문을 여는 자리예요.' },
     vow: { n: '혼인 서약', sn: '서약', one: '두 분이 서로에게 하는 약속을 읽어요(한 분 1분쯤).', shot: '서로를 보며 약속하는 옆얼굴', who: '두 분' },
     ring: { n: '반지 교환', sn: '반지', one: '서로의 손에 반지를 끼워 줘요.', shot: '반지를 끼워 주는 두 손', who: '두 분(건네는 손은 가족 · 아이도 돼요)' },
-    declare: { n: '성혼 선언', sn: '선언', one: '두 분이 부부가 되었음을 알려요. 말투와 누가 선언할지 고를 수 있어요.', shot: '서른 분이 박수 치는 넓은 장면', who: '나레이션 또는 가족 한 분 · 하객은 박수' },
+    declare: { n: '성혼 선언', sn: '선언', one: '두 분이 부부가 되었음을 알려요. 말투와 누가 선언할지 고를 수 있어요.', shot: '하객 모두가 박수 치는 넓은 장면', who: '나레이션 또는 가족 한 분 · 하객은 박수' },
     tribute: { n: '부모님께 인사', sn: '부모님 인사', one: '부부가 되어 처음 부모님께 드리는 인사예요. 꽃과 인사, 포옹으로 고마움을 전해요. 원하시면 신랑은 큰절로 해요(신부는 드레스라 서서 인사해요).', /* [BOW_GROOM] [LIST_NAMES] 띠 칩 «부모님 인사» */  shot: '부모님께 안기는 순간', who: '두 분 · 양가 부모님', why: '선언 다음이에요. 부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).' },
     free: { n: '준비한 순서', sn: '준비한 순서',   /* [DETAIL_0925 B3] «두 사람이» 는 친구가 축사하는 날 틀린 이름이 된다 */ one: '두 분이나 가족 · 친구가 특별히 준비한 순서가 있을 때 담아요. 영상, 춤 · 공연, 깜짝 선물, 친구의 짧은 축사(3분 안). 라이브 노래 · 연주는 받지 않아요. 영상 속 노래 · 연주, 음원에 맞춘 춤은 괜찮아요.', shot: '함께 보며 웃는 하객들', /* [FREE_WHAT] shot 은 shotOf 가 무엇을에 따라 고른다 */  who: '두 분 · 준비한 가족이나 친구', why: '편지 앞이에요. 편지가 마지막 큰 순간이 되도록.' },
     letter: { n: '편지 낭독', sn: '편지', one: '부모님께, 또는 서로에게 쓴 편지를 읽어요.', shot: '편지를 읽는 목소리와 듣는 얼굴', who: '두 분' },
-    toast: { n: '케이크 · 축배', sn: '케이크 · 축배', /* [DETAIL_0925 B3] 순간 이름은 «케이크 · 축배» 하나 — 칩 «케이크와 축배»(둘 다)는 그대로 */  one: '케이크를 함께 자르고, 모두 잔을 들어 «위하여». 잔을 드는 자리는 여기 하나예요.', shot: '자르는 손 · 섞이는 잔 · 서른 개의 잔', who: '두 분 · 하객 모두', why: '와인도 여기서 해요. 두 분이 두 와인을 한 잔에 붓는 일과 모두의 «위하여»를 한자리에 모았어요(잔 드는 순간이 둘로 갈리지 않게).' },
+    toast: { n: '케이크 · 축배', sn: '케이크 · 축배', /* [DETAIL_0925 B3] 순간 이름은 «케이크 · 축배» 하나 — 칩 «케이크와 축배»(둘 다)는 그대로 */  one: '케이크를 함께 자르고, 모두 잔을 들어 «위하여». 잔을 드는 자리는 여기 하나예요.', shot: '자르는 손 · 섞이는 잔 · 모두의 잔', who: '두 분 · 하객 모두', why: '와인도 여기서 해요. 두 분이 두 와인을 한 잔에 붓는 일과 모두의 «위하여»를 한자리에 모았어요(잔 드는 순간이 둘로 갈리지 않게).' },
     _close: { n: '닫는 인사', sn: '닫는 인사', one: '두 분이 인사를 드리고 본식을 마쳐요. 이어서 가족 · 하객과 사진을 남겨요.', shot: '두 분 뒤로 보이는 하객들 · 단체 사진', who: '두 분 · 하객 모두' }
   };
 
@@ -143,10 +144,13 @@
      ★식전 영상은 넷 모두 늘 있다(PREVIDEO_ALWAYS). 준비한 순서는 어느 예시에도 없다 — «고객이 특별히 준비했을 때만 · 몇 없음»(사장님).
        기록은 12~17분 그대로(«시간보다 자연스러운 예식» — 사장님). */
   var EXAMPLES = [
-    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'A', declare: 'clap', tribute: 'none', toast: 'both', wine: 'mix' } },
-    { k: 'promise', nm: '약속', title: '서로에게 쓴 말', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'letter', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'one', letter: 'each', toast: 'both', wine: 'mix' } },
-    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', on: ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long', toast: 'both', wine: 'family' } },
-    { k: 'all', nm: '전부', title: '하나도 빼고 싶지 않아요', on: PICKABLE.filter(function (k) { return k !== 'free'; }), set: { entry: 'A', declare: 'solemn', tribute: 'one', letter: 'parent', toast: 'both', wine: 'mix' } }
+    /* ★★[EX_BRIEF 2026-09-26 사장님 결정 · 코워크 회신 9/26 3-2] 넷째 «전부» → «간결» · «약속»의 부모님께 인사 → 말 없이.
+         «전부»(all)는 거뒀다 — 저장된 초안의 pickFrom:'all' 은 exampleOf 가 null 이라 originOf 가 «직접 고르셨어요.»로 조용히 보인다
+         (담은 순간은 그대로). 되살리지 말 것. feel = 카드의 분위기 한 줄(① 개편 [PICK_V2] 이 쓴다). */
+    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객이 박수로 함께해요', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'A', declare: 'clap', tribute: 'none', toast: 'both', wine: 'mix' } },
+    { k: 'promise', nm: '약속', title: '서로에게 쓴 말', feel: '서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'letter', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'none', letter: 'each', toast: 'both', wine: 'mix' } },
+    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long', toast: 'both', wine: 'family' } },
+    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['vow', 'ring', 'declare', 'toast'], set: { entry: 'A', declare: 'solemn', toast: 'both', wine: 'mix' } }
   ];
   function exampleOf(k) { for (var i = 0; i < EXAMPLES.length; i++) if (EXAMPLES[i].k === k) return EXAMPLES[i]; return null; }
   // 예시를 S 에 입힌다 — 순간은 통째로 바꾸고, 판은 기본 위에 예시 값을 얹는다
@@ -232,8 +236,11 @@
   /* ★★[RANGE_EX4 2026-09-25 코워크 회신 2-1 (가)] 15~30 · 20~35 → 12~25 · 25~38. «예시 넷 기준»으로 좁혔다
      (기록 11:33~ · 전부 ~24:41 을 분으로 둥글림 · 둘을 더해 50). 빈 채 · 가장 긴 조합은 이 밖으로 나갈 수 있다 — 띠가
      그 판의 실제 값을 따로 보여 주므로 이 한 줄은 «대개 이만큼»이다. 가운데 한 칸(rep)은 그대로. */
-  var RANGE = { body: [12, 25], photo: [25, 38], rep: 20 };
-  var DAYMIN = 50;   // 본식 + 사진과 인사 = DAY.total − ready − snap − farewell (ritual-data.js [DAY_PLAN]) · open-course.mjs 가 대조
+  /* ★★[RANGE_40 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-3] 스냅 60 으로 합이 50 → 40 · «사진과 인사» → «단체 사진».
+       8 = «간결» 예시 아래 값(8:24) · 25 = 가족 예시 넉넉 합(23:37)에 1분 남짓 여유(P14 그대로) · 단체 사진 15~32 = 40 − 본식 범위.
+       rep 20 → 단체 사진 대표 20분(시작 10:40 = 본식 10:20 + 20). */
+  var RANGE = { body: [8, 25], photo: [15, 32], rep: 20 };
+  var DAYMIN = 40;   // 본식 + 단체 사진 = DAY.total − ready − snap − farewell (ritual-data.js [DAY_PLAN] · [DAY_60]) · open-course.mjs 가 대조
   function rng(x, y) { return x === y ? ('약 ' + x + '분') : ('약 ' + x + '~' + y + '분'); }
   // 띠 한 줄에 필요한 모든 값
   function span(S) {
@@ -339,13 +346,14 @@
   var NOTICE = {
     heavy: '앉아서 듣는 순간이 셋 이어져요. 반지나 선언을 담으면 사이가 풀려요. 반지는 끼고 오셔도 할 수 있어요.',   /* [DETAIL_0925 A2] «남겨 두면» → «담으면» */
     twice: '부모님께 드리는 말이 두 번이에요. 인사를 «한마디씩»으로 바꾸면 겹치지 않아요.',
-    toast: '끝이 조용한 편이에요. «케이크 · 축배»를 담으면 서른 분이 함께 잔을 들며 밝게 끝나요(술 대신 음료도 돼요).',
+    toast: '끝이 조용한 편이에요. «케이크 · 축배»를 담으면 하객 모두가 함께 잔을 들며 밝게 끝나요(술 대신 음료도 돼요).',
     /* [NOTICE_0925 코워크 4-7] 뒤쪽 사슬(인사 · 축사 · 편지) — 앞쪽(덕담 · 서약)은 위 heavy 그대로 */
     heavyBack: '앉아서 듣는 순간이 셋 이어져요. 부모님께 인사를 «말 없이»로 하면 사이가 풀려요.',
     /* [NOTICE_0925 코워크 4-1] 알림 ④ — 맨 뒤 차례. N 은 내림(«약 N분»은 그보다 줄지 않는다는 뜻) */
-    short: function (n) { return '천천히 진행되면 사진과 인사가 약 ' + n + '분으로 줄어요. 단체 · 가족 사진은 그대로 두고, 테이블 인사와 두 분 쉬는 시간을 줄여요.'; }
+    /* ★[RANGE_40 2026-09-26] 테이블 인사가 없어졌다([NO_TABLE_ROUND]) — 줄이는 차례는 자유 사진 → 숨 고르기 → 뒤에 고른 구도 */
+    short: function (n) { return '천천히 진행되면 단체 사진이 약 ' + n + '분으로 줄어요. 전체 사진은 그대로 두고, 가족 구도는 앞쪽부터 담아요. 순간을 하나 덜면 여유가 생겨요.'; }
   };
-  var SHORT_MIN = 23;   // 사진과 인사가 이보다 짧아질 수 있으면(늦어진 날) 알림 ④
+  var SHORT_MIN = 16;   // [RANGE_40] 단체 사진이 이보다 짧아질 수 있으면(늦어진 날) 알림 ④ — 전체 사진 8 + 가족 구도 둘 6 + 두 분 숨 고르기 2
   function noticeOf(S) {
     if (!picked(S).length) return '';
     var seq = bodySeq(S), run = 0, mx = 0, head = '', mxHead = '';
@@ -355,7 +363,7 @@
     var noToast = seq.indexOf('toast') < 0 || chipOf('toast', S) === 'cake';
     var last = seq[seq.length - 2];   // 닫는 인사 바로 앞
     if (noToast && picked(S).length > 3 && (heavy(last, S) || last === 'declare' || seq.indexOf('declare') < 0)) return NOTICE.toast;   // [DETAIL_0925 A2] 고른 순간이 셋 넘을 때만
-    var pa = span(S).pa;   // [DETAIL_0925 A2] 띠의 «사진과 인사» 아래 값과 같은 반올림
+    var pa = span(S).pa;   // [DETAIL_0925 A2] 띠의 «단체 사진» 아래 값과 같은 반올림
     if (pa < SHORT_MIN) return NOTICE.short(pa);
     return '';
   }

@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>식순 만들기 개편 시안 · 9/26</title>
+<style>
+:root{
+  --bg:#FAFAF8; --card:#FFFFFF; --ink:#3A2D22; --sub:#5A554C; --muted:#75705F; --line:#DDD8D1; --line2:#ECE8E2;
+  --gold:#B89A75; --gold-deep:#9A7B4F; --gold-deeper:#7A5F37; --seal:#6B2A24; --bg2:#F5F3EF; --btn:#4E3D2E;
+  --m1:#2a78d6; --m2:#eb6834; --m3:#1baf7a; --sit:#B9B2A6; --band:#F1ECE4;   /* 이 셋은 «지금» 비교 그림에만 남김 */
+  --flow:var(--gold-deeper);   /* 감동 흐름 선 — 색 없이 한 줄(9/26 오후) */
+  --serif:'Noto Serif KR','Nanum Myeongjo','AppleMyungjo',serif;
+  --sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#EFECE6;color:var(--ink);font-family:var(--sans);line-height:1.65;word-break:keep-all;overflow-wrap:break-word;-webkit-text-size-adjust:100%}
+.doc{max-width:1360px;margin:0 auto;padding:28px 16px 80px}
+.doc>h1{font-family:var(--serif);font-size:26px;line-height:1.3;margin:0 0 6px}
+.doc>.sub{color:var(--sub);margin:0 0 22px;max-width:72ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 18px}
+.box h2{font-size:17px;margin:0 0 10px}
+.box h3{font-size:15px;margin:14px 0 6px}
+.box ul,.box ol{margin:0;padding-left:20px}
+.box li{margin:3px 0}
+.box .muted{color:var(--muted);font-size:13px}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th,table.t td{border-top:1px solid var(--line2);padding:8px 8px;text-align:left;vertical-align:top}
+table.t th{font-weight:600;color:var(--sub);font-size:13px;border-top:0}
+.tw{overflow-x:auto}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--gold-deeper)}
+
+/* 틀 */
+.frames{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 12px}
+.frames button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 16px;min-height:40px;cursor:pointer}
+.frames button[aria-pressed="true"]{background:var(--btn);color:#fff;border-color:var(--btn)}
+.frames .hint{color:var(--muted);font-size:13px}
+.frames .sep{width:1px;height:26px;background:var(--line);margin:0 4px}
+.stagewrap{overflow:hidden;border-radius:18px;background:#E4E0D8;padding:18px;margin-bottom:22px}
+.stage{transform-origin:top left}
+.dev{width:390px;height:760px;background:var(--bg);border-radius:28px;box-shadow:0 10px 30px rgba(58,45,34,.18);overflow:hidden;position:relative;border:8px solid #2B231C}
+.dev.pc{width:1280px;height:800px;border-radius:12px;border-width:6px}
+.scroller{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden}
+.app{container-type:inline-size;container-name:app;min-height:100%;position:relative}
+.rail{display:none;position:absolute;right:22px;top:340px;z-index:9;pointer-events:none}
+.dev.pc .rail{display:block}
+.rail span{width:50px;height:50px;border-radius:50%;border:1.5px dashed #C9BBA6;display:grid;place-items:center;font-size:10px;color:var(--muted);text-align:center;line-height:1.2;background:rgba(250,250,248,.85)}
+
+/* ─── 공통 조각 ─── */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:16px 18px 0}
+.steps span{border-top:3px solid #E3DED6;padding-top:8px;text-align:center;font-size:13px;color:var(--sub)}
+.steps span.on{border-color:var(--ink);color:var(--ink);font-weight:700}
+.hd h1{font-family:var(--serif);font-size:25px;margin:18px 0 6px;letter-spacing:-.01em;font-weight:700}
+.hd .lead{margin:0;color:var(--sub);font-size:15px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:24px 0 10px;flex-wrap:wrap}
+.sec-h h2{font-size:17px;margin:0}
+.sec-h .aux{font-size:13px;color:var(--muted)}
+.exblank{margin:2px 0 0;text-align:right}
+.linkbtn{font:inherit;font-size:13.5px;background:none;border:0;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;padding:10px 0;cursor:pointer;min-height:40px}
+
+.ex{font:inherit;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px;cursor:pointer;color:var(--ink);min-height:44px;position:relative}
+.ex:hover{border-color:var(--gold)}
+.ex[aria-pressed="true"]{border-color:var(--btn);box-shadow:0 0 0 1px var(--btn) inset}
+.ex .en{font-weight:700;font-size:15px}
+.ex .en{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px}
+.ex .et{font-size:12.5px;color:var(--sub);font-weight:400;line-height:1.45}
+.ex .em{font-size:13px;color:var(--sub);line-height:1.5}
+.ex .chk{font-size:11.5px;color:var(--btn);font-weight:700}
+.ex svg{display:block;width:100%}
+
+.lg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--sub);margin:4px 0 8px}
+.lg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:3px}
+.lg i.lgb{height:10px;width:12px;background:var(--band);vertical-align:-1px;border-radius:2px}
+.ins{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13.5px}
+.ins li{display:flex;gap:6px}
+.ins li b{font-weight:600}
+.alert{margin-top:8px;background:#FBF4EC;border:1px solid #EBD9C3;border-radius:10px;padding:8px 10px;font-size:13px}
+.alert button{font:inherit;font-size:12.5px;margin-top:6px;border:1px solid var(--gold);background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;min-height:32px}
+.tm{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.tm .pre{white-space:nowrap}   /* 색은 그대로(작은 글 대비 4.5:1) · → 로 본식 줄과 가른다 */
+.fg-wrap{position:relative;margin:8px 0 2px}
+.fg-wrap svg{display:block;width:100%}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12.5px;line-height:1.45;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s;z-index:5}
+.tip.on{opacity:1}
+
+/* ─── 순간 칸 — 그림(나중에 영상)이 위 · 이름과 한 줄이 아래 (9/26 오후 말씀 16 · 17) ─── */
+.acts{display:grid;gap:20px}
+.act-h{font-weight:700;font-size:14.5px;color:var(--gold-deeper)}
+.act-d{font-size:12.5px;color:var(--muted);margin:0 0 8px;line-height:1.45}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tile.on,.tile.fix{border-color:var(--gold);background:#FFFDF9}
+.tile.opt{border-style:dashed}
+.tl-open{font:inherit;color:inherit;text-align:left;display:block;width:100%;height:100%;background:none;border:0;padding:0;cursor:pointer}
+.tl-open:focus-visible,.sel:focus-visible{outline:2px solid var(--btn);outline-offset:-2px}
+.tl-media{position:relative;display:grid;place-items:center;aspect-ratio:16/9;background:var(--bg2)}
+.tl-media svg.glyph{width:46px;height:32px;color:var(--gold-deep)}
+.tl-play{position:absolute;left:7px;bottom:7px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.tl-play svg{width:9px;height:9px;fill:var(--ink);margin-left:2px}
+.tl-opt{position:absolute;left:7px;top:8px;font-size:11px;font-weight:600;color:var(--sub);background:rgba(255,255,255,.94);border-radius:999px;padding:1px 8px}
+.tl-txt{display:block;padding:8px 10px 11px}
+.tl-n{display:block;font-weight:700;font-size:15px;line-height:1.35}
+.tl-s{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;color:var(--sub);line-height:1.45;margin-top:2px}
+.sel{position:absolute;top:0;right:0;width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
+.sel i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.96);border:1.5px solid var(--gold);color:var(--gold-deeper);display:grid;place-items:center;font-style:normal;font-size:17px;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.sel.on i{background:var(--btn);border-color:var(--btn);color:#fff;font-size:13px}
+.fixtag{position:absolute;top:8px;right:8px;font-size:11px;font-weight:600;color:var(--sub);background:rgba(255,255,255,.94);border-radius:999px;padding:1px 8px;pointer-events:none}
+.ai-note{font-size:12px;color:var(--muted);margin:12px 0 0}
+
+/* ─── ▶ 미리 보기 창 — 휴대폰은 아래에서 올라오는 창 · PC는 가운데 창 ─── */
+.pvw{position:absolute;inset:0;z-index:20}
+.pvw[hidden]{display:none}
+.pvw-bg{position:absolute;inset:0;background:rgba(43,35,28,.45)}
+.pvw-box{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:18px 18px 0 0;padding:8px 18px 18px;box-shadow:0 -6px 24px rgba(0,0,0,.16);max-height:94%;overflow:auto}
+.pvw-grab{width:40px;height:4px;border-radius:2px;background:#D8D2C8;margin:0 auto 4px}
+.pvw-h{display:flex;align-items:center;gap:8px;min-height:44px}
+.pvw-h b{font-size:17px}
+.pvw-tag{font-size:11px;font-weight:600;color:var(--sub);background:var(--bg2);border-radius:999px;padding:1px 8px}
+.pvw-tag:empty{display:none}
+.pvw-x:focus:not(:focus-visible){outline:none}
+.pvw-x{margin-left:auto;width:44px;height:44px;border:0;background:none;font-size:18px;cursor:pointer;color:var(--sub);border-radius:50%}
+.pvw-media{position:relative;aspect-ratio:16/9;border-radius:12px;background:#EDE7DD;display:grid;place-items:center;overflow:hidden}
+.pvw-media svg.glyph{width:110px;height:76px;color:var(--gold-deep);transition:transform .3s}
+.pvw-media.playing svg.glyph{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.07);opacity:.82}}
+.pvw-media .ai{position:absolute;left:8px;bottom:8px;font-size:11px;color:#6d655a;background:rgba(255,255,255,.86);border-radius:6px;padding:1px 6px}
+.pvw-media .live{position:absolute;right:8px;top:8px;font-size:11px;color:#fff;background:var(--btn);border-radius:6px;padding:1px 7px}
+.pvw-media .hold{position:absolute;left:8px;top:8px;font-size:11px;color:#6d655a}
+.pvw-q{font-family:var(--serif);font-size:15.5px;line-height:1.65;margin:12px 0 6px}
+.pvw-pb{height:3px;background:var(--line2);border-radius:2px;overflow:hidden}
+.pvw-pb i{display:block;height:100%;width:0;background:var(--gold-deep)}
+.pvw-st{font-size:12px;color:var(--muted);margin:5px 0 0}
+.pvw-one{font-size:13.5px;color:var(--sub);margin:12px 0 2px;line-height:1.55}
+.pvw-ch{font-size:12.5px;color:var(--sub);margin:0 0 2px;line-height:1.55}
+.pvw-ch:empty{display:none}
+.pvw-shot{font-size:12.5px;color:var(--sub);margin:0;line-height:1.55}
+.pvw-act{display:flex;align-items:center;gap:8px;margin-top:14px}
+.pvw-act button{font:inherit;font-weight:700;border-radius:12px;min-height:48px;cursor:pointer;padding:0 16px}
+.pvw-again{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.pvw-add{flex:1;background:var(--btn);color:#fff;border:0}
+.pvw-add.out{flex:0 0 auto;background:#fff;color:var(--ink);border:1px solid var(--line)}
+.pvw-in{flex:1;text-align:right;font-size:13.5px;color:var(--btn);font-weight:700}
+.pvw-fixed{flex:1;text-align:right;font-size:13px;color:var(--muted)}
+.pvw-fn{font-size:12px;color:var(--muted);margin:10px 0 0;text-align:center}
+.dev.pc .pvw-box{left:50%;right:auto;top:50%;bottom:auto;width:680px;transform:translate(-50%,-50%);border-radius:16px;padding:10px 24px 20px}
+.dev.pc .pvw-grab{display:none}
+/* ─── 휴대폰(기본) ─── */
+.m-only{display:block}
+.pc-only{display:none}
+.mwrap{padding:0 18px 8px}
+.m-exgrid{display:grid;grid-template-columns:1fr;gap:8px}
+.m-exgrid .ex{display:grid;grid-template-columns:1fr 112px;grid-template-areas:"en fm" "em fm";column-gap:10px;row-gap:2px;align-items:center}
+.m-exgrid .en{grid-area:en} .m-exgrid .em{grid-area:em} .m-exgrid .flowmini{grid-area:fm}
+.m-exgrid svg{height:40px}
+.fp{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;margin-top:14px}
+.fp-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fp-h b{font-size:15px}
+.fp-h span{font-size:13px;color:var(--sub)}
+.fp-h span strong{color:var(--ink)}
+.bar{position:sticky;left:0;right:0;bottom:0;z-index:4;background:linear-gradient(to top,var(--bg) calc(100% - 12px),rgba(250,250,248,0));padding:14px 18px 16px}
+.bar .sum{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--sub);margin-bottom:8px}
+.bar .sum svg{width:64px;height:18px}
+.bar .sum.flash b{animation:sumflash .7s ease-out}
+@keyframes sumflash{0%{color:var(--gold-deep)}100%{color:inherit}}
+.bar .btns{display:grid;grid-template-columns:96px 1fr;gap:8px}
+.bar .btns button{font:inherit;font-weight:700;border-radius:14px;min-height:50px;border:0;cursor:pointer}
+.bar .prev{background:#EFEBE5;color:var(--ink)}
+.bar .go{background:var(--btn);color:#fff}
+
+/* ─── PC(틀 폭 1000 이상) — 이야기판 ─── */
+@container app (min-width: 1000px){
+  .m-only{display:none}
+  .pc-only{display:block}
+  .pcw{max-width:min(1180px, calc(100cqw - 176px));margin:0 auto}
+  .steps{padding:22px 0 0}
+  .hdrow{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+  .hd h1{font-size:30px;margin-top:22px}
+  .hd .lead{font-size:16px}
+  .restart{font-size:13px;color:var(--sub);text-decoration:underline;text-underline-offset:3px;white-space:nowrap;padding-bottom:6px}
+  .p-exgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .p-exgrid .ex{display:flex;flex-direction:column;gap:2px;padding:14px}
+  .p-exgrid .ex .flowmini{margin-top:auto;padding-top:8px}   /* 글 줄 수가 달라도 흐름선은 카드 아래에 나란히 */
+  .p-exgrid svg{height:44px;margin:6px 0 4px}
+  .band{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:28px}
+  .band .fp-h{margin-bottom:2px}
+  .band .side{border-left:1px solid var(--line2);padding-left:24px;display:flex;flex-direction:column}
+  .band .big{font-size:13px;color:var(--sub)}
+  .band .big strong{display:block;font-size:26px;color:var(--ink);font-weight:700;line-height:1.25;margin:2px 0 4px}
+  .band .ins{margin-top:10px}
+  .band .go{margin-top:auto;font:inherit;font-weight:700;border:0;border-radius:12px;min-height:48px;background:var(--btn);color:#fff;cursor:pointer}
+  .band .ordline{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+  .slim{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:16px;background:rgba(250,250,248,.96);border-bottom:1px solid var(--line);padding:10px max(88px, calc((100cqw - 1180px)/2));transform:translateY(-100%);opacity:0;transition:transform .2s,opacity .2s;margin-bottom:-65px;height:65px}
+  .slim.on{transform:none;opacity:1}
+  .slim svg{width:180px;height:34px}
+  .slim .t{font-size:13.5px;color:var(--sub)}
+  .slim .t b{color:var(--ink)}
+  .slim .go{margin-left:auto;font:inherit;font-weight:700;border:0;border-radius:10px;min-height:44px;padding:0 22px;background:var(--btn);color:#fff;cursor:pointer}
+  .acts{gap:18px;margin:6px 0 60px}
+  .act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
+  .act-h{font-size:15px;color:var(--ink)}
+  .tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  .tl-s{font-size:13px}
+  .ai-note{margin-top:-40px;margin-bottom:60px}
+}
+@container app (min-width: 1000px) and (max-width: 1150px){
+  .act{grid-template-columns:1fr;gap:4px}
+}
+
+.cmp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:8px 0 4px}
+.cmp>div{border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:#fff;min-width:0}
+.cmp h4{margin:0 0 2px;font-size:14px}
+.cmp h4 small{font-weight:600;color:var(--btn);font-size:12px;margin-left:4px}
+.cmp p{margin:4px 0 0;font-size:12.5px;color:var(--sub);line-height:1.5}
+.cmp .g svg{display:block;width:100%}
+.cmp .lg{margin:2px 0 0}
+.flowsteps{margin:6px 0 0;padding-left:20px}
+.flowsteps li{margin:3px 0}
+@media (max-width:760px){ .cmp{grid-template-columns:1fr} }
+.daybar{display:flex;gap:2px;margin:6px 0 2px;font-size:12.5px;line-height:1.3}
+.daybar div{background:#E9E4DC;color:var(--ink);border-radius:6px;padding:7px 8px;min-width:0;overflow:hidden}
+.daybar div b{display:block;font-weight:700;font-size:13px}
+.daybar .hot{background:var(--gold-deep);color:#fff}
+.daybar .warm{background:#EAD9BD}
+.daylab{font-size:12.5px;color:var(--muted);margin-top:10px}
+/* ─── ②③④ PC 그림 ─── */
+.shotwrap{overflow:hidden;border-radius:14px;background:#E4E0D8;padding:14px;margin:10px 0 6px}
+.shot{width:1280px;height:720px;background:var(--bg);border-radius:10px;border:6px solid #2B231C;transform-origin:top left;position:relative;overflow:hidden;font-size:14px}
+.shot .steps{padding:18px 88px 0}
+.sc{padding:0 88px}
+.scr-h{display:flex;justify-content:space-between;align-items:flex-end;margin:16px 0 12px}
+.scr-h h1{font-family:var(--serif);font-size:26px;margin:0;font-weight:700}
+.scr-h .aux{font-size:13px;color:var(--muted)}
+.theater{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:24px}
+.screen{background:#EDE7DD;border-radius:14px;aspect-ratio:16/9;display:grid;place-items:center;position:relative}
+.screen .ai{position:absolute;left:10px;bottom:10px;font-size:11px;color:#6d655a;background:rgba(255,255,255,.8);border-radius:6px;padding:1px 6px}
+.caption{font-family:var(--serif);font-size:19px;line-height:1.6;margin:12px 2px 6px}
+.ctrl{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--sub)}
+.ctrl .b{width:40px;height:40px;border-radius:50%;background:var(--btn);color:#fff;display:grid;place-items:center;font-size:13px}
+.ctrl .pbar{flex:1;height:4px;background:var(--line2);border-radius:2px;position:relative}
+.ctrl .pbar i{position:absolute;left:0;top:0;bottom:0;width:38%;background:var(--gold-deep);border-radius:2px}
+.plist{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 12px;height:470px;overflow:hidden}
+.pr{display:flex;align-items:center;gap:10px;padding:8px 2px;border-top:1px solid var(--line2);font-size:14px}
+.pr:first-child{border-top:0}
+.pr .n{width:30px;flex:0 0 auto;color:var(--muted);font-size:12px;text-align:right;white-space:nowrap}
+.pr .mini{width:52px;height:30px;border-radius:6px;background:var(--bg2);display:grid;place-items:center;font-size:9px;color:var(--ink)}
+.pr b{font-weight:600}
+.pr small{display:block;color:var(--muted);font-size:12px}
+.pr.now{background:#FBF6EE;border-radius:10px;border-top-color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px 84px}
+.chips span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:#fff}
+.chips span.on{background:var(--btn);color:#fff;border-color:var(--btn)}
+.gonext{position:absolute;right:88px;bottom:22px;background:var(--btn);color:#fff;border-radius:12px;padding:12px 34px;font-weight:700}
+.desk{display:grid;grid-template-columns:minmax(0,640px) 340px;gap:28px;justify-content:space-between}
+.wcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.wcard .wn{font-weight:700}
+.wcard .wd{font-size:12.5px;color:var(--muted)}
+.wcard .ta{margin-top:8px;border:1px solid var(--line);border-radius:10px;height:88px;padding:8px 10px;color:#b0a99d;font-size:13px}
+.wcard .fr{font-size:12.5px;color:var(--gold-deeper);margin-top:6px}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.plan h4{margin:10px 0 4px;font-size:13px;color:var(--gold-deeper)}
+.plan h4:first-of-type{margin-top:6px}
+.plan li{list-style:none;font-size:13px;display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-top:1px dashed var(--line2)}
+.plan ul{margin:0;padding:0}
+.plan li span:last-child{color:var(--muted);white-space:nowrap}
+.progress{height:6px;border-radius:3px;background:var(--line2);margin:6px 0 2px;overflow:hidden}
+.progress i{display:block;height:100%;width:50%;background:var(--gold-deep)}
+.sheet{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:14px}
+.sheet .pane{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.sheet .pane h4{margin:0 0 6px;font-size:14px}
+.olist{margin:0;padding:0;list-style:none;columns:2;column-gap:18px}
+.olist li{font-size:13.5px;display:flex;gap:6px;align-items:center;padding:2px 0;break-inside:avoid}
+.olist li i{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.olist li span:last-child{margin-left:auto;color:var(--muted);font-size:12px}
+.actions{display:flex;gap:8px}
+.actions span{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:13px}
+.graphband{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+</style>
+</head>
+<body>
+<div class="doc">
+  <h1>식순 만들기 개편 시안 — 휴대폰 · PC</h1>
+  <p class="sub">9/26 오후 말씀(13~17)까지 반영했어요. 아래 ① 시안은 눌러 볼 수 있어요 — 예시를 누르고, 칸을 눌러 보고 듣고, 오른쪽 위 ＋로 담아 보세요. 단추로 휴대폰 · PC 틀을 바꿔요. 사장님이 «추천대로 진행»을 정하셔서 이 모양으로 코드에 넘겨요.</p>
+
+  <div class="box">
+    <h2>이번에 바꾼 것 — 9/26 오후 말씀 13~17 · 사장님 «추천대로 진행»(두 칸 · 곡선 A)</h2>
+    <ul>
+      <li><b>순간 칸</b>: 그림(나중에 장면 영상)이 위, 이름과 «무엇인지» 한 줄이 아래인 <b>정사각형 가까운 칸</b>이에요. 휴대폰은 두 칸씩, PC는 막마다 한 줄에 네 칸씩. 칸에서 시간 · «한 분 400자» 같은 준비 정보는 뺐어요 — 시간은 위 흐름 판의 합계로, 준비는 ③에서 모아요.</li>
+      <li><b>담기 표시</b>: 44px 큰 원 → 그림 오른쪽 위 <b>작은 원</b>(보이는 크기 26px). 손가락이 닿는 자리는 44px 그대로라 누르기는 똑같이 쉬워요. 글이 칸 폭을 다 써요.</li>
+      <li><b>▶</b>: 칸을 누르면 <b>미리 보기 창</b>이 올라와요 — 장면 영상과 대표 나레이션 한 줄이 <b>함께</b> 나와요(아래 «▶ 누르면»).</li>
+      <li><b>감동 흐름</b>: 색 · 회색 밑줄 · 옅은 칸 · 분 눈금을 빼고 <b>선 하나</b>로. 가장 벅찬 순간에만 점 하나를 찍어요(아래 비교).</li>
+      <li><b>길이</b>(시안에서 잰 값 · 가족 예시를 담았을 때): 휴대폰 ① 지금 약 8,060px → <b>두 칸 약 2,900px</b>(한 칸 큰 그림은 약 5,000px라 두 칸으로 정하심).</li>
+    </ul>
+
+    <h3>감동 흐름 — 색을 빼고 선 하나로 (가족 예시로 비교)</h3>
+    <div class="cmp">
+      <div><h4>지금</h4><div class="g" id="cmpNow"></div><div class="lg"><span><i style="background:var(--m1)"></i>설렘</span><span><i style="background:var(--m2)"></i>뭉클</span><span><i style="background:var(--m3)"></i>기쁨</span><span><i style="background:var(--sit)"></i>앉아서 듣기</span><span><i class="lgb"></i>절정 자리</span></div><p>읽을 것이 다섯 가지(색 셋 · 밑줄 · 옅은 칸)라 한눈에 안 들어와요.</p></div>
+      <div><h4>A · 곡선 한 줄<small>정하심 · 시안에 넣음</small></h4><div class="g" id="cmpA"></div><p>높을수록 벅찬 순간. 감동은 빨리 차오르고 천천히 가라앉게 그려서, 오르내림과 절정 뒤 여운이 한눈에 보여요. 점 하나가 가장 벅찬 순간이에요.</p></div>
+      <div><h4>B · 계단 한 줄</h4><div class="g" id="cmpB"></div><p>순간마다 칸이 져서 길이는 정확하지만, «흐름»보다 «표» 느낌이 나요.</p></div>
+    </div>
+    <p class="muted" style="margin:6px 0 0">뺀 정보는 이렇게 옮겼어요 · 결(설렘 · 뭉클 · 기쁨) → 예시 카드의 분위기 한 줄 · 앉아서 듣는 시간 → 셋이 이어질 때만 알림 · 절정 자리 → «가장 벅찬 순간 · 3분의 2쯤 — 좋은 자리예요» 한 줄 · 분 눈금 → 맨 위 본식 시간 · 순간 이름 → PC는 선 아래, 휴대폰은 선을 누르면.</p>
+
+    <h3>▶ 누르면 — 이렇게 돌아가요</h3>
+    <ol class="flowsteps">
+      <li>칸(그림이나 글)을 누르면 <b>미리 보기 창</b>이 아래에서 올라와요. PC는 가운데 창이에요.</li>
+      <li>창 위쪽에 그 순간의 <b>장면 영상</b>(AI · 5~8초 · 소리 없음)이 크게 돌고, 동시에 <b>대표 나레이션 한 줄</b>(AI 성우 · 5~12초)이 나와요. 영상은 목소리가 끝날 때까지 반복돼요.</li>
+      <li>들리는 말은 영상 아래 <b>글로도</b> 떠요 — 소리를 못 켜는 곳에서도 느낌을 알 수 있게.</li>
+      <li>목소리가 끝나면 멈추고 «다시 듣기». 창 안에서 바로 <b>담기 · 빼기</b>를 할 수 있어요.</li>
+      <li>창을 닫거나 뒤로 가기를 누르면 멈춰요. 한 번에 하나만 나와요.</li>
+      <li>파일은 둘이에요: 장면 영상(이미 정한 17편 · 칸에는 첫 장면 사진) + 대표 한 줄 녹음(13줄). 녹음이 오기 전에는 글만 흐르고, 녹음이 오면 저절로 소리가 나요. ②에서는 그 순간의 나레이션을 전부 들어요.</li>
+      <li>카톡 안에서도 누른 뒤에 나는 소리는 괜찮아요(누르기 전에 저절로 나는 소리만 막혀 있어요).</li>
+    </ol>
+    <p class="muted" style="margin:6px 0 0">지금 시안은 영상 · 녹음 전이라 그림이 숨 쉬듯 움직이고, 글과 진행 막대로 흉내 내요.</p>
+  </div>
+
+  <div class="frames" role="group" aria-label="보는 틀">
+    <button type="button" id="fPhone" aria-pressed="true">휴대폰(390)</button>
+    <button type="button" id="fPC" aria-pressed="false">PC(1280)</button>
+    <span class="hint">PC 틀은 화면에 맞게 줄여 보여요 · 오른쪽 점선 원은 레일 자리(그대로 둠)</span>
+  </div>
+  <div class="stagewrap" id="stagewrap"><div class="stage" id="stage">
+    <div class="dev" id="dev">
+      <div class="rail" aria-hidden="true"><span>레일<br>그대로</span></div>
+      <div class="scroller" id="scroller"><div class="app" id="app">
+        <!-- PC: 얇은 흐름 띠(흐름 판이 화면 밖으로 나가면 나타남) -->
+        <div class="slim pc-only" id="slim"></div>
+        <div class="pcw">
+          <div class="steps"><span class="on">① 고르기</span><span>② 보고 듣기</span><span>③ 준비하기</span><span>④ 완성</span></div>
+          <div class="mwrap" id="mw">
+            <div class="hdrow">
+              <header class="hd">
+                <h1>우리 예식 짓기</h1>
+                <p class="lead">작은 예식은 보통 이런 흐름이에요. 마음에 드는 예시로 시작해서 더하고 빼면 돼요.</p>
+              </header>
+            </div>
+            <div class="sec-h"><h2>예시로 시작하기</h2><span class="aux">무엇을 담아도 값은 같아요.</span></div>
+            <div class="m-exgrid m-only" id="exM"></div>
+            <div class="p-exgrid pc-only" id="exP"></div>
+            <p class="exblank"><button type="button" class="linkbtn" id="blank">빈 칸에서 직접 고를게요</button></p>
+            <div class="m-only" id="fpM"></div>
+            <div class="pc-only" id="bandP"></div>
+            <div class="sec-h"><h2>순간 더하고 빼기</h2><span class="aux">칸을 누르면 미리 보고 들어요 · ＋로 담아요</span></div>
+            <div class="acts" id="acts"></div>
+            <p class="ai-note">칸의 그림 자리에는 AI로 만든 장면 영상의 첫 장면이 들어가요.</p>
+          </div>
+        </div>
+        <div class="bar m-only" id="bar"></div>
+      </div></div>
+      <div class="pvw" id="pvw" hidden>
+        <div class="pvw-bg" data-close></div>
+        <div class="pvw-box" role="dialog" aria-modal="true" aria-labelledby="pvwT">
+          <div class="pvw-grab" aria-hidden="true"></div>
+          <div class="pvw-h"><b id="pvwT"></b><span class="pvw-tag" id="pvwTag"></span><button type="button" class="pvw-x" data-close aria-label="닫기">✕</button></div>
+          <div class="pvw-media" id="pvwM"></div>
+          <p class="pvw-q" id="pvwQ"></p>
+          <div class="pvw-pb"><i id="pvwBar"></i></div>
+          <p class="pvw-st" id="pvwSt"></p>
+          <p class="pvw-one" id="pvwOne"></p>
+          <p class="pvw-ch" id="pvwCh"></p>
+          <p class="pvw-shot" id="pvwShot"></p>
+          <div class="pvw-act" id="pvwAct"></div>
+          <p class="pvw-fn">전체 나레이션은 ② 보고 듣기에서 이어서 들어요</p>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="box">
+    <h2>지금 화면에서 직접 본 것 (9/26 · main 93fa1531)</h2>
+    <ul>
+      <li>① 한 화면이 휴대폰에서 <b>약 8,060px</b>(스크롤 약 10번)이에요. 순간 카드 13장이 한 장에 약 560px이고, 그중 절반은 «장면 영상 준비 중» 회색 칸이에요.</li>
+      <li><b>예시는 맨 아래(7,310px 지점)</b>에 있어요. 처음 온 분은 긴 목록부터 읽고, 한참 내려가야 «보통 이렇게 한다»를 봐요.</li>
+      <li>맨 위 설명이 네 줄이고, 그중 한 줄이 <b>비용</b>이에요(말씀 1). 비용은 ② 칩 «저희에게 맡기기(별도 비용)»에서 이미 알려요.</li>
+      <li>아무것도 안 담은 첫 화면에 «본식 약 2~3분 · 사진과 인사 약 48분»이 떠서 뜻을 알기 어려워요.</li>
+      <li>고른 순서가 두 곳에 나와요(위 칩 줄 · 아래 «고른 순간이 흐르는 차례»).</li>
+      <li>① 에서는 소리를 못 들어요. 나레이션은 ②에서만 나와요(말씀 5).</li>
+      <li><b>PC(1440)에서는 가운데 484px 한 줄</b>만 쓰고, 양옆 약 900px가 비어 있어요. ② · ③ · ④도 같아요(말씀 8).</li>
+      <li>나레이션은 지금 모든 줄이 녹음 전이에요(새 대본). 그래서 ▶는 녹음이 오기 전까지 글로 보여 줘야 해요.</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>하루 140분 — 새 배분 (9/26 정하심)</h2>
+    <p class="daylab">지금</p>
+    <div class="daybar" aria-label="지금 배분">
+      <div style="flex:20"><b>도착 · 환복</b>20분</div>
+      <div style="flex:50"><b>단독 스냅</b>50분</div>
+      <div style="flex:18"><b>본식</b>12~25분</div>
+      <div style="flex:32"><b>사진과 인사</b>25~38분 · 테이블 인사 포함</div>
+      <div style="flex:20"><b>배웅 · 환복</b>20분</div>
+    </div>
+    <p class="daylab">바꾼 뒤</p>
+    <div class="daybar" aria-label="바꾼 뒤 배분">
+      <div style="flex:20"><b>도착 · 환복</b>20분</div>
+      <div style="flex:60" class="hot"><b>단독 스냅</b>60분 (+10)</div>
+      <div style="flex:18"><b>본식</b>8~25분</div>
+      <div style="flex:22" class="warm"><b>단체 사진</b>15~32분</div>
+      <div style="flex:20"><b>배웅 · 환복</b>20분 · 인사</div>
+    </div>
+    <ul style="margin-top:12px">
+      <li><b>단독 스냅 60</b> = 캔들존 25 · 이동 5 · 화이트존 25 · 입장 준비 5 (두 존에 5분씩 더).</li>
+      <li><b>단체 사진</b> = 하객 전체 약 6분 + 꼭 담고 싶은 사진 둘까지 약 2분 → 가족 구도(한 구도 약 3분) → 남는 시간은 <b>자유 사진</b>(하객이 두 분과 편하게) · 두 분 숨 고르기 2분. 끝의 «다 함께 마지막 한 장»은 첫 전체 사진에 합쳐요.</li>
+      <li><b>테이블 인사 없음</b> → 배웅 줄에서 두 분이 한 분 한 분께 인사드려요(30명 약 10분 + 여유 10분).</li>
+      <li><b>시각</b>: 하객 입장 10:00 · 본식 10:20(오후 13:40 · 늦은 오후 17:00) · 끝나는 시각은 그대로. 하객이 캔들존에 들어오기 15분 전에 두 분이 비워요(지금은 10분 전).</li>
+      <li><b>예시(흐름대로)</b>: 기록 · 약속(부모님께 인사는 말 없이) · 가족 · <b>간결</b>(서약 · 반지 · 선언 · 케이크와 축배). 시간을 늘리려고 넣은 순간은 없어요. 기록의 «부모님께 인사(말 없이 · 약 1분 반)»는 한국 예식의 중심 순간이라 흐름상 두는 쪽이에요.</li>
+      <li><b>예시별 시간</b>(본식 → 단체 사진): 기록 12~17 → 23~28 · 약속 14~20 → 20~26 · 가족 17~24 → 16~23 · 간결 8~12 → 28~32(남는 만큼 자유 사진 · 구현 보고 6의 닫는 인사 시간까지 넣은 값).</li>
+      <li><b>코드에 넘길 때 바뀌는 곳</b>: 하루 뼈대(DAY) · 본식 + 사진 40 · 엔진 사진 큐(테이블 인사 · 마지막 한 장 빼기) · 마이페이지 구도 상한 셈 · 콘솔 촬영 판 · 홈페이지 · 계약서(새 판) · 어른 안내 시각 · 대본 두 줄(사진 안내 · 배웅 인사).</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>PC 배치 — 디자이너 관점 원칙</h2>
+    <ul>
+      <li><b>언제 바뀌나</b>: 화면 폭 1000px 이상에서만 PC 배치. 그 아래는 지금 휴대폰 배치 그대로.</li>
+      <li><b>폭</b>: 내용은 가운데 최대 1180px. 양옆은 88px 이상 비워요 — 오른쪽 레일(화면 끝 72~22px)에 아무것도 닿지 않게(RAIL_LOCKED · «비켜서는 쪽은 그 요소»).</li>
+      <li><b>① 이야기판</b>: 예식의 네 막(여는 · 약속 · 마음 · 축하와 닫는)을 <b>막마다 한 줄</b>로. 왼쪽에 막 이름, 오른쪽에 그림이 위인 칸 네 개 — 만화처럼 왼쪽에서 오른쪽, 위에서 아래로 예식이 흘러요(9/26 오후 · 휴대폰 두 칸과 같은 칸). 준비한 순서는 실제 자리(인사와 편지 사이)에 점선 칸으로. 1000~1150px는 막 이름을 칸 위로 올려요.</li>
+      <li><b>흐름 띠</b>: 예시 아래 넓은 감동 흐름 선(선 아래 순간 이름) + 오른쪽에 시간 · 가장 벅찬 순간 한 줄 · 다음 단추. 스크롤해서 띠가 사라지면 위에 얇은 띠(작은 흐름선 · 고른 순간 · 본식 시간 · 다음)가 붙어 따라와요.</li>
+      <li><b>② 극장</b>: 왼쪽에 큰 장면과 지금 흐르는 말, 오른쪽에 순서 목록. <b>③ 작업대</b>: 왼쪽 쓰는 칸(글 쓰기 좋은 폭 640px), 오른쪽 준비 목록이 따라와요. <b>④ 한 장 요약</b>: 위에 큰 흐름 그래프, 아래 순서 · 준비 두 칸.</li>
+      <li><b>글자 · 누르는 곳</b>: PC 본문 15~16px(휴대폰보다 한 단계 크게) · 누르는 곳은 어디서나 40~44px 이상.</li>
+      <li><b>마이페이지 안</b>(저장 · 나가기 위 띠)에서도 같은 배치예요. 가운데 한 줄로 좁히지 않아요.</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>② 보고 듣기 — PC «극장»</h2>
+    <p class="muted" style="margin:0">목록을 누르면 왼쪽 화면이 그 순간으로 가요. 칩(판)은 목록 줄을 펼쳐 바로 고르고, 바꾸면 왼쪽에서 바로 다시 들려요.</p>
+    <div class="shotwrap"><div class="shot" data-scale>
+      <div class="steps"><span>① 고르기</span><span class="on">② 보고 듣기</span><span>③ 준비하기</span><span>④ 완성</span></div>
+      <div class="sc">
+        <div class="scr-h"><h1>보고 듣기</h1><span class="aux">본식 약 17~24분 · 단체 사진 약 16~23분 · 다 보는 데 약 5분</span></div>
+        <div class="theater">
+          <div>
+            <div class="screen"><svg viewBox="0 0 44 30" width="120" height="82" fill="none" stroke="#9A7B4F" stroke-width="1.4" stroke-linecap="round"><rect x="11" y="7" width="22" height="16" rx="2"/><path d="M15 12h14M15 16h10"/></svg><span class="ai">AI로 만든 장면이에요 · 사람과 옷은 실제와 달라요</span></div>
+            <p class="caption">«오늘을 위해 두 사람이 몇 번이고 고쳐 쓴 말이 있습니다. 이제 그 말이, 서로에게 닿을 차례입니다.»</p>
+            <div class="ctrl"><span class="b">❚❚</span><span>5 · 혼인 서약</span><span class="pbar"><i></i></span><span>처음부터 보고 듣기</span></div>
+          </div>
+          <div class="plist">
+            <div class="pr"><span class="n">식전</span><span class="mini">▶</span><span><b>하객 맞이 안내</b><small>하객이 들어오실 때 · 10분 전 · 5분 전</small></span></div>
+            <div class="pr"><span class="n">식전</span><span class="mini">▶</span><span><b>식전 영상</b><small>여는 말 → 두 분의 영상(3분 안)</small></span></div>
+            <div class="pr"><span class="n">1</span><span class="mini">▶</span><span><b>화촉</b><small>양가 어머님</small></span></div>
+            <div class="pr"><span class="n">2</span><span class="mini">▶</span><span><b>입장</b><small>멘트 «감사 · 가족» · 서로 바라보기</small></span></div>
+            <div class="pr"><span class="n">3</span><span class="mini">▶</span><span><b>첫인사</b><small>두 분이 하객께 · 약 30초</small></span></div>
+            <div class="pr"><span class="n">4</span><span class="mini">▶</span><span><b>부모님 덕담</b><small>부모님이 덕담을 들려주세요 · 약 3분</small></span></div>
+            <div class="pr now"><span class="n">5</span><span class="mini">❚❚</span><span><b>혼인 서약</b><small>지금 듣는 중 · 두 분이 서약을 읽어요 · 약 2분</small></span></div>
+            <div class="pr"><span class="n">6</span><span class="mini">▶</span><span><b>반지 교환</b><small>말 없이 반지를 끼워요 · 앞뒤로 나레이션</small></span></div>
+            <div class="pr"><span class="n">7</span><span class="mini">▶</span><span><b>성혼 선언</b><small>고를 것 · 말투와 누가 선언할지</small></span></div>
+            <div class="chips"><span class="on">나레이션 · 엄숙하게</span><span>나레이션 · 따뜻하게</span><span>하객 박수로 답하기</span><span>가족이 낭독</span></div>
+            <div class="pr"><span class="n">8</span><span class="mini">▶</span><span><b>★ 부모님께 인사</b><small>두 분이 준비한 말을 전해요 · 약 2분</small></span></div>
+          </div>
+        </div>
+      </div>
+      <span class="gonext">다음 · 준비하기</span>
+    </div></div>
+  </div>
+
+  <div class="box">
+    <h2>③ 준비하기 — PC «작업대»</h2>
+    <p class="muted" style="margin:0">쓰는 칸은 읽기 좋은 폭으로 두고, 오른쪽 준비 목록이 스크롤을 따라와요. 하나 적을 때마다 목록의 ○가 ●로 바뀌어요.</p>
+    <div class="shotwrap"><div class="shot" data-scale>
+      <div class="steps"><span>① 고르기</span><span>② 보고 듣기</span><span class="on">③ 준비하기</span><span>④ 완성</span></div>
+      <div class="sc">
+        <div class="scr-h"><h1>준비하기</h1><span class="aux">순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요</span></div>
+        <div class="desk">
+          <div>
+            <div class="wcard"><div class="wn">서약문</div><div class="wd">두 분이 함께 쓰는 글 · 한 분 300자쯤(모두 600자쯤) · 당일 카드로 인쇄해 드려요</div><div class="ta">서로에게 쓴 약속을 적어 보세요</div></div>
+            <div class="wcard"><div class="wn">첫인사</div><div class="wd">하객분들께 건넬 짧은 첫인사 · 한두 문장이면 충분해요</div><div class="ta" style="height:52px">예: 바쁘신 중에 함께해 주셔서 감사합니다.</div></div>
+            <div class="wcard"><div class="wn">부모님께 드릴 말 · 선택</div><div class="wd">한 분 400자 안팎 · 적어 두시면 카드로 인쇄해 드려요</div><div class="fr">이렇게 쓰면 쉬워요 · 부모님이 해 주신 일 한 장면 → 그때 내 마음 → 앞으로 한 줄</div></div>
+          </div>
+          <div class="plan">
+            <b>준비 목록</b> <span class="muted" style="font-size:12.5px">· 여기에 적는 글 2개 중 1개</span>
+            <div class="progress"><i></i></div>
+            <h4>쓸 글</h4><ul><li><span>● 서약문</span><span>적었어요</span></li><li><span>○ 첫인사</span><span>예식 7일 전까지</span></li><li><span>○ 부모님께 드릴 말(선택)</span><span>—</span></li></ul>
+            <h4>보낼 것</h4><ul><li><span>식전 영상 링크 또는 사진 30~40장</span><span>예식 3일 전까지</span></li></ul>
+            <h4>챙길 것</h4><ul><li><span>반지 두 개</span><span>당일</span></li><li><span>케이크 · 직접 준비</span><span>당일</span></li></ul>
+            <h4>부모님께 부탁드릴 것</h4><ul><li><span>화촉 · 양가 어머님</span><span>미리 말씀</span></li><li><span>덕담 원고 · 한 분 400자</span><span>예식 7일 전까지</span></li></ul>
+          </div>
+        </div>
+      </div>
+      <span class="gonext">다음 · 완성</span>
+    </div></div>
+  </div>
+
+  <div class="box">
+    <h2>④ 완성 — PC «한 장 요약»</h2>
+    <p class="muted" style="margin:0">위에 큰 감동 흐름 선(순간 이름까지), 아래 순서 · 준비 두 칸. 대본 복사 · 저장은 오른쪽 위.</p>
+    <div class="shotwrap"><div class="shot" data-scale>
+      <div class="steps"><span>① 고르기</span><span>② 보고 듣기</span><span>③ 준비하기</span><span class="on">④ 완성</span></div>
+      <div class="sc">
+        <div class="scr-h"><h1>우리 예식이 완성됐어요</h1><span class="actions"><span>대본 복사</span><span>파일로 저장</span><span>마이페이지로</span></span></div>
+        <div class="graphband"><div class="fp-h"><b>우리 예식의 감동 흐름</b><span>본식 <strong>약 17~24분</strong> · 단체 사진 약 16~23분 · 본식과 합쳐 늘 40분</span></div><div id="sheetGraph"></div></div>
+        <div class="sheet">
+          <div class="pane"><h4>순서</h4><ol class="olist" id="sheetList"></ol></div>
+          <div class="pane"><h4>준비 목록</h4><p style="margin:0;font-size:13px;color:var(--sub)">두 분이 준비할 것 6가지 · 부모님께 부탁드릴 것 2가지</p><p style="margin:6px 0 0;font-size:13px">● 서약문 · ○ 첫인사 · 식전 영상 링크 또는 사진 · 반지 · 꽃(직접) · 케이크(직접)<br>부모님께: 화촉 · 덕담 원고</p></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="box">
+    <h2>말씀 → 바꾼 것</h2>
+    <div class="tw"><table class="t">
+      <tr><th>#</th><th>말씀</th><th>시안에서</th></tr>
+      <tr><td>1</td><td>비용 줄을 위에 끼워 넣지 않기</td><td>머리 설명을 한 줄로 줄이고 비용 줄을 뺐어요. 비용은 고르는 자리(② «저희에게 맡기기(별도 비용)» · 그 아래 한 줄)에만 둬요. «무엇을 담아도 값은 같아요»만 예시 옆에 작게 남겼어요.</td></tr>
+      <tr><td>2</td><td>예시를 위로 · «보통 이렇게 하는구나»</td><td>예시 넷을 제목 바로 아래로 올렸어요. 카드마다 분위기 한 줄 · 작은 흐름선 · 본식 시간. 누르면 담기고, 그다음 더하고 빼요. «빈 칸에서 직접»도 남겨 뒀어요.</td></tr>
+      <tr><td>3</td><td>분위기 그래프 — 전문적이고 실제로 도움이 되게</td><td>«우리 예식의 감동 흐름»(15에서 고침): 선 하나 · 높을수록 벅찬 순간 · 가장 벅찬 순간에 점 하나. 한 줄로 읽어 줘요: 가장 벅찬 순간이 어디쯤인지. 듣기만 셋 이어질 때 · 끝이 조용할 때만 알림. ④ 완성에도 크게 들어가요.</td></tr>
+      <tr><td>4</td><td>쉽고 간단하고 읽기 좋게</td><td>휴대폰은 그림이 위인 칸 두 개씩(13 · 16 · 17), 칸에는 이름과 무엇인지 한 줄만. 순서 목록은 흐름 판 한 곳. 휴대폰 길이 약 8,060px → 약 2,900px(두 칸)(시안에서 잰 값).</td></tr>
+      <tr><td>5</td><td>▶ 대표 나레이션 한 줄</td><td>칸을 누르면 미리 보기 창 — 장면 영상과 대표 한 줄(여는 말 앞 1~2문장 · 5~12초)이 함께, 글도 함께. ②에서는 지금처럼 전부. 녹음 전인 줄은 글로, 녹음되면 저절로 소리로.</td></tr>
+      <tr><td>6</td><td>고객 입장에서 더</td><td>흐름 판에 «두 분이 준비할 것 N가지 · 부모님께 부탁드릴 것 N가지» · 예시마다 분위기 한 줄 · 빈 첫 화면은 숫자 대신 안내 · 아래 막대(휴대폰) · 얇은 띠(PC)에 작은 흐름선 · 미리 보기 창에서 바로 담기.</td></tr>
+      <tr><td>7</td><td>직접 보며 체크</td><td>위 «지금 화면에서 직접 본 것» 여덟 줄.</td></tr>
+      <tr><td>8</td><td>PC는 넓게 · 디자이너 관점 배치</td><td>① 이야기판(네 막 네 칸 · 흐름 띠 · 따라오는 얇은 띠) · ② 극장 · ③ 작업대 · ④ 한 장 요약. 오른쪽 레일 자리는 비워 둬요.</td></tr>
+      <tr><td>9 · 10</td><td>스냅은 늘리고 인사 · 단체 사진은 줄이기 · 테이블 인사 생략</td><td>스냅 60 · 본식 + 단체 사진 40(정하심). 테이블 인사는 없애고 배웅 줄에서 인사. 흐름 판의 시간 줄도 «단체 사진 · 둘을 더하면 40분»으로 바꿨어요.</td></tr>
+      <tr><td>11</td><td>예시는 흐름대로 가장 알맞은 순간만</td><td>넷째 «전부» → «간결»(정하심) · «약속»의 부모님께 인사 → 말 없이(정하심). 시안의 예시 카드 · 흐름선에 반영했어요.</td></tr>
+      <tr><td>13</td><td>칸에서 시간 · «한 분 400자» 빼고 무엇인지만</td><td>칸 = 이름 + 무엇인지 한 줄(두 줄 안). 시간은 흐름 판 합계로, 준비는 ③에서.</td></tr>
+      <tr><td>14</td><td>▶ 누르면 영상과 나레이션이 같이 나오나 · 어떤 시스템</td><td>네 — 위 «▶ 누르면» 일곱 줄. 영상(소리 없음)과 한 줄 녹음을 함께 틀고, 글도 함께 띄워요.</td></tr>
+      <tr><td>15</td><td>그래프 복잡 — 색 빼고 감동 흐름 선으로</td><td>A 곡선 한 줄(권함)을 시안에 넣었어요. B 계단 한 줄 · 지금 그림과 나란히 비교.</td></tr>
+      <tr><td>16</td><td>체크 · 플러스는 작게(글이 왼쪽으로 쏠림)</td><td>그림 오른쪽 위 작은 원(26px) · 누르는 자리 44px 그대로.</td></tr>
+      <tr><td>17</td><td>그림을 위로 · 정사각형 가까운 칸 · 영상 넣을 자리</td><td>휴대폰 두 칸(권함) · «한 칸(큰 그림)»도 틀 단추로 비교 · PC는 막마다 네 칸.</td></tr>
+    </table></div>
+  </div>
+
+  <div class="box">
+    <h2>▶ 대표 한 줄 — 순간마다 무엇이 나오나</h2>
+    <p class="muted" style="margin:0 0 8px">그 순간의 첫 여는 말이에요. 10초 안으로 짧은 여덟 줄은 있는 클립을 <b>통째로</b> 쓰고, 긴 다섯 줄(입장 · 서약 · 반지 · 선언 · 인사)은 <b>앞 두 문장만 새로 녹음</b>해요(새 줄 다섯 · 약 40초). 지금은 모두 녹음 전이라 글로 나와요.<br>권함: 이 13줄은 사장님 대본 점검 때 먼저 다듬고 <b>먼저 녹음</b>하면, ①에서 바로 소리로 느낌을 들을 수 있어요.</p>
+    <div class="tw"><table class="t" id="sampleTable"><tr><th>순간</th><th>대표 한 줄</th><th>나오는 곳</th></tr></table></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var ORDER=['prevideo','candle','entry','welcome','bless','vow','ring','declare','tribute','free','letter','toast','_close'];
+var ALWAYS={prevideo:1,entry:1,_close:1};
+var PRE={prevideo:1};
+var OPTIONAL={free:1};
+/* PC 이야기판 — 네 막(준비한 순서는 실제 자리인 인사와 편지 사이) */
+var BOARD=[
+ {n:'여는 순간',d:'예식이 시작되는 자리',ks:['prevideo','candle','entry','welcome']},
+ {n:'약속의 순간',d:'말과 반지로 부부가 되는 자리',ks:['bless','vow','ring','declare']},
+ {n:'마음의 순간',d:'부부가 되어 처음 건네는 마음',ks:['tribute','free','letter']},
+ {n:'축하 · 닫는 순간',d:'모두 함께 잔을 들고, 인사와 사진으로',ks:['toast','_close']}
+];
+var C={
+ prevideo:{n:'식전 영상',sn:'식전 영상',one:'두 분이 준비한 영상(3분 안)을 하객이 자리에 앉는 동안 상영해요. 없으면 보내 주신 사진으로 저희가 만들어요.',prep:'준비 · 영상 링크 또는 사진 30~40장',shot:'영상을 보는 가족들의 얼굴',who:'하객(두 분은 문 밖에서 기다려요)',why:''},
+ candle:{n:'화촉',sn:'화촉',one:'두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요.',prep:'부탁 · 양가 어머님',shot:'초에 불이 옮겨붙는 순간 · 불빛에 비친 얼굴',who:'양가 어머님',why:''},
+ entry:{n:'입장',sn:'입장',one:'두 분이 함께 걸어 들어와, 서로 바라보거나 맞절하는 첫 장면을 남겨요.',prep:'',shot:'문이 열리는 순간 · 두 분의 첫 장면',who:'두 분',why:''},
+ welcome:{n:'첫인사',sn:'첫인사',one:'두 분이 하객께 짧게 첫인사를 드려요.',prep:'준비 · 인사말 한두 문장',shot:'하객을 바라보며 인사하는 두 분',who:'두 분',why:''},
+ bless:{n:'부모님 덕담',sn:'덕담',one:'부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤).',prep:'부탁 · 부모님 원고(한 분 400자)',shot:'말씀하시는 부모님과 듣는 두 분',who:'부모님 한 분~네 분',why:'서약 바로 앞이에요. 부모님 말씀으로 약속의 문을 여는 자리예요.'},
+ vow:{n:'혼인 서약',sn:'서약',one:'두 분이 서로에게 하는 약속을 읽어요(한 분 1분쯤).',prep:'준비 · 서약문(모두 600자쯤)',shot:'서로를 보며 약속하는 옆얼굴',who:'두 분',why:''},
+ ring:{n:'반지 교환',sn:'반지',one:'서로의 손에 반지를 끼워 줘요.',prep:'챙길 것 · 반지 두 개',shot:'반지를 끼워 주는 두 손',who:'두 분',why:''},
+ declare:{n:'성혼 선언',sn:'선언',one:'두 분이 부부가 되었음을 알려요. 말투와 누가 선언할지 고를 수 있어요.',prep:'',shot:'하객 모두가 박수 치는 넓은 장면',who:'나레이션 또는 가족 한 분 · 하객은 박수',why:''},
+ tribute:{n:'부모님께 인사',sn:'부모님 인사',one:'부부가 되어 처음 부모님께 드리는 인사예요. 꽃과 인사, 포옹으로 고마움을 전해요.',prep:'챙길 것 · 꽃(직접 또는 맡기기)',shot:'부모님께 안기는 순간',who:'두 분 · 양가 부모님',why:'선언 다음이에요. 부부가 된 뒤 처음 드리는 인사라서예요.'},
+ free:{n:'준비한 순서',sn:'준비한 순서',one:'영상, 춤 · 공연, 깜짝 선물, 친구의 짧은 축사(3분 안) 가운데 하나.',prep:'준비 · 영상 · 공연 · 축사 중 하나',shot:'함께 보며 웃는 하객들',who:'두 분이나 가족 · 친구',why:'편지 앞이에요. 편지가 마지막 큰 순간이 되도록.'},
+ letter:{n:'편지 낭독',sn:'편지',one:'부모님께, 또는 서로에게 쓴 편지를 읽어요.',prep:'준비 · 편지(한 분 400자)',shot:'편지를 읽는 목소리와 듣는 얼굴',who:'두 분',why:''},
+ toast:{n:'케이크 · 축배',sn:'케이크 · 축배',one:'케이크를 함께 자르고, 모두 잔을 들어 «위하여». 잔을 드는 자리는 여기 하나예요.',prep:'챙길 것 · 케이크(직접 또는 맡기기)',shot:'자르는 손 · 섞이는 잔 · 모두의 잔',who:'두 분 · 하객 모두',why:'두 와인을 한 잔에 붓는 일과 모두의 «위하여»를 한자리에 모았어요.'},
+ _close:{n:'닫는 인사',sn:'닫는 인사',one:'두 분이 인사를 드리고 본식을 마쳐요. 이어서 가족 · 하객과 사진을 남겨요.',prep:'',shot:'두 분 뒤로 보이는 하객들 · 단체 사진',who:'두 분 · 하객 모두',why:''}
+};
+/* 칸 한 줄 — «이게 무엇인지»만(9/26 오후 말씀 13 · 두 줄 안) */
+var S={
+ prevideo:'하객이 앉는 동안 흐르는 두 분의 영상',
+ candle:'양가 어머님이 촛불로 시작을 알려요',
+ entry:'두 분이 함께 걸어 들어와 마주 서요',
+ welcome:'두 분이 하객께 짧게 첫인사를 드려요',
+ bless:'부모님이 두 분께 덕담을 들려주세요',
+ vow:'서로에게 하는 약속을 소리 내어 읽어요',
+ ring:'서로의 손에 반지를 끼워 줘요',
+ declare:'두 분이 부부가 되었음을 알려요',
+ tribute:'부부가 되어 처음 부모님께 드리는 인사',
+ free:'영상 · 공연 · 선물 · 축사 가운데 하나',
+ letter:'부모님이나 서로에게 쓴 편지를 읽어요',
+ toast:'케이크를 자르고, 다 함께 «위하여»',
+ _close:'두 분이 인사하고 본식을 마쳐요'
+};
+var SAMPLE={
+ prevideo:['두 분이 준비한 영상을 함께 보시겠습니다.','(90, narr-prevideo-in) 통째'],
+ candle:['예식의 시작을 알리는 촛불을 밝히겠습니다. 양가 어머님께서 앞으로 나와 주시겠습니다.','(91, narr-candle-in-mothers) 통째'],
+ entry:['저 문 너머에서, 두 사람도 이 순간을 기다리고 있습니다. 오늘까지 서로 다른 길을 걸어왔지만, 그 두 길이 여기서 하나로 이어집니다.','새 줄 sample-entry = (05, entry-A) 앞 두 문장'],
+ welcome:['신랑 신부가 하객 여러분께, 첫인사를 직접 드리겠습니다.','(11, narr-welcome-in) 통째'],
+ bless:['서약의 문을, 두 사람을 가장 오래 지켜봐 오신 부모님의 말씀으로, 열겠습니다. 이제, 편히 들려주십시오.','(22, narr-bless-open) 통째'],
+ vow:['오늘을 위해 두 사람이 몇 번이고 고쳐 쓴 말이 있습니다. 이제 그 말이, 서로에게 닿을 차례입니다.','새 줄 sample-vow = (13, narr-vow-in) 앞 두 문장'],
+ ring:['반지는 날마다 이 순간을 떠올리게 해 줄 거예요. 서로의 손에 반지를 끼워 주시면 됩니다.','새 줄 sample-ring = (15, narr-ring-in) 앞 두 문장'],
+ declare:['오늘 두 사람은, 이 자리에 계신 모든 분을 증인으로, 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다.','새 줄 sample-declare = (30, declare-1-solemn) 앞 두 문장'],
+ tribute:['두 사람을 키워 주신 분들이 앞에 계십니다. 신랑 신부, 천천히 걸음을 옮겨 주십시오.','새 줄 sample-tribute = (38, tribute-in) 앞 두 문장'],
+ free:['오늘을 위해 준비한 영상이 있습니다. 함께 보시겠습니다.','(100, narr-free-in-video) 통째'],
+ letter:['가장 가까운 사이라서, 오히려 한 번도 못 한 말이 있습니다. 그 말을, 서로에게 쓴 편지에 담아 왔습니다. 두 분, 마주 보고 전해 주세요.','(28, letter-each) 통째'],
+ toast:['마지막으로, 다 같이 잔을 들어 주세요. 두 분이 «위하여» 하시면, 다 함께 «위하여» 하고 답해 주세요.','(107, toast-both-pour-b) 통째 · 화면은 따옴표 · 소리는 쉼표'],
+ _close:['이것으로 오늘의 본식을 모두 마칩니다. 두 사람이 여러분께 인사드립니다. 본식의 마지막 박수를 보내 주세요.','(108, narr-close-bow) 통째']
+};
+var MOOD={candle:[3,1,0],entry:[4,1,0],welcome:[3,1,0],bless:[4,2,1],vow:[4,2,1],ring:[4,3,0],declare:[5,3,0],tribute:[4,2,1],free:[4,3,0],letter:[5,2,1],toast:[4,3,0],_close:[4,3,0]};
+/* 순간마다 [대본 합, 넉넉 합](초) — 엔진 TIME(main 60f18ae · 구현 보고 6 닫는 인사 포함)에서 셈한 값 */
+var LH={candle:[82.5,120.5],welcome:[39,45.5],bless:[178,236.3],vow:[129,164],ring:[100,102],declare:[24,60],tribute:[97.7,136.4],free:[200,205],letter:[157,197.5],toast:[135,251],entry:[48,90],_close:[63,78]};
+var EX=[
+ {k:'record',nm:'기록',title:'부부가 되는 순간, 모두의 박수',feel:'밝고 경쾌하게 · 하객이 박수로 함께해요',on:['candle','welcome','vow','ring','declare','tribute','toast'],lh:{candle:[82.5,120.5],entry:[48,90],welcome:[39,45.5],vow:[129,164],ring:[100,102],declare:[45,60],tribute:[67.5,97.5],toast:[135,251],_close:[63,78]},lv:{tribute:[4,2,0]}},
+ {k:'promise',nm:'약속',title:'서로에게 쓴 말',feel:'서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹',on:['candle','welcome','vow','ring','declare','tribute','letter','toast'],lh:{candle:[82.5,120.5],entry:[42,84],welcome:[39,45.5],vow:[129,164],ring:[100,102],declare:[20,60],tribute:[67.5,97.5],letter:[157,197.5],toast:[135,251],_close:[63,78]},lv:{tribute:[4,2,0]}},
+ {k:'family',nm:'가족',title:'부모님과 나누는 순간',feel:'격식 있고 뭉클하게 · 부모님이 말씀하세요',on:['candle','welcome','bless','vow','ring','declare','tribute','toast'],lh:{candle:[82.5,120.5],entry:[45,87],welcome:[39,45.5],bless:[178,236.3],vow:[129,164],ring:[100,102],declare:[24,60],tribute:[201.8,266.5],toast:[141,257],_close:[63,78]},lv:{tribute:[5,2,1]}},
+ {k:'brief',nm:'간결',title:'짧게, 핵심만',feel:'짧고 단정하게 · 약속과 선언에 집중',on:['vow','ring','declare','toast'],lh:{entry:[48,90],vow:[129,164],ring:[100,102],declare:[24,60],toast:[135,251],_close:[68,78]}}
+];
+var DAYMIN=40;   /* 9/26 사장님: 스냅 60 · 본식 + 단체 사진 40 */
+var st={on:{},from:null};
+
+var G={
+ prevideo:'<rect x="6" y="5" width="32" height="20" rx="2"/><path d="M19 11l7 4-7 4z" fill="currentColor"/>',
+ candle:'<path d="M22 6c3 4 3 6 0 8-3-2-3-4 0-8z" fill="currentColor"/><rect x="19" y="15" width="6" height="12" rx="1"/>',
+ entry:'<path d="M12 27V12a10 10 0 0 1 20 0v15"/><path d="M22 7v20"/>',
+ welcome:'<circle cx="16" cy="11" r="3"/><circle cx="28" cy="11" r="3"/><path d="M11 25c1-5 9-5 10 0M23 25c1-5 9-5 10 0"/>',
+ bless:'<rect x="19" y="5" width="6" height="12" rx="3"/><path d="M15 14a7 7 0 0 0 14 0M22 21v5"/>',
+ vow:'<rect x="11" y="7" width="22" height="16" rx="2"/><path d="M15 12h14M15 16h10"/>',
+ ring:'<circle cx="18" cy="16" r="7"/><circle cx="26" cy="16" r="7"/>',
+ declare:'<path d="M22 5v5M22 22v5M11 16h5M28 16h5M14 8l3 3M27 21l3 3M30 8l-3 3M17 21l-3 3"/><circle cx="22" cy="16" r="3" fill="currentColor"/>',
+ tribute:'<path d="M22 27V15M22 15c-4-1-6-4-5-8 3 0 5 3 5 8zM22 15c4-1 6-4 5-8-3 0-5 3-5 8z"/>',
+ free:'<rect x="8" y="6" width="28" height="18" rx="2"/><path d="M14 27h16"/>',
+ letter:'<rect x="9" y="8" width="26" height="17" rx="2"/><path d="M9 9l13 9 13-9"/>',
+ toast:'<path d="M14 6h7l-1 9a3 3 0 0 1-5 0zM23 6h7l-1 9a3 3 0 0 1-5 0zM17 17v8M26 17v8M14 26h7M23 26h7"/>',
+ _close:'<path d="M8 24c4-8 24-8 28 0"/><circle cx="18" cy="12" r="3"/><circle cx="26" cy="12" r="3"/>'
+};
+function glyph(k){ return '<svg class="glyph" viewBox="0 0 44 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(G[k]||'')+'</svg>'; }
+var PLAY='<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>';
+var STOP='<svg viewBox="0 0 10 10" aria-hidden="true"><rect x="2" y="2" width="6" height="6"/></svg>';
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function exOf(k){ for(var i=0;i<EX.length;i++) if(EX[i].k===k) return EX[i]; return null; }
+function isOn(k){ return !!(ALWAYS[k]||st.on[k]); }
+function lhOf(k){
+  if(k==='_close') return isOn('tribute')?[63,78]:[68,78];   // 닫는 인사 — 인사가 있으면 withTribute · 없으면 noTribute
+  if(k==='ring') return isOn('declare')?[100,102]:[88,90];    // 반지 — 선언이 바로 뒤면 toDeclare
+  var ex=exOf(st.from); if(ex&&ex.lh[k]) return ex.lh[k]; return LH[k]||[0,0]; }
+function moodOf(k){ var ex=exOf(st.from); if(ex&&ex.lv&&ex.lv[k]) return ex.lv[k]; return MOOD[k]; }
+function segsOf(ex){
+  var list=[], t=0;
+  ORDER.forEach(function(k){
+    if(PRE[k]) return;
+    var on=ex? (ex.on.indexOf(k)>-1||ALWAYS[k]) : isOn(k); if(!on) return;
+    var lh=ex? (ex.lh[k]||LH[k]) : lhOf(k); var m=ex? ((ex.lv&&ex.lv[k])||MOOD[k]) : moodOf(k);
+    var d=(lh[0]+lh[1])/2; list.push({k:k,n:C[k].sn,st:t,d:d,lo:lh[0],hi:lh[1],lv:m[0],mood:m[1],sit:m[2]}); t+=d;
+  });
+  return list;
+}
+function sum(sg,i){ return sg.reduce(function(a,s){ return a+(i==null?s.d:(i?s.hi:s.lo)); },0); }
+var NB='\u00a0';   // 붙는 공백 — «약 17~24분» · «3분의 2쯤» · «것 6가지»가 두 줄로 갈리지 않게
+function rng(a,b){ return a===b?('약'+NB+a+'분'):('약'+NB+a+'~'+b+'분'); }
+function josa(w,a,b){ var c=String(w).charCodeAt(String(w).length-1); return (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b; }
+function peakOf(sg){ var p=null; sg.forEach(function(s){ if(s.lv===5) p=s; }); return p; }
+function mmin(s){ return Math.round(s/60); }
+function picked(){ return Object.keys(st.on).length; }
+
+/* (비교용) 지금 그래프 — 선 하나 = 순간 하나(길이만큼) · 높이 = 세기 · 색 = 결 */
+function flowSVGOld(sg, w, opt){
+  opt=opt||{}; var mini=!!opt.mini, names=!!opt.names;
+  var h=mini?(opt.h||40):(names?176:150), L=mini?2:44, R=mini?2:10, T=mini?6:(names?34:24), B=mini?8:30;
+  var total=sum(sg)||1, iw=w-L-R;
+  var Y={5:T+(mini?2:6),4:T+(h-T-B)*0.5,3:h-B-(mini?2:6)};
+  var x=function(s){ return L+iw*s/total; };
+  var o=['<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" role="img" aria-label="'+esc(opt.label||'예식 흐름')+'">'];
+  if(!mini){
+    o.push('<rect x="'+x(total*0.66)+'" y="'+(T-8)+'" width="'+(x(total*0.75)-x(total*0.66))+'" height="'+(h-B-T+12)+'" fill="var(--band)" rx="3"/>');
+    [[5,'절정'],[4,'깊어짐'],[3,'잔잔']].forEach(function(r){ o.push('<text x="0" y="'+(Y[r[0]]+4)+'" font-size="11" fill="var(--muted)">'+r[1]+'</text>'); });
+    o.push('<line x1="'+L+'" x2="'+(w-R)+'" y1="'+(h-B+4)+'" y2="'+(h-B+4)+'" stroke="#E1DDD5" stroke-width="1"/>');
+    for(var m=0;m*60<=total+1;m+=5){ var xx=x(m*60); if(xx>w-R-6&&m>0) break; o.push('<text x="'+xx+'" y="'+(h-4)+'" font-size="10.5" fill="var(--muted)" text-anchor="'+(m===0?'start':'middle')+'">'+m+'분</text>'); }
+  }
+  sg.forEach(function(s){ if(s.sit){ o.push('<rect x="'+(x(s.st)+1)+'" y="'+(h-B+(mini?2:8))+'" width="'+Math.max(2,x(s.st+s.d)-x(s.st)-2)+'" height="'+(mini?2:3)+'" rx="1.5" fill="var(--sit)"/>'); } });
+  for(var i=1;i<sg.length;i++){ var a=sg[i-1],b=sg[i]; if(a.lv!==b.lv){ o.push('<line x1="'+x(b.st)+'" x2="'+x(b.st)+'" y1="'+Y[a.lv]+'" y2="'+Y[b.lv]+'" stroke="#CFC8BD" stroke-width="1"/>'); } }
+  var p=peakOf(sg);
+  sg.forEach(function(s,i){
+    var x0=x(s.st)+1, x1=x(s.st+s.d)-1, th=mini?4:6;
+    o.push('<rect x="'+x0+'" y="'+(Y[s.lv]-th/2)+'" width="'+Math.max(2,x1-x0)+'" height="'+th+'" rx="'+(th/2)+'" fill="var(--m'+s.mood+')"/>');
+    if(names && s!==p){ var tw=s.n.length*11.5+4; if(x1-x0>=tw){ o.push('<text x="'+((x0+x1)/2)+'" y="'+(Y[s.lv]-9)+'" font-size="11.5" text-anchor="middle" fill="var(--sub)">'+esc(s.n)+'</text>'); } }
+  });
+  if(p){ var cx=x(p.st+p.d/2);
+    if(mini) o.push('<text x="'+cx+'" y="'+(Y[5]-1)+'" font-size="9" text-anchor="middle" fill="var(--ink)">★</text>');
+    else o.push('<text x="'+cx+'" y="'+(Y[5]-10)+'" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--ink)">★ '+esc(p.n)+'</text>');
+  }
+  if(!mini){ sg.forEach(function(s,i){ o.push('<rect class="hit" data-i="'+i+'" x="'+x(s.st)+'" y="'+(T-10)+'" width="'+Math.max(12,x(s.st+s.d)-x(s.st))+'" height="'+(h-B-T+18)+'" fill="transparent" tabindex="0"/>'); }); }
+  o.push('</svg>'); return o.join('');
+}
+/* 감동 흐름 — 색 없이 선 하나(9/26 오후 말씀 15)
+   높이 = 마음의 세기(3 잔잔 · 4 깊어짐 · 5 벅참) · 가로 = 본식 시간 비율 · 점 하나 = 가장 벅찬 순간(마지막 5)
+   곡선 = 감동은 빨리 차오르고(20초) 천천히 가라앉는다(70초) → 1초마다 따라가고 ±8초로 고르게.
+   짧은 오르내림이 잔물결로 줄고, 절정 뒤 여운이 보여요. 그리는 선은 단조 곡선(넘치지 않게 · d3 curveMonotoneX와 같은 셈) */
+var ENV={up:20,down:70,blur:8};
+function envOf(sg,total){
+  var n=Math.max(1,Math.ceil(total)), e=[], cur=sg[0].lv, i=0, t, j;
+  for(t=0;t<=n;t++){ while(i<sg.length-1&&t>=sg[i].st+sg[i].d) i++; var L=sg[i].lv; cur+=(L-cur)*(1-Math.exp(-1/(L>cur?ENV.up:ENV.down))); e.push(cur); }
+  var sm=[]; for(t=0;t<=n;t++){ var a=0,c=0; for(j=Math.max(0,t-ENV.blur);j<=Math.min(n,t+ENV.blur);j++){ a+=e[j]; c++; } sm.push(a/c); }
+  return sm;
+}
+function curvePath(pts){
+  var n=pts.length, t=[], i, d;
+  for(i=0;i<n;i++) t.push(0);
+  for(i=1;i<n-1;i++){
+    var h0=pts[i][0]-pts[i-1][0], h1=pts[i+1][0]-pts[i][0];
+    var s0=(pts[i][1]-pts[i-1][1])/(h0||1e-6), s1=(pts[i+1][1]-pts[i][1])/(h1||1e-6);
+    if(s0*s1<=0) continue;
+    var q=(s0*h1+s1*h0)/(h0+h1);
+    t[i]=(s0>0?2:-2)*Math.min(Math.abs(s0),Math.abs(s1),0.5*Math.abs(q));
+  }
+  d='M'+pts[0][0].toFixed(1)+','+pts[0][1].toFixed(1);
+  for(i=0;i<n-1;i++){ var x0=pts[i][0],y0=pts[i][1],x1=pts[i+1][0],y1=pts[i+1][1],dx=(x1-x0)/3;
+    d+=' C'+(x0+dx).toFixed(1)+','+(y0+dx*t[i]).toFixed(1)+' '+(x1-dx).toFixed(1)+','+(y1-dx*t[i+1]).toFixed(1)+' '+x1.toFixed(1)+','+y1.toFixed(1); }
+  return d;
+}
+function flowSVG(sg, w, opt){
+  opt=opt||{}; var mini=!!opt.mini, names=!!opt.names, step=opt.style==='step';
+  var h=mini?(opt.h||40):(opt.h||(names?152:112));
+  var tiny=mini&&h<24;
+  var L=mini?4:12, R=mini?4:12, T=mini?(tiny?4:8):30, B=mini?(tiny?3:6):(names?46:12);
+  var total=sum(sg)||1, iw=w-L-R, p=peakOf(sg);
+  var y=function(lv){ return T+(h-T-B)*(5-lv)/2; };
+  var x=function(t){ return L+iw*t/total; };
+  var o=['<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" role="img" aria-label="'+esc(opt.label||'감동 흐름')+(p?' · 가장 벅찬 순간 '+esc(C[p.k].n):'')+'">'];
+  if(!sg.length){ o.push('</svg>'); return o.join(''); }
+  if(!mini) o.push('<line x1="'+L+'" x2="'+(w-R)+'" y1="'+(h-B+8)+'" y2="'+(h-B+8)+'" stroke="#E6E1D9" stroke-width="1"/>');
+  var d='';
+  if(step){ sg.forEach(function(s,i){ d+=(i?' L':'M')+x(s.st).toFixed(1)+','+y(s.lv).toFixed(1)+' L'+x(s.st+s.d).toFixed(1)+','+y(s.lv).toFixed(1); }); }
+  var env=null;
+  if(!step){ env=envOf(sg,total); var stp=Math.max(1,Math.round(total/iw*3)), pts=[];
+    for(var tt=0;tt<env.length;tt+=stp) pts.push([x(tt),y(env[tt])]);
+    if((env.length-1)%stp) pts.push([x(env.length-1),y(env[env.length-1])]);
+    d=curvePath(pts); }
+  o.push('<path d="'+d+'" fill="none" stroke="var(--flow)" stroke-width="'+(tiny?1.5:(mini?1.8:2.25))+'" stroke-linecap="round" stroke-linejoin="round"/>');
+  if(p){ var cx=x(p.st+p.d/2), cy=y(5);
+    if(env){ var bt=Math.floor(p.st), hiT=Math.min(env.length-1,Math.ceil(p.st+p.d+15)); for(var k2=bt;k2<=hiT;k2++){ if(env[k2]>env[bt]) bt=k2; } cx=x(bt); cy=y(env[bt]); }
+    o.push('<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(tiny?2.4:(mini?3:5))+'" fill="var(--ink)" stroke="#fff" stroke-width="'+(mini?1.5:2)+'"/>');
+    if(!mini){ var an=cx<44?'start':(cx>w-44?'end':'middle'); o.push('<text x="'+cx.toFixed(1)+'" y="'+(cy-12).toFixed(1)+'" font-size="12.5" font-weight="700" text-anchor="'+an+'" fill="var(--ink)">★ '+esc(p.n)+'</text>'); }
+  }
+  if(names){ var last=[-1e9,-1e9];
+    sg.forEach(function(s){ var cx=x(s.st+s.d/2), tw=s.n.replace(/[\s·]/g,'').length*11+(s.n.match(/[\s·]/g)||[]).length*3.5, l=cx-tw/2, r=cx+tw/2, an='middle';
+      if(l<0){ an='start'; cx=Math.max(cx-tw/2,2); l=cx; r=cx+tw; } if(r>w){ an='end'; cx=Math.min(cx+tw/2,w-2); r=cx; l=cx-tw; }
+      for(var row=0;row<2;row++){ if(l>last[row]+8){ o.push('<text x="'+cx.toFixed(1)+'" y="'+(h-B+26+row*14)+'" font-size="11" text-anchor="'+an+'" fill="'+(s===p?'var(--ink)':'var(--sub)')+'"'+(s===p?' font-weight="700"':'')+'>'+esc(s.n)+'</text>'); last[row]=r; break; } } });
+  }
+  if(!mini){ sg.forEach(function(s,i){ o.push('<rect class="hit" data-i="'+i+'" x="'+x(s.st).toFixed(1)+'" y="0" width="'+Math.max(12,x(s.st+s.d)-x(s.st)).toFixed(1)+'" height="'+h+'" fill="transparent" tabindex="0" aria-label="'+esc(C[s.k].n)+'"/>'); }); }
+  o.push('</svg>'); return o.join('');
+}
+function wireTips(host, sg){
+  var fg=host.querySelector('.fg'), tip=host.querySelector('.tip'); if(!fg||!tip) return;
+  fg.querySelectorAll('.hit').forEach(function(r){
+    var show=function(){ var s=sg[+r.getAttribute('data-i')]; var bb=r.getBoundingClientRect(), pb=fg.getBoundingClientRect(); var sc=pb.width/fg.offsetWidth||1;
+      var p=peakOf(sg); tip.innerHTML='<b>'+esc(C[s.k].n)+'</b>'+(s===p?' · 가장 벅찬 순간':'');
+      tip.style.left=((bb.left-pb.left+bb.width/2)/sc)+'px'; tip.style.top='14px'; tip.classList.add('on'); };
+    r.addEventListener('pointerenter',show); r.addEventListener('focus',show); r.addEventListener('click',show);
+    r.addEventListener('pointerleave',function(){ tip.classList.remove('on'); }); r.addEventListener('blur',function(){ tip.classList.remove('on'); });
+  });
+}
+
+/* 예시 */
+function exCard(e){
+  var sg=segsOf(e), a=mmin(sum(sg,0)), b=mmin(sum(sg,1));
+  return '<button type="button" class="ex" data-ex="'+e.k+'" aria-pressed="'+(st.from===e.k)+'">'
+    +'<span class="en">'+esc(e.nm)+'<span class="et">본식 '+rng(a,b)+'</span>'+(st.from===e.k?'<span class="chk">여기서 시작 ✓</span>':'')+'</span>'
+    +'<span class="em">'+e.feel.split(' · ').map(esc).join('<br>')+'</span>'
+    +'<span class="flowmini" data-ex="'+e.k+'"></span></button>';
+}
+function renderEx(){
+  ['exM','exP'].forEach(function(id){
+    var g=document.getElementById(id); g.innerHTML=EX.map(exCard).join('');
+    g.querySelectorAll('.flowmini').forEach(function(el){ var w=Math.round(el.getBoundingClientRect().width/scaleNow())||0; if(w<40) return; var e=exOf(el.getAttribute('data-ex')); el.innerHTML=flowSVG(segsOf(e), w, {mini:true,h:id==='exP'?44:40,label:e.nm+' 예시 흐름'}); });
+    g.querySelectorAll('.ex').forEach(function(b){ b.onclick=function(){ applyEx(b.getAttribute('data-ex')); }; });
+  });
+}
+function applyEx(k){ var e=exOf(k); st.on={}; e.on.forEach(function(x){ st.on[x]=1; }); st.from=k; render(); }
+
+/* 흐름 — 읽어 주는 줄 */
+function where(pct){ return pct<40?'앞쪽':(pct<58?'가운데쯤':(pct<=85?'3분의 2쯤':'끝 무렵')); }
+function insights(sg){
+  var p=peakOf(sg), total=sum(sg)||1;
+  if(!p) return '<ul class="ins"><li><span>★</span><span>가장 벅찬 순간이 될 것을 하나 담아 보세요 · 성혼 선언이나 편지</span></li></ul>';
+  var pct=Math.round((p.st+p.d/2)/total*100);
+  var nm=C[p.k].n;
+  return '<ul class="ins"><li><span>★</span><span>가장 벅찬 순간은 <b>'+esc(nm)+'</b>'+josa(nm,'이에요','예요')+'.'+(pct>=58&&pct<=85?' 3분의'+NB+'2쯤에 와서 끝까지 흐름이 이어져요.':'')+'</span></li></ul>';
+}
+function alertHTML(sg){
+  var run=0,mx=0,heads=[],best=[];
+  sg.forEach(function(s){ if(s.sit){ heads.push(s.n); run++; if(run>mx){mx=run;best=heads.slice();} } else { run=0; heads=[]; } });
+  if(mx>=3) return '<div class="alert">'+esc(best.slice(0,3).join(' → '))+' · 앉아서 듣는 순서가 셋 이어져요. 반지나 선언을 사이에 담으면 풀려요.</div>';
+  if(!isOn('toast')&&picked()>3) return '<div class="alert">끝이 조용한 편이에요. «케이크 · 축배»를 담으면 하객 모두가 함께 잔을 들며 밝게 끝나요.<br><button type="button" class="fix" data-add="toast">케이크 · 축배 담기</button></div>';
+  return '';
+}
+function prepLine(){ var cp=0,pp=0; ORDER.forEach(function(k){ if(!isOn(k)||!C[k].prep) return; if(/^부탁/.test(C[k].prep)) pp++; else cp++; }); return '두 분이 준비할 것'+NB+cp+'가지'+(pp?' · 부모님께 부탁드릴 것'+NB+pp+'가지':'')+' · ③에서 모아 봐요'; }
+function ordLine(sg){ var p=peakOf(sg); return '<span class="pre">식전 영상 →</span> '+sg.map(function(s){ return esc(s.n)+(s===p?'★':''); }).join(' › '); }
+
+/* 휴대폰 흐름 판 */
+function renderPanelM(){
+  var box=document.getElementById('fpM'), sg=segsOf();
+  var lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1));
+  if(!picked()){ box.innerHTML='<div class="fp"><div class="fp-h"><b>우리 예식의 감동 흐름</b></div><p style="margin:10px 0 4px;font-size:13.5px;color:var(--sub)">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p><p class="tm">입장 · 닫는 인사 · 식전 영상은 늘 있어요.</p></div>'; return; }
+  box.innerHTML='<div class="fp"><div class="fp-h"><b>우리 예식의 감동 흐름</b><span>본식 <strong>'+rng(lo,hi)+'</strong></span></div>'
+    +'<p class="tm" style="margin-top:2px">선이 높을수록 마음이 벅차오르는 순간이에요</p>'
+    +'<div class="fg-wrap"><div class="fg"></div><div class="tip"></div></div>'
+    +insights(sg)+'<p class="tm">'+ordLine(sg)+'</p>'+alertHTML(sg)
+    +'<p class="tm">단체 사진 '+rng(DAYMIN-hi,DAYMIN-lo)+' · 본식과 합쳐 늘 40분이에요<br>'+prepLine()+'</p></div>';
+  var fg=box.querySelector('.fg'); var w=Math.round(fg.parentNode.getBoundingClientRect().width/scaleNow());
+  if(w>=120){ fg.innerHTML=flowSVG(sg,w,{label:'우리 예식의 감동 흐름'}); wireTips(box,sg); }
+  box.querySelectorAll('.fix').forEach(function(b){ b.onclick=function(){ st.on[b.getAttribute('data-add')]=1; render(); }; });
+}
+/* PC 흐름 띠 */
+function renderBandP(){
+  var box=document.getElementById('bandP'), sg=segsOf();
+  var lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1));
+  if(!picked()){ box.innerHTML='<div class="band"><div><div class="fp-h"><b>우리 예식의 감동 흐름</b></div><p style="margin:12px 0;color:var(--sub)">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래 이야기판에서 하나씩 담아 보세요. 담는 대로 여기 흐름이 그려져요.</p></div><div class="side"><p class="tm">입장 · 닫는 인사 · 식전 영상은 늘 있어요.</p></div></div>'; return; }
+  box.innerHTML='<div class="band"><div><div class="fp-h"><b>우리 예식의 감동 흐름</b><span>선이 높을수록 마음이 벅차오르는 순간이에요</span></div>'
+    +'<div class="fg-wrap"><div class="fg"></div><div class="tip"></div></div></div>'
+    +'<div class="side"><span class="big">본식<strong>'+rng(lo,hi)+'</strong>단체 사진 '+rng(DAYMIN-hi,DAYMIN-lo)+'<br>본식과 합쳐 늘 40분</span>'
+    +insights(sg)+alertHTML(sg)+'<p class="tm">'+prepLine()+'</p><button type="button" class="go">다음 · 보고 듣기</button></div></div>';
+  var fg=box.querySelector('.fg'); var w=Math.round(fg.parentNode.getBoundingClientRect().width/scaleNow());
+  if(w>=120){ fg.innerHTML=flowSVG(sg,w,{names:true,label:'우리 예식의 감동 흐름'}); wireTips(box,sg); }
+  box.querySelectorAll('.fix').forEach(function(b){ b.onclick=function(){ st.on[b.getAttribute('data-add')]=1; render(); }; });
+}
+function renderSlim(){
+  var el=document.getElementById('slim'), sg=segsOf(), lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1)), p=peakOf(sg);
+  el.innerHTML=picked()? ('<span class="sv"></span><span class="t">담은 순간 <b>'+picked()+'</b> · 본식 <b>'+rng(lo,hi)+'</b>'+(p?' · ★ '+esc(C[p.k].n):'')+'</span><button type="button" class="go">다음 · 보고 듣기</button>')
+    : '<span class="t">예시로 시작하거나 아래에서 담아 보세요</span><button type="button" class="go">다음 · 보고 듣기</button>';
+  var sv=el.querySelector('.sv'); if(sv) sv.innerHTML=flowSVG(sg,180,{mini:true,h:34,label:'작은 흐름선'});
+}
+
+/* 순간 칸 — 휴대폰 · PC 한 벌(휴대폰 두 칸 · PC 막마다 네 칸) */
+function tileHTML(k){
+  var c=C[k], on=isOn(k);
+  return '<div class="tile'+(ALWAYS[k]?' fix':(on?' on':''))+(OPTIONAL[k]?' opt':'')+'">'
+    +'<button type="button" class="tl-open" data-open="'+k+'" aria-label="'+esc(c.n)+' · 장면과 대표 나레이션 미리 보기">'
+    +'<span class="tl-media">'+glyph(k)+'<span class="tl-play" aria-hidden="true">'+PLAY+'</span>'+(OPTIONAL[k]?'<span class="tl-opt">있을 때만</span>':'')+'</span>'
+    +'<span class="tl-txt"><span class="tl-n">'+esc(c.n)+'</span><span class="tl-s">'+esc(S[k])+'</span></span></button>'
+    +(ALWAYS[k]?'<span class="fixtag">늘 있어요</span>'
+      :'<button type="button" class="sel'+(on?' on':'')+'" data-tg="'+k+'" aria-pressed="'+on+'" aria-label="'+esc(c.n)+' 담기"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>')
+    +'</div>';
+}
+function renderActs(){
+  var el=document.getElementById('acts');
+  el.innerHTML=BOARD.map(function(a){ return '<section class="act"><div class="act-l"><div class="act-h">'+esc(a.n)+'</div><div class="act-d">'+esc(a.d)+'</div></div><div class="tiles">'+a.ks.map(tileHTML).join('')+'</div></section>'; }).join('');
+}
+function renderBar(){
+  var sg=segsOf(), bar=document.getElementById('bar'), lo=mmin(sum(sg,0)), hi=mmin(sum(sg,1));
+  var key=picked()+'|'+lo+'|'+hi, flash=(renderBar.last!=null&&renderBar.last!==key); renderBar.last=key;
+  bar.innerHTML='<div class="sum'+(flash?' flash':'')+'" aria-live="polite">'+(picked()?('<span class="bm"></span>담은 순간 <b>'+picked()+'</b> · 본식 <b>'+rng(lo,hi)+'</b>'):'예시로 시작하거나 아래에서 담아 보세요')+'</div><div class="btns"><button type="button" class="prev">이전</button><button type="button" class="go">다음 · 보고 듣기</button></div>';
+  var bm=bar.querySelector('.bm'); if(bm) bm.innerHTML=flowSVG(sg,64,{mini:true,h:18,label:'작은 흐름선'});
+}
+
+/* ▶ 미리 보기 창 — 장면 영상 + 대표 한 줄이 함께(시안은 그림 · 글 · 진행 막대로 흉내) */
+var pv={k:null,timer:null};
+function toggle(k){ if(ALWAYS[k]) return; if(st.on[k]) delete st.on[k]; else st.on[k]=1; render(); }
+function openPv(k){
+  var c=C[k]; pv.k=k;
+  document.getElementById('pvwT').textContent=c.n;
+  document.getElementById('pvwTag').textContent=ALWAYS[k]?'늘 있어요':(OPTIONAL[k]?'있을 때만':'');
+  document.getElementById('pvwM').innerHTML=glyph(k)+'<span class="hold">장면 영상 자리 · 소리 없이 반복</span><span class="live" id="pvwLive"></span><span class="ai">AI로 만든 장면이에요</span>';
+  document.getElementById('pvwQ').textContent='«'+SAMPLE[k][0]+'»';
+  document.getElementById('pvwOne').textContent=c.one;
+  var CH={candle:'서는 분',entry:'입장 멘트 · 입장 목소리 · 첫 모습',declare:'누가 · 말투',tribute:'말의 길이 · 인사 방식 · 꽃 준비',letter:'받는 분',toast:'무엇을 · 와인 · 케이크 준비',free:'무엇을 · 길이'};   // ② 줄 «바꿀 수 있는 것» 묶음 이름(추가 전달 3 · G3 고친 뒤)과 같게
+  document.getElementById('pvwCh').textContent=CH[k]?('② 보고 듣기에서 고를 것 · '+CH[k]):'';
+  document.getElementById('pvwShot').innerHTML='<b>남는 사진</b> · '+esc(c.shot);
+  pvActs(); document.getElementById('pvw').hidden=false;
+  document.querySelector('#pvw .pvw-x').focus({preventScroll:true});
+  pvPlay();
+}
+function pvActs(){
+  var k=pv.k, on=isOn(k), a=document.getElementById('pvwAct');
+  a.innerHTML='<button type="button" class="pvw-again">↻ 처음부터</button>'   // 녹음된 줄이면 «↻ 다시 듣기»
+    +(ALWAYS[k]?'<span class="pvw-fixed">늘 있는 순간이에요</span>'
+      :(on?'<span class="pvw-in">✓ 담겨 있어요</span><button type="button" class="pvw-add out" data-tg2>빼기</button>'
+          :'<button type="button" class="pvw-add" data-tg2>'+(OPTIONAL[k]?'담기 · 준비한 게 있을 때':'이 순간 담기')+'</button>'));
+  a.querySelector('.pvw-again').onclick=pvPlay;
+  var b=a.querySelector('[data-tg2]'); if(b) b.onclick=function(){ toggle(k); pvActs(); };
+}
+function pvPlay(){
+  pvStop(); var k=pv.k; if(!k) return;
+  var bar=document.getElementById('pvwBar'), live=document.getElementById('pvwLive'), m=document.getElementById('pvwM'), stt=document.getElementById('pvwSt');
+  var dur=Math.max(4,SAMPLE[k][0].replace(/\s/g,'').length/5.5)*1000, t0=Date.now();
+  bar.style.width='0'; m.classList.add('playing'); live.textContent='▶ 영상 + 대표 한 줄'; stt.textContent='아직 녹음 전이라 글로 보여 드려요';
+  pv.timer=setInterval(function(){ var r=Math.min(1,(Date.now()-t0)/dur); bar.style.width=(r*100)+'%'; if(r>=1){ pvStop(); live.textContent='다 들었어요'; } },80);
+}
+function pvStop(){ if(pv.timer) clearInterval(pv.timer); pv.timer=null; var m=document.getElementById('pvwM'); if(m) m.classList.remove('playing'); }
+function closePv(){ var k=pv.k; pvStop(); document.getElementById('pvw').hidden=true; pv.k=null;
+  var t=k&&document.querySelector('#acts [data-open="'+k+'"]'); if(t) t.focus({preventScroll:true}); }
+document.querySelectorAll('#pvw [data-close]').forEach(function(b){ b.onclick=closePv; });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!document.getElementById('pvw').hidden) closePv(); });
+function wire(){
+  var app=document.getElementById('app');
+  app.querySelectorAll('[data-tg]').forEach(function(b){ b.onclick=function(){ toggle(b.getAttribute('data-tg')); }; });
+  app.querySelectorAll('[data-open]').forEach(function(b){ b.onclick=function(){ openPv(b.getAttribute('data-open')); }; });
+}
+function render(){ renderEx(); renderPanelM(); renderBandP(); renderSlim(); renderActs(); renderBar(); wire(); }
+document.getElementById('blank').onclick=function(){ st.on={}; st.from=null; render(); };
+
+/* PC 얇은 띠 — 흐름 띠가 화면 위로 나가면 */
+var scroller=document.getElementById('scroller');
+scroller.addEventListener('scroll',function(){
+  slimCheck();
+});
+function slimCheck(){
+  var band=document.querySelector('#bandP .band'), slim=document.getElementById('slim'); if(!slim) return;
+  if(!band||band.offsetParent===null){ slim.classList.remove('on'); return; }
+  var sr=scroller.getBoundingClientRect(), br=band.getBoundingClientRect();
+  slim.classList.toggle('on', br.bottom < sr.top+10);
+}
+
+/* 틀 · 크기 맞춤 */
+var dev=document.getElementById('dev'), stage=document.getElementById('stage'), wrap=document.getElementById('stagewrap');
+var SC=1; function scaleNow(){ return SC; }
+function fit(){ var pc=dev.classList.contains('pc'); var avail=wrap.clientWidth-36; var fw=pc?1292:406, fh=pc?812:776; SC=Math.min(1,avail/fw);
+  stage.style.transform=SC<1?('scale('+SC+')'):''; stage.style.width=fw+'px'; stage.style.height=fh*SC+'px';
+  stage.style.marginLeft=SC<1?'0':Math.max(0,(avail-fw)/2)+'px';
+  document.querySelectorAll('.shot[data-scale]').forEach(function(s){ var w=s.parentNode.clientWidth-28; var k=Math.min(1,w/1292); s.style.transform='scale('+k+')'; s.parentNode.style.height=(732*k+28)+'px'; });
+}
+function setFrame(pc){ if(pv.k) closePv(); dev.classList.toggle('pc',pc); document.getElementById('fPC').setAttribute('aria-pressed',pc); document.getElementById('fPhone').setAttribute('aria-pressed',!pc); fit(); scroller.scrollTop=0; setTimeout(function(){ render(); slimCheck(); },40); }
+document.getElementById('fPhone').onclick=function(){ setFrame(false); };
+document.getElementById('fPC').onclick=function(){ setFrame(true); };
+
+window.addEventListener('resize',function(){ fit(); render(); renderCompare(); });
+
+/* ④ 한 장 요약 그림 */
+function renderSheet(){
+  var e=exOf('family'), sg=segsOf(e), g=document.getElementById('sheetGraph');
+  g.innerHTML='<div class="fg-wrap"><div class="fg">'+flowSVG(sg,1060,{names:true,h:150,label:'가족 예시 감동 흐름'})+'</div></div>';
+  var p=peakOf(sg);
+  document.getElementById('sheetList').innerHTML=sg.map(function(s){ return '<li><span>'+esc(C[s.k].n)+(s===p?' ★':'')+'</span><span>'+rng(mmin(s.lo)||1,mmin(s.hi)||1)+'</span></li>'; }).join('');
+}
+/* 감동 흐름 비교(지금 · A 곡선 · B 계단) */
+function renderCompare(){
+  var sg=segsOf(exOf('family'));
+  [['cmpNow',function(w){ return flowSVGOld(sg,w,{label:'지금 그래프'}); }],['cmpA',function(w){ return flowSVG(sg,w,{names:true,label:'제안 A 곡선 한 줄'}); }],['cmpB',function(w){ return flowSVG(sg,w,{names:true,style:'step',label:'제안 B 계단 한 줄'}); }]]
+    .forEach(function(r){ var el=document.getElementById(r[0]); if(!el) return; var w=Math.round(el.getBoundingClientRect().width)||360; el.innerHTML=r[1](Math.max(240,w)); });
+}
+/* 대표 한 줄 표 */
+var tb=document.getElementById('sampleTable');
+ORDER.forEach(function(k){ var r=document.createElement('tr'); var a=document.createElement('td'); a.textContent=C[k].n; var b=document.createElement('td'); b.textContent='«'+SAMPLE[k][0]+'»'; var c=document.createElement('td'); c.className='mono'; c.textContent=SAMPLE[k][1]; r.appendChild(a); r.appendChild(b); r.appendChild(c); tb.appendChild(r); });
+
+fit(); render(); renderSheet(); renderCompare();
+var q=location.search;
+if(/[?&]pc=1/.test(q)) setFrame(true);
+var mex=/[?&]ex=(\w+)/.exec(q); if(mex) setTimeout(function(){ applyEx(mex[1]); },60);
+})();
+</script>
+</body>
+</html>

@@ -73,24 +73,24 @@ io.open(p,'w',encoding='utf-8').write(s[:i]+b+s[i+len(a):])
 
 # 시간표가 적힌 열 자리 + 원천(MIN.base) 자체
 run index.html '>20<span>min' '>30<span>min'                              # 보이는 시퀀스 표 · [MID_FORM·SUM_GATE] 본식 대표값 20(합 140 정합 · 구 21은 합 141) — 겨눌 자리가 칸으로 옮겼다
-run index.html '>30<span>min' '>44<span>min'                              # 같은 표 · 인사 사진 칸(가운데값)도 낡으면 잡히는지
-run index.html '12~25m | The Ceremony' '40m | The Ceremony'   # [SNAP_50] 12~25 → 범위 밖 40 으로 깬다               # FAQ 블록
-run index.html 'Ceremony 12~25분' 'Ceremony 40분'                          # Service JSON-LD
-run assets/sequence-modal.js "'12~25분쯤'" "'40분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
-run order-preview.html "'12~25분쯤'" "'40분'"                                # 식순 만들기 표
-run order-preview.html '따라 12~25분쯤' '따라 40분쯤'   # ★30 은 새 범위 10~30 안이라 «맞는 값»이다 — 범위 밖 값으로 깨야 한다                           # 표 밖 산문
-run assets/advisor-kb.js 'Ceremony 12~25분' 'Ceremony 40분'                # AI 상담사
-run api/_kb.js '12~25분쯤 The Ceremony' '40분쯤 The Ceremony'                  # 서버 지식
-run contract/v1-1.html '약 12~25분)' '약 40분)'                              # 계약서 3조 · [CONTRACT_V19] 보류가 풀려 새 범위를 잰다
-run docs/smartstore/상세페이지_원본.html '12~25<small>' '40<small>'         # 스마트스토어 원본
-run assets/ritual-open.js 'body: [12, 25]' 'body: [14, 25]'                     # [OPEN_RANGE 2026-09-25] 원천이 옛 코스 min 에서 ritual-open.js RANGE 로 옮겼다 · 바뀌면 열 벌이 함께 틀린다
+run index.html '>60<span>min' '>50<span>min'                              # 같은 표 · [DAY_60] 단독 스냅 칸이 옛 50 으로 돌아가면 잡히는지(단체 사진 칸은 본식과 같은 20 이라 겨누지 않는다)
+run index.html '8~25m | The Ceremony' '40m | The Ceremony'   # [SNAP_50 → DAY_60] 8~25 → 범위 밖 40 으로 깬다               # FAQ 블록
+run index.html 'Ceremony 8~25분' 'Ceremony 40분'                          # Service JSON-LD
+run assets/sequence-modal.js "'8~25분쯤'" "'40분'"                          # 공용 진행표 모달 · 소요 칸이 범위를 진다(랜딩=가운데값 · 모달=범위 · MID_FORM)
+run order-preview.html "'8~25분쯤'" "'40분'"                                # 식순 만들기 표
+# [E2 2026-09-26] order-preview 안내 1 머리는 이제 RANGE 에서 셈한다 — 손 사본이 없어 깨 볼 자리도 없다(줄을 뺐다)
+run assets/advisor-kb.js 'Ceremony 8~25분' 'Ceremony 40분'                # AI 상담사
+run api/_kb.js '8~25분쯤 The Ceremony' '40분쯤 The Ceremony'                  # 서버 지식
+run contract/v1-1.html '약 8~25분)' '약 40분)'                              # 계약서 3조 · [CONTRACT_V19] 보류가 풀려 새 범위를 잰다
+run docs/smartstore/상세페이지_원본.html '8~25<small>' '40<small>'         # 스마트스토어 원본
+run assets/ritual-open.js 'body: [8, 25]' 'body: [10, 25]'                     # [OPEN_RANGE 2026-09-25] 원천이 옛 코스 min 에서 ritual-open.js RANGE 로 옮겼다 · 바뀌면 열 벌이 함께 틀린다
 # [SLOT_CLOCK 2026-09-25] 슬롯 → 본예식 시각 표 여섯 벌 — 옛 ID 값(13:20)으로 되돌리면 잡혀야 한다
-run mypage.html "'12:20':'13:30'" "'12:20':'13:20'"
-run admin.html "'13:20':'13:30'" "'13:20':'13:20'"
-run automation/admin/Admin.html "'16:40':'16:50'" "'16:40':'16:40'"
-run shared/hydrate.js "'13:20': '13:30'" "'13:20': '13:20'"
-run live.html "'10:00': '10:10'" "'10:00': '10:00'"
-run automation/platform/95_notify.gs "'12:20': '13:30'" "'12:20': '13:20'"
+run mypage.html "'12:20':'13:40'" "'12:20':'13:20'"   # [DAY_60] 13:30 → 13:40
+run admin.html "'13:20':'13:40'" "'13:20':'13:20'"
+run automation/admin/Admin.html "'16:40':'17:00'" "'16:40':'16:40'"
+run shared/hydrate.js "'13:20': '13:40'" "'13:20': '13:20'"
+run live.html "'10:00': '10:20'" "'10:00': '10:00'"
+run automation/platform/95_notify.gs "'12:20': '13:40'" "'12:20': '13:20'"
 
 restore
 echo ""

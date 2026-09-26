@@ -138,7 +138,10 @@
     'tribute-bow-groom', 'toast-both-pour-b',
     /* ★★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2] 108 — 끝 선언 · 두 분 목례 · 마지막 박수. **맨 끝에 붙였다**(위 경고 그대로).
        녹음 전이라 텍스트 카드로 흐른다 · 재녹음은 사장님 대본 점검(7단계) 뒤 한 번에. */
-    'narr-close-bow'
+    'narr-close-bow',
+    /* ★★[GROUP_PHOTO 2026-09-26 코워크 회신 9/26 2-5] 109 fx-free — 골라 트는 판 한 줄(시간이 남는 날만 디렉터가 튼다) · 초안.
+       **맨 끝에 붙였다**(위 경고 그대로). 녹음 전이라 텍스트 카드로 흐른다. */
+    'fx-free'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -179,7 +182,9 @@
        ★check-echo-inrun 이 잡아 줬다(6코스 전부). 내가 해요체를 고치다 만든 겹침이다.
        이 큐가 할 일은 «사진을 예고»가 아니라 «진행을 작가님께 넘기는 것» 하나다. */
     'end-0-photo': '여기서부터는 사진입니다.',
-    'end-1a-farewell': '오늘의 예식은 여기까지입니다. 자리를 옮기시기 전에, 두고 가시는 물건이 없는지 한 번만 살펴 주십시오.',
+    /* ★★[NO_TABLE_ROUND 2026-09-26 코워크 회신 9/26 2-5] 인사는 배웅 줄에서 — 가운데 문장을 더했다(초안 · 대본 점검 7단계).
+       끝을 «자리를 옮기시기 전에…»로 둔 까닭: 식사 날 뒤따르는 guide-meal 이 이 말을 받고, 거기에 «나가시는 길에»가 이미 있다. */
+    'end-1a-farewell': '오늘의 예식은 여기까지입니다. 두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다. 자리를 옮기시기 전에, 두고 가시는 물건이 없는지 한 번만 살펴 주십시오.',
     /* ★[ONLINE_ALREADY_ENDED 2026-08-16] 이 문안은 **더 이상 쓰이지 않는다.**
        마지막 문장(「화면으로 함께해 주신 분들께도, 두 사람이 곧 인사드리겠습니다」)이
        라이브가 이미 끝난 자리에서 나가던 말이라 갈래를 접었다(위 _farewell 주석 참고).
@@ -1065,67 +1070,51 @@
          이제 큐를 전부 밀어 넣은 **뒤에** live.est 를 합산해 남는 시간을 라운드로 준다.
          고정 자리 값을 바꾸면 라운드가 알아서 따라 움직인다. narr-photo-out 뒤의 IIFE 가 그 일을 한다.
          ★하한 10분 — 그 아래로는 '인사했다'가 성립하지 않는다(리서치 3차 · 테이블당 하한). */
+      /* ★★[GROUP_PHOTO · NO_TABLE_ROUND 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-4 · 2-5] 단체 사진 40분 안의 모양.
+         전체 하객 약 6분 + 꼭 담고 싶은 사진 둘까지 약 2분 → 가족 구도(한 구도 약 3분 · 불러 모아 주실 분)
+         → 남는 시간은 자유 사진 → 두 분 숨 고르기 2분 → 배웅(두 분이 한 분 한 분께 인사).
+         ★없어진 것: 테이블 인사(narr-round-open · 두 갈래 모두) · «다 함께 마지막 한 장»(narr-final-warn · narr-final-call —
+           첫 전체 사진에 합쳤다). 클립은 FILES 에 남긴다(번호를 지킨다). 되살리지 말 것.
+         ★늦어진 날 줄이는 차례: 자유 사진 → 숨 고르기 → 뒤에 고른 구도. 배웅 시각은 지킨다.
+         ★하루 배분은 코스와 상관없어 옛 코스도 같다. */
       cues.push(cue({
-        k: '_photo', blockN: '단체촬영', slug: 'end-0-photo', name: '전체 하객컷', text: EXTRA['end-0-photo'], duck: -14,
-        live: { t: '전체 하객 단체컷 (전원이 앞에 모인 상태)', est: 300, note: '25명 정렬에 5분 · 20명 이상은 6~10분이 업계 실측이지만 [DAY_PLAN]으로 다 함께가 짧아져 5분으로 당겼다' }
+        k: '_photo', blockN: '단체 사진', slug: 'end-0-photo', name: '전체 하객컷', text: EXTRA['end-0-photo'], duck: -14,
+        live: { t: '전체 하객 단체컷 → 두 분이 적은 꼭 담고 싶은 사진(둘까지 · 골라 트는 판)', est: 480, note: '전체 하객 약 6분 + 꼭 담고 싶은 사진 둘까지 약 2분 [GROUP_PHOTO]' }
       }));
+      /* 가족 구도 est = 3분 × 고른 구도 수(마이페이지 단체 사진 · 관리자 «당일 콘솔»이 S.photoN 으로 싣는다) · 모르면 240 */
+      var _pn = +S.photoN;
       cues.push(cue({
-        k: '_photo', blockN: '단체촬영', slug: 'narr-photo-split', name: '나눠 담기 · 대기 안내', text: D.NARR.photoSplit, duck: -14,
+        k: '_photo', blockN: '단체 사진', slug: 'narr-photo-split', name: '나눠 담기 · 대기 안내', text: D.NARR.photoSplit, duck: -14,
         hint: '전체컷을 담고 나면',
         note: '★뒤 문장이 대기를 「알려진 대기」로 바꾼다 — 순번을 알려 주면 이탈이 준다(하버드)',
-        live: { t: '불러 모으는 구도 촬영 (호명은 골라 트는 판에서)', est: 240, self: true, doing: 'move' }   // [PHOTO_CAP] 구도 상한 6→5
-      }));
-      cues.push(cue({
-        k: '_greet', blockN: '인사 사진', slug: 'narr-round-open', name: '인사 시작', text: D.NARR.roundOpen, duck: -14,
-        hint: '불러 모으는 구도가 끝나면',
-        note: '★여기서 하객이 풀어진다. 두 분은 그 사이 카메라 앞으로 간다',
-        /* ★[GATHER_WAIT] digital 이면 이 뒤에 온라인 인사가 온다. live 가 없으면 그 큐가 chain 이 되어
-           안내가 끝나자마자 "두 분, 카메라 앞으로" 가 나간다 — 하객이 아직 안 풀어졌고 두 분도 안 움직였다.
-           짧은 사람 구간을 줘서 디렉터가 보고 누르게 한다. */
-        live: S.digital
-          ? { t: '하객이 자리에서 풀어짐 · 두 분이 카메라 앞으로 이동', est: 90, self: true, doing: 'move' }
-          : { t: '두 분이 자리마다 인사 · 작가가 따라 돌며 그 자리 컷', est: 0, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 라운드를 더한다
+        live: { t: '가족 구도 · 불러 모아 주실 분과 함께(호명은 골라 트는 판)', est: (_pn > 0 ? 180 * _pn : 240), self: true, doing: 'move' }
       }));
       if (S.digital) cues.push(cue({
-        k: '_greet', blockN: '인사 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
+        k: '_photo', blockN: '단체 사진', slug: 'narr-online-in', name: '온라인 인사', text: D.NARR.onlineIn, duck: -14,
         note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off',
-        live: { t: '온라인 인사 2분 → 라이브 종료·마이크 off → 두 분이 자리마다 인사 (작가가 따라 돌며 그 자리 컷)', est: 120, self: true, doing: 'say' }   // [ROUND_FIT] 2패스가 라운드를 더한다
-      }));
-      /* ★'자리 돌며 인사' 20분은 **소리가 없다.** 별도 큐로 두면 슬러그 없는 큐가 되어
-         전 조합 검사가 잡는다(실제로 잡혔다 · 20736건). 소리 없는 자리는 큐가 아니라
-         **앞 큐의 사람 구간**이다 — 디렉터는 앞 큐를 누르고 시간만 본다.
-         그래서 digital 이면 온라인 인사 큐가, 아니면 인사 시작 큐가 이 시간을 안고 간다. */
-      cues.push(cue({
-        k: '_final', blockN: '다 함께 마지막', slug: 'narr-final-warn', name: '마지막 예고', text: D.NARR.finalWarn, duck: -14,
-        hint: '한 바퀴가 거의 끝나갈 때',
-        note: '★2단계의 1단 — 단순 신호는 13%만 반응하고 이유를 말한 음성 안내는 75%가 즉시 반응한다(실측)'
+        live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: 120, self: true, doing: 'say' }
       }));
       cues.push(cue({
-        k: '_final', blockN: '다 함께 마지막', slug: 'narr-final-call', name: '모이는 신호', text: D.NARR.finalCall, duck: -14,
-        hint: '예고 뒤 5분쯤',
-        note: '★2단계의 2단 · 이 뒤 연출은 골라 트는 판에서',
-        live: { t: '다 함께 마지막 한 장 · 연출 2개 (골라 트는 판)', est: 180, self: true, doing: 'move' }   // [PHOTO_CAP] 연출 상한 3→2
+        k: '_final', blockN: '단체 사진', slug: 'narr-photo-out', name: '사진 닫는 말', text: D.NARR.photoOut, duck: -12,
+        note: '★예식 전체에서 마지막으로 나가는 감정이다(피크엔드) · 없으면 배웅 안내로 끝난다',
+        live: { t: '자유 사진 · 남는 시간만큼 · 두 분 숨 고르기 포함', est: 0, self: true, doing: 'move' }   // [ROUND_FIT] 2패스가 남는 시간을 준다
       }));
-      cues.push(cue({
-        k: '_final', blockN: '다 함께 마지막', slug: 'narr-photo-out', name: '마지막 닫는 말', text: D.NARR.photoOut, duck: -12,
-        note: '★예식 전체에서 마지막으로 나가는 감정이다(피크엔드) · 없으면 배웅 안내로 끝난다'
-      }));
-      /* [ROUND_FIT 2패스 본체] 다 함께 블록의 est 합을 세고, 남는 시간을 캐리어(라운드를 안는 큐)에 더한다 */
+      /* [ROUND_FIT 2패스 본체 · GROUP_PHOTO] 단체 사진 블록의 est 합을 세고, 남는 시간을 자유 사진(narr-photo-out)에 준다.
+         남는 시간 = (40 − 본식 넉넉 합) − 사진 큐 est 합 − 말 시간 120초 · 최소 120초(두 분 숨 고르기). 온라인 날도 받는 큐는 같다. */
       (function () {
-        var IN = { 'narr-close': 1, 'narr-close-bow': 1, 'end-0-photo': 1, 'narr-photo-split': 1, 'narr-round-open': 1,
-                   'narr-online-in': 1, 'narr-final-warn': 1, 'narr-final-call': 1, 'narr-photo-out': 1 };
+        var IN = { 'narr-close': 1, 'narr-close-bow': 1, 'end-0-photo': 1, 'narr-photo-split': 1, 'narr-online-in': 1, 'narr-photo-out': 1 };
         var fixed = 0, carrier = null;
         for (var i = 0; i < cues.length; i++) {
           var c = cues[i];
           if (!IN[c.slug]) continue;
+          if (c.slug === 'narr-photo-out') { carrier = c; continue; }   // 받는 큐 자신의 자리표시 est(30)는 세지 않는다
           if (c.live && c.live.est) fixed += c.live.est;
-          if (c.slug === (S.digital ? 'narr-online-in' : 'narr-round-open')) carrier = c;
         }
-        /* [OPEN_COURSE] 새 코스는 본식이 고른 만큼 달라진다 — «55 − 본식(넉넉 합)»으로 잡는다(명세 6장). */
+        /* [OPEN_COURSE] 새 코스는 본식이 고른 만큼 달라진다 — «40 − 본식(넉넉 합)»으로 잡는다. */
         var bodyMin = D.COURSES[S.course].open ? Math.round(O.bodySec(S)[1] / 60) : (D.MIN.base[S.course] || D.MIN.base.damback);
-        var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell) - bodyMin;   // 분 · 다 함께 몫
-        var round = Math.max(600, budget * 60 - fixed - 120);   // 120초 = 나레이션 여덟 클립의 말 시간
-        if (carrier && carrier.live) carrier.live.est += round;
+        var budget = (D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell) - bodyMin;   // 분 · 단체 사진 몫
+        var free = Math.max(120, budget * 60 - fixed - 120);   // 120초 = 나레이션 말 시간 · 최소 120초 = 두 분 숨 고르기
+        if (carrier && carrier.live) carrier.live.est = free;
       })();
       /* ★★[ONLINE_ALREADY_ENDED 2026-08-16 사용자 지적] 배웅에서 온라인을 갈라 말하지 않는다.
          사용자 원문: *"본식끝나고 온라인 화면도 종료 한다고 우리 정했잖아 이건 그걸기억못하는듯한 진행인데"*
@@ -1139,8 +1128,8 @@
       cues.push(cue({
         k: '_farewell', blockN: '배웅', slug: 'end-1a-farewell',
         name: '촬영 종료 · 배웅 전환', text: EXTRA['end-1a-farewell'], duck: -14,
-        hint: '단체촬영이 끝나면',
-        live: { t: '하객 배웅 · 문 앞에서 인사', est: 480 }
+        hint: '자유 사진이 끝나면',   // [GROUP_PHOTO] 앞 큐(자유 사진)에 사람 구간이 있어 manual — 디렉터 GO
+        live: { t: '배웅 줄 · 두 분이 한 분 한 분께 인사', est: 600 }   // [NO_TABLE_ROUND] 30명 약 10분 · 환복 10분은 배웅 20 안
       }));
       /* ★★[MEAL_GUIDE] 45 바로 뒤 — 「자리를 옮기시기 전에」를 「식사하실 자리를」이 곧바로 받는다.
          모일 곳을 고른 날만 나간다. 안 고른 날 「마련해 두었습니다」는 거짓말이 된다. */

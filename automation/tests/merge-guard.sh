@@ -1643,7 +1643,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.10'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.11'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '미리 준비한 안내 음성으로 진행' assets/ritual-data.js 2   # ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2122,7 +2122,7 @@ chk 'SLOT_CLOCK' scripts/check-source-drift.mjs 2
 chk "v1-8.html" mypage.html 1                     # [CONTRACT_V19] v1.8 서명자 보존본 경로
 chk "archive/v1-8.html" admin.html 1               # 관리자도 같은 보존본(v1.6·v1.7 도 함께 빠져 있었다)
 chk 'Private Snap (45분)' contract/archive/v1-8.html 1   # v1.8 보존본은 옛 시간 그대로여야 한다
-chk 'Private Snap (50분)' contract/v1-1.html 1
+chk 'Private Snap (60분)' contract/v1-1.html 1   # [DAY_60 · CONTRACT_V111]
 chk "'갑'이 직접 준비한 순서" contract/v1-1.html 1
 nochk '부케·생화 커스텀' contract/v1-1.html            # 별도 비용 칸에서 뺐다 — 저희가 받는 돈이 아니다
 chk 'FREE_NEUTRAL' assets/ritual-open.js 1
@@ -2158,13 +2158,13 @@ nochk "'>'+LABELS\[t\]+' '+t+'</option>'" mypage.html
 # 그래서 통일을 보류했다. 넷 다 사실이고(16+39=55 · 24+31=55) 지금은 네 벌 모두 감시 아래 있다.
 # ★통일하려면 검사부터 고칠 것 — 숫자를 순서로 훑지 말고 라벨('The Ceremony')에 붙여 읽게.
 #   그 뒤에 통일하면서 **같은 커밋에서** 이 두 줄도 함께 고친다(결정 대기함에 근거 있음).
-chk '12~25m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 12~25 (스냅 50 · (가) 안)
-chk '25~38m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 25~38 [RANGE_EX4] · 두 시간의 합 50분
+chk '8~25m | The Ceremony' index.html 2   # [OPEN_RANGE · SNAP_50 2026-09-25] 16~25 → 10~30 → 12~25 (스냅 50 · (가) 안)
+chk '15~32m | Group Record' index.html 2   # [OPEN_RANGE · SNAP_50] 30~39 → 25~45 → 25~38 [RANGE_EX4] · 두 시간의 합 50분
 # [ROUND_FIT] 라운드 길이는 남는 시간에서 계산한다 — est 를 손으로 박으면 예산을 넘는다.
 #   실측: 다 함께가 30~39분이 된 날, 엔진은 20분짜리 라운드를 들고 39.5분을 쓰고 있었다.
 chk 'ROUND_FIT' assets/ritual-cue.js 2
 chk 'ROUND_FIT' scripts/check-ritual-cue.js 1
-chk '2패스가 라운드를 더한다' assets/ritual-cue.js 2   # [ROUND_FIT] 캐리어 두 곳 — 손계산 _grFixed 부활 금지
+chk '2패스가 남는 시간을 준다' assets/ritual-cue.js 1   # [ROUND_FIT · GROUP_PHOTO 2026-09-26] 캐리어는 자유 사진(narr-photo-out) 하나 — 손계산 _grFixed 부활 금지
 # [ROUND_EXACT] 2패스는 '넘지 않는가'가 아니라 '정확히 채우는가'로 본다.
 #   창을 슬러그 목록이 아니라 **큐 순서**(narr-close ~ 배웅 직전)로 잡는 것이 핵심 —
 #   목록을 복제하면 엔진과 검사가 같은 실수를 함께 한다. 실측: 창 안에 고정 자리 큐를 새로 넣고
@@ -2181,7 +2181,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.10'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.11'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -3740,8 +3740,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1\.10' contract/v1-1.html 5   # [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.10'" automation/platform/70_journey.gs 1
+chk 'v1\.11' contract/v1-1.html 6   # [CONTRACT_V111 · 머리 주석 포함] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.11'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -4851,7 +4851,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal'\]" assets/ritual-preview-link.js 1
+chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN'\]" assets/ritual-preview-link.js 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -8558,6 +8558,8 @@ chk 'GOODS_CHOICE' admin.html 1
 chk '저희에게 맡기시면 따로 비용이 있어요' order-preview.html 1   # [GOODS_CHOICE] ① «값은 같아요» 옆 한 줄(코워크 5-1)
 chk 'v1-9.html' admin.html 1   # [CONTRACT_V110] v1.9 서명자 보존본
 chk 'v1-9.html' mypage.html 1
+chk 'v1-10.html' admin.html 1   # [CONTRACT_V111] v1.10 서명자 보존본
+chk 'v1-10.html' mypage.html 1
 # ── 2026-09-25 코워크 회신4 4장 · P13 · 사장님 «부모님 말은 칸은 두되 선택»
 chk 'TRIB_CARD_OPT' order-preview.html 3           # ③ 부모님께 드릴 말 선택 칸 · 대본 · 셈 줄 밖
 chk 'TRIB_CARD_OPT' assets/ritual-open.js 1
@@ -9410,7 +9412,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 108' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 109' scripts/check-ritual-cue.js 1   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -9845,7 +9847,7 @@ chk 'PARENT_ARRIVE_EARLY' parents.html 1
 chk 'PARENT_ARRIVE_EARLY' scripts/check-source-drift.mjs 1
 chk 'PARENT_SEAT_SOFT' parents.html 1
 chk 'PARENT_SEAT_SOFT' scripts/check-source-drift.mjs 1
-chk '<li>본식 시작 25분 전 · ' parents.html 1
+chk '<li>본식 시작 30분 전 · ' parents.html 1   # [PARENT_AT_EMPTY 2026-09-26 저녁] 25 → 30
 chk '안내 음성이 나오면 자리에 앉으시면 됩니다' parents.html 1
 chk 'STAMP_KST' scripts/gen-deploy-fns.mjs 1
 nochk '<li>본식 시작 40분 전' parents.html
@@ -10992,7 +10994,8 @@ chk 'NOT_COURSE' admin.html 2
 chk 'summary.open' mypage.html 1                  # [OPEN_COURSE] 마이페이지 요약 «순간 n개 · 본식 약 a~b분»
 # ★★[코워크 회신 둘째 판 2026-09-25] 스냅 50 · 식순 고르기 둘째 판 · 마이페이지 · 사이트 — 원문 docs/handoff/코워크회신_구현보고1_0925_둘째판.md
 chk 'SNAP_50' assets/ritual-data.js 1                 # 스냅 45 → 50(입장 준비 5) · 본식 10:10 · 합 50
-chk 'snap: 50' assets/ritual-data.js 1
+nochk 'snap: 50' assets/ritual-data.js   # [DAY_60 2026-09-26] 스냅 60 으로 바뀌었다
+chk 'snap: 60' assets/ritual-data.js 1
 chk 'SNAP_50' assets/sequence-modal.js 2
 chk 'PREVIDEO_ALWAYS' assets/ritual-open.js 2         # 식전 영상은 늘 있다(사장님 결정 2)
 chk 'PREVIDEO_AT_4' assets/ritual-cue.js 2            # 영상은 03 과 04 사이 · 본식 4분 전 시각고정
@@ -11022,3 +11025,57 @@ chk 'SLOT_LINE' inquiry.html 2                        # 시간대를 고르면 �
 chk 'NO_WAITROOM' guide.html 2
 chk 'BOUQUET_WAIT' docs/handoff/부케_옵션_문구_대기.md 1   # 부케는 사장님 결정 전 — 문구만 준비 · 올리지 않음
 chk 'OPEN_TIME_MEASURE' scripts/audit/open-time-measure.mjs 1   # P3 · 녹음 실측 도구(덮기는 녹음 들어온 뒤)
+
+# ★★[DAY_60 · RANGE_40 · NO_TABLE_ROUND · GROUP_PHOTO · PHOTO_CAP_40 · PARENT_AT_EMPTY · CONTRACT_V111 · EX_BRIEF · SEQ_ROW_CLOCK 2026-09-26 사장님 결정 · 코워크 회신 9/26 2장]
+#   스냅 60 · 본식 + 단체 사진 40 · 테이블 인사 없음(배웅 줄에서 인사) · «사진과 인사» → «단체 사진» · 부모님 30분 전
+chk 'DAY_60' assets/ritual-data.js 1
+chk 'RANGE_40' assets/ritual-open.js 2
+chk 'var DAYMIN = 40;' assets/ritual-open.js 1
+chk 'var SHORT_MIN = 16;' assets/ritual-open.js 1
+chk 'EX_BRIEF' assets/ritual-open.js 1
+nochk "k: 'all', nm: '전부'" assets/ritual-open.js          # 넷째 예시 «전부»는 거뒀다 — 되살리지 말 것
+chk "k: 'brief', nm: '간결'" assets/ritual-open.js 1
+chk 'GROUP_PHOTO' assets/ritual-cue.js 3
+chk 'NO_TABLE_ROUND' assets/ritual-cue.js 1
+nochk "slug: 'narr-round-open'" assets/ritual-cue.js       # 테이블 인사 큐 — 흐름에서 뺐다(클립은 FILES 에 둔다)
+nochk "slug: 'narr-final-warn'" assets/ritual-cue.js       # 마지막 한 장 — 첫 전체 사진에 합쳤다
+nochk "slug: 'narr-final-call'" assets/ritual-cue.js
+chk "'fx-free'" assets/ritual-cue.js 1
+chk "slug:'fx-free'" assets/ritual-data.js 1
+chk '두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다.' assets/ritual-cue.js 1
+chk '오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.' assets/ritual-data.js 1
+chk 'PHOTO_CAP_40' mypage.html 1
+chk 'PHOTO_CAP_CLAMP' mypage.html 1
+chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=8' mypage.html 1
+chk 'SEQ_ROW_CLOCK' scripts/check-source-drift.mjs 2
+chk 'PARENT_AT_EMPTY' scripts/check-source-drift.mjs 1
+chk 'PARENT_AT_EMPTY' parents.html 1
+chk '<td>09:50</td><td>10:20</td>' parents.html 1
+chk 'CONTRACT_V111' contract/v1-1.html 1
+chk 'Version v1.11' contract/v1-1.html 1
+chk '두 시퀀스의 합은 40분으로 고정된다.' contract/v1-1.html 1
+chk 'Version v1.10' contract/archive/v1-10.html 1
+nochk '자리마다 찾아가 인사드립니다' index.html              # 대기실 FAQ · 좌석 문단 — 배웅하며 한 분 한 분께
+nochk '자리마다 찾아가 인사드려요' guide.html
+nochk '자리마다 인사드리고' index.html
+nochk '사진과 인사' order-preview.html
+nochk '사진과 인사' api/_ritual-kb.js
+nochk '인사 사진' assets/advisor-kb.js
+nochk "'인사 사진'" assets/sequence-modal.js
+chk "['단체 사진', '15~32분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1
+chk 'Private Snap 60분 · Ceremony 8~25분 · 단체 사진 15~32분' index.html 1
+chk '하객분들은 <strong>10시 입장 · 11시 10분 배웅</strong>' index.html 1
+nochk '9시 50분 입장' index.html
+chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
+chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' automation/platform/95_notify.gs 1
+
+# [D12 · GUESTS_ALL 2026-09-26 코워크 추가 전달 2] 고객 글 «배웅 줄» → «문 앞에서»(콘솔 · 직원 글은 그대로) · «서른 분» → «하객 모두»
+nochk '배웅 줄에서' index.html
+nochk '배웅 줄에서' assets/sequence-modal.js
+nochk '배웅 줄에서' api/_kb.js
+chk '식장을 한 번 둘러보시고 입구에서 하객분들을 맞으십니다.' parents.html 1
+chk '두 분 식순이면 단체 사진이 약&nbsp;' mypage.html 1
+chk 'GUESTS_ALL' assets/ritual-open.js 1
+nochk '서른 분이 박수' assets/ritual-open.js
+nochk '서른 개의 잔' assets/ritual-open.js
+nochk '서른 분이 함께 잔을' assets/ritual-open.js
