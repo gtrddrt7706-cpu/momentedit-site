@@ -420,7 +420,7 @@ chk 'SNAP_V2_GATE' mypage.html 1                    # 서버가 새 기획을 �
 chk 'SNAP_NUDGE' mypage.html 1                      # D2 예식 3주 전부터 «지금 할 일» 한 줄
 chk 'SNAP_STEP_SAVE' mypage.html 1                  # 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(고객 입장 걸어 보기 2026-09-26)
 chk 'SNAP_FLOW_WRAP' mypage.html 2                  # 흐름 줄 화살표 = 다음 칸과 한 덩어리 · PC 한 줄 · 폰 셋·셋(«본식»만 떨어지던 자리)
-chk 'SNAP_V2_FROM' automation/platform/80_production.gs 6   # 새 스냅 기획은 처리방침 시행일(2026-10-03)부터 — 상태 표시·저장·사진 올리기·브리프 만들기(snap-plan 이 privacy.html 과 날짜 대조)
+chk 'SNAP_V2_FROM' automation/platform/80_production.gs 6   # 새 스냅 기획은 처리방침 시행일부터(SNAP_OPEN_NOW 로 2026-09-26 = 공고일) — 상태 표시·저장·사진 올리기·브리프 만들기(snap-plan 이 privacy.html 과 날짜 대조)
 chk 'SNAP_LEGACY_KEEP' automation/platform/80_production.gs 2
 chk 'SNAP_LOCK' automation/platform/80_production.gs 1
 chk 'SNAP_LATE_MAIL' automation/platform/80_production.gs 1
@@ -437,7 +437,21 @@ chk 'data-snapact="confirm"' admin.html 1
 chk 'SNAP_BRIEF' brief.html 1
 chk 'noindex, nofollow' brief.html 1
 chk '촬영(스냅)' privacy.html 1                      # D12 처리방침 위탁 한 줄
-chk '2026년 10월 3일' privacy.html 2                 # 시행일(공고 9/26 · 자기 규정 «7일 전 공지»)
+chk '2026년 9월 26일' privacy.html 3                 # [SNAP_OPEN_NOW] 공고일 = 시행일 = 위탁 시작일(10조 단서 · 공고와 동시에 시행) — 처음엔 10월 3일(«7일 전 공지»)이었다
+nochk '2026년 10월 3일' privacy.html                 # 옛 시행일이 되살아나면 서버(SNAP_V2.from)와 어긋난다
+chk 'SNAP_OPEN_NOW' automation/platform/80_production.gs 1
+chk 'SNAP_OPEN_NOW' privacy.html 1
+# ★★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 모으는 그 자리에서 따로 · 미리 체크하지 않는다 · 한 번이면 다시 묻지 않는다 ·
+#   동의 없으면 새 기획 저장 · 사진 올리기 거절 · 브리프는 동의가 있을 때만 기획 · «스냅 기획 지우기»(기획 · 올린 사진 · 동의 기록).
+#   화면 · 문구 · 처리방침은 scripts/audit/snap-plan.mjs · 서버 동작은 automation/tests/snap-plan.test.js 15 가 잰다(둘 다 깨 보고 믿었다)
+chk 'SNAP_CONSENT' mypage.html 12
+chk 'SNAP_CONSENT' automation/platform/80_production.gs 12
+chk 'SNAP_CONSENT' admin.html 4
+chk 'SNAP_CONSENT' privacy.html 1
+chk "case 'snapWithdraw'" automation/consultation/consultation-booking.gs 1
+chk 'adminSnapWithdraw: adminSnapWithdraw' automation/admin/admin.gs 1
+chk 'id="snap-plan"' privacy.html 1                   # 마이페이지 «개인정보 처리방침 전문 보기»가 이 줄로 온다
+chk '(선택 · 따로 동의를 받은 경우에만)' privacy.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/snap-plan.mjs >/dev/null 2>&1; _spl=$?
   case "$_spl" in
     0) echo 'ok snap-plan: 목록 = 진행표 · 서버 한도 · 촬영 목록표 · 다섯 걸음 · 지운 질문 0건' ;;
@@ -1863,6 +1877,26 @@ if command -v node >/dev/null 2>&1; then node scripts/check-typecast-handoff.mjs
 chk 'ADV_INDEX' index.html 3                                 # 목차형 메뉴 3곳(칩·라벨·›) · 선 없애고 여백으로 나눔 · ›를 글자 뒤에 붙임 · 14px
 chk 'ADV_TC' index.html 5                                    # 상태바 진사 띠 방지 · 히어로 잠금 + 동기화 훅 + 상담패널 + 모바일 메뉴(열기/닫기)
 chk 'MM_TOPROW' index.html 6                                 # Close를 눈썹 행에 묶음 + 상단 여백 env() · 절대배치/고정 104px로 되돌리면 기기마다 어긋난다
+# ── [MENU_CLOSE_HIT 2026-09-26 사장님 지적 「pc버전 창을좀줄이면 위메뉴가 저렇게 바뀌는데 클로즈가 안먹어」] ──
+#   681~1023px 에서 전체 메뉴를 열면 상단 바(body.menu-open nav · z 201)가 메뉴(z 200) 위에 떠서
+#   Close 를 덮고 클릭을 가져갔다(700·768·940·1023 실측 · Close 한가운데의 주인 = div.nav-in). 本 도 열린 동안 안 먹었다.
+#   폰은 nav 가 static · .nav-in 이 숨어 멀쩡했다 — MM_TOPROW 를 폰 폭에서만 쟀고 NAV_TABLET_FIX 가 그 사이 폭을 만들었다.
+#   ① 정적(CSS)은 여기 PR 에서도 돈다 — nav 가 메뉴 위면 pointer-events: none 이어야 한다. 틀리면 1 → 막는다.
+#   ② 실측(390·681·820·940·1023 · 本 으로 닫기 · 창 크기 자동 닫힘 1023)은 브라우저가 있는 야간·로컬에서 돈다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/menu-close-hit.mjs >/dev/null 2>&1; _mc=$?
+  case "$_mc" in
+    0) echo 'ok menu-close-hit: 390·681·820·940·1023px 모두 Close 가 눌리고 닫힌다' ;;
+    1) echo 'FAIL menu-close-hit: 전체 메뉴 Close 가 안 눌리는 폭이 있습니다 — node scripts/audit/menu-close-hit.mjs'; fail=1 ;;
+    *) echo 'ok menu-close-hit: ① 정적 통과 · ② 실측은 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'MENU_CLOSE_HIT' index.html 4                            # nav 통과 · 本 다시 켬 · 자동 닫힘 1023 · 옛 주석 정정
+chk 'MENU_CLOSE_HIT' scripts/audit/menu-close-hit.mjs 1      # 위 검사 자체
+chk 'MENU_CLOSE_HIT' .claude/skills/momentedit-design/SKILL.md 1   # 교훈 — 투명해도 상자는 클릭을 받는다
+# [NAV_TOGGLE_RING 2026-09-26] 같은 점검(web-design-guidelines · Focus States)에서 나온 것 — `.nav-toggle:focus { outline: none }`(0,2,0)이
+#   전역 :where(…):focus-visible 테(0,1,0)를 이겨 681~1023px 에서 키보드로 本 MENU 에 와도 테가 없었다(실측 none 0px → 걷은 뒤 solid 2px).
+nochk '^\.nav-toggle:focus {' index.html 0                    # 되살리면 키보드 사용자가 本 MENU 위치를 못 본다
+chk 'NAV_TOGGLE_RING' index.html 1
 chk '__meTCSync' index.html 2                                # 잠금 해제 시 캐시 비우고 재계산 · 없으면 닫은 뒤 테마색이 한 번 씹힌다
 chk 'ADV_OPEN_TOP' index.html 1                              # fab 클릭에 open을 그대로 넘기면 MouseEvent가 keepScroll로 들어가 목록 상단이 잘린다
 chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 없다 · 눌림 워시를 지우면 탭 피드백이 사라진다
@@ -4428,6 +4462,24 @@ chk 'PREP_ORDER_0926' mypage.html 1
 chk 'CF_ORDER_0926' mypage.html 3                    # 예식 확인서 줄도 같은 순서(식순·애프터 웨딩 줄을 좌석 뒤에서 붙인다)
 chk 'GROUP_SNAP_NAME' mypage.html 4                  # «단체 사진» → «가족 · 친구 스냅»(사장님 선택 2026-09-26) — 목록 줄·화면 제목·저장 알림·확인서 줄 · 옛 이름 복귀는 prep-order 가 잡는다
 chk 'PHOTOG_CONTRACT' privacy.html 1                  # 촬영(스냅) 위탁 = 모먼트에디트와 계약한 사진작가 · 개인정보 조항은 작가 계약서에(사장님 2026-09-26) — 문구는 snap-plan 이 잰다
+# ★★[PHOTO_FRIEND · PHOTO_FAMILY_ONLY 2026-09-26 사장님 G1·G2·G3] «가족 · 친구 스냅» — 계획된 구도는 전부 가족 · 그 뒤 친구들과 자유롭게(사진작가에게 부탁할 것 한 칸).
+#   사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
+#   ★guideinfo 는 트랙 통째 교체 — 화면 · 저장 · 좌석 통과 · 확인서 · 관리자 · 당일 콘솔 · 서버 화이트리스트 중 하나만 빠져도 «저장됐어요»인데 지워진다.
+#   화면·경로는 scripts/audit/photo-friend.mjs · 서버 동작은 automation/tests/photo-friend.test.js(UNIT_SUITES_RUN)
+chk 'PHOTO_FRIEND' mypage.html 8
+chk 'PHOTO_FRIEND' automation/platform/80_production.gs 2
+chk 'PHOTO_FRIEND' admin.html 2
+chk 'PHOTO_FRIEND' console.html 1
+chk 'PHOTO_FAMILY_ONLY' mypage.html 1
+chk 'PHOTO_FLOW_LINE' mypage.html 1                  # 첫눈에 뼈대 — 다 함께 한 장 › 가족 구도 › 친구들과 자유롭게(사장님 «센스있게 개선디테일»)
+chk 'PHOTO_FRIEND_EX' mypage.html 4                  # 친구 칸 예시 칩 · 글 길이만큼 늘어나는 칸
+if command -v node >/dev/null 2>&1; then node scripts/audit/photo-friend.mjs >/dev/null 2>&1; _pfa=$?
+  case $_pfa in
+    0) echo 'ok photo-friend: 구도는 가족만 · 친구들과 자유롭게 한 칸(화면·저장·좌석 통과·확인서·관리자·당일 콘솔·서버)' ;;
+    1) echo 'FAIL photo-friend: 친구들과 자유롭게 칸이 한 곳에서 빠졌습니다 — node scripts/audit/photo-friend.mjs'; fail=1 ;;
+    *) echo 'ok photo-friend: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
   case "$_pro" in
     0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 가족 · 친구 스냅 · 예식 확인서도 같은 순서' ;;
@@ -4913,7 +4965,7 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN'\]" assets/ritual-preview-link.js 1
+chk "INJECT = \['digital', 'photoShare', 'meal', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -6778,7 +6830,7 @@ chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
 #   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
 #   ★스위트를 추가하면 이 목록에도 넣을 것.
 if command -v node >/dev/null 2>&1; then
-  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan; do
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend; do
     node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
       || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
   done
@@ -11131,7 +11183,23 @@ chk '두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다.' assets
 chk '오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.' assets/ritual-data.js 1
 chk 'PHOTO_CAP_40' mypage.html 1
 chk 'PHOTO_CAP_CLAMP' mypage.html 1
-chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=8' mypage.html 1
+chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;' mypage.html 1
+# ★[WISH_COUNT · NO_ZERO_SHOT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-4~2-6] 꼭 담고 싶은 사진은 적은 만큼만 · «구도 0개» 금지 · 사진 est 는 GO→GO(말 포함)
+chk 'WISH_COUNT' mypage.html 3
+chk 'function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }' mypage.html 1
+chk 'NO_ZERO_SHOT' mypage.html 1
+chk '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 ' mypage.html 1
+chk '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.' mypage.html 1
+nochk "'알맞고, 제시간에 진행되면 '+_cap.max" mypage.html
+chk 'PHOTO_GO2GO' assets/ritual-cue.js 2
+chk "'end-0-photo': (_pw >= 0 ? 360 + 60 " assets/ritual-cue.js 1   # ★grep 은 * 를 반복으로 읽는다 — 세 조각으로 나눠 잰다
+chk "_pw : 480), 'narr-photo-split': (_pn > 0 ? 180 " assets/ritual-cue.js 1
+chk "_pn : 360), 'narr-online-in': 120 }" assets/ritual-cue.js 1
+nochk 'budget * 60 - fixed - 120' assets/ritual-cue.js
+chk 'PHOTO_GO2GO' scripts/check-ritual-cue.js 4
+chk 'WISH_COUNT' scripts/check-ritual-cue.js 3
+chk 'WISH_COUNT' admin.html 1
+chk "'photoWishN'," assets/ritual-preview-link.js 1
 chk 'SEQ_ROW_CLOCK' scripts/check-source-drift.mjs 2
 chk 'PARENT_AT_EMPTY' scripts/check-source-drift.mjs 1
 chk 'PARENT_AT_EMPTY' parents.html 1
@@ -11159,8 +11227,18 @@ nochk '배웅 줄에서' index.html
 nochk '배웅 줄에서' assets/sequence-modal.js
 nochk '배웅 줄에서' api/_kb.js
 chk '식장을 한 번 둘러보시고 입구에서 하객분들을 맞으십니다.' parents.html 1
-chk '두 분 식순이면 단체 사진이 약&nbsp;' mypage.html 1
+chk '두 분 식순이면 본식 뒤 단체 사진 시간이 약&nbsp;' mypage.html 1   # [GROUP_TIME_WORD 2026-09-26 코워크 명세 ③ · 최종판 2-6 고침] 제목(가족 · 친구 스냅)과 다른 이름이 «시간»임을 보이게
+nochk '두 분 식순이면 단체 사진이 약' mypage.html
+chk 'GROUP_TIME_WORD' mypage.html 1
+# [GROUP_TIME_WORD · 최종판 5-2 H3 고침] ③ 준비하기 «도와주실 분» 줄은 아직 코드에 없다(GHI) — 넣을 때 옛 이름으로 넣지 않게
+nochk '단체 사진»에 적어' assets/ritual-open.js
+nochk '단체 사진»에 적어' mypage.html
+# [WISH_MIN_SAME 2026-09-26 코워크 명세 ④] 편집 화면 «지금 N컷 · 약 M분» = 단체 사진 줄과 같은 셈(요청 하나에 1분 · 둘까지 · 글 있는 칸만)
+chk 'function photoMins(sel, w){ return PHOTO_ALL + (sel||\[\]).length \* PHOTO_PER + Math.max(0, Math.min(PHOTO_WISH_MAX, +w||0)); }' mypage.html 1
+chk 'WISH_MIN_SAME' mypage.html 4
 chk 'GUESTS_ALL' assets/ritual-open.js 1
 nochk '서른 분이 박수' assets/ritual-open.js
 nochk '서른 개의 잔' assets/ritual-open.js
 nochk '서른 분이 함께 잔을' assets/ritual-open.js
+chk 'PHOTO_CAP_40 · WISH_COUNT · NO_ZERO_SHOT' scripts/check-ritual-cue.js 1   # 마이페이지 단체 사진 표(최종판 2-6)를 파일에서 꺼내 돌린다
+chk 'FREE_TO_FAREWELL' assets/ritual-cue.js 1   # [최종판 2-4] 배웅이 빠듯한 날은 자유 사진을 일찍 넘긴다(디렉터 GO)

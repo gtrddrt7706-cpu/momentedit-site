@@ -619,6 +619,28 @@ button.snp-tile{cursor:pointer}
 .snp-conf{color:var(--gold-deep)}
 .snp-reply{color:var(--sub);white-space:pre-line}
 .snp-step:focus-visible,.snp-tile:focus-visible,.snp-zoom:focus-visible,.snp-x:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+/* ★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 가운데 정렬 카드 안에서 왼쪽 정렬(여러 줄 글).
+   누름 칸은 줄 전체(글을 눌러도 체크) · 44px 이상. 막는 색이 아니라 알리는 색 — 체크 없이 누르면 줄 테두리만 씰색으로. */
+.snp-agree{margin:14px 0 0;padding:2px 14px 8px;background:var(--bg2);border:1px solid transparent;border-radius:8px;text-align:left}
+.snp-agree.need{border-color:var(--seal)}
+.snp-agree-row{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:10px 0 4px;cursor:pointer;font-size:13px;color:var(--text);line-height:1.7;word-break:keep-all;-webkit-tap-highlight-color:transparent}
+.snp-agree-row input{flex:0 0 auto;width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
+.snp-agree-row input:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.snp-agree-sub{padding-left:30px;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all}
+.snp-agree-more,.snp-agree-pv{display:inline-flex;align-items:center;min-height:44px;margin:-12px 0;padding:0 2px;background:none;border:0;font:inherit;color:var(--gold-deep);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.snp-agree-more:focus-visible,.snp-agree-pv:focus-visible,.snp-dellink:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+@media (hover:hover){.snp-agree-more:hover,.snp-agree-pv:hover,.snp-dellink:hover{color:var(--accent)}}   /* [SNAP_CONSENT] 글자 단추도 마우스를 올리면 짙어진다(web-design-guidelines 점검 · 손가락엔 안 걸리게 hover:hover) */
+.snp-agree-body{margin:8px 0 2px 30px;padding:10px 12px;background:var(--bg);border-radius:6px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.snp-agree-body dl{margin:0}
+.snp-agree-body dl>div{padding:2px 0}
+.snp-agree-body dt{display:inline;font-weight:600;color:var(--accent)}
+.snp-agree-body dt::after{content:' · ';font-weight:400;color:var(--label-soft)}
+.snp-agree-body dd{display:inline;margin:0}
+.snp-agree-body .snp-agree-pv{margin:0 0 -12px}
+.snp-agree-need{padding-left:30px;font-size:12px;color:var(--seal);line-height:1.7}
+.snp-agree-need:empty{display:none}
+.snp-del{margin:18px 0 0;text-align:center}
+.snp-dellink{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;background:none;border:0;font:inherit;font-size:12px;color:var(--label-soft);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 /* ★[PHOTO_WISH 2026-08-16] 「꼭 담고 싶은 사진」 요청 카드 — 고르는 카드(.pfx-*)를 대신한다.
    한 요청 = 한 상자(어떤 사진·누구와·참고 링크)라, 상자 경계가 곧 '이 셋은 한 덩어리'라는 뜻이다.
    ★.pfx-* 규칙은 남겨 뒀다 — 예시 칩과 옛 저장분 표시가 아직 .ph-chip 을 쓰고, 상자 안 간격이 그 톤을 따른다. */
@@ -5176,7 +5198,7 @@ function renderProduction(p, inv){
     b.setAttribute('aria-controls', panelId); sync();
     b.addEventListener('click', function(){ pn.style.display=(pn.style.display==='none')?'':'none'; sync(); }); }
   _panelToggle('mp_cfOpen','mp_cfPanel'); _panelToggle('mp_guideOpen','mp_guidePanel');
-  var _phBtn=$('mp_photoStart'); if(_phBtn) _phBtn.addEventListener('click', function(){ startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false); });   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
+  var _phBtn=$('mp_photoStart'); if(_phBtn) _phBtn.addEventListener('click', function(){ startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false, !!p.photoFriendOk); });   /* [PHOTO_FRIEND] 서버가 새 칸을 알 때만 연다 */   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
     var _dd0=p.diningDraft||{};
@@ -5881,7 +5903,7 @@ function openAddrSearch(roadId, jibunId, detailId){
   }).embed(em);
 }
 var _privacyHtml=null;   // privacy.html <main> 캐시
-function showContractPrivacy(){
+function showContractPrivacy(at){
   var ov=$('mp_privacyOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='mp_privacyOverlay';
@@ -5895,11 +5917,14 @@ function showContractPrivacy(){
   }
   ov.style.display='flex';
   var body=document.getElementById('mp_privacyBody');
-  if(_privacyHtml){ body.innerHTML=_privacyHtml; body.scrollTop=0; return; }
+  /* [SNAP_CONSENT] at = 처리방침 안의 줄 id(예: 'snap-plan') — 그 줄로 바로 내려 옅게 칠한다(스냅 기획 동의의 «개인정보 처리방침 전문 보기») */
+  var go=function(){ body.scrollTop=0; if(!at) return; var t=body.querySelector('#'+at); if(!t) return;
+    body.scrollTop=Math.max(0, t.getBoundingClientRect().top-body.getBoundingClientRect().top-12); t.style.background='var(--bg2)'; t.style.borderRadius='6px'; };
+  if(_privacyHtml){ body.innerHTML=_privacyHtml; go(); return; }
   fetch('privacy.html').then(function(r){ return r.text(); }).then(function(html){
     var doc=new DOMParser().parseFromString(html,'text/html'), main=doc.querySelector('main');
     _privacyHtml = main ? main.innerHTML : '<p style="text-align:center">불러오지 못했어요. <a href="privacy.html" target="_blank" rel="noopener">전체 보기</a></p>';
-    body.innerHTML=_privacyHtml; body.scrollTop=0;
+    body.innerHTML=_privacyHtml; go();
   }).catch(function(){ body.innerHTML='<p style="text-align:center;color:var(--sub)">불러오지 못했어요.<br><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--gold-deep)">새 창에서 보기</a></p>'; });
 }
 function fmtWedKo(ymd){
@@ -6260,7 +6285,7 @@ var WIZ_ADAPT={
         exitBare:function(){ bkKill(SEATFLOW); SEATFLOW.active=false; _mpRefresh(); },
         own:function(){ return SEATFLOW; } },
   photo:{ on:function(){ return typeof PHOTOFLOW!=='undefined' && PHOTOFLOW.active; },
-        data:function(){ return {s:PHOTOFLOW.sel, w:PHOTOFLOW.wish, u:PHOTOFLOW.share, c:PHOTOFLOW.caller}; },   // [PHOTO_CALLER] 불러 모아 주실 분도 더러움 판정에   // [PHOTO_WISH] 연출 배열 → 요청 목록(더러움 판정도 같은 값을 봐야 '저장 안 함'이 새지 않는다)
+        data:function(){ return {s:PHOTOFLOW.sel, w:PHOTOFLOW.wish, u:PHOTOFLOW.share, c:PHOTOFLOW.caller, f:PHOTOFLOW.friend}; },   // [PHOTO_FRIEND] 친구 부탁도 «바뀐 게 있나»에   // [PHOTO_CALLER] 불러 모아 주실 분도 더러움 판정에   // [PHOTO_WISH] 연출 배열 → 요청 목록(더러움 판정도 같은 값을 봐야 '저장 안 함'이 새지 않는다)
         save:function(){ return savePhoto(); },
         exitSave:function(){ exitPhotoFlow(); },
         exitBare:function(){ _photoTearDown(); _mpRefresh(); },
@@ -7508,15 +7533,17 @@ var PHOTO_PRESETS=[
   { n:'신부 측 가족',   d:'신부 쪽 부모님·형제자매' },
   { n:'형제·자매만',    d:'부모님 없이 또래끼리' },
   { n:'조부모님과',     d:'조부모님은 앉으신 채로 · 두 분이 곁으로 가서 담아요' },
-  { n:'친구들과',       d:'양가 친구를 한 번에, 또는 나눠서' },
-  { n:'직장·지인과',    d:'회사·모임 · 오래 안 걸려요' },
+  /* ★[PHOTO_FAMILY_ONLY 2026-09-26 사장님 G3] «친구들과» · «직장·지인과» 는 뺐다 — «단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게».
+     친구는 아래 «친구들과 자유롭게» 한 칸(PHOTO_FRIEND)으로 간다. 되살리지 말 것.
+     이미 고른 부부의 저장분은 지우지 않는다 — 목록에 없는 이름은 «직접 추가»처럼 그대로 보이고 촬영 순서에도 남는다. */
   { n:'아이들과',       d:'오래 못 기다리니 앞 순서를 권해요' }
 ];
+var PHOTO_FRIEND_EX=['대기실처럼 편하게 모여서','친구들 폰으로도 몇 장','다 같이 셀카 한 장','부케 받는 친구와 한 장'];   // [PHOTO_FRIEND_EX] 친구들과 자유롭게 · 누르면 담기는 예시
 var PHOTO_NAMES=PHOTO_PRESETS.map(function(x){ return x.n; });   // 이름만 · 저장값은 종전대로 문자열이다
 function photoMeta(n){ for(var i=0;i<PHOTO_PRESETS.length;i++) if(PHOTO_PRESETS[i].n===n) return PHOTO_PRESETS[i]; return null; }
 /* ★[PHOTO_MIN] 예상 시간 — 5차 리서치 실측. 20명 이상 한 컷 6~10분(25명은 하단값 6분) ·
    작은 그룹은 그룹당 2~3분. 상한만 두면 고객은 다 채운다. **분이 늘어나는 게 보여야 스스로 조절한다.** */
-function photoMins(sel){ return 6 + (sel||[]).length * 3; }   // 전체 하객 6분 + 구도마다 3분 · 요청 분은 더하지 않는다([WISH_IN_TIME])
+function photoMins(sel, w){ return PHOTO_ALL + (sel||[]).length * PHOTO_PER + Math.max(0, Math.min(PHOTO_WISH_MAX, +w||0)); }   // 전체 하객 6분 + 구도마다 3분 + 적은 요청 하나에 1분(둘까지) — 아래 단체 사진 줄(photoCapOf)과 같은 상수 · 같은 셈 [WISH_MIN_SAME] · 2026-08-16 «요청 분은 더하지 않는다»([WISH_IN_TIME])에서 바뀜
 // 단체컷 '함께 하는 동작' 예시 카드 — 무드단어 클릭에서 '구도가 보이는 카드'로 개편(2026-07-20 회의: 디렉터·UX·브랜드 3관점 + 예비부부 2인 점검 반영 · marker: PHOTO_WISH_EX · 구 PHOTO_FX_CARDS).
 //   변경: 부부 둘러싸고 위에서 → '살짝 높은 곳에서 다 함께'(실내 천장고·소음·안전으로 드론/부감 비현실 → 준부감) · 셀카는 '부부가 폰, 넓은 컷은 촬영감독' 재정의 · '다 함께 부부를 바라보기' 추가 · '다 함께 박수·환호' → '박수로 맺는 한 컷'(환호는 진행 순간으로) · '폰 플래시 흔들기'·'다 함께 활짝 웃기' 제외(원하면 직접 추가). 저장값은 카드 제목 문자열(photoFx) — 스토리지·표시(guide/admin/GAS) 무변경. 그림은 currentColor 구도 예시(실촬영과 다름 · 실사진 교체 예정). 꽃가루·컨페티·폭죽은 청소 리스크로 계속 제외
 /* ★★[PHOTO_FX_V2 2026-08-08] 연출 카드 재작성 — 5차 리서치 + 사용자 결정.
@@ -7680,20 +7707,41 @@ var PHOTO_MAX=5;    // 전체 하객 제외 추가 구도 상한(총 6컷)
 /* ★★[PHOTO_CAP_40 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-6] 스냅 60 · 본식 + 단체 사진 = 40 · 테이블 인사 없음.
      PHOTO_DAY 50 → 40 — 마이페이지는 ritual-data.js 를 읽지 않아 숫자로 둔다(check-source-drift 가 DAY 와 대조한다).
      PHOTO_PRE 12 → 2(두 분 숨 고르기 · 테이블 인사 0 · 배웅 안내는 배웅 20분 안) · 온라인 날은 +2(온라인 인사).
-     PHOTO_ALL 6 → 8(전체 하객 6 + «꼭 담고 싶은 사진» 둘까지 · 하나에 1분 남짓 — 첫 전체 사진 바로 뒤).
+     ★[WISH_COUNT 2026-09-26 코워크 최종판 2-6] PHOTO_ALL 은 6 + 두 분이 적은 «꼭 담고 싶은 사진» 수(0~2 · 하나에 1분 남짓 — 첫 전체 사진 바로 뒤).
+       종전(8 고정)은 요청을 안 적은 분도 2분을 잡아 구도를 하나 덜 받았다. 엔진 (44, end-0-photo) est 도 같은 셈(360 + 60 × 적은 수).
      ★줄이는 차례: 자유 사진 → 숨 고르기 → 뒤에 고른 구도. 배웅 시각은 지킨다. */
-var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=8, PHOTO_PER=3, PHOTO_ONLINE=2;
-function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
-function photoCapOf(rd, dig){
+var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;
+function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }   // [WISH_COUNT] 글이 있는 요청만 센다(빈 칸은 시간을 잡지 않는다)
+function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig, photoWishN()); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
+function photoCapOf(rd, dig, wishN){
   var sec=((rd||{}).summary||{}).sec;
   if(!sec||sec.length!==2||!(sec[1]>0)) return null;
-  var pre=PHOTO_PRE+(dig?PHOTO_ONLINE:0);
+  var pre=PHOTO_PRE+(dig?PHOTO_ONLINE:0), all=PHOTO_ALL+Math.max(0,Math.min(PHOTO_WISH_MAX,+wishN||0));
   var lateGroup=PHOTO_DAY-sec[1]/60-pre, fastGroup=PHOTO_DAY-sec[0]/60-pre;
   /* ★[PHOTO_CAP_CLAMP 2026-09-26 코워크 회신 9/26 1] k 를 먼저 PHOTO_MAX 로 자른 뒤 max 를 셈한다 —
        종전엔 max = Math.max(k, …) 에서 자르기 전 k 가 들어가 본식이 아주 짧으면(빈 채) 9 가 나왔다. */
-  var k=Math.min(PHOTO_MAX,Math.max(0,Math.floor((lateGroup-PHOTO_ALL)/PHOTO_PER))), mx=Math.max(k,Math.min(PHOTO_MAX,Math.floor((fastGroup-PHOTO_ALL)/PHOTO_PER)));
+  var k=Math.min(PHOTO_MAX,Math.max(0,Math.floor((lateGroup-all)/PHOTO_PER))), mx=Math.max(k,Math.min(PHOTO_MAX,Math.floor((fastGroup-all)/PHOTO_PER)));
   /* [PHOTO_CAP_40 · D12 2026-09-26 코워크 추가 전달 2] a~b = ①과 같은 셈(40 − 본식 넉넉 합 ~ 40 − 본식 대본 합) — 쉬는 2분을 뺀 n 과 섞지 않는다 */
   return { n:Math.round(lateGroup), k:k, max:mx, a:Math.round(PHOTO_DAY-sec[1]/60), b:Math.round(PHOTO_DAY-sec[0]/60) };   // n 은 반올림 — 코워크 5-7 표(기록 21 · 약속 18 · 가족 15 · 전부 13)와 같다
+}
+/* 지금 N컷 · 약 M분 한 줄 — 그리기 · 요청 칸에 글을 칠 때(이 줄만 다시) 둘 다 여기서 [WISH_MIN_SAME] */
+function photoMinNote(sel){
+  var w=photoWishN(), n=(sel||[]).length;
+  return '지금 <b>'+(n+1)+'컷 · 약 '+photoMins(sel,w)+'분</b>이에요'+(w?(' · <b>요청 '+w+'개</b>'):'')+(n>1?'<br>큰 모임을 앞에 두시면 빨라요.':'');
+}
+/* 단체 사진 한 줄 — 그리기 · 요청 칸에 글을 칠 때(다시 그리지 않고 이 줄만) 둘 다 여기서
+   ★[GROUP_TIME_WORD 2026-09-26 코워크 명세 ③ · 최종판 2-6 고침] «두 분 식순이면 **본식 뒤 단체 사진 시간이** 약 A~B분이에요» —
+     이 화면 제목이 «가족 · 친구 스냅»이라 «단체 사진»만 쓰면 다른 것처럼 읽힌다. 시간을 말할 때의 이름(진행표와 같은 말)임을 보인다. */
+function photoCapNote(sel){
+  var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig, photoWishN());
+  if(!c) return '식순을 정하시면 알맞은 수를 알려 드려요 · 보통 2~5개예요.';
+  return '두 분 식순이면 본식 뒤 단체 사진 시간이 약&nbsp;'+(c.a===c.b?c.a:(c.a+'~'+c.b))+'분이에요. '+photoCapLine(c)+((sel||[]).length>c.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':'');
+}
+/* ★[NO_ZERO_SHOT 2026-09-26 코워크 최종판 2-6] «구도 0개»라고 쓰지 않는다 — k = 0 이면 전체 하객 사진을 앞에 세운다 */
+function photoCapLine(c){
+  if(c.k>0) return '전체 하객과 구도 '+c.k+'개가 '+(c.k===c.max?'알맞아요.':('알맞고, 제시간에 진행되면 '+c.max+'개까지 돼요.'));
+  if(c.max>0) return '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 '+c.max+'개까지 돼요.';
+  return '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.';
 }
 // [PHOTO_WISH] 옛 `PHOTO_FX_MAX`(연출 상한 2)는 PHOTO_WISH_MAX 로 이름만 옮겼다 — 근거(마지막 토막 4~5분)는 같다
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
@@ -7728,14 +7776,14 @@ function photoShareKind(u){ u=String(u||'');
   if(/^https?:\/\/open\.kakao\.com\//i.test(u)) return 'kakao';
   if(/^https?:\/\/(photos\.app\.goo\.gl|photos\.google\.com)\//i.test(u)) return 'gphoto';
   return u?'etc':''; }
-function startPhotoFlow(gi, rd, dig){   // rd = 식순 초안(읽기 전용 · [PHOTO_SCENE] 장면 목록에만 쓴다 · savePhoto 는 건드리지 않는다)
+function startPhotoFlow(gi, rd, dig, fok){   // rd = 식순 초안(읽기 전용 · [PHOTO_SCENE] 장면 목록에만 쓴다 · savePhoto 는 건드리지 않는다)
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
   if(typeof SNAPFLOW!=='undefined'){ bkKill(SNAPFLOW); SNAPFLOW.active=false; var _so=$('mp_snapOverlay'); if(_so&&_so.parentNode) _so.parentNode.removeChild(_so); }
   /* [PHOTO_WISH] 요청 목록 — 저장본에 photoWish 가 있으면 그것, 없고 옛 photoFx 만 있으면 이어받는다.
      ★둘 다 있으면 photoWish 가 이긴다(이미 새 화면에서 고쳐 쓴 것이므로 옛 값으로 되돌리지 않는다). */
   var _sv=(((gi||{}).photoWish)||[]), _wish=_sv.length?wishClean(_sv):_wishFromFx(((gi||{}).photoFx)||[]);
   var _pc0=((gi||{}).photoCaller)||{};   // [PHOTO_CALLER]
-  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null), dig:!!dig };
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, friend:String(((gi||{}).photoFriend)||''), friendOk:!!fok, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null), dig:!!dig };   // [PHOTO_FRIEND] friendOk = 서버가 photoFriend 를 안다(옛 서버는 버린다 · SNAP_V2_GATE 와 같은 까닭)
   // 식순·스냅과 동일한 전체화면 오버레이(진행바·다른 카드를 덮어 집중도 향상 · marker: PROD_OVERLAY 2026-07-19 사용자 지시). 별도 fixed div라 renderProduction과 독립(pull-refresh 무관)
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','가족 · 친구 스냅');
@@ -7758,7 +7806,15 @@ function renderPhoto(box){
      상태는 위 「저장」 버튼이 스스로 말한다(저장/저장 중…/저장됨/다시 저장). 되살리지 말 것. */
   /* [PHOTO_GATHER_OFF] 「불러 모아요/자리에서」 두 갈래 설명을 걷어내고 **한 문장**으로.
      대신 순서가 왜 중요한지를 적는다 — 두 분은 가운데 그대로, 둘레 사람만 바뀐다(subtractive). */
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 사진</b> 시간 · 전체 하객이 1번, 그다음은 <b>고르신 순서</b>예요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  /* ★[PHOTO_FLOW_LINE 2026-09-26 사장님 «나의도를 파악하고 센스있게 개선디테일 체크해서 적용해봐»] 이 화면의 뼈대를 첫눈에 —
+       다 함께 한 장(정식) › 가족 구도(고르신 순서 · 자연스럽게) › 친구들과 자유롭게(대기실처럼 편하게 · 폰으로도).
+       스냅 기획 첫 걸음의 흐름 줄과 같은 부품(snp-flow · 화살표는 다음 칸과 한 덩어리 [SNAP_FLOW_WRAP]).
+       진하게 칠한 칸 = 이 화면에서 두 분이 정하시는 것. 친구 칸은 서버가 그 칸을 알 때만(friendOk) 칠한다.
+     ★«단체 사진»은 시간을 말할 때의 이름이라 문장에 그대로 둔다(코워크 #864 규칙 · 진행표와 같은 말).
+     ★«자연스럽게» — 사장님 «웨딩 가족사진 느낌보단 캐주얼하고 자연스러운 세미웨딩 가족사진». 누가 하는지(사진작가)를 붙였다(책임질 수 없는 안심 금지). */
+  var _flw=[['다 함께 한 장',false],['가족 구도',true],['친구들과 자유롭게',!!PHOTOFLOW.friendOk]];
+  h+='<div class="snp-flow" role="list" aria-label="본식 뒤 단체 사진 시간의 순서" style="margin:4px 0 10px">'+_flw.map(function(x,i){ return '<span role="listitem" class="snp-flg">'+(i?'<span class="snp-arw" aria-hidden="true">›</span>':'')+'<span class="snp-fl'+(x[1]?' on':'')+'">'+x[0]+'</span></span>'; }).join('')+'</div>';
+  h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">본식 뒤 <b>단체 사진</b> 시간에 이 순서로 찍어요. 가족 구도는 <b>고르신 순서</b>대로, 사진작가가 자연스럽게 이끌어요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객<span class="ph-sub">오신 분들 모두 · 늘 첫 컷이에요</span></span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
@@ -7772,27 +7828,25 @@ function renderPhoto(box){
   });
   h+='</div>';
   /* [PHOTO_MIN] 고를 때마다 분이 늘어나는 것을 보여 준다. 상한만 두면 고객은 끝까지 채운다. */
-  var _pm=photoMins(sel);
   /* ★[WISH_IN_TIME] 요청은 이 줄에 안 보이면 없는 것이 된다 — 개수만 함께 적는다.
      ★분(分)은 더하지 않는다. 요청은 「할머니 옆 한 컷」처럼 **별도 컷**일 수도,
        「V자로 어깨만」처럼 기존 컷에 얹는 **동작**일 수도 있어 우리가 미리 못 가른다.
        모르는 것에 숫자를 붙이면 그건 근거 없는 수치 약속이 된다(문구 규칙). 개수만 보이고,
-       실제 배분은 그날 디렉터가 요청 글을 읽고 정한다. */
+       실제 배분은 그날 디렉터가 요청 글을 읽고 정한다.
+     ★★[WISH_MIN_SAME 2026-09-26 코워크 명세 ④ «편집 화면의 «지금 N컷 · 약 M분»도 같은 셈으로»] 위 «분은 더하지 않는다»를 거뒀다.
+       까닭: 바로 아래 단체 사진 줄(photoCapOf · 최종판 2-6 · #866)이 이미 요청 하나를 1분으로 세어 «구도 몇 개가 알맞다»를 고객에게 말한다.
+       한 화면의 두 숫자가 다른 셈이면 «약 18분인데 왜 3개만?»처럼 서로 어긋나 보인다 — 모르는 것에 숫자를 붙이지 않는다는 옛 까닭은
+       최종판이 «하나에 1분 남짓»으로 정하면서 그 줄에서 이미 풀렸다. 요청 개수도 글이 있는 칸만 센다(빈 칸은 시간을 잡지 않는다 · photoWishN).
+       실제 배분은 여전히 그날 디렉터가 요청 글을 읽고 정한다. */
   /* [WISH_MINIMAL] 상단에 있던 「두 분은 가운데 그대로…」 순서 팁을 여기로 내렸다 —
      화면 맨 위에서는 읽을 이유가 없고(아직 아무것도 안 골랐다), 순서를 실제로 만지는 이 자리에서 쓸모가 있다.
      두 개 이상 골랐을 때만 뜬다(하나면 순서라는 게 없다). */
-  h+='<div class="cc-note" style="text-align:left;margin:8px 0 2px">지금 <b>'+(sel.length+1)+'컷 · 약 '+_pm+'분</b>이에요'
-    +(wish.length?(' · <b>요청 '+wish.length+'개</b>'):'')
-    +(sel.length>1?'<br>큰 모임을 앞에 두시면 빨라요.':'')
-    +'</div>';   // ★[PHOTO_CAP_RD] 옛 경고(«_pm>19 · 다 함께 30~39분 기준»)는 아래 식순 기준 한 줄로 바뀌었다. 옛 줄은 주석 안에 '</div>' 를 삼켜 이 칸이 안 닫히고 있었다
-  var _cap=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig);
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">'+(_cap
-      ? ('두 분 식순이면 단체 사진이 약&nbsp;'+(_cap.a===_cap.b?_cap.a:(_cap.a+'~'+_cap.b))+'분이에요. 전체 하객과 구도 '+_cap.k+'개가 '+(_cap.k===_cap.max?'알맞아요.':('알맞고, 제시간에 진행되면 '+_cap.max+'개까지 돼요.'))+(sel.length>_cap.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':''))
-      : '식순을 정하시면 알맞은 수를 알려 드려요 · 보통 2~5개예요.')+'</div>';
+  h+='<div class="cc-note" id="mp_photoMin" style="text-align:left;margin:8px 0 2px">'+photoMinNote(sel)+'</div>';   // [WISH_MIN_SAME] · ★[PHOTO_CAP_RD] 옛 경고(«_pm>19 · 다 함께 30~39분 기준»)는 아래 식순 기준 한 줄로 바뀌었다. 옛 줄은 주석 안에 '</div>' 를 삼켜 이 칸이 안 닫히고 있었다
+  h+='<div class="cc-note" id="mp_photoCap" style="text-align:left;margin:2px 0 6px">'+photoCapNote(sel)+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
     h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 대학 동기)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 사촌들)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
   /* ★★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4 · 연구 I03] 가족사진 «불러 모아 주실 분» — 양가 한 분씩 · 선택.
      사진이 늦어지는 가장 큰 까닭은 촬영이 아니라 사람 모으기다. 디렉터 · 작가는 친척 얼굴을 모른다 — 가족 대표가 빠진 분을 챙긴다.
      관리자 화면과 콘솔 «촬영 안내 골라 틀기» 판이 이 값을 읽는다. */
@@ -7804,6 +7858,18 @@ function renderPhoto(box){
   h+='<input id="mp_pcGroom" class="cc-input" data-pc="groom" maxlength="40" autocomplete="off" placeholder="예: 큰아버지 김○○" value="'+escapeHtml(_pc.groom||'')+'" style="margin:0 0 10px">';
   h+='<label for="mp_pcBride" style="display:block;font-size:12px;color:var(--sub);margin:0 0 4px">신부 쪽</label>';
   h+='<input id="mp_pcBride" class="cc-input" data-pc="bride" maxlength="40" autocomplete="off" placeholder="예: 외삼촌 이○○" value="'+escapeHtml(_pc.bride||'')+'" style="margin:0">';
+  /* ★[PHOTO_FRIEND 2026-09-26 사장님 G1·G2] «친구들과 자유롭게» — 가족 구도를 다 찍은 뒤 친구들과는 편하게(폰으로도 · 사진작가에게 부탁).
+     사장님 원문: «친구들과 5분말고 단체사진 계획된거 전부 가족들과 찍고 후에 친구들과 자유스럽게 찍데 촬영작가님에게 도움요청 그걸 대략적으로 적을수있게만»
+     → 고르는 칸 없이 **대략 적는 칸 하나만.** 시간은 따로 떼지 않는다(진행표의 «시간이 남으면 … 자유 사진» 자리) — 그래서 «몇 분»을 약속하지 않는다.
+     ★서버가 이 칸을 알 때만(friendOk) 그린다 — 옛 서버는 화이트리스트에 없는 칸을 버려 «저장됐어요»인데 사라진다(photoWish 가 겪은 그 사고). */
+  if(PHOTOFLOW.friendOk){
+    h+='<div class="ph-sec">친구들과 자유롭게 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
+    h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">가족 사진을 다 찍은 뒤 친구들과 편하게 찍어요. 폰으로도 찍어 달라고 사진작가에게 부탁하실 수 있어요.</div>';
+    h+='<textarea id="mp_photoFriend" class="cc-input" maxlength="200" rows="2" aria-label="사진작가에게 부탁할 것" placeholder="사진작가에게 부탁할 것 (예: 대학 동기들과 폰으로도 몇 장)" style="margin:0;resize:vertical;font-family:var(--serif-ko);line-height:1.6">'+escapeHtml(PHOTOFLOW.friend||'')+'</textarea>';
+    /* [PHOTO_FRIEND_EX] 적기 막막할 때 누르면 담기는 예시 — 사장님 원문(대기실 분위기 · 아이폰 셀카 · 사진작가에게 부탁)에서 뽑았다.
+       칸은 여전히 하나다(G2 «대략 적을 수 있게만») · 누르면 뒤에 « · »로 이어 붙고, 이미 있는 말은 다시 안 붙인다. */
+    h+='<div class="ph-chips" role="group" aria-label="예시 · 누르면 칸에 담겨요">'+PHOTO_FRIEND_EX.map(function(t){ return '<button type="button" class="ph-chip" data-pfex="'+escapeHtml(t)+'">+ '+escapeHtml(t)+'</button>'; }).join('')+'</div>';
+  }
   /* [PHOTO_SCENE] 식순에서 이어지는 장면 — 고르는 칸이 아니라 '이미 담기는 것'을 보여 주는 칸.
      식순 초안이 없으면(아직 안 정하셨거나 옛 초안) 한 줄만 남기고 목록은 그리지 않는다. */
   var _scn=photoSceneList(PHOTOFLOW.rd);
@@ -7994,7 +8060,8 @@ function renderPhoto(box){
   /* ★[PHOTO_WISH] 요청 칸 — 글자를 칠 때마다 **모델에만** 담고 다시 그리지 않는다.
      ★재렌더하면 그 순간 커서가 날아가고 폰 키보드가 접힌다. 좌석 이름칸에서 한 번 겪은 사고와 같은 형태다
        (SEAT_DIRTY_KEEP). 다시 그려야 하는 것은 추가·삭제·칩 채우기뿐이다. */
-  function wishSet(i,f,v){ if(!wish[i]) return; wish[i][f]=v; }
+  function wishSet(i,f,v){ if(!wish[i]) return; var n0=photoWishN(); wish[i][f]=v;
+    if(photoWishN()!==n0){ var cn=document.getElementById('mp_photoCap'); if(cn) cn.innerHTML=photoCapNote(sel); var mn=document.getElementById('mp_photoMin'); if(mn) mn.innerHTML=photoMinNote(sel); } }   // [WISH_COUNT] 요청이 생기거나 비면 단체 사진 줄만 다시(커서 · 키보드 그대로)
   Array.prototype.forEach.call(box.querySelectorAll('[data-wf]'), function(el){
     var i=+el.getAttribute('data-wi'), f=el.getAttribute('data-wf');
     el.addEventListener('input', function(){ wishSet(i,f,el.value); });
@@ -8003,6 +8070,14 @@ function renderPhoto(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-pc]'), function(el){
     el.addEventListener('input', function(){ PHOTOFLOW.caller[el.getAttribute('data-pc')]=el.value.replace(/[<>]/g,'').slice(0,40); });
   });
+  var _pfEl=box.querySelector('#mp_photoFriend');
+  var _pfFit=function(){ if(!_pfEl) return; _pfEl.style.height='auto'; _pfEl.style.height=(_pfEl.scrollHeight+2)+'px'; };   // [PHOTO_FRIEND_EX] 칩으로 여러 개 담으면 두 줄 칸이 넘쳐 셋째 줄이 잘렸다 — 글 길이만큼 늘린다
+  if(_pfEl){ _pfEl.addEventListener('input', function(){ PHOTOFLOW.friend=_pfEl.value.replace(/[<>]/g,'').slice(0,200); _pfFit(); }); _pfFit(); }
+  Array.prototype.forEach.call(box.querySelectorAll('[data-pfex]'), function(b){   // [PHOTO_FRIEND_EX]
+    b.addEventListener('click', function(){ if(!_pfEl) return; var t=b.getAttribute('data-pfex'), cur=String(_pfEl.value||'').trim();
+      if(cur.indexOf(t)>-1) return; _pfEl.value=(cur?(cur+' · '):'')+t; if(_pfEl.value.length>200) _pfEl.value=_pfEl.value.slice(0,200);
+      _pfEl.dispatchEvent(new Event('input',{bubbles:true})); });
+  });   // [PHOTO_FRIEND] 위 칸과 같은 까닭(커서 · 키보드 유지)
   /* ★[WISH_DEL_ASK 2026-08-16 디자이너 점검] 적은 글이 있으면 **한 번 묻는다.**
      ✕ 표적이 44px 이라 글칸 오른쪽 여백과 겹친다 — 글자를 가리진 않지만 그 구석을 탭하면 삭제가 먹는다.
      ★픽셀로 싸우는 대신 여기서 막는다. 표적을 줄이면 「지우는 단추」의 44px 근거가 무너지고,
@@ -8067,7 +8142,8 @@ function savePhoto(){   // guideinfo 트랙 전체 교체 — 좌석 공개설�
          그건 admin·확인서에서 **요청이 있으면 구 줄을 숨기는 것**으로 푼다(같은 커밋). */
     seatMode:(gi.seatMode==='mine')?'mine':'all', reserveTime:String(gi.reserveTime||''), reserveName:String(gi.reserveName||''), photo:PHOTOFLOW.sel.slice(),
     photoFx:wishClean(PHOTOFLOW.wish).map(function(w){ return String(w.what).slice(0,24); }), photoWish:wishClean(PHOTOFLOW.wish), photoShareUrl:photoShareNorm(PHOTOFLOW.share),
-    photoCaller:{groom:String((PHOTOFLOW.caller||{}).groom||'').trim(), bride:String((PHOTOFLOW.caller||{}).bride||'').trim()}   // [PHOTO_CALLER]
+    photoCaller:{groom:String((PHOTOFLOW.caller||{}).groom||'').trim(), bride:String((PHOTOFLOW.caller||{}).bride||'').trim()},   // [PHOTO_CALLER]
+    photoFriend:PHOTOFLOW.friendOk ? String(PHOTOFLOW.friend||'').replace(/[<>]/g,'').slice(0,200).trim() : undefined   // [PHOTO_FRIEND] 옛 서버엔 안 싣는다(undefined 는 JSON 에서 빠진다 · 에코 검사가 «일부 미저장»을 띄우지 않게)
   }, done:true}));
 }
 var _flowBusyT=0, _flowBusyEl=null, _flowBusyKill=0;
@@ -8161,9 +8237,9 @@ function _snapDue(p){
   var wu=Date.UTC(+m[1], +m[2]-1, +m[3]), days=Math.round((wu-_snapKstToday())/864e5), du=new Date(wu-14*864e5);
   return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), late:days<=14, lock:days<=3 };
 }
-function startSnapFlow(sd, p){
+function startSnapFlow(sd, p, agreeNew){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false; bkKill(PHOTOFLOW); PHOTOFLOW.active=false;
-  SNAPFLOW={ active:true, d:_snapNewD(sd), step:0, p:p||null };
+  SNAPFLOW={ active:true, d:_snapNewD(sd), step:0, p:p||null, agreeNew:!!agreeNew };   // [SNAP_CONSENT] agreeNew = 카드에서 막 동의함(서버 기록 전) — 첫 저장 · 첫 올리기에 싣고, 기록되면 내린다
   // 식순 빌더처럼 전체 화면 오버레이로 — 진행바·다른 카드를 덮어 집중도를 높인다(2026-07-19 사용자 지시 · marker: SNAP_PREP_OVERLAY). iframe 아님(같은 페이지 JS라 div 오버레이).
   var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','스냅 기획');
@@ -8277,6 +8353,7 @@ function renderSnapFlow(){
   else h+=_spSend(D, R);
   h+='<div class="snp-nav">'+(st>0?'<button type="button" class="cc-btn-ghost" data-sgo="-1">이전</button>':'')
     +(st<SNAP_STEPS.length-1?('<button type="button" class="cc-btn" data-sgo="1">'+(st===0?'캔들존 고르기':('다음 · '+SNAP_STEPS[st+1].t))+'</button>'):'<button type="button" class="cc-btn" data-sfinish>저장하고 마치기</button>')+'</div>';
+  h+='<div class="snp-del"><button type="button" class="snp-dellink" data-sdel>스냅 기획 지우기</button></div>';   // [SNAP_CONSENT] 동의를 거두는 길 — 걸음마다 맨 아래 작은 글자(주 동선을 가리지 않게)
   h+='</div>';
   inner.innerHTML=h;
   _spBind(inner, D, R);
@@ -8291,6 +8368,7 @@ function _spBind(box, D, R){
   Array.prototype.forEach.call(box.querySelectorAll('[data-sstep]'), function(b){ b.addEventListener('click', function(){ _spGo(+b.getAttribute('data-sstep')); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-sgo]'), function(b){ b.addEventListener('click', function(){ _spGo(SNAPFLOW.step + (+b.getAttribute('data-sgo'))); }); });
   var fin=box.querySelector('[data-sfinish]'); if(fin) fin.addEventListener('click', function(){ exitSnapFlow(); });
+  var sdel=box.querySelector('[data-sdel]'); if(sdel) sdel.addEventListener('click', function(){ _snapWithdrawAsk(); });   // [SNAP_CONSENT]
   Array.prototype.forEach.call(box.querySelectorAll('[data-spick]'), function(b){ b.addEventListener('click', function(){
     var Z=D.zones[zk]; if(!Z) return; var id=b.getAttribute('data-spick'), i=Z.picks.indexOf(id);
     if(i>-1) Z.picks.splice(i,1);
@@ -8329,17 +8407,31 @@ function _snapUpload(zone, file){
   if(!/^image\//.test(String(file.type||'image/'))){ mpAlert('사진 파일만 올릴 수 있어요.'); return; }
   _flowBusy(true, '사진 올리는 중…');
   Promise.all([_snapResize(file, 1600, 0.85), _snapResize(file, 360, 0.8)]).then(function(two){
-    return _snapApiLong({ action:'snapRefUpload', token:getToken(), zone:zone, name:String(file.name||'').slice(0,60), data:two[0], thumb:two[1] }).then(function(r){
+    return _snapApiLong({ action:'snapRefUpload', token:getToken(), zone:zone, name:String(file.name||'').slice(0,60), data:two[0], thumb:two[1], snapConsent:SNAPFLOW.agreeNew?1:undefined }).then(function(r){   // [SNAP_CONSENT] 첫 올리기가 첫 저장보다 먼저일 수 있다
       if(!(r&&r.ok&&r.id)){ _flowBusy(false); mpAlert((r&&r.error)||'사진을 올리지 못했어요. 다시 해 주세요.'); return; }
+      SNAPFLOW.agreeNew=false;
       SNAP_THUMBS[r.th]=two[1];
       Z.ups.push({ id:String(r.id), th:String(r.th||''), n:String(file.name||'').slice(0,60) });
       _flowBusy(false); renderSnapFlow(); saveSnap().catch(function(){});
     });
   }).catch(function(){ _flowBusy(false); mpAlert('사진을 올리지 못했어요. 사진이 너무 크거나 연결이 끊겼을 수 있어요. 다시 해 주세요.'); });
 }
+/* ★[SNAP_CONSENT] 거두기 — «스냅 기획 지우기» · 확인 창 한 번 · 서버가 기획 · 올린 사진 · 링크 · 메모 · 동의 기록을 지운다 → 카드는 빈 카드로.
+   ★저장하지 않고 닫는다 — 지우려는 사람에게 «저장하지 않은 변경이 있어요»를 묻지 않는다. 확인 창 문구는 코워크 명세 그대로. */
+function _snapWithdrawAsk(){
+  mpConfirm({ title:'스냅 기획 지우기', body:'고른 장면 · 메모 · 올린 사진을 지우고 동의도 거둬요. 기본 장면으로 찍어요.', yes:'지우기', no:'그대로 두기', confirmSeal:true, dismissNull:true }).then(function(y){   // confirmSeal — 좌석 «테이블 삭제»와 같은 되돌릴 수 없는 일의 색
+    if(y!==true) return;
+    _flowBusy(true, '지우는 중…');
+    _snapApiLong({ action:'snapWithdraw', token:getToken() }).then(function(r){
+      if(!(r&&r.ok)){ _flowBusy(false); mpAlert((r&&r.error)||'지우지 못했어요. 다시 해 주세요.'); return; }
+      window._mpNextToast='스냅 기획을 지웠어요'; _snapTearDown(); _mpRefresh();
+    }).catch(function(){ _flowBusy(false); mpAlert('지우지 못했어요. 연결을 확인하고 다시 해 주세요.'); });
+  });
+}
 function saveSnap(){
-  var D=SNAPFLOW.d||_snapNewD();
-  return _wizWatch('snap', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'snap', draft:_snapOut(D), done:_snapFilledD(D)}));   // 내용이 하나라도 있으면 완료 · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
+  var D=SNAPFLOW.d||_snapNewD(), ag=!!SNAPFLOW.agreeNew;
+  return _wizWatch('snap', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'snap', draft:_snapOut(D), done:_snapFilledD(D), snapConsent:ag?1:undefined})   // [SNAP_CONSENT] 서버가 기록이 없을 때만 남긴다
+    .then(function(r){ if(ag&&r&&r.ok) SNAPFLOW.agreeNew=false; return r; }));   // 내용이 하나라도 있으면 완료 · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
 }
 function _snapCollect(){   // [WIZ_EXIT_ONE] 화면의 글상자 → SNAPFLOW.d. 저장·나가기·변경검사가 같은 값을 본다
   if(!SNAPFLOW.d) return;
@@ -8371,13 +8463,49 @@ function _snapSummary(sd){   // 카드 한 줄 — 공간별 고른 수
   if(String(sd.note||'').trim()) return '사진작가에게 전할 말을 남기셨어요';
   return _snapFilledD(sd)?'원하는 것을 남겨 주셨어요':'';   // 옛 저장분(v1)
 }
+/* ★★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 모으는 그 자리(«스냅 기획하기» 바로 위)에서 따로 받는다.
+     사장님 원문: «정보를 받기 동의가 필요하면 스냅기획 밑에 동의서 체크하게 만들면 되잖아»
+   ★미리 체크하지 않는다 · 글을 눌러도 체크된다(label) · 누름 칸 44px 이상.
+   ★체크 없이 «스냅 기획하기»를 누르면 버튼을 막지 않는다 — 체크 줄로 초점을 옮기고 한 줄로 알린다
+     (막힌 버튼은 왜 막혔는지 말하지 않는다).
+   ★한 번 동의하면(서버 snapMeta.consent) 다시 묻지 않는다 — 채운 카드 · 편집 화면에는 체크가 없다.
+   ★문구는 코워크 명세 그대로(고객 문구 · 줄표 없음). 바꾸면 scripts/audit/snap-plan.mjs 가 빨갛게 알린다. */
+function _snapAgreeHtml(){
+  return '<div class="snp-agree" id="mp_snapAgree">'
+    +'<label class="snp-agree-row"><input type="checkbox" id="mp_snapAgreeCk"><span>고른 장면 · 메모 · 올린 사진을 촬영 준비에 쓰고, 모먼트에디트와 계약한 사진작가에게 전하는 데 동의해요.</span></label>'
+    +'<div class="snp-agree-sub">올린 사진 · 메모는 예식 6개월 뒤 지워요<br><button type="button" class="snp-agree-more" id="mp_snapAgreeMore" aria-expanded="false" aria-controls="mp_snapAgreeBody">자세히 보기</button></div>'   // 390 에선 한 줄에 안 들어가 «지워요 ·» 끝에 가운뎃점이 매달렸다(직접 보며 점검) — «자세히 보기»는 제 줄로
+    +'<div class="snp-agree-body" id="mp_snapAgreeBody" hidden><dl>'
+    +  '<div><dt>받는 것</dt><dd>고른 장면 · 메모 · 참고 링크 · 두 분이 올린 참고 사진</dd></div>'
+    +  '<div><dt>쓰는 곳</dt><dd>스냅 촬영 준비 · 사진작가에게 촬영 요청서로 전해요(성함 · 연락처는 전하지 않아요)</dd></div>'
+    +  '<div><dt>보관</dt><dd>올린 사진 · 링크 · 메모는 예식 6개월 뒤 지워요</dd></div>'
+    +  '<div><dt>동의하지 않으셔도 돼요</dt><dd>스냅 기획 없이 기본 장면으로 찍어요</dd></div>'
+    +'</dl><a class="snp-agree-pv" href="privacy.html#snap-plan" data-pv="snap-plan">개인정보 처리방침 전문 보기</a></div>'
+    +'<div class="snp-agree-need" id="mp_snapAgreeNeed" role="alert"></div>'
+    +'</div>';
+}
+function _snapAgreeBind(box){   // [SNAP_CONSENT] 체크 · 자세히 보기 · 처리방침 전문(마이페이지 안에서 연다 · 스냅 줄로 바로)
+  var ck=$('mp_snapAgreeCk'), wrap=$('mp_snapAgree'), nd=$('mp_snapAgreeNeed'), mo=$('mp_snapAgreeMore'), bd=$('mp_snapAgreeBody');
+  if(ck) ck.addEventListener('change', function(){ if(ck.checked){ if(nd) nd.textContent=''; if(wrap) wrap.classList.remove('need'); } });
+  if(mo&&bd) mo.addEventListener('click', function(){ var open=bd.hidden; bd.hidden=!open; mo.setAttribute('aria-expanded', open?'true':'false'); mo.textContent=open?'접기':'자세히 보기'; });
+  var pv=box.querySelector('[data-pv]'); if(pv) pv.addEventListener('click', function(e){ e.preventDefault(); showContractPrivacy(pv.getAttribute('data-pv')); });
+}
+function _snapAgreeOk(){   // [SNAP_CONSENT] 체크 줄이 없으면(이미 동의) 통과 · 있는데 안 켰으면 → 초점을 옮기고 한 줄로 알린다(버튼은 막지 않는다)
+  var ck=$('mp_snapAgreeCk'); if(!ck) return true; if(ck.checked) return true;
+  var nd=$('mp_snapAgreeNeed'), wrap=$('mp_snapAgree');
+  if(nd) nd.textContent='위 동의에 체크하시면 시작할 수 있어요';
+  if(wrap) wrap.classList.add('need');
+  try{ ck.focus({preventScroll:true}); }catch(e){ ck.focus(); }
+  try{ wrap.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){}
+  return false;
+}
 function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞. 편집(SNAPFLOW) 중엔 숨김
   var box=$('mp_snap'); if(!box) return;
   /* [SNAP_V2_GATE] 서버(GAS)가 새 기획(v2)을 알 때만 연다 — 사이트가 먼저 배포되고 GAS 재배포가 늦으면
      옛 서버가 새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라진다(저장은 됐다고 뜬다). 그 창을 없앤다.
-     ★새 서버도 처리방침 시행일(2026-10-03) 전에는 snapV2 를 false 로 준다(80_production [SNAP_V2_FROM]) — 카드·«지금 할 일»이 함께 숨는다. */
+     ★새 서버도 처리방침 시행일(SNAP_V2.from · [SNAP_OPEN_NOW] 로 2026-09-26) 전에는 snapV2 를 false 로 준다(80_production [SNAP_V2_FROM]) — 카드·«지금 할 일»이 함께 숨는다. */
   if(!p || SNAPFLOW.active || !p.snapV2 || !window.SNAP_REFS){ box.style.display='none'; box.innerHTML=''; return; }
   var sd=p.snapDraft||{}, meta=p.snapMeta||{}, due=_snapDue(p), filled=_snapFilledD(sd), lock=!!(meta.lock||(due&&due.lock)), h;
+  var agreeAsk=!lock&&!(meta.consent&&meta.consent.at);   // [SNAP_CONSENT] 한 번 동의하면 다시 묻지 않는다
   var conf=meta.confirm||null, confLine='';
   if(filled){
     if(conf&&conf.at&&!meta.stale){ var _cm=String(conf.at).match(/^\d{4}-(\d{2})-(\d{2})/); confLine='디렉터가 확인했어요'+(_cm?(' · '+(+_cm[1])+'월 '+(+_cm[2])+'일'):''); }
@@ -8395,6 +8523,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
       +   ((conf&&conf.reply&&!meta.stale)?('<span class="snp-cl snp-reply">디렉터 · '+escapeHtml(conf.reply)+'</span>'):'')
       +   (lock?'<span class="snp-cl">예식&nbsp;3일&nbsp;전부터는 여기서 고칠 수 없어요. 바꿀 것이 있으면 디렉터에게 말씀해 주세요.</span>':'')
       + '</div>'
+      + (agreeAsk?_snapAgreeHtml():'')   // [SNAP_CONSENT] 옛 칸(9/26 전)만 남은 분 — 새 기획으로 고치려면 동의가 먼저다
       + '</div>';
   } else {
     h='<div class="consult-card" style="text-align:center">'
@@ -8406,12 +8535,14 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
                /* [SNAP_BTN_GHOST 2026-09-26 사장님 결정 ⑥ · 고객 점검 prod-4 · x-4] 채움(cc-btn) → 테두리(cc-btn-ghost) — 개요 화면의 유일한 채움 버튼이
                   «선택이에요»라고 밝힌 스냅 기획이라, 필수 준비(예식 준비 행은 전부 테두리 · TRK_BTN_SAME)보다 «지금 할 일»로 먼저 읽혔다.
                   카드 자리(예식 준비 앞)·문구·크기는 그대로 — 무게만 내린다. 채움으로 되돌리지 말 것. */
+               +(agreeAsk?_snapAgreeHtml():'')   // [SNAP_CONSENT] 버튼 바로 위
                +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
                +'<div class="cc-note" style="text-align:center">선택이에요 · 안 고르셔도 기본 장면으로 찍어요.</div>'))
       + '</div>';
   }
   box.innerHTML=h; box.style.display='block';
-  var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}, p); });
+  var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ if(!_snapAgreeOk()) return; startSnapFlow(p.snapDraft||{}, p, agreeAsk); });   // [SNAP_CONSENT] 막 동의했으면 첫 저장에 싣는다
+  if(agreeAsk) _snapAgreeBind(box);
 }
 function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·K유아(물)·U미정(옛 데이터에서만)
   var c={C:0,R:0,N:0,K:0,Y:0,U:0};
@@ -8554,11 +8685,13 @@ function prodConfirmHtml(p, inv){
   /* [PHOTO_WISH] 요청은 확인서에서도 **적은 그대로** 보여야 한다 — 이름 목록이 아니라 문장이라
      한 줄로 뭉개면 무엇을 부탁했는지가 사라진다. 누구와·링크가 있으면 아래 작은 줄로 붙인다. */
   var _phW=(gi.photoWish&&gi.photoWish.length)?gi.photoWish:null;
-  if(_phL||_phFx||_phW){ var _pv='';
+  var _phF=String(gi.photoFriend||'').trim();   // [PHOTO_FRIEND] 친구들과 자유롭게 — 부탁만 적고 구도는 안 고른 부부도 줄이 선다
+  if(_phL||_phFx||_phW||_phF){ var _pv='';
     if(_phL) _pv='전체 하객 · '+_phL.map(escapeHtml).join(' · ')+' <span class="cc-mini">('+(_phL.length+1)+'컷)</span>';
     if(_phW) _phW.forEach(function(w){ var _sub=[]; if(w&&w.who) _sub.push('누구와 · '+escapeHtml(String(w.who))); if(w&&w.ref) _sub.push('<a href="'+escapeHtml(safeUrl(String(w.ref)))+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">참고 링크</a>');
       _pv+=(_pv?'<br>':'')+'<span class="cc-mini">꼭 담고 싶은 사진 · '+escapeHtml(String((w&&w.what)||''))+(_sub.length?('<br>　'+_sub.join(' · ')):'')+'</span>'; });
     if(_phFx && !_phW) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">연출 · '+_phFx.map(escapeHtml).join(' · ')+'</span>';   // [WISH_FX_MIRROR] 요청이 있으면 photoFx 는 그 거울이라 같은 내용이 두 번 뜬다 — 요청 쪽만 보인다
+    if(_phF) _pv+=(_pv?'<br>':'')+'<span class="cc-mini">친구들과 자유롭게 · '+escapeHtml(_phF)+'</span>';   // [PHOTO_FRIEND]
     L+=line('가족 · 친구 스냅', _pv); }   // [GROUP_SNAP_NAME]
   /* ★★[PHOTO_FX_STALE 2026-08-16 사용자 질문 "연동하는거 확실하게 한거야?"] 연동은 **그 화면을 열 때** 계산된다 —
      그래서 순서를 뒤집으면 조용히 어긋난다: 축배가 있을 때 「잔 부딪히기」를 골라 두고 **나중에 식순에서 축배를 빼면**,
@@ -8732,7 +8865,8 @@ function wireGuideInfoEditor(box, gi){
       photoFx: (gi.photoFx||[]).slice(),   // 단체 사진 이벤트/연출도 함께 통과(2026-07-19) · 옛 저장분 보존용
       photoWish: (gi.photoWish||[]).slice(),   // ★[PHOTO_WISH] 꼭 담고 싶은 사진 요청도 함께 통과 — 좌석 공개설정만 바꿔도 guideinfo 트랙이 통째로 교체되므로, 여기 빠지면 요청이 조용히 지워진다
       photoShareUrl: photoShareNorm(gi.photoShareUrl),   // 하객 사진 모으기 링크도 통과(2026-07-19)
-      photoCaller: gi.photoCaller ? {groom:String(gi.photoCaller.groom||''), bride:String(gi.photoCaller.bride||'')} : undefined   // [PHOTO_CALLER] 트랙 통째 교체 — 좌석 설정만 바꿔도 지워지지 않게
+      photoCaller: gi.photoCaller ? {groom:String(gi.photoCaller.groom||''), bride:String(gi.photoCaller.bride||'')} : undefined,   // [PHOTO_CALLER] 트랙 통째 교체 — 좌석 설정만 바꿔도 지워지지 않게
+      photoFriend: gi.photoFriend ? String(gi.photoFriend) : undefined   // [PHOTO_FRIEND] 같은 까닭 — 좌석 공개만 바꿔도 친구 부탁이 지워지지 않게
     };
   }
   // 공개 방식 = 캔버스 아래 별도 카드의 라디오 2택(전체 공개 / 내 자리만 검색) — 2026-07-19 개편(구 상단 체크박스 폐지)

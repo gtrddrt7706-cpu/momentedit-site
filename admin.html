@@ -614,6 +614,10 @@ document.addEventListener('click', function(e){
       openModal({ title:'브리프 새 주소', text:li('지금 주소는 바로 닫혀요')+li('작가에게 새 주소를 다시 보내야 해요'), yes:'새 주소 만들기', danger:true,
         onYes:function(){ closeModal(); b.disabled=true; runBrief(); } }); return; }
     runBrief(); return; }
+  if(act==='withdraw'){ done();   // [SNAP_CONSENT] 되돌릴 수 없다 — 관리자 확인판으로 한 번 묻는다(브라우저 기본 확인창 금지 · merge-guard)
+    openModal({ title:'스냅 기획 지우기', text:li('고른 장면 · 메모 · 링크 · 올린 사진을 지우고 동의 기록도 지워요')+li('촬영 브리프 주소는 바로 닫혀요 · 사진작가에게 이미 보냈다면 알려 주세요')+li('두 분이 부탁했을 때만 · 두 분 카드는 빈 카드로 돌아가요'), yes:'지우기', danger:true,
+      onYes:function(){ closeModal(); b.disabled=true; gas('adminSnapWithdraw', code).then(function(r){ b.disabled=false; if(r&&r.ok){ toast('스냅 기획을 지웠어요 · 동의 거둠'); openDetail(code); } else toast((r&&r.error)||'실패'); }).catch(function(){ b.disabled=false; toast('오류'); }); } });
+    return; }
   if(act==='thumbs'){ gas('adminSnapThumbs', code).then(function(r){ done(); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
       var zs=((curDetail.mirror&&curDetail.mirror.production&&curDetail.mirror.production.snapDraft)||{}).zones||{};
       Array.prototype.forEach.call(document.querySelectorAll('[data-snapth]'), function(box){ var z=zs[box.getAttribute('data-snapth')]||{};
@@ -2747,7 +2751,8 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +(_DECL_CARD_WHO.indexOf(s3d.declareWho)>=0?'<button type="button" class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" onclick="printDeclareCard()">낭독 카드</button>':'');
     /* ★[PHOTO_CALLER 2026-09-26 코워크 회신5 3-4] 당일 콘솔을 이 고객의 식순으로 연다 — 콘솔은 식순(S)을 주소로 받는다.
        «불러 모아 주실 분»도 함께 실어 콘솔 «촬영 안내 골라 틀기» 판 머리에 보이게 한다(디렉터가 이 분께 먼저 말씀드린다). */
-    try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')}; if(gi&&Array.isArray(gi.photo)) _cS.photoN=gi.photo.length;   /* [GROUP_PHOTO 2026-09-26] 가족 구도 수 — 콘솔 narr-photo-split 의 est(3분 × 구도 수) */
+    try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')}; if(gi&&Array.isArray(gi.photo)) _cS.photoN=gi.photo.length; if(gi&&gi.photoFriend) _cS.photoFriend=String(gi.photoFriend).slice(0,200);   /* [PHOTO_FRIEND] 당일 콘솔 판 머리에 */   /* [GROUP_PHOTO 2026-09-26] 가족 구도 수 — 콘솔 narr-photo-split 의 est(3분 × 구도 수) */
+      if(gi&&Array.isArray(gi.photoWish)) _cS.photoWishN=Math.min(2,gi.photoWish.filter(function(w){ return w&&String(w.what||'').trim(); }).length); else if(gi&&Array.isArray(gi.photoFx)) _cS.photoWishN=Math.min(2,gi.photoFx.length);   /* [WISH_COUNT 2026-09-26 코워크 최종판 2-6] 적은 요청 수 — 콘솔 end-0-photo 목표(360 + 60 × 수) · 옛 저장분은 photoFx 로 */
       _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'">당일 콘솔</a>'; }catch(e){}
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
@@ -2788,9 +2793,11 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   if(_pwh) _pfx='';
   /* ★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4] 가족사진 «불러 모아 주실 분» — 디렉터가 이 분께 먼저 말씀드린다. 고객 기기 값이라 esc(row 가 한다). */
   var _pcl=(gi&&gi.photoCaller)?[gi.photoCaller.groom?('신랑 쪽 · '+String(gi.photoCaller.groom)):'', gi.photoCaller.bride?('신부 쪽 · '+String(gi.photoCaller.bride)):''].filter(function(x){return x;}).join(' / '):'';
-  if(_pho||_pfx||_pwh||_psu||_pcl) h+='<div class="grp-l">가족 · 친구 스냅</div>'+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
+  var _pfr=(gi&&gi.photoFriend)?String(gi.photoFriend):'';   /* [PHOTO_FRIEND 2026-09-26 사장님] 친구들과 자유롭게 — 가족 구도 뒤 사진작가에게 부탁할 것(고객 글 · row 가 esc 한다) */
+  if(_pho||_pfx||_pwh||_psu||_pcl||_pfr) h+='<div class="grp-l">가족 · 친구 스냅</div>'+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('친구들과 자유롭게',_pfr)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
   // ★★[SNAP_PICK_V2 2026-09-26 사장님 회의] 스냅 기획 — 공간별 기본 · 고른 장면(번호 = 우선순위) · 링크 · 올린 그림 · 한 칸 · 준비물 · 디렉터 확인·회신 · 촬영 브리프 주소.
   //   장면 이름·준비물은 assets/snap-refs.js(부부 화면·브리프와 같은 원천)에서 읽는다. 옛 칸(v1)이 있으면 아래 «옛 기록»으로만 보인다(SNAP_LEGACY_KEEP).
+  var _smW=((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).snapMeta||{};   // [SNAP_CONSENT] 지운 기록(withdrawn)은 기획이 없어도 보인다
   if(sn&&sn.v===2){
     var _R=window.SNAP_REFS, _szs=sn.zones||{}, _sm=((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).snapMeta||{}, _nd=[], _ndSeen={};
     h+='<div class="grp-l">스냅 기획 (촬영 전)</div>';
@@ -2804,13 +2811,19 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
     if(String(sn.note||'').trim()) h+='<div class="kv"><span class="k">알면 좋은 것</span><span class="v" style="white-space:pre-line">'+esc(sn.note)+'</span></div>';   // 두 분이 친 줄바꿈 그대로(row 는 한 줄로 붙인다)
     h+=row('준비물',_nd.map(function(n){ var x=_R&&_R.needs[n]; return n+(x?(' ('+x.who+')'):''); }).join(' · '));
     var _cst=_sm.stale?'고치셨어요 · 다시 확인 필요':((_sm.confirm&&_sm.confirm.at)?('확인됨 · '+String(_sm.confirm.at)):'확인 전');
+    /* ★[SNAP_CONSENT 2026-09-26 코워크 명세 ①] 동의 일시 — 두 분이 카드에서 체크하고 처음 저장(또는 사진 올리기)한 때 · 판 = 그때의 처리방침 시행일.
+       동의가 없으면 촬영 브리프에 기획이 실리지 않는다(예식 일시 · 기본 장면만). */
+    h+=row('동의',(_sm.consent&&_sm.consent.at)?(String(_sm.consent.at)+(_sm.consent.ver?(' · 처리방침 '+String(_sm.consent.ver)):'')):'없음 · 브리프에 기획이 실리지 않아요');
     h+='<div class="snp-adm">'
       +'<div class="kv" style="padding:0"><span class="k">디렉터 확인</span><span class="v"><b>'+esc(_cst)+'</b>'+((_sm.confirm&&_sm.confirm.reply)?('<br>회신 · '+esc(_sm.confirm.reply)):'')+'</span></div>'
       +'<div class="snp-adm-row"><input id="snapReply" maxlength="200" placeholder="한 줄 회신(선택) — 두 분 카드에 그대로 보여요" value=""><button type="button" class="qbtn" data-snapact="confirm">확인</button></div>'
       +'<div class="snp-adm-row"><button type="button" class="qbtn go" data-snapact="brief">촬영 브리프 주소</button><button type="button" class="qbtn go" data-snapact="renew">새 주소(옛 주소 닫기)</button>'
       +((_szs.candle&&(_szs.candle.ups||[]).length)||(_szs.white&&(_szs.white.ups||[]).length)?'<button type="button" class="qbtn go" data-snapact="thumbs">올린 그림 보기</button>':'')+'</div>'
       +'<span class="snp-adm-url" id="snapBriefOut"></span>'
+      +'<div class="snp-adm-row"><button type="button" class="qbtn go" data-snapact="withdraw">기획 지우기(동의 거둠)</button></div>'   /* [SNAP_CONSENT] 잠긴 뒤(예식 3일 전) 두 분이 부탁했을 때 — 두 분 화면의 «스냅 기획 지우기»와 같은 길 */
       +'</div>';
+  } else if(_smW&&_smW.withdrawn&&_smW.withdrawn.at){   // [SNAP_CONSENT] 지운 기록만 남아 있을 때 — 누가 언제
+    h+='<div class="grp-l">스냅 기획 (촬영 전)</div>'+row('지움',String(_smW.withdrawn.at)+' · 동의 거둠'+(_smW.withdrawn.by?(' · '+String(_smW.withdrawn.by)):''));
   }
   // 스냅 기획(촬영 전 · 옛 기록) — 2026-09-26 전 저장분. 부부 화면에서는 질문이 사라졌지만 기록은 그대로 둔다(SNAP_LEGACY_KEEP)
   var _snLeg=sn&&((sn.people||[]).length||sn.mustPeople||sn.aboutNote||sn.comfort||(sn.mustHaves||[]).length||sn.propsNote||sn.toneStyle||(sn.refs||[]).length||sn.moodNote||(sn.moodCandle||[]).length||(sn.moodWhite||[]).length||sn.directorNote);
