@@ -5025,7 +5025,7 @@ chk 'KB_ALL_THREE' scripts/check-retired-scene.mjs 1
 chk 'MUSIC_GONE' scripts/check-retired-scene.mjs 3
 chk 'MUSIC_GONE' assets/advisor-kb.js 1
 chk 'MUSIC_GONE' api/_kb.js 1
-chk '자유 한 칸' assets/advisor-kb.js 3       # 축가는 없앤 게 아니라 옮긴 것 — 어디로 옮겼는지를 고객에게 적는다
+chk '자유 한 칸\|준비한 순서' assets/advisor-kb.js 3       # 축가는 없앤 게 아니라 옮긴 것 — 어디로 옮겼는지를 고객에게 적는다 · [NO_LIVE_SONG_KB 2026-09-26] 그 자리의 새 이름 «준비한 순서»도 센다
 nochk '입퇴장 음악·축가 등 구성을 직접 입력' assets/advisor-kb.js   # ★없는 칸을 있다고 하던 줄
 chk 'WINE_RETIRED' mypage.html 1
 chk 'WINE_RETIRED' api/_ritual-kb.js 3
@@ -11915,7 +11915,7 @@ chk 'AI_CHIP_WORDS' order-preview.html 1
 nochk '헌정은 어떤 방식들이' order-preview.html
 nochk '코스와 순간 하나하나' order-preview.html
 chk 'RESET_WORD' order-preview.html 1
-chk '본식 4분 전에는 불을 낮추고' assets/sequence-modal.js 1
+chk '본식 시작 4분 전에는 불을 낮추고' assets/sequence-modal.js 1   # «본식 4분 전»은 check-source-drift 가 본식 길이(4분)로 읽는다 — «시작»을 끼운다
 nochk '예식 시작 4분 전' assets/sequence-modal.js
 nochk '청첩장·식순은 언제든' index.html
 chk '순서와 이음은 저희가 맞춥니다' index.html 3
