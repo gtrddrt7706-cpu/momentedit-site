@@ -4420,6 +4420,16 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/wiz-dirty.mjs >/dev/
     *) echo 'ok wiz-dirty: 재지 못했습니다(함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
+# ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
+#   «예식 준비» 카드의 행 순서는 productionDashHtml 의 _prepRows 배열 하나가 정한다. 식순에 딸린 접힘 두 줄(준비 목록 · 부케)은 식순 바로 뒤.
+chk 'PREP_ORDER_0926' mypage.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
+  case "$_pro" in
+    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 단체 사진' ;;
+    1) echo 'FAIL prep-order: 예식 준비 카드 순서가 사장님 지시(2026-09-26)와 다릅니다 — node scripts/audit/prep-order.mjs'; fail=1 ;;
+    *) echo 'ok prep-order: 재지 못했습니다(배열 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 # [WIZ_SAVE_AA] '저장됨' 은 opacity 흐림(2.31:1)이 아니라 색(--light 4.74:1)으로
 chk 'WIZ_SAVE_AA' mypage.html 1
 

@@ -5525,11 +5525,10 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _ritPre=null;
   try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리듣기'}; }catch(e){}
   var _prepRows=[
+    /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
+       종전 순서는 청첩장 · 식순 · 애프터 웨딩 · 좌석·음료 · 단체 사진이었다. 식순 아래 접힘 두 줄(준비 목록 · 부케)은 식순에 딸린 것이라 식순과 함께 옮긴다.
+       ★순서를 되돌리지 말 것 — scripts/audit/prep-order.mjs 가 이 배열의 행 순서를 잰다. */
     { done: ist==='완료', html: row('청첩장', ist, 'mp_invStart', ilabel, null, {tag:_ivStepTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },
-    { done: true, html: _ritPrepFold(rd, base, dd) },
-    { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
-    { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
     /* ★★[SEAT_DRINK_LABEL 2026-08-09 사용자 지시] 「최종 확정 · 좌석」 → 「좌석 · 음료」.
@@ -5551,6 +5550,10 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     { done: _seatDone, html: row('좌석 · 음료', _seatDone?'완료':'', 'mp_finalStart',
           (_seatDone?'완료 · 수정':(((t.seat||'')==='진행중')?'이어하기':'시작하기')),
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
+    { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },
+    { done: true, html: _ritPrepFold(rd, base, dd) },
+    { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _wc=((_gp.photoWish||[]).length||(_gp.photoFx||[]).length); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_wc?('요청 '+_wc+'개'):'구도 고르기'); return row('단체 사진', (_ph.length||_wc)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) */
   ];
