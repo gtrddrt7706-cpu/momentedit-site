@@ -547,26 +547,38 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    크기 11·12·13·14·16 · 굵기 400~600 · 모서리 4·6·8·999 · 색은 변수만([TYPO_SCALE7]·[WEIGHT_RAMP4]·[SCALE_RADIUS6]·[BRAND_VAR]).
    고른 표시는 버건디 테두리 + 번호 원 — 색만으로 말하지 않는다(번호·aria-pressed 가 함께 말한다). 누름 칸은 전부 44px 이상. */
 .snp-steps{position:relative;display:flex;justify-content:space-between;list-style:none;margin:4px 0 0;padding:0}
-.snp-steps::before{content:'';position:absolute;left:22px;right:22px;top:22px;height:1px;background:var(--hairline,#E6E1D8)}
-.snp-steps li{position:relative}
-.snp-step{width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--border);background:#fff;font-family:var(--serif);font-size:14px;color:var(--label-soft);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.snp-step.done{color:var(--gold-deep);border-color:var(--gold-deep)}
-/* ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게 색상 사용»] 진사는 «고른 순서 번호»(.snp-no) 한 점만.
-   지금 걸음 = 아래 버튼과 같은 먹갈색(--accent) · 두 분이 고르는 칸 · 고른 장면 = 마이페이지 선택 칩과 같은 금빛(--gold · --gold-bg · --gold-deep).
-   경고(동의 체크 알림)와 완료 ✓ 는 마이페이지 전역 규칙대로 진사 — 이것도 «점»이다. 넓은 면·테두리에 진사를 되돌리지 말 것(snap-plan 이 잰다). */
-.snp-step.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+/* ★[SNAP_STEP_DOT 2026-09-26 사장님 «여기 숫자 부분 디자인적으로 조금만 더 개선하고 싶어»] 다섯 걸음 표시.
+   ①보이는 동그라미는 30px(지금 걸음 34px) · 누르는 칸은 44px 그대로(버튼 = 44px, 동그라미는 ::before).
+     44px 동그라미 다섯이 한 줄을 꽉 채워 무거웠다.
+   ②숫자는 고딕 13px · 같은 폭 숫자(lining · tabular) — 옛 세리프 숫자는 작고 들쭉날쭉했다(1 이 I 처럼 · 4 · 5 가 작게).
+   ③지나온 길은 금빛 선(--sp = 지금 걸음 / 4) · 남은 길은 가는 선. 지나온 걸음 = 옅은 금빛 바탕 + 금빛 테두리. */
+.snp-steps::before{content:'';position:absolute;left:22px;right:22px;top:21.5px;height:1px;background:var(--hairline,#E6E1D8)}
+.snp-steps::after{content:'';position:absolute;left:22px;top:21px;height:2px;width:calc((100% - 44px) * var(--sp,0));background:var(--gold)}
+.snp-steps li{position:relative;z-index:1}
+.snp-step{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;border-radius:999px;background:none;font-family:var(--sans);font-size:13px;font-weight:600;font-variant-numeric:lining-nums tabular-nums;line-height:1;color:var(--light);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.snp-step::before{content:'';position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:999px;border:1px solid var(--border);background:var(--card-white,#fff);z-index:-1;box-sizing:border-box}
+.snp-step.done{color:var(--gold-deep)}
+.snp-step.done::before{border-color:var(--gold);background:var(--gold-bg,#FAF6EF)}
+@media (hover:hover){.snp-step:not(.on):hover::before{border-color:var(--gold-deep)}}
+/* ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게 색상 사용»] 진사는 넓은 면 · 테두리가 아니라 «점»으로만.
+   ★★같은 날 밤 사장님 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 다 걷어내니 화면이 칙칙했다. 점을 다섯으로 되돌린다:
+     ①지금 걸음 동그라미(진사 + 옅은 진사 테 — 마이페이지 여정 점 .dots .current 와 같은 모양) ②고른 순서 번호(.snp-no)
+     ③흐름 줄의 «촬영» 칸 글자(면은 옅은 진사 기운만) ④«마감» 라벨 ⑤동의 체크 알림(경고).
+   고른 장면 테두리 · 단추(먹빛)는 그대로 마이페이지 톤 — 진사를 넓은 면 · 테두리로 넓히지 말 것(snap-plan 이 잰다). */
+.snp-step.on{color:#fff}
+.snp-step.on::before{width:34px;height:34px;margin:-17px 0 0 -17px;border-color:var(--seal);background:var(--seal);box-shadow:0 0 0 4px rgba(107,42,36,.1)}
 .snp-h{margin:20px 0 10px;font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);line-height:1.5;letter-spacing:-.02em;word-break:keep-all}
 .snp-h:focus{outline:none}
 .snp-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 5px;margin:0 0 14px}
 .snp-fl{font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.4;padding:5px 8px;border:1px solid var(--hairline,#E6E1D8);border-radius:999px;background:#fff}
-.snp-fl.on{color:var(--accent);background:var(--gold-bg,#FAF6EF);border-color:var(--gold);font-weight:600}
+.snp-fl.on{color:var(--seal);background:rgba(107,42,36,.04);border-color:rgba(107,42,36,.3);font-weight:600}   /* [SNAP_TONE] 진사 점 ③ — 글자만 진사 · 면은 옅은 기운 */
 .snp-arw{color:var(--gold-deep);position:relative;top:-1px}
 .snp-flg{display:inline-flex;align-items:center;gap:5px}   /* [SNAP_FLOW_WRAP] 칸 여백 8 · 사이 5 — PC 한 줄(폭 578 에 553) · 360~430 셋·셋 · 320 둘·둘·둘. «본식»만 떨어지던 자리(1280 에서 4px · 360 에서 10px 모자랐다) */
 .snp-points{margin:0;padding:0 0 0 18px;font-size:13px;color:var(--sub);line-height:1.7}
 .snp-points li{margin:0 0 6px;word-break:keep-all}
 .snp-points b,.snp-due b{font-weight:600;color:var(--accent)}
 .snp-due{margin:16px 0 0;padding:12px 0 0;border-top:1px solid var(--hairline,#E6E1D8);font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all}   /* [SNAP_DESIGN_0926] 칠한 상자 → 가는 선 위 한 줄 */
-.snp-due-k{display:inline-block;margin:0 8px 0 0;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--gold-deep)}
+.snp-due-k{display:inline-block;margin:0 8px 0 0;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--seal)}   /* [SNAP_TONE] 진사 점 ④ — 마감은 도장처럼 */
 .snp-zone{margin:0}
 .snp-zone img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:var(--bg2)}
 .snp-zone figcaption{margin:8px 2px 0;font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);letter-spacing:.02em}
@@ -622,7 +634,9 @@ button.snp-tile{cursor:pointer}
 .snp-cl{display:block;margin-top:2px}
 .snp-conf{color:var(--gold-deep)}
 .snp-reply{color:var(--sub);white-space:pre-line}
-.snp-step:focus-visible,.snp-tile:focus-visible,.snp-zoom:focus-visible,.snp-x:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.snp-tile:focus-visible,.snp-zoom:focus-visible,.snp-x:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.snp-step:focus-visible{outline:none}   /* [SNAP_STEP_DOT] 초점 테는 보이는 동그라미에 — 44px 버튼 둘레에 그리면 동그라미와 떨어져 떴다 */
+.snp-step:focus-visible::before{box-shadow:0 0 0 2px var(--card-white,#fff),0 0 0 4px var(--gold-deep)}
 /* ★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 가운데 정렬 카드 안에서 왼쪽 정렬(여러 줄 글).
    누름 칸은 줄 전체(글을 눌러도 체크) · 44px 이상. 막는 색이 아니라 알리는 색 — 체크 없이 누르면 줄 테두리만 씰색으로. */
 .snp-agree{margin:14px 0 0;padding:2px 14px 8px;background:var(--bg2);border:1px solid transparent;border-radius:8px;text-align:left}
@@ -8394,7 +8408,7 @@ function renderSnapFlow(){
   var D=SNAPFLOW.d, st=Math.max(0, Math.min(SNAP_STEPS.length-1, SNAPFLOW.step||0)), due=_snapDue(SNAPFLOW.p);
   var h='<div class="consult-card snp-card" style="text-align:left">';
   h+='<div class="inv-head"><span class="inv-step-n">스냅 기획</span>'+wizActs()+'</div>';   // [WZ_BAR] 머리 = 다른 입력 화면과 같은 모양(이름 왼쪽 · 저장 · 나가기 오른쪽) — 영문 머리글 · 큰 제목은 대시보드 카드에만
-  h+='<ol class="snp-steps" aria-label="스냅 기획 다섯 걸음">'+SNAP_STEPS.map(function(s,i){ return '<li><button type="button" class="snp-step'+(i===st?' on':'')+(i<st?' done':'')+'" data-sstep="'+i+'"'+(i===st?' aria-current="step"':'')+' aria-label="'+(i+1)+'. '+s.t+'">'+(i+1)+'</button></li>'; }).join('')+'</ol>';
+  h+='<ol class="snp-steps" aria-label="스냅 기획 다섯 걸음" style="--sp:'+(st/(SNAP_STEPS.length-1))+'">'+SNAP_STEPS.map(function(s,i){ return '<li><button type="button" class="snp-step'+(i===st?' on':'')+(i<st?' done':'')+'" data-sstep="'+i+'"'+(i===st?' aria-current="step"':'')+' aria-label="'+(i+1)+'. '+s.t+'">'+(i+1)+'</button></li>'; }).join('')+'</ol>';   // [SNAP_STEP_DOT] --sp = 지나온 길(금빛 선)의 길이
   /* ★[SNAP_DESIGN_0926 사장님 «전체적으로 디자이너 관점으로 검토해 보고»] «2 / 5 · 캔들존» 줄을 뺐다 — 위 동그라미가 이미 몇 걸음째인지 말하고,
      이름은 바로 아래 제목(캔들존 · 사진작가가 알면 좋은 것 …)과 같은 말이었다(제목이 다섯 층으로 쌓여 본문이 늦게 시작했다). 되살리지 말 것. */
   if(st===0) h+=_spWhen(D, R, due);
