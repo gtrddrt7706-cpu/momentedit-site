@@ -789,6 +789,157 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .nav{flex-wrap:wrap}
 .op-cta{flex:0 0 100%;font-size:12px;color:var(--sub);text-align:center;margin:-4px 0 -2px;word-break:keep-all}
 .op-cta b{color:var(--accent);font-weight:600;white-space:nowrap}
+/* ════ ★★[PICK_V2 2026-09-26 코워크 회신 6 3장 · 추가 전달 2 · 3] ① 고르기 — 예시 → 감동 흐름 → 네 막 칸 → 아래 막대 ════
+   ★시안(docs/handoff/고르기_개편시안_0926.html)의 모양을 옮겼다 · 색은 이 문서 팔레트(momentedit-design)만 — 시안의 --btn(#4E3D2E)은
+     가장 가까운 기존 토큰 --ink2(#4A3E30)로 · 칸 바탕(#FFFDF9)은 --tile-on 토큰으로.
+   ★없앤 것(되살리지 말 것): 위에 붙던 띠(op-band) · «고르기 어려우시면 맨 아래 예시» · «고른 순간이 흐르는 차례» 상자 · 맨 아래 예시 ·
+     «영상 자동 재생 끄기» · 카드의 시간 · 누가 · 자리 · 남는 사진 · 준비할 것 · 자세히 · 판 한 줄. 판 칩은 ② 에서(LISTEN_PAGE). */
+:root{--tile-on:#FFFDF9}
+.pk{margin-top:2px}
+.pk .pco{display:none}
+.pk-sh{display:flex;align-items:baseline;justify-content:space-between;gap:4px 10px;flex-wrap:wrap;margin:20px 0 10px}
+.pk-h{font-size:16px;font-weight:600;color:var(--accent);margin:0;line-height:1.4}
+.pk-aux{font-size:12.5px;color:var(--light)}
+.pk-exs{display:grid;grid-template-columns:1fr;gap:8px}
+.pk-ex{display:grid;grid-template-columns:minmax(0,1fr) 112px;align-items:center;column-gap:10px;width:100%;min-height:44px;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font:inherit;color:var(--accent);cursor:pointer}
+.pk-ex[aria-pressed="true"]{border-color:var(--ink2);box-shadow:inset 0 0 0 1px var(--ink2)}
+.pk-ex-t{min-width:0}
+.pk-ex-n{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;font-size:15px;line-height:1.45}
+.pk-ex-n b{font-weight:600}
+.pk-ex-m{font-size:12.5px;color:var(--sub);white-space:nowrap}
+.pk-ex-on{font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.pk-ex-f{display:block;font-size:13px;line-height:1.5;color:var(--sub);margin-top:2px}
+.pk-ex-g{display:block;min-width:0}
+.pk-ex-g svg{display:block;width:100%;height:40px}
+.pk-blank{text-align:right;margin:2px 0 0}
+.pk-link{min-height:44px;padding:0 2px;border:0;background:none;font:inherit;font-size:13px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.pk-fp{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 12px;margin-top:8px}
+.pk-fp-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pk-fp-h h3{margin:0;font-size:15px;font-weight:600;color:var(--accent);line-height:1.4}
+.pk-fp-body{font-size:13px;color:var(--sub);white-space:nowrap}
+.pk-fp-body strong{color:var(--accent);font-weight:600}
+.pk-fp-cap{font-size:12.5px;color:var(--light);margin:2px 0 0}
+.pk-fp-empty{font-size:13.5px;color:var(--sub);margin:10px 0 4px;word-break:keep-all}
+.pk-fg-wrap{position:relative;margin:8px 0 2px}
+.pk-fg{min-height:112px}
+.pk-fg svg{display:block;width:100%}
+.pk-fg .flow-hit{cursor:pointer;outline:none}
+.pk-fg .flow-hit:focus-visible{stroke:var(--gold-deeper);stroke-width:1.5}
+.pk-tip{position:absolute;top:14px;left:0;pointer-events:none;background:var(--accent);color:#FAFAF8;font-size:12.5px;line-height:1.45;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
+.pk-tip.on{opacity:1}
+.pk-peak{font-size:13.5px;line-height:1.6;color:var(--accent);margin:6px 0 0;word-break:keep-all}
+.pk-peak b{font-weight:600}
+.pk-tm{font-size:12.5px;line-height:1.6;color:var(--light);margin:8px 0 0;word-break:keep-all}
+.pk-pre{white-space:nowrap}
+.pk-side .op-note{margin-top:8px}
+.pk-acts{display:grid;gap:20px}
+.pk-act-h{font-size:14.5px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
+.pk-act-d{font-size:12.5px;color:var(--light);margin:0 0 8px;line-height:1.45}
+.pk-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pk-tile{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.pk-tile.on,.pk-tile.fix{border-color:var(--gold);background:var(--tile-on)}
+.pk-tile.opt{border-style:dashed}
+.pk-open{display:block;width:100%;height:100%;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.pk-open:focus-visible,.pk-sel:focus-visible,.pk-ex:focus-visible,.pk-link:focus-visible,.pk-go:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:-2px}
+.pk-media{position:relative;display:grid;place-items:center;aspect-ratio:16/9;background:var(--bg2);overflow:hidden}
+.pk-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pk-media .mclip{width:100%;border:0;margin:0;background:none}
+.pk-glyph{width:46px;height:32px;color:var(--gold-deep)}
+.pk-play{position:absolute;left:7px;bottom:7px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.14);color:var(--accent)}
+.pk-play svg{width:10px;height:10px;margin-left:2px}
+.pk-opt{position:absolute;left:7px;top:8px;font-size:11px;font-weight:600;color:var(--sub);background:rgba(255,255,255,.94);border-radius:999px;padding:1px 8px}
+.pk-ai{position:absolute;right:7px;bottom:7px;font-size:10px;line-height:1.4;color:var(--sub);background:rgba(255,255,255,.9);border-radius:4px;padding:0 4px}
+.pk-txt{display:block;padding:8px 10px 11px}
+.pk-n{display:block;font-weight:600;font-size:15px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-s{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;color:var(--sub);line-height:1.45;margin-top:2px}
+.pk-sel{position:absolute;top:0;right:0;width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
+.pk-sel i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.96);border:1.5px solid var(--gold);color:var(--gold-deeper);display:grid;place-items:center;font-style:normal;font-size:17px;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.pk-sel.on i{background:var(--ink2);border-color:var(--ink2);color:#fff;font-size:13px}
+.pk-fix{position:absolute;top:8px;right:8px;font-size:11px;font-weight:600;color:var(--sub);background:rgba(255,255,255,.94);border-radius:999px;padding:1px 8px;pointer-events:none}
+.pk-ainote{font-size:12px;color:var(--light);margin:12px 0 0}
+/* 아래 막대(휴대폰) — 작은 흐름선 · 담은 순간 · 알림 한 줄 [BAR_SUM] · 요약 줄 뒤로 칸 글이 비치지 않게(흐림은 위 12px 만) */
+body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 12px)}
+.op-cta{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.op-cta .cta-g{display:inline-block;width:64px;height:18px;flex:none}
+.op-cta .cta-g svg{display:block;width:64px;height:18px}
+.op-cta.flash b{animation:ctaflash .7s ease-out}
+@keyframes ctaflash{0%{color:var(--gold-deep)}100%{color:var(--accent)}}
+.op-cta .cta-al{flex:0 0 100%;min-height:36px;border:0;background:none;padding:0 4px;font:inherit;font-size:12px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer;word-break:keep-all}
+/* 얇은 띠(PC) — 흐름 띠가 화면 위로 나가면 위에 붙는다 · 좁은 화면에서는 보이지 않는다 */
+.pk-slim{display:none}
+/* ▶ 미리 보기 창 [PREVIEW_SHEET] — 휴대폰은 아래에서 올라오는 창 · PC 는 가운데 창 */
+.pv-sheet{position:fixed;inset:0;z-index:2147482000}
+.pv-sheet[hidden]{display:none}
+.pv-bg{position:absolute;inset:0;background:rgba(28,27,25,.45)}
+.pv-box{position:absolute;left:0;right:0;bottom:0;max-height:94dvh;overflow:auto;overscroll-behavior:contain;background:var(--bg);border-radius:18px 18px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.16)}
+.pv-grab{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 4px}
+.pv-h{display:flex;align-items:center;gap:8px;min-height:44px}
+.pv-h h3{margin:0;font-size:17px;font-weight:600;color:var(--accent);line-height:1.4}
+.pv-tag{font-size:11px;font-weight:600;color:var(--sub);background:var(--bg2);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.pv-x{margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;font:inherit;font-size:18px;color:var(--sub);cursor:pointer;border-radius:50%}
+.pv-x:focus-visible,.pv-act button:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
+.pv-media{position:relative;aspect-ratio:16/9;border-radius:12px;background:var(--bg2);display:grid;place-items:center;overflow:hidden}
+.pv-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pv-media .mclip{width:100%;border:0;margin:0;background:none}
+.pv-media .pk-glyph{width:110px;height:76px}
+.pv-ai{position:absolute;left:8px;bottom:8px;font-size:11px;line-height:1.4;color:var(--sub);background:rgba(255,255,255,.88);border-radius:6px;padding:1px 6px}
+.pv-q{font-family:var(--serif);font-size:15.5px;line-height:1.65;color:var(--accent);margin:12px 0 6px;word-break:keep-all}
+.pv-pb{height:3px;background:var(--bg2);border-radius:2px;overflow:hidden}
+.pv-pb i{display:block;height:100%;width:0;background:var(--gold-deep)}
+.pv-st{font-size:12px;color:var(--light);margin:5px 0 0}
+.pv-one{font-size:13.5px;line-height:1.55;color:var(--sub);margin:12px 0 2px;word-break:keep-all}
+.pv-ch,.pv-shot{font-size:12.5px;line-height:1.55;color:var(--sub);margin:0;word-break:keep-all}
+.pv-shot b{font-weight:600;color:var(--ink2)}
+.pv-act{display:flex;align-items:center;gap:8px;margin-top:14px}
+.pv-act button{min-height:48px;padding:0 16px;border-radius:12px;font:inherit;font-weight:600;cursor:pointer}
+.pv-again{background:var(--card);border:1px solid var(--border);color:var(--accent)}
+.pv-add{flex:1;background:var(--ink2);border:0;color:#fff}
+.pv-add.out{flex:0 0 auto;background:var(--card);border:1px solid var(--border);color:var(--accent)}
+.pv-in{flex:1;text-align:right;font-size:13.5px;font-weight:600;color:var(--ink2)}
+.pv-fixed{flex:1;text-align:right;font-size:13px;color:var(--light)}
+.pv-fn{font-size:12px;color:var(--light);margin:10px 0 0;text-align:center}
+/* 예시 되돌리기 알림 줄 — 6초 */
+.pk-undo{position:fixed;left:50%;bottom:calc(128px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);background:var(--accent);color:#FAFAF8;font-size:12.5px;border-radius:22px;padding:2px 4px 2px 16px;box-shadow:0 2px 10px rgba(0,0,0,.18);word-break:keep-all}
+.pk-undo[hidden]{display:none}
+.pk-undo button{min-height:40px;padding:0 12px;border:0;border-radius:18px;background:transparent;color:#FAFAF8;font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@media (prefers-reduced-motion: reduce){ .op-cta.flash b{animation:none} .pk-tip{transition:none} }
+/* ─── PC(폭 1000 이상) — 이야기판 [PC_STORY] · 내용 폭 최대 1180 · 양옆 88px 이상(레일 자리 · RAIL_LOCKED — 비켜서는 쪽은 이 화면) ─── */
+@media (min-width:1000px){
+  body.pk2 .wrap{max-width:min(1180px,calc(100vw - 176px))}
+  body.pk2 #nav{display:none}
+  body.pk2 .q-title{font-size:30px}
+  body.pk2 .q-sub{font-size:16px}
+  .pk .mo{display:none}
+  .pk .pco{display:block}
+  .pk-h{font-size:17px}
+  .pk-exs{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .pk-ex{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:14px}
+  .pk-ex-g{margin-top:auto;padding-top:8px}
+  .pk-ex-g svg{height:44px}
+  .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:28px;padding:18px 20px;margin-top:18px}
+  .pk-fg{min-height:152px}
+  .pk-side{border-left:1px solid var(--bg2);padding-left:24px;display:flex;flex-direction:column}
+  .pk-big{font-size:13px;color:var(--sub);line-height:1.6;margin:0}
+  .pk-big strong{display:block;font-size:26px;color:var(--accent);font-weight:600;line-height:1.25;margin:2px 0 4px}
+  .pk-go{margin-top:auto;min-height:48px;border:0;border-radius:12px;background:var(--accent);color:#FAFAF8;font:inherit;font-weight:600;cursor:pointer}
+  .pk-side .pk-peak{margin-top:10px}
+  .pk-acts{gap:18px;margin-bottom:48px}
+  .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
+  .pk-act-h{font-size:15px;color:var(--accent)}
+  .pk-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  .pk-slim{position:fixed;left:0;right:0;top:0;z-index:60;display:flex;align-items:center;gap:16px;background:rgba(250,250,248,.97);border-bottom:1px solid var(--border);padding:10px max(88px,calc((100vw - 1180px) / 2));transform:translateY(-100%);opacity:0;visibility:hidden;transition:transform .2s,opacity .2s,visibility .2s}
+  .pk-slim.on{transform:none;opacity:1;visibility:visible}
+  .pk-slim .sv{display:block;width:180px;height:34px;flex:none}
+  .pk-slim .sv svg{display:block;width:180px;height:34px}
+  .pk-slim .t{font-size:13.5px;color:var(--sub);min-width:0}
+  .pk-slim .t b{color:var(--accent);font-weight:600}
+  .pk-slim .go{margin-left:auto;min-height:44px;padding:0 22px;border:0;border-radius:10px;background:var(--accent);color:#FAFAF8;font:inherit;font-weight:600;cursor:pointer;flex:none}
+  .pv-box{left:50%;right:auto;top:50%;bottom:auto;width:680px;max-width:calc(100vw - 176px);max-height:90vh;transform:translate(-50%,-50%);border-radius:16px;padding:10px 24px 20px}
+  .pv-grab{display:none}
+  .pk-undo{bottom:32px}
+}
+@media (min-width:1000px) and (max-width:1150px){ .pk-act{grid-template-columns:1fr;gap:4px} }
+@media (min-width:1000px) and (prefers-reduced-motion: reduce){ .pk-slim{transition:none} }
 /* ② */
 .ls-band .t1{font-size:13px}
 .ls-hero{display:block;width:100%;border:0;padding:0;margin:12px 0 10px;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
@@ -3233,86 +3384,131 @@ function _pickVl(k){
   if(k==='tribute'&&S.tribute==='bowGroom') v=(v?v+' · ':'')+'신랑 큰절';
   return v;
 }
+/* ════ ★★[PICK_V2 2026-09-26 코워크 회신 6 3장 · 추가 전달 2(D1~D11) · 3(E · F)] ① 고르기 — 예시 → 감동 흐름 → 네 막 칸 ════
+   휴대폰: 걸음 → 머리 → 예시 넷 → 감동 흐름 판 → 순간 칸(네 막) → 아래 막대 · PC(폭 1000 이상): 예시 가로 넷 · 흐름 띠 · 막마다 한 줄 · 얇은 띠.
+   ★그림은 원천 한 함수(RitualOpen.flowSVG)가 그린다 — 칸을 그린 뒤 _pickPaint 가 실제 폭을 재서 채운다. */
+var NBS='\u00a0';
+function _nb(t){ return String(t||'').replace(/약 /g,'약'+NBS); }   // [D5] «약 N~M분»이 두 줄로 갈리지 않게
+var PK_GLYPH={
+ prevideo:'<rect x="6" y="5" width="32" height="20" rx="2"/><path d="M19 11l7 4-7 4z" fill="currentColor"/>',
+ candle:'<path d="M22 6c3 4 3 6 0 8-3-2-3-4 0-8z" fill="currentColor"/><rect x="19" y="15" width="6" height="12" rx="1"/>',
+ entry:'<path d="M12 27V12a10 10 0 0 1 20 0v15"/><path d="M22 7v20"/>',
+ welcome:'<circle cx="16" cy="11" r="3"/><circle cx="28" cy="11" r="3"/><path d="M11 25c1-5 9-5 10 0M23 25c1-5 9-5 10 0"/>',
+ bless:'<rect x="19" y="5" width="6" height="12" rx="3"/><path d="M15 14a7 7 0 0 0 14 0M22 21v5"/>',
+ vow:'<rect x="11" y="7" width="22" height="16" rx="2"/><path d="M15 12h14M15 16h10"/>',
+ ring:'<circle cx="18" cy="16" r="7"/><circle cx="26" cy="16" r="7"/>',
+ declare:'<path d="M22 5v5M22 22v5M11 16h5M28 16h5M14 8l3 3M27 21l3 3M30 8l-3 3M17 21l-3 3"/><circle cx="22" cy="16" r="3" fill="currentColor"/>',
+ tribute:'<path d="M22 27V15M22 15c-4-1-6-4-5-8 3 0 5 3 5 8zM22 15c4-1 6-4 5-8-3 0-5 3-5 8z"/>',
+ free:'<rect x="8" y="6" width="28" height="18" rx="2"/><path d="M14 27h16"/>',
+ letter:'<rect x="9" y="8" width="26" height="17" rx="2"/><path d="M9 9l13 9 13-9"/>',
+ toast:'<path d="M14 6h7l-1 9a3 3 0 0 1-5 0zM23 6h7l-1 9a3 3 0 0 1-5 0zM17 17v8M26 17v8M14 26h7M23 26h7"/>',
+ _close:'<path d="M8 24c4-8 24-8 28 0"/><circle cx="18" cy="12" r="3"/><circle cx="26" cy="12" r="3"/>'
+};
+function _pkGlyph(k){ return '<svg class="pk-glyph" viewBox="0 0 44 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(PK_GLYPH[k]||'')+'</svg>'; }
+/* 칸 · 창의 그림 — 첫 장면 사진(칸용 작은 판 · POSTER_SMALL) → 선 그림(clip) → 작은 기호 */
+function _pkArt(k){ var c=clip(k==='_close'?'':k); return c||_pkGlyph(k); }
 function renderPick(){
-  var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S), note=R.noticeOf(S), h='<div class="op">';
-  h+='<a class="op-jump" href="#opEx" onclick="opJump(event)">고르기 어려우시면 맨 아래 예시에서 시작하셔도 돼요 ↓</a>';
-  // 띠
-  h+='<div class="op-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>단체 사진 <b>'+esc(sp.photo)+'</b></span></div>';
-  var mid=Math.max(0,Math.min(R.DAYMIN,sp.midMin));
-  h+='<div class="op-bar" aria-hidden="true"><div class="c" style="flex:'+mid.toFixed(2)+'"></div><div class="p" style="flex:'+(R.DAYMIN-mid).toFixed(2)+'"></div></div>';
-  h+='<div class="op-leg"><span>본식</span><span>둘을 더하면 '+R.DAYMIN+'분</span><span>단체 사진</span></div>';
-  var shown=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }).concat(['_close']);
-  h+='<div class="op-mf" aria-label="고른 순서">'+shown.map(function(k,i){ return (i?'<span class="a" aria-hidden="true">›</span>':'')+'<span class="i'+(R.PRE[k]?' pre':'')+'">'+(k===peak?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(R.CARDS[k].sn)+'</span>'; }).join('')
-    +'</div>'+(R.picked(S).length?'':'<p class="op-mf-h">↓ 아래 카드에서 담아 보세요</p>');   // [POLISH_0925 2-11] 빈 상태 안내는 띠 밖 한 줄(띠 안에선 오른쪽에서 잘렸다)
-  h+=_noteHtml();   // [DETAIL_0925 A2] 알림 — 글 · 풀어 주는 단추 · 괜찮아요
-  h+='</div>';
-  // ① 모든 순간
-  /* [DETAIL_0925 B1] 동그라미 번호는 걸음 표시에만 — 소제목에서 뺐다(«③ 예시»가 걸음 «③»과 부딪쳤다) */
-  h+='<h3 class="op-h">모든 순간 · 예식 순서대로</h3>';
-  h+='<p class="op-gnote">하객 맞이 안내는 늘 있어요 · 하객이 들어오실 때 저절로 흘러요.</p>';   // [DETAIL_0925 B18]
-  if(R.VIDEO_READY.length) h+='<button type="button" class="lv-off" data-fk="opvidoff" aria-pressed="'+(_pvOff()?'true':'false')+'" onclick="opVidOff()">'+(_pvOff()?'영상 자동 재생 켜기':'영상 자동 재생 끄기')+'</button>';   // [DETAIL_0925 B17] 이 기기에 기억
-  R.SECTIONS.forEach(function(sec){
-    h+='<div class="op-sec'+(sec.own?' own':'')+'"><div class="sn">'+esc(sec.n)+'</div><div class="sd">'+esc(sec.d)+'</div></div>';
-    sec.ks.forEach(function(k){
-      var c=R.CARDS[k], lock=(!!R.ALWAYS[k]||k==='_close'), on=lock||R.onOf(S,k), op=!!_opOpen[k];   // [PREVIDEO_ALWAYS] 입장 · 식전 영상 · 닫는 인사는 늘 있어요
-      h+='<div class="op-card'+(on&&!lock?' on':'')+'" id="opc_'+k+'">';
-      h+=_pickVid(k);   // [LISTEN_PAGE 코워크 4-2] 카드 맨 위 장면(16:9 · 카드 폭 가득) — 영상 → 선 그림 → «준비 중»
-      h+='<div class="op-top"><h4 class="op-nm">'+esc(c.n)+'</h4>';   // [A11Y_NAMES 3장] 카드 이름을 제목으로
-      h+=lock?'<button type="button" class="op-tg" disabled>늘 있어요</button>'
-             :'<button type="button" class="op-tg" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(c.n)+' 담기" data-fk="opt:'+k+'" onclick="opTgl(\''+k+'\')">'+(on?'담았어요 ✓':'+ 담기')+'</button>';
-      h+='</div>';
-      h+='<div class="op-one">'+esc(c.one)+'</div>';
-      h+='<div class="op-shot">남는 사진 · '+esc(R.shotOf(k,S)||c.shot)+'</div>';   // [DETAIL_0925 B5] «장면»은 AI 영상에만
-      h+='<div class="op-meta"><span>'+esc(R.momentLabel(k,S))+'</span><span>누가 · '+esc(k==='candle'?_candleWho():c.who)+'</span></div>';   // [DETAIL_0925 B15] 화촉 «누가»는 서는 분에 따라
-      h+='<div class="op-slot">'+esc(R.slotText(k,S))+'</div>';
-      /* ★[LISTEN_PAGE 코워크 4-2] 판 칩은 카드에서 뺐다 — ② 보고 듣기에서 들어 보고 고른다. 담은 카드에는 한 줄만.
-         (opChips 는 지우지 않는다 · 준비한 순서 단계 화면 등 옛 자리가 쓴다) */
-      if(on && k!=='prevideo' && k!=='_close'){ var _vl=_pickVl(k); if(_vl) h+='<div class="op-vl">지금 · '+esc(_vl)+' <span>· «보고 듣기»에서 바꿀 수 있어요</span></div>'; }   /* [DETAIL_0925 B4] «고른 것 · 고를 것»은 한 글자 차이로 뜻이 반대라 «지금 · 바꿀 수 있는 것» */
-      var ps=R.prepOf(k,S), det=[];
-      det.push('<p><b>준비할 것</b> · '+(ps.length?ps.map(function(q){ return (q[0]==='parents'?'부모님께 부탁드릴 것 · ':'')+esc(q[1]); }).join(' / '):'따로 없어요')+'</p>');
-      var _why=R.whyOf(k,S); if(_why) det.push('<p><b>이 자리인 까닭</b> · '+esc(_why)+'</p>');   // [WHY_NEIGHBOR 2-7]
-      if(!on){ var cs=(k==='toast')?['toast','wine']:(k==='free')?['free','freeLen']:(R.CHIPS[k]?[k]:[]);
-        if(cs.length) det.push('<p><b>바꿀 수 있는 것</b> · '+cs.map(function(x){ return R.CHIPS[x].map(function(y){return esc(y[1]);}).join(' / '); }).join(' · ')+' · 담으면 «보고 듣기»에서 들어 보고 골라요</p>'); }
-      h+='<button type="button" class="op-more" aria-expanded="'+(op?'true':'false')+'" aria-label="'+esc(R.CARDS[k].n)+' 자세히" data-fk="opm:'+k+'" onclick="opMore(\''+k+'\')">'+(op?'접기 ▴':'자세히 ▾')+'</button>';
-      if(op) h+='<div class="op-det">'+det.join('')+'</div>';
-      h+='</div>';
-    });
-  });
-  // ② 우리 예식
-  h+='<h3 class="op-h" id="opMine" tabindex="-1">우리 예식 · 고른 순간이 흐르는 차례</h3><div class="op-box">';
-  h+='<div class="op-org">'+esc(R.originOf(S))+(_opPrev?'<button type="button" class="op-undo" onclick="opUndo()">예시 전으로 되돌리기</button>':'')+'</div>';
-  if(S.pickFrom && R.exampleOf(S.pickFrom) && !R.onOf(S,'free'))   // [FREE_OWN 코워크 4-4 ②] 예시에서 시작했고 준비한 순서가 없으면
-    h+='<button type="button" class="op-addfree" data-fk="opaddfree" onclick="opAddFree()">+ 준비한 순서 담기</button>';
-  var no=0;
-  h+='<ol class="op-ol">'+shown.map(function(k){
-    var vl=opChipLabel(k);
-    return '<li><span class="no">'+(R.PRE[k]?'식전':(++no))+'</span><span>'+(k===peak?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(R.CARDS[k].n)+(vl?' <span class="vn">· '+esc(vl)+'</span>':'')+'</span></li>';
-  }).join('')+'</ol>';
-  h+='<div class="op-peak">'+(peak?('<span class="op-star" role="img" aria-label="절정">★</span> 이 예식의 절정은 <b>'+esc(R.CARDS[peak].n)+'</b> · '+esc(R.CARDS[peak].shot)):PEAK_NONE)+'</div>';
-  var two=[], par=[], hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});   // [HELPERS] 애프터 웨딩을 고른 날만 «식사 자리로 안내할 분»
-  R.prepList(S).forEach(function(q){ (q.who==='parents'?par:two).push(q.what); });   // [DETAIL_0925 B2] 이름 한 쌍 «두 분이 준비할 것» · «부모님께 부탁드릴 것»
-  h+='<div class="op-prep"><b>두 분이 준비할 것 '+two.length+'가지</b><ul>'+two.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'
-    +(par.length?'<b>부모님께 부탁드릴 것 '+par.length+'가지</b><ul>'+par.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'')
-    /* [HELPERS 2026-09-25 코워크 5-6] 도와주실 분 — 누가 · 언제. 식사 자리 안내는 마이페이지가 애프터 웨딩을 보고 더한다 */
-    +'<b>도와주실 분</b><ul>'+hp.map(function(x){return '<li>'+esc(x[0])+' <span class="vn">· '+esc(x[1])+'</span></li>';}).join('')+'</ul></div>';
-  var off=R.PICKABLE.filter(function(k){ return !R.onOf(S,k) && k!=='free'; });   // [POLISH_0925 2-11] ② 와 같은 기준 — 준비한 순서는 «있을 때만»이라 세지 않는다
-  h+='<div class="op-off">'+(off.length?('<b>담지 않은 순간 '+off.length+'가지</b> · '+nwList(off.map(function(k){return R.CARDS[k].sn;}))+'<br>빼 두어도 예식은 자연스럽게 이어져요. 부모님과 한 번 같이 보세요.'):'<b>모든 순간을 담았어요.</b>')+'</div>';
-  /* 「부모님께 보여 드리기」는 지금 공유 기능이 없어 7단계로 미룬다(명세 3-4 · 없으면 미룸). 미리듣기는 완성 화면의 것과 같은 창이다. */
-  /* [LISTEN_PAGE] 이 상자의 듣기는 ② 보고 듣기가 한다 — 옛 미리듣기 단추 대신 다음 걸음으로 */
-  h+='<div class="op-acts"><button type="button" class="rowbtn" data-fk="optolisten" onclick="opToListen()">'+ICO_PLAY+'다음 · 보고 듣기</button></div>';
-  h+='</div>';
-  // ③ 예시
-  h+='<h3 class="op-h" id="opEx" tabindex="-1">예시 · 고르기 어려우실 때</h3>';
-  h+='<div class="op-q">예식에서 가장 남기고 싶은 것은?</div><div class="op-qn">예시를 누르면 그 순간들이 위에 담겨요. 그다음 더하고 빼셔도 돼요.</div>';
-  R.EXAMPLES.forEach(function(ex){
-    var T=R.applyExample({},ex.k), es=R.span(T), pressed=R.sameAsExample(S,ex.k);
-    var list=R.ORDER.filter(function(k){ return !R.ALWAYS[k] && T.on[k]; }).map(function(k){ return R.CARDS[k].sn; });
-    h+='<button type="button" class="op-ex" aria-pressed="'+(pressed?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')"><b>'+esc(ex.title)+'</b><span class="t">‹'+esc(ex.nm)+'› 예시 · 본식 '+esc(es.body)+' · 단체 사진 '+esc(es.photo)+'</span><span class="l">'+nwList(list)+'</span></button>';
-  });
-  h+='<div class="op-qn" style="margin-top:10px">특별히 준비한 순서(영상 · 축사 등)가 있으면 어느 예시에서든 더할 수 있어요.</div>';   // [FREE_OWN 코워크 4-4 ③]
+  var R=RitualOpen, h='<div class="pk">';
+  if(!ENG) engine(); if(!LREC) _lrec();   // 미리 보기 창의 대표 한 줄 — 칸을 누르기 전에 불러 둔다(누른 그 순간 소리가 나게)
+  /* 예시 [EX_BRIEF · D1 · D2] */
+  h+='<div class="pk-sh"><h3 class="pk-h">예시로 시작하기</h3><span class="pk-aux">무엇을 담아도 값은 같아요.</span></div>';
+  h+='<div class="pk-exs">'+R.EXAMPLES.map(_pkEx).join('')+'</div>';
+  h+='<p class="pk-blank"><button type="button" class="pk-link" data-fk="opblank" onclick="opBlank()">빈 칸에서 직접 고를게요</button></p>';
+  /* 감동 흐름 판(휴대폰) · 흐름 띠(PC) — 한 벌의 글을 CSS 가 두 모양으로 [FLOW_LINE] */
+  h+=_pkPanel();
+  /* 순간 칸 — 네 막 [ACTS_FOUR · TILE_PICK · D7] */
+  h+='<div class="pk-sh" id="pkActsH"><h3 class="pk-h">순간 더하고 빼기</h3><span class="pk-aux">칸을 누르면 미리 보고 들어요 · ＋로 담아요</span></div>';
+  h+='<div class="pk-acts">'+R.SECTIONS.map(function(a,i){ return '<section class="pk-act" aria-labelledby="pkA'+i+'"><div class="pk-act-l"><h4 class="pk-act-h" id="pkA'+i+'">'+esc(a.n)+'</h4><p class="pk-act-d">'+esc(a.d)+'</p></div><div class="pk-tiles">'+a.ks.map(_pkTile).join('')+'</div></section>'; }).join('')+'</div>';
+  if(R.VIDEO_READY.length) h+='<p class="pk-ainote">칸의 그림 자리에는 AI로 만든 장면 영상의 첫 장면이 들어가요.</p>';
   h+='</div>';
   return h;
 }
+function _pkEx(ex){
+  var R=RitualOpen, T=R.applyExample({},ex.k), es=R.span(T), on=S.pickFrom===ex.k;
+  var f=String(ex.feel||'').split(' · ');   /* [D1] 분위기 두 구절을 두 줄로 — 가운뎃점 없이 */
+  return '<button type="button" class="pk-ex" aria-pressed="'+(on?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')">'
+    +'<span class="pk-ex-t"><span class="pk-ex-n"><b>'+esc(ex.nm)+'</b><span class="pk-ex-m">본식 '+esc(_nb(es.body))+'</span>'+(on?'<span class="pk-ex-on">여기서 시작 ✓</span>':'')+'</span>'
+    +'<span class="pk-ex-f">'+f.map(esc).join('<br>')+'</span></span>'
+    +'<span class="pk-ex-g" data-fg="ex:'+ex.k+'" aria-hidden="true"></span></button>';
+}
+function _pkPeakHtml(){
+  var R=RitualOpen, pl=R.peakLine(S);
+  if(!pl) return '<span class="op-star" aria-hidden="true">★</span> '+esc(R.PEAK_NONE);
+  return '<span class="op-star" aria-hidden="true">★</span> 가장 벅찬 순간은 <b>'+esc(pl.n)+'</b>'+pl.be+'.'+(pl.tail?' '+esc(pl.tail):'');   /* [D3] */
+}
+function _pkPanel(){
+  var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
+  if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
+    +'<p class="pk-fp-empty">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p><p class="pk-tm">입장 · 닫는 인사 · 식전 영상은 늘 있어요.</p></div></section>';
+  var photo='단체 사진 '+_nb(sp.photo), prep=R.prepLine(S);
+  var ord='<span class="pk-pre">식전 영상 →</span> '+R.orderParts(S).map(function(o){ return esc(o.n)+(o.peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':''); }).join(' › ');   /* [F1] */
+  return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH">'
+    +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3><span class="pk-fp-body mo">본식 <strong>'+esc(_nb(sp.body))+'</strong></span><span class="pk-fp-cap pco">선이 높을수록 마음이 벅차오르는 순간이에요</span></div>'
+    +'<p class="pk-fp-cap mo">선이 높을수록 마음이 벅차오르는 순간이에요</p>'
+    +'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div></div>'
+    +'<div class="pk-side">'
+    +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
+    +'<p class="pk-peak">'+_pkPeakHtml()+'</p>'
+    +'<p class="pk-tm mo">'+ord+'</p>'
+    +_noteHtml()
+    +'<p class="pk-tm mo">'+esc(photo)+' · 본식과 합쳐 늘 '+R.DAYMIN+'분이에요'+(prep?'<br>'+esc(prep):'')+'</p>'   /* [D4] 휴대폰 한 줄 */
+    +(prep?'<p class="pk-tm pco">'+esc(prep)+'</p>':'')
+    +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 보고 듣기</button>'
+    +'</div></section>';
+}
+function _pkTile(k){
+  var R=RitualOpen, c=R.CARDS[k], always=!!R.ALWAYS[k]||k==='_close', on=always||R.onOf(S,k), opt=(k==='free'), v=R.firstVideo(k,S);
+  var media=v?('<img src="'+esc(v.small||v.poster)+'" alt="" loading="lazy" decoding="async">'):_pkArt(k);   /* [TILE_PICK] 칸에서는 영상이 저절로 돌지 않는다 — 첫 장면 사진만 */
+  return '<div class="pk-tile'+(always?' fix':(on?' on':''))+(opt?' opt':'')+'">'
+    +'<button type="button" class="pk-open" data-fk="pto:'+k+'" onclick="opPv(\''+k+'\')" aria-label="'+esc(c.n)+' · 장면과 대표 나레이션 미리 보기">'   /* [D7] */
+    +'<span class="pk-media">'+media+'<span class="pk-play" aria-hidden="true">'+ICO_PLAY+'</span>'+(opt?'<span class="pk-opt">있을 때만</span>':'')+(v?'<span class="pk-ai">AI</span>':'')+'</span>'
+    +'<span class="pk-txt"><span class="pk-n">'+esc(c.n)+'</span><span class="pk-s">'+esc(R.tileOf(k,S))+'</span></span></button>'
+    +(always?'<span class="pk-fix">늘 있어요</span>'
+      :'<button type="button" class="pk-sel'+(on?' on':'')+'" data-fk="opt:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(c.n)+' 담기" onclick="opTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>')
+    +'</div>';
+}
+/* 그림 채우기 — 칸을 그린 뒤 실제 폭으로. 숨은 쪽(폭 0)은 건너뛴다 */
+function _pickPaint(){
+  var R=RitualOpen, wide=window.matchMedia&&matchMedia('(min-width:1000px)').matches;
+  document.querySelectorAll('.pk [data-fg]').forEach(function(el){
+    var key=el.getAttribute('data-fg'), w=Math.round(el.getBoundingClientRect().width); if(w<40) return;
+    if(key==='panel'){ var sg=R.flowSegs(S); el.innerHTML=R.flowSVG(sg,w,{names:wide,label:'우리 예식의 감동 흐름'}); _pkTips(el,sg); }
+    else if(key.indexOf('ex:')===0){ var ex=R.exampleOf(key.slice(3)); el.innerHTML=R.flowSVG(R.flowSegs(R.applyExample({},ex.k)),w,{mini:true,h:wide?44:40,label:ex.nm+' 예시 흐름'}); }
+  });
+  _pkSlim();
+}
+function _pkTips(host,sg){
+  var wrap=host.parentNode, tip=wrap&&wrap.querySelector('.pk-tip'), R=RitualOpen, p=R.flowPeak(sg); if(!tip) return;
+  host.querySelectorAll('.flow-hit').forEach(function(r){
+    function show(){ var s=sg[+r.getAttribute('data-i')]; if(!s) return; var bb=r.getBoundingClientRect(), pb=wrap.getBoundingClientRect();
+      tip.textContent=R.CARDS[s.k].n+(s===p?' · 가장 벅찬 순간':''); tip.style.left=Math.max(40,Math.min(pb.width-40,bb.left-pb.left+bb.width/2))+'px'; tip.classList.add('on'); }
+    function hide(){ tip.classList.remove('on'); }
+    r.addEventListener('pointerenter',show); r.addEventListener('focus',show); r.addEventListener('click',show);
+    r.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); show(); } });
+    r.addEventListener('pointerleave',hide); r.addEventListener('blur',hide);
+  });
+}
+/* PC 얇은 띠 — 흐름 띠가 화면 위로 나가면 위에 붙는다 [BAR_SUM] · ★좁은 화면에서는 늘 숨긴다(띠가 숨은 것을 «화면 위로 나갔다»로 읽지 않게 · 시안에서 난 버그) */
+function _pkSlim(){
+  var el=document.getElementById('pkSlim'), R=RitualOpen, st=STEPS[idx];
+  var on=isOpen()&&st&&st.k==='pick'&&!editReturn&&window.matchMedia&&matchMedia('(min-width:1000px)').matches;
+  if(!on){ if(el) el.classList.remove('on'); return; }
+  if(!el){ el=document.createElement('div'); el.id='pkSlim'; el.className='pk-slim'; el.setAttribute('role','region'); el.setAttribute('aria-label','담은 순간 요약'); document.body.appendChild(el); }
+  var n=R.picked(S).length, sp=R.span(S), pk=R.peakOf(S);
+  el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">담은 순간 <b>'+n+'</b> · 본식 <b>'+esc(_nb(sp.body))+'</b>'+(pk?' · ★ '+esc(R.CARDS[pk].n):'')+'</span>')
+    :'<span class="t">예시로 시작하거나 아래에서 담아 보세요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 보고 듣기</button>';
+  _pkSlimCheck();
+}
+function _pkSlimCheck(){
+  var el=document.getElementById('pkSlim'); if(!el) return;
+  var band=document.getElementById('pkFlow'), st=STEPS[idx];
+  var wide=window.matchMedia&&matchMedia('(min-width:1000px)').matches;
+  var show=!!(wide&&band&&band.offsetParent!==null&&st&&st.k==='pick'&&band.getBoundingClientRect().bottom<0);
+  el.classList.toggle('on',show);
+  if(show) el.removeAttribute('inert'); else el.setAttribute('inert','');
+}
+window.addEventListener('scroll',function(){ if(document.getElementById('pkSlim')) _pkSlimCheck(); },{passive:true});
+var _pkRz=null; window.addEventListener('resize',function(){ clearTimeout(_pkRz); _pkRz=setTimeout(function(){ var st=STEPS[idx]; if(st&&st.k==='pick'&&isOpen()) _pickPaint(); else _pkSlim(); },120); });
 var _tprev=''; var _foldOpen={};
 /* (구)MCVIS 장면 보유 맵 삭제 — 전 카드 확장으로 바뀌며(2026-07-17) 소비처 소멸. 장면 유무는 clip(x)||diag(x) 폴백이 직접 처리 */
 window.foldTgl=function(k){ _foldOpen[k]=!_foldOpen[k]; render(); };
