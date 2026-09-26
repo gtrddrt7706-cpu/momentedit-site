@@ -7748,7 +7748,7 @@ function prodConfirmHtml(p, inv){
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
     if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
   else if(_rDone){ rv='완료'; }
-  L+=line('식순', rv);
+  // 식순 줄은 아래 [CF_ORDER_0926] 자리에서 붙인다(값만 여기서 만든다)
   var dv='';
   if(_dDone && dd.dining_on==='N'){ dv='안내 없이 진행'; }
   else if(_dDone){
@@ -7764,7 +7764,7 @@ function prodConfirmHtml(p, inv){
       if(_rvT||_rvN) dv+='<br><span class="cc-mini">예약 · '+escapeHtml((_rvT+(_rvT&&_rvN?' · ':'')+_rvN))+'</span>';
     } else dv='장소 미정 · 상담에서 디렉터와 함께 정해요';
   }
-  L+=line('애프터 웨딩', dv);
+  // 애프터 웨딩 줄도 아래 [CF_ORDER_0926] 자리에서 붙인다
   /* ★★[SEAT_TRUTH_ONE 2026-08-16 사용자 제보 "좌석 배치완료했는데도 불구하고 좌석 완료하라고 되어있네"]
      같은 화면이 한 항목을 두 가지로 말하고 있었다 — 행은 「좌석 · 음료 ✓ 완료」인데
      확인서 줄은 「미완료」였다. 근거가 다르기 때문이다:
@@ -7824,6 +7824,11 @@ function prodConfirmHtml(p, inv){
   /* [SEAT_NOTE] 두 분이 적은 「미리 알려주실 것」도 확인서에 — 적어 두고 잊는 것을 막고,
      확인서를 함께 보는 디렉터·다이닝 팀이 같은 화면에서 본다. 비어 있으면 줄을 만들지 않는다. */
   if(String(fd.allergy||'').trim()) L+=line('미리 알려주실 것', escapeHtml(String(fd.allergy)));   // ★적은 것이 있을 때만 줄을 만든다 — line() 은 빈 값을 '미완료'로 그리는데, 이 칸은 안 적어도 되는 것이라 '미완료'는 거짓 경고가 된다
+  /* [CF_ORDER_0926 2026-09-26 사장님 지시 «청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순»] 확인서도 «예식 준비» 카드와 같은 순서로 읽힌다.
+     카드만 바꾸면 채울 때와 훑어볼 때 순서가 달라진다. 값(rv · dv)은 위에서 만든 그대로이고 줄을 붙이는 자리만 옮겼다.
+     확정 기록(snap)도 이 순서로 남는다 — 서버는 {항목, 내용}을 기록만 하고 순서는 보지 않는다. */
+  L+=line('애프터 웨딩', dv);
+  L+=line('식순', rv);
   // 단체 사진 — 본식 뒤 단체 기록 구도(전체 하객 외 추가분이 있을 때만 표기 · 2026-07-19)
   var _phL=(gi.photo&&gi.photo.length)?gi.photo:null, _phFx=(gi.photoFx&&gi.photoFx.length)?gi.photoFx:null;
   /* [PHOTO_WISH] 요청은 확인서에서도 **적은 그대로** 보여야 한다 — 이름 목록이 아니라 문장이라
