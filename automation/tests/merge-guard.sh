@@ -10139,6 +10139,7 @@ esac
 #   ★★검색 키워드는 손대지 않았다 — meta description · schema audienceType · 숨은 h1(5701) ·
 #     숨은 h2(5702) · 탭 라벨의 「양가 직계가족」은 그대로. 카피가 아니라 검색 자산이다.
 #     같이 바꾸면 SEO 가 흔들리고 원인을 못 가른다. 아래 chk 가 그 다섯을 지킨다.
+#     ★[GUESTS_OPEN 2026-09-26] 그 고정은 걷었다 — 바로 아래 GUESTS_OPEN 블록이 까닭과 남긴 닻 둘을 적는다.
 #   실측: 320·360·390·430·1280 다섯 폭 전부 1줄 · 320px 여유 38px(종전 12px) · 문서 높이 변화 0.
 chk 'HERO_SUB_OPEN' index.html 1
 chk '양가 가족과 가까운 분들, 140분의 웨딩' index.html 1
@@ -10146,8 +10147,30 @@ chk '양가 가족과 가까운 분들, 140분의 웨딩' index.html 1
 #   바꾼 이유를 적으려면 옛 문장을 인용해야 하는데, 그러면 그 인용이 곧 위반이 된다.
 #   → 마크업만 겨냥한다. 주석은 남고 «살아 있는 문장»만 지켜진다.
 nochk 'hero-tease-sub">양가 가족만' index.html            # 옛 문장으로 되돌리지 말 것(주석 인용은 허용)
-chk '양가 직계가족' index.html 5                         # 검색 자산 — meta·schema·숨은 h1/h2·FAQ
-chk '양가 직계가족' inquiry.html 1
+
+# ★★[GUESTS_OPEN 2026-09-26 사장님 지시 「직계가족으로 한정하게 되면 친구들끼리 하는 웨딩에는
+#   적합하지 않나? 라는 고객을 놓칠 우려 … 가까운 이들만, 직계가족 한정이라는 느낌을 주는 부분들 전부 찾아서 개선」]
+#   위 HERO_SUB_OPEN 이 «검색 자산»이라며 고정하던 두 줄(「양가 직계가족」 index 5곳 이상 · inquiry 1곳 이상)을 걷었다.
+#   ★그 고정이 옛말을 지키고 있었다 — meta description · FAQ · schema 는 검색 결과와 화면에 «그대로 보이는 글»이다.
+#     그 사이 17일 동안 홈 「30 Guests」 카드는 「직계가족 30명」, 챗봇은 「친구도 초대할 수 있나요?」에
+#     「직계가족 중심의 자리를 제안드리지만」으로 답했다. 규칙(30명 안에서 구성은 두 분이 정한다)은 원래 열려 있었다.
+#   ★검색 닻은 둘만 남긴다 — 숨은 h2 「양가 직계가족 결혼식」(유형 이름표)과 meta keywords 의 「직계가족결혼식」.
+#   ★고객 면 전체를 «문장 모양»으로 훑는 검사는 guests-open.mjs 다(자리 목록이 아니다 — 한 곳만 고치면 나머지가 옛말을 한다).
+#     법률 문장 「본인·직계가족의 사망」 · 식순 「가족만」(링 워밍) · 질문 라벨은 일부러 뺀다(그 파일 머리 주석).
+#   ★깨 보고 믿었다 — 고치기 전 저장소에 돌리니 48건 빨강(종료 1), 고친 뒤 0건 · 열린 문장 4곳 생존(종료 0).
+#     처음 판은 주석을 너무 넓게 걷어 api/advisor.js 본문 220줄을 지우고 52행을 놓쳤다 — 그 파일 strip 주석.
+if command -v node >/dev/null 2>&1; then
+  _goOut=$(node scripts/audit/guests-open.mjs 2>&1) \
+    || { echo 'FAIL guests-open: 하객을 가족으로 좁히는 문장이 고객 면에 있다 — node scripts/audit/guests-open.mjs'
+         printf '%s\n' "$_goOut" | sed 's/^/    | /'; fail=1; }
+fi
+chk 'GUESTS_OPEN' index.html 2                           # 카드 위 근거 주석 + 히어로 SEO 주석의 종료 표시
+chk 'GUESTS_OPEN' scripts/audit/guests-open.mjs 1
+chk 'GUESTS_OPEN' api/_kb.js 1                           # AI 상담 「하객 구성」 줄
+chk 'GUESTS_OPEN' .claude/skills/momentedit-design/SKILL.md 1
+chk 'GUESTS_OPEN' CLAUDE.md 1
+chk '양가 직계가족 결혼식</h2>' index.html 1              # 남긴 검색 닻 — 숨은 h2(유형 이름표) 한 곳
+chk '직계가족결혼식' inquiry.html 1                        # 남긴 검색 닻 — meta keywords 칸
 
 # ★[HERO_SUB_TABLE 2026-09-09] 히어로 부제는 «셋 중 둘»이다 — 가족 · 열림 · 320px 한 줄.
 #   E 는 「프라이빗」을 내주고 셋을 다 가져왔다. 「프라이빗을 다시 넣자」가 오면 그 표가 답이다.
