@@ -315,8 +315,16 @@ function _ltAppendModeration(d) {
 }
 
 function _ltSendToRecipients(couple, guestName, relation, message, recipient) {
-  var targets = [];
-  var add = function (email, name, role) { if (email && email.indexOf('@') !== -1) targets.push({ email: email, name: name, role: role }); };
+  var targets = [], seen = {};
+  /* [LETTER_ONE_ADDR 2026-09-26 통합 점검 L4] «두 분께» 편지가 같은 주소로 같은 메일 두 통 가던 것을 한 통으로.
+     청첩장 발행(85_invitation _invCouplesFields)이 groomEmail·brideEmail 을 둘 다 가입 이메일 하나로 채워,
+     거의 모든 «두 분께» 편지가 같은 받은편지함에 두 번 떨어졌다. 같은 주소(대소문자·앞뒤 공백 무시)는 한 번만 보낸다.
+     ★받는 주소·제목·본문·반환(보낸 통수)의 뜻은 그대로다 — 주소가 다르면 종전처럼 각각 간다.
+     ★«신부님께»가 가입 이메일로 가는 것(신랑 주소일 수 있다)은 이것으로 안 풀린다 — 사장님 결정 대기(B안 · mypage [CI_NO_LETTER_PROMISE]). */
+  var add = function (email, name, role) {
+    var k = String(email || '').trim().toLowerCase();
+    if (email && email.indexOf('@') !== -1 && !seen[k]) { seen[k] = 1; targets.push({ email: email, name: name, role: role }); }
+  };
   if (recipient === 'groom') add(couple.groomEmail, couple.groomName, 'groom');
   else if (recipient === 'bride') add(couple.brideEmail, couple.brideName, 'bride');
   else { add(couple.groomEmail, couple.groomName, 'groom'); add(couple.brideEmail, couple.brideName, 'bride'); }

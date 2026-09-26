@@ -33,6 +33,11 @@ const gc = slice(my, 'function wireGuideInfoEditor(box, gi){', '// 공개 방식
 t(/photoFriend: gi\.photoFriend \? String\(gi\.photoFriend\) : undefined/.test(gc), '좌석 화면 저장 — 친구 부탁을 그대로 실어 보낸다(트랙 통째 교체로 지워지지 않게)');
 const cf = slice(my, 'function prodConfirmHtml(', '\nfunction ');
 t(/var _phF=String\(gi\.photoFriend\|\|''\)\.trim\(\)/.test(cf) && /\|\|_phF\)\{ var _pv=''/.test(cf) && /친구들과 자유롭게 · /.test(cf), '예식 확인서 — 친구 부탁이 «가족 · 친구 스냅» 줄에 붙는다(부탁만 있어도 줄이 선다)');
+// [PHOTO_FRIEND_ROW] 2026-09-26 통합 점검 L2 — 예식 준비 행도 같은 판정: 부탁만 적은 부부가 확인서엔 적히는데 행은 «구도 고르기»(✓ 없음)였다
+const pd = slice(my, 'function productionDashHtml(', '\nfunction ');
+t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(_phB2\|\|_fxB2\|\|_frB2\)/.test(pd)
+  && /_fr=!!String\(_gp\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /\(_fr\?'완료 · 수정':'구도 고르기'\)/.test(pd) && /\(_ph\.length\|\|_wc\|\|_fr\)\?'완료':''/.test(pd),
+  '예식 준비 행 — 친구 부탁만 적어도 ✓ · 「완료 · 수정」(확인서와 같은 판정 · 버튼 122px 레일 안)');
 
 // [PHOTO_FLOW_LINE] 첫눈에 뼈대 · [PHOTO_FRIEND_EX] 누르면 담기는 예시(칸은 하나 그대로)
 t(/var _flw=\[\['다 함께 한 장',false\],\['가족 구도',true\],\['친구들과 자유롭게',!!PHOTOFLOW\.friendOk\]\];/.test(rp) && rp.indexOf('class="snp-flow"') > -1, '흐름 줄 — 다 함께 한 장 › 가족 구도 › 친구들과 자유롭게(친구 칸은 서버가 알 때만 칠한다)');
