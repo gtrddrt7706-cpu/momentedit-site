@@ -432,7 +432,7 @@
         var w = chipOf('toast', S), wine = (w === 'cake') ? 'none' : chipOf('wine', S), out = [];
         if (wine === 'family') out.push(['parents', '양가에서 와인 한 병씩', 'ask', 0]);
         if (wine === 'mix') out.push(['couple', '색이 다른 와인 두 병(또는 음료 둘)', 'bring', 0]);
-        if (w !== 'cake') out.push(['couple', '자리마다 축배 음료 알려 주기 · 마이페이지 «좌석 · 음료»에서', 'send', 7]);   // [P10 코워크 회신3] «정하기» → «알려 주기»(같은 갈래 «건넬지 알려 주기»와 같은 꼴)
+        if (w !== 'cake') out.push(['couple', '자리마다 축배 음료 알려 주기 · 마이페이지 «좌석' + NB + '·' + NB + '음료»에서', 'send', 7]);   // [P10 코워크 회신3] «정하기» → «알려 주기»(같은 갈래 «건넬지 알려 주기»와 같은 꼴)
         return out.concat(goodsPrep('toast', S));
       }
     }
