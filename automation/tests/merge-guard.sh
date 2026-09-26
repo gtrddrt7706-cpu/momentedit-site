@@ -12276,3 +12276,109 @@ chk 'FIT_EXTRA_APART' mypage.html 3
 chk '은 디렉터가 따로 안내드려요.</div>' mypage.html 1
 chk "+amt+_fxNote+acct" mypage.html 1
 chk '       + _fxNote   // \[FIT_EXTRA_APART\]' mypage.html 1
+# ── 묶음 G4
+
+# ── 묶음 G4 · 2026-09-26 병합 뒤 통합 점검(8갈래 실렌더 + 반박 검증) — 예식 준비 행 · 청첩장 위저드 · 예식 확인서 · 하객 안내 패널 ──
+# [PHOTO_FRIEND_ROW] 가족 · 친구 스냅 행 — 친구 부탁(photoFriend)만 적은 판도 ✓ · 「완료 · 수정」(확인서 _phF 와 같은 판정 · 122px 레일 안) · photo-friend.mjs 가 행 판정까지 잰다
+chk 'PHOTO_FRIEND_ROW' mypage.html 2
+chk "_frB2=!!String(_gpB2.photoFriend||'').trim()" mypage.html 1
+chk "done: !!(_phB2||_fxB2||_frB2)" mypage.html 1
+chk "(_fr?'완료 · 수정':'구도 고르기')" mypage.html 1
+chk 'PHOTO_FRIEND_ROW' scripts/audit/photo-friend.mjs 1
+# [DN_ROW_TRUTH] 애프터 웨딩 «완료»는 정한 것이 있을 때만(안 함 N · 담은 곳 · 고른 곳 · 옛 자리표시) — 「역시 만들래요」 뒤 빈손으로 나가도 서버 딱지가 «완료»로 남는다 · 행 · 확인서 · 내 완성물이 한 판정
+chk 'function _dnHas(dd)' mypage.html 1
+chk "var _dDone=(t.dining||'')==='완료' && _dnHas(dd);" mypage.html 1
+chk "_dDone=(t.dining||'')==='완료'&&_dnHas(dd)" mypage.html 1
+chk "(t.dining||'')==='완료' && _dnHas(p.diningDraft)" mypage.html 1
+nochk "var _dDone=(t.dining||'')==='완료';" mypage.html 0
+# [INV_DONE_LINK] 청첩장 완성 화면 링크 문장 — 방금 반영한 결과(_lkChg · 반영 전에 잰다)대로: 주소 바뀜 · 그대로 · 앞으로의 규칙(QR 만 쓰는 구성은 QR) · 조건 없는 «같은 링크로 자동 갱신 · 새 링크를 다시 보낼 필요 없어요» 금지
+chk 'INV_DONE_LINK' mypage.html 3
+chk 'INVFLOW._lkChg=' mypage.html 1
+chk 'var _lkC=INVFLOW._lkChg' mypage.html 1
+chk '<span class="ln-bal">위 새 링크를 다시 보내 주세요.</span>' mypage.html 1
+chk '<span class="ln-bal">보내신 링크는 그대로예요.</span>' mypage.html 1
+chk '글이나 계좌만 고치면 링크는 그대로이고, 디자인이나 이름을 바꾸면 새 링크가 생겨요.' mypage.html 1
+chk '</b>에서 다시 손볼 수 있어요.</span>' mypage.html 1
+chk '이름을 바꾸면 새 QR이 생겨요.' mypage.html 1
+nochk '같은 링크로 자동 갱신</b>돼요' mypage.html 0
+nochk '<span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span>' mypage.html 0
+# [CF_SELF_NOQR] 예식 확인서 청첩장 줄 — 살아 있는 링크 없는 개인 제작(QR 아니요)은 «개인 제작 · 직접 준비»(«만듦 · 미발행» · 옛 발행 흔적의 «발행됨» 금지) · 확정 기록에도 같은 글
+chk 'CF_SELF_NOQR' mypage.html 1
+chk "_im==='self' && _ivd.selfQR!==true && !_invLiveUrls(_ivd)) _ivv='개인 제작&nbsp;·&nbsp;직접 준비'" mypage.html 1
+# [INV_LINK_LIVE] 행 「발행됨 · 수정」과 하객 안내 설명이 «발행한 링크가 지금도 살아 있나» 한 규칙 — 초안에 invitationUrls 키가 있으면 초안, 없으면 서버 발행 링크(startInvFlow 폴백과 같은 뜻)
+chk 'function _invLinkAlive(inv, k)' mypage.html 1
+chk "(inv.published && !_iSkip && _invLinkAlive(inv)) ? '발행됨 · 수정' : '다시 정하기'" mypage.html 1
+chk "(_invLinkAlive(inv,'family')" mypage.html 1
+nochk "(!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)" mypage.html 0
+# [INV_DONE_SAVE_MSG] 발행 직후 초안 저장이 실패하면 알림은 지금 화면에 있는 손잡이를 가리킨다 — 저장 손잡이 없는 완성 화면이면 「완료」(«다시 저장을 눌러 주세요» 금지) · 「완료」 중 실패는 종전 말 + 재시도 판
+chk 'function _invSaveFailMsg(err)' mypage.html 1
+chk '_miniToast(_invSaveFailMsg(' mypage.html 2
+chk '를 누르면 한 번 더 저장해요.' mypage.html 1
+# [INV_STEP2_BASE] 청첩장 1/4 → 2/4 — 그린 뒤 모양을 저장 성공 회신 때 기준선으로(아무것도 안 만지고 나가면 판 없음 · [WIZ_EXIT_ONE]) · 회신 전 입력은 여전히 «바뀜»
+chk 'var _sv=saveInvDraft();' mypage.html 1
+chk 'var _b2=_wizJson(WIZ_ADAPT.inv.data());' mypage.html 1
+chk 'WIZ_BASE.inv=_b2;' mypage.html 1
+# [INV_TAG_TOTAL] 예식 준비 청첩장 행 진행 태그 = 위저드 머리와 같은 전체 단계 수(청첩장 없이 · 개인 제작은 «/2» · 확인 단계는 2)
+chk "var _ivT=_invTotalSteps(inv.draft); _ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT;" mypage.html 1
+nochk "if(_ivN) _ivStepTag=_ivN+'/4';" mypage.html 0
+# [INV_SEL_SHORT] 청첩장 2/4 select — 값(value)은 그대로 · 보이는 이름만 «직접 입력» · «호칭 생략»(561px 이상 124px 칸에서 «기타(직접입» · «호칭 생략 (»로 잘리던 것)
+chk "(x===ETC?'직접 입력':(x===OMIT?'호칭 생략':x))" mypage.html 1
+chk "return '<option value=\"'+x+'\"'" mypage.html 1
+nochk "return '<option'+(sv===x?' selected':'')+'>'+x+'</option>';" mypage.html 0
+# [INV_OPT_KB] 청첩장 1/4 초대 방식 카드 = 키보드로 고르는 버튼(role · tabindex · aria-pressed · Enter/Space · _kbChip) · 고른 뒤 초점 복귀 · 키보드 초점 링
+chk "data-m=\"'+v+'\" role=\"button\" tabindex=\"0\" aria-pressed=\"'+(m===v)+'\"" mypage.html 1
+chk "_kbChip(el, function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m');" mypage.html 1
+chk '.inv-opt\[data-m\]:focus-visible{outline:2px solid var(--gold-deep)' mypage.html 1
+nochk "<label class=\"inv-opt'+(m===v?' sel':'')+'\" data-m=" mypage.html 0
+# [INV_NAME_ARIA] 청첩장 1/4 이름 칸 이름(낭독기) — 신랑/신부 · 한글/영문 · placeholder 는 예시 그대로
+chk 'aria-label="신랑 한글 이름"' mypage.html 1
+chk 'aria-label="신부 영문 이름"' mypage.html 1
+# [INV_YN_PRESSED] 청첩장 네/아니요(1/4 QR · 2/4 · 3/4 온라인 디자인) — 묶음 이름(role=group · aria-label) + 버튼 aria-pressed
+chk 'INV_YN_PRESSED' mypage.html 3
+chk "aria-pressed=\"'+(val==='Y')+'\"" mypage.html 1
+chk "aria-pressed=\"'+(d.selfQR===true)+'\"" mypage.html 1
+chk "aria-pressed=\"'+(d._onlineSame!=='N')+'\"" mypage.html 1
+# [INV_GATE_GAP] 청첩장 2/4 «계좌를 어디에 보여드릴까요?» 위 간격 = 다른 질문과 같은 14px(.inv-gate · 인라인 6px 금지)
+chk "return '<div class=\"inv-gate\"><div class=\"inv-gate-q\">계좌를 어디에 보여드릴까요?" mypage.html 1
+nochk '<div class="inv-gate" style="margin-top:6px">' mypage.html 0
+# [INV_GREET_LABEL] 청첩장 3/4 인사말 칸 — 보이는 이름표(.inv-fields>.pf-l) + 같은 aria-label · placeholder 는 예시 · 도움말만 · 디자인 묶음 이름(role=group)
+chk "f+=gl('인사말 제목')+" mypage.html 1
+chk 'aria-label="인사말 본문"' mypage.html 1
+chk "gl('신랑 한마디')" mypage.html 1
+nochk 'placeholder="인사말 큰 제목 (예: Save the Day)"' mypage.html 0
+# [INV_AMP_TEXT] 청첩장 완성 화면 이름 사이 «&» = 글자 골드(--gold-deep · 흰 바탕 5.7:1) — 장식 --gold(2.65:1) 금지
+chk '<span style="color:var(--gold-deep,#7A5F37)">&amp;</span>' mypage.html 1
+nochk '<span style="color:var(--gold,#B89A75)">&amp;</span>' mypage.html 0
+# [CF_DATE_NBSP] 예식 확인서 예식 일시 — 연도 뒤에서만 갈린다(«3월 26일 · 오후 1:40» NBSP · 320 · 340 «3월 / 26일» 갈림) · 확정 기록 글자는 같다(\s+ 로 접힌다)
+chk 'CF_DATE_NBSP' mypage.html 1
+# [DOT_SPLIT_0926] 새 안내문 · 청첩장 완성 화면 · 하객 안내 패널 · 확인서 확정 안내의 «·»가 줄 끝 · 줄 머리에 매달리지 않게([CHECKS_NO_DANGLE]) — 절은 마침표 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060
+chk 'DOT_SPLIT_0926' mypage.html 13
+chk "var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b>" mypage.html 1
+chk '<span class="ln-bal">비어 있는 부분은 하객 화면에 나오지 않아요.</span>' mypage.html 1
+chk '<span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span>' mypage.html 1
+nochk '링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>' mypage.html 0
+nochk '모바일 참석 QR·링크를 드려요' mypage.html 0
+nochk '하객 화면에 나오지 않아요 · 애프터 웨딩·좌석 배치를' mypage.html 0
+nochk "나오지 않아요'+(a.length?(' · '" mypage.html 0
+nochk '함께 기록돼요 · 저희는' mypage.html 0
+nochk '<b>이름·예식 날짜·계좌·혼주 호칭</b>' mypage.html 0
+nochk '구성이에요 · 저희가 만들 것은 없어요' mypage.html 0
+nochk '이 QR을 넣으세요 · ' mypage.html 0
+nochk '옮겨 적으세요 · 아래 QR과' mypage.html 0
+nochk '만들어져요 · 준비된 내용만' mypage.html 0
+nochk '직접 전하세요 · 이 청첩장 안에' mypage.html 0
+nochk 'QR(모바일 참석·하객 안내)' mypage.html 0
+# [COND_PAREN_GLUE] (G4 검토) GUIDE_MAKE_COND — 점을 붙인 뒤 줄이 괄호 앞에서 갈려 «애프터 웨딩 / (식사)·좌석…»(하객 안내 패널 320~330) · «웨딩(» 사이 U+2060 · «애프터 웨딩» NBSP
+chk 'COND_PAREN_GLUE' mypage.html 1
+nochk "var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)" mypage.html 0
+# [INV_DONE_EID] (G4 검토) 완성 화면 «보내신 링크는 그대로예요»는 받은 결과의 eventId 가 반영 전과 같을 때만 — 예측(_invLinkChange)은 예식 날짜를 모른다(eventId 에 MMDD)
+chk 'INV_DONE_EID' mypage.html 2
+chk "var _eid0=String(_d0.eventId||(INVFLOW.pub&&INVFLOW.pub.eventId)||'');" mypage.html 1
+chk "if(r.urls && INVFLOW._lkChg==='' && _eid0 && r.eventId && String(r.eventId)!==_eid0) INVFLOW._lkChg='name';" mypage.html 1
+# [FOLD_JOSA_GLUE] (G4 검토) 완성 화면 «하객 안내만 따로 보내기» 둘째 줄 — balance 로 감싼 뒤 320~345 «…웨딩(식사) / 을 완료하면»(조사 줄 머리) · «자리 / 찾기» 갈림 → «웨딩(식사)을» U+2060 · «애프터 웨딩» · «자리 찾기» · «식사 안내» NBSP
+chk 'FOLD_JOSA_GLUE' mypage.html 1
+chk "애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b>" mypage.html 1
+nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 0
+# [CF_DATE_NBSP 보정] 확인서 예식 일시는 fmtWedKoT(내 내역 · 임시 고정 · 결제 카드와 같은 모양) — NBSP 한 덩어리는 320~325 에서 긴 날짜가 칸 밖으로 넘쳤다(180조합 중 84 → 0)
+chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
+nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
