@@ -691,7 +691,7 @@ function photoShareHtml(url){
 //     (기본을 바꾸는 것은 제품 결정이라 코드가 아니라 사용자가 정한다 — 2026-07-19 지시로 지금 값이 정해졌다.)
 /* [NO_WAITROOM 2026-09-25 코워크 5-6] 하객이 먼저 찾는 것 — 신부 대기실. 없다는 것을 자리 안내 곁에 한 줄로 알린다.
    ★견본 글(두 분이 하객에게 보내는 글)은 저장소에 따로 없어 그 글이 하는 일을 여기서 대신한다(구현 보고 2). */
-var NO_WAITROOM='<div class="privacy">신부 대기실은 따로 없어요. 예식 뒤 두 분이 자리마다 찾아가 인사드려요.</div>';
+var NO_WAITROOM='<div class="privacy">신부 대기실은 따로 없어요. 예식이 끝나면 두 분이 배웅하며 한 분 한 분께 인사드려요.</div>';
 var SEAT=null, SEAT_STATE='loading';   // loading | ok | fail — 로딩 전 조회·실패를 피드백(죽은 입력 방지)
 function seatFindHtml(full){
   // 전체 공개 = 검색 없이 성함이 그대로 보이는 배치도(종이 좌석표처럼) · '내 자리만' = 검색 방식(명단 비수신)

@@ -46,7 +46,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
 //     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
-const N_FILES = 108;   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow 가 맨 끝에 붙었다
+const N_FILES = 109;   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
   const bad3 = C.FILES.filter((f, i) => C.noOf(f) !== String(i + 1).padStart(2, '0'));
@@ -108,7 +108,10 @@ else ok(`FILES ${N_FILES}개 · 중복 없음`);
      11 welcome-in  : 입장 뒤 첫 모습(바라보기 6초 · 맞절 8초) — 종전엔 52 뒤 2초 만에 저절로 나갔다(4-1)
      27 letter-parent: 선언 뒤 박수 — 종전엔 8초 고정 대기 뒤 저절로(3-1)
      26 narr-close   : 끝 선언 · 목례 · 마지막 박수 뒤(4-2) · 그 앞 108(끝 선언)은 56 뒤 체인 */
-const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '27', '20', '56', '26', '44', '60', '61', '63', '65', '47'];
+/* ★★[GROUP_PHOTO · NO_TABLE_ROUND 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-5] 27큐 → 24큐 · 수동 17 → 16.
+     빠진 셋: 61 round-open(테이블 인사) · 63 final-warn · 64 final-call(마지막 한 장 — 첫 전체 사진에 합침).
+     45 farewell 은 체인 → 수동 — 앞 65(자유 사진)에 사람 구간이 생겨 디렉터가 «자유 사진이 끝나면» 누른다. */
+const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '27', '20', '56', '26', '44', '60', '65', '45', '47'];
 //                  guest-1 entry-A entry-out vow-in vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
@@ -116,14 +119,14 @@ const A3_CLOCK = ['02', '03', '04'];
    ★[TOAST_NONE] 87(narr-toast-none)이 체인으로 들어왔다 — 편지 뒤에 이어 붙어 축배를 연다.
      사람이 누를 자리가 아니다. 편지가 끝나면 바로 「오늘은 축사를 따로 두지 않았습니다」가 흐르고
      이어서 축배가 시작된다. 그 사이에 누름을 두면 «왜 멈췄지» 하는 빈 자리가 생긴다. */
-const A3_CHAIN = ['15', '30', '87', '40', '108', '64', '45'];
+const A3_CHAIN = ['15', '30', '87', '40', '108'];
 //                 welcome-in ring-in declare-1-solemn letter-parent toast-none toast close final-call farewell
 {
   const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 27) no(`§3-A: 27큐가 아니다 (${r.cues.length})`);
+  if (r.cues.length !== 24) no(`§3-A: 24큐가 아니다 (${r.cues.length})`);
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);

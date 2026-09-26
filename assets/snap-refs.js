@@ -18,7 +18,7 @@
     prep: 5,                          // 입장 준비
     move: 5,                          // 캔들존 → 화이트존 이동(하객과 마주치지 않게 캔들존을 비우는 시간)
     zones: [
-      { key: 'candle', en: 'Ambient Candle', ko: '캔들존', min: 20, mood: '따뜻한 조도 · 눈빛',
+      { key: 'candle', en: 'Ambient Candle', ko: '캔들존', min: 25,   /* [DAY_60 2026-09-26] 20 → 25 */ mood: '따뜻한 조도 · 눈빛',
         photo: '/assets/home/zone-candle.webp', photoJpg: '/assets/home/zone-candle.jpg',
         base: [
           { id: 'c01', name: '마주 보고 서기', frame: '전신' },
@@ -36,7 +36,7 @@
           { id: 'c11', name: '손잡은 뒷모습', frame: '전신 · 뒷모습' },
           { id: 'c12', name: '눈 감고 웃는 순간', frame: '상반신 · 캔디드' }
         ] },
-      { key: 'white', en: 'Editorial White', ko: '화이트존', min: 20, mood: '여백 · 선',
+      { key: 'white', en: 'Editorial White', ko: '화이트존', min: 25,   /* [DAY_60 2026-09-26] 20 → 25 */ mood: '여백 · 선',
         photo: '/assets/home/zone-white.webp', photoJpg: '/assets/home/zone-white.jpg',
         base: [
           { id: 'w01', name: '여백 있는 전신', frame: '전신 · 정면' },

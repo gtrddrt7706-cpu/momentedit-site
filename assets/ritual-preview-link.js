@@ -28,6 +28,8 @@
     /* ★[ENTRY_SCENE → LOOK_HOLD 2026-09-26] entryScene(첫 모습)을 싣는다 — 종전엔 소리가 같아 엔진이 안 읽는 죽은 키였는데,
        이제 콘솔의 사람 순간(바라보기 6초 · 맞절 8초)을 가른다(코워크 회신5 4-1). 소리는 여전히 같다. */
     'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen', 'entryScene',
+    /* [GROUP_PHOTO 2026-09-26] 가족 구도 수(숫자 · 글 아님) — 콘솔 narr-photo-split est(3분 × 구도 수). 미리듣기는 사진 큐를 안 흘리지만 엔진이 읽으니 싣는다 */
+    'photoN',
     'ord', 'extra',                            // 순서 조정 · 더한 순서(둘 다 키 목록일 뿐 · 글은 없다)
     /* ★[ALL_OPTIONAL 2026-08-07] 뺀 순서. 빠지면 미리듣기가 고객이 뺀 자리를 그대로 들려준다
        (화면은 멀쩡한데 들리는 예식이 다르다 — 이 파일이 15~19행에서 경고하는 바로 그 사고).
@@ -79,7 +81,7 @@
      이 목록이 있어야 [PREVIEW_KEYS] 검사가 "엔진은 읽는데 아무도 값을 안 만드는 키"를 잡을 수 있다.
      (2026-08-02 실제 사고: digital 이 KEYS 에만 있고 값을 넣는 곳이 없어, 디지털 참석 예식도 미리듣기는
       늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
-  var INJECT = ['digital', 'photoShare', 'meal'];   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
+  var INJECT = ['digital', 'photoShare', 'meal', 'photoN'];   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
 
   // 고를 것만 골라 담는다. undefined·null 은 넣지 않는다 — 미리듣기 쪽 기본값이 그대로 서게(병합 주입).
   function pick(S) {
