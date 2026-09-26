@@ -12467,3 +12467,110 @@ chk 'color:#b00;word-break:keep-all">⚠ 예약금' admin.html 2
 # [FIELD_NAMES 2라운드] 임시 고정 변경·예식일 변경 날짜 칸도 보이는 이름표와 잇는다(계약서 요청 폼과 같게)
 chk "labelledby:'mp_heDateLab'" mypage.html 1
 chk "labelledby:'mp_chgDateLab'" mypage.html 1
+# ── 2라운드 묶음 H1
+# ═══ [MP_AUDIT_R2_0926] 2026-09-26 병합 뒤 통합 점검 2라운드 — 묶음 H1(R1 갈래 · 확정 8건 · 1라운드 결정을 완성하는 쪽으로) ═══
+# [KST_TODAY] 2026-09-26 통합 점검 2라운드 R1 — 예식 준비 행 «좌석 · 음료 D-n» · 좌석 화면 «… · D-n» · 하객 안내 닫힘(예식+30일 · 서버 _guideExpired 와 같은 한국 날짜) · 빌더·상담 AI 문맥 D-day 도 머리 D-day 와 같은 _kstDdayOf — 기기 날짜로 되돌리면 LA·UTC 기기에서 머리 «오늘이에요» 아래 행이 «D-1»(한국 기기는 바뀌는 것 없음)
+chk 'try{ _dLeft=_kstDdayOf(base&&base.weddingDate); }catch(e){}' mypage.html 1
+chk 'left=_kstDdayOf(wd);' mypage.html 1
+chk 'var _gdd=_kstDdayOf(m\[0]);' mypage.html 1
+chk '_ddn=_kstDdayOf(_wd);' mypage.html 1
+chk 'var diff = _kstDdayOf(wd);' mypage.html 1
+nochk '_dLeft=Math.ceil((_w-new Date())' mypage.html 0
+nochk 'left=Math.ceil((w-n)/86400000)' mypage.html 0
+nochk 'new Date(new Date().toDateString())' mypage.html 0
+nochk 'var t=new Date(); t.setHours(0,0,0,0);' mypage.html 0
+# [COVER_BUNDLE] 2026-09-26 통합 점검 2라운드 R1 — 충당(납부액 0) 계약도 서버 묶음(중도금±잔금)이 있으면 묶음 카드(계좌 · [입금했어요]) · 묶음 판정이 충당 return 보다 먼저 · 묶음 금액 줄의 계약금은 «계약금(예약금으로 충당)»(«계약금 0원» 금지) — NOW·진행 머리·서명 전 카드는 이미 «한 번에 입금»을 말한다
+chk 'COVER_BUNDLE' mypage.html 3
+chk 'if (a && Number(a.납부액) <= 0 && !_bundleActive){' mypage.html 1
+chk 'white-space:nowrap">계약금(예약금으로 충당)</span>' mypage.html 1
+nochk 'if (a && Number(a.납부액) <= 0){' mypage.html 0
+# [COVER_SCOPE] 2026-09-26 통합 점검 2라운드 R1 — 충당 카드 첫 문장은 계약금으로 범위를 묶는다 «더 내실 계약금은 없어요.»(«추가로 내실 금액은 없어요»가 두 줄 아래 추가 시착비(㉘) · 다음 결제와 부딪혔다 · ㉘ 문장과 자리는 그대로)
+chk 'COVER_SCOPE' mypage.html 3
+chk '<div class="cc-sub">더 내실 계약금은 없어요. <span class="cc-mini">예약금 ' mypage.html 1
+nochk '추가로 내실 금액은 없어요. <span' mypage.html 0
+# [NOW_SUB_DATE] 2026-09-26 통합 점검 2라운드 R1 — NOW 부제 잇기 사슬([NOW_SUB_BAL])에 날짜 · «N일 전»을 더한다(«9월 27일(일)» · «예식 3일 전» 한 덩어리 · 글자는 그대로) — 빼면 스냅 기획 한 줄이 320~390 에서 «9월 27일 / (일)까지»·«예식 3일 / 전까지»로 갈린다 · «(요일)» 앞만 이으면 «9월 / 27일»로 옮겨 간다
+chk 'NOW_SUB_DATE' mypage.html 3
+chk '.replace(/(\\d+월) (\\d+일)/g,.$1\\u00a0$2.)' mypage.html 1
+chk '.replace(/(\\d일)\\((?=\[일월화수목금토]\\))/g,.$1\\u2060(.)' mypage.html 1
+chk '.replace(/(예식|촬영) (\\d+일) (전)/g,.$1\\u00a0$2\\u00a0$3.)' mypage.html 1
+chk '.replace(/(\\d+일) (전)/g,.$1\\u00a0$2.)' mypage.html 1
+# [NOW_EXTRA_PAYSIG] 2026-09-26 통합 점검 2라운드 R1 — 전달완료(후기까지 마침) 뒤 추가 보정 입금 신고(결제대기)도 NOW «입금을 확인하고 있어요 · 추가 보정은 확인이 끝나면 시작해요.»(«모든 순간이 마무리됐어요» 바로 아래 ③ «입금 확인 중이에요» 모순) · 후기가 남았으면 덮지 않는다
+chk "else if (_rx.status === '결제대기' && _rs === '전달완료' && _svDone) { head = '입금을 확인하고 있어요'; sub = '추가 보정은 확인이 끝나면 시작해요." mypage.html 1
+# [EVENT_PAST_NOW][EVENT_PAST_NEXT] 2026-09-26 통합 점검 2라운드 R1 — 예식(촬영)일이 지났는데 결제가 남은 두 갈래도 준비 약속을 뺀다: 스냅 잔금 «아래에서 잔금을 보내 주세요.» · 입금완료 묶음(hold) 미신고는 부제 없음 · 신고 뒤 «보통 영업일 1~2일 안에 확인하고 알려드려요.» · NEXT 는 지난 예식의 «예식 준비» 자물쇠도 뺀다(진행 머리 라벨은 그대로 · E절)
+chk 'var _shPast = _kstDdayOf(' mypage.html 1
+chk "sub = (_shPast != null && _shPast < 0) ? '아래에서 잔금을 보내 주세요.' : " mypage.html 1
+chk 'var _hdPast = _kstDdayOf(' mypage.html 1
+chk "sub  = _hdPast ? '' : '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
+chk "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " mypage.html 1
+chk "|| (r\\[0]==='예식 준비' && r\\[2]==='제작중')); });" mypage.html 1
+# [MID_WITH_WORD] 2026-09-26 통합 점검 2라운드 R1 — 임박 계약 중도금(날짜 없음 · 서버 dueLabel «계약 시 함께 납부»)은 «지금 바로 입금 부탁드려요»(«계약 시 함께 납부까지 입금 부탁드려요» 금지 · 꼬리 «· 계약 시 함께 납부» 없음 — 320 에서 가운뎃점이 줄 머리에 선다 · 잔금 카드 _bPast 와 같은 말)
+chk 'MID_WITH_WORD' mypage.html 2
+chk "var _mWith=!midDateTxt && String(p.dueLabel||'')==='계약 시 함께 납부';" mypage.html 1
+chk "_mWith?'<b>지금 바로</b> 입금 부탁드려요'" mypage.html 1
+# [SIG_TITLE_WJ] 2026-09-26 통합 점검 2라운드 R1 — 묶음 입금 신고 뒤 계약 카드 제목 «계약금·중도금·잔금 입금 확인 중»은 가운뎃점 양옆 낱말 잇기(U+2060) — 풀면 320 에서 «계약금·중도금· / 잔금»으로 점이 줄 끝에 매달린다([CHECKS_NO_DANGLE] · [SIGN_DEP_TRUE] 선례)
+chk 'SIG_TITLE_WJ' mypage.html 1
+chk 'escapeHtml(_sb.length?(.계약금\\u2060·\\u2060.+_sb.join(.\\u2060·\\u2060.)):.계약금.)' mypage.html 1
+nochk "escapeHtml(_sb.length?('계약금·'+_sb.join('·'))" mypage.html 0
+# ── 2라운드 묶음 H2
+# [WZ_BAR_DEBOUNCE] 붙는 막대는 단계마다 같은 자리 — 막대 단추 누른 뒤 450ms 안의 막대 누름(사람 누름만 · isTrusted)은 버린다(청첩장 1/4→3/4 · 수정하기 2/4→4/4 · 애프터 웨딩 «저장하고 닫기»까지 눌리던 두 번 누름)
+chk 'WZ_BAR_DEBOUNCE' mypage.html 2
+chk "var b=(e.target&&e.target.closest)?e.target.closest('.wz-bar button'):null; if(!b) return;" mypage.html 1
+chk "var t=Date.now(), _dt=t-(window._wzBarAt||0); if(_dt>=0 && _dt<450){ e.stopImmediatePropagation(); e.preventDefault(); return; }" mypage.html 1
+chk 'window._wzBarAt=t;' mypage.html 1
+# [WZ_BAR_CLOCK] 검토 추가 — 기기 시계가 뒤로 맞춰져 차이가 음수면 막대 누름을 막지 않는다(종전 식은 버린 누름이 시각을 안 갱신해, 시계가 옛 시각을 다시 지날 때까지 막대 단추가 전부 죽었다 · 390 실측)
+chk 'WZ_BAR_CLOCK' mypage.html 1
+nochk "if(t-(window._wzBarAt||0)<450)" mypage.html 0
+# [LOGOUT_FS_GUARD] 전체화면 편집(.mp-fs) 동안 로그아웃은 Tab 순서 · 낭독기에서 빠지고, 편집 흐름 · 전체화면 겹화면(_mpFsOpen = MP_FS_OVERLAYS 한 목록)이 떠 있으면 로그아웃 누름을 받지 않는다(앞사람 청첩장이 다음 로그인에 다시 열리던 것)
+chk 'LOGOUT_FS_GUARD' mypage.html 3
+chk 'body.mp-fs-on .foot-actions{visibility:hidden}' mypage.html 1
+chk "\$('mp_logout').addEventListener('click', function(){ if(_wizCurId() || _mpFsOpen()) return; clearToken(); show('loginView'); });" mypage.html 1
+nochk "\$('mp_logout').addEventListener('click', function(){ clearToken(); show('loginView'); });" mypage.html 0
+# [INV_DATE_LINK] 예식 날짜도 링크 주소를 바꾼다(eventId = 머리글자 + MMDD) — 4/4 «예식 날짜가 달라져서 링크 주소가 바뀌어요» · 반영 결과 'date' 는 «바뀌었어요» · 다시 연 완성 화면에서 날짜가 옮겨져 있으면 «이전 날짜가 보여요 · 수정하기로 다시 반영» · 앞으로의 규칙에 날짜 한 줄
+chk 'INV_DATE_LINK' mypage.html 6
+chk 'function _invDateMoved(d)' mypage.html 1
+chk "if(_invDateMoved(d)) return 'date';" mypage.html 1
+chk "(_lk==='date')?'<div class=\"cc-note\"><span class=\"ln-bal\">빈 칸은 기본 문구로 채워져요. 예식&nbsp;날짜가 달라져서 링크 주소가 바뀌어요.</span>" mypage.html 1
+chk "var _doneLinkNote=(_lkC==='design'||_lkC==='name'||_lkC==='date')" mypage.html 1
+chk "var _dMv=!('_lkChg' in INVFLOW) && _invDateMoved(INVFLOW.draft);" mypage.html 1
+chk '<span class="ln-bal">보내신 링크를 열면 아직 이전 날짜가 보여요.</span>' mypage.html 1
+chk '<span class="ln-bal">이 QR로 들어가면 아직 이전 날짜가 보여요.</span>' mypage.html 1
+chk '<span class="ln-bal">예식 날짜가 달라질 때도 마찬가지예요.</span>' mypage.html 2
+nochk "var _doneLinkNote=(_lkC==='design'||_lkC==='name')$" mypage.html 0
+# [TOAST_OVER_BAR] 작은 알림(_miniToast)은 누름을 받지 않고(pointer-events:none) · 보이는 붙는 막대와 겹치면 그 위 12px 로 올라선다(«「완료」를 누르면…» 알림이 그 「완료」를 덮어 누름을 먹던 것)
+chk 'TOAST_OVER_BAR' mypage.html 2
+chk 'function _toastOverBar(t)' mypage.html 1
+chk 'max-width:86vw;text-align:center;pointer-events:none' mypage.html 1
+chk '_toastOverBar(t);   // \[TOAST_OVER_BAR\]' mypage.html 1
+# [INV_SELFQR_OPEN] 키 없는 초안의 서버 발행 폴백은 한 함수(_invKeylessPub) — startInvFlow 와 행 라벨(_invLinkAlive)이 같이 쓴다 · 개인 제작 QR 은 서버 발행이 QR(live)만인 판일 때만(«발행됨 · 수정 → 1 / 2»로 갈리던 것)
+chk 'INV_SELFQR_OPEN' mypage.html 3
+chk 'function _invKeylessPub(dr, inv)' mypage.html 1
+chk "var _pu = ('invitationUrls' in dr) ? (dr.invitationUrls||{}) : _invKeylessPub(dr, inv);" mypage.html 1
+chk "if(!k) return _invLiveUrls({invitationUrls:_invKeylessPub(dr, inv)});" mypage.html 1
+# [INV_KEYLESS_K] 검토 추가 — _invLinkAlive 의 k 갈래(하객 안내 설명)도 키 없는 초안은 _invKeylessPub 로 잰다([INV_LINK_LIVE] «행 라벨과 하객 안내 설명이 한 규칙» · 은퇴한 옛 발행을 «청첩장에 자동으로 들어가는 안내»로 읽던 것)
+chk 'INV_KEYLESS_K' mypage.html 1
+chk "return !!_invKeylessPub(dr, inv)\[k\];" mypage.html 1
+nochk "^  return !!pu\[k\];" mypage.html 0
+chk "if(m==='self' && dr.selfQR===true && pu.live && !pu.online && !pu.family) return pu;" mypage.html 1
+nochk "indexOf(dr.method)>=0) && inv && inv.published && inv.published.urls) || {})" mypage.html 0
+# [INV_DONE_HANDLE] 완성 화면 끝 안내는 지금 화면의 손잡이를 가리킨다 — «아래 수정하기에서 다시 손볼 수 있어요»(가려진 행의 «발행됨 · 수정» 금지 · [INV_DONE_LINK] 의 chk '</b>에서 다시 손볼 수 있어요.</span>' 그대로 통과)
+chk 'INV_DONE_HANDLE' mypage.html 2
+chk '<span class="ln-bal">아래 <b style="white-space:nowrap">수정하기</b>에서 다시 손볼 수 있어요.</span>' mypage.html 1
+nochk '<b style="white-space:nowrap">발행됨 · 수정</b>에서 다시 손볼 수 있어요.' mypage.html 0
+# [CF_DOT_BREAK] 예식 확인서 값 줄(청첩장 · 좌석 · 음료 · 좌석 배치) — 갈릴 자리의 «·» 대신 줄바꿈([CF_LINE_BREAK] 넓힘) · «온라인·오프라인» U+2060 한 낱말 · 확정 기록 글자는 같다(<br> → « · » · U+2060 지움)
+chk 'CF_DOT_BREAK' mypage.html 7
+chk "both:'온라인&#8288;·&#8288;오프라인'" mypage.html 1
+chk "else if(_ivv&&_imL) _ivv+='<br>'+_imL;" mypage.html 1
+chk "escapeHtml(x)+'</span>'; }).join('<br>')+'</span>';   // \[CF_WRAP_BALANCE\]" mypage.html 1
+chk "escapeHtml(x)+'</span>'; }).join('<br>')+'</span>';   // \[CF_DOT_BREAK\] 음료" mypage.html 1
+chk "sv=sd.tables.length+'개 테이블<br>'+" mypage.html 1
+chk "sv+='<br>'+((gi.seatMode==='mine')?'내 자리만 검색':'전체 배치도 공개');" mypage.html 1
+chk "(_stn>0?('<br>스탠딩 '+_stn+'명'" mypage.html 1
+nochk "_ivv+=' · '+_imL" mypage.html 0
+nochk "sv=sd.tables.length+'개 테이블 · '" mypage.html 0
+nochk "sv+=' · '+((gi.seatMode" mypage.html 0
+nochk "(_stn>0?(' · 스탠딩 '" mypage.html 0
+nochk "else if(fd.drink) fv+=' · '" mypage.html 0
+# [NOW_PAREN_GLUE · INV_YN_FOCUS] 2라운드 R4 — NOW 부제 괄호가 앞말에서 떨어지지 않게 · 청첩장 네/아니요를 누른 뒤 초점이 그 단추로 돌아온다(BODY 로 떨어지던 것)
+chk 'NOW_PAREN_GLUE' mypage.html 1
+chk "replace(/(\[가-힣0-9\])\\\\(/g,'\$1\\\\u2060(')" mypage.html 1
+chk 'INV_YN_FOCUS' mypage.html 4

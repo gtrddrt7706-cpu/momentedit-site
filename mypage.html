@@ -3148,7 +3148,8 @@ function renderMyPage(d){
           /* [NOW_SUB_DATE 2026-09-26 · 통합 점검 2라운드 R1] 날짜 · «N일 전»도 한 덩어리 — 균형 줄바꿈이 스냅 기획 한 줄을 «9월 27일 / (일)까지»·«예식 3일 / 전까지»로 갈랐다
                (날짜·시간은 한 몸 · [CHECKS_NO_DANGLE]). «(요일)» 앞만 이으면 «9월 / 27일(일)까지»로 옮겨 가서 «N월 N일» 사이도 붙인다(검증 실측). 글자는 그대로. */
           .replace(/(\d+월) (\d+일)/g,'$1\u00a0$2').replace(/(\d일)\((?=[일월화수목금토]\))/g,'$1\u2060(')   // [NOW_SUB_DATE] «9월 27일(일)»
-          .replace(/(예식|촬영) (\d+일) (전)/g,'$1\u00a0$2\u00a0$3').replace(/(\d+일) (전)/g,'$1\u00a0$2');   // [NOW_SUB_DATE] «예식 3일 전»
+          .replace(/(예식|촬영) (\d+일) (전)/g,'$1\u00a0$2\u00a0$3').replace(/(\d+일) (전)/g,'$1\u00a0$2')   // [NOW_SUB_DATE] «예식 3일 전»
+          .replace(/([가-힣0-9])\(/g,'$1\u2060(').replace(/예식 준비\(/g,'예식\u00a0준비(');   // [NOW_PAREN_GLUE] 2라운드 R4 — 괄호가 앞말에서 떨어지지 않게(«내 내역 / (문서 아이콘)», «예식 준비 / (청첩장·식순)») · [COND_PAREN_GLUE] 와 같은 규칙 · 글자는 그대로
         subEl.appendChild(sp); });
       subEl.style.display = 'block';
     }
@@ -6972,7 +6973,7 @@ function invStepMethod(box){
   updateCover();
   Array.prototype.forEach.call(box.querySelectorAll('.inv-opt[data-m]'),function(el){ _kbChip(el, function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box);
     var nc=box.querySelector('.inv-opt[data-m="'+INVFLOW.draft.method+'"]'); if(nc) try{ nc.focus({preventScroll:true}); }catch(e){} }); });   // [INV_OPT_KB] 클릭 · Enter · Space
-  Array.prototype.forEach.call(box.querySelectorAll('[data-qr]'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.selfQR=(el.getAttribute('data-qr')==='Y'); invStepMethod(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-qr]'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.selfQR=(el.getAttribute('data-qr')==='Y'); invStepMethod(box); try{ var _nb=box.querySelector('[data-qr="'+el.getAttribute('data-qr')+'"]'); if(_nb) _nb.focus({preventScroll:true}); }catch(_e){} /* [INV_YN_FOCUS] 2라운드 R4 · 다시 그린 뒤 초점이 BODY 로 떨어지던 것 */ }); });
   $('iv_next').addEventListener('click', function(){
     collectNames();
     var mm=INVFLOW.draft.method;
@@ -7076,9 +7077,9 @@ function invStepParents(box){
     if($('iv_bfa')) d.brideFatherAccount=paJoin('iv_bfb','iv_bfa'); if($('iv_bma')) d.brideMotherAccount=paJoin('iv_bmb','iv_bma');
   }
   INVFLOW._collect=collect;   // 당겨서 새로고침 입력 수집 훅(유실 방지)
-  Array.prototype.forEach.call(box.querySelectorAll('[data-gp]'),function(el){el.addEventListener('click',function(){collect();d.greetingShowParents=el.getAttribute('data-gp');invStepParents(box);});});
+  Array.prototype.forEach.call(box.querySelectorAll('[data-gp]'),function(el){el.addEventListener('click',function(){collect();d.greetingShowParents=el.getAttribute('data-gp');invStepParents(box);try{ var _nb=box.querySelector('[data-gp="'+d.greetingShowParents+'"]'); if(_nb) _nb.focus({preventScroll:true}); }catch(_e){} /* [INV_YN_FOCUS] 2라운드 R4 · 다시 그린 뒤 초점이 BODY 로 떨어지던 것 */});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-ga]'),function(el){el.addEventListener('click',function(){collect();d._acctGate=el.getAttribute('data-ga');invStepParents(box);});});
-  Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);});});
+  Array.prototype.forEach.call(box.querySelectorAll('[data-pa]'),function(el){el.addEventListener('click',function(){collect();d.envelopeShowParents=el.getAttribute('data-pa');invStepParents(box);try{ var _nb=box.querySelector('[data-pa="'+d.envelopeShowParents+'"]'); if(_nb) _nb.focus({preventScroll:true}); }catch(_e){} /* [INV_YN_FOCUS] 2라운드 R4 · 다시 그린 뒤 초점이 BODY 로 떨어지던 것 */});});
   Array.prototype.forEach.call(box.querySelectorAll('[data-acc]'),function(el){el.addEventListener('change',function(){var k=el.getAttribute('data-acc');d[k==='family'?'accountFamily':(k==='online'?'accountOnline':'accountLive')]=el.checked?'Y':'N';});});
   Array.prototype.forEach.call(box.querySelectorAll('input,textarea'),function(e){ e.addEventListener('input',collect); });   // #8 입력 즉시 draft 반영(나가기 보존)
   ['iv_gp','iv_bp'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('blur', function(){ var parts=el.value.trim().split(/[\s,\/.·∙ㆍ]+/).filter(Boolean); var v=parts.join('·'); if(v!==el.value){ el.value=v; collect(); } }); });   // 혼주 성함 가운뎃점(·) 자동
@@ -7189,7 +7190,7 @@ function bindDesign(box){
     }
     invStepDesign(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-k][data-side]'),function(el){ el.addEventListener('input',function(){ collectDesign(box); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-same]'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft._onlineSame=el.getAttribute('data-same'); invStepDesign(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-same]'),function(el){ el.addEventListener('click',function(){ collectDesign(box); INVFLOW.draft._onlineSame=el.getAttribute('data-same'); invStepDesign(box); try{ var _nb=box.querySelector('[data-same="'+INVFLOW.draft._onlineSame+'"]'); if(_nb) _nb.focus({preventScroll:true}); }catch(_e){} /* [INV_YN_FOCUS] 2라운드 R4 · 다시 그린 뒤 초점이 BODY 로 떨어지던 것 */ }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-acc]'),function(el){ el.addEventListener('change',function(){ var k=el.getAttribute('data-acc'); INVFLOW.draft[k==='family'?'accountFamily':(k==='online'?'accountOnline':'accountLive')]=el.checked?'Y':'N'; }); });
 }
 function _designName(n){ return ({'01':'클래식','02':'에디토리얼','03':'레터프레스','04':'버밀리언','05':'보태니컬','06':'한글','07':'아키텍트','08':'누아르'})[n]||''; }
