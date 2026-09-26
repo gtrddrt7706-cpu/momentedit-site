@@ -6993,20 +6993,34 @@ var PHOTO_MAX=5;    // 전체 하객 제외 추가 구도 상한(총 6컷)
 /* ★★[PHOTO_CAP_40 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-6] 스냅 60 · 본식 + 단체 사진 = 40 · 테이블 인사 없음.
      PHOTO_DAY 50 → 40 — 마이페이지는 ritual-data.js 를 읽지 않아 숫자로 둔다(check-source-drift 가 DAY 와 대조한다).
      PHOTO_PRE 12 → 2(두 분 숨 고르기 · 테이블 인사 0 · 배웅 안내는 배웅 20분 안) · 온라인 날은 +2(온라인 인사).
-     PHOTO_ALL 6 → 8(전체 하객 6 + «꼭 담고 싶은 사진» 둘까지 · 하나에 1분 남짓 — 첫 전체 사진 바로 뒤).
+     ★[WISH_COUNT 2026-09-26 코워크 최종판 2-6] PHOTO_ALL 은 6 + 두 분이 적은 «꼭 담고 싶은 사진» 수(0~2 · 하나에 1분 남짓 — 첫 전체 사진 바로 뒤).
+       종전(8 고정)은 요청을 안 적은 분도 2분을 잡아 구도를 하나 덜 받았다. 엔진 (44, end-0-photo) est 도 같은 셈(360 + 60 × 적은 수).
      ★줄이는 차례: 자유 사진 → 숨 고르기 → 뒤에 고른 구도. 배웅 시각은 지킨다. */
-var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=8, PHOTO_PER=3, PHOTO_ONLINE=2;
-function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
-function photoCapOf(rd, dig){
+var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;
+function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }   // [WISH_COUNT] 글이 있는 요청만 센다(빈 칸은 시간을 잡지 않는다)
+function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig, photoWishN()); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
+function photoCapOf(rd, dig, wishN){
   var sec=((rd||{}).summary||{}).sec;
   if(!sec||sec.length!==2||!(sec[1]>0)) return null;
-  var pre=PHOTO_PRE+(dig?PHOTO_ONLINE:0);
+  var pre=PHOTO_PRE+(dig?PHOTO_ONLINE:0), all=PHOTO_ALL+Math.max(0,Math.min(PHOTO_WISH_MAX,+wishN||0));
   var lateGroup=PHOTO_DAY-sec[1]/60-pre, fastGroup=PHOTO_DAY-sec[0]/60-pre;
   /* ★[PHOTO_CAP_CLAMP 2026-09-26 코워크 회신 9/26 1] k 를 먼저 PHOTO_MAX 로 자른 뒤 max 를 셈한다 —
        종전엔 max = Math.max(k, …) 에서 자르기 전 k 가 들어가 본식이 아주 짧으면(빈 채) 9 가 나왔다. */
-  var k=Math.min(PHOTO_MAX,Math.max(0,Math.floor((lateGroup-PHOTO_ALL)/PHOTO_PER))), mx=Math.max(k,Math.min(PHOTO_MAX,Math.floor((fastGroup-PHOTO_ALL)/PHOTO_PER)));
+  var k=Math.min(PHOTO_MAX,Math.max(0,Math.floor((lateGroup-all)/PHOTO_PER))), mx=Math.max(k,Math.min(PHOTO_MAX,Math.floor((fastGroup-all)/PHOTO_PER)));
   /* [PHOTO_CAP_40 · D12 2026-09-26 코워크 추가 전달 2] a~b = ①과 같은 셈(40 − 본식 넉넉 합 ~ 40 − 본식 대본 합) — 쉬는 2분을 뺀 n 과 섞지 않는다 */
   return { n:Math.round(lateGroup), k:k, max:mx, a:Math.round(PHOTO_DAY-sec[1]/60), b:Math.round(PHOTO_DAY-sec[0]/60) };   // n 은 반올림 — 코워크 5-7 표(기록 21 · 약속 18 · 가족 15 · 전부 13)와 같다
+}
+/* 단체 사진 한 줄 — 그리기 · 요청 칸에 글을 칠 때(다시 그리지 않고 이 줄만) 둘 다 여기서 */
+function photoCapNote(sel){
+  var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig, photoWishN());
+  if(!c) return '식순을 정하시면 알맞은 수를 알려 드려요 · 보통 2~5개예요.';
+  return '두 분 식순이면 단체 사진이 약&nbsp;'+(c.a===c.b?c.a:(c.a+'~'+c.b))+'분이에요. '+photoCapLine(c)+((sel||[]).length>c.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':'');
+}
+/* ★[NO_ZERO_SHOT 2026-09-26 코워크 최종판 2-6] «구도 0개»라고 쓰지 않는다 — k = 0 이면 전체 하객 사진을 앞에 세운다 */
+function photoCapLine(c){
+  if(c.k>0) return '전체 하객과 구도 '+c.k+'개가 '+(c.k===c.max?'알맞아요.':('알맞고, 제시간에 진행되면 '+c.max+'개까지 돼요.'));
+  if(c.max>0) return '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 '+c.max+'개까지 돼요.';
+  return '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.';
 }
 // [PHOTO_WISH] 옛 `PHOTO_FX_MAX`(연출 상한 2)는 PHOTO_WISH_MAX 로 이름만 옮겼다 — 근거(마지막 토막 4~5분)는 같다
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
@@ -7098,10 +7112,7 @@ function renderPhoto(box){
     +(wish.length?(' · <b>요청 '+wish.length+'개</b>'):'')
     +(sel.length>1?'<br>큰 모임을 앞에 두시면 빨라요.':'')
     +'</div>';   // ★[PHOTO_CAP_RD] 옛 경고(«_pm>19 · 다 함께 30~39분 기준»)는 아래 식순 기준 한 줄로 바뀌었다. 옛 줄은 주석 안에 '</div>' 를 삼켜 이 칸이 안 닫히고 있었다
-  var _cap=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig);
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">'+(_cap
-      ? ('두 분 식순이면 단체 사진이 약&nbsp;'+(_cap.a===_cap.b?_cap.a:(_cap.a+'~'+_cap.b))+'분이에요. 전체 하객과 구도 '+_cap.k+'개가 '+(_cap.k===_cap.max?'알맞아요.':('알맞고, 제시간에 진행되면 '+_cap.max+'개까지 돼요.'))+(sel.length>_cap.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':''))
-      : '식순을 정하시면 알맞은 수를 알려 드려요 · 보통 2~5개예요.')+'</div>';
+  h+='<div class="cc-note" id="mp_photoCap" style="text-align:left;margin:2px 0 6px">'+photoCapNote(sel)+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
     h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
@@ -7293,7 +7304,8 @@ function renderPhoto(box){
   /* ★[PHOTO_WISH] 요청 칸 — 글자를 칠 때마다 **모델에만** 담고 다시 그리지 않는다.
      ★재렌더하면 그 순간 커서가 날아가고 폰 키보드가 접힌다. 좌석 이름칸에서 한 번 겪은 사고와 같은 형태다
        (SEAT_DIRTY_KEEP). 다시 그려야 하는 것은 추가·삭제·칩 채우기뿐이다. */
-  function wishSet(i,f,v){ if(!wish[i]) return; wish[i][f]=v; }
+  function wishSet(i,f,v){ if(!wish[i]) return; var n0=photoWishN(); wish[i][f]=v;
+    if(photoWishN()!==n0){ var cn=document.getElementById('mp_photoCap'); if(cn) cn.innerHTML=photoCapNote(sel); } }   // [WISH_COUNT] 요청이 생기거나 비면 단체 사진 줄만 다시(커서 · 키보드 그대로)
   Array.prototype.forEach.call(box.querySelectorAll('[data-wf]'), function(el){
     var i=+el.getAttribute('data-wi'), f=el.getAttribute('data-wf');
     el.addEventListener('input', function(){ wishSet(i,f,el.value); });

@@ -319,74 +319,107 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   else ok(`코스 ${AX.course.length}종 큐 수 정상 범위`);
 }
 
-/* ★★[ROUND_FIT] 「다 함께」 사람 구간 합이 그 코스에 남은 시간을 넘지 않는가.
-   2026-08-09 실측으로 이 검사를 만들었다 — DAY_PLAN 으로 다 함께가 36~44 → 30~39분이 됐는데
-   엔진의 라운드 est 는 20분으로 박혀 있어 digital 조합에서 **39.5분**이 나왔다.
-   화면(마이페이지)에서는 상한을 내려 밀도의 함정을 막아 놓고 엔진에서는 그대로 빠져 있었다.
-   ★검사가 없으면 이런 건 당일에야 드러난다 — 라운드가 끝나기 전에 배웅 시간이 오는 식으로. */
+/* ★★[ROUND_FIT · ROUND_EXACT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-5] 단체 사진 창이 «40 − 본식 넉넉 합»을 정확히 채우는가.
+   ★옛 두 검사(ROUND_FIT · ROUND_EXACT)는 옛 코스 여섯만 돌았다 — 옛 코스가 모두 숨은(hidden) 뒤로는 **0조합**을 돌고 초록을 냈다
+     (2026-09-26 실측 «2패스가 예산을 정확히 채운다 (0조합 …)»). 그래서 새 코스(open)의 예시 넷으로 다시 세운다.
+   ★창 = (26, narr-close) 말이 끝난 뒤(«하객이 앞으로 모임»)부터 배웅 GO 직전까지 — 말(c.est)과 사람 구간(live.est)을 모두 센다.
+     (108) · (26) 의 말 · 목례 · 박수는 본식(닫는 인사 TIME)에 들어 있어 세지 않는다.
+   ★등식이어야 한다 — 자유 사진이 최소(120초)에 걸리지 않은 조합은 «창 합 = 예산»이 한 초도 어긋나면 안 된다.
+     최소에 걸린 조합은 넘는 것이 맞다(그날은 뒤에 고른 구도부터 준다 · 마이페이지가 k 로 미리 알린다). */
 {
-  const IN = ['narr-close', 'end-0-photo', 'narr-photo-split', 'narr-round-open',
-    'narr-online-in', 'narr-final-warn', 'narr-final-call', 'narr-photo-out'];
   const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
-  const over = [], thin = [];
-  for (const k of Object.keys(D.COURSES).filter((x) => !D.COURSES[x].hidden)) {
-    for (const dg of [true, false]) {
-      const S = C.norm({ course: k }); S.digital = dg;
-      const r = C.build(S); const cues = Array.isArray(r) ? r : (r.cues || []);
-      const t = cues.filter((c) => IN.includes(c.slug));
-      const live = t.reduce((a, c) => a + ((c.live && c.live.est) || 0), 0) / 60;
-      const budget = SUM - D.MIN.base[k];
-      const rc = t.find((c) => c.slug === 'narr-online-in') || t.find((c) => c.slug === 'narr-round-open');
-      const round = (((rc && rc.live && rc.live.est) || 0) - (dg ? 120 : 0)) / 60;
-      if (live > budget) over.push(`${k}/digital=${dg} 사람 ${live.toFixed(1)}분 > 예산 ${budget}분`);
-      if (round < 10) thin.push(`${k}/digital=${dg} 라운드 ${round.toFixed(1)}분`);
-    }
+  const O = require('../assets/ritual-open.js');
+  const bad = [], thin = [];
+  let combos = 0, fits = 0;
+  for (const ex of O.EXAMPLES) for (const dg of [false, true]) for (const pn of [undefined, 1, 2, 3, 5]) for (const pw of [undefined, 0, 1, 2]) {
+    const S = O.applyExample({ course: 'open' }, ex.k); S.course = 'open'; S.digital = dg;
+    if (pn !== undefined) S.photoN = pn; if (pw !== undefined) S.photoWishN = pw;
+    const r = C.build(C.norm(S)); const cues = Array.isArray(r) ? r : (r.cues || []);
+    const from = cues.findIndex((c) => c.slug === 'narr-close');
+    const to = cues.findIndex((c, i) => i > from && c.blockN === '배웅');
+    const tag = `${ex.k}/온라인=${dg ? 1 : 0}/구도=${pn === undefined ? '?' : pn}/요청=${pw === undefined ? '?' : pw}`;
+    if (from < 0 || to < 0) { bad.push(`${tag} 창을 못 잡았다(narr-close ${from} · 배웅 ${to}) — 슬러그 · 블록 이름이 바뀌었다`); continue; }
+    const win = cues.slice(from + 1, to);
+    const sum = ((cues[from].live && cues[from].live.est) || 0) + win.reduce((a, c) => a + (c.est || 0) + ((c.live && c.live.est) || 0), 0);
+    const want = (SUM - Math.round(O.bodySec(S)[1] / 60)) * 60;
+    const out = cues.find((c) => c.slug === 'narr-photo-out');
+    const goFree = out && out.live && out.live.goFree;
+    combos++;
+    if (!out || !goFree) { bad.push(`${tag} 자유 사진 큐(65, narr-photo-out)가 남는 시간을 못 받았다`); continue; }
+    win.forEach((c) => { if (c.live && c.live.est < 10) thin.push(`${tag} ${c.slug} 사람 구간 ${c.live.est}초`); });
+    if (goFree > 120) { fits++; if (sum !== want) bad.push(`${tag} 창 ${sum}초 ≠ 예산 ${want}초(${sum > want ? '초과' : '미달'} ${Math.abs(sum - want)}초)`); }
+    else if (sum < want) bad.push(`${tag} 자유 사진이 최소인데 창 ${sum}초가 예산 ${want}초보다 짧다`);
   }
-  if (over.length) no(`다 함께가 남은 시간을 넘는다 — ${over.join(' · ')}`);
-  else if (thin.length) no(`라운드가 10분 아래다(인사가 성립하지 않는다) — ${thin.join(' · ')}`);
-  else ok(`다 함께 전 조합이 예산 안 (합 ${SUM}분 기준)`);
+  if (bad.length) no(`단체 사진 창이 예산과 어긋난다 [PHOTO_GO2GO]\n    ${bad.slice(0, 8).join('\n    ')}`);
+  else if (thin.length) no(`사진 구간 사람 시간이 10초 아래다(목표보다 말이 길다) — ${thin.slice(0, 4).join(' · ')}`);
+  else ok(`단체 사진 창 = 40 − 본식 넉넉 합 (${combos}조합 · 등식 ${fits} · 나머지는 자유 사진 최소 120초) [PHOTO_GO2GO]`);
 }
 
-/* ★★[ROUND_EXACT 2026-08-09] 위 검사는 '넘지 않는가'만 본다. 여기서는 **정확히 맞는가**를 본다.
-   2패스는 "남는 시간을 전부 라운드에 준다"는 규칙이라, 결과는 부등식이 아니라 **등식**이어야 한다:
-       블록 est 합 + 나레이션 말 시간(120초) == 예산
-   ★왜 부등식으로는 부족한가 — 두 가지 드리프트가 '넘지 않으면서' 조용히 들어온다.
-     ①캐리어 슬러그가 바뀌면 라운드가 아무 큐에도 안 실린다 → 합이 예산보다 **모자란다**.
-       화면엔 아무 일도 없고, 당일에 '다 함께'가 예정보다 일찍 끝나 배웅까지 빈다.
-     ②고정 자리 큐를 새로 넣고 엔진의 IN 목록에 안 넣으면 fixed 가 그만큼 작게 잡혀
-       라운드가 그만큼 크게 계산된다 → 합이 예산을 **넘는다**(하한 600 이 걸린 경우와 구분이 안 된다).
-   ★★위 검사의 IN 목록을 그대로 복제하지 않는다 — 그러면 손계산을 없앤 자리에 손목록이 하나 더 생겨
-     엔진과 검사가 같은 실수를 함께 한다. 여기서는 **큐 순서**로 창을 잡는다:
-     'narr-close'(폐식 직후)부터 '배웅' 블록 직전까지. 두 시선이 어긋나면 그때 빨개진다. */
+/* ★★[WISH_COUNT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-6] 엔진의 사진 목표와 마이페이지 상수가 같은 셈인가.
+   마이페이지는 ritual-cue.js 를 읽지 않는다 — 숫자로 둔다. 그래서 둘을 여기서 맞댄다(SLOT_CLOCK 과 같은 방식).
+     전체 하객 = PHOTO_ALL(6) + 요청 수 · 가족 구도 = PHOTO_PER(3) × 구도 · 온라인 = PHOTO_ONLINE(2) · 자유 사진 최소 = PHOTO_PRE(2)
+   그리고 모를 때의 가정(요청 둘 · 구도 둘)이 ritual-open.js SHORT_MIN(16 = 8 + 6 + 2)과 같은가. */
 {
-  const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
-  const TALK = 120;                     // 엔진이 빼 두는 나레이션 말 시간(초) — 같은 값이어야 한다
-  const FLOOR = 600;                    // 라운드 하한(초) · 이게 걸리면 등식이 깨지는 게 정상이다
+  const O = require('../assets/ritual-open.js');
+  const mp = fs.readFileSync(path.join(__dirname, '..', 'mypage.html'), 'utf8');
+  const m = mp.match(/var PHOTO_DAY=(\d+), PHOTO_PRE=(\d+), PHOTO_ALL=(\d+), PHOTO_PER=(\d+), PHOTO_ONLINE=(\d+);/);
   const bad = [];
-  let combos = 0;
-  for (const k of Object.keys(D.COURSES).filter((x) => !D.COURSES[x].hidden)) {
-    for (const dg of [true, false]) {
-      const S = C.norm({ course: k }); S.digital = dg;
-      const r = C.build(S); const cues = Array.isArray(r) ? r : (r.cues || []);
-      const from = cues.findIndex((c) => c.slug === 'narr-close');
-      const to = cues.findIndex((c, i) => i > from && c.blockN === '배웅');
-      if (from < 0 || to < 0) { bad.push(`${k}/digital=${dg} 창을 못 잡았다(narr-close ${from} · 배웅 ${to}) — 슬러그·블록 이름이 바뀌었다`); continue; }
-      const win = cues.slice(from, to);
-      const sum = win.reduce((a, c) => a + ((c.live && c.live.est) || 0), 0);
-      const want = (SUM - D.MIN.base[k]) * 60;
-      const carrier = win.find((c) => c.slug === (dg ? 'narr-online-in' : 'narr-round-open'));
-      const round = (carrier && carrier.live && carrier.live.est || 0) - (dg ? TALK : 0);
-      combos++;
-      if (sum + TALK === want) continue;
-      if (sum + TALK > want && round <= FLOOR) continue;   // 하한이 걸려 넘친 것은 위 검사가 따로 신고한다
-      bad.push(`${k}/digital=${dg} 합 ${sum}+${TALK} = ${sum + TALK}초 ≠ 예산 ${want}초`
-        + ` (${sum + TALK > want ? '초과' : '미달'} ${Math.abs(want - sum - TALK)}초`
-        + ` · 라운드 ${round}초 · 창 ${win.length}큐)`);
-    }
+  if (!m) bad.push('mypage.html 에서 «var PHOTO_DAY=…, PHOTO_ONLINE=…;» 줄을 못 찾았다');
+  else {
+    const [, DAYM, PRE, ALL, PER, ONL] = m.map(Number);
+    const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
+    if (DAYM !== SUM) bad.push(`PHOTO_DAY ${DAYM} ≠ DAY 합 ${SUM}`);
+    const goal = (S) => { const r = C.build(C.norm(S)); const cs = Array.isArray(r) ? r : r.cues; const by = {}; cs.forEach((c) => { by[c.slug] = c; });
+      const g = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
+      const t = (k, pre) => by[k] ? (pre || 0) + by[k].est + by[k].live.est : 0;
+      return { all: t('end-0-photo', g), per: t('narr-photo-split'), onl: t('narr-online-in'), free: by['narr-photo-out'].live.goFree }; };
+    const base = O.applyExample({ course: 'open' }, 'brief'); base.course = 'open';
+    for (const w of [0, 1, 2]) { const q = goal(Object.assign({}, base, { photoWishN: w, photoN: 1 })); if (q.all !== (ALL + w) * 60) bad.push(`요청 ${w}: 엔진 전체 하객 ${q.all}초 ≠ 마이페이지 (${ALL} + ${w})분`); }
+    for (const n of [1, 2, 3]) { const q = goal(Object.assign({}, base, { photoWishN: 0, photoN: n })); if (q.per !== PER * 60 * n) bad.push(`구도 ${n}: 엔진 ${q.per}초 ≠ 마이페이지 ${PER}분 × ${n}`); }
+    { const q = goal(Object.assign({}, base, { digital: true, photoWishN: 0, photoN: 1 })); if (q.onl !== ONL * 60) bad.push(`온라인 인사: 엔진 ${q.onl}초 ≠ 마이페이지 ${ONL}분`); }
+    { const fam = O.applyExample({ course: 'open' }, 'family'); fam.course = 'open'; const q = goal(Object.assign(fam, { photoWishN: 2, photoN: 5 })); if (q.free !== PRE * 60) bad.push(`자유 사진 최소: 엔진 ${q.free}초 ≠ 마이페이지 두 분 숨 고르기 ${PRE}분`); }
+    { const q = goal(Object.assign({}, base)); const unk = q.all + q.per; if (unk + PRE * 60 !== O.SHORT_MIN * 60) bad.push(`모를 때 가정: 전체 ${q.all} + 구도 ${q.per} + 숨 고르기 ${PRE * 60} = ${unk + PRE * 60}초 ≠ SHORT_MIN ${O.SHORT_MIN}분`); }
   }
-  if (bad.length) {
-    no(`2패스가 예산을 정확히 채우지 못한다 — 라운드가 실릴 큐를 못 찾았거나 고정 자리 큐가 엔진 목록 밖에 있다\n    ${bad.join('\n    ')}`);
-  } else ok(`2패스가 예산을 정확히 채운다 (${combos}조합 · 합+말시간 ${TALK}초 = 예산)`);
+  if (bad.length) no(`엔진 사진 목표와 마이페이지 · SHORT_MIN 이 갈렸다 [WISH_COUNT]\n    ${bad.join('\n    ')}`);
+  else ok(`엔진 사진 목표 = 마이페이지 상수 · 모를 때 가정 = SHORT_MIN [WISH_COUNT]`);
+}
+
+/* ★★[PHOTO_CAP_40 · WISH_COUNT · NO_ZERO_SHOT 2026-09-26 코워크 최종판 2-6] 마이페이지 단체 사진 표 — 예시 넷 + 가장 긴 조합 × 요청 0 · 2.
+   마이페이지의 photoCapOf · photoCapLine 을 **그 파일에서 꺼내** 돌린다(손으로 옮긴 사본을 재지 않는다 · RULE_MEASURED).
+   가장 긴 조합 = 전부 + 준비한 순서 3분 + 인사 1분쯤씩 + 편지 부모님께. 경계에 선 칸(약속 요청 0 · 가장 긴 조합)은
+   엔진 초가 바뀌면 움직일 수 있다 — 그때는 코워크 표와 함께 이 표를 고친다(최종판 «구현 뒤 게이트 값이 기준»). */
+{
+  const O = require('../assets/ritual-open.js');
+  const mp = fs.readFileSync(path.join(__dirname, '..', 'mypage.html'), 'utf8');
+  const bad = [];
+  const pick = (re, nm) => { const m = mp.match(re); if (!m) bad.push(`mypage.html 에서 ${nm} 를 못 찾았다`); return m ? m[0] : ''; };
+  const src = [pick(/var PHOTO_WISH_MAX=2;[^\n]*/, 'PHOTO_WISH_MAX'), 'function wishClean(){ return []; } var PHOTOFLOW={};',
+    pick(/var PHOTO_MAX=5;[^\n]*/, 'PHOTO_MAX'), pick(/var PHOTO_DAY=\d+[^\n]*/, 'PHOTO_DAY'),
+    pick(/function photoCapOf\(rd, dig, wishN\)\{[\s\S]*?\n\}/, 'photoCapOf(rd, dig, wishN)'), pick(/function photoCapLine\(c\)\{[\s\S]*?\n\}/, 'photoCapLine')].join('\n');
+  if (!bad.length) {
+    const F = new Function(src + '\nreturn { cap: photoCapOf, line: photoCapLine };')();
+    const longest = Object.assign(O.applyExample({}, 'family'), { freeWhat: 'video', freeLen: '3', tributeSay: 'long', letter: 'parent' });
+    longest.on = {}; ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'toast'].forEach((k) => { longest.on[k] = 1; });
+    const WANT = [   // [이름, S, 단체 사진 a~b, 요청 0 k/max, 요청 2 k/max] — 최종판 2-6 표 그대로
+      ['기록', O.applyExample({}, 'record'), '23~28', '5/5', '4/5'], ['약속', O.applyExample({}, 'promise'), '20~26', '4/5', '3/5'],
+      ['가족', O.applyExample({}, 'family'), '16~23', '2/5', '2/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
+      ['가장 긴 조합', longest, '9~17', '0/3', '0/2']];
+    WANT.forEach(([nm, S, ab, w0, w2]) => {
+      const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
+      const got = [`${r0.a}~${r0.b}`, `${r0.k}/${r0.max}`, `${r2.k}/${r2.max}`];
+      if (got.join(' ') !== [ab, w0, w2].join(' ')) bad.push(`${nm}: ${got.join(' · ')} ≠ 표 ${ab} · ${w0} · ${w2}`);
+    });
+    /* 문장 세 갈래 — k = max · k < max · k = 0 · k = max = 0(짧은 사진 시간을 일부러 만든다) */
+    const L = (sec, w) => F.line(F.cap({ summary: { sec } }, false, w));
+    const lines = [[O.bodySec(O.applyExample({}, 'record')), 0, '전체 하객과 구도 5개가 알맞아요.'],
+      [O.bodySec(O.applyExample({}, 'family')), 0, '전체 하객과 구도 2개가 알맞고, 제시간에 진행되면 5개까지 돼요.'],
+      [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 3개까지 돼요.'],
+      [[30 * 60, 35 * 60], 0, '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.']];
+    lines.forEach(([sec, w, want]) => { const g = L(sec, w); if (g !== want) bad.push(`문장: «${g}» ≠ «${want}»`); if (/구도 0개/.test(g)) bad.push(`«구도 0개»가 나왔다: ${g}`); });
+    for (let b = 360; b <= 45 * 60; b += 30) for (const w of [0, 1, 2]) { const g = L([b - 300, b], w); if (/구도 0개/.test(g)) { bad.push(`본식 ${b}초 · 요청 ${w}: «구도 0개»`); break; } }
+  }
+  if (bad.length) no(`마이페이지 단체 사진 표가 최종판 2-6 과 다르다 [PHOTO_CAP_40]\n    ${bad.join('\n    ')}`);
+  else ok('마이페이지 단체 사진 표 = 최종판 2-6(예시 넷 + 가장 긴 조합 × 요청 0 · 2) · 문장 네 갈래 · «구도 0개» 없음 [NO_ZERO_SHOT]');
 }
 
 /* ★[POST_LIVE_DUCK 2026-08-16 · 코워크가 판정을 요청한 자리] post 로 올린 음량을 live 가 도로 내리는 모양.
