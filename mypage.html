@@ -3924,13 +3924,15 @@ function renderContractPayment(c, p, ctx){
          시그니처 계약금은 총액의 10%라 예약금 100,000원을 빼도 늘 남는다(330만 원이면 230,000원). 서명하자마자
          같은 카드가 「이어서, 계약금을 입금해 주세요 · 230,000원」을 띄워, 서명 직전의 안심 문장이 모든 고객에게 거짓이었다.
        금액은 서버가 서명 전에도 보내는 내 내역 행(60_mypage buildLedgerState key '계약금' = 계약금 − 예약금)에서 읽는다 — 10%를 화면에서 다시 계산하지 않는다(GAS 재배포 불필요).
-       임박 계약(중도금·잔금 기한이 이미 닥침)은 서명 뒤 한 번에 받으므로(_bundleKeysFor · 기한일 ≤ 오늘) 금액 없이 무엇을 함께 받는지만 말한다. 값이 없으면 금액 없는 한 줄. */
+       임박 계약(중도금·잔금 기한이 이미 닥침)은 서명 뒤 한 번에 받으므로(_bundleKeysFor · 기한일 ≤ 오늘) 금액 없이 무엇을 함께 받는지만 말한다. 값이 없으면 금액 없는 한 줄.
+       «계약금·중도금·잔금»은 가운뎃점 양옆을 낱말 잇기(&#8288;·U+2060 · KO_WRAP_TAIL 선례)로 붙인다 — 320에서 «…계약금·중도금· / 잔금 입금…»처럼
+       가운뎃점이 줄 끝에 매달렸다(검토 실측 · CHECKS_NO_DANGLE). nowrap 덩어리로 감싸면 균형 줄바꿈이 «…입금 / 안내가…»로 기울어 이쪽을 골랐다. */
     var _ldP=((ctx&&ctx.ledger&&ctx.ledger.payments)||[]), _dp=_ldP.filter(function(x){ return x&&x.key==='계약금'; })[0];
     var _tdY=(function(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); })();
     var _bdl=_ldP.filter(function(x){ return x&&(x.key==='중도금'||x.key==='잔금')&&!x.done&&(x.dueLabel==='계약 시 함께 납부'||(x.dueDate&&String(x.dueDate).slice(0,10)<=_tdY)); }).map(function(x){ return x.key; });
     h += isSnap
        ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
-       : (_bdl.length ? '<div class="cc-note" style="text-align:center"><span style="display:block;text-wrap:balance">서명하시면 계약금·'+escapeHtml(_bdl.join('·'))+' 입금 안내가 이어져요.</span><span style="display:block;text-wrap:balance">예식이 가까워 한 번에 받아요.</span></div>'
+       : (_bdl.length ? '<div class="cc-note" style="text-align:center"><span style="display:block;text-wrap:balance">서명하시면 계약금&#8288;·&#8288;'+escapeHtml(_bdl.join('\u2060·\u2060'))+' 입금 안내가 이어져요.</span><span style="display:block;text-wrap:balance">예식이 가까워 한 번에 받아요.</span></div>'
          : (_dp&&!_dp.done&&Number(_dp.amount)>0) ? '<div class="cc-note" style="text-align:center;text-wrap:balance">서명 후 계약금 잔액 <b>'+fmtWon(_dp.amount)+'</b>을 입금해 주시면 계약이 마무리돼요.</div>'
          : '<div class="cc-note" style="text-align:center;text-wrap:balance">서명하시면 계약금 입금 안내가 이어져요.</div>');
     h += '<div class="cc-actions">'+link
@@ -3986,7 +3988,7 @@ function renderContractPayment(c, p, ctx){
      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal"'+(_bundleActive?' data-bundle="1"':'')+'>입금했어요</button>'
      /* [PAY_DUE_WORD 2026-09-26 점검 pay-5] «잔금 …은 예식 9일 전에 안내드려요» → «…까지예요». 9일 전은 «안내하는 날»이 아니라 «내는 기한»이다
           (실제 안내는 D-30 한 줄 · D-15 카드로 먼저 열린다). 묶음에 잔금이 들어 있으면 이미 위 금액에 있으니 생략. */
-     + ((a&&a.잔금&&_pb2.indexOf('잔금')===-1)?'<div class="cc-note"><span style="display:block;text-wrap:balance">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'까지예요.</span><span style="display:block;text-wrap:balance">기한이 가까워지면 이 화면에 입금 안내가 열려요.</span></div>':'')+'</div></div>';
+     + ((a&&a.잔금&&_pb2.indexOf('잔금')===-1)?'<div class="cc-note"><span style="display:block;text-wrap:balance">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'까지예요.</span><span style="display:block;text-wrap:balance">기한이 가까워지면 이&nbsp;화면에 입금 안내가 열려요.</span></div>':'')+'</div></div>';   // [PAY_DUE_WORD] «이&nbsp;화면에» — 320 균형 줄바꿈이 «…가까워지면 이 / 화면에…»로 지시어만 떼어 놓았다(검토 실측)
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
   var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; copyThen(t, ok); });
