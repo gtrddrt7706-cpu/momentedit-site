@@ -28,7 +28,10 @@ for f in files:
         if '//' not in line: continue
         code, com = split_comment(line)
         if com is None or not code.strip(): continue
-        if re.search(r";\s*[A-Za-z_$][\w$.]*\([^)]*\)\s*;", com) or re.search(r"\b(document|window)\.[A-Za-z.]+\([^)]*\)\s*;", com):
+        # ★[TILE_SWALLOW 2026-09-26 코워크 회신8] 객체 항목도 삼킨다 — 코드 쪽이 `,` `{` `(` 로 끝나고 주석 쪽에 `이름: '…'` · `이름: {` · `이름: [` 가 있으면
+        #   (TILE 표의 letter · toast 가 free 줄 뒤 주석에 먹혀 칸 글이 #872~#875 동안 비었다 · 종전 규칙은 «호출문»만 봐서 못 잡았다)
+        obj = code.rstrip().endswith((',', '{', '(')) and re.search(r"(^|[\s,{])[A-Za-z_$][\w$]*\s*:\s*['\"{\[]", com)
+        if obj or re.search(r";\s*[A-Za-z_$][\w$.]*\([^)]*\)\s*;", com) or re.search(r"\b(document|window)\.[A-Za-z.]+\([^)]*\)\s*;", com):
             bad.append(f"{f}:{n}  {line.strip()[:160]}")
 if bad:
     print('❌ [COMMENT_SWALLOW] 줄 끝 // 주석이 코드 문장을 삼켰다(실행 안 됨) — 주석을 /* */ 로 바꾸거나 코드를 다음 줄로:')
