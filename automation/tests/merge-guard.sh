@@ -4373,6 +4373,29 @@ chk 'ADV_FOCUS' assets/advisor-widget.js 1
 # [WIZ_BASE_AFTER 2026-08-15 실클릭 점검] inv·trk 기준선은 첫 렌더 **뒤** — 앞이면 프리필이 전부 '변경'이 되어
 #   갓 열고 안 건드려도 나가기 판이 뜬다(실사고 · 좌석/사진/스냅은 모델 기반이라 무사)
 chk 'WIZ_BASE_AFTER' mypage.html 2
+# ★★[WIZ_JSON_DEEP 2026-09-26] 위저드 «바뀐 게 있나» 판정(_wizJson)이 안쪽 내용까지 본다.
+#   종전 판은 stringify 둘째 인자(키 목록)가 모든 깊이의 허용 목록이라 좌석 이름 · 단체 사진 요청 · 불러 모아 주실 분이
+#   늘 «바뀐 것 없음»이었다 — 손잡이 «저장됨» · «나가기»가 묻지 않고 나가 입력이 사라졌다(2026-08-14 f5154386부터).
+#   진짜 함수를 꺼내 재는 검사를 돌린다(좌석·단체 사진·스냅 장면 변경은 «바뀜» · 키 순서·UI 키(_)는 «그대로»).
+chk 'WIZ_JSON_DEEP' mypage.html 2
+nochk 'JSON.stringify(c, Object.keys(c).sort())' mypage.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/wiz-dirty.mjs >/dev/null 2>&1; _wzd=$?
+  case "$_wzd" in
+    0) echo 'ok wiz-dirty: 위저드 변경 판정이 안쪽 내용(좌석 이름·단체 사진)까지 본다' ;;
+    1) echo 'FAIL wiz-dirty: 위저드 변경 판정이 안쪽 내용을 못 본다 — node scripts/audit/wiz-dirty.mjs'; fail=1 ;;
+    *) echo 'ok wiz-dirty: 재지 못했습니다(함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+# ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
+#   «예식 준비» 카드의 행 순서는 productionDashHtml 의 _prepRows 배열 하나가 정한다. 식순에 딸린 접힘 두 줄(준비 목록 · 부케)은 식순 바로 뒤.
+chk 'PREP_ORDER_0926' mypage.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
+  case "$_pro" in
+    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 단체 사진' ;;
+    1) echo 'FAIL prep-order: 예식 준비 카드 순서가 사장님 지시(2026-09-26)와 다릅니다 — node scripts/audit/prep-order.mjs'; fail=1 ;;
+    *) echo 'ok prep-order: 재지 못했습니다(배열 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 # [WIZ_SAVE_AA] '저장됨' 은 opacity 흐림(2.31:1)이 아니라 색(--light 4.74:1)으로
 chk 'WIZ_SAVE_AA' mypage.html 1
 
