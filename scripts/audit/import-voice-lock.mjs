@@ -25,7 +25,11 @@ const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d == nu
 const T = fs.mkdtempSync(path.join(os.tmpdir(), 'voicelock-'));
 const cp = (rel, src) => { const d = path.join(T, rel); fs.mkdirSync(path.dirname(d), { recursive: true }); fs.cpSync(src || path.join(ROOT, rel), d, { recursive: true }); };
 cp('scripts/sent-lib.mjs', process.env.SENT_LIB_SRC || undefined);
-for (const f of ['scripts/lib/whole-take.mjs', 'scripts/clip-select.mjs', 'scripts/build-typecast-import.mjs', 'assets/ritual-cue.js', 'assets/ritual-story.js', 'assets/ritual-data.js', 'assets/ritual-open.js', 'docs/plans/식순연구/타입캐스트/manifest.json', 'docs/plans/식순연구/타입캐스트/다시받기', 'assets/audio/_src']) if (fs.existsSync(path.join(ROOT, f))) cp(f);
+for (const f of ['scripts/lib/whole-take.mjs', 'scripts/clip-select.mjs', 'scripts/build-typecast-import.mjs', 'assets/ritual-cue.js', 'assets/ritual-story.js', 'assets/ritual-data.js', 'assets/ritual-open.js', 'docs/plans/식순연구/타입캐스트/manifest.json', 'assets/audio/_src']) if (fs.existsSync(path.join(ROOT, f))) cp(f);
+/* ★[FIXTURE_0926 2026-09-26] 다시받기 순서표는 «9/26 녹음 전» 판을 얼려 둔 것을 쓴다(scripts/audit/fixtures/voicelock-0926).
+   녹음이 다 들어오면 살아 있는 다시받기는 비어서(받을 것 0) 가짜 묶음을 못 만든다 — 그러면 이 검사는 아무것도 재지 않고 붉어진다.
+   재는 것은 «들이기 도구»이지 «지금 남은 목록»이 아니다. 같은 모양의 묶음을 늘 같은 순서표로 잰다. */
+cp('docs/plans/식순연구/타입캐스트/다시받기', path.join(ROOT, 'scripts/audit/fixtures/voicelock-0926/다시받기'));
 const LIB = path.join(T, 'assets/audio/_src'), DIR = path.join(T, 'docs/plans/식순연구/타입캐스트/다시받기');
 const man = JSON.parse(fs.readFileSync(path.join(T, 'docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8'));
 const ord = JSON.parse(fs.readFileSync(path.join(DIR, '_전체_순서.json'), 'utf8'));
@@ -72,11 +76,16 @@ checkVoiceBatch('가짜 예슬 --voice(성우별 순서표)', '3_예슬.txt', '�
   const r = run('--import', d);
   const after = snap(), ch = diff(before, after);
   const other = ch.filter((id) => !['진희', '우성'].includes(VOICE[roleOf.get(id)]));
-  ok(`오늘 진희 + 우성 묶음 → 175자리 · 남의 성우 0`, ch.length === 175 && other.length === 0, `${ch.length}자리 · 남의 ${other.length}`);
+  /* [FIXTURE_0926] 기대 자리 수는 얼린 순서표에서 센다 — 그 뒤 원천 글이 바뀐 자리(예: TOAST_TEXT_2 축배 세 자리)는 이름이 안 맞아 안 들어가는 것이 맞다.
+     9/26 녹음 전 원천 그대로면 175(코워크 재현값)다. */
+  const txtOf = new Map(); for (const c of man.clips) for (const s of (c.sents || [])) txtOf.set(String(c.no).padStart(2, '0') + '_' + c.file + '#' + s.i, s.text);
+  const stale = new Set(); for (const r of ord) if (['진희', '우성'].includes(r.voice)) for (const a of r.at || []) { const id = a.clip + '#' + a.i; if (txtOf.has(id) && txtOf.get(id) !== r.text) stale.add(id); }
+  const want175 = { size: 175 - stale.size };   // 9/26 녹음 전 원천 그대로면 stale 0 → 175
+  ok(`오늘 진희 + 우성 묶음 → ${want175.size}자리(얼린 순서표 기준 · 원천 그대로면 175) · 남의 성우 0`, ch.length === want175.size && other.length === 0, `${ch.length}자리 · 남의 ${other.length}`);
   const w = path.join(T, 'in', 'entry.wav'); execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'sine=frequency=900:duration=3.35', '-ar', '44100', '-ac', '1', w]);
   const p = run('--patch', '--sent', '신랑 신부, 입장!', '--wav', w, '--keep-gap');
   const ch2 = diff(after, snap());
-  ok('«신랑 신부, 입장!» --patch --keep-gap → 여섯 자리(entry-A~F) · 합 181', ch2.length === 6 && ch2.every((id) => /entry-[A-F]#/.test(id)) && ch.length + ch2.length === 181, `${ch2.length} · ${p.stdout.split('\n')[0]}`);
+  ok(`«신랑 신부, 입장!» --patch --keep-gap → 여섯 자리(entry-A~F) · 합 ${want175.size + 6}`, ch2.length === 6 && ch2.every((id) => /entry-[A-F]#/.test(id)) && ch.length + ch2.length === want175.size + 6, `${ch2.length} · ${p.stdout.split('\n')[0]}`);
   const st = path.join(T, 'stage'); const s = run('--stage', st, '--clip', '=05_entry-A');
   const names = fs.existsSync(st) ? fs.readdirSync(st) : [];
   ok('--stage → 그 자리 이름에 _JOINED_ (조립기가 안쪽 쉼을 안 깎는다) [ENTRY_GAP_KEEP]', names.some((n) => /_JOINED_\.flac$/.test(n)) && names.filter((n) => /_JOINED_/.test(n)).length === 1, names.join(' '));

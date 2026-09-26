@@ -4181,7 +4181,7 @@ chk 'VOICE_FRIEND_2' scripts/build-typecast-import.mjs 1
 chk "신랑: '진한'" scripts/build-typecast-import.mjs 1   # ★[VOICE_GROOM_3 2026-09-26 사장님] 이겸 → 진한 (위 VOICE_CAST_2 의 이준→이겸 은 그때 기록)
 chk 'VOICE_GROOM_3' scripts/build-typecast-import.mjs 1
 nochk "신랑: '이겸'" scripts/build-typecast-import.mjs
-chk '진한:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 56
+chk '진한:' "scripts/audit/fixtures/voicelock-0926/다시받기/0_전체_화자표기.txt" 56   # [FIXTURE_0926] 녹음이 다 들어와 살아 있는 다시받기는 비었다 — 9/26 녹음 전 판(얼린 것)으로 본다
 nochk '이겸:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt"
 nochk "신랑: '이겸'" scripts/audit/voice-gap.js
 nochk "신랑: '이겸'" scripts/audit/event-script.mjs
@@ -12420,7 +12420,7 @@ chk 'STAGE_ORDER_BY_NAME' scripts/assemble-narration.mjs 3
 chk "신부: '예슬'" scripts/build-typecast-import.mjs 1
 chk 'VOICE_BRIDE_2' scripts/build-typecast-import.mjs 1
 chk 'STEPMOM_2' scripts/build-typecast-import.mjs 1
-chk '^예슬:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 42
+chk '^예슬:' "scripts/audit/fixtures/voicelock-0926/다시받기/0_전체_화자표기.txt" 42   # [FIXTURE_0926] 녹음이 다 들어와 살아 있는 다시받기는 비었다 — 9/26 녹음 전 판(얼린 것)으로 본다
 nochk '^서진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt"
 chk '^여기 와 계신 한 분 한 분 얼굴을 뵈니, 참 든든합니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk '예전에 내가, 너한테 삼십 분을 따진 적이 있었지\.' docs/plans/식순연구/배역_예시_대사.txt 1
@@ -12436,8 +12436,8 @@ chk '^싸워도 좋은데, 대신 등 돌리고 잠들지는 마라\.' docs/plan
 chk '^하윤이 엄마입니다\. 우리 딸은 어릴 때부터 저를 안 닮았어요\.' docs/plans/식순연구/배역_예시_대사.txt 1
 # [MOTHER_TEXT_3] «엄마는 그거면 된다.» 로 바뀜(덧5) — 아래 줄이 본다
 nochk '지금까지는 이기고 있습니다' docs/plans/식순연구/배역_예시_대사.txt
-chk '^대진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 18
-chk '^연화:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 15
+chk '^대진:' "scripts/audit/fixtures/voicelock-0926/다시받기/0_전체_화자표기.txt" 18   # [FIXTURE_0926] 녹음이 다 들어와 살아 있는 다시받기는 비었다 — 9/26 녹음 전 판(얼린 것)으로 본다
+chk '^연화:' "scripts/audit/fixtures/voicelock-0926/다시받기/0_전체_화자표기.txt" 15   # [FIXTURE_0926] 녹음이 다 들어와 살아 있는 다시받기는 비었다 — 9/26 녹음 전 판(얼린 것)으로 본다
 # ── [코워크 회신8 덧4 2026-09-26 사장님] 신랑 서약 한 줄 · 부분 재녹음은 --clip 순서표 ──
 chk '^대신 그 주에 너희 집 그릇이 다 반짝반짝했지\.' docs/plans/식순연구/배역_예시_대사.txt 1
 nochk '그릇이 다 반짝반짝했어\.' docs/plans/식순연구/배역_예시_대사.txt
@@ -12460,6 +12460,8 @@ nochk "두 분이 위하여, 하시면" assets/ritual-data.js
 chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응원해 주세요.".;' assets/ritual-data.js 1
 chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응원해 주세요.".;' order-preview.html 1
 chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk 'FIXTURE_0926' scripts/audit/import-voice-lock.mjs 2   # 들이기 검사는 얼린 9/26 순서표로(살아 있는 다시받기는 비었다)
+chk 'REC_STATE_FREE' scripts/audit/listen-page.mjs 3   # 보고 듣기 검사는 녹음 상태와 상관없이(녹음 기록을 비워 «녹음 전»을 만든다)
 chk '사흘씩 두지 말고 서준이한테 먼저 말해라\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk '엄마는 그거면 된다\.$' docs/plans/식순연구/배역_예시_대사.txt 1
 nochk '엄마는 그거면 돼\.' docs/plans/식순연구/배역_예시_대사.txt
