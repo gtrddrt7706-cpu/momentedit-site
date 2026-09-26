@@ -2431,7 +2431,7 @@ function applyCoupleInfo(couple){
   // 3. 날짜 / 요일 / 시간
   const date = couple.weddingDate || '';
   /* ★[SLOT_CLOCK 2026-09-25] 슬롯 ID(13:20) → 실제 본예식 시각 — 값은 mypage.html SLOT_CLOCK 과 같다(shared/hydrate.js 참고) */
-  const SLOT_CLOCK = { '09:00': '10:10', '12:20': '13:30', '15:40': '16:50', '10:00': '10:10', '13:20': '13:30', '16:40': '16:50' };
+  const SLOT_CLOCK = { '09:00': '10:20', '12:20': '13:40', '15:40': '17:00', '10:00': '10:20', '13:20': '13:40', '16:40': '17:00' };   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
   const time24 = SLOT_CLOCK[String(couple.weddingTime || '').trim()] || couple.weddingTime || SLOT_CLOCK['10:00'];
 
   if (date) {

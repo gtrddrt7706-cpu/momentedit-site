@@ -1685,8 +1685,9 @@ function contractSrc(product, docVersion){
   if(v==='v1.6') return '/contract/archive/v1-6.html';   // [PRICE_2026_08] 인상 전(280/210만) 서명자는 그 금액이 적힌 보존본으로 열람
   if(v==='v1.7') return '/contract/archive/v1-7.html';   // [PRICE_2026_08_15] 평일 240만 서명자(8/14~8/15 이틀 창) — 창이 짧다고 빼지 말 것. 한 분이라도 있으면 새 금액 문서를 보게 된다
   if(v==='v1.8') return '/contract/archive/v1-8.html';   // [CONTRACT_V19] v1.8 서명자는 스냅 45 · 본식 16~25 · 합 55 · «부케·생화 커스텀» 이 적힌 보존본으로
+  if(v==='v1.10') return '/contract/archive/v1-10.html';   // [CONTRACT_V111] v1.10 서명자는 스냅 50 · 합 50 · 테이블 인사가 있던 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 그 판 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.10) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  return '/contract/v1-1.html';   // 현행(v1.11) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -4698,7 +4699,7 @@ function renderProduction(p, inv){
   // 행 버튼 → 바로 아래 패널 토글(내용 확인)
   function _panelToggle(btnId, panelId){ var b=$(btnId), pn=$(panelId); if(!b||!pn) return; b.addEventListener('click', function(){ pn.style.display=(pn.style.display==='none')?'':'none'; }); }
   _panelToggle('mp_cfOpen','mp_cfPanel'); _panelToggle('mp_guideOpen','mp_guidePanel');
-  var _phBtn=$('mp_photoStart'); if(_phBtn) _phBtn.addEventListener('click', function(){ startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null); });   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
+  var _phBtn=$('mp_photoStart'); if(_phBtn) _phBtn.addEventListener('click', function(){ startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false); });   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
     var _dd0=p.diningDraft||{};
@@ -5377,7 +5378,7 @@ function fmtWedKo(ymd){
    (하객 입장 13:05 인데 «오후 13:20» → 청첩장을 본 하객은 13:00 에 와서 대기 공간 없이 기다린다).
    본예식 = 도착 + 준비(ritual-data DAY.ready) + 단독 스냅(DAY.snap). 스냅이 바뀌면 check-source-drift (7)이 이 표를 잡는다.
    같은 표가 admin.html · Admin.html · shared/hydrate.js · live.html · 95_notify.gs 에 있다(각자 따로 로드되는 화면이라). */
-var SLOT_CLOCK={'09:00':'10:10','12:20':'13:30','15:40':'16:50','10:00':'10:10','13:20':'13:30','16:40':'16:50'};
+var SLOT_CLOCK={'09:00':'10:20','12:20':'13:40','15:40':'17:00','10:00':'10:20','13:20':'13:40','16:40':'17:00'};   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
 function slotClock(t){ t=String(t||'').slice(0,5); return SLOT_CLOCK[t]||t; }
 var SLOT_LAB={'09:00':'오전','12:20':'오후','15:40':'늦은 오후','10:00':'오전','13:20':'오후','16:40':'늦은 오후'};
 function wedTimeKo(t){
@@ -5397,9 +5398,9 @@ function weddingSequenceRef(intro){
     + '<div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);line-height:1.7;margin:-2px 0 12px;padding-bottom:11px;border-bottom:1px dashed var(--hairline);word-break:keep-all">'+intro+'</div>'
     + '<div class="schedule-ref-table">'
       + '<div class="ref-row"><span class="ref-header-cell"></span><span class="ref-header-cell">신랑·신부 도착</span><span class="ref-header-cell">내빈 입장 시작</span><span class="ref-header-cell">본예식</span><span class="ref-header-cell">종료</span></div>'
-      + '<div class="ref-row"><span class="ref-slot">오전</span><span class="ref-time">09:00</span><span class="ref-time highlight">09:50</span><span class="ref-time">10:10</span><span class="ref-time">11:20</span></div>'
-      + '<div class="ref-row"><span class="ref-slot">오후</span><span class="ref-time">12:20</span><span class="ref-time highlight">13:10</span><span class="ref-time">13:30</span><span class="ref-time">14:40</span></div>'
-      + '<div class="ref-row"><span class="ref-slot">늦은 오후</span><span class="ref-time">15:40</span><span class="ref-time highlight">16:30</span><span class="ref-time">16:50</span><span class="ref-time">18:00</span></div>'
+      + '<div class="ref-row"><span class="ref-slot">오전</span><span class="ref-time">09:00</span><span class="ref-time highlight">10:00</span><span class="ref-time">10:20</span><span class="ref-time">11:20</span></div>'
+      + '<div class="ref-row"><span class="ref-slot">오후</span><span class="ref-time">12:20</span><span class="ref-time highlight">13:20</span><span class="ref-time">13:40</span><span class="ref-time">14:40</span></div>'
+      + '<div class="ref-row"><span class="ref-slot">늦은 오후</span><span class="ref-time">15:40</span><span class="ref-time highlight">16:40</span><span class="ref-time">17:00</span><span class="ref-time">18:00</span></div>'
     + '</div>'
     + '<div class="schedule-ref-foot"><span class="accent">Note</span>대기 공간이 없으니, 하객분들은 <strong style="color:var(--accent);font-weight:500">내빈 입장 시작 시간</strong>에 맞춰 오시도록 안내해 주세요.</div>'
   + '</div>';
@@ -6828,7 +6829,7 @@ var PHOTO_NAMES=PHOTO_PRESETS.map(function(x){ return x.n; });   // 이름만 ·
 function photoMeta(n){ for(var i=0;i<PHOTO_PRESETS.length;i++) if(PHOTO_PRESETS[i].n===n) return PHOTO_PRESETS[i]; return null; }
 /* ★[PHOTO_MIN] 예상 시간 — 5차 리서치 실측. 20명 이상 한 컷 6~10분(25명은 하단값 6분) ·
    작은 그룹은 그룹당 2~3분. 상한만 두면 고객은 다 채운다. **분이 늘어나는 게 보여야 스스로 조절한다.** */
-function photoMins(sel){ return 6 + (sel||[]).length * 3; }
+function photoMins(sel){ return 6 + (sel||[]).length * 3; }   // 전체 하객 6분 + 구도마다 3분 · 요청 분은 더하지 않는다([WISH_IN_TIME])
 // 단체컷 '함께 하는 동작' 예시 카드 — 무드단어 클릭에서 '구도가 보이는 카드'로 개편(2026-07-20 회의: 디렉터·UX·브랜드 3관점 + 예비부부 2인 점검 반영 · marker: PHOTO_WISH_EX · 구 PHOTO_FX_CARDS).
 //   변경: 부부 둘러싸고 위에서 → '살짝 높은 곳에서 다 함께'(실내 천장고·소음·안전으로 드론/부감 비현실 → 준부감) · 셀카는 '부부가 폰, 넓은 컷은 촬영감독' 재정의 · '다 함께 부부를 바라보기' 추가 · '다 함께 박수·환호' → '박수로 맺는 한 컷'(환호는 진행 순간으로) · '폰 플래시 흔들기'·'다 함께 활짝 웃기' 제외(원하면 직접 추가). 저장값은 카드 제목 문자열(photoFx) — 스토리지·표시(guide/admin/GAS) 무변경. 그림은 currentColor 구도 예시(실촬영과 다름 · 실사진 교체 예정). 꽃가루·컨페티·폭죽은 청소 리스크로 계속 제외
 /* ★★[PHOTO_FX_V2 2026-08-08] 연출 카드 재작성 — 5차 리서치 + 사용자 결정.
@@ -6897,7 +6898,7 @@ var PHOTO_WISH_EX=[
    ★who 는 자유 입력이되 위 구도 목록을 칩으로 권한다 — '누구와'가 안 적히면 작가가 그 요청을
      **부를 수가 없다**(단체 사진에서 가장 자주 비는 칸이 이것이다).
    ★ref 는 http(s) 만. 우리는 그 그림을 못 보고 링크를 열 뿐이라, 만료되는 링크(스토리·카톡)는 안내로 막는다. */
-var PHOTO_WISH_MAX=2;      // [PHOTO_CAP] 마지막 토막 4~5분 · 요청 하나에 1분 남짓 — 옛 연출 상한과 같은 근거
+var PHOTO_WISH_MAX=2;      // [PHOTO_CAP · PHOTO_CAP_40 2026-09-26] 첫 전체 사진 뒤 · 요청 둘 · 하나에 1분 남짓
 var WISH_WHAT_MAX=80, WISH_WHO_MAX=40, WISH_REF_MAX=300;
 function wishNorm(w){ w=w||{};
   return { what:String(w.what||'').replace(/[<>]/g,'').trim().slice(0,WISH_WHAT_MAX),
@@ -6989,14 +6990,23 @@ var PHOTO_MAX=5;    // 전체 하객 제외 추가 구도 상한(총 6컷)
      max = 대본대로 간 날(본식 대본 합) 값 · 5 를 넘지 않는다 — 고를 수 있는 최대
    ★본식 초는 식순 저장 때 order-preview 가 summary.sec 로 실어 둔다(원천 ritual-open.js bodySec). 없으면(옛 초안 · 아직 없음) null.
    ★줄이는 차례(코워크 6단계 7장): 두 분 쉼 → 뒤에 고른 구도 → 테이블 인사. 배웅 시각은 지킨다. */
-var PHOTO_DAY=50, PHOTO_PRE=12, PHOTO_ALL=6, PHOTO_PER=3;
-function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
-function photoCapOf(rd){
+/* ★★[PHOTO_CAP_40 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-6] 스냅 60 · 본식 + 단체 사진 = 40 · 테이블 인사 없음.
+     PHOTO_DAY 50 → 40 — 마이페이지는 ritual-data.js 를 읽지 않아 숫자로 둔다(check-source-drift 가 DAY 와 대조한다).
+     PHOTO_PRE 12 → 2(두 분 숨 고르기 · 테이블 인사 0 · 배웅 안내는 배웅 20분 안) · 온라인 날은 +2(온라인 인사).
+     PHOTO_ALL 6 → 8(전체 하객 6 + «꼭 담고 싶은 사진» 둘까지 · 하나에 1분 남짓 — 첫 전체 사진 바로 뒤).
+     ★줄이는 차례: 자유 사진 → 숨 고르기 → 뒤에 고른 구도. 배웅 시각은 지킨다. */
+var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=8, PHOTO_PER=3, PHOTO_ONLINE=2;
+function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
+function photoCapOf(rd, dig){
   var sec=((rd||{}).summary||{}).sec;
   if(!sec||sec.length!==2||!(sec[1]>0)) return null;
-  var lateGroup=PHOTO_DAY-sec[1]/60-PHOTO_PRE, fastGroup=PHOTO_DAY-sec[0]/60-PHOTO_PRE;
-  var k=Math.max(0,Math.floor((lateGroup-PHOTO_ALL)/PHOTO_PER)), mx=Math.max(k,Math.min(PHOTO_MAX,Math.floor((fastGroup-PHOTO_ALL)/PHOTO_PER)));
-  return { n:Math.round(lateGroup), k:Math.min(k,PHOTO_MAX), max:mx };   // n 은 반올림 — 코워크 5-7 표(기록 21 · 약속 18 · 가족 15 · 전부 13)와 같다
+  var pre=PHOTO_PRE+(dig?PHOTO_ONLINE:0);
+  var lateGroup=PHOTO_DAY-sec[1]/60-pre, fastGroup=PHOTO_DAY-sec[0]/60-pre;
+  /* ★[PHOTO_CAP_CLAMP 2026-09-26 코워크 회신 9/26 1] k 를 먼저 PHOTO_MAX 로 자른 뒤 max 를 셈한다 —
+       종전엔 max = Math.max(k, …) 에서 자르기 전 k 가 들어가 본식이 아주 짧으면(빈 채) 9 가 나왔다. */
+  var k=Math.min(PHOTO_MAX,Math.max(0,Math.floor((lateGroup-PHOTO_ALL)/PHOTO_PER))), mx=Math.max(k,Math.min(PHOTO_MAX,Math.floor((fastGroup-PHOTO_ALL)/PHOTO_PER)));
+  /* [PHOTO_CAP_40 · D12 2026-09-26 코워크 추가 전달 2] a~b = ①과 같은 셈(40 − 본식 넉넉 합 ~ 40 − 본식 대본 합) — 쉬는 2분을 뺀 n 과 섞지 않는다 */
+  return { n:Math.round(lateGroup), k:k, max:mx, a:Math.round(PHOTO_DAY-sec[1]/60), b:Math.round(PHOTO_DAY-sec[0]/60) };   // n 은 반올림 — 코워크 5-7 표(기록 21 · 약속 18 · 가족 15 · 전부 13)와 같다
 }
 // [PHOTO_WISH] 옛 `PHOTO_FX_MAX`(연출 상한 2)는 PHOTO_WISH_MAX 로 이름만 옮겼다 — 근거(마지막 토막 4~5분)는 같다
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
@@ -7031,14 +7041,14 @@ function photoShareKind(u){ u=String(u||'');
   if(/^https?:\/\/open\.kakao\.com\//i.test(u)) return 'kakao';
   if(/^https?:\/\/(photos\.app\.goo\.gl|photos\.google\.com)\//i.test(u)) return 'gphoto';
   return u?'etc':''; }
-function startPhotoFlow(gi, rd){   // rd = 식순 초안(읽기 전용 · [PHOTO_SCENE] 장면 목록에만 쓴다 · savePhoto 는 건드리지 않는다)
+function startPhotoFlow(gi, rd, dig){   // rd = 식순 초안(읽기 전용 · [PHOTO_SCENE] 장면 목록에만 쓴다 · savePhoto 는 건드리지 않는다)
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false;
   if(typeof SNAPFLOW!=='undefined'){ bkKill(SNAPFLOW); SNAPFLOW.active=false; var _so=$('mp_snapOverlay'); if(_so&&_so.parentNode) _so.parentNode.removeChild(_so); }
   /* [PHOTO_WISH] 요청 목록 — 저장본에 photoWish 가 있으면 그것, 없고 옛 photoFx 만 있으면 이어받는다.
      ★둘 다 있으면 photoWish 가 이긴다(이미 새 화면에서 고쳐 쓴 것이므로 옛 값으로 되돌리지 않는다). */
   var _sv=(((gi||{}).photoWish)||[]), _wish=_sv.length?wishClean(_sv):_wishFromFx(((gi||{}).photoFx)||[]);
   var _pc0=((gi||{}).photoCaller)||{};   // [PHOTO_CALLER]
-  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null) };
+  PHOTOFLOW={ active:true, sel:(((gi||{}).photo)||[]).slice(), wish:_wish, caller:{groom:String(_pc0.groom||''), bride:String(_pc0.bride||'')}, share:String(((gi||{}).photoShareUrl)||''), gi:(gi||{}), rd:(rd||null), dig:!!dig };
   // 식순·스냅과 동일한 전체화면 오버레이(진행바·다른 카드를 덮어 집중도 향상 · marker: PROD_OVERLAY 2026-07-19 사용자 지시). 별도 fixed div라 renderProduction과 독립(pull-refresh 무관)
   var old=$('mp_photoOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_photoOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','단체 사진');
@@ -7061,7 +7071,7 @@ function renderPhoto(box){
      상태는 위 「저장」 버튼이 스스로 말한다(저장/저장 중…/저장됨/다시 저장). 되살리지 말 것. */
   /* [PHOTO_GATHER_OFF] 「불러 모아요/자리에서」 두 갈래 설명을 걷어내고 **한 문장**으로.
      대신 순서가 왜 중요한지를 적는다 — 두 분은 가운데 그대로, 둘레 사람만 바뀐다(subtractive). */
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>인사 사진</b> 시간 · 전체 하객이 1번, 그다음은 <b>고르신 순서</b>예요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 12px">본식 뒤 <b>단체 사진</b> 시간 · 전체 하객이 1번, 그다음은 <b>고르신 순서</b>예요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객<span class="ph-sub">오신 분들 모두 · 늘 첫 컷이에요</span></span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
@@ -7088,9 +7098,9 @@ function renderPhoto(box){
     +(wish.length?(' · <b>요청 '+wish.length+'개</b>'):'')
     +(sel.length>1?'<br>큰 모임을 앞에 두시면 빨라요.':'')
     +'</div>';   // ★[PHOTO_CAP_RD] 옛 경고(«_pm>19 · 다 함께 30~39분 기준»)는 아래 식순 기준 한 줄로 바뀌었다. 옛 줄은 주석 안에 '</div>' 를 삼켜 이 칸이 안 닫히고 있었다
-  var _cap=photoCapOf(PHOTOFLOW.rd);
+  var _cap=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig);
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 6px">'+(_cap
-      ? ('두 분 식순이면 단체 사진에 약 '+_cap.n+'분이에요 · 전체 하객 + 구도 '+_cap.k+'개가 알맞아요.'+(sel.length>_cap.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':''))
+      ? ('두 분 식순이면 단체 사진이 약&nbsp;'+(_cap.a===_cap.b?_cap.a:(_cap.a+'~'+_cap.b))+'분이에요. 전체 하객과 구도 '+_cap.k+'개가 '+(_cap.k===_cap.max?'알맞아요.':('알맞고, 제시간에 진행되면 '+_cap.max+'개까지 돼요.'))+(sel.length>_cap.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':''))
       : '식순을 정하시면 알맞은 수를 알려 드려요 · 보통 2~5개예요.')+'</div>';
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
@@ -7272,11 +7282,11 @@ function renderPhoto(box){
   function move(i,d){ var j=i+d; if(j<0||j>=sel.length) return; var t=sel[i]; sel[i]=sel[j]; sel[j]=t; rerender(); }
   Array.prototype.forEach.call(box.querySelectorAll('[data-pmv]'), function(el){ el.addEventListener('click', function(){ move(+el.getAttribute('data-pmv'), +el.getAttribute('data-d')); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-pdel]'), function(el){ el.addEventListener('click', function(){ sel.splice(+el.getAttribute('data-pdel'),1); rerender(); }); });
-  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ _kbChip(el, function(){ if(sel.length>=photoMaxNow()){ mpAlert('구도가 많아요. 고른 순서대로 인사 사진 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });   // MPD4_F3
+  Array.prototype.forEach.call(box.querySelectorAll('[data-padd]'), function(el){ _kbChip(el, function(){ if(sel.length>=photoMaxNow()){ mpAlert('구도가 많아요. 고른 순서대로 단체 사진 시간에 진행돼요.'); return; } sel.push(el.getAttribute('data-padd')); rerender(); }); });   // MPD4_F3
   var inp=$('mp_photoAdd'), btn=$('mp_photoAddBtn');
   function add(){ if(!inp) return; var v=(inp.value||'').replace(/[<>]/g,'').trim().slice(0,20); if(!v) return;
     if(['전체 하객'].concat(sel).indexOf(v)>-1){ inp.value=''; mpAlert('이미 담긴 구도예요.'); return; }
-    if(sel.length>=photoMaxNow()){ mpAlert('구도가 많아요. 고른 순서대로 인사 사진 시간에 진행돼요.'); return; }
+    if(sel.length>=photoMaxNow()){ mpAlert('구도가 많아요. 고른 순서대로 단체 사진 시간에 진행돼요.'); return; }
     sel.push(v); inp.value=''; rerender(); }
   if(btn) btn.addEventListener('click', add);
   if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });

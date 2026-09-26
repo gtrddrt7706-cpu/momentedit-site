@@ -2290,7 +2290,8 @@ function _mtlEdge(rail){
 /* [ORD_INTRO2] 안내 ①/2 — '우리가 만드는 게 뭔가'. 제목 · 한 줄 · 하루의 흐름 그림, 딱 셋. */
 function renderIntro(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">우리 예식, 우리가 만들어요</h2>';   // [ORD_H2]
-  h+='<div class="intro-lead">본식은 담은 순간에 따라 12~25분쯤이에요. 순서와 나레이션 대본은 저희가 맞춰 드려요.</div>';   // [OPEN_COURSE] 명세 8장 · 옛 16~25분은 코스 셋의 범위였다   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
+  /* ★[E2 2026-09-26 코워크 추가 전달 3] 범위는 손으로 적지 않고 RANGE 에서 셈한다 — 스냅 60 때 이 줄만 12~25 로 남을 뻔했다 */
+  h+='<div class="intro-lead">본식은 담은 순간에 따라 '+RitualOpen.RANGE.body[0]+'~'+RitualOpen.RANGE.body[1]+'분쯤이에요. 순서와 나레이션 대본은 저희가 맞춰 드려요.</div>';   // [OPEN_COURSE] 명세 8장 · 옛 16~25분은 코스 셋의 범위였다   // [TIME_HONEST] 코스 셋의 실제 범위 · 옛 '30분 안팎'은 이벤트를 줄이기 전 숫자였다
   h+='<div class="daymap"><div class="daymap-t">결혼식 하루, 140분의 순서</div>';
   // [ORD_TIMEBUDGET] 본식은 벽이 아니라 사진과 맞바꾸는 예산이다(2026-08-01 사용자 확인:
   //   "많이 늦어지거나 줄어들지만 않으면 ±10분 정도 괜찮다 · 사진을 좀 늘리거나 줄이면 되니까").
@@ -2303,13 +2304,13 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['50분','단독 스냅','Private Snap','캔들존 20 · 이동 5 · 화이트존 20 · 입장 준비 5'],['12~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['25~38분쯤','사진과 인사','Group Record','두 분이 자리마다 인사드리고 · 하객과 셀카 · 작가님께 원하는 사진을 청하는 자유로운 시간'],['20분','배웅','Farewell','']];
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 25 · 이동 5 · 화이트존 25 · 입장 준비 5'],['8~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['15~32분쯤','단체 사진','Group Record','하객 모두와 한 장 · 가족 구도 · 남는 시간은 두 분과 자유 사진'],['20분','배웅','Farewell','문 앞에서 한 분 한 분께 인사 · 환복']];   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
   /* ★[NO_BACKSTAGE 2026-08-10 사용자 지시] 앞절「앞뒤 순서는 저희가 한 흐름으로 이끌어 드려요」 삭제 · 복원 금지.
      위 표가 이미 하루 다섯 마디를 순서대로 보여 주고 있어, 같은 말을 글로 한 번 더 한 것이었다. */
-  h+='<div class="dmnote">본식과 사진·인사를 더하면 <b>'+RitualOpen.DAYMIN+'분</b>이에요. 본식이 짧은 만큼 사진과 인사가 길어지고, <b>하루 140분은 그대로</b>예요.</div></div>';
+  h+='<div class="dmnote">본식과 단체 사진을 더하면 <b>'+RitualOpen.DAYMIN+'분</b>이에요. 본식이 짧은 만큼 단체 사진이 길어지고, <b>하루 140분은 그대로</b>예요.</div></div>';
   return h;
 }
 
@@ -2812,7 +2813,7 @@ function renderListen(){
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   var h='<div class="op ls">';
   h+='<button type="button" class="ls-back" data-fk="lsback" onclick="opStepNav(\'pick\')">← 고르기로</button>';   // [DETAIL_0925 A1] · [EDIT_OPEN]
-  h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>사진과 인사 <b>'+esc(sp.photo)+'</b></span></div>'+_noteHtml()+'</div>';
+  h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>단체 사진 <b>'+esc(sp.photo)+'</b></span></div>'+_noteHtml()+'</div>';
   // 맨 위 큰 단추 — 누르기 전에는 움직이지 않는다 · 들을 길이는 예식 길이가 아니다(DETAIL B12)
   var _allSt=ENG?_lSteps(ENG,_lRows()):[], len=ENG?_lLen(_allSt):0;
   /* [TEXT_AUDIO_MATCH 2-1] 말하는 줄이 전부 녹음 전이면 줄마다 꼬리표를 달지 않고 여기 한 줄로 말한다 · 일부만이면 줄마다 */
@@ -3049,7 +3050,7 @@ function _lFull(){
   } else if(LP.ended){
     var sp=R.span(S);
     if(_lAnyVid()) h+=_lVid('_close',{big:true});   // [NO_EMPTY_BOX]
-    h+='<div class="lf-end">'+(LP.ended.all?('끝까지 보셨어요 · 본식 '+esc(sp.body)+' · 사진과 인사 '+esc(sp.photo)):'이 순간을 다 보셨어요')
+    h+='<div class="lf-end">'+(LP.ended.all?('끝까지 보셨어요 · 본식 '+esc(sp.body)+' · 단체 사진 '+esc(sp.photo)):'이 순간을 다 보셨어요')
       +'<div class="lf-endb"><button type="button" class="rowbtn" data-fk="lfagain" onclick="lsAgain()">다시 보기</button>'
       +((LP.noChips&&window.RitualPreviewLink&&RitualPreviewLink.url(S,{digital:!!CUSTDIG,photoShare:!!CUSTPHOTO,meal:!!CUSTMEAL}))?'<button type="button" class="rowbtn" onclick="lsCloseBig();openRitualPreview()">음악까지 미리듣기</button>':'')
       /* [BIG_END 2026-09-25 코워크 추가전달 2-10] ② 의 끝 화면은 [다시 보기] [다음 · 준비하기] 둘 — «목록으로»는 위 ⌄ 와 같고 큰 ↻ 는 다시 보기와 같았다 */
@@ -3236,10 +3237,10 @@ function renderPick(){
   var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S), note=R.noticeOf(S), h='<div class="op">';
   h+='<a class="op-jump" href="#opEx" onclick="opJump(event)">고르기 어려우시면 맨 아래 예시에서 시작하셔도 돼요 ↓</a>';
   // 띠
-  h+='<div class="op-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>사진과 인사 <b>'+esc(sp.photo)+'</b></span></div>';
+  h+='<div class="op-band" id="opBand"><div class="t1"><span>본식 <b>'+esc(sp.body)+'</b></span><span>단체 사진 <b>'+esc(sp.photo)+'</b></span></div>';
   var mid=Math.max(0,Math.min(R.DAYMIN,sp.midMin));
   h+='<div class="op-bar" aria-hidden="true"><div class="c" style="flex:'+mid.toFixed(2)+'"></div><div class="p" style="flex:'+(R.DAYMIN-mid).toFixed(2)+'"></div></div>';
-  h+='<div class="op-leg"><span>본식</span><span>둘을 더하면 '+R.DAYMIN+'분</span><span>사진과 인사</span></div>';
+  h+='<div class="op-leg"><span>본식</span><span>둘을 더하면 '+R.DAYMIN+'분</span><span>단체 사진</span></div>';
   var shown=R.ORDER.filter(function(k){ return k!=='guest' && R.onOf(S,k); }).concat(['_close']);
   h+='<div class="op-mf" aria-label="고른 순서">'+shown.map(function(k,i){ return (i?'<span class="a" aria-hidden="true">›</span>':'')+'<span class="i'+(R.PRE[k]?' pre':'')+'">'+(k===peak?'<span class="op-star" role="img" aria-label="절정">★</span> ':'')+esc(R.CARDS[k].sn)+'</span>'; }).join('')
     +'</div>'+(R.picked(S).length?'':'<p class="op-mf-h">↓ 아래 카드에서 담아 보세요</p>');   // [POLISH_0925 2-11] 빈 상태 안내는 띠 밖 한 줄(띠 안에선 오른쪽에서 잘렸다)
@@ -3306,7 +3307,7 @@ function renderPick(){
   R.EXAMPLES.forEach(function(ex){
     var T=R.applyExample({},ex.k), es=R.span(T), pressed=R.sameAsExample(S,ex.k);
     var list=R.ORDER.filter(function(k){ return !R.ALWAYS[k] && T.on[k]; }).map(function(k){ return R.CARDS[k].sn; });
-    h+='<button type="button" class="op-ex" aria-pressed="'+(pressed?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')"><b>'+esc(ex.title)+'</b><span class="t">‹'+esc(ex.nm)+'› 예시 · 본식 '+esc(es.body)+' · 사진과 인사 '+esc(es.photo)+'</span><span class="l">'+nwList(list)+'</span></button>';
+    h+='<button type="button" class="op-ex" aria-pressed="'+(pressed?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')"><b>'+esc(ex.title)+'</b><span class="t">‹'+esc(ex.nm)+'› 예시 · 본식 '+esc(es.body)+' · 단체 사진 '+esc(es.photo)+'</span><span class="l">'+nwList(list)+'</span></button>';
   });
   h+='<div class="op-qn" style="margin-top:10px">특별히 준비한 순서(영상 · 축사 등)가 있으면 어느 예시에서든 더할 수 있어요.</div>';   // [FREE_OWN 코워크 4-4 ③]
   h+='</div>';
@@ -4925,7 +4926,7 @@ var RITUAL_CHIPS={
  candle:['화촉은 누가 밝히나요?','초와 불은 누가 준비하나요?','화촉을 빼도 되나요?'],
  prevideo:['식전 영상은 어떻게 보내나요?','영상이 없으면 어떻게 하나요?','영상은 몇 분까지 되나요?'],
  free:['어떤 순서를 준비할 수 있나요?','친구가 축가를 불러도 되나요?','영상은 언제까지 보내나요?'],
- _close:['단체 사진은 어떻게 찍나요?','닫는 인사는 무슨 말을 하나요?','사진과 인사는 몇 분인가요?']
+ _close:['단체 사진은 어떻게 찍나요?','닫는 인사는 무슨 말을 하나요?','단체 사진은 몇 분인가요?']
 };
 function ritualAiState(){
   try{

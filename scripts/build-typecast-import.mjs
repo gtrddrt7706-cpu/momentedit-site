@@ -347,7 +347,8 @@ const clips = parse(SRC);
      102 → 103 [CLOSE_BOW 2026-09-26 코워크 회신5 4-2 · 연구 A13 · B09] 108 narr-close-bow — 끝 선언 · 두 분 인사 · 마지막 박수.
               26 narr-close 앞에 나간다(26 은 사진 안내로 바뀌었다). ★초안 · 재녹음은 사장님 대본 점검(7단계) 뒤 한 번에.
               ★104 narr-free-out-clap 은 흐름에서 뺐지만 개수는 안 움직였다 — 클립 · 대본 줄은 둔다([CLAP_FEW] 되살릴 근거). */
-const CLIP_COUNT = 103;
+/* [GROUP_PHOTO 2026-09-26 코워크 회신 9/26 2-5] 103 → 104 — 골라 트는 판에 fx-free(자유 사진 여는 말 · 109) 한 줄이 더해졌다 */
+const CLIP_COUNT = 104;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

@@ -390,10 +390,14 @@ function scan(needle) {
   const sm = jr.match(/SLOTS:\s*\[([^\]]*)\]/);
   const arrives = sm ? [...sm[1].matchAll(/'(\d{2}:\d{2})'/g)].map((m) => m[1]) : [];
   const modal = fs.readFileSync(path.join(root, 'assets/sequence-modal.js'), 'utf8');
-  const guestM = modal.match(/\['하객 입장',\s*'(\d+)분'/);
-  const moveM = modal.match(/\['단독 스냅 촬영'[^\n]*?이동 (\d+)분/);
-  if (!guestM || !moveM) no("assets/sequence-modal.js 에서 '하객 입장' 길이나 단독 스냅의 '이동 N분'을 못 읽었다 — 어른 시각을 못 잰다 [PARENT_ARRIVE_EARLY]");
-  const PARENT_LEAD = (guestM ? +guestM[1] : 0) + (moveM ? +moveM[1] : 0);   // 20 + 5 = 25
+  /* ★★[PARENT_AT_EMPTY 2026-09-26 저녁 사장님 결정 · 코워크 회신6 추가 1] 부모님 도착 = 본식 «화이트존 + 입장 준비» 분 전.
+       두 분의 이동이 끝나 캔들존이 완전히 비는 때에 오셔서 하객을 맞는다(PARENT_ARRIVE_EARLY 의 원래 뜻).
+       스냅 60 에선 25 + 5 = 30분 전(09:50 · 13:10 · 16:30). 진행표 단독 스냅 줄에서 읽으니 스냅 안 숫자가 바뀌면 따라 움직인다.
+       ★같은 날 낮의 «하객 입장 + 5 = 25»(PARENT_EARLY5)는 이 결정으로 바뀌었다. */
+  const snapRow = (modal.match(/\['단독 스냅 촬영'[^\n]*/) || [''])[0];
+  const whiteM = snapRow.match(/화이트존 (\d+)분/), prepM = snapRow.match(/입장 준비 (\d+)분/);
+  if (!whiteM || !prepM) no("assets/sequence-modal.js 단독 스냅 줄에서 «화이트존 N분 · 입장 준비 N분»을 못 읽었다 — 어른 시각을 못 잰다 [PARENT_AT_EMPTY]");
+  const PARENT_LEAD = (whiteM ? +whiteM[1] : 0) + (prepM ? +prepM[1] : 0);   // 25 + 5 = 30
   const src = fs.readFileSync(path.join(root, 'parents.html'), 'utf8');
   const rows = [...src.matchAll(/<tr data-pt><td>[^<]+<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><\/tr>/g)].map((m) => m.slice(1, 3).join(' · '));
   const want = arrives.map((a) => { const c = toMin(a) + D.DAY.ready + D.DAY.snap; return [c - PARENT_LEAD, c].map(hhmm).join(' · '); });
@@ -402,6 +406,34 @@ function scan(needle) {
   /* 글줄도 같은 숫자를 말해야 한다 — 표만 고치고 «본식 시작 N분 전» 글을 두면 한 카드가 두 시각을 말한다 */
   if (!src.includes(`<li>본식 시작 ${PARENT_LEAD}분 전 · `)) no(`parents.html 어른 시각 글줄이 «본식 시작 ${PARENT_LEAD}분 전»이 아니다 [PARENT_ARRIVE_EARLY]`);
   if (/<th scope="col">자리로<\/th>|<li>본식 시작 4분 전/.test(src)) no('parents.html 어른 시각에 «자리로 · 4분 전»이 돌아왔다 — 안내 음성을 따라 앉으신다 [PARENT_SEAT_SOFT]');
+}
+
+/* 6-d) ★진행표 줄 시각 [SEQ_ROW_CLOCK 2026-09-26 코워크 회신 9/26 2-9] — sequence-modal.js ROWS 의 세 칸 시각.
+   종전엔 이 줄을 아무도 안 읽었다(길이 표기만 읽었다). 스냅 50 → 60 때 «하객 입장 09:50 · 인사 사진 10:30»이
+   그대로 남을 뻔했다. 이제 DAY 로 계산한다: 도착 a · 스냅 a+준비 · 하객 입장 본식−20 · 본식 a+준비+스냅 ·
+   단체 사진 본식+RANGE.rep · 배웅 a+total−farewell. */
+{
+  const hhmm = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+  const toMin = (x) => +x.slice(0, 2) * 60 + +x.slice(3, 5);
+  const O6 = require(path.join(root, 'assets/ritual-open.js'));
+  const modal = fs.readFileSync(path.join(root, 'assets/sequence-modal.js'), 'utf8');
+  const row = (name) => { const m = modal.match(new RegExp("\\['" + name + "',\\s*'[^']*',\\s*\\[([^\\]]*)\\]")); return m ? [...m[1].matchAll(/'(\d{2}:\d{2})'/g)].map((x) => x[1]) : null; };
+  const arr = row('신랑·신부 도착');
+  const bad = [];
+  if (!arr || arr.length !== 3) bad.push("'신랑·신부 도착' 줄 시각을 못 읽었다");
+  else {
+    const body = (a) => toMin(a) + D.DAY.ready + D.DAY.snap;
+    const want = {
+      '단독 스냅 촬영': arr.map((a) => hhmm(toMin(a) + D.DAY.ready)),
+      '하객 입장': arr.map((a) => hhmm(body(a) - 20)),
+      '본식': arr.map((a) => hhmm(body(a))),
+      '단체 사진': arr.map((a) => hhmm(body(a) + O6.RANGE.rep)),
+      '마무리·배웅': arr.map((a) => hhmm(toMin(a) + D.DAY.total - D.DAY.farewell)),
+    };
+    for (const k in want) { const got = row(k); if (!got || got.join() !== want[k].join()) bad.push(`'${k}' ${got ? got.join(' · ') : '줄 없음'} ≠ 계산 ${want[k].join(' · ')}`); }
+  }
+  if (bad.length) no('assets/sequence-modal.js 진행표 줄 시각이 DAY 와 어긋난다 [SEQ_ROW_CLOCK]\n    ' + bad.join('\n    '));
+  else ok('진행표 줄 시각 6줄 × 3칸이 DAY 와 같다 [SEQ_ROW_CLOCK]');
 }
 
 /* ─────────────────────────────────────────────────────────────────
