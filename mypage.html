@@ -5506,7 +5506,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
      만든 적이 없는 분께 「다시 만들기」는 처음부터 다시 하라는 말로 읽히고, 버튼이 실제로 하는 일은 고른 것을 다시 여는 것이다.
      → 청첩장 없이 = ✓ 대신 「안 함」 배지 · 「다시 정하기」. 발행 없이 마친 나머지(개인 제작 · QR 아니요)도 버튼은 「다시 정하기」(✓ 는 그대로).
      ★트랙 완료(_prepRows 의 done)는 그대로 둔다 — 준비 목록의 셈은 바뀌지 않는다. 옛 발행 흔적(eventId)이 남아도 청첩장 없이면 「안 함」이다. */
-  var _iSkip = (ist==='완료' && _invMethodEff(inv.draft)==='none');
+  var _iSkip = (ist==='완료' && _invMethodEff(inv.draft)==='none' && !_invLiveUrls(inv.draft));   // [INV_SKIP_ROW] 검토 — 초안에 살아 있는 링크가 있으면(발행 뒤 「수정하기」로 청첩장 없이를 고르고 저장만 함) 아직 「안 함」이 아니다
   var ilabel = ist==='완료' ? ((inv.published && !_iSkip) ? '발행됨 · 수정' : '다시 정하기') : (ist==='진행중' ? '이어하기' : '시작하기');
   var _dDone=(t.dining||'')==='완료';
   // [애프터 웨딩 3-상태 · 2026-07-21 사용자 지시] '선택(안해도 그만)' 태그 폐지 → 미정 / 만들기 완료 / 안 함.
@@ -5932,6 +5932,10 @@ function _invBankFocus(miss){ try{ var s=$(miss.id); if(!s) return; var e=$(miss
      그 분은 마칠 때(doPublishInv skipped) invitationUrls 가 null 로 저장되니, null 이면 «청첩장 없이» 그대로 읽는다.
      개인 제작 · QR 아니요는 이제 발행 직후 저장([INV_PUB_SAVE])이 method 'self' 로 남기므로, 이 보정은 그 전에 갇힌 옛 초안만 받는다. */
 function _invMethodEff(d){ d=d||{}; var m=String(d.method||''); return (m==='none' && d.selfQR===false && d.invitationUrls!==null) ? 'self' : m; }
+/* [INV_SKIP_ROW 2026-09-26 검토] 초안에 살아 있는 청첩장 링크가 있나 — 「청첩장 없이 마치기」는 링크를 null 로 치운다(doPublishInv skipped).
+   발행한 부부가 「수정하기」로 청첩장 없이를 고르고 저장만 하고 나가면 초안은 none 이지만 링크는 그대로 살아 있고,
+   행 버튼도 완성 화면(링크)을 연다(startInvFlow) — 그 판을 「안 함」·「청첩장 없이 진행」으로 적으면 살아 있는 청첩장을 없다고 말하게 된다. */
+function _invLiveUrls(d){ var u=(d||{}).invitationUrls; return !!(u && (u.online||u.family||u.live)); }
 /* ★[INV_PUB_LABEL 2026-09-26 고객 점검 inv-6] 4/4 버튼이 경로와 상관없이 「청첩장 만들기」였다 —
    ①청첩장 없이 · ②개인 제작(QR 아니요)은 «만들 것 없다»고 말한 바로 옆 버튼이 «만들기»였고
    ③이미 링크를 돌린 부부에게 «만들기»는 새 청첩장이 생겨 보낸 링크가 바뀔 것처럼 읽혔다.
@@ -7912,7 +7916,7 @@ function prodConfirmHtml(p, inv){
   var _imL=({online:'온라인',offline:'오프라인',both:'온라인·오프라인',self:'개인 제작',none:'청첩장 없이'})[_im]||'';
   var _dz=[]; if(_ivd.designOnline&&(_im==='online'||_im==='both')) _dz.push('온라인 '+_ivd.designOnline); if(_ivd.designFamily&&(_im==='offline'||_im==='both')) _dz.push('오프라인 '+_ivd.designFamily);
   var _ivv=(inv.status==='완료')?((inv.published&&inv.published.eventId)?'발행됨':'만듦 · 미발행'):'';
-  if(inv.status==='완료' && _im==='none') _ivv='청첩장 없이 진행';   // [INV_SKIP_ROW] 만든 적이 없는데 「만듦 · 미발행 · 청첩장 없이」(옛 발행 흔적이 있으면 「발행됨 · 청첩장 없이」)라 적던 것
+  if(inv.status==='완료' && _im==='none' && !_invLiveUrls(_ivd)) _ivv='청첩장 없이 진행';   // [INV_SKIP_ROW] 만든 적이 없는데 「만듦 · 미발행 · 청첩장 없이」(옛 발행 흔적이 있으면 「발행됨 · 청첩장 없이」)라 적던 것
   else if(_ivv&&_imL) _ivv+=' · '+_imL; if(_ivv&&_dz.length) _ivv+='<br><span class="cc-mini">디자인 · '+_dz.map(function(x){ return '<span style="white-space:nowrap">'+escapeHtml(x)+'</span>'; }).join(' · ')+'</span>';   // [CF_WRAP_BALANCE] 「오프라인 / 05」로 숫자만 떨어지면 오독한다
   L+=line('청첩장', _ivv);
   var rv='';
