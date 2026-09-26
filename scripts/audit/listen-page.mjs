@@ -164,7 +164,7 @@ for (const w of [390, 1280]) {
     const lab = await pg.evaluate((f) => { const b = document.querySelector(`[data-fk="${f}"]`); return b ? b.textContent : ''; }, fk);
     await pg.click(`[data-fk="${fk}"]`); await pg.waitForTimeout(500);
     const r = await pg.evaluate(() => ({ k: STEPS[idx].k, er: editReturn, open: LS.open, foc: document.activeElement ? (document.activeElement.getAttribute('aria-label') || document.activeElement.className) : '' }));
-    const good = lab === '채우기' ? (r.k === 'write' && r.er && /textarea|약속|편지|인사말/.test(r.foc)) : (r.k === 'listen' && r.er && !!r.open && /ls-main/.test(r.foc));
+    const good = lab === '채우기' ? (r.k === 'write' && r.er && /textarea|약속|편지|첫인사/.test(r.foc)) : (r.k === 'listen' && r.er && !!r.open && /ls-main/.test(r.foc));
     if (good) moved++; else miss.push(fk + ':' + lab + ':' + JSON.stringify(r));
     await pg.click('#prev'); await pg.waitForTimeout(400);   // 취소
   }
@@ -206,7 +206,7 @@ for (const w of [390, 1280]) {
   await clickNext(pg); await pg.waitForTimeout(900);
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + (k === RitualOpen.peakOf(S) ? '★ ' : '') + _lName(k)) }));
   ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · ★)', JSON.stringify(d.rows) === JSON.stringify(d.want), JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
-  ok('3-1 ④ «고른 순간 N» · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /고른 순간 \d+ · 본식/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③ 준비하기에서 보기/.test(d.t), d.t.slice(0, 300));
+  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /담은 순간 \d+ · 본식 약 \d+~\d+분 · 단체 사진 약 \d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③ 준비하기에서 보기/.test(d.t), d.t.slice(0, 300));
   /* ★[GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 꽃 — ② 칩(담았을 때만 · 큰절이면 꽃 없음) · 맡기면 ③ 「저희가 준비해요 · 별도 비용」 · 초안에 실림 */
   const gd = await pg.evaluate(() => {
     const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};

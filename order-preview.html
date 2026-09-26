@@ -437,6 +437,9 @@ body.op4 .prog-top{min-height:0}
 /* done */
 .done-hd{text-align:center;padding:6px 0 4px}
 .done-hd .t{font-size:22px;font-weight:700}.done-hd .s{font-size:12px;color:var(--sub);margin-top:6px}
+.done-flow{margin:14px 0 4px}   /* [I2_DONE_FLOW] */
+.done-flow-h{font-size:12px;font-weight:600;color:var(--sub);margin:0 0 2px}
+.done-edit{font-size:12px;color:var(--sub);line-height:1.6;margin:6px 0 10px;text-align:center;word-break:keep-all}   /* [I3_EDIT_WINDOW] */
 .rehearse-btn{margin:10px 0 4px;background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer}
 .sec-l{font-size:11px;letter-spacing:.06em;color:var(--gold-deeper);font-weight:600;margin:28px 0 10px}
 .mine .mr{display:flex;gap:11px;padding:10px 12px;border-bottom:1px solid #E7E3DC;align-items:baseline}
@@ -980,6 +983,8 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .ls-flow ol{margin:4px 0 10px;padding-left:18px}
 .ls-flow li{margin:1px 0}
 .ls-flow li.talk{color:var(--accent)}
+.ls-flow li.quiet{color:var(--light)}   /* [G5] 말 없는 사람 순간 — 옅게 · 소리 없음 */
+.ls-more{align-self:flex-start;padding:0 2px;min-height:44px;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12px;cursor:pointer;text-align:left}   /* [G4] 맺는 말은 «더 고르기» 뒤 */
 .ls-new{font-size:11px;color:var(--gold-deeper);white-space:nowrap}
 .ls-vars{display:flex;flex-direction:column;gap:7px;margin:2px 0 10px}
 .ls-hint{font-weight:400;color:var(--light);font-size:11.5px}
@@ -2278,7 +2283,7 @@ function render(){
   el.innerHTML=h;
   /* ★[PICK_V2] ① 은 제 배치를 쓴다(PC 이야기판 · 아래 막대 흐림) — 수정하러 온 길(editReturn)에는 아래 단추(취소 · 저장)를 남긴다 */
   var _pk=(st.k==='pick'&&isOpen()); document.body.classList.toggle('pk2',_pk); document.body.classList.toggle('pk2e',_pk&&!!editReturn);
-  if(_pk) try{ _pickPaint(); }catch(e){} else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
+  if(_pk) try{ _pickPaint(); }catch(e){} else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
   _paintCta(st.k);
   try{ _opPad(); }catch(e){}   // [DETAIL_0925 C4]
   try{ _edFocusApply(); }catch(e){}   // [EDIT_OPEN]
@@ -2504,7 +2509,7 @@ function renderIntro2(){
      종전 글(번호 둘 · «완성본을 미리듣기로» · «준비는 글만 · 완성 화면에 정리»)은 옛 코스만 그대로. */
   if(isOpen()){
     h+='<div class="intro-lead">네 걸음이면 끝이에요.</div><div class="intro-pts">';
-    [['① 고르기','예시에서 시작해 순간을 더하고 빼요 · 칸을 누르면 미리 보고 들을 수 있어요.'],   /* [PICK_V2 · E3 코워크 최종판 3-0] 새 ① 에 맞춘 첫 걸음 글 */['② 보고 듣기','고른 차례대로 장면과 나레이션을 보고 들으며 말투 · 누가 할지를 바꿔요.'],['③ 준비하기','두 분이 준비할 것과 부모님께 부탁드릴 것을 한곳에서 봐요.'],['④ 완성','완성된 순서를 저장하고, 대본을 복사하거나 파일로 받아 둬요.']]
+    [['① 고르기','예시에서 시작해 순간을 더하고 빼요 · 칸을 누르면 미리 보고 들을 수 있어요.'],   /* [PICK_V2 · E3 코워크 최종판 3-0] 새 ① 에 맞춘 첫 걸음 글 */['② 보고 듣기','담은 순간을 예식 차례대로 보고 들으며 말투 · 누가 할지를 바꿔요.']   /* [G9 · INTRO_ORDER_WORD] «고른 차례대로»는 «내가 누른 차례»로 읽힌다 — ② 머리(G9)와 같은 까닭 */,['③ 준비하기','두 분이 준비할 것과 부모님께 부탁드릴 것을 한곳에서 봐요.'],['④ 완성','완성된 순서를 저장하고, 대본을 복사하거나 파일로 받아 둬요.']]
       .forEach(function(x,i){ h+='<div class="ipt"><span class="n">'+(i+1)+'</span><span><b>'+esc(x[0].slice(2))+'</b> · '+esc(x[1])+'</span></div>'; });
     h+='</div><div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
     h+='<div class="pf-i pf-key"><b class="pf-k">진행은 저희가</b>순서와 흐름은 나레이션·디렉터가 맡아요. 두 분은 서약 낭독·인사처럼 고른 순간에만 나서요.</div>';
@@ -2903,6 +2908,7 @@ function _lGroups(k){
     L('entryScene','첫 모습',R.CHIPS.entryScene,R.chipOf('entryScene',S),true,'소리는 같아요 · 모습만 달라져요.');
     /* [ENTRY_OUT_PICK 2026-08-12 사장님 «따로따로»] 도착 멘트를 따로 고르는 판 — 옛 연출 화면에 있던 것을 잃지 않게 */
     L('entryOut','맺는 말',[['',ENTRY_OUT[S.entry]?'입장과 같이':'기본']].concat(   /* [LAB_FIX2 2-6] 흐름에서 그 줄 이름 · «짧고 강하게»는 제 맺는 말이 없어 «기본» */['A','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; })),ENTRY_OUT[S.entryOut]?S.entryOut:'');
+    g[g.length-1].more=true;   // ★[G4 ENTRY_OUT_MORE 2026-09-26 코워크 최종판 5-1] 맺는 말(여섯)은 «더 고르기»를 눌러야 열린다 · 기본 «입장과 같이» · 바꿔 둔 뒤면 열린 채
   }
   if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
   if(k==='tribute'){ L('tribute','말의 길이',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','인사 방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower'); _lGoods('tribute',L); }
@@ -2956,11 +2962,12 @@ function _lSteps(g,ks){
   var S0=S; S=JSON.parse(JSON.stringify(S0)); S.on=S.on||{}; off.forEach(function(k){ S.on[k]=1; });
   try{ return _lSteps0(g,ks); } finally { S=S0; }
 }
+var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};   // [G5] 잔 드는 큐(107 · 40 · 76) — «위하여» 줄은 이 뒤
 function _lSteps0(g,ks){
   var r; try{ r=g.RitualCue.build(S,{mode:'preview'}); }catch(e){ return []; }
   var R=RitualOpen, dir=g.RitualCue.PARAM.clipDir, out=[];
   ks.forEach(function(k){
-    var talked=false, ownDone=false;
+    var talked=false, ownDone=false, quietDone=false;
     var cs=r.cues.filter(function(c){
       var row=(c.k==='guest' && /1min/.test(c.slug||''))?'prevideo':c.k;   // 1분 전 안내는 식전 영상 줄에서 듣는다
       return row===k;
@@ -2976,11 +2983,18 @@ function _lSteps0(g,ks){
       }
       else if(c.file){
         var snd=_lHasSound(c.file,c.text);
+        /* [G5 FIRST_LINE_NAME] 첫 줄 이름 — 화촉 «서는 분 · 양가 어머님» → «여는 말» · 선언 «나레이션 · 엄숙하게» → «선언 · 나레이션(엄숙하게)» */
+        if(k==='candle'&&/^narr-candle-in-/.test(c.slug||'')) lab='여는 말';
+        else if(k==='declare'&&/^declare-/.test(c.slug||'')&&/^(.+?) · (.+)$/.test(lab)) lab='선언 · '+lab.replace(/^(.+?) · (.+)$/,'$1($2)');
         out.push({k:k,lab:lab,txt:c.text||'',src:snd?(dir+c.file+'.mp3'):null,pending:!snd,slug:c.slug||'',file:c.file,ms:Math.max(2400,Math.round(String(c.text||'').length*160))});
+        /* [G5 TOAST_TALK_GLASS] 케이크 · 축배의 «위하여» 줄은 잔 드는 큐 뒤 — 종전엔 줄의 첫 사람 순간(케이크 커팅)에 붙어 붓기 앞에 나왔다 */
+        if(k==='toast'&&LS_GLASS[c.slug]&&!talked){ var tt=R.talkOf(k,S); if(tt){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+tt,talk:true,ms:3000}); } }
       }
+      /* [G5] 말 없는 사람 순간도 옅은 줄로(소리 없음 · 재생 목록에는 안 들어간다) */
+      if(!quietDone){ var qt=_lQuiet(k,c); if(qt){ quietDone=true; out.push({k:k,lab:'말 없이 흐르는 자리',txt:qt,quiet:true,ms:0}); } }
       if(c.live){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요 · 여기서는 넘겨요',skip:true,ms:1600}); }   // [DETAIL_0925 B9]
-        else if(!talked){
+        else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
           if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
             var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='stage'?'준비한 춤 · 공연이 흘러요':'준비한 선물을 건네요';
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · 여기서는 넘겨요',skip:true,ms:3000}); }
@@ -2991,8 +3005,19 @@ function _lSteps0(g,ks){
   });
   return out;
 }
-/* 들을 길이(초) — 소리 있는 줄은 글자 × 0.16(대본 속도 · 녹음 길이에 가깝다) · 글 카드 3초 · 녹음 전 줄도 글자 × 0.16 */
-function _lLen(st){ var n=0; st.forEach(function(x){ n+=x.talk||x.skip?3:Math.round(String(x.txt||'').length*0.16); }); return n; }
+/* 들을 길이(초) — 소리 있는 줄은 글자 × 0.16(대본 속도 · 녹음 길이에 가깝다) · 글 카드 3초 · 녹음 전 줄도 글자 × 0.16 · 옅은 줄(말 없음)은 안 센다 */
+function _lLen(st){ var n=0; st.forEach(function(x){ if(x.quiet) return; n+=x.talk||x.skip?3:Math.round(String(x.txt||'').length*0.16); }); return n; }
+/* ★[G5 QUIET_LINES 2026-09-26 코워크 최종판 5-1] 말 없는 사람 순간 — 표 그대로. 한 순간에 한 줄 · 그 순간의 첫 나레이션 뒤. */
+function _lQuiet(k,c){
+  var R=RitualOpen, sl=c.slug||'';
+  if(k==='candle'&&/^narr-candle-in-/.test(sl)){ var w=_candleWho(); return w+_josa(w,'이','가')+' 앞으로 나와 불을 밝혀요 · 말 없이'; }
+  if(k==='entry'&&/^entry-[A-F]$/.test(sl)) return '두 분이 함께 걸어 들어와요 → '+(R.chipOf('entryScene',S)==='bow'?'맞절해요':'서로 바라봐요');
+  if(k==='ring'&&sl==='narr-ring-in') return '두 분이 서로 반지를 끼워요 · 말 없이';
+  if(k==='declare'&&(/^declare-/.test(sl)||sl==='narr-declare-family-out')) return '하객 박수 · 두 분이 부부가 돼요';   // 나레이션 판 · 박수 판(-clap-a 뒤 박수) · 가족 낭독 판(마무리 뒤)
+  if(k==='toast'&&/^toast-pour-/.test(sl)) return '두 와인을 한 잔에 부어요';
+  if(k==='_close'&&sl==='narr-close-bow') return '두 분이 하객께 목례 · 박수';
+  return '';
+}
 
 /* ── 장면 자리: 들어온 영상 → 선 그림(clip) → «장면 영상 준비 중» ── */
 /* ★[NO_EMPTY_BOX 2026-09-25 코워크 회신3 3-7] 장면 영상이 하나도 없으면 ② 머리 · 크게 보기의 큰 빈 상자(«장면 영상 준비 중»)를 그리지 않는다.
@@ -3021,7 +3046,7 @@ function renderListen(){
   // 맨 위 큰 단추 — 누르기 전에는 움직이지 않는다 · 들을 길이는 예식 길이가 아니다(DETAIL B12)
   var _allSt=ENG?_lSteps(ENG,_lRows()):[], len=ENG?_lLen(_allSt):0;
   /* [TEXT_AUDIO_MATCH 2-1] 말하는 줄이 전부 녹음 전이면 줄마다 꼬리표를 달지 않고 여기 한 줄로 말한다 · 일부만이면 줄마다 */
-  var _voiced=_allSt.filter(function(x){ return !x.talk&&!x.skip&&!x.own; });
+  var _voiced=_allSt.filter(function(x){ return !x.talk&&!x.skip&&!x.own&&!x.quiet; });
   LS.allPend=_voiced.length>0&&_voiced.every(function(x){ return x.pending; });
   h+='<button type="button" class="ls-hero" data-fk="lsall" aria-label="처음부터 보고 듣기'+(len?' · 약 '+Math.max(1,Math.round(len/60))+'분':'')+'" onclick="lsPlayAll()">'+(_lAnyVid()?_lVid('entry',{art:false,cap:'우리 예식, 처음부터'}):'')
     +'<span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 보고 듣기</b></span>'
@@ -3066,12 +3091,12 @@ function _lExp(k,on){
   var R=RitualOpen, h='';
   if(ENG){
     var st=_lSteps(ENG,[k]);
-    if(st.length) h+='<div class="ls-flow"><b>이렇게 흘러요</b><ol>'+st.map(function(x){ return '<li class="'+(x.talk||x.skip?'talk':'')+'">'+esc((x.talk||x.skip)?x.txt.replace(/^여기서 /,''):x.lab)+(x.pending&&!LS.allPend?' <span class="ls-new">아직 녹음 전</span>':'')+'</li>'; }).join('')+'</ol></div>';
+    if(st.length) h+='<div class="ls-flow"><b>이렇게 흘러요</b><ol>'+st.map(function(x){ return '<li class="'+(x.quiet?'quiet':(x.talk||x.skip?'talk':''))+'">'+esc((x.talk||x.skip||x.quiet)?x.txt.replace(/^여기서 /,''):x.lab)+(x.pending&&!LS.allPend?' <span class="ls-new">아직 녹음 전</span>':'')+'</li>'; }).join('')+'</ol></div>';
   } else h+='<div class="ls-flow"><b>이렇게 흘러요</b><p class="ls-note">불러오는 중이에요…</p></div>';
   if(k==='tribute'&&on&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';   // [DETAIL_0925 B16]
   if(on || k==='guest'){
     var gs=_lGroups(k);
-    if(gs.length) h+='<div class="ls-vars"><b>바꿀 수 있는 것 <span class="ls-hint">· 누르면 바로 그렇게 들려 드려요</span></b>'+gs.map(_lChipRow).join('')+'</div>';   // [DETAIL_0925 B4]
+    if(gs.length) h+='<div class="ls-vars"><b>바꿀 수 있는 것 <span class="ls-hint">· 누르면 바로 그렇게 들려 드려요</span></b>'+_lGroupsHtml(k,gs)+'</div>';   // [DETAIL_0925 B4]
   }
   var ps=R.prepOf(k,S);
   if(ps.length) h+='<div class="ls-wr">'+ICO_PEN+'<span>'+ps.map(function(q){ return '<span class="wr-cat">'+esc(R.PREP_CAT[q[2]]||'')+'</span> '+(q[0]==='parents'?'부모님께 · ':'')+esc(q[1]); }).join(' / ')+' <em>→ ③에서</em></span></div>';   /* [G6 2026-09-26] 긴 말은 ② 머리에 한 번(«준비할 것은 모두 ③ 준비하기에 모여요.») */
@@ -3080,6 +3105,24 @@ function _lExp(k,on){
   return h;
 }
 /* [DETAIL_0925 C6] 칩 = radiogroup · radio(aria-checked) · 묶음 이름이 그룹 이름 */
+/* ★[G4] 입장 줄 하나에 멘트 6 · 목소리 2 · 첫 모습 2 · 맺는 말 6 이 한꺼번에 떴다(처음 온 고객에게 가장 무거운 줄) —
+   more 묶음은 «더 고르기» 단추 뒤에 둔다. 이미 기본이 아닌 값을 골라 뒀으면 열어 둔다(고른 것이 숨지 않게). */
+function _lGroupsHtml(k,gs){
+  var main=gs.filter(function(g){ return !g.more; }), more=gs.filter(function(g){ return g.more; });
+  var h=main.map(_lChipRow).join('');
+  if(more.length){
+    var openM=!!(LS.more&&LS.more[k])||more.some(function(g){ return g.cur!==g.list[0][0]; });
+    h+=openM?more.map(_lChipRow).join('')
+      :'<button type="button" class="ls-more" data-fk="lsmore:'+k+'" aria-expanded="false" onclick="lsMore(\''+k+'\')">더 고르기 · '+esc(more.map(function(g){ return g.l; }).join(' · '))+'</button>';
+  }
+  return h;
+}
+window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
+  var sel='[role=radiogroup][aria-label="맺는 말"] [aria-checked="true"]';   // [A11Y_FOCUS] 단추가 사라지니 새로 열린 줄의 고른 칩으로
+  if(!LP.big) _fxNext=sel;
+  render();
+  if(LP.big){ _lFull(); var f=document.getElementById('lsFull'), b=f&&f.querySelector(sel); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }
+};
 function _lChipRow(g){
   return '<div class="ls-cg" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span>'+g.list.map(function(c){ var on=(c[0]===g.cur);
     return '<button type="button" class="op-chip" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+(on?'0':'-1')+'" data-fk="lsc:'+g.key+':'+c[0]+'" onclick="lsChip(\''+g.key+'\',\''+c[0]+'\')">'+esc(c[1])+'</button>'; }).join('')
@@ -3142,7 +3185,7 @@ function _lNext(){ LP.i++; _lShow(); }
 function _lStart(ks,all){
   _stopAud(); _lUnlock();   // [INAPP_UNLOCK] 탭 호출 스택 안에서
   LP.range={ks:ks.slice(),all:!!all}; LP.ended=null;
-  function go(){ LP.q=_lSteps(ENG,ks); LP.i=0; LP.paused=false; LP.all=!!all; LP.tok++; LP.last=null; _lShow(); }
+  function go(){ LP.q=_lSteps(ENG,ks).filter(function(x){ return !x.quiet; }); LP.i=0; LP.paused=false; LP.all=!!all; LP.tok++; LP.last=null; _lShow(); }
   if(ENG&&LREC) go();
   else engine().then(function(g){ if(!g){ LS.msg='소리를 불러오지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; } _lrec().then(go); });
 }
@@ -3250,7 +3293,7 @@ function _lFull(){
     h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(st.k))+'</h3>';
     h+='<div class="lf-lab">'+esc(st.lab)+(st.pending?' · <span class="ls-new">녹음 전이라 글로 보여 드려요</span>':'')+'</div>';   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     h+='<p class="lf-txt'+(st.talk||st.skip?' talk':'')+'">'+esc(st.txt||'')+'</p>';
-    if(!LP.noChips && (R.onOf(S,st.k)||st.k==='guest')){ var gs=_lGroups(st.k); if(gs.length) h+='<div class="lf-vars">'+gs.map(function(g){ return _lChipRow(g).replace(/data-fk="lsc:/g,'data-fk="lfc:'); }).join('')+'</div>'; }
+    if(!LP.noChips && (R.onOf(S,st.k)||st.k==='guest')){ var gs=_lGroups(st.k); if(gs.length) h+='<div class="lf-vars">'+_lGroupsHtml(st.k,gs).replace(/data-fk="lsc:/g,'data-fk="lfc:')+'</div>'; }
   } else if(LP.ended){
     var sp=R.span(S);
     if(_lAnyVid()) h+=_lVid('_close',{big:true});   // [NO_EMPTY_BOX]
@@ -3368,10 +3411,13 @@ function _openWrite(){
   h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
   h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
   h+='<div class="wd" style="margin-top:6px">휴대폰으로 가로로 찍은 영상 · 3분 안 · 영상이 없으면 사진 30~40장을 보내 주세요. 저희가 3분 영상으로 만들어요.</div>';   // [UPLOAD_HONEST 2-8] 쉬운 말
-  if(send.length) h+='<ul class="wr-list" style="margin-top:10px">'+send.map(li).join('')+'</ul>';
-  /* 보낼 길은 한 상자로 — 식전 영상 사진(3일 전) · 준비한 순서 파일(3일 전) */
-  var _fs=send.filter(function(q){ return q.k==='free' && q.due===3; }).length;
-  h+=_sendHow('식전 영상 사진'+(_fs?' · 준비한 순서 파일':''),3);
+  /* ★[H2_SEND_LUMP 2026-09-26 코워크 최종판 5-2] 식전 영상(링크 칸 · 설명 · 카톡 · 메일 · 25MB 안내)을 한 덩어리로 — 종전엔 축배 음료 줄이
+     링크 칸과 «보내는 길» 상자 사이에 끼어 식전 영상 안내가 둘로 갈렸다. 같은 길(카톡 · 메일)로 보내는 준비한 순서 파일(3일 전)만
+     덩어리 안에 두고, «알려 주기» 줄(축배 음료 · 건넬 것)은 그 뒤. */
+  var sendFile=send.filter(function(q){ return q.k==='free' && q.due===3; }), sendRest=send.filter(function(q){ return !(q.k==='free' && q.due===3); });
+  if(sendFile.length) h+='<ul class="wr-list" style="margin-top:10px">'+sendFile.map(li).join('')+'</ul>';
+  h+=_sendHow('식전 영상 사진'+(sendFile.length?' · 준비한 순서 파일':''),3);
+  if(sendRest.length) h+='<ul class="wr-list" style="margin-top:12px">'+sendRest.map(li).join('')+'</ul>';
   if(S.guestVoice==='couple'||S.entryVoice==='couple'){
     h+='<div class="wr-sub" style="margin-top:16px">두 분 목소리 녹음 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div><div class="mth-how">대본은 <b>참고용</b>이에요 · 두 분 말로 바꿔 조용한 곳에서 한 번에 녹음해 올려 주세요(휴대폰 음성 메모로 충분해요).</div>'
       +'<p class="ls-note">'+esc(VOICE_LATE)+'</p>';   // [VOICE_LATE 코워크 회신3 4-5]
@@ -3495,6 +3541,14 @@ function _pickPaint(){
   });
   _pkSlim();
 }
+/* [I2_DONE_FLOW] ④ 머리 아래 그림 — ① 판과 같은 함수 · 같은 풍선 */
+function _donePaint(){
+  var R=RitualOpen, wide=window.matchMedia&&matchMedia('(min-width:1000px)').matches;
+  document.querySelectorAll('.done-flow [data-fg="done"]').forEach(function(el){
+    var w=Math.round(el.getBoundingClientRect().width); if(w<40) return;
+    var sg=R.flowSegs(S); el.innerHTML=R.flowSVG(sg,w,wide?{names:true,h:150,label:'우리 예식의 감동 흐름'}:{label:'우리 예식의 감동 흐름'}); _pkTips(el,sg);
+  });
+}
 function _pkTips(host,sg){
   var wrap=host.parentNode, tip=wrap&&wrap.querySelector('.pk-tip'), R=RitualOpen, p=R.flowPeak(sg); if(!tip) return;
   host.querySelectorAll('.flow-hit').forEach(function(r){
@@ -3528,7 +3582,7 @@ function _pkSlimCheck(){
   if(show) el.removeAttribute('inert'); else el.setAttribute('inert','');
 }
 window.addEventListener('scroll',function(){ if(document.getElementById('pkSlim')) _pkSlimCheck(); },{passive:true});
-var _pkRz=null; window.addEventListener('resize',function(){ clearTimeout(_pkRz); _pkRz=setTimeout(function(){ var st=STEPS[idx]; if(st&&st.k==='pick'&&isOpen()) _pickPaint(); else _pkSlim(); },120); });
+var _pkRz=null; window.addEventListener('resize',function(){ clearTimeout(_pkRz); _pkRz=setTimeout(function(){ var st=STEPS[idx]; if(st&&st.k==='pick'&&isOpen()) _pickPaint(); else { _pkSlim(); if(st&&st.k==='done'&&isOpen()) _donePaint(); } },120); });
 /* ════ ★★[PREVIEW_SHEET 2026-09-26 코워크 최종판 3-6] ▶ 미리 보기 창 — 칸을 누르면 장면과 대표 한 줄이 함께 ════
    휴대폰: 아래에서 올라오는 창(94% 안 · safe-area) · PC: 가운데 창(680). 한 번에 하나 · 뒤는 inert · 창 안 초점 가둠.
    닫기 = ✕ · 바깥 · 뒤로 가기(기록 한 칸 — 크게 보기와 같은 길) · Esc → 누른 칸으로 초점.
@@ -4174,7 +4228,7 @@ function renderStep(k){
 function writeCard(kind, showStatus){
   var st=showStatus?wcStat(kind):'';
   if(kind==='welcome'){
-    return '<div class="wcard">'+st+'<div class="wn">인사말</div><div class="wd">하객분들께 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" maxlength="4000" aria-label="하객 맞이 인사말" oninput="setv(\'welcomeText\',this.value);wcSync(this,\'welcome\')" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
+    return '<div class="wcard">'+st+'<div class="wn">첫인사</div><div class="wd">하객분들께 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" maxlength="4000" aria-label="첫인사" oninput="setv(\'welcomeText\',this.value);wcSync(this,\'welcome\')" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','인사말 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
   }
   if(kind==='vow'){
     return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">두 분이 함께 쓰는 글 · 한 분 300자쯤(모두 600자쯤)</div><textarea class="ta" maxlength="4000" aria-label="서로에게 하는 약속(서약문)" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\')" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
@@ -4345,7 +4399,8 @@ window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); if(is
    editReturn 만 남았다(④ «변경» · «채우기»가 먹통 · ③ ① 의 아래 단추가 «취소 / 저장 · 요약으로»로 바뀐 채).
    «채우기» = ③ 그 글 칸에 포커스 · «변경» = ② 그 줄을 연 채로(줄 머리에 포커스) · 돌아오는 길은 옛 editReturn 흐름 그대로. */
 var _edFocus=null;
-var WR_LABEL={welcome:'하객 맞이 인사말',vow:'서로에게 하는 약속(서약문)',letter:'부모님께 드리는 편지'};
+var WR_LABEL={welcome:'첫인사',   // ★[H1_FIRST_HELLO 2026-09-26 코워크 최종판 5-2] 칸 이름 · aria-label · 대본 줄 모두 «첫인사» — 순간 이름(환영 · 첫인사)과 한 말로
+vow:'서로에게 하는 약속(서약문)',letter:'부모님께 드리는 편지'};
 function _editOpen(k){
   var fill=WR_LABEL[k] && !_wcFilled(k) && (k!=='welcome'||S.welcome==='self');
   if(fill){ _edFocus={step:'write',sel:'textarea[aria-label="'+WR_LABEL[k]+'"]'}; _edGo('write'); return; }
@@ -4364,7 +4419,7 @@ function fillBlanks(){
   var b=[];
   if(inSeq('vow') && !S.vowText) b.push(['write','서약문']);
   if(inSeq('letter') && !S.letterText) b.push(['write','편지']);
-  if(inSeq('welcome') && S.welcome==='self' && !S.welcomeText) b.push(['write','인사말']);
+  if(inSeq('welcome') && S.welcome==='self' && !S.welcomeText) b.push(['write','첫인사']);
   // 음악 빈칸 리마인더 제거(2026-07-18 사용자 지시 '음악은 일단 제외') — 음악 카드 입력은 선택으로 남고, 비우면 저희가 고름
   return b;
 }
@@ -4478,7 +4533,9 @@ function inSeq(k){ return curSeq().indexOf(k)>-1; }
 /* [OPEN_COURSE] 완성 화면 · 대본 머리 · 파일 이름에 쓰는 «무엇을 만들었나» 한 줄.
    새 코스는 코스 이름이 없다 — «순간 n개 · 본식 약 a~b분»(명세 8장 · 마이페이지 요약과 같은 말). 옛 코스는 종전 그대로. */
 function headLine(bsLen){
-  if(isOpen()) return '고른 순간 '+RitualOpen.picked(S).length+' · 본식 '+estMin();   // [DONE_UNIFY 3-1] ① 아래 요약과 같은 말
+  /* ★[I1_HEAD 2026-09-26 코워크 최종판 5-3] «담은 순간 N · 본식 약 a~b분 · 단체 사진 약 c~d분» — ① 아래 막대(본식 · 단체 사진)와 같은 두 시간 ·
+     «고른»은 «담은»으로(① 의 말) · 마이페이지 식순 요약도 같은 말(summary.photo) */
+  if(isOpen()){ var _hs=RitualOpen.span(S); return '담은 순간 '+RitualOpen.picked(S).length+' · 본식 '+_hs.body+' · 단체 사진 '+_hs.photo; }   // [DONE_UNIFY 3-1]
   return COURSES[S.course].nm+' 코스 · '+bsLen+'개 순서 · '+estMin();
 }
 function estMin(){
@@ -4505,7 +4562,7 @@ function prep(){
   if(inSeq('bless') && S.bless==='on') p.push(['D-14','부모님께 덕담 부탁 (1~2분)']);
   p.push(['D-7','혼인 서약문 준비']);
   if(inSeq('letter')) p.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':S.letter==='both'?'부모님께 · 서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
-  if(inSeq('welcome') && S.welcome==='self') p.push(['D-7','환영 인사말 준비']);
+  if(inSeq('welcome') && S.welcome==='self') p.push(['D-7','첫인사 준비']);
   if(S.declareWho==='family') p.push(['D-14','성혼 선언 낭독하실 가족께 부탁']);
   if(inSeq('song') && S.song==='family') p.push(['D-14','축가 부르실 분께 미리 부탁 (반주 음원은 저희가 준비)']);
   if(S.growth==='on') p.push(['D-3',(S.growthLink?'성장영상 링크 붙여둠 · 확인만 하면 돼요':'성장영상 링크 붙여두기')+' (가로 mp4 · 3~4분 이내)']);
@@ -4556,11 +4613,12 @@ function scriptTextOpen(){
     lines.push((no==='식전'?'식전':no+'.')+' '+(k===peak?'★ ':'')+nm);
     _lSteps(ENG,[k]).forEach(function(x){
       if(x.skip) lines.push('('+x.txt.replace(/ · 여기서는 넘겨요$/,'')+')');
+      else if(x.quiet) lines.push('('+x.txt+')');   // [G5] 말 없는 사람 순간
       else if(x.talk) lines.push('직접: '+x.txt.replace(/^여기서 /,''));
       else if(x.own) lines.push('두 분 녹음('+x.lab.replace(/^두 분이 녹음하실 글\(예시\) · ?/,'')+'): '+x.txt);
       else lines.push('나레이션('+x.lab+'): '+x.txt);
     });
-    if(k==='welcome' && S.welcomeText) lines.push('인사말(두 분 작성):\n'+S.welcomeText);
+    if(k==='welcome' && S.welcomeText) lines.push('첫인사(두 분 작성):\n'+S.welcomeText);
     if(k==='vow') lines.push(S.vowText?('서약문(두 분 작성):\n'+S.vowText):'(서약문 미입력 · 예식 7일 전까지 적으면 여기 담겨요)');   // [P12]
     if(k==='letter') lines.push(S.letterText?('편지(두 분 작성):\n'+S.letterText):'(편지 미입력 · 적으면 여기 담겨요)');
     if(k==='tribute' && S.tributeText) lines.push('부모님께 드릴 말(두 분 작성 · 카드로 인쇄):\n'+S.tributeText);   // [TRIB_CARD_OPT] 선택 — 비었으면 당일 직접
@@ -4583,7 +4641,7 @@ function scriptText(){
     // ★[VOW_CHORUS] 대본에서도 읽는 순서 그대로 — 각자 서약문 다음이 함께 읽는 한 문장이다.
     if(b.both) lines.push('함께: '+b.both);
     if(b.n.indexOf('편지')>-1) lines.push(S.letterText?('편지(두 분 작성):\n'+S.letterText):'(편지 미입력 · 적으면 여기 담겨요)');
-    if(b.n.indexOf('첫인사')>-1 && S.welcomeText) lines.push('인사말(두 분 작성):\n'+S.welcomeText);
+    if(b.n.indexOf('첫인사')>-1 && S.welcomeText) lines.push('첫인사(두 분 작성):\n'+S.welcomeText);
     if(b.cue) lines.push('큐: '+b.cue);
     lines.push('');
   });
@@ -4639,10 +4697,18 @@ function renderDone(){
   // RESTORE_HONEST_HEAD(2026-07-25 사용자 발견): 저장 전 초안을 '이어서' 복원해 이 화면으로 착지할 때 헤드라인이 '완성됐어요'라 첫인상이 모순(글 비어 있음 배지와 충돌 · 처음 온 것처럼 느껴짐). 복원 상태는 '불러왔어요' 헤드로 정직하게 — 같은 말이던 배너는 헤드로 승격·제거. 방금 완주(비복원)·저장 후는 종전 그대로.
   var _resumeHead=_restored&&!_doneSaved;
   var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+(_resumeHead?'만들던 식순을 불러왔어요':'두 분의 예식이 완성됐어요')+'</h2><div class="s">'+esc(headLine(bs.length))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
+  /* ★[I2_DONE_FLOW · I3_EDIT_WINDOW 2026-09-26 코워크 최종판 5-3] 머리 아래 — 감동 흐름 그림(① 과 같은 함수 · ★ 이름 · 넓은 화면은 순간 이름까지)
+     + «순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.» 그림은 그린 뒤 실제 폭으로 채운다(_donePaint). */
+  if(isOpen()&&RitualOpen.picked(S).length)
+    h+='<section class="done-flow" aria-labelledby="doneFlowH"><h3 class="done-flow-h" id="doneFlowH">우리 예식의 감동 흐름</h3>'
+      +'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="done"></div><div class="pk-tip" aria-hidden="true"></div></div>'
+      +'<p class="done-edit">순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.</p></section>';
+  else if(isOpen()) h+='<p class="done-edit">순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.</p>';
   // [ORD_SAVE_WHERE] 저장처는 열린 경로에 따라 다르다 — 임베드는 서버(마이페이지), 독립 열람은 이 기기뿐.
+  var _dueTail=isOpen()?'':' · 예식 14일 전까지 언제든 다시 열어 고칠 수 있어요';   // [I3_EDIT_WINDOW] 새 코스는 머리 아래 한 줄이 순서 · 글 마감을 따로 말한다(14일 하나로 뭉치면 글 마감이 틀린다)
   if(_doneSaved) h+='<div class="banner" style="text-align:center">'+(EMBED
-    ?'마이페이지에 저장됐어요 · 예식 14일 전까지 언제든 다시 열어 고칠 수 있어요.'
-    :'<b>이 기기에</b> 저장됐어요 · 예식 14일 전까지 언제든 다시 열어 고칠 수 있어요.<br>다른 기기에서도 이어 보시려면 마이페이지에 로그인해 이 화면을 열어 주세요.')+'</div>';
+    ?'마이페이지에 저장됐어요'+_dueTail+'.'
+    :'<b>이 기기에</b> 저장됐어요'+_dueTail+'.<br>다른 기기에서도 이어 보시려면 마이페이지에 로그인해 이 화면을 열어 주세요.')+'</div>';
   /* [ORD_SAVE_STATE] 저장 실패는 이 지면 안에서 말한다 — 네이티브 알림처럼 화면을 덮고 사라지지 않는다.
      고른 내용은 이 기기에 그대로 남아 있다는 것부터 알린다(다시 만들까 봐 불안해하지 않게). */
   if(_saveErr) h+='<div class="save-err" role="alert"><b>저장이 안 됐어요</b>'+esc(_saveErr)
