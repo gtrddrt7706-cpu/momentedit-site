@@ -428,7 +428,7 @@ chk 'SNAP_UPLOAD' automation/platform/80_production.gs 1
 chk 'SNAP_CONFIRM' automation/platform/80_production.gs 1
 chk 'SNAP_BRIEF' automation/platform/80_production.gs 2
 chk 'SNAP_PURGE' automation/platform/80_production.gs 1
-chk 'snapV2: true' automation/platform/80_production.gs 1
+chk 'snapV2: _snapV2Live()' automation/platform/80_production.gs 1   # 부부 화면 표시는 서버가 준다(SNAP_V2_GATE) · true 로 박지 않고 처리방침 시행일부터(SNAP_V2_FROM)
 chk 'SNAP_PURGE' automation/consultation/consultation-booking.gs 1
 chk "case 'snapRefUpload'" automation/consultation/consultation-booking.gs 1
 chk "case 'snapBriefImg'" automation/consultation/consultation-booking.gs 1
