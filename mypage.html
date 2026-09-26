@@ -2592,14 +2592,21 @@ function _loadSlowRetry(err){   // MPD_E3 무한 스피너 → 재시도 안내 
 }
 
 // 진행바 표시 라벨 — 백엔드 stage 코드(완료형)를 고객용 '액션' 라벨로 (표시 전용·단계값 불변)
+/* ★[STAGE_NAME_PREP 2026-09-26 사장님 결정 ⑤ · prod-2 · prod-3] 입금완료·제작중을 고객 화면에서 「예식 준비」로 부른다.
+   종전엔 같은 단계를 «제작 준비»(입금완료)·«제작»(제작중)·«예식 준비»(카드 제목·NEXT)로 섞어 불렀다.
+   «제작»은 스튜디오 안쪽 말이고, 두 분이 실제로 하는 일(청첩장부터 차례로 채우기)은 카드 제목 그대로 「예식 준비」다.
+   · 표시 라벨만 바꾼다 — 단계 코드(입금완료·제작중)·관리자·알림톡·GAS 는 그대로다.
+   · 스냅의 입금완료는 종전대로 「촬영 준비」(스냅에는 예식이 없다 · SNAP_WORD).
+   · 두 단계가 같은 말이 되므로 입금완료의 진행 머리가 «예식 준비 · 다음 · 예식 준비»가 되지 않게
+     한 칸 더 건너뛰는 규칙은 nowLabel 쪽(묶음 A)이 맡는다. 라벨을 «제작»으로 되돌리지 말 것. */
 var STAGE_LABEL = {
   '신청접수':'신청 접수','상담확정':'상담 확정','촬영확정':'촬영 확정','시착':'드레스 시착',
   '상담완료':'계약서 요청','계약완료':'계약서 서명','입금완료':'계약금 입금',
-  '스냅기획':'스냅 기획','제작중':'제작','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달','후기':'후기'   // STAGE_REVIEW
+  '스냅기획':'스냅 기획','제작중':'예식 준비','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달','후기':'후기'   // STAGE_REVIEW   // [STAGE_NAME_PREP] 제작중 = 예식 준비
 };
 function stageLabel(code, product){
   var k=String(code||'').trim();
-  if (k==='입금완료') return (product==='웨딩스냅') ? '촬영 준비' : '제작 준비';   // 입금확인 후 = 제작/촬영 준비 (라벨-액션 정합)
+  if (k==='입금완료') return (product==='웨딩스냅') ? '촬영 준비' : '예식 준비';   // [STAGE_NAME_PREP] 입금확인 후 = 예식/촬영 준비 (라벨-액션 정합 · 카드 제목 「예식 준비」와 같은 말)
   return STAGE_LABEL[k] || k;
 }
 
@@ -2658,16 +2665,25 @@ function renderMyPage(d){
   // NAME_BADGE_LABEL(2026-07-25 사용자 지시 · C안): 상품 알약 배지 폐지 → 상단 라벨에 'My Page · 시그니처'로 합류
   (function(){ var _lb=$('mp_label'); if(!_lb) return; var _pd=String(d.product||'').trim();
     _lb.innerHTML='My Page'+(_pd?(' <span class="mp-prod">· '+escapeHtml(_pd)+'</span>'):''); })();
-  // 예식(촬영) 카운트다운 — 기초정보에 예식일이 있을 때(제작 단계~)
+  // 예식(촬영) 카운트다운 — 계약서 서명 뒤부터 후기까지(제작 기초정보 → 서명한 계약서 순으로 예식일을 읽는다)
   (function(){
     var el=$('mp_wedding'); if(!el) return;
-    var wd=(d.production && d.production.base) ? String(d.production.base.weddingDate||'').trim() : '';
+    /* ★[HEAD_DATE_SIGNED 2026-09-26 사장님 결정 ⑦ · x-5 · pay-13] 날짜 줄은 계약서 서명 뒤부터 후기까지 모든 단계에 뜬다.
+       종전엔 제작 기초정보(production.base · 입금완료·제작중에만 온다)만 읽었다. 그래서 계약금 입금 화면은
+       NEXT 가 «잔금 · 예식 9일 전»처럼 예식일을 기준으로 말하면서 정작 그 날짜가 화면에 없었고,
+       예식이 끝나면 줄이 통째로 사라져 «예식을 마쳤어요»가 거의 나오지 않았다.
+       · 폴백 = 서명한 계약서의 예식일(contract.fill.weddingDate) — 서버가 모든 단계에 싣는다(70_journey buildContractState).
+       · 서명 전 계약서의 날짜는 아직 바뀔 수 있어 읽지 않는다 · 가예약(hold)도 확정 전이라 읽지 않는다.
+       · d.weddingDate 는 서버가 보내지 않는 필드다 — 죽은 폴백을 끼워 넣지 말 것.
+       · 종료 고객(취소·노쇼·미계약)에게는 띄우지 않는다 — 끝난 예식의 D-day 는 종료 안내와 부딪힌다
+         (MPD_G2 와 같은 취지 · 종전에도 이 고객들에겐 production 이 오지 않아 안 떴다). */
+    var _hdPb=(d.production && d.production.base) || null, _hdSc=(d.contract && d.contract.signed && d.contract.fill) || null;
+    var wd=d.isException ? '' : String((_hdPb && _hdPb.weddingDate) || (_hdSc && _hdSc.weddingDate) || '').trim();   // [HEAD_DATE_SIGNED]
     var m=wd.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-    /* [SNAP_DDAY_CHIP 2026-09-26 마이페이지 점검 snap-6] 스냅 고객은 촬영일·D-day 를 상단에서 한 번도 못 봤다 — 날짜를 제작(production.base)에서만
-       읽는데 스냅엔 제작이 없다(서버가 늘 null). 아래 «촬영» 라벨 갈래는 닿을 수 없는 코드였다.
-       → 제작 날짜가 없을 때 스냅만 계약서의 촬영일(contract.fill.weddingDate · 계약서가 온 뒤부터)로 받는다.
-       ★시그니처는 이 줄로 넓히지 않는다 — 계약 뒤 머리 날짜 줄은 따로 정한다(검증: 넓히면 계약금 대기·예식 뒤 헤더가 새로 생긴다). */
-    if(!m && d.product==='웨딩스냅' && d.contract && d.contract.fill){ wd=String(d.contract.fill.weddingDate||'').trim(); m=wd.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); }
+    /* [SNAP_DDAY_CHIP 2026-09-26 마이페이지 점검 snap-6] 스냅 고객은 촬영일·D-day 를 상단에서 한 번도 못 봤다(스냅엔 production 이 없다).
+       → 위 [HEAD_DATE_SIGNED] 의 «서명한 계약서» 읽기가 스냅도 덮는다(스냅은 예식일 칸이 곧 촬영일 · 70_journey). 라벨은 아래 «촬영».
+       ★서명 전 계약서로 넓히는 두 번째 읽기(if(!m && 스냅 && contract.fill))를 되살리지 말 것 — 결정 ⑦(서명 뒤부터)을 어기고
+         isException 도 우회해 취소한 스냅 고객에게 D-day 가 뜬다(병합 검토 실렌더 확인). */
     if(!m){ el.style.display='none'; return; }
     var w=new Date(+m[1],+m[2]-1,+m[3]); w.setHours(0,0,0,0);
     var t=new Date(); t.setHours(0,0,0,0);
@@ -2680,10 +2696,15 @@ function renderMyPage(d){
     if(!wt && d.contract && d.contract.fill && d.contract.fill.weddingTime){ var _wm={'09:00':'10:00','12:20':'13:20','15:40':'16:40'}; wt=_wm[d.contract.fill.weddingTime]||''; }
     // DDAY_TIME(2026-07-25 사용자 지시 "디데이에 시간 같이 조화롭게"): 시간을 날짜 줄 꼬리에서 D-day 줄로 이동 —
     //   'D-81 · 오후 1:20' 형태(강조는 D-81 하나 · 시간은 연한 보조 표기). 예식이 지난 뒤에는 시간 생략.
-    if(wt) wt=slotClock(wt);   // [SLOT_CLOCK] ID(13:20) → 실제 본예식(표 참고)
-    else if(d.product==='웨딩스냅' && d.consult && /^\d{1,2}:\d{2}$/.test(String(d.consult.time||'').trim())) wt=('0'+String(d.consult.time).trim()).slice(-5);   // [SNAP_DDAY_CHIP] 스냅 촬영 시각은 예약한 시각 그대로(슬롯 표 아님 · 변환하지 않는다)
-    var wtKo=''; if(wt){ var _wh=+wt.slice(0,2), _wm2=wt.slice(3,5); wtKo=(_wh<12?('오전 '+_wh):('오후 '+(_wh===12?12:_wh-12)))+':'+_wm2; }
-    var _tTail=(wtKo && dd>=0)?' <span style="font-size:12px;font-weight:300;color:var(--sub)">· '+wtKo+'</span>':'';
+    /* [SLOT_CLOCK] ID(13:20) → 실제 본예식 — 표는 wedTimeKo 안에서 거친다(슬롯 ID·계약 슬롯 둘 다 받는다).
+       ★[HEAD_TIME_ONE 2026-09-26 사장님 결정 ⑦] 시각 글자는 wedTimeKo 하나로 만든다 — 결제 카드·내 내역·임시 고정·확인서와 같은 원천.
+       종전엔 여기서만 12시간제를 따로 만들어, 같은 화면 안에서 머리 «오후 1:40»과 카드 «오후 13:40»이 갈렸다.
+       12시간제 표기(«오후 1:40»)는 wedTimeKo 가 맡는다. 여기서 시·분을 다시 쪼개는 인라인 변환을 되살리지 말 것. */
+    var wtKo=wt?wedTimeKo(wt):'';
+    /* [SNAP_DDAY_CHIP] 스냅 촬영 시각은 예약한 시각 그대로 옮긴다 — wedTimeKo 는 SLOT_CLOCK 표를 거쳐, 관리자가 자유 입력한 변경 시각(13:20 · 10:00 · 16:40)을
+       예식 슬롯으로 읽고 다른 시각(1:40 · 10:20 · 5:00)으로 바꿔 버린다. 그래서 여기서는 12시간제로 옮기기만 한다. */
+    if(!wtKo && d.product==='웨딩스냅' && d.consult && /^\d{1,2}:\d{2}$/.test(String(d.consult.time||'').trim())){ var _st=String(d.consult.time).trim().split(':'), _sh=+_st[0]; wtKo=(_sh<12?'오전 ':'오후 ')+((_sh%12)||12)+':'+_st[1]; }   // [SNAP_DDAY_CHIP]
+    var _tTail=(wtKo && dd>=0)?' <span style="font-size:12px;font-weight:300;color:var(--sub)">· '+escapeHtml(wtKo)+'</span>':'';
     el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+' <span style="font-weight:300">·</span> <span class="wed-dday">'+lab+_tTail+'</span>';   // DDAY_ONELINE(2026-07-25 사용자 지시) 한 줄 병기: 예식 2026.10.14 · D-80 · 오후 1:20 — 강조는 D-day 하나(줄당 강조 1개 유지) · 좁은 화면은 D-day 덩어리째 줄바꿈(nowrap) · 구 MPD_B1 별도 줄 승격 대체 · 당일 중립 톤(G12)은 lab 계산이 유지
     el.style.display='block';
   })();
@@ -3114,6 +3135,28 @@ function applyCardStageView(d){
       return true;
     });
     pastIds.forEach(function(id){ var b=$(id); if (b) b.style.display='none'; });
+  }
+
+  /* ★[SNAP_TODO_FIRST 2026-09-26 사장님 결정 ㉑ · snap-4] 웨딩스냅 — 할 일 카드가 떠 있으면 촬영 예약 카드(#mp_consult)를 그 아래로 내린다.
+     종전엔 이미 잡힌 촬영 카드(390 에서 441px)가 늘 먼저 와서, 지금 해야 할 서명·계약금·잔금 카드가
+     첫 화면 밖에서 시작했다(390 실측: 서명 버튼 y=1210 · 입금했어요 y=1532).
+     · 순서만 바꾼다. 촬영 카드의 내용은 하나도 숨기거나 접지 않는다
+       (MPD4_C1 «카드·일시·CTA·장소는 상시 노출» 경계 · 서명 전에는 시간 변경·예약 취소도 살아 있어야 한다).
+     · 할 일 = 계약서 미서명·미만료 / 계약금 미확인 / 잔금이 가까워짐(renderBalance 의 near 와 같은 기준 — 그쪽 기준을 바꾸면 여기도) 또는 입금 신호.
+     · 할 일이 없으면 원래 자리(내 내역 아래 · 시착 카드 앞)로 돌려놓는다 — 다시 그릴 때마다 판정한다.
+     · 시그니처는 건드리지 않는다(상담 카드가 상담완료부터 숨어 이 문제가 없다). */
+  var _csBox = $('mp_consult'), _csTodoAt = $('mp_snap'), _csHome = $('mp_fitting');
+  if (_csBox && _csTodoAt && _csHome && _csBox.parentNode === _csTodoAt.parentNode && _csBox.parentNode === _csHome.parentNode) {
+    var _csShown = function(id){ var b=$(id); return !!(b && b.style.display!=='none' && b.innerHTML); };
+    var _csC = d.contract, _csP = d.payment, _csB = d.balance, _csTodo = false;
+    if (d.product === '웨딩스냅' && _csShown('mp_consult')) {
+      var _csExp = !!(_csC && (_csC.expired || (typeof _csC.remainingSec==='number' && _csC.remainingSec<=0)));   // renderContractPayment 의 만료 판정과 같은 기준
+      _csTodo = (!!_csC && !_csC.signed && !_csExp && _csShown('mp_contract'))
+        || (!!_csP && !_csP.confirmed && _csShown('mp_contract'))   // 계약금 카드는 계약서 카드에 병합돼 있다(mp_payment 는 늘 비움)
+        || (!!_csB && !_csB.confirmed && (_csB.status==='완료신호' || (_csB.dday!=null && _csB.dday<=_payDays(d).bal+6)) && _csShown('mp_balance'));
+    }
+    var _csAt = _csTodo ? _csTodoAt : _csHome;   // 할 일 있음 → 잔금 카드 뒤(= 스냅 기획 자리 앞) · 없음 → 제자리
+    if (_csBox.nextElementSibling !== _csAt) _csBox.parentNode.insertBefore(_csBox, _csAt);
   }
 }
 
@@ -4275,7 +4318,7 @@ function renderContractPayment(c, p, ctx){
   // 시그니처: 계약금은 예약금으로 충당(납부액 0) → '입금해 주세요(0원)'·계좌·입금완료 대신 충당 완료 안내 + 디렉터 확인 대기
   if (a && Number(a.납부액) <= 0){
     h += '<div class="cc-title" style="margin-top:8px">계약금은 예약금으로 충당돼요</div>'
-       + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 제작 단계가 열려요.</div>'
+       + '<div class="cc-sub">추가로 내실 금액은 없어요. <span class="cc-mini">예약금 '+fmtWon(a.예약금||100000)+'으로 충당</span><br>디렉터가 확인하면 예식 준비가 열려요.</div>'   // [STAGE_NAME_PREP] 2026-09-26 사장님 결정 ⑤ · 진행 라벨이 「예식 준비」가 되자 같은 화면에서 이 카드만 «제작 단계»로 남았다 — NOW 의 «예식 준비(청첩장·식순)가 열려요»와 같은 이름으로
        + ((a.중도금>0||a.잔금)?('<div class="cc-note" style="margin-top:6px">다음 결제 · '+(a.중도금>0?('중도금 '+fmtWon(a.중도금)+' '+escapeHtml(a.중도금시점||'')+' · '):'')+'잔금 '+fmtWon(a.잔금)+' '+escapeHtml(a.잔금시점||'')+'</div>'):'')
        + '</div>';
     box.innerHTML=h; box.style.display='block'; return;
