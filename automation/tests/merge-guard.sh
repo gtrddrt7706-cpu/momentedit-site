@@ -12239,3 +12239,35 @@ chk "dt::after{content:'.00a0·.00a0'" mypage.html 1
 chk '<dd>고른 장면&nbsp;·&nbsp;메모&nbsp;·&nbsp;참고 링크&nbsp;·&nbsp;두&nbsp;분이 올린 참고 사진</dd>' mypage.html 1
 nochk '<dd>고른 장면 · 메모' mypage.html
 nochk "dt::after{content:' · '" mypage.html
+# ── 묶음 G1b
+# [DEP_NOTE_MID] 2026-09-26 통합 점검 G1b(L1 pay-5) — 계약금 카드 끝 안내에 먼저 오는 중도금을 시간 순으로(«중도금 …원은 예식 149일 전까지예요.» → 잔금 → «기한이 가까워지면…») · 묶음에 든 것·이미 확인된 것은 뺀다
+chk 'DEP_NOTE_MID' mypage.html 2
+chk '(_dueMid?.<span style="display:block;text-wrap:balance">중도금 .+fmtWon(a.중도금)+.은 .+escapeHtml(a.중도금시점)+.까지예요.</span>' mypage.html 1
+chk '_pb2.indexOf(.중도금.)===-1&&!p.midConfirmed' mypage.html 1
+# [SNAP_BAL_LATE] 2026-09-26 통합 점검 G1b(L3 · L8) — 스냅 잔금 기한(촬영 7일 전)이 한국 날짜로 오늘이거나 지났으면 계약금 카드 둘째 줄 «촬영이 가까워, 계약금이 확인되면 바로 이 화면에 입금 안내가 열려요.»(«기한이 가까워지면» 약속 금지 · 서버 묶음 여부는 사장님 결정 대기 · NEXT 줄은 G1)
+chk 'SNAP_BAL_LATE' mypage.html 2
+chk '촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 입금 안내가 열려요' mypage.html 1
+chk 'if(!isSnap||!_dueBal) return false;' mypage.html 1
+chk '_payDays().bal)<=_snapKstToday()' mypage.html 1
+# [MID_PAST_WORD] 2026-09-26 통합 점검 G1b(L3) — 계약 뒤 기한을 넘긴 중도금(단순 연체)은 날짜를 남기고 «(날짜) 기한이 지났어요.» / «지금 바로 입금 부탁드려요»(지난 날짜에 «…까지 입금 부탁드려요» 금지) · 두 덩어리
+chk 'MID_PAST_WORD' mypage.html 1
+chk ': _mPast?(.<span class="ln-bal"><b>.+escapeHtml(midDateTxt)+.</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 입금 부탁드려요</span>.)' mypage.html 1
+# [COMBO_NOTE_SPLIT] 2026-09-26 통합 점검 G1b(L5 B9 ①) — 중도금·잔금 묶음 카드 «예식이 가까워 함께 받아요.» / «(기한) 입금 부탁드려요» 두 덩어리(«받아요 · / 지금 바로» 가운뎃점 줄 끝 매달림) · 날짜 꼬리 «·&nbsp;예식&nbsp;N일&nbsp;전»
+chk 'COMBO_NOTE_SPLIT' mypage.html 1
+chk 'forceCombo?(.<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">.+comboDue+. 입금 부탁드려요.+comboTag+.</span>.)' mypage.html 1
+chk 'cc-mini">·&nbsp;예식&nbsp;' mypage.html 1
+nochk 'forceCombo?(.예식이 가까워 함께 받아요 · .' mypage.html 0
+# [KST_TODAY] 2026-09-26 통합 점검 G1b(L8-tz) — 잔금 카드 _bPast · 묶음 카드 _balPast · 중도금 연체 _mPast · 스냅 계약금 카드 _balLate · 서명 창 «오늘(날짜)»는 한국 날짜(_snapKstToday) — 기기 자정 셈으로 되돌리면 LA 기기는 하루 전, 오클랜드 기기는 하루 뒤를 «오늘»로 센다(머리·NOW·NEXT·보관 쪽 [KST_TODAY] 는 G1)
+chk 'KST_TODAY' mypage.html 7
+chk 'function _duePastKst(ymd){ var m=String(ymd||..).match(' mypage.html 1
+chk ')<_snapKstToday(); }' mypage.html 1
+chk 'var _bPast=_duePastKst(p.dueDate);' mypage.html 1
+chk 'var _balPast=!!(bal && _duePastKst(bal.dueDate));' mypage.html 1
+chk 'var _mPast=!!midDateTxt && _duePastKst(p.dueDate);' mypage.html 1
+# [KST_TODAY] (G1b 검토 2026-09-26) 서명 창 줄은 G2 [CONSULT_CLOCK12] 가 같은 줄을 «var _sd=new Date(), _sdKo=…getFullYear…»로 바꾼다 — 변수 이름에 묶지 않고 «한국 날짜 + getUTC* 셋»만 본다(합칠 때 이름이 _sdKo 여도 초록 · G2 기기 날짜판이 이기면 빨강 · getFullYear/getMonth/getDate 를 섞어도 빨강)
+chk 'var _sd=new Date(_snapKstToday()), _sd[A-Za-z]*=_sd.getUTCFullYear().*_sd.getUTCMonth().*_sd.getUTCDate()' mypage.html 1
+nochk 'var _sd=new Date(), _sd' mypage.html 0
+nochk 'var t=new Date();t.setHours(0,0,0,0);return new Date(+m' mypage.html 0
+# [KST_TODAY] (G1b 검토 2026-09-26) 보관본 «계약 체결일»(_archiveSignedContract data.signDate)도 한국 날짜 — 서명 창 «오늘(…)»만 한국 날짜로 바꾸면 LA 기기에서 창은 9/26, 보관본은 9/25 로 갈린다(서버 계약서명일시는 한국 시각)
+chk 'var t=new Date(_snapKstToday()); data.signDate=t.getUTCFullYear().*t.getUTCMonth().*t.getUTCDate()' mypage.html 1
+nochk 'var t=new Date(); data.signDate' mypage.html 0
