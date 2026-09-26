@@ -668,6 +668,14 @@ if (_recWritten.length) {
   }
 }
 
+/* ★[SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 멈춤 자리 — mp3 를 새로 만들었으면 부모 클립의 «둘째 문장 끝»을 무음에서 찾아
+   _recorded.json 에 적는다(cut2Ms · 손으로 고치지 않는다). 검사에 걸린 클립은 멈춤 자리를 지운다 — 빌더가 그 줄을 글로 흘린다. */
+if (_recWritten.some((w) => /narration$/.test(w.dir))) {
+  const sc = spawnSync('node', [path.join(root, 'scripts/sample-cut.mjs'), '--write'], { encoding: 'utf8' });
+  if (sc.error || sc.status !== 0) console.log('  ★대표 한 줄 멈춤 자리를 못 적었다 — node scripts/sample-cut.mjs --write 를 따로 돌릴 것');
+  else console.log(String(sc.stdout || '').trim().split('\n').map((l) => '  ' + l).join('\n'));
+}
+
 fs.rmSync(TMP, { recursive: true, force: true });
 fs.rmSync(TMPZ, { recursive: true, force: true });
 console.log(`\n✓ ${made}클립 → ${[...outDirs].map((d) => path.relative(root, d) + '/').join(' · ')}`);

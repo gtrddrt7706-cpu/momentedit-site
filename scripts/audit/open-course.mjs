@@ -134,20 +134,21 @@ if (process.argv.includes('--live')) {
     await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
     await pg.click('#next'); await pg.waitForTimeout(600); await pg.click('#next'); await pg.waitForTimeout(600);
-    const g = () => pg.evaluate(() => ({ band: (document.querySelector('.op-band .t1') || {}).textContent || '', note: (document.querySelector('.op-note .op-note-t') || {}).textContent || '', ow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      moves: document.querySelectorAll('.mvb').length, locks: [...document.querySelectorAll('.op-tg:disabled')].length, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
+    /* [PICK_V2 2026-09-26] 띠(op-band)는 거뒀다 — 시간 둘은 아래 막대(#opCta) · 늘 있는 칸은 «늘 있어요»(.pk-fix) */
+    const g = () => pg.evaluate(() => ({ band: ((document.getElementById('opCta') || {}).textContent || '').replace(/\u00a0/g, ' '), empty: (document.querySelector('.pk-fp-empty') || {}).textContent || '', note: (document.querySelector('.op-note .op-note-t') || {}).textContent || '', ow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      moves: document.querySelectorAll('.mvb').length, locks: document.querySelectorAll('.pk-fix').length, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
     let s = await g();
-    ok(`${w} 빈 채 띠 «본식 약 2~3분 · 단체 사진 약 37~38분»`, /본식 약 2~3분/.test(s.band) && /약 37~38분/.test(s.band), s.band);
+    ok(`${w} 빈 채 — 아래 막대 «예시로 시작하거나 …» · 흐름 판 빈 글(숫자 비움)`, /예시로 시작하거나/.test(s.band) && /아직 담은 순간이 없어요/.test(s.empty), s.band + ' | ' + s.empty);
     ok(`${w} 빈 채 알림 없음 · 늘 있어요 셋(식전 영상 · 입장 · 닫는 인사) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 3 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
     ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '축가', '추가 비용'].some((x) => s.text.indexOf(x) > -1));
     await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); s = await g();
     ok(`${w} ‹가족› 예시 → 본식 약 17~24분`, /약 17~24분/.test(s.band), s.band);
-    // [FREE_OWN] 예시에서 시작했고 준비한 순서가 없으면 ② 에 더하기 단추 → 누르면 담긴다 · 칩이 띠에 곧장
-    const addBtn = await pg.$('[data-fk="opaddfree"]');
-    ok(`${w} ② «+ 직접 준비한 순서 더하기»가 보인다`, !!addBtn);
+    // [ACTS_FOUR] 준비한 순서는 «마음의 순간»의 «있을 때만» 칸 — 담기 원을 누르면 담긴다(옛 [FREE_OWN] 맨 아래 묶음 · ② 더하기 단추는 거뒀다)
+    const addBtn = await pg.$('[data-fk="opt:free"]');
+    ok(`${w} 준비한 순서 칸에 담기 원이 있다(«있을 때만»)`, !!addBtn && await pg.evaluate(() => /있을 때만/.test(document.querySelector('[data-fk="pto:free"]').textContent)));
     if (addBtn) { await addBtn.click(); await pg.waitForTimeout(500); }
-    const fOn = await pg.evaluate(() => !!(S.on && S.on.free) && !document.querySelector('[data-fk="opaddfree"]'));
-    ok(`${w} 누르면 준비한 순서가 담기고 단추가 사라진다`, fOn);
+    const fOn = await pg.evaluate(() => !!(S.on && S.on.free) && document.querySelector('[data-fk="opt:free"]').getAttribute('aria-pressed') === 'true');
+    ok(`${w} 누르면 준비한 순서가 담기고 원이 ✓ 로 바뀐다`, fOn);
     /* [LISTEN_PAGE] 판 칩은 ② 로 옮겼다 — ① 에서는 값을 바로 넣어 띠가 따라오는지만 본다(칩 자체는 listen-page.mjs 가 ② 에서 누른다) */
     const b3 = (await g()).band; await pg.evaluate(() => { S.freeLen = '1'; render(); }); await pg.waitForTimeout(400); const b1 = (await g()).band;
     ok(`${w} 길이(3분 → 1분)가 띠에 곧장`, b3 !== b1, b3 + ' → ' + b1);
