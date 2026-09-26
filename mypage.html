@@ -5926,8 +5926,12 @@ function _invBankAsk(miss){
 }
 function _invBankFocus(miss){ try{ var s=$(miss.id); if(!s) return; var e=$(miss.id+'_e'); ((s.value==='기타(직접입력)'&&e)?e:s).focus(); }catch(err){} }   // 「기타」를 고르고 이름을 안 적었으면 적는 칸으로
 /* [INV_SKIP_ROW] 서버는 「개인 제작 · QR 아니요」도 method 'none' 으로 받아(doPublishInv #6) 그 초안을 그대로 남긴다 —
-   selfQR:false 가 남아 있으면 개인 제작이다. 이 판정은 «예식 준비» 행과 확인서 줄에만 쓴다(위저드가 여는 값은 그대로). */
-function _invMethodEff(d){ d=d||{}; var m=String(d.method||''); return (m==='none' && d.selfQR===false) ? 'self' : m; }
+   selfQR:false 가 남아 있으면 개인 제작이다. 이 판정은 «예식 준비» 행과 확인서 줄에만 쓴다(위저드가 여는 값은 그대로).
+   ★[INV_SKIP_ROW 2026-09-26 검토] selfQR:false 만으로는 모자란다 — 위저드는 초대 방식을 바꿔도 selfQR 을 지우지 않아
+     「개인 제작 → QR 아니요 → 청첩장 없이」로 마친 분도 method 'none' + selfQR:false 로 남는다(실클릭 재현).
+     그 분은 마칠 때(doPublishInv skipped) invitationUrls 가 null 로 저장되니, null 이면 «청첩장 없이» 그대로 읽는다.
+     개인 제작 · QR 아니요는 이제 발행 직후 저장([INV_PUB_SAVE])이 method 'self' 로 남기므로, 이 보정은 그 전에 갇힌 옛 초안만 받는다. */
+function _invMethodEff(d){ d=d||{}; var m=String(d.method||''); return (m==='none' && d.selfQR===false && d.invitationUrls!==null) ? 'self' : m; }
 /* ★[INV_PUB_LABEL 2026-09-26 고객 점검 inv-6] 4/4 버튼이 경로와 상관없이 「청첩장 만들기」였다 —
    ①청첩장 없이 · ②개인 제작(QR 아니요)은 «만들 것 없다»고 말한 바로 옆 버튼이 «만들기»였고
    ③이미 링크를 돌린 부부에게 «만들기»는 새 청첩장이 생겨 보낸 링크가 바뀔 것처럼 읽혔다.
