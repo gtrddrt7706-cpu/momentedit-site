@@ -56,6 +56,8 @@ else {
 const fr = gs.match(/maxUploads: \d+, from: '(\d{4})-(\d{2})-(\d{2})' \}/), pv = priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/), dl = priv.match(/촬영\(스냅\)[\s\S]{0,400}?(\d{4})년 (\d{1,2})월 (\d{1,2})일부터/);
 t(!!fr && !!pv && fr.slice(1, 4).join('-') === pv.slice(1, 4).join('-'), `새 기획 여는 날(SNAP_V2.from ${fr ? fr.slice(1, 4).join('-') : '못 읽음'}) = 처리방침 개정 시행일(${pv ? pv.slice(1, 4).join('.') : '못 읽음'})`);
 t(!!fr && !!dl && +dl[1] === +fr[1] && +dl[2] === +fr[2] && +dl[3] === +fr[3], `새 기획 여는 날 = 처리방침 «촬영(스냅)» 위탁 줄의 시작일(${dl ? dl.slice(1, 4).join('.') : '못 읽음'})`);
+const phRow = (priv.match(/촬영\(스냅\)<\/span>\s*<span class="spec-val">([^<]*)/) || [])[1] || '';
+t(/^모먼트에디트와 계약한 사진작가/.test(phRow) && phRow.indexOf('촬영별') === -1, '처리방침 위탁 줄 = «모먼트에디트와 계약한 사진작가» — 매번 바뀌는 외부 작가가 아니다(PHOTOG_CONTRACT 2026-09-26 사장님)');
 t(/snapV2: _snapV2Live\(\)/.test(gs), '부부 화면 표시(snapV2)는 날짜 문을 따른다 — true 로 박지 않는다');
 [['_snapIsV2 && !_snapV2Live()', '새 기획 저장'], ['function handleSnapRefUpload', '참고 사진 올리기'], ['function adminSnapBrief', '촬영 브리프 만들기']].forEach(([k, n]) => {
   const i = gs.indexOf(k); t(i > -1 && gs.slice(i, i + 900).indexOf('_snapV2Live()') > -1, `${n}도 날짜 문을 본다(시행일 전 거절)`);

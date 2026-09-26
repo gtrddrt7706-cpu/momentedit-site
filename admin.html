@@ -2788,7 +2788,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   if(_pwh) _pfx='';
   /* ★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4] 가족사진 «불러 모아 주실 분» — 디렉터가 이 분께 먼저 말씀드린다. 고객 기기 값이라 esc(row 가 한다). */
   var _pcl=(gi&&gi.photoCaller)?[gi.photoCaller.groom?('신랑 쪽 · '+String(gi.photoCaller.groom)):'', gi.photoCaller.bride?('신부 쪽 · '+String(gi.photoCaller.bride)):''].filter(function(x){return x;}).join(' / '):'';
-  if(_pho||_pfx||_pwh||_psu||_pcl) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
+  if(_pho||_pfx||_pwh||_psu||_pcl) h+='<div class="grp-l">가족 · 친구 스냅</div>'+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
   // ★★[SNAP_PICK_V2 2026-09-26 사장님 회의] 스냅 기획 — 공간별 기본 · 고른 장면(번호 = 우선순위) · 링크 · 올린 그림 · 한 칸 · 준비물 · 디렉터 확인·회신 · 촬영 브리프 주소.
   //   장면 이름·준비물은 assets/snap-refs.js(부부 화면·브리프와 같은 원천)에서 읽는다. 옛 칸(v1)이 있으면 아래 «옛 기록»으로만 보인다(SNAP_LEGACY_KEEP).
   if(sn&&sn.v===2){

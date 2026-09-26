@@ -4426,9 +4426,11 @@ fi
 #   «예식 준비» 카드의 행 순서는 productionDashHtml 의 _prepRows 배열 하나가 정한다. 식순에 딸린 접힘 두 줄(준비 목록 · 부케)은 식순 바로 뒤.
 chk 'PREP_ORDER_0926' mypage.html 1
 chk 'CF_ORDER_0926' mypage.html 3                    # 예식 확인서 줄도 같은 순서(식순·애프터 웨딩 줄을 좌석 뒤에서 붙인다)
+chk 'GROUP_SNAP_NAME' mypage.html 4                  # «단체 사진» → «가족 · 친구 스냅»(사장님 선택 2026-09-26) — 목록 줄·화면 제목·저장 알림·확인서 줄 · 옛 이름 복귀는 prep-order 가 잡는다
+chk 'PHOTOG_CONTRACT' privacy.html 1                  # 촬영(스냅) 위탁 = 모먼트에디트와 계약한 사진작가 · 개인정보 조항은 작가 계약서에(사장님 2026-09-26) — 문구는 snap-plan 이 잰다
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
   case "$_pro" in
-    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 단체 사진 · 예식 확인서도 같은 순서' ;;
+    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 가족 · 친구 스냅 · 예식 확인서도 같은 순서' ;;
     1) echo 'FAIL prep-order: 예식 준비 카드(또는 예식 확인서) 순서가 사장님 지시(2026-09-26)와 다릅니다 — node scripts/audit/prep-order.mjs'; fail=1 ;;
     *) echo 'ok prep-order: 재지 못했습니다(배열 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
