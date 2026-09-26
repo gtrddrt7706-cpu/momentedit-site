@@ -130,6 +130,7 @@ const PROPS = {
   LOCK_BUSY_N: ['state'], NOTIFY_HOLD: ['state'], SOLAPI_BAL_CHK_AT: ['state'],
   WEDDING_BLOCKS: ['state'], DEPLOY_CODE_FINGERPRINT: ['state'],
   NOTIFY_FAIL_: ['state'], NOTIFY_FAILMAIL_: ['state'],   /* 날짜가 뒤에 붙는 접두사 */
+  SNAPBRIEF_: ['state'],   /* [SNAP_BRIEF] 촬영 브리프 주소 → 개인코드(주소 토큰이 뒤에 붙는 접두사 · adminSnapBrief 가 만들고 purgeSnapRefs 가 지운다) */
   KAKAO_REST_KEY: ['state'], KAKAO_TEMPLATES: ['state'],  /* 설정 함수가 넣어 두는 값 */
 
   /* switch */

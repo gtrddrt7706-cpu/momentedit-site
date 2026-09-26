@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script src="/shared/preview-guard.js"></script><!-- [PREVIEW_GUARD] 운영 주소가 아니면 GAS 연결을 막는다 · 운영에서는 아무 일도 안 한다 · 맨 앞이어야 한다 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="no-referrer"><!-- 주소의 브리프 토큰이 Referer 로 새지 않게(레퍼런스 링크를 눌러도) -->
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFAF8">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<title>스냅 촬영 브리프 · Moment Edit</title>
+<!-- ★★[SNAP_BRIEF 2026-09-26 사장님 회의 · 고르는 스냅 기획 SNAP_PICK_V2] 외부 사진작가가 로그인 없이 여는 «촬영 브리프» 한 장.
+     ①주소 하나로만 열린다(추측할 수 없는 40자 · 관리자가 «새 주소»를 만들면 옛 주소는 바로 닫힌다) · 촬영 7일 뒤 닫힌다
+     ②두 분의 이름·연락처는 싣지 않는다 — 예식일 · 도착 시각 · 공간별 장면 · 올린 그림 · 두 분이 알려 준 것 · 준비물만
+     ③장면 이름·구도·준비물·레퍼런스 사진은 assets/snap-refs.js(부부 화면과 같은 원천)에서 읽는다
+     ④시각은 «계약 도착 시각 + 목록 파일의 분»으로 계산한다 — 진행표(assets/sequence-modal.js)와 같은지는 scripts/audit/snap-plan.mjs 가 대조한다
+     ⑤인쇄하면 한 묶음으로 나온다(현장에 종이로 들고 갈 수 있게) -->
+<style>
+:root{
+  --bg:#FAFAF8; --bg2:#F5F3EF; --text:#1C1B19; --accent:#3A2D22; --sub:#5A554C; --light:#6E6959;
+  --gold:#B89A75; --gold-deep:#7A5F37; --seal:#6B2A24; --border:#DDD8D1; --hairline:#E6E1D8;
+  --serif:'Cormorant Garamond',Georgia,serif; --serif-ko:'Noto Serif KR','Nanum Myeongjo',serif;
+  --sans:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{box-sizing:border-box}
+html{font-synthesis:weight}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-text-size-adjust:100%;padding:24px 16px 64px}
+.wrap{max-width:760px;margin:0 auto}
+.eyebrow{font-family:var(--serif);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);text-align:center}
+h1{margin:8px 0 4px;font-family:var(--serif-ko);font-size:20px;font-weight:500;color:var(--accent);text-align:center;letter-spacing:-.02em}
+.when{text-align:center;font-family:var(--serif-ko);font-size:14px;color:var(--sub)}
+.when b{color:var(--seal);font-weight:600}
+.guard{margin:16px 0 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:12px;color:var(--sub);line-height:1.7;text-align:center;word-break:keep-all}
+.tl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:16px 0 0;padding:0;list-style:none}
+.tl li{font-family:var(--serif-ko);font-size:12px;color:var(--sub);padding:5px 10px;border:1px solid var(--hairline);border-radius:999px;background:#fff;line-height:1.4}
+.tl li.on{background:var(--seal);border-color:var(--seal);color:#fff;font-weight:500}
+.tl li b{font-weight:600}
+section.zone{margin:24px 0 0;padding:18px 16px;border:1px solid var(--border);border-radius:8px;background:#fff;break-inside:avoid-page}
+.zh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.zh h2{margin:0;font-family:var(--serif-ko);font-size:16px;font-weight:600;color:var(--accent)}
+.zh .en{font-family:var(--serif);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--light)}
+.zh .t{font-size:12px;color:var(--gold-deep)}
+.mood{margin:4px 0 0;font-size:12px;color:var(--light)}
+h3{margin:16px 0 8px;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent)}
+h3 small{font-size:12px;font-weight:400;color:var(--light)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:600px){ .grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
+.grid.sm{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.grid.sm .tile .nm{padding:6px 6px 0;font-size:12px}
+.grid.sm .tile .fr{padding:2px 6px 8px}
+.tile{position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;break-inside:avoid}
+.tile .ph{display:flex;align-items:center;justify-content:center;aspect-ratio:4/5;background:var(--bg2);font-family:var(--serif-ko);font-size:12px;color:var(--light);letter-spacing:.04em;text-align:center;padding:0 6px}
+.tile img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--bg2)}
+.tile .nm{display:block;padding:8px 10px 0;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.4;word-break:keep-all}
+.tile .fr{display:block;padding:2px 10px 10px;font-size:11px;color:var(--light)}
+.tile .need{color:var(--gold-deep)}
+.tile.pick{border-color:var(--seal);box-shadow:0 0 0 1px var(--seal)}
+.no{position:absolute;top:8px;left:8px;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--seal);color:#fff;font-family:var(--serif);font-size:13px;font-weight:600;line-height:24px;text-align:center}
+.none{font-size:13px;color:var(--light)}
+.links{margin:0;padding:0 0 0 18px;font-size:13px;line-height:1.7;word-break:break-all}
+.links a{color:var(--gold-deep)}
+.box{margin:24px 0 0;padding:16px;border:1px solid var(--border);border-radius:8px;background:#fff;break-inside:avoid}
+.box h2{margin:0 0 8px;font-family:var(--serif-ko);font-size:15px;font-weight:600;color:var(--accent)}
+.note{margin:0;font-size:14px;line-height:1.8;color:var(--text);white-space:pre-line;word-break:keep-all}
+.chk{margin:0;padding:0;list-style:none;font-size:13px;line-height:1.8;color:var(--sub)}
+.chk li::before{content:'';display:inline-block;width:12px;height:12px;margin:0 8px -1px 0;border:1px solid var(--gold-deep);border-radius:2px}
+.rules{margin:0;padding:0 0 0 18px;font-size:13px;line-height:1.8;color:var(--sub);word-break:keep-all}
+.state{margin:60px 0 0;text-align:center;font-family:var(--serif-ko);font-size:14px;color:var(--sub);line-height:1.8}
+.acts{display:flex;justify-content:center;gap:8px;margin:24px 0 0}
+.acts button{min-height:44px;padding:10px 20px;border:1px solid var(--border);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:13px;color:var(--accent);cursor:pointer}
+.acts button:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.foot{margin:24px 0 0;text-align:center;font-size:11px;color:var(--light);line-height:1.7}
+@media print{
+  body{background:#fff;padding:0}
+  .acts{display:none}
+  section.zone,.box,.guard,.tl li{box-shadow:none}
+  .tile.pick{box-shadow:none;border-width:2px}
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  @page{margin:12mm}
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="root"><div class="state" role="status">브리프를 불러오는 중이에요…</div></main>
+<script src="/assets/snap-refs.js"></script>
+<script>
+const EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+function safeUrl(u){ var v=String(u==null?'':u).trim(); return /^https?:\/\//i.test(v)?v:'about:blank'; }
+function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
+function gapi(payload, ms){   // 읽기 12초(GAS 콜드스타트를 자르지 않는 값 · seat/guide 와 같은 처방) · 사진은 30초
+  var ac=(typeof AbortController!=='undefined')?new AbortController():null;
+  var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} }, ms||12000):null;
+  return fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
+    .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; });
+}
+function dateKo(ymd){
+  var m=String(ymd||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return '';
+  var dt=new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));
+  return (+m[2])+'월 '+(+m[3])+'일('+'일월화수목금토'.charAt(dt.getUTCDay())+')';
+}
+function addMin(hm, n){ var m=String(hm||'').match(/^(\d{1,2}):(\d{2})$/); if(!m) return ''; var t=(+m[1])*60+(+m[2])+n; return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
+function tile(R, s, no){
+  var src=R.img(s,'webp'), jpg=R.img(s,'jpg');
+  var pic=src?('<picture><source srcset="'+src+'" type="image/webp"><img src="'+jpg+'" alt="'+esc(s.name)+' 레퍼런스" loading="lazy"></picture>'):('<div class="ph" aria-hidden="true">'+esc(String(s.id||'').toUpperCase())+'</div>');   // 사진 전엔 장면 번호 — 촬영 목록표(docs/plans/스냅_레퍼런스_촬영목록표.md)와 맞춰 보게
+  return '<div class="tile'+(no?' pick':'')+'">'+pic+(no?('<span class="no">'+no+'</span>'):'')+'<span class="nm">'+esc(s.name)+'</span><span class="fr">'+esc(s.frame||'')+((s.needs&&s.needs.length)?(' · <span class="need">'+esc(s.needs.join(', '))+'</span>'):'')+'</span></div>';
+}
+function state(msg){ $('root').innerHTML='<div class="state" role="status">'+msg+'</div>'; }
+(function(){
+  var b=qp('b'), R=window.SNAP_REFS;
+  if(!/^[a-f0-9]{40}$/.test(b)){ state('주소가 잘못됐어요.<br>디렉터에게 받은 주소 전체를 그대로 열어 주세요.'); return; }
+  if(!R){ state('브리프를 불러오지 못했어요.<br>새로고침해 주세요.'); return; }
+  gapi({ action:'snapBrief', b:b }).then(function(r){
+    if(!(r&&r.ok)){ state(esc((r&&r.error)||'브리프를 불러오지 못했어요.')+((r&&r.expired)?'':'<br>필요하면 디렉터에게 새 주소를 받아 주세요.')); return; }
+    var z0=R.zones[0], z1=R.zones[1], a=r.arrive, st=addMin(a,R.arrive), c1=addMin(st,z0.min), w0=addMin(c1,R.move), w1=addMin(w0,z1.min), cer=addMin(w1,R.prep);
+    var h='<div class="eyebrow">Moment Edit · Snap Brief</div><h1>스냅 촬영 브리프</h1>';
+    h+='<div class="when">'+esc(dateKo(r.wed))+(a?(' · 두 분 도착 <b>'+esc(a)+'</b>'):'')+'</div>';
+    if(a) h+='<ul class="tl" aria-label="이날의 순서"><li>도착 · 착장 정돈 <b>'+esc(a)+'</b></li><li class="on">'+esc(z0.ko)+' '+esc(st)+'~'+esc(c1)+'</li><li>이동 '+R.move+'분 · 캔들존 비우기</li><li class="on">'+esc(z1.ko)+' '+esc(w0)+'~'+esc(w1)+'</li><li>입장 준비 '+R.prep+'분</li><li>본식 '+esc(cer)+'</li></ul>';
+    h+='<div class="guard">이 브리프는 촬영 작가 전용이에요 · 외부 공유와 저장을 삼가 주세요'+(r.until?(' · '+esc(dateKo(r.until))+'까지 열려요'):'')+(r.confirmed?' · 디렉터 확인을 마쳤어요':' · 디렉터 확인 전이라 바뀔 수 있어요')+'</div>';
+    var needs=[], seen={};
+    R.zones.forEach(function(z){
+      var Z=(r.zones||{})[z.key]||{}, picks=(Z.picks||[]);
+      h+='<section class="zone" aria-label="'+esc(z.ko)+'"><div class="zh"><h2>'+esc(z.ko)+' · '+z.min+'분</h2><span class="en">'+esc(z.en)+'</span></div><div class="mood">'+esc(z.mood)+'</div>';
+      h+='<h3>기본으로 담아요 <small>· 늘 담는 네 장면</small></h3><div class="grid sm">'+z.base.map(function(s){ return tile(R,s,0); }).join('')+'</div>';
+      h+='<h3>두 분이 고른 장면 <small>· 번호가 우선순위 · 시간이 줄면 앞 번호부터</small></h3>';
+      h+=picks.length?('<div class="grid">'+picks.map(function(id,i){ var f=R.scene(id); if(!f) return ''; ((f.s.needs)||[]).forEach(function(n){ if(!seen[n]){ seen[n]=1; needs.push(n); } }); return tile(R,f.s,i+1); }).join('')+'</div>'):'<div class="none">고르지 않았어요 · 기본 장면으로 담아 주세요</div>';
+      if((Z.ups||[]).length) h+='<h3>두 분이 올린 그림 <small>· 이런 느낌을 원해요</small></h3><div class="grid">'+Z.ups.map(function(u){ return '<div class="tile"><img data-up="'+esc(u.id)+'" alt="두 분이 올린 그림" loading="lazy"></div>'; }).join('')+'</div>';
+      if((Z.links||[]).length) h+='<h3>참고 링크</h3><ol class="links">'+Z.links.map(function(u){ return '<li><a href="'+esc(safeUrl(u))+'" target="_blank" rel="noopener noreferrer">'+esc(u)+'</a></li>'; }).join('')+'</ol>';
+      h+='</section>';
+    });
+    h+='<div class="box"><h2>두 분이 알려 주신 것</h2>'+(String(r.note||'').trim()?('<p class="note">'+esc(r.note)+'</p>'):'<p class="none">남기지 않았어요</p>')+'</div>';
+    if(needs.length) h+='<div class="box"><h2>준비물</h2><ul class="chk">'+needs.map(function(n){ var x=R.needs[n]; return '<li>'+esc(n)+(x?(' · '+esc(x.who==='스튜디오'?'스튜디오에 있어요':'두 분이 가져와요')):'')+'</li>'; }).join('')+'</ul></div>';
+    h+='<div class="box"><h2>촬영 원칙</h2><ul class="rules"><li>기본 네 장면은 늘 담아 주세요.</li><li>두 분이 고른 장면은 번호 순서대로 담아 주세요. 늦게 시작하면 앞 번호부터예요.</li><li>캔들존은 본식 세팅 그대로예요. 이동 '+R.move+'분 안에 캔들존을 비워 하객 입장과 겹치지 않게 해 주세요.</li><li>포즈와 동선은 디렉터가 옆에서 함께 이끌어요.</li></ul></div>';
+    h+='<div class="acts"><button type="button" id="printBtn">인쇄하기</button></div>';
+    h+='<div class="foot">Moment Edit · 이 페이지는 검색에 나오지 않아요</div>';
+    $('root').innerHTML=h;
+    var pb=$('printBtn'); if(pb) pb.addEventListener('click', function(){ window.print(); });
+    // 올린 그림 — 한 장씩(서버가 그 기획에 실린 사진만 준다)
+    Array.prototype.forEach.call(document.querySelectorAll('img[data-up]'), function(im){
+      gapi({ action:'snapBriefImg', b:b, id:im.getAttribute('data-up') }, 30000).then(function(x){
+        if(x&&x.ok&&/^data:image\//.test(String(x.src||''))) im.src=x.src;
+        else im.alt='사진을 불러오지 못했어요';
+      }).catch(function(){ im.alt='사진을 불러오지 못했어요'; });
+    });
+  }).catch(function(){ state('연결이 끊겼어요.<br>잠시 뒤 새로고침해 주세요.'); });
+})();
+</script>
+</body>
+</html>

@@ -132,7 +132,7 @@ var FINAL_CONFIRM = { 착석: 30, 최대: 30, 초과단가: 0 };
 var PROD_LEGACY_COL = '제작임시저장';                 // 구세대 단일 셀(동결 · 읽기 폴백 전용)
 var PROD_META_COL = '제작_meta';                      // 크로스트랙 키 전용
 var PROD_TRACK_COL = { ritual: '제작_ritual', dining: '제작_dining', seat: '제작_seat', guideinfo: '제작_guideinfo', snap: '제작_snap', final: '제작_final', invitation: '제작_invitation' };
-var PROD_META_KEYS = ['base', 'tracks', 'confirm', 'confirmStale', 'eventId', 'invitationUrls'];
+var PROD_META_KEYS = ['base', 'tracks', 'confirm', 'confirmStale', 'eventId', 'invitationUrls', 'snapMeta'];   // snapMeta = [SNAP_PICK_V2] 디렉터 확인·올린 사진 기록·브리프(스냅 트랙 지문을 흔들지 않게 메타에 둔다)
 //   컬럼별 캡 — ritual·dining은 종전 12k 유지(고객 글이 실제로 들어가는 트랙) · 나머지 20k · meta 20k.
 //   합산 상한: 셀당 5만은 컬럼 분리로 풀리지만 시트 '행' 전체 한도는 그대로라 느슨한 총량 상한을 남긴다.
 var PROD_CAP = { ritual: 12000, dining: 12000, meta: 20000, other: 20000, total: 120000, cellHard: 45000 };   // cellHard = 이전(마이그레이션) 중에만 적용하는 셀 하드 한도(시트 셀 5만 미만) — 기존 합법 데이터가 이전에서 막히지 않게
@@ -505,25 +505,14 @@ function handleSaveProductionTrack(body) {
     var _psu = String(gir.photoShareUrl || '').trim().slice(0, 300);
     if (/^https?:\/\//i.test(_psu)) body.draft.photoShareUrl = _psu;
   }
-  // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝) — 무드(두 공간별)·영감보드(링크)·꼭 담고 싶은 것·톤·편안함·소품·디렉터 메모. Private Snap(부부 단독) 중심.
-  //   전 항목 선택 · 배열 상한·문자열 길이 esc · refs는 http/https 링크만. (2026-07-19 스냅사진 파트 · marker: SNAP_PREP_NORMALIZE)
+  // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝) — 전 항목 선택 · 배열 상한·문자열 길이 · 링크는 http/https 만. (2026-07-19 스냅사진 파트 · marker: SNAP_PREP_NORMALIZE)
+  //   ★[SNAP_PICK_V2 2026-09-26] 판이 둘이다 — v:2 면 «고르는 스냅 기획»(공간별 장면·올린 그림·링크·한 칸), 아니면 옛 칸(배포 시차로 남은 탭).
+  //     어느 판이든 다른 판의 칸은 락 안에서 지난 저장분으로 채운다(_snapMerge · SNAP_LEGACY_KEEP) — 여기서 통째로 버리지 않는다.
+  var _snapIsV2 = false;
   if (track === 'snap') {
     var snr = (body && body.draft) || {};
-    var _snArr = function (v, max, len) { return (Object.prototype.toString.call(v) === '[object Array]') ? v.map(function (x) { return String(x).slice(0, len); }).filter(function (x) { return x; }).slice(0, max) : []; };
-    body.draft = {
-      people: _snArr(snr.people, 4, 40),          // 누가 함께 담기나요(인물·관계) — 2026-07-20 정보중심 개편
-      mustPeople: String(snr.mustPeople || '').slice(0, 120),   // 꼭 챙겨 담고 싶은 분
-      aboutNote: String(snr.aboutNote || '').slice(0, 200),     // 잘 나오는 각도·신경 쓰이는 점
-      moodCandle: _snArr(snr.moodCandle, 6, 40),  // 옛 무드 색 타일(신규 폼엔 없음) — 하위호환 보존
-      moodWhite: _snArr(snr.moodWhite, 6, 40),
-      moodNote: String(snr.moodNote || '').slice(0, 300),
-      refs: _snArr(snr.refs, 5, 300).filter(function (u) { return /^https?:\/\//i.test(u); }),   // 링크만(http/https) · 최대 5
-      mustHaves: _snArr(snr.mustHaves, 3, 40),   // '강제 컷 목록' 아님 — 특별히 원하는 소수만(딥리서치 근거)
-      toneStyle: String(snr.toneStyle || '').slice(0, 40),
-      comfort: String(snr.comfort || '').slice(0, 40),
-      propsNote: String(snr.propsNote || '').slice(0, 300),
-      directorNote: String(snr.directorNote || '').slice(0, 500)
-    };
+    _snapIsV2 = Number(snr.v) === 2;
+    body.draft = _snapIsV2 ? _snapV2Norm(snr) : _snapV1Norm(snr);
   }
   // [예식 확인서] 페이로드 검증·정규화는 락 밖 — 불량 요청(빈 스냅샷·형식 오류)이 락과 시트 읽기를 소모하지 않게. 완료 게이트만 락 안(d 필요)
   var _cs = null;
@@ -547,6 +536,11 @@ function handleSaveProductionTrack(body) {
        그중 돈이 걸린 final 을 판정 대상으로 삼는다(다른 트랙 손상은 그 트랙 저장에서 이미 막힌다). */
     var _dl = _prodDraftLoadSafe(cust, code, _notifyQ, (track === 'confirm' ? 'final' : track)); if (!_dl.ok) return _dl.res;   // 손상 컬럼 위 저장 금지 · 경고 메일은 큐로(락 밖 발송)
     var d = _dl.d;
+    if (track === 'snap') {   // ★[SNAP_PICK_V2] 잠금 · 옛/새 칸 보존 · 남의 사진 거르기 — 지난 저장분(d)이 있어야 해서 락 안에서
+      var _snDl = _snapDaysLeft(cust); if (_snDl != null && _snDl <= SNAP_V2.lockDays) return { ok: false, locked: true, error: SNAP_LOCK_MSG };   // [SNAP_LOCK]
+      body.draft = _snapMerge(body.draft, d.snapDraft, _snapIsV2);   // [SNAP_LEGACY_KEEP]
+      if (_snapIsV2) _snapOwnUps(body.draft, d.snapMeta);
+    }
     // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
     if (track === 'confirm') {
       /* ★★[CF_CORE_TRUTH 2026-08-17 · 샌드박스 적대검증이 잡음] 확정은 **트랙 딱지가 아니라 실값**을 본다.
@@ -613,6 +607,8 @@ function handleSaveProductionTrack(body) {
       if (_dcJ.length > 12000) return { ok: false, error: '저장할 내용이 너무 길어요(현재 약 ' + _dcJ.length + '자 · 최대 12,000자). 글 길이를 조금 줄여 주세요.' };
     }
     d[track + 'Draft'] = (body && body.draft) || {};
+    var _snapJobs = [];   // [SNAP_PICK_V2] 사진 정리·마감 뒤 알림 — 시트 쓰기가 끝난 뒤에만 _notifyQ 로 넘긴다(쓰기 전에 실패하면 지우지 않게)
+    if (track === 'snap') _snapAfterSave(d, _oldDraftJ, cust, code, _snapJobs);
     // [예식 확인서] 확인 후 '내용 실변경'만 자동 해제(재확인 필요 · 면책 무결성) — 위저드 열고 그대로 나가기·_step 이동·자리찾기 토글은 확인 유지(재확인 피로 방지)
     if (track !== 'snap' && d.confirm && _prodUiStrip(_oldDraftJ, track) !== _prodUiStrip(JSON.stringify(d[track + 'Draft'] || {}), track)) _prodConfirmVoid(d);   // 스냅 사전기획은 예식 확인서 대상이 아니라 확인 해제 트리거에서 제외(2026-07-19)
     d.tracks = d.tracks || {};
@@ -657,6 +653,7 @@ function handleSaveProductionTrack(body) {
         return true;
       } catch (e) { return false; }                                  // 판단이 안 서면 종전대로(안 내림)
     })();
+    if (track === 'snap') _emptyDraft = !_snapFilled(d.snapDraft);   // [SNAP_PICK_V2] v:2 숫자가 늘 있어 위 판정이 «비었다»를 못 낸다 — 스냅은 내용으로 판정
     if (body && body.done) d.tracks[track] = '완료';
     else if (d.tracks[track] !== '완료' || _emptyDraft) d.tracks[track] = '진행중';
     // [DRAFT_SIZE_CAP · PROD_COL_SPLIT] 컬럼별 캡 + 합산 상한 — 직렬화 결과(pack)를 그대로 쓰기에 넘겨 같은 초안을 두 번 stringify하지 않는다.
@@ -690,6 +687,7 @@ function handleSaveProductionTrack(body) {
       }
     }
     touchCustomer(sheet, colOf, cust.num, _upd);
+    _snapJobs.forEach(function (f) { _notifyQ.push(f); });   // [SNAP_PICK_V2] 쓰기가 끝났으니 락 밖에서
     // ★PRODUCE_ENTRY_FIX(2026-07-25 사용자 발견 "이미 고객은 제작단계인데 관리자 페이지 단계랑 매치가 안 됨"):
     //   입금완료→제작중 전이가 handleSaveProductionBase 한 곳에만 있었는데, 기초정보 입력 화면이 폐지돼(03-1b 서버 구성)
     //   프런트가 saveProductionBase를 더는 호출하지 않음 → 전이가 영영 안 걸려 관리자 파이프라인이 '입금완료 · 제작 시작 대기'에 멈췄다.
@@ -1173,6 +1171,349 @@ function purgeGuestPhotos(dryRun) {
 }
 function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS 편집기는 인자를 못 넘긴다 - 실행용 래퍼
 
+// ==============================================================================
+// ★★[SNAP_PICK_V2 2026-09-26 사장님 회의 · «고르는 스냅 기획»] 서버 — 저장 형식 · 사진 올리기 · 마감 · 디렉터 확인 · 촬영 브리프
+//   부부 화면: mypage.html 스냅 블록(다섯 걸음) · 장면 목록 원천: assets/snap-refs.js · 기획서: docs/plans/PLAN_마이페이지_스냅사진.md §11
+//   ① 저장 형식 v2 = { v:2, zones:{ candle:{picks,ups,links}, white:{…} }, note } — picks 는 장면 번호(c05…) · 고른 순서 = 우선순위
+//   ② [SNAP_LEGACY_KEEP] 옛 저장분(v1 칸들)은 지우지 않는다 — 어느 판이 저장해도 다른 판의 칸을 지난 저장분에서 그대로 싣는다
+//   ③ [SNAP_LOCK] 예식 3일 전부터 잠금 · [SNAP_LATE_MAIL] 마감(예식 14일 전) 뒤에 바뀌면 관리자 메일(30분에 한 통)
+//   ④ [SNAP_UPLOAD] 올린 사진은 스튜디오 드라이브(ME_스냅레퍼런스/<코드>_<예식일>) · 공개 링크 없음 · 이 고객이 올린 것만 기획에 실린다
+//   ⑤ [SNAP_CONFIRM] 디렉터 확인 + 한 줄 회신 · 확인 뒤 부부가 고치면 «다시 확인 필요»(stale)
+//   ⑥ [SNAP_BRIEF] 촬영 브리프 — 작가가 로그인 없이 여는 링크(brief.html?b=…) · 촬영 7일 뒤 만료 · 새로 만들면 옛 주소는 닫힌다
+//   ⑦ [SNAP_PURGE] 예식 183일 뒤 올린 사진·링크·메모를 지운다(청첩장·편지 파기 기준과 같다) — 고른 장면 번호는 개인정보가 아니라 남긴다
+//   ★부부 화면은 buildProductionState 의 snapV2 표시가 있을 때만 새 기획을 연다 — 이 파일을 배포하기 전에는 옛 서버가
+//     새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라지기 때문이다(화면엔 «저장됐어요»). 그 창을 없앤다.
+// ==============================================================================
+var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24 };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
+var SNAP_ZONE_RE = { candle: /^c\d{2}$/, white: /^w\d{2}$/ };
+var SNAP_V2_KEYS = ['v', 'zones', 'note'];
+var SNAP_LEGACY_KEYS = ['people', 'mustPeople', 'aboutNote', 'moodCandle', 'moodWhite', 'moodNote', 'refs', 'mustHaves', 'toneStyle', 'comfort', 'propsNote', 'directorNote'];
+var SNAP_ID_RE = /^[A-Za-z0-9_-]{10,80}$/;
+var SNAP_BRIEF_URL = 'https://www.momentedit.kr/brief.html?b=';
+
+function _snapArr(v) { return Object.prototype.toString.call(v) === '[object Array]' ? v : []; }
+
+// v2 정규화 — 장면 번호는 공간별 형식만(c·w + 두 자리) · 중복 없이 4장까지 · 올린 사진은 드라이브 id 형식만 · 링크는 http(s)만
+function _snapV2Norm(sd) {
+  sd = sd || {};
+  var zs = sd.zones || {}, out = { v: 2, zones: {}, note: String(sd.note || '').replace(/[<>]/g, '').slice(0, SNAP_V2.note) };
+  ['candle', 'white'].forEach(function (k) {
+    var z = zs[k] || {}, seen = {}, picks = [], ups = [], links = [];
+    _snapArr(z.picks).forEach(function (id) { id = String(id || ''); if (SNAP_ZONE_RE[k].test(id) && !seen[id] && picks.length < SNAP_V2.pick) { seen[id] = 1; picks.push(id); } });
+    _snapArr(z.ups).forEach(function (u) {
+      if (!u || ups.length >= SNAP_V2.up) return;
+      var id = String(u.id || '');
+      if (!SNAP_ID_RE.test(id)) return;
+      ups.push({ id: id, th: String(u.th || ''), n: String(u.n || '').replace(/[<>]/g, '').slice(0, 60) });
+    });
+    _snapArr(z.links).forEach(function (u) { u = String(u || '').trim().slice(0, 300); if (/^https?:\/\//i.test(u) && links.indexOf(u) < 0 && links.length < SNAP_V2.link) links.push(u); });
+    out.zones[k] = { picks: picks, ups: ups, links: links };
+  });
+  return out;
+}
+
+// v1 정규화 — 옛 화면(배포 시차로 남은 탭)이 보내는 칸. 종전 규칙 그대로(2026-07-19 · SNAP_PREP_NORMALIZE)
+function _snapV1Norm(snr) {
+  snr = snr || {};
+  var _snArr = function (v, max, len) { return _snapArr(v).map(function (x) { return String(x).slice(0, len); }).filter(function (x) { return x; }).slice(0, max); };
+  return {
+    people: _snArr(snr.people, 4, 40), mustPeople: String(snr.mustPeople || '').slice(0, 120), aboutNote: String(snr.aboutNote || '').slice(0, 200),
+    moodCandle: _snArr(snr.moodCandle, 6, 40), moodWhite: _snArr(snr.moodWhite, 6, 40), moodNote: String(snr.moodNote || '').slice(0, 300),
+    refs: _snArr(snr.refs, 5, 300).filter(function (u) { return /^https?:\/\//i.test(u); }),
+    mustHaves: _snArr(snr.mustHaves, 3, 40), toneStyle: String(snr.toneStyle || '').slice(0, 40), comfort: String(snr.comfort || '').slice(0, 40),
+    propsNote: String(snr.propsNote || '').slice(0, 300), directorNote: String(snr.directorNote || '').slice(0, 500)
+  };
+}
+
+// [SNAP_LEGACY_KEEP] 이번 판의 칸은 들어온 값 · 다른 판의 칸은 지난 저장분 — 키 순서를 고정한다(바뀜 판정이 문자열 비교라 순서가 흔들리면 가짜 «바뀜»이 난다)
+function _snapMerge(incoming, stored, isV2) {
+  incoming = incoming || {}; stored = stored || {};
+  var mine = isV2 ? SNAP_V2_KEYS : SNAP_LEGACY_KEYS, out = {};
+  SNAP_V2_KEYS.concat(SNAP_LEGACY_KEYS).forEach(function (k) {
+    var src = (mine.indexOf(k) !== -1) ? incoming : stored;
+    if (src[k] !== undefined) out[k] = src[k];
+  });
+  return out;
+}
+
+// 이 고객이 올린 사진만 기획에 싣는다 — 남의 드라이브 파일 id 를 끼워 넣어도 브리프로 새지 않게. th(작은 그림)는 서버 기록에서 채운다
+function _snapOwnUps(draft, meta) {
+  var own = {};
+  _snapArr((meta || {}).uploads).forEach(function (u) { if (u && u.id) own[u.id] = u; });
+  ['candle', 'white'].forEach(function (k) {
+    var z = ((draft || {}).zones || {})[k]; if (!z) return;
+    z.ups = _snapArr(z.ups).filter(function (u) { var o = own[u.id]; return !!(o && o.zone === k); })
+      .map(function (u) { return { id: u.id, th: String(own[u.id].th || ''), n: String(u.n || '') }; });
+  });
+  return draft;
+}
+
+// 남긴 것이 하나라도 있나 — 새 기획(고른 장면·올린 그림·링크·한 칸) 또는 옛 칸(마이페이지 _snapFilledD 와 같은 기준)
+function _snapFilled(sd) {
+  sd = sd || {};
+  var zs = sd.zones || {}, any = String(sd.note || '').trim() !== '';
+  ['candle', 'white'].forEach(function (k) { var z = zs[k] || {}; if (_snapArr(z.picks).length || _snapArr(z.ups).length || _snapArr(z.links).length) any = true; });
+  if (any) return true;
+  return !!(_snapArr(sd.people).length || String(sd.mustPeople || '').trim() || String(sd.aboutNote || '').trim() || sd.comfort || _snapArr(sd.mustHaves).length
+    || String(sd.propsNote || '').trim() || sd.toneStyle || _snapArr(sd.refs).length || String(sd.moodNote || '').trim() || String(sd.directorNote || '').trim()
+    || _snapArr(sd.moodCandle).length || _snapArr(sd.moodWhite).length);
+}
+
+// 예식까지 남은 날(한국 날짜 기준 · 예식일이 없으면 null)
+function _snapDaysLeft(cust) {
+  var w = _ymdOf(cust.get('예식일'));
+  if (!w || typeof _dayDiff !== 'function' || typeof _kstYmd !== 'function') return null;
+  return _dayDiff(w, _kstYmd(new Date()));
+}
+var SNAP_LOCK_MSG = '예식 3일 전부터는 여기서 고칠 수 없어요. 바꿀 것이 있으면 디렉터에게 말씀해 주세요.';
+
+// 저장 직후(락 안 · 쓰기 전) — 올린 사진 정리 · 확인 해제 · 마감 뒤 변경 알림. 드라이브·메일은 jobs 로 넘겨 «쓰기가 끝난 뒤» 락 밖에서 한다
+function _snapAfterSave(d, oldJ, cust, code, jobs) {
+  var m = d.snapMeta = d.snapMeta || {};
+  var used = {};
+  ['candle', 'white'].forEach(function (k) { _snapArr((((d.snapDraft || {}).zones || {})[k] || {}).ups).forEach(function (u) { used[u.id] = 1; }); });
+  // 기획에서 빠졌고 올린 지 10분 넘은 사진만 지운다 — 방금 올려 저장을 기다리는 사진을 지우지 않게
+  var now = Date.now(), keep = [], gone = [];
+  _snapArr(m.uploads).forEach(function (u) { if (!u || !u.id) return; if (used[u.id] || (now - (Number(u.ts) || 0)) < 600000) keep.push(u); else gone.push(u); });
+  if (gone.length) {
+    m.uploads = keep;
+    jobs.push(function () { gone.forEach(function (u) { try { DriveApp.getFileById(u.id).setTrashed(true); } catch (e) {} if (u.th) { try { DriveApp.getFileById(u.th).setTrashed(true); } catch (e2) {} } }); });
+  }
+  if (oldJ === JSON.stringify(d.snapDraft || {})) return;   // 내용이 그대로면 확인도 알림도 그대로
+  m.editedAt = fmtKST(new Date());
+  if (m.confirm && m.confirm.at) m.stale = true;            // [SNAP_CONFIRM] 확인 뒤 고치면 다시 확인
+  var dl = _snapDaysLeft(cust);
+  if (dl != null && dl <= SNAP_V2.dueDays) {                  // [SNAP_LATE_MAIL] 마감 뒤 변경 — 30분에 한 통(연속 저장마다 쌓이지 않게)
+    var wed = _ymdOf(cust.get('예식일')) || '-';
+    jobs.push(function () {
+      try {
+        var c = CacheService.getScriptCache(), ck = 'snapLate_' + code;
+        if (c.get(ck)) return; c.put(ck, '1', 1800);
+        if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('스냅 기획이 마감(예식 14일 전) 뒤에 바뀌었어요 · ' + code + ' · 예식 ' + wed + ' · D-' + dl + ' · 관리자 페이지 고객 카드에서 다시 확인해 주세요');
+      } catch (e) {}
+    });
+  }
+}
+
+// 부부 화면에 보내는 스냅 상태 — 확인·회신·잠금만. 폴더 id·올린 목록·브리프 주소는 보내지 않는다
+function _snapMetaPublic(m, cust) {
+  m = m || {};
+  var dl = cust ? _snapDaysLeft(cust) : null;
+  var c = (m.confirm && m.confirm.at) ? { at: String(m.confirm.at), reply: String(m.confirm.reply || '') } : null;
+  return { confirm: c, stale: !!m.stale, lock: dl != null && dl <= SNAP_V2.lockDays };
+}
+
+// [SNAP_UPLOAD] 부부가 «찾던 그림»을 올린다 — 사진 1장(긴 변 1600) + 작은 그림(360). 폰에서 줄여 오므로 원본을 받지 않는다
+//   잠금은 «폴더 확보»와 «기록» 때만 짧게 — 파일 쓰기(느린 구간)는 락 밖(하객 사진 GUEST_PHOTO_IN 과 같은 규칙)
+function handleSnapRefUpload(body) {
+  // [SNAP_UPLOAD] 이 고객 · 이 공간 · 3장 · 잠금 전에만 받는다(표식은 99_deployCheck 가 함수 본문에서 찾는다)
+  body = body || {};
+  var s = resolveSession(String(body.token || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var zone = String(body.zone || '');
+  if (!SNAP_ZONE_RE[zone]) return { ok: false, error: '어느 공간의 사진인지 알 수 없어요.' };
+  var b64of = function (v, max) {
+    v = String(v || ''); var mm = v.match(/^data:(image\/(?:jpeg|png|webp));base64,/); if (!mm) return null;
+    var b = v.slice(mm[0].length).replace(/\s+/g, ''); if (!b || Math.floor(b.length * 3 / 4) > max) return null;
+    return { mime: mm[1], b64: b };
+  };
+  var full = b64of(body.data, 3 * 1048576), thumb = b64of(body.thumb, 300 * 1024);
+  if (!full || !thumb) return { ok: false, error: '사진을 읽지 못했어요. 다른 사진으로 다시 해 주세요.' };
+  var lock = LockService.getScriptLock(), fid = '', sheet, colOf;
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    sheet = getCustomersSheet(); colOf = buildHeaderIndex(sheet);
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅은 이 기획이 없어요.' };
+    if (PRODUCTION_STAGES.indexOf(String(cust.get('현재단계') || '').trim()) === -1) return { ok: false, error: '아직 준비 단계가 아니에요.' };
+    var _cm = _prodColsMissingError(colOf, code, []); if (_cm) return _cm;
+    var dl = _snapDaysLeft(cust); if (dl != null && dl <= SNAP_V2.lockDays) return { ok: false, locked: true, error: SNAP_LOCK_MSG };
+    var _dl = _prodDraftLoadSafe(cust, code, [], 'snap'); if (!_dl.ok) return _dl.res;
+    var d = _dl.d, m = d.snapMeta || {};
+    if (_snapArr((((d.snapDraft || {}).zones || {})[zone] || {}).ups).length >= SNAP_V2.up) return { ok: false, error: '사진은 공간마다 ' + SNAP_V2.up + '장까지 올릴 수 있어요. 올린 사진을 빼고 다시 올려 주세요.' };
+    if (_snapArr(m.uploads).length >= SNAP_V2.maxUploads) return { ok: false, error: '사진을 많이 올리셨어요. 필요 없는 사진을 빼고 저장한 뒤 다시 올려 주세요.' };
+    fid = String(m.folder || '');
+    if (fid) { try { DriveApp.getFolderById(fid); } catch (e) { fid = ''; } }   // 지워졌으면 새로 만든다
+    if (!fid) {
+      var it = DriveApp.getFoldersByName(SNAP_V2.root), root = it.hasNext() ? it.next() : DriveApp.createFolder(SNAP_V2.root);
+      fid = root.createFolder(code + '_' + (_ymdOf(cust.get('예식일')) || 'nodate')).getId();
+      m.folder = fid; d.snapMeta = m;
+      var _sz = _prodSizeError(d, { cust: cust }); if (_sz) return { ok: false, error: _sz };
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));   // 메타만(트랙 미지정)
+    }
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+  var ext = function (mime) { return mime === 'image/png' ? 'png' : (mime === 'image/webp' ? 'webp' : 'jpg'); };
+  var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'MMdd-HHmmss'), f1 = null, f2 = null;
+  var trash = function () { try { if (f1) f1.setTrashed(true); } catch (e) {} try { if (f2) f2.setTrashed(true); } catch (e2) {} };
+  try {
+    var folder = DriveApp.getFolderById(fid);
+    f1 = folder.createFile(Utilities.newBlob(Utilities.base64Decode(full.b64), full.mime, zone + '_' + stamp + '.' + ext(full.mime)));
+    f2 = folder.createFile(Utilities.newBlob(Utilities.base64Decode(thumb.b64), thumb.mime, zone + '_' + stamp + '_th.' + ext(thumb.mime)));
+  } catch (e) { trash(); return { ok: false, error: '사진을 올리다 끊겼어요. 다시 해 주세요.' }; }
+  try { lock.waitLock(15000); } catch (e) { trash(); return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var cust2 = findCustomerByCode(code);
+    if (!cust2) { trash(); return { ok: false, error: '고객 정보를 찾을 수 없습니다.' }; }
+    var _dl2 = _prodDraftLoadSafe(cust2, code, [], 'snap'); if (!_dl2.ok) { trash(); return _dl2.res; }
+    var d2 = _dl2.d, m2 = d2.snapMeta = d2.snapMeta || {};
+    m2.uploads = _snapArr(m2.uploads).concat([{ id: f1.getId(), th: f2.getId(), zone: zone, ts: Date.now() }]);
+    var _sz2 = _prodSizeError(d2, { cust: cust2 }); if (_sz2) { trash(); return { ok: false, error: _sz2 }; }
+    touchCustomer(sheet, colOf, cust2.num, _prodStoreCols(d2, {}, { cust: cust2 }));
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+  return { ok: true, id: f1.getId(), th: f2.getId() };
+}
+
+// 올린 사진의 작은 그림 — 이 고객이 올린 것만 · 한 번에 6장까지(공간 3 × 2)
+function handleSnapThumbs(body) {
+  body = body || {};
+  var s = resolveSession(String(body.token || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var d = _prodLoad(s.row), own = {};
+  _snapArr((d.snapMeta || {}).uploads).forEach(function (u) { if (u && u.th) own[u.th] = 1; });
+  var out = {};
+  _snapArr(body.ids).map(String).filter(function (x) { return own[x]; }).slice(0, 6).forEach(function (id) {
+    try { var b = DriveApp.getFileById(id).getBlob(); out[id] = 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes()); } catch (e) {}
+  });
+  return { ok: true, thumbs: out };
+}
+
+// [SNAP_CONFIRM] 디렉터 확인 + 한 줄 회신(선택) — 부부 카드에 «디렉터가 확인했어요 · 날짜»와 회신이 뜬다
+function adminSnapConfirm(code, reply) {
+  _requireAdmin();   // [SNAP_CONFIRM]
+  code = String(code || '').trim(); reply = String(reply || '').replace(/[<>]/g, '').trim().slice(0, 200);
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet), cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없어요.' };
+    var _dl = _prodDraftLoadSafe(cust, code, [], ''); if (!_dl.ok) return _dl.res;
+    var d = _dl.d;
+    if (!_snapFilled(d.snapDraft)) return { ok: false, error: '두 분이 아직 스냅 기획을 남기지 않았어요.' };
+    var m = d.snapMeta = d.snapMeta || {};
+    m.confirm = { at: fmtKST(new Date()), reply: reply, by: String((typeof _CURRENT_ADMIN !== 'undefined' && _CURRENT_ADMIN) || '디렉터') };
+    delete m.stale;
+    var _sz = _prodSizeError(d, { cust: cust }); if (_sz) return { ok: false, error: _sz };
+    touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));
+    try { if (typeof _recordHandler === 'function') _recordHandler(code, '스냅 기획 확인' + (reply ? ' · 회신: ' + reply.slice(0, 40) : '')); } catch (e) {}
+    return { ok: true, confirm: m.confirm };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+// [SNAP_BRIEF] 촬영 브리프 주소 — 있으면 그대로, renew 면 새로 만들고 옛 주소를 닫는다(잘못 보냈을 때)
+function adminSnapBrief(code, renew) {
+  _requireAdmin();   // [SNAP_BRIEF]
+  code = String(code || '').trim();
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet), cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없어요.' };
+    var wed = _ymdOf(cust.get('예식일')); if (!wed) return { ok: false, error: '예식일이 없어 브리프를 만들 수 없어요.' };
+    var _dl = _prodDraftLoadSafe(cust, code, [], ''); if (!_dl.ok) return _dl.res;
+    var d = _dl.d, m = d.snapMeta = d.snapMeta || {}, Pr = PropertiesService.getScriptProperties();   // ★P 는 전역 설정(P.DATA_START_ROW)이라 가리지 않는다
+    var t = String((m.brief || {}).t || '');
+    if (renew && t) { try { Pr.deleteProperty('SNAPBRIEF_' + t); } catch (e) {} t = ''; }
+    if (!t || Pr.getProperty('SNAPBRIEF_' + t) !== code) {
+      t = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '').slice(0, 40);   // 추측할 수 없는 40자
+      m.brief = { t: t, at: fmtKST(new Date()) };
+      var _sz = _prodSizeError(d, { cust: cust }); if (_sz) return { ok: false, error: _sz };
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));
+      Pr.setProperty('SNAPBRIEF_' + t, code);
+      try { if (typeof _recordHandler === 'function') _recordHandler(code, '스냅 촬영 브리프 주소 ' + (renew ? '새로 만듦(옛 주소 닫음)' : '만듦')); } catch (e) {}
+    }
+    return { ok: true, url: SNAP_BRIEF_URL + t, until: _snapBriefUntil(wed) };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+function _snapBriefUntil(wed) {
+  var mm = String(wed || '').match(/^(\d{4})-(\d{2})-(\d{2})/); if (!mm) return '';
+  return Utilities.formatDate(new Date(Date.UTC(+mm[1], +mm[2] - 1, +mm[3] + SNAP_V2.briefDays, 3)), 'Asia/Seoul', 'yyyy-MM-dd');
+}
+
+// 관리자 — 올린 사진의 작은 그림(고객 상세에서 본다 · 크게는 브리프에서)
+function adminSnapThumbs(code) {
+  _requireAdmin();
+  var cust = findCustomerByCode(String(code || '').trim()); if (!cust) return { ok: false, error: '고객을 찾을 수 없어요.' };
+  var d = _prodLoad(cust), out = {};
+  _snapArr((d.snapMeta || {}).uploads).slice(0, SNAP_V2.maxUploads).forEach(function (u) {
+    if (!u || !u.th) return;
+    try { var b = DriveApp.getFileById(u.th).getBlob(); out[u.id] = 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes()); } catch (e) {}
+  });
+  return { ok: true, thumbs: out };
+}
+
+// [SNAP_BRIEF] 작가가 여는 브리프 — 주소 하나로만 연다(로그인 없음). 이름·연락처는 싣지 않는다(예식일·도착 시각·기획만)
+function _snapBriefCust(t) {
+  t = String(t || '').trim();
+  if (!/^[a-f0-9]{40}$/.test(t)) return { err: { ok: false, error: '잘못된 주소예요.' } };
+  var code = PropertiesService.getScriptProperties().getProperty('SNAPBRIEF_' + t);
+  if (!code) return { err: { ok: false, error: '이 주소는 쓰이지 않아요. 디렉터에게 새 주소를 받아 주세요.' } };
+  var cust = findCustomerByCode(code); if (!cust) return { err: { ok: false, error: '브리프를 찾을 수 없어요.' } };
+  var d = _prodLoad(cust), m = d.snapMeta || {};
+  if (String((m.brief || {}).t || '') !== t) return { err: { ok: false, error: '이 주소는 쓰이지 않아요. 디렉터에게 새 주소를 받아 주세요.' } };
+  var dl = _snapDaysLeft(cust);
+  if (dl != null && dl < -SNAP_V2.briefDays) return { err: { ok: false, expired: true, error: '촬영이 끝나 브리프를 닫았어요.' } };
+  return { cust: cust, d: d, m: m };
+}
+function handleSnapBrief(body) {
+  var r = _snapBriefCust((body || {}).b); if (r.err) return r.err;   // [SNAP_BRIEF] 이름·연락처 없이 — 예식일·도착 시각·기획만
+  var sd = r.d.snapDraft || {}, zs = sd.zones || {}, ci = (_parseJsonSafe(r.cust.get('동의기록')) || {}).계약정보 || {};
+  var zones = {};
+  ['candle', 'white'].forEach(function (k) { var z = zs[k] || {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links) }; });
+  return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: String(sd.note || ''),
+    reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))) };
+}
+function handleSnapBriefImg(body) {
+  body = body || {};
+  var r = _snapBriefCust(body.b); if (r.err) return r.err;
+  var id = String(body.id || ''), ok = false;
+  ['candle', 'white'].forEach(function (k) { _snapArr((((r.d.snapDraft || {}).zones || {})[k] || {}).ups).forEach(function (u) { if (u && u.id === id) ok = true; }); });
+  if (!ok) return { ok: false, error: '사진을 찾을 수 없어요.' };
+  try { var b = DriveApp.getFileById(id).getBlob(); return { ok: true, src: 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes()) }; }
+  catch (e) { return { ok: false, error: '사진을 불러오지 못했어요.' }; }
+}
+
+// [SNAP_PURGE] 예식 183일 뒤 — 올린 사진 폴더를 휴지통으로 · 링크·메모·올린 목록을 비우고 · 브리프 주소를 닫는다. 고른 장면 번호(c05…)는 개인정보가 아니라 남긴다
+//   ★기본 드라이런(로그만) · 실제 반영은 purgeSnapRefs(false) — purgeAdvisorLog(주간 트리거)가 함께 부른다
+function purgeSnapRefs(dryRun) {
+  if (dryRun !== false) dryRun = true;   // [SNAP_PURGE]
+  var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
+  if (!colOf[PROD_META_COL]) return '제작 열 없음(할 일 없음)';
+  var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return '대상 없음';
+  var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
+  var done = [], Pr = PropertiesService.getScriptProperties();
+  for (var i = 0; i < vals.length; i++) {
+    var r = rowFromValues(colOf, vals[i], P.DATA_START_ROW + i);
+    var dl = _snapDaysLeft(r); if (dl == null || dl >= -SNAP_V2.keepDays) continue;   // 아직 보관 기간 안(예식일이 없으면 건드리지 않는다)
+    var raw = String(r.get(PROD_META_COL) || ''); if (raw.indexOf('snapMeta') === -1 && String(r.get(PROD_TRACK_COL.snap) || '').indexOf('"zones"') === -1) continue;
+    var code = String(r.get('개인코드') || '').trim(); if (!code) continue;
+    var d = _prodLoad(r), m = d.snapMeta || {}, sd = d.snapDraft || {};
+    var has = !!(m.folder || _snapArr(m.uploads).length || (m.brief && m.brief.t) || String(sd.note || '') || ['candle', 'white'].some(function (k) { var z = (sd.zones || {})[k] || {}; return _snapArr(z.ups).length || _snapArr(z.links).length; }));
+    if (!has) continue;
+    done.push(code + '(' + _ymdOf(r.get('예식일')) + ')');
+    if (dryRun) continue;
+    var lock = LockService.getScriptLock();
+    try { lock.waitLock(15000); } catch (e) { continue; }
+    try {
+      var cust = findCustomerByCode(code); if (!cust) continue;
+      var _dl = _prodDraftLoadSafe(cust, code, [], 'snap'); if (!_dl.ok) continue;
+      var d2 = _dl.d, m2 = d2.snapMeta = d2.snapMeta || {}, sd2 = d2.snapDraft = d2.snapDraft || {};
+      if (m2.folder) { try { DriveApp.getFolderById(m2.folder).setTrashed(true); } catch (e) {} }
+      if (m2.brief && m2.brief.t) { try { Pr.deleteProperty('SNAPBRIEF_' + m2.brief.t); } catch (e) {} }
+      delete m2.folder; delete m2.brief; m2.uploads = []; m2.purgedAt = fmtKST(new Date());
+      if (sd2.zones) ['candle', 'white'].forEach(function (k) { var z = sd2.zones[k]; if (z) { z.ups = []; z.links = []; } });
+      if (sd2.note !== undefined) sd2.note = '';
+      var _pk = _prodPack(d2, { track: 'snap', cust: cust }); if (_pk.err) continue;
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d2, {}, { pack: _pk }));
+    } finally { try { lock.releaseLock(); } catch (e) {} }
+  }
+  var msg = (dryRun ? '[드라이런] ' : '[실행] ') + '스냅 기획 파기 대상 ' + done.length + '건' + (done.length ? ' - ' + done.join(', ') : '');
+  Logger.log(msg); return msg;
+}
+function previewSnapRefs() { return purgeSnapRefs(true); }   // 지우지 않고 대상만 로그(GAS 편집기 드롭다운용)
+
 // [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
 //   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
 function buildProductionState(r) {
@@ -1210,6 +1551,8 @@ function buildProductionState(r) {
       snap: t.snap || '시작전'                 // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝)
     },
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
+    snapV2: true,                              // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다)
+    snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용
     confirm: draft.confirm || null,            // [예식 확인서] 확인 스냅샷·일시(없으면 확인 전)

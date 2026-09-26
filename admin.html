@@ -233,6 +233,13 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .kv .k{flex:none;width:92px;font-family:var(--serif-ko);color:var(--label-soft)}
 .kv .v{flex:1;font-family:var(--serif-ko);color:var(--ink);word-break:break-all}
 .cnote{font-family:var(--serif-ko);font-size:11.5px;color:var(--light);margin-top:7px}
+/* [SNAP_PICK_V2 2026-09-26] 스냅 기획 — 디렉터 확인·회신 · 촬영 브리프 주소 · 올린 그림 */
+.snp-adm{margin:6px 0 2px;padding:10px 12px;border:1px solid var(--gold-line);border-radius:8px;background:#fff}
+.snp-adm-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.snp-adm-row input{flex:1;min-width:0;min-height:38px;padding:8px 10px;border:1px solid var(--gold-line);border-radius:8px;font-family:var(--serif-ko);font-size:12.5px}
+.snp-adm-url{display:block;margin-top:6px;font-size:11.5px;word-break:break-all;color:var(--ink)}
+.snp-adm-th{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.snp-adm-th img{width:64px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--gold-line)}
 .link-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--serif-ko);font-size:12px;color:var(--blue);margin-right:8px}
 .res-sel{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line,#E5E0D8)}
 .res-sel-list{margin-top:4px;font-size:12px;color:var(--ink,#3A332B);background:#fff;border:1px solid var(--line,#E5E0D8);border-radius:6px;padding:7px 9px;max-height:120px;overflow:auto;white-space:pre-wrap;word-break:break-word}
@@ -531,6 +538,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <!-- ★DECL_ADMIN_MIRROR — 식순 문안·선택지 원천. 선언 주체 라벨을 하드코딩하지 않고 여기서 읽는다.
      async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLWHO를 참조할 수 있다. -->
 <script src="/assets/ritual-data.js"></script>
+<script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 장면 이름·준비물 원천(부부 화면·브리프와 같은 파일) -->
 <script>
 // ★DECL_ADMIN_MIRROR — 선언 주체 라벨은 DECLWHO에서 읽는다(주체가 늘어도 admin이 자동으로 따라온다).
 //   과거 사고(2026-07-26): #318이 'ask'를 네 번째 주체로 추가했는데 여기 하드코딩 맵이 안 따라와,
@@ -590,6 +598,26 @@ function _chipLink(lb,v){ var h=_safeHref(v); return h?('<a href="'+esc(h)+'" ta
 var SLOT_CLOCK={'09:00':'10:10','12:20':'13:30','15:40':'16:50','10:00':'10:10','13:20':'13:30','16:40':'16:50'};
 function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var L={'09:00':'오전','12:20':'오후','15:40':'늦은 오후','10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; var lab=L[t]; if(SLOT_CLOCK[t]) t=SLOT_CLOCK[t]; return (lab?lab+' ':'')+t; }
 function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
+/* ★[SNAP_PICK_V2 2026-09-26] 스냅 기획 관리자 버튼 — 확인·회신 · 촬영 브리프 주소(새 주소는 옛 주소를 닫는다) · 올린 그림(작은 그림).
+   서버: 80_production adminSnapConfirm·adminSnapBrief·adminSnapThumbs(admin.gs adminCall 등록). 상세가 다시 그려져도 살아 있게 문서에 한 번 건다. */
+document.addEventListener('click', function(e){
+  var b=(e.target&&e.target.closest)?e.target.closest('[data-snapact]'):null; if(!b||!curDetail) return;
+  var act=b.getAttribute('data-snapact'), code=curDetail.code; if(!code||b.disabled) return;
+  var done=function(){ b.disabled=false; };
+  b.disabled=true;
+  if(act==='confirm'){ var inp=$('snapReply'); gas('adminSnapConfirm', code, inp?inp.value:'').then(function(r){ done(); if(r&&r.ok){ toast('스냅 기획 확인됨 · 두 분 카드에 보여요'); openDetail(code); } else toast((r&&r.error)||'실패'); }).catch(function(){ done(); toast('오류'); }); return; }
+  if(act==='brief'||act==='renew'){
+    if(act==='renew' && !confirm('새 주소를 만들면 지금 주소는 바로 닫혀요. 작가에게 새 주소를 다시 보내야 해요. 만들까요?')){ done(); return; }
+    gas('adminSnapBrief', code, act==='renew').then(function(r){ done(); var o=$('snapBriefOut'); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
+      if(o) o.innerHTML='<a href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+esc(r.url)+'</a> · '+esc(r.until||'')+'까지 열려요 · 작가에게만 보내 주세요';
+      try{ navigator.clipboard.writeText(r.url).then(function(){ toast('브리프 주소를 복사했어요'); }); }catch(e2){} }).catch(function(){ done(); toast('오류'); }); return; }
+  if(act==='thumbs'){ gas('adminSnapThumbs', code).then(function(r){ done(); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
+      var zs=((curDetail.mirror&&curDetail.mirror.production&&curDetail.mirror.production.snapDraft)||{}).zones||{};
+      Array.prototype.forEach.call(document.querySelectorAll('[data-snapth]'), function(box){ var z=zs[box.getAttribute('data-snapth')]||{};
+        box.innerHTML=(z.ups||[]).map(function(u){ var src=r.thumbs&&r.thumbs[u.id]; return src?('<img src="'+esc(src)+'" alt="올린 그림">'):''; }).join(''); });
+      b.style.display='none'; }).catch(function(){ done(); toast('오류'); }); return; }
+  done();
+});
 
 /* ════════ [ADM_MODAL 2026-08-03] 브라우저 기본 팝업 대체 ════════
    admAlert / admConfirm / admPrompt — 셋 다 Promise를 돌려준다.
@@ -2691,7 +2719,9 @@ function prodTracksHtml(prod){
   var sn=prod.snapDraft||null;
   if((t.snap&&t.snap!=='시작전')||sn){
     h+='<div class="cnote">스냅 기획 <b>'+esc(_tstat(t.snap))+'</b>';
-    if(sn){ var _ss=[]; if((sn.people||[]).length)_ss.push(esc(sn.people.join('·'))); if((sn.refs||[]).length)_ss.push('레퍼런스 '+sn.refs.length); if((sn.mustHaves||[]).length)_ss.push('원하는 컷 '+sn.mustHaves.length); if(sn.toneStyle)_ss.push(esc(sn.toneStyle)); var _snm=(sn.moodCandle||[]).length+(sn.moodWhite||[]).length; if(_snm)_ss.push('무드 '+_snm); if(_ss.length)h+=' · '+_ss.join(' · '); }
+    if(sn&&sn.v===2){ var _szs=sn.zones||{}, _sc=((_szs.candle||{}).picks||[]).length, _sw=((_szs.white||{}).picks||[]).length, _su=((_szs.candle||{}).ups||[]).length+((_szs.white||{}).ups||[]).length, _sm=prod.snapMeta||{};   // [SNAP_PICK_V2] 새 기획 한 줄
+      h+=' · 캔들존 '+_sc+' · 화이트존 '+_sw+(_su?(' · 올린 그림 '+_su):'')+' · <b>'+(_sm.stale?'다시 확인 필요':((_sm.confirm&&_sm.confirm.at)?('확인됨 '+esc(String(_sm.confirm.at).slice(5,10))):'확인 전'))+'</b>'; }
+    else if(sn){ var _ss=[]; if((sn.people||[]).length)_ss.push(esc(sn.people.join('·'))); if((sn.refs||[]).length)_ss.push('레퍼런스 '+sn.refs.length); if((sn.mustHaves||[]).length)_ss.push('원하는 컷 '+sn.mustHaves.length); if(sn.toneStyle)_ss.push(esc(sn.toneStyle)); var _snm=(sn.moodCandle||[]).length+(sn.moodWhite||[]).length; if(_snm)_ss.push('무드 '+_snm); if(_ss.length)h+=' · '+_ss.join(' · '); }
     h+='</div>';
   }
   if(dd||rd||fd||sd||sn) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정·스냅 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd,sd,prod.seatToken,prod.guideinfoDraft,sn)+'</div>';
@@ -2756,10 +2786,34 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   /* ★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4] 가족사진 «불러 모아 주실 분» — 디렉터가 이 분께 먼저 말씀드린다. 고객 기기 값이라 esc(row 가 한다). */
   var _pcl=(gi&&gi.photoCaller)?[gi.photoCaller.groom?('신랑 쪽 · '+String(gi.photoCaller.groom)):'', gi.photoCaller.bride?('신부 쪽 · '+String(gi.photoCaller.bride)):''].filter(function(x){return x;}).join(' / '):'';
   if(_pho||_pfx||_pwh||_psu||_pcl) h+='<div class="grp-l">단체 사진</div>'+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
-  // 스냅 기획(촬영 전) — 부부가 남긴 무드·레퍼런스·원하는 컷·톤·요청. 강제 컷 목록이 아니라 영감·성향(디렉터가 현장에서 살림)
-  if(sn){
+  // ★★[SNAP_PICK_V2 2026-09-26 사장님 회의] 스냅 기획 — 공간별 기본 · 고른 장면(번호 = 우선순위) · 링크 · 올린 그림 · 한 칸 · 준비물 · 디렉터 확인·회신 · 촬영 브리프 주소.
+  //   장면 이름·준비물은 assets/snap-refs.js(부부 화면·브리프와 같은 원천)에서 읽는다. 옛 칸(v1)이 있으면 아래 «옛 기록»으로만 보인다(SNAP_LEGACY_KEEP).
+  if(sn&&sn.v===2){
+    var _R=window.SNAP_REFS, _szs=sn.zones||{}, _sm=((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).snapMeta||{}, _nd=[], _ndSeen={};
+    h+='<div class="grp-l">스냅 기획 (촬영 전)</div>';
+    (_R?_R.zones:[{key:'candle',ko:'캔들존',base:[]},{key:'white',ko:'화이트존',base:[]}]).forEach(function(z){
+      var Z=_szs[z.key]||{}, pk=(Z.picks||[]);
+      h+=row(z.ko+' · 기본',(z.base||[]).map(function(x){ return x.name; }).join(' · '));
+      h+=row(z.ko+' · 고른 장면',pk.length?pk.map(function(id,i){ var f=_R&&_R.scene(id); ((f&&f.s.needs)||[]).forEach(function(n){ if(!_ndSeen[n]){ _ndSeen[n]=1; _nd.push(n); } }); return (i+1)+'. '+(f?f.s.name:id); }).join(' · '):'고르지 않음 · 기본 장면으로');
+      if((Z.links||[]).length) h+='<div class="kv"><span class="k">'+esc(z.ko)+' · 링크</span><span class="v">'+Z.links.map(_lk).join(' · ')+'</span></div>';   /* [ADM_LINK_CLICK] */
+      if((Z.ups||[]).length) h+='<div class="kv"><span class="k">'+esc(z.ko)+' · 올린 그림</span><span class="v">'+Z.ups.length+'장 <span class="snp-adm-th" data-snapth="'+esc(z.key)+'"></span></span></div>';
+    });
+    h+=row('알면 좋은 것',sn.note);
+    h+=row('준비물',_nd.map(function(n){ var x=_R&&_R.needs[n]; return n+(x?(' ('+x.who+')'):''); }).join(' · '));
+    var _cst=_sm.stale?'고치셨어요 · 다시 확인 필요':((_sm.confirm&&_sm.confirm.at)?('확인됨 · '+String(_sm.confirm.at)):'확인 전');
+    h+='<div class="snp-adm">'
+      +'<div class="kv" style="padding:0"><span class="k">디렉터 확인</span><span class="v"><b>'+esc(_cst)+'</b>'+((_sm.confirm&&_sm.confirm.reply)?('<br>회신 · '+esc(_sm.confirm.reply)):'')+'</span></div>'
+      +'<div class="snp-adm-row"><input id="snapReply" maxlength="200" placeholder="한 줄 회신(선택) — 두 분 카드에 그대로 보여요" value=""><button type="button" class="qbtn" data-snapact="confirm">확인</button></div>'
+      +'<div class="snp-adm-row"><button type="button" class="qbtn go" data-snapact="brief">촬영 브리프 주소</button><button type="button" class="qbtn go" data-snapact="renew">새 주소(옛 주소 닫기)</button>'
+      +((_szs.candle&&(_szs.candle.ups||[]).length)||(_szs.white&&(_szs.white.ups||[]).length)?'<button type="button" class="qbtn go" data-snapact="thumbs">올린 그림 보기</button>':'')+'</div>'
+      +'<span class="snp-adm-url" id="snapBriefOut"></span>'
+      +'</div>';
+  }
+  // 스냅 기획(촬영 전 · 옛 기록) — 2026-09-26 전 저장분. 부부 화면에서는 질문이 사라졌지만 기록은 그대로 둔다(SNAP_LEGACY_KEEP)
+  var _snLeg=sn&&((sn.people||[]).length||sn.mustPeople||sn.aboutNote||sn.comfort||(sn.mustHaves||[]).length||sn.propsNote||sn.toneStyle||(sn.refs||[]).length||sn.moodNote||(sn.moodCandle||[]).length||(sn.moodWhite||[]).length||sn.directorNote);
+  if(_snLeg){
     var _snMood=[]; if((sn.moodCandle||[]).length)_snMood.push('캔들존 '+sn.moodCandle.join('·')); if((sn.moodWhite||[]).length)_snMood.push('화이트존 '+sn.moodWhite.join('·'));
-    h+='<div class="grp-l">스냅 기획 (촬영 전)</div>'
+    h+='<div class="grp-l">'+(sn.v===2?'스냅 기획 — 옛 기록':'스냅 기획 (촬영 전)')+'</div>'
       +row('누가 함께',(sn.people||[]).length?sn.people.join(' · '):'')
       +row('꼭 챙길 분',sn.mustPeople)
       +row('각도·주의',sn.aboutNote)
