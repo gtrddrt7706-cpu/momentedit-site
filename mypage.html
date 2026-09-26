@@ -6909,6 +6909,7 @@ function doPublishInv(box){
   /* [INV_DONE_LINK] 2026-09-26 · 완성 화면이 링크가 그대로인지 말하도록 — 반영 «전»에 잰다(성공하면 아래에서 INVFLOW.pub·pubBase 가 새 발행으로 바뀐다).
      4/4 안내([INV_PUB_LABEL] _invLinkChange)와 같은 잣대 · 처음 발행이거나 모르면 undefined(약속 없이 일반 안내) */
   INVFLOW._lkChg=(['online','offline','both'].indexOf(String(_d0.method||''))>=0 && _invPubHistory(_d0)) ? _invLinkChange(_d0) : undefined;
+  var _eid0=String(_d0.eventId||(INVFLOW.pub&&INVFLOW.pub.eventId)||'');   // [INV_DONE_EID] 반영 전 링크의 eventId — «그대로»는 결과와 대조한 뒤에만 말한다(아래)
   if(btn){ btn.disabled=true; btn.textContent=/마치기$/.test(_lbl)?'마치는 중…':(/반영하기$/.test(_lbl)?'반영하는 중…':'만드는 중…'); }
   function reset(msg){ if(btn){ btn.disabled=false; btn.textContent=_lbl; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
   var dr=INVFLOW.draft, sendDraft=dr;
@@ -6934,6 +6935,11 @@ function doPublishInv(box){
        ★[WIZ_EXIT_ONE](나가기가 몰래 저장하지 않는다)과 부딪히지 않는다 — 이건 나가기가 아니라 「만들기」를 누른 결과다. */
     if(r.urls||r.skipped) saveInvDraft();
     if(r.urls){ var _b1=INVFLOW.base||{}; INVFLOW.pub={eventId:INVFLOW.draft.eventId||'', urls:r.urls}; INVFLOW.pubBase={groomKo:_b1.groomKo||'', brideKo:_b1.brideKo||'', groomEn:_b1.groomEn||'', brideEn:_b1.brideEn||''}; }   // [INV_PUB_LABEL] 방금 발행한 것이 다음 「수정하기」의 링크 대조 기준
+    /* [INV_DONE_EID] 2026-09-26 G4 검토 · 완성 화면의 «보내신 링크는 그대로예요»가 반영 «전» 예측(_invLinkChange)만 믿었다 —
+       예측은 디자인 번호 · 영문 머리글자 · 한글 이름만 보는데, 서버 eventId 는 예식 날짜(MMDD)도 담는다(85_invitation.gs _invMakeEventId · _invResolveEventId).
+       예식일이 옮겨진 뒤 반영하면 주소가 바뀌는데도 «그대로»라고 말해, 옛 링크(옛 날짜)가 하객에게 남는다. 받은 결과의 eventId 가 다르면 «바뀌었어요»로 고친다.
+       ('design' · 'name' · 모름(null · undefined)은 건드리지 않는다 — «그대로» 약속만 결과로 확인한다) */
+    if(r.urls && INVFLOW._lkChg==='' && _eid0 && r.eventId && String(r.eventId)!==_eid0) INVFLOW._lkChg='name';
     try{ invStepDone(box, r); }
     catch(e){ reset(''); _miniToast('청첩장은 만들어졌어요 · 화면을 새로고침하면 링크가 보여요'); saveInvDraft(); }
   }, function(e){
@@ -7025,7 +7031,10 @@ function invStepDone(box, r){
          온라인만 고른 부부에게는 통째로 틀린 말이었다. 둘째 줄(«두 곳이 채워져요»)은 그대로. */
       /* [DOT_SPLIT_0926] 2026-09-26 통합 점검 · 두 줄 다 « · »로 절을 이어 390 «…이 QR을 넣으세요 ·»가 줄 끝에 걸렸다 — 글은 그대로, 점만 마침표로 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060 */
       +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub" style="margin-bottom:4px"><span class="ln-bal">종이 청첩장을 직접 만드실 때 이 QR을 넣으세요.</span><span class="ln-bal">'+(u.family?'위 오프라인 청첩장에는 이미 들어 있어요.':'하객분께 이 링크나 QR을 따로 전해 주세요.')+'</span></div>'
-      +'<div class="done-qr-sub" style="font-size:11px;margin-top:0"><span class="ln-bal">좌석 배치&#8288;·&#8288;애프터 웨딩(식사)을 완료하면 이&nbsp;안내에 <b>자리 찾기&#8288;·&#8288;식사 안내</b> 두 곳이 채워져요.</span><span class="ln-bal">준비된 것부터 보여요.</span></div>'
+      /* [FOLD_JOSA_GLUE] 2026-09-26 G4 검토 · 이 줄을 한 덩어리(.ln-bal · balance)로 감싸자 320~345 에서 «…애프터 웨딩(식사) / 을 완료하면…»으로
+         조사 «을»이 줄 머리로 떨어졌다(닫는 괄호 뒤 한글은 줄바꿈 자리다 · BASE 는 balance 가 없어 이 모양이 없었다). 같은 폭에서 «자리 / 찾기»도 갈렸다.
+         «웨딩(식사)을»을 U+2060 으로 한 낱말 · «애프터 웨딩» · «자리 찾기» · «식사 안내»는 NBSP — 320~430 · 768 · 1280 조사 머리 · 괄호 머리 · 매달린 점 0 */
+      +'<div class="done-qr-sub" style="font-size:11px;margin-top:0"><span class="ln-bal">좌석 배치&#8288;·&#8288;애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b> 두 곳이 채워져요.</span><span class="ln-bal">준비된 것부터 보여요.</span></div>'
       +'<div style="text-align:center;margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_gqr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">'+escapeHtml(_gUrl)+'</a>'
       +'<div class="done-acts" style="justify-content:center">'
@@ -7588,7 +7597,10 @@ function guideHubHtml(p, inv){
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 // 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
 //   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
-var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)&#8288;·&#8288;좌석 배치</b> 중 하나라도 내용을 채워 완료하면';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 완성 화면 320 «…애프터 웨딩(식사)· / 좌석 배치…» 줄 끝 점 — «·» 양옆 U+2060([SIGN_DEP_TRUE] 선례)
+var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b> 중 하나라도 내용을 채워 완료하면';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 완성 화면 320 «…애프터 웨딩(식사)· / 좌석 배치…» 줄 끝 점 — «·» 양옆 U+2060([SIGN_DEP_TRUE] 선례)
+/* [COND_PAREN_GLUE] 2026-09-26 G4 검토 · 점을 붙이자 덩어리가 커져 줄이 괄호 앞에서 갈렸다 — 하객 안내 패널(링크 없음) 320~330 «안내 링크는 애프터 웨딩 / (식사)·좌석 배치…»로
+   풀이 «(식사)»가 앞말과 떨어져 줄 머리에 섰다(한글 뒤 여는 괄호는 줄바꿈 자리다). «웨딩»과 «(» 사이도 U+2060 · «애프터 웨딩»은 한 낱말(NBSP · _guideNoteHtml 과 같은 규칙).
+   320~430 · 768 · 1280 두 자리(패널 · 완성 화면 힌트) 괄호 머리 · 매달린 점 · «애프터 / 웨딩» 0 */
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 // ── 단체 사진 = 좌석 편집기처럼 전용 화면(PHOTOFLOW) · 구도 순번 + 연출/이벤트(photoFx) · 사진작가 전달용(2026-07-19) ──
 /* ★[PHOTO_LIST_V2 2026-08-08] 구도 목록 재작성 — 5차 리서치 + 사용자 결정.
