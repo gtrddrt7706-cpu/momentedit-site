@@ -379,19 +379,29 @@ function scan(needle) {
 }
 
 /* 6-c) ★어른의 예식 날 시각 [PARENTS_TIME 2026-09-25 코워크 P6] — parents.html 편지 밖 카드의 표.
-   본식 = 도착 + 준비 + 스냅 · 도착·하객 맞이 20분 전(= 하객 입장 시작 · LEAD) · 자리로 4분 전(식전 영상 시작).
-   ★[PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님은 하객과 같은 시각에 오신다 — 종전 «도착 40분 전» 칸을 없앴다(4칸 → 3칸). */
+   본식 = 도착 + 준비 + 스냅 · 부모님 도착 = 하객 입장(sequence-modal 「하객 입장」 블록) + 이동(단독 스냅의 「이동 N분」).
+   ★[PARENT_ARRIVE_EARLY 2026-09-26 사장님] 하객과 같은 시각(종전 PARENT_ARRIVE_GUEST · 20분 전)이면 입구에서 맞을 수 없다 —
+     두 분의 이동 5분(캔들존 → 화이트존)이 끝나 캔들존이 빈 때(25분 전)에 오셔서 하객을 맞는다.
+   ★[PARENT_SEAT_SOFT 2026-09-26 사장님] «자리로 4분 전» 칸을 뺐다 — 안내 음성을 따라 앉으신다. 표 3칸 → 2칸(도착 · 본식). */
 {
   const hhmm = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
   const toMin = (x) => +x.slice(0, 2) * 60 + +x.slice(3, 5);
   const jr = fs.readFileSync(path.join(root, 'automation/platform/70_journey.gs'), 'utf8');
   const sm = jr.match(/SLOTS:\s*\[([^\]]*)\]/);
   const arrives = sm ? [...sm[1].matchAll(/'(\d{2}:\d{2})'/g)].map((m) => m[1]) : [];
+  const modal = fs.readFileSync(path.join(root, 'assets/sequence-modal.js'), 'utf8');
+  const guestM = modal.match(/\['하객 입장',\s*'(\d+)분'/);
+  const moveM = modal.match(/\['단독 스냅 촬영'[^\n]*?이동 (\d+)분/);
+  if (!guestM || !moveM) no("assets/sequence-modal.js 에서 '하객 입장' 길이나 단독 스냅의 '이동 N분'을 못 읽었다 — 어른 시각을 못 잰다 [PARENT_ARRIVE_EARLY]");
+  const PARENT_LEAD = (guestM ? +guestM[1] : 0) + (moveM ? +moveM[1] : 0);   // 20 + 5 = 25
   const src = fs.readFileSync(path.join(root, 'parents.html'), 'utf8');
-  const rows = [...src.matchAll(/<tr data-pt><td>[^<]+<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><\/tr>/g)].map((m) => m.slice(1, 4).join(' · '));
-  const want = arrives.map((a) => { const c = toMin(a) + D.DAY.ready + D.DAY.snap; return [c - 20, c - 4, c].map(hhmm).join(' · '); });
-  if (rows.length !== 3 || rows.join() !== want.join()) no(`parents.html 어른 시각표 ${rows.join(' / ') || '못 읽음'} ≠ 계산 ${want.join(' / ')} [PARENTS_TIME]`);
-  else ok(`어른 시각표 3줄 일치 (${want.map((w) => w.split(' · ')[2]).join(' · ')} 기준)`);
+  const rows = [...src.matchAll(/<tr data-pt><td>[^<]+<\/td><td>(\d{2}:\d{2})<\/td><td>(\d{2}:\d{2})<\/td><\/tr>/g)].map((m) => m.slice(1, 3).join(' · '));
+  const want = arrives.map((a) => { const c = toMin(a) + D.DAY.ready + D.DAY.snap; return [c - PARENT_LEAD, c].map(hhmm).join(' · '); });
+  if (rows.length !== 3 || rows.join() !== want.join()) no(`parents.html 어른 시각표 ${rows.join(' / ') || '못 읽음'} ≠ 계산 ${want.join(' / ')} (도착 = 본식 ${PARENT_LEAD}분 전) [PARENTS_TIME]`);
+  else ok(`어른 시각표 3줄 일치 (도착 본식 ${PARENT_LEAD}분 전 · ${want.map((w) => w.split(' · ')[1]).join(' · ')} 기준)`);
+  /* 글줄도 같은 숫자를 말해야 한다 — 표만 고치고 «본식 시작 N분 전» 글을 두면 한 카드가 두 시각을 말한다 */
+  if (!src.includes(`<li>본식 시작 ${PARENT_LEAD}분 전 · `)) no(`parents.html 어른 시각 글줄이 «본식 시작 ${PARENT_LEAD}분 전»이 아니다 [PARENT_ARRIVE_EARLY]`);
+  if (/<th scope="col">자리로<\/th>|<li>본식 시작 4분 전/.test(src)) no('parents.html 어른 시각에 «자리로 · 4분 전»이 돌아왔다 — 안내 음성을 따라 앉으신다 [PARENT_SEAT_SOFT]');
 }
 
 /* ─────────────────────────────────────────────────────────────────
