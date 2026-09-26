@@ -839,15 +839,17 @@
            그날의 사정이 아니다. 갈래로 두면 아무도 안 켜고, 그러면 없는 순서가 말없이 지나간다.
          ★되살릴 조건 — 하객 축사를 다시 받기로 «사장님이» 정하면, 그때 이 큐를 빼고
            15_toast 를 RETIRED 에서 꺼낸다. 문안을 고쳐서 될 일이 아니다. */
-      var seq = [cue({
+      /* ★[SPEECH_NO_NONE 코워크 추가 점검 P1-6 2026-09-26] 새 코스에서 «준비한 순서»를 축사로 담았으면 «축사는 따로 두지 않았습니다»가 거짓말이 된다 — 그날은 뺀다. */
+      var _speech = D.COURSES[S.course].open && O.onOf(S, 'free') && O.FREE_KIND[S.freeWhat] === 'speech';
+      var seq = (_speech ? [] : [cue({
         k: 'toast', blockN: '축배 · 케이크', slug: 'narr-toast-none', name: '축사 없음 안내',
         text: EXTRA['narr-toast-none'], duck: -12,
         note: '★없는 순서를 말없이 건너뛰지 않는다 — 기다리던 하객이 「축사는?」 하고 남는다'
-      }), cue({
+      })]).concat([cue({
         k: 'toast', blockN: '축배 · 케이크', slug: 'toast-' + S.toast, name: '축배 · 케이크', text: t.nar,
         duck: PARAM.duckMusic, pick: t.d, note: t.note,
         live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing, fallback: t.fallback || '' }   // [TOAST_COUPLE] 막힐 때 한 줄
-      })];
+      })]);
       /* ★★[TOAST_WINE 2026-09-25 사장님 결정 · 와인은 축배 안으로] 축배가 있는 판에만 «붓기»를 얹는다.
          둘 다 → 케이크 뒤 · 선창 앞 / 축배만 → 선창 앞. 케이크만은 잔이 없어 안 붙는다.
          ★옛 코스는 norm 이 wine='none' 으로 두어 소리가 지금과 같다. 폐지한 17·54(valley)는 되살리지 않았다. */
@@ -861,7 +863,7 @@
         text: EXTRA['toast-pour-' + wine], duck: PARAM.duckMusic, pick: wine === 'mix' ? '두 와인을 한 잔에' : '양가가 한 병씩',
         live: { t: '두 분이 두 와인을 한 잔에 붓기', est: 25, duck: 0, self: true, doing: 'move' }
       }));
-      if (pour.length && S.toast === 'toast') Array.prototype.splice.apply(seq, [1, 0].concat(pour));   // 축배만: 선창 앞
+      if (pour.length && S.toast === 'toast') Array.prototype.splice.apply(seq, [seq.length - 1, 0].concat(pour));   // 축배만: 선창 앞 [SPEECH_NO_NONE] 안내 줄이 없어도 같은 자리
       if (pour.length && S.toast === 'both') Array.prototype.push.apply(seq, pour);                     // 둘 다: 케이크 뒤 · 선창 앞
       /* ★[TOAST_POUR_B 2026-09-25 코워크 P2 · 사장님 답] 와인을 붓는 날은 붓는 사이에 두 분 손에 이미 잔이 있다 —
          «두 사람에게 잔이 가는 동안»을 뺀 108 로 간다. 붓지 않는 날은 지금 줄(81) 그대로. */
