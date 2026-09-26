@@ -2599,6 +2599,12 @@ a.ig-handle:hover {
   margin-top: 14px;
 }
 /* CTA 위험 역전 한 줄 — 예약금 전액 환불 안심(전환 법칙 STEP 2) */
+/* ★[KO_WRAP_TAIL 2026-09-26 사장님 「고객 입장에서 개선점」] 고객이 가장 오래 읽는 가격·예약 문장에서 한두 글자만
+   다음 줄로 떨어졌다(390 실측) — 가격 머리 「안내」·「시퀀스.」 · 환불 줄 「제외」 · 상담 예약금 줄 «원)» 뒤 「을」 · 주차 「거리」.
+   낱말 중간에서 끊지 않고(keep-all) 줄 길이를 고르게(balance). 가운뎃점 사슬(청첩장·웨딩스냅·…)은 <wbr> 로 끊을 자리를 준다 —
+   keep-all 만 걸면 그 사슬이 한 낱말이 돼 320 에서 넘친다.
+   ★&#8288;(낱말 잇개)는 «여기서 끊지 말라» — 가운뎃점 앞(줄이 «·영상»으로 시작하던 것)과 «원)» 뒤(「을」로 시작하던 것)에 둔다. */
+.price-lede, .price-note span, .cta-assure, .access-value, .ga-tab { word-break: keep-all; text-wrap: balance; }
 .cta-assure {
   font-family: var(--serif-ko);
   font-size: 12px;
@@ -6446,7 +6452,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="price-block">
     <h2 class="price-title" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">투명한 올인원 구성</h2>
     <div class="price-title">Standard Investment</div>
-    <p style="font-size:13px;color:var(--sub);margin-bottom:28px;margin-top:8px">청첩장·웨딩스냅·본식·디지털참석·영상·가족스냅·다이닝 안내<br>한 명의 디렉터가 한 흐름으로 잇는 140분 시그니처 시퀀스.</p>
+    <p class="price-lede" style="font-size:13px;color:var(--sub);margin-bottom:28px;margin-top:8px">청첩장&#8288;·<wbr>웨딩스냅&#8288;·<wbr>본식&#8288;·<wbr>디지털참석&#8288;·<wbr>영상&#8288;·<wbr>가족스냅&#8288;·<wbr>다이닝 안내<br>한 명의 디렉터가 한 흐름으로 잇는 140분 시그니처 시퀀스.</p>
     <div class="price-row">
       <div><div class="price-label">Weekend &amp; Holiday</div><div class="price-value">&#8361;3,300,000</div></div>
       <!-- [HOME_PRICE_FMT] 금액 표기 규칙(2026-07-26 사용자 결정) — 같은 250만 원이 '250만'·'250만원'·'₩2,500,000'
@@ -6578,7 +6584,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <div class="cta-block">
   <div class="cta-eyebrow">Start Your Narrative</div>
   <a href="./inquiry.html" class="cta-btn">프라이빗 방문 상담 예약하기</a>
-  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 환불됩니다<br><span style="font-size:11px;color:var(--light)">드레스를 시착하신 경우에만 1벌당 50,000원(최대 100,000원)을 제하고 돌려드려요</span></div>
+  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 환불됩니다<br><span style="font-size:11px;color:var(--light)">드레스를 시착하신 경우에만 1벌당 50,000원(최대 100,000원)&#8288;을 제하고 돌려드려요</span></div>
 </div>
 </section>
 <div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
