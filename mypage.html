@@ -331,7 +331,7 @@ details.acc>.consult-card{margin-top:10px}
 .next-row:last-child{border-bottom:none}
 .next-row .lock{width:18px;height:18px;flex:none;stroke:var(--label-soft);fill:none;stroke-width:1.5}
 .next-row .nx-txt{font-family:var(--serif-ko);font-size:14px;color:var(--sub);line-height:1.4}
-.next-row .nx-txt small{display:block;font-size:12px;color:var(--label-soft);font-weight:300}   /* [NX_SMALL_12 2026-09-26 · 통합 점검 L6] 결제 기한 날짜(결정 ⑨ «2026년 10월 28일 (수) · 예식 149일 전»)·예식일이 담긴 정보 줄 — 12px 미만 한글은 정보 줄에 쓰지 않는다(11→12 · 7단계 스케일 안 · 320 에서 한 줄 유지 실측) */
+.next-row .nx-txt small{display:block;font-size:11px;color:var(--label-soft);font-weight:300}
 
 .foot-actions{margin-top:24px;text-align:center}
 .foot-actions a{font-family:var(--serif-ko);font-size:13px;color:var(--light);text-decoration:none;border-bottom:1px solid var(--card-border);cursor:pointer;transition:color .3s}
@@ -2808,7 +2808,7 @@ function renderMyPage(d){
     /* [FITTING_STAGE_BLANK] 동의서가 아직 없으면 «서명해 주세요»라고 하지 않는다(서명할 곳이 없다). */
     if (d.stage === '시착' && !d.fitting) {
       head = '시착 준비 중이에요';
-      sub = '동의서가 준비되면 이 화면에서 서명하실 수 있어요.';
+      sub = '동의서가 준비되면 이\u00a0화면에서 서명하실 수 있어요.';   // [NOW_SUB_BAL 검토] «이 화면»은 한 덩어리 — 균형 줄바꿈이 320~412 모두에서 «…준비되면 이 / 화면에서…»로 지시어만 줄 끝에 떼어 놓았다([PAY_DUE_WORD] «이&nbsp;화면에» 선례)
     }
     if (d.stage === '시착' && d.fitting && d.fitting.signed) {
       head = '시착 동의가 완료됐어요';
@@ -2885,8 +2885,10 @@ function renderMyPage(d){
         /* ★[NOW_DEP_COVER 2026-09-26 · 통합 점검 L3 · B4] 계약금이 예약금으로 충당된 계약(납부액 0 · 계약총액 100만 원 이하)은 지금 낼 돈이 없다.
            종전엔 금액 결측과 같은 «아래 안내에 따라 계약금을 입금해 주시면»으로 빠져, 계좌도 버튼도 없는 카드(«추가로 내실 금액은 없어요») 위에서
            입금하라고 했다(진행 머리도 «계약금 입금»). 카드 조건(renderContractPayment «a && 납부액 <= 0»)과 같은 판정 · 금액은 말하지 않는다([NOW_NO_MONEY]).
-           머리는 계약금만 가리킨다(«추가 입금은 없어요»는 중도금·잔금까지 없다고 읽힌다) · 13자 이내([NOW_ONELINE]). amounts 가 없을 때(결측)의 문장은 그대로. */
-        if (_pa && Number(_pa.납부액) <= 0) { head = '계약금 입금은 없어요'; sub = '함께하기로 해 주셔서 고마워요.\n디렉터가 확인하면 ' + _prep + '가 시작돼요.'; }
+           머리는 계약금만 가리킨다(«추가 입금은 없어요»는 중도금·잔금까지 없다고 읽힌다) · 13자 이내([NOW_ONELINE]). amounts 가 없을 때(결측)의 문장은 그대로.
+           ★[NOW_DEP_COVER 검토] 부제는 인사 한 줄만 — «디렉터가 확인하면 예식 준비가 시작돼요»를 붙였더니 바로 아래 카드 «디렉터가 확인하면 예식 준비가 열려요»와
+             한 낱말만 다른 문장이 연달아 섰다(요약은 NOW · 근거와 다음 순서는 카드 — [PAID_BACK_TYPO]·㉖ 와 같은 원칙 · 카드 문장은 이번 범위 밖이라 NOW 쪽을 줄인다). */
+        if (_pa && Number(_pa.납부액) <= 0) { head = '계약금 입금은 없어요'; sub = '함께하기로 해 주셔서 고마워요.'; }
         }
       }
     }
@@ -3147,6 +3149,7 @@ function renderMyPage(d){
        계약서 카드는 «서명하시면 계약금·중도금 입금 안내가 이어져요», 서명 뒤 머리는 서버 bundle 로 «계약금·중도금 입금»인데
        이 줄만 «다음 · 계약금 입금»이었다(서명 전과 뒤에 같은 결제를 다른 이름으로). 카드와 같은 판정(_signBundleKeys) 하나를 쓴다. 묶음이 아니면 위 줄 그대로. */
     if (_ctSend){ var _sbk=_signBundleKeys(d); if (_sbk.length) nextStage='계약금·'+_sbk.join('·')+' 입금'; }   // [SIGN_NEXT_BUNDLE]
+    if (_ctSend && !_signBundleKeys(d).length && _signDepCover(d)) nextStage='계약금 확인';   // [SIGN_DEP_COVER] 충당 계약 — 카드 «서명하실 때 따로 내실 금액은 없어요»와 같은 사실 · 서명 뒤 머리([NOW_DEP_COVER] «계약금 확인»)와 같은 말
     /* [JOURNEY_END_QUIET 2026-09-26 · post-2] 후기까지 끝나면(여정 완료 · STEP N/N) 부제를 비운다 — 종전엔 «여정 완료 · 마지막 단계예요»
        (끝났다는데 «아직 진행 중»으로 읽힌다) 또는 결과물전달 단계에서 NOW 머리와 같은 «모든 순간이 마무리됐어요»를 한 번 더 찍었다. */
     $('mp_nextStage').textContent = nextStage ? ('다음 · ' + nextStage)
@@ -3330,6 +3333,17 @@ function _signBundleKeys(d){
   if (!d || d.product === '웨딩스냅') return [];
   var p=(d.ledger && d.ledger.payments) || [], t=new Date(_snapKstToday()), td=t.getUTCFullYear()+'-'+('0'+(t.getUTCMonth()+1)).slice(-2)+'-'+('0'+t.getUTCDate()).slice(-2);
   return p.filter(function(x){ return x&&(x.key==='중도금'||x.key==='잔금')&&!x.done&&(x.dueLabel==='계약 시 함께 납부'||(x.dueDate&&String(x.dueDate).slice(0,10)<=td)); }).map(function(x){ return x.key; });
+}
+/* ★[SIGN_DEP_COVER 2026-09-26 · 통합 점검 G1 검토] 서명 전 «계약금이 예약금으로 충당되는 계약»인가 — 한 곳에서 센다.
+   계약서 카드의 서명 전 안내(«계약금은 예약금으로 충당돼요 · 서명하실 때 따로 내실 금액은 없어요»)와 진행 머리 «다음»이 같은 판정을 쓴다 —
+   카드만 알던 때는 같은 화면에서 카드 «따로 내실 금액은 없어요» · 머리 «다음 · 계약금 입금»으로 갈렸고, 서명하면 머리가 «계약금 확인»([NOW_DEP_COVER])으로 바뀌었다.
+   판정은 카드에 있던 그대로 — '계약금' 행이 없고 · 예약금 행이 있고 · 행 합(예약금+중도금+잔금 · 추가 요금 뺌) ≥ 총액(옛 서버 330만 원은 3,070,000 < 3,300,000 이라 아님).
+   스냅은 해당 없음(계약금 20% 가 예약금 행이라 행 합이 늘 총액과 같다 — 카드도 스냅 갈래가 먼저다). */
+function _signDepCover(d){
+  if (!d || d.product === '웨딩스냅') return false;
+  var _ld=(d.ledger||{}), _ldP=(_ld.payments||[]), _dp=_ldP.filter(function(x){ return x&&x.key==='계약금'; })[0];
+  var _ldT=Number(_ld.total||0), _ldSum=_ldP.reduce(function(sm,x){ return sm+(Number(x&&x.amount)||0)-(Number(x&&x.extra&&x.extra.amount)||0); },0);
+  return !_dp && _ldT>0 && _ldP.some(function(x){ return x&&x.key==='예약금'; }) && _ldSum>=_ldT;
 }
 function payPlan(d){
   d=d||{}; var m=d.midpayment, b=d.balance, days=_payDays(d);
@@ -4452,8 +4466,7 @@ function renderContractPayment(c, p, ctx){
        ★[SIGN_DEP_WORD 2026-09-26 · 통합 점검 L8] 묶음이 아닐 때 «서명 후 계약금 잔액 …을 입금해 주시면 계약이 마무리…» 문장 삭제 — 되살리지 말 것.
          계약은 서명으로 성립한다(계약서 §6① · 청약철회 15일 §7①도 성립일부터) — 바로 위 effectNotice «서명하면 계약이 성립해요»·서명 창 «오늘 날짜로 계약이 성립해요»와
          «입금해야 계약이 끝난다»로 갈렸다(150일 안 계약은 성립 15일 뒤 위약금이 붙어 오해가 비싸다). 두 형제 갈래와 같은 틀 · 금액과 원천(내 내역 행)은 그대로. */
-    var _ldT=Number((ctx&&ctx.ledger&&ctx.ledger.total)||0), _ldSum=_ldP.reduce(function(sm,x){ return sm+(Number(x&&x.amount)||0)-(Number(x&&x.extra&&x.extra.amount)||0); },0);
-    var _cdCover=!_dp && _ldT>0 && _ldP.some(function(x){ return x&&x.key==='예약금'; }) && _ldSum>=_ldT;   // [SIGN_DEP_COVER]
+    var _cdCover=_signDepCover(ctx);   // [SIGN_DEP_COVER] 판정은 한 곳(_signDepCover) — 진행 머리 «다음»도 같은 판정을 쓴다
     h += isSnap
        ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
        : (_bdl.length ? '<div class="cc-note" style="text-align:center"><span style="display:block;text-wrap:balance">서명하시면 계약금&#8288;·&#8288;'+escapeHtml(_bdl.join('\u2060·\u2060'))+' 입금 안내가 이어져요.</span><span style="display:block;text-wrap:balance">예식이 가까워 한 번에 받아요.</span></div>'
@@ -5579,7 +5592,7 @@ function renderResult(res, nm, code){
     try{ if(_dm && !(_expDN!=null && _expDN<0)){ var _ku=new Date(+_dm[1],+_dm[2]-1+6,+_dm[3]);
       var _kuY=_ku.getFullYear()+'.'+('0'+(_ku.getMonth()+1)).slice(-2)+'.'+('0'+_ku.getDate()).slice(-2);
       _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)"><b>'+_kuY+'</b>까지 보관해요(만료 7일 전 안내).'+_calm+'</div>'; } }catch(e){}
-    if(!_keepLine && _expDN==null && _eta(DOWNLOAD_KEEP)) _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>';
+    if(!_keepLine && _expDN==null && _eta(DOWNLOAD_KEEP)) _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내).'+_calm+'</div>';   // [KEEP_SAY_ONCE] 전달일이 없는 판(구 서버)도 같은 규칙 — 후기가 끝나 NOW 가 «기기에도 옮겨 두세요»라 하면 «천천히»를 뺀다(종전엔 이 줄만 글자로 박혀 두 말이 함께 섰다)
     dl+=_keepLine;
     if(_expBanner) clp=false;   // MPD3_G5 만료 임박이면 받은 결과물 접힘 자동 펼침
     var hd=_expBanner+'<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
