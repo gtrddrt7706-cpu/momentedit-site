@@ -366,7 +366,8 @@ const clips = parse(SRC);
               26 narr-close 앞에 나간다(26 은 사진 안내로 바뀌었다). ★초안 · 재녹음은 사장님 대본 점검(7단계) 뒤 한 번에.
               ★104 narr-free-out-clap 은 흐름에서 뺐지만 개수는 안 움직였다 — 클립 · 대본 줄은 둔다([CLAP_FEW] 되살릴 근거). */
 /* [GROUP_PHOTO 2026-09-26 코워크 회신 9/26 2-5] 103 → 104 — 골라 트는 판에 fx-free(자유 사진 여는 말 · 109) 한 줄이 더해졌다 */
-const CLIP_COUNT = 104;
+/* [PHOTO_THANKS · THANKS_TEXT 2026-09-26 사장님 결정] 104 → 105 — 식사 없는 날 감사 인사(110 end-1c-thanks-nomeal) */
+const CLIP_COUNT = 105;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
@@ -490,6 +491,9 @@ for (const P of PARTS) {
            조립기에 반영된 적이 없었다. 값으로 박아 두면 다시 잊히지 않는다.
          ★소리를 다시 받을 필요는 없다 — 조립기가 이 값으로 무음을 넣는다. */
       if (c.file === 'declare-ask-b' && s.text === '네, 그러겠습니다.') { before = 0.5; after = 0.5; }
+      /* ★★[THANKS_BOW 2026-09-26 사장님 결정 · 코워크 «사장님 제안 둘» 1 · PHOTO_THANKS] 「두 사람이, 다시 한번 감사 인사를 드립니다.」 뒤 3초(식사 있는 날 45 · 없는 날 110 둘 다).
+         두 분이 함께 목례하는 자리다 — 곧바로 «식사 자리는…»이 이어지면 인사가 안내에 묻힌다. 소리를 다시 받을 필요 없음(조립기가 무음을 넣는다). */
+      else if ((c.file === 'end-1a-farewell' || c.file === 'end-1c-thanks-nomeal') && s.text === '두 사람이, 다시 한번 감사 인사를 드립니다.' && !last) after = 3.0;
       // 문단 경계는 한 박 더 쉰다
       // 마지막 줄(서명)은 새 문단을 여는 게 아니라 앞줄을 닫는 코다다 — 문단 들머리 여백을 주지 않는다
       else if (c.id === 'G10' && s.first && k > 0 && !last) { before = Math.max(before, FINE.para); }

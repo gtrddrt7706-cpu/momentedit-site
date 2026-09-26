@@ -96,7 +96,13 @@ for (const p of man.parts) {
   const seen = new Map();
   for (const p of man.parts) (seen.get(p.sents) || seen.set(p.sents, []).get(p.sents)).push(p.file);
   const dup = [...seen.entries()].filter(([, v]) => v.length > 1);
-  if (dup.length) {
+  /* ★[PART_BY_NAME 2026-09-26 PHOTO_THANKS] 1_안내 가 56 문장이 되어 3_진행_후반 과 같아졌다(110 식사 없는 날 판).
+     녹음은 이제 sent-lib --import(이름 · 번호로 자리 찾기) → --stage(파일 이름에 클립 · 문장 번호) → 조립기가 «이름»으로 파트를 짚는다([STAGE_ORDER_BY_NAME]).
+     개수로 파트를 좁히는 PART_AUTOMATCH 는 이름 없는 옛 타입캐스트 폴더에만 쓰인다 — 그 길이 조립기에 살아 있는 한 겹침은 경고로 남기고 막지는 않는다. */
+  const byName = /STAGE_ORDER_BY_NAME/.test(fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), 'assemble-narration.mjs'), 'utf8'));
+  if (dup.length && byName) {
+    ok(`파트 문장 수가 겹친다(${dup.map(([n, v]) => `${n}개: ${v.join(' , ')}`).join(' / ')}) — 조립기가 이름으로 파트를 짚어 막지 않는다 [PART_BY_NAME] · ★옛 폴더(이름 없음)를 조립할 때는 --part 를 줄 것`);
+  } else if (dup.length) {
     bad(`파트 문장 수가 겹칩니다 — ${dup.map(([n, v]) => `${n}개: ${v.join(' , ')}`).join(' / ')}`);
     console.log(`       PART_AUTOMATCH는 개수로 후보를 좁힌 뒤 길이 상관으로 확정합니다. 개수가 겹치면 상관계수 하나에 전부 걸립니다.`);
     console.log(`       정당한 변경이면 두 파트가 상관만으로 갈리는지 확인한 뒤 이 검사를 같은 커밋에서 고치세요.`);

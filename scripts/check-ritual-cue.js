@@ -46,7 +46,8 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
 //     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
-const N_FILES = 109;   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
+const N_FILES = 110;   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal(식사 없는 날 감사 인사)
+//   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
   const bad3 = C.FILES.filter((f, i) => C.noOf(f) !== String(i + 1).padStart(2, '0'));
@@ -111,7 +112,8 @@ else ok(`FILES ${N_FILES}개 · 중복 없음`);
 /* ★★[GROUP_PHOTO · NO_TABLE_ROUND 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-5] 27큐 → 24큐 · 수동 17 → 16.
      빠진 셋: 61 round-open(테이블 인사) · 63 final-warn · 64 final-call(마지막 한 장 — 첫 전체 사진에 합침).
      45 farewell 은 체인 → 수동 — 앞 65(자유 사진)에 사람 구간이 생겨 디렉터가 «자유 사진이 끝나면» 누른다. */
-const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '27', '20', '56', '26', '44', '60', '65', '45', '47'];
+/* [PHOTO_THANKS 2026-09-26] 45 → 110 — 이 판정표의 예식은 식사를 안 고른 날이라 감사 인사는 110(식사 없는 날 판)이다. 자리는 44(전체 사진) 바로 뒤 · 앞 큐에 사람 구간이라 수동. */
+const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '27', '20', '56', '26', '44', '110', '60', '65', '47'];
 //                  guest-1 entry-A entry-out vow-in vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
@@ -336,9 +338,9 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     if (pn !== undefined) S.photoN = pn; if (pw !== undefined) S.photoWishN = pw;
     const r = C.build(C.norm(S)); const cues = Array.isArray(r) ? r : (r.cues || []);
     const from = cues.findIndex((c) => c.slug === 'narr-close');
-    const to = cues.findIndex((c, i) => i > from && c.blockN === '배웅');
+    const to = cues.findIndex((c, i) => i > from && c.blockN === '마무리');   // [PHOTO_THANKS 2026-09-26] 옛 «배웅»
     const tag = `${ex.k}/온라인=${dg ? 1 : 0}/구도=${pn === undefined ? '?' : pn}/요청=${pw === undefined ? '?' : pw}`;
-    if (from < 0 || to < 0) { bad.push(`${tag} 창을 못 잡았다(narr-close ${from} · 배웅 ${to}) — 슬러그 · 블록 이름이 바뀌었다`); continue; }
+    if (from < 0 || to < 0) { bad.push(`${tag} 창을 못 잡았다(narr-close ${from} · 마무리 ${to}) — 슬러그 · 블록 이름이 바뀌었다`); continue; }
     const win = cues.slice(from + 1, to);
     const sum = ((cues[from].live && cues[from].live.est) || 0) + win.reduce((a, c) => a + (c.est || 0) + ((c.live && c.live.est) || 0), 0);
     const want = (SUM - Math.round(O.bodySec(S)[1] / 60)) * 60;
@@ -362,23 +364,24 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
 {
   const O = require('../assets/ritual-open.js');
   const mp = fs.readFileSync(path.join(__dirname, '..', 'mypage.html'), 'utf8');
-  const m = mp.match(/var PHOTO_DAY=(\d+), PHOTO_PRE=(\d+), PHOTO_ALL=(\d+), PHOTO_PER=(\d+), PHOTO_ONLINE=(\d+);/);
+  const m = mp.match(/var PHOTO_DAY=(\d+), PHOTO_PRE=(\d+), PHOTO_ALL=(\d+), PHOTO_PER=(\d+), PHOTO_ONLINE=(\d+), PHOTO_THANKS=(\d+);/);   // [PHOTO_THANKS]
   const bad = [];
-  if (!m) bad.push('mypage.html 에서 «var PHOTO_DAY=…, PHOTO_ONLINE=…;» 줄을 못 찾았다');
+  if (!m) bad.push('mypage.html 에서 «var PHOTO_DAY=…, PHOTO_THANKS=…;» 줄을 못 찾았다');
   else {
-    const [, DAYM, PRE, ALL, PER, ONL] = m.map(Number);
+    const [, DAYM, PRE, ALL, PER, ONL, THX] = m.map(Number);
     const SUM = D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell;
     if (DAYM !== SUM) bad.push(`PHOTO_DAY ${DAYM} ≠ DAY 합 ${SUM}`);
     const goal = (S) => { const r = C.build(C.norm(S)); const cs = Array.isArray(r) ? r : r.cues; const by = {}; cs.forEach((c) => { by[c.slug] = c; });
       const g = (by['narr-close'] && by['narr-close'].live && by['narr-close'].live.est) || 0;
       const t = (k, pre) => by[k] ? (pre || 0) + by[k].est + by[k].live.est : 0;
-      return { all: t('end-0-photo', g), per: t('narr-photo-split'), onl: t('narr-online-in'), free: by['narr-photo-out'].live.goFree }; };
+      return { all: t('end-0-photo', g), thx: t('end-1a-farewell') || t('end-1c-thanks-nomeal'), per: t('narr-photo-split'), onl: t('narr-online-in'), free: by['narr-photo-out'].live.goFree }; };
     const base = O.applyExample({ course: 'open' }, 'brief'); base.course = 'open';
     for (const w of [0, 1, 2]) { const q = goal(Object.assign({}, base, { photoWishN: w, photoN: 1 })); if (q.all !== (ALL + w) * 60) bad.push(`요청 ${w}: 엔진 전체 하객 ${q.all}초 ≠ 마이페이지 (${ALL} + ${w})분`); }
     for (const n of [1, 2, 3]) { const q = goal(Object.assign({}, base, { photoWishN: 0, photoN: n })); if (q.per !== PER * 60 * n) bad.push(`구도 ${n}: 엔진 ${q.per}초 ≠ 마이페이지 ${PER}분 × ${n}`); }
     { const q = goal(Object.assign({}, base, { digital: true, photoWishN: 0, photoN: 1 })); if (q.onl !== ONL * 60) bad.push(`온라인 인사: 엔진 ${q.onl}초 ≠ 마이페이지 ${ONL}분`); }
     { const fam = O.applyExample({ course: 'open' }, 'family'); fam.course = 'open'; const q = goal(Object.assign(fam, { photoWishN: 2, photoN: 5 })); if (q.free !== PRE * 60) bad.push(`자유 사진 최소: 엔진 ${q.free}초 ≠ 마이페이지 두 분 숨 고르기 ${PRE}분`); }
-    { const q = goal(Object.assign({}, base)); const unk = q.all + q.per; if (unk + PRE * 60 !== O.SHORT_MIN * 60) bad.push(`모를 때 가정: 전체 ${q.all} + 구도 ${q.per} + 숨 고르기 ${PRE * 60} = ${unk + PRE * 60}초 ≠ SHORT_MIN ${O.SHORT_MIN}분`); }
+    { const q = goal(Object.assign({}, base)); if (q.thx !== THX * 60) bad.push(`감사 인사: 엔진 ${q.thx}초 ≠ 마이페이지 ${THX}분 [PHOTO_THANKS]`); }
+    { const q = goal(Object.assign({}, base)); const unk = q.all + q.per; if (unk + PRE * 60 !== O.SHORT_MIN * 60) bad.push(`모를 때 가정: 전체 ${q.all} + 구도 ${q.per} + 숨 고르기 ${PRE * 60} = ${unk + PRE * 60}초 ≠ SHORT_MIN ${O.SHORT_MIN}분`); }   // [PHOTO_THANKS] 감사 인사는 문턱 밖(ritual-open.js SHORT_MIN 주석 · 코워크 결정 대기)
   }
   if (bad.length) no(`엔진 사진 목표와 마이페이지 · SHORT_MIN 이 갈렸다 [WISH_COUNT]\n    ${bad.join('\n    ')}`);
   else ok(`엔진 사진 목표 = 마이페이지 상수 · 모를 때 가정 = SHORT_MIN [WISH_COUNT]`);
@@ -400,10 +403,12 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     const F = new Function(src + '\nreturn { cap: photoCapOf, line: photoCapLine };')();
     const longest = Object.assign(O.applyExample({}, 'family'), { freeWhat: 'video', freeLen: '3', tributeSay: 'long', letter: 'parent' });
     longest.on = {}; ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'toast'].forEach((k) => { longest.on[k] = 1; });
-    const WANT = [   // [이름, S, 단체 사진 a~b, 요청 0 k/max, 요청 2 k/max] — 최종판 2-6 표 그대로
-      ['기록', O.applyExample({}, 'record'), '23~28', '5/5', '4/5'], ['약속', O.applyExample({}, 'promise'), '20~26', '4/5', '3/5'],
-      ['가족', O.applyExample({}, 'family'), '16~23', '2/5', '2/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
-      ['가장 긴 조합', longest, '9~17', '0/3', '0/2']];
+    /* ★[PHOTO_THANKS 2026-09-26] 감사 인사 1분(PHOTO_THANKS)이 단체 사진 안에 들어와 구도 자리가 1분 준다 — 경계 칸이 움직였다(구현 뒤 게이트 값 · 코워크 표에 알림).
+       옛 표: 기록 5/5 · 4/5 · 약속 4/5 · 3/5 · 가족 2/5 · 2/4 · 가장 긴 조합 0/3 · 0/2 */
+    const WANT = [   // [이름, S, 단체 사진 a~b, 요청 0 k/max, 요청 2 k/max]
+      ['기록', O.applyExample({}, 'record'), '23~28', '4/5', '4/5'], ['약속', O.applyExample({}, 'promise'), '20~26', '3/5', '3/5'],
+      ['가족', O.applyExample({}, 'family'), '16~23', '2/4', '1/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
+      ['가장 긴 조합', longest, '9~17', '0/2', '0/2']];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
       const got = [`${r0.a}~${r0.b}`, `${r0.k}/${r0.max}`, `${r2.k}/${r2.max}`];
@@ -411,15 +416,15 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     });
     /* 문장 세 갈래 — k = max · k < max · k = 0 · k = max = 0(짧은 사진 시간을 일부러 만든다) */
     const L = (sec, w) => F.line(F.cap({ summary: { sec } }, false, w));
-    const lines = [[O.bodySec(O.applyExample({}, 'record')), 0, '전체 하객과 구도 5개가 알맞아요.'],
-      [O.bodySec(O.applyExample({}, 'family')), 0, '전체 하객과 구도 2개가 알맞고, 제시간에 진행되면 5개까지 돼요.'],
-      [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 3개까지 돼요.'],
+    const lines = [[O.bodySec(O.applyExample({}, 'brief')), 0, '전체 하객과 구도 5개가 알맞아요.'],   // [PHOTO_THANKS] k = max 갈래는 간결로(기록은 4/5 가 됐다)
+      [O.bodySec(O.applyExample({}, 'family')), 0, '전체 하객과 구도 2개가 알맞고, 제시간에 진행되면 4개까지 돼요.'],
+      [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 2개까지 돼요.'],
       [[30 * 60, 35 * 60], 0, '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.']];
     lines.forEach(([sec, w, want]) => { const g = L(sec, w); if (g !== want) bad.push(`문장: «${g}» ≠ «${want}»`); if (/구도 0개/.test(g)) bad.push(`«구도 0개»가 나왔다: ${g}`); });
     for (let b = 360; b <= 45 * 60; b += 30) for (const w of [0, 1, 2]) { const g = L([b - 300, b], w); if (/구도 0개/.test(g)) { bad.push(`본식 ${b}초 · 요청 ${w}: «구도 0개»`); break; } }
   }
   if (bad.length) no(`마이페이지 단체 사진 표가 최종판 2-6 과 다르다 [PHOTO_CAP_40]\n    ${bad.join('\n    ')}`);
-  else ok('마이페이지 단체 사진 표 = 최종판 2-6(예시 넷 + 가장 긴 조합 × 요청 0 · 2) · 문장 네 갈래 · «구도 0개» 없음 [NO_ZERO_SHOT]');
+  else ok('마이페이지 단체 사진 표 = 최종판 2-6 + 감사 인사 1분(PHOTO_THANKS)(예시 넷 + 가장 긴 조합 × 요청 0 · 2) · 문장 네 갈래 · «구도 0개» 없음 [NO_ZERO_SHOT]');
 }
 
 /* ★[POST_LIVE_DUCK 2026-08-16 · 코워크가 판정을 요청한 자리] post 로 올린 음량을 live 가 도로 내리는 모양.

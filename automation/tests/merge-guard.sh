@@ -2293,7 +2293,7 @@ chk '2패스가 남는 시간을 준다' assets/ritual-cue.js 1   # [ROUND_FIT �
 #   목록을 복제하면 엔진과 검사가 같은 실수를 함께 한다. 실측: 창 안에 고정 자리 큐를 새로 넣고
 #   엔진 IN 목록에 안 넣으면 기존 부등식 검사는 초록인데 이 검사만 '초과 240초'로 잡았다.
 chk 'ROUND_EXACT' scripts/check-ritual-cue.js 1
-chk "c.blockN === '배웅'" scripts/check-ritual-cue.js 1
+chk "c.blockN === '마무리'" scripts/check-ritual-cue.js 1   # [PHOTO_THANKS 2026-09-26] 옛 «배웅» 블록
 # [PHOTO_CAP] 다 함께가 짧아지면 사진 세팅 상한도 함께 내려간다(밀도의 함정 방지).
 chk 'PHOTO_CAP' mypage.html 2
 chk 'PHOTO_MAX=5' mypage.html 1
@@ -9597,11 +9597,11 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 109' scripts/check-ritual-cue.js 1   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 110' scripts/check-ritual-cue.js 1   # [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
-chk 'MEAL_GUIDE' assets/ritual-cue.js 3
+chk 'MEAL_GUIDE' assets/ritual-cue.js 2   # [PHOTO_THANKS 2026-09-26] 88 guide-meal 큐를 흐름에서 뺐다(글 · 번호는 남김) 3 → 2
 chk 'MEAL_GUIDE' assets/ritual-preview-link.js 2
 chk 'mealOf' mypage.html 2
 chk 'CUSTMEAL' order-preview.html 4
@@ -11253,11 +11253,34 @@ nochk "slug: 'narr-final-warn'" assets/ritual-cue.js       # 마지막 한 장 �
 nochk "slug: 'narr-final-call'" assets/ritual-cue.js
 chk "'fx-free'" assets/ritual-cue.js 1
 chk "slug:'fx-free'" assets/ritual-data.js 1
-chk '두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다.' assets/ritual-cue.js 1
+# [PHOTO_THANKS · THANKS_TEXT · THANKS_BOW 2026-09-26 사장님 결정 · 코워크 제안 고친 판 + 덧 7] 문 앞 배웅 없음 · 전체 사진 뒤 두 분 감사 인사 · 식사 있는 날 45 · 없는 날 110
+chk '두 사람이, 다시 한번 감사 인사를 드립니다. 양가 직계 가족분들께서는, 가족사진 촬영이 있으니 잠시 남아 주십시오.' assets/ritual-cue.js 2
+chk '먼저 가시는 분들께서는, 식사 자리와 시간을 받으신 안내 페이지에서 한 번 더 확인해 주십시오.' assets/ritual-cue.js 1
+chk '두고 가시는 물건이 없는지 한 번만 살펴 주십시오. 들어가시는 길, 편안하시길 바랍니다.' assets/ritual-cue.js 1
+chk "var _thx = S.meal ? 'end-1a-farewell' : 'end-1c-thanks-nomeal';" assets/ritual-cue.js 1
+chk 'THANKS_BOW' scripts/build-typecast-import.mjs 1
+chk "'마무리': {" assets/ritual-story.js 1
+chk 'PHOTO_THANKS=1' mypage.html 1
+chk 'PART_BY_NAME' scripts/check-typecast-handoff.mjs 2   # 1_안내 56 = 3_진행_후반 56 — 조립기가 이름으로 파트를 짚어 겹침을 막지 않는다
+chk 'THANKS_VOICE_WAIVED' scripts/check-voice-runs.mjs 2   # 감사 인사(45 · 110) 진희 혼자 — 이 두 클립만 봐준다(코워크 제안 대기)
+chk "meal: \[false, true\]" scripts/build-course-story.mjs 1   # 식사 있는 날 감사 인사 장면도 STORY_COVER 가 센다
+nochk '두 사람이 문 앞에서 한 분 한 분 배웅해 드립니다.' assets/ritual-cue.js
+nochk '가족분들은 조금만 더 머물러 주세요.' assets/ritual-data.js 1
+nochk '가족분들은 조금만 더 머물러 주세요.' order-preview.html
+nochk '한 분 한 분 배웅' index.html
+nochk '한 분 한 분 배웅' guide.html
+nochk '한 분 한 분 배웅' assets/sequence-modal.js
+nochk '한 분 한 분 배웅' api/_kb.js
+nochk '배웅하며 한 분 한 분' index.html
+nochk '배웅하며 한 분 한 분' guide.html
+nochk '배웅하며 한 분 한 분' api/_kb.js
+nochk '한 분 한 분께 인사' assets/sequence-modal.js
+nochk '한 분 한 분께 인사' assets/advisor-kb.js
+nochk '한 분 한 분께 인사' order-preview.html
 chk '오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.' assets/ritual-data.js 1
 chk 'PHOTO_CAP_40' mypage.html 1
 chk 'PHOTO_CAP_CLAMP' mypage.html 1
-chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;' mypage.html 1
+chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2, PHOTO_THANKS=1;' mypage.html 1   # [PHOTO_THANKS 2026-09-26] 감사 인사 1분이 붙었다
 # ★[WISH_COUNT · NO_ZERO_SHOT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-4~2-6] 꼭 담고 싶은 사진은 적은 만큼만 · «구도 0개» 금지 · 사진 est 는 GO→GO(말 포함)
 chk 'WISH_COUNT' mypage.html 3
 chk 'function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }' mypage.html 1
@@ -11267,7 +11290,7 @@ chk '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도
 nochk "'알맞고, 제시간에 진행되면 '+_cap.max" mypage.html
 chk 'PHOTO_GO2GO' assets/ritual-cue.js 2
 chk "'end-0-photo': (_pw >= 0 ? 360 + 60 " assets/ritual-cue.js 1   # ★grep 은 * 를 반복으로 읽는다 — 세 조각으로 나눠 잰다
-chk "_pw : 480), 'narr-photo-split': (_pn > 0 ? 180 " assets/ritual-cue.js 1
+chk "_pw : 480), 'end-1a-farewell': 60, 'end-1c-thanks-nomeal': 60, 'narr-photo-split': (_pn > 0 ? 180 " assets/ritual-cue.js 1   # [PHOTO_THANKS 2026-09-26] 전체 사진과 가족 구도 사이에 감사 인사 60초
 chk "_pn : 360), 'narr-online-in': 120 }" assets/ritual-cue.js 1
 nochk 'budget * 60 - fixed - 120' assets/ritual-cue.js
 chk 'PHOTO_GO2GO' scripts/check-ritual-cue.js 4
@@ -11291,7 +11314,7 @@ nochk '인사 사진' assets/advisor-kb.js
 nochk "'인사 사진'" assets/sequence-modal.js
 chk "['단체 사진', '15~32분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1
 chk 'Private Snap 60분 · Ceremony 8~25분 · 단체 사진 15~32분' index.html 1
-chk '하객분들은 <strong>10시 입장 · 10시 20분 본식 · 11시 10분 배웅</strong>' index.html 1   # [FAQ_SLOT_WORD 코워크 추가 점검 P3] 본식 시각을 함께
+chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 전체 사진과 두 분의 감사 인사 뒤 식사 자리로' index.html 1   # [FAQ_SLOT_WORD 코워크 추가 점검 P3] 본식 시각을 함께 · [PHOTO_THANKS] 옛 «11시 10분 배웅»
 nochk '9시 50분 입장' index.html
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' automation/platform/95_notify.gs 1

@@ -41,6 +41,10 @@ for (const [name, S] of SETS) {
   runs.forEach((x, i) => {
     if (x.n !== 1) return;
     if (i === 0 || i === runs.length - 1) return;   // 맨 앞·맨 뒤는 봐준다
+    /* ★[THANKS_VOICE_WAIVED 2026-09-26 PHOTO_THANKS] 감사 인사(45 · 110)는 코워크 명세가 진희(예식 밖 안내 목소리)로 정했고 사장님이 그 목소리로 녹음했다.
+       자리는 전체 사진(사람 구간 6분 남짓) 바로 뒤 · 뒤에도 목례와 가실 분이 일어나는 사람 구간이 있어 앞뒤 진행 목소리와 «이어» 들리지 않는다.
+       ★이 두 클립만 봐준다 — 다른 자리가 혼자 끼어들면 종전대로 빨강. 목소리를 진행(우성)으로 바꿀지는 코워크 제안으로 올렸다. */
+    if (x.fs.length === 1 && /^(45_end-1a-farewell|110_end-1c-thanks-nomeal)$/.test(x.fs[0])) { console.log(`ok ${name} — ${x.fs[0]} (${x.r}) 혼자지만 봐준다 [THANKS_VOICE_WAIVED]`); return; }
     bad++;
     console.log(`✗ ${name} — ${x.at}번째 ${x.fs[0]} (${x.r}) 가 혼자 끼어든다`);
     console.log(`    앞 ${runs[i-1].r} ${runs[i-1].n}개 · 뒤 ${runs[i+1].r} ${runs[i+1].n}개`);
