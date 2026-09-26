@@ -8430,7 +8430,7 @@ chk 'TODO_ONLY' scripts/sent-lib.mjs 1
 #   ★내가 못 한 것 — 이 환경은 소리를 듣지 못한다. 정숙은 지금까지 «이름이 잡히는 것을 확인한»
 #     여덟 밖이라, 0_보이스확인.txt 로 사장님이 한 번 확인하셔야 한다(크레딧 0).
 chk 'VOICE_STEPMOM' scripts/build-typecast-import.mjs 1
-chk "시어머님: '정숙'" scripts/build-typecast-import.mjs 1
+nochk "^  시어머님: '정숙'" scripts/build-typecast-import.mjs   # ★[STEPMOM_RETIRE 2026-09-26] 27_tribute-reply 폐지 · 배정 지움(종전 chk)
 # ★★[ERA_NOW 2026-09-14 사장님 「부모님들 연령대 지금결혼하는 사람들 나이대 반영 한거지
 #   너무 나이든사람연출한건아닌지 검토」] 어머님 덕담의 「양호실」 → 「보건실」.
 #   ★나이가 아니라 «시대»가 틀렸다. 학교보건법 개정으로 1998-12-31 부터 이름이 보건실이다.
@@ -9498,7 +9498,7 @@ chk 'R-tribute-reply' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOICE_PENDING] 생성기 두 곳 동기화 규칙은 살아 있다 — 문장이 아니라 구조라 다른 열쇠로 옮긴다
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '그래도 다음 주에 또 업더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOICE_PENDING] 생성기 두 곳 동기화 규칙은 살아 있다 — 문장이 아니라 구조라 다른 열쇠로 옮긴다
-chk '신랑 어머님 한 마디' assets/ritual-data.js 3
+nochk '→ ★신랑 어머님 한 마디' assets/ritual-data.js   # ★[STEPMOM_RETIRE 2026-09-26 사장님] 옛 코스 지문에서도 뺐다(종전 chk 3 · GROOM_PARENT 9/12)
 chk 'CAST_COUNT = 26' scripts/build-typecast-import.mjs 1
 
 # ★★[WF_FINDINGS 2026-09-12 사장님 결정 ①⑦] 워크플로 39/39 완주 결과를 반영했다.
@@ -12424,7 +12424,7 @@ chk 'VOICE_MOTHER_2' scripts/build-typecast-import.mjs 2
 chk '연화는 영구 탈락' scripts/build-typecast-import.mjs 1
 chk '^싸워도 좋은데, 대신 등 돌리고 잠들지는 마라\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk '^하윤이 엄마입니다\. 우리 딸은 어릴 때부터 저를 안 닮았어요\.' docs/plans/식순연구/배역_예시_대사.txt 1
-chk '엄마는 그거면 돼\.$' docs/plans/식순연구/배역_예시_대사.txt 1
+# [MOTHER_TEXT_3] «엄마는 그거면 된다.» 로 바뀜(덧5) — 아래 줄이 본다
 nochk '지금까지는 이기고 있습니다' docs/plans/식순연구/배역_예시_대사.txt
 chk '^대진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 18
 chk '^연화:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 15
@@ -12433,3 +12433,17 @@ chk '^대신 그 주에 너희 집 그릇이 다 반짝반짝했지\.' docs/plan
 nochk '그릇이 다 반짝반짝했어\.' docs/plans/식순연구/배역_예시_대사.txt
 chk 'CLIP_ORDER' scripts/sent-lib.mjs 3
 chk 'CLIP_ORDER' scripts/audit/import-voice-lock.mjs 2
+# ── [코워크 회신8 덧5 2026-09-26 사장님] 시어머님(27_tribute-reply) 녹음 안 하고 폐지 · 어머님 최종 글 ──
+chk 'STEPMOM_RETIRE' assets/ritual-data.js 1
+chk 'STEPMOM_RETIRE' assets/ritual-cue.js 1
+chk 'STEPMOM_RETIRE' assets/ritual-story.js 3
+chk 'R-tribute-reply' scripts/build-typecast-import.mjs 1
+nochk "'27_tribute-reply': { role" assets/ritual-story.js
+nochk "27_tribute-reply'\]" assets/ritual-story.js
+nochk '그다음 신랑 어머님께 마이크를 건네 드려요' assets/ritual-story.js
+chk 'STEPMOM_RETIRE' scripts/sent-lib.mjs 1
+chk 'STEPMOM_RETIRE' scripts/audit/sent-lib-check.mjs 1
+chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '사흘씩 두지 말고 서준이한테 먼저 말해라\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '엄마는 그거면 된다\.$' docs/plans/식순연구/배역_예시_대사.txt 1
+nochk '엄마는 그거면 돼\.' docs/plans/식순연구/배역_예시_대사.txt

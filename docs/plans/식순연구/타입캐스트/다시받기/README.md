@@ -15,7 +15,6 @@
 | 4_진희.txt | 진희 | 37 | 12 |
 | 5_대진.txt | 대진 | 18 | 1 |
 | 6_연화.txt | 연화 | 15 | 1 |
-| 7_정숙.txt | 정숙 | 5 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -55,11 +54,5 @@ node scripts/assemble-narration.mjs --in <대진_받은폴더> \
 # 연화 — 15줄 · 1클립
 node scripts/assemble-narration.mjs --in <연화_받은폴더> \
   --clip =13_bless-mother
-```
-
-```
-# 정숙 — 5줄 · 1클립
-node scripts/assemble-narration.mjs --in <정숙_받은폴더> \
-  --clip =27_tribute-reply
 ```
 

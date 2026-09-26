@@ -115,7 +115,8 @@ const DEFAULT_VOICE = {
   //   ★시어머님은 어머님(주하)과도, **신부(예슬)와도** 떨어져야 한다([VOICE_GAP] 9/12 «성우 목소리 겹치는 건 다르게»).
   //   새 이름과 5줄은 따로 온다 — 그때 이 한 줄만 바꾼다. 그 전까지 정숙 이름으로 조립하지 않는다.
   //   (코워크 회신8 덧3: 새 성우는 «자인»으로 알고 있음 · zip 을 재서 확정한 뒤 바꾼다)
-  시어머님: '정숙',
+  /* ★★[STEPMOM_RETIRE 2026-09-26] 시어머님 배정은 지운다 — 27_tribute-reply 를 폐지해 그 역할이 없다(하객대표 규민을 뺄 때와 같은 길 · 남기면 생성기가 «실제 역할에 없다»로 잡는다).
+     위 [VOICE_STEPMOM] · [STEPMOM_2] 주석은 되살릴 때 근거라 그대로 둔다. */
 };
 
 const VOICE = { ...DEFAULT_VOICE };
@@ -199,7 +200,9 @@ const PARTS = [
      이 저장소의 관례이고([WINE_RETIRED]·[ONLINE_ALREADY_ENDED]), 되살릴 결정이 오면 근거가 된다.
    ★그 자리는 말없이 비우지 않는다 — 87_narr-toast-none 이 «왜 없는지»를 한 줄로 닫는다.
      없는 순서를 조용히 건너뛰면 기다리던 하객이 「축사는?」 하고 남는다. */
-const CAST_HOLD = (id) => /^R-declare-/.test(id) || /^R-toast$/.test(id);
+/* ★★[STEPMOM_RETIRE 2026-09-26 사장님 · 코워크 회신8 덧5] R-tribute-reply(시어머님 헌정 답)도 뺀다 — 녹음하지 않고 폐지.
+   새 코스엔 나오는 곳이 0(open 54조합), 옛 코스 지문에서도 «신랑 어머님 한 마디»를 뺐다(ritual-data TRIBUTE). 문안은 원천에 남긴다(되살릴 근거). */
+const CAST_HOLD = (id) => /^R-declare-/.test(id) || /^R-toast$/.test(id) || /^R-tribute-reply$/.test(id);
 
 // ── 여백 규칙 (초) · 대본 「공통 녹음 규격」과 각 그룹 note에서 그대로 옮겼다
 // ★★[GAP_SHRUNK 2026-08-03] 여백 축소 — 사용자 실청: "문장이 바뀌는 곳에서 턴이 너무 길어"

@@ -50,7 +50,7 @@ const RETIRED_SLOT = (() => {
   } catch (e) { /* 못 읽으면 아무것도 봐주지 않는다 — 조용히 넓어지는 쪽으로 틀리지 않는다 */ }
   try {
     const ti = fs.readFileSync(path.join(ROOT, 'scripts/build-typecast-import.mjs'), 'utf8');
-    if (/\/\^R-toast\$\/\.test\(id\)/.test(ti)) out.add('toast');
+    { const h = /const CAST_HOLD = [^\n]*/.exec(ti); if (h) for (const m of h[0].matchAll(/\^R-([\w-]+)\$/g)) out.add(m[1]); }   // [STEPMOM_RETIRE] CAST_HOLD 의 «^R-이름$» 전부(toast · tribute-reply …) — 한 이름씩 박아 두면 새로 뺀 것을 놓친다
   } catch (e) { /* 같음 */ }
   return out;
 })();

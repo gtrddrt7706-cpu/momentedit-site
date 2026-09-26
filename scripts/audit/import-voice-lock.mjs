@@ -59,7 +59,7 @@ function checkVoiceBatch(label, file, voice, viaVoice) {
 }
 checkVoiceBatch('가짜 진한(신랑)', '2_진한.txt', '진한');   // [VOICE_GROOM_3] 신랑 56줄 — 남의 자리 0 · 신랑 자리 전부
 checkVoiceBatch('가짜 예슬(신부)', '3_예슬.txt', '예슬');   // [VOICE_BRIDE_2] 옛 3_서진
-checkVoiceBatch('가짜 정숙', '7_정숙.txt', '정숙');
+// [STEPMOM_RETIRE 2026-09-26] 시어머님(정숙) 27_tribute-reply 를 폐지해 7_정숙.txt 가 없다 — 그 묶음 검사는 뺐다(옛 판 재현 «서준아.» → 서진 09 는 커밋 기록에 남아 있다)
 checkVoiceBatch('가짜 예슬 --voice(성우별 순서표)', '3_예슬.txt', '예슬', true);   // [VOICE_ORDER]
 
 /* ③ 오늘 묶음 모양 — 1~155줄 · 36번째 줄이 «신랑 신부, / 입장!» 으로 쪼개져 35 없음 · 36 = «입장!» */
