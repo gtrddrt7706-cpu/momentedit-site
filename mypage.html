@@ -543,6 +543,13 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-qr img,.ph-qr canvas{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
 .ph-chip{font-family:var(--serif-ko);font-size:13px;color:var(--gold-deeper);background:#fff;border:1px dashed var(--gold-btn,#C9B48F);border-radius:999px;padding:7px 13px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:44px}
 .ph-chip:active{background:rgba(184,154,117,.08)}
+/* [PH_MORE_CUE 2026-09-26 · 점검 L6] 가족 · 친구 스냅의 접힘 두 곳(«어떻게 적으면 되나요?» · «다른 방법도 되나요 · 알아 두실 것»)도
+   상담 · 시착 카드의 같은 부품([CC_MORE_CUE])과 한 모양으로 — 30px 회색 고딕 한 줄이라 눌러 펼치는 곳인지 안 보였고,
+   전역 summary 의 outline:none 에 대체가 없어 키보드 초점도 안 보였다(Tab 으로 잡아도 글자뿐). 이 오버레이 안에만 건다. */
+#mp_photoBody details.cc-more>summary{font-family:var(--serif-ko);color:var(--sub);min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px}
+#mp_photoBody details.cc-more>summary::after{content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);margin-top:-3px;flex:0 0 auto}
+#mp_photoBody details.cc-more[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
+#mp_photoBody details.cc-more>summary:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}
 /* ★★[SNAP_PICK_V2 2026-09-26 사장님 회의] 고르는 스냅 기획 — 다섯 걸음 · 장면 타일(4:5) · 고른 순서 번호.
    크기 11·12·13·14·16 · 굵기 400~600 · 모서리 4·6·8·999 · 색은 변수만([TYPO_SCALE7]·[WEIGHT_RAMP4]·[SCALE_RADIUS6]·[BRAND_VAR]).
    고른 표시는 버건디 테두리 + 번호 원 — 색만으로 말하지 않는다(번호·aria-pressed 가 함께 말한다). 누름 칸은 전부 44px 이상. */
@@ -630,18 +637,18 @@ button.snp-tile{cursor:pointer}
 .snp-agree-row{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:10px 0 4px;cursor:pointer;font-size:13px;color:var(--text);line-height:1.7;word-break:keep-all;-webkit-tap-highlight-color:transparent}
 .snp-agree-row input{flex:0 0 auto;width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
 .snp-agree-row input:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
-.snp-agree-sub{padding-left:30px;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all}
-.snp-agree-more,.snp-agree-pv{display:inline-flex;align-items:center;min-height:44px;margin:-12px 0;padding:0 2px;background:none;border:0;font:inherit;color:var(--gold-deep);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.snp-agree-more:focus-visible,.snp-agree-pv:focus-visible,.snp-dellink:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.snp-agree-sub{padding-left:30px;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all;text-wrap:balance}   /* [SNAP_AGREE_BAL 2026-09-26 · 점검 L7] 320 에서 «… 6개월 뒤 / 지워요» 꼬리 — <br> 앞 문장만 고르게(뒤의 «자세히 보기»는 제 줄 그대로) */
+.snp-agree-more,.snp-agree-pv{display:inline-flex;align-items:center;min-height:44px;min-width:44px;margin:-12px 0;padding:0 2px;background:none;border:0;font:inherit;color:var(--gold-deep);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.snp-agree-more:focus-visible,.snp-agree-pv:focus-visible,.snp-dellink:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}   /* [SNAP_AGREE_BAL] 위 min-width:44px — «자세히 보기»가 «접기»로 바뀌면 누름 칸이 26px 로 줄었다(글자 자리는 그대로 · 누르는 칸만 넓힌다) */
 @media (hover:hover){.snp-agree-more:hover,.snp-agree-pv:hover,.snp-dellink:hover{color:var(--accent)}}   /* [SNAP_CONSENT] 글자 단추도 마우스를 올리면 짙어진다(web-design-guidelines 점검 · 손가락엔 안 걸리게 hover:hover) */
 .snp-agree-body{margin:8px 0 2px 30px;padding:10px 12px;background:var(--bg);border-radius:6px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
 .snp-agree-body dl{margin:0}
-.snp-agree-body dl>div{padding:2px 0}
+.snp-agree-body dl>div{padding:2px 0;text-wrap:balance}   /* [SNAP_AGREE_BAL] «…전하지 / 않아요)» · «…6개월 뒤 / 지워요» 꼬리 — 가운뎃점은 아래 dd 에서 앞뒤로 묶여 balance 가 점에서 꺾지 못한다 */
 .snp-agree-body dt{display:inline;font-weight:600;color:var(--accent)}
-.snp-agree-body dt::after{content:' · ';font-weight:400;color:var(--label-soft)}
+.snp-agree-body dt::after{content:'\00a0·\00a0';font-weight:400;color:var(--label-soft)}   /* [SNAP_AGREE_BAL] 이름표 뒤 가운뎃점도 앞뒤를 묶는다(줄 끝 «받는 것 ·» 방지) */
 .snp-agree-body dd{display:inline;margin:0}
 .snp-agree-body .snp-agree-pv{margin:0 0 -12px}
-.snp-agree-need{padding-left:30px;font-size:12px;color:var(--seal);line-height:1.7}
+.snp-agree-need{padding-left:30px;font-size:12px;color:var(--seal);line-height:1.7;text-wrap:balance}   /* [SNAP_AGREE_BAL] 320 에서 «…저장할 수 / 있어요» 꼬리 */
 .snp-agree-need:empty{display:none}
 .snp-del{margin:18px 0 0;text-align:center}
 .snp-dellink{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;background:none;border:0;font:inherit;font-size:12px;color:var(--label-soft);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -7752,7 +7759,11 @@ function photoCapLine(c){
 function photoList(gi){ return ['전체 하객'].concat(((gi||{}).photo)||[]); }   // 전체 하객 + 고른 순서(촬영 순서)
 // 단체 사진 = 좌석 편집기와 같은 '들어가서 조작하는' 전용 화면(PHOTOFLOW) — 촬영 순번·↑↓ 재정렬·저장 후 나가기(2026-07-19 사용자 지시: 연속성). 전체 하객은 늘 1번(고정)
 var PHOTOFLOW = { active:false, sel:[], gi:null };
-function photoShareNorm(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자(GAS 정규화와 동일 규칙)
+/* ★[SHARE_SCHEME 2026-09-26 · 점검 L7] «weduploader.com/upload/abc»처럼 https:// 없이 적은 주소는 https 를 붙여 보낸다.
+     종전엔 http(s) 로 시작하지 않으면 통째로 '' 로 버렸다 — 서버엔 빈 값이 남는데 버튼은 «저장됨», 칸의 글도 그대로라 버려진 줄 몰랐다
+     (칸의 자리표시가 «링크 붙여넣기 (weduploader.com)»라 손으로 적는 분이 있다). 서버(80_production)는 종전대로 http(s)만 받는다 — 붙여 보낸 값이 그 규칙을 지난다.
+     ★주소 꼴(점 · 두 글자 이상 영문 끝)일 때만 붙인다 — «1.5» · «카톡방» 같은 글은 그대로 '' (링크로 못 바꾸는 글은 칸 아래 안내가 말한다 · renderPhoto [SHARE_SCHEME]). */
+function photoShareNorm(u){ u=String(u==null?'':u).trim(); if(!/^https?:\/\//i.test(u) && /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}([\/?#:]|$)/i.test(u)) u='https://'+u; return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자 · 스킴 없는 도메인은 https 를 붙여 보낸다(서버는 종전대로 http(s)만)
 /* ★[SHARE_KIND 2026-08-16] 넣은 링크가 **어떤 성격인지** 알아본다. 종류마다 하객이 겪는 것이 다르기 때문이다 —
    1:1 오픈채팅은 서로 안 보이고, 공유 앨범은 링크를 아는 사람끼리 다 본다. 그 차이를 부부가 넣는 즉시 알아야 한다.
    ★막는 장치가 아니다(무엇을 넣든 저장된다) — 넣은 것이 뜻하는 바를 되읽어 주는 거울일 뿐이다. */
@@ -7851,7 +7862,7 @@ function renderPhoto(box){
   var avail=PHOTO_NAMES.filter(function(n){ return sel.indexOf(n)<0; });
   if(avail.length){ h+='<div class="ph-addlb">구도 추가</div><div class="ph-chips">'; avail.forEach(function(n){ var _m=photoMeta(n);
     h+='<span class="ph-chip" data-padd="'+escapeHtml(n)+'" title="'+escapeHtml((_m&&_m.d)||'')+'">+ '+escapeHtml(n)+'</span>'; }); h+='</div>'; }
-  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" placeholder="직접 추가 (예: 사촌들)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px"><input class="cc-input" id="mp_photoAdd" maxlength="20" autocomplete="off" aria-label="구도 직접 추가" placeholder="직접 추가 (예: 사촌들)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_photoAddBtn" style="width:auto;padding:9px 14px;white-space:nowrap">추가</button></div>';   // [FIELD_NAME_A11Y 2026-09-26 · 점검 L6] 자리표시만 있으면 적는 순간 무슨 칸인지 사라진다 — 화면 읽기에도 칸 이름을 준다(aria-label)
   /* ★★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4 · 연구 I03] 가족사진 «불러 모아 주실 분» — 양가 한 분씩 · 선택.
      사진이 늦어지는 가장 큰 까닭은 촬영이 아니라 사람 모으기다. 디렉터 · 작가는 친척 얼굴을 모른다 — 가족 대표가 빠진 분을 챙긴다.
      관리자 화면과 콘솔 «촬영 안내 골라 틀기» 판이 이 값을 읽는다. */
@@ -7912,7 +7923,7 @@ function renderPhoto(box){
      ★참고 링크 주의·예시는 전부 접힘 안으로 내렸다 — 적기 전에 읽을 글이 아니다. */
   var _flow=((PHOTOFLOW.rd||{}).summary||{}).flow||null;   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 안 그린다(넘겨짚지 않는다)
   h+='<div class="ph-sec">꼭 담고 싶은 사진 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">위에 없는 사진만 적어 주세요 · <b>안 적으셔도 괜찮아요</b>.</div>';
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">위에 없는 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span></div>';   // [PH_DOT_SPLIT 2026-09-26 · 점검 L5 B9] « · »로 잇던 두 마디를 마침표 두 줄로 — 전역 balance 가 320 · 360 에서 «· 안 적으셔도»를 줄 머리로 밀었다
   if(wish.length){
     h+='<div class="wsh-list">';
     wish.forEach(function(w,i){
@@ -7941,8 +7952,8 @@ function renderPhoto(box){
   }
   /* [PHOTO_WISH] 예시 — **고르기가 아니라 쓰기의 출발점**이다. 누르면 입력칸에 문장이 들어가고,
      그 뒤엔 고쳐 쓸 수 있다. 백지 앞에서 막히는 것이 자유 서술의 가장 큰 함정이라 접어서 둔다. */
-  h+='<details class="cc-more" style="margin-top:8px"><summary>어떻게 적으면 되나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">아래를 눌러 가져다 쓰고 고치시면 돼요 · 안 적으셔도 <b>위 장면은 그대로 담겨요</b>.<br><br>참고 링크는 <b>핀터레스트·인스타 게시물</b>처럼 오래 열리는 주소로 주세요(스토리·카톡은 만료돼요) · <b>구도와 분위기만 참고</b>해요.</div><div class="ph-chips" style="margin-top:8px">'
-    +PHOTO_WISH_EX.map(function(c){ return '<span class="ph-chip" data-wex="'+escapeHtml(c.n+' · '+c.c)+'">'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리)
+  h+='<details class="cc-more" style="margin-top:8px"><summary>어떻게 적으면 되나요?</summary><div class="cc-note" style="text-align:left;margin-top:8px">아래를 눌러 가져다 쓰고 고치시면 돼요. 안 적으셔도 <b>위 장면은 그대로 담겨요</b>.<br><br>참고 링크는 <b>핀터레스트·인스타 게시물</b>처럼 오래 열리는 주소로 주세요(스토리·카톡은 만료돼요). <b>구도와 분위기만 참고</b>해요.</div><div class="ph-chips" style="margin-top:8px">'
+    +PHOTO_WISH_EX.map(function(c){ return '<span class="ph-chip" data-wex="'+escapeHtml(c.n+' · '+c.c)+'">'+escapeHtml(c.n)+'</span>'; }).join('')+'</div></details>';   // MPD_E10 설명 접기 강등 — 예시도 본문에 늘어놓지 않고 접어 둔다(구 '동작은 어떻게 찍히나요?' 자리) · [PH_DOT_SPLIT] « · »로 잇던 두 곳을 마침표로(320~414 모두 «· 안 적으셔도»가 줄 머리였다)
   // 하객 사진 모으기(선택) — 하객이 찍은 사진을 부부가 정한 외부 앨범/오픈채팅으로 모음. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출 · QR은 부부가 테이블 카드/현장 게시용으로 저장(2026-07-19 리서치 반영)
   var _psu=photoShareNorm(PHOTOFLOW.share);
   h+='<div class="ph-sec">하객 사진 모으기 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';   // [SEC_RANK] 390px 에서 두 줄로 꺾이던 꼬리 — 설명은 아래 본문이 한다
@@ -8009,7 +8020,7 @@ function renderPhoto(box){
        그 안내가 여기 있으면 '우리가 받는데 남의 링크도 넣으라'는 두 말이 된다. 접힌 곳에 남아 있다. */
   if(!_psu){   // [PHOTO_LINK_FOLD] 우리가 받는 때만 — 링크가 있으면 사진은 그 링크로 가서 이 두 줄은 거짓이 된다
     h+='<div class="cc-note" style="text-align:left;margin-top:8px">하객분들이 <b>안내 페이지에서 바로</b> 사진을 올려요 · 두 분이 준비하실 건 없어요.</div>';
-    h+='<div class="cc-note" style="text-align:left;margin-top:6px">모인 사진은 <b>결과물과 함께</b> 전해 드려요 · 하객분들은 가입도 이름 입력도 하지 않아요.</div>';
+    h+='<div class="cc-note" style="text-align:left;margin-top:6px"><span class="ln-bal">모인 사진은 <b>결과물과 함께</b> 전해 드려요.</span><span class="ln-bal">하객분들은 가입도 이름 입력도 하지 않아요.</span></div>';   // [PH_DOT_SPLIT] 320 · 360 · 390 모두 «전해 드려요 ·»가 줄 끝에 매달렸다 — 마침표로 끊어 한 문장씩
   }
   /* [GUEST_PHOTO_IN] 지금까지 몇 장 왔는지 — 예식 뒤에 부부가 가장 궁금해하는 한 가지다.
      ★폴더 링크는 주지 않는다. 스튜디오 드라이브라 링크를 열려면 폴더를 공유 상태로 바꿔야 하고,
@@ -8017,7 +8028,7 @@ function renderPhoto(box){
      ★0장이면 아무 말도 하지 않는다 — 예식 전에 '0장'을 보여 주면 고장으로 읽힌다. */
   var _gp=null; try{ _gp=((window._mpStateD||{}).production||{}).guestPhoto||null; }catch(e){}
   if(_gp && (_gp.n||0)>0) h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">지금까지 <b>'+(_gp.n|0)+'장</b>이 도착했어요'+(_gp.at?' · 마지막 '+escapeHtml(String(_gp.at).slice(5,16)):'')+'.</div>';
-  h+='<div class="cc-note" style="text-align:left;margin-top:6px">'+(_psu?'하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요':'하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요')+' · QR은 테이블 카드용이에요.</div>';   // [PHOTO_LINK_FOLD] 링크가 있으면 버튼이 어디로 가는지를 말한다(guide.html photoShareHtml)
+  h+='<div class="cc-note" style="text-align:left;margin-top:6px">'+(_psu?'하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요':'하객 안내 페이지에 <b>사진 올리기</b> 버튼이 생겨요')+'. QR은 테이블 카드용이에요.</div>';   // [PHOTO_LINK_FOLD] 링크가 있으면 버튼이 어디로 가는지를 말한다(guide.html photoShareHtml) · [PH_DOT_SPLIT] « · »를 마침표로(320 «이어져요 · / QR은»)
   /* [SHARE_KIND] 넣은 링크가 무엇인지 되읽어 준다 — 부부가 엉뚱한 것을 넣고도 모르는 일이 없게. */
   var _sk=photoShareKind(_psu);
   /* ★★[SHARE_1TO1_ASK 2026-08-16 시뮬에서 잡은 거짓 단정] `open.kakao.com/o/…` 는 **그룹과 1:1 이 같은 형식**이다.
@@ -8036,15 +8047,18 @@ function renderPhoto(box){
          우리가 못 보는 것을 부부가 보게 만드는 것이 이 한 줄의 일이다. 지우면 아무도 안 본다.
      ★'안전하게 보관돼요' 류의 보증은 쓰지 않는다. 남의 서비스라 우리가 책임질 수 없다(책임질 수 없는 안심 금지). */
   if(_sk==='wedup')  h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">하객은 <b>가입도 이름 입력도 없이</b> 올려요 · 서로의 사진은 안 보여요.</div>'
-                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">화면은 영어예요 · 하객이 누르는 건 <b>고르기·올리기 두 번</b>이라 안내는 저희가 한국어로 해요.</div>'
-                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)"><b>예식 전날 한 번 열어</b> 구글 드라이브 연결과 <b>남은 용량</b>을 봐 주세요 · 드라이브가 꽉 차면 사진이 안 들어와요.</div>';
+                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">화면은 영어예요. 하객이 누르는 건 <b>고르기⁠·⁠올리기 두 번</b>이라 안내는 저희가 한국어로 해요.</div>'
+                      +'<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)"><b>예식 전날 한 번 열어</b> 구글 드라이브 연결과 <b>남은 용량</b>을 봐 주세요. 드라이브가 꽉 차면 사진이 안 들어와요.</div>';   // [PH_DOT_SPLIT] 링크를 넣은 판의 « · »도 마침표로 — 320~360 «봐 주세요 · / 드라이브», 340~414 «고르기· / 올리기»(그 점은 U+2060 으로 묶었다)
   if(_sk==='gphoto') h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">공유 앨범 · <b>링크를 아는 하객끼리 서로 사진이 보여요</b>.</div>';
   if(_sk==='etc')    h+='<div class="cc-note" style="text-align:left;margin-top:6px;color:var(--gold-deeper)">권해 드린 곳이 아니에요 · 하객이 <b>가입 없이 올릴 수 있는지</b> 확인해 주세요.</div>';
   /* [SHARE_WEDUP][PHOTOSHARE_ONE] 나머지는 접어 둔다 — 이미 쓰고 계신 부부가 있으니 지우지는 않는다.
      ★각 방법의 대가를 한 줄씩만 적는다. 셋을 나란히 펼치면 또 세 문단이 된다(PHOTOSHARE_ONE 의 교훈). */
-  h+='<details class="cc-more" id="mp_psMore" style="margin-top:6px"'+((PHOTOFLOW._psOpen || (!_psu && String(PHOTOFLOW.share||'').trim()))?' open':'')+'><summary>다른 방법도 되나요 · 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b> · 만들 때 「공동작업」을 켜야 하객이 올릴 수 있고, <b>링크를 아는 하객끼리 서로 보여요</b>.<br><br><b>카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨 <b>방마다 저장</b>하셔야 하고, 카톡 사진은 시간이 지나면 다시 받을 수 없어요.<br><br>어느 쪽이든 링크를 아는 분은 누구나 들어갈 수 있어요 · <b>예식 뒤 정리하시면 안내 페이지 버튼도 닫혀요</b>.</div>'   // [PHOTO_LINK_FOLD] http 로 시작하지 않는 글이 칸에 남아 있으면 펼쳐 둔다 — 접힌 채면 적어 둔 것이 안 보인다
+  h+='<details class="cc-more" id="mp_psMore" style="margin-top:6px"'+((PHOTOFLOW._psOpen || (!_psu && String(PHOTOFLOW.share||'').trim()))?' open':'')+'><summary>다른 방법도 되나요 · 알아 두실 것</summary><div class="cc-note" style="text-align:left;margin-top:8px"><b>구글 포토 공유 앨범</b> · 만들 때 「공동작업」을 켜야 하객이 올릴 수 있고, <b>링크를 아는 하객끼리 서로 보여요</b>.<br><br><b>카톡 1:1 오픈채팅</b> · 하객마다 방이 따로 생겨 <b>방마다 저장</b>하셔야 하고, 카톡 사진은 시간이 지나면 다시 받을 수 없어요.<br><br><span class="ln-bal">어느 쪽이든 링크를 아는 분은 누구나 들어갈 수 있어요. <b>예식 뒤 정리하시면 안내 페이지 버튼도 닫혀요</b>.</span></div>'   // [PHOTO_LINK_FOLD] http 로 시작하지 않는 글이 칸에 남아 있으면 펼쳐 둔다 — 접힌 채면 적어 둔 것이 안 보인다 · [PH_DOT_SPLIT] «있어요 ·»가 375 · 390 에서 줄 머리 · 끝에 매달렸다 — 마침표로
     /* [PHOTO_LINK_FOLD] 비었을 때 링크 칸은 여기 — 무엇이 달라지는지(사진이 저희를 거치지 않는다)를 칸 바로 위에서 말한다 */
-    +(_psu?'':'<div class="cc-note" style="text-align:left;margin-top:12px;text-wrap:balance">따로 만드신 곳이 있으면 링크를 넣어 주세요 · 하객 사진이 저희를 거치지 않고 그곳으로 바로 가요.</div><div style="margin-top:8px">'+_psIn+'</div>')
+    +(_psu?'':'<div class="cc-note" style="text-align:left;margin-top:12px;text-wrap:balance">따로 만드신 곳이 있으면 링크를 넣어 주세요 · 하객 사진이 저희를 거치지 않고 그곳으로 바로 가요.</div><div style="margin-top:8px">'+_psIn+'</div>'
+      /* [SHARE_SCHEME] 링크로 바꿀 수 없는 글이 칸에 남아 있으면 — 저장하면 버려진다는 것을 칸 바로 아래에서 말한다(종전엔 «저장됨»만 떴다).
+         blur 가 이 줄만 켜고 끈다(다시 그리지 않는다 · [PHOTO_BLUR_CLICK]). 주소 꼴이면 photoShareNorm 이 https 를 붙여 받으므로 이 줄은 안 뜬다. */
+      +'<div class="cc-note" id="mp_psBad" role="status" style="text-align:left;margin-top:6px;color:var(--gold-deeper)"'+(String(PHOTOFLOW.share||'').trim()?'':' hidden')+'><span class="ln-bal">링크가 아니라서 저장되지 않아요.</span><span class="ln-bal">주소 전체를 복사해 붙여 주세요.</span></div>')
     +'</details>';
   h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
   h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
@@ -8121,7 +8135,20 @@ function renderPhoto(box){
   /* [SHARE_KIND] 링크를 다 치면 종류 안내가 갱신돼야 한다 — 입력 중 재렌더는 커서를 날리므로 blur 에서 한 번만.
      (입력 중에는 QR 만 갱신한다 · 그건 화면 아래라 커서와 무관하다) */
   if(psi){ psi.addEventListener('input', function(){ PHOTOFLOW.share=psi.value; photoShareQrRender(); });
-           psi.addEventListener('blur', function(){ if(photoShareKind(photoShareNorm(psi.value))!==_sk){ if(!photoShareNorm(psi.value)) PHOTOFLOW._psOpen=true; rerender(); } }); }   // [PHOTO_LINK_FOLD] 링크를 지우면 칸이 접힘 안으로 옮겨 간다 — 그때는 펼친 채로 그려 칸이 사라진 것처럼 보이지 않게
+           psi.addEventListener('blur', function(e){ var _nu=photoShareNorm(psi.value), _nb=$('mp_psBad'); if(_nb) _nb.hidden=!!_nu||!String(psi.value||'').trim();   // [SHARE_SCHEME] 링크로 못 바꾸는 글이면 칸 아래 한 줄만 켠다(다시 그리지 않는다)
+             if(photoShareKind(_nu)!==_sk){ if(!_nu) PHOTOFLOW._psOpen=true;
+               /* ★[PHOTO_BLUR_CLICK 2026-09-26 · 점검 L7] 초점이 머리의 「저장」·「나가기」로 옮겨 가며 난 blur 면 지금 다시 그리지 않는다.
+                    다시 그리면 mousedown 이 잡은 그 버튼이 DOM 에서 떨어져 나가 click 이 아예 안 난다 — 링크를 붙인 뒤 첫 누름이 먹혔다
+                    (마우스 · 120ms 누름 · 터치 셋 다 실측 · 저장 0건 · 나가기 판 안 뜸). 그 누름이 끝난(click) 뒤에 다시 그린다.
+                    ★setTimeout 0 만으로는 모자란다 — 사람처럼 누르고 있으면 떼기 전에 돌아 같은 일이 난다(점검 120ms 실측).
+                    ★문서에 건다 — 누른 채 밖으로 끌어 놓아도 그 click(공통 조상)에서 풀린다. 한 번에 하나만(_psLate). */
+               var _rt=e&&e.relatedTarget;
+               if(_rt&&_rt.closest&&_rt.closest('[data-wiz-save],[data-wiz-exit]')){
+                 if(!PHOTOFLOW._psLate){ PHOTOFLOW._psLate=1; var _pf=PHOTOFLOW;
+                   document.addEventListener('click', function _psAfter(){ document.removeEventListener('click', _psAfter);
+                     setTimeout(function(){ _pf._psLate=0; if(_pf===PHOTOFLOW && PHOTOFLOW.active && box.isConnected) rerender(); },0); }); }
+                 return; }
+               rerender(); } }); }   // [PHOTO_LINK_FOLD] 링크를 지우면 칸이 접힘 안으로 옮겨 간다 — 그때는 펼친 채로 그려 칸이 사라진 것처럼 보이지 않게
   var _psm=$('mp_psMore'); if(_psm) _psm.addEventListener('toggle', function(){ PHOTOFLOW._psOpen=_psm.open; });   // [PHOTO_LINK_FOLD] 다시 그려도 펼친 상태를 지킨다(링크를 친 뒤 blur 재렌더)
   photoShareQrRender();
   /* [WIZ_EXIT_ONE] 나가기·저장은 전역 위임(data-wiz-exit·data-wiz-save)이 받는다 — 전용 리스너 폐지 */
@@ -8546,9 +8573,11 @@ function _snapAgreeHtml(){
     +'<label class="snp-agree-row"><input type="checkbox" id="mp_snapAgreeCk"><span>고른 장면 · 메모 · 올린 사진을 촬영 준비에 쓰고, 모먼트에디트와 계약한 사진작가에게 전하는 데 동의해요.</span></label>'
     +'<div class="snp-agree-sub">올린 사진 · 메모는 예식 6개월 뒤 지워요<br><button type="button" class="snp-agree-more" id="mp_snapAgreeMore" aria-expanded="false" aria-controls="mp_snapAgreeBody">자세히 보기</button></div>'   // 390 에선 한 줄에 안 들어가 «지워요 ·» 끝에 가운뎃점이 매달렸다(직접 보며 점검) — «자세히 보기»는 제 줄로
     +'<div class="snp-agree-body" id="mp_snapAgreeBody" hidden><dl>'
-    +  '<div><dt>받는 것</dt><dd>고른 장면 · 메모 · 참고 링크 · 두 분이 올린 참고 사진</dd></div>'
-    +  '<div><dt>쓰는 곳</dt><dd>스냅 촬영 준비 · 사진작가에게 촬영 요청서로 전해요(성함 · 연락처는 전하지 않아요)</dd></div>'
-    +  '<div><dt>보관</dt><dd>올린 사진 · 링크 · 메모는 예식 6개월 뒤 지워요</dd></div>'
+    /* [SNAP_AGREE_BAL 2026-09-26 · 점검 L5 ⑦] 문구는 코워크 명세 그대로 — 가운뎃점 앞뒤 빈칸만 &nbsp; 로 바꿨다(320 · 340 «메모 · / …» · «준비 · / …» · «· 두 분이»가 줄 끝 · 머리에 섰다 · 360 «두 / 분이»).
+         scripts/audit/snap-plan.mjs 는 &nbsp; 를 빈칸으로 읽고 명세 문장과 대조한다. */
+    +  '<div><dt>받는 것</dt><dd>고른 장면&nbsp;·&nbsp;메모&nbsp;·&nbsp;참고 링크&nbsp;·&nbsp;두&nbsp;분이 올린 참고 사진</dd></div>'
+    +  '<div><dt>쓰는 곳</dt><dd>스냅 촬영 준비&nbsp;·&nbsp;사진작가에게 촬영 요청서로 전해요(성함&nbsp;·&nbsp;연락처는 전하지 않아요)</dd></div>'
+    +  '<div><dt>보관</dt><dd>올린 사진&nbsp;·&nbsp;링크&nbsp;·&nbsp;메모는 예식 6개월 뒤 지워요</dd></div>'
     +  '<div><dt>동의하지 않으셔도 돼요</dt><dd>스냅 기획 없이 기본 장면으로 찍어요</dd></div>'
     +'</dl><a class="snp-agree-pv" href="privacy.html#snap-plan" data-pv="snap-plan">개인정보 처리방침 전문 보기</a></div>'
     +'<div class="snp-agree-need" id="mp_snapAgreeNeed" role="alert"></div>'
@@ -9446,7 +9475,8 @@ function bindTrk(box, render, collect, opt){
   Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-trkopt')]=el.getAttribute('data-v'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-chip]'),function(el){ _kbChip(el,function(){ collect(); var v=el.getAttribute('data-chip'), arr=TRKFLOW.draft.events||[], i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); TRKFLOW.draft.events=arr; render(box); }); });   // MPD4_F3 큐시트 칩 키보드화
-  Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; TRKFLOW.draft._aiSummary=''; if(typeof DN_UI!=='undefined') DN_UI.all=false; render(box); }); });   // 다이닝 취향칩·세그먼트 토글(수동 조정 시 추천 요약 해제 — 모순 방지·조건 바뀌면 상위 8곳부터 다시)
+  var _dnRefocus=function(find){ try{ var nb=find(); if(nb) nb.focus({preventScroll:true}); }catch(e){} };   // [DN_ARIA_STATE] 다시 그린 뒤 같은 단추로 — 초점이 사라지면 aria-pressed · aria-expanded 의 새 값이 안 들린다
+  Array.prototype.forEach.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(el){ el.addEventListener('click',function(){ collect(); var ax=el.getAttribute('data-ax'), v=el.getAttribute('data-fv'), fls=TRKFLOW.draft._filters||{}; fls[ax]=(fls[ax]===v)?'':v; TRKFLOW.draft._filters=fls; TRKFLOW.draft._aiSummary=''; if(typeof DN_UI!=='undefined') DN_UI.all=false; render(box); _dnRefocus(function(){ return [].filter.call(box.querySelectorAll('.dn-fpill,.dn-segbtn'),function(b){ return b.getAttribute('data-ax')===ax && b.getAttribute('data-fv')===v; })[0]; }); }); });   // 다이닝 취향칩·세그먼트 토글(수동 조정 시 추천 요약 해제 — 모순 방지·조건 바뀌면 상위 8곳부터 다시)
   var _drst=$('dn_reset'); if(_drst){ _drst.addEventListener('click',function(){ collect(); TRKFLOW.draft._filters={}; TRKFLOW.draft._aiSummary=''; render(box); }); }   // 조건 초기화
   // [찜] 별표 토글(카드 선택과 분리 — span role=button: label 활성화 전달 안 받음 + stopPropagation) · 재렌더 후 앵커 기준 스크롤 유지(튐 방지)
   var _dnFindByAttr=function(attr,val){ var all=box.querySelectorAll('['+attr+']'); for(var i=0;i<all.length;i++){ if(all[i].getAttribute(attr)===val) return all[i]; } return null; };
@@ -9475,8 +9505,8 @@ function bindTrk(box, render, collect, opt){
     copyThen(txt, done);
   }); }
   var _daskai=$('dn_askai'); if(_daskai){ _daskai.addEventListener('click',function(){ var inp=$('dncInput'); if(inp){ try{inp.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){} inp.focus(); } }); }   // 빈 결과 → AI 입력으로 유도(막다른 길 방지)
-  var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?false:DN_UI.det; DN_UI.det=!opn; render(box); }); }   // 조건 더 좁히기 펼침/접기(기본 접힘과 동일 기준)
-  var _dpre=$('dn_pre'); if(_dpre){ _dpre.addEventListener('click',function(){ collect(); var opn=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre; DN_UI.pre=!opn; render(box); }); }   // '이런 자리를 찾고 있어요' 프리셋 펼침/접기(기본 접힘)
+  var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?false:DN_UI.det; DN_UI.det=!opn; render(box); _dnRefocus(function(){ return $('dn_det'); }); }); }   // 조건 더 좁히기 펼침/접기(기본 접힘과 동일 기준)
+  var _dpre=$('dn_pre'); if(_dpre){ _dpre.addEventListener('click',function(){ collect(); var opn=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre; DN_UI.pre=!opn; render(box); _dnRefocus(function(){ return $('dn_pre'); }); }); }   // '이런 자리를 찾고 있어요' 프리셋 펼침/접기(기본 접힘)
   var _dmore=$('dn_more'); if(_dmore){ _dmore.addEventListener('click',function(){ collect(); DN_UI.all=true; render(box); }); }   // 리스트 전체 보기
   Array.prototype.forEach.call(box.querySelectorAll('[data-preset]'),function(el){ el.addEventListener('click',function(){ collect(); var p=DN_PRESETS[+el.getAttribute('data-preset')]; if(p){ TRKFLOW.draft._filters=Object.assign({},p.set); TRKFLOW.draft._aiSummary=''; DN_UI.all=false; DN_UI.det=null; logAwDemand({source:'preset', label:p.label, head:(p.set&&p.set.headN)||''}); render(box); } }); });   // 원탭 프리셋 — 필터 교체
   var _dattr=$('dn_attr_h'); if(_dattr){ _dattr.addEventListener('click',function(){ collect(); DN_UI.attr=!DN_UI.attr; render(box); }); }   // 가볼 만한 곳 펼침/접기
@@ -9540,9 +9570,11 @@ function bindTrk(box, render, collect, opt){
 // 다이닝 = 홀 내 식사가 아니라 예식 후 인근 연계 식당·카페로 이동해 식사. (식당 카드는 DINE_DB 칩 필터가 단일 출처)
 // 본예식 시간 → 식사 회차 안내 문구 (10:00→11:50 / 13:20→15:00 브레이크 시간대 / 16:40→18:10)
 function _dineSlot(wt){
-  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11:50 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.'};
-  if(wt==='13:20') return {lead:'오후 예식은 15:00 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 곳, 또는 여유로운 카페·브런치 파티가 잘 맞아요.'};
-  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 18:10 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.'};
+  /* [DN_CLOCK_SAY 2026-09-26 · 점검 L5 clock24 · 사장님 결정 ②] 도착 시각은 말하는 꼴(«11시 50분» · «3시» · «6시 10분») — 앞말(오전 · 오후 · 저녁 예식)이 이미 때를 말한다.
+       바로 아래 예약 시간 칸의 예시(«오후 1시 30분»)와 같은 꼴이다. 숫자(도착 기준 11:50 · 15:00 · 18:10)는 그대로다(_DN_ARR). */
+  if(wt==='10:00') return {lead:'오전 예식이라 식사는 11시 50분 도착 기준이에요. 모든 정찬 식당이 여유로운 골든타임이에요.'};
+  if(wt==='13:20') return {lead:'오후 예식은 3시 도착 기준이라 식당 브레이크 타임과 겹쳐요. 브레이크 없는 곳, 또는 여유로운 카페·브런치 파티가 잘 맞아요.'};
+  if(wt==='16:40') return {lead:'저녁 예식이라 식사는 6시 10분 도착 기준이에요. 저녁 정찬 코스 만족도가 가장 좋아요.'};
   /* [DN_TRUE_COPY] 2026-09-26 사장님 결정 ⑰ · «직접 검증해 둔»은 검증한 곳(v:true)이 있을 때만 쓴다 — 지금 80곳이 전부 미검증이라
      머리 제목도 «검증» 대신 «추천»으로 바뀌는데(_dnVerifiedN) 이 줄만 «검증»이라고 말하고 있었다(책임질 수 없는 안심). */
   var _vN=0; for(var _i=0;_i<DINE_DB.length;_i++){ if(DINE_DB[_i].v) _vN++; }
@@ -9641,6 +9673,10 @@ var DINE_DB = [
 var _DN_PRICE={low:'~2만',mid:'2~5만',high:'5만+'};
 var _DN_GROUP={room:'단독룸',seats:'단체석',ask:'룸 협의'};
 var _DN_ARR={'10:00':'11:50','13:20':'15:00','16:40':'18:10'};   // 본예식 → 식사 도착 기준
+/* [DN_CLOCK_SAY 2026-09-26] «15:00» → «오후 3시» · «11:50» → «오전 11시 50분» · «18:10» → «오후 6시 10분» — 고객이 보는 도착 시각(머리 줄 · 통화 문구 · 단일 안내)만 이 꼴로.
+     ★SLOT_CLOCK · wedTimeKo 를 거치지 않는 순수 변환이다 — 이 값은 슬롯 ID 가 아니라 이미 시각이라, 표를 거치면 13:20 이 13:40 으로 바뀐다([SNAP_DDAY_CHIP] 경고와 같은 까닭).
+     ★브레이크 셈(_bm)은 종전대로 «HH:MM» 원값을 쓴다 — 보이는 글자만 바꾼다. */
+function _dnSayClock(hm){ var m=String(hm||'').match(/^(\d{1,2}):(\d{2})$/); if(!m) return String(hm||''); var h=+m[1], mi=+m[2]; return (h<12?'오전 ':'오후 ')+((h%12)||12)+'시'+(mi?(' '+mi+'분'):''); }
 var DN_UI={det:null,all:false,attr:false,pre:null};   // 리스트 UI 상태(세부조건 펼침·전체 보기·가볼곳 펼침·상황 프리셋 펼침) — 화면용이라 draft에 저장 안 함. pre=null이면 기본 접힘
 // 상황별 원탭 프리셋 — 누르면 여러 필터를 한 번에 세팅(AI 호출 없이 즉시). set을 _filters로 교체.
 var DN_PRESETS=[
@@ -9672,6 +9708,12 @@ var DN_ATTRACTIONS=[
   {n:'평화의공원 (상암)', t:'공원·산책', d:'차로 10분', desc:'넓은 잔디·호수 산책로. 아이 동반 하객과 여유롭게 걷기 좋아요.'}
 ];
 function _dnFind(nm){ for(var i=0;i<DINE_DB.length;i++){ if(DINE_DB[i].n===nm) return DINE_DB[i]; } return null; }
+/* [DN_RO_JOSA 2026-09-26 · 점검 L5 · L7] 가게 이름 뒤 (으)로 — 받침이 없거나 ㄹ 받침이면 «로», 그 밖의 받침이면 «으로».
+     종전엔 «로»를 박아 «잔치연로» · «유평리백숙집 향동점로» · «카페516로»가 나왔다(목록 80곳 중 64곳이 «으로» 자리).
+     숫자는 읽는 소리로(0 영 · 3 삼 · 6 육 → «으로») · 영문은 m · n(«룸» · «가든»)만 «으로». 괄호 · 따옴표 · 빈칸 꼬리는 떼고 본다. 같은 파일 _mpRollbackNotice 의 을/를 고르기와 같은 셈. */
+function _dnRo(w){ var t=String(w||'').replace(/[\s)\]」』'"’”]+$/,''); if(!t) return '로'; var c=t.charCodeAt(t.length-1);
+  if(c>=0xAC00&&c<=0xD7A3){ var j=(c-0xAC00)%28; return (j===0||j===8)?'로':'으로'; }
+  if(/[036]$/.test(t)) return '으로'; if(/(ng|[mn])$/i.test(t)) return '으로'; return '로'; }
 function _dnMapUrl(nm){ return 'https://map.naver.com/p/search/'+encodeURIComponent(nm); }
 // [찜] draft._favs=[{n,m,tel,url,src}] — 계정(제작임시저장)에 저장돼 부부 어느 기기서든 같은 목록. 최대 10곳.
 function _dnFavHas(d,nm){ var f=d._favs||[]; for(var i=0;i<f.length;i++){ if(f[i].n===nm) return true; } return false; }
@@ -9731,15 +9773,17 @@ function _dnBudget(price,headN,actualN){
 function dineFilterUI(d, wt){
   var fl=d._filters||{};
   if(fl.elderly===true) fl.elderly='true';   // AI가 넣은 boolean을 칩 토글과 같은 문자열로 통일 — 칩에서 켜고 끌 수 있게
+  /* [DN_ARIA_STATE 2026-09-26 · 점검 L6] 고른 알약 · 세그먼트는 class «on» 뿐이라 화면 읽기에 무엇이 골라졌는지 안 들렸다 — aria-pressed 를 함께 그린다.
+       펼침 두 단추(dn_det · dn_pre)는 aria-expanded + aria-controls(펼쳐지는 칸 id). 누르면 다시 그리므로 그린 뒤 같은 단추로 초점을 돌려 새 상태가 들리게 한다(bindTrk 쪽 핸들러). */
   function pill(ax,v,label){ var on=(fl[ax]||'')===v;
-    return '<button type="button" class="dn-fpill'+(on?' on':'')+'" data-ax="'+escapeHtml(ax)+'" data-fv="'+escapeHtml(v)+'">'+escapeHtml(label)+'</button>'; }
+    return '<button type="button" class="dn-fpill'+(on?' on':'')+'" data-ax="'+escapeHtml(ax)+'" data-fv="'+escapeHtml(v)+'" aria-pressed="'+on+'">'+escapeHtml(label)+'</button>'; }
   function block(rawLabel,inner,last){ return '<div class="dn-fblk"'+(last?' style="margin-bottom:0"':'')+'><div class="dn-flabel">'+rawLabel+'</div><div class="dn-fwrap">'+inner+'</div></div>'; }
   // 빠른 길만 항상 노출: 테마(정찬·캐주얼·카페)+인원 · 음식·가격·거리·단체·주차·동행은 '조건 더 좁히기' 접이식(기본 접힘)
   var detN=['food','price','dist','group','parking','elderly','mood','al'].filter(function(k){return fl[k];}).length;
   var detOpen=(DN_UI.det===null)?false:DN_UI.det;   // 기본 접힘(빠른 길=프리셋·테마·인원만 먼저) · 사용자가 펼치면 그 상태 유지 · 프리셋/AI가 세부값 걸면 배지로 표시
   var themeSeg='<div class="dn-flabel">어떤 자리인가요?</div><div class="dn-seg">'
     +[['formal','정찬'],['casual','캐주얼'],['cafe','카페']].map(function(o){ var on=(fl.theme||'')===o[0];
-        return '<button type="button" class="dn-segbtn'+(on?' on':'')+'" data-ax="theme" data-fv="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</div>';
+        return '<button type="button" class="dn-segbtn'+(on?' on':'')+'" data-ax="theme" data-fv="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'</button>'; }).join('')+'</div>';   // [DN_ARIA_STATE]
   var headNum=(String(d.headcount||'').match(/\d+/)||[''])[0]; if(!(Number(headNum)>0)) headNum='';   // 예식 하객수(있으면) — 힌트로만. 0·비숫자는 무표시
   /* [DN_HEAD_FROM_SEAT] 2026-09-26 사장님 결정 ⑱ · 힌트는 좌석 · 음료에서 정한 하객 수로 채운다(«예식 하객 약 N명» 뜻 그대로 · 두 분은 더하지 않는다).
      ★힌트에만 쓴다 — 아래 카드의 총 예상비용(_dnBudget)은 종전대로 «인원 칩을 골랐을 때만» 뜬다(headNum 그대로). 좌석 수를 넘기면 칩 없이도 늘 뜨고,
@@ -9748,8 +9792,8 @@ function dineFilterUI(d, wt){
   var headHint=_hintN?' <span class="dn-fhint">· 예식 하객 약 '+escapeHtml(_hintN)+'명</span>':'';
   var chips=themeSeg
     +block('인원'+headHint,pill('headN','s','소규모 ~10')+pill('headN','m','중 11~20')+pill('headN','l','대 21~40')+pill('headN','xl','대형 40+'))
-    +'<button type="button" class="dn-fmore" id="dn_det">조건 더 좁히기'+(detN?' <span class="bdg">'+detN+'</span>':'')+(detOpen?' ▴':' ▾')+'</button>'
-    +'<div class="dn-fdetail'+(detOpen?' open':'')+'">'
+    +'<button type="button" class="dn-fmore" id="dn_det" aria-expanded="'+(!!detOpen)+'" aria-controls="dn_detBody">조건 더 좁히기'+(detN?' <span class="bdg">'+detN+'</span>':'')+(detOpen?' ▴':' ▾')+'</button>'   // [DN_ARIA_STATE]
+    +'<div class="dn-fdetail'+(detOpen?' open':'')+'" id="dn_detBody">'
       +block('음식 종류',['한정식','한우·갈비','곰탕·국밥','샤브·전골','면·만두','족발·보쌈','오리·백숙','중식','해물·생선','뷔페','카페'].map(function(x){return pill('food',x,x);}).join(''))
       +block('가격 <span style="color:var(--label-soft)">· 1인 기준</span>',pill('price','low','~2만')+pill('price','mid','2~5만')+pill('price','high','5만+'))
       +block('거리',pill('dist','10','차로 10분 내')+pill('dist','15','차로 15분 내'))
@@ -9762,8 +9806,8 @@ function dineFilterUI(d, wt){
   // 컨셉 칩 — 전부 고정형(누르면 아래 리스트가 그 조건으로 걸러짐). (2026-07-12) 지도검색 시나리오 칩(키즈·뒷풀이)은 삭제 · 그 자리는 고정 키워드로 대체. 키즈·뒷풀이는 위 AI 입력에 적으면 지도로 찾아줌.
   // ★상황 프리셋 접이식 — 기본 접힘, 눌러서 펼침(2026-07-22 사용자 지시 '접혀있게 · 원하면 펴서'). 개수 늘어도 첫 화면 간결
   var preOpen=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre;
-  var presetRow='<button type="button" class="dn-fmore" id="dn_pre">이런 자리를 찾고 있어요'+(preOpen?' ▴':' ▾')+'</button>'
-    +'<div class="dn-fdetail'+(preOpen?' open':'')+'"><div class="dn-preset-cap">상황을 고르면 조건이 한 번에 맞춰져요</div><div class="dn-preset" style="margin-bottom:0">'
+  var presetRow='<button type="button" class="dn-fmore" id="dn_pre" aria-expanded="'+(!!preOpen)+'" aria-controls="dn_preBody">이런 자리를 찾고 있어요'+(preOpen?' ▴':' ▾')+'</button>'   // [DN_ARIA_STATE]
+    +'<div class="dn-fdetail'+(preOpen?' open':'')+'" id="dn_preBody"><div class="dn-preset-cap">상황을 고르면 조건이 한 번에 맞춰져요</div><div class="dn-preset" style="margin-bottom:0">'
     +DN_PRESETS.map(function(p,i){return '<button type="button" data-preset="'+i+'">'+escapeHtml(p.label)+'</button>';}).join('')
     +'</div></div>';
   var arr=_DN_ARR[wt||'']||'';
@@ -9825,22 +9869,22 @@ function dineFilterUI(d, wt){
           + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
           + '</div>'
         : '<div class="dn-ai-slim-q">예식 끝나고 어디로 모실지 고민되시죠. \'조용한 룸\', \'아이랑 놀 곳\'처럼 적어 주시면 찾아드려요. 아래에서 골라도 돼요.</div>')
-    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="편하게 적어 주세요" style="margin:0" value="'+escapeHtml(String(d._dncTyped||''))+'"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'
+    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="찾는 자리를 말로 적기" placeholder="편하게 적어 주세요" style="margin:0" value="'+escapeHtml(String(d._dncTyped||''))+'"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'   // [FIELD_NAME_A11Y] AI 칸도 자리표시(«편하게 적어 주세요»)뿐이었다 — 적기 시작하면 무슨 칸인지 사라졌다
     + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
     + '</div>';
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
   var _cntTxt=(_dnVerifiedN>0)?('검증 '+_dnVerifiedN+'곳'):((shown.length<list.length)?('추천순 '+shown.length+'곳 먼저'):('추천 '+list.length+'곳'));
   var _hasFilter=false; for(var _fk in fl){ if(fl[_fk]){ _hasFilter=true; break; } }   // 컨셉·필터가 걸려 있으면 '고른 조건에 맞는 곳'(디렉터 추천 여부와 무관하게 컨셉 리스트로 읽히게)
   var _headT=_hasFilter?'고른 조건에 맞는 곳':('디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트');
-  var head='<div class="dn-head"><span class="dn-head-t">'+_headT+'</span><span class="dn-head-c">'+_cntTxt+(arr?' · 예식 후 '+arr+' 도착 기준':'')+'</span></div>';
+  var head='<div class="dn-head"><span class="dn-head-t">'+_headT+'</span><span class="dn-head-c">'+_cntTxt+(arr?'&nbsp;·&nbsp;예식 후 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'&nbsp;도착&nbsp;기준':'')+'</span></div>';   // [DN_CLOCK_SAY] 말하는 꼴은 길어져(«오전 11시 50분») 320 에서 «… 도착 / 기준» 꼬리가 났다 — 가운뎃점은 앞뒤 낱말에, 시각은 «도착 기준»까지 한 덩어리로 묶어 «… 예식 후 / 오전 11시 50분 도착 기준»으로만 꺾인다
   /* [DN_TRUE_COPY] 2026-09-26 사장님 결정 ⑰ · 「그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요」를 뺐다 —
      기본 추천 8곳이 모두 주차 미상(pk:null)이고 3곳은 전화번호도 없다. 살펴 둔 근거가 없는 안심이었다.
      대신 할 일을 말한다 · 통화 문구도 이미 «룸(또는 단체석)·주차 가능할까요?»를 묻는다. 결과 0곳이면 숨김(종전대로). */
-  var care=list.length?'<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">하객분들이 가장 아쉬워하는 건 자리·주차·식사예요. 예약 통화에서 단체석·주차를 꼭 물어봐 주세요.</div>':'';
+  var care=list.length?'<div class="cc-note" style="margin:2px 0 10px;color:var(--sub)">하객분들이 가장 아쉬워하는 건 <span style="white-space:nowrap">자리·주차·식사예요</span>. 예약 통화에서 단체석·주차를 꼭 물어봐 주세요.</div>':'';   // [DN_DOT_SPLIT 2026-09-26 · 점검 L2 · L5] 320~350 에서 «자리 / ·주차·식사예요»로 가운뎃점이 줄 머리에 섰다(기준판은 «자리·주차· / 식사예요» 줄 끝) — 세 낱말을 한 덩어리로
   /* ★[DINE_ORIGIN 2026-09-14] 「차8분」의 «어디서부터»가 화면에 없었다. 코드에는 「향동 기준 차로(분)」
      이라고 적혀 있는데(mypage.html:7998 필드 주석) 고객이 보는 글에는 기준점이 빠져 있었다.
      ★고객에게도 필요한 정보다 — 기준점을 모르면 「차8분」은 아무 뜻이 없다. */
-  var fine='<div class="dn-fine">정보는 안내용이에요. 차로 걸리는 시간은 고양 향동 스튜디오 기준이에요. 메뉴·가격·영업시간·단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';
+  var fine='<div class="dn-fine">정보는 안내용이에요. 차로 걸리는 시간은 고양 향동 스튜디오 기준이에요. 메뉴⁠·⁠가격⁠·⁠영업시간⁠·⁠단체석은 변동될 수 있으니, 예약 전 식당에 전화로 확인해 주세요.</div>';   // [DN_DOT_SPLIT] 나열의 가운뎃점 양옆 U+2060(320 «영업시간· / 단체석은»)
   var aiHint = (d._chat&&d._chat.length) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';
   // 예식 후 가볼 만한 곳 — 접이식 큐레이션. 각 항목도 눌러서 담기(식당과 함께 다음 취합 페이지에서 봄). '지도' 링크는 담기와 분리.
   var attrItems=DN_ATTRACTIONS.map(function(a){
@@ -9863,7 +9907,7 @@ function dineFilterUI(d, wt){
 function _dnSeatGuests(){ try{ var h=((((window._mpStateD||{}).production||{}).finalDraft||{}).headcount); var n=Number((String(h==null?'':h).match(/\d+/)||['0'])[0]); return (n>0)?n:0; }catch(e){ return 0; } }
 /* [DN_TEL_MAP] 식당 전화번호(숫자만) — 목록(DINE_DB)이 먼저, 담을 때 적힌 값이 다음. _bookBlock 과 같은 순서로 찾는다 */
 function _dnTelOf(nm, tel){ var R=_dnFind(nm); return String((R&&R.tel)||tel||'').replace(/[^0-9]/g,''); }
-function _dnRsvHtml(d, noTel){   // [DN_TEL_MAP] noTel = 대표 예약처에 전화번호가 없다(위에 전화 단추 대신 «지도에서 매장 번호를 확인해 예약해 주세요»가 나온다)
+function _dnRsvHtml(d, mode){   // [DN_TEL_MAP] [DN_RSV_MODE] mode — 'tel' 위에 전화 단추 · 'notel' 위 카드가 «지도에서 매장 번호를 확인해 예약해 주세요»(번호 없음) · 'none' 대표 예약처를 아직 안 골랐다(위에 전화도 통화 문구도 없다) · 'bare' 윗줄이 이미 «예약은 두 분이»라고 한 단일 경로(상담 때 · 직접 적은 곳)
   /* ★★[DN_RSV_WHY 2026-09-22 사장님 지적 「예약자 성함 시간 안 적어도 어떤 시스템으로 진행되는지」]
      종전엔 칸 두 개와 「예약을 마쳤다면 · 하객 안내에 보여요」 한 마디뿐이었다. 그래서
      ①예약을 누가 하는지(우리가 대신 해주는 줄 아는 분이 생긴다) ②안 적으면 어떻게 되는지
@@ -9871,10 +9915,19 @@ function _dnRsvHtml(d, noTel){   // [DN_TEL_MAP] noTel = 대표 예약처에 전
      ★사실대로 적는다 — guide.html:503 은 rtime·rname 이 비면 **그 줄만 안 그린다.**
        장소·지도·전화는 그대로 나간다. 그러니 「비워 두셔도 괜찮아요」는 근거 있는 안심이다
        (책임질 수 없는 안심 금지 규칙 — 무엇이 어떻게 되는지까지 말한다). */
+  /* ★[DN_RSV_MODE 2026-09-26 · 점검 L2 · L5] 위에 실제로 있는 것만 가리킨다.
+       ①'notel' — 종전 «…해주세요 · 지도에서 매장 번호를 확인하고, 통화 문구를…»는 바로 위 카드의 결정 ⑰ 문장(«지도에서 매장 번호를 확인해 예약해 주세요.»)을
+         한 화면에서 한 번 더 말했다(390 에서 두 줄이 함께 보였다). 지도 안내는 카드에 한 번만 두고 여기선 통화 문구만 가리킨다. 결정 ⑰ 문장 자체는 그대로다.
+       ②'none' — 두 곳 이상 담고 대표를 아직 안 골랐으면 위에 전화 단추도 통화 문구도 없다. «위 전화번호와 통화 문구를»이 없는 것을 가리키고 있었다.
+         고르라는 말은 맨 위 안내가 이미 한다(«예약할 한 곳에서 '여기로 예약할래요'를 눌러 주세요»).
+       ③'bare' — 목록 밖 단일 경로(상담 때 함께 정할게요 · 직접 적은 곳)는 윗줄이 이미 «예약은 두 분이 하시면 돼요» · «직접 정해 예약하시면 돼요»라 첫 문장을 뺀다.
+       ★« · »로 잇던 두 절은 마침표로 나눴다 — 320~345 에서 «해주세요 ·»가 줄 끝에 매달렸다([CHECKS_NO_DANGLE]). */
+  var _rsvLead=(mode==='bare')?''
+      :('<span class="ln-bal">예약은 <b style="color:var(--accent);font-weight:500">두 분이 직접</b> 해주세요.</span>'+(mode==='tel'?'<span class="ln-bal">위 전화번호와 통화 문구를 그대로 쓰시면 돼요.</span>':(mode==='notel'?'<span class="ln-bal">위 통화 문구를 그대로 쓰시면 돼요.</span>':'')));   // [DN_TEL_MAP] 2026-09-26 사장님 결정 ⑰ · 위에 전화번호가 없는데 «위 전화번호와»라고 하던 자리 · [DN_RSV_MODE] 문장마다 한 덩어리([LN_BAL]) — 한 줄에 이으면 «해주세요. 위 / 통화 문구»로 «위»가 떨어졌다
   return '<div class="cc-note" style="text-align:left;margin:14px 0 4px;color:var(--sub);line-height:1.7">'
-      +'예약은 <b style="color:var(--accent);font-weight:500">두 분이 직접</b> 해주세요 · '+(noTel?'지도에서 매장 번호를 확인하고, 통화 문구를 그대로 쓰시면 돼요.':'위 전화번호와 통화 문구를 그대로 쓰시면 돼요.')+'<br>'   // [DN_TEL_MAP] 2026-09-26 사장님 결정 ⑰ · 위에 전화번호가 없는데 «위 전화번호와»라고 하던 자리
-      +'마치고 아래를 적어 두시면 하객 안내에 함께 보여드려요. '
-      +'<span style="color:var(--light)">비워 두셔도 괜찮아요 · 이 줄만 빠지고 장소·지도·전화는 그대로 나가요.</span></div>'
+      +_rsvLead
+      +(mode==='bare'?'예약을 마치고':'마치고')+' 아래를 적어 두시면 하객 안내에 함께 보여드려요. '
+      +'<span style="color:var(--light)">비워&nbsp;두셔도 괜찮아요&nbsp;·&nbsp;이&nbsp;줄만 빠지고 <span style="white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.</span></div>'   // [DN_RSV_MODE] «장소 / ·지도·전화는»(380 · 768 · 1280)처럼 가운뎃점이 줄 머리에 서지 않게 한 덩어리 · 절을 잇는 가운뎃점도 앞뒤에 묶는다(«괜찮아요 · 이 / 줄만»으로 «이»가 떨어지던 것까지 · 1280 «비워 / 두셔도»도)
     +'<div class="gi-row" style="margin-top:4px"><label class="gi-l" for="dn_rtime">식사 예약 시간</label><input class="cc-input" id="dn_rtime" type="text" autocomplete="off" maxlength="40" value="'+escapeHtml(d.reserveTime||'')+'" placeholder="예: 오후 1시 30분"></div>'
     +'<div class="gi-row"><label class="gi-l" for="dn_rname">예약자 이름</label><input class="cc-input" id="dn_rname" type="text" autocomplete="off" maxlength="30" value="'+escapeHtml(d.reserveName||'')+'" placeholder="예: 김신랑"></div>';
 }
@@ -9989,7 +10042,7 @@ function renderDining(box){
     if(!_favN0 && !String(d.venuePick||'').trim()){
       body+='<div style="text-align:center;margin-top:16px"><button type="button" class="cc-btn-ghost" id="dn_skip" style="width:auto;padding:9px 18px;font-size:12px">이번엔 다이닝 없이 마무리할게요</button></div>';
     }
-    box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','그날의 기억은 마지막 자리에서 완성돼요. 식사·카페·아이 동반·뒤풀이·볼거리까지, 꼭 정하지 않으셔도 괜찮아요.',body,false,_nextLbl);
+    box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','그날의 기억은 마지막 자리에서 완성돼요. 식사⁠·⁠카페⁠·⁠아이 동반⁠·⁠뒤풀이⁠·⁠볼거리까지, 꼭 정하지 않으셔도 괜찮아요.',body,false,_nextLbl);   // [DN_DOT_SPLIT 2026-09-26] 나열의 가운뎃점 양옆 U+2060 — 350~400 에서 «식사·카페· / 아이 동반»·«식사·카페 / ·아이 동반»으로 점이 줄 끝·머리에 섰다(기준판 그대로였다)
     // 식당을 골라 '다음'을 누르면, 전화번호·지도가 나오기 직전에 정보 면책 팝업 1회(예약 전 직접 확인 안내 · 2026-06-16 사용자 지시)
     bindTrk(box,renderDining,collect,{
       validate:function(){   // 아무것도 안 고르고 넘어가면 다음 페이지가 비어 막다른 길 → 담기 또는 한 곳 선택 유도
@@ -10037,8 +10090,8 @@ function renderDining(box){
           : '<div class="cc-note" style="margin:10px 0 0">지도에서 매장 번호를 확인해 예약해 주세요.</div>';   // [DN_TEL_MAP] 2026-09-26 사장님 결정 ⑰ · 종전 «전화번호는 확정되는 대로 안내해 드릴게요»는 누가 언제 알려 주는지가 없었다(기본 추천 8곳 중 3곳이 번호 없음) — 바로 아래 지도 단추에 매장 번호가 있다
         var mapLine='<a class="cc-btn-ghost" href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
         var isCafe=(R2&&R2.th==='cafe');   // 카페면 '식사·룸' 대신 '차·디저트' 멘트(2026-06-16)
-        var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?arr2+' 도착, ':'')+headTxt   // [DN_HEAD_FROM_SEAT]
-          + (isCafe ? '단체로 차·디저트 자리를 예약하고 싶어요. 단체석·주차 가능할까요?' : '단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차 가능할까요?');
+        var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?_dnSayClock(arr2).replace(/ /g,'&nbsp;')+' 도착, ':'')+headTxt   // [DN_HEAD_FROM_SEAT] · [DN_CLOCK_SAY] 소리 내어 읽는 문장 — «오후 3시 도착»(시각은 «오후 / 3시»로 안 갈리게 한 덩어리)
+          + (isCafe ? '단체로 차⁠·⁠디저트 자리를 예약하고 싶어요. 단체석⁠·⁠주차 가능할까요?' : '단체 식사 예약하고 싶어요. 룸(또는 단체석)⁠·⁠주차 가능할까요?');   // [DN_DOT_SPLIT] 가운뎃점 양옆 U+2060 — 시각이 말하는 꼴로 길어지며 «단체석)· / 주차»가 360 에서 줄 끝에 매달렸다(기준판은 375~430 · 768~1280)
         return callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
@@ -10074,14 +10127,14 @@ function renderDining(box){
               +'<div class="a"><a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도 · 길찾기</a></div>'+_showBtn(v)+'</div>'; }).join('')
           +'<div class="dn-fine" style="margin-top:4px">‘하객분들께도 보여주기’를 켠 곳만 하객 안내에 떠요. 운영시간·입장은 방문 전 확인해 주세요.</div></div>'):'';
         var repNote= restos.length ? (rep
-          ? '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래 <b>'+escapeHtml(rep)+'</b>로 예약만 마치면 준비가 끝나요. 다른 곳으로 바꾸려면 그 카드의 \'여기로 예약할래요\'를 누르세요.</div>'
+          ? '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래 <b>'+escapeHtml(rep)+'</b>'+_dnRo(rep)+' 예약만 마치면 준비가 끝나요. 다른 곳으로 바꾸려면 그 카드의 \'여기로 예약할래요\'를 누르세요.</div>'
           : '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">두 분이 함께 보고, <b>예약할 한 곳</b>에서 \'여기로 예약할래요\'를 눌러 주세요. 나머지는 후보로 남겨 둬도 괜찮아요.</div>')
           : '<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">담아 두신 가볼 곳이에요. 예식 후 동선 참고용으로 지도에서 확인해 보세요.</div>';   // 식당 없이 가볼 곳만 담은 경우
         var body2=repNote+favHtml+spotHtml
           +'<button type="button" class="cc-btn-ghost dn-favshare" id="dn_favShare" style="margin-top:4px">카카오톡·문자로 목록 보내기</button>'
           +'<div class="dn-fine" style="margin-top:8px">✕로 목록에서 뺄 수 있어요.'+(restos.length?' 예약 전 식당에 전화로 한 번 확인해 주세요.':'')+'</div>'
           +((restos.length>1||spots.length)?'<div class="dn-fine" style="margin-top:4px">대표 예약처는 늘 하객분들께 공개돼요. 추가로 <b>‘하객분들께도 보여주기’</b>를 켠 식당·카페·가볼 곳만 함께 안내돼요(2차 등).</div>':'')
-          +(restos.length?_dnRsvHtml(d, !!rep && !_dnTelOf(rep, (restos.filter(function(v){ return v.n===rep; })[0]||{}).tel)):'');   // [DN_TEL_MAP]
+          +(restos.length?_dnRsvHtml(d, !rep?'none':(_dnTelOf(rep, (restos.filter(function(v){ return v.n===rep; })[0]||{}).tel)?'tel':'notel')):'');   // [DN_TEL_MAP] [DN_RSV_MODE]
         box.innerHTML=trkShell(2,'담은 곳 · '+favs.length+'곳 모아보기',null,body2,true,'저장하고 닫기');
         bindTrk(box,renderDining,collect,{ last:true });
         _dnRsvWire(d);
@@ -10092,14 +10145,14 @@ function renderDining(box){
           var isCafe=(R.th==='cafe');
           body2b='<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래로 예약만 마치면, 그날의 마지막 순간까지 준비가 끝나요.</div>'   // [심리] 선택 확언+첫 식탁 프레임+완결감 · 2026-07-10
             +'<div class="inv-side-l" style="margin:2px 0 4px">'+(isCafe?'방문 장소':'식사 장소')+'</div>'
-            + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?' · '+(isCafe?'도착':'식사 도착')+' '+arr2+' 기준':'')+'</div>'
+            + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?'&nbsp;·&nbsp;'+(isCafe?'도착':'식사&nbsp;도착')+' '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'&nbsp;기준':'')+'</div>'   // [DN_CLOCK_SAY] 시각이 길어져 320 에서 «향동점 · 식사 / 도착 …»으로 갈렸다 — «이름 · 식사 도착» · «오전 11시 50분 기준» 두 덩어리로만 꺾이게
             + _bookBlock(R.n,R.tel,'');
         } else {
           body2b='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
             + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
             + '<div class="cc-note">'+(d.venuePick==='상담 때 함께 정할게요'?'상담 때 디렉터와 함께 고르고, 예약은 두 분이 하시면 돼요.':'원하시는 곳을 직접 정해 예약하시면 돼요.')+'</div>';
         }
-        box.innerHTML=trkShell(2,'예약 안내',null,body2b+((d.dining_on!=='N')?_dnRsvHtml(d, !!R && !_dnTelOf(R.n, R.tel)):''),true,'저장하고 닫기');   // [DN_TEL_MAP]
+        box.innerHTML=trkShell(2,'예약 안내',null,body2b+((d.dining_on!=='N')?_dnRsvHtml(d, !R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel')):''),true,'저장하고 닫기');   // [DN_TEL_MAP] [DN_RSV_MODE]
         bindTrk(box,renderDining,collect,{ last:true });
         _dnRsvWire(d);
       }
