@@ -11320,7 +11320,18 @@ chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선
 chk "var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};" order-preview.html 1   # 잔 드는 큐 (107 · 40 · 76)
 chk '두 분이 서로 반지를 끼워요 · 말 없이' order-preview.html 1
 chk '하객 박수 · 두 분이 부부가 돼요' order-preview.html 1
-chk '두 와인을 한 잔에 부어요' order-preview.html 1
+chk '양가 와인을 한 잔에 모아요' order-preview.html 1   # [POUR_BY_PICK 코워크 회신7] 붓기 줄은 고른 판의 말로
+chk '두 분이 고른 와인을 한 잔에 부어요' order-preview.html 1
+chk 'UNDO_CLOSE_ON_TGL' order-preview.html 1   # [코워크 회신7 #868-1] 담기 · 빼기면 되돌리기 알림도 닫힘
+chk 'UNDO_ABOVE_BAR' order-preview.html 3
+chk 'SLIM_OPAQUE' order-preview.html 1
+chk 'TILE_NO_GLOW' order-preview.html 1
+chk 'PICK_INTRO_BACK' order-preview.html 1
+chk 'ENTRY_LAB_QUOTE' order-preview.html 1
+chk 'TILE_FREE_COMMA' assets/ritual-open.js 1
+nochk '고른 순간에만 나서요' order-preview.html 1   # 옛 코스 갈래 한 줄만 남는다(새 코스는 «담은 순간에만»)
+chk '담은 순간에만 나서요' order-preview.html 1
+chk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.' assets/ritual-open.js 1
 chk '두 분이 하객께 목례 · 박수' order-preview.html 1
 chk '<em>→ ③에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번
 chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»

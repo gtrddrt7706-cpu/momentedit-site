@@ -43,6 +43,12 @@ const go = async (pg, k) => { await pg.evaluate((k) => { idx = STEPS.findIndex((
 for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(w);
   try {
+  // [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 예시 → 6초 안에 ＋ → 되돌리기 알림이 닫힌다(남으면 눌러도 아무 일 없는 단추)
+  await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(300);
+  const u0 = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return !!u && !u.hidden; });
+  await pg.click('[data-fk="opt:letter"]'); await pg.waitForTimeout(300);
+  const u1 = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return { shown: !!u && !u.hidden, letter: !!(S.on && S.on.letter) }; });
+  ok(`${w} ① 예시 → ＋ 담기 → 되돌리기 알림이 닫힌다 · 담은 것은 그대로 [UNDO_CLOSE_ON_TGL]`, u0 && !u1.shown && u1.letter, JSON.stringify({ u0, u1 }));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(500);
   await go(pg, 'listen');
   // G4 입장 줄
@@ -68,14 +74,15 @@ for (const w of [390, 1280]) {
       const k = ex.k + '/' + t + '/' + wn;
       if (t === 'cake') { if (i >= 0) bad.push(k + ' 케이크만인데 위하여'); }
       else { if (i < 0) bad.push(k + ' 위하여 줄 없음'); else if (glass < 0 || i !== glass + 1) bad.push(k + ' 위하여가 잔 드는 큐 바로 뒤가 아님(' + i + '/' + glass + ')'); if (pour >= 0 && i < pour) bad.push(k + ' 붓기 앞'); if (cut >= 0 && i < cut) bad.push(k + ' 커팅 앞'); }
-      const pq = q.filter((x) => /두 와인을 한 잔에 부어요/.test(x.txt)).length;
-      if ((t !== 'cake' && wn !== 'none') !== (pq === 1)) bad.push(k + ' 붓기 옅은 줄 ' + pq);
+      const want = wn === 'family' ? '양가 와인을 한 잔에 모아요' : '두 분이 고른 와인을 한 잔에 부어요';   // [POUR_BY_PICK] 판 이름과 같은 말
+      const pq = q.filter((x) => /한 잔에 (부어요|모아요)/.test(x.txt)), pOk = pq.length === 1 && pq[0].txt === want;
+      if ((t !== 'cake' && wn !== 'none') ? !pOk : pq.length !== 0) bad.push(k + ' 붓기 옅은 줄 ' + pq.map((x) => x.txt).join('/'));
       seen[k] = 1;
     }); }); });
     Object.assign(S, keep); render();
     return { bad, n: Object.keys(seen).length };
   });
-  ok(`${w} G5 «위하여» 줄은 잔 드는 큐 바로 뒤 · 케이크만이면 없음 · 붓는 판에만 «두 와인을 한 잔에 부어요» (${g5.n}조합) [TOAST_TALK_GLASS]`, g5.n === 36 && g5.bad.length === 0, g5.bad.slice(0, 4).join(' | '));
+  ok(`${w} G5 «위하여» 줄은 잔 드는 큐 바로 뒤 · 케이크만이면 없음 · 붓는 판에만 붓기 줄 · 판마다 제 말 [POUR_BY_PICK] (${g5.n}조합) [TOAST_TALK_GLASS]`, g5.n === 36 && g5.bad.length === 0, g5.bad.slice(0, 4).join(' | '));
   const g5b = await pg.evaluate(() => {
     const R = RitualOpen, keep = JSON.parse(JSON.stringify(S)), out = {};
     R.applyExample(S, 'family'); S.on.ring = 1; S.on.declare = 1; S.on.candle = 1;
@@ -97,7 +104,7 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => { LS.open = 'toast'; render(); }); await pg.waitForTimeout(300);
   const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.ls-row.open .ls-flow li')];
     return { txt: li.map((l) => (l.className ? '[' + l.className + ']' : '') + l.textContent), quietColor: (() => { const q = document.querySelector('.ls-row.open .ls-flow li.quiet'); return q ? getComputedStyle(q).color : ''; })() }; });
-  const wi = g5c.txt.findIndex((t) => /위하여/.test(t)), pi = g5c.txt.findIndex((t) => /두 와인을 한 잔에 부어요/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
+  const wi = g5c.txt.findIndex((t) => /위하여/.test(t)), pi = g5c.txt.findIndex((t) => /양가 와인을 한 잔에 모아요/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
   ok(`${w} G5 화면 — 붓기(옅게) → 잔 드는 큐 → «위하여» 순서 · 옅은 줄 색 = --light`, pi >= 0 && gi > pi && wi === gi + 1 && /\[quiet\]/.test(g5c.txt[pi]) && g5c.quietColor === 'rgb(110, 105, 89)', JSON.stringify(g5c));
   ok(`${w} G5 옅은 줄은 재생 목록 · 들을 길이에 안 든다`, await pg.evaluate(() => { const st = _lSteps(ENG, ['toast']), q = st.filter((x) => x.quiet); return q.length === 1 && _lLen(q) === 0; }));
   // H1 · H2 · H3 ③
