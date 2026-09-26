@@ -107,7 +107,7 @@ for (const w of [390, 1280]) {
     const sec = [...st.querySelectorAll('.wr-sec')].find((x) => /^보낼 것/.test((x.querySelector('.wr-sub') || {}).textContent || ''));
     const kids = sec ? [...sec.children].map((c) => c.className + '|' + c.textContent.slice(0, 18)) : [];
     const iHow = kids.findIndex((t) => /^send-how/.test(t)), iLink = kids.findIndex((t) => /^tin/.test(t)), iDrink = kids.findIndex((t) => /축배 음료/.test(t));
-    return { wn, ta: !!ta, iHow, iLink, iDrink, kids: kids.length, help: /가족사진 때 친척분들을 불러 모아 주실 분 · 양가 한 분씩 · 마이페이지 «가족 · 친구 스냅»에 적어 두면 디렉터가 먼저 말씀드려요/.test(st.textContent), oldName: /인사말/.test(wn.join('')) };
+    return { wn, ta: !!ta, iHow, iLink, iDrink, kids: kids.length, help: /가족사진 때 친척분들을 불러 모아 주실 분 · 양가 한 분씩 · 마이페이지 «가족\s·\s친구\s스냅»에 적어 두면 디렉터가 먼저 말씀드려요/.test(st.textContent), oldName: /인사말/.test(wn.join('')) };
   });
   ok(`${w} H1 ③ 칸 이름 · aria-label = «첫인사» [H1_FIRST_HELLO]`, h.wn.includes('첫인사') && h.ta && !h.oldName, JSON.stringify(h.wn));
   ok(`${w} H2 ③ 보낼 것 — 링크 칸 → 보내는 길 상자가 붙어 있고 축배 음료 줄은 그 뒤 [H2_SEND_LUMP]`, h.iLink >= 0 && h.iHow > h.iLink && h.iDrink > h.iHow, JSON.stringify(h));

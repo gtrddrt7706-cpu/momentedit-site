@@ -7803,9 +7803,12 @@ function prodConfirmHtml(p, inv){
   if(_rDone && rd._v===3 && rd.summary && rd.summary.open){
     /* [OPEN_COURSE 2026-09-25 설계 명세 1 · 8장] 새 코스는 코스 이름이 없다 — «순간 n개 · 본식 약 a~b분»
        예시에서 시작했으면 한 줄 더(«‹가족› 예시에서 시작»). 옛 코스 요약(아래 else)은 한 글자도 안 바뀐다. */
-    rv='담은 순간 '+escapeHtml(String(rd.summary.moments||0))+' · 본식 '+escapeHtml(String(rd.summary.min||''))+(rd.summary.photo?' · 단체 사진 '+escapeHtml(String(rd.summary.photo)):'');   // ★[I1_HEAD 2026-09-26 코워크 최종판 5-3] 빌더 ④ 머리와 같은 말 · 옛 초안(photo 없음)은 두 칸
-    if(rd.summary.from) rv+='<br><span class="cc-mini">‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작</span>';
-    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('첫인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); if(_wo.length) rv+=' · '+_wo.join('·')+' 작성됨'; } }
+    rv='담은 순간 '+escapeHtml(String(rd.summary.moments||0))+' · 본식 '+escapeHtml(String(rd.summary.min||''))+(rd.summary.photo?'\u00a0· 단체\u00a0사진 '+escapeHtml(String(rd.summary.photo)):'');   // ★[I1_HEAD 2026-09-26 코워크 최종판 5-3] 빌더 ④ 머리와 같은 말 · 옛 초안(photo 없음)은 두 칸 · «·»는 앞 시간에 붙인다(390 에서 둘째 줄이 «· 단체 사진»으로 시작했다)
+    /* [CF_MINI_ONE 2026-09-26 직접 보며 점검] 둘째 줄(작은 글)은 «‹가족› 예시에서 시작 · 서약문·첫인사 작성됨»을 한 덩어리로 — «작성됨»이 작은 글 밖에 붙어
+       큰 글로 이어지다 «서약문· / 첫인사»로 갈렸다(390). 옛 코스 요약(아래 else)은 그대로. */
+    var _mi=[]; if(rd.summary.from) _mi.push('‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작');
+    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('첫인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); if(_wo.length) _mi.push(_wo.join('\u2060·\u2060')+'\u00a0작성됨'); }   // 한 덩어리로(«서약문· / 첫인사»로도 «작성됨» 홀로도 안 갈리게) — 줄은 « · »에서 갈린다
+    if(_mi.length) rv+='<br><span class="cc-mini">'+_mi.join(' · ')+'</span>'; }
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
     if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
   else if(_rDone){ rv='완료'; }
@@ -8031,7 +8034,7 @@ function wireProdConfirm(box, p){
     var snap=[]; (box.querySelectorAll('#cf_wrap .cf-l')||[]).forEach(function(el){
       var k=(el.querySelector('.cf-k')||{}).textContent||'', vEl=el.querySelector('.cf-v'), v='';
       if(vEl){ var cl=vEl.cloneNode(true); Array.prototype.forEach.call(cl.querySelectorAll('a'),function(a){ if(a.parentNode) a.parentNode.removeChild(a); }); v=cl.textContent||''; }
-      snap.push({k:String(k).trim(), v:String(v).replace(/\s+/g,' ').trim()});
+      snap.push({k:String(k).trim(), v:String(v).replace(/\u2060/g,'').replace(/\s+/g,' ').trim()});   // [CF_MINI_ONE] 화면 줄바꿈용 보이지 않는 이음표(U+2060)는 기록에 남기지 않는다 · NBSP 는 \s 가 공백으로
     });
     if(!snap.length) return;
     /* ★★[CF_ASK 2026-08-16 사용자 지시 "날짜랑 … 내가 이때 이것으로 확정했다라는 책임의 부분이 느껴지게"]

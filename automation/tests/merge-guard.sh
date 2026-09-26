@@ -11300,6 +11300,7 @@ chk '<div class="wn">첫인사</div>' order-preview.html 1
 chk 'aria-label="첫인사"' order-preview.html 1
 chk '첫인사(두 분 작성):' order-preview.html 2
 nochk '인사말(두 분 작성)' order-preview.html
+nochk '인사말 예시 보기' order-preview.html   # [H1] 칸 안 예시 단추도 «첫인사 예시 보기»(390 실렌더에서 찾음)
 nochk "welcome:'하객 맞이 인사말'" order-preview.html
 chk "_wo.push('첫인사')" mypage.html 1   # [H1] 마이페이지 식순 요약(새 코스 갈래) · 옛 코스 요약은 그대로
 chk 'H2_SEND_LUMP' order-preview.html 1   # [H2] 식전 영상 한 덩어리 · 축배 음료 줄은 그 뒤
@@ -11311,4 +11312,5 @@ nochk "return '고른 순간 '" order-preview.html   # [I1] ④ 머리는 «담�
 chk 'I2_DONE_FLOW' order-preview.html 3
 chk 'data-fg="done"' order-preview.html 2
 chk 'I3_EDIT_WINDOW' order-preview.html 3
-chk '순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.' order-preview.html 2   # [I3] ④ 머리 아래 · 그림 없을 때 갈래
+chk "var EDIT_WINDOW='순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.';" order-preview.html 1   # [I3] ④ 머리 아래 · 쉼표에서 갈리게 두 덩어리(_doneEdit)
+chk '_doneEdit()' order-preview.html 2   # 그림 있을 때 · 없을 때
