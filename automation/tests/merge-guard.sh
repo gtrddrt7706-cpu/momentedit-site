@@ -12453,6 +12453,12 @@ nochk "27_tribute-reply'\]" assets/ritual-story.js
 nochk '그다음 신랑 어머님께 마이크를 건네 드려요' assets/ritual-story.js
 chk 'STEPMOM_RETIRE' scripts/sent-lib.mjs 1
 chk 'STEPMOM_RETIRE' scripts/audit/sent-lib-check.mjs 1
+# [TOAST_TEXT_2 · VOW_CHORUS_TEXT_2 2026-09-26 코워크 회신 8 덧 6] 사장님이 녹음하며 고친 축배 한 줄 · 서약 합창 = 배역 대본 · 녹음
+chk "두 분이 잔을 들어 위하여, 하시면 다 함께 위하여, 하고 답해 주세요." assets/ritual-data.js 2
+chk "두 분이 잔을 들어 위하여, 하시면 다 함께 위하여, 하고 답해 주세요." assets/ritual-open.js 1
+nochk "두 분이 위하여, 하시면" assets/ritual-data.js
+chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응원해 주세요.".;' assets/ritual-data.js 1
+chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응원해 주세요.".;' order-preview.html 1
 chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk '사흘씩 두지 말고 서준이한테 먼저 말해라\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk '엄마는 그거면 된다\.$' docs/plans/식순연구/배역_예시_대사.txt 1
