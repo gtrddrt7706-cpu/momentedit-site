@@ -1110,6 +1110,24 @@
    "fn": "_snapV2Norm",
    "mark": "SNAP_ZONE_NOTE",
    "why": "스냅 기획 공간별 «사진작가에게 전할 말»(zones[k].note) — 이 파일이 옛것이면 부부 화면에 칸이 안 열리고(snapZoneNoteOk 없음) 브리프·관리자에도 안 보인다"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltSendToRecipients",
+   "mark": "LETTER_ONE_ADDR",
+   "why": "«두 분께» 하객 편지가 같은 주소(가입 이메일)로 두 통 가던 것을 한 통으로 — 이 파일이 옛것이면 두 분 받은편지함에 같은 편지가 두 번 떨어진다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "actAccept",
+   "mark": "ACCEPT_DEP_ALERT",
+   "why": "변경 제안 수락으로 상담이 확정됐는데 예약금 입금확인 칸이 비면 관리자 메일 한 통 — 이 파일이 옛것이면 알림 없이 두 분 상담 카드에 «입금 확인 전»이 남는다"
+  },
+  {
+   "file": "admin",
+   "fn": "_setContactCore",
+   "mark": "CONTACT_SHADOW_EMAIL",
+   "why": "관리자 이메일 정정이 계약서 사본(계약정보.groomEmail)도 함께 고친다 — 이 파일이 옛것이면 계약서 신랑 이메일 칸과 «입력 정보 수정» 폼에 옛 이메일이 남는다"
   }
  ],
  "fns": {
