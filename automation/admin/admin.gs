@@ -180,7 +180,8 @@ function adminCall(token, fn, args) {
       adminForceStage: adminForceStage, adminCloseFitting: adminCloseFitting, adminMarkNoshow: adminMarkNoshow, adminMarkUncontracted: adminMarkUncontracted,
       adminUndoConfirmPayment: adminUndoConfirmPayment, adminUndoConfirmPreview: adminUndoConfirmPreview,   // [ADM_AC1]
       adminUndoRefunded: adminUndoRefunded,   // [ADM_AC2]
-      adminSnapConfirm: adminSnapConfirm, adminSnapBrief: adminSnapBrief, adminSnapThumbs: adminSnapThumbs,   // [SNAP_PICK_V2] 스냅 기획 확인·회신 · 촬영 브리프 주소 · 올린 그림(80_production)
+      adminSnapConfirm: adminSnapConfirm, adminSnapBrief: adminSnapBrief, adminSnapThumbs: adminSnapThumbs, adminSnapWithdraw: adminSnapWithdraw,   // [SNAP_CONSENT] 잠긴 뒤 부탁받은 «스냅 기획 지우기»
+        // [SNAP_PICK_V2] 스냅 기획 확인·회신 · 촬영 브리프 주소 · 올린 그림(80_production)
       adminForceStagePreview: adminForceStagePreview,   // [ADM_AC3]
       adminNotifyText: adminNotifyText,   // [ADM_AC5]
       /* ★★[CONTACT_FIX] 여기 등록을 빠뜨리면 화면·서버를 다 만들어도 기능이 통째로 죽는다 —
