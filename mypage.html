@@ -551,19 +551,22 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-steps li{position:relative}
 .snp-step{width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--border);background:#fff;font-family:var(--serif);font-size:14px;color:var(--label-soft);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .snp-step.done{color:var(--gold-deep);border-color:var(--gold-deep)}
-.snp-step.on{background:var(--seal);border-color:var(--seal);color:#fff;font-weight:600}
-.snp-steplabel{margin:8px 0 0;font-size:12px;color:var(--label-soft);text-align:center;letter-spacing:.04em}
+/* ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게 색상 사용»] 진사는 «고른 순서 번호»(.snp-no) 한 점만.
+   지금 걸음 = 아래 버튼과 같은 먹갈색(--accent) · 두 분이 고르는 칸 · 고른 장면 = 마이페이지 선택 칩과 같은 금빛(--gold · --gold-bg · --gold-deep).
+   경고(동의 체크 알림)와 완료 ✓ 는 마이페이지 전역 규칙대로 진사 — 이것도 «점»이다. 넓은 면·테두리에 진사를 되돌리지 말 것(snap-plan 이 잰다). */
+.snp-step.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .snp-h{margin:20px 0 10px;font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);line-height:1.5;letter-spacing:-.02em;word-break:keep-all}
 .snp-h:focus{outline:none}
 .snp-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 5px;margin:0 0 14px}
 .snp-fl{font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.4;padding:5px 8px;border:1px solid var(--hairline,#E6E1D8);border-radius:999px;background:#fff}
-.snp-fl.on{color:#fff;background:var(--seal);border-color:var(--seal);font-weight:500}
+.snp-fl.on{color:var(--accent);background:var(--gold-bg,#FAF6EF);border-color:var(--gold);font-weight:600}
 .snp-arw{color:var(--gold-deep);position:relative;top:-1px}
 .snp-flg{display:inline-flex;align-items:center;gap:5px}   /* [SNAP_FLOW_WRAP] 칸 여백 8 · 사이 5 — PC 한 줄(폭 578 에 553) · 360~430 셋·셋 · 320 둘·둘·둘. «본식»만 떨어지던 자리(1280 에서 4px · 360 에서 10px 모자랐다) */
 .snp-points{margin:0;padding:0 0 0 18px;font-size:13px;color:var(--sub);line-height:1.7}
 .snp-points li{margin:0 0 6px;word-break:keep-all}
 .snp-points b,.snp-due b{font-weight:600;color:var(--accent)}
-.snp-due{margin:14px 0 0;padding:12px 14px;background:var(--bg2);border-radius:8px;font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.snp-due{margin:16px 0 0;padding:12px 0 0;border-top:1px solid var(--hairline,#E6E1D8);font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all}   /* [SNAP_DESIGN_0926] 칠한 상자 → 가는 선 위 한 줄 */
+.snp-due-k{display:inline-block;margin:0 8px 0 0;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--gold-deep)}
 .snp-zone{margin:0}
 .snp-zone img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:var(--bg2)}
 .snp-zone figcaption{margin:8px 2px 0;font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);letter-spacing:.02em}
@@ -581,13 +584,14 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-cell{position:relative;min-width:0}
 .snp-tile{position:relative;display:flex;flex-direction:column;width:100%;height:100%;margin:0;padding:0 0 10px;text-align:left;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden;font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
 button.snp-tile{cursor:pointer}
+@media (hover:hover){ button.snp-tile:not(.on):not(.full):hover{border-color:var(--gold)} }   /* [SNAP_DESIGN_0926] web-design-guidelines — 고를 수 있는 칸은 마우스를 올리면 금빛 테두리(선택은 더 짙은 --gold-deep) */
 .snp-tile picture,.snp-tile .snp-ph{display:block;width:100%;aspect-ratio:4/5;background:var(--bg2)}
 .snp-tile img{display:block;width:100%;height:100%;object-fit:cover}
 .snp-tile .snp-ph{display:flex;align-items:center;justify-content:center;font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);letter-spacing:.04em}
 .snp-nm{display:block;padding:8px 10px 0;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.4;word-break:keep-all}
 .snp-need{display:block;padding:2px 10px 0;font-size:11px;color:var(--gold-deep);letter-spacing:.02em}
-.snp-tile.on{border-color:var(--seal);box-shadow:0 0 0 1px var(--seal)}
-.snp-tile.on .snp-nm{color:var(--seal);font-weight:500}
+.snp-tile.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep)}
+.snp-tile.on .snp-nm{color:var(--accent);font-weight:600}
 .snp-no{position:absolute;top:8px;left:8px;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--seal);color:#fff;font-family:var(--serif);font-size:13px;font-weight:600;line-height:24px;text-align:center}
 .snp-zoom{position:absolute;top:0;right:0;z-index:2;min-width:44px;min-height:44px;padding:6px;border:none;background:none;display:flex;align-items:flex-start;justify-content:flex-end;cursor:pointer}
 .snp-zoom span{font-size:11px;line-height:1.5;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--sub)}
@@ -2499,7 +2503,7 @@ function setToken(t){ try{ localStorage.setItem(TOKEN_KEY,t); }catch(e){} }
 function clearToken(){ try{
   localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(STATE_CACHE_KEY);
   var _kill=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
-    if(k && /^me_(order|deliv_|prod_ping|order_v2note_)/.test(k)) _kill.push(k); }
+    if(k && /^me_(order|deliv_|prod_ping|order_v2note_|snapLocal_)/.test(k)) _kill.push(k); }   // [SNAP_AGREE_LAST] 동의 전 스냅 임시본(고른 장면 · 글)도 — 다음 사람 화면에 앞사람 메모가 비치지 않게
   _kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
 }catch(e){} }
 // 마지막 getMyState 스냅샷 캐시 — 재방문 시 즉시 표시(stale-while-revalidate). 토큰에 묶고, 로그아웃/만료 시 자동 폐기.
@@ -6292,9 +6296,10 @@ var WIZ_ADAPT={
         own:function(){ return PHOTOFLOW; } },
   snap:{ on:function(){ return typeof SNAPFLOW!=='undefined' && SNAPFLOW.active; },
         data:function(){ _snapCollect(); return SNAPFLOW.d; },
-        save:function(){ return saveSnap(); },
+        /* [SNAP_AGREE_LAST] 동의 전 «저장» — 체크가 없으면 마지막 걸음의 체크 줄로 데려간다(아무것도 보내지 않는다) · 있으면 사진부터 보내고 저장 */
+        save:function(){ if(!SNAPFLOW.needAgree) return saveSnap(); if(!_snapAgreeGate()) return; return _snapCommit().then(function(r){ if(r&&r.ok&&SNAPFLOW.active) renderSnapFlow(); return r; }); },
         exitSave:function(){ exitSnapFlow(); },
-        exitBare:function(){ _snapTearDown(); _mpRefresh(); },
+        exitBare:function(){ _snapLocalDel(); _snapTearDown(); _mpRefresh(); },   // «그냥 나가기» — 저장하지 않은 것은 남지 않는다(이 기기의 임시본도)
         own:function(){ return SNAPFLOW; } }
 };
 var WIZ_ORDER=['inv','trk','seat','photo','snap'];
@@ -8200,7 +8205,7 @@ function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 �
    ②공간마다 기본 4장면(고를 수 없음 · 보여 주기만) + 부부가 최대 4장 고른다. 고른 순서 = 우선순위(늦게 도착하면 앞 번호부터).
    ③레퍼런스는 스튜디오가 모델과 찍은 사진(우리 스타일) — 목록은 assets/snap-refs.js 하나. 사진이 오기 전엔 장면 이름 타일.
    ④«찾던 그림이 없나요?» — 공간마다 사진 3장 + 링크 3개.
-   ⑤묻는 칸은 «사진작가가 알면 좋은 것» 하나뿐.
+   ⑤묻는 칸은 «사진작가가 알면 좋은 것» 하나 + 공간별 «사진작가에게 전할 말»([SNAP_ZONE_NOTE] 2026-09-26 사장님 · 선택).
    ★★되살리지 말 것 — 2026-09-26 사장님 지시로 삭제(«별로 필요 없고 영양가 없는 질문지들은 과감하게 지우고 싶어»):
      꼭 담고 싶은 컷 칩·직접 추가 · 촬영 톤 · 분위기 한 줄 · 레퍼런스 링크 묶음 · 리드 강도 · 소품/자유 메모(한 칸으로 합침).
      옛 저장분(people · mustPeople · aboutNote · mustHaves · toneStyle · comfort · refs · moodNote · propsNote · directorNote)은
@@ -8219,13 +8224,17 @@ var SNAPFLOW = { active:false, d:null, step:0 };
 var SNAP_STEPS=[{k:'when',t:'이날의 스냅'},{k:'candle',t:'캔들존'},{k:'white',t:'화이트존'},{k:'note',t:'알면 좋은 것'},{k:'send',t:'사진작가에게 전해요'}];
 var SNAP_THUMBS={};   // 올린 사진 id → 작은 그림(dataURL) · 이 탭 안에서만 · 서버 snapThumbs 가 채운다
 function _snapZoneNew(z){ z=z||{}; var A=function(v){ return Object.prototype.toString.call(v)==='[object Array]'?v:[]; };
-  return { picks:A(z.picks).map(String).slice(0,4), ups:A(z.ups).filter(function(u){ return u&&u.id; }).map(function(u){ return {id:String(u.id), th:String(u.th||''), n:String(u.n||'')}; }).slice(0,3), links:A(z.links).map(String).slice(0,3) }; }
+  return { picks:A(z.picks).map(String).slice(0,4), ups:A(z.ups).filter(function(u){ return u&&u.id; }).map(function(u){ return {id:String(u.id), th:String(u.th||''), n:String(u.n||'')}; }).slice(0,3), links:A(z.links).map(String).slice(0,3), note:String(z.note||'') }; }   // [SNAP_ZONE_NOTE] 공간별 «사진작가에게 전할 말»
 function _snapNewD(sd){ sd=sd||{}; var zs=sd.zones||{};
   return { v:2, zones:{ candle:_snapZoneNew(zs.candle), white:_snapZoneNew(zs.white) }, note:String(sd.note||'') }; }
-function _snapOut(D){ D=D||_snapNewD(); return JSON.parse(JSON.stringify({ v:2, zones:D.zones, note:String(D.note||'') })); }
+/* 서버로 보내는 모양 — [SNAP_AGREE_LAST] 동의 전에 올려 둔 사진(아직 id 가 없다 · 이 기기에만 있다)은 싣지 않는다 */
+function _snapOut(D){ D=D||_snapNewD(); var zs={};
+  ['candle','white'].forEach(function(k){ var z=(D.zones||{})[k]||{};
+    zs[k]={ picks:(z.picks||[]).slice(), ups:(z.ups||[]).filter(function(u){ return u&&u.id; }).map(function(u){ return {id:String(u.id), th:String(u.th||''), n:String(u.n||'')}; }), links:(z.links||[]).slice(), note:String(z.note||'') }; });
+  return { v:2, zones:zs, note:String(D.note||'') }; }
 function _snapFilledD(D){ D=D||{};
   var zs=D.zones||{}, k, z, any=String(D.note||'').trim()!=='';
-  for(k in zs){ if(!Object.prototype.hasOwnProperty.call(zs,k)) continue; z=zs[k]||{}; if(((z.picks||[]).length)||((z.ups||[]).length)||((z.links||[]).length)) any=true; }
+  for(k in zs){ if(!Object.prototype.hasOwnProperty.call(zs,k)) continue; z=zs[k]||{}; if(((z.picks||[]).length)||((z.ups||[]).length)||((z.links||[]).length)||String(z.note||'').trim()) any=true; }
   if(any) return true;
   // 옛 저장분(v1)도 «남긴 것»으로 친다 — 트랙 ✓ 가 옛 고객에게서 갑자기 사라지지 않게
   return !!(((D.people||[]).length)||String(D.mustPeople||'').trim()||String(D.aboutNote||'').trim()||D.comfort||((D.mustHaves||[]).length)||String(D.propsNote||'').trim()||D.toneStyle||((D.refs||[]).length)||String(D.moodNote||'').trim()||String(D.directorNote||'').trim()||((D.moodCandle||[]).length)||((D.moodWhite||[]).length));
@@ -8237,9 +8246,15 @@ function _snapDue(p){
   var wu=Date.UTC(+m[1], +m[2]-1, +m[3]), days=Math.round((wu-_snapKstToday())/864e5), du=new Date(wu-14*864e5);
   return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), late:days<=14, lock:days<=3 };
 }
-function startSnapFlow(sd, p, agreeNew){
+function startSnapFlow(sd, p, needAgree){
   bkKill(INVFLOW); INVFLOW.active=false; if(typeof TRKFLOW!=='undefined'){ bkKill(TRKFLOW); TRKFLOW.active=false; } bkKill(SEATFLOW); SEATFLOW.active=false; bkKill(PHOTOFLOW); PHOTOFLOW.active=false;
-  SNAPFLOW={ active:true, d:_snapNewD(sd), step:0, p:p||null, agreeNew:!!agreeNew };   // [SNAP_CONSENT] agreeNew = 카드에서 막 동의함(서버 기록 전) — 첫 저장 · 첫 올리기에 싣고, 기록되면 내린다
+  /* ★★[SNAP_AGREE_LAST 2026-09-26 사장님] 동의는 마지막 걸음에서 — «스냅기획하기 다 만들고 마지막에 동의 받자 · 나와 있으니깐 지저분하다».
+     needAgree = 서버에 동의 기록이 없다. 그동안은 서버에 **아무것도 보내지 않는다**(걸음 저장 · 사진 올리기 둘 다) —
+     고른 것은 이 기기에만 잠시 두고(_snapLocal*), 마지막 걸음에서 체크하고 저장할 때 사진부터 한꺼번에 보낸다(_snapCommit).
+     동의 전에 모으지 않는다는 원칙([SNAP_CONSENT])은 그대로다 — 서버는 여전히 동의 없는 새 기획 · 사진을 거절한다. */
+  var loc=_snapLocalGet();
+  if(loc && _snapFilledD(_snapNewD(sd))){ _snapLocalDel(); loc=null; }   // 서버에 이미 저장된 기획이 있으면 이 기기의 옛 임시본은 버린다(서버가 더 새것)
+  SNAPFLOW={ active:true, d:_snapNewD(loc||sd), step:0, p:p||null, needAgree:!!needAgree };
   // 식순 빌더처럼 전체 화면 오버레이로 — 진행바·다른 카드를 덮어 집중도를 높인다(2026-07-19 사용자 지시 · marker: SNAP_PREP_OVERLAY). iframe 아님(같은 페이지 JS라 div 오버레이).
   var old=$('mp_snapOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_snapOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','스냅 기획');
@@ -8257,6 +8272,7 @@ function startSnapFlow(sd, p, agreeNew){
   _mpLock();
   SNAPFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
   _wizStart('snap');
+  if(loc) WIZ_BASE.snap=_wizJson(_snapNewD(sd));   // [SNAP_AGREE_LAST] 기준선은 서버 — 되살린 임시본은 아직 «저장 안 됨»이다(손잡이 · 나가기가 그렇게 말하게)
   renderSnapFlow();
   body.scrollTop=0;
   _snapLoadThumbs();
@@ -8284,10 +8300,12 @@ function _spNeedsOf(D){   // 고른 장면들의 준비물(중복 제거 · 먼�
   return out;
 }
 function _spWhen(D, R, due){
-  var z=R.zones, flow=[['도착',R.arrive],[z[0].ko,z[0].min],['이동',R.move],[z[1].ko,z[1].min],['입장 준비',R.prep]];
+  /* ★[SNAP_55 2026-09-26 사장님] 두 공간은 한 칸 «캔들존 · 화이트존 촬영 55분» — 공간별 분 · «이동» 칸을 따로 보이지 않는다.
+     사장님 원문: «이동5분은 없어도돼 캔들존으로 포함» · «딱 시간 정하지 말고 뭉뚱그려서». 분은 목록(R.shoot)에서 센다(손으로 적지 않는다). */
+  var z=R.zones, flow=[['도착',R.arrive,0],[z[0].ko+' · '+z[1].ko+' 촬영',R.shoot,1],['입장 준비',R.prep,0]];
   var h='<h3 class="snp-h" tabindex="-1">본식 전, 두 분만 담는 단독 스냅이에요</h3>';
   /* [SNAP_FLOW_WRAP] 화살표는 «다음 칸»과 한 덩어리 — 따로 두면 줄 끝에 «›»가 매달리고(390) PC에선 «본식»만 홀로 둘째 줄로 떨어졌다(고객 입장 걸어 보기) */
-  var _fi=flow.map(function(f,i){ return { t:escapeHtml(f[0])+' · '+f[1]+'분', on:(i===1||i===3) }; }).concat([{ t:'본식', on:false }]);
+  var _fi=flow.map(function(f){ return { t:escapeHtml(f[0])+'&nbsp;'+f[1]+'분', on:!!f[2] }; }).concat([{ t:'본식', on:false }]);
   h+='<div class="snp-flow" role="list" aria-label="이 스냅의 순서">'+_fi.map(function(x,i){ return '<span role="listitem" class="snp-flg">'+(i?'<span class="snp-arw" aria-hidden="true">›</span>':'')+'<span class="snp-fl'+(x.on?' on':'')+'">'+x.t+'</span></span>'; }).join('')+'</div>';
   h+='<ul class="snp-points">'
     +'<li>공간마다 <b>기본 4장면</b>은 늘 담아요. 여기에 마음에 드는 장면을 공간마다 <b>4장까지</b> 고르시면, 사진작가가 그 사진을 보고 찍어요.</li>'
@@ -8295,12 +8313,13 @@ function _spWhen(D, R, due){
     +'<li>헤어·메이크업을 마치고 도착 시각에 맞춰 와 주세요. 늦으면 스냅 시간이 줄어요.</li>'
     +'<li>가족·친구와의 사진은 본식 뒤에 찍어요. 「가족&nbsp;·&nbsp;친구&nbsp;스냅」에서 미리 정해 두실 수 있어요.</li>'   // [SNAP_COUPLE_ONLY]
     +'</ul>';
-  if(due) h+='<div class="snp-due">'+(due.late?'마감(예식 14일 전)이 지났어요. 지금 고치셔도 디렉터에게 바로 전해져요.':('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
+  /* [SNAP_DESIGN_0926] 마감 줄 — 배경 칠한 안내 상자 → 작은 라벨 + 한 줄([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지» · 디자인 점검) */
+  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.late?'예식 14일 전이 지났어요. 지금 고치셔도 디렉터에게 바로 전해져요.':('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
   return h;
 }
 function _spZone(D, R, zi){
   var z=R.zones[zi], Z=D.zones[z.key], L=R.limits, h='';
-  h+='<h3 class="snp-h" tabindex="-1">'+escapeHtml(z.ko)+' · '+z.min+'분</h3>';
+  h+='<h3 class="snp-h" tabindex="-1">'+escapeHtml(z.ko)+'</h3>';   // [SNAP_55] 공간별 분은 보이지 않는다 — 두 공간을 합쳐 첫 걸음에서 한 번만
   h+='<figure class="snp-zone"><picture><source srcset="'+z.photo+'" type="image/webp"><img src="'+z.photoJpg+'" alt="'+escapeHtml(z.ko)+' 공간" loading="lazy" decoding="async"></picture><figcaption><span class="en">'+escapeHtml(z.en)+'</span> · '+escapeHtml(z.mood)+'</figcaption></figure>';
   h+='<div class="snp-sub">기본으로 담아요</div><div class="snp-note">어느 두 분이든 이 네 장면은 꼭 담아요.</div><div class="snp-grid sm">'+z.base.map(function(s){ return '<div class="snp-cell"><div class="snp-tile base" role="img" aria-label="기본 · '+escapeHtml(s.name)+'">'+_spTile(s)+'</div>'+_spZoom(s)+'</div>'; }).join('')+'</div>';   // 기본은 고르는 칸이 아니라 작게 4칸 — 고르는 8장면이 주인공
   h+='<div class="snp-sub">마음에 드는 장면 <span class="snp-cnt">'+Z.picks.length+' / '+L.pick+'</span></div>';
@@ -8311,24 +8330,31 @@ function _spZone(D, R, zi){
   if(nd.length) h+='<ul class="snp-needs" aria-label="고른 장면의 준비물">'+nd.join('')+'</ul>';
   h+='<div class="snp-sub">찾던 그림이 없나요? <span class="snp-opt">· 선택</span></div>';
   h+='<div class="snp-note">사진은 '+L.up+'장, 링크는 '+L.link+'개까지 남길 수 있어요. 올린 사진은 스튜디오와 사진작가만 보고, 예식 6개월 뒤 지워요.</div>';
-  if(Z.ups.length){ h+='<div class="snp-ups">'+Z.ups.map(function(u,i){ var t=SNAP_THUMBS[u.th]; return '<div class="snp-up">'+(t?('<img src="'+escapeHtml(t)+'" alt="올린 그림 '+(i+1)+'">'):'<span class="snp-ph">불러오는 중</span>')+'<button type="button" class="snp-x" data-supdel="'+i+'" aria-label="올린 그림 '+(i+1)+' 빼기"><span aria-hidden="true">✕</span></button></div>'; }).join('')+'</div>'; }
+  if(Z.ups.length){ h+='<div class="snp-ups">'+Z.ups.map(function(u,i){ var t=u._thumb||SNAP_THUMBS[u.th]; return '<div class="snp-up">'+(t?('<img src="'+escapeHtml(t)+'" alt="올린 그림 '+(i+1)+'">'):'<span class="snp-ph">불러오는 중</span>')+'<button type="button" class="snp-x" data-supdel="'+i+'" aria-label="올린 그림 '+(i+1)+' 빼기"><span aria-hidden="true">✕</span></button></div>'; }).join('')+'</div>'; }
   if(Z.ups.length<L.up) h+='<label class="cc-btn-ghost snp-upbtn">사진 올리기<input type="file" accept="image/*" data-supzone="'+z.key+'" style="position:absolute;width:1px;height:1px;opacity:0"></label>';
   if(Z.links.length){ h+='<div class="ph-list">'+Z.links.map(function(u,i){ return '<div class="ph-item"><span class="ph-nm" style="flex:1;min-width:0;word-break:break-all;font-size:12px"><a href="'+escapeHtml(safeUrl(u))+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">'+escapeHtml(u)+'</a></span><button type="button" class="snp-x" data-slinkdel="'+i+'" aria-label="링크 '+(i+1)+' 빼기"><span aria-hidden="true">✕</span></button></div>'; }).join('')+'</div>'; }
-  if(Z.links.length<L.link) h+='<div class="snp-linkrow"><input class="cc-input" id="mp_snapLink" inputmode="url" autocomplete="off" placeholder="링크 붙여넣기 (https://...)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapLinkBtn" style="width:auto;padding:9px 14px">추가</button></div>';
+  if(Z.links.length<L.link) h+='<div class="snp-linkrow"><input class="cc-input" id="mp_snapLink" aria-label="참고 링크" inputmode="url" autocomplete="off" placeholder="링크 붙여넣기 (https://...)" style="margin:0;flex:1;min-width:0"><button type="button" class="cc-btn-ghost" id="mp_snapLinkBtn" style="width:auto;padding:9px 14px">추가</button></div>';
+  /* ★[SNAP_ZONE_NOTE 2026-09-26 사장님] 공간마다 «사진작가에게 전할 말» — «전달할 메시지 적을 수 있게도 했으면 좋겠어 · 화이트존 캔들존 각각».
+     서버가 이 칸을 알 때만 연다(snapZoneNoteOk) — 옛 서버는 모르는 칸을 조용히 버린다(«저장됐어요»인데 글이 없어지는 창을 만들지 않는다). */
+  if(SNAPFLOW.p&&SNAPFLOW.p.snapZoneNoteOk){
+    h+='<label class="snp-sub" for="mp_snapZoneNote">사진작가에게 전할 말 <span class="snp-opt">· 선택</span></label>';
+    h+='<textarea class="cc-input" id="mp_snapZoneNote" data-szone="'+z.key+'" maxlength="300" placeholder="'+(z.key==='candle'?'예: 눈을 맞추는 장면을 가까이서 여러 장 담아 주세요':'예: 드레스 자락이 길게 보이는 전신을 담아 주세요')+'" style="min-height:88px;margin-top:10px">'+escapeHtml(Z.note||'')+'</textarea>';
+  }
   return h;
 }
 function _spNote(D){
   return '<h3 class="snp-h" tabindex="-1">사진작가가 알면 좋은 것</h3>'
     +'<div class="snp-note">잘 나오는 쪽, 신경 쓰이는 점, 피하고 싶은 것, 가져오는 소품을 적어 주세요. 쑥스러움이 크시면 그것도요. 디렉터가 옆에서 더 이끌어 드려요.</div>'
-    +'<textarea class="cc-input" id="mp_snapNote" maxlength="500" placeholder="예: 왼쪽 얼굴이 편해요 · 안경 반사가 신경 쓰여요 · 서로에게 쓴 편지를 가져가요" style="min-height:120px;margin-top:10px">'+escapeHtml(D.note||'')+'</textarea>';
+    +'<textarea class="cc-input" id="mp_snapNote" aria-label="사진작가가 알면 좋은 것" maxlength="500" placeholder="예: 왼쪽 얼굴이 편해요 · 안경 반사가 신경 쓰여요 · 서로에게 쓴 편지를 가져가요" style="min-height:120px;margin-top:10px">'+escapeHtml(D.note||'')+'</textarea>';
 }
 function _spSend(D, R){
   var h='<h3 class="snp-h" tabindex="-1">사진작가에게 이렇게 전해요</h3>';
   R.zones.forEach(function(z){ var Z=D.zones[z.key];
-    h+='<div class="snp-sum"><div class="snp-sum-h">'+escapeHtml(z.ko)+' · '+z.min+'분</div>'
+    h+='<div class="snp-sum"><div class="snp-sum-h">'+escapeHtml(z.ko)+'</div>'   // [SNAP_55] 공간별 분은 보이지 않는다
       +'<div class="snp-row"><span class="k">기본</span><span class="v">'+z.base.map(function(s){ return escapeHtml(s.name).replace(/ /g,'&nbsp;'); }).join(', ')+'</span></div>'   // 장면 이름 안에서는 안 끊고 쉼표로 잇는다 — «·»로 이으면 줄 끝마다 가운뎃점이 매달렸다(390 실측 · [CHECKS_NO_DANGLE])
       +'<div class="snp-row"><span class="k">고른 장면</span><span class="v">'+(Z.picks.length?('<ol class="snp-ol">'+Z.picks.map(function(id){ var f=R.scene(id); return '<li>'+escapeHtml(f?f.s.name:id)+'</li>'; }).join('')+'</ol>'):'고르지 않았어요 · 기본 장면으로 찍어요')+'</span></div>'
       +((Z.ups.length||Z.links.length)?('<div class="snp-row"><span class="k">올린 그림</span><span class="v">'+[Z.ups.length?('사진 '+Z.ups.length+'장'):'', Z.links.length?('링크 '+Z.links.length+'개'):''].filter(Boolean).join(' · ')+'</span></div>'):'')
+      +(String(Z.note||'').trim()?('<div class="snp-row"><span class="k">전할 말</span><span class="v">'+escapeHtml(Z.note)+'</span></div>'):'')   // [SNAP_ZONE_NOTE]
       +'</div>'; });
   var nd=_spNeedsOf(D);
   h+='<div class="snp-sum"><div class="snp-row"><span class="k">알면 좋은 것</span><span class="v">'+(String(D.note||'').trim()?escapeHtml(D.note):'남기지 않았어요')+'</span></div>'
@@ -8345,22 +8371,27 @@ function renderSnapFlow(){
   var h='<div class="consult-card snp-card" style="text-align:left">';
   h+='<div class="cc-eyebrow en-22">Snap Planning</div><div class="cc-title" style="margin:0 0 10px">스냅 기획</div>';
   h+='<ol class="snp-steps" aria-label="스냅 기획 다섯 걸음">'+SNAP_STEPS.map(function(s,i){ return '<li><button type="button" class="snp-step'+(i===st?' on':'')+(i<st?' done':'')+'" data-sstep="'+i+'"'+(i===st?' aria-current="step"':'')+' aria-label="'+(i+1)+'. '+s.t+'">'+(i+1)+'</button></li>'; }).join('')+'</ol>';
-  h+='<div class="snp-steplabel">'+(st+1)+' / '+SNAP_STEPS.length+' · '+SNAP_STEPS[st].t+'</div>';
+  /* ★[SNAP_DESIGN_0926 사장님 «전체적으로 디자이너 관점으로 검토해 보고»] «2 / 5 · 캔들존» 줄을 뺐다 — 위 동그라미가 이미 몇 걸음째인지 말하고,
+     이름은 바로 아래 제목(캔들존 · 사진작가가 알면 좋은 것 …)과 같은 말이었다(제목이 다섯 층으로 쌓여 본문이 늦게 시작했다). 되살리지 말 것. */
   if(st===0) h+=_spWhen(D, R, due);
   else if(st===1) h+=_spZone(D, R, 0);
   else if(st===2) h+=_spZone(D, R, 1);
   else if(st===3) h+=_spNote(D);
   else h+=_spSend(D, R);
+  var last=(st===SNAP_STEPS.length-1);
+  if(last && SNAPFLOW.needAgree) h+=_snapAgreeHtml();   // [SNAP_AGREE_LAST] 동의는 여기 한 곳 — «저장하고 마치기» 바로 위(카드에는 없다)
   h+='<div class="snp-nav">'+(st>0?'<button type="button" class="cc-btn-ghost" data-sgo="-1">이전</button>':'')
-    +(st<SNAP_STEPS.length-1?('<button type="button" class="cc-btn" data-sgo="1">'+(st===0?'캔들존 고르기':('다음 · '+SNAP_STEPS[st+1].t))+'</button>'):'<button type="button" class="cc-btn" data-sfinish>저장하고 마치기</button>')+'</div>';
-  h+='<div class="snp-del"><button type="button" class="snp-dellink" data-sdel>스냅 기획 지우기</button></div>';   // [SNAP_CONSENT] 동의를 거두는 길 — 걸음마다 맨 아래 작은 글자(주 동선을 가리지 않게)
+    +(!last?('<button type="button" class="cc-btn" data-sgo="1">'+(st===0?'캔들존 고르기':('다음 · '+SNAP_STEPS[st+1].t))+'</button>'):'<button type="button" class="cc-btn" data-sfinish>저장하고 마치기</button>')+'</div>';
+  if(!SNAPFLOW.needAgree) h+='<div class="snp-del"><button type="button" class="snp-dellink" data-sdel>스냅 기획 지우기</button></div>';   // [SNAP_CONSENT] 동의를 거두는 길 — 걸음마다 맨 아래 작은 글자(주 동선을 가리지 않게) · [SNAP_AGREE_LAST] 동의 전엔 서버에 지울 것이 없어 숨긴다
   h+='</div>';
   inner.innerHTML=h;
   _spBind(inner, D, R);
+  if(last && SNAPFLOW.needAgree) _snapAgreeBind(inner);
+  _snapLocalPut();   // [SNAP_AGREE_LAST] 동의 전이면 고른 것을 이 기기에 적어 둔다(고르다 앱이 닫혀도 되살리게)
   _wizPaintSoon();   // 장면을 고르는 것은 input 이벤트가 아니다 — 아래 «저장» 손잡이가 사실을 말하게 다시 칠한다
 }
 function _spGo(to){ var n=Math.max(0, Math.min(SNAP_STEPS.length-1, to)); if(n===SNAPFLOW.step) return; _snapCollect();
-  try{ if(_wizDirty('snap')) saveSnap().catch(function(){}); }catch(e){}   // [SNAP_STEP_SAVE] 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(식순 위저드와 같은 방식 · 실패하면 손잡이가 «다시 저장»)
+  try{ if(!SNAPFLOW.needAgree && _wizDirty('snap')) saveSnap().catch(function(){}); }catch(e){}   // [SNAP_STEP_SAVE] 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(식순 위저드와 같은 방식 · 실패하면 손잡이가 «다시 저장») · [SNAP_AGREE_LAST] 동의 전에는 서버로 보내지 않는다(이 기기에만 · renderSnapFlow 가 적는다)
   SNAPFLOW.step=n; renderSnapFlow();
   var b=$('mp_snapBody'); if(b) b.scrollTop=0; var hd=document.querySelector('#mp_snapInner .snp-h'); if(hd){ try{ hd.focus({preventScroll:true}); }catch(e){ hd.focus(); } } }
 function _spBind(box, D, R){
@@ -8405,11 +8436,12 @@ function _snapUpload(zone, file){
   var D=SNAPFLOW.d||{}, Z=(D.zones||{})[zone], R=window.SNAP_REFS; if(!Z||!R) return;
   if(Z.ups.length>=R.limits.up){ mpAlert('사진은 공간마다 '+R.limits.up+'장까지 올릴 수 있어요.'); return; }
   if(!/^image\//.test(String(file.type||'image/'))){ mpAlert('사진 파일만 올릴 수 있어요.'); return; }
-  _flowBusy(true, '사진 올리는 중…');
+  _flowBusy(true, SNAPFLOW.needAgree?'사진 담는 중…':'사진 올리는 중…');
   Promise.all([_snapResize(file, 1600, 0.85), _snapResize(file, 360, 0.8)]).then(function(two){
-    return _snapApiLong({ action:'snapRefUpload', token:getToken(), zone:zone, name:String(file.name||'').slice(0,60), data:two[0], thumb:two[1], snapConsent:SNAPFLOW.agreeNew?1:undefined }).then(function(r){   // [SNAP_CONSENT] 첫 올리기가 첫 저장보다 먼저일 수 있다
+    /* [SNAP_AGREE_LAST] 동의 전 — 보내지 않고 이 화면에만 담아 둔다(id 없음). 마지막 걸음에서 동의하고 저장할 때 _snapCommit 이 보낸다 */
+    if(SNAPFLOW.needAgree){ Z.ups.push({ id:'', th:'', n:String(file.name||'').slice(0,60), _full:two[0], _thumb:two[1] }); _flowBusy(false); renderSnapFlow(); return; }
+    return _snapApiLong({ action:'snapRefUpload', token:getToken(), zone:zone, name:String(file.name||'').slice(0,60), data:two[0], thumb:two[1] }).then(function(r){
       if(!(r&&r.ok&&r.id)){ _flowBusy(false); mpAlert((r&&r.error)||'사진을 올리지 못했어요. 다시 해 주세요.'); return; }
-      SNAPFLOW.agreeNew=false;
       SNAP_THUMBS[r.th]=two[1];
       Z.ups.push({ id:String(r.id), th:String(r.th||''), n:String(file.name||'').slice(0,60) });
       _flowBusy(false); renderSnapFlow(); saveSnap().catch(function(){});
@@ -8424,18 +8456,53 @@ function _snapWithdrawAsk(){
     _flowBusy(true, '지우는 중…');
     _snapApiLong({ action:'snapWithdraw', token:getToken() }).then(function(r){
       if(!(r&&r.ok)){ _flowBusy(false); mpAlert((r&&r.error)||'지우지 못했어요. 다시 해 주세요.'); return; }
-      window._mpNextToast='스냅 기획을 지웠어요'; _snapTearDown(); _mpRefresh();
+      window._mpNextToast='스냅 기획을 지웠어요'; _snapLocalDel(); _snapTearDown(); _mpRefresh();
     }).catch(function(){ _flowBusy(false); mpAlert('지우지 못했어요. 연결을 확인하고 다시 해 주세요.'); });
   });
 }
 function saveSnap(){
-  var D=SNAPFLOW.d||_snapNewD(), ag=!!SNAPFLOW.agreeNew;
+  var D=SNAPFLOW.d||_snapNewD(), ag=!!SNAPFLOW.needAgree;   // [SNAP_AGREE_LAST] 동의 전이면 이 저장이 곧 첫 동의다 — 부르는 곳은 _snapCommit 하나(체크를 본 뒤)
   return _wizWatch('snap', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'snap', draft:_snapOut(D), done:_snapFilledD(D), snapConsent:ag?1:undefined})   // [SNAP_CONSENT] 서버가 기록이 없을 때만 남긴다
-    .then(function(r){ if(ag&&r&&r.ok) SNAPFLOW.agreeNew=false; return r; }));   // 내용이 하나라도 있으면 완료 · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지)
+    .then(function(r){ if(r&&r.ok){ if(ag) SNAPFLOW.needAgree=false; _snapLocalDel(); } return r; }));   // 내용이 하나라도 있으면 완료 · 빈 채로 나가면 '시작전' 유지(가짜 완료 방지) · 서버에 닿았으니 이 기기의 임시본은 지운다
 }
+/* ★[SNAP_AGREE_LAST] 동의하고 저장 — 동의 전에 담아 둔 사진부터 보내고(첫 사진에 동의를 싣는다 · 서버가 그때 기록한다) 기획을 저장한다.
+   사진 하나라도 못 보내면 기획은 저장하지 않는다 — 보낸 사진은 id 를 받아 두므로 «다시 저장»이 이어서 보낸다(두 번 올라가지 않는다).
+   돌려주는 값은 saveSnap 과 같은 {ok, error} — _wizSave · exitSnapFlow 가 그대로 읽는다. */
+function _snapCommit(){
+  var D=SNAPFLOW.d||_snapNewD(), pend=[], chain=Promise.resolve(null);
+  ['candle','white'].forEach(function(k){ (((D.zones||{})[k]||{}).ups||[]).forEach(function(u){ if(u&&!u.id&&u._full) pend.push({ k:k, u:u }); }); });
+  pend.forEach(function(x){ chain=chain.then(function(bad){ if(bad) return bad;
+    return _snapApiLong({ action:'snapRefUpload', token:getToken(), zone:x.k, name:x.u.n, data:x.u._full, thumb:x.u._thumb, snapConsent:1 }).then(function(r){
+      if(!(r&&r.ok&&r.id)) return { ok:false, error:(r&&r.error)||'사진을 보내지 못했어요. 다시 저장해 주세요.' };
+      SNAP_THUMBS[r.th]=x.u._thumb; x.u.id=String(r.id); x.u.th=String(r.th||''); delete x.u._full; delete x.u._thumb; return null;
+    }, function(){ return { ok:false, error:'사진을 보내다 연결이 끊겼어요. 다시 저장해 주세요.' }; }); }); });
+  return chain.then(function(bad){ return bad||saveSnap(); });
+}
+/* ★[SNAP_AGREE_LAST] 저장 전 관문 — 동의 전이고 체크가 안 켜져 있으면 저장하지 않는다. 마지막 걸음으로 데려가 체크 줄을 보여 주고 한 줄로 알린다
+   (막힌 버튼은 왜 막혔는지 말하지 않는다 — [SNAP_CONSENT] 와 같은 이유로 버튼은 막지 않는다). */
+function _snapAgreeGate(){
+  if(!SNAPFLOW.needAgree) return true;
+  var ck=$('mp_snapAgreeCk'); if(ck&&ck.checked) return true;
+  if(SNAPFLOW.step!==SNAP_STEPS.length-1) _spGo(SNAP_STEPS.length-1);
+  _snapAgreeOk();
+  return false;
+}
+/* ★[SNAP_AGREE_LAST] 동의 전 임시본 — 이 기기(localStorage)에만. 서버로 가지 않는다.
+   담는 것: 고른 장면 · 링크 · 글(사진은 크고 이 기기에서만 보여 담지 않는다). 지우는 때: 서버 저장 성공 · «그냥 나가기» · «스냅 기획 지우기» · 로그아웃(LOGOUT_SWEEP). */
+function _snapLocalKey(){ var c=''; try{ c=String((window._mpStateD&&window._mpStateD.code)||''); }catch(e){} return c?('me_snapLocal_'+c):''; }
+function _snapLocalGet(){ var k=_snapLocalKey(); if(!k) return null; try{ var o=JSON.parse(localStorage.getItem(k)||'null'); return (o&&o.v===2&&o.zones)?o:null; }catch(e){ return null; } }
+function _snapLocalDel(){ var k=_snapLocalKey(); if(!k) return; try{ localStorage.removeItem(k); }catch(e){} }
+function _snapLocalPut(){
+  if(!SNAPFLOW.active || !SNAPFLOW.needAgree || !SNAPFLOW.d) return;
+  var k=_snapLocalKey(); if(!k) return; _snapCollect();
+  try{ var o=_snapOut(SNAPFLOW.d); if(_snapFilledD(o)) localStorage.setItem(k, JSON.stringify(o)); else localStorage.removeItem(k); }catch(e){}
+}
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') _snapLocalPut(); });   // 앱을 내리거나 탭을 닫을 때 — 글을 치던 중이어도 남게
+window.addEventListener('pagehide', function(){ _snapLocalPut(); });
 function _snapCollect(){   // [WIZ_EXIT_ONE] 화면의 글상자 → SNAPFLOW.d. 저장·나가기·변경검사가 같은 값을 본다
   if(!SNAPFLOW.d) return;
   var nt=$('mp_snapNote'); if(nt) SNAPFLOW.d.note=nt.value;
+  var zn=$('mp_snapZoneNote'), zk=zn&&zn.getAttribute('data-szone'); if(zk&&SNAPFLOW.d.zones&&SNAPFLOW.d.zones[zk]) SNAPFLOW.d.zones[zk].note=zn.value;   // [SNAP_ZONE_NOTE] 지금 걸음의 공간 칸
 }
 function _snapTearDown(){   // 오버레이·잠금·뒤로가기 층 정리(저장 성공 · '그냥 나가기' 공용)
   _flowBusy(false);
@@ -8446,6 +8513,7 @@ function _snapTearDown(){   // 오버레이·잠금·뒤로가기 층 정리(저
 function exitSnapFlow(){ _mpHoldScroll();   // 저장 후 오버레이 닫기 · 실패 시 오버레이 유지+재시도(무음 유실 금지)
   if(SNAPFLOW._exiting) return;
   _snapCollect();
+  if(!_snapAgreeGate()) return;   // [SNAP_AGREE_LAST] 동의 전이면 저장하지 않고 마지막 걸음의 체크 줄로(«저장하고 마치기» · 나가기 판 «저장하고 나가기» 공용)
   SNAPFLOW._exiting=true; _flowBusy(true);
   var _close=function(){ window._mpNextToast='스냅 기획을 저장했어요';   /* 바로 앞 화면이 «디렉터가 확인해 사진작가에게 전해요»를 말했다 — 알림에서 되풀이하지 않는다 */ _snapTearDown(); _mpRefresh(); };   // MPD4_F1 저장-복귀 확인 토스트(단체 사진·좌석과 같은 방식)
   var _fail=function(msg){
@@ -8454,21 +8522,24 @@ function exitSnapFlow(){ _mpHoldScroll();   // 저장 후 오버레이 닫기 ·
     mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기' })
       .then(function(again){ if(again){ exitSnapFlow(); } else { _snapTearDown(); _mpRefresh(); } });
   };
-  saveSnap().then(function(r){ if(!(r&&r.ok)){ _fail(r&&r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });   // [SAVE_FALSE_OK] 성공을 확인하고 넘어간다
+  (SNAPFLOW.needAgree?_snapCommit():saveSnap()).then(function(r){ if(!(r&&r.ok)){ _fail(r&&r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });   // [SAVE_FALSE_OK] 성공을 확인하고 넘어간다 · [SNAP_AGREE_LAST] 동의 전이면 담아 둔 사진부터
 }
 function _snapSummary(sd){   // 카드 한 줄 — 공간별 고른 수
   sd=sd||{}; var zs=sd.zones||{}, c=((zs.candle||{}).picks||[]).length, w=((zs.white||{}).picks||[]).length, u=((zs.candle||{}).ups||[]).length+((zs.white||{}).ups||[]).length;
   if(c||w) return '캔들존 '+c+'장 · 화이트존 '+w+'장 골랐어요'+(u?(' · 올린 그림 '+u+'장'):'');
   if(u) return '찾던 그림 '+u+'장을 올리셨어요';
-  if(String(sd.note||'').trim()) return '사진작가에게 전할 말을 남기셨어요';
+  if(String(sd.note||'').trim()||String((zs.candle||{}).note||'').trim()||String((zs.white||{}).note||'').trim()) return '사진작가에게 전할 말을 남기셨어요';   // [SNAP_ZONE_NOTE] 공간별 전할 말도
   return _snapFilledD(sd)?'원하는 것을 남겨 주셨어요':'';   // 옛 저장분(v1)
 }
-/* ★★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 모으는 그 자리(«스냅 기획하기» 바로 위)에서 따로 받는다.
+/* ★★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 모으는 곳에서 따로 받는다.
      사장님 원문: «정보를 받기 동의가 필요하면 스냅기획 밑에 동의서 체크하게 만들면 되잖아»
+   ★★[SNAP_AGREE_LAST 2026-09-26 사장님] 자리는 마지막 걸음 «저장하고 마치기» 바로 위 — 카드에서 뺐다.
+     사장님 원문: «동의체크 스냅기획하기 다 만들고 마지막에 동의 받자 · 나와 있으니깐 지저분하다».
+     카드에 되돌리지 말 것. 그 대신 동의 전에는 서버에 아무것도 보내지 않는다(startSnapFlow 주석).
    ★미리 체크하지 않는다 · 글을 눌러도 체크된다(label) · 누름 칸 44px 이상.
-   ★체크 없이 «스냅 기획하기»를 누르면 버튼을 막지 않는다 — 체크 줄로 초점을 옮기고 한 줄로 알린다
+   ★체크 없이 «저장하고 마치기»(또는 아래 «저장»)를 누르면 버튼을 막지 않는다 — 체크 줄로 초점을 옮기고 한 줄로 알린다
      (막힌 버튼은 왜 막혔는지 말하지 않는다).
-   ★한 번 동의하면(서버 snapMeta.consent) 다시 묻지 않는다 — 채운 카드 · 편집 화면에는 체크가 없다.
+   ★한 번 동의하면(서버 snapMeta.consent) 다시 묻지 않는다 — 그 뒤로는 편집 화면에 체크가 없다.
    ★문구는 코워크 명세 그대로(고객 문구 · 줄표 없음). 바꾸면 scripts/audit/snap-plan.mjs 가 빨갛게 알린다. */
 function _snapAgreeHtml(){
   return '<div class="snp-agree" id="mp_snapAgree">'
@@ -8492,7 +8563,7 @@ function _snapAgreeBind(box){   // [SNAP_CONSENT] 체크 · 자세히 보기 · 
 function _snapAgreeOk(){   // [SNAP_CONSENT] 체크 줄이 없으면(이미 동의) 통과 · 있는데 안 켰으면 → 초점을 옮기고 한 줄로 알린다(버튼은 막지 않는다)
   var ck=$('mp_snapAgreeCk'); if(!ck) return true; if(ck.checked) return true;
   var nd=$('mp_snapAgreeNeed'), wrap=$('mp_snapAgree');
-  if(nd) nd.textContent='위 동의에 체크하시면 시작할 수 있어요';
+  if(nd) nd.textContent='위 동의에 체크하시면 저장할 수 있어요';   // [SNAP_AGREE_LAST] 동의는 마지막 걸음에서 — «시작»이 아니라 «저장» 앞이다
   if(wrap) wrap.classList.add('need');
   try{ ck.focus({preventScroll:true}); }catch(e){ ck.focus(); }
   try{ wrap.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){}
@@ -8505,7 +8576,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
      ★새 서버도 처리방침 시행일(SNAP_V2.from · [SNAP_OPEN_NOW] 로 2026-09-26) 전에는 snapV2 를 false 로 준다(80_production [SNAP_V2_FROM]) — 카드·«지금 할 일»이 함께 숨는다. */
   if(!p || SNAPFLOW.active || !p.snapV2 || !window.SNAP_REFS){ box.style.display='none'; box.innerHTML=''; return; }
   var sd=p.snapDraft||{}, meta=p.snapMeta||{}, due=_snapDue(p), filled=_snapFilledD(sd), lock=!!(meta.lock||(due&&due.lock)), h;
-  var agreeAsk=!lock&&!(meta.consent&&meta.consent.at);   // [SNAP_CONSENT] 한 번 동의하면 다시 묻지 않는다
+  var agreeAsk=!lock&&!(meta.consent&&meta.consent.at);   // [SNAP_CONSENT] 한 번 동의하면 다시 묻지 않는다 · [SNAP_AGREE_LAST] 묻는 곳은 편집 화면 마지막 걸음(카드에는 체크가 없다)
   var conf=meta.confirm||null, confLine='';
   if(filled){
     if(conf&&conf.at&&!meta.stale){ var _cm=String(conf.at).match(/^\d{4}-(\d{2})-(\d{2})/); confLine='디렉터가 확인했어요'+(_cm?(' · '+(+_cm[1])+'월 '+(+_cm[2])+'일'):''); }
@@ -8523,7 +8594,6 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
       +   ((conf&&conf.reply&&!meta.stale)?('<span class="snp-cl snp-reply">디렉터 · '+escapeHtml(conf.reply)+'</span>'):'')
       +   (lock?'<span class="snp-cl">예식&nbsp;3일&nbsp;전부터는 여기서 고칠 수 없어요. 바꿀 것이 있으면 디렉터에게 말씀해 주세요.</span>':'')
       + '</div>'
-      + (agreeAsk?_snapAgreeHtml():'')   // [SNAP_CONSENT] 옛 칸(9/26 전)만 남은 분 — 새 기획으로 고치려면 동의가 먼저다
       + '</div>';
   } else {
     h='<div class="consult-card" style="text-align:center">'
@@ -8535,14 +8605,12 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
                /* [SNAP_BTN_GHOST 2026-09-26 사장님 결정 ⑥ · 고객 점검 prod-4 · x-4] 채움(cc-btn) → 테두리(cc-btn-ghost) — 개요 화면의 유일한 채움 버튼이
                   «선택이에요»라고 밝힌 스냅 기획이라, 필수 준비(예식 준비 행은 전부 테두리 · TRK_BTN_SAME)보다 «지금 할 일»로 먼저 읽혔다.
                   카드 자리(예식 준비 앞)·문구·크기는 그대로 — 무게만 내린다. 채움으로 되돌리지 말 것. */
-               +(agreeAsk?_snapAgreeHtml():'')   // [SNAP_CONSENT] 버튼 바로 위
                +'<button type="button" class="cc-btn-ghost" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
                +'<div class="cc-note" style="text-align:center">선택이에요 · 안 고르셔도 기본 장면으로 찍어요.</div>'))
       + '</div>';
   }
   box.innerHTML=h; box.style.display='block';
-  var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ if(!_snapAgreeOk()) return; startSnapFlow(p.snapDraft||{}, p, agreeAsk); });   // [SNAP_CONSENT] 막 동의했으면 첫 저장에 싣는다
-  if(agreeAsk) _snapAgreeBind(box);
+  var b=$('mp_snapStart'); if(b) b.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}, p, agreeAsk); });   // [SNAP_AGREE_LAST] 동의가 아직이면 편집 화면이 마지막 걸음에서 묻는다(그 전엔 서버로 아무것도 안 보낸다)
 }
 function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·K유아(물)·U미정(옛 데이터에서만)
   var c={C:0,R:0,N:0,K:0,Y:0,U:0};

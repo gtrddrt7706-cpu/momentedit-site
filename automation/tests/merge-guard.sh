@@ -452,6 +452,25 @@ chk "case 'snapWithdraw'" automation/consultation/consultation-booking.gs 1
 chk 'adminSnapWithdraw: adminSnapWithdraw' automation/admin/admin.gs 1
 chk 'id="snap-plan"' privacy.html 1                   # 마이페이지 «개인정보 처리방침 전문 보기»가 이 줄로 온다
 chk '(선택 · 따로 동의를 받은 경우에만)' privacy.html 1
+# ★★[SNAP_AGREE_LAST 2026-09-26 사장님 «동의체크 스냅기획하기 다 만들고 마지막에 동의 받자 · 나와 있으니깐 지저분하다»]
+#   동의 체크 = 마지막 걸음 «저장하고 마치기» 바로 위(카드에서 뺐다) · 동의 전에는 서버에 아무것도 안 보낸다(걸음 저장 · 사진 올리기 둘 다) ·
+#   고른 것은 이 기기(localStorage me_snapLocal_*)에만 · 체크하고 저장할 때 사진부터 한꺼번에. 카드에 되돌리지 말 것 — snap-plan 이 잰다.
+chk 'SNAP_AGREE_LAST' mypage.html 15
+chk 'SNAP_AGREE_LAST' admin.html 1
+# ★[SNAP_55 2026-09-26 사장님 «이동5분은 없어도돼 캔들존으로 포함» · «55분 촬영으로 뭉뚱그려서»] 두 공간은 한 칸(R.shoot) — 부부 화면 · 브리프에 공간별 분 · «이동» 칸 없음
+chk 'SNAP_55' mypage.html 3
+chk 'SNAP_55' brief.html 1
+chk 'SNAP_55' assets/snap-refs.js 1
+# ★[SNAP_ZONE_NOTE 2026-09-26 사장님 «전달할 메세지 적을 수 있게 · 화이트존 캔들존 각각»] 공간별 «사진작가에게 전할 말» — 서버 정규화 · 표시(snapZoneNoteOk) · 브리프(동의 있을 때만) · 파기
+chk 'SNAP_ZONE_NOTE' automation/platform/80_production.gs 8
+chk 'SNAP_ZONE_NOTE' mypage.html 4
+chk 'SNAP_ZONE_NOTE' admin.html 1
+chk 'SNAP_ZONE_NOTE' brief.html 1
+# ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면 진사 = 고른 순서 번호 · 동의 알림뿐(나머지는 먹갈색/금빛) — snap-plan 이 CSS 를 잰다
+chk 'SNAP_TONE' mypage.html 1
+# [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
+chk 'SNAP_DESIGN_0926' mypage.html 3
+nochk 'class="snp-steplabel"' mypage.html 0
 if command -v node >/dev/null 2>&1; then node scripts/audit/snap-plan.mjs >/dev/null 2>&1; _spl=$?
   case "$_spl" in
     0) echo 'ok snap-plan: 목록 = 진행표 · 서버 한도 · 촬영 목록표 · 다섯 걸음 · 지운 질문 0건' ;;

@@ -264,5 +264,30 @@ fresh(40, { 제작_snap: JSON.stringify({ v: 2, zones: { candle: { picks: ['c05'
 const bq = sb.adminSnapBrief('C1'), bv = sb.handleSnapBrief({ b: (bq.url || '').split('b=')[1] });
 ok(bv.ok === true && bv.consent === false && bv.zones.candle.picks.length === 0 && bv.zones.candle.links.length === 0 && bv.note === '' && !!bv.wed, '15q 동의가 없으면 브리프에 기획이 안 실린다(예식 일시 · 기본 장면만)', bv);
 
+// 16) [SNAP_ZONE_NOTE 2026-09-26 사장님] 공간별 «사진작가에게 전할 말» — 정규화 · 완료 · 부부 화면 표시 · 브리프(동의 있을 때만) · 옛 저장분 재저장은 조용 · 파기
+fresh(40);
+const r16 = save({ v: 2, zones: { candle: { picks: [], note: '<b>눈</b>을 맞추는 ' + 'x'.repeat(400) }, white: { note: '   ' } } }, true);
+const d16 = load().snapDraft;
+ok(r16.ok === true && d16.zones.candle.note.indexOf('<') === -1 && d16.zones.candle.note.length === sb.SNAP_ZONE_NOTE_MAX && !('note' in d16.zones.white), '16a 전할 말 — <> 제거 · 상한 · 빈 칸(공백만)은 키 없이', d16.zones);
+ok(load().tracks.snap === '완료' && sb._snapFilled({ v: 2, zones: { white: { note: '뒷모습' } } }) === true, '16b 전할 말만 남겨도 «남긴 것»(완료)');
+ok(sb.buildProductionState(makeRow('C1')).snapZoneNoteOk === true, '16c 부부 화면 표시 snapZoneNoteOk — 이 칸을 아는 서버(옛 서버는 표시가 없어 칸이 안 열린다)');
+const b16 = sb.handleSnapBrief({ b: sb.adminSnapBrief('C1').url.split('b=')[1] });
+ok(b16.ok === true && b16.zones.candle.note === d16.zones.candle.note && b16.zones.white.note === '', '16d 브리프에 공간별 전할 말(동의 있음)', b16.zones);
+fresh(40, { 제작_snap: JSON.stringify({ v: 2, zones: { candle: { picks: ['c05'], ups: [], links: [], note: '비밀 부탁' } }, note: '' }) });
+const b16n = sb.handleSnapBrief({ b: (sb.adminSnapBrief('C1').url || '').split('b=')[1] });
+ok(b16n.ok === true && b16n.consent === false && b16n.zones.candle.note === '', '16e 동의가 없으면 전할 말도 브리프에 안 실린다', b16n.zones);
+fresh(10, { 제작_snap: JSON.stringify({ v: 2, zones: { candle: { picks: ['c05'], ups: [], links: [] }, white: { picks: [], ups: [], links: [] } }, note: '' }), 제작_meta: JSON.stringify({ tracks: { snap: '완료' }, snapMeta: { consent: { at: '2026-09-26 10:00', ver: '2026-09-26' }, confirm: { at: '2026-09-26 11:00', reply: '' } } }) });
+MAIL = [];
+const s16 = save({ v: 2, zones: { candle: { picks: ['c05'], note: '' }, white: { note: '' } }, note: '' }, true);
+ok(s16.ok === true && !load().snapMeta.stale && MAIL.length === 0, '16f 옛 저장분(칸 없음)을 빈 전할 말과 함께 다시 저장 → 바뀜 아님(디렉터 확인 유지 · 마감 뒤 메일 없음)', { s16, m: load().snapMeta, MAIL });
+save({ v: 2, zones: { candle: { picks: ['c05'], note: '촛불 앞에서 한 장 더' } } }, true);
+ok(load().snapMeta.stale === true && MAIL.length === 1, '16g 전할 말을 고치면 바뀜 — 디렉터 다시 확인 · 마감 뒤면 메일 한 통', { m: load().snapMeta, MAIL });
+fresh(40);
+save({ v: 2, zones: { candle: { picks: ['c05'], note: '부탁' } } }, true);
+DB.C1.예식일 = ymd(-184);
+ok(/C1/.test(sb.purgeSnapRefs()), '16h 전할 말만 남아도 파기 대상(처리방침 «메모 6개월 이내 파기»)');
+sb.purgeSnapRefs(false);
+ok(!('note' in load().snapDraft.zones.candle) && load().snapDraft.zones.candle.picks[0] === 'c05', '16i 파기 — 전할 말 지움 · 고른 장면은 남김', load().snapDraft);
+
 console.log(`\n${fail ? '❌' : '✅'} snap-plan: ${pass} 통과 · ${fail} 실패`);
 process.exit(fail ? 1 : 0);

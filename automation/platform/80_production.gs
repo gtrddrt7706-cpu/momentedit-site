@@ -1188,7 +1188,7 @@ function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS �
 // ==============================================================================
 // ★★[SNAP_PICK_V2 2026-09-26 사장님 회의 · «고르는 스냅 기획»] 서버 — 저장 형식 · 사진 올리기 · 마감 · 디렉터 확인 · 촬영 브리프
 //   부부 화면: mypage.html 스냅 블록(다섯 걸음) · 장면 목록 원천: assets/snap-refs.js · 기획서: docs/plans/PLAN_마이페이지_스냅사진.md §11
-//   ① 저장 형식 v2 = { v:2, zones:{ candle:{picks,ups,links}, white:{…} }, note } — picks 는 장면 번호(c05…) · 고른 순서 = 우선순위
+//   ① 저장 형식 v2 = { v:2, zones:{ candle:{picks,ups,links,note?}, white:{…} }, note } — picks 는 장면 번호(c05…) · 고른 순서 = 우선순위 · zones[k].note = 공간별 전할 말([SNAP_ZONE_NOTE])
 //   ② [SNAP_LEGACY_KEEP] 옛 저장분(v1 칸들)은 지우지 않는다 — 어느 판이 저장해도 다른 판의 칸을 지난 저장분에서 그대로 싣는다
 //   ③ [SNAP_LOCK] 예식 3일 전부터 잠금 · [SNAP_LATE_MAIL] 마감(예식 14일 전) 뒤에 바뀌면 관리자 메일(30분에 한 통)
 //   ④ [SNAP_UPLOAD] 올린 사진은 스튜디오 드라이브(ME_스냅레퍼런스/<코드>_<예식일>) · 공개 링크 없음 · 이 고객이 올린 것만 기획에 실린다
@@ -1200,6 +1200,10 @@ function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS �
 // ==============================================================================
 var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-09-26' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
 var SNAP_ZONE_RE = { candle: /^c\d{2}$/, white: /^w\d{2}$/ };
+// ★[SNAP_ZONE_NOTE 2026-09-26 사장님] 공간마다 «사진작가에게 전할 말»(zones[k].note) — «전달할 메세지 적을 수 있게 · 화이트존 캔들존 각각».
+//   상한은 부부 화면 textarea maxlength 와 같다(scripts/audit/snap-plan.mjs 가 대조). 비면 키를 싣지 않는다(옛 저장분 재저장이 가짜 «바뀜»이 되지 않게).
+//   부부 화면은 buildProductionState 의 snapZoneNoteOk 가 있을 때만 이 칸을 연다 — 옛 서버는 이 칸을 몰라 조용히 버리기 때문이다.
+var SNAP_ZONE_NOTE_MAX = 300;
 // ★[SNAP_V2_FROM 2026-09-26] 새 기획은 처리방침 개정 시행일(privacy.html «개정 시행일자 · …»)부터 연다.
 // ★★[SNAP_OPEN_NOW 2026-09-26 사장님 결정 · 코워크 명세 ②] 시행일 = 공고일 = 이 변경이 배포되는 날(2026-09-26).
 //   스냅 기획은 **선택**이고 이제 그 자리에서 **따로 동의**를 받는다([SNAP_CONSENT]) — 동의하지 않은 분에게는 바뀌는 것이 없다.
@@ -1226,7 +1230,7 @@ function _snapV2Norm(sd) {
   sd = sd || {};
   var zs = sd.zones || {}, out = { v: 2, zones: {}, note: String(sd.note || '').replace(/[<>]/g, '').slice(0, SNAP_V2.note) };
   ['candle', 'white'].forEach(function (k) {
-    var z = zs[k] || {}, seen = {}, picks = [], ups = [], links = [];
+    var z = zs[k] || {}, seen = {}, picks = [], ups = [], links = [], zn = String(z.note || '').replace(/[<>]/g, '').slice(0, SNAP_ZONE_NOTE_MAX);   // [SNAP_ZONE_NOTE]
     _snapArr(z.picks).forEach(function (id) { id = String(id || ''); if (SNAP_ZONE_RE[k].test(id) && !seen[id] && picks.length < SNAP_V2.pick) { seen[id] = 1; picks.push(id); } });
     _snapArr(z.ups).forEach(function (u) {
       if (!u || ups.length >= SNAP_V2.up) return;
@@ -1236,6 +1240,7 @@ function _snapV2Norm(sd) {
     });
     _snapArr(z.links).forEach(function (u) { u = String(u || '').trim().slice(0, 300); if (/^https?:\/\//i.test(u) && links.indexOf(u) < 0 && links.length < SNAP_V2.link) links.push(u); });
     out.zones[k] = { picks: picks, ups: ups, links: links };
+    if (zn.trim()) out.zones[k].note = zn;   // [SNAP_ZONE_NOTE] 비면 키 없이
   });
   return out;
 }
@@ -1280,7 +1285,7 @@ function _snapOwnUps(draft, meta) {
 function _snapFilled(sd) {
   sd = sd || {};
   var zs = sd.zones || {}, any = String(sd.note || '').trim() !== '';
-  ['candle', 'white'].forEach(function (k) { var z = zs[k] || {}; if (_snapArr(z.picks).length || _snapArr(z.ups).length || _snapArr(z.links).length) any = true; });
+  ['candle', 'white'].forEach(function (k) { var z = zs[k] || {}; if (_snapArr(z.picks).length || _snapArr(z.ups).length || _snapArr(z.links).length || String(z.note || '').trim()) any = true; });   // [SNAP_ZONE_NOTE] 전할 말만 남겨도 «남긴 것»
   if (any) return true;
   return !!(_snapArr(sd.people).length || String(sd.mustPeople || '').trim() || String(sd.aboutNote || '').trim() || sd.comfort || _snapArr(sd.mustHaves).length
     || String(sd.propsNote || '').trim() || sd.toneStyle || _snapArr(sd.refs).length || String(sd.moodNote || '').trim() || String(sd.directorNote || '').trim()
@@ -1559,7 +1564,7 @@ function handleSnapBrief(body) {
   var r = _snapBriefCust((body || {}).b); if (r.err) return r.err;   // [SNAP_BRIEF] 이름·연락처 없이 — 예식일·도착 시각·기획만
   var sd = r.d.snapDraft || {}, zs = sd.zones || {}, ci = (_parseJsonSafe(r.cust.get('동의기록')) || {}).계약정보 || {};
   var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 기본 장면만(기본 장면은 브리프 화면이 원천에서 그린다)
-  ['candle', 'white'].forEach(function (k) { var z = okc ? (zs[k] || {}) : {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links) }; });
+  ['candle', 'white'].forEach(function (k) { var z = okc ? (zs[k] || {}) : {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links), note: String(z.note || '') }; });   // [SNAP_ZONE_NOTE] 공간별 전할 말도 동의가 있을 때만
   return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: okc ? String(sd.note || '') : '', consent: okc,
     reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))) };
 }
@@ -1589,7 +1594,7 @@ function purgeSnapRefs(dryRun) {
     var raw = String(r.get(PROD_META_COL) || ''); if (raw.indexOf('snapMeta') === -1 && String(r.get(PROD_TRACK_COL.snap) || '').indexOf('"zones"') === -1) continue;
     var code = String(r.get('개인코드') || '').trim(); if (!code) continue;
     var d = _prodLoad(r), m = d.snapMeta || {}, sd = d.snapDraft || {};
-    var has = !!(m.folder || _snapArr(m.uploads).length || (m.brief && m.brief.t) || String(sd.note || '') || ['candle', 'white'].some(function (k) { var z = (sd.zones || {})[k] || {}; return _snapArr(z.ups).length || _snapArr(z.links).length; }));
+    var has = !!(m.folder || _snapArr(m.uploads).length || (m.brief && m.brief.t) || String(sd.note || '') || ['candle', 'white'].some(function (k) { var z = (sd.zones || {})[k] || {}; return _snapArr(z.ups).length || _snapArr(z.links).length || String(z.note || ''); }));   // [SNAP_ZONE_NOTE] 공간별 전할 말도 메모다(처리방침 «메모 6개월 이내 파기»)
     if (!has) continue;
     done.push(code + '(' + _ymdOf(r.get('예식일')) + ')');
     if (dryRun) continue;
@@ -1602,7 +1607,7 @@ function purgeSnapRefs(dryRun) {
       if (m2.folder) { try { DriveApp.getFolderById(m2.folder).setTrashed(true); } catch (e) {} }
       if (m2.brief && m2.brief.t) { try { Pr.deleteProperty('SNAPBRIEF_' + m2.brief.t); } catch (e) {} }
       delete m2.folder; delete m2.brief; m2.uploads = []; m2.purgedAt = fmtKST(new Date());
-      if (sd2.zones) ['candle', 'white'].forEach(function (k) { var z = sd2.zones[k]; if (z) { z.ups = []; z.links = []; } });
+      if (sd2.zones) ['candle', 'white'].forEach(function (k) { var z = sd2.zones[k]; if (z) { z.ups = []; z.links = []; delete z.note; } });   // [SNAP_ZONE_NOTE]
       if (sd2.note !== undefined) sd2.note = '';
       var _pk = _prodPack(d2, { track: 'snap', cust: cust }); if (_pk.err) continue;
       touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d2, {}, { pack: _pk }));
@@ -1651,6 +1656,7 @@ function buildProductionState(r) {
     },
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
     photoFriendOk: true,                       // [PHOTO_FRIEND] 이 서버는 «친구들과 자유롭게»(photoFriend)를 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
+    snapZoneNoteOk: true,                      // ★[SNAP_ZONE_NOTE] 이 서버는 공간별 «사진작가에게 전할 말»(zones[k].note)을 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용

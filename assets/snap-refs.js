@@ -63,6 +63,11 @@
     }
   };
   R.total = R.zones.reduce(function (a, z) { return a + z.min; }, 0) + R.move + R.prep;   // 단독 스냅 전체(분)
+  /* ★[SNAP_55 2026-09-26 사장님] 두 공간 촬영(옮기는 시간 포함) — 부부 화면 · 촬영 브리프는 이 한 덩어리로만 보여 준다.
+     사장님 원문: «이동5분은 없어도돼 캔들존으로 포함» · «캔들존 화이트존 55분 촬영 으로 딱시간정하지말고 뭉뚱그려서하자».
+     공간별 분(zones[].min · move)은 진행표(assets/sequence-modal.js)와 맞추는 원천이라 그대로 둔다 — 화면에만 나눠 보이지 않는다.
+     두 공간을 어떻게 나눌지는 현장에서 두 분이 고른 장면에 맞춘다(캔들존 먼저 · 하객 입장 전에 캔들존을 비운다). */
+  R.shoot = R.zones.reduce(function (a, z) { return a + z.min; }, 0) + R.move;
   R.scene = function (id) {   // 장면 번호 → {zone, s, base}
     for (var i = 0; i < R.zones.length; i++) {
       var z = R.zones[i], k;
