@@ -9837,11 +9837,29 @@ chk 'PAR_FOOTER_TIGHT' parents.html 3
 chk 'PAR_FOOTER_TIGHT2' parents.html 5
 chk '\.f-legal{margin-top:-8px}' parents.html 1
 chk 'PAR_TIME_TIDY' parents.html 1
-# [PARENT_ARRIVE_GUEST 2026-09-25 사장님] 부모님 도착 = 하객 입장(본식 20분 전). 표 4칸 → 3칸 · check-source-drift (6-c) 가 계산해 대조.
-chk 'PARENT_ARRIVE_GUEST' parents.html 1
-chk 'PARENT_ARRIVE_GUEST' scripts/check-source-drift.mjs 1
+# [PARENT_ARRIVE_EARLY 2026-09-26 사장님 「부모님은 5분 일찍 · 캔들존에서 화이트존 이동하는 5분」] 부모님 도착 = 본식 25분 전
+#   (하객 입장 20 + 이동 5 · 두 분이 캔들존을 비운 때). 종전 PARENT_ARRIVE_GUEST(하객과 같은 20분 전)는 입구에서 맞을 수가 없었다.
+#   check-source-drift (6-c) 가 sequence-modal 의 「하객 입장」 + 「이동 N분」으로 계산해 표 · 글줄을 대조한다.
+# [PARENT_SEAT_SOFT 2026-09-26 사장님 「분까지 딱딱하게 · 안내 음성 나오니 자연스럽게 인사하다 앉으면 된다고만」] «자리로 4분 전» 줄 · 칸 삭제.
+chk 'PARENT_ARRIVE_EARLY' parents.html 1
+chk 'PARENT_ARRIVE_EARLY' scripts/check-source-drift.mjs 1
+chk 'PARENT_SEAT_SOFT' parents.html 1
+chk 'PARENT_SEAT_SOFT' scripts/check-source-drift.mjs 1
+chk '<li>본식 시작 25분 전 · ' parents.html 1
+chk '안내 음성이 나오면 자리에 앉으시면 됩니다' parents.html 1
 chk 'STAMP_KST' scripts/gen-deploy-fns.mjs 1
 nochk '<li>본식 시작 40분 전' parents.html
+nochk '<li>본식 시작 20분 전' parents.html
+nochk '<li>본식 시작 4분 전' parents.html
+nochk '<th scope="col">자리로</th>' parents.html
+# [BAR_DARK · BAR_STOP_ACCENT 2026-09-26 사장님 「푸터 내려갔을 때 언발란스 · 하단바를 애초에 어둡게 · 멈춤은 궁금한 점 버튼 색」]
+#   듣기 막대 = 푸터와 같은 --footer-bg(맨 아래에서 한 덩어리) · 멈춤 = 먹갈색(--accent) + 금빛 가는 테(어두운 막대에 묻히지 않게).
+chk 'BAR_DARK' parents.html 4
+chk 'BAR_STOP_ACCENT' parents.html 1
+chk 'background:var(--footer-bg);border-top:1px solid rgba(245,241,233,0\.10)' parents.html 1
+chk 'color:#F5F1E9;background:var(--accent);border:1px solid var(--gold);border-radius:4px' parents.html 1
+nochk 'background:var(--seal);border:none;border-radius:4px' parents.html
+chk 'BAR_DARK' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 권위 문서에 «다크 테마가 아니다»가 있어야 다음 점검이 되돌리지 않는다
 # [코워크 5편 2026-09-25] 편지 모바일 괘선 · 미리보기 종이 · 형제 버튼 · 홈 Tab 메뉴 바탕 · 마이페이지 주 버튼 자간 · 디자인 문서 30명
 chk 'LETTER_PAPER_M' live.html 2
 nochk '\.lf-message{min-height:240px' live.html
@@ -9863,11 +9881,19 @@ chk 'SEG_ROW_TIGHT' live.html 1
 chk 'PAR_TIME_SCALE' parents.html 1
 chk 'font-size:calc(var(--letter-size) \* 0.8286)' parents.html 1
 nochk '\.par-time table{[^}]*font-size:13.5px' parents.html
-chk '  \.tools{justify-content:center}' parents.html 1
+# [PAR_TOOLS_RIGHT 2026-09-26 사장님 「듣기 · 인쇄 줄 우측으로 적절하게」] PC 도구 줄 = 편지 본문 칸 오른쪽 끝(가운데 PAR_PC_CENTER 를 이 줄만 되돌림).
+#   제목 블록 · 버튼 · 시간 카드의 가운데 축(PAR_PC_CENTER)은 그대로다.
+chk 'PAR_TOOLS_RIGHT' parents.html 1
+nochk '  \.tools{justify-content:center}' parents.html
 # [PAR_TIME_JUMP 2026-09-25 사장님 「추천대로」] 제목 아래 「예식 날 부모님 시간 보기 ↓」 — 카드가 쪽 끝(81~83%)이라 찾는 길. 전화번호는 공개 번호가 없어 두지 않음
 chk 'PAR_TIME_JUMP' parents.html 2
 chk 'class="hero-jump" href="#parTimeH"' parents.html 1
 chk 'id="parTimeH"' parents.html 1
+# [KO_WRAP_TAIL · CHECKS_NO_DANGLE 2026-09-26 사장님 「다른 페이지도 고객 입장에서 개선점」] 가격·예약 문장 꼬리 줄 · 폰 체크 줄 가운뎃점 매달림
+chk 'KO_WRAP_TAIL' index.html 1
+chk '\.price-lede, \.price-note span, \.cta-assure, \.access-value, \.ga-tab { word-break: keep-all; text-wrap: balance; }' index.html 1
+chk '100,000원)&#8288;을 제하고' index.html 1
+chk 'CHECKS_NO_DANGLE' inquiry.html 1
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html
