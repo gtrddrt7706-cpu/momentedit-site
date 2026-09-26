@@ -12485,6 +12485,9 @@ chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응
 chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk 'FIXTURE_0926' scripts/audit/import-voice-lock.mjs 2   # 들이기 검사는 얼린 9/26 순서표로(살아 있는 다시받기는 비었다)
 chk 'REC_STATE_FREE' scripts/audit/listen-page.mjs 3   # 보고 듣기 검사는 녹음 상태와 상관없이(녹음 기록을 비워 «녹음 전»을 만든다)
+chk 'COUPLE_EX_VOICE' order-preview.html 3   # [2026-09-26 사장님 «두 분 목소리 여기는 안 들리는데?»] 두 분 목소리 줄(하객 맞이 넷 · 입장 여섯)은 배역 예시 녹음 글 = 화면 글일 때 소리로
+chk "src:_lCastSrc(CAST_GUEST\[gi\],gt)" order-preview.html 1
+chk "src:_lCastSrc(CAST_ENTRY\[S.entry\],et)" order-preview.html 1
 chk '사흘씩 두지 말고 서준이한테 먼저 말해라\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk '엄마는 그거면 된다\.$' docs/plans/식순연구/배역_예시_대사.txt 1
 nochk '엄마는 그거면 돼\.' docs/plans/식순연구/배역_예시_대사.txt
