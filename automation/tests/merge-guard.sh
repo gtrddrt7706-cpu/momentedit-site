@@ -12574,3 +12574,79 @@ nochk "else if(fd.drink) fv+=' · '" mypage.html 0
 chk 'NOW_PAREN_GLUE' mypage.html 1
 chk "replace(/(\[가-힣0-9\])\\\\(/g,'\$1\\\\u2060(')" mypage.html 1
 chk 'INV_YN_FOCUS' mypage.html 4
+# ── 2라운드 묶음 H3a
+# ═══ [MP_AUDIT_R2_0926] 2026-09-26 병합 뒤 통합 점검 2라운드 — 묶음 H3a(R4 갈래 · 가족 · 친구 스냅 링크 칸 · 확정 3건 + 저장 실패 판 사진 몫) ═══
+# [BLUR_CLICK_ALL] 링크 칸 blur 다시 그리기를 이 화면 안의 누를 것 전부(단추 · 요약 · 칩) 뒤로 미룬다 — 아래 막대 «저장하고 마치기»([WZ_BAR] · data-wiz-* 없음) · «QR 이미지 저장» · 구도 칩 첫 누름이 먹히던 것([PHOTO_BLUR_CLICK] 은 머리 단추만 덮었다) · 머리 조건 문자열은 그대로 둔다
+chk 'BLUR_CLICK_ALL' mypage.html 1
+chk "_rt.closest('\[data-wiz-save\],\[data-wiz-exit\]')||(box.contains(_rt)&&_rt.closest('button,summary,a,\[role=button\]'))" mypage.html 1
+# [SHARE_GATE] 링크로 못 바꾸는 글이 칸에 남아 있으면 저장하지 않는다 — 아래 막대 · 나가기 판 «저장하고 나가기»(exitPhotoFlow) · 머리 «저장»(WIZ_ADAPT.photo) 세 길이 모두 관문을 지나 칸 아래 경고로(종전엔 경고가 막대에 가린 채 '' 저장 + «저장했어요» · 저장된 링크도 '' 로 지워졌다) · blur 에는 scrollIntoView 를 넣지 않는다
+chk 'function _photoShareGate(){' mypage.html 1
+chk "if(!String(PHOTOFLOW.share||'').trim() || photoShareNorm(PHOTOFLOW.share)) return true;" mypage.html 1
+chk '  if(!_photoShareGate()) return;   // \[SHARE_GATE\]' mypage.html 1
+chk 'save:function(){ if(!_photoShareGate()) return; return savePhoto(); },' mypage.html 1
+nochk 'save:function(){ return savePhoto(); },' mypage.html 0
+nochk 'if(PHOTOFLOW._exiting) return; PHOTOFLOW._exiting=true;' mypage.html 0
+nochk "psi.addEventListener('blur'.*scrollIntoView" mypage.html 0
+# [SHARE_GATE_WAYOUT] 관문이 저장을 멈추니 경고 둘째 줄이 나가는 길을 둘 다 말한다(«선택» 칸이라 비워도 된다)
+chk '<span class="ln-bal">주소 전체를 복사해 붙여&nbsp;넣거나 칸을 비워 주세요.</span>' mypage.html 1
+nochk '<span class="ln-bal">주소 전체를 복사해 붙여 주세요.</span>' mypage.html 0
+# [PHOTO_FAIL_STAY] 사진 저장 실패 판 «저장이 안 됐어요» — 바깥 · Esc 는 null(판만 닫고 머문다) · 명시적 «저장 없이 나가기»만 버린다([WIZ_EXIT_ONE] dismissNull · 나머지 네 판은 묶음 H3b)
+chk 'PHOTO_FAIL_STAY' mypage.html 1
+chk "no:'저장 없이 나가기', dismissNull:true }).then(function(again){ if(again===null) return; if(again){ exitPhotoFlow(); }" mypage.html 1
+nochk ".then(function(again){ if(again){ exitPhotoFlow(); }" mypage.html 0
+# [SHARE_EXTRACT] photoShareNorm 은 글 속 첫 http(s) 주소만 꺼낸다 · 스킴 없는 도메인은 첫 빈칸 앞까지만 · 끝 문장부호와 짝 없는 ')' 는 뗀다(«…abc 입니다»가 깨진 주소로 저장되던 것 · «링크: https://…»가 버려지던 것 · wishNorm 도 같은 함수)
+chk 'SHARE_EXTRACT' mypage.html 2
+chk 'var m=u.match(/https?:' mypage.html 1
+chk 'if(m) u=m\[0]; else { u=u.split(/\\s/)\[0]; if(' mypage.html 1
+chk "u.split('(').length<u.split(')').length" mypage.html 1
+nochk "function photoShareNorm(u){ u=String(u==null?'':u).trim(); if(!" mypage.html 0
+# [SHARE_EXTRACT] 검토 보완 — 스킴 없는 도메인 판정도 끝 문장부호를 뗀 뒤에 한다(«weduploader.com.»이 링크로 안 읽혀 관문에 막히던 것)
+chk "\[.,!?」』\]+\$/,''))) u='https://'+u; }" mypage.html 1
+# ── 2라운드 묶음 H3b
+# ═══ [MP_AUDIT_R2_0926] 2026-09-26 병합 뒤 통합 점검 2라운드 — 묶음 H3b(R4 갈래 · 판 · 초점 링 · 서명 판 · 애프터 웨딩) ═══
+# [SAVEFAIL_STAY] 저장 실패 판 «저장이 안 됐어요» — 바깥 누름 · Esc 는 null(판만 닫고 머문다) · 명시적 «저장 없이 나가기»(false)만 버린다 · 청첩장 · 좌석 · 스냅 기획 · 트랙 네 곳(사진 판은 H3a [PHOTO_FAIL_STAY])
+chk 'SAVEFAIL_STAY' mypage.html 5
+chk "no:'저장 없이 나가기', dismissNull:true })   // \[SAVEFAIL_STAY\]" mypage.html 4
+chk '.then(function(again){ if(again===null) return; if(again){ exitInvFlow(); }' mypage.html 1
+chk '.then(function(again){ if(again===null) return; if(again){ exitSeatFlow(); }' mypage.html 1
+chk '.then(function(again){ if(again===null) return; if(again){ exitSnapFlow(); }' mypage.html 1
+chk '.then(function(again){ if(again===null) return; if(again){ exitTrkFlow(); }' mypage.html 1
+nochk '.then(function(again){ if(again){ exitInvFlow(); }' mypage.html 0
+nochk '.then(function(again){ if(again){ exitSeatFlow(); }' mypage.html 0
+nochk '.then(function(again){ if(again){ exitSnapFlow(); }' mypage.html 0
+nochk '.then(function(again){ if(again){ exitTrkFlow(); }' mypage.html 0
+# [MODAL_GHOST_TAP] 방금 연 판(mpConfirm · mpAlert)은 450ms 동안 사람 손 클릭(isTrusted)을 캡처 단계에서 버린다 — 여는 단추 두 번 누름의 둘째가 가림막(판 닫힘 · null)이나 카드 단추(예식 확인서 «확정합니다»)에 떨어지지 않게
+chk 'MODAL_GHOST_TAP' mypage.html 2
+chk 'var _openAt=0; function _ghost(e){ if(e.isTrusted && Date.now()-_openAt<450){ e.stopImmediatePropagation(); e.preventDefault(); } }' mypage.html 1
+chk "    ov.addEventListener('click',_ghost,true);" mypage.html 1
+chk "ov.onclick=null; ov.removeEventListener('click',_ghost,true);" mypage.html 1
+chk '    _openAt=Date.now();   // \[MODAL_GHOST_TAP\]' mypage.html 1
+# [CC_MORE_RING] 접힘 줄(details.cc-more>summary) 키보드 초점 링 — 모든 cc-more(상담 «예식까지 함께 챙길 것들» · 시착 «동의 내용 보기» 포함) · outline:none 에 대체
+chk 'CC_MORE_RING' mypage.html 1
+chk '^    details\.cc-more>summary:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}' mypage.html 1
+# [FOCUS_RING_DEEP] 공용 초점 링(.btn · 로그아웃 · MOMENT EDIT · 코드 복사)은 --gold-deep(5.71:1) — --gold(2.54:1 · 장식 전용)로 되돌리지 말 것
+chk 'FOCUS_RING_DEEP' mypage.html 1
+chk '\.foot-actions button:focus-visible,\.codecard \.copy:focus-visible,\.brand-link:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px' mypage.html 1
+nochk '\.brand-link:focus-visible{outline:2px solid var(--gold);' mypage.html 0
+# [SIGN_DOT_BIND] 계약서 서명 판 — 가운뎃점 · 괄호 뒤 조사를 U+2060 으로(mpSignaturePad 가 escapeHtml 이라 문자 ⁠ · &#8288; 금지) · 스냅 둘째 체크는 계약서 글자째 게이트라 그대로
+chk 'SIGN_DOT_BIND' mypage.html 1
+chk '제7조 청약철회\\u2060·\\u2060무상취소, 제9조 위약금' mypage.html 1
+chk '시기별 위약금 표와 청약철회\\u2060·\\u2060무상취소 기간을 확인했습니다. (제7조\\u2060·\\u2060제9조)' mypage.html 1
+chk '사용(옵트인)\\u2060과 개인정보 처리를 확인했습니다. (제13조\\u2060·\\u2060제14조)' mypage.html 2
+chk '예식 진행 안내 음성(나레이션)\\u2060은 AI 음성으로 미리 제작되며' mypage.html 1
+nochk '청약철회·무상취소' mypage.html 0
+nochk '(제13조·제14조)' mypage.html 0
+nochk '(옵트인)과 개인정보' mypage.html 0
+nochk '(나레이션)은 AI' mypage.html 0
+# [DN_ATTR_KB] 애프터 웨딩 «예식 후 가볼 만한 곳» 펼침 = button(aria-expanded · 펼쳤을 때만 aria-controls) · 다시 그린 뒤 같은 단추로 초점 · 겉모양은 단추 초기화로 그대로
+chk 'DN_ATTR_KB' mypage.html 4
+chk '<button type="button" class="dn-attr-h" id="dn_attr_h" aria-expanded=' mypage.html 1
+chk 'dn-attr-list" id="dn_attrBody"' mypage.html 1
+chk "render(box); _dnRefocus(function(){ return .('dn_attr_h'); }); }); }" mypage.html 1
+chk '^button\.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left' mypage.html 1
+chk '^\.dn-attr-h:focus-visible{outline:2px solid var(--gold-deep)' mypage.html 1
+nochk '<div class="dn-attr-h"' mypage.html 0
+# [DN_RO_LATIN] (으)로 도우미 — 한글 아닌 끝은 m · n · ng 만 «으로», 숫자는 읽는 소리대로, 그 밖은 조사가 바뀌지 않는 «에»(«Soul Club에 예약만 마치면»)
+chk 'DN_RO_LATIN' mypage.html 2
+chk "if(/\[036\]\$/.test(t)) return '으로'; if(/\[0-9\]\$/.test(t)) return '로'; if(/(ng|\[mn\])\$/i.test(t)) return '으로'; return '에'; }" mypage.html 1
+nochk "return '으로'; return '로'; }" mypage.html 0
