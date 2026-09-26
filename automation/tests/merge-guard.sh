@@ -12124,7 +12124,7 @@ chk 'LETTER_ONE_ADDR' automation/platform/87_letter.gs 1
 chk "if (email && email.indexOf('@') !== -1 && !seen\[k\])" automation/platform/87_letter.gs 1
 chk 'LETTER_ONE_ADDR' scripts/audit/letter-sim.mjs 3
 chk 'oneAddrGuard();   // \[LETTER_ONE_ADDR\] D5' scripts/audit/letter-sim.mjs 1
-# [ACCEPT_DEP_ALERT · DEP_TICK_TRUTH] 2026-09-26 통합 점검 L4 — 변경 제안 수락으로 확정됐는데 예약금 입금확인이 비면 관리자 메일 · 관리자 경고문을 사실대로(상담 카드 «입금 확인 전» · 계약서 발송 뒤 내 내역 «결제 완료») · 관리자 상담 카드에도 한 줄(고객 상담 카드 문구는 사장님 결정 대기라 안 건드림)
+# [ACCEPT_DEP_ALERT · DEP_TICK_TRUTH] 2026-09-26 통합 점검 L4 — 변경 제안 수락으로 확정됐는데 예약금 입금확인이 비면 관리자 메일 · 관리자 경고문을 사실대로(고객 상담 카드엔 금액만 [DEP_OK_AMOUNT] 사장님 결정 ㉚ · 계약서 발송 뒤 내 내역 «결제 완료») · 관리자 상담 카드에도 한 줄
 chk 'ACCEPT_DEP_ALERT' automation/consultation/consultation-booking.gs 1
 chk "String(row.get('입금확인') || '').trim() !== '확인' && typeof _nfAdminLineEmail === 'function'" automation/consultation/consultation-booking.gs 1
 chk 'ACCEPT_DEP_ALERT' admin.html 1
@@ -12457,3 +12457,13 @@ chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식�
 chk '사흘씩 두지 말고 서준이한테 먼저 말해라\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk '엄마는 그거면 된다\.$' docs/plans/식순연구/배역_예시_대사.txt 1
 nochk '엄마는 그거면 돼\.' docs/plans/식순연구/배역_예시_대사.txt
+# ═══ [MP_AUDIT_R2_0926] 2026-09-26 병합 뒤 통합 점검 2라운드 ═══
+# [ACCEPT_DEP_SUBJ] 변경 수락 확정 관리자 메일 — 제목(앞 60자)에 경고가 먼저 · 날짜는 짧은 꼴(옛 순서는 «…15:»에서 잘려 경고가 제목에 없었다)
+chk 'ACCEPT_DEP_SUBJ' automation/consultation/consultation-booking.gs 2
+chk "_nfAdminLineEmail('\[모먼트에디트\] 예약금 입금확인 비어 있음 · 변경 수락 확정 · ' + coupleNames(row) + ' · ' + shortDate(nd)" automation/consultation/consultation-booking.gs 1
+nochk "변경 제안 수락으로 상담 확정 ' + coupleNames" automation/consultation/consultation-booking.gs
+# [DEP_TICK_TRUTH 2라운드] 관리자 예약금 경고 두 줄 — .raw·.cnote 의 break-all 이 낱말 중간을 끊었다 → 그 두 줄만 keep-all
+chk 'color:#b00;word-break:keep-all">⚠ 예약금' admin.html 2
+# [FIELD_NAMES 2라운드] 임시 고정 변경·예식일 변경 날짜 칸도 보이는 이름표와 잇는다(계약서 요청 폼과 같게)
+chk "labelledby:'mp_heDateLab'" mypage.html 1
+chk "labelledby:'mp_chgDateLab'" mypage.html 1

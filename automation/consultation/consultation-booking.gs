@@ -452,8 +452,11 @@ function actAccept(sheet, colOf, row) {
     var _adCode = String(row.get('개인코드') || '').trim(), _adCu = _adCode ? findCustomerByCode(_adCode) : null;
     var _adSnap = !!_adCu && String(_adCu.get('상품타입') || '').trim() === '웨딩스냅';
     if (!_adSnap && String(row.get('입금확인') || '').trim() !== '확인' && typeof _nfAdminLineEmail === 'function') {
-      _nfAdminLineEmail('[모먼트에디트] 변경 제안 수락으로 상담 확정 ' + coupleNames(row) + (_adCode ? (' · ' + _adCode) : '') + ' · ' + prettyDate(nd) + ' ' + nt
-        + ' · 예약금 입금확인 칸이 비어 있음 / 통장 확인 뒤 예약 시트 입금확인 채우기');
+      /* [ACCEPT_DEP_SUBJ 2026-09-26 통합 점검 2라운드 R2] 관리자 메일 제목은 앞 60자에서 잘린다(_nfAdminLineEmail) —
+         종전 순서는 «…상담 확정 김희준 · 이미쿠 · M123 · 2026년 10월 4일 (일) 15:»에서 끊겨 경고(«입금확인 칸 비어 있음»)가 제목에 없었다.
+         경고를 맨 앞에 두고 날짜는 짧은 꼴(shortDate)로 — 60자 안에 경고·이름·시각이 다 든다(5자 이름까지 실측). 본문 줄은 그대로. */
+      _nfAdminLineEmail('[모먼트에디트] 예약금 입금확인 비어 있음 · 변경 수락 확정 · ' + coupleNames(row) + ' · ' + shortDate(nd) + ' ' + nt
+        + (_adCode ? (' · ' + _adCode) : '') + ' / 통장 확인 뒤 예약 시트 입금확인 채우기');   // [ACCEPT_DEP_SUBJ]
     }
   } catch (eAD) {}
   writeCell(sheet, colOf, row.num, '변경제안날짜', '');   // [ACCEPT_GUARDED C2] 소진된 제안은 비운다 — 낡은 [수락]이 되살아나지 않게

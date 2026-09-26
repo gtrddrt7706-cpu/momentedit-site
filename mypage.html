@@ -3948,7 +3948,7 @@ function doHoldEdit(h){
   var SLOTS=['09:00','12:20','15:40'];
   var opts='<option value="">선택해 주세요</option>'+SLOTS.map(function(t){return '<option value="'+t+'"'+(h&&h.slot===t?' selected':'')+'>'+escapeHtml(wedTimeKo(t))+'</option>';}).join('');   // [WED_CLOCK12] 보이는 시각은 wedTimeKo 한 곳에서(«오후 1:40») · 값은 슬롯 ID 그대로 [SLOT_CLOCK]
   var bodyHtml='<div style="text-align:left">'
-    +'<div style="font-size:12px;color:var(--sub);margin:0 0 6px">예식 날짜</div>'+dtPickerHtml('mphe','mp_heDate','날짜를 선택해 주세요',{value:(h&&h.date)||''})
+    +'<div id="mp_heDateLab" style="font-size:12px;color:var(--sub);margin:0 0 6px">예식 날짜</div>'+dtPickerHtml('mphe','mp_heDate','날짜를 선택해 주세요',{value:(h&&h.date)||'',labelledby:'mp_heDateLab'})   // [FIELD_NAMES] 2라운드 R2 · 보이는 이름표와 잇는다(label 로 바꾸면 인라인이 돼 2px 밀린다)
     +'<label for="mp_heSlot" style="display:block;font-size:12px;color:var(--sub);margin:12px 0 6px">예식 시간 · 본예식 시작 기준</label><select id="mp_heSlot" class="cc-input">'+opts+'</select>'   // [FIELD_NAMES] 보이는 이름표를 칸과 잇는다 — 종전엔 화면 읽기가 이름 없는 목록으로 읽었다
     +'<div class="cc-mini" style="margin-top:8px;color:var(--light);line-height:1.6;text-align:left">변경을 요청하시면 디렉터가 다시 확인한 뒤 안내드려요.</div></div>';
   var p=mpModalOpen({ title:'예식일 변경', bodyHtml:bodyHtml, confirmText:'변경 요청', cancelText:'닫기' });
@@ -4694,7 +4694,7 @@ function renderChangeWizard(ctx, host){
     +'<div class="vg-row"><span class="vg-k">경조사 면제</span><span class="vg-v vg-muted">본인·직계가족의 경조사 등 부득이한 사유가 증빙되면 시기와 관계없이 1회 면제돼요.</span></div>'
     +'<div style="text-align:center;margin-top:8px"><button type="button" class="cc-btn-ghost" id="mp_chgAskAi" style="display:inline-block;width:auto;padding:8px 18px">무상 변경·면제 물어보기</button></div>'
     +'</div></details>'
-    +'<label class="pf-l" style="margin-top:12px">변경할 예식 날짜</label>'+dtPickerHtml('mpchg','mp_chgDate','날짜를 선택해 주세요',{})
+    +'<label class="pf-l" id="mp_chgDateLab" style="margin-top:12px">변경할 예식 날짜</label>'+dtPickerHtml('mpchg','mp_chgDate','날짜를 선택해 주세요',{labelledby:'mp_chgDateLab'})   // [FIELD_NAMES] 2라운드 R2
     +'<div id="mp_chgSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 본예식 시작 기준</span></label><div class="wed-slot-row" id="mp_chgSlotRow"></div><div class="cc-note" id="mp_chgSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
     +'<input type="hidden" id="mp_chgTime" value="">'
     +'<div id="mp_chgQuote"></div>'
