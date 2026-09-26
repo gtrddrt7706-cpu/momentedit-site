@@ -2249,6 +2249,7 @@ function doPost(e) {
       case 'guestPhoto':         return jsonOut(handleGuestPhoto(body));  // [GUEST_PHOTO_IN] 하객 사진 업로드 1건(무인증·토큰) — guide.html · 80_production
       case 'snapRefUpload':      return jsonOut(handleSnapRefUpload(body));   // [SNAP_PICK_V2] 스냅 기획 «찾던 그림» 올리기(세션 인증) — mypage · 80_production
       case 'snapThumbs':         return jsonOut(handleSnapThumbs(body));      // [SNAP_PICK_V2] 올린 그림의 작은 그림(세션 인증 · 이 고객 것만)
+      case 'snapWithdraw':       return jsonOut(handleSnapWithdraw(body));    // [SNAP_CONSENT] «스냅 기획 지우기» — 기획 · 올린 사진 · 동의 기록을 지운다(세션 인증 · 이 고객 것만)
       case 'snapBrief':          return jsonOut(handleSnapBrief(body));       // [SNAP_BRIEF] 촬영 브리프(무인증 · 추측 불가 주소 · 촬영 7일 뒤 만료) — brief.html
       case 'snapBriefImg':       return jsonOut(handleSnapBriefImg(body));    // [SNAP_BRIEF] 브리프의 올린 사진 1장(그 기획에 실린 것만)
 

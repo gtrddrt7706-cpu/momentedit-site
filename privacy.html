@@ -108,6 +108,8 @@ section.article:first-of-type{border-top:none;padding-top:8px}
 
 /* Spec table */
 .spec-table{margin:14px 0 8px;padding:16px 18px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;gap:12px}
+#snap-plan{scroll-margin-top:96px}   /* [SNAP_CONSENT] 고정 메뉴 아래로 */
+#snap-plan:target{background:var(--bg2);border-radius:6px}
 .spec-row{display:grid;grid-template-columns:90px 1fr;gap:16px;align-items:baseline;font-family:var(--serif-ko);font-size:12.5px;font-weight:300;line-height:1.75;letter-spacing:0.01em;color:var(--sub);word-break:keep-all}
 .spec-key{font-family:var(--serif-ko);font-size:12px;font-weight:500;letter-spacing:0.04em;color:var(--accent);text-align:left}
 .spec-val{color:var(--sub);font-size:12.5px}
@@ -208,7 +210,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
   <h1 class="hero-title">개인정보 처리방침</h1>
   <div class="hero-sub">모먼트에디트 (Moment Edit)<span class="hero-seal-dot" aria-hidden="true"></span></div>
   <div class="hero-divider"></div>
-  <div class="hero-meta">개정 시행일자 · 2026.10.03 (공고 2026.09.26)</div><!-- [SNAP_PRIVACY 2026-09-26 사장님 결정 D12] 자기 규정 «시행 7일 전 공지»(10조) — 공고 9/26 · 시행 10/3 -->
+  <div class="hero-meta">개정 시행일자 · 2026.09.26 (공고 2026.09.26)</div><!-- [SNAP_PRIVACY 2026-09-26 사장님 결정 D12] 처음엔 자기 규정 «시행 7일 전 공지»(10조)로 공고 9/26 · 시행 10/3 이었다. ★[SNAP_OPEN_NOW 2026-09-26 사장님 결정] 스냅 기획은 선택이고 그 자리에서 따로 동의를 받게 되어(SNAP_CONSENT) 10조 단서(«정보주체의 권리에 불리하지 않은 변경은 공고와 동시에 시행»)로 공고일에 시행한다. 날짜는 80_production SNAP_V2.from 과 같아야 한다(snap-plan 이 잰다) -->
 </div>
 
 <main>
@@ -265,9 +267,9 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
           <span class="spec-key">예식 구성</span>
           <span class="spec-val">다이닝 구성(예상 인원·식사 형태·협력사 선택), 예식 의례 순서·입퇴장 음악·축가·타임라인 등</span>
         </div>
-        <div class="spec-row">
+        <div class="spec-row" id="snap-plan"><!-- [SNAP_CONSENT] 마이페이지 스냅 기획 동의의 «개인정보 처리방침 전문 보기»가 이 줄로 온다(id 를 바꾸지 말 것) -->
           <span class="spec-key">스냅 기획</span>
-          <span class="spec-val">공간별로 고른 촬영 장면, 참고 링크, 두 분이 올린 참고 사진, 촬영 작가에게 전할 메모(잘 나오는 쪽·신경 쓰이는 점 등) (선택)</span>
+          <span class="spec-val">공간별로 고른 촬영 장면, 참고 링크, 두 분이 올린 참고 사진, 촬영 작가에게 전할 메모(잘 나오는 쪽·신경 쓰이는 점 등) (선택 · 따로 동의를 받은 경우에만)</span>
         </div>
         <div class="spec-row">
           <span class="spec-key">결과물</span>
@@ -402,7 +404,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
         </div>
         <div class="spec-row">
           <span class="spec-key">촬영(스냅)</span>
-          <span class="spec-val">모먼트에디트와 계약한 사진작가 (국내) · 예식 당일 스냅 촬영 및 촬영 브리프 확인 (예식 일시, 스냅 기획 내용·두 분이 올린 참고 사진, 촬영 이미지 · 성함·연락처는 제공하지 않음 · 2026년 10월 3일부터)</span>
+          <span class="spec-val">모먼트에디트와 계약한 사진작가 (국내) · 예식 당일 스냅 촬영 및 촬영 브리프 확인 (예식 일시, 스냅 기획 내용·두 분이 올린 참고 사진, 촬영 이미지 · 성함·연락처는 제공하지 않음 · 2026년 9월 26일부터)</span>
         </div><!-- [PHOTOG_CONTRACT 2026-09-26 사장님] 모먼트에디트와 계약한 사진작가가 찍는다(매번 바뀌는 외부 작가가 아니다) — 개인정보 조항은 작가 계약서에 넣는다. «촬영별 개별 계약»으로 되돌리지 말 것(snap-plan 이 잰다) -->
         <div class="spec-row">
           <span class="spec-key">카드 결제</span>
@@ -516,7 +518,7 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
         </div>
         <div class="spec-row">
           <span class="spec-key">시행일자</span>
-          <span class="spec-val">2026년 10월 3일 (스냅 기획 참고 사진 수집·보관 기간, 촬영 사진작가 위탁 추가) · 직전 개정 2026년 7월 12일 (문자·알림톡·AI 상담·카드결제 위탁사 추가)</span>
+          <span class="spec-val">2026년 9월 26일 (스냅 기획 항목 추가 · 선택 동의를 받은 경우에만 수집, 촬영 사진작가 위탁 추가) · 10조 단서에 따라 공고와 동시에 시행 · 직전 개정 2026년 7월 12일 (문자·알림톡·AI 상담·카드결제 위탁사 추가)</span>
         </div>
       </div>
     </div>
