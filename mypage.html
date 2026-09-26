@@ -8738,10 +8738,13 @@ function prodConfirmHtml(p, inv){
   var L='';
   // 예식 일시 — 확인서의 기준 정보(스냅샷에도 기록 · 2026-07-18 사용자 요청 상세화)
   var _bw=p.base||{}, _wm=String(_bw.weddingDate||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  /* [CF_DATE_NBSP] 2026-09-26 통합 점검 L6 · 320 · 340 값 칸(116 · 136px)에서 «2027년 3월 / 26일 · 오후 1:40»으로 날짜 한가운데가 갈렸다 —
-     12시간제([WED_CLOCK12])로 글이 짧아지자 balance 가 자를 자리를 날짜 안쪽으로 골랐다(그 전엔 «… 26일 / · 오후 13:40»으로 점이 줄 머리였다).
-     연도 뒤에서만 갈리게 «3월 26일 · 오후 1:40»을 붙인다(NBSP). 확정 기록(wireProdConfirm)은 \s+ 로 접어 글자가 같다. 요일은 넣지 않는다(기록 글자가 바뀐다) */
-  if(_wm) L+=line('예식 일시', escapeHtml(_wm[1]+'년 '+(Number(_wm[2])+'월 '+Number(_wm[3])+'일'+(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g,'\u00a0')));
+  /* [CF_DATE_NBSP] 2026-09-26 통합 점검 L6 · 320 · 340 값 칸(116 · 136px)에서 «2027년 3월 / 26일 · 오후 1:40»으로 날짜 한가운데가 갈렸다
+     (12시간제 [WED_CLOCK12]로 글이 짧아지자 balance 가 날짜 안쪽을 골랐다). 첫 고침은 «3월 26일 · 오후 1:40»을 NBSP 한 덩어리로 묶었는데,
+     그 덩어리가 값 칸(84px 1fr)의 최소 폭이 돼 320~325 에서 긴 날짜(«10월 10일 · 오전 10:20»)가 칸 밖으로 3~10px 넘쳤다(G4 검토 실측 180조합 중 84).
+     → 이 화면의 다른 예식 일시(내 내역 · 임시 고정 · 결제 카드)와 같은 fmtWedKoT 로 쓴다: «2027년 3월 26일 (금) · 오후 1:40» —
+     «3월 26일»과 «(금) · 오후 1:40»이 각각 한 덩어리라 연도 뒤·날짜 뒤에서만 갈리고, 가운뎃점은 줄 끝·머리에 서지 않는다.
+     확정 기록(wireProdConfirm)에는 요일이 더해진다(같은 날의 같은 뜻 · 옛 기록은 그대로). */
+  if(_wm) L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate).slice(0,10), _bw.weddingTime) : (fmtWedKo(String(_bw.weddingDate).slice(0,10)) || (_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'))));   // [CF_DATE_NBSP]
   L+=line('예식 장소', '경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="cc-mini" style="display:block;margin-top:2px">3호선 원당역에서 버스 <span style="white-space:nowrap">약 15분 · 전용 주차 가능</span> <span class="ln-bal">정확한 위치는 <span style="white-space:nowrap">예식 전에</span> 안내드려요</span></span>');   // [PLACE_NO_DOT] 상담 카드와 같은 나눔(가운뎃점이 줄 머리·끝에 매달리지 않게) · [PLACE_SNAP_SPACE] 두 덩어리 사이 공백은 확정 기록(textContent) 용 — 지우지 말 것   // MPD_D1 D-7에 장소·오시는 길을 되찾을 경로가 없던 것(§7-1-③) — 상담 카드는 상담완료 후 숨김이라 확인서에 상시화
   // 청첩장 — 구성·디자인 번호까지(발행됨 한 단어로는 무엇을 발행했는지 알 수 없음)
   var _ivd=(inv.draft||{}), _im=_invMethodEff(_ivd);   // [INV_SKIP_ROW] 서버에 'none' 으로 남은 「개인 제작 · QR 아니요」는 개인 제작으로 읽는다
