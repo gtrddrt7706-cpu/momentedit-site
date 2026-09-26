@@ -648,9 +648,9 @@ body.menu-open .nav-wordmark {
   justify-content: center;
   gap: 3px;
 }
-.nav-toggle:focus {
-  outline: none;
-}
+/* ★[NAV_TOGGLE_RING 2026-09-26] 여기 있던 `.nav-toggle:focus { outline: none }` 을 걷었다.
+   특정도(0,2,0)가 전역 `:where(…):focus-visible` 초점 테(0,1,0)를 이겨, 681~1023px 에서 키보드로 本 MENU 에
+   오면 테가 안 보였다(WCAG 2.4.7). 마우스·터치로 누를 때 테를 지우는 일은 전역 `:where(…):focus` 가 이미 한다. */
 .nav-toggle-seal {
   font-family: var(--serif-ko, serif);
   font-size: 16px;
@@ -709,8 +709,11 @@ body.menu-open .nav-wordmark {
   letter-spacing: 0.14em;
   opacity: 0;
 }
+/* ★[MENU_CLOSE_HIT 2026-09-26] 열린 동안에도 누를 수 있다 — 本 은 닫기도 한다(열 때 누른 그 자리).
+   none 이던 때는 681~1023px 에서 本 이 메뉴 위에 보이는데 눌러도 아무 일이 없었다.
+   아래 `body.menu-open nav { pointer-events: none }` 이 상단 바 전체를 통과시키므로 여기서 다시 켠다. */
 .nav-toggle[aria-expanded="true"] {
-  pointer-events: none;
+  pointer-events: auto;
 }
 .nav-toggle[aria-expanded="true"] .nav-toggle-label::after {
   opacity: 0.7;
@@ -842,7 +845,8 @@ body.menu-open .nav-wordmark {
        · 사파리(viewport-fit=cover)          → 오버레이가 상태바를 덮음 → 인셋 59 필요
      고정 104px은 전자에서 상태바 60 + 104 = 164px이 통째로 비어 "너무 내려가 있다"가 됐다
      (2026-08-01 사용자 지적 · 실기기 스크린샷 실측 181px). env()로 두 경우를 한 식에 담는다.
-     뒤에 깔린 nav는 메뉴가 열리면 항상 nav-hidden(opacity 0)이라 비칠 걱정이 없다(실측). */
+     뒤에 깔린 nav는 메뉴가 열리면 항상 nav-hidden(opacity 0)이라 비칠 걱정이 없다(실측 · 폰 폭).
+     ★681~1023px 은 다르다 — nav 가 보이는 채로 메뉴 위에 뜬다([MENU_CLOSE_HIT] · body.menu-open nav). */
   padding: calc(40px + env(safe-area-inset-top)) 32px 48px;
   min-height: 100%;
   display: flex;
@@ -1029,7 +1033,7 @@ body.menu-open .nav-wordmark {
   padding-left: 0.24em;
   line-height: 1;
 }
-/* 메뉴가 열려 있을 때: 스크롤 잠금 + nav 위로 올려 "Close" 표시 */
+/* 메뉴가 열려 있을 때: 스크롤 잠금 + nav 를 메뉴 위로 올려 本 을 보인다 */
 body.menu-open {
   overflow: hidden;
   touch-action: none;
@@ -1047,8 +1051,16 @@ body::-webkit-scrollbar,
   height: 0;
   display: none;
 }
+/* ★[MENU_CLOSE_HIT 2026-09-26 사장님 「pc버전 창을 좀 줄이면 … 클로즈가 안 먹어」]
+   z-index 201 은 메뉴(200) 위다. 681~1023px 에서는 상단 바가 fixed 로 떠 있어서, 투명한 .nav-in 띠(높이 약 84px)가
+   메뉴 안의 Close(y 28~72)를 덮고 클릭을 가져갔다(elementFromPoint 실측 = div.nav-in · 네 폭 전부).
+   폰(≤680)은 nav 가 static · .nav-in 이 display:none 이라 멀쩡했다. [MM_TOPROW] 를 폰 폭에서만 쟀고,
+   [NAV_TABLET_FIX] 가 햄버거를 1023px 까지 넓히면서 두 결정이 만나는 폭이 생겼다.
+   → 보이기는 위에서, 클릭은 통과시킨다. 本 만 위(.nav-toggle[aria-expanded="true"])에서 다시 켠다.
+   지키는 검사: scripts/audit/menu-close-hit.mjs */
 body.menu-open nav {
   z-index: 201;
+  pointer-events: none;
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -7294,8 +7306,11 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   });
 
   // 데스크톱으로 리사이즈되면 자동으로 닫기
+  // ★[MENU_CLOSE_HIT 2026-09-26] 기준은 상단 메뉴가 펼쳐지는 폭(> 1023 · [NAV_TABLET_FIX] 전환점)이다.
+  //   680 이던 때는 창 폭이 681~1023px 안에서 조금만 바뀌어도(PC 창 끌기 · 폰 가로 돌리기 · 태블릿 분할 화면)
+  //   열린 메뉴가 저절로 닫혔다(실측 940→900px). 그 폭에서도 메뉴는 여전히 이 전체 메뉴라 닫을 까닭이 없다.
   window.addEventListener('resize', function(){
-    if (window.innerWidth > 680 && menu.classList.contains('open')) closeMenu();
+    if (window.innerWidth > 1023 && menu.classList.contains('open')) closeMenu();
   });
 })();
 </script>

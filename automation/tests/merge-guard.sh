@@ -1863,6 +1863,26 @@ if command -v node >/dev/null 2>&1; then node scripts/check-typecast-handoff.mjs
 chk 'ADV_INDEX' index.html 3                                 # 목차형 메뉴 3곳(칩·라벨·›) · 선 없애고 여백으로 나눔 · ›를 글자 뒤에 붙임 · 14px
 chk 'ADV_TC' index.html 5                                    # 상태바 진사 띠 방지 · 히어로 잠금 + 동기화 훅 + 상담패널 + 모바일 메뉴(열기/닫기)
 chk 'MM_TOPROW' index.html 6                                 # Close를 눈썹 행에 묶음 + 상단 여백 env() · 절대배치/고정 104px로 되돌리면 기기마다 어긋난다
+# ── [MENU_CLOSE_HIT 2026-09-26 사장님 지적 「pc버전 창을좀줄이면 위메뉴가 저렇게 바뀌는데 클로즈가 안먹어」] ──
+#   681~1023px 에서 전체 메뉴를 열면 상단 바(body.menu-open nav · z 201)가 메뉴(z 200) 위에 떠서
+#   Close 를 덮고 클릭을 가져갔다(700·768·940·1023 실측 · Close 한가운데의 주인 = div.nav-in). 本 도 열린 동안 안 먹었다.
+#   폰은 nav 가 static · .nav-in 이 숨어 멀쩡했다 — MM_TOPROW 를 폰 폭에서만 쟀고 NAV_TABLET_FIX 가 그 사이 폭을 만들었다.
+#   ① 정적(CSS)은 여기 PR 에서도 돈다 — nav 가 메뉴 위면 pointer-events: none 이어야 한다. 틀리면 1 → 막는다.
+#   ② 실측(390·681·820·940·1023 · 本 으로 닫기 · 창 크기 자동 닫힘 1023)은 브라우저가 있는 야간·로컬에서 돈다.
+if command -v node >/dev/null 2>&1; then node scripts/audit/menu-close-hit.mjs >/dev/null 2>&1; _mc=$?
+  case "$_mc" in
+    0) echo 'ok menu-close-hit: 390·681·820·940·1023px 모두 Close 가 눌리고 닫힌다' ;;
+    1) echo 'FAIL menu-close-hit: 전체 메뉴 Close 가 안 눌리는 폭이 있습니다 — node scripts/audit/menu-close-hit.mjs'; fail=1 ;;
+    *) echo 'ok menu-close-hit: ① 정적 통과 · ② 실측은 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'MENU_CLOSE_HIT' index.html 4                            # nav 통과 · 本 다시 켬 · 자동 닫힘 1023 · 옛 주석 정정
+chk 'MENU_CLOSE_HIT' scripts/audit/menu-close-hit.mjs 1      # 위 검사 자체
+chk 'MENU_CLOSE_HIT' .claude/skills/momentedit-design/SKILL.md 1   # 교훈 — 투명해도 상자는 클릭을 받는다
+# [NAV_TOGGLE_RING 2026-09-26] 같은 점검(web-design-guidelines · Focus States)에서 나온 것 — `.nav-toggle:focus { outline: none }`(0,2,0)이
+#   전역 :where(…):focus-visible 테(0,1,0)를 이겨 681~1023px 에서 키보드로 本 MENU 에 와도 테가 없었다(실측 none 0px → 걷은 뒤 solid 2px).
+nochk '^\.nav-toggle:focus {' index.html 0                    # 되살리면 키보드 사용자가 本 MENU 위치를 못 본다
+chk 'NAV_TOGGLE_RING' index.html 1
 chk '__meTCSync' index.html 2                                # 잠금 해제 시 캐시 비우고 재계산 · 없으면 닫은 뒤 테마색이 한 번 씹힌다
 chk 'ADV_OPEN_TOP' index.html 1                              # fab 클릭에 open을 그대로 넘기면 MouseEvent가 keepScroll로 들어가 목록 상단이 잘린다
 chk 'me-adv-chip:active' index.html 1                        # 폰엔 호버가 없다 · 눌림 워시를 지우면 탭 피드백이 사라진다
