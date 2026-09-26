@@ -2748,6 +2748,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
     /* ★[PHOTO_CALLER 2026-09-26 코워크 회신5 3-4] 당일 콘솔을 이 고객의 식순으로 연다 — 콘솔은 식순(S)을 주소로 받는다.
        «불러 모아 주실 분»도 함께 실어 콘솔 «촬영 안내 골라 틀기» 판 머리에 보이게 한다(디렉터가 이 분께 먼저 말씀드린다). */
     try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')}; if(gi&&Array.isArray(gi.photo)) _cS.photoN=gi.photo.length; if(gi&&gi.photoFriend) _cS.photoFriend=String(gi.photoFriend).slice(0,200);   /* [PHOTO_FRIEND] 당일 콘솔 판 머리에 */   /* [GROUP_PHOTO 2026-09-26] 가족 구도 수 — 콘솔 narr-photo-split 의 est(3분 × 구도 수) */
+      if(gi&&Array.isArray(gi.photoWish)) _cS.photoWishN=Math.min(2,gi.photoWish.filter(function(w){ return w&&String(w.what||'').trim(); }).length); else if(gi&&Array.isArray(gi.photoFx)) _cS.photoWishN=Math.min(2,gi.photoFx.length);   /* [WISH_COUNT 2026-09-26 코워크 최종판 2-6] 적은 요청 수 — 콘솔 end-0-photo 목표(360 + 60 × 수) · 옛 저장분은 photoFx 로 */
       _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'">당일 콘솔</a>'; }catch(e){}
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
