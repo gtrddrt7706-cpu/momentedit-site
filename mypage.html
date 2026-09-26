@@ -1717,6 +1717,30 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .now-refresh::after{content:'';position:absolute;inset:-6px;border-radius:50%}
 .cc-btn-ghost{position:relative}
 .cc-btn-ghost::after{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px}
+/* ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
+   입력 화면(청첩장 · 애프터 웨딩/최종 · 좌석 · 가족·친구 스냅 · 스냅 기획)의 아래 단추 줄 = 식순 빌더(order-preview.html .nav)와 같은 막대.
+   ①화면 아래에 붙는다 — 긴 화면에서도 «다음»이 늘 보인다(식순 [ORD_STICKYNAV]과 같은 이유).
+   ②위 15px 는 흐려지며 끝난다 — 불투명한 띠로 자르면 글이 끝난 줄 알고 스크롤을 멈춘다.
+   ③되돌아가는 쪽(이전 · 수정하기)은 좁은 회색 · 앞으로 가는 단추는 넓은 먹빛(.cc-btn #4E3F31 = 식순 .btn-next).
+   ④오류 한 줄(.wz-err)은 막대 안 — 막대가 아래에 붙으면 내용 끝의 오류 줄은 화면 밖에 숨는다.
+   «저장 · 나가기»는 종전대로 카드 맨 위 오른쪽(wizActs · [EXIT_TAP44] 자주 누르는 «다음»과 손가락 거리를 둔다).
+   ★막대가 붙는 것은 전체화면(.mp-fs · 스냅/가족·친구 스냅 겹화면) 안에서만 — 되살리지 말 것: 단추를 내용 끝으로 되돌리면
+     긴 화면(좌석 · 가족·친구 스냅)에서 «다음»을 찾으러 끝까지 내려가야 했다. 이 마지막 스타일 묶음에 둬야 .seat-actions 보다 뒤라 이긴다. */
+.wz-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:18px 0 0}
+.mp-fs .wz-bar,#mp_snapOverlay .wz-bar,#mp_photoOverlay .wz-bar{position:sticky;bottom:0;z-index:5;padding:16px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--card-white,#fff) 15px)}
+/* [WZ_BAR_EDGE] 붙는 선은 «틀의 안쪽 여백»만큼 올라간다(sticky 규칙) — 그대로 두면 막대가 화면 아래에서 떠 있고 그 밑으로 내용이 비쳤다(390 실측).
+   틀마다 아래 여백만큼 내려 화면 맨 아래에 붙인다: .mp-fs 48 · 스냅 기획 24 · 가족·친구 스냅 44(각 틀의 padding-bottom 과 같은 값 — 틀 여백을 바꾸면 여기도). */
+.mp-fs .wz-bar{bottom:-48px}
+#mp_snapOverlay .wz-bar{bottom:-24px}
+#mp_photoOverlay .wz-bar{bottom:-44px}
+/* [WZ_BAR_FOCUS] 막대가 아래에 붙으면 초점 간 입력칸이 막대 뒤로 숨을 수 있다(키보드 이동 · 폰 키보드가 화면을 줄일 때) — 스크롤이 막대 높이만큼 비켜 세운다 */
+.mp-fs,#mp_snapBody,#mp_photoBody{scroll-padding-bottom:96px}
+.wz-bar .cc-btn,.wz-bar .cc-btn-ghost{width:auto;margin:0;border-radius:12px;padding:15px 18px;font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.02em;line-height:1.3}
+.wz-bar .cc-btn{flex:1 1 0;min-width:0}
+.wz-bar .cc-btn-ghost{flex:0 0 auto;min-width:82px;background:var(--bg2);border-color:var(--bg2);color:var(--sub)}
+@media (hover:hover){.wz-bar .cc-btn-ghost:hover{background:var(--bg3);border-color:var(--bg3);color:var(--accent)}}
+.wz-bar .wz-err{flex:1 0 100%;margin:0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all}
+.wz-bar .wz-err:empty{display:none}
 </style>
     <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true" aria-labelledby="mpModalTitle"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
@@ -6545,7 +6569,7 @@ function invStepMethod(box){
     +opt('self','실물(종이)·개인 제작할게요','종이 청첩장 등 직접 준비 · 인쇄용 QR(모바일 참석·하객 안내)은 저희가 드려요')
     +qr
     +opt('none','청첩장 없이','')
-    +'<div class="inv-nav"><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
+    +'<div class="inv-nav wz-bar"><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
     +'</div>';
   function collectNames(){
     [['groomKo','mp_gKo'],['groomEn','mp_gEn'],['brideKo','mp_bKo'],['brideEn','mp_bEn']].forEach(function(p){
@@ -6634,7 +6658,7 @@ function invStepParents(box){
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
     + '<div class="inv-gate"><div class="inv-gate-q">마음 전하실 곳 (계좌)</div></div>' + aF
-    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
+    +'<div class="inv-nav wz-bar"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
     +'<div class="sp-note">다음으로 넘어가면 여기까지 자동 저장돼요</div>'
     +'</div>';   // MPD_E7 자동저장 신호 표준화(좌석 '고르면 바로 저장돼요' 패턴 확산)
   function collect(){
@@ -6796,7 +6820,7 @@ function invStepDesign(box){
     if(d._onlineSame==='N') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   }
   // 계좌 표시 위치 질문은 2/4 단계(혼주·마음 전하실 곳)로 이동됨 · 샘플 전체 둘러보기는 상단(제목 아래)으로 이동됨
-  h+='<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div></div>';
+  h+='<div class="inv-nav wz-bar"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_next">다음</button></div></div>';
   box.innerHTML=h;
   bindDesign(box);
   $('iv_back').addEventListener('click',function(){ collectDesign(box); INVFLOW.step='parents'; renderInvFlow(box); });
@@ -6836,8 +6860,7 @@ function invStepConfirm(box){
   box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · '+(_invTotalSteps(d)===2?'2 / 2':'4 / 4')+'</span>'+wizActs()+'</div>'
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'+det
     +mkNote
-    +'<div id="iv_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko)"></div>'
-    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_pub">'+_pl+'</button></div></div>';   // [INV_PUB_LABEL]
+    +'<div class="inv-nav wz-bar"><div id="iv_err" class="wz-err" role="alert"></div><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_pub">'+_pl+'</button></div></div>';   // [INV_PUB_LABEL] · [WZ_BAR] 오류 줄은 막대 안(막대가 아래에 붙으면 내용 끝 줄은 화면 밖이다)
   $('iv_back').addEventListener('click',function(){ INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'design':'method'; renderInvFlow(box); });
   $('iv_pub').addEventListener('click',function(){ doPublishInv(box); });
 }
@@ -6911,7 +6934,7 @@ function invStepDone(box, r){
     var _skSub=(String((INVFLOW.draft||{}).method||'')==='self')
       ? '실물 청첩장은 직접 준비하시는 구성이에요 · 저희가 만들 것은 없어요. QR이 필요해지면 언제든 다시 고를 수 있어요.'
       : '청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.';   // self(QR 아니요)에게 '청첩장 없이'라고 말해 선택이 뒤집힌 듯 보이던 것 구분(2026-07-18 리뷰)
-    box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">'+_skSub+'</div><div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_edit">다시 고를게요</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
+    box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">'+_skSub+'</div><div class="inv-nav wz-bar"><button type="button" class="cc-btn-ghost" id="iv_edit">다시 고를게요</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
     $('iv_done').addEventListener('click', exitInvFlow);
     var _ed0=$('iv_edit'); if(_ed0) _ed0.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); }); return;
   }
@@ -7025,7 +7048,7 @@ function invStepDone(box, r){
     +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
     +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
-    +'<div class="inv-nav"><button type="button" class="cc-btn-ghost" id="iv_edit">수정하기</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
+    +'<div class="inv-nav wz-bar"><button type="button" class="cc-btn-ghost" id="iv_edit">수정하기</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
   $('iv_done').addEventListener('click', exitInvFlow);
   var _ed=$('iv_edit'); if(_ed) _ed.addEventListener('click', function(){ INVFLOW.step='method'; renderInvFlow(box); window.scrollTo({top:Math.max(0,box.offsetTop-12)}); });   // 작성 내용 그대로 1단계부터 점검 → 재발행하면 같은 링크 갱신
   Array.prototype.forEach.call(box.querySelectorAll('.dl-share'),function(b){ b.addEventListener('click',function(){ var url=b.getAttribute('data-url'); if(navigator.share){ navigator.share({title:'청첩장에 초대합니다',url:url}).catch(function(err){ if(!err||err.name!=='AbortError') invCopy(url,b); }); } else { invCopy(url,b); } }); });   // 공유 시트가 있다며 거절하는 인앱 등 → 취소(Abort) 아니면 복사로 폴백(조용한 무반응 방지 · 2026-07-18 리뷰)
@@ -8048,8 +8071,12 @@ function renderPhoto(box){
     +'</details>';
   h+='<div id="mp_photoShareQr" class="ph-qr"'+(_psu?'':' style="display:none"')+'></div>';
   h+='<div style="text-align:center;margin-top:6px"><button type="button" class="cc-btn-ghost" id="mp_photoShareQrSave" style="width:auto;padding:7px 14px;display:none">QR 이미지 저장</button></div>';
+  /* ★[WZ_BAR 2026-09-26 사장님 «아래 하단 통일»] 이 화면만 아래 단추가 없었다 — 끝내는 길이 위 «나가기 → 저장하고 나가기» 하나뿐이었다.
+     식순 · 스냅 기획과 같은 아래 막대에 «저장하고 마치기»(= 위 판의 «저장하고 나가기»와 같은 길 exitPhotoFlow · 실패하면 그 자리에서 다시 저장). */
+  h+='<div class="wz-bar"><button type="button" class="cc-btn" id="mp_photoDone">저장하고 마치기</button></div>';
   h+='</div>';
   box.innerHTML=h; box.style.display='block';
+  var _phDone=$('mp_photoDone'); if(_phDone) _phDone.addEventListener('click', function(){ exitPhotoFlow(); });   // [WZ_BAR]
   function rerender(){ renderPhoto(box); }
   function move(i,d){ var j=i+d; if(j<0||j>=sel.length) return; var t=sel[i]; sel[i]=sel[j]; sel[j]=t; rerender(); }
   Array.prototype.forEach.call(box.querySelectorAll('[data-pmv]'), function(el){ el.addEventListener('click', function(){ move(+el.getAttribute('data-pmv'), +el.getAttribute('data-d')); }); });
@@ -8262,11 +8289,8 @@ function startSnapFlow(sd, p, needAgree){
   var body=document.createElement('div'); body.id='mp_snapBody'; body.style.cssText='flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:20px 16px 24px';
   var inner=document.createElement('div'); inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:auto;width:100%';   // [WIZ_VCENTER] margin:auto — 남는 공간이 있을 때만 먹으므로 긴 화면은 종전대로 위에서부터
   body.appendChild(inner); ov.appendChild(body);
-  var foot=document.createElement('div'); foot.style.cssText='flex:0 0 auto;border-top:1px solid var(--hairline,#E6E1D8);background:var(--bg,#FAFAF8);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))';
-  var footIn=document.createElement('div'); footIn.style.cssText='max-width:620px;margin:0 auto';
-  footIn.innerHTML=wizActs();   // [WIZ_EXIT_ONE] 다른 위저드와 같은 손잡이 둘
-  var _fa=footIn.firstElementChild; if(_fa) _fa.className='wiz-acts wiz-bar';
-  foot.appendChild(footIn); ov.appendChild(foot);
+  /* ★[WZ_BAR 2026-09-26 사장님 «위에 나가기 · 아래 하단 통일»] 아래 고정 띠(저장 · 나가기)를 뺐다 — 손잡이는 다른 입력 화면처럼 카드 맨 위 오른쪽(renderSnapFlow),
+     아래에는 식순과 같은 «이전 · 다음» 막대(.wz-bar)만. 띠를 되살리면 아래에 막대가 둘 선다. */
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
@@ -8369,7 +8393,7 @@ function renderSnapFlow(){
   _snapCollect();
   var D=SNAPFLOW.d, st=Math.max(0, Math.min(SNAP_STEPS.length-1, SNAPFLOW.step||0)), due=_snapDue(SNAPFLOW.p);
   var h='<div class="consult-card snp-card" style="text-align:left">';
-  h+='<div class="cc-eyebrow en-22">Snap Planning</div><div class="cc-title" style="margin:0 0 10px">스냅 기획</div>';
+  h+='<div class="inv-head"><span class="inv-step-n">스냅 기획</span>'+wizActs()+'</div>';   // [WZ_BAR] 머리 = 다른 입력 화면과 같은 모양(이름 왼쪽 · 저장 · 나가기 오른쪽) — 영문 머리글 · 큰 제목은 대시보드 카드에만
   h+='<ol class="snp-steps" aria-label="스냅 기획 다섯 걸음">'+SNAP_STEPS.map(function(s,i){ return '<li><button type="button" class="snp-step'+(i===st?' on':'')+(i<st?' done':'')+'" data-sstep="'+i+'"'+(i===st?' aria-current="step"':'')+' aria-label="'+(i+1)+'. '+s.t+'">'+(i+1)+'</button></li>'; }).join('')+'</ol>';
   /* ★[SNAP_DESIGN_0926 사장님 «전체적으로 디자이너 관점으로 검토해 보고»] «2 / 5 · 캔들존» 줄을 뺐다 — 위 동그라미가 이미 몇 걸음째인지 말하고,
      이름은 바로 아래 제목(캔들존 · 사진작가가 알면 좋은 것 …)과 같은 말이었다(제목이 다섯 층으로 쌓여 본문이 늦게 시작했다). 되살리지 말 것. */
@@ -8380,7 +8404,7 @@ function renderSnapFlow(){
   else h+=_spSend(D, R);
   var last=(st===SNAP_STEPS.length-1);
   if(last && SNAPFLOW.needAgree) h+=_snapAgreeHtml();   // [SNAP_AGREE_LAST] 동의는 여기 한 곳 — «저장하고 마치기» 바로 위(카드에는 없다)
-  h+='<div class="snp-nav">'+(st>0?'<button type="button" class="cc-btn-ghost" data-sgo="-1">이전</button>':'')
+  h+='<div class="snp-nav wz-bar">'+(st>0?'<button type="button" class="cc-btn-ghost" data-sgo="-1">이전</button>':'')
     +(!last?('<button type="button" class="cc-btn" data-sgo="1">'+(st===0?'캔들존 고르기':('다음 · '+SNAP_STEPS[st+1].t))+'</button>'):'<button type="button" class="cc-btn" data-sfinish>저장하고 마치기</button>')+'</div>';
   if(!SNAPFLOW.needAgree) h+='<div class="snp-del"><button type="button" class="snp-dellink" data-sdel>스냅 기획 지우기</button></div>';   // [SNAP_CONSENT] 동의를 거두는 길 — 걸음마다 맨 아래 작은 글자(주 동선을 가리지 않게) · [SNAP_AGREE_LAST] 동의 전엔 서버에 지울 것이 없어 숨긴다
   h+='</div>';
@@ -9270,8 +9294,7 @@ function renderSeat(box){
     +'</div>'
     + summaryHtml  // 인원·요금 + 음료 집계 — 한 요약 카드(공개 방식 카드와 같은 폭 · 2026-07-19 디자이너 개편)
     + privacyHtml  // 공개 방식 — 캔버스 아래 별도 카드
-    +'<div id="seat_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:8px;text-align:center"></div>'
-    +'<div class="seat-actions"><button type="button" class="cc-btn" data-seat-done style="width:100%;padding:12px 16px">배치 완료</button></div>'   // 하단=완료(토큰 발급) · 위 wiz-exit=임시저장 후 나가기 → '저장 후 나가기' 문구 중복 제거(2026-07-20)
+    +'<div class="seat-actions wz-bar"><div id="seat_err" class="wz-err" role="alert"></div><button type="button" class="cc-btn" data-seat-done>배치 완료</button></div>'   // [WZ_BAR] 식순과 같은 아래 막대 · 오류 줄은 막대 안   // 하단=완료(토큰 발급) · 위 wiz-exit=임시저장 후 나가기 → '저장 후 나가기' 문구 중복 제거(2026-07-20)
     +'<div class="cc-note" style="text-align:center;margin-top:7px;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장\'을 누르면 언제든 이어서 할 수 있어요.</div>'
     +(sel?'<div class="seat-sheet-pad" aria-hidden="true"></div>':'')   // [DRINK_SHEET] 바닥 시트가 '배치 완료'를 덮지 않게   // 임시저장 버튼 제거(저장후나가기와 중복) → 대신 한 줄 안내
     // ★좌석 편집기 안 공유 링크·QR 패널(seatSharePanelHtml) 복원 금지 — 2026-07-19 사용자 지시로 삭제. 링크·QR은 '하객 안내' 접점에서 제공(중복 제거). 완료는 위 '배치 완료 · 저장 후 나가기'로 마무리.
@@ -9434,8 +9457,7 @@ function trkShell(stepNo, q, sub, body, last, lastLabel, result){
     + '<div class="inv-q">'+escapeHtml(q)+'</div>'
     + (sub?'<div class="inv-sub">'+escapeHtml(sub)+'</div>':'')
     + (body||'')
-    + '<div id="trk_err" style="color:var(--seal);font-size:12px;min-height:14px;font-family:var(--serif-ko);margin-top:4px"></div>'
-    + '<div class="inv-nav">'+navLeft+'<button type="button" class="cc-btn" id="trk_next">'+(lastLabel||(last?'완료':'다음'))+'</button></div>'
+    + '<div class="inv-nav wz-bar"><div id="trk_err" class="wz-err" role="alert"></div>'+navLeft+'<button type="button" class="cc-btn" id="trk_next">'+(lastLabel||(last?'완료':'다음'))+'</button></div>'   // [WZ_BAR] 오류 줄은 막대 안
     + '</div>';
 }
 // [애프터웨딩 수요 로깅] 고객이 누른 니즈·인원·필터를 개인정보 없이 적재(GAS '애프터수요로그' · 90일 자동정리). 어디부터 검증·보강할지 데이터 근거.
