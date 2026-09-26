@@ -8145,8 +8145,13 @@ function renderPhoto(box){
                var _rt=e&&e.relatedTarget;
                if(_rt&&_rt.closest&&_rt.closest('[data-wiz-save],[data-wiz-exit]')){
                  if(!PHOTOFLOW._psLate){ PHOTOFLOW._psLate=1; var _pf=PHOTOFLOW;
-                   document.addEventListener('click', function _psAfter(){ document.removeEventListener('click', _psAfter);
-                     setTimeout(function(){ _pf._psLate=0; if(_pf===PHOTOFLOW && PHOTOFLOW.active && box.isConnected) rerender(); },0); }); }
+                   /* [PHOTO_BLUR_CLICK 2026-09-26 · 검토] click 만 기다리면 오른쪽 · 가운데 단추로 누른 뒤(맥락 메뉴 · click 없음) 리스너가 남았다 —
+                        그다음 다른 칸을 누른 click 에서 다시 그려 그 칸의 초점과 방금 친 글자가 날아갔다(실측 · 기준판은 안 그랬다).
+                        mouseup 에서도 푼다(뒤따르는 click 은 같은 차례 안이라 setTimeout 0 보다 먼저 끝난다). 그때 초점이 이 화면의 입력칸에 가 있으면 다시 그리지 않는다. */
+                   var _psAfter=function(){ document.removeEventListener('click', _psAfter, true); document.removeEventListener('mouseup', _psAfter, true);
+                     setTimeout(function(){ _pf._psLate=0; var _ae=document.activeElement; if(_ae && box.contains(_ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(_ae.tagName)) return;
+                       if(_pf===PHOTOFLOW && PHOTOFLOW.active && box.isConnected) rerender(); },0); };
+                   document.addEventListener('click', _psAfter, true); document.addEventListener('mouseup', _psAfter, true); }
                  return; }
                rerender(); } }); }   // [PHOTO_LINK_FOLD] 링크를 지우면 칸이 접힘 안으로 옮겨 간다 — 그때는 펼친 채로 그려 칸이 사라진 것처럼 보이지 않게
   var _psm=$('mp_psMore'); if(_psm) _psm.addEventListener('toggle', function(){ PHOTOFLOW._psOpen=_psm.open; });   // [PHOTO_LINK_FOLD] 다시 그려도 펼친 상태를 지킨다(링크를 친 뒤 blur 재렌더)
