@@ -13,6 +13,9 @@
  *   D2 관리자 알림 경로 GmailApp(스튜디오) → _nfAdminEmail(본 프로젝트 규칙 · 이모지 제거) · 제목의 « — » → « · »
  *   D3 영상 점검이 Customers 를 보고 닫힌(미계약·취소·노쇼) 예식을 건너뛴다 [VIMEO_GUARD_XPROJ]
  *   D4 영상 점검 메일 본문 끝 «끄는 법» 안내 문장(관리자 페이지 취소로 멈춘다)
+ *   D5 «두 분께» 편지 — 신랑·신부 주소가 같으면(대소문자 무시) 한 통만 [LETTER_ONE_ADDR 2026-09-26]
+ *      청첩장 발행이 두 칸을 가입 이메일 하나로 채워 같은 메일이 두 통 갔다. 기준값의 편지들은 주소가 서로 달라 대조는 그대로이고,
+ *      같은 주소 경우는 아래 oneAddrGuard 가 따로 잰다.
  * 시험 데이터는 전부 지어낸 값이다(실제 고객 정보 없음).
  */
 import fs from 'node:fs';
@@ -322,6 +325,24 @@ function migrateGuards() {
   }
 }
 
+// [LETTER_ONE_ADDR] D5 — 같은 주소면 «두 분께»가 한 통만 · 주소가 다르면 종전처럼 두 통 · 한쪽만 보내는 편지는 그대로 한 통
+function oneAddrGuard() {
+  const A = makeSS('MAIN', TZ), B = makeSS(LETTER_ID, TZ);
+  const ctx = makeCtx({ active: A, byId: { [LETTER_ID]: B } });
+  run(ctx, `function setupAllTriggers() { return ''; } function getCustomersSheet() { return null; } var STAGE_EXCEPTIONS = []; function _deFormula(v) { return v; } function _nfAdminEmail() {}`);
+  load(ctx, 'automation/platform/85_invitation.gs'); load(ctx, 'automation/platform/87_letter.gs');
+  const send = (c, r) => { const m0 = ctx._log.mails.length; ctx.__c = c; ctx.__r = r; const n = run(ctx, '_ltSendToRecipients(__c, "하객", "", "축하해요", __r)'); return { n, to: ctx._log.mails.slice(m0).map((m) => m.to) }; };
+  const C = (g, b) => ({ eventId: 'one-addr-0101', groomName: '가나', brideName: '다라', groomEmail: g, brideEmail: b });
+  let r = send(C('Same@a.test', 'same@a.test'), 'both');
+  ok(r.n === 1 && r.to.length === 1 && r.to[0] === 'Same@a.test', `D5 같은 주소 «두 분께»는 한 통이어야 한다: ${JSON.stringify(r)}`);
+  r = send(C('g@a.test', 'b@a.test'), 'both');
+  ok(r.n === 2 && r.to.join(',') === 'g@a.test,b@a.test', `D5 주소가 다르면 두 통(종전 그대로): ${JSON.stringify(r)}`);
+  r = send(C('same@a.test', 'same@a.test'), 'bride');
+  ok(r.n === 1 && r.to[0] === 'same@a.test', `D5 «신부님께»는 한 통(종전 그대로): ${JSON.stringify(r)}`);
+  r = send(C('', 'b@a.test'), 'both');
+  ok(r.n === 1 && r.to[0] === 'b@a.test', `D5 한쪽 주소만 있으면 한 통(종전 그대로): ${JSON.stringify(r)}`);
+}
+
 // ─────────── 실행 ───────────
 if (CAPTURE) {
   if (!fs.existsSync(path.join(ROOT, 'automation/guest-letter-webhook.gs'))) { console.log('✖ 옛 파일이 없어 기준값을 만들 수 없습니다(git 기록에서 꺼내 두고 다시)'); process.exit(2); }
@@ -334,6 +355,7 @@ if (!fs.existsSync(GOLDEN)) { console.log('✖ 기준값(letter-golden.json)이 
 const G = JSON.parse(fs.readFileSync(GOLDEN, 'utf8'));
 const N = runNew();
 migrateGuards();
+oneAddrGuard();   // [LETTER_ONE_ADDR] D5
 const diff = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 COUPLE_CASES.forEach((c, i) => ok(diff(N.couple[i], G.couple[i]), `getCouple ${JSON.stringify(c)} 응답이 옛 웹훅과 다르다`));
 LETTERS.forEach((L, i) => {
@@ -351,4 +373,4 @@ ok(G.couple.filter((x) => x.ok).length >= 40 && G.letters.filter((x) => x.couple
 
 const total = COUPLE_CASES.length + LETTERS.length * 3 + 4;
 if (bad.length) { console.log(`[LETTER_SIM] ✖ ${bad.length}건`); bad.forEach((b) => console.log('  ✖ ' + b)); process.exit(1); }
-console.log(`[LETTER_SIM] ✅ 옛 Letter System 과 같다 — getCouple ${COUPLE_CASES.length}건 · 편지 ${LETTERS.length}건(응답·메일·기록) · 영상 점검 · 파기 · 옮기기 방어 (대조 ${total}항목 · 의도한 차이 D1~D4 만 허용)`);
+console.log(`[LETTER_SIM] ✅ 옛 Letter System 과 같다 — getCouple ${COUPLE_CASES.length}건 · 편지 ${LETTERS.length}건(응답·메일·기록) · 영상 점검 · 파기 · 옮기기 방어 (대조 ${total}항목 · 의도한 차이 D1~D5 만 허용)`);

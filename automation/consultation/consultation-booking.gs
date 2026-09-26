@@ -443,6 +443,19 @@ function actAccept(sheet, colOf, row) {
   }
   try { sendStudioBriefEmail(row, nd, nt); } catch (e3) { Logger.log('운영자 상담준비 메일 실패: ' + e3.message); }
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ 변경수락→확정도 동일 전이
+  /* [ACCEPT_DEP_ALERT 2026-09-26 통합 점검 L4] 변경 제안을 수락해 확정된 예약은 예약금 입금확인 칸을 채울 계기가 없다 —
+     승인(actApprove)은 확정과 함께 입금확인을 적지만 수락은 적지 않는다(적는 곳은 actApprove · 98_pay_card 둘뿐).
+     칸이 빈 채로 두면 두 분 상담 카드는 «입금 확인 전이에요»에 머물고, 현금영수증 발급 대기·환불 기수령액에서 예약금이 빠진다(admin DEPOSIT_TICK).
+     → 칸이 비어 있으면 관리자에게 메일 한 통. ★자동으로 채우지 않는다 — 입금은 통장을 본 사람만 확인할 수 있다.
+     ★스냅은 상담 예약금이 없어 건너뛴다(admin depositTick 도 시그니처만 본다). 메일이 실패해도 확정은 그대로다. */
+  try {
+    var _adCode = String(row.get('개인코드') || '').trim(), _adCu = _adCode ? findCustomerByCode(_adCode) : null;
+    var _adSnap = !!_adCu && String(_adCu.get('상품타입') || '').trim() === '웨딩스냅';
+    if (!_adSnap && String(row.get('입금확인') || '').trim() !== '확인' && typeof _nfAdminLineEmail === 'function') {
+      _nfAdminLineEmail('[모먼트에디트] 변경 제안 수락으로 상담 확정 ' + coupleNames(row) + (_adCode ? (' · ' + _adCode) : '') + ' · ' + prettyDate(nd) + ' ' + nt
+        + ' · 예약금 입금확인 칸이 비어 있음 / 통장 확인 뒤 예약 시트 입금확인 채우기');
+    }
+  } catch (eAD) {}
   writeCell(sheet, colOf, row.num, '변경제안날짜', '');   // [ACCEPT_GUARDED C2] 소진된 제안은 비운다 — 낡은 [수락]이 되살아나지 않게
   writeCell(sheet, colOf, row.num, '변경제안시간', '');
   return infoPage('변경 확정', '변경된 일정으로 예약이 확정되었습니다.<br>' + prettyDate(nd) + ' · ' + nt, true);

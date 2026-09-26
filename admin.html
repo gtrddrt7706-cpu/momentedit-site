@@ -2436,6 +2436,9 @@ function cardConsult(d,isSnap){
   if(st==='변경제안'&&c.proposedDate) raw+='<br>제안: '+esc(c.proposedDate)+' '+esc(c.proposedTime||'');
   if(c.confirmedAt) raw+='<br>확정 '+fmtDT(c.confirmedAt);
   if(c.cancelledAt) raw+='<br>취소 '+fmtDT(c.cancelledAt);
+  /* [ACCEPT_DEP_ALERT 2026-09-26 통합 점검 L4] 확정인데 예약금 입금확인이 비었으면 맨 위 상담 카드에서도 한 줄로 — 종전엔 아래쪽 입금 카드
+       (DEPOSIT_TICK)에만 떠서 상담확정 동안 눈에 잘 안 띄었다. 변경 제안 수락(actAccept)으로 확정되면 이 칸을 적는 곳이 없다. */
+  if((st==='승인완료'||st==='확정') && d.depositTick && d.depositTick.missing) raw+='<br><span style="color:#b00">⚠ 예약금 입금확인 전 · 두 분 상담 카드에 «입금 확인 전»으로 보여요 · 통장 확인 뒤 예약 시트 입금확인을 «확인»으로</span>';
   var b='';
   // [CARD_REFUND_VIA_TOSS 2026-07-25 · FU3] 카드 수령분(동의기록.결제수단='카드') 경고는 계좌 유무와 무관하게 노출 — 계좌 미입력 취소 고객 상세에서도 카드 취소 처리를 놓치지 않게 c.refund 게이트 밖으로. 카드결제 OFF면 결제수단 비어 미노출·휴면(출력 바이트 동일). 구 Admin.html 안내를 라이브로 복원.
   if(d.stage==='취소'){
@@ -2592,9 +2595,12 @@ function cardPayment(d){
   /* ★★[DEPOSIT_TICK 2026-08-16] 예약금 입금확인 칸이 비었으면 여기서 말한다.
      고객 화면은 예약금을 '결제 완료'로 보여주는데(의도) 관리자 근거는 예약 시트의 그 칸이다 —
      비어 있으면 현금영수증 의무발급(받은 날 D+5)이 큐에 안 뜨고 환불 기수령액에서 10만이 빠진다.
-     ★조용히 두면 세무·환불이 틀린다. 경고(⚠)는 이 화면의 허용된 신호다(장식 아이콘 금지 규칙과 별개). */
+     ★조용히 두면 세무·환불이 틀린다. 경고(⚠)는 이 화면의 허용된 신호다(장식 아이콘 금지 규칙과 별개).
+     [DEP_TICK_TRUTH 2026-09-26 통합 점검 L4] «고객 화면엔 «결제 완료»»는 절반만 맞게 됐다 — 상담 카드 예약금 한 줄([CONSULT_DEPOSIT] 사장님 결정 ⑲)이
+       같은 칸을 읽어 «입금 확인 전이에요»로 보인다(변경 제안 수락으로 확정된 예약은 이 칸이 비어 있다 · consultation-booking actAccept).
+       «결제 완료»는 계약서를 보낸 뒤 내 내역의 예약금 행이다(60_mypage buildLedgerState). 두 화면을 사실대로 적는다. */
   if(d.depositTick && d.depositTick.missing){
-    raw+='<div class="cnote" style="color:#b00">⚠ 예약금 '+_amtKo(d.depositTick.amount)+' 입금확인 칸이 비어 있어요 · 고객 화면엔 «결제 완료»로 보여요'
+    raw+='<div class="cnote" style="color:#b00">⚠ 예약금 '+_amtKo(d.depositTick.amount)+' 입금확인 칸이 비어 있어요 · 고객 상담 카드엔 «입금 확인 전»으로, 계약서를 보낸 뒤 내 내역엔 «결제 완료»로 보여요'
       +'<br>예약 시트의 <b>입금확인</b>을 «확인»으로 채워 주세요. 안 채우면 현금영수증 발급 대기에 안 뜨고 환불 계산에서도 빠져요</div>';
   }
   var b='';
