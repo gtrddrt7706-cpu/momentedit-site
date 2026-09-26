@@ -533,7 +533,16 @@ function buildContractInfoState(r) {
     groomAddrRoad: ci ? (ci.groomAddrRoad || '') : '', groomAddrDetail: ci ? (ci.groomAddrDetail || '') : '',
     brideAddrRoad: ci ? (ci.brideAddrRoad || '') : '', brideAddrDetail: ci ? (ci.brideAddrDetail || '') : '',
     cashReceipt: _cashReceiptOf(r),
-    requestedAt: ci ? (ci.requestedAt || '') : ''
+    requestedAt: ci ? (ci.requestedAt || '') : '',
+    /* [CI_CONTACTS 2026-09-26 마이페이지 점검 pay-8 · 사장님 결정 ㉗] 요청 때 적은 신랑·신부 연락처·이메일(동의기록.계약정보 사본)을 내려준다.
+       「입력 정보 수정」 폼이 이 값으로 칸을 채운다 — ★키 이름 고정(groomPhone·groomEmail·bridePhone·brideEmail · 화면이 이 이름으로 읽는다).
+       전엔 안 내려줘서 수정 폼이 신부 칸을 비운 채 열렸고, 그대로 다시 보내면 handleRequestContract 가 계약정보를 통째로 새로 써
+       신부 연락처·이메일이 지워지고 신랑 칸은 가입 연락처로 돌아갔다(서명할 계약서 당사자 칸이 빈다).
+       ★여기서 가입 연락처로 메우지 않는다 — 없으면 빈 값이고, 화면이 phone·email 로 폴백한다(옛 서버에서도 같은 길).
+       admin.gs 의 연락처 정정(CONTACT_SHADOW 규칙)이 고치는 바로 그 사본이다 — 관리자가 연락처를 정정하면 여기에도 그 값이 보인다.
+       ★그 규칙 이름을 대괄호로 적지 않는다 — 대괄호 표식은 «이 파일의 표식»으로 세어져 점검 목록 짝 검사가 붉어진다(deploycheck-sim 8번). */
+    groomPhone: ci ? String(ci.groomPhone || '') : '', groomEmail: ci ? String(ci.groomEmail || '') : '',
+    bridePhone: ci ? String(ci.bridePhone || '') : '', brideEmail: ci ? String(ci.brideEmail || '') : ''
   };
 }
 

@@ -482,6 +482,9 @@ select {
   #journey  { contain-intrinsic-size: auto 1754px; }
   #director { contain-intrinsic-size: auto 1311px; }
   #faq      { contain-intrinsic-size: auto 770px; }
+  /* ★[ANCHOR_LAND 2026-09-26] 섹션 링크로 «갈 때만» 목표 앞 섹션을 먼저 그린다(meLand 가 붙였다 도착하면 걷는다).
+     가는 도중에 실제 키로 바뀌면 목표가 움직여 지나치거나 되감겼다. 평소 로드·스크롤에는 아무 영향이 없다. */
+  .me-cv-now { content-visibility: visible !important; }
 
 html {
   /* 로드 첫 페인트 시 흰 캔버스가 비쳐 '흰색 번쩍임'이 나던 것 방지 — 히어로 상단 마우브색으로 초기 배경 고정(상단 바운스도 자연스럽게) */
@@ -7211,6 +7214,107 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   window.addEventListener('resize', upd, { passive: true });
   paint();
 })();
+// ═══ [ANCHOR_LAND] 섹션으로 가는 링크가 목표 «머리»에 정확히 멈추게 ═══
+/* ★[ANCHOR_LAND 2026-09-26] 사장님 「직접확인하고」 — 전체 메뉴 Close 를 고치며 눌러 보다 드러났다.
+   상단 메뉴·전체 메뉴·가격 줄 링크로 섹션에 가면 목표를 지나치거나 못 미쳤다(고치기 전 코드 실측):
+     1280 상단 메뉴  FAQ −2136px · RSVP −1624 · Service +423 · Experience +157
+      940 전체 메뉴  FAQ −2146 · RSVP −1615 · Service +413 · Experience +167
+      390 전체 메뉴  FAQ −717 · RSVP −699 · Experience −105
+   원인 — [PERF_CV_SECTIONS]. 화면 밖 섹션은 그려지기 전까지 «추정 키»(contain-intrinsic-size · 390px 실측값)로 선다.
+     부드러운 스크롤은 출발할 때 한 번 목표를 계산하는데, 가는 도중 지나가는 섹션이 그려지며 실제 키로 바뀌면
+     목표가 그만큼 움직인다. 브라우저는 출발 때 계산한 자리에 멈춘다.
+   처방 — 성능 장치는 그대로 두고 둘을 한다.
+     ① 출발하자마자 목표 «앞»의 추정 키 섹션을 한 프레임에 하나씩 먼저 그린다(.me-cv-now). 실제 키를 일찍 알아야
+        목표가 멀리 있을 때 방향을 고친다. 늦게 알면 이미 지나친 뒤라 되감긴다(처음 판 실측: 끝에서 647px 되감김).
+        도착하면 걷는다 — 한 번 그린 키는 contain-intrinsic-size:auto 가 기억하므로 걷어도 자리가 안 바뀐다.
+     ② 매 프레임 목표를 다시 재어 움직였으면 «다시 겨눈다». 부드러운 스크롤은 도중에 새 목표를 받으면 이어서 방향을 고친다.
+     움직임 줄이기 설정이면 즉시 이동으로 겨눈다(즉시 이동은 가운데 섹션을 안 그려 ①이 필요 없다).
+     휠·터치·스크롤 키를 쓰면 바로 손을 뗀다(사용자가 이긴다).
+   ★링크의 기본 동작(주소창 #faq · :target · 초점 시작점)은 그대로 둔다 — 겨누기만 덧붙인다.
+   지키는 검사: scripts/audit/anchor-land.mjs */
+(function(){
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  var job = 0, stopPrev = null;   // 새로 겨누면 앞의 겨누기를 정리한다(듣는 손 · 먼저 그린 섹션 표시)
+  var CV = ['archive', 'service', 'live', 'invest', 'journey', 'director', 'faq'];   // [PERF_CV_SECTIONS] 목록과 같다
+  function pad(){ return parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0; }
+  function land(target, opts){
+    if (!target) return;
+    if (stopPrev) stopPrev();
+    var my = ++job, t0 = performance.now(), aimed = null, still = 0;
+    var instant = !!(opts && opts.instant) || !!(mq && mq.matches);
+    // ① 목표보다 위에 있고 아직 화면 아래에 있는 추정 키 섹션 — 목표 자리를 움직일 수 있는 것만
+    var ahead = [], lit = [];
+    if (!instant && target.getBoundingClientRect().top > window.innerHeight){
+      CV.forEach(function(id){
+        var el = document.getElementById(id);
+        if (!el || el === target || el.contains(target)) return;
+        if (!(el.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING)) return;   // 목표보다 아래
+        if (el.getBoundingClientRect().bottom <= 0) return;                                        // 이미 지나온 것
+        ahead.push(el);
+      });
+    }
+    function key(e){ if ([' ','ArrowUp','ArrowDown','PageUp','PageDown','Home','End','Spacebar'].indexOf(e.key) !== -1) quit(); }
+    function off(){
+      window.removeEventListener('wheel', quit);
+      window.removeEventListener('touchstart', quit);
+      window.removeEventListener('keydown', key);
+      lit.forEach(function(el){ el.classList.remove('me-cv-now'); });
+      lit = []; ahead = [];
+      if (stopPrev === off) stopPrev = null;
+    }
+    function quit(){ if (my === job) job++; off(); }
+    stopPrev = off;
+    window.addEventListener('wheel', quit, { passive: true });
+    window.addEventListener('touchstart', quit, { passive: true });
+    window.addEventListener('keydown', key);
+    function go(y){
+      if (instant){
+        var de = document.documentElement, sb = de.style.scrollBehavior;
+        de.style.scrollBehavior = 'auto';   // behavior:'instant' 는 구형 사파리에서 무시된다(_essayJump 와 같은 이유)
+        window.scrollTo(0, y);
+        de.style.scrollBehavior = sb;
+      } else {
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+    (function tick(){
+      if (my !== job) return;
+      if (ahead.length){ var el = ahead.shift(); el.classList.add('me-cv-now'); lit.push(el); }   // ① 한 프레임에 하나
+      var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      var want = Math.min(max, Math.max(0, Math.round(window.scrollY + target.getBoundingClientRect().top - pad())));
+      if (aimed === null || Math.abs(want - aimed) > 1){ go(want); aimed = want; still = 0; }
+      if (Math.abs(window.scrollY - want) <= 1 && !ahead.length){ if (++still >= 8) return off(); } else still = 0;
+      if (performance.now() - t0 > 4000) return off();
+      requestAnimationFrame(tick);
+    })();
+  }
+  window.meLand = land;
+  // 문서 안 앵커(상단 메뉴 · 가격 줄 등) — 기본 동작은 두고 겨누기만 붙인다.
+  // 전체 메뉴·FAQ 펼치기는 자기 처리기에서 preventDefault 하고 meLand 를 직접 부른다 → 여기선 건너뛴다.
+  document.addEventListener('click', function(e){
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if (!id || id === 'main') return;   // 본문 바로가기는 초점 이동이 일이다 — 그대로 둔다
+    var t = document.getElementById(id);
+    if (t) land(t);
+  });
+  // 주소로 바로 들어오기(카카오 버튼 momentedit.kr/#invest 등) — 고치기 전 390px 실측 #invest −641 · #director −575.
+  // ★뒤로가기 복원(me_home_scroll)이 기다리고 있으면 그쪽이 이긴다(보던 자리로 돌아가는 것이 먼저다).
+  // ★불러오는 사이 사용자가 먼저 움직였으면 끌어가지 않는다.
+  var restoring = false, moved = false;
+  try { restoring = sessionStorage.getItem('me_home_scroll') !== null; } catch (e) {}
+  var hid = location.hash ? decodeURIComponent(location.hash.slice(1)) : '';
+  if (hid && hid !== 'main' && !restoring){
+    var mark = function(){ moved = true; };
+    window.addEventListener('wheel', mark, { passive: true, once: true });
+    window.addEventListener('touchstart', mark, { passive: true, once: true });
+    var goHash = function(){ var t = document.getElementById(hid); if (t && !moved) land(t, { instant: true }); };
+    if (document.readyState === 'complete') goHash();
+    else { document.addEventListener('DOMContentLoaded', goHash, { once: true }); window.addEventListener('load', goHash, { once: true }); }
+  }
+})();
 // ═══ MOBILE MENU · 햄버거 토글 + 풀스크린 오버레이 제어 ═══
 (function(){
   var toggle = document.getElementById('navToggle');
@@ -7290,7 +7394,9 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         // 메뉴가 완전히 닫힌 후(opacity 0.3s transition) target으로 부드럽게 이동
         setTimeout(function(){
           if (target){
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // [ANCHOR_LAND] 가는 동안 목표가 움직이면 다시 겨눈다(아래 meLand)
+            if (window.meLand) window.meLand(target);
+            else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }, 380);
       } else {
@@ -7833,7 +7939,8 @@ function toggleEssay(btn){
         var qq = item.querySelector('.faq-q');
         if (qq) qq.setAttribute('aria-expanded', 'true');
       }
-      item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (window.meLand) window.meLand(item);   // [ANCHOR_LAND]
+      else item.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
   // FAQ "더보기" 토글
