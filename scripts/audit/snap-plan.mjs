@@ -150,7 +150,10 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   ['<dt>받는 것</dt><dd>고른 장면 · 메모 · 참고 링크 · 두 분이 올린 참고 사진</dd>',
    '<dt>쓰는 곳</dt><dd>스냅 촬영 준비 · 사진작가에게 촬영 요청서로 전해요(성함 · 연락처는 전하지 않아요)</dd>',
    '<dt>보관</dt><dd>올린 사진 · 링크 · 메모는 예식 6개월 뒤 지워요</dd>',
-   '<dt>동의하지 않으셔도 돼요</dt><dd>스냅 기획 없이 기본 장면으로 찍어요</dd>'].forEach((x) => t(ah.indexOf(x) > -1, '자세히 보기 — ' + x.replace(/<\/dt>/, ' · ').replace(/<[^>]+>/g, '')));
+   '<dt>동의하지 않으셔도 돼요</dt><dd>스냅 기획 없이 기본 장면으로 찍어요</dd>'].forEach((x) => t(ah.replace(/&nbsp;/g, ' ').indexOf(x) > -1, '자세히 보기 — ' + x.replace(/<\/dt>/, ' · ').replace(/<[^>]+>/g, '')));   // [SNAP_AGREE_BAL] 명세 문장과 대조 — 가운뎃점 앞뒤 &nbsp;(줄 끝 · 머리 매달림 방지)는 빈칸으로 읽는다
+  // [SNAP_AGREE_BAL 2026-09-26] 자세히 보기의 가운뎃점은 앞뒤가 묶여 있다 — 빈칸으로 되돌리면 320 · 340 에서 «메모 · / …» · «· 두 분이»가 다시 매달린다
+  t(((ah.match(/<dd>[^<]*<\/dd>/g) || []).join('').match(/ · /g) || []).length === 0 && /\.snp-agree-body dt::after\{content:'\\00a0·\\00a0'/.test(my), '자세히 보기 — 가운뎃점 앞뒤는 &nbsp;(dd · dt 뒤 모두)');
+  t(/\.snp-agree-more,\.snp-agree-pv\{[^}]*min-width:44px/.test(my), '«접기» 누름 폭 44px(자세히 보기 ↔ 접기 · 두 글자여도)');
   t(ah.indexOf('올린 사진 · 메모는 예식 6개월 뒤 지워요<br><button') > -1 && /aria-expanded="false" aria-controls="mp_snapAgreeBody"/.test(ah) && /id="mp_snapAgreeBody" hidden/.test(ah), '작은 줄 «… 6개월 뒤 지워요» + «자세히 보기»(제 줄 · 줄 끝 가운뎃점 없이) — 펼치기 전엔 숨김(aria-expanded)');
   t(ah.indexOf('href="privacy.html#snap-plan"') > -1 && /<div class="spec-row" id="snap-plan">[\s\S]{0,300}<span class="spec-key">스냅 기획<\/span>/.test(priv), '«개인정보 처리방침 전문 보기» → 처리방침의 스냅 기획 줄(id="snap-plan")');
   t(/snapConsent:ag\?1:undefined/.test(my) && /var D=SNAPFLOW\.d\|\|_snapNewD\(\), ag=!!SNAPFLOW\.needAgree;/.test(my), '동의하고 하는 첫 저장에 동의를 싣는다(서버가 그때 기록)');

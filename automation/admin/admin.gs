@@ -1492,6 +1492,16 @@ function _setContactCore(code, phone, email, reason, dry) {
     if (_gp && _gp === _old) { _shadow = 'same'; lines.push('계약서 신랑 연락처 ' + _maskPhone(_gp) + ' → ' + _maskPhone(newP)); }
     else if (_gp) { _shadow = 'diff'; lines.push('계약서 신랑 연락처는 따로 입력된 값이라 그대로 둡니다 (' + _maskPhone(_gp) + ')'); }
   }
+  /* [CONTACT_SHADOW_EMAIL 2026-09-26 통합 점검 L4] 이메일도 전화와 같은 규칙으로 — 종전엔 전화만 사본을 따라 고쳤다.
+     buildContractState 는 `groomEmail: _ci.groomEmail || 이메일` 이라 사본이 이긴다(70_journey). 가입 이메일 오타(typo@examle.com)로
+     계약서를 요청한 뒤 관리자가 이메일을 고쳐도, 서명할 계약서 제2조 신랑 이메일 칸과 마이페이지 «입력 정보 수정» 폼
+     ([CI_EDIT_PREFILL] groomEmail 우선)이 옛 값을 그대로 보였다. ★같을 때(대소문자 무시)만 함께 고치고, 다르면 미리보기에 한 줄만 — 전화와 같다. */
+  var _shadowE = null;
+  if (set['이메일'] && _ci) {
+    var _ge = String(_ci.groomEmail || '').trim();
+    if (_ge && _ge.toLowerCase() === curE.toLowerCase()) { _shadowE = 'same'; lines.push('계약서 신랑 이메일 ' + _maskEmail(_ge) + ' → ' + _maskEmail(newE)); }
+    else if (_ge) { _shadowE = 'diff'; lines.push('계약서 신랑 이메일은 따로 입력된 값이라 그대로 둡니다 (' + _maskEmail(_ge) + ')'); }
+  }
   if (!lines.length) return { ok: true, already: true, message: '바뀌는 값이 없습니다.' };
 
   var wasSilent = !/^01[016789][0-9]{7,8}$/.test((typeof _phoneKR === 'function') ? _phoneKR(curP) : curP.replace(/[^0-9]/g, ''));   // [PHONE_KR_NORM] 95_notify 와 같은 자로 봐야 «조용했다»가 맞는다
@@ -1506,18 +1516,26 @@ function _setContactCore(code, phone, email, reason, dry) {
   /* [CONTACT_SHADOW] 동의기록은 **반드시 재읽기→병합→쓰기**(_stampConsentKey) 로 — 고객 서명·
      가예약 승인이 같은 칸을 쓴다. 스냅샷을 통째로 JSON.stringify 하면 그 사이 기록이 사라진다.
      ★서명된 계약서의 당사자 칸을 사후에 바꾸는 일이라 흔적을 남긴다 — 처리이력 한 줄로는 부족하다. */
-  if (_shadow === 'same') {
+  if (_shadow === 'same' || _shadowE === 'same') {   // [CONTACT_SHADOW_EMAIL] 전화·이메일을 한 번의 재읽기→병합→쓰기로
     _stampConsentKey(sheet, colOf, cust.num, function (rec) {
       var ci = rec['계약정보'] || (rec['계약정보'] = {});
-      var from = String(ci.groomPhone || '');
-      ci.groomPhone = newP;
       var hist = rec['계약정보이력'] || (rec['계약정보이력'] = []);
-      hist.push({ at: fmtKST(new Date()), by: _CURRENT_ADMIN || '관리자', field: 'groomPhone',
-        from: _maskPhone(from), to: _maskPhone(newP), reason: String(reason).trim().slice(0, 120) });
+      if (_shadow === 'same') {
+        var from = String(ci.groomPhone || '');
+        ci.groomPhone = newP;
+        hist.push({ at: fmtKST(new Date()), by: _CURRENT_ADMIN || '관리자', field: 'groomPhone',
+          from: _maskPhone(from), to: _maskPhone(newP), reason: String(reason).trim().slice(0, 120) });
+      }
+      if (_shadowE === 'same') {
+        var fromE = String(ci.groomEmail || '');
+        ci.groomEmail = newE;
+        hist.push({ at: fmtKST(new Date()), by: _CURRENT_ADMIN || '관리자', field: 'groomEmail',
+          from: _maskEmail(fromE), to: _maskEmail(newE), reason: String(reason).trim().slice(0, 120) });
+      }
     });
   }
   _recordHandler(code, '연락처 정정 — ' + lines.join(' · ') + ' (사유: ' + String(reason).trim().slice(0, 120) + ')');
-  return { ok: true, changes: lines, wasSilent: wasSilent, shadow: _shadow };
+  return { ok: true, changes: lines, wasSilent: wasSilent, shadow: _shadow, shadowEmail: _shadowE };
 }
 // 처리이력에 번호를 통째로 남기지 않는다 — 이력은 관리자 여럿이 보는 칸이다(최소수집 원칙)
 function _maskPhone(v) {

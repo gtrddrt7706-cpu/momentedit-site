@@ -11819,7 +11819,7 @@ nochk '분위기만 고르시면 돼요.</div>' mypage.html       # 근거 없�
 # [DN_TEL_MAP] 사장님 결정 ⑰ ③ · 전화번호 없는 대표 예약처 = «지도에서 매장 번호를 확인해 예약해 주세요» · 예약 안내의 «위 전화번호와»도 그때만 가른다
 chk 'DN_TEL_MAP' mypage.html 6
 chk '지도에서 매장 번호를 확인해 예약해 주세요.</div>' mypage.html 1
-chk "(noTel?'지도에서 매장 번호를 확인하고, 통화 문구를 그대로 쓰시면 돼요.'" mypage.html 1
+chk "(mode==='notel'?'<span class=\"ln-bal\">위 통화 문구를 그대로 쓰시면 돼요.</span>'" mypage.html 1
 chk 'function _dnTelOf' mypage.html 1
 nochk '전화번호는 확정되는 대로 안내해 드릴게요.</div>' mypage.html   # 누가 언제 알려 주는지 없는 약속(apply-no-booking-help.mjs 의 옛 짝은 이 결정으로 대체됐다)
 # [DN_HEAD_FROM_SEAT] 사장님 결정 ⑱ · 통화 문구 인원 = 좌석 · 음료 하객 수 + 두 분(«약 N명») · 없으면 인원 없이 · 목록 힌트 «예식 하객 약 N명»도 같은 원천 · 저장하지 않는다
@@ -11965,6 +11965,430 @@ chk 'SEAL_POINTS' order-preview.html 4
 chk 'SEAL_POINTS' assets/ritual-open.js 1
 chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
 chk 'TOAST_ONE_OR' assets/ritual-open.js 1
+
+# ═══ [MP_AUDIT_R1_0926] 2026-09-26 병합 뒤 통합 점검 1라운드(8갈래 · 확정 76건) — 묶음 G1·G1b·G2·G3·G4·G5 ═══
+# ── 묶음 G1
+# [SIGN_NEXT_BUNDLE][KST_TODAY] 2026-09-26 통합 점검 G1(L1·L8) — 서명 전 «서명 뒤 한 번에 받을 결제»는 _signBundleKeys 한 곳(계약서 카드 · 진행 머리 «다음») · «오늘»은 한국 날짜 · 스냅은 늘 []
+chk 'SIGN_NEXT_BUNDLE' mypage.html 3
+chk 'function _signBundleKeys(d){' mypage.html 1
+chk 'var _bdl=_signBundleKeys(ctx);' mypage.html 1
+chk "if (_ctSend){ var _sbk=_signBundleKeys(d); if (_sbk.length) nextStage='계약금·'+_sbk.join('·')+' 입금'; }" mypage.html 1
+nochk 'var _tdY=(function(){ var t=new Date(); return t.getFullYear()' mypage.html 0
+# [KST_TODAY] 2026-09-26 통합 점검 G1(L8) — 머리 D-day · NOW 당일/전날(MPD_D4) · NEXT 폴백 D-day · NEXT 지난 결제일 · 보관 만료(NOW·배너)를 한국 날짜로 — 기기 자정 셈으로 되돌리면 LA·UTC 기기에서 하루 어긋난다(renderBalance·renderMid·doSignContract 쪽 [KST_TODAY] 는 G1b)
+chk 'function _kstDdayOf(ymd){' mypage.html 1
+chk 'var dd=_kstDdayOf(wd);' mypage.html 1
+chk 'var _ddEv = _kstDdayOf(' mypage.html 1
+chk 'if (_dd == null) _dd = _kstDdayOf(_wed);' mypage.html 1
+chk 'if(fut){ if(Date.UTC(t.getFullYear(),t.getMonth(),t.getDate())<_snapKstToday()) return' mypage.html 1
+chk 'dn: Math.round((exU-_snapKstToday())/864e5)' mypage.html 1
+chk 'var _ku0=_resKeepUntil(res); _expDN=_ku0?_ku0.dn:null;' mypage.html 1
+nochk 'var _tD4=new Date(); _tD4.setHours(0,0,0,0);' mypage.html 0
+nochk 'var _nt=new Date(); _nt.setHours(0,0,0,0);' mypage.html 0
+nochk 'var _tz=new Date(); _tz.setHours(0,0,0,0); _expDN' mypage.html 0
+# [PAY_SIG_LABEL] 2026-09-26 통합 점검 G1(L3) — 묶음 입금 신고 뒤(bundle 빔 · signaledBundle) 진행 머리 «계약금·중도금 입금» 유지 · NEXT 에 보낸 중도금·잔금 자물쇠 없음
+chk 'PAY_SIG_LABEL' mypage.html 2
+chk "var _pbL = (d.payment.bundle && d.payment.bundle.length) ? d.payment.bundle : ((d.payment.status==='완료신호' && d.payment.signaledBundle)" mypage.html 1
+chk '_pbU = _pbU.concat(d.payment.signaledBundle);' mypage.html 1
+# [NOW_DEP_COVER] 2026-09-26 통합 점검 G1(L3 · B4) — 계약금이 예약금으로 충당(납부액 0)이면 NOW «계약금 입금은 없어요» · 진행 머리 «계약금 확인»(입금하라는 말 없음)
+chk 'NOW_DEP_COVER' mypage.html 2
+chk "if (_pa && Number(_pa.납부액) <= 0) { head = '계약금 입금은 없어요';" mypage.html 1
+chk "? '계약금 확인' : '계약금 입금')" mypage.html 1
+# [SNAP_SIGN_NOW] 2026-09-26 통합 점검 G1(L3 · B1) — 스냅 촬영확정 + 계약서 발송(서명 전 · 기한 안)도 진행 머리 «계약서 서명 · 다음 · 계약금 입금»(시그니처 결정 ③과 같은 조건) · 시그니처 _ctSend 원문 줄은 그대로 둔다
+chk 'SNAP_SIGN_NOW' mypage.html 2
+chk "if (._ctSend && d.product==='웨딩스냅' && d.stage==='촬영확정' && d.contract && .d.contract.signed && .d.contract.expired) _ctSend = true;" mypage.html 1
+# [SNAP_EXP_FIRST] 2026-09-26 통합 점검 G1(L1·L3) — 스냅 계약서 기한이 지났으면(재발송 요청이 할 일) 계약 카드를 촬영 카드 위로 · NOW «아래에서 다시 요청»이 첫 화면에서 보이게
+chk 'SNAP_EXP_FIRST' mypage.html 2
+chk "_csTodo = (.._csC && ._csC.signed && _csShown('mp_contract'))" mypage.html 1
+nochk '._csC.signed && ._csExp' mypage.html 0
+# [NOW_EXTRA_PAYSIG] 2026-09-26 통합 점검 G1(L1 · L3 · B3) — 추가 보정 «결제대기»면 NOW «입금을 확인하고 있어요» · «견적»은 «신청»과 같은 입금 NOW · 다시 고르기 권유는 추가 보정 없음·대기일 때만
+chk 'NOW_EXTRA_PAYSIG' mypage.html 3
+chk "else if (_rx.status === '결제대기') { head = '입금을 확인하고 있어요';" mypage.html 1
+chk "if (_rx.status === '신청' || _rx.status === '견적') { head = '추가 보정 입금만 남았어요';" mypage.html 1
+chk "sub = ((._rx.status || _rx.status === '대기') ? '보정을 시작하기 전까지는" mypage.html 1
+# [KEEP_SAY_ONCE] 2026-09-26 통합 점검 G1(L3 · L5) — 보관 기한을 한 화면에서 한 번씩: 만료 뒤 NOW 부제 없음(배너가 말한다) · 30일 안엔 «기기에도 옮겨 두세요» 빼기 · NOW 날짜는 목록과 같은 YYYY.MM.DD · 후기 끝나면 목록 «천천히» 빼기
+chk 'KEEP_SAY_ONCE' mypage.html 4
+chk "sub = _ku ? ((_ku.dn < 0) ? ''" mypage.html 1
+chk "'결과물은 ' + _ku.dot + '까지 여기서 다시 받으실 수 있어요.' + (_ku.dn > 30 ?" mypage.html 1
+chk "if(res.survey && (res.survey.status==='완료' || res.survey.status==='건너뜀')) _calm='';" mypage.html 1
+nochk ": '보관 기간이 지났어요" mypage.html 0
+# [EVENT_PAST_NOW][EVENT_PAST_NEXT] 2026-09-26 통합 점검 G1(L3) — 예식(촬영)일이 지났는데 아직 «예식 완료» 전이면 NOW 는 서버 «결과물을 준비하고 있어요»(결제가 남았으면 결제 NOW · 준비 권유 부제 없음) · NEXT 는 지난 예식·촬영 줄을 빼기
+chk 'EVENT_PAST_NOW' mypage.html 3
+chk 'if (_evPast && .(_mDue || _bDue)) {' mypage.html 1
+chk "if (_ddSh != null && _ddSh < 0) { head = '결과물을 준비하고 있어요';" mypage.html 1
+chk ": _evPast ? ''" mypage.html 1
+chk 'EVENT_PAST_NEXT' mypage.html 1
+chk 'if (_evGone != null && _evGone < 0) items = items.filter' mypage.html 1
+# [SNAP_BAL_LATE] 2026-09-26 통합 점검 G1(L3 · L8) — 촬영 7일 안에 서명한 스냅(잔금 기한이 이미 지남)의 NEXT 잔금 줄은 «계약금 확인 뒤 바로»(지난 «촬영 7일 전»을 예고하지 않는다 · 카드 줄은 G1b)
+chk 'SNAP_BAL_LATE' mypage.html 1
+chk "r\[1\]='계약금 확인 뒤 바로'" mypage.html 1
+# [SIGN_DEP_COVER][SIGN_DEP_WORD] 2026-09-26 통합 점검 G1(L1 · L8) — 서명 전 카드: 충당 계약은 «계약금은 예약금으로 충당돼요 · 서명하실 때 따로 내실 금액은 없어요»(행 합 ≥ 총액 판정 · 옛 서버 330만은 폴백) · 묶음 아닐 때 «서명하시면 계약금 잔액 …원 입금 안내가 이어져요»(계약은 서명으로 성립 · «입금해야 마무리» 문장 금지)
+chk 'SIGN_DEP_COVER' mypage.html 3
+chk '_ldSum>=_ldT;' mypage.html 1
+chk '서명하실 때 따로 내실 금액은 없어요.' mypage.html 1
+chk 'SIGN_DEP_WORD' mypage.html 2
+chk "서명하시면 계약금 잔액 <b>'+fmtWon(_dp.amount)+'</b> 입금 안내가 이어져요." mypage.html 1
+nochk '입금해 주시면 계약이 마무리돼요' mypage.html 0
+# [NOW_SUB_BAL][NOW_SNAP_BAL_NB] 2026-09-26 통합 점검 G1(L6 · L5) — NOW 부제는 문장마다 .ln-bal(균형 줄바꿈) 블록 · 낱말 사이 «·»·«)가»는 잇기로(가운뎃점 매달림 금지) · 스냅 잔금 «확인 후» 한 덩어리
+chk 'NOW_SUB_BAL' mypage.html 1
+chk 'String(sub).split(.\\n.).forEach(function(t){ var sp=document.createElement(.span.); sp.className=.ln-bal.;' mypage.html 1
+nochk 'if (sub) { subEl.textContent = sub;' mypage.html 0
+chk 'NOW_SNAP_BAL_NB' mypage.html 1
+chk '보내 주시면, 확인\\u00a0후 촬영 준비가 마무리돼요.' mypage.html 1
+# [SIGN_DEP_COVER][NOW_DEP_COVER][KEEP_SAY_ONCE][NOW_SUB_BAL] 2026-09-26 통합 점검 G1 검토 — 충당 판정 한 곳(_signDepCover · 카드와 진행 머리 «다음 · 계약금 확인») · 충당 NOW 부제는 인사 한 줄(카드 «디렉터가 확인하면…»과 겹침 금지) · 전달일 없는 보관 줄도 _calm · «이 화면»은 한 덩어리
+chk 'function _signDepCover(d){' mypage.html 1
+chk 'var _cdCover=_signDepCover(ctx);' mypage.html 1
+chk "if (_ctSend && ._signBundleKeys(d).length && _signDepCover(d)) nextStage='계약금 확인';" mypage.html 1
+chk "head = '계약금 입금은 없어요'; sub = '함께하기로 해 주셔서 고마워요.'; }" mypage.html 1
+nochk "디렉터가 확인하면 ' + _prep + '가 시작돼요" mypage.html 0
+chk "보관해요(만료 7일 전 안내).'+_calm+'</div>'" mypage.html 2
+nochk "보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>'" mypage.html 0
+chk '동의서가 준비되면 이\\u00a0화면에서' mypage.html 1
+nochk '동의서가 준비되면 이 화면에서' mypage.html 0
+# ── 묶음 G3
+# [PICK_ROW_TRUTH][SV_SKIP_QUIET][SV_REVIEW_4LINE][DONE_N_GOLD_TEXT][KEEP_PAREN_NOWRAP][RES_FIELD_NAME][RES_ARIA_STATE] 2026-09-26 결과물 카드(점검 r1 · G3) — 사장님 결정 ⑩ 후속: 선택완료 ④ 칩은 «보정 전»(서버 «보정 대기» · 보정중부터 «보정 중») · 후기 «건너뜀»엔 «마지막 단계» 라벨 없음(첫 패널 윗여백 0) · 한마디 칸 네 줄 높이(120px) · 끝난 패널 번호 --gold-deep · 진행 중 보관 줄 괄호 한 덩어리(nowrap · 글자는 11px 그대로 — L6-KO-11PX 기각) · 칸 이름(입금자명·컷 번호·한마디) · 보기 버튼 aria-pressed · 여닫이 aria-expanded/controls
+chk 'PICK_ROW_TRUTH' mypage.html 1
+chk "(st==='선택완료' ? chip('보정 전') : (picked? chip('보정 중') : chip('곧 열려요')))" mypage.html 1
+nochk "var r4 = hasReto ? link(res.보정본,'보정본 받기') : (picked? chip('보정 중')" mypage.html 0
+chk 'SV_SKIP_QUIET' mypage.html 2
+chk "var _svEnded=!!(res.survey && (res.survey.status==='완료' || res.survey.status==='건너뜀'));" mypage.html 1
+nochk "inner+=((res.survey&&res.survey.status==='완료')?'':'<div class=\"srv-step-label\"" mypage.html 0
+chk '#mp_result .consult-card>.res-panel:first-child{margin-top:0}' mypage.html 1
+chk 'SV_REVIEW_4LINE' mypage.html 1
+chk 'id="mp_svReview" aria-labelledby="mp_svQ_review" style="min-height:120px"' mypage.html 1
+nochk 'id="mp_svReview" style="min-height:92px"' mypage.html 0
+chk 'DONE_N_GOLD_TEXT' mypage.html 1
+chk '.res-panel.done .res-n{color:var(--gold-deep)}' mypage.html 1
+nochk '.res-panel.done .res-n{color:var(--gold)}' mypage.html 0
+chk 'KEEP_PAREN_NOWRAP' mypage.html 1
+chk '보관해요<span style="white-space:nowrap">(만료 7일 전 안내).</span>' mypage.html 1
+chk 'RES_FIELD_NAME' mypage.html 3
+chk 'id="mp_exPayer" aria-label="입금자명"' mypage.html 1
+chk "pc.setAttribute('aria-label','보정할 컷의 파일명이나 번호')" mypage.html 1
+chk 'id="mp_svQ_review"' mypage.html 1
+chk 'RES_ARIA_STATE' mypage.html 3
+chk 'role="group" aria-labelledby="mp_svQ_' mypage.html 1
+chk "aria-pressed=\"false\">'+escapeHtml(o" mypage.html 1
+chk "x.setAttribute('aria-pressed','false');" mypage.html 1
+chk "bt.setAttribute('aria-pressed','true');" mypage.html 1
+chk "aria-controls=\"mp_svNote_'+it.k+'\"" mypage.html 1
+chk "id=\"mp_svNote_'+it.k+'\"" mypage.html 1
+chk "tg.setAttribute('aria-controls','mp_delivBody');" mypage.html 1
+chk "tg.setAttribute('aria-expanded', open?'true':'false');" mypage.html 1
+chk "tg.setAttribute('aria-expanded', clp?'false':'true');" mypage.html 1
+# ── 묶음 G2
+# [CONSULT_CLOCK12] 2026-09-26 통합 점검 L1·L3·L5·L6 · 사장님 결정 ② 마저 적용 — 상담·촬영 시각과 기록 시각(서명 기한·시착 서명·컷 선택)도 12시간제 «오후 2:00» · _clock12 는 SLOT_CLOCK·wedTimeKo 를 거치지 않는다(자유 입력 13:20 이 1:40 으로 바뀌지 않게) · 한 화면 두 표기(머리 «오후 2:00» ↔ 카드 «14:00») 재발 막기
+chk 'CONSULT_CLOCK12' mypage.html 11
+chk "function _clock12(t){ var s=String(t==null?'':t).trim(), m=s.match(" mypage.html 1
+nochk 'function _clock12([^)]*){[^}]*\(SLOT_CLOCK\|wedTimeKo\|slotClock\)' mypage.html
+chk "' '+_clockHtml(c.time)+'</b>" mypage.html 2
+chk "' '+_clockHtml(c.proposedTime)+'</b>" mypage.html 1
+nochk "escapeHtml(c.date)+' '+escapeHtml(c.time)" mypage.html
+nochk "escapeHtml(c.proposedDate)+' '+escapeHtml(c.proposedTime)" mypage.html
+nochk 'wedTimeKo(c\.time\|wedTimeKo(c\.proposedTime\|slotClock(c\.time' mypage.html
+chk "escapeHtml(_stampKo(c.deadlineKst,'mdw'))" mypage.html 1
+nochk "서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'" mypage.html
+chk "escapeHtml(_stampKo(res.선택일시,'md'))" mypage.html 1
+chk 'escapeHtml(_stampKo(f.signedAt))' mypage.html 1
+chk 'escapeHtml(_stampKo(fd.at))' mypage.html 1
+chk "body:'서명하면 오늘('+_sdKo+') 날짜로 계약이 성립해요." mypage.html 2
+nochk "_sdY=_sd.getFullYear()+'-'" mypage.html
+# [CONSULT_CLOCK12 · KST_TODAY] (검토자 2026-09-26) 서명 판 «오늘(…)» 줄은 G1b [KST_TODAY] 가 같은 줄을 한국 날짜로 바꾼다 — 이 줄도 한국 날짜 + 한국어 꼴로 둬 합칠 때 어느 쪽을 골라도 둘 다 산다(기기 날짜판으로 되돌리면 빨강)
+chk "var _sd=new Date(_snapKstToday()), _sdKo=_sd.getUTCFullYear()+'년 '+(_sd.getUTCMonth()+1)+'월 '+_sd.getUTCDate()+'일';" mypage.html 1
+nochk 'var _sd=new Date(), _sd' mypage.html
+# [CHG_HINT_RETRY] 2026-09-26 통합 점검 L7 — 예식일 변경 수수료 확인이 «통신 실패»·«까닭 없는 실패»면 버튼 아래 한 줄은 다시 누르는 법(서버가 까닭을 말한 거절은 종전 CHG_HINT_WAIT 그대로)
+chk 'CHG_HINT_RETRY' mypage.html 5
+chk "CHG_HINT_RETRY='고르신 시간을 한 번 더 누르시면 수수료를 알려드려요.'" mypage.html 1
+chk "if(!(r&&r.error)) _hintRetry(); return; }" mypage.html 1
+chk "_err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); _hintRetry(); });" mypage.html 1
+# [CI_EDIT_BACK] 2026-09-26 통합 점검 L7 — 계약서 요청 뒤 «입력 정보 수정»에 «돌아가기»(요청 완료 카드로 · 바꾼 칸이 있으면 한 번 묻는다)
+chk 'CI_EDIT_BACK' mypage.html 2
+chk 'id="mp_ciBack">돌아가기</button>' mypage.html 1
+chk "_cbk.addEventListener('click', function(){" mypage.html 1
+chk "if(v===true) renderContractRequest(ctx); });" mypage.html 1
+# [CI_NO_LETTER_PROMISE · LETTER_ONE_ADDR] 2026-09-26 통합 점검 L4 — 계약서 요청 폼 «편지가 각자에게 직접 도착해요»는 사실이 아니었다(편지는 가입 이메일로 간다 · 약속을 지키는 B안은 사장님 결정 대기라 문장만 뺐다) · «두 분께» 같은 주소 두 통 → 한 통(letter-sim D5 가 실제로 잰다)
+chk 'CI_NO_LETTER_PROMISE' mypage.html 1
+nochk '각자에게 직접' mypage.html
+nochk '두 분 각각 남겨' mypage.html
+chk '선택</b>이에요. 적으시면 계약서 당사자 칸에 들어가요.' mypage.html 1
+chk 'LETTER_ONE_ADDR' automation/platform/87_letter.gs 1
+chk "if (email && email.indexOf('@') !== -1 && !seen\[k\])" automation/platform/87_letter.gs 1
+chk 'LETTER_ONE_ADDR' scripts/audit/letter-sim.mjs 3
+chk 'oneAddrGuard();   // \[LETTER_ONE_ADDR\] D5' scripts/audit/letter-sim.mjs 1
+# [ACCEPT_DEP_ALERT · DEP_TICK_TRUTH] 2026-09-26 통합 점검 L4 — 변경 제안 수락으로 확정됐는데 예약금 입금확인이 비면 관리자 메일 · 관리자 경고문을 사실대로(상담 카드 «입금 확인 전» · 계약서 발송 뒤 내 내역 «결제 완료») · 관리자 상담 카드에도 한 줄(고객 상담 카드 문구는 사장님 결정 대기라 안 건드림)
+chk 'ACCEPT_DEP_ALERT' automation/consultation/consultation-booking.gs 1
+chk "String(row.get('입금확인') || '').trim() !== '확인' && typeof _nfAdminLineEmail === 'function'" automation/consultation/consultation-booking.gs 1
+chk 'ACCEPT_DEP_ALERT' admin.html 1
+chk "(st==='승인완료'||st==='확정') && d.depositTick && d.depositTick.missing" admin.html 1
+chk 'DEP_TICK_TRUTH' admin.html 1
+nochk '고객 화면엔 «결제 완료»로 보여요' admin.html
+chk '고객 상담 카드엔 금액만(«입금 확인됐어요» 없이), 계약서를 보낸 뒤 내 내역엔 «결제 완료»로 보여요' admin.html 1
+chk '두 분 상담 카드엔 금액만 보여요 · 통장 확인 뒤 예약 시트 입금확인을 «확인»으로 채우면 «입금 확인됐어요»로 바뀌어요' admin.html 1
+nochk '카드에 «입금 확인 전»으로 보여요\|카드엔 «입금 확인 전»으로' admin.html
+# [DEP_OK_AMOUNT] 2026-09-26 사장님 결정 ㉚ (검토자) — 변경 제안 수락으로 확정됐는데 예약금 입금확인 칸이 비면 두 분 상담 카드는 «예약금 100,000원» 금액만(«입금 확인 전» 빼기) · 채우면 «입금 확인됐어요» · 시간선택완료(승인 전) 줄은 ⑲ 그대로 · 관리자 문구도 이 화면을 사실대로 말한다
+chk 'DEP_OK_AMOUNT' mypage.html 2
+chk 'DEP_OK_AMOUNT' admin.html 2
+chk 'var DEP_LINE_OK = (DEP_LINE && !c.byCard && !_dep.confirmed)' mypage.html 1
+chk "white-space:nowrap\">예약금 '+fmtWon(_depAmt)+'</span></div>'" mypage.html 1
+chk '+ DEP_LINE_OK   // \[CONSULT_DEPOSIT\]' mypage.html 1
+# [CONTACT_SHADOW_EMAIL] 2026-09-26 통합 점검 L4 — 관리자 이메일 정정이 계약서 사본(계약정보.groomEmail)도 «옛 이메일과 같을 때만» 함께 고친다(전화 CONTACT_SHADOW 와 같은 규칙 · 다르면 미리보기에 한 줄)
+chk 'CONTACT_SHADOW_EMAIL' automation/admin/admin.gs 2
+chk "if (_shadow === 'same' || _shadowE === 'same')" automation/admin/admin.gs 1
+chk "field: 'groomEmail'" automation/admin/admin.gs 1
+# [REF_HEAD_TWO · HOLD_NOTE_NOWRAP] 2026-09-26 통합 점검 L5 — 계약서 요청 시간표 첫 머리칸 «두 분 도착»(360 «신랑· / 신부 도착» 점 매달림) · 임시 고정 안내의 굵은 한 마디 한 덩어리(390 «날짜· / 시간은»)
+chk 'REF_HEAD_TWO' mypage.html 1
+chk 'ref-header-cell">두 분 도착</span>' mypage.html 1
+nochk 'ref-header-cell">신랑·신부 도착</span>' mypage.html
+chk 'HOLD_NOTE_NOWRAP' mypage.html 1
+chk 'font-weight:500;white-space:nowrap">날짜·시간은 바꾸셔도 돼요.</b>' mypage.html 1
+# [FIELD_NAMES · LED_X_TAP44 · LOGOUT_KEY] 2026-09-26 통합 점검 L6 — 칸 이름(생년월일·주소·현금영수증·예식 날짜·임시 고정 모달 시간) · 날짜 트리거 aria-controls · 내 내역 닫기 누르는 면 44px · 로그아웃 <button>(Tab 이 닿게)
+chk 'FIELD_NAMES' mypage.html 6
+chk 'LED_X_TAP44' mypage.html 1
+chk 'LOGOUT_KEY' mypage.html 2
+chk "aria-controls=\"'+p+'_panel\"" mypage.html 1
+chk "aria-label=\"'+_bw+' 연도\"" mypage.html 1
+chk "birthSelectHtml('mp_ciGB',ci.groomBirth,'신랑')" mypage.html 1
+chk "addrFieldHtml('mp_ciBA',ci.brideAddrRoad||ci.brideAddr,ci.brideAddrDetail,'신부')" mypage.html 1
+chk "labelledby:'mp_ciWedLab'" mypage.html 1
+chk '<label class="pf-l" for="mp_ciCR"' mypage.html 1
+chk '<label for="mp_heSlot"' mypage.html 1
+chk '^\.led-modal-x::before{content:' mypage.html 1
+chk '<button type="button" id="mp_logout">' mypage.html 1
+nochk '<a id="mp_logout">' mypage.html
+# ── 묶음 G5
+# ── G5 · 2026-09-26 통합 점검 1차 수정 (가족 · 친구 스냅 · 애프터 웨딩 · 스냅 동의) [DECISION_GUARD]
+# [PHOTO_BLUR_CLICK] 사진 링크 칸 blur — 초점이 머리의 저장·나가기로 옮겨 가면 그 click 뒤에 다시 그린다(첫 누름이 먹히던 것 · 마우스 · 120ms · 터치 실측)
+chk 'PHOTO_BLUR_CLICK' mypage.html 2
+chk "_rt.closest('\[data-wiz-save\],\[data-wiz-exit\]')" mypage.html 1
+#   (검토 2026-09-26) click 만 기다리면 오른쪽 · 가운데 누름 뒤 리스너가 남아 다음 칸의 초점 · 글자가 날아갔다 — mouseup 에서도 풀고, 초점이 입력칸이면 다시 그리지 않는다
+chk "document.addEventListener('click', _psAfter, true); document.addEventListener('mouseup', _psAfter, true);" mypage.html 1
+chk 'if(_ae && box.contains(_ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(_ae.tagName)) return;' mypage.html 1
+nochk "document.addEventListener('click', function _psAfter(){" mypage.html
+nochk "PHOTOFLOW._psOpen=true; rerender(); } }); }" mypage.html
+# [SHARE_SCHEME] https:// 없이 적은 주소는 https 를 붙여 보낸다(서버는 종전대로 http(s)만) · 링크로 못 바꾸는 글은 칸 아래 한 줄로 «저장되지 않아요»
+chk 'SHARE_SCHEME' mypage.html 4
+chk "u='https://'+u;" mypage.html 1
+chk 'id="mp_psBad" role="status"' mypage.html 1
+chk '<span class="ln-bal">링크가 아니라서 저장되지 않아요.</span>' mypage.html 1
+chk "_nb.hidden=!!_nu||!String(psi.value||'').trim();" mypage.html 1
+# [PH_MORE_CUE] 사진 오버레이 접힘 두 곳 — 44px · 꺾쇠 · 키보드 초점 테두리(상담 · 시착 카드 [CC_MORE_CUE] 와 한 모양)
+chk 'PH_MORE_CUE' mypage.html 1
+chk '#mp_photoBody details.cc-more>summary{font-family:var(--serif-ko);color:var(--sub);min-height:44px' mypage.html 1
+chk '#mp_photoBody details.cc-more>summary:focus-visible{outline:2px solid var(--gold-deep)' mypage.html 1
+chk "#mp_photoBody details.cc-more>summary::after{content:''" mypage.html 1
+# [PH_DOT_SPLIT] 가족 · 친구 스냅 안내 — « · »로 잇던 두 마디를 마침표로(«전해 드려요 ·» 줄 끝 · «· 안 적으셔도» 줄 머리)
+chk 'PH_DOT_SPLIT' mypage.html 6
+chk '<span class="ln-bal">위에 없는 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span>' mypage.html 1
+chk '<span class="ln-bal">모인 사진은 <b>결과물과 함께</b> 전해 드려요.</span><span class="ln-bal">하객분들은 가입도 이름 입력도 하지 않아요.</span>' mypage.html 1
+nochk '위에 없는 사진만 적어 주세요 · ' mypage.html
+nochk '전해 드려요 · 하객분들은' mypage.html
+nochk '고치시면 돼요 · 안 적으셔도' mypage.html
+nochk '들어갈 수 있어요 · <b>예식 뒤 정리하시면' mypage.html
+nochk "+' · QR은 테이블 카드용이에요." mypage.html
+nochk '화면은 영어예요 · 하객이' mypage.html
+nochk '봐 주세요 · 드라이브가 꽉 차면' mypage.html
+chk '고르기⁠·⁠올리기 두 번</b>이라' mypage.html 1
+chk "+'. QR은 테이블 카드용이에요.</div>'" mypage.html 1
+# [FIELD_NAME_A11Y] 자리표시만 있던 칸에 이름(aria-label) — 구도 직접 추가 · 애프터 웨딩 AI 칸
+chk 'FIELD_NAME_A11Y' mypage.html 2
+chk 'id="mp_photoAdd" maxlength="20" autocomplete="off" aria-label="구도 직접 추가"' mypage.html 1
+chk 'id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="찾는 자리를 말로 적기"' mypage.html 1
+# [DN_ARIA_STATE] 애프터 웨딩 고르는 단추 aria-pressed · 펼침 단추 aria-expanded + aria-controls · 다시 그린 뒤 같은 단추로 초점
+chk 'DN_ARIA_STATE' mypage.html 5
+chk "data-fv=\"'+escapeHtml(v)+'\" aria-pressed=\"'+on+'\"" mypage.html 1
+chk "data-ax=\"theme\" data-fv=\"'+o\[0\]+'\" aria-pressed=\"'+on+'\"" mypage.html 1
+chk 'aria-controls="dn_detBody"' mypage.html 1
+chk 'aria-controls="dn_preBody"' mypage.html 1
+chk 'id="dn_detBody"' mypage.html 1
+chk 'id="dn_preBody"' mypage.html 1
+chk '_dnRefocus(function' mypage.html 3
+# [DN_CLOCK_SAY] 애프터 웨딩 도착 시각은 말하는 꼴(«오후 3시» · «오전 11시 50분») — SLOT_CLOCK · wedTimeKo 를 거치지 않는다 · 브레이크 셈은 원값
+chk 'DN_CLOCK_SAY' mypage.html 5
+chk 'function _dnSayClock(hm)' mypage.html 1
+chk "{lead:'오후 예식은 3시 도착 기준이라" mypage.html 1
+chk "{lead:'오전 예식이라 식사는 11시 50분 도착 기준이에요." mypage.html 1
+chk "{lead:'저녁 예식이라 식사는 6시 10분 도착 기준이에요." mypage.html 1
+chk '_dnSayClock(arr2)' mypage.html 2
+chk '_dnSayClock(arr)' mypage.html 1
+chk "'식사&nbsp;도착')+' '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'&nbsp;기준'" mypage.html 1
+chk "'&nbsp;·&nbsp;예식 후 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'&nbsp;도착&nbsp;기준'" mypage.html 1
+nochk "' · 예식 후 '+arr+' 도착 기준'" mypage.html
+nochk "'결혼식 후 '+(arr2?arr2+' 도착, '" mypage.html
+nochk "'식사 도착')+' '+arr2+' 기준'" mypage.html
+nochk '오후 예식은 15:00 도착 기준이라' mypage.html
+# [DN_RO_JOSA] 가게 이름 뒤 (으)로 — 받침으로 고른다(«잔치연으로» · «향동점으로» · «카페516으로»)
+chk 'DN_RO_JOSA' mypage.html 1
+chk 'function _dnRo(w)' mypage.html 1
+chk "</b>'+_dnRo(rep)+' 예약만 마치면" mypage.html 1
+nochk '</b>로 예약만 마치면' mypage.html
+# [DN_RSV_MODE] 예약 안내 — 위에 실제로 있는 것만 가리킨다('tel' · 'notel' · 'none' 대표 전 · 'bare' 단일 경로) · 지도 안내는 카드 한 번
+chk 'DN_RSV_MODE' mypage.html 6
+chk "_dnRsvHtml(d, !rep?'none':(_dnTelOf(rep," mypage.html 1
+chk "_dnRsvHtml(d, !R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel'))" mypage.html 1
+chk "(mode==='tel'?'<span class=\"ln-bal\">위 전화번호와 통화 문구를 그대로 쓰시면 돼요.</span>'" mypage.html 1
+nochk "'지도에서 매장 번호를 확인하고," mypage.html      # 코드의 옛 noTel 문장(따옴표로 시작) — 주석의 인용은 안 잡는다
+nochk "해주세요 · '+(noTel?" mypage.html
+# [DN_DOT_SPLIT] 애프터 웨딩 가운뎃점 — 줄 끝 · 머리에 안 서게(«자리·주차·식사예요» 한 덩어리 · 나열은 U+2060 · 절을 잇는 점은 &nbsp;)
+chk 'DN_DOT_SPLIT' mypage.html 4
+chk '<span style="white-space:nowrap">자리·주차·식사예요</span>. 예약 통화에서 단체석·주차를 꼭 물어봐 주세요.</div>' mypage.html 1
+chk 'white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.' mypage.html 1
+chk '괜찮아요&nbsp;·&nbsp;이&nbsp;줄만 빠지고' mypage.html 1
+chk '룸(또는 단체석)⁠·⁠주차 가능할까요?' mypage.html 1
+chk '식사⁠·⁠카페⁠·⁠아이 동반⁠·⁠뒤풀이⁠·⁠볼거리까지' mypage.html 1
+nochk '가장 아쉬워하는 건 자리·주차·식사예요' mypage.html
+nochk "'단체 식사 예약하고 싶어요. 룸(또는 단체석)·주차" mypage.html      # 코드의 통화 문구(따옴표로 시작) — [DN_TRUE_COPY] 주석의 인용은 안 잡는다
+# [SNAP_AGREE_BAL] 스냅 동의 — 320 꼬리 줄(«지워요» · «있어요») · «접기» 누름 폭 44px · 자세히 보기 가운뎃점 앞뒤 묶기(문구는 코워크 명세 그대로)
+chk 'SNAP_AGREE_BAL' mypage.html 6
+chk 'SNAP_AGREE_BAL' scripts/audit/snap-plan.mjs 2
+chk '.snp-agree-sub{padding-left:30px;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all;text-wrap:balance}' mypage.html 1
+chk '.snp-agree-need{padding-left:30px;font-size:12px;color:var(--seal);line-height:1.7;text-wrap:balance}' mypage.html 1
+chk 'min-height:44px;min-width:44px;margin:-12px 0' mypage.html 1
+chk "dt::after{content:'.00a0·.00a0'" mypage.html 1
+chk '<dd>고른 장면&nbsp;·&nbsp;메모&nbsp;·&nbsp;참고 링크&nbsp;·&nbsp;두&nbsp;분이 올린 참고 사진</dd>' mypage.html 1
+nochk '<dd>고른 장면 · 메모' mypage.html
+nochk "dt::after{content:' · '" mypage.html
+# ── 묶음 G1b
+# [DEP_NOTE_MID] 2026-09-26 통합 점검 G1b(L1 pay-5) — 계약금 카드 끝 안내에 먼저 오는 중도금을 시간 순으로(«중도금 …원은 예식 149일 전까지예요.» → 잔금 → «기한이 가까워지면…») · 묶음에 든 것·이미 확인된 것은 뺀다
+chk 'DEP_NOTE_MID' mypage.html 2
+chk '(_dueMid?.<span style="display:block;text-wrap:balance">중도금 .+fmtWon(a.중도금)+.은 .+escapeHtml(a.중도금시점)+.까지예요.</span>' mypage.html 1
+chk '_pb2.indexOf(.중도금.)===-1&&!p.midConfirmed' mypage.html 1
+# [SNAP_BAL_LATE] 2026-09-26 통합 점검 G1b(L3 · L8) — 스냅 잔금 기한(촬영 7일 전)이 한국 날짜로 오늘이거나 지났으면 계약금 카드 둘째 줄 «촬영이 가까워, 계약금이 확인되면 바로 이 화면에 입금 안내가 열려요.»(«기한이 가까워지면» 약속 금지 · 서버 묶음 여부는 사장님 결정 대기 · NEXT 줄은 G1)
+chk 'SNAP_BAL_LATE' mypage.html 2
+chk '촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 입금 안내가 열려요' mypage.html 1
+chk 'if(!isSnap||!_dueBal) return false;' mypage.html 1
+chk '_payDays().bal)<=_snapKstToday()' mypage.html 1
+# [MID_PAST_WORD] 2026-09-26 통합 점검 G1b(L3) — 계약 뒤 기한을 넘긴 중도금(단순 연체)은 날짜를 남기고 «(날짜) 기한이 지났어요.» / «지금 바로 입금 부탁드려요»(지난 날짜에 «…까지 입금 부탁드려요» 금지) · 두 덩어리
+chk 'MID_PAST_WORD' mypage.html 1
+chk ': _mPast?(.<span class="ln-bal"><b>.+escapeHtml(midDateTxt)+.</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 입금 부탁드려요</span>.)' mypage.html 1
+# [COMBO_NOTE_SPLIT] 2026-09-26 통합 점검 G1b(L5 B9 ①) — 중도금·잔금 묶음 카드 «예식이 가까워 함께 받아요.» / «(기한) 입금 부탁드려요» 두 덩어리(«받아요 · / 지금 바로» 가운뎃점 줄 끝 매달림) · 날짜 꼬리 «·&nbsp;예식&nbsp;N일&nbsp;전»
+chk 'COMBO_NOTE_SPLIT' mypage.html 1
+chk 'forceCombo?(.<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">.+comboDue+. 입금 부탁드려요.+comboTag+.</span>.)' mypage.html 1
+chk 'cc-mini">·&nbsp;예식&nbsp;' mypage.html 1
+nochk 'forceCombo?(.예식이 가까워 함께 받아요 · .' mypage.html 0
+# [KST_TODAY] 2026-09-26 통합 점검 G1b(L8-tz) — 잔금 카드 _bPast · 묶음 카드 _balPast · 중도금 연체 _mPast · 스냅 계약금 카드 _balLate · 서명 창 «오늘(날짜)»는 한국 날짜(_snapKstToday) — 기기 자정 셈으로 되돌리면 LA 기기는 하루 전, 오클랜드 기기는 하루 뒤를 «오늘»로 센다(머리·NOW·NEXT·보관 쪽 [KST_TODAY] 는 G1)
+chk 'KST_TODAY' mypage.html 7
+chk 'function _duePastKst(ymd){ var m=String(ymd||..).match(' mypage.html 1
+chk ')<_snapKstToday(); }' mypage.html 1
+chk 'var _bPast=_duePastKst(p.dueDate);' mypage.html 1
+chk 'var _balPast=!!(bal && _duePastKst(bal.dueDate));' mypage.html 1
+chk 'var _mPast=!!midDateTxt && _duePastKst(p.dueDate);' mypage.html 1
+# [KST_TODAY] (G1b 검토 2026-09-26) 서명 창 줄은 G2 [CONSULT_CLOCK12] 가 같은 줄을 «var _sd=new Date(), _sdKo=…getFullYear…»로 바꾼다 — 변수 이름에 묶지 않고 «한국 날짜 + getUTC* 셋»만 본다(합칠 때 이름이 _sdKo 여도 초록 · G2 기기 날짜판이 이기면 빨강 · getFullYear/getMonth/getDate 를 섞어도 빨강)
+chk 'var _sd=new Date(_snapKstToday()), _sd[A-Za-z]*=_sd.getUTCFullYear().*_sd.getUTCMonth().*_sd.getUTCDate()' mypage.html 1
+nochk 'var _sd=new Date(), _sd' mypage.html 0
+nochk 'var t=new Date();t.setHours(0,0,0,0);return new Date(+m' mypage.html 0
+# [KST_TODAY] (G1b 검토 2026-09-26) 보관본 «계약 체결일»(_archiveSignedContract data.signDate)도 한국 날짜 — 서명 창 «오늘(…)»만 한국 날짜로 바꾸면 LA 기기에서 창은 9/26, 보관본은 9/25 로 갈린다(서버 계약서명일시는 한국 시각)
+chk 'var t=new Date(_snapKstToday()); data.signDate=t.getUTCFullYear().*t.getUTCMonth().*t.getUTCDate()' mypage.html 1
+nochk 'var t=new Date(); data.signDate' mypage.html 0
+# [FIT_EXTRA_APART 2026-09-26 사장님 결정 ㉘] 추가 시착비는 계약금과 따로 청구(관리자 «별도 청구»와 같다) — 3벌 이상이면 계약금 카드(충당 카드 포함) 금액 아래 «추가 시착 N벌 {금액}은 디렉터가 따로 안내드려요»
+chk 'FIT_EXTRA_APART' mypage.html 3
+chk '은 디렉터가 따로 안내드려요.</div>' mypage.html 1
+chk "+amt+_fxNote+acct" mypage.html 1
+chk '       + _fxNote   // \[FIT_EXTRA_APART\]' mypage.html 1
+# ── 묶음 G4
+
+# ── 묶음 G4 · 2026-09-26 병합 뒤 통합 점검(8갈래 실렌더 + 반박 검증) — 예식 준비 행 · 청첩장 위저드 · 예식 확인서 · 하객 안내 패널 ──
+# [PHOTO_FRIEND_ROW] 가족 · 친구 스냅 행 — 친구 부탁(photoFriend)만 적은 판도 ✓ · 「완료 · 수정」(확인서 _phF 와 같은 판정 · 122px 레일 안) · photo-friend.mjs 가 행 판정까지 잰다
+chk 'PHOTO_FRIEND_ROW' mypage.html 2
+chk "_frB2=!!String(_gpB2.photoFriend||'').trim()" mypage.html 1
+chk "done: !!(_phB2||_fxB2||_frB2)" mypage.html 1
+chk "(_fr?'완료 · 수정':'구도 고르기')" mypage.html 1
+chk 'PHOTO_FRIEND_ROW' scripts/audit/photo-friend.mjs 1
+# [DN_ROW_TRUTH] 애프터 웨딩 «완료»는 정한 것이 있을 때만(안 함 N · 담은 곳 · 고른 곳 · 옛 자리표시) — 「역시 만들래요」 뒤 빈손으로 나가도 서버 딱지가 «완료»로 남는다 · 행 · 확인서 · 내 완성물이 한 판정
+chk 'function _dnHas(dd)' mypage.html 1
+chk "var _dDone=(t.dining||'')==='완료' && _dnHas(dd);" mypage.html 1
+chk "_dDone=(t.dining||'')==='완료'&&_dnHas(dd)" mypage.html 1
+chk "(t.dining||'')==='완료' && _dnHas(p.diningDraft)" mypage.html 1
+nochk "var _dDone=(t.dining||'')==='완료';" mypage.html 0
+# [INV_DONE_LINK] 청첩장 완성 화면 링크 문장 — 방금 반영한 결과(_lkChg · 반영 전에 잰다)대로: 주소 바뀜 · 그대로 · 앞으로의 규칙(QR 만 쓰는 구성은 QR) · 조건 없는 «같은 링크로 자동 갱신 · 새 링크를 다시 보낼 필요 없어요» 금지
+chk 'INV_DONE_LINK' mypage.html 3
+chk 'INVFLOW._lkChg=' mypage.html 1
+chk 'var _lkC=INVFLOW._lkChg' mypage.html 1
+chk '<span class="ln-bal">위 새 링크를 다시 보내 주세요.</span>' mypage.html 1
+chk '<span class="ln-bal">보내신 링크는 그대로예요.</span>' mypage.html 1
+chk '글이나 계좌만 고치면 링크는 그대로이고, 디자인이나 이름을 바꾸면 새 링크가 생겨요.' mypage.html 1
+chk '</b>에서 다시 손볼 수 있어요.</span>' mypage.html 1
+chk '이름을 바꾸면 새 QR이 생겨요.' mypage.html 1
+nochk '같은 링크로 자동 갱신</b>돼요' mypage.html 0
+nochk '<span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span>' mypage.html 0
+# [CF_SELF_NOQR] 예식 확인서 청첩장 줄 — 살아 있는 링크 없는 개인 제작(QR 아니요)은 «개인 제작 · 직접 준비»(«만듦 · 미발행» · 옛 발행 흔적의 «발행됨» 금지) · 확정 기록에도 같은 글
+chk 'CF_SELF_NOQR' mypage.html 1
+chk "_im==='self' && _ivd.selfQR!==true && !_invLiveUrls(_ivd)) _ivv='개인 제작&nbsp;·&nbsp;직접 준비'" mypage.html 1
+# [INV_LINK_LIVE] 행 「발행됨 · 수정」과 하객 안내 설명이 «발행한 링크가 지금도 살아 있나» 한 규칙 — 초안에 invitationUrls 키가 있으면 초안, 없으면 서버 발행 링크(startInvFlow 폴백과 같은 뜻)
+chk 'function _invLinkAlive(inv, k)' mypage.html 1
+chk "(inv.published && !_iSkip && _invLinkAlive(inv)) ? '발행됨 · 수정' : '다시 정하기'" mypage.html 1
+chk "(_invLinkAlive(inv,'family')" mypage.html 1
+nochk "(!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)" mypage.html 0
+# [INV_DONE_SAVE_MSG] 발행 직후 초안 저장이 실패하면 알림은 지금 화면에 있는 손잡이를 가리킨다 — 저장 손잡이 없는 완성 화면이면 「완료」(«다시 저장을 눌러 주세요» 금지) · 「완료」 중 실패는 종전 말 + 재시도 판
+chk 'function _invSaveFailMsg(err)' mypage.html 1
+chk '_miniToast(_invSaveFailMsg(' mypage.html 2
+chk '를 누르면 한 번 더 저장해요.' mypage.html 1
+# [INV_STEP2_BASE] 청첩장 1/4 → 2/4 — 그린 뒤 모양을 저장 성공 회신 때 기준선으로(아무것도 안 만지고 나가면 판 없음 · [WIZ_EXIT_ONE]) · 회신 전 입력은 여전히 «바뀜»
+chk 'var _sv=saveInvDraft();' mypage.html 1
+chk 'var _b2=_wizJson(WIZ_ADAPT.inv.data());' mypage.html 1
+chk 'WIZ_BASE.inv=_b2;' mypage.html 1
+# [INV_TAG_TOTAL] 예식 준비 청첩장 행 진행 태그 = 위저드 머리와 같은 전체 단계 수(청첩장 없이 · 개인 제작은 «/2» · 확인 단계는 2)
+chk "var _ivT=_invTotalSteps(inv.draft); _ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT;" mypage.html 1
+nochk "if(_ivN) _ivStepTag=_ivN+'/4';" mypage.html 0
+# [INV_SEL_SHORT] 청첩장 2/4 select — 값(value)은 그대로 · 보이는 이름만 «직접 입력» · «호칭 생략»(561px 이상 124px 칸에서 «기타(직접입» · «호칭 생략 (»로 잘리던 것)
+chk "(x===ETC?'직접 입력':(x===OMIT?'호칭 생략':x))" mypage.html 1
+chk "return '<option value=\"'+x+'\"'" mypage.html 1
+nochk "return '<option'+(sv===x?' selected':'')+'>'+x+'</option>';" mypage.html 0
+# [INV_OPT_KB] 청첩장 1/4 초대 방식 카드 = 키보드로 고르는 버튼(role · tabindex · aria-pressed · Enter/Space · _kbChip) · 고른 뒤 초점 복귀 · 키보드 초점 링
+chk "data-m=\"'+v+'\" role=\"button\" tabindex=\"0\" aria-pressed=\"'+(m===v)+'\"" mypage.html 1
+chk "_kbChip(el, function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m');" mypage.html 1
+chk '.inv-opt\[data-m\]:focus-visible{outline:2px solid var(--gold-deep)' mypage.html 1
+nochk "<label class=\"inv-opt'+(m===v?' sel':'')+'\" data-m=" mypage.html 0
+# [INV_NAME_ARIA] 청첩장 1/4 이름 칸 이름(낭독기) — 신랑/신부 · 한글/영문 · placeholder 는 예시 그대로
+chk 'aria-label="신랑 한글 이름"' mypage.html 1
+chk 'aria-label="신부 영문 이름"' mypage.html 1
+# [INV_YN_PRESSED] 청첩장 네/아니요(1/4 QR · 2/4 · 3/4 온라인 디자인) — 묶음 이름(role=group · aria-label) + 버튼 aria-pressed
+chk 'INV_YN_PRESSED' mypage.html 3
+chk "aria-pressed=\"'+(val==='Y')+'\"" mypage.html 1
+chk "aria-pressed=\"'+(d.selfQR===true)+'\"" mypage.html 1
+chk "aria-pressed=\"'+(d._onlineSame!=='N')+'\"" mypage.html 1
+# [INV_GATE_GAP] 청첩장 2/4 «계좌를 어디에 보여드릴까요?» 위 간격 = 다른 질문과 같은 14px(.inv-gate · 인라인 6px 금지)
+chk "return '<div class=\"inv-gate\"><div class=\"inv-gate-q\">계좌를 어디에 보여드릴까요?" mypage.html 1
+nochk '<div class="inv-gate" style="margin-top:6px">' mypage.html 0
+# [INV_GREET_LABEL] 청첩장 3/4 인사말 칸 — 보이는 이름표(.inv-fields>.pf-l) + 같은 aria-label · placeholder 는 예시 · 도움말만 · 디자인 묶음 이름(role=group)
+chk "f+=gl('인사말 제목')+" mypage.html 1
+chk 'aria-label="인사말 본문"' mypage.html 1
+chk "gl('신랑 한마디')" mypage.html 1
+nochk 'placeholder="인사말 큰 제목 (예: Save the Day)"' mypage.html 0
+# [INV_AMP_TEXT] 청첩장 완성 화면 이름 사이 «&» = 글자 골드(--gold-deep · 흰 바탕 5.7:1) — 장식 --gold(2.65:1) 금지
+chk '<span style="color:var(--gold-deep,#7A5F37)">&amp;</span>' mypage.html 1
+nochk '<span style="color:var(--gold,#B89A75)">&amp;</span>' mypage.html 0
+# [CF_DATE_NBSP] 예식 확인서 예식 일시 — 연도 뒤에서만 갈린다(«3월 26일 · 오후 1:40» NBSP · 320 · 340 «3월 / 26일» 갈림) · 확정 기록 글자는 같다(\s+ 로 접힌다)
+chk 'CF_DATE_NBSP' mypage.html 1
+# [DOT_SPLIT_0926] 새 안내문 · 청첩장 완성 화면 · 하객 안내 패널 · 확인서 확정 안내의 «·»가 줄 끝 · 줄 머리에 매달리지 않게([CHECKS_NO_DANGLE]) — 절은 마침표 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060
+chk 'DOT_SPLIT_0926' mypage.html 13
+chk "var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b>" mypage.html 1
+chk '<span class="ln-bal">비어 있는 부분은 하객 화면에 나오지 않아요.</span>' mypage.html 1
+chk '<span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span>' mypage.html 1
+nochk '링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>' mypage.html 0
+nochk '모바일 참석 QR·링크를 드려요' mypage.html 0
+nochk '하객 화면에 나오지 않아요 · 애프터 웨딩·좌석 배치를' mypage.html 0
+nochk "나오지 않아요'+(a.length?(' · '" mypage.html 0
+nochk '함께 기록돼요 · 저희는' mypage.html 0
+nochk '<b>이름·예식 날짜·계좌·혼주 호칭</b>' mypage.html 0
+nochk '구성이에요 · 저희가 만들 것은 없어요' mypage.html 0
+nochk '이 QR을 넣으세요 · ' mypage.html 0
+nochk '옮겨 적으세요 · 아래 QR과' mypage.html 0
+nochk '만들어져요 · 준비된 내용만' mypage.html 0
+nochk '직접 전하세요 · 이 청첩장 안에' mypage.html 0
+nochk 'QR(모바일 참석·하객 안내)' mypage.html 0
+# [COND_PAREN_GLUE] (G4 검토) GUIDE_MAKE_COND — 점을 붙인 뒤 줄이 괄호 앞에서 갈려 «애프터 웨딩 / (식사)·좌석…»(하객 안내 패널 320~330) · «웨딩(» 사이 U+2060 · «애프터 웨딩» NBSP
+chk 'COND_PAREN_GLUE' mypage.html 1
+nochk "var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)" mypage.html 0
+# [INV_DONE_EID] (G4 검토) 완성 화면 «보내신 링크는 그대로예요»는 받은 결과의 eventId 가 반영 전과 같을 때만 — 예측(_invLinkChange)은 예식 날짜를 모른다(eventId 에 MMDD)
+chk 'INV_DONE_EID' mypage.html 2
+chk "var _eid0=String(_d0.eventId||(INVFLOW.pub&&INVFLOW.pub.eventId)||'');" mypage.html 1
+chk "if(r.urls && INVFLOW._lkChg==='' && _eid0 && r.eventId && String(r.eventId)!==_eid0) INVFLOW._lkChg='name';" mypage.html 1
+# [FOLD_JOSA_GLUE] (G4 검토) 완성 화면 «하객 안내만 따로 보내기» 둘째 줄 — balance 로 감싼 뒤 320~345 «…웨딩(식사) / 을 완료하면»(조사 줄 머리) · «자리 / 찾기» 갈림 → «웨딩(식사)을» U+2060 · «애프터 웨딩» · «자리 찾기» · «식사 안내» NBSP
+chk 'FOLD_JOSA_GLUE' mypage.html 1
+chk "애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b>" mypage.html 1
+nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 0
+# [CF_DATE_NBSP 보정] 확인서 예식 일시는 fmtWedKoT(내 내역 · 임시 고정 · 결제 카드와 같은 모양) — NBSP 한 덩어리는 320~325 에서 긴 날짜가 칸 밖으로 넘쳤다(180조합 중 84 → 0)
+chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
+nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
 # ── [코워크 회신8 2026-09-26] 칸 글 삼킴 · 케이크 한 줄 괄호 · 얇은 띠 ★ ──
 chk 'TILE_SWALLOW' assets/ritual-open.js 1
 chk "letter: '부모님이나 서로에게 쓴 편지를 읽어요', toast: '케이크를 자르고, 다 함께" assets/ritual-open.js 1
