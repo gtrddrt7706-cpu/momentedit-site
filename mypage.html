@@ -4601,6 +4601,25 @@ function renderContractPayment(c, p, ctx){
   /* [BUNDLE_TITLE 2026-09-26 사장님 결정 ③ · 점검 pay-14 ②] 묶음(계약금+중도금±잔금)이면 제목이 금액과 맞게 «계약금·중도금을 함께 입금해 주세요».
        종전엔 묶음이어도 «이어서, 계약금을 입금해 주세요»라 중도금이 든 1,550,000원이 틀린 금액처럼 보였다. 묶음이 아니면 종전 그대로. */
   var _depTitle = _bundleActive ? ('계약금·'+escapeHtml(_pb2.join('·'))+'을 함께 입금해 주세요') : '이어서, 계약금을 입금해 주세요';
+  /* [DEP_NOTE_MID 2026-09-26 · 점검 L1 pay-5] 카드 끝 안내가 다음 결제로 잔금만 말하고, 그보다 먼저 오는 중도금(1,320,000원 · 예식 149일 전)은 빠졌다.
+       NEXT 결제 줄은 날짜만 있고 금액이 없어, 중도금 금액은 이 화면 어디에도 없었다 → 시간 순으로 중도금 → 잔금, 한 항목에 한 줄.
+       묶음에 든 것(위 금액에 이미 있다)과 이미 확인된 것은 뺀다. 스냅(중도금 0)과 묶음 카드는 종전과 같다. */
+  var _dueMid=!!(a&&Number(a.중도금)>0&&_pb2.indexOf('중도금')===-1&&!p.midConfirmed),
+      _dueBal=!!(a&&a.잔금&&_pb2.indexOf('잔금')===-1&&!p.balConfirmed);
+  /* [SNAP_BAL_LATE 2026-09-26 · 점검 L3·L8] 촬영 7일 안에 서명했거나 계약금이 늦어진 스냅은 잔금 기한(촬영 7일 전)이 이미 왔는데
+       «기한이 가까워지면 이 화면에 입금 안내가 열려요»라고 했다 — 계약금이 확인되면 잔금 카드는 곧바로 «지금 바로 입금 부탁드려요»로 열린다(renderBalance).
+       기한일이 한국 날짜로 오늘이거나 지났으면 둘째 줄을 사실대로 «촬영이 가까워, 계약금이 확인되면 바로 …». 첫 줄(계약서 기한)은 그대로 둔다.
+       ★한 문장(«…까지라, 계약금이 확인되면…» 55자)은 320 에서 «촬영 7일 / 전까지라»로 기한이 갈렸고 보이스 가이드 §6-B ④(40자 넘으면 마침표로 나눈다)에도 걸려 두 문장으로.
+       스냅 잔금을 계약금과 함께 받을지(_bundleKeysFor 스냅 [])는 사장님 결정 대기라 건드리지 않는다 — 함께 받게 되면 _pb2 에 잔금이 들어와 이 줄은 저절로 빠진다. */
+  var _balLate=(function(){ if(!isSnap||!_dueBal) return false; var m=String((c.fill&&c.fill.weddingDate)||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(!m) return false;
+    return Date.UTC(+m[1],+m[2]-1,+m[3]-_payDays().bal)<=_snapKstToday(); })();   // [KST_TODAY] 서버 기한 판정(GAS · 한국 시각)과 같은 달력
+  var _depDueNote=(_dueMid||_dueBal)?('<div class="cc-note">'
+      +(_dueMid?'<span style="display:block;text-wrap:balance">중도금 '+fmtWon(a.중도금)+'은 '+escapeHtml(a.중도금시점)+'까지예요.</span>':'')
+      +(_dueBal?'<span style="display:block;text-wrap:balance">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'까지예요.</span>':'')
+      +(_balLate
+        ? '<span style="display:block;text-wrap:balance">촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 입금 안내가 열려요.</span>'
+        : '<span style="display:block;text-wrap:balance">기한이 가까워지면 이&nbsp;화면에 입금 안내가 열려요.</span>')
+      +'</div>'):'';
   h += '<div class="cc-title" style="margin-top:8px;text-wrap:balance">'+_depTitle+'</div>'+amt+acct   // 좁은 폭에서 «주세요»만 떨어지지 않게
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
@@ -4608,7 +4627,7 @@ function renderContractPayment(c, p, ctx){
      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal"'+(_bundleActive?' data-bundle="1"':'')+'>입금했어요</button>'
      /* [PAY_DUE_WORD 2026-09-26 점검 pay-5] «잔금 …은 예식 9일 전에 안내드려요» → «…까지예요». 9일 전은 «안내하는 날»이 아니라 «내는 기한»이다
           (실제 안내는 D-30 한 줄 · D-15 카드로 먼저 열린다). 묶음에 잔금이 들어 있으면 이미 위 금액에 있으니 생략. */
-     + ((a&&a.잔금&&_pb2.indexOf('잔금')===-1)?'<div class="cc-note"><span style="display:block;text-wrap:balance">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'까지예요.</span><span style="display:block;text-wrap:balance">기한이 가까워지면 이&nbsp;화면에 입금 안내가 열려요.</span></div>':'')+'</div></div>';   // [PAY_DUE_WORD] «이&nbsp;화면에» — 320 균형 줄바꿈이 «…가까워지면 이 / 화면에…»로 지시어만 떼어 놓았다(검토 실측)
+     + _depDueNote+'</div></div>';   // [PAY_DUE_WORD] «이&nbsp;화면에» — 320 균형 줄바꿈이 «…가까워지면 이 / 화면에…»로 지시어만 떼어 놓았다(검토 실측) · 문장은 위 _depDueNote([DEP_NOTE_MID] [SNAP_BAL_LATE])
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
   var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; copyThen(t, ok); });
@@ -4778,7 +4797,7 @@ function _archiveSignedContract(sig, cb){
   try{
     try{ data=JSON.parse(JSON.stringify(window._contractFill||{})); }catch(e){ data={}; }
     data.signed=true; data.signImage=sig;
-    var t=new Date(); data.signDate=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+    var t=new Date(_snapKstToday()); data.signDate=t.getUTCFullYear()+'-'+('0'+(t.getUTCMonth()+1)).slice(-2)+'-'+('0'+t.getUTCDate()).slice(-2);   // [KST_TODAY 2026-09-26 · G1b 검토] 보관본 «계약 체결일»도 서명 창 «오늘(…)»·서버 계약서명일시(한국 시각)와 같은 날 — 기기 날짜로 두면 LA 기기 보관본만 하루 전 날짜가 찍혔다
     fr=document.createElement('iframe'); fr.setAttribute('aria-hidden','true'); fr.style.cssText='position:fixed;left:-99999px;top:0;width:820px;height:300px;border:0;opacity:0';
     window.addEventListener('message',onM);
     fr.src=contractSrc(window._contractFill&&window._contractFill.product, window._contractFill&&window._contractFill.docVersion); document.body.appendChild(fr);
@@ -4915,6 +4934,10 @@ document.addEventListener('click', function(e){
   window._afterFinalToBal=true;   // 최종확정 완료 후 잔금으로 복귀 스크롤
   try{ startSeatFlow(pr.seatDraft, pr.finalDraft||{}, pr.seatToken, pr.guideinfoDraft||{}); }catch(err){}   // [통합 2026-07-19] 최종 확정=좌석 화면(인원 자동·자리별 3음료). ★옛 인원/음료 위저드(startTrkFlow('final')) 복원 금지
 });
+/* [KST_TODAY 2026-09-26 · 점검 L8-tz] 결제 기한이 «지났나»는 한국 날짜로 센다 — 서버 dday·묶음 판정(GAS · 한국 시각)과 같은 달력.
+     종전엔 기기 자정(new Date().setHours(0))으로 세서, 한국 밖 기기에서 같은 카드의 «예식 D-8»과 하루 어긋났다
+     (KST 9/26 08:00 · LA 기기 = 9/25 → 기한 9/25 를 «9월 25일 (금)까지»로 · 오클랜드 기기 = 9/27 → 기한 9/26 을 «지금 바로»로). */
+function _duePastKst(ymd){ var m=String(ymd||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); return !!m && Date.UTC(+m[1],+m[2]-1,+m[3])<_snapKstToday(); }
 function renderBalance(p, mid){
   var box=$('mp_balance'); if(!box) return;
   if(!p){ box.style.display='none'; box.innerHTML=''; return; }
@@ -4942,7 +4965,7 @@ function renderBalance(p, mid){
     var _xPend=(p.extraPending&&p.extra&&p.extra.amount>0)?'<br><span class="cc-mini">최종 인원 확정 시 추가 요금이 잔금에 합산돼요.</span>':'';
     var amt=amtTxt?('<div class="cc-sub">잔금 · <b>'+amtTxt+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+_xBrk+_xPend+'</div>')
                   :'<div class="cc-sub">잔금 금액은 디렉터 확인 후 안내드려요.</div>';
-    var _bPast=(p.dueDate)?(function(x){var m=String(x).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return false;var t=new Date();t.setHours(0,0,0,0);return new Date(+m[1],+m[2]-1,+m[3])<t;})(p.dueDate):false;
+    var _bPast=_duePastKst(p.dueDate);   // [KST_TODAY] 기기 날짜가 아니라 한국 날짜
     var balDateTxt=(p.dueDate&&!_bPast&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
     var balDue, balTag;
     if(balDateTxt){ balDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; balTag=' <span class="cc-mini">· '+dueLabel+'</span>'; }
@@ -5047,14 +5070,23 @@ function renderMid(p, bal){
     var midDue, midTag;   // 날짜 있으면 '날짜까지'+라벨꼬리, 없으면 라벨만(중복 방지)
     if(midDateTxt){ midDue='<b>'+escapeHtml(midDateTxt)+'</b>까지'; midTag=' <span class="cc-mini">· '+dueLabel+'</span>'; }
     else { midDue=dueLabel+'까지'; midTag=''; }
-    var _balPast=(bal&&bal.dueDate)?(function(x){var m=String(x).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return false;var t=new Date();t.setHours(0,0,0,0);return new Date(+m[1],+m[2]-1,+m[3])<t;})(bal.dueDate):false;
+    /* [MID_PAST_WORD 2026-09-26 · 점검 L3] 계약 뒤에 기한을 넘긴 중도금(단순 연체)은 서버가 기한일을 그대로 준다 — 연체 사실을 지우지 않으려는 설계다(70_journey _midDuePast 주석).
+         그런데 카드는 지난 날짜에 앞으로의 부탁을 붙였다(오늘 9/26 에 «2026년 9월 17일 (목)까지 입금 부탁드려요»).
+         날짜는 남기고 말만 사실대로 «(날짜) 기한이 지났어요.» / «지금 바로 입금 부탁드려요» — 한 줄로 이으면 390 에서 가운뎃점이 줄 머리에 섰다(검증 실측) → 두 덩어리.
+         잔금 카드(_bPast)·묶음(_balPast)과 같은 «지금 바로». 날짜가 없는 임박 갈래(서버 dueDate '')는 그대로. */
+    var _mPast=!!midDateTxt && _duePastKst(p.dueDate);   // [KST_TODAY]
+    var _balPast=!!(bal && _duePastKst(bal.dueDate));   // [KST_TODAY] 기기 날짜가 아니라 한국 날짜
     var balDateTxt=(bal&&bal.dueDate&&!_balPast&&typeof fmtWedKo==='function')?fmtWedKo(bal.dueDate):'';
     var comboDue, comboTag;
-    if(balDateTxt){ comboDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; comboTag=' <span class="cc-mini">· 예식 '+_pd.bal+'일 전</span>'; }
+    /* [COMBO_NOTE_SPLIT 2026-09-26 · 점검 L5 B9 ①] «예식이 가까워 함께 받아요 · 지금 바로 입금 부탁드려요»가 320·360 에서 «…받아요 · / 지금 바로…»로
+         가운뎃점이 줄 끝에 매달렸다(문구는 그대로 · 전역 cc-note 균형 줄바꿈 탓). 기한이 오늘이면 «…2026년 9월 / 26일 (토)까지…»로 날짜가 갈렸다.
+         두 문장으로 끊어 한 덩어리씩(.ln-bal) · 날짜 꼬리 «· 예식 9일 전»은 가운뎃점 양옆과 낱말 사이를 &nbsp; 로 붙인다(CHECKS_NO_DANGLE). */
+    if(balDateTxt){ comboDue='<b>'+escapeHtml(balDateTxt)+'</b>까지'; comboTag='&nbsp;<span class="cc-mini">·&nbsp;예식&nbsp;'+_pd.bal+'일&nbsp;전</span>'; }
     else if(_balPast){ comboDue='<b>지금 바로</b>'; comboTag=''; }   // 임박 계약: 기한이 이미 지난 날짜라 달력 날짜 대신 즉시 납부 안내
     else { comboDue='예식 '+_pd.bal+'일 전까지'; comboTag=''; }
     var when='<div class="cc-note">'+(
-        forceCombo?('예식이 가까워 함께 받아요 · '+comboDue+' 입금 부탁드려요'+comboTag)
+        forceCombo?('<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">'+comboDue+' 입금 부탁드려요'+comboTag+'</span>')
+      : _mPast?('<span class="ln-bal"><b>'+escapeHtml(midDateTxt)+'</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 입금 부탁드려요</span>')
       : p.due?(midDue+' 입금 부탁드려요'+midTag)
       : (midDue+' 보내 주세요'+midTag)
     )+'</div>';
