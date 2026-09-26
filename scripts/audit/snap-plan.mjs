@@ -107,7 +107,7 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(!!ckTag && !/checked/.test(ckTag) && !/mp_snapAgreeCk[\s\S]{0,160}\.checked\s*=\s*true/.test(my), '체크는 미리 켜지 않는다(태그에도 · 코드에도)');
   t(/<label class="snp-agree-row"><input type="checkbox" id="mp_snapAgreeCk"><span>/.test(ah), '글을 눌러도 체크된다(label 안에 체크와 글)');
   t(/\.snp-agree-row\{[^}]*min-height:44px/.test(my) && /\.snp-agree-more,\.snp-agree-pv\{[^}]*min-height:44px/.test(my) && /\.snp-dellink\{[^}]*min-height:44px/.test(my), '누름 칸 44px — 체크 줄 · 자세히 보기 · 처리방침 전문 · 스냅 기획 지우기');
-  t(/\(agreeAsk\?_snapAgreeHtml\(\):''\)[^\n]*\n\s*\+'<button type="button" class="cc-btn" id="mp_snapStart"[^>]*>스냅 기획하기<\/button>'/.test(blk), '자리 — «스냅 기획하기» 바로 위');
+  t(/\(agreeAsk\?_snapAgreeHtml\(\):''\)[^\n]*\n\s*\+'<button type="button" class="cc-btn-ghost" id="mp_snapStart"[^>]*>스냅 기획하기<\/button>'/.test(blk), '자리 — «스냅 기획하기» 바로 위 · 테두리 버튼(사장님 결정 ⑥ SNAP_BTN_GHOST)');
   t(/var agreeAsk=!lock&&!\(meta\.consent&&meta\.consent\.at\);/.test(blk) && flowR.indexOf('mp_snapAgreeCk') === -1, '한 번 동의하면(서버 기록) 다시 묻지 않는다 · 편집 화면엔 체크가 없다');
   t(aok.indexOf("'위 동의에 체크하시면 시작할 수 있어요'") > -1 && /ck\.focus\(/.test(aok) && !/disabled/.test(aok), '체크 없이 누르면 — 버튼을 막지 않고 체크 줄로 초점 · 한 줄로 알린다');
   t(/if\(!_snapAgreeOk\(\)\) return; startSnapFlow\(p\.snapDraft\|\|\{\}, p, agreeAsk\);/.test(blk), '시작 전에 확인 · 막 동의했으면 첫 저장에 싣는다');

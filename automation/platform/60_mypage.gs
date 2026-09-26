@@ -241,6 +241,15 @@ function buildConsultState(code) {
   // [DEPOSIT_CARD 2026-09-25] 예약금을 카드로 받았나 — 취소 패널이 계좌 칸 대신 «결제하신 카드로 취소» 안내를 띄운다
   var byCard = false;
   try { byCard = String(cr.get('입금확인') || '').trim() === '확인' && typeof _depositCardOf === 'function' && !!_depositCardOf(code); } catch (e) { byCard = false; }
+  /* [CONSULT_DEPOSIT 2026-09-26 마이페이지 점검 pre-4 · 사장님 결정 ⑲] 상담 카드에 예약금 한 줄
+     (「예약금 100,000원 · 입금 확인 전이에요」 / 「… 입금 확인됐어요」 · 카드면 「… 카드로 결제됐어요」).
+     상담 전 마이페이지엔 예약금의 금액도, 입금이 확인됐는지도 없었다 — 이체했는지 헷갈리는 고객이 확인할 곳이 없었다.
+     금액은 코드 상수(PAYMENT.예약금 · 70_journey 단일 출처) · 확인 여부는 Bookings 입금확인='확인'.
+     ★«확인 전»은 «입금 전»이 아니다 — 입금확인은 승인 때 함께 적힌다. 화면도 «확인 전»으로만 말하고 환불 계좌 칸은 그대로 둔다.
+     ★상품을 가리지 않고 사실만 싣는다 — 스냅은 화면이 그리지 않는다(사장님: 스냅 예약금은 나중에 따로 기획).
+     ★옛 서버(이 칸 없음)면 화면이 줄을 안 그린다 — 재배포 전에도 깨지지 않는다. */
+  var deposit = null;
+  try { deposit = { amount: Number(PAYMENT.예약금) || 0, confirmed: String(cr.get('입금확인') || '').trim() === '확인' }; } catch (e) { deposit = null; }
 
   return {
     status: status,                                  // 신청접수·시간선택완료·승인완료·확정·변경제안·취소
@@ -249,6 +258,7 @@ function buildConsultState(code) {
     canChange: within || picked,
     canCancel: within || picked,
     byCard: byCard,                                  // [DEPOSIT_CARD] 카드로 낸 예약금 — 환불은 카드 취소(계좌 불요)
+    deposit: deposit,                                // [CONSULT_DEPOSIT] {amount, confirmed} — 상담 카드 예약금 한 줄
     scheduleUrl: consultToken ? (scheduleUrl(consultToken) + '&me=1') : '',  // ?page=schedule&token=&me=1 (마이페이지 진입 → 완료 후 마이페이지 복귀)
     cancelUrl: (within && consultToken) ? cancelPageUrl(consultToken) : '',  // [③-1] 예약취소 → 자사몰 momentedit.kr/cancel(이메일 취소와 동일 경로 · GAS HtmlService Drive오류 우회). 확정+24h前에만.
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',

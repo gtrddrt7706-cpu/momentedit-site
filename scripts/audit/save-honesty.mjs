@@ -41,13 +41,14 @@ for(const mode of ['reject','okfalse']){
     startTrkFlow('dining',{venuePick:'다이닝 없이 진행할게요',dining_on:'N',_step:1},{weddingDate:'2026-10-26'});
     await new Promise(r=>setTimeout(r,400));
     const b=document.getElementById('trk_next'); if(!b) return {no:true};
+    const lbl0=b.textContent;   // [DN_NONE_RESULT] 누르기 전 라벨 — 실패하면 이 라벨로 돌아와야 한다(종전엔 늘 «완료»로 바뀌었다)
     b.click(); await new Promise(r=>setTimeout(r,600));
     return { open:(typeof TRKFLOW!=='undefined'&&TRKFLOW.active), err:(document.getElementById('trk_err')||{}).textContent||'',
-      btn:(document.getElementById('trk_next')||{}).textContent||'' };
+      btn:(document.getElementById('trk_next')||{}).textContent||'', lbl0 };
   });
   ok(!done.no && done.open, '저장에 실패하면 위저드를 닫지 않는다 [SAVE_FALSE_OK]', JSON.stringify(done));
   ok(/안 됐어요|거절/.test(done.err), '실패했다고 화면에 적는다', done.err.slice(0,50));
-  ok(/완료/.test(done.btn), "단추가 '저장 중…'에 멈추지 않고 되돌아온다", done.btn);
+  ok(!!done.btn && !/저장 중/.test(done.btn) && done.btn===done.lbl0, "단추가 '저장 중…'에 멈추지 않고 원래 라벨로 되돌아온다", done.btn+' ← '+done.lbl0);   // [DN_NONE_RESULT] 2026-09-26 · 종전 /완료/ 는 «늘 완료로 바뀌던» 옛 동작을 재고 있었다
 
   console.log(`\n[다이닝 '예식만으로 조용히 마무리' — ${label}]`);
   await page.reload({waitUntil:'load'}); await new Promise(r=>setTimeout(r,800)); await cut(mode);
