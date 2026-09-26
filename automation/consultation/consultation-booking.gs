@@ -445,7 +445,7 @@ function actAccept(sheet, colOf, row) {
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'confirm');  // ★③ 변경수락→확정도 동일 전이
   /* [ACCEPT_DEP_ALERT 2026-09-26 통합 점검 L4] 변경 제안을 수락해 확정된 예약은 예약금 입금확인 칸을 채울 계기가 없다 —
      승인(actApprove)은 확정과 함께 입금확인을 적지만 수락은 적지 않는다(적는 곳은 actApprove · 98_pay_card 둘뿐).
-     칸이 빈 채로 두면 두 분 상담 카드는 «입금 확인 전이에요»에 머물고, 현금영수증 발급 대기·환불 기수령액에서 예약금이 빠진다(admin DEPOSIT_TICK).
+     칸이 빈 채로 두면 두 분 상담 카드엔 예약금 금액만 보이고(사장님 결정 ㉚ · [ACCEPT_DEP_ALERT] 채우면 «입금 확인됐어요»), 현금영수증 발급 대기·환불 기수령액에서 예약금이 빠진다(admin DEPOSIT_TICK).
      → 칸이 비어 있으면 관리자에게 메일 한 통. ★자동으로 채우지 않는다 — 입금은 통장을 본 사람만 확인할 수 있다.
      ★스냅은 상담 예약금이 없어 건너뛴다(admin depositTick 도 시그니처만 본다). 메일이 실패해도 확정은 그대로다. */
   try {

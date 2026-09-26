@@ -3899,6 +3899,12 @@ function renderConsult(c, product, d){
   var DEP_LINE = (!isSnap && _dep && _depAmt > 0)
     ? '<div class="cc-sub"><span style="white-space:nowrap">예약금 '+fmtWon(_depAmt)+' · '+(c.byCard ? '카드로 결제됐어요' : (_dep.confirmed ? '입금 확인됐어요' : '입금 확인 전이에요'))+'</span></div>'
     : '';
+  /* [DEP_OK_AMOUNT 2026-09-26 사장님 결정 ㉚ · 통합 점검 L4] 확정(승인완료·확정) 카드에서 입금확인 칸이 비면 «예약금 100,000원» 금액만 — «입금 확인 전이에요»는 뺀다.
+       변경 제안을 수락해 확정된 예약은 승인 단계가 다시 오지 않아 그 칸이 비어 있다(consultation-booking actAccept · 관리자에게는 메일이 간다 [ACCEPT_DEP_ALERT]).
+       디렉터가 칸을 채우면 종전처럼 «입금 확인됐어요». 카드 결제는 «카드로 결제됐어요» 그대로 · 시간선택완료(승인 전)는 위 DEP_LINE 그대로다. */
+  var DEP_LINE_OK = (DEP_LINE && !c.byCard && !_dep.confirmed)
+    ? '<div class="cc-sub"><span style="white-space:nowrap">예약금 '+fmtWon(_depAmt)+'</span></div>'
+    : DEP_LINE;
   var L = isSnap ? '촬영' : '상담';                 // ★3 라벨 분기(촬영일=상담일)
   var eyebrow = isSnap ? 'Photo' : 'Consultation';
   var s = c.status;
@@ -3923,9 +3929,7 @@ function renderConsult(c, product, d){
      「약 15분 · 전용 주차 가능」은 한 덩어리로 묶고 「정확한 위치는 …」은 다음 줄. 같은 문장이 확인서(prodConfirmHtml)에도 있다.
      [PLACE_SNAP_SPACE 2026-09-26 묶음 B1 검토] 두 덩어리 사이 공백 한 칸을 지우지 말 것 — 화면에선 줄 끝 공백이라 안 보이지만,
      예식 확인서는 확정 순간 cf-v 의 textContent 를 그대로 «확정 기록»으로 저장한다(wireProdConfirm). 공백이 없으면 「…전용 주차 가능정확한 위치는…」으로 붙어 남았다(실측). */
-  /* [KO_12_INFO 2026-09-26 통합 점검 L6] 가는 길·주차·위치 안내는 정보 줄이라 12px — 11px 한글은 정보 줄에 쓰지 않는다(디자인 규칙).
-       .vg-sub 공통(11px)은 그대로 두고 이 줄만 올린다. 320~390 실측: 가로 넘침 0 · 가운뎃점은 nowrap 덩어리 안에 남는다. */
-  var PLACE_SUB = '<span class="vg-sub" style="font-size:12px">3호선 원당역에서 버스 <span style="white-space:nowrap">약 15분 · 전용 주차 가능</span> <span class="ln-bal">정확한 위치는 <span style="white-space:nowrap">'+L+' 전에</span> 안내드려요</span></span>';
+  var PLACE_SUB = '<span class="vg-sub">3호선 원당역에서 버스 <span style="white-space:nowrap">약 15분 · 전용 주차 가능</span> <span class="ln-bal">정확한 위치는 <span style="white-space:nowrap">'+L+' 전에</span> 안내드려요</span></span>';
   // MPD_D1 신청접수 시점 신뢰 블록 — 진행 흐름·장소가 승인완료 전엔 0이던 것(§7-1-①). 확정 카드 vg 카피 재사용 · 승인되면 기존 '방문 전 안내'가 대체
   var TRUST_MINI = '<div class="visit-guide vg-center"><div class="vg-title">진행 흐름</div>'   /* [VG_CENTER_RHYTHM] 버튼과의 28px 는 CSS 가 맡는다 — 인라인 14px 를 되살리지 말 것 */
     + (isSnap?'':'<div class="vg-row"><span class="vg-k">상담 · 시착</span><span class="vg-v">드레스 시착은 상담 당일 함께 진행돼요.</span></div>')
@@ -3949,7 +3953,7 @@ function renderConsult(c, product, d){
     // MPD4_C1 확정 카드 과밀 해소(§6-3-①) — 핵심(일시·장소)만 상시 노출, 나머지 안내는 접기.
     //   ★2026-07-19 접힘 금지 지시와의 경계(11차 판정): 금지=예식 준비 카드 전체 아코디언 / 여기는 보조 안내 행만 접고 카드·일시·CTA·장소는 상시 노출.
     body = '<div class="cc-title">'+L+' 예약이 확정되었어요</div><div class="cc-sub"><b>'+escapeHtml(c.date)+' '+_clockHtml(c.time)+'</b></div>'   // [CONSULT_CLOCK12] 스냅 머리 줄 «오후 2:00»과 같은 표기
-         + DEP_LINE   // [CONSULT_DEPOSIT] 확정 뒤엔 대개 «입금 확인됐어요»
+         + DEP_LINE_OK   // [CONSULT_DEPOSIT] 확정 뒤엔 대개 «입금 확인됐어요» · 칸이 비면 금액만 [DEP_OK_AMOUNT]
          + '<div class="visit-guide"><div class="vg-title">방문 전 안내</div>'
          + '<div class="vg-row"><span class="vg-k">'+L+' 장소</span><span class="vg-v">경기 고양시 덕양구 향동동 프라이빗 스튜디오'+PLACE_SUB+'</span></div>'   // [PLACE_NO_DOT]
          + '</div>'
@@ -4137,7 +4141,7 @@ function renderContractReqForm(ctx){
   var ex='<div style="margin:12px 0 4px;padding:13px 15px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">'
     +'<div style="font-family:var(--serif-ko);font-size:11px;letter-spacing:.04em;color:var(--gold-deep);margin-bottom:7px">확인</div>'
     +'<div style="font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml([ci.groom,ci.bride].filter(Boolean).join(' · ')||'미입력')+'</b></div>'
-    +'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--light);margin-top:6px;text-wrap:balance">이름이 다르면 카카오톡으로 알려 주세요.</div></div>';   // [KO_12_INFO] 할 일을 말하는 정보 줄 — 11 → 12px
+    +'<div style="font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px;text-wrap:balance">이름이 다르면 카카오톡으로 알려 주세요.</div></div>';
   /* [CI_EDIT_PREFILL 2026-09-26 사장님 결정 ㉗ · 점검 pay-8] 요청 뒤 «입력 정보 수정»이 신부 연락처·이메일을 빈칸으로, 신랑 칸을 가입 연락처로 다시 열어
        그대로 보내면 요청 때 적은 값이 지워졌다(서버가 계약정보를 통째로 새로 쓴다). 서버(70_journey buildContractInfoState)가 새로 내려주는
        groomPhone·groomEmail·bridePhone·brideEmail 로 채운다 — 없으면(재배포 전·첫 요청) 종전 가입값 ci.phone·ci.email 폴백. */
@@ -4625,7 +4629,7 @@ function _archiveSignedContract(sig, cb){
   }catch(e){ fin(''); }
 }
 function doSignContract(){
-  var _sd=new Date(), _sdKo=_sd.getFullYear()+'년 '+(_sd.getMonth()+1)+'월 '+_sd.getDate()+'일';   // [CONSULT_CLOCK12] 서명 판 «오늘(2026-09-26)» → «오늘(2026년 9월 26일)» — 이 화면의 다른 날짜와 같은 꼴 · 판 본문 두 곳에서 보여 주기만 한다
+  var _sd=new Date(_snapKstToday()), _sdKo=_sd.getUTCFullYear()+'년 '+(_sd.getUTCMonth()+1)+'월 '+_sd.getUTCDate()+'일';   // [CONSULT_CLOCK12] 서명 판 «오늘(2026-09-26)» → «오늘(2026년 9월 26일)» — 이 화면의 다른 날짜와 같은 꼴 · 판 본문 두 곳에서 보여 주기만 한다 · [KST_TODAY] «오늘»은 한국 날짜(서버 계약서명일시와 같은 달력 · G1b 와 같은 셈이라 합칠 때 이 줄 하나로 둘 다 산다)
   /* ★[★AI고지_부부 2026-08-13 결정 · CONTRACT_V16] 넷째 확인 줄 — 승인 자리가 여기로 왔다.
      하객 고지는 음성(완곡 · ritual-data NARR.guest)·식순지(명시 · admin.html)로 나뉜다(회신4 §4-2).
      그 분리를 **부부가 알고 승인한 상태**여야 한다는 조건(㉯)의 자리가 빌더 완성 화면에서
