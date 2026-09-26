@@ -4602,7 +4602,7 @@ function _archiveSignedContract(sig, cb){
   try{
     try{ data=JSON.parse(JSON.stringify(window._contractFill||{})); }catch(e){ data={}; }
     data.signed=true; data.signImage=sig;
-    var t=new Date(); data.signDate=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+    var t=new Date(_snapKstToday()); data.signDate=t.getUTCFullYear()+'-'+('0'+(t.getUTCMonth()+1)).slice(-2)+'-'+('0'+t.getUTCDate()).slice(-2);   // [KST_TODAY 2026-09-26 · G1b 검토] 보관본 «계약 체결일»도 서명 창 «오늘(…)»·서버 계약서명일시(한국 시각)와 같은 날 — 기기 날짜로 두면 LA 기기 보관본만 하루 전 날짜가 찍혔다
     fr=document.createElement('iframe'); fr.setAttribute('aria-hidden','true'); fr.style.cssText='position:fixed;left:-99999px;top:0;width:820px;height:300px;border:0;opacity:0';
     window.addEventListener('message',onM);
     fr.src=contractSrc(window._contractFill&&window._contractFill.product, window._contractFill&&window._contractFill.docVersion); document.body.appendChild(fr);
