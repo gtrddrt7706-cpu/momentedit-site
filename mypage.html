@@ -6954,7 +6954,7 @@ function invStepDone(box, r){
   if(!_gCard && u.family){
     guideHint = _gClosed
       ? (_gTok?'<div class="cc-note" style="text-align:left">하객 안내 링크는 <b>예식 후 30일</b>이 지나 자동으로 닫혔어요. (개인정보 보호)</div>':'')
-      : '<div class="cc-note" style="text-align:left">제작 화면의 '+GUIDE_MAKE_COND+', 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요. <span class="cc-mini">(준비된 내용부터 보여요 · 다시 발행할 필요 없어요)</span></div>';
+      : '<div class="cc-note" style="text-align:left">「예식 준비」의 '+GUIDE_MAKE_COND+', 오프라인 청첩장 안에 <b>하객 안내</b> 버튼이 자동으로 생겨요. <span class="cc-mini">(준비된 내용부터 보여요 · 다시 발행할 필요 없어요)</span></div>';
   }
   // [인쇄 킷 · 2026-07-18 사용자 승인] 실물(종이)·개인 제작 구성 — 인쇄에 옮길 확정 정보(이름·일시)를 한 블록으로(QR 2종과 세트)
   var _kit='';
@@ -8543,7 +8543,7 @@ function prodConfirmHtml(p, inv){
   L+=line('좌석 배치', sv);
   /* [SEAT_NOTE] 두 분이 적은 「미리 알려주실 것」도 확인서에 — 적어 두고 잊는 것을 막고,
      확인서를 함께 보는 디렉터·다이닝 팀이 같은 화면에서 본다. 비어 있으면 줄을 만들지 않는다. */
-  if(String(fd.allergy||'').trim()) L+=line('미리 알려주실 것', escapeHtml(String(fd.allergy)));   // ★적은 것이 있을 때만 줄을 만든다 — line() 은 빈 값을 '미완료'로 그리는데, 이 칸은 안 적어도 되는 것이라 '미완료'는 거짓 경고가 된다
+  if(String(fd.allergy||'').trim()) L+=line('미리 알려주실 것', escapeHtml(String(fd.allergy)));   // ★적은 것이 있을 때만 줄을 만든다 — line() 은 빈 값을 «아직 정하지 않음»(need 칸만 '미완료')으로 그린다 — 이 칸은 안 적어도 되는 것이라 빈 줄 자체가 군더더기다 [CF_EMPTY_WORD]
   /* [CF_ORDER_0926 2026-09-26 사장님 지시 «청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순»] 확인서도 «예식 준비» 카드와 같은 순서로 읽힌다.
      카드만 바꾸면 채울 때와 훑어볼 때 순서가 달라진다. 값(rv · dv)은 위에서 만든 그대로이고 줄을 붙이는 자리만 옮겼다.
      확정 기록(snap)도 이 순서로 남는다 — 서버는 {항목, 내용}을 기록만 하고 순서는 보지 않는다. */
