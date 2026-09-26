@@ -939,6 +939,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .dn-showlock{margin-top:9px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37)}
 .inv-opt.sel{border-color:var(--gold);background:var(--gold-bg,#faf6ef)}
 .inv-opt small{display:block;font-size:12px;color:var(--sub);font-weight:300;margin-top:3px}
+.inv-opt[data-m]:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}   /* [INV_OPT_KB] 청첩장 1/4 초대 방식 카드 — 키보드 초점 링(스냅 .snp-* 와 같은 링) · 마우스로 고를 땐 안 생긴다 */
 .inv-sub{margin:2px 0 8px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}   /* [STEP_N_KO] 2026-09-26 · 왼쪽 6px 들여쓰기를 뺐다 — 질문·본문·카드의 왼쪽 선(37px)에서 이 줄만 43px 로 어긋났다 */
 .inv-gate{margin:14px 0}
 .inv-gate-q{font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-bottom:6px}
@@ -5375,7 +5376,7 @@ function _myWorksHtml(p, inv){
   if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'열기')));
   if((t.ritual||'')==='완료') rows.push(line('식순'));
   if((t.seat||'')==='완료') rows.push(line('좌석 배치'));
-  if((t.dining||'')==='완료') rows.push(line('애프터 웨딩'));
+  if((t.dining||'')==='완료' && _dnHas(p.diningDraft)) rows.push(line('애프터 웨딩'));   // [DN_ROW_TRUTH]
   if(!rows.length) return '';
   return '<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22">Production</div>'
     +'<div class="cc-title" style="text-align:left">내 완성물</div>'
@@ -6339,7 +6340,11 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');
   }
   // MPD_D5 재방문 시 '멈춰둔 것' 식별 — 진행중 행에 진척 미니 태그(opt.tag 재사용). 단계 데이터 있는 청첩장·최종 확정만(식순=외부 빌더·다이닝=행에 진행중 없음)
-  var _ivStepTag=null; if((inv.status||'')==='진행중'){ var _ivStepMap={method:1,parents:2,design:3,confirm:4}; var _ivN=_ivStepMap[String((inv.draft||{})._step||'')]||null; if(_ivN) _ivStepTag=_ivN+'/4'; }
+  var _ivStepTag=null; if((inv.status||'')==='진행중'){ var _ivStepMap={method:1,parents:2,design:3,confirm:4}; var _ivN=_ivStepMap[String((inv.draft||{})._step||'')]||null;
+    /* [INV_TAG_TOTAL] 2026-09-26 통합 점검 L7 · 행 태그가 늘 «/4»였다 — 위저드 머리는 경로별 단계 수(MPD_E9 · _invTotalSteps)라
+       «청첩장 없이» · «개인 제작»은 «1 / 2» · «2 / 2»인데 행은 «1/4» · «4/4»였다(같은 걸음을 두 화면이 다르게 셌다).
+       두 걸음 경로는 혼주 · 디자인을 건너뛰어 확인 단계로 열리므로(startInvFlow) 1단계 뒤는 모두 2 로 모은다. */
+    if(_ivN){ var _ivT=_invTotalSteps(inv.draft); _ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT; } }
   var _fdStepTag=null; if((t.final||'')==='진행중'){ var _fdN=Number((fd||{})._step); if(!isNaN(_fdN)&&_fdN>=0) _fdStepTag=Math.min(_fdN+1,3)+'/3'; }
   var ist = inv.status || '시작전';
   /* ★[INV_SKIP_ROW 2026-09-26 고객 점검 prod-5] 「청첩장 없이」를 고른 줄이 ✓ + 「다시 만들기」였다 — 바로 아래 애프터 웨딩은
@@ -6348,8 +6353,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
      → 청첩장 없이 = ✓ 대신 「안 함」 배지 · 「다시 정하기」. 발행 없이 마친 나머지(개인 제작 · QR 아니요)도 버튼은 「다시 정하기」(✓ 는 그대로).
      ★트랙 완료(_prepRows 의 done)는 그대로 둔다 — 준비 목록의 셈은 바뀌지 않는다. 옛 발행 흔적(eventId)이 남아도 청첩장 없이면 「안 함」이다. */
   var _iSkip = (ist==='완료' && _invMethodEff(inv.draft)==='none' && !_invLiveUrls(inv.draft));   // [INV_SKIP_ROW] 검토 — 초안에 살아 있는 링크가 있으면(발행 뒤 「수정하기」로 청첩장 없이를 고르고 저장만 함) 아직 「안 함」이 아니다
-  var ilabel = ist==='완료' ? ((inv.published && !_iSkip) ? '발행됨 · 수정' : '다시 정하기') : (ist==='진행중' ? '이어하기' : '시작하기');
-  var _dDone=(t.dining||'')==='완료';
+  var ilabel = ist==='완료' ? ((inv.published && !_iSkip && _invLinkAlive(inv)) ? '발행됨 · 수정' : '다시 정하기') : (ist==='진행중' ? '이어하기' : '시작하기');   // [INV_LINK_LIVE] 은퇴한 링크(발행 뒤 개인 제작 · QR 아니요로 마침)는 「다시 정하기」 — 버튼이 여는 곳(1 / 2)과 같은 말
+  var _dDone=(t.dining||'')==='완료' && _dnHas(dd);   // [DN_ROW_TRUTH] 딱지만 «완료»이고 정한 것이 없으면 「정하기」
   // [애프터 웨딩 3-상태 · 2026-07-21 사용자 지시] '선택(안해도 그만)' 태그 폐지 → 미정 / 만들기 완료 / 안 함.
   //   안 함(안내 없이 진행)은 초록 완료✓ 대신 회색 '안 함' 배지로(안 했는데 완료로 보이던 오해 제거). ★'선택' 태그 복원 금지.
   var _dd=dd||{};
@@ -6388,7 +6393,10 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       :'지금까지 준비한 내용을 한 장으로 최종 확인해요');
   var _gTok=p.guideToken||'', _gClosed=!!_gTok&&_guideLinkClosed(p.base);
   var gLabel=_gTok?(_gClosed?'기간 종료':'링크·QR'):'만드는 법';   // [GUIDE_BTN_HOWTO 2026-09-26 사장님 결정 ⑬] 링크가 없을 때 「준비 전」(상태) → 「만드는 법」(누르면 여는 것 · [TRK_ACT_ALIGN] 버튼은 누를 것의 이름) · 「기간 종료」는 그대로
-  var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=((_gpB2.photoWish||[]).length||(_gpB2.photoFx||[]).length);   // [PHOTO_WISH] 요청 우선 · 옛 저장분(photoFx)도 완료로 센다
+  var _gpB2=(p.guideinfoDraft||{}), _phB2=(_gpB2.photo||[]).length, _fxB2=((_gpB2.photoWish||[]).length||(_gpB2.photoFx||[]).length), _frB2=!!String(_gpB2.photoFriend||'').trim();   // [PHOTO_WISH] 요청 우선 · 옛 저장분(photoFx)도 완료로 센다
+  /* [PHOTO_FRIEND_ROW] 2026-09-26 통합 점검 L2 · 친구 부탁(photoFriend)만 적은 부부도 이 행은 끝낸 것이다 — 확인서 줄(_phF)은 부탁만 있어도 서는데
+     행은 구도·요청만 세어 «구도 고르기»(✓ 없음)로 남았다. 저장이 안 된 줄 알거나, 친구 부탁도 구도를 골라야 받는 줄로 읽혔다([SEAT_ROW_TRUTH] 행은 버튼이 바꾸는 값을 읽는다).
+     친구만 부르는 예식([GUESTS_OPEN])은 가족 구도를 영영 안 고를 수 있다. 라벨은 «완료 · 수정»(66px · [TRK_ACT_ALIGN] 122px 레일 안 · «친구 부탁 · 수정»은 123px 라 넘친다). */
   // TRK_BTN_SAME(2026-07-25 사용자 지시): '지금 할 차례' 강조 폐지 → 강조 대상 계산(_cfPrimary·_firstTodo)도 함께 제거. ★복원 금지
   var _cfPanelOpen=_cfOpenNext; _cfOpenNext=false;   // ★재확인 필요 시 자동 펼침 금지 — 2026-07-19 사용자 지시: 행에 '재확인 필요' 배지로 이미 표시되니 접힘 유지(필요하면 눌러서 열기). 확인 직후(_cfOpenNext)만 1회 펼침. 리뷰·복구에서 '!!p.confirmStale||' 복원 금지
   // MPD4_H4 완료 행 접기(§9-5-②) — ★11차 판정: 2026-07-19 금지(카드 전체 아코디언·var allDone=false)와 별개.
@@ -6429,7 +6437,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     { done: true, html: _ritPrepFold(rd, base, dd) },
     { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
-    { done: !!(_phB2||_fxB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _wc=((_gp.photoWish||[]).length||(_gp.photoFx||[]).length); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_wc?('요청 '+_wc+'개'):'구도 고르기'); return row('가족 · 친구 스냅', (_ph.length||_wc)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */
+    { done: !!(_phB2||_fxB2||_frB2), html: (function(){ var _gp=(p.guideinfoDraft||{}), _ph=_gp.photo||[], _wc=((_gp.photoWish||[]).length||(_gp.photoFx||[]).length), _fr=!!String(_gp.photoFriend||'').trim(); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_wc?('요청 '+_wc+'개'):(_fr?'완료 · 수정':'구도 고르기')); return row('가족 · 친구 스냅', (_ph.length||_wc||_fr)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* [PHOTO_FRIEND_ROW] 친구 부탁만 = ✓ · 「완료 · 수정」 */   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */
   ];
   /* ★★[TRK_NO_FOLD 2026-08-09 사용자 지시] 완료 행 접기 폐지 — 언제나 전부 보인다.
      > 사용자 원문: *"접히게 하지말자 완료된것들 접히는데 그냥 전체볼수잇게 접히게말고"*
@@ -6446,7 +6454,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
       + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel,
-          (!!(inv&&inv.published&&inv.published.urls&&inv.published.urls.family)
+          (_invLinkAlive(inv,'family')   /* [INV_LINK_LIVE] 은퇴한 오프라인 링크(청첩장 없이 · 개인 제작으로 마침)는 «청첩장에 들어가는» 안내가 아니다 */
             ? '청첩장에 자동으로 들어가는 안내예요'
             : '식사·자리를 담는 하객 안내 페이지예요'))   // TRK_NO_SUB 예외(2026-07-25 사용자 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): '확인·전달' 그룹 2행은 설명 유지 — 그룹 안에서는 둘 다 있어 리듬이 맞음   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
       + '<div class="trk-panel" id="mp_guidePanel" style="display:none">'+guideHubHtml(p, inv)+'</div>'
@@ -6717,12 +6725,22 @@ function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step;
     // [후속2] 단계 이동 호출부(3곳)는 결과를 안 보고 넘어간다 — 여기서 한 번만 알린다.
     //   가드('저장 준비가 아직 끝나지 않았어요')·손상 격리('저장 데이터 점검이 필요해…')가 이 지점에서 안 보이면
     //   '무증상 대신 명시적 거부'라는 가드의 목적이 절반만 달성된다. 손상은 시트 수동 편집으로도 나는 실사용 경로.
-    try{ if(!(r&&r.ok)) _miniToast(String((r&&r.error)||'저장이 안 됐어요 · 다시 저장을 눌러 주세요').slice(0,80)); }catch(e2){}   // [SAVE_FALSE_OK] 통신 실패도 말한다 — 서버가 답을 준 실패만 말하던 첫 판
+    try{ if(!(r&&r.ok)) _miniToast(_invSaveFailMsg(r&&r.error)); }catch(e2){}   // [SAVE_FALSE_OK] 통신 실패도 말한다 — 서버가 답을 준 실패만 말하던 첫 판 · [INV_DONE_SAVE_MSG] 말은 지금 화면에 있는 손잡이를 가리킨다
     return r;
   }))
   /* [SAVE_FALSE_OK] 통신 실패도 값으로 돌려준다 — 빈 catch 는 undefined 를 내보내
      호출부(초대방식·부모·디자인 '다음' 3곳)의 결과 검사를 통째로 무력화한다(saveTrkDraft 와 같은 병). */
-  .catch(function(){ try{ _miniToast('저장이 안 됐어요 · 다시 저장을 눌러 주세요'); }catch(e){} return {ok:false, error:''}; }); }
+  .catch(function(){ try{ _miniToast(_invSaveFailMsg('')); }catch(e){} return {ok:false, error:''}; }); }
+/* ★[INV_DONE_SAVE_MSG 2026-09-26 통합 점검 L7] 발행 직후 초안 저장([INV_PUB_SAVE])이 실패하면 «두 분의 청첩장이 완성됐어요» 위에
+   «저장이 안 됐어요 · 다시 저장을 눌러 주세요»가 떴다 — 완성 화면(과 «청첩장 단계를 마쳤어요» 화면)에는 머리 「저장」 손잡이가 없어 누를 「다시 저장」이 없다.
+   방금 청첩장이 만들어진 분께 실패처럼 읽히고, 잃은 것도 없다(서버 발행은 남고 재진입이 완성 화면을 복원한다).
+   그래서 알림은 «지금 화면에 있는 손잡이»를 가리킨다 — 저장 손잡이가 없는 완성 화면이면 「완료」(exitInvFlow 가 다시 저장 · 실패하면 재시도 판).
+   「완료」를 눌러 저장하는 중(_exiting)에는 종전 말 그대로(그 실패는 「다시 저장」 판이 받는다). 뒤로가기의 «저장이 아직 안 됐어요» 판은 재시도 길이라 그대로 둔다. */
+function _invSaveFailMsg(err){
+  var _noHandle=false; try{ _noHandle=!!(INVFLOW.active && !INVFLOW._exiting && INVFLOW.step==='done' && !document.querySelector('#mp_production [data-wiz-save]')); }catch(e){}
+  if(_noHandle) return (_invLiveUrls(INVFLOW.draft)?'청첩장은 만들어졌어요.':'청첩장 단계는 마쳤어요.')+' 「완료」\u2060를 누르면 한 번 더 저장해요.';   // 알림 칸이 좁아(390 에서 195px) « · »로 이으면 점이 줄 끝에 걸린다 → 마침표 · 「완료」와 「를」 사이는 U+2060(«「완료」 / 를» 갈림)
+  return String(err||'저장이 안 됐어요 · 다시 저장을 눌러 주세요').slice(0,80);
+}
 function renderInvFlow(box){
   try{ ensureInviteFab(); }catch(e){}
   if(!box) return;
@@ -6778,6 +6796,18 @@ function _invMethodEff(d){ d=d||{}; var m=String(d.method||''); return (m==='non
    발행한 부부가 「수정하기」로 청첩장 없이를 고르고 저장만 하고 나가면 초안은 none 이지만 링크는 그대로 살아 있고,
    행 버튼도 완성 화면(링크)을 연다(startInvFlow) — 그 판을 「안 함」·「청첩장 없이 진행」으로 적으면 살아 있는 청첩장을 없다고 말하게 된다. */
 function _invLiveUrls(d){ var u=(d||{}).invitationUrls; return !!(u && (u.online||u.family||u.live)); }
+/* ★[INV_LINK_LIVE 2026-09-26 통합 점검 L7] 발행한 링크가 지금도 살아 있나 — 행 라벨(「발행됨 · 수정」)과 하객 안내 설명이 이 한 규칙을 쓴다.
+   서버는 «청첩장 없이» · «개인 제작 · QR 아니요»로 마쳐도 eventId · 링크를 지우지 않는다(85_invitation.gs none 갈래 · buildInvitationState 의 published).
+   published 만 보면 은퇴한 링크를 «발행됨»으로 읽어 ①행은 「발행됨 · 수정」인데 누르면 «청첩장 · 1 / 2» 고르기가 열렸고(startInvFlow 는 초안을 존중한다)
+   ②청첩장 줄이 「안 함」인데 바로 아래 하객 안내 설명은 «청첩장에 자동으로 들어가는 안내예요»였다.
+   규칙 — 초안에 invitationUrls 키가 있으면(발행 직후 저장 [INV_PUB_SAVE] · 링크 없이 마침은 null) 초안을 믿고,
+   키가 없는 옛 초안이면 서버 발행 링크를 믿는다(startInvFlow 폴백과 같은 뜻). k('family' 등)를 주면 그 링크만 본다(서버에도 있어야 한다). */
+function _invLinkAlive(inv, k){
+  inv=inv||{}; if(!inv.published) return false;
+  var dr=inv.draft, pu=inv.published.urls||{};
+  if(dr && ('invitationUrls' in dr)){ var du=dr.invitationUrls||{}; return k ? !!(du[k] && pu[k]) : _invLiveUrls(dr); }
+  return k ? !!pu[k] : true;
+}
 /* ★[INV_PUB_LABEL 2026-09-26 고객 점검 inv-6] 4/4 버튼이 경로와 상관없이 「청첩장 만들기」였다 —
    ①청첩장 없이 · ②개인 제작(QR 아니요)은 «만들 것 없다»고 말한 바로 옆 버튼이 «만들기»였고
    ③이미 링크를 돌린 부부에게 «만들기»는 새 청첩장이 생겨 보낸 링크가 바뀔 것처럼 읽혔다.
@@ -6811,18 +6841,23 @@ function _invLinkChange(d){
 function _invTotalSteps(d){ var m=d&&d.method; return (m==='self'||m==='none')?2:4; }   // MPD_E9 self/none 경로는 혼주·디자인 단계를 건너뜀 — "1/4→4/4" 점프 거짓 예고 방지
 function invStepMethod(box){
   var d=INVFLOW.draft, m=d.method||'';
-  function opt(v,l,s){ return '<label class="inv-opt'+(m===v?' sel':'')+'" data-m="'+v+'">'+l+(s?'<small>'+s+'</small>':'')+'</label>'; }
+  /* [INV_OPT_KB] 2026-09-26 통합 점검 L6 · «어떻게 초대하실래요?» 카드 다섯이 짝 입력 없는 <label> 이라 초점을 못 받았다 —
+     Tab 이 이름 칸에서 곧장 「다음」으로 건너뛰고, 「다음」은 «초대 방식을 골라 주세요»만 띄워 키보드로는 청첩장을 시작할 수 없었다(낭독기에는 글자로만 읽혔다).
+     카드를 버튼(role · tabindex · aria-pressed)으로 · Enter/Space 는 _kbChip · 다시 그린 뒤 고른 카드로 초점을 돌려준다(식당 카드와 같은 꼴 · <label> 엔 role=button 을 못 단다). */
+  function opt(v,l,s){ return '<div class="inv-opt'+(m===v?' sel':'')+'" data-m="'+v+'" role="button" tabindex="0" aria-pressed="'+(m===v)+'">'+l+(s?'<small>'+s+'</small>':'')+'</div>'; }
   // 이름은 청첩장에만 쓰여서 여기(1단계)에서 받는다 — 기초정보 화면 제거. 프리필: draft → base(마스터 한글 이름).
   function nv(k){ var v=(d[k]!=null&&String(d[k])!=='')?d[k]:((INVFLOW.base||{})[k]||''); return escapeHtml(String(v)); }
+  /* [INV_NAME_ARIA] 2026-09-26 통합 점검 L6 · 칸 옆 «신랑» · «신부»는 이어진 이름표가 아니어서(한 이름표에 칸이 둘) 낭독기는 네 칸을 «한글» · «영문 이름»으로만 읽었다 —
+     누구 칸인지 모른다. 칸마다 이름(aria-label)을 단다 · placeholder 는 예시 그대로(2/4 [INV_FIELD_LABEL] 과 같은 방식) */
   var names='<div class="pf" style="margin-top:4px"><label class="pf-l">신랑</label>'
-    +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" placeholder="한글" value="'+nv('groomKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'
+    +'<input class="cc-input pf-ko" id="mp_gKo" autocomplete="off" aria-label="신랑 한글 이름" placeholder="한글" value="'+nv('groomKo')+'">'
+    +'<input class="cc-input pf-en" id="mp_gEn" autocomplete="off" aria-label="신랑 영문 이름" placeholder="영문 이름" value="'+nv('groomEn')+'"></div>'
     +'<div class="pf"><label class="pf-l">신부</label>'
-    +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" placeholder="한글" value="'+nv('brideKo')+'">'
-    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
+    +'<input class="cc-input pf-ko" id="mp_bKo" autocomplete="off" aria-label="신부 한글 이름" placeholder="한글" value="'+nv('brideKo')+'">'
+    +'<input class="cc-input pf-en" id="mp_bEn" autocomplete="off" aria-label="신부 영문 이름" placeholder="영문 이름" value="'+nv('brideEn')+'"></div>'
     +'<div class="cc-note" style="margin:5px 0 0">표지의 큰 이름은 디자인에 따라 <b>영문 또는 한글</b>로 들어가요. 영문은 성 없이 이름만 적어 주세요 (예: Heejun).</div>'   /* [INV_COVER_COPY] '영문만' 거짓 약속 정정 — 01은 한글 병기·06은 한글 주도(2026-08-02 위저드 점검) */
     +'<div class="pf-cover" id="mp_cover"></div>';
-  var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'">아니요</button></span></div>' : '';
+  var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn" role="group" aria-label="모바일 참석 QR도 받으실래요?"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'" aria-pressed="'+(d.selfQR===true)+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'" aria-pressed="'+(d.selfQR===false)+'">아니요</button></span></div>' : '';   // [INV_YN_PRESSED]
   box.innerHTML='<div class="consult-card inv-wrap">'
     +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / '+_invTotalSteps(d)+'</span>'+wizActs()+'</div>'   // MPD_E9 경로별 단계 수(§8-1-⑤)
     +'<div class="inv-q">두 분 이름부터 적을게요</div>'
@@ -6831,7 +6866,7 @@ function invStepMethod(box){
     +opt('online','온라인 초대','모바일 참석으로 멀리 계신 분도 함께')
     +opt('offline','오프라인 초대','직접 모시는 청첩장 (모바일 참석 없음)')
     +opt('both','둘 다','가까운 분은 직접, 먼 분은 모바일 참석으로')
-    +opt('self','실물(종이)·개인 제작할게요','종이 청첩장 등 직접 준비 · 인쇄용 QR(모바일 참석·하객 안내)은 저희가 드려요')
+    +opt('self','실물(종이)·개인 제작할게요','종이 청첩장 등 직접 준비 · 인쇄용 QR(모바일 참석&#8288;·&#8288;하객 안내)은 저희가 드려요')   /* [DOT_SPLIT_0926] 390 «…QR(모바일 참석· / 하객 안내)…» 줄 끝 점 → 괄호 안 «·» 양옆 U+2060 */
     +qr
     +opt('none','청첩장 없이','')
     +'<div class="inv-nav wz-bar"><button type="button" class="cc-btn" id="iv_next">다음</button></div>'
@@ -6845,7 +6880,8 @@ function invStepMethod(box){
   INVFLOW._collect=collectNames;   // 당겨서 새로고침 입력 수집 훅(유실 방지)
   ['mp_gEn','mp_bEn','mp_gKo','mp_bKo'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('input', function(){ collectNames(); updateCover(); }); });
   updateCover();
-  Array.prototype.forEach.call(box.querySelectorAll('.inv-opt'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box); }); });
+  Array.prototype.forEach.call(box.querySelectorAll('.inv-opt[data-m]'),function(el){ _kbChip(el, function(){ collectNames(); INVFLOW.draft.method=el.getAttribute('data-m'); invStepMethod(box);
+    var nc=box.querySelector('.inv-opt[data-m="'+INVFLOW.draft.method+'"]'); if(nc) try{ nc.focus({preventScroll:true}); }catch(e){} }); });   // [INV_OPT_KB] 클릭 · Enter · Space
   Array.prototype.forEach.call(box.querySelectorAll('[data-qr]'),function(el){ el.addEventListener('click',function(){ collectNames(); INVFLOW.draft.selfQR=(el.getAttribute('data-qr')==='Y'); invStepMethod(box); }); });
   $('iv_next').addEventListener('click', function(){
     collectNames();
@@ -6857,10 +6893,16 @@ function invStepMethod(box){
       if(_miss.length){ _invEnAsk(_miss, _miss[0]==='신랑'?'mp_gEn':'mp_bEn'); return; }
     }
     if(mm==='self' && INVFLOW.draft.selfQR!==true && INVFLOW.draft.selfQR!==false){ mpAlert('모바일 참석 QR을 받으실지 골라 주세요.'); return; }   // 미응답이 조용히 '청첩장 없이(none)'로 발행되던 함정 차단(2026-07-18 리뷰)
-    saveInvDraft();
+    var _sv=saveInvDraft();
     if(mm==='online'||mm==='offline'||mm==='both'){ INVFLOW.step='parents'; }
     else { INVFLOW.step='confirm'; }   // self/none → 바로 확인·발행
     renderInvFlow(box);
+    /* [INV_STEP2_BASE] 2026-09-26 통합 점검 L7 · 2/4 에 막 들어오면 머리 손잡이가 「저장」으로 켜지고, 아무것도 안 만지고 나가도 «저장하지 않은 변경» 판이 떴다([WIZ_EXIT_ONE] 헌장 위반 ·
+       새 고객은 모두 이 길을 한 번 지난다). 1/4 저장은 그리기 «전»의 초안을 기준선으로 잡는데, 2/4 를 그리며 계좌 노출 기본값(Y)과 빈 은행 · 계좌 칸이 초안에 더해지기 때문이다.
+       그린 «뒤»의 모양을 재 두었다가 저장 회신이 «성공»일 때만 기준선으로 삼는다 — 회신 전에 잡으면 회신이 보낸 순간의 옛 모양으로 덮는다(_wizWatch).
+       ★회신을 기다리는 사이에 친 글자는 여전히 «바뀜»으로 남는다(그린 직후 모양에는 없다) · [DN_MAKE_BASE] 와 같은 규칙 */
+    var _b2=_wizJson(WIZ_ADAPT.inv.data());
+    if(_sv && _sv.then) _sv.then(function(r){ if(r && r.ok && INVFLOW.active){ WIZ_BASE.inv=_b2; _wizPaintSoon(); } });
   });
 }
 function invStepParents(box){
@@ -6874,14 +6916,20 @@ function invStepParents(box){
   var GT=['장남','차남','삼남','사남','외동아들','막내아들',OMIT], BT=['장녀','차녀','삼녀','사녀','외동딸','막내딸',OMIT];
   var BANKS=['국민','신한','우리','하나','농협','기업','SC제일','씨티','카카오뱅크','토스뱅크','케이뱅크','새마을금고','우체국','수협','부산','대구','경남','광주','전북','산업'];
   var is04=(d.designFamily==='04'||d.designOnline==='04'), is05=(d.designFamily==='05'||d.designOnline==='05');
-  function yn(q,val,attr){ return '<div class="inv-gate"><div class="inv-gate-q">'+q+'</div><span class="inv-yn"><button type="button" '+attr+'="Y" class="'+(val==='Y'?'on':'')+'">네</button><button type="button" '+attr+'="N" class="'+(val==='N'?'on':'')+'">아니요</button></span></div>'; }
+  /* [INV_YN_PRESSED] 2026-09-26 통합 점검 L6 · 네/아니요는 고른 것이 class "on" 뿐이라 낭독기에는 무엇을 골랐는지 안 읽혔고 질문과도 이어져 있지 않았다 —
+     묶음에 질문 이름(role=group · aria-label) · 버튼마다 aria-pressed(다시 그릴 때마다 함께 쓴다). 1/4 QR · 3/4 «온라인 디자인은?»도 같은 꼴로 */
+  function yn(q,val,attr){ return '<div class="inv-gate"><div class="inv-gate-q">'+q+'</div><span class="inv-yn" role="group" aria-label="'+q+'"><button type="button" '+attr+'="Y" class="'+(val==='Y'?'on':'')+'" aria-pressed="'+(val==='Y')+'">네</button><button type="button" '+attr+'="N" class="'+(val==='N'?'on':'')+'" aria-pressed="'+(val==='N')+'">아니요</button></span></div>'; }
   // 드롭다운(목록에 없는 기존값은 '기타'로 보존) + 기타 선택 시 아래 직접입력 줄(etcRow) 노출
   //   [INV_BANK_PICK] bank=true(은행 칸)면 목록 첫 항목으로 채우지 않는다 — 맨 앞 「은행 선택」(빈 값)에서 시작. 호칭 칸의 장남·차녀 기본값은 의도라 그대로.
   //   [INV_FIELD_LABEL] aria = 칸 이름(낭독기) — 값을 채우면 placeholder 가 사라져 이름이 없어지던 것
   function selOnly(id,arr,cur,flex,aria,bank){ cur=cur||''; var sv=(cur!==''&&arr.indexOf(cur)<0)?ETC:(bank?cur:(cur||arr[0]));
     return '<select class="cc-input" id="'+id+'"'+(aria?' aria-label="'+aria+'"':'')+' style="'+(flex||'')+'margin-bottom:0">'
       +(bank?'<option value="" disabled'+(sv===''?' selected':'')+'>은행 선택</option>':'')
-      +arr.concat([ETC]).map(function(x){return '<option'+(sv===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select>'; }
+      +arr.concat([ETC]).map(function(x){return '<option value="'+x+'"'+(sv===x?' selected':'')+'>'+(x===ETC?'직접 입력':(x===OMIT?'호칭 생략':x))+'</option>';}).join('')+'</select>'; }
+  /* [INV_SEL_SHORT] 2026-09-26 통합 점검 L6·L7 · 561px 이상에서 칸이 나란히 서면 select 가 124px(글자 자리 96px)라
+     «호칭 생략 (이름만 표시)»(159px)가 «호칭 생략 (», «기타(직접입력)»(102px)가 «기타(직접입»으로 잘렸다(버밀리언 04 는 호칭 기본값이 OMIT 라 손대지 않아도 잘려 보였다).
+     ★값(value)은 그대로 두고 보이는 이름만 줄인다 — 저장값 · rdSel(s.value===ETC) · _invBankFocus · shared/hydrate.js OMIT_TITLE 이 전부 값으로 비교한다.
+       «이름만» 뜻은 04 안내문(«'이름만' 표기가 기본이에요»)이 받친다. 폭(124px)은 그대로 — 행마다 칸 폭이 달라지지 않게. */
   function etcRow(id,cur,arr,ph){ cur=cur||''; var etc=(cur!==''&&arr.indexOf(cur)<0); return '<input class="cc-input" id="'+id+'_e" aria-label="'+ph.replace(/\s*\(.*$/,'')+'" placeholder="'+ph+'" value="'+(etc?escapeHtml(cur):'')+'" style="margin-top:6px;'+(etc?'':'display:none')+'">'; }
   // 부모님 계좌: 기존 단일값("은행 번호")을 은행/번호로 분리해 프리필 (은행이 목록에 있을 때만)
   function paSplit(v){ v=String(v||'').trim(); var i=v.indexOf(' '); if(i>0){ var bk=v.slice(0,i); if(BANKS.indexOf(bk)>=0 || !/^[\d-]+$/.test(bk)) return {bank:bk,no:v.slice(i+1).trim()}; } return {bank:'',no:v}; }   // 기타(직접입력) 은행도 첫 토큰이 숫자 계좌가 아니면 은행으로 인식 — 재진입 시 '국민 카카오 12345'로 오염되던 것 수정(2026-07-18 리뷰)
@@ -6910,7 +6958,7 @@ function invStepParents(box){
     o+= offOn ? chk('family', d.accountFamily==='Y', '오프라인 청첩장') : dim('오프라인 청첩장','1단계에서 오프라인 초대 선택 시');
     o+= onOn ? chk('online', d.accountOnline==='Y', '온라인 청첩장') : dim('온라인 청첩장','1단계에서 온라인 초대 선택 시');
     o+= onOn ? chk('live', d.accountLive==='Y', '모바일 참석 화면') : dim('모바일 참석 화면','온라인 초대에 함께 제공');
-    return '<div class="inv-gate" style="margin-top:6px"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>'+o+'</div>';
+    return '<div class="inv-gate"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>'+o+'</div>';   // [INV_GATE_GAP] 2026-09-26 통합 점검 L6 · 인라인 margin-top:6px 가 .inv-gate 의 14px 를 덮어, 새 질문이 바로 위 신부 계좌 칸에 6px 로 붙었다(칸 이름표 위 12px 보다 좁아 묶음이 거꾸로 읽혔다) — 다른 질문과 같은 14px
   })();
   var aF = '<div class="inv-fields">'
     +'<div class="pf-l">신랑 계좌</div><div class="inv-row">'+selOnly('iv_gb',BANKS,gbCur,'flex:0 0 124px;','신랑 계좌 은행',true)+'<input class="cc-input" id="iv_ga" aria-label="신랑 계좌번호" placeholder="예: 110-315-175994" value="'+escapeHtml(d.groomAccount||'')+'"></div>'+etcRow('iv_gb',gbCur,BANKS,'신랑 은행 직접 입력')   // [INV_FIELD_LABEL] [INV_BANK_PICK]
@@ -6992,13 +7040,17 @@ function designBlock(side,label){
   var d=INVFLOW.draft, K=SIDE_KEYS[side], cur=d[K.d]||'';
   var grid=DESIGNS.map(function(p){ return '<button type="button" class="inv-dz'+(cur===p[0]?' sel':'')+'" data-side="'+side+'" data-n="'+p[0]+'">'+p[0]+' '+p[1]+'</button>'; }).join('');
   var f='';
+  /* [INV_GREET_LABEL] 2026-09-26 통합 점검 L2·L6 · 인사말 칸은 placeholder 만 있어, 적고 나면 무슨 칸인지 안 보였다(08 은 다섯 칸 —
+     «Save the Day» / «Cordially Invited», «잘 살게요» / «행복할게요»를 칸만 보고 못 가린다). 2/4([INV_FIELD_LABEL])처럼 칸마다 보이는 이름표(.inv-fields>.pf-l)와
+     같은 이름(aria-label)을 달고 placeholder 에는 예시 · 도움말만 남긴다. collectDesign 은 [data-k][data-side] 만 읽어 이름표와 부딪히지 않는다. */
+  function gl(nm){ return '<div class="pf-l">'+nm+'</div>'; }
   if(cur){
-    f+='<input class="cc-input" data-side="'+side+'" data-k="title" placeholder="인사말 큰 제목 (예: Save the Day)" value="'+escapeHtml(d[K.title]||'')+'">';
-    if(_designHasSub(cur)) f+='<input class="cc-input" data-side="'+side+'" data-k="sub" placeholder="'+(cur==='03'?'인사말 부제 (영문 권장 · Cordially Invited 자리)':'인사말 부제 (한글)')+'" value="'+escapeHtml(d[K.sub]||'')+'">';
+    f+=gl('인사말 제목')+'<input class="cc-input" data-side="'+side+'" data-k="title" aria-label="인사말 제목" placeholder="예: Save the Day" value="'+escapeHtml(d[K.title]||'')+'">';
+    if(_designHasSub(cur)) f+=gl('인사말 부제')+'<input class="cc-input" data-side="'+side+'" data-k="sub" aria-label="인사말 부제" placeholder="'+(cur==='03'?'영문 권장 · Cordially Invited 자리':'한글')+'" value="'+escapeHtml(d[K.sub]||'')+'">';
     // [INV_EM_HINT] '금색'→'강조' — AUD16 뒤 강조색은 디자인마다 다르다(잉크·진로즈·진골드). 특정 색 약속은 거짓이 된다
-    f+='<textarea class="cc-input" data-side="'+side+'" data-k="body" placeholder="인사말 본문 (*별표*로 감싸면 강조)" style="min-height:62px">'+escapeHtml(d[K.body]||'')+'</textarea>';
-    if(cur==='02') f+='<input class="cc-input" data-side="'+side+'" data-k="quote" placeholder="대표 문구 (2번 전용 · 별표 강조는 본문에서만 돼요)" value="'+escapeHtml(d[K.quote]||'')+'">';
-    if(cur==='08'){ f+='<input class="cc-input" data-side="'+side+'" data-k="gb" placeholder="신랑 한마디 (8번 전용)" value="'+escapeHtml(d[K.gb]||'')+'"><input class="cc-input" data-side="'+side+'" data-k="bb" placeholder="신부 한마디" value="'+escapeHtml(d[K.bb]||'')+'">'; }
+    f+=gl('인사말 본문')+'<textarea class="cc-input" data-side="'+side+'" data-k="body" aria-label="인사말 본문" placeholder="*별표*로 감싸면 강조" style="min-height:62px">'+escapeHtml(d[K.body]||'')+'</textarea>';
+    if(cur==='02') f+=gl('대표 문구')+'<input class="cc-input" data-side="'+side+'" data-k="quote" aria-label="대표 문구" placeholder="별표 강조는 본문에서만 돼요" value="'+escapeHtml(d[K.quote]||'')+'">';
+    if(cur==='08'){ f+=gl('신랑 한마디')+'<input class="cc-input" data-side="'+side+'" data-k="gb" aria-label="신랑 한마디" value="'+escapeHtml(d[K.gb]||'')+'">'+gl('신부 한마디')+'<input class="cc-input" data-side="'+side+'" data-k="bb" aria-label="신부 한마디" value="'+escapeHtml(d[K.bb]||'')+'">'; }
     f+='<div class="cc-note">적으면 청첩장 인사말 자리에 그대로 들어가요. <b>비워두면 디자인 기본 문구</b>가 자동으로 들어가요.</div>';
   }
   // 이 섹션 바로 아래 예시 미리보기(저장된 렌더 이미지) — 표지 영역을 액자에 보여주고 '전체 보기'로 새 탭
@@ -7020,7 +7072,7 @@ function designBlock(side,label){
   // 04·05 표기 특성 안내 — 혼주 입력(2단계)이 디자인 선택보다 앞이라, 고르는 순간 여기서 알려야 처음 오는 손님도 본다(2026-07-18 리뷰)
   var dzNote=(cur==='04')?'<div class="cc-note">버밀리언(04)은 혼주 성함을 <b>이름만</b>으로 표기하는 게 기본이에요 · 호칭을 넣으려면 이전(혼주) 단계에서 골라 주세요.</div>'
     :(cur==='05')?'<div class="cc-note">보태니컬(05)은 부모님을 영문 \'son of\'로 표기해 <b>장남·차녀 같은 호칭은 나타나지 않아요</b>.</div>':'';
-  return '<div class="inv-side"><div class="inv-side-l">'+escapeHtml(label)+'</div><div class="inv-dz-grid">'+grid+'</div>'+dzNote+'<div class="inv-fields">'+f+'</div>'+prev+'</div>';
+  return '<div class="inv-side" role="group" aria-label="'+escapeHtml(label)+'"><div class="inv-side-l">'+escapeHtml(label)+'</div><div class="inv-dz-grid">'+grid+'</div>'+dzNote+'<div class="inv-fields">'+f+'</div>'+prev+'</div>';   // [INV_GREET_LABEL] «둘 다 · 다르게»면 같은 이름 칸이 두 벌 — 묶음 이름(오프라인 · 온라인)으로 가른다
 }
 function collectDesign(box){
   var d=INVFLOW.draft;
@@ -7081,7 +7133,7 @@ function invStepDesign(box){
   else if(m==='online') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   else if(m==='both'){
     h+=designBlock('offline','직접 모시는 청첩장(오프라인)');
-    h+='<div class="inv-gate"><div class="inv-gate-q">온라인 청첩장 디자인은?</div><span class="inv-yn"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'">다르게</button></span></div>';
+    h+='<div class="inv-gate"><div class="inv-gate-q">온라인 청첩장 디자인은?</div><span class="inv-yn" role="group" aria-label="온라인 청첩장 디자인은?"><button type="button" data-same="Y" class="'+(d._onlineSame!=='N'?'on':'')+'" aria-pressed="'+(d._onlineSame!=='N')+'">오프라인과 같게</button><button type="button" data-same="N" class="'+(d._onlineSame==='N'?'on':'')+'" aria-pressed="'+(d._onlineSame==='N')+'">다르게</button></span></div>';   // [INV_YN_PRESSED]
     if(d._onlineSame==='N') h+=designBlock('online','온라인(모바일 참석) 청첩장');
   }
   // 계좌 표시 위치 질문은 2/4 단계(혼주·마음 전하실 곳)로 이동됨 · 샘플 전체 둘러보기는 상단(제목 아래)으로 이동됨
@@ -7113,13 +7165,15 @@ function invStepConfirm(box){
   //   [INV_PUB_LABEL] 버튼 이름이 경로마다 달라져 안내문의 <b>…</b> 도 그 이름을 따른다(없는 버튼을 가리키지 않게)
   var _pl=_invPubLabel(d), _lk=(m==='online'||m==='offline'||m==='both')&&_invPubHistory(d) ? _invLinkChange(d) : undefined;
   var mkNote=(m==='none')?'<div class="cc-note">청첩장 없이 진행으로 저장돼요. 언제든 다시 만들 수 있어요.</div>'
-    :(m==='self')?(d.selfQR?'<div class="cc-note" style="text-wrap:balance"><b>'+_pl+'</b>를 누르면 인쇄용 모바일 참석 QR·링크를 드려요. 발행 후에도 고칠 수 있어요.</div>'
+    :(m==='self')?(d.selfQR?'<div class="cc-note" style="text-wrap:balance"><b>'+_pl+'</b>를 누르면 인쇄용 모바일 참석 QR과 링크를 드려요. 발행 후에도 고칠 수 있어요.</div>'   /* [DOT_SPLIT_0926] «QR·링크»가 320 · 360 · 390 에서 «QR·»로 줄 끝에 걸렸다 → «QR과 링크» */
       :'<div class="cc-note">저희가 만들 것 없이 청첩장 단계만 마무리돼요. QR이 필요해지면 언제든 다시 고를 수 있어요.</div>')
     /* [INV_PUB_LABEL] 이미 발행한 부부 — 보낸 링크가 그대로인지를 말한다. 그대로일 때만 «그대로 반영»을 약속하고,
        디자인·초대 방식·이름이 바뀌면 새 주소가 생긴다는 사실을 먼저 알린다(모르면 링크 약속 없이). 새 문장은 320px 꼬리 줄이 안 생기게 balance. */
     :(_lk==='')?'<div class="cc-note" style="text-wrap:balance">빈 칸은 기본 문구로 채워져요. 보내신 링크는 그대로 두고 고친 내용만 바로 바뀌어요.</div>'
-    :(_lk==='design')?'<div class="cc-note" style="text-wrap:balance">빈 칸은 기본 문구로 채워져요. 디자인이나 초대 방식을 바꾸면 링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>'
-    :(_lk==='name')?'<div class="cc-note" style="text-wrap:balance">빈 칸은 기본 문구로 채워져요. 이름을 고치면 링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>'
+    /* [DOT_SPLIT_0926] 2026-09-26 통합 점검 L2 · L5 · «…링크 주소가 바뀌어요&nbsp;· 반영한 뒤…»의 NBSP 가 점을 앞말에 묶어 320~405 모든 폭에서 «바뀌어요 ·»가 줄 끝에 걸렸다 —
+       점 대신 마침표 · 알릴 말과 할 일을 한 덩어리씩(.ln-bal · 묶음 E _rEtaLine 과 같은 처방). 이름 판도 짝을 맞춘다 */
+    :(_lk==='design')?'<div class="cc-note"><span class="ln-bal">빈 칸은 기본 문구로 채워져요. 디자인이나 초대 방식을 바꾸면 링크 주소가 바뀌어요.</span><span class="ln-bal">반영한 뒤 새 링크를 다시 보내 주세요.</span></div>'
+    :(_lk==='name')?'<div class="cc-note"><span class="ln-bal">빈 칸은 기본 문구로 채워져요. 이름을 고치면 링크 주소가 바뀌어요.</span><span class="ln-bal">반영한 뒤 새 링크를 다시 보내 주세요.</span></div>'
     :(_lk===null)?'<div class="cc-note" style="text-wrap:balance">빈 칸은 기본 문구로 채워져요. 아래 버튼을 누르면 고친 내용이 청첩장에 바로 들어가요.</div>'
     :'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>';
   box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · '+(_invTotalSteps(d)===2?'2 / 2':'4 / 4')+'</span>'+wizActs()+'</div>'
@@ -7140,6 +7194,10 @@ function doPublishInv(box){
     if(_bm0){ _invBankAsk(_bm0).then(function(){ INVFLOW.step='parents'; renderInvFlow(box); setTimeout(function(){ _invBankFocus(_bm0); },60); }); return; }
   }
   var btn=$('iv_pub'), _lbl=_invPubLabel(_d0);   // [INV_PUB_LABEL] 되돌릴 때도 같은 이름으로
+  /* [INV_DONE_LINK] 2026-09-26 · 완성 화면이 링크가 그대로인지 말하도록 — 반영 «전»에 잰다(성공하면 아래에서 INVFLOW.pub·pubBase 가 새 발행으로 바뀐다).
+     4/4 안내([INV_PUB_LABEL] _invLinkChange)와 같은 잣대 · 처음 발행이거나 모르면 undefined(약속 없이 일반 안내) */
+  INVFLOW._lkChg=(['online','offline','both'].indexOf(String(_d0.method||''))>=0 && _invPubHistory(_d0)) ? _invLinkChange(_d0) : undefined;
+  var _eid0=String(_d0.eventId||(INVFLOW.pub&&INVFLOW.pub.eventId)||'');   // [INV_DONE_EID] 반영 전 링크의 eventId — «그대로»는 결과와 대조한 뒤에만 말한다(아래)
   if(btn){ btn.disabled=true; btn.textContent=/마치기$/.test(_lbl)?'마치는 중…':(/반영하기$/.test(_lbl)?'반영하는 중…':'만드는 중…'); }
   function reset(msg){ if(btn){ btn.disabled=false; btn.textContent=_lbl; } if(msg&&$('iv_err')) $('iv_err').textContent=msg; }
   var dr=INVFLOW.draft, sendDraft=dr;
@@ -7165,6 +7223,11 @@ function doPublishInv(box){
        ★[WIZ_EXIT_ONE](나가기가 몰래 저장하지 않는다)과 부딪히지 않는다 — 이건 나가기가 아니라 「만들기」를 누른 결과다. */
     if(r.urls||r.skipped) saveInvDraft();
     if(r.urls){ var _b1=INVFLOW.base||{}; INVFLOW.pub={eventId:INVFLOW.draft.eventId||'', urls:r.urls}; INVFLOW.pubBase={groomKo:_b1.groomKo||'', brideKo:_b1.brideKo||'', groomEn:_b1.groomEn||'', brideEn:_b1.brideEn||''}; }   // [INV_PUB_LABEL] 방금 발행한 것이 다음 「수정하기」의 링크 대조 기준
+    /* [INV_DONE_EID] 2026-09-26 G4 검토 · 완성 화면의 «보내신 링크는 그대로예요»가 반영 «전» 예측(_invLinkChange)만 믿었다 —
+       예측은 디자인 번호 · 영문 머리글자 · 한글 이름만 보는데, 서버 eventId 는 예식 날짜(MMDD)도 담는다(85_invitation.gs _invMakeEventId · _invResolveEventId).
+       예식일이 옮겨진 뒤 반영하면 주소가 바뀌는데도 «그대로»라고 말해, 옛 링크(옛 날짜)가 하객에게 남는다. 받은 결과의 eventId 가 다르면 «바뀌었어요»로 고친다.
+       ('design' · 'name' · 모름(null · undefined)은 건드리지 않는다 — «그대로» 약속만 결과로 확인한다) */
+    if(r.urls && INVFLOW._lkChg==='' && _eid0 && r.eventId && String(r.eventId)!==_eid0) INVFLOW._lkChg='name';
     try{ invStepDone(box, r); }
     catch(e){ reset(''); _miniToast('청첩장은 만들어졌어요 · 화면을 새로고침하면 링크가 보여요'); saveInvDraft(); }
   }, function(e){
@@ -7197,7 +7260,7 @@ window.addEventListener('message', function(ev){
 function invStepDone(box, r){
   if(r.skipped){
     var _skSub=(String((INVFLOW.draft||{}).method||'')==='self')
-      ? '실물 청첩장은 직접 준비하시는 구성이에요 · 저희가 만들 것은 없어요. QR이 필요해지면 언제든 다시 고를 수 있어요.'
+      ? '<span class="ln-bal">실물 청첩장은 직접 준비하시는 구성이에요. 저희가 만들 것은 없어요.</span><span class="ln-bal">QR이 필요해지면 언제든 다시 고를 수 있어요.</span>'   /* [DOT_SPLIT_0926] 390 «…구성이에요 / · 저희가…» 줄 머리 점 → 마침표 · 한 덩어리씩 */
       : '청첩장 없이 진행해요. 언제든 다시 만들 수 있어요.';   // self(QR 아니요)에게 '청첩장 없이'라고 말해 선택이 뒤집힌 듯 보이던 것 구분(2026-07-18 리뷰)
     box.innerHTML='<div class="consult-card inv-wrap" style="text-align:left"><div class="cc-eyebrow en-22">Done</div><div class="cc-title" style="text-align:left">청첩장 단계를 마쳤어요</div><div class="cc-sub" style="text-align:left">'+_skSub+'</div><div class="inv-nav wz-bar"><button type="button" class="cc-btn-ghost" id="iv_edit">다시 고를게요</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
     $('iv_done').addEventListener('click', exitInvFlow);
@@ -7210,7 +7273,7 @@ function invStepDone(box, r){
   var _selfQR=(String(_dr0.method||'')==='self'&&_dr0.selfQR===true);
   var base=INVFLOW.base||{};
   var g=coverName(base.groomEn)||'', b=coverName(base.brideEn)||'';
-  var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold,#B89A75)">&amp;</span> ':'')+escapeHtml(b))
+  var names = (g||b) ? (escapeHtml(g)+(g&&b?' <span style="color:var(--gold-deep,#7A5F37)">&amp;</span> ':'')+escapeHtml(b))   /* [INV_AMP_TEXT] 2026-09-26 통합 점검 L6 · 이름 사이 «&»가 장식용 --gold(흰 바탕 2.65:1 · 23px 큰 글자 기준 3:1 에도 미달)였다 — 이름과 한 줄에 붙은 글리프는 글자 골드(momentedit-design «글자와 같은 줄이면 --gold-text/--gold-deep») */
                      : escapeHtml((base.groomKo||'')+((base.groomKo&&base.brideKo)?' · ':'')+(base.brideKo||''));
   function _doneWhen(date,time){
     date=String(date||'').trim(); time=String(time||'').trim();
@@ -7245,7 +7308,7 @@ function invStepDone(box, r){
   var _gClosed = _guideLinkClosed();             // 예식 +30일 지나면 서버가 닫음(GUIDE_EXPIRE_DAYS 동기)
   var _gCard = !!_gTok && !_gClosed;             // 닫힌 뒤엔 카드 숨김
   var cards = linkCard('online','온라인 청첩장','멀리 계신 분께 · 카톡으로 보내세요.',u.online)
-            + linkCard('family','오프라인 청첩장 · 직접 모시는 분께', _gCard?'가족·가까운 분께 직접 전하세요 · 이 청첩장 안에 <b>하객 안내(식사·자리)</b> 버튼이 함께 들어 있어요.':'가족·가까운 분께 직접 전하세요.',u.family);
+            + linkCard('family','오프라인 청첩장 · 직접 모시는 분께', _gCard?'<span class="ln-bal">가족&#8288;·&#8288;가까운 분께 직접 전하세요.</span><span class="ln-bal">이 청첩장 안에 <b>하객&nbsp;안내&#8288;(식사&#8288;·&#8288;자리)</b> 버튼이 함께 들어 있어요.</span>':'가족·가까운 분께 직접 전하세요.',u.family);   /* [DOT_SPLIT_0926] 320 «· 이 청첩장…» · «·자리)» 줄 머리 점 → 마침표 두 덩어리 · 목록 «·» 양옆 U+2060 */
   var _gUrl=_gCard?guideUrl(_gTok):'';
   // 접힘 내부는 모바일 참석 QR 카드와 같은 구도(QR → 링크 → 열기·공유·복사 → QR 저장)로 통일 — 식장 인쇄물·테이블 안내판용 QR(2026-07-17 사용자 요청)
   var guideFold = _gCard
@@ -7254,8 +7317,12 @@ function invStepDone(box, r){
       /* ★[GUIDE_QR_BY_KIND 2026-09-26 사장님 결정 ⑯ · 고객 점검 inv-4] 첫 줄 뒷절을 청첩장 구성대로 — 하객 안내 버튼은 오프라인(가족) 청첩장에만 들어간다
          (shared/hydrate.js 가 /i-family/ 에서만 넣는다). 종전 «온라인 청첩장에는 이미 들어 있어요»는 이 화면의 「온라인 청첩장」 카드(/i/)를 가리켜 거꾸로였고,
          온라인만 고른 부부에게는 통째로 틀린 말이었다. 둘째 줄(«두 곳이 채워져요»)은 그대로. */
-      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub" style="margin-bottom:4px">종이 청첩장을 직접 만드실 때 이 QR을 넣으세요 · '+(u.family?'위 오프라인 청첩장에는 이미 들어 있어요.':'하객분께 이 링크나 QR을 따로 전해 주세요.')+'</div>'
-      +'<div class="done-qr-sub" style="font-size:11px;margin-top:0">좌석 배치·애프터 웨딩(식사)을 완료하면 이 안내에 <b>자리 찾기·식사 안내</b> 두 곳이 채워져요 · 준비된 것부터 보여요.</div>'
+      /* [DOT_SPLIT_0926] 2026-09-26 통합 점검 · 두 줄 다 « · »로 절을 이어 390 «…이 QR을 넣으세요 ·»가 줄 끝에 걸렸다 — 글은 그대로, 점만 마침표로 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060 */
+      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub" style="margin-bottom:4px"><span class="ln-bal">종이 청첩장을 직접 만드실 때 이 QR을 넣으세요.</span><span class="ln-bal">'+(u.family?'위 오프라인 청첩장에는 이미 들어 있어요.':'하객분께 이 링크나 QR을 따로 전해 주세요.')+'</span></div>'
+      /* [FOLD_JOSA_GLUE] 2026-09-26 G4 검토 · 이 줄을 한 덩어리(.ln-bal · balance)로 감싸자 320~345 에서 «…애프터 웨딩(식사) / 을 완료하면…»으로
+         조사 «을»이 줄 머리로 떨어졌다(닫는 괄호 뒤 한글은 줄바꿈 자리다 · BASE 는 balance 가 없어 이 모양이 없었다). 같은 폭에서 «자리 / 찾기»도 갈렸다.
+         «웨딩(식사)을»을 U+2060 으로 한 낱말 · «애프터 웨딩» · «자리 찾기» · «식사 안내»는 NBSP — 320~430 · 768 · 1280 조사 머리 · 괄호 머리 · 매달린 점 0 */
+      +'<div class="done-qr-sub" style="font-size:11px;margin-top:0"><span class="ln-bal">좌석 배치&#8288;·&#8288;애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b> 두 곳이 채워져요.</span><span class="ln-bal">준비된 것부터 보여요.</span></div>'
       +'<div style="text-align:center;margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_gqr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">'+escapeHtml(_gUrl)+'</a>'
       +'<div class="done-acts" style="justify-content:center">'
@@ -7280,8 +7347,8 @@ function invStepDone(box, r){
     var _kitLines=[[base.groomKo,base.brideKo].filter(Boolean).join(' · '), (g||b)?(g+(g&&b?' & ':'')+b):'', when,
       '본예식 20분 전부터 내빈 입장이 시작됩니다 · 대기 공간이 없으니 입장 시간에 맞춰 도착 부탁드립니다'].filter(Boolean);   // 도착 안내는 웹(가족) 청첩장엔 기본 포함 · 종이만 쓰는 하객은 받을 곳이 없어 킷에 동봉(2026-07-18) · ★'15분' 수치는 i-family Arrival·weddingSequenceRef 참조표와 동기
     _kit='<details class="done-fold" open><summary>인쇄에 넣을 정보 <span class="pt-ar">▾</span></summary>'
-      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub">종이 청첩장에 그대로 옮겨 적으세요 · 아래 QR과 함께 쓰면 돼요.</div>'
-      +'<div class="done-url" style="white-space:normal;line-height:1.8">'+_kitLines.map(escapeHtml).join('<br>')+'</div>'
+      +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub"><span class="ln-bal">종이 청첩장에 그대로 옮겨 적으세요.</span><span class="ln-bal">아래 QR과 함께 쓰면 돼요.</span></div>'   /* [DOT_SPLIT_0926] 320 «…옮겨 적으세요 ·» 줄 끝 점 → 마침표 두 덩어리 */
+      +'<div class="done-url" style="white-space:normal;line-height:1.8">'+_kitLines.map(function(s){ return escapeHtml(s).replace(/ · /g,'&nbsp;·&nbsp;'); }).join('<br>')+'</div>'   /* [DOT_SPLIT_0926] 390 «…입장이 시작됩니다 ·» 줄 끝 점 → 보이는 글만 점 양옆 NBSP(복사 문구 data-url 은 그대로 · 종이에 옮기는 글이라 바꾸지 않는다) */
       +'<div class="done-acts" style="justify-content:center"><button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(_kitLines.join('\n'))+'">문구 복사</button></div>'
       +'</div></details>';
   }
@@ -7303,6 +7370,19 @@ function invStepDone(box, r){
       +'<button type="button" class="cc-btn-ghost" id="iv_qrsave" style="display:none">저장</button>'
       +'</div>'
       +'</div></details>' : '';
+  /* ★[INV_DONE_LINK 2026-09-26 통합 점검 L2·L5] 이 자리의 문장이 조건 없이 «다시 고쳐 발행하시면 같은 링크로 자동 갱신돼요 (새 링크를 다시 보낼 필요 없어요)»였다.
+     한 탭 전 4/4 는 «디자인이나 초대 방식을 바꾸면 링크 주소가 바뀌어요 · 새 링크를 다시 보내 주세요»라고 하는데(서버 규칙 — 85_invitation.gs _invUrls 는
+     주소에 디자인 번호를 넣고 _invResolveEventId 는 이름이 다르면 새 eventId 를 쓴다), 반영하고 나면 반대로 말했다. 옛 링크를 돌린 부부가 새 링크를 안 보내게 된다.
+     이제 방금 반영한 결과(INVFLOW._lkChg · doPublishInv 가 반영 전에 잰다)로 가른다 — ①주소가 바뀜(design·name) ②그대로('')
+     ③처음 발행 · 다시 열기 · 모름 = 앞으로의 규칙만(약속 없이). 모바일 참석 QR 만 쓰는 구성은 QR 로 말한다(이름이 바뀌면 QR 주소도 바뀐다). */
+  var _lkC=INVFLOW._lkChg, _edLead='<span class="ln-bal"><b style="white-space:nowrap">발행됨 · 수정</b>에서 다시 손볼 수 있어요.</span>';   // 바로 위 오타 확인 상자가 «…확인해 주세요»로 끝나 «주세요»를 잇지 않는다 · «언제든»은 쓰지 않는다(예식 뒤엔 편집이 닫힌다)
+  var _doneLinkNote=(_lkC==='design'||_lkC==='name')
+      ? '<span class="ln-bal"><b>링크 주소가 바뀌었어요.</b></span><span class="ln-bal">위 새 링크를 다시 보내 주세요.</span>'
+    : (_lkC==='')
+      ? '<span class="ln-bal">보내신 링크는 그대로예요.</span><span class="ln-bal">새 링크를 다시 보낼 필요 없어요.</span>'
+    : (!cards && mobileUrl)
+      ? _edLead+'<span class="ln-bal">이름을 바꾸면 새 QR이 생겨요.</span>'
+      : _edLead+'<span class="ln-bal">글이나 계좌만 고치면 링크는 그대로이고, 디자인이나 이름을 바꾸면 새 링크가 생겨요.</span>';
   box.innerHTML='<div class="consult-card inv-wrap done-wrap">'
     +'<div class="done-eyebrow">Invitation Ready</div><div class="done-rule"></div>'
     +'<div class="done-title">두 분의 청첩장이 완성됐어요</div>'
@@ -7310,8 +7390,8 @@ function invStepDone(box, r){
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
     +'<div class="done-lead">'+leadHtml+'</div>'
     +(cards?('<div class="done-links">'+cards+'</div>'):'')+_kit+guideFold+guideHint+qr   /* ★guideFold 삽입 유지 — 2026-07-18 병합에서 이 줄만 떨어져 하객 안내 접힘이 라이브에서 실종됐던 사고. 조립 줄 수정 시 guideFold·_kit 누락 금지 */
-    +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름·예식 날짜·계좌·혼주 호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'
-    +'<div class="cc-note" style="text-align:left">고치실 게 있으면 마이페이지 청첩장 단계의 <b>발행됨 · 수정</b>으로 다시 고쳐 발행하시면 <b>같은 링크로 자동 갱신</b>돼요. <span class="cc-mini">(새 링크를 다시 보낼 필요 없어요)</span></div>'
+    +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름&#8288;·&#8288;예식&nbsp;날짜&#8288;·&#8288;계좌&#8288;·&#8288;혼주&nbsp;호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'   /* [DOT_SPLIT_0926] 320 «…이름·예식 날짜 / ·계좌…» 목록 한가운데 줄 머리 점 → «·» 양옆 U+2060 */
+    +'<div class="cc-note" style="text-align:left">'+_doneLinkNote+'</div>'   /* [INV_DONE_LINK] 종전 «…같은 링크로 자동 갱신돼요 (새 링크를 다시 보낼 필요 없어요)» 조건 없는 약속 — 되살리지 말 것 */
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
     +'<div class="inv-nav wz-bar"><button type="button" class="cc-btn-ghost" id="iv_edit">수정하기</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
   $('iv_done').addEventListener('click', exitInvFlow);
@@ -7722,6 +7802,12 @@ function guideClosedHtml(){
 // 부분 노출 현황 칩 — 하객 페이지(guide.html) 섹션 순서 그대로, 무엇이 열려 있고 무엇이 비었는지(2026-07-16 사용자 제안).
 //   판정은 하객 실노출 규칙(handleGuideView)과 동일: 다이닝 센티널 문구 제외 · 자리는 좌석토큰(배치 완료)+이름+토글 ON · 라이브는 켰고 청첩장 발행(eventId)까지 된 경우만 ✓.
 var DN_PLACEHOLDER=['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'];   // venuePick 센티널(장소 아님) — 칩·확인서가 공용(중복 리터럴 드리프트 방지)
+/* ★[DN_ROW_TRUTH 2026-09-26 통합 점검 L7] 애프터 웨딩의 «완료»는 트랙 딱지(t.dining)만 믿지 않는다 — 정한 것이 있어야 완료다.
+   「예식만으로 조용히 마무리」(완료 저장) → 「역시 애프터 웨딩 만들래요」([DN_AGAIN_DIRECT])로 목록에 갔다가 아무것도 안 담고 나가면
+   서버는 이미 «완료»인 트랙을 비지 않은 초안(_step 숫자)이라며 그대로 둔다(80_production.gs _emptyDraft) — 담은 곳도 «안 함»도 없는데
+   행은 「✓ 완료 · 수정」, 확인서는 «장소 미정 · 상담에서 디렉터와 함께 정해요»(아무도 한 적 없는 약속)였고, 누르면 입구 게이트가 열렸다.
+   정한 것 = 안 함(N) · 담은 곳 · 고른 곳 · 옛 자리표시(직접 섭외 · 상담 때). 행 · 확인서 · 내 완성물이 이 한 판정을 쓴다([SEAT_ROW_TRUTH] 와 같은 뜻 · 서버 수정 없이). */
+function _dnHas(dd){ dd=dd||{}; if(String(dd.dining_on||'')==='N') return true; if((dd._favs||[]).length) return true; if(String(dd.venuePick||dd.venue||'').trim()) return true; var pt=String(dd.partner||''); return pt==='직접 섭외할게요'||pt==='상담 때 함께 정할게요'; }
 /* ★[GUIDE_NOTE_TRUE 2026-09-26 고객 점검 prod-6 · inv-9] 칩 판정을 한 곳에서 내고, 아래 안내문도 그 판정을 따른다.
    ①애프터 웨딩을 끝냈는데(행 ✓) 보여 줄 식당이 없는 판(자리표시 「상담 때 함께 정할게요」 류 · 담은 곳을 다 뺌) — 칩은 「장소 미정」,
      안내는 «애프터 웨딩에서 식당을 고르면 열려요». 종전 고정문 «애프터 웨딩을 완료하면 열려요»는 바로 위 ✓ 와 부딪혀 저장이 안 된 줄 알게 했다.
@@ -7748,14 +7834,16 @@ function _guideSectionChips(p, inv){
   return '<div class="gd-chips">'+items.map(function(it){ return '<span class="gd-chip'+(it[1]?' on':'')+'">'+(it[1]?'✓ ':'')+it[0]+(it[1]?'':' · '+(it[2]||'비어 있음'))+'</span>'; }).join('')+'</div>';
 }
 function _guideNoteHtml(p){   // [GUIDE_NOTE_TRUE] 칩 아래 한 줄 — 빈 칩이 있을 때만
-  var g=_guideSections(p), t;
+  /* [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 두 문장을 « · »로 이어 390 에서 «…나오지 않아요 ·»가 줄 끝에, 좌석 이름이 빈 판은 360 · 390 에서 «· 자리에…»가 줄 머리에 매달렸다
+     (전역 cc-note balance · [CHECKS_NO_DANGLE]) — 마침표 두 문장을 한 덩어리씩(.ln-bal) · «애프터&nbsp;웨딩»은 한 낱말로(«애프터 / 웨딩» 갈림) · 목록 «·» 양옆은 U+2060 */
+  var g=_guideSections(p), t2='';
   if(g.seat && g.dining) return '';   // ③
-  if(!(g.dnPend || g.seatPend || g.dnOff)) t='비어 있는 부분은 하객 화면에 나오지 않아요 · 애프터 웨딩·좌석 배치를 완료하면 그 부분부터 열려요.';   // 끝내지 않은 줄 때문에 빈 칩 — 종전 문장 그대로
+  if(!(g.dnPend || g.seatPend || g.dnOff)) t2='애프터&nbsp;웨딩&#8288;·&#8288;좌석 배치를 완료하면 그 부분부터 열려요.';   // 끝내지 않은 줄 때문에 빈 칩 — 종전 문장 그대로(점만 마침표로)
   else { var a=[];   // 행은 끝났는데 칩이 빈 판 — 칩마다 무엇을 하면 열리는지(할 것이 없으면 말하지 않는다) · 둘이면 «열려요»를 한 번만(보이스 가이드 §6-B 어미 반복)
     if(!g.seat) a.push(g.seatPend?'자리에 이름을 넣으면 자리 찾기가':'좌석 배치를 완료하면 자리 찾기가');
-    if(!g.dining && !g.dnOff) a.push(g.dnPend?'애프터 웨딩에서 식당을 고르면 식사 안내가':'애프터 웨딩을 완료하면 식사 안내가');
-    t='비어 있는 부분은 하객 화면에 나오지 않아요'+(a.length?(' · '+a.join(', ')+' 열려요'):'')+'.'; }
-  return '<div class="cc-note" style="text-align:center;margin:0 0 10px"><span class="cc-mini">'+t+'</span></div>';
+    if(!g.dining && !g.dnOff) a.push(g.dnPend?'애프터&nbsp;웨딩에서 식당을 고르면 식사 안내가':'애프터&nbsp;웨딩을 완료하면 식사 안내가');
+    if(a.length) t2=a.join(', ')+' 열려요.'; }
+  return '<div class="cc-note" style="text-align:center;margin:0 0 10px"><span class="cc-mini"><span class="ln-bal">비어 있는 부분은 하객 화면에 나오지 않아요.</span>'+(t2?'<span class="ln-bal">'+t2+'</span>':'')+'</span></div>';
 }
 function guideShareHtml(token, p, inv){
   var url=guideUrl(token);
@@ -7793,11 +7881,14 @@ function guideHubHtml(p, inv){
   var closed=!!tok && _guideLinkClosed(p.base);
   // 설명은 행 아래(.trk-sub)가 담당 — 패널에 같은 말을 또 쓰지 않는다(2026-07-25 사용자 지시로 행 설명 유지 결정)
   return tok ? (closed?guideClosedHtml():guideShareHtml(tok,p,inv))
-    : '<div class="cc-note" style="text-align:left;margin:0 0 4px">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요 · 준비된 내용만 하객분들께 보여요.</div>';
+    : '<div class="cc-note" style="text-align:left;margin:0 0 4px"><span class="ln-bal">안내 링크는 '+GUIDE_MAKE_COND+' 만들어져요.</span><span class="ln-bal">준비된 내용만 하객분들께 보여요.</span></div>';   // [DOT_SPLIT_0926] 360 · 390 «· 준비된 내용만…» 줄 머리 점 → 마침표 두 덩어리
 }   // 카드 안 행 패널 본문(2026-07-17 사용자 지시 · 행 라벨·상태는 productionDashHtml의 row가 담당)
 // 하객 안내 생성 조건 문구 — 완성 화면(guideHint)·제작 패널(guideHubHtml) 공용(두 곳 드리프트로 '둘 다 필요'로 읽히던 사고 재발 방지).
 //   서버 발급 규칙(80_production _gHas)=식사(실제 식당 픽·담은 곳) 또는 좌석(이름 1명 이상) '내용 있는 완료' 1개 — '장소 미정' 같은 자리표시 완료론 안 생기므로 '내용을 채워'가 꼭 들어가야 함(2026-07-18 리뷰).
-var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)·좌석 배치</b> 중 하나라도 내용을 채워 완료하면';
+var GUIDE_MAKE_COND='<b>애프터&nbsp;웨딩&#8288;(식사)&#8288;·&#8288;좌석 배치</b> 중 하나라도 내용을 채워 완료하면';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 완성 화면 320 «…애프터 웨딩(식사)· / 좌석 배치…» 줄 끝 점 — «·» 양옆 U+2060([SIGN_DEP_TRUE] 선례)
+/* [COND_PAREN_GLUE] 2026-09-26 G4 검토 · 점을 붙이자 덩어리가 커져 줄이 괄호 앞에서 갈렸다 — 하객 안내 패널(링크 없음) 320~330 «안내 링크는 애프터 웨딩 / (식사)·좌석 배치…»로
+   풀이 «(식사)»가 앞말과 떨어져 줄 머리에 섰다(한글 뒤 여는 괄호는 줄바꿈 자리다). «웨딩»과 «(» 사이도 U+2060 · «애프터 웨딩»은 한 낱말(NBSP · _guideNoteHtml 과 같은 규칙).
+   320~430 · 768 · 1280 두 자리(패널 · 완성 화면 힌트) 괄호 머리 · 매달린 점 · «애프터 / 웨딩» 0 */
 // 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 // ── 단체 사진 = 좌석 편집기처럼 전용 화면(PHOTOFLOW) · 구도 순번 + 연출/이벤트(photoFx) · 사진작가 전달용(2026-07-19) ──
 /* ★[PHOTO_LIST_V2 2026-08-08] 구도 목록 재작성 — 5차 리서치 + 사용자 결정.
@@ -8956,7 +9047,7 @@ function cfTodayKST(){
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
-  var _rDone=(t.ritual||'')==='완료', _fDone=(t.final||'')==='완료', _dDone=(t.dining||'')==='완료', _sDone=(t.seat||'')==='완료';
+  var _rDone=(t.ritual||'')==='완료', _fDone=(t.final||'')==='완료', _dDone=(t.dining||'')==='완료'&&_dnHas(dd), _sDone=(t.seat||'')==='완료';   // [DN_ROW_TRUTH] 정한 것 없는 «완료»는 「아직 정하지 않음」
   var _cfOk=!!(p.confirm&&p.confirm.at);   // 확인됨 판정 단일화 — 배너·배지가 같은 기준을 쓰게(엇갈린 UI 방지)
   /* ★[CF_EMPTY_WORD 2026-09-26 사장님 결정 ⑭ · 고객 점검 inv-10] 빈 줄이 전부 「미완료」라, 확정에 필요 없는 줄(청첩장 · 애프터 웨딩 · 좌석 배치 · 하객 안내)까지
      끝내야 하는 일처럼 읽혔다 — 바로 아래 «아직 남은 것»은 둘뿐인데. 「미완료」는 확정 게이트(_need)와 같은 둘(식순 · 좌석 · 음료)만 쓴다(need=true),
@@ -8967,7 +9058,13 @@ function prodConfirmHtml(p, inv){
   var L='';
   // 예식 일시 — 확인서의 기준 정보(스냅샷에도 기록 · 2026-07-18 사용자 요청 상세화)
   var _bw=p.base||{}, _wm=String(_bw.weddingDate||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(_wm) L+=line('예식 일시', escapeHtml(_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'+(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')));
+  /* [CF_DATE_NBSP] 2026-09-26 통합 점검 L6 · 320 · 340 값 칸(116 · 136px)에서 «2027년 3월 / 26일 · 오후 1:40»으로 날짜 한가운데가 갈렸다
+     (12시간제 [WED_CLOCK12]로 글이 짧아지자 balance 가 날짜 안쪽을 골랐다). 첫 고침은 «3월 26일 · 오후 1:40»을 NBSP 한 덩어리로 묶었는데,
+     그 덩어리가 값 칸(84px 1fr)의 최소 폭이 돼 320~325 에서 긴 날짜(«10월 10일 · 오전 10:20»)가 칸 밖으로 3~10px 넘쳤다(G4 검토 실측 180조합 중 84).
+     → 이 화면의 다른 예식 일시(내 내역 · 임시 고정 · 결제 카드)와 같은 fmtWedKoT 로 쓴다: «2027년 3월 26일 (금) · 오후 1:40» —
+     «3월 26일»과 «(금) · 오후 1:40»이 각각 한 덩어리라 연도 뒤·날짜 뒤에서만 갈리고, 가운뎃점은 줄 끝·머리에 서지 않는다.
+     확정 기록(wireProdConfirm)에는 요일이 더해진다(같은 날의 같은 뜻 · 옛 기록은 그대로). */
+  if(_wm) L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate).slice(0,10), _bw.weddingTime) : (fmtWedKo(String(_bw.weddingDate).slice(0,10)) || (_wm[1]+'년 '+Number(_wm[2])+'월 '+Number(_wm[3])+'일'))));   // [CF_DATE_NBSP]
   L+=line('예식 장소', '경기 고양시 덕양구 향동동 프라이빗 스튜디오<span class="cc-mini" style="display:block;margin-top:2px">3호선 원당역에서 버스 <span style="white-space:nowrap">약 15분 · 전용 주차 가능</span> <span class="ln-bal">정확한 위치는 <span style="white-space:nowrap">예식 전에</span> 안내드려요</span></span>');   // [PLACE_NO_DOT] 상담 카드와 같은 나눔(가운뎃점이 줄 머리·끝에 매달리지 않게) · [PLACE_SNAP_SPACE] 두 덩어리 사이 공백은 확정 기록(textContent) 용 — 지우지 말 것   // MPD_D1 D-7에 장소·오시는 길을 되찾을 경로가 없던 것(§7-1-③) — 상담 카드는 상담완료 후 숨김이라 확인서에 상시화
   // 청첩장 — 구성·디자인 번호까지(발행됨 한 단어로는 무엇을 발행했는지 알 수 없음)
   var _ivd=(inv.draft||{}), _im=_invMethodEff(_ivd);   // [INV_SKIP_ROW] 서버에 'none' 으로 남은 「개인 제작 · QR 아니요」는 개인 제작으로 읽는다
@@ -8975,6 +9072,10 @@ function prodConfirmHtml(p, inv){
   var _dz=[]; if(_ivd.designOnline&&(_im==='online'||_im==='both')) _dz.push('온라인 '+_ivd.designOnline); if(_ivd.designFamily&&(_im==='offline'||_im==='both')) _dz.push('오프라인 '+_ivd.designFamily);
   var _ivv=(inv.status==='완료')?((inv.published&&inv.published.eventId)?'발행됨':'만듦 · 미발행'):'';
   if(inv.status==='완료' && _im==='none' && !_invLiveUrls(_ivd)) _ivv='청첩장 없이 진행';   // [INV_SKIP_ROW] 만든 적이 없는데 「만듦 · 미발행 · 청첩장 없이」(옛 발행 흔적이 있으면 「발행됨 · 청첩장 없이」)라 적던 것
+  /* [CF_SELF_NOQR] 2026-09-26 통합 점검 L2·L7 · 「실물(종이) · 개인 제작 → QR 아니요 → 이대로 마치기」를 «만듦 · 미발행 · 개인 제작»(옛 발행 흔적이 있으면 «발행됨 · 개인 제작»)으로 적었다 —
+     완성 화면은 «저희가 만들 것은 없어요»라고 하는데 «미발행»이 남은 일처럼 읽혔고, 이 줄은 「위 내용으로 확정합니다」의 기록(wireProdConfirm)에 그대로 남는다.
+     살아 있는 링크가 없는 개인 제작(QR 아니요)은 하나로 적는다. QR 을 받은 개인 제작(링크 있음)은 종전대로 «발행됨 · 개인 제작». */
+  else if(inv.status==='완료' && _im==='self' && _ivd.selfQR!==true && !_invLiveUrls(_ivd)) _ivv='개인 제작&nbsp;·&nbsp;직접 준비';
   else if(_ivv&&_imL) _ivv+=' · '+_imL; if(_ivv&&_dz.length) _ivv+='<br><span class="cc-mini">디자인 · '+_dz.map(function(x){ return '<span style="white-space:nowrap">'+escapeHtml(x)+'</span>'; }).join(' · ')+'</span>';   // [CF_WRAP_BALANCE] 「오프라인 / 05」로 숫자만 떨어지면 오독한다
   L+=line('청첩장', _ivv);
   var rv='';
@@ -9161,7 +9262,7 @@ function prodConfirmHtml(p, inv){
     var _need=[]; if(!_rDone) _need.push('식순'); if(!_fHas) _need.push('좌석 · 음료');
     var _over=(_named>MP_FINAL_POLICY.max);
     if(!_need.length) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용으로 확정합니다</button>'
-      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini">누르신 날짜와 시각이 함께 기록돼요 · 저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span></div>';
+      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini"><span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span><span class="ln-bal">저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span></span></div>';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 360 · 390 «…함께 기록돼요 · / 저희는…» 줄 끝 점(전역 cc-note balance) → 마침표 두 덩어리
     /* 이름을 「」로 감싸 붙인다 — 「좌석 · 음료」 자체에 가운뎃점이 들어 있어, 맨 이름을 나열하면
        '식순 · 좌석 · 음료'가 세 항목으로 읽힌다. 조사(을/를·이/가)도 함께 피할 수 있다. */
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini">아직 남은 것 · '+_need.map(function(n){ return '<b>「'+n+'」</b>'; }).join(' ')
