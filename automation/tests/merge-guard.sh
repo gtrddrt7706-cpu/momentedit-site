@@ -12416,3 +12416,15 @@ chk '^여기 와 계신 한 분 한 분 얼굴을 뵈니, 참 든든합니다\.'
 chk '예전에 내가, 너한테 삼십 분을 따진 적이 있었지\.' docs/plans/식순연구/배역_예시_대사.txt 1
 nochk '너한테 삼십 분을 따진 적이 있어\.' docs/plans/식순연구/배역_예시_대사.txt
 chk 'VOICE_ORDER' scripts/sent-lib.mjs 1
+# ── [코워크 회신8 덧3 2026-09-26 사장님] 아버님 권일 → 대진 · 어머님 주하 → 연화(비추천 이력 알고 · 미리듣기 전용) · 어머님 덕담 중간판 15문장 · 아버님 한 줄 ──
+chk "아버님: '대진'" scripts/build-typecast-import.mjs 1
+chk "어머님: '연화'" scripts/build-typecast-import.mjs 1
+chk 'VOICE_FATHER_2' scripts/build-typecast-import.mjs 1
+chk 'VOICE_MOTHER_2' scripts/build-typecast-import.mjs 2
+chk '연화는 영구 탈락' scripts/build-typecast-import.mjs 1
+chk '^싸워도 좋은데, 대신 등 돌리고 잠들지는 마라\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '^하윤이 엄마입니다\. 우리 딸은 어릴 때부터 저를 안 닮았어요\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '엄마는 그거면 돼\.$' docs/plans/식순연구/배역_예시_대사.txt 1
+nochk '지금까지는 이기고 있습니다' docs/plans/식순연구/배역_예시_대사.txt
+chk '^대진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 18
+chk '^연화:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 15

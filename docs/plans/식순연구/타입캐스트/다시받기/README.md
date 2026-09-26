@@ -13,8 +13,8 @@
 | 2_진한.txt | 진한 | 56 | 13 |
 | 3_예슬.txt | 예슬 | 42 | 12 |
 | 4_진희.txt | 진희 | 37 | 12 |
-| 5_권일.txt | 권일 | 18 | 1 |
-| 6_주하.txt | 주하 | 17 | 1 |
+| 5_대진.txt | 대진 | 18 | 1 |
+| 6_연화.txt | 연화 | 15 | 1 |
 | 7_정숙.txt | 정숙 | 5 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
@@ -46,14 +46,14 @@ node scripts/assemble-narration.mjs --in <진희_받은폴더> \
 ```
 
 ```
-# 권일 — 18줄 · 1클립
-node scripts/assemble-narration.mjs --in <권일_받은폴더> \
+# 대진 — 18줄 · 1클립
+node scripts/assemble-narration.mjs --in <대진_받은폴더> \
   --clip =12_bless-father
 ```
 
 ```
-# 주하 — 17줄 · 1클립
-node scripts/assemble-narration.mjs --in <주하_받은폴더> \
+# 연화 — 15줄 · 1클립
+node scripts/assemble-narration.mjs --in <연화_받은폴더> \
   --clip =13_bless-mother
 ```
 
