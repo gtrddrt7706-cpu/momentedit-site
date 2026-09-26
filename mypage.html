@@ -382,7 +382,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    코드리뷰·복구가 '유실된 강조'로 판단해 복원하는 역전 금지(CLAUDE.md 제거 지시 보존 규칙). */
 /* 입금 계좌 박스 (B안 · 슬림 복사) — 계약금·중도금·잔금·수수료·추가보정 공통 */
 .acct-box{margin:14px 0 4px;padding:6px 2px 2px;text-align:center}
-.acct-eyebrow{font-family:var(--serif);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px}
+.acct-eyebrow{font-family:var(--serif-ko);font-size:11px;letter-spacing:.04em;text-transform:none;color:var(--gold-deep);margin-bottom:7px}   /* [KO_LABEL_QUIET 2026-09-26 점검 pay-12] «입금 계좌»는 한글 — 영문 눈썹 규칙(Cormorant 10px · 0.18em · 대문자)을 걸어 글자가 흩어졌다 → 한글 소라벨 */
 .acct-num{font-family:var(--serif-ko);font-size:18px;font-weight:600;color:var(--accent);letter-spacing:.01em}
 .acct-holder{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px}
 /* MPD_B4 파괴적 액션 강등 — 취소류는 텍스트 링크 급(헌장 6) · 히트박스는 패딩으로 확보 */
@@ -441,7 +441,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ref-time.highlight{color:var(--accent);font-weight:500}
 .schedule-ref-foot{margin-top:12px;padding-top:11px;border-top:1px solid var(--hairline);font-size:11px;color:var(--sub);line-height:1.75;font-family:var(--serif-ko);font-weight:300;word-break:keep-all}
 .schedule-ref-foot .accent{font-family:var(--serif);font-style:italic;color:var(--gold-deep);letter-spacing:0.08em;margin-right:4px}
-@media(max-width:480px){.schedule-ref{padding:13px 11px 15px}.schedule-ref-table{grid-template-columns:48px repeat(4,1fr);gap:2px 3px}.ref-header-cell{font-size:9px;padding:3px 0 7px}.ref-time{font-size:11px;letter-spacing:0}.ref-slot{font-size:11px}}
+@media(max-width:480px){.schedule-ref{padding:13px 11px 15px}.schedule-ref-table{grid-template-columns:48px repeat(4,1fr);gap:2px 3px}.ref-header-cell{font-size:11px;line-height:1.3;padding:3px 0 7px}.ref-time{font-size:11px;letter-spacing:0}.ref-slot{font-size:11px}}   /* [KO_LABEL_QUIET 2026-09-26 점검 pay-12] 시간표 머리칸 9px → 11px — 눈썹이 아니라 데이터 열 머리다(320에서도 넘침 없이 세 줄 안) */
 .pf-cover{font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:var(--gold-deep);min-height:18px;margin:8px 0 4px}
 .pf2{display:flex;gap:8px}.pf2>div{flex:1}
 /* 예식 날짜 커스텀 달력 (inquiry dt-picker 이식) */
@@ -1512,7 +1512,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
     .led-title{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);margin:2px 0 14px;text-align:center}
     .led-sec{margin-top:15px}
     .led-sec:first-of-type{margin-top:0}
-    .led-h{font-family:var(--serif-ko);font-size:11px;letter-spacing:.12em;color:var(--gold-deep);font-weight:500;margin-bottom:4px;text-transform:uppercase}
+    .led-h{font-family:var(--serif-ko);font-size:11px;letter-spacing:.04em;color:var(--gold-deep);font-weight:500;margin-bottom:4px;text-transform:uppercase}   /* [KO_LABEL_QUIET] 결제·예식 일정·현금영수증·서류 — 한글 자간 0.08em 이하 */
     .led-row{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
     .led-sec .led-row:first-of-type{border-top:none}
     /* [LED_COLALIGN 2026-08-03 사용자 지적] 금액 열이 행마다 좌우로 어긋나 보이던 문제.
@@ -2929,7 +2929,10 @@ function renderMyPage(d){
     window._fittingDoc = (d.ledger && d.ledger.documents || []).filter(function(x){ return x.label==='시착 동의서'; })[0] || null;
     // [02-6b] 중도금 안내 열림 시점 한 줄 안내(내 내역 결제 섹션) — 중도금은 무료 취소가 끝나는 예식 149일 전에 열림.
     if (d.ledger){
+      //   ★[LED_NOTE_AFTER_DEP 2026-09-26 점검 pay-6] 계약금 입금 확인 뒤에만 — 서명 대기·계약금 대기에 «준비하실 일이 없어요»가 떠
+      //     바로 위 «계약금 잔액 · 대기»와 거꾸로 말했다. (확인 뒤에도 서버가 payment 를 계속 보내므로 이후 단계는 그대로)
       d.ledger.payOpenNote = !d.isException && !!d.contract && d.product!=='웨딩스냅' && !d.midpayment && !d.balance
+        && !!(d.payment && d.payment.confirmed)
         && ['예식완료','촬영완료','결과물전달','후기'].indexOf(d.stage)===-1;
       // [02-8] 환불 예상(서버 d.refund · 계약서 7조·9조·4조⑧) — 내 내역 끝 접힘 한 줄. 예식 후엔 '지금 취소하면'이 무의미해 숨김.
       d.ledger.refundQuote = (d.refund && !d.refund.pending && ['예식완료','촬영완료','결과물전달','후기'].indexOf(d.stage)===-1) ? d.refund : null;
@@ -2941,7 +2944,7 @@ function renderMyPage(d){
     renderUpcoming(d.product, d.stageIndex, d.stageList, d.contract, d.midpayment, d.balance, d);  // NEXT (잠금)
     _mpApplyFocus();   // MPD3_D2 알림 딥링크 소비(1회)
     if(window._mpNextToast){ var _t1=window._mpNextToast; window._mpNextToast=null; setTimeout(function(){ mpToast(_t1); }, 250); }   // MPD4_F1 저장-복귀 완료 확인 토스트(재렌더 뒤 1회)
-    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 '준비 중' 스탠바이 버튼). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
+    try{ if(window.meCardPay) meCardPay.afterRender(); }catch(e){}   // 카드결제(토스) — 모든 결제 카드(계약금·중도금·잔금·추가보정) 렌더 후 부착(플래그 OFF면 아무것도 안 붙인다 · CARD_OFF_HIDDEN). 미리보기는 동기 부착이라 렌더 완료 뒤여야 late 서피스(추가보정 등)에도 붙음
   }
 
   // 카톡 — 하단 버튼 대신 우측 중앙 AI 상담 위젯에서 연결. URL은 ME_ADV_PAGE.kakaoUrl이 캐시(d.kakao)에서 읽음.
@@ -3321,12 +3324,14 @@ function renderLedger(l){
       ? (_hpre+'같은 시간은 다른 예약을 받지 않아요. 예식일 확정은 본계약 서명으로 이루어져요.')
       : '디렉터가 확인하고 있어요. 승인되면 카카오톡으로 알려드릴게요.';
     holdSec='<div class="led-sec"><div class="led-h">예식 일정</div>'
-      +'<div class="led-row"><span class="led-k">예식일 임시 고정</span><span class="led-v">'+escapeHtml(_hwhen)+(_hslot?(' · '+escapeHtml(_hslot)):'')+'</span><span class="led-s '+(_hok?'led-done':'led-soon')+'">'+(_hok?'승인':'검토 중')+'</span></div>'
+      +'<div class="led-row"><span class="led-k">예식일 임시 고정</span><span class="led-v">'+escapeHtml(_hslot?fmtWedKoT(l.hold.date,l.hold.slot):_hwhen)+'</span><span class="led-s '+(_hok?'led-done':'led-soon')+'">'+(_hok?'승인':'검토 중')+'</span></div>'
       +'<div class="led-due">'+_hnote+'</div></div>';
   }
   // 중도금·잔금 안내가 열리기 전(D-45 이전)엔 결제 섹션 끝에 한 줄로 안내 — 예전 독립 박스 대체(한 곳에만).
-  var _lpd = _payDays();
-  var openNote = l.payOpenNote ? '<div class="led-opennote">중도금 안내는 <b>예식 '+_lpd.mid+'일 전</b>, 잔금은 <b>예식 '+_lpd.bal+'일 전</b>에 여기로 열려요. 그전까지는 준비하실 일이 없어요.</div>' : '';
+  /* ★[PAY_DUE_WORD 2026-09-26 점검 pay-5·pay-6] 옛 문장 «중도금 안내는 예식 149일 전, 잔금은 예식 9일 전에 여기로 열려요. 그전까지는 준비하실 일이 없어요.» 삭제 — 되살리지 말 것.
+       ① 149·9일 전은 «안내가 열리는 날»이 아니라 «내는 기한»이다 — 바로 위 행이 «…까지 · 예식 149일 전»이라 한 창에서 두 말이 맞붙었다.
+       ② «준비하실 일이 없어요»는 예식 준비 카드(NOW «예식 준비»)와 부딪힌다. 기한은 위 행이 이미 말하니 여기선 «언제 열리나»만. */
+  var openNote = l.payOpenNote ? '<div class="led-opennote">기한이 가까워지면 마이페이지에 입금 안내가 열려요.</div>' : '';
   var paySec = (payRows || openNote) ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+openNote+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
   /* [02-8] 취소·환불 — ★2026-08-11 사용자 지시로 **금액 계산을 화면에서 뺐다.** [REFUND_NO_NUDGE]
      ★되살리지 말 것. 옛 판은 접힌 상자 안에 「지금 취소하면 얼마 돌려받는지」를 원 단위로 찍고
@@ -3506,8 +3511,8 @@ function renderHold(h){   // MPD_B14 보완(2026-07-25): 가예약 검토 아이
 }
 // [임시고정 셀프 관리] 변경 — 새 날짜·슬롯으로 재요청(디렉터 재확인 · 승인됐던 것도 '요청'으로 돌아감). 닫힌 슬롯은 선택 불가.
 function doHoldEdit(h){
-  var SLOTS=['09:00','12:20','15:40'], LABELS={'09:00':'오전','12:20':'오후','15:40':'늦은 오후'};
-  var opts='<option value="">선택해 주세요</option>'+SLOTS.map(function(t){return '<option value="'+t+'"'+(h&&h.slot===t?' selected':'')+'>'+LABELS[t]+' '+(SLOT_CLOCK[t]||t)+'</option>';}).join('');
+  var SLOTS=['09:00','12:20','15:40'];
+  var opts='<option value="">선택해 주세요</option>'+SLOTS.map(function(t){return '<option value="'+t+'"'+(h&&h.slot===t?' selected':'')+'>'+escapeHtml(wedTimeKo(t))+'</option>';}).join('');   // [WED_CLOCK12] 보이는 시각은 wedTimeKo 한 곳에서(«오후 1:40») · 값은 슬롯 ID 그대로 [SLOT_CLOCK]
   var bodyHtml='<div style="text-align:left">'
     +'<div style="font-size:12px;color:var(--sub);margin:0 0 6px">예식 날짜</div>'+dtPickerHtml('mphe','mp_heDate','날짜를 선택해 주세요',{value:(h&&h.date)||''})
     +'<div style="font-size:12px;color:var(--sub);margin:12px 0 6px">예식 시간 · 본예식 시작 기준</div><select id="mp_heSlot" class="cc-input">'+opts+'</select>'
@@ -3541,6 +3546,13 @@ function doHoldCancel(){
 
 // [P1.5 작업4] 상담/촬영 카드 — 상태별 분기. consult 없으면 섹션 숨김(원자성·에러 없이 렌더).
 // [환불 안전망] 종료(취소·노쇼·미계약) 고객 — 환불 계좌 셀프 제출 카드. 계좌는 서버(Bookings.환불계좌)로 저장돼 관리자 환불 카드와 연동.
+// [RB_SAVED_LINE] 저장된 환불 계좌 글줄 — «저장된 계좌» 아래 줄에 값 전부(가운뎃점 없이 두 줄 · 줄 끝 매달림 없음).
+//   낱말(은행 · 계좌번호 · 예금주)마다 한 덩어리로 두어 계좌번호가 «123456-01- / 234567»처럼 하이픈에서 갈리지 않게 하고,
+//   칸보다 긴 낱말만 그 안에서 접는다(자유 입력이라 띄어쓰기 없이 길게 적힐 수 있다).
+function _rbSavedHtml(v){
+  var w=String(v||'').trim().split(/\s+/).filter(Boolean).map(function(t){ return '<span style="display:inline-block;max-width:100%;overflow-wrap:anywhere">'+escapeHtml(t)+'</span>'; }).join(' ');
+  return '저장된 계좌<br><b>'+w+'</b>';
+}
 function renderRefundBank(rb){
   var old=document.getElementById('mp_refundBank'); if(old) old.remove();
   if(!rb) return;
@@ -3561,6 +3573,9 @@ function renderRefundBank(rb){
     +'<div class="cc-title">환불 계좌 안내</div>'
     +'<div class="cc-sub">'+amt+'<br>'+(rb.acct?'입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.':'환불 받으실 계좌를 남겨 주시면 송금해 드릴게요.')+'</div>'
     +(rb.card?'<div class="cc-note" style="text-align:left;margin-top:8px;line-height:1.6">카드로 결제하신 금액은 결제하신 카드로 취소돼요. 아래 계좌는 계좌이체로 내신 금액 환불용이에요.</div>':'')   /* REFUND_CARD_NOTE 2026-07-25 · 카드 수령분이 있으면 계좌 환불과 카드 취소를 구분 안내(카드결제 OFF면 rb.card=false로 미노출·휴면) */
+    /* [RB_SAVED_LINE 2026-09-26 점검 pay-17 ③] 저장된 계좌를 한 줄 입력칸으로만 보여 320에서 예금주가 칸 밖으로 잘렸다(scrollWidth 247 > 194) —
+         예금주까지 맞는지 확인하는 자리라 입력칸 위에 글줄로 전부 보여 준다(줄바꿈 허용). 입력칸은 그대로 두어 바꿀 때 쓴다. */
+    +(rb.acct?'<div class="cc-note" id="mp_rbSaved" style="text-align:left;margin:10px 0 0;line-height:1.6">'+_rbSavedHtml(rb.acct)+'</div>':'')
     +'<div class="cc-actions"><input type="text" class="cc-input" id="mp_rbAcct" autocomplete="off" placeholder="은행 · 계좌번호 · 예금주" value="'+escapeHtml(rb.acct||'')+'">'
     +'<button type="button" class="cc-btn" id="mp_rbSave">'+(rb.acct?'계좌 변경':'계좌 저장')+'</button></div>'
     +'<div id="mp_rbMsg" class="cc-mini" style="min-height:14px;margin-top:9px"></div>';
@@ -3570,7 +3585,9 @@ function renderRefundBank(rb){
     if(v.length<5){ msg.style.color='var(--seal)'; msg.textContent='은행명·계좌번호·예금주를 함께 적어 주세요.'; return; }
     btn.disabled=true; btn.textContent='저장 중…';
     api({action:'saveRefundAccount', token:getToken(), acct:v}).then(function(r){
-      if(r&&r.ok){ msg.style.color='var(--gold-deep)'; msg.textContent='저장됐어요. 입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.'; btn.textContent='계좌 변경'; }
+      if(r&&r.ok){ msg.style.color='var(--gold-deep)'; msg.textContent='저장됐어요. 입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.'; btn.textContent='계좌 변경';
+        var _sv=$('mp_rbSaved'); if(!_sv){ _sv=document.createElement('div'); _sv.id='mp_rbSaved'; _sv.className='cc-note'; _sv.style.cssText='text-align:left;margin:10px 0 0;line-height:1.6'; var _ca=box.querySelector('.cc-actions'); if(_ca) _ca.parentNode.insertBefore(_sv,_ca); }
+        _sv.innerHTML=_rbSavedHtml(v); }   // [RB_SAVED_LINE] 방금 저장한 값으로 글줄도 맞춘다
       else { msg.style.color='var(--seal)'; msg.textContent=(r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'; btn.textContent='계좌 저장'; }
       btn.disabled=false;
     }).catch(function(){ msg.style.color='var(--seal)'; msg.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; btn.disabled=false; btn.textContent='계좌 저장'; });
@@ -3814,7 +3831,7 @@ function renderContractRequest(ctx){
     var wedTxt=(typeof fmtWedKoT==='function')?fmtWedKoT(ci.weddingDate,ci.weddingTime):(ci.weddingDate||'');
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Contract</div>'
       +'<div class="cc-title">계약서 요청 완료</div>'
-      +'<div class="cc-sub" style="text-align:center">예식일 <b>'+escapeHtml(wedTxt)+'</b> · 요청 접수 완료<br>계약서를 <b>24시간 안에</b> 보내드릴게요.</div>'
+      +'<div class="cc-sub" style="text-align:center">예식일 <b>'+escapeHtml(wedTxt)+'</b><br>계약서를 <b>24시간 안에</b> 보내드릴게요.</div>'   /* [REQ_DONE_ONCE 2026-09-26 점검 pay-17 ④] 제목 «계약서 요청 완료»와 겹치던 «· 요청 접수 완료» 삭제 — 좁은 폭에서 «· 오후 …»가 가운뎃점으로 줄을 시작했다 */
       +'<div class="cc-note" style="text-align:center;margin-top:8px">입력하신 정보가 계약서에 그대로 들어가요.</div>'
       +'<div class="cc-actions"><button type="button" class="cc-btn-ghost" id="mp_ciEdit">입력 정보 수정</button></div></div>';
     box.style.display='block';
@@ -3827,12 +3844,21 @@ function renderContractReqForm(ctx){
   var box=$('mp_contract'); if(!box) return; var ci=(ctx&&ctx.contractInfo)||{};
   var hd=(ctx&&ctx.hold&&ctx.hold.status==='승인')?ctx.hold:{};   // [정합] 승인된 임시고정 일정 → 예식일·시간 프리필(빈 폼에 다시 안 고르게. 수정 가능)
   var preWed=ci.weddingDate||hd.date||'', preSlot=ci.weddingTime||hd.slot||'';
+  /* [CI_CONFIRM_NAMES 2026-09-26 점검 pay-9] 확인 상자에는 이름만 — 종전엔 연락처·이메일도 보여 주며 «다르면 카카오톡으로»라 했는데
+       바로 아래 칸에 같은 값이 채워져 있고 거기서 고칠 수 있었다(고치는 곳이 두 군데). 연락처·이메일은 아래 칸 하나에서만 고친다.
+     [KO_LABEL_QUIET 2026-09-26 점검 pay-12] «확인» 라벨 — 10px · 0.16em · 대문자 변환 · 장식 골드(2.5:1)를 한글에 걸어 흩어져 읽혔다 → 한글 소라벨(serif-ko 11px · 0.04em · gold-deep). */
   var ex='<div style="margin:12px 0 4px;padding:13px 15px;background:var(--bg2);border:1px solid var(--hairline);border-radius:8px">'
-    +'<div style="font-family:var(--serif);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px">확인</div>'
-    +'<div style="font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml([ci.groom,ci.bride].filter(Boolean).join(' · ')||'미입력')+'</b><br>연락처 '+escapeHtml(ci.phone||'미입력')+' · 이메일 '+escapeHtml(ci.email||'미입력')+'</div>'
-    +'<div style="font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px">정보가 다르면 카카오톡으로 알려 주세요.</div></div>';
+    +'<div style="font-family:var(--serif-ko);font-size:11px;letter-spacing:.04em;color:var(--gold-deep);margin-bottom:7px">확인</div>'
+    +'<div style="font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.7">신랑·신부 <b style="color:var(--accent)">'+escapeHtml([ci.groom,ci.bride].filter(Boolean).join(' · ')||'미입력')+'</b></div>'
+    +'<div style="font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px;text-wrap:balance">이름이 다르면 카카오톡으로 알려 주세요.</div></div>';
+  /* [CI_EDIT_PREFILL 2026-09-26 사장님 결정 ㉗ · 점검 pay-8] 요청 뒤 «입력 정보 수정»이 신부 연락처·이메일을 빈칸으로, 신랑 칸을 가입 연락처로 다시 열어
+       그대로 보내면 요청 때 적은 값이 지워졌다(서버가 계약정보를 통째로 새로 쓴다). 서버(70_journey buildContractInfoState)가 새로 내려주는
+       groomPhone·groomEmail·bridePhone·brideEmail 로 채운다 — 없으면(재배포 전·첫 요청) 종전 가입값 ci.phone·ci.email 폴백. */
+  var _gP=ci.groomPhone||ci.phone||'', _gE=ci.groomEmail||ci.email||'', _bP=ci.bridePhone||'', _bE=ci.brideEmail||'';
+  var _fromSignup=(!ci.groomPhone&&!!ci.phone)||(!ci.groomEmail&&!!ci.email);   // 신랑 칸이 가입(문의서) 대표 연락처로 채워졌나 — pay-9 한 줄 안내 조건
+  var _edit=!!ci.requested;   // [CI_EDIT_PREFILL] 요청 뒤 수정 — 제목·버튼을 «수정»으로(첫 요청과 같은 말이면 요청이 취소됐는지 헷갈린다 · pay-8 ③)
   box.innerHTML='<div class="consult-card" style="text-align:left"><div class="cc-eyebrow en-22" style="text-align:center">Contract</div>'
-    +'<div class="cc-title" style="text-align:center">예식일을 정하고 계약서를 요청하세요</div>'
+    +'<div class="cc-title" style="text-align:center">'+(_edit?'요청 정보 수정':'예식일을 정하고 계약서를 요청하세요')+'</div>'
     +'<div class="cc-sub" style="text-align:center">계약서에 들어갈 정보예요. 확인하고 빈 칸을 채워 주세요.</div>'
     +ex
     +'<label class="pf-l">예식 날짜</label>'+dtPickerHtml('mpcw','mp_ciWed','날짜를 선택해 주세요',{value:preWed})
@@ -3853,13 +3879,15 @@ function renderContractReqForm(ctx){
     +'<label class="pf-l" style="margin-top:8px">신랑 주소</label>'+addrFieldHtml('mp_ciGA',ci.groomAddrRoad||ci.groomAddr,ci.groomAddrDetail)
     +'<label class="pf-l" style="margin-top:10px">신부 주소</label>'+addrFieldHtml('mp_ciBA',ci.brideAddrRoad||ci.brideAddr,ci.brideAddrDetail)
     +'<div class="cc-note" style="text-align:left;margin:10px 0 3px;color:var(--light);line-height:1.6">연락처 · 이메일은 <b style="color:var(--sub);font-weight:500">선택</b>이에요. 다만 이메일을 두 분 각각 남겨 두시면, 축하해 주신 분들이 남긴 편지가 <b style="color:var(--sub);font-weight:500">각자에게 직접</b> 도착해요.</div>'
-    +'<label class="pf-l" style="margin-top:2px">신랑 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(ci.phone||'')+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(ci.email||'')+'" autocomplete="email" style="margin-top:6px">'
-    +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" autocomplete="off" style="margin-top:6px">'
-    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="소득공제 받으실 휴대폰·사업자번호" inputmode="numeric" autocomplete="off" oninput="this.value=meTelDigits(this.value)" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>'
+    +'<label class="pf-l" style="margin-top:2px">신랑 연락처 · 이메일</label>'
+    +(_fromSignup?'<div class="cc-mini" style="font-family:var(--serif-ko);text-align:left;margin:0 0 5px;color:var(--light);line-height:1.6">문의하실 때 남긴 대표 연락처로 채워 두었어요.</div>':'')   /* [CI_CONFIRM_NAMES] pay-9 — 신부가 문의서를 냈다면 그 번호가 신랑 칸에 들어가니, 어디서 온 값인지 알린다 */
+    +'<input type="tel" class="cc-input" id="mp_ciGP" placeholder="신랑 연락처" value="'+escapeHtml(_gP)+'" autocomplete="tel"><input type="email" class="cc-input" id="mp_ciGE" placeholder="신랑 이메일" value="'+escapeHtml(_gE)+'" autocomplete="email" style="margin-top:6px">'
+    +'<label class="pf-l" style="margin-top:8px">신부 연락처 · 이메일</label><input type="tel" class="cc-input" id="mp_ciBP" placeholder="신부 연락처" value="'+escapeHtml(_bP)+'" autocomplete="off"><input type="email" class="cc-input" id="mp_ciBE" placeholder="신부 이메일" value="'+escapeHtml(_bE)+'" autocomplete="off" style="margin-top:6px">'
+    +'<label class="pf-l" style="margin-top:8px">현금영수증 발급 번호 <span style="color:var(--light);font-weight:300">(휴대폰 또는 사업자번호)</span></label><input type="tel" class="cc-input" id="mp_ciCR" placeholder="휴대폰·사업자번호 (선택)" inputmode="numeric" autocomplete="off" oninput="this.value=meTelDigits(this.value)" value="'+escapeHtml(ci.cashReceipt||'')+'"><div class="cc-note" style="text-align:left;margin:3px 0 8px;color:var(--light);line-height:1.6;text-wrap:balance"><b>소득공제</b>를 받으시려면 번호를 적어 주세요. 비워 두시면 자진발급으로 처리돼요.</div>'   /* [CR_HINT_FIT] 결제 카드 cashReceiptField 와 같은 안내글·문장 */
     +'<label class="srv-consent" style="margin-top:14px;justify-content:center;text-align:left;max-width:fit-content;margin-left:auto;margin-right:auto"><input type="checkbox" id="mp_ciConsent"> 계약 체결·이행을 위한 개인정보(생년월일·주소) 수집·이용에 동의합니다.</label>'
     +'<div style="margin:5px 0 0;text-align:center"><a class="ci-terms-link" href="privacy.html" id="mp_ciTerms">개인정보처리방침 보기</a></div>'
     +'<div id="mp_ciErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
-    +'<div class="cc-actions"><button type="button" class="cc-btn cc-btn-seal" id="mp_ciSubmit">계약서 요청하기</button>'
+    +'<div class="cc-actions"><button type="button" class="cc-btn cc-btn-seal" id="mp_ciSubmit">'+(_edit?'수정한 정보 보내기':'계약서 요청하기')+'</button>'
     +'<div class="cc-note" style="text-align:center">계약서를 요청하시면 <b>24시간 안에</b> 보내드려요.</div></div></div>';
   box.style.display='block';
   var _wedAvail={slots:['09:00','12:20','15:40'],labels:{'09:00':'오전','12:20':'오후','15:40':'늦은 오후'},taken:{}};
@@ -3919,8 +3947,8 @@ function doRequestContract(){
   if(!info.groomBirth||!info.brideBirth) return fail('신랑·신부 생년월일을 입력해 주세요.');
   if(!info.groomAddr||!info.brideAddr) return fail('신랑·신부 주소를 입력해 주세요.');
   if(!info.consent) return fail('개인정보 수집·이용에 동의해 주세요.');
-  var btn=$('mp_ciSubmit'); if(btn){ btn.disabled=true; btn.textContent='요청 중…'; }
-  function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 요청하기'; } }
+  var btn=$('mp_ciSubmit'), _btnLbl=(btn&&btn.textContent)||'계약서 요청하기'; if(btn){ btn.disabled=true; btn.textContent='요청 중…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent=_btnLbl; } }   // [CI_EDIT_PREFILL] 수정 모드(«수정한 정보 보내기»)면 그 말로 되돌린다
   api({action:'requestContract', token:getToken(), info:info}).then(function(d){
     if(d&&d.ok){ loadMyState(); } else { fail((d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
   }).catch(function(){ fail('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
@@ -4043,9 +4071,21 @@ function renderContractPayment(c, p, ctx){
        + (c.deadlineKst?'<div class="cc-sub">서명 기한 · <b>'+escapeHtml(c.deadlineKst)+'</b></div>':'')
        + '<div class="cc-count" id="mp_ctCount"></div>'
        + (c.effectNotice?'<div class="cc-note">'+escapeHtml(c.effectNotice)+'</div>':'');
+    /* ★[SIGN_DEP_TRUE 2026-09-26 마이페이지 점검 pay-1] 서명 버튼 바로 위 「추가 납부는 없어요 (예약금으로 충당)」 삭제 — 되살리지 말 것.
+         시그니처 계약금은 총액의 10%라 예약금 100,000원을 빼도 늘 남는다(330만 원이면 230,000원). 서명하자마자
+         같은 카드가 「이어서, 계약금을 입금해 주세요 · 230,000원」을 띄워, 서명 직전의 안심 문장이 모든 고객에게 거짓이었다.
+       금액은 서버가 서명 전에도 보내는 내 내역 행(60_mypage buildLedgerState key '계약금' = 계약금 − 예약금)에서 읽는다 — 10%를 화면에서 다시 계산하지 않는다(GAS 재배포 불필요).
+       임박 계약(중도금·잔금 기한이 이미 닥침)은 서명 뒤 한 번에 받으므로(_bundleKeysFor · 기한일 ≤ 오늘) 금액 없이 무엇을 함께 받는지만 말한다. 값이 없으면 금액 없는 한 줄.
+       «계약금·중도금·잔금»은 가운뎃점 양옆을 낱말 잇기(&#8288;·U+2060 · KO_WRAP_TAIL 선례)로 붙인다 — 320에서 «…계약금·중도금· / 잔금 입금…»처럼
+       가운뎃점이 줄 끝에 매달렸다(검토 실측 · CHECKS_NO_DANGLE). nowrap 덩어리로 감싸면 균형 줄바꿈이 «…입금 / 안내가…»로 기울어 이쪽을 골랐다. */
+    var _ldP=((ctx&&ctx.ledger&&ctx.ledger.payments)||[]), _dp=_ldP.filter(function(x){ return x&&x.key==='계약금'; })[0];
+    var _tdY=(function(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); })();
+    var _bdl=_ldP.filter(function(x){ return x&&(x.key==='중도금'||x.key==='잔금')&&!x.done&&(x.dueLabel==='계약 시 함께 납부'||(x.dueDate&&String(x.dueDate).slice(0,10)<=_tdY)); }).map(function(x){ return x.key; });
     h += isSnap
        ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
-       : '<div class="cc-note" style="text-align:center">추가 납부는 없어요 <span class="cc-mini">(예약금으로 충당)</span></div>';
+       : (_bdl.length ? '<div class="cc-note" style="text-align:center"><span style="display:block;text-wrap:balance">서명하시면 계약금&#8288;·&#8288;'+escapeHtml(_bdl.join('\u2060·\u2060'))+' 입금 안내가 이어져요.</span><span style="display:block;text-wrap:balance">예식이 가까워 한 번에 받아요.</span></div>'
+         : (_dp&&!_dp.done&&Number(_dp.amount)>0) ? '<div class="cc-note" style="text-align:center;text-wrap:balance">서명 후 계약금 잔액 <b>'+fmtWon(_dp.amount)+'</b>을 입금해 주시면 계약이 마무리돼요.</div>'
+         : '<div class="cc-note" style="text-align:center;text-wrap:balance">서명하시면 계약금 입금 안내가 이어져요.</div>');
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn cc-btn-seal" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
@@ -4079,20 +4119,27 @@ function renderContractPayment(c, p, ctx){
   var amt = a
     ? (_bundleActive
        ? ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(p.bundleTotal)+'</b>'
-          + '<br><span class="cc-mini">계약금 '+fmtWon(a.납부액)+'(예약금 '+fmtWon(a.예약금)+' 차감)'
-          + (_pb2.indexOf('중도금')!==-1?(' + 중도금 '+fmtWon(a.중도금)):'')
-          + (_pb2.indexOf('잔금')!==-1?(' + 잔금 '+fmtWon(a.잔금)):'')+'</span>'
+          /* [BUNDLE_ITEM_NOWRAP 2026-09-26 점검 pay-17 ②] 항목 이름과 금액이 다른 줄로 갈리던 것(«+ 중도금 / 1,320,000원») —
+             항목마다 «+»까지 한 덩어리로 묶는다. 줄은 덩어리 사이에서만 나뉜다. */
+          + '<br><span class="cc-mini"><span style="white-space:nowrap">계약금 '+fmtWon(a.납부액)+'</span><span style="white-space:nowrap">(예약금 '+fmtWon(a.예약금)+' 차감)</span>'
+          + (_pb2.indexOf('중도금')!==-1?(' <span style="white-space:nowrap">+ 중도금 '+fmtWon(a.중도금)+'</span>'):'')
+          + (_pb2.indexOf('잔금')!==-1?(' <span style="white-space:nowrap">+ 잔금 '+fmtWon(a.잔금)+'</span>'):'')+'</span>'
           + '<br><span class="cc-mini">예식이 가까워 한 번에 받아요.</span></div>')
        : ('<div class="cc-sub">납부하실 금액 · <b>'+fmtWon(a.납부액)+'</b>'+(a.예약금>0?'<br><span class="cc-mini">계약금 '+fmtWon(a.계약금)+' − 예약금 '+fmtWon(a.예약금)+'</span>':'')+'</div>'))
     : '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
   var _amtV=(_pb2.length&&p.bundleTotal!=null)?p.bundleTotal:(a?a.납부액:null);
   var acct = _acctBox(p.account, p.holder, '입금 계좌', (_amtV!=null&&_amtV!=='')?_acctAmt('data-copy-amt="'+String(_amtV)+'"','입금액 '+fmtWon(_amtV)+' 복사'):'');
-  h += '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'+amt+acct
+  /* [BUNDLE_TITLE 2026-09-26 사장님 결정 ③ · 점검 pay-14 ②] 묶음(계약금+중도금±잔금)이면 제목이 금액과 맞게 «계약금·중도금을 함께 입금해 주세요».
+       종전엔 묶음이어도 «이어서, 계약금을 입금해 주세요»라 중도금이 든 1,550,000원이 틀린 금액처럼 보였다. 묶음이 아니면 종전 그대로. */
+  var _depTitle = _bundleActive ? ('계약금·'+escapeHtml(_pb2.join('·'))+'을 함께 입금해 주세요') : '이어서, 계약금을 입금해 주세요';
+  h += '<div class="cc-title" style="margin-top:8px;text-wrap:balance">'+_depTitle+'</div>'+amt+acct   // 좁은 폭에서 «주세요»만 떨어지지 않게
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
      + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
      + cashReceiptField('mp_payerCR', p.cashReceipt)
      + '<button type="button" class="cc-btn cc-btn-seal" id="mp_paySignal"'+(_bundleActive?' data-bundle="1"':'')+'>입금했어요</button>'
-     + (a&&a.잔금?'<div class="cc-note">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'에 안내드려요.</div>':'')+'</div></div>';
+     /* [PAY_DUE_WORD 2026-09-26 점검 pay-5] «잔금 …은 예식 9일 전에 안내드려요» → «…까지예요». 9일 전은 «안내하는 날»이 아니라 «내는 기한»이다
+          (실제 안내는 D-30 한 줄 · D-15 카드로 먼저 열린다). 묶음에 잔금이 들어 있으면 이미 위 금액에 있으니 생략. */
+     + ((a&&a.잔금&&_pb2.indexOf('잔금')===-1)?'<div class="cc-note"><span style="display:block;text-wrap:balance">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'까지예요.</span><span style="display:block;text-wrap:balance">기한이 가까워지면 이&nbsp;화면에 입금 안내가 열려요.</span></div>':'')+'</div></div>';   // [PAY_DUE_WORD] «이&nbsp;화면에» — 320 균형 줄바꿈이 «…가까워지면 이 / 화면에…»로 지시어만 떼어 놓았다(검토 실측)
   box.innerHTML=h; box.style.display='block';
   var bs=$('mp_paySignal'); if (bs) bs.addEventListener('click', doPaySignal);
   var ac=$('mp_acctCopy'); if (ac) ac.addEventListener('click', function(){ var t=String(p.account||''); if(!t) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; copyThen(t, ok); });
@@ -4447,10 +4494,14 @@ function renderBalance(p, mid){
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Balance</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else if(p.dday!=null && p.dday<=30){
     // [① 마감일 상시] 메인에 잔금 마감일 한 줄 노출 — 마감 ~1개월 전(D-30)부터만(너무 이르게 안 뜨게). 전체 카드는 D-15부터 자동. 보기는 내 내역 잔금 패널로. · MPD_C5 eyebrow 공용 패턴 흡수(9.5px 골드 2.5:1 AA 미달 해소)
-    var _mini = balDateTxt ? ('<b>'+escapeHtml(balDateTxt)+'</b>까지') : (dueLabel+'까지');
+    /* [BAL_MINI_WRAP 2026-09-26 점검 snap-12 ④] 한 줄 카드가 «…(수)까지 · 촬영 / 7일 전» · «…(수) / 까지 · 촬영 7일 전»처럼 기한 표기가 쪼개졌다 →
+         줄은 연도 뒤에서만 나뉘게(«10월 14일 (수)까지»를 한 덩어리로) 하고, «촬영 7일 전»은 다음 줄로 따로 둔다(가운뎃점 없이). */
+    var _ym=String(balDateTxt||'').match(/^(\d{4}년)\s(.+)$/);
+    var _mini = balDateTxt ? (_ym ? ('<b>'+escapeHtml(_ym[1])+'</b> <span style="white-space:nowrap"><b>'+escapeHtml(_ym[2])+'</b>까지</span>') : ('<b>'+escapeHtml(balDateTxt)+'</b>까지')) : (dueLabel+'까지');
     box.innerHTML='<div class="consult-card" style="padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'
       +'<div style="text-align:left"><div class="cc-eyebrow en-22" style="margin-bottom:0;text-align:left;font-size:11px">Balance</div>'
-      +'<div style="font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-top:3px">잔금 '+_mini+' <span class="cc-mini">· '+dueLabel+'</span></div></div>'
+      +'<div style="font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-top:3px">잔금 '+_mini+'</div>'
+      +(balDateTxt?'<div class="cc-mini" style="text-align:left;margin-top:1px">'+dueLabel+'</div>':'')+'</div>'
       +'<button type="button" class="cc-btn-ghost" id="mp_bMiniView" style="width:auto;flex:0 0 auto;padding:8px 15px">보기</button></div></div>';
     box.style.display='block';
     var mv=$('mp_bMiniView'); if(mv) mv.addEventListener('click', function(){
@@ -4473,8 +4524,11 @@ function cashReceiptField(id, val){
     var tail=val.length>=4?val.slice(-4):val;
     return '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--sub);line-height:1.6">현금영수증은 <b>등록된 번호</b>(끝 '+escapeHtml(tail)+')로 자동 발급돼요</div>';
   }
-  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="소득공제 받으실 휴대폰·사업자번호" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=meTelDigits(this.value)">'
-    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6"><b>소득공제</b>를 받으시려면 번호를 적어 주세요 · 비워두면 자진발급으로 처리돼요.</div>';
+  /* [CR_HINT_FIT 2026-09-26 점검 x-11·pay-17 ①·x-10] 안내글 «소득공제 받으실 휴대폰·사업자번호»가 320에서 «…사업자번»으로 잘렸다(글자 238px > 칸 206px) →
+       아래 줄이 이미 소득공제를 말하니 짧게. 아래 줄의 «주세요 · 비워두면»은 좁은 폭에서 가운뎃점이 줄 머리에 섰다 → 두 문장으로 나눈다(CHECKS_NO_DANGLE).
+       계약서 요청 폼(mp_ciCR)도 같은 문장 · 같은 안내글이다 — 함께 고칠 것. */
+  return '<input type="tel" class="cc-input" id="'+id+'" placeholder="휴대폰·사업자번호 (선택)" autocomplete="tel" inputmode="numeric" value="" style="margin-bottom:4px" oninput="this.value=meTelDigits(this.value)">'
+    + '<div class="cc-note" style="text-align:left;margin:0 0 10px;color:var(--light);line-height:1.6;text-wrap:balance"><b>소득공제</b>를 받으시려면 번호를 적어 주세요. 비워 두시면 자진발급으로 처리돼요.</div>';
 }
 function doBalanceSignal(){
   var payer=(($('mp_bPayer')&&$('mp_bPayer').value)||'').trim();
@@ -4507,7 +4561,12 @@ function renderMid(p, bal){
     body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
     var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
-    whyLine=forceCombo?'':'<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정됐어요.</div>';
+    /* [MID_FREE_WINDOW 2026-09-26 점검 pay-2] 중도금 카드는 예식 164일 전부터 뜨는데, 무료 취소는 예식 150일 전까지다(70_journey 환불 dd≥150 ·
+         예식일 변경 안내 「무료 취소 기간(예식 150일 전까지)」과 같은 값). 날짜와 상관없이 «끝나 확정됐어요»라 하면
+         D-164~D-150 고객에게 아직 남은 권리를 끝났다고 알리는 셈이었다 → 150일 전을 넘긴 뒤에만 «끝나 확정됐어요». */
+    whyLine=forceCombo?'':((p.dday!=null && p.dday<150)
+      ? '<div class="cc-sub" style="margin-top:2px">무료 취소 기간이 끝나 예식 일정이 확정됐어요.</div>'
+      : '<div class="cc-sub" style="margin-top:2px">무료 취소 <span style="white-space:nowrap">기간(예식 150일 전까지)이</span> 끝나면 예식 일정이 확정돼요.</div>');   // 괄호 뒤 조사 «이»가 줄 머리로 떨어지지 않게 한 덩어리
     var amt=amtTxt?('<div class="cc-sub"><span id="mp_mAmtL">'+(forceCombo?'중도금·잔금':'중도금')+'</span> · <b id="mp_mAmtV">'+fmtWon(forceCombo?comboAmt:p.amount)+'</b>'+(ddTxt?(' <span class="cc-mini">'+escapeHtml(ddTxt)+'</span>'):'')+'</div>')
                   :'<div class="cc-sub">중도금 금액은 디렉터 확인 후 안내드려요.</div>';
     var midDateTxt=(p.dueDate&&typeof fmtWedKo==='function')?fmtWedKo(p.dueDate):'';
@@ -4526,7 +4585,9 @@ function renderMid(p, bal){
       : (midDue+' 보내 주세요'+midTag)
     )+'</div>';
     var acct=_acctBox(p.account, p.holder, '입금 계좌', _acctAmt('data-copy-from="mp_mAmtV"','금액 복사'));
-    var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"> 잔금도 함께 결제할게요 <span class="cc-mini">· 합계 '+fmtWon(comboAmt)+'</span></label>'):'';
+    /* [COMBO_LABEL_ONE 2026-09-26 점검 x-6] 320에서 라벨의 글자 노드와 합계 span 이 따로 flex 항목이 되어 두 기둥으로 갈라졌다(«잔금도 함께 / 결제할게요 · 합계 / 2,970,000원»).
+         글자를 한 덩어리로 감싸고, 합계는 괄호로 붙여 한 덩어리째 넘어가게 한다(가운뎃점을 쓰면 줄 머리에 점이 선다 · CHECKS_NO_DANGLE). */
+    var combo=(balOpen && !forceCombo && amtTxt)?('<label class="srv-consent" style="margin-top:8px"><input type="checkbox" id="mp_mCombo"><span style="min-width:0;text-align:left">잔금도 함께 결제할게요 <span class="cc-mini" style="white-space:nowrap">(합계 '+fmtWon(comboAmt)+')</span></span></label>'):'';
     body='<div class="cc-title">'+head+'</div>'+whyLine+amt+when+acct+combo+((forceCombo&&bal&&bal.extraPending)?_finalGateHtml():'');
     cta='<input type="text" class="cc-input" id="mp_mPayer" placeholder="입금하신 분 성함" autocomplete="name">'
       + cashReceiptField('mp_mCR', p.cashReceipt)
@@ -4644,27 +4705,21 @@ var meCardPay = (function(){
     }, '카드로 결제 (미리보기)');
     el.parentNode.insertBefore(wrap, el.nextSibling);
   }
-  var standby=false;   // 플래그 OFF(오픈 전) → 카드 버튼을 '준비 중'으로 노출(레이아웃 완성 · 오픈 시 실결제로 자동 전환)
-  function standbyAttach(item){   // 오픈 전 스탠바이 — 버튼은 보이되 누르면 '준비 중' 안내(계좌이체로 유도)
-    var el=$(item.btn); if(!el || !el.parentNode) return;
-    var m=resolveM(item, el);
-    if(el.parentNode.querySelector('.me-card-pay[data-m="'+m+'"]')) return;
-    var wrap=buildWrap(m, function(){
-      mpAlert({ title:'카드결제 준비 중', body:'카드결제는 오픈에 맞춰 열려요.\n지금은 계좌이체로 진행해 주세요.', confirmText:'확인' });
-    }, '카드로 결제 (준비 중)');
-    var btn=wrap.querySelector('.me-card-pay'); if(btn){ btn.setAttribute('aria-disabled','true'); btn.style.opacity='.72'; }
-    el.parentNode.insertBefore(wrap, el.nextSibling);
-  }
+  /* ★[CARD_OFF_HIDDEN 2026-09-26 사장님 결정 ④ · 점검 pay-11] 카드결제가 꺼진 동안(서버 cardPayConfig enabled:false = PAY_CARD_ENABLED 꺼짐)은
+       «또는 · [카드로 결제]»를 아예 그리지 않는다 — 되살리지 말 것. 옛 판(05c30d70 스탠바이)은 흐린 «카드로 결제»를 두고 누르면
+       «카드결제 준비 중 · 오픈에 맞춰 열려요»만 띄웠다. 결제 수단 둘이 나란히 있으니 고객은 카드도 된다고 믿었다.
+     켜지면(enabled && clientKey) 종전대로 attachOne 이 붙인다 · ?preview_card=1 미리보기도 종전 그대로. [DEPOSIT_CARD]·[PAY_METHOD](예약금 카드)는 다른 길이다. */
+  var standby=false;   // 플래그 OFF 확인됨 → 이 페이지에선 더 묻지도 붙이지도 않는다
   function init(){
     if(PREVIEW){ MAP.forEach(previewAttach); return; }   // 미리보기 — 재렌더마다 버튼 재부착
     if(ready){ MAP.forEach(attachOne); return; }   // 활성 상태 — 재렌더마다 버튼 재부착(innerHTML 초기화 대응)
-    if(standby){ MAP.forEach(standbyAttach); return; }   // 스탠바이 — 재렌더마다 준비중 버튼 재부착
+    if(standby) return;                              // [CARD_OFF_HIDDEN] 꺼짐 — 버튼·«또는» 없음
     if(checked) return;                              // 이미 확인함 → 추가 호출 안 함(페이지당 1회만)
     checked=true;
     api({action:'cardPayConfig', token:getToken()}).then(function(d){
       if(d&&d.ok&&d.enabled&&d.clientKey){ cfg=d; ready=true; MAP.forEach(attachOne); }   // 플래그 ON → 실결제 버튼
-      else { standby=true; MAP.forEach(standbyAttach); }                                    // 플래그 OFF → 준비 중 버튼 노출
-    }).catch(function(){ checked=false; MAP.forEach(standbyAttach); });                     // 네트워크 실패는 일시적 — checked 해제해 다음 렌더에서 재확인(플래그 ON인데 세션 내내 '준비 중' 고착 방지). 이번엔 준비중 버튼만 임시 노출
+      else { standby=true; }                                                                // [CARD_OFF_HIDDEN] 플래그 OFF → 아무것도 안 그린다
+    }).catch(function(){ checked=false; });                                                 // 네트워크 실패는 일시적 — checked 해제해 다음 렌더에서 재확인(플래그 ON인데 세션 내내 안 붙는 고착 방지)
   }
   function handleReturn(){
     if(returnDone) return;
@@ -5604,21 +5659,32 @@ function fmtWedKo(ymd){
    같은 표가 admin.html · Admin.html · shared/hydrate.js · live.html · 95_notify.gs 에 있다(각자 따로 로드되는 화면이라). */
 var SLOT_CLOCK={'09:00':'10:20','12:20':'13:40','15:40':'17:00','10:00':'10:20','13:20':'13:40','16:40':'17:00'};   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
 function slotClock(t){ t=String(t||'').slice(0,5); return SLOT_CLOCK[t]||t; }
-var SLOT_LAB={'09:00':'오전','12:20':'오후','15:40':'늦은 오후','10:00':'오전','13:20':'오후','16:40':'늦은 오후'};
+/* ★[WED_CLOCK12 2026-09-26 사장님 결정 ② · 점검 pre-12·pay-10·prod-12·inv-7] 예식 시각은 12시간제 «오후 1:40» 한 가지로 — 이 함수가 단일 원천이다.
+     종전엔 슬롯 이름(SLOT_LAB 오전·오후·늦은 오후) + 24시 시각을 붙여 «오후 13:30»(12·24시간제가 섞인 표기)이 나왔고,
+     같은 고객의 머리 D-day 줄(DDAY_TIME)은 «오후 1:30»이라 한 화면에 두 표기가 보였다. 슬롯 이름 «늦은 오후»는 붙이지 않는다(사장님 결정).
+     SLOT_CLOCK 표·슬롯 고르기 버튼(.ws-lab «늦은 오후» + .ws-t 시각)은 그대로다. 관리자·알림톡(95_notify slotKo)·GAS 는 이번에 안 바꿨다. */
 function wedTimeKo(t){
   t=String(t||'').slice(0,5); if(!t) return '';
-  var lab=SLOT_LAB[t]; if(SLOT_CLOCK[t]) t=SLOT_CLOCK[t];   // 계약 슬롯·슬롯 ID → 본예식 시각
-  return (lab?lab+' ':'')+t;
+  if(SLOT_CLOCK[t]) t=SLOT_CLOCK[t];   // [SLOT_CLOCK] 계약 슬롯·슬롯 ID → 본예식 시각
+  var m=t.match(/^(\d{1,2}):(\d{2})$/); if(!m) return t;
+  var h=+m[1]; return (h<12?'오전 ':'오후 ')+((h%12)||12)+':'+m[2];   // 13:40 → 오후 1:40 · 12:00 → 오후 12:00
 }
 // 날짜 + 시간 한 줄 — fmtWedKo(날짜) · wedTimeKo(시간). 시간이 없으면 날짜만.
+/* [WED_CLOCK12] 좁은 폭에서 «(금) / · 오후 1:40»·«(금) · 오후 / 1:40»처럼 가운뎃점이 줄 머리·줄 끝에 서거나 시각이 쪼개지지 않게 —
+     요일부터 시각까지 «(금) · 오후 1:40»을 줄바꿈 없는 공백(U+00A0)으로 잇는다. 줄은 날짜 안(«2027년 3월 26일 / (금) · 오후 1:40» · 더 좁으면 «2027년 / 3월 26일 / …»)에서만 나뉜다.
+     (내 내역 값 칸은 320에서 130px 남짓이라 «3월 26일 (금) · 오후 1:40»을 통째로 묶으면 옆 «확정»을 밀어낸다 — 실측 · 덩어리는 «3월 26일»과 «(금) · 오후 1:40» 둘)
+     글자로 돌려주므로 부르는 쪽의 escapeHtml 은 그대로 쓴다. 임시 고정 카드(renderHold · hold-date)도 같은 덩어리 규칙이다. */
 function fmtWedKoT(ymd,t){
   var d=fmtWedKo(ymd)||String(ymd||''), wt=wedTimeKo(t);
-  return d+(d&&wt?' · '+wt:wt);
+  if(!d||!wt) return d||wt;
+  var m=d.match(/^(.*)\s(\([^()]*\))$/);   // «2027년 3월 26일» + «(금)»
+  return m ? (m[1].replace(/(\d+월) (\d+일)/,'$1\u00a0$2')+' '+(m[2]+' · '+wt).replace(/ /g,'\u00a0')) : (d+'\u00a0·\u00a0'+wt.replace(/ /g,'\u00a0'));   // «3월 26일»도 한 덩어리(좁은 칸에서 «3월 / 26일»로 갈리지 않게)
 }
 // 예식 140분 시퀀스 진행 시간표 — 계약요청 슬롯 선택·제작 폼 공통 참고 박스(.schedule-ref CSS 재사용).
+//   [KO_LABEL_QUIET 2026-09-26 점검 pay-12] 제목 옆 «· 요약»은 글자라 장식 골드(--gold 2.5:1)가 아니라 --gold-deep(5.7:1).
 function weddingSequenceRef(intro){
   return '<div class="schedule-ref" aria-label="예식 진행 시간표">'
-    + '<div class="schedule-ref-head"><span class="schedule-ref-tag">Reference</span><span class="schedule-ref-title">140분 시퀀스 진행 시간표 <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold);font-weight:400">· 요약</span></span></div>'
+    + '<div class="schedule-ref-head"><span class="schedule-ref-tag">Reference</span><span class="schedule-ref-title">140분 시퀀스 진행 시간표 <span style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--gold-deep);font-weight:400">· 요약</span></span></div>'
     + '<div style="font-family:var(--serif-ko);font-size:11px;font-weight:300;color:var(--sub);line-height:1.7;margin:-2px 0 12px;padding-bottom:11px;border-bottom:1px dashed var(--hairline);word-break:keep-all">'+intro+'</div>'
     + '<div class="schedule-ref-table">'
       + '<div class="ref-row"><span class="ref-header-cell"></span><span class="ref-header-cell">신랑·신부 도착</span><span class="ref-header-cell">내빈 입장 시작</span><span class="ref-header-cell">본예식</span><span class="ref-header-cell">종료</span></div>'
@@ -6470,7 +6536,7 @@ function invStepDone(box, r){
     if(!d&&!time) return '';
     return (d||'')+(d&&time?' · ':'')+(time||'')+' 예식';
   }
-  var when=_doneWhen(base.weddingDate, slotClock(base.weddingTime));   // [SLOT_CLOCK]
+  var when=_doneWhen(base.weddingDate, wedTimeKo(base.weddingTime));   // [SLOT_CLOCK] [WED_CLOCK12] 슬롯 → 본예식 시각을 12시간제로(«오후 1:40» · 확인서·머리 줄과 같은 표기)
   function linkCard(kind,title,desc,url){
     if(!url) return '';
     var ic = (kind==='online')
