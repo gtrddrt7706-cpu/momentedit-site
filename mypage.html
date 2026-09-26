@@ -7499,7 +7499,7 @@ function _spWhen(D, R, due){
     +'<li>공간마다 <b>기본 4장면</b>은 늘 담아요. 여기에 마음에 드는 장면을 공간마다 <b>4장까지</b> 고르시면, 사진작가가 그 사진을 보고 찍어요.</li>'
     +'<li>안 고르셔도 기본 장면으로 찍어요.</li>'
     +'<li>헤어·메이크업을 마치고 도착 시각에 맞춰 와 주세요. 늦으면 스냅 시간이 줄어요.</li>'
-    +'<li>가족·친구와의 사진은 본식 뒤에 찍어요 · 단체&nbsp;사진에서 미리 정해 두실 수 있어요.</li>'   // [SNAP_COUPLE_ONLY]
+    +'<li>가족·친구와의 사진은 본식 뒤에 찍어요. 단체&nbsp;사진에서 미리 정해 두실 수 있어요.</li>'   // [SNAP_COUPLE_ONLY]
     +'</ul>';
   if(due) h+='<div class="snp-due">'+(due.late?'마감(예식 14일 전)이 지났어요. 지금 고치셔도 디렉터에게 바로 전해져요.':('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
   return h;
@@ -7510,13 +7510,13 @@ function _spZone(D, R, zi){
   h+='<figure class="snp-zone"><picture><source srcset="'+z.photo+'" type="image/webp"><img src="'+z.photoJpg+'" alt="'+escapeHtml(z.ko)+' 공간" loading="lazy" decoding="async"></picture><figcaption><span class="en">'+escapeHtml(z.en)+'</span> · '+escapeHtml(z.mood)+'</figcaption></figure>';
   h+='<div class="snp-sub">기본으로 담아요</div><div class="snp-note">어느 두 분이든 이 네 장면은 꼭 담아요.</div><div class="snp-grid sm">'+z.base.map(function(s){ return '<div class="snp-cell"><div class="snp-tile base" role="img" aria-label="기본 · '+escapeHtml(s.name)+'">'+_spTile(s)+'</div>'+_spZoom(s)+'</div>'; }).join('')+'</div>';   // 기본은 고르는 칸이 아니라 작게 4칸 — 고르는 8장면이 주인공
   h+='<div class="snp-sub">마음에 드는 장면 <span class="snp-cnt">'+Z.picks.length+' / '+L.pick+'</span></div>';
-  h+='<div class="snp-note">먼저 고른 장면부터 찍어요 · 시간이 줄면 앞 번호부터 담아요.</div>';
+  h+='<div class="snp-note">먼저 고른 장면부터 찍어요. 시간이 줄면 앞 번호부터 담아요.</div>';
   h+='<div class="snp-grid">'+z.pick.map(function(s){ var i=Z.picks.indexOf(s.id), on=i>-1, full=!on&&Z.picks.length>=L.pick;
       return '<div class="snp-cell"><button type="button" class="snp-tile'+(on?' on':'')+(full?' full':'')+'" data-spick="'+s.id+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+escapeHtml(s.name)+(on?(' · '+(i+1)+'번째로 고름'):'')+((s.needs&&s.needs.length)?(' · 준비물 '+escapeHtml(s.needs.join(', '))):'')+'">'+_spTile(s, on, on?(i+1):0)+'</button>'+_spZoom(s)+'</div>'; }).join('')+'</div>';
   var nd=[], seen={}; Z.picks.forEach(function(id){ var f=R.scene(id); ((f&&f.s.needs)||[]).forEach(function(n){ if(!seen[n]&&R.needs[n]){ seen[n]=1; nd.push('<li><b>'+escapeHtml(n)+'</b> · '+escapeHtml(R.needs[n].say)+'</li>'); } }); });
   if(nd.length) h+='<ul class="snp-needs" aria-label="고른 장면의 준비물">'+nd.join('')+'</ul>';
   h+='<div class="snp-sub">찾던 그림이 없나요? <span class="snp-opt">· 선택</span></div>';
-  h+='<div class="snp-note">사진 '+L.up+'장 · 링크 '+L.link+'개까지 · 올린 사진은 스튜디오와 사진작가만 봐요 · 예식 6개월 뒤 지워요.</div>';
+  h+='<div class="snp-note">사진은 '+L.up+'장, 링크는 '+L.link+'개까지 남길 수 있어요. 올린 사진은 스튜디오와 사진작가만 보고, 예식 6개월 뒤 지워요.</div>';
   if(Z.ups.length){ h+='<div class="snp-ups">'+Z.ups.map(function(u,i){ var t=SNAP_THUMBS[u.th]; return '<div class="snp-up">'+(t?('<img src="'+escapeHtml(t)+'" alt="올린 그림 '+(i+1)+'">'):'<span class="snp-ph">불러오는 중</span>')+'<button type="button" class="snp-x" data-supdel="'+i+'" aria-label="올린 그림 '+(i+1)+' 빼기"><span aria-hidden="true">✕</span></button></div>'; }).join('')+'</div>'; }
   if(Z.ups.length<L.up) h+='<label class="cc-btn-ghost snp-upbtn">사진 올리기<input type="file" accept="image/*" data-supzone="'+z.key+'" style="position:absolute;width:1px;height:1px;opacity:0"></label>';
   if(Z.links.length){ h+='<div class="ph-list">'+Z.links.map(function(u,i){ return '<div class="ph-item"><span class="ph-nm" style="flex:1;min-width:0;word-break:break-all;font-size:12px"><a href="'+escapeHtml(safeUrl(u))+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none">'+escapeHtml(u)+'</a></span><button type="button" class="snp-x" data-slinkdel="'+i+'" aria-label="링크 '+(i+1)+' 빼기"><span aria-hidden="true">✕</span></button></div>'; }).join('')+'</div>'; }
@@ -7525,21 +7525,21 @@ function _spZone(D, R, zi){
 }
 function _spNote(D){
   return '<h3 class="snp-h" tabindex="-1">사진작가가 알면 좋은 것</h3>'
-    +'<div class="snp-note">잘 나오는 쪽, 신경 쓰이는 점, 피하고 싶은 것, 가져오는 소품을 적어 주세요. 쑥스러움이 크시면 그것도요 · 디렉터가 옆에서 더 이끌어 드려요.</div>'
+    +'<div class="snp-note">잘 나오는 쪽, 신경 쓰이는 점, 피하고 싶은 것, 가져오는 소품을 적어 주세요. 쑥스러움이 크시면 그것도요. 디렉터가 옆에서 더 이끌어 드려요.</div>'
     +'<textarea class="cc-input" id="mp_snapNote" maxlength="500" placeholder="예: 왼쪽 얼굴이 편해요 · 안경 반사가 신경 쓰여요 · 서로에게 쓴 편지를 가져가요" style="min-height:120px;margin-top:10px">'+escapeHtml(D.note||'')+'</textarea>';
 }
 function _spSend(D, R){
   var h='<h3 class="snp-h" tabindex="-1">사진작가에게 이렇게 전해요</h3>';
   R.zones.forEach(function(z){ var Z=D.zones[z.key];
     h+='<div class="snp-sum"><div class="snp-sum-h">'+escapeHtml(z.ko)+' · '+z.min+'분</div>'
-      +'<div class="snp-row"><span class="k">기본</span><span class="v">'+z.base.map(function(s){ return escapeHtml(s.name).replace(/ /g,'&nbsp;'); }).join('&nbsp;· ')+'</span></div>'   // 장면 이름 안에서는 안 끊고 · 가운뎃점은 앞 말에 붙인다([CHECKS_NO_DANGLE])
+      +'<div class="snp-row"><span class="k">기본</span><span class="v">'+z.base.map(function(s){ return escapeHtml(s.name).replace(/ /g,'&nbsp;'); }).join(', ')+'</span></div>'   // 장면 이름 안에서는 안 끊고 쉼표로 잇는다 — «·»로 이으면 줄 끝마다 가운뎃점이 매달렸다(390 실측 · [CHECKS_NO_DANGLE])
       +'<div class="snp-row"><span class="k">고른 장면</span><span class="v">'+(Z.picks.length?('<ol class="snp-ol">'+Z.picks.map(function(id){ var f=R.scene(id); return '<li>'+escapeHtml(f?f.s.name:id)+'</li>'; }).join('')+'</ol>'):'고르지 않았어요 · 기본 장면으로 찍어요')+'</span></div>'
       +((Z.ups.length||Z.links.length)?('<div class="snp-row"><span class="k">올린 그림</span><span class="v">'+[Z.ups.length?('사진 '+Z.ups.length+'장'):'', Z.links.length?('링크 '+Z.links.length+'개'):''].filter(Boolean).join(' · ')+'</span></div>'):'')
       +'</div>'; });
   var nd=_spNeedsOf(D);
   h+='<div class="snp-sum"><div class="snp-row"><span class="k">알면 좋은 것</span><span class="v">'+(String(D.note||'').trim()?escapeHtml(D.note):'남기지 않았어요')+'</span></div>'
     +(nd.length?('<div class="snp-row"><span class="k">준비물</span><span class="v">'+nd.map(function(n){ var x=R.needs[n]; return escapeHtml(n)+(x?(' · '+(x.who==='스튜디오'?'스튜디오에 있어요':'두 분이 챙겨요')):''); }).join('\n')+'</span></div>'):'')+'</div>';
-  h+='<div class="snp-note" style="margin-top:12px">저장하면 디렉터가 확인해 사진작가에게 전해요. 예식 3일 전까지는 언제든 고칠 수 있어요.</div>';
+  h+='<div class="snp-note" style="margin-top:12px">저장하면 디렉터가 확인해 사진작가에게 전해요. 예식&nbsp;3일&nbsp;전까지는 언제든 고칠 수 있어요.</div>';
   return h;
 }
 function renderSnapFlow(){
@@ -7564,7 +7564,9 @@ function renderSnapFlow(){
   _spBind(inner, D, R);
   _wizPaintSoon();   // 장면을 고르는 것은 input 이벤트가 아니다 — 아래 «저장» 손잡이가 사실을 말하게 다시 칠한다
 }
-function _spGo(to){ var n=Math.max(0, Math.min(SNAP_STEPS.length-1, to)); if(n===SNAPFLOW.step) return; _snapCollect(); SNAPFLOW.step=n; renderSnapFlow();
+function _spGo(to){ var n=Math.max(0, Math.min(SNAP_STEPS.length-1, to)); if(n===SNAPFLOW.step) return; _snapCollect();
+  try{ if(_wizDirty('snap')) saveSnap().catch(function(){}); }catch(e){}   // [SNAP_STEP_SAVE] 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(식순 위저드와 같은 방식 · 실패하면 손잡이가 «다시 저장»)
+  SNAPFLOW.step=n; renderSnapFlow();
   var b=$('mp_snapBody'); if(b) b.scrollTop=0; var hd=document.querySelector('#mp_snapInner .snp-h'); if(hd){ try{ hd.focus({preventScroll:true}); }catch(e){ hd.focus(); } } }
 function _spBind(box, D, R){
   var zk=(SNAPFLOW.step===1)?'candle':(SNAPFLOW.step===2)?'white':'';
@@ -7613,7 +7615,7 @@ function _snapUpload(zone, file){
       if(!(r&&r.ok&&r.id)){ _flowBusy(false); mpAlert((r&&r.error)||'사진을 올리지 못했어요. 다시 해 주세요.'); return; }
       SNAP_THUMBS[r.th]=two[1];
       Z.ups.push({ id:String(r.id), th:String(r.th||''), n:String(file.name||'').slice(0,60) });
-      _flowBusy(false); renderSnapFlow(); saveSnap();
+      _flowBusy(false); renderSnapFlow(); saveSnap().catch(function(){});
     });
   }).catch(function(){ _flowBusy(false); mpAlert('사진을 올리지 못했어요. 사진이 너무 크거나 연결이 끊겼을 수 있어요. 다시 해 주세요.'); });
 }
@@ -7635,7 +7637,7 @@ function exitSnapFlow(){ _mpHoldScroll();   // 저장 후 오버레이 닫기 ·
   if(SNAPFLOW._exiting) return;
   _snapCollect();
   SNAPFLOW._exiting=true; _flowBusy(true);
-  var _close=function(){ _snapTearDown(); _mpRefresh(); };
+  var _close=function(){ window._mpNextToast='스냅 기획을 저장했어요';   /* 바로 앞 화면이 «디렉터가 확인해 사진작가에게 전해요»를 말했다 — 알림에서 되풀이하지 않는다 */ _snapTearDown(); _mpRefresh(); };   // MPD4_F1 저장-복귀 확인 토스트(단체 사진·좌석과 같은 방식)
   var _fail=function(msg){
     _flowBusy(false); SNAPFLOW._exiting=false;
     if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
@@ -7672,15 +7674,15 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
       + '<div class="trk-sub">'+escapeHtml(_snapSummary(sd)||'원하는 결을 남겨 주셨어요')   // 줄이 여럿이어도 trk-sub 는 하나 — 여럿이면 밑줄이 겹겹이 선다
       +   (confLine?('<span class="snp-cl snp-conf">'+confLine+'</span>'):'')
       +   ((conf&&conf.reply&&!meta.stale)?('<span class="snp-cl snp-reply">디렉터 · '+escapeHtml(conf.reply)+'</span>'):'')
-      +   (lock?'<span class="snp-cl">예식 3일 전부터는 여기서 고칠 수 없어요 · 바꿀 것이 있으면 디렉터에게 말씀해 주세요.</span>':'')
+      +   (lock?'<span class="snp-cl">예식&nbsp;3일&nbsp;전부터는 여기서 고칠 수 없어요. 바꿀 것이 있으면 디렉터에게 말씀해 주세요.</span>':'')
       + '</div>'
       + '</div>';
   } else {
     h='<div class="consult-card" style="text-align:center">'
       + '<div class="cc-eyebrow en-22">Snap Planning</div>'
       + '<div class="cc-title">스냅 기획</div>'
-      + '<div class="cc-sub">고르신 장면을 사진작가에게 전해요.</div>'   // [CC_SUB_FIT] 19자 — 390px 한 줄(21자 한도 · 고아 줄 방지) · «그대로 찍어요»는 약속 과잉이라 뺐다(시간이 줄면 앞 번호부터 · 책임질 수 없는 안심 금지)
-      + (lock?'<div class="cc-note" style="text-align:center">예식 3일 전부터는 여기서 고를 수 없어요 · 기본 장면으로 찍어요.</div>'
+      + '<div class="cc-sub">'+(lock?'기본 장면으로 담아 드려요.':'고르신 장면을 사진작가에게 전해요.')+'</div>'   // 잠긴 뒤엔 «고르신 장면을 전해요»가 아래 «고를 수 없어요»와 어긋난다(390 실측) · [CC_SUB_FIT] 19자 — 390px 한 줄(21자 한도 · 고아 줄 방지) · «그대로 찍어요»는 약속 과잉이라 뺐다(시간이 줄면 앞 번호부터 · 책임질 수 없는 안심 금지)
+      + (lock?'<div class="cc-note" style="text-align:center">예식&nbsp;3일&nbsp;전부터는 여기서 고를 수 없어요.</div>'
              :((due?('<div class="cc-note" style="text-align:center">'+(due.late?'마감이 지났지만 지금 고르셔도 디렉터에게 바로 전해져요.':('예식 14일 전 · '+due.due+'('+due.dueDow+')까지'))+'</div>'):'')
                +'<button type="button" class="cc-btn" id="mp_snapStart" style="margin-top:12px">스냅 기획하기</button>'
                +'<div class="cc-note" style="text-align:center">선택이에요 · 안 고르셔도 기본 장면으로 찍어요.</div>'))
