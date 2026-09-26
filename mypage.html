@@ -6047,7 +6047,8 @@ function invStepParents(box){
      번호가 있거나 다른 은행이면 고객이 고른 것으로 보고 그대로 둔다(번호가 있는 「국민」은 가릴 수 없다 — 4/4 전 확인 문구가 받친다). */
   function bankCur(bk,no){ bk=String(bk||''); return (String(no||'').trim() || (bk && bk!==BANKS[0])) ? bk : ''; }
   // [INV_FIELD_LABEL 2026-09-26 고객 점검 inv-5] 칸마다 누구 것인지 이름을 단다 — 값이 차면 「국민 / 110-315-175994」만 남아 신랑·신부 계좌를 칸만 보고 가릴 수 없었다
-  function paRow(label,bankId,numId,key){ var s=paSplit(d[key]); return '<div class="pf-l">'+label+' 계좌</div><div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 104px;',label+' 계좌 은행',true)+'<input class="cc-input" id="'+numId+'" aria-label="'+label+' 계좌번호" placeholder="예: 110-315-175994" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
+  //   [INV_BANK_PICK 검토] 부모님 은행 칸 104 → 124px(신랑·신부 칸과 같은 폭) — 561px 이상에서 칸이 나란히 설 때 「은행 선택」이 「은행 선ㅌ」로 잘렸다(1280 실측 · 화살표 몫)
+  function paRow(label,bankId,numId,key){ var s=paSplit(d[key]); return '<div class="pf-l">'+label+' 계좌</div><div class="inv-row">'+selOnly(bankId,BANKS,s.bank,'flex:0 0 124px;',label+' 계좌 은행',true)+'<input class="cc-input" id="'+numId+'" aria-label="'+label+' 계좌번호" placeholder="예: 110-315-175994" value="'+escapeHtml(s.no)+'"></div>'+etcRow(bankId,s.bank,BANKS,label+' 은행 직접 입력'); }
   var gtCur=d.groomChildTitle||(is04&&!d._titleTouched?OMIT:'장남'), btCur=d.brideChildTitle||(is04&&!d._titleTouched?OMIT:'차녀');
   var gbCur=bankCur(d.groomBank,d.groomAccount), bbCur=bankCur(d.brideBank,d.brideAccount);
   var pF = d.greetingShowParents==='Y' ? '<div class="inv-fields">'
