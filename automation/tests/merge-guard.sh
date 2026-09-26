@@ -9846,6 +9846,11 @@ nochk '  \.tools{justify-content:center}' parents.html
 chk 'PAR_TIME_JUMP' parents.html 2
 chk 'class="hero-jump" href="#parTimeH"' parents.html 1
 chk 'id="parTimeH"' parents.html 1
+# [KO_WRAP_TAIL · CHECKS_NO_DANGLE 2026-09-26 사장님 「다른 페이지도 고객 입장에서 개선점」] 가격·예약 문장 꼬리 줄 · 폰 체크 줄 가운뎃점 매달림
+chk 'KO_WRAP_TAIL' index.html 1
+chk '\.price-lede, \.price-note span, \.cta-assure, \.access-value, \.ga-tab { word-break: keep-all; text-wrap: balance; }' index.html 1
+chk '100,000원)&#8288;을 제하고' index.html 1
+chk 'CHECKS_NO_DANGLE' inquiry.html 1
 # [GV_CARD_DIV 2026-09-25 코워크 회신 ⑤] 모아보기 카드(role=tabpanel)는 div — article 로 되돌리면 axe aria-allowed-role 11건.
 chk 'GV_CARD_DIV' invitation-gallery.html 1
 nochk "createElement\('article'\)" invitation-gallery.html
