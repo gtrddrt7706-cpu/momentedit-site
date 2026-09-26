@@ -1582,7 +1582,7 @@ chk 'NAR_MIRROR' scripts/check-ritual-mirror.js 1  # 빌더 인라인 사본 <->
 #     동작 중계는 사람 사회자가 눈으로 보고 하는 일이라 녹음에서는 늘 한 박자 어긋나고,
 #     그 어긋남이 「형식적이고 딱딱하다」로 들린다.
 nochk '이제 두 사람이 천천히, 함께 내립니다' assets/ritual-data.js   # ★되살리지 말 것
-chk '자르고 나면, 큰 박수 부탁드립니다.' assets/ritual-data.js 2      # [CAKE_SOFT] 실황 2벌이 그 자리를 잡는다
+nochk '신랑 신부가 자르고 나면, 큰 박수' assets/ritual-data.js   # ★[CLAP_FEW 2026-09-26 사장님] [CAKE_SOFT] 의 박수 문장은 뺐다 — 말로 청하는 박수는 입장 · 선언 · 닫는 인사 셋뿐(나중 결정이 이긴다)
 chk '하고 답해 주시면 됩니다' assets/ritual-data.js 2
 chk '두 분께 잔을 전해 드리는 동안' assets/ritual-data.js 1
 chk 'cakeOut' assets/ritual-data.js 2                    # 케이크만 골랐을 때 잔 이야기가 나가던 자리
@@ -7495,7 +7495,7 @@ chk '두 사람의 삶으로 이어집니다.' assets/ritual-data.js 2
 #   축배 답이 작았던 날에도 그대로 나간다. 「울컥하셔도 괜찮습니다」와 같은 꼴이다.
 nochk '두 사람의 첫날을 채웠습니다' assets/ritual-data.js
 nochk '이 기쁨을 함께 나누겠습니다' assets/ritual-data.js
-chk '이제 우리 다 같이, 잔을 들어요.' assets/ritual-data.js 1
+nochk '이제 우리 다 같이, 잔을 들어요.' assets/ritual-data.js   # ★[TOAST_COUPLE 2026-09-26 사장님] 녹음 선창 → 두 분이 외친다(나중 결정이 이긴다)
 # ⑤⑥헌정 — 눈앞의 부모님을 「가장 오랜 사랑」이라는 추상으로 바꿔 부르고,
 #   시어머님이 방금 «보여 준» 것을 닫는 말이 되받아 해설했다.
 nochk '가장 오랜 사랑 앞으로' assets/ritual-data.js
@@ -8186,7 +8186,7 @@ chk '이 약속은 두 사람만의 것이 아닙니다' assets/ritual-data.js 1
 chk '반지는 날마다 이 순간을 떠올리게 해 줄 거예요.' assets/ritual-data.js 2   # 15 — 왜 하는 순서인지 들리게
 # ★코워크 물음 「두 곳 중 하나가 어디냐」 — 실측: NARR.ring 본문과 어조표 «담백»(COURSES 갈래) 둘이다.
 #   둘은 같은 문장을 들고 있어 **함께** 바꿔야 한다. 한쪽만 고치면 코스에 따라 옛 말이 나간다.
-chk '오래 기억되도록, 박수를 부탁드립니다.' assets/ritual-data.js 2
+nochk '오래 기억되도록, 박수를 부탁드립니다.' assets/ritual-data.js   # ★[CLAP_FEW 2026-09-26] 반지 박수 문장은 뺐다(NARR.ring · 어조표 담백 둘 다)
 chk '준비되시면 그대로 읽어 주십시오' assets/ritual-data.js 1   # 21 — 가족이 마이크를 든 채 시작 신호가 없었다
 # ★★[PAIR_READ 2026-09-20] 첫인사 둘을 나란히 읽었다 — 한 라이브 창에 붙어 나가는 자리다.
 #   [06 신랑] 안녕하세요, 신랑 이서준입니다 / 오늘 이 자리에 오시느라 각자의 하루를 비우셨을 겁니다 /
@@ -8539,7 +8539,7 @@ chk 'VIDEO_READY' assets/ritual-open.js 3
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
 chk 'S.entryScene' order-preview.html 1
-nochk "'freeLen', 'entryScene'" assets/ritual-preview-link.js   # [ENTRY_SCENE] 소리가 같아 주소에 싣지 않는다(STORY_COVER 죽은 키)
+chk "'freeLen', 'entryScene'" assets/ritual-preview-link.js 1   # [LOOK_HOLD 2026-09-26] 이제 엔진이 읽는다(콘솔 첫 모습 사람 순간) — 주소에 싣는다(나중 결정이 이긴다)
 chk 'DETAIL_0925 B10' order-preview.html 1   # 녹음 전 판정은 규칙 하나(옛 L_STALE 목록은 폐지) — 규칙은 아래 TEXT_AUDIO_MATCH 로 좁혔다
 chk 'TEXT_AUDIO_MATCH' order-preview.html 2   # [코워크 회신3 2-1] 소리는 «녹음된 글 = 지금 글»일 때만(가족 예시 자막과 다른 소리 18 → 0)
 chk '_lNorm(r)===_lNorm(text)' order-preview.html 1
@@ -8569,6 +8569,49 @@ chk 'WHY_BLESS' assets/ritual-open.js 1            # 4-f 서약 없을 때 «약
 nochk "bless: '부모님 말씀으로 약속의 문을" assets/ritual-open.js
 chk 'PLAY_BESIDE_NUM' order-preview.html 3         # P13 ▶ 는 번호 옆 그림 위(RAIL_LOCKED — 비키는 쪽은 이 단추)
 chk 'SYNTAX_BUILDER' scripts/audit/render-check.mjs 1   # 빌더 인라인 스크립트 구문도 본다
+# ── 2026-09-26 사장님 결정 넷 · 코워크 회신5(연구 반영)
+chk 'CLAP_FEW' assets/ritual-data.js 3                # 박수 문장 빼기(반지 · 덕담 · 편지 · 인사 · 케이크) — 말로 청하는 박수는 셋뿐
+chk 'CLAP_FEW' assets/ritual-open.js 1
+chk 'CLAP_FEW' assets/ritual-cue.js 2                 # 104 준비한 순서 맺는 말을 흐름에서 뺌 · 반지→선언 4초/2.5초
+nochk ' end:"오늘로 두 집안은 한 가족입니다. 양가' assets/ritual-data.js   # 인사 마무리 박수(되살리지 말 것)
+nochk "candleOut: '두 집의 불이 밝혀졌습니다. 따뜻한" assets/ritual-open.js
+chk 'preFadeMs: 4000, silenceMs: 2500' assets/ritual-cue.js 1   # 반지 박수가 빠진 자리 — 연구 B11
+chk 'CLAP_GO' assets/ritual-cue.js 3                  # 박수 = 사람 순간 · 다음은 GO · 음악 1.5초 내림
+chk 'CLAP_GO' scripts/check-ritual-cue.js 2           # 그물 — 박수 요청 뒤가 chain 이면 빨강(전 조합)
+chk 'c.fadeMs || PARAM.fadeDownMs' console.html 1     # 박수 뒤 큐는 1.5초에 걸쳐 내린다
+chk 'TOAST_COUPLE' assets/ritual-data.js 2            # «위하여»는 두 분이 외친다(손 신호)
+chk 'TOAST_COUPLE' assets/ritual-story.js 1
+chk 'TOAST_COUPLE' assets/ritual-open.js 2
+nochk '제가 위하여, 하면' assets/ritual-data.js         # 녹음 선창 되살리지 말 것
+nochk '제가 위하여, 하면' assets/ritual-open.js
+nochk '제가 위하여, 하면' order-preview.html
+chk 'GROOM_PARENT_OPEN_OFF' assets/ritual-cue.js 1    # 새 코스 인사에서 «신랑 어머님 한 마디» 뺌 · est 95 → 70
+chk 'GROOM_PARENT_OPEN_OFF' assets/ritual-story.js 2
+chk 'PHOTO_CALLER' mypage.html 4                      # 가족사진 «불러 모아 주실 분»(양가 한 분씩 · 선택)
+chk 'PHOTO_CALLER' automation/platform/80_production.gs 1   # 화이트리스트(없으면 조용히 버린다 · GAS 재배포)
+chk 'PHOTO_CALLER' admin.html 2
+chk 'PHOTO_CALLER' console.html 2
+chk 'PC_LABEL' mypage.html 1                          # 불러 모아 주실 분 칸마다 보이는 이름표(자리표시만 두면 적는 순간 어느 칸인지 사라진다)
+chk 'LOOK_HOLD' assets/ritual-cue.js 2                # 첫 모습 = 사람 순간 · 다음은 GO
+chk 'CLOSE_BOW' assets/ritual-cue.js 3                # 끝 선언 · 두 분 목례 · 마지막 박수(108)
+chk 'CLOSE_BOW' assets/ritual-data.js 1
+chk 'CLOSE_BOW' assets/ritual-open.js 1               # TIME._close 다시 잼
+nochk '이어서 가족, 하객 여러분과 함께' assets/ritual-data.js   # 실제 순서(하객 전체 → 가족)와 거꾸로였다
+nochk '이어서 가족, 하객 여러분과 함께' order-preview.html
+chk 'SAVE_INAPP' order-preview.html 1                 # 앱 안 브라우저 = 서버 attachment
+chk 'SAVE_INAPP' api/script-file.js 1
+chk 'SAVE_INAPP' scripts/audit/inapp-sim.mjs 2
+nochk 'console.log' api/script-file.js                # 글(서약 · 편지)을 기록하지 않는다
+nochk 'D-7까지 적으면' order-preview.html
+chk 'WRITE_FRAME' order-preview.html 3                # 편지 · 부모님께 드릴 말 쓰는 틀 · 예시 꼬리표 «장면 하나»
+nochk ' \["눈물",' order-preview.html
+chk 'SEND_PHOTOS' order-preview.html 1                # 사진이 많으면 카톡으로(메일 25MB)
+chk 'DOUBLE_GO' console.html 1                        # 1.5초 안 두 번째 누름 무시
+chk 'BOW_VIDEO_OFF' assets/ritual-open.js 1           # 절 영상 만들지 않음(19 → 17편)
+chk 'BOW_VIDEO_OFF' order-preview.html 2
+nochk "'entry-bow'" order-preview.html
+nochk "'tribute-bow'" assets/ritual-open.js
+chk 'VIDEO_ENCODE' scripts/video/encode-moment.sh 1   # 장면 영상 굽는 규격(H.264 High · 720p · 2~3Mbps · 소리 없음 · faststart)
 chk 'VOICE_LATE' order-preview.html 5   # 두 분 목소리 — 7일 전까지 녹음이 없으면 나레이션(자동 되돌리기 대신 안내 한 줄)
 chk 'HELPER_WORDS' assets/ritual-open.js 2
 nochk '반지를 담은 날' assets/ritual-open.js
@@ -9367,7 +9410,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 107' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 108' scripts/check-ritual-cue.js 1   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js

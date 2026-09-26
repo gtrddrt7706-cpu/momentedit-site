@@ -32,7 +32,12 @@
     duckOff: -90,          // 사실상 무음
     fadeDownMs: 400,       // 더킹 페이드 다운 0.3~0.5초
     fadeUpMs: 1200,        // 더킹 복귀 0.8~1.5초
-    declare: { preFadeMs: 8000, silenceMs: 3000, applauseMs: 8000, toLetterMs: 1500 },
+    /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 반지 박수가 빠져 «음악 8초 내림 + 정적 3초»가 빈 시간이 됐다 →
+       내림 4초 · 정적 2.5초(연구 B11: 3~5초에 걸쳐 끄고 2~3초 정적 · 알리지 않은 정적은 2.5초까지).
+       applauseMs 는 이제 «콘솔이 기다리는 시간»이 아니라 사람 순간(박수)의 est 와 미리 듣기 길이다 — 끝은 디렉터 GO. */
+    declare: { preFadeMs: 4000, silenceMs: 2500, applauseMs: 8000, toLetterMs: 1500 },
+    look: { lookSec: 6, bowSec: 8 },   // [LOOK_HOLD 코워크 회신5 4-1] 첫 모습 — 바라보기 6초 · 맞절 8초(연구 B11 알린 침묵 5~8초)
+    bow: { closeSec: 12 },             // [CLOSE_BOW 코워크 회신5 4-2] 끝 선언 뒤 목례 · 박수 · 음악 바뀜
     letter: { postSilenceMs: 2000, musicUpMs: 4000 },
     bless: { swellAt: 150, swellTo: -10, swellMs: 8000, longThreshold: 180 },   // 런북 §11-C
     read: { waitClipAt: 5, partnerHandoffAt: 30 },                              // 런북 §11-C
@@ -130,7 +135,10 @@
        107 toast-both-pour-b: 와인을 붓는 날의 선창(P2 · «두 사람에게 잔이 가는 동안»을 뺀 줄 · 붓는 동안 이미 잔이 가 있다)
        ★옛 코스는 이 여덟을 한 번도 부르지 않는다 — 새 코스(open)일 때만 나간다. */
     'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail',
-    'tribute-bow-groom', 'toast-both-pour-b'
+    'tribute-bow-groom', 'toast-both-pour-b',
+    /* ★★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2] 108 — 끝 선언 · 두 분 목례 · 마지막 박수. **맨 끝에 붙였다**(위 경고 그대로).
+       녹음 전이라 텍스트 카드로 흐른다 · 재녹음은 사장님 대본 점검(7단계) 뒤 한 번에. */
+    'narr-close-bow'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -485,6 +493,15 @@
     return c;
   }
 
+  /* ★★[CLAP_GO 2026-09-26 사장님 · 코워크 회신5 3-1] 박수를 청한 줄 뒤에는 **사람 순간(박수)**을 둔다 → 다음 큐는 디렉터 GO.
+     박수는 보통 7~9초지만 매번 크게 다르다(연구 B02 · D02) — 고정 대기(8초)로 밀면 박수를 밟거나 빈 정적이 남는다.
+     ★미리 듣기는 지금과 같게 둔다(consoleOnly) — build 가 preview 에서 live 를 걷고 previewPost 를 붙인다.
+     ★음악: 박수 동안 올라가 있다(live.duck) → GO 뒤 다음 큐가 1.5초에 걸쳐 내린다(fadeMs · build 가 다음 큐에 싣는다). */
+  function applause(t, est, hintNext, previewPost) {
+    return { t: t, est: est, self: true, doing: 'move', duck: PARAM.duckMusic, applause: true, consoleOnly: true,
+      hintNext: hintNext || '박수가 줄기 시작하면', previewPost: previewPost || [] };
+  }
+
   // ── 블록별 큐 생성. 각 함수는 큐 배열(또는 [])을 낸다.
   //   ★live를 붙이는 자리가 곧 '수동 버튼이 생기는 자리'다(CUE_FIRE_RULE). 신중하게.
   var BUILD = {
@@ -581,7 +598,12 @@
         return cue({
           k: 'entry', blockN: '신랑·신부 입장',
           slug: (t === 'A' ? 'narr-entry-out' : 'narr-entry-out-' + t), name: '입장 마무리',
-          text: D.NARR.entryOutBy[t], duck: -12
+          text: D.NARR.entryOutBy[t], duck: -12,
+          /* ★★[LOOK_HOLD 2026-09-26 코워크 회신5 4-1 · 연구 B11] «잠시, 서로를 바라봐 주세요»가 2초 만에 끝나 다음 여는 말이 저절로 나갔다
+             (맞절을 골라도 같았다). 첫 모습을 사람 순간으로 둔다 → 다음 큐는 디렉터 GO(힌트 «두 분이 다시 앞을 보면»).
+             음악은 낮게 그대로(-12) · 끝은 음악이 돌아오는 것으로 알린다(다음 큐가 연다). 미리 듣기는 그대로(consoleOnly). */
+          live: { t: (S.entryScene === 'bow' ? '두 분 맞절 → 일어나 섬' : '두 분이 서로 바라봄'), est: (S.entryScene === 'bow' ? PARAM.look.bowSec : PARAM.look.lookSec),
+            self: true, doing: 'move', duck: -12, consoleOnly: true, hintNext: '두 분이 다시 앞을 보면', previewPost: [] }
         });
       })()];
     },
@@ -673,7 +695,8 @@
           live: { t: '가족 대표가 큰 글씨 선언문 낭독 (디렉터가 마이크·인쇄물 전달)', est: 45, self: true, doing: 'say', fallback: noOf('declare-family') + '번 폴백 클립' }
         }), cue({
           k: 'declare', blockN: '성혼 선언', slug: 'narr-declare-family-out', name: '성혼 선언 · 가족 낭독 마무리',
-          text: D.NARR.declareFamilyOut
+          text: D.NARR.declareFamilyOut,
+          live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000)   // [CLAP_GO] «다 함께 축하해 주세요» 뒤
         })];
       }
       if (w === 'ask') {
@@ -716,7 +739,9 @@
         }), cue({
           k: 'declare', blockN: '성혼 선언', slug: 'declare-clap-b', name: '성혼 선언',
           text: EXTRA['declare-clap-b'], duck: PARAM.duckOff, hint: '박수가 잦아들면',
-          post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }, { wait: PARAM.declare.applauseMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.declare.toLetterMs }]
+          /* [CLAP_GO] 8초 고정 대기 → 사람 순간(박수) · 다음은 GO. 미리 듣기는 종전 post 그대로(previewPost) */
+          post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }],
+          live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000, '', [{ wait: PARAM.declare.applauseMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.declare.toLetterMs }])
         })];
       }
       var dv = D.DECLARE[S.declare] || D.DECLARE['1'];
@@ -724,7 +749,8 @@
         k: 'declare', blockN: '성혼 선언', slug: (S.declare === '2' ? 'declare-2-warm' : 'declare-1-solemn'),
         name: '성혼 선언', text: dv.nar, duck: PARAM.duckOff, pick: '나레이션 · ' + dv.d,
         note: '선언문 "신랑 신부, 이제 두 사람은 부부입니다" 앞 0.5초·뒤 1초 무음은 클립 안에 들어 있다',
-        post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }, { wait: PARAM.declare.applauseMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.declare.toLetterMs }]
+        post: [{ music: 'to', v: PARAM.duckMusic, ms: 0 }],   // [CLAP_GO] 박수 8초 고정 대기 → 사람 순간 · 다음은 GO
+        live: applause('하객 박수 · 두 사람이 부부가 되었다', PARAM.declare.applauseMs / 1000, '', [{ wait: PARAM.declare.applauseMs }, { music: 'to', v: PARAM.duckOff, ms: PARAM.declare.toLetterMs }])
       })];
     },
 
@@ -777,10 +803,9 @@
             doing: fk === 'video' ? 'watch' : fk === 'speech' ? 'say' : 'move',
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · «사진 시간에 함께 보겠습니다» 한 줄 뒤 곧장 다음 순간으로'
               : fk === 'speech' ? '3분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }
-        }), cue({
-          k: 'free', blockN: '준비한 순서', slug: 'narr-free-out-clap', name: '준비한 순서 마무리',
-          text: EXTRA['narr-free-out-clap'], duck: PARAM.duckMusic
         })];
+        /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 104 narr-free-out-clap(«따뜻한 박수 부탁드립니다»)은 흐름에서 뺐다.
+           클립 · 번호 · EXTRA 는 둔다(되살리려면 박수 자리 셋이 넷이 된다 — 사장님 결정이 먼저). 다음 큐는 앞 live 로 GO. */
       }
       return [cue({
         k: 'free', blockN: '자유 한 칸', slug: 'narr-free-in', name: '자유 한 칸 시작',
@@ -816,7 +841,7 @@
       }), cue({
         k: 'toast', blockN: '축배 · 케이크', slug: 'toast-' + S.toast, name: '축배 · 케이크', text: t.nar,
         duck: PARAM.duckMusic, pick: t.d, note: t.note,
-        live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing }
+        live: { t: t.cue, est: t.est, duck: 0, self: true, doing: t.doing, fallback: t.fallback || '' }   // [TOAST_COUPLE] 막힐 때 한 줄
       })];
       /* ★★[TOAST_WINE 2026-09-25 사장님 결정 · 와인은 축배 안으로] 축배가 있는 판에만 «붓기»를 얹는다.
          둘 다 → 케이크 뒤 · 선창 앞 / 축배만 → 선창 앞. 케이크만은 잔이 없어 안 붙는다.
@@ -839,7 +864,7 @@
       if (t.nar2) seq.push(cue({
         k: 'toast', blockN: '축배 · 케이크', slug: pourB ? 'toast-both-pour-b' : 'toast-both-b', name: '축배 · 잔을 들고 선창',
         text: pourB ? EXTRA['toast-both-pour-b'] : t.nar2, duck: PARAM.duckMusic, hint: '두 분 손에 잔이 들어가고 «잔 됨» 신호가 오면', note: t.note2,
-        live: { t: t.cue2, est: t.est2, duck: 0, self: true, doing: 'say' }
+        live: { t: t.cue2, est: t.est2, duck: 0, self: true, doing: 'say', fallback: t.fallback2 || '' }
       }));
       seq.push(cue({
         k: 'toast', blockN: '축배 · 케이크',
@@ -873,6 +898,12 @@
 
     tribute: function (S) {
       var m = D.TRIBUTE.modes[S.tribute] || D.TRIBUTE.modes.flower;
+      /* ★★[GROOM_PARENT_OPEN_OFF 2026-09-26 사장님 · 코워크 회신5 3-3] 새 코스에서는 «신랑 어머님 한 마디»를 뺀다.
+         GROOM_PARENT(9/12)는 옛 코스의 «덕담 = 신부 부모님»에 맞춘 자리였다 — 새 코스의 덕담은 양가 누구나 해서 그 까닭이 없다.
+         게다가 «말 없이»를 골라도 콘솔이 디렉터에게 마이크를 드리라고 했고, ③ · 어른 안내 어디에도 이 말이 없어
+         어머님이 준비 없이 마이크를 받으시게 됐다. ★더했던 est +25 도 되돌린다(95 → 70). ★옛 코스는 그대로. */
+      var open = !!D.COURSES[S.course].open, GP = ' → ★신랑 어머님 한 마디(디렉터가 마이크 전달 · 길어야 20초)';
+      var mcue = open ? m.cue.replace(GP, '') : m.cue, base = open ? 70 : 95;
       var out = [
         cue({
           k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-in', name: '부모님 헌정 시작', text: D.TRIBUTE.nar,
@@ -884,9 +915,9 @@
                그래서 «여기 live 지문»에 자리를 만들어야 실제 예식에서 그 순간이 생긴다. */
           pick: m.d + (D.COURSES[S.course].open && S.tributeSay !== 'none' ? ' · ' + (S.tributeSay === 'long' ? '준비한 말 400자씩' : '한마디씩') : ''),
           /* [OPEN_COURSE] 새 코스는 인사의 «말»을 고른다(한마디씩 · 400자씩 · 말 없이). 옛 코스는 지금 그대로 말 없이다. */
-          live: (D.COURSES[S.course].open && S.tributeSay !== 'none')
-            ? { t: '두 분이 부모님께 ' + (S.tributeSay === 'long' ? '준비한 말(400자씩)' : '한마디씩') + ' 전한 뒤 · ' + m.cue, est: 95 + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
-            : { t: m.cue, est: 95, self: true, doing: 'move' }
+          live: (open && S.tributeSay !== 'none')
+            ? { t: '두 분이 부모님께 ' + (S.tributeSay === 'long' ? '준비한 말(400자씩)' : '한마디씩') + ' 전한 뒤 · ' + mcue, est: base + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
+            : { t: mcue, est: base, self: true, doing: 'move' }
         }),
         cue({
           k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-out', name: '부모님 헌정 마무리', text: D.TRIBUTE.end,
@@ -986,6 +1017,15 @@
       }
     });
 
+    /* ★★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2 · 연구 A13 · B09] 행진이 없는 예식은 끝이 흐려진다 —
+       «끝 선언 → 두 분 목례 → 박수 → 음악 바뀜»을 끝 신호로 둔다. ① 카드의 «두 분이 인사를 드리고 본식을 마쳐요»가 이제 소리에도 있다.
+       ★박수를 청하는 셋째 자리다([CLAP_FEW] 입장 · 성혼 선언 · 닫는 인사) — 뒤는 사람 순간 · 디렉터 GO([CLAP_GO]).
+       ★108 은 녹음 전(텍스트 카드) · 미리 듣기에서는 사람 순간을 걷는다(consoleOnly). */
+    cues.push(cue({
+      k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close-bow', name: '본식 끝 · 두 분 인사', text: D.NARR.closeBow,
+      duck: -12,
+      live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec)
+    }));
     // 폐식 — 목록 밖 고정
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close', name: '폐식 · 단체촬영 전환', text: D.NARR.close,
@@ -1072,7 +1112,7 @@
       }));
       /* [ROUND_FIT 2패스 본체] 다 함께 블록의 est 합을 세고, 남는 시간을 캐리어(라운드를 안는 큐)에 더한다 */
       (function () {
-        var IN = { 'narr-close': 1, 'end-0-photo': 1, 'narr-photo-split': 1, 'narr-round-open': 1,
+        var IN = { 'narr-close': 1, 'narr-close-bow': 1, 'end-0-photo': 1, 'narr-photo-split': 1, 'narr-round-open': 1,
                    'narr-online-in': 1, 'narr-final-warn': 1, 'narr-final-call': 1, 'narr-photo-out': 1 };
         var fixed = 0, carrier = null;
         for (var i = 0; i < cues.length; i++) {
@@ -1134,7 +1174,11 @@
     for (var i = 0; i < cues.length; i++) {
       var c = cues[i], prev = cues[i - 1];
       if (!c.fire) c.fire = (i === 0 || (prev && prev.live)) ? 'manual' : 'chain';
+      /* [CLAP_GO · LOOK_HOLD] 사람 순간이 «다음을 누를 때»를 스스로 안다 — 박수 · 첫 모습 */
+      if (c.fire === 'manual' && prev && prev.live && prev.live.hintNext) c.hint = prev.live.hintNext;
       if (c.fire === 'manual' && !c.hint && prev && prev.live) c.hint = prev.live.t + ' 후';
+      /* [CLAP_GO] 박수 동안 올려 둔 음악은 GO 뒤 1.5초에 걸쳐 내린다(종전 선언 post 의 toLetterMs 와 같은 값) */
+      if (prev && prev.live && prev.live.applause) c.fadeMs = PARAM.declare.toLetterMs;
       c.idx = i;
     }
 
@@ -1188,6 +1232,9 @@
       for (var m = 0; m < cues.length; m++) {
         cues[m].manualInConsole = (cues[m].fire === 'manual');
         cues[m].fire = 'chain';
+        /* ★[CLAP_GO · LOOK_HOLD · CLOSE_BOW] 콘솔에만 있는 사람 순간(박수 · 첫 모습)은 미리 듣기에서 걷는다 —
+           «미리 듣기는 그대로»(코워크 회신5). 종전에 post 로 기다리던 자리는 previewPost 로 되돌린다(아래에서 같이 줄인다). */
+        if (cues[m].live && cues[m].live.consoleOnly) { cues[m].post = (cues[m].post || []).concat(cues[m].live.previewPost || []); cues[m].live = null; }
         if (cues[m].live) { cues[m].live.fullEst = cues[m].live.est; cues[m].live.est = Math.min(cues[m].live.est, PARAM.previewLiveCap); }
         // 침묵·페이드도 같이 줄인다. 안 줄이면 폐식 뒤 30초 대기 같은 자리에서 듣는 사람이 앱을 닫는다.
         (cues[m].post || []).forEach(function (st) {

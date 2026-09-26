@@ -193,7 +193,11 @@
       'toast.none': [22, 0, 20, 40], 'toast.mix': [28, 0, 45, 50], 'toast.family': [34, 0, 45, 50],   // ★코드 추정 · 코워크가 채움
       'cake.none': [26, 0, 35, 45]                                                                        // ★코드 추정 · 코워크가 채움
     },
-    _close: { withTribute: [39, 0, 8, 13], noTribute: [39, 0, 13, 8] }
+    /* ★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2] 다시 쟀다 — 대본 +5(108 끝 선언 44음절 + 26 새 글 65음절 − 옛 26 85음절 · 300음절/분) ·
+       말 없는 시간 +11(목례 3 · 박수 8) · 여유 +2(박수 7~9초 ±1 · 목례 ±1 · 연구 B02 · D02). 인사 유무 판 차이는 그대로.
+       ★처음엔 여유 +4 로 넣었는데 «전부» 예시 넉넉 합(×1.25 포함)이 25:01 로 고객 범위(RANGE 12~25 · 코워크 결정)를 넘었다.
+         +3 도 25:00.1 이라 넘는다. 범위는 설계 결정이라 코드가 넓히지 않고, 여유를 +2 로 두었다(구현 보고 6 에 적음). */
+    _close: { withTribute: [44, 0, 19, 15], noTribute: [44, 0, 24, 10] }
   };
   function partsOf(k, S, seq) {
     S = S || {}; seq = seq || bodySeq(S);
@@ -425,7 +429,7 @@
       fathers: '예식의 시작을 알리는 촛불을 밝히겠습니다. 양가 아버님께서 앞으로 나와 주시겠습니다.',   // ★명세 7장에 없는 판 — 4장 표의 «아버님 두 분»을 위해 같은 틀로 썼다(말맛은 사장님)
       others: '예식의 시작을 알리는 촛불을 밝히겠습니다. 양가를 대표하는 두 분께서 앞으로 나와 주시겠습니다.'
     },
-    candleOut: '두 집의 불이 밝혀졌습니다. 따뜻한 박수 부탁드립니다.',
+    candleOut: '두 집의 불이 밝혀졌습니다.',   // ★[CLAP_FEW 2026-09-26 사장님]
     clapAsk: '여러분은 방금 두 사람의 약속을 함께 지켜보셨습니다. 이 약속의 증인이 되어 주신다면, 큰 박수로 답해 주십시오.',
     clapDeclare: '오늘 이 자리에서, 두 사람은 서로의 평생이 되었습니다. 이제 두 사람은 부부입니다.',
     pourMix: '두 분이 각자 고른 와인을 한 잔에 붓습니다. 한 번 어우러진 맛은 다시 나뉘지 않지요.',
@@ -446,7 +450,7 @@
     freeOut: '따뜻한 박수 부탁드립니다.',
     freeFail: '이 순서는 잠시 뒤, 사진 시간에 함께 보겠습니다.',
     bowGroom: '신랑은 큰절로, 신부는 고개 숙여, 부모님께 감사를 올립니다.',
-    toastBothPour: '다음은 축배입니다. 우리도 다 같이 잔을 들어요. 제가 위하여, 하면 다 함께 위하여, 하고 답해 주세요. 두 사람의 새로운 시작을 위하여!'
+    toastBothPour: '마지막으로, 다 같이 잔을 들어 주세요. 두 분이 위하여, 하시면 다 함께 위하여, 하고 답해 주세요.'   // ★[TOAST_COUPLE 2026-09-26 사장님] 107 · 초안
   };
 
   /* ── 남는 장면(«그날 남는 사진» · 코워크 1장 고침) — 준비한 순서는 무엇을에 따라 ── */
@@ -510,8 +514,10 @@
   function videoKeys(k, S) {
     if (k === 'toast') { var w = chipOf('toast', S), pour = w !== 'cake' && chipOf('wine', S) !== 'none';
       return (w === 'toast' ? [] : ['cake']).concat(w === 'cake' ? [] : (pour ? ['toast-pour', 'toast'] : ['toast'])); }
-    if (k === 'entry') return ['entry', chipOf('entryScene', S) === 'bow' ? 'entry-bow' : 'entry-look'];
-    if (k === 'tribute') return S && S.tribute === 'bowGroom' ? ['tribute', 'tribute-bow'] : ['tribute'];
+    /* ★[BOW_VIDEO_OFF 2026-09-26 코워크 회신5 4-7 · 연구 F02] 절 영상(entry-bow · tribute-bow)은 만들지 않는다 — AI 가 절 모양을 자주 틀린다.
+       맞절을 고른 분도 바라보기 영상 · 신랑 큰절도 인사 영상이 나온다(19편 → 17편). 되살리지 말 것. */
+    if (k === 'entry') return ['entry', 'entry-look'];
+    if (k === 'tribute') return ['tribute'];
     if (k === '_close') return ['close'];
     return [k];
   }
@@ -529,6 +535,7 @@
       case 'tribute': { var t = chipOf('tribute', S); if (t === 'none') return '';
         return (crossTribute(S) ? '두 분이 서로의 부모님께 한마디씩 해요' : t === 'long' ? '두 분이 부모님께 준비한 말을 전해요' : '두 분이 부모님께 한마디씩 해요') + ' · ' + secTxt(p || 30); }
       case 'letter': return (chipOf('letter', S) === 'each' ? '두 분이 서로에게 쓴 편지를 읽어요' : '두 분이 각자 부모님께 쓴 편지를 읽어요') + ' · ' + secTxt(p || 120);
+      case 'toast': return chipOf('toast', S) === 'cake' ? '' : '두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 10초';   // [TOAST_COUPLE 2026-09-26 코워크 회신5 3-2] ② 말하는 자리 카드
       case 'free': fk = FREE_KIND[chipOf('free', S)]; n = chipOf('freeLen', S);
         if (fk === 'speech') return '준비한 분이 축하의 말을 해요 · 약 ' + n + '분';
         return chipLabel('free', S) + ' · 보고 듣기에서는 건너뛰어요';

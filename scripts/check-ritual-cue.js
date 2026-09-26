@@ -46,7 +46,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
 //     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
-const N_FILES = 107;
+const N_FILES = 108;   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
   const bad3 = C.FILES.filter((f, i) => C.noOf(f) !== String(i + 1).padStart(2, '0'));
@@ -103,7 +103,12 @@ else ok(`FILES ${N_FILES}개 · 중복 없음`);
    그게 끝나면 디렉터가 다음 큐를 누른다. 종전엔 12 가 그 자리였고 이제 13(vow-in)이다.
    ★수동 큐 **수는 그대로 14개**다. 줄어든 게 아니라 한 칸 밀린 것이다 —
      수만 보고 「설계대로」라고 넘기지 말 것(위 67~74행이 같은 함정을 적어 뒀다). */
-const A3_MANUAL = ['01', '05', '52', '13', '14', '16', '20', '56', '44', '60', '61', '63', '65', '47'];
+/* ★★[CLAP_GO · LOOK_HOLD · CLOSE_BOW 2026-09-26 사장님 · 코워크 회신5] 26큐 → 27큐 · 수동 14 → 17.
+   늘어난 셋은 전부 **사람 순간 뒤**다 — 설계대로다(누름이 새로 생긴 게 아니라 «시계로 밀던 것»이 «보고 누르는 것»이 됐다):
+     11 welcome-in  : 입장 뒤 첫 모습(바라보기 6초 · 맞절 8초) — 종전엔 52 뒤 2초 만에 저절로 나갔다(4-1)
+     27 letter-parent: 선언 뒤 박수 — 종전엔 8초 고정 대기 뒤 저절로(3-1)
+     26 narr-close   : 끝 선언 · 목례 · 마지막 박수 뒤(4-2) · 그 앞 108(끝 선언)은 56 뒤 체인 */
+const A3_MANUAL = ['01', '05', '52', '11', '13', '14', '16', '27', '20', '56', '26', '44', '60', '61', '63', '65', '47'];
 //                  guest-1 entry-A entry-out vow-in vow-out ring-out letter-end toast-out photo(전체컷) photo-split round-open final-warn photo-out goodbye
 const A3_CLOCK = ['02', '03', '04'];
 //                 guest-2-10min · guest-3-5min · guest-4-1min
@@ -111,18 +116,18 @@ const A3_CLOCK = ['02', '03', '04'];
    ★[TOAST_NONE] 87(narr-toast-none)이 체인으로 들어왔다 — 편지 뒤에 이어 붙어 축배를 연다.
      사람이 누를 자리가 아니다. 편지가 끝나면 바로 「오늘은 축사를 따로 두지 않았습니다」가 흐르고
      이어서 축배가 시작된다. 그 사이에 누름을 두면 «왜 멈췄지» 하는 빈 자리가 생긴다. */
-const A3_CHAIN = ['11', '15', '30', '27', '87', '40', '26', '64', '45'];
+const A3_CHAIN = ['15', '30', '87', '40', '108', '64', '45'];
 //                 welcome-in ring-in declare-1-solemn letter-parent toast-none toast close final-call farewell
 {
   const r = C.build({ course: 'damback' }, { mode: 'console' });   // 코스 기본 그대로 — 덕담은 이제 팔레트라 켜서 재지 않는다
   const got = (f) => r.cues.filter((c) => c.fire === f).map((c) => c.no).sort().join(',');
   const want = (a) => a.slice().sort().join(',');
 
-  if (r.cues.length !== 26) no(`§3-A: 26큐가 아니다 (${r.cues.length})`);
+  if (r.cues.length !== 27) no(`§3-A: 27큐가 아니다 (${r.cues.length})`);
   else if (got('manual') !== want(A3_MANUAL)) no(`§3-A 수동 큐 불일치\n    got  ${got('manual')}\n    want ${want(A3_MANUAL)}`);
   else if (got('clock') !== want(A3_CLOCK)) no(`§3-A 시각고정 큐 불일치 (${got('clock')})`);
   else if (got('chain') !== want(A3_CHAIN)) no(`§3-A 체인 큐 불일치\n    got  ${got('chain')}\n    want ${want(A3_CHAIN)}`);
-  else ok(`§3-A 26큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
+  else ok(`§3-A 27큐 전수 판정표 (수동 ${A3_MANUAL.length} / 자동 ${A3_CHAIN.length} / 시각고정 ${A3_CLOCK.length})`);
 
   // 반지 마무리 → 성혼 선언 사이 '페이드 8초 + 침묵 3초' 시간 고정 (대본 153~159행)
   const ro = r.cues.find((c) => c.slug === 'narr-ring-out');
@@ -410,6 +415,40 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   }
   if (bad.length) no(`post 가 올린 음량을 live 가 도로 내린다 [POST_LIVE_DUCK]\n    ${bad.join('\n    ')}`);
   else ok(`post 로 올린 음량을 live 가 지킨다 (${seen.size}자리) [POST_LIVE_DUCK]`);
+}
+
+/* ── [CLAP_GO 2026-09-26 사장님 · 코워크 회신5 3-1] 박수를 청한 줄 뒤는 디렉터 GO ─────────────
+   문안에 «박수를 청하는 말»이 있는데 바로 뒤 큐가 저절로(chain) 나가면 빨강 — 박수가 2초 뒤 여는 말에 묻힌다
+   (9/26 전: 24 덕담 마무리 → 서약 · 39 인사 마무리 → 다음 · 104 준비한 순서 맺는 말 → 다음).
+   박수 자리는 셋뿐이다([CLAP_FEW] 입장 · 성혼 선언 · 닫는 인사) — 문안이 다시 바뀌어도 이 그물이 되살아나지 못하게 막는다.
+   콘솔 모드 · 옛 코스 전 축 + 새 코스(예시 넷 × 선언 · 인사 · 축배 · 붓기 · 준비한 순서 · 첫 모습 판) 전수. */
+{
+  const O = require(path.join(ROOT, 'assets/ritual-open.js'));
+  const CLAP_ASK = /박수(를|로)?\s*(부탁|보내|청|축하)|박수 부탁|큰 박수|박수를 보내|박수로 (답|축하|맞아)|함께 축하해 주세요/;
+  const bad = []; let n = 0;
+  const check = (S, tag) => {
+    const r = C.build(S, { mode: 'console' }); n++;
+    for (let i = 0; i < r.cues.length - 1; i++) {
+      const c = r.cues[i], nx = r.cues[i + 1];
+      if (CLAP_ASK.test(c.text || '') && nx.fire === 'chain') bad.push(`${c.no || '—'} ${c.slug} → ${nx.slug} (chain) · ${tag}`);
+    }
+  };
+  for (const course of AX.course) for (const entry of AX.entry) for (const declareWho of AX.declareWho) for (const declare of AX.declare)
+    for (const letter of AX.letter) for (const bless of AX.bless) check({ course, entry, declareWho, declare, letter, bless }, course);
+  for (const ex of ['record', 'promise', 'family', 'all'])
+    for (const dc of ['solemn', 'warm', 'clap', 'family'])
+      for (const tr of ['one', 'long', 'none']) for (const how of ['flower', 'bowGroom'])
+        for (const ts of ['both', 'toast', 'cake']) for (const wn of ['mix', 'family', 'none'])
+          for (const fr of ['video', 'stage', 'gift', 'speech']) for (const sc of ['look', 'bow']) {
+            const S = { course: 'open', on: {} }; O.applyExample(S, ex);
+            S.on.free = 1; S.on.bless = 1;
+            O.setChip(S, 'declare', dc); O.setChip(S, 'tribute', tr); O.setChip(S, 'toast', ts); O.setChip(S, 'wine', wn); O.setChip(S, 'free', fr);
+            S.tribute = how; S.entryScene = sc;
+            check(S, `open ${ex}/${dc}/${tr}/${how}/${ts}/${wn}/${fr}/${sc}`);
+          }
+  const uniq = [...new Set(bad.map((b) => b.split(' · ')[0]))];
+  if (bad.length) no(`박수를 청한 줄 뒤가 저절로 나간다 ${bad.length}건 [CLAP_GO]\n    ${uniq.slice(0, 8).join('\n    ')}\n    예) ${bad[0]}`);
+  else ok(`박수를 청한 줄 뒤는 늘 디렉터 GO (${n}조합) [CLAP_GO]`);
 }
 
 if (fail) {

@@ -25,8 +25,9 @@
     'course',                                  // 코스(기록·약속·가족 · 숨긴 것 미니멀·감동·축하)
     /* ★[OPEN_COURSE 2026-09-25] 새 코스(open)의 담은 순간 · 판. 빠지면 미리듣기가 고른 것과 다른 예식을 들려준다.
        on 은 {키:1} 목록일 뿐 글이 아니다. wine·tributeSay·candleWho 는 판 이름이다. */
-    /* ★[ENTRY_SCENE] entryScene(첫 모습)은 싣지 않는다 — 소리가 같아 엔진이 읽지 않는다(죽은 키는 함정 · STORY_COVER). */
-    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen',
+    /* ★[ENTRY_SCENE → LOOK_HOLD 2026-09-26] entryScene(첫 모습)을 싣는다 — 종전엔 소리가 같아 엔진이 안 읽는 죽은 키였는데,
+       이제 콘솔의 사람 순간(바라보기 6초 · 맞절 8초)을 가른다(코워크 회신5 4-1). 소리는 여전히 같다. */
+    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen', 'entryScene',
     'ord', 'extra',                            // 순서 조정 · 더한 순서(둘 다 키 목록일 뿐 · 글은 없다)
     /* ★[ALL_OPTIONAL 2026-08-07] 뺀 순서. 빠지면 미리듣기가 고객이 뺀 자리를 그대로 들려준다
        (화면은 멀쩡한데 들리는 예식이 다르다 — 이 파일이 15~19행에서 경고하는 바로 그 사고).

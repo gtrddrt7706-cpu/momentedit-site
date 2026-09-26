@@ -12,7 +12,8 @@ let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/play
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
 let bad = 0; const ok = (n, c, d) => { console.log((c ? 'ok   ' : 'FAIL ') + n + (c || !d ? '' : ' → ' + String(d).slice(0, 220))); if (!c) bad++; };
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.css': 'text/css', '.svg': 'image/svg+xml' };
-const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]); const p = path.join(ROOT, u); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': TYPES[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
+const SCRIPT_FILE = require(path.join(ROOT, 'api/script-file.js'));   // [SAVE_INAPP] 베르셀 함수를 그대로 붙인다
+const srv = http.createServer((q, r) => { if (q.url.startsWith('/api/script-file')) return SCRIPT_FILE(q, r); const u = decodeURIComponent(q.url.split('?')[0]); const p = path.join(ROOT, u); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': TYPES[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 
 /* 아이폰 규칙 — 요소별 잠금. 탭(touchend/click) 처리 중인 동기 호출 스택에서 play() 가 불린 요소만 풀린다. */
@@ -85,6 +86,17 @@ for (const P of PROFILES) {
   await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800);
   ok(`${W} 새로고침 뒤 고른 것 유지`, (await pg.evaluate(() => RitualOpen.picked(S).join(','))) === picked0);
   ok(`${W} 가로 넘침 0`, await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  /* ★[SAVE_INAPP 2026-09-26 코워크 회신5 4-3] 카톡 안 «파일로 저장» — blob 이 아니라 서버 attachment 로 받는다.
+     흉내가 보는 것: 앱 안 UA 로 판정해 서버 길을 타는가 · 실제 «내려받기» 이벤트가 나는가 · 파일에 대본이 들었나 · 이름이 한글로 오나. */
+  {
+    /* ★이름은 응답 헤더로 본다 — 헤드리스 Chromium 은 GET · POST 모두 suggestedFilename 을 «download» 로 준다(헤더가 맞아도 · 2026-09-26 실측). */
+    let cd = ''; const onResp = (r) => { if (/script-file/.test(r.url())) cd = r.headers()['content-disposition'] || ''; }; pg.on('response', onResp);
+    const [dl, how] = await Promise.all([pg.waitForEvent('download', { timeout: 8000 }).catch(() => null), pg.evaluate(() => saveScriptTxt())]);
+    pg.off('response', onResp);
+    let body = ''; try { body = dl ? fs.readFileSync(await dl.path(), 'utf8') : ''; } catch (e) {}
+    const nm = decodeURIComponent((cd.match(/filename\*=UTF-8''([^;]+)/) || [])[1] || '');
+    ok(`${W} «파일로 저장» = 서버 attachment · 실제 내려받기 · 대본 첫 줄 · 한글 이름 [SAVE_INAPP]`, how === 'server' && !!dl && /^attachment/.test(cd) && /우리 예식 대본 · /.test(body) && nm === '우리예식대본.txt', JSON.stringify({ how, dl: !!dl, cd, head: body.slice(0, 20) }));
+  }
   ok(`${W} pageerror 0`, errs.length === 0, errs.join(' | '));
   await br.close();
 }

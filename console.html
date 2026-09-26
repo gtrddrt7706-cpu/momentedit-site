@@ -627,6 +627,7 @@ body.guest .now .hint{font-size:12.5px}
   .pcb>summary small{color:#8a8175;margin-left:6px;font-size:11px}
   .pcb-b{padding:4px 10px 10px;display:flex;flex-wrap:wrap;gap:6px}
   .pcb-g{width:100%;font-size:10.5px;color:#8a8175;margin:4px 2px 0;letter-spacing:.4px}
+  .pcb-who{width:100%;font-size:13px;color:#f3ede4;margin:2px 2px 6px;line-height:1.5}   /* [PHOTO_CALLER] 판 머리 한 줄 */
   .pcb-b button{background:#262320;border:1px solid #3f3a33;color:#e8e2d8;border-radius:8px;padding:7px 11px;font-size:12.5px;cursor:pointer;text-align:left;line-height:1.35}
   .pcb-b button:active{background:#332f2a}
   .pcb-b button b{display:block;font-weight:600}
@@ -1051,7 +1052,7 @@ function fire(i, opt){
   render();
   audioOn();
 
-  duckTo(c.duck, PARAM.fadeDownMs);
+  duckTo(c.duck, c.fadeMs || PARAM.fadeDownMs);   // [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
 
   playClip(c, function(){
     phase = 'post';
@@ -1395,8 +1396,17 @@ mBtn.addEventListener('pointerup', function(){ var was = held; holdEnd(); if (!w
 mBtn.addEventListener('pointerleave', function(){ holdEnd(); });
 mBtn.addEventListener('pointercancel', function(){ holdEnd(); });
 
+/* ★★[DOUBLE_GO 2026-09-26 코워크 회신5 4-6 · 연구 I01] 콘솔 모드에서 한 번 나간 뒤 1.5초 안의 두 번째 누름은 무시한다.
+   빨리 두 번 누르면 방금 나간 클립이 끊기고 다음 순간으로 넘어갔다(한 순간을 통째로 건너뜀). 일부러 건너뛰기는 1.5초 뒤 된다.
+   ★고객 미리 듣기(GUEST)에는 걸지 않는다 — 듣는 화면에서 «다음»을 빨리 넘기는 것은 사고가 아니다. */
+var GO_GUARD_MS = 1500, lastGo = 0;
 function mainTap(){
   audioOn();
+  if (!GUEST && phase !== 'end') {
+    var now = Date.now();
+    if (now - lastGo < GO_GUARD_MS) { toast('방금 눌렀어요 · 건너뛰려면 잠시 뒤 다시 누르세요'); return; }
+    lastGo = now;
+  }
   if (phase === 'end') {
     resetRun(); render();
     if (GUEST) later(function(){ advance(); }, 400);   // 고객은 '다시 듣기' 한 번으로 바로 이어 간다
@@ -1479,6 +1489,12 @@ $('#bWait').onclick = function(){
       box.appendChild(b);
     });
   }
+  /* ★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4] 가족사진 «불러 모아 주실 분» — 판 머리에. 디렉터가 이 분께 먼저 말씀드린다.
+     값은 식순(S)에 실려 온다(관리자 «당일 콘솔» 단추). 없으면 줄을 안 그린다. textContent 로만 넣는다(고객이 적은 글). */
+  var pc = (S && S.photoCaller) || null, who = [];
+  if (pc && pc.groom) who.push('신랑 쪽 · ' + String(pc.groom).slice(0, 40));
+  if (pc && pc.bride) who.push('신부 쪽 · ' + String(pc.bride).slice(0, 40));
+  if (who.length) { var w = document.createElement('div'); w.className = 'pcb-who'; w.textContent = '불러 모아 주실 분 · ' + who.join(' / '); box.appendChild(w); }
   add('불러 모으기', P.call);
   add('연출', P.fx);
 })();
