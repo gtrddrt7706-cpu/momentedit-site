@@ -1041,6 +1041,12 @@
   },
   {
    "file": "80_production",
+   "fn": "_snapV2Live",
+   "mark": "SNAP_V2_FROM",
+   "why": "새 스냅 기획은 처리방침 개정 시행일(2026-10-03)부터 연다 — 참고 사진 수집·사진작가 위탁이 공고한 날보다 먼저 시작되지 않게. 이 파일이 옛것이면 시행일이 지나도 부부 화면에 새 스냅 기획 카드가 뜨지 않는다"
+  },
+  {
+   "file": "80_production",
    "fn": "buildProductionState",
    "mark": "SNAP_PICK_V2",
    "why": "부부 화면에 snapV2 표시를 준다 — 이 파일이 옛것이면 마이페이지 스냅 카드가 통째로 숨는다(옛 서버에 새 기획을 보내지 않으려는 안전장치)"
@@ -1254,6 +1260,8 @@
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
    "purgeGuestPhotosApply",
+   "_snapV2Live",
+   "_snapNotYetMsg",
    "_snapArr",
    "_snapV2Norm",
    "_snapV1Norm",
@@ -1988,7 +1996,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-26 14:27 · 0904ddc7",
+ "_생성": "2026-09-26 15:11 · de4dc5a4",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2298,5 +2306,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "22c5914c3f2e"
+ "_표식서명": "ecc8a0d673bb"
 }

@@ -512,6 +512,7 @@ function handleSaveProductionTrack(body) {
   if (track === 'snap') {
     var snr = (body && body.draft) || {};
     _snapIsV2 = Number(snr.v) === 2;
+    if (_snapIsV2 && !_snapV2Live()) return { ok: false, error: _snapNotYetMsg() };   // [SNAP_V2_FROM] 옛 칸 저장은 종전대로 받는다
     body.draft = _snapIsV2 ? _snapV2Norm(snr) : _snapV1Norm(snr);
   }
   // [예식 확인서] 페이로드 검증·정규화는 락 밖 — 불량 요청(빈 스냅샷·형식 오류)이 락과 시트 읽기를 소모하지 않게. 완료 게이트만 락 안(d 필요)
@@ -1184,8 +1185,18 @@ function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS �
 //   ★부부 화면은 buildProductionState 의 snapV2 표시가 있을 때만 새 기획을 연다 — 이 파일을 배포하기 전에는 옛 서버가
 //     새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라지기 때문이다(화면엔 «저장됐어요»). 그 창을 없앤다.
 // ==============================================================================
-var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24 };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
+var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-10-03' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
 var SNAP_ZONE_RE = { candle: /^c\d{2}$/, white: /^w\d{2}$/ };
+// ★[SNAP_V2_FROM 2026-09-26] 새 기획은 처리방침 개정 시행일(privacy.html «개정 시행일자 · 2026.10.03 (공고 2026.09.26)»)부터 연다.
+//   새로 생기는 것이 둘이다 — 두 분이 올리는 참고 사진(수집) · 사진작가에게 가는 촬영 브리프(위탁). 둘 다 공고한 날보다 먼저 시작하면 안 된다.
+//   이 파일은 다른 일로도 자주 재배포된다. 재배포 날짜에 기대면 그 전에 켜진다 — 그래서 날짜를 코드가 본다.
+//   닫혀 있는 동안: 부부 화면 카드·«지금 할 일»이 숨는다(snapV2 false) · 새 기획 저장·사진 올리기·브리프 만들기를 거절한다.
+//   옛 칸 저장(배포 시차로 남은 탭)은 종전대로 받는다. 날짜는 scripts/audit/snap-plan.mjs 가 privacy.html 과 대조한다.
+function _snapV2Live() {
+  // [SNAP_V2_FROM] 처리방침 시행일(SNAP_V2.from · 한국 날짜) 전에는 닫혀 있다
+  return typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= SNAP_V2.from;
+}
+function _snapNotYetMsg() { var f = String(SNAP_V2.from); return '새 스냅 기획은 ' + Number(f.slice(5, 7)) + '월 ' + Number(f.slice(8, 10)) + '일부터 고르실 수 있어요.'; }
 var SNAP_V2_KEYS = ['v', 'zones', 'note'];
 var SNAP_LEGACY_KEYS = ['people', 'mustPeople', 'aboutNote', 'moodCandle', 'moodWhite', 'moodNote', 'refs', 'mustHaves', 'toneStyle', 'comfort', 'propsNote', 'directorNote'];
 var SNAP_ID_RE = /^[A-Za-z0-9_-]{10,80}$/;
@@ -1312,6 +1323,7 @@ function handleSnapRefUpload(body) {
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  if (!_snapV2Live()) return { ok: false, error: _snapNotYetMsg() };   // [SNAP_V2_FROM] 참고 사진 수집은 처리방침 시행일부터
   var zone = String(body.zone || '');
   if (!SNAP_ZONE_RE[zone]) return { ok: false, error: '어느 공간의 사진인지 알 수 없어요.' };
   var b64of = function (v, max) {
@@ -1405,6 +1417,7 @@ function adminSnapConfirm(code, reply) {
 // [SNAP_BRIEF] 촬영 브리프 주소 — 있으면 그대로, renew 면 새로 만들고 옛 주소를 닫는다(잘못 보냈을 때)
 function adminSnapBrief(code, renew) {
   _requireAdmin();   // [SNAP_BRIEF]
+  if (!_snapV2Live()) return { ok: false, error: '촬영 브리프는 처리방침 개정 시행일(' + SNAP_V2.from + ')부터 만들 수 있어요. 사진작가 위탁이 그날부터라서요.' };   // [SNAP_V2_FROM]
   code = String(code || '').trim();
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
@@ -1551,7 +1564,7 @@ function buildProductionState(r) {
       snap: t.snap || '시작전'                 // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝)
     },
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
-    snapV2: true,                              // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다)
+    snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
     ritualDraft: draft.ritualDraft || null,    // 식순 입력 이어하기용

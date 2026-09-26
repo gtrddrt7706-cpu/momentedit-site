@@ -7662,7 +7662,8 @@ function _snapSummary(sd){   // 카드 한 줄 — 공간별 고른 수
 function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞. 편집(SNAPFLOW) 중엔 숨김
   var box=$('mp_snap'); if(!box) return;
   /* [SNAP_V2_GATE] 서버(GAS)가 새 기획(v2)을 알 때만 연다 — 사이트가 먼저 배포되고 GAS 재배포가 늦으면
-     옛 서버가 새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라진다(저장은 됐다고 뜬다). 그 창을 없앤다. */
+     옛 서버가 새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라진다(저장은 됐다고 뜬다). 그 창을 없앤다.
+     ★새 서버도 처리방침 시행일(2026-10-03) 전에는 snapV2 를 false 로 준다(80_production [SNAP_V2_FROM]) — 카드·«지금 할 일»이 함께 숨는다. */
   if(!p || SNAPFLOW.active || !p.snapV2 || !window.SNAP_REFS){ box.style.display='none'; box.innerHTML=''; return; }
   var sd=p.snapDraft||{}, meta=p.snapMeta||{}, due=_snapDue(p), filled=_snapFilledD(sd), lock=!!(meta.lock||(due&&due.lock)), h;
   var conf=meta.confirm||null, confLine='';

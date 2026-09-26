@@ -271,6 +271,7 @@
 ### 11.6 개인정보
 - 외부 작가 = 처리 위탁 → 처리방침 위탁 표에 한 줄(D12) · 작가 비밀유지·파기 서약서는 사장님이 받는다(사람 몫)
 - 올린 사진은 **예식 183일 뒤 자동 삭제**(청첩장·편지 개인정보 파기 기준과 같다)
+- ★**새 기획은 처리방침 개정 시행일(2026-10-03 · 한국 날짜)부터 열린다** `[SNAP_V2_FROM]` — 새로 생기는 수집(올린 참고 사진)과 위탁(작가 브리프)이 공고한 날보다 먼저 시작되면 안 된다. `80_production` 은 다른 일로도 자주 재배포되니 재배포 날짜에 기대지 않고 코드가 날짜를 본다. 그 전에는 카드·«지금 할 일»이 숨고, 새 기획 저장·사진 올리기·브리프 만들기를 서버가 거절한다(옛 칸 저장은 종전대로). 날짜는 `snap-plan` 이 `privacy.html` 과 대조한다
 
 ### 11.7 레퍼런스 촬영 — `docs/plans/스냅_레퍼런스_촬영목록표.md`
 모델 초상권 동의(마이페이지 · 홈페이지 · SNS · 기간)는 사장님 몫.
@@ -279,13 +280,13 @@
 | 자리 | 파일 | 표식 |
 |---|---|---|
 | 장면 목록(단 하나의 원천) | `assets/snap-refs.js` — 부부 화면·관리자·브리프가 함께 읽는다 | `SNAP_REFS` |
-| 부부 화면 다섯 걸음 · 카드 · «지금 할 일» 한 줄 | `mypage.html` 스냅 블록(`startSnapFlow`~`renderSnap`) · CSS 는 `snp-` 이름만(좌석 화면 `.sp-*` 와 겹치지 않게) | `SNAP_PICK_V2` · `SNAP_V2_GATE` · `SNAP_NUDGE` |
-| 서버 — 저장 형식·옛 칸 보존·잠금·마감 뒤 메일·올리기·작은 그림·확인·브리프·파기 | `automation/platform/80_production.gs` | `SNAP_LEGACY_KEEP` · `SNAP_LOCK` · `SNAP_LATE_MAIL` · `SNAP_UPLOAD` · `SNAP_CONFIRM` · `SNAP_BRIEF` · `SNAP_PURGE` |
+| 부부 화면 다섯 걸음 · 카드 · «지금 할 일» 한 줄 | `mypage.html` 스냅 블록(`startSnapFlow`~`renderSnap`) · CSS 는 `snp-` 이름만(좌석 화면 `.sp-*` 와 겹치지 않게) | `SNAP_PICK_V2` · `SNAP_V2_GATE` · `SNAP_NUDGE` · `SNAP_FLOW_WRAP` |
+| 서버 — 저장 형식·옛 칸 보존·잠금·마감 뒤 메일·올리기·작은 그림·확인·브리프·파기 | `automation/platform/80_production.gs` | `SNAP_V2_FROM` · `SNAP_LEGACY_KEEP` · `SNAP_LOCK` · `SNAP_LATE_MAIL` · `SNAP_UPLOAD` · `SNAP_CONFIRM` · `SNAP_BRIEF` · `SNAP_PURGE` |
 | 요청 길 4개 · 주간 파기 | `automation/consultation/consultation-booking.gs`(doPost · purgeAdvisorLog) | `SNAP_BRIEF` · `SNAP_PURGE` |
 | 관리자 버튼 3개 | `automation/admin/admin.gs`(adminCall) · `admin.html`(고객 상세 «스냅 상세») | `SNAP_PICK_V2` |
 | 작가 브리프 | `brief.html?b=…`(검색 차단 · 이름·연락처 없음 · 인쇄) | `SNAP_BRIEF` |
 | 처리방침 | `privacy.html` 수집 항목·보관 기간·위탁 «촬영(스냅)» · 공고 9/26 · 시행 10/3 | `SNAP_PRIVACY` |
-| 검사 | `scripts/audit/snap-plan.mjs`(목록 = 진행표 · 서버 한도 · 촬영 목록표 · 다섯 걸음 · 지운 질문) · `scripts/audit/snap-when.mjs` · `automation/tests/snap-plan.test.js`(서버 45항목) | merge-guard |
+| 검사 | `scripts/audit/snap-plan.mjs`(목록 = 진행표 · 서버 한도 · 촬영 목록표 · 다섯 걸음 · 지운 질문) · `scripts/audit/snap-when.mjs` · `automation/tests/snap-plan.test.js`(서버 53항목 · 시행일 전·후 포함) | merge-guard |
 
-- ★부부 화면은 서버의 `snapV2` 표시가 있을 때만 새 기획을 연다. **GAS 를 새 버전으로 재배포하기 전까지 스냅 카드는 숨는다**(옛 서버는 새 칸을 걸러 버려 «저장됐어요»인데 사라지는 창이 생기기 때문).
+- ★부부 화면은 서버의 `snapV2` 표시가 있을 때만 새 기획을 연다. 표시는 **두 가지가 다 되어야** 켜진다 — ①GAS 를 새 버전으로 재배포(옛 서버는 새 칸을 걸러 버려 «저장됐어요»인데 사라지는 창이 생긴다 · `SNAP_V2_GATE`) ②처리방침 시행일 2026-10-03(`SNAP_V2_FROM`). 둘 중 늦은 쪽에 저절로 켜진다
 - ★단독 스냅 60분(D3)은 다른 세션이 진행표에 반영한다. 반영되면 `snap-plan`·`snap-when` 이 빨개지며 `assets/snap-refs.js` 의 `min`(캔들존·화이트존 25) 을 같은 값으로 고치라고 알려 준다.

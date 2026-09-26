@@ -17,8 +17,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const read = (r) => { try { return fs.readFileSync(path.join(ROOT, r), 'utf8'); } catch (e) { return null; } };
 const refsSrc = read('assets/snap-refs.js'), seq = read('assets/sequence-modal.js'), my = read('mypage.html'),
   gs = read('automation/platform/80_production.gs'), shot = read('docs/plans/스냅_레퍼런스_촬영목록표.md'),
-  adm = read('admin.html'), brief = read('brief.html');
-if (!refsSrc || !seq || !my || !gs || !shot || !adm || !brief) { console.log('━━ snap-plan — 원천 파일을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
+  adm = read('admin.html'), brief = read('brief.html'), priv = read('privacy.html');
+if (!refsSrc || !seq || !my || !gs || !shot || !adm || !brief || !priv) { console.log('━━ snap-plan — 원천 파일을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
 const ctx = { window: {} }; vm.createContext(ctx);
 try { vm.runInContext(refsSrc, ctx); } catch (e) { console.log('━━ snap-plan — snap-refs.js 를 실행하지 못했습니다: ' + e.message); process.exit(1); }
 const R = ctx.window.SNAP_REFS;
@@ -51,6 +51,15 @@ else {
   t(!!(cd && cl && +cd[1] === +sv[6] && +cl[1] === +sv[6] && +cl[2] === +sv[5]), '부부 화면 마감·잠금 날수 = 서버');
   t(my.indexOf("_sdu.days<=21 && _sdu.days>" + sv[5]) !== -1, '«지금 할 일» 한 줄은 3주 전부터 잠금 전까지(D2)');
 }
+
+// ── [SNAP_V2_FROM] 새 기획은 처리방침 시행일부터 — 서버 날짜 = privacy.html 시행일 = 위탁 줄의 «부터» 날짜
+const fr = gs.match(/maxUploads: \d+, from: '(\d{4})-(\d{2})-(\d{2})' \}/), pv = priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/), dl = priv.match(/촬영\(스냅\)[\s\S]{0,400}?(\d{4})년 (\d{1,2})월 (\d{1,2})일부터/);
+t(!!fr && !!pv && fr.slice(1, 4).join('-') === pv.slice(1, 4).join('-'), `새 기획 여는 날(SNAP_V2.from ${fr ? fr.slice(1, 4).join('-') : '못 읽음'}) = 처리방침 개정 시행일(${pv ? pv.slice(1, 4).join('.') : '못 읽음'})`);
+t(!!fr && !!dl && +dl[1] === +fr[1] && +dl[2] === +fr[2] && +dl[3] === +fr[3], `새 기획 여는 날 = 처리방침 «촬영(스냅)» 위탁 줄의 시작일(${dl ? dl.slice(1, 4).join('.') : '못 읽음'})`);
+t(/snapV2: _snapV2Live\(\)/.test(gs), '부부 화면 표시(snapV2)는 날짜 문을 따른다 — true 로 박지 않는다');
+[['_snapIsV2 && !_snapV2Live()', '새 기획 저장'], ['function handleSnapRefUpload', '참고 사진 올리기'], ['function adminSnapBrief', '촬영 브리프 만들기']].forEach(([k, n]) => {
+  const i = gs.indexOf(k); t(i > -1 && gs.slice(i, i + 900).indexOf('_snapV2Live()') > -1, `${n}도 날짜 문을 본다(시행일 전 거절)`);
+});
 
 // ── D3 · 분 = 진행표 · 시각 = 계약 도착 + 목록의 분
 const ar = seq.match(/\['신랑·신부 도착',\s*'(\d+)분',\s*\[([^\]]+)\]/), sn = seq.match(/\['단독 스냅 촬영',\s*'(\d+)분',\s*\[([^\]]+)\],\s*'([^']*)'/);

@@ -42,6 +42,8 @@ sb.Utilities = Object.assign({}, sb.Utilities, {
 let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m + (d !== undefined ? ('  →  ' + JSON.stringify(d)) : '')); } };
 const ymd = (days) => new Date(Date.now() + 9 * 3600e3 + days * 864e5).toISOString().slice(0, 10);
+const FROM = sb.SNAP_V2.from;   // [SNAP_V2_FROM] 처리방침 시행일 — 1~13 은 «시행일이 지난 세상»에서 잰다(14 에서 시행일 전을 따로 잰다)
+sb.SNAP_V2.from = ymd(-1);
 const fresh = (wedDays, extra) => {
   DB = { C1: Object.assign({ 개인코드: 'C1', 상품타입: '시그니처', 현재단계: '제작중', 신랑이름: '정희준', 신부이름: '미쿠', 예식일: ymd(wedDays), 동의기록: JSON.stringify({ 계약정보: { weddingTime: '12:20' } }) }, extra || {}) };
   TOK = { t1: 'C1' }; MAIL = []; CACHE = {};
@@ -196,6 +198,25 @@ ok(load().tracks.snap === '진행중', '12 다 지우고 저장 → 완료 해�
 // 13) 웨딩스냅 고객은 이 기획이 없다(D10 · 시그니처만)
 fresh(40, { 상품타입: '웨딩스냅' });
 ok(sb.handleSnapRefUpload({ token: 't1', zone: 'candle', data: img, thumb: th }).ok === false && sb.buildProductionState(makeRow('C1')) === null, '13 웨딩스냅 — 올리기 거부 · 제작 상태 없음');
+
+// 14) [SNAP_V2_FROM] 처리방침 시행일 전에는 새 기획이 닫혀 있다 — 참고 사진 수집·작가 위탁이 공고한 날보다 먼저 시작되지 않게
+ok(FROM === '2026-10-03', '14a 시행일 = 처리방침 «개정 시행일자 · 2026.10.03»', FROM);
+fresh(40);
+save({ v: 2, zones: { candle: { picks: ['c05'] } } }, true);                     // 시행일이 지난 세상에서 하나 저장해 둔다
+const pre = sb.adminSnapBrief('C1'); ok(!!(pre && pre.ok && pre.url), '14b 시행일이 지났으면 브리프를 만든다', pre);
+sb.SNAP_V2.from = ymd(1);                                                         // 내일부터 연다 = 오늘은 시행일 전
+ok(sb.buildProductionState(makeRow('C1')).snapV2 === false, '14c 시행일 전 — 부부 화면에 snapV2 false(카드·«지금 할 일»이 숨는다)');
+const n14 = save({ v: 2, zones: { candle: { picks: ['c06'] } } }, true);
+ok(n14.ok === false && /10월 3일|월 .*일부터/.test(n14.error || '') && JSON.stringify(load().snapDraft.zones.candle.picks) === '["c05"]', '14d 시행일 전 — 새 기획 저장 거절 · 저장분 그대로', { n14, picks: load().snapDraft.zones.candle.picks });
+const f14 = Object.keys(FILES).length, u14 = sb.handleSnapRefUpload({ token: 't1', zone: 'candle', data: img, thumb: th });
+ok(u14.ok === false && Object.keys(FILES).length === f14, '14e 시행일 전 — 참고 사진 올리기 거절 · 드라이브에 아무것도 안 생김', { u14, before: f14, after: Object.keys(FILES).length });
+const b14 = sb.adminSnapBrief('C1', true);
+ok(b14.ok === false && /시행일/.test(b14.error || ''), '14f 시행일 전 — 촬영 브리프 만들기 거절(사진작가 위탁이 그날부터)', b14);
+const v1 = save({ aboutNote: '옛 탭에서 온 메모' }, false);
+ok(v1.ok === true, '14g 시행일 전에도 옛 칸 저장(배포 시차로 남은 탭)은 종전대로 받는다', v1);
+sb.SNAP_V2.from = ymd(0);                                                         // 오늘부터 = 오늘 연다(경계)
+ok(sb.buildProductionState(makeRow('C1')).snapV2 === true, '14h 시행일 당일(한국 날짜) 0시부터 열린다');
+sb.SNAP_V2.from = ymd(-1);
 
 console.log(`\n${fail ? '❌' : '✅'} snap-plan: ${pass} 통과 · ${fail} 실패`);
 process.exit(fail ? 1 : 0);

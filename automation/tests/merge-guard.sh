@@ -420,6 +420,7 @@ chk 'SNAP_V2_GATE' mypage.html 1                    # 서버가 새 기획을 �
 chk 'SNAP_NUDGE' mypage.html 1                      # D2 예식 3주 전부터 «지금 할 일» 한 줄
 chk 'SNAP_STEP_SAVE' mypage.html 1                  # 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(고객 입장 걸어 보기 2026-09-26)
 chk 'SNAP_FLOW_WRAP' mypage.html 2                  # 흐름 줄 화살표 = 다음 칸과 한 덩어리 · PC 한 줄 · 폰 셋·셋(«본식»만 떨어지던 자리)
+chk 'SNAP_V2_FROM' automation/platform/80_production.gs 6   # 새 스냅 기획은 처리방침 시행일(2026-10-03)부터 — 상태 표시·저장·사진 올리기·브리프 만들기(snap-plan 이 privacy.html 과 날짜 대조)
 chk 'SNAP_LEGACY_KEEP' automation/platform/80_production.gs 2
 chk 'SNAP_LOCK' automation/platform/80_production.gs 1
 chk 'SNAP_LATE_MAIL' automation/platform/80_production.gs 1
