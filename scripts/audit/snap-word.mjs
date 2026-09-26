@@ -45,6 +45,10 @@ const CASES = [
   ['계약완료', base('계약완료', { contract: { signed: true } })],
   ['입금완료', base('입금완료', SIGNED)],
   ['촬영완료', base('촬영완료', SIGNED)],
+  /* ★[SNAP_ORIG_ETA 2026-09-26 점검] 실서버는 촬영완료에도 결과물 상태 «대기»를 보낸다(80_production.gs RESULT_STAGES 에 촬영완료).
+     위 줄은 result 가 null 이라 결과물 대기 표를 한 번도 그리지 않았고, 그 표의 «예식 후 약 2주»가 이 검사를 빠져나갔다(post-7 · snap-7).
+     res() 도우미는 결과물전달·delivered 로 고정이라 서버 모양 그대로 따로 적는다. */
+  ['촬영완료 · 결과물 대기', base('촬영완료', { ...SIGNED, result: { stage: '촬영완료', status: '대기', delivered: false, isSnap: true, survey: { status: '' }, extra: {} } })],
   ['결과물전달 · 원본', base('결과물전달', { ...SIGNED, result: res('원본전달', 0) })],
   ['결과물전달 · 전달완료', base('결과물전달', { ...SIGNED, result: res('전달완료', 1) })],
   ['후기', base('후기', { ...SIGNED, result: res('전달완료', 1) })],

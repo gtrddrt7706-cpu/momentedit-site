@@ -86,7 +86,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .prog-reset:hover,.prog-reset:active{color:var(--seal);text-decoration-color:var(--seal)}
 /* [HEAD_ONE 3-5] 새 코스 ①~④ — 머리는 «나가기»만 남기고 나머지는 네 걸음 표시가 대신한다 */
 body.op4 #pnow,body.op4 .prog-bar,body.op4 .prog-sub{display:none!important}
-body.op4 .prog-top{min-height:0}
+body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 2026-09-26 · #pnow 를 숨기면 space-between 에 자식이 #obExitSlot 하나만 남아 «저장 · 나가기»가 왼쪽에 붙었다 — 안내 1/2 · 2/2 와 다른 위저드는 모두 오른쪽 위(537행 «진행 스트립 1행 오른쪽») */
 .op-reset{display:flex;justify-content:flex-end;margin:-2px 0 4px}
 @media (max-height:500px){ .op-band{position:static!important;box-shadow:none} }   /* [A11Y_LAND 3장] 가로 휴대폰 · 확대 — 붙는 띠가 화면 절반을 덮었다(844×390 에서 58%) */
 .send-how{margin:10px 0 4px;font-size:12px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [UPLOAD_HONEST] 보낼 길 — 칸 안에 늘 보이게 */

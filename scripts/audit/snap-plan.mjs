@@ -17,8 +17,9 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const read = (r) => { try { return fs.readFileSync(path.join(ROOT, r), 'utf8'); } catch (e) { return null; } };
 const refsSrc = read('assets/snap-refs.js'), seq = read('assets/sequence-modal.js'), my = read('mypage.html'),
   gs = read('automation/platform/80_production.gs'), shot = read('docs/plans/스냅_레퍼런스_촬영목록표.md'),
-  adm = read('admin.html'), brief = read('brief.html'), priv = read('privacy.html');
-if (!refsSrc || !seq || !my || !gs || !shot || !adm || !brief || !priv) { console.log('━━ snap-plan — 원천 파일을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
+  adm = read('admin.html'), brief = read('brief.html'), priv = read('privacy.html'),
+  cb = read('automation/consultation/consultation-booking.gs'), ag = read('automation/admin/admin.gs');   // [SNAP_CONSENT] 지우기 길(doPost · adminCall)
+if (!refsSrc || !seq || !my || !gs || !shot || !adm || !brief || !priv || !cb || !ag) { console.log('━━ snap-plan — 원천 파일을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
 const ctx = { window: {} }; vm.createContext(ctx);
 try { vm.runInContext(refsSrc, ctx); } catch (e) { console.log('━━ snap-plan — snap-refs.js 를 실행하지 못했습니다: ' + e.message); process.exit(1); }
 const R = ctx.window.SNAP_REFS;
@@ -96,6 +97,42 @@ t((blk.match(/<textarea/g) || []).length === 1, `묻는 칸은 하나(D9) — te
 t(/!p\.snapV2/.test(blk), '서버가 새 기획을 알 때만 연다(SNAP_V2_GATE)');
 t(!/["' ]sp-[a-z]/.test(blk), '스냅 블록은 snp- 이름만 — 좌석 화면이 .sp-opt·.sp-note 를 쓴다(이름이 겹쳐 좌석 화면 CSS 가 바뀔 뻔했다)');
 t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]*snp-arw/.test(blk) && my.indexOf('.snp-flg{display:inline-flex') !== -1, '흐름 줄 화살표는 다음 칸과 한 덩어리(SNAP_FLOW_WRAP) — 따로 두면 줄 끝에 «›»가 매달리고 «본식»만 떨어졌다');
+
+// ── [SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 동의 — 모으는 그 자리에서 따로 · 미리 체크하지 않는다 · 한 번이면 다시 묻지 않는다
+{
+  const cut = (a, b) => { const i = my.indexOf(a); if (i < 0) return ''; const j = my.indexOf(b, i + a.length); return j < 0 ? '' : my.slice(i, j); };
+  const ah = cut('function _snapAgreeHtml(){', '\n}'), aok = cut('function _snapAgreeOk(){', '\n}'), flowR = cut('function renderSnapFlow(){', '\nfunction ');
+  t(ah.indexOf('고른 장면 · 메모 · 올린 사진을 촬영 준비에 쓰고, 모먼트에디트와 계약한 사진작가에게 전하는 데 동의해요.') > -1, '동의 문구 = 코워크 명세 그대로');
+  const ckTag = (ah.match(/<input type="checkbox" id="mp_snapAgreeCk"[^>]*>/) || [''])[0];
+  t(!!ckTag && !/checked/.test(ckTag) && !/mp_snapAgreeCk[\s\S]{0,160}\.checked\s*=\s*true/.test(my), '체크는 미리 켜지 않는다(태그에도 · 코드에도)');
+  t(/<label class="snp-agree-row"><input type="checkbox" id="mp_snapAgreeCk"><span>/.test(ah), '글을 눌러도 체크된다(label 안에 체크와 글)');
+  t(/\.snp-agree-row\{[^}]*min-height:44px/.test(my) && /\.snp-agree-more,\.snp-agree-pv\{[^}]*min-height:44px/.test(my) && /\.snp-dellink\{[^}]*min-height:44px/.test(my), '누름 칸 44px — 체크 줄 · 자세히 보기 · 처리방침 전문 · 스냅 기획 지우기');
+  t(/\(agreeAsk\?_snapAgreeHtml\(\):''\)[^\n]*\n\s*\+'<button type="button" class="cc-btn-ghost" id="mp_snapStart"[^>]*>스냅 기획하기<\/button>'/.test(blk), '자리 — «스냅 기획하기» 바로 위 · 테두리 버튼(사장님 결정 ⑥ SNAP_BTN_GHOST)');
+  t(/var agreeAsk=!lock&&!\(meta\.consent&&meta\.consent\.at\);/.test(blk) && flowR.indexOf('mp_snapAgreeCk') === -1, '한 번 동의하면(서버 기록) 다시 묻지 않는다 · 편집 화면엔 체크가 없다');
+  t(aok.indexOf("'위 동의에 체크하시면 시작할 수 있어요'") > -1 && /ck\.focus\(/.test(aok) && !/disabled/.test(aok), '체크 없이 누르면 — 버튼을 막지 않고 체크 줄로 초점 · 한 줄로 알린다');
+  t(/if\(!_snapAgreeOk\(\)\) return; startSnapFlow\(p\.snapDraft\|\|\{\}, p, agreeAsk\);/.test(blk), '시작 전에 확인 · 막 동의했으면 첫 저장에 싣는다');
+  ['<dt>받는 것</dt><dd>고른 장면 · 메모 · 참고 링크 · 두 분이 올린 참고 사진</dd>',
+   '<dt>쓰는 곳</dt><dd>스냅 촬영 준비 · 사진작가에게 촬영 요청서로 전해요(성함 · 연락처는 전하지 않아요)</dd>',
+   '<dt>보관</dt><dd>올린 사진 · 링크 · 메모는 예식 6개월 뒤 지워요</dd>',
+   '<dt>동의하지 않으셔도 돼요</dt><dd>스냅 기획 없이 기본 장면으로 찍어요</dd>'].forEach((x) => t(ah.indexOf(x) > -1, '자세히 보기 — ' + x.replace(/<\/dt>/, ' · ').replace(/<[^>]+>/g, '')));
+  t(ah.indexOf('올린 사진 · 메모는 예식 6개월 뒤 지워요<br><button') > -1 && /aria-expanded="false" aria-controls="mp_snapAgreeBody"/.test(ah) && /id="mp_snapAgreeBody" hidden/.test(ah), '작은 줄 «… 6개월 뒤 지워요» + «자세히 보기»(제 줄 · 줄 끝 가운뎃점 없이) — 펼치기 전엔 숨김(aria-expanded)');
+  t(ah.indexOf('href="privacy.html#snap-plan"') > -1 && /<div class="spec-row" id="snap-plan">[\s\S]{0,300}<span class="spec-key">스냅 기획<\/span>/.test(priv), '«개인정보 처리방침 전문 보기» → 처리방침의 스냅 기획 줄(id="snap-plan")');
+  t(/snapConsent:ag\?1:undefined/.test(my) && /snapConsent:SNAPFLOW\.agreeNew\?1:undefined/.test(my), '첫 저장 · 첫 올리기에 동의를 싣는다');
+  t(flowR.indexOf('>스냅 기획 지우기</button>') > -1, '편집 화면 맨 아래 «스냅 기획 지우기»');
+  t(my.indexOf("body:'고른 장면 · 메모 · 올린 사진을 지우고 동의도 거둬요. 기본 장면으로 찍어요.'") > -1 && /action:'snapWithdraw'/.test(my), '지우기 확인 창 문구 = 명세 그대로 · 서버 snapWithdraw');
+  t(/case 'snapWithdraw':\s*return jsonOut\(handleSnapWithdraw\(body\)\);/.test(cb), 'doPost 가 snapWithdraw 를 잇는다');
+  t(/adminSnapWithdraw: adminSnapWithdraw/.test(ag) && /data-snapact="withdraw"/.test(adm) && /gas\('adminSnapWithdraw'/.test(adm), '관리자 «기획 지우기(동의 거둠)» — 잠긴 뒤 부탁받았을 때');
+  t(/if \(!\(body && body\.snapConsent\)\) return \{ ok: false, consent: false, error: SNAP_CONSENT_MSG \};/.test(gs) && /if \(!body\.snapConsent\) return \{ ok: false, consent: false, error: SNAP_CONSENT_MSG \};/.test(gs), '서버 — 동의 없이 새 기획 저장 · 사진 올리기를 거절한다(동작은 snap-plan.test.js 15)');
+  t(/var SNAP_CONSENT_MSG = '스냅 기획을 시작하려면 동의가 필요해요\.';/.test(gs), '거절 문구 = 명세 그대로');
+  t(/m\.consent = \{ at: fmtKST\(new Date\(\)\), ver: String\(SNAP_V2\.from\) \};/.test(gs), '동의 기록 = {한국 시각 · 그때의 처리방침 시행일}');
+  t(/okc = _snapConsentOk\(r\.m\)/.test(gs) && /note: okc \? String\(sd\.note \|\| ''\) : ''/.test(gs), '촬영 브리프는 동의가 있을 때만 기획을 싣는다');
+  t(/row\('동의',\(_sm\.consent&&_sm\.consent\.at\)/.test(adm), '관리자 «스냅 상세»에 «동의 {일시}» 줄');
+  const snapRow = (priv.match(/<span class="spec-key">스냅 기획<\/span>\s*<span class="spec-val">([^<]*)/) || [])[1] || '';
+  t(/\(선택 · 따로 동의를 받은 경우에만\)$/.test(snapRow), '처리방침 수집 줄 끝 «(선택 · 따로 동의를 받은 경우에만)»');
+  t(/다만 정보주체의 권리에 불리하지 않은 변경\(수탁사 추가 고지 등\)은 공고와 동시에 시행할 수 있습니다\./.test(priv) && /10조 단서에 따라 공고와 동시에 시행/.test(priv), '[SNAP_OPEN_NOW] 개정 이력 — 10조 단서에 따라 공고와 동시에 시행(근거 조문이 본문에 있다)');
+  const pd = priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2}) \(공고 (\d{4})\.(\d{2})\.(\d{2})\)/);
+  t(!!pd && pd.slice(1, 4).join('.') === pd.slice(4, 7).join('.'), '[SNAP_OPEN_NOW] 시행일 = 공고일(바로 연다)');
+}
 
 // ── 같은 원천을 읽는다
 [['mypage.html', my], ['admin.html', adm], ['brief.html', brief]].forEach(([f, s]) => t(s.indexOf('<script src="/assets/snap-refs.js"></script>') !== -1, `${f} 가 목록 파일을 읽는다`));
