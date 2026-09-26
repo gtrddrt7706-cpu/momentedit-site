@@ -136,7 +136,8 @@ const G = [
     ['N7', '사진 부탁 (예식 직전)', 'narr-photo-ask', RC.EXTRA['narr-photo-ask']],
     ['N8', '사진 보내기 안내 (배웅)', 'narr-photo-send', RC.EXTRA['narr-photo-send']],
     ['N0', '단체촬영 개시 신호', 'end-0-photo', RC.EXTRA['end-0-photo']],
-    ['N1-a', '촬영 종료 → 배웅 전환', 'end-1a-farewell', RC.EXTRA['end-1a-farewell']],
+    ['N1-a', '두 분 감사 인사 · 식사 있는 날 (전체 사진 뒤)', 'end-1a-farewell', RC.EXTRA['end-1a-farewell']],   // [PHOTO_THANKS 2026-09-26] 옛 «촬영 종료 → 배웅 전환»
+    ['N1-c', '두 분 감사 인사 · 식사 없는 날 (전체 사진 뒤)', 'end-1c-thanks-nomeal', RC.EXTRA['end-1c-thanks-nomeal']],   // [THANKS_TEXT] 110
     ['N1-b', '촬영 종료 → 배웅(온라인 참석이 있는 날)', 'end-1b-farewell-online', RC.EXTRA['end-1b-farewell-online']],
     ['N2', '배웅 마무리 · 귀가 인사', 'end-2-goodbye', RC.EXTRA['end-2-goodbye']],
     ['N3', '온라인 참석자 환영', 'online-3-welcome', RC.EXTRA['online-3-welcome']],

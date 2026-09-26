@@ -86,7 +86,9 @@ for (const w of [390, 1280]) {
   // ⑤ 키보드로 줄 열기
   await pg.focus('[data-fk="lsm:candle"]'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(400);
   ok(`${w} ② 키보드 Enter 로 줄이 열린다`, await pg.evaluate(() => LS.open === 'candle' && !!document.querySelector('.ls-row.open .ls-flow')));
-  /* [TEXT_AUDIO_MATCH 2-1] 지금 녹음은 옛 대본이라 전부 글로 흐른다 — 줄마다 꼬리표 대신 «처음부터» 아래 한 줄 */
+  /* [TEXT_AUDIO_MATCH 2-1] 녹음이 하나도 안 맞는 날은 전부 글로 흐른다 — 줄마다 꼬리표 대신 «처음부터» 아래 한 줄
+     ★[REC_STATE_FREE 2026-09-26] 9/26 녹음이 들어와 «지금 녹음 = 옛 대본»이 더는 참이 아니다 — 녹음 기록을 비워 그 상태를 만들어 잰다(저장소 녹음과 상관없이). */
+  await pg.evaluate(() => { for (const k in LREC) delete LREC[k]; LS.open = 'candle'; render(); }); await pg.waitForTimeout(300);
   ok(`${w} ② 전부 녹음 전이면 한 줄만(«새 대본을 녹음하기 전이라…») · 줄 꼬리표 없음`, await pg.evaluate(() => LS.allPend && /새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요/.test((document.querySelector('.ls-allpend') || {}).textContent || '') && !document.querySelector('.ls-row.open .ls-flow .ls-new')));
   ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px`, await pg.evaluate(() => { const c = document.querySelector('.ls-row.open .op-chip'); return !!c && c.getAttribute('role') === 'radio' && c.closest('[role=radiogroup]') && c.getBoundingClientRect().height >= 44; }));
   ok(`${w} ② 고른 칩이 눈에 보인다(바탕이 다르다) [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.ls-row.open .op-chip[aria-checked="true"]'), off = document.querySelector('.ls-row.open .op-chip[aria-checked="false"]'); return !!on && !!off && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
@@ -130,10 +132,13 @@ for (const w of [390, 1280]) {
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   await clickNext(pg); await pg.waitForTimeout(1500);
   const nz = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, '');
-  // ① 녹음 기록 그대로(옛 대본): 소리 나는 줄이 있으면 전부 «녹음된 글 = 자막»이어야 한다
+  // ① 녹음 기록 그대로: 소리 나는 줄이 있으면 전부 «녹음된 글 = 자막»이어야 한다
   const chk = () => pg.evaluate(() => { const st = _lSteps(ENG, _lRows()); const nz = (s) => String(s || '').replace(/[^0-9A-Za-z가-힣]+/g, ''); const bad = st.filter((x) => x.src && nz(_lRecText(x.file)) !== nz(x.txt)); return { sound: st.filter((x) => x.src).length, bad: bad.map((x) => x.file) }; });
   let r = await chk();
-  ok('2-1 옛 녹음 그대로 — 소리 나는 줄 중 자막과 다른 줄 0', r.bad.length === 0, JSON.stringify(r));
+  ok('2-1 녹음 그대로 — 소리 나는 줄 중 자막과 다른 줄 0', r.bad.length === 0, JSON.stringify(r));
+  ok('2-1 9/26 녹음이 들어온 뒤 — 가족 예시 ② 에 소리 나는 줄이 있다 [REC_STATE_FREE]', r.sound > 0, JSON.stringify(r));
+  /* [REC_STATE_FREE] 아래 ②③ 은 «두 줄만 재녹음»을 흉내 낸다 — 먼저 녹음 기록을 비워 출발점을 «전부 녹음 전»으로 맞춘다 */
+  await pg.evaluate(() => { for (const k in LREC) delete LREC[k]; render(); }); await pg.waitForTimeout(300);
   // ② 두 줄만 «재녹음»(녹음된 글 = 지금 글) → 그 둘만 소리 · 나머지는 글 · 줄 꼬리표가 돌아온다
   await pg.evaluate(() => { const st = _lSteps(ENG, ['ring', 'declare']).filter((x) => x.file); st.forEach((x) => { LREC[x.file] = { text: x.txt }; }); window.__fix = st.map((x) => x.file); render(); });
   await pg.waitForTimeout(300);

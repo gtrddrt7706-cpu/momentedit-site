@@ -8231,13 +8231,14 @@ var PHOTO_MAX=5;    // 전체 하객 제외 추가 구도 상한(총 6컷)
      ★[WISH_COUNT 2026-09-26 코워크 최종판 2-6] PHOTO_ALL 은 6 + 두 분이 적은 «꼭 담고 싶은 사진» 수(0~2 · 하나에 1분 남짓 — 첫 전체 사진 바로 뒤).
        종전(8 고정)은 요청을 안 적은 분도 2분을 잡아 구도를 하나 덜 받았다. 엔진 (44, end-0-photo) est 도 같은 셈(360 + 60 × 적은 수).
      ★줄이는 차례: 자유 사진 → 숨 고르기 → 뒤에 고른 구도. 배웅 시각은 지킨다. */
-var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2;
+/* ★[PHOTO_THANKS 2026-09-26 사장님 결정] 전체 사진 바로 뒤 두 분 감사 인사 약 1분(PHOTO_THANKS) — 엔진 (45, end-1a-farewell) 목표 60초와 같은 셈. 구도 자리가 그만큼 준다. */
+var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2, PHOTO_THANKS=1;
 function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }   // [WISH_COUNT] 글이 있는 요청만 센다(빈 칸은 시간을 잡지 않는다)
 function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig, photoWishN()); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
 function photoCapOf(rd, dig, wishN){
   var sec=((rd||{}).summary||{}).sec;
   if(!sec||sec.length!==2||!(sec[1]>0)) return null;
-  var pre=PHOTO_PRE+(dig?PHOTO_ONLINE:0), all=PHOTO_ALL+Math.max(0,Math.min(PHOTO_WISH_MAX,+wishN||0));
+  var pre=PHOTO_PRE+PHOTO_THANKS+(dig?PHOTO_ONLINE:0), all=PHOTO_ALL+Math.max(0,Math.min(PHOTO_WISH_MAX,+wishN||0));
   var lateGroup=PHOTO_DAY-sec[1]/60-pre, fastGroup=PHOTO_DAY-sec[0]/60-pre;
   /* ★[PHOTO_CAP_CLAMP 2026-09-26 코워크 회신 9/26 1] k 를 먼저 PHOTO_MAX 로 자른 뒤 max 를 셈한다 —
        종전엔 max = Math.max(k, …) 에서 자르기 전 k 가 들어가 본식이 아주 짧으면(빈 채) 9 가 나왔다. */
@@ -8348,7 +8349,7 @@ function renderPhoto(box){
      ★«자연스럽게» — 사장님 «웨딩 가족사진 느낌보단 캐주얼하고 자연스러운 세미웨딩 가족사진». 누가 하는지(사진작가)를 붙였다(책임질 수 없는 안심 금지). */
   var _flw=[['다 함께 한 장',false],['가족 구도',true],['친구들과 자유롭게',!!PHOTOFLOW.friendOk]];
   h+='<div class="snp-flow" role="list" aria-label="본식 뒤 단체 사진 시간의 순서" style="margin:4px 0 10px">'+_flw.map(function(x,i){ return '<span role="listitem" class="snp-flg">'+(i?'<span class="snp-arw" aria-hidden="true">›</span>':'')+'<span class="snp-fl'+(x[1]?' on':'')+'">'+x[0]+'</span></span>'; }).join('')+'</div>';
-  h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">본식 뒤 <b>단체 사진</b> 시간에 이 순서로 찍어요. 가족 구도는 <b>고르신 순서</b>대로, 사진작가가 자연스럽게 이끌어요.</div>';   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  h+='<div class="cc-note" style="text-align:left;margin:0 0 12px">본식 뒤 <b>단체 사진</b> 시간에 이 순서로 찍어요. 가족 구도는 <b>고르신 순서</b>대로, 사진작가가 자연스럽게 이끌어요.<br>전체 사진 뒤 두 분이 다 함께 감사 인사를 드리면, 가실 분은 식사 자리로 먼저 가셔요.</div>';   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   h+='<div class="ph-list">';
   h+='<div class="ph-item locked"><span class="ph-no">1</span><span class="ph-nm">전체 하객<span class="ph-sub">오신 분들 모두 · 늘 첫 컷이에요</span></span><span class="ph-fix">고정</span></div>';
   sel.forEach(function(n,i){
