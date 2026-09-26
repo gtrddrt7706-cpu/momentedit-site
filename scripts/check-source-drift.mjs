@@ -198,7 +198,7 @@ function scan(needle) {
     const src = fs.readFileSync(path.join(root, f), 'utf8');
     /* 표의 처음·끝을 알리는 말. 영어 시퀀스명이 없는 표도 있다(sequence-modal.js 는 한글 진행표라
        'Getting Ready' 가 한 글자도 없다 — 그래서 아홉 벌만 읽히고 한 벌이 조용히 빠져 있었다). */
-    const ANCHOR = [['Getting Ready', 'Farewell'], ['신랑·신부 도착', '마무리·배웅']];
+    const ANCHOR = [['Getting Ready', 'Farewell'], ['신랑·신부 도착', "['마무리', '20분'"]];   // [PHOTO_THANKS 2026-09-26] 옛 끝말 «마무리·배웅» — «마무리» 한 낱말은 문의서 표에도 스쳐 가 줄 머리까지 잡는다
     for (const [head, tail] of ANCHOR) {
     const gre = new RegExp(head, 'g');
     let g;
@@ -428,7 +428,7 @@ function scan(needle) {
       '하객 입장': arr.map((a) => hhmm(body(a) - 20)),
       '본식': arr.map((a) => hhmm(body(a))),
       '단체 사진': arr.map((a) => hhmm(body(a) + O6.RANGE.rep)),
-      '마무리·배웅': arr.map((a) => hhmm(toMin(a) + D.DAY.total - D.DAY.farewell)),
+      '마무리': arr.map((a) => hhmm(toMin(a) + D.DAY.total - D.DAY.farewell)),
     };
     for (const k in want) { const got = row(k); if (!got || got.join() !== want[k].join()) bad.push(`'${k}' ${got ? got.join(' · ') : '줄 없음'} ≠ 계산 ${want[k].join(' · ')}`); }
   }
