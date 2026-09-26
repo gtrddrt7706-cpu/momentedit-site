@@ -6058,7 +6058,8 @@ function _ritPrepFold(rd, base, dd){
   /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 맡긴 케이크 · 꽃 — 직접 준비분은 이미 prep(챙길 것)에 있다 */
   var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.by==='studio'; }).map(function(g){ return String(g.what||''); });
   var n=two.length+par.length+hp.length+stu.length; if(!n) return '';
-  return '<details class="rit-prep"><summary>준비할 것 · 도와주실 분 '+n+'가지</summary>'   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 */
+  var _np=two.length+par.length+stu.length, _sum=[(_np?'준비할 것 '+_np+'가지':''),(hp.length?'도와주실 분 '+hp.length:'')].filter(Boolean).join(' · ');   // ★[PREP_COUNT_SPLIT 코워크 추가 점검 P3] «준비할 것 · 도와주실 분 9가지»는 사람까지 «가지»로 셌다
+  return '<details class="rit-prep"><summary>'+_sum+'</summary>'   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 */
     +(two.length?'<h4>두 분이 준비할 것</h4><ul>'+two.join('')+'</ul>':'')
     +(par.length?'<h4>부모님께 부탁드릴 것</h4><ul>'+par.join('')+'</ul>':'')
     +(stu.length?'<h4>저희가 준비해요</h4><ul>'+stu.map(function(w){ return '<li>'+escapeHtml(w)+' <span class="due">· 별도 비용 · 금액은 상담 때 안내해 드려요</span></li>'; }).join('')+'</ul>':'')
@@ -7714,7 +7715,11 @@ var PHOTO_SCENE=[
 ];
 // 식순 초안에서 '고른 순간'만 골라낸다 — 초안이 없거나 옛 판이면 null(칸을 통째로 안 그린다)
 function photoSceneList(rd){
-  var flow=((rd||{}).summary||{}).flow;
+  /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4] 새 코스 초안은 빌더가 실은 목록(summary.scenes · 본식 차례 · 카드 이름 · 장면)을 그대로 쓴다.
+     옛 코스 초안 · 이 줄 전에 저장된 새 코스 초안은 아래 이름 맞추기 그대로(빌더를 한 번 열면 자동 저장이 새 목록을 싣는다). */
+  var _sm=((rd||{}).summary||{});
+  if(_sm.open&&_sm.scenes&&_sm.scenes.length) return _sm.scenes.map(function(x){ return {n:String(x.n||''), s:String(x.s||'')}; });
+  var flow=_sm.flow;
   if(!flow||!flow.length) return null;
   flow=flow.map(function(n){ return n==='두 사람이 준비한 순서'?'준비한 순서':n; });   // [DETAIL_0925 B3] 9/25 하루 저장된 초안의 옛 이름
   var on=PHOTO_SCENE.filter(function(x){ return flow.indexOf(x.n)>-1; });
