@@ -8146,8 +8146,9 @@ var PHOTOFLOW = { active:false, sel:[], gi:null };
        · 글 속 첫 http(s) 주소를 꺼낸다(빈칸 · 따옴표 · 꺾쇠 앞까지)
        · 스킴 없는 도메인은 첫 빈칸 앞까지만 보고 https 를 붙인다([SHARE_SCHEME] 그대로)
        · 끝에 붙은 문장부호(. , ! ? 」 』)와 짝 없는 ')' 는 뗀다 — 경로 안 괄호 a(b)c 는 지킨다
+       · 스킴 없는 도메인의 판정도 끝 문장부호를 뗀 뒤에 한다 — «weduploader.com.»(문장 끝 마침표)이 링크로 안 읽혀 관문에 막히던 것([SHARE_EXTRACT] 검토 보완)
      요청 참고 링크(wishNorm)도 이 함수를 쓴다. 서버(80_production)는 종전대로 http(s) 앞머리만 본다 — 바꿀 것이 없다. */
-function photoShareNorm(u){ u=String(u==null?'':u).trim(); var m=u.match(/https?:\/\/[^\s<>"']+/i); if(m) u=m[0]; else { u=u.split(/\s/)[0]; if(/^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}([\/?#:]|$)/i.test(u)) u='https://'+u; } u=u.replace(/[.,!?」』]+$/,''); if(/\)$/.test(u) && u.split('(').length<u.split(')').length) u=u.slice(0,-1); return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자 · 스킴 없는 도메인은 https 를 붙여 보낸다(서버는 종전대로 http(s)만) · [SHARE_EXTRACT] 글 속 주소만
+function photoShareNorm(u){ u=String(u==null?'':u).trim(); var m=u.match(/https?:\/\/[^\s<>"']+/i); if(m) u=m[0]; else { u=u.split(/\s/)[0]; if(/^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}([\/?#:]|$)/i.test(u.replace(/[.,!?」』]+$/,''))) u='https://'+u; } u=u.replace(/[.,!?」』]+$/,''); if(/\)$/.test(u) && u.split('(').length<u.split(')').length) u=u.slice(0,-1); return /^https?:\/\//i.test(u) ? u.slice(0,300) : ''; }   // 하객 사진 모으기 링크 — http(s)만·최대 300자 · 스킴 없는 도메인은 https 를 붙여 보낸다(서버는 종전대로 http(s)만) · [SHARE_EXTRACT] 글 속 주소만
 /* ★[SHARE_KIND 2026-08-16] 넣은 링크가 **어떤 성격인지** 알아본다. 종류마다 하객이 겪는 것이 다르기 때문이다 —
    1:1 오픈채팅은 서로 안 보이고, 공유 앨범은 링크를 아는 사람끼리 다 본다. 그 차이를 부부가 넣는 즉시 알아야 한다.
    ★막는 장치가 아니다(무엇을 넣든 저장된다) — 넣은 것이 뜻하는 바를 되읽어 주는 거울일 뿐이다. */
