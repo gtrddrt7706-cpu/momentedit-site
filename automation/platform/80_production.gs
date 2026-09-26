@@ -513,7 +513,7 @@ function handleSaveProductionTrack(body) {
   // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝) — 전 항목 선택 · 배열 상한·문자열 길이 · 링크는 http/https 만. (2026-07-19 스냅사진 파트 · marker: SNAP_PREP_NORMALIZE)
   //   ★[SNAP_PICK_V2 2026-09-26] 판이 둘이다 — v:2 면 «고르는 스냅 기획»(공간별 장면·올린 그림·링크·한 칸), 아니면 옛 칸(배포 시차로 남은 탭).
   //     어느 판이든 다른 판의 칸은 락 안에서 지난 저장분으로 채운다(_snapMerge · SNAP_LEGACY_KEEP) — 여기서 통째로 버리지 않는다.
-  var _snapIsV2 = false;
+  var _snapIsV2 = false, _snapConsentNew = false;
   if (track === 'snap') {
     var snr = (body && body.draft) || {};
     _snapIsV2 = Number(snr.v) === 2;
@@ -546,6 +546,13 @@ function handleSaveProductionTrack(body) {
       var _snDl = _snapDaysLeft(cust); if (_snDl != null && _snDl <= SNAP_V2.lockDays) return { ok: false, locked: true, error: SNAP_LOCK_MSG };   // [SNAP_LOCK]
       body.draft = _snapMerge(body.draft, d.snapDraft, _snapIsV2);   // [SNAP_LEGACY_KEEP]
       if (_snapIsV2) _snapOwnUps(body.draft, d.snapMeta);
+      if (_snapIsV2) {   // [SNAP_CONSENT] 새 기획은 동의가 있어야 — 기록이 없으면 이번 요청의 동의(snapConsent)로 남긴다(쓰기와 함께 저장된다)
+        var _scm = d.snapMeta = d.snapMeta || {};
+        if (!_snapConsentOk(_scm)) {
+          if (!(body && body.snapConsent)) return { ok: false, consent: false, error: SNAP_CONSENT_MSG };
+          _snapConsentGive(_scm); _snapConsentNew = true;
+        }
+      }
     }
     // [예식 확인서] 전 파트 스냅샷+시각 저장(면책) — 식순·최종 확정 완료 후에만 · 이후 트랙 수정 시 자동 해제(아래 invalidation)
     if (track === 'confirm') {
@@ -693,6 +700,7 @@ function handleSaveProductionTrack(body) {
       }
     }
     touchCustomer(sheet, colOf, cust.num, _upd);
+    if (_snapConsentNew) { try { if (typeof _recordHandler === 'function') _recordHandler(code, '스냅 기획 동의 · 처리방침 ' + SNAP_V2.from); } catch (e) {} }   // [SNAP_CONSENT] 처리이력에 한 줄
     _snapJobs.forEach(function (f) { _notifyQ.push(f); });   // [SNAP_PICK_V2] 쓰기가 끝났으니 락 밖에서
     // ★PRODUCE_ENTRY_FIX(2026-07-25 사용자 발견 "이미 고객은 제작단계인데 관리자 페이지 단계랑 매치가 안 됨"):
     //   입금완료→제작중 전이가 handleSaveProductionBase 한 곳에만 있었는데, 기초정보 입력 화면이 폐지돼(03-1b 서버 구성)
@@ -1190,9 +1198,13 @@ function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS �
 //   ★부부 화면은 buildProductionState 의 snapV2 표시가 있을 때만 새 기획을 연다 — 이 파일을 배포하기 전에는 옛 서버가
 //     새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라지기 때문이다(화면엔 «저장됐어요»). 그 창을 없앤다.
 // ==============================================================================
-var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-10-03' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
+var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-09-26' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
 var SNAP_ZONE_RE = { candle: /^c\d{2}$/, white: /^w\d{2}$/ };
-// ★[SNAP_V2_FROM 2026-09-26] 새 기획은 처리방침 개정 시행일(privacy.html «개정 시행일자 · 2026.10.03 (공고 2026.09.26)»)부터 연다.
+// ★[SNAP_V2_FROM 2026-09-26] 새 기획은 처리방침 개정 시행일(privacy.html «개정 시행일자 · …»)부터 연다.
+// ★★[SNAP_OPEN_NOW 2026-09-26 사장님 결정 · 코워크 명세 ②] 시행일 = 공고일 = 이 변경이 배포되는 날(2026-09-26).
+//   스냅 기획은 **선택**이고 이제 그 자리에서 **따로 동의**를 받는다([SNAP_CONSENT]) — 동의하지 않은 분에게는 바뀌는 것이 없다.
+//   처리방침 10조 단서(«정보주체의 권리에 불리하지 않은 변경(수탁사 추가 고지 등)은 공고와 동시에 시행»)로 7일을 기다리지 않는다.
+//   날짜 문(아래 _snapV2Live)은 그대로 둔다 — 값만 바꿨다. 다음에 처리방침을 고칠 때도 이 문이 «공고 전 수집»을 막는다.
 //   새로 생기는 것이 둘이다 — 두 분이 올리는 참고 사진(수집) · 사진작가에게 가는 촬영 브리프(위탁). 둘 다 공고한 날보다 먼저 시작하면 안 된다.
 //   이 파일은 다른 일로도 자주 재배포된다. 재배포 날짜에 기대면 그 전에 켜진다 — 그래서 날짜를 코드가 본다.
 //   닫혀 있는 동안: 부부 화면 카드·«지금 할 일»이 숨는다(snapV2 false) · 새 기획 저장·사진 올리기·브리프 만들기를 거절한다.
@@ -1283,6 +1295,65 @@ function _snapDaysLeft(cust) {
 }
 var SNAP_LOCK_MSG = '예식 3일 전부터는 여기서 고칠 수 없어요. 바꿀 것이 있으면 디렉터에게 말씀해 주세요.';
 
+// ★★[SNAP_CONSENT 2026-09-26 사장님 결정 · 코워크 명세 ①] 스냅 기획은 선택이고, 모으는 그 자리에서 **따로 동의**를 받는다.
+//   사장님 원문: «정보를 받기 동의가 필요하면 스냅기획 밑에 동의서 체크하게 만들면 되잖아»
+//   동의 기록 = snapMeta.consent { at: 한국 시각 'yyyy-MM-dd HH:mm', ver: 그때의 처리방침 시행일(SNAP_V2.from) }
+//   ① 부부 화면이 첫 저장(또는 첫 사진 올리기)에 snapConsent 를 싣는다 — 기록이 없을 때만 남긴다(한 번 동의하면 다시 묻지 않는다)
+//   ② 기록도 snapConsent 도 없으면 새 기획 저장 · 사진 올리기를 거절한다(옛 칸 저장은 종전대로 — 배포 시차로 남은 탭)
+//   ③ 촬영 브리프는 동의가 있을 때만 기획을 싣는다 — 없으면 예식 일시와 기본 장면만
+//   ④ 거두기(스냅 기획 지우기) — 기획 · 올린 사진 · 링크 · 메모 · 동의 기록을 지우고 브리프 주소를 닫는다. 지운 때만 남긴다(withdrawn)
+var SNAP_CONSENT_MSG = '스냅 기획을 시작하려면 동의가 필요해요.';
+function _snapConsentOk(m) { return !!(m && m.consent && m.consent.at); }
+function _snapConsentGive(m) {
+  // [SNAP_CONSENT] 기록이 없을 때만 부른다 — 시각은 서버 시계(한국), 판은 그때의 처리방침 시행일
+  m.consent = { at: fmtKST(new Date()), ver: String(SNAP_V2.from) };
+  delete m.withdrawn;
+  return m.consent;
+}
+// [SNAP_CONSENT] 거두기 — 두 분(마이페이지 «스냅 기획 지우기»)과 디렉터(관리자 «스냅 상세» · 잠긴 뒤 부탁받았을 때)가 같은 길을 쓴다.
+//   잠금(예식 3일 전)과 상관없이 받는다 — 고치기가 아니라 동의를 거두는 것이라서다.
+function _snapWithdraw(code, by) {
+  var lock = LockService.getScriptLock(), files = [], had = false, wed = '-';
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
+  try {
+    var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet), cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+    var _cm = _prodColsMissingError(colOf, code, []); if (_cm) return _cm;
+    var _dl = _prodDraftLoadSafe(cust, code, [], 'snap'); if (!_dl.ok) return _dl.res;
+    var d = _dl.d, m = d.snapMeta || {}, Pr = PropertiesService.getScriptProperties();
+    had = !!(_snapConsentOk(m) || _snapFilled(d.snapDraft) || m.folder || _snapArr(m.uploads).length || (m.brief && m.brief.t));
+    if (m.folder) files.push({ folder: String(m.folder) });
+    _snapArr(m.uploads).forEach(function (u) { if (u && u.id) files.push({ id: String(u.id) }); if (u && u.th) files.push({ id: String(u.th) }); });
+    if (m.brief && m.brief.t) { try { Pr.deleteProperty('SNAPBRIEF_' + m.brief.t); } catch (e) {} }
+    d.snapDraft = {};
+    d.snapMeta = { withdrawn: { at: fmtKST(new Date()), by: by } };
+    d.tracks = d.tracks || {}; d.tracks.snap = '시작전';
+    var _pk = _prodPack(d, { track: 'snap', cust: cust }); if (_pk.err) return { ok: false, error: _pk.err };
+    touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { pack: _pk }));
+    wed = _ymdOf(cust.get('예식일')) || '-';
+    try { if (typeof _recordHandler === 'function') _recordHandler(code, '스냅 기획 지움 · 동의 거둠(' + by + ')'); } catch (e) {}
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+  // 드라이브는 락 밖에서(느린 I/O) — 폴더째 휴지통 · 파일도 하나씩(폴더 밖으로 옮겨졌을 때)
+  files.forEach(function (f) { try { if (f.folder) DriveApp.getFolderById(f.folder).setTrashed(true); else DriveApp.getFileById(f.id).setTrashed(true); } catch (e) {} });
+  if (had && by !== '디렉터') {
+    try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('스냅 기획을 두 분이 지웠어요(동의 거둠) · ' + code + ' · 예식 ' + wed + ' · 올린 사진은 휴지통으로 · 촬영 브리프 주소는 닫혔어요. 사진작가에게 이미 보냈다면 알려 주세요.'); } catch (e) {}
+  }
+  return { ok: true };
+}
+function handleSnapWithdraw(body) {
+  // [SNAP_CONSENT] 두 분의 «스냅 기획 지우기» — 세션으로만(코드를 받지 않는다)
+  body = body || {};
+  var s = resolveSession(String(body.token || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  return _snapWithdraw(code, '두 분');
+}
+function adminSnapWithdraw(code) {
+  _requireAdmin();   // [SNAP_CONSENT] 잠긴 뒤(예식 3일 전) 두 분이 디렉터에게 부탁했을 때 · 두 분 화면과 같은 길
+  return _snapWithdraw(String(code || '').trim(), '디렉터');
+}
+
 // 저장 직후(락 안 · 쓰기 전) — 올린 사진 정리 · 확인 해제 · 마감 뒤 변경 알림. 드라이브·메일은 jobs 로 넘겨 «쓰기가 끝난 뒤» 락 밖에서 한다
 function _snapAfterSave(d, oldJ, cust, code, jobs) {
   var m = d.snapMeta = d.snapMeta || {};
@@ -1316,7 +1387,9 @@ function _snapMetaPublic(m, cust) {
   m = m || {};
   var dl = cust ? _snapDaysLeft(cust) : null;
   var c = (m.confirm && m.confirm.at) ? { at: String(m.confirm.at), reply: String(m.confirm.reply || '') } : null;
-  return { confirm: c, stale: !!m.stale, lock: dl != null && dl <= SNAP_V2.lockDays };
+  return { confirm: c, stale: !!m.stale, lock: dl != null && dl <= SNAP_V2.lockDays,
+    consent: _snapConsentOk(m) ? { at: String(m.consent.at), ver: String(m.consent.ver || '') } : null,   // [SNAP_CONSENT] 한 번 동의하면 다시 묻지 않는다 · 관리자 «동의 일시»
+    withdrawn: (m.withdrawn && m.withdrawn.at) ? { at: String(m.withdrawn.at), by: String(m.withdrawn.by || '') } : null };
 }
 
 // [SNAP_UPLOAD] 부부가 «찾던 그림»을 올린다 — 사진 1장(긴 변 1600) + 작은 그림(360). 폰에서 줄여 오므로 원본을 받지 않는다
@@ -1349,7 +1422,11 @@ function handleSnapRefUpload(body) {
     var _cm = _prodColsMissingError(colOf, code, []); if (_cm) return _cm;
     var dl = _snapDaysLeft(cust); if (dl != null && dl <= SNAP_V2.lockDays) return { ok: false, locked: true, error: SNAP_LOCK_MSG };
     var _dl = _prodDraftLoadSafe(cust, code, [], 'snap'); if (!_dl.ok) return _dl.res;
-    var d = _dl.d, m = d.snapMeta || {};
+    var d = _dl.d, m = d.snapMeta || {}, _metaDirty = false, _scNew = false;
+    if (!_snapConsentOk(m)) {   // [SNAP_CONSENT] 참고 사진은 동의가 있어야 받는다 — 첫 올리기가 첫 저장보다 먼저일 수 있어 여기서도 남긴다
+      if (!body.snapConsent) return { ok: false, consent: false, error: SNAP_CONSENT_MSG };
+      _snapConsentGive(m); d.snapMeta = m; _metaDirty = true; _scNew = true;
+    }
     if (_snapArr((((d.snapDraft || {}).zones || {})[zone] || {}).ups).length >= SNAP_V2.up) return { ok: false, error: '사진은 공간마다 ' + SNAP_V2.up + '장까지 올릴 수 있어요. 올린 사진을 빼고 다시 올려 주세요.' };
     if (_snapArr(m.uploads).length >= SNAP_V2.maxUploads) return { ok: false, error: '사진을 많이 올리셨어요. 필요 없는 사진을 빼고 저장한 뒤 다시 올려 주세요.' };
     fid = String(m.folder || '');
@@ -1357,9 +1434,12 @@ function handleSnapRefUpload(body) {
     if (!fid) {
       var it = DriveApp.getFoldersByName(SNAP_V2.root), root = it.hasNext() ? it.next() : DriveApp.createFolder(SNAP_V2.root);
       fid = root.createFolder(code + '_' + (_ymdOf(cust.get('예식일')) || 'nodate')).getId();
-      m.folder = fid; d.snapMeta = m;
+      m.folder = fid; d.snapMeta = m; _metaDirty = true;
+    }
+    if (_metaDirty) {   // 새 폴더 · 첫 동의 — 메타만(트랙 미지정) 한 번에
       var _sz = _prodSizeError(d, { cust: cust }); if (_sz) return { ok: false, error: _sz };
-      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));   // 메타만(트랙 미지정)
+      touchCustomer(sheet, colOf, cust.num, _prodStoreCols(d, {}, { cust: cust }));
+      if (_scNew) { try { if (typeof _recordHandler === 'function') _recordHandler(code, '스냅 기획 동의 · 처리방침 ' + SNAP_V2.from); } catch (e) {} }
     }
   } finally { try { lock.releaseLock(); } catch (e) {} }
   var ext = function (mime) { return mime === 'image/png' ? 'png' : (mime === 'image/webp' ? 'webp' : 'jpg'); };
@@ -1478,14 +1558,15 @@ function _snapBriefCust(t) {
 function handleSnapBrief(body) {
   var r = _snapBriefCust((body || {}).b); if (r.err) return r.err;   // [SNAP_BRIEF] 이름·연락처 없이 — 예식일·도착 시각·기획만
   var sd = r.d.snapDraft || {}, zs = sd.zones || {}, ci = (_parseJsonSafe(r.cust.get('동의기록')) || {}).계약정보 || {};
-  var zones = {};
-  ['candle', 'white'].forEach(function (k) { var z = zs[k] || {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links) }; });
-  return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: String(sd.note || ''),
+  var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 기본 장면만(기본 장면은 브리프 화면이 원천에서 그린다)
+  ['candle', 'white'].forEach(function (k) { var z = okc ? (zs[k] || {}) : {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links) }; });
+  return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: okc ? String(sd.note || '') : '', consent: okc,
     reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))) };
 }
 function handleSnapBriefImg(body) {
   body = body || {};
   var r = _snapBriefCust(body.b); if (r.err) return r.err;
+  if (!_snapConsentOk(r.m)) return { ok: false, error: '사진을 찾을 수 없어요.' };   // [SNAP_CONSENT] 동의가 없으면 올린 사진도 안 연다
   var id = String(body.id || ''), ok = false;
   ['candle', 'white'].forEach(function (k) { _snapArr((((r.d.snapDraft || {}).zones || {})[k] || {}).ups).forEach(function (u) { if (u && u.id === id) ok = true; }); });
   if (!ok) return { ok: false, error: '사진을 찾을 수 없어요.' };

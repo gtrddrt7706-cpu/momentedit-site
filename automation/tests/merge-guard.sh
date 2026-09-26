@@ -420,7 +420,7 @@ chk 'SNAP_V2_GATE' mypage.html 1                    # 서버가 새 기획을 �
 chk 'SNAP_NUDGE' mypage.html 1                      # D2 예식 3주 전부터 «지금 할 일» 한 줄
 chk 'SNAP_STEP_SAVE' mypage.html 1                  # 걸음을 넘길 때 바뀐 게 있으면 저장 — 고르다 창을 닫아도 남게(고객 입장 걸어 보기 2026-09-26)
 chk 'SNAP_FLOW_WRAP' mypage.html 2                  # 흐름 줄 화살표 = 다음 칸과 한 덩어리 · PC 한 줄 · 폰 셋·셋(«본식»만 떨어지던 자리)
-chk 'SNAP_V2_FROM' automation/platform/80_production.gs 6   # 새 스냅 기획은 처리방침 시행일(2026-10-03)부터 — 상태 표시·저장·사진 올리기·브리프 만들기(snap-plan 이 privacy.html 과 날짜 대조)
+chk 'SNAP_V2_FROM' automation/platform/80_production.gs 6   # 새 스냅 기획은 처리방침 시행일부터(SNAP_OPEN_NOW 로 2026-09-26 = 공고일) — 상태 표시·저장·사진 올리기·브리프 만들기(snap-plan 이 privacy.html 과 날짜 대조)
 chk 'SNAP_LEGACY_KEEP' automation/platform/80_production.gs 2
 chk 'SNAP_LOCK' automation/platform/80_production.gs 1
 chk 'SNAP_LATE_MAIL' automation/platform/80_production.gs 1
@@ -437,7 +437,21 @@ chk 'data-snapact="confirm"' admin.html 1
 chk 'SNAP_BRIEF' brief.html 1
 chk 'noindex, nofollow' brief.html 1
 chk '촬영(스냅)' privacy.html 1                      # D12 처리방침 위탁 한 줄
-chk '2026년 10월 3일' privacy.html 2                 # 시행일(공고 9/26 · 자기 규정 «7일 전 공지»)
+chk '2026년 9월 26일' privacy.html 3                 # [SNAP_OPEN_NOW] 공고일 = 시행일 = 위탁 시작일(10조 단서 · 공고와 동시에 시행) — 처음엔 10월 3일(«7일 전 공지»)이었다
+nochk '2026년 10월 3일' privacy.html                 # 옛 시행일이 되살아나면 서버(SNAP_V2.from)와 어긋난다
+chk 'SNAP_OPEN_NOW' automation/platform/80_production.gs 1
+chk 'SNAP_OPEN_NOW' privacy.html 1
+# ★★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 모으는 그 자리에서 따로 · 미리 체크하지 않는다 · 한 번이면 다시 묻지 않는다 ·
+#   동의 없으면 새 기획 저장 · 사진 올리기 거절 · 브리프는 동의가 있을 때만 기획 · «스냅 기획 지우기»(기획 · 올린 사진 · 동의 기록).
+#   화면 · 문구 · 처리방침은 scripts/audit/snap-plan.mjs · 서버 동작은 automation/tests/snap-plan.test.js 15 가 잰다(둘 다 깨 보고 믿었다)
+chk 'SNAP_CONSENT' mypage.html 12
+chk 'SNAP_CONSENT' automation/platform/80_production.gs 12
+chk 'SNAP_CONSENT' admin.html 4
+chk 'SNAP_CONSENT' privacy.html 1
+chk "case 'snapWithdraw'" automation/consultation/consultation-booking.gs 1
+chk 'adminSnapWithdraw: adminSnapWithdraw' automation/admin/admin.gs 1
+chk 'id="snap-plan"' privacy.html 1                   # 마이페이지 «개인정보 처리방침 전문 보기»가 이 줄로 온다
+chk '(선택 · 따로 동의를 받은 경우에만)' privacy.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/snap-plan.mjs >/dev/null 2>&1; _spl=$?
   case "$_spl" in
     0) echo 'ok snap-plan: 목록 = 진행표 · 서버 한도 · 촬영 목록표 · 다섯 걸음 · 지운 질문 0건' ;;
