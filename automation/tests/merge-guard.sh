@@ -11958,3 +11958,10 @@ chk 'SEAL_POINTS' order-preview.html 4
 chk 'SEAL_POINTS' assets/ritual-open.js 1
 chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
 chk 'TOAST_ONE_OR' assets/ritual-open.js 1
+# ── [코워크 회신8 2026-09-26] 칸 글 삼킴 · 케이크 한 줄 괄호 · 얇은 띠 ★ ──
+chk 'TILE_SWALLOW' assets/ritual-open.js 1
+chk "letter: '부모님이나 서로에게 쓴 편지를 읽어요', toast: '케이크를 자르고, 다 함께" assets/ritual-open.js 1
+chk 'TILE_SWALLOW' scripts/audit/comment-swallow.py 1
+chk 'TILE_SWALLOW' scripts/audit/open-course.mjs 1
+nochk '하나만 해도 돼요(② 보고 듣기에서 골라요)' assets/ritual-open.js
+chk 'SEAL_POINTS 코워크 회신8' order-preview.html 1
