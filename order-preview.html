@@ -729,7 +729,8 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-ex{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-top:8px;font:inherit;color:var(--accent);cursor:pointer}
 .op-ex[aria-pressed="true"]{border-color:var(--gold-deep);background:#F3ECDF}
 .op-ex b{display:block;font-size:14.5px} .op-ex .t{display:block;font-size:12px;color:var(--ink2);margin-top:3px} .op-ex .l{display:block;font-size:11.5px;color:var(--light);margin-top:3px;word-break:keep-all}
-.op-star{color:var(--gold-deeper)}   /* [DETAIL_0925 C1] ★ 도 글자 — 4.5:1 */
+#next.seal{background:var(--seal);border-color:var(--seal);color:#FAFAF8}   /* [SEAL_POINTS] ④ 확정 단추 */
+.op-star{color:var(--seal)}   /* [DETAIL_0925 C1] ★ 도 글자 · ★[SEAL_POINTS 2026-09-26 사장님] 가장 벅찬 순간은 진사(9:1 넘음) — ①~④ 같은 색 */
 .op-card button:focus-visible,.op-ex:focus-visible,.op-jump:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
 /* [LIST_WRAP] 목록 항목은 한 덩어리로 · [FREE_OWN] 맨 아래 묶음은 위와 한 칸 띄운다 · 더하기 단추 */
 .nw{white-space:nowrap}
@@ -773,7 +774,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .wr-sub{font-size:13px;font-weight:600;color:var(--accent);margin:14px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .op-steps{display:flex;gap:4px;list-style:none;padding:0;margin:14px 0 4px;font-size:11.5px;color:var(--light)}
 .op-steps li{flex:1;text-align:center;padding-top:6px;border-top:2px solid var(--border);white-space:nowrap}
-.op-steps li.on{color:var(--accent);font-weight:600;border-top-color:var(--accent)}
+.op-steps li.on{color:var(--accent);font-weight:600;border-top-color:var(--seal)}   /* [SEAL_POINTS] 지금 걸음 윗줄만 진사 — 마이페이지 진행 점과 같은 말 · 글자는 그대로 */
 .op-steps li.done{color:var(--ink2);border-top-color:var(--gold-deep)}
 .op-band.thin .op-bar,.op-band.thin .op-leg{display:none}
 .op-band.thin .op-mf{margin-top:4px}
@@ -932,11 +933,13 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-ex-g svg{height:44px}
   .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:28px;padding:18px 20px;margin-top:18px}
   .pk-fg{min-height:152px}
-  .pk-side{border-left:1px solid var(--bg2);padding-left:24px;display:flex;flex-direction:column}
+  .pk-side{border-left:1px solid var(--bg2);padding-left:28px;display:flex;flex-direction:column;gap:16px}   /* ★[PC_SIDE_AIR 2026-09-26 사장님 «우측 정보랑 버튼이 너무 낑겨»] 덩어리 사이 16 · 준비 줄은 왼쪽 그림 아래로 */
   .pk-big{font-size:13px;color:var(--sub);line-height:1.6;margin:0}
-  .pk-big strong{display:block;font-size:26px;color:var(--accent);font-weight:600;line-height:1.25;margin:2px 0 4px}
+  .pk-big strong{display:block;font-size:26px;color:var(--accent);font-weight:600;line-height:1.25;margin:4px 0 6px}
   .pk-go{margin-top:auto;min-height:48px;border:0;border-radius:12px;background:var(--accent);color:#FAFAF8;font:inherit;font-weight:600;cursor:pointer}
-  .pk-side .pk-peak{margin-top:10px}
+  .pk-side .pk-peak{margin-top:0}
+  .pk-side .op-note{margin-top:0}
+  .pk-prep-pc{margin-top:10px}
   .pk-acts{gap:18px;margin-bottom:48px}
   .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
   .pk-act-h{font-size:15px;color:var(--accent)}
@@ -1016,7 +1019,7 @@ html.lsmini .ls::after{content:'';display:block;height:72px}   /* [MINI_ROOM] �
 .ls-full{position:fixed;inset:0;z-index:2147482000;background:var(--bg);overflow:auto}
 .ls-full[hidden]{display:none}
 body.lsfull{overflow:hidden}
-.lf-in{max-width:520px;margin:0 auto;padding:12px 18px calc(28px + env(safe-area-inset-bottom))}
+.lf-in{max-width:520px;margin:0 auto;padding:12px 18px 0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;box-sizing:border-box}   /* ★[BIG_CTL_FIXED 2026-09-26 사장님 «아래 플레이는 고정됐으면 · 위아래로 움직이는 게 정신없어»] 글이 짧아도 단추 줄이 화면 맨 아래 — 아래 여백은 .lf-ctl 의 safe-area 가 맡는다 */
 .lf-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--sub);margin-bottom:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding:6px 0}   /* [BIG_END 2-10] 칩이 많아도 ⌄ · n / N 이 남는다 */
 @media (max-height:500px){ .ls-full .lv{max-height:45vh;width:auto;margin-left:auto;margin-right:auto} }   /* [BIG_END 2-10] 가로 휴대폰 — 장면이 화면을 다 쓰지 않게 */
 .lf-min{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
@@ -1030,7 +1033,7 @@ body.lsfull{overflow:hidden}
 .lf-txt.talk{font-family:var(--sans);font-size:14px;color:var(--sub);background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px}
 .lf-vars{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
 .lf-vars .gl{font-size:11.5px;color:var(--light);min-width:48px}
-.lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:var(--bg)}   /* [DETAIL_0925 B11] 자막 길이와 상관없이 같은 자리 */
+.lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;margin-top:auto;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:var(--bg)}   /* [DETAIL_0925 B11] 자막 길이와 상관없이 같은 자리 · [BIG_CTL_FIXED] margin-top:auto 로 짧은 글에서도 아래에 */
 .lf-ctl button{width:48px;height:48px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
 .lf-ctl button.big{width:60px;height:60px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
 .lf-end{text-align:center;font-size:14px;color:var(--ink2);margin:24px 0 0;line-height:1.7;word-break:keep-all}
@@ -2336,6 +2339,7 @@ function render(){
     : '다음';
   var _nxHtml=editReturn?'저장 · 요약으로':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(st.k==='pick'&&isOpen())?'다음 · 보고 듣기':(st.k==='listen')?'다음 · 준비하기':(idx===STEPS.length-2)?'완성 보기':_lastN;
   nx.innerHTML=_nxHtml;
+  nx.classList.toggle('seal', isOpen()&&st.k==='done'&&!editReturn&&!_doneSaved&&!_saving);   // ★[SEAL_POINTS 2026-09-26 사장님] ④ «이대로 저장하기»(확정 단추 · 화면에 하나)만 진사 채움 — 저장 중 · 저장된 뒤 · 수정 중은 종전 색
   /* [ORD_SAVE_STATE] '저장 중'은 disabled 가 아니라 busy 다.
      처음엔 nx.disabled 를 걸었는데, 공용 규칙 .btn:disabled{opacity:.4} 가 버튼 전체를 흐려
      '저장 중…' 글자 대비가 2.12까지 떨어졌다(흰 글자 · 실측). 지금 무슨 일이 벌어지는지 알려 주는
@@ -3542,14 +3546,14 @@ function _pkPanel(){
   return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH">'
     +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3><span class="pk-fp-body mo">본식 <strong>'+esc(_nb(sp.body))+'</strong></span><span class="pk-fp-cap pco">'+PK_CAP+'</span></div>'
     +'<p class="pk-fp-cap mo">'+PK_CAP+'</p>'
-    +'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div></div>'
+    +'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>'
+    +(prep?'<p class="pk-tm pco pk-prep-pc">'+esc(prep)+'</p>':'')+'</div>'   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
     +'<div class="pk-side">'
     +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
     +'<p class="pk-peak">'+_pkPeakHtml()+'</p>'
     +'<p class="pk-tm mo">'+ord+'</p>'
     +_noteHtml()
     +'<p class="pk-tm mo">'+esc(photo)+' ·'+NBS+'본식과 합쳐 늘 '+R.DAYMIN+'분이에요'+(prep?'<br>'+esc(prep):'')+'</p>'   /* [D4] 휴대폰 한 줄 */
-    +(prep?'<p class="pk-tm pco">'+esc(prep)+'</p>':'')
     +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 보고 듣기</button>'
     +'</div></section>';
 }

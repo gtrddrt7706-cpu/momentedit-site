@@ -53,7 +53,7 @@
     tribute: { n: '부모님께 인사', sn: '부모님 인사', one: '부부가 되어 처음 부모님께 드리는 인사예요. 꽃과 인사, 포옹으로 고마움을 전해요. 원하시면 신랑은 큰절로 해요(신부는 드레스라 서서 인사해요).', /* [BOW_GROOM] [LIST_NAMES] 띠 칩 «부모님 인사» */  shot: '부모님께 안기는 순간', who: '두 분 · 양가 부모님', why: '선언 다음이에요. 부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).' },
     free: { n: '준비한 순서', sn: '준비한 순서',   /* [DETAIL_0925 B3] «두 사람이» 는 친구가 축사하는 날 틀린 이름이 된다 */ one: '두 분이나 가족 · 친구가 특별히 준비한 순서가 있을 때 담아요. 영상, 춤 · 공연, 깜짝 선물, 친구의 짧은 축사(3분 안). 라이브 노래 · 연주는 받지 않아요. 영상 속 노래 · 연주, 음원에 맞춘 춤은 괜찮아요.', shot: '함께 보며 웃는 하객들', /* [FREE_WHAT] shot 은 shotOf 가 무엇을에 따라 고른다 */  who: '두 분 · 준비한 가족이나 친구', why: '편지 앞이에요. 편지가 마지막 큰 순간이 되도록.' },
     letter: { n: '편지 낭독', sn: '편지', one: '부모님께, 또는 서로에게 쓴 편지를 읽어요.', shot: '편지를 읽는 목소리와 듣는 얼굴', who: '두 분' },
-    toast: { n: '케이크 · 축배', sn: '케이크 · 축배', /* [DETAIL_0925 B3] 순간 이름은 «케이크 · 축배» 하나 — 칩 «케이크와 축배»(둘 다)는 그대로 */  one: '케이크를 함께 자르고, 모두 잔을 들어 «위하여». 잔을 드는 자리는 여기 하나예요.', shot: '자르는 손 · 섞이는 잔 · 모두의 잔', who: '두 분 · 하객 모두', why: '와인도 여기서 해요. 두 분이 두 와인을 한 잔에 붓는 일과 모두의 «위하여»를 한자리에 모았어요(잔 드는 순간이 둘로 갈리지 않게).' },
+    toast: { n: '케이크 · 축배', sn: '케이크 · 축배', /* [DETAIL_0925 B3] 순간 이름은 «케이크 · 축배» 하나 — 칩 «케이크와 축배»(둘 다)는 그대로 */  one: '케이크를 함께 자르고, 모두 잔을 들어 «위하여». 잔을 드는 자리는 여기 하나예요. 케이크나 축배 하나만 해도 돼요(② 보고 듣기에서 골라요).',   /* [TOAST_ONE_OR 사장님 «케이크랑 축배가 따로 안 있고 하나야?» · 코워크 피드백 1-4] 미리 보기 창 설명만 · 칸 글은 그대로 */ shot: '자르는 손 · 섞이는 잔 · 모두의 잔', who: '두 분 · 하객 모두', why: '와인도 여기서 해요. 두 분이 두 와인을 한 잔에 붓는 일과 모두의 «위하여»를 한자리에 모았어요(잔 드는 순간이 둘로 갈리지 않게).' },
     _close: { n: '닫는 인사', sn: '닫는 인사', one: '두 분이 인사를 드리고 본식을 마쳐요. 이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.', shot: '두 분 뒤로 보이는 하객들 · 단체 사진', who: '두 분 · 하객 모두' }
   };
 
@@ -306,6 +306,9 @@
   }
   function fesc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   /* opt: mini(작은 선 · 이름 · 눌러 보기 없음) · h · names(선 아래 순간 이름 · PC 띠 · ④) · label */
+  /* ★[SEAL_POINTS 2026-09-26 사장님 «진사 포인트 몇 군데» · 코워크 피드백 1-3] 가장 벅찬 순간의 점 · «★ 이름»은 진사(--seal).
+     SVG 속성이라 CSS 변수 대신 값 하나로 둔다(선은 금갈색 그대로 · 넓은 면 · 경고에는 쓰지 않는다). */
+  var PEAK_INK = '#6B2A24';
   function flowSVG(sg, w, opt) {
     opt = opt || {}; var mini = !!opt.mini, names = !!opt.names;
     var h = mini ? (opt.h || 40) : (opt.h || (names ? 152 : 112));
@@ -326,8 +329,8 @@
       var bt = Math.floor(p.st), hiT = Math.min(env.length - 1, Math.ceil(p.st + p.d + 15));
       for (var k2 = bt; k2 <= hiT; k2++) { if (env[k2] > env[bt]) bt = k2; }
       var cx = x(bt), cy = y(env[bt]);
-      o.push('<circle class="flow-peak" data-t="' + bt + '" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (tiny ? 2.4 : (mini ? 3 : 5)) + '" fill="#3A2D22" stroke="#fff" stroke-width="' + (mini ? 1.5 : 2) + '"/>');
-      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="700" text-anchor="' + an + '" fill="#3A2D22">★ ' + fesc(p.n) + '</text>'); }
+      o.push('<circle class="flow-peak" data-t="' + bt + '" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (tiny ? 2.4 : (mini ? 3 : 5)) + '" fill="' + PEAK_INK + '" stroke="#fff" stroke-width="' + (mini ? 1.5 : 2) + '"/>');
+      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="700" text-anchor="' + an + '" fill="' + PEAK_INK + '">★ ' + fesc(p.n) + '</text>'); }
     }
     if (names) { var last = [-1e9, -1e9];
       sg.forEach(function (s) { var nx = x(s.st + s.d / 2), tw = s.n.replace(/[\s·]/g, '').length * 11 + (s.n.match(/[\s·]/g) || []).length * 3.5, l = nx - tw / 2, r = nx + tw / 2, an2 = 'middle';

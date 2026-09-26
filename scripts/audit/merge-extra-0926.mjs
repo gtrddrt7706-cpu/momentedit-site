@@ -195,5 +195,29 @@ await safe('A11Y', async () => {
   ok('접근성 340 아래 칸 설명 세 줄 [TILE_3LINE]', await p3.evaluate(() => { const e = document.querySelector('.pk-s'); return e ? getComputedStyle(e).webkitLineClamp === '3' : false; }));
   await c3.close();
 });
+/* ── 사장님 피드백 1(2026-09-26) — 크게 보기 단추 한자리 · PC 오른쪽 칸 · 진사 포인트 · 케이크 한 줄 ── */
+await safe('FB1', async () => {
+  const { ctx, pg } = await open(390, 844); await toListen(pg);
+  await pg.evaluate(() => lsPlayAll()); await pg.waitForTimeout(600);
+  const ys = new Set(); for (let i = 0; i < 8; i++) { const y = await pg.evaluate(() => { const c = document.querySelector('#lsFull .lf-ctl'); return c && !document.getElementById('lsFull').hidden ? Math.round(c.getBoundingClientRect().top) : null; }); if (y == null) break; ys.add(y); await pg.evaluate(() => lsJump(1)); await pg.waitForTimeout(450); }
+  ok('피드백1-1 크게 보기 ⏮ ❚❚ ⏭ 는 순간이 바뀌어도 한자리(390×844) [BIG_CTL_FIXED]', ys.size === 1 && [...ys][0] > 700, [...ys].join(' · '));
+  await pg.evaluate(() => lsCloseBig()); await pg.waitForTimeout(300);
+  const c = await pg.evaluate(() => { opStepNav('pick'); return 1; }); await pg.waitForTimeout(500);
+  const seal = await pg.evaluate(() => { const st = document.querySelector('.op-star'), dot = document.querySelector('.pk-fg .flow-peak'), on = document.querySelector('.op-steps li.on'); return { star: st && getComputedStyle(st).color, dot: dot && dot.getAttribute('fill'), step: on && getComputedStyle(on).borderTopColor }; });
+  ok('피드백1-3 진사 — ★ 글자 · 벅찬 순간 점 · 지금 걸음 윗줄 [SEAL_POINTS]', seal.star === 'rgb(107, 42, 36)' && /6B2A24/i.test(seal.dot || '') && seal.step === 'rgb(107, 42, 36)', JSON.stringify(seal));
+  await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(900);
+  const nb = await pg.evaluate(() => { const n = document.getElementById('next'); return { seal: n.classList.contains('seal'), bg: getComputedStyle(n).backgroundColor, t: n.textContent }; });
+  ok('피드백1-3 ④ «이대로 저장하기»만 진사 채움', nb.seal && nb.bg === 'rgb(107, 42, 36)' && /이대로 저장하기/.test(nb.t), JSON.stringify(nb));
+  await pg.evaluate(() => opGoStep('write')); await pg.waitForTimeout(500);
+  ok('피드백1-3 ③ 의 다음 단추는 종전 색', await pg.evaluate(() => !document.getElementById('next').classList.contains('seal')));
+  await ctx.close();
+  for (const w of [1000, 1150, 1280]) {
+    const { ctx: c2, pg: p2 } = await open(w, 900); await next(p2); await next(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(400);
+    const r = await p2.evaluate(() => { const s = document.querySelector('.pk-side'), g = s.querySelector('.pk-go'), vis = [...s.children].filter((x) => x !== g && x.offsetParent), last = vis[vis.length - 1]; return { gap: Math.round(g.getBoundingClientRect().top - last.getBoundingClientRect().bottom), prepLeft: !!document.querySelector('.pk-fp-main .pk-prep-pc'), prepSide: !!s.querySelector('.pk-tm.pco') }; });
+    ok(`피드백1-2 PC ${w} 오른쪽 칸 — 단추 위 16px 이상 · 준비 줄은 그림 아래 [PC_SIDE_AIR]`, r.gap >= 16 && r.prepLeft && !r.prepSide, JSON.stringify(r));
+    await c2.close();
+  }
+  ok('피드백1-4 케이크 · 축배 창 설명에 «하나만 해도 돼요» [TOAST_ONE_OR]', /케이크나 축배 하나만 해도 돼요\(② 보고 듣기에서 골라요\)\./.test(O.CARDS.toast.one));
+});
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : '\n결과 — 전부 통과'); process.exit(fail ? 1 : 0);

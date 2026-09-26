@@ -11935,3 +11935,11 @@ chk 'COPY_44' order-preview.html 1
 chk 'SLIM_SCROLL_PAD' order-preview.html 2
 chk 'COPY_RULE_REL' scripts/audit/copy-rule.mjs 1
 nochk '/home/user/momentedit-site/' scripts/audit/copy-rule.mjs
+# ── [사장님 피드백 1 2026-09-26] 크게 보기 단추 한자리 · PC 오른쪽 칸 · 진사 포인트 · 케이크 한 줄 — merge-extra-0926.mjs 가 잰다 ──
+chk 'BIG_CTL_FIXED' order-preview.html 2
+chk 'lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;margin-top:auto' order-preview.html 1
+chk 'PC_SIDE_AIR' order-preview.html 2
+chk 'SEAL_POINTS' order-preview.html 4
+chk 'SEAL_POINTS' assets/ritual-open.js 1
+chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
+chk 'TOAST_ONE_OR' assets/ritual-open.js 1
