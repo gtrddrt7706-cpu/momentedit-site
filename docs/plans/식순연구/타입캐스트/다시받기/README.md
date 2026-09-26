@@ -10,12 +10,11 @@
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
 | 1_우성.txt | 우성 | 144 | 71 |
-| 2_이겸.txt | 이겸 | 56 | 13 |
-| 3_서진.txt | 서진 | 42 | 12 |
+| 2_진한.txt | 진한 | 56 | 13 |
+| 3_예슬.txt | 예슬 | 42 | 12 |
 | 4_진희.txt | 진희 | 37 | 12 |
-| 5_권일.txt | 권일 | 18 | 1 |
-| 6_주하.txt | 주하 | 17 | 1 |
-| 7_정숙.txt | 정숙 | 5 | 1 |
+| 5_대진.txt | 대진 | 18 | 1 |
+| 6_연화.txt | 연화 | 15 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -26,18 +25,18 @@ node scripts/assemble-narration.mjs --in <우성_받은폴더> \
 ```
 
 ```
-# 이겸 — 56줄 · 13클립
-node scripts/assemble-narration.mjs --in <이겸_받은폴더> \
+# 진한 — 56줄 · 13클립
+node scripts/assemble-narration.mjs --in <진한_받은폴더> \
   --clip =01_guest-1,=03_guest-3,=18_entry-A,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=23_entry-F,=06_welcome-groom,=08_vow-groom,=24_vow-both-1,=11_letter-each,=14_tribute
 ```
-★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 이겸 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 진한 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
 ```
-# 서진 — 42줄 · 12클립
-node scripts/assemble-narration.mjs --in <서진_받은폴더> \
+# 예슬 — 42줄 · 12클립
+node scripts/assemble-narration.mjs --in <예슬_받은폴더> \
   --clip =02_guest-2,=04_guest-4,=18_entry-A,=19_entry-B,=20_entry-C,=21_entry-D,=22_entry-E,=23_entry-F,=07_welcome-bride,=09_vow-bride,=25_vow-both-2,=10_letter-parent
 ```
-★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 서진 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
+★18_entry-A · 19_entry-B · 20_entry-C · 21_entry-D · 22_entry-E · 23_entry-F 은 두 사람이 한 클립에 섞여 있습니다. 예슬 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
 ```
 # 진희 — 37줄 · 12클립
@@ -46,20 +45,14 @@ node scripts/assemble-narration.mjs --in <진희_받은폴더> \
 ```
 
 ```
-# 권일 — 18줄 · 1클립
-node scripts/assemble-narration.mjs --in <권일_받은폴더> \
+# 대진 — 18줄 · 1클립
+node scripts/assemble-narration.mjs --in <대진_받은폴더> \
   --clip =12_bless-father
 ```
 
 ```
-# 주하 — 17줄 · 1클립
-node scripts/assemble-narration.mjs --in <주하_받은폴더> \
+# 연화 — 15줄 · 1클립
+node scripts/assemble-narration.mjs --in <연화_받은폴더> \
   --clip =13_bless-mother
-```
-
-```
-# 정숙 — 5줄 · 1클립
-node scripts/assemble-narration.mjs --in <정숙_받은폴더> \
-  --clip =27_tribute-reply
 ```
 

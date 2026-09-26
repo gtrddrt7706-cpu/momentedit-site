@@ -4178,7 +4178,14 @@ chk "PERF_CANON = '이제 두 사람은 부부입니다'" scripts/check-narr-rul
 #   전부 거기서 생성된다. 옛 이름이 한 곳이라도 남으면 타입캐스트가 그 줄만 옛 성우로 배정한다.
 chk 'VOICE_GROOM_2' scripts/build-typecast-import.mjs 1
 chk 'VOICE_FRIEND_2' scripts/build-typecast-import.mjs 1
-chk "신랑: '이겸'" scripts/build-typecast-import.mjs 1
+chk "신랑: '진한'" scripts/build-typecast-import.mjs 1   # ★[VOICE_GROOM_3 2026-09-26 사장님] 이겸 → 진한 (위 VOICE_CAST_2 의 이준→이겸 은 그때 기록)
+chk 'VOICE_GROOM_3' scripts/build-typecast-import.mjs 1
+nochk "신랑: '이겸'" scripts/build-typecast-import.mjs
+chk '진한:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 56
+nochk '이겸:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt"
+nochk "신랑: '이겸'" scripts/audit/voice-gap.js
+nochk "신랑: '이겸'" scripts/audit/event-script.mjs
+nochk "신랑: '이겸'" scripts/build-script-review.mjs
 # ★[TOAST_NONE 2026-09-20] 하객대표 자리가 폐지돼 배정을 지웠다 — 아래는 «되살리지 말 것»으로 뒤집는다.
 #   [VOICE_GAP] 이 「규민 148Hz vs 우성 151Hz 는 사실상 같은 목소리」라며 교체 후보를 찾던 중이었는데
 #   **자리 자체가 사라져** 그 숙제가 함께 닫혔다. F0 실측과 후보(세진)를 적은 주석은 파일에 남아 있다.
@@ -7582,9 +7589,14 @@ _bl=$(node -e "var fs=require('fs');var t=fs.readFileSync('docs/plans/식순연�
     if(new RegExp('^\\\\['+k+'\\\\]').test(r)){{on=true;continue}}
     if(on&&/^\\[/.test(r))break; if(on&&r.trim())c+=(r.match(/[가-힣]/g)||[]).length}}return c}}
   var f=syl('12'),m=syl('13');console.log(f+' '+m+' '+(f<m?'ok':'bad'))" 2>/dev/null)
+# ★★[PEAK_ONE_WAIVED 2026-09-26 사장님 대본 결정 · 녹음 끝] 어머님 중간판(15문장 · 289음절)이 아버님(18문장 · 295음절)보다 6음절 짧다.
+#   글은 사장님이 정하셨고 이미 녹음됐다(연화 · 대진) — 코드가 글을 늘이거나 줄일 수 없다. 그래서 규칙을 끄지 않고 «지금 녹음된 값»에 못 박는다:
+#   아버님이 295 보다 길어지거나 어머님이 289 보다 짧아지면 다시 붉다. PEAK_ONE 을 되살릴지(글을 다시 받을지)는 코워크 · 사장님 판단(구현 보고에 올림).
 case "$_bl" in
   *ok) echo "ok 아버님($(echo $_bl|cut -d' ' -f1)음절) < 어머님($(echo $_bl|cut -d' ' -f2)음절) — 정점이 뒤에 온다" ;;
-  *)   echo "REVERT? 아버님 덕담이 어머님보다 길어졌다 ($_bl) — 정점(어머님)이 덧붙임으로 밀린다"; fail=1 ;;
+  *)   _bf=$(echo $_bl|cut -d' ' -f1); _bm=$(echo $_bl|cut -d' ' -f2)
+       if [ "${_bf:-999}" -le 295 ] && [ "${_bm:-0}" -ge 289 ]; then echo "ok [PEAK_ONE_WAIVED] 아버님 $_bf ≥ 어머님 $_bm 음절 — 9/26 사장님 대본 · 녹음값에 못 박음(더 벌어지면 붉다)"
+       else echo "REVERT? 아버님 덕담이 어머님보다 길어졌다 ($_bl) — 정점(어머님)이 덧붙임으로 밀린다 · [PEAK_ONE_WAIVED] 한도(아버님 ≤295 · 어머님 ≥289)도 넘었다"; fail=1; fi ;;
 esac
 #   ★[TONE_POLISH 2026-09-12] 이 줄의 «구조»는 그대로 두고 문장만 고쳤다.
 #     「~하는 건 … 네가 할 거다」가 비문이었고, 앞 두 줄이 두 사람을 각각 「너」로 불러 놓아서
@@ -8423,7 +8435,7 @@ chk 'TODO_ONLY' scripts/sent-lib.mjs 1
 #   ★내가 못 한 것 — 이 환경은 소리를 듣지 못한다. 정숙은 지금까지 «이름이 잡히는 것을 확인한»
 #     여덟 밖이라, 0_보이스확인.txt 로 사장님이 한 번 확인하셔야 한다(크레딧 0).
 chk 'VOICE_STEPMOM' scripts/build-typecast-import.mjs 1
-chk "시어머님: '정숙'" scripts/build-typecast-import.mjs 1
+nochk "^  시어머님: '정숙'" scripts/build-typecast-import.mjs   # ★[STEPMOM_RETIRE 2026-09-26] 27_tribute-reply 폐지 · 배정 지움(종전 chk)
 # ★★[ERA_NOW 2026-09-14 사장님 「부모님들 연령대 지금결혼하는 사람들 나이대 반영 한거지
 #   너무 나이든사람연출한건아닌지 검토」] 어머님 덕담의 「양호실」 → 「보건실」.
 #   ★나이가 아니라 «시대»가 틀렸다. 학교보건법 개정으로 1998-12-31 부터 이름이 보건실이다.
@@ -9214,6 +9226,11 @@ nochk '.srv-step-label{text-align:center;font-family:var(--serif);font-style:ita
 #   ⑤덕담 — 아버님은 «안 놓는 사람»(「그때도 먼저 나가 있을 거다」), 어머님은 «놓는 사람»(「엄마 이제 밤에 잘 잔다」).
 #     설계대로 갈려 있다. 호명 순서가 서로 반대인 것도 자연스럽다(아버지는 사위 먼저, 어머니는 딸 먼저).
 # PAIR_READ 12_bless-father+13_bless-mother 15.17
+# PAIR_READ 12_bless-father+13_bless-mother 18.15
+#   ★나란히 읽었다(2026-09-26 · 어머님 중간판 [MOTHER_TEXT_3] · 아버님 한 줄 [FATHER_TEXT_2]) — 아버님(신랑 아버지)은 «서준이가 하윤이를 데려온 저녁»,
+#     어머님(신부 어머니)은 «하윤이가 서준이를 처음 데려온 날»로 서로 다른 날이다. 모순 없음.
+#   ★끝 두 줄의 층이 같다 — 아버님 «…잠들지는 마라 · 아버지도 아직 연습 중이거든» · 어머님 «…서로 아끼면서 살아 · 엄마는 그거면 된다»(둘 다 아이들에게 반말).
+#   ★길이는 아버님 295 > 어머님 289음절이 됐다 — 아래 [PEAK_ONE_WAIVED] 참고.
 # PAIR_READ 14_tribute+27_tribute-reply 14.5
 #   ★나란히 읽었다(2026-09-21) — 부딪히는 사실 없음. 오히려 대구가 맞물린다:
 #     헌정  어머니가 «아들 방문»을 두드리셨다 → 「오늘은 두드리지 않으셔도 됩니다. 그냥 들어오세요.」
@@ -9491,7 +9508,7 @@ chk 'R-tribute-reply' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOICE_PENDING] 생성기 두 곳 동기화 규칙은 살아 있다 — 문장이 아니라 구조라 다른 열쇠로 옮긴다
 # [LETTER_REWRITE2 2026-09-20 폐지] chk '그래도 다음 주에 또 업더라' 'docs/plans/식순연구/배역_예시_대사.txt' 1
 #   ← [VOICE_PENDING] 생성기 두 곳 동기화 규칙은 살아 있다 — 문장이 아니라 구조라 다른 열쇠로 옮긴다
-chk '신랑 어머님 한 마디' assets/ritual-data.js 3
+nochk '→ ★신랑 어머님 한 마디' assets/ritual-data.js   # ★[STEPMOM_RETIRE 2026-09-26 사장님] 옛 코스 지문에서도 뺐다(종전 chk 3 · GROOM_PARENT 9/12)
 chk 'CAST_COUNT = 26' scripts/build-typecast-import.mjs 1
 
 # ★★[WF_FINDINGS 2026-09-12 사장님 결정 ①⑦] 워크플로 39/39 완주 결과를 반영했다.
@@ -11019,7 +11036,7 @@ chk '사실은 믿고 싶었는데, 아버지라서 쉽게 믿어 주지 못했�
 #   ★«거절 고백»이라는 성격 자체는 지킨다 — 여섯 중 이 문 하나뿐이라 틀을 흩는 몫이 크다.
 # ★[BLESS_TAIL_SOUND 2026-09-20] 「저쪽 / 자리」가 낱말 경계를 넘어 ㅈ·ㅉ·ㅈ 으로 붙어 샌다.
 #   뜻은 한 글자도 안 건드렸고, 어머님이 식탁에서 하시는 말이라 「저기서」가 오히려 입말에 가깝다.
-chk '나머지 얘기는 이따 엄마랑 하자.' 'docs/plans/식순연구/배역_예시_대사.txt' 1 # [SPEECH_LEVEL] 13~17은 사위에게 · 어미를 올리면 하객으로 되돌아가 왕복이 된다
+chk '엄마는 그거면 된다.' 'docs/plans/식순연구/배역_예시_대사.txt' 1 # [MOTHER_TEXT_3 2026-09-26] 끝은 두 분께 반말 · 종전 «나머지 얘기는 이따 엄마랑 하자.» · [SPEECH_LEVEL] 13~17은 사위에게 · 어미를 올리면 하객으로 되돌아가 왕복이 된다
 # ★되살아나면 안 되는 것 — 위 사장님 결정 ①②와 낡은 표현
 nochk '낳아주셔서, 키워주셔서, 참아주셔서' 'docs/plans/식순연구/배역_예시_대사.txt'
 nochk '정류장에 먼저 나가' 'docs/plans/식순연구/배역_예시_대사.txt'
@@ -12389,3 +12406,54 @@ chk 'TILE_SWALLOW' scripts/audit/comment-swallow.py 1
 chk 'TILE_SWALLOW' scripts/audit/open-course.mjs 1
 nochk '하나만 해도 돼요(② 보고 듣기에서 골라요)' assets/ritual-open.js
 chk 'SEAL_POINTS 코워크 회신8' order-preview.html 1
+# ── [코워크 회신8 2026-09-26] 녹음 들이기 도구 — 성우 잠금 · 이름 차례 순서 증명 · 입장 쉼 지킴 · todo 폐지 ──
+#   깨 보고 믿음: 옛 sent-lib 로 import-voice-lock 빨강 6(진희 세 · 이겸 둘 · 서진 넷 빈 채 · 정숙 «서준아.»…) · 옛 조립기로 stage-order-name 빨강 1(r=0.838 멈춤)
+if command -v node >/dev/null 2>&1 && command -v ffmpeg >/dev/null 2>&1; then
+  _vl=$(timeout 900 node scripts/audit/import-voice-lock.mjs 2>&1); _vlx=$?; echo "$_vl" | grep -E '^FAIL|결과' | head -8; if [ "$_vlx" = 1 ]; then echo "REVERT? scripts/audit/import-voice-lock.mjs: 녹음 들이기 성우 잠금 실패"; fail=1; fi
+  _so=$(timeout 900 node scripts/audit/stage-order-name.mjs 2>&1); _sox=$?; echo "$_so" | grep -E '^FAIL|결과' | head -4; if [ "$_sox" = 1 ]; then echo "REVERT? scripts/audit/stage-order-name.mjs: 이름 차례 순서 증명 실패"; fail=1; fi
+fi
+chk 'IMPORT_VOICE_LOCK' scripts/sent-lib.mjs 4
+chk 'ENTRY_GAP_KEEP' scripts/sent-lib.mjs 3
+chk 'TODO_RETIRED' scripts/sent-lib.mjs 1
+chk 'STAGE_ORDER_BY_NAME' scripts/assemble-narration.mjs 3
+# ── [코워크 회신8 덧2 2026-09-26 사장님] 신부 서진 → 예슬 · 녹음하며 고친 두 줄 · 시어머님 바꿀 자리 · --voice 성우별 순서표 ──
+chk "신부: '예슬'" scripts/build-typecast-import.mjs 1
+chk 'VOICE_BRIDE_2' scripts/build-typecast-import.mjs 1
+chk 'STEPMOM_2' scripts/build-typecast-import.mjs 1
+chk '^예슬:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 42
+nochk '^서진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt"
+chk '^여기 와 계신 한 분 한 분 얼굴을 뵈니, 참 든든합니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '예전에 내가, 너한테 삼십 분을 따진 적이 있었지\.' docs/plans/식순연구/배역_예시_대사.txt 1
+nochk '너한테 삼십 분을 따진 적이 있어\.' docs/plans/식순연구/배역_예시_대사.txt
+chk 'VOICE_ORDER' scripts/sent-lib.mjs 1
+# ── [코워크 회신8 덧3 2026-09-26 사장님] 아버님 권일 → 대진 · 어머님 주하 → 연화(비추천 이력 알고 · 미리듣기 전용) · 어머님 덕담 중간판 15문장 · 아버님 한 줄 ──
+chk "아버님: '대진'" scripts/build-typecast-import.mjs 1
+chk "어머님: '연화'" scripts/build-typecast-import.mjs 1
+chk 'VOICE_FATHER_2' scripts/build-typecast-import.mjs 1
+chk 'VOICE_MOTHER_2' scripts/build-typecast-import.mjs 2
+chk '연화는 영구 탈락' scripts/build-typecast-import.mjs 1
+chk '^싸워도 좋은데, 대신 등 돌리고 잠들지는 마라\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '^하윤이 엄마입니다\. 우리 딸은 어릴 때부터 저를 안 닮았어요\.' docs/plans/식순연구/배역_예시_대사.txt 1
+# [MOTHER_TEXT_3] «엄마는 그거면 된다.» 로 바뀜(덧5) — 아래 줄이 본다
+nochk '지금까지는 이기고 있습니다' docs/plans/식순연구/배역_예시_대사.txt
+chk '^대진:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 18
+chk '^연화:' "docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt" 15
+# ── [코워크 회신8 덧4 2026-09-26 사장님] 신랑 서약 한 줄 · 부분 재녹음은 --clip 순서표 ──
+chk '^대신 그 주에 너희 집 그릇이 다 반짝반짝했지\.' docs/plans/식순연구/배역_예시_대사.txt 1
+nochk '그릇이 다 반짝반짝했어\.' docs/plans/식순연구/배역_예시_대사.txt
+chk 'CLIP_ORDER' scripts/sent-lib.mjs 3
+chk 'CLIP_ORDER' scripts/audit/import-voice-lock.mjs 2
+# ── [코워크 회신8 덧5 2026-09-26 사장님] 시어머님(27_tribute-reply) 녹음 안 하고 폐지 · 어머님 최종 글 ──
+chk 'STEPMOM_RETIRE' assets/ritual-data.js 1
+chk 'STEPMOM_RETIRE' assets/ritual-cue.js 1
+chk 'STEPMOM_RETIRE' assets/ritual-story.js 3
+chk 'R-tribute-reply' scripts/build-typecast-import.mjs 1
+nochk "'27_tribute-reply': { role" assets/ritual-story.js
+nochk "27_tribute-reply'\]" assets/ritual-story.js
+nochk '그다음 신랑 어머님께 마이크를 건네 드려요' assets/ritual-story.js
+chk 'STEPMOM_RETIRE' scripts/sent-lib.mjs 1
+chk 'STEPMOM_RETIRE' scripts/audit/sent-lib-check.mjs 1
+chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '사흘씩 두지 말고 서준이한테 먼저 말해라\.' docs/plans/식순연구/배역_예시_대사.txt 1
+chk '엄마는 그거면 된다\.$' docs/plans/식순연구/배역_예시_대사.txt 1
+nochk '엄마는 그거면 돼\.' docs/plans/식순연구/배역_예시_대사.txt

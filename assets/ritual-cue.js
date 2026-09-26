@@ -910,7 +910,7 @@
          게다가 «말 없이»를 골라도 콘솔이 디렉터에게 마이크를 드리라고 했고, ③ · 어른 안내 어디에도 이 말이 없어
          어머님이 준비 없이 마이크를 받으시게 됐다. ★더했던 est +25 도 되돌린다(95 → 70). ★옛 코스는 그대로. */
       var open = !!D.COURSES[S.course].open, GP = ' → ★신랑 어머님 한 마디(디렉터가 마이크 전달 · 길어야 20초)';
-      var mcue = open ? m.cue.replace(GP, '') : m.cue, base = open ? 70 : 95;
+      var mcue = m.cue.replace(GP, ''), base = 70;   // ★★[STEPMOM_RETIRE 2026-09-26 사장님] 옛 코스도 같게 — 원천(ritual-data TRIBUTE)에서 한 마디를 뺐고 est 도 70(GP 때문에 더했던 25초 되돌림)
       var out = [
         cue({
           k: 'tribute', blockN: '부모님 헌정', slug: 'tribute-in', name: '부모님 헌정 시작', text: D.TRIBUTE.nar,

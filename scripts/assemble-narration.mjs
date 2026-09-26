@@ -325,11 +325,27 @@ const usedP = new Set();
    ★순서 검증은 그대로 남는다(아래 '순서 검증 · r' 블록) — 그게 진짜 안전망이고,
      거기서 걸리면 --force 로만 넘어간다. 여기서 느슨해진다고 순서가 안 지켜지는 게 아니다.
    ★후보가 둘 이상이면 종전대로 0.85 를 요구한다 — 그때는 상관계수가 실제로 일을 한다. */
+/* ★★[STAGE_ORDER_BY_NAME 2026-09-26 코워크 회신8] sent-lib --stage 로 깐 폴더는 파일 이름에 자리가 적혀 있다(0004_05_entry-A_3.flac).
+   이름 차례가 대장 차례와 **한 자리도 안 다르면** 순서는 증명된 것이다 — 그때 길이 상관은 참고로만 찍고 멈추지 않는다.
+   ★왜: «신랑 신부, 입장!»을 사장님이 고른 1.4초 판으로 넣자 한 마디가 예상(1.2초)보다 길어(실측 3.4초 · 입장 여섯 자리)
+     2_진행_전반 r=0.715 로 멎었다. 순서가 틀린 게 아니라 길이가 예상과 달랐을 뿐이다.
+   ★이름이 없거나(타입캐스트 원본) 한 자리라도 다르면 종전대로 r < 0.85 에서 멈춘다. --force 로 넘기지 않는다(파트 전체 안전망이 꺼진다). */
+const nameIds = (files) => {
+  const out = [];
+  for (const f of files) {
+    const b = path.basename(f).replace(/_JOINED_/, '').replace(/\.[^.]+$/, '');
+    const m = b.match(/^\d{4}_(\d{2,3}_.+)_(\d+)$/); if (!m) return null;
+    out.push(m[1] + '#' + m[2]);
+  }
+  return out;
+};
+const partIds = (P) => { const o = []; for (const c of clipsOf(P)) for (const s of c.sents) o.push(String(c.no).padStart(2, '0') + '_' + c.file + '#' + s.i); return o; };
+const provedByName = (files, P) => { const a = nameIds(files); if (!a) return false; const b = partIds(P); return a.length === b.length && a.every((x, i) => x === b[i]); };
 const oneCand = new Map();
 for (const x of pairs) oneCand.set(x.g, (oneCand.get(x.g) || 0) + 1);
 for (const x of pairs) {
   if (x.g.P || usedP.has(x.P.file)) continue;
-  if (x.r < 0.85 && oneCand.get(x.g) !== 1) continue;
+  if (x.r < 0.85 && oneCand.get(x.g) !== 1 && !provedByName(x.g.files, x.P)) continue;   // [STAGE_ORDER_BY_NAME]
   x.g.P = x.P; x.g.r = x.r; usedP.add(x.P.file);
 }
 
@@ -405,6 +421,10 @@ for (const w of work) {
     continue;
   }
   const weak = flat.length <= 3 ? `   (문장 ${flat.length}개 · 이 잣대는 순서 한두 문항만 봅니다)` : '';
+  if (r < 0.85 && provedByName(w.files, w.P)) {   // [STAGE_ORDER_BY_NAME] 이름 차례 = 대장 차례 → 순서는 증명됐다 · 길이 상관은 참고
+    console.log(`순서 검증 · ${w.P.file.padEnd(18)} ✓ 이름 차례 = 대장 차례(${flat.length}자리 전부) · 길이 상관 r = ${r.toFixed(3)} 은 참고`);
+    continue;
+  }
   console.log(`순서 검증 · ${w.P.file.padEnd(18)} r = ${r.toFixed(3)}${r < 0.85 ? '   ✗' : weak}`);
   if (r < 0.85) {
     bad = true;
