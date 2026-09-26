@@ -3608,7 +3608,7 @@ function _pkSlim(){
   if(!el){ el=document.createElement('div'); el.id='pkSlim'; el.className='pk-slim'; el.setAttribute('role','region'); el.setAttribute('aria-label','담은 순간 요약'); document.body.appendChild(el); }
   var n=R.picked(S).length, sp=R.span(S), pk=R.peakOf(S);
   var nt=R.noticeFull(S,_noteShut);
-  el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b> ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+'★ '+esc(R.CARDS[pk].n):'')
+  el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b> ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+'<span class="op-star" aria-hidden="true">★</span> '+esc(R.CARDS[pk].n):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
       +(nt?'<button type="button" class="al" onclick="opToNote()">'+esc(R.firstSentences(nt.msg,1))+' ›</button>':'')+'</span>')
     :'<span class="t">예시로 시작하거나 아래에서 담아 보세요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 보고 듣기</button>';
   _pkSlimCheck();

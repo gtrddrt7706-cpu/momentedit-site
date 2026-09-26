@@ -12382,3 +12382,10 @@ nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 
 # [CF_DATE_NBSP 보정] 확인서 예식 일시는 fmtWedKoT(내 내역 · 임시 고정 · 결제 카드와 같은 모양) — NBSP 한 덩어리는 320~325 에서 긴 날짜가 칸 밖으로 넘쳤다(180조합 중 84 → 0)
 chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate).slice(0,10), _bw.weddingTime)" mypage.html 1
 nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
+# ── [코워크 회신8 2026-09-26] 칸 글 삼킴 · 케이크 한 줄 괄호 · 얇은 띠 ★ ──
+chk 'TILE_SWALLOW' assets/ritual-open.js 1
+chk "letter: '부모님이나 서로에게 쓴 편지를 읽어요', toast: '케이크를 자르고, 다 함께" assets/ritual-open.js 1
+chk 'TILE_SWALLOW' scripts/audit/comment-swallow.py 1
+chk 'TILE_SWALLOW' scripts/audit/open-course.mjs 1
+nochk '하나만 해도 돼요(② 보고 듣기에서 골라요)' assets/ritual-open.js
+chk 'SEAL_POINTS 코워크 회신8' order-preview.html 1
