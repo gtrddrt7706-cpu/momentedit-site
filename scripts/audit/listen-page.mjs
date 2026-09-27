@@ -228,7 +228,7 @@ for (const w of [390, 1280]) {
   const pgT = async (k) => { await pg.evaluate((x) => mkGo(x), k); await pg.waitForTimeout(350); return pg.evaluate(() => document.getElementById('stage').textContent.replace(/\u00a0/g, ' ')); };
   const tRing = await pgT('ring'), tTrib = await pgT('tribute'), tToast = await pgT('toast'), tSum = await pgT('_sum');
   const w = { t: tSum };
-  ok('3-4 ② 반지 쪽 = 당일 가져오기 · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 양가 와인 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요\s*당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && /양가에서 와인 한 병씩\s*당일 가져오기/.test(tToast), tTrib.slice(0, 200));
+  ok('3-4 ② 반지 쪽 = 당일 가져오기 · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 와인 부탁 · 챙길 것 없음 [WINE_POUR_OFF]', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요\s*당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && !/와인 한 병씩|와인 두 병|한 잔에 (붓|모아)/.test(tToast), tTrib.slice(0, 200));
   ok('② 한눈에 보기 — 한 항목은 한 번(녹음 줄 · 부탁 줄 되풀이 없음) · 미완료 배지 목록 없음 [MK_SUM_ONE]', !/미완료\s*하객 맞이/.test(tSum) && (tSum.match(/양가 어머님께서 불을 밝혀 주세요/g) || []).length <= 1 && (tSum.match(/시작 10분 전/g) || []).length === 0, tSum.slice(0, 300));
   const mo = await pg.evaluate(() => { const one = (t) => ((t.match(/담은 순간 (\d+)/) || [])[1]) || ''; const r = {}; mkGo('_intro'); r.intro = one(document.getElementById('stage').textContent); mkGo('_sum'); r.sum = one(document.getElementById('stage').textContent); r.fn = String(_opMoments()); return r; });
   ok('② 고른 순서 · 한눈에 보기의 «담은 순간 N»이 같은 셈 [MOMENTS_ONE]', mo.intro === mo.fn && mo.sum === mo.fn && +mo.fn > 0, JSON.stringify(mo));

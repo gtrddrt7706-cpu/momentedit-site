@@ -77,7 +77,7 @@ for (const w of [390, 1280]) {
       else { if (i < 0) bad.push(k + ' 위하여 줄 없음'); else if (glass < 0 || i !== glass + 1) bad.push(k + ' 위하여가 잔 드는 큐 바로 뒤가 아님(' + i + '/' + glass + ')'); if (pour >= 0 && i < pour) bad.push(k + ' 붓기 앞'); if (cut >= 0 && i < cut) bad.push(k + ' 커팅 앞'); }
       const want = wn === 'family' ? '양가 와인을 한 잔에 모아요' : '두 분이 고른 와인을 한 잔에 부어요';   // [POUR_BY_PICK] 판 이름과 같은 말
       const pq = q.filter((x) => /한 잔에 (부어요|모아요)/.test(x.txt)), pOk = pq.length === 1 && pq[0].txt === want;
-      if ((t !== 'cake' && wn !== 'none') ? !pOk : pq.length !== 0) bad.push(k + ' 붓기 옅은 줄 ' + pq.map((x) => x.txt).join('/'));
+      if (pq.length !== 0 || pour >= 0) bad.push(k + ' [WINE_POUR_OFF] 붓기 줄이 남았다 ' + pq.map((x) => x.txt).join('/'));   // 와인 붓기는 걷었다(2026-09-27 사장님) · 어느 값이 와도 없다
       seen[k] = 1;
     }); }); });
     Object.assign(S, keep); render();
@@ -106,9 +106,12 @@ for (const w of [390, 1280]) {
   const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.mk-pg .mk-flow li')];
     return { txt: li.map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return (l.className === 'q' ? '[quiet]' : '') + c.textContent; }), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
   /* [FLOW_MAKE] ② 쪽 흐름에서 «위하여»는 두 분 차례(«신랑 차례» · 글은 연습에서 흐른다) — 잔 드는 큐 바로 뒤에 온다 */
-  const wi = g5c.txt.findIndex((t) => /^신랑 차례/.test(t)), pi = g5c.txt.findIndex((t) => /양가 와인을 한 잔에 모아요/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
-  ok(`${w} G5 화면 — 붓기(옅게) → 잔 드는 큐 → «위하여» 순서 · 옅은 줄 색 = --light`, pi >= 0 && gi > pi && wi === gi + 1 && /\[quiet\]/.test(g5c.txt[pi]) && g5c.quietColor === 'rgb(110, 105, 89)', JSON.stringify(g5c));
-  ok(`${w} G5 옅은 줄은 재생 목록 · 들을 길이에 안 든다`, await pg.evaluate(() => { const st = _lSteps(ENG, ['toast']), q = st.filter((x) => x.quiet); return q.length === 1 && _lLen(q) === 0; }));
+  const wi = g5c.txt.findIndex((t) => /^신랑 차례/.test(t)), pi = g5c.txt.findIndex((t) => /한 잔에 (모아요|부어요)/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
+  ok(`${w} G5 화면 — 잔 드는 큐 → «위하여» 순서 · 붓기 줄 없음 [WINE_POUR_OFF]`, pi < 0 && gi >= 0 && wi === gi + 1, JSON.stringify(g5c));
+  /* 옅은 줄의 색 · 재생 길이는 반지 교환 쪽(말 없이 지나가는 줄)에서 잰다 — 축배의 옅은 줄(붓기)은 걷었다 */
+  await pg.evaluate(() => { S.on.ring = 1; opSync(); mkGo('ring'); render(); }); await pg.waitForTimeout(300);
+  ok(`${w} G5 옅은 줄 색 = --light`, await pg.evaluate(() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return !!q && getComputedStyle(q).color === 'rgb(110, 105, 89)'; }));
+  ok(`${w} G5 옅은 줄은 재생 목록 · 들을 길이에 안 든다`, await pg.evaluate(() => { const st = _lSteps(ENG, ['ring']), q = st.filter((x) => x.quiet); return q.length === 1 && _lLen(q) === 0; }));
   // H1 · H2 · H3 — [FLOW_MAKE] 옛 ③ 준비하기는 걷었다: 첫인사 칸은 ② 첫인사 쪽 · 보낼 길은 ② 식전 영상 쪽 · 도와주실 분은 ② 한눈에 보기
   await pg.evaluate(() => { S.on.welcome = 1; S.welcome = 'self'; S.on.prevideo = 1; opSync(); mkGo('welcome'); }); await pg.waitForTimeout(400);
   const h1 = await pg.evaluate(() => ({ ta: !!document.querySelector('textarea[aria-label="첫인사 · 신랑"]') && !!document.querySelector('textarea[aria-label="첫인사 · 신부"]'), oldName: /인사말/.test(document.getElementById('stage').textContent) }));
