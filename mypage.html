@@ -9207,6 +9207,8 @@ function _spExBtn(s){
   return '<button type="button" class="snp-exb" data-sex="'+s.id+'" aria-label="'+escapeHtml(s.name)+' 예시 사진 '+ex.length+'장 보기">'
     +(im?('<img src="'+im+'" alt="" loading="lazy" decoding="async">'):'<span aria-hidden="true">예시 ›</span>')+'</button>';
 }
+/* ★[SNAP_EXV_EAGER 2026-09-27 사장님 «사진이 비어 있는 곳이 있던데»] 크게 보기의 2 · 3번째 사진은 옆으로 숨어 있어 loading=lazy 면
+   넘기기 전까지 안 받아 와 빈 칸(회색)으로 보였다 — 창을 열 때 세 장을 다 받는다(한 장면 3장뿐이라 부담이 작다). */
 function _spExView(id, ctl){
   var R=window.SNAP_REFS, f=R&&R.scene(id); if(!f) return;
   var s=f.s, ex=_spExList(s); if(!ex.length) return;
@@ -9218,7 +9220,7 @@ function _spExView(id, ctl){
   var sl=ex.map(function(e, k){
     var w=R.exImg(e,'webp'), j=R.exImg(e,'jpg'), lab=(k+1)+' / '+n;
     return '<figure class="snp-exv-sl" role="group" aria-roledescription="사진" aria-label="'+lab+'">'
-      +(j?('<picture><source srcset="'+w+'" type="image/webp"><img src="'+j+'" alt="'+escapeHtml(e.t||s.name)+'" loading="lazy" decoding="async"></picture>'+(e.t?('<figcaption class="snp-exv-cap">'+escapeHtml(e.t)+'</figcaption>'):''))
+      +(j?('<picture><source srcset="'+w+'" type="image/webp"><img src="'+j+'" alt="'+escapeHtml(e.t||s.name)+'" decoding="async"></picture>'+(e.t?('<figcaption class="snp-exv-cap">'+escapeHtml(e.t)+'</figcaption>'):''))
          :('<div class="snp-exv-ph"><span class="snp-exv-k">예시 사진 '+(k+1)+' · 준비 중</span><p>'+escapeHtml(e.t||'')+'</p></div>'))
       +'</figure>'; }).join('');
   m.innerHTML='<div class="snp-exv-card"><div class="snp-exv-hd"><div><p class="snp-exv-t" id="mp_snapExT">'+escapeHtml(s.name)+'</p>'+(sub?('<p class="snp-exv-s">'+sub+'</p>'):'')+'</div>'

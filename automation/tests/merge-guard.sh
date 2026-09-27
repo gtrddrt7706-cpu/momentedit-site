@@ -13101,3 +13101,6 @@ chk "img: 'w12-3'" assets/snap-refs.js 1
 chk 'SNAP_PHOTOS_48' assets/snap-refs.js 1
 chk 'function _spShowOrder(list){' mypage.html 1
 chk "_spShowOrder(z.pick).map(function(s){" mypage.html 1
+# [SNAP_EXV_EAGER] 크게 보기 사진 세 장은 창을 열 때 다 받는다(lazy 면 넘길 때 빈 칸) — 2026-09-27
+chk 'SNAP_EXV_EAGER' mypage.html 1
+nochk "alt=\"'+escapeHtml(e.t||s.name)+'\" loading=\"lazy\"" mypage.html 0
