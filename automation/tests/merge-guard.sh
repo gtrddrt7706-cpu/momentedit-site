@@ -8874,6 +8874,17 @@ chk 'REC_PURGE' automation/platform/80_production.gs 2   # 예식 30일 뒤 지�
 chk 'REC_PURGE' automation/consultation/consultation-booking.gs 1   # 주간 정리가 함께 부른다
 chk 'PRACTICE_VOICE' order-preview.html 7   # 연습 — 내 차례를 녹음하며 연습(이 기기 메모리에만)
 chk 'PRACTICE_VOICE' scripts/audit/rec-upload.mjs 1
+chk 'VOICE_CLONE' automation/platform/80_production.gs 3   # AI 두 분 목소리 · 연습 읽기(서버 이중 잠금)
+chk 'VOICE_CLONE' automation/consultation/consultation-booking.gs 1
+chk 'VOICE_CLONE' mypage.html 1
+chk 'VOICE_CLONE' order-preview.html 4
+chk 'VOICE_CLONE' scripts/audit/rec-upload.mjs 2
+chk "var FEATURE = { voiceClone: false, practiceTts: false }" assets/ritual-open.js 1   # ★처음엔 꺼 둔다 — 켜기는 사장님 결정(타입캐스트 · 법무 확인) 뒤
+chk "p.getProperty('VOICE_CLONE_ENABLED') === 'Y'" automation/platform/80_production.gs 1   # ★서버도 따로 잠근다
+chk 'AI_NOTICE' order-preview.html 1
+chk 'AI_NOTICE' admin.html 1
+nochk 'TYPECAST_API_KEY' order-preview.html   # ★API 키는 서버에만
+nochk 'TYPECAST_API_KEY' mypage.html
 chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)
 chk 'DETAIL_0925 C2' order-preview.html 3   # 누를 곳 44px
 if command -v node >/dev/null 2>&1; then node scripts/audit/inapp-sim.mjs >/dev/null 2>&1; _ia=$?

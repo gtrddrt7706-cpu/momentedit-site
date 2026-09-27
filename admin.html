@@ -998,6 +998,7 @@ function _orderSheetDoc(d){
     +'<div class="ofoot">진행 안내는 뒷면에 있습니다.</div></div>';
   var back='<div class="pg"><div class="bt">오늘의 진행 안내</div><div class="bb">'
     +'<p>오늘 예식은 사회자 없이, 미리 준비한 AI 음성 안내로 진행합니다.<br>안내 문장은 두 사람이 직접 고르고 다듬었습니다.<br>작은 예식이라 이렇게 준비했습니다.</p>'
+    +(function(){ try{ var up=((((d&&d.mirror&&d.mirror.production)||{}).ritualDraft||{}).S||{}).up||{}; return Object.keys(up).some(function(k){ return up[k]&&up[k].src==='ai'; })?'<p>일부 안내는 두 사람 목소리로 만든 AI 음성입니다.</p>':''; }catch(e){ return ''; } })()   /* [AI_NOTICE 2026-09-27 코워크 5-6] 두 분 목소리를 AI로 만든 줄이 있으면 식순지 뒷면에 한 줄(기본 program · 확정은 사장님) */
     +'<p>자리에서 일어나실 순서는 따로 없습니다.<br>편히 앉아 계시면 됩니다.</p>'
     +askBlock
     +'<p>진행이 궁금하시거나 도움이 필요하시면<br>가까이 있는 스태프에게 편히 말씀해 주세요.</p>'

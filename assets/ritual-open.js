@@ -368,6 +368,10 @@
     prep: { lab: '두 분 목소리 · 미리 준비', one: '두 분이 식장에 없을 때 나와서, 미리 준비한 두 분 목소리가 저절로 나와요' },
     live: { lab: '당일 직접', one: '식장에서 직접 말해요. 여기 글은 연습용이에요' }
   };
+  /* ★[VOICE_CLONE 2026-09-27 코워크 5-1 · 5-6 · 사장님 «3단계는 스위치를 꺼 둔 채»] 기능 스위치 — 꺼져 있으면 화면에 아무것도 안 보인다.
+     켜는 것은 사장님 결정(타입캐스트 확인 · 법무 · 7장) 뒤 · 서버도 따로 잠겨 있다(VOICE_CLONE_ENABLED · PRACTICE_TTS_ENABLED).
+     AI_NOTICE [AI_NOTICE] = 당일 AI 목소리 알림 방식(program · narration · both · none) — 기본 program(식순 안내에 한 줄) · 확정은 사장님 */
+  var FEATURE = { voiceClone: false, practiceTts: false }, AI_NOTICE = 'program';
   function voiceKind(k, S, o) { o = o || {}; if (o.talk) return 'live'; if (o.own) return 'prep'; return 'narr'; }
   function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
     if (k === 'bless' || (k === 'declare' && chipOf('declare', S) === 'family')) return '당일 직접 · 가족';
@@ -734,7 +738,7 @@
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
-    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, voiceKind: voiceKind, voiceLab: voiceLab,
+    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, AI_NOTICE: AI_NOTICE,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };
 });

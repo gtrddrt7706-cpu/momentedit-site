@@ -2392,6 +2392,15 @@ function openRitualBuilder(p, inv){
     }
     /* ★[REC_UPLOAD 2026-09-27 코워크 · 사장님 «올리면 그 부분에서 자동 재생까지»] 올린 녹음을 빌더로 다시 받아 온다(두 분 계정 토큰 · 공개 주소 없음) ·
        지우기도 같은 길. 결과는 빌더로(ritualFileData / ritualFileDelDone) */
+    /* ★[VOICE_CLONE 2026-09-27] AI 두 분 목소리 · 연습 읽기 — 빌더가 op(consent · enroll · make · delete · status · practice)를 보내면 로그인 토큰을 붙여 GAS 로 · 결과는 rid 로 돌려준다(스위치가 꺼져 있으면 GAS 가 거절) */
+    if(d.type==='momentedit:voiceClone' && d.data && d.data.op){
+      var _vcBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:voiceCloneDone', rid:d.data.rid}, o), location.origin); }catch(e){} };
+      var _vcAc=(typeof AbortController!=='undefined')?new AbortController():null, _vcT=_vcAc?setTimeout(function(){ try{ _vcAc.abort(); }catch(e){} },90000):null;
+      fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({}, d.data, {action:'voiceClone', token:getToken()})),signal:_vcAc?_vcAc.signal:undefined})
+        .then(function(r){ return r.json(); }).then(function(r){ if(_vcT) clearTimeout(_vcT); _vcBack(r||{ok:false}); })
+        .catch(function(){ if(_vcT) clearTimeout(_vcT); _vcBack({ok:false,down:true,error:'지금은 AI 목소리를 만들 수 없어요 · 직접 녹음으로 준비해 주세요'}); });
+      return;
+    }
     if((d.type==='momentedit:ritualFileGet'||d.type==='momentedit:ritualFileDel') && d.data && d.data.id){
       var _isDel=d.type==='momentedit:ritualFileDel', _gBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:_isDel?'momentedit:ritualFileDelDone':'momentedit:ritualFileData', key:d.data.key, id:d.data.id}, o), location.origin); }catch(e){} };
       var _gAc=(typeof AbortController!=='undefined')?new AbortController():null, _gT=_gAc?setTimeout(function(){ try{ _gAc.abort(); }catch(e){} },60000):null;

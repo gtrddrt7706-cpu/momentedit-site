@@ -174,6 +174,12 @@ const PROPS = {
   SOLAPI_PF_ID: ['option', '알림톡 채널 (95_notify 계열)'],
   SOLAPI_TPL_FINDCODE: ['option', '코드찾기 알림톡 템플릿'],
   RITUAL_FILE_PURGE_DAYS: ['tuning', '두 분 목소리 파일 보관 일수(기본 30 · 예식 뒤)'],
+  VOICE_CLONE_ENABLED: ['switch', 'AI 두 분 목소리(목소리 복제) — Y 일 때만 · 처음엔 비움(꺼짐) · 켜기는 사장님 결정 뒤 [VOICE_CLONE]'],
+  PRACTICE_TTS_ENABLED: ['switch', '연습 공간 AI 읽기 — Y 일 때만 · 처음엔 비움(꺼짐) [VOICE_CLONE 4-2]'],
+  TYPECAST_API_KEY: ['needs', '타입캐스트 API 키(서버에만 · 브라우저에 두지 않는다) [VOICE_CLONE]'],
+  VOICE_TARGET_LUFS: ['tuning', 'AI 목소리 소리 크기 목표(기본 -16 · 나레이션 실측)'],
+  TYPECAST_VOICE_GROOM: ['option', '연습 읽기 스튜디오 기본 목소리 · 신랑 쪽(voice_id)'], TYPECAST_VOICE_BRIDE: ['option', '연습 읽기 스튜디오 기본 목소리 · 신부 쪽'], TYPECAST_VOICE_FAMILY: ['option', '연습 읽기 스튜디오 기본 목소리 · 가족'],
+  VC_: ['state'],   /* [VOICE_CLONE] 코드별 동의 · voice_id · 한도 셈(코드가 뒤에 붙는 접두사) */
 };
 
 /* ★표가 저장소를 따라가는지 — getProperty 로 읽는 키가 표에 다 있는가.

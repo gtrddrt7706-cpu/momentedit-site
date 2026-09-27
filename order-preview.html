@@ -3514,7 +3514,7 @@ var MK_UP={};
 function _mkUpLab(q){ return String(q.what).replace(/ · 두 분 목소리 녹음$/,''); }
 function _mkUpState(key){ var v=(S.up||{})[key];
   if(MK_UP[key]) return {t:'보내는 중…',busy:1};
-  if(v&&typeof v==='object') return {t:v.src==='rec'?'녹음했어요':'파일 올렸어요',ok:1,file:1};   // 짧게 — 오른쪽 단추 둘과 한 줄에 든다(파일 이름은 들어 보기 · 관리 화면에)
+  if(v&&typeof v==='object') return {t:v.src==='rec'?'녹음했어요':v.src==='ai'?'AI로 만들었어요':'파일 올렸어요',ok:1,file:1};   // 짧게 — 오른쪽 단추 둘과 한 줄에 든다(파일 이름은 들어 보기 · 관리 화면에)
   if(v==='sent') return {t:'카톡 · 메일로 보냈어요',ok:1};
   if(v) return {t:'챙겼어요',ok:1};
   return {t:''}; }   // [MK_MIN] «아직 안 보냈어요»를 줄마다 되풀이하지 않는다 — «녹음 · 파일» 단추가 곧 아직이라는 뜻
@@ -3535,14 +3535,15 @@ function _mkVoice(k,ups,wed){ var R=RitualOpen, due=R.dueWord(ups[0],wed), alt=u
   ups.forEach(function(q){ var st=_mkUpState(q.up), lab=_mkUpLab(q), rec=MK_REC&&MK_REC.key===q.up?MK_REC:null;
     h+='<li class="mk-vr'+(st.ok?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(lab)+'</span>'+(st.t?'<span class="mk-vs"'+(st.busy?' role="status"':'')+'>'+(st.ok?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(st.t)+'</span>':'<span class="mk-vs">두 분 함께 · 약 '+_mkSec(_recNeed(q.up).length)+'초</span>')+'</span>'
       +'<span class="mk-vbs">'+(st.file?'<button type="button" class="rowbtn mk-vb" data-fk="mkupplay:'+q.up+'" aria-label="'+esc(lab+' 들어 보기')+'" onclick="mkUpPlay(\''+q.up+'\')">들어 보기</button><button type="button" class="rowbtn mk-vb" data-fk="mkupdel:'+q.up+'" aria-label="'+esc(lab+' 지우기')+'" onclick="mkUpDel(\''+q.up+'\')">지우기</button>'
-        :'<button type="button" class="rowbtn mk-vb" data-fk="mkrec:'+q.up+'" aria-label="'+esc(lab+' 녹음하기')+'"'+(st.busy||rec?' disabled':'')+' onclick="mkRec(\''+q.up+'\')">녹음</button><button type="button" class="rowbtn mk-vb" data-fk="mkup:'+q.up+'" aria-label="'+esc(lab+' 파일 올리기')+'"'+(st.busy||rec?' disabled':'')+' onclick="mkUp(\''+q.up+'\')">파일</button>')+'</span></li>';
-    if(rec) h+='<li class="mk-vx mk-recp" aria-live="polite">'+_recPanel(rec)+'</li>'; });
-  h+='</ul><p class="mk-note">예식 7일 전까지 준비해 주세요 · 비어 있는 줄은 스튜디오 나레이션으로 나와요</p>'
+        :(_vcReady()?'<button type="button" class="rowbtn mk-vb" data-fk="mkai:'+q.up+'" aria-label="'+esc(lab+' AI로 만들기')+'"'+(st.busy||rec?' disabled':'')+' onclick="mkAi(\''+q.up+'\')">AI</button>':'')+'<button type="button" class="rowbtn mk-vb" data-fk="mkrec:'+q.up+'" aria-label="'+esc(lab+' 녹음하기')+'"'+(st.busy||rec?' disabled':'')+' onclick="mkRec(\''+q.up+'\')">녹음</button><button type="button" class="rowbtn mk-vb" data-fk="mkup:'+q.up+'" aria-label="'+esc(lab+' 파일 올리기')+'"'+(st.busy||rec?' disabled':'')+' onclick="mkUp(\''+q.up+'\')">파일</button>')+'</span></li>';
+    if(rec) h+='<li class="mk-vx mk-recp" aria-live="polite">'+_recPanel(rec)+'</li>';
+    else if(VC.line&&VC.line.key===q.up) h+='<li class="mk-vx mk-recp" aria-live="polite">'+_vcLinePanel()+'</li>'; });
+  h+='</ul>'+_vcSec()+'<p class="mk-note">예식 7일 전까지 준비해 주세요 · 비어 있는 줄은 스튜디오 나레이션으로 나와요</p>'
     +'<details class="mk-valt"><summary>녹음 도움말</summary><p class="mk-note">조용한 방에서 · 휴대폰을 입에서 한 뼘 떨어뜨려서 · 한 줄씩 천천히 읽어 주세요. 녹음해 둔 파일이 있으면 «파일»로 올려도 돼요(m4a · mp3 · wav · 한 개 20MB · 60초 안)</p></details>'
     +'<details class="mk-valt"'+(alt?' open':'')+'><summary>올리기가 어렵다면</summary>'+_sendHow('두 분 목소리 녹음',0)
     +'<label class="upchk"><input type="checkbox"'+(alt?' checked':'')+' onchange="mkUpSent(\''+k+'\',this.checked)"><span>카톡 · 메일로 보냈어요</span></label></details>';
   return h+'</section>'; }
-function _recPanel(r){ var t=_recNeed(r.key), need=_mkSec(t.length), h='<p class="mk-rect">'+esc(t)+'</p><p class="mk-note">두 분 함께 읽어요 · 알맞은 길이 약 '+need+'초</p>';
+function _recPanel(r){ var t=_recNeed(r.key), need=_mkSec(t.length), h=/^vc:/.test(r.key)?_vcReadText(r.key.slice(3)):'<p class="mk-rect">'+esc(t)+'</p><p class="mk-note">두 분 함께 읽어요 · 알맞은 길이 약 '+need+'초</p>';
   if(r.ph==='count') return h+'<p class="mk-reccd" role="status">'+r.n+'</p>';
   if(r.ph==='rec') return h+'<div class="mk-recbar" aria-hidden="true"><i id="mkRecLvl" style="width:'+Math.round((r.lvl||0)*100)+'%"></i></div><p class="mk-note" id="mkRecT">녹음 중 · '+_recFmt(r.el||0)+'</p><button type="button" class="rowbtn mk-recgo" data-fk="mkrecstop" onclick="mkRecStop()">멈춤</button>';
   if(r.ph==='busy') return h+'<p class="mk-note" role="status">'+esc(r.msg||'다듬는 중…')+'</p>';
@@ -3551,7 +3552,7 @@ function _recPanel(r){ var t=_recNeed(r.key), need=_mkSec(t.length), h='<p class
   return h+'<audio controls preload="auto" src="'+esc(r.url)+'" style="width:100%"></audio>'
     +(r.warn&&r.warn.length?'<p class="mk-exw">'+esc(r.warn.join(' · '))+'</p>':'')
     +'<p class="mk-note">'+_recFmt(r.dur)+' · 앞뒤 빈소리를 자르고 소리 크기를 나레이션에 맞췄어요</p>'
-    +'<span class="mk-vbs"><button type="button" class="rowbtn mk-recgo" data-fk="mkrecuse" onclick="mkRecUse()">이걸로 쓰기</button><button type="button" class="rowbtn" data-fk="mkrecagain" onclick="mkRecAgain()">다시</button><button type="button" class="pk-link" onclick="mkRecCancel()">그만두기</button></span>'; }
+    +'<span class="mk-vbs"><button type="button" class="rowbtn mk-recgo" data-fk="mkrecuse" onclick="'+(/^vc:/.test(r.key)?'mkVcEnroll()':'mkRecUse()')+'">'+(/^vc:/.test(r.key)?'이걸로 목소리 만들기':'이걸로 쓰기')+'</button><button type="button" class="rowbtn" data-fk="mkrecagain" onclick="mkRecAgain()">다시</button><button type="button" class="pk-link" onclick="mkRecCancel()">그만두기</button></span>'; }
 window.mkRecCancel=function(){ _recStopAll(); if(MK_REC&&MK_REC.url) try{ URL.revokeObjectURL(MK_REC.url); }catch(e){} MK_REC=null; render(); };
 function _recStopAll(){ var r=MK_REC; if(!r) return; clearInterval(r.iv); clearTimeout(r.cd); try{ if(r.mr&&r.mr.state!=='inactive') r.mr.stop(); }catch(e){} try{ (r.stream&&r.stream.getTracks()||[]).forEach(function(t){ t.stop(); }); }catch(e){} try{ r.ac&&r.ac.close(); }catch(e){} }
 window.mkRec=function(key){ if(MK_REC) _recStopAll();
@@ -3611,6 +3612,67 @@ window.mkRecUse=function(){ var r=MK_REC; if(!r||r.ph!=='review') return;
     try{ parent.postMessage({type:'momentedit:ritualFile', data:{key:key,name:(_mkUpLabKey(key)+(r.src==='rec'?' · 녹음':' · '+(r.name||'파일')))+(r.raw?'':'.wav'),mime:r.raw?(r.wav.type||'audio/mp4'):'audio/wav',data:String(rd.result)}}, window.location.origin); }
     catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; MK.toast='보내지 못했어요 · 다시 눌러 주세요'; if(MK_REC) MK_REC.ph='review'; render(); } };
   rd.readAsDataURL(r.wav); };
+/* ★★[VOICE_CLONE 2026-09-27 코워크 «두 분 목소리» 5장 · 4-2] AI 두 분 목소리 · 연습 읽기 — RitualOpen.FEATURE 가 꺼져 있으면 아무것도 안 그린다.
+   순서(사람마다 따로): ① 동의(각자 · 본인이 직접 누른다) ② 목소리 읽기(그 자리 녹음만 · 파일 받지 않음 · 마지막에 그날의 확인 문장) ③ 줄마다 [AI] → 빠르기 · 함께/한 사람 → 만들기 → 들어 보기 → 이걸로 쓰기
+   ★«함께» 줄은 두 목소리를 따로 만들어 겹친다 — 어색하면 «한 사람이 읽기». 한도 · 실패는 서버가 말한다(«지금은 AI 목소리를 만들 수 없어요 · 직접 녹음으로»). */
+var VC={st:null,loading:false,panel:null,line:null,rid:0,cb:{}};
+function _vcOn(){ return !!(RitualOpen.FEATURE&&RitualOpen.FEATURE.voiceClone); }
+function _vcReady(){ return _vcOn()&&VC.st&&((VC.st.groom||{}).ready||(VC.st.bride||{}).ready); }
+function _vc(op,data){ return new Promise(function(ok){ if(!EMBED){ ok({ok:false,down:true,error:'마이페이지에서 열면 쓸 수 있어요'}); return; }
+  var rid=++VC.rid; VC.cb[rid]=ok; setTimeout(function(){ if(VC.cb[rid]){ delete VC.cb[rid]; ok({ok:false,down:true,error:'지금은 AI 목소리를 만들 수 없어요 · 직접 녹음으로 준비해 주세요'}); } },95000);
+  try{ parent.postMessage({type:'momentedit:voiceClone',data:Object.assign({op:op,rid:rid},data||{})},window.location.origin); }catch(e){ delete VC.cb[rid]; ok({ok:false,down:true}); } }); }
+function _vcDone(d){ var f=VC.cb[d.rid]; if(f){ delete VC.cb[d.rid]; f(d); } }
+function _vcName(w){ var n=w==='groom'?((CUST&&CUST.groom)||''):((CUST&&CUST.bride)||''); return n||(w==='groom'?'신랑':'신부'); }
+function _vcStatus(){ if(!_vcOn()||VC.loading) return; VC.loading=true; _vc('status').then(function(d){ VC.loading=false; VC.st=d&&d.ok?d:{groom:{},bride:{}}; render(); }); }
+function _vcSec(){ if(!_vcOn()) return ''; if(!VC.st){ _vcStatus(); return '<section class="mk-sec mk-vc"><h4>AI로 두 분 목소리 만들기</h4><p class="mk-note">불러오는 중…</p></section>'; }
+  var h='<section class="mk-sec mk-vc" aria-labelledby="mkVcH"><h4 id="mkVcH">AI로 두 분 목소리 만들기</h4>'
+    +'<p class="mk-note">각자 30초쯤 소리 내어 읽으면, 그 목소리로 하객 맞이 안내와 입장 인사를 만들어요. 말투와 억양은 실제 목소리와 조금 다를 수 있어요</p>'
+    +'<p class="mk-note">직접 녹음은 두 분 목소리 그대로, AI는 녹음이 어려울 때 편해요</p><ul class="mk-vlist">';
+  ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}, nm=_vcName(w);
+    h+='<li class="mk-vr'+(p.ready?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(nm)+'</span><span class="mk-vs">'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>AI 목소리 준비됨':p.consent?'동의했어요 · 목소리 읽기가 남았어요':'아직')+'</span></span><span class="mk-vbs">'
+      +(p.ready?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcdel:'+w+'" onclick="mkVcDel(\''+w+'\')">지우기</button>'
+        :p.consent?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcread:'+w+'" onclick="mkRec(\'vc:'+w+'\')">목소리 읽기</button>'
+        :'<button type="button" class="rowbtn mk-vb" data-fk="mkvcok:'+w+'" onclick="mkVcConsent(\''+w+'\')">동의하고 시작</button>')+'</span></li>';
+    if(VC.panel&&VC.panel.who===w) h+='<li class="mk-vx mk-recp">'+_vcConsentPanel(w)+'</li>';
+    if(MK_REC&&MK_REC.key==='vc:'+w) h+='<li class="mk-vx mk-recp" aria-live="polite">'+_recPanel(MK_REC)+'</li>'; });
+  return h+'</ul></section>'; }
+/* 5-4 동의 — 별도 동의 · 다른 동의와 묶지 않는다 · 거부해도 녹음 · 나레이션으로 진행 · 최종 문구는 법무 확인 뒤 사장님 */
+function _vcConsentPanel(w){ var nm=_vcName(w), other=w==='groom'?'신부':'신랑';
+  return '<p class="mk-note"><b>'+esc(nm)+' 님의 목소리로 AI 목소리를 만들려면 '+esc(nm)+' 님의 동의가 필요해요</b></p>'
+    +'<p class="mk-note">어디에 쓰나요 · 이 예식의 하객 맞이 안내 · 입장 인사, 그리고 켜셨다면 연습 공간 읽기에만 써요</p>'
+    +'<p class="mk-note">무엇을 보내나요 · 방금 읽은 녹음을 음성 업체(타입캐스트)에 보내 목소리를 만들어요</p>'
+    +'<p class="mk-note">언제 지우나요 · 예식 뒤 30일에 녹음 · 만든 목소리 · 만든 소리를 지워요. 그 전에도 [지우기]로 바로 지울 수 있어요</p>'
+    +'<p class="mk-note">동의하지 않아도 직접 녹음이나 스튜디오 나레이션으로 진행할 수 있어요</p>'
+    +'<label class="upchk"><input type="checkbox" id="vcSelf" onchange="document.getElementById(\'vcAgree\').disabled=!this.checked"><span>저는 '+esc(nm)+'이에요 · 제가 직접 눌러요('+other+' 차례는 '+other+'이 직접 눌러 주세요)</span></label>'
+    +'<span class="mk-vbs"><button type="button" class="rowbtn mk-recgo" id="vcAgree" data-fk="mkvcagree" disabled onclick="mkVcAgree(\''+w+'\')">동의하기</button><button type="button" class="pk-link" onclick="VC.panel=null;render()">그만두기</button></span>'; }
+var VC_READ=['오늘 저희 두 사람의 결혼식에 와 주셔서 감사합니다.','앉으실 자리는 한 분 한 분 떠올리며 정했어요.','예식이 곧 시작됩니다. 자리에 앉아 주시면 됩니다.','저희의 첫걸음에 따뜻한 박수를 부탁드립니다.'], VC_WORD=['파란 우산','노란 연필','하얀 구름','초록 사과','빨간 우체통','작은 화분','둥근 달','따뜻한 차'];
+function _vcPhrase(){ var d=new Date(); return '오늘은 '+(d.getMonth()+1)+'월 '+d.getDate()+'일, '+VC_WORD[(d.getDate()+d.getMonth())%VC_WORD.length]; }
+function _vcReadText(w){ return '<p class="mk-note">'+esc(_vcName(w))+' 님 · 아래 글을 소리 내어 읽어 주세요(약 30초 · 조용한 방에서)</p>'+VC_READ.map(function(t){ return '<p class="mk-rect">'+esc(t)+'</p>'; }).join('')+'<p class="mk-rect">'+esc(_vcPhrase())+'</p>'; }
+window.mkVcConsent=function(w){ VC.panel={who:w}; render(); };
+window.mkVcAgree=function(w){ var b=document.getElementById('vcAgree'); if(b) b.disabled=true; _vc('consent',{who:w,agree:true,v:'0927'}).then(function(d){ VC.panel=null; if(!d.ok){ MK.toast=d.error||'동의를 저장하지 못했어요'; } else { VC.st[w]=Object.assign({},VC.st[w],{consent:true}); MK.toast='동의했어요 · 이제 목소리를 읽어 주세요'; } render(); }); };
+window.mkVcEnroll=function(){ var r=MK_REC; if(!r||r.ph!=='review'||!/^vc:/.test(r.key)) return; var w=r.key.slice(3), rd=new FileReader(); r.ph='busy'; r.msg='목소리를 만드는 중… (1분쯤)'; render();
+  rd.onload=function(){ _vc('enroll',{who:w,data:String(rd.result),phrase:_vcPhrase()}).then(function(d){ if(!d.ok){ MK.toast=d.error||'만들지 못했어요'; if(MK_REC) MK_REC.ph='review'; render(); return; }
+    MK_REC=null; VC.st[w]=Object.assign({},VC.st[w],{ready:true,tries:d.tries}); MK.toast=_vcName(w)+' 님 AI 목소리를 만들었어요 · 줄마다 [AI]로 만들어 보세요'; render(); }); };
+  rd.readAsDataURL(r.wav); };
+window.mkVcDel=function(w){ var used=Object.keys(S.up||{}).filter(function(k){ return S.up[k]&&S.up[k].src==='ai'; });
+  if(!confirm(_vcName(w)+' 님 AI 목소리를 지울까요?'+(used.length?' AI로 만든 줄('+used.length+'줄)은 나레이션으로 바뀌어요':''))) return;
+  used.forEach(function(k){ var v=S.up[k]; if(EMBED&&v.id&&!/^local:/.test(v.id)){ try{ parent.postMessage({type:'momentedit:ritualFileDel',data:{key:k,id:v.id}},window.location.origin); }catch(e){} } _rfDel(v.id); delete RF_URL[k]; S.up[k]=0; _fAt('up.'+k); });
+  _persist(); _vc('delete',{who:w}).then(function(d){ VC.st[w]=Object.assign({},VC.st[w],{ready:false}); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); render(); }); };
+/* 줄마다 [AI] — 빠르기 셋(0.9 · 1.0 · 1.1) · 함께 / 한 사람 · 만들기 → 두 목소리를 겹쳐 다듬고(_recProcess) 들어 보기 → 이걸로 쓰기(src ai) */
+window.mkAi=function(key){ VC.line={key:key,tempo:'1',one:(VC.st.groom||{}).ready&&(VC.st.bride||{}).ready?'':((VC.st.groom||{}).ready?'groom':'bride'),left:null}; render(); };
+function _vcLinePanel(){ var L=VC.line, both=(VC.st.groom||{}).ready&&(VC.st.bride||{}).ready, t=_recNeed(L.key);
+  var chip=function(k,v,lab){ var on=String(L[k])===String(v); return '<button type="button" class="op-chip" role="radio" aria-checked="'+(on?'true':'false')+'" onclick="VC.line.'+k+'=\''+v+'\';render()">'+esc(lab)+'</button>'; };
+  return '<p class="mk-rect">'+esc(t)+'</p><div class="ls-cg" role="radiogroup" aria-label="빠르기"><span class="gl">빠르기</span><span class="cg-c">'+chip('tempo','0.9','천천히')+chip('tempo','1','보통')+chip('tempo','1.1','조금 빠르게')+'</span></div>'
+    +(both?'<div class="ls-cg" role="radiogroup" aria-label="누가 읽나"><span class="gl">누가</span><span class="cg-c">'+chip('one','','두 분 함께')+chip('one','groom',_vcName('groom')+'만')+chip('one','bride',_vcName('bride')+'만')+'</span></div>':'')
+    +(L.busy?'<p class="mk-note" role="status">만드는 중…</p>':'<span class="mk-vbs"><button type="button" class="rowbtn mk-recgo" data-fk="mkaigo" onclick="mkAiGo()">만들기</button><button type="button" class="pk-link" onclick="VC.line=null;render()">그만두기</button></span>')
+    +(L.left!=null?'<p class="mk-note">이 줄은 '+L.left+'번 더 다시 만들 수 있어요</p>':''); }
+window.mkAiGo=function(){ var L=VC.line; if(!L) return; L.busy=true; render();
+  _vc('make',{key:L.key,text:_recNeed(L.key),tempo:L.tempo,one:L.one}).then(function(d){ L.busy=false; if(!d.ok){ MK.toast=d.error||'만들지 못했어요'; render(); return; } L.left=d.left;
+    _vcMix(d.parts).then(function(wav){ var key=L.key; VC.line=null; _recFromBlob(key,wav,'ai','AI'); }).catch(function(){ MK.toast='소리를 합치지 못했어요 · 다시 만들어 주세요'; render(); }); }); };
+function _vcMix(parts){ var AC=window.AudioContext||window.webkitAudioContext, ac=new AC();
+  return Promise.all(parts.map(function(p){ var bin=atob(p.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return new Promise(function(ok,no){ var r=ac.decodeAudioData(u.buffer,ok,no); if(r&&r.then) r.then(ok,no); }); }))
+    .then(function(bufs){ try{ ac.close(); }catch(e){} var sr=bufs[0].sampleRate, n=Math.max.apply(null,bufs.map(function(b){ return b.length; })), x=new Float32Array(n), g=bufs.length>1?0.6:1;
+      bufs.forEach(function(b){ var d=b.getChannelData(0); for(var i=0;i<d.length;i++) x[i]+=d[i]*g; }); return _recWav(x,sr); }); }
 function _mkUpLabKey(key){ if(/^g\d$/.test(key)){ var g=GUEST[+key.slice(1)]; return g?_lLabFix(g[0]):key; } return key==='entry'?'입장 인사':key; }
 window.mkUp=function(key){
   var inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.m4a,.mp3,.aac,.wav,.webm,.mp4';
@@ -4044,6 +4106,7 @@ function _lRefExpand(q){
       if(mine){ st.txt=mine; st.mine=true; st.ms=_mkSec(mine.length)*1000; }
       else if(site){ st.txt='떠오르는 대로 말해 보세요'; st.site=true; st.ms=(each||20)*1000; }
       else { st.txt=pt.txt; st.ref=true; st.kyeol=pt.kyeol; st.refN=n; st.refOf=sets.length; st.refSit=_refSit(set); st.refDay=_lRefDay(x.k,set); st.ms=(each||_mkSec(pt.txt.length))*1000; }
+      var pu=_ptSrc(st); if(pu){ st.src=pu; st.ptts=true; st.pending=false; }   // [VOICE_CLONE 4-2] AI가 읽어 주는 연습용 소리
       out.push(st); });
   });
   return out;
@@ -4125,9 +4188,25 @@ function _prHook(st){ _prStop(); if(!PR.on||!PR.stream||!st||!st.talk2||LP.pause
 window.prPlay=function(i){ var t=PR.takes[i]; if(!t) return; _stopAud(); try{ var a=new Audio(t.url); a.play(); MK.aud=a; }catch(e){} };
 window.prPlayAll=function(){ var i=0; _stopAud(); (function nx(){ var t=PR.takes[i++]; if(!t) return; try{ var a=new Audio(t.url); MK.aud=a; a.onended=nx; a.play(); }catch(e){} })(); };
 window.prClear=function(){ PR.takes.forEach(function(t){ try{ URL.revokeObjectURL(t.url); }catch(e){} }); PR.takes=[]; render(); };
+/* ★[VOICE_CLONE 4-2] 따라 보기 · AI로 읽어 주기(골라 켜기) — 켜면 연습 재생의 두 분 차례 글을 AI가 읽는다(그 사람의 AI 목소리 · 없으면 스튜디오 기본 목소리).
+   처음 켤 때 한 번 알림(글이 음성 업체로 보내진다) · «현장에서» 고른 자리(글 없음)는 읽지 않는다 · 만든 소리는 글이 바뀔 때만 새로(이 기기 IndexedDB) · 한도는 서버가 센다 */
+var PT={on:false,ask:false,url:{},busy:{}};
+function _ptOn(){ return !!(RitualOpen.FEATURE&&RitualOpen.FEATURE.practiceTts); }
+function _ptSec(){ if(!_ptOn()) return ''; var h='<label class="upchk"><input type="checkbox" data-fk="ptts"'+(PT.on?' checked':'')+' onchange="ptToggle(this.checked)"><span>두 분 차례도 소리로 듣기 (AI)</span></label>';
+  if(PT.ask) h+='<div class="mk-recp"><p class="mk-note">켜면 두 분 차례 글이 음성 업체(타입캐스트)로 보내져 소리로 만들어져요. 연습에서만 쓰고 예식에서는 나오지 않아요</p><span class="mk-vbs"><button type="button" class="rowbtn mk-recgo" data-fk="pttsyes" onclick="PT.ask=false;PT.on=true;try{localStorage.setItem(\'me_ptts_ok\',\'1\')}catch(e){};render()">켜기</button><button type="button" class="pk-link" onclick="PT.ask=false;render()">그만두기</button></span></div>';
+  return h; }
+window.ptToggle=function(on){ if(!on){ PT.on=false; render(); return; } var ok=false; try{ ok=localStorage.getItem('me_ptts_ok')==='1'; }catch(e){} if(ok){ PT.on=true; } else PT.ask=true; render(); };
+function _ptHash(t){ var h=5381; for(var i=0;i<t.length;i++){ h=((h<<5)+h+t.charCodeAt(i))|0; } return 'tts:'+(h>>>0).toString(36)+':'+t.length; }
+function _ptSrc(st){ if(!PT.on||!_ptOn()||st.site||!st.txt) return null; var w=st.who==='신랑'?'groom':st.who==='신부'?'bride':'family', h=_ptHash(w+'|'+st.txt);
+  if(PT.url[h]) return PT.url[h]; if(PT.busy[h]) return null; PT.busy[h]=1;
+  _rfGet(h).then(function(b){ if(b){ PT.url[h]=URL.createObjectURL(b); _rfRedraw(); return; }
+    _vc('practice',{who:w,text:st.txt}).then(function(d){ if(!d.ok){ if(d.limit||d.down){ MK.toast=d.error; PT.on=false; render(); } return; }
+      var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); var bl=new Blob([u],{type:d.mime||'audio/mpeg'}); _rfPut(h,bl); PT.url[h]=URL.createObjectURL(bl); _rfRedraw(); }); });
+  return null; }
 function _prSec(){ var h='<section class="mk-sec pr-voice"><h4>내 목소리로 연습</h4>'
     +'<label class="upchk"><input type="checkbox" data-fk="prrec"'+(PR.on?' checked':'')+' onchange="prToggle(this.checked)"><span>내 차례를 녹음하며 연습</span></label>'
-    +'<p class="mk-note">연습 녹음은 이 휴대폰에만 있어요. 다른 곳으로 보내지 않아요</p>';
+    +'<p class="mk-note">연습 녹음은 이 휴대폰에만 있어요. 다른 곳으로 보내지 않아요</p>'
+    +_ptSec();   // [VOICE_CLONE 4-2] 두 분 차례도 소리로 듣기(AI) — 스위치가 꺼져 있으면 빈칸
   if(PR.takes.length){ h+='<ul class="mk-vlist">'+PR.takes.map(function(t,i){ return '<li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc(t.nm)+'</span><span class="mk-vs">'+t.sec+'초</span></span><span class="mk-vbs"><button type="button" class="rowbtn mk-vb" data-fk="prplay:'+i+'" onclick="prPlay('+i+')">다시 들어 보기</button></span></li>'; }).join('')+'</ul>'
     +'<span class="mk-vbs"><button type="button" class="rowbtn" data-fk="prtakeall" onclick="prPlayAll()">처음부터 들어 보기</button><button type="button" class="pk-link" data-fk="prclear" onclick="prClear()">지우기</button></span>'; }
   return h+'</section>'; }
@@ -4253,7 +4332,8 @@ function _lFull(){
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
     h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(st.k))+'</h3>';
-    h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':'두 분이 올린 목소리'):st.src?'예시 목소리 · 당일엔 두 분이 준비한 목소리가 나와요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
+    h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':((S.up||{})[st.up]||{}).src==='ai'?'AI로 만든 두 분 목소리':'두 분이 올린 목소리'):st.src?'예시 목소리 · 당일엔 두 분이 준비한 목소리가 나와요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
+    if(st.ptts) h+='<p class="lf-ref"><span class="lf-refb">AI 읽기</span>AI가 읽어 주는 연습용 소리 · 예식에서는 나오지 않아요</p>';   // [VOICE_CLONE 4-2]
     if(st.talk2&&PR.cur&&PR.cur.k===st.k&&PR.cur.who===st.who) h+='<p class="lf-rec" role="status"><i aria-hidden="true"></i>내 목소리 녹음 중 · 이 휴대폰에만 남아요</p>';   // [PRACTICE_VOICE]
     h+='<div class="lf-lab">'+esc(st.talk2||st.ref?st.who+' 차례':st.lab)+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</div>';   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     if(st.mine||st.site) h+='<p class="lf-ref"><span class="lf-refb">'+(st.mine?'두 분이 적은 글':'현장에서')+'</span>'+(st.mine?esc(st.txt.length+'자 · 소리 내어 읽으면 약 '+_mkSec(st.txt.length)+'초'):'당일엔 직접 말해요')+'</p>';   // [CAST_TEXT_ONLY] 차례 카드 — 누구의 글인가
@@ -5617,7 +5697,9 @@ function _doneOpen(){
   var _td=_mkTodoAll().length;
   h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><p class="mk-one">'+(two.length?'두 분이 준비할'+NBS+'것'+NBS+two.length+'가지':'')+(two.length&&par.length?' · ':'')+(par.length?'부모님께 부탁드릴'+NBS+'것'+NBS+par.length+'가지':'')
     +(_td?' · <b class="mk-todo-n">미완료 '+_td+'</b>':'')+'</p>';
-  h+='<button type="button" class="ls-back" data-fk="done2write" onclick="mkGo(\'_sum\')">② 한눈에 보기에서 보기</button>';   /* [FLOW_MAKE] 옛 ③ 준비하기 → ② 마지막 «한눈에 보기» */
+  h+='<button type="button" class="ls-back" data-fk="done2write" onclick="mkGo(\'_sum\')">② 한눈에 보기에서 보기</button>';
+  /* ★[AI_NOTICE 2026-09-27 코워크 5-6 · 사장님 결정 대기(법무 확인 뒤)] AI로 만든 두 분 목소리가 한 줄이라도 있으면 식순 안내에 한 줄 — 기본 program · narration/none 은 사장님 확정 뒤 */
+  if(Object.keys(S.up||{}).some(function(k){ return S.up[k]&&S.up[k].src==='ai'; })&&/program|both/.test(RitualOpen.AI_NOTICE||'')) h+='<p class="mk-note" data-fk="ainotice">일부 안내는 두 분 목소리로 만든 AI 음성이에요</p>';   /* [FLOW_MAKE] 옛 ③ 준비하기 → ② 마지막 «한눈에 보기» */
   h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry op">';   /* ★[RIT_SUMMARY_STACK 2026-09-27 4부 17] 390 에서 4칸이 비좁아 값이 2~3줄로 부서졌다 — 순번 · 이름 / 아래에 값 · «변경»은 글 단추 */
   _lRows().forEach(function(k){
     var no=_lNo(k), empty=(k==='vow'&&!_wcFilled('vow'))||(k==='letter'&&!_wcFilled('letter'))||(k==='welcome'&&S.welcome==='self'&&!_wcFilled('welcome'));
@@ -6321,7 +6403,8 @@ if(EMBED){
     if(ev.data.type==='momentedit:orderExitReq'){ window._obExit(); return; }   // 부모(오버레이 밖 Esc 등)의 나가기 요청도 같은 저장 경로로
     // [ORD_AUTOSAVE] 자동 저장 회신 — 성공·실패 둘 다 받는다. 한쪽만 받으면 표시가 한 상태에 갇힌다.
     if(ev.data.type==='momentedit:ritualFileDone'){ _mkUpDone(ev.data); return; }   // [RITUAL_FILE] 마이페이지가 GAS 결과를 돌려준다
-    if(ev.data.type==='momentedit:ritualFileData'){ _rfData(ev.data); return; }   // [REC_UPLOAD] 올린 녹음을 두 분 계정으로 다시 받아 왔다
+    if(ev.data.type==='momentedit:ritualFileData'){ _rfData(ev.data); return; }
+    if(ev.data.type==='momentedit:voiceCloneDone'){ _vcDone(ev.data); return; }   // [VOICE_CLONE]   // [REC_UPLOAD] 올린 녹음을 두 분 계정으로 다시 받아 왔다
     if(ev.data.type==='momentedit:ritualFileDelDone'){ if(!ev.data.ok){ MK.toast=ev.data.error||'지우지 못했어요'; render(); } return; }   // [RITUAL_FILE] 마이페이지가 GAS 결과를 돌려준다
     if(ev.data.type==='momentedit:orderDraftSaved'){ _txPullApply(ev.data.pull); _autoAck(true); return; }
     if(ev.data.type==='momentedit:orderDraftFail'){ _autoAck(false); return; }
