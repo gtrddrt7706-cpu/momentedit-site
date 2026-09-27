@@ -491,6 +491,81 @@ chk '.wiz-exit{display:inline-flex;align-items:center;justify-content:center;min
 chk 'WZ_PILL' mypage.html 1
 chk "true,'저장하고 마치기');" mypage.html 2
 nochk "true,'저장하고 닫기');" mypage.html 0
+# ★★[SEL_ONE · NOTE_DOT · ERR_ONE · CC_BTN_KO 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»]
+#   ①고름 표시 한 벌 = 금빛 테 두 겹 + 옅은 금빛 바탕 + 먹빛(식순 .seg-b.on · 음료 .dk-chip.on 과 같은 말) — 진사 칠 · 먹빛 칠 · 진사 테로 되돌리면 빨강
+#   ②안내 한 줄 = «점 + 글»(.mp-dotln) — 칠한 상자(분홍 #FBF3F1 · 진사 옅은 칠 · 회색 칠 · 금빛 칠)로 되돌리면 빨강
+#   ③오류 = 진사(후기 · 애프터 웨딩 AI) ④주 단추 .cc-btn 글꼴 = 한글 명조(라틴 Cormorant 만 걸려 한글이 기기 기본 명조로 떨어졌다)
+chk 'SEL_ONE' mypage.html 12
+chk '.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on,.rev-chip.on{border-color:var(--gold-deep);' mypage.html 1
+chk '.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);' mypage.html 1
+nochk 'dn-fpill.on{border-color:var(--seal' mypage.html 0
+nochk 'dn-segbtn.on{background:var(--seal' mypage.html 0
+nochk 'srv-opts button.on{background:#4E3F31' mypage.html 0
+nochk 'sp-opt.on{border-color:var(--seal)' mypage.html 0
+chk 'NOTE_DOT' mypage.html 8
+chk '<div class="mp-dotln need">보내기 전, ' mypage.html 1
+nochk 'background:#FBF3F1' mypage.html 0
+nochk 'background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전' mypage.html 0
+nochk 'border-color:#cdb98a' mypage.html 0
+chk 'id="mp_svErr" role="alert" style="color:var(--seal);' mypage.html 1
+chk 'id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align:center;color:var(--seal)"' mypage.html 1
+chk '.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif-ko);' mypage.html 1
+chk 'SEL_ONE' .claude/skills/momentedit-design/SKILL.md 1
+chk 'NOTE_DOT' .claude/skills/momentedit-design/SKILL.md 1
+# ★[WZ_STEPS_DOTS · WZ_STEPS_TAG · FOLD_CHEVRON · X_ONE · TOAST_ONE · MODAL_R12 · NO_BOUNCE · OPT_TAG 2026-09-27 사장님 «일관성»] 작은 부품 한 벌
+chk '.dots .dot.done{width:6px;height:6px;background:var(--gold)}' mypage.html 1
+chk "_ivStepTag=WZ_CIRC\[_ivI\]+' '+_invStepNames(inv.draft)\[_ivI\]" mypage.html 1
+nochk "_ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT" mypage.html 0
+chk 'FOLD_CHEVRON' mypage.html 5
+nochk 'class="pt-ar">▾' mypage.html 0
+nochk "(detOpen?' ▴':' ▾')" mypage.html 0
+nochk "'접기 ▴':'펼치기 ▾'" mypage.html 0
+chk 'data-seat-selclose aria-label="닫기">✕</button>' mypage.html 1
+chk '.dn-fav .x{position:absolute;top:-1px;right:-1px;width:44px;height:44px;' mypage.html 1
+chk 'TOAST_ONE' mypage.html 1
+nochk 'background:rgba(58,47,37,.92)' mypage.html 0
+chk 'MODAL_R12' mypage.html 2
+nochk '.mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-radius:6px' mypage.html 0
+chk 'animation:tdFade' mypage.html 1
+nochk 'tdBounce 1' mypage.html 0
+nochk 'translateY(-4px)}}' mypage.html 0
+chk 'OPT_TAG' mypage.html 1
+chk 'class="opt-tag">· 선택</span>' mypage.html 3
+nochk '<span style="color:var(--label-soft);font-weight:400">· 선택</span>' mypage.html 0
+chk "b.className='rev-chip'; b.setAttribute('aria-pressed','false');" mypage.html 1
+nochk "b.style.background=sel\[c\]?'var(--gold-deep" mypage.html 0
+# ★[SUBHEAD_ONE · KO_CAP · WZ_ERR_INV · AFTER_BAR · MYWORKS_ORDER 2026-09-27 사장님 «일관성»] 4차 — 소제목 14/600 한 벌 · 한글 캡션 가짜 기울임 제거 ·
+#   청첩장 걸음 확인 = 막대 안 한 줄 · 막대 뒤 안내 → 앞 · 내 완성물 = 준비 카드 이름 · 순서(prep-order 가 잰다)
+chk 'SUBHEAD_ONE' mypage.html 3
+chk '.inv-gate-q{font-family:var(--serif-ko);font-size:14px;font-weight:600;' mypage.html 1
+chk 'KO_CAP' mypage.html 2
+nochk '.inv-eg-cap{font-family:var(--serif);font-style:italic' mypage.html 0
+nochk '.inv-onep-cap{font-family:var(--serif);font-style:italic' mypage.html 0
+chk 'function _invErr(msg){' mypage.html 1
+chk "_invErr('디자인을 골라 주세요.')" mypage.html 1
+nochk "mpAlert('초대 방식을 골라 주세요.')" mypage.html 0
+nochk "mpAlert('디자인을 골라 주세요.')" mypage.html 0
+chk 'AFTER_BAR' mypage.html 2
+chk 'MYWORKS_ORDER' mypage.html 1
+# [SEAL_CTA_ONLY] 진사 단추는 결정적 행동에만(AI 대화 «보내기»는 먹빛) · [FOCUS_ONE] 입력칸 초점 = 짙은 금빛 테 두 겹(진사 빛 번짐 · 옅은 한 겹 걷음)
+chk 'SEAL_CTA_ONLY' mypage.html 1
+nochk 'class="cc-btn cc-btn-seal" id="dncSend"' mypage.html 0
+chk 'FOCUS_ONE' mypage.html 3
+nochk '.seat-note-ta:focus{outline:none;border-color:var(--seal)' mypage.html 0
+# ★[WZ_STEPS_FOCUS · WZ_STEPS_AA 2026-09-27 web-design-guidelines 점검] 걸음 누른 뒤 초점 = 새 제목 · 지나온 선 3:1(짙은 금빛) · 목록 역할 ·
+#   좁은 폭 다섯 걸음은 번호를 윗줄로 · 고름 상태 낭독(디자인 칸 · 예식 시간 칸) · 알림 글은 붙인 뒤에 · 후기 오류 낭독
+chk 'function _wzFocusHead(box){' mypage.html 1
+chk 'renderInvFlow(box); _wzFocusHead(box);' mypage.html 1
+chk "render(box); _wzFocusHead(box); }); });   // \[WZ_STEPS_FOCUS\]" mypage.html 1
+chk '.wz-steps li.done{color:var(--sub);border-top-color:var(--gold-deep)}' mypage.html 1
+chk '@media (max-width:360px){.wz-steps.n5 .wz-n{display:block' mypage.html 1
+chk 'role="list" aria-label="진행 단계"' mypage.html 1
+chk 'class="inv-dz'"'"'+(cur===p\[0\]?'"'"' sel'"'"':'"'"''"'"')+'"'"'" aria-pressed=' mypage.html 1
+chk "x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true');" mypage.html 2
+chk "requestAnimationFrame(function(){ t.textContent=msg; t.style.opacity='1';" mypage.html 1
+chk 'id="mp_svErr" role="alert"' mypage.html 1
+nochk '@keyframes dnCueAr{0%,100%{transform:translateY(0)}' mypage.html 0
+chk '@media (hover:hover){.wiz-exit:hover{' mypage.html 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
@@ -10802,7 +10877,9 @@ chk 'o.cancel===false){ try{ _bkId=bkOpen' mypage.html 1
 chk 'INV_EG_FULL' mypage.html 1
 chk 'WIZ_NOTE_STYLE' mypage.html 1
 chk '^\.sp-note{' mypage.html 1
-chk '\.inv-nav + \.sp-note{' mypage.html 1
+#   ★2026-09-27 [AFTER_BAR] 캡션이 막대 «앞»으로 옮겨 선택자도 .sp-note.wz-cap 로(막대가 아래에 붙은 뒤로 막대 뒤 글은 맨 끝까지 내려야 보였다) — 글꼴 · 자간은 그대로
+chk '\.sp-note\.wz-cap{font-family:var(--serif-ko);letter-spacing:\.04em' mypage.html 1
+nochk '\.inv-nav + \.sp-note{' mypage.html 0
 # [MODAL_ACT_STICKY] 긴 모달에서 버튼·제목이 붙어 따라온다(스크롤이 있는지 몰라 못 찾던 자리)
 chk 'MODAL_ACT_STICKY' mypage.html 2
 # [GATE_CARD_BUSY] 「예식만으로 조용히 마무리」 카드 — 누른 순간 신호가 있어야 한다.
@@ -12422,7 +12499,8 @@ chk 'var _sv=saveInvDraft();' mypage.html 1
 chk 'var _b2=_wizJson(WIZ_ADAPT.inv.data());' mypage.html 1
 chk 'WIZ_BASE.inv=_b2;' mypage.html 1
 # [INV_TAG_TOTAL] 예식 준비 청첩장 행 진행 태그 = 위저드 머리와 같은 전체 단계 수(청첩장 없이 · 개인 제작은 «/2» · 확인 단계는 2)
-chk "var _ivT=_invTotalSteps(inv.draft); _ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT;" mypage.html 1
+#   ★2026-09-27 [WZ_STEPS_TAG] 꼬리표가 «2/4» → «② 부모님»(진행 표시와 같은 말). 경로별 단계 수를 따르는 뜻은 그대로 — 두 걸음 경로는 «② 확인»이 된다.
+chk "var _ivT=_invTotalSteps(inv.draft), _ivI=(_ivT===2?(_ivN>1?2:1):_ivN)-1;" mypage.html 1
 nochk "if(_ivN) _ivStepTag=_ivN+'/4';" mypage.html 0
 # [INV_SEL_SHORT] 청첩장 2/4 select — 값(value)은 그대로 · 보이는 이름만 «직접 입력» · «호칭 생략»(561px 이상 124px 칸에서 «기타(직접입» · «호칭 생략 (»로 잘리던 것)
 chk "(x===ETC?'직접 입력':(x===OMIT?'호칭 생략':x))" mypage.html 1
