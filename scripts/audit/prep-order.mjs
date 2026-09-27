@@ -31,6 +31,16 @@ for (let i = 1; i < cpos.length; i++) if (cpos[i][0] >= 0 && cpos[i - 1][0] >= 0
 // [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 옛 이름이 목록 줄·확인서 줄로 돌아오면 빨강
 if (blk.indexOf("row('단체 사진'") > -1) bad.push('예식 준비 목록에 옛 이름 «단체 사진»이 돌아왔다 — «가족 · 친구 스냅»(사장님 선택 2026-09-26)');
 if (cblk.indexOf("line('단체 사진'") > -1) bad.push('예식 확인서에 옛 이름 «단체 사진»이 돌아왔다 — «가족 · 친구 스냅»');
+// ★[MYWORKS_ORDER 2026-09-27 사장님 «일관성»] 예식 뒤 «내 완성물»(_myWorksHtml)도 같은 이름 · 같은 순서 · 확인 · 전달(하객 안내)은 맨 뒤 · 여는 단추는 «보기» 하나
+const wa = my.indexOf('function _myWorksHtml('), wb = wa < 0 ? -1 : my.indexOf('\nfunction ', wa + 10);
+if (wa < 0 || wb < 0) { console.log('━━ prep-order — _myWorksHtml 을 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
+const wblk = my.slice(wa, wb);
+const wwant = [["line('청첩장'", '내 완성물 청첩장'], ["line('좌석 · 음료'", '내 완성물 좌석 · 음료'], ["line('애프터 웨딩'", '내 완성물 애프터 웨딩'], ["line('식순'", '내 완성물 식순'], ["line('하객 안내'", '내 완성물 하객 안내(맨 뒤)']];
+const wpos = wwant.map(([k, n]) => [wblk.indexOf(k), n]);
+wpos.forEach(([p, n]) => { if (p < 0) bad.push(`«${n}» 줄을 못 찾았다`); });
+for (let i = 1; i < wpos.length; i++) if (wpos[i][0] >= 0 && wpos[i - 1][0] >= 0 && wpos[i][0] < wpos[i - 1][0]) bad.push(`«${wpos[i][1]}» 가 «${wpos[i - 1][1]}» 보다 앞에 붙는다`);
+if (wblk.indexOf("line('좌석 배치'") > -1) bad.push('내 완성물에 옛 이름 «좌석 배치» — 예식 준비 카드와 같은 «좌석 · 음료»로');
+if (wblk.indexOf("'열기')") > -1) bad.push('내 완성물 여는 단추에 «열기» — «보기» 하나로');
 if (bad.length) { console.log('━━ prep-order — 빨강 ' + bad.length + '건'); bad.forEach((x) => console.log('   · ' + x)); process.exit(1); }
-console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순(+준비 목록 · 부케) › 가족 · 친구 스냅 · 예식 확인서도 같은 순서');
+console.log('━━ prep-order OK — 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순(+준비 목록 · 부케) › 가족 · 친구 스냅 · 예식 확인서 · 내 완성물도 같은 순서');
 process.exit(0);

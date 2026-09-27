@@ -534,6 +534,19 @@ chk 'class="opt-tag">· 선택</span>' mypage.html 3
 nochk '<span style="color:var(--label-soft);font-weight:400">· 선택</span>' mypage.html 0
 chk "b.className='rev-chip'; b.setAttribute('aria-pressed','false');" mypage.html 1
 nochk "b.style.background=sel\[c\]?'var(--gold-deep" mypage.html 0
+# ★[SUBHEAD_ONE · KO_CAP · WZ_ERR_INV · AFTER_BAR · MYWORKS_ORDER 2026-09-27 사장님 «일관성»] 4차 — 소제목 14/600 한 벌 · 한글 캡션 가짜 기울임 제거 ·
+#   청첩장 걸음 확인 = 막대 안 한 줄 · 막대 뒤 안내 → 앞 · 내 완성물 = 준비 카드 이름 · 순서(prep-order 가 잰다)
+chk 'SUBHEAD_ONE' mypage.html 3
+chk '.inv-gate-q{font-family:var(--serif-ko);font-size:14px;font-weight:600;' mypage.html 1
+chk 'KO_CAP' mypage.html 2
+nochk '.inv-eg-cap{font-family:var(--serif);font-style:italic' mypage.html 0
+nochk '.inv-onep-cap{font-family:var(--serif);font-style:italic' mypage.html 0
+chk 'function _invErr(msg){' mypage.html 1
+chk "_invErr('디자인을 골라 주세요.')" mypage.html 1
+nochk "mpAlert('초대 방식을 골라 주세요.')" mypage.html 0
+nochk "mpAlert('디자인을 골라 주세요.')" mypage.html 0
+chk 'AFTER_BAR' mypage.html 2
+chk 'MYWORKS_ORDER' mypage.html 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
@@ -10834,7 +10847,9 @@ chk 'o.cancel===false){ try{ _bkId=bkOpen' mypage.html 1
 chk 'INV_EG_FULL' mypage.html 1
 chk 'WIZ_NOTE_STYLE' mypage.html 1
 chk '^\.sp-note{' mypage.html 1
-chk '\.inv-nav + \.sp-note{' mypage.html 1
+#   ★2026-09-27 [AFTER_BAR] 캡션이 막대 «앞»으로 옮겨 선택자도 .sp-note.wz-cap 로(막대가 아래에 붙은 뒤로 막대 뒤 글은 맨 끝까지 내려야 보였다) — 글꼴 · 자간은 그대로
+chk '\.sp-note\.wz-cap{font-family:var(--serif-ko);letter-spacing:\.04em' mypage.html 1
+nochk '\.inv-nav + \.sp-note{' mypage.html 0
 # [MODAL_ACT_STICKY] 긴 모달에서 버튼·제목이 붙어 따라온다(스크롤이 있는지 몰라 못 찾던 자리)
 chk 'MODAL_ACT_STICKY' mypage.html 2
 # [GATE_CARD_BUSY] 「예식만으로 조용히 마무리」 카드 — 누른 순간 신호가 있어야 한다.
