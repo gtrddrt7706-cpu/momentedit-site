@@ -64,7 +64,9 @@ const toPick = async (pg) => { await clickNext(pg); await pg.waitForTimeout(400)
 for (const w of [390, 1280]) {
   const { ctx, pg, errs, ext } = await open(w);
   await toPick(pg);
-  ok(`${w} 새 코스 STEPS = 네 걸음`, (await pg.evaluate(() => STEPS.map((s) => s.k).join(','))) === 'intro,intro2,pick,listen,write,done');
+  /* ★[FLOW_MAKE · PRACTICE_STEP 2026-09-27 코워크 설계 · 사장님 결정] 새 코스 = ① 고르기 · ② 하나씩 만들기 · ③ 연습하기 · ④ 완성.
+     옛 ② 목록(ls-row · 줄 열기 · 목록 칩)과 옛 ③ 준비하기(글 칸 모음)는 걷었다 — 그 검사는 이 블록이 새 화면으로 대신한다. */
+  ok(`${w} 새 코스 STEPS = 네 걸음(② 하나씩 만들기 · ③ 연습하기)`, (await pg.evaluate(() => STEPS.map((s) => s.k).join(','))) === 'intro,intro2,pick,listen,practice,done');
   ok(`${w} ① 에 걸음 표시(① 고르기가 지금)`, await pg.evaluate(() => { const o = document.querySelector('.op-steps li.on'); return !!o && /고르기/.test(o.textContent); }));
   /* [PICK_V2 2026-09-26 코워크 최종판 3장] ① 은 예시 → 감동 흐름 → 네 막 칸 → 아래 막대. 판 칩 · 카드 · 자동 재생 영상은 없다. */
   ok(`${w} ① 칸에 판 칩이 없다(② 로 옮김)`, await pg.evaluate(() => document.querySelectorAll('.pk .op-chip').length === 0));
@@ -73,53 +75,59 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
   await pg.click('[data-fk="pto:declare"]'); await pg.waitForTimeout(500);
-  ok(`${w} ① 창 «② 보고 듣기에서 고를 것 · 누가 · 말투»(② 묶음 이름과 같게 · F2) · 남는 사진`, await pg.evaluate(() => (document.getElementById('pvCh') || {}).textContent === '② 보고 듣기에서 고를 것 · 누가 · 말투' && /남는 사진/.test((document.getElementById('pvShot') || {}).textContent || '')));
+  ok(`${w} ① 창 «② 에서 고를 것 · 누가 · 말투» · 남는 사진`, await pg.evaluate(() => /고를 것 · 누가 · 말투$/.test((document.getElementById('pvCh') || {}).textContent || '') && /남는 사진/.test((document.getElementById('pvShot') || {}).textContent || '')));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(400);
   ok(`${w} ① 소제목에 동그라미 번호 없음 · 남는 장면이라는 말 없음`, await pg.evaluate(() => ![...document.querySelectorAll('.pk-h,.pk-act-h,.pk-fp-h h3')].some((h) => /[①②③]/.test(h.textContent)) && !/남는 장면/.test(document.getElementById('stage').textContent)));
   ok(`${w} ① 고객 화면에 «판» 없음`, await pg.evaluate(() => !/판 바꿈|고를 수 있는 판|그 판으로/.test(document.getElementById('stage').textContent)));
   await clickNext(pg); await pg.waitForTimeout(1500);
   ok(`${w} [STEP_BASELINE 4-e] 걸음 표시 — 지난 걸음과 지금 걸음의 글줄이 같다`, await pg.evaluate(() => { const ys = [...document.querySelectorAll('.op-steps li')].map((li) => { const tw = document.createTreeWalker(li, NodeFilter.SHOW_TEXT); let t = tw.nextNode(); while (t && !t.textContent.trim()) t = tw.nextNode(); const r = document.createRange(); r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }); return ys.length === 4 && Math.max(...ys) - Math.min(...ys) <= 1; }));
-  ok(`${w} ② 제목 · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '보고 듣기' && /보고 듣기/.test(document.querySelector('.op-steps li.on').textContent)));
-  const rows = await pg.evaluate(() => [...document.querySelectorAll('.ls-rows .ls-row')].map((r) => r.dataset.lk));
-  ok(`${w} ② 줄 = 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사`, rows[0] === 'guest' && rows[1] === 'prevideo' && rows[rows.length - 1] === '_close', rows.join(','));
+  ok(`${w} ② 제목 «하나씩 만들기» · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '하나씩 만들기' && /하나씩 만들기/.test(document.querySelector('.op-steps li.on').textContent)));
+  const pages = await pg.evaluate(() => _mkPages());
+  ok(`${w} ② 쪽 = 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE]`, pages[0] === 'guest' && pages[1] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
+  ok(`${w} ② 진행 순서 줄 = 쪽마다 단추 하나 · 지금 쪽 aria-current`, await pg.evaluate((n) => document.querySelectorAll('#mkStrip .mk-it:not(.mk-add)').length === n && !!document.querySelector('#mkStrip .mk-it.cur[aria-current="step"]'), pages.length));
   ok(`${w} ② 들어가자마자 소리 없음(자동 재생 없음)`, await pg.evaluate(() => !LP.q.length && (!LP.el || LP.el.paused)));
-  // ⑤ 키보드로 줄 열기
-  await pg.focus('[data-fk="lsm:candle"]'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(400);
-  ok(`${w} ② 키보드 Enter 로 줄이 열린다`, await pg.evaluate(() => LS.open === 'candle' && !!document.querySelector('.ls-row.open .ls-flow')));
-  /* [TEXT_AUDIO_MATCH 2-1] 녹음이 하나도 안 맞는 날은 전부 글로 흐른다 — 줄마다 꼬리표 대신 «처음부터» 아래 한 줄
-     ★[REC_STATE_FREE 2026-09-26] 9/26 녹음이 들어와 «지금 녹음 = 옛 대본»이 더는 참이 아니다 — 녹음 기록을 비워 그 상태를 만들어 잰다(저장소 녹음과 상관없이). */
-  await pg.evaluate(() => { for (const k in LREC) delete LREC[k]; LS.open = 'candle'; render(); }); await pg.waitForTimeout(300);
-  ok(`${w} ② 전부 녹음 전이면 한 줄만(«녹음 전이라 글로 먼저…» · [RIT_NAME_TWO]) · 줄 꼬리표 없음`, await pg.evaluate(() => LS.allPend && /녹음 전이라 글로 먼저 보여 드려요/.test((document.querySelector('.ls-allpend') || {}).textContent || '') && !document.querySelector('.ls-row.open .ls-flow .ls-new')));
-  ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px`, await pg.evaluate(() => { const c = document.querySelector('.ls-row.open .op-chip'); return !!c && c.getAttribute('role') === 'radio' && c.closest('[role=radiogroup]') && c.getBoundingClientRect().height >= 44; }));
-  ok(`${w} ② 고른 칩이 눈에 보인다(바탕이 다르다) [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.ls-row.open .op-chip[aria-checked="true"]'), off = document.querySelector('.ls-row.open .op-chip[aria-checked="false"]'); return !!on && !!off && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
-  // ⑦ 칩 → 바로 재생
-  await pg.click('[data-fk="lsc:candleWho:parents"]'); await pg.waitForTimeout(500);
-  ok(`${w} ② 칩을 누르면 값이 바뀌고 그 순간이 바로 들린다 · 누른 자리에 포커스`, await pg.evaluate(() => S.candleWho === 'parents' && LP.q.length > 0 && LP.cur === 'candle' && document.activeElement && document.activeElement.getAttribute('data-fk') === 'lsc:candleWho:parents'));
-  ok(`${w} ② 녹음 전 줄은 소리 없이 글로(src 없음 · 글 있음)`, await pg.evaluate(() => { const st = LP.q[0]; return !!st && st.pending && !st.src && st.txt.length > 10; }));
+  // 다음 = 다음 순간(② 안) · 이전 = 앞 순간
+  await clickNext(pg); await pg.waitForTimeout(400);
+  ok(`${w} ② «다음»은 다음 순간으로(걸음은 그대로)`, await pg.evaluate((p1) => STEPS[idx].k === 'listen' && _mkState().at === p1, pages[1]));
+  await pg.click('#prev'); await pg.waitForTimeout(400);
+  ok(`${w} ② «이전»은 앞 순간으로`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest'));
+  // 서약 쪽 — 흐름 · 참고 예시 · 두 칸
+  await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(500);
+  ok(`${w} ② 서약 쪽 머리 = 번호 · 이름 · 흐름에 «신랑 차례 · 신부 차례»`, await pg.evaluate(() => /혼인 서약/.test(document.getElementById('mkHead').textContent) && /신랑 차례/.test(document.querySelector('.mk-flow').textContent) && /신부 차례/.test(document.querySelector('.mk-flow').textContent)));
+  const rf = await pg.evaluate(() => ({ n: document.querySelectorAll('.mk-ref .mk-rx').length, b: [...document.querySelectorAll('.mk-ref .lf-refb')].map((x) => x.textContent), d: (document.querySelector('.mk-ref .mk-rd') || {}).textContent || '', note: (document.querySelector('.mk-ref .lf-refn') || {}).textContent || '', play: document.querySelectorAll('.mk-ref button').length, len: (document.querySelector('.mk-ref .mk-rl') || {}).textContent || '' }));
+  ok(`${w} ② 참고 예시 세 벌 · 글로만(듣기 단추 · 목소리 문장 없음) · «N자 · 소리 내어 읽으면 약 N초» [MK_REF · CAST_TEXT_ONLY]`, rf.n === 3 && /^참고 예시 1 · /.test(rf.b[0]) && rf.d === '당일엔 두 분이 직접 말해요' && /예시 속 이름은 가상 인물이에요/.test(rf.note) && rf.play === 0 && /^\d+자 · 소리 내어 읽으면 약\s\d+초$/.test(rf.len), JSON.stringify(rf));
+  await pg.click('.mk-rx:nth-of-type(2) summary').catch(() => {}); await pg.evaluate(() => { const d = document.querySelectorAll('.mk-rx')[1]; d.open = true; }); await pg.waitForTimeout(200);
+  await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(500);
+  ok(`${w} ② 펼친 예시(2)가 «이 순간 들어 보기»의 두 분 차례 글이 된다 · 소리 없음`, await pg.evaluate(() => LP.cur === 'vow' && LP.q.filter((s) => s.talk2).every((s) => s.refN === 1 && !s.src)));
   ok(`${w} ② 재생 중 작은 플레이어`, await pg.evaluate(() => getComputedStyle(document.getElementById('lsMini')).display === 'flex'));
   await pg.evaluate(() => lsStop());
-  // 크게 보기 · Esc
-  await pg.click('.ls-hero'); await pg.waitForTimeout(700);
-  ok(`${w} ② «처음부터 보고 듣기» → 크게 보기 · 식전 표시 · 본식부터 단추 · 뒤는 inert`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /식전/.test(f.querySelector('.lf-h').textContent) && !!f.querySelector('[data-fk="lfskip"]') && f.querySelector('.lf-txt').textContent.length > 10 && document.querySelector('.wrap').hasAttribute('inert'); }));
-  await pg.click('[data-fk="lfskip"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 본식부터 보기 → «연습 · 1 / N»(PRACTICE_CHOOSE 머리 이름)`, await pg.evaluate(() => /^연습 · 1 \/ \d+$/.test(document.querySelector('#lsFull .lf-h span').textContent.trim())));
-  ok(`${w} ② 크게 보기의 자막 = 엔진 큐 문안`, await pg.evaluate(() => { const st = LP.q[LP.i]; return st && document.querySelector('.lf-txt').textContent === st.txt; }));
-  await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
-  ok(`${w} ② Esc 로 크게 보기가 닫힌다(작게 · 뒤 잠금 풀림)`, await pg.evaluate(() => document.getElementById('lsFull').hidden && !document.querySelector('.wrap').hasAttribute('inert')));
-  await pg.evaluate(() => lsStop());
-  // ⑦ 빼기 · 넣기 한 줄 안내
-  await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
-  /* [RIT_UNDO_INPLACE 2026-09-27 4부 10] 빼기 안내 · 되돌리기는 목록 맨 아래(.ls-msg)가 아니라 뺀 그 자리(.ls-gone) */
-  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요) · 되돌리기 — 뺀 그 자리`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test((document.querySelector('.ls-gone') || {}).textContent || '') && !RitualOpen.onOf(S, 'bless') && !!document.querySelector('[data-fk="lsundo"]')));
-  await pg.click('[data-fk="lsundo"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 되돌리기 → 다시 담긴다`, await pg.evaluate(() => RitualOpen.onOf(S, 'bless')));
-  await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
-  await pg.click('.ls-off summary'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsa:bless"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 담기 안내(n번째에 담았어요)`, await pg.evaluate(() => /«부모님 덕담»을 \d+번째에 담았어요/.test(document.querySelector('.ls-msg').textContent) && RitualOpen.onOf(S, 'bless')));
-  ok(`${w} ② 준비한 순서는 «담지 않은 순간»에 없다`, await pg.evaluate(() => !document.querySelector('.ls-off [data-lk="free"]')));
+  await pg.fill('#mkt_vow_g', '나는 약속'); await pg.fill('#mkt_vow_b', '나도 약속'); await pg.waitForTimeout(200);
+  ok(`${w} ② 신랑 칸 · 신부 칸 따로 · 옛 한 칸(vowText)은 두 칸을 이어 붙인다 · 칸마다 고친 시각 [TX_MERGE]`, await pg.evaluate(() => S.tx['vow.g'] === '나는 약속' && S.tx['vow.b'] === '나도 약속' && S.vowText === '신랑 · 나는 약속\n\n신부 · 나도 약속' && S.fAt['tx.vow.g'] > 0 && S.fAt['tx.vow.b'] > 0));
+  ok(`${w} ② 글자수 · 소리 내어 읽는 초`, await pg.evaluate(() => /5자 · 소리 내어 읽으면 약 1초/.test(document.getElementById('mkc_vow_g').textContent)));
+  // ② 고르기 칩 — radiogroup · 고른 칩이 눈에 보인다 [CHIP_CHECKED] (녹음 기록과 상관없이 · [REC_STATE_FREE] 두 분 차례는 소리가 없다)
+  await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
+  ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px · 고른 칩은 바탕이 다르다 [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.mk-pg .op-chip[aria-checked="true"]'), off = document.querySelector('.mk-pg .op-chip[aria-checked="false"]'); return !!on && !!off && on.getAttribute('role') === 'radio' && !!on.closest('[role=radiogroup]') && on.getBoundingClientRect().height >= 44 && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
+  // 빼기 = 흐리게 남기고 다시 넣기 [DROP_DIM]
+  await pg.evaluate(() => mkGo('bless')); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="mkdrop"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 빼기 → 쪽은 제자리에 흐리게 · «다시 넣기» [DROP_DIM]`, await pg.evaluate(() => !RitualOpen.onOf(S, 'bless') && _mkPages().indexOf('bless') > -1 && !!document.querySelector('.mk-pg.off') && !!document.querySelector('[data-fk="mkundrop"]')));
+  await pg.click('[data-fk="mkundrop"]'); await pg.waitForTimeout(400);
+  ok(`${w} ② 다시 넣기 → 다시 담긴다`, await pg.evaluate(() => RitualOpen.onOf(S, 'bless') && !document.querySelector('.mk-pg.off')));
   ok(`${w} ② 가로 넘침 0`, await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await clickNext(pg); await pg.waitForTimeout(600);
-  ok(`${w} ③ 준비하기 — 두 분이 준비할 것 · 부모님께 부탁드릴 것 · 보낼 것 · 식전 영상 링크 · 도와주실 분`, await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.getElementById('stepHead').textContent === '준비하기' && /두 분이 준비할 것/.test(t) && /부모님께 부탁드릴 것/.test(t) && /보낼 것/.test(t) && !!document.querySelector('input[aria-label="식전 영상 링크"]') && /도와주실 분/.test(t) && !/사흘/.test(t); }));
+  // 한눈에 보기 → ③ 연습하기
+  await pg.evaluate(() => mkGo('_sum')); await pg.waitForTimeout(400);
+  ok(`${w} ② 마지막 쪽 = 한눈에 보기 · 아래 단추 «다음 · ③ 연습하기»`, await pg.evaluate(() => /한눈에 보기/.test(document.getElementById('mkHead').textContent) && /③ 연습하기/.test(document.getElementById('next').textContent)));
+  await clickNext(pg); await pg.waitForTimeout(700);
+  ok(`${w} ③ 연습하기 — «처음부터 끝까지» · 막 단추 · 빠르게 훑기 [PRACTICE_STEP]`, await pg.evaluate(() => STEPS[idx].k === 'practice' && !!document.querySelector('[data-fk="prall"]') && document.querySelectorAll('[data-fk^="pra:"]').length > 0 && !!document.querySelector('[data-fk="prfast"]')));
+  // 크게 보기 · Esc
+  await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
+  ok(`${w} ③ «처음부터 끝까지» → 크게 보기 · 식전 표시 · 본식부터 단추 · 뒤는 inert`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /식전/.test(f.querySelector('.lf-h').textContent) && !!f.querySelector('[data-fk="lfskip"]') && f.querySelector('.lf-txt').textContent.length > 10 && document.querySelector('.wrap').hasAttribute('inert'); }));
+  await pg.click('[data-fk="lfskip"]'); await pg.waitForTimeout(400);
+  ok(`${w} ③ 본식부터 보기 → «연습 · 1 / N»(PRACTICE_CHOOSE 머리 이름)`, await pg.evaluate(() => /^연습 · 1 \/ \d+$/.test(document.querySelector('#lsFull .lf-h span').textContent.trim())));
+  ok(`${w} ③ 크게 보기의 자막 = 엔진 큐 문안`, await pg.evaluate(() => { const st = LP.q[LP.i]; return st && document.querySelector('.lf-txt').textContent === st.txt; }));
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
+  ok(`${w} ③ Esc 로 크게 보기가 닫힌다(작게 · 뒤 잠금 풀림)`, await pg.evaluate(() => document.getElementById('lsFull').hidden && !document.querySelector('.wrap').hasAttribute('inert')));
+  await pg.evaluate(() => lsStop());
   await clickNext(pg); await pg.waitForTimeout(600);
   ok(`${w} ④ 듣기 단추 하나 = «처음부터 끝까지 보기»`, await pg.evaluate(() => { const b = [...document.querySelectorAll('.play-acts .rehearse-btn')]; return b.length === 1 && b[0].textContent === '처음부터 끝까지 보기'; }));
   ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
@@ -165,16 +173,18 @@ for (const w of [390, 1280]) {
   const keys = await pg.evaluate(() => [...document.querySelectorAll('.sr-c')].map((b) => b.getAttribute('data-fk')));
   const snap0 = await pg.evaluate(() => JSON.stringify(S));
   let moved = 0; const miss = [];
+  const pagesNow = await pg.evaluate(() => _mkPages()); const _noPage = (k) => pagesNow.indexOf(k) < 0;
   for (const fk of keys) {
     await toDone();
     const lab = await pg.evaluate((f) => { const b = document.querySelector(`[data-fk="${f}"]`); return b ? b.textContent : ''; }, fk);
     await pg.click(`[data-fk="${fk}"]`); await pg.waitForTimeout(500);
-    const r = await pg.evaluate(() => ({ k: STEPS[idx].k, er: editReturn, open: LS.open, foc: document.activeElement ? (document.activeElement.getAttribute('aria-label') || document.activeElement.className) : '' }));
-    const good = lab === '채우기' ? (r.k === 'write' && r.er && /textarea|약속|편지|첫인사/.test(r.foc)) : (r.k === 'listen' && r.er && !!r.open && /ls-main/.test(r.foc));
+    /* [FLOW_MAKE 2026-09-27] «변경» · «채우기» 모두 ② 의 그 순간 한 쪽으로 간다 — 글이 비었으면 신랑 칸 · 아니면 그 쪽 머리에 포커스 */
+    const r = await pg.evaluate((f) => ({ k: STEPS[idx].k, er: editReturn, at: _mkState().at, want: f.split(':')[1], foc: document.activeElement ? document.activeElement.id : '' }), fk);
+    const good = r.k === 'listen' && r.er && (r.at === r.want || (r.at === 'guest' && _noPage(r.want))) && (lab === '채우기' ? /^mkt_.+_g$/.test(r.foc) : /^(mkHead|mkt_.+_g)$/.test(r.foc));
     if (good) moved++; else miss.push(fk + ':' + lab + ':' + JSON.stringify(r));
     await pg.click('#prev'); await pg.waitForTimeout(400);   // 취소
   }
-  ok(`2-2 ④ «변경» · «채우기» ${keys.length}개가 전부 걸음을 옮긴다(② 줄 열림 · ③ 칸 포커스)`, keys.length > 0 && moved === keys.length, miss.join(' | '));
+  ok(`2-2 ④ «변경» · «채우기» ${keys.length}개가 전부 ② 의 그 순간으로 간다(머리 · 빈 글이면 신랑 칸 포커스) [FLOW_MAKE]`, keys.length > 0 && moved === keys.length, miss.join(' | '));
   ok('2-2 취소하면 ④로 돌아오고 고른 것이 그대로', await pg.evaluate((s0) => STEPS[idx].k === 'done' && !editReturn && JSON.stringify(S) === s0, snap0));
   // 걸음 표시로 옮기면 수정이 끝난다
   await pg.click(`[data-fk="${keys.find((f) => /candle|ring|declare|toast/.test(f)) || keys[0]}"]`); await pg.waitForTimeout(500);
@@ -193,33 +203,33 @@ for (const w of [390, 1280]) {
   // [HEAD_PILLS 2026-09-27 사장님] 걸음 아래 밑줄 글 → 머리 알약 넷(안내 보기 · 다시 만들기 · 저장 · 나가기)
   ok('3-5 담은 뒤 머리 알약 «처음부터 다시 만들기»·«안내 다시 보기» · 걸음 아래 옛 글 없음', await pg.evaluate(() => { const v = (id) => { const e = document.getElementById(id); return !!e && !e.hidden && getComputedStyle(e).display !== 'none'; }; return v('obRestart') && v('obGuide') && !document.querySelector('.op-reset [data-fk="opreset"]'); }));
   await clickNext(pg); await pg.waitForTimeout(1500);
-  ok('3-7 영상이 없으면 ② 머리에 큰 빈 상자가 없다', await pg.evaluate(() => !RitualOpen.VIDEO_READY.length && !document.querySelector('.ls-hero .lv')));
+  ok('3-7 영상이 없으면 ② 쪽에 큰 빈 상자가 없다', await pg.evaluate(() => !RitualOpen.VIDEO_READY.length && !document.querySelector('.mk-vid')));
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
   ok('3-3 ② 이름표에 엔진 이름이 안 보인다(편지 뒤 자리 · 축사 없음 안내 · 둘 다 · 폐식 · 꽃 헌정)', !/편지 뒤 자리|축사 없음 안내|(^|\|)둘 다(\||$)|폐식|꽃 헌정/.test(labs), labs);
   ok('3-3 가족 예시 덕담은 서약 바로 앞 → «서약의 문을 여는» 갈래(편지 뒤 갈래 아님)', await pg.evaluate(() => ENG.RitualCue.build(S, { mode: 'preview' }).cues.some((c) => c.slug === 'narr-bless-open')));
-  await pg.click('.ls-hero'); await pg.waitForTimeout(700);
+  await pg.evaluate(() => lsPlayAll()); await pg.waitForTimeout(700);
   ok('3-7 크게 보기에도 빈 상자 없음 · 글이 위로', await pg.evaluate(() => !document.querySelector('#lsFull .lv')));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
-  await clickNext(pg); await pg.waitForTimeout(700);
-  const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent.replace(/\u00a0/g, ' '), cats: document.querySelectorAll('#stage .wr-cat').length, cnt: (document.getElementById('wcCount') || {}).textContent || '' }));
-  ok('3-4 ③ 머리 «비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요» · D-7 없음', /비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요/.test(w.t) && !/D-7|D-14/.test(w.t));
-  ok('3-4 ③ 갈래 안에 갈래 꼬리표가 없다', w.cats === 0, w.cats);
-  ok('3-4 반지 = 당일 가져오기 · 부모님께 드릴 말 = 당일 직접 읽어요 · 양가 와인 = 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 말 · 선택/.test(w.t) && /적어 두시면 카드로 인쇄해 드려요\. 비워 두시면 당일 직접 말씀하시면 돼요/.test(w.t) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(w.t), w.t.slice(0, 400));
-  /* [RIT_PREP_ONECOUNT 2026-09-27 4부 13] 셈은 머리의 «두 분이 준비할 것 N가지» 하나 — «여기에 적는 글 N개 중 M개» 줄은 없다 */
-  ok('3-4 셈은 «두 분이 준비할 것 N가지» 하나(«여기에 적는 글 …» 줄 없음) [RIT_PREP_ONECOUNT]', !w.cnt && !/여기에 적는 글 \d+개 중/.test(w.t) && /두 분이 준비할 것 · \d+가지/.test(w.t) && !/부모님께 부탁드릴 것 · \d+가지/.test(w.t), w.cnt);
-  /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 선택 칸은 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
-  const tb = await pg.evaluate(() => { const t = document.querySelector('textarea[aria-label="부모님께 드릴 말"]'); const n0 = document.querySelectorAll('.wc-stat').length; t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, n0, inScript: /부모님께 드릴 말\(두 분 작성 · 카드로 인쇄\):\n엄마 아빠 고마워요/.test(sc), gone: !/카드로 인쇄\):/.test(scriptText()) }; });
-  ok('사장님 · 부모님께 드릴 말 선택 칸 — 셈 줄 밖(wc-stat 2) · 적으면 대본에 · 비우면 없음', tb.has && tb.n0 === 2 && tb.inScript && tb.gone, JSON.stringify(tb));
+  /* ★[FLOW_MAKE 2026-09-27] 옛 ③ 준비하기(글 칸 모음)는 걷었다 — 준비할 것은 ② 의 그 순간 쪽(부탁 · 보낼 · 챙길)과 마지막 «한눈에 보기»가 말한다 */
+  const pgT = async (k) => { await pg.evaluate((x) => mkGo(x), k); await pg.waitForTimeout(350); return pg.evaluate(() => document.getElementById('stage').textContent.replace(/\u00a0/g, ' ')); };
+  const tRing = await pgT('ring'), tTrib = await pgT('tribute'), tToast = await pgT('toast'), tSum = await pgT('_sum');
+  const w = { t: tSum };
+  ok('3-4 ② 반지 쪽 = 당일 가져오기 · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 양가 와인 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(tToast), tTrib.slice(0, 200));
+  ok('3-4 한눈에 보기 = 미완료 · 부모님께 부탁드릴 것 · 보낼 것 · 당일 챙길 것 · 도와주실 분 · D-7 없음 [MK_HELPERS]', /미완료 \d+/.test(tSum) && /부모님께 부탁드릴 것 \d+/.test(tSum) && /보낼 것/.test(tSum) && /당일 챙길 것/.test(tSum) && /도와주실 분/.test(tSum) && !/D-7|D-14/.test(tSum), tSum.slice(0, 300));
+  /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 부모님께 드릴 말 칸은 미완료 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
+  await pg.evaluate(() => mkGo('tribute')); await pg.waitForTimeout(300);
+  const tb = await pg.evaluate(() => { const u0 = mkUndone(); const t = document.getElementById('mkt_tribute_g'); t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, same: mkUndone() === u0, inScript: /카드로 인쇄/.test(sc) && /엄마 아빠 고마워요/.test(sc), gone: !/엄마 아빠 고마워요/.test(scriptText()) }; });
+  ok('사장님 · 부모님께 드릴 말 선택 칸 — 미완료 셈 밖 · 적으면 대본에 · 비우면 없음', tb.has && tb.same && tb.inScript && tb.gone, JSON.stringify(tb));
   ok('3-4 도와주실 분 문구 · [GOODS_CHOICE] 기본은 직접 준비 → 케이크 · 꽃이 «챙길 것»에 · «저희가 준비해요» 없음', /반지 교환을 담았을 때/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && !/저희가 준비해요/.test(w.t) && /케이크 · 크기 · 도착 시각은 상담 때 안내해 드려요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 꽃 · 크기 · 도착 시각은 상담 때 안내해 드려요 · 당일 가져오기/.test(w.t), JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t)]) + ' … ' + w.t.slice(-250));
-  await clickNext(pg); await pg.waitForTimeout(900);
+  await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'done') { idx = i; render(); } }); await pg.waitForTimeout(900);
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + (k === RitualOpen.peakOf(S) ? '★ ' : '') + _lName(k)) }));
   ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · ★)', JSON.stringify(d.rows) === JSON.stringify(d.want), JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
-  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /담은 순간 \d+ · 본식 약\s\d+~\d+분 · 단체 사진 약\s\d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③\s준비하기에서 보기/.test(d.t), d.t.slice(0, 300));
+  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ② 한눈에 보기에서 보기', /담은 순간 \d+ · 본식 약\s\d+~\d+분 · 단체 사진 약\s\d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /②\s한눈에 보기에서 보기/.test(d.t), d.t.slice(0, 300));
   /* ★[GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 꽃 — ② 칩(담았을 때만 · 큰절이면 꽃 없음) · 맡기면 ③ 「저희가 준비해요 · 별도 비용」 · 초안에 실림 */
   const gd = await pg.evaluate(() => {
     const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};
     out.chips = _lGroups('toast').map((g) => g.key).concat(_lGroups('tribute').map((g) => g.key));
-    S.cakeBy = 'studio'; S.flowerBy = 'studio'; out.w = _openWrite(); out.sm = _ordPayload(false).summary.goods; out.bring = R.prepList(S).filter((q) => q.cat === 'bring').map((q) => q.what).join('|');
+    S.cakeBy = 'studio'; S.flowerBy = 'studio'; out.w = _mkSum(); out.sm = _ordPayload(false).summary.goods; out.bring = R.prepList(S).filter((q) => q.cat === 'bring').map((q) => q.what).join('|');
     S.tribute = 'bowGroom'; out.bow = _lGroups('tribute').map((g) => g.key); out.bowGoods = R.goodsOf(S).map((g) => g.what);
     S.toast = 'toast'; out.toastOnly = R.goodsOf(S).length;
     S = keep; Object.keys(T).forEach((k) => { S[k] = T[k]; }); delete S.cakeBy; delete S.flowerBy;
@@ -261,7 +271,7 @@ for (const w of [390, 1280]) {
   await p2.evaluate(() => { window.__exits = 0; const o = window._obExit; window._obExit = function () { window.__exits++; }; });
   await clickNext(p2); await p2.waitForTimeout(400); await clickNext(p2); await p2.waitForTimeout(500);
   await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await clickNext(p2); await p2.waitForTimeout(1300);
-  await p2.click('.ls-hero'); await p2.waitForTimeout(600);
+  await p2.evaluate(() => lsPlayAll()); await p2.waitForTimeout(600);
   await p2.keyboard.press('Escape'); await p2.waitForTimeout(300);
   ok('1-3 임베드 크게 보기 Esc → 크게 보기만 닫힘 · 빌더 나가기 안 불림 [EMBED_ESC_YIELD]', await p2.evaluate(() => document.getElementById('lsFull').hidden && window.__exits === 0));
   await p2.keyboard.press('Escape'); await p2.waitForTimeout(300);
@@ -273,55 +283,51 @@ for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(390);
   await clickNext(pg); await pg.waitForTimeout(400);
   /* [INTRO_JOURNEY 2026-09-27 사장님] «미리 알아두면 좋아요» 상자를 빼고 «여기서 네 걸음 → 그다음 예식까지(연습 · 순서 확정 · 글 마감 · 당일)» */
-  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 예식까지 네 줄(연습 · 순서 확정 예식 14일 전 · 글 마감 예식 7일 전 · 진행은 저희가) · «미리 알아두면» 상자 없음 [INTRO_JOURNEY]', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; const rows = [...document.querySelectorAll('.daymap.jr .seqr')].map((r) => r.textContent); return document.querySelectorAll('.ipt .n').length === 4 && rows.length === 4 && /연습/.test(rows[0]) && /처음부터 끝까지 보기/.test(rows[0]) && /14일\s전/.test(rows[1]) && /순서 확정/.test(rows[1]) && /7일\s전/.test(rows[2]) && /글 마감/.test(rows[2]) && /진행은 저희가/.test(rows[3]) && !/미리 알아두면/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
+  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 예식까지 네 줄(연습 · 순서 확정 예식 14일 전 · 글 마감 예식 7일 전 · 진행은 저희가) · «미리 알아두면» 상자 없음 [INTRO_JOURNEY]', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; const rows = [...document.querySelectorAll('.daymap.jr .seqr')].map((r) => r.textContent); return document.querySelectorAll('.ipt .n').length === 4 && rows.length === 4 && /연습/.test(rows[0]) && /③\s연습하기/.test(rows[0]) && /14일\s전/.test(rows[1]) && /순서 확정/.test(rows[1]) && /7일\s전/.test(rows[2]) && /글 마감/.test(rows[2]) && /진행은 저희가/.test(rows[3]) && !/미리 알아두면/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
   await clickNext(pg); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   const h0 = await pg.evaluate(() => history.length);
+  /* [FLOW_MAKE] ① → ② 첫 쪽 → ② 다음 쪽 → 이전 둘 = ① 로 · 휴대폰 뒤로가 ② 로 가지 않는다 */
   await clickNext(pg); await pg.waitForTimeout(1300); await clickNext(pg); await pg.waitForTimeout(700);
   await pg.click('#prev'); await pg.waitForTimeout(500); await pg.click('#prev'); await pg.waitForTimeout(500);
   const h1 = await pg.evaluate(() => ({ n: history.length, k: STEPS[idx].k }));
   await pg.goBack(); await pg.waitForTimeout(500);
-  ok('2-3 «이전»은 뒤로 가기와 같은 길 — ①→②→③→이전 둘 뒤 휴대폰 뒤로가 앞 걸음으로 가지 않는다', h1.k === 'pick' && await pg.evaluate(() => STEPS[idx].k !== 'listen' && STEPS[idx].k !== 'write'), JSON.stringify({ h0, h1 }));
+  ok('2-3 «이전»은 뒤로 가기와 같은 길 — ①→② 두 쪽→이전 둘 뒤 휴대폰 뒤로가 앞 걸음으로 가지 않는다', h1.k === 'pick' && await pg.evaluate(() => STEPS[idx].k !== 'listen' && STEPS[idx].k !== 'practice'), JSON.stringify({ h0, h1 }));
   await pg.goForward(); await pg.waitForTimeout(500);
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } }); await pg.waitForTimeout(1200);
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
   ok('2-6 이름표(박수를 청하는 말 · 하객 입장 때 · 여는 말) · «성우» 없음', /박수를 청하는 말/.test(labs) && /하객 입장 때/.test(labs) && !/하객이 박수로 답하는|입장 직후|성우/.test(labs), labs);
   ok('2-6 선언 칩 «나레이션 · 엄숙하게»', await pg.evaluate(() => RitualOpen.CHIPS.declare[0][1] === '나레이션 · 엄숙하게'));
-  // 2-1 담지 않은 순간도 들려준다(고른 것은 그대로)
-  const off = await pg.evaluate(() => _lOffRows()[0]);
-  const on0 = await pg.evaluate(() => JSON.stringify(S.on));
-  await pg.evaluate(() => { document.querySelectorAll('details').forEach((d) => { d.open = true; }); });
-  await pg.click(`[data-fk="lsp:${off}"]`); await pg.waitForTimeout(500);
-  ok(`2-1 담지 않은 순간(${off}) ▶ → 재생 목록이 선다 · 고른 것은 그대로`, await pg.evaluate((a) => LP.q.length > 0 && LP.cur === a[0] && JSON.stringify(S.on) === a[1], [off, on0]));
-  /* [PLAY_BESIDE_NUM P13] ▶ 는 번호 옆 그림 위 — 오른쪽 끝에 ▶ 가 없다 · 그림이 44px 이상 · 원은 이름보다 작다 */
-  ok('P13 ② 줄 ▶ = 그림 위(오른쪽 끝 없음) · 누를 곳 44 이상 · 원 24 이하', await pg.evaluate(() => { const r = document.querySelector('.ls-row'); const b = r.querySelector('.ls-th.ls-play'); const pi = b && b.querySelector('.ls-pi'); const rb = b && b.getBoundingClientRect(), rp = pi && pi.getBoundingClientRect(); return !!b && !r.querySelector('.ls-acts .ls-play') && rb.height >= 44 && rb.width >= 44 && rp.width <= 24; }));
-  await pg.click('#lsMini .lm-t'); await pg.waitForTimeout(600);
-  ok('2-1 담지 않은 순간 ▶ → 작은 플레이어 제목으로 크게 보기 → 끝 화면이 아니라 그 순간 · «담지 않은 순간» 표시', await pg.evaluate(() => !document.getElementById('lsFull').hidden && !!LP.q.length && !/다 보셨어요/.test(document.getElementById('lsFull').textContent) && /담지 않은 순간/.test(document.querySelector('#lsFull .lf-h').textContent)));
+  // 크게 보기 · 끝 화면(③ 연습하기에서)
+  await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }); await pg.waitForTimeout(800);
+  await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
   ok('3장 크게 보기 동안 상담 말풍선도 잠긴다(inert)', await pg.evaluate(() => { const b = document.getElementById('meAdvStack'); return !b || b.hasAttribute('inert'); }));
   await pg.evaluate(() => { LP.i = LP.q.length; _lShow(); }); await pg.waitForTimeout(300);
-  ok('2-10 ② 끝 화면 = [다시 보기] [다음 · 준비하기] 둘 · 큰 ↻ 없음', await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !!f.querySelector('[data-fk="lfagain"]') && !!f.querySelector('[data-fk="lfnextstep"]') && !f.querySelector('[data-fk="lfdone"]') && !f.querySelector('[data-fk="lftog"]'); }));
+  ok('2-10 ③ 끝 화면 = [다시 보기] [다음 · ④ 완성] 둘 · 큰 ↻ 없음 [FLOW_MAKE]', await pg.evaluate(() => { const f = document.getElementById('lsFull'); const n = f.querySelector('[data-fk="lfnextstep"]'); return !!f.querySelector('[data-fk="lfagain"]') && !!n && /④\s완성/.test(n.textContent) && !f.querySelector('[data-fk="lfdone"]') && !f.querySelector('[data-fk="lftog"]'); }));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
-  // 3장 radiogroup 방향키
-  await pg.click('[data-fk="lsm:candle"]'); await pg.waitForTimeout(300);
+  // 3장 radiogroup 방향키 — ② 화촉 쪽 «고르기»
+  await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
   const c0 = await pg.evaluate(() => S.candleWho || RitualOpen.DEF.candleWho);
-  await pg.focus('.ls-row.open [role=radio][aria-checked="true"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);
+  await pg.focus('.mk-pg [role=radio][aria-checked="true"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);
   ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => (S.candleWho || '') !== c && document.activeElement.getAttribute('role') === 'radio' && document.activeElement.getAttribute('aria-checked') === 'true', c0));
-  ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.ls-row.open [role=radio]')].every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
-  await pg.click('[data-fk="lsm:ring"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:ring"]'); await pg.waitForTimeout(400);
-  ok('3장 빼기 뒤 포커스 = «되돌리기» · 읽기 칸에 안내', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'lsundo' && /뺐어요/.test((document.getElementById('lsLive') || {}).textContent || '')));
-  await pg.click('[data-fk="lsundo"]'); await pg.waitForTimeout(400);
-  ok('3장 되돌리기 뒤 포커스 = 그 줄 머리', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'lsm:ring'));
-  await clickNext(pg); await pg.waitForTimeout(700);
+  ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radio]')].filter((r) => r.closest('[role=radiogroup]')).every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
+  await pg.evaluate(() => mkGo('ring')); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="mkdrop"]'); await pg.waitForTimeout(400);
+  ok('3장 빼기 뒤 포커스 = «다시 넣기» [DROP_DIM]', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'mkundrop'));
+  await pg.click('[data-fk="mkundrop"]'); await pg.waitForTimeout(400);
+  ok('3장 다시 넣은 뒤 포커스 = «이 순간 빼기»(같은 자리)', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'mkdrop'));
+  // 보낼 길 — ② 식전 영상 쪽
+  await pg.evaluate(() => { if (!RitualOpen.onOf(S, 'prevideo')) { S.on.prevideo = 1; opSync(); } mkGo('prevideo'); }); await pg.waitForTimeout(400);
   const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, send: document.querySelectorAll('.send-how a[href^="https://pf.kakao.com"], .send-how a[href^="mailto:"]').length }));
-  ok('2-4 · 2-8 ③ 보낼 길(카톡 · 메일)이 칸 안에 늘 보인다 · 쉬운 말', w.send >= 2 && /파일은 여기서 올라가지 않아요/.test(w.t) && /휴대폰으로 가로로 찍은 영상/.test(w.t) && !/가로 mp4/.test(w.t), w.send);
-  ok('2-5 서약 · 편지 분량이 한 숫자(한 분 300자쯤 · 모두 600자쯤 · 한 분 400자쯤) · 비밀로 둬도 돼요 없음', /한 분 300자쯤\(모두 600자쯤\)/.test(w.t) && !/비밀로 둬도 돼요/.test(w.t) && !/두 줄이면 충분해요/.test(w.t));
-  const warn = await pg.evaluate(() => { const t = document.querySelector('textarea[aria-label="서로에게 하는 약속(서약문)"]'); t.value = 'ㄱ'.repeat(600); t.dispatchEvent(new Event('input', { bubbles: true })); const a = getComputedStyle(document.getElementById('vowCnt')).color; t.value = 'ㄱ'.repeat(750); t.dispatchEvent(new Event('input', { bubbles: true })); return [a, getComputedStyle(document.getElementById('vowCnt')).color]; });
-  ok('2-5 서약 600자는 경고색 아님 · 750자는 경고색', warn[0] !== warn[1], JSON.stringify(warn));
+  ok('2-4 · 2-8 ② 식전 영상 쪽 보낼 길(카톡 · 메일)이 늘 보인다 · 쉬운 말', w.send >= 2 && /파일은 여기서 올라가지 않아요/.test(w.t) && /휴대폰으로 가로로 찍은 영상/.test(w.t) && !/가로 mp4/.test(w.t), w.send + ' ' + w.t.slice(0, 200));
+  await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(400);
+  const warn = await pg.evaluate(() => { const t = document.getElementById('mkt_vow_g'); t.value = 'ㄱ'.repeat(300); t.dispatchEvent(new Event('input', { bubbles: true })); const a = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = 'ㄱ'.repeat(400); t.dispatchEvent(new Event('input', { bubbles: true })); const b = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); return [a, b]; });
+  ok('2-5 서약 한 분 300자는 경고색 아님 · 400자(한 분 기준 넘음)는 경고색', warn[0] !== warn[1], JSON.stringify(warn));
   ok('추가전달 2 · 3장 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
 // [DETAIL_0925 C1 · C2 · G] 글자 대비(본문 4.5 · 큰 글 3) · 누를 곳 44px 실측 — ① · ② · 크게 보기 · ③ 를 390 · 1280 에서
-const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";
+const MEASURE = "window.__measure = function (root) {\n  root = root || document.body;\n  function rgb(s){ var m=s.match(/rgba?\\(([^)]+)\\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }\n  function lum(c){ return [c.r,c.g,c.b].map(function(v){ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce(function(s,v,i){ return s+v*[0.2126,0.7152,0.0722][i]; },0); }\n  function bgOf(el){ var stack=[]; for(var e=el;e;e=e.parentElement){ var c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0){ stack.push(c); if(c.a>=1) break; } } var b={r:250,g:250,b:248}; for(var i=stack.length-1;i>=0;i--){ var c=stack[i]; b={r:c.r*c.a+b.r*(1-c.a),g:c.g*c.a+b.g*(1-c.a),b:c.b*c.a+b.b*(1-c.a)}; } return b; }\n  function vis(el){ var r=el.getBoundingClientRect(); if(!r.width||!r.height) return false; var cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && !el.closest('[hidden],[aria-hidden=true]'); }\n  var bad=[], seen=new Set();\n  var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);\n  while(w.nextNode()){ var t=w.currentNode; if(!t.textContent.trim()) continue; var el=t.parentElement; if(!el||seen.has(el)||!vis(el)) continue; if(el.closest('.sr-only,svg,video,.lv-ai')) {} seen.add(el);\n    var cs=getComputedStyle(el), c=rgb(cs.color); if(!c) continue; var op=1; for(var e=el;e;e=e.parentElement) op*=parseFloat(getComputedStyle(e).opacity); var bg=bgOf(el); var fg={r:c.r*c.a*op+bg.r*(1-c.a*op),g:c.g*c.a*op+bg.g*(1-c.a*op),b:c.b*c.a*op+bg.b*(1-c.a*op)};\n    var L1=lum(fg),L2=lum(bg), ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05); var fs=parseFloat(cs.fontSize), big=fs>=24||(fs>=18.66&&parseInt(cs.fontWeight)>=700); var need=big?3:4.5;\n    if(ratio<need && !el.closest('.sr-only')) bad.push({t:t.textContent.trim().slice(0,24), cls:el.className&&el.className.baseVal===undefined?String(el.className).slice(0,30):el.tagName, ratio:+ratio.toFixed(2), color:cs.color}); }\n  var small=[];\n  root.querySelectorAll('button,a[href],input:not([type=hidden]),select,textarea,summary,[role=radio],[role=button]').forEach(function(el){ if(!vis(el)) return; if(el.closest('[inert]')) return; var r=el.getBoundingClientRect(); if(el.tagName==='A' && getComputedStyle(el).display==='inline') return; if((el.type==='checkbox'||el.type==='radio') && el.closest('label') && el.closest('label').getBoundingClientRect().height>=43.5) return; /* [FLOW_MAKE] 체크 칸은 감싼 label(44px)이 누를 곳이다 */ if(r.height<44-0.5 || r.width<24) small.push({t:(el.textContent||el.getAttribute('aria-label')||el.type||'').trim().slice(0,20), cls:String(el.className).slice(0,28), h:Math.round(r.height), w:Math.round(r.width)}); });\n  return {bad:bad, small:small};\n};";
 for (const w of [390, 1280]) {
   const { ctx, pg } = await open(w);
   await pg.evaluate(MEASURE);
@@ -329,14 +335,18 @@ for (const w of [390, 1280]) {
   const rep = (r) => JSON.stringify({ 대비: r.bad.slice(0, 3), 작은곳: r.small.slice(0, 3) });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   let r = await m(); ok(`${w} C ① 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
-  await clickNext(pg); await pg.waitForTimeout(1200); await pg.click('[data-fk="lsm:candle"]'); await pg.waitForTimeout(400);
-  await pg.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = true; }));
-  r = await m(); ok(`${w} C ② 대비 미달 0 · 44px 미만 0(줄 · 접힘 모두 연 채)`, !r.bad.length && !r.small.length, rep(r));
-  await pg.click('.ls-hero'); await pg.waitForTimeout(700);
+  await clickNext(pg); await pg.waitForTimeout(1200);
+  /* [FLOW_MAKE] ② 는 쪽마다 잰다 — 화촉(칩) · 서약(참고 예시 · 두 칸) · 케이크 · 축배(부탁 · 보낼 · 챙길) · 한눈에 보기 */
+  for (const k of ['candle', 'vow', 'toast', '_sum']) {
+    await pg.evaluate((x) => mkGo(x), k); await pg.waitForTimeout(400);
+    await pg.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = true; }));
+    r = await m(); ok(`${w} C ② ${k} 쪽 대비 미달 0 · 44px 미만 0(접힘 모두 연 채)`, !r.bad.length && !r.small.length, rep(r));
+  }
+  await clickNext(pg); await pg.waitForTimeout(700);
+  r = await m(); ok(`${w} C ③ 연습하기 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
+  await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
   r = await m('#lsFull'); ok(`${w} C 크게 보기 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
-  await clickNext(pg); await pg.waitForTimeout(700);
-  r = await m(); ok(`${w} C ③ 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
   await ctx.close();
 }
 // [DETAIL_0925 A1 · G] 뒤로 가기 워크스루 — ① → ② → 크게 보기 → 뒤로 셋 · 새로고침 뒤 고른 것이 남는가
@@ -345,7 +355,7 @@ for (const w of [390, 1280]) {
   await toPick(pg); await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   const picked0 = await pg.evaluate(() => RitualOpen.picked(S).join(','));
   await clickNext(pg); await pg.waitForTimeout(900);
-  await pg.click('.ls-hero'); await pg.waitForTimeout(600);
+  await pg.evaluate(() => lsPlayAll()); await pg.waitForTimeout(600);
   ok('A1 크게 보기가 열렸다', await pg.evaluate(() => !document.getElementById('lsFull').hidden));
   await pg.goBack(); await pg.waitForTimeout(500);
   ok('A1 뒤로 1 → 크게 보기만 닫힌다(② 그대로)', await pg.evaluate(() => document.getElementById('lsFull').hidden && STEPS[idx].k === 'listen'));
@@ -413,14 +423,19 @@ else {
   ok('9-4 소리 바뀌는 칩 → 그 순간만 다시 · 끝나면 다음으로 안 넘어가고 멈춰 선다 [CHIP_STAY]', d.tok > c.tok && d.stay === 'entry' && d.chips > 0 && d.after.cur === 'entry' && d.after.p && d.after.hint === 'heard' && /한 번 들려 드렸어요/.test(d.after.say), JSON.stringify(d));
   await pg.click('#lsFull [data-fk="lfchoosedone"]'); await pg.waitForTimeout(300);
   ok('9-5 «다 골랐어요 · 이어서 듣기» → 다시 흐르고 칩은 접힌다', await pg.evaluate(() => !LP.paused && LP.choose === null && document.querySelectorAll('#lsFull .op-chip').length === 0));
-  const e = await pg.evaluate(() => ({ q: LP.q.filter((x) => x.ref && x.k === 'welcome').map((x) => x.src).length, steps: _lSteps(ENG, _lRows()).filter((x) => x.ref).length, refSrc: LP.q.filter((x) => x.ref && x.k === 'welcome').every((x) => /\/assets\/audio\/cast\//.test(x.src) && x.txt.length > 20) && LP.q.filter((x) => x.ref).every((x) => x.src ? /\/assets\/audio\/cast\//.test(x.src) : x.pending && x.txt.length > 5) }));   // [REF_TABLE] 녹음 전 예시는 글 + 시간(pending)
-  ok('9-6 첫인사 = 참고 예시 녹음(신랑 · 신부) · 대본 목록(④ 복사)에는 안 들어간다 [REF_EXAMPLE]', e.q === 2 && e.steps === 0 && e.refSrc, JSON.stringify(e));
+  /* ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 두 분 · 가족 차례 = 소리 없이 글 + 막대 — 대역 목소리(06~14 · 24~26)는 어디서도 안 튼다
+     [REF_EXAMPLE] 사람이 말하는 자리는 참고 예시(글)로 · [REF_TABLE] 표에서 고른 판의 벌 */
+  const e = await pg.evaluate(() => { const mute = ENG.RitualStory.CAST_MUTE; return { q: LP.q.filter((x) => x.talk2 && x.k === 'welcome').length, steps: _lSteps(ENG, _lRows()).filter((x) => x.ref || x.talk2).length, noSrc: LP.q.filter((x) => x.talk2).every((x) => !x.src && x.pending && x.txt.length > 5 && x.ms > 0), mute: Object.keys(mute).length, castPlay: LP.q.filter((x) => x.src && /\/assets\/audio\/cast\/(0[6-9]|1[0-4]|2[4-6])_/.test(x.src)).length }; });
+  ok('9-6 첫인사 = 두 분 차례 둘(신랑 · 신부) · 소리 없이 글 + 막대 · 대본 목록(④ 복사)에는 안 들어간다 · 대역 목소리 0 [CAST_TEXT_ONLY]', e.q === 2 && e.steps === 0 && e.noSrc && e.mute === 12 && e.castPlay === 0, JSON.stringify(e));
   await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].ref) && g++ < 40) { LP.i++; _lShow(); } }); await pg.waitForTimeout(300);
   const f = await pg.evaluate(() => ({ badge: (document.querySelector('#lsFull .lf-ref') || {}).textContent || '', lab: (document.querySelector('#lsFull .lf-lab') || {}).textContent || '' }));
-  ok('9-7 참고 예시 화면 — «참고 예시 N · 결» 표 · «이 목소리는 예식에서 나오지 않아요» · 이름표는 «신랑 차례» [REF_TABLE]', /참고 예시/.test(f.badge) && /이 목소리는 예식에서 나오지 않아요/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
-  const rt = await pg.evaluate(() => { const ids = RITUAL_REF.rows.map((r) => r.file); const set = (k, patch) => { const keep = JSON.stringify(S); Object.assign(S, patch.S || {}); if (patch.on) S.on = Object.assign({}, S.on, patch.on); const r = _lRefSets(k); S = JSON.parse(keep); return r; };
+  ok('9-7 참고 예시 화면 — «참고 예시 N · 결» 표 · «당일엔 … 직접» · 목소리 문장 없음 · 이름표는 «신랑 차례» [CAST_TEXT_ONLY]', /참고 예시/.test(f.badge) && /당일엔 .*직접/.test(f.badge) && !/목소리/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
+  /* 두 분이 적은 글이면 그 글 · 막대 = 글자수 ÷ 5 올림(206자 → 42초 · 53자 → 11초) · «현장에서»면 «떠오르는 대로 말해 보세요» */
+  const tw = await pg.evaluate(() => { const keep = JSON.stringify(S); S.tx = { 'welcome.g': 'ㄱ'.repeat(206), 'welcome.b': '' }; S.mkc = { 'welcome.b': 1 }; const q = _lRefExpand(_lSteps(ENG, ['welcome'])).filter((x) => x.talk2); S = JSON.parse(keep); return q.map((x) => ({ who: x.who, mine: !!x.mine, site: !!x.site, s: x.ms / 1000, t: x.txt.slice(0, 20) })); });
+  ok('9-7b 두 분 차례 — 적은 글 206자 → 42초 · «현장에서» → «떠오르는 대로 말해 보세요» [CAST_TEXT_ONLY]', tw.length === 2 && tw[0].mine && tw[0].s === 42 && tw[1].site && /떠오르는 대로 말해 보세요/.test(tw[1].t), JSON.stringify(tw));
+  const rt = await pg.evaluate(() => { const ids = RITUAL_REF.rows.map((r) => r.id); const set = (k, patch) => { const keep = JSON.stringify(S); Object.assign(S, patch.S || {}); if (patch.on) S.on = Object.assign({}, S.on, patch.on); const r = _lRefSets(k); S = JSON.parse(keep); return r; };
     return { rows: RITUAL_REF.rows.length, retired: ids.filter((f) => /^(27_tribute-reply|15_toast)$/.test(f)).length,
-      cross: set('tribute', { S: { tributeSay: 'one', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.file).join('+')).join(' | '),
+      cross: set('tribute', { S: { tributeSay: 'one', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
       sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
       sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
   ok('9-9 참고 예시 표 70줄 · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 · 덕담 없으면 부모님 예시 셋 더 [REF_TABLE]', rt.rows === 70 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2' && rt.sp3off === 6, JSON.stringify(rt));

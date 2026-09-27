@@ -387,6 +387,60 @@ function _prodTrackRev(d, track) {
   for (var i = 0; i < j.length; i++) { h = ((h * 33) ^ j.charCodeAt(i)) >>> 0; }
   return String(h);
 }
+/* ★[TX_MERGE 2026-09-27 사장님 결정 «두 기기 · 이번에 같이 고치기»] 식순 초안의 «두 분이 할 말»(S.tx)·체크(S.mkc)를 칸마다 합친다.
+   신랑 폰에서 신랑 칸, 신부 폰에서 신부 칸을 따로 저장하면 종전엔 뒤에 저장한 쪽이 «먼저 저장됐어요» 충돌을 받았다(TRACK_REV_GUARD).
+   빌더가 칸마다 고친 시각(S.fAt['tx.vow.g'] …)을 적어 보내므로, 여기서 칸마다 더 나중 것을 고른다.
+   · 합칠 수 있는 것은 tx·mkc 뿐이다. 나머지(고른 순간·칩·순서)가 서버본과 다르면 sameRest=false → 종전 충돌 대화상자 그대로.
+   · 기기마다 다른 것(S.seen·S.mk.at·S.mk.seen·'_' 키·summary)은 비교에서 뺀다 — 보던 쪽이 다를 뿐 내용이 아니다.
+   · 새 초안에 fAt 가 없으면(옛 빌더 · 「처음부터 다시」의 빈 S) 합치지 않는다(null) — 비우기가 되살아나면 안 된다.
+   · 옛 한 칸(vowText 등)은 합친 두 칸으로 다시 짓는다(관리자 · 마이페이지 · ④ 대본이 읽는다 · 빌더 _txLeg 와 같은 꼴). */
+var TX_MERGE_LEG = { welcome: 'welcomeText', vow: 'vowText', letter: 'letterText', tribute: 'tributeText' };
+function _txCanon(v) {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v === undefined ? null : v);
+  if (Object.prototype.toString.call(v) === '[object Array]') return '[' + v.map(_txCanon).join(',') + ']';
+  return '{' + Object.keys(v).sort().map(function (k) { return JSON.stringify(k) + ':' + _txCanon(v[k]); }).join(',') + '}';
+}
+function _txRest(dr) {
+  var o = JSON.parse(JSON.stringify(dr || {}));
+  for (var k in o) { if (k.charAt(0) === '_' || k === 'summary') delete o[k]; }
+  var S = o.S || {};
+  ['tx', 'mkc', 'fAt', 'txMig', 'seen'].forEach(function (k) { delete S[k]; });
+  for (var kd in TX_MERGE_LEG) delete S[TX_MERGE_LEG[kd]];
+  for (var k2 in S) { if (k2.charAt(0) === '_') delete S[k2]; }
+  if (S.mk) { delete S.mk.at; delete S.mk.seen; }
+  o.S = S;
+  return _txCanon(o);
+}
+function _ritualTxMerge(oldDr, newDr) {
+  try {
+    var nS = (newDr || {}).S, oS = ((oldDr || {}).S) || {};
+    if (!nS || !nS.fAt || !Object.keys(nS.fAt).length) return null;
+    var nA = nS.fAt || {}, oA = oS.fAt || {}, fAt = {}, pull = { tx: {}, mkc: {}, fAt: {} }, pulled = 0;
+    var out = JSON.parse(JSON.stringify(newDr)), S = out.S;
+    S.tx = S.tx || {}; S.mkc = S.mkc || {};
+    [['tx', oS.tx || {}, nS.tx || {}], ['mkc', oS.mkc || {}, nS.mkc || {}]].forEach(function (g) {
+      var grp = g[0], ov = g[1], nv = g[2], keys = {};
+      Object.keys(ov).forEach(function (k) { keys[k] = 1; }); Object.keys(nv).forEach(function (k) { keys[k] = 1; });
+      Object.keys(keys).forEach(function (k) {
+        var fk = grp + '.' + k, ot = +oA[fk] || 0, nt = +nA[fk] || 0, hasN = Object.prototype.hasOwnProperty.call(nv, k);
+        if (!hasN || ot > nt) {   // 서버 쪽이 더 나중(또는 이 기기가 만진 적 없는 칸) → 서버 값을 지킨다
+          S[grp][k] = ov[k];
+          if (ot) fAt[fk] = ot;
+          if (!hasN || _txCanon(ov[k]) !== _txCanon(nv[k])) { pull[grp][k] = ov[k]; if (ot) pull.fAt[fk] = ot; pulled++; }
+        } else if (nt) fAt[fk] = nt;
+      });
+    });
+    Object.keys(oA).forEach(function (fk) { if (!(fk in fAt) && !(fk in nA)) fAt[fk] = oA[fk]; });
+    Object.keys(nA).forEach(function (fk) { if (!(fk in fAt)) fAt[fk] = nA[fk]; });
+    S.fAt = fAt;
+    for (var kd in TX_MERGE_LEG) {
+      if (!(kd + '.g' in S.tx) && !(kd + '.b' in S.tx)) continue;
+      var g1 = String(S.tx[kd + '.g'] || '').trim(), b1 = String(S.tx[kd + '.b'] || '').trim();
+      S[TX_MERGE_LEG[kd]] = [g1 ? '신랑 · ' + g1 : '', b1 ? '신부 · ' + b1 : ''].filter(Boolean).join('\n\n');
+    }
+    return { draft: out, pull: pulled ? pull : null, sameRest: _txRest(oldDr) === _txRest(newDr) };
+  } catch (e) { return null; }   // 판단이 안 서면 합치지 않는다(종전 동작)
+}
 // 확인 해제 판정용 비교 문자열 — UI 상태 키(_step·_chat 등 '_' 시작)는 스냅샷과 무관하므로 제외.
 //   guideinfo의 showSeat(자리 찾기 노출 토글)도 스냅샷 비노출이라 제외 → 토글만 눌러도 확인이 풀리는 재확인 피로 방지.
 function _prodUiStrip(json, track) {
@@ -609,11 +663,14 @@ function handleSaveProductionTrack(body) {
     var _oldDraftJ = JSON.stringify(d[track + 'Draft'] || {});   // 확인서 해제 판정용(실변경만 해제)
     // [TRACK_REV_GUARD 2026-07-25] 트랙 rev 대조(락 안 · TOCTOU 없음) — 다른 기기·탭이 먼저 저장했으면 조용한 덮어쓰기 대신 충돌 반환.
     //   프론트는 code:'rev'를 받아 '최신 불러오기(권장) / 내가 쓴 내용으로 저장(force)' 2버튼. 구클라(rev 미전송)는 검사 생략(종전 동작).
-    if (body && body.rev != null && !body.force && String(body.rev) !== _prodTrackRev(d, track)) {
+    /* [TX_MERGE 2026-09-27] 식순은 두 분이 할 말을 칸마다 합친다 — 그 밖이 같으면(두 기기가 글만 따로 고쳤으면) 충돌이 아니다 */
+    var _txm = (track === 'ritual') ? _ritualTxMerge(d.ritualDraft, body && body.draft) : null;
+    if (body && body.rev != null && !body.force && String(body.rev) !== _prodTrackRev(d, track) && !(_txm && _txm.sameRest)) {
       return { ok: false, code: 'rev', error: '다른 기기(또는 탭)에서 이 항목이 먼저 저장됐어요. 최신 내용을 확인해 주세요.',
         latest: { rev: _prodTrackRev(d, track), draft: d[track + 'Draft'] || null, tracks: d.tracks || {} } };
     }
     if (body && body.force) d._prev = { track: track, at: fmtKST(new Date()), draft: d[track + 'Draft'] || null };   // force 덮어쓰기 직전본 1세대 백업(복구 문의 대비 · 다음 force가 대체)
+    if (_txm) body.draft = _txm.draft;   // [TX_MERGE] 이 아래(크기 검사 · 저장 · 빈 초안 판정)는 합친 초안을 본다
     // [DRAFT_SIZE_CAP 2026-07-25] ritual·dining만 정규화 없이 원문 저장돼 셀 한도(50k)를 위협 — 조기 거부(truncate 절대 금지 · 회의 W1-4).
     if (track === 'ritual' || track === 'dining') {
       var _dcJ = ''; try { _dcJ = JSON.stringify((body && body.draft) || {}); } catch (eDc) { _dcJ = ''; }
@@ -754,7 +811,8 @@ function handleSaveProductionTrack(body) {
         if (_svTok) { var _svc2 = CacheService.getScriptCache(); _svc2.put('seatv_inv_' + _svTok, '1', 360); _svc2.remove('seatv_' + _svTok); _svc2.remove('seatf_' + _svTok); }   // seatf_=이름 검색용 원본 캐시도 함께
       } catch (e) {}
     }
-    var _res = { ok: true, rev: _prodTrackRev(d, track) };   // [TRACK_REV_GUARD] 저장 직후의 새 트랙 지문 — 프론트가 갱신해 자기 연속 저장이 충돌로 오탐되지 않게
+    var _res = { ok: true, rev: _prodTrackRev(d, track) };
+    if (_txm && _txm.pull) _res.txPull = _txm.pull;   // [TX_MERGE] 다른 기기의 더 나중 칸 — 마이페이지가 빌더에 넘겨 화면을 채운다   // [TRACK_REV_GUARD] 저장 직후의 새 트랙 지문 — 프론트가 갱신해 자기 연속 저장이 충돌로 오탐되지 않게
     if (d.confirmStale) _res.confirmStale = true;   // [예식 확인서] 이번 저장으로(또는 이미) 확인이 해제된 상태 — 프론트가 확인 완료 화면을 '재확인 필요'로 즉시 갱신
     if (track === 'seat') _res.seatToken = _seatToken;
     if (_guideToken) _res.guideToken = _guideToken;   // 하객 안내 허브 링크(guide.html?g=…) 준비됨 → 마이페이지가 공유 UI 구성

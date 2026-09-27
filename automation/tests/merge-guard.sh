@@ -2267,7 +2267,7 @@ chk 'CHIP_STAY' order-preview.html 7
 chk 'PRACTICE_CHOOSE' order-preview.html 5
 chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
 chk 'REF_EXAMPLE' order-preview.html 4
-chk '이 목소리는 예식에서 나오지 않아요' order-preview.html 1   # 참고 예시를 예식 소리로 오해하지 않게 · [REF_TABLE] «소리» → «목소리»(나레이션은 당일에도 나온다)
+# ★[CAST_TEXT_ONLY 2026-09-27 사장님] 참고 예시는 글로만 — «이 목소리는 …» 문장은 걷었다(목소리가 없다) · 아래 nochk 가 되살아남을 막는다
 # [REF_TABLE 2026-09-27 코워크 참고 예시 대본] 예시는 표 한 곳(assets/ritual-ref.js · 자동 생성) · 폐지 클립(27 시어머님 답 · 15 하객대표 축사)은 넣지 않는다
 chk 'REF_TABLE' order-preview.html 4
 chk '<script src="/assets/ritual-ref.js">' order-preview.html 1
@@ -2277,6 +2277,7 @@ nochk '27_tribute-reply' assets/ritual-ref.js
 nochk '15_toast' assets/ritual-ref.js
 chk 'REF_TABLE' scripts/audit/listen-page.mjs 2
 node scripts/build-ref-examples.mjs --check || fail=1
+node scripts/audit/tx-merge.mjs >/dev/null || { echo '✗ TX_MERGE 칸별 합치기 검사 실패(node scripts/audit/tx-merge.mjs)'; fail=1; }   # [TX_MERGE 2026-09-27]
 chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
@@ -8862,8 +8863,8 @@ chk 'CHIP_CHECKED' scripts/audit/listen-page.mjs 1
 chk 'DETAIL_0925 C1 · C2' scripts/audit/listen-page.mjs 1   # 대비 · 누를 곳 실측(깨 보고 믿음 — 되돌리니 빨강 4줄)
 nochk 'aria-pressed="true"\]{background:var(--gold-deep);' order-preview.html
 chk 'function renderListen' order-preview.html 1
-chk "if(k==='listen') return renderListen();" order-preview.html 1
-chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.write,STEPDEF.done' order-preview.html 1
+chk "if(k==='listen') return isOpen()?renderMake():renderListen();" order-preview.html 1   # [FLOW_MAKE] 새 코스 ② = 하나씩 만들기 · 옛 코스는 renderListen 그대로
+chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.practice,STEPDEF.done' order-preview.html 1   # [FLOW_MAKE · PRACTICE_STEP] ③ = 연습하기(옛 write 준비하기는 걷었다)
 chk 'VIDEO_READY' assets/ritual-open.js 3
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
@@ -11363,6 +11364,27 @@ nochk 'var ALWAYS = { guest: 1, entry: 1, prevideo: 1 }' assets/ritual-open.js  
 chk 'PREVIDEO_PICK' order-preview.html 3
 chk 'PREVIDEO_PICK' api/_ritual-kb.js 1
 chk 'PREVIDEO_PICK' scripts/audit/open-course.mjs 3
+# ★[TX_MERGE · MK_SAVE_NUDGE 2026-09-27 사장님 결정] 두 기기 칸별 합치기(GAS · 빌더 · 마이페이지) · ②→③ 저장 알림
+chk 'TX_MERGE' automation/platform/80_production.gs 5
+chk 'TX_MERGE' order-preview.html 3
+chk 'TX_MERGE' mypage.html 1
+chk 'MK_SAVE_NUDGE' order-preview.html 1
+chk '저장하고 넘어갈까요?' order-preview.html 1
+chk 'FLOW_MAKE' order-preview.html 3
+# ★★[CAST_TEXT_ONLY 2026-09-27 사장님 «실제로 식장에서 나오는 멘트만 녹음으로»] 대역 목소리 06~14 · 24~26 은 미리듣기 · 연습에서 틀지 않는다 — 되살리지 말 것
+chk 'CAST_TEXT_ONLY' assets/ritual-story.js 1
+chk 'CAST_TEXT_ONLY' order-preview.html 4
+chk 'CAST_TEXT_ONLY' console.html 1
+chk 'castLivePlayOf' console.html 2
+nochk '이 목소리는 예식에서 나오지 않아요' order-preview.html
+nochk 'mkRefPlay' order-preview.html
+node scripts/audit/cast-mute.mjs >/dev/null || { echo '✗ CAST_TEXT_ONLY 대역 목소리 막기 검사 실패(node scripts/audit/cast-mute.mjs)'; fail=1; }
+chk 'MK_REF' order-preview.html 1
+chk 'MK_HELPERS' order-preview.html 1
+chk 'MK_RO' order-preview.html 2
+# ★[PK_EX_SEAL 2026-09-27 사장님] ① 고른 예시 = 진사 테두리 · «여기서 시작 ✓» 글자는 뺐다(aria-pressed 가 전한다)
+chk 'PK_EX_SEAL' order-preview.html 1
+nochk '여기서 시작 ✓' order-preview.html
 nochk '식전 영상 · 입장 · 닫는 인사는 늘 있어요' assets/ritual-open.js
 nochk '입장 · 닫는 인사 · 식전 영상은 늘 있어요' order-preview.html
 chk 'PREVIDEO_AT_4' assets/ritual-cue.js 2            # 영상은 03 과 04 사이 · 본식 4분 전 시각고정
@@ -11569,7 +11591,7 @@ chk '두 분이 하객께 목례 · 박수' order-preview.html 1
 chk '<em>→ ③에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번
 chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»
 chk 'G8 2026-09-26' order-preview.html 1   # [G8] 크게 보기 부제 «… · 녹음 전이라 글로 보여 드려요»
-chk '담은 순간을 예식 차례대로 보며 나레이션을 들어 보세요. 줄을 누르면 흐름과 고를 것이 열려요. 준비할 것은 모두 ③ 준비하기에 모여요.' order-preview.html 1   # [G9]
+chk '순간마다 한 화면이에요. 듣고, 고르고, 적은 뒤 «다음»을 눌러 주세요.' order-preview.html 1   # [FLOW_MAKE] ② 머리 글(옛 «줄을 누르면 … ③ 준비하기에 모여요»는 목록 화면과 함께 걷었다)
 nochk '고른 순서대로 장면을 보며 나레이션을 들어 보세요' order-preview.html   # [G9] «고른 순서대로»는 «내가 누른 차례»로 읽힌다
 nochk '고른 차례대로 장면과 나레이션을' order-preview.html   # [INTRO_ORDER_WORD] 안내 2 의 ② 줄도 같은 까닭
 chk 'H1_FIRST_HELLO' order-preview.html 1

@@ -89,9 +89,9 @@ await safe('P1-2', async () => {
   ok('P1-2 초안에서 ② 로 열린 뒤 «← 고르기로» → 빌더 안 ① (떠나지 않는다) [STEP_NO_REWIND]', k0 === 'listen' && await step(pg) === 'pick', JSON.stringify({ k0, k1: await step(pg), url: pg.url().slice(-24) }));
   await pg.goBack(); await pg.waitForTimeout(600);
   ok('P1-2 그다음 휴대폰 뒤로 → ② (기록이 맞다)', await step(pg) === 'listen', await step(pg));
-  // ④ «③ 준비하기에서 보기»
-  await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(700); await pg.evaluate(() => opGoStep('write')); await pg.waitForTimeout(600);
-  ok('P1-2 ④ «③ 준비하기에서 보기» → 빌더 안 ③', await step(pg) === 'write', await step(pg));
+  // ④ «② 한눈에 보기에서 보기» — [FLOW_MAKE] 옛 ③ 준비하기는 걷었다 · 준비할 것은 ② 마지막 «한눈에 보기»
+  await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(700); await pg.click('[data-fk="done2write"]'); await pg.waitForTimeout(600);
+  ok('P1-2 ④ «② 한눈에 보기에서 보기» → 빌더 안 ② 한눈에 보기', await step(pg) === 'listen' && await pg.evaluate(() => _mkState().at === '_sum'), await step(pg));
   await ctx.close();
 });
 await safe('P1-2 이전', async () => {
@@ -170,8 +170,8 @@ await safe('P1-8', async () => {
 /* P2-3 · 작은 플레이어 아래 여유 */
 await safe('P2-3', async () => {
   const { ctx, pg } = await open(390); await toListen(pg);
-  await pg.evaluate(() => lsPlay('vow')); await pg.waitForTimeout(800);   // 줄 재생(«처음부터»는 크게 보기로 열려 작은 플레이어가 없다)
-  const r = await pg.evaluate(() => { const m = document.getElementById('lsMini'); window.scrollTo(0, document.body.scrollHeight); const last = document.querySelector('.ls-prep, .ls-off:last-of-type'); const lb = last ? last.getBoundingClientRect() : null, mb = m.getBoundingClientRect();
+  await pg.evaluate(() => { mkGo('vow'); lsPlay('vow'); }); await pg.waitForTimeout(800);   // 쪽 재생(«처음부터»는 크게 보기로 열려 작은 플레이어가 없다) · [FLOW_MAKE] ② 서약 쪽 맨 아래 = 두 분이 할 말 · 준비할 것
+  const r = await pg.evaluate(() => { const m = document.getElementById('lsMini'); window.scrollTo(0, document.body.scrollHeight); const ls = document.querySelectorAll('.mk-pg .mk-sec'); const last = ls[ls.length - 1]; const lb = last ? last.getBoundingClientRect() : null, mb = m.getBoundingClientRect();
     return { mini: getComputedStyle(m).display, cls: document.documentElement.classList.contains('lsmini'), pad: parseInt(document.documentElement.style.scrollPaddingBottom) || 0, clear: lb ? lb.bottom <= mb.top + 1 : null }; });
   ok('P2-3 작은 플레이어가 떠 있으면 맨 아래 «준비할 것»이 그 위로 올라온다 [MINI_ROOM]', r.mini === 'flex' && r.cls && r.pad > 100 && r.clear === true, JSON.stringify(r));
   await pg.evaluate(() => lsStop()); await pg.waitForTimeout(300);
@@ -208,8 +208,8 @@ await safe('FB1', async () => {
   await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(900);
   const nb = await pg.evaluate(() => { const n = document.getElementById('next'); return { seal: n.classList.contains('seal'), bg: getComputedStyle(n).backgroundColor, t: n.textContent }; });
   ok('피드백1-3 ④ «이대로 저장하기»만 진사 채움', nb.seal && nb.bg === 'rgb(107, 42, 36)' && /이대로 저장하기/.test(nb.t), JSON.stringify(nb));
-  await pg.evaluate(() => opGoStep('write')); await pg.waitForTimeout(500);
-  ok('피드백1-3 ③ 의 다음 단추는 종전 색', await pg.evaluate(() => !document.getElementById('next').classList.contains('seal')));
+  await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(500);
+  ok('피드백1-3 ③ 연습하기의 다음 단추는 종전 색', await pg.evaluate(() => !document.getElementById('next').classList.contains('seal')));
   await ctx.close();
   for (const w of [1000, 1150, 1280]) {
     const { ctx: c2, pg: p2 } = await open(w, 900); await next(p2); await next(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(400);
