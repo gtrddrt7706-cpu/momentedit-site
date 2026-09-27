@@ -32,17 +32,18 @@ t(/photoFriend:PHOTOFLOW\.friendOk \? /.test(sp), '사진 화면 저장 — 서�
 const gc = slice(my, 'function wireGuideInfoEditor(box, gi){', '// 공개 방식');
 t(/photoFriend: gi\.photoFriend \? String\(gi\.photoFriend\) : undefined/.test(gc), '좌석 화면 저장 — 친구 부탁을 그대로 실어 보낸다(트랙 통째 교체로 지워지지 않게)');
 const cf = slice(my, 'function prodConfirmHtml(', '\nfunction ');
-t(/var _phF=String\(gi\.photoFriend\|\|''\)\.trim\(\)/.test(cf) && /\|\|_phF\)\{ var _pv=''/.test(cf) && /친구들과 자유롭게 · /.test(cf), '예식 확인서 — 친구 부탁이 «가족 · 친구 스냅» 줄에 붙는다(부탁만 있어도 줄이 선다)');
+t(/var _phF=String\(gi\.photoFriend\|\|''\)\.trim\(\)/.test(cf) && /\|\|_phF\|\|_phCg\|\|_phCb\)\{ var _pv=''/.test(cf) && /불러 모아 주실 분 · /.test(cf) && /친구들과 자유롭게 · /.test(cf), '예식 확인서 — 친구 부탁 · 불러 모아 주실 분이 «가족 · 친구 스냅» 줄에 붙는다(그것만 있어도 줄이 선다 · [PHOTO_EMPTY_SAVE])');
 // [PHOTO_FRIEND_ROW] 2026-09-26 통합 점검 L2 — 예식 준비 행도 같은 판정: 부탁만 적은 부부가 확인서엔 적히는데 행은 «구도 고르기»(✓ 없음)였다
 const pd = slice(my, 'function productionDashHtml(', '\nfunction ');
-t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(_phB2\|\|_fxB2\|\|_frB2\)/.test(pd)
-  && /_fr=!!String\(_gp\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /\(_fr\?'완료 · 수정':'구도 고르기'\)/.test(pd) && /\(_ph\.length\|\|_wc\|\|_fr\)\?'완료':''/.test(pd),
-  '예식 준비 행 — 친구 부탁만 적어도 ✓ · 「완료 · 수정」(확인서와 같은 판정 · 버튼 122px 레일 안)');
+// [PHOTO_EMPTY_SAVE 2026-09-27 지시문 6편 3부 2] 구도가 없으면 요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크 무엇이든 «완료 · 수정» + ✓ (종전 «요청 N개» 갈래는 뺐다)
+t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(_phB2\|\|_fxB2\|\|_frB2\|\|_ocB2\)/.test(pd)
+  && /_any=!!\(_fxB2\|\|_frB2\|\|_ocB2\)/.test(pd) && /\(_any\?'완료 · 수정':'구도 고르기'\)/.test(pd) && /\(_ph\.length\|\|_any\)\?'완료':''/.test(pd) && pd.indexOf("('요청 '+_wc+'개')") === -1,
+  '예식 준비 행 — 친구 부탁 · 요청 · 불러 모아 주실 분 · 링크만 적어도 ✓ · 「완료 · 수정」(확인서와 같은 판정 · 버튼 122px 레일 안)');
 
 // [PHOTO_FLOW_LINE] 첫눈에 뼈대 · [PHOTO_FRIEND_EX] 누르면 담기는 예시(칸은 하나 그대로)
 t(/var _flw=\[\['다 함께 한 장',false\],\['가족 구도',true\],\['친구들과 자유롭게',!!PHOTOFLOW\.friendOk\]\];/.test(rp) && rp.indexOf('class="snp-flow"') > -1, '흐름 줄 — 다 함께 한 장 › 가족 구도 › 친구들과 자유롭게(친구 칸은 서버가 알 때만 칠한다)');
 t(/사진작가가 자연스럽게 이끌어요/.test(rp), '«가족 구도는 … 사진작가가 자연스럽게 이끌어요» — 세미웨딩 느낌 · 누가 하는지 붙임');
-t(/var PHOTO_FRIEND_EX=\['대기실처럼 편하게 모여서','친구들 폰으로도 몇 장','다 같이 셀카 한 장','부케 받는 친구와 한 장'\];/.test(my) && /<button type="button" class="ph-chip" data-pfex=/.test(rp), '친구 칸 예시 칩 넷(단추 · 44px 칩)');
+t(/var PHOTO_FRIEND_EX=\['대기실처럼 편하게 모여서','친구들 폰으로도 몇 장','다 같이 셀카 한 장','부케 받는 친구와 한 장'\];/.test(my) && /<button type="button" class="ph-chip ph-ex'\+\(_on\?' on':''\)\+'" data-pfex=/.test(rp), '친구 칸 예시 칩 넷(단추 · 44px 칩)');
 t(/if\(cur\.indexOf\(t\)>-1\) return;/.test(rp) && /dispatchEvent\(new Event\('input',\{bubbles:true\}\)\)/.test(rp), '칩은 이미 있는 말을 다시 안 붙이고 · input 을 흘려 저장 손잡이가 따라온다');
 
 // [GROUP_TIME_WORD] «본식 뒤 단체 사진 시간이» (코워크 명세 ③ · 최종판 2-6 고침)
@@ -79,7 +80,9 @@ t(capNote.indexOf("'두 분 식순이면 본식 뒤 단체 사진 시간이 약&
     // 글 있는 칸만 센다 — 빈 요청 칸은 분도 개수도 잡지 않는다
     PF.wish = [{ what: '할머니 옆 한 컷' }, { what: '' }];
     const note = F.note(['양가 부모님']);
-    if (note !== '지금 <b>2컷 · 약 10분</b>이에요 · <b>요청 1개</b>') wrong.push('한 줄: ' + note);
+    if (note !== '지금 <b>전체 하객 + 가족 구도 1컷 · 약 10분</b>이에요 · <b>요청 1개</b>') wrong.push('한 줄: ' + note);   // [PHOTO_UNIT_ONE] 행의 말(전체 하객 + N컷)로
+    PF.wish = []; const n0 = F.note([]); if (n0 !== '지금 <b>전체 하객 · 약 6분</b>이에요') wrong.push('구도 없음: ' + n0);   // [NO_ZERO_SHOT] «0컷» 없음
+    PF.wish = [{ what: '할머니 옆 한 컷' }, { what: '' }];
     t(!wrong.length, '«지금 N컷 · 약 M분» = 단체 사진 줄과 같은 셈(요청 하나 1분 · 둘까지 · 글 있는 칸만)' + (wrong.length ? ' — ' + wrong.join(' / ') : ''));
   }
 }
