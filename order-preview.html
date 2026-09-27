@@ -4039,7 +4039,7 @@ function _lGroupsHtml(k,gs){
   return h;
 }
 window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
-  var sel='[role=radiogroup][aria-label="맺는 말"] [aria-checked="true"]';   // [A11Y_FOCUS] 단추가 사라지니 새로 열린 줄의 고른 칩으로
+  var sel='[role=radiogroup][aria-label="맺는 말"] [role=radio][tabindex="0"]';   // [A11Y_FOCUS] 단추가 사라지니 새로 열린 줄의 고른 칩으로 · [CHIP_UNPICKED] 안 골랐으면 첫 칩(탭 자리 = tabindex 0)
   if(!LP.big) _fxNext=sel;
   render();
   if(LP.big){ _lFull(); var f=document.getElementById('lsFull'), b=f&&f.querySelector(sel); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }

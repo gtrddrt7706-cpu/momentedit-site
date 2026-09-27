@@ -59,8 +59,8 @@ for (const w of [390, 1280]) {
   ok(`${w} G4 입장 줄 — 맺는 말은 «더 고르기» 뒤 · 누를 곳 44 · 첫 화면 묶음 셋 [ENTRY_OUT_MORE]`, g4.btn && !g4.outRow && g4.rows === 3 && /더 고르기 · 맺는 말/.test(g4.txt) && g4.h >= 44, JSON.stringify(g4));
   if (g4.btn) { await pg.click('[data-fk="lsmore:entry"]'); await pg.waitForTimeout(400); }   // 단추가 없으면(깨졌으면) 다음 검사가 빨강으로 말한다 — 여기서 멈추지 않는다
   const g4b = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'), g = r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]'), a = document.activeElement;
-    return { open: !!g, n: g ? g.querySelectorAll('[role=radio]').length : 0, foc: !!(g && g.contains(a) && a.getAttribute('aria-checked') === 'true'), btn: !!(r && r.querySelector('[data-fk="lsmore:entry"]')) }; });
-  ok(`${w} G4 «더 고르기»를 누르면 맺는 말 여섯이 열리고 초점은 고른 칩`, g4b.open && g4b.n === 6 && g4b.foc && !g4b.btn, JSON.stringify(g4b));
+    return { open: !!g, n: g ? g.querySelectorAll('[role=radio]').length : 0, foc: !!(g && g.contains(a) && a.getAttribute('role') === 'radio' && a.tabIndex === 0), btn: !!(r && r.querySelector('[data-fk="lsmore:entry"]')) }; });
+  ok(`${w} G4 «더 고르기»를 누르면 맺는 말 여섯이 열리고 초점은 고른 칩(안 골랐으면 첫 칩 · CHIP_UNPICKED)`, g4b.open && g4b.n === 6 && g4b.foc && !g4b.btn, JSON.stringify(g4b));
   await pg.evaluate(() => { LS.more = {}; S.entryOut = 'C'; render(); }); await pg.waitForTimeout(300);
   ok(`${w} G4 기본이 아닌 맺는 말을 골라 뒀으면 열린 채(고른 것이 숨지 않게)`, await pg.evaluate(() => !!document.querySelector('.mk-pg [role=radiogroup][aria-label="맺는 말"]') && !document.querySelector('[data-fk="lsmore:entry"]')));
   await pg.evaluate(() => { S.entryOut = ''; LS.more = {}; render(); });

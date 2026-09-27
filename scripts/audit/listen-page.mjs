@@ -119,6 +119,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ② 글자수 · 소리 내어 읽는 초`, await pg.evaluate(() => /5자 · 소리 내어 읽으면 약 1초/.test(document.getElementById('mkc_vow_g').textContent)));
   // ② 고르기 칩 — radiogroup · 고른 칩이 눈에 보인다 [CHIP_CHECKED] (녹음 기록과 상관없이 · [REC_STATE_FREE] 두 분 차례는 소리가 없다)
   await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
+  await pg.evaluate(() => { const b = document.querySelector('.mk-pg [data-fk^="lsc:candleWho"]'); b && b.click(); try { lsStop(); } catch (e) {} }); await pg.waitForTimeout(300);   // [CHIP_UNPICKED] 안 고른 기본은 비어 보인다 — 한 번 고른 뒤에 잰다
   ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px · 고른 칩은 바탕이 다르다 [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.mk-pg .op-chip[aria-checked="true"]'), off = document.querySelector('.mk-pg .op-chip[aria-checked="false"]'); return !!on && !!off && on.getAttribute('role') === 'radio' && !!on.closest('[role=radiogroup]') && on.getBoundingClientRect().height >= 44 && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
   // 빼기 = 흐리게 남기고 다시 넣기 [DROP_DIM]
   await pg.evaluate(() => mkGo('bless')); await pg.waitForTimeout(400);
@@ -325,7 +326,7 @@ for (const w of [390, 1280]) {
   // 3장 radiogroup 방향키 — ② 화촉 쪽 «고르기»
   await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
   const c0 = await pg.evaluate(() => S.candleWho || RitualOpen.DEF.candleWho);
-  await pg.focus('.mk-pg [role=radio][aria-checked="true"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);
+  await pg.focus('.mk-pg [role=radio][tabindex="0"]'); await pg.keyboard.press('ArrowRight');   // [CHIP_UNPICKED] 탭 자리 = 고른 칩(안 골랐으면 첫 칩) await pg.waitForTimeout(500);
   ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => (S.candleWho || '') !== c && document.activeElement.getAttribute('role') === 'radio' && document.activeElement.getAttribute('aria-checked') === 'true', c0));
   ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radio]')].filter((r) => r.closest('[role=radiogroup]')).every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
   await pg.evaluate(() => mkGo('ring')); await pg.waitForTimeout(400);
