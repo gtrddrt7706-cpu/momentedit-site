@@ -72,6 +72,12 @@ for (const w of [360, 1280]) {
   ok(`${w} [지우기] → 그 줄은 다시 예시 · 나레이션 · [녹음] 이 돌아온다`, !d1.up && d1.couple === 0 && d1.rec, JSON.stringify(d1));
   const tk = await pg.evaluate(() => { mkGo('vow'); render(); return { live: document.querySelectorAll('.mk-flow li.t .vk-live').length, narr: document.querySelectorAll('.mk-flow .vk-narr').length }; });
   ok(`${w} 서약 — 두 분 차례는 «당일 직접» · 여는 말 · 맺는 말은 «나레이션»`, tk.live === 2 && tk.narr >= 2, JSON.stringify(tk));
+  /* [RESTART_KEEP_REC] 다시 만들기 — 고른 것은 비우고 올린 녹음은 남긴다 · 확인 창이 그렇게 말한다 */
+  await pg.evaluate(() => { S.up = S.up || {}; S.up.g1 = { id: 'local:t1', n: 't.wav' }; opRestart(); }); await pg.waitForTimeout(200);
+  const rs0 = await pg.evaluate(() => (document.querySelector('.ord-ask .oa-d') || {}).textContent || '');
+  await pg.click('.ord-ask .oa-yes'); await pg.waitForTimeout(300);
+  const rs = await pg.evaluate(() => ({ up: !!(S.up && S.up.g1), gv: S.guestVoice, k: STEPS[idx].k }));
+  ok(`${w} [다시 만들기] → 고른 것은 비우고 녹음은 남긴다 · 확인 창이 그렇게 말한다 [RESTART_KEEP_REC]`, /녹음은 그대로 남겨 둬요/.test(rs0) && rs.up && rs.gv === 'nar' && rs.k === 'pick', JSON.stringify({ rs0, rs }));
   const ov = await pg.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
   ok(`${w} pageerror 0 · 가로 넘침 0`, !errs.length && !ov, errs.join(' | '));
   await ctx.close();
