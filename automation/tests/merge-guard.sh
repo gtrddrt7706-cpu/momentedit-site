@@ -12712,7 +12712,7 @@ nochk "return '으로'; return '로'; }" mypage.html 0
 #   ⑤[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외) ⑥[SNAP_WORD_SCENE] «그림» → «사진» · «장면»으로 세기 ⑦[SNAP_CARD_AFTER] 낸 뒤 카드
 #   ⑧[SNAP_NUM_GOTHIC] 고딕 숫자 · Noto Sans KR 600 · 360 이하 «다음» ⑨[SNAP_MODAL_A11Y] aria-modal · inert · 초점 링 · 알림 자리 · 44px ×
 chk 'SNAP_NOIMG_LIST' mypage.html 5
-chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s); }); }" mypage.html 1
+chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||\[\]).some(function(e){ return !!R.exImg(e); }); }); }" mypage.html 1   # [SNAP_PHOTO_FIRST] 예시 사진도 센다
 chk "else h+='<div class=\"snp-list\" role=\"group\" aria-label=\"마음에 드는 장면\">'" mypage.html 1
 chk "사진작가가 고르신 장면을 챙겨 찍어요." mypage.html 1
 chk 'SNAP_FULL_HINT' mypage.html 4
