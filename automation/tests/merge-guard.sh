@@ -13104,3 +13104,7 @@ chk "_spShowOrder(z.pick).map(function(s){" mypage.html 1
 # [SNAP_EXV_EAGER] 크게 보기 사진 세 장은 창을 열 때 다 받는다(lazy 면 넘길 때 빈 칸) — 2026-09-27
 chk 'SNAP_EXV_EAGER' mypage.html 1
 nochk "alt=\"'+escapeHtml(e.t||s.name)+'\" loading=\"lazy\"" mypage.html 0
+# [SNAP_PHOTOS_72] 스냅 예시 사진 72장 전부 연결(c01~c12 · w01~w12 · 장면마다 3장) — 2026-09-27
+chk 'SNAP_PHOTOS_72' assets/snap-refs.js 1
+chk "img: 'c01-1'" assets/snap-refs.js 1
+chk "img: 'w04-3'" assets/snap-refs.js 1
