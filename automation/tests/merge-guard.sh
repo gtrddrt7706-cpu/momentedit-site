@@ -566,6 +566,13 @@ chk "requestAnimationFrame(function(){ t.textContent=msg; t.style.opacity='1';" 
 chk 'id="mp_svErr" role="alert"' mypage.html 1
 nochk '@keyframes dnCueAr{0%,100%{transform:translateY(0)}' mypage.html 0
 chk '@media (hover:hover){.wiz-exit:hover{' mypage.html 1
+# ★[WZ_STEPS_LEVEL 2026-09-27 사장님 «하나씩 올라가는 효과는 조금 유치해 · 고급스러운 무드에는 안 어울려 · 다른 곳들도 개선»]
+#   진행 표시의 모든 칸 글자는 선 아래 같은 높이 — 단추를 블록으로 두면 글자가 44px 칸 가운데로 내려가 지금 걸음만 11px 위로 튀어 보였다(실측).
+#   단추 = flex + 위쪽 맞춤 · 글자 = .wz-l 한 묶음. 블록 단추로 되돌리면 빨강.
+chk 'WZ_STEPS_LEVEL' mypage.html 2
+chk '.wz-stepb{display:flex;align-items:flex-start;justify-content:center;' mypage.html 1
+chk "var lab='<span class=\"wz-l\">" mypage.html 1
+nochk '.wz-stepb{display:block' mypage.html 0
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
