@@ -20,8 +20,18 @@
 cd "$(dirname "$0")/.." || exit 1
 
 _log=$(mktemp)
+# ★★[GATE_TREE 2026-09-27] 게이트는 «작업 폴더»를 잰다 — 커밋이 아니다.
+#   실제 사고(2026-09-27): 게이트를 중간에 끊자 깨 보기 검사(check-source-drift.test.sh)가 잠깐 바꿔 둔 값
+#   (본식 «8~25분쯤» → «40분»)이 되돌려지지 않은 채 남았고(강제 종료라 trap 이 못 돈다), 그게 `git add -A` 로 커밋에 섞였다.
+#   다음 게이트는 작업 폴더(마침 옳은 값)를 재서 «빨간 줄 0건»을 냈고, 커밋(틀린 값)은 CI 에서야 붉어졌다.
+#   ★그래서 시작할 때 추적 파일이 커밋과 다르면 빨간 줄로 먼저 알린다 — «이 초록은 이 커밋의 초록이 아니다».
+_dirty=$(git status --porcelain --untracked-files=no 2>/dev/null | head -20)
 sh automation/tests/merge-guard.sh >"$_log" 2>&1
 _rc=$?
+if [ -n "$_dirty" ]; then
+  { echo "FAIL [GATE_TREE] 작업 폴더가 커밋과 다르다 — 이 결과는 커밋의 결과가 아니다(커밋하거나 되돌린 뒤 다시):"; echo "$_dirty" | sed 's/^/    /'; } >>"$_log"
+  _rc=1
+fi
 cat "$_log"
 
 # ★빨간 줄의 생김새 — chk 의 'REVERT?', 하위 검사의 'FAIL', '[XXX] FAIL', 그리고 'DRIFT?'.

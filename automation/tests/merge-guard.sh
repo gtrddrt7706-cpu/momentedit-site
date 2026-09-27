@@ -11422,6 +11422,7 @@ chk 'MOMENTS_ONE' order-preview.html 1   # «담은 순간 N» 셈은 _opMoments
 chk 'MOMENTS_ONE' assets/ritual-open.js 1
 chk 'MOMENTS_ONE' scripts/audit/listen-page.mjs 2
 nochk '③에서 모아 봐요' assets/ritual-open.js   # 모아 보기는 ② 한눈에 보기(옛 ③ 준비하기 폐지)
+chk 'GATE_TREE' scripts/gate.sh 2   # ★게이트는 작업 폴더를 잰다 — 커밋과 다르면 빨간 줄(깨 보기 흔적이 커밋에 섞인 사고 2026-09-27)
 # [EX_MORE 2026-09-27 코워크 · 사장님] 참고 예시 144줄 · 칩 «예시 N(· 상황)» · 무드 이름은 화면 금지(REF_NO_KYEOL) · 부모님이 하실 때 · 이 예시로 시작하기 · 이름 경고
 chk 'EX_MORE' order-preview.html 3
 chk 'EX_MORE' scripts/audit/listen-page.mjs 4
