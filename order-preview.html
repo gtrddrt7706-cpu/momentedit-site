@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
-<title>식순 미리보기 · Moment Edit</title>
+<title>우리 예식 짓기 · Moment Edit</title><!-- [RIT_NAME_TWO 2026-09-27 4부 25] 이름은 둘 — 마이페이지 행 «식순» · 화면 안 «우리 예식 짓기» -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
@@ -18,17 +18,20 @@ html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편
   --bg:#FAFAF8; --card:#FFFFFF; --accent:#3A2D22; --sub:#5A554C; --light:#6E6959;
   --gold:#B89A75; --gold-deep:#9A7B4F; --gold-deeper:#7A5F37;--ink2:#4A3E30; --gold-btn:#C2A988; --seal:#6B2A24; --border:#DDD8D1; --bg2:#F5F3EF;
   --serif:'Cormorant Garamond','Noto Serif KR','Nanum Myeongjo',serif; --green:#5E7052;
+  /* ★[RIT_KO_SERIF_FIRST 2026-09-27 4부 21] 한글 문단은 Noto Serif KR 을 먼저 — --serif(Cormorant 먼저)는 숫자 · 가운뎃점까지 Cormorant 로 그려
+     «케이크 · 축배»가 «케이크.축배»처럼, «8~25분쯤»이 옛 숫자꼴로 나왔다. 이 화면에 라틴 전용 칸은 없다 — 한글 칸은 모두 이것을 쓴다. */
+  --ko-serif:'Noto Serif KR','Nanum Myeongjo',serif;
   --sans:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',Roboto,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-height:1.7;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;min-height:100dvh;letter-spacing:-.01em;word-break:keep-all;overflow-wrap:break-word}   /* [POLISH_0925 2-11] 한글 줄바꿈 «완성됐어 / 요» 끊김 막기 */
-.q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.ev-n{font-family:var(--serif);letter-spacing:0}
+.q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.ev-n{font-family:var(--ko-serif);letter-spacing:0}
 .wrap{max-width:520px;width:100%;margin:0 auto;padding:0 18px;flex:1;display:flex;flex-direction:column}
 .prog{padding:15px 0 0}
 .prog-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;min-height:30px}
-.prog-now{font-size:12px;font-weight:700;color:var(--accent)}
-.prog-pct{font-size:12px;font-weight:600;color:var(--gold-deeper);flex-shrink:0}
+.prog-now{font-size:12.5px;font-weight:700;color:var(--accent)}
+.prog-pct{font-size:12.5px;font-weight:600;color:var(--gold-deeper);flex-shrink:0}
 .prog-bar{height:7px;background:var(--border);border-radius:7px;overflow:hidden}
 /* [ORD_ASK] 확인 판 — 종이 카드 · 헤어라인 · 진사. 시스템 대화상자를 대신한다 */
 .ord-ask{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(28,27,25,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .2s ease}
@@ -36,7 +39,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .ord-ask .oa-box{width:100%;max-width:340px;background:var(--card,#fff);border:1px solid var(--border,#DDD8D1);border-radius:14px;padding:26px 24px 18px;text-align:center;transform:translateY(8px);transition:transform .22s cubic-bezier(.22,1,.36,1)}
 .ord-ask.on .oa-box{transform:none}
 .ord-ask .oa-t{font-family:var(--serif-ko,inherit);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.55;word-break:keep-all}
-.ord-ask .oa-d{font-size:13px;font-weight:300;color:var(--sub,#5A554C);line-height:1.75;margin-top:9px;word-break:keep-all}
+.ord-ask .oa-d{font-size:12.5px;font-weight:300;color:var(--sub,#5A554C);line-height:1.75;margin-top:9px;word-break:keep-all}
 .ord-ask .oa-btns{display:flex;gap:8px;margin-top:20px}
 .ord-ask .oa-btns.one{justify-content:stretch}   /* [ORD_TELL] 알림형은 버튼 하나 — 확인 버튼이 판 전체 폭 */
 .ord-ask .oa-btns button{flex:1;min-height:46px;border-radius:10px;font-family:var(--serif-ko,inherit);font-size:14px;cursor:pointer;padding:0 10px;word-break:keep-all}
@@ -49,7 +52,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    잘못 눌러 판이 뜬 사람에게 「돌아가기」가 안 보이면, 안 나가려고 나가기를 한 번 더 누른다.
    낮은 무게(테두리 없는 글자)로 아래 줄에 둔다 — 갈래는 셋이지만 무게는 둘이다. */
 .ord-ask .oa-cancel{display:block;width:100%;min-height:44px;margin-top:4px;border:none;background:none;
-  font-family:var(--serif-ko,inherit);font-size:13px;color:var(--light,#8A857C);cursor:pointer;word-break:keep-all}
+  font-family:var(--serif-ko,inherit);font-size:12.5px;color:var(--light,#8A857C);cursor:pointer;word-break:keep-all}
 .ord-ask button:focus-visible{outline:2px solid var(--seal,#6B2A24);outline-offset:2px}
 /* ★[ASK_FOCUS_BOX 2026-08-15 사용자 실기기 제보] 판이 열릴 때 포커스는 **판 자체**로 간다(버튼이 아니라).
    스크립트 `.focus()` 는 :focus-visible 을 켠다(실측 · 아이폰 스크린샷으로도 확인) — 버튼에 먼저
@@ -80,7 +83,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
    ★탭 타깃 40px은 패딩으로 만들고 같은 값의 음수 마진으로 줄 높이를 되돌린다
      (글자만 보이고 손가락은 넉넉하게 · 줄 리듬은 종전 그대로). */
 .prog-reset{display:none;align-items:center;flex:0 0 auto;background:none;border:0;cursor:pointer;
-  font-family:var(--sans);font-size:11px;line-height:1.5;color:var(--sub);letter-spacing:-.01em;white-space:nowrap;
+  font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--sub);letter-spacing:-.01em;white-space:nowrap;   /* [RIT_TYPE5] 12.5 이상 */
   padding:15px 2px 9px;margin:-15px -2px -12px;min-height:44px;box-sizing:border-box;text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:var(--border);-webkit-tap-highlight-color:transparent}
 .prog-reset:hover,.prog-reset:active{color:var(--seal);text-decoration-color:var(--seal)}
@@ -89,10 +92,10 @@ body.op4 #pnow,body.op4 .prog-bar,body.op4 .prog-sub{display:none!important}
 body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 2026-09-26 · #pnow 를 숨기면 space-between 에 자식이 #obExitSlot 하나만 남아 «저장 · 나가기»가 왼쪽에 붙었다 — 안내 1/2 · 2/2 와 다른 위저드는 모두 오른쪽 위(537행 «진행 스트립 1행 오른쪽») */
 .op-reset{display:flex;justify-content:flex-end;margin:-2px 0 4px}
 @media (max-height:500px){ .op-band{position:static!important;box-shadow:none} }   /* [A11Y_LAND 3장] 가로 휴대폰 · 확대 — 붙는 띠가 화면 절반을 덮었다(844×390 에서 58%) */
-.send-how{margin:10px 0 4px;font-size:12px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [UPLOAD_HONEST] 보낼 길 — 칸 안에 늘 보이게 */
+.send-how{margin:10px 0 4px;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [UPLOAD_HONEST] 보낼 길 — 칸 안에 늘 보이게 */
 .send-how p{margin:0 0 8px}
 .send-how .send-b{display:flex;flex-wrap:wrap;gap:8px}
-.send-how .send-mail{margin:8px 0 0;font-size:12px;color:var(--sub)}
+.send-how .send-mail{margin:8px 0 0;font-size:12.5px;color:var(--sub)}
 .send-how .send-addr{color:var(--accent);-webkit-user-select:all;user-select:all}   /* [MAIL_TEXT] 한 번 눌러 통째로 고르게 */
 .send-how .rowbtn{text-decoration:none}
 .op-reset .prog-reset{display:inline-flex;margin:0;padding:0 2px}
@@ -107,7 +110,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .q-title{font-size:22px;font-weight:700;letter-spacing:.01em;word-break:keep-all;line-height:1.45}
 .q-sub{font-size:14px;color:var(--sub);margin-top:9px;word-break:keep-all}
-.reassure{font-size:12px;color:var(--gold-deeper);margin-top:10px;word-break:keep-all}
+.reassure{font-size:12.5px;color:var(--gold-deeper);margin-top:10px;word-break:keep-all}
 .opts{margin-top:18px;display:flex;flex-direction:column;gap:12px}
 .oc{border:1.5px solid var(--border);background:var(--card);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.18s}
 /* ★★[SEAL_POINT 2026-08-09] 진사(--seal)는 **점**으로만 쓴다
@@ -123,7 +126,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .oc-nm::before{content:'';width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:.15s;background-repeat:no-repeat;background-position:center;background-size:12px}
 .oc.on .oc-nm::before{border-color:var(--seal);background-color:var(--seal);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")}
 .oc.on .oc-nm{color:var(--accent)}   /* [ORD_HUE] 고른 카드에 진사가 셋(테두리·체크·제목)이었다 — 체크 하나만 남긴다 */
-.oc-desc{font-size:13px;color:var(--light);margin-top:3px;word-break:keep-all}
+.oc-desc{font-size:12.5px;color:var(--light);margin-top:3px;word-break:keep-all}
 /* ★★[BADGE_GAP 2026-08-13 · 클로드코드 ④] 「기본」 배지 **앞의 한 칸은 지우지 말 것.**
    그 칸이 없으면 글자 흐름이 「엄숙하게기본」으로 붙는다. 크로미움은 접근성 이름을 만들 때
    스스로 한 칸을 넣어 주지만(실측: 「엄숙하게 기본」) 그건 **엔진이 해 주는 것**이고
@@ -136,17 +139,17 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .nar{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px 13px;margin-top:11px;font-size:14px;color:var(--ink2);line-height:1.8;word-break:keep-all}
 .nar .lb{font-size:11px;letter-spacing:.05em;color:var(--gold-deeper);display:block;margin-bottom:5px;font-weight:600}
 .nar .end{color:var(--light)}
-.play{margin-top:10px;display:inline-flex;align-items:center;gap:7px;border:none;background:none;padding:8px 2px;font-size:13px;color:var(--gold-deeper);cursor:pointer;font-family:var(--sans);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--gold-btn)}
+.play{margin-top:10px;display:inline-flex;align-items:center;gap:7px;border:none;background:none;padding:8px 2px;font-size:12.5px;color:var(--gold-deeper);cursor:pointer;font-family:var(--sans);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--gold-btn)}
 .play::before{content:'';width:0;height:0;border-style:solid;border-width:4.5px 0 4.5px 7px;border-color:transparent transparent transparent currentColor;flex-shrink:0}
 .play:active{transform:scale(.97)}
 .play.playing{color:var(--gold-deeper);text-decoration-color:var(--gold-deeper)}   /* [SEAL_POINT] */
-.self{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px 14px;margin-top:11px;font-size:13px;color:var(--ink2);line-height:1.75}
-.self .who{color:var(--gold-deeper);font-size:10px;letter-spacing:.04em;display:block;margin-bottom:4px;font-weight:600}
+.self{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:11px 14px;margin-top:11px;font-size:12.5px;color:var(--ink2);line-height:1.75}
+.self .who{color:var(--gold-deeper);font-size:11px;letter-spacing:.04em;display:block;margin-bottom:4px;font-weight:600}
 .nar .alt{display:flex;gap:8px;align-items:baseline;margin-top:7px}   /* [ENTRY_ALT] 한 문장 = 한 줄 · 누가 읽는지 앞에 */
 .nar .alt:first-of-type{margin-top:0}
-.nar .alt .altw{flex:0 0 auto;font-size:10px;letter-spacing:.04em;color:var(--gold-deeper);font-weight:600;background:#EFEAE1;border-radius:6px;padding:2px 6px;line-height:1.5}
-.prep-hint{font-size:12px;color:var(--gold-deeper);margin-top:9px;word-break:keep-all;line-height:1.6}
-.noplay{font-size:12px;color:var(--ink-3,#8a8177);margin-top:9px;word-break:keep-all;line-height:1.6}   /* [NO_PLAY] 죽은 버튼 대신 이유 한 줄 */
+.nar .alt .altw{flex:0 0 auto;font-size:11px;letter-spacing:.04em;color:var(--gold-deeper);font-weight:600;background:#EFEAE1;border-radius:6px;padding:2px 6px;line-height:1.5}
+.prep-hint{font-size:12.5px;color:var(--gold-deeper);margin-top:9px;word-break:keep-all;line-height:1.6}
+.noplay{font-size:12.5px;color:var(--ink-3,#8a8177);margin-top:9px;word-break:keep-all;line-height:1.6}   /* [NO_PLAY] 죽은 버튼 대신 이유 한 줄 */
 /* ★[TIP_QUIET 2026-08-14 사용자 지적 "팁 부분 너무 주저리야 깔끔하게 개선"]
    팁이 **상자 안의 상자**였다 — 베이지 카드(.oc.on #F4F0E9) 안에 거의 같은 톤의 상자(#F3EEE6)를
    테두리까지 둘러 얹으니, 곁말이 본문과 같은 무게로 읽혔다(라운드 11px 도 램프 밖이었다).
@@ -155,15 +158,15 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
    ★상자로 되돌리지 말 것. 팁이 눈에 두 번째로 들어오면 그 화면은 이미 진 것이다. */
 /* ★★[NO_SIDE_STRIPE 2026-09-25 사장님 «왼쪽 황금색 칸 — 너무 올드한 느낌»]
    세로줄을 걷고 여백과 작은 라벨로 구분한다. 「팁」은 라벨이 되고 본문은 보조색 그대로. */
-.tip{border-left:0;padding:0;margin-top:14px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.tip{border-left:0;padding:0;margin-top:14px;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all}
 /* ★이 파일의 토큰 이름은 다르다 — --gold-text 가 아니라 --gold-deeper(#7A5F37 · 같은 값),
    --serif-ko 는 없고 --serif 가 한글 폴백까지 품는다. 게이트(check-css-tokens)가 잡아 줬다. */
-.tip b{display:inline-block;margin-right:7px;font-family:var(--serif);font-size:11px;font-weight:500;color:var(--gold-deeper);letter-spacing:0.04em}
+.tip b{display:inline-block;margin-right:7px;font-family:var(--ko-serif);font-size:11px;font-weight:500;color:var(--gold-deeper);letter-spacing:0.04em}
 .tip b{color:var(--gold-deeper);font-weight:700;margin-right:3px}
 .prep-hint b{color:var(--accent)}
 .proc{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:13px 15px}
-.proc-l{font-size:10px;font-weight:600;color:var(--gold-deeper);margin-bottom:8px;letter-spacing:.03em}
-.proc-s{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--sub);padding:5px 0;word-break:keep-all;line-height:1.5}
+.proc-l{font-size:11px;font-weight:600;color:var(--gold-deeper);margin-bottom:8px;letter-spacing:.03em}
+.proc-s{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--sub);padding:5px 0;word-break:keep-all;line-height:1.5}
 .proc-s .pn{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .dlabel{font-size:11px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:600;margin-top:4px}
 /* ★[SUBSET 2026-08-09] 성혼 선언 화면 — '누가 선언하나'(4택)와 '나레이션의 낭독 톤'(2택)이
@@ -197,18 +200,18 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
    .opts 의 flex gap(12px)이 카드와 세부 패널 사이를 도로 벌려 두 덩이로 보였다 — margin-top 으로
    그 간격을 되물려 한 몸으로 붙인다. ★.opts 의 gap 을 바꾸면 이 값도 같이 바꿀 것(짝이다). */
 .subset{margin:-12px 0 16px;padding:13px 15px 12px;border:1.5px solid var(--gold-deeper);border-top:0;background:var(--bg2);border-radius:0 0 12px 12px}   /* [SEAL_POINT] */
-.subq{font-size:12px;font-weight:700;color:var(--gold-deeper);margin:0 0 9px 1px;letter-spacing:.01em}
+.subq{font-size:12.5px;font-weight:700;color:var(--gold-deeper);margin:0 0 9px 1px;letter-spacing:.01em}
 /* ★[SUB_SEG] 「기본」은 **칩 안 작은 글씨**로 내린다. 처음엔 제목 옆에 「기본은 …」 한 줄로 뒀는데,
    그건 배지를 없앤 자리에 문장을 바꿔 단 것이었다 — 줄 수만 같고 소음은 그대로다.
    최상위 배지(코스가 추천한 진행 방식)와 층이 갈리면서 정보는 남는다. */
-.seg-b .df{font-size:10px;font-weight:400;color:var(--light);margin-left:5px}
+.seg-b .df{font-size:11px;font-weight:400;color:var(--light);margin-left:5px}
 .seg-b.on .df{color:var(--gold-deeper)}
 .seg{display:flex;gap:7px;margin-bottom:2px}
 .seg-b{flex:1 1 0%;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;word-break:keep-all}
-.lenhint{font-size:12px;color:var(--light);margin-top:9px;word-break:keep-all;line-height:1.6}
+.lenhint{font-size:12.5px;color:var(--light);margin-top:9px;word-break:keep-all;line-height:1.6}
 .exlist{margin-top:12px}
 .ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 9px}
-.ex-chip,.seg-b{border:1px solid var(--border);background:#fff;border-radius:20px;padding:8px 14px;font-size:12px;color:var(--sub);font-family:var(--sans);cursor:pointer}
+.ex-chip,.seg-b{border:1px solid var(--border);background:#fff;border-radius:20px;padding:8px 14px;font-size:12.5px;color:var(--sub);font-family:var(--sans);cursor:pointer}
 .ex-chip.on,.seg-b.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;color:var(--accent);background:#fff;font-weight:600}   /* [ORD_HUE] 마이페이지 선택 칩(.dk-chip.on)과 같은 말 · [SUB_SEG] 세부 칩도 같은 줄에 태운다(고름을 말하는 방식을 늘리지 않는다) */
 .entry-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .oc .nar,.oc .self,.subset .nar{background:none;border:none;border-radius:0;padding:9px 2px 0}
@@ -216,36 +219,36 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
    위 .oc .nar 이 이미 그 규칙이었는데, 곁판으로 옮기면서 규칙 밖으로 나가 상자가 부활했다.
    여덟 줄짜리 상자가 화면 절반을 먹어 부모 카드보다 무거워졌다 — 같은 줄에 태워 되돌린다. */
 .subset .play{margin-top:4px}
-.ex-t{font-size:10px;letter-spacing:.04em;color:var(--gold-deeper);font-weight:600;margin-bottom:8px}
-.ex-i{font-size:13px;color:var(--ink2);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:10px 14px;margin-bottom:7px;line-height:1.75;word-break:keep-all;font-family:var(--serif)}
-.ex-n{font-size:10px;color:var(--light);margin-top:2px}
-.banner{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:8px 12px;font-size:12px;color:var(--gold-deeper);word-break:keep-all;line-height:1.6;margin-top:12px}
+.ex-t{font-size:11px;letter-spacing:.04em;color:var(--gold-deeper);font-weight:600;margin-bottom:8px}
+.ex-i{font-size:12.5px;color:var(--ink2);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:10px 14px;margin-bottom:7px;line-height:1.75;word-break:keep-all;font-family:var(--ko-serif)}
+.ex-n{font-size:11px;color:var(--light);margin-top:2px}
+.banner{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:8px 12px;font-size:12.5px;color:var(--gold-deeper);word-break:keep-all;line-height:1.6;margin-top:12px}
 .intro-lead{font-size:14px;color:var(--sub);line-height:1.85;margin-top:16px;word-break:keep-all}
 .intro-pts{margin-top:18px;display:flex;flex-direction:column;gap:11px}
-.ipt{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--accent)}
-.ipt .n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11.5px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ipt{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--accent)}
+.ipt .n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
 /* ★[DAYMAP_AIR 2026-08-09] 사용자: "위쪽에 쏠려 있는 느낌 · 어중간 · 가독성 개선".
    안내 1/2 는 내용이 카드 하나뿐이라 화면 아래가 통째로 비어 위만 무거워 보였다.
    여백을 카드 **안**에 넣어 카드가 화면을 차지하게 한다(위 여백만 늘리면 어중간함이 자리만 옮긴다).
    글자는 한 단씩 키우고 줄 간격을 넓혀 '표'가 아니라 '하루 이야기'로 읽히게. */
 .daymap{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 20px 20px}
-.daymap-t{font-size:13px;color:var(--gold-deeper);font-weight:700;text-align:center;margin-bottom:16px;letter-spacing:.02em}
+.daymap-t{font-size:12.5px;color:var(--gold-deeper);font-weight:700;text-align:center;margin-bottom:16px;letter-spacing:.02em}
 .seqr{display:flex;align-items:flex-start;gap:13px;padding:12px 4px;border-bottom:1px solid var(--bg2)}
 .seqr:last-child{border-bottom:none}
-.seqr .sq-tm{flex:0 0 52px;text-align:center;font-size:13px;font-weight:700;color:var(--light);padding-top:1px;letter-spacing:-.01em}
+.seqr .sq-tm{flex:0 0 52px;text-align:center;font-size:12.5px;font-weight:700;color:var(--light);padding-top:1px;letter-spacing:-.01em}
 .seqr .sq-b{flex:1;min-width:0}
 .seqr .sq-n{font-size:14px;font-weight:600;color:var(--accent)}
 .seqr .sq-n small{font-size:11px;color:var(--light);font-weight:400;margin-left:6px;letter-spacing:.02em}
-.seqr .sq-d{font-size:12px;color:#635E4F;margin-top:3px;word-break:keep-all;line-height:1.62}   /* [ORD_A11Y] --light 는 강조 행 배경 위에서 4.19 — #635E4F 로 5.48 확보 · [TAP44]에서 10→12px */
+.seqr .sq-d{font-size:12.5px;color:#635E4F;margin-top:3px;word-break:keep-all;line-height:1.62}   /* [ORD_A11Y] --light 는 강조 행 배경 위에서 4.19 — #635E4F 로 5.48 확보 · [TAP44]에서 10→12px */
 .seqr.on{background:#F4F0E9;border:1px solid var(--gold-deeper);border-radius:10px;padding:10px;margin:3px 0}   /* [SEAL_POINT] 알약(.sq-here)만 진사 */
 .seqr.on .sq-tm{color:var(--gold-deeper)}
 .seqr.on .sq-n{color:var(--accent)}   /* [ORD_HUE] 강조 행의 진사는 분(sq-tm)과 알약만 — 넷이 한꺼번에 붉으면 표가 아니라 경고로 읽힌다 */
-.seqr .sq-here{font-size:10px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;margin-left:6px;white-space:nowrap;vertical-align:middle}
-.dmnote{font-size:12px;color:var(--sub);text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--bg2);line-height:1.7;word-break:keep-all}   /* [DAYMAP_AIR] 11→12px · 경계선으로 표와 분리 */
+.seqr .sq-here{font-size:11px;color:#fff;background:var(--seal);border-radius:20px;padding:2px 8px;margin-left:6px;white-space:nowrap;vertical-align:middle}
+.dmnote{font-size:12.5px;color:var(--sub);text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--bg2);line-height:1.7;word-break:keep-all}   /* [DAYMAP_AIR] 11→12px · 경계선으로 표와 분리 */
 /* [DAYMAP_AIR] 2/2 도 같은 처방 — 내용이 카드 하나뿐이라 아래가 비어 위만 무거웠다 */
 .prefacts{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 20px 18px}
-.pf-t{font-size:13px;color:var(--gold-deeper);font-weight:700;text-align:center;margin-bottom:14px;letter-spacing:.02em}
-.pf-i{font-size:13.5px;color:var(--sub);line-height:1.75;word-break:keep-all;padding:12px 0 12px 15px;position:relative;border-top:1px solid var(--bg2)}
+.pf-t{font-size:12.5px;color:var(--gold-deeper);font-weight:700;text-align:center;margin-bottom:14px;letter-spacing:.02em}
+.pf-i{font-size:14px;color:var(--sub);line-height:1.75;word-break:keep-all;padding:12px 0 12px 15px;position:relative;border-top:1px solid var(--bg2)}
 .pf-i:first-of-type{border-top:none}
 .pf-i::before{content:'';position:absolute;left:2px;top:15px;width:5px;height:5px;border-radius:50%;background:var(--light)}
 /* [ORD_INTRO2] 굵은 꼬리표 — 네 줄이 길이가 비슷한 산문이라 훑을 때 서열이 없었다.
@@ -264,44 +267,44 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .crs.on{border-color:var(--gold-deeper);background:var(--card)}
 .crs.soon{opacity:.62}
 .crs-h{display:flex;align-items:center;justify-content:space-between}
-.crs-nm{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:0;word-break:keep-all}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
+.crs-nm{font-family:var(--ko-serif);font-size:20px;font-weight:700;letter-spacing:0;word-break:keep-all}.crs-nm small{font-size:11px;color:var(--light);font-weight:400}
 .crs.on .crs-nm{color:var(--accent)}   /* [ORD_HUE] 위와 같은 이유 */
 .crs-badge{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E3DED4;border-radius:20px;padding:3px 10px}
 .crs.soon .crs-badge{background:var(--light)}
-.crs-one{font-size:13.5px;color:var(--accent);margin-top:8px;word-break:keep-all;font-weight:500}
-.crs-time{font-size:12px;color:var(--sub);margin-top:5px;line-height:1.6;word-break:keep-all;text-wrap:pretty}   /* [ORD_TIMEBUDGET] 12px 하한 — 읽어야 하는 정보라 장식 캡션 크기로 내리지 말 것 */
-.crs-feel{font-size:13px;color:var(--sub);margin-top:11px;line-height:1.8;word-break:keep-all}
+.crs-one{font-size:14px;color:var(--accent);margin-top:8px;word-break:keep-all;font-weight:500}
+.crs-time{font-size:12.5px;color:var(--sub);margin-top:5px;line-height:1.6;word-break:keep-all;text-wrap:pretty}   /* [ORD_TIMEBUDGET] 12px 하한 — 읽어야 하는 정보라 장식 캡션 크기로 내리지 말 것 */
+.crs-feel{font-size:12.5px;color:var(--sub);margin-top:11px;line-height:1.8;word-break:keep-all}
 .crs-feel b{color:var(--accent);font-weight:600}
-.crs-flowl{font-size:10px;letter-spacing:.08em;color:var(--gold-deeper);margin:13px 0 7px;font-weight:600}
+.crs-flowl{font-size:11px;letter-spacing:.08em;color:var(--gold-deeper);margin:13px 0 7px;font-weight:600}
 .cflow{display:flex;flex-wrap:wrap;align-items:center;gap:3px}
-.cflow-i{font-size:12px;color:var(--accent);background:var(--bg2);border-radius:8px;padding:5px 10px;white-space:nowrap}
+.cflow-i{font-size:12.5px;color:var(--accent);background:var(--bg2);border-radius:8px;padding:5px 10px;white-space:nowrap}
 .cflow-i.swap{padding-right:7px}
-.cflow-a{color:var(--light);font-size:10px}
+.cflow-a{color:var(--light);font-size:11px}
 .crs-chev{font-size:20px;line-height:1;color:var(--gold-btn);transition:transform .2s}
 .crs.on .crs-chev{transform:rotate(90deg)}
 .cdet{margin-top:15px;border-top:1px solid #E7E3DC;padding-top:13px}
-.cdet-l{font-size:12px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:700;margin-bottom:10px}   /* [DAYMAP_AIR] */
+.cdet-l{font-size:12.5px;letter-spacing:.05em;color:var(--gold-deeper);font-weight:700;margin-bottom:10px}   /* [DAYMAP_AIR] */
 /* [CRS_OPEN_CALM · AI_TIP·MINIMAL] 상자 대신 왼쪽 선 — 같은 말인데 면적이 1/4 이다 */
 .cdet-note{font-size:12.5px;line-height:1.7;color:var(--sub);border-left:0;padding:0;margin-bottom:16px}   /* [NO_SIDE_STRIPE] 여백만으로 구분 */
 .ev{padding:13px 0;border-bottom:1px solid var(--bg2)}.ev:last-child{border-bottom:none}
 .ev-n{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
-.ev-n .step{font-size:10.5px;color:var(--sub);background:#fff;border:1px solid var(--border);font-family:var(--sans);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
-.ev-r{font-size:13.5px;color:var(--sub);margin-top:6px;line-height:1.7;word-break:keep-all}
+.ev-n .step{font-size:11px;color:var(--sub);background:#fff;border:1px solid var(--border);font-family:var(--sans);font-weight:600;border-radius:50%;width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ev-r{font-size:14px;color:var(--sub);margin-top:6px;line-height:1.7;word-break:keep-all}
 .ev-pick{font-size:11px;color:var(--light);font-weight:500;margin-left:auto;background:none;border:none;padding:0;display:inline-flex;align-items:center;gap:5px}
 .ev-pick::before{content:'';width:12px;height:12px;flex-shrink:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A8375' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='17 1 21 5 17 9'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpolyline points='7 23 3 19 7 15'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E")}
 .ev-fix{font-size:11px;color:var(--light);margin-left:auto;background:none;padding:0;display:inline-flex;align-items:center;gap:5px}
 .ev-fix::before{content:'';width:11px;height:11px;flex-shrink:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A8375' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E")}
-.vq{font-size:17px;font-weight:700;color:var(--accent);margin:2px 0 12px;word-break:keep-all}
+.vq{font-size:16px;font-weight:700;color:var(--accent);margin:2px 0 12px;word-break:keep-all}
 .mth{margin:13px 0 6px;padding:13px;background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px}
-.mth-l{font-size:10px;font-weight:600;color:var(--gold-deeper);margin-bottom:9px;word-break:keep-all}
-.mth-how{font-size:12px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
-.mth-ai{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--sub);border-left:0;padding:0;margin-top:14px;line-height:1.7;word-break:keep-all}   /* [NO_SIDE_STRIPE] */
+.mth-l{font-size:11px;font-weight:600;color:var(--gold-deeper);margin-bottom:9px;word-break:keep-all}
+.mth-how{font-size:12.5px;color:var(--sub);margin-top:11px;line-height:1.7;word-break:keep-all}
+.mth-ai{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12.5px;color:var(--sub);border-left:0;padding:0;margin-top:14px;line-height:1.7;word-break:keep-all}   /* [NO_SIDE_STRIPE] */
 .mth-ai-x{color:var(--light);font-size:11px}
 .mth-ai .copy-btn2{margin:0}
 .copy-btn2{background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:9px 13px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;margin-right:8px}
 .uprow{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
 .upl-r{display:flex;align-items:center;gap:8px}
-.rowbtn{min-height:44px;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gold-btn);background:#fff;color:var(--gold-deeper);border-radius:20px;padding:11px 15px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.rowbtn{min-height:44px;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gold-btn);background:#fff;color:var(--gold-deeper);border-radius:20px;padding:11px 15px;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s}
 .rowbtn.up{background:#F6F2EA}
 .rowbtn:active{transform:scale(.97)}
 .rowbtn.playing{background:var(--gold-deeper);color:#fff;border-color:var(--gold-deeper)}   /* [DETAIL_0925 C1] 흰 글자 대비 */
@@ -312,18 +315,18 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 /* ★[ORD_ADD_ALL] 더할 수 있는 순서가 전부 목록에 서면서, 「지금은 빠져 있어요」 알약 + ↑↓＋ 세 단추가
    한 줄에 몰리는 카드가 늘었다 — 그 압력이 제목을 낱말 중간에서 꺾었다(실측: 「부모님/덕담」).
    제목은 안 꺾고(nowrap), 자리가 모자라면 **알약이 다음 줄로** 내려간다. 이름이 먼저다. */
-.mc-t{font-size:15px;font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:9px;word-break:keep-all;min-width:0}
+.mc-t{font-size:14px;font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:9px;word-break:keep-all;min-width:0}
 .mc-t>span:first-child,.mc-t{white-space:normal}
 .mc-nmw{white-space:nowrap}
 .mc-e{font-size:12.5px;color:var(--sub);margin-top:6px;word-break:keep-all;line-height:1.55}
 .mc-s{font-size:11px;color:var(--light);margin-top:4px}
 .mc-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.mc-act .rowbtn{padding:8px 12px;font-size:11.5px}
-.mc-min{font-size:10.5px;color:var(--light);font-weight:400;margin-left:6px;flex-shrink:0}
+.mc-act .rowbtn{padding:8px 12px;font-size:11px}
+.mc-min{font-size:11px;color:var(--light);font-weight:400;margin-left:6px;flex-shrink:0}
 .mc-chev{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
 .mc-r{display:flex;align-items:center;gap:8px;flex-shrink:0}   /* 헤더 우측 묶음: ↑↓ + 화살표 */
 .mc-mv{display:inline-flex;gap:4px}
-.mvb{width:27px;height:27px;border:1px solid var(--border);background:var(--card);border-radius:8px;color:var(--sub);cursor:pointer;font-size:13px;line-height:1;padding:0}
+.mvb{width:27px;height:27px;border:1px solid var(--border);background:var(--card);border-radius:8px;color:var(--sub);cursor:pointer;font-size:12.5px;line-height:1;padding:0}
 .mvb:active{border-color:var(--gold-deep);color:var(--gold-deep)}
 /* [NO_SIDE_STRIPE] 상자·세로줄·배경을 걷고 씰 점 하나로. #fdf0eb·#b34a2a·#7a2f16 은 팔레트 밖이었다. */
 .ordwarn{position:relative;background:none;border-left:0;border-radius:0;padding:0 0 0 13px;margin:0 2px 10px;font-size:12.5px;line-height:1.6;color:var(--seal);word-break:keep-all}
@@ -334,34 +337,34 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .mc.open .mc-chev{transform:rotate(90deg)}
 .mc-x{margin-top:11px}
 .mc-desc{font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;margin-bottom:2px}
-.tune-hint{font-size:12px;color:var(--gold-deeper);background:rgba(184,154,117,.09);border:1px solid rgba(184,154,117,.28);border-radius:9px;padding:8px 11px;margin:10px 0 12px;line-height:1.6;word-break:keep-all}
-.save-note{font-size:12px;color:#6C6757;background:var(--bg2);border-radius:9px;padding:8px 11px;margin:0 0 12px;line-height:1.6;word-break:keep-all;text-wrap:pretty}   /* [ORD_SAVE_WHERE] tune-hint보다 조용하게 — 작업 안내가 먼저 읽혀야 한다 */
+.tune-hint{font-size:12.5px;color:var(--gold-deeper);background:rgba(184,154,117,.09);border:1px solid rgba(184,154,117,.28);border-radius:9px;padding:8px 11px;margin:10px 0 12px;line-height:1.6;word-break:keep-all}
+.save-note{font-size:12.5px;color:#6C6757;background:var(--bg2);border-radius:9px;padding:8px 11px;margin:0 0 12px;line-height:1.6;word-break:keep-all;text-wrap:pretty}   /* [ORD_SAVE_WHERE] tune-hint보다 조용하게 — 작업 안내가 먼저 읽혀야 한다 */
 .save-note b{color:var(--sub)}
-.mc-info{font-size:12px;color:var(--sub);line-height:1.65;word-break:keep-all;background:var(--bg2,#F4EFE8);border-radius:8px;padding:8px 10px;margin-top:8px}
+.mc-info{font-size:12.5px;color:var(--sub);line-height:1.65;word-break:keep-all;background:var(--bg2,#F4EFE8);border-radius:8px;padding:8px 10px;margin-top:8px}
 .mc-info b{color:var(--gold-deeper)}
-.fold{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);word-break:keep-all}
+.fold{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent);word-break:keep-all}
 .fold-x{font-size:20px;line-height:1;color:var(--gold-btn);flex-shrink:0;transition:transform .2s}
 .fold.open .fold-x{transform:rotate(90deg)}
 .fold-b{padding:2px 0 0}
-.pal-lead{font-size:11.5px;color:var(--gold-deeper);line-height:1.6;word-break:keep-all;padding:4px 2px 8px}
+.pal-lead{font-size:11px;color:var(--gold-deeper);line-height:1.6;word-break:keep-all;padding:4px 2px 8px}
 .pal-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--bg2)}
 .pal-row:first-of-type{border-top:none}
 .pal-b{flex:1;min-width:0}
 .pal-n{font-size:12.5px;font-weight:600;color:var(--sub)}
-.pal-c{font-size:10.5px;color:var(--light);margin-top:2px;line-height:1.5;word-break:keep-all}
+.pal-c{font-size:11px;color:var(--light);margin-top:2px;line-height:1.5;word-break:keep-all}
 .pal-add{flex-shrink:0}
 .upst{font-size:11px;color:var(--light)}
-.upst.done{font-size:10px;color:var(--green);background:#ECEBE6;border-radius:20px;padding:3px 10px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+.upst.done{font-size:11px;color:var(--green);background:#ECEBE6;border-radius:20px;padding:3px 10px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
 /* ★[NO_BACKSTAGE 2026-08-10] .upkeep 규칙 삭제 — 쓰던 자리(입장 절)가 사용자 지시로 없어져
    부르는 곳이 0이 됐다. 새 안내를 이 이름으로 되살리지 말 것. 뒷무대 설명 전용 칸이었다. */
 .gt{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-bottom:9px}
 .gt-t{font-size:11px;color:var(--gold-deeper);font-weight:600;margin-bottom:6px}
-.gt-tag{font-size:10px;color:var(--light);font-weight:400;margin-left:6px}
+.gt-tag{font-size:11px;color:var(--light);font-weight:400;margin-left:6px}
 .gt-x{font-size:14px;color:var(--ink2);line-height:1.8;word-break:keep-all}
-.tcap{margin-left:auto;flex-shrink:0;font-size:10px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
+.tcap{margin-left:auto;flex-shrink:0;font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
 .tcap.fx{color:var(--sub);background:#F1F0ED;border-color:#E4E2DD;font-weight:500}
 .mclip{background:#FFFFFF;border:1px solid var(--border);border-radius:12px;padding:14px 10px 4px;margin-top:14px}
-.mclip .m-cap{font-family:var(--serif);font-size:12px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
+.mclip .m-cap{font-family:var(--ko-serif);font-size:12.5px;color:var(--gold-deeper);text-align:center;padding:7px 0 8px;letter-spacing:.02em}
 /* 장면+듣기 일체형 — 듣기 버튼이 장면 프레임 하단에 붙어 한 덩어리로(2026-07-17 사용자 요청). 기본·재생중 스타일은 .rowbtn(.playing) 재사용, 여기선 프레임 결합 오버라이드만 */
 .mc-media .mclip{border-radius:12px 12px 0 0;border-bottom:0}
 .mc-play{display:flex;justify-content:center;width:100%;box-sizing:border-box;border-color:var(--border);background:#FBFAF7;border-radius:0 0 12px 12px;padding:12px 0}
@@ -415,7 +418,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .mtl-rail[data-edge="r"]{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent 100%);mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent 100%)}
 .mtl-rail[data-edge="lr"]{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%)}
 .mtl-rail .mtl-done{font-family:inherit;font-size:11px;line-height:inherit;color:var(--gold-deeper);font-weight:600;flex-shrink:0;background:none;border:none;padding:2px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;align-self:stretch}
-.mtl-rail .mtl-done::before{content:'✓';font-size:10px}
+.mtl-rail .mtl-done::before{content:'✓';font-size:11px}
 .mtl-rail::-webkit-scrollbar{display:none}
 .mtl-rail .mtl-i{font-size:11px;color:var(--light);flex-shrink:0}
 .mtl-rail .mtl-a{color:var(--border);flex-shrink:0;margin:0 7px;font-size:11px}
@@ -436,44 +439,44 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .btn-next.busy:active{background:#6E5C4B}
 /* done */
 .done-hd{text-align:center;padding:6px 0 4px}
-.done-hd .t{font-size:22px;font-weight:700}.done-hd .s{font-size:12px;color:var(--sub);margin-top:6px}
+.done-hd .t{font-size:22px;font-weight:700}.done-hd .s{font-size:12.5px;color:var(--sub);margin-top:6px}
 .done-flow{margin:14px 0 4px}   /* [I2_DONE_FLOW] */
-.done-flow-h{font-size:12px;font-weight:600;color:var(--sub);margin:0 0 2px;text-align:center}   /* 머리(가운데)와 한 줄기 — 왼쪽이면 가운데 머리 · 가운데 마감 줄 사이에서 혼자 틀어져 보였다(390 실렌더) */
-.done-edit{font-size:12px;color:var(--sub);line-height:1.6;margin:6px 0 10px;text-align:center;word-break:keep-all}   /* [I3_EDIT_WINDOW] */
+.done-flow-h{font-size:12.5px;font-weight:600;color:var(--sub);margin:0 0 2px;text-align:center}   /* 머리(가운데)와 한 줄기 — 왼쪽이면 가운데 머리 · 가운데 마감 줄 사이에서 혼자 틀어져 보였다(390 실렌더) */
+.done-edit{font-size:12.5px;color:var(--sub);line-height:1.6;margin:6px 0 10px;text-align:center;word-break:keep-all}   /* [I3_EDIT_WINDOW] */
 .done-edit .ib{display:inline-block}
-.rehearse-btn{margin:10px 0 4px;background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer}
+.rehearse-btn{margin:10px 0 4px;background:#fff;color:var(--gold-deeper);border:1px solid var(--gold-btn);border-radius:11px;padding:14px;width:100%;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer}
 .sec-l{font-size:11px;letter-spacing:.06em;color:var(--gold-deeper);font-weight:600;margin:28px 0 10px}
 .mine .mr{display:flex;gap:11px;padding:10px 12px;border-bottom:1px solid #E7E3DC;align-items:baseline}
 .mine .mr:last-child{border-bottom:none}
-.mine .mn{font-size:12px;font-weight:600;color:var(--gold-deeper);flex:0 0 92px;word-break:keep-all}
-.mine .mt{font-size:13px;color:var(--ink2);line-height:1.6;word-break:keep-all}
-.prep .pr{display:flex;gap:10px;padding:9px 2px;border-bottom:1px solid var(--bg2);font-size:12px;align-items:baseline}
+.mine .mn{font-size:12.5px;font-weight:600;color:var(--gold-deeper);flex:0 0 92px;word-break:keep-all}
+.mine .mt{font-size:12.5px;color:var(--ink2);line-height:1.6;word-break:keep-all}
+.prep .pr{display:flex;gap:10px;padding:9px 2px;border-bottom:1px solid var(--bg2);font-size:12.5px;align-items:baseline}
 .prep .pr:last-child{border-bottom:none}
-.prep .pr-g{font-size:12px;font-weight:600;color:var(--accent);padding:12px 2px 2px}   /* [DONE_UNIFY] ④ 무리 이름(두 분 · 부모님 · 저희가) */
-.prep .dday{flex-shrink:0;font-size:12px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E3DED4;border-radius:20px;padding:3px 9px;min-width:46px;text-align:center}
-.note{font-size:12px;color:var(--light);text-align:center;margin-top:18px;line-height:1.7;word-break:keep-all}
-.tot{text-align:center;font-size:12px;color:var(--sub);margin-top:4px}
+.prep .pr-g{font-size:12.5px;font-weight:600;color:var(--accent);padding:12px 2px 2px}   /* [DONE_UNIFY] ④ 무리 이름(두 분 · 부모님 · 저희가) */
+.prep .dday{flex-shrink:0;font-size:12.5px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E3DED4;border-radius:20px;padding:3px 9px;min-width:46px;text-align:center}
+.note{font-size:12.5px;color:var(--light);text-align:center;margin-top:18px;line-height:1.7;word-break:keep-all}
+.tot{text-align:center;font-size:12.5px;color:var(--sub);margin-top:4px}
 .ta{width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--sans);font-size:16px;color:var(--accent);padding:10px 12px;margin-top:10px;min-height:64px;line-height:1.7;resize:vertical}
 .ta:focus{outline:none;border-color:var(--gold-deeper)}
 .tin{min-height:44px;box-sizing:border-box;width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--sans);font-size:16px;color:var(--accent);padding:10px 12px;margin-top:8px}
 .tin:focus{outline:none;border-color:var(--gold-deeper)}
-.tgl{display:flex;align-items:center;gap:10px;margin-top:11px;min-height:44px;font-size:13px;color:var(--sub);cursor:pointer}
+.tgl{display:flex;align-items:center;gap:10px;margin-top:11px;min-height:44px;font-size:12.5px;color:var(--sub);cursor:pointer}
 .tgl input{display:none}
 .tgl .tk{width:46px;height:26px;border-radius:26px;background:#F0EEE9;position:relative;transition:.2s;flex-shrink:0}
 .tgl .tk::after{content:'';position:absolute;top:2.5px;left:2.5px;width:21px;height:21px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(58,45,34,.18)}
 .tgl input:checked + .tk{background:var(--gold-deep)}
 .tgl input:checked + .tk::after{left:22.5px}
-.tgl-ex{margin:6px 0 2px 56px;padding:9px 12px;background:#F5F3EF;border-radius:9px;font-size:12px;color:var(--sub);line-height:1.6;word-break:keep-all}
+.tgl-ex{margin:6px 0 2px 56px;padding:9px 12px;background:#F5F3EF;border-radius:9px;font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all}
 .wcard{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:15px 16px;margin-top:11px}
-.wcard .wn{font-size:13px;font-weight:600}
+.wcard .wn{font-size:12.5px;font-weight:600}
 .wcard .wd{font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
-.wr-sec .wd{font-size:12px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [WR_HELP] ③ 보낼 것 도움말 — 카드 밖이라 본문 16px 로 커 보였다(390 스크린샷) */
+.wr-sec .wd{font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [WR_HELP] ③ 보낼 것 도움말 — 카드 밖이라 본문 16px 로 커 보였다(390 스크린샷) */
 .wptr{font-size:11px;color:var(--gold-deeper);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px;margin-top:12px;line-height:1.6;word-break:keep-all}
 .wptr b{font-weight:600}
 /* 글 적어두기 2차 확인 · WRITE_2CHECK */
-.write-check{font-size:12px;color:var(--sub);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:11px;padding:12px 14px;margin-bottom:4px;line-height:1.7;word-break:keep-all}
+.write-check{font-size:12.5px;color:var(--sub);background:#F5F3EF;border:1px solid #E7E3DC;border-radius:11px;padding:12px 14px;margin-bottom:4px;line-height:1.7;word-break:keep-all}
 .write-check b{color:var(--gold-deeper);font-weight:700}
-.wc-stat{display:inline-flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--light);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-bottom:9px}
+.wc-stat{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--light);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-bottom:9px}
 .wc-stat.on{color:var(--gold-deeper);background:#EFEAE0;border-color:var(--gold-btn)}
 /* [ORD_EMPTY_LINE 2026-08-03] '글 비어 있음' 배지 자리 통일.
    예전엔 값 텍스트 뒤에 인라인으로 붙였다(display:inline-block). 그래서 값이 짧은 행은 같은 줄,
@@ -481,16 +484,16 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
    ★배지는 값의 일부가 아니라 그 행의 **상태**다. 값 길이에 위치가 좌우되면 안 된다.
      항상 값 아래 한 줄, 값의 시작선에 맞춘다 → 어느 행이든 눈이 같은 지점에서 배지를 찾는다.
    (미완 행만 한 줄 높아지므로 '남은 일이 있다'는 신호가 세로 리듬으로도 읽힌다) */
-.sr-empty{display:block;width:-moz-fit-content;width:fit-content;font-size:12px;font-weight:600;color:var(--seal);background:#F3E9E7;border:1px solid #E4CFCB;border-radius:20px;padding:2px 8px;margin:5px 0 0;white-space:nowrap}
+.sr-empty{display:block;width:-moz-fit-content;width:fit-content;font-size:12.5px;font-weight:600;color:var(--seal);background:#F3E9E7;border:1px solid #E4CFCB;border-radius:20px;padding:2px 8px;margin:5px 0 0;white-space:nowrap}
 /* [ORD_DONEACTS] 완성 화면 마무리 버튼 줄 — 문의·다시 만들기를 한 덩어리로(따로 노는 회색 판 제거) */
 .done-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
 /* ★[DONE_ACTS_EVEN 2026-08-12 사용자 지시 "두 개 버튼 비율 맞추기"] 두 단추를 **반반**으로.
    flex:1 1 auto 는 글자 길이만큼 자란다 — 「목록에 없는 순서가 있나요?」가 길어 한쪽이 훨씬 넓었다.
    0% 를 바탕으로 두면 남은 폭을 똑같이 나눈다. 하나만 남는 날에도 그 하나가 한 줄을 다 쓴다. */
-.done-acts .copy-btn2{margin-right:0;flex:1 1 0%;min-width:0;padding:11px 12px;font-size:11.5px;word-break:keep-all}
+.done-acts .copy-btn2{margin-right:0;flex:1 1 0%;min-width:0;padding:11px 12px;font-size:11px;word-break:keep-all}
 /* [ORD_SAVE_STATE] 저장 실패 알림 — 진사는 좌측 키라인과 제목에만(넓은 면적 금지 규칙) */
 /* [NO_SIDE_STRIPE] 같은 문법 — #E4CFCB·#FBF6F5 도 팔레트 밖이었다. 제목은 씰 700 그대로. */
-.save-err{position:relative;margin-top:14px;border:0;background:none;border-radius:0;padding:0 0 0 13px;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
+.save-err{position:relative;margin-top:14px;border:0;background:none;border-radius:0;padding:0 0 0 13px;font-size:12.5px;color:var(--sub);line-height:1.7;word-break:keep-all}
 .save-err::before{content:'';position:absolute;left:0;top:0.55em;width:5px;height:5px;border-radius:50%;background:var(--seal)}
 .save-err b{display:block;color:var(--seal);font-weight:700;font-size:12.5px;margin-bottom:2px}
 .save-err span{display:block;margin-top:5px;color:var(--gold-deeper)}
@@ -501,7 +504,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
    1.5s / .35→1 로 달라져 있어 같은 흐름 안에서 두 박자가 보였다(2026-08-04 사용자 지적). */
 @keyframes meBreath{0%,100%{opacity:0.25;transform:scale(0.82)}50%{opacity:0.9;transform:scale(1)}}
 /* [ORD_DONEACTS] (구).special 회색 판 규칙 삭제 — 그 버튼이 마무리 버튼 줄(.done-acts)로 옮겨가 아무것도 안 고르는 규칙이 됐다 */
-.copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
+.copy-btn{margin-top:12px;width:100%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);border-radius:11px;padding:12px;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer}
 /* ★[DONE_ACTS 2026-08-12 사용자 지시] 완성 화면 단추 셋을 한 덩어리로 — 사이에 힌트 줄을 끼우지 말 것.
    개별 margin 을 0 으로 눌러 **간격을 gap 하나로만** 만든다(두 값이 겹치면 위아래가 어긋난다).
    미리듣기는 한 줄 전부, 대본 둘은 반씩. 미리듣기가 빠진 판에서도 둘이 그대로 반반이다. */
@@ -513,7 +516,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .sumrow{display:flex;align-items:center;gap:10px;padding:13px 14px;border-top:1px solid #EDEBE6}
 .sumrow:first-of-type{border-top:none}
 .sr-n{flex:0 0 22px;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--gold-deeper);text-align:center}
-.sr-n.sr-off,.sr-n.sr-pre{font-size:10px;color:var(--light)}   /* 번호가 아닌 상태(식전·뺌) — 두 칸을 같은 규칙으로 */
+.sr-n.sr-off,.sr-n.sr-pre{font-size:11px;color:var(--light)}   /* 번호가 아닌 상태(식전·뺌) — 두 칸을 같은 규칙으로 */
 /* [ORD_EMPTY_LINE] 고를 연출이 없는 행(반지 교환)의 빈 값 칸 — 줄표로 '해당 없음'을 말한다.
    ★이름 칸을 늘려 빈칸을 메우는 방법은 쓰지 말 것: 실측해 보니 값 칸 시작선이 행마다
      144 / 195 / 202px 로 흩어져, 구멍 하나를 없애려다 열 정렬 전체가 어긋났다(2026-08-03). */
@@ -523,12 +526,12 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 /* [ORD_EMPTY_LINE] 88px 에선 '하객 맞이 안내'·'폐식 · 단체촬영' 두 행만 이름이 두 줄로 접혀
    행 높이가 저 혼자 달랐다(사용자 지적: "각각"). 88→96·100·104·108 을 320/390 에서 실측한 결과
    96px 이 경계다 — 전 행 이름 한 줄, 값 줄바꿈 악화 없음. 108px 부터는 값이 390 에서도 접히기 시작한다. */
-.sr-l{flex:0 0 96px;font-family:var(--serif);font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all;line-height:1.4}
-.sr-v{flex:1;font-size:13px;color:var(--sub);word-break:keep-all;line-height:1.5}
-.sr-c{flex-shrink:0;background:none;border:1px solid var(--border);color:var(--light);font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;font-family:var(--sans);padding:9px 12px;min-width:62px}
+.sr-l{flex:0 0 96px;font-family:var(--ko-serif);font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all;line-height:1.4}
+.sr-v{flex:1;font-size:12.5px;color:var(--sub);word-break:keep-all;line-height:1.5}
+.sr-c{flex-shrink:0;background:none;border:1px solid var(--border);color:var(--light);font-size:12.5px;font-weight:600;border-radius:20px;cursor:pointer;font-family:var(--sans);padding:9px 12px;min-width:62px}
 .sr-c:active{background:var(--bg2);color:var(--gold-deeper)}
 .fillbadge{margin-top:14px;background:#EEECE7;border:1px solid #E7E3DC;border-radius:11px;padding:11px 13px}
-.fillbadge .ft{font-size:12px;font-weight:600;color:var(--gold-deeper)}
+.fillbadge .ft{font-size:12.5px;font-weight:600;color:var(--gold-deeper)}
 .fillbadge .fl{font-size:11px;color:var(--sub);margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
 .fillbadge .fl span{background:#fff;border:1px solid #E7E3DC;border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--gold-deeper)}
 /* rehearse */
@@ -549,7 +552,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
      대가가 '고치던 자리에서 튕겨 나감'이 된다. 지금은 둘이 773px 떨어져 그 사고가 구조적으로 없다.
      **자주 누르는 것과 되돌리기 번거로운 것은 손가락 거리를 다르게 둔다.**
      이 패턴은 다섯 위저드(식순·청첩장·단체사진·최종확정·좌석)가 공유한다 — 함께 맞춘다. */
-.ob-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--serif);font-size:12.5px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.ob-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--sans);font-size:12.5px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 /* ★[ORD_SAVE_BTN] 저장 버튼은 나가기와 **같은 옷**이다 — 한 줄에 생김새가 둘이면 그게 소음이다.
    다른 것은 글자와 굵기뿐: 보낼 것이 있을 때만 진해지고(.on), 없으면 흐린 채 안 눌린다.
    실패했을 때만 인장색으로 선다(.bad) — 그때가 손이 필요한 유일한 때다. */
@@ -560,7 +563,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .ob-save,#obExit{min-width:86px}
 .ob-save.on{border-color:var(--gold-deeper);color:var(--gold-deeper);font-weight:600}
 .ob-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
-.ob-save:disabled{opacity:.5;cursor:default}
+.ob-save:disabled{opacity:1;color:var(--light);cursor:default}   /* ★[RIT_PILL_SANS 2026-09-27 4부 24] 알약은 다른 단추처럼 고딕 · 꺼진 «저장» · «저장됨»은 흐림(opacity .5 · 약 2.3:1) 대신 --light(약 5.4:1) */
 #obExitSlot{display:flex;align-items:center;gap:7px;flex-shrink:0}
 .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)}
 .ob-exit:active{border-color:var(--gold-deep);color:var(--gold-deep)}
@@ -632,10 +635,10 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 @media (max-width:360px){
   .sumrow{padding:12px 9px;gap:7px}
   .sr-n{flex:0 0 20px}
-  .sr-l{flex:0 0 90px;font-size:13.5px}   /* 90px 미만이면 '폐식 · 단체촬영'·'식전 성장영상'이 두 줄로 접혀 그 행만 높아진다 */
+  .sr-l{flex:0 0 90px;font-size:14px}   /* 90px 미만이면 '폐식 · 단체촬영'·'식전 성장영상'이 두 줄로 접혀 그 행만 높아진다 */
   .sr-v{min-width:0}
   .sr-c{min-width:56px;padding:9px 9px}
-  .sr-empty{font-size:12px;padding:2px 6px}   /* [A11Y_FONT12 3장] 11px 이하 글 → 12px */
+  .sr-empty{font-size:12.5px;padding:2px 6px}   /* [A11Y_FONT12 3장] 11px 이하 글 → 12px */
 }   /* [ORD_BTN_ALIGN] 이 블록을 지우면 320px 에서 알약 때문에 행이 넘쳐 버튼이 다시 흩어진다 */
 
 /* ════════ 2라운드 · 고객 입장(편의성·직관성·이해성·디테일) ════════ */
@@ -684,51 +687,51 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
    ★띠(.op-band)는 화면을 내려도 위에 붙는다 — 담을 때마다 본식과 사진 시간이 함께 움직이는 것이 이 화면의 뜻이다. */
 .op-jump{display:inline-flex;align-items:center;min-height:44px;margin:2px 0 0;font-size:12.5px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px}
 .op-band{position:sticky;top:0;z-index:55;background:var(--bg);padding:10px 0 8px;margin:10px 0 4px;border-bottom:1px solid var(--border)}
-.op-band .t1{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--sub)}
+.op-band .t1{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--sub)}
 .op-band .t1 b{color:var(--accent);font-weight:600}
 .op-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;margin:7px 0 3px;background:var(--bg2)}
 .op-bar .c{background:var(--gold-deep)} .op-bar .p{background:#E6DCCB}
-.op-leg{display:flex;justify-content:space-between;font-size:10.5px;color:var(--light)}
-.op-mf{display:flex;align-items:center;gap:4px;overflow-x:auto;white-space:nowrap;margin-top:7px;font-size:12px;color:var(--ink2);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.op-leg{display:flex;justify-content:space-between;font-size:11px;color:var(--light)}
+.op-mf{display:flex;align-items:center;gap:4px;overflow-x:auto;white-space:nowrap;margin-top:7px;font-size:12.5px;color:var(--ink2);scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .op-mf::-webkit-scrollbar{display:none}
 .op-mf.ovf{-webkit-mask-image:linear-gradient(to right,#000 86%,transparent);mask-image:linear-gradient(to right,#000 86%,transparent)}   /* [POLISH_0925 2-11] 넘칠 때만 끝을 흐려 «더 있다»를 보인다 */
-.op-mf-h{margin:6px 0 0;font-size:12px;color:var(--light)}
+.op-mf-h{margin:6px 0 0;font-size:12.5px;color:var(--light)}
 .op-mf .i{padding:3px 8px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
-.op-mf .i.pre{border-style:dashed;color:var(--light)} .op-mf .a{color:var(--gold-deeper)} .op-mf .h{color:var(--light);font-size:11.5px}
+.op-mf .i.pre{border-style:dashed;color:var(--light)} .op-mf .a{color:var(--gold-deeper)} .op-mf .h{color:var(--light);font-size:11px}
 .op-note{margin-top:8px;font-size:12.5px;line-height:1.55;color:var(--ink2);background:#F3ECDF;border-radius:8px;padding:8px 10px;word-break:keep-all}
-.op-h{font-family:var(--serif);font-size:18px;color:var(--accent);margin:26px 0 8px;font-weight:600}
-.op-sec{margin:16px 0 4px} .op-sec .sn{font-size:13px;font-weight:600;color:var(--gold-deeper)} .op-sec .sd{font-size:11.5px;color:var(--light);margin-top:1px}
+.op-h{font-family:var(--ko-serif);font-size:20px;color:var(--accent);margin:26px 0 8px;font-weight:600}
+.op-sec{margin:16px 0 4px} .op-sec .sn{font-size:12.5px;font-weight:600;color:var(--gold-deeper)} .op-sec .sd{font-size:11px;color:var(--light);margin-top:1px}
 .op-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-top:8px}
 .op-card.on{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
 .op-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.op-nm{margin:0;font-size:15px;font-weight:600;line-height:inherit;color:var(--accent);word-break:keep-all}
+.op-nm{margin:0;font-size:14px;font-weight:600;line-height:inherit;color:var(--accent);word-break:keep-all}
 .op-tg{flex-shrink:0;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer}
 .op-tg[aria-pressed="true"]{background:var(--gold-deeper);border-color:var(--gold-deeper);color:#fff}   /* [DETAIL_0925 C1] 흰 글자 대비 3.95 → 6 이상(gold-deep 바탕은 미달) */
 .op-tg:disabled{border-color:var(--border);color:var(--light);background:var(--bg2);cursor:default}
-.op-one{font-size:13px;line-height:1.6;color:var(--sub);margin-top:6px;word-break:keep-all}
-.op-shot{font-size:12px;color:var(--gold-deeper);margin-top:4px;word-break:keep-all}
-.op-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--light);margin-top:6px}
-.op-slot{font-size:11.5px;color:var(--ink2);margin-top:4px}
+.op-one{font-size:12.5px;line-height:1.6;color:var(--sub);margin-top:6px;word-break:keep-all}
+.op-shot{font-size:12.5px;color:var(--gold-deeper);margin-top:4px;word-break:keep-all}
+.op-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--light);margin-top:6px}
+.op-slot{font-size:11px;color:var(--ink2);margin-top:4px}
 .op-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px} .op-chips .cl{width:100%;font-size:11px;color:var(--light)}
 .op-chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--border);background:var(--bg);color:var(--ink2);font:inherit;font-size:12.5px;cursor:pointer}
 .op-chip[aria-pressed="true"],.op-chip[aria-checked="true"]{border-color:var(--gold-deep);background:#F3ECDF;color:var(--accent);font-weight:600}   /* [CHIP_CHECKED] ② 칩은 role=radio(aria-checked) — 옛 aria-pressed 만 보면 고른 것이 안 보인다(390 스크린샷으로 잡음) */
-.op-more{margin-top:4px;padding:0;min-height:44px;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12px;cursor:pointer}
+.op-more{margin-top:4px;padding:0;min-height:44px;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer}
 .op-det{font-size:12.5px;line-height:1.65;color:var(--sub);border-top:1px dashed var(--border);padding-top:7px;margin-top:2px;word-break:keep-all}
 .op-det p{margin:3px 0}
 .op-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 14px}
-.op-org{font-size:13px;color:var(--ink2);word-break:keep-all}
-.op-undo{margin-left:8px;min-height:44px;padding:4px 12px;border-radius:22px;border:1px solid var(--border);background:var(--bg);font:inherit;font-size:12px;color:var(--gold-deeper);cursor:pointer}   /* [A11Y_TAP44 3장] 136×30 → 44 */
+.op-org{font-size:12.5px;color:var(--ink2);word-break:keep-all}
+.op-undo{margin-left:8px;min-height:44px;padding:4px 12px;border-radius:22px;border:1px solid var(--border);background:var(--bg);font:inherit;font-size:12.5px;color:var(--gold-deeper);cursor:pointer}   /* [A11Y_TAP44 3장] 136×30 → 44 */
 .op-ol{list-style:none;padding:0;margin:10px 0 0}
-.op-ol li{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--bg2);font-size:13.5px;color:var(--accent)}
-.op-ol .no{flex:0 0 30px;color:var(--gold-deeper);font-size:12px;padding-top:1px}
-.op-ol .vn{color:var(--light);font-size:12px}
+.op-ol li{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--bg2);font-size:14px;color:var(--accent)}
+.op-ol .no{flex:0 0 30px;color:var(--gold-deeper);font-size:12.5px;padding-top:1px}
+.op-ol .vn{color:var(--light);font-size:12.5px}
 .op-peak,.op-prep,.op-off{font-size:12.5px;line-height:1.65;color:var(--sub);margin-top:10px;word-break:keep-all}
 .op-prep ul{margin:3px 0 6px;padding-left:18px}
 .op-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.op-q{font-size:14px;color:var(--accent);font-weight:600} .op-qn{font-size:12px;color:var(--light);margin:3px 0 8px}
+.op-q{font-size:14px;color:var(--accent);font-weight:600} .op-qn{font-size:12.5px;color:var(--light);margin:3px 0 8px}
 .op-ex{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-top:8px;font:inherit;color:var(--accent);cursor:pointer}
 .op-ex[aria-pressed="true"]{border-color:var(--gold-deep);background:#F3ECDF}
-.op-ex b{display:block;font-size:14.5px} .op-ex .t{display:block;font-size:12px;color:var(--ink2);margin-top:3px} .op-ex .l{display:block;font-size:11.5px;color:var(--light);margin-top:3px;word-break:keep-all}
+.op-ex b{display:block;font-size:14px} .op-ex .t{display:block;font-size:12.5px;color:var(--ink2);margin-top:3px} .op-ex .l{display:block;font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
 #next.seal{background:var(--seal);border-color:var(--seal);color:#FAFAF8}   /* [SEAL_POINTS] ④ 확정 단추 */
 .op-star{color:var(--seal)}   /* [DETAIL_0925 C1] ★ 도 글자 · ★[SEAL_POINTS 2026-09-26 사장님] 가장 벅찬 순간은 진사(9:1 넘음) — ①~④ 같은 색 */
 .op-card button:focus-visible,.op-ex:focus-visible,.op-jump:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
@@ -745,9 +748,9 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .wr-top + .wr-sec{margin-top:8px}
 .wr-top + .wr-list{margin-top:8px}
 .wr-top + .wr-sec .wr-sub:first-child{margin-top:0}
-.wr-cat{display:inline-block;font-size:12px;line-height:1.5;color:var(--gold-deeper);border:1px solid var(--border);border-radius:4px;padding:0 5px;margin-right:2px;white-space:nowrap}
-.wr-item{font-size:13px;color:var(--sub);margin:4px 0 8px}
-.op-gnote{font-size:12px;color:var(--light);margin:-2px 0 8px}
+.wr-cat{display:inline-block;font-size:12.5px;line-height:1.5;color:var(--gold-deeper);border:1px solid var(--border);border-radius:4px;padding:0 5px;margin-right:2px;white-space:nowrap}
+.wr-item{font-size:12.5px;color:var(--sub);margin:4px 0 8px}
+.op-gnote{font-size:12.5px;color:var(--light);margin:-2px 0 8px}
 .op-stepb{border:0;background:none;padding:6px 0 0;min-height:44px;width:100%;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:flex;align-items:flex-start;justify-content:center}   /* [POLISH_0925 2-11] 지난 걸음 글줄을 지금 걸음과 맞춘다(단추는 가운데 정렬이라 몇 px 낮게 앉았다) */
 .op-steps li.done{padding-top:0}   /* [STEP_BASELINE 코워크 회신4 4-e] 글줄은 단추 안 6px 로 맞춘다 — li 여백을 빼고 단추 padding 0 이던 때 지난 걸음이 6px 위에 앉았다 */
 .op-note{display:flex;flex-direction:column;gap:6px}
@@ -757,22 +760,22 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .op-note-x{border-color:var(--border);color:var(--sub)}
 .op-band.thin .op-note:not(.wide) .op-note-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .op-band.thin .op-note:not(.wide) .op-note-a{display:none}
-.ls-back{min-height:44px;padding:0 4px;border:0;background:none;font:inherit;font-size:13px;color:var(--gold-deeper);cursor:pointer;margin:6px 0 0}
+.ls-back{min-height:44px;padding:0 4px;border:0;background:none;font:inherit;font-size:12.5px;color:var(--gold-deeper);cursor:pointer;margin:6px 0 0}
 .ls-peak{font-size:12.5px;color:var(--sub);margin:4px 0 8px;word-break:keep-all}
 .ls-why{font-size:12.5px;color:var(--ink2);margin:0 0 10px}
-.ls-gnote{flex:0 0 100%;font-size:11.5px;color:var(--light);margin-top:-2px}
+.ls-gnote{flex:0 0 100%;font-size:11px;color:var(--light);margin-top:-2px}
 .ls-undo{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer;margin-left:6px}
 .ls-prep .wr-list{margin:4px 0 6px}
-.lf-skip{min-height:44px;padding:0 12px;border-radius:22px;border:1px solid var(--border);background:var(--card);color:var(--accent);font:inherit;font-size:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.lf-skip{min-height:44px;padding:0 12px;border-radius:22px;border:1px solid var(--border);background:var(--card);color:var(--accent);font:inherit;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 .lv .lv-pause{display:none;position:absolute;right:8px;top:8px;font-size:11px;color:var(--sub);background:rgba(250,250,248,.9);border-radius:4px;padding:1px 6px}
 .lv.playing .lv-pause{display:block}
-.lv-off{min-height:44px;padding:0 4px;border:0;background:none;font:inherit;font-size:12px;color:var(--gold-deeper);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.lv-off{min-height:44px;padding:0 4px;border:0;background:none;font:inherit;font-size:12.5px;color:var(--gold-deeper);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .wr-sec{margin-top:18px}
 .wr-sec .sec-l{margin-bottom:8px}
-.wr-list{margin:0;padding-left:18px;font-size:13px;line-height:1.75;color:var(--sub);word-break:keep-all}
-.wr-due{color:var(--light);font-size:12px}
-.wr-sub{font-size:13px;font-weight:600;color:var(--accent);margin:14px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.op-steps{display:flex;gap:4px;list-style:none;padding:0;margin:14px 0 4px;font-size:11.5px;color:var(--light)}
+.wr-list{margin:0;padding-left:18px;font-size:12.5px;line-height:1.75;color:var(--sub);word-break:keep-all}
+.wr-due{color:var(--light);font-size:12.5px}
+.wr-sub{font-size:12.5px;font-weight:600;color:var(--accent);margin:14px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.op-steps{display:flex;gap:4px;list-style:none;padding:0;margin:14px 0 4px;font-size:12.5px;color:var(--light)}
 .op-steps li{flex:1;text-align:center;padding-top:6px;border-top:2px solid var(--border);white-space:nowrap}
 .op-steps li.on{color:var(--accent);font-weight:600;border-top-color:var(--seal)}   /* [SEAL_POINTS] 지금 걸음 윗줄만 진사 — 마이페이지 진행 점과 같은 말 · 글자는 그대로 */
 .op-steps li.done{color:var(--ink2);border-top-color:var(--gold-deep)}
@@ -782,17 +785,17 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .lv video{display:block;width:100%;height:100%;object-fit:cover}
 .lv-ai{position:absolute;left:8px;top:8px;font-size:11px;line-height:1.4;color:var(--sub);background:rgba(250,250,248,.9);border-radius:4px;padding:1px 6px}
 .lv.none{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 16px;text-align:center}
-.lv .lv-sc{font-family:var(--serif);font-size:14px;color:var(--ink2);line-height:1.5;word-break:keep-all}
+.lv .lv-sc{font-family:var(--ko-serif);font-size:14px;color:var(--ink2);line-height:1.5;word-break:keep-all}
 .lv .lv-soon{font-size:11px;color:var(--light)}
 .lv.art{background:var(--card);display:flex;align-items:center}
 .lv.art .mclip{width:100%;border:0;margin:0;background:none}
 .lv.mini{width:64px;border-radius:6px}
 .lv.mini .lv-dot{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--gold)}
 .op-card .lv{margin:-1px -2px 10px;cursor:pointer}
-.op-card .op-vl{font-size:12px;color:var(--ink2);margin-top:6px;word-break:keep-all}
+.op-card .op-vl{font-size:12.5px;color:var(--ink2);margin-top:6px;word-break:keep-all}
 .op-card .op-vl span{color:var(--light)}
 .nav{flex-wrap:wrap}
-.op-cta{flex:0 0 100%;font-size:12px;color:var(--sub);text-align:center;margin:-4px 0 -2px;word-break:keep-all}
+.op-cta{flex:0 0 100%;font-size:12.5px;color:var(--sub);text-align:center;margin:-4px 0 -2px;word-break:keep-all}
 .op-cta b{color:var(--accent);font-weight:600;white-space:nowrap}
 /* ════ ★★[PICK_V2 2026-09-26 코워크 회신 6 3장 · 추가 전달 2 · 3] ① 고르기 — 예시 → 감동 흐름 → 네 막 칸 → 아래 막대 ════
    ★시안(docs/handoff/고르기_개편시안_0926.html)의 모양을 옮겼다 · 색은 이 문서 팔레트(momentedit-design)만 — 시안의 --btn(#4E3D2E)은
@@ -809,38 +812,38 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-ex{display:grid;grid-template-columns:minmax(0,1fr) 112px;align-items:center;column-gap:10px;width:100%;min-height:44px;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font:inherit;color:var(--accent);cursor:pointer}
 .pk-ex[aria-pressed="true"]{border-color:var(--ink2);box-shadow:inset 0 0 0 1px var(--ink2)}
 .pk-ex-t{min-width:0}
-.pk-ex-n{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;font-size:15px;line-height:1.45}
+.pk-ex-n{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;font-size:14px;line-height:1.45}
 .pk-ex-n b{font-weight:600}
 .pk-ex-m{font-size:12.5px;color:var(--sub);white-space:nowrap}
-.pk-ex-on{font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap}
-.pk-ex-f{display:block;font-size:13px;line-height:1.5;color:var(--sub);margin-top:2px}
+.pk-ex-on{font-size:12.5px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.pk-ex-f{display:block;font-size:12.5px;line-height:1.5;color:var(--sub);margin-top:2px}
 .pk-ex-g{display:block;min-width:0}
 .pk-ex-gw{display:flex;flex-direction:column;min-width:0}   /* [RIT_CURVE_LABEL] 곡선 + 아래 오른쪽 라벨 */
 .pk-ex-cap{align-self:flex-end;font-size:11px;line-height:1.2;color:var(--light);margin-top:2px}
 .pk-fp-flat{font-size:14px;line-height:1.6;color:var(--sub);margin:14px 0 8px;word-break:keep-all}   /* [RIT_CURVE_LABEL] 둘 미만 · 평평하면 곡선 대신 한 줄 */
 .pk-ex-g svg{display:block;width:100%;height:40px}
 .pk-blank{text-align:right;margin:2px 0 0}
-.pk-link{min-height:44px;padding:0 2px;border:0;background:none;font:inherit;font-size:13px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.pk-link{min-height:44px;padding:0 2px;border:0;background:none;font:inherit;font-size:12.5px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .pk-fp{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 12px;margin-top:8px}
 .pk-fp-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.pk-fp-h h3{margin:0;font-size:15px;font-weight:600;color:var(--accent);line-height:1.4}
-.pk-fp-body{font-size:13px;color:var(--sub);white-space:nowrap}
+.pk-fp-h h3{margin:0;font-size:14px;font-weight:600;color:var(--accent);line-height:1.4}
+.pk-fp-body{font-size:12.5px;color:var(--sub);white-space:nowrap}
 .pk-fp-body strong{color:var(--accent);font-weight:600}
 .pk-fp-cap{font-size:12.5px;color:var(--light);margin:2px 0 0}
-.pk-fp-empty{font-size:13.5px;color:var(--sub);margin:10px 0 4px;word-break:keep-all}
+.pk-fp-empty{font-size:14px;color:var(--sub);margin:10px 0 4px;word-break:keep-all}
 .pk-fg-wrap{position:relative;margin:8px 0 2px}
 .pk-fg{min-height:112px}
 .pk-fg svg{display:block;width:100%}
 .pk-fg .flow-hit{cursor:pointer;outline:none}
 .pk-tip{position:absolute;top:14px;left:0;pointer-events:none;background:var(--accent);color:#FAFAF8;font-size:12.5px;line-height:1.45;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
 .pk-tip.on{opacity:1}
-.pk-peak{font-size:13.5px;line-height:1.6;color:var(--accent);margin:6px 0 0;word-break:keep-all}
+.pk-peak{font-size:14px;line-height:1.6;color:var(--accent);margin:6px 0 0;word-break:keep-all}
 .pk-peak b{font-weight:600}
 .pk-tm{font-size:12.5px;line-height:1.6;color:var(--light);margin:8px 0 0;word-break:keep-all}
 .pk-pre{white-space:nowrap}
 .pk-side .op-note{margin-top:8px}
 .pk-acts{display:grid;gap:20px}
-.pk-act-h{font-size:14.5px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
+.pk-act-h{font-size:14px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
 .pk-act-d{font-size:12.5px;color:var(--light);margin:0 0 8px;line-height:1.45}
 .pk-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .pk-tile{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
@@ -860,16 +863,16 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-play{position:absolute;left:7px;bottom:7px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.14);color:var(--accent)}
 .pk-play svg{width:10px;height:10px;margin-left:2px}
 .pk-opt{position:absolute;left:7px;top:8px;font-size:11px;font-weight:600;color:var(--sub);background:rgba(255,255,255,.94);border-radius:999px;padding:1px 8px}
-.pk-ai{position:absolute;right:7px;bottom:7px;font-size:10px;line-height:1.4;color:var(--sub);background:rgba(255,255,255,.9);border-radius:4px;padding:0 4px}
+.pk-ai{position:absolute;right:7px;bottom:7px;font-size:11px;line-height:1.4;color:var(--sub);background:rgba(255,255,255,.9);border-radius:4px;padding:0 4px}
 .pk-txt{display:block;padding:8px 10px 11px}
-.pk-n{display:block;font-weight:600;font-size:15px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pk-s{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;color:var(--sub);line-height:1.45;margin-top:2px}
+.pk-n{display:block;font-weight:600;font-size:14px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-s{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;color:var(--sub);line-height:1.45;margin-top:2px}
 @media (max-width:339px){ .pk-s{-webkit-line-clamp:3} }   /* [TILE_3LINE 코워크 추가 점검] 340 아래에서 칸 설명이 두 줄에서 잘렸다 */
 .pk-sel{position:absolute;top:0;right:0;width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
-.pk-sel i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.96);border:1.5px solid var(--gold);color:var(--gold-deeper);display:grid;place-items:center;font-style:normal;font-size:17px;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.pk-sel.on i{background:var(--ink2);border-color:var(--ink2);color:#fff;font-size:13px}
+.pk-sel i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.96);border:1.5px solid var(--gold);color:var(--gold-deeper);display:grid;place-items:center;font-style:normal;font-size:16px;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.pk-sel.on i{background:var(--ink2);border-color:var(--ink2);color:#fff;font-size:12.5px}
 .pk-fix{position:absolute;top:8px;right:8px;font-size:11px;font-weight:600;color:var(--sub);background:rgba(255,255,255,.94);border-radius:999px;padding:1px 8px;pointer-events:none}
-.pk-ainote{font-size:12px;color:var(--light);margin:12px 0 0}
+.pk-ainote{font-size:12.5px;color:var(--light);margin:12px 0 0}
 /* 아래 막대(휴대폰) — 작은 흐름선 · 담은 순간 · 알림 한 줄 [BAR_SUM] · 요약 줄 뒤로 칸 글이 비치지 않게(흐림은 위 12px 만) */
 body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 12px)}
 .op-cta{display:flex;align-items:center;justify-content:center;column-gap:6px;row-gap:0;flex-wrap:wrap}
@@ -888,20 +891,20 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .pv-box{position:absolute;left:0;right:0;bottom:0;max-height:94dvh;overflow:auto;overscroll-behavior:contain;background:var(--bg);border-radius:18px 18px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.16)}
 .pv-grab{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 4px}
 .pv-h{display:flex;align-items:center;gap:8px;min-height:44px}
-.pv-h h3{margin:0;font-size:17px;font-weight:600;color:var(--accent);line-height:1.4}
+.pv-h h3{margin:0;font-size:16px;font-weight:600;color:var(--accent);line-height:1.4}
 .pv-tag{font-size:11px;font-weight:600;color:var(--sub);background:var(--bg2);border-radius:999px;padding:1px 8px;white-space:nowrap}
-.pv-x{margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;font:inherit;font-size:18px;color:var(--sub);cursor:pointer;border-radius:50%}
+.pv-x{margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;font:inherit;font-size:20px;color:var(--sub);cursor:pointer;border-radius:50%}
 .pv-x:focus-visible,.pv-act button:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
 .pv-media{position:relative;aspect-ratio:16/9;border-radius:12px;background:var(--bg2);display:grid;place-items:center;overflow:hidden}
 .pv-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .pv-media .mclip{width:100%;border:0;margin:0;background:none}
 .pv-media .pk-glyph{width:110px;height:76px}
 .pv-ai{position:absolute;left:8px;bottom:8px;font-size:11px;line-height:1.4;color:var(--sub);background:rgba(255,255,255,.88);border-radius:6px;padding:1px 6px}
-.pv-q{font-family:var(--serif);font-size:15.5px;line-height:1.65;color:var(--accent);margin:12px 0 6px;word-break:keep-all}
+.pv-q{font-family:var(--ko-serif);font-size:16px;line-height:1.65;color:var(--accent);margin:12px 0 6px;word-break:keep-all}
 .pv-pb{height:3px;background:var(--bg2);border-radius:2px;overflow:hidden}
 .pv-pb i{display:block;height:100%;width:0;background:var(--gold-deep)}
-.pv-st{font-size:12px;color:var(--light);margin:5px 0 0}
-.pv-one{font-size:13.5px;line-height:1.55;color:var(--sub);margin:12px 0 2px;word-break:keep-all}
+.pv-st{font-size:12.5px;color:var(--light);margin:5px 0 0}
+.pv-one{font-size:14px;line-height:1.55;color:var(--sub);margin:12px 0 2px;word-break:keep-all}
 .pv-ch,.pv-shot{font-size:12.5px;line-height:1.55;color:var(--sub);margin:0;word-break:keep-all}
 .pv-shot b{font-weight:600;color:var(--ink2)}
 .pv-act{display:flex;align-items:center;gap:8px;margin-top:14px;position:sticky;bottom:0;z-index:2;background:var(--bg);padding:10px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}   /* ★[PV_ACT_STICKY 코워크 추가 점검 P2-4] 360×560 에서 담기 · 빼기가 창 밖으로 밀렸다 — 창 안에서 아래에 붙는다 */
@@ -911,9 +914,9 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .pv-again{background:var(--card);border:1px solid var(--border);color:var(--accent)}
 .pv-add{flex:1;background:var(--ink2);border:0;color:#fff}
 .pv-add.out{flex:0 0 auto;background:var(--card);border:1px solid var(--border);color:var(--accent)}
-.pv-in{flex:1;text-align:right;font-size:13.5px;font-weight:600;color:var(--ink2)}
-.pv-fixed{flex:1;text-align:right;font-size:13px;color:var(--light)}
-.pv-fn{font-size:12px;color:var(--light);margin:10px 0 0;text-align:center}
+.pv-in{flex:1;text-align:right;font-size:14px;font-weight:600;color:var(--ink2)}
+.pv-fixed{flex:1;text-align:right;font-size:12.5px;color:var(--light)}
+.pv-fn{font-size:12.5px;color:var(--light);margin:10px 0 0;text-align:center}
 /* 예시 되돌리기 알림 줄 — 6초 */
 .pk-undo{position:fixed;left:50%;bottom:calc(128px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);background:var(--accent);color:#FAFAF8;font-size:12.5px;border-radius:22px;padding:2px 4px 2px 16px;box-shadow:0 2px 10px rgba(0,0,0,.18);word-break:keep-all}
 .pk-undo[hidden]{display:none}
@@ -930,7 +933,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   body.pk2 .q-sub{font-size:16px}
   .pk .mo{display:none}
   .pk .pco{display:block}
-  .pk-h{font-size:17px}
+  .pk-h{font-size:16px}
   .pk-exs{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
   .pk-ex{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:14px}
   .pk-ex-gw{margin-top:auto;padding-top:8px}   /* [RIT_CURVE_LABEL] 라벨까지 함께 카드 아래로 */
@@ -938,7 +941,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:28px;padding:18px 20px;margin-top:18px}
   .pk-fg{min-height:152px}
   .pk-side{border-left:1px solid var(--bg2);padding-left:28px;display:flex;flex-direction:column;gap:16px}   /* ★[PC_SIDE_AIR 2026-09-26 사장님 «우측 정보랑 버튼이 너무 낑겨»] 덩어리 사이 16 · 준비 줄은 왼쪽 그림 아래로 */
-  .pk-big{font-size:13px;color:var(--sub);line-height:1.6;margin:0}
+  .pk-big{font-size:12.5px;color:var(--sub);line-height:1.6;margin:0}
   .pk-big strong{display:block;font-size:26px;color:var(--accent);font-weight:600;line-height:1.25;margin:4px 0 6px}
   .pk-go{margin-top:auto;min-height:48px;border:0;border-radius:12px;background:var(--accent);color:#FAFAF8;font:inherit;font-weight:600;cursor:pointer}
   .pk-side .pk-peak{margin-top:0}
@@ -946,13 +949,13 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-prep-pc{margin-top:10px}
   .pk-acts{gap:18px;margin-bottom:48px}
   .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
-  .pk-act-h{font-size:15px;color:var(--accent)}
+  .pk-act-h{font-size:14px;color:var(--accent)}
   .pk-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
   .pk-slim{position:fixed;left:0;right:0;top:0;z-index:60;display:flex;align-items:center;gap:16px;background:var(--bg);   /* [SLIM_OPAQUE 코워크 회신7] .97 이라 아래 막 머리 · 칸 테두리 · ✓ 가 비쳤다 */border-bottom:1px solid var(--border);padding:10px max(88px,calc((100vw - 1180px) / 2));transform:translateY(-100%);opacity:0;visibility:hidden;transition:transform .2s,opacity .2s,visibility .2s}
   .pk-slim.on{transform:none;opacity:1;visibility:visible}
   .pk-slim .sv{display:block;width:180px;height:34px;flex:none}
   .pk-slim .sv svg{display:block;width:180px;height:34px}
-  .pk-slim .t{font-size:13.5px;color:var(--sub);min-width:0}
+  .pk-slim .t{font-size:14px;color:var(--sub);min-width:0}
   .pk-slim .al{display:block;margin-top:0;min-height:44px;border:0;background:none;padding:0;font:inherit;font-size:12.5px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
   .pk-slim .t b{color:var(--accent);font-weight:600}
   .pk-slim .go{margin-left:auto;min-height:44px;padding:0 22px;border:0;border-radius:10px;background:var(--accent);color:#FAFAF8;font:inherit;font-weight:600;cursor:pointer;flex:none}
@@ -963,14 +966,14 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 @media (min-width:1000px) and (max-width:1150px){ .pk-act{grid-template-columns:1fr;gap:4px} }
 @media (min-width:1000px) and (prefers-reduced-motion: reduce){ .pk-slim{transition:none} }
 /* ② */
-.ls-band .t1{font-size:13px}
+.ls-band .t1{font-size:12.5px}
 .ls-band .t1 .nw{white-space:nowrap}
 .ls-band .lsg{display:inline-flex;align-items:center;width:64px;height:18px;flex:none}
 .ls-band .lsg svg{display:block;width:64px;height:18px}
 @media (max-width:374px){ .ls-band .lsg{display:none} }   /* [G2] 360 에서는 시간 둘이 먼저 */
 .ls-hero{display:block;width:100%;border:0;padding:0;margin:12px 0 10px;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
 .ls-hl{display:flex;align-items:center;gap:9px;margin-top:9px}
-.ls-hl b{font-size:15px;font-weight:600;color:var(--accent)}
+.ls-hl b{font-size:14px;font-weight:600;color:var(--accent)}
 .ls-hb{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#FAFAF8;display:grid;place-items:center;flex:none}
 .ls-len{font-size:12.5px;color:var(--sub)}
 .ls-rows{border-top:1px solid var(--border)}
@@ -979,37 +982,37 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-row.open{background:var(--card)}
 .ls-row.added{animation:lsAdd 1.2s var(--ease,ease-out)}
 @keyframes lsAdd{from{background:#F3ECDF}to{background:transparent}}
-.ls-no{font-size:12px;color:var(--light);text-align:right;white-space:nowrap}
+.ls-no{font-size:12.5px;color:var(--light);text-align:right;white-space:nowrap}
 .ls-th,.ls-main{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .ls-th{min-height:44px;display:flex;align-items:center;position:relative}   /* [DETAIL_0925 C2] 그림은 64×36 그대로 · 누를 곳만 44 */
 .ls-th .ls-pi{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:rgba(250,250,248,.82);color:var(--accent);display:grid;place-items:center;pointer-events:none}   /* [PLAY_BESIDE_NUM P13] 작게 · 반투명 — 이름보다 가볍게 */
 .ls-th .ls-pi svg{width:12px;height:12px}
 .ls-th:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .ls-main{display:flex;flex-direction:column;gap:1px;min-width:0;min-height:44px;justify-content:center}
-.ls-main .nm{font-size:14.5px;font-weight:600;color:var(--accent);word-break:keep-all}
+.ls-main .nm{font-size:14px;font-weight:600;color:var(--accent);word-break:keep-all}
 .ls-row.off .ls-main .nm{font-weight:500;color:var(--ink2)}
 .ls-main .nm::after{content:'';display:inline-block;width:6px;height:6px;margin:0 0 3px 8px;border-right:1px solid var(--light);border-bottom:1px solid var(--light);transform:rotate(45deg);vertical-align:middle}
 .ls-row.open .ls-main .nm::after{transform:rotate(-135deg);margin-bottom:-1px}
-.ls-main .sp{font-size:12px;color:var(--sub);line-height:1.5;word-break:keep-all}
+.ls-main .sp{font-size:12.5px;color:var(--sub);line-height:1.5;word-break:keep-all}
 .ls-acts{display:flex;gap:6px;align-items:center;min-width:44px;justify-content:flex-end}   /* [PLAY_BESIDE_NUM P13] ▶ 가 떠난 오른쪽 끝은 «비워 둔 칸»으로 남긴다 — 없애면 이름 단추가 말풍선 밑까지 늘어난다 */
-.ls-add{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.ls-add{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap}
 .ls-x{grid-column:1 / -1;padding:4px 2px 6px 32px;font-size:12.5px;color:var(--sub);line-height:1.65;word-break:keep-all}
 .ls-x b{color:var(--accent);font-size:12.5px;font-weight:600}
 .ls-flow ol{margin:4px 0 10px;padding-left:18px}
 .ls-flow li{margin:1px 0}
 .ls-flow li.talk{color:var(--accent)}
-.ls-flow li.quiet{display:block;color:var(--light);font-size:12px}   /* [G5 QUIET_LINES] 말 없는 사람 순간 — 번호 없이(앞 줄의 딸린 줄) · 작게 · 옅게. 색만으로는 옆 줄(--sub)과 거의 같아 보였다(390 실측) · 300 굵기는 안 싣는다 */
-.ls-more{align-self:flex-start;padding:0 2px;min-height:44px;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12px;cursor:pointer;text-align:left}   /* [G4] 맺는 말은 «더 고르기» 뒤 */
+.ls-flow li.quiet{display:block;color:var(--light);font-size:12.5px}   /* [G5 QUIET_LINES] 말 없는 사람 순간 — 번호 없이(앞 줄의 딸린 줄) · 작게 · 옅게. 색만으로는 옆 줄(--sub)과 거의 같아 보였다(390 실측) · 300 굵기는 안 싣는다 */
+.ls-more{align-self:flex-start;padding:0 2px;min-height:44px;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer;text-align:left}   /* [G4] 맺는 말은 «더 고르기» 뒤 */
 .ls-new{font-size:11px;color:var(--gold-deeper);white-space:nowrap}
 .ls-vars{display:flex;flex-direction:column;gap:7px;margin:2px 0 10px}
-.ls-hint{font-weight:400;color:var(--light);font-size:11.5px}
+.ls-hint{font-weight:400;color:var(--light);font-size:11px}
 .ls-cg{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.ls-cg .gl{font-size:11.5px;color:var(--light);min-width:48px}
+.ls-cg .gl{font-size:11px;color:var(--light);min-width:48px}
 .ls-wr{display:flex;gap:6px;align-items:flex-start;margin:2px 0 10px}
 .ls-wr svg{margin-top:4px;color:var(--light);flex:none}
 .ls-wr em{font-style:normal;color:var(--light)}
-.ls-rm{min-height:44px;padding:0 2px;border:0;background:none;color:var(--sub);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-top:4px}   /* [POLISH_0925 2-11] «이 순간 빼기»는 글 단추 — 칩과 같은 모양이라 고르는 값처럼 보였다 */
-.ls-note{font-size:12px;color:var(--light);margin:6px 0 8px}
+.ls-rm{min-height:44px;padding:0 2px;border:0;background:none;color:var(--sub);font:inherit;font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-top:4px}   /* [POLISH_0925 2-11] «이 순간 빼기»는 글 단추 — 칩과 같은 모양이라 고르는 값처럼 보였다 */
+.ls-note{font-size:12.5px;color:var(--light);margin:6px 0 8px}
 .ls-msg{font-size:12.5px;color:var(--ink2);min-height:1.2em;margin:10px 2px 0}
 /* [RIT_UNDO_INPLACE] 뺀 그 자리 한 줄 */
 .ls-gone{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px 6px 36px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--ink2);background:var(--bg2)}
@@ -1030,13 +1033,13 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-mini .lm-t{flex:1 1 104px}
 .ls-mini .lm-g{flex:none;min-height:44px;padding:0 10px;border:0;border-radius:22px;background:none;color:inherit;font:inherit;font-size:12.5px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin-left:auto}
 .ls-off{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:0 10px}
-.ls-off summary{cursor:pointer;font-size:13px;line-height:20px;padding:12px 0;display:block;color:var(--ink2);min-height:44px;box-sizing:border-box;word-break:keep-all}   /* [SUMMARY_INLINE] flex 면 글 · 숫자가 따로 놀아 «₆가지»처럼 흩어진다(390 스크린샷으로 잡음) */
+.ls-off summary{cursor:pointer;font-size:12.5px;line-height:20px;padding:12px 0;display:block;color:var(--ink2);min-height:44px;box-sizing:border-box;word-break:keep-all}   /* [SUMMARY_INLINE] flex 면 글 · 숫자가 따로 놀아 «₆가지»처럼 흩어진다(390 스크린샷으로 잡음) */
 .ls-off .ls-row{border-bottom-color:var(--bg2)}
 .ls-mini{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(484px,calc(100% - 32px));display:none;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--accent);color:#FAFAF8;z-index:80}
 html.lsmini .ls::after{content:'';display:block;height:72px}   /* [MINI_ROOM] 맨 아래 «준비할 것»이 작은 플레이어(높이 56 · 띄움 88) 위로 올라온다 */
 .ls-mini .lm-t{flex:1;min-width:0;border:0;background:none;color:inherit;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;min-height:40px;justify-content:center}
-.ls-mini .lm-t b{font-size:13px;font-weight:600}
-.ls-mini .lm-t small{font-size:11.5px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-mini .lm-t b{font-size:12.5px;font-weight:600}
+.ls-mini .lm-t small{font-size:11px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ls-mini .lm-b{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:rgba(250,250,248,.14);color:inherit;display:grid;place-items:center;cursor:pointer}
 .ls-full{position:fixed;inset:0;z-index:2147482000;background:var(--bg);overflow:auto}
 .ls-full[hidden]{display:none}
@@ -1049,12 +1052,12 @@ body.lsfull{overflow:hidden}
 .lf-seg span{flex:1;height:3px;border-radius:2px;background:var(--border)}
 .lf-seg span.done{background:var(--gold)}
 .lf-seg span.on{background:var(--accent)}
-.ls-full h3{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--accent);margin:0}
+.ls-full h3{font-family:var(--ko-serif);font-size:20px;font-weight:600;color:var(--accent);margin:0}
 .lf-lab{font-size:12.5px;color:var(--light);margin-top:2px}
-.lf-txt{font-family:var(--serif);font-size:16px;line-height:1.85;color:var(--accent);margin:12px 0 14px;min-height:3.6em;word-break:keep-all}
+.lf-txt{font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);margin:12px 0 14px;min-height:3.6em;word-break:keep-all}
 .lf-txt.talk{font-family:var(--sans);font-size:14px;color:var(--sub);background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px}
 .lf-vars{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
-.lf-vars .gl{font-size:11.5px;color:var(--light);min-width:48px}
+.lf-vars .gl{font-size:11px;color:var(--light);min-width:48px}
 .lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;margin-top:auto;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:var(--bg)}   /* [DETAIL_0925 B11] 자막 길이와 상관없이 같은 자리 · [BIG_CTL_FIXED] margin-top:auto 로 짧은 글에서도 아래에 */
 .lf-ctl button{width:48px;height:48px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
 .lf-ctl button.big{width:60px;height:60px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
@@ -1063,13 +1066,39 @@ body.lsfull{overflow:hidden}
 .ls button:focus-visible,.ls-full button:focus-visible,.ls-mini button:focus-visible,.op-card .lv:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
 .ls-mini button:focus-visible{outline-color:#FAFAF8}   /* [A11Y_OUTLINE 3장] 어두운 작은 플레이어 위 금색 윤곽 2.23:1 → 밝은 윤곽 */
 @media (prefers-reduced-motion:reduce){.ls-row.added{animation:none}}
+/* ════ ★[SPEC6_P4 2026-09-27] 식순 짓기 4부 — ③ ④ · 모든 걸음 ════ */
+/* [RIT_TYPE5] 글자 크기는 다섯 단계뿐 — 11 · 12.5 · 14 · 16 · 20 이상(한 화면에 10~12가지였다). 새 규칙도 이 다섯 중에서 고른다. */
+/* [RIT_WRAP] 줄바꿈 — 끝 한 낱말이 홀로 떨어지지 않게 · 붙어야 할 말은 _nbWrap 이 NBSP 로 묶는다 */
+.wrap,.ord-ask,.ls-full,.pv-sheet,.ls-mini,.pk-undo{text-wrap:pretty}
+/* [RIT_FILE_CHECK] «챙겼어요» 한 칸 */
+.upchk{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;color:var(--ink2);cursor:pointer}
+.upchk input{width:20px;height:20px;margin:0;accent-color:var(--gold-deeper);flex:none}
+/* [RIT_VOW_GROW] 글칸 처음 4줄 · 쓰는 만큼 늘어난다 · 넘으면 한 줄 */
+.ta.grow{min-height:calc(4 * 1.7em + 22px);resize:none;overflow:hidden}
+.lenover{font-size:12.5px;color:var(--seal);margin:6px 0 0;line-height:1.6}
+.lenover[hidden]{display:none}
+/* [RIT_EXAMPLE_CARD] 예시는 흰 카드 · 가는 테두리 — 고른 것처럼 보이지 않게 */
+.ex-card{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:13px 15px;margin-top:10px}
+.ex-card .nar{background:none;border:none;border-radius:0;padding:0;margin:0}
+/* [RIT_SUMMARY_STACK] 한 줄에 순번 · 이름(오른쪽 «변경» 글 단추), 아래에 값 */
+.sumry.op .sumrow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:"n l c" ". v v";column-gap:8px;row-gap:0;align-items:center;padding:6px 10px 10px 12px}
+.sumry.op .sr-n{grid-area:n;flex:none}
+.sumry.op .sr-l{grid-area:l;flex:none}
+.sumry.op .sr-v{grid-area:v;min-width:0}
+.sumry.op .sr-c{grid-area:c;min-width:0;min-height:44px;padding:0 6px;border:0;background:none;border-radius:0;color:var(--gold-deeper);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+/* [RIT_RESTART_LOW] ④ 맨 아래 작은 밑줄 글 */
+.op-reset-low{justify-content:center;margin:4px 0 calc(18px + env(safe-area-inset-bottom))}
+.op-reset-low[hidden]{display:none}
+.op-reset-low .prog-reset{display:inline-flex;margin:0;padding:0 4px}
+/* [RIT_WIDTH_720] PC 에서 ②③④ 폭 — ①(1104)과 520 사이를 튀지 않게 720 */
+@media (min-width:1000px){ body.op4:not(.pk2) .wrap{max-width:720px} }
 </style>
 </head>
 <body>
 <div class="wrap">
   <!-- [ORD_STRUCT] 화면낭독기에 '이 페이지가 무엇인지'가 없었다(h1 0 · main 0).
        단계 제목은 계속 바뀌므로 고정 제목은 보이지 않게 한 번만 둔다. -->
-  <h1 class="sr-only">예식 순서 만들기</h1>
+  <h1 class="sr-only">우리 예식 짓기</h1><!-- [RIT_NAME_TWO] -->
   <div class="prog">
     <!-- 1행: 상태 라벨 + 나가기(임베드) — 다른 위저드 헤더('청첩장 · 1/4 · 저장 후 나가기')와 같은 앵커 구조(2026-07-18 사용자 지적: 홀로 뜬 나가기 줄 정리) -->
     <div class="prog-top"><span class="prog-now" id="pnow"></span><span id="obExitSlot"></span></div>
@@ -1083,6 +1112,8 @@ body.lsfull{overflow:hidden}
     <button class="btn btn-prev" id="prev">이전</button>
     <button class="btn btn-next" id="next">다음</button>
   </div>
+  <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
+  <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
 <script src="/assets/ritual-open.js"></script><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
@@ -1142,6 +1173,11 @@ window.mockUpload=function(k){
   inp.onchange=function(){ if(inp.files&&inp.files.length){ var f=inp.files[0]; if(f.type&&f.type.indexOf('audio')<0){ toast('음성 파일이 맞는지 확인해 주세요 · 휴대폰 녹음 파일(음성 메모)'); return; } if(f.size>30*1024*1024){ toast('파일이 너무 커요 · 30MB 이하 음성으로 올려 주세요'); return; } S.up[k]=f.name; _persist(); render(); toast('파일 이름을 적어 뒀어요 · 파일은 여기서 올라가지 않아요 · 예식 7일 전까지 카톡이나 메일로 보내 주세요'); } };
   inp.click();
 };
+/* ★[RIT_FILE_CHECK 2026-09-27 4부 12] ③ 새 코스의 녹음 칸은 파일 고르기 창을 열지 않는다 — 여기서 올라가지 않는 파일을 고르게 하면 올린 줄 안다.
+   «챙겼어요» 한 칸이면 된다(보내는 길은 위 안내 한 곳). 옛 코스 화면의 mockUpload 는 그대로다. */
+function _upChk(k,what){ var on=!!(S.up&&S.up[k]);
+  return '<label class="upchk"><input type="checkbox"'+(on?' checked':'')+' onchange="upChk(\''+k+'\',this.checked)"><span><span class="sr-only">'+esc(what)+' · </span>챙겼어요</span></label>'; }
+window.upChk=function(k,on){ if(!S.up) S.up={}; if(on) S.up[k]=true; else delete S.up[k]; _persist(); };
 function upNm(v){ return (typeof v==='string'&&v)?v:'적어 둠'; }   // [UPLOAD_HONEST] 올라간 것이 아니다
 /* ★[REHEARSE_MERGED 2026-08-12 뒷정리 2] `mode` 변수 삭제 — 값이 **하나뿐**이 됐다.
    'build' 와 'rehearse' 둘이었는데 연습 공간이 폐지되며 'rehearse' 가 사라졌다.
@@ -1151,7 +1187,7 @@ function upNm(v){ return (typeof v==='string'&&v)?v:'적어 둠'; }   // [UPLOAD
 var crsOpen='';
 window.pickCourse=function(v){ crsOpen=(crsOpen===v)?'':v; render(); };
 var _pT; function _lazyPersist(){ clearTimeout(_pT); _pT=setTimeout(function(){ if(typeof courseStarted!=='undefined'&&courseStarted&&typeof _persist==='function') _persist(); },500); }
-window.toast=function(m){ var t=document.getElementById('_toast'); if(!t){ t=document.createElement('div'); t.id='_toast'; t.style.cssText='position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12px;padding:10px 18px;border-radius:20px;z-index:99;transition:opacity .3s;max-width:88%;text-align:center;word-break:keep-all'; document.body.appendChild(t); } t.textContent=m; t.style.opacity=1; clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity=0; },2200); };
+window.toast=function(m){ var t=document.getElementById('_toast'); if(!t){ t=document.createElement('div'); t.id='_toast'; t.style.cssText='position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12.5px;padding:10px 18px;border-radius:20px;z-index:99;transition:opacity .3s;max-width:88%;text-align:center;word-break:keep-all'; document.body.appendChild(t); } t.textContent=m; t.style.opacity=1; clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity=0; },2200); };
 window.setv=function(k,val){ S[k]=val; _lazyPersist(); };
 window.settgl=function(k,cb){ S[k]=cb.checked; _lazyPersist(); render(); };
 // 단체촬영 '구도' 선택은 예식 준비(mypage · guideinfoDraft.photo)로 이관(2026-07-19) — 식순 빌더는 폐식 나레이션만 담당
@@ -1848,6 +1884,13 @@ function exBox(title,arr,guide,noHead){
   h+='<div class="ex-n">그대로 써도 좋고, 두 분 이야기로 자유롭게 바꿔도 돼요.'+(guide?'<br>잘 쓰는 공식: 구체적인 기억 하나 → 약속 → 앞으로의 우리.':'')+'</div></div>';
   return h;
 }
+/* ★[RIT_WRAP 2026-09-27 4부 22] «약 30초» · «③ 준비하기» · «예식 3일 전» · 나가기 창 «이 기기에는»이 줄 끝에서 갈렸다 —
+   그린 뒤 글 마디(텍스트 노드)만 훑어 NBSP 로 묶는다. 입력칸 · 글칸 값은 건드리지 않는다(고객이 쓴 글). 복사 · 파일 저장 글도 그대로다. */
+var _NBW=[[/약 (\d)/g,'약\u00a0$1'],[/([①②③④]) /g,'$1\u00a0'],[/예식 (\d+)일 전/g,'예식\u00a0$1일\u00a0전'],[/(\d+)일 전/g,'$1일\u00a0전'],[/(\d+)분 전/g,'$1분\u00a0전'],[/이 기기에는/g,'이\u00a0기기에는']];
+function _nbWrap(root){ if(!root||!document.createTreeWalker) return; try{
+  var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){ var p=n.parentNode&&n.parentNode.nodeName; return (p==='TEXTAREA'||p==='SCRIPT'||p==='STYLE'||p==='OPTION')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT; }}), n, L=[];
+  while((n=w.nextNode())) L.push(n);
+  L.forEach(function(t){ var v=t.nodeValue, o=v; if(!v||v.length<3) return; _NBW.forEach(function(r){ v=v.replace(r[0],r[1]); }); if(v!==o) t.nodeValue=v; }); }catch(e){} }
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 /* [ENTRY_ALT] 한 덩어리 예시문을 문장으로 나눠 누가 읽는지 붙인다.
    ★자르는 규칙은 대본 생성기(scripts/build-typecast-import.mjs 의 splitSents)와 같아야 한다 —
@@ -2314,11 +2357,13 @@ function render(){
   // [ORD_KEY] 고르면 render()가 stage를 통째로 다시 그린다 → 포커스가 body로 날아가
   //   키보드·낭독기 사용자는 '아버지가'를 고른 순간 자기 위치를 잃는다. 같은 자리로 되돌려 준다.
   var _fk=(_ae0&&_ae0.getAttribute)?_ae0.getAttribute('data-fk'):null;
-  el.innerHTML=h;
+  el.innerHTML=h; _nbWrap(el);   // [RIT_WRAP]
+  try{ [].forEach.call(el.querySelectorAll('.ta.grow'),_taGrow); }catch(e){}   // [RIT_VOW_GROW] 적어 둔 글이 있으면 그 높이로
   /* ★[PICK_V2] ① 은 제 배치를 쓴다(PC 이야기판 · 아래 막대 흐림) — 수정하러 온 길(editReturn)에는 아래 단추(취소 · 저장)를 남긴다 */
   var _pk=(st.k==='pick'&&isOpen()); document.body.classList.toggle('pk2',_pk); document.body.classList.toggle('pk2e',_pk&&!!editReturn);
   if(_pk) try{ _pickPaint(); }catch(e){} else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
   _paintCta(st.k);
+  try{ var _rl=document.getElementById('opResetLow'); if(_rl) _rl.hidden=!(isOpen()&&st.k==='done'&&courseStarted&&!editReturn); }catch(e){}   // [RIT_RESTART_LOW]
   try{ _opPad(); }catch(e){}   // [DETAIL_0925 C4]
   try{ _edFocusApply(); }catch(e){}   // [EDIT_OPEN]
   /* ★[A11Y_LIVE 2026-09-25 코워크 추가전달 3장] 상태 알림(② 한 줄 · 알림 글)은 누를 때마다 새 노드라 화면 읽기가 놓쳤다 —
@@ -2359,7 +2404,7 @@ function render(){
       :_doneSaved?(EMBED?'마이페이지로 나가기':'저장됨 · 예식 14일 전까지 고쳐요')   /* [P12] 고객 화면 마감 말은 «예식 N일 전» 꼴로 */
       :_saveErr?'다시 저장하기':'이대로 저장하기')
     : '다음';
-  var _nxHtml=editReturn?'저장 · 요약으로':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(st.k==='pick'&&isOpen())?'다음 · 보고 듣기':(st.k==='listen')?'다음 · 준비하기':(idx===STEPS.length-2)?'완성 보기':_lastN;
+  var _nxHtml=editReturn?'요약으로 돌아가기':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(st.k==='pick'&&isOpen())?'다음 · 보고 듣기':(st.k==='listen')?'다음 · 준비하기':(idx===STEPS.length-2)?'완성 보기':_lastN;
   nx.innerHTML=_nxHtml;
   nx.classList.toggle('seal', isOpen()&&st.k==='done'&&!editReturn&&!_doneSaved&&!_saving);   // ★[SEAL_POINTS 2026-09-26 사장님] ④ «이대로 저장하기»(확정 단추 · 화면에 하나)만 진사 채움 — 저장 중 · 저장된 뒤 · 수정 중은 종전 색
   /* [ORD_SAVE_STATE] '저장 중'은 disabled 가 아니라 busy 다.
@@ -2457,7 +2502,7 @@ function _paintCta(k){
   /* ★[RIT_BAR_ONELINE 2026-09-27 4부 3] 알림 글은 흐름 판에만 — 막대에는 «살펴볼 것 N ›» 한 마디(누르면 판의 알림으로).
      알림 첫 문장을 막대에 실으면 막대가 두세 줄(154px)로 커졌다. 막대 높이는 늘 한 줄. */
   if(n&&nt) h+='<button type="button" class="cta-al" data-fk="opnal" onclick="opToNote()">살펴볼 것 '+_noteCount()+' ›</button>';
-  c.innerHTML=h;
+  c.innerHTML=h; _nbWrap(c);   // [RIT_WRAP]
   if(_ctaKey&&key&&key!==_ctaKey){ c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); }
   _ctaKey=key;
   try{ _pkUndoPos(); }catch(e){}   // [UNDO_ABOVE_BAR] 막대 높이가 바뀌면 알림도 따라 선다
@@ -2749,7 +2794,7 @@ function diag(k){
     +'</svg>';
   }
   if(!svg) return '';
-  return '<div class="mclip">'+svg+'<div class="m-cap" style="font-size:10px;color:var(--light)">연출 미리보기 · 실제 예식 촬영 컷이 준비되는 대로 이 자리에 담겨요</div></div>';
+  return '<div class="mclip">'+svg+'<div class="m-cap" style="font-size:11px;color:var(--light)">연출 미리보기 · 실제 예식 촬영 컷이 준비되는 대로 이 자리에 담겨요</div></div>';
 }
 
 var TUNE={
@@ -3111,7 +3156,7 @@ function renderListen(){
   if(!ENG){ engine().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   var h='<div class="op ls'+(_lAnyVid()?'':' nv')+'">';   // [RIT_NO_EMPTY_THUMB] 장면 영상이 없으면 줄의 회색 ▶ 칸을 숨긴다
-  /* ★[RIT_FIRST_VISIBLE 2026-09-27 4부 7] «← 고르기로»를 뺐다 — 탭 «① 고르기»와 아래 «이전»이 같은 일을 한다. 첫 순간이 첫 화면 안에 들어온다(종전 y≈521).
+  /* ★[RIT_FIRST_VISIBLE 2026-09-27 4부 7 · 옛 [EDIT_OPEN] 단추 자리] «← 고르기로»를 뺐다 — 탭 «① 고르기»와 아래 «이전»이 같은 일을 한다. 첫 순간이 첫 화면 안에 들어온다(종전 y≈521).
      되살리지 말 것 · 고르기로 가는 길은 걸음 표시(_opSteps)와 «이전» 둘이다. */
   /* ★[G2 2026-09-26 코워크 최종판 5-1] 두 시간 사이에 작은 감동 흐름선(64×18) — 판을 바꾸면(예: 인사 «1분쯤씩» → «말 없이») 가장 벅찬 순간이 바뀌는 게 바로 보이게.
      좁은 화면(375 아래)에서 한 줄에 안 들어가면 흐름선을 뺀다(시간 둘이 먼저). 그림은 ① 과 같은 함수(RitualOpen.flowSVG). */
@@ -3124,7 +3169,7 @@ function renderListen(){
   h+='<button type="button" class="ls-hero" data-fk="lsall" aria-label="처음부터 보고 듣기'+(len?' · 약 '+Math.max(1,Math.round(len/60))+'분':'')+'" onclick="lsPlayAll()">'+(_lAnyVid()?_lVid('entry',{art:false,cap:'우리 예식, 처음부터'}):'')
     +'<span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 보고 듣기</b></span>'
     +'<span class="ls-len">'+(len?('다 보는 데 약 '+Math.max(1,Math.round(len/60))+'분 · 말하는 자리는 짧게 넘겨요'):'')+'</span></button>';
-  if(LS.allPend) h+='<p class="ls-note ls-allpend">새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요</p>';
+  if(LS.allPend) h+='<p class="ls-note ls-allpend">'+esc(REC_PEND)+'</p>';   // [RIT_NAME_TWO] «녹음 전» 안내는 한 문장
   h+='<p class="ls-peak">'+(peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> 표시는 이 예식에서 가장 벅찬 순간이에요.':esc(PEAK_NONE))+'</p>';   // [DETAIL_0925 B13]
   h+='<div class="ls-rows">';
   /* ★[RIT_UNDO_INPLACE 2026-09-27 4부 10] «이 순간 빼기»의 되돌리기는 뺀 그 자리에 한 줄 — 종전엔 목록 맨 아래(.ls-msg)에 떠서 찾으러 내려가야 했다 */
@@ -3373,7 +3418,7 @@ function _lFull(){
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
     h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(st.k))+'</h3>';
-    h+='<div class="lf-lab">'+esc(st.lab)+(st.pending?' · <span class="ls-new">녹음 전이라 글로 보여 드려요</span>':'')+'</div>';   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
+    h+='<div class="lf-lab">'+esc(st.lab)+(st.pending?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</div>';   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     h+='<p class="lf-txt'+(st.talk||st.skip?' talk':'')+'">'+esc(st.txt||'')+'</p>';
     if(!LP.noChips && (R.onOf(S,st.k)||st.k==='guest')){ var gs=_lGroups(st.k); if(gs.length) h+='<div class="lf-vars">'+_lGroupsHtml(st.k,gs).replace(/data-fk="lsc:/g,'data-fk="lfc:')+'</div>'; }
   } else if(LP.ended){
@@ -3392,7 +3437,7 @@ function _lFull(){
     +'<button type="button" class="big" data-fk="lftog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
     +(single?'':'<button type="button" data-fk="lfnext" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>')+'</div>';
   h+='</div>';
-  f.innerHTML=h; f.hidden=false; document.body.classList.add('lsfull');
+  f.innerHTML=h; _nbWrap(f); f.hidden=false; document.body.classList.add('lsfull');   // [RIT_WRAP]
   ['.wrap','#nav','#meAdvStack'].forEach(function(q){ var w=document.querySelector(q); if(w) w.setAttribute('inert',''); });   // [DETAIL_0925 C3] 뒤를 잠근다 · [A11Y_0925 3장] 상담 말풍선은 .wrap 밖이라 포커스가 샜다(RAIL 은 그대로 · 잠깐 잠글 뿐)
   var v=f.querySelector('video'); if(v){ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(!rm&&!LP.paused&&st){ var pp=v.play(); if(pp&&pp['catch']) pp['catch'](function(){}); } }
   // 포커스 — 같은 자리로 · 칩에 있다가 순간이 바뀌어 칩이 사라지면 ❚❚ 로
@@ -3450,7 +3495,7 @@ function _opPad(){
    그래서 단추 · 상태 글을 사실대로 쓰고, 보낼 길(카톡 채널 · 메일)을 칸 안에 늘 보이게 둔다. 채널 주소는 상담 창과 같은 곳(advisor-kb). */
 var SEND_KAKAO='https://pf.kakao.com/_CfxcxlX/chat', SEND_MAIL='contact@momentedit.kr';
 function _sendHow(what,due){
-  return '<div class="send-how"><p>'+esc(what)+' · 파일은 여기서 올라가지 않아요. 예식 '+(due||7)+'일 전까지 카톡이나 메일로 보내 주세요.</p>'
+  return '<div class="send-how"><p>'+esc(what)+' · 파일은 여기서 올라가지 않아요. '+(due===0?'':'예식 '+(due||7)+'일 전까지 ')+'카톡이나 메일로 보내 주세요.</p>'
     +'<span class="send-b"><a class="rowbtn" href="'+SEND_KAKAO+'" target="_blank" rel="noopener">카톡으로 보내기</a>'
     +'<a class="rowbtn" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] '+what)+'">메일로 보내기</a></span>'
     +'<p class="send-mail">메일 주소 · <span class="send-addr">'+esc(SEND_MAIL)+'</span></p>'
@@ -3481,9 +3526,8 @@ function _openWrite(){
   var trib=R.onOf(S,'tribute') && R.chipOf('tribute',S)!=='none';
   if(witems.length||wrest.length||trib){
     h+='<div class="wr-sec"><div class="wr-sub">쓸 글</div>';
-    if(witems.length){ var wd=witems.filter(function(x){ return _wcFilled(x); }).length;
-      h+='<div class="write-check"><b id="wcCount" data-pre="여기에 적는 글 ">여기에 적는 글 '+witems.length+'개 중 '+wd+'개 적었어요.</b></div>';   // [WR_COUNT 3-4(b) · P12] 목록은 셋인데 셈은 칸 있는 것만 — 무엇을 세는지 말한다 · 마감 말은 머리 한 줄로
-      witems.forEach(function(x){ h+=writeCard(x,true); }); }
+    /* ★[RIT_PREP_ONECOUNT 2026-09-27 4부 13] 셈은 머리의 «두 분이 준비할 것 N가지» 하나 — «여기에 적는 글 N개 중 M개»·«부모님께 부탁드릴 것 · N가지»를 뺐다(한 화면에 셈 넷) */
+    if(witems.length){ witems.forEach(function(x){ h+=writeCard(x,true); }); }
     if(wrest.length) h+='<ul class="wr-list">'+wrest.map(li).join('')+'</ul>';
     if(trib) h+=writeCard('tribute',false);
     h+='</div>';
@@ -3500,7 +3544,8 @@ function _openWrite(){
      덩어리 안에 두고, «알려 주기» 줄(축배 음료 · 건넬 것)은 그 뒤. */
   var sendFile=send.filter(function(q){ return q.k==='free' && q.due===3; }), sendRest=send.filter(function(q){ return !(q.k==='free' && q.due===3); });
   if(sendFile.length) h+='<ul class="wr-list" style="margin-top:10px">'+sendFile.map(li).join('')+'</ul>';
-  h+=_sendHow('식전 영상 사진'+(sendFile.length?' · 준비한 순서 파일':''),3);
+  var _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');   // [RIT_FILE_CHECK] 보낼 것이 여럿이면 마감은 줄마다(한 문장에 3일 · 7일을 섞지 않는다)
+  h+=_sendHow('식전 영상 사진'+(sendFile.length?' · 준비한 순서 파일':'')+(_voice?' · 두 분 목소리 녹음 파일':''),_voice?0:3);
   if(sendRest.length) h+='<ul class="wr-list" style="margin-top:12px">'+sendRest.map(li).join('')+'</ul>';
   if(S.guestVoice==='couple'||S.entryVoice==='couple'){
     h+='<div class="wr-sub" style="margin-top:16px">두 분 목소리 녹음 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div><div class="mth-how">대본은 <b>참고용</b>이에요 · 두 분 말로 바꿔 조용한 곳에서 한 번에 녹음해 카톡이나 메일로 보내 주세요(휴대폰 음성 메모로 충분해요).</div>'   /* [REC_SEND_WORD 코워크 추가 점검 P2-7] 새 코스 ③ 에는 올리는 칸이 없다 — 보내는 길(카톡 · 메일)로 */
@@ -3509,22 +3554,22 @@ function _openWrite(){
       h+='<div class="wr-sub">하객 맞이 안내 <button class="copy-btn2" onclick="copyGuestScript()">대본 복사</button></div>';
       GUEST.forEach(function(g,i){
         h+='<div class="gt"><div class="gt-t">'+esc(_lLabFix(g[0]))+' <span class="gt-tag">참고 예시</span></div><div class="gt-x">'+esc(g[2])+'</div>';
-        h+='<div class="uprow">'+(S.up['g'+i]?'<span class="upst done">✓ 적어 둔 파일 · '+esc(upNm(S.up['g'+i]))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" aria-label="'+esc(g[0])+' 파일 바꾸기" onclick="mockUpload(\'g'+i+'\')">바꾸기</button>':'<button class="rowbtn up" aria-label="'+esc(g[0])+' 보낼 파일 이름 적어 두기" onclick="mockUpload(\'g'+i+'\')">'+ICO_UP+'보낼 파일 이름 적어 두기</button>')+'</div></div>';
+        h+='<div class="uprow">'+_upChk('g'+i,_lLabFix(g[0])+' 녹음')+'</div></div>';   // [RIT_FILE_CHECK]
       });
     }
     if(S.entryVoice==='couple'){
       h+='<div class="wr-sub">입장 인사 · '+esc(ENTRY[S.entry].d)+'</div>';
       var eb=''; entryAlt(ENTRY[S.entry].self).forEach(function(x){ eb+='<div class="alt"><span class="altw">'+esc(x[0])+'</span><span>'+esc(x[1])+'</span></div>'; });
-      h+='<div class="oc on" style="cursor:default"><div class="nar"><span class="lb">두 분이 녹음하실 글(예시) · 한 문장씩 번갈아</span>'+eb+'</div></div>';
-      h+='<div class="uprow">'+(S.up.entry?'<span class="upst done">✓ 적어 둔 파일 · '+esc(upNm(S.up.entry))+'</span><button class="rowbtn" style="padding:9px 12px;font-size:11px" onclick="mockUpload(\'entry\')">바꾸기</button>':'<span class="upl-r"><button class="rowbtn up" onclick="mockUpload(\'entry\')">'+ICO_UP+'보낼 파일 이름 적어 두기</button><span class="upst">휴대폰 녹음 파일(음성 메모)</span></span>')+'</div>';
+      h+='<div class="ex-card"><div class="nar"><span class="lb">두 분이 녹음하실 글(예시) · 한 문장씩 번갈아</span>'+eb+'</div></div>';   /* ★[RIT_EXAMPLE_CARD 2026-09-27 4부 15] .oc.on(베이지 채움 + 금테 = 골랐다는 뜻)을 빌려 쓰지 않는다 */
+      h+='<div class="uprow">'+_upChk('entry','입장 인사 녹음')+'</div>';   // [RIT_FILE_CHECK]
     }
-    h+=_sendHow('두 분 목소리 녹음 파일');   // [UPLOAD_HONEST 2-4]
+    /* [RIT_FILE_CHECK · UPLOAD_HONEST 2-4] 보내는 길(카톡 · 메일)은 화면에 한 번 — 위 식전 영상 덩어리의 안내가 녹음 파일까지 함께 말한다 */
   }
   h+='</div>';
   var bring=two.filter(function(q){ return q.cat==='bring'; }), ask=two.filter(function(q){ return q.cat==='ask'; });
   if(bring.length) h+='<div class="wr-sec"><div class="wr-sub">챙길 것</div><ul class="wr-list">'+bring.map(li).join('')+'</ul></div>';
   if(ask.length) h+='<div class="wr-sec"><div class="wr-sub">부탁드릴 것</div><ul class="wr-list">'+ask.map(li).join('')+'</ul></div>';
-  if(par.length) h+='<h3 class="sec-l wr-top">부모님께 부탁드릴 것 · '+par.length+'가지</h3><ul class="wr-list">'+par.map(li).join('')+'</ul>';
+  if(par.length) h+='<h3 class="sec-l wr-top">부모님께 부탁드릴 것</h3><ul class="wr-list">'+par.map(li).join('')+'</ul>';
   var stu=_studioList(); if(stu.length) h+='<h3 class="sec-l wr-top">저희가 준비해요</h3><ul class="wr-list"><li>'+esc(stu.join(' · '))+' <span class="wr-due">· '+esc(R.GOODS_COST)+'</span></li></ul>';   // [GOODS_CHOICE] 맡긴 것만 · 별도 비용(포함처럼 읽히던 STUDIO_PREP 줄 대신)
   var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});
   h+='<h3 class="sec-l wr-top">도와주실 분</h3><ul class="wr-list">'+hp.map(function(x){ return '<li>'+esc(x[0])+' <span class="wr-due">· '+esc(x[1])+'</span></li>'; }).join('')+'</ul>';
@@ -3534,6 +3579,8 @@ function _openWrite(){
    휴대폰: 걸음 → 머리 → 예시 넷 → 감동 흐름 판 → 순간 칸(네 막) → 아래 막대 · PC(폭 1000 이상): 예시 가로 넷 · 흐름 띠 · 막마다 한 줄 · 얇은 띠.
    ★그림은 원천 한 함수(RitualOpen.flowSVG)가 그린다 — 칸을 그린 뒤 _pickPaint 가 실제 폭을 재서 채운다. */
 var NBS='\u00a0';
+/* ★[RIT_NAME_TWO 2026-09-27 4부 25] «녹음 전» 안내 문장은 하나 — ② 머리 · 크게 보기 · ① 미리 보기 창이 네 가지로 말했다(줄 꼬리표 «아직 녹음 전»은 꼬리표라 그대로) */
+var REC_PEND='녹음 전이라 글로 먼저 보여 드려요';
 function _nb(t){ return String(t||'').replace(/약 /g,'약'+NBS).replace(/단체 사진/g,'단체'+NBS+'사진'); }   // [D5 · 3-9] «약 N~M분» · «단체 사진»이 두 줄로 갈리지 않게
 function _nd(t){ return String(t||'').replace(/ · /g,' ·'+NBS); }
 function _ndd(t){ return String(t||'').replace(/ · /g,NBS+'·'+NBS); }   // [PREP_NO_DANGLE] 점이 줄 끝에도 줄 머리에도 안 서게 — 덩어리가 짧은 줄에만(칸 글처럼 좁은 곳엔 쓰지 않는다)   // [CHECKS_NO_DANGLE · 3-9] 가운뎃점은 뒤 말에 붙인다 — 줄 끝에 매달리지 않게
@@ -3747,7 +3794,7 @@ function _pvDraw(){
   }
   var t=ln?ln.text:'';
   el.querySelector('#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):'';
-  el.querySelector('#pvSt').textContent=(ln&&!ln.src)?'아직 녹음 전이라 글로 보여 드려요':'';
+  el.querySelector('#pvSt').textContent=(ln&&!ln.src)?REC_PEND:'';
   el.querySelector('#pvOne').textContent=c.one;
   var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=ch?('② 보고 듣기에서 고를 것 · '+ch):''; ce.hidden=!ch;   /* [F2] ② 묶음 이름과 같은 말(G3) */
   el.querySelector('#pvShot').innerHTML='<b>남는 사진</b> · '+esc(R.shotOf(k,S)||c.shot||'');
@@ -3780,7 +3827,7 @@ window._pvPlay=function(){
     (function tick(){ if(tok!==PV.tok) return; var f=(Date.now()-t0)/ms; if(f>=1){ done(); return; } _pvBar(f); PV.raf=requestAnimationFrame(tick); })(); }
   if(!ln.src){ asText(); return; }
   var a=_pvAud(); a.volume=1; a.src=ln.src; PV.stopMs=ln.stopMs||0;
-  a.onended=done; a.onerror=function(){ if(tok===PV.tok){ ln.src=''; _pvActs(ln); document.getElementById('pvSt').textContent='아직 녹음 전이라 글로 보여 드려요'; asText(); } };
+  a.onended=done; a.onerror=function(){ if(tok===PV.tok){ ln.src=''; _pvActs(ln); document.getElementById('pvSt').textContent=REC_PEND; asText(); } };
   var p=a.play(); if(p&&p['catch']) p['catch'](function(){ if(tok===PV.tok) asText(); });
   (function tick(){ if(tok!==PV.tok) return;
     var tm=a.currentTime*1000, d=PV.stopMs||((a.duration||0)*1000)||1;
@@ -3949,7 +3996,7 @@ function renderStep(k){
         if(_why) h+='<div class="mc-desc" style="color:var(--gold-deeper)">'+esc(_why)+'</div>';
         // 장면과 듣기를 한 프레임으로 — 재생 바가 장면 박스 하단에 붙어 미디어 한 덩어리로 읽히게(2026-07-17 사용자 요청)
         h+='<div class="mc-media">'
-          +(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>')
+          +(clip(x)||diag(x)||'<div class="mclip"><div style="padding:26px 12px;text-align:center;color:var(--light);font-size:12.5px;line-height:1.7">이 순간의 장면 영상이 준비되고 있어요</div></div>')
           +'<button type="button" class="rowbtn mc-play" data-mp="'+x+'" aria-label="'+esc(t.n)+' 들어보기" onclick="momPlay(this,\''+x+'\')">'+ICO_PLAY+'이 순간 들어보기</button>'
           +'</div>';
         // 넣기/빼기 버튼은 카드 레벨(.mc-act)로 이동 — 확장 안 중복 제거(2026-07-16)
@@ -4324,24 +4371,24 @@ function renderStep(k){
 function writeCard(kind, showStatus){
   var st=showStatus?wcStat(kind):'';
   if(kind==='welcome'){
-    return '<div class="wcard">'+st+'<div class="wn">첫인사</div><div class="wd">하객분들께 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta" maxlength="4000" aria-label="첫인사" oninput="setv(\'welcomeText\',this.value);wcSync(this,\'welcome\')" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','첫인사 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
+    return '<div class="wcard">'+st+'<div class="wn">첫인사</div><div class="wd">하객분들께 건넬 짧은 첫인사 · 한두 문장이면 충분해요.</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="첫인사" oninput="setv(\'welcomeText\',this.value);wcSync(this,\'welcome\');_taGrow(this)" placeholder="예: 바쁘신 중에 함께해 주셔서 감사합니다.">'+esc(S.welcomeText)+'</textarea>'+'<div style="margin-top:12px">'+fold('welEx','첫인사 예시 보기',exBox('이렇게 인사해도 좋아요 · 예시',EXWEL,false,true))+'</div></div>';
   }
   if(kind==='vow'){
-    return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">두 분이 함께 쓰는 글 · 한 분 300자쯤(모두 600자쯤)</div><textarea class="ta" maxlength="4000" aria-label="서로에게 하는 약속(서약문)" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\')" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
-      +'<div class="lenhint">'+wcCntSpan('vowCnt',S.vowText)+'두 분이 합쳐 2분 안팎이에요.</div>'
+    return '<div class="wcard">'+st+'<div class="wn">서약문</div><div class="wd">두 분이 함께 쓰는 글 · 한 분 300자쯤(모두 600자쯤)</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="서로에게 하는 약속(서약문)" aria-describedby="vowCntOv" oninput="setv(\'vowText\',this.value);wcCnt(this,\'vowCnt\');wcSync(this,\'vow\');_taGrow(this)" placeholder="서로에게 쓴 약속을 적어보세요">'+esc(S.vowText)+'</textarea>'
+      +'<div class="lenhint">'+wcCntSpan('vowCnt',S.vowText)+'두 분이 합쳐 2분 안팎이에요.</div>'+_wcOv('vowCnt',S.vowText)
       +'<div class="prep-hint">적어 주신 서약문은 당일 카드로 인쇄해 드려요.</div>'
       +'<div class="prep-hint">서로 한 줄씩 번갈아 읽고, 마지막 한 문장은 하객분들 쪽으로 돌아서서 함께 읽어요. "'+esc(VOWBOTH_T)+'" · 이 문장은 저희가 준비해 둬요.</div>'
       +'<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
   }
   if(kind==='tribute'){   // [TRIB_CARD_OPT] 선택 칸 · 길이는 칩(한마디씩 / 1분쯤씩)을 따른다
     var lg=RitualOpen.chipOf('tribute',S)==='long';
-    return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'한 분 400자 안팎':'한 분 한두 문장')+' · 적어 두시면 카드로 인쇄해 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta" maxlength="4000" aria-label="부모님께 드릴 말" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\')" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
-      +'<div class="lenhint">'+wcCntSpan('tribCnt',S.tributeText)+'</div>'
+    return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'한 분 400자 안팎':'한 분 한두 문장')+' · 적어 두시면 카드로 인쇄해 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="부모님께 드릴 말" aria-describedby="tribCntOv" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\');_taGrow(this)" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
+      +'<div class="lenhint">'+wcCntSpan('tribCnt',S.tributeText)+'</div>'+_wcOv('tribCnt',S.tributeText)
       +'<div class="prep-hint">이렇게 쓰면 쉬워요 · 부모님이 해 주신 일 한 장면 → 그때 내 마음 → 앞으로 한 줄</div></div>';   /* [WRITE_FRAME] */
   }
   if(kind==='letter'){
-    return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">한 분 400자쯤 · 한 분 1분 남짓</div><textarea class="ta" maxlength="4000" aria-label="부모님께 드리는 편지" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\')" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
-      +'<div class="lenhint">'+wcCntSpan('letterCnt',S.letterText)+'두 분 것을 한 칸에 적으면 모두 800자쯤이에요.</div>'
+    return '<div class="wcard">'+st+'<div class="wn">편지</div><div class="wd">한 분 400자쯤 · 한 분 1분 남짓</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="부모님께 드리는 편지" aria-describedby="letterCntOv" oninput="setv(\'letterText\',this.value);wcCnt(this,\'letterCnt\');wcSync(this,\'letter\');_taGrow(this)" placeholder="전하고 싶은 마음을 적어보세요">'+esc(S.letterText)+'</textarea>'
+      +'<div class="lenhint">'+wcCntSpan('letterCnt',S.letterText)+'두 분 것을 한 칸에 적으면 모두 800자쯤이에요.</div>'+_wcOv('letterCnt',S.letterText)
       +'<div class="prep-hint">이렇게 쓰면 쉬워요 · 상대가 해 준 일 한 장면 → 그때 내 마음 → 앞으로의 약속 한 줄</div>'   /* ★[WRITE_FRAME 2026-09-26 코워크 회신5 4-4 · 연구 B03] 장면 · 상대의 행동을 짚는 글이 몰입과 가까움을 키운다 */
       +'<div style="margin-top:12px">'+fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true))+'</div></div>';
   }
@@ -4355,7 +4402,11 @@ function _wcLen(n){ return n?(n+'자 · 약 '+Math.max(1,Math.round(n/300))+'분
 var WC_LIM={vowCnt:720, letterCnt:960, welCnt:360, tribCnt:960};   // [TRIB_CARD_OPT] 1분쯤씩 두 분 = 800자쯤
 function _wcLim(id){ return WC_LIM[id]||360; }
 function wcCntSpan(id,v){ var n=(v||'').length, col=n?(n>_wcLim(id)?';color:var(--seal)':';color:var(--gold-deeper)'):''; return '<span id="'+id+'" style="font-weight:600'+col+'">'+_wcLen(n)+'</span>'; }   // 저장분 다시 열 때도 자·분 즉시 표시
-function wcCnt(t,id){ var c=document.getElementById(id); if(c){ c.textContent=_wcLen(t.value.length); c.style.color=t.value.length>_wcLim(id)?'var(--seal)':'var(--gold-deeper)'; } }
+function wcCnt(t,id){ var c=document.getElementById(id); if(c){ c.textContent=_wcLen(t.value.length); c.style.color=t.value.length>_wcLim(id)?'var(--seal)':'var(--gold-deeper)'; }
+  var o=document.getElementById(id+'Ov'); if(o) o.hidden=!(t.value.length>_wcLim(id)); }   // [RIT_VOW_GROW] 숫자만 빨개지던 것 — 칸 아래 한 줄
+/* ★[RIT_VOW_GROW 2026-09-27 4부 14] 권장 길이를 넘으면 칸 아래 한 줄(종전엔 숫자만 빨개졌다) · 글칸은 처음 4줄 · 쓰는 만큼 늘어난다 */
+function _wcOv(id,v){ return '<p class="lenover" id="'+id+'Ov"'+((v||'').length>_wcLim(id)?'':' hidden')+'>권장 길이를 넘었어요 · 줄이면 읽기 편해요</p>'; }
+function _taGrow(t){ if(!t||!t.style) return; t.style.height='auto'; t.style.height=Math.max(t.scrollHeight+2,0)+'px'; }
 function wcSync(t,kind){
   var s=document.querySelector('.wc-stat[data-wc="'+kind+'"]'); if(s){ var f=!!t.value.trim(); s.className='wc-stat'+(f?' on':''); s.textContent=f?'✓ 적었어요':'아직 안 적었어요'; }
   var cnt=document.getElementById('wcCount'); if(cnt){ cnt.textContent=(cnt.getAttribute('data-pre')||'')+document.querySelectorAll('.wc-stat').length+'개 중 '+document.querySelectorAll('.wc-stat.on').length+'개 적었어요.'; }   // 상단 요약 숫자도 실시간 동기화
@@ -4628,10 +4679,13 @@ function inSeq(k){ return curSeq().indexOf(k)>-1; }
    ★되살리지 말 것 — 되살리려면 사이 순서부터 되돌려야 하고 그건 사용자 지시에 반한다. */
 /* [OPEN_COURSE] 완성 화면 · 대본 머리 · 파일 이름에 쓰는 «무엇을 만들었나» 한 줄.
    새 코스는 코스 이름이 없다 — «순간 n개 · 본식 약 a~b분»(명세 8장 · 마이페이지 요약과 같은 말). 옛 코스는 종전 그대로. */
+/* ★[RIT_DONE_TITLE 2026-09-27 4부 16] «담은 순간 N»은 ④ 아래 요약 줄 수와 같은 셈(식전 두 줄 · 닫는 인사까지 _lRows) — 종전엔 고른 것만 세어 8, 요약은 12줄이었다.
+   마이페이지 «담은 순간 N»(summary.moments)도 같은 셈으로 싣는다. */
+function _opMoments(){ try{ return _lRows().length; }catch(e){ return RitualOpen.picked(S).length; } }
 function headLine(bsLen){
   /* ★[I1_HEAD 2026-09-26 코워크 최종판 5-3] «담은 순간 N · 본식 약 a~b분 · 단체 사진 약 c~d분» — ① 아래 막대(본식 · 단체 사진)와 같은 두 시간 ·
      «고른»은 «담은»으로(① 의 말) · 마이페이지 식순 요약도 같은 말(summary.photo) */
-  if(isOpen()){ var _hs=RitualOpen.span(S); return '담은 순간 '+RitualOpen.picked(S).length+' · 본식 '+_hs.body+' · 단체 사진 '+_hs.photo; }   // [DONE_UNIFY 3-1]
+  if(isOpen()){ var _hs=RitualOpen.span(S); return '담은 순간 '+_opMoments()+' · 본식 '+_hs.body+' · 단체 사진 '+_hs.photo; }   // [DONE_UNIFY 3-1] · [RIT_DONE_TITLE] 셈 = ④ 요약 줄 수
   return COURSES[S.course].nm+' 코스 · '+bsLen+'개 순서 · '+estMin();
 }
 function estMin(){
@@ -4689,7 +4743,7 @@ function _doneOpen(){
   if(par.length) h+='<div class="pr-g">부모님께 부탁드릴 것</div>'+grp(par);
   var stu=_studioList(); if(stu.length) h+='<div class="pr-g">저희가 준비해요</div><div class="pr"><span>'+esc(_ndd(stu.join(' · ')+' · '+RitualOpen.GOODS_COST))+'</span></div>';   // [GOODS_CHOICE]
   h+='</div><button type="button" class="ls-back" data-fk="done2write" onclick="opGoStep(\'write\')">③ 준비하기에서 보기</button>';
-  h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry">';
+  h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry op">';   /* ★[RIT_SUMMARY_STACK 2026-09-27 4부 17] 390 에서 4칸이 비좁아 값이 2~3줄로 부서졌다 — 순번 · 이름 / 아래에 값 · «변경»은 글 단추 */
   _lRows().forEach(function(k){
     var no=_lNo(k), empty=(k==='vow'&&!_wcFilled('vow'))||(k==='letter'&&!_wcFilled('letter'))||(k==='welcome'&&S.welcome==='self'&&!_wcFilled('welcome'));
     h+='<div class="sumrow">'+(no==='식전'?'<div class="sr-n sr-pre">식전</div>':'<div class="sr-n">'+esc(no)+'</div>')
@@ -4711,15 +4765,14 @@ function scriptTextOpen(){
       if(x.skip) lines.push('('+x.txt.replace(/ · 여기서는 넘겨요$/,'')+')');
       else if(x.quiet) lines.push('('+x.txt+')');   // [G5] 말 없는 사람 순간
       else if(x.talk) lines.push('직접: '+x.txt.replace(/^여기서 /,''));
-      else if(x.own) lines.push('두 분 녹음('+x.lab.replace(/^두 분이 녹음하실 글\(예시\) · ?/,'')+'): '+x.txt);
+      else if(x.own){ var _ol=String(x.lab||'').replace(/^두 분이 녹음하실 글\(예시\)( · )?/,'').trim(); lines.push('두 분 녹음'+(_ol?'('+_ol+')':'')+': '+x.txt); }   // [RIT_NO_CUE_COPY] 안쪽 표지 «두 분이 녹음하실 글(예시)»는 뺀다(시각 이름표만 남긴다)
       else lines.push('나레이션('+(x.slab||x.lab)+'): '+x.txt);   // [SCRIPT_LAB]
     });
     if(k==='welcome' && S.welcomeText) lines.push('첫인사(두 분 작성):\n'+S.welcomeText);
     if(k==='vow') lines.push(S.vowText?('서약문(두 분 작성):\n'+S.vowText):'(서약문 미입력 · 예식 7일 전까지 적으면 여기 담겨요)');   // [P12]
     if(k==='letter') lines.push(S.letterText?('편지(두 분 작성):\n'+S.letterText):'(편지 미입력 · 적으면 여기 담겨요)');
     if(k==='tribute' && S.tributeText) lines.push('부모님께 드릴 말(두 분 작성 · 카드로 인쇄):\n'+S.tributeText);   // [TRIB_CARD_OPT] 선택 — 비었으면 당일 직접
-    var seen={}; r.cues.filter(function(c){ var row=(c.k==='guest'&&/1min/.test(c.slug||''))?'prevideo':c.k; return row===k && c.live && c.live.t; })
-      .forEach(function(c){ if(seen[c.live.t]) return; seen[c.live.t]=1; lines.push('큐: '+c.live.t); });
+    /* ★[RIT_NO_CUE_COPY 2026-09-27 4부 20] 복사 · 파일 저장은 고객용이다 — «큐:»(현장 진행 지시) 줄을 싣지 않는다. 스태프 콘솔 · 엔진의 큐는 그대로다. */
     lines.push('');
   });
   return lines.join('\n');
@@ -4792,7 +4845,9 @@ function renderDone(){
   var bs=fullBlocks();
   // RESTORE_HONEST_HEAD(2026-07-25 사용자 발견): 저장 전 초안을 '이어서' 복원해 이 화면으로 착지할 때 헤드라인이 '완성됐어요'라 첫인상이 모순(글 비어 있음 배지와 충돌 · 처음 온 것처럼 느껴짐). 복원 상태는 '불러왔어요' 헤드로 정직하게 — 같은 말이던 배너는 헤드로 승격·제거. 방금 완주(비복원)·저장 후는 종전 그대로.
   var _resumeHead=_restored&&!_doneSaved;
-  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+(_resumeHead?'만들던 식순을 불러왔어요':'두 분의 예식이 완성됐어요')+'</h2><div class="s">'+esc(headLine(bs.length))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
+  /* ★[RIT_DONE_TITLE 4부 16] 저장 전에 «완성됐어요»라고 하지 않는다 — 저장 전 «이대로 저장하면 완성돼요» · 저장 뒤 «두 분의 예식이 완성됐어요» */
+  var _doneT=_resumeHead?'만들던 식순을 불러왔어요':(isOpen()&&!_doneSaved)?'이대로 저장하면 완성돼요':'두 분의 예식이 완성됐어요';
+  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+_doneT+'</h2><div class="s">'+esc(headLine(bs.length))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
   /* ★[I2_DONE_FLOW · I3_EDIT_WINDOW 2026-09-26 코워크 최종판 5-3] 머리 아래 — 감동 흐름 그림(① 과 같은 함수 · ★ 이름 · 넓은 화면은 순간 이름까지)
      + «순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.» 그림은 그린 뒤 실제 폭으로 채운다(_donePaint). */
   if(isOpen()&&RitualOpen.picked(S).length)
@@ -4899,7 +4954,8 @@ function renderDone(){
      지금은 그 자리에 진짜 손잡이가 있다 — 다듬기 목록의 「자유 한 칸」이 무엇이든 담는 칸이고,
      [ORD_ADD_ALL] 로 더할 수 있는 순간이 전부 목록에 서 있다. 손잡이가 있는데 문의 창구를
      따로 두면 고객은 못 하는 일이라고 읽는다. */
-  h+='<div class="done-acts">'   // [ORD_KEY] data-fk 유지 — 다시 그린 뒤에도 눌렀던 버튼으로 포커스가 돌아온다
+  /* ★[RIT_RESTART_LOW 2026-09-27 4부 18] 새 코스는 «처음부터 다시 만들기»를 저장 단추 바로 위에 두지 않는다 — 맨 아래 작은 밑줄 글(#opResetLow · ①~③ 과 같은 모양 · 확인 창은 그대로) */
+  if(!isOpen()) h+='<div class="done-acts">'   // [ORD_KEY] data-fk 유지 — 다시 그린 뒤에도 눌렀던 버튼으로 포커스가 돌아온다
     +'<button type="button" class="copy-btn2" onclick="resetAll()">처음부터 다시 만들기</button>'
     +'</div>';
   return h;
@@ -4982,6 +5038,7 @@ function ordAsk(opt){
       /* [EXIT_CANCEL] 셋째 갈래는 부르는 쪽이 켠다(opt.cancel) — 안 켠 판은 종전 그대로 두 버튼이다 */
       +(opt.cancel?'<button type="button" class="oa-cancel">'+esc(opt.cancel)+'</button>':'')
       +'</div>';
+    _nbWrap(ov);   // [RIT_WRAP] 나가기 창 «이 기기에는»
     if(_ordBo===null) _ordBo=document.body.style.overflow;   // [ORD_ASK_ONE] 원래 값은 첫 판만 기억
     document.body.style.overflow='hidden';
     document.body.appendChild(ov);
@@ -5047,6 +5104,7 @@ window.resetAll=function(){
 /* [REHEARSE_MERGED] renderRehearse() 삭제 — 위 폐지 근거 참고. 되살리지 말 것. */
 
 var _navLock=0, _nl2=0;
+/* ★[RIT_BACK_WORD 2026-09-27 4부 19] 수정 중 아래 단추는 «요약으로 돌아가기» — 종전 «저장 · 요약으로»는 저장하지 않는데 저장한다고 말했다(저장은 ④ 의 저장 단추) */
 document.getElementById('next').addEventListener('click',function(){ if(_saving) return;   // [ORD_SAVE_STATE] 저장 응답 대기 중 — aria-disabled 라 실제로 눌리므로 여기서 막는다
   var t=Date.now(); if(t-_nl2<400) return; _nl2=t;
   // [ORD_STICKYNAV] 코스 화면에서 카드를 펼쳐 둔 동안 이 버튼은 '다음'이 아니라 'X 코스로 시작하기'다 — 라벨과 동작을 한 곳에서 맞춘다.
@@ -5244,7 +5302,7 @@ function _ordPayload(fin){
   /* [OPEN_COURSE] 새 코스는 코스 이름이 없다 — 마이페이지가 «○○ 코스» 대신 «순간 n개 · 본식 약 a~b분»을 쓴다.
      예시에서 시작했으면 그 이름도 싣는다(«‹가족› 예시에서 시작»). 옛 코스 요약은 한 글자도 안 바뀐다. */
   if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
-    _sm.open=true; _sm.moments=RitualOpen.picked(S).length; _sm.photo=_sp.photo; _sm.from=_ex?_ex.nm:'';
+    _sm.open=true; _sm.moments=_opMoments();   /* [RIT_DONE_TITLE] */ _sm.photo=_sp.photo; _sm.from=_ex?_ex.nm:'';
     _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])];
     /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4 2026-09-26] 마이페이지 «예식 순서에서 남는 사진»은 이 목록을 그대로 그린다 —
        본식 차례(bodySeq) · 카드 이름(CARDS.n) · 장면(shotOf · 준비한 순서는 무엇을에 따라). 마이페이지는 ritual-open.js 를 읽지 않아 여기서 싣는다.

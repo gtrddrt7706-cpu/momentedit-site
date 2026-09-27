@@ -12713,3 +12713,38 @@ chk 'RIT_UNDO_INPLACE' order-preview.html 4         # 10 «이 순간 빼기»�
 chk 'class="ls-gone"' order-preview.html 1
 chk 'RIT_BIG_BTN' order-preview.html 2              # 11 작은 플레이어 «크게 보기» 글 단추
 chk 'class="lm-g" onclick="lsOpenBig()">크게 보기</button>' order-preview.html 1
+# ③ 준비하기
+chk 'RIT_FILE_CHECK' order-preview.html 5           # 12 새 코스 녹음 칸은 파일 창 대신 «챙겼어요» · 보내는 곳 안내는 한 번
+chk '챙겼어요</span></label>' order-preview.html 1
+nochk "h+=_sendHow('두 분 목소리 녹음 파일');" order-preview.html 0
+chk 'RIT_PREP_ONECOUNT' order-preview.html 1        # 13 셈은 «두 분이 준비할 것 N가지» 하나
+nochk 'id="wcCount" data-pre="여기에 적는 글 "' order-preview.html 0
+nochk "부모님께 부탁드릴 것 · '+par.length+'가지" order-preview.html 0
+chk 'RIT_VOW_GROW' order-preview.html 4             # 14 글칸 처음 4줄 · 쓰는 만큼 · 넘으면 한 줄
+chk '권장 길이를 넘었어요 · 줄이면 읽기 편해요' order-preview.html 1
+chk 'RIT_EXAMPLE_CARD' order-preview.html 2         # 15 예시 카드는 .oc.on 을 빌리지 않는다
+nochk '<div class="oc on" style="cursor:default">' order-preview.html 0
+# ④ 완성
+chk 'RIT_DONE_TITLE' order-preview.html 4           # 16 저장 전 «이대로 저장하면 완성돼요» · 담은 순간 N = 요약 줄 수
+chk "'이대로 저장하면 완성돼요'" order-preview.html 1
+chk 'RIT_SUMMARY_STACK' order-preview.html 2        # 17 순번 · 이름 / 아래 값 · «변경» 글 단추
+chk 'RIT_RESTART_LOW' order-preview.html 4          # 18 «처음부터 다시 만들기»는 맨 아래 작은 밑줄 글
+chk 'id="opResetLow"' order-preview.html 1
+chk 'RIT_BACK_WORD' order-preview.html 1            # 19 «저장 · 요약으로» → «요약으로 돌아가기»(저장하지 않는다)
+chk "editReturn?'요약으로 돌아가기'" order-preview.html 1
+nochk "editReturn?'저장 · 요약으로'" order-preview.html 0
+chk 'RIT_NO_CUE_COPY' order-preview.html 2          # 20 복사 · 파일 저장에서 «큐:» · 안쪽 표지 빼기(스태프 콘솔은 그대로)
+nochk "lines.push('큐: '+c.live.t)" order-preview.html 0
+# 모든 걸음
+chk 'RIT_KO_SERIF_FIRST' order-preview.html 1       # 21 한글 문단은 Noto Serif KR 먼저
+nochk 'font-family:var(--serif)' order-preview.html 0
+chk 'RIT_WRAP' order-preview.html 5                 # 22 NBSP 묶음 · text-wrap:pretty
+chk 'RIT_TYPE5' order-preview.html 2                # 23 글자 크기 다섯 단계
+nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 0
+chk 'RIT_PILL_SANS' order-preview.html 1            # 24 알약 고딕 · 꺼진 «저장됨» 3:1 이상
+nochk '\.ob-save:disabled{opacity:\.5' order-preview.html 0
+chk 'RIT_NAME_TWO' order-preview.html 4             # 25 이름은 «식순»(마이페이지 행) · «우리 예식 짓기»(화면 안) 둘
+chk '<title>우리 예식 짓기 · Moment Edit</title>' order-preview.html 1
+nochk '식순 미리보기' order-preview.html 0
+nochk "fr.title='식순 만들기'" mypage.html 0
+chk 'RIT_WIDTH_720' order-preview.html 1            # 26 PC ②③④ 폭 720
