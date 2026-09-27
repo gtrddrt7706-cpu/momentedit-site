@@ -1045,7 +1045,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-off summary{cursor:pointer;font-size:12.5px;line-height:20px;padding:12px 0;display:block;color:var(--ink2);min-height:44px;box-sizing:border-box;word-break:keep-all}   /* [SUMMARY_INLINE] flex 면 글 · 숫자가 따로 놀아 «₆가지»처럼 흩어진다(390 스크린샷으로 잡음) */
 .ls-off .ls-row{border-bottom-color:var(--bg2)}
 .ls-mini{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(484px,calc(100% - 32px));display:none;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--accent);color:#FAFAF8;z-index:80}
-html.lsmini .ls::after{content:'';display:block;height:72px}   /* [MINI_ROOM] 맨 아래 «준비할 것»이 작은 플레이어(높이 56 · 띄움 88) 위로 올라온다 */
+html.lsmini .ls::after,html.lsmini .mk::after{content:'';display:block;height:72px}   /* [MINI_ROOM] 맨 아래 «준비할 것»이 작은 플레이어(높이 56 · 띄움 88) 위로 올라온다 */
 .ls-mini .lm-t{flex:1;min-width:0;border:0;background:none;color:inherit;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;min-height:40px;justify-content:center}
 .ls-mini .lm-t b{font-size:12.5px;font-weight:600}
 .ls-mini .lm-t small{font-size:11px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1097,7 +1097,7 @@ body.lsfull{overflow:hidden}
 .mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .mk-flow li{font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start}
-.mk-flow li.q{color:var(--sub);font-size:12.5px}
+.mk-flow li.q{color:var(--light);font-size:12.5px}   /* [QUIET_LINES] 말 없는 줄 = 옅게(--light) · 옛 ② 목록과 같은 색 */
 .mk-flow li.t{color:var(--accent)}
 .mk-lab{display:block;font-size:11px;color:var(--sub);letter-spacing:.04em}
 .mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -10px;border:0;background:none;color:var(--accent);display:grid;place-items:center;cursor:pointer}
@@ -1123,7 +1123,7 @@ body.lsfull{overflow:hidden}
 .mk-ref summary{min-height:44px;padding:10px 0;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;list-style-position:inside}
 .mk-rd{font-size:12.5px;color:var(--light);line-height:1.5}
 .mk-rb{padding:0 0 14px}
-.mk-rw{margin:0 0 10px;font-size:14px;line-height:1.85;color:var(--text)}
+.mk-rw{margin:0 0 10px;font-size:14px;line-height:1.85;color:var(--accent)}
 .mk-rw b{display:block;font-size:12.5px;font-weight:500;color:var(--gold-deeper);letter-spacing:.04em}
 .mk-rl{display:block;margin-top:2px;font-size:12.5px;color:var(--light)}
 .lf-refb{display:inline-block;margin-right:8px;padding:1px 8px;border:1px solid var(--gold-deeper);border-radius:999px;font-size:11px;color:var(--gold-deeper);letter-spacing:.04em}

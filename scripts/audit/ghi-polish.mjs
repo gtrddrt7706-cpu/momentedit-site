@@ -52,17 +52,18 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(500);
   await go(pg, 'listen');
   // G4 입장 줄
-  await pg.evaluate(() => { LS.open = 'entry'; LS.more = {}; S.entryOut = ''; render(); }); await pg.waitForTimeout(300);
-  const g4 = await pg.evaluate(() => { const r = document.querySelector('.ls-row.open'); const b = r && r.querySelector('[data-fk="lsmore:entry"]');
+  /* [FLOW_MAKE 2026-09-27] ② 는 순간마다 한 쪽 — 옛 목록 줄(.ls-row.open) 대신 그 순간 쪽(.mk-pg)에서 잰다 */
+  await pg.evaluate(() => { LS.more = {}; S.entryOut = ''; mkGo('entry'); }); await pg.waitForTimeout(300);
+  const g4 = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'); const b = r && r.querySelector('[data-fk="lsmore:entry"]');
     return { btn: !!b, txt: b ? b.textContent : '', h: b ? Math.round(b.getBoundingClientRect().height) : 0, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0 }; });
   ok(`${w} G4 입장 줄 — 맺는 말은 «더 고르기» 뒤 · 누를 곳 44 · 첫 화면 묶음 셋 [ENTRY_OUT_MORE]`, g4.btn && !g4.outRow && g4.rows === 3 && /더 고르기 · 맺는 말/.test(g4.txt) && g4.h >= 44, JSON.stringify(g4));
   if (g4.btn) { await pg.click('[data-fk="lsmore:entry"]'); await pg.waitForTimeout(400); }   // 단추가 없으면(깨졌으면) 다음 검사가 빨강으로 말한다 — 여기서 멈추지 않는다
-  const g4b = await pg.evaluate(() => { const r = document.querySelector('.ls-row.open'), g = r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]'), a = document.activeElement;
+  const g4b = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'), g = r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]'), a = document.activeElement;
     return { open: !!g, n: g ? g.querySelectorAll('[role=radio]').length : 0, foc: !!(g && g.contains(a) && a.getAttribute('aria-checked') === 'true'), btn: !!(r && r.querySelector('[data-fk="lsmore:entry"]')) }; });
   ok(`${w} G4 «더 고르기»를 누르면 맺는 말 여섯이 열리고 초점은 고른 칩`, g4b.open && g4b.n === 6 && g4b.foc && !g4b.btn, JSON.stringify(g4b));
   await pg.evaluate(() => { LS.more = {}; S.entryOut = 'C'; render(); }); await pg.waitForTimeout(300);
-  ok(`${w} G4 기본이 아닌 맺는 말을 골라 뒀으면 열린 채(고른 것이 숨지 않게)`, await pg.evaluate(() => !!document.querySelector('.ls-row.open [role=radiogroup][aria-label="맺는 말"]') && !document.querySelector('[data-fk="lsmore:entry"]')));
-  await pg.evaluate(() => { S.entryOut = ''; LS.more = {}; LS.open = null; render(); });
+  ok(`${w} G4 기본이 아닌 맺는 말을 골라 뒀으면 열린 채(고른 것이 숨지 않게)`, await pg.evaluate(() => !!document.querySelector('.mk-pg [role=radiogroup][aria-label="맺는 말"]') && !document.querySelector('[data-fk="lsmore:entry"]')));
+  await pg.evaluate(() => { S.entryOut = ''; LS.more = {}; render(); });
   // G5 이렇게 흘러요 — 예시 넷 × 축배 판 셋 × 와인 셋
   const g5 = await pg.evaluate(() => {
     const R = RitualOpen, keep = JSON.parse(JSON.stringify(S)), bad = [], seen = {};
@@ -101,24 +102,23 @@ for (const w of [390, 1280]) {
     && g5b.ring[0] === '두 분이 서로 반지를 끼워요 · 말 없이' && g5b.declare[0] === '하객 박수 · 두 분이 부부가 돼요' && g5b._close[0] === '두 분이 하객께 목례 · 박수'
     && g5b.fams === 'solemn:1,warm:1,clap:1,family:1', JSON.stringify(g5b));
   ok(`${w} G5 첫 줄 이름 — 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)» [FIRST_LINE_NAME]`, g5b.labs.candle === '여는 말' && g5b.labs.declare === '선언 · 나레이션(엄숙하게)', JSON.stringify(g5b.labs));
-  await pg.evaluate(() => { LS.open = 'toast'; render(); }); await pg.waitForTimeout(300);
-  const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.ls-row.open .ls-flow li')];
-    return { txt: li.map((l) => (l.className ? '[' + l.className + ']' : '') + l.textContent), quietColor: (() => { const q = document.querySelector('.ls-row.open .ls-flow li.quiet'); return q ? getComputedStyle(q).color : ''; })() }; });
-  const wi = g5c.txt.findIndex((t) => /위하여/.test(t)), pi = g5c.txt.findIndex((t) => /양가 와인을 한 잔에 모아요/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
+  await pg.evaluate(() => mkGo('toast')); await pg.waitForTimeout(300);
+  const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.mk-pg .mk-flow li')];
+    return { txt: li.map((l) => (l.className === 'q' ? '[quiet]' : '') + l.textContent), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
+  /* [FLOW_MAKE] ② 쪽 흐름에서 «위하여»는 두 분 차례(«신랑 차례» · 글은 연습에서 흐른다) — 잔 드는 큐 바로 뒤에 온다 */
+  const wi = g5c.txt.findIndex((t) => /^신랑 차례/.test(t)), pi = g5c.txt.findIndex((t) => /양가 와인을 한 잔에 모아요/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
   ok(`${w} G5 화면 — 붓기(옅게) → 잔 드는 큐 → «위하여» 순서 · 옅은 줄 색 = --light`, pi >= 0 && gi > pi && wi === gi + 1 && /\[quiet\]/.test(g5c.txt[pi]) && g5c.quietColor === 'rgb(110, 105, 89)', JSON.stringify(g5c));
   ok(`${w} G5 옅은 줄은 재생 목록 · 들을 길이에 안 든다`, await pg.evaluate(() => { const st = _lSteps(ENG, ['toast']), q = st.filter((x) => x.quiet); return q.length === 1 && _lLen(q) === 0; }));
-  // H1 · H2 · H3 ③
-  await pg.evaluate(() => { S.on.welcome = 1; S.welcome = 'self'; }); await go(pg, 'write');
-  const h = await pg.evaluate(() => {
-    const st = document.getElementById('stage'), wn = [...st.querySelectorAll('.wn')].map((e) => e.textContent), ta = st.querySelector('textarea[aria-label="첫인사"]');
-    const sec = [...st.querySelectorAll('.wr-sec')].find((x) => /^보낼 것/.test((x.querySelector('.wr-sub') || {}).textContent || ''));
-    const kids = sec ? [...sec.children].map((c) => c.className + '|' + c.textContent.slice(0, 18)) : [];
-    const iHow = kids.findIndex((t) => /^send-how/.test(t)), iLink = kids.findIndex((t) => /^tin/.test(t)), iDrink = kids.findIndex((t) => /축배 음료/.test(t));
-    return { wn, ta: !!ta, iHow, iLink, iDrink, kids: kids.length, help: /가족사진 때 친척분들을 불러 모아 주실 분 · 양가 한 분씩 · 마이페이지 «가족\s·\s친구\s스냅»에 적어 두면 디렉터가 먼저 말씀드려요/.test(st.textContent), oldName: /인사말/.test(wn.join('')) };
-  });
-  ok(`${w} H1 ③ 칸 이름 · aria-label = «첫인사» [H1_FIRST_HELLO]`, h.wn.includes('첫인사') && h.ta && !h.oldName, JSON.stringify(h.wn));
-  ok(`${w} H2 ③ 보낼 것 — 링크 칸 → 보내는 길 상자가 붙어 있고 축배 음료 줄은 그 뒤 [H2_SEND_LUMP]`, h.iLink >= 0 && h.iHow > h.iLink && h.iDrink > h.iHow, JSON.stringify(h));
-  ok(`${w} H3 ③ 도와주실 분 «불러 모아 주실 분 · «가족 · 친구 스냅»» [H3_CALLER_HELPER]`, h.help);
+  // H1 · H2 · H3 — [FLOW_MAKE] 옛 ③ 준비하기는 걷었다: 첫인사 칸은 ② 첫인사 쪽 · 보낼 길은 ② 식전 영상 쪽 · 도와주실 분은 ② 한눈에 보기
+  await pg.evaluate(() => { S.on.welcome = 1; S.welcome = 'self'; S.on.prevideo = 1; opSync(); mkGo('welcome'); }); await pg.waitForTimeout(400);
+  const h1 = await pg.evaluate(() => ({ ta: !!document.querySelector('textarea[aria-label="첫인사 · 신랑"]') && !!document.querySelector('textarea[aria-label="첫인사 · 신부"]'), oldName: /인사말/.test(document.getElementById('stage').textContent) }));
+  ok(`${w} H1 ② 첫인사 칸 이름 · aria-label = «첫인사 · 신랑/신부» [H1_FIRST_HELLO]`, h1.ta && !h1.oldName, JSON.stringify(h1));
+  await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(300);
+  const h2 = await pg.evaluate(() => { const st = document.getElementById('stage'), link = st.querySelector('input[aria-label="식전 영상 링크"]'), how = st.querySelector('.send-how');
+    return { link: !!link, how: !!how, order: !!(link && how && (link.compareDocumentPosition(how) & Node.DOCUMENT_POSITION_FOLLOWING)) }; });
+  ok(`${w} H2 ② 식전 영상 쪽 — 링크 칸 → 보내는 길 상자가 뒤에 붙어 있다 [H2_SEND_LUMP]`, h2.link && h2.how && h2.order, JSON.stringify(h2));
+  await pg.evaluate(() => mkGo('_sum')); await pg.waitForTimeout(300);
+  ok(`${w} H3 ② 한눈에 보기 도와주실 분 «불러 모아 주실 분 · «가족 · 친구 스냅»» [H3_CALLER_HELPER]`, await pg.evaluate(() => /가족사진 때 친척분들을 불러 모아 주실 분 · 양가 한 분씩 · 마이페이지 «가족\s·\s친구\s스냅»에 적어 두면 디렉터가 먼저 말씀드려요/.test(document.getElementById('stage').textContent)));
   const scr = await pg.evaluate(() => { S.welcomeText = '안녕하세요'; return typeof buildScript === 'function' ? buildScript() : (typeof scriptText === 'function' ? scriptText() : ''); });
   if (scr) ok(`${w} H1 대본 줄 «첫인사(두 분 작성):»`, /첫인사\(두 분 작성\):\n안녕하세요/.test(scr) && !/인사말\(두 분 작성\)/.test(scr), scr.slice(0, 80));
   // I1 · I2 · I3 ④

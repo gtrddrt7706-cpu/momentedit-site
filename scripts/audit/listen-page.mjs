@@ -104,6 +104,9 @@ for (const w of [390, 1280]) {
   await pg.fill('#mkt_vow_g', '나는 약속'); await pg.fill('#mkt_vow_b', '나도 약속'); await pg.waitForTimeout(200);
   ok(`${w} ② 신랑 칸 · 신부 칸 따로 · 옛 한 칸(vowText)은 두 칸을 이어 붙인다 · 칸마다 고친 시각 [TX_MERGE]`, await pg.evaluate(() => S.tx['vow.g'] === '나는 약속' && S.tx['vow.b'] === '나도 약속' && S.vowText === '신랑 · 나는 약속\n\n신부 · 나도 약속' && S.fAt['tx.vow.g'] > 0 && S.fAt['tx.vow.b'] > 0));
   ok(`${w} ② 글자수 · 소리 내어 읽는 초`, await pg.evaluate(() => /5자 · 소리 내어 읽으면 약 1초/.test(document.getElementById('mkc_vow_g').textContent)));
+  // ② 고르기 칩 — radiogroup · 고른 칩이 눈에 보인다 [CHIP_CHECKED] (녹음 기록과 상관없이 · [REC_STATE_FREE] 두 분 차례는 소리가 없다)
+  await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
+  ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px · 고른 칩은 바탕이 다르다 [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.mk-pg .op-chip[aria-checked="true"]'), off = document.querySelector('.mk-pg .op-chip[aria-checked="false"]'); return !!on && !!off && on.getAttribute('role') === 'radio' && !!on.closest('[role=radiogroup]') && on.getBoundingClientRect().height >= 44 && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
   // 빼기 = 흐리게 남기고 다시 넣기 [DROP_DIM]
   await pg.evaluate(() => mkGo('bless')); await pg.waitForTimeout(400);
   await pg.click('[data-fk="mkdrop"]'); await pg.waitForTimeout(400);
@@ -420,7 +423,8 @@ else {
   ok('9-4 소리 바뀌는 칩 → 그 순간만 다시 · 끝나면 다음으로 안 넘어가고 멈춰 선다 [CHIP_STAY]', d.tok > c.tok && d.stay === 'entry' && d.chips > 0 && d.after.cur === 'entry' && d.after.p && d.after.hint === 'heard' && /한 번 들려 드렸어요/.test(d.after.say), JSON.stringify(d));
   await pg.click('#lsFull [data-fk="lfchoosedone"]'); await pg.waitForTimeout(300);
   ok('9-5 «다 골랐어요 · 이어서 듣기» → 다시 흐르고 칩은 접힌다', await pg.evaluate(() => !LP.paused && LP.choose === null && document.querySelectorAll('#lsFull .op-chip').length === 0));
-  /* ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 두 분 · 가족 차례 = 소리 없이 글 + 막대 — 대역 목소리(06~14 · 24~26)는 어디서도 안 튼다 */
+  /* ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 두 분 · 가족 차례 = 소리 없이 글 + 막대 — 대역 목소리(06~14 · 24~26)는 어디서도 안 튼다
+     [REF_EXAMPLE] 사람이 말하는 자리는 참고 예시(글)로 · [REF_TABLE] 표에서 고른 판의 벌 */
   const e = await pg.evaluate(() => { const mute = ENG.RitualStory.CAST_MUTE; return { q: LP.q.filter((x) => x.talk2 && x.k === 'welcome').length, steps: _lSteps(ENG, _lRows()).filter((x) => x.ref || x.talk2).length, noSrc: LP.q.filter((x) => x.talk2).every((x) => !x.src && x.pending && x.txt.length > 5 && x.ms > 0), mute: Object.keys(mute).length, castPlay: LP.q.filter((x) => x.src && /\/assets\/audio\/cast\/(0[6-9]|1[0-4]|2[4-6])_/.test(x.src)).length }; });
   ok('9-6 첫인사 = 두 분 차례 둘(신랑 · 신부) · 소리 없이 글 + 막대 · 대본 목록(④ 복사)에는 안 들어간다 · 대역 목소리 0 [CAST_TEXT_ONLY]', e.q === 2 && e.steps === 0 && e.noSrc && e.mute === 12 && e.castPlay === 0, JSON.stringify(e));
   await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].ref) && g++ < 40) { LP.i++; _lShow(); } }); await pg.waitForTimeout(300);

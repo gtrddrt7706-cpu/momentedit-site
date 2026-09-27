@@ -2267,7 +2267,7 @@ chk 'CHIP_STAY' order-preview.html 7
 chk 'PRACTICE_CHOOSE' order-preview.html 5
 chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
 chk 'REF_EXAMPLE' order-preview.html 4
-chk '이 목소리는 예식에서 나오지 않아요' order-preview.html 1   # 참고 예시를 예식 소리로 오해하지 않게 · [REF_TABLE] «소리» → «목소리»(나레이션은 당일에도 나온다)
+# ★[CAST_TEXT_ONLY 2026-09-27 사장님] 참고 예시는 글로만 — «이 목소리는 …» 문장은 걷었다(목소리가 없다) · 아래 nochk 가 되살아남을 막는다
 # [REF_TABLE 2026-09-27 코워크 참고 예시 대본] 예시는 표 한 곳(assets/ritual-ref.js · 자동 생성) · 폐지 클립(27 시어머님 답 · 15 하객대표 축사)은 넣지 않는다
 chk 'REF_TABLE' order-preview.html 4
 chk '<script src="/assets/ritual-ref.js">' order-preview.html 1
@@ -8863,8 +8863,8 @@ chk 'CHIP_CHECKED' scripts/audit/listen-page.mjs 1
 chk 'DETAIL_0925 C1 · C2' scripts/audit/listen-page.mjs 1   # 대비 · 누를 곳 실측(깨 보고 믿음 — 되돌리니 빨강 4줄)
 nochk 'aria-pressed="true"\]{background:var(--gold-deep);' order-preview.html
 chk 'function renderListen' order-preview.html 1
-chk "if(k==='listen') return renderListen();" order-preview.html 1
-chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.write,STEPDEF.done' order-preview.html 1
+chk "if(k==='listen') return isOpen()?renderMake():renderListen();" order-preview.html 1   # [FLOW_MAKE] 새 코스 ② = 하나씩 만들기 · 옛 코스는 renderListen 그대로
+chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.practice,STEPDEF.done' order-preview.html 1   # [FLOW_MAKE · PRACTICE_STEP] ③ = 연습하기(옛 write 준비하기는 걷었다)
 chk 'VIDEO_READY' assets/ritual-open.js 3
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
@@ -11591,7 +11591,7 @@ chk '두 분이 하객께 목례 · 박수' order-preview.html 1
 chk '<em>→ ③에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번
 chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»
 chk 'G8 2026-09-26' order-preview.html 1   # [G8] 크게 보기 부제 «… · 녹음 전이라 글로 보여 드려요»
-chk '담은 순간을 예식 차례대로 보며 나레이션을 들어 보세요. 줄을 누르면 흐름과 고를 것이 열려요. 준비할 것은 모두 ③ 준비하기에 모여요.' order-preview.html 1   # [G9]
+chk '순간마다 한 화면이에요. 듣고, 고르고, 적은 뒤 «다음»을 눌러 주세요.' order-preview.html 1   # [FLOW_MAKE] ② 머리 글(옛 «줄을 누르면 … ③ 준비하기에 모여요»는 목록 화면과 함께 걷었다)
 nochk '고른 순서대로 장면을 보며 나레이션을 들어 보세요' order-preview.html   # [G9] «고른 순서대로»는 «내가 누른 차례»로 읽힌다
 nochk '고른 차례대로 장면과 나레이션을' order-preview.html   # [INTRO_ORDER_WORD] 안내 2 의 ② 줄도 같은 까닭
 chk 'H1_FIRST_HELLO' order-preview.html 1
