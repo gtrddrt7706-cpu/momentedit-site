@@ -54,7 +54,7 @@ const KNOWN_OUT = {
   'docs/plans/식순연구/배역_예시_대사.txt': '생성물이 아니라 «사람이 쓰는 원천»이다. 다시 뽑을 것이 아니다',
   'docs/plans/식순연구/타입캐스트/manifest.json': '타입캐스트 폴더 안에 있어 이미 대조된다(같은 것을 두 번 적은 자리)',
   'docs/plans/식순연구/큐순서읽기_반영_20260920.tsv': '생성물이 아니라 «결정을 적은 표»다. build-pick-back 이 읽기만 한다 — 다시 뽑을 것이 없다',
-  'docs/plans/식순연구/참고예시_글예시_말하는자리_0927.tsv': '[REF_TABLE] 생성물이 아니라 «코워크가 쓴 원천 표»다. build-ref-examples 가 읽기만 하고, 그 생성물(assets/ritual-ref.js)은 --check 가 merge-guard 에서 대조한다',
+  'docs/plans/식순연구/참고예시_글예시_말하는자리_늘린판_0927.tsv': '[REF_TABLE] 생성물이 아니라 «코워크가 쓴 원천 표»다. build-ref-examples 가 읽기만 하고, 그 생성물(assets/ritual-ref.js)은 --check 가 merge-guard 에서 대조한다',
   'docs/plans/식순연구/어조표_문면_대조.tsv': '위와 같다. 코워크가 보내 온 «그때의 결정»이라 사람만 고친다',
   'docs/plans/식순연구/타입캐스트/보이스찾기': '성우를 «고르던» 과정의 기록이다. 여덟 자리가 이미 정해져 다시 뽑을 일이 없고, 다시 뽑으면 그때의 후보 비교가 사라진다',
 };

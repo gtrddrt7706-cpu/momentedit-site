@@ -11406,6 +11406,32 @@ chk 'MK_TODO_PASSED' order-preview.html 2
 chk 'MK_STRIP_FADE' order-preview.html 1
 chk 'MK_STRIP_WRAP' order-preview.html 1   # PC 진행 줄 = 줄바꿈(잘림 없음) · 모바일 = 한 줄 넘기기
 chk 'MK_ROWS' order-preview.html 2   # 부탁 · 보낼 · 챙길 = 줄 모양 · 오른쪽 단추
+chk 'MK_STRIP_TEXT' order-preview.html 2   # 진행 줄 = 글자 탭(번호 · 테두리 없음) · 2026-09-27 사장님 «숫자는 빼도»
+chk 'MK_STRIP_TEXT' scripts/audit/listen-page.mjs 1
+nochk 'class="mk-n"' order-preview.html   # ★진행 줄에 번호를 되살리지 말 것
+chk 'MK_STRIP_KEEP' order-preview.html 1   # 모바일 진행 줄 — 지금 칸을 가운데로(부르는 곳)
+chk 'MK_STRIP_KEEP' scripts/audit/listen-page.mjs 1
+chk 'MK_MIN' order-preview.html 9   # ② 중복 걷기 — 칩이 곧 듣기 · 참고 예시 당일 문장 한 번 · 예시 접이 겹침 · 녹음 이름표 · «아직 안 보냈어요» · 챙길 것 꼬리 · 식전 영상 설명 · 고른 순서 쪽 진행 줄 · ③ «④ 완성으로»
+chk 'MK_MIN' scripts/audit/listen-page.mjs 4
+nochk "'고른 대로 들어 보기'" order-preview.html   # ★사장님 «없어도 되지 않아?» — 칩을 누르면 들린다 · 되살리지 말 것
+chk 'MK_SUM_ONE' order-preview.html 3   # 한눈에 보기 — 한 항목은 한 번(미완료 목록 + 부탁 · 보낼 목록 이중 금지)
+chk 'MK_SUM_ONE' scripts/audit/listen-page.mjs 1
+chk 'DONE_PREP_ONE' order-preview.html 1   # ④ 준비할 것 = 한 줄 + ② 한눈에 보기로 · 목록 두 번 금지
+chk 'DONE_PREP_ONE' scripts/audit/listen-page.mjs 1
+chk 'MOMENTS_ONE' order-preview.html 1   # «담은 순간 N» 셈은 _opMoments 하나(①~④ · 마이페이지 요약)
+chk 'MOMENTS_ONE' assets/ritual-open.js 1
+chk 'MOMENTS_ONE' scripts/audit/listen-page.mjs 2
+nochk '③에서 모아 봐요' assets/ritual-open.js   # 모아 보기는 ② 한눈에 보기(옛 ③ 준비하기 폐지)
+chk 'GATE_TREE' scripts/gate.sh 2   # ★게이트는 작업 폴더를 잰다 — 커밋과 다르면 빨간 줄(깨 보기 흔적이 커밋에 섞인 사고 2026-09-27)
+# [EX_MORE 2026-09-27 코워크 · 사장님] 참고 예시 144줄 · 칩 «예시 N(· 상황)» · 무드 이름은 화면 금지(REF_NO_KYEOL) · 부모님이 하실 때 · 이 예시로 시작하기 · 이름 경고
+chk 'EX_MORE' order-preview.html 3
+chk 'EX_MORE' scripts/audit/listen-page.mjs 4
+chk 'EX_MORE' scripts/build-ref-examples.mjs 1
+chk 'EX_NAMES' order-preview.html 4
+chk 'EX_NAMES' scripts/audit/listen-page.mjs 1
+chk 'EX_START' order-preview.html 1
+chk '"sit":"그리움"' assets/ritual-ref.js 6   # 상황 열이 자료에 실렸다(먼저 떠나신 분께 여섯 줄)
+nochk "esc(pt.kyeol" order-preview.html   # ★무드는 화면에 안 쓴다 — 사장님 «참고 예시 숫자까지만»
 chk 'MK_PICK_TOP' order-preview.html 1
 nochk 'data-fk="mktodo"' order-preview.html
 # ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부»] 두 분 목소리 녹음 올리기 — 빌더 · 마이페이지 · GAS(80_production · doPost)

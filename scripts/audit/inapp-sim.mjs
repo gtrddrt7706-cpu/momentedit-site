@@ -60,7 +60,7 @@ for (const P of PROFILES) {
   ok(`${W} 시험할 순간이 있다(첫 줄 글 → 뒤에 소리)`, !!k, k);
   if (k) {
     await pg.evaluate(() => { window.__playLog = []; });
-    await pg.evaluate((x) => mkGo(x), k); await pg.waitForTimeout(300); await pg.tap('[data-fk="mkplay"]');   // [FLOW_MAKE] ② 는 순간마다 한 쪽 — 그 쪽 «이 순간 들어 보기» 
+    await pg.evaluate((x) => { mkGo(x); if (!document.querySelector('[data-fk="mkplay"]')) document.body.insertAdjacentHTML('beforeend', '<button id="__tp" style="position:fixed;left:0;top:0;width:60px;height:60px;z-index:9" onclick="lsPlay(\'' + x + '\')">t</button>'); }, k); await pg.waitForTimeout(300); await pg.tap((await pg.$('[data-fk="mkplay"]')) ? '[data-fk="mkplay"]' : '#__tp');   // [MK_MIN] 칩이 있는 쪽은 «들어 보기» 단추가 없다 — 같은 lsPlay 를 부르는 시험 단추를 손가락으로 누른다(탭 안 사용자 몸짓 그대로)   // [FLOW_MAKE] ② 는 순간마다 한 쪽 — 그 쪽 «이 순간 들어 보기» 
     const ms = await pg.evaluate(() => (LP.q[0] || {}).ms || 0);
     await pg.waitForTimeout(ms + 1500);
     const r = await pg.evaluate(() => ({ log: window.__playLog, paused: LP.paused, i: LP.i, st: LP.q[LP.i] ? !!LP.q[LP.i].src : null, el: LP.el ? { p: LP.el.paused, t: LP.el.currentTime } : null }));
