@@ -335,7 +335,7 @@ var COURSES={
        seq 는 그 파일의 ORDER 와 같아야 한다(scripts/audit/open-course.mjs 가 대조).
      ★hidden 인 까닭 — 옛 «코스 고르기» 카드 목록에 새 코스가 끼어들지 않게. 새 화면(고르기)이 따로 있다. */
   open:{nm:'직접 고른', badge:'순간 먼저', ready:true, hidden:true, open:true, min:'',
-    seq:['guest','prevideo','candle','entry','welcome','bless','vow','ring','declare','tribute','free','letter','toast'],   // ritual-open.js ORDER 와 같다(open-course.mjs 가 대조) · 축사는 free 의 한 판(SPEECH_IN_FREE)
+    seq:['guest','prevideo','candle','entry','welcome','bless','vow','ring','declare','tribute','free','letter','cake','toast'],   // [CAKE_TOAST_SPLIT] ritual-open.js ORDER 와 같다(open-course.mjs 가 대조) · 축사는 free 의 한 판(SPEECH_IN_FREE)
     opt:[], one:'필요한 순간만 담으면 예식 순서대로 제자리에 들어가요', feel:'', flow:[], detail:[]
 },
   minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, hidden:true, min:'약 18분',   // [COURSE_HIDDEN] 기록에 흡수

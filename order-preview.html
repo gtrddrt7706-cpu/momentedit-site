@@ -1284,7 +1284,7 @@ var S={course:'open',on:{},wine:'none',tributeSay:'one',candleWho:'mothers',free
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
-       tune:{entry:true}, extra:{}, up:{}, touched:{}};   // [CHIP_UNPICKED] touched = 두 분이 직접 누른 칩 묶음
+       tune:{entry:true}, extra:{}, up:{}, touched:{}, ctSplit:1};   // [CAKE_TOAST_SPLIT] 새 판은 처음부터 두 칸   // [CHIP_UNPICKED] touched = 두 분이 직접 누른 칩 묶음
 var _S0=JSON.stringify(S);   // ORDER_OWNER: 미개봉 초기값 스냅 — 계정 전환 감지 시 상태 초기화용
 /* ★[LEAD_OUT 2026-08-07] 사람의 시간이 스스로 닫는 말. 원천은 assets/ritual-data.js 의 NARR —
    여기는 인라인 사본이다(check-ritual-mirror.js 가 원천과 대조한다). 한쪽만 고치지 말 것. */
@@ -2907,6 +2907,15 @@ function clip(k){
     +'<g class="m-trem"><rect x="188" y="50" width="21" height="15" rx="2" fill="#FFFFFF" stroke="'+GD+'" stroke-width="1.3"/><path d="M191 55 h 15 M191 59 h 12" stroke="'+G+'" stroke-width="1"/><circle cx="205.5" cy="62" r="1.9" fill="'+C+'"/></g>'
     +'</svg>';
   }
+  if(k==='cake'){   // [CAKE_TOAST_SPLIT] 케이크 커팅 선 그림 — 작은 한 단 케이크 · 위에서 내려오는 나이프 한 줄
+    svg='<svg aria-hidden="true" focusable="false" viewBox="0 0 320 110" style="width:100%;height:auto">'
+    +GLINE(70,96,250,k,'animation-duration:1s')
+    +'<rect x="128" y="60" width="64" height="30" rx="3" fill="#FFFFFF" stroke="'+GD+'" stroke-width="1.8" pathLength="100" class="m-draw" style="animation-duration:1.2s"/>'
+    +'<path d="M128 70 h64" stroke="'+G+'" stroke-width="1"/>'
+    +'<path d="M168 22 l -4 34" stroke="'+GD+'" stroke-width="2" stroke-linecap="round" class="m-in" style="animation-delay:1.3s"/>'
+    +'<circle cx="150" cy="52" r="2.4" fill="'+C+'" class="m-in" style="animation-delay:1.7s"/>'
+    +'</svg>';
+  }
   if(k==='toast'){
     svg='<svg aria-hidden="true" focusable="false" viewBox="0 0 320 110" style="width:100%;height:auto">'
     +GLINE(70,96,250,k,'animation-duration:1s')
@@ -3040,6 +3049,7 @@ var _opPrev=null;   // [PICK_V2] 옛 카드 «자세히»(_opOpen · opMore)는 
 function opSync(){
   if(!S.on||typeof S.on!=='object') S.on={};
   S.ring=S.on.ring?'on':'off'; S.bless=S.on.bless?'on':'off'; S.vow='ok';
+  if(S.on.cake||S.on.toast) S.toast=RitualOpen.toastMode(S);   // [CAKE_TOAST_SPLIT] 엔진 판 · 관리자 · 마이페이지가 읽는 S.toast 를 두 칸에서 맞춘다
   S.growth=S.on.prevideo?'on':'off';   // 관리자·마이페이지가 식전 영상 링크를 growth 로 읽는다
   S.extra={}; S.off={}; S.ord=null;
   buildSteps(); _persist(); render();
@@ -3096,7 +3106,7 @@ window.opUndo=function(){
 function opChips(k,on){
   if(!on) return '';
   var rows=[];
-  if(k==='toast'){ rows.push(['무엇을','toast']); }   // [WINE_POUR_OFF] 와인 줄 걷음
+  if(k==='toast'||k==='cake'){ }   // [CAKE_TOAST_SPLIT] 케이크 · 축배는 담은 칸이 곧 판이라 «무엇을» 줄이 없다 · [WINE_POUR_OFF] 와인 줄 걷음
   else if(k==='free'){ rows.push(['무엇을','free']); rows.push(['길이','freeLen']); }   // [FREE_WHAT] 무엇을 × 길이
   else if(RitualOpen.CHIPS[k]) rows.push(['',k]);
   if(!rows.length) return '';
@@ -3113,8 +3123,7 @@ function opChipLabel(k){
   var R=RitualOpen; if(!R.CHIPS[k]) return '';
   /* [LIST_NAMES 2026-09-25 코워크 4-8] 판 이름은 원천(chipLabel)에서 — «서로의 부모님께 한마디씩» · «영상 · 3분».
      ★[G7 2026-09-26 코워크 최종판 5-1] 케이크 · 축배는 «무엇을 + 와인» — «케이크와 축배 · 양가 와인 한 병씩»(종전 «와인 판만»은 무엇을 했는지 안 보였다). */
-  if(k==='toast'){ var v=R.chipOf('toast',S), w=(v==='cake')?'none':R.chipOf('wine',S), wl=(w!=='none')?R.labelOf('wine',w):'';
-    return R.labelOf('toast',v)+(wl?' · '+wl:''); }   // [LAB_FIX2 2-6] 붓지 않음이어도 요약은 비지 않는다(«케이크와 축배») — G7 이 줄을 바꾸며 표식이 빠졌던 것을 되살림
+  if(k==='toast'||k==='cake') return '';   // [CAKE_TOAST_SPLIT] 판 이름 없음(담은 칸이 곧 판)   // [LAB_FIX2 2-6] 붓지 않음이어도 요약은 비지 않는다(«케이크와 축배») — G7 이 줄을 바꾸며 표식이 빠졌던 것을 되살림
   return R.chipLabel(k,S);
 }
 /* [DETAIL_0925 B13] 절정이 없을 때 — 한마디씩 인사는 절정이 아니다(1분쯤씩이 절정) */
@@ -3216,7 +3225,7 @@ function _lGroups(k){
   if(k==='tribute'){ L('tribute','말의 길이',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','인사 방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower'); _lGoods('tribute',L); }
   if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S)); L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
   if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));
-  if(k==='toast'){ L('toast','무엇을',R.CHIPS.toast,R.chipOf('toast',S)); _lGoods('toast',L); }
+  if(k==='cake') _lGoods('cake',L);   // [CAKE_TOAST_SPLIT] 케이크 준비만 · 축배는 고를 것이 없다
   /* ★★[CHIP_UNPICKED 2026-09-27 사장님 «안내 목소리 처음에는 안 눌린 상태로 있어야지 · 그래야 누르면 소리가 나오지 · 나레이션 음성을 처음에 들을 방법이 없잖아»]
      기본값을 눌린 모양으로 두면, 이미 고른 칩은 다시 틀지 않으므로([CHIP_NO_REPLAY]) 기본 소리를 칩으로 들을 길이 없었다.
      이제 두 분이 직접 누른 묶음(S.touched)이나 기본과 달라진 묶음(예시로 시작 · 옛 초안)만 눌린 모양 · 아직 안 고른 기본은 비어 보이고 누르면 들린다.
@@ -3230,7 +3239,7 @@ function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
   catch(e){} finally{ S=keep; _lInDef=false; }
   return o; }
 /* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
-function _lGoods(k,L){ var R=RitualOpen; R.goodsOf(S,k).forEach(function(g){ L(g.key,g.k==='toast'?'케이크 준비':'꽃 준비',R.CHIPS[g.key],g.by,true,g.by==='studio'?R.GOODS_COST:'당일 가져오시면 돼요 · '+'크기 · 도착 시각은 상담 때 안내해 드려요'); }); }
+function _lGoods(k,L){ var R=RitualOpen; R.goodsOf(S,k).forEach(function(g){ L(g.key,g.k==='cake'?'케이크 준비':'꽃 준비',R.CHIPS[g.key],g.by,true,g.by==='studio'?R.GOODS_COST:'당일 가져오시면 돼요 · '+'크기 · 도착 시각은 상담 때 안내해 드려요'); }); }
 function _lSet(key,v){
   var R=RitualOpen;
   S.touched=S.touched||{}; S.touched[key]=1;   // [CHIP_UNPICKED]
@@ -3257,7 +3266,7 @@ function _lSum(k){
   if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech') return R.chipLabel('free',S);
   if(t) bits.push(t); else { var vl=(typeof opChipLabel==='function')?opChipLabel(k):''; if(vl) bits.push(vl); }
   if(k==='tribute'&&S.tribute==='bowGroom') bits.push('신랑 큰절');
-  if(k==='toast'){ bits=[opChipLabel?opChipLabel('toast'):'']; }
+  /* [CAKE_TOAST_SPLIT] 케이크 · 축배 요약 조각 없음 */
   return bits.filter(Boolean).join(' · ');
 }
 /* 한 순간(또는 여럿)의 들을 차례 — 엔진 큐 그대로. g = engine() 결과 */
@@ -3866,7 +3875,7 @@ function renderMake(){
        고를 것이 있는 쪽 = 칩이 곧 듣기(누르면 그 판으로 들린다 · 아래 재생 막대가 멈춤을 맡는다) → 단추를 걷었다. 고를 것이 없는 쪽만 «흐름» 머리에 «이 순간 들어 보기». 되살리지 말 것 */
     var lb='<button type="button" class="mk-hbtn" data-fk="mkplay" onclick="lsPlay(\''+k+'\')">'+ICO_PLAY+' 이 순간 들어 보기</button>';
     if(gs.length) h+='<section class="mk-sec mk-pick" aria-label="고르기"><div class="ls-vars">'+_lGroupsHtml(k,gs)+'</div></section>';   // [MK_NO_HEADS]
-    h+=_mkFlow(k,gs.length?'':lb);
+    h+=_mkFlow(k,gs.some(function(g){ return !g.q; })?'':lb);   // [CAKE_TOAST_SPLIT] 소리 나는 칩이 없으면(케이크 준비만) «이 순간 들어 보기»가 나온다
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);
   }
@@ -4110,7 +4119,7 @@ function _lRefKey(k){ var R=RitualOpen;
   if(k==='welcome'||k==='vow'||k==='bless') return [k];
   if(k==='letter') return ['letter:'+R.chipOf('letter',S)];
   if(k==='tribute'){ var t=R.chipOf('tribute',S); if(t==='none') return []; return ['tribute:'+(t==='one'&&R.crossTribute(S)?'cross':t)]; }
-  if(k==='toast'){ var tt=R.chipOf('toast',S); return tt==='cake'?[]:['toast:'+tt]; }
+  if(k==='toast'){ return ['toast:'+R.chipOf('toast',S)]; }   // [CAKE_TOAST_SPLIT] 축배 순간엔 늘 «위하여»
   if(k==='free') return R.FREE_KIND[R.chipOf('free',S)]==='speech'?['free:speech:'+R.chipOf('freeLen',S)]:[];
   if(k==='declare') return R.chipOf('declare',S)==='family'?['declare:family']:[];
   return []; }
@@ -4428,6 +4437,7 @@ function _lSceneName(st){
   /* ★[TOAST_FILE_ONE 2026-09-27] 잔 들기 장면 이름은 'toast' — 파일 규격 17편(encode-moment.sh · videoKeys · 사장님 촬영표 toast.mp4)과 한 이름.
      종전 'toast-raise'(9/25 코워크 이름)는 그런 파일이 없어 firstVideo 로 떨어졌고, 17편이 다 들어오면
      «케이크와 축배» 판은 잔 들기 줄에서 케이크 영상 · «축배만 + 붓기» 판은 붓기 영상이 나왔다(실측). 되살리지 말 것. */
+  if(st.k==='cake') return 'cake';   // [CAKE_TOAST_SPLIT]
   if(st.k==='toast'){ if(/^toast-(both|cake)$|cake-out/.test(s)) return 'cake'; if(/pour/.test(s)&&!/pour-b/.test(s)) return 'toast-pour'; return 'toast'; }
   if(st.k==='entry'&&/entry-out/.test(s)) return 'entry-look';   // [BOW_VIDEO_OFF 2026-09-26] 맞절도 바라보기 영상 · 절 영상은 만들지 않는다
   if(st.k==='tribute'&&/bow-groom/.test(s)) return 'tribute';      // [BOW_VIDEO_OFF] 신랑 큰절도 인사 영상
@@ -4583,6 +4593,7 @@ var PK_GLYPH={
  tribute:'<path d="M22 27V15M22 15c-4-1-6-4-5-8 3 0 5 3 5 8zM22 15c4-1 6-4 5-8-3 0-5 3-5 8z"/>',
  free:'<rect x="8" y="6" width="28" height="18" rx="2"/><path d="M14 27h16"/>',
  letter:'<rect x="9" y="8" width="26" height="17" rx="2"/><path d="M9 9l13 9 13-9"/>',
+ cake:'<path d="M12 26h20M14 26v-9h16v9M14 21h16M24 5l-2 9"/>',   // [CAKE_TOAST_SPLIT]
  toast:'<path d="M14 6h7l-1 9a3 3 0 0 1-5 0zM23 6h7l-1 9a3 3 0 0 1-5 0zM17 17v8M26 17v8M14 26h7M23 26h7"/>',
  _close:'<path d="M8 24c4-8 24-8 28 0"/><circle cx="18" cy="12" r="3"/><circle cx="26" cy="12" r="3"/>'
 };
@@ -6273,6 +6284,8 @@ var _who='';   // ORDER_OWNER: 현 초안의 소유 계정(개인코드) — 임
 function _applySaved(_sv){
   if(!(_sv&&_sv.S&&_sv.S.course&&COURSES[_sv.S.course]&&_sv.cs)) return false;
   for(var _k in _sv.S){ S[_k]=_sv.S[_k]; }
+  /* [CAKE_TOAST_SPLIT] 옛 초안은 ctSplit 이 없다 — 기본 S 의 표시가 남아 옮기기를 건너뛰지 않게 지우고 옮긴다 */
+  if(!_sv.S.ctSplit) delete S.ctSplit; if(window.RitualOpen&&S.course==='open') RitualOpen.migrateCakeToast(S);
   if(!ENTRY[S.entry])S.entry='A'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare]&&!(window.RitualOpen&&RitualOpen.savedOk('declare',S.declare)))S.declare='1';   /* [SAVED_OK] 새 코스 값(clap)은 지키기 */ if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
   courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; _who=_sv.who||_who; buildSteps();
   // [ORD_INTRO2] 안내가 두 화면이 되며 단계가 하나 늘었다 — v 없는 옛 초안은 idx를 한 칸 밀어 같은 자리로 되돌린다
