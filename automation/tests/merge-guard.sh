@@ -2130,7 +2130,28 @@ chk 'ORD_LEAN' order-preview.html 3                      # 순간 화면 설명 
 chk 'ORD_A11Y' order-preview.html 1                     # 강조 행 캡션 대비(4.19→5.48)
 chk 'ORD_INTRO2' order-preview.html 6                    # 안내 2화면 분리 + 퍼센트 제외 + 꼬리표 · 되돌리면 안내가 한 화면에 몰려 390px에서 3화면을 스크롤해야 '시작하기'에 닿는다
 chk 'renderIntro2' order-preview.html 2                 # 둘째 안내 화면(분기 + 함수) 둘 다 있어야 뜬다
-chk 'pf-key' order-preview.html 5                       # 꼬리표 줄(스타일 1 + 4줄) · :has() 대신 클래스라 구 사파리에서도 점이 안 남는다
+chk 'pf-key' order-preview.html 5
+# [INTRO_JOURNEY 2026-09-27 사장님 «미리 알아두면 좋아요 이런 거 빼고 · 연습 · 최종 확정 이런 순서를 한눈에»] 새 코스 안내 2/2 = 여기서 네 걸음 + 그다음 예식까지 네 줄
+chk 'INTRO_JOURNEY' order-preview.html 2
+chk "\['예식<br>14일 전','순서 확정'" order-preview.html 1
+chk "\['예식<br>7일 전','글 마감'" order-preview.html 1
+chk 'INTRO_JOURNEY' scripts/audit/listen-page.mjs 2
+# [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 하루 표 · 홈 FAQ · AI 지식 — 마이페이지 스냅 칸(SNAP_55)과 같은 말
+chk '캔들존 · 화이트존 촬영 55 · 입장 준비 5' order-preview.html 1
+chk '캔들존 · 화이트존 촬영 55분 · 입장 준비 5분이에요' assets/sequence-modal.js 1
+chk '60m | Private Snap · 하객과 분리된 캔들존 · 화이트존에서 촬영 55분 · 입장 준비 5분' index.html 2
+nochk '캔들존 25분 · 이동 5분 · 화이트존 25분' api/_kb.js
+nochk '촬영 25분씩 · 사이 이동 5분' index.html                       # 꼬리표 줄(스타일 1 + 4줄) · :has() 대신 클래스라 구 사파리에서도 점이 안 남는다
+# [HEAD_PILLS · RESTART_IN_PLACE · EX_TOGGLE · LF_STEADY 2026-09-27 사장님] 식순 짓기 머리 알약 넷 · 제자리 비우기 · 예시 다시 누르면 빼기 · 크게 보기 자막 칸 고정
+chk 'HEAD_PILLS' order-preview.html 6
+chk "id='obGuide'" order-preview.html 1
+chk "id='obRestart'" order-preview.html 1
+chk 'RESTART_IN_PLACE' order-preview.html 2
+chk 'S=JSON.parse(_S0)' order-preview.html 1         # 다시 만들기 = 새로고침 없이 초기 판으로 · 처음 화면으로 되돌리지 않는다
+chk 'EX_TOGGLE' order-preview.html 2
+chk 'LF_STEADY' order-preview.html 4
+chk '_lfSteady(f);' order-preview.html 1             # 빼면 글 길이마다 제목·단추가 오르내린다(깨 보기: 144~278px)
+nochk 'data-fk="opblank"' order-preview.html         # «빈 칸에서 직접 고를게요» 중복 링크 · 사장님 «중복 같으니 지우던가»
 chk 'NOW_ONELINE' mypage.html 1                          # NOW 헤드라인 한 줄 원칙 + balance 안전망 · 빼면 '주세요' 3자만 둘째 줄에 남는 고아 줄이 돌아온다
 chk 'NOW_ONELINE' automation/platform/00_platform-config.gs 1  # 서버 문구 첫 문장 13자 이내 규칙(그 문장이 곧 헤드라인이다)
 chk 'IG_LEGIBLE' index.html 2                            # 마크 다층 그림자(어두운 윤곽선) + 리빌 대각 파동 · 한 겹으로 되돌리면 밝은 사진 3장(2·7·9)에서 마크가 대비 1.6으로 사라진다
@@ -11370,7 +11391,7 @@ chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-op
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
 chk "L('tribute','말의 길이'" order-preview.html 1
 chk "'인사 방식'" order-preview.html 1
-chk '예시에서 시작해 순간을 더하고 빼요 · 칸을 누르면 미리 보고 들을 수 있어요.' order-preview.html 1   # [E3]
+chk "\[\['고르기','예시에서 시작해 순간을 더하고 빼요.'\]" order-preview.html 1   # [E3] → [INTRO_JOURNEY 2026-09-27] 안내 화면 네 걸음 첫 줄
 chk "sub:'작은 예식은 보통 이런 흐름이에요. 마음에 드는 예시로 시작해서 더하고 빼면 돼요.'" order-preview.html 1
 nochk '_pickVids' order-preview.html   # ① 카드 자동 재생 영상은 거뒀다 — 칸은 첫 장면 사진만(최종판 3-5 · 사장님 확인)
 nochk 'opVidOff' order-preview.html
@@ -12911,3 +12932,12 @@ fi
 chk 'REVIEW_STAMP_SRC' scripts/build-script-review.mjs 2
 chk "html.replace('@@SRC_STAMP@@', '원천 지문 ' + _srcStamp)" scripts/build-script-review.mjs 1
 nochk 'new Date().toISOString().slice(0, 10)} · 클립' scripts/build-script-review.mjs 0
+# [SNAP_EX_VIEW] 스냅 장면 예시 사진 넘겨 보기(3장) — 사진 전엔 «어떤 사진인지» 글이 사진 자리에(2026-09-27 사장님)
+chk 'SNAP_EX_VIEW' mypage.html 5
+chk 'SNAP_EX_VIEW' assets/snap-refs.js 2
+chk "R.exImg = function (e, ext)" assets/snap-refs.js 1
+chk ", ex: \[{ t: '" assets/snap-refs.js 16
+chk 'function _spExView(id, ctl){' mypage.html 1
+chk "+'</button>'+_spExBtn(s)+'</div>'; }).join('')+'</div>';" mypage.html 1
+chk "querySelectorAll('\[data-sex\],\[data-szoom\]')" mypage.html 1
+chk "예시 사진 '+(k+1)+' · 준비 중" mypage.html 1

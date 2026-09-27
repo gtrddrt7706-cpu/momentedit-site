@@ -190,7 +190,8 @@ for (const w of [390, 1280]) {
   await toPick(pg);
   ok('3-5 ① 머리 = 네 걸음 표시 하나(옛 눈썹 · 막대 · 순서 n/N 숨김) · 처음부터 다시 만들기는 걸음 아래', await pg.evaluate(() => document.body.classList.contains('op4') && getComputedStyle(document.getElementById('pnow')).display === 'none' && getComputedStyle(document.querySelector('.prog-bar')).display === 'none'));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
-  ok('3-5 담은 뒤 걸음 아래 «처음부터 다시 만들기»', await pg.evaluate(() => !!document.querySelector('.op-reset [data-fk="opreset"]')));
+  // [HEAD_PILLS 2026-09-27 사장님] 걸음 아래 밑줄 글 → 머리 알약 넷(안내 보기 · 다시 만들기 · 저장 · 나가기)
+  ok('3-5 담은 뒤 머리 알약 «처음부터 다시 만들기»·«안내 다시 보기» · 걸음 아래 옛 글 없음', await pg.evaluate(() => { const v = (id) => { const e = document.getElementById(id); return !!e && !e.hidden && getComputedStyle(e).display !== 'none'; }; return v('obRestart') && v('obGuide') && !document.querySelector('.op-reset [data-fk="opreset"]'); }));
   await clickNext(pg); await pg.waitForTimeout(1500);
   ok('3-7 영상이 없으면 ② 머리에 큰 빈 상자가 없다', await pg.evaluate(() => !RitualOpen.VIDEO_READY.length && !document.querySelector('.ls-hero .lv')));
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
@@ -271,7 +272,8 @@ for (const w of [390, 1280]) {
 {
   const { ctx, pg, errs } = await open(390);
   await clickNext(pg); await pg.waitForTimeout(400);
-  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 준비는 ③ 한 곳에 · 순서 14일 · 글 7일', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.querySelectorAll('.ipt .n').length === 4 && /준비는 ③\s한 곳에/.test(t) && /순서는 예식\s14일\s전까지, 글은 예식\s7일\s전까지/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
+  /* [INTRO_JOURNEY 2026-09-27 사장님] «미리 알아두면 좋아요» 상자를 빼고 «여기서 네 걸음 → 그다음 예식까지(연습 · 순서 확정 · 글 마감 · 당일)» */
+  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 예식까지 네 줄(연습 · 순서 확정 예식 14일 전 · 글 마감 예식 7일 전 · 진행은 저희가) · «미리 알아두면» 상자 없음 [INTRO_JOURNEY]', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; const rows = [...document.querySelectorAll('.daymap.jr .seqr')].map((r) => r.textContent); return document.querySelectorAll('.ipt .n').length === 4 && rows.length === 4 && /연습/.test(rows[0]) && /처음부터 끝까지 보기/.test(rows[0]) && /14일\s전/.test(rows[1]) && /순서 확정/.test(rows[1]) && /7일\s전/.test(rows[2]) && /글 마감/.test(rows[2]) && /진행은 저희가/.test(rows[3]) && !/미리 알아두면/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
   await clickNext(pg); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   const h0 = await pg.evaluate(() => history.length);
