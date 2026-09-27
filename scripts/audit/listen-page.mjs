@@ -89,7 +89,7 @@ for (const w of [390, 1280]) {
   /* [TEXT_AUDIO_MATCH 2-1] 녹음이 하나도 안 맞는 날은 전부 글로 흐른다 — 줄마다 꼬리표 대신 «처음부터» 아래 한 줄
      ★[REC_STATE_FREE 2026-09-26] 9/26 녹음이 들어와 «지금 녹음 = 옛 대본»이 더는 참이 아니다 — 녹음 기록을 비워 그 상태를 만들어 잰다(저장소 녹음과 상관없이). */
   await pg.evaluate(() => { for (const k in LREC) delete LREC[k]; LS.open = 'candle'; render(); }); await pg.waitForTimeout(300);
-  ok(`${w} ② 전부 녹음 전이면 한 줄만(«새 대본을 녹음하기 전이라…») · 줄 꼬리표 없음`, await pg.evaluate(() => LS.allPend && /새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요/.test((document.querySelector('.ls-allpend') || {}).textContent || '') && !document.querySelector('.ls-row.open .ls-flow .ls-new')));
+  ok(`${w} ② 전부 녹음 전이면 한 줄만(«녹음 전이라 글로 먼저…» · [RIT_NAME_TWO]) · 줄 꼬리표 없음`, await pg.evaluate(() => LS.allPend && /녹음 전이라 글로 먼저 보여 드려요/.test((document.querySelector('.ls-allpend') || {}).textContent || '') && !document.querySelector('.ls-row.open .ls-flow .ls-new')));
   ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px`, await pg.evaluate(() => { const c = document.querySelector('.ls-row.open .op-chip'); return !!c && c.getAttribute('role') === 'radio' && c.closest('[role=radiogroup]') && c.getBoundingClientRect().height >= 44; }));
   ok(`${w} ② 고른 칩이 눈에 보인다(바탕이 다르다) [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.ls-row.open .op-chip[aria-checked="true"]'), off = document.querySelector('.ls-row.open .op-chip[aria-checked="false"]'); return !!on && !!off && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
   // ⑦ 칩 → 바로 재생
@@ -109,7 +109,8 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => lsStop());
   // ⑦ 빼기 · 넣기 한 줄 안내
   await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요) · 되돌리기`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test(document.querySelector('.ls-msg').textContent) && !RitualOpen.onOf(S, 'bless') && !!document.querySelector('[data-fk="lsundo"]')));
+  /* [RIT_UNDO_INPLACE 2026-09-27 4부 10] 빼기 안내 · 되돌리기는 목록 맨 아래(.ls-msg)가 아니라 뺀 그 자리(.ls-gone) */
+  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요) · 되돌리기 — 뺀 그 자리`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test((document.querySelector('.ls-gone') || {}).textContent || '') && !RitualOpen.onOf(S, 'bless') && !!document.querySelector('[data-fk="lsundo"]')));
   await pg.click('[data-fk="lsundo"]'); await pg.waitForTimeout(400);
   ok(`${w} ② 되돌리기 → 다시 담긴다`, await pg.evaluate(() => RitualOpen.onOf(S, 'bless')));
   await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
@@ -177,9 +178,9 @@ for (const w of [390, 1280]) {
   ok('2-2 취소하면 ④로 돌아오고 고른 것이 그대로', await pg.evaluate((s0) => STEPS[idx].k === 'done' && !editReturn && JSON.stringify(S) === s0, snap0));
   // 걸음 표시로 옮기면 수정이 끝난다
   await pg.click(`[data-fk="${keys.find((f) => /candle|ring|declare|toast/.test(f)) || keys[0]}"]`); await pg.waitForTimeout(500);
-  ok('2-2 수정 중 아래 단추 = «취소 / 저장 · 요약으로»', await pg.evaluate(() => editReturn && /저장 · 요약으로/.test(document.getElementById('next').textContent)));
+  ok('2-2 수정 중 아래 단추 = «취소 / 요약으로 돌아가기» [RIT_BACK_WORD]', await pg.evaluate(() => editReturn && /요약으로 돌아가기/.test(document.getElementById('next').textContent)));
   await pg.click('[data-fk="ops:pick"]'); await pg.waitForTimeout(500);
-  ok('2-2 걸음 표시로 옮기면 수정 끝 · 아래 단추가 제 이름 · ① 요약 다시 보임', await pg.evaluate(() => !editReturn && STEPS[idx].k === 'pick' && !/저장 · 요약으로/.test(document.getElementById('next').textContent) && /이전/.test(document.getElementById('prev').textContent) && !!document.getElementById('opCta')));
+  ok('2-2 걸음 표시로 옮기면 수정 끝 · 아래 단추가 제 이름 · ① 요약 다시 보임', await pg.evaluate(() => !editReturn && STEPS[idx].k === 'pick' && !/요약으로 돌아가기/.test(document.getElementById('next').textContent) && /이전/.test(document.getElementById('prev').textContent) && !!document.getElementById('opCta')));
   ok('2-2 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -203,7 +204,8 @@ for (const w of [390, 1280]) {
   ok('3-4 ③ 머리 «비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요» · D-7 없음', /비워 둬도 돼요 · 예식 7일 전까지 채우면 대본에 담겨요/.test(w.t) && !/D-7|D-14/.test(w.t));
   ok('3-4 ③ 갈래 안에 갈래 꼬리표가 없다', w.cats === 0, w.cats);
   ok('3-4 반지 = 당일 가져오기 · 부모님께 드릴 말 = 당일 직접 읽어요 · 양가 와인 = 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(w.t) && /부모님께 드릴 말 · 선택/.test(w.t) && /적어 두시면 카드로 인쇄해 드려요\. 비워 두시면 당일 직접 말씀하시면 돼요/.test(w.t) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(w.t), w.t.slice(0, 400));
-  ok('3-4 셈 줄은 무엇을 세는지 말한다(«여기에 적는 글 2개 중 0개»)', /^여기에 적는 글 \d+개 중 \d+개 적었어요\.$/.test(w.cnt), w.cnt);
+  /* [RIT_PREP_ONECOUNT 2026-09-27 4부 13] 셈은 머리의 «두 분이 준비할 것 N가지» 하나 — «여기에 적는 글 N개 중 M개» 줄은 없다 */
+  ok('3-4 셈은 «두 분이 준비할 것 N가지» 하나(«여기에 적는 글 …» 줄 없음) [RIT_PREP_ONECOUNT]', !w.cnt && !/여기에 적는 글 \d+개 중/.test(w.t) && /두 분이 준비할 것 · \d+가지/.test(w.t) && !/부모님께 부탁드릴 것 · \d+가지/.test(w.t), w.cnt);
   /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 선택 칸은 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
   const tb = await pg.evaluate(() => { const t = document.querySelector('textarea[aria-label="부모님께 드릴 말"]'); const n0 = document.querySelectorAll('.wc-stat').length; t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, n0, inScript: /부모님께 드릴 말\(두 분 작성 · 카드로 인쇄\):\n엄마 아빠 고마워요/.test(sc), gone: !/카드로 인쇄\):/.test(scriptText()) }; });
   ok('사장님 · 부모님께 드릴 말 선택 칸 — 셈 줄 밖(wc-stat 2) · 적으면 대본에 · 비우면 없음', tb.has && tb.n0 === 2 && tb.inScript && tb.gone, JSON.stringify(tb));
@@ -211,7 +213,7 @@ for (const w of [390, 1280]) {
   await clickNext(pg); await pg.waitForTimeout(900);
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + (k === RitualOpen.peakOf(S) ? '★ ' : '') + _lName(k)) }));
   ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · ★)', JSON.stringify(d.rows) === JSON.stringify(d.want), JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
-  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /담은 순간 \d+ · 본식 약 \d+~\d+분 · 단체 사진 약 \d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③ 준비하기에서 보기/.test(d.t), d.t.slice(0, 300));
+  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ③ 준비하기에서 보기', /담은 순간 \d+ · 본식 약\s\d+~\d+분 · 단체 사진 약\s\d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /③\s준비하기에서 보기/.test(d.t), d.t.slice(0, 300));
   /* ★[GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 꽃 — ② 칩(담았을 때만 · 큰절이면 꽃 없음) · 맡기면 ③ 「저희가 준비해요 · 별도 비용」 · 초안에 실림 */
   const gd = await pg.evaluate(() => {
     const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};
@@ -225,7 +227,8 @@ for (const w of [390, 1280]) {
   ok('5-1 ② 칩 «케이크 준비» · «꽃 준비»가 그 순간에만 · 신랑 큰절이면 꽃 칩 없음 · 축배만이면 케이크 없음', gd.chips.includes('cakeBy') && gd.chips.includes('flowerBy') && !gd.bow.includes('flowerBy') && gd.bowGoods.join() === '케이크' && gd.toastOnly === 0, JSON.stringify(gd.chips) + JSON.stringify(gd.bow) + gd.toastOnly);
   ok('5-1 맡기면 ③ «저희가 준비해요 · 별도 비용» · 챙길 것에서 빠짐 · 초안 summary.goods 에 실림', /저희가 준비해요/.test(gd.w) && /별도 비용 · 금액은 상담 때 안내해 드려요/.test(gd.w) && !/케이크 · 크기/.test(gd.bring) && JSON.stringify(gd.sm) === JSON.stringify([{ what: '케이크', by: 'studio' }, { what: '부모님께 드릴 꽃', by: 'studio' }]), JSON.stringify(gd.sm) + ' ' + gd.bring);
   const sc = await pg.evaluate(() => scriptText());
-  ok('3-2 대본 = 엔진 큐(케이크 · 축배 큐가 GLASS_READY · 편지 낭독 중 잔 없음 · 번호 ② 와 같음)', /큐: 커팅 · 포즈 동안/.test(sc) && !/편지 낭독 중 하객 잔/.test(sc) && /\n1\. 화촉/.test(sc) && !/폐식·단체촬영/.test(sc) && !/D-7/.test(sc), sc.slice(0, 500));
+  /* [RIT_NO_CUE_COPY 2026-09-27 4부 20] 고객용 복사 · 파일 저장에는 «큐:»(현장 지시) 줄이 없다 — 케이크 · 축배 큐(GLASS_READY)는 엔진 · 콘솔이 그대로 지닌다 */
+  ok('3-2 대본 = 엔진 순서(«큐:» 줄 없음 [RIT_NO_CUE_COPY] · 편지 낭독 중 잔 없음 · 번호 ② 와 같음)', !/^큐: /m.test(sc) && !/편지 낭독 중 하객 잔/.test(sc) && /\n1\. 화촉/.test(sc) && !/폐식·단체촬영/.test(sc) && !/D-7/.test(sc), sc.slice(0, 500));
   const saved = await pg.evaluate(() => { let n = 0; const o = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) n++; }; try { saveScriptTxt(); } finally { HTMLAnchorElement.prototype.click = o; } return n; });
   ok('3-2 «파일로 저장»이 실제로 내려받기를 건다(SAVE_TXT_LIVE)', saved === 1, saved);
   ok('3장 pageerror 0', errs.length === 0, errs.join(' | '));
@@ -268,7 +271,7 @@ for (const w of [390, 1280]) {
 {
   const { ctx, pg, errs } = await open(390);
   await clickNext(pg); await pg.waitForTimeout(400);
-  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 준비는 ③ 한 곳에 · 순서 14일 · 글 7일', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.querySelectorAll('.ipt .n').length === 4 && /준비는 ③ 한 곳에/.test(t) && /순서는 예식 14일 전까지, 글은 예식 7일 전까지/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
+  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 준비는 ③ 한 곳에 · 순서 14일 · 글 7일', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; return document.querySelectorAll('.ipt .n').length === 4 && /준비는 ③\s한 곳에/.test(t) && /순서는 예식\s14일\s전까지, 글은 예식\s7일\s전까지/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
   await clickNext(pg); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   const h0 = await pg.evaluate(() => history.length);

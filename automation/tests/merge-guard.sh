@@ -12781,3 +12781,67 @@ nochk '<div class="ph-sec">하객 사진 모으기' mypage.html
 chk 'PHOTO_EMPTY_SAVE' scripts/audit/photo-friend.mjs 1
 chk 'SNAP_FLOW_TEXT' scripts/audit/snap-plan.mjs 2
 chk 'PHOTO_UNIT_ONE' scripts/check-ritual-cue.js 1
+# ════════════════════════════════════════════════════════════════════════════════
+# [SPEC6_P4] 식순 짓기 «우리 예식 짓기» 4부 (2026-09-27 · 사장님 · 코워크 지시문 6편) — order-preview.html
+#   셈(분 · 순간 수) · 소리 · 대본 내용은 안 바꿨다. 글과 모양만. 표식을 지우면 아래가 붉어진다.
+# ① 고르기
+chk 'RIT_CURVE_LABEL' order-preview.html 5          # 1 카드 곡선 아래 «감동 흐름» · 판은 둘 미만 · 평평하면 한 줄
+chk '<span class="pk-ex-cap">감동 흐름</span>' order-preview.html 1
+chk '순간을 더 담으면 흐름이 그려져요' order-preview.html 1
+chk 'RIT_PANEL_NOMIN' order-preview.html 1          # 2 흐름 판 머리의 «본식 약 N분» 뺌
+nochk 'pk-fp-body mo' order-preview.html 0
+chk 'RIT_BAR_ONELINE' order-preview.html 3          # 3 아래 막대는 «살펴볼 것 N ›» 한 마디
+chk "살펴볼 것 '+_noteCount()+' ›" order-preview.html 1
+nochk "class=\"cta-al\" data-fk=\"opnal\" onclick=\"opToNote()\">'+esc(R.firstSentences" order-preview.html 0   # 알림 글은 막대에 싣지 않는다
+chk 'RIT_SAVE_IDLE' order-preview.html 2            # 4 처음 연 화면은 꺼진 «저장»
+chk "ob-exit ob-save idle" order-preview.html 1
+chk 'RIT_PRICE_WORD' order-preview.html 1           # 5 «값» → «가격»
+chk '무엇을 담아도 가격은 같아요.' order-preview.html 1
+nochk '무엇을 담아도 값은 같아요' order-preview.html 0
+chk 'RIT_UNDO_ABOVE' order-preview.html 1           # 6 되돌리기 알림이 «빈 칸에서 직접 고를게요»를 덮지 않게
+# ② 보고 듣기
+chk 'RIT_FIRST_VISIBLE' order-preview.html 2        # 7 «← 고르기로» 뺌 — 되살리지 말 것
+nochk '← 고르기로</button>' order-preview.html 0
+nochk '← 고르기의' order-preview.html 0
+chk 'RIT_NO_EMPTY_THUMB' order-preview.html 4       # 8 장면 영상이 없으면 회색 ▶ 칸 숨김 · 크게 보기 글은 세로 가운데
+chk 'RIT_CHIP_GRID' order-preview.html 2            # 9 라벨 칸 + 칩 칸 두 열
+chk '<span class="cg-c">' order-preview.html 1
+chk 'RIT_UNDO_INPLACE' order-preview.html 4         # 10 «이 순간 빼기»의 되돌리기는 뺀 그 자리
+chk 'class="ls-gone"' order-preview.html 1
+chk 'RIT_BIG_BTN' order-preview.html 2              # 11 작은 플레이어 «크게 보기» 글 단추
+chk 'class="lm-g" onclick="lsOpenBig()">크게 보기</button>' order-preview.html 1
+# ③ 준비하기
+chk 'RIT_FILE_CHECK' order-preview.html 5           # 12 새 코스 녹음 칸은 파일 창 대신 «챙겼어요» · 보내는 곳 안내는 한 번
+chk '챙겼어요</span></label>' order-preview.html 1
+nochk "h+=_sendHow('두 분 목소리 녹음 파일');" order-preview.html 0
+chk 'RIT_PREP_ONECOUNT' order-preview.html 1        # 13 셈은 «두 분이 준비할 것 N가지» 하나
+nochk 'id="wcCount" data-pre="여기에 적는 글 "' order-preview.html 0
+nochk "부모님께 부탁드릴 것 · '+par.length+'가지" order-preview.html 0
+chk 'RIT_VOW_GROW' order-preview.html 4             # 14 글칸 처음 4줄 · 쓰는 만큼 · 넘으면 한 줄
+chk '권장 길이를 넘었어요 · 줄이면 읽기 편해요' order-preview.html 1
+chk 'RIT_EXAMPLE_CARD' order-preview.html 2         # 15 예시 카드는 .oc.on 을 빌리지 않는다
+nochk '<div class="oc on" style="cursor:default">' order-preview.html 0
+# ④ 완성
+chk 'RIT_DONE_TITLE' order-preview.html 4           # 16 저장 전 «이대로 저장하면 완성돼요» · 담은 순간 N = 요약 줄 수
+chk "'이대로 저장하면 완성돼요'" order-preview.html 1
+chk 'RIT_SUMMARY_STACK' order-preview.html 2        # 17 순번 · 이름 / 아래 값 · «변경» 글 단추
+chk 'RIT_RESTART_LOW' order-preview.html 4          # 18 «처음부터 다시 만들기»는 맨 아래 작은 밑줄 글
+chk 'id="opResetLow"' order-preview.html 1
+chk 'RIT_BACK_WORD' order-preview.html 1            # 19 «저장 · 요약으로» → «요약으로 돌아가기»(저장하지 않는다)
+chk "editReturn?'요약으로 돌아가기'" order-preview.html 1
+nochk "editReturn?'저장 · 요약으로'" order-preview.html 0
+chk 'RIT_NO_CUE_COPY' order-preview.html 2          # 20 복사 · 파일 저장에서 «큐:» · 안쪽 표지 빼기(스태프 콘솔은 그대로)
+nochk "lines.push('큐: '+c.live.t)" order-preview.html 0
+# 모든 걸음
+chk 'RIT_KO_SERIF_FIRST' order-preview.html 1       # 21 한글 문단은 Noto Serif KR 먼저
+nochk 'font-family:var(--serif)' order-preview.html 0
+chk 'RIT_WRAP' order-preview.html 5                 # 22 NBSP 묶음 · text-wrap:pretty
+chk 'RIT_TYPE5' order-preview.html 2                # 23 글자 크기 다섯 단계
+nochk 'font-size:\(10\|10\.5\|11\.5\|12\|13\|13\.5\|14\.5\|15\|15\.5\|17\|18\|19\)px' order-preview.html 0
+chk 'RIT_PILL_SANS' order-preview.html 1            # 24 알약 고딕 · 꺼진 «저장됨» 3:1 이상
+nochk '\.ob-save:disabled{opacity:\.5' order-preview.html 0
+chk 'RIT_NAME_TWO' order-preview.html 4             # 25 이름은 «식순»(마이페이지 행) · «우리 예식 짓기»(화면 안) 둘
+chk '<title>우리 예식 짓기 · Moment Edit</title>' order-preview.html 1
+nochk '식순 미리보기' order-preview.html 0
+nochk "fr.title='식순 만들기'" mypage.html 0
+chk 'RIT_WIDTH_720' order-preview.html 1            # 26 PC ②③④ 폭 720

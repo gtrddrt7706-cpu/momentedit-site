@@ -124,9 +124,10 @@ for (const w of [390, 1280]) {
   // I1 · I2 · I3 ④
   await go(pg, 'done'); await pg.waitForTimeout(400);
   const d = await pg.evaluate(() => { const hd = document.querySelector('.done-hd .s'), f = document.querySelector('.done-flow'), svg = f && f.querySelector('svg.flow-svg');
-    return { s: hd ? hd.textContent : '', svg: !!svg, w: svg ? +svg.getAttribute('width') : 0, h: svg ? +svg.getAttribute('height') : 0, star: svg ? [...svg.querySelectorAll('text')].some((t) => /^★ /.test(t.textContent)) : false,
+    /* [RIT_WRAP 2026-09-27 4부 22] 화면 글은 «약 · 일 전» 사이가 NBSP 로 묶인다 — 글자로 잴 때는 보통 공백으로 되돌려 잰다 */
+    return { s: hd ? hd.textContent.replace(/\u00a0/g, ' ') : '', svg: !!svg, w: svg ? +svg.getAttribute('width') : 0, h: svg ? +svg.getAttribute('height') : 0, star: svg ? [...svg.querySelectorAll('text')].some((t) => /^★ /.test(t.textContent)) : false,
       names: svg ? svg.querySelectorAll('text').length : 0, fw: f ? Math.round(f.getBoundingClientRect().width) : 0,
-      edit: [...document.querySelectorAll('.done-edit')].map((e) => e.textContent), ow: document.documentElement.scrollWidth - innerWidth }; });
+      edit: [...document.querySelectorAll('.done-edit')].map((e) => e.textContent.replace(/\u00a0/g, ' ')), ow: document.documentElement.scrollWidth - innerWidth }; });
   ok(`${w} I1 ④ 머리 «담은 순간 N · 본식 약 … · 단체 사진 약 …» [I1_HEAD]`, /^담은 순간 \d+ · 본식 약 \d+~\d+분 · 단체 사진 약 \d+~\d+분$/.test(d.s), d.s);
   ok(`${w} I2 ④ 감동 흐름 그림 — ★ 이름 · 폭 맞춤${w >= 1000 ? ' · 순간 이름 · 높이 150' : ' · 높이 112'} [I2_DONE_FLOW]`, d.svg && d.star && Math.abs(d.w - d.fw) <= 2 && (w >= 1000 ? (d.h === 150 && d.names > 3) : d.h === 112), JSON.stringify(d));
   ok(`${w} I3 ④ «순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.» 한 번 [I3_EDIT_WINDOW]`, d.edit.length === 1 && d.edit[0] === '순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.', JSON.stringify(d.edit));

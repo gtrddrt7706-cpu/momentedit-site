@@ -2166,13 +2166,13 @@ function openContractView(){
 // 식순 만들기 — 계약서와 동일한 iframe 오버레이(/order-preview.html?embed=1) · postMessage로 서버 초안 주입, 저장 수신 → saveProductionTrack(ritual)
 function openRitualBuilder(p, inv){
   var old=$('mp_obViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
-  var ov=document.createElement('div'); ov.id='mp_obViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','식순 만들기');
+  var ov=document.createElement('div'); ov.id='mp_obViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','우리 예식 짓기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
   // ★'식순 만들기' 상단 고정 바 재추가 금지 — 2026-07-16 사용자 지시로 삭제(스크롤 따라다니는 헤더 대신 빌더 안 진행 스트립이 따라옴).
   //   2026-07-17 병합 역전으로 한 번 되살아나 재삭제됨. 닫기는 아래 플로팅 ✕가 담당 — 리뷰·복구·병합에서 바를 복원하지 말 것.
   var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.textContent='✕';
   x.style.cssText='position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:1px solid var(--border,#DDD8D1);background:rgba(255,255,255,.92);border-radius:999px;font-size:14px;color:var(--sub,#5A554C);cursor:pointer;box-shadow:0 1px 6px rgba(40,32,24,.08)';
-  var fr=document.createElement('iframe'); fr.id='mp_obFrame'; fr.src='/order-preview.html?embed=1'; fr.title='식순 만들기';
+  var fr=document.createElement('iframe'); fr.id='mp_obFrame'; fr.src='/order-preview.html?embed=1'; fr.title='우리 예식 짓기';
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(x); ov.appendChild(fr);
   ov.style.opacity='0'; ov.style.transition='opacity .22s ease';
