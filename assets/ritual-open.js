@@ -71,7 +71,10 @@
     tribute: [['one', '한마디씩'], ['long', '1분쯤씩'], ['none', '말 없이']],   /* [DETAIL_0925 E] 준비 목록에는 «한 분 400자 안팎» */
     letter: [['each', '서로에게'], ['parent', '각자 부모님께']],
     toast: [['both', '케이크와 축배'], ['toast', '축배만'], ['cake', '케이크만']],
-    wine: [['mix', '두 와인을 한 잔에'], ['family', '양가 와인 한 병씩'], ['none', '붓지 않음']],
+    /* ★★[WINE_POUR_OFF 2026-09-27 사장님 «와인은 우리가 준비하는 건데 그냥 건배사를 하려고 하는 건데 · 그런 이벤트가 있다면 없애야 할 거야»]
+       두 와인을 한 잔에 붓기 · 양가 와인 한 병씩을 걷었다 — 축배는 저희가 준비한 잔으로 건배사만. 값은 늘 'none'(엔진은 'none'이면 붓는 줄을 만들지 않는다 · 옛 코스와 같은 길).
+       고르는 칩 · 두 분 «와인 두 병» 챙길 것 · 양가 «와인 한 병씩» 부탁도 함께 사라진다. 되살리지 말 것 */
+    wine: [['none', '붓지 않음']],
     /* ★[FREE_WHAT 2026-09-25 코워크 4-4] 준비한 순서 — 무엇을 × 길이. 라이브 노래 · 연주는 받지 않는다(사장님 결정 1 · 4). */
     /* [DETAIL_0925 E] 여섯 → 넷(FREE_KIND 네 갈래와 같게). 옛 값 dance · show · hand 는 chipOf · norm 이 갈래로 옮긴다 */
     free: [['video', '영상'], ['stage', '춤 · 공연'], ['gift', '깜짝 선물 · 전달'], ['speech', '친구 · 가족의 축사']],
@@ -95,7 +98,7 @@
     if (k === 'tribute') return CHIP_OK('tribute', S.tributeSay) ? S.tributeSay : 'one';
     if (k === 'letter') return S.letter === 'parent' ? 'parent' : 'each';
     if (k === 'toast') return CHIP_OK('toast', S.toast) ? S.toast : 'both';
-    if (k === 'wine') return CHIP_OK('wine', S.wine) ? S.wine : 'mix';
+    if (k === 'wine') return 'none';   // [WINE_POUR_OFF]
     if (k === 'free') { var fv = FREE_OLD[S.freeWhat] || S.freeWhat; return CHIP_OK('free', fv) ? fv : 'video'; }
     if (k === 'freeLen') return CHIP_OK('freeLen', String(S.freeLen)) ? String(S.freeLen) : '3';
     if (k === 'entryScene') return S.entryScene === 'bow' ? 'bow' : 'look';
@@ -135,7 +138,7 @@
      새로고침하면 _applySaved 가 '1'(엄숙하게)로 말없이 바꿔 그대로 저장했다. */
   var SAVED_OK = { declare: ['1', '2', 'clap'] };
   function savedOk(key, v) { return !!SAVED_OK[key] && SAVED_OK[key].indexOf(String(v)) > -1; }
-  var DEF = { entry: 'A', declareWho: 'narr', declare: '1', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'mix', candleWho: 'mothers', freeWhat: 'video', freeLen: '3', entryScene: 'look' };
+  var DEF = { entry: 'A', declareWho: 'narr', declare: '1', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'none', candleWho: 'mothers', freeWhat: 'video', freeLen: '3', entryScene: 'look' };
 
   /* ── 화촉 서는 분(연출 단계 · S.candleWho) ── */
   var CANDLE_WHO = [['mothers', '양가 어머님'], ['parents', '어머님과 아버님'], ['fathers', '아버님 두 분'], ['others', '다른 두 분']];
@@ -414,10 +417,10 @@
     if (sm.who) o.slug = 'narr-candle-in-' + ((S && S.candleWho) || DEF.candleWho); return o; }
   function firstSentences(t, n) { var parts = String(t || '').match(/[^.?!]+[.?!]+/g) || [String(t || '')]; return parts.slice(0, n).join(' ').replace(/\s+/g, ' ').trim(); }
   /* 대표 한 줄을 들을 때 엔진을 부를 S — 모든 순간을 담고 판은 표의 판(입장 A · 엄숙 · 서로에게 · 케이크와 축배 · 와인 두 병 · 영상) */
-  function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: 'narr', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'mix', freeWhat: 'video', freeLen: '3', candleWho: (S && S.candleWho) || DEF.candleWho }; }
+  function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: 'narr', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'video', freeLen: '3', candleWho: (S && S.candleWho) || DEF.candleWho }; }
 
   /* ══ [PREVIEW_SHEET 2026-09-26 코워크 추가 전달 3 F2] 미리 보기 창 «② 하나씩 만들기에서 고를 것» — ② 묶음 이름(G3 로 고친 이름)과 같은 말 ══ */
-  var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리 · 첫 모습', declare: '누가 · 말투', tribute: '말의 길이 · 인사 방식 · 꽃 준비', letter: '받는 분', toast: '무엇을 · 와인 · 케이크 준비', free: '무엇을 · 길이' };
+  var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리 · 첫 모습', declare: '누가 · 말투', tribute: '말의 길이 · 인사 방식 · 꽃 준비', letter: '받는 분', toast: '무엇을 · 케이크 준비', free: '무엇을 · 길이' };
 
   /* ── 준비할 것 · [누구, 무엇, 갈래] ──
      누구: couple = «두 분이 준비할 것» · parents = «부모님께 부탁드릴 것» (이 이름 한 쌍을 ① 상자 · ② 칸 · ③ · 마이페이지에 똑같이)
@@ -456,9 +459,7 @@
       }
       case 'letter': return [['couple', chipOf('letter', S) === 'each' ? '서로에게 편지 · 한 분 400자쯤' : '부모님께 편지 · 한 분 400자쯤', 'write', null, NOTE_READ]];
       case 'toast': {
-        var w = chipOf('toast', S), wine = (w === 'cake') ? 'none' : chipOf('wine', S), out = [];
-        if (wine === 'family') out.push(['parents', '양가에서 와인 한 병씩', 'ask', 0]);
-        if (wine === 'mix') out.push(['couple', '색이 다른 와인 두 병(또는 음료 둘)', 'bring', 0]);
+        var w = chipOf('toast', S), out = [];   // [WINE_POUR_OFF] 와인은 저희가 준비 · 붓는 연출 없음
         if (w !== 'cake') out.push(['couple', '자리마다 축배 음료 알려 주기 · 마이페이지 «좌석' + NB + '·' + NB + '음료»에서', 'send', 7]);   // [P10 코워크 회신3] «정하기» → «알려 주기»(같은 갈래 «건넬지 알려 주기»와 같은 꼴)
         return out.concat(goodsPrep('toast', S));
       }

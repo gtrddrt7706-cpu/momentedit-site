@@ -2262,7 +2262,7 @@ chk '_lfSteady(f);' order-preview.html 1             # 빼면 글 길이마다 �
 nochk 'data-fk="opblank"' order-preview.html         # «빈 칸에서 직접 고를게요» 중복 링크 · 사장님 «중복 같으니 지우던가»
 # [CHIP_NO_REPLAY · CHIP_STAY · PRACTICE_CHOOSE · REF_EXAMPLE 2026-09-27 사장님 «버튼 누를 때마다 음성 재생 · 다 고르지 못해도 넘어간다 · 들어 보는 건지 고르는 건지 헷갈린다 · 참고 예시 대본과 녹음»]
 chk 'CHIP_NO_REPLAY' order-preview.html 3
-chk 'if(g0&&g0.cur===v) return;' order-preview.html 1      # 이미 고른 칩은 아무것도 안 한다
+chk 'if(g0&&g0.cur===v&&g0.picked!==false) return;' order-preview.html 1      # 이미 고른 칩은 아무것도 안 한다 · [CHIP_UNPICKED] 안 고른 기본은 눌러서 듣는다
 chk 'CHIP_STAY' order-preview.html 7
 chk 'PRACTICE_CHOOSE' order-preview.html 5
 chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
@@ -13308,3 +13308,13 @@ nochk '<h4 id="mkPickH">고르기</h4>' order-preview.html
 nochk '<h4>흐름</h4>' order-preview.html
 nochk '식전 영상 쪽 «흐름»에서' order-preview.html
 chk 'CHIP_UNPICKED' scripts/audit/rec-upload.mjs 2
+# ★★[WINE_POUR_OFF 2026-09-27 사장님 «와인은 우리가 준비하는 건데 그냥 건배사를 하려고 하는 건데 · 그런 이벤트가 있다면 없애야 할 거야»]
+chk 'WINE_POUR_OFF' assets/ritual-open.js 3
+chk "    wine: \[\['none', '붓지 않음'\]\]," assets/ritual-open.js 1
+chk "if (k === 'wine') return 'none';" assets/ritual-open.js 1
+nochk "'양가에서 와인 한 병씩'" assets/ritual-open.js
+nochk "'색이 다른 와인 두 병" assets/ritual-open.js
+nochk "L('wine','와인'" order-preview.html
+nochk "rows.push(\['와인','wine'\])" order-preview.html
+chk 'WINE_POUR_OFF' api/_ritual-kb.js 1
+chk 'WINE_POUR_OFF' scripts/audit/open-course.mjs 3

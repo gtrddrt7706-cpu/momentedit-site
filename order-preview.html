@@ -1280,7 +1280,7 @@ body.lsfull{overflow:hidden}
 </div>
 <script src="/assets/ritual-open.js"></script><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
-var S={course:'open',on:{},wine:'mix',tributeSay:'one',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
+var S={course:'open',on:{},wine:'none',tributeSay:'one',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
@@ -3096,7 +3096,7 @@ window.opUndo=function(){
 function opChips(k,on){
   if(!on) return '';
   var rows=[];
-  if(k==='toast'){ rows.push(['무엇을','toast']); if(RitualOpen.chipOf('toast',S)!=='cake') rows.push(['와인','wine']); }
+  if(k==='toast'){ rows.push(['무엇을','toast']); }   // [WINE_POUR_OFF] 와인 줄 걷음
   else if(k==='free'){ rows.push(['무엇을','free']); rows.push(['길이','freeLen']); }   // [FREE_WHAT] 무엇을 × 길이
   else if(RitualOpen.CHIPS[k]) rows.push(['',k]);
   if(!rows.length) return '';
@@ -3216,7 +3216,7 @@ function _lGroups(k){
   if(k==='tribute'){ L('tribute','말의 길이',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','인사 방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower'); _lGoods('tribute',L); }
   if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S)); L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
   if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));
-  if(k==='toast'){ L('toast','무엇을',R.CHIPS.toast,R.chipOf('toast',S)); if(R.chipOf('toast',S)!=='cake') L('wine','와인',R.CHIPS.wine,R.chipOf('wine',S)); _lGoods('toast',L); }
+  if(k==='toast'){ L('toast','무엇을',R.CHIPS.toast,R.chipOf('toast',S)); _lGoods('toast',L); }
   /* ★★[CHIP_UNPICKED 2026-09-27 사장님 «안내 목소리 처음에는 안 눌린 상태로 있어야지 · 그래야 누르면 소리가 나오지 · 나레이션 음성을 처음에 들을 방법이 없잖아»]
      기본값을 눌린 모양으로 두면, 이미 고른 칩은 다시 틀지 않으므로([CHIP_NO_REPLAY]) 기본 소리를 칩으로 들을 길이 없었다.
      이제 두 분이 직접 누른 묶음(S.touched)이나 기본과 달라진 묶음(예시로 시작 · 옛 초안)만 눌린 모양 · 아직 안 고른 기본은 비어 보이고 누르면 들린다.

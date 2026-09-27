@@ -27,11 +27,12 @@ ok('새 코스도 옛 카드 목록엔 없다(hidden)', D.COURSES.open.hidden ==
 
 /* ── 2. 시간 — [DAY_60 · RANGE_40 · EX_BRIEF 2026-09-26] 스냅 60 · 합 40 · 넷째 예시 «간결» · «약속» 인사 말 없이(코워크 회신 9/26 2-3 · 2-6 표) ── */
 /* ★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2] 닫는 인사(108 · 목례 · 박수)가 들어가 본식이 +16~19초 · 사진과 인사가 그만큼 준다(합 50 그대로) */
-const WANT = { record: ['약 12~17분', '약 23~28분'], promise: ['약 14~20분', '약 20~26분'], family: ['약 17~24분', '약 16~23분'], brief: ['약 8~12분', '약 28~32분'] };
+// [WINE_POUR_OFF 2026-09-27 사장님] 와인 붓기(두 와인을 한 잔에 · 기본)를 걷어 축배가 약 30초 짧아졌다 — 옛 12~17 · 14~20 · 17~24 / 23~28 · 20~26 · 16~23
+const WANT = { record: ['약 11~16분', '약 24~29분'], promise: ['약 13~19분', '약 21~27분'], family: ['약 16~23분', '약 17~24분'], brief: ['약 8~12분', '약 28~32분'] };
 for (const k in WANT) { const s = O.span(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› 본식 ${WANT[k][0]} · 사진과 인사 ${WANT[k][1]}`, s.body === WANT[k][0] && s.photo === WANT[k][1], `${s.body} / ${s.photo}`); }
 // 4-9 초 단위 — 기록 11:49~16:49 · 약속 14:25~20:39 · 전부 17:47~24:59 (CLOSE_BOW 뒤 · 옛 11:33~16:31 · 14:09~20:21 · 17:31~24:41)
 const mmss = (x) => Math.floor(x / 60) + ':' + String(Math.round(x % 60)).padStart(2, '0');
-const SEC = { record: '11:49~16:49', promise: '13:55~20:00', brief: '8:24~12:25' };
+const SEC = { record: '11:18~16:08', promise: '13:24~19:19', brief: '7:53~11:44' };   // [WINE_POUR_OFF] 옛 11:49~16:49 · 13:55~20:00 · 8:24~12:25
 for (const k in SEC) { const b = O.bodySec(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› ${SEC[k]}`, mmss(b[0]) + '~' + mmss(b[1]) === SEC[k], mmss(b[0]) + '~' + mmss(b[1])); }
 ok('예시 넷에는 준비한 순서가 없다 · 알림 없음', O.EXAMPLES.every((e) => e.on.indexOf('free') < 0 && !O.noticeOf(O.applyExample({}, e.k))));
 ok('인사 한마디씩 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 한마디씩»', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'one'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 한마디씩'; })());
@@ -90,9 +91,9 @@ ok('화촉이 뒤에 오면 04 → 89(guest-4-1min-pre)', (() => { const s = slu
 ok('두 분 목소리면 04 는 그대로(첫 줄이 이미 맞다)', slugs({ course: 'open', on: { candle: 1 }, guestVoice: 'couple' }).indexOf('guest-4-1min') > -1);
 ok('화촉 서는 분 → 여는 말 판', ['mothers', 'parents', 'fathers', 'others'].every((w) => slugs({ course: 'open', on: { candle: 1 }, candleWho: w }).indexOf('narr-candle-in-' + w) > -1));
 ok('선언 박수 판 → 96 · 97', (() => { const s = slugs({ course: 'open', on: { declare: 1 }, declare: 'clap' }); return s.indexOf('declare-clap-a') > -1 && s.indexOf('declare-clap-b') > s.indexOf('declare-clap-a'); })());
-ok('와인 두 병 → 98 · 케이크 뒤 · 선창은 107(P2)', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'mix' }); return s.indexOf('toast-pour-mix') > s.indexOf('toast-both') && s.indexOf('toast-pour-mix') < s.indexOf('toast-both-pour-b') && s.indexOf('toast-both-b') < 0; })());
+ok('[WINE_POUR_OFF] 옛 초안의 «두 와인» 값이 와도 붓기 없음 · 선창 81 그대로', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'mix' }); return s.every((x) => x.indexOf('toast-pour') < 0) && s.indexOf('toast-both-b') > -1 && s.indexOf('toast-both-pour-b') < 0; })());
 ok('붓지 않는 날은 선창 81 그대로', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'both', wine: 'none' }); return s.indexOf('toast-both-b') > -1 && s.indexOf('toast-both-pour-b') < 0; })());
-ok('양가 → 99 · 축배만이면 선창 앞', (() => { const s = slugs({ course: 'open', on: { toast: 1 }, toast: 'toast', wine: 'family' }); return s.indexOf('toast-pour-family') > -1 && s.indexOf('toast-pour-family') < s.indexOf('toast-toast'); })());
+ok('[WINE_POUR_OFF] 옛 초안의 «양가 한 병씩» 값이 와도 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'toast', wine: 'family' }).every((x) => x.indexOf('toast-pour') < 0));
 ok('케이크만이면 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'cake', wine: 'mix' }).every((x) => x.indexOf('toast-pour') < 0));
 /* ★[CLAP_FEW 2026-09-26 사장님] 104(맺는 말 «따뜻한 박수 부탁드립니다»)는 흐름에서 뺐다 · 클립은 FILES 에 둔다 */
 ok('준비한 순서 판별 넷 → 여는 말 100~103 · 맺는 말 104 는 안 나온다(CLAP_FEW)', ['video', 'dance', 'gift', 'speech'].every((w) => { const s = slugs({ course: 'open', on: { free: 1 }, freeWhat: w }); const kind = O.FREE_KIND[w]; return s.indexOf('narr-free-in-' + kind) > -1 && s.indexOf('narr-free-out-clap') < 0 && s.indexOf('narr-free-in') < 0; }));
@@ -146,7 +147,7 @@ if (process.argv.includes('--live')) {
     ok(`${w} 빈 채 알림 없음 · 늘 있어요 둘(입장 · 닫는 인사 · 식전 영상은 담는 칸 [PREVIDEO_PICK]) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 2 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
     ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '축가', '추가 비용'].some((x) => s.text.indexOf(x) > -1));
     await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); s = await g();
-    ok(`${w} ‹가족› 예시 → 본식 약 17~24분`, /약 17~24분/.test(s.band), s.band);
+    ok(`${w} ‹가족› 예시 → 본식 약 16~23분`, /약 16~23분/.test(s.band), s.band);   // [WINE_POUR_OFF]
     // [ACTS_FOUR] 준비한 순서는 «마음의 순간»의 «있을 때만» 칸 — 담기 원을 누르면 담긴다(옛 [FREE_OWN] 맨 아래 묶음 · ② 더하기 단추는 거뒀다)
     const addBtn = await pg.$('[data-fk="opt:free"]');
     ok(`${w} 준비한 순서 칸에 담기 원이 있다(«있을 때만»)`, !!addBtn && await pg.evaluate(() => /있을 때만/.test(document.querySelector('[data-fk="pto:free"]').textContent)));
