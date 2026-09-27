@@ -104,7 +104,7 @@ for (const w of [390, 1280]) {
   ok(`${w} G5 첫 줄 이름 — 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)» [FIRST_LINE_NAME]`, g5b.labs.candle === '여는 말' && g5b.labs.declare === '선언 · 나레이션(엄숙하게)', JSON.stringify(g5b.labs));
   await pg.evaluate(() => mkGo('toast')); await pg.waitForTimeout(300);
   const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.mk-pg .mk-flow li')];
-    return { txt: li.map((l) => (l.className === 'q' ? '[quiet]' : '') + l.textContent), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
+    return { txt: li.map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return (l.className === 'q' ? '[quiet]' : '') + c.textContent; }), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
   /* [FLOW_MAKE] ② 쪽 흐름에서 «위하여»는 두 분 차례(«신랑 차례» · 글은 연습에서 흐른다) — 잔 드는 큐 바로 뒤에 온다 */
   const wi = g5c.txt.findIndex((t) => /^신랑 차례/.test(t)), pi = g5c.txt.findIndex((t) => /양가 와인을 한 잔에 모아요/.test(t)), gi = g5c.txt.findIndex((t) => /축배 · 잔을 들고 선창/.test(t));
   ok(`${w} G5 화면 — 붓기(옅게) → 잔 드는 큐 → «위하여» 순서 · 옅은 줄 색 = --light`, pi >= 0 && gi > pi && wi === gi + 1 && /\[quiet\]/.test(g5c.txt[pi]) && g5c.quietColor === 'rgb(110, 105, 89)', JSON.stringify(g5c));
