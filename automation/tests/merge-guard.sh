@@ -12830,7 +12830,7 @@ nochk "return '으로'; return '로'; }" mypage.html 0
 #   ③[SNAP_INLINE_ERR] 링크 오류 · 한도 = 칸 아래 한 줄 ④[SNAP_PRECONSENT_EXIT] 동의 전 — 머리 «저장» 숨김 · «이 기기에 둘까요?» 판 · 이어서 고르기 · 불러왔어요 · 사진 한 줄
 #   ⑤[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외) ⑥[SNAP_WORD_SCENE] «그림» → «사진» · «장면»으로 세기 ⑦[SNAP_CARD_AFTER] 낸 뒤 카드
 #   ⑧[SNAP_NUM_GOTHIC] 고딕 숫자 · Noto Sans KR 600 · 360 이하 «다음» ⑨[SNAP_MODAL_A11Y] aria-modal · inert · 초점 링 · 알림 자리 · 44px ×
-chk 'SNAP_NOIMG_LIST' mypage.html 5
+chk 'SNAP_NOIMG_LIST' mypage.html 4   # [SNAP_PICK_ALL 2026-09-27] 5 → 4 — «기본으로 담는 네 장면» 글 목록(.snp-base) 줄이 사장님 결정으로 빠졌다(고르는 장면 목록은 그대로)
 chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||\[\]).some(function(e){ return !!R.exImg(e); }); }); }" mypage.html 1   # [SNAP_PHOTO_FIRST] 예시 사진도 센다
 chk "else h+='<div class=\"snp-list\" role=\"group\" aria-label=\"마음에 드는 장면\">'" mypage.html 1
 chk "사진작가가 고르신 장면을 챙겨 찍어요." mypage.html 1
@@ -12993,7 +12993,7 @@ nochk 'new Date().toISOString().slice(0, 10)} · 클립' scripts/build-script-re
 chk 'SNAP_EX_VIEW' mypage.html 5
 chk 'SNAP_EX_VIEW' assets/snap-refs.js 2
 chk "R.exImg = function (e, ext)" assets/snap-refs.js 1
-chk ", ex: \[{ t: '" assets/snap-refs.js 16
+chk ", ex: \[{ t: '" assets/snap-refs.js 24   # [SNAP_PICK_ALL 2026-09-27] 16 → 24 — 옛 기본 넷(c01~c04 · w01~w04)도 고르는 장면이 되어 예시 3장 글을 받았다
 chk 'function _spExView(id, ctl){' mypage.html 1
 chk "+'</button>'+_spExBtn(s)+'</div>'; }).join('')+'</div>';" mypage.html 1
 chk "querySelectorAll('\[data-sex\],\[data-szoom\]')" mypage.html 1
@@ -13012,3 +13012,36 @@ chk 'SNAP_PHOTO_FIRST' scripts/audit/snap-plan.mjs 2
 # [SNAP_PHOTO_NOW] 사진이 오기 전에도 사진 중심 칸(사진 자리에 설명 글) — 2026-09-27 사장님
 chk 'SNAP_PHOTO_NOW' mypage.html 4
 chk "img=_spHasImg(R, z)||z.pick.every(function(s){ return _spExList(s).length>0; })" mypage.html 1
+# ★★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자» · «빈 상태에서 8장면 직접»]
+#   고정 «기본으로 담아요» 4장면을 없앴다 — 공간마다 12장면 모두 고르는 칸 · 빈 상태에서 8장면까지(고른 순서 = 우선순위 · 25분 그대로).
+#   덜 고르면 사진작가가 채운다(추천 순서 = snap-refs.js fill · 브리프에만). 화면 상한 = min(목록 8, 서버 snapPick) — 옛 서버(4)면 화면도 4.
+#   동작 모양은 scripts/audit/snap-plan.mjs · 서버 상한은 automation/tests/snap-plan.test.js 1b · 8a2 가 함께 잰다.
+chk 'SNAP_PICK_ALL' assets/snap-refs.js 6
+chk 'limits: { pick: 8, up: 3, link: 3 }' assets/snap-refs.js 1
+chk "fill: \['c01', 'c02', 'c03', 'c04'\]" assets/snap-refs.js 1
+chk "fill: \['w01', 'w02', 'w03', 'w04'\]" assets/snap-refs.js 1
+chk 'R.fillLeft = function (z, picks)' assets/snap-refs.js 1
+chk 'var SNAP_V2 = { pick: 8, up: 3,' automation/platform/80_production.gs 1
+chk 'snapPick: SNAP_V2.pick,' automation/platform/80_production.gs 1
+chk 'SNAP_PICK_ALL' automation/platform/80_production.gs 5
+chk 'SNAP_PICK_ALL' mypage.html 14
+chk "function _snapPickCap(p){ var R=window.SNAP_REFS, L=(R&&R.limits&&+R.limits.pick)||8, sv=+((p||{}).snapPick)||4; return Math.max(1, Math.min(L, sv)); }" mypage.html 1
+chk "pick:_snapPickCap(p) };" mypage.html 1
+chk "장면 중 마음에 드는 장면을 <b>'+(SNAPFLOW.pick||4)+'장면까지</b> 고르시면, '" mypage.html 1
+chk "다 고르지 않으셔도 돼요 · 남은 자리는 사진작가가 채워&nbsp;찍어요" mypage.html 1
+chk "선택이에요 · 안 고르셔도 사진작가가 장면을 골라 찍어요." mypage.html 1
+nochk "<div class=\"snp-sub\">기본으로 담아요</div>" mypage.html 0
+nochk '<ul class="snp-base"' mypage.html 0
+nochk '<b>기본 4장면</b>' mypage.html 0
+nochk "안 고르셔도 기본 장면으로 찍어요" mypage.html 0
+nochk "<span class=\"k\">기본</span>" mypage.html 0
+nochk "R.limits.pick+'장면까지" mypage.html 0
+chk 'SNAP_PICK_ALL' brief.html 2
+chk "개보다 적으면 남은 자리는 아래 추천 순서로 채워 주세요." brief.html 1
+nochk '기본 네 장면은 늘 담아 주세요' brief.html 0
+nochk '<h3>기본으로 담아요 <small>' brief.html 0
+chk 'SNAP_PICK_ALL' admin.html 2
+nochk "row(z.ko+' · 기본'" admin.html 0
+chk 'SNAP_PICK_ALL' scripts/audit/snap-plan.mjs 8
+chk 'SNAP_PICK_ALL' automation/tests/snap-plan.test.js 4
+chk 'SNAP_PICK_ALL' docs/plans/스냅_레퍼런스_촬영목록표.md 1

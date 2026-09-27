@@ -58,12 +58,14 @@ const upl = (o) => sb.handleSnapRefUpload(Object.assign({ snapConsent: 1 }, o));
 
 console.log('── 고르는 스냅 기획(서버) ──');
 
-// 1) v2 정규화 — 형식 밖 장면 번호·중복·5장째·http 아닌 링크·<> 는 걸러진다
+// 1) v2 정규화 — 형식 밖 장면 번호·중복·9장째·http 아닌 링크·<> 는 걸러진다
+//    ★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자»] 상한 4 → 8 · 옛 기본 넷(c01~c04)도 고르는 장면이다
 fresh(40);
-const r1 = save({ v: 2, zones: { candle: { picks: ['c05', 'c05', 'w05', 'c06', 'c07', 'c08', 'c09'], ups: [], links: ['https://a.kr/1', 'javascript:alert(1)', 'https://a.kr/1', 'http://b.kr', 'https://c.kr', 'https://d.kr'] }, white: { picks: ['w06'] } }, note: '<b>왼쪽</b> 얼굴' + 'x'.repeat(600) }, true);
+const r1 = save({ v: 2, zones: { candle: { picks: ['c01', 'c05', 'c05', 'w05', 'c06', 'c07', 'c08', 'c09', 'c02', 'c10', 'c11', 'c12', 'c03'], ups: [], links: ['https://a.kr/1', 'javascript:alert(1)', 'https://a.kr/1', 'http://b.kr', 'https://c.kr', 'https://d.kr'] }, white: { picks: ['w06'] } }, note: '<b>왼쪽</b> 얼굴' + 'x'.repeat(600) }, true);
 const d1 = load().snapDraft;
 ok(r1.ok === true, '1a v2 저장 성공', r1);
-ok(JSON.stringify(d1.zones.candle.picks) === '["c05","c06","c07","c08"]', '1b 장면 번호 — 공간 형식만 · 중복 없이 · 4장까지(고른 순서 유지)', d1.zones.candle.picks);
+ok(JSON.stringify(d1.zones.candle.picks) === '["c01","c05","c06","c07","c08","c09","c02","c10"]', '1b 장면 번호 — 공간 형식만 · 중복 없이 · 8장까지(고른 순서 유지 · c01~c04 도 받는다 [SNAP_PICK_ALL])', d1.zones.candle.picks);
+ok(sb.SNAP_V2.pick === 8, '1b2 서버 고르기 상한 8 [SNAP_PICK_ALL]', sb.SNAP_V2.pick);
 ok(JSON.stringify(d1.zones.candle.links) === '["https://a.kr/1","http://b.kr","https://c.kr"]', '1c 링크 — http(s)만 · 중복 없이 · 3개까지', d1.zones.candle.links);
 ok(d1.note.indexOf('<') === -1 && d1.note.length === 500, '1d 한 칸 — <> 제거 · 500자 상한', d1.note.length);
 ok(load().tracks.snap === '완료', '1e 트랙 완료');
@@ -138,6 +140,7 @@ save({ v: 2, zones: { candle: { picks: ['c05'] } } }, true);
 const c8 = sb.adminSnapConfirm('C1', '편지 장면은 캔들존 끝에 <b>담을게요</b>');
 ok(c8.ok && c8.confirm.reply.indexOf('<') === -1, '8a 확인 + 회신(<> 제거)', c8);
 let st = sb.buildProductionState(makeRow('C1'));
+ok(st.snapPick === 8, '8a2 부부 상태에 고르기 상한(snapPick) — 화면은 min(목록, 이 값) [SNAP_PICK_ALL]', st.snapPick);
 ok(st.snapV2 === true && st.snapMeta.confirm && st.snapMeta.confirm.reply && st.snapMeta.stale === false, '8b 부부 상태에 확인·회신', st.snapMeta);
 save({ v: 2, zones: { candle: { picks: ['c05'] } } }, true);
 ok(sb.buildProductionState(makeRow('C1')).snapMeta.stale === false, '8c 그대로 저장 → 확인 유지');

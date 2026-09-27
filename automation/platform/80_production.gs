@@ -1198,7 +1198,10 @@ function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS �
 //   ★부부 화면은 buildProductionState 의 snapV2 표시가 있을 때만 새 기획을 연다 — 이 파일을 배포하기 전에는 옛 서버가
 //     새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라지기 때문이다(화면엔 «저장됐어요»). 그 창을 없앤다.
 // ==============================================================================
-var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-09-26' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
+var SNAP_V2 = { pick: 8, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-09-26' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
+// ★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자»] pick 4 → 8 — 공간마다 12장면 모두 고르는 칸 · 빈 상태에서 8장면까지.
+//   고정 «기본 4장면»은 없어졌다. 덜 고른 자리는 사진작가가 채운다(추천 순서 = snap-refs.js zones[].fill · 브리프에만).
+//   부부 화면은 buildProductionState 의 snapPick 을 상한으로 쓴다 — 이 파일이 옛것(4)이면 화면도 4로 멈춘다(서버가 조용히 자르지 않게).
 var SNAP_ZONE_RE = { candle: /^c\d{2}$/, white: /^w\d{2}$/ };
 // ★[SNAP_ZONE_NOTE 2026-09-26 사장님] 공간마다 «사진작가에게 전할 말»(zones[k].note) — «전달할 메세지 적을 수 있게 · 화이트존 캔들존 각각».
 //   상한은 부부 화면 textarea maxlength 와 같다(scripts/audit/snap-plan.mjs 가 대조). 비면 키를 싣지 않는다(옛 저장분 재저장이 가짜 «바뀜»이 되지 않게).
@@ -1225,9 +1228,10 @@ var SNAP_BRIEF_URL = 'https://www.momentedit.kr/brief.html?b=';
 
 function _snapArr(v) { return Object.prototype.toString.call(v) === '[object Array]' ? v : []; }
 
-// v2 정규화 — 장면 번호는 공간별 형식만(c·w + 두 자리) · 중복 없이 4장까지 · 올린 사진은 드라이브 id 형식만 · 링크는 http(s)만
+// v2 정규화 — 장면 번호는 공간별 형식만(c·w + 두 자리) · 중복 없이 SNAP_V2.pick(8)장까지 · 올린 사진은 드라이브 id 형식만 · 링크는 http(s)만
 function _snapV2Norm(sd) {
   sd = sd || {};
+  // [SNAP_PICK_ALL] 고르기 상한 = SNAP_V2.pick(8 · 2026-09-27) — c01~c04 · w01~w04 도 이제 고르는 장면이다(형식 검사 SNAP_ZONE_RE 는 그대로 받는다)
   var zs = sd.zones || {}, out = { v: 2, zones: {}, note: String(sd.note || '').replace(/[<>]/g, '').slice(0, SNAP_V2.note) };
   ['candle', 'white'].forEach(function (k) {
     var z = zs[k] || {}, seen = {}, picks = [], ups = [], links = [], zn = String(z.note || '').replace(/[<>]/g, '').slice(0, SNAP_ZONE_NOTE_MAX);   // [SNAP_ZONE_NOTE]
@@ -1305,7 +1309,7 @@ var SNAP_LOCK_MSG = '예식 3일 전부터는 여기서 고칠 수 없어요. �
 //   동의 기록 = snapMeta.consent { at: 한국 시각 'yyyy-MM-dd HH:mm', ver: 그때의 처리방침 시행일(SNAP_V2.from) }
 //   ① 부부 화면이 첫 저장(또는 첫 사진 올리기)에 snapConsent 를 싣는다 — 기록이 없을 때만 남긴다(한 번 동의하면 다시 묻지 않는다)
 //   ② 기록도 snapConsent 도 없으면 새 기획 저장 · 사진 올리기를 거절한다(옛 칸 저장은 종전대로 — 배포 시차로 남은 탭)
-//   ③ 촬영 브리프는 동의가 있을 때만 기획을 싣는다 — 없으면 예식 일시와 기본 장면만
+//   ③ 촬영 브리프는 동의가 있을 때만 기획을 싣는다 — 없으면 예식 일시와 사진작가 채우기 추천만([SNAP_PICK_ALL] 9/27 부터 기본 장면 없음)
 //   ④ 거두기(스냅 기획 지우기) — 기획 · 올린 사진 · 링크 · 메모 · 동의 기록을 지우고 브리프 주소를 닫는다. 지운 때만 남긴다(withdrawn)
 var SNAP_CONSENT_MSG = '스냅 기획을 시작하려면 동의가 필요해요.';
 function _snapConsentOk(m) { return !!(m && m.consent && m.consent.at); }
@@ -1563,7 +1567,7 @@ function _snapBriefCust(t) {
 function handleSnapBrief(body) {
   var r = _snapBriefCust((body || {}).b); if (r.err) return r.err;   // [SNAP_BRIEF] 이름·연락처 없이 — 예식일·도착 시각·기획만
   var sd = r.d.snapDraft || {}, zs = sd.zones || {}, ci = (_parseJsonSafe(r.cust.get('동의기록')) || {}).계약정보 || {};
-  var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 기본 장면만(기본 장면은 브리프 화면이 원천에서 그린다)
+  var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 사진작가 채우기 추천만(추천은 브리프 화면이 원천 fill 에서 그린다 · [SNAP_PICK_ALL] 9/27 부터 기본 장면 없음)
   ['candle', 'white'].forEach(function (k) { var z = okc ? (zs[k] || {}) : {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links), note: String(z.note || '') }; });   // [SNAP_ZONE_NOTE] 공간별 전할 말도 동의가 있을 때만
   return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: okc ? String(sd.note || '') : '', consent: okc,
     reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))) };
@@ -1657,6 +1661,7 @@ function buildProductionState(r) {
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
     photoFriendOk: true,                       // [PHOTO_FRIEND] 이 서버는 «친구들과 자유롭게»(photoFriend)를 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     snapZoneNoteOk: true,                      // ★[SNAP_ZONE_NOTE] 이 서버는 공간별 «사진작가에게 전할 말»(zones[k].note)을 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
+    snapPick: SNAP_V2.pick,                    // ★[SNAP_PICK_ALL] 고르기 상한 — 부부 화면은 min(목록 8, 이 값)을 쓴다 · 이 값이 없는 옛 서버(4)면 화면도 4
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
