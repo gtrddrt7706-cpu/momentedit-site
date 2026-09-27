@@ -11406,6 +11406,22 @@ chk 'MK_TODO_PASSED' order-preview.html 2
 chk 'MK_STRIP_FADE' order-preview.html 1
 chk 'MK_STRIP_WRAP' order-preview.html 1   # PC 진행 줄 = 줄바꿈(잘림 없음) · 모바일 = 한 줄 넘기기
 chk 'MK_ROWS' order-preview.html 2   # 부탁 · 보낼 · 챙길 = 줄 모양 · 오른쪽 단추
+chk 'MK_STRIP_TEXT' order-preview.html 2   # 진행 줄 = 글자 탭(번호 · 테두리 없음) · 2026-09-27 사장님 «숫자는 빼도»
+chk 'MK_STRIP_TEXT' scripts/audit/listen-page.mjs 1
+nochk 'class="mk-n"' order-preview.html   # ★진행 줄에 번호를 되살리지 말 것
+chk 'MK_STRIP_KEEP' order-preview.html 1   # 모바일 진행 줄 — 지금 칸을 가운데로(부르는 곳)
+chk 'MK_STRIP_KEEP' scripts/audit/listen-page.mjs 1
+chk 'MK_MIN' order-preview.html 9   # ② 중복 걷기 — 칩이 곧 듣기 · 참고 예시 당일 문장 한 번 · 예시 접이 겹침 · 녹음 이름표 · «아직 안 보냈어요» · 챙길 것 꼬리 · 식전 영상 설명 · 고른 순서 쪽 진행 줄 · ③ «④ 완성으로»
+chk 'MK_MIN' scripts/audit/listen-page.mjs 4
+nochk "'고른 대로 들어 보기'" order-preview.html   # ★사장님 «없어도 되지 않아?» — 칩을 누르면 들린다 · 되살리지 말 것
+chk 'MK_SUM_ONE' order-preview.html 3   # 한눈에 보기 — 한 항목은 한 번(미완료 목록 + 부탁 · 보낼 목록 이중 금지)
+chk 'MK_SUM_ONE' scripts/audit/listen-page.mjs 1
+chk 'DONE_PREP_ONE' order-preview.html 1   # ④ 준비할 것 = 한 줄 + ② 한눈에 보기로 · 목록 두 번 금지
+chk 'DONE_PREP_ONE' scripts/audit/listen-page.mjs 1
+chk 'MOMENTS_ONE' order-preview.html 1   # «담은 순간 N» 셈은 _opMoments 하나(①~④ · 마이페이지 요약)
+chk 'MOMENTS_ONE' assets/ritual-open.js 1
+chk 'MOMENTS_ONE' scripts/audit/listen-page.mjs 2
+nochk '③에서 모아 봐요' assets/ritual-open.js   # 모아 보기는 ② 한눈에 보기(옛 ③ 준비하기 폐지)
 chk 'MK_PICK_TOP' order-preview.html 1
 nochk 'data-fk="mktodo"' order-preview.html
 # ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부»] 두 분 목소리 녹음 올리기 — 빌더 · 마이페이지 · GAS(80_production · doPost)
