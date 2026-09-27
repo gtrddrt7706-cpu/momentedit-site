@@ -438,6 +438,7 @@ if (!ONLY || ONLY === 'mypage') {
     t(w2.ph === '예: 오전 11시 50분' && w2.val === '' && w2.fill === '이 시각으로 넣기' && w2.note === '두 분이 마무리(옷 갈아입기)를 마치고 함께 도착할 수 있는 시각이에요', `2/2-${vw} 예약 시간 — 흐린 예시 · 값은 비어 있음 · «이 시각으로 넣기» [RESV_TIME]`, w2);
     t(w2.lab === '식당에 최종 인원 알릴 날' && w2.rdue.join('|') === '7일 전:false|5일 전:false|3일 전:true|하루 전:false' && w2.rdn.replace(/\s+/g, '') === `예약할때식당에물어보고골라주세요.하객화면에는${g7.getUTCMonth() + 1}월${g7.getUTCDate()}일까지알려달라고보여요.`, `2/2-${vw} 식당 마감 — 기본 3일 전 · 하객 마감 날짜 [RESTO_DUE]`, w2);
     await r.page.evaluate(() => document.getElementById('dn_rtime').scrollIntoView({ block: 'center' }));
+    await r.page.waitForTimeout(500);   // .mp-fs 가 0.22s 로 흐려지며 열린다 — 바로 찍으면 뒤 화면이 비쳐 겹쳐 보인다(9/27 실측)
     await r.page.screenshot({ path: path.join(SHOTS, `mypage-${vw}-5-dining22.png`) });
     await r.page.click('[data-rdue="7"]');
     const rd7 = await r.page.evaluate(() => ({ n: document.getElementById('dn_rdueN').innerText.replace(/\s+/g, ''), d: TRKFLOW.draft.restoDue }));
