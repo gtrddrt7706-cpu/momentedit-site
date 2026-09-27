@@ -37,6 +37,12 @@ for (const w of [360, 1280]) {
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); await nx(); await pg.waitForTimeout(1200);
   const lg = await pg.evaluate(() => ({ t: (document.querySelector('.mk-legend') || {}).textContent || '' }));
   ok(`${w} 고른 순서 쪽 «목소리 세 가지» — 나레이션 · 두 분 목소리 · 미리 준비 · 당일 직접 [VOICE_KIND]`, /나레이션/.test(lg.t) && /두 분 목소리 · 미리 준비/.test(lg.t) && /당일 직접/.test(lg.t), lg.t);
+  /* [CHIP_UNPICKED · MK_NO_HEADS] 안 고른 기본(나레이션)은 비어 보이고 · 누르면 소리가 나고 눌린 모양이 된다 · «고르기» · «흐름» 제목 없음 */
+  const cu = await pg.evaluate(async () => { const z = (t) => new Promise((r) => setTimeout(r, t)); mkGo('guest'); render(); await z(300);
+    const b0 = document.querySelector('[data-fk="lsc:guestVoice:nar"]'), before = b0.getAttribute('aria-checked'), tab = b0.tabIndex; b0.click(); await z(500);
+    const after = document.querySelector('[data-fk="lsc:guestVoice:nar"]').getAttribute('aria-checked'), q = LP.q.length; try { lsStop(); } catch (e) {}
+    const heads = [...document.querySelectorAll('.mk-pg h4')].map((e) => e.textContent).filter((t) => /^(고르기|흐름)$/.test(t)); return { before, tab, after, q, heads }; });
+  ok(`${w} 안내 목소리 — 처음엔 안 눌린 모양 · 누르면 나레이션이 들리고 눌린 모양 · «고르기» · «흐름» 제목 없음 [CHIP_UNPICKED · MK_NO_HEADS]`, cu.before === 'false' && cu.tab === 0 && cu.after === 'true' && cu.q > 0 && !cu.heads.length, JSON.stringify(cu));
   await pg.evaluate(() => { S.guestVoice = 'couple'; S.up = {}; opSync(); mkGo('guest'); render(); }); await pg.waitForTimeout(500);
   const t0 = await pg.evaluate(() => ({ prep: document.querySelectorAll('.mk-flow .vk-prep').length, no: document.querySelectorAll('.mk-flow .vk-prep .vk-st.no').length, narr: document.querySelectorAll('.mk-flow .vk-narr').length, rec: document.querySelectorAll('[data-fk^="mkrec:"]').length, file: document.querySelectorAll('[data-fk^="mkup:"]').length }));
   ok(`${w} 하객 맞이 — 두 분 목소리 줄에 «두 분 목소리 · 미리 준비 · 아직» 표 · 줄마다 [녹음] · [파일] [VOICE_KIND · REC_UPLOAD]`, t0.prep >= 3 && t0.no === t0.prep && t0.rec === 4 && t0.file === 4, JSON.stringify(t0));

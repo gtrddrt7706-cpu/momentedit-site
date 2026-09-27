@@ -1144,6 +1144,9 @@ body.lsfull{overflow:hidden}
 .mk-listen{display:inline-flex;align-items:center;gap:6px;margin:0 0 6px}
 .mk-sec{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--border)}
 .mk-sec h4{margin:0 0 10px;font-size:14px;font-weight:600;color:var(--accent)}
+.mk-sec.mk-pick{border-top:0;padding-top:0;margin-top:16px}   /* [MK_NO_HEADS] 칩은 순간 설명 바로 아래 · 선 없이 */
+.mk-flowsec{border-top:0;padding-top:0;margin-top:14px}   /* [MK_NO_HEADS] 흐름은 칩(없으면 순간 설명) 바로 아래 · 선 없이 */
+.mk-sech-r{justify-content:flex-end;margin-bottom:4px}
 .mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .mk-flow li{font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start}
@@ -1281,7 +1284,7 @@ var S={course:'open',on:{},wine:'mix',tributeSay:'one',candleWho:'mothers',freeW
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
-       tune:{entry:true}, extra:{}, up:{}};
+       tune:{entry:true}, extra:{}, up:{}, touched:{}};   // [CHIP_UNPICKED] touched = 두 분이 직접 누른 칩 묶음
 var _S0=JSON.stringify(S);   // ORDER_OWNER: 미개봉 초기값 스냅 — 계정 전환 감지 시 상태 초기화용
 /* ★[LEAD_OUT 2026-08-07] 사람의 시간이 스스로 닫는 말. 원천은 assets/ritual-data.js 의 NARR —
    여기는 인라인 사본이다(check-ritual-mirror.js 가 원천과 대조한다). 한쪽만 고치지 말 것. */
@@ -3214,12 +3217,23 @@ function _lGroups(k){
   if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S)); L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
   if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));
   if(k==='toast'){ L('toast','무엇을',R.CHIPS.toast,R.chipOf('toast',S)); if(R.chipOf('toast',S)!=='cake') L('wine','와인',R.CHIPS.wine,R.chipOf('wine',S)); _lGoods('toast',L); }
+  /* ★★[CHIP_UNPICKED 2026-09-27 사장님 «안내 목소리 처음에는 안 눌린 상태로 있어야지 · 그래야 누르면 소리가 나오지 · 나레이션 음성을 처음에 들을 방법이 없잖아»]
+     기본값을 눌린 모양으로 두면, 이미 고른 칩은 다시 틀지 않으므로([CHIP_NO_REPLAY]) 기본 소리를 칩으로 들을 길이 없었다.
+     이제 두 분이 직접 누른 묶음(S.touched)이나 기본과 달라진 묶음(예시로 시작 · 옛 초안)만 눌린 모양 · 아직 안 고른 기본은 비어 보이고 누르면 들린다.
+     소리와 무관한 묶음(q · 첫 모습 · 케이크/꽃 준비)은 종전대로 기본이 눌린 모양. 엔진 값은 그대로(안 골라도 기본대로 흐른다). 되돌리지 말 것 */
+  if(!_lInDef){ var d=_lDefCurs(k), t=S.touched||{}; g.forEach(function(x){ x.picked=x.q||!!t[x.key]||d[x.key]===undefined||x.cur!==d[x.key]; }); }
   return g;
 }
+var _lInDef=false;
+function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
+  try{ var s0=JSON.parse(_S0); ['on','off','course','extra','tune'].forEach(function(q){ if(keep[q]!==undefined) s0[q]=keep[q]; }); S=s0; _lGroups(k).forEach(function(x){ o[x.key]=x.cur; }); }
+  catch(e){} finally{ S=keep; _lInDef=false; }
+  return o; }
 /* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
 function _lGoods(k,L){ var R=RitualOpen; R.goodsOf(S,k).forEach(function(g){ L(g.key,g.k==='toast'?'케이크 준비':'꽃 준비',R.CHIPS[g.key],g.by,true,g.by==='studio'?R.GOODS_COST:'당일 가져오시면 돼요 · '+'크기 · 도착 시각은 상담 때 안내해 드려요'); }); }
 function _lSet(key,v){
   var R=RitualOpen;
+  S.touched=S.touched||{}; S.touched[key]=1;   // [CHIP_UNPICKED]
   if(key==='guestVoice') S.guestVoice=v;
   else if(key==='entryVoice') S.entryVoice=v;
   else if(key==='candleWho') S.candleWho=v;
@@ -3741,11 +3755,14 @@ var VK_ICO={narr:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-
 function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; var v=R.voiceKind(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)}), lab=R.voiceLab(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)});
   var st=v==='prep'?((S.up||{})[x.up]?' <span class="vk-st">✓</span>':' <span class="vk-st no">아직</span>'):'';
   return '<span class="vk vk-'+v+'">'+VK_ICO[v]+esc(lab)+st+'</span>'; }
-function _mkFlow(k,btn){ var R=RitualOpen, hd='<div class="mk-sech"><h4>흐름</h4>'+(btn||'')+'</div>';
-  if(!ENG) return '<section class="mk-sec">'+hd+'<p class="ls-note">불러오는 중이에요…</p></section>';
+/* ★★[MK_NO_HEADS 2026-09-27 사장님 «고르기 · 흐름 저게 칸 잡아먹는 게 별로 · 더 미니멀하게»] «고르기» · «흐름» 제목과 그 위 선을 걷었다 —
+   칩은 순간 설명 바로 아래 · 흐름 줄은 그 아래 이어서(줄마다 ▸ 와 목소리 표가 이미 «흐름»임을 말한다). 고를 것이 없는 쪽의 «이 순간 들어 보기»만 흐름 위 오른쪽에.
+   참고 예시 · 두 분이 할 말 · 부탁은 할 일이 다른 칸이라 제목을 남긴다. 되살리지 말 것 */
+function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r">'+btn+'</div>':'';
+  if(!ENG) return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'<p class="ls-note">불러오는 중이에요…</p></section>';
   var st=_lSteps(ENG,[k]), exN=st.filter(function(x){ return x.own&&!x.couple; }).length;
   /* [MK_MIN] 하객 맞이 — 줄마다 붙던 «두 분이 녹음하실 글(예시)»를 머리 아래 한 번으로 · [VOICE_KIND] 두 분 목소리 줄은 줄 머리 표가 «두 분 목소리 · 미리 준비»를 말한다 */
-  var h='<section class="mk-sec">'+hd+(exN?'<p class="mk-note">'+(exN>1?'두 분이 녹음하실 글(예시)이에요':'두 분 목소리 줄의 글은 녹음하실 글(예시)이에요')+'</p>':'')+'<ol class="mk-flow">';
+  var h='<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+(exN?'<p class="mk-note">'+(exN>1?'두 분이 녹음하실 글(예시)이에요':'두 분 목소리 줄의 글은 녹음하실 글(예시)이에요')+'</p>':'')+'<ol class="mk-flow">';
   st.forEach(function(x,i){ if(x.own) x={lab:String(x.lab||'').replace(/^(두 분이 녹음하실 글\(예시\)|두 분 목소리)( · )?/,''),txt:x.txt,pending:x.pending,own:true,up:x.up,couple:x.couple};
     if(x.quiet){ h+='<li class="q">'+esc(x.txt)+'</li>'; return; }
     if(x.talk){ var sets=_lRefSets(k), whos=sets.length?sets[0].map(function(p){ return p.who; }):['두 분'], hs=R.partsOf(k,S)[1]||0, each=whos.length?Math.round(hs/whos.length):0;
@@ -3754,7 +3771,7 @@ function _mkFlow(k,btn){ var R=RitualOpen, hd='<div class="mk-sech"><h4>흐름</
     h+='<li class="n"><button type="button" class="mk-pl" aria-label="'+esc((x.lab||'나레이션')+' 듣기')+'" onclick="mkLine(\''+k+'\','+i+')">'+ICO_PLAY+'</button><span><span class="mk-lab">'+_vTag(k,x)+esc(x.lab||'')+(x.pending?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</span>'+esc(x.txt||'')+'</span></li>';
   });
   /* [ONEMIN_HOME] 하객 맞이 쪽 — 식전 영상을 담았으면 1분 전 안내는 영상 뒤에 흐른다는 것을 한 줄로(녹음 카드엔 1분 전 칸이 있으니 흐름에서도 어디 있는지 보이게) */
-  if(k==='guest'&&R.onOf(S,'prevideo')){ var g4=GUEST[3]; h+='<li class="q">'+esc((g4?_lLabFix(g4[0]):'시작 1분 전')+' 안내는 식전 영상이 끝난 뒤에 흘러요 · 식전 영상 쪽 «흐름»에서 들어 볼 수 있어요')+'</li>'; }
+  if(k==='guest'&&R.onOf(S,'prevideo')){ var g4=GUEST[3]; h+='<li class="q">'+esc((g4?_lLabFix(g4[0]):'시작 1분 전')+' 안내는 식전 영상이 끝난 뒤에 흘러요 · 식전 영상 쪽에서 들어 볼 수 있어요')+'</li>'; }
   return h+'</ol></section>'; }
 /* ★[REF_NO_KYEOL 2026-09-27 사장님 «참고 예시 숫자까지만 · 뒤에 유머 이런 단어들 삭제»] 배지는 «참고 예시 N» 까지 — 결(담백 · 장면 하나 · 다정 · 유머+진심)은 화면에 안 쓴다(표에는 남는다)
    ★[MK_REF 2026-09-27] ② 한 쪽에 참고 예시 1 · 2 · 3 을 글로 펼쳐 둔다 — 고른 칩(판 · 길이)에 맞는 벌만(_lRefSets).
@@ -3848,7 +3865,7 @@ function renderMake(){
     /* ★[MK_MIN 2026-09-27 사장님 «서는 분을 누르면 자동으로 음성이 나오는데 고른 대로 들어 보기는 없어도 되지 않아? · 지저분한 중복 전부 제거 · 미니멀하게»]
        고를 것이 있는 쪽 = 칩이 곧 듣기(누르면 그 판으로 들린다 · 아래 재생 막대가 멈춤을 맡는다) → 단추를 걷었다. 고를 것이 없는 쪽만 «흐름» 머리에 «이 순간 들어 보기». 되살리지 말 것 */
     var lb='<button type="button" class="mk-hbtn" data-fk="mkplay" onclick="lsPlay(\''+k+'\')">'+ICO_PLAY+' 이 순간 들어 보기</button>';
-    if(gs.length) h+='<section class="mk-sec mk-pick" aria-labelledby="mkPickH"><div class="mk-sech"><h4 id="mkPickH">고르기</h4></div><div class="ls-vars">'+_lGroupsHtml(k,gs)+'</div></section>';
+    if(gs.length) h+='<section class="mk-sec mk-pick" aria-label="고르기"><div class="ls-vars">'+_lGroupsHtml(k,gs)+'</div></section>';   // [MK_NO_HEADS]
     h+=_mkFlow(k,gs.length?'':lb);
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);
@@ -4029,8 +4046,8 @@ window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
 };
 function _lChipRow(g){
   /* ★[RIT_CHIP_GRID 2026-09-27 4부 9] 라벨 칸 + 칩 칸 두 열 — 줄을 넘긴 칩이 첫 칩 시작선에 선다(종전 flex 한 줄은 넘친 칩이 라벨 밑으로 들어가 왼쪽 선이 들쭉날쭉) */
-  return '<div class="ls-cg" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c){ var on=(c[0]===g.cur);
-    return '<button type="button" class="op-chip" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+(on?'0':'-1')+'" data-fk="lsc:'+g.key+':'+c[0]+'" onclick="lsChip(\''+g.key+'\',\''+c[0]+'\')">'+esc(c[1])+'</button>'; }).join('')
+  return '<div class="ls-cg" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
+    return '<button type="button" class="op-chip" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(g.picked===false&&ci===0))?'0':'-1')+'" data-fk="lsc:'+g.key+':'+c[0]+'" onclick="lsChip(\''+g.key+'\',\''+c[0]+'\')">'+esc(c[1])+'</button>'; }).join('')
     +(g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';
 }
 window.lsOpen=function(k){ LS.open=(LS.open===k?null:k); render(); };
@@ -4043,10 +4060,11 @@ function _lSig(k){ try{ return _lSteps(ENG,[k]).filter(function(x){ return !x.qu
 window.lsChip=function(key,v){
   var k=(LP.big&&LP.q.length&&LP.cur)?LP.cur:(LS.open||(LP.q.length?LP.cur:null)), g0=null;   // [FLOW_MAKE] 크게 보기의 칩은 지금 흐르는 순간 것 — ② 는 LS.open 이 늘 보고 있는 쪽이라 그쪽을 먼저 보면 남의 칩으로 읽는다
   if(k) _lGroups(k).forEach(function(g){ if(g.key===key) g0=g; });
-  if(g0&&g0.cur===v) return;   // [CHIP_NO_REPLAY] ① 이미 고른 칩
+  if(g0&&g0.cur===v&&g0.picked!==false) return;   // [CHIP_NO_REPLAY] ① 이미 고른 칩 · [CHIP_UNPICKED] 안 고른 기본은 눌러서 들을 수 있다
   var sig0=(k&&ENG)?_lSig(k):null;
   _lSet(key,v); buildSteps(); LS.msg=''; LS.undo=null;
-  var same=!!(g0&&g0.q)||(sig0!=null&&sig0===_lSig(k));   // [CHIP_NO_REPLAY] ② 소리가 같다
+  var first=!!(g0&&g0.picked===false&&!g0.q);   // [CHIP_UNPICKED] 안 고른 기본을 처음 누름 — 값은 같아도 그 소리를 들려준다
+  var same=!first&&(!!(g0&&g0.q)||(sig0!=null&&sig0===_lSig(k)));   // [CHIP_NO_REPLAY] ② 소리가 같다
   if(same&&k&&LP.cur===k){ LP.hint='same'; LP.hintK=k; }
   render();
   if(LP.big) _lFull();
