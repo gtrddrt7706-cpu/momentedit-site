@@ -11851,10 +11851,11 @@ chk '따로 만드신 곳이 있으면 링크를 넣어 주세요 · 하객 사�
 chk "하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요" mypage.html 1
 nochk "h+='<input class=\"cc-input\" id=\"mp_photoShare\"" mypage.html      # 칸을 절 맨 위에 무조건 그리던 옛 줄 — 되살리면 «붙여 넣으라» 바로 아래 «준비하실 건 없어요»가 다시 붙는다
 # [STEP_N_KO] trk-11 · 위저드 머리 .inv-step-n 한글 라벨 = serif-ko · 12px · 0.08em([LABEL_KO_TRACK]) · 번호 안쪽 &nbsp; · .inv-sub 왼쪽 6px 들여쓰기 제거(37px 선)
-chk 'STEP_N_KO' mypage.html 3
+#   ★2026-09-27 [WZ_STEPS] 머리의 «애프터 웨딩 · 1 / 2» 숫자 글을 걷었다(몇 걸음째는 진행 표시가 말한다) — 번호 안쪽 &nbsp; 를 지키던 chk 와
+#     그 자리 [STEP_N_KO] 주석이 함께 사라져 3 → 2. 숫자 글이 돌아오지 않게 지키는 것은 위 [WZ_STEPS] 의 nochk 가 맡는다.
+chk 'STEP_N_KO' mypage.html 2
 chk '.inv-step-n{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.08em' mypage.html 1
 nochk '.inv-step-n{font-family:var(--serif);font-size:11px' mypage.html
-chk "' · '+stepNo+'&nbsp;/&nbsp;'+m.steps" mypage.html 1
 nochk '.inv-sub{margin:2px 0 8px 6px' mypage.html
 # [SEAT_HEAD_ONE] trk-7 · 좌석 · 음료 머리에서 «· 3 / 3» 제거(한 화면 통합 뒤 첫 화면이자 유일한 화면)
 chk 'SEAT_HEAD_ONE' mypage.html 1
