@@ -2267,7 +2267,16 @@ chk 'CHIP_STAY' order-preview.html 7
 chk 'PRACTICE_CHOOSE' order-preview.html 5
 chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
 chk 'REF_EXAMPLE' order-preview.html 4
-chk '이 소리는 예식에 나오지 않아요' order-preview.html 1   # 참고 예시를 예식 소리로 오해하지 않게
+chk '이 목소리는 예식에서 나오지 않아요' order-preview.html 1   # 참고 예시를 예식 소리로 오해하지 않게 · [REF_TABLE] «소리» → «목소리»(나레이션은 당일에도 나온다)
+# [REF_TABLE 2026-09-27 코워크 참고 예시 대본] 예시는 표 한 곳(assets/ritual-ref.js · 자동 생성) · 폐지 클립(27 시어머님 답 · 15 하객대표 축사)은 넣지 않는다
+chk 'REF_TABLE' order-preview.html 4
+chk '<script src="/assets/ritual-ref.js">' order-preview.html 1
+nochk "'27_tribute-reply'" order-preview.html
+nochk "'15_toast'" order-preview.html
+nochk '27_tribute-reply' assets/ritual-ref.js
+nochk '15_toast' assets/ritual-ref.js
+chk 'REF_TABLE' scripts/audit/listen-page.mjs 2
+node scripts/build-ref-examples.mjs --check || fail=1
 chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
