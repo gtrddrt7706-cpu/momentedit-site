@@ -150,7 +150,18 @@ for (const w of [360, 1280]) {
 /* ★[REC_ADMIN] 당일 콘솔 — rf=코드 + 관리자 토큰이면 시작 전에 두 분 목소리를 받아 CLIPS 에 넣는다 · «소리 파일 확인» ✓ · 못 받은 줄은 나레이션 */
 {
   const wav = fs.readFileSync(quiet).toString('base64');
-  const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+  /* [PREVIEW_GUARD] 운영 주소가 아니면 콘솔도 GAS 를 부르지 못한다 — 표시 없이 열면 막히고(장치가 산다) · 점검 표시를 심으면 받는다 */
+  {
+    const c0 = await br.newContext({ viewport: { width: 1280, height: 900 } }); const p0 = await c0.newPage(); let hit = 0;
+    await p0.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); if (/script\.google\.com/.test(u)) hit++; return rt.fulfill({ status: 200, body: '{}' }); });
+    await p0.goto(`http://127.0.0.1:${port}/console.html`); await p0.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); });
+    const q0 = Buffer.from(JSON.stringify({ course: 'family', guestVoice: 'couple', up: { g0: { id: 'F-g0' } } })).toString('base64');
+    await p0.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(q0)}&rf=ME0001`); await p0.waitForTimeout(1200);
+    const g0 = await p0.evaluate(() => ({ st: window.__rfState().st, blocked: (window.ME_PREVIEW_GUARD || {}).blocked || 0 }));
+    ok('콘솔 — 운영 주소가 아니면 미리보기 안전장치가 GAS 호출을 막는다(받지 못함 · 나레이션으로) [PREVIEW_GUARD · REC_ADMIN]', hit === 0 && g0.blocked >= 1 && /"g0":"fail"/.test(g0.st), JSON.stringify({ hit, g0 }));
+    await c0.close();
+  }
+  const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); await ctx.addInitScript(() => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   let calls = [];
   await pg.route('**/*', (rt) => { const u = rt.request().url();
     if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
