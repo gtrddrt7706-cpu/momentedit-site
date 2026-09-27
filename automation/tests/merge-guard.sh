@@ -12907,3 +12907,7 @@ if command -v node >/dev/null 2>&1; then timeout 900 node scripts/audit/dine-rsv
     *) echo 'ok dine-rsvp-sim: 재지 못했습니다(브라우저 · 포트) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
+# [REVIEW_STAMP_SRC] 대본 정리본 머리줄 = 원천 지문(날짜 아님) — 날이 바뀌어도 같은 원천이면 같은 파일(2026-09-27 코워크 제안)
+chk 'REVIEW_STAMP_SRC' scripts/build-script-review.mjs 2
+chk "html.replace('@@SRC_STAMP@@', '원천 지문 ' + _srcStamp)" scripts/build-script-review.mjs 1
+nochk 'new Date().toISOString().slice(0, 10)} · 클립' scripts/build-script-review.mjs 0
