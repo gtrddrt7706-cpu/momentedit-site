@@ -76,6 +76,29 @@ for (const w of [360, 1280]) {
   ok(`${w} pageerror 0 · 가로 넘침 0`, !errs.length && !ov, errs.join(' | '));
   await ctx.close();
 }
+/* ★[PRACTICE_VOICE] ③ 연습 — «내 차례를 녹음하며 연습» 켜면 두 분 차례마다 녹음 · 끝나고 줄마다 다시 듣기 · 서버로 아무것도 안 나감 */
+{
+  const ctx = await br.newContext({ viewport: { width: 390, height: 900 }, permissions: ['microphone'] }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+  const out = [];
+  await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); out.push(u); return rt.fulfill({ status: 200, body: '' }); });
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`); await pg.waitForTimeout(700);
+  const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
+  await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(1200);
+  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /이 휴대폰에만 있어요/.test((document.querySelector('.pr-voice') || {}).textContent || '') }));
+  await pg.click('[data-fk="prrec"]'); await pg.waitForTimeout(600);
+  const n0 = out.length;
+  await pg.evaluate(() => { lsPlayAll(); }); await pg.waitForTimeout(800);
+  await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].talk2) && g++ < 80) LP.i++; _lShow(); }); await pg.waitForTimeout(1600);
+  const p1 = await pg.evaluate(() => ({ rec: !!PR.cur, badge: !!document.querySelector('#lsFull .lf-rec') }));
+  await pg.evaluate(() => { _lNext(); }); await pg.waitForTimeout(500); await pg.evaluate(() => { lsStop(); }); await pg.waitForTimeout(600);
+  await pg.evaluate(() => render()); await pg.waitForTimeout(300);
+  const p2 = await pg.evaluate(() => ({ n: PR.takes.length, url: String((PR.takes[0] || {}).url || '').slice(0, 5), rows: document.querySelectorAll('.pr-voice [data-fk^="prplay:"]').length }));
+  const sent = out.slice(n0).filter((u) => !/fonts\.g/.test(u));
+  ok('연습 — «내 차례를 녹음하며 연습» · 두 분 차례에 «녹음 중» · 끝나면 줄마다 다시 듣기 · 서버로 아무것도 안 나감 [PRACTICE_VOICE]', p0.sec && p0.note && p1.rec && p1.badge && p2.n >= 1 && p2.url === 'blob:' && p2.rows === p2.n && sent.length === 0, JSON.stringify({ p0, p1, p2, sent }));
+  ok('연습 pageerror 0', !errs.length, errs.join(' | '));
+  await ctx.close();
+}
 /* ★[REC_ADMIN] 당일 콘솔 — rf=코드 + 관리자 토큰이면 시작 전에 두 분 목소리를 받아 CLIPS 에 넣는다 · «소리 파일 확인» ✓ · 못 받은 줄은 나레이션 */
 {
   const wav = fs.readFileSync(quiet).toString('base64');

@@ -8872,6 +8872,8 @@ chk 'REC_ADMIN' automation/admin/admin.gs 1   # adminCall 허용 목록
 chk 'REC_ADMIN' scripts/audit/rec-upload.mjs 2
 chk 'REC_PURGE' automation/platform/80_production.gs 2   # 예식 30일 뒤 지우기
 chk 'REC_PURGE' automation/consultation/consultation-booking.gs 1   # 주간 정리가 함께 부른다
+chk 'PRACTICE_VOICE' order-preview.html 7   # 연습 — 내 차례를 녹음하며 연습(이 기기 메모리에만)
+chk 'PRACTICE_VOICE' scripts/audit/rec-upload.mjs 1
 chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)
 chk 'DETAIL_0925 C2' order-preview.html 3   # 누를 곳 44px
 if command -v node >/dev/null 2>&1; then node scripts/audit/inapp-sim.mjs >/dev/null 2>&1; _ia=$?

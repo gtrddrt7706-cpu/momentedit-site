@@ -1204,6 +1204,8 @@ body.lsfull{overflow:hidden}
 .mk-recbar{height:6px;margin:10px 0 6px;border-radius:999px;background:var(--border);overflow:hidden}
 .mk-recbar i{display:block;height:100%;background:var(--gold-deeper);transition:width .1s linear}
 .mk-recgo{font-weight:600}
+.lf-rec{margin:0 0 6px;font-size:12.5px;color:var(--seal)}
+.lf-rec i{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:var(--seal);vertical-align:1px}   /* [PRACTICE_VOICE] 녹음 중 = 진사 점(점으로만) */
 .mk-exw:empty{display:none}
 .mk-ref details{border-top:1px solid var(--border)}
 .mk-ref details:last-of-type{border-bottom:1px solid var(--border)}
@@ -3844,6 +3846,7 @@ function renderPractice(){ var R=RitualOpen;
   h+='<section class="mk-sec"><h4>어디까지</h4><div class="pr-acts">';
   R.SECTIONS.forEach(function(sc,i){ var ks=sc.ks.filter(function(k){ return rows.indexOf(k)>-1; }); if(!ks.length) return; h+='<button type="button" class="rowbtn" data-fk="pra:'+i+'" onclick="prAct('+i+')">'+esc(sc.n)+'</button>'; });
   h+='<button type="button" class="rowbtn" data-fk="prfast" onclick="prFast()">빠르게 훑기'+(fast?' 약 '+Math.max(1,Math.round(fast/60))+'분':'')+'</button></div></section>';
+  h+=_prSec();   // [PRACTICE_VOICE]
   h+='<p class="mk-note">연습은 나중에 마이페이지에서 해도 돼요</p>';   // [MK_MIN] «④ 완성으로» 링크는 바로 아래 «다음 · ④ 완성» 단추와 같은 일 — 걷었다
   return h+'</div>'; }
 window.prAct=function(i){ var sc=RitualOpen.SECTIONS[i], rows=_lRows(), ks=sc.ks.filter(function(k){ return rows.indexOf(k)>-1; }); if(!ks.length) return; LP.fast=false; LP.noChips=false; _lOpenBig(); _lStart(ks,true); _lFull(); };
@@ -4094,6 +4097,7 @@ function _lStart(ks,all){
 function _lShow(){
   var st=LP.q[LP.i], a=_lAud();
   clearTimeout(LP.t);
+  _prHook(st);   // [PRACTICE_VOICE] 두 분 차례면 내 목소리 녹음을 걸고 · 아니면 걸린 것을 닫는다
   if(!st){ _lEnd(); return; }
   LP.cur=st.k; _lPaint(); _lPreload();
   if(LP.paused) return;
@@ -4102,7 +4106,33 @@ function _lShow(){
     var p=a.play(); if(p&&p['catch']) p['catch'](_lPlayErr);   // 폰이 막으면 멈춘 채로 — ▶ 로 이어서
   } else { try{ a.pause(); a.removeAttribute('src'); }catch(e){} _lTimer(st.ms); }
 }
+/* ★★[PRACTICE_VOICE 2026-09-27 코워크 «두 분 목소리» 4-1 · 사장님 «연습 공간: 녹음 + AI 음성(골라 쓰기)»] 내 차례를 녹음하며 연습(골라 켜기)
+   켜면 연습 재생(크게 보기)의 두 분 차례마다 그 막대 동안 녹음 → 끝나고 줄마다 · 처음부터 다시 들어 보기.
+   ★이 녹음은 이 기기 메모리에만 둔다 — 서버 · IndexedDB 로 보내지 않는다. 페이지를 떠나거나 [지우기]면 사라진다. 마이크 허락이 없으면 녹음 없이 지금처럼. */
+var PR={on:false,stream:null,mr:null,cur:null,takes:[]};
+window.prToggle=function(on){ if(!on){ _prStop(); try{ (PR.stream&&PR.stream.getTracks()||[]).forEach(function(t){ t.stop(); }); }catch(e){} PR.stream=null; PR.on=false; render(); return; }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){ MK.toast='이 브라우저에서는 연습 녹음을 할 수 없어요 · 녹음 없이 연습해요'; PR.on=false; render(); return; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){ PR.stream=st; PR.on=true; render(); },function(){ PR.on=false; MK.toast='마이크 허락이 없어 녹음 없이 연습해요'; render(); }); };
+function _prStop(){ var c=PR.cur; if(!c) return; PR.cur=null; try{ if(c.mr&&c.mr.state!=='inactive') c.mr.stop(); }catch(e){} }
+function _prHook(st){ _prStop(); if(!PR.on||!PR.stream||!st||!st.talk2||LP.paused) return;
+  var chunks=[], mr; try{ mr=new MediaRecorder(PR.stream); }catch(e){ return; }
+  var c={k:st.k,who:st.who,mr:mr,t0:Date.now()}; PR.cur=c;
+  mr.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+  mr.onstop=function(){ if(!chunks.length) return; var b=new Blob(chunks,{type:mr.mimeType||'audio/webm'}), nm=_mkName(c.k)+' · '+c.who+' 차례';
+    PR.takes=PR.takes.filter(function(t){ if(t.nm===nm){ try{ URL.revokeObjectURL(t.url); }catch(e){} return false; } return true; });
+    PR.takes.push({nm:nm,k:c.k,url:URL.createObjectURL(b),sec:Math.round((Date.now()-c.t0)/1000)}); if(STEPS[idx]&&STEPS[idx].k==='practice'&&!LP.big) render(); };
+  try{ mr.start(250); }catch(e){ PR.cur=null; } }
+window.prPlay=function(i){ var t=PR.takes[i]; if(!t) return; _stopAud(); try{ var a=new Audio(t.url); a.play(); MK.aud=a; }catch(e){} };
+window.prPlayAll=function(){ var i=0; _stopAud(); (function nx(){ var t=PR.takes[i++]; if(!t) return; try{ var a=new Audio(t.url); MK.aud=a; a.onended=nx; a.play(); }catch(e){} })(); };
+window.prClear=function(){ PR.takes.forEach(function(t){ try{ URL.revokeObjectURL(t.url); }catch(e){} }); PR.takes=[]; render(); };
+function _prSec(){ var h='<section class="mk-sec pr-voice"><h4>내 목소리로 연습</h4>'
+    +'<label class="upchk"><input type="checkbox" data-fk="prrec"'+(PR.on?' checked':'')+' onchange="prToggle(this.checked)"><span>내 차례를 녹음하며 연습</span></label>'
+    +'<p class="mk-note">연습 녹음은 이 휴대폰에만 있어요. 다른 곳으로 보내지 않아요</p>';
+  if(PR.takes.length){ h+='<ul class="mk-vlist">'+PR.takes.map(function(t,i){ return '<li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc(t.nm)+'</span><span class="mk-vs">'+t.sec+'초</span></span><span class="mk-vbs"><button type="button" class="rowbtn mk-vb" data-fk="prplay:'+i+'" onclick="prPlay('+i+')">다시 들어 보기</button></span></li>'; }).join('')+'</ul>'
+    +'<span class="mk-vbs"><button type="button" class="rowbtn" data-fk="prtakeall" onclick="prPlayAll()">처음부터 들어 보기</button><button type="button" class="pk-link" data-fk="prclear" onclick="prClear()">지우기</button></span>'; }
+  return h+'</section>'; }
 function _lEnd(){
+  _prStop();   // [PRACTICE_VOICE]
   var wasAll=LP.all, range=LP.range;
   clearTimeout(LP.t); LP.tok++; LP.q=[]; LP.i=0; LP.cur=null; LP.paused=false;
   if(LP.el){ try{ LP.el.pause(); LP.el.removeAttribute('src'); }catch(e){} }
@@ -4111,6 +4141,7 @@ function _lEnd(){
   if(LP.big) _lFull();
 }
 window.lsStop=function(keepBig){
+  _prStop();   // [PRACTICE_VOICE]
   clearTimeout(LP.t); LP.tok++; LP.q=[]; LP.i=0; LP.cur=null; LP.all=false; LP.paused=false; LP.ended=null;
   if(LP.el){ try{ LP.el.pause(); LP.el.removeAttribute('src'); LP.el.load(); }catch(e){} }
   _lPaint();
@@ -4223,6 +4254,7 @@ function _lFull(){
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
     h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(st.k))+'</h3>';
     h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':'두 분이 올린 목소리'):st.src?'예시 목소리 · 당일엔 두 분이 준비한 목소리가 나와요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
+    if(st.talk2&&PR.cur&&PR.cur.k===st.k&&PR.cur.who===st.who) h+='<p class="lf-rec" role="status"><i aria-hidden="true"></i>내 목소리 녹음 중 · 이 휴대폰에만 남아요</p>';   // [PRACTICE_VOICE]
     h+='<div class="lf-lab">'+esc(st.talk2||st.ref?st.who+' 차례':st.lab)+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</div>';   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     if(st.mine||st.site) h+='<p class="lf-ref"><span class="lf-refb">'+(st.mine?'두 분이 적은 글':'현장에서')+'</span>'+(st.mine?esc(st.txt.length+'자 · 소리 내어 읽으면 약 '+_mkSec(st.txt.length)+'초'):'당일엔 직접 말해요')+'</p>';   // [CAST_TEXT_ONLY] 차례 카드 — 누구의 글인가
     if(st.ref) h+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.refOf>1?' '+(st.refN+1):'')+(st.refSit?' · '+esc(REF_SIT[st.refSit]||st.refSit):'')+'</span>'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+'</p>';   /* [CAST_TEXT_ONLY] 목소리가 없으니 «이 목소리는 …» 문장도 없다 */   // [REF_EXAMPLE] · [REF_TABLE] 말하는 사람마다 한 줄 · «소리»가 아니라 «목소리»(나레이션은 당일에도 나온다)
