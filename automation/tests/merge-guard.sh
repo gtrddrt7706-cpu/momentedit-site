@@ -11422,6 +11422,15 @@ chk 'MOMENTS_ONE' order-preview.html 1   # «담은 순간 N» 셈은 _opMoments
 chk 'MOMENTS_ONE' assets/ritual-open.js 1
 chk 'MOMENTS_ONE' scripts/audit/listen-page.mjs 2
 nochk '③에서 모아 봐요' assets/ritual-open.js   # 모아 보기는 ② 한눈에 보기(옛 ③ 준비하기 폐지)
+# [EX_MORE 2026-09-27 코워크 · 사장님] 참고 예시 144줄 · 칩 «예시 N(· 상황)» · 무드 이름은 화면 금지(REF_NO_KYEOL) · 부모님이 하실 때 · 이 예시로 시작하기 · 이름 경고
+chk 'EX_MORE' order-preview.html 3
+chk 'EX_MORE' scripts/audit/listen-page.mjs 4
+chk 'EX_MORE' scripts/build-ref-examples.mjs 1
+chk 'EX_NAMES' order-preview.html 4
+chk 'EX_NAMES' scripts/audit/listen-page.mjs 1
+chk 'EX_START' order-preview.html 1
+chk '"sit":"그리움"' assets/ritual-ref.js 6   # 상황 열이 자료에 실렸다(먼저 떠나신 분께 여섯 줄)
+nochk "esc(pt.kyeol" order-preview.html   # ★무드는 화면에 안 쓴다 — 사장님 «참고 예시 숫자까지만»
 chk 'MK_PICK_TOP' order-preview.html 1
 nochk 'data-fk="mktodo"' order-preview.html
 # ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부»] 두 분 목소리 녹음 올리기 — 빌더 · 마이페이지 · GAS(80_production · doPost)
