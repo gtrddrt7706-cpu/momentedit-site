@@ -12849,3 +12849,12 @@ chk 'RIT_WIDTH_720' order-preview.html 1            # 26 PC ②③④ 폭 720
 chk 'REVIEW_STAMP_SRC' scripts/build-script-review.mjs 2
 chk "html.replace('@@SRC_STAMP@@', '원천 지문 ' + _srcStamp)" scripts/build-script-review.mjs 1
 nochk 'new Date().toISOString().slice(0, 10)} · 클립' scripts/build-script-review.mjs 0
+# [SNAP_EX_VIEW] 스냅 장면 예시 사진 넘겨 보기(3장) — 사진 전엔 «어떤 사진인지» 글이 사진 자리에(2026-09-27 사장님)
+chk 'SNAP_EX_VIEW' mypage.html 5
+chk 'SNAP_EX_VIEW' assets/snap-refs.js 2
+chk "R.exImg = function (e, ext)" assets/snap-refs.js 1
+chk ", ex: \[{ t: '" assets/snap-refs.js 16
+chk 'function _spExView(id, ctl){' mypage.html 1
+chk "+'</button>'+_spExBtn(s)+'</div>'; }).join('')+'</div>';" mypage.html 1
+chk "querySelectorAll('\[data-sex\],\[data-szoom\]')" mypage.html 1
+chk "예시 사진 '+(k+1)+' · 준비 중" mypage.html 1
