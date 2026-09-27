@@ -8952,6 +8952,11 @@ chk 'MK_VID_CHIP' order-preview.html 1   # ② 케이크 · 축배 쪽 영상은
 chk 'MK_VID_CHIP' scripts/audit/listen-page.mjs 1
 nochk "_lVid(k,{big:true,name:k})" order-preview.html
 chk 'PC_GO_LABEL' order-preview.html 1   # PC ① 다음 단추 = «다음 · 하나씩 만들기»
+chk 'ONEMIN_HOME' order-preview.html 2   # 1분 전 안내 — 식전 영상이 있을 때만 그 뒤 · 없으면 하객 맞이(사라지지 않게)
+chk 'ONEMIN_HOME' scripts/audit/listen-page.mjs 1
+chk 'MK_PICK_ROW' order-preview.html 1   # 들어 보기 = 머리 줄 오른쪽 작은 단추(칩 아래 큰 단추 걷음)
+chk 'MK_COPY_RIGHT' order-preview.html 1   # 읽을 글 복사 = 제목 줄 오른쪽 · 아래 «복사됐어요»
+chk 'MK_COPY_RIGHT' scripts/audit/listen-page.mjs 1
 nochk '다음 · 보고 듣기' order-preview.html
 nochk '보고 듣기에서 고를 것' order-preview.html
 chk 'VOICE_LATE' order-preview.html 5   # 두 분 목소리 — 7일 전까지 녹음이 없으면 나레이션(자동 되돌리기 대신 안내 한 줄)
@@ -11399,6 +11404,8 @@ nochk "(kx?' · '+esc(kx):'')" order-preview.html
 chk 'MK_INTRO' order-preview.html 2
 chk 'MK_TODO_PASSED' order-preview.html 2
 chk 'MK_STRIP_FADE' order-preview.html 1
+chk 'MK_STRIP_WRAP' order-preview.html 1   # PC 진행 줄 = 줄바꿈(잘림 없음) · 모바일 = 한 줄 넘기기
+chk 'MK_ROWS' order-preview.html 2   # 부탁 · 보낼 · 챙길 = 줄 모양 · 오른쪽 단추
 chk 'MK_PICK_TOP' order-preview.html 1
 nochk 'data-fk="mktodo"' order-preview.html
 # ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부»] 두 분 목소리 녹음 올리기 — 빌더 · 마이페이지 · GAS(80_production · doPost)
