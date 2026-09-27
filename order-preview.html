@@ -1082,8 +1082,8 @@ body.lsfull{overflow:hidden}
 /* ★[MK_STRIP_TEXT 2026-09-27 사장님 «숫자는 빼도 괜찮지 않아? · 이게 최선이야? 너무»] 알약 14개가 세 줄로 쌓여 무거웠다 →
    테두리 · 바탕 · 번호를 걷고 글자만 놓는 탭(에디토리얼) · 지금 = 굵게 + 밑줄 · 다 됨 = 금빛 ✓ · 지나온 미완료 = 진사 글자 + 빈 동그라미 · 앞으로 = 옅은 글자
    번호는 쪽 제목 · «다음 · 6 성혼 선언» 단추에만 남긴다(어디쯤인지는 거기서) · 읽어 주는 이름(aria-label)에는 번호가 그대로 있다 */
-.mk-it{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 10px;border:0;border-radius:0;background:none;color:var(--light);font:inherit;font-size:13px;white-space:nowrap;cursor:pointer}
-.mk-it:hover .mk-t{color:var(--text)}
+.mk-it{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 10px;border:0;border-radius:0;background:none;color:var(--light);font:inherit;font-size:12.5px;white-space:nowrap;cursor:pointer}
+.mk-it:hover .mk-t{color:var(--accent)}
 .mk-it.done{color:var(--sub)}
 .mk-it.done .mk-mk{color:var(--gold-deeper)}
 .mk-it.cur{color:var(--accent);font-weight:600}
@@ -1173,7 +1173,7 @@ body.lsfull{overflow:hidden}
 .mk-rcs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}   /* [EX_MORE] 줄바꿈 · 가로 스크롤 없음 */
 .mk-rc{flex:0 1 auto;min-width:0;max-width:100%;display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:44px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--sub);font:inherit;text-align:left;cursor:pointer}
 .mk-rc b{font-size:12.5px;font-weight:600;color:var(--accent)}
-.mk-rc span{font-size:12px;color:var(--light);line-height:1.45;word-break:keep-all}
+.mk-rc span{font-size:12.5px;color:var(--light);line-height:1.45;word-break:keep-all}
 .mk-rc.on{border-color:var(--gold-deeper);background:var(--bg2)}
 .mk-rc.mk-rpar{border-style:dashed}
 .mk-rc.mk-rpar b{color:var(--gold-deeper)}
@@ -2729,7 +2729,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55 · 입장 준비 5'],['8~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['15~32분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55 · 입장 준비 5'],['40분','본식','The Ceremony','담은 순간에 따라',true],['15~32분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
