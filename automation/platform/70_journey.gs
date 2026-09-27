@@ -1920,7 +1920,9 @@ function setupAllTriggers() {
     { fn: 'purgeAdvisorLog',         hour: 4,  weekly: true, label: '상담사 질문 로그 90일 정리(월)' },
     { fn: 'warmAvailCache',          minutes: 1, label: '가능일 캐시 워밍(기존)' },
     // [LETTER_MERGED 2026-09-25] 옛 Letter System 프로젝트의 setupVimeoGuard 가 걸던 것 — 87_letter 로 옮겨 여기서 건다
-    { fn: 'vimeoGuardDaily',         hour: 7,  label: '청첩장 영상 미등록 D-3 점검 + 예식 6개월 뒤 청첩장·편지 개인정보 파기' }
+    { fn: 'vimeoGuardDaily',         hour: 7,  label: '청첩장 영상 미등록 D-3 점검 + 예식 6개월 뒤 청첩장·편지 개인정보 파기' },
+    // [DINE_RSVP_TRIGGER 2026-09-27] 하객 식사 답(89_dine_rsvp) — 예식 30일 뒤 지우기 + 마감(예식 7일 전) 뒤 바뀐 답을 두 분께 하루 한 통
+    { fn: 'dineRsvpDaily',           hour: 19, label: '하객 식사 답 정리(예식 30일 뒤 지움) + 마감 뒤 늦은 답 메일' }
   ];
   var names = plan.map(function (p) { return p.fn; });
   var purge = names.concat(['sendMorningBrief']);   // 통합·폐지된 구 트리거(아침 브리핑→aiMorningReport)도 함께 제거
