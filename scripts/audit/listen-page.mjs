@@ -437,7 +437,7 @@ else {
   ok('9-6 첫인사 = 두 분 차례 둘(신랑 · 신부) · 소리 없이 글 + 막대 · 대본 목록(④ 복사)에는 안 들어간다 · 대역 목소리 0 [CAST_TEXT_ONLY]', e.q === 2 && e.steps === 0 && e.noSrc && e.mute === 12 && e.castPlay === 0, JSON.stringify(e));
   await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].ref) && g++ < 40) { LP.i++; _lShow(); } }); await pg.waitForTimeout(300);
   const f = await pg.evaluate(() => ({ badge: (document.querySelector('#lsFull .lf-ref') || {}).textContent || '', lab: (document.querySelector('#lsFull .lf-lab') || {}).textContent || '' }));
-  ok('9-7 참고 예시 화면 — «참고 예시 N · 결» 표 · «당일엔 … 직접» · 목소리 문장 없음 · 이름표는 «신랑 차례» [CAST_TEXT_ONLY]', /참고 예시/.test(f.badge) && /당일엔 .*직접/.test(f.badge) && !/목소리/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
+  ok('9-7 참고 예시 화면 — «참고 예시 N» 표(결 없음) · «당일엔 … 직접» · 목소리 문장 없음 · 이름표는 «신랑 차례» [CAST_TEXT_ONLY]', /참고 예시/.test(f.badge) && /당일엔 .*직접/.test(f.badge) && !/목소리/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
   /* 두 분이 적은 글이면 그 글 · 막대 = 글자수 ÷ 5 올림(206자 → 42초 · 53자 → 11초) · «현장에서»면 «떠오르는 대로 말해 보세요» */
   const tw = await pg.evaluate(() => { const keep = JSON.stringify(S); S.tx = { 'welcome.g': 'ㄱ'.repeat(206), 'welcome.b': '' }; S.mkc = { 'welcome.b': 1 }; const q = _lRefExpand(_lSteps(ENG, ['welcome'])).filter((x) => x.talk2); S = JSON.parse(keep); return q.map((x) => ({ who: x.who, mine: !!x.mine, site: !!x.site, s: x.ms / 1000, t: x.txt.slice(0, 20) })); });
   ok('9-7b 두 분 차례 — 적은 글 206자 → 42초 · «현장에서» → «떠오르는 대로 말해 보세요» [CAST_TEXT_ONLY]', tw.length === 2 && tw[0].mine && tw[0].s === 42 && tw[1].site && /떠오르는 대로 말해 보세요/.test(tw[1].t), JSON.stringify(tw));
