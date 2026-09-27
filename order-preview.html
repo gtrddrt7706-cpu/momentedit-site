@@ -3487,14 +3487,15 @@ function _mkFlow(k){ var R=RitualOpen;
     h+='<li class="n"><button type="button" class="mk-pl" aria-label="'+esc((x.lab||'나레이션')+' 듣기')+'" onclick="mkLine(\''+k+'\','+i+')">'+ICO_PLAY+'</button><span><span class="mk-lab">'+esc(x.lab||'')+(x.pending?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</span>'+esc(x.txt||'')+'</span></li>';
   });
   return h+'</ol></section>'; }
-/* ★[MK_REF 2026-09-27] ② 한 쪽에 참고 예시 1 · 2 · 3 을 글로 펼쳐 둔다 — 고른 칩(판 · 길이)에 맞는 벌만(_lRefSets).
+/* ★[REF_NO_KYEOL 2026-09-27 사장님 «참고 예시 숫자까지만 · 뒤에 유머 이런 단어들 삭제»] 배지는 «참고 예시 N» 까지 — 결(담백 · 장면 하나 · 다정 · 유머+진심)은 화면에 안 쓴다(표에는 남는다)
+   ★[MK_REF 2026-09-27] ② 한 쪽에 참고 예시 1 · 2 · 3 을 글로 펼쳐 둔다 — 고른 칩(판 · 길이)에 맞는 벌만(_lRefSets).
    ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 글로만 — «듣기» 단추 · «이 목소리는 …» 문장은 없다(목소리가 없으니까). 글 옆에 «N자 · 소리 내어 읽으면 약 N초».
    펼친 벌이 연습(③ · 크게 보기)에서 그 차례 글로 쓰인다(LS.ref) */
 function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(function(x){ return x.talk; })) return '';
   var sets=_lRefSets(k); if(!sets.length) return '';
   var h='<section class="mk-sec mk-ref" aria-labelledby="mkRefH"><h4 id="mkRefH">참고 예시</h4>';
   sets.forEach(function(set,n){ var who='', kx=(set[0]||{}).kyeol||'';
-    h+='<details class="mk-rx"'+(n===((LS.ref||{})[k]||0)?' open':'')+' ontoggle="if(this.open) mkRefPick(\''+k+'\','+n+')"><summary><span class="lf-refb">참고 예시 '+(n+1)+(kx?' · '+esc(kx):'')+'</span><span class="mk-rd">'+esc(_lRefDay(k,set))+'</span></summary><div class="mk-rb">';
+    h+='<details class="mk-rx"'+(n===((LS.ref||{})[k]||0)?' open':'')+' ontoggle="if(this.open) mkRefPick(\''+k+'\','+n+')"><summary><span class="lf-refb">참고 예시 '+(n+1)+'</span><span class="mk-rd">'+esc(_lRefDay(k,set))+'</span></summary><div class="mk-rb">';
     set.forEach(function(pt){ h+='<p class="mk-rw">'+(pt.who!==who?'<b>'+esc(pt.who)+'</b>':'')+esc(pt.txt)+'<span class="mk-rl">'+pt.txt.length+'자 · 소리 내어 읽으면 약 '+_mkSec(pt.txt.length)+'초</span></p>'; who=pt.who; });
     h+='</div></details>'; });
   return h+'<p class="lf-refn">그대로 써도 좋고, 두 분 이야기로 바꿔도 돼요 · 예시 속 이름은 가상 인물이에요</p></section>'; }
@@ -3972,7 +3973,7 @@ function _lFull(){
     h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(st.k))+'</h3>';
     h+='<div class="lf-lab">'+esc(st.talk2||st.ref?st.who+' 차례':st.lab)+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</div>';   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     if(st.mine||st.site) h+='<p class="lf-ref"><span class="lf-refb">'+(st.mine?'두 분이 적은 글':'현장에서')+'</span>'+(st.mine?esc(st.txt.length+'자 · 소리 내어 읽으면 약 '+_mkSec(st.txt.length)+'초'):'당일엔 직접 말해요')+'</p>';   // [CAST_TEXT_ONLY] 차례 카드 — 누구의 글인가
-    if(st.ref) h+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.refOf>1?' '+(st.refN+1):'')+(st.kyeol?' · '+esc(st.kyeol):'')+'</span>'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+'</p>';   /* [CAST_TEXT_ONLY] 목소리가 없으니 «이 목소리는 …» 문장도 없다 */   // [REF_EXAMPLE] · [REF_TABLE] 말하는 사람마다 한 줄 · «소리»가 아니라 «목소리»(나레이션은 당일에도 나온다)
+    if(st.ref) h+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.refOf>1?' '+(st.refN+1):'')+'</span>'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+'</p>';   /* [CAST_TEXT_ONLY] 목소리가 없으니 «이 목소리는 …» 문장도 없다 */   // [REF_EXAMPLE] · [REF_TABLE] 말하는 사람마다 한 줄 · «소리»가 아니라 «목소리»(나레이션은 당일에도 나온다)
     h+='<p class="lf-txt'+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+'">'+esc(st.txt||'')+'</p>';
     if(st.ref) h+='<p class="lf-refn">그대로 써도 좋고, 두 분 이야기로 바꿔도 돼요 · 예시 속 이름은 가상 인물이에요'+(st.refPar?' · 부모님 예시는 두 분 합쳐 3분을 넘기기 쉬워요':'')+'</p>';   // [REF_TABLE]
     if(st.ref&&st.refOf>1) h+='<div class="lf-vars"><div class="ls-cg" role="radiogroup" aria-label="참고 예시"><span class="gl" aria-hidden="true">참고 예시</span><span class="cg-c">'

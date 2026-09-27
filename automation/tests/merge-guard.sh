@@ -11384,6 +11384,8 @@ chk 'MK_HELPERS' order-preview.html 1
 chk 'MK_RO' order-preview.html 2
 # ★[PK_EX_SEAL 2026-09-27 사장님] ① 고른 예시 = 진사 테두리 · «여기서 시작 ✓» 글자는 뺐다(aria-pressed 가 전한다)
 chk 'PK_EX_SEAL' order-preview.html 1
+chk 'REF_NO_KYEOL' order-preview.html 1   # 참고 예시 배지는 숫자까지 · 결 단어 없음(사장님 9/27)
+nochk "(kx?' · '+esc(kx):'')" order-preview.html
 # ★[MK_INTRO · MK_TODO_PASSED · MK_STRIP_FADE · MK_PICK_TOP 2026-09-27 사장님] ② 첫 쪽 «고른 순서» · 미완료는 지나온 쪽에만 · 진행 줄 양끝 흐림 · 고르기가 먼저
 chk 'MK_INTRO' order-preview.html 2
 chk 'MK_TODO_PASSED' order-preview.html 2
