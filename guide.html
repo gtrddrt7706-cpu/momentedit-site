@@ -510,7 +510,7 @@ function diningHtml(dn){
       +(_pm?'<div class="pm">'+esc(_pm)+'</div>':'')
       +(rsv?'<div class="rsv">'+rsv+'</div>':'')
       +'<div class="acts">'+acts+'</div></div>';
-    h+='<div class="gather">예식 뒤: 모두 함께 한 장 → 두 분의 감사 인사 → 식사 자리로(양가 직계 가족과 따로 사진을 남길 분은 잠시 남아요)</div>';   // [PHOTO_THANKS 2026-09-26 사장님 결정] 가실 분은 감사 인사 뒤 곧바로 위 장소로
+    h+='<div class="gather">예식 뒤: 모두 함께 한 장 → 두 분의 감사 인사 → 식사 자리로(가족분들과, 두 분과 사진을 더 남기고 싶은 분은 잠시 남아요)</div>';   // [PHOTO_THANKS 2026-09-26 사장님 결정] 가실 분은 감사 인사 뒤 곧바로 위 장소로 · ★[PHOTO_GUIDE_OPEN 2026-09-27] 나레이션(end-1a-farewell «두 사람과 따로 사진을 남기고 싶으신 분들도 함께 남아 주십시오»)과 같게 친구 · 지인에게도 열었다([GUESTS_OPEN])
     if(restos.length) h+='<div class="subh">함께 들르기 좋은 곳</div>';   // 픽이 있으면 나머지 찜은 보조로 구분(어디로 가야 하는지 흐려지지 않게)
   }
   if(restos.length){ restos.forEach(function(v){ h+=spotHtml(v,true); }); }

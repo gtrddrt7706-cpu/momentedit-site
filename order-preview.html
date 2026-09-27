@@ -4599,13 +4599,13 @@ function renderStep(k){
     var _pOpen=(_tprev==='_close');
     h+='<div class="mc'+(_pOpen?' open':'')+'">'   // [ORD_KEY]
       +'<div class="mc-hd"><button type="button" class="mc-t" aria-expanded="'+(_pOpen?'true':'false')+'" data-fk="mc:_close" onclick="tprev(\'_close\')">폐식·단체촬영<span class="tcap fx">꼭 들어가는 순서</span></button><span class="mc-chev" aria-hidden="true">›</span></div>'   // [ORD_BADGE_AXIS]
-      +'<div class="mc-e">나레이션이 예식을 닫고, 자리에서 그대로 단체 사진을 남겨요</div>'
+      +'<div class="mc-e">나레이션이 예식을 닫고, 모두 앞으로 모여 단체 사진을 남겨요</div>'   // ★[PHOTO_GATHER_WORD 2026-09-27] 옛 «자리에서 그대로» — [PHOTO_GATHER_OFF] · CLOSE_NAR «모두 앞으로 나와 주세요»와 같게
       +'<div class="mc-s">연출 · 나레이션 · 맨 마지막</div>';
     if(_pOpen){
       h+='<div class="mc-x">';
       h+='<div class="mc-media"><div class="mclip"><div style="padding:20px 14px;font-size:12.5px;line-height:1.8;color:var(--sub)">'+esc(CLOSE_NAR)+'</div></div>'
         +'<button type="button" class="rowbtn mc-play" data-mp="_close" onclick="event.stopPropagation();momPlay(this,\'_close\')">'+ICO_PLAY+'이 순간 들어보기</button></div>';
-      h+='<div class="mc-info" style="margin-top:8px">남기고 싶은 <b>단체 사진 구도</b>는 마이페이지 <b>예식 준비 · 단체 사진</b>에서 골라요 · 본식 뒤 다 함께 시간에 진행돼요.</div>';
+      h+='<div class="mc-info" style="margin-top:8px">남기고 싶은 <b>가족 구도</b>는 마이페이지 <b>예식 준비 · 가족 · 친구 스냅</b>에서 골라요 · 본식 뒤 단체 사진 시간에 진행돼요.</div>';
       h+='</div>';
     }
     h+='</div>';
@@ -5241,7 +5241,7 @@ var BLOCK={
 function fullBlocks(){
   var b=[];
   curSeq().forEach(function(k){ if(BLOCK[k]){ var x=BLOCK[k](); if(x){ x.k=k; b.push(x); } } });
-  b.push({n:'폐식·단체촬영',k:'_close',nar:CLOSE_NAR,cue:'나레이션 마무리와 함께 마무리 음악 시작 · 하드 스톱 없이 길게 페이드아웃 → 자리에서 그대로 단체촬영(구도는 예식 준비 · 단체 사진에서)'});   // 단체촬영 '구도'는 예식 준비로 분리(2026-07-19) — 식순 큐는 일반 안내만
+  b.push({n:'폐식·단체촬영',k:'_close',nar:CLOSE_NAR,cue:'나레이션 마무리와 함께 마무리 음악 시작 · 하드 스톱 없이 길게 페이드아웃 → 모두 앞으로 모여 단체촬영(구도는 예식 준비 · 가족 · 친구 스냅에서)'});   // 단체촬영 '구도'는 예식 준비로 분리(2026-07-19) — 식순 큐는 일반 안내만
   return b;
 }
 // [ORD_STEPNO] 진행 표시의 '순서 N / N'이 완성 화면의 번호와 다른 숫자를 세고 있었다.
@@ -5508,7 +5508,7 @@ function renderDone(){
     var noVal=!String(r[1]||'').trim() && !emptyWrite;
     h+='<div class="sumrow'+(isOff?' off':'')+(noVal?' novalue':'')+'">'+numCell+'<div class="sr-l">'+esc(r[0])+'</div><div class="sr-v">'+esc(r[1])+(emptyWrite?'<span class="sr-empty">글 비어 있음</span>':'')+'</div><button class="sr-c" aria-label="'+esc(r[0])+(emptyWrite?' 글 채우기':' 바꾸기')+'" data-fk="sum:'+r[2]+'" onclick="editStep(\''+r[2]+'\')">'+(emptyWrite?'채우기':'변경')+'</button></div>';
   });
-  h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식·단체촬영</div><div class="sr-v">자리에서 그대로, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
+  h+='<div class="sumrow"><div class="sr-n">'+((_num+1)<10?'0':'')+(_num+1)+'</div><div class="sr-l">폐식·단체촬영</div><div class="sr-v">모두 모여, 여운을 사진에 담아요</div><span style="flex:0 0 30px"></span></div>';
   h+='</div>';
   }
   /* ★★[★AI고지_부부 · DONE_TAIL_QUIET 2026-08-12 사용자 지시] 이 화면의 고지 줄은 **뺐다.**

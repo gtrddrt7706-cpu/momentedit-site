@@ -1494,6 +1494,9 @@ $('#bWait').onclick = function(){
   var pc = (S && S.photoCaller) || null, who = [];
   if (pc && pc.groom) who.push('신랑 쪽 · ' + String(pc.groom).slice(0, 40));
   if (pc && pc.bride) who.push('신부 쪽 · ' + String(pc.bride).slice(0, 40));
+  /* ★[PHOTO_TO_CREW 2026-09-27] 두 분이 정한 것을 그날 차례대로 — 꼭 담고 싶은 사진(전체 하객 바로 뒤) · 가족 구도 순서(«›»). 관리자 «당일 콘솔» 단추가 싣는다(이름 24자 · 요청 40자). 고객 글이라 textContent 로만. */
+  if (S && Array.isArray(S.photoWishT) && S.photoWishT.length) { var pw = document.createElement('div'); pw.className = 'pcb-who'; pw.textContent = '꼭 담고 싶은 사진(전체 하객 바로 뒤) · ' + S.photoWishT.slice(0, 2).map(function (t) { return String(t).slice(0, 40); }).join(' / '); box.appendChild(pw); }
+  if (S && Array.isArray(S.photoNames) && S.photoNames.length) { var pn = document.createElement('div'); pn.className = 'pcb-who'; pn.textContent = '가족 구도 · ' + S.photoNames.slice(0, 11).map(function (t) { return String(t).slice(0, 24); }).join(' › '); box.appendChild(pn); }
   if (who.length) { var w = document.createElement('div'); w.className = 'pcb-who'; w.textContent = '불러 모아 주실 분 · ' + who.join(' / '); box.appendChild(w); }
   /* [PHOTO_FRIEND 2026-09-26 사장님] 친구들과 자유롭게 — 가족 구도를 다 찍은 뒤 사진작가에게 부탁한 것. 고객 글이라 textContent 로만. */
   if (S && S.photoFriend) { var fr = document.createElement('div'); fr.className = 'pcb-who'; fr.textContent = '친구들과 자유롭게 · ' + String(S.photoFriend).slice(0, 200); box.appendChild(fr); }
