@@ -12875,7 +12875,7 @@ nochk "return '으로'; return '로'; }" mypage.html 0
 chk 'SNAP_NOIMG_LIST' mypage.html 4   # [SNAP_PICK_ALL 2026-09-27] 5 → 4 — «기본으로 담는 네 장면» 글 목록(.snp-base) 줄이 사장님 결정으로 빠졌다(고르는 장면 목록은 그대로)
 chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||\[\]).some(function(e){ return !!R.exImg(e); }); }); }" mypage.html 1   # [SNAP_PHOTO_FIRST] 예시 사진도 센다
 chk "else h+='<div class=\"snp-list\" role=\"group\" aria-label=\"마음에 드는 장면\">'" mypage.html 1
-chk "사진작가가 고르신 장면을 챙겨 찍어요." mypage.html 1
+chk "사진작가가 챙겨 찍어요.'" mypage.html 1   # [SNAP_AUDIT_0927] «고르신 장면을» 뺐다(한 문장에 «장면» 넷 · 1280 «… / 찍어요.» 꼬리) — «그 사진을 보고»가 아닌 것은 그대로(SNAP_NOIMG_LIST)
 chk 'SNAP_FULL_HINT' mypage.html 4
 chk "장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요" mypage.html 1
 nochk "mpAlert('공간마다 '+R.limits.pick" mypage.html 0
@@ -13087,3 +13087,39 @@ nochk "row(z.ko+' · 기본'" admin.html 0
 chk 'SNAP_PICK_ALL' scripts/audit/snap-plan.mjs 8
 chk 'SNAP_PICK_ALL' automation/tests/snap-plan.test.js 4
 chk 'SNAP_PICK_ALL' docs/plans/스냅_레퍼런스_촬영목록표.md 1
+# ★[SNAP_AUDIT_0927 2026-09-27 사장님 «사진 오기 전까지 고객 입장에서 한번 더 디테일 체크»] 스냅 기획 고객 점검 — 320 · 390 · 1280 실렌더
+#   ①[SNAP_PH_FIT] 사진 전 칸 — 고르기 원 · «3장»이 글을 덮던 것(320~390) · «3장» 흰 알약(대비) ②[SNAP_EDIT_UNTIL] «예식 3일 전까지 고칠 수 있어요» ↔ 잠금 «3일 전부터» 하루 어긋남 → 날짜
+#   ③[SNAP_NO_MEANS] 번호 = 고른 순서(«먼저 고른 장면부터 찍어요» 약속 뺌) ④[SNAP_SUM_ZERO] «화이트존 0장면» ⑤[SNAP_SUM_REF] 요약 «참고» ⑥[SNAP_EXV_FULL_HOW] 크게 보기 다 고름 한 줄
+#   ⑦[SNAP_EMPTY_SAVE] 빈 저장 알림 ⑧[SNAP_WRAP_TAIL] 꼬리 줄 ⑨[SNAP_LINK_TAP] 담은 링크 44px
+chk 'SNAP_PH_FIT' mypage.html 3
+chk '<i>예시 사진 준비 중</i><span class="snp-pv-d">' mypage.html 1
+chk 'box-sizing:border-box;padding:40px 10px 32px;font-family:var(--serif-ko)' mypage.html 1
+chk '^\.snp-pv-d{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}' mypage.html 1
+chk '\.snp-pv-ph ~ \.snp-pv-n{background:#fff;color:var(--sub)' mypage.html 1
+nochk 'box-sizing:border-box;padding:14px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65' mypage.html 0
+chk 'SNAP_EDIT_UNTIL' mypage.html 3
+chk "eu=new Date(wu-4\*864e5)" mypage.html 1
+chk "(_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.')" mypage.html 1
+chk "까지는 언제든 고칠&nbsp;수 있어요." mypage.html 1
+nochk '예식&nbsp;3일&nbsp;전까지는 언제든 고칠 수 있어요' mypage.html 0
+nochk '스냅 기획은 예식 3일 전까지 고르실 수 있어요' mypage.html 0
+chk 'SNAP_NO_MEANS' mypage.html 1
+chk '번호는 고른 순서예요. 시간이 줄면 앞 번호부터 담아요.' mypage.html 1
+nochk '먼저 고른 장면부터 찍어요' mypage.html 0
+chk 'SNAP_SUM_ZERO' mypage.html 1
+chk "if(c||w) return (c?('캔들존 '+c):('화이트존 '+w))+'장면 골랐어요'" mypage.html 1
+chk 'SNAP_SUM_REF' mypage.html 1
+chk '<span class="k">참고</span>' mypage.html 1
+chk 'SNAP_EXV_FULL_HOW' mypage.html 2
+chk '고른 장면 하나를 빼면 이 장면도 고를 수 있어요' mypage.html 1
+chk 'SNAP_EMPTY_SAVE' mypage.html 1
+chk "'저장했어요 · 고른 장면은 아직 없어요'" mypage.html 1
+chk 'SNAP_WRAP_TAIL' mypage.html 3
+chk 'SNAP_LINK_TAP' mypage.html 1
+chk '#mp_snapOverlay \.ph-item \.ph-nm a{display:flex;align-items:center;min-height:44px}' mypage.html 1
+# [SNAP_PHOTOS_48] 예시 사진 48장 연결 · [SNAP_SHOW_ORDER] 사진 온 장면을 앞에(보여 주는 순서만) — 2026-09-27
+chk "img: 'c05-1'" assets/snap-refs.js 1
+chk "img: 'w12-3'" assets/snap-refs.js 1
+chk 'SNAP_PHOTOS_48' assets/snap-refs.js 1
+chk 'function _spShowOrder(list){' mypage.html 1
+chk "_spShowOrder(z.pick).map(function(s){" mypage.html 1
