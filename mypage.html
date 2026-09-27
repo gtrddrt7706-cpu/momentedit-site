@@ -1055,8 +1055,10 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .dn-agg{padding-bottom:12px}
 /* .dn-agg.rep → [SEL_ONE] */
 .dn-agg .repbadge{display:inline-block;font-family:var(--serif-ko);font-size:10px;font-weight:500;color:#fff;background:var(--seal);border-radius:20px;padding:1px 8px;margin-right:6px;vertical-align:middle}
-.dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal);border-radius:8px;background:#fff;color:var(--seal);font-family:var(--serif-ko);font-size:13px;cursor:pointer}
-.dn-repbtn:hover{background:var(--seal);color:#fff}
+/* ★[SEAL_CTA_ONLY 2026-09-27 최종 점검] «여기로 예약할래요» = 흰 보조 단추(.cc-btn-ghost 와 같은 말) — 진사 테 · 진사 글자 단추가 담은 곳마다 되풀이돼
+     진사가 «점»보다 넓게 깔렸고, 다른 화면엔 없는 세 번째 단추 모양이었다. 마우스 올림도 (hover:hover) 안으로(터치에서 누른 뒤 진사로 칠해진 채 남았다). */
+.dn-repbtn{display:block;width:100%;min-height:44px;margin-top:9px;padding:9px 0;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--sub);font-family:var(--serif-ko);font-size:13px;cursor:pointer}
+@media (hover:hover){.dn-repbtn:hover{border-color:var(--gold);color:var(--accent)}}
 .dn-aggbook{margin-top:10px;padding-top:11px;border-top:1px dashed var(--border)}
 /* 하객 공개 토글(담기와 분리 · 켠 곳만 하객 노출) · 2026-07-19 */
 .dn-showtgl{display:block;width:100%;margin-top:7px;padding:7px 0;border:1px dashed var(--border);border-radius:8px;background:#fff;color:var(--label-soft,#6F695D);font-family:var(--serif-ko);font-size:12px;cursor:pointer}

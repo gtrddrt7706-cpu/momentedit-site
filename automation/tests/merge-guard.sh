@@ -573,6 +573,10 @@ chk 'WZ_STEPS_LEVEL' mypage.html 2
 chk '.wz-stepb{display:flex;align-items:flex-start;justify-content:center;' mypage.html 1
 chk "var lab='<span class=\"wz-l\">" mypage.html 1
 nochk '.wz-stepb{display:block' mypage.html 0
+# [SEAL_CTA_ONLY 최종 점검] «여기로 예약할래요»는 흰 보조 단추 — 진사 테 · 진사 칠 마우스 올림으로 되돌리면 빨강
+nochk '.dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal)' mypage.html 0
+nochk '.dn-repbtn:hover{background:var(--seal)' mypage.html 0
+chk '.dn-repbtn{display:block;width:100%;min-height:44px;' mypage.html 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
