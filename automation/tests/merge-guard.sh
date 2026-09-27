@@ -2277,6 +2277,7 @@ nochk '27_tribute-reply' assets/ritual-ref.js
 nochk '15_toast' assets/ritual-ref.js
 chk 'REF_TABLE' scripts/audit/listen-page.mjs 2
 node scripts/build-ref-examples.mjs --check || fail=1
+node scripts/audit/tx-merge.mjs >/dev/null || { echo '✗ TX_MERGE 칸별 합치기 검사 실패(node scripts/audit/tx-merge.mjs)'; fail=1; }   # [TX_MERGE 2026-09-27]
 chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
@@ -11363,6 +11364,27 @@ nochk 'var ALWAYS = { guest: 1, entry: 1, prevideo: 1 }' assets/ritual-open.js  
 chk 'PREVIDEO_PICK' order-preview.html 3
 chk 'PREVIDEO_PICK' api/_ritual-kb.js 1
 chk 'PREVIDEO_PICK' scripts/audit/open-course.mjs 3
+# ★[TX_MERGE · MK_SAVE_NUDGE 2026-09-27 사장님 결정] 두 기기 칸별 합치기(GAS · 빌더 · 마이페이지) · ②→③ 저장 알림
+chk 'TX_MERGE' automation/platform/80_production.gs 5
+chk 'TX_MERGE' order-preview.html 3
+chk 'TX_MERGE' mypage.html 1
+chk 'MK_SAVE_NUDGE' order-preview.html 1
+chk '저장하고 넘어갈까요?' order-preview.html 1
+chk 'FLOW_MAKE' order-preview.html 3
+# ★★[CAST_TEXT_ONLY 2026-09-27 사장님 «실제로 식장에서 나오는 멘트만 녹음으로»] 대역 목소리 06~14 · 24~26 은 미리듣기 · 연습에서 틀지 않는다 — 되살리지 말 것
+chk 'CAST_TEXT_ONLY' assets/ritual-story.js 1
+chk 'CAST_TEXT_ONLY' order-preview.html 4
+chk 'CAST_TEXT_ONLY' console.html 1
+chk 'castLivePlayOf' console.html 2
+nochk '이 목소리는 예식에서 나오지 않아요' order-preview.html
+nochk 'mkRefPlay' order-preview.html
+node scripts/audit/cast-mute.mjs >/dev/null || { echo '✗ CAST_TEXT_ONLY 대역 목소리 막기 검사 실패(node scripts/audit/cast-mute.mjs)'; fail=1; }
+chk 'MK_REF' order-preview.html 1
+chk 'MK_HELPERS' order-preview.html 1
+chk 'MK_RO' order-preview.html 2
+# ★[PK_EX_SEAL 2026-09-27 사장님] ① 고른 예시 = 진사 테두리 · «여기서 시작 ✓» 글자는 뺐다(aria-pressed 가 전한다)
+chk 'PK_EX_SEAL' order-preview.html 1
+nochk '여기서 시작 ✓' order-preview.html
 nochk '식전 영상 · 입장 · 닫는 인사는 늘 있어요' assets/ritual-open.js
 nochk '입장 · 닫는 인사 · 식전 영상은 늘 있어요' order-preview.html
 chk 'PREVIDEO_AT_4' assets/ritual-cue.js 2            # 영상은 03 과 04 사이 · 본식 4분 전 시각고정

@@ -402,7 +402,7 @@
     '하객대표': '예시 목소리 · 당일엔 하객분이 직접 말해요'
   };
   // 미리 녹음해 두는 자리 — 당일엔 '말하는' 게 아니라 '틀어지는' 것이라 문구가 다르다
-  var CAST_REC = '예시 목소리 · 당일엔 두 분이 녹음한 목소리가 나가요';
+  var CAST_REC = '예시 목소리 · 당일엔 두 분이 녹음한 목소리가 나와요';   // [CAST_TEXT_ONLY 2026-09-27 코워크 문구]
   // ★CAST_PAIR — 한 자리에서 두 사람 이상이 말하는 큐(혼인 서약 = 신랑+신부)의 문구.
   //   첫 사람 배지만 쓰면 "당일엔 신랑님이 직접 말해요"가 되어, 화면이 신부를 지운다.
   //   키는 역할 이름을 코드포인트 순으로 정렬해 '|'로 이은 것 — 대사 순서가 바뀌어도 같은 키가 나온다.
@@ -549,6 +549,14 @@
     return out;
   }
   function castMainOf(cue) { return castExpand(castIds(cue).main); }   // 나레이션 클립 자리를 대체
+  /* ★★[CAST_TEXT_ONLY 2026-09-27 사장님 «실제로 식장에서 나오는 멘트만 녹음으로 · 나머지 대역은 대사 예시로만»]
+     두 분 · 가족이 식장에서 직접 말하는 자리의 대역 목소리는 미리듣기 · 연습 어디에서도 틀지 않는다.
+     남는 소리 = 나레이션 + 두 분이 녹음해 보내는 자리의 예시(01~04 하객 맞이 · 18~23 입장 인사 · castMain).
+     ★표(CAST · CAST_AT)는 그대로 둔다 — 커버리지 · 글 대조 검사가 «그 자리가 어디인가»를 이 표로 읽는다. 막는 것은 «재생»뿐이다.
+     ★재생하는 곳은 castLiveOf 가 아니라 castLivePlayOf 를 부른다(console.html · order-preview.html). 되살리지 말 것 — 이 목록에서 빼면 대역 목소리가 다시 나온다. */
+  var CAST_MUTE = { '06_welcome-groom': 1, '07_welcome-bride': 1, '08_vow-groom': 1, '09_vow-bride': 1, '24_vow-both-1': 1, '25_vow-both-2': 1, '26_vow-both': 1,
+    '10_letter-parent': 1, '11_letter-each': 1, '12_bless-father': 1, '13_bless-mother': 1, '14_tribute': 1 };
+  function castLivePlayOf(cue) { return castLiveOf(cue).filter(function (x) { return !CAST_MUTE[x.id]; }); }
   function castLiveOf(cue) { return castExpand(castIds(cue).live); }   // 사람 구간(live) 안에서 재생
   /* 한 자리(큐)를 대표하는 배지 문구 하나. ★문구는 여기서만 만든다 —
      console.html 이 직접 조립하면 화면마다 다른 말이 생기고, 고칠 때 한쪽만 고쳐진다. */
@@ -572,6 +580,6 @@
 
   return { V: 1, ALIAS: ALIAS, BLOCK: BLOCK, LIVE: LIVE, CAST: CAST, CAST_AT: CAST_AT, CAST_DIR: CAST_DIR,
            liveOf: liveOf, blockOf: blockOf, aliasOf: aliasOf, castOf: castOf, castOne: castOne,
-           castIds: castIds, castMainOf: castMainOf, castLiveOf: castLiveOf, castBadgeOf: castBadgeOf,
+           castIds: castIds, castMainOf: castMainOf, castLiveOf: castLiveOf, castLivePlayOf: castLivePlayOf, CAST_MUTE: CAST_MUTE, castBadgeOf: castBadgeOf,
            CAST_SAY: CAST_SAY, CAST_REC: CAST_REC, CAST_PAIR: CAST_PAIR, version: 'story-v1' };
 });

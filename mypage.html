@@ -2341,9 +2341,10 @@ function openRitualBuilder(p, inv){
          중간 초안이 완성으로 굳어 '저장됨 · D-14' 화면으로 열린다(ORDERFILL_DONE 2026-07-25 사고).
        ★성공·실패를 양쪽 다 돌려준다 — 조용히 실패하면 자동 저장은 거짓말이 된다(ORDER_SAVE_FAIL). */
     if(d.type==='momentedit:orderDraft' && d.data && d.data.S){
-      var _dfAck=function(ok){ try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail'}, location.origin); }catch(e){} };
+      /* [TX_MERGE 2026-09-27] 서버가 다른 기기의 더 나중 칸(pull)을 돌려주면 빌더에 실어 보낸다 — 빌더가 그 칸을 화면에 채운다 */
+      var _dfAck=function(ok,pull){ try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail', pull:pull||null}, location.origin); }catch(e){} };
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
-        .then(function(r){ if(r&&r.ok){ saved=true; _dfAck(true); } else _dfAck(false); })
+        .then(function(r){ if(r&&r.ok){ saved=true; _dfAck(true, r.txPull); } else _dfAck(false); })
         .catch(function(){ _dfAck(false); });
       return;
     }
@@ -2352,12 +2353,12 @@ function openRitualBuilder(p, inv){
          성공·실패를 **양쪽 다** 빌더에 돌려준다. 예전엔 실패만 보냈다 — 성공 신호가 없으니
          빌더는 누르는 즉시 '저장됨'을 낙관 표시할 수밖에 없었고, 그게 거짓 저장 상태의 뿌리였다.
          실패 사유는 alert 이 아니라 msg 로 실어 보낸다(빌더가 자기 지면 안에서 브랜드 판으로 보여 줌). */
-      var _svAck=function(ok,msg){
-        try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderSaved':'momentedit:orderSaveFail', msg:msg||''}, location.origin); }
+      var _svAck=function(ok,msg,pull){
+        try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderSaved':'momentedit:orderSaveFail', msg:msg||'', pull:pull||null}, location.origin); }
         catch(e){ if(!ok) mpAlert(msg||'저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.'); }
       };
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
-        .then(function(r){ if(r&&r.ok){ saved=true; _svAck(true); } else { _svAck(false,(r&&r.error)||'저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
+        .then(function(r){ if(r&&r.ok){ saved=true; _svAck(true,'',r.txPull); } else { _svAck(false,(r&&r.error)||'저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
         .catch(function(){ _svAck(false,'저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
     }
   }

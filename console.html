@@ -1065,7 +1065,7 @@ function fire(i, opt){
         if (MODE === 'preview') {
           // ★사람이 말하는 자리 — 고객 화면에서는 배우 예시 목소리가 그 시간을 채운다.
           //   음원이 아직 없으면(조립 전) 종전대로 est 만큼 장면 카드를 띄우고 넘어간다.
-          var cl = (GUEST && STORY) ? STORY.castLiveOf(c) : [];
+          var cl = (GUEST && STORY) ? (STORY.castLivePlayOf ? STORY.castLivePlayOf(c) : []) : [];   // ★[CAST_TEXT_ONLY 2026-09-27] 대역 목소리는 틀지 않는다 — 장면 카드 + est 로 흐른다
           if (cl.length) playCastList(cl, advance, function(){ runProg(c.live.est || 10, advance); });
           else later(function(){ advance(); }, (c.live.est || 10) * 1000);
         }
@@ -1167,7 +1167,7 @@ function gCastBadge(c){
   if (!STORY) return '';
   // ★문구 조립은 장면 레이어(castBadgeOf)가 한다 — 두 사람이 말하는 자리(혼인 서약)에서
   //   첫 사람 배지만 쓰면 화면이 나머지 한 사람을 지운다. 여기서 l[0] 을 쓰지 말 것.
-  return STORY.castBadgeOf((phase === 'live') ? STORY.castLiveOf(c) : STORY.castMainOf(c));
+  return STORY.castBadgeOf((phase === 'live') ? (STORY.castLivePlayOf ? STORY.castLivePlayOf(c) : []) : STORY.castMainOf(c));   // [CAST_TEXT_ONLY] 안 트는 목소리에 배지를 달지 않는다
 }
 /* 블록 머리 — 순서 소개의 원천은 코스 표(detail[])다. 거기 없는 블록만 장면 레이어가 채운다(STORY_BLOCK_FILL) */
 function gBlock(bn){
