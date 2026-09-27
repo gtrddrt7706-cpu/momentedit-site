@@ -527,6 +527,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .ph-nm{flex:1;min-width:0;font-family:var(--serif-ko);font-size:14px;color:var(--accent);word-break:keep-all}
 /* [PHOTO_GATHER_OFF 2026-08-16] 구도 설명이 툴팁(title)에만 있어 폰에서는 아무도 못 봤다 — 줄 안으로 내린다 */
 .ph-sub{display:block;font-size:11px;color:var(--label-soft);margin-top:2px;line-height:1.5;font-family:var(--sans);word-break:keep-all}
+.ph-ordlab{font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:var(--label-soft);margin:10px 0 6px}   /* ★[PHOTO_ORDER_LABEL 2026-09-27 사장님 «전부 반영»] 차례 3 안의 ①②③이 바깥 차례 번호(1~5)와 겹쳐 읽혔다 — 목록 위에 «찍는 순서»로 이름을 붙인다 */
 .ph-fix{flex:0 0 auto;font-family:var(--sans);font-size:11px;color:var(--label-soft);padding:0 2px}   /* ★[PHOTO_FIX_TEXT 2026-09-27 사장님 지시문 6편 3부 8] «고정» 알약(테두리) → 테두리 없는 작은 글 — 누를 수 있어 보이지 않게. 알약으로 되돌리지 말 것 */
 .ph-ctl{flex:0 0 auto;display:flex;align-items:center;gap:2px}   /* [PHOTO_UNDO_X] 누름 칸 40×44 · 사이 2px */
 .ph-mv,.ph-del{width:28px;height:28px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:13px;color:var(--sub);cursor:pointer;padding:0;line-height:1}
@@ -8652,7 +8653,7 @@ function renderPhoto(box){
   var _stN=0; function _stepHd(t, sub, kind, extra){ _stN++; return '<li class="ph-st'+(kind?(' '+kind):'')+'"><div class="ph-st-hd"><span class="ph-st-no" aria-hidden="true">'+_stN+'</span><span class="ph-st-t">'+t+(extra||'')+'</span></div>'+(sub?('<div class="ph-st-s">'+sub+'</div>'):''); }
   var _dig=!!PHOTOFLOW.dig, _ml=PHOTOFLOW.meal;
   h+='<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">';
-  h+=_stepHd('모두 함께 · 전체 하객 한 장', '오신 분들 모두 · 늘 첫 컷이에요');   // ★[PHOTO_SHOOT_ORDER] 1번 = 엔진 end-0-photo(전체 하객 → 두 분이 적은 요청) · 요청 칸이 이 차례 안에 온다
+  h+=_stepHd('모두 함께 · 전체 하객 한 장', '늘 첫 컷이에요 · 따로 고르실 것은 없어요');   // ★[PHOTO_STEP1_TRIM 2026-09-27 사장님 «전부 반영»] 옛 «오신 분들 모두»는 제목(모두 함께)·카드(모두 앞으로)와 세 번 겹쳤다 — 대신 «고정»이 무슨 뜻인지를 말한다   // ★[PHOTO_SHOOT_ORDER] 1번 = 엔진 end-0-photo(전체 하객 → 두 분이 적은 요청) · 요청 칸이 이 차례 안에 온다
   h+='<div class="ph-list"><div class="ph-item locked"><span class="ph-nm">전체 하객<span class="ph-sub">두 분이 가운데 · 모두 앞으로 모여요</span>'+_phExLnk('전체 하객')+'</span><span class="ph-fix">고정</span></div></div>';   // [PHOTO_FIX_TEXT] «고정»은 테두리 없는 글 · [PHOTO_EX_VIEW] 예시(g00)
   /* ★★★[PHOTO_WISH] 「꼭 담고 싶은 사진」 — 고르는 카드 열 장을 없애고 **적는 칸**으로 바꿨다.
      위 칸이 이미 무엇이 담기는지를 말하므로, 여기서 물을 것은 하나뿐이다: 그것 말고 더 있나요.
@@ -8712,7 +8713,7 @@ function renderPhoto(box){
     +'<div class="cc-note ph-st-note">두 분이 함께 하객분들께 감사 인사를 드려요. 이어서 나레이션이 가족분들과, 두 분과 사진을 더 남기고 싶은 분들께 잠시 남아 달라고 안내해요. '
     +(_ml==='yes'?'먼저 가실 분들은 이때 식사 자리로 옮겨요.':(_ml==='no'?'먼저 가실 분들은 이때 인사를 받고 돌아가요.':'먼저 가실 분들은 이때 자리를 옮겨요.'))+'</div></li>';   /* ★[PHOTO_THANKS_WORD 2026-09-27 고객 점검] 옛 «하객 모두께 함께» · «사진을 더 함께 남기고 싶은 분»(누구와?) · «옮기셔요» — 나레이션 원문 «두 사람과 따로 사진을 남기고 싶으신 분들도»에 맞춰 «두 분과»를 넣었다 */
   h+=_stepHd('가족 구도', '고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요');   // [PHOTO_FREE] 부르고 세우는 것은 사진작가 · 나레이션 «가족사진은 작가님이 순서대로 불러 드립니다»와 같은 말
-  h+=(sel.length?'<div class="ph-list">':'<div class="cc-note ph-none" style="text-align:left;margin:8px 0 2px">아직 고른 구도가 없어요 · 아래에서 더해 주세요.</div>');
+  h+=(sel.length?('<div class="ph-ordlab">찍는 순서'+(sel.length>1?' · ↑↓로 바꿀 수 있어요':'')+'</div><div class="ph-list">'):'<div class="cc-note ph-none" style="text-align:left;margin:8px 0 2px">아직 고른 구도가 없어요 · 아래에서 더해 주세요.</div>');
   sel.forEach(function(n,i){
     var _m=photoMeta(n);
     // [PHOTO_GATHER_OFF] 배지 자리에 갈래 대신 **그 구도의 설명**을 넣는다(옛 판은 title 툴팁이라 폰에서 안 보였다)

@@ -13179,3 +13179,8 @@ chk '아래 예시를 누르면 칸에 담겨요.' mypage.html 1
 chk 'PHOTO_SCENE_WHEN' mypage.html 1
 chk 'PHOTO_FRIEND_PICK' mypage.html 1
 chk "lab:{off:'이 부탁 담기'}" mypage.html 1
+# [2026-09-27 사장님 «전부 반영»] 1번 겹말 정리 · 3번 안 번호에 «찍는 순서» 이름
+chk 'PHOTO_STEP1_TRIM' mypage.html 1
+nochk "'오신 분들 모두 · 늘 첫 컷이에요'" mypage.html
+chk 'PHOTO_ORDER_LABEL' mypage.html 1
+chk 'class="ph-ordlab">찍는 순서' mypage.html 1
