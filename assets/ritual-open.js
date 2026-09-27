@@ -359,6 +359,20 @@
   function orderParts(S) { var p = peakOf(S); return bodySeq(S).map(function (k) { return { k: k, n: CARDS[k].sn, peak: k === p }; }); }
   /* 준비 한 줄 [D5] — 0가지인 쪽은 뺀다 · «것 N가지»는 붙는 공백으로 */
   function prepCount(S) { var c = 0, pp = 0; prepList(S).forEach(function (q) { if (q.who === 'parents') pp++; else c++; }); return { couple: c, parents: pp }; }
+  /* ★★[VOICE_KIND 2026-09-27 코워크 지시 2장 · 사장님 «미리 녹음하거나 AI로 하는 부분과 직접 육성으로 얘기해야 하는 부분을 고객 입장에서 직관적으로 구분»]
+     줄마다 누가 어떻게 소리 내는지 — 한 곳(여기)에서 정하고 ② · ③ · 콘솔이 같은 값을 읽는다.
+       narr = 나레이션(스튜디오 나레이터) · prep = 두 분 목소리 · 미리 준비(두 분이 식장에 없을 때 · 하객 맞이 · 입장 인사 «두 분 목소리»를 골랐을 때만)
+       live = 당일 직접(식장에서 사람 목소리 · 여기 글은 연습용). 말하는 사람이 가족이면 «당일 직접 · 가족» · 축사면 «당일 직접 · 축사하시는 분» */
+  var VOICE_KIND = {
+    narr: { lab: '나레이션', one: '스튜디오 나레이터가 읽어요' },
+    prep: { lab: '두 분 목소리 · 미리 준비', one: '두 분이 식장에 없을 때 나와서, 미리 준비한 두 분 목소리가 저절로 나와요' },
+    live: { lab: '당일 직접', one: '식장에서 직접 말해요. 여기 글은 연습용이에요' }
+  };
+  function voiceKind(k, S, o) { o = o || {}; if (o.talk) return 'live'; if (o.own) return 'prep'; return 'narr'; }
+  function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
+    if (k === 'bless' || (k === 'declare' && chipOf('declare', S) === 'family')) return '당일 직접 · 가족';
+    if (k === 'free') return '당일 직접 · 축사하시는 분';
+    return '당일 직접'; }
   function prepLine(S) { var n = prepCount(S), a = [];
     if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께 부탁드릴' + NB + '것' + NB + n.parents + '가지');   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
     return a.length ? a.join(' · ') + ' · ② 한눈에 보기에서 모아 봐요' : ''; }   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
@@ -416,11 +430,12 @@
   var NOTE_TRIB = '적어 두시면 카드로 드려요 · 비워 두셔도 돼요';   // ★[TRIB_CARD_OPT 2026-09-25 사장님 «칸은 두되 선택»] ③ 에 선택 칸이 생겼다
   function prepOf(k, S) {
     switch (k) {
-      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];
+      /* [REC_UPLOAD 2026-09-27 코워크 3-8] 준비 목록 이름 «두 분 목소리 준비» · 마감 D-7 · 스튜디오 나레이션을 고르면 빠진다(아래 조건 그대로) */
+      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', '두 분 목소리 준비 · 하객 맞이 안내(식순 만들기에서 녹음하거나 파일로 올려요 · 비어 있는 줄은 나레이션)', 'send', 7]] : [];
       case 'prevideo': return [['couple', '식전 영상 링크(3분 안) 또는 사진 30~40장', 'send', 3]];   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask', null, NOTE_ASK]]; }
-      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
+      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', '두 분 목소리 준비 · 입장 인사(식순 만들기에서 녹음하거나 파일로 올려요 · 없으면 나레이션)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '첫인사 한두 문장', 'write', 7]];
       case 'bless': return [['parents', '덕담 원고 · 한 분 400자 안팎(저희가 받아 큰 글씨로)', 'ask', 7]];
       case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자
@@ -719,7 +734,7 @@
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
-    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine,
+    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, voiceKind: voiceKind, voiceLab: voiceLab,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };
 });

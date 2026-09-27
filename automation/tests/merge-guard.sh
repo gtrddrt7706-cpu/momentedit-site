@@ -8847,6 +8847,24 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/listen-page.mjs >/de
   esac
 fi
 chk 'LISTEN_PAGE' order-preview.html 10
+# ★★[REC_UPLOAD · VOICE_KIND 2026-09-27 코워크 «두 분 목소리 · 직접 녹음과 AI» 1단계 · 사장님 «올리면 그 자리에서 자동 재생까지»]
+#   가짜 마이크로 녹음 → 다듬기(앞뒤 빈소리 · 소리 크기 나레이션 쪽 · 봉우리 ≤ -1dB · WAV) → 쓰기 → 그 자리만 두 분 소리 · 지우면 되돌아감 · 줄 머리 갈래 표
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-upload.mjs >/dev/null 2>&1; _ru=$?
+  case "$_ru" in
+    0) echo 'ok rec-upload: 두 분 목소리 녹음 · 다듬기 · 그 자리 자동 재생 · 갈래 표 통과' ;;
+    1) echo 'FAIL rec-upload: 두 분 목소리 녹음 기준이 깨졌습니다 — node scripts/audit/rec-upload.mjs'; fail=1 ;;
+    *) echo 'ok rec-upload: 재지 못했습니다(브라우저 · ffmpeg 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi
+chk 'REC_UPLOAD' order-preview.html 5
+chk 'REC_UPLOAD' mypage.html 1   # 녹음 다시 받기 · 지우기 중계(ritualFileGet · ritualFileDel)
+chk 'REC_UPLOAD' automation/platform/80_production.gs 3
+chk 'REC_UPLOAD' automation/consultation/consultation-booking.gs 2
+chk 'REC_UPLOAD' assets/ritual-open.js 1   # 준비 목록 «두 분 목소리 준비»
+chk 'VOICE_KIND' order-preview.html 6
+chk 'VOICE_KIND' assets/ritual-open.js 4   # 갈래는 한 곳(voiceKind · voiceLab)
+chk 'function _rfFileIn(code, id)' automation/platform/80_production.gs 1   # ★그 코드 폴더 안의 파일만 · 공개 주소 없음
+nochk 'setSharing' automation/platform/80_production.gs   # ★두 분 목소리 파일을 공개로 바꾸지 않는다
 chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)
 chk 'DETAIL_0925 C2' order-preview.html 3   # 누를 곳 44px
 if command -v node >/dev/null 2>&1; then node scripts/audit/inapp-sim.mjs >/dev/null 2>&1; _ia=$?

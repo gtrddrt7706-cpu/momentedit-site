@@ -1186,6 +1186,38 @@ function handleRitualFile(body) {
   return { ok: true, key: key, id: f.getId(), name: String(body.name || '').slice(0, 80), at: fmtKST(new Date()) };
 }
 
+/* ★[REC_UPLOAD 2026-09-27 코워크 «두 분 목소리 · 직접 녹음과 파일 올리기» · 사장님 «녹음 파일을 올리면 그 부분에서 자동 재생까지»]
+   올린 녹음을 두 분 계정으로만 다시 받아 온다 — 드라이브 공개 주소를 만들지 않는다(파일 공유 설정은 그대로 «나만»).
+   ① 로그인 토큰 → 개인코드 ② 그 코드 폴더(RF_<코드>) 안의 파일만 · 다른 폴더의 id 를 넣어도 «없는 파일» ③ 20MB 까지 base64 로 돌려준다 */
+function _rfFileIn(code, id) {
+  if (!id || !/^[A-Za-z0-9_-]{10,}$/.test(id)) return null;
+  var folder = _rfFolderFor(code), f;
+  try { f = DriveApp.getFileById(id); } catch (e) { return null; }
+  var ps = f.getParents(), ok = false; while (ps.hasNext()) { if (ps.next().getId() === folder.getId()) { ok = true; break; } }
+  return ok && !f.isTrashed() ? f : null;
+}
+function handleRitualFileGet(body) {
+  body = body || {};   // [REC_UPLOAD]
+  var s = resolveSession(String(body.token || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var f = _rfFileIn(code, String(body.id || '').trim());
+  if (!f) return { ok: false, error: '파일을 찾을 수 없어요.' };
+  var b = f.getBlob(); if (b.getBytes().length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
+  return { ok: true, key: String(body.key || ''), id: f.getId(), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
+}
+/* [REC_UPLOAD] 두 분이 먼저 지우기 — 휴지통으로(드라이브 30일 뒤 완전 삭제) · 그 폴더 안의 파일만 */
+function handleRitualFileDel(body) {
+  body = body || {};
+  var s = resolveSession(String(body.token || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var f = _rfFileIn(code, String(body.id || '').trim());
+  if (!f) return { ok: true, gone: true };   // 이미 없음 = 지운 것과 같다(멱등)
+  try { f.setTrashed(true); } catch (e) { return { ok: false, error: '지우지 못했어요. 다시 눌러 주세요.' }; }
+  return { ok: true, key: String(body.key || ''), id: String(body.id || '') };
+}
+
 // 하객 업로드 1건 — guide.html 이 파일 하나씩 순차로 부른다(한 번에 몰아 보내지 않는 이유는 프런트 주석 참고).
 function handleGuestPhoto(body) {
   body = body || {};

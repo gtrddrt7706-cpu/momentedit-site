@@ -1170,6 +1170,18 @@
    "fn": "doPost",
    "mark": "RITUAL_FILE",
    "why": "doPost 가 ritualFile 요청을 handleRitualFile 로 넘긴다 — 이 파일이 옛것이면 녹음 올리기가 전부 실패한다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileGet",
+   "mark": "REC_UPLOAD",
+   "why": "올린 두 분 녹음을 두 분 계정으로만 다시 받아 ② · 연습에서 그 자리에 저절로 튼다 — 이 파일이 옛것이면 녹음을 올려도 나레이션만 나온다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "REC_UPLOAD",
+   "why": "doPost 가 ritualFileGet · ritualFileDel 을 넘긴다 — 이 파일이 옛것이면 녹음 다시 듣기 · 지우기가 «알 수 없는 요청»으로 실패한다"
   }
  ],
  "fns": {
@@ -1375,6 +1387,9 @@
    "_gpFolderFor",
    "_rfFolderFor",
    "handleRitualFile",
+   "_rfFileIn",
+   "handleRitualFileGet",
+   "handleRitualFileDel",
    "handleGuestPhoto",
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
@@ -2125,7 +2140,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-27 18:34 · ccb3170c",
+ "_생성": "2026-09-27 20:46 · 65311f69",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2435,5 +2450,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "e5c806183a3e"
+ "_표식서명": "c0b2820b5bcc"
 }
