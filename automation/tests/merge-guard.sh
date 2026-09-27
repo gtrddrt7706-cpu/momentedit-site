@@ -11384,6 +11384,17 @@ chk 'MK_HELPERS' order-preview.html 1
 chk 'MK_RO' order-preview.html 2
 # ★[PK_EX_SEAL 2026-09-27 사장님] ① 고른 예시 = 진사 테두리 · «여기서 시작 ✓» 글자는 뺐다(aria-pressed 가 전한다)
 chk 'PK_EX_SEAL' order-preview.html 1
+# ★[MK_INTRO · MK_TODO_PASSED · MK_STRIP_FADE · MK_PICK_TOP 2026-09-27 사장님] ② 첫 쪽 «고른 순서» · 미완료는 지나온 쪽에만 · 진행 줄 양끝 흐림 · 고르기가 먼저
+chk 'MK_INTRO' order-preview.html 2
+chk 'MK_TODO_PASSED' order-preview.html 2
+chk 'MK_STRIP_FADE' order-preview.html 1
+chk 'MK_PICK_TOP' order-preview.html 1
+nochk 'data-fk="mktodo"' order-preview.html
+# ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부»] 두 분 목소리 녹음 올리기 — 빌더 · 마이페이지 · GAS(80_production · doPost)
+chk 'RITUAL_FILE' order-preview.html 3
+chk 'RITUAL_FILE' mypage.html 1
+chk 'RITUAL_FILE' automation/platform/80_production.gs 2
+chk "case 'ritualFile'" automation/consultation/consultation-booking.gs 1
 nochk '여기서 시작 ✓' order-preview.html
 nochk '식전 영상 · 입장 · 닫는 인사는 늘 있어요' assets/ritual-open.js
 nochk '입장 · 닫는 인사 · 식전 영상은 늘 있어요' order-preview.html

@@ -2349,6 +2349,17 @@ function openRitualBuilder(p, inv){
        ★orderSave 와 다른 점은 done 뿐이다(저 쪽은 true · 완성 확정). 여기서 true 를 보내면
          중간 초안이 완성으로 굳어 '저장됨 · D-14' 화면으로 열린다(ORDERFILL_DONE 2026-07-25 사고).
        ★성공·실패를 양쪽 다 돌려준다 — 조용히 실패하면 자동 저장은 거짓말이 된다(ORDER_SAVE_FAIL). */
+    /* ★[RITUAL_FILE 2026-09-27 사장님] 빌더 ② 에서 고른 녹음 파일을 GAS 로 넘긴다(로그인 토큰은 여기에만 있다).
+       api() 의 12초는 파일에는 짧다 — 60초로 따로 보낸다. 결과(성공 · 실패 사유)는 빌더로 돌려준다(빌더가 칸에 «보냈어요 · 파일 이름»을 그린다). */
+    if(d.type==='momentedit:ritualFile' && d.data){
+      var _rfBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:ritualFileDone', key:d.data.key}, o), location.origin); }catch(e){} };
+      var _rfAc=(typeof AbortController!=='undefined')?new AbortController():null, _rfT=_rfAc?setTimeout(function(){ try{ _rfAc.abort(); }catch(e){} },60000):null;
+      fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'ritualFile', token:getToken(), key:d.data.key, name:d.data.name, mime:d.data.mime, data:d.data.data}),signal:_rfAc?_rfAc.signal:undefined})
+        .then(function(r){ return r.json(); })
+        .then(function(r){ if(_rfT) clearTimeout(_rfT); _rfBack(r&&r.ok?{ok:true,name:r.name,id:r.id,at:r.at}:{ok:false,error:(r&&r.error)||'올리지 못했어요. 다시 눌러 주세요.'}); })
+        .catch(function(){ if(_rfT) clearTimeout(_rfT); _rfBack({ok:false,error:'올리지 못했어요. 연결을 확인하고 다시 눌러 주세요.'}); });
+      return;
+    }
     if(d.type==='momentedit:orderDraft' && d.data && d.data.S){
       /* [TX_MERGE 2026-09-27] 서버가 다른 기기의 더 나중 칸(pull)을 돌려주면 빌더에 실어 보낸다 — 빌더가 그 칸을 화면에 채운다 */
       var _dfAck=function(ok,pull){ try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail', pull:pull||null}, location.origin); }catch(e){} };

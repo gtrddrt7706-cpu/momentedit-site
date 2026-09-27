@@ -404,7 +404,7 @@ function _txRest(dr) {
   var o = JSON.parse(JSON.stringify(dr || {}));
   for (var k in o) { if (k.charAt(0) === '_' || k === 'summary') delete o[k]; }
   var S = o.S || {};
-  ['tx', 'mkc', 'fAt', 'txMig', 'seen'].forEach(function (k) { delete S[k]; });
+  ['tx', 'mkc', 'up', 'fAt', 'txMig', 'seen'].forEach(function (k) { delete S[k]; });
   for (var kd in TX_MERGE_LEG) delete S[TX_MERGE_LEG[kd]];
   for (var k2 in S) { if (k2.charAt(0) === '_') delete S[k2]; }
   if (S.mk) { delete S.mk.at; delete S.mk.seen; }
@@ -415,10 +415,11 @@ function _ritualTxMerge(oldDr, newDr) {
   try {
     var nS = (newDr || {}).S, oS = ((oldDr || {}).S) || {};
     if (!nS || !nS.fAt || !Object.keys(nS.fAt).length) return null;
-    var nA = nS.fAt || {}, oA = oS.fAt || {}, fAt = {}, pull = { tx: {}, mkc: {}, fAt: {} }, pulled = 0;
+    var nA = nS.fAt || {}, oA = oS.fAt || {}, fAt = {}, pull = { tx: {}, mkc: {}, up: {}, fAt: {} }, pulled = 0;
     var out = JSON.parse(JSON.stringify(newDr)), S = out.S;
     S.tx = S.tx || {}; S.mkc = S.mkc || {};
-    [['tx', oS.tx || {}, nS.tx || {}], ['mkc', oS.mkc || {}, nS.mkc || {}]].forEach(function (g) {
+    S.up = S.up || {};
+    [['tx', oS.tx || {}, nS.tx || {}], ['mkc', oS.mkc || {}, nS.mkc || {}], ['up', oS.up || {}, nS.up || {}]].forEach(function (g) {   // [RITUAL_FILE] 올린 녹음 표시(S.up)도 칸마다
       var grp = g[0], ov = g[1], nv = g[2], keys = {};
       Object.keys(ov).forEach(function (k) { keys[k] = 1; }); Object.keys(nv).forEach(function (k) { keys[k] = 1; });
       Object.keys(keys).forEach(function (k) {
@@ -1140,6 +1141,49 @@ function _gpFolderFor(cust, sheet, colOf) {
   fid = _gpRootFolder().createFolder(name).getId();
   touchCustomer(sheet, colOf, cust.num, { '하객사진폴더ID': fid });
   return fid;
+}
+
+/* ★★[RITUAL_FILE 2026-09-27 사장님 «파일을 여기서 첨부하는 식으로 가능해? 어찌 됐든 우리한테 전달해야 하는 거잖아»]
+   식순 빌더 ② 에서 두 분 목소리 녹음(하객 맞이 넷 g0~g3 · 입장 인사 entry)을 바로 올린다. 종전엔 «카톡 · 메일로 보내 주세요»만 있었다(UPLOAD_HONEST).
+   · 로그인 토큰(resolveSession) — 마이페이지 안에서 연 빌더만 올린다(그냥 연 미리보기는 보낼 사람을 모른다)
+   · 소리 파일만(audio/* · 휴대폰 녹음이 video/mp4 로 오는 기종이 있어 그것도) · 한 개 20MB(GP_MAX_FILE_MB)
+   · 저장 = 드라이브 «ME_예식준비파일/<개인코드>» 폴더. 폴더 ID 는 스크립트 속성 RF_<코드> — 시트 열을 늘리지 않는다(스키마 변경 없음)
+   · 도착하면 관리자 메일 한 줄(폴더 주소) · 같은 자리에 다시 올리면 새 파일이 하나 더 생긴다(지우지 않는다 · 앞 것은 폴더에 남는다)
+   · ★영상(식전 영상 3분)은 여기로 받지 않는다 — GAS 한 번 요청 한도(약 50MB)를 넘는다. 그 자리는 링크 그대로 */
+var RF_ROOT_FOLDER = 'ME_예식준비파일';
+var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사' };
+function _rfFolderFor(code) {
+  var props = PropertiesService.getScriptProperties(), pk = 'RF_' + code, fid = props.getProperty(pk);
+  if (fid) { try { return DriveApp.getFolderById(fid); } catch (e) { fid = ''; } }
+  var it = DriveApp.getFoldersByName(RF_ROOT_FOLDER), root = it.hasNext() ? it.next() : DriveApp.createFolder(RF_ROOT_FOLDER);
+  var sub = root.getFoldersByName(code), f = sub.hasNext() ? sub.next() : root.createFolder(code);
+  props.setProperty(pk, f.getId());
+  return f;
+}
+function handleRitualFile(body) {
+  body = body || {};   // [RITUAL_FILE]
+  var s = resolveSession(String(body.token || '').trim());
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim();
+  if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var key = String(body.key || '').trim();
+  if (!RF_KEYS[key]) return { ok: false, error: '어느 자리의 녹음인지 알 수 없어요.' };
+  var mime = String(body.mime || '').trim().toLowerCase();
+  if (!/^audio\/[a-z0-9.+-]+$/.test(mime) && mime !== 'video/mp4' && mime !== 'video/quicktime') return { ok: false, error: '녹음 파일(소리)만 올릴 수 있어요.' };
+  var b64 = String(body.data || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, '');
+  if (!b64) return { ok: false, error: '파일이 비어 있어요.' };
+  var bytes = Math.floor(b64.length * 3 / 4);
+  if (bytes > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '한 개에 ' + GP_MAX_FILE_MB + 'MB 까지 올릴 수 있어요.' };
+  var f, folder;
+  try {
+    folder = _rfFolderFor(code);
+    var nm = RF_KEYS[key] + ' · ' + _gpSafeName(body.name, mime);
+    f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, nm));
+  } catch (e) {
+    return { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' };
+  }
+  try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 준비 파일 도착 · ' + code + ' · ' + RF_KEYS[key] + ' · ' + f.getName() + ' · ' + Math.round(bytes / 1024) + 'KB · 폴더 ' + folder.getUrl()); } catch (e) {}
+  return { ok: true, key: key, id: f.getId(), name: String(body.name || '').slice(0, 80), at: fmtKST(new Date()) };
 }
 
 // 하객 업로드 1건 — guide.html 이 파일 하나씩 순차로 부른다(한 번에 몰아 보내지 않는 이유는 프런트 주석 참고).

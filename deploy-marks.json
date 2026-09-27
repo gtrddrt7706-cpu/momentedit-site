@@ -1152,6 +1152,18 @@
    "fn": "handleSaveProductionTrack",
    "mark": "TX_MERGE",
    "why": "식순 «두 분이 할 말»을 칸마다 합친다 — 이 파일이 옛것이면 신랑 폰 · 신부 폰이 따로 저장할 때 «먼저 저장됐어요» 충돌이 뜨고 한쪽 글이 덮일 수 있다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFile",
+   "mark": "RITUAL_FILE",
+   "why": "식순 빌더 ② 에서 두 분 목소리 녹음을 바로 올린다(드라이브 ME_예식준비파일) — 이 파일이 옛것이면 «올리기»가 «알 수 없는 요청»으로 실패한다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "RITUAL_FILE",
+   "why": "doPost 가 ritualFile 요청을 handleRitualFile 로 넘긴다 — 이 파일이 옛것이면 녹음 올리기가 전부 실패한다"
   }
  ],
  "fns": {
@@ -1355,6 +1367,8 @@
    "_gpRootFolder",
    "_gpSafeName",
    "_gpFolderFor",
+   "_rfFolderFor",
+   "handleRitualFile",
    "handleGuestPhoto",
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
@@ -1911,6 +1925,8 @@
    "GP_MAX_FILES",
    "GP_MAX_TOTAL_MB",
    "GP_KEEP_DAYS",
+   "RF_ROOT_FOLDER",
+   "RF_KEYS",
    "SNAP_V2",
    "SNAP_ZONE_RE",
    "SNAP_ZONE_NOTE_MAX",
@@ -2103,7 +2119,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-27 16:03 · a7c7dc8b",
+ "_생성": "2026-09-27 17:40 · 6b2ba12f",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2413,5 +2429,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "65b226533a6d"
+ "_표식서명": "816f7dfc85c2"
 }

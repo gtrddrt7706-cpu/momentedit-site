@@ -1067,7 +1067,9 @@ body.lsfull{overflow:hidden}
 .lf-txt.talk{font-family:var(--sans);font-size:14px;color:var(--sub);background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px}
 /* ★[FLOW_MAKE 2026-09-27] ② 하나씩 만들기 — 진행 순서 줄(가로로 밀림 · 지금 칸이 늘 보이게) · 한 화면 · 상태는 모양으로(색만으로 말하지 않는다) */
 .mk-strip{position:sticky;top:0;z-index:3;background:var(--bg);margin:0 -16px 12px;padding:6px 0 8px;border-bottom:1px solid var(--border)}
-.mk-sc{display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mk-sc{display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scroll-padding:0 40px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 40px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 40px),transparent 100%)}   /* [MK_STRIP_FADE 2026-09-27 사장님 «끝쪽이 잘린다»] 양끝을 흐리게 — 더 있다는 것을 보이고 뚝 잘린 모양을 없앤다 · 끝에 여유 */
+.mk-sc::after{content:'';flex:0 0 24px}
+.mk-it{scroll-snap-align:center}
 .mk-sc::-webkit-scrollbar{display:none}
 .mk-it,.mk-todo{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 12px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--sub);font:inherit;font-size:12.5px;white-space:nowrap;cursor:pointer}
 .mk-it .mk-n{font-variant-numeric:tabular-nums;color:var(--gold-deeper)}
@@ -1076,6 +1078,26 @@ body.lsfull{overflow:hidden}
 .mk-it.done .mk-mk{color:var(--gold-deeper)}
 .mk-it.cur.done .mk-mk{color:#FAFAF8}
 .mk-mk.o{width:9px;height:9px;border:1.5px solid currentColor;border-radius:50%;display:inline-block}
+.mk-it.todo{border-color:var(--seal);color:var(--seal)}   /* [MK_TODO_PASSED] 지나온 쪽 중 미완료 = 진사 테두리 + 빈 동그라미 */
+.mk-it.todo .mk-n{color:var(--seal)}
+.mk-pick{padding-bottom:14px}
+.mk-pick.solo{border-top:0;padding-top:0}
+.mk-pick .mk-listen{margin:10px 0 0}
+.mk-vlist{list-style:none;margin:10px 0 6px;padding:0;border-top:1px solid var(--border)}
+.mk-vr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.mk-vt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mk-vn{font-size:14px;color:var(--accent)}
+.mk-vs{display:block;font-size:12.5px;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-vr.ok .mk-vs{color:var(--gold-deeper)}
+.mk-vs .mk-mk{display:inline-flex;vertical-align:-2px;margin-right:4px}
+.mk-vb{flex:0 0 auto;margin-right:36px}
+.mk-valt{margin-top:6px}
+.mk-valt summary{min-height:44px;display:flex;align-items:center;font-size:12.5px;color:var(--sub);cursor:pointer}
+.mk-ilist{list-style:none;margin:0 0 14px;padding:0;border-top:1px solid var(--border)}
+.mk-irow{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:8px 2px;border:0;border-bottom:1px solid var(--border);background:none;font:inherit;text-align:left;cursor:pointer;color:var(--accent)}
+.mk-in{flex:0 0 32px;font-size:12.5px;color:var(--gold-deeper);font-variant-numeric:tabular-nums}
+.mk-it2{flex:1;display:flex;flex-direction:column;gap:1px;font-size:14px;padding-right:36px}
+.mk-itag{font-size:12.5px;color:var(--light)}
 .mk-it.off{opacity:.5}
 .mk-it.off .mk-t{text-decoration:line-through}
 .mk-todo{border-color:var(--accent);color:var(--accent)}
@@ -3271,12 +3293,13 @@ function _mkState(){ if(!S.mk) S.mk={}; if(!S.mk.seen) S.mk.seen={}; if(!S.mk.dr
 function _mkRO(){ var m=S.mk||{}; return {at:m.at, seen:m.seen||{}, drop:m.drop||{}, dropMin:m.dropMin||{}}; }
 /* 쪽 = 하객 맞이 · 담은 순간(예식 차례) · 닫는 인사 · 한눈에 보기. 뺀 순간(drop)은 제자리에 흐리게 남는다 */
 function _mkPages(){ var R=RitualOpen, m=_mkRO();
-  var ks=['guest'].concat(R.ORDER.filter(function(k){ return k!=='guest' && (R.onOf(S,k)||m.drop[k]); })).concat(['_close','_sum']);
+  /* ★[MK_INTRO 2026-09-27 사장님 «전 단계에서 고른 것들 한눈에 정리 한 번 하고 들어가자»] ② 첫 쪽 = ① 에서 고른 순서 모아 보기 */
+  var ks=['_intro','guest'].concat(R.ORDER.filter(function(k){ return k!=='guest' && (R.onOf(S,k)||m.drop[k]); })).concat(['_close','_sum']);
   return ks; }
 function _mkIdx(){ var ps=_mkPages(), i=ps.indexOf(_mkRO().at); return i<0?0:i; }
 function _mkOff(k){ return !!(_mkRO().drop[k]) && !RitualOpen.onOf(S,k); }
-function _mkNo(k){ if(k==='_sum') return ''; if(k==='guest'||RitualOpen.PRE[k]) return '식전'; if(_mkOff(k)) return ''; var b=RitualOpen.bodySeq(S), i=b.indexOf(k); return i<0?'':String(i+1); }
-function _mkName(k){ return k==='_sum'?'한눈에 보기':_lName(k); }
+function _mkNo(k){ if(k==='_sum'||k==='_intro') return ''; if(k==='guest'||RitualOpen.PRE[k]) return '식전'; if(_mkOff(k)) return ''; var b=RitualOpen.bodySeq(S), i=b.indexOf(k); return i<0?'':String(i+1); }
+function _mkName(k){ return k==='_sum'?'한눈에 보기':k==='_intro'?'고른 순서':_lName(k); }
 /* 두 분이 할 말이 있는 자리 — 원천(prepOf)의 «쓸 글»을 따른다(첫인사 · 서약 · 편지 · 부모님께 인사) */
 function _mkKinds(k){ var R=RitualOpen; if(!TX_KIND[k]) return []; if(k==='tribute'&&R.chipOf('tribute',S)==='none') return [];
   return R.prepOf(k,S).some(function(q){ return q[2]==='write'; })?[k]:[]; }
@@ -3284,6 +3307,8 @@ function _mkItems(k){ var R=RitualOpen, out=[];
   R.prepOf(k,S).forEach(function(q,j){ if(q[2]==='write'&&TX_KIND[k]) return; out.push({id:'p:'+k+':'+j,k:k,who:q[0],what:q[1],cat:q[2]||'send',due:q[3]===undefined?7:q[3],note:q[4]||''}); });
   if(k==='guest'&&S.guestVoice==='couple') GUEST.forEach(function(g,i){ out.push({id:'up:g'+i,up:'g'+i,k:k,who:'couple',what:_lLabFix(g[0])+' · 두 분 목소리 녹음',cat:'send',due:7}); });
   if(k==='entry'&&S.entryVoice==='couple') out.push({id:'up:entry',up:'entry',k:k,who:'couple',what:'입장 인사 · 두 분 목소리 녹음',cat:'send',due:7});
+  /* [RITUAL_FILE] 녹음 칸이 있으면 «… 녹음 · 대본을 드려요» 한 줄은 뺀다 — 같은 일을 두 번 세지 않는다(녹음 칸 카드가 그 말을 한다) */
+  if(out.some(function(q){ return q.up; })) out=out.filter(function(q){ return q.up||!(q.cat==='send'&&/녹음/.test(q.what)); });
   return out; }
 function _mkItemDone(q){ var c=_mkChk();
   if(q.up) return !!(S.up&&S.up[q.up]);
@@ -3295,7 +3320,9 @@ function _mkTasks(k){ var t=[], c=_mkChk();
     TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], txt=String((S.tx||{})[id]||'').trim(); t.push({id:id,kind:'tx',who:w[1],nm:TX_KIND[kind].nm,done:!!txt||!!c[id]}); }); });
   _mkItems(k).forEach(function(q){ if(q.cat==='bring') return; t.push({id:q.id,kind:q.cat,who:q.who==='parents'?'부모님':'',nm:q.what,done:_mkItemDone(q),q:q}); });
   return t; }
-function _mkStat(k){ if(k==='_sum') return ''; var m=_mkRO(); if(_mkOff(k)) return 'off';
+function _mkStat(k){ if(k==='_sum'||k==='_intro') return ''; var m=_mkRO(); if(_mkOff(k)) return 'off';
+  /* ★[MK_TODO_PASSED 2026-09-27 사장님 «미완료는 지금 띄울 필요 없고 넘어간 뒤에»] 표시는 지나온 쪽에만 — 지금 쪽 · 앞으로 올 쪽은 비워 둔다 */
+  var ps=_mkPages(); if(ps.indexOf(k)>=_mkIdx()) return '';
   var ts=_mkTasks(k), seen=!!m.seen[k];
   if(!seen) return '';
   return ts.every(function(x){ return x.done; })?'done':'todo'; }
@@ -3303,10 +3330,9 @@ function _mkTodoAll(){ var out=[]; _mkPages().forEach(function(k){ if(k==='_sum'
 window.mkUndone=function(){ return _mkTodoAll().length; };   // ④ · 마이페이지가 읽는다(stage 2)
 /* 진행 순서 줄 — 채운 칸(지금) · 체크(다 됨) · 빈 동그라미(미완료) · 흐리게+줄(뺀 순간) · 표시 없음(아직 안 봄). 색만으로 말하지 않는다 */
 function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
-  var todo=ps.filter(function(k){ return _mkStat(k)==='todo'; });
+  /* [MK_TODO_PASSED] «미완료 N» 단추는 걷었다 — 미완료는 지나온 쪽의 빈 동그라미(진사)로만 · 모아 보기는 마지막 «한눈에 보기» */
   var h='<nav class="mk-strip" id="mkStrip" aria-label="진행 순서"><div class="mk-sc">';
-  if(todo.length) h+='<button type="button" class="mk-todo" data-fk="mktodo" onclick="mkGo(\''+todo[0]+'\')">미완료 '+todo.length+'</button>';
-  ps.forEach(function(k){ var st=_mkStat(k), no=_mkNo(k), on=(k===cur);
+  ps.forEach(function(k){ if(k==='_intro') return; var st=_mkStat(k), no=_mkNo(k), on=(k===cur);
     var lab=(no&&no!=='식전'?no+' ':'')+_mkName(k)+(on?', 지금':'')+(st==='done'?', 다 됐어요':st==='todo'?', 미완료':st==='off'?', 뺀 순간':'');
     h+='<button type="button" class="mk-it'+(on?' cur':'')+(st?' '+st:'')+'" data-fk="mkg:'+k+'" aria-label="'+esc(lab)+'"'+(on?' aria-current="step"':'')+' onclick="mkGo(\''+k+'\')">'
       +(st==='done'?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':st==='todo'?'<span class="mk-mk o" aria-hidden="true"></span>':'')
@@ -3326,7 +3352,7 @@ window.mkGo=function(k){ var m=_mkState(), from=m.at; if(from===k) return;
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
   _fxNext='#mkHead'; try{ window.scrollTo(0,0); }catch(e){} };
 function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i]); return true; }
-function _mkNextLab(){ var ps=_mkPages(), i=_mkIdx(); if(i>=ps.length-1) return '다음 · ③ 연습하기'; var n=ps[i+1], no=_mkNo(n); return '다음 · '+((no&&no!=='식전')?no+' ':'')+_mkName(n); }
+function _mkNextLab(){ var ps=_mkPages(), i=_mkIdx(); if(i>=ps.length-1) return '다음 · ③ 연습하기'; var n=ps[i+1], no=_mkNo(n); return (ps[i]==='_intro'?'시작하기 · ':'다음 · ')+((no&&no!=='식전')?no+' ':'')+_mkName(n); }
 /* 두 분이 할 말 — 칸마다 따로 저장 · 글자수 ÷ 5 = 소리 내어 읽는 초(분당 300자 · 축사 원고 안내와 같은 기준) */
 function _mkSec(n){ return Math.ceil(n/5); }
 function _mkCnt(id,v,lim){ var n=String(v||'').length; return '<span class="mk-cnt" id="mkc_'+id.replace('.','_')+'"'+(n>lim?' style="color:var(--seal)"':'')+'>'+(n?n+'자 · 소리 내어 읽으면 약 '+_mkSec(n)+'초':'')+'</span>'; }
@@ -3346,6 +3372,7 @@ function _txPullApply(p){ try{ if(!p||!p.fAt) return; var n=0, kinds={}, act=doc
     if(grp==='tx'){ if(actId==='mkt_'+id.replace('.','_')) return; S.tx[id]=String((p.tx||{})[id]||''); kinds[id.split('.')[0]]=1;
       var ta=document.getElementById('mkt_'+id.replace('.','_')); if(ta) ta.value=S.tx[id]; }
     else if(grp==='mkc'){ c[id]=(p.mkc||{})[id]||0; }
+    else if(grp==='up'){ if(!S.up) S.up={}; S.up[id]=(p.up||{})[id]||0; }
     else return;
     S.fAt[key]=at; n++; });
   if(!n) return; for(var kd in kinds) if(TX_KIND[kd]) _txLeg(kd); _persist();
@@ -3370,7 +3397,8 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return '';
 var MK_CAT={ask:'부탁드릴 것',send:'보낼 것',bring:'챙길 것'};
 function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(); if(!items.length) return '';
   var h='';
-  ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat; }); if(!qs.length) return;
+  var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
+  ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     h+='<section class="mk-sec"><h4>'+(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; })?'부모님께 부탁드릴 것':MK_CAT[cat])+'</h4>';
     qs.forEach(function(q){ var due=R.dueWord(q,wed);
       h+='<div class="mk-q"><div class="mk-qt">'+esc(_ndd(q.what))+(due?NBS+'<span class="wr-due">·'+NBS+esc(_ndd(due))+'</span>':'')+'</div>';
@@ -3393,6 +3421,53 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
       h+='</div>'; });
     h+='</section>'; });
   return h; }
+/* ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부 · 지금은 너무 지저분하니 디자인적으로 깔끔하게 · 첨부 안 되어 있으면 미완료»]
+   두 분 목소리 녹음 = 카드 하나. 녹음마다 한 줄(이름 · 상태 · 올리기) → 마이페이지 → GAS(handleRitualFile) → 드라이브.
+   종전의 «녹음 · 대본을 드려요» 줄 + 체크 다섯 칸을 걷었다. 올리지 않은 줄은 미완료로 남는다(지나온 쪽이면 진행 줄에 진사 동그라미).
+   ★그냥 연 미리보기(EMBED 아님)는 보낼 사람을 몰라 올리지 않는다 — 카톡 · 메일 길을 안내한다.
+   ★올리기가 어려운 분을 위한 길은 접어 둔다(카톡 · 메일 + «보냈어요» 한 칸) — 펼쳐 두면 다시 지저분해진다. */
+var MK_UP={};
+function _mkUpLab(q){ return String(q.what).replace(/ · 두 분 목소리 녹음$/,''); }
+function _mkUpState(key){ var v=(S.up||{})[key];
+  if(MK_UP[key]) return {t:'보내는 중…',busy:1};
+  if(v&&typeof v==='object') return {t:'보냈어요 · '+(v.n||'녹음 파일'),ok:1};
+  if(v==='sent') return {t:'카톡 · 메일로 보냈어요',ok:1};
+  if(v) return {t:'챙겼어요',ok:1};
+  return {t:'아직 안 보냈어요'}; }
+function _mkVoice(k,ups,wed){ var R=RitualOpen, due=R.dueWord(ups[0],wed), alt=ups.every(function(q){ return (S.up||{})[q.up]==='sent'; });
+  var h='<section class="mk-sec mk-voice" aria-labelledby="mkVoiceH"><h4 id="mkVoiceH">두 분 목소리 녹음 보내기</h4>'
+    +'<p class="mk-note">휴대폰 음성 메모로 충분해요'+(due?' · '+esc(_ndd(due)):'')+'</p>'
+    +'<button type="button" class="rowbtn mk-copy" data-fk="mkupcopy" onclick="mkUpCopy(\''+k+'\')">읽을 글 복사하기</button><ul class="mk-vlist">';
+  ups.forEach(function(q){ var st=_mkUpState(q.up), lab=_mkUpLab(q);
+    h+='<li class="mk-vr'+(st.ok?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(lab)+'</span><span class="mk-vs"'+(st.busy?' role="status"':'')+'>'+(st.ok?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(st.t)+'</span></span>'
+      +'<button type="button" class="rowbtn mk-vb" data-fk="mkup:'+q.up+'" aria-label="'+esc(lab+' 녹음 '+(st.ok?'다시 올리기':'올리기'))+'"'+(st.busy?' disabled':'')+' onclick="mkUp(\''+q.up+'\')">'+(st.ok?'다시 올리기':'올리기')+'</button></li>'; });
+  h+='</ul><details class="mk-valt"'+(alt?' open':'')+'><summary>올리기가 어렵다면</summary>'+_sendHow('두 분 목소리 녹음',7)
+    +'<label class="upchk"><input type="checkbox"'+(alt?' checked':'')+' onchange="mkUpSent(\''+k+'\',this.checked)"><span>카톡 · 메일로 보냈어요</span></label></details>';
+  return h+'</section>'; }
+window.mkUp=function(key){
+  if(!EMBED){ MK.toast='마이페이지에서 열면 여기서 바로 보낼 수 있어요 · 지금은 «올리기가 어렵다면»의 카톡 · 메일로 보내 주세요'; render(); return; }
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.m4a,.mp3,.aac,.wav,.mp4';
+  inp.onchange=function(){ var f=inp.files&&inp.files[0]; if(!f) return;
+    if(f.type&&!/^audio\//.test(f.type)&&!/^video\/(mp4|quicktime)$/.test(f.type)){ MK.toast='녹음 파일(소리)만 보낼 수 있어요 · 휴대폰 음성 메모 파일을 골라 주세요'; render(); return; }
+    if(f.size>20*1048576){ MK.toast='한 개에 20MB 까지 보낼 수 있어요'; render(); return; }
+    var rd=new FileReader(); rd.onload=function(){ MK_UP[key]=setTimeout(function(){ if(MK_UP[key]){ delete MK_UP[key]; MK.toast='응답이 없어요 · 다시 눌러 주세요'; render(); } },75000); render();
+      try{ parent.postMessage({type:'momentedit:ritualFile', data:{key:key,name:f.name,mime:f.type||'audio/mp4',data:String(rd.result)}}, window.location.origin); }
+      catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; MK.toast='보내지 못했어요 · 다시 눌러 주세요'; render(); } };
+    rd.onerror=function(){ MK.toast='파일을 읽지 못했어요 · 다시 골라 주세요'; render(); };
+    rd.readAsDataURL(f); };
+  inp.click(); };
+function _mkUpDone(d){ var key=d.key; if(!key) return; clearTimeout(MK_UP[key]); delete MK_UP[key];
+  if(d.ok){ if(!S.up) S.up={}; S.up[key]={n:String(d.name||'녹음 파일').slice(0,80),id:d.id||'',at:d.at||''}; _fAt('up.'+key); _persist(); MK.toast='보냈어요 · 저희에게 바로 전달돼요'; try{ _dirtyMark(); _autoSend(); }catch(e){} }
+  else MK.toast=d.error||'올리지 못했어요 · 다시 눌러 주세요';
+  var a=document.activeElement; if(!a||a.tagName!=='TEXTAREA') render(); }
+/* 읽을 글 — 녹음마다 이름 한 줄 + 글(화면 원천 GUEST[i][2] · ENTRY[..].self 그대로 · TEXT_AUDIO) */
+window.mkUpCopy=function(k){ var out=[]; _mkItems(k).forEach(function(q){ if(!q.up) return; var t='';
+    if(/^g\d$/.test(q.up)){ var g=GUEST[+q.up.slice(1)]; t=g?g[2]:''; } else if(q.up==='entry'){ t=(ENTRY[S.entry]||{}).self||''; }
+    out.push('['+_mkUpLab(q)+']\n'+t); });
+  _mkCopy(out.join('\n\n'),'읽을 글을 복사했어요 · 메모장에 붙여 두고 읽으며 녹음하세요'); };
+window.mkUpSent=function(k,on){ if(!S.up) S.up={}; _mkItems(k).forEach(function(q){ if(!q.up) return; var v=S.up[q.up];
+    if(on){ if(!v||v===true){ S.up[q.up]='sent'; _fAt('up.'+q.up); } } else if(v==='sent'){ S.up[q.up]=0; _fAt('up.'+q.up); } });
+  _persist(); render(); };
 /* 부탁 글 — 머리 한 줄 + 항목 한 줄씩 + (글이 필요한 항목이 있을 때만) 끝 한 줄 */
 function _mkAskText(qs){ var R=RitualOpen, wed=(CUST&&CUST.weddingDate)||'', needTxt=false;
   var lines=qs.map(function(q){ var due=R.dueWord(q,wed); if(/원고|말씀|글/.test(q.what)) needTxt=true; return '· '+q.what+(due&&!/당일/.test(due)?' · '+due+'까지':''); });
@@ -3443,6 +3518,7 @@ function renderMake(){
   var h='<div class="op mk">'+_mkStrip(k);
   if(MK.toast){ h+='<p class="mk-toast" role="status">'+esc(MK.toast)+'</p>'; MK.toast=''; }
   if(k==='_sum') return h+_mkSum()+'</div>';
+  if(k==='_intro') return h+_mkIntro()+'</div>';
   var no=_mkNo(k), off=_mkOff(k), peak=R.peakOf(S), p=R.partsOf(k,S)||[0,0,0,0], sec=Math.round((p[0]||0)+(p[1]||0)+(p[2]||0));
   h+='<section class="mk-pg'+(off?' off':'')+'" aria-labelledby="mkHead">';
   if(off){ var dm=(m.dropMin||{})[k]; h+='<div class="mk-offb" role="status"><span>이 순간을 뺐어요 · 적어 두신 글은 그대로 있어요'+(dm?' · 본식 약 '+dm+'분 줄었어요':'')+'</span><button type="button" class="rowbtn" data-fk="mkundrop" onclick="mkUndrop(\''+k+'\')">다시 넣기</button></div>'; }
@@ -3452,15 +3528,33 @@ function renderMake(){
   if(one||sec) h+='<p class="mk-one">'+esc(one)+(sec&&k!=='guest'?' <span class="mk-sec-t">'+esc(R.secTxt(sec))+'</span>':'')+'</p>';
   if(!off){
     if(_lAnyVid()) h+='<div class="mk-vid">'+_lVid(k,{big:true,name:k})+'</div>';
-    h+='<button type="button" class="rowbtn mk-listen" data-fk="mkplay" onclick="lsPlay(\''+k+'\')">'+ICO_PLAY+' 이 순간 들어 보기</button>';
+    /* ★[MK_PICK_TOP 2026-09-27 사장님 «고르기를 위로 · 선택하고 들어 볼 수 있게 · 선택이 우선»] 고르기 → «고른 대로 들어 보기» → 흐름 */
+    var gs=(R.onOf(S,k)||k==='guest')?_lGroups(k):[];
+    h+='<section class="mk-sec mk-pick'+(gs.length?'':' solo')+'"'+(gs.length?' aria-labelledby="mkPickH"':'')+'>'+(gs.length?'<h4 id="mkPickH">고르기</h4><div class="ls-vars">'+_lGroupsHtml(k,gs)+'</div>':'')
+      +'<button type="button" class="rowbtn mk-listen" data-fk="mkplay" onclick="lsPlay(\''+k+'\')">'+ICO_PLAY+' '+(gs.length?'고른 대로 들어 보기':'이 순간 들어 보기')+'</button></section>';
     h+=_mkFlow(k);
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
-    var gs=(R.onOf(S,k)||k==='guest')?_lGroups(k):[]; if(gs.length) h+='<section class="mk-sec"><h4>고르기</h4><div class="ls-vars">'+_lGroupsHtml(k,gs)+'</div></section>';
     h+=_mkRef(k);
   }
   h+=_mkWrite(k)+_mkPrep(k);
   h+='</section>';
   return h+'</div>'; }
+/* [MK_INTRO] ② 첫 쪽 — ① 에서 고른 순서를 한 번 모아 보고 들어간다. 쪽마다 무엇을 하게 되는지(고르기 · 두 분이 할 말 · 부탁) 한 줄 꼬리표 */
+function _mkIntro(){ var R=RitualOpen, ps=_mkPages().filter(function(k){ return k!=='_intro'&&k!=='_sum'&&!_mkOff(k); }), sp=R.span(S), peak=R.peakOf(S);
+  var h='<section class="mk-pg mk-intro" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">고른 순서</h3></div>';
+  h+='<p class="mk-one">담은 순간 '+R.picked(S).length+' · 본식 '+esc(_nb(sp.body))+' · 단체 사진 '+esc(_nb(sp.photo))+'</p>';
+  h+='<ol class="mk-ilist">';
+  ps.forEach(function(k){ var no=_mkNo(k), tags=[];
+    if(((R.onOf(S,k)||k==='guest')?_lGroups(k):[]).length) tags.push('고르기');
+    if(_mkKinds(k).length) tags.push('두 분이 할 말');
+    if(_mkItems(k).some(function(q){ return q.cat==='ask'||q.who==='parents'; })) tags.push('부탁');
+    else if(_mkItems(k).some(function(q){ return q.cat==='send'; })) tags.push('보낼 것');
+    h+='<li><button type="button" class="mk-irow" data-fk="mki:'+k+'" onclick="mkGo(\''+k+'\')"><span class="mk-in">'+esc(no||'')+'</span><span class="mk-it2"><span>'+esc(_mkName(k))+(k===peak?' <span class="op-star" aria-label="가장 벅찬 순간">★</span>':'')+'</span>'
+      +(tags.length?'<span class="mk-itag">'+esc(tags.join(' · '))+'</span>':'')+'</span></button></li>'; });   /* 꼬리표는 이름 아래 — 오른쪽 끝은 레일 자리[RAIL_LOCKED] */
+  h+='</ol>';
+  h+='<p class="mk-note">순간마다 한 화면씩 넘기며 고르고, 들어 보고, 두 분이 할 말을 적어요. 비워 둔 칸은 예식 7일 전까지 채우면 돼요.</p>';
+  h+='<button type="button" class="pk-link" data-fk="mkback1" onclick="opGoStep(\'pick\')">순간을 더하거나 빼려면 ① 고르기로</button>';
+  return h+'</section>'; }
 /* 한눈에 보기 — ② 마지막 장(옛 ③ 준비하기가 하던 모아 보기) */
 function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk();
   var on=ps.filter(function(k){ return k!=='_sum'&&k!=='guest'&&!_mkOff(k)&&!R.PRE[k]&&k!=='_close'; }), dropped=ps.filter(function(k){ return _mkOff(k); });
@@ -5935,6 +6029,7 @@ if(EMBED){
     if(ev.origin!==window.location.origin||!ev.data) return;
     if(ev.data.type==='momentedit:orderExitReq'){ window._obExit(); return; }   // 부모(오버레이 밖 Esc 등)의 나가기 요청도 같은 저장 경로로
     // [ORD_AUTOSAVE] 자동 저장 회신 — 성공·실패 둘 다 받는다. 한쪽만 받으면 표시가 한 상태에 갇힌다.
+    if(ev.data.type==='momentedit:ritualFileDone'){ _mkUpDone(ev.data); return; }   // [RITUAL_FILE] 마이페이지가 GAS 결과를 돌려준다
     if(ev.data.type==='momentedit:orderDraftSaved'){ _txPullApply(ev.data.pull); _autoAck(true); return; }
     if(ev.data.type==='momentedit:orderDraftFail'){ _autoAck(false); return; }
     // 저장 실패로 오버레이가 안 닫혔을 때 나가기 버튼 잠금 해제(재시도 가능)

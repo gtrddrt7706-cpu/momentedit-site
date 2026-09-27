@@ -83,14 +83,22 @@ for (const w of [390, 1280]) {
   ok(`${w} [STEP_BASELINE 4-e] 걸음 표시 — 지난 걸음과 지금 걸음의 글줄이 같다`, await pg.evaluate(() => { const ys = [...document.querySelectorAll('.op-steps li')].map((li) => { const tw = document.createTreeWalker(li, NodeFilter.SHOW_TEXT); let t = tw.nextNode(); while (t && !t.textContent.trim()) t = tw.nextNode(); const r = document.createRange(); r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }); return ys.length === 4 && Math.max(...ys) - Math.min(...ys) <= 1; }));
   ok(`${w} ② 제목 «하나씩 만들기» · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '하나씩 만들기' && /하나씩 만들기/.test(document.querySelector('.op-steps li.on').textContent)));
   const pages = await pg.evaluate(() => _mkPages());
-  ok(`${w} ② 쪽 = 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE]`, pages[0] === 'guest' && pages[1] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
-  ok(`${w} ② 진행 순서 줄 = 쪽마다 단추 하나 · 지금 쪽 aria-current`, await pg.evaluate((n) => document.querySelectorAll('#mkStrip .mk-it:not(.mk-add)').length === n && !!document.querySelector('#mkStrip .mk-it.cur[aria-current="step"]'), pages.length));
+  ok(`${w} ② 쪽 = 고른 순서 · 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE · MK_INTRO]`, pages[0] === '_intro' && pages[1] === 'guest' && pages[2] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
+  /* [MK_INTRO] 첫 쪽 = ① 에서 고른 순서 모아 보기 · 쪽마다 할 일 꼬리표 · «시작하기» */
+  const ii = await pg.evaluate(() => ({ at: _mkState().at, h: document.getElementById('mkHead').textContent, rows: document.querySelectorAll('.mk-ilist .mk-irow').length, tag: [...document.querySelectorAll('.mk-itag')].map((x) => x.textContent).join('|'), next: document.getElementById('next').textContent }));
+  ok(`${w} ② 첫 쪽 «고른 순서» — 순간마다 한 줄 · 할 일 꼬리표(고르기 · 두 분이 할 말) · «시작하기 · 하객 맞이 안내» [MK_INTRO]`, ii.at === '_intro' && ii.h === '고른 순서' && ii.rows === pages.length - 2 && /두 분이 할 말/.test(ii.tag) && /고르기/.test(ii.tag) && /^시작하기 · 하객 맞이 안내$/.test(ii.next.replace(/\u00a0/g, ' ')), JSON.stringify(ii));
+  ok(`${w} ② 진행 순서 줄 = 쪽마다 단추 하나(고른 순서 쪽 제외) · «미완료 N» 단추 없음 [MK_TODO_PASSED]`, await pg.evaluate((n) => document.querySelectorAll('#mkStrip .mk-it:not(.mk-add)').length === n && !document.querySelector('[data-fk="mktodo"]'), pages.length - 1));
   ok(`${w} ② 들어가자마자 소리 없음(자동 재생 없음)`, await pg.evaluate(() => !LP.q.length && (!LP.el || LP.el.paused)));
-  // 다음 = 다음 순간(② 안) · 이전 = 앞 순간
   await clickNext(pg); await pg.waitForTimeout(400);
-  ok(`${w} ② «다음»은 다음 순간으로(걸음은 그대로)`, await pg.evaluate((p1) => STEPS[idx].k === 'listen' && _mkState().at === p1, pages[1]));
+  ok(`${w} ② «시작하기» → 하객 맞이 쪽 · 지금 쪽 aria-current`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest' && !!document.querySelector('#mkStrip .mk-it.cur[aria-current="step"]')));
+  await clickNext(pg); await pg.waitForTimeout(400);
+  ok(`${w} ② «다음»은 다음 순간으로(걸음은 그대로)`, await pg.evaluate((p2) => STEPS[idx].k === 'listen' && _mkState().at === p2, pages[2]));
+  ok(`${w} ② 표시는 지나온 쪽에만 — 지금 · 앞으로 올 쪽은 비어 있다 [MK_TODO_PASSED]`, await pg.evaluate(() => { const its = [...document.querySelectorAll('#mkStrip .mk-it:not(.mk-add)')], ci = its.findIndex((b) => b.classList.contains('cur')); return ci === 1 && /done|todo/.test(its[0].className) && its.slice(ci).every((b) => !/ (done|todo)/.test(b.className)); }));
   await pg.click('#prev'); await pg.waitForTimeout(400);
   ok(`${w} ② «이전»은 앞 순간으로`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest'));
+  /* [MK_PICK_TOP] 고르기가 먼저 · 그 아래 «고른 대로 들어 보기» · 흐름은 그 뒤 */
+  ok(`${w} ② 고르기 → «고른 대로 들어 보기» → 흐름 차례 [MK_PICK_TOP]`, await pg.evaluate(() => { const a = document.querySelector('.mk-pick .ls-vars'), b = document.querySelector('[data-fk="mkplay"]'), c = document.querySelector('.mk-flow'); const F = Node.DOCUMENT_POSITION_FOLLOWING; return !!a && !!b && !!c && !!(a.compareDocumentPosition(b) & F) && !!(b.compareDocumentPosition(c) & F) && /고른 대로 들어 보기/.test(b.textContent); }));
+  ok(`${w} ② 진행 줄 양끝 흐림(끝이 뚝 잘리지 않게) [MK_STRIP_FADE]`, await pg.evaluate(() => { const c = getComputedStyle(document.querySelector('#mkStrip .mk-sc')); return /gradient/.test(c.maskImage || c.webkitMaskImage || ''); }));
   // 서약 쪽 — 흐름 · 참고 예시 · 두 칸
   await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(500);
   ok(`${w} ② 서약 쪽 머리 = 번호 · 이름 · 흐름에 «신랑 차례 · 신부 차례»`, await pg.evaluate(() => /혼인 서약/.test(document.getElementById('mkHead').textContent) && /신랑 차례/.test(document.querySelector('.mk-flow').textContent) && /신부 차례/.test(document.querySelector('.mk-flow').textContent)));
@@ -443,6 +451,40 @@ else {
   await ctx.close();
 }
 
+// ★★[RITUAL_FILE 2026-09-27 사장님] ② 하객 맞이 쪽 — 두 분 목소리 녹음 올리기 카드(임베드 · 마이페이지에서 연 빌더)
+{
+  const ctx = await br.newContext({ viewport: { width: 390, height: 900 } }); const pg = await ctx.newPage(); const errs = [];
+  pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await pg.waitForTimeout(800);
+  await pg.evaluate(() => { window.__sent = []; const o = window.postMessage.bind(window); window.postMessage = function (m, t) { if (m && m.type === 'momentedit:ritualFile') { window.__sent.push(m.data); return; } return o(m, t); }; });
+  await clickNext(pg); await pg.waitForTimeout(400); await clickNext(pg); await pg.waitForTimeout(500);
+  await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
+  await pg.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await pg.waitForTimeout(400);
+  const v0 = await pg.evaluate(() => ({ rows: document.querySelectorAll('.mk-vr').length, oldChk: [...document.querySelectorAll('.mk-pg .upchk')].filter((l) => !l.closest('.mk-valt')).length, alt: !!document.querySelector('.mk-valt:not([open])'), dup: /대본을 드려요/.test(document.querySelector('.mk-pg').textContent), todo: _mkTasks('guest').filter((x) => !x.done).length }));
+  ok('RF ② 하객 맞이 — 녹음 카드 한 장 · 녹음마다 한 줄(넷) · 옛 체크 칸 없음 · «올리기가 어렵다면»은 접힘 · 겹치는 «대본을 드려요» 줄 없음 [RITUAL_FILE]', v0.rows === 4 && v0.oldChk === 0 && v0.alt && !v0.dup && v0.todo === 4, JSON.stringify(v0));
+  const [fc] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g0"]')]);
+  await fc.setFiles({ name: '입장.m4a', mimeType: 'audio/mp4', buffer: Buffer.from('ID3testaudio') }); await pg.waitForTimeout(500);
+  const v1 = await pg.evaluate(() => ({ sent: window.__sent.map((d) => d.key + ':' + d.mime + ':' + d.name + ':' + /^data:audio\/mp4;base64,/.test(d.data)), busy: /보내는 중/.test(document.querySelector('.mk-vr').textContent) }));
+  ok('RF 올리기 → 마이페이지로 파일(키 · 형식 · 이름 · base64)이 넘어가고 «보내는 중…»', v1.sent.join() === 'g0:audio/mp4:입장.m4a:true' && v1.busy, JSON.stringify(v1));
+  await pg.evaluate(() => _mkUpDone({ key: 'g0', ok: true, name: '입장.m4a', id: 'F1', at: '2026-09-27 17:40' })); await pg.waitForTimeout(300);
+  const v2 = await pg.evaluate(() => ({ st: document.querySelector('.mk-vr').textContent, up: S.up.g0, fAt: !!(S.fAt && S.fAt['up.g0']), todo: _mkTasks('guest').filter((x) => !x.done).length, btn: document.querySelector('[data-fk="mkup:g0"]').textContent }));
+  ok('RF 도착 → «보냈어요 · 입장.m4a» · 다시 올리기 · 그 줄은 완료(남은 셋은 미완료) · 칸마다 시각(두 기기)', /보냈어요 · 입장\.m4a/.test(v2.st) && v2.up && v2.up.id === 'F1' && v2.fAt && v2.todo === 3 && v2.btn === '다시 올리기', JSON.stringify(v2));
+  await pg.evaluate(() => _mkUpDone({ key: 'g1', ok: false, error: '한 개에 20MB 까지 올릴 수 있어요.' })); await pg.waitForTimeout(300);
+  ok('RF 실패는 사유를 한 줄로 · 그 줄은 미완료 그대로', await pg.evaluate(() => /20MB/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !S.up.g1));
+  await pg.evaluate(() => { document.querySelector('.mk-valt').open = true; }); await pg.click('.mk-valt .upchk'); await pg.waitForTimeout(300);
+  ok('RF «카톡 · 메일로 보냈어요» → 올리지 않은 줄만 보냄 처리 · 올린 줄은 그대로', await pg.evaluate(() => S.up.g0.id === 'F1' && S.up.g1 === 'sent' && S.up.g3 === 'sent' && _mkTasks('guest').every((x) => x.done)));
+  ok('RF pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+  // 그냥 연 미리보기(임베드 아님)는 올리지 않고 카톡 · 메일 길을 말한다
+  const c2 = await br.newContext({ viewport: { width: 390, height: 900 } }); const p2 = await c2.newPage();
+  await p2.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+  await p2.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await p2.waitForTimeout(700);
+  await clickNext(p2); await p2.waitForTimeout(400); await clickNext(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await clickNext(p2); await p2.waitForTimeout(1200);
+  await p2.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await p2.waitForTimeout(300); await p2.click('[data-fk="mkup:g0"]'); await p2.waitForTimeout(300);
+  ok('RF 그냥 연 미리보기 — 파일 창 대신 «마이페이지에서 열면 … 카톡 · 메일» 한 줄', await p2.evaluate(() => /마이페이지에서 열면 여기서 바로 보낼 수 있어요/.test((document.querySelector('.mk-toast') || {}).textContent || '')));
+  await c2.close();
+}
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
 process.exit(fail ? 1 : cant ? 2 : 0);
