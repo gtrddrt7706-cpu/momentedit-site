@@ -5373,7 +5373,8 @@ nochk 'class="wsh-hd"' mypage.html                # 머리 행 복원 금지
 # [WISH_DEL_ASK 2026-08-16] ✕(44px)가 글칸 오른쪽 여백과 겹쳐 오탭이 가능하다 — 적은 글이 있으면 한 번 묻는다.
 #   표적을 줄이면 「지우는 단추」의 44px 근거가 무너지고, 칸을 밀면 없앤 머리 행이 높이로 되살아난다.
 chk 'WISH_DEL_ASK' mypage.html 1
-chk '이 요청을 뺄까요' mypage.html 1
+# ★[PHOTO_UNDO_X 2026-09-27 사장님 지시문 6편 3부 6] 위 «한 번 묻는다»는 6초 되돌리기로 바뀌었다(구도 ✕ 와 같은 움직임) — 확인 창 문구는 없어야 한다
+nochk '이 요청을 뺄까요' mypage.html
 
 
 
@@ -11285,7 +11286,7 @@ chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2, PH
 chk 'WISH_COUNT' mypage.html 3
 chk 'function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }' mypage.html 1
 chk 'NO_ZERO_SHOT' mypage.html 1
-chk '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 ' mypage.html 1
+chk '전체 하객 사진이 알맞고, 제시간에 진행되면 가족 구도 ' mypage.html 1   # [PHOTO_UNIT_ONE 2026-09-27] «구도 N개» → «가족 구도 N컷»
 chk '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.' mypage.html 1
 nochk "'알맞고, 제시간에 진행되면 '+_cap.max" mypage.html
 chk 'PHOTO_GO2GO' assets/ritual-cue.js 2
@@ -12322,8 +12323,8 @@ chk '       + _fxNote   // \[FIT_EXTRA_APART\]' mypage.html 1
 # [PHOTO_FRIEND_ROW] 가족 · 친구 스냅 행 — 친구 부탁(photoFriend)만 적은 판도 ✓ · 「완료 · 수정」(확인서 _phF 와 같은 판정 · 122px 레일 안) · photo-friend.mjs 가 행 판정까지 잰다
 chk 'PHOTO_FRIEND_ROW' mypage.html 2
 chk "_frB2=!!String(_gpB2.photoFriend||'').trim()" mypage.html 1
-chk "done: !!(_phB2||_fxB2||_frB2)" mypage.html 1
-chk "(_fr?'완료 · 수정':'구도 고르기')" mypage.html 1
+chk "done: !!(_phB2||_fxB2||_frB2||_ocB2)" mypage.html 1        # [PHOTO_EMPTY_SAVE 2026-09-27] 불러 모아 주실 분 · 링크도 끝낸 것
+chk "(_any?'완료 · 수정':'구도 고르기')" mypage.html 1
 chk 'PHOTO_FRIEND_ROW' scripts/audit/photo-friend.mjs 1
 # [DN_ROW_TRUTH] 애프터 웨딩 «완료»는 정한 것이 있을 때만(안 함 N · 담은 곳 · 고른 곳 · 옛 자리표시) — 「역시 만들래요」 뒤 빈손으로 나가도 서버 딱지가 «완료»로 남는다 · 행 · 확인서 · 내 완성물이 한 판정
 chk 'function _dnHas(dd)' mypage.html 1
@@ -12735,6 +12736,51 @@ chk 'body.snp-open #mpToast{bottom:' mypage.html 1
 chk '#mp_privacyClose{min-width:44px;min-height:44px' mypage.html 1
 chk '#mp_snapOverlay textarea.snp-grow{resize:none;overflow:hidden}' mypage.html 1
 chk 'SPEC6_P2' scripts/audit/snap-plan.mjs 2
+
+# [SPEC6_P3] 가족·친구 스냅 — 2026-09-27 사장님 지시문 6편 3부(코워크 실측 · 사장님 «추천대로 진행») · 10항목
+#   1 알림 줄바꿈 · 2 빈 저장 알림/행/확인서 · 3 상한 = 막는 판 · 4 «전체 하객 + N컷» 한 단위 · 5 흐름 줄 = 글자 한 줄
+#   6 ↑↓✕ 40×44 · ✕ 바로 빼고 6초 되돌리기 · 7 칩 두 종류 · 8 방향 말 · 첫 저장 · «고정» 글 · 9 키보드 · 막대 · 글자 · 10 하객 사진 모으기 접힘
+chk 'PHOTO_TOAST_WRAP' mypage.html 1
+chk "pointer-events:none;white-space:normal;max-width:calc(100vw - 32px)" mypage.html 1   # 1 전역 mpToast — 한 줄 고정(nowrap)으로 되돌리지 말 것
+chk 'PHOTO_EMPTY_SAVE' mypage.html 4
+chk "'저장했어요 · 고른 구도는 아직 없어요'" mypage.html 1                              # 2 구도 없이 마치면 «전달돼요»라 하지 않는다
+chk '불러 모아 주실 분 · ' mypage.html 1                                                  # 2 확인서에 불러 모아 주실 분
+chk 'PHOTO_CAP_BLOCK' mypage.html 4
+nochk '구도가 많아요' mypage.html                                                          # 3 확인 창으로 되돌리지 말 것
+chk "가족 구도는 이날 '+_pmx+'컷까지예요 · 하나를 빼고 더해 주세요" mypage.html 1
+chk "'컷까지예요 · '+(sel.length-_pmx)+'컷을 빼 주세요" mypage.html 1
+chk 'PHOTO_UNIT_ONE' mypage.html 3
+chk "'전체 하객 + 가족 구도 '+n+'컷'" mypage.html 1                                        # 4 편집 «지금 전체 하객 + 가족 구도 N컷 · 약 M분이에요»
+chk "'가족 구도는 '+c.k+'컷이 '" mypage.html 1                                             # 4 알맞은 수
+chk '가족 구도는 보통 2~5컷이에요' mypage.html 1                                            # 4 식순 전
+chk "(전체 하객 + '+_phL.length+'컷)" mypage.html 1                                         # 4 확인서
+nochk '전체 하객과 구도 ' mypage.html
+chk 'SNAP_FLOW_TEXT' mypage.html 1
+chk '.snp-fl.on::before{' mypage.html 1                                                    # 5 두 분이 정하는 칸 = 앞 5px 진사 점(알약 없음)
+nochk '.snp-fl{font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.4;padding:5px 8px;border:1px solid' mypage.html
+chk 'PHOTO_UNDO_X' mypage.html 5
+chk 'function _phUndoToast(msg, undo)' mypage.html 1                                       # 6 ✕ 는 바로 빼고 6초 되돌리기
+chk '.ph-ctl .ph-mv,.ph-ctl .ph-del{position:relative;isolation:isolate;width:40px;height:44px' mypage.html 1
+chk 'PHOTO_CHIP_KIND' mypage.html 4
+chk 'class="ph-chip ph-ex' mypage.html 2                                                   # 7 예시 칩 = 바탕만 · «+» 없음 · ✓
+chk 'class="ph-chip ph-add' mypage.html 1                                                  # 7 점선 + «+» 는 구도 추가만
+chk 'PHOTO_DIR_WORD' mypage.html 2
+chk '위 구도는 먼저 고르셔도 돼요' mypage.html 1
+nochk '먼저 안 정하셔도 아래는 고르실 수 있어요' mypage.html
+chk 'WIZ_FIRST_SAVE' mypage.html 3                                                         # 8 처음 연 편집 화면 = 비활성 «저장»(모든 위저드 공통)
+chk "b.textContent=st.saved?'저장됨':'저장';" mypage.html 1
+chk 'PHOTO_FIX_TEXT' mypage.html 1
+chk 'PHOTO_MODAL_A11Y' mypage.html 5
+chk "ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','가족 · 친구 스냅');" mypage.html 1   # 9 겹화면 + 뒤 inert(_photoInert)
+chk 'function _photoInert(on)' mypage.html 1
+chk 'scroll-padding-bottom:96px' mypage.html 1
+chk 'PHOTO_DOT_GLUE' mypage.html 2
+chk 'PHOTO_GUEST_FOLD' mypage.html 4
+chk 'id="mp_phGuest"' mypage.html 1                                                        # 10 하객 사진 모으기 = 맨 아래 접힘(기본 닫힘)
+nochk '<div class="ph-sec">하객 사진 모으기' mypage.html
+chk 'PHOTO_EMPTY_SAVE' scripts/audit/photo-friend.mjs 1
+chk 'SNAP_FLOW_TEXT' scripts/audit/snap-plan.mjs 2
+chk 'PHOTO_UNIT_ONE' scripts/check-ritual-cue.js 1
 # ════════════════════════════════════════════════════════════════════════════════
 # [SPEC6_P4] 식순 짓기 «우리 예식 짓기» 4부 (2026-09-27 · 사장님 · 코워크 지시문 6편) — order-preview.html
 #   셈(분 · 순간 수) · 소리 · 대본 내용은 안 바꿨다. 글과 모양만. 표식을 지우면 아래가 붉어진다.
