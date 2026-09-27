@@ -176,12 +176,14 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
 }
 
 // ── ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면의 진사는 «점»만.
-//   ★★같은 날 밤 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 점 다섯: 지금 걸음 동그라미 · 고른 순서 번호 · 흐름의 «촬영» 칸 글자 · «마감» 라벨 · 동의 알림.
+//   ★★같은 날 밤 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 점 다섯: 지금 걸음(9/27 부터 진행 표시 윗선) · 고른 순서 번호 · 흐름의 «촬영» 칸 · «마감» 라벨 · 동의 알림.
 //   고른 장면 테두리는 금빛(마이페이지 선택 톤) · 흐름 칸은 글자만 진사(면은 옅은 기운) — 진사를 넓은 면 · 테두리로 넓히지 않는다.
-//   [SNAP_STEP_DOT] 걸음 동그라미 — 보이는 30px(지금 34px) · 누르는 칸 44px · 고딕 같은 폭 숫자 · 지나온 길은 금빛 선.
+//   ★★[WZ_STEPS 2026-09-27 사장님 «2번 식순 형태의 진행바로 다른 곳들도 통일하자»] 걸음 동그라미([SNAP_STEP_DOT])는 걷었다 —
+//     청첩장 · 애프터 웨딩과 같은 진행 표시(wzSteps · .wz-steps = 식순 .op-steps 모양). 지금 걸음 = 윗선 진사 · 지나온 걸음 = 금빛 · 누르는 칸 44px.
 {
   const css = (sel) => ((my.match(new RegExp('\\n' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\{([^}]*)\\}')) || [])[1] || '');
-  t(/background:var\(--seal\)/.test(css('.snp-step.on::before')) && /width:34px/.test(css('.snp-step.on::before')), '진사 점 ① 지금 걸음 동그라미(34px · 진사)');
+  const SNAP_STEPS_S = ((my.match(/var SNAP_STEPS=\[([^\n]*)\];/) || [])[1] || '').split('},{').map((x) => (x.match(/s:'([^']*)'/) || [])[1]);
+  t(/border-top-color:var\(--seal\)/.test(css('.wz-steps li.on')) && /wzSteps\(SNAP_STEPS\.map\(/.test(my), '진사 점 ① 지금 걸음 — 진행 표시 윗선(공용 .wz-steps)');
   t(/background:var\(--seal\)/.test(css('.snp-no')), '진사 점 ② 고른 순서 번호');
   // [SNAP_FLOW_TEXT 2026-09-27 사장님 결정 A · 지시문 6편 3부 5] 흐름 줄은 글자 한 줄 — 진사는 앞의 5px 점만(글자는 --accent 500 · 알약 테두리 · 바탕 없음)
   t(/background:var\(--seal\)/.test(css('.snp-fl.on::before')) && /width:5px;height:5px/.test(css('.snp-fl.on::before')) && /color:var\(--accent\)/.test(css('.snp-fl.on')) && css('.snp-fl.on').indexOf('--seal') === -1 && !/border|background/.test(css('.snp-fl')), '진사 점 ③ 흐름의 «촬영» 칸 — 앞의 5px 점만 진사 · 글자 한 줄(알약 없음)');
@@ -189,10 +191,11 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(!!css('.snp-tile.on') && css('.snp-tile.on').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-tile.on')) && css('.snp-tile.on .snp-nm').indexOf('--seal') === -1, '고른 장면 테두리 · 이름은 금빛/먹빛(진사 테두리로 되돌리지 않는다)');
   const snpSeal = (my.match(/\n\.snp-[^{]*\{[^}]*var\(--seal[^}]*\}/g) || []).map((x) => x.trim().split('{')[0]);
   // [SPEC6_P2 2026-09-27] 점 셋을 더했다 — 목록의 고른 순번(.snp-li.on .snp-li-no · 22px 원) · 한 줄 알림 앞 5px 점(다 고름 · 링크 오류 · 한도)
-  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-step.on::before', '.snp-fl.on', '.snp-fl.on::before', '.snp-due-k', '.snp-li.on .snp-li-no', '.snp-full::before,.snp-err::before,.snp-lim::before'];   // [SNAP_FLOW_TEXT] 흐름 칸 진사는 ::before 점으로 옮겼다
+  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-fl.on', '.snp-fl.on::before', '.snp-due-k', '.snp-li.on .snp-li-no', '.snp-full::before,.snp-err::before,.snp-lim::before'];   // [SNAP_FLOW_TEXT] 흐름 칸 진사는 ::before 점으로 옮겼다
   t(snpSeal.every((k) => ok5.indexOf(k) > -1), '스냅 화면 진사 = 정한 점들뿐 — 지금 ' + snpSeal.join(', '));
-  t(/width:30px;height:30px/.test(css('.snp-step::before')) && /width:44px;height:44px/.test(css('.snp-step')) && /font-variant-numeric:lining-nums tabular-nums/.test(css('.snp-step')), '[SNAP_STEP_DOT] 보이는 동그라미 30px · 누르는 칸 44px · 같은 폭 숫자');
-  t(/style="--sp:'\+\(st\/\(SNAP_STEPS\.length-1\)\)\+'"/.test(my) && /width:calc\(\(100% - 44px\) \* var\(--sp,0\)\)/.test(my), '[SNAP_STEP_DOT] 지나온 길 = 금빛 선(지금 걸음 / 4)');
+  t(!/\n\.snp-steps?[{:.:]/.test(my) && my.indexOf('<ol class="snp-steps"') === -1, '[WZ_STEPS] 걸음 동그라미(.snp-steps · .snp-step) 없음 — 되살리면 빨강');
+  t(/wzSteps\(SNAP_STEPS\.map\(function\(x\)\{ return x\.s; \}\), st, 'data-sstep', true\)/.test(my) && SNAP_STEPS_S.length === 5 && SNAP_STEPS_S.every((x) => x && x.length <= 4), '[WZ_STEPS] 스냅 = 공용 진행 표시 · 다섯 걸음 다 누른다(종전 동그라미와 같은 길) · 이름 네 글자 안(390 한 칸 60px) — ' + SNAP_STEPS_S.join(' · '));
+  t(/border-top:2px solid var\(--border\)/.test(css('.wz-steps li')) && /border-top-color:var\(--gold\)/.test(css('.wz-steps li.done')) && /min-height:44px/.test(css('.wz-stepb')), '[WZ_STEPS] 윗선 2px(남은 옅게 · 지나온 금빛) · 누르는 칸 44px');
 }
 
 // ── [SPEC6_P2 2026-09-27 지시문 6편 2부] 스냅 기획 고객 점검 — 확인 창 대신 한 줄 · 사진 없을 땐 목록 · 동의 전 나가기 · 낸 뒤 카드
