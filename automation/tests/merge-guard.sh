@@ -12392,7 +12392,7 @@ chk '#mp_photoBody details.cc-more>summary:focus-visible{outline:2px solid var(-
 chk "#mp_photoBody details.cc-more>summary::after{content:''" mypage.html 1
 # [PH_DOT_SPLIT] 가족 · 친구 스냅 안내 — « · »로 잇던 두 마디를 마침표로(«전해 드려요 ·» 줄 끝 · «· 안 적으셔도» 줄 머리)
 chk 'PH_DOT_SPLIT' mypage.html 6
-chk '<span class="ln-bal">위에 없는 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span>' mypage.html 1
+chk '<span class="ln-bal">가족 구도 말고 더 남기고 싶은 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span>' mypage.html 1   # [PHOTO_SHOOT_ORDER 2026-09-27] 옛 «위에 없는 사진만» — 요청 칸이 맨 위 차례로 올라왔다
 chk '<span class="ln-bal">모인 사진은 <b>결과물과 함께</b> 전해 드려요.</span><span class="ln-bal">하객분들은 가입도 이름 입력도 하지 않아요.</span>' mypage.html 1
 nochk '위에 없는 사진만 적어 주세요 · ' mypage.html
 nochk '전해 드려요 · 하객분들은' mypage.html
@@ -13036,7 +13036,7 @@ chk 'SNAP_EX_VIEW' mypage.html 5
 chk 'SNAP_EX_VIEW' assets/snap-refs.js 2
 chk "R.exImg = function (e, ext)" assets/snap-refs.js 1
 chk ", ex: \[{ t: '" assets/snap-refs.js 24   # [SNAP_PICK_ALL 2026-09-27] 16 → 24 — 옛 기본 넷(c01~c04 · w01~w04)도 고르는 장면이 되어 예시 3장 글을 받았다
-chk 'function _spExView(id, ctl){' mypage.html 1
+chk 'function _spExView(id, ctl, src){' mypage.html 1   # [PHOTO_EX_VIEW] 셋째 인자 = 다른 목록(가족 · 친구 스냅)
 chk "+'</button>'+_spExBtn(s)+'</div>'; }).join('')+'</div>';" mypage.html 1
 chk "querySelectorAll('\[data-sex\],\[data-szoom\]')" mypage.html 1
 chk "예시 사진 '+(k+1)+' · 준비 중" mypage.html 1
@@ -13130,3 +13130,44 @@ nochk "alt=\"'+escapeHtml(e.t||s.name)+'\" loading=\"lazy\"" mypage.html 0
 chk 'SNAP_PHOTOS_72' assets/snap-refs.js 1
 chk "img: 'c01-1'" assets/snap-refs.js 1
 chk "img: 'w04-3'" assets/snap-refs.js 1
+
+# ★★[PHOTO_DAY_STEPS · PHOTO_TO_CREW · PHOTO_EX_VIEW 2026-09-27 사장님 «추천대로 해봐» · «여기도 예시 사진 고르는 거 넣자 — 사진 요청해야 하니깐»
+#    · «전체 사진 찍고, 가족분들이랑 신랑신부와 사진 더 찍고 싶으신 분들은 남아 달라는 멘트가 있어. 그 순서를 여기에 대입해서»]
+#   가족 · 친구 스냅 편집 화면 = 그날 차례 번호 줄(① 전체 하객 + 꼭 담고 싶은 사진 ② 감사 인사 ③ 가족 구도 ④ 온라인 인사 ⑤ 남은 분들과 자유롭게)
+chk 'PHOTO_DAY_STEPS' mypage.html 8
+chk '<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">' mypage.html 1
+chk "h+=_stepHd('모두 함께 · 전체 하객 한 장'" mypage.html 1
+chk "h+=_stepHd('감사 인사 · 남아 주실 분 안내'" mypage.html 1
+chk "h+=_stepHd('가족 구도'" mypage.html 1
+chk "if(_dig) h+=_stepHd('온라인 인사'" mypage.html 1
+chk "h+=_stepHd('남은 분들과 자유롭게'" mypage.html 1
+chk "먼저 가실 분은 식사 자리로 옮기셔요.':(_ml==='no'?'먼저 가실 분께는 귀가 인사를 드려요.'" mypage.html 1   # 식사 있는 날 / 없는 날 / 모름 — 나레이션(end-1a · end-1c)과 같게
+nochk "var _flw=\[\['다 함께 한 장'" mypage.html                                    # 흐름 줄(알약) 되살리지 말 것 — 번호 줄이 곧 흐름
+chk 'PHOTO_SHOOT_ORDER' mypage.html 3
+chk 'PHOTO_CALLER_WORD' mypage.html 1
+chk '구도마다 사진작가가 이 분께 먼저 말씀드려요' mypage.html 1
+nochk '디렉터가 이 분께 먼저 말씀드려요' mypage.html                                   # [PHOTO_FREE] 부르는 것은 사진작가
+chk 'WISH_NEED_WHAT' mypage.html 2
+chk 'WISH_CAP_LINE' mypage.html 2
+chk 'PHOTO_DUP_LINE' mypage.html 3
+nochk "mpAlert('이미 담긴 구도예요.')" mypage.html
+nochk "mpAlert('요청은 '+PHOTO_WISH_MAX" mypage.html
+chk 'PHOTO_SHARE_LINE' mypage.html 2
+chk '하객 사진 모으기 · 링크 있음' mypage.html 1
+chk 'PHOTO_RECONFIRM' mypage.html 1
+chk 'PHOTO_EX_VIEW' mypage.html 5
+chk '<script src="/assets/photo-refs.js"></script>' mypage.html 1
+chk 'PHOTO_EX_VIEW' assets/photo-refs.js 2
+chk "{ id: 'g00', name: '전체 하객'" assets/photo-refs.js 1
+chk 'PHOTO_TO_CREW' automation/platform/80_production.gs 1   # 브리프에 가족 · 친구 스냅 계획(GAS 재배포)
+chk 'photo: ph };' automation/platform/80_production.gs 1
+chk 'PHOTO_TO_CREW' brief.html 2
+chk 'PHOTO_TO_CREW' console.html 1
+chk 'PHOTO_TO_CREW' admin.html 1
+chk "if(gi) _cS.photoN=Array.isArray(gi.photo)?gi.photo.length:0;" admin.html 1   # 안 고름 = 0 (키가 없으면 엔진이 «모름»으로 시간을 더 잡는다)
+chk 'WISH_ROW_HTML' admin.html 1
+chk 'PHOTO_GUIDE_OPEN' guide.html 1
+nochk '양가 직계 가족과 따로 사진을 남길 분은 잠시 남아요' guide.html                  # [GUESTS_OPEN] 친구 · 지인도 남는다(나레이션과 같게)
+chk 'PHOTO_GATHER_WORD' order-preview.html 1
+nochk '예식 준비 · 단체 사진</b>에서 골라요' order-preview.html
+chk 'PHOTO_DAY_STEPS' scripts/audit/photo-friend.mjs 1
