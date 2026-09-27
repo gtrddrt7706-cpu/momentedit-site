@@ -23,6 +23,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';   // [REVIEW_STAMP_SRC]
 const require_ = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const Cue = require_(path.join(ROOT, 'assets/ritual-cue.js'));
@@ -250,7 +251,7 @@ ul{margin:0;padding:0;list-style:none}
 :root[data-theme="dark"]{--bg:#1A1815;--ink:#EDE7DD;--mute:#9A9187;--line:#332F2A;--card:#221F1B}
 </style></head><body><div class="wrap">
 <h1>예식 대본 정리본</h1>
-<p class="sub">저장소에서 자동으로 뽑았습니다 · ${new Date().toISOString().slice(0, 10)} · 클립 ${nC} · 문장 ${nS}</p>
+<p class="sub">저장소에서 자동으로 뽑았습니다 · @@SRC_STAMP@@ · 클립 ${nC} · 문장 ${nS}</p>
 <div class="legend">
   <p style="margin:0 0 6px"><b><span class="tag" style="background:var(--ok)">확정</span></b> 지금 라이브에 나가는 말 그대로입니다</p>
   <p style="margin:0 0 6px"><b><span class="tag" style="background:var(--review)">검토중</span></b> <b style="min-width:0">이번에 바꾼 줄</b>입니다. 여기를 짚어 주세요</p>
@@ -277,5 +278,11 @@ ${appendix.map(card).join('\n')}
     process.exit(1);
   }
 }
-fs.writeFileSync(path.join(ROOT, 'script-review.html'), html);
+/* ★★[REVIEW_STAMP_SRC 2026-09-27 코워크 제안] 머리줄에 «뽑은 날» 대신 «원천 지문»을 찍는다.
+   종전엔 new Date() 를 찍어서, 원천이 그대로여도 날이 바뀌면 파일이 달라졌다 →
+   게이트 [REVIEW_FRESH] 가 대본과 무관한 PR 까지 붉혔다(9/27 PR #884 스냅 화면 · 날짜 한 줄 차이).
+   지문은 이 문서 본문(지문 자리 빼고)의 sha1 앞 8자리 — 같은 원천이면 같은 파일, 원천이 바뀌면 지문도 바뀐다.
+   ★게이트는 그대로다(약하게 하지 않았다). 파일이 «결정적»이 되어 [REVIEW_FRESH] 의 전제가 날짜에서도 참이 됐다. */
+const _srcStamp = createHash('sha1').update(html).digest('hex').slice(0, 8);
+fs.writeFileSync(path.join(ROOT, 'script-review.html'), html.replace('@@SRC_STAMP@@', '원천 지문 ' + _srcStamp));
 process.stderr.write(`[SCRIPT_REVIEW] 본문 클립 ${nC} · 문장 ${nS} · 부록 ${appendix.length} · 뺀 것 ${RET.length}\n`);
