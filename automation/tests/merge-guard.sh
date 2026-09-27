@@ -13318,3 +13318,8 @@ nochk "L('wine','와인'" order-preview.html
 nochk "rows.push(\['와인','wine'\])" order-preview.html
 chk 'WINE_POUR_OFF' api/_ritual-kb.js 1
 chk 'WINE_POUR_OFF' scripts/audit/open-course.mjs 3
+# ★[MOMENT_SCRIPT 2026-09-27 사장님 «각각 이벤트 영상 · 손동작 · 시나리오 대본처럼 · 하나하나 점검»] 순간 영상 장면 대본 16편 — 편 목록 = 엔진 장면 이름 · 초 이음 · F02
+if command -v node >/dev/null 2>&1; then node scripts/audit/moment-script-check.mjs >/dev/null 2>&1 || { echo 'FAIL moment-script: 순간 영상 장면 대본이 엔진과 어긋났습니다 — node scripts/audit/moment-script-check.mjs'; fail=1; }; fi
+chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
+chk 'WINE_POUR_OFF' assets/ritual-story.js 1
+nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
