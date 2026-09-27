@@ -867,7 +867,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .pk-media .mclip{width:100%;border:0;margin:0;background:none}
 .pk-media .m-cap,.pv-media .m-cap{display:none}
-.pk-media circle[fill="url(#mglow)"]{display:none}   /* [TILE_NO_GLOW 코워크 회신7] 칸 크기에선 얼룩으로 보였다 · 창에서는 그대로 */   /* 장면 그림 속 한 줄은 칸 · 창에서 잘린다 — 창은 대표 한 줄이 바로 아래에 있다 */
+.pk-media circle.mglow{display:none}   /* [TILE_NO_GLOW 코워크 회신7] 칸 크기에선 얼룩으로 보였다 · 창에서는 그대로 */   /* 장면 그림 속 한 줄은 칸 · 창에서 잘린다 — 창은 대표 한 줄이 바로 아래에 있다 */
 .pk-glyph{width:46px;height:32px;color:var(--gold-deep)}
 .pk-play{position:absolute;left:7px;bottom:7px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.14);color:var(--accent)}
 .pk-play svg{width:10px;height:10px;margin-left:2px}
@@ -2829,7 +2829,7 @@ function oc(key,v,nm,desc,nar,end,self,prep,rec){
   return h;
 }
 
-var _clipDone={};
+var _clipDone={}, _glN=0;   // [GL_ID_ONE]
 function clip(k){
   var _was=_clipDone[k]; _clipDone[k]=true;
   var G='#B89A75', GD='#9A7B4F', C='#6B2A24';
@@ -2838,6 +2838,9 @@ function clip(k){
      딛고 서는 바닥이라 빼면 붕 뜬다 · 시안 3종 실렌더 비교로 결정). 여섯 바닥선 전부 이 헬퍼만 쓴다.
      ★가로 직선은 bbox 높이가 0이라 기본(objectBoundingBox) 그라디언트가 안 칠해진다 — userSpaceOnUse(실측). */
   function GLINE(x1,y,x2,id,style){
+    /* ★[GL_ID_ONE 2026-09-27 점검 시뮬] 같은 그림이 한 화면에 두 번 그려지면(① 고르기 · 예시 카드와 미리보기) id 가 겹쳤다.
+       url(#id) 는 문서의 «첫» 정의를 쓰는데, 그 첫 정의가 접힌(display:none) 쪽이면 보이는 바닥선이 안 칠해진다 — 부를 때마다 번호를 붙인다. */
+    id=id+'_'+(++_glN);
     return '<defs><linearGradient id="gl'+id+'" gradientUnits="userSpaceOnUse" x1="'+x1+'" y1="'+y+'" x2="'+x2+'" y2="'+y+'">'
       +'<stop offset="0" stop-color="'+G+'" stop-opacity="0"/><stop offset="0.16" stop-color="'+G+'" stop-opacity="1"/>'
       +'<stop offset="0.84" stop-color="'+G+'" stop-opacity="1"/><stop offset="1" stop-color="'+G+'" stop-opacity="0"/></linearGradient></defs>'
@@ -2927,8 +2930,8 @@ function clip(k){
   }
   if(k==='tribute'){
     svg='<svg aria-hidden="true" focusable="false" viewBox="0 0 320 116" style="width:100%;height:auto">'
-    +'<defs><radialGradient id="mglow"><stop offset="0%" stop-color="#F3E7CF"/><stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs>'
-    +'<circle cx="270" cy="62" r="26" fill="url(#mglow)"/>'
+    +'<defs><radialGradient id="mglow'+(++_glN)+'"><stop offset="0%" stop-color="#F3E7CF"/><stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs>'   /* [GL_ID_ONE] 같은 그림 두 벌 · id 겹침 방지 */
+    +'<circle class="mglow" cx="270" cy="62" r="26" fill="url(#mglow'+_glN+')"/>'
     +'<g class="m-tilt">'
     +'<path d="M150 96 C 146 76, 138 66, 128 56 M150 96 C 152 72, 158 60, 168 50 M150 96 C 148 70, 140 52, 148 40" fill="none" stroke="'+GD+'" stroke-width="1.8" stroke-linecap="round" pathLength="100" class="m-draw" style="animation-duration:1.6s"/>'
     +'<circle cx="126" cy="52" r="5" fill="none" stroke="'+GD+'" stroke-width="1.6"/>'
@@ -3397,7 +3400,11 @@ function _mkStat(k){ if(k==='_sum'||k==='_intro') return ''; var m=_mkRO(); if(_
   if(!seen) return '';
   return ts.every(function(x){ return x.done; })?'done':'todo'; }
 function _mkTodoAll(){ var out=[]; _mkPages().forEach(function(k){ if(k==='_sum'||_mkOff(k)) return; _mkTasks(k).forEach(function(x){ if(!x.done) out.push({k:k,t:x}); }); }); return out; }
-window.mkUndone=function(){ return _mkTodoAll().length; };   // ④ · 마이페이지가 읽는다(stage 2)
+/* ★[TODO_ROWS 2026-09-27 점검 시뮬] «미완료 N»은 한눈에 보기에 보이는 «줄» 수로 센다 — 한 순간의 신랑 · 신부 칸은 한 줄(«신랑 · 신부 칸이 비어 있어요»),
+   한 순간의 두 분 목소리 녹음 여러 개도 한 줄이다. 종전엔 칸 수로 세어 머리는 «미완료 9»인데 아래 줄은 7개였다(390 실렌더). */
+function _mkTodoN(){ var g={}, n=0; _mkTodoAll().forEach(function(x){ var key=x.t.kind==='tx'?'tx:'+x.k:(x.t.q&&x.t.q.up)?'up:'+x.k:'';
+    if(!key){ n++; return; } if(!g[key]){ g[key]=1; n++; } }); return n; }
+window.mkUndone=function(){ return _mkTodoN(); };   // ④ · 마이페이지가 읽는다(stage 2)
 /* 진행 순서 줄 — 채운 칸(지금) · 체크(다 됨) · 빈 동그라미(미완료) · 흐리게+줄(뺀 순간) · 표시 없음(아직 안 봄). 색만으로 말하지 않는다 */
 function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
   /* [MK_TODO_PASSED] «미완료 N» 단추는 걷었다 — 미완료는 지나온 쪽의 빈 동그라미(진사)로만 · 모아 보기는 마지막 «한눈에 보기» */
@@ -3770,7 +3777,12 @@ function _refHead(t){ t=String(t||''); var re=/^(?:그리고\s)?[가-힣]{1,4}(?
   while(g++<4){ var m=t.match(re); if(!m) break; var w=m[0].replace(/^(그리고\s)/,'').replace(/[,.\s]+$/,'').replace(/\s씨$/,'');
     if(!/(아|야|님|마|빠|니|지|께)$/.test(w)&&!/\s씨[,.]/.test(m[0])) break; t=t.slice(m[0].length); }
   return t; }
-function _refPv(set){ var t=_refHead((set[0]||{}).txt||''); return t.length>20?t.slice(0,20)+'…':t; }
+/* ★[REF_PV_INTRO 2026-09-27 점검 시뮬] 칩 미리보기는 «예시끼리 가르는» 글이어야 한다. 부르는 말만 빼면
+   첫인사 예시가 전부 «안녕하세요, 신랑 이서준입니다. …», 덕담이 «서준이 아버지입니다. …»로 시작해 칩 여섯 개가 같은 글로 보였다(390 실렌더).
+   인사말과 짧은 자기소개(16자 이하 · «…입니다/이에요/예요.»)도 걷고 그 다음 마디를 보인다 · 다 걷히면 원래 글. 본문(고른 예시 · 시작하기)은 그대로다. */
+function _refIntro(t){ var o=t, g=0; while(g++<3){ var m=t.match(/^(?:안녕하세요|안녕하십니까)[,.!]?\s*/)||t.match(/^[^.!?\n]{1,16}(?:입니다|이에요|예요)[.!]\s*/); if(!m) break; t=t.slice(m[0].length); }
+  return t.trim()?t:o; }
+function _refPv(set){ var t=_refIntro(_refHead((set[0]||{}).txt||'')); return t.length>20?t.slice(0,20)+'…':t; }
 function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(function(x){ return x.talk; })) return '';
   var sets=_lRefSets(k); if(!sets.length) return '';
   var cur=Math.min((LS.ref||{})[k]||0,sets.length-1), main=sets.filter(function(x){ return !(x[0]&&x[0].parent); }), par=sets.length-main.length;
@@ -3778,8 +3790,12 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   /* [MK_MIN] «당일엔 두 분이 직접 말해요»는 머리 아래 한 번 */
   var h='<section class="mk-sec mk-ref" aria-labelledby="mkRefH"><h4 id="mkRefH">참고 예시</h4><p class="lf-refn">'+esc(_lRefDay(k,sets[cur]))+' · 그대로 써도 좋고, 두 분 이야기로 바꿔도 돼요 · 예시 속 이름은 가상 인물이에요</p>';
   h+='<div class="mk-rcs" role="radiogroup" aria-label="참고 예시">';
+  /* [REF_PV_WHO 2026-09-27 점검 시뮬] 글이 같은 예시(성혼 선언 · 가족 낭독 세 벌은 문장이 같고 읽는 사람만 다르다)는 미리보기가 같은 글로 겹쳤다 —
+     겹치면 그 칩들은 «누가 읽나»를 보인다. */
+  var _pv=sets.map(_refPv), _pvN={}; _pv.forEach(function(x){ _pvN[x]=(_pvN[x]||0)+1; });
+  _pv=_pv.map(function(x,i){ if(_pvN[x]<2) return x; var w=sets[i].map(function(p){ return p.who; }).filter(Boolean); return w.length>1?w.join(' · ')+' 나눠 읽기':(w[0]?w[0]+' 읽기':x); });
   sets.forEach(function(set,n){ if(n>=main.length&&!parOpen) return; var on=n===cur;
-    h+='<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_refPv(set))+'</span></button>'; });
+    h+='<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_pv[n])+'</span></button>'; });
   if(par&&!parOpen) h+='<button type="button" class="mk-rc mk-rpar" data-fk="mkrpar:'+k+'" aria-expanded="false" onclick="mkRefPar(\''+k+'\')"><b>부모님이 하실 때 ›</b><span>덕담 예시 '+par+'벌</span></button>';
   h+='</div>';
   var set=sets[cur], sit=_refSit(set), who='';
@@ -3865,7 +3881,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   var todo=_mkTodoAll();
   /* ★[MK_SUM_ONE 2026-09-27 사장님 «지저분한 중복 전부 제거 · 미니멀하게»] 종전엔 «미완료 14» 목록과 아래 «부탁 · 보낼 것» 목록이 같은 항목을 두 번 늘어놓았다(녹음 네 줄은 두 번씩 여덟 줄).
      이제 한 항목은 한 번만 — 미완료 수는 머리 한 줄에 · «두 분이 할 말»만 따로 모으고 · 부탁 · 보낼 것은 줄마다 ✓ 또는 «가기» · 녹음은 순간마다 한 줄(몇 개 중 몇 개). 되살리지 말 것 */
-  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(todo.length?' · <b class="mk-todo-n">미완료 '+todo.length+'</b>':'')+'</p>';
+  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(todo.length?' · <b class="mk-todo-n">미완료 '+_mkTodoN()+'</b>':'')+'</p>';
   var txTodo=todo.filter(function(x){ return x.t.kind==='tx'; }), txK=[], txW={};
   txTodo.forEach(function(x){ if(!txW[x.k]){ txW[x.k]=[]; txK.push(x.k); } txW[x.k].push(x.t.who); });   // 순간마다 한 줄(신랑 · 신부 두 줄로 나누지 않는다)
   if(txK.length){ h+='<section class="mk-sec"><h4>두 분이 할 말</h4><ul class="mk-vlist">';
@@ -3888,7 +3904,10 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   /* [MK_SUM_ONE] 챙길 것 — 같은 꼬리(«크기 · 도착 시각은 상담 때 안내해 드려요»)가 여러 줄이면 머리 아래 한 번 */
   var bt={}; brings.forEach(function(q){ var t=String(q.what).split(' · ').slice(1).join(' · '); if(t) bt[t]=(bt[t]||0)+1; });
   var bdup=Object.keys(bt).filter(function(t){ return bt[t]>1; });
-  if(brings.length) h+='<section class="mk-sec"><h4>당일 챙길 것</h4>'+(bdup.length?'<p class="mk-note">'+esc(bdup.join(' · '))+'</p>':'')+'<ul class="mk-list">'+brings.map(function(q){ var t=String(q.what).split(' · ').slice(1).join(' · '); return bdup.indexOf(t)>-1?li({what:String(q.what).split(' · ')[0],cat:q.cat,due:q.due,note:q.note}):li(q); }).join('')+'</ul></section>';
+  /* ★[BRING_NOTE_WHO 2026-09-27 점검 시뮬] 모은 꼬리는 목록 «아래»에, 무엇에 대한 말인지 이름을 붙여 둔다 — 종전엔 목록 위에 홀로 떠서
+     첫 줄(반지)에 대한 말처럼 읽혔다(390 실렌더 · 꽃 · 케이크 이야기였다). */
+  var bnote=bdup.map(function(t){ return brings.filter(function(q){ return String(q.what).split(' · ').slice(1).join(' · ')===t; }).map(function(q){ return String(q.what).split(' · ')[0]; }).join(' · ')+': '+t; });
+  if(brings.length) h+='<section class="mk-sec"><h4>당일 챙길 것</h4><ul class="mk-list">'+brings.map(function(q){ var t=String(q.what).split(' · ').slice(1).join(' · '); return bdup.indexOf(t)>-1?li({what:String(q.what).split(' · ')[0],cat:q.cat,due:q.due,note:q.note}):li(q); }).join('')+'</ul>'+(bnote.length?'<p class="mk-note">'+esc(bnote.join(' · '))+'</p>':'')+'</section>';
   var stu=_studioList(); if(stu.length) h+='<section class="mk-sec"><h4>저희가 준비해요</h4><ul class="mk-list"><li>'+esc(stu.join(' · '))+' <span class="wr-due">· '+esc(R.GOODS_COST)+'</span></li></ul></section>';
   var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});   // [MK_HELPERS] 옛 ③ 준비하기의 «도와주실 분»을 한눈에 보기가 이어 받는다(마이페이지 «도와주실 분»과 같은 목록)
   if(hp.length) h+='<section class="mk-sec"><h4>도와주실 분</h4><ul class="mk-list">'+hp.map(function(x){ return '<li>'+esc(x[0])+' <span class="wr-due">· '+esc(x[1])+'</span></li>'; }).join('')+'</ul></section>';
@@ -3899,7 +3918,7 @@ function renderPractice(){ var R=RitualOpen;
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='practice') render(); }); }
   var rows=_lRows(), all=ENG?_lRefExpand(_lSteps(ENG,rows).filter(function(x){ return !x.quiet; })):[], len=0, turns=0;
   all.forEach(function(x){ len+=x.talk2?Math.round((x.ms||0)/1000):x.talk||x.skip?3:Math.round(String(x.txt||'').length*0.16); if(x.talk2||x.talk) turns++; });   // [CAST_TEXT_ONLY] 두 분 차례 = 막대 길이(ms)
-  var fast=ENG?_lLen(_lSteps(ENG,rows)):0, todo=_mkTodoAll().length, n=_opMoments();
+  var fast=ENG?_lLen(_lSteps(ENG,rows)):0, todo=_mkTodoN(), n=_opMoments();   // [TODO_ROWS]
   var h='<div class="op pr">';
   h+='<p class="mk-one">담은 순간 '+n+' · 두 분 차례 '+turns+(len?' · 처음부터 끝까지 약 '+Math.max(1,Math.round(len/60))+'분':'')+'</p>';
   if(todo) h+='<p class="mk-note">미완료 '+todo+' · 비어 있는 칸은 참고 예시로 채워 보여 드려요</p>';
@@ -5694,7 +5713,7 @@ function _doneOpen(){
       return '<div class="pr">'+(cs.length>1?'<span class="dday">'+esc(R.PREP_CAT[c])+'</span>':'')+'<span>'+by[c].map(function(q){ return esc(_ndd(q.what))+NBS+'<span class="wr-due">·'+NBS+esc(_ndd(R.dueWord(q,wed)))+'</span>'; }).join('<br>')   /* [DOT_GLUE] */+'</span></div>'; }).join(''); }
   /* ★[DONE_PREP_ONE 2026-09-27 사장님 «지저분한 중복 전부 제거 · 식순 파트 비슷한 부분 전부 점검»] ④ 가 ② «한눈에 보기»의 목록(쓸 글 · 보낼 것 · 챙길 것 · 부탁)을 통째로 한 번 더 늘어놓았다.
      이제 한 줄(몇 가지 · 미완료 몇) + «② 한눈에 보기에서 보기» — 목록은 ② 한 곳에만. 되살리지 말 것(grp 는 옛 코스 호환으로만 남긴다) */
-  var _td=_mkTodoAll().length;
+  var _td=_mkTodoN();   // [TODO_ROWS]
   h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><p class="mk-one">'+(two.length?'두 분이 준비할'+NBS+'것'+NBS+two.length+'가지':'')+(two.length&&par.length?' · ':'')+(par.length?'부모님께 부탁드릴'+NBS+'것'+NBS+par.length+'가지':'')
     +(_td?' · <b class="mk-todo-n">미완료 '+_td+'</b>':'')+'</p>';
   h+='<button type="button" class="ls-back" data-fk="done2write" onclick="mkGo(\'_sum\')">② 한눈에 보기에서 보기</button>';
@@ -6055,10 +6074,13 @@ function _headPills(k){
    저장은 종전 규칙 그대로(저장 · 나가기 단추 · 기기에는 늘 남는다). 옛 코스는 종전 resetAll(새로고침). */
 window.opRestart=function(){
   if(!isOpen()){ resetAll(); return; }
-  ordAsk({title:'고른 것을 모두 비울까요?', body:'담은 순간 · 고른 것 · 적어 두신 글(첫인사 · 서약문 · 편지 · 부모님께 드릴 말)이 모두 지워지고, ① 고르기에서 빈 칸으로 다시 시작해요.',
+  /* ★[RESTART_KEEP_REC 2026-09-27 점검 시뮬] 올려 둔 두 분 목소리 녹음(S.up)은 비우지 않는다 — «고른 것»이 아니라 두 분이 시간을 들여 만든 것이고,
+     종전엔 연결만 끊겨(드라이브 파일은 30일까지 남는데 화면에선 사라짐) 다시 녹음해야 했다. 다시 «두 분 목소리»를 고르면 그대로 돌아온다. 되돌리지 말 것 */
+  var _upKeep=S.up||{}, _hasUp=Object.keys(_upKeep).length>0;
+  ordAsk({title:'고른 것을 모두 비울까요?', body:'담은 순간 · 고른 것 · 적어 두신 글(첫인사 · 서약문 · 편지 · 부모님께 드릴 말)이 모두 지워지고, ① 고르기에서 빈 칸으로 다시 시작해요.'+(_hasUp?' 올려 두신 두 분 목소리 녹음은 그대로 남겨 둬요.':''),
           yes:'모두 비우기', no:'취소', danger:true}).then(function(ok){
     if(!ok) return;
-    S=JSON.parse(_S0); _opPrev=null;   // [RESTART_IN_PLACE] _S0 = 미개봉 초기 판(ORDER_OWNER) try{ _pkUndo(''); }catch(e){} _seenK={}; _doneSaved=false;
+    S=JSON.parse(_S0); if(_hasUp) S.up=_upKeep; _opPrev=null;   // [RESTART_KEEP_REC]   // [RESTART_IN_PLACE] _S0 = 미개봉 초기 판(ORDER_OWNER) try{ _pkUndo(''); }catch(e){} _seenK={}; _doneSaved=false;
     try{ sessionStorage.setItem('me_order_gen', String(Date.now())); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
     buildSteps(); for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k==='pick'){ idx=i; break; } }
     _pkMsg='고른 것을 모두 비웠어요'; opSync(); try{ _dirtyMark(); }catch(e){}

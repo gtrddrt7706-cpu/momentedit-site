@@ -71,6 +71,11 @@ for (const [tag, viewport] of [['390 (폰)', { width: 390, height: 844 }], ['128
   /* ② 순간마다 다른 파일 · 실존 */
   const KEYS = 'guest entry welcome vow ringwarm ring declare valley toast song letter tribute bless _close'.split(' ');
   const got = await page.evaluate((ks) => {
+    /* ★[AUDIO_CHECK_COURSE 2026-09-27 점검] ②도 ③과 같은 코스(엔진 코스 첫째)로 잰다.
+       기본값이 새 코스('open')로 바뀐 뒤로(#838~) ②는 엔진 큐가 하객 맞이 · 입장 · 닫기뿐인 코스를 재고 있었다 —
+       새 코스의 순간 소리는 엔진이 아니라 ② 하나씩 만들기(_lSteps · RitualOpen)가 내고, 그 길은 listen-page · rec-upload 가 실제 재생으로 본다.
+       그래서 «vow · toast · letter · tribute · bless 소리 없음»은 제품이 아니라 잰 자리가 틀린 빨강이었다(#908 · #909 · #910 모두 같은 값). */
+    S.course = Object.keys(COURSES)[0];
     const o = {};
     ks.forEach((k) => { o[k] = _srcs(window.ENG, k).map((x) => x.src); });
     o.__all = _srcs(window.ENG, null).map((x) => x.src);

@@ -13278,3 +13278,24 @@ chk 'PHOTO_STEP1_TRIM' mypage.html 1
 nochk "'오신 분들 모두 · 늘 첫 컷이에요'" mypage.html
 chk 'PHOTO_ORDER_LABEL' mypage.html 1
 chk 'class="ph-ordlab">찍는 순서' mypage.html 1
+# [2026-09-27 사장님 «직접 보면서 점검 · 시뮬레이션 돌려 봐»] #910 병합 뒤 점검 — 무작위 시뮬(ritual-fuzz) · 390/1280 실렌더로 찾은 것
+chk 'RIT_FUZZ' scripts/audit/ritual-fuzz.mjs 1
+chk 'GL_ID_ONE' order-preview.html 3                     # 같은 그림 두 벌 → SVG 그라디언트 id 겹침(접힌 쪽이 먼저면 보이는 선이 안 칠해진다)
+nochk 'radialGradient id="mglow"' order-preview.html
+chk 'circle.mglow{display:none}' order-preview.html 1
+chk 'REF_PV_INTRO' order-preview.html 1                  # 칩 미리보기 — 인사말 · 짧은 자기소개를 걷고 예시끼리 가르는 마디를
+chk 'REF_PV_WHO' order-preview.html 1                    # 글이 같은 예시(성혼 선언 가족 낭독)는 «누가 읽나»
+chk 'TODO_ROWS' order-preview.html 3                     # «미완료 N» = 한눈에 보기의 줄 수(칸 수 아님)
+chk 'BRING_NOTE_WHO' order-preview.html 1                # 챙길 것 꼬리는 목록 아래 · 무엇에 대한 말인지 이름과 함께
+chk 'RESTART_KEEP_REC' order-preview.html 2              # 다시 만들기는 올린 두 분 목소리 녹음을 남긴다 · 확인 창이 그렇게 말한다
+chk 'RESTART_KEEP_REC' scripts/audit/rec-upload.mjs 2
+chk "'곧':(d.getMonth()" mypage.html 1                   # [REC_KEEP] 30일째 당일은 «곧 지워져요»
+chk 'AUDIO_CHECK_COURSE' scripts/audit/order-audio-check.mjs 1   # ② 도 ③ 과 같은 엔진 코스로 잰다(새 코스 기본값 뒤로 #902~#910 내내 잘못 붉었다)
+# [RIT_FUZZ] 식순 만들기 무작위 조작 — 게이트에선 390 한 판(60걸음)만 · 크게 돌릴 땐 RUNS=10 STEPS=120 FOCUS=1 W=360,390,1280
+if command -v node >/dev/null 2>&1; then W=390 RUNS=1 STEPS=60 FOCUS=1 node scripts/audit/ritual-fuzz.mjs >/dev/null 2>&1; _rz=$?
+  case "$_rz" in
+    0) echo 'ok ritual-fuzz: pageerror · undefined/NaN · 줄표 · 가로 넘침 · 무드 이름 · id 겹침 · 이름 없는 단추 0' ;;
+    1) echo 'FAIL ritual-fuzz: 식순 무작위 조작에서 빨간 줄 — W=390 RUNS=1 STEPS=60 FOCUS=1 node scripts/audit/ritual-fuzz.mjs'; fail=1 ;;
+    *) echo 'ok ritual-fuzz: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 화면 결함이 아닙니다' ;;
+  esac
+fi

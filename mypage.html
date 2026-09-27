@@ -6638,7 +6638,7 @@ var RF_KEEP_LAB={g0:'하객 입장 때',g1:'시작 10분 전',g2:'시작 5분 �
 function _rfKeepList(rd){ var up=(rd&&rd.S&&rd.S.up)||{}; return Object.keys(up).filter(function(k){ var v=up[k]; return v&&typeof v==='object'&&v.id&&!/^local:/.test(v.id); }).map(function(k){ return {key:k,id:up[k].id,n:up[k].n||''}; }); }
 function _rfKeepNote(rd, base){ var L=_rfKeepList(rd); if(!L.length) return ''; var dl=null; try{ dl=_kstDdayOf(base&&base.weddingDate); }catch(e){} if(dl==null||dl>-7||dl<-30) return '';
   var m=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return ''; var d=new Date(+m[1],+m[2]-1,+m[3]+30);
-  return '<div class="rf-keep" style="margin:10px 0 4px;font-size:13px;color:var(--sub);line-height:1.7">두 분 목소리 파일은 '+(d.getMonth()+1)+'월 '+d.getDate()+'일에 지워져요 · 간직하려면 내려받으세요 '
+  return '<div class="rf-keep" style="margin:10px 0 4px;font-size:13px;color:var(--sub);line-height:1.7">두 분 목소리 파일은 '+(dl<=-30?'곧':(d.getMonth()+1)+'월 '+d.getDate()+'일에')+' 지워져요 · 간직하려면 내려받으세요 '
     +'<button type="button" class="cc-btn-ghost" data-fk="rfkeep" style="margin-left:6px" onclick="rfKeepDown(this)">내려받기</button></div>'; }
 window.rfKeepDown=function(btn){ var p=window._lastProd||{}, L=_rfKeepList(p.ritualDraft); if(!L.length) return; btn.disabled=true; btn.textContent='받는 중…'; var i=0;
   (function nx(){ var it=L[i++]; if(!it){ btn.disabled=false; btn.textContent='내려받기'; return; }
