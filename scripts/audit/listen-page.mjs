@@ -70,7 +70,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 에 걸음 표시(① 고르기가 지금)`, await pg.evaluate(() => { const o = document.querySelector('.op-steps li.on'); return !!o && /고르기/.test(o.textContent); }));
   /* [PICK_V2 2026-09-26 코워크 최종판 3장] ① 은 예시 → 감동 흐름 → 네 막 칸 → 아래 막대. 판 칩 · 카드 · 자동 재생 영상은 없다. */
   ok(`${w} ① 칸에 판 칩이 없다(② 로 옮김)`, await pg.evaluate(() => document.querySelectorAll('.pk .op-chip').length === 0));
-  ok(`${w} ① 칸 열셋 · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 13 && t.every((c) => c.querySelector('.pk-media')); }));
+  ok(`${w} ① 칸 열넷(케이크 커팅 · 축배 따로 · CAKE_TOAST_SPLIT) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 14 && t.every((c) => c.querySelector('.pk-media')); }));
   ok(`${w} ① 빈 채 아래 막대는 숫자 없이 «예시로 시작하거나 …» [BAR_SUM]`, await pg.evaluate(() => { const c = document.getElementById('opCta'); return !!c && /예시로 시작하거나 아래에서 담아 보세요/.test(c.textContent) && !/\d/.test(c.textContent); }));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
@@ -246,10 +246,10 @@ for (const w of [390, 1280]) {
   /* ★[GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 꽃 — ② 칩(담았을 때만 · 큰절이면 꽃 없음) · 맡기면 ③ 「저희가 준비해요 · 별도 비용」 · 초안에 실림 */
   const gd = await pg.evaluate(() => {
     const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};
-    out.chips = _lGroups('toast').map((g) => g.key).concat(_lGroups('tribute').map((g) => g.key));
+    out.chips = _lGroups('cake').map((g) => g.key).concat(_lGroups('tribute').map((g) => g.key));   // [CAKE_TOAST_SPLIT] 케이크 준비는 케이크 쪽
     S.cakeBy = 'studio'; S.flowerBy = 'studio'; out.w = _mkSum(); out.sm = _ordPayload(false).summary.goods; out.bring = R.prepList(S).filter((q) => q.cat === 'bring').map((q) => q.what).join('|');
     S.tribute = 'bowGroom'; out.bow = _lGroups('tribute').map((g) => g.key); out.bowGoods = R.goodsOf(S).map((g) => g.what);
-    S.toast = 'toast'; out.toastOnly = R.goodsOf(S).length;
+    delete S.on.cake; S.on.toast = 1; S.toast = R.toastMode(S); out.toastOnly = R.goodsOf(S).filter((g) => g.key === 'cakeBy').length;   // [CAKE_TOAST_SPLIT] 축배만 = 케이크 칸을 뺀 것
     S = keep; Object.keys(T).forEach((k) => { S[k] = T[k]; }); delete S.cakeBy; delete S.flowerBy;
     return out;
   });
@@ -530,9 +530,9 @@ else {
   const { ctx, pg, errs } = await open(390, { videos: NAMES });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};
-    for (const [t, w] of [['cake', 'none'], ['toast', 'none'], ['both', 'none']]) { S.toast = t; S.wine = w; if (!RitualOpen.onOf(S, 'toast')) { S.on.toast = 1; opSync(); } mkGo('toast'); render(); out[t] = nm(); }
+    for (const [t, pg2] of [['cake', 'cake'], ['toast', 'toast'], ['both', 'cake'], ['both2', 'toast']]) { if (t === 'cake') { S.on.cake = 1; delete S.on.toast; } else if (t === 'toast') { delete S.on.cake; S.on.toast = 1; } else { S.on.cake = 1; S.on.toast = 1; } opSync(); mkGo(pg2); render(); out[t] = nm(); }   // [CAKE_TOAST_SPLIT] 쪽마다 제 영상
     return out; });
-  ok('11-1 ② 케이크 · 축배 쪽 영상 = 고른 판(케이크만 cake · 축배만 toast · 케이크와 축배 cake) [MK_VID_CHIP]', v.cake === 'cake' && v.toast === 'toast' && v.both === 'cake', JSON.stringify(v));
+  ok('11-1 ② 케이크 커팅 쪽 영상 = cake · 축배 쪽 영상 = toast(둘 다 담아도 쪽마다 제 영상) [MK_VID_CHIP · CAKE_TOAST_SPLIT]', v.cake === 'cake' && v.toast === 'toast' && v.both === 'cake' && v.both2 === 'toast', JSON.stringify(v));
   ok('11-1 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }

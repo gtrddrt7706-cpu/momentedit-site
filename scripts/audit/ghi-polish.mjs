@@ -68,8 +68,8 @@ for (const w of [390, 1280]) {
   const g5 = await pg.evaluate(() => {
     const R = RitualOpen, keep = JSON.parse(JSON.stringify(S)), bad = [], seen = {};
     R.EXAMPLES.forEach((ex) => { ['both', 'toast', 'cake'].forEach((t) => { ['mix', 'family', 'none'].forEach((wn) => {
-      R.applyExample(S, ex.k); R.setChip(S, 'toast', t); R.setChip(S, 'wine', wn);
-      const st = _lSteps(ENG, ['toast']), i = st.findIndex((x) => x.talk && /위하여/.test(x.txt));
+      R.applyExample(S, ex.k); if (t === 'cake') { S.on.cake = 1; delete S.on.toast; } else if (t === 'toast') { delete S.on.cake; S.on.toast = 1; } else { S.on.cake = 1; S.on.toast = 1; } S.toast = R.toastMode(S); R.setChip(S, 'wine', wn);   // [CAKE_TOAST_SPLIT] 판 = 담은 두 칸
+      const st = _lSteps(ENG, ['cake', 'toast'].filter((x) => R.onOf(S, x))) /* 담은 칸만(빼 둔 순간은 미리 듣기로 불린다) */, i = st.findIndex((x) => x.talk && /위하여/.test(x.txt));
       const glass = st.findIndex((x) => LS_GLASS[x.slug]), pour = st.findIndex((x) => /^toast-pour-/.test(x.slug || '')), cut = st.findIndex((x) => x.slug === 'toast-both');
       const q = st.filter((x) => x.quiet);
       const k = ex.k + '/' + t + '/' + wn;
