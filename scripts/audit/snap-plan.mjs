@@ -71,8 +71,9 @@ const times = (s) => s.split(',').map((x) => x.replace(/['\s]/g, ''));
 const addMin = (hm, n) => { const [h, m] = hm.split(':').map(Number); const v = h * 60 + m + n; return String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0'); };
 t(+ar[1] === R.arrive, `도착 분 = 진행표(${ar[1]}분) — 목록 ${R.arrive}`);
 t(+sn[1] === R.total, `단독 스냅 분 = 진행표(${sn[1]}분) — 목록 합계 ${R.total}`);
-const dm = sn[3].match(/캔들존 (\d+)분 · 이동 (\d+)분 · 화이트존 (\d+)분 · 입장 준비 (\d+)분/);
-t(!!dm && +dm[1] === R.zones[0].min && +dm[2] === R.move && +dm[3] === R.zones[1].min && +dm[4] === R.prep, `공간별 분 = 진행표 설명(${dm ? dm.slice(1).join('·') : '못 읽음'}) — 목록 ${R.zones[0].min}·${R.move}·${R.zones[1].min}·${R.prep}`);
+// [SNAP_55_DAY 2026-09-27 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 진행표 설명은 두 공간을 합친 촬영 분 + 입장 준비 분만 말한다
+const dm = sn[3].match(/캔들존 · 화이트존 촬영 (\d+)분 · 입장 준비 (\d+)분/);
+t(!!dm && +dm[1] === R.zones[0].min + R.move + R.zones[1].min && +dm[2] === R.prep, `공간별 분 = 진행표 설명(${dm ? dm.slice(1).join('·') : '못 읽음'}) — 목록 ${R.zones[0].min}+${R.move}+${R.zones[1].min}·${R.prep}`);
 const arT = times(ar[2]), snT = times(sn[2]);
 t(arT.every((a, i) => addMin(a, R.arrive) === snT[i]), `스냅 시작 = 도착 + ${R.arrive}분(브리프 계산식) — 진행표 ${snT.join(',')}`);
 const slot = gs.match(/\(\{ '(\d\d:\d\d)': '\d\d:\d\d', '(\d\d:\d\d)': '\d\d:\d\d', '(\d\d:\d\d)': '\d\d:\d\d' \}\)\[String\(_ci\./);
