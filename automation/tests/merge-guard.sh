@@ -512,6 +512,28 @@ chk 'id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align
 chk '.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif-ko);' mypage.html 1
 chk 'SEL_ONE' .claude/skills/momentedit-design/SKILL.md 1
 chk 'NOTE_DOT' .claude/skills/momentedit-design/SKILL.md 1
+# ★[WZ_STEPS_DOTS · WZ_STEPS_TAG · FOLD_CHEVRON · X_ONE · TOAST_ONE · MODAL_R12 · NO_BOUNCE · OPT_TAG 2026-09-27 사장님 «일관성»] 작은 부품 한 벌
+chk '.dots .dot.done{width:6px;height:6px;background:var(--gold)}' mypage.html 1
+chk "_ivStepTag=WZ_CIRC\[_ivI\]+' '+_invStepNames(inv.draft)\[_ivI\]" mypage.html 1
+nochk "_ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT" mypage.html 0
+chk 'FOLD_CHEVRON' mypage.html 5
+nochk 'class="pt-ar">▾' mypage.html 0
+nochk "(detOpen?' ▴':' ▾')" mypage.html 0
+nochk "'접기 ▴':'펼치기 ▾'" mypage.html 0
+chk 'data-seat-selclose aria-label="닫기">✕</button>' mypage.html 1
+chk '.dn-fav .x{position:absolute;top:-1px;right:-1px;width:44px;height:44px;' mypage.html 1
+chk 'TOAST_ONE' mypage.html 1
+nochk 'background:rgba(58,47,37,.92)' mypage.html 0
+chk 'MODAL_R12' mypage.html 2
+nochk '.mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-radius:6px' mypage.html 0
+chk 'animation:tdFade' mypage.html 1
+nochk 'tdBounce 1' mypage.html 0
+nochk 'translateY(-4px)}}' mypage.html 0
+chk 'OPT_TAG' mypage.html 1
+chk 'class="opt-tag">· 선택</span>' mypage.html 3
+nochk '<span style="color:var(--label-soft);font-weight:400">· 선택</span>' mypage.html 0
+chk "b.className='rev-chip'; b.setAttribute('aria-pressed','false');" mypage.html 1
+nochk "b.style.background=sel\[c\]?'var(--gold-deep" mypage.html 0
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]

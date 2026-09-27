@@ -240,7 +240,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .dots{display:flex;justify-content:space-between;align-items:center;padding:0 4px;gap:5px}
 .dots .dot{flex:none;border-radius:50%;background:var(--bg);transition:all .4s var(--ease)}
 .dots .dot.future{width:6px;height:6px;border:1px solid var(--dot-future)}
-.dots .dot.done{width:6px;height:6px;background:var(--seal)}
+.dots .dot.done{width:6px;height:6px;background:var(--gold)}   /* ★[WZ_STEPS_DOTS 2026-09-27 사장님 «일관성»] 지나온 = 금빛 · 지금 = 진사 — 입력 화면 진행 표시([WZ_STEPS])와 같은 말. 종전엔 지나온 점 여섯이 전부 진사라 «지금»이 묻혔다 */
 .dots .dot.current{width:9px;height:9px;background:var(--seal);box-shadow:0 0 0 4px rgba(107,42,36,0.1)}
 /* 제작 편집 플로우 전체화면 — 청첩장·다이닝/최종확정·좌석·단체사진 편집 시 mp_production을 풀스크린으로 덮어 집중(식순 빌더와 같은 결 · 2026-07-19). z-index 950=페이지 위·모달(1000) 아래(저장실패 확인창이 위에 뜨게) */
 .mp-fs{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 48px;margin:0!important;animation:mpfsin .22s var(--ease,ease);display:flex!important;flex-direction:column}
@@ -279,13 +279,16 @@ body.mp-fs-on .me-fab-stack{z-index:960}
 .codecard .copy svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6}
 .past-toggle{display:block;width:100%;margin:2px 0 22px;padding:11px 0;background:transparent;border:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-family:var(--serif-ko);font-size:13px;color:var(--light);letter-spacing:.02em;cursor:pointer;transition:color .2s}
 .past-toggle:hover{color:var(--gold-deep)}
-.past-toggle .pt-ar{font-size:10px;margin-left:3px}
+/* ★[FOLD_CHEVRON 2026-09-27 사장님 «일관성»] 펼침 표시 한 벌 = 가는 꺾쇠(6px · 1px 선 · 열리면 위로) — 식순 준비물(.rit-prep) · 가족·친구 스냅 «더 보기»(.cc-more)가 이미 쓰는 모양.
+     종전 ▾ · ▴ 글자는 글꼴마다 크기 · 굵기가 달라(명조 · 고딕 · 기기 기본) 같은 뜻이 세 모양으로 섰다. 글자로 되돌리지 말 것. */
+.pt-ar{display:inline-block;width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 7px;vertical-align:middle;font-size:0;line-height:0;flex:none;transition:transform .2s var(--ease)}
+.pt-ar.up,.past-toggle.open .pt-ar,[aria-expanded="true"]>.pt-ar,[aria-expanded="true"] .c>.pt-ar{transform:rotate(-135deg);margin-top:3px}
 /* 잔금 아코디언을 '계약 정보 보기'와 동일한 얇은 줄 토글로 통일 */
 summary.past-toggle{list-style:none;text-align:center}
 summary.past-toggle::-webkit-details-marker{display:none}
 details.acc{margin-bottom:22px}
 details.acc>summary.past-toggle{margin:2px 0 0}
-details.acc[open]>summary.past-toggle .pt-ar{display:inline-block;transform:rotate(180deg)}
+details.acc[open]>summary.past-toggle .pt-ar{transform:rotate(-135deg);margin-top:3px}   /* [FOLD_CHEVRON] */
 details.acc>.consult-card{margin-top:10px}
 .visit-guide{text-align:left;margin-top:14px;border-top:1px solid var(--hairline);padding-top:4px}
 .vg-title{font-family:var(--serif-ko);font-size:12px;font-weight:400;letter-spacing:.08em;text-transform:none;color:var(--gold-deep);margin:10px 0 2px}   /* [VG_TITLE_KO 2026-09-26 마이페이지 점검 pre-10·snap-12] 「방문 전 안내」가 영문 눈썹 규칙(Cormorant 10px · 0.2em · 대문자)을 그대로 받아 「방 문 전 안 내」로 흩어지고 바로 아래 행 이름(12px)보다 작았다 — 한글에 라틴 서체 규칙 금지(디자인 스킬 · 한글 소라벨 12px · 0.08em). 가운데 변형(.vg-center .vg-title)과 같은 값. 사용처는 한글 제목 둘뿐이라 영문용 변형은 두지 않는다 */
@@ -624,7 +627,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-zone figcaption .en{font-family:var(--serif);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
 .snp-sub{display:flex;align-items:baseline;gap:8px;margin:22px 0 0;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent)}
 .snp-cnt{font-family:var(--sans);font-size:12.5px;font-weight:500;font-variant-numeric:lining-nums tabular-nums;color:var(--gold-deep)}   /* [SNAP_NUM_GOTHIC] Cormorant 옛 숫자(0 이 o 처럼) → 고딕 같은 폭 숫자 */
-.snp-opt{font-size:12px;font-weight:400;color:var(--label-soft)}
+.snp-opt,.opt-tag{font-size:12px;font-weight:400;color:var(--label-soft);letter-spacing:0}   /* ★[OPT_TAG 2026-09-27 사장님 «일관성»] «· 선택» 한 벌 — 스냅 12px · 가족·친구 스냅 14px(제목 크기 그대로) · 후기 11px(점 없이 «선택»)로 셋이었다 */
 .snp-note{margin:4px 0 0;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all}
 .snp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 0}
 @media (min-width:600px){ .snp-grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
@@ -937,8 +940,7 @@ details.res-fold>summary::-webkit-details-marker{display:none}
 details.res-fold[open]>summary{margin-bottom:11px;min-height:0}
 details.res-fold[open]>summary::after{content:'';position:absolute;inset:-10px 0}   /* [FOLD_TAP44 2026-09-26 검토] 펼친 뒤 제목 줄은 25px 라 닫으려고 누르는 자리가 44px 아래였다 — 보이는 자리는 그대로 두고 누르는 자리만 45px(TRK_TAP44 와 같은 방식 · 위 16px 여백·아래 11px 간격 안) */
 .res-fold-s{margin-left:auto;font-size:12px;font-weight:400;color:var(--label-soft);white-space:nowrap}
-.res-fold-s .pt-ar{display:inline-block;font-size:10px;margin-left:4px}
-details.res-fold[open] .res-fold-s .pt-ar{transform:rotate(180deg)}
+details.res-fold[open] .res-fold-s .pt-ar{transform:rotate(-135deg);margin-top:3px}   /* [FOLD_CHEVRON] */
 details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가 같은 단가를 말한다 — 두 번 말하지 않는다 */
 /* [RETOUCH_DUE_CONTRACT] 기간 칸의 기준점(«예식 후»·«촬영 후») — 작은 윗줄 · 기간(«약 4주»)이 주인공.
    칸이 좁아진 만큼 설명 칸이 넓어져 «…가장 / 먼저»처럼 한 낱말만 떨어지던 것을 균형 줄바꿈으로 막는다(390 실측). */
@@ -968,7 +970,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .srv-block:first-of-type{margin-top:16px}
 .srv-q2{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);margin:0 0 10px;line-height:1.55}
 .srv-req{color:var(--gold-deep,#7A5F37);margin-left:3px;font-weight:600}   /* 필수 별표 — 연한 골드는 베이지 위에서 거의 안 보였다 */
-.srv-opt-tag{font-size:11px;color:var(--label-soft);font-weight:400;margin-left:4px}
+.srv-opt-tag{margin-left:4px}   /* 모양은 [OPT_TAG] .opt-tag */
 .srv-opts{display:flex;flex-wrap:wrap;gap:8px}
 .srv-miss-note{font-family:var(--serif-ko);font-size:12px;color:var(--seal,#6B2A24);margin:2px 0 6px}   /* [SV_MISS_AT] */
 /* [SV_NOTE_UI] 기타 의견 — 보기 칩 아래 덧붙이는 칸. 칩과 같은 무게로 보이면 «네 번째 보기»로 읽히므로
@@ -1031,7 +1033,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .dn-fav .m{font-family:var(--serif-ko);font-size:12px;font-weight:300;color:var(--sub);margin-top:2px;overflow-wrap:anywhere}
 .dn-fav .a{display:flex;gap:12px;margin-top:6px}
 .dn-fav .a a{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37);text-decoration:none}
-.dn-fav .x{position:absolute;top:8px;right:8px;width:26px;height:26px;border:none;background:none;color:var(--light);font-size:13px;cursor:pointer;padding:0}
+.dn-fav .x{position:absolute;top:-1px;right:-1px;width:44px;height:44px;border:none;background:none;color:var(--light);font-size:13px;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}   /* ★[X_ONE 2026-09-27] 누르는 칸 26 → 44px(보이는 ✕ 자리는 그대로 — 가운데가 종전 26px 칸의 가운데와 같다) */
 .dn-favshare{display:block;width:100%;margin-top:2px}
 .dn-agg{padding-bottom:12px}
 /* .dn-agg.rep → [SEL_ONE] */
@@ -1233,9 +1235,9 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 .dn-dots::after{content:'';display:inline-block;width:18px;text-align:left;animation:dnDots 1.2s steps(4,end) infinite}
 @keyframes dnDots{0%{content:''}25%{content:'·'}50%{content:'··'}75%{content:'···'}}
 .dnc-typing{align-self:flex-start;padding:13px 16px}
-.dnc-typing .td{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--label-soft,#6F695D);margin:0 2.5px;vertical-align:middle;animation:tdBounce 1.3s infinite ease-in-out}
+.dnc-typing .td{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--label-soft,#6F695D);margin:0 2.5px;vertical-align:middle;animation:tdFade 1.3s infinite ease-in-out}   /* ★[NO_BOUNCE 2026-09-27] 위아래로 뛰던 점(tdBounce · 4px) → 밝기만 숨쉰다 — 「튀는 모션 금지」(momentedit-design) · 마이페이지 다른 기다림 표시(진사 숨쉬는 점)와 같은 결 */
 .dnc-typing .td:nth-child(2){animation-delay:.18s}.dnc-typing .td:nth-child(3){animation-delay:.36s}
-@keyframes tdBounce{0%,70%,100%{opacity:.35;transform:translateY(0)}35%{opacity:1;transform:translateY(-4px)}}
+@keyframes tdFade{0%,70%,100%{opacity:.3}35%{opacity:1}}
 .dnc-cue{align-self:center;max-width:100%;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37);text-align:center;line-height:1.55;padding:2px 6px 0}
 .dnc-cue .ar{display:inline-block;animation:dnCueAr 1.4s ease-in-out infinite}
 @keyframes dnCueAr{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
@@ -1287,7 +1289,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 /* 예시·전체 청첩장 창모드 뷰어 — preview.html 프레임 톤을 페이지 안 모달로(새탭 이동 대체) */
 .pv-modal{position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(40,32,24,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .pv-modal.open{display:flex}
-.pv-modal-card{width:min(430px,94vw);max-height:88vh;display:flex;flex-direction:column;background:var(--bg2,#F5F3EF);border:1px solid var(--border);border-radius:14px;box-shadow:0 18px 60px rgba(28,27,25,.30);overflow:hidden;animation:mpPop .22s var(--ease,ease)}
+.pv-modal-card{width:min(430px,94vw);max-height:88vh;display:flex;flex-direction:column;background:var(--bg2,#F5F3EF);border:1px solid var(--border);border-radius:12px;box-shadow:0 18px 60px rgba(28,27,25,.30);overflow:hidden;animation:mpPop .22s var(--ease,ease)}
 .pv-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px 11px;border-bottom:1px solid var(--hairline,#E6E1D8)}
 .pv-modal-cap{font-family:var(--serif-ko);font-size:13px;color:var(--accent);letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pv-modal-x{flex-shrink:0;border:none;background:none;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;padding:6px 2px 6px 10px;-webkit-tap-highlight-color:transparent}
@@ -1320,7 +1322,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 .done-fold summary{list-style:none;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--sub);padding:12px 2px}
 .done-fold summary::-webkit-details-marker{display:none}
 .done-fold summary::marker{content:none}   /* 브라우저 기본 ▶ 마커 제거(표준 속성 — list-style만으론 일부 브라우저에 남음 · 2026-07-17 사용자 지적) */
-.done-fold[open] summary .pt-ar{transform:rotate(180deg);display:inline-block}
+.done-fold[open] summary .pt-ar{transform:rotate(-135deg);margin-top:3px}   /* [FOLD_CHEVRON] */
 .done-fold-b{padding:2px 2px 14px;text-align:left}
 .done-qr-nm{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent)}
 .done-qr-sub{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);margin:3px 0 13px}
@@ -1549,7 +1551,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
     .seat-drinkbar{position:fixed;top:0;left:0;right:0;bottom:var(--kbd,0px);margin:auto;transform:none;z-index:955;display:block;
       width:min(360px,calc(100vw - 32px));height:fit-content;max-height:calc(100% - 24px);overflow-y:auto;max-width:none;
       padding:16px 16px calc(14px + env(safe-area-inset-bottom));
-      background:#fff;border:0;border-radius:16px;box-shadow:0 18px 48px rgba(58,45,34,.22)}
+      background:#fff;border:0;border-radius:12px;box-shadow:0 18px 48px rgba(58,45,34,.22)}   /* [MODAL_R12] */
     /* 뒤를 덮는 어둠 — 별도 마크업 없이 이 상자가 스스로 깐다(::before 가 상자의 쌓임 안에서 뒤로 간다) */
     /* ★어둠은 **보여 주기만** 하고 막지 않는다(pointer-events:none).
        막으면 다른 자리를 바로 못 누른다 — 25명을 연달아 채우는 화면이라 자리→자리로 건너뛰는 흐름이
@@ -1803,7 +1805,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
        문구는 하는 일에 따라 '불러오는 중…' / '저장 중…'. */
     .flow-busy-spin{width:9px;height:9px;background:var(--seal);border-radius:50%;animation:meBreath 1.7s ease-in-out infinite;flex:0 0 auto}
     .mp-modal.open{display:flex}
-    .mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-radius:6px;max-width:344px;width:100%;padding:26px 22px 18px;box-shadow:0 14px 44px rgba(40,28,16,0.20);text-align:center;animation:mpPop .22s var(--ease,ease);max-height:88vh;overflow-y:auto}
+    .mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-radius:12px;max-width:344px;width:100%;padding:26px 22px 18px;box-shadow:0 14px 44px rgba(40,28,16,0.20);text-align:center;animation:mpPop .22s var(--ease,ease);max-height:88vh;overflow-y:auto}
     .mp-modal-title{font-family:var(--serif-ko,serif);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.5;margin-bottom:8px;word-break:keep-all;position:sticky;top:-26px;z-index:1;background:var(--bg,#FAFAF8);padding:26px 0 10px;margin-top:-26px}/* ★★[MODAL_TITLE_STICKY 2026-09-21 사장님 지적 「스크롤이있는지몰라서 몰랐네」] 되돌리지 말 것.
    [MODAL_ACT_STICKY] 로 버튼은 바닥에 고정했는데, 스크롤을 내리면 **제목이 통째로 사라졌다** —
    「계약서 서명」이 화면 밖으로 나가 «여기가 어디인지»를 잃는다(사장님 두 번째 캡처가 그 상태다).
@@ -1843,6 +1845,8 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
     .mp-sig-hint{font-size:11px;color:var(--light,#6E6959);margin-top:6px}
     @keyframes mpPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
     @media(prefers-reduced-motion:reduce){.mp-modal-card{animation:none}}
+    /* ★[MODAL_R12 2026-09-27 사장님 «일관성»] 창(겹쳐 뜨는 카드) 모서리 한 벌 = 12px — 확인 창 6 · 미리보기 14 · 음료 창 · 계약서 보기 16 으로 네 가지였다.
+       12 = 모서리 램프의 가장 큰 값([SCALE_RADIUS6]) · 식순 빌더 창과 같은 값. 화면 카드(8)보다 한 단 둥글어 «위에 뜬 것»으로 읽힌다. */
     /* 내 내역 모달 — 우측 FAB로 여는 창(좌측 정렬·넓게·닫기 버튼) */
     .led-modal-card{max-width:480px;min-height:min(640px,82vh);text-align:left;padding:34px 28px 24px;position:relative;display:flex;flex-direction:column}
     .led-modal-card .led-sec{margin-bottom:26px}
@@ -1907,7 +1911,8 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
      칩(짧은 글 한 줄)은 굵게(600) · 카드(안에 글이 여러 줄)는 굵기를 그대로 둔다(카드 안 위계를 지키려고) · 사진 칸은 테만.
    ★진사는 칠하지 않는다 — 고른 순서 번호 · ✓ 원 · «여기로 예약» 꼬리표 · 라디오 점 같은 «점»에만 남는다([SNAP_TONE] · 넓은 면 금지).
    달력의 고른 날(.dt-day.selected)은 달력 관례대로 칠한 채 둔다(칸이 작아 테로는 안 보인다). 새 선택 칸도 이 한 벌을 쓴다. */
-.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on{border-color:var(--gold-deep);border-style:solid;box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}
+.rev-chip{min-height:44px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:var(--card-white);font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent}   /* 보정 요청 칩 — 인라인 스타일에서 뺐다(44px 누름 칸) */
+.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on,.rev-chip.on{border-color:var(--gold-deep);border-style:solid;box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}
 .dn-segbtn.on{box-shadow:inset 0 0 0 2px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}   /* 붙은 칩은 칸 사이 선을 나눠 쓰니 테를 안쪽 2px 로 */
 .inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg)}
 .wed-slot.sel .ws-t{color:var(--accent);font-weight:600}
@@ -2414,7 +2419,9 @@ function _toastOverBar(t){ try{
   for(var i=bs.length-1;i>=0;i--){ var r=bs[i].getBoundingClientRect();
     if(r.height && r.top<innerHeight && r.bottom>0 && r.top<tr.bottom && r.bottom>tr.top){ t.style.bottom=Math.max(34, Math.round(innerHeight-r.top+12))+'px'; return; } }
 }catch(e){} }
-function _miniToast(msg){ try{ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,47,37,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:10px 18px;border-radius:999px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center;pointer-events:none'; document.body.appendChild(t);
+/* ★[TOAST_ONE 2026-09-27 사장님 «일관성»] 알림 한 벌 — mpToast · 되돌리기 알림(.ph-undo)과 같은 색(rgba 58,45,34) · 모서리 22 · 여백 11/22 · 낭독(role=status).
+     종전엔 이것만 알약(999) · 다른 갈색 · 좁은 여백이라 좌석 화면 알림이 다른 앱처럼 보였고, 화면 읽기 프로그램은 읽지 않았다. */
+function _miniToast(msg){ try{ var t=document.createElement('div'); t.textContent=msg; t.setAttribute('role','status'); t.setAttribute('aria-live','polite'); t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,45,34,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 22px;border-radius:22px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center;pointer-events:none'; document.body.appendChild(t);
   _toastOverBar(t);   // [TOAST_OVER_BAR]
   /* [TOAST_STUCK] mpToast 와 같은 처방 — 숨김은 '보인 순간'에 건다(경위는 mpToast 주석).
      여기는 매번 새 요소라 마지막에 제거까지 한다. 절대 시한도 함께 둔다. */
@@ -3814,7 +3821,7 @@ function openInviteSamples(){
   /* [SAMPLE_FOOT 2026-08-04] 실기기에서 판 아래 좌우 모서리가 잘렸다(사용자 제보) — 판 높이가
      화면 아래 안전영역(홈 인디케이터)까지 먹고 있었다. 그만큼 빼서 둥근 모서리가 항상 화면 안에 있게 한다.
      안전영역을 판 높이에서 빼므로 아래 안내 줄은 더 이상 안전영역을 따로 더할 필요가 없다. */
-  box.style.cssText='width:100%;max-width:430px;margin:auto;height:calc(100vh - 24px);height:calc(100dvh - 24px - env(safe-area-inset-bottom,0px));max-height:1040px;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';   /* [SAMPLE_TOPCUT] dvh 미지원 브라우저는 위 vh 줄이 남는다 */
+  box.style.cssText='width:100%;max-width:430px;margin:auto;height:calc(100vh - 24px);height:calc(100dvh - 24px - env(safe-area-inset-bottom,0px));max-height:1040px;background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(28,27,25,.35)';   /* [SAMPLE_TOPCUT] dvh 미지원 브라우저는 위 vh 줄이 남는다 */
   var bar=document.createElement('div');
   bar.style.cssText='flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:9px 12px 9px 16px;border-bottom:1px solid var(--border,#DDD8D1)';   /* [SAMPLE_TALL] 눈썹+제목 2줄 → 한 줄 */
   var ttl=document.createElement('div'); ttl.innerHTML='<span style="font-family:var(--serif-ko);font-size:14px;color:var(--accent)">청첩장 샘플</span><span style="font-family:var(--serif);font-style:italic;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep,#7A5F37);margin-left:9px">Samples</span>';
@@ -5326,7 +5333,7 @@ function renderMid(p, bal){
   if(p.status==='완료신호' || near || forceCombo){
     box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Interim</div>'+body+'<div class="cc-actions">'+cta+'</div></div>';
   } else {
-    box.innerHTML='<details class="acc"><summary class="past-toggle">중도금 결제 안내 <span class="pt-ar">▾</span></summary>'
+    box.innerHTML='<details class="acc"><summary class="past-toggle">중도금 결제 안내 <span class="pt-ar" aria-hidden="true"></span></summary>'
       +'<div class="consult-card"><div class="cc-eyebrow en-22">Interim</div>'+body+'<div class="cc-actions">'+cta+'</div></div></details>';
   }
   box.style.display='block';
@@ -5773,7 +5780,7 @@ function _extraPanelHtml(res){
        접힌 줄에 「③ 추가 보정·결제」 이름을 남긴다 — ④ 패널과 확인 모달이 «③ 추가 보정»을 가리킨다.
        신청·견적·결제대기는 위 갈래에서, 초과 선택은 여기서 지금처럼 펼친 채 그린다. 여닫기는 details 가 맡는다(스크립트·바인딩 없음 ·
        안의 수량·신청 버튼은 접혀 있어도 DOM 에 있어 _bindExtra 가 그대로 배선한다). */
-    if(!(over>0)) return '<details class="res-panel res-fold" id="mp_exFold"><summary class="res-panel-t">'+_exT+'<span class="res-fold-s"><span class="res-fold-p">컷당 '+fmtWon(unit)+'</span><span class="pt-ar" aria-hidden="true">▾</span></span></summary>'+body+'</details>';
+    if(!(over>0)) return '<details class="res-panel res-fold" id="mp_exFold"><summary class="res-panel-t">'+_exT+'<span class="res-fold-s"><span class="res-fold-p">컷당 '+fmtWon(unit)+'</span><span class="pt-ar" aria-hidden="true"></span></span></summary>'+body+'</details>';
     h+=body;
   }
   return h+'</div>';
@@ -5836,7 +5843,7 @@ function _surveyCardHtml(res, nm, code){
        + 위아래 여백 24px + 테두리 2px ≈ 118px — 120px 면 네 줄이 칸 안에 다 든다(320 네 줄 · 360·390 세 줄 · 1280 두 줄 실측). 글은 그대로다.
        (적어 넣는 글은 16px(41행 · 아이폰 확대 방지)·행간 26.4px 이라 세 줄을 넘기면 칸 안에서 스크롤된다 — 입력 칸의 보통 동작이다.)
        [RES_FIELD_NAME] 칸 이름은 바로 위 질문 — 안내 글은 쓰기 시작하면 사라지고, 화면 읽기는 그 안내 글을 이름으로 읽었다. */
-    +'<div class="srv-block"><div class="srv-q2" id="mp_svQ_review">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
+    +'<div class="srv-block"><div class="srv-q2" id="mp_svQ_review">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag opt-tag">· 선택</span></div>'
     +'<textarea class="cc-input" id="mp_svReview" aria-labelledby="mp_svQ_review" style="min-height:120px" maxlength="2000" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
     +'<label class="srv-consent"><input type="checkbox" id="mp_svPublic"> 이 후기를 소개에 써도 좋아요</label></div>'
     +'<div class="cc-mini" id="mp_svErr" style="color:var(--seal);display:none;margin:4px 0 0"></div>'   // [ERR_ONE 2026-09-27] 오류 = 진사(.wz-err · 문항 옆 .srv-miss-note 와 같은 색) — 금빛이라 안내 글처럼 읽혔다
@@ -5945,7 +5952,7 @@ function renderResult(res, nm, code){
     if(!_keepLine && _expDN==null && _eta(DOWNLOAD_KEEP)) _keepLine='<div class="cc-mini" style="margin-top:8px;color:var(--label-soft)">전달일부터 <b>'+escapeHtml(DOWNLOAD_KEEP)+'</b> 보관해요(만료 7일 전 안내).'+_calm+'</div>';   // [KEEP_SAY_ONCE] 전달일이 없는 판(구 서버)도 같은 규칙 — 후기가 끝나 NOW 가 «기기에도 옮겨 두세요»라 하면 «천천히»를 뺀다(종전엔 이 줄만 글자로 박혀 두 말이 함께 섰다)
     dl+=_keepLine;
     if(_expBanner) clp=false;   // MPD3_G5 만료 임박이면 받은 결과물 접힘 자동 펼침
-    var hd=_expBanner+'<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar">▾</span>':'받은 결과물 접기 <span class="pt-ar">▴</span>')+'</button>';
+    var hd=_expBanner+'<button type="button" class="past-toggle'+(clp?'':' open')+'" id="mp_delivToggle" style="margin:2px 0 0">'+(clp?'받은 결과물 보기 <span class="pt-ar" aria-hidden="true"></span>':'받은 결과물 접기 <span class="pt-ar" aria-hidden="true"></span>')+'</button>';
     hd+='<div class="deliv-body" id="mp_delivBody"'+(clp?' style="display:none"':'')+'>'+dl+'</div>';
     var inner='';
     if(ex.status==='신청'||ex.status==='견적'||ex.status==='결제대기') inner+=_extraPanelHtml(res);   // 전달 후에도 미완료 추가 보정은 마무리
@@ -5959,7 +5966,7 @@ function renderResult(res, nm, code){
     box.innerHTML=hd; box.style.display='block';   // 결과물 토글은 본계약서 보기 바로 밑(카드 없이), 설문만 카드로
     /* [RES_ARIA_STATE 2026-09-26] 받은 결과물 여닫이 — 펼침 상태와 여는 곳을 화면 읽기에도 알린다(종전 aria 없음 · 점검 L6). 보이는 글(접기/보기)은 종전대로 바뀐다. */
     var tg=$('mp_delivToggle'); if(tg){ tg.setAttribute('aria-controls','mp_delivBody'); tg.setAttribute('aria-expanded', clp?'false':'true'); }
-    if(tg) tg.addEventListener('click',function(){ var body=$('mp_delivBody'); var open=(body.style.display==='none'); body.style.display=open?'block':'none'; tg.classList.toggle('open',open); tg.setAttribute('aria-expanded', open?'true':'false'); tg.innerHTML=(open?'받은 결과물 접기 ':'받은 결과물 보기 ')+'<span class="pt-ar">'+(open?'▴':'▾')+'</span>'; try{localStorage.setItem('me_deliv_'+(code||'x'), open?'o':'c');}catch(e){} });
+    if(tg) tg.addEventListener('click',function(){ var body=$('mp_delivBody'); var open=(body.style.display==='none'); body.style.display=open?'block':'none'; tg.classList.toggle('open',open); tg.setAttribute('aria-expanded', open?'true':'false'); tg.innerHTML=(open?'받은 결과물 접기':'받은 결과물 보기')+'<span class="pt-ar" aria-hidden="true"></span>'; /* [FOLD_CHEVRON] 방향은 .past-toggle.open 이 돌린다 */ try{localStorage.setItem('me_deliv_'+(code||'x'), open?'o':'c');}catch(e){} });
     _bindExtra(res); _bindSurvey(res,nm,code);
     return;
   }
@@ -6056,7 +6063,7 @@ function renderResult(res, nm, code){
   // [RES_FIELD_NAME 2026-09-26] 컷 번호 칸의 이름 — 화면 읽기가 안내 글(«예: 012, 045, 088 …»)을 이름으로 읽었다(점검 L6). 위 안내 문장과 같은 말 · 세는 줄(#mp_pickCount)은 설명으로 잇는다
   if(pc){ pc.setAttribute('aria-label','보정할 컷의 파일명이나 번호'); if(pcl) pc.setAttribute('aria-describedby','mp_pickCount'); }
   if(pcl){ var updc=function(){ var r=pc?_pickNorm(pc.value):{list:[],dup:0}; var n=r.list.length;
-    if(pch){ var cs=''; var show=r.list.slice(0,40); for(var ci=0;ci<show.length;ci++){ cs+='<span style="font-size:12px;padding:2px 9px;border:1px solid var(--gold-line,#e2d8c8);border-radius:999px;background:#faf7f1;color:var(--sub,#5A554C)">'+escapeHtml(show[ci])+'</span>'; } if(r.list.length>40) cs+='<span style="font-size:12px;color:var(--label-soft)">+'+(r.list.length-40)+'</span>'; pch.innerHTML=cs; }
+    if(pch){ var cs=''; var show=r.list.slice(0,40); for(var ci=0;ci<show.length;ci++){ cs+='<span style="font-size:12px;padding:2px 9px;border:1px solid var(--border);border-radius:999px;background:var(--gold-bg);color:var(--sub,#5A554C)">'+escapeHtml(show[ci])+'</span>'; } if(r.list.length>40) cs+='<span style="font-size:12px;color:var(--label-soft)">+'+(r.list.length-40)+'</span>'; pch.innerHTML=cs; }
     pcl.style.color=(n>inc)?'var(--gold-deep)':'var(--label-soft)';
     pcl.innerHTML = n ? ('현재 <b>'+n+'</b>컷'+(n>inc?(' / 포함 '+inc+'컷 · 초과 '+(n-inc)+'컷은 ③에서 결제'):(' / 포함 '+inc+'컷'))+(r.dup?(' · 중복 '+r.dup+'건 자동 정리'):'')) : ('포함 보정 '+inc+'컷'); };
     if(pc) pc.addEventListener('input', updc); updc(); }
@@ -6212,11 +6219,9 @@ function _bindRevision(){
   var open=$('mp_revOpen'), form=$('mp_revForm'), cats=$('mp_revCats'), sub=$('mp_revSubmit');
   if(!open||!form||!cats||!sub) return;
   var sel={};
-  var chipCss='font-size:13px;padding:6px 13px;border:1px solid var(--gold-line,#e2d8c8);border-radius:999px;background:#fff;color:var(--sub,#5A554C);cursor:pointer;font-family:inherit';
   REV_CATS.forEach(function(c){
-    var b=document.createElement('button'); b.type='button'; b.textContent=c; b.style.cssText=chipCss;
-    b.addEventListener('click',function(){ sel[c]=!sel[c];
-      b.style.background=sel[c]?'var(--gold-deep,#8a6d3b)':'#fff'; b.style.color=sel[c]?'#fff':'var(--sub,#5A554C)'; b.style.borderColor=sel[c]?'var(--gold-deep,#8a6d3b)':'var(--gold-line,#e2d8c8)'; });
+    var b=document.createElement('button'); b.type='button'; b.textContent=c; b.className='rev-chip'; b.setAttribute('aria-pressed','false');   // [SEL_ONE] 고름 = .rev-chip.on(한 벌) · 종전 인라인 금빛 칠 + 흰 글자
+    b.addEventListener('click',function(){ sel[c]=!sel[c]; b.classList.toggle('on',!!sel[c]); b.setAttribute('aria-pressed',String(!!sel[c])); });
     cats.appendChild(b);
   });
   open.addEventListener('click',function(){ var on=(form.style.display==='none'); form.style.display=on?'block':'none'; open.textContent=on?'수정 요청 접기':'수정 요청하기'; });
@@ -6563,7 +6568,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     /* [INV_TAG_TOTAL] 2026-09-26 통합 점검 L7 · 행 태그가 늘 «/4»였다 — 위저드 머리는 경로별 단계 수(MPD_E9 · _invTotalSteps)라
        «청첩장 없이» · «개인 제작»은 «1 / 2» · «2 / 2»인데 행은 «1/4» · «4/4»였다(같은 걸음을 두 화면이 다르게 셌다).
        두 걸음 경로는 혼주 · 디자인을 건너뛰어 확인 단계로 열리므로(startInvFlow) 1단계 뒤는 모두 2 로 모은다. */
-    if(_ivN){ var _ivT=_invTotalSteps(inv.draft); _ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT; } }
+    if(_ivN){ var _ivT=_invTotalSteps(inv.draft), _ivI=(_ivT===2?(_ivN>1?2:1):_ivN)-1; _ivStepTag=WZ_CIRC[_ivI]+' '+_invStepNames(inv.draft)[_ivI]; } }   // ★[WZ_STEPS_TAG 2026-09-27] «2/4» → «② 부모님» — 누르면 열리는 진행 표시와 같은 말(같은 걸음을 두 화면이 다르게 부르지 않게 · [INV_TAG_TOTAL] 과 같은 뜻)
   var _fdStepTag=null; if((t.final||'')==='진행중'){ var _fdN=Number((fd||{})._step); if(!isNaN(_fdN)&&_fdN>=0) _fdStepTag=Math.min(_fdN+1,3)+'/3'; }
   var ist = inv.status || '시작전';
   /* ★[INV_SKIP_ROW 2026-09-26 고객 점검 prod-5] 「청첩장 없이」를 고른 줄이 ✓ + 「다시 만들기」였다 — 바로 아래 애프터 웨딩은
@@ -7128,7 +7133,8 @@ function _invTotalSteps(d){ var m=d&&d.method; return (m==='self'||m==='none')?2
 /* [WZ_STEPS] 청첩장 진행 표시 — 지나온 걸음은 눌러 돌아간다(식순과 같다 · 밑줄). 앞 걸음은 못 누른다 — «다음»이 걸음마다 빈 칸을 확인하고 저장한다(건너뛰면 그 확인을 빠진다).
    돌아가기 전에 이 걸음에서 적은 것을 먼저 담는다 — «이전» 단추와 같은 순서(_invJumpBind 의 pre). */
 function _invStepKeys(d){ return _invTotalSteps(d)===2 ? ['method','confirm'] : ['method','parents','design','confirm']; }
-function _invSteps(d, cur){ return wzSteps(_invTotalSteps(d)===2 ? ['기본','확인'] : ['기본','부모님','디자인','확인'], cur, 'data-ivgo'); }
+function _invStepNames(d){ return _invTotalSteps(d)===2 ? ['기본','확인'] : ['기본','부모님','디자인','확인']; }   // 진행 표시 · 준비 목록 꼬리표([WZ_STEPS_TAG])가 함께 쓴다
+function _invSteps(d, cur){ return wzSteps(_invStepNames(d), cur, 'data-ivgo'); }
 function _invJumpBind(box, pre){
   Array.prototype.forEach.call(box.querySelectorAll('[data-ivgo]'), function(b){ b.addEventListener('click', function(){
     try{ if(pre) pre(); }catch(e){}
@@ -7612,7 +7618,7 @@ function invStepDone(box, r){
   var _gUrl=_gCard?guideUrl(_gTok):'';
   // 접힘 내부는 모바일 참석 QR 카드와 같은 구도(QR → 링크 → 열기·공유·복사 → QR 저장)로 통일 — 식장 인쇄물·테이블 안내판용 QR(2026-07-17 사용자 요청)
   var guideFold = _gCard
-    ? '<details class="done-fold" id="iv_gfold"'+(cards?'':' open')+'><summary>하객 안내만 따로 보내기 <span class="pt-ar">▾</span></summary>'
+    ? '<details class="done-fold" id="iv_gfold"'+(cards?'':' open')+'><summary>하객 안내만 따로 보내기 <span class="pt-ar" aria-hidden="true"></span></summary>'
       // ★안내 QR 카피 — 종이 청첩장 제작 용도 + '두 곳 채워짐' 안내(2026-07-22 사용자 지시). 문구 축약·복원 시 이 두 줄 유지
       /* ★[GUIDE_QR_BY_KIND 2026-09-26 사장님 결정 ⑯ · 고객 점검 inv-4] 첫 줄 뒷절을 청첩장 구성대로 — 하객 안내 버튼은 오프라인(가족) 청첩장에만 들어간다
          (shared/hydrate.js 가 /i-family/ 에서만 넣는다). 종전 «온라인 청첩장에는 이미 들어 있어요»는 이 화면의 「온라인 청첩장」 카드(/i/)를 가리켜 거꾸로였고,
@@ -7646,7 +7652,7 @@ function invStepDone(box, r){
   if(String(_dr0.method||'')==='self'){
     var _kitLines=[[base.groomKo,base.brideKo].filter(Boolean).join(' · '), (g||b)?(g+(g&&b?' & ':'')+b):'', when,
       '본예식 20분 전부터 내빈 입장이 시작됩니다 · 대기 공간이 없으니 입장 시간에 맞춰 도착 부탁드립니다'].filter(Boolean);   // 도착 안내는 웹(가족) 청첩장엔 기본 포함 · 종이만 쓰는 하객은 받을 곳이 없어 킷에 동봉(2026-07-18) · ★'15분' 수치는 i-family Arrival·weddingSequenceRef 참조표와 동기
-    _kit='<details class="done-fold" open><summary>인쇄에 넣을 정보 <span class="pt-ar">▾</span></summary>'
+    _kit='<details class="done-fold" open><summary>인쇄에 넣을 정보 <span class="pt-ar" aria-hidden="true"></span></summary>'
       +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub"><span class="ln-bal">종이 청첩장에 그대로 옮겨 적으세요.</span><span class="ln-bal">아래 QR과 함께 쓰면 돼요.</span></div>'   /* [DOT_SPLIT_0926] 320 «…옮겨 적으세요 ·» 줄 끝 점 → 마침표 두 덩어리 */
       +'<div class="done-url" style="white-space:normal;line-height:1.8">'+_kitLines.map(function(s){ return escapeHtml(s).replace(/ · /g,'&nbsp;·&nbsp;'); }).join('<br>')+'</div>'   /* [DOT_SPLIT_0926] 390 «…입장이 시작됩니다 ·» 줄 끝 점 → 보이는 글만 점 양옆 NBSP(복사 문구 data-url 은 그대로 · 종이에 옮기는 글이라 바꾸지 않는다) */
       +'<div class="done-acts" style="justify-content:center"><button type="button" class="cc-btn-ghost dl-copy" data-url="'+escapeHtml(_kitLines.join('\n'))+'">문구 복사</button></div>'
@@ -7658,7 +7664,7 @@ function invStepDone(box, r){
       ? '모바일 참석 <b>QR만 사용하는 구성</b>이에요.<br>직접 만드시는 청첩장·인쇄물에 아래 QR을 넣어 주세요.'
       : '청첩장은 <b>직접 준비하시는 구성</b>이에요.<br>필요한 게 생기면 언제든 다시 골라 만들 수 있어요.');
   // 모바일 참석 QR도 접힘 — 하객 안내와 같은 구도·화면 간결(2026-07-17 사용자 요청). QR만 쓰는 구성(청첩장 카드 없음)은 펼친 채 시작
-  var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+((!cards||_selfQR)?' open':'')+'><summary>종이 청첩장용 · 모바일 참석 QR <span class="pt-ar">▾</span></summary>'
+  var qr = mobileUrl ? '<details class="done-fold" id="iv_qfold"'+((!cards||_selfQR)?' open':'')+'><summary>종이 청첩장용 · 모바일 참석 QR <span class="pt-ar" aria-hidden="true"></span></summary>'
       +'<div class="done-fold-b" style="text-align:center">'
       +'<div class="done-qr-sub">종이 청첩장·인쇄물에 넣어 주세요.</div>'
       +'<div style="margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_qr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
@@ -8607,7 +8613,7 @@ function renderPhoto(box){
      사진이 늦어지는 가장 큰 까닭은 촬영이 아니라 사람 모으기다. 디렉터 · 작가는 친척 얼굴을 모른다 — 가족 대표가 빠진 분을 챙긴다.
      관리자 화면과 콘솔 «촬영 안내 골라 틀기» 판이 이 값을 읽는다. */
   var _pc=PHOTOFLOW.caller=(PHOTOFLOW.caller||{groom:'',bride:''});
-  h+='<div class="ph-sec">불러 모아 주실 분 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
+  h+='<div class="ph-sec">불러 모아 주실 분 <span class="opt-tag">· 선택</span></div>';
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">가족사진 때 친척분들을 모아 주실 분이에요. 디렉터가 이 분께 먼저 말씀드려요.</div>';
   /* [PC_LABEL] 칸마다 보이는 이름표 — 자리표시(placeholder)만 두면 적는 순간 «신랑 쪽»이 사라져 어느 칸인지 모른다(390 실렌더에서 봤다) */
   h+='<label for="mp_pcGroom" style="display:block;font-size:12px;color:var(--sub);margin:0 0 4px">신랑 쪽</label>';
@@ -8619,7 +8625,7 @@ function renderPhoto(box){
      → 고르는 칸 없이 **대략 적는 칸 하나만.** 시간은 따로 떼지 않는다(진행표의 «시간이 남으면 … 자유 사진» 자리) — 그래서 «몇 분»을 약속하지 않는다.
      ★서버가 이 칸을 알 때만(friendOk) 그린다 — 옛 서버는 화이트리스트에 없는 칸을 버려 «저장됐어요»인데 사라진다(photoWish 가 겪은 그 사고). */
   if(PHOTOFLOW.friendOk){
-    h+='<div class="ph-sec">친구들과 자유롭게 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
+    h+='<div class="ph-sec">친구들과 자유롭게 <span class="opt-tag">· 선택</span></div>';
     h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">가족 사진을 다 찍은 뒤 친구들과 편하게 찍어요. 폰으로도 찍어 달라고 사진작가에게 부탁하실 수 있어요.</div>';
     h+='<textarea id="mp_photoFriend" class="cc-input" maxlength="200" rows="2" aria-label="사진작가에게 부탁할 것" placeholder="사진작가에게 부탁할 것 (예: 대학 동기들과 폰으로도 몇 장)" style="margin:0;resize:vertical;font-family:var(--serif-ko);line-height:1.6">'+escapeHtml(PHOTOFLOW.friend||'')+'</textarea>';
     /* [PHOTO_FRIEND_EX] 적기 막막할 때 누르면 담기는 예시 — 사장님 원문(대기실 분위기 · 아이폰 셀카 · 사진작가에게 부탁)에서 뽑았다.
@@ -8662,7 +8668,7 @@ function renderPhoto(box){
         ★who 필드는 데이터에 남겨 둔다(옛 저장분·서버 정규화 호환). 화면에서만 안 묻는다.
      ★참고 링크 주의·예시는 전부 접힘 안으로 내렸다 — 적기 전에 읽을 글이 아니다. */
   var _flow=((PHOTOFLOW.rd||{}).summary||{}).flow||null;   // [PHOTO_FX_LINK] 식순 초안이 없으면 연동 줄은 안 그린다(넘겨짚지 않는다)
-  h+='<div class="ph-sec">꼭 담고 싶은 사진 <span style="color:var(--label-soft);font-weight:400">· 선택</span></div>';
+  h+='<div class="ph-sec">꼭 담고 싶은 사진 <span class="opt-tag">· 선택</span></div>';
   h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">위에 없는 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span></div>';   // [PH_DOT_SPLIT 2026-09-26 · 점검 L5 B9] « · »로 잇던 두 마디를 마침표 두 줄로 — 전역 balance 가 320 · 360 에서 «· 안 적으셔도»를 줄 머리로 밀었다
   if(wish.length){
     h+='<div class="wsh-list">';
@@ -8699,7 +8705,7 @@ function renderPhoto(box){
   /* ★[PHOTO_GUEST_FOLD 2026-09-27 사장님 지시문 6편 3부 10] 한 화면에 절이 여섯이었다 — «하객 사진 모으기»(하객 업로드 · QR)는 제목(가족 · 친구 스냅)과 결이 다르다.
        맨 아래 접힘(기본 닫힘 · 제목 «하객 사진 모으기 · 선택»)으로 둔다. 안의 순서 · 문구 · 링크 칸 규칙([PHOTO_LINK_FOLD] · [SHARE_GATE])은 그대로.
        펼친 상태는 다시 그려도 지킨다(PHOTOFLOW._gOpen) · 링크 관문이 막으면 스스로 펼친다(_photoShareGate). 절 제목(.ph-sec)으로 되돌리지 말 것. */
-  h+='<details class="cc-more ph-guest" id="mp_phGuest"'+(PHOTOFLOW._gOpen?' open':'')+'><summary>하객 사진 모으기<span class="ph-opt">· 선택</span></summary><div class="ph-guest-in">';   // [SEC_RANK] 설명은 아래 본문이 한다
+  h+='<details class="cc-more ph-guest" id="mp_phGuest"'+(PHOTOFLOW._gOpen?' open':'')+'><summary>하객 사진 모으기<span class="ph-opt opt-tag">· 선택</span></summary><div class="ph-guest-in">';   // [SEC_RANK] 설명은 아래 본문이 한다
   /* ★★[PHOTO_LINK_FOLD 2026-09-26 · 점검 trk-1] 링크 칸을 «비었을 때»와 «넣었을 때»로 갈라 그린다.
      종전엔 이 칸이 늘 절 맨 위에 펼쳐져 있어, 첫 요소가 «링크를 붙여 넣으라»인데 바로 아래가 «두 분이 준비하실 건 없어요»였다.
      링크를 넣은 상태는 더 나빴다 — guide.html 은 링크가 있으면 하객을 그 링크로 보내(photoShareHtml) 사진이 저희를 거치지 않는데,
@@ -10200,7 +10206,7 @@ function renderSeat(box){
     else { opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알코올 스파클링','dk-N')+_kid; _nOpt=5; alcNote='알코올은 한 종류만 준비돼요 · 처음 고른 쪽으로 맞춰져요'; }
     barHtml='<div class="seat-drinkbar" role="dialog" aria-modal="false" aria-label="'+escapeHtml(_tShow)+' '+(sel.si+1)+'번 자리 이름과 음료">'
       +'<div class="sdb-h"><span class="sdb-label">'+escapeHtml(_tShow)+' · '+(sel.si+1)+'번 자리</span>'
-        +'<button type="button" class="sdb-x" data-seat-selclose aria-label="닫기">×</button></div>'
+        +'<button type="button" class="sdb-x" data-seat-selclose aria-label="닫기">✕</button></div>'   // [X_ONE 2026-09-27] × → ✕ — 다른 닫기 · 빼기 단추(미리보기 · 사진 빼기 · 담은 곳 빼기)와 같은 글리프
       +'<input class="sdb-nm" data-ed data-edk="'+sel.ti+':'+sel.si+'" value="'+escapeHtml(_edNm)+'" maxlength="24" autocomplete="off" placeholder="하객 성함" aria-label="하객 성함">'
       +'<div class="sdb-opts n'+_nOpt+'">'+opts+'</div>'
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')
@@ -10750,7 +10756,7 @@ function dineFilterUI(d, wt){
   var headHint=_hintN?' <span class="dn-fhint">· 예식 하객 약 '+escapeHtml(_hintN)+'명</span>':'';
   var chips=themeSeg
     +block('인원'+headHint,pill('headN','s','소규모 ~10')+pill('headN','m','중 11~20')+pill('headN','l','대 21~40')+pill('headN','xl','대형 40+'))
-    +'<button type="button" class="dn-fmore" id="dn_det" aria-expanded="'+(!!detOpen)+'" aria-controls="dn_detBody">조건 더 좁히기'+(detN?' <span class="bdg">'+detN+'</span>':'')+(detOpen?' ▴':' ▾')+'</button>'   // [DN_ARIA_STATE]
+    +'<button type="button" class="dn-fmore" id="dn_det" aria-expanded="'+(!!detOpen)+'" aria-controls="dn_detBody">조건 더 좁히기'+(detN?' <span class="bdg">'+detN+'</span>':'')+'<span class="pt-ar" aria-hidden="true"></span></button>'   // [DN_ARIA_STATE]
     +'<div class="dn-fdetail'+(detOpen?' open':'')+'" id="dn_detBody">'
       +block('음식 종류',['한정식','한우·갈비','곰탕·국밥','샤브·전골','면·만두','족발·보쌈','오리·백숙','중식','해물·생선','뷔페','카페'].map(function(x){return pill('food',x,x);}).join(''))
       +block('가격 <span style="color:var(--label-soft)">· 1인 기준</span>',pill('price','low','~2만')+pill('price','mid','2~5만')+pill('price','high','5만+'))
@@ -10764,7 +10770,7 @@ function dineFilterUI(d, wt){
   // 컨셉 칩 — 전부 고정형(누르면 아래 리스트가 그 조건으로 걸러짐). (2026-07-12) 지도검색 시나리오 칩(키즈·뒷풀이)은 삭제 · 그 자리는 고정 키워드로 대체. 키즈·뒷풀이는 위 AI 입력에 적으면 지도로 찾아줌.
   // ★상황 프리셋 접이식 — 기본 접힘, 눌러서 펼침(2026-07-22 사용자 지시 '접혀있게 · 원하면 펴서'). 개수 늘어도 첫 화면 간결
   var preOpen=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre;
-  var presetRow='<button type="button" class="dn-fmore" id="dn_pre" aria-expanded="'+(!!preOpen)+'" aria-controls="dn_preBody">이런 자리를 찾고 있어요'+(preOpen?' ▴':' ▾')+'</button>'   // [DN_ARIA_STATE]
+  var presetRow='<button type="button" class="dn-fmore" id="dn_pre" aria-expanded="'+(!!preOpen)+'" aria-controls="dn_preBody">이런 자리를 찾고 있어요<span class="pt-ar" aria-hidden="true"></span></button>'   // [DN_ARIA_STATE]
     +'<div class="dn-fdetail'+(preOpen?' open':'')+'" id="dn_preBody"><div class="dn-preset-cap">상황을 고르면 조건이 한 번에 맞춰져요</div><div class="dn-preset" style="margin-bottom:0">'
     +DN_PRESETS.map(function(p,i){return '<button type="button" data-preset="'+i+'">'+escapeHtml(p.label)+'</button>';}).join('')
     +'</div></div>';
@@ -10857,7 +10863,7 @@ function dineFilterUI(d, wt){
      (tabIndex -1 · focus() 도 안 받음) 화면 읽기에는 글자로만 읽혔다 — 키보드로는 가볼 곳 6곳을 열 수도 담을 수도 없었다.
      같은 화면 «조건 더 좁히기» · «이런 자리를 찾고 있어요»와 같은 틀: aria-expanded + (펼쳤을 때만 있는 목록이라) 펼쳤을 때만 aria-controls ·
      다시 그린 뒤 이 단추로 초점을 돌린다(bindTrk 쪽). 겉모양은 .dn-attr-h 의 단추 초기화로 그대로(316×25 · 픽셀 같음 실측). */
-  var attr='<div class="dn-attr"><button type="button" class="dn-attr-h" id="dn_attr_h" aria-expanded="'+(DN_UI.attr?'true':'false')+'"'+(DN_UI.attr?' aria-controls="dn_attrBody"':'')+'><span class="t">예식 후 가볼 만한 곳</span><span class="c">'+(DN_UI.attr?'접기 ▴':'펼치기 ▾')+'</span></button>'
+  var attr='<div class="dn-attr"><button type="button" class="dn-attr-h" id="dn_attr_h" aria-expanded="'+(DN_UI.attr?'true':'false')+'"'+(DN_UI.attr?' aria-controls="dn_attrBody"':'')+'><span class="t">예식 후 가볼 만한 곳</span><span class="c">'+(DN_UI.attr?'접기':'펼치기')+'<span class="pt-ar" aria-hidden="true"></span></span></button>'
     +(DN_UI.attr?'<div class="dn-attr-list" id="dn_attrBody"><div class="dn-fine" style="margin:0 0 8px">눌러서 담아 두면 다음 화면에서 식당과 함께 볼 수 있어요. 산책·사진 코스예요.</div>'+attrItems+'<div class="dn-fine" style="margin-top:2px">거리는 예상이고, 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
   // (2026-07-12) 통합 흐름: AI 입력(aiBox) → 컨셉 칩(presetRow, 식사+시나리오 한 줄) → 지도 결과(placeCards) → 커브레이션 리스트(head·chips·cards). '또는 직접 골라보기' 칸막이·step0 찜박스 제거.
   // 카드=버튼(눌러서 찜)이라 별표를 없앤 대신, 처음 오는 분도 알 수 있게 한 줄 안내(결과 있을 때만)
