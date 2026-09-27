@@ -416,12 +416,12 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     });
     /* 문장 세 갈래 — k = max · k < max · k = 0 · k = max = 0(짧은 사진 시간을 일부러 만든다) */
     const L = (sec, w) => F.line(F.cap({ summary: { sec } }, false, w));
-    const lines = [[O.bodySec(O.applyExample({}, 'brief')), 0, '전체 하객과 구도 5개가 알맞아요.'],   // [PHOTO_THANKS] k = max 갈래는 간결로(기록은 4/5 가 됐다)
-      [O.bodySec(O.applyExample({}, 'family')), 0, '전체 하객과 구도 2개가 알맞고, 제시간에 진행되면 4개까지 돼요.'],
-      [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 구도 2개까지 돼요.'],
+    const lines = [[O.bodySec(O.applyExample({}, 'brief')), 0, '가족 구도는 5컷이 알맞아요.'],   // [PHOTO_THANKS] k = max 갈래는 간결로(기록은 4/5 가 됐다)
+      [O.bodySec(O.applyExample({}, 'family')), 0, '가족 구도는 2컷이 알맞고, 제시간에 진행되면 4컷까지 돼요.'],
+      [O.bodySec(longest), 0, '전체 하객 사진이 알맞고, 제시간에 진행되면 가족 구도 2컷까지 돼요.'],
       [[30 * 60, 35 * 60], 0, '전체 하객 사진이 알맞아요. 순간을 하나 덜면 가족 구도를 담을 수 있어요.']];
-    lines.forEach(([sec, w, want]) => { const g = L(sec, w); if (g !== want) bad.push(`문장: «${g}» ≠ «${want}»`); if (/구도 0개/.test(g)) bad.push(`«구도 0개»가 나왔다: ${g}`); });
-    for (let b = 360; b <= 45 * 60; b += 30) for (const w of [0, 1, 2]) { const g = L([b - 300, b], w); if (/구도 0개/.test(g)) { bad.push(`본식 ${b}초 · 요청 ${w}: «구도 0개»`); break; } }
+    lines.forEach(([sec, w, want]) => { const g = L(sec, w); if (g !== want) bad.push(`문장: «${g}» ≠ «${want}»`); if (/구도 0개|구도 0컷/.test(g)) bad.push(`«구도 0개»가 나왔다: ${g}`); });   // [PHOTO_UNIT_ONE 2026-09-27] «구도 N개» → «가족 구도 N컷»
+    for (let b = 360; b <= 45 * 60; b += 30) for (const w of [0, 1, 2]) { const g = L([b - 300, b], w); if (/구도 0개|구도 0컷/.test(g)) { bad.push(`본식 ${b}초 · 요청 ${w}: «구도 0개»`); break; } }
   }
   if (bad.length) no(`마이페이지 단체 사진 표가 최종판 2-6 과 다르다 [PHOTO_CAP_40]\n    ${bad.join('\n    ')}`);
   else ok('마이페이지 단체 사진 표 = 최종판 2-6 + 감사 인사 1분(PHOTO_THANKS)(예시 넷 + 가장 긴 조합 × 요청 0 · 2) · 문장 네 갈래 · «구도 0개» 없음 [NO_ZERO_SHOT]');

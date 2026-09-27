@@ -181,11 +181,12 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   const css = (sel) => ((my.match(new RegExp('\\n' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\{([^}]*)\\}')) || [])[1] || '');
   t(/background:var\(--seal\)/.test(css('.snp-step.on::before')) && /width:34px/.test(css('.snp-step.on::before')), '진사 점 ① 지금 걸음 동그라미(34px · 진사)');
   t(/background:var\(--seal\)/.test(css('.snp-no')), '진사 점 ② 고른 순서 번호');
-  t(/color:var\(--seal\)/.test(css('.snp-fl.on')) && !/background:var\(--seal\)/.test(css('.snp-fl.on')), '진사 점 ③ 흐름의 «촬영» 칸 — 글자만 진사(면을 진사로 칠하지 않는다)');
+  // [SNAP_FLOW_TEXT 2026-09-27 사장님 결정 A · 지시문 6편 3부 5] 흐름 줄은 글자 한 줄 — 진사는 앞의 5px 점만(글자는 --accent 500 · 알약 테두리 · 바탕 없음)
+  t(/background:var\(--seal\)/.test(css('.snp-fl.on::before')) && /width:5px;height:5px/.test(css('.snp-fl.on::before')) && /color:var\(--accent\)/.test(css('.snp-fl.on')) && css('.snp-fl.on').indexOf('--seal') === -1 && !/border|background/.test(css('.snp-fl')), '진사 점 ③ 흐름의 «촬영» 칸 — 앞의 5px 점만 진사 · 글자 한 줄(알약 없음)');
   t(/color:var\(--seal\)/.test(css('.snp-due-k')), '진사 점 ④ «마감» 라벨');
   t(!!css('.snp-tile.on') && css('.snp-tile.on').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-tile.on')) && css('.snp-tile.on .snp-nm').indexOf('--seal') === -1, '고른 장면 테두리 · 이름은 금빛/먹빛(진사 테두리로 되돌리지 않는다)');
   const snpSeal = (my.match(/\n\.snp-[^{]*\{[^}]*var\(--seal[^}]*\}/g) || []).map((x) => x.trim().split('{')[0]);
-  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-step.on::before', '.snp-fl.on', '.snp-due-k'];
+  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-step.on::before', '.snp-fl.on', '.snp-fl.on::before', '.snp-due-k'];   // [SNAP_FLOW_TEXT] 흐름 칸 진사는 ::before 점으로 옮겼다
   t(snpSeal.every((k) => ok5.indexOf(k) > -1), '스냅 화면 진사 = 정한 점들뿐 — 지금 ' + snpSeal.join(', '));
   t(/width:30px;height:30px/.test(css('.snp-step::before')) && /width:44px;height:44px/.test(css('.snp-step')) && /font-variant-numeric:lining-nums tabular-nums/.test(css('.snp-step')), '[SNAP_STEP_DOT] 보이는 동그라미 30px · 누르는 칸 44px · 같은 폭 숫자');
   t(/style="--sp:'\+\(st\/\(SNAP_STEPS\.length-1\)\)\+'"/.test(my) && /width:calc\(\(100% - 44px\) \* var\(--sp,0\)\)/.test(my), '[SNAP_STEP_DOT] 지나온 길 = 금빛 선(지금 걸음 / 4)');
