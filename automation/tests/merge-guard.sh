@@ -2152,6 +2152,17 @@ chk 'EX_TOGGLE' order-preview.html 2
 chk 'LF_STEADY' order-preview.html 4
 chk '_lfSteady(f);' order-preview.html 1             # 빼면 글 길이마다 제목·단추가 오르내린다(깨 보기: 144~278px)
 nochk 'data-fk="opblank"' order-preview.html         # «빈 칸에서 직접 고를게요» 중복 링크 · 사장님 «중복 같으니 지우던가»
+# [CHIP_NO_REPLAY · CHIP_STAY · PRACTICE_CHOOSE · REF_EXAMPLE 2026-09-27 사장님 «버튼 누를 때마다 음성 재생 · 다 고르지 못해도 넘어간다 · 들어 보는 건지 고르는 건지 헷갈린다 · 참고 예시 대본과 녹음»]
+chk 'CHIP_NO_REPLAY' order-preview.html 3
+chk 'if(g0&&g0.cur===v) return;' order-preview.html 1      # 이미 고른 칩은 아무것도 안 한다
+chk 'CHIP_STAY' order-preview.html 7
+chk 'PRACTICE_CHOOSE' order-preview.html 5
+chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
+chk 'REF_EXAMPLE' order-preview.html 4
+chk '이 소리는 예식에 나오지 않아요' order-preview.html 1   # 참고 예시를 예식 소리로 오해하지 않게
+chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
+chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
+chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
 chk 'NOW_ONELINE' mypage.html 1                          # NOW 헤드라인 한 줄 원칙 + balance 안전망 · 빼면 '주세요' 3자만 둘째 줄에 남는 고아 줄이 돌아온다
 chk 'NOW_ONELINE' automation/platform/00_platform-config.gs 1  # 서버 문구 첫 문장 13자 이내 규칙(그 문장이 곧 헤드라인이다)
 chk 'IG_LEGIBLE' index.html 2                            # 마크 다층 그림자(어두운 윤곽선) + 리빌 대각 파동 · 한 겹으로 되돌리면 밝은 사진 3장(2·7·9)에서 마크가 대비 1.6으로 사라진다
