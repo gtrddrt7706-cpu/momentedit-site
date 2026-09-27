@@ -606,7 +606,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
      ①지금 걸음 진행 표시의 윗선(진사 2px — [WZ_STEPS] · 9/27 전엔 진사 동그라미였다) ②고른 순서 번호(.snp-no)
      ③흐름 줄의 «촬영» 칸 글자(면은 옅은 진사 기운만) ④«마감» 라벨 ⑤동의 체크 알림(경고).
    고른 장면 테두리 · 단추(먹빛)는 그대로 마이페이지 톤 — 진사를 넓은 면 · 테두리로 넓히지 말 것(snap-plan 이 잰다). */
-.snp-h{margin:20px 0 10px;font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);line-height:1.5;letter-spacing:-.02em;word-break:keep-all}
+.snp-h{margin:20px 0 10px;font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);line-height:1.5;letter-spacing:-.02em;word-break:keep-all;text-wrap:balance}   /* [SNAP_WRAP_TAIL 2026-09-27 고객 점검] 320 «…단독 / 스냅이에요» 한 낱말 꼬리 */
 .snp-h:focus{outline:none}
 /* ★[SNAP_FLOW_TEXT 2026-09-27 사장님 결정 A · 지시문 6편 3부 5] 흐름 줄은 «누를 수 없는 설명»이다([PHOTO_FLOW_LINE]) — 테두리 알약 + 진사 바탕이 탭(누르는 단계)처럼 보였다.
      알약의 테두리 · 바탕을 걷고 글자 한 줄로. 두 분이 정하는 칸(.on)은 --accent 500 + 앞에 5px 진사 점, 정해진 칸은 --label-soft, «›»는 연한 색.
@@ -618,8 +618,8 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-arw{color:#B9B2A5;position:relative;top:-1px}
 .snp-flg{display:inline-flex;align-items:center;gap:5px}   /* [SNAP_FLOW_WRAP] 칸 여백 8 · 사이 5 — PC 한 줄(폭 578 에 553) · 360~430 셋·셋 · 320 둘·둘·둘. «본식»만 떨어지던 자리(1280 에서 4px · 360 에서 10px 모자랐다) */
 .snp-points{margin:0;padding:0 0 0 18px;font-size:13px;color:var(--sub);line-height:1.7}
-.snp-points li{margin:0 0 6px;word-break:keep-all}
-.snp-points b,.snp-due b{font-weight:600;color:var(--accent)}
+.snp-points li{margin:0 0 6px;word-break:keep-all;text-wrap:pretty}   /* [SNAP_WRAP_TAIL] 320 «… / 줄어요.» · 1280 «… / 찍어요.» 꼬리 */
+.snp-points b,.snp-due b,.snp-note b{font-weight:600;color:var(--accent)}
 .snp-due{margin:16px 0 0;padding:12px 0 0;border-top:1px solid var(--hairline,#E6E1D8);font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all}   /* [SNAP_DESIGN_0926] 칠한 상자 → 가는 선 위 한 줄 */
 .snp-due-k{display:inline-block;margin:0 8px 0 0;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--seal)}   /* [SNAP_TONE] 진사 점 ④ — 마감은 도장처럼 */
 .snp-zone{margin:0}
@@ -629,7 +629,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-sub{display:flex;align-items:baseline;gap:8px;margin:22px 0 0;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent)}
 .snp-cnt{font-family:var(--sans);font-size:12.5px;font-weight:500;font-variant-numeric:lining-nums tabular-nums;color:var(--gold-deep)}   /* [SNAP_NUM_GOTHIC] Cormorant 옛 숫자(0 이 o 처럼) → 고딕 같은 폭 숫자 */
 .snp-opt,.opt-tag{font-size:12px;font-weight:400;color:var(--label-soft);letter-spacing:0}   /* ★[OPT_TAG 2026-09-27 사장님 «일관성»] «· 선택» 한 벌 — 스냅 12px · 가족·친구 스냅 14px(제목 크기 그대로) · 후기 11px(점 없이 «선택»)로 셋이었다 */
-.snp-note{margin:4px 0 0;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all}
+.snp-note{margin:4px 0 0;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all;text-wrap:pretty}   /* [SNAP_WRAP_TAIL] 390 «… / 담아요.» 꼬리 */
 .snp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 10px;margin:12px 0 0}
 @media (min-width:600px){ .snp-grid{gap:24px 14px} }   /* [SNAP_PHOTO_FIRST] 사진이 주인공 — 넓은 화면도 두 줄(여덟 장면이 넷 · 넷으로 떨어지고 사진이 크다 · 셋이면 끝줄이 빈다) */
 /* ★[SNAP_PHOTO_FIRST 2026-09-27 사장님] 사진 칸 — 테두리 없이 사진만(4:5 · 모서리 8) · 고르면 금빛 두 줄 테 + 진사 순번 원 · 이름은 사진 아래 */
@@ -638,10 +638,17 @@ span.snp-pv{cursor:default}
 .snp-pv picture,.snp-pv img{display:block;width:100%;height:100%}
 .snp-pv img{object-fit:cover;transition:transform .45s var(--ease,ease)}
 @media (hover:hover){ button.snp-pv:hover img{transform:scale(1.02)} }
-.snp-pv-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;box-sizing:border-box;padding:14px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65;text-align:center;word-break:keep-all}
+.snp-pv-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;box-sizing:border-box;padding:40px 10px 32px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65;text-align:center;word-break:keep-all}
 .snp-pv-ph i{font-style:normal;font-family:var(--sans);font-size:10.5px;letter-spacing:.04em;color:var(--label-soft)}   /* [SNAP_PHOTO_NOW] 사진 자리 머리 «예시 사진 준비 중» */
+/* ★[SNAP_PH_FIT 2026-09-27 고객 점검 · 사진 오기 전] 320 에서 사진 자리 글이 칸을 넘쳤다 — 오른쪽 위 고르기 원(26px)이 «예시 사진 준비 중»을 가리고,
+     오른쪽 아래 «3장»이 설명 끝줄(«끝까지» · «번지는 컷» · «정면 전신»)을 덮었다(117 × 146px 칸에 설명 5~6줄 · 360 이하 전부).
+     위 · 아래에 원과 «3장» 자리를 비우고, 설명은 칸에 들어가는 줄만 보인다(나머지는 누르면 뜨는 크게 보기에 통째로 있다).
+     ★패딩을 14px 로 되돌리지 말 것 — 다시 겹친다(h.mjs 가 원 · «3장» · 글 상자를 잰다). 사진이 오면 이 칸은 쓰이지 않는다. */
+.snp-pv-d{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}
+@media (max-width:374px){ .snp-pv-ph{gap:4px;font-size:11.5px;line-height:1.5} .snp-pv-d{-webkit-line-clamp:3} }
+/* [SNAP_PH_FIT] 사진 전 «3장»은 밝은 바탕 위라 흰 글자가 흐렸다(대비 약 2.6:1) — 흰 알약 + 먹빛 글자(사진이 오면 종전 어두운 알약) */
 .snp-pv-n{position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(28,27,25,.55);color:#fff;font-family:var(--sans);font-size:11px;line-height:1.6;font-variant-numeric:lining-nums tabular-nums}
-.snp-pv-ph ~ .snp-pv-n{background:rgba(28,27,25,.38)}
+.snp-pv-ph ~ .snp-pv-n{background:#fff;color:var(--sub);box-shadow:inset 0 0 0 1px var(--border)}
 .snp-cell.on .snp-pv{box-shadow:0 0 0 2px var(--gold-deep)}
 .snp-cell.full .snp-pv img,.snp-cell.full .snp-pv-ph{opacity:.55}
 .snp-pk{position:absolute;top:0;right:0;z-index:2;width:48px;height:48px;margin:0;padding:8px;border:0;background:none;display:flex;align-items:flex-start;justify-content:flex-end;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -674,6 +681,7 @@ span.snp-pv{cursor:default}
 .cc-btn-ghost.snp-upbtn{display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:44px;padding:9px 18px;margin:10px 0 0}
 .snp-upbtn:focus-within{outline:2px solid var(--gold-deep);outline-offset:2px}
 .snp-linkrow{display:flex;gap:8px;margin:10px 0 0}
+#mp_snapOverlay .ph-item .ph-nm a{display:flex;align-items:center;min-height:44px}   /* ★[SNAP_LINK_TAP 2026-09-27 고객 점검] 담은 링크 글자가 누름 칸 14px 였다(✕ 는 44px) — 줄 높이만큼 누르게 */
 .snp-sum{margin:12px 0 0;padding:4px 14px;border:1px solid var(--border);border-radius:8px;background:#fff}
 .snp-sum-h{padding:10px 0 4px;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent)}
 .snp-row{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--hairline,#E6E1D8);font-size:13px;line-height:1.7}
@@ -757,11 +765,12 @@ span.snp-pv{cursor:default}
 .snp-exv-nav button:disabled{color:#CFC9BC;cursor:default}
 .snp-exv-cnt{min-width:52px;text-align:center;font-family:var(--sans);font-size:13px;color:var(--sub);font-variant-numeric:lining-nums tabular-nums}
 .snp-exv-pick{width:100%;margin-top:12px}
+.snp-exv-hint{margin:8px 0 0;font-size:12px;color:var(--sub);line-height:1.6;text-align:center;word-break:keep-all}   /* [SNAP_EXV_FULL_HOW] */
 .snp-exv-x:focus-visible,.snp-exv-nav button:focus-visible,.snp-exv-trk:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
 /* ★[SNAP_PICK_ALL] «기본으로 담는 네 장면» 글 목록(.snp-base)도 뺐다 — 2026-09-27 사장님 지시로 삭제 */
 /* [SNAP_FULL_HINT] 고를 수 있는 만큼(8장면 · 옛 서버면 4) 다 고르면 나머지를 흐리게 — 다섯째를 눌러야 알던 확인 창을 없앴다 */
 @media (hover:hover){ .snp-li:not(.full):hover{background:var(--gold-bg)} }
-/* [SNAP_FULL_HINT] [SNAP_INLINE_ERR] 한 줄 알림(앞에 5px 진사 점) — 4장면 다 고름 · 링크 오류 · 사진 · 링크 한도 */
+/* [SNAP_FULL_HINT] [SNAP_INLINE_ERR] 한 줄 알림(앞에 5px 진사 점) — 8장면 다 고름 · 링크 오류 · 사진 · 링크 한도 */
 .snp-full,.snp-err,.snp-lim{position:relative;margin:8px 0 0;padding-left:13px;font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;text-wrap:pretty}
 .snp-full::before,.snp-err::before,.snp-lim::before{content:'';position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:999px;background:var(--seal)}   /* [SNAP_TONE] 진사 점 */
 .snp-err:empty{display:none}
@@ -3324,7 +3333,7 @@ function renderMyPage(d){
     /* [SNAP_NUDGE · SNAP_PICK_V2 D2 2026-09-26 사장님 결정] 스냅 기획이 비어 있으면 예식 3주 전부터 한 줄 — 마감은 예식 14일 전 · 3일 전부터는 잠겨 안 붙인다.
        선택 항목이라 헤드라인을 뺏지 않고 서브 끝에만 붙인다(지금 할 일의 주인공은 그대로). 결과물 단계엔 붙이지 않는다. */
     try{ var _sp=d.production; if(_sp && _sp.snapV2 && !(d.result && d.result.status) && typeof _snapFilledD==='function' && !_snapFilledD(_sp.snapDraft||{}) && !((_sp.snapMeta||{}).lock)){
-      var _sdu=_snapDue(_sp); if(_sdu && _sdu.days<=21 && _sdu.days>3){ sub=(sub?sub+'\n':'')+(_sdu.late?'스냅 기획은 예식 3일 전까지 고르실 수 있어요.':('스냅 기획은 '+_sdu.due+'('+_sdu.dueDow+')까지 골라 주세요.')); } } }catch(e){}
+      var _sdu=_snapDue(_sp); if(_sdu && _sdu.days<=21 && _sdu.days>3){ sub=(sub?sub+'\n':'')+(_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.'):('스냅 기획은 '+_sdu.due+'('+_sdu.dueDow+')까지 골라 주세요.')); } } }catch(e){}   // [SNAP_EDIT_UNTIL] 늦은 날 줄은 날짜로(잠기기 전날)
     $('mp_nowHead').textContent = head;
     var subEl = $('mp_nowSub');
     /* ★[NOW_SUB_BAL 2026-09-26 · 통합 점검 L6] 부제는 문장('\n')마다 한 덩어리(.ln-bal = display:block + text-wrap:balance)로 고르게 —
@@ -9102,8 +9111,11 @@ function _snapFilledD(D){ D=D||{};
 function _snapKstToday(){ var t=new Date(Date.now()+9*3600e3); return Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate()); }
 function _snapDue(p){
   var w=String(((p&&p.base)||{}).weddingDate||''), m=w.match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return null;
-  var wu=Date.UTC(+m[1], +m[2]-1, +m[3]), days=Math.round((wu-_snapKstToday())/864e5), du=new Date(wu-14*864e5);
-  return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), late:days<=14, lock:days<=3 };
+  var wu=Date.UTC(+m[1], +m[2]-1, +m[3]), days=Math.round((wu-_snapKstToday())/864e5), du=new Date(wu-14*864e5), eu=new Date(wu-4*864e5);
+  /* ★[SNAP_EDIT_UNTIL 2026-09-27 고객 점검] 고칠 수 있는 마지막 날 = 예식 4일 전(서버 [SNAP_LOCK] 은 «예식 3일 전부터» 잠근다 · lockDays 3).
+       종전 «예식 3일 전까지는 언제든 고칠 수 있어요»(⑤ 요약) · «예식 3일 전까지 고르실 수 있어요»(지금 할 일)는 «까지»가 그날을 넣어 읽혀,
+       같은 화면의 «예식 3일 전부터는 고칠 수 없어요»와 그날 하루가 어긋났다. 날짜로 말한다 — 되돌리지 말 것. */
+  return { days:days, due:(du.getUTCMonth()+1)+'월 '+du.getUTCDate()+'일', dueDow:'일월화수목금토'.charAt(du.getUTCDay()), edit:(eu.getUTCMonth()+1)+'월 '+eu.getUTCDate()+'일', editDow:'일월화수목금토'.charAt(eu.getUTCDay()), late:days<=14, lock:days<=3 };
 }
 /* [SNAP_CARD_AFTER] opt.step — 낸 뒤 «수정»은 ⑤ 요약 걸음으로 연다 · opt.ro — 잠긴 뒤 «낸 내용 보기»(⑤ 요약만 · 읽기 전용) */
 function startSnapFlow(sd, p, needAgree, opt){
@@ -9213,15 +9225,17 @@ function _spExView(id, ctl){
     +'<button type="button" class="snp-exv-x" data-exx>닫기</button></div>'
     +'<div class="snp-exv-trk" tabindex="0" aria-label="예시 사진 '+n+'장 · 옆으로 넘겨 보세요">'+sl+'</div>'
     +(n>1?('<div class="snp-exv-nav"><button type="button" data-exp aria-label="이전 사진">‹</button><span class="snp-exv-cnt" aria-live="polite">1 / '+n+'</span><button type="button" data-exn aria-label="다음 사진">›</button></div>'):'')
-    +(ctl?'<button type="button" class="cc-btn snp-exv-pick" data-expick></button>':'')+'</div>';
+    +(ctl?'<button type="button" class="cc-btn snp-exv-pick" data-expick aria-describedby="mp_snapExHint"></button><p class="snp-exv-hint" id="mp_snapExHint" hidden></p>':'')+'</div>';
   document.body.appendChild(m);
-  var trk=m.querySelector('.snp-exv-trk'), cnt=m.querySelector('.snp-exv-cnt'), bp=m.querySelector('[data-exp]'), bn=m.querySelector('[data-exn]'), pk=m.querySelector('[data-expick]');
+  var trk=m.querySelector('.snp-exv-trk'), cnt=m.querySelector('.snp-exv-cnt'), bp=m.querySelector('[data-exp]'), bn=m.querySelector('[data-exn]'), pk=m.querySelector('[data-expick]'), hint=m.querySelector('.snp-exv-hint');
   function paintNav(){ if(cnt) cnt.textContent=(cur+1)+' / '+n; if(bp) bp.disabled=cur<=0; if(bn) bn.disabled=cur>=n-1; }
   function go(k){ cur=Math.max(0,Math.min(n-1,k)); var el=trk.children[cur], f0=trk.children[0]; if(el&&f0) trk.scrollTo({left:el.offsetLeft-f0.offsetLeft, behavior:'smooth'}); paintNav(); }
   function paintPick(){ if(!pk||!ctl) return; var st=ctl.state();
     if(st.on){ pk.textContent='고른 장면에서 빼기'; pk.className='cc-btn-ghost snp-exv-pick'; pk.disabled=false; }
     else if(st.full){ pk.textContent=st.max+'장면을 다 골랐어요'; pk.className='cc-btn-ghost snp-exv-pick'; pk.disabled=true; }
-    else { pk.textContent='이 장면 고르기'; pk.className='cc-btn snp-exv-pick'; pk.disabled=false; } }
+    else { pk.textContent='이 장면 고르기'; pk.className='cc-btn snp-exv-pick'; pk.disabled=false; }
+    /* ★[SNAP_EXV_FULL_HOW 2026-09-27 고객 점검] 다 고른 뒤 크게 보기의 막힌 단추는 «왜»만 말하고 «어떻게»를 말하지 않았다 — 아래 한 줄로(목록의 [SNAP_FULL_HINT] 와 같은 뜻) */
+    if(hint){ var _f=!st.on&&st.full; hint.hidden=!_f; hint.textContent=_f?'고른 장면 하나를 빼면 이 장면도 고를 수 있어요':''; } }
   var bk=null;
   function close(){ if(!m.parentNode) return; m.parentNode.removeChild(m); document.removeEventListener('keydown', key, true); if(bk!=null){ bkDone(bk); bk=null; } try{ var bb=(back&&document.contains(back))?back:document.querySelector('#mp_snapInner [data-sex="'+id+'"],#mp_snapInner [data-szoom="'+id+'"]'); if(bb&&bb.focus) bb.focus(); }catch(e){} }   // 고르기로 다시 그려졌으면 같은 장면의 «예시» 칸으로
   m._close=close;
@@ -9245,7 +9259,7 @@ function _spCover(s){ var R=window.SNAP_REFS; if(R.img(s)) return {w:R.img(s,'we
 function _spPv(s, kind){
   var c=_spCover(s), ex=_spExList(s), n=ex.length;
   var pic=c?('<picture><source srcset="'+c.w+'" type="image/webp"><img src="'+c.j+'" alt="" loading="lazy" decoding="async"></picture>')
-           :('<span class="snp-pv-ph" aria-hidden="true">'+('<i>예시 사진 준비 중</i>'+escapeHtml((ex[0]&&ex[0].t)||s.name))+'</span>');   // [SNAP_PHOTO_NOW] · [SNAP_PICK_ALL] 기본 넷(작은 칸 · 구도만)은 없어졌다
+           :('<span class="snp-pv-ph" aria-hidden="true">'+('<i>예시 사진 준비 중</i><span class="snp-pv-d">'+escapeHtml((ex[0]&&ex[0].t)||s.name)+'</span>')+'</span>');   // [SNAP_PH_FIT] 설명은 제 칸(.snp-pv-d) — 좁은 폭에서 줄 수를 줄여 고르기 원 · «3장»과 겹치지 않게   // [SNAP_PHOTO_NOW] · [SNAP_PICK_ALL] 기본 넷(작은 칸 · 구도만)은 없어졌다
   var lab=escapeHtml(s.name)+(n>1?(' 예시 사진 '+n+'장 크게 보기'):' 크게 보기');
   return n?('<button type="button" class="snp-pv'+(kind?(' '+kind):'')+'" data-sex="'+s.id+'" aria-label="'+lab+'">'+pic+(n>1?('<span class="snp-pv-n" aria-hidden="true">'+n+'장</span>'):'')+'</button>')
           :('<span class="snp-pv'+(kind?(' '+kind):'')+'" role="img" aria-label="'+escapeHtml(s.name)+'">'+pic+'</span>');
@@ -9269,7 +9283,7 @@ function _spWhen(D, R, due){
      ★[SNAP_PICK_ALL 2026-09-27] «기본 4장면은 늘 담아요»를 뺐다 — 12장면 모두 고른다 · 숫자는 상한(SNAPFLOW.pick)에서 읽는다(손으로 8 을 박지 않는다) */
   var _allImg=R.zones.every(function(z){ return _spHasImg(R, z); });
   h+='<ul class="snp-points">'
-    +'<li>공간마다 '+R.zones[0].pick.length+'장면 중 마음에 드는 장면을 <b>'+(SNAPFLOW.pick||4)+'장면까지</b> 고르시면, '+(_allImg?'사진작가가 그 사진을 보고 찍어요.':'사진작가가 고르신 장면을 챙겨 찍어요.')+'</li>'   // [SNAP_PICK_ALL] «다 고르지 않으셔도 돼요»는 고르는 걸음 카운터 아래 한 줄(고르는 자리에서 말한다)
+    +'<li>공간마다 '+R.zones[0].pick.length+'장면 중 마음에 드는 장면을 <b>'+(SNAPFLOW.pick||4)+'장면까지</b> 고르시면, '+(_allImg?'사진작가가 그 사진을 보고 찍어요.':'사진작가가 챙겨 찍어요.')+'</li>'   // [SNAP_PICK_ALL] «다 고르지 않으셔도 돼요»는 고르는 걸음 카운터 아래 한 줄(고르는 자리에서 말한다)
     +'<li>헤어·메이크업을 마치고 도착 시각에 맞춰 와 주세요. 늦으면 스냅 시간이 줄어요.</li>'
     +'<li>가족·친구와의 사진은 본식 뒤에 찍어요. 「가족&nbsp;·&nbsp;친구&nbsp;스냅」에서 미리 정해 두실 수 있어요.</li>'   // [SNAP_COUPLE_ONLY]
     +'</ul>';
@@ -9289,7 +9303,9 @@ function _spZone(D, R, zi){
   /* [SNAP_FULL_HINT 2026-09-27 지시문 6편 2부 2] 다 고르면 카운터 아래 한 줄 + 나머지는 흐리게(aria-disabled) — 다섯째를 눌러야 뜨던 확인 창은 없앴다 */
   if(full) h+='<div class="snp-full" role="status">'+PK+'장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요</div>';
   else h+='<div class="snp-note">다 고르지 않으셔도 돼요 · 남은 자리는 사진작가가 채워&nbsp;찍어요</div>';   // [SNAP_PICK_ALL]
-  h+='<div class="snp-note">먼저 고른 장면부터 찍어요. 시간이 줄면 앞 번호부터 담아요.</div>';
+  /* ★[SNAP_NO_MEANS 2026-09-27 고객 점검] 번호의 뜻을 말한다 — 종전 두 문장(«고른 차례대로 찍는다» + «시간이 줄면 앞 번호부터»)은
+       같은 말을 두 번 하면서 «찍는 순서»를 약속했다(현장은 빛 · 자리 따라 순서를 바꾼다 · snap-refs «고른 순서 = 우선순위»). 번호 = 고른 순서 = 우선순위. */
+  h+='<div class="snp-note">번호는 고른 순서예요. 시간이 줄면 앞 번호부터 담아요.</div>';
   var _lab=function(s, on, i, off){ return escapeHtml(s.name)+(on?(' · '+(i+1)+'번째로 고름'):'')+((s.needs&&s.needs.length)?(' · 준비물 '+escapeHtml(s.needs.join(', '))):'')+(off?(' · '+PK+'장면을 다 골랐어요'):''); };
   if(img) h+='<div class="snp-grid">'+z.pick.map(function(s){ var i=Z.picks.indexOf(s.id), on=i>-1, off=!on&&full;
       /* ★[SNAP_PHOTO_FIRST 2026-09-27 사장님] 사진 중심 — «사진이 크게 보이는 게 중요 · 사진만 보고 누를 수 있게».
@@ -9330,18 +9346,18 @@ function _spNote(D){
     +'<textarea class="cc-input snp-grow" id="mp_snapNote" aria-label="사진작가가 알면 좋은 것" maxlength="500" placeholder="예: 왼쪽 얼굴이 편해요 · 안경 반사가 신경 쓰여요 · 서로에게 쓴 편지를 가져가요" style="min-height:120px;margin-top:10px">'+escapeHtml(D.note||'')+'</textarea>';
 }
 function _spSend(D, R){
-  var h='<h3 class="snp-h" tabindex="-1">사진작가에게 이렇게 전해요</h3>';
+  var h='<h3 class="snp-h" tabindex="-1">사진작가에게 이렇게 전해요</h3>', due=_snapDue(SNAPFLOW.p);   // [SNAP_SUM_REF 2026-09-27] 사진 · 링크 줄 이름은 «참고»(종전 «올린 사진»인데 값에 링크까지 있었다)   // [SNAP_EDIT_UNTIL] 고칠 수 있는 마지막 날(예식 4일 전)을 날짜로
   R.zones.forEach(function(z){ var Z=D.zones[z.key];
     h+='<div class="snp-sum"><div class="snp-sum-h">'+escapeHtml(z.ko)+'</div>'   // [SNAP_55] 공간별 분은 보이지 않는다
       /* ★[SNAP_PICK_ALL 2026-09-27] «기본» 줄을 뺐다 — 되살리지 말 것 — 2026-09-27 사장님 지시로 삭제 */
       +'<div class="snp-row"><span class="k">고른 장면</span><span class="v">'+(Z.picks.length?('<ol class="snp-ol">'+Z.picks.map(function(id){ var f=R.scene(id); return '<li>'+escapeHtml(f?f.s.name:id)+'</li>'; }).join('')+'</ol>'):'고르지 않았어요 · 사진작가가 장면을 골라 찍어요')+'</span></div>'
-      +((Z.ups.length||Z.links.length)?('<div class="snp-row"><span class="k">올린 사진</span><span class="v">'+[Z.ups.length?('사진 '+Z.ups.length+'장'):'', Z.links.length?('링크 '+Z.links.length+'개'):''].filter(Boolean).join(' · ')+'</span></div>'):'')
+      +((Z.ups.length||Z.links.length)?('<div class="snp-row"><span class="k">참고</span><span class="v">'+[Z.ups.length?('사진 '+Z.ups.length+'장'):'', Z.links.length?('링크 '+Z.links.length+'개'):''].filter(Boolean).join(' · ')+'</span></div>'):'')
       +(String(Z.note||'').trim()?('<div class="snp-row"><span class="k">전할 말</span><span class="v">'+escapeHtml(Z.note)+'</span></div>'):'')   // [SNAP_ZONE_NOTE]
       +'</div>'; });
   var nd=_spNeedsOf(D);
   h+='<div class="snp-sum"><div class="snp-row"><span class="k">알면 좋은 것</span><span class="v">'+(String(D.note||'').trim()?escapeHtml(D.note):'남기지 않았어요')+'</span></div>'
     +(nd.length?('<div class="snp-row"><span class="k">준비물</span><span class="v">'+nd.map(function(n){ var x=R.needs[n]; return escapeHtml(n)+(x?(' · '+(x.who==='스튜디오'?'스튜디오에 있어요':'두 분이 챙겨요')):''); }).join('\n')+'</span></div>'):'')+'</div>';
-  h+='<div class="snp-note" style="margin-top:12px">'+(SNAPFLOW.ro?'예식&nbsp;3일&nbsp;전부터는 여기서 고칠 수 없어요. 바꿀 것이 있으면 디렉터에게 말씀해 주세요.':'저장하면 디렉터가 확인해 사진작가에게 전해요. 예식&nbsp;3일&nbsp;전까지는 언제든 고칠 수 있어요.')+'</div>';   // [SNAP_CARD_AFTER] 읽기 전용은 카드의 잠금 줄과 같은 말
+  h+='<div class="snp-note" style="margin-top:12px">'+(SNAPFLOW.ro?'예식&nbsp;3일&nbsp;전부터는 여기서 고칠 수 없어요. 바꿀 것이 있으면 디렉터에게 말씀해 주세요.':('저장하면 디렉터가 확인해 사진작가에게 전해요. '+(due?('<b>'+due.edit+'('+due.editDow+')</b>까지는 언제든 고칠&nbsp;수 있어요.'):'예식&nbsp;3일&nbsp;전부터는 고칠 수 없어요.')))+'</div>';   // [SNAP_CARD_AFTER] 읽기 전용은 카드의 잠금 줄과 같은 말
   return h;
 }
 function renderSnapFlow(){
@@ -9516,7 +9532,7 @@ function exitSnapFlow(){ _mpHoldScroll();   // 저장 후 오버레이 닫기 ·
   _snapCollect();
   if(!_snapAgreeGate()) return;   // [SNAP_AGREE_LAST] 동의 전이면 저장하지 않고 마지막 걸음의 체크 줄로(«저장하고 마치기» · 나가기 판 «저장하고 나가기» 공용)
   SNAPFLOW._exiting=true; _flowBusy(true);
-  var _close=function(){ window._mpNextToast='스냅 기획을 저장했어요';   /* 바로 앞 화면이 «디렉터가 확인해 사진작가에게 전해요»를 말했다 — 알림에서 되풀이하지 않는다 */ _snapTearDown(); _mpRefresh(); };   // MPD4_F1 저장-복귀 확인 토스트(단체 사진·좌석과 같은 방식)
+  var _close=function(){ window._mpNextToast=_snapFilledD(SNAPFLOW.d||{})?'스냅 기획을 저장했어요':'저장했어요 · 고른 장면은 아직 없어요';   /* ★[SNAP_EMPTY_SAVE 2026-09-27 고객 점검] 아무것도 안 고르고 저장하면 카드는 «스냅 기획하기»로 남는데 알림은 «저장했어요»뿐이었다 — 가족 · 친구 스냅 [PHOTO_EMPTY_SAVE] 와 같은 말 */   /* 바로 앞 화면이 «디렉터가 확인해 사진작가에게 전해요»를 말했다 — 알림에서 되풀이하지 않는다 */ _snapTearDown(); _mpRefresh(); };   // MPD4_F1 저장-복귀 확인 토스트(단체 사진·좌석과 같은 방식)
   var _fail=function(msg){
     _flowBusy(false); SNAPFLOW._exiting=false;
     if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
@@ -9527,7 +9543,8 @@ function exitSnapFlow(){ _mpHoldScroll();   // 저장 후 오버레이 닫기 ·
 }
 function _snapSummary(sd){   // 카드 한 줄 — 공간별 고른 수
   sd=sd||{}; var zs=sd.zones||{}, c=((zs.candle||{}).picks||[]).length, w=((zs.white||{}).picks||[]).length, u=((zs.candle||{}).ups||[]).length+((zs.white||{}).ups||[]).length;
-  if(c||w) return '캔들존 '+c+'장면 · 화이트존 '+w+'장면 골랐어요'+(u?(' · 올린 사진 '+u+'장'):'');   // [SNAP_WORD_SCENE] 장면은 «장면»으로 · «그림» → «사진»
+  if(c&&w) return '캔들존 '+c+'장면 · 화이트존 '+w+'장면 골랐어요'+(u?(' · 올린 사진 '+u+'장'):'');   // [SNAP_WORD_SCENE] 장면은 «장면»으로 · «그림» → «사진»
+  if(c||w) return (c?('캔들존 '+c):('화이트존 '+w))+'장면 골랐어요'+(u?(' · 올린 사진 '+u+'장'):'');   // ★[SNAP_SUM_ZERO 2026-09-27 고객 점검] 한 공간만 고르면 «화이트존 0장면 골랐어요»라고 적던 것 — 고른 공간만 말한다
   if(u) return '찾던 사진 '+u+'장을 올리셨어요';
   if(String(sd.note||'').trim()||String((zs.candle||{}).note||'').trim()||String((zs.white||{}).note||'').trim()) return '사진작가에게 전할 말을 남기셨어요';   // [SNAP_ZONE_NOTE] 공간별 전할 말도
   return _snapFilledD(sd)?'원하는 것을 남겨 주셨어요':'';   // 옛 저장분(v1)
