@@ -57,7 +57,7 @@ async function open(w, opt) {
   if (opt.videos) await pg.evaluate(() => { (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });
   return { ctx, pg, errs, ext };
 }
-/* [PICK_V2 2026-09-26] PC(폭 1000 이상)의 ① 은 아래 단추 줄을 숨긴다 — «다음 · 보고 듣기»는 흐름 띠(.pk-go)에 있다 */
+/* [PICK_V2 2026-09-26] PC(폭 1000 이상)의 ① 은 아래 단추 줄을 숨긴다 — «다음 · 하나씩 만들기»는 흐름 띠(.pk-go)에 있다 */
 const clickNext = async (p) => { if (await p.isVisible('#next')) await p.click('#next'); else await p.click('.pk-go'); };
 const toPick = async (pg) => { await clickNext(pg); await pg.waitForTimeout(400); await clickNext(pg); await pg.waitForTimeout(500); };
 
@@ -508,6 +508,27 @@ else {
   await ctx.close();
 }
 
+/* ★[MK_VID_CHIP 2026-09-27] ② 케이크 · 축배 쪽 영상은 고른 판대로 — «케이크만» cake · «축배만 + 붓지 않음» toast · «케이크와 축배» cake(첫 장면) */
+{
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close'];
+  const { ctx, pg, errs } = await open(390, { videos: NAMES });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
+  const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};
+    for (const [t, w] of [['cake', 'none'], ['toast', 'none'], ['both', 'none']]) { S.toast = t; S.wine = w; if (!RitualOpen.onOf(S, 'toast')) { S.on.toast = 1; opSync(); } mkGo('toast'); render(); out[t] = nm(); }
+    return out; });
+  ok('11-1 ② 케이크 · 축배 쪽 영상 = 고른 판(케이크만 cake · 축배만 toast · 케이크와 축배 cake) [MK_VID_CHIP]', v.cake === 'cake' && v.toast === 'toast' && v.both === 'cake', JSON.stringify(v));
+  ok('11-1 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★[PC_GO_LABEL 2026-09-27] PC ① 흐름 띠 · 얇은 띠 단추 = «다음 · 하나씩 만들기»(#902 뒤 ② 이름 · 폰 #nav 와 같게) */
+{
+  const { ctx, pg } = await open(1280);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  const g = await pg.evaluate(() => [...document.querySelectorAll('[onclick="opToListen()"]')].map((b) => b.textContent.replace(/\u00a0/g, ' ')));
+  ok('11-2 PC ① 다음 단추 글 = «다음 · 하나씩 만들기» · 화면에 «보고 듣기» 없음 [PC_GO_LABEL]', g.length > 0 && g.every((t) => t === '다음 · 하나씩 만들기') && !(await pg.evaluate(() => /보고 듣기/.test(document.body.innerText))), JSON.stringify(g));
+  await pg.screenshot({ path: path.join(os.tmpdir(), 'pc-go-1280.png') });
+  await ctx.close();
+}
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
 process.exit(fail ? 1 : cant ? 2 : 0);

@@ -937,7 +937,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 /* ─── PC(폭 1000 이상) — 이야기판 [PC_STORY] · 내용 폭 최대 1180 · 양옆 88px 이상(레일 자리 · RAIL_LOCKED — 비켜서는 쪽은 이 화면) ─── */
 @media (min-width:1000px){
   body.pk2 .wrap{max-width:min(1180px,calc(100vw - 176px))}
-  body.pk2:not(.pk2e) #nav{display:none!important}   /* PC 는 흐름 띠 · 얇은 띠의 «다음 · 보고 듣기»로 — 수정하러 온 길(취소 · 저장)은 남긴다 · render() 가 인라인 display 를 주므로 !important(시안: 아래 막대는 휴대폰만) */
+  body.pk2:not(.pk2e) #nav{display:none!important}   /* [PC_GO_LABEL 2026-09-27 #902 뒤 ② 이름] PC 는 흐름 띠 · 얇은 띠의 «다음 · 하나씩 만들기»로 — 수정하러 온 길(취소 · 저장)은 남긴다 · render() 가 인라인 display 를 주므로 !important(시안: 아래 막대는 휴대폰만) */
   body.pk2 .q-title{font-size:30px}
   body.pk2 .q-sub{font-size:16px}
   .pk .mo{display:none}
@@ -2418,7 +2418,7 @@ function render(){
   // [ORD_NEXTNAME] 'tune' 한 단계를 세 가지 이름으로 부르고 있었다 —
   //   예고는 '함께 볼 순간 확인(전체 기본)' · 진행 라벨은 '기본 식순이 준비됐어요' · 화면 제목은 '어떤 순간을 직접 고를까요?'.
   //   부부는 예고를 보고 눌렀는데 다른 이름의 화면에 도착한다. 예고와 라벨을 화면이 하는 일('순서 다듬기')로 맞춘다.
-  document.getElementById('pnow').textContent=_isIntro?('안내 · '+(PHASE[st.k]||'')):(st.k==='tune')?'준비 · 순서 다듬기':(st.k==='pick')?'준비 · 우리 예식 짓기':(st.k==='listen')?'확인 · 보고 듣기':(st.k==='write')?(isOpen()?'마지막 · 준비하기':'마지막 · 글 적어두기'):(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
+  document.getElementById('pnow').textContent=_isIntro?('안내 · '+(PHASE[st.k]||'')):(st.k==='tune')?'준비 · 순서 다듬기':(st.k==='pick')?'준비 · 우리 예식 짓기':(st.k==='listen')?'확인 · 하나씩 만들기':(st.k==='write')?(isOpen()?'마지막 · 준비하기':'마지막 · 글 적어두기'):(pre?'준비 · ':'지금 · ')+(PHASE[st.k]||'');
   document.getElementById('ppct').textContent=_isIntro?((st.k==='intro'?'1':'2')+' / 2'):(st.k==='tune')?'다듬기만 남음':(st.k==='pick'||st.k==='listen')?('본식 '+estMin()):(st.k==='write')?'선택 입력':pre?'예식 시작 전':(stepNoLabel(st.k)+' · '+estMin());
   var nx2=STEPS[idx+1], pnextEl=document.getElementById('pnext');
   // ★[ORD_NEXTLABEL] '다음 · X'는 우상단에 놓인 탓에 버튼으로 읽혔다 — 실제로 자동 점검 중 네 번 눌러
@@ -2426,7 +2426,7 @@ function render(){
   //   조사 '은'을 반드시 남길 것. 빼면 다시 명령형으로 읽힌다.
   if(st.k==='intro') pnextEl.textContent='다음은 · 두 분이 하실 일';
   else if(st.k==='intro2') pnextEl.textContent=isOpen()?'다음은 · 우리 예식 짓기':'다음은 · 코스 고르기';
-  else if(st.k==='pick') pnextEl.textContent='다음은 · 보고 듣기';   // [LISTEN_PAGE]
+  else if(st.k==='pick') pnextEl.textContent='다음은 · 하나씩 만들기';   // [LISTEN_PAGE]
   else if(st.k==='listen') pnextEl.textContent='다음은 · 준비하기';
   else if(st.k==='done') pnextEl.textContent='하객 맞이부터 폐식·촬영까지 완성';
   else if(st.k==='course') pnextEl.textContent='다음은 · 순서 다듬기';
@@ -3123,7 +3123,7 @@ function _lNoOf(k){ var b=RitualOpen.bodySeq(S), i=b.indexOf(k); return i<0?((k=
 /* 줄 안 «바꿀 수 있는 것» — 키는 지금 S 그대로 · 새 키는 첫 모습(entryScene) 하나.
    q: 누르면 소리를 다시 틀지 않는 묶음(첫 모습 — 소리가 같다 · DETAIL B7) */
 /* ★[G3 · F2 2026-09-26 코워크 최종판 5-1 · 3-6] 묶음 이름은 혼자 읽어도 뜻이 서게 — 멘트 → 입장 멘트 · 말 → 말의 길이 · 방식 → 인사 방식 ·
-   무엇 → 무엇을. ① 미리 보기 창 «② 보고 듣기에서 고를 것»(RitualOpen.CHOOSE_AT_LISTEN)이 같은 말을 쓴다 — 한쪽만 고치면 창과 ② 가 갈린다. */
+   무엇 → 무엇을. ① 미리 보기 창 «② 하나씩 만들기에서 고를 것»(RitualOpen.CHOOSE_AT_LISTEN)이 같은 말을 쓴다 — 한쪽만 고치면 창과 ② 가 갈린다. */
 function _lGroups(k){
   var R=RitualOpen, g=[];
   function L(key,l,list,cur,q,note){ g.push({key:key,l:l,list:list,cur:cur,q:!!q,note:note||''}); }
@@ -3528,7 +3528,7 @@ function renderMake(){
   var one=(R.CARDS[k]&&R.CARDS[k].one)||(k==='guest'?'하객이 들어와 자리에 앉는 동안 안내가 흘러요.':'');
   if(one||sec) h+='<p class="mk-one">'+esc(one)+(sec&&k!=='guest'?' <span class="mk-sec-t">'+esc(R.secTxt(sec))+'</span>':'')+'</p>';
   if(!off){
-    if(_lAnyVid()) h+='<div class="mk-vid">'+_lVid(k,{big:true,name:k})+'</div>';
+    if(_lAnyVid()) h+='<div class="mk-vid">'+_lVid(k,{big:true})+'</div>';   // ★[MK_VID_CHIP 2026-09-27] 고른 판대로(firstVideo) — name:k 는 «케이크만»에도 잔 들기(toast.mp4)를 억지로 띄웠다
     /* ★[MK_PICK_TOP 2026-09-27 사장님 «고르기를 위로 · 선택하고 들어 볼 수 있게 · 선택이 우선»] 고르기 → «고른 대로 들어 보기» → 흐름 */
     var gs=(R.onOf(S,k)||k==='guest')?_lGroups(k):[];
     h+='<section class="mk-sec mk-pick'+(gs.length?'':' solo')+'"'+(gs.length?' aria-labelledby="mkPickH"':'')+'>'+(gs.length?'<h4 id="mkPickH">고르기</h4><div class="ls-vars">'+_lGroupsHtml(k,gs)+'</div>':'')
@@ -3958,7 +3958,7 @@ function _lfSteady(f){
 }
 function _lFull(){
   var f=document.getElementById('lsFull');
-  if(!f){ f=document.createElement('div'); f.id='lsFull'; f.className='ls-full'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-label','보고 듣기 · 크게'); document.body.appendChild(f); }
+  if(!f){ f=document.createElement('div'); f.id='lsFull'; f.className='ls-full'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-label','연습 · 크게 보기'); document.body.appendChild(f); }
   var ae=document.activeElement, fk=(ae&&f.contains(ae)&&ae.getAttribute)?ae.getAttribute('data-fk'):null, chipFocus=!!(fk&&fk.indexOf('lfc:')===0);
   var st=LP.q[LP.i], R=RitualOpen, single=!!(LP.range&&LP.range.ks.length<2), practice=!!(LP.all&&!single), h='<div class="lf-in'+(_lAnyVid()?'':' nv')+'">';   // [RIT_NO_EMPTY_THUMB] 장면 영상이 없으면 글을 세로 가운데로(종전엔 아래 60%가 빈 칸)
   var pre=st&&(st.k==='guest'||R.PRE[st.k]);
@@ -4019,7 +4019,7 @@ function _lFull(){
   var tgt=fk?f.querySelector('[data-fk="'+fk+'"]'):null;
   if(!tgt&&(chipFocus||!f.contains(document.activeElement))) tgt=f.querySelector(chipFocus?'[data-fk="lftog"]':'[data-fk="lfmin"]');
   if(tgt&&tgt.focus){ try{ tgt.focus({preventScroll:true}); }catch(e){} }
-  try{ if('mediaSession' in navigator&&st){ navigator.mediaSession.metadata=new MediaMetadata({title:_lName(st.k),artist:'우리 예식 · 보고 듣기'}); } }catch(e){}
+  try{ if('mediaSession' in navigator&&st){ navigator.mediaSession.metadata=new MediaMetadata({title:_lName(st.k),artist:'우리 예식 · 연습'}); } }catch(e){}
 }
 /* 케이크 · 축배는 줄에 맞춰 장면이 바뀐다(F: toast-pour 붓기 · toast 잔 들기) · 첫 모습(바라보기 · 맞절) · 큰절 */
 function _lSceneName(st){
@@ -4238,7 +4238,7 @@ function _pkPanel(){
     +'<p class="pk-tm mo">'+ord+'</p>'
     +_noteHtml()
     +'<p class="pk-tm mo">'+esc(photo)+' ·'+NBS+'본식과 합쳐 늘 '+R.DAYMIN+'분이에요'+(prep?'<br>'+esc(prep):'')+'</p>'   /* [D4] 휴대폰 한 줄 */
-    +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 보고 듣기</button>'
+    +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button>'
     +'</div></section>';
 }
 function _pkTile(k){
@@ -4294,7 +4294,7 @@ function _pkSlim(){
   var nt=R.noticeFull(S,_noteShut);
   el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b> ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+'<span class="op-star" aria-hidden="true">★</span> '+esc(R.CARDS[pk].n):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
       +(nt?'<button type="button" class="al" onclick="opToNote()">'+esc(R.firstSentences(nt.msg,1))+' ›</button>':'')+'</span>')
-    :'<span class="t">예시로 시작하거나 아래에서 담아 보세요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 보고 듣기</button>';
+    :'<span class="t">예시로 시작하거나 아래에서 담아 보세요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 하나씩 만들기</button>';
   _pkSlimCheck();
 }
 function _pkSlimCheck(){
@@ -4324,7 +4324,7 @@ function _pvEl(){
     +'<div class="pv-h"><h3 id="pvT"></h3><span class="pv-tag" id="pvTag"></span><button type="button" class="pv-x" data-pvx aria-label="닫기">'+ICO_X+'</button></div>'
     +'<div class="pv-media" id="pvM"></div><p class="pv-q" id="pvQ"></p><div class="pv-pb" aria-hidden="true"><i id="pvBar"></i></div><p class="pv-st" id="pvSt"></p>'
     +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div class="pv-act" id="pvAct"></div>'
-    +'<p class="pv-fn">전체 나레이션은 ② 보고 듣기에서 이어서 들어요</p></div>';
+    +'<p class="pv-fn">전체 나레이션은 ③ 연습하기에서 이어서 들어요</p></div>';
   el.addEventListener('click',function(e){ if(e.target&&e.target.closest&&e.target.closest('[data-pvx]')) opPvClose(); });
   el.addEventListener('keydown',function(e){
     if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); opPvClose(); return; }
@@ -4381,7 +4381,7 @@ function _pvDraw(){
   el.querySelector('#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):'';
   el.querySelector('#pvSt').textContent=(ln&&!ln.src)?REC_PEND:'';
   el.querySelector('#pvOne').textContent=c.one;
-  var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=ch?('② 보고 듣기에서 고를 것 · '+ch):''; ce.hidden=!ch;   /* [F2] ② 묶음 이름과 같은 말(G3) */
+  var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=ch?('② 하나씩 만들기에서 고를 것 · '+ch):''; ce.hidden=!ch;   /* [F2] ② 묶음 이름과 같은 말(G3) */
   el.querySelector('#pvShot').innerHTML='<b>남는 사진</b> · '+esc(R.shotOf(k,S)||c.shot||'');
   _pvActs(ln);
 }

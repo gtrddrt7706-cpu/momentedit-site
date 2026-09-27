@@ -8948,6 +8948,12 @@ chk 'VIDEO_ENCODE' scripts/video/encode-moment.sh 1   # 장면 영상 굽는 규
 chk 'TOAST_FILE_ONE' order-preview.html 1              # ② 잔 들기 장면 = toast.mp4 — 규격 17편과 한 이름(9/27 · 17편이 다 오면 케이크 영상이 나오던 것)
 chk 'TOAST_FILE_ONE' scripts/audit/listen-page.mjs 3   # 10-1 잔 들기 = toast · 10-2 화면이 찾는 이름 ⊂ 17편(실브라우저)
 nochk "return 'toast-raise'" order-preview.html
+chk 'MK_VID_CHIP' order-preview.html 1   # ② 케이크 · 축배 쪽 영상은 고른 판대로(name:k 강제 없음)
+chk 'MK_VID_CHIP' scripts/audit/listen-page.mjs 1
+nochk "_lVid(k,{big:true,name:k})" order-preview.html
+chk 'PC_GO_LABEL' order-preview.html 1   # PC ① 다음 단추 = «다음 · 하나씩 만들기»
+nochk '다음 · 보고 듣기' order-preview.html
+nochk '보고 듣기에서 고를 것' order-preview.html
 chk 'VOICE_LATE' order-preview.html 5   # 두 분 목소리 — 7일 전까지 녹음이 없으면 나레이션(자동 되돌리기 대신 안내 한 줄)
 chk 'HELPER_WORDS' assets/ritual-open.js 2
 nochk '반지를 담은 날' assets/ritual-open.js
