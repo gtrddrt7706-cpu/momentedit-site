@@ -507,7 +507,7 @@ chk '<div class="mp-dotln need">보내기 전, ' mypage.html 1
 nochk 'background:#FBF3F1' mypage.html 0
 nochk 'background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전' mypage.html 0
 nochk 'border-color:#cdb98a' mypage.html 0
-chk 'id="mp_svErr" style="color:var(--seal);' mypage.html 1
+chk 'id="mp_svErr" role="alert" style="color:var(--seal);' mypage.html 1
 chk 'id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align:center;color:var(--seal)"' mypage.html 1
 chk '.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif-ko);' mypage.html 1
 chk 'SEL_ONE' .claude/skills/momentedit-design/SKILL.md 1
