@@ -12753,7 +12753,7 @@ nochk "return '으로'; return '로'; }" mypage.html 0
 #   ⑤[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외) ⑥[SNAP_WORD_SCENE] «그림» → «사진» · «장면»으로 세기 ⑦[SNAP_CARD_AFTER] 낸 뒤 카드
 #   ⑧[SNAP_NUM_GOTHIC] 고딕 숫자 · Noto Sans KR 600 · 360 이하 «다음» ⑨[SNAP_MODAL_A11Y] aria-modal · inert · 초점 링 · 알림 자리 · 44px ×
 chk 'SNAP_NOIMG_LIST' mypage.html 5
-chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s); }); }" mypage.html 1
+chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||\[\]).some(function(e){ return !!R.exImg(e); }); }); }" mypage.html 1   # [SNAP_PHOTO_FIRST] 예시 사진도 센다
 chk "else h+='<div class=\"snp-list\" role=\"group\" aria-label=\"마음에 드는 장면\">'" mypage.html 1
 chk "사진작가가 고르신 장면을 챙겨 찍어요." mypage.html 1
 chk 'SNAP_FULL_HINT' mypage.html 4
@@ -12920,3 +12920,14 @@ chk 'function _spExView(id, ctl){' mypage.html 1
 chk "+'</button>'+_spExBtn(s)+'</div>'; }).join('')+'</div>';" mypage.html 1
 chk "querySelectorAll('\[data-sex\],\[data-szoom\]')" mypage.html 1
 chk "예시 사진 '+(k+1)+' · 준비 중" mypage.html 1
+# [SNAP_PHOTO_FIRST] 스냅 장면 = 사진 중심 칸(사진 누르면 크게 · 오른쪽 위 원 = 고르기) · 사진 전엔 목록 + 글 «예시 ›»(시안 B) — 2026-09-27 사장님
+chk 'SNAP_PHOTO_FIRST' mypage.html 8
+chk 'function _spPv(s, kind){' mypage.html 1
+chk 'function _spCover(s){' mypage.html 1
+chk '<button type="button" class="snp-pk' mypage.html 1
+chk '.snp-cell.on .snp-pv{box-shadow:0 0 0 2px var(--gold-deep)}' mypage.html 1
+chk '.snp-pk.on span{border-color:var(--seal);background:var(--seal)}' mypage.html 1
+chk "'<span aria-hidden=\"true\">예시 ›</span>'" mypage.html 1
+chk '.snp-exv-sl{flex:0 0 88%;' mypage.html 1
+nochk 'function _spTile(' mypage.html 0
+chk 'SNAP_PHOTO_FIRST' scripts/audit/snap-plan.mjs 2
