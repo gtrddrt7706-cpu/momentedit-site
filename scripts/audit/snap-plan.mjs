@@ -1,10 +1,12 @@
 // 고르는 스냅 기획 — 결정이 코드 곳곳에서 같은 값을 말하는지 [SNAP_PICK_V2 2026-09-26 사장님 회의]
 //
 //   목록 파일(assets/snap-refs.js)은 부부 화면 · 관리자 · 작가 브리프가 함께 읽는 «단 하나의 원천»이다.
-//   그런데 같은 숫자가 다른 곳에도 산다 — 진행표(분·시각) · 서버(고르기 4장·사진 3장·마감·잠금) · 촬영 목록표(장면 이름·구도·준비물).
+//   그런데 같은 숫자가 다른 곳에도 산다 — 진행표(분·시각) · 서버(고르기 8장·사진 3장·마감·잠금) · 촬영 목록표(장면 이름·구도·준비물).
 //   사본은 원천이 바뀔 때 조용히 틀린다(스냅 45 → 50 → 60 이 실제로 그렇게 움직였다). 그래서 잰다.
 //
-//   D5 기본 4장면 · D6 공간마다 최대 4장(고를 수 있는 8장) · D8 사진 3장 + 링크 3개 · D2 마감 14일 전 · 잠금 3일 전
+//   ★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자»] D5 · D6 이 바뀌었다 —
+//     고정 기본 장면 없음 · 공간마다 12장면 모두 고르는 칸 · 빈 상태에서 8장면까지 · 덜 고른 자리는 사진작가가 fill 순서로 채운다(브리프에만)
+//   D8 사진 3장 + 링크 3개 · D2 마감 14일 전 · 잠금 3일 전
 //   D3 분 = 진행표 «단독 스냅 촬영» · 시각 = 계약 도착 시각 + 목록의 분(브리프가 이렇게 계산한다)
 //   D9 묻는 칸은 하나 · D11 장면 목록 = 촬영 목록표
 //
@@ -30,15 +32,19 @@ const t = (cond, msg) => { if (cond) okn.push(msg); else bad.push(msg); };
 t(R && R.zones && R.zones.length === 2 && R.zones[0].key === 'candle' && R.zones[1].key === 'white', '공간 둘(캔들존 → 화이트존 순)');
 const ids = [];
 (R.zones || []).forEach((z) => {
-  t(z.base.length === 4, `${z.ko} 기본 4장면(D5) — 지금 ${z.base.length}`);
-  t(z.pick.length === 8, `${z.ko} 고를 수 있는 8장면 — 지금 ${z.pick.length}`);
+  // [SNAP_PICK_ALL] 고정 기본 없음(base 는 빈 배열로 남긴다 · 옛 호출이 멈추지 않게) · 12장면 모두 고른다 · fill = 사진작가 채우기 추천(고르는 장면 중에서)
+  t(Array.isArray(z.base) && z.base.length === 0, `${z.ko} 고정 기본 장면 없음(SNAP_PICK_ALL) — 지금 ${z.base ? z.base.length : '없음'}`);
+  t(z.pick.length === 12, `${z.ko} 고를 수 있는 12장면(SNAP_PICK_ALL) — 지금 ${z.pick.length}`);
+  t(Array.isArray(z.fill) && z.fill.length === 4 && z.fill.every((id) => z.pick.some((s) => s.id === id)), `${z.ko} 사진작가 채우기 추천 4장면이 고르는 장면 안에 있다 — ${(z.fill || []).join(',')}`);
+  t(z.pick.every((s) => Array.isArray(s.ex) && s.ex.length === 3 && s.ex.every((e) => e && typeof e.t === 'string' && e.t.length > 10 && e.t.indexOf('—') === -1)), `${z.ko} 12장면 모두 예시 사진 3장 글(ex · 줄표 없이)(SNAP_EX_VIEW)`);
   const pre = z.key === 'candle' ? 'c' : 'w';
   z.base.concat(z.pick).forEach((s) => { ids.push(s.id); t(new RegExp('^' + pre + '\\d{2}$').test(s.id), `${s.id} — ${z.ko} 번호 형식(${pre}+두 자리 · 서버 SNAP_ZONE_RE 와 같다)`); });
   z.pick.concat(z.base).forEach((s) => (s.needs || []).forEach((n) => t(!!R.needs[n], `${s.id} 준비물 «${n}» 안내가 needs 에 있다`)));
   z.base.concat(z.pick).forEach((s) => { if (s.img) ['webp', 'jpg'].forEach((x) => t(fs.existsSync(path.join(ROOT, 'assets/snap-refs', s.img + '.' + x)), `${s.id} 사진 파일 assets/snap-refs/${s.img}.${x}`)); });
 });
 t(new Set(ids).size === ids.length, '장면 번호가 겹치지 않는다');
-t(R.limits.pick === 4, `고르기 최대 4장(D6) — 지금 ${R.limits.pick}`);
+t(R.limits.pick === 8, `고르기 최대 8장(SNAP_PICK_ALL · 25분 ÷ 3분) — 지금 ${R.limits.pick}`);
+t(typeof R.fillLeft === 'function' && R.fillLeft(R.zones[0], ['c02']).map((s) => s.id).join() === 'c01,c03,c04' && !!R.scene('c01') && !!R.scene('w04'), '채우기 추천 = fill 중 안 고른 것(R.fillLeft) · 옛 기본 넷도 R.scene 이 찾는다');
 
 // ── 서버와 같은 한도(고르기·사진·링크) · 마감·잠금 날수
 const sv = gs.match(/var SNAP_V2 = \{ pick: (\d+), up: (\d+), link: (\d+), note: (\d+), lockDays: (\d+), dueDays: (\d+), keepDays: (\d+), briefDays: (\d+)/);
@@ -92,10 +98,11 @@ t(!!slot && slot.slice(1, 4).join(',') === arT.join(','), `계약 도착 슬롯 
 
 // ── D11 · 장면 목록 = 촬영 목록표
 const rows = {};
-shot.split('\n').forEach((l) => { const m = l.match(/^\|\s*([cw]\d{2})\s*\|\s*([^|]+?)\s*\|\s*(기본|선택)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|/); if (m) rows[m[1]] = { name: m[2], kind: m[3], frame: m[4], needs: m[5] }; });
+// [SNAP_PICK_ALL 2026-09-27] 목록표는 공간마다 한 표(12장면) — 번호 | 장면 | 구도 | 준비물 | 작가 채우기(fill 순서) | 메모
+shot.split('\n').forEach((l) => { const m = l.match(/^\|\s*([cw]\d{2})\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|\s*(\d?)\s*\|/); if (m) rows[m[1]] = { name: m[2], frame: m[3], needs: m[4], fill: m[5] }; });
+t(!/\|\s*(기본|선택)\s*\|/.test(shot), '촬영 목록표에 «기본 · 선택» 구분이 없다(SNAP_PICK_ALL — 12장면 모두 고른다)');
 (R.zones || []).forEach((z) => {
-  z.base.forEach((s) => { const r = rows[s.id]; t(!!r && r.name === s.name && r.kind === '기본' && r.frame === s.frame, `${s.id} «${s.name}» = 촬영 목록표(기본 · ${s.frame})`); });
-  z.pick.forEach((s) => { const r = rows[s.id]; t(!!r && r.name === s.name && r.kind === '선택' && r.frame === s.frame && r.needs === (s.needs || []).join(', '), `${s.id} «${s.name}» = 촬영 목록표(선택 · ${s.frame} · ${(s.needs || []).join(', ') || '준비물 없음'})`); });
+  z.pick.forEach((s) => { const r = rows[s.id], fo = (z.fill || []).indexOf(s.id); t(!!r && r.name === s.name && r.frame === s.frame && r.needs === (s.needs || []).join(', ') && r.fill === (fo > -1 ? String(fo + 1) : ''), `${s.id} «${s.name}» = 촬영 목록표(${s.frame} · ${(s.needs || []).join(', ') || '준비물 없음'} · 작가 채우기 ${fo > -1 ? fo + 1 : '-'})`); });
 });
 t(Object.keys(rows).length === ids.length, `촬영 목록표 줄 수 = 목록 장면 수(${Object.keys(rows).length} · ${ids.length})`);
 
@@ -152,7 +159,7 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   ['<dt>받는 것</dt><dd>고른 장면 · 메모 · 참고 링크 · 두 분이 올린 참고 사진</dd>',
    '<dt>쓰는 곳</dt><dd>스냅 촬영 준비 · 사진작가에게 촬영 요청서로 전해요(성함 · 연락처는 전하지 않아요)</dd>',
    '<dt>보관</dt><dd>올린 사진 · 링크 · 메모는 예식 6개월 뒤 지워요</dd>',
-   '<dt>동의하지 않으셔도 돼요</dt><dd>스냅 기획 없이 기본 장면으로 찍어요</dd>'].forEach((x) => t(ah.replace(/&nbsp;/g, ' ').indexOf(x) > -1, '자세히 보기 — ' + x.replace(/<\/dt>/, ' · ').replace(/<[^>]+>/g, '')));   // [SNAP_AGREE_BAL] 명세 문장과 대조 — 가운뎃점 앞뒤 &nbsp;(줄 끝 · 머리 매달림 방지)는 빈칸으로 읽는다
+   '<dt>동의하지 않으셔도 돼요</dt><dd>스냅 기획 없이 사진작가가 장면을 골라 찍어요</dd>'].forEach((x) => t(ah.replace(/&nbsp;/g, ' ').indexOf(x) > -1, '자세히 보기 — ' + x.replace(/<\/dt>/, ' · ').replace(/<[^>]+>/g, '')));   // [SNAP_AGREE_BAL] 명세 문장과 대조 — 가운뎃점 앞뒤 &nbsp;(줄 끝 · 머리 매달림 방지)는 빈칸으로 읽는다
   // [SNAP_AGREE_BAL 2026-09-26] 자세히 보기의 가운뎃점은 앞뒤가 묶여 있다 — 빈칸으로 되돌리면 320 · 340 에서 «메모 · / …» · «· 두 분이»가 다시 매달린다
   t(((ah.match(/<dd>[^<]*<\/dd>/g) || []).join('').match(/ · /g) || []).length === 0 && /\.snp-agree-body dt::after\{content:'\\00a0·\\00a0'/.test(my), '자세히 보기 — 가운뎃점 앞뒤는 &nbsp;(dd · dt 뒤 모두)');
   t(/\.snp-agree-more,\.snp-agree-pv\{[^}]*min-width:44px/.test(my), '«접기» 누름 폭 44px(자세히 보기 ↔ 접기 · 두 글자여도)');
@@ -160,7 +167,7 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(ah.indexOf('href="privacy.html#snap-plan"') > -1 && /<div class="spec-row" id="snap-plan">[\s\S]{0,300}<span class="spec-key">스냅 기획<\/span>/.test(priv), '«개인정보 처리방침 전문 보기» → 처리방침의 스냅 기획 줄(id="snap-plan")');
   t(/snapConsent:ag\?1:undefined/.test(my) && /var D=SNAPFLOW\.d\|\|_snapNewD\(\), ag=!!SNAPFLOW\.needAgree;/.test(my), '동의하고 하는 첫 저장에 동의를 싣는다(서버가 그때 기록)');
   t(flowR.indexOf('>스냅 기획 지우기</button>') > -1, '편집 화면 맨 아래 «스냅 기획 지우기»');
-  t(my.indexOf("body:'고른 장면 · 메모 · 올린 사진을 지우고 동의도 거둬요. 기본 장면으로 찍어요.'") > -1 && /action:'snapWithdraw'/.test(my), '지우기 확인 창 문구 = 명세 그대로 · 서버 snapWithdraw');
+  t(my.indexOf("body:'고른 장면 · 메모 · 올린 사진을 지우고 동의도 거둬요. 사진작가가 장면을 골라 찍어요.'") > -1 && /action:'snapWithdraw'/.test(my), '지우기 확인 창 문구 = 명세 그대로 · 서버 snapWithdraw');
   t(/case 'snapWithdraw':\s*return jsonOut\(handleSnapWithdraw\(body\)\);/.test(cb), 'doPost 가 snapWithdraw 를 잇는다');
   t(/adminSnapWithdraw: adminSnapWithdraw/.test(ag) && /data-snapact="withdraw"/.test(adm) && /gas\('adminSnapWithdraw'/.test(adm), '관리자 «기획 지우기(동의 거둠)» — 잠긴 뒤 부탁받았을 때');
   t(/if \(!\(body && body\.snapConsent\)\) return \{ ok: false, consent: false, error: SNAP_CONSENT_MSG \};/.test(gs) && /if \(!body\.snapConsent\) return \{ ok: false, consent: false, error: SNAP_CONSENT_MSG \};/.test(gs), '서버 — 동의 없이 새 기획 저장 · 사진 올리기를 거절한다(동작은 snap-plan.test.js 15)');
@@ -176,31 +183,35 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
 }
 
 // ── ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면의 진사는 «점»만.
-//   ★★같은 날 밤 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 점 다섯: 지금 걸음 동그라미 · 고른 순서 번호 · 흐름의 «촬영» 칸 글자 · «마감» 라벨 · 동의 알림.
+//   ★★같은 날 밤 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 점 다섯: 지금 걸음(9/27 부터 진행 표시 윗선) · 고른 순서 번호 · 흐름의 «촬영» 칸 · «마감» 라벨 · 동의 알림.
 //   고른 장면 테두리는 금빛(마이페이지 선택 톤) · 흐름 칸은 글자만 진사(면은 옅은 기운) — 진사를 넓은 면 · 테두리로 넓히지 않는다.
-//   [SNAP_STEP_DOT] 걸음 동그라미 — 보이는 30px(지금 34px) · 누르는 칸 44px · 고딕 같은 폭 숫자 · 지나온 길은 금빛 선.
+//   ★★[WZ_STEPS 2026-09-27 사장님 «2번 식순 형태의 진행바로 다른 곳들도 통일하자»] 걸음 동그라미([SNAP_STEP_DOT])는 걷었다 —
+//     청첩장 · 애프터 웨딩과 같은 진행 표시(wzSteps · .wz-steps = 식순 .op-steps 모양). 지금 걸음 = 윗선 진사 · 지나온 걸음 = 금빛 · 누르는 칸 44px.
 {
   const css = (sel) => ((my.match(new RegExp('\\n' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\{([^}]*)\\}')) || [])[1] || '');
-  t(/background:var\(--seal\)/.test(css('.snp-step.on::before')) && /width:34px/.test(css('.snp-step.on::before')), '진사 점 ① 지금 걸음 동그라미(34px · 진사)');
-  t(/background:var\(--seal\)/.test(css('.snp-no')), '진사 점 ② 고른 순서 번호');
+  const SNAP_STEPS_S = ((my.match(/var SNAP_STEPS=\[([^\n]*)\];/) || [])[1] || '').split('},{').map((x) => (x.match(/s:'([^']*)'/) || [])[1]);
+  t(/border-top-color:var\(--seal\)/.test(css('.wz-steps li.on')) && /wzSteps\(SNAP_STEPS\.map\(/.test(my), '진사 점 ① 지금 걸음 — 진행 표시 윗선(공용 .wz-steps)');
+  t(/background:var\(--seal\)/.test(css('.snp-pk.on span')), '진사 점 ② 고른 순서 번호');   // [SNAP_PHOTO_FIRST] .snp-no → 사진 오른쪽 위 순번 원(.snp-pk)
   // [SNAP_FLOW_TEXT 2026-09-27 사장님 결정 A · 지시문 6편 3부 5] 흐름 줄은 글자 한 줄 — 진사는 앞의 5px 점만(글자는 --accent 500 · 알약 테두리 · 바탕 없음)
   t(/background:var\(--seal\)/.test(css('.snp-fl.on::before')) && /width:5px;height:5px/.test(css('.snp-fl.on::before')) && /color:var\(--accent\)/.test(css('.snp-fl.on')) && css('.snp-fl.on').indexOf('--seal') === -1 && !/border|background/.test(css('.snp-fl')), '진사 점 ③ 흐름의 «촬영» 칸 — 앞의 5px 점만 진사 · 글자 한 줄(알약 없음)');
   t(/color:var\(--seal\)/.test(css('.snp-due-k')), '진사 점 ④ «마감» 라벨');
-  t(!!css('.snp-tile.on') && css('.snp-tile.on').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-tile.on')) && css('.snp-tile.on .snp-nm').indexOf('--seal') === -1, '고른 장면 테두리 · 이름은 금빛/먹빛(진사 테두리로 되돌리지 않는다)');
+  // [SNAP_PHOTO_FIRST 2026-09-27] 고르는 칸이 사진 중심(.snp-cell · .snp-pv · .snp-pk)으로 바뀌었다 — 같은 결정(테두리는 금빛 · 진사는 순번 원만)을 새 이름으로 잰다
+  t(!!css('.snp-cell.on .snp-pv') && css('.snp-cell.on .snp-pv').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-cell.on .snp-pv')), '고른 장면 테두리는 금빛(진사 테두리로 되돌리지 않는다)');
   const snpSeal = (my.match(/\n\.snp-[^{]*\{[^}]*var\(--seal[^}]*\}/g) || []).map((x) => x.trim().split('{')[0]);
   // [SPEC6_P2 2026-09-27] 점 셋을 더했다 — 목록의 고른 순번(.snp-li.on .snp-li-no · 22px 원) · 한 줄 알림 앞 5px 점(다 고름 · 링크 오류 · 한도)
-  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-step.on::before', '.snp-fl.on', '.snp-fl.on::before', '.snp-due-k', '.snp-li.on .snp-li-no', '.snp-full::before,.snp-err::before,.snp-lim::before'];   // [SNAP_FLOW_TEXT] 흐름 칸 진사는 ::before 점으로 옮겼다
+  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-fl.on', '.snp-fl.on::before', '.snp-due-k', '.snp-li.on .snp-li-no', '.snp-pk.on span', '.snp-full::before,.snp-err::before,.snp-lim::before'];   // [SNAP_FLOW_TEXT] 흐름 칸 진사는 ::before 점으로 옮겼다
   t(snpSeal.every((k) => ok5.indexOf(k) > -1), '스냅 화면 진사 = 정한 점들뿐 — 지금 ' + snpSeal.join(', '));
-  t(/width:30px;height:30px/.test(css('.snp-step::before')) && /width:44px;height:44px/.test(css('.snp-step')) && /font-variant-numeric:lining-nums tabular-nums/.test(css('.snp-step')), '[SNAP_STEP_DOT] 보이는 동그라미 30px · 누르는 칸 44px · 같은 폭 숫자');
-  t(/style="--sp:'\+\(st\/\(SNAP_STEPS\.length-1\)\)\+'"/.test(my) && /width:calc\(\(100% - 44px\) \* var\(--sp,0\)\)/.test(my), '[SNAP_STEP_DOT] 지나온 길 = 금빛 선(지금 걸음 / 4)');
+  t(!/\n\.snp-steps?[{:.:]/.test(my) && my.indexOf('<ol class="snp-steps"') === -1, '[WZ_STEPS] 걸음 동그라미(.snp-steps · .snp-step) 없음 — 되살리면 빨강');
+  t(/wzSteps\(SNAP_STEPS\.map\(function\(x\)\{ return x\.s; \}\), st, 'data-sstep', true\)/.test(my) && SNAP_STEPS_S.length === 5 && SNAP_STEPS_S.every((x) => x && x.length <= 4), '[WZ_STEPS] 스냅 = 공용 진행 표시 · 다섯 걸음 다 누른다(종전 동그라미와 같은 길) · 이름 네 글자 안(390 한 칸 60px) — ' + SNAP_STEPS_S.join(' · '));
+  t(/border-top:2px solid var\(--border\)/.test(css('.wz-steps li')) && /border-top-color:var\(--gold-deep\)/.test(css('.wz-steps li.done')) && /min-height:44px/.test(css('.wz-stepb')), '[WZ_STEPS] 윗선 2px(남은 옅게 · 지나온 짙은 금빛 — 비텍스트 3:1 [WZ_STEPS_AA]) · 누르는 칸 44px');
 }
 
 // ── [SPEC6_P2 2026-09-27 지시문 6편 2부] 스냅 기획 고객 점검 — 확인 창 대신 한 줄 · 사진 없을 땐 목록 · 동의 전 나가기 · 낸 뒤 카드
 {
   const cut = (a, b) => { const i = my.indexOf(a); if (i < 0) return ''; const j = my.indexOf(b, i + a.length); return j < 0 ? '' : my.slice(i, j); };
   const zoneF = cut('function _spZone(', '\nfunction '), bindF = cut('function _spBind(', '\n}'), card = cut('function renderSnap(p){', '\nfunction seatDrinkCounts('), exitA = cut('function _snapExitAsk(){', '\n}');
-  t(/function _spHasImg\(R, z\)\{ return z\.base\.concat\(z\.pick\)\.some\(function\(s\)\{ return !!R\.img\(s\); \}\); \}/.test(my) && /if\(img\) h\+='<div class="snp-grid">/.test(zoneF) && /else h\+='<div class="snp-list"/.test(zoneF), '[SNAP_NOIMG_LIST] 사진 없는 공간 = 한 줄 목록 · 한 장이라도 있으면 칸(R.img 판정)');
-  t(!/mpAlert\('공간마다/.test(bindF) && /class="snp-full" role="status">'\+L\.pick\+'장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요/.test(zoneF) && /aria-disabled="true"/.test(zoneF), '[SNAP_FULL_HINT] 다 고르면 한 줄 + 흐리게(aria-disabled) · 확인 창 없음');
+  t(/function _spHasImg\(R, z\)\{ return z\.base\.concat\(z\.pick\)\.some\(function\(s\)\{ return !!R\.img\(s\) \|\| \(s\.ex\|\|\[\]\)\.some\(function\(e\)\{ return !!R\.exImg\(e\); \}\); \}\); \}/.test(my) && /if\(img\) h\+='<div class="snp-grid">/.test(zoneF) && /else h\+='<div class="snp-list"/.test(zoneF), '[SNAP_NOIMG_LIST] 사진 없는 공간 = 한 줄 목록 · 한 장이라도 있으면 칸(R.img 판정)');
+  t(!/mpAlert\('공간마다/.test(bindF) && /class="snp-full" role="status">'\+PK\+'장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요/.test(zoneF) && /aria-disabled="true"/.test(zoneF), '[SNAP_FULL_HINT] 다 고르면 한 줄 + 흐리게(aria-disabled) · 확인 창 없음');
   t(!/mpAlert\('http로/.test(bindF) && !/mpAlert\('이미 담긴/.test(bindF) && /aria-describedby="mp_snapLinkErr"/.test(zoneF) && /장까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF) && /개까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF), '[SNAP_INLINE_ERR] 링크 오류 · 한도는 칸 아래 한 줄');
   t(/title:'고르던 것을 이 기기에 둘까요\?'/.test(exitA) && /yes:'이 기기에 두고 나가기', no:'지우고 나가기'/.test(exitA) && /_snapLocalPut\(\); _snapTearDown\(\)/.test(exitA), '[SNAP_PRECONSENT_EXIT] 동의 전 나가기 판 = 이 기기에 둘까요 · 서버로는 보내지 않는다');
   t(/#mp_snapOverlay\.snp-pre \[data-wiz-save\]/.test(my) && /이 기기에 적어 둔 것을 불러왔어요 · 마지막 걸음에서 동의하면 저장돼요/.test(my) && /사진은 마지막 걸음에서 저장할 때 함께 보내져요/.test(zoneF), '[SNAP_PRECONSENT_EXIT] 동의 전 머리 «저장» 숨김 · 불러왔어요 한 줄 · 사진 올리기 아래 한 줄');
@@ -208,6 +219,26 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(my.indexOf('찾던 그림') === -1 && my.indexOf('올린 그림') === -1 && /'장면 · 화이트존 '\+w\+'장면 골랐어요'/.test(my), '[SNAP_WORD_SCENE] «그림» → «사진» · 장면은 «장면»으로 센다');
   t(/\['예식완료','촬영완료','결과물전달','후기'\]\.indexOf\(_stg\)>-1/.test(card) && /id="mp_snapView">낸 내용 보기</.test(card) && /class="cc-btn-ghost trk-act" id="mp_snapStart">수정</.test(card) && card.indexOf('trk-tag') === -1, '[SNAP_CARD_AFTER] 낸 뒤 카드 — 수정(행 단추 규격) · 낸 내용 보기 · 선택 표 없음 · 예식 뒤 숨김');
   t(/aria-modal','true'/.test(my) && /function _snapInertOn\(ov\)/.test(my) && /body\.snp-open #mpToast\{bottom:/.test(my), '[SNAP_MODAL_A11Y] 겹화면 = 모달(aria-modal · 뒤 inert) · 알림은 막대 위로');
+}
+
+// ── ★★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자» · «빈 상태에서 8장면 직접»]
+//   고정 «기본으로 담아요» 칸이 부부 화면 · 관리자 · 브리프 어디에도 돌아오지 않는다 · 상한은 서버가 알려 준 값을 넘지 않는다
+{
+  const cut = (a, b) => { const i = my.indexOf(a); if (i < 0) return ''; const j = my.indexOf(b, i + a.length); return j < 0 ? '' : my.slice(i, j); };
+  const zoneF = cut('function _spZone(', '\nfunction '), whenF = cut('function _spWhen(', '\nfunction '), sendF = cut('function _spSend(', '\nfunction '), bindF = cut('function _spBind(', '\n}'), card = cut('function renderSnap(p){', '\nfunction seatDrinkCounts(');
+  t(/function _snapPickCap\(p\)\{ var R=window\.SNAP_REFS, L=\(R&&R\.limits&&\+R\.limits\.pick\)\|\|8, sv=\+\(\(p\|\|\{\}\)\.snapPick\)\|\|4; return Math\.max\(1, Math\.min\(L, sv\)\); \}/.test(my) && /pick:_snapPickCap\(p\) \};/.test(my), '상한 = min(목록 8, 서버 snapPick) · 서버가 알려 주지 않으면 4(옛 서버가 4장만 남긴다 · 조용히 잘리지 않게)');
+  t(/snapPick: SNAP_V2\.pick,/.test(gs), '서버가 상한을 알려 준다(buildProductionState snapPick)');
+  t(![zoneF, whenF, sendF, bindF].some((f) => /R\.limits\.pick|L\.pick/.test(f)), '부부 화면은 고르기 상한을 목록에서 바로 읽지 않는다(SNAPFLOW.pick) — 옛 서버면 4');
+  t(/full=Z\.picks\.length>=PK;/.test(zoneF) && /<span class="snp-cnt">'\+Z\.picks\.length\+' \/ '\+PK\+'<\/span>/.test(zoneF) && /Z\.picks\.length>=\(SNAPFLOW\.pick\|\|4\)/.test(bindF), '카운터 · 다 고름 · 고르기 단추 · 크게 보기 고르기가 같은 상한(PK = SNAPFLOW.pick)');
+  t(zoneF.indexOf('z.base') === -1 && zoneF.indexOf('>기본으로 담아요<') === -1 && zoneF.indexOf("'_spPv(s, 'base')") === -1 && my.indexOf('class="snp-base"') === -1 && my.indexOf('snp-grid sm') === -1, '고르는 걸음에 «기본으로 담아요» 칸이 없다(12장면 모두 고르는 칸)');
+  t(/'<li>공간마다 '\+R\.zones\[0\]\.pick\.length\+'장면 중 마음에 드는 장면을 <b>'\+\(SNAPFLOW\.pick\|\|4\)\+'장면까지<\/b> 고르시면, '/.test(whenF) && whenF.indexOf('<b>기본 4장면</b>') === -1, '첫 걸음 — «공간마다 12장면 중 … N장면까지 고르시면»(숫자는 상한에서)');
+  t(zoneF.indexOf("'<div class=\"snp-note\">다 고르지 않으셔도 돼요 · 남은 자리는 사진작가가 채워&nbsp;찍어요</div>'") > -1, '카운터 아래 — «다 고르지 않으셔도 돼요 · 남은 자리는 사진작가가 채워 찍어요»');
+  t(sendF.indexOf('class="k">기본<') === -1 && sendF.indexOf('고르지 않았어요 · 사진작가가 장면을 골라 찍어요') > -1, '마지막 요약 — «기본» 줄 없음 · 안 고르면 «사진작가가 장면을 골라 찍어요»');
+  t(card.indexOf('선택이에요 · 안 고르셔도 사진작가가 장면을 골라 찍어요.') > -1 && card.indexOf('기본 장면') === -1, '카드 각주 — «안 고르셔도 사진작가가 장면을 골라 찍어요»');
+  t(my.split('기본 장면으로').length - 1 === (my.indexOf('「…기본 장면으로 / 찍어요.」') > -1 ? 1 : 0), '부부 화면 고객 문구에 «기본 장면»이 남지 않았다(옛 CSS 주석 한 곳만)');
+  t(brief.indexOf('기본으로 담아요 <small>') === -1 && brief.indexOf('기본 네 장면은 늘 담아 주세요') === -1 && brief.indexOf('z.base.map') === -1, '브리프 — «기본으로 담아요» 칸 · «기본 네 장면» 원칙 없음');
+  t(brief.indexOf("개보다 적으면 남은 자리는 아래 추천 순서로 채워 주세요.<br>'+fills.join('<br>')") > -1 && /R\.fillLeft\(z, picks\)/.test(brief), '브리프 — 덜 고른 공간은 «아래 추천 순서로 채워 주세요» + fill 중 안 고른 장면');
+  t(adm.indexOf("row(z.ko+' · 기본'") === -1 && adm.indexOf("'고르지 않음 · 사진작가가 채워 찍어요'") > -1, '관리자 — «기본» 줄 없음 · 고른 장면만');
 }
 
 // ── 같은 원천을 읽는다

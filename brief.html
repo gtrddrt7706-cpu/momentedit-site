@@ -67,6 +67,14 @@ h3 small{font-size:12px;font-weight:400;color:var(--light)}
 .chk{margin:0;padding:0;list-style:none;font-size:13px;line-height:1.8;color:var(--sub)}
 .chk li::before{content:'';display:inline-block;width:12px;height:12px;margin:0 8px -1px 0;border:1px solid var(--gold-deep);border-radius:2px}
 .rules{margin:0;padding:0 0 0 18px;font-size:13px;line-height:1.8;color:var(--sub);word-break:keep-all}
+/* ★[PHOTO_TO_CREW 2026-09-27] 본식 뒤 가족 · 친구 스냅 — 그날 차례 번호 줄(부부 화면 [PHOTO_DAY_STEPS] 와 같은 차례) */
+.steps{margin:0;padding:0;list-style:none;counter-reset:st}
+.steps>li{position:relative;padding:0 0 12px 30px;font-size:13px;line-height:1.75;color:var(--text);word-break:keep-all;overflow-wrap:anywhere;counter-increment:st}
+.steps>li::before{content:counter(st);position:absolute;left:0;top:2px;width:20px;height:20px;border:1px solid var(--gold-deep);border-radius:50%;font-family:var(--sans);font-size:11px;line-height:18px;text-align:center;color:var(--gold-deep)}
+.steps>li b{font-family:var(--serif-ko);font-weight:600;color:var(--accent)}
+.steps .sub{display:block;font-size:12px;color:var(--light)}
+.steps ol{margin:4px 0 0;padding:0 0 0 18px}
+.steps a{color:var(--gold-deep)}
 .state{margin:60px 0 0;text-align:center;font-family:var(--serif-ko);font-size:14px;color:var(--sub);line-height:1.8}
 .acts{display:flex;justify-content:center;gap:8px;margin:24px 0 0}
 .acts button{min-height:44px;padding:10px 20px;border:1px solid var(--border);border-radius:6px;background:#fff;font-family:var(--serif-ko);font-size:13px;color:var(--accent);cursor:pointer}
@@ -122,13 +130,16 @@ function state(msg){ $('root').innerHTML='<div class="state" role="status">'+msg
     h+='<div class="when">'+esc(dateKo(r.wed))+(a?(' · 두 분 도착 <b>'+esc(a)+'</b>'):'')+'</div>';
     if(a) h+='<ul class="tl" aria-label="이날의 순서"><li>도착 · 착장 정돈 <b>'+esc(a)+'</b></li><li class="on">'+esc(z0.ko)+' → '+esc(z1.ko)+' '+esc(st)+'~'+esc(w1)+'</li><li>입장 준비 '+R.prep+'분</li><li>본식 '+esc(cer)+'</li></ul>';
     h+='<div class="guard">이 브리프는 촬영 작가 전용이에요 · 외부 공유와 저장을 삼가 주세요'+(r.until?(' · '+esc(dateKo(r.until))+'까지 열려요'):'')+(r.confirmed?' · 디렉터 확인을 마쳤어요':' · 디렉터 확인 전이라 바뀔 수 있어요')+'</div>';
-    var needs=[], seen={};
+    var needs=[], seen={}, fills=[];   // [SNAP_PICK_ALL] 공간별 «사진작가가 채울 추천»(두 분이 덜 고른 자리)
     R.zones.forEach(function(z){
       var Z=(r.zones||{})[z.key]||{}, picks=(Z.picks||[]);
       h+='<section class="zone" aria-label="'+esc(z.ko)+'"><div class="zh"><h2>'+esc(z.ko)+'</h2><span class="en">'+esc(z.en)+'</span></div><div class="mood">'+esc(z.mood)+'</div>';
-      h+='<h3>기본으로 담아요 <small>· 늘 담는 네 장면</small></h3><div class="grid sm">'+z.base.map(function(s){ return tile(R,s,0); }).join('')+'</div>';
+      /* ★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자»] «기본으로 담아요» 네 장면 칸을 뺐다 — 12장면 모두 두 분이 고른다.
+         덜 고른 자리는 아래 촬영 원칙의 추천 순서(snap-refs.js zones[].fill)로 채운다. «기본으로 담아요» 칸을 되살리지 말 것 — 2026-09-27 사장님 지시로 삭제. */
+      var _fl=(picks.length<R.limits.pick&&R.fillLeft)?R.fillLeft(z, picks):[];
+      if(picks.length<R.limits.pick) fills.push('<b>'+esc(z.ko)+'</b> · '+(_fl.length?_fl.map(function(s,i){ return (i+1)+'. '+esc(s.name); }).join(' · '):'추천 장면은 두 분이 이미 고르셨어요 · 남은 자리는 자유롭게 담아 주세요'));
       h+='<h3>두 분이 고른 장면 <small>· 번호가 우선순위 · 시간이 줄면 앞 번호부터</small></h3>';
-      h+=picks.length?('<div class="grid">'+picks.map(function(id,i){ var f=R.scene(id); if(!f) return ''; ((f.s.needs)||[]).forEach(function(n){ if(!seen[n]){ seen[n]=1; needs.push(n); } }); return tile(R,f.s,i+1); }).join('')+'</div>'):'<div class="none">고르지 않았어요 · 기본 장면으로 담아 주세요</div>';
+      h+=picks.length?('<div class="grid">'+picks.map(function(id,i){ var f=R.scene(id); if(!f) return ''; ((f.s.needs)||[]).forEach(function(n){ if(!seen[n]){ seen[n]=1; needs.push(n); } }); return tile(R,f.s,i+1); }).join('')+'</div>'):'<div class="none">고르지 않았어요 · 아래 촬영 원칙의 추천 순서로 채워 주세요</div>';
       if((Z.ups||[]).length) h+='<h3>두 분이 올린 그림 <small>· 이런 느낌을 원해요</small></h3><div class="grid">'+Z.ups.map(function(u){ return '<div class="tile"><img data-up="'+esc(u.id)+'" alt="두 분이 올린 그림" loading="lazy"></div>'; }).join('')+'</div>';
       if((Z.links||[]).length) h+='<h3>참고 링크</h3><ol class="links">'+Z.links.map(function(u){ return '<li><a href="'+esc(safeUrl(u))+'" target="_blank" rel="noopener noreferrer">'+esc(u)+'</a></li>'; }).join('')+'</ol>';
       if(String(Z.note||'').trim()) h+='<h3>두 분이 전하는 말</h3><p class="note">'+esc(Z.note)+'</p>';   // ★[SNAP_ZONE_NOTE 2026-09-26 사장님] 공간별 전할 말(서버가 동의 있을 때만 싣는다)
@@ -136,7 +147,22 @@ function state(msg){ $('root').innerHTML='<div class="state" role="status">'+msg
     });
     h+='<div class="box"><h2>두 분이 알려 주신 것</h2>'+(String(r.note||'').trim()?('<p class="note">'+esc(r.note)+'</p>'):'<p class="none">남기지 않았어요</p>')+'</div>';
     if(needs.length) h+='<div class="box"><h2>준비물</h2><ul class="chk">'+needs.map(function(n){ var x=R.needs[n]; return '<li>'+esc(n)+(x?(' · '+esc(x.who==='스튜디오'?'스튜디오에 있어요':'두 분이 가져와요')):'')+'</li>'; }).join('')+'</ul></div>';
-    h+='<div class="box"><h2>촬영 원칙</h2><ul class="rules"><li>기본 네 장면은 늘 담아 주세요.</li><li>두 분이 고른 장면은 번호 순서대로 담아 주세요. 늦게 시작하면 앞 번호부터예요.</li><li>'+esc(z0.ko)+'을 먼저 담고 '+esc(z1.ko)+'으로 옮겨요. 두 공간을 합쳐 '+R.shoot+'분이에요. 공간마다 쓸 시간은 두 분이 고른 장면에 맞춰 나눠 주세요.</li><li>'+esc(z0.ko)+'은 본식 세팅 그대로예요. 옮길 때 '+esc(z0.ko)+'을 비워 하객 입장과 겹치지 않게 해 주세요.</li><li>포즈와 동선은 디렉터가 옆에서 함께 이끌어요.</li></ul></div>';
+    h+='<div class="box"><h2>촬영 원칙</h2><ul class="rules"><li>두 분이 고른 장면은 번호 순서대로 담아 주세요. 늦게 시작하면 앞 번호부터예요.</li>'+(fills.length?('<li>두 분이 고른 장면이 '+R.limits.pick+'개보다 적으면 남은 자리는 아래 추천 순서로 채워 주세요.<br>'+fills.join('<br>')+'</li>'):'')+'<li>'+esc(z0.ko)+'을 먼저 담고 '+esc(z1.ko)+'으로 옮겨요. 두 공간을 합쳐 '+R.shoot+'분이에요. 공간마다 쓸 시간은 두 분이 고른 장면에 맞춰 나눠 주세요.</li><li>'+esc(z0.ko)+'은 본식 세팅 그대로예요. 옮길 때 '+esc(z0.ko)+'을 비워 하객 입장과 겹치지 않게 해 주세요.</li><li>포즈와 동선은 디렉터가 옆에서 함께 이끌어요.</li></ul></div>';
+    /* ★[PHOTO_TO_CREW 2026-09-27 사장님 «추천대로»] 본식 뒤 가족 · 친구 스냅 — 두 분 계획이 종전엔 관리자 화면에만 있었다. 서버(80_production handleSnapBrief)가 photo 를 줄 때만.
+         차례 = 전체 하객 → 꼭 담고 싶은 사진 → 감사 인사 → 가족 구도(두 분이 고른 순서) → 남은 분들과 자유롭게. 부르고 세우는 것은 사진작가([PHOTO_FREE]).
+         요청 · 불러 모아 주실 분 · 친구 부탁은 동의가 있을 때만 서버가 싣는다(없으면 개수만). 고객 글은 esc · 링크는 safeUrl. */
+    var ph=r.photo;
+    if(ph){
+      var nm=(ph.names||[]), ws=ph.wish||null, pc=ph.caller||{}, st='';
+      st+='<li><b>전체 하객 한 장</b><span class="sub">늘 첫 컷 · 두 분이 가운데 · 모두 앞으로</span></li>';
+      st+='<li><b>꼭 담고 싶은 사진</b><span class="sub">전체 하객 바로 뒤 · 모두 있을 때</span>'+(ws&&ws.length?('<ol>'+ws.map(function(w){ return '<li>'+esc(w.what)+((w.ref&&safeUrl(w.ref)!=='about:blank')?(' · <a href="'+esc(safeUrl(w.ref))+'" target="_blank" rel="noopener noreferrer">참고 링크</a>'):'')+'</li>'; }).join('')+'</ol>'):(ph.wishN?('<span class="sub">두 분이 적은 요청 '+(+ph.wishN)+'개 · 디렉터에게 받아 주세요</span>'):'<span class="sub">적은 요청 없음</span>'))+'</li>';
+      st+='<li><b>감사 인사</b><span class="sub">두 분이 하객 모두께 인사(약 1분) · 나레이션이 가족과 사진을 더 남길 분만 남아 달라고 안내해요</span></li>';
+      var who=[pc.groom?('신랑 쪽 · '+esc(pc.groom)):'', pc.bride?('신부 쪽 · '+esc(pc.bride)):''].filter(Boolean).join(' / ');
+      st+='<li><b>가족 구도</b><span class="sub">두 분이 고른 순서 · 구도마다 불러 모아 주세요</span>'+(nm.length?('<ol>'+nm.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join('')+'</ol>'):'<span class="sub">고른 구도 없음</span>')+(who?('<span class="sub">불러 모아 주실 분 · '+who+' · 이 분께 먼저 말씀드리면 빨라요</span>'):'')+'</li>';
+      st+='<li><b>남은 분들과 자유롭게</b><span class="sub">남는 시간만큼 · 두 분 숨 고르기 포함</span>'+(String(ph.friend||'').trim()?('<p class="note">'+esc(ph.friend)+'</p>'):'')+'</li>';
+      var mn=(ph.win&&ph.win.length===2)?('단체 사진 시간 약 '+(ph.win[0]===ph.win[1]?ph.win[0]:(ph.win[0]+'~'+ph.win[1]))+'분 · '):'';
+      h+='<div class="box"><h2>가족 · 친구 스냅 <small style="font-size:12px;font-weight:400;color:var(--light)">본식 뒤</small></h2><p class="mood" style="margin:0 0 10px">'+mn+'지금 계획 약 '+(+ph.mins||0)+'분</p><ol class="steps">'+st+'</ol></div>';
+    }
     h+='<div class="acts"><button type="button" id="printBtn">인쇄하기</button></div>';
     h+='<div class="foot">Moment Edit · 이 페이지는 검색에 나오지 않아요</div>';
     $('root').innerHTML=h;

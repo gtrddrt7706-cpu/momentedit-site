@@ -60,7 +60,7 @@ for (const P of PROFILES) {
   ok(`${W} 시험할 순간이 있다(첫 줄 글 → 뒤에 소리)`, !!k, k);
   if (k) {
     await pg.evaluate(() => { window.__playLog = []; });
-    await pg.tap(`#lsr_${k} .ls-play`); 
+    await pg.evaluate((x) => mkGo(x), k); await pg.waitForTimeout(300); await pg.tap('[data-fk="mkplay"]');   // [FLOW_MAKE] ② 는 순간마다 한 쪽 — 그 쪽 «이 순간 들어 보기» 
     const ms = await pg.evaluate(() => (LP.q[0] || {}).ms || 0);
     await pg.waitForTimeout(ms + 1500);
     const r = await pg.evaluate(() => ({ log: window.__playLog, paused: LP.paused, i: LP.i, st: LP.q[LP.i] ? !!LP.q[LP.i].src : null, el: LP.el ? { p: LP.el.paused, t: LP.el.currentTime } : null }));
@@ -70,7 +70,8 @@ for (const P of PROFILES) {
   }
   // ② 처음부터 보고 듣기 → 크게 보기 → 몇 줄 넘겨도 멈추지 않는다
   await pg.evaluate(() => { window.__playLog = []; });
-  await pg.tap('.ls-hero'); await pg.waitForTimeout(900);
+  await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }); await pg.waitForTimeout(600);   // [FLOW_MAKE] 크게 보기는 ③ 연습하기의 «처음부터 끝까지»
+  await pg.tap('[data-fk="prall"]'); await pg.waitForTimeout(900);
   ok(`${W} 크게 보기 열림 · 화면 꺼짐 방지 없어도 오류 없음`, await pg.evaluate(() => !document.getElementById('lsFull').hidden));
   for (let n = 0; n < 3; n++) { const b = await pg.$('#lsFull [data-fk="lfnext"], #lsFull [onclick*="lsJump(1)"]'); if (b) { await b.tap(); await pg.waitForTimeout(250); } }
   await pg.waitForTimeout(800);
@@ -78,9 +79,10 @@ for (const P of PROFILES) {
   ok(`${W} 크게 보기에서 빠르게 넘겨도 멈춘 채로 남지 않는다`, !r2.paused && r2.q > 0 && !r2.log.some((x) => !x.ok), JSON.stringify(r2).slice(0, 300));
   // ③ 뒤로 셋(안드로이드 뒤로 단추 · 카톡 아이폰 ‹ = history.back)
   await pg.goBack(); await pg.waitForTimeout(500);
-  ok(`${W} 뒤로 1 → 크게 보기만 닫힌다`, await pg.evaluate(() => document.getElementById('lsFull').hidden && STEPS[idx].k === 'listen'));
+  ok(`${W} 뒤로 1 → 크게 보기만 닫힌다`, await pg.evaluate(() => document.getElementById('lsFull').hidden && STEPS[idx].k === 'practice'));
   await pg.goBack(); await pg.waitForTimeout(500);
-  ok(`${W} 뒤로 2 → ① 고르기`, await pg.evaluate(() => STEPS[idx].k === 'pick'));
+  ok(`${W} 뒤로 2 → 앞 걸음(② 또는 ①)`, await pg.evaluate(() => STEPS[idx].k === 'listen' || STEPS[idx].k === 'pick'));
+  if (await pg.evaluate(() => STEPS[idx].k === 'listen')) { await pg.goBack(); await pg.waitForTimeout(500); }
   await pg.goBack(); await pg.waitForTimeout(500);
   ok(`${W} 뒤로 3 → 안내(페이지를 떠나지 않는다)`, await pg.evaluate(() => /intro/.test(STEPS[idx].k)));
   await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(800);

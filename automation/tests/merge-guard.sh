@@ -467,8 +467,116 @@ chk 'SNAP_ZONE_NOTE' mypage.html 4
 chk 'SNAP_ZONE_NOTE' admin.html 1
 chk 'SNAP_ZONE_NOTE' brief.html 1
 # ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면 진사 = 고른 순서 번호 · 동의 알림뿐(나머지는 먹갈색/금빛) — snap-plan 이 CSS 를 잰다
-chk 'SNAP_TONE' mypage.html 3                        # ★같은 날 밤 «진사 포인트 좀 주자 · 칙칙해» — 점 다섯(지금 걸음 · 순서 번호 · 촬영 칸 글자 · 마감 · 동의 알림) · snap-plan 이 CSS 를 잰다
-chk 'SNAP_STEP_DOT' mypage.html 3                    # 걸음 동그라미 — 보이는 30px(지금 34px 진사) · 누르는 칸 44px · 고딕 같은 폭 숫자 · 지나온 길 금빛 선
+chk 'SNAP_TONE' mypage.html 3                        # ★같은 날 밤 «진사 포인트 좀 주자 · 칙칙해» — 점 다섯(지금 걸음[9/27 부터 진행 표시 윗선 · WZ_STEPS] · 순서 번호 · 촬영 칸 · 마감 · 동의 알림) · snap-plan 이 CSS 를 잰다
+# ★★[WZ_STEPS 2026-09-27 사장님 «1번(스냅 동그라미)과 2번(식순 진행바) · 2번 식순 형태의 진행바로 다른 곳들도 통일하자»]
+#   입력 화면 진행 표시 한 벌 = 식순 .op-steps 모양(칸마다 윗선 2px + «① 이름» · 지금 걸음 진사 · 지나온 걸음 금빛 · 지나온 걸음은 밑줄 단추 44px).
+#   청첩장 · 애프터 웨딩 · 스냅 기획이 wzSteps() 하나를 쓴다. 옛 동그라미([SNAP_STEP_DOT] · 9/26 하루 살았다)나 «청첩장 · 1 / 4» 숫자 글을 되살리면 빨강.
+chk 'WZ_STEPS' mypage.html 14
+chk '_invSteps(d,' mypage.html 4
+chk "wzSteps(m.names, stepNo-1, 'data-trkgo')" mypage.html 1
+chk "wzSteps(SNAP_STEPS.map(function(x){ return x.s; }), st, 'data-sstep', true)" mypage.html 1
+chk 'WZ_STEPS' .claude/skills/momentedit-design/SKILL.md 1
+nochk '<ol class="snp-steps"' mypage.html 0
+nochk 'inv-step-n">청첩장 · ' mypage.html 0
+nochk "' · '+stepNo+'&nbsp;/&nbsp;'" mypage.html 0
+# ★[WZ_HEAD_ALL · WZ_TITLE · WZ_PILL · WZ_FINISH_LABEL 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 마이페이지 전체를 꼼꼼히 · 더 나은 쪽으로 일관성 있게»]
+#   입력 화면 겉틀 나머지 — ①애프터 웨딩 마지막 걸음에도 저장 · 나가기(결과 화면만 뺀다) ②제목 한 벌(.inv-q = .snp-h 16/500 · 좌석도 왼쪽 정렬)
+#   ③위 알약 = 식순 .ob-exit(고딕 · 마우스 올림 금빛) ④마침 단추 «저장하고 마치기»(스냅 기획 · 가족·친구 스냅과 같은 말).
+chk "(result?'':wizActs())+'</div>'" mypage.html 1
+nochk "(last?'':''+wizActs()+'')" mypage.html 0
+chk '.inv-q{font-family:var(--serif-ko);font-size:16px;font-weight:500;' mypage.html 1
+chk '<div class="inv-q">테이블 자리를 정해요</div>' mypage.html 1
+nochk 'text-align:center">테이블 자리를 정해요' mypage.html 0
+chk '.wiz-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--sans);' mypage.html 1
+chk 'WZ_PILL' mypage.html 1
+chk "true,'저장하고 마치기');" mypage.html 2
+nochk "true,'저장하고 닫기');" mypage.html 0
+# ★★[SEL_ONE · NOTE_DOT · ERR_ONE · CC_BTN_KO 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»]
+#   ①고름 표시 한 벌 = 금빛 테 두 겹 + 옅은 금빛 바탕 + 먹빛(식순 .seg-b.on · 음료 .dk-chip.on 과 같은 말) — 진사 칠 · 먹빛 칠 · 진사 테로 되돌리면 빨강
+#   ②안내 한 줄 = «점 + 글»(.mp-dotln) — 칠한 상자(분홍 #FBF3F1 · 진사 옅은 칠 · 회색 칠 · 금빛 칠)로 되돌리면 빨강
+#   ③오류 = 진사(후기 · 애프터 웨딩 AI) ④주 단추 .cc-btn 글꼴 = 한글 명조(라틴 Cormorant 만 걸려 한글이 기기 기본 명조로 떨어졌다)
+chk 'SEL_ONE' mypage.html 12
+chk '.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on,.rev-chip.on{border-color:var(--gold-deep);' mypage.html 1
+chk '.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);' mypage.html 1
+nochk 'dn-fpill.on{border-color:var(--seal' mypage.html 0
+nochk 'dn-segbtn.on{background:var(--seal' mypage.html 0
+nochk 'srv-opts button.on{background:#4E3F31' mypage.html 0
+nochk 'sp-opt.on{border-color:var(--seal)' mypage.html 0
+chk 'NOTE_DOT' mypage.html 8
+chk '<div class="mp-dotln need">보내기 전, ' mypage.html 1
+nochk 'background:#FBF3F1' mypage.html 0
+nochk 'background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전' mypage.html 0
+nochk 'border-color:#cdb98a' mypage.html 0
+chk 'id="mp_svErr" role="alert" style="color:var(--seal);' mypage.html 1
+chk 'id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align:center;color:var(--seal)"' mypage.html 1
+chk '.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif-ko);' mypage.html 1
+chk 'SEL_ONE' .claude/skills/momentedit-design/SKILL.md 1
+chk 'NOTE_DOT' .claude/skills/momentedit-design/SKILL.md 1
+# ★[WZ_STEPS_DOTS · WZ_STEPS_TAG · FOLD_CHEVRON · X_ONE · TOAST_ONE · MODAL_R12 · NO_BOUNCE · OPT_TAG 2026-09-27 사장님 «일관성»] 작은 부품 한 벌
+chk '.dots .dot.done{width:6px;height:6px;background:var(--gold)}' mypage.html 1
+chk "_ivStepTag=WZ_CIRC\[_ivI\]+' '+_invStepNames(inv.draft)\[_ivI\]" mypage.html 1
+nochk "_ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT" mypage.html 0
+chk 'FOLD_CHEVRON' mypage.html 5
+nochk 'class="pt-ar">▾' mypage.html 0
+nochk "(detOpen?' ▴':' ▾')" mypage.html 0
+nochk "'접기 ▴':'펼치기 ▾'" mypage.html 0
+chk 'data-seat-selclose aria-label="닫기">✕</button>' mypage.html 1
+chk '.dn-fav .x{position:absolute;top:-1px;right:-1px;width:44px;height:44px;' mypage.html 1
+chk 'TOAST_ONE' mypage.html 1
+nochk 'background:rgba(58,47,37,.92)' mypage.html 0
+chk 'MODAL_R12' mypage.html 2
+nochk '.mp-modal-card{background:#FAFAF8;border:1px solid var(--border,#DDD8D1);border-radius:6px' mypage.html 0
+chk 'animation:tdFade' mypage.html 1
+nochk 'tdBounce 1' mypage.html 0
+nochk 'translateY(-4px)}}' mypage.html 0
+chk 'OPT_TAG' mypage.html 1
+chk 'class="opt-tag">· 선택</span>' mypage.html 3
+nochk '<span style="color:var(--label-soft);font-weight:400">· 선택</span>' mypage.html 0
+chk "b.className='rev-chip'; b.setAttribute('aria-pressed','false');" mypage.html 1
+nochk "b.style.background=sel\[c\]?'var(--gold-deep" mypage.html 0
+# ★[SUBHEAD_ONE · KO_CAP · WZ_ERR_INV · AFTER_BAR · MYWORKS_ORDER 2026-09-27 사장님 «일관성»] 4차 — 소제목 14/600 한 벌 · 한글 캡션 가짜 기울임 제거 ·
+#   청첩장 걸음 확인 = 막대 안 한 줄 · 막대 뒤 안내 → 앞 · 내 완성물 = 준비 카드 이름 · 순서(prep-order 가 잰다)
+chk 'SUBHEAD_ONE' mypage.html 3
+chk '.inv-gate-q{font-family:var(--serif-ko);font-size:14px;font-weight:600;' mypage.html 1
+chk 'KO_CAP' mypage.html 2
+nochk '.inv-eg-cap{font-family:var(--serif);font-style:italic' mypage.html 0
+nochk '.inv-onep-cap{font-family:var(--serif);font-style:italic' mypage.html 0
+chk 'function _invErr(msg){' mypage.html 1
+chk "_invErr('디자인을 골라 주세요.')" mypage.html 1
+nochk "mpAlert('초대 방식을 골라 주세요.')" mypage.html 0
+nochk "mpAlert('디자인을 골라 주세요.')" mypage.html 0
+chk 'AFTER_BAR' mypage.html 2
+chk 'MYWORKS_ORDER' mypage.html 1
+# [SEAL_CTA_ONLY] 진사 단추는 결정적 행동에만(AI 대화 «보내기»는 먹빛) · [FOCUS_ONE] 입력칸 초점 = 짙은 금빛 테 두 겹(진사 빛 번짐 · 옅은 한 겹 걷음)
+chk 'SEAL_CTA_ONLY' mypage.html 1
+nochk 'class="cc-btn cc-btn-seal" id="dncSend"' mypage.html 0
+chk 'FOCUS_ONE' mypage.html 3
+nochk '.seat-note-ta:focus{outline:none;border-color:var(--seal)' mypage.html 0
+# ★[WZ_STEPS_FOCUS · WZ_STEPS_AA 2026-09-27 web-design-guidelines 점검] 걸음 누른 뒤 초점 = 새 제목 · 지나온 선 3:1(짙은 금빛) · 목록 역할 ·
+#   좁은 폭 다섯 걸음은 번호를 윗줄로 · 고름 상태 낭독(디자인 칸 · 예식 시간 칸) · 알림 글은 붙인 뒤에 · 후기 오류 낭독
+chk 'function _wzFocusHead(box){' mypage.html 1
+chk 'renderInvFlow(box); _wzFocusHead(box);' mypage.html 1
+chk "render(box); _wzFocusHead(box); }); });   // \[WZ_STEPS_FOCUS\]" mypage.html 1
+chk '.wz-steps li.done{color:var(--sub);border-top-color:var(--gold-deep)}' mypage.html 1
+chk '@media (max-width:360px){.wz-steps.n5 .wz-n{display:block' mypage.html 1
+chk 'role="list" aria-label="진행 단계"' mypage.html 1
+chk 'class="inv-dz'"'"'+(cur===p\[0\]?'"'"' sel'"'"':'"'"''"'"')+'"'"'" aria-pressed=' mypage.html 1
+chk "x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true');" mypage.html 2
+chk "requestAnimationFrame(function(){ t.textContent=msg; t.style.opacity='1';" mypage.html 1
+chk 'id="mp_svErr" role="alert"' mypage.html 1
+nochk '@keyframes dnCueAr{0%,100%{transform:translateY(0)}' mypage.html 0
+chk '@media (hover:hover){.wiz-exit:hover{' mypage.html 1
+# ★[WZ_STEPS_LEVEL 2026-09-27 사장님 «하나씩 올라가는 효과는 조금 유치해 · 고급스러운 무드에는 안 어울려 · 다른 곳들도 개선»]
+#   진행 표시의 모든 칸 글자는 선 아래 같은 높이 — 단추를 블록으로 두면 글자가 44px 칸 가운데로 내려가 지금 걸음만 11px 위로 튀어 보였다(실측).
+#   단추 = flex + 위쪽 맞춤 · 글자 = .wz-l 한 묶음. 블록 단추로 되돌리면 빨강.
+chk 'WZ_STEPS_LEVEL' mypage.html 2
+chk '.wz-stepb{display:flex;align-items:flex-start;justify-content:center;' mypage.html 1
+chk "var lab='<span class=\"wz-l\">" mypage.html 1
+nochk '.wz-stepb{display:block' mypage.html 0
+# [SEAL_CTA_ONLY 최종 점검] «여기로 예약할래요»는 흰 보조 단추 — 진사 테 · 진사 칠 마우스 올림으로 되돌리면 빨강
+nochk '.dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal)' mypage.html 0
+nochk '.dn-repbtn:hover{background:var(--seal)' mypage.html 0
+chk '.dn-repbtn{display:block;width:100%;min-height:44px;' mypage.html 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
@@ -2152,6 +2260,27 @@ chk 'EX_TOGGLE' order-preview.html 2
 chk 'LF_STEADY' order-preview.html 4
 chk '_lfSteady(f);' order-preview.html 1             # 빼면 글 길이마다 제목·단추가 오르내린다(깨 보기: 144~278px)
 nochk 'data-fk="opblank"' order-preview.html         # «빈 칸에서 직접 고를게요» 중복 링크 · 사장님 «중복 같으니 지우던가»
+# [CHIP_NO_REPLAY · CHIP_STAY · PRACTICE_CHOOSE · REF_EXAMPLE 2026-09-27 사장님 «버튼 누를 때마다 음성 재생 · 다 고르지 못해도 넘어간다 · 들어 보는 건지 고르는 건지 헷갈린다 · 참고 예시 대본과 녹음»]
+chk 'CHIP_NO_REPLAY' order-preview.html 3
+chk 'if(g0&&g0.cur===v) return;' order-preview.html 1      # 이미 고른 칩은 아무것도 안 한다
+chk 'CHIP_STAY' order-preview.html 7
+chk 'PRACTICE_CHOOSE' order-preview.html 5
+chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
+chk 'REF_EXAMPLE' order-preview.html 4
+# ★[CAST_TEXT_ONLY 2026-09-27 사장님] 참고 예시는 글로만 — «이 목소리는 …» 문장은 걷었다(목소리가 없다) · 아래 nochk 가 되살아남을 막는다
+# [REF_TABLE 2026-09-27 코워크 참고 예시 대본] 예시는 표 한 곳(assets/ritual-ref.js · 자동 생성) · 폐지 클립(27 시어머님 답 · 15 하객대표 축사)은 넣지 않는다
+chk 'REF_TABLE' order-preview.html 4
+chk '<script src="/assets/ritual-ref.js">' order-preview.html 1
+nochk "'27_tribute-reply'" order-preview.html
+nochk "'15_toast'" order-preview.html
+nochk '27_tribute-reply' assets/ritual-ref.js
+nochk '15_toast' assets/ritual-ref.js
+chk 'REF_TABLE' scripts/audit/listen-page.mjs 2
+node scripts/build-ref-examples.mjs --check || fail=1
+node scripts/audit/tx-merge.mjs >/dev/null || { echo '✗ TX_MERGE 칸별 합치기 검사 실패(node scripts/audit/tx-merge.mjs)'; fail=1; }   # [TX_MERGE 2026-09-27]
+chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
+chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
+chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
 chk 'NOW_ONELINE' mypage.html 1                          # NOW 헤드라인 한 줄 원칙 + balance 안전망 · 빼면 '주세요' 3자만 둘째 줄에 남는 고아 줄이 돌아온다
 chk 'NOW_ONELINE' automation/platform/00_platform-config.gs 1  # 서버 문구 첫 문장 13자 이내 규칙(그 문장이 곧 헤드라인이다)
 chk 'IG_LEGIBLE' index.html 2                            # 마크 다층 그림자(어두운 윤곽선) + 리빌 대각 파동 · 한 겹으로 되돌리면 밝은 사진 3장(2·7·9)에서 마크가 대비 1.6으로 사라진다
@@ -8734,8 +8863,8 @@ chk 'CHIP_CHECKED' scripts/audit/listen-page.mjs 1
 chk 'DETAIL_0925 C1 · C2' scripts/audit/listen-page.mjs 1   # 대비 · 누를 곳 실측(깨 보고 믿음 — 되돌리니 빨강 4줄)
 nochk 'aria-pressed="true"\]{background:var(--gold-deep);' order-preview.html
 chk 'function renderListen' order-preview.html 1
-chk "if(k==='listen') return renderListen();" order-preview.html 1
-chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.write,STEPDEF.done' order-preview.html 1
+chk "if(k==='listen') return isOpen()?renderMake():renderListen();" order-preview.html 1   # [FLOW_MAKE] 새 코스 ② = 하나씩 만들기 · 옛 코스는 renderListen 그대로
+chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.practice,STEPDEF.done' order-preview.html 1   # [FLOW_MAKE · PRACTICE_STEP] ③ = 연습하기(옛 write 준비하기는 걷었다)
 chk 'VIDEO_READY' assets/ritual-open.js 3
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
@@ -10769,7 +10898,9 @@ chk 'o.cancel===false){ try{ _bkId=bkOpen' mypage.html 1
 chk 'INV_EG_FULL' mypage.html 1
 chk 'WIZ_NOTE_STYLE' mypage.html 1
 chk '^\.sp-note{' mypage.html 1
-chk '\.inv-nav + \.sp-note{' mypage.html 1
+#   ★2026-09-27 [AFTER_BAR] 캡션이 막대 «앞»으로 옮겨 선택자도 .sp-note.wz-cap 로(막대가 아래에 붙은 뒤로 막대 뒤 글은 맨 끝까지 내려야 보였다) — 글꼴 · 자간은 그대로
+chk '\.sp-note\.wz-cap{font-family:var(--serif-ko);letter-spacing:\.04em' mypage.html 1
+nochk '\.inv-nav + \.sp-note{' mypage.html 0
 # [MODAL_ACT_STICKY] 긴 모달에서 버튼·제목이 붙어 따라온다(스크롤이 있는지 몰라 못 찾던 자리)
 chk 'MODAL_ACT_STICKY' mypage.html 2
 # [GATE_CARD_BUSY] 「예식만으로 조용히 마무리」 카드 — 누른 순간 신호가 있어야 한다.
@@ -11227,7 +11358,35 @@ chk 'SNAP_50' assets/ritual-data.js 1                 # 스냅 45 → 50(입장 
 nochk 'snap: 50' assets/ritual-data.js   # [DAY_60 2026-09-26] 스냅 60 으로 바뀌었다
 chk 'snap: 60' assets/ritual-data.js 1
 chk 'SNAP_50' assets/sequence-modal.js 2
-chk 'PREVIDEO_ALWAYS' assets/ritual-open.js 2         # 식전 영상은 늘 있다(사장님 결정 2)
+# ★[PREVIDEO_PICK 2026-09-27 사장님 «식전 영상은 필수로 하지 말자 · 선택할 수 있게»] 종전 PREVIDEO_ALWAYS(9/25 결정 2)를 뒤집었다 — 옛 이름은 «폐지» 주석으로만 남는다
+chk 'PREVIDEO_PICK' assets/ritual-open.js 3
+nochk 'var ALWAYS = { guest: 1, entry: 1, prevideo: 1 }' assets/ritual-open.js   # 되살리면 식전 영상이 다시 필수가 된다
+chk 'PREVIDEO_PICK' order-preview.html 3
+chk 'PREVIDEO_PICK' api/_ritual-kb.js 1
+chk 'PREVIDEO_PICK' scripts/audit/open-course.mjs 3
+# ★[TX_MERGE · MK_SAVE_NUDGE 2026-09-27 사장님 결정] 두 기기 칸별 합치기(GAS · 빌더 · 마이페이지) · ②→③ 저장 알림
+chk 'TX_MERGE' automation/platform/80_production.gs 5
+chk 'TX_MERGE' order-preview.html 3
+chk 'TX_MERGE' mypage.html 1
+chk 'MK_SAVE_NUDGE' order-preview.html 1
+chk '저장하고 넘어갈까요?' order-preview.html 1
+chk 'FLOW_MAKE' order-preview.html 3
+# ★★[CAST_TEXT_ONLY 2026-09-27 사장님 «실제로 식장에서 나오는 멘트만 녹음으로»] 대역 목소리 06~14 · 24~26 은 미리듣기 · 연습에서 틀지 않는다 — 되살리지 말 것
+chk 'CAST_TEXT_ONLY' assets/ritual-story.js 1
+chk 'CAST_TEXT_ONLY' order-preview.html 4
+chk 'CAST_TEXT_ONLY' console.html 1
+chk 'castLivePlayOf' console.html 2
+nochk '이 목소리는 예식에서 나오지 않아요' order-preview.html
+nochk 'mkRefPlay' order-preview.html
+node scripts/audit/cast-mute.mjs >/dev/null || { echo '✗ CAST_TEXT_ONLY 대역 목소리 막기 검사 실패(node scripts/audit/cast-mute.mjs)'; fail=1; }
+chk 'MK_REF' order-preview.html 1
+chk 'MK_HELPERS' order-preview.html 1
+chk 'MK_RO' order-preview.html 2
+# ★[PK_EX_SEAL 2026-09-27 사장님] ① 고른 예시 = 진사 테두리 · «여기서 시작 ✓» 글자는 뺐다(aria-pressed 가 전한다)
+chk 'PK_EX_SEAL' order-preview.html 1
+nochk '여기서 시작 ✓' order-preview.html
+nochk '식전 영상 · 입장 · 닫는 인사는 늘 있어요' assets/ritual-open.js
+nochk '입장 · 닫는 인사 · 식전 영상은 늘 있어요' order-preview.html
 chk 'PREVIDEO_AT_4' assets/ritual-cue.js 2            # 영상은 03 과 04 사이 · 본식 4분 전 시각고정
 chk 'SPEECH_IN_FREE' assets/ritual-open.js 1          # «축하의 말» 칸은 거뒀다 — 축사는 준비한 순서의 한 판
 nochk "'narr-speech-in'" assets/ritual-cue.js 0
@@ -11432,7 +11591,7 @@ chk '두 분이 하객께 목례 · 박수' order-preview.html 1
 chk '<em>→ ③에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번
 chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»
 chk 'G8 2026-09-26' order-preview.html 1   # [G8] 크게 보기 부제 «… · 녹음 전이라 글로 보여 드려요»
-chk '담은 순간을 예식 차례대로 보며 나레이션을 들어 보세요. 줄을 누르면 흐름과 고를 것이 열려요. 준비할 것은 모두 ③ 준비하기에 모여요.' order-preview.html 1   # [G9]
+chk '순간마다 한 화면이에요. 듣고, 고르고, 적은 뒤 «다음»을 눌러 주세요.' order-preview.html 1   # [FLOW_MAKE] ② 머리 글(옛 «줄을 누르면 … ③ 준비하기에 모여요»는 목록 화면과 함께 걷었다)
 nochk '고른 순서대로 장면을 보며 나레이션을 들어 보세요' order-preview.html   # [G9] «고른 순서대로»는 «내가 누른 차례»로 읽힌다
 nochk '고른 차례대로 장면과 나레이션을' order-preview.html   # [INTRO_ORDER_WORD] 안내 2 의 ② 줄도 같은 까닭
 chk 'H1_FIRST_HELLO' order-preview.html 1
@@ -11829,10 +11988,11 @@ chk '따로 만드신 곳이 있으면 링크를 넣어 주세요 · 하객 사�
 chk "하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요" mypage.html 1
 nochk "h+='<input class=\"cc-input\" id=\"mp_photoShare\"" mypage.html      # 칸을 절 맨 위에 무조건 그리던 옛 줄 — 되살리면 «붙여 넣으라» 바로 아래 «준비하실 건 없어요»가 다시 붙는다
 # [STEP_N_KO] trk-11 · 위저드 머리 .inv-step-n 한글 라벨 = serif-ko · 12px · 0.08em([LABEL_KO_TRACK]) · 번호 안쪽 &nbsp; · .inv-sub 왼쪽 6px 들여쓰기 제거(37px 선)
-chk 'STEP_N_KO' mypage.html 3
+#   ★2026-09-27 [WZ_STEPS] 머리의 «애프터 웨딩 · 1 / 2» 숫자 글을 걷었다(몇 걸음째는 진행 표시가 말한다) — 번호 안쪽 &nbsp; 를 지키던 chk 와
+#     그 자리 [STEP_N_KO] 주석이 함께 사라져 3 → 2. 숫자 글이 돌아오지 않게 지키는 것은 위 [WZ_STEPS] 의 nochk 가 맡는다.
+chk 'STEP_N_KO' mypage.html 2
 chk '.inv-step-n{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.08em' mypage.html 1
 nochk '.inv-step-n{font-family:var(--serif);font-size:11px' mypage.html
-chk "' · '+stepNo+'&nbsp;/&nbsp;'+m.steps" mypage.html 1
 nochk '.inv-sub{margin:2px 0 8px 6px' mypage.html
 # [SEAT_HEAD_ONE] trk-7 · 좌석 · 음료 머리에서 «· 3 / 3» 제거(한 화면 통합 뒤 첫 화면이자 유일한 화면)
 chk 'SEAT_HEAD_ONE' mypage.html 1
@@ -12232,7 +12392,7 @@ chk '#mp_photoBody details.cc-more>summary:focus-visible{outline:2px solid var(-
 chk "#mp_photoBody details.cc-more>summary::after{content:''" mypage.html 1
 # [PH_DOT_SPLIT] 가족 · 친구 스냅 안내 — « · »로 잇던 두 마디를 마침표로(«전해 드려요 ·» 줄 끝 · «· 안 적으셔도» 줄 머리)
 chk 'PH_DOT_SPLIT' mypage.html 6
-chk '<span class="ln-bal">위에 없는 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span>' mypage.html 1
+chk '<span class="ln-bal">가족 구도 말고 더 남기고 싶은 사진만 적어 주세요.</span><span class="ln-bal"><b>안 적으셔도 괜찮아요</b>.</span>' mypage.html 1   # [PHOTO_SHOOT_ORDER 2026-09-27] 옛 «위에 없는 사진만» — 요청 칸이 맨 위 차례로 올라왔다
 chk '<span class="ln-bal">모인 사진은 <b>결과물과 함께</b> 전해 드려요.</span><span class="ln-bal">하객분들은 가입도 이름 입력도 하지 않아요.</span>' mypage.html 1
 nochk '위에 없는 사진만 적어 주세요 · ' mypage.html
 nochk '전해 드려요 · 하객분들은' mypage.html
@@ -12381,7 +12541,8 @@ chk 'var _sv=saveInvDraft();' mypage.html 1
 chk 'var _b2=_wizJson(WIZ_ADAPT.inv.data());' mypage.html 1
 chk 'WIZ_BASE.inv=_b2;' mypage.html 1
 # [INV_TAG_TOTAL] 예식 준비 청첩장 행 진행 태그 = 위저드 머리와 같은 전체 단계 수(청첩장 없이 · 개인 제작은 «/2» · 확인 단계는 2)
-chk "var _ivT=_invTotalSteps(inv.draft); _ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT;" mypage.html 1
+#   ★2026-09-27 [WZ_STEPS_TAG] 꼬리표가 «2/4» → «② 부모님»(진행 표시와 같은 말). 경로별 단계 수를 따르는 뜻은 그대로 — 두 걸음 경로는 «② 확인»이 된다.
+chk "var _ivT=_invTotalSteps(inv.draft), _ivI=(_ivT===2?(_ivN>1?2:1):_ivN)-1;" mypage.html 1
 nochk "if(_ivN) _ivStepTag=_ivN+'/4';" mypage.html 0
 # [INV_SEL_SHORT] 청첩장 2/4 select — 값(value)은 그대로 · 보이는 이름만 «직접 입력» · «호칭 생략»(561px 이상 124px 칸에서 «기타(직접입» · «호칭 생략 (»로 잘리던 것)
 chk "(x===ETC?'직접 입력':(x===OMIT?'호칭 생략':x))" mypage.html 1
@@ -12711,10 +12872,10 @@ nochk "return '으로'; return '로'; }" mypage.html 0
 #   ③[SNAP_INLINE_ERR] 링크 오류 · 한도 = 칸 아래 한 줄 ④[SNAP_PRECONSENT_EXIT] 동의 전 — 머리 «저장» 숨김 · «이 기기에 둘까요?» 판 · 이어서 고르기 · 불러왔어요 · 사진 한 줄
 #   ⑤[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외) ⑥[SNAP_WORD_SCENE] «그림» → «사진» · «장면»으로 세기 ⑦[SNAP_CARD_AFTER] 낸 뒤 카드
 #   ⑧[SNAP_NUM_GOTHIC] 고딕 숫자 · Noto Sans KR 600 · 360 이하 «다음» ⑨[SNAP_MODAL_A11Y] aria-modal · inert · 초점 링 · 알림 자리 · 44px ×
-chk 'SNAP_NOIMG_LIST' mypage.html 5
-chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s); }); }" mypage.html 1
+chk 'SNAP_NOIMG_LIST' mypage.html 4   # [SNAP_PICK_ALL 2026-09-27] 5 → 4 — «기본으로 담는 네 장면» 글 목록(.snp-base) 줄이 사장님 결정으로 빠졌다(고르는 장면 목록은 그대로)
+chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||\[\]).some(function(e){ return !!R.exImg(e); }); }); }" mypage.html 1   # [SNAP_PHOTO_FIRST] 예시 사진도 센다
 chk "else h+='<div class=\"snp-list\" role=\"group\" aria-label=\"마음에 드는 장면\">'" mypage.html 1
-chk "사진작가가 고르신 장면을 챙겨 찍어요." mypage.html 1
+chk "사진작가가 챙겨 찍어요.'" mypage.html 1   # [SNAP_AUDIT_0927] «고르신 장면을» 뺐다(한 문장에 «장면» 넷 · 1280 «… / 찍어요.» 꼬리) — «그 사진을 보고»가 아닌 것은 그대로(SNAP_NOIMG_LIST)
 chk 'SNAP_FULL_HINT' mypage.html 4
 chk "장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요" mypage.html 1
 nochk "mpAlert('공간마다 '+R.limits.pick" mypage.html 0
@@ -12936,8 +13097,152 @@ nochk 'new Date().toISOString().slice(0, 10)} · 클립' scripts/build-script-re
 chk 'SNAP_EX_VIEW' mypage.html 5
 chk 'SNAP_EX_VIEW' assets/snap-refs.js 2
 chk "R.exImg = function (e, ext)" assets/snap-refs.js 1
-chk ", ex: \[{ t: '" assets/snap-refs.js 16
-chk 'function _spExView(id, ctl){' mypage.html 1
+chk ", ex: \[{ t: '" assets/snap-refs.js 24   # [SNAP_PICK_ALL 2026-09-27] 16 → 24 — 옛 기본 넷(c01~c04 · w01~w04)도 고르는 장면이 되어 예시 3장 글을 받았다
+chk 'function _spExView(id, ctl, src){' mypage.html 1   # [PHOTO_EX_VIEW] 셋째 인자 = 다른 목록(가족 · 친구 스냅)
 chk "+'</button>'+_spExBtn(s)+'</div>'; }).join('')+'</div>';" mypage.html 1
 chk "querySelectorAll('\[data-sex\],\[data-szoom\]')" mypage.html 1
 chk "예시 사진 '+(k+1)+' · 준비 중" mypage.html 1
+# [SNAP_PHOTO_FIRST] 스냅 장면 = 사진 중심 칸(사진 누르면 크게 · 오른쪽 위 원 = 고르기) · 사진 전엔 목록 + 글 «예시 ›»(시안 B) — 2026-09-27 사장님
+chk 'SNAP_PHOTO_FIRST' mypage.html 8
+chk 'function _spPv(s, kind){' mypage.html 1
+chk 'function _spCover(s){' mypage.html 1
+chk '<button type="button" class="snp-pk' mypage.html 1
+chk '.snp-cell.on .snp-pv{box-shadow:0 0 0 2px var(--gold-deep)}' mypage.html 1
+chk '.snp-pk.on span{border-color:var(--seal);background:var(--seal)}' mypage.html 1
+chk "'<span aria-hidden=\"true\">예시 ›</span>'" mypage.html 1
+chk '.snp-exv-sl{flex:0 0 88%;' mypage.html 1
+nochk 'function _spTile(' mypage.html 0
+chk 'SNAP_PHOTO_FIRST' scripts/audit/snap-plan.mjs 2
+# [SNAP_PHOTO_NOW] 사진이 오기 전에도 사진 중심 칸(사진 자리에 설명 글) — 2026-09-27 사장님
+chk 'SNAP_PHOTO_NOW' mypage.html 4
+chk "img=_spHasImg(R, z)||z.pick.every(function(s){ return _spExList(s).length>0; })" mypage.html 1
+# ★★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자» · «빈 상태에서 8장면 직접»]
+#   고정 «기본으로 담아요» 4장면을 없앴다 — 공간마다 12장면 모두 고르는 칸 · 빈 상태에서 8장면까지(고른 순서 = 우선순위 · 25분 그대로).
+#   덜 고르면 사진작가가 채운다(추천 순서 = snap-refs.js fill · 브리프에만). 화면 상한 = min(목록 8, 서버 snapPick) — 옛 서버(4)면 화면도 4.
+#   동작 모양은 scripts/audit/snap-plan.mjs · 서버 상한은 automation/tests/snap-plan.test.js 1b · 8a2 가 함께 잰다.
+chk 'SNAP_PICK_ALL' assets/snap-refs.js 6
+chk 'limits: { pick: 8, up: 3, link: 3 }' assets/snap-refs.js 1
+chk "fill: \['c01', 'c02', 'c03', 'c04'\]" assets/snap-refs.js 1
+chk "fill: \['w01', 'w02', 'w03', 'w04'\]" assets/snap-refs.js 1
+chk 'R.fillLeft = function (z, picks)' assets/snap-refs.js 1
+chk 'var SNAP_V2 = { pick: 8, up: 3,' automation/platform/80_production.gs 1
+chk 'snapPick: SNAP_V2.pick,' automation/platform/80_production.gs 1
+chk 'SNAP_PICK_ALL' automation/platform/80_production.gs 5
+chk 'SNAP_PICK_ALL' mypage.html 14
+chk "function _snapPickCap(p){ var R=window.SNAP_REFS, L=(R&&R.limits&&+R.limits.pick)||8, sv=+((p||{}).snapPick)||4; return Math.max(1, Math.min(L, sv)); }" mypage.html 1
+chk "pick:_snapPickCap(p) };" mypage.html 1
+chk "장면 중 마음에 드는 장면을 <b>'+(SNAPFLOW.pick||4)+'장면까지</b> 고르시면, '" mypage.html 1
+chk "다 고르지 않으셔도 돼요 · 남은 자리는 사진작가가 채워&nbsp;찍어요" mypage.html 1
+chk "선택이에요 · 안 고르셔도 사진작가가 장면을 골라 찍어요." mypage.html 1
+nochk "<div class=\"snp-sub\">기본으로 담아요</div>" mypage.html 0
+nochk '<ul class="snp-base"' mypage.html 0
+nochk '<b>기본 4장면</b>' mypage.html 0
+nochk "안 고르셔도 기본 장면으로 찍어요" mypage.html 0
+nochk "<span class=\"k\">기본</span>" mypage.html 0
+nochk "R.limits.pick+'장면까지" mypage.html 0
+chk 'SNAP_PICK_ALL' brief.html 2
+chk "개보다 적으면 남은 자리는 아래 추천 순서로 채워 주세요." brief.html 1
+nochk '기본 네 장면은 늘 담아 주세요' brief.html 0
+nochk '<h3>기본으로 담아요 <small>' brief.html 0
+chk 'SNAP_PICK_ALL' admin.html 2
+nochk "row(z.ko+' · 기본'" admin.html 0
+chk 'SNAP_PICK_ALL' scripts/audit/snap-plan.mjs 8
+chk 'SNAP_PICK_ALL' automation/tests/snap-plan.test.js 4
+chk 'SNAP_PICK_ALL' docs/plans/스냅_레퍼런스_촬영목록표.md 1
+# ★[SNAP_AUDIT_0927 2026-09-27 사장님 «사진 오기 전까지 고객 입장에서 한번 더 디테일 체크»] 스냅 기획 고객 점검 — 320 · 390 · 1280 실렌더
+#   ①[SNAP_PH_FIT] 사진 전 칸 — 고르기 원 · «3장»이 글을 덮던 것(320~390) · «3장» 흰 알약(대비) ②[SNAP_EDIT_UNTIL] «예식 3일 전까지 고칠 수 있어요» ↔ 잠금 «3일 전부터» 하루 어긋남 → 날짜
+#   ③[SNAP_NO_MEANS] 번호 = 고른 순서(«먼저 고른 장면부터 찍어요» 약속 뺌) ④[SNAP_SUM_ZERO] «화이트존 0장면» ⑤[SNAP_SUM_REF] 요약 «참고» ⑥[SNAP_EXV_FULL_HOW] 크게 보기 다 고름 한 줄
+#   ⑦[SNAP_EMPTY_SAVE] 빈 저장 알림 ⑧[SNAP_WRAP_TAIL] 꼬리 줄 ⑨[SNAP_LINK_TAP] 담은 링크 44px
+chk 'SNAP_PH_FIT' mypage.html 3
+chk '<i>예시 사진 준비 중</i><span class="snp-pv-d">' mypage.html 1
+chk 'box-sizing:border-box;padding:40px 10px 32px;font-family:var(--serif-ko)' mypage.html 1
+chk '^\.snp-pv-d{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}' mypage.html 1
+chk '\.snp-pv-ph ~ \.snp-pv-n{background:#fff;color:var(--sub)' mypage.html 1
+nochk 'box-sizing:border-box;padding:14px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65' mypage.html 0
+chk 'SNAP_EDIT_UNTIL' mypage.html 3
+chk "eu=new Date(wu-4\*864e5)" mypage.html 1
+chk "(_sdu.late?('스냅 기획은 '+_sdu.edit+'('+_sdu.editDow+')까지 고르실 수 있어요.')" mypage.html 1
+chk "까지는 언제든 고칠&nbsp;수 있어요." mypage.html 1
+nochk '예식&nbsp;3일&nbsp;전까지는 언제든 고칠 수 있어요' mypage.html 0
+nochk '스냅 기획은 예식 3일 전까지 고르실 수 있어요' mypage.html 0
+chk 'SNAP_NO_MEANS' mypage.html 1
+chk '번호는 고른 순서예요. 시간이 줄면 앞 번호부터 담아요.' mypage.html 1
+nochk '먼저 고른 장면부터 찍어요' mypage.html 0
+chk 'SNAP_SUM_ZERO' mypage.html 1
+chk "if(c||w) return (c?('캔들존 '+c):('화이트존 '+w))+'장면 골랐어요'" mypage.html 1
+chk 'SNAP_SUM_REF' mypage.html 1
+chk '<span class="k">참고</span>' mypage.html 1
+chk 'SNAP_EXV_FULL_HOW' mypage.html 2
+chk '고른 장면 하나를 빼면 이 장면도 고를 수 있어요' mypage.html 1
+chk 'SNAP_EMPTY_SAVE' mypage.html 1
+chk "'저장했어요 · 고른 장면은 아직 없어요'" mypage.html 1
+chk 'SNAP_WRAP_TAIL' mypage.html 3
+chk 'SNAP_LINK_TAP' mypage.html 1
+chk '#mp_snapOverlay \.ph-item \.ph-nm a{display:flex;align-items:center;min-height:44px}' mypage.html 1
+# [SNAP_PHOTOS_48] 예시 사진 48장 연결 · [SNAP_SHOW_ORDER] 사진 온 장면을 앞에(보여 주는 순서만) — 2026-09-27
+chk "img: 'c05-1'" assets/snap-refs.js 1
+chk "img: 'w12-3'" assets/snap-refs.js 1
+chk 'SNAP_PHOTOS_48' assets/snap-refs.js 1
+chk 'function _spShowOrder(list){' mypage.html 1
+chk "_spShowOrder(z.pick).map(function(s){" mypage.html 1
+# [SNAP_EXV_EAGER] 크게 보기 사진 세 장은 창을 열 때 다 받는다(lazy 면 넘길 때 빈 칸) — 2026-09-27
+chk 'SNAP_EXV_EAGER' mypage.html 1
+nochk "alt=\"'+escapeHtml(e.t||s.name)+'\" loading=\"lazy\"" mypage.html 0
+# [SNAP_PHOTOS_72] 스냅 예시 사진 72장 전부 연결(c01~c12 · w01~w12 · 장면마다 3장) — 2026-09-27
+chk 'SNAP_PHOTOS_72' assets/snap-refs.js 1
+chk "img: 'c01-1'" assets/snap-refs.js 1
+chk "img: 'w04-3'" assets/snap-refs.js 1
+
+# ★★[PHOTO_DAY_STEPS · PHOTO_TO_CREW · PHOTO_EX_VIEW 2026-09-27 사장님 «추천대로 해봐» · «여기도 예시 사진 고르는 거 넣자 — 사진 요청해야 하니깐»
+#    · «전체 사진 찍고, 가족분들이랑 신랑신부와 사진 더 찍고 싶으신 분들은 남아 달라는 멘트가 있어. 그 순서를 여기에 대입해서»]
+#   가족 · 친구 스냅 편집 화면 = 그날 차례 번호 줄(① 전체 하객 + 꼭 담고 싶은 사진 ② 감사 인사 ③ 가족 구도 ④ 온라인 인사 ⑤ 남은 분들과 자유롭게)
+chk 'PHOTO_DAY_STEPS' mypage.html 8
+chk '<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">' mypage.html 1
+chk "h+=_stepHd('모두 함께 · 전체 하객 한 장'" mypage.html 1
+chk "h+=_stepHd('감사 인사 · 남아 주실 분 안내'" mypage.html 1
+chk "h+=_stepHd('가족 구도'" mypage.html 1
+chk "if(_dig) h+=_stepHd('온라인 인사'" mypage.html 1
+chk "h+=_stepHd('남은 분들과 자유롭게'" mypage.html 1
+chk "먼저 가실 분들은 이때 식사 자리로 옮겨요.':(_ml==='no'?'먼저 가실 분들은 이때 인사를 받고 돌아가요.'" mypage.html 1   # 식사 있는 날 / 없는 날 / 모름 — 나레이션(end-1a · end-1c)과 같게
+nochk "var _flw=\[\['다 함께 한 장'" mypage.html                                    # 흐름 줄(알약) 되살리지 말 것 — 번호 줄이 곧 흐름
+chk 'PHOTO_SHOOT_ORDER' mypage.html 3
+chk 'PHOTO_CALLER_WORD' mypage.html 1
+chk '구도마다 사진작가가 이 분께 먼저 말씀드려요' mypage.html 1
+nochk '디렉터가 이 분께 먼저 말씀드려요' mypage.html                                   # [PHOTO_FREE] 부르는 것은 사진작가
+chk 'WISH_NEED_WHAT' mypage.html 2
+chk 'WISH_CAP_LINE' mypage.html 2
+chk 'PHOTO_DUP_LINE' mypage.html 3
+nochk "mpAlert('이미 담긴 구도예요.')" mypage.html
+nochk "mpAlert('요청은 '+PHOTO_WISH_MAX" mypage.html
+chk 'PHOTO_SHARE_LINE' mypage.html 2
+chk '하객 사진 모으기 · 링크 있음' mypage.html 1
+chk 'PHOTO_RECONFIRM' mypage.html 1
+chk 'PHOTO_EX_VIEW' mypage.html 5
+chk '<script src="/assets/photo-refs.js"></script>' mypage.html 1
+chk 'PHOTO_EX_VIEW' assets/photo-refs.js 2
+chk "{ id: 'g00', name: '전체 하객'" assets/photo-refs.js 1
+chk 'PHOTO_TO_CREW' automation/platform/80_production.gs 1   # 브리프에 가족 · 친구 스냅 계획(GAS 재배포)
+chk 'photo: ph };' automation/platform/80_production.gs 1
+chk 'PHOTO_TO_CREW' brief.html 2
+chk 'PHOTO_TO_CREW' console.html 1
+chk 'PHOTO_TO_CREW' admin.html 1
+chk "if(gi) _cS.photoN=Array.isArray(gi.photo)?gi.photo.length:0;" admin.html 1   # 안 고름 = 0 (키가 없으면 엔진이 «모름»으로 시간을 더 잡는다)
+chk 'WISH_ROW_HTML' admin.html 1
+chk 'PHOTO_GUIDE_OPEN' guide.html 1
+nochk '양가 직계 가족과 따로 사진을 남길 분은 잠시 남아요' guide.html                  # [GUESTS_OPEN] 친구 · 지인도 남는다(나레이션과 같게)
+chk 'PHOTO_GATHER_WORD' order-preview.html 1
+nochk '예식 준비 · 단체 사진</b>에서 골라요' order-preview.html
+chk 'PHOTO_DAY_STEPS' scripts/audit/photo-friend.mjs 1
+# [2026-09-27 가족 · 친구 스냅 고객 점검] 감사 인사 문구 · 친구 칸 안내 · 본식 동안 · 친구 예시 창 «이 부탁 담기»
+chk 'PHOTO_THANKS_WORD' mypage.html 1
+nochk '하객 모두께 함께 감사 인사' mypage.html
+chk 'PHOTO_FRIEND_HINT' mypage.html 1
+chk '아래 예시를 누르면 칸에 담겨요.' mypage.html 1
+chk 'PHOTO_SCENE_WHEN' mypage.html 1
+chk 'PHOTO_FRIEND_PICK' mypage.html 1
+chk "lab:{off:'이 부탁 담기'}" mypage.html 1
+# [2026-09-27 사장님 «전부 반영»] 1번 겹말 정리 · 3번 안 번호에 «찍는 순서» 이름
+chk 'PHOTO_STEP1_TRIM' mypage.html 1
+nochk "'오신 분들 모두 · 늘 첫 컷이에요'" mypage.html
+chk 'PHOTO_ORDER_LABEL' mypage.html 1
+chk 'class="ph-ordlab">찍는 순서' mypage.html 1

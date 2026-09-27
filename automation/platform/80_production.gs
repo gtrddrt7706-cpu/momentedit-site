@@ -387,6 +387,60 @@ function _prodTrackRev(d, track) {
   for (var i = 0; i < j.length; i++) { h = ((h * 33) ^ j.charCodeAt(i)) >>> 0; }
   return String(h);
 }
+/* ★[TX_MERGE 2026-09-27 사장님 결정 «두 기기 · 이번에 같이 고치기»] 식순 초안의 «두 분이 할 말»(S.tx)·체크(S.mkc)를 칸마다 합친다.
+   신랑 폰에서 신랑 칸, 신부 폰에서 신부 칸을 따로 저장하면 종전엔 뒤에 저장한 쪽이 «먼저 저장됐어요» 충돌을 받았다(TRACK_REV_GUARD).
+   빌더가 칸마다 고친 시각(S.fAt['tx.vow.g'] …)을 적어 보내므로, 여기서 칸마다 더 나중 것을 고른다.
+   · 합칠 수 있는 것은 tx·mkc 뿐이다. 나머지(고른 순간·칩·순서)가 서버본과 다르면 sameRest=false → 종전 충돌 대화상자 그대로.
+   · 기기마다 다른 것(S.seen·S.mk.at·S.mk.seen·'_' 키·summary)은 비교에서 뺀다 — 보던 쪽이 다를 뿐 내용이 아니다.
+   · 새 초안에 fAt 가 없으면(옛 빌더 · 「처음부터 다시」의 빈 S) 합치지 않는다(null) — 비우기가 되살아나면 안 된다.
+   · 옛 한 칸(vowText 등)은 합친 두 칸으로 다시 짓는다(관리자 · 마이페이지 · ④ 대본이 읽는다 · 빌더 _txLeg 와 같은 꼴). */
+var TX_MERGE_LEG = { welcome: 'welcomeText', vow: 'vowText', letter: 'letterText', tribute: 'tributeText' };
+function _txCanon(v) {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v === undefined ? null : v);
+  if (Object.prototype.toString.call(v) === '[object Array]') return '[' + v.map(_txCanon).join(',') + ']';
+  return '{' + Object.keys(v).sort().map(function (k) { return JSON.stringify(k) + ':' + _txCanon(v[k]); }).join(',') + '}';
+}
+function _txRest(dr) {
+  var o = JSON.parse(JSON.stringify(dr || {}));
+  for (var k in o) { if (k.charAt(0) === '_' || k === 'summary') delete o[k]; }
+  var S = o.S || {};
+  ['tx', 'mkc', 'fAt', 'txMig', 'seen'].forEach(function (k) { delete S[k]; });
+  for (var kd in TX_MERGE_LEG) delete S[TX_MERGE_LEG[kd]];
+  for (var k2 in S) { if (k2.charAt(0) === '_') delete S[k2]; }
+  if (S.mk) { delete S.mk.at; delete S.mk.seen; }
+  o.S = S;
+  return _txCanon(o);
+}
+function _ritualTxMerge(oldDr, newDr) {
+  try {
+    var nS = (newDr || {}).S, oS = ((oldDr || {}).S) || {};
+    if (!nS || !nS.fAt || !Object.keys(nS.fAt).length) return null;
+    var nA = nS.fAt || {}, oA = oS.fAt || {}, fAt = {}, pull = { tx: {}, mkc: {}, fAt: {} }, pulled = 0;
+    var out = JSON.parse(JSON.stringify(newDr)), S = out.S;
+    S.tx = S.tx || {}; S.mkc = S.mkc || {};
+    [['tx', oS.tx || {}, nS.tx || {}], ['mkc', oS.mkc || {}, nS.mkc || {}]].forEach(function (g) {
+      var grp = g[0], ov = g[1], nv = g[2], keys = {};
+      Object.keys(ov).forEach(function (k) { keys[k] = 1; }); Object.keys(nv).forEach(function (k) { keys[k] = 1; });
+      Object.keys(keys).forEach(function (k) {
+        var fk = grp + '.' + k, ot = +oA[fk] || 0, nt = +nA[fk] || 0, hasN = Object.prototype.hasOwnProperty.call(nv, k);
+        if (!hasN || ot > nt) {   // 서버 쪽이 더 나중(또는 이 기기가 만진 적 없는 칸) → 서버 값을 지킨다
+          S[grp][k] = ov[k];
+          if (ot) fAt[fk] = ot;
+          if (!hasN || _txCanon(ov[k]) !== _txCanon(nv[k])) { pull[grp][k] = ov[k]; if (ot) pull.fAt[fk] = ot; pulled++; }
+        } else if (nt) fAt[fk] = nt;
+      });
+    });
+    Object.keys(oA).forEach(function (fk) { if (!(fk in fAt) && !(fk in nA)) fAt[fk] = oA[fk]; });
+    Object.keys(nA).forEach(function (fk) { if (!(fk in fAt)) fAt[fk] = nA[fk]; });
+    S.fAt = fAt;
+    for (var kd in TX_MERGE_LEG) {
+      if (!(kd + '.g' in S.tx) && !(kd + '.b' in S.tx)) continue;
+      var g1 = String(S.tx[kd + '.g'] || '').trim(), b1 = String(S.tx[kd + '.b'] || '').trim();
+      S[TX_MERGE_LEG[kd]] = [g1 ? '신랑 · ' + g1 : '', b1 ? '신부 · ' + b1 : ''].filter(Boolean).join('\n\n');
+    }
+    return { draft: out, pull: pulled ? pull : null, sameRest: _txRest(oldDr) === _txRest(newDr) };
+  } catch (e) { return null; }   // 판단이 안 서면 합치지 않는다(종전 동작)
+}
 // 확인 해제 판정용 비교 문자열 — UI 상태 키(_step·_chat 등 '_' 시작)는 스냅샷과 무관하므로 제외.
 //   guideinfo의 showSeat(자리 찾기 노출 토글)도 스냅샷 비노출이라 제외 → 토글만 눌러도 확인이 풀리는 재확인 피로 방지.
 function _prodUiStrip(json, track) {
@@ -618,11 +672,14 @@ function handleSaveProductionTrack(body) {
     var _oldDraftJ = JSON.stringify(d[track + 'Draft'] || {});   // 확인서 해제 판정용(실변경만 해제)
     // [TRACK_REV_GUARD 2026-07-25] 트랙 rev 대조(락 안 · TOCTOU 없음) — 다른 기기·탭이 먼저 저장했으면 조용한 덮어쓰기 대신 충돌 반환.
     //   프론트는 code:'rev'를 받아 '최신 불러오기(권장) / 내가 쓴 내용으로 저장(force)' 2버튼. 구클라(rev 미전송)는 검사 생략(종전 동작).
-    if (body && body.rev != null && !body.force && String(body.rev) !== _prodTrackRev(d, track)) {
+    /* [TX_MERGE 2026-09-27] 식순은 두 분이 할 말을 칸마다 합친다 — 그 밖이 같으면(두 기기가 글만 따로 고쳤으면) 충돌이 아니다 */
+    var _txm = (track === 'ritual') ? _ritualTxMerge(d.ritualDraft, body && body.draft) : null;
+    if (body && body.rev != null && !body.force && String(body.rev) !== _prodTrackRev(d, track) && !(_txm && _txm.sameRest)) {
       return { ok: false, code: 'rev', error: '다른 기기(또는 탭)에서 이 항목이 먼저 저장됐어요. 최신 내용을 확인해 주세요.',
         latest: { rev: _prodTrackRev(d, track), draft: d[track + 'Draft'] || null, tracks: d.tracks || {} } };
     }
     if (body && body.force) d._prev = { track: track, at: fmtKST(new Date()), draft: d[track + 'Draft'] || null };   // force 덮어쓰기 직전본 1세대 백업(복구 문의 대비 · 다음 force가 대체)
+    if (_txm) body.draft = _txm.draft;   // [TX_MERGE] 이 아래(크기 검사 · 저장 · 빈 초안 판정)는 합친 초안을 본다
     // [DRAFT_SIZE_CAP 2026-07-25] ritual·dining만 정규화 없이 원문 저장돼 셀 한도(50k)를 위협 — 조기 거부(truncate 절대 금지 · 회의 W1-4).
     if (track === 'ritual' || track === 'dining') {
       var _dcJ = ''; try { _dcJ = JSON.stringify((body && body.draft) || {}); } catch (eDc) { _dcJ = ''; }
@@ -773,7 +830,8 @@ function handleSaveProductionTrack(body) {
         if (_svTok) { var _svc2 = CacheService.getScriptCache(); _svc2.put('seatv_inv_' + _svTok, '1', 360); _svc2.remove('seatv_' + _svTok); _svc2.remove('seatf_' + _svTok); }   // seatf_=이름 검색용 원본 캐시도 함께
       } catch (e) {}
     }
-    var _res = { ok: true, rev: _prodTrackRev(d, track) };   // [TRACK_REV_GUARD] 저장 직후의 새 트랙 지문 — 프론트가 갱신해 자기 연속 저장이 충돌로 오탐되지 않게
+    var _res = { ok: true, rev: _prodTrackRev(d, track) };
+    if (_txm && _txm.pull) _res.txPull = _txm.pull;   // [TX_MERGE] 다른 기기의 더 나중 칸 — 마이페이지가 빌더에 넘겨 화면을 채운다   // [TRACK_REV_GUARD] 저장 직후의 새 트랙 지문 — 프론트가 갱신해 자기 연속 저장이 충돌로 오탐되지 않게
     if (d.confirmStale) _res.confirmStale = true;   // [예식 확인서] 이번 저장으로(또는 이미) 확인이 해제된 상태 — 프론트가 확인 완료 화면을 '재확인 필요'로 즉시 갱신
     if (track === 'seat') _res.seatToken = _seatToken;
     if (_guideToken) _res.guideToken = _guideToken;   // 하객 안내 허브 링크(guide.html?g=…) 준비됨 → 마이페이지가 공유 UI 구성
@@ -1224,7 +1282,10 @@ function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS �
 //   ★부부 화면은 buildProductionState 의 snapV2 표시가 있을 때만 새 기획을 연다 — 이 파일을 배포하기 전에는 옛 서버가
 //     새 기획을 옛 칸 목록으로 걸러 «고른 장면»이 통째로 사라지기 때문이다(화면엔 «저장됐어요»). 그 창을 없앤다.
 // ==============================================================================
-var SNAP_V2 = { pick: 4, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-09-26' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
+var SNAP_V2 = { pick: 8, up: 3, link: 3, note: 500, lockDays: 3, dueDays: 14, keepDays: 183, briefDays: 7, root: 'ME_스냅레퍼런스', maxUploads: 24, from: '2026-09-26' };   // pick·up·link 는 assets/snap-refs.js limits 와 같은 값(scripts/audit/snap-plan.mjs 가 대조)
+// ★[SNAP_PICK_ALL 2026-09-27 사장님 «기본으로 담기는 것도 고객이 정할 수 있도록 하자»] pick 4 → 8 — 공간마다 12장면 모두 고르는 칸 · 빈 상태에서 8장면까지.
+//   고정 «기본 4장면»은 없어졌다. 덜 고른 자리는 사진작가가 채운다(추천 순서 = snap-refs.js zones[].fill · 브리프에만).
+//   부부 화면은 buildProductionState 의 snapPick 을 상한으로 쓴다 — 이 파일이 옛것(4)이면 화면도 4로 멈춘다(서버가 조용히 자르지 않게).
 var SNAP_ZONE_RE = { candle: /^c\d{2}$/, white: /^w\d{2}$/ };
 // ★[SNAP_ZONE_NOTE 2026-09-26 사장님] 공간마다 «사진작가에게 전할 말»(zones[k].note) — «전달할 메세지 적을 수 있게 · 화이트존 캔들존 각각».
 //   상한은 부부 화면 textarea maxlength 와 같다(scripts/audit/snap-plan.mjs 가 대조). 비면 키를 싣지 않는다(옛 저장분 재저장이 가짜 «바뀜»이 되지 않게).
@@ -1251,9 +1312,10 @@ var SNAP_BRIEF_URL = 'https://www.momentedit.kr/brief.html?b=';
 
 function _snapArr(v) { return Object.prototype.toString.call(v) === '[object Array]' ? v : []; }
 
-// v2 정규화 — 장면 번호는 공간별 형식만(c·w + 두 자리) · 중복 없이 4장까지 · 올린 사진은 드라이브 id 형식만 · 링크는 http(s)만
+// v2 정규화 — 장면 번호는 공간별 형식만(c·w + 두 자리) · 중복 없이 SNAP_V2.pick(8)장까지 · 올린 사진은 드라이브 id 형식만 · 링크는 http(s)만
 function _snapV2Norm(sd) {
   sd = sd || {};
+  // [SNAP_PICK_ALL] 고르기 상한 = SNAP_V2.pick(8 · 2026-09-27) — c01~c04 · w01~w04 도 이제 고르는 장면이다(형식 검사 SNAP_ZONE_RE 는 그대로 받는다)
   var zs = sd.zones || {}, out = { v: 2, zones: {}, note: String(sd.note || '').replace(/[<>]/g, '').slice(0, SNAP_V2.note) };
   ['candle', 'white'].forEach(function (k) {
     var z = zs[k] || {}, seen = {}, picks = [], ups = [], links = [], zn = String(z.note || '').replace(/[<>]/g, '').slice(0, SNAP_ZONE_NOTE_MAX);   // [SNAP_ZONE_NOTE]
@@ -1331,7 +1393,7 @@ var SNAP_LOCK_MSG = '예식 3일 전부터는 여기서 고칠 수 없어요. �
 //   동의 기록 = snapMeta.consent { at: 한국 시각 'yyyy-MM-dd HH:mm', ver: 그때의 처리방침 시행일(SNAP_V2.from) }
 //   ① 부부 화면이 첫 저장(또는 첫 사진 올리기)에 snapConsent 를 싣는다 — 기록이 없을 때만 남긴다(한 번 동의하면 다시 묻지 않는다)
 //   ② 기록도 snapConsent 도 없으면 새 기획 저장 · 사진 올리기를 거절한다(옛 칸 저장은 종전대로 — 배포 시차로 남은 탭)
-//   ③ 촬영 브리프는 동의가 있을 때만 기획을 싣는다 — 없으면 예식 일시와 기본 장면만
+//   ③ 촬영 브리프는 동의가 있을 때만 기획을 싣는다 — 없으면 예식 일시와 사진작가 채우기 추천만([SNAP_PICK_ALL] 9/27 부터 기본 장면 없음)
 //   ④ 거두기(스냅 기획 지우기) — 기획 · 올린 사진 · 링크 · 메모 · 동의 기록을 지우고 브리프 주소를 닫는다. 지운 때만 남긴다(withdrawn)
 var SNAP_CONSENT_MSG = '스냅 기획을 시작하려면 동의가 필요해요.';
 function _snapConsentOk(m) { return !!(m && m.consent && m.consent.at); }
@@ -1589,10 +1651,28 @@ function _snapBriefCust(t) {
 function handleSnapBrief(body) {
   var r = _snapBriefCust((body || {}).b); if (r.err) return r.err;   // [SNAP_BRIEF] 이름·연락처 없이 — 예식일·도착 시각·기획만
   var sd = r.d.snapDraft || {}, zs = sd.zones || {}, ci = (_parseJsonSafe(r.cust.get('동의기록')) || {}).계약정보 || {};
-  var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 기본 장면만(기본 장면은 브리프 화면이 원천에서 그린다)
+  var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 사진작가 채우기 추천만(추천은 브리프 화면이 원천 fill 에서 그린다 · [SNAP_PICK_ALL] 9/27 부터 기본 장면 없음)
   ['candle', 'white'].forEach(function (k) { var z = okc ? (zs[k] || {}) : {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links), note: String(z.note || '') }; });   // [SNAP_ZONE_NOTE] 공간별 전할 말도 동의가 있을 때만
+  /* ★[PHOTO_TO_CREW 2026-09-27 사장님 «추천대로»] 가족 · 친구 스냅 계획도 브리프에 싣는다 — 종전엔 관리자 화면에만 있어 작가에게 닿지 않았다.
+       차례(부부 화면 [PHOTO_DAY_STEPS] · 당일 엔진과 같다): 전체 하객 → 꼭 담고 싶은 사진 → 감사 인사 → 가족 구도(고른 순서) → 남은 분들과 자유롭게.
+       ★구도 이름(가족 구도 목록 · 직접 추가 24자)은 늘 싣는다. 사람 이름이 들어갈 수 있는 칸(불러 모아 주실 분 · 요청 글 · 친구 부탁)은
+         스냅 기획과 같은 동의가 있을 때만([SNAP_CONSENT] okc · 사진작가 위탁 동의).
+       ★분 — 단체 사진 시간(부부 화면 photoCapOf 의 a~b 와 같은 셈: 40 − 본식 넉넉 합 ~ 40 − 본식 대본 합 · 40 = mypage PHOTO_DAY)과
+         지금 계획의 약 분(전체 하객 6 + 구도마다 3 + 요청 하나에 1 · 둘까지 = mypage photoMins). 식순 초안이 없으면 창은 싣지 않는다. */
+  var gi = r.d.guideinfoDraft || {}, ph = { names: _snapArr(gi.photo).map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 11) };
+  var _pw = _snapArr(gi.photoWish).filter(function (w) { return w && String(w.what || '').trim(); }).slice(0, 2);
+  var _pwn = _pw.length || Math.min(2, _snapArr(gi.photoFx).length);
+  ph.mins = 6 + 3 * ph.names.length + _pwn;
+  var _sec = ((r.d.ritualDraft || {}).summary || {}).sec;
+  if (_sec && _sec.length === 2 && +_sec[1] > 0) ph.win = [Math.round(40 - _sec[1] / 60), Math.round(40 - _sec[0] / 60)];
+  if (okc) {
+    ph.wish = _pw.map(function (w) { var rf = String(w.ref || ''); return { what: String(w.what).slice(0, 80), ref: /^https?:\/\//i.test(rf) ? rf.slice(0, 300) : '' }; });
+    var _pc = gi.photoCaller || {};
+    ph.caller = { groom: String(_pc.groom || '').slice(0, 40), bride: String(_pc.bride || '').slice(0, 40) };
+    ph.friend = String(gi.photoFriend || '').slice(0, 200);
+  } else ph.wishN = _pwn;
   return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: okc ? String(sd.note || '') : '', consent: okc,
-    reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))) };
+    reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))), photo: ph };
 }
 function handleSnapBriefImg(body) {
   body = body || {};
@@ -1684,6 +1764,7 @@ function buildProductionState(r) {
     photoFriendOk: true,                       // [PHOTO_FRIEND] 이 서버는 «친구들과 자유롭게»(photoFriend)를 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     snapZoneNoteOk: true,                      // ★[SNAP_ZONE_NOTE] 이 서버는 공간별 «사진작가에게 전할 말»(zones[k].note)을 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     dineRsvp: (function () { try { return (typeof _dineRsvpPublic === 'function') ? _dineRsvpPublic(r, draft) : null; } catch (e) { return null; } })(),   // ★[DINE_RSVP_STATE] 식사 답(스위치 · 식사 자리 · 끔 · 받는 중 · 마감) — 부부 화면은 live 일 때만 물음 · 덩어리를 연다(날짜를 화면에 박지 않는다) · 89 파일 전이면 null
+    snapPick: SNAP_V2.pick,                    // ★[SNAP_PICK_ALL] 고르기 상한 — 부부 화면은 min(목록 8, 이 값)을 쓴다 · 이 값이 없는 옛 서버(4)면 화면도 4
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
