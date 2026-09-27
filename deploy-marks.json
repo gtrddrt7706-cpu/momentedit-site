@@ -1170,6 +1170,54 @@
    "fn": "doPost",
    "mark": "RITUAL_FILE",
    "why": "doPost 가 ritualFile 요청을 handleRitualFile 로 넘긴다 — 이 파일이 옛것이면 녹음 올리기가 전부 실패한다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileGet",
+   "mark": "REC_UPLOAD",
+   "why": "올린 두 분 녹음을 두 분 계정으로만 다시 받아 ② · 연습에서 그 자리에 저절로 튼다 — 이 파일이 옛것이면 녹음을 올려도 나레이션만 나온다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "REC_UPLOAD",
+   "why": "doPost 가 ritualFileGet · ritualFileDel 을 넘긴다 — 이 파일이 옛것이면 녹음 다시 듣기 · 지우기가 «알 수 없는 요청»으로 실패한다"
+  },
+  {
+   "file": "80_production",
+   "fn": "adminRitualFiles",
+   "mark": "REC_ADMIN",
+   "why": "관리 화면 «두 분 목소리» 목록 · 들어 보기 · 확인 ✓ 와 당일 콘솔 미리 받기가 이 함수들을 쓴다 — 이 파일이 옛것이면 «파일 보기»가 «알 수 없는 요청»으로 실패하고 콘솔은 나레이션만 튼다"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeRitualFiles",
+   "mark": "REC_PURGE",
+   "why": "예식 30일 뒤 두 분 목소리 파일을 지운다(개인정보 · 약속한 보관 기간) — 이 파일이 옛것이면 파일이 남는다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCall",
+   "mark": "REC_ADMIN",
+   "why": "adminCall 허용 목록에 두 분 목소리 세 함수가 있어야 관리 화면 · 콘솔이 부를 수 있다 — 이 파일이 옛것이면 «알 수 없는 요청»"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "purgeAdvisorLog",
+   "mark": "REC_PURGE",
+   "why": "주간 정리가 purgeRitualFiles 를 함께 부른다 — 이 파일이 옛것이면 30일 지우기가 돌지 않는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VOICE_CLONE",
+   "why": "AI 두 분 목소리 · 연습 읽기 서버 통로(스위치 VOICE_CLONE_ENABLED · PRACTICE_TTS_ENABLED 로 잠김) — 이 파일이 옛것이면 켜도 «알 수 없는 요청»"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "VOICE_CLONE",
+   "why": "doPost 가 voiceClone 을 handleVoiceClone 으로 넘긴다 — 이 파일이 옛것이면 AI 목소리가 전부 실패한다"
   }
  ],
  "fns": {
@@ -1375,6 +1423,23 @@
    "_gpFolderFor",
    "_rfFolderFor",
    "handleRitualFile",
+   "_rfFileIn",
+   "handleRitualFileGet",
+   "handleRitualFileDel",
+   "_rfKeyOfName",
+   "adminRitualFiles",
+   "adminRitualFileGet",
+   "adminRitualFileOk",
+   "purgeRitualFiles",
+   "previewRitualFiles",
+   "_vcCfg",
+   "_vcSt",
+   "_vcPut",
+   "_vcFetch",
+   "_vcTts",
+   "handleVoiceClone",
+   "_vcPub",
+   "_vcPurge",
    "handleGuestPhoto",
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
@@ -1933,6 +1998,7 @@
    "GP_KEEP_DAYS",
    "RF_ROOT_FOLDER",
    "RF_KEYS",
+   "VC_BASE",
    "SNAP_V2",
    "SNAP_ZONE_RE",
    "SNAP_ZONE_NOTE_MAX",
@@ -2125,7 +2191,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-27 18:34 · ccb3170c",
+ "_생성": "2026-09-27 22:13 · 9590414c",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2296,6 +2362,36 @@
    "b": ""
   },
   {
+   "key": "PRACTICE_TTS_ENABLED",
+   "kind": "switch",
+   "a": "연습 공간 AI 읽기 — Y 일 때만 · 처음엔 비움(꺼짐) [VOICE_CLONE 4-2]",
+   "b": ""
+  },
+  {
+   "key": "RFGONE_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "RFOK_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "RF_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "RITUAL_FILE_PURGE_DAYS",
+   "kind": "tuning",
+   "a": "두 분 목소리 파일 보관 일수(기본 30 · 예식 뒤)",
+   "b": ""
+  },
+  {
    "key": "SNAPBRIEF_",
    "kind": "state",
    "a": "",
@@ -2380,6 +2476,48 @@
    "b": "카드결제 승인"
   },
   {
+   "key": "TYPECAST_API_KEY",
+   "kind": "needs",
+   "a": "타입캐스트 API 키(서버에만 · 브라우저에 두지 않는다) [VOICE_CLONE]",
+   "b": ""
+  },
+  {
+   "key": "TYPECAST_VOICE_BRIDE",
+   "kind": "option",
+   "a": "연습 읽기 스튜디오 기본 목소리 · 신부 쪽",
+   "b": ""
+  },
+  {
+   "key": "TYPECAST_VOICE_FAMILY",
+   "kind": "option",
+   "a": "연습 읽기 스튜디오 기본 목소리 · 가족",
+   "b": ""
+  },
+  {
+   "key": "TYPECAST_VOICE_GROOM",
+   "kind": "option",
+   "a": "연습 읽기 스튜디오 기본 목소리 · 신랑 쪽(voice_id)",
+   "b": ""
+  },
+  {
+   "key": "VC_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "VOICE_CLONE_ENABLED",
+   "kind": "switch",
+   "a": "AI 두 분 목소리(목소리 복제) — Y 일 때만 · 처음엔 비움(꺼짐) · 켜기는 사장님 결정 뒤 [VOICE_CLONE]",
+   "b": ""
+  },
+  {
+   "key": "VOICE_TARGET_LUFS",
+   "kind": "tuning",
+   "a": "AI 목소리 소리 크기 목표(기본 -16 · 나레이션 실측)",
+   "b": ""
+  },
+  {
    "key": "WEDDING_BLOCKS",
    "kind": "state",
    "a": "",
@@ -2435,5 +2573,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "e5c806183a3e"
+ "_표식서명": "494afbfab079"
 }

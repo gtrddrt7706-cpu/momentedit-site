@@ -183,6 +183,7 @@ function adminCall(token, fn, args) {
       adminSnapConfirm: adminSnapConfirm, adminSnapBrief: adminSnapBrief, adminSnapThumbs: adminSnapThumbs, adminSnapWithdraw: adminSnapWithdraw,   // [SNAP_CONSENT] 잠긴 뒤 부탁받은 «스냅 기획 지우기»
         // [SNAP_PICK_V2] 스냅 기획 확인·회신 · 촬영 브리프 주소 · 올린 그림(80_production)
       adminForceStagePreview: adminForceStagePreview,   // [ADM_AC3]
+      adminRitualFiles: adminRitualFiles, adminRitualFileGet: adminRitualFileGet, adminRitualFileOk: adminRitualFileOk,   // [REC_ADMIN] 두 분 목소리 — 관리 화면 목록 · 들어 보기 · 확인 ✓ / 당일 콘솔 미리 받기(80_production)
       adminNotifyText: adminNotifyText,   // [ADM_AC5]
       /* ★★[CONTACT_FIX] 여기 등록을 빠뜨리면 화면·서버를 다 만들어도 기능이 통째로 죽는다 —
          adminCall 이 `{ok:false, error:'알 수 없는 요청: …'}` 를 돌려주고, 화면은 멀쩡히 그려지며

@@ -132,6 +132,7 @@ const PROPS = {
   NOTIFY_FAIL_: ['state'], NOTIFY_FAILMAIL_: ['state'],   /* 날짜가 뒤에 붙는 접두사 */
   SNAPBRIEF_: ['state'],   /* [SNAP_BRIEF] 촬영 브리프 주소 → 개인코드(주소 토큰이 뒤에 붙는 접두사 · adminSnapBrief 가 만들고 purgeSnapRefs 가 지운다) */
   KAKAO_REST_KEY: ['state'], KAKAO_TEMPLATES: ['state'],  /* 설정 함수가 넣어 두는 값 */
+  RF_: ['state'], RFOK_: ['state'], RFGONE_: ['state'],   /* [RITUAL_FILE · REC_ADMIN · REC_PURGE] 두 분 목소리 — 코드별 드라이브 폴더 · 스튜디오 확인 ✓ · 30일 지운 날(코드가 뒤에 붙는 접두사) */
 
   /* switch */
   NOTIFY_ENABLED: ['switch', '알림 발송 (true 면 켜짐)'],
@@ -172,6 +173,13 @@ const PROPS = {
   SOLAPI_PFID: ['option', '알림톡 채널 (50_auth-handlers 계열)'],
   SOLAPI_PF_ID: ['option', '알림톡 채널 (95_notify 계열)'],
   SOLAPI_TPL_FINDCODE: ['option', '코드찾기 알림톡 템플릿'],
+  RITUAL_FILE_PURGE_DAYS: ['tuning', '두 분 목소리 파일 보관 일수(기본 30 · 예식 뒤)'],
+  VOICE_CLONE_ENABLED: ['switch', 'AI 두 분 목소리(목소리 복제) — Y 일 때만 · 처음엔 비움(꺼짐) · 켜기는 사장님 결정 뒤 [VOICE_CLONE]'],
+  PRACTICE_TTS_ENABLED: ['switch', '연습 공간 AI 읽기 — Y 일 때만 · 처음엔 비움(꺼짐) [VOICE_CLONE 4-2]'],
+  TYPECAST_API_KEY: ['needs', '타입캐스트 API 키(서버에만 · 브라우저에 두지 않는다) [VOICE_CLONE]'],
+  VOICE_TARGET_LUFS: ['tuning', 'AI 목소리 소리 크기 목표(기본 -16 · 나레이션 실측)'],
+  TYPECAST_VOICE_GROOM: ['option', '연습 읽기 스튜디오 기본 목소리 · 신랑 쪽(voice_id)'], TYPECAST_VOICE_BRIDE: ['option', '연습 읽기 스튜디오 기본 목소리 · 신부 쪽'], TYPECAST_VOICE_FAMILY: ['option', '연습 읽기 스튜디오 기본 목소리 · 가족'],
+  VC_: ['state'],   /* [VOICE_CLONE] 코드별 동의 · voice_id · 한도 셈(코드가 뒤에 붙는 접두사) */
 };
 
 /* ★표가 저장소를 따라가는지 — getProperty 로 읽는 키가 표에 다 있는가.

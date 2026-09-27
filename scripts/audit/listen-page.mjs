@@ -473,15 +473,19 @@ else {
   const v0 = await pg.evaluate(() => ({ rows: document.querySelectorAll('.mk-vr').length, oldChk: [...document.querySelectorAll('.mk-pg .upchk')].filter((l) => !l.closest('.mk-valt')).length, alt: !!document.querySelector('.mk-valt:not([open])'), dup: /대본을 드려요/.test(document.querySelector('.mk-pg').textContent), todo: _mkTasks('guest').filter((x) => !x.done).length }));
   ok('RF ② 하객 맞이 — 녹음 카드 한 장 · 녹음마다 한 줄(넷) · 옛 체크 칸 없음 · «올리기가 어렵다면»은 접힘 · 겹치는 «대본을 드려요» 줄 없음 [RITUAL_FILE]', v0.rows === 4 && v0.oldChk === 0 && v0.alt && !v0.dup && v0.todo === 4, JSON.stringify(v0));
   const [fc] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g0"]')]);
-  await fc.setFiles({ name: '입장.m4a', mimeType: 'audio/mp4', buffer: Buffer.from('ID3testaudio') }); await pg.waitForTimeout(500);
-  const v1 = await pg.evaluate(() => ({ sent: window.__sent.map((d) => d.key + ':' + d.mime + ':' + d.name + ':' + /^data:audio\/mp4;base64,/.test(d.data)), busy: /보내는 중/.test(document.querySelector('.mk-vr').textContent) }));
-  ok('RF 올리기 → 마이페이지로 파일(키 · 형식 · 이름 · base64)이 넘어가고 «보내는 중…»', v1.sent.join() === 'g0:audio/mp4:입장.m4a:true' && v1.busy, JSON.stringify(v1));
+  await fc.setFiles({ name: '입장.m4a', mimeType: 'audio/mp4', buffer: Buffer.from('ID3testaudio') });
+  /* [REC_UPLOAD] 파일도 먼저 다듬어 들어 보기 → [이걸로 쓰기] — 이 기기에서 못 푸는 파일은 받은 그대로 보낸다(알림 한 줄) */
+  await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 8000 }).catch(() => {});
+  const v1r = await pg.evaluate(() => ({ raw: !!(MK_REC && MK_REC.raw), warn: (MK_REC && MK_REC.warn || []).join() }));
+  await pg.click('[data-fk="mkrecuse"]'); await pg.waitForTimeout(500);
+  const v1 = await pg.evaluate(() => ({ sent: window.__sent.map((d) => d.key + ':' + d.mime + ':' + d.name + ':' + /^data:audio\/mp4;base64,/.test(d.data)), busy: /보내는 중/.test(document.querySelector('.mk-voice').textContent) }));
+  ok('RF 올리기 → (못 푸는 파일은 받은 그대로 · 알림) → 마이페이지로 파일(키 · 형식 · 이름 · base64)이 넘어가고 «보내는 중…» [REC_UPLOAD]', v1r.raw && /받은 그대로/.test(v1r.warn) && v1.sent.join() === 'g0:audio/mp4:하객 입장 때 · 입장:true' && v1.busy, JSON.stringify({ v1r, v1 }));
   await pg.evaluate(() => _mkUpDone({ key: 'g0', ok: true, name: '입장.m4a', id: 'F1', at: '2026-09-27 17:40' })); await pg.waitForTimeout(300);
-  const v2 = await pg.evaluate(() => ({ st: document.querySelector('.mk-vr').textContent, up: S.up.g0, fAt: !!(S.fAt && S.fAt['up.g0']), todo: _mkTasks('guest').filter((x) => !x.done).length, btn: document.querySelector('[data-fk="mkup:g0"]').textContent }));
-  ok('RF 도착 → «보냈어요 · 입장.m4a» · 다시 올리기 · 그 줄은 완료(남은 셋은 미완료) · 칸마다 시각(두 기기)', /보냈어요 · 입장\.m4a/.test(v2.st) && v2.up && v2.up.id === 'F1' && v2.fAt && v2.todo === 3 && v2.btn === '다시 올리기', JSON.stringify(v2));
+  const v2 = await pg.evaluate(() => ({ st: document.querySelector('.mk-vr').textContent, up: S.up.g0, fAt: !!(S.fAt && S.fAt['up.g0']), todo: _mkTasks('guest').filter((x) => !x.done).length, btn: !!document.querySelector('[data-fk="mkupdel:g0"]') && !!document.querySelector('[data-fk="mkupplay:g0"]') }));
+  ok('RF 도착 → «파일 올렸어요» · [들어 보기] [지우기] · 그 줄은 완료(남은 셋은 미완료) · 칸마다 시각(두 기기) [REC_UPLOAD]', /파일 올렸어요/.test(v2.st) && v2.up && v2.up.id === 'F1' && v2.fAt && v2.todo === 3 && v2.btn, JSON.stringify(v2));
   await pg.evaluate(() => _mkUpDone({ key: 'g1', ok: false, error: '한 개에 20MB 까지 올릴 수 있어요.' })); await pg.waitForTimeout(300);
   ok('RF 실패는 사유를 한 줄로 · 그 줄은 미완료 그대로', await pg.evaluate(() => /20MB/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !S.up.g1));
-  await pg.evaluate(() => { document.querySelector('.mk-valt').open = true; }); await pg.click('.mk-valt .upchk'); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { document.querySelectorAll('.mk-valt').forEach((d) => { d.open = true; }); }); await pg.click('.mk-valt .upchk');   // [REC_UPLOAD] 접이가 둘(녹음 도움말 · 올리기가 어렵다면) await pg.waitForTimeout(300);
   ok('RF «카톡 · 메일로 보냈어요» → 올리지 않은 줄만 보냄 처리 · 올린 줄은 그대로', await pg.evaluate(() => S.up.g0.id === 'F1' && S.up.g1 === 'sent' && S.up.g3 === 'sent' && _mkTasks('guest').every((x) => x.done)));
   ok('RF pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
@@ -490,8 +494,10 @@ else {
   await p2.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
   await p2.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await p2.waitForTimeout(700);
   await clickNext(p2); await p2.waitForTimeout(400); await clickNext(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await clickNext(p2); await p2.waitForTimeout(1200);
-  await p2.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await p2.waitForTimeout(300); await p2.click('[data-fk="mkup:g0"]'); await p2.waitForTimeout(300);
-  ok('RF 그냥 연 미리보기 — 파일 창 대신 «마이페이지에서 열면 … 카톡 · 메일» 한 줄', await p2.evaluate(() => /마이페이지에서 열면 여기서 바로 보낼 수 있어요/.test((document.querySelector('.mk-toast') || {}).textContent || '')));
+  await p2.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await p2.waitForTimeout(300);
+  const [fc3] = await Promise.all([p2.waitForEvent('filechooser'), p2.click('[data-fk="mkup:g0"]')]); await fc3.setFiles({ name: 'a.m4a', mimeType: 'audio/mp4', buffer: Buffer.from('ID3testaudio') });
+  await p2.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 8000 }).catch(() => {}); await p2.click('[data-fk="mkrecuse"]'); await p2.waitForTimeout(300);
+  ok('RF 그냥 연 미리보기 — 이 기기에서만 그 자리에 들어가고 «마이페이지에서 열면 저희에게 보내져요» 한 줄 [REC_UPLOAD]', await p2.evaluate(() => /마이페이지에서 열면 저희에게 보내져요/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !!(S.up.g0 && S.up.g0.local)));
   await c2.close();
 }
 /* ★[TOAST_FILE_ONE 2026-09-27] 영상 이름 한 원천 — 화면이 찾는 이름은 모두 파일 규격 17편(scripts/video/encode-moment.sh) 안에 있어야 한다.

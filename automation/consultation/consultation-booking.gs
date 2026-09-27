@@ -2263,6 +2263,9 @@ function doPost(e) {
       case 'seatView':           return jsonOut(handleSeatView(body));   // 좌석 배치도 공개 조회(무인증·토큰) — seat.html
       case 'guideView':          return jsonOut(handleGuideView(body));  // 하객 안내 허브 공개 조회(무인증·토큰) — guide.html
       case 'ritualFile':         return jsonOut(handleRitualFile(body));  // [RITUAL_FILE 2026-09-27] 식순 빌더 두 분 목소리 녹음 올리기(로그인 토큰) — 80_production
+      case 'ritualFileGet':      return jsonOut(handleRitualFileGet(body));  // [REC_UPLOAD 2026-09-27] 올린 두 분 녹음을 두 분 계정으로만 다시 받기(공개 주소 없음) — 80_production
+      case 'ritualFileDel':      return jsonOut(handleRitualFileDel(body));  // [REC_UPLOAD] 두 분이 먼저 지우기(휴지통) — 80_production
+      case 'voiceClone':         return jsonOut(handleVoiceClone(body));  // [VOICE_CLONE 2026-09-27] AI 두 분 목소리 · 연습 읽기(스위치 VOICE_CLONE_ENABLED · PRACTICE_TTS_ENABLED 가 켜져야) — 80_production
       case 'guestPhoto':         return jsonOut(handleGuestPhoto(body));  // [GUEST_PHOTO_IN] 하객 사진 업로드 1건(무인증·토큰) — guide.html · 80_production
       case 'snapRefUpload':      return jsonOut(handleSnapRefUpload(body));   // [SNAP_PICK_V2] 스냅 기획 «찾던 그림» 올리기(세션 인증) — mypage · 80_production
       case 'snapThumbs':         return jsonOut(handleSnapThumbs(body));      // [SNAP_PICK_V2] 올린 그림의 작은 그림(세션 인증 · 이 고객 것만)
@@ -2458,7 +2461,8 @@ function purgeAdvisorLog() {
   try { if (typeof purgeAiHandoff === 'function') purgeAiHandoff(); } catch (e) {}   // 97 · 30일 넘긴 '대기' 인계 자동 만료(미처리 알림 누적 방지)
   try { if (typeof purgeSmsLog === 'function') purgeSmsLog(); } catch (e) {}         // 95 · 문자발송로그 180일 정리(20000행 상한 도달 방지)
   try { if (typeof purgeNfTrack === 'function') purgeNfTrack(); } catch (e) {}       // 95 · 알림톡추적(전달결과 매칭) 7일 정리
-  try { if (typeof purgeSnapRefs === 'function') purgeSnapRefs(false); } catch (e) {} // 80 · [SNAP_PURGE] 예식 183일 뒤 스냅 기획의 올린 사진·링크·메모 파기(처리방침 약속)
+  try { if (typeof purgeSnapRefs === 'function') purgeSnapRefs(false); } catch (e) {}
+  try { if (typeof purgeRitualFiles === 'function') purgeRitualFiles(false); } catch (e) {}   // 80 · [REC_PURGE] 예식 30일 뒤 두 분 목소리 파일 지우기(휴지통) // 80 · [SNAP_PURGE] 예식 183일 뒤 스냅 기획의 올린 사진·링크·메모 파기(처리방침 약속)
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
 function purgeAwDemandLog() {
