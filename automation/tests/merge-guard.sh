@@ -11391,7 +11391,7 @@ chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-op
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
 chk "L('tribute','말의 길이'" order-preview.html 1
 chk "'인사 방식'" order-preview.html 1
-chk '예시에서 시작해 순간을 더하고 빼요 · 칸을 누르면 미리 보고 들을 수 있어요.' order-preview.html 1   # [E3]
+chk "\[\['고르기','예시에서 시작해 순간을 더하고 빼요.'\]" order-preview.html 1   # [E3] → [INTRO_JOURNEY 2026-09-27] 안내 화면 네 걸음 첫 줄
 chk "sub:'작은 예식은 보통 이런 흐름이에요. 마음에 드는 예시로 시작해서 더하고 빼면 돼요.'" order-preview.html 1
 nochk '_pickVids' order-preview.html   # ① 카드 자동 재생 영상은 거뒀다 — 칸은 첫 장면 사진만(최종판 3-5 · 사장님 확인)
 nochk 'opVidOff' order-preview.html

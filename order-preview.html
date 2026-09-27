@@ -2624,6 +2624,7 @@ function renderIntro2(){
   if(isOpen()){
     h+='<div class="intro-lead">여기서 순서를 짜고, 예식까지 연습하며 다듬어요.</div>';
     h+='<div class="jr-t">여기서 · 네 걸음</div><div class="intro-pts">';
+    /* [PICK_V2 E3] ① 한 줄은 «예시에서 시작해 순간을 더하고 빼요»로 그대로 · «칸을 누르면 미리 보고 들을 수 있어요»는 ① 화면 안에서 말한다 */
     [['고르기','예시에서 시작해 순간을 더하고 빼요.'],['보고 듣기','예식 차례대로 들으며 말투 · 누가 할지를 바꿔요.'],['준비하기','두 분이 쓸 글 · 부모님께 부탁드릴 것을 한곳에서 봐요.'],['완성','저장하면 대본을 복사하거나 파일로 받아요.']]
       .forEach(function(x,i){ h+='<div class="ipt"><span class="n">'+(i+1)+'</span><span><b>'+esc(x[0])+'</b> · '+esc(x[1])+'</span></div>'; });
     h+='</div>';
