@@ -9256,6 +9256,9 @@ function _spExView(id, ctl){
 }
 /* [SNAP_PHOTO_FIRST] 장면 사진 한 칸 — 대표 사진(img 또는 예시 첫 장) · 누르면 크게. 사진이 아직 없는 장면은 같은 자리에 «어떤 사진인지» 글 */
 function _spCover(s){ var R=window.SNAP_REFS; if(R.img(s)) return {w:R.img(s,'webp'), j:R.img(s,'jpg')}; var e=(s.ex||[]).filter(function(x){ return !!R.exImg(x); })[0]; return e?{w:R.exImg(e,'webp'), j:R.exImg(e,'jpg')}:null; }
+/* ★[SNAP_SHOW_ORDER 2026-09-27] 보여 주는 순서만 — 사진이 온 장면을 앞에, 아직 설명 글인 장면은 뒤에(각 무리 안에서는 목록 순서 그대로).
+   사진이 일부만 온 동안 회색 칸이 맨 앞에 서면 화면이 비어 보였다(c01~c04 · w01~w04 사진 대기). 고른 순서(우선순위)와는 상관없다 — 번호는 Z.picks 순서. */
+function _spShowOrder(list){ var a=[], b=[]; (list||[]).forEach(function(s){ (_spCover(s)?a:b).push(s); }); return a.concat(b); }
 function _spPv(s, kind){
   var c=_spCover(s), ex=_spExList(s), n=ex.length;
   var pic=c?('<picture><source srcset="'+c.w+'" type="image/webp"><img src="'+c.j+'" alt="" loading="lazy" decoding="async"></picture>')
@@ -9307,7 +9310,7 @@ function _spZone(D, R, zi){
        같은 말을 두 번 하면서 «찍는 순서»를 약속했다(현장은 빛 · 자리 따라 순서를 바꾼다 · snap-refs «고른 순서 = 우선순위»). 번호 = 고른 순서 = 우선순위. */
   h+='<div class="snp-note">번호는 고른 순서예요. 시간이 줄면 앞 번호부터 담아요.</div>';
   var _lab=function(s, on, i, off){ return escapeHtml(s.name)+(on?(' · '+(i+1)+'번째로 고름'):'')+((s.needs&&s.needs.length)?(' · 준비물 '+escapeHtml(s.needs.join(', '))):'')+(off?(' · '+PK+'장면을 다 골랐어요'):''); };
-  if(img) h+='<div class="snp-grid">'+z.pick.map(function(s){ var i=Z.picks.indexOf(s.id), on=i>-1, off=!on&&full;
+  if(img) h+='<div class="snp-grid">'+_spShowOrder(z.pick).map(function(s){ var i=Z.picks.indexOf(s.id), on=i>-1, off=!on&&full;
       /* ★[SNAP_PHOTO_FIRST 2026-09-27 사장님] 사진 중심 — «사진이 크게 보이는 게 중요 · 사진만 보고 누를 수 있게».
          사진을 누르면 크게(예시 3장 넘겨 보기 · 그 안에서 고르기) · 오른쪽 위 동그라미 = 바로 고르기(고르면 진사 원 + 순번) · 이름은 사진 아래. */
       return '<div class="snp-cell'+(on?' on':'')+(off?' full':'')+(_spCover(s)?'':' noimg')+'">'+_spPv(s)
