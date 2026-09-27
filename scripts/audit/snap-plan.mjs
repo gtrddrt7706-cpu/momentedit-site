@@ -195,7 +195,7 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(snpSeal.every((k) => ok5.indexOf(k) > -1), '스냅 화면 진사 = 정한 점들뿐 — 지금 ' + snpSeal.join(', '));
   t(!/\n\.snp-steps?[{:.:]/.test(my) && my.indexOf('<ol class="snp-steps"') === -1, '[WZ_STEPS] 걸음 동그라미(.snp-steps · .snp-step) 없음 — 되살리면 빨강');
   t(/wzSteps\(SNAP_STEPS\.map\(function\(x\)\{ return x\.s; \}\), st, 'data-sstep', true\)/.test(my) && SNAP_STEPS_S.length === 5 && SNAP_STEPS_S.every((x) => x && x.length <= 4), '[WZ_STEPS] 스냅 = 공용 진행 표시 · 다섯 걸음 다 누른다(종전 동그라미와 같은 길) · 이름 네 글자 안(390 한 칸 60px) — ' + SNAP_STEPS_S.join(' · '));
-  t(/border-top:2px solid var\(--border\)/.test(css('.wz-steps li')) && /border-top-color:var\(--gold\)/.test(css('.wz-steps li.done')) && /min-height:44px/.test(css('.wz-stepb')), '[WZ_STEPS] 윗선 2px(남은 옅게 · 지나온 금빛) · 누르는 칸 44px');
+  t(/border-top:2px solid var\(--border\)/.test(css('.wz-steps li')) && /border-top-color:var\(--gold-deep\)/.test(css('.wz-steps li.done')) && /min-height:44px/.test(css('.wz-stepb')), '[WZ_STEPS] 윗선 2px(남은 옅게 · 지나온 짙은 금빛 — 비텍스트 3:1 [WZ_STEPS_AA]) · 누르는 칸 44px');
 }
 
 // ── [SPEC6_P2 2026-09-27 지시문 6편 2부] 스냅 기획 고객 점검 — 확인 창 대신 한 줄 · 사진 없을 땐 목록 · 동의 전 나가기 · 낸 뒤 카드

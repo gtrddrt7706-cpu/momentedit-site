@@ -496,7 +496,7 @@ nochk "true,'저장하고 닫기');" mypage.html 0
 #   ②안내 한 줄 = «점 + 글»(.mp-dotln) — 칠한 상자(분홍 #FBF3F1 · 진사 옅은 칠 · 회색 칠 · 금빛 칠)로 되돌리면 빨강
 #   ③오류 = 진사(후기 · 애프터 웨딩 AI) ④주 단추 .cc-btn 글꼴 = 한글 명조(라틴 Cormorant 만 걸려 한글이 기기 기본 명조로 떨어졌다)
 chk 'SEL_ONE' mypage.html 12
-chk '.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on{border-color:var(--gold-deep);' mypage.html 1
+chk '.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on,.rev-chip.on{border-color:var(--gold-deep);' mypage.html 1
 chk '.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);' mypage.html 1
 nochk 'dn-fpill.on{border-color:var(--seal' mypage.html 0
 nochk 'dn-segbtn.on{background:var(--seal' mypage.html 0
@@ -552,6 +552,20 @@ chk 'SEAL_CTA_ONLY' mypage.html 1
 nochk 'class="cc-btn cc-btn-seal" id="dncSend"' mypage.html 0
 chk 'FOCUS_ONE' mypage.html 3
 nochk '.seat-note-ta:focus{outline:none;border-color:var(--seal)' mypage.html 0
+# ★[WZ_STEPS_FOCUS · WZ_STEPS_AA 2026-09-27 web-design-guidelines 점검] 걸음 누른 뒤 초점 = 새 제목 · 지나온 선 3:1(짙은 금빛) · 목록 역할 ·
+#   좁은 폭 다섯 걸음은 번호를 윗줄로 · 고름 상태 낭독(디자인 칸 · 예식 시간 칸) · 알림 글은 붙인 뒤에 · 후기 오류 낭독
+chk 'function _wzFocusHead(box){' mypage.html 1
+chk 'renderInvFlow(box); _wzFocusHead(box);' mypage.html 1
+chk "render(box); _wzFocusHead(box); }); });   // \[WZ_STEPS_FOCUS\]" mypage.html 1
+chk '.wz-steps li.done{color:var(--sub);border-top-color:var(--gold-deep)}' mypage.html 1
+chk '@media (max-width:360px){.wz-steps.n5 .wz-n{display:block' mypage.html 1
+chk 'role="list" aria-label="진행 단계"' mypage.html 1
+chk 'class="inv-dz'"'"'+(cur===p\[0\]?'"'"' sel'"'"':'"'"''"'"')+'"'"'" aria-pressed=' mypage.html 1
+chk "x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true');" mypage.html 2
+chk "requestAnimationFrame(function(){ t.textContent=msg; t.style.opacity='1';" mypage.html 1
+chk 'id="mp_svErr" role="alert"' mypage.html 1
+nochk '@keyframes dnCueAr{0%,100%{transform:translateY(0)}' mypage.html 0
+chk '@media (hover:hover){.wiz-exit:hover{' mypage.html 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
@@ -12467,7 +12481,8 @@ chk 'var _sv=saveInvDraft();' mypage.html 1
 chk 'var _b2=_wizJson(WIZ_ADAPT.inv.data());' mypage.html 1
 chk 'WIZ_BASE.inv=_b2;' mypage.html 1
 # [INV_TAG_TOTAL] 예식 준비 청첩장 행 진행 태그 = 위저드 머리와 같은 전체 단계 수(청첩장 없이 · 개인 제작은 «/2» · 확인 단계는 2)
-chk "var _ivT=_invTotalSteps(inv.draft); _ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT;" mypage.html 1
+#   ★2026-09-27 [WZ_STEPS_TAG] 꼬리표가 «2/4» → «② 부모님»(진행 표시와 같은 말). 경로별 단계 수를 따르는 뜻은 그대로 — 두 걸음 경로는 «② 확인»이 된다.
+chk "var _ivT=_invTotalSteps(inv.draft), _ivI=(_ivT===2?(_ivN>1?2:1):_ivN)-1;" mypage.html 1
 nochk "if(_ivN) _ivStepTag=_ivN+'/4';" mypage.html 0
 # [INV_SEL_SHORT] 청첩장 2/4 select — 값(value)은 그대로 · 보이는 이름만 «직접 입력» · «호칭 생략»(561px 이상 124px 칸에서 «기타(직접입» · «호칭 생략 (»로 잘리던 것)
 chk "(x===ETC?'직접 입력':(x===OMIT?'호칭 생략':x))" mypage.html 1
