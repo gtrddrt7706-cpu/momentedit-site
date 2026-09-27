@@ -8865,6 +8865,13 @@ chk 'VOICE_KIND' order-preview.html 6
 chk 'VOICE_KIND' assets/ritual-open.js 4   # 갈래는 한 곳(voiceKind · voiceLab)
 chk 'function _rfFileIn(code, id)' automation/platform/80_production.gs 1   # ★그 코드 폴더 안의 파일만 · 공개 주소 없음
 nochk 'setSharing' automation/platform/80_production.gs   # ★두 분 목소리 파일을 공개로 바꾸지 않는다
+chk 'REC_ADMIN' admin.html 3   # 관리 화면 «두 분 목소리» 파일 보기 · 들어 보기 · 확인 ✓ · 콘솔 링크 rf=코드
+chk 'REC_ADMIN' console.html 3   # 당일 콘솔 — 시작 전에 받아 둔다 · 소리 파일 확인
+chk 'REC_ADMIN' automation/platform/80_production.gs 4
+chk 'REC_ADMIN' automation/admin/admin.gs 1   # adminCall 허용 목록
+chk 'REC_ADMIN' scripts/audit/rec-upload.mjs 2
+chk 'REC_PURGE' automation/platform/80_production.gs 2   # 예식 30일 뒤 지우기
+chk 'REC_PURGE' automation/consultation/consultation-booking.gs 1   # 주간 정리가 함께 부른다
 chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)
 chk 'DETAIL_0925 C2' order-preview.html 3   # 누를 곳 44px
 if command -v node >/dev/null 2>&1; then node scripts/audit/inapp-sim.mjs >/dev/null 2>&1; _ia=$?

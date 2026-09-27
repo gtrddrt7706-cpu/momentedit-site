@@ -76,5 +76,25 @@ for (const w of [360, 1280]) {
   ok(`${w} pageerror 0 · 가로 넘침 0`, !errs.length && !ov, errs.join(' | '));
   await ctx.close();
 }
+/* ★[REC_ADMIN] 당일 콘솔 — rf=코드 + 관리자 토큰이면 시작 전에 두 분 목소리를 받아 CLIPS 에 넣는다 · «소리 파일 확인» ✓ · 못 받은 줄은 나레이션 */
+{
+  const wav = fs.readFileSync(quiet).toString('base64');
+  const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+  let calls = [];
+  await pg.route('**/*', (rt) => { const u = rt.request().url();
+    if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
+    if (/script\.google\.com/.test(u)) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {} calls.push(b.fn + ':' + (b.args || []).join(','));
+      const ok = b.fn === 'adminRitualFileGet' && b.args && b.args[1] === 'F-g0';
+      return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(ok ? { ok: true, id: 'F-g0', mime: 'audio/wav', data: wav } : { ok: false, error: '없음' }) }); }
+    return rt.fulfill({ status: 200, body: '' }); });
+  await pg.goto(`http://127.0.0.1:${port}/console.html`); await pg.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); });
+  const S0 = { course: 'family', guestVoice: 'couple', entryVoice: 'nar', up: { g0: { id: 'F-g0', n: '녹음' }, g1: { id: 'F-g1', n: '녹음' } } };
+  const q = Buffer.from(JSON.stringify(S0)).toString('base64');
+  await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(q)}&rf=ME0001`); await pg.waitForTimeout(1500);
+  const r = await pg.evaluate(() => ({ st: window.__rfState().st, clip: window.__rfState().clip, sec: !document.getElementById('rfSec').hidden, t: document.getElementById('rfChk').textContent }));
+  ok('콘솔 — rf=코드 + 관리자 토큰 → 시작 전에 받아 둠(g0 ✓) · 못 받은 줄(g1)은 «나레이션으로» · 파일 없는 줄(g2 · g3)도 «나레이션으로» [REC_ADMIN]', /"g0":"ok"/.test(r.st) && /"g1":"fail"/.test(r.st) && r.clip === 'blob:' && r.sec && /하객 입장 때✓ 두 분 목소리 · 받아 둠/.test(r.t) && /시작 10분 전받지 못함 · 나레이션으로 나가요/.test(r.t) && /시작 5분 전파일 없음/.test(r.t) && calls.every((c) => /^adminRitualFileGet:ME0001,F-g[01]$/.test(c)), JSON.stringify({ r, calls }));
+  ok('콘솔 pageerror 0', !errs.length, errs.join(' | '));
+  await ctx.close();
+}
 await br.close(); srv.close(); fs.rmSync(TMP, { recursive: true, force: true });
 console.log(fail ? `\n결과 — 실패 ${fail}건` : '\n결과 — 전부 통과'); process.exit(fail ? 1 : 0);

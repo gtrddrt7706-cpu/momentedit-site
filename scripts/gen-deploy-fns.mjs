@@ -132,6 +132,7 @@ const PROPS = {
   NOTIFY_FAIL_: ['state'], NOTIFY_FAILMAIL_: ['state'],   /* 날짜가 뒤에 붙는 접두사 */
   SNAPBRIEF_: ['state'],   /* [SNAP_BRIEF] 촬영 브리프 주소 → 개인코드(주소 토큰이 뒤에 붙는 접두사 · adminSnapBrief 가 만들고 purgeSnapRefs 가 지운다) */
   KAKAO_REST_KEY: ['state'], KAKAO_TEMPLATES: ['state'],  /* 설정 함수가 넣어 두는 값 */
+  RF_: ['state'], RFOK_: ['state'], RFGONE_: ['state'],   /* [RITUAL_FILE · REC_ADMIN · REC_PURGE] 두 분 목소리 — 코드별 드라이브 폴더 · 스튜디오 확인 ✓ · 30일 지운 날(코드가 뒤에 붙는 접두사) */
 
   /* switch */
   NOTIFY_ENABLED: ['switch', '알림 발송 (true 면 켜짐)'],
@@ -172,6 +173,7 @@ const PROPS = {
   SOLAPI_PFID: ['option', '알림톡 채널 (50_auth-handlers 계열)'],
   SOLAPI_PF_ID: ['option', '알림톡 채널 (95_notify 계열)'],
   SOLAPI_TPL_FINDCODE: ['option', '코드찾기 알림톡 템플릿'],
+  RITUAL_FILE_PURGE_DAYS: ['tuning', '두 분 목소리 파일 보관 일수(기본 30 · 예식 뒤)'],
 };
 
 /* ★표가 저장소를 따라가는지 — getProperty 로 읽는 키가 표에 다 있는가.

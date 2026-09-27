@@ -125,6 +125,9 @@ select,input[type=time],input[type=text]{
   display:flex;align-items:center;gap:10px;
 }
 .upc.dim{opacity:.55}
+#rfChk .kv{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line,#DDD8D1);font-size:14px}
+#rfChk .kv .k{flex:0 0 7.5em;color:var(--dim,#6E6959)}
+#rfChk .kv .v.dim{color:var(--dim,#6E6959)}   /* [REC_ADMIN] 소리 파일 확인 */
 .upc .lb{font-size:11px;color:var(--dim);flex:0 0 auto;width:38px}
 .upc .nm{flex:1;font-size:15px;font-weight:600;line-height:1.4;min-width:0}
 .upc .nm small{display:block;font-weight:400;font-size:12px;color:var(--dim);margin-top:1px}
@@ -554,6 +557,12 @@ body.guest .now .hint{font-size:12.5px}
     <div id="sum"></div>
   </div>
 
+  <div class="sec" id="rfSec" hidden>
+    <h2>소리 파일 확인</h2>
+    <p class="note">두 분이 미리 준비한 목소리예요. 시작 전에 이 기기에 받아 둬서 식장 인터넷이 끊겨도 나와요. 받지 못한 줄은 나레이션으로 나가요.</p>
+    <div id="rfChk"></div>
+  </div>
+
   <button class="go" id="go">시작</button>
   <p class="note" style="text-align:center;margin-top:14px">
     시작하면 화면이 꺼지지 않게 붙잡습니다. 소리는 첫 버튼을 누를 때 열립니다.
@@ -759,6 +768,19 @@ Object.keys(OPT).forEach(function(id){
   });
 });
 
+function rfSlugOf(key){ return key === 'entry' ? ('entry-' + (S.entry || 'A')) : RF_SLUG[key]; }
+function rfKeys(){ var ks = []; if (S.guestVoice === 'couple') ks = ks.concat(['g0','g1','g2','g3']); if (S.entryVoice === 'couple') ks.push('entry'); return ks; }
+function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(); if (!sec || !box) return; sec.hidden = !ks.length; if (!ks.length) return;
+  box.innerHTML = ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ 두 분 목소리 · 받아 둠' : st === 'busy' ? '받는 중…' : st === 'fail' ? '받지 못함 · 나레이션으로 나가요' : '파일 없음 · 나레이션으로 나가요';
+    return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + t + '</span></div>'; }).join(''); }
+function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
+  var up = S.up || {}; rfPaint(); if (!code || !tok) return;
+  rfKeys().forEach(function(k){ var v = up[k]; if (!v || typeof v !== 'object' || !v.id || /^local:/.test(v.id)) return; RF_ST[k] = 'busy'; rfPaint();
+    fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: 'adminRitualFileGet', args: [code, v.id] }) })
+      .then(function(r){ return r.json(); }).then(function(d){ d = (d && d.result) || d; if (!d || !d.ok || !d.data) throw 0;
+        var bin = atob(d.data), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+        CLIPS[rfSlugOf(k)] = URL.createObjectURL(new Blob([u], { type: d.mime || 'audio/wav' })); RF_ST[k] = 'ok'; rfPaint(); try { render(); } catch (e) {} })
+      .catch(function(){ RF_ST[k] = 'fail'; rfPaint(); }); }); }
 function fmt(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + ('0' + (s%60)).slice(-2); }
 function fmtMin(s){ return Math.round(s/60) + '분'; }
 
@@ -781,6 +803,11 @@ function summarize(){
 }
 
 /* 로컬 파일 ─ 브라우저 안에서만 쓴다 */
+/* ★★[REC_ADMIN · REC_UPLOAD 2026-09-27 코워크 «두 분 목소리» 3-6] 두 분 목소리 — 관리 화면의 «당일 콘솔»은 rf=코드를 붙여 연다.
+   같은 사이트의 관리자 토큰(me_admin_token)으로 파일을 «시작 전에» 받아 CLIPS 에 넣는다 — 그 큐는 두 분 소리로 나가고, 못 받은 줄은 나레이션.
+   자리 ↔ 큐: g0 guest-1-arrival · g1 guest-2-10min · g2 guest-3-5min · g3 guest-4-1min · entry entry-<고른 판> (두 분 목소리를 고른 자리만) */
+var RF_SLUG = { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min' }, RF_LAB = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사' }, RF_ST = {};
+var RF_EXEC = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
 var CLIPS = {};    // '16' → objectURL  ·  'narr-ring-out' → objectURL
 var BGMURL = '';
 /* ★PREVIEW_BED — 고객 미리듣기의 배경 음악.
@@ -1206,6 +1233,10 @@ function render(){
 
   var tag = $('#nTag'); tag.innerHTML = '';
   function pill(cls, t){ var s = document.createElement('span'); s.className = 'pill ' + cls; s.textContent = t; tag.appendChild(s); }
+  /* [VOICE_KIND] 큐마다 갈래 — 두 분 목소리 자리는 받아 둔 파일이 있으면 «두 분 녹음» · 없으면 «나레이션으로» · 뒤에 사람이 말하면 «당일 직접» */
+  function vkPill(q){ if (GUEST || !q) return; var key = null; Object.keys(RF_SLUG).forEach(function(k){ if (RF_SLUG[k] === q.slug) key = k; }); if (q.slug === 'entry-' + (S.entry || 'A')) key = 'entry';
+    if (key && rfKeys().indexOf(key) > -1) pill('vk', CLIPS[q.slug] ? '두 분 녹음' : '두 분 목소리 없음 · 나레이션으로');
+    else if (q.live) pill('vk', (window.RitualOpen && RitualOpen.voiceLab) ? RitualOpen.voiceLab(q.k, S, { talk: true }) : '당일 직접'); }
 
   if (phase === 'end') {
     $('#nName').textContent = GUEST ? '다 들으셨어요' : '진행이 끝났습니다';
@@ -1301,6 +1332,7 @@ function render(){
   if (c.no) { var no = document.createElement('span'); no.className = 'no'; no.textContent = c.no + '번'; tag.appendChild(no); }
   if (c.pick) pill('p', c.pick);
   if (c.altSec) pill('p', '길어짐 대응 · ' + fmt(c.altSec) + ' 경과');
+  vkPill(c);   // [VOICE_KIND]
   if (phase === 'live') pill('l', liveBadge(c.live));
   if (c.own) pill('l', '두 분 목소리');
 
@@ -1672,6 +1704,8 @@ document.addEventListener('keydown', function(e){
 });
 
 paint();
+try { rfPrefetch(); } catch (e) {}   // [REC_ADMIN] 두 분 목소리 — 시작 전에 받아 둔다
+window.__rfState = function(){ return { st: JSON.stringify(RF_ST), clip: String(CLIPS['guest-1-arrival'] || '').slice(0, 5) }; };   // 읽기 전용 · 검사(rec-upload)가 본다
 
 /* ★GUEST_SKIN — 고객 화면 부팅. 설정 패널 대신 인트로 카드 한 장을 세운다.
    ★자동으로 시작하지 않는다 — 브라우저는 사람이 한 번 누르기 전에는 소리를 열어 주지 않는다.

@@ -1004,6 +1004,22 @@ function _orderSheetDoc(d){
     +'</div></div>';
   return '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>식순지 '+esc((d&&d.code)||'')+'</title><style>'+css+'</style></head><body>'+front+back+'</body></html>';
 }
+/* [REC_ADMIN] 두 분 목소리 — 목록(최신이 위 · 같은 자리는 맨 위가 지금 쓰는 것) · 들어 보기(받아서 blob) · 확인 ✓ · D-7 뒤 바뀜 표시 */
+function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&curDetail.code; if(!el||!code) return; el.textContent='불러오는 중…';
+  gas('adminRitualFiles', code).then(function(d){ if(!d||!d.ok){ el.textContent=(d&&d.error)||'불러오지 못했어요'; return; }
+    if(d.gone){ el.innerHTML='<div class="kv"><span class="k">지움</span><span class="v">'+esc(d.gone)+' (예식 30일 뒤)</span></div>'; return; }
+    if(!d.files.length){ el.innerHTML='<div class="kv"><span class="k">파일</span><span class="v">아직 없음 · 비어 있는 줄은 나레이션으로 나감</span></div>'; return; }
+    var seen={}, h='';
+    d.files.forEach(function(f){ var cur=f.key&&!seen[f.key]; if(f.key) seen[f.key]=1; var ok=d.okMap&&d.okMap[f.key];
+      h+='<div class="kv"><span class="k">'+esc(f.label||'자리 모름')+(cur?'':' (옛 파일)')+'</span><span class="v">'+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+(f.late?' · <b style="color:var(--red)">D-7 뒤 바뀜</b>':'')
+        +' <button type="button" class="btn-line" style="padding:2px 8px;font-size:12px" onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button>'
+        +(cur?' <button type="button" class="btn-line" style="padding:2px 8px;font-size:12px" onclick="admRfOk(\''+esc(f.key)+'\','+(ok?'false':'true')+')">'+(ok?'확인 ✓ · '+esc(ok.at||''):'확인')+'</button>':'')+'</span></div>'; });
+    el.innerHTML=h; }).catch(function(){ el.textContent='불러오지 못했어요'; }); }
+function admRfPlay(id,btn){ var code=curDetail&&curDetail.code; if(!code) return; btn.disabled=true; btn.textContent='받는 중…';
+  gas('adminRitualFileGet', code, id).then(function(d){ btn.disabled=false; btn.textContent='들어 보기'; if(!d||!d.ok){ toast((d&&d.error)||'받지 못했어요'); return; }
+    var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); var a=new Audio(URL.createObjectURL(new Blob([u],{type:d.mime||'audio/wav'}))); a.play(); })
+    .catch(function(){ btn.disabled=false; btn.textContent='들어 보기'; toast('받지 못했어요'); }); }
+function admRfOk(key,on){ var code=curDetail&&curDetail.code; if(!code) return; gas('adminRitualFileOk', code, key, on).then(function(){ admRfLoad(); }); }
 function printOrderSheet(){
   var d=curDetail; var rd=(d&&d.mirror&&d.mirror.production&&d.mirror.production.ritualDraft)||null;
   // 렌더 게이트(_v===3 분기 안에만 버튼을 그림)가 있어도 진입 가드를 둔다 — 버튼을 그린 시점과 누른 시점 사이에 curDetail이 바뀔 수 있다.
@@ -2764,7 +2780,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
            그리고 당일 콘솔 판 머리에 구도 이름(촬영 순서) · 꼭 담고 싶은 사진(짧게)을 싣는다 — 주소 길이를 위해 이름 24자 · 요청 40자까지. */
       if(gi&&Array.isArray(gi.photo)&&gi.photo.length) _cS.photoNames=gi.photo.slice(0,11).map(function(x){ return String(x).slice(0,24); });
       if(gi&&Array.isArray(gi.photoWish)){ var _pwt=gi.photoWish.map(function(w){ return String((w&&w.what)||'').trim(); }).filter(Boolean).slice(0,2).map(function(t){ return t.length>40?(t.slice(0,39)+'…'):t; }); if(_pwt.length) _cS.photoWishT=_pwt; }   /* [WISH_COUNT 2026-09-26 코워크 최종판 2-6] 적은 요청 수 — 콘솔 end-0-photo 목표(360 + 60 × 수) · 옛 저장분은 photoFx 로 */
-      _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'">당일 콘솔</a>'; }catch(e){}
+      _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'&rf='+encodeURIComponent((curDetail&&curDetail.code)||'')+'">당일 콘솔</a>'; }catch(e){}   /* [REC_ADMIN] rf=코드 — 콘솔이 두 분 목소리 파일을 미리 받는다(관리자 토큰) */
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
       +row('순서 흐름', (Array.isArray(sm3.flow)&&sm3.flow.length)?sm3.flow.join(' → '):'')   /* [ADM_SUM_ESC] 배열 아니면(깨진 초안) 행만 비운다 — join 이 던져 상세가 통째로 죽던 것 */
@@ -2784,6 +2800,8 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
       +row('직접 쓰는 글', [s3d.vowText?'서약문':null, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null].filter(function(x){return x;}).join(' · ')||'아직 없음')
       +(s3d.growth==='on'?lrow('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');   /* [ADM_LINK_CLICK] */
+    /* ★[REC_ADMIN 2026-09-27 코워크 «두 분 목소리» 3-8] 하객 맞이 · 입장 인사를 «두 분 목소리»로 고른 예식 — 파일 목록 · 들어 보기 · 확인 ✓ (D-5 쯤 스튜디오가 들어 봄) */
+    if(s3d.guestVoice==='couple'||s3d.entryVoice==='couple') h+='<div class="grp-l">두 분 목소리 <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" data-fk="admrf" onclick="admRfLoad()">파일 보기</button></div><div id="admRf"></div>';
   }
   else if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)

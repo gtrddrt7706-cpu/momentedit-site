@@ -1218,6 +1218,54 @@ function handleRitualFileDel(body) {
   return { ok: true, key: String(body.key || ''), id: String(body.id || '') };
 }
 
+/* ★★[REC_ADMIN 2026-09-27 코워크 «두 분 목소리» 3-6 · 3-7 · 3-8] 스튜디오 쪽 — 관리 화면 · 당일 콘솔이 같은 함수를 쓴다(adminCall 뒤 · 관리자 토큰).
+   · adminRitualFiles(code): 그 예식의 두 분 목소리 파일 목록(자리 · 이름 · 크기 · 올린 때) + «확인 ✓» + D-7 뒤 바뀜
+   · adminRitualFileGet(code, id): 파일 한 개(base64) — 콘솔이 식 전에 미리 받아 둔다(식장 인터넷이 끊겨도)
+   · adminRitualFileOk(code, key, on): 스튜디오가 D-5 쯤 들어 보고 «확인 ✓» (스크립트 속성 RFOK_<코드> · 시트 열을 늘리지 않는다) */
+function _rfKeyOfName(nm) { nm = String(nm || ''); for (var k in RF_KEYS) { if (nm.indexOf(RF_KEYS[k] + ' · ') === 0) return k; } return ''; }
+function adminRitualFiles(code) {
+  _requireAdmin('');   // [REC_ADMIN]
+  code = String(code || '').trim(); if (!code) return { ok: false, error: '코드가 없어요.' };
+  var props = PropertiesService.getScriptProperties(), fid = props.getProperty('RF_' + code), okMap = {};
+  try { okMap = JSON.parse(props.getProperty('RFOK_' + code) || '{}') || {}; } catch (e) { okMap = {}; }
+  var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null, wy = cust ? _ymdOf(cust.get('예식일')) : '';
+  var late = ''; if (wy) { var d = new Date(wy + 'T00:00:00+09:00'); d.setDate(d.getDate() - 7); late = Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd'); }
+  var out = []; if (fid) { try { var it = DriveApp.getFolderById(fid).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; var at = Utilities.formatDate(f.getDateCreated(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
+    out.push({ key: _rfKeyOfName(f.getName()), label: RF_KEYS[_rfKeyOfName(f.getName())] || '', id: f.getId(), name: f.getName(), kb: Math.round(f.getSize() / 1024), at: at, late: !!(late && at.slice(0, 10) > late) }); } } catch (e) {} }
+  out.sort(function (a, b) { return a.at < b.at ? 1 : -1; });   // 최신이 위 · 같은 자리에 여러 개면 맨 위가 지금 쓰는 것
+  return { ok: true, code: code, wedding: wy, lateAfter: late, files: out, okMap: okMap, gone: props.getProperty('RFGONE_' + code) || '' };
+}
+function adminRitualFileGet(code, id) {
+  _requireAdmin('');   // [REC_ADMIN]
+  var f = _rfFileIn(String(code || '').trim(), String(id || '').trim()); if (!f) return { ok: false, error: '파일을 찾을 수 없어요.' };
+  var b = f.getBlob(); return { ok: true, id: f.getId(), key: _rfKeyOfName(f.getName()), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
+}
+function adminRitualFileOk(code, key, on) {
+  _requireAdmin('');   // [REC_ADMIN]
+  code = String(code || '').trim(); key = String(key || '').trim(); if (!code || !RF_KEYS[key]) return { ok: false, error: '자리를 알 수 없어요.' };
+  var props = PropertiesService.getScriptProperties(), m = {}; try { m = JSON.parse(props.getProperty('RFOK_' + code) || '{}') || {}; } catch (e) { m = {}; }
+  if (on) m[key] = { by: _CURRENT_ADMIN || '관리자', at: fmtKST(new Date()) }; else delete m[key];
+  props.setProperty('RFOK_' + code, JSON.stringify(m)); return { ok: true, okMap: m };
+}
+/* ★[REC_PURGE 2026-09-27 코워크 3-7] 예식 뒤 30일 — 두 분 목소리 파일을 지운다(휴지통 · 드라이브가 30일 뒤 완전 삭제) · 기록 RFGONE_<코드>=지운 날.
+   purgeAdvisorLog(주간 트리거)가 함께 부른다 · dry=true 면 지울 대상만 로그(previewRitualFiles). ScriptProperty RITUAL_FILE_PURGE_DAYS 로 일수 조정 */
+function purgeRitualFiles(dry) {
+  var props = PropertiesService.getScriptProperties(), all = props.getProperties(), days = +(all.RITUAL_FILE_PURGE_DAYS || 30) || 30, today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
+  Object.keys(all).forEach(function (k) {
+    if (k.indexOf('RF_') !== 0 || k.indexOf('RFOK_') === 0) return;   // [REC_PURGE]
+    var code = k.slice(3); if (all['RFGONE_' + code]) return;
+    var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null, wy = cust ? _ymdOf(cust.get('예식일')) : '';
+    if (!wy) return; var d = new Date(wy + 'T00:00:00+09:00'); d.setDate(d.getDate() + days); var cut = Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd');
+    if (today <= cut) return;
+    var n = 0; try { var it = DriveApp.getFolderById(all[k]).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; n++; if (!dry) f.setTrashed(true); } } catch (e) {}
+    if (!dry) props.setProperty('RFGONE_' + code, today);
+    done.push(code + ' · 예식 ' + wy + ' · 파일 ' + n + '개');
+  });
+  Logger.log('purgeRitualFiles' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
+  return done;
+}
+function previewRitualFiles() { return purgeRitualFiles(true); }
+
 // 하객 업로드 1건 — guide.html 이 파일 하나씩 순차로 부른다(한 번에 몰아 보내지 않는 이유는 프런트 주석 참고).
 function handleGuestPhoto(body) {
   body = body || {};
