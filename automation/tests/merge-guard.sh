@@ -13009,3 +13009,6 @@ chk "'<span aria-hidden=\"true\">예시 ›</span>'" mypage.html 1
 chk '.snp-exv-sl{flex:0 0 88%;' mypage.html 1
 nochk 'function _spTile(' mypage.html 0
 chk 'SNAP_PHOTO_FIRST' scripts/audit/snap-plan.mjs 2
+# [SNAP_PHOTO_NOW] 사진이 오기 전에도 사진 중심 칸(사진 자리에 설명 글) — 2026-09-27 사장님
+chk 'SNAP_PHOTO_NOW' mypage.html 4
+chk "img=_spHasImg(R, z)||z.pick.every(function(s){ return _spExList(s).length>0; })" mypage.html 1
