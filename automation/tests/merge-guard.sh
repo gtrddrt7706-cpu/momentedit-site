@@ -8883,6 +8883,7 @@ chk "var FEATURE = { voiceClone: false, practiceTts: false }" assets/ritual-open
 chk "p.getProperty('VOICE_CLONE_ENABLED') === 'Y'" automation/platform/80_production.gs 1   # ★서버도 따로 잠근다
 chk 'AI_NOTICE' order-preview.html 1
 chk 'AI_NOTICE' admin.html 1
+chk 'REC_KEEP' mypage.html 3   # 예식 뒤 7 ~ 30일 · 두 분 목소리 파일 내려받기 알림(두 분 계정으로만)
 nochk 'TYPECAST_API_KEY' order-preview.html   # ★API 키는 서버에만
 nochk 'TYPECAST_API_KEY' mypage.html
 chk 'DETAIL_0925 C1' order-preview.html 3   # 흰 글자 바탕은 gold-deeper(gold-deep 바탕은 3.95 · AA 미달)

@@ -5724,6 +5724,7 @@ function renderProduction(p, inv){
   if(p.finalPolicy) MP_FINAL_POLICY=p.finalPolicy;   // 서버 정책(착석·최대·초과단가)으로 동기화
   // 한 번에 조립 후 1회 할당 — innerHTML += 반복은 대시보드 전체를 매번 재직렬화·재파싱(수십 KB × 2회 낭비 + 중간에 바인딩이 끼면 리스너 소실 함정)
   // 확인서·하객 안내도 같은 행 폼으로 카드 안(2026-07-17 사용자 지시) — productionDashHtml이 행+패널까지 조립
+  window._lastProd=p;   // [REC_KEEP] 내려받기 단추가 두 분 목소리 파일 목록을 읽는다
   box.innerHTML = productionDashHtml(p.tracks||{}, inv||{}, p.diningDraft||null, p.finalDraft||null, p.base||null, p.ritualDraft||null, p.seatDraft||null, p);
   box.style.display='block';
   wireProdConfirm(box, p);
@@ -6631,6 +6632,19 @@ function _ritPrepFold(rd, base, dd){
     +(hp.length?'<h4>도와주실 분</h4><ul>'+hp.map(function(x){ return '<li>'+escapeHtml(String(x[0]))+' <span class="due">· '+escapeHtml(String(x[1]))+'</span></li>'; }).join('')+'</ul>':'')
     +'</details>';
 }
+/* ★[REC_KEEP 2026-09-27 코워크 «두 분 목소리» 3-7] 예식 뒤 7일부터 30일까지 — «두 분 목소리 파일은 ○월 ○일에 지워져요 · 간직하려면 내려받으세요» + [내려받기].
+   파일은 두 분 계정으로만 받는다(ritualFileGet · 공개 주소 없음). 30일이 지나면(purgeRitualFiles) 이 줄도 사라진다. */
+var RF_KEEP_LAB={g0:'하객 입장 때',g1:'시작 10분 전',g2:'시작 5분 전',g3:'시작 1분 전',entry:'입장 인사'};
+function _rfKeepList(rd){ var up=(rd&&rd.S&&rd.S.up)||{}; return Object.keys(up).filter(function(k){ var v=up[k]; return v&&typeof v==='object'&&v.id&&!/^local:/.test(v.id); }).map(function(k){ return {key:k,id:up[k].id,n:up[k].n||''}; }); }
+function _rfKeepNote(rd, base){ var L=_rfKeepList(rd); if(!L.length) return ''; var dl=null; try{ dl=_kstDdayOf(base&&base.weddingDate); }catch(e){} if(dl==null||dl>-7||dl<-30) return '';
+  var m=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return ''; var d=new Date(+m[1],+m[2]-1,+m[3]+30);
+  return '<div class="rf-keep" style="margin:10px 0 4px;font-size:13px;color:var(--sub);line-height:1.7">두 분 목소리 파일은 '+(d.getMonth()+1)+'월 '+d.getDate()+'일에 지워져요 · 간직하려면 내려받으세요 '
+    +'<button type="button" class="cc-btn-ghost" data-fk="rfkeep" style="margin-left:6px" onclick="rfKeepDown(this)">내려받기</button></div>'; }
+window.rfKeepDown=function(btn){ var p=window._lastProd||{}, L=_rfKeepList(p.ritualDraft); if(!L.length) return; btn.disabled=true; btn.textContent='받는 중…'; var i=0;
+  (function nx(){ var it=L[i++]; if(!it){ btn.disabled=false; btn.textContent='내려받기'; return; }
+    fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'ritualFileGet',token:getToken(),key:it.key,id:it.id})}).then(function(r){ return r.json(); }).then(function(r){
+      if(r&&r.ok&&r.data){ var bin=atob(r.data), u=new Uint8Array(bin.length); for(var j=0;j<bin.length;j++) u[j]=bin.charCodeAt(j); var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([u],{type:r.mime||'audio/wav'})); a.download='두 분 목소리 · '+(RF_KEEP_LAB[it.key]||it.key)+(/mpeg/.test(r.mime||'')?'.mp3':'.wav'); document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); },1000); }
+      setTimeout(nx,400); }).catch(function(){ setTimeout(nx,400); }); })(); };
 function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};
   t=t||{}; inv=inv||{};
@@ -6793,6 +6807,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   return '<div class="consult-card" style="text-align:center">'
     + '<div class="cc-eyebrow en-22">Production</div>'
     + '<div class="cc-title">예식 준비</div>'
+    + _rfKeepNote(rd, base)   // [REC_KEEP] 예식 뒤 7 ~ 30일 · 두 분 목소리 파일 내려받기 알림
     // 상단 요약문·하단 안내문 제거(2026-07-18 군더더기 정리) — 행 이름이 목록을, '선택' 태그가 필수/선택을, 확인서 행 부제가 최종 확인을, fNote가 기한을 이미 말한다.
     //   (구 하단 문장 "필수는 청첩장·식순"은 최종 확정도 결국 필수라 부정확하기도 했음)
     + tracks
