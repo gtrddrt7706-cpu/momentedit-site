@@ -3673,18 +3673,24 @@ function _openWrite(){
   }
   // 보낼 것 — 식전 영상 링크 칸 · 녹음 올리기 · 나머지 목록
   var send=two.filter(function(q){ return q.cat==='send' && q.k!=='guest' && q.k!=='entry' && q.k!=='prevideo'; });
+  /* ★[PREVIDEO_PICK 2026-09-27 사장님] 식전 영상을 담았을 때만 링크 칸 · 설명 · «식전 영상 사진» 보내기 — 보낼 것이 하나도 없으면 칸째 뺀다 */
+  var _pv=R.onOf(S,'prevideo'), _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');
+  if(_pv||send.length||_voice){
   h+='<div class="wr-sec"><div class="wr-sub">보낼 것</div>';
+  if(_pv){
   h+='<div class="wr-item">'+esc(R.prepOf('prevideo',S)[0][1])+' <span class="wr-due">· '+esc(R.dueWord({due:3},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 한 원천
   h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
   h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
   h+='<div class="wd" style="margin-top:6px">휴대폰으로 가로로 찍은 영상 · 3분 안 · 영상이 없으면 사진 30~40장을 보내 주세요. 저희가 3분 영상으로 만들어요.</div>';   // [UPLOAD_HONEST 2-8] 쉬운 말
+  }
   /* ★[H2_SEND_LUMP 2026-09-26 코워크 최종판 5-2] 식전 영상(링크 칸 · 설명 · 카톡 · 메일 · 25MB 안내)을 한 덩어리로 — 종전엔 축배 음료 줄이
      링크 칸과 «보내는 길» 상자 사이에 끼어 식전 영상 안내가 둘로 갈렸다. 같은 길(카톡 · 메일)로 보내는 준비한 순서 파일(3일 전)만
      덩어리 안에 두고, «알려 주기» 줄(축배 음료 · 건넬 것)은 그 뒤. */
   var sendFile=send.filter(function(q){ return q.k==='free' && q.due===3; }), sendRest=send.filter(function(q){ return !(q.k==='free' && q.due===3); });
   if(sendFile.length) h+='<ul class="wr-list" style="margin-top:10px">'+sendFile.map(li).join('')+'</ul>';
-  var _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');   // [RIT_FILE_CHECK] 보낼 것이 여럿이면 마감은 줄마다(한 문장에 3일 · 7일을 섞지 않는다)
-  h+=_sendHow('식전 영상 사진'+(sendFile.length?' · 준비한 순서 파일':'')+(_voice?' · 두 분 목소리 녹음 파일':''),_voice?0:3);
+  // [RIT_FILE_CHECK] 보낼 것이 여럿이면 마감은 줄마다(한 문장에 3일 · 7일을 섞지 않는다)
+  var _what=[_pv?'식전 영상 사진':'',sendFile.length?'준비한 순서 파일':'',_voice?'두 분 목소리 녹음 파일':''].filter(Boolean).join(' · ');   // [PREVIDEO_PICK]
+  if(_what) h+=_sendHow(_what,_voice?0:3);
   if(sendRest.length) h+='<ul class="wr-list" style="margin-top:12px">'+sendRest.map(li).join('')+'</ul>';
   if(S.guestVoice==='couple'||S.entryVoice==='couple'){
     h+='<div class="wr-sub" style="margin-top:16px">두 분 목소리 녹음 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div><div class="mth-how">대본은 <b>참고용</b>이에요 · 두 분 말로 바꿔 조용한 곳에서 한 번에 녹음해 카톡이나 메일로 보내 주세요(휴대폰 음성 메모로 충분해요).</div>'   /* [REC_SEND_WORD 코워크 추가 점검 P2-7] 새 코스 ③ 에는 올리는 칸이 없다 — 보내는 길(카톡 · 메일)로 */
@@ -3705,6 +3711,7 @@ function _openWrite(){
     /* [RIT_FILE_CHECK · UPLOAD_HONEST 2-4] 보내는 길(카톡 · 메일)은 화면에 한 번 — 위 식전 영상 덩어리의 안내가 녹음 파일까지 함께 말한다 */
   }
   h+='</div>';
+  }   // [PREVIDEO_PICK] 보낼 것 칸
   var bring=two.filter(function(q){ return q.cat==='bring'; }), ask=two.filter(function(q){ return q.cat==='ask'; });
   if(bring.length) h+='<div class="wr-sec"><div class="wr-sub">챙길 것</div><ul class="wr-list">'+bring.map(li).join('')+'</ul></div>';
   if(ask.length) h+='<div class="wr-sec"><div class="wr-sub">부탁드릴 것</div><ul class="wr-list">'+ask.map(li).join('')+'</ul></div>';
@@ -3775,10 +3782,10 @@ function _pkPeakHtml(){
 function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
   if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
-    +'<p class="pk-fp-empty">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p><p class="pk-tm">'+_nd('입장 · 닫는 인사 · 식전 영상은 늘 있어요.')+'</p></div></section>';
+    +'<p class="pk-fp-empty">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p><p class="pk-tm">'+_nd('입장 · 닫는 인사는 늘 있어요.')+'</p></div></section>';
   var _sg=R.flowSegs(S), flat=(n<2)||_sg.every(function(x){ return x.lv===_sg[0].lv; });   // [RIT_CURVE_LABEL]
   var photo=_nb('단체 사진 '+sp.photo), prep=_ndd(R.prepLine(S));   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
-  var ord='<span class="pk-pre">식전 영상 →</span> '+R.orderParts(S).map(function(o){ return esc(o.n).replace(/ /g,NBS)+(o.peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':''); }).join(NBS+'› ');   /* 순간 이름 안에서는 안 갈린다(«닫는 / 인사» · 360) */   /* [F1] · [ORDER_ARROW_END 2026-09-26 직접 보며 점검] «›»는 앞 말에 붙인다 — 360 에서 둘째 줄이 «› 선언»으로 시작했다 · 줄 끝의 «›»는 «이어져요»로 읽힌다 */
+  var ord=(R.onOf(S,'prevideo')?'<span class="pk-pre">식전 영상 →</span> ':'')+R.orderParts(S).map(function(o){ return esc(o.n).replace(/ /g,NBS)+(o.peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':''); }).join(NBS+'› ');   /* 순간 이름 안에서는 안 갈린다(«닫는 / 인사» · 360) */   /* [F1] · [ORDER_ARROW_END 2026-09-26 직접 보며 점검] «›»는 앞 말에 붙인다 — 360 에서 둘째 줄이 «› 선언»으로 시작했다 · 줄 끝의 «›»는 «이어져요»로 읽힌다 */
   return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH">'
     /* ★[RIT_PANEL_NOMIN 2026-09-27 4부 2] 판 머리의 «본식 약 N분»을 뺐다 — 같은 숫자가 카드 · 판 머리 · 아래 막대에 셋이었다(카드와 막대에 남는다) */
     +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3>'+(flat?'':'<span class="pk-fp-cap pco">'+PK_CAP+'</span>')+'</div>'

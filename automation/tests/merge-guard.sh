@@ -11238,7 +11238,14 @@ chk 'SNAP_50' assets/ritual-data.js 1                 # 스냅 45 → 50(입장 
 nochk 'snap: 50' assets/ritual-data.js   # [DAY_60 2026-09-26] 스냅 60 으로 바뀌었다
 chk 'snap: 60' assets/ritual-data.js 1
 chk 'SNAP_50' assets/sequence-modal.js 2
-chk 'PREVIDEO_ALWAYS' assets/ritual-open.js 2         # 식전 영상은 늘 있다(사장님 결정 2)
+# ★[PREVIDEO_PICK 2026-09-27 사장님 «식전 영상은 필수로 하지 말자 · 선택할 수 있게»] 종전 PREVIDEO_ALWAYS(9/25 결정 2)를 뒤집었다 — 옛 이름은 «폐지» 주석으로만 남는다
+chk 'PREVIDEO_PICK' assets/ritual-open.js 3
+nochk 'var ALWAYS = { guest: 1, entry: 1, prevideo: 1 }' assets/ritual-open.js   # 되살리면 식전 영상이 다시 필수가 된다
+chk 'PREVIDEO_PICK' order-preview.html 3
+chk 'PREVIDEO_PICK' api/_ritual-kb.js 1
+chk 'PREVIDEO_PICK' scripts/audit/open-course.mjs 3
+nochk '식전 영상 · 입장 · 닫는 인사는 늘 있어요' assets/ritual-open.js
+nochk '입장 · 닫는 인사 · 식전 영상은 늘 있어요' order-preview.html
 chk 'PREVIDEO_AT_4' assets/ritual-cue.js 2            # 영상은 03 과 04 사이 · 본식 4분 전 시각고정
 chk 'SPEECH_IN_FREE' assets/ritual-open.js 1          # «축하의 말» 칸은 거뒀다 — 축사는 준비한 순서의 한 판
 nochk "'narr-speech-in'" assets/ritual-cue.js 0
