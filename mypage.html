@@ -1057,8 +1057,10 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .dn-agg{padding-bottom:12px}
 /* .dn-agg.rep → [SEL_ONE] */
 .dn-agg .repbadge{display:inline-block;font-family:var(--serif-ko);font-size:10px;font-weight:500;color:#fff;background:var(--seal);border-radius:20px;padding:1px 8px;margin-right:6px;vertical-align:middle}
-.dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal);border-radius:8px;background:#fff;color:var(--seal);font-family:var(--serif-ko);font-size:13px;cursor:pointer}
-.dn-repbtn:hover{background:var(--seal);color:#fff}
+/* ★[SEAL_CTA_ONLY 2026-09-27 최종 점검] «여기로 예약할래요» = 흰 보조 단추(.cc-btn-ghost 와 같은 말) — 진사 테 · 진사 글자 단추가 담은 곳마다 되풀이돼
+     진사가 «점»보다 넓게 깔렸고, 다른 화면엔 없는 세 번째 단추 모양이었다. 마우스 올림도 (hover:hover) 안으로(터치에서 누른 뒤 진사로 칠해진 채 남았다). */
+.dn-repbtn{display:block;width:100%;min-height:44px;margin-top:9px;padding:9px 0;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--sub);font-family:var(--serif-ko);font-size:13px;cursor:pointer}
+@media (hover:hover){.dn-repbtn:hover{border-color:var(--gold);color:var(--accent)}}
 .dn-aggbook{margin-top:10px;padding-top:11px;border-top:1px dashed var(--border)}
 /* 하객 공개 토글(담기와 분리 · 켠 곳만 하객 노출) · 2026-07-19 */
 .dn-showtgl{display:block;width:100%;margin-top:7px;padding:7px 0;border:1px dashed var(--border);border-radius:8px;background:#fff;color:var(--label-soft,#6F695D);font-family:var(--serif-ko);font-size:12px;cursor:pointer}
@@ -1919,10 +1921,15 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 .wz-steps li.done{color:var(--sub);border-top-color:var(--gold-deep)}   /* [WZ_STEPS_AA 2026-09-27 web-design-guidelines] 지나온 선 --gold(2.65:1) → --gold-deep(5.97:1) — 걸음 상태를 말하는 선이라 비텍스트 3:1 이 필요하다(식순은 #9A7B4F 3.95:1) */
 .wz-steps li.nav{padding-top:0}
 .wz-steps.n5{font-size:11px}
-.wz-stepb{display:block;text-align:center;width:100%;min-height:44px;padding:6px 0 0;border:0;background:none;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
+.wz-stepb{display:flex;align-items:flex-start;justify-content:center;width:100%;min-height:44px;padding:6px 0 0;border:0;background:none;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
 .wz-steps li.done .wz-stepb{text-decoration:underline}   /* 밑줄은 글자색 그대로(식순 .op-stepb 와 같다) */
 /* [WZ_STEPS_AA] 다섯 걸음 · 좁은 폭(≤360) — «③ 화이트존»(11px ≈ 57px)이 한 칸(320 에서 46px)을 넘어 옆 칸에 닿았다. 번호를 윗줄로 올려 다섯 칸 모두 두 줄로 같게 선다. */
-@media (max-width:360px){.wz-steps.n5 .wz-n{display:block;line-height:1.3}}   /* .wz-stepb 는 블록이어야 번호가 윗줄로 간다(flex 면 번호 · 이름이 나란히 선다 — 320 실측) */
+/* ★[WZ_STEPS_LEVEL 2026-09-27 사장님 «하나씩 올라가는 효과는 조금 유치해 · 고급스러운 무드에는 안 어울려 · 다른 곳들도 개선»]
+     모든 칸의 글자는 선 아래 같은 높이(6px)에 선다 — 지금 걸음만 위로 붙고 나머지가 11px 아래로 내려앉아, 걸음을 옮길 때마다 하나씩 튀어 오르는 것처럼 보였다.
+     원인: 단추(.wz-stepb)를 블록으로 두면 브라우저가 단추 안 글자를 44px 칸 세로 가운데로 내린다. 단추는 flex + 위쪽 맞춤(식순 [STEP_BASELINE] 과 같다),
+     글자는 .wz-l 한 묶음 — 그래야 좁은 폭에서 번호를 윗줄로 올려도(.wz-n 블록) 위쪽 맞춤이 유지된다. 지금 걸음은 굵기 · 진사 윗선으로만 말한다(자리를 옮기지 않는다). */
+.wz-l{display:block;text-align:center}
+@media (max-width:360px){.wz-steps.n5 .wz-n{display:block;line-height:1.3}}
 @media (hover:hover){.wz-stepb:hover{color:var(--accent);text-decoration:underline;text-decoration-color:currentColor}}
 .wz-stepb:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}
 /* ★★[SEL_ONE 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»] «골랐다»는 표시 한 벌.
@@ -6887,7 +6894,7 @@ function wizActs(){ _wizPaintSoon(); return '<span class="wiz-acts"><button type
 var WZ_CIRC=['①','②','③','④','⑤','⑥'];
 function wzSteps(names, cur, jump, fwd){
   return '<ol class="wz-steps'+(names.length>=5?' n5':'')+'" role="list" aria-label="진행 단계">'+names.map(function(nm,i){   // role=list — 사파리는 list-style:none 인 ol 의 목록 역할을 버린다
-    var lab='<span class="wz-n">'+WZ_CIRC[i]+'</span> '+escapeHtml(nm), nav=!!jump && (i<cur || (fwd && i>cur));   // .wz-n — 좁은 폭(다섯 걸음)에서 번호를 윗줄로 올린다
+    var lab='<span class="wz-l"><span class="wz-n">'+WZ_CIRC[i]+'</span> '+escapeHtml(nm)+'</span>', nav=!!jump && (i<cur || (fwd && i>cur));   // .wz-n — 좁은 폭(다섯 걸음)에서 번호를 윗줄로 올린다 · .wz-l = 글자 묶음(단추 안에서도 윗줄 맞춤 · [WZ_STEPS_LEVEL])
     if(nav) lab='<button type="button" class="wz-stepb" '+jump+'="'+i+'">'+lab+'</button>';
     return '<li class="'+(i===cur?'on':(i<cur?'done':''))+(nav?' nav':'')+'"'+(i===cur?' aria-current="step"':'')+'>'+lab+'</li>';
   }).join('')+'</ol>';
