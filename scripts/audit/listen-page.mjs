@@ -413,11 +413,17 @@ else {
   ok('9-4 소리 바뀌는 칩 → 그 순간만 다시 · 끝나면 다음으로 안 넘어가고 멈춰 선다 [CHIP_STAY]', d.tok > c.tok && d.stay === 'entry' && d.chips > 0 && d.after.cur === 'entry' && d.after.p && d.after.hint === 'heard' && /한 번 들려 드렸어요/.test(d.after.say), JSON.stringify(d));
   await pg.click('#lsFull [data-fk="lfchoosedone"]'); await pg.waitForTimeout(300);
   ok('9-5 «다 골랐어요 · 이어서 듣기» → 다시 흐르고 칩은 접힌다', await pg.evaluate(() => !LP.paused && LP.choose === null && document.querySelectorAll('#lsFull .op-chip').length === 0));
-  const e = await pg.evaluate(() => ({ q: LP.q.filter((x) => x.ref && x.k === 'welcome').map((x) => x.src).length, steps: _lSteps(ENG, _lRows()).filter((x) => x.ref).length, refSrc: LP.q.filter((x) => x.ref).every((x) => /\/assets\/audio\/cast\//.test(x.src) && x.txt.length > 20) }));
+  const e = await pg.evaluate(() => ({ q: LP.q.filter((x) => x.ref && x.k === 'welcome').map((x) => x.src).length, steps: _lSteps(ENG, _lRows()).filter((x) => x.ref).length, refSrc: LP.q.filter((x) => x.ref && x.k === 'welcome').every((x) => /\/assets\/audio\/cast\//.test(x.src) && x.txt.length > 20) && LP.q.filter((x) => x.ref).every((x) => x.src ? /\/assets\/audio\/cast\//.test(x.src) : x.pending && x.txt.length > 5) }));   // [REF_TABLE] 녹음 전 예시는 글 + 시간(pending)
   ok('9-6 첫인사 = 참고 예시 녹음(신랑 · 신부) · 대본 목록(④ 복사)에는 안 들어간다 [REF_EXAMPLE]', e.q === 2 && e.steps === 0 && e.refSrc, JSON.stringify(e));
   await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].ref) && g++ < 40) { LP.i++; _lShow(); } }); await pg.waitForTimeout(300);
   const f = await pg.evaluate(() => ({ badge: (document.querySelector('#lsFull .lf-ref') || {}).textContent || '', lab: (document.querySelector('#lsFull .lf-lab') || {}).textContent || '' }));
-  ok('9-7 참고 예시 화면 — «참고 예시» 표 · «이 소리는 예식에 나오지 않아요» · 이름표는 «신랑 차례»', /참고 예시/.test(f.badge) && /예식에 나오지 않아요/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
+  ok('9-7 참고 예시 화면 — «참고 예시 N · 결» 표 · «이 목소리는 예식에서 나오지 않아요» · 이름표는 «신랑 차례» [REF_TABLE]', /참고 예시/.test(f.badge) && /이 목소리는 예식에서 나오지 않아요/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
+  const rt = await pg.evaluate(() => { const ids = RITUAL_REF.rows.map((r) => r.file); const set = (k, patch) => { const keep = JSON.stringify(S); Object.assign(S, patch.S || {}); if (patch.on) S.on = Object.assign({}, S.on, patch.on); const r = _lRefSets(k); S = JSON.parse(keep); return r; };
+    return { rows: RITUAL_REF.rows.length, retired: ids.filter((f) => /^(27_tribute-reply|15_toast)$/.test(f)).length,
+      cross: set('tribute', { S: { tributeSay: 'one', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.file).join('+')).join(' | '),
+      sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
+      sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
+  ok('9-9 참고 예시 표 70줄 · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 · 덕담 없으면 부모님 예시 셋 더 [REF_TABLE]', rt.rows === 70 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2' && rt.sp3off === 6, JSON.stringify(rt));
   ok('9-8 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
