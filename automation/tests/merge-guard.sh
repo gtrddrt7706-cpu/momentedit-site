@@ -12684,3 +12684,32 @@ nochk '<div class="dn-attr-h"' mypage.html 0
 chk 'DN_RO_LATIN' mypage.html 2
 chk "if(/\[036\]\$/.test(t)) return '으로'; if(/\[0-9\]\$/.test(t)) return '로'; if(/(ng|\[mn\])\$/i.test(t)) return '으로'; return '에'; }" mypage.html 1
 nochk "return '으로'; return '로'; }" mypage.html 0
+# ════════════════════════════════════════════════════════════════════════════════
+# [SPEC6_P4] 식순 짓기 «우리 예식 짓기» 4부 (2026-09-27 · 사장님 · 코워크 지시문 6편) — order-preview.html
+#   셈(분 · 순간 수) · 소리 · 대본 내용은 안 바꿨다. 글과 모양만. 표식을 지우면 아래가 붉어진다.
+# ① 고르기
+chk 'RIT_CURVE_LABEL' order-preview.html 5          # 1 카드 곡선 아래 «감동 흐름» · 판은 둘 미만 · 평평하면 한 줄
+chk '<span class="pk-ex-cap">감동 흐름</span>' order-preview.html 1
+chk '순간을 더 담으면 흐름이 그려져요' order-preview.html 1
+chk 'RIT_PANEL_NOMIN' order-preview.html 1          # 2 흐름 판 머리의 «본식 약 N분» 뺌
+nochk 'pk-fp-body mo' order-preview.html 0
+chk 'RIT_BAR_ONELINE' order-preview.html 3          # 3 아래 막대는 «살펴볼 것 N ›» 한 마디
+chk "살펴볼 것 '+_noteCount()+' ›" order-preview.html 1
+nochk "class=\"cta-al\" data-fk=\"opnal\" onclick=\"opToNote()\">'+esc(R.firstSentences" order-preview.html 0   # 알림 글은 막대에 싣지 않는다
+chk 'RIT_SAVE_IDLE' order-preview.html 2            # 4 처음 연 화면은 꺼진 «저장»
+chk "ob-exit ob-save idle" order-preview.html 1
+chk 'RIT_PRICE_WORD' order-preview.html 1           # 5 «값» → «가격»
+chk '무엇을 담아도 가격은 같아요.' order-preview.html 1
+nochk '무엇을 담아도 값은 같아요' order-preview.html 0
+chk 'RIT_UNDO_ABOVE' order-preview.html 1           # 6 되돌리기 알림이 «빈 칸에서 직접 고를게요»를 덮지 않게
+# ② 보고 듣기
+chk 'RIT_FIRST_VISIBLE' order-preview.html 2        # 7 «← 고르기로» 뺌 — 되살리지 말 것
+nochk '← 고르기로</button>' order-preview.html 0
+nochk '← 고르기의' order-preview.html 0
+chk 'RIT_NO_EMPTY_THUMB' order-preview.html 4       # 8 장면 영상이 없으면 회색 ▶ 칸 숨김 · 크게 보기 글은 세로 가운데
+chk 'RIT_CHIP_GRID' order-preview.html 2            # 9 라벨 칸 + 칩 칸 두 열
+chk '<span class="cg-c">' order-preview.html 1
+chk 'RIT_UNDO_INPLACE' order-preview.html 4         # 10 «이 순간 빼기»의 되돌리기는 뺀 그 자리
+chk 'class="ls-gone"' order-preview.html 1
+chk 'RIT_BIG_BTN' order-preview.html 2              # 11 작은 플레이어 «크게 보기» 글 단추
+chk 'class="lm-g" onclick="lsOpenBig()">크게 보기</button>' order-preview.html 1

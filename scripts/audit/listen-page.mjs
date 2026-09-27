@@ -109,7 +109,8 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => lsStop());
   // ⑦ 빼기 · 넣기 한 줄 안내
   await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요) · 되돌리기`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test(document.querySelector('.ls-msg').textContent) && !RitualOpen.onOf(S, 'bless') && !!document.querySelector('[data-fk="lsundo"]')));
+  /* [RIT_UNDO_INPLACE 2026-09-27 4부 10] 빼기 안내 · 되돌리기는 목록 맨 아래(.ls-msg)가 아니라 뺀 그 자리(.ls-gone) */
+  ok(`${w} ② 빼기 안내(«부모님 덕담»을 뺐어요) · 되돌리기 — 뺀 그 자리`, await pg.evaluate(() => /«부모님 덕담»을 뺐어요/.test((document.querySelector('.ls-gone') || {}).textContent || '') && !RitualOpen.onOf(S, 'bless') && !!document.querySelector('[data-fk="lsundo"]')));
   await pg.click('[data-fk="lsundo"]'); await pg.waitForTimeout(400);
   ok(`${w} ② 되돌리기 → 다시 담긴다`, await pg.evaluate(() => RitualOpen.onOf(S, 'bless')));
   await pg.click('[data-fk="lsm:bless"]'); await pg.waitForTimeout(300); await pg.click('[data-fk="lsr:bless"]'); await pg.waitForTimeout(400);

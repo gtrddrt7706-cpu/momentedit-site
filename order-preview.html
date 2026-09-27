@@ -815,6 +815,9 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-ex-on{font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap}
 .pk-ex-f{display:block;font-size:13px;line-height:1.5;color:var(--sub);margin-top:2px}
 .pk-ex-g{display:block;min-width:0}
+.pk-ex-gw{display:flex;flex-direction:column;min-width:0}   /* [RIT_CURVE_LABEL] 곡선 + 아래 오른쪽 라벨 */
+.pk-ex-cap{align-self:flex-end;font-size:11px;line-height:1.2;color:var(--light);margin-top:2px}
+.pk-fp-flat{font-size:14px;line-height:1.6;color:var(--sub);margin:14px 0 8px;word-break:keep-all}   /* [RIT_CURVE_LABEL] 둘 미만 · 평평하면 곡선 대신 한 줄 */
 .pk-ex-g svg{display:block;width:100%;height:40px}
 .pk-blank{text-align:right;margin:2px 0 0}
 .pk-link{min-height:44px;padding:0 2px;border:0;background:none;font:inherit;font-size:13px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -874,7 +877,8 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .op-cta .cta-e{color:var(--sub)}
 .op-cta.flash b{animation:ctaflash .7s ease-out}
 @keyframes ctaflash{0%{color:var(--gold-deeper)}100%{color:var(--accent)}}   /* [D10] 금색도 AA(5.71:1) — 번쩍이는 순간에도 읽힌다 */
-.op-cta .cta-al{flex:0 0 100%;min-height:44px;border:0;background:none;padding:0 4px;font:inherit;font-size:12px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer;word-break:keep-all}
+.op-cta .cta-al{flex:0 0 auto;min-height:24px;border:0;background:none;padding:0 2px;font:inherit;font-size:12.5px;white-space:nowrap;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer;word-break:keep-all}
+@media (max-width:359px){ .op-cta,.op-cta .cta-al{font-size:11px} }   /* [RIT_BAR_ONELINE] 320 에서도 시간 둘 + «살펴볼 것 N ›»가 한 줄 */
 /* 얇은 띠(PC) — 흐름 띠가 화면 위로 나가면 위에 붙는다 · 좁은 화면에서는 보이지 않는다 */
 .pk-slim{display:none}
 /* ▶ 미리 보기 창 [PREVIEW_SHEET] — 휴대폰은 아래에서 올라오는 창 · PC 는 가운데 창 */
@@ -929,7 +933,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-h{font-size:17px}
   .pk-exs{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
   .pk-ex{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:14px}
-  .pk-ex-g{margin-top:auto;padding-top:8px}
+  .pk-ex-gw{margin-top:auto;padding-top:8px}   /* [RIT_CURVE_LABEL] 라벨까지 함께 카드 아래로 */
   .pk-ex-g svg{height:44px}
   .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:28px;padding:18px 20px;margin-top:18px}
   .pk-fg{min-height:152px}
@@ -1007,6 +1011,24 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-rm{min-height:44px;padding:0 2px;border:0;background:none;color:var(--sub);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-top:4px}   /* [POLISH_0925 2-11] «이 순간 빼기»는 글 단추 — 칩과 같은 모양이라 고르는 값처럼 보였다 */
 .ls-note{font-size:12px;color:var(--light);margin:6px 0 8px}
 .ls-msg{font-size:12.5px;color:var(--ink2);min-height:1.2em;margin:10px 2px 0}
+/* [RIT_UNDO_INPLACE] 뺀 그 자리 한 줄 */
+.ls-gone{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px 6px 36px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--ink2);background:var(--bg2)}
+.ls-gone .ls-undo{margin-left:0;flex:none}
+/* [RIT_NO_EMPTY_THUMB] 장면 영상이 없으면 회색 칸 없이 ▶ 원만 */
+.ls.nv .ls-row{grid-template-columns:26px 44px minmax(0,1fr) auto}
+.ls.nv .ls-th{justify-content:center;width:44px}
+.ls.nv .ls-th .ls-pi{position:static;transform:none;width:24px;height:24px;background:var(--card);border:1px solid var(--border)}
+.lf-body{display:flex;flex-direction:column}
+.lf-in.nv .lf-body{margin:auto 0}
+.lf-in.nv .lf-ctl{margin-top:0}
+/* [RIT_CHIP_GRID] 라벨 칸 + 칩 칸 */
+.ls-cg{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:8px;align-items:start}
+.ls-cg .gl{min-width:0;padding-top:12px;line-height:1.4;word-break:keep-all}
+.ls-cg .cg-c{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+/* [RIT_BIG_BTN] 작은 플레이어의 «크게 보기» 글 단추 — 좁으면 제목이 첫 줄, 단추가 둘째 줄 */
+.ls-mini{flex-wrap:wrap;row-gap:2px}
+.ls-mini .lm-t{flex:1 1 104px}
+.ls-mini .lm-g{flex:none;min-height:44px;padding:0 10px;border:0;border-radius:22px;background:none;color:inherit;font:inherit;font-size:12.5px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin-left:auto}
 .ls-off{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:0 10px}
 .ls-off summary{cursor:pointer;font-size:13px;line-height:20px;padding:12px 0;display:block;color:var(--ink2);min-height:44px;box-sizing:border-box;word-break:keep-all}   /* [SUMMARY_INLINE] flex 면 글 · 숫자가 따로 놀아 «₆가지»처럼 흩어진다(390 스크린샷으로 잡음) */
 .ls-off .ls-row{border-bottom-color:var(--bg2)}
@@ -2243,7 +2265,7 @@ function render(){
   if(st.k!=='listen'&&st.k!=='done'&&typeof LP!=='undefined'&&LP.q.length) lsStop();   // [LISTEN_PAGE] ② 를 떠나면 소리를 멈춘다
   _seenK[st.k]=1;   // 방문 기록 — 스트립(renderMiniTL)보다 먼저(완료 표시가 한 단계 늦지 않게)
   var pre=(st.k==='intro'||st.k==='intro2'||st.k==='course'||st.k==='tune'||st.k==='pick');
-  if(st.k==='pick'&&!courseStarted){ courseStarted=true; }   // [OPEN_COURSE] 고르기 화면에 닿으면 이 기기에 이어 만들 수 있게 저장한다
+  if(st.k==='pick'&&!courseStarted){ courseStarted=true; _autoLast=_autoKey(); _autoDirty=false; _autoState=''; try{ _autoPaint(); }catch(e){} }   /* ★[RIT_SAVE_IDLE 2026-09-27 4부 4 · 0장 공통] 처음 닿은 순간이 비교 기준선 — 바뀐 것이 없으면 «저장»은 꺼진 채로 시작하고, 고르는 순간 켜진다(종전엔 들어오자마자 켜져 있었다) */   // [OPEN_COURSE] 고르기 화면에 닿으면 이 기기에 이어 만들 수 있게 저장한다
   /* [ORD_INTRO2] 안내 두 화면은 '아직 아무것도 안 만든' 상태다 — 퍼센트에서 뺀다.
      예전엔 읽기만 했는데도 막대가 9%로 차 있어 '뭔가 진행됐다'고 잘못 말했다.
      실제 작업 단계만 분모로 삼고, 안내 중에는 막대를 비워 둔다(오른쪽에 1/2·2/2로 위치를 알린다). */
@@ -2432,12 +2454,17 @@ function _paintCta(k){
      뒤를 반각 공백(U+2002 · 12px 글에서 6px)으로 맞춘다. 줄은 nowrap 이라 갈리지 않는다 */
   var h=n?('<span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span> <span class="nw">·\u2002단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b></span>')
          :'<span class="cta-e">예시로 시작하거나 아래에서 담아 보세요</span>';
-  if(n&&nt) h+='<button type="button" class="cta-al" data-fk="opnal" onclick="opToNote()">'+esc(R.firstSentences(nt.msg,1))+' ›</button>';
+  /* ★[RIT_BAR_ONELINE 2026-09-27 4부 3] 알림 글은 흐름 판에만 — 막대에는 «살펴볼 것 N ›» 한 마디(누르면 판의 알림으로).
+     알림 첫 문장을 막대에 실으면 막대가 두세 줄(154px)로 커졌다. 막대 높이는 늘 한 줄. */
+  if(n&&nt) h+='<button type="button" class="cta-al" data-fk="opnal" onclick="opToNote()">살펴볼 것 '+_noteCount()+' ›</button>';
   c.innerHTML=h;
   if(_ctaKey&&key&&key!==_ctaKey){ c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); }
   _ctaKey=key;
   try{ _pkUndoPos(); }catch(e){}   // [UNDO_ABOVE_BAR] 막대 높이가 바뀌면 알림도 따라 선다
 }
+/* [RIT_BAR_ONELINE] 지금 열린 알림 수 — 닫은(괜찮아요) 것은 빼고, 닫을 수 없는 것은 센다(noticeFull 을 차례로 넘기며) */
+function _noteCount(){ var R=RitualOpen, sh={}, c=0, k; for(k in _noteShut) sh[k]=_noteShut[k];
+  for(var i=0;i<8;i++){ var nt=R.noticeFull(S,sh); if(!nt) break; c++; if(!nt.close) break; sh[nt.key]=1; } return c||1; }
 window.opToNote=function(){   // 알림 한 줄 → 흐름 판의 알림으로(초점까지)
   if(!_noteWide){ _noteWide=true; render(); }   // [NOTE_PARA] 건너온 사람에게는 펼친 채로 — 얇은 띠에서 숨는 단추까지 보이게
   var t=document.querySelector('.pk-side .op-note .op-note-t'); if(!t) return;
@@ -2809,6 +2836,10 @@ function _pkUndo(msg){
   clearTimeout(_undoT);
   if(!msg||!_opPrev){ u.hidden=true; u.innerHTML=''; return; }
   u.innerHTML='<span>'+esc(msg)+'</span><button type="button" data-fk="opundo" onclick="opUndo()">되돌리기</button>'; u.hidden=false; _pkUndoPos();
+  /* ★[RIT_UNDO_ABOVE 2026-09-27 4부 6] 알림은 아래 막대 바로 위에 선다(_pkUndoPos) — 그 자리에 «빈 칸에서 직접 고를게요»가 걸려 있으면
+     그 줄이 알림 위로 올라오게 화면을 그만큼만 올린다(390×844 에서 예시를 누르면 알림이 그 줄을 덮었다) */
+  try{ var _bl=document.querySelector('.pk-blank .pk-link'), _ur=u.getBoundingClientRect(), _br=_bl&&_bl.getBoundingClientRect();
+    if(_br&&_br.height&&_br.top>0&&_br.top<_ur.bottom&&_br.bottom>_ur.top-8) window.scrollBy({top:Math.ceil(_br.bottom-_ur.top+8),behavior:_rm()?'auto':'smooth'}); }catch(e){}
   _undoT=setTimeout(function(){ u.hidden=true; u.innerHTML=''; _opPrev=null; },6000);
 }
 window.opEx=function(k){
@@ -3079,8 +3110,9 @@ function renderListen(){
   var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S);
   if(!ENG){ engine().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
-  var h='<div class="op ls">';
-  h+='<button type="button" class="ls-back" data-fk="lsback" onclick="opStepNav(\'pick\')">← 고르기로</button>';   // [DETAIL_0925 A1] · [EDIT_OPEN]
+  var h='<div class="op ls'+(_lAnyVid()?'':' nv')+'">';   // [RIT_NO_EMPTY_THUMB] 장면 영상이 없으면 줄의 회색 ▶ 칸을 숨긴다
+  /* ★[RIT_FIRST_VISIBLE 2026-09-27 4부 7] «← 고르기로»를 뺐다 — 탭 «① 고르기»와 아래 «이전»이 같은 일을 한다. 첫 순간이 첫 화면 안에 들어온다(종전 y≈521).
+     되살리지 말 것 · 고르기로 가는 길은 걸음 표시(_opSteps)와 «이전» 둘이다. */
   /* ★[G2 2026-09-26 코워크 최종판 5-1] 두 시간 사이에 작은 감동 흐름선(64×18) — 판을 바꾸면(예: 인사 «1분쯤씩» → «말 없이») 가장 벅찬 순간이 바뀌는 게 바로 보이게.
      좁은 화면(375 아래)에서 한 줄에 안 들어가면 흐름선을 뺀다(시간 둘이 먼저). 그림은 ① 과 같은 함수(RitualOpen.flowSVG). */
   h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span>'+(R.picked(S).length?'<span class="lsg" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),64,{mini:true,h:18,label:'작은 흐름선'})+'</span>':'')+'<span class="nw">단체 사진 <b>'+esc(_nb(sp.photo))+'</b></span></div>'+_noteHtml()+'</div>';
@@ -3095,14 +3127,18 @@ function renderListen(){
   if(LS.allPend) h+='<p class="ls-note ls-allpend">새 대본을 녹음하기 전이라, 지금은 글로 먼저 보여 드려요</p>';
   h+='<p class="ls-peak">'+(peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> 표시는 이 예식에서 가장 벅찬 순간이에요.':esc(PEAK_NONE))+'</p>';   // [DETAIL_0925 B13]
   h+='<div class="ls-rows">';
-  _lRows().forEach(function(k){ h+=_lRow(k,true,_lNo(k),peak); });
+  /* ★[RIT_UNDO_INPLACE 2026-09-27 4부 10] «이 순간 빼기»의 되돌리기는 뺀 그 자리에 한 줄 — 종전엔 목록 맨 아래(.ls-msg)에 떠서 찾으러 내려가야 했다 */
+  var _gone=(LS.undo&&LS.undo.at>=0)?LS.undo:null, _rs=_lRows(), _gi=_gone?Math.min(_gone.at,_rs.length):-1;
+  function _goneRow(){ return '<div class="ls-gone"><span>«'+esc(_lName(_gone.k))+'»'+_josa(_lName(_gone.k),'을','를')+' 뺐어요.</span><button type="button" class="ls-undo" data-fk="lsundo" onclick="lsUndo()">되돌리기</button></div>'; }
+  _rs.forEach(function(k,i){ if(i===_gi) h+=_goneRow(); h+=_lRow(k,true,_lNo(k),peak); });
+  if(_gone&&_gi>=_rs.length) h+=_goneRow();
   h+='</div>';
-  h+='<div class="ls-msg">'+(LS.msg?esc(LS.msg)+(LS.undo?' <button type="button" class="ls-undo" data-fk="lsundo" onclick="lsUndo()">되돌리기</button>':''):'')+'</div>';
+  h+='<div class="ls-msg">'+((LS.msg&&!_gone)?esc(LS.msg)+(LS.undo?' <button type="button" class="ls-undo" data-fk="lsundo" onclick="lsUndo()">되돌리기</button>':''):'')+'</div>';
   var off=_lOffRows();
   if(off.length){
     h+='<details class="ls-off"'+(LS.offOpen?' open':'')+' ontoggle="LS.offOpen=this.open"><summary>담지 않은 순간 <b>'+off.length+'</b> · 들어 보고 담을 수 있어요</summary>';
     off.forEach(function(k){ h+=_lRow(k,false,'',peak); });
-    h+='<p class="ls-note">준비한 순서는 ← 고르기의 «마음의 순간»에서 담아요 · 준비한 게 있을 때만요.</p></details>';   /* [ACTS_FOUR] 맨 아래 묶음은 거뒀다 */
+    h+='<p class="ls-note">준비한 순서는 «① 고르기»의 «마음의 순간»에서 담아요 · 준비한 게 있을 때만요.</p></details>';   /* [ACTS_FOUR] 맨 아래 묶음은 거뒀다 */
   }
   // [DETAIL_0925 B2] 준비할 것 — 이름 한 쌍(두 분이 준비할 것 · 부모님께 부탁드릴 것) · ③ 준비하기에 모두 모인다
   var pl=R.prepList(S), two=pl.filter(function(q){ return q.who!=='parents'; }), par=pl.filter(function(q){ return q.who==='parents'; });
@@ -3122,7 +3158,7 @@ function _lRow(k,on,no,peak){
      원은 이름보다 가볍게(작게 · 그림 위 반투명) — 줄에서 먼저 눈에 드는 것은 이름이다(LISTEN_ROW_WEIGHT).
      그림을 누르면 작은 플레이어로 그 순간이 들린다 · 크게 보기는 작은 플레이어 제목과 «처음부터 보고 듣기»가 맡는다. */
   var _pl=(LP.q.length&&LP.cur===k&&!LP.paused);   /* [A11Y_PLAYTOG 3장] 이 줄이 재생 중이면 ▶ 대신 «멈춤»(다시 누르면 처음부터 다시 틀던 것) */
-  h+='<button type="button" class="ls-th ls-play" aria-label="'+esc(_lName(k))+(_pl?' 멈춤':' 듣기')+'" data-fk="lsp:'+k+'" data-pl="'+(_pl?'1':'0')+'" onclick="'+(_pl?'lsToggle()':'lsPlay(\''+k+'\')')+'">'+_lVid(k,{mini:true})+'<span class="ls-pi" aria-hidden="true">'+(_pl?ICO_PAUSE:ICO_PLAY)+'</span></button>';
+  h+='<button type="button" class="ls-th ls-play" aria-label="'+esc(_lName(k))+(_pl?' 멈춤':' 듣기')+'" data-fk="lsp:'+k+'" data-pl="'+(_pl?'1':'0')+'" onclick="'+(_pl?'lsToggle()':'lsPlay(\''+k+'\')')+'">'+(_lAnyVid()?_lVid(k,{mini:true}):'')+'<span class="ls-pi" aria-hidden="true">'+(_pl?ICO_PAUSE:ICO_PLAY)+'</span></button>';
   h+='<button type="button" class="ls-main" aria-expanded="'+(open?'true':'false')+'" data-fk="lsm:'+k+'" onclick="lsOpen(\''+k+'\')"><span class="nm">'+(on&&k===peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(k))+'</span><span class="sp">'+esc(on?_ndd(_lSum(k)):'담지 않았어요')+'</span></button>';   // ★[DOT_GLUE 코워크 추가 점검 · 접근성] 점이 줄 머리 · 끝에 서지 않게(②·③·④ 같은 규칙)
   h+='<span class="ls-acts">'+(on?'':'<button type="button" class="ls-add" aria-label="'+esc(_lName(k))+' 담기" data-fk="lsa:'+k+'" onclick="lsAdd(\''+k+'\')">+ 담기</button>')+'</span>';
   if(open) h+='<div class="ls-x">'+_lExp(k,on)+'</div>';
@@ -3165,9 +3201,10 @@ window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
   if(LP.big){ _lFull(); var f=document.getElementById('lsFull'), b=f&&f.querySelector(sel); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }
 };
 function _lChipRow(g){
-  return '<div class="ls-cg" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span>'+g.list.map(function(c){ var on=(c[0]===g.cur);
+  /* ★[RIT_CHIP_GRID 2026-09-27 4부 9] 라벨 칸 + 칩 칸 두 열 — 줄을 넘긴 칩이 첫 칩 시작선에 선다(종전 flex 한 줄은 넘친 칩이 라벨 밑으로 들어가 왼쪽 선이 들쭉날쭉) */
+  return '<div class="ls-cg" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c){ var on=(c[0]===g.cur);
     return '<button type="button" class="op-chip" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+(on?'0':'-1')+'" data-fk="lsc:'+g.key+':'+c[0]+'" onclick="lsChip(\''+g.key+'\',\''+c[0]+'\')">'+esc(c[1])+'</button>'; }).join('')
-    +(g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</div>';
+    +(g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';
 }
 window.lsOpen=function(k){ LS.open=(LS.open===k?null:k); render(); };
 window.lsChip=function(key,v){
@@ -3182,10 +3219,11 @@ window.lsChip=function(key,v){
 };
 /* [DETAIL_0925 A3] 빼기 · 담기 뒤 한 줄 안내 + 되돌리기(모든 순간 같게) · 준비한 순서는 되살릴 길이 ① 맨 아래라 한 줄 더 */
 window.lsRemove=function(k){
+  var _at=_lRows().indexOf(k);   // [RIT_UNDO_INPLACE] 빼기 전 자리
   if(LP.cur===k) lsStop();
   if(RitualOpen.onOf(S,k)){ S.on[k]=0; delete S.on[k]; }
-  LS.open=null; LS.undo={k:k}; _fxNext='[data-fk="lsundo"]';   // [A11Y_FOCUS]
-  LS.msg='«'+_lName(k)+'»'+_josa(_lName(k),'을','를')+' 뺐어요.'+(k==='free'?' 나중에 다시 담으려면 «← 고르기로»의 «마음의 순간»에서 담아요.':' 아래 «담지 않은 순간»에서 다시 담을 수 있어요.');   // [FREE_BACK_WORD 코워크 추가 점검 P2-6]
+  LS.open=null; LS.undo={k:k,at:_at}; _fxNext='[data-fk="lsundo"]';   // [A11Y_FOCUS] · [RIT_UNDO_INPLACE] 뺀 자리(at)를 적어 둔다
+  LS.msg='«'+_lName(k)+'»'+_josa(_lName(k),'을','를')+' 뺐어요.'+(k==='free'?' 나중에 다시 담으려면 «① 고르기»의 «마음의 순간»에서 담아요.':' 아래 «담지 않은 순간»에서 다시 담을 수 있어요.');   // [FREE_BACK_WORD 코워크 추가 점검 P2-6]
   opSync();   // [OP_SYNC_ALL]
 };
 window.lsUndo=function(){ var u=LS.undo; if(!u) return; _fxNext='[data-fk="lsm:'+u.k+'"]'; S.on[u.k]=1; LS.undo=null; LS.msg='«'+_lName(u.k)+'»'+_josa(_lName(u.k),'을','를')+' 다시 담았어요.'; LS.flash=u.k; opSync(); _lScrollTo(u.k); };   // [OP_SYNC_ALL]
@@ -3296,6 +3334,7 @@ function _lPaint(){
   else {
     el.style.display='flex';
     el.innerHTML='<button type="button" class="lm-t" aria-label="크게 보기 · '+esc(_lName(st.k))+'" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+'</b><small>'+esc(st.talk||st.skip||st.own?st.txt:st.lab)+(st.pending&&!LS.allPend?' · 아직 녹음 전':'')+'</small></button>'
+      +'<button type="button" class="lm-g" onclick="lsOpenBig()">크게 보기</button>'   /* ★[RIT_BIG_BTN 2026-09-27 4부 11] 크게 보기로 가는 단추가 안 보였다(제목 줄이 단추인 줄 몰랐다) — 글 단추 */
       +'<button type="button" class="lm-b" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
       +(LP.range&&LP.range.ks.length>1?'<button type="button" class="lm-b" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>':'')
       +'<button type="button" class="lm-b lm-x" onclick="lsStop()" aria-label="듣기 끝내기">'+ICO_X+'</button>';
@@ -3323,10 +3362,11 @@ function _lFull(){
   var f=document.getElementById('lsFull');
   if(!f){ f=document.createElement('div'); f.id='lsFull'; f.className='ls-full'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-label','보고 듣기 · 크게'); document.body.appendChild(f); }
   var ae=document.activeElement, fk=(ae&&f.contains(ae)&&ae.getAttribute)?ae.getAttribute('data-fk'):null, chipFocus=!!(fk&&fk.indexOf('lfc:')===0);
-  var st=LP.q[LP.i], R=RitualOpen, single=!!(LP.range&&LP.range.ks.length<2), h='<div class="lf-in">';
+  var st=LP.q[LP.i], R=RitualOpen, single=!!(LP.range&&LP.range.ks.length<2), h='<div class="lf-in'+(_lAnyVid()?'':' nv')+'">';   // [RIT_NO_EMPTY_THUMB] 장면 영상이 없으면 글을 세로 가운데로(종전엔 아래 60%가 빈 칸)
   var pre=st&&(st.k==='guest'||R.PRE[st.k]);
   h+='<div class="lf-h"><button type="button" class="lf-min" data-fk="lfmin" onclick="lsCloseBig()" aria-label="작게 보기">'+ICO_DOWN+'</button><span>'+(st?esc(_lNoOf(st.k)):'')+'</span>'
     +(pre&&LP.all?'<button type="button" class="lf-skip" data-fk="lfskip" onclick="lsFromBody()">본식부터 보기 '+ICO_NEXT+'</button>':'<span style="width:44px"></span>')+'</div>';
+  h+='<div class="lf-body">';   // [RIT_NO_EMPTY_THUMB] 가운데 덩어리
   if(st){
     if(_lAnyVid()) h+=_lVid(st.k,{big:true,name:_lSceneName(st)});   // [NO_EMPTY_BOX]
     var ks=[]; LP.q.forEach(function(x){ if(ks.indexOf(x.k)<0) ks.push(x.k); });
@@ -3347,6 +3387,7 @@ function _lFull(){
   }
   // [DETAIL_0925 B11] ⏮ ❚❚ ⏭ 은 화면 아래에 붙는다 · 한 순간만 들을 때는 ⏮ ⏭ 를 숨긴다 · 끝나면 가운데는 ↻ 다시 보기
   var endNow=!st&&!!LP.ended;
+  h+='</div>';   // .lf-body
   if(!endNow) h+='<div class="lf-ctl">'+(single?'':'<button type="button" data-fk="lfprev" onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>')
     +'<button type="button" class="big" data-fk="lftog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
     +(single?'':'<button type="button" data-fk="lfnext" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>')+'</div>';
@@ -3385,7 +3426,7 @@ document.addEventListener('keydown',function(ev){ if(ev.key==='Escape'&&LP.big){
 window.addEventListener('scroll',function(){
   var b=document.getElementById('opBand'); if(!b) return;
   /* [BAND_THIN_LISTEN 2026-09-25 코워크 추가전달 2-9] ② 띠도 ① 처럼 접힌다 — 늘 펼친 알림이 360×740 에서 목록 자리를 35% 먹었다 */
-  var j=document.querySelector(b.classList.contains('ls-band')?'.ls-back':'.op-jump'); var y0=j?(j.getBoundingClientRect().bottom+window.scrollY):0;
+  var j=document.querySelector(b.classList.contains('ls-band')?'#stepHead':'.op-jump'); /* [RIT_FIRST_VISIBLE] «← 고르기로»가 빠져 ② 는 제목을 기준으로 */ var y0=j?(j.getBoundingClientRect().bottom+window.scrollY):0;
   var thin=b.classList.contains('thin'), y=window.scrollY;
   if(!thin&&y>y0+60+50) b.classList.add('thin');
   else if(thin&&y<y0+60-50) b.classList.remove('thin');
@@ -3520,7 +3561,7 @@ function renderPick(){
   if(!editReturn) h+='<button type="button" class="ls-back pk-intro-back" data-fk="pkintro" onclick="opStepNav(\'intro2\')">← 안내 다시 보기</button>';   // [PICK_INTRO_BACK 코워크 회신7 B 제안 3] PC 만(휴대폰은 아래 «이전»)
   if(!ENG) engine(); if(!LREC) _lrec();   // 미리 보기 창의 대표 한 줄 — 칸을 누르기 전에 불러 둔다(누른 그 순간 소리가 나게)
   /* 예시 [EX_BRIEF · D1 · D2] */
-  h+='<div class="pk-sh"><h3 class="pk-h">예시로 시작하기</h3><span class="pk-aux">무엇을 담아도 값은 같아요.</span></div>';
+  h+='<div class="pk-sh"><h3 class="pk-h">예시로 시작하기</h3><span class="pk-aux">무엇을 담아도 가격은 같아요.</span></div>';   /* [RIT_PRICE_WORD 2026-09-27 4부 5] «값»이 가격인지 가치인지 헷갈렸다 */
   h+='<div class="pk-exs">'+R.EXAMPLES.map(_pkEx).join('')+'</div>';
   h+='<p class="pk-blank"><button type="button" class="pk-link" data-fk="opblank" onclick="opBlank()">빈 칸에서 직접 고를게요</button></p>';
   /* 감동 흐름 판(휴대폰) · 흐름 띠(PC) — 한 벌의 글을 CSS 가 두 모양으로 [FLOW_LINE] */
@@ -3538,7 +3579,7 @@ function _pkEx(ex){
   return '<button type="button" class="pk-ex" aria-pressed="'+(on?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')">'
     +'<span class="pk-ex-t"><span class="pk-ex-n"><b>'+esc(ex.nm)+'</b><span class="pk-ex-m">본식 '+esc(_nb(es.body))+'</span>'+(on?'<span class="pk-ex-on">여기서 시작 ✓</span>':'')+'</span>'
     +'<span class="pk-ex-f">'+f.map(esc).join('<br>')+'</span></span>'
-    +'<span class="pk-ex-g" data-fg="ex:'+ex.k+'" aria-hidden="true"></span></button>';
+    +'<span class="pk-ex-gw" aria-hidden="true"><span class="pk-ex-g" data-fg="ex:'+ex.k+'"></span><span class="pk-ex-cap">감동 흐름</span></span></button>';   /* ★[RIT_CURVE_LABEL 2026-09-27 사장님 결정 A · 4부 1] 카드 곡선이 무엇인지 — 곡선 아래 오른쪽 작은 라벨 · 곡선 모양 · 크기는 그대로 */
 }
 function _pkPeakHtml(){
   var R=RitualOpen, pl=R.peakLine(S);
@@ -3549,12 +3590,15 @@ function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
   if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
     +'<p class="pk-fp-empty">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p><p class="pk-tm">'+_nd('입장 · 닫는 인사 · 식전 영상은 늘 있어요.')+'</p></div></section>';
+  var _sg=R.flowSegs(S), flat=(n<2)||_sg.every(function(x){ return x.lv===_sg[0].lv; });   // [RIT_CURVE_LABEL]
   var photo=_nb('단체 사진 '+sp.photo), prep=_ndd(R.prepLine(S));   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
   var ord='<span class="pk-pre">식전 영상 →</span> '+R.orderParts(S).map(function(o){ return esc(o.n).replace(/ /g,NBS)+(o.peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':''); }).join(NBS+'› ');   /* 순간 이름 안에서는 안 갈린다(«닫는 / 인사» · 360) */   /* [F1] · [ORDER_ARROW_END 2026-09-26 직접 보며 점검] «›»는 앞 말에 붙인다 — 360 에서 둘째 줄이 «› 선언»으로 시작했다 · 줄 끝의 «›»는 «이어져요»로 읽힌다 */
   return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH">'
-    +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3><span class="pk-fp-body mo">본식 <strong>'+esc(_nb(sp.body))+'</strong></span><span class="pk-fp-cap pco">'+PK_CAP+'</span></div>'
-    +'<p class="pk-fp-cap mo">'+PK_CAP+'</p>'
-    +'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>'
+    /* ★[RIT_PANEL_NOMIN 2026-09-27 4부 2] 판 머리의 «본식 약 N분»을 뺐다 — 같은 숫자가 카드 · 판 머리 · 아래 막대에 셋이었다(카드와 막대에 남는다) */
+    +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3>'+(flat?'':'<span class="pk-fp-cap pco">'+PK_CAP+'</span>')+'</div>'
+    +(flat?'':'<p class="pk-fp-cap mo">'+PK_CAP+'</p>')
+    /* ★[RIT_CURVE_LABEL 4부 1] 담은 순간이 둘 미만이거나 선이 평평하면(«늘 있어요»만) 곡선 대신 한 줄 */
+    +(flat?'<p class="pk-fp-flat">순간을 더 담으면 흐름이 그려져요</p>':'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>')
     +(prep?'<p class="pk-tm pco pk-prep-pc">'+esc(prep)+'</p>':'')+'</div>'   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
     +'<div class="pk-side">'
     +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
@@ -5127,6 +5171,8 @@ function _autoPaint(){
   b.removeAttribute('aria-busy'); b.disabled=false;
   if(_autoState==='fail'){ b.textContent='다시 저장'; b.className='ob-exit ob-save bad'; return; }
   if(_autoDirty){ b.textContent='저장'; b.className='ob-exit ob-save on'; return; }
+  /* ★[RIT_SAVE_IDLE] 이 세션에서 아직 한 번도 안 보냈으면 «저장됨»이 아니다 — 꺼진 «저장»(바뀐 것이 없다) · 보낸 뒤에만 «저장됨» */
+  if(_autoState!=='ok'){ b.textContent='저장'; b.className='ob-exit ob-save idle'; b.disabled=true; return; }
   b.textContent='저장됨'; b.className='ob-exit ob-save'; b.disabled=true;
 }
 document.getElementById('prev').addEventListener('click',function(){ var t=Date.now(); if(t-_navLock<400) return; _navLock=t; if(editReturn){ if(_editSnap){ try{ S=JSON.parse(_editSnap); }catch(e){} _editSnap=null; } buildSteps(); editReturn=false; goDone(); return; } if(idx>0){ if(isOpen()){ _opGo(idx-1); return; } idx--;render();} });   /* [PREV_BACK 2026-09-25 코워크 추가전달 2-3] 새 코스의 «이전»은 뒤로 가기와 같은 길(기록을 한 칸 되감는다) — 종전엔 새 칸을 쌓아 휴대폰 뒤로가 앞 걸음으로 갔다 */
