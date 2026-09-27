@@ -359,6 +359,54 @@ body{
   margin-top:18px;padding:0 26px;font-family:var(--serif-ko);font-size:14px;
   color:#fff;background:var(--gold-text);border:none;border-radius:24px;cursor:pointer}
 .retry-btn:active{background:var(--accent)}
+
+/* ════════════════════════════════════════════════════════════════
+   ★★[DINING_RSVP] [MEAL_ASK_FIRST] 식사 답 칸 — 6편 1부 (2026-09-27 코워크 디자인 · 사장님 결정 9/26)
+   새 부품을 만들지 않는다 — «여기로 모여요»(.pick) · 이름 칸(#q) · 사진 단추(.ps-btn) · 알약(.act) · 표본 시트(.dtip) 의 한 벌.
+   정보 카드(.pick · bg2 + 금테)가 가장 무겁고, 답 칸은 같은 bg2 판에 테두리 없이 한 단계 가볍게.
+   ★진사(#6B2A24)는 점으로만 — 고른 단추의 모서리 점 · 오류 줄 앞 점 · 보내는 중 점. 넓게 칠하지 않는다.
+   ★글자색은 --accent · --sub · --light · --gold-text 안에서(흰 바탕 · bg2 모두 4.5:1 이상) · --faint 는 글자에 쓰지 않는다.
+   ★입력칸 16px([GUIDE_Q_16]) · 누르는 자리 44px([GUIDE_TAP44]) · 초점 링([GUIDE_FOCUS]).
+   ════════════════════════════════════════════════════════════════ */
+.dn-wait{font-size:13px;color:var(--sub);line-height:1.7;margin:0 0 12px;word-break:keep-all}
+.dr{background:var(--bg2);border-radius:9px;padding:15px 14px 14px;margin:2px 0 6px}
+.dr-q{font-size:14.5px;font-weight:500;color:var(--accent);line-height:1.5;margin:0}
+.dr-due{font-size:12px;color:var(--sub);margin:3px 0 0}
+.dr-due b{font-weight:500;color:var(--accent)}
+.dr-ch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.dr-b{position:relative;min-height:48px;border:1px solid var(--border);border-radius:8px;background:var(--card-white);
+  font-family:var(--serif-ko);font-size:14px;color:var(--accent);padding:10px 8px;line-height:1.4;word-break:keep-all;cursor:pointer;-webkit-appearance:none;appearance:none}
+.dr-b[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.dr-b[aria-pressed="true"]::before{content:"";position:absolute;right:7px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--seal)}
+@media (max-width:370px){.dr-b{font-size:13px;padding:10px 6px}.dr-b[aria-pressed="true"]::before{top:6px;right:6px}}   /* [DR_B_ONE_LINE] 6편 1부는 13.5px 였는데 360 실측에서 «예식만 함께할게요»(115px)가 칸(110px)을 넘어 두 줄이 됐다 — 13px · 좌우 6px · 점을 1px 위로(글자에 안 닿게) */
+.dr-more{margin-top:14px;padding-top:14px;border-top:1px solid var(--hair)}
+.dr-n{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dr-nl{font-size:13.5px;color:var(--accent)}
+.dr-step{display:inline-flex;border:1px solid var(--border);border-radius:8px;background:var(--card-white);overflow:hidden}
+.dr-pm{width:44px;height:44px;border:0;background:none;font-size:19px;color:var(--accent);cursor:pointer;font-family:var(--serif-ko);padding:0}
+.dr-pm[aria-disabled="true"]{color:#CFC9BC;cursor:default}
+.dr-num{min-width:40px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--accent);
+  font-variant-numeric:tabular-nums;border-left:1px solid var(--hair);border-right:1px solid var(--hair)}
+.dr-help{font-size:11.5px;color:var(--sub);line-height:1.65;margin:8px 0 0;word-break:keep-all}
+.dr-lab{display:block;font-size:12px;color:var(--sub);margin:14px 0 6px}
+.dr-in{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);padding:12px 13px;min-height:44px}
+.dr-in:focus-visible{outline:2px solid var(--seal);outline-offset:2px;border-color:var(--gold-deep)}
+.dr-note{font-size:11px;color:var(--light);line-height:1.75;margin:12px 0 10px;word-break:keep-all}
+.dr-note a{color:var(--gold-text);text-underline-offset:3px}
+.dr .ps-btn{width:100%;background:var(--card-white);border-color:var(--accent);font-weight:500}
+.dr .ps-btn:active{background:var(--bg2)}   /* guide 의 .ps-btn:active(배경 --accent 로 차서 글자가 사라짐)를 물려받지 않게 */
+.dr .ps-btn[aria-disabled="true"]{border-color:var(--border);cursor:default}
+.dr-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--seal);margin-right:8px;vertical-align:middle;animation:meBreath 1.7s ease-in-out infinite}   /* [BUSY_ONE] 선례 · 보내는 중 */
+@media(prefers-reduced-motion:reduce){.dr-dot{animation:none;opacity:.6}}
+.dr-err{display:flex;gap:8px;font-size:12px;color:var(--accent);line-height:1.6;margin:10px 0 0;word-break:keep-all}
+.dr-err::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--seal);margin-top:.62em}
+.dr-thx{font-size:13px;color:var(--accent);line-height:1.6;margin:0;word-break:keep-all}
+.dr-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card-white);
+  border:1px solid var(--border);border-radius:8px;padding:9px 8px 9px 13px}
+.dr-thx + .dr-row{margin-top:10px}
+.dr-k{display:block;font-size:11px;color:var(--light)}
+.dr-v{display:block;font-size:14px;font-weight:500;color:var(--accent);word-break:keep-all}
+.dr-edit{min-height:44px;flex:0 0 auto;cursor:pointer}
 </style>
 </head>
 <body>
@@ -493,11 +541,11 @@ function spotHtml(v, withTel){
   return '<div class="spot"><div class="sn">'+esc(v.n)+'</div>'+(_m?'<div class="sm">'+esc(_m)+'</div>':'')+'<div class="acts">'+acts+'</div></div>';
 }
 function diningHtml(dn){
-  if(!dn || !dn.on) return '';
+  if(!dn || !(dn.on || dn.rsvp===true)) return drGoneHtml();   // [MEAL_ASK_FIRST] 식당이 없어도 식사 답을 받는 중이면 칸을 그린다 · [CHANGE_TELL] 보낸 답이 있는데 식사 칸이 없어졌으면 한 줄
   var restos=(dn.restos||[]).slice(), spots=dn.spots||[];
   // [GUIDE_EMPTY_SEC] on만 켜고 담은 곳이 하나도 없으면 제목만 있는 빈 섹션이 떴다(실측).
   //   하객에겐 '뭔가 있는데 안 뜬 화면'으로 보인다 — 내용이 없으면 섹션 자체를 내지 않는다.
-  if(!dn.pick && !restos.length && !spots.length) return '';
+  if(!dn.pick && !restos.length && !spots.length && dn.rsvp!==true) return drGoneHtml();   // [MEAL_ASK_FIRST] rsvp 면 빈 칸이 아니다(물음이 내용이다)
   var h='<div class="sec"><div class="sec-h"><h2 class="sec-t">식사 · 애프터</h2><span class="sec-n">Dining</span></div>';
   if(dn.pick){
     // 선택 식당이 찜 목록에도 있으면 카드 하나로 합침 — 같은 이름 이중 노출 방지 + 소개·지도·전화를 '여기로 모여요' 안에서 바로(2026-07-17 사용자 지적)
@@ -511,11 +559,123 @@ function diningHtml(dn){
       +(rsv?'<div class="rsv">'+rsv+'</div>':'')
       +'<div class="acts">'+acts+'</div></div>';
     h+='<div class="gather">예식 뒤: 모두 함께 한 장 → 두 분의 감사 인사 → 식사 자리로(양가 직계 가족과 따로 사진을 남길 분은 잠시 남아요)</div>';   // [PHOTO_THANKS 2026-09-26 사장님 결정] 가실 분은 감사 인사 뒤 곧바로 위 장소로
+    h+=dineRsvpHtml(dn);   // [DINING_RSVP] 식사 답 — 카드 · 모이는 줄 바로 아래 · «함께 들르기 좋은 곳» 위
     if(restos.length) h+='<div class="subh">함께 들르기 좋은 곳</div>';   // 픽이 있으면 나머지 찜은 보조로 구분(어디로 가야 하는지 흐려지지 않게)
-  }
+  } else h+=dineRsvpHtml(dn);   // [MEAL_ASK_FIRST] 카드가 없으면 «장소와 시간은 …» 한 줄 + 식사 답
   if(restos.length){ restos.forEach(function(v){ h+=spotHtml(v,true); }); }
   if(spots.length){ h+='<div class="subh">가볼 만한 곳</div>'; spots.forEach(function(v){ h+=spotHtml(v,false); }); }
   return h+'</div>';
+}
+/* ══ ★★[DINING_RSVP] [MEAL_ASK_FIRST] 식사 자리도 함께하시나요 — 하객이 식사 참석을 남긴다 (2026-09-26 사장님 결정) ══
+   ■ 보이는 때 — 서버가 dining.rsvp:true 를 줄 때만(옛 캐시엔 rsvp 가 없어 안 보인다) · 예식 당일부터는 화면에서도 한 번 더 숨긴다.
+   ■ 판정은 서버 한 곳(89_dine_rsvp _dineRsvpState) — 여기서 날짜를 따로 세우지 않는다(표본만 예외 · DR_FROM).
+   ■ 두 번 그리기(GUIDE_CACHE) 사이에 적던 이름 · 고른 단추 · 인원이 사라지지 않게 — 상태는 DR 에 두고, 다시 그린 뒤 되살린다.
+     이름 칸에 초점이 있었으면 초점 · 커서까지 돌려준다(drFocusKeep · drFocusBack · render 가 부른다).
+   ■ 이 기기 기억 — localStorage 'me_dr_'+토큰 = {name, ans, n, at} · 읽기·쓰기 모두 try/catch · 못 써도 보내기는 된다.
+   ■ 개인정보 — 연락처는 받지 않는다 · 하객끼리 서로의 답을 못 본다(돌아오는 것은 내가 보낸 답뿐). */
+var DR_FROM='2099-12-31';          // 서버 89_dine_rsvp DINE_RSVP.from 과 같은 값 — 운영 주소의 표본(?g=demo)은 이 날부터 보인다(scripts/audit/dine-rsvp.mjs 가 잰다)
+var DR_MAX_N=6, DR_NAME_MAX=20;    // 서버 DINE_RSVP.maxN · nameMax 와 같은 값(dine-rsvp.mjs)
+var DR_FAIL='보내지 못했어요. 연결을 확인하고 다시 눌러 주세요.';
+var DR={ tok:'', wed:'', due:'', view:'', ans:'', n:1, name:'', busy:false, err:'', saved:null };
+function drKstToday(){ var k=new Date(Date.now()+9*3600*1000); return k.getUTCFullYear()+'-'+('0'+(k.getUTCMonth()+1)).slice(-2)+'-'+('0'+k.getUTCDate()).slice(-2); }
+function drMd(ymd){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd||''); return m?((+m[2])+'월 '+(+m[3])+'일'):''; }
+/* 표본에서 식사 답을 보여 줄까 — 운영 주소는 스위치 날짜부터 · 미리보기·로컬은 늘(코워크 검토용 · [PREVIEW_GUARD] 가 GAS 는 막는다) */
+function drDemoOn(){
+  var prod=true; try{ var h=String(location.hostname||'').toLowerCase(); prod=(window.ME_PREVIEW_GUARD&&ME_PREVIEW_GUARD.isProdHost)?ME_PREVIEW_GUARD.isProdHost(h):(h==='momentedit.kr'||h==='www.momentedit.kr'); }catch(e){}
+  return !prod || drKstToday()>=DR_FROM;
+}
+function drMemRead(){ if(DEMO||!DR.tok) return null; try{ var v=JSON.parse(localStorage.getItem('me_dr_'+DR.tok)||'null'); return (v&&v.name&&(v.ans==='Y'||v.ans==='N'))?v:null; }catch(e){ return null; } }
+function drMemWrite(v){ if(DEMO||!DR.tok) return; try{ localStorage.setItem('me_dr_'+DR.tok, JSON.stringify(v)); }catch(e){} }
+function drAnsText(ans,n){ return ans==='Y' ? ('함께할게요 '+(n||1)+'분') : '예식만 함께할게요'; }
+function dineRsvpHtml(dn){
+  if(!dn || dn.rsvp!==true) return '';
+  if(DR.wed && drKstToday()>=DR.wed) return '';   // 예식 당일부터 숨김 — 그날은 두 분께 직접
+  DR.due=String(dn.rsvpDue||'');
+  return (dn.pick?'':'<div class="dn-wait">예식이 끝난 뒤 함께하는 식사 자리예요. 장소와 시간은 두 분이 정하시면 여기에 적혀요.</div>')
+    +'<div class="dr" id="drBox">'+drInner()+'</div>';
+}
+/* ★[CHANGE_TELL 5-4] 이 기기에 보낸 답이 있는데 식사 칸이 없어졌으면(두 분이 «안 함»으로 바꿈) 그 자리에 한 줄.
+   보낸 답은 기능 스위치 뒤에만 생긴다 — 스위치 전엔 기억이 없어 이 줄도 없다. 표본은 기억을 안 쓴다. */
+function drGoneHtml(){
+  if(DEMO || !drMemRead()) return '';
+  return '<div class="sec"><div class="sec-h"><h2 class="sec-t">식사 · 애프터</h2><span class="sec-n">Dining</span></div>'
+    +'<div class="dn-wait">보내 주신 식사 답이 있어요 · 지금은 식사 안내가 없어요. 두 분께 여쭤 주세요.</div></div>';
+}
+function drInner(){
+  if(!DR.view){ var mem=drMemRead(); if(mem){ DR.saved=mem; DR.view='saved'; } else DR.view='form'; }
+  if(DR.view==='done' || DR.view==='saved'){
+    var sv=DR.saved||{};
+    return '<div role="status">'
+      +(DR.view==='done'?'<p class="dr-thx">알려 주셔서 고맙습니다. 바뀌면 다시 눌러 주세요.</p>':'')
+      +'<div class="dr-row"><div><span class="dr-k">보내 주신 답</span><span class="dr-v">'+esc(drAnsText(sv.ans,sv.n))+' · '+esc(sv.name)+'</span></div>'
+      +'<button type="button" class="act dr-edit" data-dr="edit">바꾸기</button></div></div>';
+  }
+  var h='<p class="dr-q" id="drQ">식사 자리도 함께하시나요?</p>';
+  if(DR.due && drKstToday()<=DR.due) h+='<p class="dr-due"><b>'+esc(drMd(DR.due))+'</b>까지 알려 주세요</p>';
+  h+='<div class="dr-ch" role="group" aria-labelledby="drQ">'
+    +'<button type="button" class="dr-b" data-dr="ans" data-v="Y" aria-pressed="'+(DR.ans==='Y')+'">함께할게요</button>'
+    +'<button type="button" class="dr-b" data-dr="ans" data-v="N" aria-pressed="'+(DR.ans==='N')+'">예식만 함께할게요</button></div>';
+  if(!DR.ans) return h;   // 처음엔 물음과 단추 둘만 — 누르면 아래가 열린다(식사 칸이 길어지지 않게)
+  h+='<div class="dr-more">';
+  if(DR.ans==='Y'){
+    h+='<div class="dr-n"><span class="dr-nl" id="drNl">몇 분이 오시나요?</span><div class="dr-step" role="group" aria-labelledby="drNl">'
+      +'<button type="button" class="dr-pm" data-dr="dec" aria-label="한 분 줄이기"'+(DR.n<=1?' aria-disabled="true"':'')+'>−</button>'
+      +'<output class="dr-num" id="drNum" aria-live="polite">'+DR.n+'</output>'
+      +'<button type="button" class="dr-pm" data-dr="inc" aria-label="한 분 늘리기"'+(DR.n>=DR_MAX_N?' aria-disabled="true"':'')+'>+</button></div></div>'
+      +'<p class="dr-help">가족이 함께 오시면 한 분만 보내 주세요 · 아이도 한 분으로 세어 주세요</p>';
+  }
+  h+='<label class="dr-lab" for="drName">보내시는 분 이름</label>'
+    +'<input class="dr-in" id="drName" type="text" autocomplete="name" enterkeyhint="send" maxlength="'+DR_NAME_MAX+'" placeholder="이름" value="'+esc(DR.name)+'">'
+    +'<p class="dr-note">이름 · 답 · 인원은 두 분의 식사 준비에만 쓰고, 예식 30일 뒤 지워요. 원하지 않으시면 두 분께 직접 알려 주세요. '
+    +'<a href="/privacy.html#dine-rsvp" target="_blank" rel="noopener" aria-label="자세히 · 개인정보 처리방침이 새 탭에서 열려요">자세히</a></p>'
+    +'<button type="button" class="ps-btn" data-dr="send"'+(DR.busy?' aria-disabled="true"':'')+'>'+(DR.busy?'<span class="dr-dot" aria-hidden="true"></span>보내는 중':'동의하고 보내기')+'</button>'
+    +(DR.err?'<p class="dr-err" role="alert">'+esc(DR.err)+'</p>':'')
+    +'</div>';
+  return h;
+}
+function drPaint(focusSel){
+  var box=document.getElementById('drBox'); if(!box) return;
+  var k=drFocusKeep();
+  box.innerHTML=drInner();
+  if(k){ drFocusBack(k); return; }
+  if(focusSel){ var f=box.querySelector(focusSel); if(f){ try{ f.focus({preventScroll:true}); }catch(e){} } }
+}
+function drFocusKeep(){ var ae=document.activeElement; if(!ae || ae.id!=='drName') return null; var o={s:0,e:0}; try{ o.s=ae.selectionStart; o.e=ae.selectionEnd; }catch(e){} return o; }
+function drFocusBack(k){ if(!k) return; var f=document.getElementById('drName'); if(!f) return; try{ f.focus({preventScroll:true}); f.setSelectionRange(k.s,k.e); }catch(e){} }
+function drSend(btn){
+  if(DR.busy) return;
+  var inp=document.getElementById('drName'); if(inp) DR.name=inp.value;
+  if(DEMO){ sheetOpen(DTIP.rsvp.k, DTIP.rsvp.h, DTIP.rsvp.d, btn); return; }   // [GUIDE_DEMO] 표본은 서버를 부르지 않고 이 기기 기억도 쓰지 않는다
+  if(DR.ans!=='Y' && DR.ans!=='N') return;
+  var nm=String(DR.name||'').trim();
+  if(!nm){ DR.err='이름을 적어 주세요.'; drPaint('#drName'); return; }
+  var n=(DR.ans==='Y')?DR.n:0;
+  DR.busy=true; DR.err=''; drPaint('[data-dr="send"]');   // 보내는 중엔 잠근다 — 두 번 눌러도 한 번만 간다
+  gapi({action:'dineRsvp', g:DR.tok, name:nm, ans:DR.ans, n:n})
+    .then(function(r){ return r.json(); })
+    .then(function(v){
+      DR.busy=false;
+      if(v && v.ok){
+        DR.saved={ name:String(v.name||nm), ans:(v.ans==='N'?'N':'Y'), n:(v.ans==='N'?0:(Number(v.n)||n||1)), at:Date.now() };
+        drMemWrite(DR.saved); DR.view='done'; drPaint(); return;
+      }
+      DR.err=(v && v.error) ? String(v.error) : DR_FAIL;   // 서버가 거절하면 서버 글 그대로 · 적던 값은 남긴다
+      drPaint('[data-dr="send"]');
+    })
+    .catch(function(){ DR.busy=false; DR.err=DR_FAIL; drPaint('[data-dr="send"]'); });
+}
+function drBind(){
+  if(window.__drBound) return; window.__drBound=1;
+  document.addEventListener('click', function(e){
+    var t=e.target && e.target.closest ? e.target.closest('[data-dr]') : null; if(!t) return;
+    var k=t.getAttribute('data-dr');
+    if(k==='ans'){ if(DR.busy) return; DR.ans=t.getAttribute('data-v')==='N'?'N':'Y'; DR.err=''; drPaint('[data-dr="ans"][data-v="'+DR.ans+'"]'); }
+    else if(k==='dec' || k==='inc'){ if(DR.busy || t.getAttribute('aria-disabled')==='true') return; DR.n=Math.max(1, Math.min(DR_MAX_N, DR.n+(k==='inc'?1:-1))); drPaint('[data-dr="'+k+'"]'); }
+    else if(k==='send'){ drSend(t); }
+    else if(k==='edit'){ var sv=DR.saved||{}; DR.ans=(sv.ans==='N'?'N':'Y'); DR.n=(sv.ans==='Y'?(Number(sv.n)||1):1); DR.name=String(sv.name||''); DR.view='form'; DR.err=''; drPaint('#drName'); }
+  });
+  document.addEventListener('input', function(e){ if(e.target && e.target.id==='drName') DR.name=e.target.value; });
+  document.addEventListener('keydown', function(e){ if(e.target && e.target.id==='drName' && e.key==='Enter' && !e.isComposing){ e.preventDefault(); drSend(document.querySelector('[data-dr="send"]')); } });
 }
 // 하객 사진 모으기 — 부부가 정한 외부 공유 앨범/오픈채팅 링크가 있을 때만. 하객이 찍은 사진을 한곳으로(2026-07-19 · QR 갤러리 파일럿)
 /* ══ [GUEST_PHOTO_IN] 하객이 여기서 바로 올린다 — 우리 화면·한국어·가입 없음 ══
@@ -899,6 +1059,7 @@ function render(g){
      버튼이 새것으로 바뀐다 — 하객은 올라가는 중인지 멈춘 건지 알 수 없게 된다.
      ★올리는 동안은 화면을 건드리지 않는 것이 맞다. 갱신은 다음 방문에 반영된다. */
   if(window.__gpBusy) return;
+  var _drF=drFocusKeep(); DR.wed=String(g.date||'');   // [DINING_RSVP] 두 번 그리기 사이 이름 칸 초점 · 커서를 지킨다(값은 DR 에 있다)
   var couple=esc(g.groom||'')+(g.groom&&g.bride?'<span class="heart">&amp;</span>':'')+esc(g.bride||'');
   var date=fmtDate(g.date);
   var hasSeat=!!g.seatToken;
@@ -912,6 +1073,7 @@ function render(g){
     +'</div>';
   if(hasSeat && !DEMO) bindSeat(g.seatToken, !!g.seatFull);   // [GUIDE_DEMO] 표본은 서버를 부르지 않는다
   if(!DEMO) bindGuestUpload();   // [GUEST_PHOTO_IN] 매 렌더마다 다시 건다 — render 가 innerHTML 을 갈아 끼우므로 앞의 리스너는 사라진다
+  drBind(); drFocusBack(_drF);   // [DINING_RSVP] 위임 한 번 · 적던 이름 칸으로 초점을 돌려준다
   if(window.gCue) window.gCue();   // [GUIDE_SCROLLCUE] 내용이 화면보다 길 때만 나타난다
 }
 // [GUIDE_RETRY] 실패하면 하객이 할 수 있는 게 아무것도 없었다.
@@ -957,7 +1119,9 @@ var DTIP={
   map:{ k:'Sample', h:'표본이라 지도가 열리지 않아요',
         d:'실제 예식에서는 누르는 순간 그 장소의 지도가 바로 열려요 · 하객분들이 길을 헤매지 않으시도록.' },
   photo:{ k:'Sample', h:'표본이라 사진이 올라가지 않아요',
-        d:'실제 예식에서는 누르는 순간 사진첩이 열리고, 고르신 사진이 두 분께 바로 전해져요 · 이름도 가입도 필요 없어요.' }
+        d:'실제 예식에서는 누르는 순간 사진첩이 열리고, 고르신 사진이 두 분께 바로 전해져요 · 이름도 가입도 필요 없어요.' },
+  rsvp:{ k:'Sample', h:'표본이라 답이 전해지지 않아요',   /* [DINING_RSVP] 2-4 */
+        d:'실제로는 보내는 순간 두 분의 마이페이지에 이름과 인원이 모여요.' }
 };
 /* ★[GP_DONE_SHEET] 시트는 «하나»만 둔다 — 표본 안내(data-dtip)와 업로드 확인이 같은 것을 쓴다.
    페이지에 팝업 구현이 둘이면 여닫는 규칙·초점 되돌리기·Esc 가 갈라진다(실제로 겪은 병).
@@ -1003,7 +1167,8 @@ function renderDemo(){
     seatToken:'demo', seatFull:false,
     dining:{ on:true, pick:'라 트라토리아', rtime:'12:30', rname:'이서준',
              restos:[{n:'카페 모먼트', m:'디저트 · 도보 3분'}],
-             spots:[{n:'일산호수공원 산책로', m:'도보 8분'}] },
+             spots:[{n:'일산호수공원 산책로', m:'도보 8분'}],
+             rsvp:drDemoOn(), rsvpDue:'2027-12-10' },   // [DINING_RSVP] 표본 날짜(12/17) 7일 전 · 운영 주소에선 스위치 날짜부터
     /* ★[GUEST_PHOTO_IN 2026-08-18] 표본은 **비워 둔다** — 비면 우리 업로드 화면이 뜬다(그게 지금의 기본값).
        옛 표본은 외부 주소를 넣어 두어 '두 분이 준비한 외부 공간' 안내가 떴다.
        홈페이지가 「안내 페이지에서 바로 올려요」라고 홍보하는데 표본은 옛 화면을 보여주고 있었다.
@@ -1085,6 +1250,7 @@ function renderDemo(){
   var g=guideToken();   // [GUIDE_PATH_READ] 경로 형태(/g/<토큰>)도 받는다
   if(g==='demo'){ try{ renderDemo(); }catch(e){ $('root').innerHTML=stateHtml('샘플을 불러오지 못했어요.','',0); } return; }   // [GUIDE_DEMO]
   if(!g){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
+  DR.tok=g;   // [DINING_RSVP] 식사 답을 보낼 토큰 · 이 기기 기억 열쇠(me_dr_+토큰)
   var cacheKey='me_guide_'+g;
 
   // [GUIDE_CACHE] 재방문·회선 불량 대비 — 한 번 본 안내는 즉시 그리고, 최신값은 뒤에서 갱신한다.

@@ -523,16 +523,31 @@
     // [HYDRATE_DEMO] 표본은 조회 없이 즉시 — 표본 안내(g=demo)로 연결. 갤러리 iframe 안이면
     // 새 창 대신 부모에게 카드 이동을 요청한다(gv:goto:guide → 10번 하객 안내 카드).
     /* [GUIDE_PATH] ? 없는 경로 형태 — mypage.html 의 guideUrl 주석 참고. ?g= 도 계속 열린다. */
-    if (eventId === 'test-couple') { _paintGuideCta('/g/demo', true); return; }
+    if (eventId === 'test-couple') { _paintGuideCta('/g/demo', true, _drDemoOn()); return; }   // [DINE_RSVP_CTA] 표본은 새 글로(운영 주소는 스위치 날짜부터)
     fetch(GUIDE_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'guideView', byEvent: eventId }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.ok || !d.g) return;
-        _paintGuideCta('/g/' + encodeURIComponent(d.g), false);   // [GUIDE_PATH]
+        _paintGuideCta('/g/' + encodeURIComponent(d.g), false, d.rsvp === true);   // [GUIDE_PATH] · [DINE_RSVP_CTA] 식사 답을 받는 동안만 새 글
       })
       .catch(function () {});
   }
-  function _paintGuideCta(href, demo) {
+  /* ★[DINE_RSVP_CTA 2026-09-27 · DINING_RSVP 2-5 · MEAL_ASK_FIRST] 식사 답을 받는 동안(guideView byEvent 가 rsvp:true)
+     단추 위 글을 «식사 자리도 함께하시는지 알려 주세요.»로 바꾼다 — 하객은 보통 청첩장을 받은 날 한 번 보고 다시 안 연다.
+     받는 때가 끝나면(예식 당일 · 두 분이 끔 · 안 함) 서버가 rsvp:false 를 주고 지금 글로 돌아간다. 단추(«하객 안내 열기»)는 그대로.
+     ★청첩장 파일(i/ · i-family)은 손대지 않는다 — 이 단추 글만. 색은 상속(어두운 디자인에서 뒤집히게) · 고정 hex 금지.
+     ★표본(test-couple)의 날짜 문 — 서버 89_dine_rsvp DINE_RSVP.from 과 같은 값(scripts/audit/dine-rsvp.mjs 가 잰다). */
+  var DR_FROM = '2099-12-31';
+  function _drDemoOn() {
+    try {
+      var h = String(location.hostname || '').toLowerCase();
+      if (h !== 'momentedit.kr' && h !== 'www.momentedit.kr') return true;   // 미리보기 · 로컬 — 코워크 검토용([PREVIEW_GUARD] 가 GAS 는 막는다)
+      var k = new Date(Date.now() + 9 * 3600 * 1000);
+      var t = k.getUTCFullYear() + '-' + ('0' + (k.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + k.getUTCDate()).slice(-2);
+      return t >= DR_FROM;
+    } catch (e) { return false; }
+  }
+  function _paintGuideCta(href, demo, rsvp) {
     (function () {
         if (document.getElementById('meGuideCta')) return;
         // 테두리는 배경 밝기에 적응 — 어두운 디자인(08 등)에서 검정 계열 테두리가 사라지지 않게
@@ -550,7 +565,9 @@
           /* [CTA_EYEBROW] opacity .55는 11px에서 3.1:1로 AA 미달(axe, 2026-08-01). .68 → 5.0:1.
              ★고정 hex로 바꾸지 말 것 — 08 같은 어두운 디자인에서는 상속색이 반전돼야 한다. 위계는 opacity가 아니라 크기(11px)가 낸다. */
           + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:10px">Guest Guide</div>'
-          + '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>'
+          + (rsvp
+            ? '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px"><span style="display:block">식사 자리도 함께하시는지 알려 주세요.</span><span style="display:block;font-size:12.5px;opacity:.78;margin-top:4px;text-wrap:balance">예식 당일의 식사 안내와 자리 찾기도 여기에 있어요.</span></div>'   // [DINE_RSVP_CTA]
+            : '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내와 자리 찾기를<br>한 곳에 모아 두었어요.</div>')
           + '<a id="meGuideCtaBtn" href="' + href + '" style="display:inline-block;padding:12px 26px;border:1px solid currentColor;border-radius:999px;font-size:13px;text-decoration:none;color:inherit">하객 안내 열기</a>'
           + '</div>';
         // 100vh~118vh 본문 섹션 뒤에 홀로 떨어져 '너무 내려가' 보이던 문제(family-02·03·06·07) → 마지막 본문 섹션(.sec) 안 끝에 삽입해 계좌와 함께 흐르게. 섹션이 없으면 footer 앞으로 폴백(2026-07-22 · marker: meGuideCta-inline)
