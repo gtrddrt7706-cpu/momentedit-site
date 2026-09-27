@@ -511,6 +511,7 @@ git push -u origin <브랜치>
 | `letterMigrate` | **87_letter** | ★1회 실행 — 옛 「Moment Edit Letter System」 스프레드시트의 탭 4개(Couples·Messages·Moderation·Banned)를 본 스프레드시트로 복사 → 화면 값이 원본과 한 칸도 다르지 않은지 대조(어긋나면 사본 지우고 멈춤) → `LETTER_MIGRATED=Y` → `setupAllTriggers` 로 매일 07시 점검까지 건다. 다시 돌려도 안전(이미 옮긴 탭은 건너뜀). 옛 스프레드시트는 백업으로 남는다 [LETTER_MERGED 2026-09-25] |
 | `vimeoGuardDaily` | **87_letter** | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 관리자 메일(하루 1통·수동 점검 가능) + 첫 줄에서 `purgeCoupleData`. ★관리자 페이지에서 미계약·취소·노쇼로 닫은 예식은 건너뛴다(Customers 조회 실패면 «모르면 보낸다») [VIMEO_GUARD_XPROJ]. 트리거는 `setupAllTriggers`(70_journey)가 매일 07시로 건다 — 옛 `setupVimeoGuard`(부부폼 프로젝트)는 가져오지 않았다 |
 | `purgeCoupleData`·`previewCoupleData` | **87_letter** | 예식 + 6개월(기본 183일 · `COUPLE_PURGE_DAYS`) 지난 예식의 청첩장·편지 개인정보 비우기(행 보존) · `COUPLE_PURGE_OFF='Y'` 면 정지. preview 는 아무것도 안 바꾸고 대상만 로그 |
+| `dineRsvpDaily` | **89_dine_rsvp** | ★하객 식사 답 [DINING_RSVP] 매일 19시(트리거는 `setupAllTriggers`(70_journey)가 건다 — 붙인 뒤 한 번 돌릴 것) — ①예식 + 30일(`GUIDE_EXPIRE_DAYS`) 지난 «식사답» 시트 줄 지우기(예식일 모르면 마지막 답 + 30일 · 고객 없어진 줄도) ②하객 마감 뒤 바뀐 답 두 분께 메일 ③식당 마감 전날 알림([RESTO_REMIND] · 같은 날 ② 와 한 통). ★②·③ 메일은 기능 스위치(`DINE_RSVP.from` · 처리방침 시행일) 뒤부터. 수동 실행해도 안전(전날 알림은 같은 날 한 통) · 로그엔 지운 줄 수 · 보낸 메일 수만. «식사답» 시트는 첫 답이 들어올 때 잠근 채 저절로 생긴다(준비 함수 없음) |
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)
 

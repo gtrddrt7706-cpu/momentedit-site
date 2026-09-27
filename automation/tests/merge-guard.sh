@@ -6912,7 +6912,7 @@ chk 'PAYCARD_HARNESS_FLOW' automation/tests/pay-card.test.js 1
 #   guide 9건·change-fee 4건이 붉은 채 병합됐다. 마커 검사로는 이런 것을 잡을 수 없다.
 #   ★스위트를 추가하면 이 목록에도 넣을 것.
 if command -v node >/dev/null 2>&1; then
-  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend; do
+  for _t in guide refund-quote change-fee pay-card dining-sync notify-msg snap-plan photo-friend dine-rsvp; do
     node "automation/tests/$_t.test.js" >/dev/null 2>&1 \
       || { echo "FAIL $_t.test.js: 단위 스위트가 실패합니다 — node automation/tests/$_t.test.js"; fail=1; }
   done
@@ -12866,6 +12866,68 @@ chk '<title>우리 예식 짓기 · Moment Edit</title>' order-preview.html 1
 nochk '식순 미리보기' order-preview.html 0
 nochk "fr.title='식순 만들기'" mypage.html 0
 chk 'RIT_WIDTH_720' order-preview.html 1            # 26 PC ②③④ 폭 720
+
+# ★★[DINING_RSVP] [MEAL_ASK_FIRST] 하객 안내에서 식사 참석 답받기 — 2026-09-26 사장님 결정 ①② · 9/27 ③ [RESTO_DUE] · 최종 판(코워크 9/27)
+#   사장님 결정 ①: 식사 참석은 하객 안내 페이지(guide.html)에서 받는다 · 두 분이 따로 묻거나 청첩장에서 받지 않는다
+#   사장님 결정 ②: 청첩장을 만들 때 «예식 뒤 식사 자리가 있나요?»만 먼저 묻는다 → «있다»만 정해지면 링크 · 식사 물음을 먼저 연다
+#   사장님 결정 ③: 하객 마감은 식당이 정한 최종 인원 마감에 맞춘다(두 분이 7 · 5 · 3 · 1일 전을 고름 · 하객 마감은 그보다 나흘 앞)
+#   ★기능 스위치 DINE_RSVP.from(먼 날짜) 전에는 고객 화면 · 메일 변화 0 — 켜는 날 = 처리방침 시행일(docs/plans/DINE_RSVP_privacy_draft.md)
+#   서버 동작은 automation/tests/dine-rsvp.test.js(UNIT_SUITES_RUN) · 값 · 스위치 · 글 · 배선은 scripts/audit/dine-rsvp.mjs · 화면은 scripts/audit/dine-rsvp-sim.mjs
+chk 'DINING_RSVP' guide.html 3
+chk 'DINING_RSVP' mypage.html 3
+chk 'MEAL_ASK_FIRST' mypage.html 4
+chk 'MEAL_ASK_FIRST' guide.html 3
+chk 'MEAL_ASK_FIRST' automation/platform/80_production.gs 1
+chk 'DINING_RSVP' automation/platform/89_dine_rsvp.gs 1
+chk 'DINE_RSVP_FROM' automation/platform/89_dine_rsvp.gs 1
+chk 'DINE_RSVP_GUEST' automation/platform/89_dine_rsvp.gs 1
+chk 'DINE_RSVP_LIST' automation/platform/89_dine_rsvp.gs 1
+chk 'DINE_RSVP_EDIT' automation/platform/89_dine_rsvp.gs 1
+chk 'DINE_RSVP_DAILY' automation/platform/89_dine_rsvp.gs 1
+chk 'RESTO_DUE' automation/platform/89_dine_rsvp.gs 3
+chk 'RESTO_REMIND' automation/platform/89_dine_rsvp.gs 2
+chk 'DINE_FOCUS' automation/platform/89_dine_rsvp.gs 1
+chk 'DINE_RSVP_VIEW' automation/platform/80_production.gs 2
+chk 'DINE_RSVP_BYEVENT' automation/platform/80_production.gs 1
+chk 'DINE_RSVP_OFF' automation/platform/80_production.gs 3
+chk 'DINE_RSVP_STRIP' automation/platform/80_production.gs 1
+chk 'RESTO_DUE_STRIP' automation/platform/80_production.gs 1
+chk 'DINE_RSVP_STATE' automation/platform/80_production.gs 1
+chk 'DINE_RSVP_TRIGGER' automation/platform/70_journey.gs 1
+chk 'DINE_RSVP_ROUTE' automation/consultation/consultation-booking.gs 1
+chk 'DINE_RSVP_CTA' shared/hydrate.js 3
+chk 'CHANGE_TELL' mypage.html 3
+chk 'CHANGE_TELL' guide.html 2
+chk 'BOOK_FIRST' mypage.html 3
+chk 'HEAD_ALL' mypage.html 2
+chk 'RESV_TIME' mypage.html 3
+chk 'RESTO_FLOW' mypage.html 1
+chk 'RESTO_DUE' mypage.html 3
+chk 'DINE_FOCUS' mypage.html 2
+chk 'DR_B_ONE_LINE' guide.html 1
+chk 'DOT_SPLIT_0926' mypage.html 15                # 식사 답 글 · 청첩장 물음 작은 글도 «·» 두 절을 마침표 두 덩어리로([CHECKS_NO_DANGLE])
+chk "var DINE_RSVP = { from: '" automation/platform/89_dine_rsvp.gs 1
+chk "case 'dineRsvp':" automation/consultation/consultation-booking.gs 1
+chk "fn: 'dineRsvpDaily'" automation/platform/70_journey.gs 1
+chk 'DINE_RSVP_AUDIT' scripts/audit/dine-rsvp.mjs 1
+chk 'DINE_RSVP_SWITCH' scripts/audit/dine-rsvp.mjs 1
+chk 'DINE_RSVP_SIM' scripts/audit/dine-rsvp-sim.mjs 1
+nochk '청첩장.*RSVP · 참석 회신' mypage.html 0          # [LIVE_FEAT_REAL] 청첩장 안 «RSVP · 참석 회신» 자리는 되살리지 않는다(이번 일은 식사 인원만)
+nochk 'placeholder="이름" value="[^"]\+" ' guide.html 0   # [RESV_TIME] 과 같은 원칙 — 값으로 미리 채우지 않는다(하객 이름 칸 기본값 없음)
+if command -v node >/dev/null 2>&1; then node scripts/audit/dine-rsvp.mjs >/dev/null 2>&1; _drs=$?
+  case "$_drs" in
+    0) echo 'ok dine-rsvp: 값 한 벌 · 스위치 전 고객 변화 0 · 처리방침 · 최종 판 글 · 배선' ;;
+    1) echo 'FAIL dine-rsvp: 식사 답 값 · 스위치 · 글 · 배선이 어긋났습니다 — node scripts/audit/dine-rsvp.mjs'; fail=1 ;;
+    *) echo 'ok dine-rsvp: 재지 못했습니다(원천 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+if command -v node >/dev/null 2>&1; then timeout 900 node scripts/audit/dine-rsvp-sim.mjs >/dev/null 2>&1; _drsim=$?
+  case "$_drsim" in
+    0) echo 'ok dine-rsvp-sim: 하객 390 · 360 · 표본 · 청첩장 단추 글 · 마이페이지 390 · 1280 · 청첩장 1단계 · 2/2 · 바뀔 때 알리기' ;;
+    1) echo 'FAIL dine-rsvp-sim: 식사 답 화면이 명세와 다릅니다 — node scripts/audit/dine-rsvp-sim.mjs'; fail=1 ;;
+    *) echo 'ok dine-rsvp-sim: 재지 못했습니다(브라우저 · 포트) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 # [REVIEW_STAMP_SRC] 대본 정리본 머리줄 = 원천 지문(날짜 아님) — 날이 바뀌어도 같은 원천이면 같은 파일(2026-09-27 코워크 제안)
 chk 'REVIEW_STAMP_SRC' scripts/build-script-review.mjs 2
 chk "html.replace('@@SRC_STAMP@@', '원천 지문 ' + _srcStamp)" scripts/build-script-review.mjs 1

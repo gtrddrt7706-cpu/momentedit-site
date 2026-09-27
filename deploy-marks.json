@@ -48,6 +48,10 @@
    "fn": "auditDineDb"
   },
   {
+   "file": "89_dine_rsvp",
+   "fn": "handleDineRsvp"
+  },
+  {
    "file": "90_test-utils",
    "fn": "platformSelfTest"
   },
@@ -1134,6 +1138,108 @@
    "fn": "_setContactCore",
    "mark": "CONTACT_SHADOW_EMAIL",
    "why": "관리자 이메일 정정이 계약서 사본(계약정보.groomEmail)도 함께 고친다 — 이 파일이 옛것이면 계약서 신랑 이메일 칸과 «입력 정보 수정» 폼에 옛 이메일이 남는다"
+  },
+  {
+   "file": "89_dine_rsvp",
+   "fn": "_dineRsvpLive",
+   "mark": "DINE_RSVP_FROM",
+   "why": "하객 식사 답 기능 스위치(DINE_RSVP.from · 처리방침 시행일) — 이 파일이 없으면 하객 안내 식사 답이 통째로 없다(guideView 는 rsvp:false 로 종전 화면)"
+  },
+  {
+   "file": "89_dine_rsvp",
+   "fn": "handleDineRsvp",
+   "mark": "DINE_RSVP_GUEST",
+   "why": "하객 식사 답 저장(토큰 · 닫힘 · 받는 중 · 예식 당일 · 한도 · 이름 · 150줄 · 잠금) — 이 파일이 옛것이면 guide.html 의 «동의하고 보내기»가 «알 수 없는 요청»으로 떨어진다"
+  },
+  {
+   "file": "89_dine_rsvp",
+   "fn": "handleDineRsvpList",
+   "mark": "DINE_RSVP_LIST",
+   "why": "두 분 마이페이지 «식사 답» 목록 — 이 파일이 옛것이면 하객 안내 패널의 식사 답이 «불러오지 못했어요»"
+  },
+  {
+   "file": "89_dine_rsvp",
+   "fn": "handleDineRsvpEdit",
+   "mark": "DINE_RSVP_EDIT",
+   "why": "두 분 직접 넣기 · 지우기 — 이 파일이 옛것이면 «넣기» · «지우기»가 안 된다"
+  },
+  {
+   "file": "89_dine_rsvp",
+   "fn": "dineRsvpDaily",
+   "mark": "DINE_RSVP_DAILY",
+   "why": "매일 19시 — 예식 30일 뒤 식사 답 지우기(처리방침 약속) + 마감 뒤 늦은 답 메일 · 없으면 개인정보가 안 지워진다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuideView",
+   "mark": "DINE_RSVP_VIEW",
+   "why": "하객 안내 dining 에 rsvp · rsvpDue — 이 파일이 옛것이면 식사 답 칸이 하객 화면에 안 뜬다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleGuideView",
+   "mark": "DINE_RSVP_BYEVENT",
+   "why": "오프라인 청첩장 단추 조회(byEvent)가 rsvp 를 함께 — 옛것이면 단추 글이 «식사 자리도 함께하시는지»로 안 바뀐다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "MEAL_ASK_FIRST",
+   "why": "식사 자리가 있다(dining_on Y)만 저장돼도 하객 안내 링크 발급 — 옛것이면 청첩장 1단계 «있어요» 뒤 종이용 하객 안내 QR 이 안 생긴다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "DINE_RSVP_OFF",
+   "why": "guideinfo 화이트리스트에 dineRsvp(끄기) · 키 없는 저장이 «끔»을 지킴 — 옛것이면 «꺼짐»이 조용히 버려진다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodUiStrip",
+   "mark": "DINE_RSVP_STRIP",
+   "why": "식사 답 켜고 끄기는 예식 확인서 비교에서 뺀다 — 옛것이면 끄기만으로 확인서가 «재확인 필요»가 된다"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "DINE_RSVP_STATE",
+   "why": "마이페이지 상태에 dineRsvp{live,meal,off,open,due} — 옛것이면 청첩장 1단계 물음 · «식사 답» 덩어리가 안 보인다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "setupAllTriggers",
+   "mark": "DINE_RSVP_TRIGGER",
+   "why": "dineRsvpDaily 매일 19시 등록 — 붙인 뒤 setupAllTriggers 를 한 번 돌려야 지우기 · 늦은 답 메일이 돈다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "DINE_RSVP_ROUTE",
+   "why": "doPost 에 dineRsvp · dineRsvpList · dineRsvpEdit 세 줄 — 옛것이면 세 동작 전부 «알 수 없는 요청»"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodUiStrip",
+   "mark": "RESTO_DUE_STRIP",
+   "why": "식당에 최종 인원 알릴 날(restoDue)은 확인서 비교에서 뺀다 — 옛것이면 식당 마감을 고르기만 해도 예식 확인서가 «재확인 필요»가 된다"
+  },
+  {
+   "file": "89_dine_rsvp",
+   "fn": "_dineRsvpDue",
+   "mark": "RESTO_DUE",
+   "why": "하객 마감 = 예식일 − (식당 마감 + 4) — 옛것이면 하객 화면 마감이 두 분이 고른 식당 마감을 안 따른다"
+  },
+  {
+   "file": "89_dine_rsvp",
+   "fn": "_dineRsvpMeal",
+   "mark": "MEAL_ASK_FIRST",
+   "why": "식사 자리 «있다»(dining_on Y)면 식당이 없어도 식사 답을 받는다 — 옛것이면 청첩장 1단계 «있어요»만 고른 두 분의 하객 화면에 식사 물음이 안 뜬다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodUiStrip",
+   "mark": "RESTO_DUE",
+   "why": "식당 마감(restoDue)을 확인서 비교에서 빼는 자리 — 표식 이름이 RESTO_DUE_STRIP 과 앞이 같아 같은 짝으로 잡힌다(같은 줄)"
   }
  ],
  "fns": {
@@ -1445,6 +1551,36 @@
    "collectDinePoolDeep",
    "_awSearchAt_",
    "_awDist_"
+  ],
+  "89_dine_rsvp": [
+   "_dineRsvpLive",
+   "_dineRsvpMeal",
+   "_dineRsvpRestoN",
+   "_drShift",
+   "_dineRsvpDue",
+   "_dineRsvpState",
+   "_dineRsvpOpen",
+   "_dineRsvpPublic",
+   "_drKey",
+   "_drCleanName",
+   "_drAns",
+   "_drN",
+   "_drRate",
+   "_drNowTs",
+   "_drTs",
+   "_drSheet",
+   "_drRows",
+   "_drUpsert",
+   "_drListOf",
+   "handleDineRsvp",
+   "_drSessionCust",
+   "_drListPayload",
+   "handleDineRsvpList",
+   "handleDineRsvpEdit",
+   "dineRsvpDaily",
+   "_drEachCustomer",
+   "_drMd",
+   "_drMail"
   ],
   "90_test-utils": [
    "platformSelfTest",
@@ -1919,6 +2055,13 @@
    "AW_SWEEP",
    "AW_GRID"
   ],
+  "89_dine_rsvp": [
+   "DINE_RSVP",
+   "DINE_RSVP_RATE",
+   "DINE_RSVP_SHEET",
+   "DINE_RSVP_HEAD",
+   "DINE_RSVP_MSG"
+  ],
   "90_test-utils": [
    "_LAST_TEST_CODE"
   ],
@@ -1971,7 +2114,8 @@
   "weeklyReceiptAudit",
   "purgeAdvisorLog",
   "warmAvailCache",
-  "vimeoGuardDaily"
+  "vimeoGuardDaily",
+  "dineRsvpDaily"
  ],
  "columns": [
   {
@@ -2081,7 +2225,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-27 01:43 · db23a97b",
+ "_생성": "2026-09-27 13:21 · e3e66783",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2391,5 +2535,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "79145e643598"
+ "_표식서명": "dc5818779fbf"
 }

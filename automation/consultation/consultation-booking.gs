@@ -2263,6 +2263,10 @@ function doPost(e) {
       case 'seatView':           return jsonOut(handleSeatView(body));   // 좌석 배치도 공개 조회(무인증·토큰) — seat.html
       case 'guideView':          return jsonOut(handleGuideView(body));  // 하객 안내 허브 공개 조회(무인증·토큰) — guide.html
       case 'guestPhoto':         return jsonOut(handleGuestPhoto(body));  // [GUEST_PHOTO_IN] 하객 사진 업로드 1건(무인증·토큰) — guide.html · 80_production
+      // [DINE_RSVP_ROUTE 2026-09-27] 하객 안내 식사 답 — 본문은 89_dine_rsvp.gs(다른 세션과 안 부딪히게 새 파일)
+      case 'dineRsvp':           return jsonOut(handleDineRsvp(body));       // [DINING_RSVP] 하객 식사 답 1건(무인증·안내공유토큰) — guide.html
+      case 'dineRsvpList':       return jsonOut(handleDineRsvpList(body));   // [DINING_RSVP] 두 분 식사 답 목록(세션) — mypage 하객 안내 패널
+      case 'dineRsvpEdit':       return jsonOut(handleDineRsvpEdit(body));   // [DINING_RSVP] 두 분 직접 넣기 · 지우기(세션) — mypage 하객 안내 패널
       case 'snapRefUpload':      return jsonOut(handleSnapRefUpload(body));   // [SNAP_PICK_V2] 스냅 기획 «찾던 그림» 올리기(세션 인증) — mypage · 80_production
       case 'snapThumbs':         return jsonOut(handleSnapThumbs(body));      // [SNAP_PICK_V2] 올린 그림의 작은 그림(세션 인증 · 이 고객 것만)
       case 'snapWithdraw':       return jsonOut(handleSnapWithdraw(body));    // [SNAP_CONSENT] «스냅 기획 지우기» — 기획 · 올린 사진 · 동의 기록을 지운다(세션 인증 · 이 고객 것만)

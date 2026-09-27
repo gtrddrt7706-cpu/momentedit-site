@@ -394,6 +394,8 @@ function _prodUiStrip(json, track) {
     var o = JSON.parse(json);
     for (var k in o) { if (k.charAt(0) === '_') delete o[k]; }
     if (track === 'guideinfo') delete o.showSeat;
+    if (track === 'guideinfo') delete o.dineRsvp;   // [DINE_RSVP_STRIP] 하객 안내 «식사 답 받기» 켜고 끄기는 예식 확인서 내용이 아니다(showSeat 과 같은 까닭) — 끄고 켜기만으로 재확인을 요구하지 않게
+    if (track === 'dining') delete o.restoDue;   // [RESTO_DUE_STRIP] 식당에 최종 인원 알릴 날(7 · 5 · 3 · 1)은 예식 확인서 내용이 아니다(89_dine_rsvp 하객 마감 계산에만 쓴다) — 고르기만으로 재확인을 부르지 않게
     // [UISTRIP_FAVS_EXEMPT 2026-07-25 · R-9] 담은 곳(_favs)·하객 공개 토글(_favs[].show)은 확인서 해제 대상이 아니다 —
     //   확인서 다이닝 줄은 '최종 선택 장소(venue·venuePick)'만 기록하고 담은 곳 목록은 담지 않으므로(prodConfirmHtml),
     //   별을 담거나 공개를 켜고 끄는 것만으로 재확인을 요구하면 근거 없는 재확인 피로만 남는다.
@@ -412,6 +414,7 @@ function handleSaveProductionTrack(body) {
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var track = String((body && body.track) || '').trim();
   if (track !== 'dining' && track !== 'ritual' && track !== 'final' && track !== 'seat' && track !== 'guideinfo' && track !== 'snap' && track !== 'confirm') return { ok: false, error: '알 수 없는 항목입니다.' };
+  var _drKeepOff = false;   // [DINE_RSVP_OFF] guideinfo 요청에 dineRsvp 키가 없으면 지난 저장분의 «끔»을 지킨다(아래 whitelist · 락 안)
   // 최종 확정: 서버가 인원 정규화 + 스탠딩·추가요금 계산(단일 출처 — 프런트 표시·관리자 메일이 이 값을 씀)
   if (track === 'final') {
     var fdr = (body && body.draft) || {};
@@ -509,6 +512,12 @@ function handleSaveProductionTrack(body) {
     // 하객 사진 모으기 링크(선택) — 부부가 만든 외부 공유 앨범/오픈채팅. http(s)만·최대 300자. 하객 안내 페이지에 '사진 올리기' 버튼으로 노출. 비면 키 미포함(무변경 재저장 가짜 재확인 방지 · 2026-07-19)
     var _psu = String(gir.photoShareUrl || '').trim().slice(0, 300);
     if (/^https?:\/\//i.test(_psu)) body.draft.photoShareUrl = _psu;
+    /* ★[DINE_RSVP_OFF 2026-09-27 · DINING_RSVP 3-3] 하객 안내에서 식사 답 받기 — 끌 때만 키를 둔다('off') · 켜면 키 없음(무변경 재저장이 가짜 재확인을 만들지 않게).
+       ★이 블록이 없으면 화이트리스트가 통째로 버린다(photoWish · photoCaller 가 겪은 그 사고).
+       ★guideinfo 는 트랙 통째 교체라, 이 키를 모르는 다른 저장(사진 · 좌석 공개)이 «끔»을 지우면 안 된다 —
+         요청에 키가 «아예 없으면» 락 안에서 지난 저장분의 'off' 를 그대로 싣는다(_drKeepOff). 켤 때는 키를 빈 값('')으로 보낸다. */
+    if (Object.prototype.hasOwnProperty.call(gir, 'dineRsvp')) { if (String(gir.dineRsvp) === 'off') body.draft.dineRsvp = 'off'; }
+    else _drKeepOff = true;
   }
   // 스냅 사전기획(촬영 전 · 예식준비 전 여정 스텝) — 전 항목 선택 · 배열 상한·문자열 길이 · 링크는 http/https 만. (2026-07-19 스냅사진 파트 · marker: SNAP_PREP_NORMALIZE)
   //   ★[SNAP_PICK_V2 2026-09-26] 판이 둘이다 — v:2 면 «고르는 스냅 기획»(공간별 장면·올린 그림·링크·한 칸), 아니면 옛 칸(배포 시차로 남은 탭).
@@ -619,6 +628,7 @@ function handleSaveProductionTrack(body) {
       var _dcJ = ''; try { _dcJ = JSON.stringify((body && body.draft) || {}); } catch (eDc) { _dcJ = ''; }
       if (_dcJ.length > 12000) return { ok: false, error: '저장할 내용이 너무 길어요(현재 약 ' + _dcJ.length + '자 · 최대 12,000자). 글 길이를 조금 줄여 주세요.' };
     }
+    if (track === 'guideinfo' && _drKeepOff && body && body.draft && String(((d.guideinfoDraft || {}).dineRsvp) || '') === 'off') body.draft.dineRsvp = 'off';   // [DINE_RSVP_OFF] 키를 모르는 저장이 «끔»을 지우지 않게
     d[track + 'Draft'] = (body && body.draft) || {};
     var _snapJobs = [];   // [SNAP_PICK_V2] 사진 정리·마감 뒤 알림 — 시트 쓰기가 끝난 뒤에만 _notifyQ 로 넘긴다(쓰기 전에 실패하면 지우지 않게)
     if (track === 'snap') _snapAfterSave(d, _oldDraftJ, cust, code, _snapJobs);
@@ -698,6 +708,15 @@ function handleSaveProductionTrack(body) {
         _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);   // 16자 · 공개 링크 키(개인코드와 분리)
         _upd['안내공유토큰'] = _guideToken;
       }
+    }
+    /* ★[MEAL_ASK_FIRST 2026-09-27 · DINING_RSVP 4-6] 식사 자리가 있다(dining_on === 'Y')가 저장되는 때에도 발급한다 —
+       청첩장 1단계 «있어요» · 애프터 웨딩을 «장소 미정» 류로 끝낸 때 모두. 완료가 아니어도 된다(식당을 기다리지 않는다).
+       하객 안내에 식사 물음이 뜨므로 «이름·날짜만 있는 빈 링크»가 아니다. ★기능 스위치(DINE_RSVP.from) 전에는 식사 물음이 안 보이니 종전 규칙대로만.
+       한 번 생긴 링크는 그대로 둔다(링크 · QR 안정 · 위와 같은 규칙). */
+    if (colOf['안내공유토큰'] && track === 'dining' && !_guideToken && typeof _dineRsvpLive === 'function' && _dineRsvpLive()
+        && String((((body && body.draft) || {}).dining_on) || '').trim() === 'Y') {
+      _guideToken = 'G' + Utilities.getUuid().replace(/-/g, '').slice(0, 15);
+      _upd['안내공유토큰'] = _guideToken;
     }
     touchCustomer(sheet, colOf, cust.num, _upd);
     if (_snapConsentNew) { try { if (typeof _recordHandler === 'function') _recordHandler(code, '스냅 기획 동의 · 처리방침 ' + SNAP_V2.from); } catch (e) {} }   // [SNAP_CONSENT] 처리이력에 한 줄
@@ -963,12 +982,15 @@ function handleGuideView(body) {
     var _ev = String(body.byEvent || '').trim();
     if (!/^[a-z0-9-]{5,40}$/i.test(_ev)) return { ok: false };
     var _gc = CacheService.getScriptCache(), _gk = 'gbe_' + _ev, _gv = _gc.get(_gk);
-    if (_gv) return _gv === '-' ? { ok: false } : { ok: true, g: _gv };
+    /* ★[DINE_RSVP_BYEVENT 2026-09-27 · DINING_RSVP 2-5] 오프라인 청첩장 단추 글을 바꾸려고 «식사 답을 받는 중인가»(rsvp)도 함께 돌려준다.
+       5분 캐시에도 함께 담는다('토큰|1'). 배포 직후 남아 있는 옛 캐시('토큰'만)는 rsvp 없이 읽는다(= 지금 글). */
+    if (_gv) { if (_gv === '-') return { ok: false }; var _gp = String(_gv).split('|'); return { ok: true, g: _gp[0], rsvp: _gp[1] === '1' }; }
     var _c2 = _findCustomerBy('eventId', _ev, false);
-    var _g2 = '';
+    var _g2 = '', _r2 = false;
     if (_c2 && !_guideExpired(_ymdOf(_c2.get('예식일')))) _g2 = String(_c2.get('안내공유토큰') || '').trim();
-    try { _gc.put(_gk, _g2 || '-', 300); } catch (e) {}
-    return _g2 ? { ok: true, g: _g2 } : { ok: false };
+    if (_g2 && typeof _dineRsvpOpen === 'function') { try { _r2 = _dineRsvpOpen(_c2); } catch (e0) { _r2 = false; } }
+    try { _gc.put(_gk, _g2 ? (_g2 + '|' + (_r2 ? '1' : '0')) : '-', 300); } catch (e) {}
+    return _g2 ? { ok: true, g: _g2, rsvp: _r2 } : { ok: false };
   }
   var token = String((body && body.g) || '').trim();
   if (!token || token.length < 8 || token.length > 40) return { ok: false, error: '잘못된 주소예요.' };
@@ -994,6 +1016,9 @@ function handleGuideView(body) {
   var spots = _favs.filter(function (v) { return v && v.src === 'attr' && v.show === true; }).map(_mapItem);
   var diningOn = String(dd.dining_on || '').trim() !== 'N' && (restos.length > 0 || spots.length > 0 || _pick !== '');
   var seatTables = (Object.prototype.toString.call((d.seatDraft || {}).tables) === '[object Array]') ? d.seatDraft.tables : [];
+  /* ★[DINE_RSVP_VIEW 2026-09-27 · DINING_RSVP 4-2] 식사 답을 받는 중인가(rsvp) · 하객 마감(rsvpDue · 예식 7일 전) — 판정은 89_dine_rsvp _dineRsvpState 한 곳.
+     식당이 없어도 rsvp:true 면 guide.html 이 식사 칸을 그린다([MEAL_ASK_FIRST]). 89 파일을 붙이기 전에는 rsvp:false(종전 화면 그대로). */
+  var _drs = null; try { _drs = (typeof _dineRsvpState === 'function') ? _dineRsvpState(cust, d) : null; } catch (eDr) { _drs = null; }
   return {
     ok: true,
     guide: {
@@ -1002,7 +1027,8 @@ function handleGuideView(body) {
       date: _ymdOf(cust.get('예식일')) || '',
       dining: { on: diningOn, pick: _pick, restos: restos, spots: spots,
         rtime: String((dd.reserveTime != null) ? dd.reserveTime : (gi.reserveTime || '')).slice(0, 40),   // 예약 시간·예약자 — 다이닝 위저드 입력(2026-07-17 이동) · 키 자체가 없을 때만 구 guideinfo 폴백(빈 문자열='지움'은 존중 · 유령값 방지)
-        rname: String((dd.reserveName != null) ? dd.reserveName : (gi.reserveName || '')).slice(0, 30) },
+        rname: String((dd.reserveName != null) ? dd.reserveName : (gi.reserveName || '')).slice(0, 30),
+        rsvp: !!(_drs && _drs.open), rsvpDue: (_drs && _drs.open) ? _drs.due : '' },   // [DINE_RSVP_VIEW]
       seatToken: (seatTables.length ? String(cust.get('좌석공유토큰') || '').trim() : ''),   // 배치 있으면 guide가 '내 자리 찾기'로 seatView 재사용
       seatFull: (String(gi.seatMode || '') !== 'mine'),   // 좌석 공개 범위 — 기본 true(전체 배치도) · '내 자리만 검색' 체크 시 false. (eventId·live 필드 제거 2026-07-17 — 라이브 미전송)
       photoShare: (/^https?:\/\//i.test(String(gi.photoShareUrl || ''))) ? String(gi.photoShareUrl) : ''   // 하객 사진 모으기 링크 — guide가 '사진 올리기' 버튼으로 노출(부부 외부 앨범/오픈채팅 · http(s)만)
@@ -1657,6 +1683,7 @@ function buildProductionState(r) {
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
     photoFriendOk: true,                       // [PHOTO_FRIEND] 이 서버는 «친구들과 자유롭게»(photoFriend)를 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     snapZoneNoteOk: true,                      // ★[SNAP_ZONE_NOTE] 이 서버는 공간별 «사진작가에게 전할 말»(zones[k].note)을 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
+    dineRsvp: (function () { try { return (typeof _dineRsvpPublic === 'function') ? _dineRsvpPublic(r, draft) : null; } catch (e) { return null; } })(),   // ★[DINE_RSVP_STATE] 식사 답(스위치 · 식사 자리 · 끔 · 받는 중 · 마감) — 부부 화면은 live 일 때만 물음 · 덩어리를 연다(날짜를 화면에 박지 않는다) · 89 파일 전이면 null
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)
     diningDraft: draft.diningDraft || null,    // 다이닝 입력 이어하기용
