@@ -13095,3 +13095,9 @@ chk "'저장했어요 · 고른 장면은 아직 없어요'" mypage.html 1
 chk 'SNAP_WRAP_TAIL' mypage.html 3
 chk 'SNAP_LINK_TAP' mypage.html 1
 chk '#mp_snapOverlay \.ph-item \.ph-nm a{display:flex;align-items:center;min-height:44px}' mypage.html 1
+# [SNAP_PHOTOS_48] 예시 사진 48장 연결 · [SNAP_SHOW_ORDER] 사진 온 장면을 앞에(보여 주는 순서만) — 2026-09-27
+chk "img: 'c05-1'" assets/snap-refs.js 1
+chk "img: 'w12-3'" assets/snap-refs.js 1
+chk 'SNAP_PHOTOS_48' assets/snap-refs.js 1
+chk 'function _spShowOrder(list){' mypage.html 1
+chk "_spShowOrder(z.pick).map(function(s){" mypage.html 1
