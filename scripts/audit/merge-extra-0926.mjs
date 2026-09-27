@@ -50,7 +50,7 @@ await safe('P1-6 축사를 담은 날 «축사는 따로 두지 않았습니다�
   const sp = slugs(mk('speech')), vd = slugs(mk('video'));
   ok('P1-6 준비한 순서가 축사면 narr-toast-none 빠짐 · 영상이면 그대로 [SPEECH_NO_NONE]', sp.indexOf('narr-toast-none') < 0 && vd.indexOf('narr-toast-none') > -1 && sp.indexOf('toast-toast') > -1, JSON.stringify({ sp: sp.filter((x) => /toast/.test(x)), vd: vd.filter((x) => /toast/.test(x)) }));
   const pour = slugs({ course: openCourse, on: { toast: 1, free: 1 }, freeWhat: 'speech', freeLen: '2', toast: 'toast', wine: 'mix' }).filter((x) => /toast/.test(x));
-  ok('P1-6 축배만 + 두 와인 + 축사 — 붓기는 선창 앞(안내 줄이 없어도 같은 자리)', pour.indexOf('toast-pour-mix') > -1 && pour.indexOf('toast-pour-mix') < pour.indexOf('toast-toast'), pour.join(' '));
+  ok('P1-6 축배만 + (옛 값) 두 와인 + 축사 — [WINE_POUR_OFF] 붓기 없음 · 선창은 남는다', pour.every((x) => x.indexOf('toast-pour') < 0) && pour.indexOf('toast-toast') > -1, pour.join(' '));
 });
 {
   const kb = fs.readFileSync(path.join(ROOT, 'assets/advisor-kb.js'), 'utf8');

@@ -406,9 +406,10 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
     /* ★[PHOTO_THANKS 2026-09-26] 감사 인사 1분(PHOTO_THANKS)이 단체 사진 안에 들어와 구도 자리가 1분 준다 — 경계 칸이 움직였다(구현 뒤 게이트 값 · 코워크 표에 알림).
        옛 표: 기록 5/5 · 4/5 · 약속 4/5 · 3/5 · 가족 2/5 · 2/4 · 가장 긴 조합 0/3 · 0/2 */
     const WANT = [   // [이름, S, 단체 사진 a~b, 요청 0 k/max, 요청 2 k/max]
-      ['기록', O.applyExample({}, 'record'), '23~28', '4/5', '4/5'], ['약속', O.applyExample({}, 'promise'), '20~26', '3/5', '3/5'],
-      ['가족', O.applyExample({}, 'family'), '16~23', '2/4', '1/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
-      ['가장 긴 조합', longest, '9~17', '0/2', '0/2']];
+      /* [WINE_POUR_OFF 2026-09-27] 와인 붓기를 걷어 본식이 약 30초 짧아졌다 — 옛 23~28 · 20~26 · 16~23(1/4) · 9~17 */
+      ['기록', O.applyExample({}, 'record'), '24~29', '4/5', '4/5'], ['약속', O.applyExample({}, 'promise'), '21~27', '3/5', '3/5'],
+      ['가족', O.applyExample({}, 'family'), '17~24', '2/4', '2/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
+      ['가장 긴 조합', longest, '10~18', '0/2', '0/2']];
     WANT.forEach(([nm, S, ab, w0, w2]) => {
       const sec = O.bodySec(S), r0 = F.cap({ summary: { sec } }, false, 0), r2 = F.cap({ summary: { sec } }, false, 2);
       const got = [`${r0.a}~${r0.b}`, `${r0.k}/${r0.max}`, `${r2.k}/${r2.max}`];
