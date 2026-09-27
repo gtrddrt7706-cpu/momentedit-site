@@ -97,8 +97,8 @@ for (const w of [390, 1280]) {
   await pg.click('#prev'); await pg.waitForTimeout(400);
   ok(`${w} ② «이전»은 앞 순간으로`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest'));
   /* [MK_PICK_TOP] 고르기가 먼저 · 그 아래 «고른 대로 들어 보기» · 흐름은 그 뒤 */
-  ok(`${w} ② 고르기 → «고른 대로 들어 보기» → 흐름 차례 [MK_PICK_TOP]`, await pg.evaluate(() => { const a = document.querySelector('.mk-pick .ls-vars'), b = document.querySelector('[data-fk="mkplay"]'), c = document.querySelector('.mk-flow'); const F = Node.DOCUMENT_POSITION_FOLLOWING; return !!a && !!b && !!c && !!(a.compareDocumentPosition(b) & F) && !!(b.compareDocumentPosition(c) & F) && /고른 대로 들어 보기/.test(b.textContent); }));
-  ok(`${w} ② 진행 줄 양끝 흐림(끝이 뚝 잘리지 않게) [MK_STRIP_FADE]`, await pg.evaluate(() => { const c = getComputedStyle(document.querySelector('#mkStrip .mk-sc')); return /gradient/.test(c.maskImage || c.webkitMaskImage || ''); }));
+  ok(`${w} ② 고르기 머리 줄 오른쪽에 «고른 대로 들어 보기»(한 줄) → 칩 → 흐름 [MK_PICK_TOP · MK_PICK_ROW]`, await pg.evaluate(() => { const a = document.querySelector('.mk-pick .ls-vars'), b = document.querySelector('.mk-pick .mk-sech [data-fk="mkplay"]'), c = document.querySelector('.mk-flow'); const F = Node.DOCUMENT_POSITION_FOLLOWING; return !!a && !!b && !!c && !!(b.compareDocumentPosition(a) & F) && !!(a.compareDocumentPosition(c) & F) && /고른 대로 들어 보기/.test(b.textContent) && Math.abs(b.getBoundingClientRect().top - document.getElementById('mkPickH').getBoundingClientRect().top) < 30; }));
+  ok(`${w} ② 진행 줄 — 모바일은 양끝 흐림(넘기기) · PC 는 줄바꿈(흐림 없음) [MK_STRIP_FADE · MK_STRIP_WRAP]`, await pg.evaluate((w) => { const c = getComputedStyle(document.querySelector('#mkStrip .mk-sc')); const m = /gradient/.test(c.maskImage || c.webkitMaskImage || ''); return w >= 1000 ? (!m && c.flexWrap === 'wrap') : (m && c.flexWrap === 'nowrap'); }, w));
   // 서약 쪽 — 흐름 · 참고 예시 · 두 칸
   await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(500);
   ok(`${w} ② 서약 쪽 머리 = 번호 · 이름 · 흐름에 «신랑 차례 · 신부 차례»`, await pg.evaluate(() => /혼인 서약/.test(document.getElementById('mkHead').textContent) && /신랑 차례/.test(document.querySelector('.mk-flow').textContent) && /신부 차례/.test(document.querySelector('.mk-flow').textContent)));
@@ -222,7 +222,7 @@ for (const w of [390, 1280]) {
   const pgT = async (k) => { await pg.evaluate((x) => mkGo(x), k); await pg.waitForTimeout(350); return pg.evaluate(() => document.getElementById('stage').textContent.replace(/\u00a0/g, ' ')); };
   const tRing = await pgT('ring'), tTrib = await pgT('tribute'), tToast = await pgT('toast'), tSum = await pgT('_sum');
   const w = { t: tSum };
-  ok('3-4 ② 반지 쪽 = 당일 가져오기 · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 양가 와인 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요 · 당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && /양가에서 와인 한 병씩 · 당일 가져오기/.test(tToast), tTrib.slice(0, 200));
+  ok('3-4 ② 반지 쪽 = 당일 가져오기 · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 양가 와인 당일', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요\s*당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && /양가에서 와인 한 병씩\s*당일 가져오기/.test(tToast), tTrib.slice(0, 200));
   ok('3-4 한눈에 보기 = 미완료 · 부모님께 부탁드릴 것 · 보낼 것 · 당일 챙길 것 · 도와주실 분 · D-7 없음 [MK_HELPERS]', /미완료 \d+/.test(tSum) && /부모님께 부탁드릴 것 \d+/.test(tSum) && /보낼 것/.test(tSum) && /당일 챙길 것/.test(tSum) && /도와주실 분/.test(tSum) && !/D-7|D-14/.test(tSum), tSum.slice(0, 300));
   /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 부모님께 드릴 말 칸은 미완료 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
   await pg.evaluate(() => mkGo('tribute')); await pg.waitForTimeout(300);
@@ -528,6 +528,35 @@ else {
   ok('11-2 PC ① 다음 단추 글 = «다음 · 하나씩 만들기» · 화면에 «보고 듣기» 없음 [PC_GO_LABEL]', g.length > 0 && g.every((t) => t === '다음 · 하나씩 만들기') && !(await pg.evaluate(() => /보고 듣기/.test(document.body.innerText))), JSON.stringify(g));
   await pg.screenshot({ path: path.join(os.tmpdir(), 'pc-go-1280.png') });
   await ctx.close();
+}
+/* ★[ONEMIN_HOME 2026-09-27] 1분 전 안내 — 식전 영상을 담으면 영상 뒤(식전 영상 쪽) · 안 담으면 하객 맞이 쪽 · 어느 쪽이든 사라지지 않는다 */
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
+  const r = await pg.evaluate(() => { const has = (k) => _lSteps(ENG, [k]).some((x) => /1분 전/.test((x.lab || '') + (x.txt || ''))); const out = {};
+    S.on.prevideo = 1; opSync(); out.onPre = has('prevideo'); out.onGuest = has('guest'); mkGo('guest'); render(); out.note = /1분\s전\s안내는\s식전\s영상이\s끝난\s뒤에\s흘러요/.test(document.querySelector('.mk-flow').textContent);
+    delete S.on.prevideo; opSync(); out.offGuest = has('guest'); out.all = _lSteps(ENG, _lRows()).some((x) => /1분 전/.test((x.lab || '') + (x.txt || ''))); return out; });
+  ok('12-1 1분 전 안내 — 식전 영상 있으면 그 뒤 · 하객 맞이 쪽에 «영상 뒤에 흘러요» 한 줄 · 식전 영상 없으면 하객 맞이 쪽 · 연습에서 안 사라짐 [ONEMIN_HOME]', r.onPre && !r.onGuest && r.note && r.offGuest && r.all, JSON.stringify(r));
+  /* [MK_COPY_RIGHT] 녹음 카드 — «읽을 글 복사하기»는 제목 줄 오른쪽 · 누르면 그 아래 «복사됐어요» */
+  await pg.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); render(); window.__clip = ''; navigator.clipboard.writeText = (t) => { window.__clip = t; return Promise.resolve(); }; }); await pg.waitForTimeout(300);
+  const c0 = await pg.evaluate(() => { const b = document.querySelector('[data-fk="mkupcopy"]'), h = document.getElementById('mkVoiceH'); return { same: !!b && Math.abs(b.getBoundingClientRect().top - h.getBoundingClientRect().top) < 30, right: !!b && b.getBoundingClientRect().left > h.getBoundingClientRect().right }; });
+  await pg.click('[data-fk="mkupcopy"]'); await pg.waitForTimeout(300);
+  const c1 = await pg.evaluate(() => ({ msg: (document.querySelector('.mk-copied') || {}).textContent || '', clip: window.__clip }));
+  ok('12-2 «읽을 글 복사하기» = 제목 줄 오른쪽 · 누르면 아래 «복사됐어요» · 네 녹음 글이 들어간다 [MK_COPY_RIGHT]', c0.same && c0.right && /^복사됐어요/.test(c1.msg) && (c1.clip.match(/^\[/gm) || []).length === 4, JSON.stringify({ c0, msg: c1.msg, n: (c1.clip.match(/^\[/gm) || []).length }));
+  ok('12 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★[MK_STRIP_WRAP 2026-09-27] PC 진행 줄 — 줄바꿈으로 전부 보인다(오른쪽 잘림 0) · 모바일은 한 줄 넘기기 */
+{
+  for (const w of [1280, 390]) {
+    const { ctx, pg } = await open(w);
+    await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200); await clickNext(pg); await pg.waitForTimeout(400);
+    const r = await pg.evaluate(() => { const sc = document.querySelector('#mkStrip .mk-sc'), b = sc.getBoundingClientRect(), its = [...sc.querySelectorAll('.mk-it')]; const tops = new Set(its.map((x) => Math.round(x.getBoundingClientRect().top)));
+      return { cut: its.filter((x) => x.getBoundingClientRect().right > b.right + 1).length, lines: tops.size, scroll: sc.scrollWidth > sc.clientWidth + 1 }; });
+    if (w >= 1000) ok(`${w} ② 진행 줄 — 줄바꿈 · 잘린 칸 0 · 두 줄 안팎 [MK_STRIP_WRAP]`, r.cut === 0 && r.lines >= 1 && r.lines <= 3 && !r.scroll, JSON.stringify(r));
+    else ok(`${w} ② 진행 줄 — 한 줄 넘기기(줄바꿈 없음) [MK_STRIP_WRAP]`, r.lines === 1 && r.scroll, JSON.stringify(r));
+    await ctx.close();
+  }
 }
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
