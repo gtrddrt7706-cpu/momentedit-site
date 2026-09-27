@@ -184,14 +184,15 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   const css = (sel) => ((my.match(new RegExp('\\n' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\{([^}]*)\\}')) || [])[1] || '');
   const SNAP_STEPS_S = ((my.match(/var SNAP_STEPS=\[([^\n]*)\];/) || [])[1] || '').split('},{').map((x) => (x.match(/s:'([^']*)'/) || [])[1]);
   t(/border-top-color:var\(--seal\)/.test(css('.wz-steps li.on')) && /wzSteps\(SNAP_STEPS\.map\(/.test(my), '진사 점 ① 지금 걸음 — 진행 표시 윗선(공용 .wz-steps)');
-  t(/background:var\(--seal\)/.test(css('.snp-no')), '진사 점 ② 고른 순서 번호');
+  t(/background:var\(--seal\)/.test(css('.snp-pk.on span')), '진사 점 ② 고른 순서 번호');   // [SNAP_PHOTO_FIRST] .snp-no → 사진 오른쪽 위 순번 원(.snp-pk)
   // [SNAP_FLOW_TEXT 2026-09-27 사장님 결정 A · 지시문 6편 3부 5] 흐름 줄은 글자 한 줄 — 진사는 앞의 5px 점만(글자는 --accent 500 · 알약 테두리 · 바탕 없음)
   t(/background:var\(--seal\)/.test(css('.snp-fl.on::before')) && /width:5px;height:5px/.test(css('.snp-fl.on::before')) && /color:var\(--accent\)/.test(css('.snp-fl.on')) && css('.snp-fl.on').indexOf('--seal') === -1 && !/border|background/.test(css('.snp-fl')), '진사 점 ③ 흐름의 «촬영» 칸 — 앞의 5px 점만 진사 · 글자 한 줄(알약 없음)');
   t(/color:var\(--seal\)/.test(css('.snp-due-k')), '진사 점 ④ «마감» 라벨');
-  t(!!css('.snp-tile.on') && css('.snp-tile.on').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-tile.on')) && css('.snp-tile.on .snp-nm').indexOf('--seal') === -1, '고른 장면 테두리 · 이름은 금빛/먹빛(진사 테두리로 되돌리지 않는다)');
+  // [SNAP_PHOTO_FIRST 2026-09-27] 고르는 칸이 사진 중심(.snp-cell · .snp-pv · .snp-pk)으로 바뀌었다 — 같은 결정(테두리는 금빛 · 진사는 순번 원만)을 새 이름으로 잰다
+  t(!!css('.snp-cell.on .snp-pv') && css('.snp-cell.on .snp-pv').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-cell.on .snp-pv')), '고른 장면 테두리는 금빛(진사 테두리로 되돌리지 않는다)');
   const snpSeal = (my.match(/\n\.snp-[^{]*\{[^}]*var\(--seal[^}]*\}/g) || []).map((x) => x.trim().split('{')[0]);
   // [SPEC6_P2 2026-09-27] 점 셋을 더했다 — 목록의 고른 순번(.snp-li.on .snp-li-no · 22px 원) · 한 줄 알림 앞 5px 점(다 고름 · 링크 오류 · 한도)
-  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-fl.on', '.snp-fl.on::before', '.snp-due-k', '.snp-li.on .snp-li-no', '.snp-full::before,.snp-err::before,.snp-lim::before'];   // [SNAP_FLOW_TEXT] 흐름 칸 진사는 ::before 점으로 옮겼다
+  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-fl.on', '.snp-fl.on::before', '.snp-due-k', '.snp-li.on .snp-li-no', '.snp-pk.on span', '.snp-full::before,.snp-err::before,.snp-lim::before'];   // [SNAP_FLOW_TEXT] 흐름 칸 진사는 ::before 점으로 옮겼다
   t(snpSeal.every((k) => ok5.indexOf(k) > -1), '스냅 화면 진사 = 정한 점들뿐 — 지금 ' + snpSeal.join(', '));
   t(!/\n\.snp-steps?[{:.:]/.test(my) && my.indexOf('<ol class="snp-steps"') === -1, '[WZ_STEPS] 걸음 동그라미(.snp-steps · .snp-step) 없음 — 되살리면 빨강');
   t(/wzSteps\(SNAP_STEPS\.map\(function\(x\)\{ return x\.s; \}\), st, 'data-sstep', true\)/.test(my) && SNAP_STEPS_S.length === 5 && SNAP_STEPS_S.every((x) => x && x.length <= 4), '[WZ_STEPS] 스냅 = 공용 진행 표시 · 다섯 걸음 다 누른다(종전 동그라미와 같은 길) · 이름 네 글자 안(390 한 칸 60px) — ' + SNAP_STEPS_S.join(' · '));
@@ -202,7 +203,7 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
 {
   const cut = (a, b) => { const i = my.indexOf(a); if (i < 0) return ''; const j = my.indexOf(b, i + a.length); return j < 0 ? '' : my.slice(i, j); };
   const zoneF = cut('function _spZone(', '\nfunction '), bindF = cut('function _spBind(', '\n}'), card = cut('function renderSnap(p){', '\nfunction seatDrinkCounts('), exitA = cut('function _snapExitAsk(){', '\n}');
-  t(/function _spHasImg\(R, z\)\{ return z\.base\.concat\(z\.pick\)\.some\(function\(s\)\{ return !!R\.img\(s\); \}\); \}/.test(my) && /if\(img\) h\+='<div class="snp-grid">/.test(zoneF) && /else h\+='<div class="snp-list"/.test(zoneF), '[SNAP_NOIMG_LIST] 사진 없는 공간 = 한 줄 목록 · 한 장이라도 있으면 칸(R.img 판정)');
+  t(/function _spHasImg\(R, z\)\{ return z\.base\.concat\(z\.pick\)\.some\(function\(s\)\{ return !!R\.img\(s\) \|\| \(s\.ex\|\|\[\]\)\.some\(function\(e\)\{ return !!R\.exImg\(e\); \}\); \}\); \}/.test(my) && /if\(img\) h\+='<div class="snp-grid">/.test(zoneF) && /else h\+='<div class="snp-list"/.test(zoneF), '[SNAP_NOIMG_LIST] 사진 없는 공간 = 한 줄 목록 · 한 장이라도 있으면 칸(R.img 판정)');
   t(!/mpAlert\('공간마다/.test(bindF) && /class="snp-full" role="status">'\+L\.pick\+'장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요/.test(zoneF) && /aria-disabled="true"/.test(zoneF), '[SNAP_FULL_HINT] 다 고르면 한 줄 + 흐리게(aria-disabled) · 확인 창 없음');
   t(!/mpAlert\('http로/.test(bindF) && !/mpAlert\('이미 담긴/.test(bindF) && /aria-describedby="mp_snapLinkErr"/.test(zoneF) && /장까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF) && /개까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF), '[SNAP_INLINE_ERR] 링크 오류 · 한도는 칸 아래 한 줄');
   t(/title:'고르던 것을 이 기기에 둘까요\?'/.test(exitA) && /yes:'이 기기에 두고 나가기', no:'지우고 나가기'/.test(exitA) && /_snapLocalPut\(\); _snapTearDown\(\)/.test(exitA), '[SNAP_PRECONSENT_EXIT] 동의 전 나가기 판 = 이 기기에 둘까요 · 서버로는 보내지 않는다');

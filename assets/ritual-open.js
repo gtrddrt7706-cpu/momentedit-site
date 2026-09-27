@@ -23,9 +23,12 @@
   /* ★★[SPEECH_IN_FREE 2026-09-25 코워크 회신 둘째 판 · 사장님 결정 4] «축하의 말»을 따로 두지 않는다 —
        친구 · 가족의 축사는 «준비한 순서»의 한 판이다(부모님께 인사 뒤 · 3분 안 · 드물게 쓰임).
        첫째 판의 speech 칸(선언 바로 뒤)은 거뒀다. 되살리지 말 것 — 사장님 «준비한 순서만 추가 가능하게».
-     ★★[PREVIDEO_ALWAYS 2026-09-25 사장님 결정 2] 식전 영상은 늘 있다 — 영상이 없는 날은 두 분이 보낸 사진으로 저희가 3분 영상을 만든다. */
+     ★[PREVIDEO_ALWAYS 2026-09-25 사장님 결정 2 · 폐지] 식전 영상은 늘 있다 — 영상이 없는 날은 두 분이 보낸 사진으로 저희가 3분 영상을 만든다.
+     ★★[PREVIDEO_PICK 2026-09-27 사장님 «식전 영상은 필수로 하지 말자 · 선택할 수 있게»] 위 결정을 뒤집는다 — 식전 영상은 담는 순간이다(여는 순간 칸).
+       담으면 종전과 같다(영상이 없으면 사진으로 3분 영상 · 하객 맞이 03 과 04 사이). 안 담으면 하객 맞이 04 뒤 바로 본식.
+       예시 넷은 종전처럼 담아 둔다(예시 화면이 바뀌지 않게) · 빼는 것은 두 분이 고른다. 늘 있는 것은 입장 · 닫는 인사 둘. */
   var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'toast'];
-  var ALWAYS = { guest: 1, entry: 1, prevideo: 1 };
+  var ALWAYS = { guest: 1, entry: 1 };   // [PREVIDEO_PICK] prevideo 는 뺐다
   var PRE = { guest: 1, prevideo: 1 };          // 본식 시간에 들지 않는다(하객이 앉는 동안)
   var PICKABLE = ORDER.filter(function (k) { return !ALWAYS[k]; });
 
@@ -140,16 +143,16 @@
   /* ── 예시 넷(명세 5장) · on = 담는 순간(늘 있는 guest·entry 제외) · set = 판 ── */
   /* ★★[EXAMPLES_0925 2026-09-25 사장님 결정 3 · 코워크 회신 둘째 판 4-5] 기록 · 약속에 부모님께 인사를 더함 ·
        전부는 인사 한마디를 «서로의 부모님께»(편지를 각자 부모님께 쓰므로 · TRIBUTE_CROSS).
-     ★식전 영상은 넷 모두 늘 있다(PREVIDEO_ALWAYS). 준비한 순서는 어느 예시에도 없다 — «고객이 특별히 준비했을 때만 · 몇 없음»(사장님).
+     ★식전 영상은 넷 모두 담아 둔다(PREVIDEO_PICK · 종전 PREVIDEO_ALWAYS 와 같은 화면). 준비한 순서는 어느 예시에도 없다 — «고객이 특별히 준비했을 때만 · 몇 없음»(사장님).
        기록은 12~17분 그대로(«시간보다 자연스러운 예식» — 사장님). */
   var EXAMPLES = [
     /* ★★[EX_BRIEF 2026-09-26 사장님 결정 · 코워크 회신 9/26 3-2] 넷째 «전부» → «간결» · «약속»의 부모님께 인사 → 말 없이.
          «전부»(all)는 거뒀다 — 저장된 초안의 pickFrom:'all' 은 exampleOf 가 null 이라 originOf 가 «직접 고르셨어요.»로 조용히 보인다
          (담은 순간은 그대로). 되살리지 말 것. feel = 카드의 분위기 한 줄(① 개편 [PICK_V2] 이 쓴다). */
-    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 단체 사진을 넉넉히', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'A', declare: 'clap', tribute: 'none', toast: 'both', wine: 'mix' } },
-    { k: 'promise', nm: '약속', title: '서로에게 쓴 말', feel: '서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹', on: ['candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'letter', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'none', letter: 'each', toast: 'both', wine: 'mix' } },
-    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long', toast: 'both', wine: 'family' } },
-    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['vow', 'ring', 'declare', 'toast'], set: { entry: 'A', declare: 'solemn', toast: 'both', wine: 'mix' } }
+    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 단체 사진을 넉넉히', on: ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'A', declare: 'clap', tribute: 'none', toast: 'both', wine: 'mix' } },
+    { k: 'promise', nm: '약속', title: '서로에게 쓴 말', feel: '서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹', on: ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'letter', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'none', letter: 'each', toast: 'both', wine: 'mix' } },
+    { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long', toast: 'both', wine: 'family' } },
+    { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'vow', 'ring', 'declare', 'toast'], set: { entry: 'A', declare: 'solemn', toast: 'both', wine: 'mix' } }
   ];
   function exampleOf(k) { for (var i = 0; i < EXAMPLES.length; i++) if (EXAMPLES[i].k === k) return EXAMPLES[i]; return null; }
   // 예시를 S 에 입힌다 — 순간은 통째로 바꾸고, 판은 기본 위에 예시 값을 얹는다
@@ -554,7 +557,7 @@
 
   /* ── 시작점 줄(명세 3-4) — 예시에서 시작했으면 무엇이 달라졌나 ── */
   function originOf(S) {
-    if (!picked(S).length) return '아직 담은 순간이 없어요. 식전 영상 · 입장 · 닫는 인사는 늘 있어요.';   // [WHY_NEIGHBOR 2-7] PREVIDEO_ALWAYS
+    if (!picked(S).length) return '아직 담은 순간이 없어요. 입장 · 닫는 인사는 늘 있어요.';   // [WHY_NEIGHBOR 2-7] [PREVIDEO_PICK] 식전 영상은 이제 담는 순간
     var ex = exampleOf(S.pickFrom);
     if (!ex) return '직접 고르셨어요.';
     var base = {}, bits = [], diff = 0;

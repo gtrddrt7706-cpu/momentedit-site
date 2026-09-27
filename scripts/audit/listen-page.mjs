@@ -102,7 +102,7 @@ for (const w of [390, 1280]) {
   await pg.click('.ls-hero'); await pg.waitForTimeout(700);
   ok(`${w} ② «처음부터 보고 듣기» → 크게 보기 · 식전 표시 · 본식부터 단추 · 뒤는 inert`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /식전/.test(f.querySelector('.lf-h').textContent) && !!f.querySelector('[data-fk="lfskip"]') && f.querySelector('.lf-txt').textContent.length > 10 && document.querySelector('.wrap').hasAttribute('inert'); }));
   await pg.click('[data-fk="lfskip"]'); await pg.waitForTimeout(400);
-  ok(`${w} ② 본식부터 보기 → «1 / N»`, await pg.evaluate(() => /^1 \/ \d+$/.test(document.querySelector('#lsFull .lf-h span').textContent.trim())));
+  ok(`${w} ② 본식부터 보기 → «연습 · 1 / N»(PRACTICE_CHOOSE 머리 이름)`, await pg.evaluate(() => /^연습 · 1 \/ \d+$/.test(document.querySelector('#lsFull .lf-h span').textContent.trim())));
   ok(`${w} ② 크게 보기의 자막 = 엔진 큐 문안`, await pg.evaluate(() => { const st = LP.q[LP.i]; return st && document.querySelector('.lf-txt').textContent === st.txt; }));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
   ok(`${w} ② Esc 로 크게 보기가 닫힌다(작게 · 뒤 잠금 풀림)`, await pg.evaluate(() => document.getElementById('lsFull').hidden && !document.querySelector('.wrap').hasAttribute('inert')));
@@ -385,6 +385,40 @@ else {
   const steps = await pg.evaluate(() => (window.STEPS || []).map((x) => x.k).join(','));
   ok('⑧ 옛 코스 초안 → 순간마다의 화면이 선다(보고 듣기 없음)', !/listen/.test(steps) && /course|tune|guest/.test(steps), steps);
   ok('⑧ 옛 코스 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+
+
+// ★[CHIP_NO_REPLAY · CHIP_STAY · PRACTICE_CHOOSE · REF_EXAMPLE 2026-09-27 사장님] 크게 보기 — 듣기와 고르기를 가른다 · 사람이 말하는 자리 = 참고 예시
+{
+  const { ctx, pg, errs } = await open(390);
+  await toPick(pg);
+  await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300);
+  await pg.evaluate(() => opToListen()); await pg.waitForTimeout(900);
+  await pg.evaluate(() => lsPlayAll()); await pg.waitForTimeout(600);
+  await pg.evaluate(() => { let g = 0; while (LP.cur !== 'entry' && g++ < 20) lsJump(1); }); await pg.waitForTimeout(300);
+  const a = await pg.evaluate(() => ({ mode: (document.querySelector('#lsFull .lf-mode') || {}).textContent || '', chips: document.querySelectorAll('#lsFull .op-chip').length, btn: !!document.querySelector('#lsFull [data-fk="lfchoose"]') }));
+  ok('9-1 연습 중 머리 «연습 · n / N» · 칩은 «이 순간 바꾸기» 안에 접힘 [PRACTICE_CHOOSE]', /^연습 · /.test(a.mode) && a.chips === 0 && a.btn, JSON.stringify(a));
+  await pg.click('#lsFull [data-fk="lfchoose"]'); await pg.waitForTimeout(300);
+  const b = await pg.evaluate(() => ({ p: LP.paused, c: LP.choose, tok: LP.tok, mode: document.querySelector('#lsFull .lf-mode').textContent, chips: document.querySelectorAll('#lsFull .op-chip').length }));
+  ok('9-2 «이 순간 바꾸기» → 멈춤 · «고르는 중» · 칩 펼침', b.p && b.c === 'entry' && /^고르는 중/.test(b.mode) && b.chips > 0, JSON.stringify(b));
+  const cur = await pg.evaluate(() => document.querySelector('#lsFull .op-chip[aria-checked="true"]').getAttribute('data-fk'));
+  await pg.click(`#lsFull [data-fk="${cur}"]`); await pg.waitForTimeout(250);
+  await pg.click('#lsFull [data-fk="lfc:entryScene:bow"]'); await pg.waitForTimeout(250);
+  const c = await pg.evaluate(() => ({ tok: LP.tok, p: LP.paused }));
+  ok('9-3 이미 고른 칩 · 소리 같은 칩(첫 모습)은 다시 틀지 않는다 [CHIP_NO_REPLAY]', c.tok === b.tok && c.p, JSON.stringify({ b: b.tok, c }));
+  const other = await pg.evaluate(() => [...document.querySelectorAll('#lsFull .op-chip[data-fk^="lfc:entry:"]')].find((x) => x.getAttribute('aria-checked') !== 'true').getAttribute('data-fk'));
+  await pg.click(`#lsFull [data-fk="${other}"]`); await pg.waitForTimeout(300);
+  const d = await pg.evaluate(() => { const r = { tok: LP.tok, stay: LP.stay, chips: document.querySelectorAll('#lsFull .op-chip').length }; let g = 0; while (!LP.paused && LP.cur === 'entry' && g++ < 30) _lNext(); r.after = { cur: LP.cur, p: LP.paused, hint: LP.hint, say: (document.querySelector('#lsFull .lf-state') || {}).textContent || '' }; return r; });
+  ok('9-4 소리 바뀌는 칩 → 그 순간만 다시 · 끝나면 다음으로 안 넘어가고 멈춰 선다 [CHIP_STAY]', d.tok > c.tok && d.stay === 'entry' && d.chips > 0 && d.after.cur === 'entry' && d.after.p && d.after.hint === 'heard' && /한 번 들려 드렸어요/.test(d.after.say), JSON.stringify(d));
+  await pg.click('#lsFull [data-fk="lfchoosedone"]'); await pg.waitForTimeout(300);
+  ok('9-5 «다 골랐어요 · 이어서 듣기» → 다시 흐르고 칩은 접힌다', await pg.evaluate(() => !LP.paused && LP.choose === null && document.querySelectorAll('#lsFull .op-chip').length === 0));
+  const e = await pg.evaluate(() => ({ q: LP.q.filter((x) => x.ref && x.k === 'welcome').map((x) => x.src).length, steps: _lSteps(ENG, _lRows()).filter((x) => x.ref).length, refSrc: LP.q.filter((x) => x.ref).every((x) => /\/assets\/audio\/cast\//.test(x.src) && x.txt.length > 20) }));
+  ok('9-6 첫인사 = 참고 예시 녹음(신랑 · 신부) · 대본 목록(④ 복사)에는 안 들어간다 [REF_EXAMPLE]', e.q === 2 && e.steps === 0 && e.refSrc, JSON.stringify(e));
+  await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].ref) && g++ < 40) { LP.i++; _lShow(); } }); await pg.waitForTimeout(300);
+  const f = await pg.evaluate(() => ({ badge: (document.querySelector('#lsFull .lf-ref') || {}).textContent || '', lab: (document.querySelector('#lsFull .lf-lab') || {}).textContent || '' }));
+  ok('9-7 참고 예시 화면 — «참고 예시» 표 · «이 소리는 예식에 나오지 않아요» · 이름표는 «신랑 차례»', /참고 예시/.test(f.badge) && /예식에 나오지 않아요/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
+  ok('9-8 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
 

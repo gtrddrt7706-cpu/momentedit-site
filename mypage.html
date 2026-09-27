@@ -630,26 +630,42 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .snp-cnt{font-family:var(--sans);font-size:12.5px;font-weight:500;font-variant-numeric:lining-nums tabular-nums;color:var(--gold-deep)}   /* [SNAP_NUM_GOTHIC] Cormorant 옛 숫자(0 이 o 처럼) → 고딕 같은 폭 숫자 */
 .snp-opt,.opt-tag{font-size:12px;font-weight:400;color:var(--label-soft);letter-spacing:0}   /* ★[OPT_TAG 2026-09-27 사장님 «일관성»] «· 선택» 한 벌 — 스냅 12px · 가족·친구 스냅 14px(제목 크기 그대로) · 후기 11px(점 없이 «선택»)로 셋이었다 */
 .snp-note{margin:4px 0 0;font-size:12px;color:var(--label-soft);line-height:1.7;word-break:keep-all}
-.snp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 0}
-@media (min-width:600px){ .snp-grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
+.snp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 10px;margin:12px 0 0}
+@media (min-width:600px){ .snp-grid{gap:24px 14px} }   /* [SNAP_PHOTO_FIRST] 사진이 주인공 — 넓은 화면도 두 줄(여덟 장면이 넷 · 넷으로 떨어지고 사진이 크다 · 셋이면 끝줄이 빈다) */
+/* ★[SNAP_PHOTO_FIRST 2026-09-27 사장님] 사진 칸 — 테두리 없이 사진만(4:5 · 모서리 8) · 고르면 금빛 두 줄 테 + 진사 순번 원 · 이름은 사진 아래 */
+.snp-pv{position:relative;display:block;width:100%;aspect-ratio:4/5;margin:0;padding:0;border:0;border-radius:8px;overflow:hidden;background:var(--bg2);cursor:zoom-in;-webkit-tap-highlight-color:transparent}
+span.snp-pv{cursor:default}
+.snp-pv picture,.snp-pv img{display:block;width:100%;height:100%}
+.snp-pv img{object-fit:cover;transition:transform .45s var(--ease,ease)}
+@media (hover:hover){ button.snp-pv:hover img{transform:scale(1.02)} }
+.snp-pv-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;box-sizing:border-box;padding:14px 12px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);line-height:1.65;text-align:center;word-break:keep-all}
+.snp-pv-n{position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:rgba(28,27,25,.55);color:#fff;font-family:var(--sans);font-size:11px;line-height:1.6;font-variant-numeric:lining-nums tabular-nums}
+.snp-pv-ph ~ .snp-pv-n{background:rgba(28,27,25,.38)}
+.snp-cell.on .snp-pv{box-shadow:0 0 0 2px var(--gold-deep)}
+.snp-cell.full .snp-pv img,.snp-cell.full .snp-pv-ph{opacity:.55}
+.snp-pk{position:absolute;top:0;right:0;z-index:2;width:48px;height:48px;margin:0;padding:8px;border:0;background:none;display:flex;align-items:flex-start;justify-content:flex-end;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.snp-pk span{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;box-sizing:border-box;border-radius:999px;border:1.5px solid #fff;background:rgba(28,27,25,.28);color:#fff;font-family:var(--sans);font-size:12.5px;font-weight:500;font-variant-numeric:lining-nums tabular-nums;line-height:1;box-shadow:0 1px 4px rgba(28,27,25,.25)}   /* [SNAP_NUM_GOTHIC] 순번은 고딕 같은 폭 숫자 */
+.snp-pk.on span{border-color:var(--seal);background:var(--seal)}   /* [SNAP_TONE] 진사 점 — 고른 순번 */
+.snp-pk[aria-disabled="true"]{cursor:default;opacity:.5}
+.snp-pk:focus-visible{outline:none}
+.snp-pk:focus-visible span{outline:2px solid var(--gold-deep);outline-offset:2px}
+.snp-pv:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.snp-cap{display:block;padding:8px 2px 0}
+.snp-cap .snp-nm{display:block;padding:0;font-family:var(--serif-ko);font-size:13.5px;color:var(--accent);line-height:1.45;word-break:keep-all}
+.snp-cell.on .snp-cap .snp-nm{font-weight:500}
+.snp-fr{display:block;margin-top:1px;font-size:11px;color:var(--label-soft);line-height:1.5;word-break:keep-all}
+.snp-fr b{font-weight:400;color:var(--gold-deep)}
+.snp-grid.sm .snp-pv{border-radius:6px}
+.snp-grid.sm .snp-cap{padding-top:5px}
+.snp-grid.sm .snp-cap .snp-nm{font-size:12px;color:var(--sub)}
+.snp-grid.sm .snp-pv-ph{font-size:10.5px;padding:6px}
+.snp-grid.sm .snp-pv-n{display:none}
 .snp-grid.sm{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.snp-grid.sm .snp-tile{padding-bottom:8px;border-radius:6px}
+@media (min-width:600px){ .snp-grid.sm{gap:10px} }
 .snp-grid.sm .snp-nm{padding:6px 6px 0;font-size:12px}
-.snp-grid.sm .snp-tile .snp-ph{font-size:11px;text-align:center;padding:0 4px}
 .snp-cell{position:relative;min-width:0}
-.snp-tile{position:relative;display:flex;flex-direction:column;width:100%;height:100%;margin:0;padding:0 0 10px;text-align:left;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden;font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
-button.snp-tile{cursor:pointer}
-@media (hover:hover){ button.snp-tile:not(.on):not(.full):hover{border-color:var(--gold)} }   /* [SNAP_DESIGN_0926] web-design-guidelines — 고를 수 있는 칸은 마우스를 올리면 금빛 테두리(선택은 더 짙은 --gold-deep) */
-.snp-tile picture,.snp-tile .snp-ph{display:block;width:100%;aspect-ratio:4/5;background:var(--bg2)}
-.snp-tile img{display:block;width:100%;height:100%;object-fit:cover}
-.snp-tile .snp-ph{display:flex;align-items:center;justify-content:center;font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);letter-spacing:.04em}
 .snp-nm{display:block;padding:8px 10px 0;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.4;word-break:keep-all}
 .snp-need{display:block;padding:2px 10px 0;font-size:11px;color:var(--gold-deep);letter-spacing:.02em}
-.snp-tile.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep)}
-.snp-tile.on .snp-nm{color:var(--accent);font-weight:600}
-.snp-no{position:absolute;top:8px;left:8px;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--seal);color:#fff;font-family:var(--sans);font-size:12.5px;font-weight:500;font-variant-numeric:lining-nums tabular-nums;line-height:24px;text-align:center}   /* [SNAP_NUM_GOTHIC] */
-.snp-zoom{position:absolute;top:0;right:0;z-index:2;min-width:44px;min-height:44px;padding:6px;border:none;background:none;display:flex;align-items:flex-start;justify-content:flex-end;cursor:pointer}
-.snp-zoom span{font-size:11px;line-height:1.5;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--sub)}
 .snp-needs{list-style:none;margin:12px 0 0;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:12px;color:var(--sub);line-height:1.7;word-break:keep-all}
 .snp-needs li+li{margin-top:4px}
 .snp-needs b{color:var(--accent);font-weight:600}
@@ -677,7 +693,6 @@ button.snp-tile{cursor:pointer}
 .snp-cl{display:block;margin-top:2px}
 .snp-conf{color:var(--gold-deep)}
 .snp-reply{color:var(--sub);white-space:pre-line}
-.snp-tile:focus-visible,.snp-zoom:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
 .snp-x:focus-visible{outline:none}
 .snp-x:focus-visible span{outline:2px solid var(--gold-deep);outline-offset:2px}   /* [SNAP_MODAL_A11Y] 링은 보이는 22px 동그라미에 — 44px 칸 둘레에 그리면 썸네일 밖으로 나가 잘렸다 */
 /* ★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 가운데 정렬 카드 안에서 왼쪽 정렬(여러 줄 글).
@@ -720,21 +735,22 @@ button.snp-tile{cursor:pointer}
 .snp-lr{display:flex;align-items:stretch;border-top:1px solid var(--divider)}
 .snp-lr:first-child{border-top:0}
 .snp-lr .snp-li{flex:1 1 auto;min-width:0;border-top:0}
-.snp-exb{flex:0 0 60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;margin:0;padding:6px 4px;border:0;border-left:1px solid var(--divider);background:var(--bg2);font-family:var(--sans);font-size:11px;line-height:1.35;color:var(--sub);cursor:pointer;-webkit-tap-highlight-color:transparent;overflow:hidden;position:relative}
-.snp-exb b{font-weight:500;color:var(--accent);font-size:12px}
+.snp-exb{flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-width:44px;margin:0;padding:0 14px 0 6px;border:0;background:#fff;font-family:var(--sans);font-size:12.5px;line-height:1.35;color:var(--gold-text,#7A5F37);cursor:pointer;-webkit-tap-highlight-color:transparent;overflow:hidden;position:relative;white-space:nowrap}   /* [SNAP_PHOTO_FIRST] 시안 B(사장님 선택) — 회색 칸 대신 글 «예시 ›» */
+.snp-lr .snp-li.on + .snp-exb{background:var(--gold-bg)}
 .snp-exb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .snp-exb:focus-visible{outline:2px solid var(--gold-deep);outline-offset:-2px}
 @media (hover:hover){ .snp-exb:hover{background:var(--gold-bg)} }
 .snp-exv{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(40,32,24,.5)}
-.snp-exv-card{width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:12px;box-shadow:0 18px 60px rgba(28,27,25,.30);padding:16px 16px 18px;box-sizing:border-box}
+.snp-exv-card{width:min(480px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:12px;box-shadow:0 18px 60px rgba(28,27,25,.30);padding:16px 16px 18px;box-sizing:border-box}
 .snp-exv-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:0 0 12px}
 .snp-exv-t{font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);line-height:1.4;margin:0}
 .snp-exv-s{font-size:12px;color:var(--label-soft);line-height:1.5;margin:2px 0 0}
 .snp-exv-s b{font-weight:400;color:var(--gold-deep)}
 .snp-exv-x{flex:0 0 auto;min-width:44px;min-height:44px;margin:-8px -6px 0 0;padding:0 8px;border:0;background:none;font-family:var(--sans);font-size:13px;color:var(--sub);cursor:pointer}
-.snp-exv-trk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:8px;overscroll-behavior-x:contain}
+.snp-exv-trk{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 6%;scrollbar-width:none;border-radius:8px;overscroll-behavior-x:contain}   /* [SNAP_PHOTO_FIRST] 다음 사진이 살짝 보여 넘기는 줄 안다 */
 .snp-exv-trk::-webkit-scrollbar{display:none}
-.snp-exv-sl{flex:0 0 100%;margin:0;scroll-snap-align:center}
+.snp-exv-sl{flex:0 0 88%;margin:0;scroll-snap-align:center}
+.snp-exv-trk>.snp-exv-sl:only-child{flex-basis:100%}
 .snp-exv-sl picture,.snp-exv-sl img,.snp-exv-ph{display:block;width:100%;aspect-ratio:4/5;border-radius:8px}
 .snp-exv-sl img{object-fit:cover;background:var(--bg2)}
 .snp-exv-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;padding:28px 26px;background:var(--bg2);text-align:center}
@@ -751,7 +767,6 @@ button.snp-tile{cursor:pointer}
 .snp-base li{position:relative;padding-left:18px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);line-height:1.5;word-break:keep-all}
 .snp-base li::before{content:'✓';position:absolute;left:0;top:0;color:var(--gold-deep);font-family:var(--sans);font-size:12px}
 /* [SNAP_FULL_HINT] 4장면을 다 고르면 나머지를 흐리게 — 다섯째를 눌러야 알던 확인 창을 없앴다 */
-.snp-tile.full,.snp-li.full{opacity:.45;cursor:default}
 @media (hover:hover){ .snp-li:not(.full):hover{background:var(--gold-bg)} }
 /* [SNAP_FULL_HINT] [SNAP_INLINE_ERR] 한 줄 알림(앞에 5px 진사 점) — 4장면 다 고름 · 링크 오류 · 사진 · 링크 한도 */
 .snp-full,.snp-err,.snp-lim{position:relative;margin:8px 0 0;padding-left:13px;font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all;text-wrap:pretty}
@@ -9167,18 +9182,13 @@ function _snapLoadThumbs(){   // 올린 사진의 작은 그림 — 저장된 id
     if(SNAPFLOW.active) renderSnapFlow();
   }).catch(function(){});
 }
-function _spTile(s, on, no){   // 장면 타일 — 사진이 있으면 사진, 없으면 이름(촬영 전)
-  var R=window.SNAP_REFS, src=R.img(s,'webp'), jpg=R.img(s,'jpg');
-  var pic=src?('<picture><source srcset="'+src+'" type="image/webp"><img src="'+jpg+'" alt="" loading="lazy" decoding="async"></picture>'):('<span class="snp-ph" aria-hidden="true">'+escapeHtml(s.frame||'')+'</span>');
-  return pic+'<span class="snp-nm">'+escapeHtml(s.name)+'</span>'+((s.needs&&s.needs.length)?('<span class="snp-need">'+escapeHtml(s.needs.join(' · '))+'</span>'):'')+(no?('<span class="snp-no" aria-hidden="true">'+no+'</span>'):'');
-}
 /* ★[SNAP_EX_VIEW 2026-09-27 사장님] 예시 사진 — 장면마다 3장(assets/snap-refs.js ex). 사진이 오기 전엔 «어떤 사진인지» 글이 사진 자리에 뜬다. */
 function _spExList(s){ var R=window.SNAP_REFS; return (s&&s.ex&&s.ex.length)?s.ex:((R&&R.img(s))?[{t:s.name, img:s.img}]:[]); }
 function _spExBtn(s){
   var ex=_spExList(s); if(!ex.length) return '';
   var R=window.SNAP_REFS, im=R.exImg(ex[0],'jpg');
   return '<button type="button" class="snp-exb" data-sex="'+s.id+'" aria-label="'+escapeHtml(s.name)+' 예시 사진 '+ex.length+'장 보기">'
-    +(im?('<img src="'+im+'" alt="" loading="lazy" decoding="async">'):('<span aria-hidden="true">예시</span><b aria-hidden="true">'+ex.length+'장</b>'))+'</button>';
+    +(im?('<img src="'+im+'" alt="" loading="lazy" decoding="async">'):'<span aria-hidden="true">예시 ›</span>')+'</button>';
 }
 function _spExView(id, ctl){
   var R=window.SNAP_REFS, f=R&&R.scene(id); if(!f) return;
@@ -9202,7 +9212,7 @@ function _spExView(id, ctl){
   document.body.appendChild(m);
   var trk=m.querySelector('.snp-exv-trk'), cnt=m.querySelector('.snp-exv-cnt'), bp=m.querySelector('[data-exp]'), bn=m.querySelector('[data-exn]'), pk=m.querySelector('[data-expick]');
   function paintNav(){ if(cnt) cnt.textContent=(cur+1)+' / '+n; if(bp) bp.disabled=cur<=0; if(bn) bn.disabled=cur>=n-1; }
-  function go(k){ cur=Math.max(0,Math.min(n-1,k)); trk.scrollTo({left:cur*trk.clientWidth, behavior:'smooth'}); paintNav(); }
+  function go(k){ cur=Math.max(0,Math.min(n-1,k)); var el=trk.children[cur], f0=trk.children[0]; if(el&&f0) trk.scrollTo({left:el.offsetLeft-f0.offsetLeft, behavior:'smooth'}); paintNav(); }
   function paintPick(){ if(!pk||!ctl) return; var st=ctl.state();
     if(st.on){ pk.textContent='고른 장면에서 빼기'; pk.className='cc-btn-ghost snp-exv-pick'; pk.disabled=false; }
     else if(st.full){ pk.textContent=st.max+'장면을 다 골랐어요'; pk.className='cc-btn-ghost snp-exv-pick'; pk.disabled=true; }
@@ -9219,15 +9229,23 @@ function _spExView(id, ctl){
   m.querySelector('[data-exx]').addEventListener('click', close);
   if(bp) bp.addEventListener('click', function(){ go(cur-1); });
   if(bn) bn.addEventListener('click', function(){ go(cur+1); });
-  var _t=null; trk.addEventListener('scroll', function(){ clearTimeout(_t); _t=setTimeout(function(){ var k=Math.round(trk.scrollLeft/Math.max(1,trk.clientWidth)); if(k!==cur){ cur=k; paintNav(); } }, 60); }, {passive:true});
+  var _t=null; trk.addEventListener('scroll', function(){ clearTimeout(_t); _t=setTimeout(function(){ var sw=(trk.children[0]?trk.children[0].clientWidth+8:trk.clientWidth), k=Math.max(0,Math.min(n-1,Math.round(trk.scrollLeft/Math.max(1,sw)))); if(k!==cur){ cur=k; paintNav(); } }, 60); }, {passive:true});
   if(pk) pk.addEventListener('click', function(){ if(pk.disabled) return; ctl.toggle(); paintPick(); });
   paintNav(); paintPick();
   try{ bk=bkOpen(close); }catch(e){}
   var fx=m.querySelector('[data-exx]'); if(fx) fx.focus();
 }
-function _spZoom(s){   // 레퍼런스 사진이 들어온 장면만 «크게» — 44px 누름 칸 안에 작은 알약
-  return window.SNAP_REFS.img(s)?('<button type="button" class="snp-zoom" data-szoom="'+s.id+'" aria-label="'+escapeHtml(s.name)+' 크게 보기"><span aria-hidden="true">크게</span></button>'):'';
+/* [SNAP_PHOTO_FIRST] 장면 사진 한 칸 — 대표 사진(img 또는 예시 첫 장) · 누르면 크게. 사진이 아직 없는 장면은 같은 자리에 «어떤 사진인지» 글 */
+function _spCover(s){ var R=window.SNAP_REFS; if(R.img(s)) return {w:R.img(s,'webp'), j:R.img(s,'jpg')}; var e=(s.ex||[]).filter(function(x){ return !!R.exImg(x); })[0]; return e?{w:R.exImg(e,'webp'), j:R.exImg(e,'jpg')}:null; }
+function _spPv(s, kind){
+  var c=_spCover(s), ex=_spExList(s), n=ex.length;
+  var pic=c?('<picture><source srcset="'+c.w+'" type="image/webp"><img src="'+c.j+'" alt="" loading="lazy" decoding="async"></picture>')
+           :('<span class="snp-pv-ph" aria-hidden="true">'+escapeHtml((ex[0]&&ex[0].t)||s.name)+'</span>');
+  var lab=escapeHtml(s.name)+(n>1?(' 예시 사진 '+n+'장 크게 보기'):' 크게 보기');
+  return n?('<button type="button" class="snp-pv'+(kind?(' '+kind):'')+'" data-sex="'+s.id+'" aria-label="'+(kind==='base'?'기본 · ':'')+lab+'">'+pic+(n>1?('<span class="snp-pv-n" aria-hidden="true">'+n+'장</span>'):'')+'</button>')
+          :('<span class="snp-pv'+(kind?(' '+kind):'')+'" role="img" aria-label="'+escapeHtml(s.name)+'">'+pic+'</span>');
 }
+/* [SNAP_PHOTO_FIRST] 옛 _spTile(고르는 칸) · _spZoom(«크게» 알약)은 사진 중심 칸(_spPv · .snp-pk)으로 바뀌어 지웠다 — 사진을 누르면 곧 크게 */
 function _spNeedsOf(D){   // 고른 장면들의 준비물(중복 제거 · 먼저 나온 순서)
   var R=window.SNAP_REFS, out=[], seen={};
   ['candle','white'].forEach(function(k){ (((D.zones||{})[k]||{}).picks||[]).forEach(function(id){ var f=R.scene(id); ((f&&f.s.needs)||[]).forEach(function(n){ if(!seen[n]){ seen[n]=1; out.push(n); } }); }); });
@@ -9254,13 +9272,13 @@ function _spWhen(D, R, due){
   if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.late?('예식 14일 전이 지났어요. 지금 '+(_had?'고치셔도':'고르셔도')+' 디렉터에게 바로 전해져요.'):('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
   return h;
 }
-function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s); }); }   // [SNAP_NOIMG_LIST] 사진이 한 장이라도 들어온 공간 = 칸 · 없으면 목록
+function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||[]).some(function(e){ return !!R.exImg(e); }); }); }   // [SNAP_PHOTO_FIRST] 예시 사진이 한 장이라도 오면 그 공간은 사진 칸   // [SNAP_NOIMG_LIST] 사진이 한 장이라도 들어온 공간 = 칸 · 없으면 목록
 function _spZone(D, R, zi){
   var z=R.zones[zi], Z=D.zones[z.key], L=R.limits, h='', img=_spHasImg(R, z), full=Z.picks.length>=L.pick;
   h+='<h3 class="snp-h" tabindex="-1">'+escapeHtml(z.ko)+'</h3>';   // [SNAP_55] 공간별 분은 보이지 않는다 — 두 공간을 합쳐 첫 걸음에서 한 번만
   h+='<figure class="snp-zone"><picture><source srcset="'+z.photo+'" type="image/webp"><img src="'+z.photoJpg+'" alt="'+escapeHtml(z.ko)+' 공간" loading="lazy" decoding="async"></picture><figcaption><span class="en">'+escapeHtml(z.en)+'</span> · '+escapeHtml(z.mood)+'</figcaption></figure>';
   h+='<div class="snp-sub">기본으로 담아요</div><div class="snp-note">어느 두 분이든 이 네 장면은 꼭 담아요.</div>';
-  if(img) h+='<div class="snp-grid sm">'+z.base.map(function(s){ return '<div class="snp-cell"><div class="snp-tile base" role="img" aria-label="기본 · '+escapeHtml(s.name)+'">'+_spTile(s)+'</div>'+_spZoom(s)+'</div>'; }).join('')+'</div>';
+  if(img) h+='<div class="snp-grid sm">'+z.base.map(function(s){ return '<div class="snp-cell">'+_spPv(s, 'base')+'<span class="snp-cap"><span class="snp-nm">'+escapeHtml(s.name)+'</span></span></div>'; }).join('')+'</div>';   // [SNAP_PHOTO_FIRST] 기본 넷도 누르면 크게
   else h+='<ul class="snp-base" aria-label="기본으로 담는 네 장면">'+z.base.map(function(s){ return '<li>'+escapeHtml(s.name)+'</li>'; }).join('')+'</ul>';   // [SNAP_NOIMG_LIST] 사진이 없는 동안 — 작은 빈 칸 대신 2열 글 목록   // 기본은 고르는 칸이 아니라 작게 4칸 — 고르는 8장면이 주인공
   h+='<div class="snp-sub">마음에 드는 장면 <span class="snp-cnt">'+Z.picks.length+' / '+L.pick+'</span></div>';
   /* [SNAP_FULL_HINT 2026-09-27 지시문 6편 2부 2] 다 고르면 카운터 아래 한 줄 + 나머지는 흐리게(aria-disabled) — 다섯째를 눌러야 뜨던 확인 창은 없앴다 */
@@ -9268,7 +9286,11 @@ function _spZone(D, R, zi){
   h+='<div class="snp-note">먼저 고른 장면부터 찍어요. 시간이 줄면 앞 번호부터 담아요.</div>';
   var _lab=function(s, on, i, off){ return escapeHtml(s.name)+(on?(' · '+(i+1)+'번째로 고름'):'')+((s.needs&&s.needs.length)?(' · 준비물 '+escapeHtml(s.needs.join(', '))):'')+(off?(' · '+L.pick+'장면을 다 골랐어요'):''); };
   if(img) h+='<div class="snp-grid">'+z.pick.map(function(s){ var i=Z.picks.indexOf(s.id), on=i>-1, off=!on&&full;
-      return '<div class="snp-cell"><button type="button" class="snp-tile'+(on?' on':'')+(off?' full':'')+'" data-spick="'+s.id+'" aria-pressed="'+(on?'true':'false')+'"'+(off?' aria-disabled="true"':'')+' aria-label="'+_lab(s,on,i,off)+'">'+_spTile(s, on, on?(i+1):0)+'</button>'+_spZoom(s)+'</div>'; }).join('')+'</div>';
+      /* ★[SNAP_PHOTO_FIRST 2026-09-27 사장님] 사진 중심 — «사진이 크게 보이는 게 중요 · 사진만 보고 누를 수 있게».
+         사진을 누르면 크게(예시 3장 넘겨 보기 · 그 안에서 고르기) · 오른쪽 위 동그라미 = 바로 고르기(고르면 진사 원 + 순번) · 이름은 사진 아래. */
+      return '<div class="snp-cell'+(on?' on':'')+(off?' full':'')+'">'+_spPv(s)
+        +'<button type="button" class="snp-pk'+(on?' on':'')+'" data-spick="'+s.id+'" aria-pressed="'+(on?'true':'false')+'"'+(off?' aria-disabled="true"':'')+' aria-label="'+_lab(s,on,i,off)+'"><span aria-hidden="true">'+(on?(i+1):'')+'</span></button>'
+        +'<span class="snp-cap"><span class="snp-nm">'+escapeHtml(s.name)+'</span><span class="snp-fr">'+escapeHtml(s.frame||'')+((s.needs&&s.needs.length)?('<b> · 준비물 '+escapeHtml(s.needs.join(' · '))+'</b>'):'')+'</span></span></div>'; }).join('')+'</div>';
   /* [SNAP_NOIMG_LIST] 한 줄 목록 — 왼쪽 동그라미(고르면 진사 원 + 순번) · 이름 · 준비물 · 오른쪽 구도 */
   else h+='<div class="snp-list" role="group" aria-label="마음에 드는 장면">'+z.pick.map(function(s){ var i=Z.picks.indexOf(s.id), on=i>-1, off=!on&&full;
       return '<div class="snp-lr"><button type="button" class="snp-li'+(on?' on':'')+(off?' full':'')+'" data-spick="'+s.id+'" aria-pressed="'+(on?'true':'false')+'"'+(off?' aria-disabled="true"':'')+' aria-label="'+_lab(s,on,i,off)+(s.frame?(' · '+escapeHtml(s.frame)):'')+'">'

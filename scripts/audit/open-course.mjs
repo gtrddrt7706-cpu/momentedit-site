@@ -35,7 +35,7 @@ const SEC = { record: '11:49~16:49', promise: '13:55~20:00', brief: '8:24~12:25'
 for (const k in SEC) { const b = O.bodySec(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› ${SEC[k]}`, mmss(b[0]) + '~' + mmss(b[1]) === SEC[k], mmss(b[0]) + '~' + mmss(b[1])); }
 ok('예시 넷에는 준비한 순서가 없다 · 알림 없음', O.EXAMPLES.every((e) => e.on.indexOf('free') < 0 && !O.noticeOf(O.applyExample({}, e.k))));
 ok('인사 한마디씩 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 한마디씩»', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'one'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 한마디씩'; })());
-ok('[EX_BRIEF] 넷째 예시는 «간결»(서약 · 반지 · 선언 · 축배) · «전부»(all)는 거뒀다 · 약속의 인사는 말 없이', O.EXAMPLES.map((e) => e.k).join(',') === 'record,promise,family,brief' && !O.exampleOf('all') && O.exampleOf('brief').on.join(',') === 'vow,ring,declare,toast' && O.exampleOf('promise').set.tribute === 'none' && O.originOf({ on: { vow: 1 }, pickFrom: 'all' }) === '직접 고르셨어요.');
+ok('[EX_BRIEF] 넷째 예시는 «간결»(서약 · 반지 · 선언 · 축배) · «전부»(all)는 거뒀다 · 약속의 인사는 말 없이', O.EXAMPLES.map((e) => e.k).join(',') === 'record,promise,family,brief' && !O.exampleOf('all') && O.exampleOf('brief').on.join(',') === 'prevideo,vow,ring,declare,toast' && O.exampleOf('promise').set.tribute === 'none' && O.originOf({ on: { vow: 1 }, pickFrom: 'all' }) === '직접 고르셨어요.');
 const E = O.span({ on: {} });
 ok('빈 채 시작: 본식 약 2~3분 · 단체 사진 약 37~38분', E.body === '약 2~3분' && E.photo === '약 37~38분', `${E.body} / ${E.photo}`);
 ok('빈 채 시작: 알림 없음', O.noticeOf({ on: {} }) === '');
@@ -73,7 +73,8 @@ ok('준비한 순서 칩이 시간 · 준비 목록에 곧장', (() => { const S
   return a - b === 120 && Math.round(O.partsOf('free', S).reduce((x, y) => x + y) - 10) === 126 - 0 && /축사하실 분/.test(O.prepOf('free', S)[0][1]); })());
 ok('축사 2분 = 대본 126초 · 넉넉 161초', (() => { const S = { on: { free: 1 }, freeWhat: 'speech', freeLen: '2' }; const p = O.partsOf('free', S); return p[0] + p[1] + p[2] === 126 && Math.round(p[0] + 1.25 * p[1] + p[2] + p[3]) === 161; })());
 ok('준비한 순서 자리 = 부모님께 인사 뒤 · 편지 앞', (() => { const q = O.bodySeq({ on: { declare: 1, tribute: 1, free: 1, letter: 1 } }); return q.indexOf('tribute') + 1 === q.indexOf('free') && q.indexOf('free') + 1 === q.indexOf('letter'); })());
-ok('식전 영상은 늘 있다(누를 수 없음)', !!O.ALWAYS.prevideo && O.PICKABLE.indexOf('prevideo') < 0 && O.seqOf({ on: {} }).indexOf('prevideo') > -1);
+/* ★[PREVIDEO_PICK 2026-09-27 사장님 «식전 영상은 필수로 하지 말자 · 선택할 수 있게»] 종전 «늘 있다(PREVIDEO_ALWAYS)»를 뒤집었다 */
+ok('식전 영상은 담는 순간(빈 채엔 없음 · 담으면 식전 · 예시 넷은 담아 둔다) [PREVIDEO_PICK]', !O.ALWAYS.prevideo && O.PICKABLE.indexOf('prevideo') > -1 && O.seqOf({ on: {} }).indexOf('prevideo') < 0 && O.seqOf({ on: { prevideo: 1 } }).indexOf('prevideo') > -1 && !!O.PRE.prevideo && O.EXAMPLES.every((e) => e.on.indexOf('prevideo') > -1));
 ok('«축하의 말» 칸은 거뒀다(축사는 준비한 순서의 한 판)', O.ORDER.indexOf('speech') < 0 && !O.CARDS.speech && O.CHIPS.free.some((c) => c[0] === 'speech'));
 
 /* ── 4. 고객 문구 — 금지어 · 전각 줄표 ── */
@@ -82,8 +83,8 @@ const TXT = JSON.stringify([O.CARDS, O.CHIPS, O.SECTIONS, O.EXAMPLES, O.NOTICE, 
 
 /* ── 5. 엔진 — 고른 값이 콘솔 큐로 그대로 간다 ── */
 const slugs = (S) => C.build(S, { mode: 'console' }).cues.map((c) => c.slug);
-ok('빈 채: 하객 맞이 넷 + 식전 영상 + 입장 + 닫는 인사(04 는 원래 판)', (() => { const r = C.build({ course: 'open', on: {} }, { mode: 'console' }); return r.seq.join(',') === 'guest,prevideo,entry' && slugs({ course: 'open', on: {} }).indexOf('guest-4-1min') > -1; })());
-ok('식전 영상은 03 과 04 사이(본식 시작 4분 전 · 시각고정)', (() => { const r = C.build({ course: 'open', on: {} }, { mode: 'console' }); const s = r.cues.map((c) => c.slug); const pv = r.cues[s.indexOf('narr-prevideo-in')];
+ok('빈 채: 하객 맞이 넷 + 입장 + 닫는 인사(식전 영상 없음 · 04 는 원래 판) [PREVIDEO_PICK]', (() => { const r = C.build({ course: 'open', on: {} }, { mode: 'console' }); const s = slugs({ course: 'open', on: {} }); return r.seq.join(',') === 'guest,entry' && s.indexOf('guest-4-1min') > -1 && s.indexOf('narr-prevideo-in') < 0; })());
+ok('식전 영상을 담으면 03 과 04 사이(본식 시작 4분 전 · 시각고정)', (() => { const r = C.build({ course: 'open', on: { prevideo: 1 } }, { mode: 'console' }); const s = r.cues.map((c) => c.slug); const pv = r.cues[s.indexOf('narr-prevideo-in')];
   return s.indexOf('guest-3-5min') < s.indexOf('narr-prevideo-in') && s.indexOf('narr-prevideo-in') < s.indexOf('guest-4-1min') && pv.fire === 'clock' && pv.atMin === -4; })());
 ok('화촉이 뒤에 오면 04 → 89(guest-4-1min-pre)', (() => { const s = slugs({ course: 'open', on: { candle: 1 } }); return s.indexOf('guest-4-1min-pre') > -1 && s.indexOf('guest-4-1min') < 0; })());
 ok('두 분 목소리면 04 는 그대로(첫 줄이 이미 맞다)', slugs({ course: 'open', on: { candle: 1 }, guestVoice: 'couple' }).indexOf('guest-4-1min') > -1);
@@ -142,7 +143,7 @@ if (process.argv.includes('--live')) {
       moves: document.querySelectorAll('.mvb').length, locks: document.querySelectorAll('.pk-fix').length, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
     let s = await g();
     ok(`${w} 빈 채 — 아래 막대 «예시로 시작하거나 …» · 흐름 판 빈 글(숫자 비움)`, /예시로 시작하거나/.test(s.band) && /아직 담은 순간이 없어요/.test(s.empty), s.band + ' | ' + s.empty);
-    ok(`${w} 빈 채 알림 없음 · 늘 있어요 셋(식전 영상 · 입장 · 닫는 인사) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 3 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
+    ok(`${w} 빈 채 알림 없음 · 늘 있어요 둘(입장 · 닫는 인사 · 식전 영상은 담는 칸 [PREVIDEO_PICK]) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 2 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
     ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '축가', '추가 비용'].some((x) => s.text.indexOf(x) > -1));
     await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); s = await g();
     ok(`${w} ‹가족› 예시 → 본식 약 17~24분`, /약 17~24분/.test(s.band), s.band);
