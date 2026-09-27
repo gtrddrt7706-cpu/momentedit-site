@@ -1627,8 +1627,26 @@ function handleSnapBrief(body) {
   var sd = r.d.snapDraft || {}, zs = sd.zones || {}, ci = (_parseJsonSafe(r.cust.get('동의기록')) || {}).계약정보 || {};
   var zones = {}, okc = _snapConsentOk(r.m);   // [SNAP_CONSENT] 동의가 없으면 기획을 싣지 않는다 — 예식 일시와 사진작가 채우기 추천만(추천은 브리프 화면이 원천 fill 에서 그린다 · [SNAP_PICK_ALL] 9/27 부터 기본 장면 없음)
   ['candle', 'white'].forEach(function (k) { var z = okc ? (zs[k] || {}) : {}; zones[k] = { picks: _snapArr(z.picks), ups: _snapArr(z.ups).map(function (u) { return { id: u.id }; }), links: _snapArr(z.links), note: String(z.note || '') }; });   // [SNAP_ZONE_NOTE] 공간별 전할 말도 동의가 있을 때만
+  /* ★[PHOTO_TO_CREW 2026-09-27 사장님 «추천대로»] 가족 · 친구 스냅 계획도 브리프에 싣는다 — 종전엔 관리자 화면에만 있어 작가에게 닿지 않았다.
+       차례(부부 화면 [PHOTO_DAY_STEPS] · 당일 엔진과 같다): 전체 하객 → 꼭 담고 싶은 사진 → 감사 인사 → 가족 구도(고른 순서) → 남은 분들과 자유롭게.
+       ★구도 이름(가족 구도 목록 · 직접 추가 24자)은 늘 싣는다. 사람 이름이 들어갈 수 있는 칸(불러 모아 주실 분 · 요청 글 · 친구 부탁)은
+         스냅 기획과 같은 동의가 있을 때만([SNAP_CONSENT] okc · 사진작가 위탁 동의).
+       ★분 — 단체 사진 시간(부부 화면 photoCapOf 의 a~b 와 같은 셈: 40 − 본식 넉넉 합 ~ 40 − 본식 대본 합 · 40 = mypage PHOTO_DAY)과
+         지금 계획의 약 분(전체 하객 6 + 구도마다 3 + 요청 하나에 1 · 둘까지 = mypage photoMins). 식순 초안이 없으면 창은 싣지 않는다. */
+  var gi = r.d.guideinfoDraft || {}, ph = { names: _snapArr(gi.photo).map(function (x) { return String(x).slice(0, 24); }).filter(function (x) { return x; }).slice(0, 11) };
+  var _pw = _snapArr(gi.photoWish).filter(function (w) { return w && String(w.what || '').trim(); }).slice(0, 2);
+  var _pwn = _pw.length || Math.min(2, _snapArr(gi.photoFx).length);
+  ph.mins = 6 + 3 * ph.names.length + _pwn;
+  var _sec = ((r.d.ritualDraft || {}).summary || {}).sec;
+  if (_sec && _sec.length === 2 && +_sec[1] > 0) ph.win = [Math.round(40 - _sec[1] / 60), Math.round(40 - _sec[0] / 60)];
+  if (okc) {
+    ph.wish = _pw.map(function (w) { var rf = String(w.ref || ''); return { what: String(w.what).slice(0, 80), ref: /^https?:\/\//i.test(rf) ? rf.slice(0, 300) : '' }; });
+    var _pc = gi.photoCaller || {};
+    ph.caller = { groom: String(_pc.groom || '').slice(0, 40), bride: String(_pc.bride || '').slice(0, 40) };
+    ph.friend = String(gi.photoFriend || '').slice(0, 200);
+  } else ph.wishN = _pwn;
   return { ok: true, wed: _ymdOf(r.cust.get('예식일')) || '', arrive: String(ci.weddingTime || ''), zones: zones, note: okc ? String(sd.note || '') : '', consent: okc,
-    reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))) };
+    reply: (r.m.confirm && !r.m.stale) ? String(r.m.confirm.reply || '') : '', confirmed: !!(r.m.confirm && r.m.confirm.at && !r.m.stale), until: _snapBriefUntil(_ymdOf(r.cust.get('예식일'))), photo: ph };
 }
 function handleSnapBriefImg(body) {
   body = body || {};

@@ -2758,8 +2758,12 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +(_DECL_CARD_WHO.indexOf(s3d.declareWho)>=0?'<button type="button" class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" onclick="printDeclareCard()">낭독 카드</button>':'');
     /* ★[PHOTO_CALLER 2026-09-26 코워크 회신5 3-4] 당일 콘솔을 이 고객의 식순으로 연다 — 콘솔은 식순(S)을 주소로 받는다.
        «불러 모아 주실 분»도 함께 실어 콘솔 «촬영 안내 골라 틀기» 판 머리에 보이게 한다(디렉터가 이 분께 먼저 말씀드린다). */
-    try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')}; if(gi&&Array.isArray(gi.photo)) _cS.photoN=gi.photo.length; if(gi&&gi.photoFriend) _cS.photoFriend=String(gi.photoFriend).slice(0,200);   /* [PHOTO_FRIEND] 당일 콘솔 판 머리에 */   /* [GROUP_PHOTO 2026-09-26] 가족 구도 수 — 콘솔 narr-photo-split 의 est(3분 × 구도 수) */
-      if(gi&&Array.isArray(gi.photoWish)) _cS.photoWishN=Math.min(2,gi.photoWish.filter(function(w){ return w&&String(w.what||'').trim(); }).length); else if(gi&&Array.isArray(gi.photoFx)) _cS.photoWishN=Math.min(2,gi.photoFx.length);   /* [WISH_COUNT 2026-09-26 코워크 최종판 2-6] 적은 요청 수 — 콘솔 end-0-photo 목표(360 + 60 × 수) · 옛 저장분은 photoFx 로 */
+    try{ var _cS=JSON.parse(JSON.stringify(s3d)); if(gi&&gi.photoCaller) _cS.photoCaller={groom:String(gi.photoCaller.groom||''),bride:String(gi.photoCaller.bride||'')}; if(gi) _cS.photoN=Array.isArray(gi.photo)?gi.photo.length:0; if(gi&&gi.photoFriend) _cS.photoFriend=String(gi.photoFriend).slice(0,200);   /* [PHOTO_FRIEND] 당일 콘솔 판 머리에 */   /* [GROUP_PHOTO 2026-09-26] 가족 구도 수 — 콘솔 narr-photo-split 의 est(3분 × 구도 수) */
+      if(gi&&Array.isArray(gi.photoWish)) _cS.photoWishN=Math.min(2,gi.photoWish.filter(function(w){ return w&&String(w.what||'').trim(); }).length); else if(gi&&Array.isArray(gi.photoFx)) _cS.photoWishN=Math.min(2,gi.photoFx.length); else if(gi) _cS.photoWishN=0;
+      /* ★[PHOTO_TO_CREW 2026-09-27] 안내 트랙(gi)이 있으면 «안 고름»을 0 으로 분명히 싣는다 — 키가 없으면 엔진이 «모름»으로 보고 시간을 더 잡았다(구도 360초 · 요청 480초). 엔진은 그대로다.
+           그리고 당일 콘솔 판 머리에 구도 이름(촬영 순서) · 꼭 담고 싶은 사진(짧게)을 싣는다 — 주소 길이를 위해 이름 24자 · 요청 40자까지. */
+      if(gi&&Array.isArray(gi.photo)&&gi.photo.length) _cS.photoNames=gi.photo.slice(0,11).map(function(x){ return String(x).slice(0,24); });
+      if(gi&&Array.isArray(gi.photoWish)){ var _pwt=gi.photoWish.map(function(w){ return String((w&&w.what)||'').trim(); }).filter(Boolean).slice(0,2).map(function(t){ return t.length>40?(t.slice(0,39)+'…'):t; }); if(_pwt.length) _cS.photoWishT=_pwt; }   /* [WISH_COUNT 2026-09-26 코워크 최종판 2-6] 적은 요청 수 — 콘솔 end-0-photo 목표(360 + 60 × 수) · 옛 저장분은 photoFx 로 */
       _pbt+='<a class="btn-line" style="margin-left:6px;padding:3px 10px;font-size:12px" target="_blank" rel="noopener" href="/console.html?S='+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(_cS)))))+'">당일 콘솔</a>'; }catch(e){}
     h+='<div class="grp-l">식순 '+_pbt+'</div>'
       +row('코스', (sm3.course||'')+(sm3.count?(' · '+sm3.count+'개 순간'):'')+(sm3.min?(' · '+sm3.min):''))
@@ -2801,7 +2805,9 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
   /* ★[PHOTO_CALLER 2026-09-26 사장님 · 코워크 회신5 3-4] 가족사진 «불러 모아 주실 분» — 디렉터가 이 분께 먼저 말씀드린다. 고객 기기 값이라 esc(row 가 한다). */
   var _pcl=(gi&&gi.photoCaller)?[gi.photoCaller.groom?('신랑 쪽 · '+String(gi.photoCaller.groom)):'', gi.photoCaller.bride?('신부 쪽 · '+String(gi.photoCaller.bride)):''].filter(function(x){return x;}).join(' / '):'';
   var _pfr=(gi&&gi.photoFriend)?String(gi.photoFriend):'';   /* [PHOTO_FRIEND 2026-09-26 사장님] 친구들과 자유롭게 — 가족 구도 뒤 사진작가에게 부탁할 것(고객 글 · row 가 esc 한다) */
-  if(_pho||_pfx||_pwh||_psu||_pcl||_pfr) h+='<div class="grp-l">가족 · 친구 스냅</div>'+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('친구들과 자유롭게',_pfr)+row('꼭 담고 싶은 사진',_pwh)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
+  /* ★[WISH_ROW_HTML 2026-09-27] _pwh 는 이미 esc 한 조각 + <br> · <a>(참고 링크)다 — row() 가 한 번 더 esc 해 «&lt;br&gt;» 글자로 보이고 링크가 안 눌렸다. 날 HTML 로 넣는다(고객 글은 위에서 esc).
+  /* ★[PHOTO_DAY_STEPS 2026-09-27] 줄 순서 = 그날 차례(전체 하객 → 꼭 담고 싶은 사진 → 가족 구도 → 불러 모아 주실 분 → 친구들과 자유롭게) · 부부 화면 · 확인서 · 브리프와 같다 */
+  if(_pho||_pfx||_pwh||_psu||_pcl||_pfr) h+='<div class="grp-l">가족 · 친구 스냅</div>'+(_pwh?('<div class="kv"><span class="k">꼭 담고 싶은 사진(전체 하객 바로 뒤)</span><span class="v">'+_pwh+'</span></div>'):'')+row('구도(촬영 순서)',_pho)+row('불러 모아 주실 분',_pcl)+row('친구들과 자유롭게',_pfr)+row('함께 하는 동작(구)',_pfx)+lrow('하객 사진 모으기',_psu);   /* [ADM_LINK_CLICK] */
   // ★★[SNAP_PICK_V2 2026-09-26 사장님 회의] 스냅 기획 — 공간별 고른 장면(번호 = 우선순위 · 9/27 부터 기본 줄 없음) · 링크 · 올린 그림 · 한 칸 · 준비물 · 디렉터 확인·회신 · 촬영 브리프 주소.
   //   장면 이름·준비물은 assets/snap-refs.js(부부 화면·브리프와 같은 원천)에서 읽는다. 옛 칸(v1)이 있으면 아래 «옛 기록»으로만 보인다(SNAP_LEGACY_KEEP).
   var _smW=((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).snapMeta||{};   // [SNAP_CONSENT] 지운 기록(withdrawn)은 기획이 없어도 보인다
