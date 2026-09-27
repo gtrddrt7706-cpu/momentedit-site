@@ -21,7 +21,7 @@ process.on('exit', (code) => { if (bad && code === 0) process.exitCode = 1; });
 
 /* ── 1. 순서 · 코스 ── */
 ok('COURSES.open.seq = ritual-open.js ORDER (v4 · guest 포함)', JSON.stringify(D.COURSES.open.seq) === JSON.stringify(O.ORDER), D.COURSES.open.seq.join(','));
-ok('v4 순서(명세 0장)', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,bless,vow,ring,declare,tribute,free,letter,toast');
+ok('v4 순서(명세 0장)', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,bless,vow,ring,declare,tribute,free,letter,cake,toast');   // [CAKE_TOAST_SPLIT]
 ok('옛 코스 여섯은 지우지 않고 숨긴다(Q1 ①)', ['damback', 'gamdong', 'family', 'minimal', 'festive', 'record'].every((k) => D.COURSES[k] && D.COURSES[k].hidden));
 ok('새 코스도 옛 카드 목록엔 없다(hidden)', D.COURSES.open.hidden === true && D.COURSES.open.open === true);
 
@@ -36,7 +36,7 @@ const SEC = { record: '11:18~16:08', promise: '13:24~19:19', brief: '7:53~11:44'
 for (const k in SEC) { const b = O.bodySec(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› ${SEC[k]}`, mmss(b[0]) + '~' + mmss(b[1]) === SEC[k], mmss(b[0]) + '~' + mmss(b[1])); }
 ok('예시 넷에는 준비한 순서가 없다 · 알림 없음', O.EXAMPLES.every((e) => e.on.indexOf('free') < 0 && !O.noticeOf(O.applyExample({}, e.k))));
 ok('인사 한마디씩 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 한마디씩»', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'one'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 한마디씩'; })());
-ok('[EX_BRIEF] 넷째 예시는 «간결»(서약 · 반지 · 선언 · 축배) · «전부»(all)는 거뒀다 · 약속의 인사는 말 없이', O.EXAMPLES.map((e) => e.k).join(',') === 'record,promise,family,brief' && !O.exampleOf('all') && O.exampleOf('brief').on.join(',') === 'prevideo,vow,ring,declare,toast' && O.exampleOf('promise').set.tribute === 'none' && O.originOf({ on: { vow: 1 }, pickFrom: 'all' }) === '직접 고르셨어요.');
+ok('[EX_BRIEF] 넷째 예시는 «간결»(서약 · 반지 · 선언 · 축배) · «전부»(all)는 거뒀다 · 약속의 인사는 말 없이', O.EXAMPLES.map((e) => e.k).join(',') === 'record,promise,family,brief' && !O.exampleOf('all') && O.exampleOf('brief').on.join(',') === 'prevideo,vow,ring,declare,cake,toast' && O.exampleOf('promise').set.tribute === 'none' && O.originOf({ on: { vow: 1 }, pickFrom: 'all' }) === '직접 고르셨어요.');
 const E = O.span({ on: {} });
 ok('빈 채 시작: 본식 약 2~3분 · 단체 사진 약 37~38분', E.body === '약 2~3분' && E.photo === '약 37~38분', `${E.body} / ${E.photo}`);
 ok('빈 채 시작: 알림 없음', O.noticeOf({ on: {} }) === '');
@@ -64,9 +64,9 @@ ok('② 인사 400자 + 편지 부모님께 → 알림 ②', O.noticeOf({ on: { 
 /* [DETAIL_0925 A2] 알림 ③ 은 고른 순간이 넷 이상일 때만 — 셋 이하면 «끝이 조용하다»를 말하지 않는다 */
 ok('③ 축배 없음 + 끝이 선언 → 알림 ③(고른 순간 넷 이상일 때만)', O.noticeOf({ on: { declare: 1 } }) === ''
   && O.noticeOf({ on: { bless: 1, ring: 1, vow: 1, declare: 1 } }) === O.NOTICE.toast
-  && O.noticeOf({ on: { bless: 1, ring: 1, vow: 1, toast: 1 }, toast: 'cake' }) === O.NOTICE.toast
+  && O.noticeOf({ on: { bless: 1, ring: 1, vow: 1, cake: 1 } }) === O.NOTICE.toast   // [CAKE_TOAST_SPLIT] 케이크만 = 축배 없음
   && O.noticeOf({ on: { bless: 1, ring: 1, record: 1, declare: 1 } }) === ''
-  && O.noticeOf({ on: { bless: 1, ring: 1, declare: 1, toast: 1 }, toast: 'cake' }) === ''
+  && O.noticeOf({ on: { bless: 1, ring: 1, declare: 1, cake: 1 } }) === ''
   && O.noticeOf({ on: { bless: 1, ring: 1, declare: 1, toast: 1 } }) === '');
 /* [DETAIL_0925 A2] ④ 의 N 은 띠의 «사진과 인사» 아래 값(span.pa)과 같은 수 — 알림과 띠가 다른 숫자를 말하지 않는다 */
 ok('④ 가족 + 준비한 순서 3분 → 알림 ④(단체 사진 < 16분 · 띠와 같은 값) [RANGE_40]', (() => { const S = O.applyExample({}, 'family'); S.on.free = 1; const pa = O.span(S).pa; return O.noticeOf(S) === O.NOTICE.short(pa) && pa < 16 && O.SHORT_MIN === 16 && /단체 사진이 약/.test(O.NOTICE.short(pa)) && !/테이블/.test(O.NOTICE.short(pa)); })());

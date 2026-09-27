@@ -301,11 +301,12 @@
        (BUILD 가 그 키를 보기 때문이다 · 새 번역을 만들지 않는다). 옛 코스의 extra·off·ord 는 이 코스에 없다.
        ★옛 코스 초안에는 아무것도 안 바뀐다 — 아래는 open 일 때만 돈다(Q1 ② · 초안을 옮기지 않는다). */
     if (D.COURSES[s.course].open) {
+      O.migrateCakeToast(s);   // [CAKE_TOAST_SPLIT] 옛 초안 on.toast + S.toast → on.cake · on.toast
       var on = {};
       if (s.on && typeof s.on === 'object') for (k in s.on) if (s.on[k] && O.PICKABLE.indexOf(k) > -1) on[k] = 1;
       s.on = on; s.extra = {}; s.off = {}; s.ord = null;
       s.ring = on.ring ? 'on' : 'off'; s.bless = on.bless ? 'on' : 'off'; s.vow = 'ok';
-      if (!O.CHIPS.toast.some(function (c) { return c[0] === s.toast; })) s.toast = O.DEF.toast;
+      s.toast = O.toastMode(s);   // [CAKE_TOAST_SPLIT] 판은 담은 두 칸이 정한다
       if (!O.CHIPS.wine.some(function (c) { return c[0] === s.wine; })) s.wine = O.DEF.wine;
       if (!O.CHIPS.tribute.some(function (c) { return c[0] === s.tributeSay; })) s.tributeSay = O.DEF.tributeSay;
       if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
@@ -837,7 +838,23 @@
        이제 데이터가 박자를 들고 있고(nar / nar2 · est / est2) 엔진은 그대로 편다:
          [문안] → [사람 구간] → (둘 다면) [문안2] → [사람 구간2] → [마무리]
        마무리 문안도 모드에서 고른다 — 케이크만 골랐는데 잔 이야기가 나가던 자리를 막는다. */
+    /* ★★[CAKE_TOAST_SPLIT 2026-09-27] 새 코스는 케이크(cake) · 축배(toast) 두 순간이다 — 아래 _toastAll 이 만든 한 줄을 그대로 나눠 담는다.
+       케이크 몫: 케이크 커팅 줄(+ 케이크만이면 여는 말 · 케이크 마무리) · 축배 몫: 여는 말(둘 다면 여기로 옮김) · 잔 안내 · 선창 · 마무리.
+       ★둘 다 담은 날 «축사는 따로 두지 않았습니다»는 케이크 앞이 아니라 잔 안내 앞이다(축배 순간의 첫 줄) — 줄 수 · 녹음 · 합 시간 그대로.
+       옛 코스는 _toastAll 그대로(한 덩어리 · 소리 같음). */
+    cake: function (S) {
+      if (!D.COURSES[S.course] || !D.COURSES[S.course].open) return [];
+      var all = BUILD._toastAll(S), both = O.onOf(S, 'toast');
+      return all.filter(function (c) { return /^toast-(both|cake)$|^narr-cake-out$/.test(c.slug) || (!both && c.slug === 'narr-toast-none'); })
+        .map(function (c) { c.k = 'cake'; c.blockN = '케이크 커팅'; return c; });
+    },
     toast: function (S) {
+      if (!D.COURSES[S.course] || !D.COURSES[S.course].open) return BUILD._toastAll(S);
+      if (!O.onOf(S, 'toast')) return [];
+      return BUILD._toastAll(S).filter(function (c) { return !/^toast-(both|cake)$|^narr-cake-out$/.test(c.slug); })
+        .map(function (c) { c.blockN = '축배'; return c; });
+    },
+    _toastAll: function (S) {
       var t = D.TOAST[S.toast] || D.TOAST.toast;
       /* ★★[TOAST_NONE 2026-09-20 사장님 확정 「첫째 안」] 축배 앞에서 «축사가 없는 것»을 한 줄로 닫는다.
          사장님 지시 *「친구부분멘트 아예 삭제」* 로 배역 15_toast(하객대표 7문장)를 폐지했다.

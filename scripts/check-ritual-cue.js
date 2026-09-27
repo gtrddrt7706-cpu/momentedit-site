@@ -402,7 +402,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   if (!bad.length) {
     const F = new Function(src + '\nreturn { cap: photoCapOf, line: photoCapLine };')();
     const longest = Object.assign(O.applyExample({}, 'family'), { freeWhat: 'video', freeLen: '3', tributeSay: 'long', letter: 'parent' });
-    longest.on = {}; ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'toast'].forEach((k) => { longest.on[k] = 1; });
+    longest.on = {}; ['candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast'].forEach((k) => { longest.on[k] = 1; });   // [CAKE_TOAST_SPLIT] 케이크 · 축배 두 칸
     /* ★[PHOTO_THANKS 2026-09-26] 감사 인사 1분(PHOTO_THANKS)이 단체 사진 안에 들어와 구도 자리가 1분 준다 — 경계 칸이 움직였다(구현 뒤 게이트 값 · 코워크 표에 알림).
        옛 표: 기록 5/5 · 4/5 · 약속 4/5 · 3/5 · 가족 2/5 · 2/4 · 가장 긴 조합 0/3 · 0/2 */
     const WANT = [   // [이름, S, 단체 사진 a~b, 요청 0 k/max, 요청 2 k/max]

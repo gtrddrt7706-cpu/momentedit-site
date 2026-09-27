@@ -217,7 +217,7 @@ await safe('FB1', async () => {
     ok(`피드백1-2 PC ${w} 오른쪽 칸 — 단추 위 16px 이상 · 준비 줄은 그림 아래 [PC_SIDE_AIR]`, r.gap >= 16 && r.prepLeft && !r.prepSide, JSON.stringify(r));
     await c2.close();
   }
-  ok('피드백1-4 케이크 · 축배 창 설명에 «하나만 해도 돼요» [TOAST_ONE_OR]', /케이크나 축배 하나만 해도 돼요\.'?$/.test(O.CARDS.toast.one) && !/골라요\)/.test(O.CARDS.toast.one));
+  ok('[CAKE_TOAST_SPLIT] 케이크 커팅 · 축배는 두 카드(옛 [TOAST_ONE_OR] «하나만 해도 돼요»는 두 칸이 대신한다)', O.CARDS.cake && O.CARDS.cake.n === '케이크 커팅' && O.CARDS.toast.n === '축배' && !/케이크/.test(O.CARDS.toast.one));
 });
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : '\n결과 — 전부 통과'); process.exit(fail ? 1 : 0);

@@ -12273,7 +12273,7 @@ chk 'PC_SIDE_AIR' order-preview.html 2
 chk 'SEAL_POINTS' order-preview.html 4
 chk 'SEAL_POINTS' assets/ritual-open.js 1
 chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
-chk 'TOAST_ONE_OR' assets/ritual-open.js 1
+# [TOAST_ONE_OR] «케이크나 축배 하나만 해도 돼요»는 [CAKE_TOAST_SPLIT 2026-09-27 사장님] 두 카드가 대신한다(표식 걷음 · 아래 CAKE_TOAST_SPLIT 이 지킨다)
 
 # ═══ [MP_AUDIT_R1_0926] 2026-09-26 병합 뒤 통합 점검 1라운드(8갈래 · 확정 76건) — 묶음 G1·G1b·G2·G3·G4·G5 ═══
 # ── 묶음 G1
@@ -12701,7 +12701,7 @@ chk "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.
 nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
 # ── [코워크 회신8 2026-09-26] 칸 글 삼킴 · 케이크 한 줄 괄호 · 얇은 띠 ★ ──
 chk 'TILE_SWALLOW' assets/ritual-open.js 1
-chk "letter: '부모님이나 서로에게 쓴 편지를 읽어요', toast: '케이크를 자르고, 다 함께" assets/ritual-open.js 1
+chk "letter: '부모님이나 서로에게 쓴 편지를 읽어요', cake: '두 분이 함께 케이크를 잘라요', toast: '다 함께 잔을 들어 «위하여»'" assets/ritual-open.js 1   # [CAKE_TOAST_SPLIT]
 chk 'TILE_SWALLOW' scripts/audit/comment-swallow.py 1
 chk 'TILE_SWALLOW' scripts/audit/open-course.mjs 1
 nochk '하나만 해도 돼요(② 보고 듣기에서 골라요)' assets/ritual-open.js
@@ -13301,7 +13301,7 @@ if command -v node >/dev/null 2>&1; then W=390 RUNS=1 STEPS=60 FOCUS=1 node scri
 fi
 # [CHIP_UNPICKED · MK_NO_HEADS 2026-09-27 사장님 «안내 목소리 처음엔 안 눌린 상태로 · 눌러야 소리가 나오지» · «고르기 · 흐름 칸 잡아먹는 게 별로 · 더 미니멀하게»]
 chk 'CHIP_UNPICKED' order-preview.html 6
-chk 'touched:{}}' order-preview.html 1
+chk 'touched:{}, ctSplit:1}' order-preview.html 1   # [CAKE_TOAST_SPLIT] 기본 S 끝에 ctSplit
 chk 'var first=!!(g0&&g0.picked===false&&!g0.q)' order-preview.html 1
 chk 'MK_NO_HEADS' order-preview.html 4
 nochk '<h4 id="mkPickH">고르기</h4>' order-preview.html
@@ -13323,3 +13323,16 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/moment-script-check.
 chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
 chk 'WINE_POUR_OFF' assets/ritual-story.js 1
 nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
+# ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 새 코스의 케이크 커팅 · 축배는 두 순간
+#   엔진 줄(녹음 · 시간)은 종전 «케이크와 축배»를 나눠 담는다 · 옛 초안은 migrateCakeToast 가 옮긴다 · 옛 코스는 한 덩어리 그대로
+chk 'CAKE_TOAST_SPLIT' assets/ritual-open.js 10
+chk "'letter', 'cake', 'toast'\];" assets/ritual-open.js 1
+chk 'function migrateCakeToast(S)' assets/ritual-open.js 1
+chk 'function toastMode(S)' assets/ritual-open.js 1
+chk "'letter','cake','toast'\]" assets/ritual-data.js 1
+chk 'CAKE_TOAST_SPLIT' assets/ritual-cue.js 2
+chk 'O.migrateCakeToast(s);' assets/ritual-cue.js 1
+chk 'CAKE_TOAST_SPLIT' order-preview.html 10
+chk "if(!_sv.S.ctSplit) delete S.ctSplit;" order-preview.html 1
+chk "'케이크 커팅': {" assets/ritual-story.js 1
+nochk "L('toast','무엇을'" order-preview.html
