@@ -47,9 +47,12 @@ try {
   for (const c of r) {
     if (c.err) { bad.push(`${c.nm}: ${c.err}`); continue; }
     const tall = c.h > c.host - 20;
-    const skew = !tall && c.bot > c.top * 3 && c.bot > 120;
-    console.log(`  ${skew || c.ovf ? '✖' : '·'} ${c.nm}: 위 ${c.top} / 카드 ${c.h} / 아래 ${c.bot} (칸 ${c.host}) ${tall ? '· 길어서 흐름' : ''}`);
-    if (skew) bad.push(`${c.nm}: 위쪽 쏠림(위 ${c.top} · 아래 ${c.bot})`);
+    /* ★[SNAP_TOP_ALIGN 2026-09-27 지시문 6편 2부 5] 스냅 기획은 WIZ_VCENTER 의 예외 — 걸음마다 위쪽 정렬(짧은 걸음만 가운데로 내려와 머리가 100 → 20 → 168px 로 뛰었다).
+         그래서 스냅은 «위에 붙었나»를 잰다(겹화면 안쪽 여백 20px 이하 · 가운데로 되돌아가면 빨강). */
+    const topOnly = c.nm === '스냅 기획';
+    const skew = topOnly ? c.top > 24 : (!tall && c.bot > c.top * 3 && c.bot > 120);
+    console.log(`  ${skew || c.ovf ? '✖' : '·'} ${c.nm}: 위 ${c.top} / 카드 ${c.h} / 아래 ${c.bot} (칸 ${c.host}) ${tall ? '· 길어서 흐름' : ''}${topOnly ? ' · 위쪽 정렬(SNAP_TOP_ALIGN)' : ''}`);
+    if (skew) bad.push(topOnly ? `${c.nm}: 위쪽 정렬이 아니다(위 ${c.top}) — SNAP_TOP_ALIGN` : `${c.nm}: 위쪽 쏠림(위 ${c.top} · 아래 ${c.bot})`);
     if (c.ovf) bad.push(`${c.nm}: 가로 넘침`);
   }
   const p = await h.probe();
