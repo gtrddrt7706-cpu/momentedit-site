@@ -13301,7 +13301,7 @@ if command -v node >/dev/null 2>&1; then W=390 RUNS=1 STEPS=60 FOCUS=1 node scri
 fi
 # [CHIP_UNPICKED · MK_NO_HEADS 2026-09-27 사장님 «안내 목소리 처음엔 안 눌린 상태로 · 눌러야 소리가 나오지» · «고르기 · 흐름 칸 잡아먹는 게 별로 · 더 미니멀하게»]
 chk 'CHIP_UNPICKED' order-preview.html 6
-chk 'touched:{}}' order-preview.html 1
+chk 'touched:{}, ctSplit:1}' order-preview.html 1   # [CAKE_TOAST_SPLIT] 기본 S 끝에 ctSplit
 chk 'var first=!!(g0&&g0.picked===false&&!g0.q)' order-preview.html 1
 chk 'MK_NO_HEADS' order-preview.html 4
 nochk '<h4 id="mkPickH">고르기</h4>' order-preview.html

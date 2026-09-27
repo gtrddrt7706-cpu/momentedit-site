@@ -126,7 +126,7 @@ for (const w of [390, 360]) {
   ok('PC 아래 단추 줄은 숨김(흐름 띠 · 얇은 띠에 «다음 · 하나씩 만들기»)', pc.nav === 'none', pc.nav);
   ok('PC 레일 자리(오른쪽 88px)에 아무것도 안 닿음 [RAIL_LOCKED]', pc.right.length === 0, pc.right.join(','));
   ok('PC 얇은 띠는 처음엔 안 보인다', !/\bon\b/.test(pc.slim), pc.slim);
-  ok('PC 막마다 한 줄(4 · 4 · 3 · 2)', pc.tiles === '4,4,3,2', pc.tiles);
+  ok('PC 막마다 한 줄(4 · 4 · 3 · 3 · 마지막 막 = 케이크 커팅 · 축배 · 닫는 인사 [CAKE_TOAST_SPLIT])', pc.tiles === '4,4,3,3', pc.tiles);
   await pg.evaluate(() => document.getElementById('pkActsH').scrollIntoView({ block: 'start' })); await pg.waitForTimeout(500);
   const sl = await pg.evaluate((lim) => { const s = document.getElementById('pkSlim'); const r = [...s.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width > 0 && b.right > lim + 0.5; }).length; return { on: s.classList.contains('on'), t: s.textContent, r }; }, lim);
   ok('PC 흐름 띠가 나가면 얇은 띠(시간 둘 · ★) · 레일 자리 비움', sl.on && /본식\s약\s?\d+~\d+분\s·\s단체\s사진/.test(sl.t) && /★/.test(sl.t) && sl.r === 0, JSON.stringify(sl));
