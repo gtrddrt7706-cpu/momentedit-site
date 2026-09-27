@@ -547,6 +547,11 @@ nochk "mpAlert('초대 방식을 골라 주세요.')" mypage.html 0
 nochk "mpAlert('디자인을 골라 주세요.')" mypage.html 0
 chk 'AFTER_BAR' mypage.html 2
 chk 'MYWORKS_ORDER' mypage.html 1
+# [SEAL_CTA_ONLY] 진사 단추는 결정적 행동에만(AI 대화 «보내기»는 먹빛) · [FOCUS_ONE] 입력칸 초점 = 짙은 금빛 테 두 겹(진사 빛 번짐 · 옅은 한 겹 걷음)
+chk 'SEAL_CTA_ONLY' mypage.html 1
+nochk 'class="cc-btn cc-btn-seal" id="dncSend"' mypage.html 0
+chk 'FOCUS_ONE' mypage.html 3
+nochk '.seat-note-ta:focus{outline:none;border-color:var(--seal)' mypage.html 0
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]

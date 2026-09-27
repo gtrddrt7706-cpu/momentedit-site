@@ -421,7 +421,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
 .consult-card .cc-mini{font-size:11px;color:var(--light)}   /* RESULT_WAIT_POLISH · 각주 대비 4.5:1 경계 → 한 톤 진하게(위계는 최하위 유지) */
 .consult-card .cc-input,.mp-modal-body .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
-.consult-card .cc-input:focus{border-color:var(--gold)}
+.consult-card .cc-input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* ★[FOCUS_ONE 2026-09-27 사장님 «일관성»] 입력칸 초점 한 벌 = 짙은 금빛 테 두 겹 — 옅은 금빛 한 겹(2.5:1 · 잘 안 보였다) · 좌석 메모의 진사 빛 번짐 · 겹화면의 바깥 테가 섞여 있었다 */
 /* 완료 카드 접기 */
 .consult-card.cc-done{padding:0;text-align:left}
 .cc-done-row{display:flex;align-items:center;gap:8px;padding:14px 18px;cursor:pointer}
@@ -913,7 +913,7 @@ body.snp-open #mpToast{bottom:calc(var(--snp-toast-b,34px) + env(safe-area-inset
 .res-exrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:13px 0 4px}   /* [EXROW_WRAP 2026-09-26] 320 에서 「합계 40,000원」이 패널 밖으로 21px 넘쳤다(실측 · 종전부터) — 자리가 모자라면 수량 아래로 내린다 */
 .res-qty{position:relative;flex:0 0 108px}
 .res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--border);border-radius:10px;padding:12px 30px 12px 14px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
-.res-qty input:focus{border-color:var(--gold)}
+.res-qty input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [FOCUS_ONE] */
 .res-qty input::-webkit-outer-spin-button,.res-qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .res-qty input[type=number]{-moz-appearance:textfield}
 .res-qty-u{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-family:var(--serif-ko);font-size:13px;color:var(--label-soft);pointer-events:none}
@@ -1511,7 +1511,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
     .sp-opt input{position:absolute;left:13px;top:14px;accent-color:var(--seal)}
     .seat-note-d{font-size:12px;color:var(--sub);line-height:1.6;word-break:keep-all;margin:-2px 0 9px;text-align:left}   /* [SUBHEAD_ONE] 제목(왼쪽)과 같은 왼쪽 선 · 11.5 → 12(반 px 없이) */   /* [SEAT_NOTE] .sp-d 는 라디오 안쪽 전용 스코프라 여기선 안 먹는다 */
     .seat-note-ta{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;color:var(--accent);line-height:1.6;resize:vertical;min-height:66px}   /* [SEAT_NOTE] */
-    .seat-note-ta:focus{outline:none;border-color:var(--seal);box-shadow:0 0 0 3px rgba(107,42,36,.08)}
+    .seat-note-ta:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [FOCUS_ONE] 진사 빛 번짐 → 짙은 금빛 테(진사는 점에만) */
     .seat-note-ta::placeholder{color:var(--label-soft)}
     /* .sp-opt.on → [SEL_ONE] */
     .sp-opt .sp-t{display:block;font-size:13px;color:var(--accent);font-weight:600}
@@ -10838,7 +10838,7 @@ function dineFilterUI(d, wt){
           + ((!d._pendingTyping && !d._aiNoRes && chat.length && chat[chat.length-1].role==='assistant')?'<div class="dnc-cue">말씀 주신 조건으로 <b>아래 리스트</b>를 맞췄어요. 조금 내려서 확인해 주세요.</div>':'')
           + '</div>'
         : '<div class="dn-ai-slim-q">예식 끝나고 어디로 모실지 고민되시죠. \'조용한 룸\', \'아이랑 놀 곳\'처럼 적어 주시면 찾아드려요. 아래에서 골라도 돼요.</div>')
-    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="찾는 자리를 말로 적기" placeholder="편하게 적어 주세요" style="margin:0" value="'+escapeHtml(String(d._dncTyped||''))+'"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'   // [FIELD_NAME_A11Y] AI 칸도 자리표시(«편하게 적어 주세요»)뿐이었다 — 적기 시작하면 무슨 칸인지 사라졌다
+    + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="찾는 자리를 말로 적기" placeholder="편하게 적어 주세요" style="margin:0" value="'+escapeHtml(String(d._dncTyped||''))+'"><button type="submit" class="cc-btn" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'   /* ★[SEAL_CTA_ONLY 2026-09-27 사장님 «일관성»] 진사 단추는 결정적 행동(서명 · 계약 요청 · 입금 신호 · 확정)에만 — 대화 «보내기»는 먹빛(.cc-btn) */   // [FIELD_NAME_A11Y] AI 칸도 자리표시(«편하게 적어 주세요»)뿐이었다 — 적기 시작하면 무슨 칸인지 사라졌다
     + '<div id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align:center;color:var(--seal)"></div>'   // [ERR_ONE] 옅은 회색이라 «안 됐다»가 안 보였다
     + '</div>';
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
