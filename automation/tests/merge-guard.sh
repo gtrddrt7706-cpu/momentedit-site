@@ -12684,6 +12684,57 @@ nochk '<div class="dn-attr-h"' mypage.html 0
 chk 'DN_RO_LATIN' mypage.html 2
 chk "if(/\[036\]\$/.test(t)) return '으로'; if(/\[0-9\]\$/.test(t)) return '로'; if(/(ng|\[mn\])\$/i.test(t)) return '으로'; return '에'; }" mypage.html 1
 nochk "return '으로'; return '로'; }" mypage.html 0
+# [SPEC6_P2] 스냅 기획 — 지시문 6편 2부(2026-09-27 · 사장님 «고객 입장에서 디테일한 부분까지» · 추천대로) · 동작 모양은 scripts/audit/snap-plan.mjs 가 함께 잰다
+#   ①[SNAP_NOIMG_LIST] 사진이 없는 공간 = 한 줄 목록(사장님 결정 A · R.img 로 판정 · 사진이 들어오면 칸으로) ②[SNAP_FULL_HINT] 4장면 다 고르면 한 줄 + 흐리게(확인 창 폐지)
+#   ③[SNAP_INLINE_ERR] 링크 오류 · 한도 = 칸 아래 한 줄 ④[SNAP_PRECONSENT_EXIT] 동의 전 — 머리 «저장» 숨김 · «이 기기에 둘까요?» 판 · 이어서 고르기 · 불러왔어요 · 사진 한 줄
+#   ⑤[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외) ⑥[SNAP_WORD_SCENE] «그림» → «사진» · «장면»으로 세기 ⑦[SNAP_CARD_AFTER] 낸 뒤 카드
+#   ⑧[SNAP_NUM_GOTHIC] 고딕 숫자 · Noto Sans KR 600 · 360 이하 «다음» ⑨[SNAP_MODAL_A11Y] aria-modal · inert · 초점 링 · 알림 자리 · 44px ×
+chk 'SNAP_NOIMG_LIST' mypage.html 5
+chk "function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s); }); }" mypage.html 1
+chk "else h+='<div class=\"snp-list\" role=\"group\" aria-label=\"마음에 드는 장면\">'" mypage.html 1
+chk "사진작가가 고르신 장면을 챙겨 찍어요." mypage.html 1
+chk 'SNAP_FULL_HINT' mypage.html 4
+chk "장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요" mypage.html 1
+nochk "mpAlert('공간마다 '+R.limits.pick" mypage.html 0
+chk 'SNAP_INLINE_ERR' mypage.html 4
+chk 'aria-describedby="mp_snapLinkErr"' mypage.html 1
+chk "장까지예요 · 바꾸려면 하나를 빼 주세요" mypage.html 1
+chk "개까지예요 · 바꾸려면 하나를 빼 주세요" mypage.html 2
+nochk "mpAlert('http로 시작하는 링크를" mypage.html 0
+nochk "mpAlert('이미 담긴 링크예요" mypage.html 0
+chk 'SNAP_PRECONSENT_EXIT' mypage.html 10
+chk "title:'고르던 것을 이 기기에 둘까요?'" mypage.html 1
+chk "yes:'이 기기에 두고 나가기', no:'지우고 나가기'" mypage.html 1
+chk "if(WIZ_ADAPT\[id\].exitAsk && WIZ_ADAPT\[id\].exitAsk()) return;" mypage.html 1
+chk '#mp_snapOverlay.snp-pre \[data-wiz-save\]' mypage.html 1
+chk "이 기기에 적어 둔 것을 불러왔어요 · 마지막 걸음에서 동의하면 저장돼요" mypage.html 1
+chk "사진은 마지막 걸음에서 저장할 때 함께 보내져요" mypage.html 1
+chk 'id="mp_snapStart" style="margin-top:12px">이어서 고르기' mypage.html 1
+chk 'SNAP_TOP_ALIGN' mypage.html 1
+chk 'SNAP_TOP_ALIGN' scripts/check-wiz-vcenter.mjs 1
+chk "inner.id='mp_snapInner'; inner.style.cssText='max-width:620px;margin:0 auto;width:100%'" mypage.html 1
+chk 'SNAP_WORD_SCENE' mypage.html 6
+chk "찾던 사진이 없나요?" mypage.html 1
+chk "'장면 · 화이트존 '+w+'장면 골랐어요'" mypage.html 1
+chk "까지 골라 주세요'" mypage.html 1
+nochk "찾던 그림" mypage.html 0
+nochk "올린 그림" mypage.html 0
+nochk "<li>안 고르셔도 기본 장면으로 찍어요.</li>" mypage.html 0
+chk 'SNAP_CARD_AFTER' mypage.html 9
+chk 'class="cc-btn-ghost trk-act" id="mp_snapStart">수정</button>' mypage.html 1
+chk 'id="mp_snapView">낸 내용 보기</button>' mypage.html 1
+chk "\['예식완료','촬영완료','결과물전달','후기'\].indexOf(_stg)>-1" mypage.html 1
+nochk 'style="width:auto;padding:8px 14px" id="mp_snapStart"' mypage.html 0
+chk 'SNAP_NUM_GOTHIC' mypage.html 4
+chk 'family=Noto+Sans+KR:wght@300;400;500;600&' mypage.html 1
+chk '@media (max-width:360px){ .snp-nx{display:none} }' mypage.html 1
+chk 'SNAP_MODAL_A11Y' mypage.html 16
+chk "ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','스냅 기획');" mypage.html 1
+chk 'function _snapInertOn(ov){' mypage.html 1
+chk 'body.snp-open #mpToast{bottom:' mypage.html 1
+chk '#mp_privacyClose{min-width:44px;min-height:44px' mypage.html 1
+chk '#mp_snapOverlay textarea.snp-grow{resize:none;overflow:hidden}' mypage.html 1
+chk 'SPEC6_P2' scripts/audit/snap-plan.mjs 2
 # ════════════════════════════════════════════════════════════════════════════════
 # [SPEC6_P4] 식순 짓기 «우리 예식 짓기» 4부 (2026-09-27 · 사장님 · 코워크 지시문 6편) — order-preview.html
 #   셈(분 · 순간 수) · 소리 · 대본 내용은 안 바꿨다. 글과 모양만. 표식을 지우면 아래가 붉어진다.

@@ -133,9 +133,10 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
     upl = cut('function _snapUpload(zone, file){', '\n}'), outF = cut('function _snapOut(D){', '\nfunction '), commit = cut('function _snapCommit(){', '\n}'), exitF = cut('function exitSnapFlow(){', '\nfunction '),
     adapt = cut('  snap:{ on:function(){', '\n};');
   t(!!card && card.indexOf('_snapAgreeHtml') === -1 && card.indexOf('_snapAgreeOk') === -1, '카드에는 동의 체크가 없다(SNAP_AGREE_LAST · 카드에 되돌리지 말 것)');
-  t(/\+'<button type="button" class="cc-btn-ghost" id="mp_snapStart"[^>]*>스냅 기획하기<\/button>'/.test(card), '진입 버튼 = 테두리 버튼(사장님 결정 ⑥ SNAP_BTN_GHOST)');
+  // [SPEC6_P2 · SNAP_PRECONSENT_EXIT 2026-09-27] 이 기기에 임시본이 있으면 같은 테두리 버튼이 «이어서 고르기» — 둘 다 테두리
+  t(/:'<button type="button" class="cc-btn-ghost" id="mp_snapStart"[^>]*>스냅 기획하기<\/button>'/.test(card) && /'<button type="button" class="cc-btn-ghost" id="mp_snapStart"[^>]*>이어서 고르기<\/button>'/.test(card), '진입 버튼 = 테두리 버튼(사장님 결정 ⑥ SNAP_BTN_GHOST · «이어서 고르기»도)');
   t(/if\(last && SNAPFLOW\.needAgree\) h\+=_snapAgreeHtml\(\);/.test(flowR) && flowR.indexOf('_snapAgreeHtml()') < flowR.indexOf('data-sfinish'), '자리 — 마지막 걸음 «저장하고 마치기» 바로 위(동의 전일 때만)');
-  t(/var agreeAsk=!lock&&!\(meta\.consent&&meta\.consent\.at\);/.test(card) && /startSnapFlow\(p\.snapDraft\|\|\{\}, p, agreeAsk\);/.test(card) && /SNAPFLOW=\{[^}]*needAgree:!!needAgree \};/.test(my), '한 번 동의하면(서버 기록) 다시 묻지 않는다 — 동의 뒤 편집 화면엔 체크가 없다');
+  t(/var agreeAsk=!lock&&!\(meta\.consent&&meta\.consent\.at\);/.test(card) && /startSnapFlow\(p\.snapDraft\|\|\{\}, p, agreeAsk[,)]/.test(card) && /SNAPFLOW=\{[^}]*needAgree:!!needAgree&&!opt\.ro,/.test(my), '한 번 동의하면(서버 기록) 다시 묻지 않는다 — 동의 뒤 편집 화면엔 체크가 없다');
   t(aok.indexOf("'위 동의에 체크하시면 저장할 수 있어요'") > -1 && /ck\.focus\(/.test(aok) && !/disabled/.test(aok), '체크 없이 저장하면 — 버튼을 막지 않고 체크 줄로 초점 · 한 줄로 알린다');
   t(/if\(SNAPFLOW\.step!==SNAP_STEPS\.length-1\) _spGo\(SNAP_STEPS\.length-1\);/.test(gate) && /_snapAgreeOk\(\);/.test(gate), '다른 걸음에서 «저장»을 눌러도 — 마지막 걸음의 체크 줄로 데려간다');
   t(/if\(!_snapAgreeGate\(\)\) return;/.test(exitF) && /if\(!_snapAgreeGate\(\)\) return; return _snapCommit\(\)/.test(adapt), '저장 길 둘 다 관문을 지난다 — «저장하고 마치기»(나가기 판 «저장하고 나가기» 공용) · 아래 «저장» 손잡이');
@@ -144,7 +145,7 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(/if\(SNAPFLOW\.needAgree\)\{ Z\.ups\.push\(\{ id:'', th:'', n:[^}]*_full:two\[0\], _thumb:two\[1\] \}\);[^\n]*return; \}/.test(upl) && upl.indexOf('snapConsent') === -1, '동의 전 — 사진은 보내지 않고 화면에만 담아 둔다(동의를 싣는 올리기는 _snapCommit 하나)');
   t(/\.filter\(function\(u\)\{ return u&&u\.id; \}\)/.test(outF), '담아 둔 사진(id 없음)은 기획 저장에 실리지 않는다');
   t(/snapConsent:1 \}/.test(commit) && /return bad\|\|saveSnap\(\);/.test(commit), '동의하고 저장 — 담아 둔 사진부터(동의를 싣는다) · 하나라도 못 보내면 기획은 저장하지 않는다');
-  t(/if\(!SNAPFLOW\.needAgree\) h\+='<div class="snp-del">/.test(flowR), '동의 전엔 «스냅 기획 지우기»가 없다(서버에 지울 것이 없다)');
+  t(/if\(!SNAPFLOW\.needAgree && !ro\) h\+='<div class="snp-del">/.test(flowR), '동의 전엔 «스냅 기획 지우기»가 없다(서버에 지울 것이 없다) · 읽기 전용에도 없다');
   t(/me_\(order\|deliv_\|prod_ping\|order_v2note_\|snapLocal_\)/.test(my) && /exitBare:function\(\)\{ _snapLocalDel\(\);/.test(adapt), '이 기기의 임시본 — 로그아웃 · «그냥 나가기»에 지운다(LOGOUT_SWEEP)');
   t(/if\(loc\) WIZ_BASE\.snap=_wizJson\(_snapNewD\(sd\)\);/.test(my), '되살린 임시본은 «저장 안 됨» — 기준선은 서버(손잡이 · 나가기 판이 사실을 말한다)');
   ['<dt>받는 것</dt><dd>고른 장면 · 메모 · 참고 링크 · 두 분이 올린 참고 사진</dd>',
@@ -185,10 +186,26 @@ t(blk.indexOf(".join('<span class=\"snp-arw\"") === -1 && /class=\"snp-flg\"[^;]
   t(/color:var\(--seal\)/.test(css('.snp-due-k')), '진사 점 ④ «마감» 라벨');
   t(!!css('.snp-tile.on') && css('.snp-tile.on').indexOf('--seal') === -1 && /--gold-deep/.test(css('.snp-tile.on')) && css('.snp-tile.on .snp-nm').indexOf('--seal') === -1, '고른 장면 테두리 · 이름은 금빛/먹빛(진사 테두리로 되돌리지 않는다)');
   const snpSeal = (my.match(/\n\.snp-[^{]*\{[^}]*var\(--seal[^}]*\}/g) || []).map((x) => x.trim().split('{')[0]);
-  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-step.on::before', '.snp-fl.on', '.snp-due-k'];
+  // [SPEC6_P2 2026-09-27] 점 셋을 더했다 — 목록의 고른 순번(.snp-li.on .snp-li-no · 22px 원) · 한 줄 알림 앞 5px 점(다 고름 · 링크 오류 · 한도)
+  const ok5 = ['.snp-no', '.snp-agree.need', '.snp-agree-need', '.snp-step.on::before', '.snp-fl.on', '.snp-due-k', '.snp-li.on .snp-li-no', '.snp-full::before,.snp-err::before,.snp-lim::before'];
   t(snpSeal.every((k) => ok5.indexOf(k) > -1), '스냅 화면 진사 = 정한 점들뿐 — 지금 ' + snpSeal.join(', '));
   t(/width:30px;height:30px/.test(css('.snp-step::before')) && /width:44px;height:44px/.test(css('.snp-step')) && /font-variant-numeric:lining-nums tabular-nums/.test(css('.snp-step')), '[SNAP_STEP_DOT] 보이는 동그라미 30px · 누르는 칸 44px · 같은 폭 숫자');
   t(/style="--sp:'\+\(st\/\(SNAP_STEPS\.length-1\)\)\+'"/.test(my) && /width:calc\(\(100% - 44px\) \* var\(--sp,0\)\)/.test(my), '[SNAP_STEP_DOT] 지나온 길 = 금빛 선(지금 걸음 / 4)');
+}
+
+// ── [SPEC6_P2 2026-09-27 지시문 6편 2부] 스냅 기획 고객 점검 — 확인 창 대신 한 줄 · 사진 없을 땐 목록 · 동의 전 나가기 · 낸 뒤 카드
+{
+  const cut = (a, b) => { const i = my.indexOf(a); if (i < 0) return ''; const j = my.indexOf(b, i + a.length); return j < 0 ? '' : my.slice(i, j); };
+  const zoneF = cut('function _spZone(', '\nfunction '), bindF = cut('function _spBind(', '\n}'), card = cut('function renderSnap(p){', '\nfunction seatDrinkCounts('), exitA = cut('function _snapExitAsk(){', '\n}');
+  t(/function _spHasImg\(R, z\)\{ return z\.base\.concat\(z\.pick\)\.some\(function\(s\)\{ return !!R\.img\(s\); \}\); \}/.test(my) && /if\(img\) h\+='<div class="snp-grid">/.test(zoneF) && /else h\+='<div class="snp-list"/.test(zoneF), '[SNAP_NOIMG_LIST] 사진 없는 공간 = 한 줄 목록 · 한 장이라도 있으면 칸(R.img 판정)');
+  t(!/mpAlert\('공간마다/.test(bindF) && /class="snp-full" role="status">'\+L\.pick\+'장면을 다 골랐어요 · 바꾸려면 고른 장면을 한 번 더 눌러 빼 주세요/.test(zoneF) && /aria-disabled="true"/.test(zoneF), '[SNAP_FULL_HINT] 다 고르면 한 줄 + 흐리게(aria-disabled) · 확인 창 없음');
+  t(!/mpAlert\('http로/.test(bindF) && !/mpAlert\('이미 담긴/.test(bindF) && /aria-describedby="mp_snapLinkErr"/.test(zoneF) && /장까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF) && /개까지예요 · 바꾸려면 하나를 빼 주세요/.test(zoneF), '[SNAP_INLINE_ERR] 링크 오류 · 한도는 칸 아래 한 줄');
+  t(/title:'고르던 것을 이 기기에 둘까요\?'/.test(exitA) && /yes:'이 기기에 두고 나가기', no:'지우고 나가기'/.test(exitA) && /_snapLocalPut\(\); _snapTearDown\(\)/.test(exitA), '[SNAP_PRECONSENT_EXIT] 동의 전 나가기 판 = 이 기기에 둘까요 · 서버로는 보내지 않는다');
+  t(/#mp_snapOverlay\.snp-pre \[data-wiz-save\]/.test(my) && /이 기기에 적어 둔 것을 불러왔어요 · 마지막 걸음에서 동의하면 저장돼요/.test(my) && /사진은 마지막 걸음에서 저장할 때 함께 보내져요/.test(zoneF), '[SNAP_PRECONSENT_EXIT] 동의 전 머리 «저장» 숨김 · 불러왔어요 한 줄 · 사진 올리기 아래 한 줄');
+  t(/margin:0 auto;width:100%'/.test(cut('function startSnapFlow(', '\nfunction ')), '[SNAP_TOP_ALIGN] 걸음마다 위쪽 정렬(WIZ_VCENTER 의 예외)');
+  t(my.indexOf('찾던 그림') === -1 && my.indexOf('올린 그림') === -1 && /'장면 · 화이트존 '\+w\+'장면 골랐어요'/.test(my), '[SNAP_WORD_SCENE] «그림» → «사진» · 장면은 «장면»으로 센다');
+  t(/\['예식완료','촬영완료','결과물전달','후기'\]\.indexOf\(_stg\)>-1/.test(card) && /id="mp_snapView">낸 내용 보기</.test(card) && /class="cc-btn-ghost trk-act" id="mp_snapStart">수정</.test(card) && card.indexOf('trk-tag') === -1, '[SNAP_CARD_AFTER] 낸 뒤 카드 — 수정(행 단추 규격) · 낸 내용 보기 · 선택 표 없음 · 예식 뒤 숨김');
+  t(/aria-modal','true'/.test(my) && /function _snapInertOn\(ov\)/.test(my) && /body\.snp-open #mpToast\{bottom:/.test(my), '[SNAP_MODAL_A11Y] 겹화면 = 모달(aria-modal · 뒤 inert) · 알림은 막대 위로');
 }
 
 // ── 같은 원천을 읽는다
