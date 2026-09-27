@@ -467,8 +467,30 @@ chk 'SNAP_ZONE_NOTE' mypage.html 4
 chk 'SNAP_ZONE_NOTE' admin.html 1
 chk 'SNAP_ZONE_NOTE' brief.html 1
 # ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게»] 스냅 화면 진사 = 고른 순서 번호 · 동의 알림뿐(나머지는 먹갈색/금빛) — snap-plan 이 CSS 를 잰다
-chk 'SNAP_TONE' mypage.html 3                        # ★같은 날 밤 «진사 포인트 좀 주자 · 칙칙해» — 점 다섯(지금 걸음 · 순서 번호 · 촬영 칸 글자 · 마감 · 동의 알림) · snap-plan 이 CSS 를 잰다
-chk 'SNAP_STEP_DOT' mypage.html 3                    # 걸음 동그라미 — 보이는 30px(지금 34px 진사) · 누르는 칸 44px · 고딕 같은 폭 숫자 · 지나온 길 금빛 선
+chk 'SNAP_TONE' mypage.html 3                        # ★같은 날 밤 «진사 포인트 좀 주자 · 칙칙해» — 점 다섯(지금 걸음[9/27 부터 진행 표시 윗선 · WZ_STEPS] · 순서 번호 · 촬영 칸 · 마감 · 동의 알림) · snap-plan 이 CSS 를 잰다
+# ★★[WZ_STEPS 2026-09-27 사장님 «1번(스냅 동그라미)과 2번(식순 진행바) · 2번 식순 형태의 진행바로 다른 곳들도 통일하자»]
+#   입력 화면 진행 표시 한 벌 = 식순 .op-steps 모양(칸마다 윗선 2px + «① 이름» · 지금 걸음 진사 · 지나온 걸음 금빛 · 지나온 걸음은 밑줄 단추 44px).
+#   청첩장 · 애프터 웨딩 · 스냅 기획이 wzSteps() 하나를 쓴다. 옛 동그라미([SNAP_STEP_DOT] · 9/26 하루 살았다)나 «청첩장 · 1 / 4» 숫자 글을 되살리면 빨강.
+chk 'WZ_STEPS' mypage.html 14
+chk '_invSteps(d,' mypage.html 4
+chk "wzSteps(m.names, stepNo-1, 'data-trkgo')" mypage.html 1
+chk "wzSteps(SNAP_STEPS.map(function(x){ return x.s; }), st, 'data-sstep', true)" mypage.html 1
+chk 'WZ_STEPS' .claude/skills/momentedit-design/SKILL.md 1
+nochk '<ol class="snp-steps"' mypage.html 0
+nochk 'inv-step-n">청첩장 · ' mypage.html 0
+nochk "' · '+stepNo+'&nbsp;/&nbsp;'" mypage.html 0
+# ★[WZ_HEAD_ALL · WZ_TITLE · WZ_PILL · WZ_FINISH_LABEL 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 마이페이지 전체를 꼼꼼히 · 더 나은 쪽으로 일관성 있게»]
+#   입력 화면 겉틀 나머지 — ①애프터 웨딩 마지막 걸음에도 저장 · 나가기(결과 화면만 뺀다) ②제목 한 벌(.inv-q = .snp-h 16/500 · 좌석도 왼쪽 정렬)
+#   ③위 알약 = 식순 .ob-exit(고딕 · 마우스 올림 금빛) ④마침 단추 «저장하고 마치기»(스냅 기획 · 가족·친구 스냅과 같은 말).
+chk "(result?'':wizActs())+'</div>'" mypage.html 1
+nochk "(last?'':''+wizActs()+'')" mypage.html 0
+chk '.inv-q{font-family:var(--serif-ko);font-size:16px;font-weight:500;' mypage.html 1
+chk '<div class="inv-q">테이블 자리를 정해요</div>' mypage.html 1
+nochk 'text-align:center">테이블 자리를 정해요' mypage.html 0
+chk '.wiz-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--sans);' mypage.html 1
+chk 'WZ_PILL' mypage.html 1
+chk "true,'저장하고 마치기');" mypage.html 2
+nochk "true,'저장하고 닫기');" mypage.html 0
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
@@ -11829,10 +11851,11 @@ chk '따로 만드신 곳이 있으면 링크를 넣어 주세요 · 하객 사�
 chk "하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요" mypage.html 1
 nochk "h+='<input class=\"cc-input\" id=\"mp_photoShare\"" mypage.html      # 칸을 절 맨 위에 무조건 그리던 옛 줄 — 되살리면 «붙여 넣으라» 바로 아래 «준비하실 건 없어요»가 다시 붙는다
 # [STEP_N_KO] trk-11 · 위저드 머리 .inv-step-n 한글 라벨 = serif-ko · 12px · 0.08em([LABEL_KO_TRACK]) · 번호 안쪽 &nbsp; · .inv-sub 왼쪽 6px 들여쓰기 제거(37px 선)
-chk 'STEP_N_KO' mypage.html 3
+#   ★2026-09-27 [WZ_STEPS] 머리의 «애프터 웨딩 · 1 / 2» 숫자 글을 걷었다(몇 걸음째는 진행 표시가 말한다) — 번호 안쪽 &nbsp; 를 지키던 chk 와
+#     그 자리 [STEP_N_KO] 주석이 함께 사라져 3 → 2. 숫자 글이 돌아오지 않게 지키는 것은 위 [WZ_STEPS] 의 nochk 가 맡는다.
+chk 'STEP_N_KO' mypage.html 2
 chk '.inv-step-n{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.08em' mypage.html 1
 nochk '.inv-step-n{font-family:var(--serif);font-size:11px' mypage.html
-chk "' · '+stepNo+'&nbsp;/&nbsp;'+m.steps" mypage.html 1
 nochk '.inv-sub{margin:2px 0 8px 6px' mypage.html
 # [SEAT_HEAD_ONE] trk-7 · 좌석 · 음료 머리에서 «· 3 / 3» 제거(한 화면 통합 뒤 첫 화면이자 유일한 화면)
 chk 'SEAT_HEAD_ONE' mypage.html 1
