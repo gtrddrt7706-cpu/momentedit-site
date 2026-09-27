@@ -566,6 +566,17 @@ chk "requestAnimationFrame(function(){ t.textContent=msg; t.style.opacity='1';" 
 chk 'id="mp_svErr" role="alert"' mypage.html 1
 nochk '@keyframes dnCueAr{0%,100%{transform:translateY(0)}' mypage.html 0
 chk '@media (hover:hover){.wiz-exit:hover{' mypage.html 1
+# ★[WZ_STEPS_LEVEL 2026-09-27 사장님 «하나씩 올라가는 효과는 조금 유치해 · 고급스러운 무드에는 안 어울려 · 다른 곳들도 개선»]
+#   진행 표시의 모든 칸 글자는 선 아래 같은 높이 — 단추를 블록으로 두면 글자가 44px 칸 가운데로 내려가 지금 걸음만 11px 위로 튀어 보였다(실측).
+#   단추 = flex + 위쪽 맞춤 · 글자 = .wz-l 한 묶음. 블록 단추로 되돌리면 빨강.
+chk 'WZ_STEPS_LEVEL' mypage.html 2
+chk '.wz-stepb{display:flex;align-items:flex-start;justify-content:center;' mypage.html 1
+chk "var lab='<span class=\"wz-l\">" mypage.html 1
+nochk '.wz-stepb{display:block' mypage.html 0
+# [SEAL_CTA_ONLY 최종 점검] «여기로 예약할래요»는 흰 보조 단추 — 진사 테 · 진사 칠 마우스 올림으로 되돌리면 빨강
+nochk '.dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal)' mypage.html 0
+nochk '.dn-repbtn:hover{background:var(--seal)' mypage.html 0
+chk '.dn-repbtn{display:block;width:100%;min-height:44px;' mypage.html 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
@@ -2256,7 +2267,16 @@ chk 'CHIP_STAY' order-preview.html 7
 chk 'PRACTICE_CHOOSE' order-preview.html 5
 chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
 chk 'REF_EXAMPLE' order-preview.html 4
-chk '이 소리는 예식에 나오지 않아요' order-preview.html 1   # 참고 예시를 예식 소리로 오해하지 않게
+chk '이 목소리는 예식에서 나오지 않아요' order-preview.html 1   # 참고 예시를 예식 소리로 오해하지 않게 · [REF_TABLE] «소리» → «목소리»(나레이션은 당일에도 나온다)
+# [REF_TABLE 2026-09-27 코워크 참고 예시 대본] 예시는 표 한 곳(assets/ritual-ref.js · 자동 생성) · 폐지 클립(27 시어머님 답 · 15 하객대표 축사)은 넣지 않는다
+chk 'REF_TABLE' order-preview.html 4
+chk '<script src="/assets/ritual-ref.js">' order-preview.html 1
+nochk "'27_tribute-reply'" order-preview.html
+nochk "'15_toast'" order-preview.html
+nochk '27_tribute-reply' assets/ritual-ref.js
+nochk '15_toast' assets/ritual-ref.js
+chk 'REF_TABLE' scripts/audit/listen-page.mjs 2
+node scripts/build-ref-examples.mjs --check || fail=1
 chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2

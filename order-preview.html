@@ -1071,6 +1071,7 @@ body.lsfull{overflow:hidden}
 .lf-choose{align-self:flex-start;min-height:44px;padding:0 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:14px;cursor:pointer;text-align:left}   /* [PRACTICE_CHOOSE] */
 .lf-choose.done{margin:0 0 4px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
 .lf-ref{margin:0 0 8px;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [REF_EXAMPLE] */
+.lf-refn{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
 .lf-refb{display:inline-block;margin-right:8px;padding:1px 8px;border:1px solid var(--gold-deeper);border-radius:999px;font-size:11px;color:var(--gold-deeper);letter-spacing:.04em}
 .lf-state{margin:0 0 2px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all}
 .lf-mode{text-align:center}
@@ -1131,7 +1132,7 @@ body.lsfull{overflow:hidden}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js"></script><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js"></script><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',on:{},wine:'mix',tributeSay:'one',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
@@ -3335,28 +3336,39 @@ function _lScrollTo(k){ var el=document.getElementById('lsr_'+k); if(el&&el.scro
    글은 녹음 기록(cast/_recorded.json · LRECC)에서 읽는다 — 소리와 글이 늘 같은 물건(TEXT_AUDIO_MATCH).
    예시는 자리마다 여러 벌(예시 1 · 2 · 3) · 지금은 1벌(가상 부부 이서준 · 정하윤) · 2 · 3벌은 코워크 대본 + 녹음이 오면 이 표에 더한다.
    자리 · 판별 목록: [말하는 사람, 녹음 파일] 의 묶음 = 예시 한 벌. 판(칩)에 맞는 예시가 없으면 종전 글 카드를 그대로 둔다. */
-var REF={
-  welcome:{'':[[['신랑','06_welcome-groom'],['신부','07_welcome-bride']]]},
-  vow:{'':[[['신랑','08_vow-groom'],['신부','09_vow-bride']]]},
-  letter:{each:[[['신랑','11_letter-each']]],parent:[[['신부','10_letter-parent']]]},
-  bless:{'':[[['아버지','12_bless-father'],['어머니','13_bless-mother']]]},
-  tribute:{long:[[['신랑','14_tribute'],['어머니','27_tribute-reply']]]},
-  free:{speech:[[['친구','15_toast']]]}
-};
-var REF_DAY={ bless:'부모님이', free:'준비한 분이', declare:'가족 한 분이' };   // 당일 직접 말하는 사람(없으면 «두 분이»)
+/* ★★[REF_TABLE 2026-09-27 코워크 «말하는 자리 참고 예시 대본»] 예시는 표(assets/ritual-ref.js · 원천 TSV) 한 곳에서 읽는다 — 자리 8 · 판마다 3벌.
+     ★27_tribute-reply(시어머님 답 · [STEPMOM_RETIRE]) · 15_toast(하객대표 축사 · [TOAST_NONE])는 폐지 클립이라 넣지 않는다 — 종전 손 목록이 둘을 틀었다. 되살리지 말 것.
+     키 = 자리[:판[:길이]] · 판은 칩을 따른다(편지 받는 분 · 인사 말의 길이 · «서로의 부모님께»(crossTribute) · 축배 · 축하의 말 길이 · 가족이 읽는 선언).
+     ★소리는 녹음 기록과 글이 같을 때만(_lCastSrc · TEXT_AUDIO_MATCH) — 아직 녹음 전인 예시는 글 + 시간으로 흐른다. */
+function _lRefKey(k){ var R=RitualOpen;
+  if(k==='welcome'||k==='vow'||k==='bless') return [k];
+  if(k==='letter') return ['letter:'+R.chipOf('letter',S)];
+  if(k==='tribute'){ var t=R.chipOf('tribute',S); if(t==='none') return []; return ['tribute:'+(t==='one'&&R.crossTribute(S)?'cross':t)]; }
+  if(k==='toast'){ var tt=R.chipOf('toast',S); return tt==='cake'?[]:['toast:'+tt]; }
+  if(k==='free') return R.FREE_KIND[R.chipOf('free',S)]==='speech'?['free:speech:'+R.chipOf('freeLen',S)]:[];
+  if(k==='declare') return R.chipOf('declare',S)==='family'?['declare:family']:[];
+  return []; }
+function _lRefMatch(rowKey,want){ var a=rowKey.split(':'), b=want.split(':'); if(a.length!==b.length) return false;
+  for(var i=0;i<a.length;i++){ if(a[i].split('|').indexOf(b[i])<0) return false; } return true; }
+function _lRefRows(want){ var rows=(window.RITUAL_REF&&RITUAL_REF.rows)||[], by={}, order=[];
+  rows.forEach(function(r){ if(!_lRefMatch(r.key,want)) return; if(!by[r.n]){ by[r.n]=[]; order.push(r.n); } by[r.n].push(r); });
+  return order.map(function(n){ return by[n].map(function(r){ return {who:r.who,file:r.file,txt:r.text,kyeol:r.kyeol,n:r.n,src:_lCastSrc(r.file,r.text)}; }); }); }
 function _lRefSets(k){
-  var m=REF[k]; if(!m) return [];
-  var R=RitualOpen, key=k==='letter'?R.chipOf('letter',S):k==='tribute'?R.chipOf('tribute',S):k==='free'?R.FREE_KIND[R.chipOf('free',S)]:'';
-  return (m[key]||[]).map(function(set){ return set.map(function(pt){ var v=LRECC[pt[1]], t=v==null?'':(typeof v==='string'?v:String(v.text||'')); return t?{who:pt[0],file:pt[1],txt:t}:null; }); })
-    .filter(function(set){ return set.every(Boolean); });
-}
+  var R=RitualOpen, keys=_lRefKey(k); if(!keys.length) return [];
+  var sets=_lRefRows(keys[0]);
+  /* [REF_TABLE 5] 축하의 말 — 덕담을 안 담은 식순이면 «부모님 덕담» 예시 세 벌을 부모님의 축사 예시로 더한다(같은 녹음 · 새 녹음 없음) ·
+     덕담도 담았으면 오빠 · 친구 세 벌만(같은 부모님이 두 번 말하지 않게) */
+  if(k==='free'&&!R.onOf(S,'bless')) sets=sets.concat(_lRefRows('bless').map(function(set){ return set.map(function(p){ p.parent=true; return p; }); }));
+  return sets; }
+function _lRefDay(k,set){ if(set&&set[0]&&set[0].parent) return '당일엔 준비하신 분이 직접 말해요';
+  return k==='bless'?'당일엔 부모님이 직접 말씀하세요':k==='free'?'당일엔 준비하신 분이 직접 말해요':k==='declare'?'당일엔 가족 한 분이 직접 읽어요':'당일엔 두 분이 직접 말해요'; }
 function _lRefExpand(q){
   var out=[]; LS.ref=LS.ref||{};
   q.forEach(function(x){
     var sets=x.talk?_lRefSets(x.k):[];
     if(!sets.length){ out.push(x); return; }
     var n=Math.min(LS.ref[x.k]||0,sets.length-1);
-    sets[n].forEach(function(pt){ out.push({k:x.k,lab:'참고 예시'+(sets.length>1?' '+(n+1):'')+' · '+pt.who,txt:pt.txt,src:'/assets/audio/cast/'+pt.file+'.mp3',ref:true,who:pt.who,refN:n,refOf:sets.length,talkTxt:x.txt,ms:Math.max(2600,Math.round(pt.txt.length*160))}); });
+    sets[n].forEach(function(pt){ out.push({k:x.k,lab:'참고 예시'+(sets.length>1?' '+(n+1):'')+' · '+pt.who,txt:pt.txt,src:pt.src,pending:!pt.src,ref:true,who:pt.who,kyeol:pt.kyeol,refN:n,refOf:sets.length,refDay:_lRefDay(x.k,sets[n]),refPar:!!pt.parent,talkTxt:x.txt,ms:Math.max(2600,Math.round(pt.txt.length*160))}); });
   });
   return out;
 }
@@ -3538,10 +3550,11 @@ function _lFull(){
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
     h+='<h3>'+(st.k===R.peakOf(S)?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> ':'')+esc(_lName(st.k))+'</h3>';
     h+='<div class="lf-lab">'+esc(st.ref?st.who+' 차례':st.lab)+(st.pending?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</div>';   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
-    if(st.ref) h+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.refOf>1?' '+(st.refN+1):'')+'</span>당일엔 '+esc(REF_DAY[st.k]||'두 분이')+' 직접 말해요 · 이 소리는 예식에 나오지 않아요</p>';   // [REF_EXAMPLE] 예식에 나오는 소리로 오해하지 않게
+    if(st.ref) h+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.refOf>1?' '+(st.refN+1):'')+(st.kyeol?' · '+esc(st.kyeol):'')+'</span>'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+' · 이 목소리는 예식에서 나오지 않아요</p>';   // [REF_EXAMPLE] · [REF_TABLE] 말하는 사람마다 한 줄 · «소리»가 아니라 «목소리»(나레이션은 당일에도 나온다)
     h+='<p class="lf-txt'+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+'">'+esc(st.txt||'')+'</p>';
+    if(st.ref) h+='<p class="lf-refn">그대로 써도 좋고, 두 분 이야기로 바꿔도 돼요 · 예시 속 이름은 가상 인물이에요'+(st.refPar?' · 부모님 예시는 두 분 합쳐 3분을 넘기기 쉬워요':'')+'</p>';   // [REF_TABLE]
     if(st.ref&&st.refOf>1) h+='<div class="lf-vars"><div class="ls-cg" role="radiogroup" aria-label="참고 예시"><span class="gl" aria-hidden="true">참고 예시</span><span class="cg-c">'
-      +Array.apply(null,{length:st.refOf}).map(function(_,i){ var on=i===st.refN; return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="lfr:'+st.k+':'+i+'" onclick="lsRef(\''+st.k+'\','+i+')">예시 '+(i+1)+'</button>'; }).join('')+'</span></div></div>';
+      +Array.apply(null,{length:st.refOf}).map(function(_,i){ var on=i===st.refN; return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="lfr:'+st.k+':'+i+'" onclick="lsRef(\''+st.k+'\','+i+')">예시 '+(i+1)+(st.k==='free'&&!RitualOpen.onOf(S,'bless')&&i>=3?' · 부모님':'')+'</button>'; }).join('')+'</span></div></div>';
     /* ★★[PRACTICE_CHOOSE 2026-09-27 사장님 «이 시스템이 들어 보는 건지 고르고 세팅하는 과정인지 헷갈린다»]
        연습(처음부터 끝까지)은 현장처럼 이어서 흐르고, 바꿀 것은 «이 순간 바꾸기» 안에 접어 둔다 — 열면 멈추고 «고르는 중»이 된다.
        한 순간만 크게 볼 때는 넘어갈 곳이 없으니 칩을 그대로 펼친다. 머리 가운데 글이 지금 상태(연습 · 고르는 중)를 말한다. */
