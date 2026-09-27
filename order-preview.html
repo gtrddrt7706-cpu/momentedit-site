@@ -4021,10 +4021,13 @@ function _lFull(){
   if(tgt&&tgt.focus){ try{ tgt.focus({preventScroll:true}); }catch(e){} }
   try{ if('mediaSession' in navigator&&st){ navigator.mediaSession.metadata=new MediaMetadata({title:_lName(st.k),artist:'우리 예식 · 보고 듣기'}); } }catch(e){}
 }
-/* 케이크 · 축배는 줄에 맞춰 장면이 바뀐다(F: toast-pour 붓기 · toast-raise 잔 들기) · 첫 모습(바라보기 · 맞절) · 큰절 */
+/* 케이크 · 축배는 줄에 맞춰 장면이 바뀐다(F: toast-pour 붓기 · toast 잔 들기) · 첫 모습(바라보기 · 맞절) · 큰절 */
 function _lSceneName(st){
   var s=st.slug||'';
-  if(st.k==='toast'){ if(/^toast-(both|cake)$|cake-out/.test(s)) return 'cake'; if(/pour/.test(s)&&!/pour-b/.test(s)) return 'toast-pour'; return 'toast-raise'; }
+  /* ★[TOAST_FILE_ONE 2026-09-27] 잔 들기 장면 이름은 'toast' — 파일 규격 17편(encode-moment.sh · videoKeys · 사장님 촬영표 toast.mp4)과 한 이름.
+     종전 'toast-raise'(9/25 코워크 이름)는 그런 파일이 없어 firstVideo 로 떨어졌고, 17편이 다 들어오면
+     «케이크와 축배» 판은 잔 들기 줄에서 케이크 영상 · «축배만 + 붓기» 판은 붓기 영상이 나왔다(실측). 되살리지 말 것. */
+  if(st.k==='toast'){ if(/^toast-(both|cake)$|cake-out/.test(s)) return 'cake'; if(/pour/.test(s)&&!/pour-b/.test(s)) return 'toast-pour'; return 'toast'; }
   if(st.k==='entry'&&/entry-out/.test(s)) return 'entry-look';   // [BOW_VIDEO_OFF 2026-09-26] 맞절도 바라보기 영상 · 절 영상은 만들지 않는다
   if(st.k==='tribute'&&/bow-groom/.test(s)) return 'tribute';      // [BOW_VIDEO_OFF] 신랑 큰절도 인사 영상
   if(st.k==='_close') return 'close';

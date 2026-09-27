@@ -485,6 +485,29 @@ else {
   ok('RF 그냥 연 미리보기 — 파일 창 대신 «마이페이지에서 열면 … 카톡 · 메일» 한 줄', await p2.evaluate(() => /마이페이지에서 열면 여기서 바로 보낼 수 있어요/.test((document.querySelector('.mk-toast') || {}).textContent || '')));
   await c2.close();
 }
+/* ★[TOAST_FILE_ONE 2026-09-27] 영상 이름 한 원천 — 화면이 찾는 이름은 모두 파일 규격 17편(scripts/video/encode-moment.sh) 안에 있어야 한다.
+   종전 ② 잔 들기 줄이 'toast-raise'(그런 파일 없음)를 찾아, 17편이 다 들어오면 «케이크와 축배»는 케이크 영상 · «축배만 + 붓기»는 붓기 영상이 나왔다(실측).
+   영상이 한 편도 없는 지금은 안 보이는 결함이라, 파일이 들어오기 전에 여기서 막는다. ffmpeg 없이 잰다(src 만 본다). */
+{
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close'];
+  const { ctx, pg } = await open(390, { videos: NAMES });
+  const r = await pg.evaluate((NAMES) => {
+    const R = RitualOpen, name = (h) => ((h.match(/moments\/([^"]+)\.mp4"/) || [])[1] || '(없음)'), out = { raise: {}, bad: [] };
+    const miss = (tag, n) => { if (NAMES.indexOf(n) < 0) out.bad.push(tag + '→' + n); };
+    for (const [t, w] of [['both', 'mix'], ['toast', 'mix'], ['toast', 'family'], ['toast', 'none']]) {
+      S.toast = t; S.wine = w;
+      ['toast-both-b', 'toast-both-pour-b'].forEach((sl) => { out.raise[t + '/' + w + '/' + sl] = name(_lVid('toast', { big: true, name: _lSceneName({ k: 'toast', slug: sl }) })); });
+      R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => miss('videoKeys:' + k, n)));
+    }
+    [['toast', 'toast-both'], ['toast', 'toast-pour-mix'], ['toast', 'toast-pour-family'], ['entry', 'entry-out'], ['tribute', 'narr-bow-groom'], ['_close', '']]
+      .concat(R.ORDER.map((k) => [k, ''])).forEach(([k, sl]) => miss('scene:' + k + '/' + sl, _lSceneName({ k: k, slug: sl })));
+    return out;
+  }, NAMES);
+  ok('10-1 ② 잔 들기 줄 = toast.mp4 — 케이크와 축배 · 축배만(두 와인 · 양가 · 붓지 않음) [TOAST_FILE_ONE]', Object.values(r.raise).every((n) => n === 'toast'), JSON.stringify(r.raise));
+  ok('10-2 화면이 찾는 영상 이름은 모두 규격 17편 안 [TOAST_FILE_ONE]', r.bad.length === 0, r.bad.join(' | '));
+  await ctx.close();
+}
+
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
 process.exit(fail ? 1 : cant ? 2 : 0);
