@@ -12879,3 +12879,14 @@ chk 'function _spExView(id, ctl){' mypage.html 1
 chk "+'</button>'+_spExBtn(s)+'</div>'; }).join('')+'</div>';" mypage.html 1
 chk "querySelectorAll('\[data-sex\],\[data-szoom\]')" mypage.html 1
 chk "예시 사진 '+(k+1)+' · 준비 중" mypage.html 1
+# [SNAP_PHOTO_FIRST] 스냅 장면 = 사진 중심 칸(사진 누르면 크게 · 오른쪽 위 원 = 고르기) · 사진 전엔 목록 + 글 «예시 ›»(시안 B) — 2026-09-27 사장님
+chk 'SNAP_PHOTO_FIRST' mypage.html 8
+chk 'function _spPv(s, kind){' mypage.html 1
+chk 'function _spCover(s){' mypage.html 1
+chk '<button type="button" class="snp-pk' mypage.html 1
+chk '.snp-cell.on .snp-pv{box-shadow:0 0 0 2px var(--gold-deep)}' mypage.html 1
+chk '.snp-pk.on span{border-color:var(--seal);background:var(--seal)}' mypage.html 1
+chk "'<span aria-hidden=\"true\">예시 ›</span>'" mypage.html 1
+chk '.snp-exv-sl{flex:0 0 88%;' mypage.html 1
+nochk 'function _spTile(' mypage.html 0
+chk 'SNAP_PHOTO_FIRST' scripts/audit/snap-plan.mjs 2
