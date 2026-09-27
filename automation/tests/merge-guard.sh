@@ -13141,7 +13141,7 @@ chk "h+=_stepHd('감사 인사 · 남아 주실 분 안내'" mypage.html 1
 chk "h+=_stepHd('가족 구도'" mypage.html 1
 chk "if(_dig) h+=_stepHd('온라인 인사'" mypage.html 1
 chk "h+=_stepHd('남은 분들과 자유롭게'" mypage.html 1
-chk "먼저 가실 분은 식사 자리로 옮기셔요.':(_ml==='no'?'먼저 가실 분께는 귀가 인사를 드려요.'" mypage.html 1   # 식사 있는 날 / 없는 날 / 모름 — 나레이션(end-1a · end-1c)과 같게
+chk "먼저 가실 분들은 이때 식사 자리로 옮겨요.':(_ml==='no'?'먼저 가실 분들은 이때 인사를 받고 돌아가요.'" mypage.html 1   # 식사 있는 날 / 없는 날 / 모름 — 나레이션(end-1a · end-1c)과 같게
 nochk "var _flw=\[\['다 함께 한 장'" mypage.html                                    # 흐름 줄(알약) 되살리지 말 것 — 번호 줄이 곧 흐름
 chk 'PHOTO_SHOOT_ORDER' mypage.html 3
 chk 'PHOTO_CALLER_WORD' mypage.html 1
@@ -13171,3 +13171,11 @@ nochk '양가 직계 가족과 따로 사진을 남길 분은 잠시 남아요' 
 chk 'PHOTO_GATHER_WORD' order-preview.html 1
 nochk '예식 준비 · 단체 사진</b>에서 골라요' order-preview.html
 chk 'PHOTO_DAY_STEPS' scripts/audit/photo-friend.mjs 1
+# [2026-09-27 가족 · 친구 스냅 고객 점검] 감사 인사 문구 · 친구 칸 안내 · 본식 동안 · 친구 예시 창 «이 부탁 담기»
+chk 'PHOTO_THANKS_WORD' mypage.html 1
+nochk '하객 모두께 함께 감사 인사' mypage.html
+chk 'PHOTO_FRIEND_HINT' mypage.html 1
+chk '아래 예시를 누르면 칸에 담겨요.' mypage.html 1
+chk 'PHOTO_SCENE_WHEN' mypage.html 1
+chk 'PHOTO_FRIEND_PICK' mypage.html 1
+chk "lab:{off:'이 부탁 담기'}" mypage.html 1

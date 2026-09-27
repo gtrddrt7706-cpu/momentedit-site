@@ -8709,8 +8709,8 @@ function renderPhoto(box){
   /* [PHOTO_DAY_STEPS] 2번 · 감사 인사 — 보기만. 나레이션(end-1a-farewell · 식사 없는 날 end-1c-thanks-nomeal)이 하는 말만 옮긴다(더 약속하지 않는다).
        [GUESTS_OPEN] 남는 분 = 가족 + 두 분과 사진을 더 남기고 싶은 분(친구 · 지인) · 식사 자리는 식당을 고른 날만(meal) · 모르면 중립 */
   h+=_stepHd('감사 인사 · 남아 주실 분 안내', '', 'show', '<span class="ph-st-m">약 1분</span>')
-    +'<div class="cc-note ph-st-note">두 분이 하객 모두께 함께 감사 인사를 드려요. 이어서 나레이션이 가족분들과, 사진을 더 함께 남기고 싶은 분께 잠시 남아 달라고 안내해요. '
-    +(_ml==='yes'?'먼저 가실 분은 식사 자리로 옮기셔요.':(_ml==='no'?'먼저 가실 분께는 귀가 인사를 드려요.':'다른 분들은 이때 먼저 자리를 옮기셔요.'))+'</div></li>';
+    +'<div class="cc-note ph-st-note">두 분이 함께 하객분들께 감사 인사를 드려요. 이어서 나레이션이 가족분들과, 두 분과 사진을 더 남기고 싶은 분들께 잠시 남아 달라고 안내해요. '
+    +(_ml==='yes'?'먼저 가실 분들은 이때 식사 자리로 옮겨요.':(_ml==='no'?'먼저 가실 분들은 이때 인사를 받고 돌아가요.':'먼저 가실 분들은 이때 자리를 옮겨요.'))+'</div></li>';   /* ★[PHOTO_THANKS_WORD 2026-09-27 고객 점검] 옛 «하객 모두께 함께» · «사진을 더 함께 남기고 싶은 분»(누구와?) · «옮기셔요» — 나레이션 원문 «두 사람과 따로 사진을 남기고 싶으신 분들도»에 맞춰 «두 분과»를 넣었다 */
   h+=_stepHd('가족 구도', '고르신 순서대로 사진작가가 불러 드리고 자연스럽게 이끌어요');   // [PHOTO_FREE] 부르고 세우는 것은 사진작가 · 나레이션 «가족사진은 작가님이 순서대로 불러 드립니다»와 같은 말
   h+=(sel.length?'<div class="ph-list">':'<div class="cc-note ph-none" style="text-align:left;margin:8px 0 2px">아직 고른 구도가 없어요 · 아래에서 더해 주세요.</div>');
   sel.forEach(function(n,i){
@@ -8778,7 +8778,7 @@ function renderPhoto(box){
   h+=_stepHd('남은 분들과 자유롭게', '가족 구도를 다 찍은 뒤 남는 시간만큼 편하게 찍어요');   // [PHOTO_DAY_STEPS] 5번(온라인 인사가 없는 날은 4번) · 시간은 약속하지 않는다(narr-photo-out · 남는 시간)
   if(PHOTOFLOW.friendOk){   // 친구들과 자유롭게 — 칸 이름은 확인서 · 관리자 · 콘솔과 같은 photoFriend
     h+='<div class="ph-sec ph-sec-in">사진작가에게 부탁할 것 <span class="opt-tag">· 선택</span></div>';
-    h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px">남아 주신 친구 · 지인분들과 찍을 때 폰으로도 찍어 달라고 사진작가에게 부탁하실 수 있어요.</div>';
+    h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">남아 주신 친구 · 지인분들과 어떻게 찍고 싶은지 적어 주세요.</span> <span class="ln-bal">아래 예시를 누르면 칸에 담겨요.</span></div>';   /* ★[PHOTO_FRIEND_HINT 2026-09-27 고객 점검] 옛 문구는 «폰으로도 찍어 달라» 한 가지만 말해 아래 예시 넷(셀카 · 부케 …)과 어긋났고, 누르면 칸에 담긴다는 말이 화면에 없었다(aria-label 에만) */ h+='';
     h+='<textarea id="mp_photoFriend" class="cc-input" maxlength="200" rows="2" aria-label="사진작가에게 부탁할 것" placeholder="사진작가에게 부탁할 것 (예: 대학 동기들과 폰으로도 몇 장)" style="margin:0;resize:vertical;font-family:var(--serif-ko);line-height:1.6">'+escapeHtml(PHOTOFLOW.friend||'')+'</textarea>';
     /* [PHOTO_FRIEND_EX] 적기 막막할 때 누르면 담기는 예시 — 사장님 원문(대기실 분위기 · 아이폰 셀카 · 사진작가에게 부탁)에서 뽑았다.
        칸은 여전히 하나다(G2 «대략 적을 수 있게만») · 누르면 뒤에 « · »로 이어 붙고, 이미 있는 말은 다시 안 붙인다. */
@@ -8798,7 +8798,7 @@ function renderPhoto(box){
      ③ 「고르지 않아도 담겨요」와 「여기서 고르실 것도 없어요」가 같은 말을 두 번 했다 — 뒤엣것을 뺐다. */
   h+='<div class="ph-sec">예식 순서에서 남는 사진</div>';   // [SEC_RANK] 꼬리 제거 — 바로 아래 본문이 「따로 하실 일은 없어요」로 같은 말을 한다
   if(_scn){
-    h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">사진작가가 흐름 속에서 담아요 · 따로 하실 일은 없어요.</div>';
+    h+='<div class="cc-note" style="text-align:left;margin:2px 0 0">본식 동안 사진작가가 흐름 속에서 담아요 · 따로 하실 일은 없어요.</div>';   // ★[PHOTO_SCENE_WHEN 2026-09-27 고객 점검] 차례 1~4(본식 뒤) 아래에 놓여 «언제?»가 흐렸다 — 이 칸은 본식 «동안»이다
     h+='<div class="ph-scene">';
     _scn.forEach(function(x){ h+='<div class="ph-sc"><span class="ph-sc-n">'+escapeHtml(x.n)+'</span><span class="ph-sc-s">'+escapeHtml(x.s)+'</span></div>'; });
     h+='</div>';
@@ -8944,6 +8944,7 @@ function renderPhoto(box){
   Array.prototype.forEach.call(box.querySelectorAll('[data-phex]'), function(b){ b.addEventListener('click', function(){
     var id=b.getAttribute('data-phex'), R=window.PHOTO_REFS, f=R&&R.scene(id); if(!f) return; var nm=f.s.name, ctl=null;
     if(PHOTO_NAMES.indexOf(nm)>-1 && sel.indexOf(nm)<0 && sel.length<photoMaxNow()) ctl={ lab:{off:'이 구도 담기'}, once:true, state:function(){ return {on:false, full:false, max:0}; }, toggle:function(){ if(sel.indexOf(nm)<0 && sel.length<photoMaxNow()){ sel.push(nm); rerender(); } } };
+    else if(PHOTOFLOW.friendOk && PHOTO_FRIEND_EX.indexOf(nm)>-1 && String(PHOTOFLOW.friend||'').indexOf(nm)<0){ var _fc=box.querySelector('[data-pfex="'+nm.replace(/"/g,'')+'"]'); if(_fc) ctl={ lab:{off:'이 부탁 담기'}, once:true, state:function(){ return {on:false, full:false, max:0}; }, toggle:function(){ _fc.click(); } }; }   /* ★[PHOTO_FRIEND_PICK 2026-09-27 고객 점검] 가족 구도 창엔 «이 구도 담기»가 있는데 친구 예시 창엔 누를 곳이 없었다 — 칩과 같은 일(칸 뒤에 « · »로 붙이기)을 한다 */
     _spExView(id, ctl, R); }); });
   /* ★[PHOTO_WISH] 요청 칸 — 글자를 칠 때마다 **모델에만** 담고 다시 그리지 않는다.
      ★재렌더하면 그 순간 커서가 날아가고 폰 키보드가 접힌다. 좌석 이름칸에서 한 번 겪은 사고와 같은 형태다
