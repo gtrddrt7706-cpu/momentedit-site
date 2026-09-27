@@ -594,27 +594,13 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 /* ★★[SNAP_PICK_V2 2026-09-26 사장님 회의] 고르는 스냅 기획 — 다섯 걸음 · 장면 타일(4:5) · 고른 순서 번호.
    크기 11·12·13·14·16 · 굵기 400~600 · 모서리 4·6·8·999 · 색은 변수만([TYPO_SCALE7]·[WEIGHT_RAMP4]·[SCALE_RADIUS6]·[BRAND_VAR]).
    고른 표시는 버건디 테두리 + 번호 원 — 색만으로 말하지 않는다(번호·aria-pressed 가 함께 말한다). 누름 칸은 전부 44px 이상. */
-.snp-steps{position:relative;display:flex;justify-content:space-between;list-style:none;margin:4px 0 0;padding:0}
-/* ★[SNAP_STEP_DOT 2026-09-26 사장님 «여기 숫자 부분 디자인적으로 조금만 더 개선하고 싶어»] 다섯 걸음 표시.
-   ①보이는 동그라미는 30px(지금 걸음 34px) · 누르는 칸은 44px 그대로(버튼 = 44px, 동그라미는 ::before).
-     44px 동그라미 다섯이 한 줄을 꽉 채워 무거웠다.
-   ②숫자는 고딕 13px · 같은 폭 숫자(lining · tabular) — 옛 세리프 숫자는 작고 들쭉날쭉했다(1 이 I 처럼 · 4 · 5 가 작게).
-   ③지나온 길은 금빛 선(--sp = 지금 걸음 / 4) · 남은 길은 가는 선. 지나온 걸음 = 옅은 금빛 바탕 + 금빛 테두리. */
-.snp-steps::before{content:'';position:absolute;left:22px;right:22px;top:21.5px;height:1px;background:var(--hairline,#E6E1D8)}
-.snp-steps::after{content:'';position:absolute;left:22px;top:21px;height:2px;width:calc((100% - 44px) * var(--sp,0));background:var(--gold)}
-.snp-steps li{position:relative;z-index:1}
-.snp-step{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;border-radius:999px;background:none;font-family:var(--sans);font-size:13px;font-weight:600;font-variant-numeric:lining-nums tabular-nums;line-height:1;color:var(--light);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.snp-step::before{content:'';position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:999px;border:1px solid var(--border);background:var(--card-white,#fff);z-index:-1;box-sizing:border-box}
-.snp-step.done{color:var(--gold-deep)}
-.snp-step.done::before{border-color:var(--gold);background:var(--gold-bg,#FAF6EF)}
-@media (hover:hover){.snp-step:not(.on):hover::before{border-color:var(--gold-deep)}}
+/* ★[SNAP_STEP_DOT → WZ_STEPS 2026-09-27 사장님 «2번 식순 형태의 진행바로 다른 곳들도 통일하자»] 다섯 걸음 동그라미(.snp-steps · .snp-step)는
+   걷어냈다 — 스냅 기획도 청첩장 · 애프터 웨딩과 같은 진행 표시(.wz-steps · 식순 .op-steps 모양)를 쓴다. 규칙은 [WZ_STEPS] 한 곳(마지막 스타일 묶음). 동그라미로 되돌리지 말 것. */
 /* ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게 색상 사용»] 진사는 넓은 면 · 테두리가 아니라 «점»으로만.
    ★★같은 날 밤 사장님 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 다 걷어내니 화면이 칙칙했다. 점을 다섯으로 되돌린다:
-     ①지금 걸음 동그라미(진사 + 옅은 진사 테 — 마이페이지 여정 점 .dots .current 와 같은 모양) ②고른 순서 번호(.snp-no)
+     ①지금 걸음 진행 표시의 윗선(진사 2px — [WZ_STEPS] · 9/27 전엔 진사 동그라미였다) ②고른 순서 번호(.snp-no)
      ③흐름 줄의 «촬영» 칸 글자(면은 옅은 진사 기운만) ④«마감» 라벨 ⑤동의 체크 알림(경고).
    고른 장면 테두리 · 단추(먹빛)는 그대로 마이페이지 톤 — 진사를 넓은 면 · 테두리로 넓히지 말 것(snap-plan 이 잰다). */
-.snp-step.on{color:#fff}
-.snp-step.on::before{width:34px;height:34px;margin:-17px 0 0 -17px;border-color:var(--seal);background:var(--seal);box-shadow:0 0 0 4px rgba(107,42,36,.1)}
 .snp-h{margin:20px 0 10px;font-family:var(--serif-ko);font-size:16px;font-weight:500;color:var(--accent);line-height:1.5;letter-spacing:-.02em;word-break:keep-all}
 .snp-h:focus{outline:none}
 /* ★[SNAP_FLOW_TEXT 2026-09-27 사장님 결정 A · 지시문 6편 3부 5] 흐름 줄은 «누를 수 없는 설명»이다([PHOTO_FLOW_LINE]) — 테두리 알약 + 진사 바탕이 탭(누르는 단계)처럼 보였다.
@@ -689,8 +675,6 @@ button.snp-tile{cursor:pointer}
 .snp-tile:focus-visible,.snp-zoom:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
 .snp-x:focus-visible{outline:none}
 .snp-x:focus-visible span{outline:2px solid var(--gold-deep);outline-offset:2px}   /* [SNAP_MODAL_A11Y] 링은 보이는 22px 동그라미에 — 44px 칸 둘레에 그리면 썸네일 밖으로 나가 잘렸다 */
-.snp-step:focus-visible{outline:none}   /* [SNAP_STEP_DOT] 초점 테는 보이는 동그라미에 — 44px 버튼 둘레에 그리면 동그라미와 떨어져 떴다 */
-.snp-step:focus-visible::before{box-shadow:0 0 0 2px var(--card-white,#fff),0 0 0 4px var(--gold-deep)}
 /* ★[SNAP_CONSENT 2026-09-26 사장님 · 코워크 명세 ①] 스냅 기획 동의 — 가운데 정렬 카드 안에서 왼쪽 정렬(여러 줄 글).
    누름 칸은 줄 전체(글을 눌러도 체크) · 44px 이상. 막는 색이 아니라 알리는 색 — 체크 없이 누르면 줄 테두리만 씰색으로. */
 .snp-agree{margin:14px 0 0;padding:2px 14px 8px;background:var(--bg2);border:1px solid transparent;border-radius:8px;text-align:left}
@@ -979,8 +963,10 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .inv-head{margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 /* [EXIT_TAP44 2026-08-09] 식순 빌더(.ob-exit)와 같은 처방 — 경위는 order-preview.html 주석에.
    청첩장·단체사진·최종확정·좌석이 이 한 규칙을 공유한다. 한쪽만 44 로 만들면 다섯이 갈라진다. */
-.wiz-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--serif-ko);font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
-.wiz-exit:hover{color:var(--accent);border-color:var(--gold-btn-border);background:var(--card-bg)}
+.wiz-exit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--card-white);border:1px solid var(--border);border-radius:999px;padding:0 15px;font-family:var(--sans);font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease)}
+/* ★[WZ_PILL 2026-09-27 사장님 «마이페이지 전체 일관성»] 위 알약(저장 · 나가기) = 식순 .ob-exit — 글꼴 고딕([RIT_PILL_SANS]) · 마우스 올림 금빛.
+     아래 막대 단추(.wz-bar · 고딕 14/600)와 같은 글꼴이라 한 화면의 손잡이가 한 목소리로 읽힌다. 종전 명조 13 은 식순 알약과 나란히 보면 달랐다. */
+.wiz-exit:hover{color:var(--gold-deep);border-color:var(--gold-deep)}
 /* [WIZ_EXIT_ONE 2026-08-14] 손잡이 둘 — 「저장」이 먼저, 「나가기」가 끝. 식순 빌더(.ob-save/#obExit)와
    같은 차림새·같은 네 상태다. 자주 쓰는 것이 앞에 오고 화면을 떠나는 것이 뒤에 온다. */
 .wiz-acts{display:inline-flex;align-items:center;gap:6px;flex:none}
@@ -990,7 +976,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .wiz-save:disabled{color:var(--light);cursor:default}   /* [WIZ_SAVE_AA 2026-08-15] opacity:.5 는 2.31:1 이었다 — '저장됨'은 상태 표시라 읽혀야 한다. --light 4.74:1(AA 하한) */
 .wiz-save:disabled:hover{color:var(--light);border-color:var(--border);background:var(--card-white)}
 .inv-step-n{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.08em;min-width:0}   /* [STEP_N_KO] 2026-09-26 · 한글 머리(애프터 웨딩 · 좌석 · 음료 · 가족 · 친구 스냅 · 청첩장)에 라틴 서체 규칙(Cormorant · 11px · 0.12em)이 걸려 폴백 글꼴로 벌어져 보였다([LABEL_KO_TRACK] 처방 = serif-ko · 12px · 0.08em). nowrap 은 넣지 않는다 — 320 에서 저장·나가기가 카드 밖으로 밀렸다(검증 실측). 번호 안쪽은 조립하는 곳에서 &nbsp; 로 묶는다 */
-.inv-q{font-family:var(--serif-ko);font-size:16px;color:var(--accent);margin:6px 0 10px}
+.inv-q{font-family:var(--serif-ko);font-size:16px;font-weight:500;letter-spacing:-.02em;line-height:1.5;word-break:keep-all;color:var(--accent);margin:6px 0 10px}   /* ★[WZ_TITLE 2026-09-27 사장님 «마이페이지 전체 일관성»] 입력 화면 제목 한 벌 = 스냅 기획 .snp-h(16 · 500) — 청첩장 · 애프터 웨딩 제목만 300 으로 옅어 같은 자리가 다른 무게였다 */
 .inv-opt{display:block;border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin:8px 0;cursor:pointer;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
 /* [찜] 별표·모아보기 — 다이닝 후보 저장(draft._favs · 계정 저장이라 부부 공용) */
 .inv-opt.dn-saved{position:relative;padding-right:58px}   /* 담은 카드 — 우상단 '담음' 표시 자리 확보 */
@@ -1865,6 +1851,22 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 @media (hover:hover){.wz-bar .cc-btn-ghost:hover{background:var(--bg3);border-color:var(--bg3);color:var(--accent)}}
 .wz-bar .wz-err{flex:1 0 100%;margin:0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all}
 .wz-bar .wz-err:empty{display:none}
+/* ★★[WZ_STEPS 2026-09-27 사장님 «1번(스냅 기획 동그라미)과 2번(식순 진행바) · 이런 형태가 전부 일관성 있게 같다면 좀 더 깔끔할 거 같은데 · 2번 식순 형태로 통일하자»]
+   입력 화면의 진행 표시 = 식순 빌더(order-preview.html .op-steps)와 같은 모양 한 벌 — 청첩장 · 애프터 웨딩 · 스냅 기획.
+   ①칸마다 윗선 2px + «① 이름» — 숫자와 이름이 함께 있어 «몇 걸음째 · 무엇을 하는 걸음»을 한눈에(옛 «청첩장 · 1 / 4»는 숫자만 · 동그라미는 이름이 없었다).
+   ②지금 걸음 = 윗선 진사(진사 «점» — [SNAP_TONE]) + 먹빛 굵게 · 지나온 걸음 = 윗선 금빛 · 남은 걸음 = 옅은 선.
+   ③지나온 걸음을 눌러 돌아갈 수 있는 곳(스냅 기획)만 밑줄 단추(44px) — 식순과 같다. 남은 걸음은 누를 수 없다.
+   크기 12(다섯 걸음은 11 — 390 한 칸 60px) · 굵기 400/600 · 색은 변수만([TYPO_SCALE7]·[WEIGHT_RAMP4]·[BRAND_VAR]). */
+.wz-steps{display:flex;gap:4px;list-style:none;margin:2px 0 18px;padding:0;font-family:var(--sans);font-size:12px;line-height:1.5;color:var(--light)}
+.wz-steps li{flex:1 1 0;min-width:0;text-align:center;padding-top:6px;border-top:2px solid var(--border);white-space:nowrap}
+.wz-steps li.on{color:var(--accent);font-weight:600;border-top-color:var(--seal)}
+.wz-steps li.done{color:var(--sub);border-top-color:var(--gold)}
+.wz-steps li.nav{padding-top:0}
+.wz-steps.n5{font-size:11px}
+.wz-stepb{display:flex;align-items:flex-start;justify-content:center;width:100%;min-height:44px;padding:6px 0 0;border:0;background:none;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
+.wz-steps li.done .wz-stepb{text-decoration:underline;text-decoration-color:var(--gold)}
+@media (hover:hover){.wz-stepb:hover{color:var(--accent);text-decoration:underline;text-decoration-color:currentColor}}
+.wz-stepb:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}
 </style>
     <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true" aria-labelledby="mpModalTitle"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
@@ -6784,6 +6786,21 @@ function _wizDirty(id){ id=id||_wizCurId(); if(!id) return false;
 /* [WIZ_EXIT_ONE] 헤더 손잡이 HTML — 모든 위저드가 이 한 함수만 부른다.
    그려진 뒤 상태를 칠하도록 다음 프레임에 _wizPaint 를 예약한다(innerHTML 대입 직후가 그때다). */
 function wizActs(){ _wizPaintSoon(); return '<span class="wiz-acts"><button type="button" class="wiz-exit wiz-save" data-wiz-save>저장</button><button type="button" class="wiz-exit" data-wiz-exit>나가기</button></span>'; }
+/* ★★[WZ_STEPS 2026-09-27 사장님 «1번(스냅 기획 동그라미)과 2번(식순 진행바)이 전부 일관성 있게 같다면 좀 더 깔끔할 거 같은데 · 2번 식순 형태의 진행바로 다른 곳들도 통일하자»]
+   입력 화면의 진행 표시 한 벌 = 식순 빌더(order-preview.html .op-steps)와 같은 모양 — 칸마다 윗선 2px · «① 이름»,
+   지금 걸음은 윗선 진사 + 글자 먹빛 굵게 · 지나온 걸음은 윗선 금빛 · 남은 걸음은 윗선 옅게.
+   names = 걸음 이름(짧게 — 390 에서 한 칸 60~76px) · cur = 지금 걸음(0부터) · jump = 걸음을 누를 수 있게 할 때 data 속성 이름(없으면 글자만)
+   · fwd = 앞 걸음으로도 건너뛸 수 있나(스냅 기획 — 걸음끼리 서로 기대지 않아 종전 동그라미도 다섯 다 눌렀다 · 되돌아올 때 «④ 메모»로 바로 가는 길을 지운다면 퇴보다).
+   ★밑줄은 지나온 걸음에만(식순과 같은 모양) — 앞 걸음 단추는 밑줄 없이 누를 수만 있다(탭처럼 · 초점 · 마우스 올림에 드러난다).
+   ★동그라미 숫자(snp-steps · SNAP_STEP_DOT)와 «청첩장 · 1 / 4» 숫자 글은 이 한 벌로 바뀌었다 — 되살리지 말 것. */
+var WZ_CIRC=['①','②','③','④','⑤','⑥'];
+function wzSteps(names, cur, jump, fwd){
+  return '<ol class="wz-steps'+(names.length>=5?' n5':'')+'" aria-label="진행 단계">'+names.map(function(nm,i){
+    var lab=WZ_CIRC[i]+' '+escapeHtml(nm), nav=!!jump && (i<cur || (fwd && i>cur));
+    if(nav) lab='<button type="button" class="wz-stepb" '+jump+'="'+i+'">'+lab+'</button>';
+    return '<li class="'+(i===cur?'on':(i<cur?'done':''))+(nav?' nav':'')+'"'+(i===cur?' aria-current="step"':'')+'>'+lab+'</li>';
+  }).join('')+'</ol>';
+}
 var _wizPaintT=0;
 function _wizPaintSoon(){ if(_wizPaintT) return; _wizPaintT=requestAnimationFrame(function(){ _wizPaintT=0; _wizPaint(); }); }
 /* [WIZ_EXIT_ONE·식순 _autoPaint 이식] 상태는 버튼이 스스로 말한다 — 따로 안내 줄을 두지 않는다.
@@ -7044,7 +7061,16 @@ function _invLinkChange(d){
   if((pb.groomKo && gKo && gKo!==String(pb.groomKo).trim()) || (pb.brideKo && bKo && bKo!==String(pb.brideKo).trim())) return 'name';
   return '';
 }
-function _invTotalSteps(d){ var m=d&&d.method; return (m==='self'||m==='none')?2:4; }   // MPD_E9 self/none 경로는 혼주·디자인 단계를 건너뜀 — "1/4→4/4" 점프 거짓 예고 방지
+function _invTotalSteps(d){ var m=d&&d.method; return (m==='self'||m==='none')?2:4; }
+/* [WZ_STEPS] 청첩장 진행 표시 — 지나온 걸음은 눌러 돌아간다(식순과 같다 · 밑줄). 앞 걸음은 못 누른다 — «다음»이 걸음마다 빈 칸을 확인하고 저장한다(건너뛰면 그 확인을 빠진다).
+   돌아가기 전에 이 걸음에서 적은 것을 먼저 담는다 — «이전» 단추와 같은 순서(_invJumpBind 의 pre). */
+function _invStepKeys(d){ return _invTotalSteps(d)===2 ? ['method','confirm'] : ['method','parents','design','confirm']; }
+function _invSteps(d, cur){ return wzSteps(_invTotalSteps(d)===2 ? ['기본','확인'] : ['기본','부모님','디자인','확인'], cur, 'data-ivgo'); }
+function _invJumpBind(box, pre){
+  Array.prototype.forEach.call(box.querySelectorAll('[data-ivgo]'), function(b){ b.addEventListener('click', function(){
+    try{ if(pre) pre(); }catch(e){}
+    INVFLOW.step=_invStepKeys(INVFLOW.draft)[+b.getAttribute('data-ivgo')]||'method'; renderInvFlow(box); }); });
+}   // MPD_E9 self/none 경로는 혼주·디자인 단계를 건너뜀 — "1/4→4/4" 점프 거짓 예고 방지
 function invStepMethod(box){
   var d=INVFLOW.draft, m=d.method||'';
   /* [INV_OPT_KB] 2026-09-26 통합 점검 L6 · «어떻게 초대하실래요?» 카드 다섯이 짝 입력 없는 <label> 이라 초점을 못 받았다 —
@@ -7065,7 +7091,7 @@ function invStepMethod(box){
     +'<div class="pf-cover" id="mp_cover"></div>';
   var qr = (m==='self') ? '<div class="inv-sub">모바일 참석 QR도 받으실래요? <span class="inv-yn" role="group" aria-label="모바일 참석 QR도 받으실래요?"><button type="button" data-qr="Y" class="'+(d.selfQR===true?'on':'')+'" aria-pressed="'+(d.selfQR===true)+'">네</button><button type="button" data-qr="N" class="'+(d.selfQR===false?'on':'')+'" aria-pressed="'+(d.selfQR===false)+'">아니요</button></span></div>' : '';   // [INV_YN_PRESSED]
   box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 1 / '+_invTotalSteps(d)+'</span>'+wizActs()+'</div>'   // MPD_E9 경로별 단계 수(§8-1-⑤)
+    +'<div class="inv-head"><span class="inv-step-n">청첩장</span>'+wizActs()+'</div>'+_invSteps(d,0)   // MPD_E9 경로별 단계 수(§8-1-⑤) · [WZ_STEPS] 숫자 글 «청첩장 · 1 / 4» → 식순과 같은 진행 표시
     +'<div class="inv-q">두 분 이름부터 적을게요</div>'
     +names
     +'<div class="inv-gate" style="margin:16px 0 4px"><div class="inv-gate-q">어떻게 초대하실래요?</div></div>'
@@ -7172,7 +7198,7 @@ function invStepParents(box){
     + _accWhere
     + yn('부모님 계좌도 함께 넣으실까요?', d.envelopeShowParents||'', 'data-pa') + paF + '</div>';
   box.innerHTML='<div class="consult-card inv-wrap">'
-    +'<div class="inv-head"><span class="inv-step-n">청첩장 · 2 / 4</span>'+wizActs()+'</div>'
+    +'<div class="inv-head"><span class="inv-step-n">청첩장</span>'+wizActs()+'</div>'+_invSteps(d,1)   // [WZ_STEPS]
     +'<div class="inv-q">혼주(부모님) · 마음 전하실 곳</div><div class="inv-sub">계좌를 비워 두면 마음 전하실 곳 없이 나가요 · 나머지는 선택이에요.</div>'
     + _invEgParents()
     + yn('인사말에 부모님 성함을 넣으실까요?', d.greetingShowParents||'', 'data-gp') + pF
@@ -7200,6 +7226,7 @@ function invStepParents(box){
   ['iv_gp','iv_bp'].forEach(function(id){ var el=$(id); if(el) el.addEventListener('blur', function(){ var parts=el.value.trim().split(/[\s,\/.·∙ㆍ]+/).filter(Boolean); var v=parts.join('·'); if(v!==el.value){ el.value=v; collect(); } }); });   // 혼주 성함 가운뎃점(·) 자동
   ['iv_gct','iv_bct','iv_gb','iv_bb','iv_gfb','iv_gmb','iv_bfb','iv_bmb'].forEach(function(id){ var s=$(id); if(!s) return; s.addEventListener('change',function(){ var e=$(id+'_e'); if(e){ e.style.display=(s.value===ETC)?'':'none'; if(s.value===ETC) e.focus(); } if(id==='iv_gct'||id==='iv_bct') d._titleTouched=true; collect(); }); });
   $('iv_back').addEventListener('click',function(){collect();INVFLOW.step='method';renderInvFlow(box);});
+  _invJumpBind(box, collect);   // [WZ_STEPS] «① 기본»을 눌러도 «이전»처럼 적은 것을 먼저 담는다
   $('iv_next').addEventListener('click',function(){collect();
     var _bm=_invBankMiss(d); if(_bm){ _invBankAsk(_bm).then(function(){ _invBankFocus(_bm); }); return; }   // [INV_BANK_PICK] 번호는 있는데 은행이 비면 여기서 멈춘다
     saveInvDraft();INVFLOW.step='design';renderInvFlow(box);});
@@ -7333,7 +7360,7 @@ function updateInvPreview(){
 }
 function invStepDesign(box){
   var d=INVFLOW.draft, m=d.method;
-  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · 3 / 4</span>'+wizActs()+'</div><div class="inv-q">디자인을 골라 주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>'
+  var h='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장</span>'+wizActs()+'</div>'+_invSteps(d,2)+'<div class="inv-q">디자인을 골라 주세요</div><div class="inv-sub">화면 속 이름·문구는 예시예요.</div>'
     +'<div class="cc-actions" style="margin:2px 0 12px"><button type="button" class="cc-btn-ghost" id="iv_gallery" style="width:auto;padding:7px 13px">샘플 전체 둘러보기</button></div>';   // 고르기 전에 먼저 훑어보게 상단 배치
   if(m==='offline') h+=designBlock('offline','직접 모시는 청첩장');
   else if(m==='online') h+=designBlock('online','온라인(모바일 참석) 청첩장');
@@ -7347,6 +7374,7 @@ function invStepDesign(box){
   box.innerHTML=h;
   bindDesign(box);
   $('iv_back').addEventListener('click',function(){ collectDesign(box); INVFLOW.step='parents'; renderInvFlow(box); });
+  _invJumpBind(box, function(){ collectDesign(box); });   // [WZ_STEPS]
   INVFLOW._collect=function(){ collectDesign(box); };   // 당겨서 새로고침 입력 수집 훅(유실 방지)
   $('iv_next').addEventListener('click',function(){ collectDesign(box); if(!_invHasDesign(d)){ mpAlert('디자인을 골라 주세요.'); return; } saveInvDraft(); INVFLOW.step='confirm'; renderInvFlow(box); });
   var gl=$('iv_gallery'); if(gl) gl.addEventListener('click', openGalleryPick);
@@ -7384,11 +7412,12 @@ function invStepConfirm(box){
     :(_lk==='date')?'<div class="cc-note"><span class="ln-bal">빈 칸은 기본 문구로 채워져요. 예식&nbsp;날짜가 달라져서 링크 주소가 바뀌어요.</span><span class="ln-bal">반영한 뒤 새 링크를 다시 보내 주세요.</span></div>'
     :(_lk===null)?'<div class="cc-note" style="text-wrap:balance">빈 칸은 기본 문구로 채워져요. 아래 버튼을 누르면 고친 내용이 청첩장에 바로 들어가요.</div>'
     :'<div class="cc-note">빈 칸은 기본 문구로 채워져요. <b>만들기</b>를 누르면 실제 청첩장이 바로 나오고, 발행 후에도 고칠 수 있어요.</div>';
-  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장 · '+(_invTotalSteps(d)===2?'2 / 2':'4 / 4')+'</span>'+wizActs()+'</div>'
+  box.innerHTML='<div class="consult-card inv-wrap"><div class="inv-head"><span class="inv-step-n">청첩장</span>'+wizActs()+'</div>'+_invSteps(d,_invTotalSteps(d)-1)   // [WZ_STEPS]
     +'<div class="inv-q">거의 다 됐어요</div><div class="inv-sub">'+escapeHtml(sm)+'</div>'+det
     +mkNote
     +'<div class="inv-nav wz-bar"><div id="iv_err" class="wz-err" role="alert"></div><button type="button" class="cc-btn-ghost" id="iv_back">이전</button><button type="button" class="cc-btn" id="iv_pub">'+_pl+'</button></div></div>';   // [INV_PUB_LABEL] · [WZ_BAR] 오류 줄은 막대 안(막대가 아래에 붙으면 내용 끝 줄은 화면 밖이다)
   $('iv_back').addEventListener('click',function(){ INVFLOW.step=(m==='online'||m==='offline'||m==='both')?'design':'method'; renderInvFlow(box); });
+  _invJumpBind(box, null);   // [WZ_STEPS] 확인 걸음은 적는 칸이 없다 — «이전»처럼 곧바로
   $('iv_pub').addEventListener('click',function(){ doPublishInv(box); });
 }
 function doPublishInv(box){
@@ -8950,7 +8979,7 @@ function _kbChip(el, fn){
   el.addEventListener('keydown', function(e){ if(e.repeat) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fn(e); } });
 }
 var SNAPFLOW = { active:false, d:null, step:0 };
-var SNAP_STEPS=[{k:'when',t:'이날의 스냅'},{k:'candle',t:'캔들존'},{k:'white',t:'화이트존'},{k:'note',t:'알면 좋은 것'},{k:'send',t:'사진작가에게 전해요'}];
+var SNAP_STEPS=[{k:'when',t:'이날의 스냅',s:'안내'},{k:'candle',t:'캔들존',s:'캔들존'},{k:'white',t:'화이트존',s:'화이트존'},{k:'note',t:'알면 좋은 것',s:'메모'},{k:'send',t:'사진작가에게 전해요',s:'확인'}];   // s = 진행 표시 이름([WZ_STEPS] · 390 한 칸 60px 안) · t = «다음 · …» 단추 이름
 var SNAP_THUMBS={};   // 올린 사진 id → 작은 그림(dataURL) · 이 탭 안에서만 · 서버 snapThumbs 가 채운다
 function _snapZoneNew(z){ z=z||{}; var A=function(v){ return Object.prototype.toString.call(v)==='[object Array]'?v:[]; };
   return { picks:A(z.picks).map(String).slice(0,4), ups:A(z.ups).filter(function(u){ return u&&u.id; }).map(function(u){ return {id:String(u.id), th:String(u.th||''), n:String(u.n||'')}; }).slice(0,3), links:A(z.links).map(String).slice(0,3), note:String(z.note||'') }; }   // [SNAP_ZONE_NOTE] 공간별 «사진작가에게 전할 말»
@@ -9164,7 +9193,7 @@ function renderSnapFlow(){
   var ovl=$('mp_snapOverlay'); if(ovl){ ovl.classList.toggle('snp-pre', !!SNAPFLOW.needAgree); ovl.classList.toggle('snp-ro', ro); }   // [SNAP_PRECONSENT_EXIT] 동의 전 · 읽기 전용 = 머리 «저장» 알약 숨김(CSS)
   var h='<div class="consult-card snp-card" style="text-align:left">';
   h+='<div class="inv-head"><span class="inv-step-n">스냅 기획</span>'+wizActs()+'</div>';   // [WZ_BAR] 머리 = 다른 입력 화면과 같은 모양(이름 왼쪽 · 저장 · 나가기 오른쪽) — 영문 머리글 · 큰 제목은 대시보드 카드에만
-  if(!ro) h+='<ol class="snp-steps" aria-label="스냅 기획 다섯 걸음" style="--sp:'+(st/(SNAP_STEPS.length-1))+'">'+SNAP_STEPS.map(function(s,i){ return '<li><button type="button" class="snp-step'+(i===st?' on':'')+(i<st?' done':'')+'" data-sstep="'+i+'"'+(i===st?' aria-current="step"':'')+' aria-label="'+(i+1)+'. '+s.t+'">'+(i+1)+'</button></li>'; }).join('')+'</ol>';   // [SNAP_STEP_DOT] --sp = 지나온 길(금빛 선)의 길이
+  if(!ro) h+=wzSteps(SNAP_STEPS.map(function(x){ return x.s; }), st, 'data-sstep', true);   // [WZ_STEPS] 식순과 같은 진행 표시 · 다섯 걸음 다 누른다(종전 동그라미와 같은 길 · 밑줄은 지나온 걸음만)
   /* ★[SNAP_DESIGN_0926 사장님 «전체적으로 디자이너 관점으로 검토해 보고»] «2 / 5 · 캔들존» 줄을 뺐다 — 위 동그라미가 이미 몇 걸음째인지 말하고,
      이름은 바로 아래 제목(캔들존 · 사진작가가 알면 좋은 것 …)과 같은 말이었다(제목이 다섯 층으로 쌓여 본문이 늦게 시작했다). 되살리지 말 것. */
   if(st===0 && SNAPFLOW.restored && SNAPFLOW.needAgree) h+='<div class="snp-restored">이 기기에 적어 둔 것을 불러왔어요 · 마지막 걸음에서 동의하면 저장돼요</div>';   // [SNAP_PRECONSENT_EXIT]
@@ -10088,10 +10117,10 @@ function renderSeat(box){
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 · 음료</span>'+wizActs()+'</div>'   // [SEAT_HEAD_ONE] 2026-09-26 · «· 3 / 3» 을 뺐다 — 2026-07-19 한 화면 통합으로 인원·음료 1·2단계가 이 화면에 합쳐져, 처음 들어온 첫 화면이자 유일한 화면인데 «3 / 3»이라 앞 단계를 찾게 했다(가족 · 친구 스냅 머리와 같은 꼴 · TRK_META.final.steps 는 renderFinal 경로가 써서 그대로)
     // [자리별 3음료 + 인원 자동계산 2026-07-19 사용자 지시] 별도 인원 입력·대표음료 칩 폐지 → 자리에 이름·음료를 넣으면 인원·요금 자동. 요금 안내는 캔버스 아래.
-    +'<div class="cc-title" style="text-align:center">테이블 자리를 정해요</div>'
-    +'<div class="cc-sub" style="text-align:center;margin-bottom:6px">자리를 누르면 <b>이름과 음료</b>를 한 창에서 정해요.</div>'   // [SEAT_ONE_CARD] 두 가지가 각각 다른 곳에서 열리던 것을 한 창으로 모았다
+    +'<div class="inv-q">테이블 자리를 정해요</div>'   // [WZ_TITLE] 다른 입력 화면과 같은 제목(왼쪽 · 16 · 500) — 종전엔 가운데 정렬 17px 로 이 화면만 달랐다
+    +'<div class="inv-sub">자리를 누르면 <b>이름과 음료</b>를 한 창에서 정해요.</div>'   // [SEAT_ONE_CARD] 두 가지가 각각 다른 곳에서 열리던 것을 한 창으로 모았다
     // TRK_NO_SUB(2026-07-25 사용자 지시): 목록 행 아래에 있던 기한·좌석 안내 링크 설명을 이 화면 안으로 이관(행은 이름·버튼만)
-    +'<div class="cc-note" style="text-align:center;margin:0 0 12px">'+_seatLeadNote()+'</div>'
+    +'<div class="cc-note" style="text-align:left;margin:0 0 12px">'+_seatLeadNote()+'</div>'   // [WZ_TITLE] 제목 · 설명과 같은 왼쪽 선
     + barHtml
     +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
     +'<div class="seat-room">'
@@ -10208,7 +10237,7 @@ function bindSeat(box){
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
-var TRK_META = { dining:{ label:'애프터 웨딩', steps:2 }, final:{ label:'좌석 · 음료', steps:3 } };   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
+var TRK_META = { dining:{ label:'애프터 웨딩', steps:2, names:['고르기','확인'] }, final:{ label:'좌석 · 음료', steps:3, names:['인원','음료','좌석'] } };   // names = 진행 표시 이름([WZ_STEPS])   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
 var MP_FINAL_POLICY = { seats:30, max:30, unit:0 };   // [SEATED30] 서른 분 전원 착석(2026-09-13 검토38) — seats 를 25 로 되돌리지 말 것   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
@@ -10259,8 +10288,12 @@ function trkShell(stepNo, q, sub, body, last, lastLabel, result){
     ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
     : '';
   return '<div class="consult-card inv-wrap">'
-    /* [STEP_N_KO] 번호 안쪽(1 / 2)은 &nbsp; 로 묶는다 — 320 에서 «애프터 웨딩 · 1» / «/ 2»로 쪼개졌다. 꺾이면 «·» 뒤에서만 꺾인다 */
-    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+(result?'':(' · '+stepNo+'&nbsp;/&nbsp;'+m.steps))+'</span>'+(last?'':''+wizActs()+'')+'</div>'
+    /* [WZ_STEPS] 머리는 이름만 · 몇 걸음째는 아래 진행 표시가 말한다(식순과 같은 모양 — 옛 «애프터 웨딩 · 1 / 2» 숫자 글을 대신한다).
+       결과 화면(result · «안내 없이 진행해요»)은 걸음이 아니라 표시를 두지 않는다([DN_NONE_RESULT]). */
+    /* ★[WZ_HEAD_ALL 2026-09-27 사장님 «마이페이지 전체 일관성»] 마지막 걸음에도 저장 · 나가기 — 청첩장 · 스냅 기획 · 식순은 마지막 걸음에도 있는데 여기만 없었다
+         (8/14 전 손잡이가 «저장 후 나가기» 하나라 아래 «저장하고 닫기»와 겹쳐 뺐던 흔적). 결과 화면(«안내 없이 진행해요»)은 저장할 것이 없어 뺀다. */
+    + '<div class="inv-head"><span class="inv-step-n">'+escapeHtml(m.label)+'</span>'+(result?'':wizActs())+'</div>'
+    + (result ? '' : wzSteps(m.names, stepNo-1, 'data-trkgo'))
     + '<div class="inv-q">'+escapeHtml(q)+'</div>'
     + (sub?'<div class="inv-sub">'+escapeHtml(sub)+'</div>':'')
     + (body||'')
@@ -10352,6 +10385,7 @@ function bindTrk(box, render, collect, opt){
     Array.prototype.forEach.call(box.querySelectorAll('[data-sgg]'),function(el){ el.addEventListener('click',function(){ _dncGo(el.getAttribute('data-sgg')); }); });
   }
   var back=$('trk_back'); if(back) back.addEventListener('click',function(){ collect(); TRKFLOW.step--; render(box); });
+  Array.prototype.forEach.call(box.querySelectorAll('[data-trkgo]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.step=+el.getAttribute('data-trkgo'); render(box); }); });   // [WZ_STEPS] 지나온 걸음 = «이전»과 같은 길(적은 것을 담고 돌아간다)
   var next=$('trk_next'); if(next) next.addEventListener('click',function(){
     collect();
     if(opt.validate){ var msg=opt.validate(); if(msg){ if($('trk_err')) $('trk_err').textContent=msg; else mpAlert(msg); return; } }
@@ -10942,7 +10976,7 @@ function renderDining(box){
           +'<div class="dn-fine" style="margin-top:8px">✕로 목록에서 뺄 수 있어요.'+(restos.length?' 예약 전 식당에 전화로 한 번 확인해 주세요.':'')+'</div>'
           +((restos.length>1||spots.length)?'<div class="dn-fine" style="margin-top:4px">대표 예약처는 늘 하객분들께 공개돼요. 추가로 <b>‘하객분들께도 보여주기’</b>를 켠 식당·카페·가볼 곳만 함께 안내돼요(2차 등).</div>':'')
           +(restos.length?_dnRsvHtml(d, !rep?'none':(_dnTelOf(rep, (restos.filter(function(v){ return v.n===rep; })[0]||{}).tel)?'tel':'notel')):'');   // [DN_TEL_MAP] [DN_RSV_MODE]
-        box.innerHTML=trkShell(2,'담은 곳 · '+favs.length+'곳 모아보기',null,body2,true,'저장하고 닫기');
+        box.innerHTML=trkShell(2,'담은 곳 · '+favs.length+'곳 모아보기',null,body2,true,'저장하고 마치기');   // [WZ_FINISH_LABEL] 스냅 기획 · 가족·친구 스냅과 같은 말
         bindTrk(box,renderDining,collect,{ last:true });
         _dnRsvWire(d);
       } else {
@@ -10959,7 +10993,7 @@ function renderDining(box){
             + '<div class="cc-note" style="margin:0 0 10px">'+escapeHtml(d.venuePick||'장소 미정')+'</div>'
             + '<div class="cc-note">'+(d.venuePick==='상담 때 함께 정할게요'?'상담 때 디렉터와 함께 고르고, 예약은 두 분이 하시면 돼요.':'원하시는 곳을 직접 정해 예약하시면 돼요.')+'</div>';
         }
-        box.innerHTML=trkShell(2,'예약 안내',null,body2b+((d.dining_on!=='N')?_dnRsvHtml(d, !R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel')):''),true,'저장하고 닫기');   // [DN_TEL_MAP] [DN_RSV_MODE]
+        box.innerHTML=trkShell(2,'예약 안내',null,body2b+((d.dining_on!=='N')?_dnRsvHtml(d, !R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel')):''),true,'저장하고 마치기');   // [WZ_FINISH_LABEL] · [DN_TEL_MAP] [DN_RSV_MODE]
         bindTrk(box,renderDining,collect,{ last:true });
         _dnRsvWire(d);
       }
