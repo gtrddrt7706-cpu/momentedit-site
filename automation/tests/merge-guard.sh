@@ -491,6 +491,27 @@ chk '.wiz-exit{display:inline-flex;align-items:center;justify-content:center;min
 chk 'WZ_PILL' mypage.html 1
 chk "true,'저장하고 마치기');" mypage.html 2
 nochk "true,'저장하고 닫기');" mypage.html 0
+# ★★[SEL_ONE · NOTE_DOT · ERR_ONE · CC_BTN_KO 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»]
+#   ①고름 표시 한 벌 = 금빛 테 두 겹 + 옅은 금빛 바탕 + 먹빛(식순 .seg-b.on · 음료 .dk-chip.on 과 같은 말) — 진사 칠 · 먹빛 칠 · 진사 테로 되돌리면 빨강
+#   ②안내 한 줄 = «점 + 글»(.mp-dotln) — 칠한 상자(분홍 #FBF3F1 · 진사 옅은 칠 · 회색 칠 · 금빛 칠)로 되돌리면 빨강
+#   ③오류 = 진사(후기 · 애프터 웨딩 AI) ④주 단추 .cc-btn 글꼴 = 한글 명조(라틴 Cormorant 만 걸려 한글이 기기 기본 명조로 떨어졌다)
+chk 'SEL_ONE' mypage.html 12
+chk '.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on{border-color:var(--gold-deep);' mypage.html 1
+chk '.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);' mypage.html 1
+nochk 'dn-fpill.on{border-color:var(--seal' mypage.html 0
+nochk 'dn-segbtn.on{background:var(--seal' mypage.html 0
+nochk 'srv-opts button.on{background:#4E3F31' mypage.html 0
+nochk 'sp-opt.on{border-color:var(--seal)' mypage.html 0
+chk 'NOTE_DOT' mypage.html 8
+chk '<div class="mp-dotln need">보내기 전, ' mypage.html 1
+nochk 'background:#FBF3F1' mypage.html 0
+nochk 'background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전' mypage.html 0
+nochk 'border-color:#cdb98a' mypage.html 0
+chk 'id="mp_svErr" style="color:var(--seal);' mypage.html 1
+chk 'id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align:center;color:var(--seal)"' mypage.html 1
+chk '.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif-ko);' mypage.html 1
+chk 'SEL_ONE' .claude/skills/momentedit-design/SKILL.md 1
+chk 'NOTE_DOT' .claude/skills/momentedit-design/SKILL.md 1
 # [SNAP_DESIGN_0926] 디자이너 관점 점검 — «2 / 5 · 캔들존» 줄 삭제(제목과 같은 말) · 마감 칠한 상자 → 라벨 + 가는 선 · 고르는 칸 hover
 chk 'SNAP_DESIGN_0926' mypage.html 3
 # ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]

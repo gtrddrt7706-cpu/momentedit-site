@@ -176,7 +176,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .gal-it img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--bg2)}
 .gal-it .gal-nm{display:block;font-family:var(--serif-ko);font-size:11px;color:var(--sub);padding:4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
 .gal-it .gal-ck{display:none;position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;line-height:22px;text-align:center}
-.gal-it.on{border-color:var(--seal);box-shadow:0 0 0 2px var(--gold-soft)}
+/* .gal-it.on → [SEL_ONE] */
 .gal-it.on .gal-ck{display:block}
 .gal-it:active{transform:scale(.98)}
 /* MPD4_F2 SR 골격 — 시각 무변화(§8-2-③) */
@@ -375,7 +375,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-note{font-family:var(--serif-ko);font-size:12px;color:var(--light);line-height:1.65;margin-top:10px;text-wrap:balance}   /* [LN_BAL] 안내 한 줄이 두 줄로 접힐 때 한 마디만 떨어지지 않게 */
 .consult-card .cc-actions{margin-top:18px;display:flex;flex-direction:column;gap:8px}
 .consult-card .cc-actions:empty{display:none}
-.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.08em;background:#4E3F31;color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}   /* [CC_BTN_TRACK 2026-09-25 코워크 5편 ⑤] 자간 .16em → .08em — 라벨 34곳이 전부 한글이라 「일 정 선 택」으로 흩어졌다([KO_TRACK_SPLIT] · .btn 과 같은 값) */
+.cc-btn{display:block;width:100%;text-align:center;padding:14px 0;border:none;border-radius:6px;font-family:var(--serif-ko);font-size:13px;font-weight:500;letter-spacing:.08em;background:#4E3F31;color:#fff;text-decoration:none;cursor:pointer;transition:background .3s}   /* [CC_BTN_TRACK 2026-09-25 코워크 5편 ⑤] 자간 .16em → .08em — 라벨 34곳이 전부 한글이라 「일 정 선 택」으로 흩어졌다([KO_TRACK_SPLIT] · .btn 과 같은 값) */
+/* ★[CC_BTN_KO 2026-09-27 사장님 «마이페이지 전체 일관성»] 글꼴 var(--serif) → var(--serif-ko). 마이페이지 --serif 는 Cormorant · Georgia 로 끝나 한글이 없다 —
+     라벨 34곳이 전부 한글이라 한글은 기기 기본 명조(아이폰 AppleMyungjo 등)로 떨어져, 바로 옆 .cc-btn-ghost(Noto Serif KR)와 다른 글꼴로 섰다. */
 .cc-btn:hover{background:#3A2D22}
 .cc-btn:active{background:#9C7E55}
 .cc-btn.cc-btn-seal{background:var(--seal)}   /* 진사 포인트 CTA — 결정적 액션(서명·계약요청·입금신호·추천)만, 화면당 1개 */
@@ -456,8 +458,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .wed-slot{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:11px 6px;border:1px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;font-family:var(--serif-ko);transition:border-color .15s,background .15s}
 .wed-slot .ws-lab{font-size:11px;color:var(--light)}
 .wed-slot .ws-t{font-size:14px;color:var(--accent);font-weight:500}
-.wed-slot.sel{border-color:var(--gold);background:var(--bg2)}
-.wed-slot.sel .ws-t{color:var(--seal)}
+/* .wed-slot.sel → [SEL_ONE] */
 .wed-slot.taken{opacity:.45;cursor:not-allowed;background:var(--bg2)}
 .wed-slot .ws-x{font-size:10px;color:var(--seal)}
 .dt-picker-wrap{position:relative;width:100%}
@@ -983,7 +984,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 /* [MP_TAP44] 설문 칩 39→44 — 손끝 하한. min-height 를 지우면 39px 로 돌아간다 */
 .srv-opts button{flex:0 1 auto;min-height:44px;padding:10px 14px;background:#fff;border:1px solid var(--border);border-radius:9px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--accent);transition:all .14s;line-height:1.3}
 .srv-opts button:hover{border-color:var(--gold);background:#fffdf9}
-.srv-opts button.on{background:#4E3F31;border-color:#4E3F31;color:#fff;font-weight:500;box-shadow:0 1px 3px rgba(78,63,49,.22)}
+/* .srv-opts button.on → [SEL_ONE] */
 #mp_svReview{font-family:var(--sans);font-weight:300;font-size:14px;line-height:1.65}
 #mp_svReview::placeholder{color:var(--label-soft);font-weight:300}
 .srv-consent{display:flex;align-items:center;gap:7px;margin:9px 0 0;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer}
@@ -1014,8 +1015,8 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .inv-opt.dn-saved{position:relative;padding-right:58px}   /* 담은 카드 — 우상단 '담음' 표시 자리 확보 */
 .dn-savedtag{position:absolute;top:11px;right:12px;font-family:var(--serif-ko);font-size:11px;color:var(--gold-deep,#7A5F37);letter-spacing:.03em;user-select:none;-webkit-user-select:none}
 .dn-savedtag::before{content:'\2665';margin-right:3px;font-size:10px;color:var(--gold,#B89A75)}   /* 은은한 골드 하트 · 시스템 체크(✓) 대신 웨딩 무드 */
-.dn-taphint{font-family:var(--serif-ko);font-size:12px;color:var(--sub);background:var(--gold-bg,#faf6ef);border:1px solid var(--gold-soft,rgba(184,154,117,.28));border-radius:8px;padding:8px 11px;margin:2px 0 10px;line-height:1.5}
-.dn-taphint b{font-weight:600;color:var(--gold-deep,#7A5F37)}
+.dn-taphint{font-family:var(--serif-ko)}   /* 모양은 [NOTE_DOT](마지막 스타일 묶음) */
+.dn-taphint b{font-weight:600}
 .dn-star{position:absolute;top:7px;right:6px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;font-size:19px;line-height:1;color:#D8D2C6;padding:0;user-select:none;-webkit-user-select:none}
 .dn-star.on{color:var(--gold,#B89A75)}
 .dnc-pl{position:relative;padding-right:40px}
@@ -1033,16 +1034,16 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .dn-fav .x{position:absolute;top:8px;right:8px;width:26px;height:26px;border:none;background:none;color:var(--light);font-size:13px;cursor:pointer;padding:0}
 .dn-favshare{display:block;width:100%;margin-top:2px}
 .dn-agg{padding-bottom:12px}
-.dn-agg.rep{border-color:var(--seal);background:#fffdf9;box-shadow:0 4px 16px rgba(107,42,36,.08)}
+/* .dn-agg.rep → [SEL_ONE] */
 .dn-agg .repbadge{display:inline-block;font-family:var(--serif-ko);font-size:10px;font-weight:500;color:#fff;background:var(--seal);border-radius:20px;padding:1px 8px;margin-right:6px;vertical-align:middle}
 .dn-repbtn{display:block;width:100%;margin-top:9px;padding:9px 0;border:1px solid var(--seal);border-radius:8px;background:#fff;color:var(--seal);font-family:var(--serif-ko);font-size:13px;cursor:pointer}
 .dn-repbtn:hover{background:var(--seal);color:#fff}
 .dn-aggbook{margin-top:10px;padding-top:11px;border-top:1px dashed var(--border)}
 /* 하객 공개 토글(담기와 분리 · 켠 곳만 하객 노출) · 2026-07-19 */
 .dn-showtgl{display:block;width:100%;margin-top:7px;padding:7px 0;border:1px dashed var(--border);border-radius:8px;background:#fff;color:var(--label-soft,#6F695D);font-family:var(--serif-ko);font-size:12px;cursor:pointer}
-.dn-showtgl.on{border-style:solid;border-color:var(--gold);background:var(--gold-bg,#faf6ef);color:var(--gold-deep,#7A5F37);font-weight:500}
+/* .dn-showtgl.on → [SEL_ONE] */
 .dn-showlock{margin-top:9px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37)}
-.inv-opt.sel{border-color:var(--gold);background:var(--gold-bg,#faf6ef)}
+/* .inv-opt.sel → [SEL_ONE] */
 .inv-opt small{display:block;font-size:12px;color:var(--sub);font-weight:300;margin-top:3px}
 .inv-opt[data-m]:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}   /* [INV_OPT_KB] 청첩장 1/4 초대 방식 카드 — 키보드 초점 링(스냅 .snp-* 와 같은 링) · 마우스로 고를 땐 안 생긴다 */
 .inv-sub{margin:2px 0 8px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}   /* [STEP_N_KO] 2026-09-26 · 왼쪽 6px 들여쓰기를 뺐다 — 질문·본문·카드의 왼쪽 선(37px)에서 이 줄만 43px 로 어긋났다 */
@@ -1050,7 +1051,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .inv-gate-q{font-family:var(--serif-ko);font-size:14px;color:var(--accent);margin-bottom:6px}
 .inv-yn{display:inline-flex;gap:8px}
 .inv-yn button{border:1px solid var(--border);background:#fff;border-radius:6px;padding:0 18px;min-height:44px;font-family:var(--serif-ko);font-size:13px;cursor:pointer;color:var(--sub)}   /* [INV_TAP44] 2026-09-26 고객 점검 inv-11 — «네» 47×33 · «아니요» 73×33 가 6px 간격으로 붙어 있어 «아니요»를 누르려다 «네»가 눌렸다. 44px 높이 · 8px 간격([MP_TAP44] 과 같은 기준) */
-.inv-yn button.on{border-color:var(--gold);color:var(--accent);background:var(--gold-bg,#faf6ef)}
+/* .inv-yn button.on → [SEL_ONE] */
 .inv-fields{margin:8px 0 2px}
 .inv-fields>.pf-l{font-size:12px;margin:12px 0 4px}   /* [INV_FIELD_LABEL] 2/4 칸 이름 — 1단계 「신랑」·「신부」(.pf .pf-l 12px)와 같은 크기 */
 .inv-row{display:flex;gap:6px;margin:6px 0}
@@ -1073,7 +1074,7 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .inv-side-l{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);margin-bottom:6px}
 .inv-dz-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .inv-dz{border:1px solid var(--border);background:#fff;border-radius:6px;padding:10px 8px;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;text-align:center}
-.inv-dz.sel{border-color:var(--gold);color:var(--accent);background:var(--gold-bg,#faf6ef)}
+/* .inv-dz.sel → [SEL_ONE] */
 .inv-fields textarea.cc-input{font-family:var(--serif-ko);line-height:1.6;resize:vertical}
 .inv-chk{display:block;font-family:var(--serif-ko);font-size:13px;color:var(--accent);margin:0;min-height:44px;padding:12px 0 10px;box-sizing:border-box;line-height:1.5}   /* [INV_TAP44] 체크 줄 23px → 44px. ★display:flex 로 바꾸지 말 것 — 흐린 줄(1단계 선택 사유 span)이 텍스트와 따로 flex 항목이 돼 320px 에서 두 기둥으로 갈린다(검증 실측) */
 .inv-chk input{width:18px;height:18px;vertical-align:-3px;margin:0 6px 0 0}
@@ -1167,13 +1168,13 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-seg{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0 0 9px}
 .dn-segbtn{flex:1;border:none;border-right:1px solid var(--border);background:#fff;padding:11px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub);cursor:pointer;transition:background .15s,color .15s}
 .dn-segbtn:last-child{border-right:none}
-.dn-segbtn.on{background:var(--seal,#6B2A24);color:#fff}
+/* .dn-segbtn.on → [SEL_ONE] */
 .dn-fblk{margin:0 0 9px}
 .dn-flabel{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);margin:0 0 6px}
 .dn-fwrap{display:flex;flex-wrap:wrap;gap:6px}
 .dn-fhint{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);white-space:nowrap;align-self:center;margin-left:2px}
 .dn-fpill{border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 13px;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer;line-height:1;white-space:nowrap;transition:border-color .15s,background .15s,color .15s}
-.dn-fpill.on{border-color:var(--seal,#6B2A24);background:var(--seal,#6B2A24);color:#fff}
+/* .dn-fpill.on → [SEL_ONE] */
 .dn-fmore{display:flex;align-items:center;gap:6px;width:100%;border:1px dashed var(--border);background:none;border-radius:9px;justify-content:center;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37);cursor:pointer;padding:9px;margin:2px 0 9px}
 .dn-fmore .bdg{background:var(--seal,#6B2A24);color:#fff;border-radius:999px;font-size:10px;padding:1px 6px;line-height:1.4}
 .dn-fdetail{display:none}
@@ -1510,7 +1511,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
     .seat-note-ta{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;color:var(--accent);line-height:1.6;resize:vertical;min-height:66px}   /* [SEAT_NOTE] */
     .seat-note-ta:focus{outline:none;border-color:var(--seal);box-shadow:0 0 0 3px rgba(107,42,36,.08)}
     .seat-note-ta::placeholder{color:var(--label-soft)}
-    .sp-opt.on{border-color:var(--seal);background:rgba(107,42,36,.04)}
+    /* .sp-opt.on → [SEL_ONE] */
     .sp-opt .sp-t{display:block;font-size:13px;color:var(--accent);font-weight:600}
     .sp-opt .sp-tag{font-size:10px;color:var(--label-soft);border:1px solid var(--border);border-radius:7px;padding:1px 6px;font-weight:500;vertical-align:1px;margin-left:3px}
     .sp-opt .sp-d{display:block;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
@@ -1672,14 +1673,14 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
     .cf-links a:hover,.cf-links a:active{color:var(--seal);text-decoration-color:var(--seal)}
     /* (구).cf-edit 마감 입력칸 CSS 삭제 — 입력이 다이닝 위저드·좌석 편집기로 이동하며 마크업 소멸(2026-07-17 리뷰) */
     .cf-ok{margin-top:12px;background:var(--gold-bg,#faf6ef);border:1px solid var(--gold);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--gold-deeper,#7a5f37);text-align:left}
-    .cf-warn{margin-top:12px;background:#FBF3F1;border:1px solid var(--seal);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--seal);text-align:left}
+    /* .cf-warn → [NOTE_DOT](마지막 스타일 묶음) — 팔레트 밖 분홍 칠 + 진사 테 상자를 걷었다 */
     /* ★[CF_INFO_TONE 2026-08-16 사용자 지시 "디테일한 부분들 체크"] 확인서 안 알림이 **한 가지 무게**뿐이었다.
        진사 테두리 상자(.cf-warn)에 세 종류가 같이 들어 있었다 —
          ①확정이 풀렸어요(손이 필요) ②인원이 안 맞아요(확인이 필요) ③잔은 저희가 챙겨 드려요(**알아 두시면 되는 것**)
        진사는 이 브랜드에서 '확정·중요'를 뜻하는 유일한 색이라, ③까지 그 색으로 서면
        화면에서 가장 센 글자가 「우리가 알아서 하는 일」이 된다(강조는 줄당 하나).
        ③은 조용한 정보 상자로 내린다 — 테두리는 헤어라인, 글자는 본문 보조색. 뜻은 그대로 남는다. */
-    .cf-info{margin-top:12px;background:var(--bg2,#F5F3EF);border:1px solid var(--hairline,#E6E1D8);border-radius:9px;padding:11px 13px;font-size:12px;color:var(--sub);line-height:1.65;text-align:left;word-break:keep-all}
+    /* .cf-info → [NOTE_DOT](마지막 스타일 묶음) */
     /* ★★[CF_SEAL 2026-08-16 사용자 지시 "고객이 확인했습니다 버튼 … 날짜랑 내가 이때 이것으로 확정했다라는 책임의 부분이 느껴지게"]
        확인 기록은 원래 회색 한 줄이었다("이 내용대로 진행을 확인하셨어요 · 2026-08-16 15:20").
        서버에는 스냅샷·시각·핵심수치(core)까지 남는데 **화면이 그 무게를 하나도 보여주지 않았다** —
@@ -1756,7 +1757,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
     .led-linkbtn{background:transparent;border:none;padding:0;cursor:pointer;font-family:var(--serif-ko);color:var(--gold-deep);font-weight:500;font-size:12px}
     /* 예식일 임시 고정 배너 (①) */
     .hold-card{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border-radius:9px;border:1px solid var(--hairline,#E6E1D8);background:var(--bg2,#F7F4EE);margin-bottom:4px}
-    .hold-card.hold-ok{border-color:#cdb98a;background:#faf6ed}
+    /* .hold-card.hold-ok → [NOTE_DOT](토큰) */
     .hold-ic{font-size:15px;line-height:1.4;flex-shrink:0;width:15px;height:21px;display:inline-flex;align-items:center;justify-content:center}/* ★★[HOLD_IC_NONE 2026-09-21 사장님 지적 「앞에 ... 점3개 왜있는거야?」 → 「삭제검토」] 되돌리지 말 것.
    대기 상태에는 아이콘을 «두지 않는다». 승인되면 ✓ 하나만 뜬다.
    ①종전 «…»(U+2026)는 말줄임표다 — «생략»·«말끝 흐림»을 뜻하는 구두점이지 «대기»가 아니다.
@@ -1899,6 +1900,36 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 .wz-steps li.done .wz-stepb{text-decoration:underline;text-decoration-color:var(--gold)}
 @media (hover:hover){.wz-stepb:hover{color:var(--accent);text-decoration:underline;text-decoration-color:currentColor}}
 .wz-stepb:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}
+/* ★★[SEL_ONE 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»] «골랐다»는 표시 한 벌.
+   같은 뜻이 네 가지 색으로 말하고 있었다 — 금빛 테 + 옅은 바탕(청첩장 칸 · 네/아니요 · 디자인) · 진사로 칠함(애프터 웨딩 거르기 알약 · 붙은 칩)
+   · 진사 테(좌석 공개 방식 · 샘플 사진 · 예약할 곳) · 먹빛으로 칠함(후기 문항). 한 화면을 넘길 때마다 «고름»의 모양이 바뀌었다.
+   ★정한 것 = 식순 빌더(.seg-b.on · .op-card.on)와 음료 칩(.dk-chip.on)이 이미 쓰는 말: 금빛 테 두 겹(테 1px + 안쪽 1px) + 옅은 금빛 바탕 + 먹빛 글자.
+     칩(짧은 글 한 줄)은 굵게(600) · 카드(안에 글이 여러 줄)는 굵기를 그대로 둔다(카드 안 위계를 지키려고) · 사진 칸은 테만.
+   ★진사는 칠하지 않는다 — 고른 순서 번호 · ✓ 원 · «여기로 예약» 꼬리표 · 라디오 점 같은 «점»에만 남는다([SNAP_TONE] · 넓은 면 금지).
+   달력의 고른 날(.dt-day.selected)은 달력 관례대로 칠한 채 둔다(칸이 작아 테로는 안 보인다). 새 선택 칸도 이 한 벌을 쓴다. */
+.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on{border-color:var(--gold-deep);border-style:solid;box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}
+.dn-segbtn.on{box-shadow:inset 0 0 0 2px var(--gold-deep);background:var(--gold-bg);color:var(--accent);font-weight:600}   /* 붙은 칩은 칸 사이 선을 나눠 쓰니 테를 안쪽 2px 로 */
+.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--gold-bg)}
+.wed-slot.sel .ws-t{color:var(--accent);font-weight:600}
+.dn-agg.rep{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep);background:var(--card-white)}   /* 안에 글 · 단추가 많은 카드 — 바탕은 흰 면 그대로(옅은 금빛을 깔면 안의 상자와 뭉친다) */
+.gal-it.on{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* 사진 칸은 테만 · 고른 표시 ✓ 원(진사 점)은 그대로 */
+/* ★★[NOTE_DOT 2026-09-27 사장님 «마이페이지 전체 일관성»] 안내 한 줄 한 벌 = «점 + 글» — 칠한 상자를 걷는다([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지»).
+   같은 «알려 드려요»가 상자 다섯 가지로 섰다: 진사 옅은 칠(청첩장 완성 «오타 확인») · 팔레트 밖 분홍 + 진사 테(확인서 경고 #FBF3F1) · 회색 칠(확인서 알림 · 받기 기한)
+   · 금빛 칠(애프터 웨딩 «눌러서 담아 두세요»). 스냅 기획 · 가족·친구 스냅은 이미 점 한 줄(.snp-err · .ph-capln)로 말한다 — 그쪽을 택한다.
+   ①알아 두시면 되는 것 = 금빛 점 + 보조 글(.mp-dotln) ②손이 필요한 것 = 진사 점 + 먹빛 글(.mp-dotln.need — 진사는 점에만 · 글까지 진사로 칠하면 화면에서 가장 센 줄이 된다).
+   단추 · 입력이 함께 든 묶음(잔금 게이트 · 좌석 공개 방식 · 동의)은 «상자»가 아니라 «묶음»이라 그대로 둔다. */
+.mp-dotln{position:relative;margin:10px 0 0;padding:0 0 0 13px;background:none;border:0;border-radius:0;font-family:var(--serif-ko);font-size:13px;line-height:1.65;color:var(--sub);text-align:left;word-break:keep-all}
+.mp-dotln::before{content:'';position:absolute;left:0;top:.66em;width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
+.mp-dotln.need{color:var(--accent)}
+.mp-dotln.need::before{background:var(--seal)}
+.cf-warn{position:relative;margin-top:12px;padding:0 0 0 13px;background:none;border:0;border-radius:0;font-size:13px;line-height:1.65;color:var(--accent);text-align:left;word-break:keep-all}   /* [NOTE_DOT] 확인서 «손이 필요» = .mp-dotln.need 와 같은 모양(분홍 칠 · 진사 테를 걷었다) */
+.cf-warn::before{content:'';position:absolute;left:0;top:.66em;width:5px;height:5px;border-radius:999px;background:var(--seal)}
+.cf-info{position:relative;margin-top:12px;padding:0 0 0 13px;background:none;border:0;border-radius:0;font-size:13px;line-height:1.65;color:var(--sub);text-align:left;word-break:keep-all}   /* [NOTE_DOT] «알아 두시면 되는 것» = .mp-dotln · [CF_INFO_TONE] 의 무게 차이(진사 ↔ 조용한 정보)는 점 색으로 남는다 */
+.cf-info::before{content:'';position:absolute;left:0;top:.66em;width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
+.dn-taphint{position:relative;margin:2px 0 12px;padding:0 0 0 13px;background:none;border:0;border-radius:0;font-size:13px;line-height:1.65;color:var(--sub)}   /* [NOTE_DOT] 금빛 칠 상자 → 점 한 줄 */
+.dn-taphint::before{content:'';position:absolute;left:0;top:.66em;width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
+.dn-taphint b{color:var(--accent)}
+.hold-card.hold-ok{border-color:var(--gold);background:var(--gold-bg)}   /* [NOTE_DOT] 팔레트 밖 #cdb98a · #faf6ed → 금빛 · 옅은 금빛(같은 느낌 · 토큰) */
 </style>
     <div class="mp-modal" id="mpModal" aria-hidden="true"><div class="mp-modal-card" role="dialog" aria-modal="true" aria-labelledby="mpModalTitle"><div class="mp-modal-title" id="mpModalTitle"></div><div class="mp-modal-body" id="mpModalBody"></div><div class="mp-modal-actions" id="mpModalActions"></div></div></div>
 
@@ -5808,7 +5839,7 @@ function _surveyCardHtml(res, nm, code){
     +'<div class="srv-block"><div class="srv-q2" id="mp_svQ_review">가장 기억에 남는 순간, 또는 더 좋았으면 하는 점 · 한마디 <span class="srv-opt-tag">선택</span></div>'
     +'<textarea class="cc-input" id="mp_svReview" aria-labelledby="mp_svQ_review" style="min-height:120px" maxlength="2000" placeholder="무엇이든 편하게 남겨 주세요. 좋았던 순간도, 아쉬웠던 점도 다음 부부를 위해 소중히 볼게요."></textarea>'
     +'<label class="srv-consent"><input type="checkbox" id="mp_svPublic"> 이 후기를 소개에 써도 좋아요</label></div>'
-    +'<div class="cc-mini" id="mp_svErr" style="color:var(--gold-deep);display:none;margin:4px 0 0"></div>'
+    +'<div class="cc-mini" id="mp_svErr" style="color:var(--seal);display:none;margin:4px 0 0"></div>'   // [ERR_ONE 2026-09-27] 오류 = 진사(.wz-err · 문항 옆 .srv-miss-note 와 같은 색) — 금빛이라 안내 글처럼 읽혔다
     +'<button type="button" class="cc-btn" id="mp_svSubmit" style="margin-top:10px">후기 보내기</button></div>';
 }
 function _bindSurvey(res, nm, code){
@@ -5882,7 +5913,7 @@ function renderResult(res, nm, code){
     try{ var _dm=String(res.전달일||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
       if(_dm){ var _ku0=_resKeepUntil(res); _expDN=_ku0?_ku0.dn:null; } }catch(e){}   // [KST_TODAY] 남은 날은 NOW([NOW_KEEP_TRUTH])와 한 계산 · 한국 날짜 — 기기 자정으로 세면 해외 기기에서 배너 D-0/D-1 과 NOW «까지 받으실 수 있어요»·«기간이 지났어요»가 갈렸다
     var _expBanner=(_expDN!=null && _expDN<=30)
-      ? ('<div class="cc-note" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin:2px 0 10px;color:var(--accent);text-align:left">'
+      ? ('<div class="mp-dotln need" style="margin:2px 0 12px">'   // [NOTE_DOT] 회색 칠 상자 → 진사 점 한 줄
         +(_expDN>=0?('다운로드 기한 <b style="color:var(--seal)">D-'+_expDN+'</b> · 지금 기기에 저장해 주세요.'):'다운로드 보관 기간이 지났어요. 파일이 필요하시면 카카오톡으로 디렉터에게 알려 주세요.')+'</div>')
       : '';
     /* ★[DELIV_FIRST_OPEN 2026-09-26 사장님 결정 ⑫] 받은 결과물은 처음엔 펼쳐 둔다 — «결과물이 준비됐다»는 알림을 받고 들어온 분이
@@ -7670,7 +7701,7 @@ function invStepDone(box, r){
     +(when?'<div class="done-when">'+escapeHtml(when)+'</div>':'')
     +'<div class="done-lead">'+leadHtml+'</div>'
     +(cards?('<div class="done-links">'+cards+'</div>'):'')+_kit+guideFold+guideHint+qr   /* ★guideFold 삽입 유지 — 2026-07-18 병합에서 이 줄만 떨어져 하객 안내 접힘이 라이브에서 실종됐던 사고. 조립 줄 수정 시 guideFold·_kit 누락 금지 */
-    +'<div class="cc-note" style="text-align:left;background:rgba(107,42,36,.05);border:1px solid rgba(107,42,36,.16);border-radius:8px;padding:11px 13px;color:var(--seal)">보내기 전, <b>이름&#8288;·&#8288;예식&nbsp;날짜&#8288;·&#8288;계좌&#8288;·&#8288;혼주&nbsp;호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'   /* [DOT_SPLIT_0926] 320 «…이름·예식 날짜 / ·계좌…» 목록 한가운데 줄 머리 점 → «·» 양옆 U+2060 */
+    +'<div class="mp-dotln need">보내기 전, <b>이름&#8288;·&#8288;예식&nbsp;날짜&#8288;·&#8288;계좌&#8288;·&#8288;혼주&nbsp;호칭</b>에 오타가 없는지 한 번만 확인해 주세요.</div>'   /* [NOTE_DOT] 진사 칠 상자 → 진사 점 한 줄 · [DOT_SPLIT_0926] 320 «…이름·예식 날짜 / ·계좌…» 목록 한가운데 줄 머리 점 → «·» 양옆 U+2060 */
     +'<div class="cc-note" style="text-align:left">'+_doneLinkNote+'</div>'   /* [INV_DONE_LINK] 종전 «…같은 링크로 자동 갱신돼요 (새 링크를 다시 보낼 필요 없어요)» 조건 없는 약속 — 되살리지 말 것 */
     +'<div class="done-tagline">Focus on the Essence, Record the Truth.</div>'
     +'<div class="inv-nav wz-bar"><button type="button" class="cc-btn-ghost" id="iv_edit">수정하기</button><button type="button" class="cc-btn" id="iv_done">완료</button></div></div>';
@@ -10797,7 +10828,7 @@ function dineFilterUI(d, wt){
           + '</div>'
         : '<div class="dn-ai-slim-q">예식 끝나고 어디로 모실지 고민되시죠. \'조용한 룸\', \'아이랑 놀 곳\'처럼 적어 주시면 찾아드려요. 아래에서 골라도 돼요.</div>')
     + '<form class="dnc-form" id="dncForm"><input class="cc-input" id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="찾는 자리를 말로 적기" placeholder="편하게 적어 주세요" style="margin:0" value="'+escapeHtml(String(d._dncTyped||''))+'"><button type="submit" class="cc-btn cc-btn-seal" id="dncSend" style="margin:0;width:auto;padding:0 18px;white-space:nowrap">보내기</button></form>'   // [FIELD_NAME_A11Y] AI 칸도 자리표시(«편하게 적어 주세요»)뿐이었다 — 적기 시작하면 무슨 칸인지 사라졌다
-    + '<div id="dn_aiErr" class="cc-note" style="margin-top:6px;text-align:center"></div>'
+    + '<div id="dn_aiErr" class="cc-note" role="alert" style="margin-top:6px;text-align:center;color:var(--seal)"></div>'   // [ERR_ONE] 옅은 회색이라 «안 됐다»가 안 보였다
     + '</div>';
   var _dnVerifiedN=0; for(var _vi=0;_vi<DINE_DB.length;_vi++){ if(DINE_DB[_vi].v) _dnVerifiedN++; }   // 전화검증(v:true) 수 — 0이면 '검증' 표기 대신 '추천'(미검증인데 '검증'이라 하지 않게 · 카드 '확인✓' 배지와 정합)
   var _cntTxt=(_dnVerifiedN>0)?('검증 '+_dnVerifiedN+'곳'):((shown.length<list.length)?('추천순 '+shown.length+'곳 먼저'):('추천 '+list.length+'곳'));
