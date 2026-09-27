@@ -225,6 +225,13 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .banner{background:#F5F3EF;border:1px solid #E7E3DC;border-radius:12px;padding:8px 12px;font-size:12.5px;color:var(--gold-deeper);word-break:keep-all;line-height:1.6;margin-top:12px}
 .intro-lead{font-size:14px;color:var(--sub);line-height:1.85;margin-top:16px;word-break:keep-all}
 .intro-pts{margin-top:18px;display:flex;flex-direction:column;gap:11px}
+/* [INTRO_JOURNEY 2026-09-27] 두 덩어리 머리 · 예식까지 네 줄(언제 · 무엇 · 한 문장) · 기기 저장 한 줄 */
+.jr-t{font-size:12.5px;color:var(--gold-deeper);font-weight:700;letter-spacing:.02em;margin-top:22px}
+.jr-t2{margin-top:28px}
+.jr-t + .intro-pts{margin-top:12px}
+.daymap.jr{margin-top:12px;padding:10px 16px 8px}
+.daymap.jr .sq-tm{flex:0 0 58px;text-align:left;line-height:1.35;color:var(--gold-deeper)}
+.jr-note{font-size:12.5px;color:var(--sub);line-height:1.7;margin-top:14px;word-break:keep-all}
 .ipt{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--accent)}
 .ipt .n{flex-shrink:0;width:21px;height:21px;border-radius:50%;background:#fff;border:1px solid var(--gold-btn);color:var(--gold-deeper);font-family:var(--sans);font-weight:600;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
 /* ★[DAYMAP_AIR 2026-08-09] 사용자: "위쪽에 쏠려 있는 느낌 · 어중간 · 가독성 개선".
@@ -565,6 +572,9 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .ob-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
 .ob-save:disabled{opacity:1;color:var(--light);cursor:default}   /* ★[RIT_PILL_SANS 2026-09-27 4부 24] 알약은 다른 단추처럼 고딕 · 꺼진 «저장» · «저장됨»은 흐림(opacity .5 · 약 2.3:1) 대신 --light(약 5.4:1) */
 #obExitSlot{display:flex;align-items:center;gap:7px;flex-shrink:0}
+/* [HEAD_PILLS 2026-09-27] 알약 넷(안내 · 다시 만들기 · 저장 · 나가기) — 좁은 화면은 짧은 이름 · 최소 폭을 풀어 한 줄에(390 · 360 실측) */
+.ob-nav .sh{display:none}
+@media (max-width:560px){ .ob-nav .lg{display:none} .ob-nav .sh{display:inline} body.op4 .ob-save,body.op4 #obExit{min-width:0} body.op4 .ob-exit{padding:0 12px} body.op4 #obExitSlot{gap:6px} }
 .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)}
 .ob-exit:active{border-color:var(--gold-deep);color:var(--gold-deep)}
 
@@ -1022,8 +1032,8 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls.nv .ls-th{justify-content:center;width:44px}
 .ls.nv .ls-th .ls-pi{position:static;transform:none;width:24px;height:24px;background:var(--card);border:1px solid var(--border)}
 .lf-body{display:flex;flex-direction:column}
-.lf-in.nv .lf-body{margin:auto 0}
-.lf-in.nv .lf-ctl{margin-top:0}
+.lf-in.nv .lf-body{margin:clamp(20px,9vh,88px) 0 0}   /* ★[LF_STEADY 2026-09-27 사장님 «글 양에 따라 폼이 흔들리는데 · 디자이너 입장에서 개선»] 종전 margin:auto 0 은 덩어리를 세로 가운데로 맞춰
+   글 길이 · 칩 줄 수가 바뀔 때마다 제목부터 통째로 오르내렸다. 위에서 같은 자리에 세우고(여백은 화면 높이에 비례) 단추 줄은 아래 고정(BIG_CTL_FIXED) */
 /* [RIT_CHIP_GRID] 라벨 칸 + 칩 칸 */
 .ls-cg{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:8px;align-items:start}
 .ls-cg .gl{min-width:0;padding-top:12px;line-height:1.4;word-break:keep-all}
@@ -1054,7 +1064,7 @@ body.lsfull{overflow:hidden}
 .lf-seg span.on{background:var(--accent)}
 .ls-full h3{font-family:var(--ko-serif);font-size:20px;font-weight:600;color:var(--accent);margin:0}
 .lf-lab{font-size:12.5px;color:var(--light);margin-top:2px}
-.lf-txt{font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);margin:12px 0 14px;min-height:3.6em;word-break:keep-all}
+.lf-txt{font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);margin:12px 0 14px;min-height:3.6em;word-break:keep-all;box-sizing:border-box}   /* [LF_STEADY] 잰 높이(테두리 포함)를 그대로 min-height 로 */
 .lf-txt.talk{font-family:var(--sans);font-size:14px;color:var(--sub);background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px}
 .lf-vars{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
 .lf-vars .gl{font-size:11px;color:var(--light);min-width:48px}
@@ -2363,7 +2373,8 @@ function render(){
   var _pk=(st.k==='pick'&&isOpen()); document.body.classList.toggle('pk2',_pk); document.body.classList.toggle('pk2e',_pk&&!!editReturn);
   if(_pk) try{ _pickPaint(); }catch(e){} else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
   _paintCta(st.k);
-  try{ var _rl=document.getElementById('opResetLow'); if(_rl) _rl.hidden=!(isOpen()&&st.k==='done'&&courseStarted&&!editReturn); }catch(e){}   // [RIT_RESTART_LOW]
+  try{ var _rl=document.getElementById('opResetLow'); if(_rl) _rl.hidden=true; }catch(e){}   // [RIT_RESTART_LOW] ★[HEAD_PILLS 2026-09-27 사장님] ④ 맨 아래 밑줄 글도 머리 알약(#obRestart)으로 옮겼다 — 늘 숨긴다
+  _headPills(st.k);   // [HEAD_PILLS]
   try{ _opPad(); }catch(e){}   // [DETAIL_0925 C4]
   try{ _edFocusApply(); }catch(e){}   // [EDIT_OPEN]
   /* ★[A11Y_LIVE 2026-09-25 코워크 추가전달 3장] 상태 알림(② 한 줄 · 알림 글)은 누를 때마다 새 노드라 화면 읽기가 놓쳤다 —
@@ -2480,7 +2491,7 @@ function _opSteps(k){
     if(i<at) lab='<button type="button" class="op-stepb" data-fk="ops:'+w[0]+'" onclick="opStepNav(\''+w[0]+'\')">'+lab+'</button>';   // [DETAIL_0925 A1] 지난 걸음은 누를 수 있다 · [EDIT_OPEN] 수정 끝냄
     return '<li class="'+(i===at?'on':i<at?'done':'')+'"'+(i===at?' aria-current="step"':'')+'>'+lab+'</li>'; }).join('')+'</ol>'
     /* [HEAD_ONE 3-5] 새 코스는 머리를 네 걸음 표시 하나로 — «처음부터 다시 만들기»는 그 아래 오른쪽 작은 글(④ 는 아래 단추에 이미 있다 · 수정 중엔 숨김) */
-    +((courseStarted&&!editReturn&&k!=='done')?'<div class="op-reset"><button type="button" class="prog-reset" data-fk="opreset" onclick="resetAll()">처음부터 다시 만들기</button></div>':'');
+    +'';   /* ★[HEAD_PILLS 2026-09-27 사장님] 걸음 아래 «처음부터 다시 만들기» 밑줄 글은 머리 알약(#obRestart)으로 옮겼다 · [HEAD_ONE] */
 }
 /* ★★[BAR_SUM 2026-09-26 코워크 최종판 3-7] ① 아래 막대 — «본식 약 X~Y분 · 단체 사진 약 A~B분»(담을 때마다 맞바꿈이 보이게).
    ★개수(«담은 순간 N»)는 뺐다 — 어떤 결정에도 쓰이지 않는 숫자다(9/26 밤 최선 검토). 작은 흐름선도 뺐다(360 에서 «단체 사진»이
@@ -2587,7 +2598,7 @@ function renderIntro(){
        적혀 있었는데, 실제로는 [EVENT_BUDGET] 결정에 따라 **다 함께**가 흡수한다.
        두 곳에 적으면 어느 쪽이 참인지 화면이 스스로 모른다.
      기록 16분 → 44분 · 담백 20분 → 40분 · 가족 24분 → 36분 (하루 140분은 그대로) */
-  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 25 · 이동 5 · 화이트존 25 · 입장 준비 5'],['8~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['15~32분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자
+  var SEQ=[['20분','준비','Getting Ready',''],['60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55 · 입장 준비 5'],['8~25분쯤','본식','The Ceremony','담은 순간에 따라',true],['15~32분쯤','단체 사진','Group Record','하객 모두와 한 장 · 두 분의 감사 인사 · 가족 구도 · 남는 시간은 가족 · 친구와 자유 사진'],['20분','마무리','Farewell','남은 사진을 마치고 환복']];   /* [PHOTO_THANKS 2026-09-26] 옛 «배웅 · 문 앞 한 분씩 인사» */   /* [E1 2026-09-26 코워크 추가 전달 3] */   // [DAY_60 · GROUP_PHOTO 2026-09-26] 진행표(sequence-modal)와 같은 이름 · 숫자   /* [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 옛 «캔들존 25 · 이동 5 · 화이트존 25» — 마이페이지 스냅 칸(SNAP_55)과 같은 말 */
   SEQ.forEach(function(s){
     h+='<div class="seqr'+(s[4]?' on':'')+'"><div class="sq-tm">'+s[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(s[1])+'<small>'+esc(s[2])+'</small>'+(s[4]?'<span class="sq-here">지금 만드는 부분</span>':'')+'</div>'+(s[3]?'<div class="sq-d">'+esc(s[3])+'</div>':'')+'</div></div>';
   });
@@ -2606,14 +2617,28 @@ function renderIntro2(){
   var h='<h2 class="q-title" id="stepHead" tabindex="-1">두 분이 하실 일</h2>';   // [ORD_H2]
   /* ★[INTRO_FOUR 2026-09-25 코워크 추가전달 2-2] 새 코스는 네 걸음 말로 — 번호 넷(① 고르기 · ② 보고 듣기 · ③ 준비하기 · ④ 완성) · 준비는 ③ 한 곳에.
      종전 글(번호 둘 · «완성본을 미리듣기로» · «준비는 글만 · 완성 화면에 정리»)은 옛 코스만 그대로. */
+  /* ★★[INTRO_JOURNEY 2026-09-27 사장님 «미리 알아두면 좋아요 이런 거 빼고 · 어떤 식으로 짜고 어떤 것까지 할 수 있는지 · 연습 · 최종 확정 이런 순서를
+       고객 입장에서 한눈에 · 여기서 한 번 짚어 주고 들어가자»] 새 코스는 «여기서 네 걸음» → «그다음 예식까지» 두 덩어리.
+       ★옛 «미리 알아두면 좋아요» 상자(진행은 저희가 · 준비는 ③ 한 곳에 · 비워도 돼요 · 고칠 수 있는 때)는 뺐다 — 그 네 말은 아래 네 줄(연습 · 순서 확정 · 글 마감 · 당일)로 옮겼다. 되살리지 말 것.
+       ★마감 말은 EDIT_WINDOW 와 같은 사실(순서 14일 · 글 7일) · 연습 = ④ «처음부터 끝까지 보기»(LISTEN_PAGE 4-5) — 없는 기능을 약속하지 않는다. */
   if(isOpen()){
-    h+='<div class="intro-lead">네 걸음이면 끝이에요.</div><div class="intro-pts">';   // [INTRO_PICKED_WORD 코워크 회신7] 아래 «진행은 저희가» 줄도 «담은 순간»
-    [['① 고르기','예시에서 시작해 순간을 더하고 빼요 · 칸을 누르면 미리 보고 들을 수 있어요.'],   /* [PICK_V2 · E3 코워크 최종판 3-0] 새 ① 에 맞춘 첫 걸음 글 */['② 보고 듣기','담은 순간을 예식 차례대로 보고 들으며 말투 · 누가 할지를 바꿔요.']   /* [G9 · INTRO_ORDER_WORD] «고른 차례대로»는 «내가 누른 차례»로 읽힌다 — ② 머리(G9)와 같은 까닭 */,['③ 준비하기','두 분이 준비할 것과 부모님께 부탁드릴 것을 한곳에서 봐요.'],['④ 완성','완성된 순서를 저장하고, 대본을 복사하거나 파일로 받아 둬요.']]
-      .forEach(function(x,i){ h+='<div class="ipt"><span class="n">'+(i+1)+'</span><span><b>'+esc(x[0].slice(2))+'</b> · '+esc(x[1])+'</span></div>'; });
-    h+='</div><div class="prefacts"><div class="pf-t">미리 알아두면 좋아요</div>';
-    h+='<div class="pf-i pf-key"><b class="pf-k">진행은 저희가</b>순서와 흐름은 나레이션·디렉터가 맡아요. 두 분은 서약 낭독·인사처럼 담은 순간에만 나서요.</div>';
-    h+='<div class="pf-i pf-key"><b class="pf-k">준비는 ③ 한 곳에</b>쓸 글 · 보낼 것 · 챙길 것 · 부모님께 부탁드릴 것이 모두 모여요.</div>';
-  } else {
+    h+='<div class="intro-lead">여기서 순서를 짜고, 예식까지 연습하며 다듬어요.</div>';
+    h+='<div class="jr-t">여기서 · 네 걸음</div><div class="intro-pts">';
+    /* [PICK_V2 E3] ① 한 줄은 «예시에서 시작해 순간을 더하고 빼요»로 그대로 · «칸을 누르면 미리 보고 들을 수 있어요»는 ① 화면 안에서 말한다 */
+    [['고르기','예시에서 시작해 순간을 더하고 빼요.'],['보고 듣기','예식 차례대로 들으며 말투 · 누가 할지를 바꿔요.'],['준비하기','두 분이 쓸 글 · 부모님께 부탁드릴 것을 한곳에서 봐요.'],['완성','저장하면 대본을 복사하거나 파일로 받아요.']]
+      .forEach(function(x,i){ h+='<div class="ipt"><span class="n">'+(i+1)+'</span><span><b>'+esc(x[0])+'</b> · '+esc(x[1])+'</span></div>'; });
+    h+='</div>';
+    h+='<div class="jr-t jr-t2">그다음 · 예식까지</div><div class="daymap jr">';
+    [['언제든','연습','④ «처음부터 끝까지 보기»로 당일 흐름을 보고 들으며 익혀요. 마이페이지에서 몇 번이든 다시 열 수 있어요.'],
+     ['예식<br>14일 전','순서 확정','그때까지 순간과 차례를 얼마든지 고쳐요.'],
+     ['예식<br>7일 전','글 마감','서약 · 편지처럼 두 분이 쓸 글을 채워요. 지금 비워 둔 칸도 이때까지 채우면 돼요.'],
+     ['당일','진행은 저희가','나레이션과 디렉터가 흐름을 이끌어요. 두 분은 담은 순간에만 나서요.']]
+      .forEach(function(x){ h+='<div class="seqr"><div class="sq-tm">'+x[0]+'</div><div class="sq-b"><div class="sq-n">'+esc(x[1])+'</div><div class="sq-d">'+esc(x[2])+'</div></div></div>'; });
+    h+='</div>';
+    if(!EMBED) h+='<div class="jr-note">그냥 열어 만든 순서는 <b>이 기기에만</b> 저장돼요. 마이페이지로 열면 다른 기기에서도 이어 만들어요.</div>';
+    return h;
+  }
+  {   // 옛 코스(숨은 여섯) — 종전 글 그대로
     h+='<div class="intro-lead">고르고, 들어보고, 익히면 끝이에요.</div>';
     h+='<div class="intro-pts">';
     h+='<div class="ipt"><span class="n">1</span>'+(isOpen()?'필요한 순간을 고르는 것부터 시작해요. 고르기 어려우면 예시에서 시작하셔도 돼요.':'마음에 드는 코스를 고르는 것부터 시작해요.')+'</div>';
@@ -2889,7 +2914,9 @@ function _pkUndo(msg){
 }
 window.opEx=function(k){
   var R=RitualOpen, ex=R.exampleOf(k); if(!ex) return;
-  if(R.sameAsExample(S,k)) return;   // 같은 예시를 다시 누르면 아무것도 바꾸지 않는다
+  /* ★[EX_TOGGLE 2026-09-27 사장님 «한 번 클릭하면 선택되고 한 번 더 누르면 취소되게»] 같은 예시를 다시 누르면 비운다(빈 칸 · 되돌리기 알림은 그대로).
+     종전엔 같은 예시를 다시 누르면 아무것도 안 했다 — 그래서 «빈 칸에서 직접 고를게요» 링크가 따로 있었다(그 링크는 뺐다 · 이 동작이 대신한다). */
+  if(R.sameAsExample(S,k)){ _opPrev=_pkSnap(); S.on={}; delete S.pickFrom; _pkMsg='‹'+ex.nm+'› 예시를 뺐어요'; opSync(); _pkUndo('‹'+ex.nm+'› 예시를 뺐어요'); _fxNext='[data-fk="opx:'+k+'"]'; return; }
   _opPrev=_pkSnap();   // 빈 채에서 시작해도 되돌리기가 뜬다(빈 칸으로 돌아간다)
   R.applyExample(S,k); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · 본식 '+R.span(S).body+' · 단체 사진 '+R.span(S).photo;
   opSync(); _pkUndo('‹'+ex.nm+'› 예시로 바꿨어요');
@@ -2903,7 +2930,7 @@ window.opBlank=function(){
 window.opUndo=function(){
   if(!_opPrev) return; var o=JSON.parse(_opPrev); _opPrev=null;
   _PK_KEYS.forEach(function(x){ if(o[x]===null) delete S[x]; else S[x]=o[x]; }); if(!S.pickFrom) delete S.pickFrom;
-  _pkUndo(''); _pkMsg='되돌렸어요'; _fxNext='[data-fk="'+(S.pickFrom?'opx:'+S.pickFrom:'opblank')+'"]';   // [A11Y_FOCUS] 되돌리기 단추가 사라지니 예시 칸으로
+  _pkUndo(''); _pkMsg='되돌렸어요'; _fxNext='[data-fk="opx:'+(S.pickFrom||RitualOpen.EXAMPLES[0].k)+'"]';   // [A11Y_FOCUS] 되돌리기 단추가 사라지니 예시 칸으로
   opSync();
 };
 function opChips(k,on){
@@ -3403,6 +3430,22 @@ function _lCloseBig(){
   var o=LP.opener; LP.opener=null; if(o&&document.body.contains(o)&&o.focus){ try{ o.focus({preventScroll:true}); }catch(e){} }
 }
 window.lsCloseBig=function(){ try{ if(history.state&&history.state.big){ history.back(); return; } }catch(e){} _lCloseBig(); };   // «⌄ 작게 보기» · Esc 도 뒤로와 같은 길
+/* ★[LF_STEADY 2026-09-27] 자막 칸 높이 = 지금 목록에서 가장 긴 글의 높이(같은 폭 · 같은 글꼴로 한 번 잰다) — 짧은 글에서도 칸이 줄지 않아 아래 칩 줄이 제자리에 선다.
+   폭 · 목록이 바뀔 때만 다시 잰다(재생 중엔 잰 값을 쓴다). 글 칸(.talk)은 테두리 · 안쪽 여백이 달라 따로 잰다. */
+function _lfSteady(f){
+  try{
+    var p=f.querySelector('.lf-txt'); if(!p||!LP.q||!LP.q.length) return;
+    var w=p.clientWidth, key=w+'|'+LP.q.length+'|'+LP.q.map(function(x){ return (x.txt||'').length; }).join(',');
+    if(!LP._lfH||LP._lfH.key!==key){
+      var m=document.createElement('p'); m.setAttribute('aria-hidden','true'); m.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;min-height:0;width:'+w+'px';
+      p.parentNode.appendChild(m); var hN=0, hT=0;
+      LP.q.forEach(function(x){ var t=!!(x.talk||x.skip); m.className='lf-txt'+(t?' talk':''); m.textContent=x.txt||''; var hh=m.getBoundingClientRect().height; if(t) hT=Math.max(hT,hh); else hN=Math.max(hN,hh); });
+      m.parentNode.removeChild(m); LP._lfH={key:key,n:Math.ceil(hN),t:Math.ceil(hT)};
+    }
+    var isT=p.classList.contains('talk'), H=isT?LP._lfH.t:LP._lfH.n, other=isT?LP._lfH.n:LP._lfH.t;
+    p.style.minHeight=Math.max(H,other)+'px';   // 두 모양 중 큰 쪽 — 나레이션 줄과 «사람이 말하는 자리» 줄을 오가도 칩이 안 뛴다
+  }catch(e){}
+}
 function _lFull(){
   var f=document.getElementById('lsFull');
   if(!f){ f=document.createElement('div'); f.id='lsFull'; f.className='ls-full'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-label','보고 듣기 · 크게'); document.body.appendChild(f); }
@@ -3438,6 +3481,7 @@ function _lFull(){
     +(single?'':'<button type="button" data-fk="lfnext" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>')+'</div>';
   h+='</div>';
   f.innerHTML=h; _nbWrap(f); f.hidden=false; document.body.classList.add('lsfull');   // [RIT_WRAP]
+  _lfSteady(f);   // [LF_STEADY]
   ['.wrap','#nav','#meAdvStack'].forEach(function(q){ var w=document.querySelector(q); if(w) w.setAttribute('inert',''); });   // [DETAIL_0925 C3] 뒤를 잠근다 · [A11Y_0925 3장] 상담 말풍선은 .wrap 밖이라 포커스가 샜다(RAIL 은 그대로 · 잠깐 잠글 뿐)
   var v=f.querySelector('video'); if(v){ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(!rm&&!LP.paused&&st){ var pp=v.play(); if(pp&&pp['catch']) pp['catch'](function(){}); } }
   // 포커스 — 같은 자리로 · 칩에 있다가 순간이 바뀌어 칩이 사라지면 ❚❚ 로
@@ -3605,12 +3649,12 @@ function _pkGlyph(k){ return '<svg class="pk-glyph" viewBox="0 0 44 30" fill="no
 function _pkArt(k,moving){ var c=clip(k==='_close'?'':k); if(c&&!moving) c=c.replace('class="mclip"','class="mclip mstill"'); return c||_pkGlyph(k); }   // 칸의 그림은 멈춰 있다(열세 칸이 함께 움직이면 읽기 어렵다 · 3-5) — 창에서만 그려진다
 function renderPick(){
   var R=RitualOpen, h='<div class="pk">';
-  if(!editReturn) h+='<button type="button" class="ls-back pk-intro-back" data-fk="pkintro" onclick="opStepNav(\'intro2\')">← 안내 다시 보기</button>';   // [PICK_INTRO_BACK 코워크 회신7 B 제안 3] PC 만(휴대폰은 아래 «이전»)
+  /* ★[HEAD_PILLS 2026-09-27 사장님 «안내 다시 보기도 위쪽 버튼에 합류 · 총 4개»] 새 코스 ① 의 «← 안내 다시 보기»는 머리 알약(#obGuide)으로 옮겼다 · [PICK_INTRO_BACK] 자리 표시만 남긴다 */
   if(!ENG) engine(); if(!LREC) _lrec();   // 미리 보기 창의 대표 한 줄 — 칸을 누르기 전에 불러 둔다(누른 그 순간 소리가 나게)
   /* 예시 [EX_BRIEF · D1 · D2] */
   h+='<div class="pk-sh"><h3 class="pk-h">예시로 시작하기</h3><span class="pk-aux">무엇을 담아도 가격은 같아요.</span></div>';   /* [RIT_PRICE_WORD 2026-09-27 4부 5] «값»이 가격인지 가치인지 헷갈렸다 */
   h+='<div class="pk-exs">'+R.EXAMPLES.map(_pkEx).join('')+'</div>';
-  h+='<p class="pk-blank"><button type="button" class="pk-link" data-fk="opblank" onclick="opBlank()">빈 칸에서 직접 고를게요</button></p>';
+  /* ★[EX_TOGGLE 2026-09-27 사장님 «이것도 중복 같으니 적절하게 지우던가»] «빈 칸에서 직접 고를게요» 링크는 뺐다 — 고른 예시 칸을 한 번 더 누르면 빈 칸이 된다. 되살리지 말 것. */
   /* 감동 흐름 판(휴대폰) · 흐름 띠(PC) — 한 벌의 글을 CSS 가 두 모양으로 [FLOW_LINE] */
   h+=_pkPanel();
   /* 순간 칸 — 네 막 [ACTS_FOUR · TILE_PICK · D7] */
@@ -5080,6 +5124,34 @@ function ordAsk(opt){
    뒤 화면 상태가 알림 내용과 어긋난 채 함께 보인다(2026-08-03 저장 실패 스크린샷이 그 사례).
    ordAsk 와 같은 판·같은 포커스 규칙을 쓰고 버튼만 하나 둔다. */
 window.ordTell=function(opt){ return ordAsk({title:opt.title, body:opt.body, yes:opt.ok||'확인', no:null}); };
+/* ★★[HEAD_PILLS 2026-09-27 사장님 «처음부터 다시 만들기 위쪽 버튼 모양으로 3개 동일하게 · 안내 다시 보기도 합류 · 총 4개»]
+   새 코스 ①~④ 머리 알약 넷 — 안내 다시 보기 · 처음부터 다시 만들기 · 저장 · 나가기(같은 모양 .ob-exit · 화면을 떠나는 것이 끝).
+   저장 · 나가기는 마이페이지 안(임베드)에서만 있고, 앞 둘은 그냥 열어도 있다. 안내 화면 · 수정 중(editReturn)에는 앞 둘을 숨긴다. */
+function _headPills(k){
+  var slot=document.getElementById('obExitSlot'); if(!slot) return;
+  var g=document.getElementById('obGuide'), r=document.getElementById('obRestart');
+  if(!g){ g=document.createElement('button'); g.type='button'; g.className='ob-exit ob-nav'; g.id='obGuide'; g.setAttribute('data-fk','obguide'); g.innerHTML='<span class="lg">안내 다시 보기</span><span class="sh">안내 보기</span>'; g.setAttribute('aria-label','안내 다시 보기');
+    g.addEventListener('click',function(){ opStepNav('intro2'); }); slot.insertBefore(g, slot.firstChild); }
+  if(!r){ r=document.createElement('button'); r.type='button'; r.className='ob-exit ob-nav'; r.id='obRestart'; r.setAttribute('data-fk','obrestart'); r.innerHTML='<span class="lg">처음부터 다시 만들기</span><span class="sh">다시 만들기</span>'; r.setAttribute('aria-label','처음부터 다시 만들기');
+    r.addEventListener('click',function(){ opRestart(); }); slot.insertBefore(r, g.nextSibling); }
+  var show=isOpen() && !!courseStarted && !editReturn && (k==='pick'||k==='listen'||k==='write'||k==='done');
+  g.style.display=show?'':'none'; r.style.display=show?'':'none';
+}
+/* ★★[RESTART_IN_PLACE 2026-09-27 사장님 «누르면 처음 화면으로 가는 게 아니고 선택했던 것들이 전부 취소되게»]
+   새 코스는 새로고침 · 안내 화면으로 가지 않는다 — 담은 순간 · 고른 것 · 적어 둔 글을 빈 판(_S0)으로 되돌리고 ① 고르기에 머문다.
+   저장은 종전 규칙 그대로(저장 · 나가기 단추 · 기기에는 늘 남는다). 옛 코스는 종전 resetAll(새로고침). */
+window.opRestart=function(){
+  if(!isOpen()){ resetAll(); return; }
+  ordAsk({title:'고른 것을 모두 비울까요?', body:'담은 순간 · 고른 것 · 적어 두신 글(첫인사 · 서약문 · 편지 · 부모님께 드릴 말)이 모두 지워지고, ① 고르기에서 빈 칸으로 다시 시작해요.',
+          yes:'모두 비우기', no:'취소', danger:true}).then(function(ok){
+    if(!ok) return;
+    S=JSON.parse(_S0); _opPrev=null;   // [RESTART_IN_PLACE] _S0 = 미개봉 초기 판(ORDER_OWNER) try{ _pkUndo(''); }catch(e){} _seenK={}; _doneSaved=false;
+    try{ sessionStorage.setItem('me_order_gen', String(Date.now())); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
+    buildSteps(); for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k==='pick'){ idx=i; break; } }
+    _pkMsg='고른 것을 모두 비웠어요'; opSync(); try{ _dirtyMark(); }catch(e){}
+    try{ window.scrollTo(0,0); }catch(e){}
+  });
+};
 window.resetAll=function(){
   ordAsk({title:'처음부터 다시 만들까요?', body:'지금까지 담은 순간과 고른 것이 모두 지워져요. 적어 두신 글(첫인사 · 서약문 · 편지 · 부모님께 드릴 말)도 함께 지워져요.',   // [RESET_WORD 코워크 추가 점검 P2-9]
           yes:'지우고 시작', no:'취소', danger:true}).then(function(ok){
