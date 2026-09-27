@@ -12845,3 +12845,7 @@ chk '<title>우리 예식 짓기 · Moment Edit</title>' order-preview.html 1
 nochk '식순 미리보기' order-preview.html 0
 nochk "fr.title='식순 만들기'" mypage.html 0
 chk 'RIT_WIDTH_720' order-preview.html 1            # 26 PC ②③④ 폭 720
+# [REVIEW_STAMP_SRC] 대본 정리본 머리줄 = 원천 지문(날짜 아님) — 날이 바뀌어도 같은 원천이면 같은 파일(2026-09-27 코워크 제안)
+chk 'REVIEW_STAMP_SRC' scripts/build-script-review.mjs 2
+chk "html.replace('@@SRC_STAMP@@', '원천 지문 ' + _srcStamp)" scripts/build-script-review.mjs 1
+nochk 'new Date().toISOString().slice(0, 10)} · 클립' scripts/build-script-review.mjs 0
