@@ -72,7 +72,7 @@ for (const w of [390, 360]) {
     await pg.click('#pvAct .pv-add'); await pg.waitForTimeout(400);
     const after = await pg.evaluate(() => ({ tile: document.querySelector('[data-fk="opt:letter"]').getAttribute('aria-pressed'), on: !!(S.on && S.on.letter), act: document.getElementById('pvAct').textContent, open: !document.getElementById('pvSheet').hidden }));
     ok('창 안 담기 = 칸 상태 · 창은 열린 채', before === 'false' && after.tile === 'true' && after.on && /담겨 있어요/.test(after.act) && after.open, JSON.stringify(after));
-    ok('창 «② 보고 듣기에서 고를 것 · 받는 분»(② 묶음 이름과 같게)', await pg.evaluate(() => document.getElementById('pvCh').textContent === '② 보고 듣기에서 고를 것 · 받는 분'));
+    ok('창 «② 하나씩 만들기에서 고를 것 · 받는 분»(② 묶음 이름과 같게)', await pg.evaluate(() => document.getElementById('pvCh').textContent === '② 하나씩 만들기에서 고를 것 · 받는 분'));
     await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
     ok('예시를 누르면 6초 되돌리기 알림 줄', await pg.evaluate(() => { opEx('record'); const u = document.getElementById('pkUndo'); return !!u && !u.hidden && /‹기록› 예시로 바꿨어요/.test(u.textContent); }));
     await pg.click('#pkUndo button'); await pg.waitForTimeout(400);
@@ -123,7 +123,7 @@ for (const w of [390, 360]) {
     slim: (document.getElementById('pkSlim') || {}).className || '',
     tiles: [...document.querySelectorAll('.pk-act')].map((a) => a.querySelectorAll('.pk-tile').length).join(',')
   }), lim);
-  ok('PC 아래 단추 줄은 숨김(흐름 띠 · 얇은 띠에 «다음 · 보고 듣기»)', pc.nav === 'none', pc.nav);
+  ok('PC 아래 단추 줄은 숨김(흐름 띠 · 얇은 띠에 «다음 · 하나씩 만들기»)', pc.nav === 'none', pc.nav);
   ok('PC 레일 자리(오른쪽 88px)에 아무것도 안 닿음 [RAIL_LOCKED]', pc.right.length === 0, pc.right.join(','));
   ok('PC 얇은 띠는 처음엔 안 보인다', !/\bon\b/.test(pc.slim), pc.slim);
   ok('PC 막마다 한 줄(4 · 4 · 3 · 2)', pc.tiles === '4,4,3,2', pc.tiles);
@@ -136,7 +136,7 @@ for (const w of [390, 360]) {
   ok('PC pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
-// ④-b [F2 · G3] 창의 «② 보고 듣기에서 고를 것» = ② 줄의 묶음 이름(_lGroups) — 한쪽만 고치면 창과 ② 가 갈린다
+// ④-b [F2 · G3] 창의 «② 하나씩 만들기에서 고를 것» = ② 줄의 묶음 이름(_lGroups) — 한쪽만 고치면 창과 ② 가 갈린다
 {
   const { ctx, pg } = await open(390);
   const miss = await pg.evaluate(() => {
@@ -155,7 +155,7 @@ for (const w of [390, 360]) {
     } finally { S = S0; }
     return out;
   });
-  ok('창 «② 보고 듣기에서 고를 것»의 말이 모두 ② 묶음 이름이다 [F2 · G3]', miss.length === 0, miss.join(' | '));
+  ok('창 «② 하나씩 만들기에서 고를 것»의 말이 모두 ② 묶음 이름이다 [F2 · G3]', miss.length === 0, miss.join(' | '));
   await ctx.close();
 }
 // ⑤ 좁은 화면에서는 얇은 띠가 안 보인다(시안에서 한 번 났던 버그 — 흐름 띠가 숨은 것을 «나갔다»로 읽음)

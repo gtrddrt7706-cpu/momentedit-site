@@ -57,7 +57,7 @@ async function open(w, opt) {
   if (opt.videos) await pg.evaluate(() => { (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });
   return { ctx, pg, errs, ext };
 }
-/* [PICK_V2 2026-09-26] PC(폭 1000 이상)의 ① 은 아래 단추 줄을 숨긴다 — «다음 · 보고 듣기»는 흐름 띠(.pk-go)에 있다 */
+/* [PICK_V2 2026-09-26] PC(폭 1000 이상)의 ① 은 아래 단추 줄을 숨긴다 — «다음 · 하나씩 만들기»는 흐름 띠(.pk-go)에 있다 */
 const clickNext = async (p) => { if (await p.isVisible('#next')) await p.click('#next'); else await p.click('.pk-go'); };
 const toPick = async (pg) => { await clickNext(pg); await pg.waitForTimeout(400); await clickNext(pg); await pg.waitForTimeout(500); };
 
@@ -83,19 +83,27 @@ for (const w of [390, 1280]) {
   ok(`${w} [STEP_BASELINE 4-e] 걸음 표시 — 지난 걸음과 지금 걸음의 글줄이 같다`, await pg.evaluate(() => { const ys = [...document.querySelectorAll('.op-steps li')].map((li) => { const tw = document.createTreeWalker(li, NodeFilter.SHOW_TEXT); let t = tw.nextNode(); while (t && !t.textContent.trim()) t = tw.nextNode(); const r = document.createRange(); r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }); return ys.length === 4 && Math.max(...ys) - Math.min(...ys) <= 1; }));
   ok(`${w} ② 제목 «하나씩 만들기» · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '하나씩 만들기' && /하나씩 만들기/.test(document.querySelector('.op-steps li.on').textContent)));
   const pages = await pg.evaluate(() => _mkPages());
-  ok(`${w} ② 쪽 = 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE]`, pages[0] === 'guest' && pages[1] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
-  ok(`${w} ② 진행 순서 줄 = 쪽마다 단추 하나 · 지금 쪽 aria-current`, await pg.evaluate((n) => document.querySelectorAll('#mkStrip .mk-it:not(.mk-add)').length === n && !!document.querySelector('#mkStrip .mk-it.cur[aria-current="step"]'), pages.length));
+  ok(`${w} ② 쪽 = 고른 순서 · 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE · MK_INTRO]`, pages[0] === '_intro' && pages[1] === 'guest' && pages[2] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
+  /* [MK_INTRO] 첫 쪽 = ① 에서 고른 순서 모아 보기 · 쪽마다 할 일 꼬리표 · «시작하기» */
+  const ii = await pg.evaluate(() => ({ at: _mkState().at, h: document.getElementById('mkHead').textContent, rows: document.querySelectorAll('.mk-ilist .mk-irow').length, tag: [...document.querySelectorAll('.mk-itag')].map((x) => x.textContent).join('|'), next: document.getElementById('next').textContent }));
+  ok(`${w} ② 첫 쪽 «고른 순서» — 순간마다 한 줄 · 할 일 꼬리표(고르기 · 두 분이 할 말) · «시작하기 · 하객 맞이 안내» [MK_INTRO]`, ii.at === '_intro' && ii.h === '고른 순서' && ii.rows === pages.length - 2 && /두 분이 할 말/.test(ii.tag) && /고르기/.test(ii.tag) && /^시작하기 · 하객 맞이 안내$/.test(ii.next.replace(/\u00a0/g, ' ')), JSON.stringify(ii));
+  ok(`${w} ② 진행 순서 줄 = 쪽마다 단추 하나(고른 순서 쪽 제외) · «미완료 N» 단추 없음 [MK_TODO_PASSED]`, await pg.evaluate((n) => document.querySelectorAll('#mkStrip .mk-it:not(.mk-add)').length === n && !document.querySelector('[data-fk="mktodo"]'), pages.length - 1));
   ok(`${w} ② 들어가자마자 소리 없음(자동 재생 없음)`, await pg.evaluate(() => !LP.q.length && (!LP.el || LP.el.paused)));
-  // 다음 = 다음 순간(② 안) · 이전 = 앞 순간
   await clickNext(pg); await pg.waitForTimeout(400);
-  ok(`${w} ② «다음»은 다음 순간으로(걸음은 그대로)`, await pg.evaluate((p1) => STEPS[idx].k === 'listen' && _mkState().at === p1, pages[1]));
+  ok(`${w} ② «시작하기» → 하객 맞이 쪽 · 지금 쪽 aria-current`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest' && !!document.querySelector('#mkStrip .mk-it.cur[aria-current="step"]')));
+  await clickNext(pg); await pg.waitForTimeout(400);
+  ok(`${w} ② «다음»은 다음 순간으로(걸음은 그대로)`, await pg.evaluate((p2) => STEPS[idx].k === 'listen' && _mkState().at === p2, pages[2]));
+  ok(`${w} ② 표시는 지나온 쪽에만 — 지금 · 앞으로 올 쪽은 비어 있다 [MK_TODO_PASSED]`, await pg.evaluate(() => { const its = [...document.querySelectorAll('#mkStrip .mk-it:not(.mk-add)')], ci = its.findIndex((b) => b.classList.contains('cur')); return ci === 1 && /done|todo/.test(its[0].className) && its.slice(ci).every((b) => !/ (done|todo)/.test(b.className)); }));
   await pg.click('#prev'); await pg.waitForTimeout(400);
   ok(`${w} ② «이전»은 앞 순간으로`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest'));
+  /* [MK_PICK_TOP] 고르기가 먼저 · 그 아래 «고른 대로 들어 보기» · 흐름은 그 뒤 */
+  ok(`${w} ② 고르기 → «고른 대로 들어 보기» → 흐름 차례 [MK_PICK_TOP]`, await pg.evaluate(() => { const a = document.querySelector('.mk-pick .ls-vars'), b = document.querySelector('[data-fk="mkplay"]'), c = document.querySelector('.mk-flow'); const F = Node.DOCUMENT_POSITION_FOLLOWING; return !!a && !!b && !!c && !!(a.compareDocumentPosition(b) & F) && !!(b.compareDocumentPosition(c) & F) && /고른 대로 들어 보기/.test(b.textContent); }));
+  ok(`${w} ② 진행 줄 양끝 흐림(끝이 뚝 잘리지 않게) [MK_STRIP_FADE]`, await pg.evaluate(() => { const c = getComputedStyle(document.querySelector('#mkStrip .mk-sc')); return /gradient/.test(c.maskImage || c.webkitMaskImage || ''); }));
   // 서약 쪽 — 흐름 · 참고 예시 · 두 칸
   await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(500);
   ok(`${w} ② 서약 쪽 머리 = 번호 · 이름 · 흐름에 «신랑 차례 · 신부 차례»`, await pg.evaluate(() => /혼인 서약/.test(document.getElementById('mkHead').textContent) && /신랑 차례/.test(document.querySelector('.mk-flow').textContent) && /신부 차례/.test(document.querySelector('.mk-flow').textContent)));
   const rf = await pg.evaluate(() => ({ n: document.querySelectorAll('.mk-ref .mk-rx').length, b: [...document.querySelectorAll('.mk-ref .lf-refb')].map((x) => x.textContent), d: (document.querySelector('.mk-ref .mk-rd') || {}).textContent || '', note: (document.querySelector('.mk-ref .lf-refn') || {}).textContent || '', play: document.querySelectorAll('.mk-ref button').length, len: (document.querySelector('.mk-ref .mk-rl') || {}).textContent || '' }));
-  ok(`${w} ② 참고 예시 세 벌 · 글로만(듣기 단추 · 목소리 문장 없음) · «N자 · 소리 내어 읽으면 약 N초» [MK_REF · CAST_TEXT_ONLY]`, rf.n === 3 && /^참고 예시 1 · /.test(rf.b[0]) && rf.d === '당일엔 두 분이 직접 말해요' && /예시 속 이름은 가상 인물이에요/.test(rf.note) && rf.play === 0 && /^\d+자 · 소리 내어 읽으면 약\s\d+초$/.test(rf.len), JSON.stringify(rf));
+  ok(`${w} ② 참고 예시 세 벌 · 배지는 «참고 예시 N» 까지(결 없음 · REF_NO_KYEOL) · 글로만(듣기 단추 · 목소리 문장 없음) · «N자 · 소리 내어 읽으면 약 N초» [MK_REF · CAST_TEXT_ONLY]`, rf.n === 3 && rf.b.join('|') === '참고 예시 1|참고 예시 2|참고 예시 3' && rf.d === '당일엔 두 분이 직접 말해요' && /예시 속 이름은 가상 인물이에요/.test(rf.note) && rf.play === 0 && /^\d+자 · 소리 내어 읽으면 약\s\d+초$/.test(rf.len), JSON.stringify(rf));
   await pg.click('.mk-rx:nth-of-type(2) summary').catch(() => {}); await pg.evaluate(() => { const d = document.querySelectorAll('.mk-rx')[1]; d.open = true; }); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(500);
   ok(`${w} ② 펼친 예시(2)가 «이 순간 들어 보기»의 두 분 차례 글이 된다 · 소리 없음`, await pg.evaluate(() => LP.cur === 'vow' && LP.q.filter((s) => s.talk2).every((s) => s.refN === 1 && !s.src)));
@@ -429,7 +437,7 @@ else {
   ok('9-6 첫인사 = 두 분 차례 둘(신랑 · 신부) · 소리 없이 글 + 막대 · 대본 목록(④ 복사)에는 안 들어간다 · 대역 목소리 0 [CAST_TEXT_ONLY]', e.q === 2 && e.steps === 0 && e.noSrc && e.mute === 12 && e.castPlay === 0, JSON.stringify(e));
   await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].ref) && g++ < 40) { LP.i++; _lShow(); } }); await pg.waitForTimeout(300);
   const f = await pg.evaluate(() => ({ badge: (document.querySelector('#lsFull .lf-ref') || {}).textContent || '', lab: (document.querySelector('#lsFull .lf-lab') || {}).textContent || '' }));
-  ok('9-7 참고 예시 화면 — «참고 예시 N · 결» 표 · «당일엔 … 직접» · 목소리 문장 없음 · 이름표는 «신랑 차례» [CAST_TEXT_ONLY]', /참고 예시/.test(f.badge) && /당일엔 .*직접/.test(f.badge) && !/목소리/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
+  ok('9-7 참고 예시 화면 — «참고 예시 N» 표(결 없음) · «당일엔 … 직접» · 목소리 문장 없음 · 이름표는 «신랑 차례» [CAST_TEXT_ONLY]', /참고 예시/.test(f.badge) && /당일엔 .*직접/.test(f.badge) && !/목소리/.test(f.badge) && /차례$/.test(f.lab) && !/참고 예시/.test(f.lab), JSON.stringify(f));
   /* 두 분이 적은 글이면 그 글 · 막대 = 글자수 ÷ 5 올림(206자 → 42초 · 53자 → 11초) · «현장에서»면 «떠오르는 대로 말해 보세요» */
   const tw = await pg.evaluate(() => { const keep = JSON.stringify(S); S.tx = { 'welcome.g': 'ㄱ'.repeat(206), 'welcome.b': '' }; S.mkc = { 'welcome.b': 1 }; const q = _lRefExpand(_lSteps(ENG, ['welcome'])).filter((x) => x.talk2); S = JSON.parse(keep); return q.map((x) => ({ who: x.who, mine: !!x.mine, site: !!x.site, s: x.ms / 1000, t: x.txt.slice(0, 20) })); });
   ok('9-7b 두 분 차례 — 적은 글 206자 → 42초 · «현장에서» → «떠오르는 대로 말해 보세요» [CAST_TEXT_ONLY]', tw.length === 2 && tw[0].mine && tw[0].s === 42 && tw[1].site && /떠오르는 대로 말해 보세요/.test(tw[1].t), JSON.stringify(tw));
@@ -443,6 +451,84 @@ else {
   await ctx.close();
 }
 
+// ★★[RITUAL_FILE 2026-09-27 사장님] ② 하객 맞이 쪽 — 두 분 목소리 녹음 올리기 카드(임베드 · 마이페이지에서 연 빌더)
+{
+  const ctx = await br.newContext({ viewport: { width: 390, height: 900 } }); const pg = await ctx.newPage(); const errs = [];
+  pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`, { waitUntil: 'load' }); await pg.waitForTimeout(800);
+  await pg.evaluate(() => { window.__sent = []; const o = window.postMessage.bind(window); window.postMessage = function (m, t) { if (m && m.type === 'momentedit:ritualFile') { window.__sent.push(m.data); return; } return o(m, t); }; });
+  await clickNext(pg); await pg.waitForTimeout(400); await clickNext(pg); await pg.waitForTimeout(500);
+  await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
+  await pg.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await pg.waitForTimeout(400);
+  const v0 = await pg.evaluate(() => ({ rows: document.querySelectorAll('.mk-vr').length, oldChk: [...document.querySelectorAll('.mk-pg .upchk')].filter((l) => !l.closest('.mk-valt')).length, alt: !!document.querySelector('.mk-valt:not([open])'), dup: /대본을 드려요/.test(document.querySelector('.mk-pg').textContent), todo: _mkTasks('guest').filter((x) => !x.done).length }));
+  ok('RF ② 하객 맞이 — 녹음 카드 한 장 · 녹음마다 한 줄(넷) · 옛 체크 칸 없음 · «올리기가 어렵다면»은 접힘 · 겹치는 «대본을 드려요» 줄 없음 [RITUAL_FILE]', v0.rows === 4 && v0.oldChk === 0 && v0.alt && !v0.dup && v0.todo === 4, JSON.stringify(v0));
+  const [fc] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g0"]')]);
+  await fc.setFiles({ name: '입장.m4a', mimeType: 'audio/mp4', buffer: Buffer.from('ID3testaudio') }); await pg.waitForTimeout(500);
+  const v1 = await pg.evaluate(() => ({ sent: window.__sent.map((d) => d.key + ':' + d.mime + ':' + d.name + ':' + /^data:audio\/mp4;base64,/.test(d.data)), busy: /보내는 중/.test(document.querySelector('.mk-vr').textContent) }));
+  ok('RF 올리기 → 마이페이지로 파일(키 · 형식 · 이름 · base64)이 넘어가고 «보내는 중…»', v1.sent.join() === 'g0:audio/mp4:입장.m4a:true' && v1.busy, JSON.stringify(v1));
+  await pg.evaluate(() => _mkUpDone({ key: 'g0', ok: true, name: '입장.m4a', id: 'F1', at: '2026-09-27 17:40' })); await pg.waitForTimeout(300);
+  const v2 = await pg.evaluate(() => ({ st: document.querySelector('.mk-vr').textContent, up: S.up.g0, fAt: !!(S.fAt && S.fAt['up.g0']), todo: _mkTasks('guest').filter((x) => !x.done).length, btn: document.querySelector('[data-fk="mkup:g0"]').textContent }));
+  ok('RF 도착 → «보냈어요 · 입장.m4a» · 다시 올리기 · 그 줄은 완료(남은 셋은 미완료) · 칸마다 시각(두 기기)', /보냈어요 · 입장\.m4a/.test(v2.st) && v2.up && v2.up.id === 'F1' && v2.fAt && v2.todo === 3 && v2.btn === '다시 올리기', JSON.stringify(v2));
+  await pg.evaluate(() => _mkUpDone({ key: 'g1', ok: false, error: '한 개에 20MB 까지 올릴 수 있어요.' })); await pg.waitForTimeout(300);
+  ok('RF 실패는 사유를 한 줄로 · 그 줄은 미완료 그대로', await pg.evaluate(() => /20MB/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !S.up.g1));
+  await pg.evaluate(() => { document.querySelector('.mk-valt').open = true; }); await pg.click('.mk-valt .upchk'); await pg.waitForTimeout(300);
+  ok('RF «카톡 · 메일로 보냈어요» → 올리지 않은 줄만 보냄 처리 · 올린 줄은 그대로', await pg.evaluate(() => S.up.g0.id === 'F1' && S.up.g1 === 'sent' && S.up.g3 === 'sent' && _mkTasks('guest').every((x) => x.done)));
+  ok('RF pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+  // 그냥 연 미리보기(임베드 아님)는 올리지 않고 카톡 · 메일 길을 말한다
+  const c2 = await br.newContext({ viewport: { width: 390, height: 900 } }); const p2 = await c2.newPage();
+  await p2.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+  await p2.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await p2.waitForTimeout(700);
+  await clickNext(p2); await p2.waitForTimeout(400); await clickNext(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(300); await clickNext(p2); await p2.waitForTimeout(1200);
+  await p2.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await p2.waitForTimeout(300); await p2.click('[data-fk="mkup:g0"]'); await p2.waitForTimeout(300);
+  ok('RF 그냥 연 미리보기 — 파일 창 대신 «마이페이지에서 열면 … 카톡 · 메일» 한 줄', await p2.evaluate(() => /마이페이지에서 열면 여기서 바로 보낼 수 있어요/.test((document.querySelector('.mk-toast') || {}).textContent || '')));
+  await c2.close();
+}
+/* ★[TOAST_FILE_ONE 2026-09-27] 영상 이름 한 원천 — 화면이 찾는 이름은 모두 파일 규격 17편(scripts/video/encode-moment.sh) 안에 있어야 한다.
+   종전 ② 잔 들기 줄이 'toast-raise'(그런 파일 없음)를 찾아, 17편이 다 들어오면 «케이크와 축배»는 케이크 영상 · «축배만 + 붓기»는 붓기 영상이 나왔다(실측).
+   영상이 한 편도 없는 지금은 안 보이는 결함이라, 파일이 들어오기 전에 여기서 막는다. ffmpeg 없이 잰다(src 만 본다). */
+{
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close'];
+  const { ctx, pg } = await open(390, { videos: NAMES });
+  const r = await pg.evaluate((NAMES) => {
+    const R = RitualOpen, name = (h) => ((h.match(/moments\/([^"]+)\.mp4"/) || [])[1] || '(없음)'), out = { raise: {}, bad: [] };
+    const miss = (tag, n) => { if (NAMES.indexOf(n) < 0) out.bad.push(tag + '→' + n); };
+    for (const [t, w] of [['both', 'mix'], ['toast', 'mix'], ['toast', 'family'], ['toast', 'none']]) {
+      S.toast = t; S.wine = w;
+      ['toast-both-b', 'toast-both-pour-b'].forEach((sl) => { out.raise[t + '/' + w + '/' + sl] = name(_lVid('toast', { big: true, name: _lSceneName({ k: 'toast', slug: sl }) })); });
+      R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => miss('videoKeys:' + k, n)));
+    }
+    [['toast', 'toast-both'], ['toast', 'toast-pour-mix'], ['toast', 'toast-pour-family'], ['entry', 'entry-out'], ['tribute', 'narr-bow-groom'], ['_close', '']]
+      .concat(R.ORDER.map((k) => [k, ''])).forEach(([k, sl]) => miss('scene:' + k + '/' + sl, _lSceneName({ k: k, slug: sl })));
+    return out;
+  }, NAMES);
+  ok('10-1 ② 잔 들기 줄 = toast.mp4 — 케이크와 축배 · 축배만(두 와인 · 양가 · 붓지 않음) [TOAST_FILE_ONE]', Object.values(r.raise).every((n) => n === 'toast'), JSON.stringify(r.raise));
+  ok('10-2 화면이 찾는 영상 이름은 모두 규격 17편 안 [TOAST_FILE_ONE]', r.bad.length === 0, r.bad.join(' | '));
+  await ctx.close();
+}
+
+/* ★[MK_VID_CHIP 2026-09-27] ② 케이크 · 축배 쪽 영상은 고른 판대로 — «케이크만» cake · «축배만 + 붓지 않음» toast · «케이크와 축배» cake(첫 장면) */
+{
+  const NAMES = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast-pour', 'toast', 'close'];
+  const { ctx, pg, errs } = await open(390, { videos: NAMES });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
+  const v = await pg.evaluate(() => { const nm = () => { const el = document.querySelector('.mk-vid video'); return el ? ((el.getAttribute('src') || '').match(/moments\/([^/]+)\.mp4$/) || [])[1] : '(없음)'; }; const out = {};
+    for (const [t, w] of [['cake', 'none'], ['toast', 'none'], ['both', 'none']]) { S.toast = t; S.wine = w; if (!RitualOpen.onOf(S, 'toast')) { S.on.toast = 1; opSync(); } mkGo('toast'); render(); out[t] = nm(); }
+    return out; });
+  ok('11-1 ② 케이크 · 축배 쪽 영상 = 고른 판(케이크만 cake · 축배만 toast · 케이크와 축배 cake) [MK_VID_CHIP]', v.cake === 'cake' && v.toast === 'toast' && v.both === 'cake', JSON.stringify(v));
+  ok('11-1 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★[PC_GO_LABEL 2026-09-27] PC ① 흐름 띠 · 얇은 띠 단추 = «다음 · 하나씩 만들기»(#902 뒤 ② 이름 · 폰 #nav 와 같게) */
+{
+  const { ctx, pg } = await open(1280);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  const g = await pg.evaluate(() => [...document.querySelectorAll('[onclick="opToListen()"]')].map((b) => b.textContent.replace(/\u00a0/g, ' ')));
+  ok('11-2 PC ① 다음 단추 글 = «다음 · 하나씩 만들기» · 화면에 «보고 듣기» 없음 [PC_GO_LABEL]', g.length > 0 && g.every((t) => t === '다음 · 하나씩 만들기') && !(await pg.evaluate(() => /보고 듣기/.test(document.body.innerText))), JSON.stringify(g));
+  await pg.screenshot({ path: path.join(os.tmpdir(), 'pc-go-1280.png') });
+  await ctx.close();
+}
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
 process.exit(fail ? 1 : cant ? 2 : 0);

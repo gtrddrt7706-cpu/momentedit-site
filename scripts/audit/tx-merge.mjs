@@ -33,4 +33,8 @@ const i7=clone(base); delete i7.S.fAt; ok(f._ritualTxMerge(srv,i7)===null,'옛 �
 // 키 순서만 다른 것은 같은 것
 const i8={_v:3,summary:{},S:{mk:{drop:{},seen:{},at:'x'},on:{vow:1},course:'open',tx:{'vow.b':'a'},fAt:{'tx.vow.b':5},mkc:{}}};
 r=f._ritualTxMerge(srv,i8); ok(r.sameRest,'키 순서 무관');
+// [RITUAL_FILE] 올린 녹음 표시(S.up)도 칸마다 — 신랑 폰이 g0 을, 신부 폰이 g1 을 올려도 둘 다 남는다
+const s9=clone(base); s9.S.up={g0:{n:'a.m4a'}}; s9.S.fAt['up.g0']=100;
+const i9=clone(base); i9.S.up={g1:{n:'b.m4a'}}; i9.S.fAt['up.g1']=200;
+r=f._ritualTxMerge(s9,i9); ok(r.sameRest&&r.draft.S.up.g0.n==='a.m4a'&&r.draft.S.up.g1.n==='b.m4a'&&r.pull&&r.pull.up.g0,'녹음 표시 칸별 합치기 · pull');
 process.exit(bad?1:0);

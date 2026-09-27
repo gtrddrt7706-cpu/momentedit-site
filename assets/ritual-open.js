@@ -398,7 +398,7 @@
   /* 대표 한 줄을 들을 때 엔진을 부를 S — 모든 순간을 담고 판은 표의 판(입장 A · 엄숙 · 서로에게 · 케이크와 축배 · 와인 두 병 · 영상) */
   function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: 'narr', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'mix', freeWhat: 'video', freeLen: '3', candleWho: (S && S.candleWho) || DEF.candleWho }; }
 
-  /* ══ [PREVIEW_SHEET 2026-09-26 코워크 추가 전달 3 F2] 미리 보기 창 «② 보고 듣기에서 고를 것» — ② 묶음 이름(G3 로 고친 이름)과 같은 말 ══ */
+  /* ══ [PREVIEW_SHEET 2026-09-26 코워크 추가 전달 3 F2] 미리 보기 창 «② 하나씩 만들기에서 고를 것» — ② 묶음 이름(G3 로 고친 이름)과 같은 말 ══ */
   var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리 · 첫 모습', declare: '누가 · 말투', tribute: '말의 길이 · 인사 방식 · 꽃 준비', letter: '받는 분', toast: '무엇을 · 와인 · 케이크 준비', free: '무엇을 · 길이' };
 
   /* ── 준비할 것 · [누구, 무엇, 갈래] ──
@@ -705,7 +705,7 @@
       case 'toast': return chipOf('toast', S) === 'cake' ? '' : '두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 10초';   // [TOAST_COUPLE 2026-09-26 코워크 회신5 3-2] ② 말하는 자리 카드
       case 'free': fk = FREE_KIND[chipOf('free', S)]; n = chipOf('freeLen', S);
         if (fk === 'speech') return '준비한 분이 축하의 말을 해요 · 약 ' + n + '분';
-        return chipLabel('free', S) + ' · 보고 듣기에서는 건너뛰어요';
+        return chipLabel('free', S) + ' · 연습에서는 건너뛰어요';
     }
     return '';
   }
