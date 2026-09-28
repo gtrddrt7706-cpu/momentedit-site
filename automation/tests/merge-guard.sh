@@ -13518,14 +13518,23 @@ chk 'AI 연습 소리' order-preview.html 1
 chk 'function _ptRole(who)' order-preview.html 1
 # ★[VP_AI_0928 · VC_CARD_0928 · VC_LINE_0928 · VOICE_CLONE_0928 화면 코워크 0928 6-1 · 8장] AI 칸 · 사람 카드 · 동의 · 1분 읽기 · 줄 도구 · 빈 줄만 채우기
 chk 'function _vpChoice()' order-preview.html 1
-chk "['ai','AI로 두 분 목소리 만들기']" order-preview.html 1
+chk "c.push(['ai','AI 목소리'])" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션
 chk 'var VC_TXT=' order-preview.html 1
 chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
 chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
 chk 'function _vcAutoFill(w,renew)' order-preview.html 1
 chk 'function _vcLineTools(key,lab)' order-preview.html 1
 chk 'function _vcReadyFor(key)' order-preview.html 1
-chk '이 줄은 직접 녹음할게요' order-preview.html 1
+nochk 'data-fk="mkaiself:' order-preview.html   # [VP_NO_DIRECT] AI 줄의 «이 줄은 직접 녹음할게요» 단추는 걷었다(2026-09-28 사장님 «지금 바로 모두 빼기»)
+chk 'function _vpChoice(k)' order-preview.html 1
+chk 'VP_ONE_LIST' order-preview.html 4   # 흐름 목록과 줄 카드를 하나로(▶ 는 줄 카드 머리)
+chk 'VP_CHIP_ROW' order-preview.html 1
+chk 'VP_NO_DIRECT' scripts/audit/vc-screen.mjs 3
+chk 'VP_ONE_LIST' scripts/audit/vc-screen.mjs 1
+chk 'VP_NO_DIRECT' scripts/audit/rec-upload.mjs 2
+chk 'VP_NO_DIRECT' assets/ritual-open.js 1
+chk 'VP_ONE_LIST' scripts/audit/rec-upload.mjs 2
+chk 'VP_ONE_LIST' scripts/audit/listen-page.mjs 1
 chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
 chk 'REC_DLG' order-preview.html 6
