@@ -13337,6 +13337,12 @@ chk 'VIDEO_V8_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'VIDEO_V8_0928' scripts/audit/moment-script-check.mjs 1
 chk 'VIDEO_V8_0928' assets/ritual-open.js 2
 chk 'sec >= 6 && sec <= 10' scripts/audit/moment-script-check.mjs 1
+# ★[VIDEO_V81_0928 사장님 v8.1 «잘 지켜서 바로 진행»] 흰 의자 · 시험 순서 반지 → 입장 · 첫 0.3초 정지 · 원본 파일로 받기
+chk 'VIDEO_V81_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '첫 약 0.3초는 흔들림 없는 정지 그림' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '파일은 원본으로 받는다' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '\*\*다음 = entry\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+nochk '밝은 색 의자(흰색은 사장님 확인 뒤' docs/plans/식순연구/순간영상_장면대본_0927.md
 chk '\*\*맨손 · 맨팔\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '목례는 이 편에 넣지 않는다' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '두 분 잔 가운데 \*\*한 잔만\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
