@@ -13376,3 +13376,15 @@ chk 'STEP_HEAD_ONE' order-preview.html 1
 chk "var _dupHd=isOpen()&&(st.k==='listen'||st.k==='practice');" order-preview.html 1
 chk 'MK_LINE_PLAY' order-preview.html 1
 chk 'LP_WAIT_FIX' scripts/audit/listen-page.mjs 1
+# ★[2026-09-28 사장님 식순 ② 2차 여섯] 안내 첫 쪽부터 · 목소리 안내 접이 · ① 고르기 링크 삭제 · 줄 넘기기 · 플레이 바 한 덩어리 · 복사 단추 제목 옆
+chk 'GUIDE_FROM_FIRST' order-preview.html 1
+chk "g.addEventListener('click',function(){ opStepNav('intro'); });" order-preview.html 1
+chk 'MK_BACK1_OFF' order-preview.html 1
+nochk '순간을 더하거나 빼려면 ① 고르기로</button>' order-preview.html
+chk 'MK_SECH_NEAR' order-preview.html 1
+nochk '.mk-sech{display:flex;align-items:center;justify-content:space-between' order-preview.html
+chk 'VOICE_GUIDE' order-preview.html 3
+chk '<summary>나레이션 · 목소리 안내</summary>' order-preview.html 1
+chk 'LINE_STEP' order-preview.html 5
+chk 'window.lsLine=function(d)' order-preview.html 1
+chk 'MINI_DOCK' order-preview.html 3
