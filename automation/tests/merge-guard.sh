@@ -13555,6 +13555,8 @@ chk 'VC_LIMIT_UI' order-preview.html 3   # 목소리 만들기를 다 쓰면 [�
 chk 'VC_LIMIT_UI' scripts/audit/vc-screen.mjs 1
 chk 'VP_ONLY_PICKED' order-preview.html 6   # 고른 칸(직접 녹음 · AI · 나레이션)의 것만 아래에 — AI 에 녹음 · 파일 단추 없음(2026-09-28 사장님)
 chk 'VP_ONLY_PICKED' scripts/audit/vc-screen.mjs 1
+chk 'VC_LINE_ERR' order-preview.html 3   # 줄 만들기 실패는 그 줄 아래에(«보내는 중»에 멈추지 않게)
+chk 'VC_LINE_ERR' scripts/audit/vc-screen.mjs 2
 nochk '_vcReadText(' order-preview.html
 nochk '_vcLinePanel(' order-preview.html
 nochk 'TYPECAST_API_KEY' console.html

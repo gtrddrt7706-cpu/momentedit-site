@@ -34,6 +34,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
       if (op === 'consent') { st[d.who].consent = true; return Promise.resolve({ ok: true }); }
       if (op === 'phrase') return Promise.resolve({ ok: true, phrase: '오늘은 구월 이십팔일, 파란 우산과 노란 연필.' });
       if (op === 'enroll') { st[d.who].ready = true; st[d.who].made = '2026-09-28 10:00'; st[d.who].left = 2; return Promise.resolve({ ok: true, who: d.who, tries: 1 }); }
+      if (op === 'make' && window.__makeFail) return Promise.resolve({ ok: false, bad: true, error: '(시험) 이 줄은 만들지 못했어요' });   // [VC_LINE_ERR]
       if (op === 'make') { const n = d.lines ? d.lines.length : 1; return Promise.all(Array.from({ length: n }, () => b64(tone(1.2)))).then((a) => ({ ok: true, key: d.key, left: 4, parts: a.map((x, i) => ({ who: d.lines ? d.lines[i][0] : (d.one || 'groom'), mime: 'audio/wav', data: x })) })); }
       return Promise.resolve({ ok: false });
     };
@@ -91,6 +92,11 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.click('[data-fk="mkaitempo:g0:0.9"]'); await pg.waitForTimeout(2500);
   ok(W + ' 빠르기만 바꾸면 retempo 로(줄 한도에 안 셈)', await pg.evaluate(() => S.up.g0.tempo === '0.9' && __calls.filter((c) => c === 'make:g0').length >= 2));
   await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkairedo:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
+  /* ★[VC_LINE_ERR] 줄 만들기가 실패하면 «보내는 중»에 멈추지 않고 그 줄 아래에 까닭 */
+  await pg.evaluate(() => { window.__makeFail = true; }); await pg.click('[data-fk="mkairedo:g0"]'); await pg.waitForTimeout(800);
+  const le = await pg.evaluate(() => { const li = document.querySelector('[data-fk="mkairedo:g0"]') && document.querySelector('[data-fk="mkairedo:g0"]').closest('li'); return { busy: !!MK_UP.g0, err: li ? ((li.querySelector('.mk-exw') || {}).textContent || '') : '' }; });
+  await pg.evaluate(() => { window.__makeFail = false; });
+  ok(W + ' 줄 만들기 실패 → «보내는 중»에 멈추지 않고 그 줄 아래 까닭 [VC_LINE_ERR]', !le.busy && /만들지 못했어요/.test(le.err), JSON.stringify(le));
   await pg.click('[data-fk="mkaiself:g0"]'); await pg.waitForTimeout(300);
   ok(W + ' [이 줄은 직접 녹음할게요] → 그 줄은 비고 [녹음] [파일 올리기]', await pg.evaluate(() => !(S.up.g0 && S.up.g0.src) && !!document.querySelector('[data-fk="mkrec:g0"]')));
   ok(W + ' pageerror 0', !errs.length, errs.join(' | '));
