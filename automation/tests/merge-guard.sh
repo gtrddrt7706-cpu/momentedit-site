@@ -13332,6 +13332,15 @@ chk '### 14. cake · 케이크 커팅' docs/plans/식순연구/순간영상_장�
 chk '### 15. toast · 축배' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 # ★[VIDEO_FINAL_0928 사장님 «고객 입장에서 이해를 돕나 · 행동 하나하나 글로 · 개선점이 없을 때까지»] 최종 점검 3회(9 → 4 → 0) — 목례는 뒤에서 머리까지 · 표지가 서로 겹치지 않게
 chk 'VIDEO_FINAL_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[VIDEO_V8_0928 사장님 «작업자가 실무에서 더 좋은 개선책이 있다면 반영»] 작업자 기획서 v7 대조 → 대본 v8 — 신부 맨팔 · 6~10초 · 첫인사 목례 제거 · 반지 완료 · 화촉 장신구 없음 · 축배 한 잔만 진사
+chk 'VIDEO_V8_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk 'VIDEO_V8_0928' scripts/audit/moment-script-check.mjs 1
+chk 'VIDEO_V8_0928' assets/ritual-open.js 2
+chk 'sec >= 6 && sec <= 10' scripts/audit/moment-script-check.mjs 1
+chk '\*\*맨손 · 맨팔\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '목례는 이 편에 넣지 않는다' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '두 분 잔 가운데 \*\*한 잔만\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+nochk '아이보리 소매의 두 손' docs/plans/식순연구/순간영상_장면대본_0927.md
 chk '인사하는 컷은 \*\*뒤에서 · 어깨 위 · 머리까지\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'WINE_POUR_OFF' assets/ritual-story.js 1
 nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
