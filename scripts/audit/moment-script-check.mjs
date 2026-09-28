@@ -6,7 +6,8 @@
 // ① 편 목록 = 엔진이 부르는 장면 이름(ritual-open videoKeys · 모든 순간 · 케이크와 축배) — 빠진 편 · 남는 편 0
 // ② 편마다 «답하는 물음 · 실제 진행 · 남는 장면 · 표지 · 장면 대본 · 손동작 · 반복 이음 · 영문» 여덟 칸이 다 있다
 //    ★[MOMENT_COVER 2026-09-28] 표지 = 첫 프레임 · ① 칸(약 170×96)에는 이 한 장만 뜬다 — 편마다 적어 둔다
-// ③ 초 단위 대본이 0 에서 시작해 빈틈 · 겹침 없이 이어지고, 끝 초 = 제목의 길이 · 5~8초 안
+// ③ 초 단위 대본이 0 에서 시작해 빈틈 · 겹침 없이 이어지고, 끝 초 = 제목의 길이 · 6~10초 안
+//    ★[VIDEO_V8_0928] 작업자 기획서 v7 반영 — 종전 5~8초. 사이트는 영상 길이에 매이지 않는다(소리 없이 반복 · 보고 듣기는 소리 끝에 넘어감)
 // ④ 영문 줄에 F02 금지 낱말(ceremony · altar · aisle · officiant · church)과 빼는 말(no · without · not)이 없다
 // ⑤ 파일 칸 이름 = 제목의 이름
 // ★종료 코드 0 = 통과 · 1 = 실패
@@ -33,7 +34,7 @@ parts.forEach((p) => {
   const rows = [...p.matchAll(/^\| (\d+(?:\.\d+)?)–(\d+(?:\.\d+)?) \|/gm)].map((m) => [+m[1], +m[2]]);
   let cont = rows.length > 0 && rows[0][0] === 0; for (let i = 1; i < rows.length; i++) if (rows[i][0] !== rows[i - 1][1]) cont = false;
   const end = rows.length ? rows[rows.length - 1][1] : -1;
-  ok(`${key} 초 대본 — 0 에서 빈틈 · 겹침 없이 ${end}초 = 제목 ${sec}초 · 5~8초`, cont && end === sec && sec >= 5 && sec <= 8 && rows.every(([a, b]) => b > a), JSON.stringify(rows));
+  ok(`${key} 초 대본 — 0 에서 빈틈 · 겹침 없이 ${end}초 = 제목 ${sec}초 · 6~10초`, cont && end === sec && sec >= 6 && sec <= 10 && rows.every(([a, b]) => b > a), JSON.stringify(rows));
   const en = (p.match(/- 영문: `([^`]+)`/) || [])[1] || '';
   const bad = en.match(/\b(ceremony|altar|aisle|officiant|church)\b/i), neg = en.match(/\b(no|without|not|never)\b|n't\b/i);
   ok(`${key} 영문 한 줄 — F02 금지 낱말 · 빼는 말 없음`, en.length > 40 && !bad && !neg, (bad || neg || ['(영문 없음)'])[0]);
