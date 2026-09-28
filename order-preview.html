@@ -3930,7 +3930,7 @@ window.mkIntroOpen=function(k){ MK.io=(MK.io===k)?'':k; _fxNext='[data-fk="mki:'
 function _mkIntro(){ var R=RitualOpen, ps=_mkPages().filter(function(k){ return k!=='_intro'&&k!=='_sum'&&!_mkOff(k); }), sp=R.span(S), peak=R.peakOf(S);
   var h='<section class="mk-pg mk-intro" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">고른 순서</h3></div>';
   h+='<p class="mk-one">담은 순간 '+_opMoments()+' · 본식 '+esc(_nb(sp.body))+' · 단체 사진 '+esc(_nb(sp.photo))+'</p>';
-  /* [VOICE_TOP] 목소리 세 가지 — 목록 위 · 제목 없이 세 줄 */
+  /* [VOICE_TOP · VOICE_KIND] 목소리 세 가지 — 목록 위 · 제목 없이 세 줄(쪽마다 줄 머리에 같은 표가 붙는다) */
   var VK=RitualOpen.VOICE_KIND, VK_ONE={narr:'스튜디오가 읽어요',prep:'녹음해 두면 저절로 나와요',live:'식장에서 직접 말해요'};
   if(VK) h+='<ul class="mk-legend mk-lgmini" aria-label="목소리 세 가지">'+['narr','prep','live'].map(function(v){ return '<li><span class="vk vk-'+v+'">'+VK_ICO[v]+esc(VK[v].lab)+'</span>'+esc(VK_ONE[v])+'</li>'; }).join('')+'</ul>';
   h+='<ol class="mk-ilist">';
