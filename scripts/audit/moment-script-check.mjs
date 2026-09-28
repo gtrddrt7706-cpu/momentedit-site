@@ -4,7 +4,8 @@
 //   node scripts/audit/moment-script-check.mjs
 //
 // ① 편 목록 = 엔진이 부르는 장면 이름(ritual-open videoKeys · 모든 순간 · 케이크와 축배) — 빠진 편 · 남는 편 0
-// ② 편마다 «답하는 물음 · 실제 진행 · 남는 장면 · 장면 대본 · 손동작 · 반복 이음 · 영문» 일곱 칸이 다 있다
+// ② 편마다 «답하는 물음 · 실제 진행 · 남는 장면 · 표지 · 장면 대본 · 손동작 · 반복 이음 · 영문» 여덟 칸이 다 있다
+//    ★[MOMENT_COVER 2026-09-28] 표지 = 첫 프레임 · ① 칸(약 170×96)에는 이 한 장만 뜬다 — 편마다 적어 둔다
 // ③ 초 단위 대본이 0 에서 시작해 빈틈 · 겹침 없이 이어지고, 끝 초 = 제목의 길이 · 5~8초 안
 // ④ 영문 줄에 F02 금지 낱말(ceremony · altar · aisle · officiant · church)과 빼는 말(no · without · not)이 없다
 // ⑤ 파일 칸 이름 = 제목의 이름
@@ -26,9 +27,9 @@ parts.forEach((p) => {
   const [, key, , secS] = h, sec = +secS; got.push(key);
   const f = p.match(/- 파일: `([^`]+)\.mp4`/);
   ok(`${key} 파일 칸 = ${key}.mp4`, f && f[1] === key, f && f[1]);
-  const need = ['답하는 물음', '실제 진행', '남는 장면', '장면 대본', '손동작', '반복 이음', '영문'];
+  const need = ['답하는 물음', '실제 진행', '남는 장면', '표지', '장면 대본', '손동작', '반복 이음', '영문'];
   const miss = need.filter((n) => !new RegExp('- ' + n + '[:\\s]').test(p));
-  ok(`${key} 일곱 칸(${need.join(' · ')})`, !miss.length, '빠짐: ' + miss.join(','));
+  ok(`${key} 여덟 칸(${need.join(' · ')})`, !miss.length, '빠짐: ' + miss.join(','));
   const rows = [...p.matchAll(/^\| (\d+(?:\.\d+)?)–(\d+(?:\.\d+)?) \|/gm)].map((m) => [+m[1], +m[2]]);
   let cont = rows.length > 0 && rows[0][0] === 0; for (let i = 1; i < rows.length; i++) if (rows[i][0] !== rows[i - 1][1]) cont = false;
   const end = rows.length ? rows[rows.length - 1][1] : -1;

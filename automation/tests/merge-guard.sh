@@ -13321,6 +13321,9 @@ chk 'WINE_POUR_OFF' scripts/audit/open-course.mjs 3
 # ★[MOMENT_SCRIPT 2026-09-27 사장님 «각각 이벤트 영상 · 손동작 · 시나리오 대본처럼 · 하나하나 점검»] 순간 영상 장면 대본 16편 — 편 목록 = 엔진 장면 이름 · 초 이음 · F02
 if command -v node >/dev/null 2>&1; then node scripts/audit/moment-script-check.mjs >/dev/null 2>&1 || { echo 'FAIL moment-script: 순간 영상 장면 대본이 엔진과 어긋났습니다 — node scripts/audit/moment-script-check.mjs'; fail=1; }; fi
 chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
+# ★[MOMENT_COVER 2026-09-28] 편마다 «표지»(첫 프레임) 칸 · 다른 세션 지시문 대조 보충 — 표지 칸이 점검에서 빠지면 ① 칸에 무엇이 뜰지 정하지 않은 편이 생긴다
+chk "'남는 장면', '표지', '장면 대본'" scripts/audit/moment-script-check.mjs 1
+chk '## 1-2. 모든 편 공통' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'WINE_POUR_OFF' assets/ritual-story.js 1
 nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
 # ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 새 코스의 케이크 커팅 · 축배는 두 순간
