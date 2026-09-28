@@ -44,7 +44,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   });
   await pg.waitForTimeout(500);
   const chips = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:guestVoice"]')].map((e) => e.textContent).join('|'));
-  ok(W + ' 6-1 AI 칸이 셋째 칸으로 보인다(voiceClone 켜짐)', /직접 녹음하기\|AI로 두 분 목소리 만들기\|스튜디오 나레이션으로/.test(chips), chips);
+  ok(W + ' 6-1 AI 칸이 첫 칸으로 보인다(voiceClone 켜짐 · 직접 녹음은 옛 초안에만 [VP_NO_DIRECT])', /^AI 목소리\|스튜디오 나레이션/.test(chips), chips);
   await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
   ok(W + ' AI 칸을 고르면 두 분 목소리 + 빈 줄 기본 AI · 사람 카드 둘', await pg.evaluate(() => S.guestVoice === 'couple' && S.vfill.guest === 'ai' && document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length === 2), await pg.evaluate(() => JSON.stringify({ gv: S.guestVoice, vf: S.vfill, n: document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length })));
   /* ★[VC_LIMIT_UI] 목소리 만들기를 다 쓴 분(left 0 · 아직 못 만듦)은 카드에 [1분 읽기 시작]이 없고 한 줄로 알린다 */
@@ -52,12 +52,12 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 다 쓴 분 — [1분 읽기 시작] 없음 · «목소리 만들기를 다 썼어요» [VC_LIMIT_UI]', !lim.btn && /목소리 만들기를 다 썼어요/.test(lim.t), JSON.stringify(lim).slice(0, 200));
   /* ★[VP_ONLY_PICKED] 고른 칸의 것만 — AI: 빈 줄에 [녹음] [파일] 없음 · 복사 · 녹음 도움말 없음 · «○○ 목소리를 만들면 저절로» / 직접 녹음: AI 칸 · [AI로 만들기] 없음 / 나레이션: 준비 칸 없음 */
   const vp = await pg.evaluate(() => { const q = (s) => document.querySelectorAll(s).length, t = () => (document.querySelector('.mk-voice') || {}).textContent || '', out = {};
-    out.ai = { rec: q('.mk-vcards [data-fk^="mkrec:"]'), up: q('.mk-vcards [data-fk^="mkup:"]'), copy: q('[data-fk="mkupcopy"]'), help: /녹음 도움말/.test(t()), hint: q('.mk-vaiw'), sec: q('.mk-aisec') };
+    out.ai = { rec: q('.mk-vcards [data-fk^="mkrec:"]'), up: q('.mk-vcards [data-fk^="mkup:"]'), copy: q('[data-fk="mkupcopy"]'), help: /녹음 도움말/.test(t()), hint: q('.mk-vaiw'), sec: q('.mk-aisec'), flow: q('.mk-flowsec'), play: q('.mk-vcards [data-fk^="mkvpl:"]') };   /* [VP_ONE_LIST] 흐름 목록 없음 · ▶ 는 줄 카드에 */
     lsChip('guestVoice', 'couple'); render(); out.direct = { rec: q('.mk-vcards [data-fk^="mkrec:"]'), ai: q('.mk-aisec') + q('[data-fk^="mkai:"]'), copy: q('[data-fk="mkupcopy"]') };
     lsChip('guestVoice', 'nar'); render(); out.nar = { voice: q('.mk-voice') };
     lsChip('guestVoice', 'ai'); render(); const o = VC.st.groom; VC.st.groom = { consent: true, ready: false, left: 0 }; render(); out.spent = { g0rec: q('[data-fk="mkrec:g0"]'), g1rec: q('[data-fk="mkrec:g1"]') }; VC.st.groom = o; render(); return out; });
   ok(W + ' 고른 칸의 것만 — AI 는 빈 줄에 녹음 · 파일 없음(«만들면 저절로») · 직접 녹음은 AI 칸 없음 · 나레이션은 준비 칸 없음 · 다 쓴 분 줄만 녹음 칸 [VP_ONLY_PICKED]',
-    vp.ai.rec === 0 && vp.ai.up === 0 && !vp.ai.copy && !vp.ai.help && vp.ai.hint === 4 && vp.ai.sec === 1 && vp.direct.rec === 4 && vp.direct.ai === 0 && vp.direct.copy === 1 && vp.nar.voice === 0 && vp.spent.g0rec === 1 && vp.spent.g1rec === 0, JSON.stringify(vp));
+    vp.ai.rec === 0 && vp.ai.up === 0 && !vp.ai.copy && !vp.ai.help && vp.ai.hint === 4 && vp.ai.sec === 1 && vp.ai.flow === 0 && vp.ai.play === 3 && vp.direct.rec === 4 && vp.direct.ai === 0 && vp.direct.copy === 1 && vp.nar.voice === 0 && vp.spent.g0rec === 1 && vp.spent.g1rec === 0, JSON.stringify(vp));
   await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(300);
   const cp = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');   // ★[REC_DLG] 동의 · 1분 읽기는 작은 창에서
   ok(W + ' 8-4 동의 — 제목 · 본인이 직접 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구', /님 목소리로 AI 목소리를 만들어요/.test(cp) && /본인이 직접 눌러 주세요/.test(cp) && /언제 지우나요\s*읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
@@ -83,7 +83,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 만든 뒤 창이 «만들기» 걸음에서 «목소리를 만들었어요» · 채운 줄 수 · [확인] [REC_DLG]', /목소리를 만들었어요/.test(dn) && /2줄을 이 목소리로 채웠어요/.test(dn) && /확인/.test(dn), dn.slice(0, 200));
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
   const tools = await pg.evaluate(() => { const c = [...document.querySelectorAll('.mk-vcards .mk-vr')].find((li) => li.querySelector('[data-fk="mkairedo:g0"]')); return c ? c.textContent : ''; });
-  ok(W + ' 8-2 5) AI 줄 — 빠르기 셋 · 다시 만들기 · N번 남음 · 이 줄은 직접 녹음할게요', /천천히/.test(tools) && /조금 빠르게/.test(tools) && /다시 만들기 · 4번 남음/.test(tools) && /이 줄은 직접 녹음할게요/.test(tools), tools);
+  ok(W + ' 8-2 5) AI 줄 — 빠르기 셋 · 다시 만들기 · N번 남음 (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', /천천히/.test(tools) && /조금 빠르게/.test(tools) && /다시 만들기 · 4번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools), tools);
   ok(W + ' 배지 «AI로 만들었어요» · 녹음 줄엔 [AI로 만들기](그 줄만)', await pg.evaluate(() => /AI로 만들었어요/.test(document.querySelector('.mk-vcards').textContent) && !!document.querySelector('[data-fk="mkai:g2"]')));
   await pg.click('[data-fk="mkai:g2"]'); await pg.waitForTimeout(2500);
   ok(W + ' 녹음 줄을 AI로 → 녹음은 [되돌리기]로 남는다', await pg.evaluate(() => S.up.g2.src === 'ai' && S.upPrev && S.upPrev.g2 && S.upPrev.g2.src === 'rec' && !!document.querySelector('[data-fk="mkaiback:g2"]')));
@@ -97,8 +97,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const le = await pg.evaluate(() => { const li = document.querySelector('[data-fk="mkairedo:g0"]') && document.querySelector('[data-fk="mkairedo:g0"]').closest('li'); return { busy: !!MK_UP.g0, err: li ? ((li.querySelector('.mk-exw') || {}).textContent || '') : '' }; });
   await pg.evaluate(() => { window.__makeFail = false; });
   ok(W + ' 줄 만들기 실패 → «보내는 중»에 멈추지 않고 그 줄 아래 까닭 [VC_LINE_ERR]', !le.busy && /만들지 못했어요/.test(le.err), JSON.stringify(le));
-  await pg.click('[data-fk="mkaiself:g0"]'); await pg.waitForTimeout(300);
-  ok(W + ' [이 줄은 직접 녹음할게요] → 그 줄은 비고 [녹음] [파일 올리기]', await pg.evaluate(() => !(S.up.g0 && S.up.g0.src) && !!document.querySelector('[data-fk="mkrec:g0"]')));
+  ok(W + ' AI 줄에 «이 줄은 직접 녹음할게요» 단추가 없다 [VP_NO_DIRECT]', await pg.evaluate(() => !document.querySelector('[data-fk^="mkaiself:"]')));
   ok(W + ' pageerror 0', !errs.length, errs.join(' | '));
   await ctx.close();
 }
