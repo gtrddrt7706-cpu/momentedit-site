@@ -13348,3 +13348,22 @@ chk 'CAKE_TOAST_SPLIT' order-preview.html 10
 chk "if(!_sv.S.ctSplit) delete S.ctSplit;" order-preview.html 1
 chk "'케이크 커팅': {" assets/ritual-story.js 1
 nochk "L('toast','무엇을'" order-preview.html
+# ★[2026-09-28 사장님 식순 ② 개선 여섯 + 추가 1 + 점검 둘] 진행 줄 마우스 줄바꿈 · 들어 보기 왼쪽 · 참고 예시 네 벌 · 미완료 점 · 고른 순서 펼침 · 목소리 표 위로 · 중복 제목 · 줄 재생 동그라미
+chk 'MK_STRIP_MOUSE' order-preview.html 1
+chk '@media (min-width:1000px), (hover:hover) and (pointer:fine){' order-preview.html 1
+chk 'MK_STRIP_MOUSE' scripts/audit/listen-page.mjs 1
+chk 'MK_PLAY_LEFT' order-preview.html 1
+nochk '.mk-sech-r{justify-content:flex-end' order-preview.html
+chk 'REF_BEST4' order-preview.html 3
+chk "var REF_BEST={welcome:" order-preview.html 1   # [REF_BEST4] 대괄호는 grep 정규식이라 앞머리만
+chk 'REF_BEST4' scripts/audit/listen-page.mjs 4
+chk 'MK_TODO_DOT' order-preview.html 3
+nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
+chk 'MK_INTRO_OPEN' order-preview.html 2
+chk 'onclick="mkIntroOpen(' order-preview.html 1
+chk 'VOICE_TOP' order-preview.html 2
+nochk '<section class="mk-sec mk-legend"><h4>목소리 세 가지</h4>' order-preview.html
+chk 'STEP_HEAD_ONE' order-preview.html 1
+chk "var _dupHd=isOpen()&&(st.k==='listen'||st.k==='practice');" order-preview.html 1
+chk 'MK_LINE_PLAY' order-preview.html 1
+chk 'LP_WAIT_FIX' scripts/audit/listen-page.mjs 1
