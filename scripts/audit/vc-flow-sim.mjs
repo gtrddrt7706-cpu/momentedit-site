@@ -10,7 +10,7 @@ const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs'
 const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
-const FN = ['_voiceStudio', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcFetch', '_vcErr', '_vcWhy', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
+const FN = ['_voiceStudio', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
 const code = [line(/var RF_KEYS[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_DOWN[^\n]*/), line(/var VC_COLOR[^\n]*/)].concat(FN.map(grab)).join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const miss = FN.filter((f) => !grab(f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -73,6 +73,10 @@ w = world({ api: Object.fromEntries([CLONE('uc_a')]) }); w.call({ op: 'consent',
 w.sb.UrlFetchApp.fetch = (url, q) => ({ getResponseCode: () => (/instant-clone/.test(url) ? 402 : 500), getContentText: () => '{}', getBlob: () => ({ getBytes: () => [] }) });
 w.call({ op: 'phrase', who: 'bride' }); r = w.call({ op: 'enroll', who: 'bride', sec: 60, data: 'data:audio/wav;base64,AA' });
 ok('다시 만들기 402 → 고객 문구 하나 · 앞 목소리 그대로 · 관리자 메일', !r.ok && /잠시 뒤 다시 해 보시거나 직접 녹음/.test(r.error) && w.st().bride.voiceId === 'uc_a' && w.mails.length === 1, JSON.stringify(r));
+/* ★[VC_GATE_WHY] 문 앞에서 막힌 까닭(스위치 studio 인데 시험 예식 목록에 없음 · 키 없음)도 VCERR_ 에 · 메일은 안 보낸다 */
+{ const g = world({ props: { VOICE_CLONE: 'studio', VOICE_STUDIO_CODES: 'OTHER1' } }); const r1 = g.call({ op: 'phrase', who: 'bride' }); const E1 = JSON.parse(g.props.VCERR_ME0001 || '{}');
+  const g2 = world({ props: { TYPECAST_API_KEY: '' } }); g2.call({ op: 'consent', who: 'bride', agree: true }); const E2 = JSON.parse(g2.props.VCERR_ME0001 || '{}');
+  ok('문 앞에서 막힘 — «VOICE_STUDIO_CODES 에 코드가 없어요» · «키가 비어 있어요» · 고객 문구는 하나 · 메일 없음 [VC_GATE_WHY]', !r1.ok && /잠시 뒤 다시/.test(r1.error) && /VOICE_STUDIO_CODES 에 ME0001 가 없어요/.test(E1.msg) && /TYPECAST_API_KEY 가 비어 있어요/.test(E2.msg) && !g.mails.length && /설정/.test(g.sb.vcLastErrors()[0]), JSON.stringify({ E1, E2 })); }
 /* ★[VC_WHY] 거절 까닭을 남긴다(HTTP · 업체 글) · 실패는 두 분의 3번에 세지 않는다 · 코드 · HTTP 가 다르면 메일도 따로 */
 { const t0 = w.st().bride.tries; w.sb.UrlFetchApp.fetch = (url) => ({ getResponseCode: () => (/instant-clone/.test(url) ? 400 : 500), getContentText: () => JSON.stringify({ detail: 'audio too long' }), getBlob: () => ({ getBytes: () => [] }) });
   w.call({ op: 'phrase', who: 'bride' }); const r4 = w.call({ op: 'enroll', who: 'bride', sec: 60, data: 'data:audio/wav;base64,AA' }); const E = JSON.parse(w.props.VCERR_ME0001 || '{}');

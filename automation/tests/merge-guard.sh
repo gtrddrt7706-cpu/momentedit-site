@@ -13547,6 +13547,8 @@ chk 'function vcLastErrors()' automation/platform/80_production.gs 1
 chk 'function _vcWhy(x)' automation/platform/80_production.gs 1
 chk "'VCERR_' + code" automation/platform/80_production.gs 1
 chk 'VC_WHY' admin.html 1
+chk 'function _vcGate(code, cfg, op, kind)' automation/platform/80_production.gs 1   # [VC_GATE_WHY] 문 앞에서 막힌 까닭도 남긴다
+chk 'VC_GATE_WHY' scripts/audit/vc-flow-sim.mjs 1
 chk 'VC_LIMIT_UI' order-preview.html 3   # 목소리 만들기를 다 쓰면 [다시 만들기] · [1분 읽기 시작]을 걷는다(2026-09-28 WNJK3Y 실측)
 chk 'VC_LIMIT_UI' scripts/audit/vc-screen.mjs 1
 nochk '_vcReadText(' order-preview.html
