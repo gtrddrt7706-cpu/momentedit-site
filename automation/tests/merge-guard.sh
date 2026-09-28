@@ -514,7 +514,7 @@ chk 'SEL_ONE' .claude/skills/momentedit-design/SKILL.md 1
 chk 'NOTE_DOT' .claude/skills/momentedit-design/SKILL.md 1
 # ★[WZ_STEPS_DOTS · WZ_STEPS_TAG · FOLD_CHEVRON · X_ONE · TOAST_ONE · MODAL_R12 · NO_BOUNCE · OPT_TAG 2026-09-27 사장님 «일관성»] 작은 부품 한 벌
 chk '.dots .dot.done{width:6px;height:6px;background:var(--gold)}' mypage.html 1
-chk "_ivStepTag=WZ_CIRC\[_ivI\]+' '+_invStepNames(inv.draft)\[_ivI\]" mypage.html 1
+chk "_ivStepTag=_invStepNames(inv.draft)\[_ivI\]+' 단계'" mypage.html 1   # [WZ_STEP_NONUM 2026-09-28] «② 부모님» → «부모님 단계»
 nochk "_ivStepTag=(_ivT===2?(_ivN>1?2:1):_ivN)+'/'+_ivT" mypage.html 0
 chk 'FOLD_CHEVRON' mypage.html 5
 nochk 'class="pt-ar">▾' mypage.html 0
@@ -558,7 +558,10 @@ chk 'function _wzFocusHead(box){' mypage.html 1
 chk 'renderInvFlow(box); _wzFocusHead(box);' mypage.html 1
 chk "render(box); _wzFocusHead(box); }); });   // \[WZ_STEPS_FOCUS\]" mypage.html 1
 chk '.wz-steps li.done{color:var(--sub);border-top-color:var(--gold-deep)}' mypage.html 1
-chk '@media (max-width:360px){.wz-steps.n5 .wz-n{display:block' mypage.html 1
+# ★[WZ_STEP_NONUM 2026-09-28 사장님 «번호는 굳이 빼는 건 어때?»] 마이페이지 편집 화면의 걸음 이름에 번호를 되살리지 않는다
+chk 'WZ_STEP_NONUM' mypage.html 3
+nochk '<span class="wz-n">' mypage.html
+nochk 'WZ_CIRC\[i\]' mypage.html
 chk 'role="list" aria-label="진행 단계"' mypage.html 1
 chk 'class="inv-dz'"'"'+(cur===p\[0\]?'"'"' sel'"'"':'"'"''"'"')+'"'"'" aria-pressed=' mypage.html 1
 chk "x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true');" mypage.html 2
