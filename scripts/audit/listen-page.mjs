@@ -46,7 +46,7 @@ const br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-
 
 async function open(w, opt) {
   opt = opt || {};
-  const ctx = await br.newContext({ viewport: { width: w, height: 900 }, reducedMotion: opt.reduce ? 'reduce' : 'no-preference' });
+  const ctx = await br.newContext({ viewport: { width: w, height: 900 }, hasTouch: w < 1000, reducedMotion: opt.reduce ? 'reduce' : 'no-preference' });   // [MK_STRIP_MOUSE] 폰 폭은 터치로 연다 — 진행 줄은 «손가락이냐 마우스냐»로 갈린다
   const pg = await ctx.newPage();
   const errs = [], ext = [];
   pg.on('pageerror', (e) => errs.push(e.message));
@@ -108,7 +108,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ② 서약 쪽 — 참고 예시가 있으면 «서약 예시 보기» 접이를 또 두지 않는다 · 들어 보기 단추는 흐름 머리에 [MK_MIN]`, await pg.evaluate(() => !!document.querySelector('.mk-ref') && !/서약 예시 보기/.test(document.getElementById('stage').textContent) && !!document.querySelector('.mk-flow').closest('.mk-sec').querySelector('.mk-sech [data-fk="mkplay"]')));
   ok(`${w} ② 서약 쪽 머리 = 번호 · 이름 · 흐름에 «신랑 차례 · 신부 차례»`, await pg.evaluate(() => /혼인 서약/.test(document.getElementById('mkHead').textContent) && /신랑 차례/.test(document.querySelector('.mk-flow').textContent) && /신부 차례/.test(document.querySelector('.mk-flow').textContent)));
   const rf = await pg.evaluate(() => ({ n: document.querySelectorAll('.mk-ref .mk-rc').length, sets: _lRefSets('vow').length, names: [...document.querySelectorAll('.mk-ref .mk-rc b')].map((x) => x.textContent), pv: [...document.querySelectorAll('.mk-ref .mk-rc span')].map((x) => x.textContent), b: (document.querySelector('.mk-ref .lf-refb') || {}).textContent || '', note: (document.querySelector('.mk-ref .lf-refn') || {}).textContent || '', play: document.querySelectorAll('.mk-ref button:not(.mk-rc):not(.mk-rstart)').length, len: (document.querySelector('.mk-ref .mk-rl') || {}).textContent || '', mood: /담백|다정|유머|격식|솔직|그리움|장면 하나|짧게/.test([...document.querySelectorAll('.mk-ref .mk-rc b, .mk-ref .lf-refb')].map((x) => x.textContent).join('|')) }));
-  ok(`${w} ② 참고 예시 칩 = 벌 수만큼(서약 7) · 이름 «예시 N» · 배지 «참고 예시 N» · 무드 이름 없음 · 칩 아래 첫 마디 · 글로만 · «N자 · 소리 내어 읽으면 약 N초» [EX_MORE · REF_NO_KYEOL · CAST_TEXT_ONLY]`, rf.n === rf.sets && rf.sets === 7 && rf.names[0] === '예시 1' && rf.b === '참고 예시 1' && !rf.mood && rf.pv.every((t) => t.length > 3 && t.length <= 21 && !/^하윤아/.test(t)) && /^당일엔 두 분이 직접 말해요 · /.test(rf.note) && /예시 속 이름은 가상 인물이에요/.test(rf.note) && rf.play === 0 && /^\d+자 · 소리 내어 읽으면 약\s\d+초$/.test(rf.len), JSON.stringify(rf));
+  ok(`${w} ② 참고 예시 칩 = 고른 네 벌(서약 4 · REF_BEST4) · 이름 «예시 N» · 배지 «참고 예시 N» · 무드 이름 없음 · 칩 아래 첫 마디 · 글로만 · «N자 · 소리 내어 읽으면 약 N초» [EX_MORE · REF_NO_KYEOL · CAST_TEXT_ONLY]`, rf.n === rf.sets && rf.sets === 4 && rf.names[0] === '예시 1' && rf.b === '참고 예시 1' && !rf.mood && rf.pv.every((t) => t.length > 3 && t.length <= 21 && !/^하윤아/.test(t)) && /^당일엔 두 분이 직접 말해요 · /.test(rf.note) && /예시 속 이름은 가상 인물이에요/.test(rf.note) && rf.play === 0 && /^\d+자 · 소리 내어 읽으면 약\s\d+초$/.test(rf.len), JSON.stringify(rf));
   await pg.click('[data-fk="mkrc:vow:1"]'); await pg.waitForTimeout(250);
   await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(500);
   ok(`${w} ② 펼친 예시(2)가 «이 순간 들어 보기»의 두 분 차례 글이 된다 · 소리 없음`, await pg.evaluate(() => LP.cur === 'vow' && LP.q.filter((s) => s.talk2).every((s) => s.refN === 1 && !s.src)));
@@ -326,7 +326,7 @@ for (const w of [390, 1280]) {
   // 3장 radiogroup 방향키 — ② 화촉 쪽 «고르기»
   await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
   const c0 = await pg.evaluate(() => S.candleWho || RitualOpen.DEF.candleWho);
-  await pg.focus('.mk-pg [role=radio][tabindex="0"]'); await pg.keyboard.press('ArrowRight');   // [CHIP_UNPICKED] 탭 자리 = 고른 칩(안 골랐으면 첫 칩) await pg.waitForTimeout(500);
+  await pg.focus('.mk-pg [role=radio][tabindex="0"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(500);   // [CHIP_UNPICKED] 탭 자리 = 고른 칩(안 골랐으면 첫 칩) · ★[LP_WAIT_FIX 2026-09-28] 기다림이 주석 안에 들어가 있어 결과를 바로 읽었다(main 에서도 빨강이던 한 건)
   ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => (S.candleWho || '') !== c && document.activeElement.getAttribute('role') === 'radio' && document.activeElement.getAttribute('aria-checked') === 'true', c0));
   ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radio]')].filter((r) => r.closest('[role=radiogroup]')).every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
   await pg.evaluate(() => mkGo('ring')); await pg.waitForTimeout(400);
@@ -456,7 +456,7 @@ else {
       cross: set('tribute', { S: { tributeSay: 'one', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
       sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
       sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
-  ok('9-9 참고 예시 표 144줄(EX_MORE) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 다섯 벌 · 덕담 없으면 부모님 예시 일곱 벌 더 [REF_TABLE · EX_MORE]', rt.rows === 144 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2,2' && rt.sp3off === 12, JSON.stringify(rt));
+  ok('9-9 참고 예시 표 144줄(EX_MORE) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담 없으면 부모님 예시(고른 넷 + 한 분이 하실 때) 다섯 벌 더 [REF_TABLE · EX_MORE · REF_BEST4]', rt.rows === 144 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 9, JSON.stringify(rt));
   ok('9-8 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -580,8 +580,9 @@ else {
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const e = await pg.evaluate(() => { const o = { rows: RITUAL_REF.rows.length };
     S.on.tribute = 1; S.tributeSay = 'long'; opSync(); mkGo('tribute'); render();
+    o.long0 = document.querySelectorAll('.mk-ref .mk-rc:not(.mk-rpar)').length; o.sitBtn = !!document.querySelector('[data-fk="mkrsit:tribute"]'); mkRefSit('tribute');   // [REF_BEST4] 처음엔 고른 넷 + «상황에 맞는 예시 ›»
     const cs = [...document.querySelectorAll('.mk-ref .mk-rc')]; o.long = cs.length; o.lines = new Set(cs.map((c) => Math.round(c.getBoundingClientRect().top))).size; o.hs = document.documentElement.scrollWidth > innerWidth;
-    o.n7 = (cs[6] && cs[6].querySelector('b').textContent) || ''; mkRefPick('tribute', 6, 1); o.b7 = document.querySelector('.mk-ref .lf-refb').textContent; o.help = /먼저 떠나신 분께 드리는 글이에요/.test(document.querySelector('.mk-ref').textContent);
+    o.n7 = (cs[5] && cs[5].querySelector('b').textContent) || ''; mkRefPick('tribute', 5, 1); o.b7 = document.querySelector('.mk-ref .lf-refb').textContent; o.help = /먼저 떠나신 분께 드리는 글이에요/.test(document.querySelector('.mk-ref').textContent);
     o.mood = /담백|다정|유머|격식|솔직하게|그리움|장면 하나|짧게/.test([...document.querySelectorAll('.mk-ref .mk-rc b, .mk-ref .lf-refb')].map((x) => x.textContent).join('|'));
     S.on.free = 1; S.freeWhat = 'speech'; S.freeLen = '3'; delete S.on.bless; opSync(); mkGo('free'); render();
     o.free0 = document.querySelectorAll('.mk-ref .mk-rc:not(.mk-rpar)').length; o.par = !!document.querySelector('[data-fk="mkrpar:free"]');
@@ -589,9 +590,9 @@ else {
     S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; mkGo('vow'); render(); mkRefPick('vow', 3, 1); mkRefStart('vow');
     o.filled = !!String(S.tx['vow.g'] || '').trim() && !!String(S.tx['vow.b'] || '').trim(); o.warn = (document.getElementById('mkw_vow_g') || {}).textContent || '';
     o.startGone = !document.querySelector('[data-fk="mkrstart:vow"]'); return o; });
-  ok('13 [EX_MORE] 참고 예시 144줄 · 1분쯤씩 여덟 벌이 360 에서 줄바꿈(가로 스크롤 없음)', e.rows === 144 && e.long === 8 && e.lines >= 3 && !e.hs, JSON.stringify(e));
-  ok('13 상황 이름 — «예시 7 · 먼저 떠나신 분께» · 배지 «참고 예시 7 · 먼저 떠나신 분께» · 도움말 한 줄 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL]', e.n7 === '예시 7 · 먼저 떠나신 분께' && e.b7 === '참고 예시 7 · 먼저 떠나신 분께' && e.help && !e.mood, JSON.stringify(e));
-  ok('13 덕담 없는 식순의 축하의 말 — 다섯 벌 + «부모님이 하실 때 ›» → 누르면 덕담 일곱 벌', e.free0 === 5 && e.par && e.free1 === 12, JSON.stringify(e));
+  ok('13 [EX_MORE · REF_BEST4] 참고 예시 144줄 · 처음엔 고른 네 벌 + «상황에 맞는 예시 ›» · 펼치면 일곱 벌이 360 에서 줄바꿈(가로 스크롤 없음)', e.rows === 144 && e.long0 === 4 && e.sitBtn && e.long === 7 && e.lines >= 3 && !e.hs, JSON.stringify(e));
+  ok('13 상황 이름 — «예시 6 · 먼저 떠나신 분께» · 배지 «참고 예시 6 · 먼저 떠나신 분께» · 도움말 한 줄 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL · REF_BEST4]', e.n7 === '예시 6 · 먼저 떠나신 분께' && e.b7 === '참고 예시 6 · 먼저 떠나신 분께' && e.help && !e.mood, JSON.stringify(e));
+  ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌 + «부모님이 하실 때 ›» → 누르면 덕담 다섯 벌(고른 넷 + 한 분이 하실 때) [REF_BEST4]', e.free0 === 4 && e.par && e.free1 === 9, JSON.stringify(e));
   ok('13 «이 예시로 시작하기» — 빈 두 칸을 채우고 단추는 사라진다 · 예시 속 이름이 남으면 한 줄 알림 [EX_NAMES]', e.filled && e.startGone && /예시 속 이름 «.+»이 남아 있어요/.test(e.warn), JSON.stringify(e));
   ok('13 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
