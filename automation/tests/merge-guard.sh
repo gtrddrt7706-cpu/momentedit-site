@@ -13421,14 +13421,18 @@ nochk '.vk-st.no{color:var(--seal)}' order-preview.html
 # ★[2026-09-28 코워크 0928 6장] 어떻게 준비할까요(직접 녹음 · 스튜디오 나레이션) · 줄 카드(번호 · 때 · 읽는 사람 · 약 N초 · 큰 글씨) · 한 분이 모두 읽기 · 4번 줄 앞 두 문장 고정 · 지금 이대로면 · 다듬기(80Hz · 잡음 20dB · LUFS -16)
 chk 'VP_CHOICE' order-preview.html 3
 chk 'VP_CARD' order-preview.html 4
-chk 'REC_TRIM' order-preview.html 6
+chk 'REC_TRIM' order-preview.html 4
 chk 'VP_FLOW_CLAMP' order-preview.html 2
 chk 'function _vpNow(k)' order-preview.html 1
 chk "window.mkGuestOne=function(v)" order-preview.html 1
 chk '이 파일은 열 수 없어요. m4a · mp3 · wav 로 올려 주세요' order-preview.html 1
 chk '앞 두 문장은 하객께 드리는 안내라 그대로 읽어 주세요' order-preview.html 1
 chk '예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요' order-preview.html 1
-chk 'REC_LUFS=-16' order-preview.html 1
+chk 'REC_LUFS=-16' assets/rec-process.js 1
+chk 'REC_SHARED' order-preview.html 2   # 다듬기 한 원천 — 빌더와 관리 화면(스튜디오 대신 올리기)이 같은 파일
+chk 'REC_SHARED' assets/rec-process.js 1
+chk 'rec-process.js' admin.html 1
+nochk 'function _lufs(x,sr)' order-preview.html   # 사본 금지 — 원천은 assets/rec-process.js
 chk '잡음 줄이기 켜고 다시 녹음' order-preview.html 1
 chk '예시 목소리 · 두 분이 준비하면 그 목소리로 바뀌어요' order-preview.html 1
 chk 'guestReader' assets/ritual-open.js 2
@@ -13442,3 +13446,82 @@ chk 'RF_ROWS_0928' admin.html 2
 chk 'function admRfAsk(k)' admin.html 1
 chk 'RF_ROWS_0928' automation/admin/Admin.html 1
 nochk '두 분 녹음(파일 수령 필요)' automation/admin/Admin.html
+# ★[VOICE_CLONE_0928 코워크 0928 8장 · 7-2] 서버 — 확인 문장 서버가 뽑음 · 새 목소리 먼저 → 된 뒤 앞 목소리 지우기 · 201 · 같은 글 다시 안 만들기 · 예식 다음 날 지우기 · 연습 2만 자
+#   흉내 시험 둘(GAS · 타입캐스트 없이 원문을 떼어 판정): vc-flow-sim(순서 · 한도 · 지우기) · vc-selftest-sim(가져온 시험 함수 · 칸)
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-flow-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-flow: AI 목소리 순서 · 한도 · 지우기 판정이 어긋났습니다 — node scripts/audit/vc-flow-sim.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
+chk 'VOICE_CLONE_0928' automation/platform/80_production.gs 6
+chk 'if (prev) _vcDelVoice(cfg, st, prev);' automation/platform/80_production.gs 1
+chk "if (op === 'phrase')" automation/platform/80_production.gs 1
+chk 'function purgeVoiceClones(dry)' automation/platform/80_production.gs 1
+chk 'purgeVoiceClones' automation/platform/96_ai_cost.gs 1
+chk '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' automation/platform/80_production.gs 1
+chk 'VC_FLOW_SIM' scripts/audit/vc-flow-sim.mjs 1
+# ★[VC_FOLD_0928] claude/voice-selftest-hold(122ace20 · 812da138 · 나레이션 세션이 넘긴 가지)에서 가져온 것 — 시험 함수 · 칸 · 흉내 시험. 옛 스위치 핀(FEATURE 두 칸)은 #919 모양과 달라 가져오지 않았다
+chk 'function vcSelfTest()' automation/platform/80_production.gs 1
+chk 'VC_OURS_ONLY' automation/platform/80_production.gs 2
+chk 'function _vcSlots()' automation/platform/80_production.gs 1
+chk 'VC_SELFTEST_SIM' scripts/audit/vc-selftest-sim.mjs 1
+chk 'VC_FOLD_0928' scripts/audit/vc-selftest-sim.mjs 1
+# ★[RF_STUDIO_UP · VOICE_KEEP 2026-09-28 코워크 0928 6-7 · 8-6] 스튜디오 대신 올리기 · 두 분이 먼저 «모두 지우기» · 앱 안 브라우저 내려받기(서버 attachment)
+chk 'function adminRitualFileUp(' automation/platform/80_production.gs 1
+chk 'function handleRitualFilePurgeMine(' automation/platform/80_production.gs 1
+chk "case 'ritualFilePurgeMine'" automation/consultation/consultation-booking.gs 1
+chk 'adminRitualFileUp: adminRitualFileUp' automation/admin/admin.gs 1
+chk 'VOICE_KEEP' api/voice-file.js 1
+chk "Content-Disposition', \"attachment" api/voice-file.js 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/voice-file-sim.mjs >/dev/null 2>&1 || { echo 'FAIL voice-file: 목소리 파일 내려받기(attachment · 토큰은 본문만) 판정이 어긋났습니다 — node scripts/audit/voice-file-sim.mjs'; fail=1; }; fi
+chk 'VOICE_KEEP_SIM' scripts/audit/voice-file-sim.mjs 1
+chk 'VOICE_KEEP' mypage.html 2
+chk 'action="/api/voice-file"' mypage.html 1   # 카톡 앱 안에서도 되는 내려받기(서버 attachment) — blob 내려받기로 되돌리지 말 것
+nochk 'window.rfKeepDown' mypage.html   # 옛 blob 내려받기(카톡 앱 안에서 막힘)
+chk "action:'ritualFilePurgeMine'" mypage.html 1
+chk 'AI 목소리와 읽은 녹음은 예식 다음 날 지웠어요.' mypage.html 1
+# ★[OLD_COURSE_0928 · AI_TIP_OFF · AI_NOTICE_0928 · PREP_VOICE_0928 코워크 0928 6-7 · 9-1] 옛 안내 · AI 더빙 팁 · 알림 스위치 걷기 · 준비 목록 상태 한 줄
+nochk '직접 녹음하거나 AI로 만들면 저희가 틀어드려요' order-preview.html
+nochk '저희 기능은 아니에요' order-preview.html
+nochk '대본은 <b>참고용</b>이에요' order-preview.html
+nochk '녹음 파일 올리기(mp3/m4a)' order-preview.html
+nochk '두 분 목소리로 인사 (녹음·AI)' order-preview.html
+nochk 'data-fk="ainotice"' order-preview.html
+nochk "AI_NOTICE = 'program'" assets/ritual-open.js
+chk 'AI_TIP_OFF' order-preview.html 2
+chk 'AI_NOTICE_0928' order-preview.html 1
+chk 'function voiceState(S, ks)' assets/ritual-open.js 1
+chk 'AI_NOTICE_0928' admin.html 3
+chk 'function admAiLine(d)' admin.html 1
+chk '식순지를 뽑은 뒤 AI 줄이 바뀌었어요 · 다시 뽑기' admin.html 1
+chk "의 목소리로 만든 AI 음성입니다.'" admin.html 1
+# ★[PRACTICE_VOICE_0928 · PRACTICE_READ_0928 7-1 · 7-2] 연습 녹음 · 연습 AI 읽기 문구 · 배지 · 말하는 사람 → 목소리 · 기기에 안 남김
+chk '내 차례를 녹음하며 연습 · 끝나고 내 목소리로 다시 들어 볼 수 있어요' order-preview.html 1
+chk '연습 녹음은 이 기기에만 있어요. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요' order-preview.html 1
+chk '방금 연습 다시 듣기' order-preview.html 1
+chk '연습 녹음 모두 지우기' order-preview.html 1
+chk '두 분 차례도 소리로 듣기 · AI가 연습용으로 읽어 줘요 · 예식에서는 나오지 않아요' order-preview.html 1
+chk '적은 글이 음성 업체(타입캐스트)로 보내져 소리로 만들어져요. 숨긴 글은 보내지 않아요' order-preview.html 1
+chk 'AI 연습 소리' order-preview.html 1
+chk 'function _ptRole(who)' order-preview.html 1
+# ★[VP_AI_0928 · VC_CARD_0928 · VC_LINE_0928 · VOICE_CLONE_0928 화면 코워크 0928 6-1 · 8장] AI 칸 · 사람 카드 · 동의 · 1분 읽기 · 줄 도구 · 빈 줄만 채우기
+chk 'function _vpChoice()' order-preview.html 1
+chk "['ai','AI로 두 분 목소리 만들기']" order-preview.html 1
+chk 'var VC_TXT=' order-preview.html 1
+chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
+chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
+chk 'function _vcAutoFill(w,renew)' order-preview.html 1
+chk 'function _vcLineTools(key,lab)' order-preview.html 1
+chk 'function _vcReadyFor(key)' order-preview.html 1
+chk '이 줄은 직접 녹음할게요' order-preview.html 1
+chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
+nochk '_vcReadText(' order-preview.html
+nochk '_vcLinePanel(' order-preview.html
+nochk 'TYPECAST_API_KEY' console.html
+nochk 'TYPECAST_API_KEY' admin.html
+nochk 'TYPECAST_API_KEY' mypage.html
+# ★[RF_STUDIO_UP] 관리 화면 대신 올리기 · 콘솔이 스튜디오 파일도 받는다
+chk 'function admRfUp(k,btn)' admin.html 1
+chk "call('adminRitualFiles'" console.html 1
+chk 'RF_STUDIO_UP' scripts/audit/rec-upload.mjs 1
+chk 'VOICE_CLONE_0928' scripts/audit/rec-upload.mjs 1
+# [VC_SCREEN] AI 로 두 분 목소리 만들기 화면 흐름(가짜 서버) — 브라우저가 없으면 재지 못함(2)은 통과로 본다
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-screen.mjs >/dev/null 2>&1; _vs=$?; [ "$_vs" = 1 ] && { echo 'FAIL vc-screen: AI 목소리 화면 흐름이 어긋났습니다 — node scripts/audit/vc-screen.mjs'; fail=1; }; fi
+chk 'VC_SCREEN' scripts/audit/vc-screen.mjs 1

@@ -778,12 +778,16 @@ function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(); if 
     return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + t + '</span></div>'; }).join(''); }
 function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
   var up = S.up || {}; rfPaint(); if (!code || !tok) return;
-  rfKeys().forEach(function(k){ var v = up[k]; if (!v || typeof v !== 'object' || !v.id || /^local:/.test(v.id)) return; RF_ST[k] = 'busy'; rfPaint();
-    fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: 'adminRitualFileGet', args: [code, v.id] }) })
-      .then(function(r){ return r.json(); }).then(function(d){ d = (d && d.result) || d; if (!d || !d.ok || !d.data) throw 0;
+  var call = function(fn, args){ return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: fn, args: args }) }).then(function(r){ return r.json(); }).then(function(d){ return (d && d.result) || d; }); };
+  /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오가 대신 올린 파일은 두 분 초안(S.up)에 없다 — 관리 목록(adminRitualFiles · 최신이 위)에서
+     자리마다 가장 새 파일을 찾아 채운다. 두 분이 올린 id 가 목록에 있으면 그것을 쓴다. 목록을 못 받으면 종전대로 S.up 만 */
+  call('adminRitualFiles', [code]).catch(function(){ return null; }).then(function(L){ var newest = {}, have = {};
+    ((L && L.ok && L.files) || []).forEach(function(f){ if (f.key && !newest[f.key]) newest[f.key] = f.id; have[f.id] = 1; });
+    rfKeys().forEach(function(k){ var v = up[k], id = (v && typeof v === 'object' && v.id && !/^local:/.test(v.id) && (!L || !L.ok || have[v.id])) ? v.id : (newest[k] || ''); if (!id) return; RF_ST[k] = 'busy'; rfPaint();
+      call('adminRitualFileGet', [code, id]).then(function(d){ if (!d || !d.ok || !d.data) throw 0;
         var bin = atob(d.data), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
         CLIPS[rfSlugOf(k)] = URL.createObjectURL(new Blob([u], { type: d.mime || 'audio/wav' })); RF_ST[k] = 'ok'; rfPaint(); try { render(); } catch (e) {} })
-      .catch(function(){ RF_ST[k] = 'fail'; rfPaint(); }); }); }
+        .catch(function(){ RF_ST[k] = 'fail'; rfPaint(); }); }); }); }
 function fmt(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + ('0' + (s%60)).slice(-2); }
 function fmtMin(s){ return Math.round(s/60) + '분'; }
 

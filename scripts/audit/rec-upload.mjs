@@ -39,7 +39,7 @@ for (const w of [360, 1280]) {
   ok(`${w} 고른 순서 쪽 «목소리 세 가지» — 나레이션 · 두 분 목소리 · 미리 준비 · 당일 직접 [VOICE_KIND]`, /나레이션/.test(lg.t) && /두 분 목소리 · 미리 준비/.test(lg.t) && /당일 직접/.test(lg.t), lg.t);
   /* [CHIP_UNPICKED · MK_NO_HEADS] 안 고른 기본(나레이션)은 비어 보이고 · 누르면 소리가 나고 눌린 모양이 된다 · «고르기» · «흐름» 제목 없음 */
   const cu = await pg.evaluate(async () => { const z = (t) => new Promise((r) => setTimeout(r, t)); mkGo('guest'); render(); await z(300);
-    const b0 = document.querySelector('[data-fk="lsc:guestVoice:nar"]'), before = b0.getAttribute('aria-checked'), tab = b0.tabIndex; b0.click(); await z(500);
+    const b0 = document.querySelector('[data-fk="lsc:guestVoice:nar"]'), before = b0.getAttribute('aria-checked'), tab = document.querySelector('[data-fk^="lsc:guestVoice:"]').tabIndex;   /* [VP_CHOICE] 0928 부터 첫 칩은 «직접 녹음하기» — 안 고른 묶음은 첫 칩이 Tab 자리 */ b0.click(); await z(500);
     const after = document.querySelector('[data-fk="lsc:guestVoice:nar"]').getAttribute('aria-checked'), q = LP.q.length; try { lsStop(); } catch (e) {}
     const heads = [...document.querySelectorAll('.mk-pg h4')].map((e) => e.textContent).filter((t) => /^(고르기|흐름)$/.test(t)); return { before, tab, after, q, heads }; });
   ok(`${w} 안내 목소리 — 처음엔 안 눌린 모양 · 누르면 나레이션이 들리고 눌린 모양 · «고르기» · «흐름» 제목 없음 [CHIP_UNPICKED · MK_NO_HEADS]`, cu.before === 'false' && cu.tab === 0 && cu.after === 'true' && cu.q > 0 && !cu.heads.length, JSON.stringify(cu));
@@ -97,42 +97,44 @@ for (const w of [360, 1280]) {
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); await nx(); await pg.waitForTimeout(1200);
   await pg.evaluate(() => { S.guestVoice = 'couple'; S.up = {}; opSync(); mkGo('guest'); render(); }); await pg.waitForTimeout(400);
-  const off = await pg.evaluate(() => ({ vc: !!document.querySelector('.mk-vc'), ai: document.querySelectorAll('[data-fk^="mkai:"]').length }));
-  ok('3단계 스위치 꺼짐 — AI 칸 · [AI] 단추가 안 보인다 [VOICE_CLONE]', !off.vc && off.ai === 0, JSON.stringify(off));
-  /* 켜기(시험에서만) + 가짜 마이페이지 · 서버 */
-  await pg.evaluate((MP3) => { RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; window.__vcCalls = [];
-    const st = { groom: { consent: false, ready: false }, bride: { consent: false, ready: false } };
-    window.addEventListener('message', (ev) => { const d = ev.data || {}; if (d.type === 'momentedit:voiceClone') { const q = d.data; window.__vcCalls.push(q.op + ':' + (q.who || q.key || ''));
-        let r = { ok: true }; if (q.op === 'status') r = { ok: true, groom: st.groom, bride: st.bride }; if (q.op === 'consent') st[q.who].consent = true; if (q.op === 'enroll') { st[q.who].ready = true; r = { ok: true, tries: 1 }; }
-        if (q.op === 'make') r = { ok: true, key: q.key, left: 4, parts: [{ who: 'groom', mime: 'audio/mpeg', data: MP3 }] }; if (q.op === 'practice') r = { ok: true, mime: 'audio/mpeg', data: MP3 };
+  const off = await pg.evaluate(() => ({ vc: !!document.querySelector('.mk-aisec'), ai: document.querySelectorAll('[data-fk^="mkai:"]').length, chip: !!document.querySelector('[data-fk="lsc:guestVoice:ai"]') }));
+  ok('3단계 스위치 꺼짐 — AI 칸 · 고르는 칸의 AI · [AI로 만들기]가 안 보인다 [VOICE_CLONE]', !off.vc && off.ai === 0 && !off.chip, JSON.stringify(off));
+  /* ★[VOICE_CLONE_0928] 켜기(시험에서만) + 가짜 마이페이지 · 서버 — 동의 → 1분 읽기(글 둘 · 서버 확인 문장) → 만들기 → 그 사람의 빈 줄만 AI */
+  await pg.evaluate((MP3) => { RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; window.__vcCalls = [];   // [VOICE_UP_FROM] 날짜 문도 연 예식(시험)
+    const st = { groom: { consent: false, ready: false, left: 3 }, bride: { consent: false, ready: false, left: 3 } };
+    window.addEventListener('message', (ev) => { const d = ev.data || {}; if (d.type === 'momentedit:voiceClone') { const q = d.data; window.__vcCalls.push(q.op + ':' + (q.who || q.key || q.role || ''));
+        let r = { ok: true }; if (q.op === 'status') r = { ok: true, groom: st.groom, bride: st.bride, per: {} }; if (q.op === 'consent') st[q.who].consent = true;
+        if (q.op === 'phrase') r = { ok: true, phrase: '오늘은 구월 이십팔일, 파란 우산과 노란 연필.' };
+        if (q.op === 'enroll') { st[q.who].ready = true; st[q.who].made = '2026-09-28 10:00'; r = { ok: true, tries: 1 }; }
+        if (q.op === 'make') r = { ok: true, key: q.key, left: 4, parts: (q.lines || [[q.one || 'groom']]).map((l) => ({ who: l[0], mime: 'audio/mpeg', data: MP3 })) }; if (q.op === 'practice') r = { ok: true, mime: 'audio/mpeg', data: MP3 };
         setTimeout(() => window.postMessage(Object.assign({ type: 'momentedit:voiceCloneDone', rid: q.rid }, r), location.origin), 50); }
-      if (d.type === 'momentedit:ritualFile') setTimeout(() => window.postMessage({ type: 'momentedit:ritualFileDone', key: d.data.key, ok: true, name: d.data.name, id: 'AI1', at: 'x' }, location.origin), 50); });
+      if (d.type === 'momentedit:ritualFile') setTimeout(() => window.postMessage({ type: 'momentedit:ritualFileDone', key: d.data.key, ok: true, name: d.data.name, id: 'AI' + d.data.key, at: 'x' }, location.origin), 50); });
     render(); }, MP3); await pg.waitForTimeout(600);
+  await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
   await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(200);
-  const c1 = await pg.evaluate(() => ({ dis: document.getElementById('vcAgree').disabled, t: document.querySelector('.mk-vc').textContent }));
-  await pg.check('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(500);
-  const c2 = await pg.evaluate(() => ({ read: !!document.querySelector('[data-fk="mkvcread:groom"]'), file: !!document.querySelector('.mk-vc [data-fk^="mkup:"]') }));
-  ok('동의 — 본인 확인 칸을 체크해야 [동의하기] · 문구(어디에 · 무엇을 · 언제 지우나 · 동의 안 해도 진행) · 뒤에 [목소리 읽기](파일 올리기 없음)', c1.dis && /음성 업체\(타입캐스트\)/.test(c1.t) && /예식 뒤 30일/.test(c1.t) && /동의하지 않아도/.test(c1.t) && c2.read && !c2.file, JSON.stringify({ c1: c1.dis, c2 }));
-  await pg.click('[data-fk="mkvcread:groom"]'); await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'rec', null, { timeout: 8000 }).catch(() => {});
-  const c3 = await pg.evaluate(() => /오늘은 \d+월 \d+일, /.test(document.querySelector('.mk-vc').textContent));
+  const c1 = await pg.evaluate(() => ({ dis: document.getElementById('vcAgree').disabled, t: document.querySelector('.mk-aisec').textContent }));
+  await pg.check('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(600);
+  const c2 = await pg.evaluate(() => ({ t: (document.querySelector('.mk-aisec .mk-recp') || {}).textContent || '', file: !!document.querySelector('.mk-aisec [data-fk^="mkup:"]') }));
+  ok('동의 — 체크해야 [동의하고 읽으러 가기] · 문구(어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요) → 1분 읽기(글 둘 · 둘째 글 끝에 서버 확인 문장 · 파일 올리기 없음)', c1.dis && /음성 업체\(타입캐스트\)/.test(c1.t) && /예식 다음 날/.test(c1.t) && /안 해도 돼요/.test(c1.t) && /글 1/.test(c2.t) && /있으신가요\? 오늘은 구월 이십팔일/.test(c2.t) && /파일은 올릴 수 없어요/.test(c2.t) && !c2.file, JSON.stringify({ c1: c1.t.slice(0, 80), c2: c2.t.slice(0, 80) }));
+  /* 글 1 은 실제 마이크(가짜 장치)로 녹음 → [이걸로 쓰기]가 그 글 자리에 둔다 · 글 2 는 25초 소리를 넣어 둔다 */
+  await pg.click('[data-fk="mkvcrec:1"]'); await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'rec', null, { timeout: 8000 }).catch(() => {});
   await pg.waitForTimeout(1500); await pg.click('[data-fk="mkrecstop"]'); await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 15000 }).catch(() => {});
-  const c4 = await pg.evaluate(() => (document.querySelector('[data-fk="mkrecuse"]') || {}).textContent || '');
-  await pg.click('[data-fk="mkrecuse"]'); await pg.waitForTimeout(800);
-  const c5 = await pg.evaluate(() => ({ ready: VC.st.groom.ready, ai: document.querySelectorAll('[data-fk^="mkai:"]').length }));
-  ok('목소리 읽기 — 그날의 확인 문장 · [이걸로 목소리 만들기] → 준비됨 · 줄마다 [AI]', c3 && /이걸로 목소리 만들기/.test(c4) && c5.ready && c5.ai === 4, JSON.stringify({ c3, c4, c5 }));
-  await pg.click('[data-fk="mkai:g0"]'); await pg.waitForTimeout(200); await pg.click('[data-fk="mkaigo"]');
-  await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'review' && MK_REC.src === 'ai', null, { timeout: 15000 }).catch(() => {});
-  await pg.click('[data-fk="mkrecuse"]'); await pg.waitForTimeout(800);
-  const c6 = await pg.evaluate(() => ({ src: (S.up.g0 || {}).src, st: document.querySelector('.mk-vr').textContent, couple: _lSteps(ENG, ['guest']).filter((x) => x.couple).length }));
-  ok('줄마다 [AI] → 만들기 → 들어 보기 → 이걸로 쓰기 → 그 줄이 AI 두 분 목소리(src ai · «AI로 만들었어요»)', c6.src === 'ai' && /AI로 만들었어요/.test(c6.st) && c6.couple === 1, JSON.stringify(c6));
+  await pg.click('[data-fk="mkrecuse"]'); await pg.waitForTimeout(400);
+  const c3 = await pg.evaluate(() => !!(VC.read && VC.read.take[1]));
+  await pg.evaluate(() => { const sr = 24000, n = sr * 25, x = new Float32Array(n); for (let i = 0; i < n; i++) x[i] = 0.2 * Math.sin(2 * Math.PI * 190 * i / sr); VC.read.take[2] = { wav: _recWav(x, sr), dur: 25 }; render(); });
+  await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(3500);
+  const c5 = await pg.evaluate(() => ({ ready: VC.st && VC.st.groom && VC.st.groom.ready, g0: (S.up.g0 || {}).src, g1: (S.up.g1 || {}).src, calls: __vcCalls.join(' ') }));
+  ok('1분 읽기 — 글마다 [이걸로 쓰기] → [이 목소리로 만들기] → 준비됨 · 신랑이 읽는 빈 줄(1번)만 AI · 신부 줄(2번)은 비어 있음', c3 && c5.ready && c5.g0 === 'ai' && !c5.g1, JSON.stringify(c5));
+  const c6 = await pg.evaluate(() => ({ src: (S.up.g0 || {}).src, st: document.querySelector('.mk-vcards .mk-vr').textContent, couple: _lSteps(ENG, ['guest']).filter((x) => x.couple).length }));
+  ok('그 줄이 AI 두 분 목소리(src ai · «AI로 만들었어요» · 빠르기 · 다시 만들기)', c6.src === 'ai' && /AI로 만들었어요/.test(c6.st) && /다시 만들기/.test(c6.st) && c6.couple >= 1, JSON.stringify(c6));
   const c7 = await pg.evaluate(() => { opGoStep('done'); return new Promise((ok) => setTimeout(() => ok(!!document.querySelector('[data-fk="ainotice"]')), 800)); });
-  ok('④ — AI로 만든 줄이 있으면 «일부 안내는 두 분 목소리로 만든 AI 음성이에요» [AI_NOTICE]', c7);
+  ok('④ — 두 분 화면에는 «일부 안내는 … AI 음성이에요» 한 줄이 없다(하객 고지는 식순지 뒷면 한 줄 · [AI_NOTICE_0928 9-1])', !c7);
   await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(800);
   await pg.click('[data-fk="ptts"]'); await pg.waitForTimeout(200);
-  const c8 = await pg.evaluate(() => /음성 업체\(타입캐스트\)로 보내져/.test(document.querySelector('.pr-voice').textContent));
+  const c8 = await pg.evaluate(() => /음성 업체\(타입캐스트\)로 보내져/.test(document.querySelector('.pr-voice').textContent) && /숨긴 글은 보내지 않아요/.test(document.querySelector('.pr-voice').textContent));
   await pg.click('[data-fk="pttsyes"]'); await pg.waitForTimeout(200);
   const c9 = await pg.evaluate(() => new Promise((ok) => { const st = { who: '신랑', txt: '연습 글입니다', talk2: true }; _ptSrc(st); setTimeout(() => ok({ u: String(_ptSrc(st) || '').slice(0, 5), site: _ptSrc({ who: '신부', txt: '떠오르는 대로', site: true }) }), 600); }));
-  ok('연습 읽기 — 처음 켤 때 알림 · [켜기] 뒤 두 분 차례 글을 AI 소리로(이 기기에 두고) · «현장에서» 자리는 안 읽는다 [VOICE_CLONE 4-2]', c8 && c9.u === 'blob:' && c9.site === null, JSON.stringify({ c8, c9 }));
+  ok('연습 읽기 — 처음 켤 때 알림(숨긴 글은 보내지 않아요) · [켜기] 뒤 두 분 차례 글을 AI 소리로(메모리만 · 기기에 안 남김) · «현장에서» 자리는 안 읽는다 [PRACTICE_READ_0928 7-2]', c8 && c9.u === 'blob:' && c9.site === null, JSON.stringify({ c8, c9 }));
   ok('3단계 pageerror 0', !errs.length, errs.join(' | '));
   await ctx.close();
 }
@@ -145,7 +147,7 @@ for (const w of [360, 1280]) {
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(1200);
-  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /이 휴대폰에만 있어요/.test((document.querySelector('.pr-voice') || {}).textContent || '') }));
+  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /연습 녹음은 이 기기에만 있어요\. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요/.test((document.querySelector('.pr-voice') || {}).textContent || ''), sw: /끝나고 내 목소리로 다시 들어 볼 수 있어요/.test((document.querySelector('.pr-voice') || {}).textContent || '') }));   // [PRACTICE_VOICE_0928 7-1]
   await pg.click('[data-fk="prrec"]'); await pg.waitForTimeout(600);
   const n0 = out.length;
   await pg.evaluate(() => { lsPlayAll(); }); await pg.waitForTimeout(800);
@@ -153,9 +155,9 @@ for (const w of [360, 1280]) {
   const p1 = await pg.evaluate(() => ({ rec: !!PR.cur, badge: !!document.querySelector('#lsFull .lf-rec') }));
   await pg.evaluate(() => { _lNext(); }); await pg.waitForTimeout(500); await pg.evaluate(() => { lsStop(); }); await pg.waitForTimeout(600);
   await pg.evaluate(() => render()); await pg.waitForTimeout(300);
-  const p2 = await pg.evaluate(() => ({ n: PR.takes.length, url: String((PR.takes[0] || {}).url || '').slice(0, 5), rows: document.querySelectorAll('.pr-voice [data-fk^="prplay:"]').length }));
+  const p2 = await pg.evaluate(() => ({ n: PR.takes.length, url: String((PR.takes[0] || {}).url || '').slice(0, 5), rows: document.querySelectorAll('.pr-voice [data-fk^="prplay:"]').length, lab: /방금 연습 다시 듣기/.test(document.querySelector('.pr-voice').textContent) && /연습 녹음 모두 지우기/.test(document.querySelector('.pr-voice').textContent) }));
   const sent = out.slice(n0).filter((u) => !/fonts\.g/.test(u));
-  ok('연습 — «내 차례를 녹음하며 연습» · 두 분 차례에 «녹음 중» · 끝나면 줄마다 다시 듣기 · 서버로 아무것도 안 나감 [PRACTICE_VOICE]', p0.sec && p0.note && p1.rec && p1.badge && p2.n >= 1 && p2.url === 'blob:' && p2.rows === p2.n && sent.length === 0, JSON.stringify({ p0, p1, p2, sent }));
+  ok('연습 — «내 차례를 녹음하며 연습» · 두 분 차례에 «녹음 중» · 끝나면 줄마다 다시 듣기 · 서버로 아무것도 안 나감 [PRACTICE_VOICE]', p0.sec && p0.note && p0.sw && p2.lab && p1.rec && p1.badge && p2.n >= 1 && p2.url === 'blob:' && p2.rows === p2.n && sent.length === 0, JSON.stringify({ p0, p1, p2, sent }));
   ok('연습 pageerror 0', !errs.length, errs.join(' | '));
   await ctx.close();
 }
@@ -178,15 +180,16 @@ for (const w of [360, 1280]) {
   await pg.route('**/*', (rt) => { const u = rt.request().url();
     if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
     if (/script\.google\.com/.test(u)) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {} calls.push(b.fn + ':' + (b.args || []).join(','));
-      const ok = b.fn === 'adminRitualFileGet' && b.args && b.args[1] === 'F-g0';
-      return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(ok ? { ok: true, id: 'F-g0', mime: 'audio/wav', data: wav } : { ok: false, error: '없음' }) }); }
+      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, files: [{ key: 'g2', id: 'F-st2' }, { key: 'g0', id: 'F-g0' }, { key: 'g1', id: 'F-g1' }] }) });   // [RF_STUDIO_UP] 스튜디오가 대신 올린 g2
+      const ok = b.fn === 'adminRitualFileGet' && b.args && (b.args[1] === 'F-g0' || b.args[1] === 'F-st2');
+      return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(ok ? { ok: true, id: b.args[1], mime: 'audio/wav', data: wav } : { ok: false, error: '없음' }) }); }
     return rt.fulfill({ status: 200, body: '' }); });
   await pg.goto(`http://127.0.0.1:${port}/console.html`); await pg.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); });
   const S0 = { course: 'family', guestVoice: 'couple', entryVoice: 'nar', up: { g0: { id: 'F-g0', n: '녹음' }, g1: { id: 'F-g1', n: '녹음' } } };
   const q = Buffer.from(JSON.stringify(S0)).toString('base64');
   await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(q)}&rf=ME0001`); await pg.waitForTimeout(1500);
   const r = await pg.evaluate(() => ({ st: window.__rfState().st, clip: window.__rfState().clip, sec: !document.getElementById('rfSec').hidden, t: document.getElementById('rfChk').textContent }));
-  ok('콘솔 — rf=코드 + 관리자 토큰 → 시작 전에 받아 둠(g0 ✓) · 못 받은 줄(g1)은 «나레이션으로» · 파일 없는 줄(g2 · g3)도 «나레이션으로» [REC_ADMIN]', /"g0":"ok"/.test(r.st) && /"g1":"fail"/.test(r.st) && r.clip === 'blob:' && r.sec && /하객 입장 때✓ 두 분 녹음 · 받아 둠/.test(r.t) && /시작 10분 전받지 못함 · 나레이션으로 나감/.test(r.t) && /시작 5분 전파일 없음/.test(r.t) && calls.every((c) => /^adminRitualFileGet:ME0001,F-g[01]$/.test(c)), JSON.stringify({ r, calls }));
+  ok('콘솔 — rf=코드 + 관리자 토큰 → 시작 전에 받아 둠(g0 ✓) · 스튜디오가 대신 올린 줄(g2)도 받아 둠 · 못 받은 줄(g1) · 파일 없는 줄(g3)은 «나레이션으로» [REC_ADMIN · RF_STUDIO_UP]', /"g0":"ok"/.test(r.st) && /"g1":"fail"/.test(r.st) && r.clip === 'blob:' && r.sec && /하객 입장 때✓ 두 분 녹음 · 받아 둠/.test(r.t) && /시작 10분 전받지 못함 · 나레이션으로 나감/.test(r.t) && /시작 5분 전✓ 두 분 녹음 · 받아 둠/.test(r.t) && /시작 1분 전파일 없음/.test(r.t) && calls.filter((c) => !/^adminRitualFiles:/.test(c)).every((c) => /^adminRitualFileGet:ME0001,F-(g[01]|st2)$/.test(c)) && /"g2":"ok"/.test(r.st), JSON.stringify({ r, calls }));
   ok('콘솔 pageerror 0', !errs.length, errs.join(' | '));
   await ctx.close();
 }

@@ -1161,7 +1161,10 @@ function _voiceUpLive(code) {
   // [VOICE_UP_FROM] 날짜 문 — 시행일부터 · 시험 예식은 늘 열림
   return (typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= VOICE_UP.from) || _voiceStudio(code);
 }
-function _voicePub(code) { var c = _vcCfg(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key) }; }   // [VOICE_UP_FROM] 화면으로 가는 것은 켜짐 여부뿐(키 · 목소리 id 는 안 보낸다)
+function _voicePub(code) {
+  // [VOICE_UP_FROM] 화면으로 · [RF_STUDIO_UP] sup = 스튜디오가 대신 올린 파일(자리 → {id,name,at}) · [VOICE_KEEP] gone = 파일을 지운 날 · aiGone = AI 목소리 · 읽은 녹음을 지운 날(AI 를 만든 예식만)
+  var c = _vcCfg(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key), sup: _rfStudioUps(code), gone: PropertiesService.getScriptProperties().getProperty('RFGONE_' + code) || '', aiGone: (function () { var v = _vcSt(code); return v.purged && ((v.groom && v.groom.made) || (v.bride && v.bride.made)) ? String(v.purged).slice(0, 10) : ''; })(), keepDays: +(PropertiesService.getScriptProperties().getProperty('RITUAL_FILE_PURGE_DAYS') || 30) || 30 };
+}
 var RF_ROOT_FOLDER = 'ME_예식준비파일';
 var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사' };
 function _rfFolderFor(code) {
@@ -1219,6 +1222,18 @@ function handleRitualFileGet(body) {
   var b = f.getBlob(); if (b.getBytes().length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
   return { ok: true, key: String(body.key || ''), id: f.getId(), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
 }
+/* ★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] 두 분이 먼저 «목소리 파일 모두 지우기» — 그 예식 폴더(안내 소리 · 대신 올린 파일 · AI 소리 · 읽은 녹음 · 연습 소리)를 통째로 휴지통,
+   업체 쪽 AI 목소리도 지운다(_vcPurgeNow). 기록 RFGONE_<코드>=오늘 — 마이페이지 알림 줄이 사라지고, 30일 지우기(purgeRitualFiles)는 건너뛴다 */
+function handleRitualFilePurgeMine(body) {
+  body = body || {};   // [VOICE_KEEP]
+  var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
+  var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  var props = PropertiesService.getScriptProperties(), fid = props.getProperty('RF_' + code), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+  if (fid) { try { DriveApp.getFolderById(fid).setTrashed(true); } catch (e) {} }
+  try { _vcPurgeNow(code); } catch (e) {}
+  props.setProperty('RFGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {}
+  return { ok: true, gone: today };
+}
 /* [REC_UPLOAD] 두 분이 먼저 지우기 — 휴지통으로(드라이브 30일 뒤 완전 삭제) · 그 폴더 안의 파일만 */
 function handleRitualFileDel(body) {
   body = body || {};
@@ -1246,7 +1261,22 @@ function adminRitualFiles(code) {
   var out = []; if (fid) { try { var it = DriveApp.getFolderById(fid).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; var at = Utilities.formatDate(f.getDateCreated(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
     out.push({ key: _rfKeyOfName(f.getName()), label: RF_KEYS[_rfKeyOfName(f.getName())] || '', id: f.getId(), name: f.getName(), kb: Math.round(f.getSize() / 1024), at: at, late: !!(late && at.slice(0, 10) > late) }); } } catch (e) {} }
   out.sort(function (a, b) { return a.at < b.at ? 1 : -1; });   // 최신이 위 · 같은 자리에 여러 개면 맨 위가 지금 쓰는 것
-  return { ok: true, code: code, wedding: wy, lateAfter: late, files: out, okMap: okMap, gone: props.getProperty('RFGONE_' + code) || '' };
+  var vc = null; try { vc = _vcSlots(); if (vc) { var vst = _vcSt(code); vc.me = { groom: _vcPub(vst.groom), bride: _vcPub(vst.bride) }; } } catch (e) { vc = null; }   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식의 AI 목소리(키가 없으면 null · 화면에 안 보인다)
+  return { ok: true, code: code, wedding: wy, lateAfter: late, files: out, okMap: okMap, gone: props.getProperty('RFGONE_' + code) || '', vc: vc };
+}
+/* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오 대신 올리기 — 카톡 · 메일로 파일을 보낸 고객을 위해 관리 화면이 줄마다 올린다.
+   다듬기(6-3)는 관리 화면이 올리기 전에 같은 모듈(assets/rec-process.js)로 거친다. 기록 RFSTUDIO_<코드> = {자리: {id,name,at}} —
+   두 분 화면(buildProductionState.voice.sup)이 비어 있는 줄에 채워 넣고 · 관리 화면이 당일 콘솔을 열 때도 채운다. 두 분이 새로 올리면 그쪽이 이긴다 */
+function _rfStudioUps(code) { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('RFSTUDIO_' + code) || '{}') || {}; } catch (e) { return {}; } }
+function adminRitualFileUp(code, key, name, mime, data) {
+  _requireAdmin('');   // [RF_STUDIO_UP]
+  code = String(code || '').trim(); key = String(key || '').trim(); if (!code || !RF_KEYS[key]) return { ok: false, error: '자리를 알 수 없어요.' };
+  mime = String(mime || '').trim().toLowerCase(); if (!/^audio\/[a-z0-9.+-]+$/.test(mime)) return { ok: false, error: '소리 파일만 올릴 수 있어요.' };
+  var b64 = String(data || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, ''); if (!b64) return { ok: false, error: '파일이 비어 있어요.' };
+  if (b64.length * 3 / 4 > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '한 개에 ' + GP_MAX_FILE_MB + 'MB 까지 올릴 수 있어요.' };
+  var f; try { f = _rfFolderFor(code).createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, RF_KEYS[key] + ' · 스튜디오 · ' + _gpSafeName(name, mime))); } catch (e) { return { ok: false, error: '올리다 끊겼어요.' }; }
+  var p = PropertiesService.getScriptProperties(), m = _rfStudioUps(code); m[key] = { id: f.getId(), name: String(name || '').slice(0, 60), at: fmtKST(new Date()) }; p.setProperty('RFSTUDIO_' + code, JSON.stringify(m));
+  return { ok: true, key: key, id: f.getId(), at: m[key].at };
 }
 function adminRitualFileGet(code, id) {
   _requireAdmin('');   // [REC_ADMIN]
@@ -1271,7 +1301,7 @@ function purgeRitualFiles(dry) {
     if (!wy) return; var d = new Date(wy + 'T00:00:00+09:00'); d.setDate(d.getDate() + days); var cut = Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd');
     if (today <= cut) return;
     var n = 0; try { var it = DriveApp.getFolderById(all[k]).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; n++; if (!dry) f.setTrashed(true); } } catch (e) {}
-    if (!dry) { props.setProperty('RFGONE_' + code, today); try { _vcPurge(code); } catch (e) {} }   // [VOICE_CLONE 5-5] 업체 쪽 목소리도
+    if (!dry) { props.setProperty('RFGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {} try { _vcPurge(code); } catch (e) {} }   // [RF_STUDIO_UP] 대신 올린 기록도   // [VOICE_CLONE 5-5] 업체 쪽 목소리도
     done.push(code + ' · 예식 ' + wy + ' · 파일 ' + n + '개');
   });
   Logger.log('purgeRitualFiles' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
@@ -1285,66 +1315,215 @@ function previewRitualFiles() { return purgeRitualFiles(true); }
    API(타입캐스트 Go SDK 원본으로 확인 2026-09-27): X-API-KEY 헤더 · 복제 POST /v1/custom-voices/instant-clone(multipart name · model · file · 돌려받는 voice_id 는 uc_) ·
      삭제 DELETE /v1/custom-voices/{id}(soft-delete) · 읽기 POST /v1/text-to-speech {voice_id,text,model,language,output{target_lufs,remove_silence_ms,audio_tempo,audio_format}}
    한도(5-7): 사람마다 목소리 만들기 3번 · 줄마다 다시 만들기 5번 · 예식마다 만들기 50번 · 연습 읽기 20,000자. 상태는 스크립트 속성 VC_<코드>(시트 열을 늘리지 않는다). */
-var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enroll: 3, perKey: 5, total: 50, practiceChars: 20000 };
+var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enroll: 3, perKey: 5, total: 50, practiceChars: 20000, slotWarn: 45, minReadSec: 20 };
+/* ★★[VOICE_CLONE_0928 코워크 0928 8장 · 7-2] 0927 판을 확정판에 맞췄다.
+   · 스위치 VOICE_CLONE · PRACTICE_READ = off · studio · on(studio 는 VOICE_STUDIO_CODES 의 시험 예식만) · 키 TYPECAST_API_KEY(스크립트 속성 · 값은 사장님이 직접)
+   · 확인 문장은 서버가 뽑는다(op=phrase · 다시 읽으면 새로 뽑음) · 읽은 녹음과 함께 남겨 관리 화면에서 맞춰 듣는다
+   · 다시 만들 때: 새 목소리를 먼저 만들고, 된 뒤에 앞 목소리를 지운다(실패해도 앞 목소리로 계속) · 업체 쪽 지우기가 실패하면 retry 목록 → 매일 다시
+   · 만든 소리(줄 · 연습)는 같은 글 · 목소리 · 빠르기면 다시 만들지 않는다(드라이브 «AI» 하위 폴더에 둔다 · 관리 화면 목록에 섞이지 않게)
+   · 예식 다음 날: 업체 목소리 · 읽은 녹음 · 연습 소리 지우기(purgeVoiceClones · aiDaily 가 매일 부른다) · 30일: 안내 소리 파일(purgeRitualFiles · 종전)
+   · 글 · 소리는 로그 · 시트에 남기지 않는다 — 쓴 글자 수만 AI 비용 기록(접점 «목소리»)에 */
 function _vcMode(p, name, legacy) { var m = String(p.getProperty(name) || '').trim().toLowerCase(); if (m === 'on' || m === 'studio' || m === 'off') return m; return p.getProperty(legacy) === 'Y' ? 'on' : 'off'; }   // [VOICE_UP_FROM] off · studio · on (옛 'Y' 는 on)
 function _vcCfg(code) { /* [VOICE_UP_FROM] off · studio · on — studio 는 VOICE_STUDIO_CODES 의 시험 예식에서만 */ var p = PropertiesService.getScriptProperties(), st = _voiceStudio(code), cm = _vcMode(p, 'VOICE_CLONE', 'VOICE_CLONE_ENABLED'), tm = _vcMode(p, 'PRACTICE_READ', 'PRACTICE_TTS_ENABLED');
   return { clone: cm === 'on' || (cm === 'studio' && st), tts: tm === 'on' || (tm === 'studio' && st), mode: { clone: cm, read: tm }, key: p.getProperty('TYPECAST_API_KEY') || '', lufs: +(p.getProperty('VOICE_TARGET_LUFS') || -16) || -16,
-    def: { groom: p.getProperty('TYPECAST_VOICE_GROOM') || '', bride: p.getProperty('TYPECAST_VOICE_BRIDE') || '', family: p.getProperty('TYPECAST_VOICE_FAMILY') || '' } }; }
+    def: { m: p.getProperty('TYPECAST_VOICE_M') || p.getProperty('TYPECAST_VOICE_GROOM') || '', f: p.getProperty('TYPECAST_VOICE_F') || p.getProperty('TYPECAST_VOICE_BRIDE') || '', om: p.getProperty('TYPECAST_VOICE_OM') || p.getProperty('TYPECAST_VOICE_FAMILY') || '', of: p.getProperty('TYPECAST_VOICE_OF') || p.getProperty('TYPECAST_VOICE_FAMILY') || '' } }; }   // [VOICE_CLONE_0928] 연습 기본 목소리 넷(남 · 여 · 윗세대 남 · 윗세대 여 · 7-2)
 function _vcSt(code) { var v = PropertiesService.getScriptProperties().getProperty('VC_' + code); try { return JSON.parse(v || '{}') || {}; } catch (e) { return {}; } }
 function _vcPut(code, st) { PropertiesService.getScriptProperties().setProperty('VC_' + code, JSON.stringify(st)); }
 function _vcFetch(cfg, method, path, opt) { opt = opt || {}; var o = { method: method, headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true };
   if (opt.json) { o.contentType = 'application/json'; o.payload = JSON.stringify(opt.json); } else if (opt.form) o.payload = opt.form;
-  var r = UrlFetchApp.fetch(VC_BASE + path, o); return { code: r.getResponseCode(), r: r }; }
+  var r = UrlFetchApp.fetch(VC_BASE + path, o), c = r.getResponseCode();
+  if (c === 429 || c === 503) { Utilities.sleep(1500); r = UrlFetchApp.fetch(VC_BASE + path, o); c = r.getResponseCode(); }   // [VOICE_CLONE_0928] 너무 잦음 · 바쁨은 잠깐 뒤 한 번 다시
+  return { code: c, r: r }; }
+var VC_DOWN = '지금은 AI 목소리를 만들 수 없어요. 잠시 뒤 다시 해 보시거나 직접 녹음으로 준비해 주세요';
+function _vcErr(code, c) {   // [VOICE_CLONE_0928] 8-3 오류 — 422 만 따로 · 402(크레딧) · 403(칸 넘침)은 관리자 메일(하루 한 통)
+  if (c === 422) return { ok: false, bad: true, error: '이 줄 글에 소리로 읽기 어려운 글자가 있어요. 글을 고치거나 직접 녹음해 주세요' };
+  if (c === 402 || c === 403) _vcAlert('vcerr' + c, '타입캐스트 ' + (c === 402 ? '크레딧이 모자라요(402) · 요금제를 확인해 주세요' : '목소리 칸이 찼어요(403) · 칸을 확인해 주세요') + ' · 예식 ' + code);
+  return { ok: false, down: true, error: VC_DOWN }; }
+function _vcAlert(tag, text) { var p = PropertiesService.getScriptProperties(), k = 'VCALERT_' + tag, d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+  if (p.getProperty(k) === d) return; p.setProperty(k, d); try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[두 분 목소리] ' + text); } catch (e) {} }
+function _vcCharLog(n) { if (!(n > 0)) return; var p = PropertiesService.getScriptProperties(), k = 'VCCHARS_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM');
+  p.setProperty(k, String((+p.getProperty(k) || 0) + n));
+  try { if (typeof handleAiCostLog === 'function') handleAiCostLog({ surface: '목소리', model: 'typecast-' + VC_MODEL, in: n }); } catch (e) {} }   // 글자 수만 · 글은 남기지 않는다
 function _vcTts(cfg, voiceId, text, tempo) {
-  var x = _vcFetch(cfg, 'post', '/v1/text-to-speech', { json: { voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', output: { target_lufs: cfg.lufs, remove_silence_ms: 150, audio_tempo: tempo || 1, audio_format: 'mp3' } } });
-  if (x.code !== 200) throw new Error('tts ' + x.code);
-  return Utilities.base64Encode(x.r.getBlob().getBytes()); }
+  var x = _vcFetch(cfg, 'post', '/v1/text-to-speech', { json: { voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', prompt: { preset: 'normal' }, output: { target_lufs: cfg.lufs, remove_silence_ms: 150, audio_tempo: tempo || 1, audio_format: 'mp3' } } });
+  if (x.code !== 200) { var e = new Error('tts ' + x.code); e.http = x.code; throw e; }
+  _vcCharLog(String(text).length);
+  return x.r.getBlob().getBytes(); }
+function _vcAiFolder(code) { var f = _rfFolderFor(code), it = f.getFoldersByName('AI'); return it.hasNext() ? it.next() : f.createFolder('AI'); }   // 관리 화면 목록(adminRitualFiles)은 하위 폴더를 안 본다
+function _vcHash(s) { return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8)).slice(0, 22); }
+function _vcCached(code, pre, voiceId, text, tempo, cfg) {   // 같은 글 · 목소리 · 빠르기 → 만들어 둔 것 [VOICE_CLONE_0928]
+  var nm = pre + ' · ' + _vcHash(voiceId + '|' + tempo + '|' + text) + '.mp3', fo = _vcAiFolder(code), it = fo.getFilesByName(nm);
+  while (it.hasNext()) { var f0 = it.next(); if (!f0.isTrashed()) return { hit: true, b64: Utilities.base64Encode(f0.getBlob().getBytes()) }; }
+  var bytes = _vcTts(cfg, voiceId, text, tempo); try { fo.createFile(Utilities.newBlob(bytes, 'audio/mpeg', nm)); } catch (e) {}
+  return { hit: false, b64: Utilities.base64Encode(bytes) }; }
+var VC_COLOR = ['파란', '노란', '빨간', '하얀', '초록', '까만', '분홍', '하늘색'], VC_THING = ['우산', '연필', '컵', '의자', '모자', '시계', '편지', '가방', '장갑', '공책', '사과', '종이배'];
+function _vcKoNum(n) { var D = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'], t = Math.floor(n / 10), o = n % 10; return (t > 1 ? D[t] : '') + (t ? '십' : '') + D[o]; }
+function _vcNewPhrase() {   // [VOICE_CLONE_0928] 확인 문장 — 오늘 날짜 + 색 · 물건 둘(8-2). 예) 오늘은 구월 이십팔일, 파란 우산과 노란 연필.
+  var d = new Date(), m = +Utilities.formatDate(d, 'Asia/Seoul', 'M'), dd = +Utilities.formatDate(d, 'Asia/Seoul', 'd'), R = function (a) { return a[Math.floor(Math.random() * a.length)]; };
+  var c1 = R(VC_COLOR), c2 = R(VC_COLOR), t1 = R(VC_THING), t2 = R(VC_THING); while (c2 === c1) c2 = R(VC_COLOR); while (t2 === t1) t2 = R(VC_THING);
+  var last = t1.charCodeAt(t1.length - 1) - 0xAC00, pt = (last >= 0 && last % 28) ? '과' : '와';
+  return '오늘은 ' + (m === 6 ? '유' : m === 10 ? '시' : _vcKoNum(m)) + '월 ' + _vcKoNum(dd) + '일, ' + c1 + ' ' + t1 + pt + ' ' + c2 + ' ' + t2 + '.'; }
+function _vcDelVoice(cfg, st, vid) { if (!vid || !cfg.key) return; var ok = false;   // 업체 쪽 지우기 — 204 · 404(이미 없음)면 끝 · 아니면 retry 목록
+  try { var x = _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(vid)); ok = x.code === 204 || x.code === 200 || x.code === 404; } catch (e) {}
+  st.retry = (st.retry || []).filter(function (v) { return v !== vid; }); if (!ok) st.retry.push(vid); }
 function handleVoiceClone(body) {
-  body = body || {};   // [VOICE_CLONE]
+  body = body || {};   // [VOICE_CLONE_0928]
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var cfg = _vcCfg(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
-  var down = { ok: false, down: true, error: '지금은 AI 목소리를 만들 수 없어요 · 직접 녹음으로 준비해 주세요' };
-  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom), bride: _vcPub(st.bride), total: (st.make && st.make.total) || 0 };
+  var down = { ok: false, down: true, error: VC_DOWN };
+  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom), bride: _vcPub(st.bride), total: (st.make && st.make.total) || 0, per: (st.make && st.make.per) || {}, left: Math.max(0, VC_LIM.practiceChars - (st.practice || 0)) };
   if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
-    ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; try { if (cfg.key) _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(p.voiceId)); } catch (e) {} p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
+    ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
     _vcPut(code, st); return { ok: true, gone: gone }; }
-  if (op === 'practice') { if (!cfg.tts || !cfg.key) return down;
+  if (op === 'practice') { if (!cfg.tts || !cfg.key) return down;   // [VOICE_CLONE_0928] 7-2 연습 읽기 — 연습에서만 · 두 분이 켤 때만 · 숨긴 글은 화면이 보내지 않는다
     var t = String(body.text || '').trim().slice(0, 2000); if (!t) return { ok: false, error: '읽을 글이 없어요.' };
-    st.practice = (st.practice || 0) + t.length; if (st.practice > VC_LIM.practiceChars) return { ok: false, limit: true, error: '이번 달 AI 읽기를 다 썼어요' };
-    var vid = (cfg.clone && st[who] && st[who].voiceId) || cfg.def[who] || cfg.def.family; if (!vid) return down;
-    try { var d = _vcTts(cfg, vid, t, 1); _vcPut(code, st); return { ok: true, mime: 'audio/mpeg', data: d, mine: !!(cfg.clone && st[who] && st[who].voiceId) }; } catch (e) { return down; } }
+    var role = String(body.role || who || ''), own = (role === 'groom' || role === 'bride') && cfg.clone && st[role] && st[role].voiceId;
+    var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || cfg.def.f || cfg.def.m; if (!vid) return down;
+    var tp = ({ '0.9': 0.9, '1': 1, '1.1': 1.1 })[String(body.tempo || '1')] || 1;
+    if ((st.practice || 0) + t.length > VC_LIM.practiceChars) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
+    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; _vcPut(code, st); }
+      return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.practiceChars - (st.practice || 0)) }; } catch (e) { return _vcErr(code, e.http); } }
   if (!cfg.clone || !cfg.key) return down;
   if (!WHO[who] && op !== 'make') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };
   if (op === 'consent') { if (body.agree !== true) return { ok: false, error: '동의가 필요해요.' };
-    st[who] = st[who] || {}; st[who].consent = { at: fmtKST(new Date()), v: String(body.v || '0927') }; _vcPut(code, st); return { ok: true, who: who }; }
+    st[who] = st[who] || {}; st[who].consent = { at: fmtKST(new Date()), v: String(body.v || '0928').slice(0, 20) }; _vcPut(code, st); return { ok: true, who: who }; }
+  if (op === 'phrase') { var ph = st[who] || {}; if (!ph.consent) return { ok: false, error: WHO[who] + ' 동의가 먼저예요.' };   // [VOICE_CLONE_0928] 서버가 뽑는다 · 다시 읽으면 새로
+    ph.phrase = { t: _vcNewPhrase(), at: fmtKST(new Date()) }; st[who] = ph; _vcPut(code, st); return { ok: true, who: who, phrase: ph.phrase.t }; }
   if (op === 'enroll') { var pp = st[who] || {}; if (!pp.consent) return { ok: false, error: WHO[who] + ' 동의가 먼저예요.' };
+    if (!pp.phrase || !pp.phrase.t) return { ok: false, error: '확인 문장을 먼저 받아 주세요.' };
     if ((pp.tries || 0) >= VC_LIM.enroll) return { ok: false, limit: true, error: '목소리 만들기는 한 분에 ' + VC_LIM.enroll + '번까지예요 · 직접 녹음으로 준비해 주세요' };
     var b64 = String(body.data || '').replace(/^data:[^,]*,/, ''); if (!b64 || b64.length * 3 / 4 > 25 * 1048576) return { ok: false, error: '녹음이 비었거나 너무 커요.' };
-    var bytes = Utilities.base64Decode(b64);
-    try { _rfFolderFor(code).createFile(Utilities.newBlob(bytes, 'audio/wav', 'AI 목소리 읽기 · ' + WHO[who] + ' · ' + String(body.phrase || '').slice(0, 40) + '.wav')); } catch (e) {}   // 스튜디오가 관리 화면에서 같이 들을 수 있게(확인 문장 포함) · 30일 지우기에 함께 지워진다
-    if (pp.voiceId) { try { _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(pp.voiceId)); } catch (e) {} }
-    var x; try { x = _vcFetch(cfg, 'post', '/v1/custom-voices/instant-clone', { form: { name: (code + '-' + who).slice(0, 30), model: VC_MODEL, file: Utilities.newBlob(bytes, 'audio/wav', 'sample.wav') } }); } catch (e) { return down; }
+    var sec = +body.sec || 0; if (sec && sec < VC_LIM.minReadSec) return { ok: false, short: true, error: '조금 더 천천히, 끝까지 읽어 주세요' };
+    var bytes = Utilities.base64Decode(b64), mime = /^data:audio\/mpeg/.test(String(body.data)) ? 'audio/mpeg' : 'audio/wav';
+    var x; try { x = _vcFetch(cfg, 'post', '/v1/custom-voices/instant-clone', { form: { name: (code + '-' + (who === 'groom' ? 'g' : 'b')).slice(0, 30), model: VC_MODEL, file: Utilities.newBlob(bytes, mime, mime === 'audio/mpeg' ? 'sample.mp3' : 'sample.wav') } }); } catch (e) { return down; }
     pp.tries = (pp.tries || 0) + 1; var j = {}; try { j = JSON.parse(x.r.getContentText() || '{}'); } catch (e) {}
-    if (x.code !== 200 || !j.voice_id) { st[who] = pp; _vcPut(code, st); return down; }
-    pp.voiceId = j.voice_id; pp.made = fmtKST(new Date()); st[who] = pp; _vcPut(code, st); return { ok: true, who: who, tries: pp.tries }; }
+    var nv = j.voice_id || (j.result && j.result.voice_id) || '';
+    if ((x.code !== 201 && x.code !== 200) || !nv) { st[who] = pp; _vcPut(code, st); return _vcErr(code, x.code); }   // 앞 목소리는 그대로 — 계속 쓸 수 있다
+    var prev = pp.voiceId || '';
+    try { var fo = _vcAiFolder(code); if (pp.read && pp.read.id) { try { DriveApp.getFileById(pp.read.id).setTrashed(true); } catch (e) {} }
+      var rf = fo.createFile(Utilities.newBlob(bytes, mime, '읽은 녹음 · ' + WHO[who] + (mime === 'audio/mpeg' ? '.mp3' : '.wav'))); pp.read = { id: rf.getId(), phrase: pp.phrase.t, at: fmtKST(new Date()) }; } catch (e) {}
+    pp.voiceId = nv; pp.made = fmtKST(new Date()); pp.phrase = null; st[who] = pp;
+    if (prev) _vcDelVoice(cfg, st, prev);   // ★새 목소리가 된 뒤에 앞 목소리를 지운다(칸 수 그대로)
+    _vcPut(code, st); return { ok: true, who: who, tries: pp.tries, renewed: !!prev }; }
   if (op === 'make') { var key = String(body.key || ''); if (!RF_KEYS[key]) return { ok: false, error: '어느 자리인지 알 수 없어요.' };
-    var text = String(body.text || '').trim().slice(0, 300); if (!text) return { ok: false, error: '읽을 글이 없어요.' };
+    var text = String(body.text || '').trim().slice(0, 600); if (!text) return { ok: false, error: '읽을 글이 없어요.' };
     var tempo = ({ '0.9': 0.9, '1': 1, '1.1': 1.1 })[String(body.tempo || '1')] || 1, one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
-    st.make = st.make || { total: 0, per: {} }; if (st.make.total >= VC_LIM.total) return { ok: false, limit: true, error: '이 예식의 AI 만들기를 다 썼어요' };
-    if ((st.make.per[key] || 0) >= VC_LIM.perKey) return { ok: false, limit: true, error: '이 줄은 ' + VC_LIM.perKey + '번까지 다시 만들 수 있어요' };
-    var parts = []; for (var i = 0; i < who2.length; i++) { var w2 = who2[i], v2 = st[w2] && st[w2].voiceId; if (!v2) continue;
-      try { parts.push({ who: w2, mime: 'audio/mpeg', data: _vcTts(cfg, v2, text, tempo) }); } catch (e) { return down; } }
+    var lines = Array.isArray(body.lines) ? body.lines.slice(0, 12) : null;   // 입장 인사처럼 문장마다 읽는 사람이 다르면 [[who,text],…]
+    st.make = st.make || { total: 0, per: {} }; if (st.make.total >= VC_LIM.total) return { ok: false, limit: true, error: '다시 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };
+    var retempo = body.retempo === true;   // 빠르기만 바꾸면 줄마다 5번에 넣지 않는다(예식 50번에만)
+    if (!retempo && (st.make.per[key] || 0) >= VC_LIM.perKey) return { ok: false, limit: true, error: '다시 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };
+    var jobs = lines ? lines.map(function (l) { return { who: WHO[l && l[0]] ? l[0] : '', text: String((l && l[1]) || '').trim().slice(0, 600) }; }) : [{ who: who2.length === 1 ? who2[0] : '', text: text }];
+    var parts = [], fresh = false;
+    for (var i = 0; i < jobs.length; i++) { var jw = jobs[i].who || (st.groom && st.groom.voiceId ? 'groom' : 'bride'), v2 = st[jw] && st[jw].voiceId;
+      if (!v2) { var ow = jw === 'groom' ? 'bride' : 'groom'; v2 = st[ow] && st[ow].voiceId; jw = ow; }   // 한 분만 만들었으면 그 목소리로
+      if (!v2 || !jobs[i].text) continue;
+      try { var c = _vcCached(code, 'AI 소리', v2, jobs[i].text, tempo, cfg); if (!c.hit) fresh = true; parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); } catch (e) { return _vcErr(code, e.http); } }
     if (!parts.length) return { ok: false, error: '아직 만든 AI 목소리가 없어요.' };
-    st.make.total++; st.make.per[key] = (st.make.per[key] || 0) + 1; _vcPut(code, st);
-    return { ok: true, key: key, parts: parts, left: VC_LIM.perKey - st.make.per[key] }; }
+    if (fresh) { st.make.total++; if (!retempo) st.make.per[key] = (st.make.per[key] || 0) + 1; _vcPut(code, st); }
+    return { ok: true, key: key, parts: parts, left: VC_LIM.perKey - (st.make.per[key] || 0), total: st.make.total }; }
   return { ok: false, error: '알 수 없는 요청이에요.' };
 }
-function _vcPub(p) { p = p || {}; return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, deleted: p.deleted || '' }; }
-/* [VOICE_CLONE 5-5] 예식 뒤 30일 — 업체 쪽 목소리도 지운다(purgeRitualFiles 가 코드마다 부른다) */
-function _vcPurge(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0; cfg.clone = true;   // [VOICE_UP_FROM] 지우기는 스위치와 상관없이 늘 돈다
-  ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; try { if (cfg.key) _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(p.voiceId)); } catch (e) {} p.voiceId = ''; p.deleted = fmtKST(new Date()); n++; });
-  if (n) _vcPut(code, st); return n; }
+function _vcPub(p) { p = p || {}; return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, left: Math.max(0, VC_LIM.enroll - (p.tries || 0)), made: p.made || '', deleted: p.deleted || '' }; }
+/* [VOICE_CLONE 5-5] 예식 뒤 30일 — purgeRitualFiles 가 코드마다 부른다(다음 날 지우기가 못 돈 것의 마지막 그물) */
+function _vcPurge(code) { return _vcPurgeNow(code); }
+/* ★[VOICE_CLONE_0928 8-6] 지금 지우기 — 업체 목소리(둘) · 읽은 녹음 · 연습 소리. 안내 소리(«AI 소리»)는 30일까지 둔다(예식 뒤 내려받기) */
+function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0;
+  ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p) return; if (p.voiceId) { _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); n++; }
+    if (p.read && p.read.id) { try { DriveApp.getFileById(p.read.id).setTrashed(true); } catch (e) {} p.read = { gone: fmtKST(new Date()) }; } });
+  try { var it = _vcAiFolder(code).getFiles(); while (it.hasNext()) { var f = it.next(); if (/^연습 소리/.test(f.getName())) f.setTrashed(true); } } catch (e) {}
+  st.purged = fmtKST(new Date()); _vcPut(code, st); return n; }
+/* ★[VOICE_CLONE_0928 8-6] 매일(aiDaily · 96_ai_cost) — 예식 다음 날이 된 예식 · 취소 · 노쇼는 지운다 · 업체 지우기 실패분 다시 · 칸이 45 넘으면 관리자 메일.
+   dry=true 면 대상만 로그(previewVoiceClones) */
+function purgeVoiceClones(dry) {
+  // [VOICE_CLONE_0928] 예식 다음 날 · 취소 · 노쇼 · 미계약 — 업체 목소리 · 읽은 녹음 · 연습 소리
+  var props = PropertiesService.getScriptProperties(), all = props.getProperties(), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
+  Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var code = k.slice(3), st; try { st = JSON.parse(all[k] || '{}') || {}; } catch (e) { return; }
+    var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
+    var cfg = _vcCfg(code);
+    if (st.retry && st.retry.length && !dry) { st.retry.slice().forEach(function (v) { _vcDelVoice(cfg, st, v); }); props.setProperty(k, JSON.stringify(st)); }
+    if (!live) return;
+    var cust = null; try { cust = findCustomerByCode(code); } catch (e) {}
+    var wy = cust ? _ymdOf(cust.get('예식일')) : '', stage = cust ? String(cust.get('현재단계') || '') : '';
+    var gone = stage === '취소' || stage === '노쇼' || stage === '미계약';
+    if (!gone && !(wy && today > wy)) return;   // 예식 다음 날부터
+    done.push(code + '(' + (gone ? stage : wy) + ')'); if (!dry) _vcPurgeNow(code); });
+  if (!dry) { try { CacheService.getScriptCache().remove('VC_SLOTS'); var sl = _vcSlots(); if (sl && sl.used != null && sl.used > VC_LIM.slotWarn) _vcAlert('slots', 'AI 목소리 칸이 ' + sl.used + ' / ' + (sl.total == null ? 50 : sl.total) + ' 이에요 · 정리하거나 요금제를 확인해 주세요'); } catch (e) {} }   // [VC_SLOTS] 칸 45 넘으면 관리자 메일
+  Logger.log('purgeVoiceClones' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
+  return done; }
+function previewVoiceClones() { return purgeVoiceClones(true); }
+/* ★VC_FOLD_0928 — 아래 둘(_vcSlots · vcSelfTest)은 다른 세션이 cowork-docs-auto-deploy-f41sfk 가지에 만들어 «설계 확인까지 보류»한 122ace20 을 0928 확정에 맞춰 들인 것 — 201 응답 · _vcTts 바이트 */
+/* ★[VC_SLOTS 2026-09-28 지시문 5-7 «관리 화면에 쓰는 칸 / 전체 칸»] 요금제의 목소리 칸 — 타입캐스트가 알려 주는 값을 그대로 쓴다.
+   GET /v1/users/me/subscription(plan · credits · limits.custom_voice_slot) · GET /v1/custom-voices(만든 목소리 목록) — SDK(typecast-go client.go · models.go) 원본으로 확인.
+   ★열 때마다 부르지 않게 10분 캐시 · 키가 없으면 null(관리 화면에 줄이 안 생긴다) · 실패는 err 에 HTTP 코드. */
+function _vcSlots() {
+  var cfg = _vcCfg(); if (!cfg.key) return null;   // [VC_SLOTS]
+  var c = CacheService.getScriptCache(), v = c.get('VC_SLOTS'); if (v) { try { return JSON.parse(v); } catch (e) {} }
+  var o = { on: cfg.clone, plan: '', total: null, used: null, credits: null, err: '' };
+  try { var s = _vcFetch(cfg, 'get', '/v1/users/me/subscription');
+    if (s.code === 200) { var j = JSON.parse(s.r.getContentText() || '{}') || {}; o.plan = j.plan || ''; o.total = (j.limits || {}).custom_voice_slot; o.credits = j.credits || null; } else o.err = 'sub ' + s.code;
+    var l = _vcFetch(cfg, 'get', '/v1/custom-voices');
+    if (l.code === 200) { var a = JSON.parse(l.r.getContentText() || '[]'); o.used = (a && a.length) || 0; } else o.err += (o.err ? ' · ' : '') + 'list ' + l.code;
+  } catch (e) { o.err = 'fetch'; }
+  c.put('VC_SLOTS', JSON.stringify(o), 600); return o;
+}
+
+/* ★★[VC_SELFTEST 2026-09-28 사장님 «타입캐스트 무료 요금제 API 키로 · 우리 목소리로만 시험 · 고객 목소리 쓰지 않기 · 무료 요금제에서 인스턴트 복제가 안 되면 알려 주세요»]
+   GAS 편집기에서 80_production 파일을 열고 → vcSelfTest 실행. 로그에 ①~⑥ 이 찍힌다. 발송 없음 · 고객 기록(VC_<코드>)을 건드리지 않는다.
+   ★스위치(VOICE_CLONE)는 켜지 않아도 돈다 — 고객 화면은 그대로 꺼져 있다. 필요한 것은 TYPECAST_API_KEY 하나.
+   ① 키 · 요금제 · 목소리 칸  ② 시험 녹음(드라이브 «ME_목소리시험» 폴더의 가장 최근 소리 파일 · 우리가 직접 녹음한 것)
+   ③ 인스턴트 복제  ④ 그 목소리로 한 문장 → 같은 폴더에 mp3 로 저장(귀로 들어 보기)  ⑤ 만든 목소리 바로 지우기  ⑥ 남은 칸
+   ★[VC_OURS_ONLY] 고객 폴더(ME_예식준비파일) 안의 파일은 받지 않는다 — 시험에 고객 목소리를 쓰지 않는다. */
+var VC_TEST_FOLDER = 'ME_목소리시험', VC_TEST_LINE = '안녕하세요. 모먼트에딧 목소리 시험입니다. 오늘 와 주셔서 고맙습니다.';
+function vcSelfTest() {
+  var cfg = _vcCfg(), L = [], vid = '';   // [VC_SELFTEST]
+  function log(t) { L.push(t); Logger.log(t); }
+  function body(x) { try { return String(x.r.getContentText() || '').slice(0, 300); } catch (e) { return ''; } }
+  if (!cfg.key) { log('① 키 없음 — 프로젝트 설정(톱니) → 스크립트 속성 → TYPECAST_API_KEY 를 넣고 다시 실행해 주세요'); return L.join('\n'); }
+  var sub = _vcFetch(cfg, 'get', '/v1/users/me/subscription'), slot = null;
+  if (sub.code === 401 || sub.code === 403) { log('① 키가 맞지 않아요(HTTP ' + sub.code + ') — 타입캐스트에서 키를 다시 복사해 넣어 주세요 · ' + body(sub)); return L.join('\n'); }
+  if (sub.code === 200) { var sj = {}; try { sj = JSON.parse(sub.r.getContentText() || '{}') || {}; } catch (e) {}
+    slot = (sj.limits || {}).custom_voice_slot; var cr = sj.credits || {};
+    log('① 키 OK · 요금제 ' + (sj.plan || '?') + ' · 크레딧 ' + (cr.used_credits == null ? '?' : cr.used_credits) + ' / ' + (cr.plan_credits == null ? '?' : cr.plan_credits) + ' · 목소리 칸 ' + (slot == null ? '?' : slot));
+    if (slot === 0) log('   ★ 이 요금제는 목소리 칸이 0 이에요 — 인스턴트 복제가 안 될 가능성이 커요(③ 에서 실제로 확인)');
+  } else log('① 요금제 조회 HTTP ' + sub.code + ' · ' + body(sub) + ' (계속 진행)');
+  var it = DriveApp.getFoldersByName(VC_TEST_FOLDER), dir = it.hasNext() ? it.next() : DriveApp.createFolder(VC_TEST_FOLDER), file = null, fs = dir.getFiles();
+  while (fs.hasNext()) { var f = fs.next(); if (f.isTrashed() || !/^audio\//.test(f.getMimeType() || '') || /^시험 결과/.test(f.getName())) continue; if (!file || f.getDateCreated() > file.getDateCreated()) file = f; }
+  if (!file) { log('② 시험 녹음 없음 — 드라이브 «' + VC_TEST_FOLDER + '» 폴더(방금 만들었어요)에 사장님 목소리 녹음(30초쯤 · wav · mp3 · m4a)을 올리고 다시 실행해 주세요'); return L.join('\n'); }
+  var ps = file.getParents(); while (ps.hasNext()) { var pf = ps.next(), pn = pf.getName(), gp = pf.getParents();
+    if (pn === RF_ROOT_FOLDER || (gp.hasNext() && gp.next().getName() === RF_ROOT_FOLDER)) { log('② 이 파일은 고객 폴더에 있어요 — 시험에는 우리 목소리만 씁니다 [VC_OURS_ONLY]'); return L.join('\n'); } }
+  var blob = file.getBlob(); if (blob.getBytes().length > 25 * 1048576) { log('② 파일이 25MB 를 넘어요 — 30초쯤으로 줄여 주세요'); return L.join('\n'); }
+  log('② 시험 녹음: ' + file.getName() + ' · ' + Math.round(blob.getBytes().length / 1024) + 'KB · ' + blob.getContentType());
+  var name = ('ME-selftest-' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MMddHHmm')).slice(0, 30);
+  var x = _vcFetch(cfg, 'post', '/v1/custom-voices/instant-clone', { form: { name: name, model: VC_MODEL, file: blob.setName(file.getName()) } }), cj = {};
+  try { cj = JSON.parse(x.r.getContentText() || '{}') || {}; } catch (e) {}
+  if ((x.code !== 200 && x.code !== 201) || !cj.voice_id) { log('③ 인스턴트 복제 실패 HTTP ' + x.code + ' · ' + body(x));
+    if (x.code === 402 || x.code === 403 || slot === 0) log('   ★ 결론: 이 요금제(키)로는 인스턴트 복제를 할 수 없어요 — 요금제를 바꾸거나 타입캐스트 답을 기다려야 해요');
+    return L.join('\n'); }
+  vid = cj.voice_id; log('③ 복제 OK · voice_id ' + vid + (cj.status ? ' · ' + cj.status : ''));
+  try { var mp3 = _vcTts(cfg, vid, VC_TEST_LINE, 1);   // [VOICE_CLONE_0928] _vcTts 는 바이트를 돌려준다
+    var out = dir.createFile(Utilities.newBlob(mp3, 'audio/mpeg', '시험 결과 ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MM-dd HH-mm') + '.mp3'));
+    log('④ 읽기 OK · 드라이브 «' + VC_TEST_FOLDER + '» 에 저장 — 귀로 들어 봐 주세요: ' + out.getUrl());
+  } catch (e) { log('④ 읽기 실패 — ' + e.message); }
+  var d = _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(vid)); log('⑤ 만든 목소리 지우기 HTTP ' + d.code + (d.code === 200 || d.code === 204 ? ' · OK' : ' · ' + body(d)));
+  var ls = _vcFetch(cfg, 'get', '/v1/custom-voices'); try { CacheService.getScriptCache().remove('VC_SLOTS'); } catch (e) {}
+  if (ls.code === 200) { var la = []; try { la = JSON.parse(ls.r.getContentText() || '[]') || []; } catch (e) {} log('⑥ 지금 쓰는 칸 ' + la.length + (slot == null ? '' : ' / ' + slot) + (la.some(function (v) { return v.voice_id === vid; }) ? ' · ★방금 지운 목소리가 목록에 아직 있어요(soft-delete)' : '')); }
+  else log('⑥ 목록 조회 HTTP ' + ls.code);
+  return L.join('\n');
+}
+
+/* [VOICE_CLONE_0928 8-7 · 6-7] 관리 화면 — «AI 목소리 칸 n / 50» · «이번 달 AI 글자 n / 200,000» · 이 예식의 사람별 상태 · 업체 지우기 실패 */
+function adminVoiceUsage(code) {
+  _requireAdmin('');   // [VOICE_CLONE_0928]
+  var p = PropertiesService.getScriptProperties(), m = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM'), sl = null; try { sl = _vcSlots(); } catch (e) {}
+  var out = { ok: true, chars: +p.getProperty('VCCHARS_' + m) || 0, charsCap: 200000, slots: sl ? sl.used : null, slotsCap: sl && sl.total != null ? sl.total : 50, plan: sl ? sl.plan : '', mode: _vcCfg(code || '').mode };
+  if (code) { var st = _vcSt(String(code)); out.who = {}; ['groom', 'bride'].forEach(function (w) { var q = st[w] || {}; out.who[w] = { consent: q.consent || null, ready: !!q.voiceId, made: q.made || '', tries: q.tries || 0, read: q.read && q.read.id ? { phrase: q.read.phrase || '', at: q.read.at || '' } : null, deleted: q.deleted || '' }; });
+    out.make = st.make || { total: 0, per: {} }; out.practice = st.practice || 0; out.retry = (st.retry || []).length; out.purged = st.purged || ''; }
+  return out; }
+function adminVoiceRead(code, who) {   // [VOICE_CLONE_0928] 읽은 녹음 듣기(예식 다음 날까지)
+  _requireAdmin('');
+  var q = (_vcSt(String(code || '').trim())[String(who || '')] || {}).read; if (!q || !q.id) return { ok: false, error: '읽은 녹음이 없어요(지웠거나 아직 없음).' };
+  try { var b = DriveApp.getFileById(q.id).getBlob(); return { ok: true, phrase: q.phrase || '', mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) }; } catch (e) { return { ok: false, error: '파일을 열지 못했어요.' }; } }
 
 // 하객 업로드 1건 — guide.html 이 파일 하나씩 순차로 부른다(한 번에 몰아 보내지 않는 이유는 프런트 주석 참고).
 function handleGuestPhoto(body) {
