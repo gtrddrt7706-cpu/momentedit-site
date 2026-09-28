@@ -556,11 +556,17 @@ function _nfCustomerMsg(event, name, x) {
       return { vars: { '#{이름}': name },
         text: '[모먼트에디트] ' + name + '님, 보정본이 도착했습니다. 마이페이지에서 받아보시고, 마음에 드시면 확인을 눌러 마무리해 주세요. ' + _nfMy('result') };
     case 'cust.couponIssued':   /* [CPN_NOTIFY] 후기 감사 커피쿠폰 — 바코드는 마이페이지 안에 있다(문자로 안 보낸다) */
+      /* ★[T19_COUPON_BASIS 2026-09-28 카카오 반려 사유 반영] 알림톡 T19 가 두 까닭으로 반려됐다.
+         ①혜택 이름이 «선물»처럼 넓은 말뿐이었다(무엇을 주는지가 변수 #{선물} 하나) → 템플릿에 «모바일 쿠폰»을 고정 글로 쓰고 변수는 #{쿠폰명}.
+         ②발송 근거가 없었다(사업자가 혼자 주는 혜택은 알림톡 대상이 아니다) → 템플릿 끝의 고정 글 «참여하신 후기 작성 이벤트로 지급».
+           사실이다 — mypage 설문 카드가 쓰기 «전에» 「후기를 남겨 주시면 … 커피 2잔을 보내드려요」라고 약속한다(쓴 분 모두 · 추첨 아님).
+         ★변수 이름을 #{선물} 로 되돌리지 말 것 — 승인 템플릿과 이름이 다르면 카톡이 거절된다(notify-e2e ⑪ · notify-msg ⑦ 이 문안과 대조).
+         text 는 템플릿 본문과 같은 말이다 — 카톡 대신 메일로 갈 때 고객이 읽는 글이 이것이다(_nfCustomerEmailFallback). */
       d = x.expiry ? _nfDate(x.expiry) : '';
-      return { vars: { '#{이름}': name, '#{선물}': String(x.title || '스타벅스 커피 2잔'), '#{기한}': d },
-        text: '[모먼트에디트] ' + name + '님, 후기 감사합니다. 마음을 담아 ' + String(x.title || '스타벅스 커피 2잔')
-          + '을 마이페이지에 올려 두었어요. 바코드를 매장에서 보여주시면 됩니다.'
-          + (d ? (' 사용기한은 ' + d + '까지예요.') : '') + ' ' + _nfMy('coupon') };
+      return { vars: { '#{이름}': name, '#{쿠폰명}': String(x.title || '스타벅스 커피 2잔'), '#{기한}': d },
+        text: '[모먼트에디트] ' + name + '님, 후기를 남겨 주셔서 감사합니다. 후기 작성 이벤트 모바일 쿠폰(' + String(x.title || '스타벅스 커피 2잔')
+          + ')이 발급되었습니다. 마이페이지에서 바코드를 확인하시고, 매장에서 보여 주시면 사용하실 수 있습니다.'
+          + (d ? (' 사용기한은 ' + d + '까지입니다.') : '') + ' ' + _nfMy('coupon') };
     case 'cust.holdGranted':
       d = _nfDate(x.date) + (x.slot ? (' ' + slotKo(x.slot)) : '');
       return { vars: { '#{이름}': name, '#{일시}': d },
@@ -757,7 +763,7 @@ function setKakaoTemplates() {
     'cust.changeConfirmed':     '',   // T14 예식일변경적용
     'cust.changeDeclined':      '',   // T15 예식일변경보류
     'cust.consultDone':         '',   // T17 상담완료(승인 후 채우기)
-    'cust.couponIssued':        ''    // T19 후기감사 선물(승인 후 채우기 · 그 전엔 이메일 폴백) CPN_NOTIFY
+    'cust.couponIssued':        ''    // T19 후기 이벤트 쿠폰(승인 후 채우기 · 그 전엔 이메일 폴백) CPN_NOTIFY · T19_COUPON_BASIS
   };
   var filled = Object.keys(map).filter(function (k) { return String(map[k] || '').trim(); });
   if (!filled.length) {   // [TPL_KEEP] 칸이 전부 빈 채로 실행돼도 기존 매핑을 지우지 않는다
