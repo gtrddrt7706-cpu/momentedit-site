@@ -13370,7 +13370,7 @@ chk 'MK_TODO_DOT' order-preview.html 3
 nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
 chk 'MK_INTRO_OPEN' order-preview.html 2
 chk 'onclick="mkIntroOpen(' order-preview.html 1
-chk 'VOICE_TOP' order-preview.html 2
+chk 'VOICE_TOP' order-preview.html 1   # [VOICE_MAP 2026-09-28] 목소리 안내가 목소리 지도로 바뀌며 표식 한 줄
 nochk '<section class="mk-sec mk-legend"><h4>목소리 세 가지</h4>' order-preview.html
 chk 'STEP_HEAD_ONE' order-preview.html 1
 chk "var _dupHd=isOpen()&&(st.k==='listen'||st.k==='practice');" order-preview.html 1
@@ -13384,7 +13384,7 @@ nochk '순간을 더하거나 빼려면 ① 고르기로</button>' order-preview
 chk 'MK_SECH_NEAR' order-preview.html 1
 nochk '.mk-sech{display:flex;align-items:center;justify-content:space-between' order-preview.html
 chk 'VOICE_GUIDE' order-preview.html 3
-chk '<summary>나레이션 · 목소리 안내</summary>' order-preview.html 1
+nochk '<summary>나레이션 · 목소리 안내</summary>' order-preview.html   # [VOICE_MAP] 목소리 지도(제목 «어디서 직접 말하고 …»)가 대신한다
 chk 'LINE_STEP' order-preview.html 5
 chk 'window.lsLine=function(d)' order-preview.html 1
 chk 'MINI_DOCK' order-preview.html 3
