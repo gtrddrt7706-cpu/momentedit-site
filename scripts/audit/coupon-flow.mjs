@@ -146,7 +146,9 @@ seed(); act(g=>g.handleSubmitSurvey(SURVEY));
   ok(!(meta&&meta.off),'★발송이 켜져 있다(모르면 영영 못 받는 안내라서)',JSON.stringify(meta));
   const msg=G._nfCustomerMsg('cust.couponIssued','미쿠',{title:'스타벅스 커피 2잔',expiry:'2026-11-20'});
   const txt=(msg&&msg.text)||'';
-  ok(/후기 감사합니다/.test(txt)&&/스타벅스 커피 2잔/.test(txt),'문안이 무엇을 왜 주는지 말한다',txt);
+  /* [T19_COUPON_BASIS 2026-09-28] 카카오 반려(혜택 이름이 «선물»처럼 넓은 말뿐) 뒤 문안이 «후기를 남겨 주셔서 감사합니다 · 후기 작성 이벤트 모바일 쿠폰»으로 바뀌었다.
+     종전 식은 옛 글자 「후기 감사합니다」를 그대로 찾았다 — 뜻(왜=후기 · 무엇=쿠폰 · 어떤 쿠폰)을 본다. «쿠폰»이 빠지면 같은 사유로 다시 반려된다. */
+  ok(/후기/.test(txt)&&/감사합니다/.test(txt)&&/모바일 쿠폰/.test(txt)&&/스타벅스 커피 2잔/.test(txt),'문안이 무엇을 왜 주는지 말한다(후기 · 모바일 쿠폰 · 쿠폰 이름)',txt);
   ok(/사용기한/.test(txt),'사용기한을 알려준다(연장이 안 되니 놓치면 못 쓴다)',txt);
   ok(/focus=coupon/.test(txt),'★링크가 바코드 카드로 바로 내려앉는다',txt);
   ok(txt.indexOf('—')===-1,'전각 줄표 없음(문구 규칙)',txt);
