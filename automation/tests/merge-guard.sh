@@ -8879,8 +8879,8 @@ chk 'VOICE_CLONE' automation/consultation/consultation-booking.gs 1
 chk 'VOICE_CLONE' mypage.html 1
 chk 'VOICE_CLONE' order-preview.html 4
 chk 'VOICE_CLONE' scripts/audit/rec-upload.mjs 2
-chk "var FEATURE = { voiceClone: false, practiceTts: false }" assets/ritual-open.js 1   # ★처음엔 꺼 둔다 — 켜기는 사장님 결정(타입캐스트 · 법무 확인) 뒤
-chk "p.getProperty('VOICE_CLONE_ENABLED') === 'Y'" automation/platform/80_production.gs 1   # ★서버도 따로 잠근다
+chk "var FEATURE = { voiceClone: false, practiceTts: false, upLive: false }" assets/ritual-open.js 1   # ★처음엔 꺼 둔다 — 켜기는 서버 스위치(off · studio · on)가 정한다 [VOICE_UP_FROM]
+chk "return p.getProperty(legacy) === 'Y' ? 'on' : 'off'; }" automation/platform/80_production.gs 1   # ★서버도 따로 잠근다 — 스위치를 비우면 off(옛 'Y' 만 on) [VOICE_UP_FROM]
 chk 'AI_NOTICE' order-preview.html 1
 chk 'AI_NOTICE' admin.html 1
 chk 'REC_KEEP' mypage.html 3   # 예식 뒤 7 ~ 30일 · 두 분 목소리 파일 내려받기 알림(두 분 계정으로만)
