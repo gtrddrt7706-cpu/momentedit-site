@@ -386,7 +386,7 @@
   /* ★[VOICE_CLONE 2026-09-27 코워크 5-1 · 5-6 · 사장님 «3단계는 스위치를 꺼 둔 채»] 기능 스위치 — 꺼져 있으면 화면에 아무것도 안 보인다.
      켜는 것은 사장님 결정(타입캐스트 확인 · 법무 · 7장) 뒤 · 서버도 따로 잠겨 있다(VOICE_CLONE_ENABLED · PRACTICE_TTS_ENABLED).
      AI_NOTICE [AI_NOTICE] = 당일 AI 목소리 알림 방식(program · narration · both · none) — 기본 program(식순 안내에 한 줄) · 확정은 사장님 */
-  var FEATURE = { voiceClone: false, practiceTts: false }, AI_NOTICE = 'program';
+  var FEATURE = { voiceClone: false, practiceTts: false, upLive: false }, AI_NOTICE = 'program';   // ★[VOICE_UP_FROM 2026-09-28] upLive = 두 분 목소리 날짜 문(서버가 정한다 · 마이페이지 · 빌더가 넣는다) · 닫혀 있으면 종전 글
   function voiceKind(k, S, o) { o = o || {}; if (o.talk) return 'live'; if (o.own) return 'prep'; return 'narr'; }
   function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
     if (k === 'bless' || (k === 'declare' && chipOf('declare', S) === 'family')) return '당일 직접 · 가족';
@@ -450,11 +450,11 @@
   function prepOf(k, S) {
     switch (k) {
       /* [REC_UPLOAD 2026-09-27 코워크 3-8] 준비 목록 이름 «두 분 목소리 준비» · 마감 D-7 · 스튜디오 나레이션을 고르면 빠진다(아래 조건 그대로) */
-      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', '두 분 목소리 준비 · 하객 맞이 안내(식순 만들기에서 녹음하거나 파일로 올려요 · 비어 있는 줄은 나레이션)', 'send', 7]] : [];
+      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 하객 맞이 안내(식순 만들기에서 녹음하거나 파일로 올려요 · 비어 있는 줄은 나레이션)' : '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 글
       case 'prevideo': return [['couple', '식전 영상 링크(3분 안) 또는 사진 30~40장', 'send', 3]];   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask', null, NOTE_ASK]]; }
-      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', '두 분 목소리 준비 · 입장 인사(식순 만들기에서 녹음하거나 파일로 올려요 · 없으면 나레이션)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
+      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사(식순 만들기에서 녹음하거나 파일로 올려요 · 없으면 나레이션)' : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '첫인사 한두 문장', 'write', 7]];
       case 'bless': return [['parents', '덕담 원고 · 한 분 400자 안팎(저희가 받아 큰 글씨로)', 'ask', 7]];
       case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자

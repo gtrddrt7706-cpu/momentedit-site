@@ -13388,3 +13388,17 @@ chk '<summary>나레이션 · 목소리 안내</summary>' order-preview.html 1
 chk 'LINE_STEP' order-preview.html 5
 chk 'window.lsLine=function(d)' order-preview.html 1
 chk 'MINI_DOCK' order-preview.html 3
+# ★[2026-09-28 코워크 0928 두 분 목소리 3장] 마이크 헤더 · iframe allow · 앱 안 브라우저 안내 · 날짜 문(처리방침 시행일 · 시험 예식) · AI 스위치 off/studio/on
+chk 'microphone=(self)' vercel.json 1
+nochk 'microphone=()' vercel.json
+chk 'MIC_ALLOW' mypage.html 2
+chk "fr.setAttribute('allow','microphone; autoplay');" mypage.html 1
+chk 'INAPP_MIC' order-preview.html 3
+chk 'kakaotalk://web/openExternal?url=' order-preview.html 1
+chk 'VOICE_UP_FROM' order-preview.html 5
+chk 'function _mkVoiceOld(k,ups)' order-preview.html 1
+chk 'VOICE_UP_FROM' automation/platform/80_production.gs 6
+chk "if (!_voiceUpLive(code)) return { ok: false, closed: true," automation/platform/80_production.gs 1
+chk "var VOICE_UP = { from: '" automation/platform/80_production.gs 1
+chk 'VOICE_UP_FROM' mypage.html 2
+chk 'VOICE_UP_FROM' assets/ritual-open.js 2

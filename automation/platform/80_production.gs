@@ -1150,6 +1150,18 @@ function _gpFolderFor(cust, sheet, colOf) {
    · 저장 = 드라이브 «ME_예식준비파일/<개인코드>» 폴더. 폴더 ID 는 스크립트 속성 RF_<코드> — 시트 열을 늘리지 않는다(스키마 변경 없음)
    · 도착하면 관리자 메일 한 줄(폴더 주소) · 같은 자리에 다시 올리면 새 파일이 하나 더 생긴다(지우지 않는다 · 앞 것은 폴더에 남는다)
    · ★영상(식전 영상 3분)은 여기로 받지 않는다 — GAS 한 번 요청 한도(약 50MB)를 넘는다. 그 자리는 링크 그대로 */
+/* ★★[VOICE_UP_FROM 2026-09-28 코워크 0928 3-3 · 사장님 설계 확정] 두 분 목소리를 서버에 모으는 일(직접 녹음 · 파일 올리기 · AI)은 처리방침 시행일부터 — 스냅 참고 사진(SNAP_V2.from)과 같은 결.
+   from = 처리방침 «두 분 목소리» 항목 시행일. 공고 전에는 먼 날짜로 닫아 둔다(사장님이 공고하면 그 날짜로 이 한 줄만 고친다).
+   문이 닫혀 있으면 고객 예식은 종전 방식(대본 복사 · 카톡 · 메일로 보내기) · 서버도 올리기를 받지 않는다.
+   ★스튜디오 시험 예식은 문과 상관없이 연다 — 스크립트 속성 VOICE_STUDIO_CODES 에 개인코드를 쉼표로(사장님 시험 예식).
+   AI 스위치(VOICE_CLONE · PRACTICE_READ)도 off · studio · on 세 단계 — studio 면 이 시험 예식에서만 보인다(_vcCfg). */
+var VOICE_UP = { from: '2099-12-31' };
+function _voiceStudio(code) { var v = String(PropertiesService.getScriptProperties().getProperty('VOICE_STUDIO_CODES') || ''); return !!code && v.split(/[\s,]+/).filter(Boolean).indexOf(String(code)) > -1; }
+function _voiceUpLive(code) {
+  // [VOICE_UP_FROM] 날짜 문 — 시행일부터 · 시험 예식은 늘 열림
+  return (typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= VOICE_UP.from) || _voiceStudio(code);
+}
+function _voicePub(code) { var c = _vcCfg(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key) }; }   // [VOICE_UP_FROM] 화면으로 가는 것은 켜짐 여부뿐(키 · 목소리 id 는 안 보낸다)
 var RF_ROOT_FOLDER = 'ME_예식준비파일';
 var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사' };
 function _rfFolderFor(code) {
@@ -1166,6 +1178,7 @@ function handleRitualFile(body) {
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  if (!_voiceUpLive(code)) return { ok: false, closed: true, error: '두 분 목소리 올리기는 아직 준비 중이에요 · 카톡이나 메일로 보내 주세요.' };   // [VOICE_UP_FROM] 문이 닫혀 있으면 받지 않는다
   var key = String(body.key || '').trim();
   if (!RF_KEYS[key]) return { ok: false, error: '어느 자리의 녹음인지 알 수 없어요.' };
   var mime = String(body.mime || '').trim().toLowerCase();
@@ -1273,8 +1286,9 @@ function previewRitualFiles() { return purgeRitualFiles(true); }
      삭제 DELETE /v1/custom-voices/{id}(soft-delete) · 읽기 POST /v1/text-to-speech {voice_id,text,model,language,output{target_lufs,remove_silence_ms,audio_tempo,audio_format}}
    한도(5-7): 사람마다 목소리 만들기 3번 · 줄마다 다시 만들기 5번 · 예식마다 만들기 50번 · 연습 읽기 20,000자. 상태는 스크립트 속성 VC_<코드>(시트 열을 늘리지 않는다). */
 var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enroll: 3, perKey: 5, total: 50, practiceChars: 20000 };
-function _vcCfg() { var p = PropertiesService.getScriptProperties();
-  return { clone: p.getProperty('VOICE_CLONE_ENABLED') === 'Y', tts: p.getProperty('PRACTICE_TTS_ENABLED') === 'Y', key: p.getProperty('TYPECAST_API_KEY') || '', lufs: +(p.getProperty('VOICE_TARGET_LUFS') || -16) || -16,
+function _vcMode(p, name, legacy) { var m = String(p.getProperty(name) || '').trim().toLowerCase(); if (m === 'on' || m === 'studio' || m === 'off') return m; return p.getProperty(legacy) === 'Y' ? 'on' : 'off'; }   // [VOICE_UP_FROM] off · studio · on (옛 'Y' 는 on)
+function _vcCfg(code) { /* [VOICE_UP_FROM] off · studio · on — studio 는 VOICE_STUDIO_CODES 의 시험 예식에서만 */ var p = PropertiesService.getScriptProperties(), st = _voiceStudio(code), cm = _vcMode(p, 'VOICE_CLONE', 'VOICE_CLONE_ENABLED'), tm = _vcMode(p, 'PRACTICE_READ', 'PRACTICE_TTS_ENABLED');
+  return { clone: cm === 'on' || (cm === 'studio' && st), tts: tm === 'on' || (tm === 'studio' && st), mode: { clone: cm, read: tm }, key: p.getProperty('TYPECAST_API_KEY') || '', lufs: +(p.getProperty('VOICE_TARGET_LUFS') || -16) || -16,
     def: { groom: p.getProperty('TYPECAST_VOICE_GROOM') || '', bride: p.getProperty('TYPECAST_VOICE_BRIDE') || '', family: p.getProperty('TYPECAST_VOICE_FAMILY') || '' } }; }
 function _vcSt(code) { var v = PropertiesService.getScriptProperties().getProperty('VC_' + code); try { return JSON.parse(v || '{}') || {}; } catch (e) { return {}; } }
 function _vcPut(code, st) { PropertiesService.getScriptProperties().setProperty('VC_' + code, JSON.stringify(st)); }
@@ -1289,7 +1303,7 @@ function handleVoiceClone(body) {
   body = body || {};   // [VOICE_CLONE]
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-  var cfg = _vcCfg(), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
+  var cfg = _vcCfg(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
   var down = { ok: false, down: true, error: '지금은 AI 목소리를 만들 수 없어요 · 직접 녹음으로 준비해 주세요' };
   if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom), bride: _vcPub(st.bride), total: (st.make && st.make.total) || 0 };
   if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
@@ -1328,7 +1342,7 @@ function handleVoiceClone(body) {
 }
 function _vcPub(p) { p = p || {}; return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, deleted: p.deleted || '' }; }
 /* [VOICE_CLONE 5-5] 예식 뒤 30일 — 업체 쪽 목소리도 지운다(purgeRitualFiles 가 코드마다 부른다) */
-function _vcPurge(code) { var st = _vcSt(code), cfg = _vcCfg(), n = 0;
+function _vcPurge(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0; cfg.clone = true;   // [VOICE_UP_FROM] 지우기는 스위치와 상관없이 늘 돈다
   ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; try { if (cfg.key) _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(p.voiceId)); } catch (e) {} p.voiceId = ''; p.deleted = fmtKST(new Date()); n++; });
   if (n) _vcPut(code, st); return n; }
 
@@ -1927,6 +1941,7 @@ function buildProductionState(r) {
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
     photoFriendOk: true,                       // [PHOTO_FRIEND] 이 서버는 «친구들과 자유롭게»(photoFriend)를 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     snapZoneNoteOk: true,                      // ★[SNAP_ZONE_NOTE] 이 서버는 공간별 «사진작가에게 전할 말»(zones[k].note)을 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
+    voice: _voicePub(String(r.get('개인코드') || '').trim()),   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · 시험 예식 · AI 스위치(켜짐 여부만) — 빌더가 새 칸을 보일지 정한다
     snapPick: SNAP_V2.pick,                    // ★[SNAP_PICK_ALL] 고르기 상한 — 부부 화면은 min(목록 8, 이 값)을 쓴다 · 이 값이 없는 옛 서버(4)면 화면도 4
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)

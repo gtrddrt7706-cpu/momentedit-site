@@ -1218,6 +1218,30 @@
    "fn": "doPost",
    "mark": "VOICE_CLONE",
    "why": "doPost 가 voiceClone 을 handleVoiceClone 으로 넘긴다 — 이 파일이 옛것이면 AI 목소리가 전부 실패한다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_voiceUpLive",
+   "mark": "VOICE_UP_FROM",
+   "why": "두 분 목소리 날짜 문(처리방침 시행일 · 시험 예식 VOICE_STUDIO_CODES) — 이 파일이 옛것이면 문이 없어 고객 예식에 새 녹음 칸이 처리방침 전에 열린다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFile",
+   "mark": "VOICE_UP_FROM",
+   "why": "문이 닫혀 있으면 녹음 올리기를 받지 않는다 — 옛것이면 처리방침 전에도 서버에 두 분 목소리가 쌓인다"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "VOICE_UP_FROM",
+   "why": "마이페이지 상태에 voice{up,studio,clone,read} — 옛것이면 빌더가 문을 몰라 새 칸이 늘 닫혀 있다(시험 예식에서도)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcCfg",
+   "mark": "VOICE_UP_FROM",
+   "why": "AI 스위치 off · studio · on(VOICE_CLONE · PRACTICE_READ 스크립트 속성) — 옛것이면 studio 가 없어 시험 예식만 켤 수 없다"
   }
  ],
  "fns": {
@@ -1421,6 +1445,9 @@
    "_gpRootFolder",
    "_gpSafeName",
    "_gpFolderFor",
+   "_voiceStudio",
+   "_voiceUpLive",
+   "_voicePub",
    "_rfFolderFor",
    "handleRitualFile",
    "_rfFileIn",
@@ -1432,6 +1459,7 @@
    "adminRitualFileOk",
    "purgeRitualFiles",
    "previewRitualFiles",
+   "_vcMode",
    "_vcCfg",
    "_vcSt",
    "_vcPut",
@@ -1996,6 +2024,7 @@
    "GP_MAX_FILES",
    "GP_MAX_TOTAL_MB",
    "GP_KEEP_DAYS",
+   "VOICE_UP",
    "RF_ROOT_FOLDER",
    "RF_KEYS",
    "VC_BASE",
@@ -2191,7 +2220,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-27 22:13 · 9590414c",
+ "_생성": "2026-09-28 11:33 · 4f6f1319",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2362,6 +2391,12 @@
    "b": ""
   },
   {
+   "key": "PRACTICE_READ",
+   "kind": "switch",
+   "a": "연습 AI 읽기 스위치 off · studio · on(비우면 옛 PRACTICE_TTS_ENABLED 를 따른다) [VOICE_UP_FROM]",
+   "b": ""
+  },
+  {
    "key": "PRACTICE_TTS_ENABLED",
    "kind": "switch",
    "a": "연습 공간 AI 읽기 — Y 일 때만 · 처음엔 비움(꺼짐) [VOICE_CLONE 4-2]",
@@ -2506,9 +2541,21 @@
    "b": ""
   },
   {
+   "key": "VOICE_CLONE",
+   "kind": "switch",
+   "a": "AI 두 분 목소리 스위치 off · studio · on(비우면 옛 VOICE_CLONE_ENABLED 를 따른다) [VOICE_UP_FROM]",
+   "b": ""
+  },
+  {
    "key": "VOICE_CLONE_ENABLED",
    "kind": "switch",
    "a": "AI 두 분 목소리(목소리 복제) — Y 일 때만 · 처음엔 비움(꺼짐) · 켜기는 사장님 결정 뒤 [VOICE_CLONE]",
+   "b": ""
+  },
+  {
+   "key": "VOICE_STUDIO_CODES",
+   "kind": "option",
+   "a": "두 분 목소리 시험 예식의 개인코드(쉼표로) — 날짜 문과 상관없이 새 칸이 열리고 · AI 스위치 studio 가 여기서만 켜진다 [VOICE_UP_FROM]",
    "b": ""
   },
   {
@@ -2573,5 +2620,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "494afbfab079"
+ "_표식서명": "bcdc4a260877"
 }
