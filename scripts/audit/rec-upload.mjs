@@ -79,7 +79,10 @@ for (const w of [360, 1280]) {
   const f1 = await pg.evaluate(() => ({ dur: MK_REC && MK_REC.dur, warn: MK_REC && MK_REC.warn }));
   const lo = lufs(await b64Of(pg)), I = +(lo.match(/"input_i"\s*:\s*"(-?[\d.]+)"/) || [])[1], TP = +(lo.match(/"input_tp"\s*:\s*"(-?[\d.]+)"/) || [])[1];
   ok(`${w} 파일 — 앞뒤 무음 잘림(7초 → 약 3.3초) · 소리 크기 나레이션 쪽(-22 ~ -12 LUFS) · 봉우리 ≤ -1dB`, f1.dur > 3 && f1.dur < 3.8 && I > -22 && I < -12 && TP <= -1, JSON.stringify({ f1, I, TP }));
-  await pg.evaluate(() => mkRecCancel()); await pg.waitForTimeout(200);
+  /* ★[DLG_SCROLL_LOCK] 쓰지 않은 녹음에서 × → «그만두기» → 창이 닫힌 뒤 페이지가 다시 스크롤된다(확인 판이 0.2초 뒤 잠금을 되살리던 사고 · 사장님 실측 2026-09-28) */
+  await pg.click('[data-fk="mkdlgx"]'); await pg.waitForTimeout(250); await pg.click('.ord-ask .oa-yes'); await pg.waitForTimeout(600);
+  const sl = await pg.evaluate(() => { const y0 = scrollY; scrollBy(0, 300); const moved = scrollY !== y0; scrollTo(0, y0); return { dlg: !!document.getElementById('mkRecDlg'), bo: getComputedStyle(document.body).overflow, ho: getComputedStyle(document.documentElement).overflow, moved }; });
+  ok(`${w} × → «그만두기»로 닫은 뒤 스크롤이 풀린다 [DLG_SCROLL_LOCK]`, !sl.dlg && sl.bo !== 'hidden' && sl.ho !== 'hidden' && sl.moved, JSON.stringify(sl));
   const [fc2] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g2"]')]); await fc2.setFiles(long);
   await pg.waitForFunction(() => MK_REC && (MK_REC.ph === 'err' || MK_REC.ph === 'review'), null, { timeout: 20000 }).catch(() => {});
   const f2 = await pg.evaluate(() => ({ ph: MK_REC && MK_REC.ph, msg: MK_REC && MK_REC.msg }));

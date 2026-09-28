@@ -512,6 +512,7 @@ git push -u origin <브랜치>
 | `previewRitualFiles` | **80_production** | 위 지우기의 미리보기 — 아무것도 안 지우고 대상만 로그 |
 | `adminRitualFiles`·`adminRitualFileGet`·`adminRitualFileOk` | **80_production** | [REC_ADMIN] 관리 화면 «두 분 목소리» 목록 · 들어 보기 · 확인 ✓ / 당일 콘솔 미리 받기(adminCall) |
 | `vcSelfTest` | **80_production** | ★[VC_SELFTEST] 타입캐스트 시험 — 키 · 요금제 · 목소리 칸 → 드라이브 «ME_목소리시험» 폴더의 가장 최근 **우리** 녹음으로 인스턴트 복제 → 한 문장 읽어 같은 폴더에 mp3 → 만든 목소리 바로 지우기. 스위치(`VOICE_CLONE`)를 안 켜도 돈다 · 고객 폴더(`ME_예식준비파일`) 파일은 받지 않는다([VC_OURS_ONLY]) · 402/403 · 칸 0 이면 «이 요금제로는 복제 불가» 결론 한 줄. 필요한 것은 스크립트 속성 `TYPECAST_API_KEY` 하나 |
+| `vcLastErrors` | **80_production** | ★[VC_WHY] 예식마다 AI 목소리 **마지막 실패 한 건**(언제 · 무엇 · HTTP · 타입캐스트가 돌려준 오류 글)을 로그로 — «지금은 AI 목소리를 만들 수 없어요»가 뜨면 여기부터. 발송 · 변경 없음. 같은 내용이 관리 화면 «이 예식 AI 목소리» 줄과 관리자 메일(예식 · 코드별 하루 한 통)에도 간다 |
 | `purgeVoiceClones` | **80_production** | ★[VOICE_CLONE_0928 8-6] 예식 **다음 날** 업체 쪽 AI 목소리 · 읽은 녹음 · 연습 소리 지우기(취소 · 노쇼 · 미계약은 바로) · 업체 지우기 실패분 다시 · 칸 45 넘으면 관리자 메일. `aiDaily`(96_ai_cost · 매일 9시)가 부른다 · 별도 트리거 불필요. 안내 소리 파일은 종전대로 30일(`purgeRitualFiles`) |
 | `previewVoiceClones` | **80_production** | 위 지우기의 미리보기 — 아무것도 안 지우고 대상만 로그 |
 | `adminVoiceUsage`·`adminVoiceRead`·`adminRitualFileUp` | **80_production** | 관리 화면 «두 분 목소리» — «AI 목소리 칸 n / 50» · «이번 달 AI 글자 n / 200,000» · 읽은 녹음 듣기(확인 문장과 함께) · [RF_STUDIO_UP] 스튜디오 대신 올리기(adminCall) |
