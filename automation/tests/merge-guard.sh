@@ -9292,6 +9292,10 @@ chk "'#{쿠폰명}'" automation/platform/95_notify.gs 1
 nochk "'#{선물}'" automation/platform/95_notify.gs
 chk '※ 이 메시지는 고객님이 참여하신 후기 작성 이벤트로 지급된 쿠폰 안내 메시지입니다.' automation/알림톡_템플릿_신청문안.md 1
 nochk '#{선물}' automation/알림톡_템플릿_신청문안.md
+# ★[T19_SENDER_NAME 2026-09-28 T19 2차 반려] 쿠폰·포인트 지급 안내는 발송 업체명이 고정 글로 있어야 승인된다.
+#   1차 반려 판엔 «본 메시지는 모먼트에디트 …» 가 있었는데 근거 줄을 가이드 문장으로 바꾸며 빠졌다 — 그래서 반려됐다. 첫 줄 인사를 지킨다.
+chk '^#{이름}님, 안녕하세요. 모먼트에디트입니다.$' automation/알림톡_템플릿_신청문안.md 1
+chk 'T19_SENDER_NAME' automation/알림톡_템플릿_신청문안.md 3
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
