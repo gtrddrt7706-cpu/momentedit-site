@@ -13324,6 +13324,7 @@ chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
 # ★[VC_SELFTEST · VC_SLOTS · VC_OURS_ONLY 2026-09-28 사장님 «타입캐스트 무료 키로 · 우리 목소리로만 시험 · 3단계는 스위치 꺼 둔 채»] 시험 함수 · 관리 화면 칸 — 흉내 API 로 판정(키 없음 · 401 · 칸 0 · 402 · 고객 폴더 거절 · 성공 · soft-delete)
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
 chk 'function vcSelfTest()' automation/platform/80_production.gs 1
+chk 'VC_SELFTEST_SIM' scripts/audit/vc-selftest-sim.mjs 1
 chk 'VC_OURS_ONLY' automation/platform/80_production.gs 2
 chk 'function _vcSlots()' automation/platform/80_production.gs 1
 chk 'var vh=admVcLine(d.vc);' admin.html 1
