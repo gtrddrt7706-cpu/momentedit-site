@@ -13321,6 +13321,13 @@ chk 'WINE_POUR_OFF' scripts/audit/open-course.mjs 3
 # ★[MOMENT_SCRIPT 2026-09-27 사장님 «각각 이벤트 영상 · 손동작 · 시나리오 대본처럼 · 하나하나 점검»] 순간 영상 장면 대본 16편 — 편 목록 = 엔진 장면 이름 · 초 이음 · F02
 if command -v node >/dev/null 2>&1; then node scripts/audit/moment-script-check.mjs >/dev/null 2>&1 || { echo 'FAIL moment-script: 순간 영상 장면 대본이 엔진과 어긋났습니다 — node scripts/audit/moment-script-check.mjs'; fail=1; }; fi
 chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
+# ★[VC_SELFTEST · VC_SLOTS · VC_OURS_ONLY 2026-09-28 사장님 «타입캐스트 무료 키로 · 우리 목소리로만 시험 · 3단계는 스위치 꺼 둔 채»] 시험 함수 · 관리 화면 칸 — 흉내 API 로 판정(키 없음 · 401 · 칸 0 · 402 · 고객 폴더 거절 · 성공 · soft-delete)
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
+chk 'function vcSelfTest()' automation/platform/80_production.gs 1
+chk 'VC_OURS_ONLY' automation/platform/80_production.gs 2
+chk 'function _vcSlots()' automation/platform/80_production.gs 1
+chk 'var vh=admVcLine(d.vc);' admin.html 1
+chk 'var FEATURE = { voiceClone: false, practiceTts: false }' assets/ritual-open.js 1
 # ★[MOMENT_COVER 2026-09-28] 편마다 «표지»(첫 프레임) 칸 · 다른 세션 지시문 대조 보충 — 표지 칸이 점검에서 빠지면 ① 칸에 무엇이 뜰지 정하지 않은 편이 생긴다
 chk "'남는 장면', '표지', '장면 대본'" scripts/audit/moment-script-check.mjs 1
 chk '## 1-2. 모든 편 공통' docs/plans/식순연구/순간영상_장면대본_0927.md 1

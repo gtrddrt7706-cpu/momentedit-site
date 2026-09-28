@@ -1008,14 +1008,19 @@ function _orderSheetDoc(d){
 /* [REC_ADMIN] 두 분 목소리 — 목록(최신이 위 · 같은 자리는 맨 위가 지금 쓰는 것) · 들어 보기(받아서 blob) · 확인 ✓ · D-7 뒤 바뀜 표시 */
 function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&curDetail.code; if(!el||!code) return; el.textContent='불러오는 중…';
   gas('adminRitualFiles', code).then(function(d){ if(!d||!d.ok){ el.textContent=(d&&d.error)||'불러오지 못했어요'; return; }
-    if(d.gone){ el.innerHTML='<div class="kv"><span class="k">지움</span><span class="v">'+esc(d.gone)+' (예식 30일 뒤)</span></div>'; return; }
-    if(!d.files.length){ el.innerHTML='<div class="kv"><span class="k">파일</span><span class="v">아직 없음 · 비어 있는 줄은 나레이션으로 나감</span></div>'; return; }
-    var seen={}, h='';
+    var vh=admVcLine(d.vc);   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식 AI 목소리 — 키가 없으면 빈칸
+    if(d.gone){ el.innerHTML=vh+'<div class="kv"><span class="k">지움</span><span class="v">'+esc(d.gone)+' (예식 30일 뒤)</span></div>'; return; }
+    if(!d.files.length){ el.innerHTML=vh+'<div class="kv"><span class="k">파일</span><span class="v">아직 없음 · 비어 있는 줄은 나레이션으로 나감</span></div>'; return; }
+    var seen={}, h=vh;
     d.files.forEach(function(f){ var cur=f.key&&!seen[f.key]; if(f.key) seen[f.key]=1; var ok=d.okMap&&d.okMap[f.key];
       h+='<div class="kv"><span class="k">'+esc(f.label||'자리 모름')+(cur?'':' (옛 파일)')+'</span><span class="v">'+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+(f.late?' · <b style="color:var(--red)">D-7 뒤 바뀜</b>':'')
         +' <button type="button" class="btn-line" style="padding:2px 8px;font-size:12px" onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button>'
         +(cur?' <button type="button" class="btn-line" style="padding:2px 8px;font-size:12px" onclick="admRfOk(\''+esc(f.key)+'\','+(ok?'false':'true')+')">'+(ok?'확인 ✓ · '+esc(ok.at||''):'확인')+'</button>':'')+'</span></div>'; });
     el.innerHTML=h; }).catch(function(){ el.textContent='불러오지 못했어요'; }); }
+/* ★[VC_SLOTS 2026-09-28 지시문 5-7] AI 목소리 칸 — 요금제 칸은 예식마다 두 칸 쓰고 지우면 돌아온다 · 서버가 10분 캐시 */
+function admVcLine(v){ if(!v) return ''; var W={groom:'신랑',bride:'신부'}, me=v.me||{}, st=['groom','bride'].map(function(w){ var p=me[w]||{}; return W[w]+' '+(p.ready?'만듦':p.deleted?'지움 '+p.deleted:p.consent?'동의만':'없음'); }).join(' · ');
+  return '<div class="kv"><span class="k">AI 목소리 칸</span><span class="v">쓰는 칸 '+(v.used==null?'?':v.used)+' / 전체 '+(v.total==null?'?':v.total)+(v.plan?' · 요금제 '+esc(v.plan):'')+(v.on?'':' · 스위치 꺼짐')+(v.err?' · <b style="color:var(--red)">조회 실패 '+esc(v.err)+'</b>':'')+'</span></div>'
+    +'<div class="kv"><span class="k">이 예식 AI 목소리</span><span class="v">'+esc(st)+'</span></div>'; }
 function admRfPlay(id,btn){ var code=curDetail&&curDetail.code; if(!code) return; btn.disabled=true; btn.textContent='받는 중…';
   gas('adminRitualFileGet', code, id).then(function(d){ btn.disabled=false; btn.textContent='들어 보기'; if(!d||!d.ok){ toast((d&&d.error)||'받지 못했어요'); return; }
     var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); var a=new Audio(URL.createObjectURL(new Blob([u],{type:d.mime||'audio/wav'}))); a.play(); })
