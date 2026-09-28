@@ -1170,6 +1170,16 @@ body.lsfull{overflow:hidden}
 .mk-vgl dt .vk-narr{color:var(--sub)}
 .mk-vgl dd{margin:0;font-size:12.5px;line-height:1.7;color:var(--ink2);word-break:keep-all}
 .mk-vgh{margin:16px 0 8px;font-size:12.5px;font-weight:600;color:var(--accent)}
+.mk-vmap{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 0;font-size:12.5px;line-height:1.5}   /* [VOICE_MAP] 차례대로 한 흐름 · 폰은 줄바꿈(가로 스크롤 없음) */
+.mk-vmap li{display:inline-flex;align-items:center;gap:4px;flex-wrap:nowrap}
+.mk-vmap li:not(:last-child)::after{content:'›';margin:0 8px 0 6px;color:var(--light)}
+.mk-vmap .vk{margin:0}
+.mk-vmn{border:0;background:none;padding:0;font:inherit;font-size:12.5px;color:var(--accent);cursor:pointer;min-height:32px}
+button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+.mk-vmap .vk-st{font-size:11px}
+.mk-vmsec .mk-vmap{margin-top:2px}
+.mk-wv{display:inline-flex;color:var(--light)}.mk-wv svg{width:11px;height:11px}.mk-wv.ok{color:var(--gold-deeper)}   /* [VOICE_MAP] 진행 줄 물결 */
+.mk-it.mk-vi{color:var(--light);font-size:14px}
 .mk-vgme dt{font-size:12.5px;color:var(--light);white-space:normal;max-width:9em;word-break:keep-all}
 @media (max-width:999px){ .mk-vgb{padding-right:36px} .mk-vgl{grid-template-columns:1fr;gap:2px 0} .mk-vgl dd{margin-bottom:8px} .mk-vgme dt{max-width:none} }   /* 폰은 한 칸으로(이름표 위 · 설명 아래) · 오른쪽 끝은 레일 자리[RAIL_LOCKED] */
 .mk-in{flex:0 0 32px;font-size:12.5px;color:var(--gold-deeper);font-variant-numeric:tabular-nums}
@@ -1245,7 +1255,10 @@ body.lsfull{overflow:hidden}
 .vk-prep{color:var(--gold-deeper)}
 .vk-live{color:var(--accent)}
 .vk-st{color:var(--gold-deeper)}
-.vk-st.no{color:var(--seal)}
+.vk-st{display:inline-flex;align-items:center;gap:3px}
+.vk-st svg{width:10px;height:10px}
+.vk-st.no{color:var(--light)}
+.vk-st.no::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--seal)}   /* ★[VOICE_KIND_0928 4-2] 진사는 점으로만 · 글자는 옅게 */
 .lf-vk{margin:0 0 4px}
 .vk-note{margin-left:6px;font-size:11px;color:var(--light)}
 .mk-flow li.t .vk{margin-right:8px}
@@ -3496,13 +3509,14 @@ window.mkUndone=function(){ return _mkTodoN(); };   // ④ · 마이페이지가
 function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
   /* [MK_TODO_PASSED] «미완료 N» 단추는 걷었다 — 미완료는 지나온 쪽의 빈 동그라미(진사)로만 · 모아 보기는 마지막 «한눈에 보기» */
   var h='<nav class="mk-strip" id="mkStrip" aria-label="진행 순서"><div class="mk-sc">';
-  ps.forEach(function(k){ if(k==='_intro') return; var st=_mkStat(k), no=_mkNo(k), on=(k===cur);
-    var lab=(no&&no!=='식전'?no+' ':'')+_mkName(k)+(on?', 지금':'')+(st==='done'?', 다 됐어요':st==='todo'?', 미완료':st==='off'?', 뺀 순간':'');
+  ps.forEach(function(k){ if(k==='_intro') return; var st=_mkStat(k), no=_mkNo(k), on=(k===cur), _vk=(k==='_sum'||k==='_close')?null:_vmKind(k), _vp=_vk&&_vk.v==='prep'?_vk:null;
+    var lab=(no&&no!=='식전'?no+' ':'')+_mkName(k)+(on?', 지금':'')+(st==='done'?', 다 됐어요':st==='todo'?', 미완료':st==='off'?', 뺀 순간':'')+(_vp?(_vp.ok?', 두 분 목소리 준비됨':', 두 분 목소리 아직'):'');
     h+='<button type="button" class="mk-it'+(on?' cur':'')+(st?' '+st:'')+'" data-fk="mkg:'+k+'" aria-label="'+esc(lab)+'"'+(st==='todo'?' title="비어 있는 칸이 있어요"':'')+(on?' aria-current="step"':'')+' onclick="mkGo(\''+k+'\')">'
       +(st==='done'?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')   // [MK_TODO_DOT] 미완료 = 이름 오른쪽 위 점(CSS) · 앞 빈 동그라미는 걷었다
-      +'<span class="mk-t">'+esc(_mkName(k))+'</span></button>';   // [MK_STRIP_TEXT] 줄에는 번호를 안 쓴다
+      +(_vp?'<span class="mk-wv'+(_vp.ok?' ok':'')+'" aria-hidden="true">'+VK_ICO.prep+'</span>':'')+'<span class="mk-t">'+esc(_mkName(k))+'</span></button>';   // [MK_STRIP_TEXT] 줄에는 번호를 안 쓴다 · [VOICE_MAP] 미리 준비 순간 = 작은 물결(준비되면 금빛)
   });
   h+='<button type="button" class="mk-it mk-add" data-fk="mkadd" onclick="opGoStep(\'pick\')">+ 순간 더하기</button>';
+  h+='<button type="button" class="mk-it mk-vi" data-fk="mkvi" aria-label="목소리 지도 다시 보기" onclick="mkVoiceInfo()"><span aria-hidden="true">ⓘ</span></button>';   // [VOICE_MAP] 다시 보기
   return h+'</div></nav>'; }
 function _mkStripKeep(){ try{ var s=document.querySelector('#mkStrip .mk-sc'), c=s&&s.querySelector('.mk-it.cur'); if(c){ var l=c.offsetLeft-(s.clientWidth-c.offsetWidth)/2; s.scrollLeft=Math.max(0,l); } }catch(e){} }
 /* 넘길 때 한 줄(막지 않음 · INCOMPLETE_SOFT) */
@@ -3853,7 +3867,7 @@ var VK_ICO={narr:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-
   prep:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8h1.5M4.5 5v6M7 3v10M9.5 5.5v5M12 7v2M14.5 8h0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
   live:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 14c.6-2.8 2.4-4.2 4.5-4.2s3.9 1.4 4.5 4.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'};
 function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; var v=R.voiceKind(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)}), lab=R.voiceLab(k,S,{own:!!x.own,talk:!!(x.talk||x.talk2)});
-  var st=v==='prep'?((S.up||{})[x.up]?' <span class="vk-st">✓</span>':' <span class="vk-st no">아직</span>'):'';
+  var st=v==='prep'?((S.up||{})[x.up]?' <span class="vk-st">'+ICO_CHECK+'준비됨</span>':' <span class="vk-st no">아직</span>'):'';   // [VOICE_KIND_0928] 준비됨 = 선 체크 · 아직 = 진사 점
   return '<span class="vk vk-'+v+'">'+VK_ICO[v]+esc(lab)+st+'</span>'; }
 /* ★★[MK_NO_HEADS 2026-09-27 사장님 «고르기 · 흐름 저게 칸 잡아먹는 게 별로 · 더 미니멀하게»] «고르기» · «흐름» 제목과 그 위 선을 걷었다 —
    칩은 순간 설명 바로 아래 · 흐름 줄은 그 아래 이어서(줄마다 ▸ 와 목소리 표가 이미 «흐름»임을 말한다). 고를 것이 없는 쪽의 «이 순간 들어 보기»만 흐름 위 오른쪽에.
@@ -3996,32 +4010,30 @@ function _mkIntroDet(k){ var R=RitualOpen, p=R.partsOf(k,S)||[0,0,0,0], sec=Math
   var h='<div class="mk-idet" id="mkid_'+k+'">'+(one||sec?'<p class="mk-idesc">'+esc(one)+(sec&&k!=='guest'?' <span class="mk-sec-t">'+esc(R.secTxt(sec))+'</span>':'')+'</p>':'');
   if(rows.length) h+='<dl class="mk-idl">'+rows.map(function(r){ return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1]).replace(/\n/g,'<br>')+'</dd>'; }).join('')+'</dl>';
   return h+'<button type="button" class="pk-link mk-igo" data-fk="mkigo:'+k+'" onclick="mkGo(\''+k+'\')">이 순간 만들러 가기 ›</button></div>'; }
-function _vgOpen(){ try{ return sessionStorage.getItem('me_vguide')==='1'; }catch(e){ return false; } }   // [VOICE_GUIDE] 열어 둔 채 다른 줄을 펼쳐도(다시 그리기) 닫히지 않게
+function _vgOpen(){ try{ var v=sessionStorage.getItem('me_vguide'); if(v===null&&!localStorage.getItem('me_vmap_seen')){ localStorage.setItem('me_vmap_seen','1'); sessionStorage.setItem('me_vguide','1'); return true; } return v==='1'; }catch(e){ return false; } }   // [VOICE_MAP] 처음 한 번은 펼쳐 둔다
+/* [VOICE_MAP] 순간 하나의 갈래 — 두 분이 할 일 쪽을 보인다(한 순간에 나레이션 여는 말 + 두 분 직접이 섞이면 «당일 직접») */
+function _vmKind(k){ var R=RitualOpen;
+  if(ENG&&_lSteps(ENG,[k]).some(function(x){ return x.talk; })) return {v:'live',lab:(R.voiceLab?R.voiceLab(k,S,{talk:true}):'당일 직접')};
+  if((k==='guest'&&S.guestVoice==='couple')||(k==='entry'&&R.onOf(S,'entry')&&S.entryVoice==='couple')){ var ups=_mkItems(k).filter(function(q){ return q.up; }); return {v:'prep',lab:'미리 준비',ok:!!ups.length&&ups.every(_mkItemDone)}; }
+  return {v:'narr',lab:'나레이션'}; }
+function _voiceMap(jump){ var ps=_mkPages().filter(function(k){ return k!=='_intro'&&k!=='_sum'&&!_mkOff(k); });
+  return '<ol class="mk-vmap">'+ps.map(function(k){ var o=_vmKind(k), nm=esc(_mkName(k));
+    return '<li>'+(jump?'<button type="button" class="mk-vmn" data-fk="mkvm:'+k+'" onclick="mkGo(\''+k+'\')">'+nm+'</button>':'<span class="mk-vmn">'+nm+'</span>')
+      +'<span class="vk vk-'+o.v+'">'+VK_ICO[o.v]+esc(o.lab)+'</span>'+(o.v==='prep'?'<span class="vk-st'+(o.ok?'':' no')+'">'+(o.ok?ICO_CHECK+'준비됨':'아직')+'</span>':'')+'</li>'; }).join('')+'</ol>'; }
+window.mkVoiceInfo=function(){ try{ sessionStorage.setItem('me_vguide','1'); }catch(e){} _fxNext='#mkVMap summary'; mkGo('_intro'); };   // [VOICE_MAP] 진행 줄 ⓘ = 다시 보기   // [VOICE_GUIDE] 열어 둔 채 다른 줄을 펼쳐도(다시 그리기) 닫히지 않게
 window._vgSet=function(o){ try{ sessionStorage.setItem('me_vguide',o?'1':'0'); }catch(e){} };
 window.mkIntroOpen=function(k){ MK.io=(MK.io===k)?'':k; _fxNext='[data-fk="mki:'+k+'"]'; render(); };   // [MK_INTRO_OPEN] 한 번에 하나 · 다시 누르면 닫힌다
 function _mkIntro(){ var R=RitualOpen, ps=_mkPages().filter(function(k){ return k!=='_intro'&&k!=='_sum'&&!_mkOff(k); }), sp=R.span(S), peak=R.peakOf(S);
   var h='<section class="mk-pg mk-intro" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">고른 순서</h3></div>';
   h+='<p class="mk-one">담은 순간 '+_opMoments()+' · 본식 '+esc(_nb(sp.body))+' · 단체 사진 '+esc(_nb(sp.photo))+'</p>';
-  /* ★★[VOICE_GUIDE 2026-09-28 사장님 «글씨가 위아래로 삐뚤빼뚤 · 나레이션은 AI 기능도 추가했으니 여기서 좀 더 디테일하게 설명하고 이해시키고 넘어가자 ·
-       처음부터 펼쳐 두면 지저분하니 누르면 열리게 · 이벤트마다 달라지는 것도 있잖아(입장은 신랑 신부가 녹음하는 경우 등)»]
-     [VOICE_TOP · VOICE_KIND] 목소리 세 가지 — 목록 위 한 줄 «나레이션 · 목소리 안내 ›»를 누르면 열린다.
-     ①세 목소리를 표(이름표 칸 · 설명 칸 두 칸 격자 · 줄 머리가 한 세로선) ②이 식순에서 어디가 무엇인지(담은 순간에서 센다 · 고른 대로).
-     ★사실만 — 나레이션 = AI 음성으로 미리 제작(계약서 [확인서] 문장과 같음) · 두 분 목소리 AI 만들기는 스위치(_vcReady)가 켜졌을 때만 말한다 */
-  var VK=RitualOpen.VOICE_KIND; if(VK){ var _vgOn=_vgOpen(), _ai=(typeof _vcReady==='function'&&_vcReady());
-    var _vd={narr:'순서를 안내하는 목소리예요. AI 음성으로 미리 만들어 두고, 당일엔 저희가 순서에 맞춰 틀어요.',
-      prep:'두 분이 식장에 들어오기 전에 나오는 안내는 나레이션 대신 두 분 목소리로 바꿀 수 있어요. '+(_upLive()?'휴대폰으로 녹음하거나 파일을 올리면'+(_ai?', 또는 AI로 만든 두 분 목소리로':'')+' 그 자리에서 저절로 나와요. 비어 있는 줄은 나레이션으로 나와요.':'휴대폰 음성 메모로 녹음해 보내 주시면 그 자리에서 두 분 목소리로 나와요. 예식 7일 전까지 오지 않은 줄은 나레이션으로 나와요.'),   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 방식으로 말한다
-      live:'두 분(또는 가족)이 식장에서 직접 말하는 자리예요. 여기 적는 글은 연습용이라 소리로 나오지 않아요.'};
-    h+='<details class="mk-legend mk-vguide" data-fk="mkvguide"'+(_vgOn?' open':'')+' ontoggle="_vgSet(this.open)"><summary>나레이션 · 목소리 안내</summary><div class="mk-vgb">'
-      +'<dl class="mk-vgl">'+['narr','prep','live'].map(function(v){ return '<dt><span class="vk vk-'+v+'">'+VK_ICO[v]+esc(VK[v].lab)+'</span></dt><dd>'+esc(_vd[v])+'</dd>'; }).join('')+'</dl>';
-    var _pre=[], _live=[]; ps.forEach(function(k){ var nm=_mkName(k);
-      if(k==='guest') _pre.push(nm+' · 지금 '+(S.guestVoice==='couple'?'두 분 목소리':'나레이션'));
-      if(k==='entry'&&R.onOf(S,'entry')) _pre.push(nm+' 멘트 · 지금 '+(S.entryVoice==='couple'?'두 분 목소리':'나레이션'));
-      if(ENG&&_lSteps(ENG,[k]).some(function(x){ return x.talk; })){ var lb=R.voiceLab?R.voiceLab(k,S,{talk:true}):'당일 직접'; _live.push(nm+(lb!=='당일 직접'?' ('+lb.replace(/^당일 직접 · /,'')+')':'')); } });
-    if(_pre.length||_live.length) h+='<p class="mk-vgh">이 식순에서는</p><dl class="mk-vgl mk-vgme">'
-      +(_pre.length?'<dt>두 분 목소리로 바꿀 수 있어요</dt><dd>'+_pre.map(esc).join('<br>')+'</dd>':'')
-      +(_live.length?'<dt>당일 직접 말해요</dt><dd>'+_live.map(esc).join(' · ')+'</dd>':'')
-      +'<dt>그 밖의 안내</dt><dd>나레이션이 맡아요</dd></dl>';
-    h+='<p class="mk-note">각 순간 화면의 줄 머리에 같은 표가 붙어 있어요.</p></div></details>'; }
+  /* ★★[VOICE_GUIDE 2026-09-28 사장님 «글씨가 위아래로 삐뚤빼뚤 · 여기서 좀 더 디테일하게 설명하고 이해시키고 넘어가자 · 처음부터 펼쳐 두면 지저분하니 누르면 열리게 · 이벤트마다 달라지는 것도 있잖아»]
+     ★★[VOICE_MAP 2026-09-28 코워크 0928 4-2 · 5장 · 사장님 설계 확정] 목소리 지도 — 식순 차례대로 «순간 이름 + 갈래» · 미리 준비 순간은 상태(준비됨 · 아직) · 누르면 그 순간으로.
+     접이 한 줄(제목 = «어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요») · 처음 ② 에 들어오면 한 번 펼쳐 둔다 · 다시 보기는 진행 줄 끝 ⓘ.
+     ★«AI» 낱말을 쓰지 않는다(9-2 · 갈래 칩 · 한 줄 설명 · 지도) — 한 줄 설명은 원천(ritual-open VOICE_KIND.one) 그대로 */
+  var VK=RitualOpen.VOICE_KIND; if(VK){ var _vgOn=_vgOpen();
+    h+='<details class="mk-legend mk-vguide" id="mkVMap" data-fk="mkvguide"'+(_vgOn?' open':'')+' ontoggle="_vgSet(this.open)"><summary>어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요</summary><div class="mk-vgb">'
+      +'<dl class="mk-vgl">'+['narr','prep','live'].map(function(v){ return '<dt><span class="vk vk-'+v+'">'+VK_ICO[v]+esc(VK[v].lab)+'</span></dt><dd>'+esc(VK[v].one)+'</dd>'; }).join('')+'</dl>'
+      +'<p class="mk-vgh">이 식순의 차례</p>'+_voiceMap(true)+'</div></details>'; }
   h+='<ol class="mk-ilist">';
   ps.forEach(function(k){ var no=_mkNo(k), tags=[], op=MK.io===k;
     if(((R.onOf(S,k)||k==='guest')?_lGroups(k):[]).length) tags.push('고르기');
@@ -4081,6 +4093,7 @@ function renderPractice(){ var R=RitualOpen;
   var fast=ENG?_lLen(_lSteps(ENG,rows)):0, todo=_mkTodoN(), n=_opMoments();   // [TODO_ROWS]
   var h='<div class="op pr">';
   h+='<p class="mk-one">담은 순간 '+n+' · 두 분 차례 '+turns+(len?' · 처음부터 끝까지 약 '+Math.max(1,Math.round(len/60))+'분':'')+'</p>';
+  h+='<section class="mk-sec mk-vmsec" aria-labelledby="prVmH"><h4 id="prVmH">어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요</h4>'+_voiceMap(false)+'</section>';   // ★[VOICE_MAP 2026-09-28 코워크 0928 5장] ③ 첫 화면에도 같은 지도(누르지 않는 판)
   if(todo) h+='<p class="mk-note"><i class="mk-dot" aria-hidden="true"></i>미완료 '+todo+' · 비어 있는 칸은 참고 예시로 채워 보여 드려요</p>';   // [MK_TODO_DOT] ② 진행 줄 · 한눈에 보기와 같은 점
   h+='<section class="mk-sec"><h4>어떻게 볼까요</h4><p class="mk-note">따라 보기 · 나레이션을 들으며, 두 분 차례엔 글을 따라 읽어요</p>'
     +'<button type="button" class="ls-hero pr-go" data-fk="prall" onclick="lsPlayAll()"><span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 끝까지</b></span></button></section>';

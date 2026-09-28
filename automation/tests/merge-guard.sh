@@ -13403,3 +13403,12 @@ chk "var VOICE_UP = { from: '" automation/platform/80_production.gs 1
 chk 'VOICE_UP_FROM' mypage.html 2
 chk 'VOICE_UP_FROM' assets/ritual-open.js 2
 chk 'VOICE_UP_FROM' scripts/audit/listen-page.mjs 1
+# ★[2026-09-28 코워크 0928 4 · 5장] 갈래 한 줄 설명 원천 문구 · 목소리 지도(② 첫 쪽 접이 · 처음 한 번 펼침 · ⓘ 다시 보기 · ③ 첫 화면) · 진행 줄 물결 · 진사는 점으로만 · 지도에 «AI» 없음
+chk 'VOICE_KIND_0928' assets/ritual-open.js 1
+chk "one: '식장에서 마이크로 직접 말해요. 여기 적는 글은 연습과 대본에 써요'" assets/ritual-open.js 1
+chk 'VOICE_MAP' order-preview.html 8
+chk 'function _voiceMap(jump)' order-preview.html 1
+chk '<summary>어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요</summary>' order-preview.html 1
+chk 'data-fk="mkvi"' order-preview.html 1
+nochk "순서를 안내하는 목소리예요. AI 음성으로" order-preview.html
+nochk '.vk-st.no{color:var(--seal)}' order-preview.html
