@@ -1251,6 +1251,11 @@ body.lsfull{overflow:hidden}
 .mk-flow li.t .vk{margin-right:8px}
 .mk-lglist{list-style:none;margin:6px 0 10px;padding:0;display:flex;flex-direction:column;gap:6px}
 .mk-lglist li{font-size:12.5px;color:var(--sub);line-height:1.6}
+.mk-inapp{position:fixed;inset:0;z-index:2147483000;background:rgba(28,27,25,.42);display:flex;align-items:flex-end;justify-content:center;padding:16px}   /* [INAPP_MIC] */
+.mk-inapp-c{width:min(480px,100%);background:var(--bg);border-radius:12px;padding:18px 18px 12px;box-shadow:0 8px 28px rgba(28,27,25,.18)}
+.mk-inapp-t{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--accent)}
+.mk-inapp-b{display:flex;flex-direction:column;gap:8px;margin:12px 0 8px}
+.mk-inapp-go{min-height:48px;border:0;border-radius:999px;background:var(--accent);color:#FAFAF8;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 /* [REC_UPLOAD] 녹음 줄 */
 .mk-vbs{display:inline-flex;gap:6px;flex:0 0 auto}
 @media (max-width:999px){ .mk-vbs{margin-right:36px} .mk-vbs .mk-vb{margin-right:0} }
@@ -3615,7 +3620,17 @@ function _mkUpState(key){ var v=(S.up||{})[key];
 var MK_REC=null, REC_TARGET_DB=-17, REC_PEAK_DB=-1.5, REC_MAX_SEC=60, REC_SR=24000;
 function _recNeed(key){ var t=''; if(/^g\d$/.test(key)){ var g=GUEST[+key.slice(1)]; t=g?g[2]:''; } else if(key==='entry') t=(ENTRY[S.entry]||{}).self||''; return t; }
 function _recFmt(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2); }
-function _mkVoice(k,ups,wed){ var R=RitualOpen, due=R.dueWord(ups[0],wed), alt=ups.every(function(q){ return (S.up||{})[q.up]==='sent'; });
+function _upLive(){ return !!(RitualOpen.FEATURE&&RitualOpen.FEATURE.upLive); }   // [VOICE_UP_FROM]
+/* ★[VOICE_UP_FROM 2026-09-28 코워크 0928 3-3] 문이 닫혀 있는 동안(처리방침 시행 전 · 고객 예식)은 새 칸(녹음 · 파일 · AI)을 숨기고 종전 방식 그대로 —
+   대본 복사 · 휴대폰 음성 메모로 녹음해 카톡 · 메일로 보내기. 녹음을 다 한 뒤에 막히는 일이 없게(서버 handleRitualFile 도 같은 문으로 거절한다) */
+function _mkVoiceOld(k,ups){ var alt=ups.every(function(q){ return (S.up||{})[q.up]==='sent'; });
+  return '<section class="mk-sec mk-voice" aria-labelledby="mkVoiceH"><div class="mk-sech"><h4 id="mkVoiceH">두 분 목소리 녹음</h4>'
+    +'<button type="button" class="mk-hbtn" data-fk="mkupcopy" onclick="mkUpCopy(\''+k+'\')">읽을 글 복사하기</button></div>'+_mkCopied('up:'+k)
+    +'<p class="mk-note">이 안내는 두 분이 식장에 들어오기 전에 나와요. 휴대폰 음성 메모로 한 줄씩 녹음해 보내 주시면, 그 자리에서 두 분 목소리로 나와요</p>'
+    +_sendHow('두 분 목소리 녹음',7)
+    +'<label class="upchk"><input type="checkbox" data-fk="mkupsent"'+(alt?' checked':'')+' onchange="mkUpSent(\''+k+'\',this.checked)"><span>카톡 · 메일로 보냈어요</span></label></section>'; }   // 마감 한 줄(VOICE_LATE)은 위 «두 분 목소리» 칩 아래에 이미 있다
+function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VOICE_UP_FROM]
+  var R=RitualOpen, due=R.dueWord(ups[0],wed), alt=ups.every(function(q){ return (S.up||{})[q.up]==='sent'; });
   /* [MK_COPY_RIGHT 2026-09-27 사장님 «읽을 글 복사하기를 오른쪽으로 · 누르면 아래에 복사됐다고»] 머리 줄 오른쪽 작은 단추 · 누르면 그 아래 한 줄(role=status) */
   var h='<section class="mk-sec mk-voice" aria-labelledby="mkVoiceH"><div class="mk-sech"><h4 id="mkVoiceH">두 분 목소리 준비</h4>'
     +'<button type="button" class="mk-hbtn" data-fk="mkupcopy" onclick="mkUpCopy(\''+k+'\')">읽을 글 복사하기</button></div>'
@@ -3644,13 +3659,30 @@ function _recPanel(r){ var t=_recNeed(r.key), need=_mkSec(t.length), h=/^vc:/.te
     +'<span class="mk-vbs"><button type="button" class="rowbtn mk-recgo" data-fk="mkrecuse" onclick="'+(/^vc:/.test(r.key)?'mkVcEnroll()':'mkRecUse()')+'">'+(/^vc:/.test(r.key)?'이걸로 목소리 만들기':'이걸로 쓰기')+'</button><button type="button" class="rowbtn" data-fk="mkrecagain" onclick="mkRecAgain()">다시</button><button type="button" class="pk-link" onclick="mkRecCancel()">그만두기</button></span>'; }
 window.mkRecCancel=function(){ _recStopAll(); if(MK_REC&&MK_REC.url) try{ URL.revokeObjectURL(MK_REC.url); }catch(e){} MK_REC=null; render(); };
 function _recStopAll(){ var r=MK_REC; if(!r) return; clearInterval(r.iv); clearTimeout(r.cd); try{ if(r.mr&&r.mr.state!=='inactive') r.mr.stop(); }catch(e){} try{ (r.stream&&r.stream.getTracks()||[]).forEach(function(t){ t.stop(); }); }catch(e){} try{ r.ac&&r.ac.close(); }catch(e){} }
-window.mkRec=function(key){ if(MK_REC) _recStopAll();
+/* ★★[INAPP_MIC 2026-09-28 코워크 0928 3-2] 카톡 · 인스타 · 네이버 앱 안 브라우저는 앱에 따라 마이크를 못 쓴다 — 녹음 칸(직접 녹음 · AI 읽기 · 연습 녹음)을 누를 때 한 번 알린다(막지 않는다).
+   [브라우저로 열기](카톡만 · kakaotalk://web/openExternal · 빌더는 iframe 안이라 맨 위 창에서) · [주소 복사] · [여기서 해 볼게요].
+   열기 전에 쓰던 것을 저장한다(_persist). 로그인은 브라우저마다 따로라 한 줄로 알린다 — 로그인 표를 주소에 싣지 않는다(보안 먼저). */
+var INAPP_MIC={ok:false,go:null};
+function _topUrl(){ try{ return window.top.location.href; }catch(e){ return location.href; } }
+function _micAsk(go){ if(!_inApp()||INAPP_MIC.ok){ go(); return; } INAPP_MIC.go=go; _inAppPanel(); }
+function _inAppPanel(){ var old=document.getElementById('mkInApp'); if(old) old.remove(); var kk=/KAKAOTALK/i.test(navigator.userAgent||'');
+  var d=document.createElement('div'); d.id='mkInApp'; d.className='mk-inapp'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true'); d.setAttribute('aria-labelledby','mkInAppT');
+  d.innerHTML='<div class="mk-inapp-c"><p class="mk-inapp-t" id="mkInAppT">이 앱 안에서는 녹음이 안 될 수 있어요</p><p class="mk-note">휴대폰 기본 브라우저(사파리 · 크롬)에서 열어 주세요. 적어 두신 것은 저장해 두었어요.</p>'
+    +'<div class="mk-inapp-b">'+(kk?'<button type="button" class="mk-inapp-go" data-fk="inappopen" onclick="inAppOpen()">브라우저로 열기</button>':'')+'<button type="button" class="rowbtn" data-fk="inappcopy" onclick="inAppCopy()">주소 복사</button><button type="button" class="rowbtn" data-fk="inapphere" onclick="inAppHere()">여기서 해 볼게요</button></div>'
+    +'<p class="mk-note">바깥 브라우저에서는 다시 로그인해야 할 수 있어요</p><p class="mk-copied" id="mkInAppMsg" role="status"></p></div>';
+  document.body.appendChild(d); try{ _persist(); }catch(e){} var f=d.querySelector('button'); if(f) f.focus(); }
+window.inAppOpen=function(){ try{ _persist(); }catch(e){} var u='kakaotalk://web/openExternal?url='+encodeURIComponent(_topUrl()); try{ window.top.location.href=u; }catch(e){ location.href=u; } };
+window.inAppCopy=function(){ var u=_topUrl(), m=document.getElementById('mkInAppMsg'), done=function(ok){ if(m) m.textContent=ok?'주소를 복사했어요 · 사파리나 크롬 주소창에 붙여 넣어 주세요':'복사하지 못했어요 · 오른쪽 위 메뉴의 «다른 브라우저로 열기»를 눌러 주세요'; };
+  try{ navigator.clipboard.writeText(u).then(function(){ done(true); },function(){ done(false); }); }catch(e){ done(false); } };
+window.inAppHere=function(){ INAPP_MIC.ok=true; var d=document.getElementById('mkInApp'); if(d) d.remove(); var g=INAPP_MIC.go; INAPP_MIC.go=null; if(g) g(); };
+window.mkRec=function(key){ _micAsk(function(){ _mkRecGo(key); }); };   // [INAPP_MIC]
+function _mkRecGo(key){ if(MK_REC) _recStopAll();
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){ MK.toast='이 브라우저에서는 여기서 녹음할 수 없어요 · 휴대폰 음성 메모로 녹음해 «파일»로 올려 주세요'; render(); return; }
   MK_REC={key:key,ph:'count',n:3}; render();
   navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:true,autoGainControl:false}}).then(function(stream){
     var r=MK_REC; if(!r||r.key!==key){ stream.getTracks().forEach(function(t){ t.stop(); }); return; } r.stream=stream;
     (function tick(){ if(MK_REC!==r) return; if(r.n>1){ r.n--; render(); r.cd=setTimeout(tick,800); return; } _recStart(r); })();
-  },function(){ MK_REC={key:key,ph:'err',msg:'마이크를 쓸 수 없어요 · 브라우저 설정에서 마이크를 허락하거나, 음성 메모로 녹음해 «파일»로 올려 주세요'}; render(); }); };
+  },function(){ MK_REC={key:key,ph:'err',msg:'마이크를 쓸 수 없어요 · 브라우저 설정에서 마이크를 허락하거나, 음성 메모로 녹음해 «파일»로 올려 주세요'}; render(); }); }
 function _recStart(r){ var chunks=[], mime=['audio/webm;codecs=opus','audio/mp4','audio/webm','audio/ogg;codecs=opus'].filter(function(m){ try{ return MediaRecorder.isTypeSupported(m); }catch(e){ return false; } })[0]||'';
   try{ r.mr=mime?new MediaRecorder(r.stream,{mimeType:mime}):new MediaRecorder(r.stream); }catch(e){ MK_REC={key:r.key,ph:'err',msg:'녹음을 시작하지 못했어요 · 음성 메모로 녹음해 «파일»로 올려 주세요'}; render(); return; }
   r.mr.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
@@ -3977,7 +4009,7 @@ function _mkIntro(){ var R=RitualOpen, ps=_mkPages().filter(function(k){ return 
      ★사실만 — 나레이션 = AI 음성으로 미리 제작(계약서 [확인서] 문장과 같음) · 두 분 목소리 AI 만들기는 스위치(_vcReady)가 켜졌을 때만 말한다 */
   var VK=RitualOpen.VOICE_KIND; if(VK){ var _vgOn=_vgOpen(), _ai=(typeof _vcReady==='function'&&_vcReady());
     var _vd={narr:'순서를 안내하는 목소리예요. AI 음성으로 미리 만들어 두고, 당일엔 저희가 순서에 맞춰 틀어요.',
-      prep:'두 분이 식장에 들어오기 전에 나오는 안내는 나레이션 대신 두 분 목소리로 바꿀 수 있어요. 휴대폰으로 녹음하거나 파일을 올리면'+(_ai?', 또는 AI로 만든 두 분 목소리로':'')+' 그 자리에서 저절로 나와요. 비어 있는 줄은 나레이션으로 나와요.',
+      prep:'두 분이 식장에 들어오기 전에 나오는 안내는 나레이션 대신 두 분 목소리로 바꿀 수 있어요. '+(_upLive()?'휴대폰으로 녹음하거나 파일을 올리면'+(_ai?', 또는 AI로 만든 두 분 목소리로':'')+' 그 자리에서 저절로 나와요. 비어 있는 줄은 나레이션으로 나와요.':'휴대폰 음성 메모로 녹음해 보내 주시면 그 자리에서 두 분 목소리로 나와요. 예식 7일 전까지 오지 않은 줄은 나레이션으로 나와요.'),   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 방식으로 말한다
       live:'두 분(또는 가족)이 식장에서 직접 말하는 자리예요. 여기 적는 글은 연습용이라 소리로 나오지 않아요.'};
     h+='<details class="mk-legend mk-vguide" data-fk="mkvguide"'+(_vgOn?' open':'')+' ontoggle="_vgSet(this.open)"><summary>나레이션 · 목소리 안내</summary><div class="mk-vgb">'
       +'<dl class="mk-vgl">'+['narr','prep','live'].map(function(v){ return '<dt><span class="vk vk-'+v+'">'+VK_ICO[v]+esc(VK[v].lab)+'</span></dt><dd>'+esc(_vd[v])+'</dd>'; }).join('')+'</dl>';
@@ -4331,7 +4363,8 @@ function _lShow(){
    켜면 연습 재생(크게 보기)의 두 분 차례마다 그 막대 동안 녹음 → 끝나고 줄마다 · 처음부터 다시 들어 보기.
    ★이 녹음은 이 기기 메모리에만 둔다 — 서버 · IndexedDB 로 보내지 않는다. 페이지를 떠나거나 [지우기]면 사라진다. 마이크 허락이 없으면 녹음 없이 지금처럼. */
 var PR={on:false,stream:null,mr:null,cur:null,takes:[]};
-window.prToggle=function(on){ if(!on){ _prStop(); try{ (PR.stream&&PR.stream.getTracks()||[]).forEach(function(t){ t.stop(); }); }catch(e){} PR.stream=null; PR.on=false; render(); return; }
+window.prToggle=function(on){ if(on&&_inApp()&&!INAPP_MIC.ok){ _micAsk(function(){ prToggle(true); }); render(); return; }   // [INAPP_MIC] 연습 녹음도 같은 안내
+  if(!on){ _prStop(); try{ (PR.stream&&PR.stream.getTracks()||[]).forEach(function(t){ t.stop(); }); }catch(e){} PR.stream=null; PR.on=false; render(); return; }
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){ MK.toast='이 브라우저에서는 연습 녹음을 할 수 없어요 · 녹음 없이 연습해요'; PR.on=false; render(); return; }
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){ PR.stream=st; PR.on=true; render(); },function(){ PR.on=false; MK.toast='마이크 허락이 없어 녹음 없이 연습해요'; render(); }); };
 function _prStop(){ var c=PR.cur; if(!c) return; PR.cur=null; try{ if(c.mr&&c.mr.state!=='inactive') c.mr.stop(); }catch(e){} }
@@ -6418,7 +6451,8 @@ function _applySaved(_sv){
   _autoLast=_autoKey(); _autoState=''; _autoDirty=false;
   return true;
 }
-var EMBED=/[?&]embed=1/.test(window.location.search);   // (복원 정책이 임베드 여부를 알아야 해 여기서 판정)
+var EMBED=/[?&]embed=1/.test(window.location.search);
+if(!EMBED){ try{ RitualOpen.FEATURE.upLive=true; }catch(e){} }   // [VOICE_UP_FROM] 그냥 연 미리보기는 서버로 안 보낸다(이 기기에서만) — 새 칸을 보여 시험해 볼 수 있다 · 고객 예식(임베드)은 서버 문을 따른다   // (복원 정책이 임베드 여부를 알아야 해 여기서 판정)
 // ORDER_OWNER(2026-07-25 사용자 지시 "로그인 아이디가 바뀌었는데도 식순 데이터가 남아있는 건 문제"): 로컬 초안을 계정에 묶음 —
 //   ① 계정 소유(who) 초안은 독립 열람(비로그인 공개 페이지)에서 복원하지 않고 ② 임베드에선 orderFill의 로그인 계정과 대조해 다르면 즉시 폐기.
 try{ var _sv0=JSON.parse(localStorage.getItem('me_order')||'null');
@@ -6595,6 +6629,7 @@ if(EMBED){
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)
       if(typeof ev.data.digital==='boolean') CUSTDIG=ev.data.digital;   // [PREVIEW_DIGITAL] 구버전 mypage(미전송)면 false 유지 — 종전 동작 그대로
       if(typeof ev.data.photoShare==='boolean') CUSTPHOTO=ev.data.photoShare;
+      if(ev.data.voice&&typeof ev.data.voice==='object'){ var _F=RitualOpen.FEATURE; _F.upLive=!!ev.data.voice.up; _F.voiceClone=!!ev.data.voice.clone; _F.practiceTts=!!ev.data.voice.read; }   // ★[VOICE_UP_FROM 2026-09-28] 서버가 정한 날짜 문 · AI 스위치(off · studio · on 가운데 이 예식에 켜졌나) — 옛 마이페이지(미전송)면 닫힘 그대로
       if(typeof ev.data.meal==='boolean') CUSTMEAL=ev.data.meal;   // [MEAL_GUIDE]   // [PHOTO_ASK] 구버전 mypage(미전송)면 false 유지 — 멘트가 안 나간다(안전한 쪽)
       // ORDER_OWNER: 계정 대조 — 복원된 초안이 현 로그인 계정 소유가 아니면(다른 계정·소유 미표기 옛 초안 포함) 즉시 폐기·초기화.
       //   같은 기기 계정 전환 시 이전 계정의 서약문·편지가 보이거나 새 계정 서버로 저장되는 누출 차단. 이 계정의 진실은 아래 서버 초안(d).

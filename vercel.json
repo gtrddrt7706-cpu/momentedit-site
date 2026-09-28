@@ -7,7 +7,7 @@
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "SAMEORIGIN",
-        "Permissions-Policy": "geolocation=(), microphone=(), camera=(), interest-cohort=()",
+        "Permissions-Policy": "geolocation=(), microphone=(self), camera=(), interest-cohort=()",
         "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
       },
       "continue": true

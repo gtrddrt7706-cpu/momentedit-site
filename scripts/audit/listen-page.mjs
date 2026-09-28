@@ -471,6 +471,10 @@ else {
   await clickNext(pg); await pg.waitForTimeout(400); await clickNext(pg); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   await pg.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); }); await pg.waitForTimeout(400);
+  /* ★[VOICE_UP_FROM 2026-09-28] 임베드는 서버 날짜 문을 따른다 — 닫혀 있으면(옛 마이페이지 · 처리방침 전) 녹음 칸 없이 종전 방식, 열리면(시행일 · 시험 예식) 새 칸 */
+  const vg = await pg.evaluate(() => ({ closedRec: document.querySelectorAll('[data-fk^="mkrec:"]').length, closedSent: !!document.querySelector('[data-fk="mkupsent"]'), prep: (RitualOpen.prepOf('guest', S)[0] || [])[1] || '' }));
+  ok('RF 날짜 문 닫힘 — 녹음 칸 없음 · 카톡 · 메일로 보냈어요 · 준비 목록은 종전 글 [VOICE_UP_FROM]', vg.closedRec === 0 && vg.closedSent && /대본을 드려요/.test(vg.prep), JSON.stringify(vg));
+  await pg.evaluate(() => { RitualOpen.FEATURE.upLive = true; render(); }); await pg.waitForTimeout(300);
   const v0 = await pg.evaluate(() => ({ rows: document.querySelectorAll('.mk-vr').length, oldChk: [...document.querySelectorAll('.mk-pg .upchk')].filter((l) => !l.closest('.mk-valt')).length, alt: !!document.querySelector('.mk-valt:not([open])'), dup: /대본을 드려요/.test(document.querySelector('.mk-pg').textContent), todo: _mkTasks('guest').filter((x) => !x.done).length }));
   ok('RF ② 하객 맞이 — 녹음 카드 한 장 · 녹음마다 한 줄(넷) · 옛 체크 칸 없음 · «올리기가 어렵다면»은 접힘 · 겹치는 «대본을 드려요» 줄 없음 [RITUAL_FILE]', v0.rows === 4 && v0.oldChk === 0 && v0.alt && !v0.dup && v0.todo === 4, JSON.stringify(v0));
   const [fc] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g0"]')]);
