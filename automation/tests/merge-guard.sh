@@ -13535,6 +13535,14 @@ nochk '<li class="mk-vx mk-recp"' order-preview.html
 nochk "if(!confirm(" order-preview.html
 chk 'REC_DLG' scripts/audit/rec-upload.mjs 4
 chk 'REC_DLG' scripts/audit/vc-screen.mjs 3
+# ★[DLG_SCROLL_LOCK 2026-09-28 사장님 «여기서 나가니깐 위아래로 안 움직이는 버그»] 창 잠금은 html 클래스로 — body.style 을 쓰면 확인 판이 0.2초 뒤 잠금을 되살린다
+chk "classList.add('mk-dlg-lock')" order-preview.html 1
+chk 'DLG_SCROLL_LOCK' scripts/audit/rec-upload.mjs 1
+# ★[VC_WHY 2026-09-28 WNJK3Y 실측] 타입캐스트 실패 까닭을 VCERR_ · 관리자 메일 · 관리 화면에 · 실패는 3번에 안 센다
+chk 'function vcLastErrors()' automation/platform/80_production.gs 1
+chk 'function _vcWhy(x)' automation/platform/80_production.gs 1
+chk "'VCERR_' + code" automation/platform/80_production.gs 1
+chk 'VC_WHY' admin.html 1
 nochk '_vcReadText(' order-preview.html
 nochk '_vcLinePanel(' order-preview.html
 nochk 'TYPECAST_API_KEY' console.html

@@ -1251,6 +1251,30 @@
   },
   {
    "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_WHY",
+   "why": "목소리 만들기 실패를 두 분의 3번에 세지 않고 까닭(HTTP · 업체 글)을 남긴다 — 옛것이면 실패마다 기회가 줄고 까닭은 아무 데도 없다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcErr",
+   "mark": "VC_WHY",
+   "why": "모든 실패를 VCERR_<코드> · 관리자 메일로 — 옛것이면 402 · 403 말고는 조용하다"
+  },
+  {
+   "file": "80_production",
+   "fn": "vcLastErrors",
+   "mark": "VC_WHY",
+   "why": "GAS 편집기에서 예식마다 마지막 실패를 로그로"
+  },
+  {
+   "file": "80_production",
+   "fn": "adminVoiceUsage",
+   "mark": "VC_WHY",
+   "why": "관리 화면 «이 예식 AI 목소리»에 마지막 실패 — 옛것이면 줄이 안 생긴다"
+  },
+  {
+   "file": "80_production",
    "fn": "purgeVoiceClones",
    "mark": "VOICE_CLONE_0928",
    "why": "예식 다음 날 AI 목소리 · 읽은 녹음 · 연습 소리 지우기 — 옛것이면 30일까지 남는다"
@@ -1552,6 +1576,8 @@
    "_vcPut",
    "_vcFetch",
    "_vcErr",
+   "_vcWhy",
+   "vcLastErrors",
    "_vcAlert",
    "_vcCharLog",
    "_vcTts",
@@ -2326,7 +2352,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-28 14:58 · 6839ace9",
+ "_생성": "2026-09-28 17:08 · f473f639",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2677,6 +2703,12 @@
    "b": ""
   },
   {
+   "key": "VCERR_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "VC_",
    "kind": "state",
    "a": "",
@@ -2762,5 +2794,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "619b2e090cde"
+ "_표식서명": "7d3c9d96b05b"
 }

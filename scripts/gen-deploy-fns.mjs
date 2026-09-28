@@ -183,7 +183,7 @@ const PROPS = {
   VOICE_TARGET_LUFS: ['tuning', 'AI 목소리 소리 크기 목표(기본 -16 · 나레이션 실측)'],
   TYPECAST_VOICE_GROOM: ['option', '연습 읽기 스튜디오 기본 목소리 · 신랑 쪽(voice_id)'], TYPECAST_VOICE_BRIDE: ['option', '연습 읽기 스튜디오 기본 목소리 · 신부 쪽'], TYPECAST_VOICE_FAMILY: ['option', '연습 읽기 스튜디오 기본 목소리 · 가족'],
   TYPECAST_VOICE_M: ['option', '연습 읽기 기본 목소리 · 남(tc_ voice_id · 7-2) [VOICE_CLONE_0928]'], TYPECAST_VOICE_F: ['option', '연습 읽기 기본 목소리 · 여'], TYPECAST_VOICE_OM: ['option', '연습 읽기 기본 목소리 · 윗세대 남'], TYPECAST_VOICE_OF: ['option', '연습 읽기 기본 목소리 · 윗세대 여'],
-  RFSTUDIO_: ['state'], VCCHARS_: ['state'],   /* [RF_STUDIO_UP] 스튜디오가 대신 올린 파일 · [VOICE_CLONE_0928] 이번 달 AI 글자 수(뒤에 코드 · 달이 붙는 접두사) */
+  RFSTUDIO_: ['state'], VCCHARS_: ['state'], VCERR_: ['state'],   /* [VC_WHY] 예식마다 AI 목소리 마지막 실패 한 건 */   /* [RF_STUDIO_UP] 스튜디오가 대신 올린 파일 · [VOICE_CLONE_0928] 이번 달 AI 글자 수(뒤에 코드 · 달이 붙는 접두사) */
   VC_: ['state'],   /* [VOICE_CLONE] 코드별 동의 · voice_id · 한도 셈(코드가 뒤에 붙는 접두사) */
 };
 
