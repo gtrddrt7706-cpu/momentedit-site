@@ -13354,6 +13354,16 @@ chk 'VIDEO_V8_0928' assets/ritual-open.js 2
 chk 'sec >= 6 && sec <= 10' scripts/audit/moment-script-check.mjs 1
 # ★[VIDEO_V81_0928 사장님 v8.1 «잘 지켜서 바로 진행»] 흰 의자 · 시험 순서 반지 → 입장 · 첫 0.3초 정지 · 원본 파일로 받기
 chk 'VIDEO_V81_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[SNP_UP_FULL 2026-09-28 사장님] 스냅 기획 «사진 올리기» 줄 전체 너비 · 링크 칸과 같은 높이 48px
+chk 'SNP_UP_FULL' mypage.html 1
+chk '.cc-btn-ghost.snp-upbtn{display:flex;align-items:center;justify-content:center;width:100%' mypage.html 1
+chk '.snp-linkrow .cc-input{min-height:48px}' mypage.html 1
+# ★[SNAP_INERT_DEEP 2026-09-28 사장님 «클릭이 안 되는 버그»] 스냅 기획 겹화면의 inert 가 확인 창(#mpModal)을 품은 틀까지 막던 것 — 틀 안으로 들어가 바깥쪽만 막는다
+chk 'SNAP_INERT_DEEP' mypage.html 1
+chk 'if(keep.some(function(k){ return el.contains(k); })){ walk(el); return; }' mypage.html 1
+# ★[UNDO_OFF 2026-09-28 사장님 «되돌리기는 삭제 · 확인 문구만»] 예시 알림에 되돌리기 단추 되살리기 금지
+chk 'UNDO_OFF' order-preview.html 3
+nochk 'data-fk="opundo"' order-preview.html
 chk '첫 약 0.3초는 흔들림 없는 정지 그림' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '파일은 원본으로 받는다' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '\*\*다음 = entry\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1

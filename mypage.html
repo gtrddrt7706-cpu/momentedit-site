@@ -707,7 +707,10 @@ span.snp-pv{cursor:default}
 .snp-x{flex:0 0 auto;width:44px;height:44px;padding:0;border:none;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--sub)}
 .snp-x span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:11px}
 .snp-up .snp-x{position:absolute;top:0;right:0;align-items:flex-start;justify-content:flex-end;padding:4px}
-.cc-btn-ghost.snp-upbtn{display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:44px;padding:9px 18px;margin:10px 0 0}
+/* ★[SNP_UP_FULL 2026-09-28 사장님 «사진 올리기 버튼을 길게 · 아래 사이즈랑 같이»] 줄 전체 너비 · 링크 칸과 같은 높이 48px.
+   아이폰은 16px 입력 칸을 버튼(44px)보다 높게 그려 둘이 어긋나 보였다 — 둘 다 48px 로 못 박는다(추가 단추는 줄 높이를 따라간다). */
+.cc-btn-ghost.snp-upbtn{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;min-height:48px;padding:9px 18px;margin:10px 0 0}
+.snp-linkrow .cc-input{min-height:48px}
 .snp-upbtn:focus-within{outline:2px solid var(--gold-deep);outline-offset:2px}
 .snp-linkrow{display:flex;gap:8px;margin:10px 0 0}
 #mp_snapOverlay .ph-item .ph-nm a{display:flex;align-items:center;min-height:44px}   /* ★[SNAP_LINK_TAP 2026-09-27 고객 점검] 담은 링크 글자가 누름 칸 14px 였다(✕ 는 44px) — 줄 높이만큼 누르게 */
@@ -9292,11 +9295,17 @@ function startSnapFlow(sd, p, needAgree, opt){
    ★겹화면보다 위에 뜨는 것(확인 창 · 처리방침 창 · 크게 보기 · 알림 · 저장 중 베일 · z-index 950 초과 fixed)은 건드리지 않는다 — 그것들이 inert 면 누를 수 없다. */
 function _snapInertOn(ov){
   var list=[]; SNAPFLOW._inert=list; document.body.classList.add('snp-open');
-  Array.prototype.forEach.call(document.body.children, function(el){
-    if(el===ov || /^(SCRIPT|STYLE|LINK|TEMPLATE|NOSCRIPT)$/.test(el.tagName) || el.inert) return;
-    var cs=getComputedStyle(el); if(cs.position==='fixed' && (parseInt(cs.zIndex,10)||0)>950) return;
+  /* ★★[SNAP_INERT_DEEP 2026-09-28 사장님 «클릭이 안 되는 버그»] 종전엔 body 의 «바로 아래 자식»만 보고 막았다.
+     확인 창(#mpModal · fixed · z 11000)은 centered > mypageView 안에 있어서, 바깥 틀 centered 가 통째로 inert 가 되며
+     «고르던 것을 이 기기에 둘까요?»의 두 단추가 눌리지 않았다(아이폰 실기기 · 나가기).
+     이제 겹화면 · 위에 뜨는 것(fixed · z>950)을 품은 틀은 막지 않고 그 안으로 들어가, 그것들 바깥쪽만 막는다. */
+  var keep=[ov]; Array.prototype.forEach.call(document.body.querySelectorAll('*'), function(el){
+    if(el===ov||ov.contains(el)) return; var cs=getComputedStyle(el); if(cs.position==='fixed' && (parseInt(cs.zIndex,10)||0)>950) keep.push(el); });
+  (function walk(par){ Array.prototype.forEach.call(par.children, function(el){
+    if(keep.indexOf(el)>-1 || /^(SCRIPT|STYLE|LINK|TEMPLATE|NOSCRIPT)$/.test(el.tagName) || el.inert) return;
+    if(keep.some(function(k){ return el.contains(k); })){ walk(el); return; }
     try{ el.inert=true; if(!el.inert) el.setAttribute('inert',''); list.push(el); }catch(e){}
-  });
+  }); })(document.body);
 }
 function _snapInertOff(){
   (SNAPFLOW._inert||[]).forEach(function(el){ try{ el.inert=false; el.removeAttribute('inert'); }catch(e){} });
