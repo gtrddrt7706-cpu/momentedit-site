@@ -13355,7 +13355,7 @@ chk 'MK_STRIP_MOUSE' scripts/audit/listen-page.mjs 1
 chk 'MK_PLAY_LEFT' order-preview.html 1
 nochk '.mk-sech-r{justify-content:flex-end' order-preview.html
 chk 'REF_BEST4' order-preview.html 3
-chk "var REF_BEST={welcome:[1,2,3,6],vow:[1,2,3,4],toast:[1,3,5,6]," order-preview.html 1
+chk "var REF_BEST={welcome:" order-preview.html 1   # [REF_BEST4] 대괄호는 grep 정규식이라 앞머리만
 chk 'REF_BEST4' scripts/audit/listen-page.mjs 4
 chk 'MK_TODO_DOT' order-preview.html 3
 nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
