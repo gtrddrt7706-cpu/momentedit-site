@@ -400,7 +400,7 @@ function aiDailyDigest(send) {
 function aiDigestPreview() { return aiDailyDigest(false); }   // adminCall — 요약 미리보기(발송 안 함)
 
 // 🔴 매일 1회(트리거) — 아침 운영 보고를 메일 1통 + 문자 1통으로 통합 발송. 70_journey setupAllTriggers가 등록.
-function aiDaily() { try { aiMorningReport(); } catch (e) {} }
+function aiDaily() { try { aiMorningReport(); } catch (e) {} try { if (typeof purgeVoiceClones === 'function') purgeVoiceClones(); } catch (e) {} /* [VOICE_CLONE_0928] 예식 다음 날 AI 목소리 · 읽은 녹음 · 연습 소리 지우기(80_production) */ }
 
 // 🌅 아침 운영 보고 통합 — 안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 한 번에 모아
 //   관리자에게 '메일 1통(섹션 상세) + 문자 1통(핵심 요약)'으로 보낸다. (구: 항목별로 따로 문자·메일이 흩어지던 걸 통합)

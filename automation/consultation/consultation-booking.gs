@@ -2264,6 +2264,7 @@ function doPost(e) {
       case 'guideView':          return jsonOut(handleGuideView(body));  // 하객 안내 허브 공개 조회(무인증·토큰) — guide.html
       case 'ritualFile':         return jsonOut(handleRitualFile(body));  // [RITUAL_FILE 2026-09-27] 식순 빌더 두 분 목소리 녹음 올리기(로그인 토큰) — 80_production
       case 'ritualFileGet':      return jsonOut(handleRitualFileGet(body));  // [REC_UPLOAD 2026-09-27] 올린 두 분 녹음을 두 분 계정으로만 다시 받기(공개 주소 없음) — 80_production
+      case 'ritualFilePurgeMine': return jsonOut(handleRitualFilePurgeMine(body));  // [VOICE_KEEP 2026-09-28] 두 분이 먼저 «목소리 파일 모두 지우기» — 80_production
       case 'ritualFileDel':      return jsonOut(handleRitualFileDel(body));  // [REC_UPLOAD] 두 분이 먼저 지우기(휴지통) — 80_production
       case 'voiceClone':         return jsonOut(handleVoiceClone(body));  // [VOICE_CLONE 2026-09-27] AI 두 분 목소리 · 연습 읽기(스위치 VOICE_CLONE_ENABLED · PRACTICE_TTS_ENABLED 가 켜져야) — 80_production
       case 'guestPhoto':         return jsonOut(handleGuestPhoto(body));  // [GUEST_PHOTO_IN] 하객 사진 업로드 1건(무인증·토큰) — guide.html · 80_production

@@ -385,10 +385,16 @@
   };
   /* ★[VOICE_CLONE 2026-09-27 코워크 5-1 · 5-6 · 사장님 «3단계는 스위치를 꺼 둔 채»] 기능 스위치 — 꺼져 있으면 화면에 아무것도 안 보인다.
      켜는 것은 사장님 결정(타입캐스트 확인 · 법무 · 7장) 뒤 · 서버도 따로 잠겨 있다(VOICE_CLONE_ENABLED · PRACTICE_TTS_ENABLED).
-     AI_NOTICE [AI_NOTICE] = 당일 AI 목소리 알림 방식(program · narration · both · none) — 기본 program(식순 안내에 한 줄) · 확정은 사장님 */
-  var FEATURE = { voiceClone: false, practiceTts: false, upLive: false }, AI_NOTICE = 'program';   // ★[VOICE_UP_FROM 2026-09-28] upLive = 두 분 목소리 날짜 문(서버가 정한다 · 마이페이지 · 빌더가 넣는다) · 닫혀 있으면 종전 글
+     ★[AI_NOTICE_0928 9-1] 0927 의 알림 방식 스위치(AI_NOTICE)는 없앴다 — 식순지 뒷면 한 줄 틀(자리 · 누구 · «가운데 일부는»)이 대신한다 */
+  var FEATURE = { voiceClone: false, practiceTts: false, upLive: false };   // ★[VOICE_UP_FROM 2026-09-28] upLive = 두 분 목소리 날짜 문(서버가 정한다 · 마이페이지 · 빌더가 넣는다) · 닫혀 있으면 종전 글
   /* ★[GUEST_READER 2026-09-28 코워크 0928 6-1] 하객 맞이 네 줄의 읽는 사람 — 기본 번갈아(1 · 3 신랑 · 2 · 4 신부) · S.guestOne='g'|'b' 면 한 분이 모두 읽기.
      원천 데이터(ritual-data GUEST = [때, 나레이션 글, 두 분 글])에는 읽는 사람이 없어 여기 한 곳에 둔다. 입장 인사는 [ENTRY_ALT] 그대로(한 분이 모두 읽기 없음) */
+  /* ★[PREP_VOICE_0928 코워크 0928 6-7] 준비 목록 상태 — «녹음 2 · AI 1 · 빈 줄 1» · 입장 인사는 한 줄이라 «AI 목소리» 처럼 갈래 이름 · 빈 줄은 나레이션으로 나온다 */
+  function voiceState(S, ks) { var up = (S && S.up) || {}, c = { rec: 0, file: 0, ai: 0, none: 0 };
+    ks.forEach(function (k) { var v = up[k]; if (v && typeof v === 'object') c[v.src === 'ai' ? 'ai' : v.src === 'rec' ? 'rec' : 'file']++; else c.none++; });
+    if (ks.length === 1) return c.ai ? '«AI 목소리»' : (c.rec ? '«두 분 녹음»' : c.file ? '«올린 파일»' : '«비어 있음 · 나레이션으로 나와요»');
+    var o = []; if (c.rec) o.push('녹음 ' + c.rec); if (c.file) o.push('올린 파일 ' + c.file); if (c.ai) o.push('AI ' + c.ai); if (c.none) o.push('빈 줄 ' + c.none);
+    return '«' + o.join(' · ') + '»' + (c.none ? ' · 빈 줄은 나레이션으로 나와요' : ''); }
   function guestReader(S, i) { var one = S && S.guestOne; if (one === 'g' || one === 'b') return one; return i % 2 === 0 ? 'g' : 'b'; }
   function voiceKind(k, S, o) { o = o || {}; if (o.talk) return 'live'; if (o.own) return 'prep'; return 'narr'; }
   function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
@@ -453,11 +459,11 @@
   function prepOf(k, S) {
     switch (k) {
       /* [REC_UPLOAD 2026-09-27 코워크 3-8] 준비 목록 이름 «두 분 목소리 준비» · 마감 D-7 · 스튜디오 나레이션을 고르면 빠진다(아래 조건 그대로) */
-      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 하객 맞이 안내(식순 만들기에서 녹음하거나 파일로 올려요 · 비어 있는 줄은 나레이션)' : '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 글
+      case 'guest': return S && S.guestVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 하객 맞이 안내 ' + voiceState(S, ['g0', 'g1', 'g2', 'g3']) : '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 글
       case 'prevideo': return [['couple', '식전 영상 링크(3분 안) 또는 사진 30~40장', 'send', 3]];   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask', null, NOTE_ASK]]; }
-      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사(식순 만들기에서 녹음하거나 파일로 올려요 · 없으면 나레이션)' : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
+      case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사 ' + voiceState(S, ['entry']) : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '첫인사 한두 문장', 'write', 7]];
       case 'bless': return [['parents', '덕담 원고 · 한 분 400자 안팎(저희가 받아 큰 글씨로)', 'ask', 7]];
       case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자
@@ -755,7 +761,7 @@
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
-    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, AI_NOTICE: AI_NOTICE,
+    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };
 });

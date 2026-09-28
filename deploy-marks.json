@@ -1242,6 +1242,60 @@
    "fn": "_vcCfg",
    "mark": "VOICE_UP_FROM",
    "why": "AI 스위치 off · studio · on(VOICE_CLONE · PRACTICE_READ 스크립트 속성) — 옛것이면 studio 가 없어 시험 예식만 켤 수 없다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VOICE_CLONE_0928",
+   "why": "AI 목소리 0928 — 확인 문장 서버 · 새 목소리 먼저 만들고 앞 목소리 지우기 · 201 · 같은 글 다시 안 만들기 · 연습 2만 자 — 옛것이면 0927 순서(앞 목소리부터 지움)"
+  },
+  {
+   "file": "80_production",
+   "fn": "purgeVoiceClones",
+   "mark": "VOICE_CLONE_0928",
+   "why": "예식 다음 날 AI 목소리 · 읽은 녹음 · 연습 소리 지우기 — 옛것이면 30일까지 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "vcSelfTest",
+   "mark": "VC_SELFTEST",
+   "why": "타입캐스트 키 · 요금제 · 인스턴트 복제를 우리 목소리로 시험(GAS 편집기에서 실행) — 이 파일이 옛것이면 함수가 없다"
+  },
+  {
+   "file": "80_production",
+   "fn": "adminRitualFiles",
+   "mark": "VC_SLOTS",
+   "why": "관리 화면 «AI 목소리 칸 · 쓰는 칸 / 전체 칸» — 이 파일이 옛것이면 줄이 안 뜬다"
+  },
+  {
+   "file": "80_production",
+   "fn": "adminRitualFileUp",
+   "mark": "RF_STUDIO_UP",
+   "why": "스튜디오 대신 올리기 — 옛것이면 관리 화면 [파일 올리기]가 «알 수 없는 요청»"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFilePurgeMine",
+   "mark": "VOICE_KEEP",
+   "why": "마이페이지 «목소리 파일 모두 지우기» — 옛것이면 지워지지 않는다"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiDaily",
+   "mark": "VOICE_CLONE_0928",
+   "why": "매일 purgeVoiceClones 를 부른다 — 옛것이면 예식 다음 날 지우기가 안 돈다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCall",
+   "mark": "VOICE_CLONE_0928",
+   "why": "adminVoiceUsage · adminVoiceRead · adminRitualFileUp 등록 — 빠지면 관리 화면이 «알 수 없는 요청»"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "VOICE_KEEP",
+   "why": "ritualFilePurgeMine 길 — 옛것이면 «모두 지우기»가 알 수 없는 요청"
   }
  ],
  "fns": {
@@ -1452,9 +1506,12 @@
    "handleRitualFile",
    "_rfFileIn",
    "handleRitualFileGet",
+   "handleRitualFilePurgeMine",
    "handleRitualFileDel",
    "_rfKeyOfName",
    "adminRitualFiles",
+   "_rfStudioUps",
+   "adminRitualFileUp",
    "adminRitualFileGet",
    "adminRitualFileOk",
    "purgeRitualFiles",
@@ -1464,10 +1521,26 @@
    "_vcSt",
    "_vcPut",
    "_vcFetch",
+   "_vcErr",
+   "_vcAlert",
+   "_vcCharLog",
    "_vcTts",
+   "_vcAiFolder",
+   "_vcHash",
+   "_vcCached",
+   "_vcKoNum",
+   "_vcNewPhrase",
+   "_vcDelVoice",
    "handleVoiceClone",
    "_vcPub",
    "_vcPurge",
+   "_vcPurgeNow",
+   "purgeVoiceClones",
+   "previewVoiceClones",
+   "_vcSlots",
+   "vcSelfTest",
+   "adminVoiceUsage",
+   "adminVoiceRead",
    "handleGuestPhoto",
    "addGuestPhotoColumns",
    "purgeGuestPhotos",
@@ -2028,6 +2101,9 @@
    "RF_ROOT_FOLDER",
    "RF_KEYS",
    "VC_BASE",
+   "VC_DOWN",
+   "VC_COLOR",
+   "VC_TEST_FOLDER",
    "SNAP_V2",
    "SNAP_ZONE_RE",
    "SNAP_ZONE_NOTE_MAX",
@@ -2220,7 +2296,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-28 12:26 · 411358c9",
+ "_생성": "2026-09-28 13:14 · 3979f0e5",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2415,6 +2491,12 @@
    "b": ""
   },
   {
+   "key": "RFSTUDIO_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "RF_",
    "kind": "state",
    "a": "",
@@ -2523,6 +2605,12 @@
    "b": ""
   },
   {
+   "key": "TYPECAST_VOICE_F",
+   "kind": "option",
+   "a": "연습 읽기 기본 목소리 · 여",
+   "b": ""
+  },
+  {
    "key": "TYPECAST_VOICE_FAMILY",
    "kind": "option",
    "a": "연습 읽기 스튜디오 기본 목소리 · 가족",
@@ -2532,6 +2620,30 @@
    "key": "TYPECAST_VOICE_GROOM",
    "kind": "option",
    "a": "연습 읽기 스튜디오 기본 목소리 · 신랑 쪽(voice_id)",
+   "b": ""
+  },
+  {
+   "key": "TYPECAST_VOICE_M",
+   "kind": "option",
+   "a": "연습 읽기 기본 목소리 · 남(tc_ voice_id · 7-2) [VOICE_CLONE_0928]",
+   "b": ""
+  },
+  {
+   "key": "TYPECAST_VOICE_OF",
+   "kind": "option",
+   "a": "연습 읽기 기본 목소리 · 윗세대 여",
+   "b": ""
+  },
+  {
+   "key": "TYPECAST_VOICE_OM",
+   "kind": "option",
+   "a": "연습 읽기 기본 목소리 · 윗세대 남",
+   "b": ""
+  },
+  {
+   "key": "VCCHARS_",
+   "kind": "state",
+   "a": "",
    "b": ""
   },
   {
@@ -2620,5 +2732,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "bcdc4a260877"
+ "_표식서명": "68433efb15a5"
 }
