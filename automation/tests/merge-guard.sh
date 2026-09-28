@@ -13324,6 +13324,7 @@ chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
 # ★[VC_SELFTEST · VC_SLOTS · VC_OURS_ONLY 2026-09-28 사장님 «타입캐스트 무료 키로 · 우리 목소리로만 시험 · 3단계는 스위치 꺼 둔 채»] 시험 함수 · 관리 화면 칸 — 흉내 API 로 판정(키 없음 · 401 · 칸 0 · 402 · 고객 폴더 거절 · 성공 · soft-delete)
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
 chk 'function vcSelfTest()' automation/platform/80_production.gs 1
+chk 'VC_SELFTEST_SIM' scripts/audit/vc-selftest-sim.mjs 1
 chk 'VC_OURS_ONLY' automation/platform/80_production.gs 2
 chk 'function _vcSlots()' automation/platform/80_production.gs 1
 chk 'var vh=admVcLine(d.vc);' admin.html 1
@@ -13331,6 +13332,12 @@ chk 'var FEATURE = { voiceClone: false, practiceTts: false }' assets/ritual-open
 # ★[MOMENT_COVER 2026-09-28] 편마다 «표지»(첫 프레임) 칸 · 다른 세션 지시문 대조 보충 — 표지 칸이 점검에서 빠지면 ① 칸에 무엇이 뜰지 정하지 않은 편이 생긴다
 chk "'남는 장면', '표지', '장면 대본'" scripts/audit/moment-script-check.mjs 1
 chk '## 1-2. 모든 편 공통' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[VIDEO_DECIDE_0928 사장님 결정] 준비한 순서 = 앞 스크린의 영상 · 감동하는 부모님 · 하객 맞이 = 하나둘씩 들어와 앉는 하객 · 그림은 따로 상의(장면 글이 본체)
+chk 'VIDEO_DECIDE_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '남는 장면: 앞 스크린의 영상을 보며 감동하는 부모님' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '하나둘씩 들어와' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '### 14. cake · 케이크 커팅' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '### 15. toast · 축배' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'WINE_POUR_OFF' assets/ritual-story.js 1
 nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
 # ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 새 코스의 케이크 커팅 · 축배는 두 순간
