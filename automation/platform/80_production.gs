@@ -1364,7 +1364,9 @@ function _vcCharLog(n) { if (!(n > 0)) return; var p = PropertiesService.getScri
   p.setProperty(k, String((+p.getProperty(k) || 0) + n));
   try { if (typeof handleAiCostLog === 'function') handleAiCostLog({ surface: '목소리', model: 'typecast-' + VC_MODEL, in: n }); } catch (e) {} }   // 글자 수만 · 글은 남기지 않는다
 function _vcTts(cfg, voiceId, text, tempo) {
-  var x = _vcFetch(cfg, 'post', '/v1/text-to-speech', { json: { voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', prompt: { preset: 'normal' }, output: { target_lufs: cfg.lufs, remove_silence_ms: 150, audio_tempo: tempo || 1, audio_format: 'mp3' } } });
+  /* ★[VC_TTS_422 2026-09-28 WNJK3Y 실측] 목소리는 만들어졌는데 줄 읽기가 두 줄 다 422 — prompt 를 { preset: 'normal' } 으로 보냈다.
+     ssfm-v30 의 prompt 는 { emotion_type: 'preset', emotion_preset: 'normal' } 모양이다(typecast-go PresetPrompt). 기본이 «보통»이라 아예 빼는 것이 가장 안전하다 — 다시 넣지 말 것 */
+  var x = _vcFetch(cfg, 'post', '/v1/text-to-speech', { json: { voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', output: { target_lufs: cfg.lufs, remove_silence_ms: 150, audio_tempo: tempo || 1, audio_format: 'mp3' } } });
   if (x.code !== 200) { var e = new Error('tts ' + x.code); e.http = x.code; e.why = _vcWhy(x); throw e; }   // [VC_WHY]
   _vcCharLog(String(text).length);
   return x.r.getBlob().getBytes(); }
