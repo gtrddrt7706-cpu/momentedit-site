@@ -13354,6 +13354,10 @@ chk 'VIDEO_V8_0928' assets/ritual-open.js 2
 chk 'sec >= 6 && sec <= 10' scripts/audit/moment-script-check.mjs 1
 # ★[VIDEO_V81_0928 사장님 v8.1 «잘 지켜서 바로 진행»] 흰 의자 · 시험 순서 반지 → 입장 · 첫 0.3초 정지 · 원본 파일로 받기
 chk 'VIDEO_V81_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[SNP_UP_FULL 2026-09-28 사장님] 스냅 기획 «사진 올리기» 줄 전체 너비 · 링크 칸과 같은 높이 48px
+chk 'SNP_UP_FULL' mypage.html 1
+chk '.cc-btn-ghost.snp-upbtn{display:flex;align-items:center;justify-content:center;width:100%' mypage.html 1
+chk '.snp-linkrow .cc-input{min-height:48px}' mypage.html 1
 chk '첫 약 0.3초는 흔들림 없는 정지 그림' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '파일은 원본으로 받는다' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk '\*\*다음 = entry\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
