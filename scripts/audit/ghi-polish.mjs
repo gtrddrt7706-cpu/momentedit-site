@@ -55,8 +55,8 @@ for (const w of [390, 1280]) {
   /* [FLOW_MAKE 2026-09-27] ② 는 순간마다 한 쪽 — 옛 목록 줄(.ls-row.open) 대신 그 순간 쪽(.mk-pg)에서 잰다 */
   await pg.evaluate(() => { LS.more = {}; S.entryOut = ''; mkGo('entry'); }); await pg.waitForTimeout(300);
   const g4 = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'); const b = r && r.querySelector('[data-fk="lsmore:entry"]');
-    return { btn: !!b, txt: b ? b.textContent : '', h: b ? Math.round(b.getBoundingClientRect().height) : 0, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0 }; });
-  ok(`${w} G4 입장 줄 — 맺는 말은 «더 고르기» 뒤 · 누를 곳 44 · 첫 화면 묶음 셋 [ENTRY_OUT_MORE]`, g4.btn && !g4.outRow && g4.rows === 3 && /더 고르기 · 맺는 말/.test(g4.txt) && g4.h >= 44, JSON.stringify(g4));
+    return { btn: !!b, txt: b ? b.textContent : '', h: b ? Math.round(b.getBoundingClientRect().height) : 0, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0, vc: !!RitualOpen.FEATURE.voiceClone }; });   /* ★[VP_NO_DIRECT] «어떻게 준비할까요»는 AI 가 켜진 예식에만 — 꺼지면 묶음 둘(입장 멘트 · 첫 모습) */
+  ok(`${w} G4 입장 줄 — 맺는 말은 «더 고르기» 뒤 · 누를 곳 44 · 첫 화면 묶음 셋(AI 가 꺼지면 둘) [ENTRY_OUT_MORE · VP_NO_DIRECT]`, g4.btn && !g4.outRow && g4.rows === (g4.vc ? 3 : 2) && /더 고르기 · 맺는 말/.test(g4.txt) && g4.h >= 44, JSON.stringify(g4));
   if (g4.btn) { await pg.click('[data-fk="lsmore:entry"]'); await pg.waitForTimeout(400); }   // 단추가 없으면(깨졌으면) 다음 검사가 빨강으로 말한다 — 여기서 멈추지 않는다
   const g4b = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'), g = r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]'), a = document.activeElement;
     return { open: !!g, n: g ? g.querySelectorAll('[role=radio]').length : 0, foc: !!(g && g.contains(a) && a.getAttribute('role') === 'radio' && a.tabIndex === 0), btn: !!(r && r.querySelector('[data-fk="lsmore:entry"]')) }; });
