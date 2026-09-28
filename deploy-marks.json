@@ -2190,7 +2190,7 @@
     "ADMIN_NOFEE_LINE",
     "PRICE_2026_08"
    ],
-   "bytes": 100635
+   "bytes": 101179
   },
   {
    "file": "ScreenA_apply",
@@ -2220,7 +2220,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-28 11:33 · 4f6f1319",
+ "_생성": "2026-09-28 12:26 · 411358c9",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",

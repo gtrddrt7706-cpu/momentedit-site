@@ -13412,3 +13412,27 @@ chk '<summary>어디서 직접 말하고, 무엇을 미리 준비하는지 한�
 chk 'data-fk="mkvi"' order-preview.html 1
 nochk "순서를 안내하는 목소리예요. AI 음성으로" order-preview.html
 nochk '.vk-st.no{color:var(--seal)}' order-preview.html
+# ★[2026-09-28 코워크 0928 6장] 어떻게 준비할까요(직접 녹음 · 스튜디오 나레이션) · 줄 카드(번호 · 때 · 읽는 사람 · 약 N초 · 큰 글씨) · 한 분이 모두 읽기 · 4번 줄 앞 두 문장 고정 · 지금 이대로면 · 다듬기(80Hz · 잡음 20dB · LUFS -16)
+chk 'VP_CHOICE' order-preview.html 3
+chk 'VP_CARD' order-preview.html 4
+chk 'REC_TRIM' order-preview.html 6
+chk 'VP_FLOW_CLAMP' order-preview.html 2
+chk 'function _vpNow(k)' order-preview.html 1
+chk "window.mkGuestOne=function(v)" order-preview.html 1
+chk '이 파일은 열 수 없어요. m4a · mp3 · wav 로 올려 주세요' order-preview.html 1
+chk '앞 두 문장은 하객께 드리는 안내라 그대로 읽어 주세요' order-preview.html 1
+chk '예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요' order-preview.html 1
+chk 'REC_LUFS=-16' order-preview.html 1
+chk '잡음 줄이기 켜고 다시 녹음' order-preview.html 1
+chk '예시 목소리 · 두 분이 준비하면 그 목소리로 바뀌어요' order-preview.html 1
+chk 'guestReader' assets/ritual-open.js 2
+chk 'REC_TRIM' scripts/audit/listen-page.mjs 1
+nochk '이 기기에서 다듬지 못해 받은 그대로 보내요' order-preview.html   # [REC_TRIM] 못 여는 파일은 보내지 않는다
+# ★[2026-09-28 코워크 0928 6-5 · 6-7] 콘솔 갈래 칩(나레이션 · 두 분 녹음 · AI 목소리 · 당일 직접) · 소리 파일 확인 말 · 관리 화면 자리마다 한 줄 · 빈 줄 [연락하기] · GAS 사본도 같은 말
+chk 'RF_KIND_0928' console.html 4
+chk "else pill('vk', '나레이션'); }" console.html 1
+chk "' · 받아 둠'" console.html 1
+chk 'RF_ROWS_0928' admin.html 2
+chk 'function admRfAsk(k)' admin.html 1
+chk 'RF_ROWS_0928' automation/admin/Admin.html 1
+nochk '두 분 녹음(파일 수령 필요)' automation/admin/Admin.html

@@ -908,7 +908,10 @@ function _prodTrackDetail(prod){
     function _ko(m,v){ return (_KO[m]&&_KO[m][v])||v||''; }
     rh3+=L('코스', esc(String(rsm.course||''))+(rsm.count?(' · '+esc(String(rsm.count))+'개 순서'):'')+(rsm.min?(' · '+esc(String(rsm.min))):''));
     if(_fl) rh3+='<div><span style="color:var(--label-soft)">순서 흐름</span><br><span style="color:var(--accent)">'+esc(rsm.flow.join(' → '))+'</span></div>';
-    rh3+=L('입장', esc(_ko('entry',rs.entry))+(rs.entryVoice==='couple'?' · 두 분 녹음(파일 수령 필요)':' · 나레이션'));
+    // ★[RF_ROWS_0928 코워크 0928 6-7] 두 분 목소리 — 자리마다 갈래(두 분 녹음 · 올린 파일 · AI 목소리 · 비어 있음 → 나레이션) · admin.html «두 분 목소리» 목록과 같은 말
+    var _rup=rs.up||{}; function _rfK(k){ var v=_rup[k]; return (v&&typeof v==='object')?(v.src==='ai'?'AI 목소리':v.src==='rec'?'두 분 녹음':'올린 파일'):'비어 있음 → 나레이션'; }
+    if(rs.guestVoice==='couple'){ var _gc={}; ['g0','g1','g2','g3'].forEach(function(k){ var t=_rfK(k); _gc[t]=(_gc[t]||0)+1; }); rh3+=L('하객 맞이 안내', '두 분 목소리 · '+esc(Object.keys(_gc).map(function(t){ return t+' '+_gc[t]; }).join(' · '))); }
+    rh3+=L('입장', esc(_ko('entry',rs.entry))+(rs.entryVoice==='couple'?' · 두 분 목소리('+esc(_rfK('entry'))+')':' · 나레이션'));
     // ★DECL_ADMIN_MIRROR — GAS라 /assets/ritual-data.js를 못 읽어 4종을 손으로 맞춘다(주체가 늘면 여기도 같이 고칠 것).
     //   과거 사고(2026-07-26): 'ask'가 else로 떨어져 '나레이션'으로 표시됐다. 빈칸보다 나쁘다 —
     //   운영자가 이 화면만 보고 준비하면 개식 직후 예고 클립(W2-a)과 하객 응답 안내가 통째로 빠진다.

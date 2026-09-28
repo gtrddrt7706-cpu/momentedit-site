@@ -1009,13 +1009,28 @@ function _orderSheetDoc(d){
 function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&curDetail.code; if(!el||!code) return; el.textContent='불러오는 중…';
   gas('adminRitualFiles', code).then(function(d){ if(!d||!d.ok){ el.textContent=(d&&d.error)||'불러오지 못했어요'; return; }
     if(d.gone){ el.innerHTML='<div class="kv"><span class="k">지움</span><span class="v">'+esc(d.gone)+' (예식 30일 뒤)</span></div>'; return; }
-    if(!d.files.length){ el.innerHTML='<div class="kv"><span class="k">파일</span><span class="v">아직 없음 · 비어 있는 줄은 나레이션으로 나감</span></div>'; return; }
-    var seen={}, h='';
-    d.files.forEach(function(f){ var cur=f.key&&!seen[f.key]; if(f.key) seen[f.key]=1; var ok=d.okMap&&d.okMap[f.key];
-      h+='<div class="kv"><span class="k">'+esc(f.label||'자리 모름')+(cur?'':' (옛 파일)')+'</span><span class="v">'+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+(f.late?' · <b style="color:var(--red)">D-7 뒤 바뀜</b>':'')
-        +' <button type="button" class="btn-line" style="padding:2px 8px;font-size:12px" onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button>'
-        +(cur?' <button type="button" class="btn-line" style="padding:2px 8px;font-size:12px" onclick="admRfOk(\''+esc(f.key)+'\','+(ok?'false':'true')+')">'+(ok?'확인 ✓ · '+esc(ok.at||''):'확인')+'</button>':'')+'</span></div>'; });
+    /* ★[RF_ROWS_0928 코워크 0928 6-7] 자리마다 한 줄 — 자리 · 갈래(두 분 녹음 · 올린 파일 · AI 목소리 · 비어 있음 → 나레이션) · 파일 [들어 보기] · 바뀐 때 · [확인 ✓] · 빈 줄엔 [연락하기].
+       자리는 두 분이 «두 분 목소리»를 고른 식순만(하객 맞이 넷 · 입장 인사 하나) · 지금 쓰는 파일은 그 자리의 가장 새 파일 · 옛 파일은 아래에 따로 */
+    var S3=((((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).ritualDraft||{}).S)||{}, up=S3.up||{}, ks=[], LAB={g0:'하객 맞이 1 · 하객 입장 때',g1:'하객 맞이 2 · 시작 10분 전',g2:'하객 맞이 3 · 시작 5분 전',g3:'하객 맞이 4 · 시작 1분 전',entry:'입장 인사'};
+    if(S3.guestVoice==='couple') ks=ks.concat(['g0','g1','g2','g3']); if(S3.entryVoice==='couple') ks.push('entry');
+    var curF={}, old=[], BT='class="btn-line" style="padding:2px 8px;font-size:12px"';
+    d.files.forEach(function(f){ if(f.key&&!curF[f.key]) curF[f.key]=f; else old.push(f); });
+    Object.keys(curF).forEach(function(k){ if(ks.indexOf(k)<0) ks.push(k); });   // 고른 식순이 바뀌어도 올라온 파일은 보인다
+    var nEmpty=0, h=ks.map(function(k){ var f=curF[k], v=up[k], ok=d.okMap&&d.okMap[k];
+      if(!f){ nEmpty++; return '<div class="kv"><span class="k">'+esc(LAB[k]||k)+'</span><span class="v" style="color:var(--sub)">비어 있음 · 나레이션으로 나감 '+admRfAsk(k)+'</span></div>'; }
+      var kind=v&&v.src==='ai'?'AI 목소리':v&&v.src==='rec'?'두 분 녹음':'올린 파일';
+      return '<div class="kv"><span class="k">'+esc(LAB[k]||f.label||k)+'</span><span class="v"><b>'+kind+'</b> · '+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+(f.late?' · <b style="color:var(--red)">D-7 뒤 바뀜</b>':'')
+        +' <button type="button" '+BT+' onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button>'
+        +' <button type="button" '+BT+' onclick="admRfOk(\''+esc(k)+'\','+(ok?'false':'true')+')">'+(ok?'확인 ✓ · '+esc(ok.at||''):'확인')+'</button></span></div>'; }).join('');
+    if(!ks.length) h='<div class="kv"><span class="k">파일</span><span class="v">두 분 목소리를 고른 자리가 없어요</span></div>';
+    h='<p class="note" style="margin:4px 0 6px;color:var(--sub);font-size:12px">확인할 것 · 목소리가 그 사람인지 · 하객 맞이 4번 줄 앞 두 문장(진행 안내)이 들리는지 · D-5 쯤 한 번'+(nEmpty?' · 빈 줄 '+nEmpty+'개':'')+'</p>'+h;
+    if(old.length) h+='<details style="margin-top:6px"><summary style="font-size:12px;color:var(--sub)">옛 파일 '+old.length+'개</summary>'+old.map(function(f){ return '<div class="kv"><span class="k">'+esc(f.label||'자리 모름')+'</span><span class="v">'+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+' <button type="button" '+BT+' onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button></span></div>'; }).join('')+'</details>';
     el.innerHTML=h; }).catch(function(){ el.textContent='불러오지 못했어요'; }); }
+/* [RF_ROWS_0928] 빈 줄 [연락하기] — 문자 앱을 그 줄 이름을 담아 연다(보내기는 사람이) */
+function admRfAsk(k){ var d=curDetail||{}, ph=d.phone?(window.meTelDigits?meTelDigits(d.phone):String(d.phone).replace(/[^0-9+]/g,'')):''; if(!ph) return '';
+  var L={g0:'하객 맞이 안내 1번(하객 입장 때)',g1:'하객 맞이 안내 2번(시작 10분 전)',g2:'하객 맞이 안내 3번(시작 5분 전)',g3:'하객 맞이 안내 4번(시작 1분 전)',entry:'입장 인사'}[k]||'두 분 목소리';
+  var body='[모먼트에디트] 두 분 목소리 준비 · '+L+' 줄이 아직 비어 있어요. 마이페이지 식순 만들기에서 녹음하거나 파일을 올려 주세요. 예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요.';
+  return '<a class="btn-line" style="padding:2px 8px;font-size:12px" href="sms:'+esc(ph)+'?body='+encodeURIComponent(body)+'">연락하기</a>'; }
 function admRfPlay(id,btn){ var code=curDetail&&curDetail.code; if(!code) return; btn.disabled=true; btn.textContent='받는 중…';
   gas('adminRitualFileGet', code, id).then(function(d){ btn.disabled=false; btn.textContent='들어 보기'; if(!d||!d.ok){ toast((d&&d.error)||'받지 못했어요'); return; }
     var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); var a=new Audio(URL.createObjectURL(new Blob([u],{type:d.mime||'audio/wav'}))); a.play(); })

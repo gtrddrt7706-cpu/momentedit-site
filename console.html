@@ -770,9 +770,11 @@ Object.keys(OPT).forEach(function(id){
 });
 
 function rfSlugOf(key){ return key === 'entry' ? ('entry-' + (S.entry || 'A')) : RF_SLUG[key]; }
+function rfKindLab(k){ var v = (S.up || {})[k]; return v && v.src === 'ai' ? 'AI 목소리' : '두 분 녹음'; }   // [RF_KIND_0928]
 function rfKeys(){ var ks = []; if (S.guestVoice === 'couple') ks = ks.concat(['g0','g1','g2','g3']); if (S.entryVoice === 'couple') ks.push('entry'); return ks; }
 function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(); if (!sec || !box) return; sec.hidden = !ks.length; if (!ks.length) return;
-  box.innerHTML = ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ 두 분 목소리 · 받아 둠' : st === 'busy' ? '받는 중…' : st === 'fail' ? '받지 못함 · 나레이션으로 나가요' : '파일 없음 · 나레이션으로 나가요';
+  /* ★[RF_KIND_0928 코워크 0928 6-5] 줄마다 «두 분 녹음 · 받아 둠» · «AI 목소리 · 받아 둠» · «나레이션으로 나감» — 올린 파일도 두 분이 녹음한 것이라 «두 분 녹음» */
+  box.innerHTML = ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + ' · 받아 둠' : st === 'busy' ? '받는 중…' : st === 'fail' ? '받지 못함 · 나레이션으로 나감' : '파일 없음 · 나레이션으로 나감';
     return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + t + '</span></div>'; }).join(''); }
 function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
   var up = S.up || {}; rfPaint(); if (!code || !tok) return;
@@ -1236,8 +1238,9 @@ function render(){
   function pill(cls, t){ var s = document.createElement('span'); s.className = 'pill ' + cls; s.textContent = t; tag.appendChild(s); }
   /* [VOICE_KIND] 큐마다 갈래 — 두 분 목소리 자리는 받아 둔 파일이 있으면 «두 분 녹음» · 없으면 «나레이션으로» · 뒤에 사람이 말하면 «당일 직접» */
   function vkPill(q){ if (GUEST || !q) return; var key = null; Object.keys(RF_SLUG).forEach(function(k){ if (RF_SLUG[k] === q.slug) key = k; }); if (q.slug === 'entry-' + (S.entry || 'A')) key = 'entry';
-    if (key && rfKeys().indexOf(key) > -1) pill('vk', CLIPS[q.slug] ? '두 분 녹음' : '두 분 목소리 없음 · 나레이션으로');
-    else if (q.live) pill('vk', (window.RitualOpen && RitualOpen.voiceLab) ? RitualOpen.voiceLab(q.k, S, { talk: true }) : '당일 직접'); }
+    if (key && rfKeys().indexOf(key) > -1) pill('vk', CLIPS[q.slug] ? rfKindLab(key) : '두 분 목소리 없음 · 나레이션으로');   // [RF_KIND_0928] 두 분 녹음 · AI 목소리
+    else if (q.live) pill('vk', (window.RitualOpen && RitualOpen.voiceLab) ? RitualOpen.voiceLab(q.k, S, { talk: true }) : '당일 직접');
+    else pill('vk', '나레이션'); }   // [RF_KIND_0928] 큐마다 갈래 칩 — 나레이션 · 두 분 녹음 · AI 목소리 · 당일 직접
 
   if (phase === 'end') {
     $('#nName').textContent = GUEST ? '다 들으셨어요' : '진행이 끝났습니다';
