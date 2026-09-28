@@ -46,6 +46,9 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 6-1 AI 칸이 셋째 칸으로 보인다(voiceClone 켜짐)', /직접 녹음하기\|AI로 두 분 목소리 만들기\|스튜디오 나레이션으로/.test(chips), chips);
   await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
   ok(W + ' AI 칸을 고르면 두 분 목소리 + 빈 줄 기본 AI · 사람 카드 둘', await pg.evaluate(() => S.guestVoice === 'couple' && S.vfill.guest === 'ai' && document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length === 2), await pg.evaluate(() => JSON.stringify({ gv: S.guestVoice, vf: S.vfill, n: document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length })));
+  /* ★[VC_LIMIT_UI] 목소리 만들기를 다 쓴 분(left 0 · 아직 못 만듦)은 카드에 [1분 읽기 시작]이 없고 한 줄로 알린다 */
+  const lim = await pg.evaluate(() => { const o = VC.st.bride; VC.st.bride = { consent: true, ready: false, left: 0 }; render(); const r = { btn: !!document.querySelector('[data-fk="mkvcread:bride"]'), t: document.querySelector('.mk-aisec').textContent }; VC.st.bride = o; render(); return r; });
+  ok(W + ' 다 쓴 분 — [1분 읽기 시작] 없음 · «목소리 만들기를 다 썼어요» [VC_LIMIT_UI]', !lim.btn && /목소리 만들기를 다 썼어요/.test(lim.t), JSON.stringify(lim).slice(0, 200));
   await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(300);
   const cp = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');   // ★[REC_DLG] 동의 · 1분 읽기는 작은 창에서
   ok(W + ' 8-4 동의 — 제목 · 본인이 직접 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구', /님 목소리로 AI 목소리를 만들어요/.test(cp) && /본인이 직접 눌러 주세요/.test(cp) && /언제 지우나요\s*읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
