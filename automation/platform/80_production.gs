@@ -1161,7 +1161,10 @@ function _voiceUpLive(code) {
   // [VOICE_UP_FROM] 날짜 문 — 시행일부터 · 시험 예식은 늘 열림
   return (typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= VOICE_UP.from) || _voiceStudio(code);
 }
-function _voicePub(code) { var c = _vcCfg(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key), sup: _rfStudioUps(code), gone: PropertiesService.getScriptProperties().getProperty('RFGONE_' + code) || '', aiGone: (function () { var v = _vcSt(code); return v.purged && ((v.groom && v.groom.made) || (v.bride && v.bride.made)) ? String(v.purged).slice(0, 10) : ''; })(), keepDays: +(PropertiesService.getScriptProperties().getProperty('RITUAL_FILE_PURGE_DAYS') || 30) || 30 }; }   // [VOICE_KEEP] gone = 파일을 지운 날 · aiGone = AI 목소리 · 읽은 녹음을 지운 날(AI 를 만든 예식만)   // [RF_STUDIO_UP] sup = 스튜디오가 대신 올린 파일(자리 → {id,name,at})   // [VOICE_UP_FROM] 화면으로 가는 것은 켜짐 여부뿐(키 · 목소리 id 는 안 보낸다)
+function _voicePub(code) {
+  // [VOICE_UP_FROM] 화면으로 · [RF_STUDIO_UP] sup = 스튜디오가 대신 올린 파일(자리 → {id,name,at}) · [VOICE_KEEP] gone = 파일을 지운 날 · aiGone = AI 목소리 · 읽은 녹음을 지운 날(AI 를 만든 예식만)
+  var c = _vcCfg(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key), sup: _rfStudioUps(code), gone: PropertiesService.getScriptProperties().getProperty('RFGONE_' + code) || '', aiGone: (function () { var v = _vcSt(code); return v.purged && ((v.groom && v.groom.made) || (v.bride && v.bride.made)) ? String(v.purged).slice(0, 10) : ''; })(), keepDays: +(PropertiesService.getScriptProperties().getProperty('RITUAL_FILE_PURGE_DAYS') || 30) || 30 };
+}
 var RF_ROOT_FOLDER = 'ME_예식준비파일';
 var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사' };
 function _rfFolderFor(code) {
@@ -1433,6 +1436,7 @@ function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0;
 /* ★[VOICE_CLONE_0928 8-6] 매일(aiDaily · 96_ai_cost) — 예식 다음 날이 된 예식 · 취소 · 노쇼는 지운다 · 업체 지우기 실패분 다시 · 칸이 45 넘으면 관리자 메일.
    dry=true 면 대상만 로그(previewVoiceClones) */
 function purgeVoiceClones(dry) {
+  // [VOICE_CLONE_0928] 예식 다음 날 · 취소 · 노쇼 · 미계약 — 업체 목소리 · 읽은 녹음 · 연습 소리
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
   Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var code = k.slice(3), st; try { st = JSON.parse(all[k] || '{}') || {}; } catch (e) { return; }
     var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
@@ -1448,7 +1452,7 @@ function purgeVoiceClones(dry) {
   Logger.log('purgeVoiceClones' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
   return done; }
 function previewVoiceClones() { return purgeVoiceClones(true); }
-/* ★[VC_FOLD_0928] 아래 둘(_vcSlots · vcSelfTest)은 다른 세션이 cowork-docs-auto-deploy-f41sfk 가지에 만들어 «설계 확인까지 보류»한 122ace20 을 0928 확정에 맞춰 들인 것 — 201 응답 · _vcTts 바이트 */
+/* ★VC_FOLD_0928 — 아래 둘(_vcSlots · vcSelfTest)은 다른 세션이 cowork-docs-auto-deploy-f41sfk 가지에 만들어 «설계 확인까지 보류»한 122ace20 을 0928 확정에 맞춰 들인 것 — 201 응답 · _vcTts 바이트 */
 /* ★[VC_SLOTS 2026-09-28 지시문 5-7 «관리 화면에 쓰는 칸 / 전체 칸»] 요금제의 목소리 칸 — 타입캐스트가 알려 주는 값을 그대로 쓴다.
    GET /v1/users/me/subscription(plan · credits · limits.custom_voice_slot) · GET /v1/custom-voices(만든 목소리 목록) — SDK(typecast-go client.go · models.go) 원본으로 확인.
    ★열 때마다 부르지 않게 10분 캐시 · 키가 없으면 null(관리 화면에 줄이 안 생긴다) · 실패는 err 에 HTTP 코드. */

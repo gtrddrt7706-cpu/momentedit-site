@@ -1296,6 +1296,30 @@
    "fn": "doPost",
    "mark": "VOICE_KEEP",
    "why": "ritualFilePurgeMine 길 — 옛것이면 «모두 지우기»가 알 수 없는 요청"
+  },
+  {
+   "file": "80_production",
+   "fn": "_voicePub",
+   "mark": "RF_STUDIO_UP",
+   "why": "두 분 화면 · 콘솔이 스튜디오가 대신 올린 파일(sup)과 지운 날(gone · aiGone)을 받는다 — 옛것이면 대신 올린 파일이 두 분 화면에 안 보이고 D+7 알림이 지운 뒤에도 남는다"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCall",
+   "mark": "VOICE_CLONE",
+   "why": "AI 목소리 관리 함수 등록(adminVoiceUsage · adminVoiceRead) — 빠지면 관리 화면 «AI 목소리 칸» 줄이 «알 수 없는 요청»"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCall",
+   "mark": "RF_STUDIO_UP",
+   "why": "스튜디오 대신 올리기(adminRitualFileUp) 등록 — 빠지면 관리 화면 [파일 올리기]가 «알 수 없는 요청»"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiDaily",
+   "mark": "VOICE_CLONE",
+   "why": "매일 purgeVoiceClones — 빠지면 예식 다음 날 AI 목소리 지우기가 안 돈다"
   }
  ],
  "fns": {
@@ -2296,7 +2320,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-09-28 13:14 · 3979f0e5",
+ "_생성": "2026-09-28 13:32 · 0efefc3e",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2732,5 +2756,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "68433efb15a5"
+ "_표식서명": "27fcd706af06"
 }
