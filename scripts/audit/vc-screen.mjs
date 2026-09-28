@@ -47,24 +47,29 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
   ok(W + ' AI 칸을 고르면 두 분 목소리 + 빈 줄 기본 AI · 사람 카드 둘', await pg.evaluate(() => S.guestVoice === 'couple' && S.vfill.guest === 'ai' && document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length === 2), await pg.evaluate(() => JSON.stringify({ gv: S.guestVoice, vf: S.vfill, n: document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length })));
   await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(300);
-  const cp = await pg.evaluate(() => (document.querySelector('.mk-aisec .mk-recp') || {}).textContent || '');
-  ok(W + ' 8-4 동의 — 제목 · 본인이 직접 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구', /님 목소리로 AI 목소리를 만들어요/.test(cp) && /본인이 직접 눌러 주세요/.test(cp) && /언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
+  const cp = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');   // ★[REC_DLG] 동의 · 1분 읽기는 작은 창에서
+  ok(W + ' 8-4 동의 — 제목 · 본인이 직접 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구', /님 목소리로 AI 목소리를 만들어요/.test(cp) && /본인이 직접 눌러 주세요/.test(cp) && /언제 지우나요\s*읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
   ok(W + ' 체크 전에는 [동의하고 읽으러 가기]가 막혀 있다', await pg.evaluate(() => document.getElementById('vcAgree').disabled));
   await pg.click('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(500);
-  const rp = await pg.evaluate(() => (document.querySelector('.mk-aisec .mk-recp') || {}).textContent || '');
-  ok(W + ' 8-2 E — 글 둘 · 둘째 글 끝에 서버 확인 문장 · 파일 올리기 없음 안내', /글 1/.test(rp) && /글 2/.test(rp) && /여러분도 그런 곳이 하나쯤 있으신가요\? 오늘은 구월 이십팔일, 파란 우산과 노란 연필\./.test(rp) && /파일은 올릴 수 없어요/.test(rp) && !(await pg.evaluate(() => !!document.querySelector('.mk-aisec [data-fk^="mkup:"]'))), rp.slice(0, 300));
+  const rp1 = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
+  await pg.evaluate(() => { VC.read.take[1] = { wav: __tone(6), dur: 6 }; mkVcStep(2); }); await pg.waitForTimeout(200);
+  const rp = rp1 + ' || ' + await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
+  ok(W + ' 8-2 E — 한 번에 한 글(글 1 → 글 2) · 둘째 글 끝에 서버 확인 문장 · 파일 올리기 없음 안내 [REC_DLG]', /글 1/.test(rp1) && !/느티나무/.test(rp1) && /글 2/.test(rp) && /여러분도 그런 곳이 하나쯤 있으신가요\? 오늘은 구월 이십팔일, 파란 우산과 노란 연필\./.test(rp) && /파일은 올릴 수 없어요/.test(rp) && !(await pg.evaluate(() => !!document.querySelector('#mkRecDlg [data-fk^="mkup"],#mkRecDlg [data-fk="mkrecfile"]'))), rp.slice(0, 300));
   await full(pg, W, 's3-read');
   // 두 글이 짧으면(합쳐 20초 안) 만들기 전에 멈춘다
   await pg.evaluate(() => { VC.read.take[1] = { wav: __tone(6), dur: 6 }; VC.read.take[2] = { wav: __tone(7), dur: 7 }; render(); }); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(600);
-  ok(W + ' 합쳐 20초 안 → «조금 더 천천히, 끝까지 읽어 주세요» · 서버를 안 부른다', await pg.evaluate(() => /조금 더 천천히, 끝까지 읽어 주세요/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !__calls.some((c) => /^enroll/.test(c))));
-  await pg.evaluate(() => { S.up = S.up || {}; S.up.g2 = { n: '녹음', id: 'Fg2old', src: 'rec', at: '' }; VC.read.take[1] = { wav: __tone(12), dur: 12 }; VC.read.take[2] = { wav: __tone(13), dur: 13 }; render(); }); await pg.waitForTimeout(200);
+  ok(W + ' 합쳐 20초 안 → 창 안에 «조금 더 천천히, 끝까지 읽어 주세요» · [글 2 다시 읽기] · 서버를 안 부른다 [REC_DLG]', await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return !!d && /조금 더 천천히, 끝까지 읽어 주세요/.test(d.textContent) && /글 2 다시 읽기/.test(d.textContent) && !__calls.some((c) => /^enroll/.test(c)); }));
+  await pg.evaluate(() => { S.up = S.up || {}; S.up.g2 = { n: '녹음', id: 'Fg2old', src: 'rec', at: '' }; VC.read.take[1] = { wav: __tone(12), dur: 12 }; VC.read.take[2] = { wav: __tone(13), dur: 13 }; VC.read.short = false; VC.read.err = ''; render(); }); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(4000);
   const calls = await pg.evaluate(() => __calls.join(' '));
   ok(W + ' 만들기 → 두 글을 0.4초 쉼으로 이어 한 파일(25초 넘음)', /enroll:groom:s2[5-9]/.test(calls), calls);
   const up = await pg.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(S.up || {}).map(([k, v]) => [k, v && v.src ? v.src + (v.by ? '/' + (Array.isArray(v.by) ? v.by.join('+') : v.by) : '') : String(v)]))));
   ok(W + ' 8-2 4) 신랑이 읽는 빈 줄(1번)만 AI · 녹음 있는 3번(g2)은 그대로 · 신부 줄(2 · 4번)은 비어 있음', /"g0":"ai\/groom"/.test(up) && /"g2":"rec"/.test(up) && !/"g1":"ai/.test(up) && !/"g3":"ai/.test(up), up + ' ' + calls);
   ok(W + ' 입장 인사(두 분이 번갈아)도 만들고 문장마다 읽는 사람을 넘긴다 · «입장 인사도 같은 목소리로 만들었어요»', /make:entry:L\d/.test(calls) && /"entry":"ai/.test(up) && /입장 인사도 같은 목소리로 만들었어요/.test(await pg.evaluate(() => (document.querySelector('.mk-aisec') || {}).textContent || '')), calls);
+  const dn = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
+  ok(W + ' 만든 뒤 창이 «만들기» 걸음에서 «목소리를 만들었어요» · 채운 줄 수 · [확인] [REC_DLG]', /목소리를 만들었어요/.test(dn) && /2줄을 이 목소리로 채웠어요/.test(dn) && /확인/.test(dn), dn.slice(0, 200));
+  await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
   const tools = await pg.evaluate(() => { const c = [...document.querySelectorAll('.mk-vcards .mk-vr')].find((li) => li.querySelector('[data-fk="mkairedo:g0"]')); return c ? c.textContent : ''; });
   ok(W + ' 8-2 5) AI 줄 — 빠르기 셋 · 다시 만들기 · N번 남음 · 이 줄은 직접 녹음할게요', /천천히/.test(tools) && /조금 빠르게/.test(tools) && /다시 만들기 · 4번 남음/.test(tools) && /이 줄은 직접 녹음할게요/.test(tools), tools);
   ok(W + ' 배지 «AI로 만들었어요» · 녹음 줄엔 [AI로 만들기](그 줄만)', await pg.evaluate(() => /AI로 만들었어요/.test(document.querySelector('.mk-vcards').textContent) && !!document.querySelector('[data-fk="mkai:g2"]')));
