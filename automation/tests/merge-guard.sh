@@ -13545,6 +13545,8 @@ chk 'VP_NO_DIRECT' assets/ritual-open.js 1
 chk 'VP_ONE_LIST' scripts/audit/rec-upload.mjs 2
 chk 'VP_ONE_LIST' scripts/audit/listen-page.mjs 1
 chk 'VP_NO_DIRECT' scripts/audit/ghi-polish.mjs 1
+chk 'VP_NO_EXIT' order-preview.html 2   # AI 를 다 쓴 분 줄에도 [녹음] 비상구 없음 · 나레이션(2026-09-28 사장님 «녹음은 뭐야?»)
+chk 'VP_NO_EXIT' scripts/audit/vc-screen.mjs 2
 chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
 chk 'REC_DLG' order-preview.html 6

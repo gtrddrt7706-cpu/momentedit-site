@@ -3717,7 +3717,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
      고른 칸의 것만 보인다 — 직접 녹음: 읽을 글 복사 · 줄마다 [녹음] [파일 올리기] · 녹음 도움말 · 올리기가 어렵다면 (AI 칸 · [AI로 만들기] 없음)
      AI: 사람 카드(목소리 만들기) · 줄 카드는 글과 상태만 — 빈 줄은 «○○ 목소리를 만들면 저절로 채워져요», 만든 줄은 들어 보기 · 빠르기 · 다시 만들기.
        [녹음] [파일 올리기]는 «이 줄은 직접 녹음할게요»를 누른 줄(S.vself)에만 · 스튜디오 나레이션: 이 칸 자체가 없다(_mkItems 에 up 이 없다) */
-  var ai=_vpCur(k)==='ai', vself=S.vself||{}, own=function(key){ return !!vself[key]||_vcSpent(key); }, anySelf=ai&&ups.some(function(q){ return own(q.up); });   // [VP_ONLY_PICKED] own = 이 줄은 직접(누른 줄 · 목소리 만들기를 다 쓴 분의 줄)
+  var ai=_vpCur(k)==='ai', vself=S.vself||{}, own=function(key){ return !!vself[key]; }   /* ★[VP_NO_EXIT 2026-09-28 사장님 «녹음은 뭐야?»] 목소리 만들기를 다 쓴 분의 줄에 [녹음]을 비상구로 두던 것을 걷었다 — 그 줄은 나레이션(아래 me 갈래) */, anySelf=ai&&ups.some(function(q){ return own(q.up); });   // [VP_ONLY_PICKED] own = 이 줄은 직접(누른 줄 · 목소리 만들기를 다 쓴 분의 줄)
   var h=ai?'<section class="mk-sec mk-voice" aria-labelledby="mkVcH">'+_vcSec()   // [VP_ONLY_PICKED] AI 는 사람 카드가 머리
     :'<section class="mk-sec mk-voice" aria-labelledby="mkVoiceH"><div class="mk-sech"><h4 id="mkVoiceH">두 분 목소리 준비</h4>'
     +'<button type="button" class="mk-hbtn" data-fk="mkupcopy" onclick="mkUpCopy(\''+k+'\')">읽을 글 복사하기</button></div>'
@@ -3736,7 +3736,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
       +(st.file?_vcLineTools(q.up,lab):'')   // [VC_LINE_0928] AI 줄 — 빠르기 · 다시 만들기 · 이 줄은 직접 녹음할게요 · 되돌리기
       +(function(){ var dis=(st.busy||rec?' disabled':''), aiBtn='<button type="button" class="rowbtn mk-vb" data-fk="mkai:'+q.up+'" aria-label="'+esc(lab+' AI로 만들기')+'"'+dis+' onclick="mkAi(\''+q.up+'\')">AI로 만들기</button>', me=ai&&!own(q.up);   // [VP_ONLY_PICKED]
           if(st.file) return '<span class="mk-vbs"><button type="button" class="rowbtn mk-vb" data-fk="mkupplay:'+q.up+'" aria-label="'+esc(lab+' 들어 보기')+'" onclick="mkUpPlay(\''+q.up+'\')">들어 보기</button><button type="button" class="rowbtn mk-vb" data-fk="mkupdel:'+q.up+'" aria-label="'+esc(lab+' 지우기')+'" onclick="mkUpDel(\''+q.up+'\')">지우기</button>'+(me&&_vcReadyFor(q.up)&&((S.up||{})[q.up]||{}).src!=='ai'?aiBtn:'')+'</span>';
-          if(me) return _vcReadyFor(q.up)?'<span class="mk-vbs">'+aiBtn+'</span>':'<p class="mk-note mk-vaiw">'+esc((q.up==='entry'?'두 분':_recWho(q.up))+' 목소리를 만들면 이 줄이 저절로 채워져요')+'</p>';   // 빈 줄 — 녹음 · 파일 단추 없음
+          if(me) return _vcReadyFor(q.up)?'<span class="mk-vbs">'+aiBtn+'</span>':'<p class="mk-note mk-vaiw">'+esc(_vcSpent(q.up)?'목소리 만들기를 다 써서 이 줄은 스튜디오 나레이션으로 나와요':(q.up==='entry'?'두 분':_recWho(q.up))+' 목소리를 만들면 이 줄이 저절로 채워져요')+'</p>';   // [VP_NO_EXIT]   // 빈 줄 — 녹음 · 파일 단추 없음
           return '<span class="mk-vbs"><button type="button" class="rowbtn mk-vb" data-fk="mkrec:'+q.up+'" aria-label="'+esc(lab+' 녹음하기')+'"'+dis+' onclick="mkRec(\''+q.up+'\')">녹음</button><button type="button" class="rowbtn mk-vb" data-fk="mkup:'+q.up+'" aria-label="'+esc(lab+' 파일 올리기')+'"'+dis+' onclick="mkUp(\''+q.up+'\')">파일 올리기</button>'
             +(ai&&vself[q.up]&&!_vcSpent(q.up)?'<button type="button" class="pk-link" data-fk="mkvselfoff:'+q.up+'" onclick="mkVselfOff(\''+q.up+'\')">AI로 채우기</button>':'')+'</span>'; })()+(MK.lineErr&&MK.lineErr[q.up]?'<p class="mk-exw" role="alert">'+esc(MK.lineErr[q.up])+'</p>':'')+'</li>';   // [VC_LINE_ERR]
     /* ★[REC_DLG 2026-09-28 사장님 «페이지에 펼쳐지는 것보다 작은 창이 열리고 그 안에서»] 녹음 칸은 카드 아래로 펼치지 않는다 — 작은 창(#mkRecDlg · _recDlgPaint) */
@@ -3909,7 +3909,7 @@ function _vcSec(){ if(!_vcOn()) return ''; var any=((S.vfill||{}).guest==='ai'||
   if(!VC.st){ _vcStatus(); return '<section class="mk-sec mk-aisec"><h4 id="mkVcH">AI로 두 분 목소리 만들기</h4><p class="mk-note">불러오는 중…</p></section>'; }
   var h='<section class="mk-sec mk-aisec" aria-labelledby="mkVcH"><h4 id="mkVcH">AI로 두 분 목소리 만들기</h4><ul class="mk-vlist">';
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}, nm=_vcName(w), who=(w==='groom'?'신랑':'신부')+' '+(nm===(w==='groom'?'신랑':'신부')?'':nm);   // [VC_CARD_0928 8-5] 사람 카드
-    var stx=p.ready?'목소리 만듦'+(p.made?' · '+_vcDay(p.made):''):(p.left===0&&!p.ready)?'목소리 만들기를 다 썼어요 · 직접 녹음해요':p.consent?'동의했어요 · 1분 읽기가 남았어요':'아직 만들지 않았어요';   // [VC_LIMIT_UI]
+    var stx=p.ready?'목소리 만듦'+(p.made?' · '+_vcDay(p.made):''):(p.left===0&&!p.ready)?'만들기를 다 썼어요 · 나레이션으로 나와요':p.consent?'동의했어요 · 1분 읽기가 남았어요':'아직 만들지 않았어요';   // [VC_LIMIT_UI]
     h+='<li class="mk-vr'+(p.ready?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(who.trim())+'</span><span class="mk-vs">'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span><span class="mk-vbs">'
       +(p.ready?((p.left>0)?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">다시 만들기 · '+p.left+'번 남음</button>':'')+'<button type="button" class="rowbtn mk-vb" data-fk="mkvcdel:'+w+'" onclick="mkVcDel(\''+w+'\')">AI 목소리 지우기</button>'
         :p.left===0?''   // [VC_LIMIT_UI] 다 쓴 분은 누를 단추가 없다
