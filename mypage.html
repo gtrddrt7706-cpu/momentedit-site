@@ -9295,11 +9295,17 @@ function startSnapFlow(sd, p, needAgree, opt){
    ★겹화면보다 위에 뜨는 것(확인 창 · 처리방침 창 · 크게 보기 · 알림 · 저장 중 베일 · z-index 950 초과 fixed)은 건드리지 않는다 — 그것들이 inert 면 누를 수 없다. */
 function _snapInertOn(ov){
   var list=[]; SNAPFLOW._inert=list; document.body.classList.add('snp-open');
-  Array.prototype.forEach.call(document.body.children, function(el){
-    if(el===ov || /^(SCRIPT|STYLE|LINK|TEMPLATE|NOSCRIPT)$/.test(el.tagName) || el.inert) return;
-    var cs=getComputedStyle(el); if(cs.position==='fixed' && (parseInt(cs.zIndex,10)||0)>950) return;
+  /* ★★[SNAP_INERT_DEEP 2026-09-28 사장님 «클릭이 안 되는 버그»] 종전엔 body 의 «바로 아래 자식»만 보고 막았다.
+     확인 창(#mpModal · fixed · z 11000)은 centered > mypageView 안에 있어서, 바깥 틀 centered 가 통째로 inert 가 되며
+     «고르던 것을 이 기기에 둘까요?»의 두 단추가 눌리지 않았다(아이폰 실기기 · 나가기).
+     이제 겹화면 · 위에 뜨는 것(fixed · z>950)을 품은 틀은 막지 않고 그 안으로 들어가, 그것들 바깥쪽만 막는다. */
+  var keep=[ov]; Array.prototype.forEach.call(document.body.querySelectorAll('*'), function(el){
+    if(el===ov||ov.contains(el)) return; var cs=getComputedStyle(el); if(cs.position==='fixed' && (parseInt(cs.zIndex,10)||0)>950) keep.push(el); });
+  (function walk(par){ Array.prototype.forEach.call(par.children, function(el){
+    if(keep.indexOf(el)>-1 || /^(SCRIPT|STYLE|LINK|TEMPLATE|NOSCRIPT)$/.test(el.tagName) || el.inert) return;
+    if(keep.some(function(k){ return el.contains(k); })){ walk(el); return; }
     try{ el.inert=true; if(!el.inert) el.setAttribute('inert',''); list.push(el); }catch(e){}
-  });
+  }); })(document.body);
 }
 function _snapInertOff(){
   (SNAPFLOW._inert||[]).forEach(function(el){ try{ el.inert=false; el.removeAttribute('inert'); }catch(e){} });
