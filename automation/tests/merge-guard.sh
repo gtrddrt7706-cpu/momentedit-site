@@ -13324,6 +13324,15 @@ chk 'MOMENT_SCRIPT' scripts/audit/moment-script-check.mjs 1
 # ★[MOMENT_COVER 2026-09-28] 편마다 «표지»(첫 프레임) 칸 · 다른 세션 지시문 대조 보충 — 표지 칸이 점검에서 빠지면 ① 칸에 무엇이 뜰지 정하지 않은 편이 생긴다
 chk "'남는 장면', '표지', '장면 대본'" scripts/audit/moment-script-check.mjs 1
 chk '## 1-2. 모든 편 공통' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[VIDEO_DECIDE_0928 사장님 결정] 준비한 순서 = 앞 스크린의 영상 · 감동하는 부모님 · 하객 맞이 = 하나둘씩 들어와 앉는 하객 · 그림은 따로 상의(장면 글이 본체)
+chk 'VIDEO_DECIDE_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '남는 장면: 앞 스크린의 영상을 보며 감동하는 부모님' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '하나둘씩 들어와' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '### 14. cake · 케이크 커팅' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '### 15. toast · 축배' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[VIDEO_FINAL_0928 사장님 «고객 입장에서 이해를 돕나 · 행동 하나하나 글로 · 개선점이 없을 때까지»] 최종 점검 3회(9 → 4 → 0) — 목례는 뒤에서 머리까지 · 표지가 서로 겹치지 않게
+chk 'VIDEO_FINAL_0928' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+chk '인사하는 컷은 \*\*뒤에서 · 어깨 위 · 머리까지\*\*' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'WINE_POUR_OFF' assets/ritual-story.js 1
 nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
 # ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 새 코스의 케이크 커팅 · 축배는 두 순간
