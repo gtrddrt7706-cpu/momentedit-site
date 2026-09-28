@@ -387,6 +387,9 @@
      켜는 것은 사장님 결정(타입캐스트 확인 · 법무 · 7장) 뒤 · 서버도 따로 잠겨 있다(VOICE_CLONE_ENABLED · PRACTICE_TTS_ENABLED).
      AI_NOTICE [AI_NOTICE] = 당일 AI 목소리 알림 방식(program · narration · both · none) — 기본 program(식순 안내에 한 줄) · 확정은 사장님 */
   var FEATURE = { voiceClone: false, practiceTts: false, upLive: false }, AI_NOTICE = 'program';   // ★[VOICE_UP_FROM 2026-09-28] upLive = 두 분 목소리 날짜 문(서버가 정한다 · 마이페이지 · 빌더가 넣는다) · 닫혀 있으면 종전 글
+  /* ★[GUEST_READER 2026-09-28 코워크 0928 6-1] 하객 맞이 네 줄의 읽는 사람 — 기본 번갈아(1 · 3 신랑 · 2 · 4 신부) · S.guestOne='g'|'b' 면 한 분이 모두 읽기.
+     원천 데이터(ritual-data GUEST = [때, 나레이션 글, 두 분 글])에는 읽는 사람이 없어 여기 한 곳에 둔다. 입장 인사는 [ENTRY_ALT] 그대로(한 분이 모두 읽기 없음) */
+  function guestReader(S, i) { var one = S && S.guestOne; if (one === 'g' || one === 'b') return one; return i % 2 === 0 ? 'g' : 'b'; }
   function voiceKind(k, S, o) { o = o || {}; if (o.talk) return 'live'; if (o.own) return 'prep'; return 'narr'; }
   function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
     if (k === 'bless' || (k === 'declare' && chipOf('declare', S) === 'family')) return '당일 직접 · 가족';
@@ -752,7 +755,7 @@
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
-    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, AI_NOTICE: AI_NOTICE,
+    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, AI_NOTICE: AI_NOTICE,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };
 });

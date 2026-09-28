@@ -186,7 +186,7 @@ for (const w of [360, 1280]) {
   const q = Buffer.from(JSON.stringify(S0)).toString('base64');
   await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(q)}&rf=ME0001`); await pg.waitForTimeout(1500);
   const r = await pg.evaluate(() => ({ st: window.__rfState().st, clip: window.__rfState().clip, sec: !document.getElementById('rfSec').hidden, t: document.getElementById('rfChk').textContent }));
-  ok('콘솔 — rf=코드 + 관리자 토큰 → 시작 전에 받아 둠(g0 ✓) · 못 받은 줄(g1)은 «나레이션으로» · 파일 없는 줄(g2 · g3)도 «나레이션으로» [REC_ADMIN]', /"g0":"ok"/.test(r.st) && /"g1":"fail"/.test(r.st) && r.clip === 'blob:' && r.sec && /하객 입장 때✓ 두 분 목소리 · 받아 둠/.test(r.t) && /시작 10분 전받지 못함 · 나레이션으로 나가요/.test(r.t) && /시작 5분 전파일 없음/.test(r.t) && calls.every((c) => /^adminRitualFileGet:ME0001,F-g[01]$/.test(c)), JSON.stringify({ r, calls }));
+  ok('콘솔 — rf=코드 + 관리자 토큰 → 시작 전에 받아 둠(g0 ✓) · 못 받은 줄(g1)은 «나레이션으로» · 파일 없는 줄(g2 · g3)도 «나레이션으로» [REC_ADMIN]', /"g0":"ok"/.test(r.st) && /"g1":"fail"/.test(r.st) && r.clip === 'blob:' && r.sec && /하객 입장 때✓ 두 분 녹음 · 받아 둠/.test(r.t) && /시작 10분 전받지 못함 · 나레이션으로 나감/.test(r.t) && /시작 5분 전파일 없음/.test(r.t) && calls.every((c) => /^adminRitualFileGet:ME0001,F-g[01]$/.test(c)), JSON.stringify({ r, calls }));
   ok('콘솔 pageerror 0', !errs.length, errs.join(' | '));
   await ctx.close();
 }
