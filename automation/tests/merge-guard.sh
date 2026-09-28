@@ -13547,10 +13547,14 @@ chk 'function vcLastErrors()' automation/platform/80_production.gs 1
 chk 'function _vcWhy(x)' automation/platform/80_production.gs 1
 chk "'VCERR_' + code" automation/platform/80_production.gs 1
 chk 'VC_WHY' admin.html 1
+nochk "prompt: { preset:" automation/platform/80_production.gs   # [VC_TTS_422] ssfm-v30 은 이 모양을 422 로 거절한다
+chk 'VC_TTS_422' automation/platform/80_production.gs 1
 chk 'function _vcGate(code, cfg, op, kind)' automation/platform/80_production.gs 1   # [VC_GATE_WHY] 문 앞에서 막힌 까닭도 남긴다
 chk 'VC_GATE_WHY' scripts/audit/vc-flow-sim.mjs 1
 chk 'VC_LIMIT_UI' order-preview.html 3   # 목소리 만들기를 다 쓰면 [다시 만들기] · [1분 읽기 시작]을 걷는다(2026-09-28 WNJK3Y 실측)
 chk 'VC_LIMIT_UI' scripts/audit/vc-screen.mjs 1
+chk 'VP_ONLY_PICKED' order-preview.html 6   # 고른 칸(직접 녹음 · AI · 나레이션)의 것만 아래에 — AI 에 녹음 · 파일 단추 없음(2026-09-28 사장님)
+chk 'VP_ONLY_PICKED' scripts/audit/vc-screen.mjs 1
 nochk '_vcReadText(' order-preview.html
 nochk '_vcLinePanel(' order-preview.html
 nochk 'TYPECAST_API_KEY' console.html
