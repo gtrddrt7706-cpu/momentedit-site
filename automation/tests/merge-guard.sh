@@ -9281,6 +9281,8 @@ chk 'slow:true} 는 정상' docs/데이터흐름_현황.md 1
 #   notify-e2e ⑭ 가 잰다 · 깨 보고 믿었다(확정 메일 기준 제거 → 빨강 · 읽어 둔 표 안 고침 → 고객 2통).
 chk 'MAIL_ONCE' automation/platform/95_notify.gs 4
 chk 'function _nfEmailedElsewhere' automation/platform/95_notify.gs 1
+# ★[TPL_REVIEW_0928] 9/28 검수 결과 기록 — T20·T21·T22 승인 · T19 반려(사유 확인 중). 사유를 받아 T19 를 다시 신청하면 이 기록을 고친다.
+chk 'TPL_REVIEW_0928' automation/알림톡_템플릿_신청문안.md 2
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
