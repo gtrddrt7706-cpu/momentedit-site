@@ -1346,13 +1346,17 @@ function _vcErr(code, c, op, why) {   // [VOICE_CLONE_0928] 8-3 오류 — 422 �
   _vcAlert('vcerr_' + code + '_' + (c || 0), '타입캐스트가 거절했어요 · ' + (W.op || '?') + ' · HTTP ' + (c || '연결 실패') + (W.msg ? ' · ' + W.msg : '') + ' · 예식 ' + code
     + (c === 402 ? ' · 크레딧이 모자라요 · 요금제를 확인해 주세요' : c === 403 ? ' · 목소리 칸이 찼거나 요금제가 복제를 허용하지 않아요' : c === 401 ? ' · 키가 맞지 않아요' : ''));
   return { ok: false, down: true, error: VC_DOWN }; }
+function _vcGate(code, cfg, op, kind) {   // ★[VC_GATE_WHY 2026-09-28 WNJK3Y 실측] 확인 문장 단계에서 «지금은 AI 목소리를 만들 수 없어요»가 떴는데 기록이 없었다 — 문 앞에서 막힌 까닭도 VCERR_ 에(메일은 안 보낸다 · 설정 문제라)
+  var m = cfg.mode[kind], why = !cfg.key ? 'TYPECAST_API_KEY 가 비어 있어요' : m === 'off' ? (kind === 'read' ? 'PRACTICE_READ' : 'VOICE_CLONE') + ' 가 off 예요(studio 또는 on 이어야 해요)' : m === 'studio' ? 'VOICE_STUDIO_CODES 에 ' + code + ' 가 없어요' : '스위치가 막혀 있어요';
+  try { PropertiesService.getScriptProperties().setProperty('VCERR_' + code, JSON.stringify({ at: fmtKST(new Date()), op: op || '', http: 0, msg: '문 앞에서 막힘 · ' + why })); } catch (e) {}
+  return { ok: false, down: true, error: VC_DOWN }; }
 function _vcWhy(x) {   // [VC_WHY] 업체 오류 글 — JSON 이면 detail · message · error 를 · 아니면 앞 200자
   var t = ''; try { t = String(x.r.getContentText() || ''); } catch (e) { return ''; }
   try { var j = JSON.parse(t), m = j.detail || j.message || j.error || j.msg || ''; if (m) return (typeof m === 'string' ? m : JSON.stringify(m)).slice(0, 200); } catch (e) {}
   return t.slice(0, 200); }
 function vcLastErrors() {   // [VC_WHY] GAS 편집기에서 80_production 파일을 열고 → vcLastErrors 실행 · 예식마다 마지막 실패 한 건을 로그로(발송 · 변경 없음)
   var all = PropertiesService.getScriptProperties().getProperties(), out = [];
-  Object.keys(all).forEach(function (k) { if (!/^VCERR_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(6) + ' · ' + (w.at || '') + ' · ' + (w.op || '') + ' · HTTP ' + (w.http || '연결 실패') + ' · ' + (w.msg || '(업체 글 없음)')); });
+  Object.keys(all).forEach(function (k) { if (!/^VCERR_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(6) + ' · ' + (w.at || '') + ' · ' + (w.op || '') + ' · ' + (w.http ? 'HTTP ' + w.http : /^문 앞/.test(w.msg || '') ? '설정' : '연결 실패') + ' · ' + (w.msg || '(업체 글 없음)')); });   // [VC_GATE_WHY] 설정으로 막힌 것은 HTTP 가 없다
   Logger.log(out.length ? out.join('\n') : '실패 기록 없음'); return out; }
 function _vcAlert(tag, text) { var p = PropertiesService.getScriptProperties(), k = 'VCALERT_' + tag, d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   if (p.getProperty(k) === d) return; p.setProperty(k, d); try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[두 분 목소리] ' + text); } catch (e) {} }
@@ -1391,7 +1395,7 @@ function handleVoiceClone(body) {
   if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
     ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
     _vcPut(code, st); return { ok: true, gone: gone }; }
-  if (op === 'practice') { if (!cfg.tts || !cfg.key) return down;   // [VOICE_CLONE_0928] 7-2 연습 읽기 — 연습에서만 · 두 분이 켤 때만 · 숨긴 글은 화면이 보내지 않는다
+  if (op === 'practice') { if (!cfg.tts || !cfg.key) return _vcGate(code, cfg, op, 'read');   // [VC_GATE_WHY]   // [VOICE_CLONE_0928] 7-2 연습 읽기 — 연습에서만 · 두 분이 켤 때만 · 숨긴 글은 화면이 보내지 않는다
     var t = String(body.text || '').trim().slice(0, 2000); if (!t) return { ok: false, error: '읽을 글이 없어요.' };
     var role = String(body.role || who || ''), own = (role === 'groom' || role === 'bride') && cfg.clone && st[role] && st[role].voiceId;
     var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || cfg.def.f || cfg.def.m; if (!vid) return down;
@@ -1399,7 +1403,7 @@ function handleVoiceClone(body) {
     if ((st.practice || 0) + t.length > VC_LIM.practiceChars) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
     try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; _vcPut(code, st); }
       return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.practiceChars - (st.practice || 0)) }; } catch (e) { return _vcErr(code, e.http, 'practice', e.why || e.message); } }
-  if (!cfg.clone || !cfg.key) return down;
+  if (!cfg.clone || !cfg.key) return _vcGate(code, cfg, op, 'clone');   // ★[VC_GATE_WHY] 스위치 · 시험 예식 목록 · 키 가운데 무엇이 막았는지 남긴다
   if (!WHO[who] && op !== 'make') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };
   if (op === 'consent') { if (body.agree !== true) return { ok: false, error: '동의가 필요해요.' };
     st[who] = st[who] || {}; st[who].consent = { at: fmtKST(new Date()), v: String(body.v || '0928').slice(0, 20) }; _vcPut(code, st); return { ok: true, who: who }; }
