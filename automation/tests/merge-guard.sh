@@ -6384,7 +6384,7 @@ nochk "계약서발송일시: '2026-08-16 10:00'" scripts/audit/journey-sim.mjs
 nochk "'cust.couponIssued':    { to: 'customer', need: false, off: true" automation/platform/95_notify.gs
 chk "case 'cust.couponIssued':" automation/platform/95_notify.gs 1
 chk "coupon:'mp_coupon'" mypage.html 1
-chk 'T19 · 후기 감사 선물' automation/알림톡_템플릿_신청문안.md 1
+chk 'T19 · 후기 이벤트 쿠폰' automation/알림톡_템플릿_신청문안.md 1   # [T19_COUPON_BASIS] 9/28 반려 뒤 이름을 바꿨다(«선물» → «쿠폰»)
 chk '바코드 자체는 문자로 보내지 않는다' scripts/audit/coupon-flow.mjs 1
 # ★★[KB_TRUTH_RUN · NIGHTLY_JOURNEY 2026-08-21] «자동으로 점검하나?»에 답하다 구멍 둘을 찾았다.
 #   ①kb-truth 는 마커만 검사하고 **스크립트를 부르지 않았다** — «핵심정보 자동 재검증»이 실은 수동이었다.
@@ -9281,8 +9281,17 @@ chk 'slow:true} 는 정상' docs/데이터흐름_현황.md 1
 #   notify-e2e ⑭ 가 잰다 · 깨 보고 믿었다(확정 메일 기준 제거 → 빨강 · 읽어 둔 표 안 고침 → 고객 2통).
 chk 'MAIL_ONCE' automation/platform/95_notify.gs 4
 chk 'function _nfEmailedElsewhere' automation/platform/95_notify.gs 1
-# ★[TPL_REVIEW_0928] 9/28 검수 결과 기록 — T20·T21·T22 승인 · T19 반려(사유 확인 중). 사유를 받아 T19 를 다시 신청하면 이 기록을 고친다.
+# ★[TPL_REVIEW_0928] 9/28 검수 결과 기록 — T20·T21·T22 승인 · T19 반려. 사유를 받아 같은 날 T19 를 고쳐 다시 신청했다(아래 T19_COUPON_BASIS).
 chk 'TPL_REVIEW_0928' automation/알림톡_템플릿_신청문안.md 2
+# ★[T19_COUPON_BASIS 2026-09-28 카카오 반려 사유 반영] ①혜택 이름이 «선물»처럼 넓은 말뿐 → 본문에 «모바일 쿠폰» · 변수 #{쿠폰명}
+#   ②발송 근거가 없음(사업자가 혼자 주는 혜택은 알림톡 대상 아님) → 끝에 고정 글 «참여하신 후기 작성 이벤트로 지급».
+#   옛 변수 이름(선물)이 코드나 문안 어느 한쪽에 돌아오면 승인 템플릿과 이름이 갈려 카톡이 거절된다 — 둘 다 막는다.
+#   (문안↔코드 변수 대조 자체는 notify-e2e ⑪ · notify-msg ⑦ 이 한다. 여기는 «옛 판이 통째로 되살아나는» 역전을 막는다.)
+chk 'T19_COUPON_BASIS' automation/platform/95_notify.gs 1
+chk "'#{쿠폰명}'" automation/platform/95_notify.gs 1
+nochk "'#{선물}'" automation/platform/95_notify.gs
+chk '※ 이 메시지는 고객님이 참여하신 후기 작성 이벤트로 지급된 쿠폰 안내 메시지입니다.' automation/알림톡_템플릿_신청문안.md 1
+nochk '#{선물}' automation/알림톡_템플릿_신청문안.md
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
