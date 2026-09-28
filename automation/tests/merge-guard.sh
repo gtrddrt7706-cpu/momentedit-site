@@ -13402,3 +13402,4 @@ chk "if (!_voiceUpLive(code)) return { ok: false, closed: true," automation/plat
 chk "var VOICE_UP = { from: '" automation/platform/80_production.gs 1
 chk 'VOICE_UP_FROM' mypage.html 2
 chk 'VOICE_UP_FROM' assets/ritual-open.js 2
+chk 'VOICE_UP_FROM' scripts/audit/listen-page.mjs 1
