@@ -13565,6 +13565,12 @@ nochk 'data-fk="mkaskcopy"' order-preview.html
 chk 'TODO_NODOT' order-preview.html 2   # 미작성은 진사 글자로만 · 빨간 점 없음
 nochk '<i class="mk-dot"' order-preview.html
 nochk '>가기</button>' order-preview.html   # «가기» → «이동하기»
+chk 'LEAVE_POP' order-preview.html 1   # 7) 넘길 때 미완료 알림 = 작은 판([다음으로] · [돌아가서 채우기]) · 회색 상자 아님
+chk 'function _mkGoNow(k)' order-preview.html 1
+chk 'REF_TITLE' order-preview.html 2   # 13) 예시 칩 아래 = 느낌 제목(REF_NO_KYEOL 을 사장님이 뒤집음 2026-10-02)
+chk 'REF_GRID' order-preview.html 2   # 13) 예시 상자 같은 너비(PC 넷 · 좁으면 둘)
+chk 'REF_START_OFF' order-preview.html 1
+nochk 'data-fk="mkrstart:' order-preview.html   # 13) «이 예시로 시작하기» 걷음
 chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
 chk 'REC_DLG' order-preview.html 6
