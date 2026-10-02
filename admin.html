@@ -1057,7 +1057,7 @@ function admRfUp(k,btn){ var code=curDetail&&curDetail.code; if(!code||!window.R
 /* [RF_ROWS_0928] 빈 줄 [연락하기] — 문자 앱을 그 줄 이름을 담아 연다(보내기는 사람이) */
 function admRfAsk(k){ var d=curDetail||{}, ph=d.phone?(window.meTelDigits?meTelDigits(d.phone):String(d.phone).replace(/[^0-9+]/g,'')):''; if(!ph) return '';
   var L={g0:'하객 맞이 안내 1번(하객 입장 때)',g1:'하객 맞이 안내 2번(시작 10분 전)',g2:'하객 맞이 안내 3번(시작 5분 전)',g3:'하객 맞이 안내 4번(시작 1분 전)',entry:'입장 인사'}[k]||'두 분 목소리';
-  var body='[모먼트에디트] 두 분 목소리 준비 · '+L+' 줄이 아직 비어 있어요. 마이페이지 식순 만들기에서 녹음하거나 파일을 올려 주세요. 예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요.';
+  var body='[모먼트에디트] 두 분 목소리 준비 · '+L+' 줄이 아직 비어 있어요. 마이페이지 식순 만들기에서 준비해 주세요.';   // ★[LATE_LINE_OFF 2026-09-28] «7일 전까지 준비되지 않은 줄은 나레이션» 은 사실과 달라 걷었다 · 직접 녹음을 뺐으니 «녹음하거나 파일을 올려»도 걷음
   return '<a class="btn-line" style="padding:2px 8px;font-size:12px" href="sms:'+esc(ph)+'?body='+encodeURIComponent(body)+'">연락하기</a>'; }
 function admRfPlay(id,btn){ var code=curDetail&&curDetail.code; if(!code) return; btn.disabled=true; btn.textContent='받는 중…';
   gas('adminRitualFileGet', code, id).then(function(d){ btn.disabled=false; btn.textContent='들어 보기'; if(!d||!d.ok){ toast((d&&d.error)||'받지 못했어요'); return; }

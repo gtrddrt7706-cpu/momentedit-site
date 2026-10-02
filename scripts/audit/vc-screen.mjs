@@ -44,7 +44,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   });
   await pg.waitForTimeout(500);
   const chips = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:guestVoice"]')].map((e) => e.textContent).join('|'));
-  ok(W + ' 6-1 AI 칸이 첫 칸으로 보인다(voiceClone 켜짐 · 직접 녹음은 옛 초안에만 [VP_NO_DIRECT])', /^AI 목소리\|스튜디오 나레이션/.test(chips), chips);
+  ok(W + ' 6-1 AI 칸이 첫 칸으로 보인다(voiceClone 켜짐 · 직접 녹음은 옛 초안에만 [VP_NO_DIRECT])', /^AI 두 분 목소리 만들기\|스튜디오 나레이션/.test(chips), chips);
   await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
   ok(W + ' AI 칸을 고르면 두 분 목소리 + 빈 줄 기본 AI · 사람 카드 둘', await pg.evaluate(() => S.guestVoice === 'couple' && S.vfill.guest === 'ai' && document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length === 2), await pg.evaluate(() => JSON.stringify({ gv: S.guestVoice, vf: S.vfill, n: document.querySelectorAll('.mk-aisec [data-fk^="mkvcok:"]').length })));
   /* ★[VC_LIMIT_UI] 목소리 만들기를 다 쓴 분(left 0 · 아직 못 만듦)은 카드에 [1분 읽기 시작]이 없고 한 줄로 알린다 */
