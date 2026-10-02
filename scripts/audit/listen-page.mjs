@@ -337,7 +337,8 @@ for (const w of [390, 1280]) {
   // 보낼 길 — ② 식전 영상 쪽
   await pg.evaluate(() => { if (!RitualOpen.onOf(S, 'prevideo')) { S.on.prevideo = 1; opSync(); } mkGo('prevideo'); }); await pg.waitForTimeout(400);
   const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, send: document.querySelectorAll('.send-how a[href^="https://pf.kakao.com"], .send-how a[href^="mailto:"]').length }));
-  ok('2-4 · 2-8 ② 식전 영상 쪽 보낼 길(카톡 · 메일)이 늘 보인다 · 쉬운 말', w.send >= 2 && /파일은 여기서 올라가지 않아요/.test(w.t) && /휴대폰으로 가로로 찍은 영상/.test(w.t) && !/가로 mp4/.test(w.t), w.send + ' ' + w.t.slice(0, 200));
+  /* ★[PREVIDEO_FREE 2026-10-02 사장님 «링크 칸 하나만»] 카톡 · 메일 보내기 · 길이 · 장수 규정은 걷었다 — 링크 칸 하나 · 규정 글 없음 */
+  ok('2-4 · 2-8 ② 식전 영상 쪽 = 링크 칸 하나 · 카톡 · 메일 · 3분 · 30~40장 없음 [PREVIDEO_FREE]', w.send === 0 && !/30~40장|3분 안|25MB/.test(w.t) && /MYBOX/.test(await pg.evaluate(() => (document.querySelector('#stage input[aria-label="식전 영상 링크"]') || {}).placeholder || '')), w.send + ' ' + w.t.slice(0, 200));
   await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(400);
   const warn = await pg.evaluate(() => { const t = document.getElementById('mkt_vow_g'); t.value = 'ㄱ'.repeat(300); t.dispatchEvent(new Event('input', { bubbles: true })); const a = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = 'ㄱ'.repeat(400); t.dispatchEvent(new Event('input', { bubbles: true })); const b = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); return [a, b]; });
   ok('2-5 서약 한 분 300자는 경고색 아님 · 400자(한 분 기준 넘음)는 경고색', warn[0] !== warn[1], JSON.stringify(warn));

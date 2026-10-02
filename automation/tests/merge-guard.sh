@@ -13553,6 +13553,8 @@ chk 'VP_NO_EXIT' order-preview.html 2   # AI 를 다 쓴 분 줄에도 [녹음] 
 chk 'VP_NO_EXIT' scripts/audit/vc-screen.mjs 2
 chk 'VP_FOOT_OFF' order-preview.html 1   # AI 를 고르면 줄 카드 아래 덧말 없음(2026-10-02)
 # ★[2026-10-02 사장님 16가지 중 9 · 10 · 14 · 15]
+chk 'PREVIDEO_FREE' scripts/audit/listen-page.mjs 1
+chk 'PREVIDEO_FREE' scripts/audit/ghi-polish.mjs 1
 chk 'PREVIDEO_FREE' order-preview.html 5   # 식전 영상 — 길이 · 장수 규정 없음 · 링크 칸 하나(카톡 · 메일 보내기 걷음)
 nochk '30~40장' assets/ritual-open.js
 nochk '영상 링크(3분 안)' assets/ritual-open.js
