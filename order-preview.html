@@ -3358,10 +3358,9 @@ function _lGroups(k){
     var cpl=S.entryVoice==='couple';
     L('entry','입장 멘트',['A','B','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; }),S.entry,false,cpl?'두 분이 녹음하실 대본도 이 멘트에 맞춰 드려요.':'');
     if(_upLive()){ if(_vpChoice('entry').length>1) L('entryVoice','어떻게 준비할까요',_vpChoice('entry'),_vpCur('entry'),false,VP_NOTE[_vpCur('entry')]); } else if(cpl) L('entryVoice','입장 목소리',[['nar','나레이션'],['couple','두 분 목소리']],'couple',false,'');   // [VOICE_LATE] · [VP_CHOICE] · [VP_NO_DIRECT]
-    L('entryScene','첫 모습',R.CHIPS.entryScene,R.chipOf('entryScene',S),true,'소리는 같아요 · 모습만 달라져요.');
-    /* [ENTRY_OUT_PICK 2026-08-12 사장님 «따로따로»] 도착 멘트를 따로 고르는 판 — 옛 연출 화면에 있던 것을 잃지 않게 */
-    L('entryOut','맺는 말',[['',ENTRY_OUT[S.entry]?'입장과 같이':'기본']].concat(   /* [LAB_FIX2 2-6] 흐름에서 그 줄 이름 · «짧고 강하게»는 제 맺는 말이 없어 «기본» */['A','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; })),ENTRY_OUT[S.entryOut]?S.entryOut:'');
-    g[g.length-1].more=true;   // ★[G4 ENTRY_OUT_MORE 2026-09-26 코워크 최종판 5-1] 맺는 말(여섯)은 «더 고르기»를 눌러야 열린다 · 기본 «입장과 같이» · 바꿔 둔 뒤면 열린 채
+    /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시 «두 사람이 나란히 있습니다 · 서로를 바라봐 주세요 · 이건 굳이 없어도 될 거 같아 · 맞절도 빼고»]
+       새 코스 입장은 도착 멘트(맺는 말)와 첫 모습(바라보기 · 맞절)을 묻지 않는다 — 큐도 없다(ritual-cue entry). 되살리지 말 것.
+       옛 코스(아래 옛 입장 절 · ENTRY_OUT_PICK)는 저장해 둔 소리가 그대로여야 해서 남긴다. */
   }
   if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
   if(k==='tribute'){ L('tribute','말의 길이',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','인사 방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower'); _lGoods('tribute',L); }
@@ -3402,7 +3401,7 @@ function _lSum(k){
   if(k==='ring') return '말 없이 반지를 끼워요 · 앞뒤로 나레이션';
   if(k==='_close') return '닫는 말 → 그 자리에서 단체 사진';
   if(k==='candle') return _candleWho();
-  if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'?'두 분 목소리':'나레이션')+(R.chipOf('entryScene',S)==='bow'?' · 맞절':'');   // [DETAIL_0925 B6] 목소리를 늘 보인다
+  if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'?'두 분 목소리':'나레이션');   /* [ENTRY_OUT_OFF] 맞절 없음 */   // [DETAIL_0925 B6] 목소리를 늘 보인다
   var t=R.talkOf(k,S);
   if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech') return R.chipLabel('free',S);
   if(t) bits.push(t); else { var vl=(typeof opChipLabel==='function')?opChipLabel(k):''; if(vl) bits.push(vl); }
@@ -3478,7 +3477,7 @@ function _lLen(st){ var n=0; st.forEach(function(x){ if(x.quiet) return; n+=x.ta
 function _lQuiet(k,c){
   var R=RitualOpen, sl=c.slug||'';
   if(k==='candle'&&/^narr-candle-in-/.test(sl)){ var w=_candleWho(); return w+_josa(w,'이','가')+' 앞으로 나와 불을 밝혀요 · 말 없이'; }
-  if(k==='entry'&&/^entry-[A-F]$/.test(sl)) return '두 분이 함께 걸어 들어와요 → '+(R.chipOf('entryScene',S)==='bow'?'맞절해요':'서로 바라봐요');
+  if(k==='entry'&&/^entry-[A-F]$/.test(sl)) return '두 분이 함께 걸어 들어와 앞에 서요';   // [ENTRY_OUT_OFF]
   if(k==='ring'&&sl==='narr-ring-in') return '두 분이 서로 반지를 끼워요 · 말 없이';
   if(k==='declare'&&(/^declare-/.test(sl)||sl==='narr-declare-family-out')) return '하객 박수 · 두 분이 부부가 돼요';   // 나레이션 판 · 박수 판(-clap-a 뒤 박수) · 가족 낭독 판(마무리 뒤)
   if(k==='toast'&&sl==='toast-pour-family') return '양가 와인을 한 잔에 모아요';   // [POUR_BY_PICK 코워크 회신7 #872-1] 판 이름과 같은 말 — «양가 와인 한 병씩»을 골랐는데 «두 와인…»이면 «안 먹혔나?»로 읽힌다

@@ -27,7 +27,8 @@
        on 은 {키:1} 목록일 뿐 글이 아니다. wine·tributeSay·candleWho 는 판 이름이다. */
     /* ★[ENTRY_SCENE → LOOK_HOLD 2026-09-26] entryScene(첫 모습)을 싣는다 — 종전엔 소리가 같아 엔진이 안 읽는 죽은 키였는데,
        이제 콘솔의 사람 순간(바라보기 6초 · 맞절 8초)을 가른다(코워크 회신5 4-1). 소리는 여전히 같다. */
-    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen', 'entryScene',
+    /* ★[ENTRY_OUT_OFF 2026-10-02] entryScene 은 다시 죽은 키다 — 맞절 판을 걷어 엔진이 안 읽는다(STORY_COVER 가 잡았다). 싣지 않는다 */
+    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen',
     /* [GROUP_PHOTO 2026-09-26] 가족 구도 수(숫자 · 글 아님) — 콘솔 narr-photo-split est(3분 × 구도 수). 미리듣기는 사진 큐를 안 흘리지만 엔진이 읽으니 싣는다 */
     'photoN',
     /* [WISH_COUNT 2026-09-26 코워크 최종판 2-6] 두 분이 적은 «꼭 담고 싶은 사진» 수(0~2 · 숫자 · 글 아님) — 콘솔 end-0-photo 목표(360 + 60 × 수) */

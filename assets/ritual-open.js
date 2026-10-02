@@ -50,7 +50,7 @@
   var CARDS = {
     prevideo: { n: '식전 영상', sn: '식전 영상', one: '두 분이 준비한 영상을 하객이 자리에 앉는 동안 상영해요. 영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요.', shot: '영상을 보는 가족들의 얼굴', who: '하객(두 분은 문 밖에서 기다려요)' },
     candle: { n: '화촉', sn: '화촉', one: '두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요.', shot: '초에 불이 옮겨붙는 순간 · 불빛에 비친 얼굴',   /* [DETAIL_0925 B15] 서는 분에 따라 «누가»는 빌더가 바꾼다 */ who: '양가 어머님(누가 서실지는 두 분이 정해요)' },
-    entry: { n: '입장', sn: '입장', one: '두 분이 함께 걸어 들어와, 서로 바라보거나 맞절하는 첫 장면을 남겨요.', shot: '문이 열리는 순간 · 두 분의 첫 장면', who: '두 분' },
+    entry: { n: '입장', sn: '입장', one: '두 분이 함께 걸어 들어와, 나란히 서는 첫 장면을 남겨요.', shot: '문이 열리는 순간 · 두 분의 첫 장면', who: '두 분' },
     welcome: { n: '첫인사', sn: '첫인사', one: '두 분이 하객께 짧게 첫인사를 드려요.', shot: '하객을 바라보며 인사하는 두 분', who: '두 분' },
     bless: { n: '부모님 덕담', sn: '덕담', one: '부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤).', shot: '말씀하시는 부모님과 듣는 두 분', who: '부모님 한 분~네 분', why: '서약 바로 앞이에요. 부모님 말씀으로 약속의 문을 여는 자리예요.' },
     vow: { n: '혼인 서약', sn: '서약', one: '두 분이 서로에게 하는 약속을 읽어요(한 분 1분쯤).', shot: '서로를 보며 약속하는 옆얼굴', who: '두 분' },
@@ -443,10 +443,10 @@
   function sampleS(S) { var on = {}; PICKABLE.forEach(function (k) { on[k] = 1; }); return { course: 'open', on: on, entry: 'A', entryVoice: 'nar', declare: '1', declareWho: 'narr', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'none', freeWhat: 'video', freeLen: '3', candleWho: (S && S.candleWho) || DEF.candleWho }; }
 
   /* ══ [PREVIEW_SHEET 2026-09-26 코워크 추가 전달 3 F2] 미리 보기 창 «② 하나씩 만들기에서 고를 것» — ② 묶음 이름(G3 로 고친 이름)과 같은 말 ══ */
-  var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리 · 첫 모습', declare: '누가 · 말투', tribute: '말의 길이 · 인사 방식 · 꽃 준비', letter: '받는 분', cake: '케이크 준비', free: '무엇을 · 길이' };
+  var CHOOSE_AT_LISTEN = { candle: '서는 분', entry: '입장 멘트 · 입장 목소리', declare: '누가 · 말투', tribute: '말의 길이 · 인사 방식 · 꽃 준비', letter: '받는 분', cake: '케이크 준비', free: '무엇을 · 길이' };
   /* ★[REC_DLG 2026-09-28] 목소리 문이 열린 판(FEATURE.upLive)의 ② 입장 묶음 이름은 «어떻게 준비할까요»(VP_CHOICE) — 창도 같은 말을 쓴다(pick-v2 F2 · G3 가 잡았다) */
   /* ★[VP_NO_DIRECT 2026-09-28] 직접 녹음을 뺀 뒤 «어떻게 준비할까요»는 AI 가 켜진 예식에만 보인다(AI · 나레이션) — 꺼진 예식은 고를 것이 나레이션 하나라 칸이 없다 */
-  Object.defineProperty(CHOOSE_AT_LISTEN, 'entry', { enumerable: true, get: function () { return '입장 멘트 · ' + (FEATURE.upLive && FEATURE.voiceClone ? '어떻게 준비할까요 · ' : '') + '첫 모습'; } });
+  Object.defineProperty(CHOOSE_AT_LISTEN, 'entry', { enumerable: true, get: function () { return '입장 멘트' + (FEATURE.upLive && FEATURE.voiceClone ? ' · 어떻게 준비할까요' : ''); } });   // [ENTRY_OUT_OFF] 첫 모습 없음
 
   /* ── 준비할 것 · [누구, 무엇, 갈래] ──
      누구: couple = «두 분이 준비할 것» · parents = «부모님께 부탁드릴 것» (이 이름 한 쌍을 ① 상자 · ② 칸 · ③ · 마이페이지에 똑같이)

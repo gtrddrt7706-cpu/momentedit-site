@@ -433,9 +433,9 @@ else {
   ok('9-2 «이 순간 바꾸기» → 멈춤 · «고르는 중» · 칩 펼침', b.p && b.c === 'entry' && /^고르는 중/.test(b.mode) && b.chips > 0, JSON.stringify(b));
   const cur = await pg.evaluate(() => document.querySelector('#lsFull .op-chip[aria-checked="true"]').getAttribute('data-fk'));
   await pg.click(`#lsFull [data-fk="${cur}"]`); await pg.waitForTimeout(250);
-  await pg.click('#lsFull [data-fk="lfc:entryScene:bow"]'); await pg.waitForTimeout(250);
+  /* [ENTRY_OUT_OFF 2026-10-02] 첫 모습(소리 같은 칩)을 걷었다 — 이미 고른 칩만 잰다 */
   const c = await pg.evaluate(() => ({ tok: LP.tok, p: LP.paused }));
-  ok('9-3 이미 고른 칩 · 소리 같은 칩(첫 모습)은 다시 틀지 않는다 [CHIP_NO_REPLAY]', c.tok === b.tok && c.p, JSON.stringify({ b: b.tok, c }));
+  ok('9-3 이미 고른 칩은 다시 틀지 않는다 [CHIP_NO_REPLAY]', c.tok === b.tok && c.p, JSON.stringify({ b: b.tok, c }));
   const other = await pg.evaluate(() => [...document.querySelectorAll('#lsFull .op-chip[data-fk^="lfc:entry:"]')].find((x) => x.getAttribute('aria-checked') !== 'true').getAttribute('data-fk'));
   await pg.click(`#lsFull [data-fk="${other}"]`); await pg.waitForTimeout(300);
   const d = await pg.evaluate(() => { const r = { tok: LP.tok, stay: LP.stay, chips: document.querySelectorAll('#lsFull .op-chip').length }; let g = 0; while (!LP.paused && LP.cur === 'entry' && g++ < 30) _lNext(); r.after = { cur: LP.cur, p: LP.paused, hint: LP.hint, say: (document.querySelector('#lsFull .lf-state') || {}).textContent || '' }; return r; });

@@ -8911,7 +8911,7 @@ chk 'VIDEO_READY' assets/ritual-open.js 3
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
 chk 'S.entryScene' order-preview.html 1
-chk "'freeLen', 'entryScene'" assets/ritual-preview-link.js 1   # [LOOK_HOLD 2026-09-26] 이제 엔진이 읽는다(콘솔 첫 모습 사람 순간) — 주소에 싣는다(나중 결정이 이긴다)
+nochk "'freeLen', 'entryScene'" assets/ritual-preview-link.js   # [ENTRY_OUT_OFF 2026-10-02] 맞절 판을 걷어 다시 죽은 키 — 싣지 않는다(나중 결정이 이긴다)   # [LOOK_HOLD 2026-09-26] 이제 엔진이 읽는다(콘솔 첫 모습 사람 순간) — 주소에 싣는다(나중 결정이 이긴다)
 chk 'DETAIL_0925 B10' order-preview.html 1   # 녹음 전 판정은 규칙 하나(옛 L_STALE 목록은 폐지) — 규칙은 아래 TEXT_AUDIO_MATCH 로 좁혔다
 chk 'TEXT_AUDIO_MATCH' order-preview.html 2   # [코워크 회신3 2-1] 소리는 «녹음된 글 = 지금 글»일 때만(가족 예시 자막과 다른 소리 18 → 0)
 chk '_lNorm(r)===_lNorm(text)' order-preview.html 1
@@ -9028,7 +9028,7 @@ chk 'UPLOAD_HONEST' order-preview.html 5   # 파일은 올라가지 않는다 �
 nochk "ICO_UP+'파일 올리기<" order-preview.html
 chk 'WC_LIMIT' order-preview.html 1   # 경고색은 칸마다 권장량의 1.2배
 nochk '비밀로 둬도 돼요' order-preview.html
-chk 'LAB_FIX2' order-preview.html 3
+chk 'LAB_FIX2' order-preview.html 2   # [ENTRY_OUT_OFF 2026-10-02] 맺는 말 칩(2-6 «기본»)을 걷어 하나 줄었다
 nochk "'성우 · 엄숙하게'" assets/ritual-open.js
 chk 'WHY_NEIGHBOR' assets/ritual-open.js 2   # 이웃을 담았을 때만 그 이름
 chk 'BAND_THIN_LISTEN' order-preview.html 1
@@ -11680,7 +11680,12 @@ chk 'aria-label="가장 벅찬 순간"' order-preview.html 4   # [G1] ★ 이름
 nochk 'aria-label="절정"' order-preview.html
 chk '</span> 표시는 이 예식에서 가장 벅찬 순간이에요.' order-preview.html 1   # [G1] ★ 는 따로 이름을 단 span
 chk 'class="lsg"' order-preview.html 1   # [G2] ② 띠 두 시간 사이 흐름선 64×18
-chk 'ENTRY_OUT_MORE' order-preview.html 1   # [G4] 맺는 말은 «더 고르기» 뒤
+# ★[ENTRY_OUT_OFF 2026-10-02 사장님 지시 «서로를 바라봐 주세요 · 이건 굳이 없어도 될 거 같아 · 맞절도 빼고»] 옛 G4 ENTRY_OUT_MORE(맺는 말 «더 고르기») 판은 걷었다
+chk 'ENTRY_OUT_OFF' order-preview.html 3   # 묶음 걷기 · 요약 · 말 없는 줄
+chk 'ENTRY_OUT_OFF' assets/ritual-cue.js 3   # 새 코스 입장 = 문 앞 멘트 한 줄(도착 큐 없음) · 옛 초안 bow → look
+chk 'ENTRY_OUT_OFF' assets/ritual-open.js 1   # 창 «고를 것»에 첫 모습 없음
+nochk "L('entryScene','첫 모습'" order-preview.html
+nochk "L('entryOut','맺는 말'" order-preview.html
 chk 'QUIET_LINES' order-preview.html 1   # [G5] 말 없는 사람 순간 — 옅은 줄
 chk 'TOAST_TALK_GLASS' order-preview.html 1   # [G5] «위하여» 줄은 잔 드는 큐 뒤
 chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)»
