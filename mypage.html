@@ -1961,7 +1961,9 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
      원인: 단추(.wz-stepb)를 블록으로 두면 브라우저가 단추 안 글자를 44px 칸 세로 가운데로 내린다. 단추는 flex + 위쪽 맞춤(식순 [STEP_BASELINE] 과 같다),
      글자는 .wz-l 한 묶음 — 그래야 좁은 폭에서 번호를 윗줄로 올려도(.wz-n 블록) 위쪽 맞춤이 유지된다. 지금 걸음은 굵기 · 진사 윗선으로만 말한다(자리를 옮기지 않는다). */
 .wz-l{display:block;text-align:center}
-@media (max-width:360px){.wz-steps.n5 .wz-n{display:block;line-height:1.3}}
+/* ★[WZ_STEP_NONUM 2026-09-28 사장님 «번호는 굳이 빼는 건 어때?»] 걸음 이름에서 ①②③ 번호를 뺐다 — 윗선(지나온 금빛 · 지금 진사 · 남은 옅게)이
+   이미 순서와 지금 자리를 말한다. 번호는 같은 말을 두 번 했다. 좁은 폭에서 번호를 윗줄로 올리던 규칙(.wz-n)도 함께 걷었다 — 되살리지 말 것.
+   ★식순(order-preview «① 고르기 …»)은 그대로 둔다 — 거기선 화면 글이 «② 하나씩 만들기에서 고를 것»처럼 번호로 걸음을 가리킨다. */
 @media (hover:hover){.wz-stepb:hover{color:var(--accent);text-decoration:underline;text-decoration-color:currentColor}}
 .wz-stepb:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}
 /* ★★[SEL_ONE 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»] «골랐다»는 표시 한 벌.
@@ -6688,7 +6690,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     /* [INV_TAG_TOTAL] 2026-09-26 통합 점검 L7 · 행 태그가 늘 «/4»였다 — 위저드 머리는 경로별 단계 수(MPD_E9 · _invTotalSteps)라
        «청첩장 없이» · «개인 제작»은 «1 / 2» · «2 / 2»인데 행은 «1/4» · «4/4»였다(같은 걸음을 두 화면이 다르게 셌다).
        두 걸음 경로는 혼주 · 디자인을 건너뛰어 확인 단계로 열리므로(startInvFlow) 1단계 뒤는 모두 2 로 모은다. */
-    if(_ivN){ var _ivT=_invTotalSteps(inv.draft), _ivI=(_ivT===2?(_ivN>1?2:1):_ivN)-1; _ivStepTag=WZ_CIRC[_ivI]+' '+_invStepNames(inv.draft)[_ivI]; } }   // ★[WZ_STEPS_TAG 2026-09-27] «2/4» → «② 부모님» — 누르면 열리는 진행 표시와 같은 말(같은 걸음을 두 화면이 다르게 부르지 않게 · [INV_TAG_TOTAL] 과 같은 뜻)
+    if(_ivN){ var _ivT=_invTotalSteps(inv.draft), _ivI=(_ivT===2?(_ivN>1?2:1):_ivN)-1; _ivStepTag=_invStepNames(inv.draft)[_ivI]+' 단계'; } }   /* [WZ_STEP_NONUM 2026-09-28] 진행 표시에서 번호를 뺐으니 꼬리표도 «② 부모님» → «부모님 단계»(이름 한 낱말만으로는 무슨 뜻인지 흐리다) */   // ★[WZ_STEPS_TAG 2026-09-27] «2/4» → «② 부모님» — 누르면 열리는 진행 표시와 같은 말(같은 걸음을 두 화면이 다르게 부르지 않게 · [INV_TAG_TOTAL] 과 같은 뜻)
   var _fdStepTag=null; if((t.final||'')==='진행중'){ var _fdN=Number((fd||{})._step); if(!isNaN(_fdN)&&_fdN>=0) _fdStepTag=Math.min(_fdN+1,3)+'/3'; }
   var ist = inv.status || '시작전';
   /* ★[INV_SKIP_ROW 2026-09-26 고객 점검 prod-5] 「청첩장 없이」를 고른 줄이 ✓ + 「다시 만들기」였다 — 바로 아래 애프터 웨딩은
@@ -6982,10 +6984,10 @@ function wizActs(){ _wizPaintSoon(); return '<span class="wiz-acts"><button type
    · fwd = 앞 걸음으로도 건너뛸 수 있나(스냅 기획 — 걸음끼리 서로 기대지 않아 종전 동그라미도 다섯 다 눌렀다 · 되돌아올 때 «④ 메모»로 바로 가는 길을 지운다면 퇴보다).
    ★밑줄은 지나온 걸음에만(식순과 같은 모양) — 앞 걸음 단추는 밑줄 없이 누를 수만 있다(탭처럼 · 초점 · 마우스 올림에 드러난다).
    ★동그라미 숫자(snp-steps · SNAP_STEP_DOT)와 «청첩장 · 1 / 4» 숫자 글은 이 한 벌로 바뀌었다 — 되살리지 말 것. */
-var WZ_CIRC=['①','②','③','④','⑤','⑥'];
+/* [WZ_STEP_NONUM] 번호(WZ_CIRC)는 걷었다 — 걸음 이름만 */
 function wzSteps(names, cur, jump, fwd){
   return '<ol class="wz-steps'+(names.length>=5?' n5':'')+'" role="list" aria-label="진행 단계">'+names.map(function(nm,i){   // role=list — 사파리는 list-style:none 인 ol 의 목록 역할을 버린다
-    var lab='<span class="wz-l"><span class="wz-n">'+WZ_CIRC[i]+'</span> '+escapeHtml(nm)+'</span>', nav=!!jump && (i<cur || (fwd && i>cur));   // .wz-n — 좁은 폭(다섯 걸음)에서 번호를 윗줄로 올린다 · .wz-l = 글자 묶음(단추 안에서도 윗줄 맞춤 · [WZ_STEPS_LEVEL])
+    var lab='<span class="wz-l">'+escapeHtml(nm)+'</span>', nav=!!jump && (i<cur || (fwd && i>cur));   // [WZ_STEP_NONUM] 번호 없이 이름만 · 순서는 ol · 지금 걸음은 aria-current   // .wz-n — 좁은 폭(다섯 걸음)에서 번호를 윗줄로 올린다 · .wz-l = 글자 묶음(단추 안에서도 윗줄 맞춤 · [WZ_STEPS_LEVEL])
     if(nav) lab='<button type="button" class="wz-stepb" '+jump+'="'+i+'">'+lab+'</button>';
     return '<li class="'+(i===cur?'on':(i<cur?'done':''))+(nav?' nav':'')+'"'+(i===cur?' aria-current="step"':'')+'>'+lab+'</li>';
   }).join('')+'</ol>';
