@@ -1314,8 +1314,15 @@ function previewRitualFiles() { return purgeRitualFiles(true); }
    ★이중 잠금: 스크립트 속성 VOICE_CLONE_ENABLED='Y'(목소리 복제) · PRACTICE_TTS_ENABLED='Y'(연습 읽기) + TYPECAST_API_KEY 가 없으면 전부 거절 — 화면 스위치(ritual-open FEATURE)와 따로 막는다.
    API(타입캐스트 Go SDK 원본으로 확인 2026-09-27): X-API-KEY 헤더 · 복제 POST /v1/custom-voices/instant-clone(multipart name · model · file · 돌려받는 voice_id 는 uc_) ·
      삭제 DELETE /v1/custom-voices/{id}(soft-delete) · 읽기 POST /v1/text-to-speech {voice_id,text,model,language,output{target_lufs,remove_silence_ms,audio_tempo,audio_format}}
-   한도(5-7): 사람마다 목소리 만들기 3번 · 줄마다 다시 만들기 5번 · 예식마다 만들기 50번 · 연습 읽기 20,000자. 상태는 스크립트 속성 VC_<코드>(시트 열을 늘리지 않는다). */
-var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enroll: 3, perKey: 5, total: 50, practiceChars: 20000, slotWarn: 45, minReadSec: 20 };
+   한도(5-7): 사람마다 목소리 만들기 3번 · ~~줄마다 5번 · 예식마다 50번 · 연습 2만 자~~ → [VC_BUDGET] 예식당 글자 예산 하나. 상태는 스크립트 속성 VC_<코드>(시트 열을 늘리지 않는다). */
+var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enroll: 3, budget: 200000, slotWarn: 45, minReadSec: 20 };
+/* ★★[VC_BUDGET 2026-10-02 사장님 «350만 원을 내고 이용하는데 그거 얼마 한다고 제한을 둬 · 한 팀 예식 진행에 3만 원 정도는 투자해도 괜찮다»]
+   횟수 한도(줄마다 다시 만들기 5번 · 예식마다 만들기 50번 · 연습 읽기 2만 자)를 걷고 «예식당 글자 예산» 하나로 바꿨다 — 되살리지 말 것.
+   예산 = 줄 만들기 + 연습 읽기에 실제로 새로 만든 글자 수(같은 글 · 목소리 · 빠르기로 다시 받은 것은 안 셈). 1글자 = 1크레딧 ·
+   추가 요금($9/10만 크레딧) 기준 20만 자 ≈ $18 ≈ 2.5만 원 → 사장님 상한 3만 원 안. 쓰는 자리(하객 맞이 · 식전 영상 · 입장)는 열 줄 남짓이라
+   고객이 닿을 일은 없다 — 화면 버그로 만들기가 끝없이 돌 때만 걸리는 안전장치다.
+   ★목소리 만들기(enroll) 3번은 돈이 아니라 업체 «목소리 칸»(Lite 50칸 · 모든 예식이 같이 씀) 때문이라 그대로 둔다 — 타입캐스트 답(지우면 칸이 바로 돌아오나)을 보고 정한다. */
+function _vcSpent(st) { return (st.practice || 0) + ((st.make && st.make.chars) || 0); }   // [VC_BUDGET] 연습 + 줄 만들기 글자
 /* ★★[VOICE_CLONE_0928 코워크 0928 8장 · 7-2] 0927 판을 확정판에 맞췄다.
    · 스위치 VOICE_CLONE · PRACTICE_READ = off · studio · on(studio 는 VOICE_STUDIO_CODES 의 시험 예식만) · 키 TYPECAST_API_KEY(스크립트 속성 · 값은 사장님이 직접)
    · 확인 문장은 서버가 뽑는다(op=phrase · 다시 읽으면 새로 뽑음) · 읽은 녹음과 함께 남겨 관리 화면에서 맞춰 듣는다
@@ -1393,7 +1400,7 @@ function handleVoiceClone(body) {
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var cfg = _vcCfg(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
   var down = { ok: false, down: true, error: VC_DOWN };
-  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom), bride: _vcPub(st.bride), total: (st.make && st.make.total) || 0, per: (st.make && st.make.per) || {}, left: Math.max(0, VC_LIM.practiceChars - (st.practice || 0)) };
+  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom), bride: _vcPub(st.bride), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
   if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
     ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
     _vcPut(code, st); return { ok: true, gone: gone }; }
@@ -1402,9 +1409,9 @@ function handleVoiceClone(body) {
     var role = String(body.role || who || ''), own = (role === 'groom' || role === 'bride') && cfg.clone && st[role] && st[role].voiceId;
     var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || cfg.def.f || cfg.def.m; if (!vid) return down;
     var tp = ({ '0.9': 0.9, '1': 1, '1.1': 1.1 })[String(body.tempo || '1')] || 1;
-    if ((st.practice || 0) + t.length > VC_LIM.practiceChars) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
+    if (_vcSpent(st) + t.length > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
     try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; _vcPut(code, st); }
-      return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.practiceChars - (st.practice || 0)) }; } catch (e) { return _vcErr(code, e.http, 'practice', e.why || e.message); } }
+      return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) }; } catch (e) { return _vcErr(code, e.http, 'practice', e.why || e.message); } }
   if (!cfg.clone || !cfg.key) return _vcGate(code, cfg, op, 'clone');   // ★[VC_GATE_WHY] 스위치 · 시험 예식 목록 · 키 가운데 무엇이 막았는지 남긴다
   if (!WHO[who] && op !== 'make') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };
   if (op === 'consent') { if (body.agree !== true) return { ok: false, error: '동의가 필요해요.' };
@@ -1432,18 +1439,19 @@ function handleVoiceClone(body) {
     var text = String(body.text || '').trim().slice(0, 600); if (!text) return { ok: false, error: '읽을 글이 없어요.' };
     var tempo = ({ '0.9': 0.9, '1': 1, '1.1': 1.1 })[String(body.tempo || '1')] || 1, one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
     var lines = Array.isArray(body.lines) ? body.lines.slice(0, 12) : null;   // 입장 인사처럼 문장마다 읽는 사람이 다르면 [[who,text],…]
-    st.make = st.make || { total: 0, per: {} }; if (st.make.total >= VC_LIM.total) return { ok: false, limit: true, error: '다시 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };
-    var retempo = body.retempo === true;   // 빠르기만 바꾸면 줄마다 5번에 넣지 않는다(예식 50번에만)
-    if (!retempo && (st.make.per[key] || 0) >= VC_LIM.perKey) return { ok: false, limit: true, error: '다시 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };
+    st.make = st.make || { total: 0, per: {} };
+    var retempo = body.retempo === true;   // 빠르기만 바꾼 것 — 줄마다 센 수(per · 기록용)에 넣지 않는다
     var jobs = lines ? lines.map(function (l) { return { who: WHO[l && l[0]] ? l[0] : '', text: String((l && l[1]) || '').trim().slice(0, 600) }; }) : [{ who: who2.length === 1 ? who2[0] : '', text: text }];
-    var parts = [], fresh = false;
+    var need = jobs.reduce(function (a, j) { return a + j.text.length; }, 0);
+    if (_vcSpent(st) + need > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };   // [VC_BUDGET] 예식당 글자 예산 하나(줄 5번 · 예식 50번은 걷었다)
+    var parts = [], fresh = false, newChars = 0;
     for (var i = 0; i < jobs.length; i++) { var jw = jobs[i].who || (st.groom && st.groom.voiceId ? 'groom' : 'bride'), v2 = st[jw] && st[jw].voiceId;
       if (!v2) { var ow = jw === 'groom' ? 'bride' : 'groom'; v2 = st[ow] && st[ow].voiceId; jw = ow; }   // 한 분만 만들었으면 그 목소리로
       if (!v2 || !jobs[i].text) continue;
-      try { var c = _vcCached(code, 'AI 소리', v2, jobs[i].text, tempo, cfg); if (!c.hit) fresh = true; parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); } catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
+      try { var c = _vcCached(code, 'AI 소리', v2, jobs[i].text, tempo, cfg); if (!c.hit) { fresh = true; newChars += jobs[i].text.length; } parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); } catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
     if (!parts.length) return { ok: false, error: '아직 만든 AI 목소리가 없어요.' };
-    if (fresh) { st.make.total++; if (!retempo) st.make.per[key] = (st.make.per[key] || 0) + 1; _vcPut(code, st); }
-    return { ok: true, key: key, parts: parts, left: VC_LIM.perKey - (st.make.per[key] || 0), total: st.make.total }; }
+    if (fresh) { st.make.total++; st.make.chars = (st.make.chars || 0) + newChars; if (!retempo) st.make.per[key] = (st.make.per[key] || 0) + 1; _vcPut(code, st); }
+    return { ok: true, key: key, parts: parts, total: st.make.total }; }   // [VC_BUDGET] left(줄마다 남은 번)를 보내지 않는다 — [다시 만들기]에 «N번 남음»이 안 붙는다
   return { ok: false, error: '알 수 없는 요청이에요.' };
 }
 function _vcPub(p) { p = p || {}; return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, left: Math.max(0, VC_LIM.enroll - (p.tries || 0)), made: p.made || '', deleted: p.deleted || '' }; }

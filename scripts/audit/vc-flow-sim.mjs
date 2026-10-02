@@ -3,14 +3,14 @@
    ★원문을 그대로 떼어 쓴다(사본 금지). 이 환경의 프록시가 api.typecast.ai 를 막아 실호출은 GAS 에서(vcSelfTest) 한다.
    보는 것: 확인 문장(서버가 뽑음 · 동의 먼저) · 다시 만들 때 새 목소리 먼저 → 된 뒤 앞 목소리 지우기 · 실패하면 앞 목소리 그대로 ·
      업체 지우기 실패는 retry 목록 · 같은 글 · 목소리 · 빠르기는 다시 만들지 않음(한도에 안 셈) · 빠르기만 바꾸면 줄 한도에 안 셈 ·
-     422 문구 · 스위치 off/studio/on · 연습 읽기 2만 자 · 예식 다음 날 지우기(전날은 안 지움 · 취소는 바로)
+     422 문구 · 스위치 off/studio/on · [VC_BUDGET] 예식당 글자 예산 하나(줄 5번 · 예식 50번 · 연습 2만 자는 걷었다) · 예식 다음 날 지우기(전날은 안 지움 · 취소는 바로)
    종료 코드 0 = 통과 · 1 = 실패 */
 import fs from 'node:fs'; import vm from 'node:vm';
 const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs', import.meta.url), 'utf8');
 const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
-const FN = ['_voiceStudio', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
+const FN = ['_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
 const code = [line(/var RF_KEYS[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_DOWN[^\n]*/), line(/var VC_COLOR[^\n]*/)].concat(FN.map(grab)).join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const miss = FN.filter((f) => !grab(f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -92,10 +92,14 @@ r = w.call({ op: 'make', key: 'g0', text: '와 주셔서 고맙습니다', one: 
 const r2 = w.call({ op: 'make', key: 'g0', text: '와 주셔서 고맙습니다', one: 'groom' });
 ok('같은 글 · 목소리 · 빠르기 → 다시 만들지 않음(TTS 한 번 · 한도에 안 셈)', r.ok && r2.ok && w.calls.filter((c) => /text-to-speech/.test(c)).length === 1 && w.st().make.per.g0 === 1 && w.st().make.total === 1, JSON.stringify(w.st().make));
 r = w.call({ op: 'make', key: 'g0', text: '와 주셔서 고맙습니다', one: 'groom', tempo: '1.1', retempo: true });
-ok('빠르기만 바꾸면 줄 5번에 안 셈 · 예식 50번에만', r.ok && w.st().make.per.g0 === 1 && w.st().make.total === 2, JSON.stringify(w.st().make));
-for (let i = 0; i < 4; i++) w.call({ op: 'make', key: 'g1', text: '글 ' + i, one: 'groom' });
-r = w.call({ op: 'make', key: 'g1', text: '글 5', one: 'groom' }); const r5 = w.call({ op: 'make', key: 'g1', text: '글 6', one: 'groom' });
-ok('줄마다 다시 만들기 5번 → 여섯째는 «다시 만들기를 다 썼어요 …»', r.ok && !r5.ok && /다시 만들기를 다 썼어요\. 지금 것을 쓰시거나 직접 녹음해 주세요/.test(r5.error), JSON.stringify(r5));
+ok('빠르기만 바꾸면 줄마다 센 수(per)에 안 셈 · 새로 만든 글자는 예산에 셈', r.ok && w.st().make.per.g0 === 1 && w.st().make.total === 2 && w.st().make.chars === '와 주셔서 고맙습니다'.length * 2, JSON.stringify(w.st().make));
+for (let i = 0; i < 12; i++) r = w.call({ op: 'make', key: 'g1', text: '글 ' + i, one: 'groom' });
+ok('[VC_BUDGET] 한 줄을 열두 번 다시 만들어도 막히지 않음 · «N번 남음»(left)을 보내지 않음', r.ok && r.left === undefined && w.call({ op: 'status' }).per === undefined, JSON.stringify(r));
+w.props.VC_ME0001 = JSON.stringify(Object.assign(w.st(), { practice: 199990 }));
+const ttsBefore = w.calls.filter((c) => /text-to-speech/.test(c)).length;
+const r5 = w.call({ op: 'make', key: 'g1', text: '열한 글자를 넘는 새 글이에요', one: 'groom' });
+ok('[VC_BUDGET] 예식당 20만 자를 넘으면 «이번 예식의 AI 만들기를 다 썼어요 …» · TTS 를 부르지 않음', !r5.ok && r5.limit && /이번 예식의 AI 만들기를 다 썼어요\. 지금 것을 쓰시거나 직접 녹음해 주세요/.test(r5.error) && w.calls.filter((c) => /text-to-speech/.test(c)).length === ttsBefore, JSON.stringify(r5));
+w.props.VC_ME0001 = JSON.stringify(Object.assign(w.st(), { practice: 0 }));   // 예산을 되돌리고 다음 시험(422)
 w.sb.UrlFetchApp.fetch = (url) => ({ getResponseCode: () => 422, getContentText: () => '{}', getBlob: () => ({ getBytes: () => [] }) });
 r = w.call({ op: 'make', key: 'g2', text: '★☆', one: 'groom' });
 ok('422 → «이 줄 글에 소리로 읽기 어려운 글자가 있어요 …»', !r.ok && /읽기 어려운 글자/.test(r.error), JSON.stringify(r));
@@ -108,13 +112,16 @@ ok('studio · 시험 예식(VOICE_STUDIO_CODES) → 열림', w.call({ op: 'statu
 w = world({ props: { VOICE_CLONE: 'off' } });
 ok('off → 열리지 않음', w.call({ op: 'status' }).on === false);
 
-// 6 · 연습 읽기 — 2만 자 · 캐시
+// 6 · 연습 읽기 — [VC_BUDGET] 예식당 글자 예산(줄 만들기와 함께) · 캐시
 w = world({ props: { TYPECAST_VOICE_M: 'tc_m', TYPECAST_VOICE_F: 'tc_f' }, api: Object.fromEntries([['POST /v1/text-to-speech', [200, 'mp3']]]) });
 r = w.call({ op: 'practice', role: 'bride', text: '가'.repeat(1500) }); w.call({ op: 'practice', role: 'bride', text: '가'.repeat(1500) });
 ok('연습 읽기 — 목소리 없으면 기본 목소리(신부 → 여) · 같은 글은 한 번만 만듦', r.ok && w.calls.length === 1 && w.st().practice === 1500, JSON.stringify(w.calls));
 w.props.VC_ME0001 = JSON.stringify({ practice: 19000 });
 r = w.call({ op: 'practice', role: 'groom', text: '나'.repeat(1200) });
-ok('2만 자 넘으면 «이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요»', !r.ok && r.error === '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요', JSON.stringify(r));
+ok('[VC_BUDGET] 연습 2만 자는 걷었다 — 2만 자를 넘어도 읽음', r.ok, JSON.stringify(r));
+w.props.VC_ME0001 = JSON.stringify({ practice: 100000, make: { total: 9, per: {}, chars: 99500 } });
+r = w.call({ op: 'practice', role: 'groom', text: '다'.repeat(1200) });
+ok('[VC_BUDGET] 연습 + 줄 만들기 합이 20만 자를 넘으면 «이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요»', !r.ok && r.error === '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요', JSON.stringify(r));
 
 // 7 · 예식 다음 날 지우기
 w = world({ wed: '2026-10-10', api: Object.fromEntries([CLONE('uc_z'), ['DELETE /v1/custom-voices/{id}', [204, '']]]) });
