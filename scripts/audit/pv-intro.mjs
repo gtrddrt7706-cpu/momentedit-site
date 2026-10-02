@@ -61,7 +61,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.getElementById('mkPvTa').value, ai: !!document.querySelector('[data-fk="mkai:pv"]'), on: (document.querySelector('[data-fk="mkpvex:0"]') || {}).getAttribute('aria-pressed') }));
   ok(W + ' 예시 «담백하게» → 글칸에 들어가고 [AI로 만들기]가 생긴다', /^저희 두 사람이 함께 지나온 시간을/.test(t0.t) && t0.ta === t0.t && t0.ai && t0.on === 'true', JSON.stringify(t0));
   await pg.click('[data-fk="mkai:pv"]'); await pg.waitForTimeout(1500);
-  const m = await pg.evaluate(() => ({ calls: __calls.join(','), text: (__last && __last.text) || '', up: S.up && S.up.pv, play: !!document.querySelector('[data-fk="mkupplay:pv"]') }));
+  const m = await pg.evaluate(() => ({ calls: __calls.join(','), text: (__last && __last.text) || '', up: S.up && S.up.pv, play: !!document.querySelector('[data-fk="mkvpl:pv"][onclick^="mkUpPlay"]') }));   /* [AI_CARD_TIDY] AI 파일은 머리 ▶ 가 튼다 */
   ok(W + ' [AI로 만들기] → make(pv · 신랑 · 그 글) → 그 자리 파일(src ai · 글 지문)', /make:pv:groom/.test(m.calls) && /upload:pv/.test(m.calls) && m.text === t0.t && m.up && m.up.src === 'ai' && !!m.up.tx && m.play, JSON.stringify(m).slice(0, 300));
   await pg.fill('#mkPvTa', t0.t + ' 고맙습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(300);
   const st = await pg.evaluate(() => ({ btn: (document.querySelector('[data-fk="mkai:pv"]') || {}).textContent || '', s: (document.querySelector('[data-fk="mkwho:pv:g"]').closest('.mk-vc') || {}).textContent || '' }));

@@ -91,9 +91,9 @@ for (const w of [390, 1280]) {
     Object.assign(S, JSON.parse(JSON.stringify(keep))); delete S.entryScene; if (keep.entryScene) S.entryScene = keep.entryScene;
     return out;
   });
-  ok(`${w} G5 말 없는 줄 — 순간마다 하나 · 표 그대로 [QUIET_LINES]`, g5b.candle.length === 1 && /이 앞으로 나와 불을 밝혀요 · 말 없이$|가 앞으로 나와 불을 밝혀요 · 말 없이$/.test(g5b.candle[0])
-    && g5b.entry.length === 1 && g5b.entry[0] === '두 분이 함께 걸어 들어와 앞에 서요' && g5b.bow === '두 분이 함께 걸어 들어와 앞에 서요'
-    && g5b.ring[0] === '두 분이 서로 반지를 끼워요 · 말 없이' && g5b.declare[0] === '하객 박수 · 두 분이 부부가 돼요' && g5b._close[0] === '두 분이 하객께 목례 · 박수'
+  ok(`${w} G5 말 없는 줄 — 순간마다 하나 · 표 그대로([R1-45] 입장 · 반지는 위 설명과 겹치지 않게) [QUIET_LINES]`, g5b.candle.length === 1 && /이 앞으로 나와 불을 밝혀요 · 말 없이$|가 앞으로 나와 불을 밝혀요 · 말 없이$/.test(g5b.candle[0])
+    && g5b.entry.length === 1 && g5b.entry[0] === '음악에 맞춰 걸어 들어와요' && g5b.bow === '음악에 맞춰 걸어 들어와요'
+    && g5b.ring[0] === '두 분이 서로 반지를 끼워요' && g5b.declare[0] === '하객 박수 · 두 분이 부부가 돼요' && g5b._close[0] === '두 분이 하객께 목례 · 박수'
     && g5b.fams === 'solemn:1,warm:1,clap:1,family:1', JSON.stringify(g5b));
   ok(`${w} G5 첫 줄 이름 — 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)» [FIRST_LINE_NAME]`, g5b.labs.candle === '여는 말' && g5b.labs.declare === '선언 · 나레이션(엄숙하게)', JSON.stringify(g5b.labs));
   await pg.evaluate(() => mkGo('toast')); await pg.waitForTimeout(300);
