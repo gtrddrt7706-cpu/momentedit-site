@@ -13104,7 +13104,7 @@ nochk "class=\"cta-al\" data-fk=\"opnal\" onclick=\"opToNote()\">'+esc(R.firstSe
 chk 'RIT_SAVE_IDLE' order-preview.html 2            # 4 처음 연 화면은 꺼진 «저장»
 chk "ob-exit ob-save idle" order-preview.html 1
 chk 'RIT_PRICE_WORD' order-preview.html 1           # 5 «값» → «가격»
-chk '무엇을 담아도 가격은 같아요.' order-preview.html 1
+chk '어떤 순간을 담아도 가격은 같아요 · 케이크 · 꽃을 맡기실 때만 따로예요.' order-preview.html 1   # [PRICE_SAME] 맡기는 케이크 · 꽃만 따로
 nochk '무엇을 담아도 값은 같아요' order-preview.html 0
 chk 'RIT_UNDO_ABOVE' order-preview.html 1           # 6 되돌리기 알림이 «빈 칸에서 직접 고를게요»를 덮지 않게
 # ② 보고 듣기
@@ -13660,7 +13660,7 @@ chk 'PLAY_ROW' order-preview.html 1
 chk 'FLOW_LINE_TYPE' order-preview.html 1
 # ★[VOICE_SETUP 2026-10-02 사장님 «② 머리글 나레이션 자세히 → 창 · AI/스튜디오 고르기부터» · «② 들어갈 때 창으로 먼저 · 한 번 셋팅 → 세 자리 한꺼번에» · «비교해 듣기» · «휴대폰 녹음 가이드 · 모션»]
 #   깨 보고 믿음: mkVsPick 의 세 자리 반복을 guestVoice 하나로 줄이면 voice-setup «AI → 세 자리» 빨강(390 · 1280)
-chk 'VOICE_SETUP' order-preview.html 9
+chk 'VOICE_SETUP' order-preview.html 8   # [R1-09] 줄마다 «비교해 듣기»를 칸 머리 한 번으로 옮겨 하나 줄었다
 chk 'function _vsBar()' order-preview.html 1
 chk 'function _vsCur()' order-preview.html 1   # 세 자리(guestVoice · entryVoice · pvVoice)를 한꺼번에 — voice-setup 이 값을 잰다
 chk '@keyframes mkVsWave' order-preview.html 1
@@ -13676,3 +13676,18 @@ chk 'PLAY_ONE' order-preview.html 2
 chk 'LINE_EDIT' scripts/audit/voice-setup.mjs 1
 chk 'VS_CHIP_ONCE' scripts/audit/voice-setup.mjs 1
 chk 'PLAY_ONE' scripts/audit/voice-setup.mjs 1
+# ── 2026-10-02 사장님 결정 여섯(라운드 점검 1의 결정 대기분) — 이름 = 결정 · 같은 커밋에 검사 [DECISION_GUARD]
+chk 'VOW_HOW' order-preview.html 5                 # 서약 읽는 방식 칩(한 줄씩 번갈아 · 각자 차례로) · 안내는 글칸 위 · 흐름 한 줄
+chk 'VOW_HOW' assets/ritual-cue.js 1               # 엔진 live.t 가 S.vowHow 를 따른다
+chk 'VOW_HOW' assets/ritual-story.js 2             # «각자 차례로» LIVE · CAST_AT 키
+chk 'VOW_HOW' assets/ritual-preview-link.js 2      # 미리듣기가 vowHow 를 옮긴다(alt|each 만)
+chk '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' assets/ritual-story.js 2
+nochk '마지막 한 문장은 하객분들 쪽으로' order-preview.html 0   # 인용은 두 문장이다
+chk 'MAP_ONE' order-preview.html 3                 # ② 첫 쪽 사슬 걷음 · 목록 줄 갈래 · ③ 지도 접이
+nochk '<p class="mk-vgh">이 식순의 차례</p>' order-preview.html 0
+chk 'STRIP_ONE' order-preview.html 1               # 600 이하 진행 줄 한 줄 넘기기
+chk 'AI_CARD_TIDY' order-preview.html 4            # AI 줄 ▶ = 만든 파일 · 밑줄 글 단추 · 말 빠르기 한 줄
+chk 'PRICE_SAME' order-preview.html 1
+chk 'RING_STAGE' order-preview.html 1
+chk 'RING_STAGE' assets/ritual-open.js 2
+nochk "out.push(\['반지를 건넬" assets/ritual-open.js 0

@@ -83,13 +83,13 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 만든 뒤 창이 «만들기» 걸음에서 «목소리를 만들었어요» · 채운 줄 수 · [확인] [REC_DLG]', /목소리를 만들었어요/.test(dn) && /2줄을 이 목소리로 채웠어요/.test(dn) && /확인/.test(dn), dn.slice(0, 200));
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
   const tools = await pg.evaluate(() => { const c = [...document.querySelectorAll('.mk-vcards .mk-vr')].find((li) => li.querySelector('[data-fk="mkairedo:g0"]')); return c ? c.textContent : ''; });
-  ok(W + ' 8-2 5) AI 줄 — 빠르기 셋 · 다시 만들기 · N번 남음 (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', /천천히/.test(tools) && /조금 빠르게/.test(tools) && /다시 만들기 · 4번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools), tools);
+  ok(W + ' 8-2 5) AI 줄 — 다시 만들기 · N번 남음 · 빠르기는 칸 머리 «말 빠르기» 한 줄 [AI_CARD_TIDY] (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', !/천천히/.test(tools) && /다시 만들기 · 4번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools) && !/들어 보기/.test(tools) && await pg.evaluate(() => !!document.querySelector('[data-fk="mkvtempo:guest:0.9"]') && !document.querySelector('[data-fk^="mkaitempo:"]')), tools);
   ok(W + ' 배지 «AI로 만들었어요» · 녹음 줄엔 [AI로 만들기](그 줄만)', await pg.evaluate(() => /AI로 만들었어요/.test(document.querySelector('.mk-vcards').textContent) && !!document.querySelector('[data-fk="mkai:g2"]')));
   await pg.click('[data-fk="mkai:g2"]'); await pg.waitForTimeout(2500);
   ok(W + ' 녹음 줄을 AI로 → 녹음은 [되돌리기]로 남는다', await pg.evaluate(() => S.up.g2.src === 'ai' && S.upPrev && S.upPrev.g2 && S.upPrev.g2.src === 'rec' && !!document.querySelector('[data-fk="mkaiback:g2"]')));
   await pg.click('[data-fk="mkaiback:g2"]'); await pg.waitForTimeout(300);
   ok(W + ' [되돌리기] → 녹음으로 돌아간다', await pg.evaluate(() => S.up.g2.src === 'rec'));
-  await pg.click('[data-fk="mkaitempo:g0:0.9"]'); await pg.waitForTimeout(2500);
+  await pg.click('[data-fk="mkvtempo:guest:0.9"]'); await pg.waitForTimeout(2500);   /* [AI_CARD_TIDY] 순간 머리 «말 빠르기» */
   ok(W + ' 빠르기만 바꾸면 retempo 로(줄 한도에 안 셈)', await pg.evaluate(() => S.up.g0.tempo === '0.9' && __calls.filter((c) => c === 'make:g0').length >= 2));
   await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkairedo:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
   /* ★[VC_LINE_ERR] 줄 만들기가 실패하면 «보내는 중»에 멈추지 않고 그 줄 아래에 까닭 */
