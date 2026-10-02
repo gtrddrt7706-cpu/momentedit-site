@@ -115,7 +115,7 @@ for (const w of [360, 1280]) {
   const off = await pg.evaluate(() => ({ vc: !!document.querySelector('.mk-aisec'), ai: document.querySelectorAll('[data-fk^="mkai:"]').length, chip: !!document.querySelector('[data-fk="lsc:guestVoice:ai"]') }));
   ok('3단계 스위치 꺼짐 — AI 칸 · 고르는 칸의 AI · [AI로 만들기]가 안 보인다 [VOICE_CLONE]', !off.vc && off.ai === 0 && !off.chip, JSON.stringify(off));
   /* ★[VOICE_CLONE_0928] 켜기(시험에서만) + 가짜 마이페이지 · 서버 — 동의 → 1분 읽기(글 둘 · 서버 확인 문장) → 만들기 → 그 사람의 빈 줄만 AI */
-  await pg.evaluate((MP3) => { RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; window.__vcCalls = [];   // [VOICE_UP_FROM] 날짜 문도 연 예식(시험)
+  await pg.evaluate((MP3) => { RitualOpen.FEATURE.upLive = true; S.vsChip = 1;   /* [VS_CHIP_ONCE] 칩 첫 창은 voice-setup 이 잰다 */  RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; window.__vcCalls = [];   // [VOICE_UP_FROM] 날짜 문도 연 예식(시험)
     const st = { groom: { consent: false, ready: false, left: 3 }, bride: { consent: false, ready: false, left: 3 } };
     window.addEventListener('message', (ev) => { const d = ev.data || {}; if (d.type === 'momentedit:voiceClone') { const q = d.data; window.__vcCalls.push(q.op + ':' + (q.who || q.key || q.role || ''));
         let r = { ok: true }; if (q.op === 'status') r = { ok: true, groom: st.groom, bride: st.bride, per: {} }; if (q.op === 'consent') st[q.who].consent = true;

@@ -43,7 +43,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
       return Promise.resolve({ ok: false }); };
     const o = window.postMessage.bind(window);
     window.postMessage = function (m, t) { if (m && m.type === 'momentedit:ritualFile') { const k = m.data.key; window.__calls.push('upload:' + k); setTimeout(() => _mkUpDone({ key: k, ok: true, id: 'F' + k + Date.now(), name: m.data.name, at: '2026-10-02 10:00' }), 50); return; } return o(m, t); };
-    RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = false; S.on.prevideo = 1; opSync();
+    RitualOpen.FEATURE.upLive = true; S.vsChip = 1;   /* [VS_CHIP_ONCE] 칩 첫 창은 voice-setup 이 잰다 */  RitualOpen.FEATURE.voiceClone = false; S.on.prevideo = 1; opSync();
     VC.st = { groom: { consent: true, ready: true, left: 2 }, bride: { consent: true, ready: false, left: 3 } };
     mkGo('prevideo'); try { lsStop(); } catch (e) {}
   });

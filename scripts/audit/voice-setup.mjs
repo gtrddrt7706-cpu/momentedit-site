@@ -59,6 +59,18 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   if (SHOT) { await pg.evaluate(() => { try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(300); await pg.screenshot({ path: `${SHOT}/vs-guest-${W}.png` }); }
   const cmp = await pg.evaluate(() => { const b = document.querySelector('[data-fk^="mknar:"]'); if (!b) return { b: false }; b.click(); return { b: true, k: b.getAttribute('data-fk'), a: __aud[__aud.length - 1] || '' }; });
   ok(W + ' AI 줄 카드 «스튜디오 나레이션과 비교해 듣기» → 그 자리의 나레이션 파일', cmp.b && /\/narration\/.*\.mp3$/.test(cmp.a), JSON.stringify(cmp));
+  /* ★[LINE_EDIT] AI 자리의 줄 글을 두 분이 고친다 — 글칸 · 시작 1분 전은 앞 두 문장 고정 · 고치면 «다시 만들어 주세요» → 새 글로 만든다 */
+  const le0 = await pg.evaluate(() => { const ta = document.querySelector('[data-fk="mkvt:g0"]'), fx = document.querySelector('.mk-vtfix'), t3 = document.querySelector('[data-fk="mkvt:g3"]');
+    return { ta: !!ta, v: ta ? ta.value : '', fix: fx ? fx.textContent : '', t3: t3 ? t3.value : '', vtx: document.querySelectorAll('.mk-vcards .mk-vtx:not(.mk-vtfix)').length }; });
+  ok(W + ' AI 자리 줄 카드 — 글이 고칠 수 있는 칸 · 시작 1분 전은 «미리 준비한 안내 음성» 두 문장을 고정으로 두고 그 뒤만 칸 [LINE_EDIT]', le0.ta && /^저희 두 사람의 결혼식에/.test(le0.v) && /미리 준비한 안내 음성/.test(le0.fix) && !/미리 준비한 안내 음성/.test(le0.t3) && le0.t3.length > 0 && le0.vtx === 0, JSON.stringify(le0).slice(0, 300));
+  await pg.evaluate(() => mkGuestWho(3, 'g')); await pg.waitForTimeout(1500);   // 시작 1분 전을 신랑(목소리 있음)으로
+  await pg.fill('[data-fk="mkvt:g3"]', '조금 뒤에 뵙겠습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(300);
+  const le1 = await pg.evaluate(() => ({ need: _recNeed('g3'), btn: (document.querySelector('[data-fk="mkai:g3"]') || {}).textContent || '', st: ((document.querySelector('[data-fk="mkvt:g3"]') || {}).closest ? document.querySelector('[data-fk="mkvt:g3"]').closest('.mk-vc').textContent : ''), reset: !!document.querySelector('[data-fk="mkvtreset:g3"]') }));
+  ok(W + ' 글을 고치면 읽을 글 = 고정 두 문장 + 고친 글 · «글을 고쳤어요» · [새 글로 다시 만들기] · [처음 글로]', /미리 준비한 안내 음성.* 조금 뒤에 뵙겠습니다\.$/.test(le1.need) && le1.btn === '새 글로 다시 만들기' && /글을 고쳤어요/.test(le1.st) && le1.reset, JSON.stringify(le1).slice(0, 300));
+  await pg.click('[data-fk="mkai:g3"]'); await pg.waitForTimeout(1500);
+  ok(W + ' [새 글로 다시 만들기] → 새 글로 다시 만든다', await pg.evaluate(() => { const v = S.up.g3; return !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))) && !document.querySelector('[data-fk="mkai:g3"]'); }));
+  await pg.click('[data-fk="mkvtreset:g3"]'); await pg.waitForTimeout(300);
+  ok(W + ' [처음 글로] → 처음 글 · 다시 «다시 만들어 주세요»', await pg.evaluate(() => _recNeed('g3') === GUEST[3][2] && !!document.querySelector('[data-fk="mkai:g3"]')));
   await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400);
   const d4 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', ai: d ? d.querySelector('[data-fk="mkvs:ai"]').getAttribute('aria-pressed') : '' }; });
   ok(W + ' «나레이션 자세히»를 누르면 고르기부터 · 지금 값(AI)이 눌린 모양', d4.t === '안내 목소리 정하기' && d4.ai === 'true', JSON.stringify(d4));
@@ -67,6 +79,20 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 스튜디오 → 세 자리 나레이션 · 창 닫힘', !d5.dlg && d5.v === 'nar,nar,nar' && d5.vf === '{}', JSON.stringify(d5));
   await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = false; render(); });
   ok(W + ' AI 를 못 쓰는 예식엔 그 줄이 없다', await pg.evaluate(() => !document.querySelector('.mk-vsbar')));
+  /* ★[VS_CHIP_ONCE] 순간 쪽 칩을 처음 누르면 창이 한 번 — 누른 칩이 눌린 모양 · 두 번째는 안 뜬다 */
+  await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; delete S.vsChip; mkGo('guest'); render(); }); await pg.waitForTimeout(500);
+  await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(500);
+  const c1 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return d ? { t: d.querySelector('.mk-dlg-t').textContent, ai: d.querySelector('[data-fk="mkvs:ai"]').getAttribute('aria-pressed'), note: d.querySelector('.mk-note').textContent } : null; });
+  ok(W + ' 칩을 처음 누르면 창이 뜬다 · 누른 «AI»가 눌린 모양 · «한 번에 쓸까요?» [VS_CHIP_ONCE]', c1 && c1.t === '안내 목소리 정하기' && c1.ai === 'true' && /한 번에 쓸까요/.test(c1.note), JSON.stringify(c1));
+  await pg.click('[data-fk="mkdlgx"]'); await pg.waitForTimeout(300);
+  await pg.click('[data-fk="lsc:guestVoice:nar"]'); await pg.waitForTimeout(400);
+  ok(W + ' 두 번째 칩부터는 창이 안 뜬다', await pg.evaluate(() => !document.getElementById('mkRecDlg') && S.guestVoice === 'nar'));
+  /* ★[PLAY_ONE] 들을 줄이 하나뿐이면 «이 순간 들어 보기» 없음 · 여럿이면 있음 */
+  await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = false; S.on.welcome = 1; mkGo('welcome'); }); await pg.waitForTimeout(500);
+  const p1 = await pg.evaluate(() => !!document.querySelector('.mk-pg [data-fk="mkplay"]'));
+  await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);
+  const p2 = await pg.evaluate(() => !!document.querySelector('.mk-pg [data-fk="mkplay"]'));
+  ok(W + ' 줄 하나(첫인사)엔 «이 순간 들어 보기» 없음 · 여럿(하객 맞이)엔 있음 [PLAY_ONE]', !p1 && p2, JSON.stringify({ p1, p2 }));
   ok(W + ' 화면 오류 없음', errs.length === 0, errs.slice(0, 2).join(' | '));
   await ctx.close();
 }

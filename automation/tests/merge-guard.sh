@@ -13650,3 +13650,11 @@ chk 'prefers-reduced-motion:reduce){ .mk-vsg .wv{animation:none' order-preview.h
 nochk "id='obVoice'" order-preview.html   # 머리 알약 줄은 390 에서 넘친다(실렌더) — ② 진행 줄 아래 한 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/voice-setup.mjs >/dev/null 2>&1; _vs2=$?; [ "$_vs2" = 1 ] && { echo 'FAIL voice-setup: 안내 목소리 창 흐름이 어긋났습니다 — node scripts/audit/voice-setup.mjs'; fail=1; }; fi
 chk 'VOICE_SETUP' scripts/audit/voice-setup.mjs 2
+# ★[LINE_EDIT · VS_CHIP_ONCE · PLAY_ONE 2026-10-02 사장님 «하객 맞이 같은 부분도 두 분이 직접 쓰고 AI 로» (범위: 세 자리) · «칩을 누르면 자세히 창이 처음 한 번» · «플레이 버튼이 겹치잖아»]
+chk 'LINE_EDIT' order-preview.html 4
+chk 'function _g3Split()' order-preview.html 1
+chk 'VS_CHIP_ONCE' order-preview.html 2
+chk 'PLAY_ONE' order-preview.html 2
+chk 'LINE_EDIT' scripts/audit/voice-setup.mjs 1
+chk 'VS_CHIP_ONCE' scripts/audit/voice-setup.mjs 1
+chk 'PLAY_ONE' scripts/audit/voice-setup.mjs 1
