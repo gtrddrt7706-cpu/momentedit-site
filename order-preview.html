@@ -1113,7 +1113,8 @@ body.lsfull{overflow:hidden}
 .mk-mk.o{width:8px;height:8px;border:1.5px solid currentColor;border-radius:50%;display:inline-block}
 .mk-it.todo{color:var(--seal)}
 .mk-it.todo .mk-t{position:relative}
-.mk-it.todo .mk-t::after{content:'';position:absolute;top:-3px;right:-8px;width:6px;height:6px;border-radius:50%;background:var(--seal)}   /* ★[MK_TODO_DOT 2026-09-28 사장님 «미완료가 동그라미로 돼 있는데 애매해 · 다른 방식»] 이름 앞 빈 동그라미는 «안 고른 라디오»처럼 읽혔다 → 이름 오른쪽 위 채운 점(알림 점) · 한눈에 보기의 «● 미완료 N»과 같은 점 */
+/* ★[TODO_NODOT 2026-10-02 사장님 «미작성 부분 색으로 구분만 하고 상단 위에 빨간 점은 없애자»] 점(::after)을 걷었다 · 진사 글자만 — 되살리지 말 것 · 옛 표식 MK_TODO_DOT */   /* ★[MK_TODO_DOT 2026-09-28 사장님 «미완료가 동그라미로 돼 있는데 애매해 · 다른 방식»] 이름 앞 빈 동그라미는 «안 고른 라디오»처럼 읽혔다 → 이름 오른쪽 위 채운 점(알림 점) · 한눈에 보기의 «● 미완료 N»과 같은 점 */
+.mk-todo-t{color:var(--seal)}
 .mk-dot{display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:var(--seal);vertical-align:2px}   /* [MK_TODO_PASSED] 지나온 쪽 중 미완료 = 진사 글자 + 빈 동그라미(모양으로도 다르다) */
 .mk-it.mk-add{color:var(--gold-deeper)}
 .mk-it.mk-add::before{content:'';width:1px;height:14px;background:var(--border);margin-right:10px}
@@ -3389,7 +3390,7 @@ function _lSet(key,v){
 function _lSum(k){
   var R=RitualOpen, bits=[];
   if(k==='guest') return (S.guestVoice==='couple'?'두 분 목소리':'나레이션')+' · 하객이 들어오실 때 · 예식 10분 전 · 5분 전';
-  if(k==='prevideo') return '여는 말 → 두 분의 영상(3분 안) → 1분 전 안내';
+  if(k==='prevideo') return '여는 말 → 두 분의 영상 → 1분 전 안내';   // [PREVIDEO_FREE]
   if(k==='ring') return '말 없이 반지를 끼워요 · 앞뒤로 나레이션';
   if(k==='_close') return '닫는 말 → 그 자리에서 단체 사진';
   if(k==='candle') return _candleWho();
@@ -3650,21 +3651,20 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
   ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
-    h+='<section class="mk-sec mk-prep"><div class="mk-sech"><h4>'+hd+'</h4>'+(cat==='ask'?'<button type="button" class="mk-hbtn" data-fk="mkaskcopy" onclick="mkAskCopyPage(\''+k+'\')">부탁 글 복사하기</button>':'')+'</div>'
+    h+='<section class="mk-sec mk-prep"><div class="mk-sech"><h4>'+hd+'</h4>'+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+'</div>'
       +(cat==='ask'?_mkCopied('ask:'+k):'')+'<ul class="mk-vlist">';
     qs.forEach(function(q){ var due=R.dueWord(q,wed), par=q.who==='parents', done=_mkItemDone(q);
       var tg=cat==='ask'?_mkTg(q.id,c[q.id]==='asked'||c[q.id]===1,par?'부탁드렸어요':'부탁드렸어요','asked')
-        :cat==='send'?(q.k==='prevideo'&&/^https?:\/\//i.test(String(S.growthLink||'').trim())?'<span class="mk-tg on auto"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>링크 받았어요</span>':_mkTg(q.id,!!c[q.id],'보냈어요')):'';
+        :cat==='send'?(q.k==='prevideo'?(/^https?:\/\//i.test(String(S.growthLink||'').trim())?'<span class="mk-tg on auto"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>링크 받았어요</span>':''):_mkTg(q.id,!!c[q.id],'보냈어요')):'';   // [PREVIDEO_FREE] 식전 영상은 링크 칸 하나 — «보냈어요» 손 표시 없음
       var wt=String(q.what), tl=wt.split(' · ').slice(1).join(' · '); if(cat==='bring'&&tl&&gn.indexOf(tl)>-1) wt=wt.split(' · ')[0];   // [MK_MIN] «케이크 · 크기 · 도착 시각은 상담 때…» — 칩 아래 안내가 이미 말한다
       h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';
       if(cat==='ask'&&k==='bless'){ var bv=(S.tx||{})['bless.p']||'';
         h+='<li class="mk-vx"><label class="upchk"><input type="checkbox"'+(c[q.id]==='site'?' checked':'')+' onchange="mkChk(\''+q.id+'\',this.checked,\'site\')"><span>원고 없이 부모님이 현장에서 바로 하세요</span></label>'
           +'<textarea class="ta grow" rows="2" maxlength="4000" aria-label="받은 덕담 원고" placeholder="받은 원고를 붙여 두시면 연습에도 나와요 · 안 붙여도 돼요" oninput="if(!S.tx)S.tx={};S.tx[\'bless.p\']=this.value;_taGrow(this);_persist()">'+esc(bv)+'</textarea></li>'; }
       if(cat==='send'&&q.k==='prevideo'){
-        h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_mkStripRepaint()" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">'
+        h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_mkStripRepaint()" placeholder="영상이나 사진을 올린 링크 붙여넣기 · 유튜브 · 구글 드라이브 · 네이버 MYBOX 등">'
           +'<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>'
-          +'<div class="wd" style="margin-top:6px">휴대폰으로 가로로 찍은 영상이면 충분해요</div>'   // [MK_MIN] «3분 안 · 사진 30~40장 · 저희가 3분 영상으로»는 쪽 머리 설명과 보낼 것 줄이 이미 말한다
-          +_sendHow('식전 영상 사진',0)+'</li>'; }
+          +'</li>'; }   /* ★★[PREVIDEO_FREE 2026-10-02 사장님 «식전 영상 규정을 제한하지 말 것 · 자유대로 · 붙여넣기 하나로» → «링크 칸 하나만»] 길이 · 장수 규정 · 카톡 · 메일 · 25MB 안내를 걷었다 · 되살리지 말 것 */
     });
     h+='</ul></section>'; });
   return h; }
@@ -4258,12 +4258,12 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   var todo=_mkTodoAll();
   /* ★[MK_SUM_ONE 2026-09-27 사장님 «지저분한 중복 전부 제거 · 미니멀하게»] 종전엔 «미완료 14» 목록과 아래 «부탁 · 보낼 것» 목록이 같은 항목을 두 번 늘어놓았다(녹음 네 줄은 두 번씩 여덟 줄).
      이제 한 항목은 한 번만 — 미완료 수는 머리 한 줄에 · «두 분이 할 말»만 따로 모으고 · 부탁 · 보낼 것은 줄마다 ✓ 또는 «가기» · 녹음은 순간마다 한 줄(몇 개 중 몇 개). 되살리지 말 것 */
-  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(todo.length?' · <b class="mk-todo-n"><i class="mk-dot" aria-hidden="true"></i>미완료 '+_mkTodoN()+'</b>':'')+'</p>';
+  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(todo.length?' · <b class="mk-todo-n">미완료 '+_mkTodoN()+'</b>':'')+'</p>';
   var txTodo=todo.filter(function(x){ return x.t.kind==='tx'; }), txK=[], txW={};
   txTodo.forEach(function(x){ if(!txW[x.k]){ txW[x.k]=[]; txK.push(x.k); } txW[x.k].push(x.t.who); });   // 순간마다 한 줄(신랑 · 신부 두 줄로 나누지 않는다)
   if(txK.length){ h+='<section class="mk-sec"><h4>두 분이 할 말</h4><ul class="mk-vlist">';
     txK.forEach(function(k){ var no=_mkNo(k);
-      h+='<li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc((no&&no!=='식전'?no+' ':'')+_mkName(k))+'</span><span class="mk-vs">'+esc(txW[k].join(' · ')+' 칸이 비어 있어요')+'</span></span><button type="button" class="rowbtn mk-vb" onclick="mkGo(\''+k+'\')">적으러 가기</button></li>'; });
+      h+='<li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc((no&&no!=='식전'?no+' ':'')+_mkName(k))+'</span><span class="mk-vs">'+esc(txW[k].join(' · ')+' 칸이 비어 있어요')+'</span></span><button type="button" class="rowbtn mk-vb" onclick="mkGo(\''+k+'\')">이동하기</button></li>'; });
     h+='</ul></section>'; }
   var site=[]; ps.forEach(function(k){ if(k==='_sum'||_mkOff(k)) return; _mkKinds(k).forEach(function(kind){ TX_WHO.forEach(function(w){ var id=kind+'.'+w[0]; if(c[id]&&!String((S.tx||{})[id]||'').trim()) site.push((_mkNo(k)&&_mkNo(k)!=='식전'?_mkNo(k)+' ':'')+_mkName(k)+' · '+w[1]+(kind==='letter'?' · 따로 써서 가져와요':'')); }); }); _mkItems(k).forEach(function(q){ if(c[q.id]==='site') site.push((_mkNo(k)?_mkNo(k)+' ':'')+_mkName(k)+' · 부모님이 현장에서'); }); });
   if(site.length) h+='<section class="mk-sec"><h4>현장에서 하기로 한 것 '+site.length+'</h4><ul class="mk-list">'+site.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ul></section>';
@@ -4271,8 +4271,8 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   function li(q){ var due=R.dueWord(q,wed); return '<li>'+esc(_ndd(q.what))+(due?NBS+'<span class="wr-due">·'+NBS+esc(_ndd(due))+'</span>':'')+'</li>'; }
   /* 할 일 줄 — 왼쪽 할 것 · 언제까지 / 오른쪽 ✓(다 됨) 또는 «가기»(그 순간 쪽으로) */
   function row(nm,due,done,k){ return '<li class="mk-vr'+(done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(nm))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'
-      +(done?'<span class="mk-tg on auto"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>다 됐어요</span>':'<button type="button" class="rowbtn mk-vb" onclick="mkGo(\''+k+'\')">가기</button>')+'</li>'; }
-  if(asks.length) h+='<section class="mk-sec"><div class="mk-sech"><h4>부모님께 부탁드릴 것 '+asks.length+'</h4><button type="button" class="mk-hbtn" data-fk="mkaskall" onclick="mkAskCopyAll()">부탁 글 복사하기</button></div><ul class="mk-vlist">'+asks.map(function(q){ return row(q.what,R.dueWord(q,wed),_mkItemDone(q),q.k); }).join('')+'</ul></section>';
+      +(done?'<span class="mk-tg on auto"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>다 됐어요</span>':'<button type="button" class="rowbtn mk-vb" onclick="mkGo(\''+k+'\')">이동하기</button>')+'</li>'; }
+  if(asks.length) h+='<section class="mk-sec"><div class="mk-sech"><h4>부모님께 부탁드릴 것 '+asks.length+'</h4></div><ul class="mk-vlist">'+asks.map(function(q){ return row(q.what,R.dueWord(q,wed),_mkItemDone(q),q.k); }).join('')+'</ul></section>';
   sends.sort(function(a,b){ return (b.due||0)-(a.due||0); });
   var sRows=[], upK={}; sends.forEach(function(q){ if(q.up){ if(upK[q.k]) return; var qs=sends.filter(function(x){ return x.up&&x.k===q.k; }), n=qs.filter(_mkItemDone).length; upK[q.k]=1;
       sRows.push(row((qs.length>1?_mkName(q.k)+' · ':_mkUpLab(q)+' · ')+'두 분 목소리 녹음'+(qs.length>1?' '+qs.length+'개'+(n&&n<qs.length?' 중 '+n+'개 보냄':''):''),R.dueWord(q,wed),n===qs.length,q.k)); return; }
@@ -4299,7 +4299,7 @@ function renderPractice(){ var R=RitualOpen;
   var h='<div class="op pr">';
   h+='<p class="mk-one">담은 순간 '+n+' · 두 분 차례 '+turns+(len?' · 처음부터 끝까지 약 '+Math.max(1,Math.round(len/60))+'분':'')+'</p>';
   h+='<section class="mk-sec mk-vmsec" aria-labelledby="prVmH"><h4 id="prVmH">어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요</h4>'+_voiceMap(false)+'</section>';   // ★[VOICE_MAP 2026-09-28 코워크 0928 5장] ③ 첫 화면에도 같은 지도(누르지 않는 판)
-  if(todo) h+='<p class="mk-note"><i class="mk-dot" aria-hidden="true"></i>미완료 '+todo+' · 비어 있는 칸은 참고 예시로 채워 보여 드려요</p>';   // [MK_TODO_DOT] ② 진행 줄 · 한눈에 보기와 같은 점
+  if(todo) h+='<p class="mk-note mk-todo-t">미완료 '+todo+' · 비어 있는 칸은 참고 예시로 채워 보여 드려요</p>';   // [MK_TODO_DOT] → [TODO_NODOT] 점 없이 진사 글자
   h+='<section class="mk-sec"><h4>어떻게 볼까요</h4><p class="mk-note">따라 보기 · 나레이션을 들으며, 두 분 차례엔 글을 따라 읽어요</p>'
     +'<button type="button" class="ls-hero pr-go" data-fk="prall" onclick="lsPlayAll()"><span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 끝까지</b></span></button></section>';
   h+='<section class="mk-sec"><h4>어디까지</h4><div class="pr-acts">';
@@ -4913,9 +4913,9 @@ function _openWrite(){
   h+='<div class="wr-sec"><div class="wr-sub">보낼 것</div>';
   if(_pv){
   h+='<div class="wr-item">'+esc(R.prepOf('prevideo',S)[0][1])+' <span class="wr-due">· '+esc(R.dueWord({due:3},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 한 원천
-  h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
+  h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상이나 사진을 올린 링크 붙여넣기 · 유튜브 · 구글 드라이브 · 네이버 MYBOX 등">';
   h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
-  h+='<div class="wd" style="margin-top:6px">휴대폰으로 가로로 찍은 영상 · 3분 안 · 영상이 없으면 사진 30~40장을 보내 주세요. 저희가 3분 영상으로 만들어요.</div>';   // [UPLOAD_HONEST 2-8] 쉬운 말
+  h+='<div class="wd" style="margin-top:6px">영상이 없으면 사진을 올린 링크를 주셔도 돼요. 저희가 영상으로 만들어요.</div>';   // [UPLOAD_HONEST 2-8] · [PREVIDEO_FREE] 길이 · 장수 규정 없음
   }
   /* ★[H2_SEND_LUMP 2026-09-26 코워크 최종판 5-2] 식전 영상(링크 칸 · 설명 · 카톡 · 메일 · 25MB 안내)을 한 덩어리로 — 종전엔 축배 음료 줄이
      링크 칸과 «보내는 길» 상자 사이에 끼어 식전 영상 안내가 둘로 갈렸다. 같은 길(카톡 · 메일)로 보내는 준비한 순서 파일(3일 전)만
@@ -4923,7 +4923,7 @@ function _openWrite(){
   var sendFile=send.filter(function(q){ return q.k==='free' && q.due===3; }), sendRest=send.filter(function(q){ return !(q.k==='free' && q.due===3); });
   if(sendFile.length) h+='<ul class="wr-list" style="margin-top:10px">'+sendFile.map(li).join('')+'</ul>';
   // [RIT_FILE_CHECK] 보낼 것이 여럿이면 마감은 줄마다(한 문장에 3일 · 7일을 섞지 않는다)
-  var _what=[_pv?'식전 영상 사진':'',sendFile.length?'준비한 순서 파일':'',_voice?'두 분 목소리 녹음 파일':''].filter(Boolean).join(' · ');   // [PREVIDEO_PICK]
+  var _what=['',sendFile.length?'준비한 순서 파일':'',_voice?'두 분 목소리 녹음 파일':''].filter(Boolean).join(' · ');   // [PREVIDEO_PICK]
   if(_what) h+=_sendHow(_what,_voice?0:3);
   if(sendRest.length) h+='<ul class="wr-list" style="margin-top:12px">'+sendRest.map(li).join('')+'</ul>';
   if((S.guestVoice==='couple'||S.entryVoice==='couple')&&_upLive()){
@@ -5478,7 +5478,7 @@ function renderStep(k){
       /* ★[GROW_LINK_HINT 2026-08-13 점검] 주소 형태가 아니면 그 자리에서 알려 준다 — 안 잡으면
          「abc」 같은 값이 그대로 저장돼 관리자 화면(ADM_LINK_CLICK)에서 눌리지 않는 맨글자가 되고,
          디렉터는 D-3에 영상을 못 받는다. 막지는 않는다(붙여넣다 만 중간 상태가 있다) · 힌트만. */
-      h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등">';
+      h+='<input class="tin" type="url" inputmode="url" aria-label="성장 영상 링크" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상이나 사진을 올린 링크 붙여넣기 · 유튜브 · 구글 드라이브 · 네이버 MYBOX 등">';
       h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
       h+='<div class="wd" style="margin-top:6px">가로 mp4 3~4분 이내 · D-3까지 · 링크만 붙여두면 저희가 받아둬요.</div>';
     }
@@ -5502,11 +5502,11 @@ function renderStep(k){
   if(k==='prevideo'){
     var h='<div style="margin-top:16px">';
     h+=narBox(RitualOpen.NAR.prevideoIn,null);
-    h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상 링크 붙여넣기 · 유튜브·드라이브 등" style="margin-top:12px">';
+    h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="영상이나 사진을 올린 링크 붙여넣기 · 유튜브 · 구글 드라이브 · 네이버 MYBOX 등" style="margin-top:12px">';
     h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
     h+='<div class="wd" style="margin-top:6px">가로 mp4 3분 이내 · D-3까지 · 링크만 붙여 두시면 저희가 받아 둬요.</div>';
     /* [PREVIDEO_ALWAYS 2026-09-25 사장님 결정 2] 영상이 없어도 이 순간은 있다 — 사진으로 저희가 만든다(첫 장에 두 분 이름 · 날짜) */
-    h+='<div class="reassure" style="margin-top:12px">영상이 없으면 사진 30~40장을 예식 3일 전까지 보내 주세요. 저희가 3분 영상으로 만들어 첫 장에 두 분 이름과 날짜를 넣어요.</div>';
+    h+='<div class="reassure" style="margin-top:12px">영상이 없으면 사진을 올린 링크를 예식 3일 전까지 주세요. 저희가 영상으로 만들어 첫 장에 두 분 이름과 날짜를 넣어요.</div>';   // [PREVIDEO_FREE]
     h+='</div>'; return h;
   }
   if(k==='entry'){
@@ -5962,7 +5962,7 @@ var BLOCK={
   guest:function(){ return null; }, // 식전 안내 트랙 · 본식 대본에는 미포함
   /* [OPEN_COURSE] 새 코스의 두 순간 — 문안 원천은 ritual-open.js 의 NAR */
   prevideo:function(){
-    return {n:'식전 영상',nar:RitualOpen.NAR.prevideoIn,cue:'하객이 앉는 동안 두 분이 준비한 영상 상영(3분 안) · 두 분은 문 밖에서 대기 · 본식 시간에 들지 않아요'};
+    return {n:'식전 영상',nar:RitualOpen.NAR.prevideoIn,cue:'하객이 앉는 동안 두 분이 준비한 영상 상영 · 두 분은 문 밖에서 대기 · 본식 시간에 들지 않아요'};
   },
   candle:function(){
     var w=S.candleWho, nm=''; RitualOpen.CANDLE_WHO.forEach(function(c){ if(c[0]===w) nm=c[1]; }); if(!nm){ w=RitualOpen.DEF.candleWho; nm='양가 어머님'; }
