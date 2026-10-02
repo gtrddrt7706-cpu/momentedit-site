@@ -1285,6 +1285,31 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-dlg-h{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px}
 .mk-dlg-t{flex:1;margin:4px 0 0;font-family:var(--ko-serif);font-size:20px;font-weight:600;letter-spacing:-.02em;line-height:1.4;color:var(--accent);word-break:keep-all}
 .mk-dlg-t:focus{outline:none}
+/* ★★[VOICE_SETUP 2026-10-02 사장님 «② 머리글에 나레이션 자세히 → 창 · AI 목소리와 스튜디오 나레이션 고르기부터» · «AI 목소리는 한 번 셋팅 → 하객 맞이 · 입장 · 식전 영상에 한꺼번에» · «휴대폰 녹음 가이드 · 모션»]
+   고르는 판 둘(카드) → AI 면 사람 줄(신랑 · 신부 · 1분 읽기) + 녹음 길잡이(휴대폰 그림 · 소리 결이 차례로 옅게 떴다 사라진다 · 움직임 줄이기면 멈춤). 튀는 움직임 없음(브랜드) */
+.mk-vso{display:grid;gap:10px;margin:4px 0 14px}
+.mk-vso button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;min-height:72px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--accent);font:inherit;text-align:left;cursor:pointer}
+.mk-vso button b{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.mk-vso button span{font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
+.mk-vso button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+@media (hover:hover){ .mk-vso button:hover{background:var(--bg2)} }
+.mk-vsg{display:flex;gap:14px;align-items:center;margin:2px 0 14px;padding:14px 16px;border-radius:12px;background:var(--bg2)}
+.mk-vsg svg{flex:0 0 auto;width:56px;height:56px;color:var(--accent)}
+.mk-vsg ol{margin:0;padding:0 0 0 18px;font-size:14px;line-height:1.7;color:var(--accent);word-break:keep-all}
+.mk-vsg .wv{opacity:.18;animation:mkVsWave 2.4s var(--ease,ease-out) infinite}
+.mk-vsg .wv.w2{animation-delay:.3s}.mk-vsg .wv.w3{animation-delay:.6s}
+@keyframes mkVsWave{0%,100%{opacity:.18}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){ .mk-vsg .wv{animation:none;opacity:.7} }
+.mk-vsp{list-style:none;margin:0 0 12px;padding:0}
+.mk-vsp li{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;padding:8px 0;border-top:1px solid var(--hairline,var(--border))}
+.mk-vsp li:last-child{border-bottom:1px solid var(--hairline,var(--border))}
+.mk-vsp .n{display:flex;flex-direction:column;gap:2px}.mk-vsp .n b{font-size:16px;font-weight:600;color:var(--accent)}.mk-vsp .n span{font-size:12.5px;color:var(--sub)}
+.mk-vscmp{margin:6px 0 0}
+.mk-vsp .n .mk-mk{margin-right:4px}
+.mk-vsbar{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;margin:0 0 6px;font-size:12.5px;color:var(--sub)}
+.mk-vsbar b{font-weight:600;color:var(--accent)}
+.mk-vsbar .pk-link{min-height:44px;font-size:12.5px}
+@media (max-width:999px){ .mk-vsbar{margin-right:36px} }   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] */
 .mk-dlg-x{flex:none;width:44px;height:44px;margin:-8px -12px 0 0;border:0;border-radius:999px;background:none;color:var(--sub);display:grid;place-items:center;cursor:pointer}
 .mk-dlg-x svg{width:16px;height:16px}
 .mk-dlg-steps{list-style:none;display:flex;gap:6px;margin:0 0 16px;padding:0}
@@ -3799,7 +3824,8 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
       +(function(){ var dis=(st.busy||rec?' disabled':''), aiBtn='<button type="button" class="rowbtn mk-vb" data-fk="mkai:'+q.up+'" aria-label="'+esc(lab+' AI로 만들기')+'"'+dis+' onclick="mkAi(\''+q.up+'\')">AI로 만들기</button>', me=ai&&!own(q.up);   // [VP_ONLY_PICKED]
           if(pv&&!t) return '<p class="mk-note mk-vaiw">소개글을 적으면 '+esc(_recWho('pv'))+' AI 목소리로 만들 수 있어요</p>';   // [PV_INTRO]
           if(pvSt&&me&&_vcReadyFor('pv')) return '<span class="mk-vbs">'+aiBtn.replace('>AI로 만들기<','>새 글로 다시 만들기<')+'</span>';
-          if(st.file) return '<span class="mk-vbs"><button type="button" class="rowbtn mk-vb" data-fk="mkupplay:'+q.up+'" aria-label="'+esc(lab+' 들어 보기')+'" onclick="mkUpPlay(\''+q.up+'\')">들어 보기</button>'+_vcLineTools(q.up,lab)+'<button type="button" class="rowbtn mk-vb" data-fk="mkupdel:'+q.up+'" aria-label="'+esc(lab+' 지우기')+'" onclick="mkUpDel(\''+q.up+'\')">지우기</button>'+(me&&_vcReadyFor(q.up)&&((S.up||{})[q.up]||{}).src!=='ai'?aiBtn:'')+'</span>';
+          if(st.file) return '<span class="mk-vbs"><button type="button" class="rowbtn mk-vb" data-fk="mkupplay:'+q.up+'" aria-label="'+esc(lab+' 들어 보기')+'" onclick="mkUpPlay(\''+q.up+'\')">들어 보기</button>'+_vcLineTools(q.up,lab)+'<button type="button" class="rowbtn mk-vb" data-fk="mkupdel:'+q.up+'" aria-label="'+esc(lab+' 지우기')+'" onclick="mkUpDel(\''+q.up+'\')">지우기</button>'+(me&&_vcReadyFor(q.up)&&((S.up||{})[q.up]||{}).src!=='ai'?aiBtn:'')+'</span>'
+            +(((S.up||{})[q.up]||{}).src==='ai'?'<button type="button" class="pk-link mk-vscmp" data-fk="mknar:'+q.up+'" aria-label="'+esc(lab+' 스튜디오 나레이션과 비교해 듣기')+'" onclick="mkNarPlay(\''+q.up+'\')">스튜디오 나레이션과 비교해 듣기</button>':'');   // [VOICE_SETUP] 비교해 듣기
           if(me) return _vcReadyFor(q.up)?'<span class="mk-vbs">'+aiBtn+'</span>':'<p class="mk-note mk-vaiw">'+esc(_vcSpent(q.up)?'목소리 만들기를 다 써서 이 줄은 스튜디오 나레이션으로 나와요':(q.up==='entry'?'두 분':_recWho(q.up))+' 목소리를 만들면 이 줄이 저절로 채워져요')+'</p>';   // [VP_NO_EXIT]   // 빈 줄 — 녹음 · 파일 단추 없음
           return '<span class="mk-vbs"><button type="button" class="rowbtn mk-vb" data-fk="mkrec:'+q.up+'" aria-label="'+esc(lab+' 녹음하기')+'"'+dis+' onclick="mkRec(\''+q.up+'\')">녹음</button><button type="button" class="rowbtn mk-vb" data-fk="mkup:'+q.up+'" aria-label="'+esc(lab+' 파일 올리기')+'"'+dis+' onclick="mkUp(\''+q.up+'\')">파일 올리기</button>'
             +(ai&&vself[q.up]&&!_vcSpent(q.up)?'<button type="button" class="pk-link" data-fk="mkvselfoff:'+q.up+'" onclick="mkVselfOff(\''+q.up+'\')">AI로 채우기</button>':'')+'</span>'; })()+(MK.lineErr&&MK.lineErr[q.up]?'<p class="mk-exw" role="alert">'+esc(MK.lineErr[q.up])+'</p>':'')+'</li>';   // [VC_LINE_ERR]
@@ -3844,11 +3870,50 @@ function _recLineBody(r){ var k=r.key, t=_recNeed(k), ln=_vpLines(k);
     +'<div class="mk-recp" aria-live="polite">'+_recPanel(r)+'</div>'; }
 /* 창 그리기 — render() 끝에서 부른다 · 몸이 같으면 다시 그리지 않는다(들어 보는 소리가 끊기지 않게) */
 var DLG={html:'',bo:'',inert:[]};
-function _dlgOn(){ return !!(VC.panel||VC.read||(MK_REC&&!/^vc:/.test(MK_REC.key))); }
+function _dlgOn(){ return !!(VC.panel||VC.read||(MK_REC&&!/^vc:/.test(MK_REC.key))||(VS.open&&_vsOk())); }
+/* ★★[VOICE_SETUP 2026-10-02 사장님 «② 머리글에 나레이션 자세히 → 창 · AI 목소리 · 스튜디오 나레이션 고르기부터» · «AI 목소리는 ② 들어갈 때 창으로 먼저 · 한 번 셋팅하면 하객 맞이 · 입장 · 식전 영상에 한꺼번에(하나씩 적용 X)» · «각 순간에서 비교해 들어 보기» · «휴대폰 녹음 가이드 · 모션»]
+   VS = 이 창의 화면 상태(저장 안 함). ② 에 처음 들어올 때 한 번 저절로 뜬다(S.vsAsked) · 그 뒤로는 머리 알약 «나레이션 자세히»로 연다.
+   고른 값은 세 자리 칩(guestVoice · entryVoice · pvVoice)에 한꺼번에 들어간다 — 순간 쪽 칩으로 그 자리만 다시 바꿀 수 있다(그게 «비교»의 한 길).
+   AI 를 고르면 같은 창에서 사람 줄(신랑 · 신부 · 1분 읽기)로 이어진다 — 읽기 · 동의는 종전 창(VC.panel · VC.read)이 잠시 대신하고, 끝나면 이 창으로 돌아온다 */
+var VS={open:false,ph:'pick',seen:false};
+var VS_KEYS=['guestVoice','entryVoice','pvVoice'], VS_MK=['guest','entry','prevideo'];
+function _vsCur(){ var a=VS_MK.map(_vpCur); return a.every(function(x){ return x==='ai'; })?'ai':a.every(function(x){ return x==='nar'; })?'nar':'mix'; }
+function _vsOk(){ return _upLive()&&_vcOn(); }
+var VS_ICO='<svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="8" y="10" width="20" height="36" rx="4"/><path d="M15 41h6"/><path class="wv w1" d="M34 23c2 1.5 2 8.5 0 10"/><path class="wv w2" d="M39 19c4 3 4 15 0 18"/><path class="wv w3" d="M44 15c6 4.5 6 21.5 0 26"/></svg>';
+function _vsPanel(){ var cur=_vsCur();
+  if(VS.ph==='ai'){ var h='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';
+    if(!VC.st){ _vcStatus(); return h+'<p class="mk-note" role="status">불러오는 중이에요…</p>'; }
+    h+='<ul class="mk-vsp">'+['groom','bride'].map(function(w){ var p=VC.st[w]||{}, nm=_vcName(w), who=(w==='groom'?'신랑':'신부')+(nm===(w==='groom'?'신랑':'신부')?'':' '+nm);
+      var stx=p.ready?'목소리 만듦':(p.left===0)?'만들기를 다 썼어요 · 나레이션으로 나와요':'1분쯤 소리 내어 읽으면 돼요';
+      return '<li><span class="n"><b>'+esc(who)+'</b><span>'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span>'
+        +(!p.ready&&p.left!==0?'<button type="button" class="rowbtn mk-vb" data-fk="mkvsread:'+w+'" onclick="mkVcConsent(\''+w+'\')">1분 읽기 시작</button>':'')+'</li>'; }).join('')+'</ul>';
+    return h+'<p class="mk-note">한 분만 만들어도 돼요 · 만든 분 목소리로 하객 맞이 · 입장 인사 · 식전 영상 소개를 채워요</p>'
+      +'<button type="button" class="mk-dlg-go" data-fk="mkvsdone" onclick="mkVsClose()">다 됐어요</button>'
+      +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mkvsback" onclick="mkVsPh(\'pick\')">다른 방법 고르기</button></div>'; }
+  return '<p class="mk-note">하객 맞이 안내 · 입장 인사 · 식전 영상 소개를 어떤 목소리로 할지 한 번에 정해요. 순간마다 나중에 바꿀 수 있어요</p>'
+    +'<div class="mk-vso" role="group" aria-label="안내 목소리">'
+    +'<button type="button" data-fk="mkvs:ai" aria-pressed="'+(cur==='ai')+'" onclick="mkVsPick(\'ai\')"><b>AI 두 분 목소리</b><span>두 분이 각자 1분쯤 소리 내어 읽으면, 그 목소리로 세 자리를 만들어요. 말투는 실제 목소리와 조금 다를 수 있어요</span></button>'
+    +'<button type="button" data-fk="mkvs:nar" aria-pressed="'+(cur==='nar')+'" onclick="mkVsPick(\'nar\')"><b>스튜디오 나레이션</b><span>나레이터가 읽어요. 따로 준비할 것이 없어요</span></button>'
+    +'</div>'; }
+var VS_LAB={ai:'AI 두 분 목소리',nar:'스튜디오 나레이션',mix:'순간마다 다르게'};
+function _vsBar(){ if(!_vsOk()) return ''; return '<div class="mk-vsbar"><span>안내 목소리 · <b>'+esc(VS_LAB[_vsCur()])+'</b></span><button type="button" class="pk-link" data-fk="mkvsopen" onclick="mkVsOpen()">나레이션 자세히</button></div>'; }
+window.mkVsOpen=function(){ if(!_vsOk()) return; VS.open=true; VS.ph='pick'; render(); };
+window.mkVsPh=function(p){ VS.ph=p==='ai'?'ai':'pick'; render(); };
+window.mkVsPick=function(v){ VS_KEYS.forEach(function(k){ _lSet(k,v==='ai'?'ai':'nar'); }); _persist();
+  if(v==='ai'){ VS.ph='ai'; var fill=function(){ ['groom','bride'].forEach(function(w){ if(VC.st&&(VC.st[w]||{}).ready) _vcAutoFill(w,false); }); }; if(VC.st) fill(); else _vcStatus(fill); render(); return; }   // 이미 만든 목소리가 있으면 빈 줄을 바로 채운다
+  VS.open=false; MK.toast='하객 맞이 · 입장 인사 · 식전 영상 소개를 스튜디오 나레이션으로 정했어요'; render(); };
+window.mkVsClose=function(){ VS.open=false; render(); };
+/* [VOICE_SETUP] 비교해 듣기 — 같은 자리를 스튜디오 나레이션으로(엔진에서 세 자리를 나레이션으로 돌린 판의 그 큐 파일) */
+function _narSrc(key){ if(!ENG||!ENG.RitualCue) return null; var s2=JSON.parse(JSON.stringify(S)); s2.guestVoice='nar'; s2.entryVoice='nar'; s2.pvVoice='nar'; var r; try{ r=ENG.RitualCue.build(s2,{mode:'preview'}); }catch(e){ return null; }
+  var want=/^g\d$/.test(key)?['guest-1-arrival','guest-2-10min','guest-3-5min','guest-4-1min'][+key.slice(1)]:key==='entry'?'entry-'+(S.entry||'A'):key==='pv'?'narr-prevideo-in':'';
+  var c=r.cues.filter(function(x){ return x.slug===want||(key==='g3'&&/^guest-4-1min/.test(x.slug||'')); })[0];
+  return c&&c.file?ENG.RitualCue.PARAM.clipDir+c.file+'.mp3':null; }
+window.mkNarPlay=function(key){ var u=_narSrc(key); if(!u){ MK.toast='스튜디오 나레이션 소리를 찾지 못했어요'; render(); return; } _stopAud(); try{ var a=new Audio(u); a.play(); MK.aud=a; }catch(e){} };
 function _dlgModel(){
   if(VC.panel){ var w0=VC.panel.who; return {t:VC_TXT.title(_vcName(w0)),step:0,body:_vcConsentPanel(w0)}; }
   if(VC.read){ var R=VC.read; return {t:VC_TXT.title(_vcName(R.who)),step:(R.ph==='busy'||R.ph==='done')?3:(R.step||1),body:_vcReadPanel(R.who)}; }
   if(MK_REC&&!/^vc:/.test(MK_REC.key)) return {t:_mkUpLabKey(MK_REC.key)+' · 녹음',body:_recLineBody(MK_REC)};
+  if(VS.open&&_vsOk()) return {t:VS.ph==='ai'?'AI 두 분 목소리 만들기':'안내 목소리 정하기',body:_vsPanel()};   // [VOICE_SETUP] 읽기 · 동의가 끝나면 이 창으로 돌아온다
   return null; }
 function _dlgSteps(at){ return '<ol class="mk-dlg-steps" aria-label="만드는 순서">'+['동의','글 1','글 2','만들기'].map(function(x,i){ return '<li class="'+(i<at?'done':i===at?'on':'')+'"'+(i===at?' aria-current="step"':'')+'>'+x+'</li>'; }).join('')+'</ol>'; }
 function _dlgInert(on){ if(on){ DLG.inert=[]; [].forEach.call(document.body.children,function(c){ if(c.id==='mkRecDlg'||c.id==='mkInApp'||c.id==='lsLive'||c.id==='pkSlim'||c.tagName==='SCRIPT'||(c.classList&&c.classList.contains('ord-ask'))) return; if(!c.inert){ c.inert=true; DLG.inert.push(c); } }); document.documentElement.classList.add('mk-dlg-lock'); }   // ★[DLG_SCROLL_LOCK] body.style 을 쓰지 않는다 — 확인 판(ordAsk)이 0.2초 뒤 body.style.overflow 를 «열 때 본 값»(=잠금)으로 되돌려, 창을 닫은 뒤에도 스크롤이 멈춰 있었다(사장님 실측 2026-09-28)
@@ -3872,6 +3937,7 @@ document.addEventListener('keydown',function(e){ var d=document.getElementById('
     if(e.shiftKey&&i<=0){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&(i===f.length-1||i<0)){ e.preventDefault(); f[0].focus(); } } });
 window.mkDlgClose=function(){ var R=VC.read, r=MK_REC;
   var lose=(R&&R.ph!=='done'&&R.ph!=='busy'&&(R.take[1]||R.take[2]))||(r&&r.ph==='review'&&!/^vc:/.test(r.key));
+  if(!R&&!r&&!VC.panel&&VS.open){ VS.open=false; render(); return; }   // [VOICE_SETUP] 이 창만 떠 있으면 닫는다(읽기 · 동의 중이면 그것만 닫고 이 창으로)
   if(!lose){ _dlgShut(); return; }
   ordAsk({title:R?'읽기를 그만둘까요?':'이 녹음을 쓰지 않고 닫을까요?',body:R?'읽은 녹음은 지워져요. 다음에 처음부터 읽어요':'녹음은 지워지고 이 줄은 그대로예요',yes:'그만두기',no:R?'계속 읽기':'돌아가기',danger:true}).then(function(ok){ if(ok) _dlgShut(); }); };
 function _dlgShut(){ if(MK_REC){ _recStopAll(); if(MK_REC.url) try{ URL.revokeObjectURL(MK_REC.url); }catch(e){} MK_REC=null; } VC.panel=null; VC.read=null; VC.agree=false; MK.dlgMsg=''; render(); }
@@ -4243,7 +4309,8 @@ function renderMake(){
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='listen') render(); }); }
   _txMigrate();
   var ps=_mkPages(), k=ps[_mkIdx()]; m.at=k; m.seen[k]=1; LS.open=(k==='_sum'?null:k);
-  var h='<div class="op mk">'+(k==='_intro'?'':_mkStrip(k));   // [MK_MIN] 고른 순서 쪽은 목록이 곧 길잡이 — 같은 이름을 진행 줄로 또 늘어놓지 않는다
+  if(!VS.seen){ VS.seen=true; if(!S.vsAsked){ S.vsAsked=1; if(_vsOk()){ VS.open=true; VS.ph='pick'; } } }   // [VOICE_SETUP] ② 에 처음 들어온 때 한 번 — 창이 먼저(사장님 «② 들어갈 때 창으로 먼저»)
+  var h='<div class="op mk">'+(k==='_intro'?'':_mkStrip(k))+_vsBar();   // [VOICE_SETUP] 안내 목소리 한 줄 · 나레이션 자세히   // [MK_MIN] 고른 순서 쪽은 목록이 곧 길잡이 — 같은 이름을 진행 줄로 또 늘어놓지 않는다
   if(MK.toast&&!_dlgOn()){ h+='<p class="mk-toast" role="status">'+esc(MK.toast)+'</p>'; MK.toast=''; }   // [REC_DLG] 창이 떠 있으면 알림은 창 안에
   if(k==='_sum') return h+_mkSum()+'</div>';
   if(k==='_intro') return h+_mkIntro()+'</div>';
@@ -6553,6 +6620,7 @@ function _headPills(k){
     r.addEventListener('click',function(){ opRestart(); }); slot.insertBefore(r, g.nextSibling); }
   var show=isOpen() && !!courseStarted && !editReturn && (k==='pick'||k==='listen'||k==='write'||k==='practice'||k==='done');
   g.style.display=show?'':'none'; r.style.display=show?'':'none';
+  /* ★[VOICE_SETUP 2026-10-02] «나레이션 자세히»는 머리 알약 줄에 두지 않는다 — 390 에서 알약 다섯이 넘쳐 첫 알약이 잘렸다(실렌더). ② 진행 줄 바로 아래 한 줄(_vsBar) */
 }
 /* ★★[RESTART_IN_PLACE 2026-09-27 사장님 «누르면 처음 화면으로 가는 게 아니고 선택했던 것들이 전부 취소되게»]
    새 코스는 새로고침 · 안내 화면으로 가지 않는다 — 담은 순간 · 고른 것 · 적어 둔 글을 빈 판(_S0)으로 되돌리고 ① 고르기에 머문다.
