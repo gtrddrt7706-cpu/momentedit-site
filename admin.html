@@ -1071,7 +1071,7 @@ function admRfOk(key,on){ var code=curDetail&&curDetail.code; if(!code) return; 
 function admAiLine(d){ try{ var S=((((d&&d.mirror&&d.mirror.production)||{}).ritualDraft||{}).S)||{}, up=S.up||{}, isAi=function(k){ return !!(up[k]&&typeof up[k]==='object'&&up[k].src==='ai'); };
   var pl=[], who={}, maker={}, all=true, W={g:'신랑',b:'신부',groom:'신랑',bride:'신부'};
   if(S.guestVoice==='couple'){ var gk=['g0','g1','g2','g3'], ga=gk.filter(isAi); if(ga.length){ pl.push('하객 맞이 안내'); if(ga.length<gk.length) all=false;
-    ga.forEach(function(k){ var i=+k.slice(1), r=(S.guestOne==='g'||S.guestOne==='b')?S.guestOne:(i%2===0?'g':'b'); who[W[r]]=1; var by=up[k].by; (Array.isArray(by)?by:[by||r]).forEach(function(x){ if(W[x]) maker[W[x]]=1; }); }); } }
+    ga.forEach(function(k){ var i=+k.slice(1), r=((S.guestWho||{})[i]==='g'||(S.guestWho||{})[i]==='b')?S.guestWho[i]:(S.guestOne==='g'||S.guestOne==='b')?S.guestOne:(i%2===0?'g':'b');   /* [GUEST_WHO] 줄마다 고른 사람 — ritual-open guestReader 와 같은 차례 */ who[W[r]]=1; var by=up[k].by; (Array.isArray(by)?by:[by||r]).forEach(function(x){ if(W[x]) maker[W[x]]=1; }); }); } }
   if(S.entryVoice==='couple'&&isAi('entry')){ pl.push('입장 인사'); who['신랑']=1; who['신부']=1; var eb=up.entry.by; (Array.isArray(eb)?eb:(eb?[eb]:['g','b'])).forEach(function(x){ if(W[x]) maker[W[x]]=1; }); }
   if(!pl.length) return '';
   var nm=function(o){ var k=Object.keys(o); return k.length>1?'두 사람':(k[0]||'두 사람'); };

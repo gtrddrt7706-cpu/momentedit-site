@@ -395,7 +395,9 @@
     if (ks.length === 1) return c.ai ? '«AI 목소리»' : (c.rec ? '«두 분 녹음»' : c.file ? '«올린 파일»' : '«비어 있음 · 나레이션으로 나와요»');
     var o = []; if (c.rec) o.push('녹음 ' + c.rec); if (c.file) o.push('올린 파일 ' + c.file); if (c.ai) o.push('AI ' + c.ai); if (c.none) o.push('빈 줄 ' + c.none);
     return '«' + o.join(' · ') + '»' + (c.none ? ' · 빈 줄은 나레이션으로 나와요' : ''); }
-  function guestReader(S, i) { var one = S && S.guestOne; if (one === 'g' || one === 'b') return one; return i % 2 === 0 ? 'g' : 'b'; }
+  /* ★[GUEST_WHO 2026-10-02 사장님 «번갈아 · 신랑이 모두 · 신부가 모두 고르는 선택창 삭제 → 신랑신부가 직접 선택 · 이 파트는 내가 저 파트는 너가»]
+     줄마다 S.guestWho[i] = 'g' | 'b' — 고른 줄은 그대로 · 안 고른 줄은 옛 S.guestOne(있으면) → 번갈아(1 · 3 신랑 · 2 · 4 신부) */
+  function guestReader(S, i) { var w = S && S.guestWho && S.guestWho[i]; if (w === 'g' || w === 'b') return w; var one = S && S.guestOne; if (one === 'g' || one === 'b') return one; return i % 2 === 0 ? 'g' : 'b'; }
   function voiceKind(k, S, o) { o = o || {}; if (o.talk) return 'live'; if (o.own) return 'prep'; return 'narr'; }
   function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
     if (k === 'bless' || (k === 'declare' && chipOf('declare', S) === 'family')) return '당일 직접 · 가족';

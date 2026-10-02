@@ -13570,6 +13570,11 @@ chk 'function _mkGoNow(k)' order-preview.html 1
 chk 'REF_TITLE' order-preview.html 2   # 13) 예시 칩 아래 = 느낌 제목(REF_NO_KYEOL 을 사장님이 뒤집음 2026-10-02)
 chk 'REF_GRID' order-preview.html 2   # 13) 예시 상자 같은 너비(PC 넷 · 좁으면 둘)
 chk 'REF_START_OFF' order-preview.html 1
+chk 'GUEST_WHO' order-preview.html 3   # 2) 하객 맞이 줄마다 [신랑 | 신부] — 번갈아 · 모두 칩 걷음(2026-10-02)
+chk 'GUEST_WHO' assets/ritual-open.js 1
+chk 'GUEST_WHO' admin.html 1
+nochk 'data-fk="mkone' order-preview.html
+chk 'VC_CARD_HEAD' order-preview.html 2   # 3) 줄 카드 머리 — ▶ · 제목 + 옅은 한 줄 · 오른쪽 신랑 | 신부 · 번호 없음
 nochk 'data-fk="mkrstart:' order-preview.html   # 13) «이 예시로 시작하기» 걷음
 chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
