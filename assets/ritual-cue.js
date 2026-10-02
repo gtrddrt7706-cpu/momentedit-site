@@ -555,10 +555,14 @@
 
     /* ★[OPEN_COURSE] 식전 영상 — 하객이 앉는 동안(04 뒤 · 입장 앞) 상영한다. 본식 시간에 들지 않는다.
        ★영상이 끝나는 때는 사람이 본다 — live 가 있어 다음 큐(화촉 또는 입장)는 manual 이다. */
-    prevideo: function () {
+    prevideo: function (S) {
+      /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상에 두 분이 소개글을 적어서 AI 목소리로도 할 수 있게 · 예시도»] S.pvVoice==='couple' 이면
+         이 큐는 두 분 목소리 자리다(own) — 콘솔이 두 분이 만든 소리(pv)를 같은 슬러그에 물린다 · 소리가 없으면 스튜디오 나레이션 그대로(아래 글).
+         소개글 자체는 엔진이 읽지 않는다(글칸은 미리듣기 주소에 싣지 않는다 · PREVIEW_KEYS) — 빌더가 화면에 보여 준다. */
+      var own = !!(S && S.pvVoice === 'couple');
       return [cue({
         k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-in', name: '식전 영상 소개',
-        text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech,
+        text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
         fire: 'clock', atMin: -4,   // [PREVIDEO_AT_4] 불을 낮추고 본식 시작 4분 전에
         note: '영상 링크는 D-3 까지 받는다(영상이 없으면 링크로 받은 사진으로 저희가 영상 · 첫 장에 이름 · 날짜 · 길이 · 장수 규정 없음 [PREVIDEO_FREE]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }

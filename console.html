@@ -769,9 +769,9 @@ Object.keys(OPT).forEach(function(id){
   });
 });
 
-function rfSlugOf(key){ return key === 'entry' ? ('entry-' + (S.entry || 'A')) : RF_SLUG[key]; }
+function rfSlugOf(key){ return key === 'entry' ? ('entry-' + (S.entry || 'A')) : RF_SLUG[key]; }   // [PV_INTRO] pv → narr-prevideo-in
 function rfKindLab(k){ var v = (S.up || {})[k]; return v && v.src === 'ai' ? 'AI 목소리' : '두 분 녹음'; }   // [RF_KIND_0928]
-function rfKeys(){ var ks = []; if (S.guestVoice === 'couple') ks = ks.concat(['g0','g1','g2','g3']); if (S.entryVoice === 'couple') ks.push('entry'); return ks; }
+function rfKeys(){ var ks = []; if (S.guestVoice === 'couple') ks = ks.concat(['g0','g1','g2','g3']); if (S.entryVoice === 'couple') ks.push('entry'); if (S.pvVoice === 'couple') ks.push('pv'); return ks; }   // [PV_INTRO] 식전 영상 소개 — 파일이 없으면 스튜디오 나레이션 그대로
 function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(); if (!sec || !box) return; sec.hidden = !ks.length; if (!ks.length) return;
   /* ★[RF_KIND_0928 코워크 0928 6-5] 줄마다 «두 분 녹음 · 받아 둠» · «AI 목소리 · 받아 둠» · «나레이션으로 나감» — 올린 파일도 두 분이 녹음한 것이라 «두 분 녹음» */
   box.innerHTML = ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + ' · 받아 둠' : st === 'busy' ? '받는 중…' : st === 'fail' ? '받지 못함 · 나레이션으로 나감' : '파일 없음 · 나레이션으로 나감';
@@ -813,7 +813,7 @@ function summarize(){
 /* ★★[REC_ADMIN · REC_UPLOAD 2026-09-27 코워크 «두 분 목소리» 3-6] 두 분 목소리 — 관리 화면의 «당일 콘솔»은 rf=코드를 붙여 연다.
    같은 사이트의 관리자 토큰(me_admin_token)으로 파일을 «시작 전에» 받아 CLIPS 에 넣는다 — 그 큐는 두 분 소리로 나가고, 못 받은 줄은 나레이션.
    자리 ↔ 큐: g0 guest-1-arrival · g1 guest-2-10min · g2 guest-3-5min · g3 guest-4-1min · entry entry-<고른 판> (두 분 목소리를 고른 자리만) */
-var RF_SLUG = { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min' }, RF_LAB = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사' }, RF_ST = {};
+var RF_SLUG = { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min', pv: 'narr-prevideo-in' }, RF_LAB = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사', pv: '식전 영상 소개' }, RF_ST = {};
 var RF_EXEC = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
 var CLIPS = {};    // '16' → objectURL  ·  'narr-ring-out' → objectURL
 var BGMURL = '';

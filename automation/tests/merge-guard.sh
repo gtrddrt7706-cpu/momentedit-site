@@ -13625,3 +13625,18 @@ chk 'VOICE_CLONE_0928' scripts/audit/rec-upload.mjs 1
 # [VC_SCREEN] AI 로 두 분 목소리 만들기 화면 흐름(가짜 서버) — 브라우저가 없으면 재지 못함(2)은 통과로 본다
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-screen.mjs >/dev/null 2>&1; _vs=$?; [ "$_vs" = 1 ] && { echo 'FAIL vc-screen: AI 목소리 화면 흐름이 어긋났습니다 — node scripts/audit/vc-screen.mjs'; fail=1; }; fi
 chk 'VC_SCREEN' scripts/audit/vc-screen.mjs 1
+# ★[PV_INTRO 2026-10-02 사장님 «식전 영상 · 두 분이 소개글을 적어서 AI 목소리로도 · 예시도»] 영상 앞 한 줄을 두 분 소개글(AI 두 분 목소리 · 자리 pv)로
+#   깨 보고 믿음: _mkItems 의 pv 줄을 빼면 pv-intro 가 «AI 고름» · «만들기» · «글 고침» 빨강(390 · 1280)
+chk 'PV_INTRO' order-preview.html 17
+chk 'PV_INTRO' assets/ritual-cue.js 1
+chk "'pvVoice'," assets/ritual-preview-link.js 1
+chk "pv: 'narr-prevideo-in'" console.html 1
+chk "pv: '식전 영상 소개'" automation/platform/80_production.gs 1
+chk "pv:'식전 영상 소개'" mypage.html 1
+chk 'PV_INTRO' admin.html 3
+nochk "'pvText'" assets/ritual-preview-link.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-intro.mjs >/dev/null 2>&1; _pv=$?; [ "$_pv" = 1 ] && { echo 'FAIL pv-intro: 식전 영상 소개글 흐름이 어긋났습니다 — node scripts/audit/pv-intro.mjs'; fail=1; }; fi
+chk 'PV_INTRO' scripts/audit/pv-intro.mjs 2
+# ★[PLAY_ROW · FLOW_LINE_TYPE 2026-10-02 사장님 «이 순간 들어 보기 디자인 개선 · 재생 버튼 메시지 글꼴을 하객 맞이 카드와 통일»]
+chk 'PLAY_ROW' order-preview.html 1
+chk 'FLOW_LINE_TYPE' order-preview.html 1
