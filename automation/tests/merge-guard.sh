@@ -13552,6 +13552,19 @@ chk 'VP_NO_DIRECT' scripts/audit/ghi-polish.mjs 1
 chk 'VP_NO_EXIT' order-preview.html 2   # AI 를 다 쓴 분 줄에도 [녹음] 비상구 없음 · 나레이션(2026-09-28 사장님 «녹음은 뭐야?»)
 chk 'VP_NO_EXIT' scripts/audit/vc-screen.mjs 2
 chk 'VP_FOOT_OFF' order-preview.html 1   # AI 를 고르면 줄 카드 아래 덧말 없음(2026-10-02)
+# ★[2026-10-02 사장님 16가지 중 9 · 10 · 14 · 15]
+chk 'PREVIDEO_FREE' scripts/audit/listen-page.mjs 1
+chk 'PREVIDEO_FREE' scripts/audit/ghi-polish.mjs 1
+chk 'PREVIDEO_FREE' order-preview.html 5   # 식전 영상 — 길이 · 장수 규정 없음 · 링크 칸 하나(카톡 · 메일 보내기 걷음)
+nochk '30~40장' assets/ritual-open.js
+nochk '영상 링크(3분 안)' assets/ritual-open.js
+nochk "_sendHow('식전 영상 사진'" order-preview.html
+chk 'ASK_COPY_OFF' order-preview.html 1   # 화촉 «부탁 글 복사하기» 걷음
+nochk 'data-fk="mkaskall"' order-preview.html
+nochk 'data-fk="mkaskcopy"' order-preview.html
+chk 'TODO_NODOT' order-preview.html 2   # 미작성은 진사 글자로만 · 빨간 점 없음
+nochk '<i class="mk-dot"' order-preview.html
+nochk '>가기</button>' order-preview.html   # «가기» → «이동하기»
 chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
 chk 'REC_DLG' order-preview.html 6

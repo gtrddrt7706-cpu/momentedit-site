@@ -560,7 +560,7 @@
         k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-in', name: '식전 영상 소개',
         text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech,
         fire: 'clock', atMin: -4,   // [PREVIDEO_AT_4] 불을 낮추고 본식 시작 4분 전에
-        note: '영상 파일은 D-3 까지 받는다(없으면 두 분이 보낸 사진 30~40장으로 저희가 3분 영상 · 첫 장에 이름 · 날짜) · 상영 중 배경음은 끈다 · 불을 낮춘다',
+        note: '영상 링크는 D-3 까지 받는다(영상이 없으면 링크로 받은 사진으로 저희가 영상 · 첫 장에 이름 · 날짜 · 길이 · 장수 규정 없음 [PREVIDEO_FREE]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }
       })];
     },
