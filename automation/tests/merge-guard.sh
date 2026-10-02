@@ -13536,7 +13536,7 @@ chk 'var VC_TXT=' order-preview.html 1
 chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
 chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
 chk 'function _vcAutoFill(w,renew)' order-preview.html 1
-chk 'function _vcLineTools(key,lab)' order-preview.html 1
+chk 'function _vcLineTools(key,lab,part)' order-preview.html 1
 chk 'function _vcReadyFor(key)' order-preview.html 1
 nochk 'data-fk="mkaiself:' order-preview.html   # [VP_NO_DIRECT] AI 줄의 «이 줄은 직접 녹음할게요» 단추는 걷었다(2026-09-28 사장님 «지금 바로 모두 빼기»)
 chk 'function _vpChoice(k)' order-preview.html 1

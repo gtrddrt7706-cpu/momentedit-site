@@ -1311,7 +1311,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vch{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px}
 .mk-vch{flex-wrap:nowrap;align-items:center;gap:10px}   /* [VC_CARD_HEAD] ▶ · 제목 두 줄 · 오른쪽 신랑 | 신부 */
 .mk-vhd{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
-.mk-vhd .mk-vn{font-size:15px;font-weight:600;color:var(--accent);letter-spacing:-.01em}
+.mk-vhd .mk-vn{font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.01em}
 .mk-vhd .mk-vs{white-space:normal}
 .mk-vpl0{flex:0 0 26px}
 .mk-who{flex:0 0 auto;display:inline-flex;border:1px solid var(--border);border-radius:999px;padding:2px;background:var(--card)}
@@ -3745,7 +3745,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
     +'<button type="button" class="mk-hbtn" data-fk="mkupcopy" onclick="mkUpCopy(\''+k+'\')">읽을 글 복사하기</button></div>'
     +_mkCopied('up:'+k)
     +'<p class="mk-note">두 분이 식장에 들어오기 전에 나오는 안내예요. 그래서 미리 준비한 두 분 목소리가 그 자리에서 저절로 나와요</p>';   // [VC_CARD_0928 8-5] 사람 카드는 AI 를 고른 때만(줄 카드 위) — 목소리를 먼저 만들어야 줄이 채워진다
-  /* ★[GUEST_WHO 2026-10-02] «번갈아 · 신랑이 모두 · 신부가 모두» 칩 · «한 분이 모두 읽기 ›»는 걷었다 — 줄 카드마다 [신랑 | 신부]를 두 분이 고른다. 되살리지 말 것 */
+  /* ★[GUEST_WHO 2026-10-02 · 옛 VP_CARD 한 분이 모두 읽기] «번갈아 · 신랑이 모두 · 신부가 모두» 칩 · «한 분이 모두 읽기 ›»는 걷었다 — 줄 카드마다 [신랑 | 신부]를 두 분이 고른다. 되살리지 말 것 */
   var pix={}; try{ if(ENG) _lSteps(ENG,[k]).forEach(function(x,i){ if(x.own&&x.up) pix[x.up]=i; }); }catch(e){}   // [VP_ONE_LIST] 흐름에서 옮겨 온 듣기 — 줄 카드 머리 ▶
   h+='<ul class="mk-vlist mk-vcards">';
   ups.forEach(function(q,qi){ var st=_mkUpState(q.up), lab=_mkUpLab(q), rec=MK_REC&&MK_REC.key===q.up?MK_REC:null, t=_recNeed(q.up), ln=_vpLines(q.up);
