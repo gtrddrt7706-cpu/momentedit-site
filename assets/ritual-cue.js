@@ -315,7 +315,7 @@
       if (!O.CHIPS.freeLen.some(function (c) { return c[0] === String(s.freeLen); })) s.freeLen = O.DEF.freeLen; else s.freeLen = String(s.freeLen);
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       if (s.tribute !== 'flower' && s.tribute !== 'bowGroom') s.tribute = 'flower';
-      if (s.entryScene !== 'bow') s.entryScene = 'look';   // [ENTRY_SCENE]
+      s.entryScene = 'look';   // [ENTRY_SCENE] · ★[ENTRY_OUT_OFF 2026-10-02] 새 코스에 맞절 없음 — 옛 초안의 bow 도 바라보기로
     } else {
       /* 옛 코스는 새 판이 없던 때와 **소리가 같아야** 한다 — 와인 붓기는 **값과 상관없이** 없다.
          ★빌더의 새 기본 S(wine:'mix')가 옛 초안에 섞여 들어와도 옛 예식에 붓는 말이 끼지 않게(scripts/audit/open-course.mjs 가 잡았다). */
@@ -555,10 +555,14 @@
 
     /* ★[OPEN_COURSE] 식전 영상 — 하객이 앉는 동안(04 뒤 · 입장 앞) 상영한다. 본식 시간에 들지 않는다.
        ★영상이 끝나는 때는 사람이 본다 — live 가 있어 다음 큐(화촉 또는 입장)는 manual 이다. */
-    prevideo: function () {
+    prevideo: function (S) {
+      /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상에 두 분이 소개글을 적어서 AI 목소리로도 할 수 있게 · 예시도»] S.pvVoice==='couple' 이면
+         이 큐는 두 분 목소리 자리다(own) — 콘솔이 두 분이 만든 소리(pv)를 같은 슬러그에 물린다 · 소리가 없으면 스튜디오 나레이션 그대로(아래 글).
+         소개글 자체는 엔진이 읽지 않는다(글칸은 미리듣기 주소에 싣지 않는다 · PREVIEW_KEYS) — 빌더가 화면에 보여 준다. */
+      var own = !!(S && S.pvVoice === 'couple');
       return [cue({
         k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-in', name: '식전 영상 소개',
-        text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech,
+        text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
         fire: 'clock', atMin: -4,   // [PREVIDEO_AT_4] 불을 낮추고 본식 시작 4분 전에
         note: '영상 링크는 D-3 까지 받는다(영상이 없으면 링크로 받은 사진으로 저희가 영상 · 첫 장에 이름 · 날짜 · 길이 · 장수 규정 없음 [PREVIDEO_FREE]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }
@@ -581,6 +585,10 @@
 
     entry: function (S) {
       var e = D.ENTRY[S.entry], own = S.entryVoice === 'couple';
+      /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시] 새 코스 입장은 도착 큐(«두 사람이 나란히 있습니다 · 잠시, 서로를 바라봐 주세요» ·
+         바라보기 / 맞절 사람 순간)를 싣지 않는다 — 문 앞 멘트 한 줄로 걸어 들어오고, 다음 순간(첫인사)이 디렉터 GO 로 연다.
+         옛 코스는 저장해 둔 소리가 그대로여야 해서 종전대로 둘(도착 큐 포함)이다. 되살리지 말 것. */
+      var openC = !!(D.COURSES[S.course] && D.COURSES[S.course].open);
       return [cue({
         k: 'entry', blockN: '신랑·신부 입장', slug: 'entry-' + S.entry, name: '신랑·신부 입장',
         text: own ? e.self : e.nar, own: own, duck: -12,
@@ -616,10 +624,11 @@
           /* ★★[LOOK_HOLD 2026-09-26 코워크 회신5 4-1 · 연구 B11] «잠시, 서로를 바라봐 주세요»가 2초 만에 끝나 다음 여는 말이 저절로 나갔다
              (맞절을 골라도 같았다). 첫 모습을 사람 순간으로 둔다 → 다음 큐는 디렉터 GO(힌트 «두 분이 다시 앞을 보면»).
              음악은 낮게 그대로(-12) · 끝은 음악이 돌아오는 것으로 알린다(다음 큐가 연다). 미리 듣기는 그대로(consoleOnly). */
-          live: { t: (S.entryScene === 'bow' ? '두 분 맞절 → 일어나 섬' : '두 분이 서로 바라봄'), est: (S.entryScene === 'bow' ? PARAM.look.bowSec : PARAM.look.lookSec),
+          /* ★[ENTRY_OUT_OFF 2026-10-02] 맞절 판은 없다 — 이 큐는 옛 코스에만 나오고 옛 코스는 늘 바라보기다(normalize). «두 분 맞절 → 일어나 섬» 문안은 죽은 키라 걷었다 */
+          live: { t: '두 분이 서로 바라봄', est: PARAM.look.lookSec,
             self: true, doing: 'move', duck: -12, consoleOnly: true, hintNext: '두 분이 다시 앞을 보면', previewPost: [] }
         });
-      })()];
+      })()].slice(0, openC ? 1 : 2);   // [ENTRY_OUT_OFF]
     },
 
     welcome: function (S) {

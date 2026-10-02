@@ -8911,7 +8911,7 @@ chk 'VIDEO_READY' assets/ritual-open.js 3
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
 chk 'S.entryScene' order-preview.html 1
-chk "'freeLen', 'entryScene'" assets/ritual-preview-link.js 1   # [LOOK_HOLD 2026-09-26] 이제 엔진이 읽는다(콘솔 첫 모습 사람 순간) — 주소에 싣는다(나중 결정이 이긴다)
+nochk "'freeLen', 'entryScene'" assets/ritual-preview-link.js   # [ENTRY_OUT_OFF 2026-10-02] 맞절 판을 걷어 다시 죽은 키 — 싣지 않는다(나중 결정이 이긴다)   # [LOOK_HOLD 2026-09-26] 이제 엔진이 읽는다(콘솔 첫 모습 사람 순간) — 주소에 싣는다(나중 결정이 이긴다)
 chk 'DETAIL_0925 B10' order-preview.html 1   # 녹음 전 판정은 규칙 하나(옛 L_STALE 목록은 폐지) — 규칙은 아래 TEXT_AUDIO_MATCH 로 좁혔다
 chk 'TEXT_AUDIO_MATCH' order-preview.html 2   # [코워크 회신3 2-1] 소리는 «녹음된 글 = 지금 글»일 때만(가족 예시 자막과 다른 소리 18 → 0)
 chk '_lNorm(r)===_lNorm(text)' order-preview.html 1
@@ -9028,7 +9028,7 @@ chk 'UPLOAD_HONEST' order-preview.html 5   # 파일은 올라가지 않는다 �
 nochk "ICO_UP+'파일 올리기<" order-preview.html
 chk 'WC_LIMIT' order-preview.html 1   # 경고색은 칸마다 권장량의 1.2배
 nochk '비밀로 둬도 돼요' order-preview.html
-chk 'LAB_FIX2' order-preview.html 3
+chk 'LAB_FIX2' order-preview.html 2   # [ENTRY_OUT_OFF 2026-10-02] 맺는 말 칩(2-6 «기본»)을 걷어 하나 줄었다
 nochk "'성우 · 엄숙하게'" assets/ritual-open.js
 chk 'WHY_NEIGHBOR' assets/ritual-open.js 2   # 이웃을 담았을 때만 그 이름
 chk 'BAND_THIN_LISTEN' order-preview.html 1
@@ -11680,7 +11680,12 @@ chk 'aria-label="가장 벅찬 순간"' order-preview.html 4   # [G1] ★ 이름
 nochk 'aria-label="절정"' order-preview.html
 chk '</span> 표시는 이 예식에서 가장 벅찬 순간이에요.' order-preview.html 1   # [G1] ★ 는 따로 이름을 단 span
 chk 'class="lsg"' order-preview.html 1   # [G2] ② 띠 두 시간 사이 흐름선 64×18
-chk 'ENTRY_OUT_MORE' order-preview.html 1   # [G4] 맺는 말은 «더 고르기» 뒤
+# ★[ENTRY_OUT_OFF 2026-10-02 사장님 지시 «서로를 바라봐 주세요 · 이건 굳이 없어도 될 거 같아 · 맞절도 빼고»] 옛 G4 ENTRY_OUT_MORE(맺는 말 «더 고르기») 판은 걷었다
+chk 'ENTRY_OUT_OFF' order-preview.html 3   # 묶음 걷기 · 요약 · 말 없는 줄
+chk 'ENTRY_OUT_OFF' assets/ritual-cue.js 3   # 새 코스 입장 = 문 앞 멘트 한 줄(도착 큐 없음) · 옛 초안 bow → look
+chk 'ENTRY_OUT_OFF' assets/ritual-open.js 1   # 창 «고를 것»에 첫 모습 없음
+nochk "L('entryScene','첫 모습'" order-preview.html
+nochk "L('entryOut','맺는 말'" order-preview.html
 chk 'QUIET_LINES' order-preview.html 1   # [G5] 말 없는 사람 순간 — 옅은 줄
 chk 'TOAST_TALK_GLASS' order-preview.html 1   # [G5] «위하여» 줄은 잔 드는 큐 뒤
 chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)»
@@ -13620,3 +13625,18 @@ chk 'VOICE_CLONE_0928' scripts/audit/rec-upload.mjs 1
 # [VC_SCREEN] AI 로 두 분 목소리 만들기 화면 흐름(가짜 서버) — 브라우저가 없으면 재지 못함(2)은 통과로 본다
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-screen.mjs >/dev/null 2>&1; _vs=$?; [ "$_vs" = 1 ] && { echo 'FAIL vc-screen: AI 목소리 화면 흐름이 어긋났습니다 — node scripts/audit/vc-screen.mjs'; fail=1; }; fi
 chk 'VC_SCREEN' scripts/audit/vc-screen.mjs 1
+# ★[PV_INTRO 2026-10-02 사장님 «식전 영상 · 두 분이 소개글을 적어서 AI 목소리로도 · 예시도»] 영상 앞 한 줄을 두 분 소개글(AI 두 분 목소리 · 자리 pv)로
+#   깨 보고 믿음: _mkItems 의 pv 줄을 빼면 pv-intro 가 «AI 고름» · «만들기» · «글 고침» 빨강(390 · 1280)
+chk 'PV_INTRO' order-preview.html 17
+chk 'PV_INTRO' assets/ritual-cue.js 1
+chk "'pvVoice'," assets/ritual-preview-link.js 1
+chk "pv: 'narr-prevideo-in'" console.html 1
+chk "pv: '식전 영상 소개'" automation/platform/80_production.gs 1
+chk "pv:'식전 영상 소개'" mypage.html 1
+chk 'PV_INTRO' admin.html 3
+nochk "'pvText'" assets/ritual-preview-link.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-intro.mjs >/dev/null 2>&1; _pv=$?; [ "$_pv" = 1 ] && { echo 'FAIL pv-intro: 식전 영상 소개글 흐름이 어긋났습니다 — node scripts/audit/pv-intro.mjs'; fail=1; }; fi
+chk 'PV_INTRO' scripts/audit/pv-intro.mjs 2
+# ★[PLAY_ROW · FLOW_LINE_TYPE 2026-10-02 사장님 «이 순간 들어 보기 디자인 개선 · 재생 버튼 메시지 글꼴을 하객 맞이 카드와 통일»]
+chk 'PLAY_ROW' order-preview.html 1
+chk 'FLOW_LINE_TYPE' order-preview.html 1

@@ -1166,7 +1166,7 @@ function _voicePub(code) {
   var c = _vcCfg(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key), sup: _rfStudioUps(code), gone: PropertiesService.getScriptProperties().getProperty('RFGONE_' + code) || '', aiGone: (function () { var v = _vcSt(code); return v.purged && ((v.groom && v.groom.made) || (v.bride && v.bride.made)) ? String(v.purged).slice(0, 10) : ''; })(), keepDays: +(PropertiesService.getScriptProperties().getProperty('RITUAL_FILE_PURGE_DAYS') || 30) || 30 };
 }
 var RF_ROOT_FOLDER = 'ME_예식준비파일';
-var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사' };
+var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사', pv: '식전 영상 소개' };   // [PV_INTRO 2026-10-02] pv = 두 분이 쓴 식전 영상 소개글(AI 두 분 목소리)
 function _rfFolderFor(code) {
   var props = PropertiesService.getScriptProperties(), pk = 'RF_' + code, fid = props.getProperty(pk);
   if (fid) { try { return DriveApp.getFolderById(fid); } catch (e) { fid = ''; } }
@@ -1182,7 +1182,7 @@ function handleRitualFile(body) {
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   if (!_voiceUpLive(code)) return { ok: false, closed: true, error: '두 분 목소리 올리기는 아직 준비 중이에요 · 카톡이나 메일로 보내 주세요.' };   // [VOICE_UP_FROM] 문이 닫혀 있으면 받지 않는다
-  var key = String(body.key || '').trim();
+  var key = String(body.key || '').trim();   // [PV_INTRO 2026-10-02] pv(식전 영상 소개)도 받는다 — RF_KEYS 에 넣었다
   if (!RF_KEYS[key]) return { ok: false, error: '어느 자리의 녹음인지 알 수 없어요.' };
   var mime = String(body.mime || '').trim().toLowerCase();
   if (!/^audio\/[a-z0-9.+-]+$/.test(mime) && mime !== 'video/mp4' && mime !== 'video/quicktime') return { ok: false, error: '녹음 파일(소리)만 올릴 수 있어요.' };

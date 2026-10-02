@@ -3,7 +3,7 @@
 //   node scripts/audit/ghi-polish.mjs        # 390 · 1280
 //
 // 보는 것(최종판 5장 그대로)
-//   G4 입장 줄 — 맺는 말(여섯)은 «더 고르기» 뒤 · 누르면 열리고 초점은 고른 칩 · 바꿔 둔 뒤면 열린 채 [ENTRY_OUT_MORE]
+//   G4 입장 줄 — 맺는 말 · 첫 모습은 걷었다 [ENTRY_OUT_OFF] (옛 [ENTRY_OUT_MORE] 더 고르기 판은 없다)
 //   G5 «이렇게 흘러요» — «위하여» 줄이 잔 드는 큐 뒤(붓기 · 커팅 앞 아님) [TOAST_TALK_GLASS]
 //      말 없는 줄(옅게 · 소리 없음 · 재생 목록 밖) [QUIET_LINES] · 첫 줄 이름(화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)») [FIRST_LINE_NAME]
 //   H1 ③ 칸 이름 · aria-label · 대본 줄 = «첫인사» [H1_FIRST_HELLO]
@@ -53,17 +53,11 @@ for (const w of [390, 1280]) {
   await go(pg, 'listen');
   // G4 입장 줄
   /* [FLOW_MAKE 2026-09-27] ② 는 순간마다 한 쪽 — 옛 목록 줄(.ls-row.open) 대신 그 순간 쪽(.mk-pg)에서 잰다 */
+  /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시] 맺는 말 · 첫 모습을 걷었다 — 입장 쪽 묶음은 입장 멘트(+ AI 가 켜지면 «어떻게 준비할까요»)뿐 · «더 고르기»도 없다 */
   await pg.evaluate(() => { LS.more = {}; S.entryOut = ''; mkGo('entry'); }); await pg.waitForTimeout(300);
   const g4 = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'); const b = r && r.querySelector('[data-fk="lsmore:entry"]');
-    return { btn: !!b, txt: b ? b.textContent : '', h: b ? Math.round(b.getBoundingClientRect().height) : 0, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0, vc: !!RitualOpen.FEATURE.voiceClone }; });   /* ★[VP_NO_DIRECT] «어떻게 준비할까요»는 AI 가 켜진 예식에만 — 꺼지면 묶음 둘(입장 멘트 · 첫 모습) */
-  ok(`${w} G4 입장 줄 — 맺는 말은 «더 고르기» 뒤 · 누를 곳 44 · 첫 화면 묶음 셋(AI 가 꺼지면 둘) [ENTRY_OUT_MORE · VP_NO_DIRECT]`, g4.btn && !g4.outRow && g4.rows === (g4.vc ? 3 : 2) && /더 고르기 · 맺는 말/.test(g4.txt) && g4.h >= 44, JSON.stringify(g4));
-  if (g4.btn) { await pg.click('[data-fk="lsmore:entry"]'); await pg.waitForTimeout(400); }   // 단추가 없으면(깨졌으면) 다음 검사가 빨강으로 말한다 — 여기서 멈추지 않는다
-  const g4b = await pg.evaluate(() => { const r = document.querySelector('.mk-pg'), g = r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]'), a = document.activeElement;
-    return { open: !!g, n: g ? g.querySelectorAll('[role=radio]').length : 0, foc: !!(g && g.contains(a) && a.getAttribute('role') === 'radio' && a.tabIndex === 0), btn: !!(r && r.querySelector('[data-fk="lsmore:entry"]')) }; });
-  ok(`${w} G4 «더 고르기»를 누르면 맺는 말 여섯이 열리고 초점은 고른 칩(안 골랐으면 첫 칩 · CHIP_UNPICKED)`, g4b.open && g4b.n === 6 && g4b.foc && !g4b.btn, JSON.stringify(g4b));
-  await pg.evaluate(() => { LS.more = {}; S.entryOut = 'C'; render(); }); await pg.waitForTimeout(300);
-  ok(`${w} G4 기본이 아닌 맺는 말을 골라 뒀으면 열린 채(고른 것이 숨지 않게)`, await pg.evaluate(() => !!document.querySelector('.mk-pg [role=radiogroup][aria-label="맺는 말"]') && !document.querySelector('[data-fk="lsmore:entry"]')));
-  await pg.evaluate(() => { S.entryOut = ''; LS.more = {}; render(); });
+    return { btn: !!b, outRow: !!(r && r.querySelector('[role=radiogroup][aria-label="맺는 말"]')), scene: !!(r && r.querySelector('[role=radiogroup][aria-label="첫 모습"]')), rows: r ? r.querySelectorAll('[role=radiogroup]').length : 0, vc: !!RitualOpen.FEATURE.voiceClone, bow: /맞절/.test(r ? r.textContent : '') }; });
+  ok(`${w} G4 입장 쪽 — 맺는 말 · 첫 모습 · 더 고르기 · «맞절» 없음 · 묶음 하나(AI 가 켜지면 둘) [ENTRY_OUT_OFF · VP_NO_DIRECT]`, !g4.btn && !g4.outRow && !g4.scene && !g4.bow && g4.rows === (g4.vc ? 2 : 1), JSON.stringify(g4));
   // G5 이렇게 흘러요 — 예시 넷 × 축배 판 셋 × 와인 셋
   const g5 = await pg.evaluate(() => {
     const R = RitualOpen, keep = JSON.parse(JSON.stringify(S)), bad = [], seen = {};
@@ -92,13 +86,13 @@ for (const w of [390, 1280]) {
     out.labs = { candle: (st.find((x) => x.k === 'candle' && !x.quiet && !x.talk) || {}).lab, declare: (st.find((x) => x.k === 'declare' && !x.quiet && !x.talk) || {}).lab };
     const fams = []; ['solemn', 'warm', 'clap', 'family'].forEach((d) => { R.setChip(S, 'declare', d); const q = _lSteps(ENG, ['declare']).filter((x) => x.quiet); fams.push(d + ':' + q.length); });
     out.fams = fams.join(',');
-    S.entryScene = 'bow'; out.bow = _lSteps(ENG, ['entry']).filter((x) => x.quiet).map((x) => x.txt).join('');
+    S.entryScene = 'bow'; out.bow = _lSteps(ENG, ['entry']).filter((x) => x.quiet).map((x) => x.txt).join('');   // [ENTRY_OUT_OFF] 옛 초안의 bow 도 같은 줄
     out.lq = LP.q.filter ? true : true;
     Object.assign(S, JSON.parse(JSON.stringify(keep))); delete S.entryScene; if (keep.entryScene) S.entryScene = keep.entryScene;
     return out;
   });
   ok(`${w} G5 말 없는 줄 — 순간마다 하나 · 표 그대로 [QUIET_LINES]`, g5b.candle.length === 1 && /이 앞으로 나와 불을 밝혀요 · 말 없이$|가 앞으로 나와 불을 밝혀요 · 말 없이$/.test(g5b.candle[0])
-    && g5b.entry[0] === '두 분이 함께 걸어 들어와요 → 서로 바라봐요' && g5b.bow === '두 분이 함께 걸어 들어와요 → 맞절해요'
+    && g5b.entry.length === 1 && g5b.entry[0] === '두 분이 함께 걸어 들어와 앞에 서요' && g5b.bow === '두 분이 함께 걸어 들어와 앞에 서요'
     && g5b.ring[0] === '두 분이 서로 반지를 끼워요 · 말 없이' && g5b.declare[0] === '하객 박수 · 두 분이 부부가 돼요' && g5b._close[0] === '두 분이 하객께 목례 · 박수'
     && g5b.fams === 'solemn:1,warm:1,clap:1,family:1', JSON.stringify(g5b));
   ok(`${w} G5 첫 줄 이름 — 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)» [FIRST_LINE_NAME]`, g5b.labs.candle === '여는 말' && g5b.labs.declare === '선언 · 나레이션(엄숙하게)', JSON.stringify(g5b.labs));
