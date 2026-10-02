@@ -1240,14 +1240,14 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .lf-choose.done{margin:0 0 4px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
 .lf-ref{margin:0 0 8px;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [REF_EXAMPLE] */
 .lf-refn{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
-.mk-rcs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}   /* [EX_MORE] 줄바꿈 · 가로 스크롤 없음 */
-.mk-rc{flex:0 1 auto;min-width:0;max-width:100%;display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:44px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--sub);font:inherit;text-align:left;cursor:pointer}
+.mk-rcs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}   /* ★[REF_GRID 2026-10-02 사장님 «예시 4개의 네모 박스칸이 어긋나 있어»] 글 길이대로 늘던 flex 대신 같은 너비 칸 — PC 넷 · 좁으면 둘 */   /* [EX_MORE] 줄바꿈 · 가로 스크롤 없음 */
+.mk-rc{min-width:0;max-width:100%;display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:44px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--sub);font:inherit;text-align:left;cursor:pointer}
 .mk-rc b{font-size:12.5px;font-weight:600;color:var(--accent)}
 .mk-rc span{font-size:12.5px;color:var(--light);line-height:1.45;word-break:keep-all}
 .mk-rc.on{border-color:var(--gold-deeper);background:var(--bg2)}
 .mk-rc.mk-rpar{border-style:dashed}
 .mk-rc.mk-rpar b{color:var(--gold-deeper)}
-@media (max-width:999px){ .mk-rcs{padding-right:36px} .mk-rc{flex-basis:calc(50% - 4px)} }   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 칩이 비켜선다 */
+@media (max-width:999px){ .mk-rcs{padding-right:36px;grid-template-columns:repeat(2,minmax(0,1fr))} }   /* [REF_GRID] */   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 칩이 비켜선다 */
 .mk-rsel{padding:4px 0 6px;border-top:1px solid var(--border)}
 .mk-rsh{margin:12px 0 8px}
 .mk-rsit{margin-top:4px}
@@ -3581,11 +3581,18 @@ function _mkLeaveMsg(k){ if(!k||k==='_sum'||_mkOff(k)) return '';
   var no=_mkNo(k), head=(no&&no!=='식전'?no+' ':'')+_mkName(k)+' · ', x=ts[0];
   if(x.kind==='tx') return head+x.who+' 칸이 비어 있어요. 미완료로 둘게요.';
   return head+(x.who==='부모님'?'부모님께 부탁드릴 것이 남아 있어요. ':'아직 끝나지 않은 일이 있어요. ')+'미완료로 둘게요.'; }
-window.mkGo=function(k){ var m=_mkState(), from=m.at; if(from===k) return;
-  var msg=_mkLeaveMsg(from); MK.toast=msg; m.at=k; m.seen[k]=1; LS.open=k;
+/* ★[LEAVE_POP 2026-10-02 사장님 «부모님께 부탁드릴 것이 남아 있어요. 미완료로 둘게요 — 각각 나오는 이벤트 안내 메시지, 다음 페이지 넘길 때 팝업으로 깔끔하게»]
+   다음 쪽 머리에 회색 상자로 남기던 한 줄을 넘기는 순간 작은 판(ordAsk)으로 — [다음으로] · [돌아가서 채우기]. 막지 않는다(INCOMPLETE_SOFT 그대로).
+   같은 쪽의 같은 말은 한 번만 묻는다(MK.leaveSaid) — 앞뒤로 오갈 때마다 뜨면 귀찮다 */
+window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;   // ask = «다음»으로 넘길 때만(이전 · 진행 줄 이동엔 묻지 않는다)
+  var msg=ask?_mkLeaveMsg(from):''; MK.leaveSaid=MK.leaveSaid||{};
+  if(msg&&MK.leaveSaid[from]!==msg){ MK.leaveSaid[from]=msg; var p=msg.split(' · '), hd=p.shift(), body=p.join(' · ').replace(/\s*미완료로 둘게요\.?$/,'');
+    ordAsk({title:hd+' · 아직 비어 있어요',body:body+' 미완료로 두고 넘어갈게요. 나중에 언제든 채울 수 있어요',yes:'다음으로',no:'돌아가서 채우기'}).then(function(ok){ if(ok) _mkGoNow(k); }); return; }
+  _mkGoNow(k); };
+function _mkGoNow(k){ var m=_mkState(); m.at=k; m.seen[k]=1; LS.open=k;
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
-  _fxNext='#mkHead'; try{ window.scrollTo(0,0); }catch(e){} };
-function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i]); return true; }
+  _fxNext='#mkHead'; try{ window.scrollTo(0,0); }catch(e){} }
+function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i],d>0); return true; }   // [LEAVE_POP] 다음으로 갈 때만 묻는다
 function _mkNextLab(){ var ps=_mkPages(), i=_mkIdx(); if(i>=ps.length-1) return '다음 · ③ 연습하기'; var n=ps[i+1], no=_mkNo(n); return (ps[i]==='_intro'?'시작하기 · ':'다음 · ')+((no&&no!=='식전')?no+' ':'')+_mkName(n); }
 /* 두 분이 할 말 — 칸마다 따로 저장 · 글자수 ÷ 5 = 소리 내어 읽는 초(분당 300자 · 축사 원고 안내와 같은 기준) */
 function _mkSec(n){ return Math.ceil(n/5); }
@@ -4119,6 +4126,11 @@ function _refHead(t){ t=String(t||''); var re=/^(?:그리고\s)?[가-힣]{1,4}(?
 function _refIntro(t){ var o=t, g=0; while(g++<3){ var m=t.match(/^(?:안녕하세요|안녕하십니까)[,.!]?\s*/)||t.match(/^[^.!?\n]{1,16}(?:입니다|이에요|예요)[.!]\s*/); if(!m) break; t=t.slice(m[0].length); }
   return t.trim()?t:o; }
 function _refPv(set){ var t=_refIntro(_refHead((set[0]||{}).txt||'')); return t.length>20?t.slice(0,20)+'…':t; }
+/* ★★[REF_TITLE 2026-10-02 사장님 «예시 1 밑에 앞부분 내용 굳이 없어도 될 것 같은데 · 차라리 제목을 붙이든지 그 글의 느낌이나»]
+   칩 아래 글 첫 마디(_refPv) 대신 그 글의 느낌을 짧은 제목으로. ★[REF_NO_KYEOL 2026-09-27]을 뒤집는다 — 그때는 «담백 · 유머» 같은 낱말을 그대로 붙여 걷었고,
+   이번엔 사장님이 «제목이나 느낌»을 직접 청하셨다. 낱말을 그대로 쓰지 않고 문장 모양의 제목으로 바꿔 붙인다 */
+var REF_TITLE={'장면 하나':'한 장면을 떠올리며','다정':'다정하게','유머+진심':'웃음 뒤에 진심','담백':'담백하게','격식':'격식 있게','솔직하게':'솔직하게','짧게':'짧고 굵게','그리움':'그리움을 담아','한 분이 읽기':'한 분이 읽어요','양가 부모님 나눠 읽기':'양가 부모님이 나눠 읽어요'};
+function _refTitle(set){ var k=String((set[0]||{}).kyeol||''); return REF_TITLE[k]||''; }
 function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(function(x){ return x.talk; })) return '';
   var sets=_lRefSets(k); if(!sets.length) return '';
   var cur=Math.min((LS.ref||{})[k]||0,sets.length-1), main=sets.filter(function(x){ return !(x[0]&&x[0].parent); }), par=sets.length-main.length;
@@ -4133,7 +4145,7 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   var _pv=sets.map(_refPv), _pvN={}; _pv.forEach(function(x){ _pvN[x]=(_pvN[x]||0)+1; });
   _pv=_pv.map(function(x,i){ if(_pvN[x]<2) return x; var w=sets[i].map(function(p){ return p.who; }).filter(Boolean); return w.length>1?w.join(' · ')+' 나눠 읽기':(w[0]?w[0]+' 읽기':x); });
   sets.forEach(function(set,n){ if(n>=main.length&&!parOpen) return; if(sitI.indexOf(n)>-1&&!sitOpen) return; var on=n===cur;
-    h+='<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_pv[n])+'</span></button>'; });
+    h+='<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_refTitle(set)||_pv[n])+'</span></button>'; });   // [REF_TITLE]
   if(sitI.length&&!sitOpen) h+='<button type="button" class="mk-rc mk-rpar" data-fk="mkrsit:'+k+'" aria-expanded="false" onclick="mkRefSit(\''+k+'\')"><b>상황에 맞는 예시 ›</b><span>'+esc(sitI.map(function(i){ var t=_refSit(main[i]); return REF_SIT[t]||t; }).filter(function(t,i,a){ return a.indexOf(t)===i; }).join(' · '))+'</span></button>';   // [REF_BEST4]
   if(par&&!parOpen) h+='<button type="button" class="mk-rc mk-rpar" data-fk="mkrpar:'+k+'" aria-expanded="false" onclick="mkRefPar(\''+k+'\')"><b>부모님이 하실 때 ›</b><span>덕담 예시 '+par+'벌</span></button>';
   h+='</div>';
@@ -4144,7 +4156,7 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   if(set[0]&&set[0].parent) h+='<p class="mk-note mk-rsit">부모님의 축사 예시예요 · 부르는 말만 바꿔 쓰세요</p>';
   /* [EX_START] 이 예시로 시작하기 — 두 분 칸이 있는 자리만 · 빈 칸에만 채운다(적어 둔 글은 건드리지 않는다) */
   var kind=_mkKinds(k)[0], tgt=[]; if(kind) TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], pt=set.filter(function(p){ return p.who===w[1]; })[0]; if(pt&&!String((S.tx||{})[id]||'').trim()) tgt.push(id); });
-  if(tgt.length) h+='<button type="button" class="rowbtn mk-rstart" data-fk="mkrstart:'+k+'" onclick="mkRefStart(\''+k+'\')">이 예시로 시작하기</button>';
+  /* ★[REF_START_OFF 2026-10-02 사장님 «이 예시로 시작하기 이 버튼도 삭제»] 되살리지 말 것 — mkRefStart 는 남겨 둔다(부르는 곳 없음) */ void tgt;
   return h+'</div></section>'; }
 window.mkRefPar=function(k){ LS.refPar=LS.refPar||{}; LS.refPar[k]=1; render(); };
 window.mkRefSit=function(k){ LS.refSit=LS.refSit||{}; LS.refSit[k]=1; var sets=_lRefSets(k), i=-1; sets.some(function(x,n){ if(!(x[0]&&x[0].parent)&&_refSit(x)){ i=n; return true; } return false; }); _fxNext=i>-1?'[data-fk="mkrc:'+k+':'+i+'"]':''; render(); };   // [REF_BEST4] 펼치면 첫 상황 예시 칩에 초점
