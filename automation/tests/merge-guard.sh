@@ -13640,3 +13640,13 @@ chk 'PV_INTRO' scripts/audit/pv-intro.mjs 2
 # ★[PLAY_ROW · FLOW_LINE_TYPE 2026-10-02 사장님 «이 순간 들어 보기 디자인 개선 · 재생 버튼 메시지 글꼴을 하객 맞이 카드와 통일»]
 chk 'PLAY_ROW' order-preview.html 1
 chk 'FLOW_LINE_TYPE' order-preview.html 1
+# ★[VOICE_SETUP 2026-10-02 사장님 «② 머리글 나레이션 자세히 → 창 · AI/스튜디오 고르기부터» · «② 들어갈 때 창으로 먼저 · 한 번 셋팅 → 세 자리 한꺼번에» · «비교해 듣기» · «휴대폰 녹음 가이드 · 모션»]
+#   깨 보고 믿음: mkVsPick 의 세 자리 반복을 guestVoice 하나로 줄이면 voice-setup «AI → 세 자리» 빨강(390 · 1280)
+chk 'VOICE_SETUP' order-preview.html 9
+chk 'function _vsBar()' order-preview.html 1
+chk 'function _vsCur()' order-preview.html 1   # 세 자리(guestVoice · entryVoice · pvVoice)를 한꺼번에 — voice-setup 이 값을 잰다
+chk '@keyframes mkVsWave' order-preview.html 1
+chk 'prefers-reduced-motion:reduce){ .mk-vsg .wv{animation:none' order-preview.html 1
+nochk "id='obVoice'" order-preview.html   # 머리 알약 줄은 390 에서 넘친다(실렌더) — ② 진행 줄 아래 한 줄
+if command -v node >/dev/null 2>&1; then node scripts/audit/voice-setup.mjs >/dev/null 2>&1; _vs2=$?; [ "$_vs2" = 1 ] && { echo 'FAIL voice-setup: 안내 목소리 창 흐름이 어긋났습니다 — node scripts/audit/voice-setup.mjs'; fail=1; }; fi
+chk 'VOICE_SETUP' scripts/audit/voice-setup.mjs 2
