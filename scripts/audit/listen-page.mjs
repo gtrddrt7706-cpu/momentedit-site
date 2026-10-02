@@ -71,7 +71,7 @@ for (const w of [390, 1280]) {
   /* [PICK_V2 2026-09-26 코워크 최종판 3장] ① 은 예시 → 감동 흐름 → 네 막 칸 → 아래 막대. 판 칩 · 카드 · 자동 재생 영상은 없다. */
   ok(`${w} ① 칸에 판 칩이 없다(② 로 옮김)`, await pg.evaluate(() => document.querySelectorAll('.pk .op-chip').length === 0));
   ok(`${w} ① 칸 열넷(케이크 커팅 · 축배 따로 · CAKE_TOAST_SPLIT) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 14 && t.every((c) => c.querySelector('.pk-media')); }));
-  ok(`${w} ① 빈 채 아래 막대는 숫자 없이 «예시로 시작하거나 …» [BAR_SUM]`, await pg.evaluate(() => { const c = document.getElementById('opCta'); return !!c && /예시로 시작하거나 아래에서 담아 보세요/.test(c.textContent) && !/\d/.test(c.textContent); }));
+  ok(`${w} ① 빈 채 아래 막대는 숫자 없이 «입장 · 닫는 인사만으로도 …»([R1-33]) [BAR_SUM]`, await pg.evaluate(() => { const c = document.getElementById('opCta'); return !!c && /입장 · 닫는 인사만으로도 다음으로 갈 수 있어요/.test(c.textContent) && !/\d/.test(c.textContent); }));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
   await pg.click('[data-fk="pto:declare"]'); await pg.waitForTimeout(500);
@@ -108,7 +108,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ② 서약 쪽 — 참고 예시가 있으면 «서약 예시 보기» 접이를 또 두지 않는다 · 들어 보기 단추는 흐름 머리에 [MK_MIN]`, await pg.evaluate(() => !!document.querySelector('.mk-ref') && !/서약 예시 보기/.test(document.getElementById('stage').textContent) && !!document.querySelector('.mk-flow').closest('.mk-sec').querySelector('.mk-sech [data-fk="mkplay"]')));
   ok(`${w} ② 서약 쪽 머리 = 번호 · 이름 · 흐름에 «신랑 차례 · 신부 차례»`, await pg.evaluate(() => /혼인 서약/.test(document.getElementById('mkHead').textContent) && /신랑 차례/.test(document.querySelector('.mk-flow').textContent) && /신부 차례/.test(document.querySelector('.mk-flow').textContent)));
   const rf = await pg.evaluate(() => ({ n: document.querySelectorAll('.mk-ref .mk-rc').length, sets: _lRefSets('vow').length, names: [...document.querySelectorAll('.mk-ref .mk-rc b')].map((x) => x.textContent), pv: [...document.querySelectorAll('.mk-ref .mk-rc span')].map((x) => x.textContent), b: (document.querySelector('.mk-ref .lf-refb') || {}).textContent || '', note: (document.querySelector('.mk-ref .lf-refn') || {}).textContent || '', play: document.querySelectorAll('.mk-ref button:not(.mk-rc):not(.mk-rstart)').length, len: (document.querySelector('.mk-ref .mk-rl') || {}).textContent || '', mood: /담백|다정|유머|격식|솔직|그리움|장면 하나|짧게/.test([...document.querySelectorAll('.mk-ref .mk-rc b, .mk-ref .lf-refb')].map((x) => x.textContent).join('|')) }));
-  ok(`${w} ② 참고 예시 칩 = 고른 네 벌(서약 4 · REF_BEST4) · 이름 «예시 N» · 배지 «참고 예시 N» · 무드 이름 없음 · 칩 아래 첫 마디 · 글로만 · «N자 · 소리 내어 읽으면 약 N초» [EX_MORE · REF_NO_KYEOL · CAST_TEXT_ONLY]`, rf.n === rf.sets && rf.sets === 4 && rf.names[0] === '예시 1' && rf.b === '참고 예시 1' && !rf.mood && rf.pv.every((t) => t.length > 3 && t.length <= 21 && !/^하윤아/.test(t)) && /^당일엔 두 분이 직접 말해요 · /.test(rf.note) && /예시 속 이름은 가상 인물이에요/.test(rf.note) && rf.play === 0 && /^\d+자 · 소리 내어 읽으면 약\s\d+초$/.test(rf.len), JSON.stringify(rf));
+  ok(`${w} ② 참고 예시 칩 = 고른 네 벌(서약 4 · REF_BEST4) · 이름 «예시 N» · 배지 «참고 예시 N» · 무드 이름 없음 · 칩 아래 첫 마디 · 글로만 · «N자 · 약 N초»([R1-46]) · 두 분 순간 머리말은 «당일엔 …» 없이([R1-21]) [EX_MORE · REF_NO_KYEOL · CAST_TEXT_ONLY]`, rf.n === rf.sets && rf.sets === 4 && rf.names[0] === '예시 1' && rf.b === '참고 예시 1' && !rf.mood && rf.pv.every((t) => t.length > 3 && t.length <= 21 && !/^하윤아/.test(t)) && /^그대로 써도 좋고, 두 분 이야기로 바꿔도 돼요 · /.test(rf.note) && !/당일엔/.test(rf.note) && /예시 속 이름은 가상 인물이에요/.test(rf.note) && rf.play === 0 && /^\d+자 · 약\s\d+초$/.test(rf.len), JSON.stringify(rf));
   await pg.click('[data-fk="mkrc:vow:1"]'); await pg.waitForTimeout(250);
   await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(500);
   ok(`${w} ② 펼친 예시(2)가 «이 순간 들어 보기»의 두 분 차례 글이 된다 · 소리 없음`, await pg.evaluate(() => LP.cur === 'vow' && LP.q.filter((s) => s.talk2).every((s) => s.refN === 1 && !s.src)));
@@ -116,7 +116,7 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => lsStop());
   await pg.fill('#mkt_vow_g', '나는 약속'); await pg.fill('#mkt_vow_b', '나도 약속'); await pg.waitForTimeout(200);
   ok(`${w} ② 신랑 칸 · 신부 칸 따로 · 옛 한 칸(vowText)은 두 칸을 이어 붙인다 · 칸마다 고친 시각 [TX_MERGE]`, await pg.evaluate(() => S.tx['vow.g'] === '나는 약속' && S.tx['vow.b'] === '나도 약속' && S.vowText === '신랑 · 나는 약속\n\n신부 · 나도 약속' && S.fAt['tx.vow.g'] > 0 && S.fAt['tx.vow.b'] > 0));
-  ok(`${w} ② 글자수 · 소리 내어 읽는 초`, await pg.evaluate(() => /5자 · 소리 내어 읽으면 약 1초/.test(document.getElementById('mkc_vow_g').textContent)));
+  ok(`${w} ② 글자수 · 소리 내어 읽는 초`, await pg.evaluate(() => /5자 · 약 1초/.test(document.getElementById('mkc_vow_g').textContent)));
   // ② 고르기 칩 — radiogroup · 고른 칩이 눈에 보인다 [CHIP_CHECKED] (녹음 기록과 상관없이 · [REC_STATE_FREE] 두 분 차례는 소리가 없다)
   await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
   await pg.evaluate(() => { const b = document.querySelector('.mk-pg [data-fk^="lsc:candleWho"]'); b && b.click(); try { lsStop(); } catch (e) {} }); await pg.waitForTimeout(300);   // [CHIP_UNPICKED] 안 고른 기본은 비어 보인다 — 한 번 고른 뒤에 잰다
@@ -228,7 +228,7 @@ for (const w of [390, 1280]) {
   const pgT = async (k) => { await pg.evaluate((x) => mkGo(x), k); await pg.waitForTimeout(350); return pg.evaluate(() => document.getElementById('stage').textContent.replace(/\u00a0/g, ' ')); };
   const tRing = await pgT('ring'), tTrib = await pgT('tribute'), tToast = await pgT('toast'), tSum = await pgT('_sum');
   const w = { t: tSum };
-  ok('3-4 ② 반지 쪽 = 당일 가져오기 · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 와인 부탁 · 챙길 것 없음 [WINE_POUR_OFF]', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요\s*당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && !/와인 한 병씩|와인 두 병|한 잔에 (붓|모아)/.test(tToast), tTrib.slice(0, 200));
+  ok('3-4 ② 반지 쪽 = 챙길 것([R1-30] «당일 가져오기» 되풀이 없음) · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 와인 부탁 · 챙길 것 없음 [WINE_POUR_OFF]', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요/.test(tRing) && !/당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && !/와인 한 병씩|와인 두 병|한 잔에 (붓|모아)/.test(tToast), tTrib.slice(0, 200));
   ok('② 한눈에 보기 — 한 항목은 한 번(녹음 줄 · 부탁 줄 되풀이 없음) · 미완료 배지 목록 없음 [MK_SUM_ONE]', !/미완료\s*하객 맞이/.test(tSum) && (tSum.match(/양가 어머님께서 불을 밝혀 주세요/g) || []).length <= 1 && (tSum.match(/시작 10분 전/g) || []).length === 0, tSum.slice(0, 300));
   const mo = await pg.evaluate(() => { const one = (t) => ((t.match(/담은 순간 (\d+)/) || [])[1]) || ''; const r = {}; mkGo('_intro'); r.intro = one(document.getElementById('stage').textContent); mkGo('_sum'); r.sum = one(document.getElementById('stage').textContent); r.fn = String(_opMoments()); return r; });
   ok('② 고른 순서 · 한눈에 보기의 «담은 순간 N»이 같은 셈 [MOMENTS_ONE]', mo.intro === mo.fn && mo.sum === mo.fn && +mo.fn > 0, JSON.stringify(mo));
@@ -237,12 +237,12 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => mkGo('tribute')); await pg.waitForTimeout(300);
   const tb = await pg.evaluate(() => { const u0 = mkUndone(); const t = document.getElementById('mkt_tribute_g'); t.value = '엄마 아빠 고마워요'; t.dispatchEvent(new Event('input')); const sc = scriptText(); t.value = ''; t.dispatchEvent(new Event('input')); return { has: !!t, same: mkUndone() === u0, inScript: /카드로 인쇄/.test(sc) && /엄마 아빠 고마워요/.test(sc), gone: !/엄마 아빠 고마워요/.test(scriptText()) }; });
   ok('사장님 · 부모님께 드릴 말 선택 칸 — 미완료 셈 밖 · 적으면 대본에 · 비우면 없음', tb.has && tb.same && tb.inScript && tb.gone, JSON.stringify(tb));
-  ok('3-4 도와주실 분 문구 · [GOODS_CHOICE] 기본은 직접 준비 → 케이크 · 꽃이 «챙길 것»에 · «저희가 준비해요» 없음', /반지 교환을 담았을 때/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && !/저희가 준비해요/.test(w.t) && /케이크 · 당일 가져오기/.test(w.t) && /부모님께 드릴 꽃 · 당일 가져오기/.test(w.t) && (w.t.match(/크기 · 도착 시각은 상담 때 안내해 드려요/g) || []).length === 1, JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t)]) + ' … ' + w.t.slice(-250));
+  ok('3-4 도와주실 분 문구 · [GOODS_CHOICE] 기본은 직접 준비 → 케이크 · 꽃이 «챙길 것»에 · «저희가 준비해요» 없음', /반지 교환을 담았을 때/.test(w.t) && !/반지를 담은 날/.test(w.t) && /축의금을 받으실 때만/.test(w.t) && !/저희가 준비해요/.test(w.t) && /케이크/.test(w.t) && /부모님께 드릴 꽃/.test(w.t) && !/당일 가져오기/.test(w.t) && (w.t.match(/크기 · 도착 시각은 상담 때 안내해 드려요/g) || []).length === 1, JSON.stringify([/반지 교환을 담았을 때/.test(w.t), /축의금을 받으실 때만/.test(w.t), /저희가 준비해요/.test(w.t), /부모님께 드릴 꽃 · 케이크|케이크 · 부모님께 드릴 꽃/.test(w.t)]) + ' … ' + w.t.slice(-250));
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'done') { idx = i; render(); } }); await pg.waitForTimeout(900);
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + (k === RitualOpen.peakOf(S) ? '★ ' : '') + _lName(k)) }));
   ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · ★)', JSON.stringify(d.rows) === JSON.stringify(d.want), JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
-  ok('④ 준비할 것 = 한 줄 + «② 한눈에 보기에서 보기» · 목록을 또 늘어놓지 않는다 · 담은 순간 = ② 와 같은 셈 [DONE_PREP_ONE · MOMENTS_ONE]', !/쓸 글/.test(d.t) && /두 분이 준비할\s것\s\d+가지/.test(d.t) && new RegExp('담은 순간 ' + mo.fn + ' ').test(d.t), d.t.slice(0, 400));
-  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ② 한눈에 보기에서 보기', /담은 순간 \d+ · 본식 약\s\d+~\d+분 · 단체 사진 약\s\d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /②\s한눈에 보기에서 보기/.test(d.t), d.t.slice(0, 300));
+  ok('④ 준비할 것 = 한 줄 + «② 한눈에 보기에서 보기» · 목록을 또 늘어놓지 않는다 · 담은 순간 = ② 와 같은 셈 [DONE_PREP_ONE · MOMENTS_ONE]', !/쓸 글/.test(d.t) && /두\s분\s\d+가지/.test(d.t) && new RegExp('담은 순간 ' + mo.fn + ' ').test(d.t), d.t.slice(0, 400));
+  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ② 한눈에 보기에서 보기', /담은 순간 \d+ · 본식 약\s\d+~\d+분 · 단체 사진 약\s\d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /②\s한눈에 보기로 이동하기/.test(d.t), d.t.slice(0, 300));
   /* ★[GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 꽃 — ② 칩(담았을 때만 · 큰절이면 꽃 없음) · 맡기면 ③ 「저희가 준비해요 · 별도 비용」 · 초안에 실림 */
   const gd = await pg.evaluate(() => {
     const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};
@@ -301,7 +301,7 @@ for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(390);
   await clickNext(pg); await pg.waitForTimeout(400);
   /* [INTRO_JOURNEY 2026-09-27 사장님] «미리 알아두면 좋아요» 상자를 빼고 «여기서 네 걸음 → 그다음 예식까지(연습 · 순서 확정 · 글 마감 · 당일)» */
-  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 예식까지 네 줄(연습 · 순서 확정 예식 14일 전 · 글 마감 예식 7일 전 · 진행은 저희가) · «미리 알아두면» 상자 없음 [INTRO_JOURNEY]', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; const rows = [...document.querySelectorAll('.daymap.jr .seqr')].map((r) => r.textContent); return document.querySelectorAll('.ipt .n').length === 4 && rows.length === 4 && /연습/.test(rows[0]) && /③\s연습하기/.test(rows[0]) && /14일\s전/.test(rows[1]) && /순서 확정/.test(rows[1]) && /7일\s전/.test(rows[2]) && /글 마감/.test(rows[2]) && /진행은 저희가/.test(rows[3]) && !/미리 알아두면/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
+  ok('2-2 안내 2/2 = 네 걸음(번호 넷) · 예식까지 세 줄([R1-32] «언제든 · 연습» 줄 걷음 · 순서 확정 예식 14일 전 · 글 마감 예식 7일 전 · 진행은 저희가) · «미리 알아두면» 상자 없음 [INTRO_JOURNEY]', await pg.evaluate(() => { const t = document.getElementById('stage').textContent; const rows = [...document.querySelectorAll('.daymap.jr .seqr')].map((r) => r.textContent); return document.querySelectorAll('.ipt .n').length === 4 && rows.length === 3 && /14일\s전/.test(rows[0]) && /순서 확정/.test(rows[0]) && /7일\s전/.test(rows[1]) && /글 마감/.test(rows[1]) && /진행은 저희가/.test(rows[2]) && /나레이션과 디렉터가 맡아요/.test(rows[2]) && !/미리 알아두면/.test(t) && !/미리듣기로 이어들으며/.test(t); }));
   await clickNext(pg); await pg.waitForTimeout(500);
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(400);
   const h0 = await pg.evaluate(() => history.length);

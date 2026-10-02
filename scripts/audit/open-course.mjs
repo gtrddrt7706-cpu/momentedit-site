@@ -143,7 +143,7 @@ if (process.argv.includes('--live')) {
     const g = () => pg.evaluate(() => ({ band: ((document.getElementById('opCta') || {}).textContent || '').replace(/\u00a0/g, ' '), empty: (document.querySelector('.pk-fp-empty') || {}).textContent || '', note: (document.querySelector('.op-note .op-note-t') || {}).textContent || '', ow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       moves: document.querySelectorAll('.mvb').length, locks: document.querySelectorAll('.pk-fix').length, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
     let s = await g();
-    ok(`${w} 빈 채 — 아래 막대 «예시로 시작하거나 …» · 흐름 판 빈 글(숫자 비움)`, /예시로 시작하거나/.test(s.band) && /아직 담은 순간이 없어요/.test(s.empty), s.band + ' | ' + s.empty);
+    ok(`${w} 빈 채 — 아래 막대 «입장 · 닫는 인사만으로도 …»([R1-33]) · 흐름 판 빈 글(숫자 비움)`, /닫는 인사만으로도 다음으로/.test(s.band) && /아직 담은 순간이 없어요/.test(s.empty), s.band + ' | ' + s.empty);
     ok(`${w} 빈 채 알림 없음 · 늘 있어요 둘(입장 · 닫는 인사 · 식전 영상은 담는 칸 [PREVIDEO_PICK]) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 2 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
     ok(`${w} 새 화면에 금지어 없음`, !['추천', '인기', '베스트', '축가', '추가 비용'].some((x) => s.text.indexOf(x) > -1));
     await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); s = await g();

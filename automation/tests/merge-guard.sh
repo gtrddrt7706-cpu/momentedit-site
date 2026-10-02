@@ -2248,7 +2248,7 @@ chk "\['예식<br>14일 전','순서 확정'" order-preview.html 1
 chk "\['예식<br>7일 전','글 마감'" order-preview.html 1
 chk 'INTRO_JOURNEY' scripts/audit/listen-page.mjs 2
 # [SNAP_55_DAY 2026-09-26 사장님 «캔들 · 화이트존 구분 없이 55분으로»] 하루 표 · 홈 FAQ · AI 지식 — 마이페이지 스냅 칸(SNAP_55)과 같은 말
-chk '캔들존 · 화이트존 촬영 55 · 입장 준비 5' order-preview.html 1
+chk '캔들존 · 화이트존 촬영 55분 · 입장 준비 5분' order-preview.html 1   # [R1-32] 단위를 붙였다
 chk '캔들존 · 화이트존 촬영 55분 · 입장 준비 5분이에요' assets/sequence-modal.js 1
 chk '60m | Private Snap · 하객과 분리된 캔들존 · 화이트존에서 촬영 55분 · 입장 준비 5분' index.html 2
 nochk '캔들존 25분 · 이동 5분 · 화이트존 25분' api/_kb.js
@@ -11699,7 +11699,7 @@ chk 'QUIET_LINES' order-preview.html 1   # [G5] 말 없는 사람 순간 — 옅
 chk 'TOAST_TALK_GLASS' order-preview.html 1   # [G5] «위하여» 줄은 잔 드는 큐 뒤
 chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)»
 chk "var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};" order-preview.html 1   # 잔 드는 큐 (107 · 40 · 76)
-chk '두 분이 서로 반지를 끼워요 · 말 없이' order-preview.html 1
+chk "return '두 분이 서로 반지를 끼워요';" order-preview.html 1   # [R1-45] «말 없이»는 위 나레이션이 말한다
 chk '하객 박수 · 두 분이 부부가 돼요' order-preview.html 1
 chk '양가 와인을 한 잔에 모아요' order-preview.html 1   # [POUR_BY_PICK 코워크 회신7] 붓기 줄은 고른 판의 말로
 chk '두 분이 고른 와인을 한 잔에 부어요' order-preview.html 1

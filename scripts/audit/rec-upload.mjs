@@ -36,7 +36,7 @@ for (const w of [360, 1280]) {
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); await nx(); await pg.waitForTimeout(1200);
   const lg = await pg.evaluate(() => ({ t: (document.querySelector('.mk-legend') || {}).textContent || '' }));
-  ok(`${w} 고른 순서 쪽 «목소리 세 가지» — 나레이션 · 두 분 목소리 · 미리 준비 · 당일 직접 [VOICE_KIND]`, /나레이션/.test(lg.t) && /두 분 목소리 · 미리 준비/.test(lg.t) && /당일 직접/.test(lg.t), lg.t);
+  ok(`${w} 고른 순서 쪽 범례 — 이 식순에 있는 갈래만([R1-19] 나레이션 판엔 «미리 준비» 없음) · 나레이션 · 당일 직접 [VOICE_KIND]`, /나레이션/.test(lg.t) && !/두 분 목소리 · 미리 준비/.test((lg.t.split('이 식순의 차례')[0]) || '') && /당일 직접/.test(lg.t), lg.t);
   /* [CHIP_UNPICKED · MK_NO_HEADS] 안 고른 기본(나레이션)은 비어 보이고 · 누르면 소리가 나고 눌린 모양이 된다 · «고르기» · «흐름» 제목 없음 */
   const cu = await pg.evaluate(async () => { const z = (t) => new Promise((r) => setTimeout(r, t)); RitualOpen.FEATURE.voiceClone = true; mkGo('guest'); render(); await z(300);   /* ★[VP_NO_DIRECT] 고르는 칸은 AI 가 켜진 예식에만(AI · 나레이션) — 시험에서 잠깐 켠다 */
     const b0 = document.querySelector('[data-fk="lsc:guestVoice:nar"]'), before = b0.getAttribute('aria-checked'), tab = document.querySelector('[data-fk^="lsc:guestVoice:"]').tabIndex;   /* [VP_CHOICE] 0928 부터 첫 칩은 «직접 녹음하기» — 안 고른 묶음은 첫 칩이 Tab 자리 */ b0.click(); await z(500);

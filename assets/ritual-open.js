@@ -55,8 +55,8 @@
     bless: { n: '부모님 덕담', sn: '덕담', one: '부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤).', shot: '말씀하시는 부모님과 듣는 두 분', who: '부모님 한 분~네 분', why: '서약 바로 앞이에요. 부모님 말씀으로 약속의 문을 여는 자리예요.' },
     vow: { n: '혼인 서약', sn: '서약', one: '두 분이 서로에게 하는 약속을 읽어요(한 분 1분쯤).', shot: '서로를 보며 약속하는 옆얼굴', who: '두 분' },
     ring: { n: '반지 교환', sn: '반지', one: '서로의 손에 반지를 끼워 줘요.', shot: '반지를 끼워 주는 두 손', who: '두 분(건네는 손은 가족 · 아이도 돼요)' },
-    declare: { n: '성혼 선언', sn: '선언', one: '두 분이 부부가 되었음을 알려요. 말투와 누가 선언할지 고를 수 있어요.', shot: '하객 모두가 박수 치는 넓은 장면', who: '나레이션 또는 가족 한 분 · 하객은 박수' },
-    tribute: { n: '부모님께 인사', sn: '부모님 인사', one: '부부가 되어 처음 부모님께 드리는 인사예요. 꽃과 인사, 포옹으로 고마움을 전해요. 원하시면 신랑은 큰절로 해요(신부는 드레스라 서서 인사해요).', /* [BOW_GROOM] [LIST_NAMES] 띠 칩 «부모님 인사» */  shot: '부모님께 안기는 순간', who: '두 분 · 양가 부모님', why: '선언 다음이에요. 부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).' },
+    declare: { n: '성혼 선언', sn: '선언', one: '두 분이 부부가 되었음을 알려요.',   /* [R1-35] «누가 · 말투»는 ② 칩이 말한다 */ shot: '하객 모두가 박수 치는 넓은 장면', who: '나레이션 또는 가족 한 분 · 하객은 박수' },
+    tribute: { n: '부모님께 인사', sn: '부모님 인사', one: '부부가 되어 처음 부모님께 드리는 인사예요. 꽃과 인사, 포옹으로 고마움을 전해요.', /* [BOW_GROOM] 큰절 안내는 ② «신랑 큰절» 칩을 골랐을 때 칩 아래 힌트로 옮겼다([R1-35]) · [LIST_NAMES] 띠 칩 «부모님 인사» */  shot: '부모님께 안기는 순간', who: '두 분 · 양가 부모님', why: '선언 다음이에요. 부부가 된 뒤 처음 드리는 인사라서예요(한국 예식의 오랜 차례).' },
     free: { n: '준비한 순서', sn: '준비한 순서',   /* [DETAIL_0925 B3] «두 사람이» 는 친구가 축사하는 날 틀린 이름이 된다 */ one: '두 분이나 가족 · 친구가 특별히 준비한 순서가 있을 때 담아요. 영상, 춤 · 공연, 깜짝 선물, 친구의 짧은 축사(3분 안). 라이브 노래 · 연주는 받지 않아요. 영상 속 노래 · 연주, 음원에 맞춘 춤은 괜찮아요.', shot: '함께 보며 웃는 하객들', /* [FREE_WHAT] shot 은 shotOf 가 무엇을에 따라 고른다 */  who: '두 분 · 준비한 가족이나 친구', why: '편지 앞이에요. 편지가 마지막 큰 순간이 되도록.' },
     letter: { n: '편지 낭독', sn: '편지', one: '부모님께, 또는 서로에게 쓴 편지를 읽어요.', shot: '편지를 읽는 목소리와 듣는 얼굴', who: '두 분' },
     cake: { n: '케이크 커팅', sn: '케이크', one: '두 분이 나이프를 함께 잡고 케이크를 잘라요.', shot: '함께 자르는 두 손', who: '두 분' },   // [CAKE_TOAST_SPLIT]
@@ -72,7 +72,7 @@
        toast   → S.toast · S.wine (새 키 · 축배가 있을 때만) */
   var CHIPS = {
     declare: [['solemn', '나레이션 · 엄숙하게'], ['warm', '나레이션 · 따뜻하게'],   /* [LAB_FIX2 코워크 추가전달 2-6] «성우» → «나레이션»(목소리가 AI 나레이션 · 흐름 · 요약 · ④와 같게) */ ['clap', '하객 박수로 답하기'], ['family', '가족이 낭독']],
-    tribute: [['one', '한마디씩'], ['long', '1분쯤씩'], ['none', '말 없이']],   /* [DETAIL_0925 E] 준비 목록에는 «한 분 400자 안팎» */
+    tribute: [['one', '한마디씩'], ['long', '1분쯤씩'], ['none', '말 없이']],   /* [DETAIL_0925 E] 준비 목록에는 «한 분 300자 안팎»([R1-20] 1분쯤 = 300자) */
     letter: [['each', '서로에게'], ['parent', '각자 부모님께']],
     toast: [['both', '케이크와 축배'], ['toast', '축배만'], ['cake', '케이크만']],
     /* ★★[WINE_POUR_OFF 2026-09-27 사장님 «와인은 우리가 준비하는 건데 그냥 건배사를 하려고 하는 건데 · 그런 이벤트가 있다면 없애야 할 거야»]
@@ -145,7 +145,7 @@
   var DEF = { entry: 'A', declareWho: 'narr', declare: '1', tributeSay: 'one', letter: 'each', toast: 'both', wine: 'none', candleWho: 'mothers', freeWhat: 'video', freeLen: '3', entryScene: 'look' };
 
   /* ── 화촉 서는 분(연출 단계 · S.candleWho) ── */
-  var CANDLE_WHO = [['mothers', '양가 어머님'], ['parents', '어머님과 아버님'], ['fathers', '아버님 두 분'], ['others', '다른 두 분']];
+  var CANDLE_WHO = [['mothers', '양가 어머님'], ['parents', '양가 부모님 네 분'], ['fathers', '양가 아버님'], ['others', '다른 두 분']];   // [R1-36] 둘째만 «양가»가 빠져 한쪽 부모님인지 네 분인지 헷갈렸다(부탁 글은 «양가 어머님과 아버님께서»)
 
   /* ── 예시 넷(명세 5장) · on = 담는 순간(늘 있는 guest·entry 제외) · set = 판 ── */
   /* ★★[EXAMPLES_0925 2026-09-25 사장님 결정 3 · 코워크 회신 둘째 판 4-5] 기록 · 약속에 부모님께 인사를 더함 ·
@@ -360,14 +360,14 @@
       o.push('<rect class="flow-hit" data-i="' + i + '" x="' + rx.toFixed(1) + '" y="0" width="' + hw.toFixed(1) + '" height="' + h + '" fill="transparent"/>'); }); }   // ★[FLOW_ONE_IMG 코워크 추가 점검 · 접근성] 칸은 누르거나 올려 볼 때만 — 초점 칸 · 단추 역할은 뺐다(그림 하나 = role=img 하나 · 이름 순서는 그림 이름표가 말한다)
     o.push('</svg>'); return o.join('');
   }
-  /* 읽어 주는 한 줄 [D3] — 58~85% 면 «3분의 2쯤에 와서 끝까지 흐름이 이어져요» · 그 밖은 자리 말 없이 · 이에요/예요는 받침으로 */
+  /* 읽어 주는 한 줄 [D3] — 58~85% 면 «예식 뒤쪽에서 가장 벅차오르고, 마지막까지 마음이 이어져요»(이름 없이 · [R1-34]) · 그 밖은 자리 말 없이 · 이에요/예요는 받침으로 */
   var NB = ' ';
   function josaOf(w, a, b) { var c = String(w).charCodeAt(String(w).length - 1); return (c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28) ? a : b; }
   function peakLine(S) {
     var sg = flowSegs(S), p = flowPeak(sg); if (!p) return null;
     var total = 0; sg.forEach(function (s) { total += s.d; });
     var pct = Math.round((p.st + p.d / 2) / (total || 1) * 100), nm = CARDS[p.k].n;
-    return { k: p.k, n: nm, be: josaOf(nm, '이에요', '예요'), pct: pct, tail: (pct >= 58 && pct <= 85) ? ('3분의' + NB + '2쯤에 와서 끝까지 흐름이 이어져요.') : '' };
+    return { k: p.k, n: nm, be: josaOf(nm, '이에요', '예요'), pct: pct, tail: (pct >= 58 && pct <= 85) ? '예식 뒤쪽에서 가장 벅차오르고, 마지막까지 마음이' + NB + '이어져요.' : '' };   // [R1-34] 뒤쪽 정점이면 이름 없이 이 한 줄(곡선 «★ 이름»이 이미 말한다)
   }
   var PEAK_NONE = '가장 벅찬 순간이 될 것을 하나 담아 보세요 · 성혼 선언이나 편지';
   /* 순서 한 줄 [F1] — «식전 영상 →» 다음에 본식을 › 로 · 가장 벅찬 순간 뒤에 ★ */
@@ -380,7 +380,7 @@
        live = 당일 직접(식장에서 사람 목소리 · 여기 글은 연습용). 말하는 사람이 가족이면 «당일 직접 · 가족» · 축사면 «당일 직접 · 축사하시는 분» */
   var VOICE_KIND = {
     narr: { lab: '나레이션', one: '스튜디오 나레이터가 읽어요' },
-    prep: { lab: '두 분 목소리 · 미리 준비', one: '두 분이 식장에 없을 때 나와요. 미리 준비해 두면 그 자리에서 저절로 나와요' },   // ★[VOICE_KIND_0928] 코워크 0928 4-1 문구 그대로
+    prep: { lab: '두 분 목소리 · 미리 준비', one: '입장 전처럼 두 분이 아직 식장에 안 계실 때, 미리 만든 두 분 목소리가 흘러요' },   // ★[VOICE_KIND_0928] 코워크 0928 4-1 · [R1-19] «나와요» 겹침 · «식장에 없을 때» 흐림 → 언제인지 예를 들어
     live: { lab: '당일 직접', one: '식장에서 마이크로 직접 말해요. 여기 적는 글은 연습과 대본에 써요' }
   };
   /* ★[VOICE_CLONE 2026-09-27 코워크 5-1 · 5-6 · 사장님 «3단계는 스위치를 꺼 둔 채»] 기능 스위치 — 꺼져 있으면 화면에 아무것도 안 보인다.
@@ -400,12 +400,13 @@
   function guestReader(S, i) { var w = S && S.guestWho && S.guestWho[i]; if (w === 'g' || w === 'b') return w; var one = S && S.guestOne; if (one === 'g' || one === 'b') return one; return i % 2 === 0 ? 'g' : 'b'; }
   function voiceKind(k, S, o) { o = o || {}; if (o.talk) return 'live'; if (o.own) return 'prep'; return 'narr'; }
   function voiceLab(k, S, o) { var v = voiceKind(k, S, o); if (v !== 'live') return VOICE_KIND[v].lab;
-    if (k === 'bless' || (k === 'declare' && chipOf('declare', S) === 'family')) return '당일 직접 · 가족';
+    if (k === 'bless') return '당일 직접 · 부모님';   // [R1-36] 덕담은 부모님이 말한다 · «가족»은 범례에 없는 말
+    if (k === 'declare' && chipOf('declare', S) === 'family') return '당일 직접 · 가족 한 분';
     if (k === 'free') return '당일 직접 · 축사하시는 분';
     return '당일 직접'; }
   function prepLine(S) { var n = prepCount(S), a = [];
     if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께 부탁드릴' + NB + '것' + NB + n.parents + '가지');   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
-    return a.length ? a.join(' · ') + ' · ② 한눈에 보기에서 모아 봐요' : ''; }   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
+    return a.length ? a.join(' · ') + ' · ② 하나씩 만들기 마지막 «한눈에 보기»에서 모아 봐요' : ''; }   // [R1-33] ② 이름은 «하나씩 만들기»   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
 
   /* ══ [TILE_PICK 2026-09-26 코워크 회신 6 3-5] 칸 글 — «무엇인지»만(두 줄 안) · CARDS.one 은 미리 보기 창에서 쓴다 ══ */
   var TILE = {
@@ -470,11 +471,11 @@
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask', null, NOTE_ASK]]; }
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사 ' + voiceState(S, ['entry']) : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
       case 'welcome': return [['couple', '첫인사 한두 문장', 'write', 7]];
-      case 'bless': return [['parents', '덕담 원고 · 한 분 400자 안팎(저희가 받아 큰 글씨로)', 'ask', 7]];
+      case 'bless': return [['parents', '덕담 원고 · 한 분 300자 안팎(1분쯤) · 받으면 큰 글씨 카드로 돌려드려요', 'ask', 7]];   // [R1-20] 400자는 약 80초라 «1분쯤»과 안 맞았다 · 끊긴 괄호 말을 끝맺음
       case 'vow': return [['couple', '서약문 · 한 분 300자쯤(모두 600자쯤)', 'write', 7]];   // [WC_LIMIT 2-5] ③ 칸과 같은 숫자
       case 'ring': return [['couple', '반지 두 개 · 평소 끼던 반지여도 괜찮아요', 'bring', 0]];
       case 'declare': return chipOf('declare', S) === 'family' ? [['parents', '선언을 읽을 가족 한 분', 'ask', null, NOTE_ASK]] : [];
-      case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', t === 'long' ? '부모님께 드릴 말 · 한 분 400자 안팎' : crossTribute(S) ? '서로의 부모님께 드릴 한마디씩' : '부모님께 드릴 한마디씩', 'write', null, NOTE_TRIB]];
+      case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', t === 'long' ? '부모님께 드릴 말 · 한 분 300자 안팎' : crossTribute(S) ? '서로의 부모님께 드릴 한마디씩' : '부모님께 드릴 한마디씩', 'write', null, NOTE_TRIB]];
         return tr.concat(goodsPrep('tribute', S)); }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
         var fk = FREE_KIND[chipOf('free', S)], n = chipOf('freeLen', S);

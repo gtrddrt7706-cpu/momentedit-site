@@ -57,7 +57,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' ② 진행 줄 아래 «안내 목소리 · AI 두 분 목소리 · 나레이션 자세히»(누를 곳 44 · 머리 알약 줄에는 없음)', pill && /안내 목소리 · AI 두 분 목소리/.test(pill.t) && /나레이션 자세히/.test(pill.t) && pill.h >= 44 && !pill.pills, JSON.stringify(pill));
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(1800);
   if (SHOT) { await pg.evaluate(() => { try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(300); await pg.screenshot({ path: `${SHOT}/vs-guest-${W}.png` }); }
-  const cmp = await pg.evaluate(() => { const b = document.querySelector('[data-fk^="mknar:"]'); if (!b) return { b: false }; b.click(); return { b: true, k: b.getAttribute('data-fk'), a: __aud[__aud.length - 1] || '' }; });
+  const cmp = await pg.evaluate(() => { const b = document.querySelector('[data-fk^="mknar:"],[data-fk^="mknarall:"]');   /* [R1-09] 비교해 듣기는 칸 머리 한 번(mknarall) */ if (!b) return { b: false }; b.click(); return { b: true, k: b.getAttribute('data-fk'), a: __aud[__aud.length - 1] || '' }; });
   ok(W + ' AI 줄 카드 «스튜디오 나레이션과 비교해 듣기» → 그 자리의 나레이션 파일', cmp.b && /\/narration\/.*\.mp3$/.test(cmp.a), JSON.stringify(cmp));
   /* ★[LINE_EDIT] AI 자리의 줄 글을 두 분이 고친다 — 글칸 · 시작 1분 전은 앞 두 문장 고정 · 고치면 «다시 만들어 주세요» → 새 글로 만든다 */
   const le0 = await pg.evaluate(() => { const ta = document.querySelector('[data-fk="mkvt:g0"]'), fx = document.querySelector('.mk-vtfix'), t3 = document.querySelector('[data-fk="mkvt:g3"]');
