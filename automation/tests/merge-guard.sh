@@ -9299,6 +9299,10 @@ nochk '#{선물}' automation/알림톡_템플릿_신청문안.md
 #   1차 반려 판엔 «본 메시지는 모먼트에디트 …» 가 있었는데 근거 줄을 가이드 문장으로 바꾸며 빠졌다 — 그래서 반려됐다. 첫 줄 인사를 지킨다.
 chk '^#{이름}님, 안녕하세요. 모먼트에디트입니다.$' automation/알림톡_템플릿_신청문안.md 1
 chk 'T19_SENDER_NAME' automation/알림톡_템플릿_신청문안.md 3
+# ★[T19_APPROVED 2026-10-02 사장님 «검수통과했어»] T19 세 번째 신청 승인 — 닫힌 항목이 «다시 신청»으로 되살아나지 않게 기록을 지킨다.
+#   승인된 본문 자체는 위 T19_SENDER_NAME(첫 줄 업체명) · T19_COUPON_BASIS(근거 줄 · #{쿠폰명}) 검사가 지킨다. 여기는 «승인됨» 기록과 옛 지시의 부활만 본다.
+chk 'T19_APPROVED' automation/알림톡_템플릿_신청문안.md 4
+nochk '없음 1 → T19 를 고쳐 다시 신청' automation/알림톡_템플릿_신청문안.md
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
