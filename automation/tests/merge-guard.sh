@@ -9303,6 +9303,11 @@ chk 'T19_SENDER_NAME' automation/알림톡_템플릿_신청문안.md 3
 #   승인된 본문 자체는 위 T19_SENDER_NAME(첫 줄 업체명) · T19_COUPON_BASIS(근거 줄 · #{쿠폰명}) 검사가 지킨다. 여기는 «승인됨» 기록과 옛 지시의 부활만 본다.
 chk 'T19_APPROVED' automation/알림톡_템플릿_신청문안.md 4
 nochk '없음 1 → T19 를 고쳐 다시 신청' automation/알림톡_템플릿_신청문안.md
+#   10/2 19:28 이음 끝 실측(«있음 19 · 없음 0») — 기록을 지키고, «잇기만 남았다»는 옛 상태가 돌아오지 않게 한다.
+chk '알림톡 템플릿 있음 19 · 없음 0' automation/알림톡_템플릿_신청문안.md 1
+nochk '잇기만 남았다' automation/알림톡_템플릿_신청문안.md
+#   [T19_DEPLOYED] 10/2 19:30 deployCheck 누락 0 · ④ 배포 OK — 9/28 판 95_notify 재배포 확인 끝. «재배포했는지 확인해 달라»가 다시 올라오지 않게 기록을 지킨다.
+chk 'T19_DEPLOYED' automation/알림톡_템플릿_신청문안.md 1
 chk "require('./_livehook')" api/solapi-report.js 1
 chk 'SOLAPI_RELAY' CLAUDE.md 1
 
