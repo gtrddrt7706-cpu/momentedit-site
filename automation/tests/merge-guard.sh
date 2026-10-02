@@ -13500,6 +13500,15 @@ chk 'function purgeVoiceClones(dry)' automation/platform/80_production.gs 1
 chk 'purgeVoiceClones' automation/platform/96_ai_cost.gs 1
 chk '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' automation/platform/80_production.gs 1
 chk 'VC_FLOW_SIM' scripts/audit/vc-flow-sim.mjs 1
+# ★[VC_BUDGET 2026-10-02 사장님 «350만 원을 내고 이용하는데 그거 얼마 한다고 제한을 둬 · 한 팀 3만 원 정도는 괜찮다»]
+#   AI 목소리 횟수 한도(줄마다 5번 · 예식마다 50번 · 연습 2만 자)를 걷고 예식당 글자 예산 20만 자 하나로 — 횟수 한도를 되살리지 말 것.
+#   목소리 만들기(enroll) 3번은 «칸» 문제라 남겼다(타입캐스트 답을 보고 정함).
+chk 'VC_BUDGET' automation/platform/80_production.gs 4
+chk 'budget: 200000' automation/platform/80_production.gs 1
+nochk 'VC_LIM.perKey' automation/platform/80_production.gs
+nochk 'VC_LIM.practiceChars' automation/platform/80_production.gs
+nochk 'st.make.total >= VC_LIM' automation/platform/80_production.gs
+chk 'VC_BUDGET' scripts/audit/vc-flow-sim.mjs 4
 # ★[VC_FOLD_0928] claude/voice-selftest-hold(122ace20 · 812da138 · 나레이션 세션이 넘긴 가지)에서 가져온 것 — 시험 함수 · 칸 · 흉내 시험. 옛 스위치 핀(FEATURE 두 칸)은 #919 모양과 달라 가져오지 않았다
 chk 'function vcSelfTest()' automation/platform/80_production.gs 1
 chk 'VC_OURS_ONLY' automation/platform/80_production.gs 2
