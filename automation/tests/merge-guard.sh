@@ -9001,7 +9001,7 @@ chk 'MK_COPY_RIGHT' order-preview.html 1   # 읽을 글 복사 = 제목 줄 오�
 chk 'MK_COPY_RIGHT' scripts/audit/listen-page.mjs 1
 nochk '다음 · 보고 듣기' order-preview.html
 nochk '보고 듣기에서 고를 것' order-preview.html
-chk 'VOICE_LATE' order-preview.html 5   # 두 분 목소리 — 7일 전까지 녹음이 없으면 나레이션(자동 되돌리기 대신 안내 한 줄)
+chk 'LATE_LINE_OFF' order-preview.html 3   # [LATE_LINE_OFF] 옛 VOICE_LATE 한 줄은 걷었다(사실과 달라 · 2026-09-28)
 chk 'HELPER_WORDS' assets/ritual-open.js 2
 nochk '반지를 담은 날' assets/ritual-open.js
 chk 'LAB_FIX' order-preview.html 4   # ② 이름표를 고객 말로(엔진 이름은 그대로)
@@ -13455,7 +13455,8 @@ chk 'function _vpNow(k)' order-preview.html 1
 chk "window.mkGuestOne=function(v)" order-preview.html 1
 chk '이 파일은 열 수 없어요. m4a · mp3 · wav 로 올려 주세요' order-preview.html 1
 chk '앞 두 문장은 하객께 드리는 안내라 그대로 읽어 주세요' order-preview.html 1
-chk '예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요' order-preview.html 1
+nochk "esc(VOICE_LATE" order-preview.html   # ★[LATE_LINE_OFF 2026-09-28 사장님 «이건 사실과 달라 빼»] 7일 전 나레이션 한 줄을 화면에 다시 쓰지 않는다
+nochk '준비되지 않은 줄은 나레이션으로 진행해요' admin.html
 chk 'REC_LUFS=-16' assets/rec-process.js 1
 chk 'REC_SHARED' order-preview.html 2   # 다듬기 한 원천 — 빌더와 관리 화면(스튜디오 대신 올리기)이 같은 파일
 chk 'REC_SHARED' assets/rec-process.js 1
@@ -13530,7 +13531,7 @@ chk '적은 글이 음성 업체(타입캐스트)로 보내져 소리로 만들�
 chk 'AI 연습 소리' order-preview.html 1
 chk 'function _ptRole(who)' order-preview.html 1
 # ★[VP_AI_0928 · VC_CARD_0928 · VC_LINE_0928 · VOICE_CLONE_0928 화면 코워크 0928 6-1 · 8장] AI 칸 · 사람 카드 · 동의 · 1분 읽기 · 줄 도구 · 빈 줄만 채우기
-chk "'ai','AI 목소리'" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션
+chk "'ai','AI 두 분 목소리 만들기'" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션
 chk 'var VC_TXT=' order-preview.html 1
 chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
 chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
@@ -13548,6 +13549,9 @@ chk 'VP_NO_DIRECT' assets/ritual-open.js 1
 chk 'VP_ONE_LIST' scripts/audit/rec-upload.mjs 2
 chk 'VP_ONE_LIST' scripts/audit/listen-page.mjs 1
 chk 'VP_NO_DIRECT' scripts/audit/ghi-polish.mjs 1
+chk 'VP_NO_EXIT' order-preview.html 2   # AI 를 다 쓴 분 줄에도 [녹음] 비상구 없음 · 나레이션(2026-09-28 사장님 «녹음은 뭐야?»)
+chk 'VP_NO_EXIT' scripts/audit/vc-screen.mjs 2
+chk 'VP_FOOT_OFF' order-preview.html 1   # AI 를 고르면 줄 카드 아래 덧말 없음(2026-10-02)
 chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
 chk 'REC_DLG' order-preview.html 6
