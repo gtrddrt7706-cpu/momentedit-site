@@ -55,6 +55,8 @@ async function open(w, opt) {
   pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); if (!/fonts\.g(oogleapis|static)\.com/.test(u)) ext.push(u.slice(0, 80)); return rt.fulfill({ status: 200, body: '' }); });
   if (opt.videos) await pg.addInitScript((vs) => { window.__LISTEN_TEST_VIDEOS = vs; }, opt.videos);
+  /* [VID_PLAY_ALL] 헤드리스는 H.264 를 못 푼다 — 영상 play() 를 «불렸는가»로 잰다(소리 play 는 그대로) */
+  if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') return o.apply(this, arguments); if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('/').pop(), id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
   if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
   if (opt.videos) await pg.evaluate(() => { RitualOpen.VIDEO_READY.length = 0; (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });   /* [VIDEO_IN_1003] 바꾼다 · 더하지 않는다 */
@@ -400,10 +402,12 @@ else {
     await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
     /* [TILE_PICK · POSTER_SMALL 2026-09-26 코워크 최종판 3-5] 칸에서는 영상이 저절로 돌지 않는다 — 첫 장면 작은 판(640)만 · «AI» 는 그 칸에만 */
     const tl = await pg.evaluate(() => ({ vids: document.querySelectorAll('.pk-tile video').length, imgs: [...document.querySelectorAll('.pk-tile img')].map((i) => i.getAttribute('src')), ai: document.querySelectorAll('.pk-tile .pk-ai').length }));
-    ok(`① 칸에는 영상 없음 · 첫 장면 작은 판 둘 · «AI» 둘 (reduce=${reduce})`, tl.vids === 0 && tl.imgs.length === 2 && tl.imgs.every((u) => /-640\.webp$/.test(u)) && tl.ai === 2, JSON.stringify(tl));
+    /* [AI_LABEL_OFF 2026-10-03 사장님 «ai 그 문구도 지워»] 종전 «AI 둘» → «AI 0» */
+    ok(`① 칸에는 영상 없음 · 첫 장면 작은 판 둘 · 칸 구석 «AI» 없음 (reduce=${reduce}) [AI_LABEL_OFF]`, tl.vids === 0 && tl.imgs.length === 2 && tl.imgs.every((u) => /-640\.webp$/.test(u)) && tl.ai === 0, JSON.stringify(tl));
     await pg.click('[data-fk="pto:candle"]'); await pg.waitForTimeout(1200);
     const st = await pg.evaluate(() => { const v = document.querySelector('#pvM video'); return v ? { playing: !v.paused, muted: v.muted, ai: !!document.querySelector('#pvM .pv-ai') } : null; });
-    if (!reduce) ok('① 창: 영상은 소리 없이 돈다 · 긴 AI 이름표 [PREVIEW_SHEET]', !!st && st.muted && st.playing && st.ai, JSON.stringify(st));
+    /* [AI_LABEL_OFF 2026-10-03 사장님 «굳이 없어도 될 거 같아 · 그림이니까»] 종전 «긴 AI 이름표가 있다» → 이제 «없다»(창 그림 위 글 금지) */
+    if (!reduce) ok('① 창: 영상은 소리 없이 돈다 · 그림 위 AI 이름표 없음 [PREVIEW_SHEET · AI_LABEL_OFF]', !!st && st.muted && st.playing && !st.ai, JSON.stringify(st));
     else ok('④ 움직임 줄이기에서 창 영상 자동 재생 0', !!st && !st.playing, JSON.stringify(st));
     await pg.keyboard.press('Escape'); await pg.waitForTimeout(400);
     ok(`① 창 Esc 로 닫힘 · 영상 멈춤 (reduce=${reduce})`, await pg.evaluate(() => document.getElementById('pvSheet').hidden && !document.querySelector('#pvM video')));
@@ -631,12 +635,102 @@ else {
   ok('V-2 들어온 16편은 모두 화면이 찾는 이름(안 쓰는 파일 0)', ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(900);
   const tl = await pg.evaluate(async () => { const im = [...document.querySelectorAll('.pk-tile img')]; await Promise.all(im.map((i) => (i.decode ? i.decode().catch(() => 0) : 0)));
-    return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote') }; });
-  ok('V-3 ① 칸 그림 = 실제 첫 장면 640 판이 뜬다(빈 그림 0) · 칸마다 «AI» · 칸에 영상 0 · 한 줄 안내', tl.n >= 8 && tl.ok === tl.n && tl.ai === tl.n && tl.vids === 0 && tl.note, JSON.stringify(tl));
+    return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote'), aiTxt: /AI로 만든|(^|\s)AI(\s|$)/.test([...document.querySelectorAll('.pk-tile .pk-media')].map((m) => m.textContent).join(' ')) }; });
+  /* [AI_LABEL_OFF 2026-10-03 사장님 «ai 그 문구도 지워»] 종전 «칸마다 AI · 한 줄 안내» → «AI 0 · 한 줄 없음» */
+  ok('V-3 ① 칸 그림 = 실제 640 판이 뜬다(빈 그림 0) · 칸 구석 «AI» 0 · 칸에 영상 0 · «AI로 만든» 한 줄 없음 [AI_LABEL_OFF]', tl.n >= 8 && tl.ok === tl.n && tl.ai === 0 && tl.vids === 0 && !tl.note && !tl.aiTxt, JSON.stringify(tl));
   await clickNext(pg); await pg.waitForTimeout(1200); await pg.evaluate(() => { mkGo('ring'); render(); }); await pg.waitForTimeout(500);
-  const mk = await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'), b = document.querySelector('.mk-vid'); return { src: v ? v.getAttribute('src') : '', poster: v ? v.getAttribute('poster') : '', ai: b ? /AI로 만든 장면/.test(b.textContent) : false }; });
-  ok('V-4 ② 반지 쪽 = ring.mp4 · 첫 장면 ring.webp · «AI로 만든 장면» 이름표', /moments\/ring\.mp4$/.test(mk.src) && /moments\/ring\.webp$/.test(mk.poster) && mk.ai, JSON.stringify(mk));
+  const mk = await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'), b = document.querySelector('.mk-vid'); return { src: v ? v.getAttribute('src') : '', poster: v ? v.getAttribute('poster') : '', ai: b ? (/AI로 만든 장면/.test(b.textContent) || !!b.querySelector('.lv-ai')) : false }; });
+  /* [AI_LABEL_OFF 2026-10-03 사장님] 종전 «이름표가 있다» → «없다» */
+  ok('V-4 ② 반지 쪽 = ring.mp4 · 첫 장면 ring.webp · 그림 위 «AI로 만든 장면» 이름표 없음 [AI_LABEL_OFF]', /moments\/ring\.mp4$/.test(mk.src) && /moments\/ring\.webp$/.test(mk.poster) && !mk.ai, JSON.stringify(mk));
+  /* ★[THUMB_PICK 2026-10-03] ① 칸 그림만 고른 장면(candle 마지막 · entry 6.0초 · toast 2.0초 사장님 · tribute 8.0초 사장님 · prevideo 6.0초 사장님) — 나머지는 첫 장면.
+     창 · 영상 첫 장면(.webp)과 64×36 회색으로 견준다. 실측: 고른 넷 3.6~18.8 · 나머지 0.3~0.4(같은 장면의 압축 차) — 넷째 값 없이 다시 구우면 여기서 빨강 */
+  const PICK = ['candle', 'entry', 'toast', 'tribute', 'prevideo'];
+  const dif = await pg.evaluate(async (ready) => {
+    const load = (u) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = u; });
+    const gray = (img) => { const c = document.createElement('canvas'); c.width = 64; c.height = 36; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 64, 36); const d = x.getImageData(0, 0, 64, 36).data, g = []; for (let i = 0; i < d.length; i += 4) g.push(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]); return g; };
+    const o = {}; for (const n of ready) { try { const a = gray(await load('/assets/video/moments/' + n + '-640.webp')), b = gray(await load('/assets/video/moments/' + n + '.webp')); o[n] = +(a.reduce((s, v, i) => s + Math.abs(v - b[i]), 0) / a.length).toFixed(1); } catch (e) { o[n] = -1; } }
+    return o; }, ready);
+  const badPick = Object.keys(dif).filter((n) => (PICK.includes(n) ? !(dif[n] > 2) : !(dif[n] >= 0 && dif[n] < 1.5)));
+  ok('V-5 ① 칸 그림 고르기 — candle · entry · toast · tribute · prevideo 는 첫 장면과 다른 장면 · 나머지는 첫 장면 [THUMB_PICK]', badPick.length === 0 && PICK.every((n) => n in dif), JSON.stringify(dif));
   ok('V pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★★[VID_PLAY_ALL 2026-10-03 사장님 «축배 등등 재생이 안 되는 영상이 있다»] 영상이 있는 «모든» 순간에서 영상이 실제로 불리는가 — ① 창 · ② · 크게 보기.
+   실측(고치기 전): ① 창에서 케이크(대표 줄 없음) · 축배(대표 slug 가 WINE_POUR_OFF 뒤 없는 줄)는 열어도 «다시 듣기»를 눌러도 play 0 [PV_VID_NOLINE · SAMPLE_TOAST_LIVE] ·
+   ② 는 16편 모두 틀 곳이 없었다 [MK_VID_PLAY] · 크게 보기는 줄마다 새 <video> 로 갈아 끼워 처음으로 돌아갔다 [LF_VID_KEEP]. */
+{
+  const { ctx, pg, errs } = await open(390, { stubPlay: true });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => Promise.all([engine(), _lrec()]));
+  const r = await pg.evaluate(async () => {
+    const R = RitualOpen, wait = (ms) => new Promise((z) => setTimeout(z, ms)), out = { sheet: [], again: [], full: [], keep: [], make: [], makeKey: [], makeSound: [], label: [], line: [] };
+    const ks = Object.keys(R.CARDS).filter((k) => R.firstVideo(k, S));
+    for (const k of ks) {
+      const want = R.firstVideo(k, S).mp4.split('/').pop();
+      window.__vplays = []; opPv(k); await wait(350);
+      if (!window.__vplays.some((p) => p.w === 'sheet' && p.f === want)) out.sheet.push(k);
+      if (!_pvLine(k) && k !== 'cake') out.line.push(k);   /* 대표 줄이 있어야 하는 순간(케이크만 대표 줄이 없다) */
+      if (document.querySelector('#pvSheet .pv-ai') || /AI로 만든 장면/.test(document.getElementById('pvM').textContent)) out.label.push('sheet:' + k);
+      window.__vplays = []; _pvPlay(); await wait(150);
+      if (!window.__vplays.some((p) => p.w === 'sheet' && p.f === want)) out.again.push(k);
+      opPvClose(); await wait(250);
+    }
+    for (const k of ks.concat(['_close']).filter((x, i, a) => a.indexOf(x) === i)) {
+      window.__vplays = []; lsBig(k); await wait(700);
+      const v = document.querySelector('#lsFull video');
+      if (!v || !window.__vplays.some((p) => p.w === 'full')) out.full.push(k);
+      if (v && (v.loop || v.hasAttribute('loop'))) out.fullLoop = (out.fullLoop || []).concat(k);
+      if (v) { const a = v; _lPaint(); _lPaint(); await wait(80); if (document.querySelector('#lsFull video') !== a) out.keep.push(k); }
+      if (document.querySelector('#lsFull .lv-ai') || /AI로 만든 장면/.test((document.querySelector('#lsFull .lv') || {}).textContent || '')) out.label.push('full:' + k);
+      lsStop(); await wait(150);
+    }
+    R.PICKABLE.forEach((k) => { S.on[k] = 1; }); opSync(); idx = STEPS.findIndex((x) => x.k === 'listen'); render(); await wait(300);
+    out.once = []; out.keep2 = []; out.loop = [];
+    for (const k of ks.filter((k) => k !== '_close')) {
+      window.__vplays = []; mkGo(k); render(); await wait(120);
+      const v = document.querySelector('.mk-vid video');
+      /* [LVID_ONCE] 쪽이 보이면 한 번(두 번 그려도 한 번) · loop 없음 · 같은 순간을 다시 그리면 같은 요소(처음으로 안 돌아감) */
+      if (window.__vplays.filter((p) => p.w === 'make').length !== 1) out.once.push(k + ':' + window.__vplays.filter((p) => p.w === 'make').length);
+      if (v && (v.loop || v.hasAttribute('loop'))) out.loop.push(k);
+      if (v) { window.__vplays = []; render(); await wait(60); if (document.querySelector('.mk-vid video') !== v || window.__vplays.some((p) => p.w === 'make')) out.keep2.push(k); }
+      if (!v || (v.getAttribute('data-vk') && v.getAttribute('data-vk') !== k)) { out.make.push(k + ':없음'); continue; }
+      if (!v.getAttribute('data-vk') && (v.getAttribute('src') || '').split('/').pop() !== R.firstVideo(k, S).mp4.split('/').pop()) { out.make.push(k + ':다른 영상'); continue; }
+      if (v.getAttribute('tabindex') !== '0') out.makeKey.push(k + ':tabindex');
+      window.__vplays = []; v.click(); await wait(50);
+      if (!window.__vplays.some((p) => p.w === 'make')) out.make.push(k);
+      window.__vplays = []; v.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); await wait(50);
+      if (!window.__vplays.some((p) => p.w === 'make')) out.makeKey.push(k);
+      if (document.querySelector('.mk-vid .lv-ai') || /AI로 만든 장면/.test(document.querySelector('.mk-vid').textContent)) out.label.push('make:' + k);
+      window.__vplays = []; lsPlay(k); await wait(500);
+      if (!window.__vplays.some((p) => p.w === 'make')) out.makeSound.push(k);
+      lsStop(); await wait(100);
+    }
+    out.n = ks.length;
+    return out;
+  });
+  ok(`P-1 ① 창 — 영상 있는 ${r.n}순간 모두 열면 영상이 돈다(대표 줄이 없어도) [PV_VID_NOLINE]`, r.n >= 13 && r.sheet.length === 0, r.sheet.join(','));
+  ok('P-2 ① 창 «다시 듣기 · 처음부터» 누르면 다시 돈다 · 모든 순간', r.again.length === 0, r.again.join(','));
+  ok('P-3 ① 창 대표 줄 — 케이크 밖 모든 순간이 엔진에서 찾힌다(축배 76 · 죽은 slug 0) [SAMPLE_TOAST_LIVE]', r.line.length === 0, r.line.join(','));
+  ok('P-4 크게 보기 — 모든 순간에서 영상이 불린다 · 다시 그려도 같은 영상 요소(처음으로 안 돌아감) [LF_VID_KEEP]', r.full.length === 0 && r.keep.length === 0, JSON.stringify({ full: r.full, keep: r.keep }));
+  ok('P-5 ② 하나씩 만들기 — 모든 순간의 그림을 누르면(Enter 도) 영상이 돈다 · tabindex 0 [MK_VID_PLAY]', r.make.length === 0 && r.makeKey.length === 0, JSON.stringify({ make: r.make, key: r.makeKey }));
+  ok('P-6 ② 그 순간 소리를 틀면 그 쪽 영상도 한 번 돈다 [MK_VID_PLAY]', r.makeSound.length === 0, r.makeSound.join(','));
+  ok('P-8 ② 쪽이 보이면 영상이 꼭 한 번 돈다 · loop 없음 · 같은 쪽을 다시 그려도 다시 안 틀고 같은 요소 [LVID_ONCE 2026-10-03 사장님]', r.once.length === 0 && r.loop.length === 0 && r.keep2.length === 0, JSON.stringify({ once: r.once, loop: r.loop, keep: r.keep2 }));
+  ok('P-9 크게 보기 영상도 loop 없음(한 번 · 끝 장면에 머문다) [LVID_ONCE]', !(r.fullLoop || []).length, JSON.stringify(r.fullLoop || []));
+  ok('P-7 그림 위 «AI로 만든 장면» 이름표 0 — ① 창 · ② · 크게 보기 [AI_LABEL_OFF 2026-10-03 사장님]', r.label.length === 0, r.label.join(','));
+  ok('P pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* [LVID_ONCE 2026-10-03 사장님] 움직임 줄이기 — ② 쪽이 보여도 영상이 저절로 안 돈다 · 누르면 돈다 */
+{
+  const { ctx, pg, errs } = await open(390, { stubPlay: true, reduce: true });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
+  const r = await pg.evaluate(async () => { const wait = (ms) => new Promise((z) => setTimeout(z, ms)), auto = [], tap = [];
+    for (const k of ['candle', 'vow', 'ring', 'toast']) { if (!S.on[k]) { S.on[k] = 1; opSync(); } window.__vplays = []; mkGo(k); render(); await wait(120);
+      if (window.__vplays.some((p) => p.w === 'make')) auto.push(k);
+      const v = document.querySelector('.mk-vid video'); window.__vplays = []; if (v) v.click(); await wait(40); if (!window.__vplays.some((p) => p.w === 'make')) tap.push(k); }
+    return { auto, tap }; });
+  ok('P-10 움직임 줄이기 — ② 쪽 영상이 저절로 안 돈다 · 누르면 돈다 [LVID_ONCE]', r.auto.length === 0 && r.tap.length === 0, JSON.stringify(r));
+  ok('P-10 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
 await br.close(); srv.close();
