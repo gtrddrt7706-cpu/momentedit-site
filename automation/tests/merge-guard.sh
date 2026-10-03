@@ -13709,3 +13709,10 @@ chk 'PRICE_SAME' order-preview.html 1
 chk 'RING_STAGE' order-preview.html 1
 chk 'RING_STAGE' assets/ritual-open.js 2
 nochk "out.push(\['반지를 건넬" assets/ritual-open.js 0
+# ★[R5 2026-10-03 식순 라운드 점검 5] 덕담 «원고 없이»를 덮어쓰던 단추 · 만들기를 다 쓴 줄 완료 · 식전 영상 뺀 식순의 목소리 창 · ④ 남은 갈래 · 부모님께 인사 머리말 · 어르신 모실 분
+chk 'R5-01' order-preview.html 1
+chk 'R5-02' order-preview.html 1
+chk 'function _vsMk()' order-preview.html 1
+chk 'R5-04' order-preview.html 1
+chk 'R5-05' order-preview.html 1
+chk "'양가 한 분씩 · 사진 때'" assets/ritual-open.js 1
