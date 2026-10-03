@@ -57,20 +57,34 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' ② 진행 줄 아래 «안내 목소리 · AI 두 분 목소리 · 나레이션 자세히»(누를 곳 44 · 머리 알약 줄에는 없음)', pill && /안내 목소리 · AI 두 분 목소리/.test(pill.t) && /나레이션 자세히/.test(pill.t) && pill.h >= 44 && !pill.pills, JSON.stringify(pill));
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(1800);
   if (SHOT) { await pg.evaluate(() => { try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(300); await pg.screenshot({ path: `${SHOT}/vs-guest-${W}.png` }); }
-  const cmp = await pg.evaluate(() => { const b = document.querySelector('[data-fk^="mknar:"],[data-fk^="mknarall:"]');   /* [R1-09] 비교해 듣기는 칸 머리 한 번(mknarall) */ if (!b) return { b: false }; b.click(); return { b: true, k: b.getAttribute('data-fk'), a: __aud[__aud.length - 1] || '' }; });
-  ok(W + ' AI 줄 카드 «스튜디오 나레이션과 비교해 듣기» → 그 자리의 나레이션 파일', cmp.b && /\/narration\/.*\.mp3$/.test(cmp.a), JSON.stringify(cmp));
+  /* ★[AI_NOTE_OFF 2026-10-03 사장님] 종전 «AI 줄 카드에 «스튜디오 나레이션과 비교해 듣기» → 나레이션 파일» → 이제 «그 한 줄(글은 두 분 말로 … · 비교해 듣기) · 줄마다 «만들면 저절로 채워져요» 없음» */
+  const cmp = await pg.evaluate(() => ({ btn: document.querySelectorAll('[data-fk^="mknar:"],[data-fk^="mknarall:"]').length, t: document.querySelector('.mk-pg').textContent }));
+  ok(W + ' AI 줄 카드 — «글은 두 분 말로 고쳐도 돼요 · 스튜디오 나레이션과 비교해 듣기» 없음 · «목소리를 만들면 이 줄이 저절로 채워져요» 없음 [AI_NOTE_OFF]', cmp.btn === 0 && !/비교해 듣기|두 분 말로 고쳐도 돼요|저절로 채워져요/.test(cmp.t), JSON.stringify({ btn: cmp.btn }));
   /* ★[LINE_EDIT] AI 자리의 줄 글을 두 분이 고친다 — 글칸 · 시작 1분 전은 앞 두 문장 고정 · 고치면 «다시 만들어 주세요» → 새 글로 만든다 */
   const le0 = await pg.evaluate(() => { const ta = document.querySelector('[data-fk="mkvt:g0"]'), fx = document.querySelector('.mk-vtfix'), t3 = document.querySelector('[data-fk="mkvt:g3"]');
     return { ta: !!ta, v: ta ? ta.value : '', fix: fx ? fx.textContent : '', t3: t3 ? t3.value : '', vtx: document.querySelectorAll('.mk-vcards .mk-vtx:not(.mk-vtfix)').length }; });
-  ok(W + ' AI 자리 줄 카드 — 글이 고칠 수 있는 칸 · 시작 1분 전은 «미리 준비한 안내 음성» 두 문장을 고정으로 두고 그 뒤만 칸 [LINE_EDIT]', le0.ta && /^저희 두 사람의 결혼식에/.test(le0.v) && /미리 준비한 안내 음성/.test(le0.fix) && !/미리 준비한 안내 음성/.test(le0.t3) && le0.t3.length > 0 && le0.vtx === 0, JSON.stringify(le0).slice(0, 300));
+  /* ★[G3_OPEN 2026-10-03 사장님 «고정 유지 하지 마»] 종전 «시작 1분 전은 앞 두 문장 고정 · 그 뒤만 칸» → 이제 «글 전체가 한 칸(기본 글 그대로 보임) · 고정 문장 없음» */
+  ok(W + ' AI 자리 줄 카드 — 글이 고칠 수 있는 칸 · 시작 1분 전도 글 전체가 한 칸(«미리 준비한 안내 음성» 포함) · 고정 문장 없음 [LINE_EDIT · G3_OPEN]', le0.ta && /^저희 두 사람의 결혼식에/.test(le0.v) && !le0.fix && /^곧 저희 예식이 시작됩니다\. 오늘 예식은 미리 준비한 안내 음성으로/.test(le0.t3) && le0.t3 === (await pg.evaluate(() => GUEST[3][2])) && le0.vtx === 0, JSON.stringify(le0).slice(0, 300));
   await pg.evaluate(() => mkGuestWho(3, 'g')); await pg.waitForTimeout(1500);   // 시작 1분 전을 신랑(목소리 있음)으로
   await pg.fill('[data-fk="mkvt:g3"]', '조금 뒤에 뵙겠습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(300);
   const le1 = await pg.evaluate(() => ({ need: _recNeed('g3'), btn: (document.querySelector('[data-fk="mkai:g3"]') || {}).textContent || '', st: ((document.querySelector('[data-fk="mkvt:g3"]') || {}).closest ? document.querySelector('[data-fk="mkvt:g3"]').closest('.mk-vc').textContent : ''), reset: !!document.querySelector('[data-fk="mkvtreset:g3"]') }));
-  ok(W + ' 글을 고치면 읽을 글 = 고정 두 문장 + 고친 글 · «글을 고쳤어요» · [새 글로 다시 만들기] · [처음 글로]', /미리 준비한 안내 음성.* 조금 뒤에 뵙겠습니다\.$/.test(le1.need) && le1.btn === '새 글로 다시 만들기' && /글을 고쳤어요/.test(le1.st) && le1.reset, JSON.stringify(le1).slice(0, 300));
+  /* [G3_OPEN] 종전 «읽을 글 = 고정 두 문장 + 고친 글» → «읽을 글 = 고친 글 그대로» · «안내 음성»이 빠지면 막지 않는 권함 한 줄 */
+  const rem1 = await pg.evaluate(() => { const r = document.getElementById('mkG3Rem'); return r ? { shown: !r.hidden, t: r.textContent, cls: r.className } : null; });
+  ok(W + ' 글을 고치면 읽을 글 = 고친 글 그대로 · «글을 고쳤어요» · [새 글로 다시 만들기] · [처음 글로] · «안내 음성»이 빠지면 권함 한 줄(mk-note) [G3_OPEN]', le1.need === '조금 뒤에 뵙겠습니다.' && le1.btn === '새 글로 다시 만들기' && /글을 고쳤어요/.test(le1.st) && le1.reset && !!rem1 && rem1.shown && rem1.t === '하객께 미리 준비한 안내 음성이라는 걸 알리는 말을 남겨 두시면 좋아요' && /mk-note/.test(rem1.cls), JSON.stringify({ le1, rem1 }).slice(0, 400));
+  await pg.fill('[data-fk="mkvt:g3"]', '곧 시작합니다. 오늘은 미리 준비한 안내 음성으로 진행돼요. 조금 뒤에 뵙겠습니다.'); await pg.waitForTimeout(150);
+  const rem2 = await pg.evaluate(() => ({ hidden: document.getElementById('mkG3Rem').hidden, need: _recNeed('g3') }));
+  ok(W + ' «안내 음성»을 되살리면 권함 한 줄이 바로 사라진다(다시 그리지 않아도) [G3_OPEN]', rem2.hidden && /안내 음성/.test(rem2.need), JSON.stringify(rem2));
+  await pg.fill('[data-fk="mkvt:g3"]', '조금 뒤에 뵙겠습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkai:g3"]'); await pg.waitForTimeout(1500);
   ok(W + ' [새 글로 다시 만들기] → 새 글로 다시 만든다', await pg.evaluate(() => { const v = S.up.g3; return !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))) && !document.querySelector('[data-fk="mkai:g3"]'); }));
   await pg.click('[data-fk="mkvtreset:g3"]'); await pg.waitForTimeout(300);
   ok(W + ' [처음 글로] → 처음 글 · 다시 «다시 만들어 주세요»', await pg.evaluate(() => _recNeed('g3') === GUEST[3][2] && !!document.querySelector('[data-fk="mkai:g3"]')));
+  /* ★[G3_OPEN] 옛 초안 옮기기 — S.vtext.g3 에 «앞 두 문장 뒤»만 있던 초안 → 글 전체(앞 두 문장 + 뒤) · 그 글로 만든 AI 소리는 «다시 만들어 주세요»가 안 뜬다 · 두 번 불러도 한 번만 */
+  const mg = await pg.evaluate(() => { const head = _g3Split()[0], tail = '조금 뒤에 뵙겠습니다.', keep = { vt: JSON.stringify(S.vtext || {}), up: S.up.g3, open: S.g3Open };
+    S.vtext = S.vtext || {}; S.vtext.g3 = tail; S.up.g3 = { src: 'ai', id: 'local:m', tx: _txSig(head + ' ' + tail), by: _vcLineWho('g3') }; delete S.g3Open;
+    _g3Open(); const a = { v: S.vtext.g3, stale: _txStale('g3'), open: S.g3Open }; _g3Open(); a.v2 = S.vtext.g3; a.head = head;
+    S.vtext = JSON.parse(keep.vt); S.up.g3 = keep.up; S.g3Open = keep.open; return a; });
+  ok(W + ' 옛 «뒤만» 초안 → 글 전체(앞 두 문장 + 뒤) · 만든 AI 소리는 그대로 맞음(stale 아님) · 두 번 불러도 한 번만 [G3_OPEN]', mg.v === mg.head + ' 조금 뒤에 뵙겠습니다.' && /미리 준비한 안내 음성/.test(mg.v) && !mg.stale && mg.open === 1 && mg.v2 === mg.v, JSON.stringify(mg).slice(0, 300));
   await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400);
   const d4 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', ai: d ? d.querySelector('[data-fk="mkvs:ai"]').getAttribute('aria-pressed') : '' }; });
   ok(W + ' «나레이션 자세히»를 누르면 고르기부터 · 지금 값(AI)이 눌린 모양', d4.t === '안내 목소리 정하기' && d4.ai === 'true', JSON.stringify(d4));
@@ -93,6 +107,47 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);
   const p2 = await pg.evaluate(() => !!document.querySelector('.mk-pg [data-fk="mkplay"]'));
   ok(W + ' 줄 하나(첫인사)엔 «이 순간 들어 보기» 없음 · 여럿(하객 맞이)엔 있음 [PLAY_ONE]', !p1 && p2, JSON.stringify({ p1, p2 }));
+  /* ★★[VT_KEEP_SWITCH 2026-10-03 사장님 «AI 두 분 목소리로 글을 적다가 스튜디오 나레이션으로 바꿨다가 다시 AI 로 오면 적은 글이 그대로»]
+     하객 맞이 g1 · 식전 영상 소개글 · 입장 멘트 — 적고(칸에서 나가지 않은 채) 바로 스튜디오 → 다시 AI. 글이 한 글자도 같고 · 기본 글로 바뀌지 않고 · S.vtext 키가 줄지 않는다 */
+  await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; S.vsChip = 1; S.on.prevideo = 1; opSync(); });
+  const vk = {};
+  for (const [k, key, sel] of [['guest', 'guestVoice', '[data-fk="mkvt:g1"]'], ['prevideo', 'pvVoice', '#mkPvTa'], ['entry', 'entryVoice', '[data-fk="mkvt:entry"]']]) {
+    await pg.evaluate((k) => { mkGo(k); render(); }, k); await pg.waitForTimeout(400);
+    if (!(await pg.$(`[data-fk="lsc:${key}:ai"]`))) { vk[k] = 'no-ai-chip'; continue; }
+    if ((await pg.getAttribute(`[data-fk="lsc:${key}:ai"]`, 'aria-checked')) !== 'true') { await pg.click(`[data-fk="lsc:${key}:ai"]`); await pg.waitForTimeout(400); }
+    if (!(await pg.$(sel))) { vk[k] = 'no-box'; continue; }
+    const keys0 = await pg.evaluate(() => Object.keys(S.vtext || {}));
+    await pg.click(sel); await pg.keyboard.press('End'); await pg.keyboard.type(' 우리 말로 고쳤어요'); 
+    const typed = await pg.$eval(sel, (e) => e.value);
+    await pg.click(`[data-fk="lsc:${key}:nar"]`); await pg.waitForTimeout(350);   /* 칸에서 나가지 않은 채 바로 */
+    const mid = await pg.evaluate((a) => ({ vt: JSON.stringify(S.vtext || {}), pv: S.pvText || '', up: Object.keys(S.up || {}).length, v: (document.querySelector('[data-fk="lsc:' + a.key + ':nar"]') || {}).getAttribute ? document.querySelector('[data-fk="lsc:' + a.key + ':nar"]').getAttribute('aria-checked') : '' }), { k, key });   /* v = 정말 스튜디오로 바뀌었나(칩 aria-checked · 칸에서 나올 때 다시 그려져 누르기가 삼켜지면 이 검사는 헛돈다 · 깨 보고 찾았다 [BLUR_TAP]) */
+    await pg.click(`[data-fk="lsc:${key}:ai"]`); await pg.waitForTimeout(400);
+    const back = await pg.$eval(sel, (e) => e.value).catch(() => '(칸 없음)');
+    const keys1 = await pg.evaluate(() => Object.keys(S.vtext || {})), backV = await pg.getAttribute(`[data-fk="lsc:${key}:ai"]`, 'aria-checked').catch(() => '');
+    const def = await pg.evaluate((k) => (k === 'prevideo' ? '' : _vtDef(k === 'guest' ? 'g1' : 'entry')), k);
+    vk[k] = { same: back === typed, notDefault: back !== def && /우리 말로 고쳤어요$/.test(back), keysKept: keys0.every((x) => keys1.includes(x)), midKept: k === 'prevideo' ? /우리 말로 고쳤어요/.test(mid.pv) : /우리 말로 고쳤어요/.test(mid.vt), switched: mid.v === 'true' && backV === 'true', mv: mid.v, bv: backV };
+  }
+  ok(W + ` 적다가 스튜디오 → 다시 AI — 하객 맞이 · 식전 영상 소개글 · 입장 멘트 글이 그대로 · 기본 글로 안 바뀜 · 저장된 키가 줄지 않음 · 스튜디오인 동안에도 지워지지 않음 [VT_KEEP_SWITCH]`, Object.values(vk).every((x) => x && x.switched && x.same && x.notDefault && x.keysKept && x.midKept), JSON.stringify(vk));
+  /* [VT_KEEP_SWITCH] 창(«나레이션 자세히» → 스튜디오 나레이션 → 다시 AI · 세 자리를 한꺼번에)으로 바꿔도 같다 */
+  await pg.evaluate(() => { mkGo('guest'); render(); }); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="mkvt:g2"]'); await pg.keyboard.press('End'); await pg.keyboard.type(' 창으로 바꿔도');
+  const t2 = await pg.$eval('[data-fk="mkvt:g2"]', (e) => e.value);
+  await pg.evaluate(() => document.activeElement && document.activeElement.blur()); await pg.waitForTimeout(300);   /* 창 단추는 화면 위쪽 — 칸에서 먼저 나온다(칸에서 나오면 다시 그려진다) */
+  await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:nar"]'); await pg.waitForTimeout(400);
+  const midW = await pg.evaluate(() => ({ v: S.guestVoice, g2: (S.vtext || {}).g2 || '' }));
+  await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:ai"]'); await pg.waitForTimeout(500);
+  const backW = await pg.$eval('[data-fk="mkvt:g2"]', (e) => e.value).catch(() => '(칸 없음)');
+  ok(W + ' 창으로 스튜디오 → 다시 AI 해도 하객 맞이 g2 글이 그대로 [VT_KEEP_SWITCH]', midW.v === 'nar' && midW.g2 === t2 && backW === t2, JSON.stringify({ midW, backW: backW.slice(-12), t2: t2.slice(-12) }));
+  /* ★[LINE_NO_SEC 2026-10-03 사장님] 줄 카드 머리의 «약 n초»는 없다(AI · 직접 녹음 판 모두) — 덧말(«식전 영상이 끝난 뒤에 흘러요» · «두 분이 한 문장씩 번갈아»)은 홀로 · 빈 덧말 줄 없음 · 소개글을 적어도 머리에 초가 안 생긴다 */
+  const ls = {};
+  for (const [k, v] of [['guest', 'ai'], ['prevideo', 'ai'], ['entry', 'ai'], ['guest', 'couple'], ['entry', 'couple']]) {
+    await pg.evaluate(([k, v]) => { const key = k === 'guest' ? 'guestVoice' : k === 'prevideo' ? 'pvVoice' : 'entryVoice'; VS.inPick = true; try { _lSet(key, v); } finally { VS.inPick = false; } VS.open = false; opSync(); mkGo(k); render(); }, [k, v]); await pg.waitForTimeout(350);
+    if (k === 'prevideo') { const ta = await pg.$('#mkPvTa'); if (ta) { await ta.click(); await pg.keyboard.type('짧은 소개'); } }
+    ls[k + ':' + v] = await pg.evaluate(() => ({ heads: [...document.querySelectorAll('.mk-vc .mk-vhd')].map((h) => h.textContent.replace(/\s+/g, ' ').trim()), empty: [...document.querySelectorAll('.mk-vc .mk-vs')].filter((x) => !x.textContent.trim()).length }));
+  }
+  const allHeads = Object.values(ls).flatMap((x) => x.heads);
+  const g3 = (ls['guest:ai'].heads.find((h) => /시작 1분 전/.test(h)) || '');
+  ok(W + ` 줄 카드 머리에 «약 n초» 없음(${allHeads.length}장) · 덧말은 홀로(«${g3.replace('시작 1분 전', '').trim().slice(0, 24)}») · 빈 덧말 줄 0 [LINE_NO_SEC]`, allHeads.length >= 8 && !allHeads.some((h) => /약\s?\d+\s?초/.test(h)) && Object.values(ls).every((x) => x.empty === 0) && /^시작 1분 전\s*식전 영상이 끝난\s*뒤에\s*흘러요/.test(g3), JSON.stringify(ls).slice(0, 500));
   ok(W + ' 화면 오류 없음', errs.length === 0, errs.slice(0, 2).join(' | '));
   await ctx.close();
 }
