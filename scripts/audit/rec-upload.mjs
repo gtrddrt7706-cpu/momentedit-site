@@ -45,7 +45,7 @@ for (const w of [360, 1280]) {
   ok(`${w} 안내 목소리 — 처음엔 안 눌린 모양 · 누르면 나레이션이 들리고 눌린 모양 · «고르기» · «흐름» 제목 없음 · AI 가 꺼지면 고를 것이 나레이션 하나라 칸이 없다 [CHIP_UNPICKED · MK_NO_HEADS · VP_NO_DIRECT]`, cu.before === 'false' && cu.tab === 0 && cu.after === 'true' && cu.q > 0 && !cu.heads.length && cu.off, JSON.stringify(cu));
   await pg.evaluate(() => { S.guestVoice = 'couple'; S.up = {}; opSync(); mkGo('guest'); render(); }); await pg.waitForTimeout(500);
   const t0 = await pg.evaluate(() => ({ prep: document.querySelectorAll('.mk-flow .vk-prep').length, no: document.querySelectorAll('.mk-flow .vk-prep .vk-st.no').length, narr: document.querySelectorAll('.mk-flow .vk-narr').length, rec: document.querySelectorAll('[data-fk^="mkrec:"]').length, file: document.querySelectorAll('[data-fk^="mkup:"]').length, play: document.querySelectorAll('.mk-vcards [data-fk^="mkvpl:"]').length, flow: document.querySelectorAll('.mk-flowsec').length }));   /* ★[VP_ONE_LIST] 흐름 목록은 줄 카드와 하나로 — 두 분 목소리 줄은 카드에만(▶ 는 카드 머리 · 식전 영상 쪽 4번 줄은 ▶ 없음) */
-  ok(`${w} 하객 맞이 — 두 분 목소리 줄에 흐름 목록 없이 줄 카드 하나로(▶ · [녹음] · [파일]) [VP_ONE_LIST] [VOICE_KIND · REC_UPLOAD]`, t0.prep === 0 && t0.flow === 0 && t0.play === 3 && t0.rec === 4 && t0.file === 4, JSON.stringify(t0));
+  ok(`${w} 하객 맞이 — 두 분 목소리 줄에 흐름 목록 없이 줄 카드 하나로(▶ · [녹음] · [파일]) [VP_ONE_LIST] [VOICE_KIND · REC_UPLOAD]`, t0.prep === 0 && t0.flow === 0 && t0.play === 4 /* [R8-09] 시작 1분 전 카드에도 ▶ */ && t0.rec === 4 && t0.file === 4, JSON.stringify(t0));
   /* ★[REC_DLG] [녹음] → 작은 창(읽을 글 · 누가 · 마이크 허용 안내 · [녹음 시작]) → [녹음 시작] 뒤에야 마이크 · 3 · 2 · 1 */
   await pg.click('[data-fk="mkrec:g0"]'); await pg.waitForTimeout(300);
   const c0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { ph: MK_REC && MK_REC.ph, dlg: !!d, role: d && d.querySelector('[role=dialog][aria-modal=true]') ? 1 : 0, txt: d ? (d.querySelector('.mk-rect') || {}).textContent || '' : '', mic: d ? /«허용»을 눌러 주세요/.test(d.textContent) : false, go: !!(d && d.querySelector('[data-fk="mkrecgo"]')), focus: document.activeElement && document.activeElement.getAttribute('data-fk'), inline: document.querySelectorAll('.mk-vcards .mk-recp').length, inert: !!document.querySelector('.wrap[inert]') }; });
@@ -166,7 +166,7 @@ for (const w of [360, 1280]) {
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(1200);
-  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /녹음은 이 기기에만 있어요\. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요/.test((document.querySelector('.pr-voice') || {}).textContent || ''), sw: /끝나고 내 목소리로 다시 들어 볼 수 있어요/.test((document.querySelector('.pr-voice') || {}).textContent || '') }));   // [PRACTICE_VOICE_0928 7-1]
+  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /녹음은 이 기기에만 있어요\. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요/.test((document.querySelector('.pr-voice') || {}).textContent || ''), sw: /끝나고 다시 들어 볼 수 있어요/.test(   /* [R8-16] «내 목소리로»는 제목이 말한다 */(document.querySelector('.pr-voice') || {}).textContent || '') }));   // [PRACTICE_VOICE_0928 7-1]
   await pg.click('[data-fk="prrec"]'); await pg.waitForTimeout(600);
   const n0 = out.length;
   await pg.evaluate(() => { lsPlayAll(); }); await pg.waitForTimeout(800);

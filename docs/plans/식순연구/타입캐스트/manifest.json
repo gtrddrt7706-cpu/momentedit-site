@@ -793,7 +793,7 @@
     {
       "no": "08",
       "id": "G2-D",
-      "label": "감성·시적",
+      "label": "감성 · 시적",
       "file": "entry-D",
       "role": "진행",
       "part": "2_진행_전반.txt",
@@ -824,7 +824,7 @@
     {
       "no": "09",
       "id": "G2-E",
-      "label": "감사·가족",
+      "label": "감사 · 가족",
       "file": "entry-E",
       "role": "진행",
       "part": "2_진행_전반.txt",
@@ -2517,7 +2517,7 @@
     {
       "no": "81",
       "id": "G12-1D",
-      "label": "입장 닫는 말 · 감성·시적",
+      "label": "입장 닫는 말 · 감성 · 시적",
       "file": "narr-entry-out-D",
       "role": "진행",
       "part": "6_예식뒤.txt",
@@ -2542,7 +2542,7 @@
     {
       "no": "82",
       "id": "G12-1E",
-      "label": "입장 닫는 말 · 감사·가족",
+      "label": "입장 닫는 말 · 감사 · 가족",
       "file": "narr-entry-out-E",
       "role": "진행",
       "part": "6_예식뒤.txt",

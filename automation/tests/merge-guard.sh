@@ -13563,7 +13563,7 @@ chk 'function admAiLine(d)' admin.html 1
 chk '식순지를 뽑은 뒤 AI 줄이 바뀌었어요 · 다시 뽑기' admin.html 1
 chk "의 목소리로 만든 AI 음성입니다.'" admin.html 1
 # ★[PRACTICE_VOICE_0928 · PRACTICE_READ_0928 7-1 · 7-2] 연습 녹음 · 연습 AI 읽기 문구 · 배지 · 말하는 사람 → 목소리 · 기기에 안 남김
-chk '내 차례를 녹음해요 · 끝나고 내 목소리로 다시 들어 볼 수 있어요' order-preview.html 1   # [R2-39]
+chk '내 차례를 녹음해요 · 끝나고 다시 들어 볼 수 있어요' order-preview.html 1   # [R2-39] · [R8-16] 제목 «내 목소리로 연습»과 겹말을 뺐다
 chk '>녹음은 이 기기에만 있어요. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요' order-preview.html 1   # [R2-39]
 chk '방금 연습 다시 듣기' order-preview.html 1
 chk '연습 녹음 모두 지우기' order-preview.html 1
@@ -13726,7 +13726,7 @@ nochk '현장에서 하세요</span>' order-preview.html 0   # [R7-02] «원고 
 chk '_bSiteRow' order-preview.html 2
 # [R7-01 … R7-09 2026-10-03 식순 라운드 점검 7] 취소는 읽는 사람도 지금 값 · 사람이 어긋난 AI 소리는 «다시 만들어 주세요» · 하객 입장 때 AI 기본 글 · 저장 뒤 취소 기준
 chk 'function _whoStale(key)' order-preview.html 1
-chk "'up','upPrev','vself','vtempo','guestWho','guestOne','pvWho'" order-preview.html 1
+chk 'WHO_IF_FILE' order-preview.html 1   # [R8-07] 읽는 사람은 파일이 바뀐 줄만 지금 값(R7-01 의 무조건 목록을 좁혔다)
 chk 'R7-01' scripts/audit/edit-cancel-files.mjs 2
 chk 'G0_KEEP' order-preview.html 2
 chk '자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요. 기다리시는 동안 편안히 머물러 주세요.' assets/ritual-data.js 1
@@ -13738,6 +13738,30 @@ chk 'b,strong{font-weight:600}' order-preview.html 1
 nochk 'Noto+Sans+KR:wght@400;500;600;700' order-preview.html 0
 chk 'R7-04' order-preview.html 3
 chk '<span id="mkPvH" class="sr-only">' order-preview.html 1
+# [R8-01 … R8-20 2026-10-03 식순 라운드 점검 8] 저장 중 취소 막기 · 수정 중 저장 알림 · 파일 없는 줄의 읽는 사람은 취소로 · 원고 없이 덕담은 원천에서 거름 · 흐림 걷기
+chk 'CANCEL_WAIT_SAVE' order-preview.html 1
+chk 'CANCEL_WAIT_SAVE' scripts/audit/edit-cancel-files.mjs 1
+chk 'EDIT_SAVED_MID' order-preview.html 1
+chk '저장해 둔 고침은 남아 있어요' order-preview.html 1
+chk 'WHO_IF_FILE' scripts/audit/edit-cancel-files.mjs 1
+chk '바뀐 분 목소리로 다시 만들기' order-preview.html 1
+chk '멘트를 바꿨어요' order-preview.html 1
+chk 'R8-04' order-preview.html 2
+chk 'R8-05' order-preview.html 1
+chk 'BLESS_SITE_PREP' assets/ritual-open.js 1
+chk 'R8-06' order-preview.html 1
+chk 'PIX_TWO' order-preview.html 1
+chk 'R8-11' order-preview.html 1
+chk 'R8-12' order-preview.html 1
+chk 'R8-13' order-preview.html 2
+chk 'REF_PILL_OFF' order-preview.html 1
+chk '위 두 문장은 그대로 나가요 · 아래 칸만 고칠 수 있어요' order-preview.html 1
+nochk 'backdrop-filter' order-preview.html 0
+chk 'R8-17' order-preview.html 2
+chk '.seqr:last-child,.seqr:has(+ .dmnote)' order-preview.html 1
+chk 'd:"감사 · 가족"' assets/ritual-data.js 1
+chk 'd:"감성 · 시적"' order-preview.html 1
+chk 'G0_MOVED_NOTE' order-preview.html 2
 chk 'R5-02' order-preview.html 1
 chk 'function _vsMk()' order-preview.html 1
 chk 'R5-04' order-preview.html 1
