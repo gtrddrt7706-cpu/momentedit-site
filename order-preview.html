@@ -1206,6 +1206,21 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-itag{font-size:12.5px;color:var(--light)}
 .mk-it.off{opacity:.5}
 .mk-it.off .mk-t{text-decoration:line-through}
+/* ★[NAV_FOLD 2026-10-03 사장님 «하나씩 만들기 윗부분은 접혀져 있는 상태로 시작 · 카테고리가 많아 지저분 · 더 좋은 개선방안 있으면 적용»]
+   ② 진행 순서 줄은 접힌 한 줄로 시작한다 — 왼쪽 «본식 n / N» · «식전 n / N»(쪽 제목 번호와 같은 셈 · + 미완료가 있으면 진사 글자로 «미완료 순간 n» · 점 없음 [TODO_NODOT]) · 오른쪽 «모든 순간 보기».
+   펼치면 종전 줄 그대로(390 한 줄 넘기기 [STRIP_ONE] · PC 줄바꿈 [MK_STRIP_WRAP] · 미완료 색 · 한눈에 보기 · + 순간 더하기 · ⓘ).
+   순간을 고르면 그 쪽으로 가며 다시 접힌다 · ② 에 들어올 때마다 접힌 채(저장하지 않는다). 앞뒤 화살표는 두지 않는다 — 아래 막대의 «이전 · 다음»이 같은 일을 한다.
+   펼침 표시는 가는 꺾쇠(FOLD_CHEVRON · ▾ 글자 금지). 크기 12.5(이 쪽의 RIT_TYPE5 · 줄의 탭과 같은 크기) · 굵기 600 이하 · 누르는 칸 44. */
+.mk-fold{display:flex;align-items:center;gap:8px;padding:0 16px;min-height:44px}
+.mk-pos{flex:1 1 auto;min-width:0;font-size:12.5px;letter-spacing:.04em;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-pos b{font-weight:600;color:var(--accent)}
+.mk-pos .mk-left{color:var(--seal)}
+.mk-fbtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 10px;border:0;background:none;color:var(--accent);font:inherit;font-size:12.5px;font-weight:600;letter-spacing:.04em;cursor:pointer}
+.mk-fbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.mk-chev{width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.mk-fbtn[aria-expanded="true"] .mk-chev{transform:translateY(2px) rotate(-135deg)}
+.mk-strip .mk-sc[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){ .mk-chev{transition:none} }
 .mk-todo{border-color:var(--accent);color:var(--accent)}
 .mk-add{border-style:dashed}
 .mk-toast{margin:0 0 12px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);font-size:12.5px;line-height:1.6;color:var(--ink2);word-break:keep-all}
@@ -2648,6 +2663,7 @@ function fillWarn(){
 var _fxNext=null, _lastSaid='', _lastNote='';   // [A11Y_FOCUS] 다시 그린 뒤 포커스를 보낼 곳 · [A11Y_LIVE] 마지막으로 읽힌 글
 function render(){
   var _ae0=document.activeElement;   // [ORD_KEY] 다시 그리기 전 포커스 위치 기억
+  try{ if(!(STEPS[idx]&&STEPS[idx].k==='listen')) MK.navOpen=false; }catch(e){}   // [NAV_FOLD] ② 밖이면 접는다 → ② 에 들어올 때마다(④ «변경»으로 와도) 접힌 채
   _stopAud();
   /* 임베드 나가기 — 표시·라벨을 한 곳에서 결정.
      [ORD_EXIT_ALWAYS 2026-08-03] 완성 화면에서도 띄운다. 사용자 제보: "홈으로 나가는 버튼이 어디에도 없는데?"
@@ -3695,16 +3711,32 @@ window.mkUndone=function(){ return _mkTodoN(); };   // ④ · 마이페이지가
 /* 진행 순서 줄 — 채운 칸(지금) · 체크(다 됨) · 빈 동그라미(미완료) · 흐리게+줄(뺀 순간) · 표시 없음(아직 안 봄). 색만으로 말하지 않는다 */
 function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
   /* [MK_TODO_PASSED] «미완료 N» 단추는 걷었다 — 미완료는 지나온 쪽의 빈 동그라미(진사)로만 · 모아 보기는 마지막 «한눈에 보기» */
-  var h='<nav class="mk-strip" id="mkStrip" aria-label="진행 순서"><div class="mk-sc">';
+  /* [NAV_FOLD] 접힌 한 줄 — 순간 수는 담은 순간만(고른 순서 쪽 · 한눈에 보기 · 뺀 순간 제외) · 미완료 = 줄에서 진사로 칠해지는 «지나온 미완료» 순간 수(_mkStat 그대로 · 새 판정 없음) */
+  var _mo=ps.filter(function(k){ return k!=='_intro'&&k!=='_sum'&&!_mkOff(k); }), _mi=_mo.indexOf(cur), _left=_mo.filter(function(k){ return _mkStat(k)==='todo'; }).length, _open=!!MK.navOpen;
+  /* 번호는 쪽 제목(«6 · 반지 교환») · 아래 단추(«다음 · 7 성혼 선언»)와 같은 셈 — 본식은 bodySeq 차례(닫는 인사까지) · 식전은 식전끼리. 한 화면에 두 번호가 다르면 안 된다 */
+  var _no=_mkNo(cur), _pre=_mo.filter(function(k){ return _mkNo(k)==='식전'; }), _bN=RitualOpen.bodySeq(S).length;
+  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'식전 <b>'+(_pre.indexOf(cur)+1)+'</b> / '+_pre.length:'본식 <b>'+_no+'</b> / '+_bN;
+  var h='<nav class="mk-strip" id="mkStrip" aria-label="진행 순서">'
+    +'<div class="mk-fold"><span class="mk-pos" data-fk="mkpos">'+_pos+(_left?'<span class="mk-left"> · 미완료 순간 '+_left+'</span>':'')+'</span>'
+    +'<button type="button" class="mk-fbtn" data-fk="mkfold" aria-expanded="'+_open+'" aria-controls="mkScP" onclick="mkFold()">'+(_open?'접기':'모든 순간 보기')+'<i class="mk-chev" aria-hidden="true"></i></button></div>'
+    +'<div class="mk-sc" id="mkScP"'+(_open?'':' hidden')+'>';
   ps.forEach(function(k){ if(k==='_intro') return; var st=_mkStat(k), no=_mkNo(k), on=(k===cur), _vk=(k==='_sum'||k==='_close')?null:_vmKind(k), _vp=_vk&&_vk.v==='prep'?_vk:null;
     var lab=(no&&no!=='식전'?no+' ':'')+_mkName(k)+(on?', 지금':'')+(st==='done'?', 다 됐어요':st==='todo'?', 미완료':st==='off'?', 뺀 순간':'')+(_vp?(_vp.ok?', 두 분 목소리 준비됨':', 두 분 목소리 아직'):'');
-    h+='<button type="button" class="mk-it'+(on?' cur':'')+(st?' '+st:'')+'" data-fk="mkg:'+k+'" aria-label="'+esc(lab)+'"'+(st==='todo'?' title="비어 있는 칸이 있어요"':'')+(on?' aria-current="step"':'')+' onclick="mkGo(\''+k+'\')">'
+    h+='<button type="button" class="mk-it'+(on?' cur':'')+(st?' '+st:'')+'" data-fk="mkg:'+k+'" aria-label="'+esc(lab)+'"'+(st==='todo'?' title="비어 있는 칸이 있어요"':'')+(on?' aria-current="step"':'')+' onclick="mkNavGo(\''+k+'\')">'   /* [NAV_FOLD] 고르면 가고 접힌다 */
       +(st==='done'?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')   // [MK_TODO_DOT] 미완료 = 이름 오른쪽 위 점(CSS) · 앞 빈 동그라미는 걷었다
       +(_vp?'<span class="mk-wv'+(_vp.ok?' ok':'')+'" aria-hidden="true">'+VK_ICO.prep+'</span>':'')+'<span class="mk-t">'+esc(_mkName(k))+'</span></button>';   // [MK_STRIP_TEXT] 줄에는 번호를 안 쓴다 · [VOICE_MAP] 미리 준비 순간 = 작은 물결(준비되면 금빛)
   });
   h+='<button type="button" class="mk-it mk-add" data-fk="mkadd" onclick="opGoStep(\'pick\')">+ 순간 더하기</button>';
   h+='<button type="button" class="mk-it mk-vi" data-fk="mkvi" aria-label="목소리 지도 다시 보기" onclick="mkVoiceInfo()"><span aria-hidden="true">ⓘ</span></button>';   // [VOICE_MAP] 다시 보기
   return h+'</div></nav>'; }
+/* [NAV_FOLD] 펼치기 · 접기 — 줄만 바꾼다(다시 그리지 않아 초점이 단추에 남는다) · Esc 로 접기 */
+window.mkFold=function(open){ var nav=document.getElementById('mkStrip'); if(!nav) return; MK.navOpen=(open===undefined)?!MK.navOpen:!!open;
+  var sc=nav.querySelector('.mk-sc'), b=nav.querySelector('.mk-fbtn'); if(sc) sc.hidden=!MK.navOpen;
+  if(b){ b.setAttribute('aria-expanded',String(!!MK.navOpen)); b.firstChild.nodeValue=MK.navOpen?'접기':'모든 순간 보기'; }
+  if(MK.navOpen) _mkStripKeep(); };
+window.mkNavGo=function(k){ MK.navOpen=false; if(_mkRO().at===k){ mkFold(false); var b=document.querySelector('#mkStrip .mk-fbtn'); if(b) try{ b.focus({preventScroll:true}); }catch(e){} return; } mkGo(k); };
+document.addEventListener('keydown',function(e){ if(e.key!=='Escape'||!MK.navOpen) return; var nav=document.getElementById('mkStrip'); if(!nav||!nav.contains(document.activeElement)) return;
+  e.preventDefault(); e.stopPropagation(); mkFold(false); var b=nav.querySelector('.mk-fbtn'); if(b) try{ b.focus({preventScroll:true}); }catch(x){} },true);   /* [NAV_FOLD] 빌더의 Esc(저장 후 나가기)보다 먼저 — 펼친 줄 안에서만 */
 function _mkStripKeep(){ try{ var s=document.querySelector('#mkStrip .mk-sc'), c=s&&s.querySelector('.mk-it.cur'); if(c){ var l=c.offsetLeft-(s.clientWidth-c.offsetWidth)/2; s.scrollLeft=Math.max(0,l); } }catch(e){} }
 /* 넘길 때 한 줄(막지 않음 · INCOMPLETE_SOFT) */
 function _mkLeaveMsg(k){ if(!k||k==='_sum'||_mkOff(k)) return '';
@@ -3728,7 +3760,7 @@ window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;  
     /* [R2-17] «나중에 언제든»은 근거 없는 안심(마감이 있다) · AI 판은 «AI 두 분 목소리»(_mkLeaveMsg) */
     ordAsk({title:hd+(/칸이 비어 있어요\.?$/.test(body)?' · 아직 비어 있어요':' · 아직 남은 일이 있어요'),   /* [R4-11] 빈 칸이 없는 쪽(부탁 · 보낼 것만 남음)은 «비어 있어요»가 아니다 */body:body+' 미완료로 두고 넘어갈게요. «한눈에 보기»에서 다시 찾을 수 있어요',yes:'다음으로',no:'돌아가서 채우기'}).then(function(ok){ if(ok) _mkGoNow(k); }); return; }
   _mkGoNow(k); };
-function _mkGoNow(k){ var m=_mkState(); m.at=k; m.seen[k]=1; LS.open=k;
+function _mkGoNow(k){ var m=_mkState(); m.at=k; m.seen[k]=1; LS.open=k; MK.navOpen=false;   /* [NAV_FOLD] 쪽이 바뀌면 접힌다(줄에서 골라도 · 아래 «다음»으로 가도) */
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
   _fxNext='#mkHead'; try{ window.scrollTo(0,0); }catch(e){} }
 function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i],d>0); return true; }   // [LEAVE_POP] 다음으로 갈 때만 묻는다
