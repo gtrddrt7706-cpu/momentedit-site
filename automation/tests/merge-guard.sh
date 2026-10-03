@@ -8923,6 +8923,13 @@ chk 'function renderListen' order-preview.html 1
 chk "if(k==='listen') return isOpen()?renderMake():renderListen();" order-preview.html 1   # [FLOW_MAKE] 새 코스 ② = 하나씩 만들기 · 옛 코스는 renderListen 그대로
 chk 'STEPDEF.pick,STEPDEF.listen,STEPDEF.practice,STEPDEF.done' order-preview.html 1   # [FLOW_MAKE · PRACTICE_STEP] ③ = 연습하기(옛 write 준비하기는 걷었다)
 chk 'VIDEO_READY' assets/ritual-open.js 3
+# ★[VIDEO_IN_1003 2026-10-03] 사장님 순간영상 v2 16편이 들어왔다 — VIDEO_READY 16편 · assets/video/moments/ 에 mp4 + webp + 640.webp 세 벌씩(48개).
+#   목록이 비거나 줄면 ① 칸 · ② · ④ 가 함께 글 한 줄로 돌아간다. 목록 = 디스크 · 칸 그림 · ② 이름표는 listen-page V-1~V-4 가 실브라우저로 잰다(위 실행 줄).
+chk 'VIDEO_IN_1003' assets/ritual-open.js 1
+chk "'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close'" assets/ritual-open.js 1
+nochk 'var VIDEO_READY = \[\];' assets/ritual-open.js
+chk 'VIDEO_IN_1003' scripts/audit/listen-page.mjs 5
+chk 'VIDEO_IN_1003' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
 chk 'S.entryScene' order-preview.html 1

@@ -12,8 +12,11 @@
 //   ⑦ 칩을 누르면 그 판으로 바로 다시 들린다 · 빼기 · 넣기 한 줄 안내(을/를)
 //   ⑧ 옛 코스(가족) 초안은 지금 화면 그대로 — 순간마다의 화면이 선다(회귀 0)
 //
-// ★장면 영상은 아직 한 편도 없다(VIDEO_READY 빈 목록). 그래서 ③·④ 는 ffmpeg 로 2초짜리 시험 영상을 만들어
-//   가짜로 두 편(candle · vow)을 «들어온 것처럼» 끼워 잰다. ffmpeg 이 없으면 그 두 줄은 «못 쟀다»로 찍고 종료코드 2.
+// ★[VIDEO_IN_1003 2026-10-03] 장면 영상 16편이 들어왔다(VIDEO_READY 16 · assets/video/moments/). 그래서
+//   ① opt.videos 는 목록을 «그 이름들로 바꾼다»(더하지 않는다) — 두 편 · 빈 목록 · 17편 검사가 들어온 판과 섞이지 않고 제 뜻대로 잰다.
+//   ② 영상이 없는 판(3-7)은 videos: [] 로 그 상태를 만들어 그대로 잰다(빈 상자 금지 검사는 살아 있다).
+//   ③ 들어온 판 그대로는 «V» 블록이 잰다 — 목록 = 디스크 · 세 파일 · 칸 그림이 실제로 뜬다 · ② 쪽 영상과 AI 이름표.
+//   ③·④ 자동 재생은 ffmpeg 로 2초짜리 시험 영상을 만들어(헤드리스는 H.264 를 못 푼다) 같은 주소로 준다. ffmpeg 이 없으면 «못 쟀다»로 찍고 종료코드 2.
 // ★종료 코드 [CANT_LOOK] 0 = 통과 · 1 = 실패 · 2 = 재지 못함(도구 없음)
 import fs from 'node:fs';
 import os from 'node:os';
@@ -35,7 +38,7 @@ let TV = null;
 try { TV = path.join(os.tmpdir(), 'listen-page-test.webm'); execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'color=c=0xEDEBE6:s=320x180:d=2', '-c:v', 'libvpx-vp9', '-b:v', '100k', '-an', TV]); }
 catch (e) { TV = null; }
 
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.css': 'text/css', '.svg': 'image/svg+xml' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
 const srv = http.createServer((q, r) => {
   const u = decodeURIComponent(q.url.split('?')[0]);
   const p = (TV && /\/assets\/video\/moments\/.+\.mp4$/.test(u)) ? TV : path.join(ROOT, u);
@@ -54,7 +57,7 @@ async function open(w, opt) {
   if (opt.videos) await pg.addInitScript((vs) => { window.__LISTEN_TEST_VIDEOS = vs; }, opt.videos);
   if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
-  if (opt.videos) await pg.evaluate(() => { (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });
+  if (opt.videos) await pg.evaluate(() => { RitualOpen.VIDEO_READY.length = 0; (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });   /* [VIDEO_IN_1003] 바꾼다 · 더하지 않는다 */
   return { ctx, pg, errs, ext };
 }
 /* [PICK_V2 2026-09-26] PC(폭 1000 이상)의 ① 은 아래 단추 줄을 숨긴다 — «다음 · 하나씩 만들기»는 흐름 띠(.pk-go)에 있다 */
@@ -212,7 +215,7 @@ for (const w of [390, 1280]) {
 }
 // [코워크 회신3 3장] ①②③④ 가 같은 말을 한다 — DONE_UNIFY · SCRIPT_ENGINE · LAB_FIX · PREP_DUE · HEAD_ONE · NO_EMPTY_BOX · STUDIO_PREP
 {
-  const { ctx, pg, errs } = await open(390);
+  const { ctx, pg, errs } = await open(390, { videos: [] });   /* [VIDEO_IN_1003] 3-7 은 «영상이 없는 판»의 검사 — 그 판을 만들어 잰다 */
   await toPick(pg);
   ok('3-5 ① 머리 = 네 걸음 표시 하나(옛 눈썹 · 막대 · 순서 n/N 숨김) · 처음부터 다시 만들기는 걸음 아래', await pg.evaluate(() => document.body.classList.contains('op4') && getComputedStyle(document.getElementById('pnow')).display === 'none' && getComputedStyle(document.querySelector('.prog-bar')).display === 'none'));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
@@ -612,6 +615,28 @@ else {
   ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌 + «부모님이 하실 때 ›» → 누르면 덕담 다섯 벌(고른 넷 + 한 분이 하실 때) [REF_BEST4]', e.free0 === 4 && e.par && e.free1 === 9, JSON.stringify(e));
   ok('13 «이 예시로 시작하기» — 빈 두 칸을 채우고 단추는 사라진다 · 예시 속 이름이 남으면 한 줄 알림 [EX_NAMES]', e.filled && e.startGone && /예시 속 이름 «.+»이 남아 있어요/.test(e.warn), JSON.stringify(e));
   ok('13 pageerror 0', errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★[VIDEO_IN_1003 2026-10-03] 들어온 판 그대로 — 목록을 손대지 않고 연다(opt.videos 없음) */
+{
+  const DIR = path.join(ROOT, 'assets/video/moments');
+  const disk = fs.existsSync(DIR) ? fs.readdirSync(DIR) : [];
+  const { ctx, pg, errs } = await open(390);
+  const ready = await pg.evaluate(() => RitualOpen.VIDEO_READY.slice());
+  const lack = ready.filter((n) => !['.mp4', '.webp', '-640.webp'].every((x) => disk.includes(n + x)));
+  const stray = disk.filter((f) => !ready.some((n) => f === n + '.mp4' || f === n + '.webp' || f === n + '-640.webp'));
+  ok(`V-1 목록 ${ready.length}편 = 디스크 — 이름마다 mp4 · webp · 640.webp 셋 · 목록 밖 파일 0 [VIDEO_IN_1003]`, ready.length === 16 && lack.length === 0 && stray.length === 0 && disk.length === ready.length * 3, JSON.stringify({ lack, stray }));
+  const keys = await pg.evaluate(() => { const R = RitualOpen, o = {}; R.ORDER.concat(['_close']).forEach((k) => { o[k] = R.videoKeys(k, S).filter((n) => !R.videoOf(n)); }); return o; });
+  const asked = await pg.evaluate(() => { const R = RitualOpen, a = {}; R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => { a[n] = 1; })); return Object.keys(a); });
+  ok('V-2 들어온 16편은 모두 화면이 찾는 이름(안 쓰는 파일 0)', ready.every((n) => asked.includes(n)), JSON.stringify(ready.filter((n) => !asked.includes(n))));
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(900);
+  const tl = await pg.evaluate(async () => { const im = [...document.querySelectorAll('.pk-tile img')]; await Promise.all(im.map((i) => (i.decode ? i.decode().catch(() => 0) : 0)));
+    return { n: im.length, ok: im.filter((i) => i.naturalWidth === 640 && /-640\.webp$/.test(i.getAttribute('src'))).length, ai: document.querySelectorAll('.pk-tile .pk-ai').length, vids: document.querySelectorAll('.pk-tile video').length, note: !!document.querySelector('.pk-ainote') }; });
+  ok('V-3 ① 칸 그림 = 실제 첫 장면 640 판이 뜬다(빈 그림 0) · 칸마다 «AI» · 칸에 영상 0 · 한 줄 안내', tl.n >= 8 && tl.ok === tl.n && tl.ai === tl.n && tl.vids === 0 && tl.note, JSON.stringify(tl));
+  await clickNext(pg); await pg.waitForTimeout(1200); await pg.evaluate(() => { mkGo('ring'); render(); }); await pg.waitForTimeout(500);
+  const mk = await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'), b = document.querySelector('.mk-vid'); return { src: v ? v.getAttribute('src') : '', poster: v ? v.getAttribute('poster') : '', ai: b ? /AI로 만든 장면/.test(b.textContent) : false }; });
+  ok('V-4 ② 반지 쪽 = ring.mp4 · 첫 장면 ring.webp · «AI로 만든 장면» 이름표', /moments\/ring\.mp4$/.test(mk.src) && /moments\/ring\.webp$/.test(mk.poster) && mk.ai, JSON.stringify(mk));
+  ok('V pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
 await br.close(); srv.close();
