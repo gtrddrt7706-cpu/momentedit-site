@@ -13584,6 +13584,11 @@ chk 'VC_FLOW_SIM' scripts/audit/vc-flow-sim.mjs 1
 #   AI 목소리 횟수 한도(줄마다 5번 · 예식마다 50번 · 연습 2만 자)를 걷고 예식당 글자 예산 20만 자 하나로 — 횟수 한도를 되살리지 말 것.
 #   목소리 만들기(enroll) 3번은 «칸» 문제라 남겼다(타입캐스트 답을 보고 정함).
 chk 'VC_BUDGET' automation/platform/80_production.gs 4
+chk 'VC_NO_COUNT' automation/platform/80_production.gs 3   # 목소리 만들기 «한 분 3번» 걷음(사장님 10/3)
+chk 'enroll: 20,' automation/platform/80_production.gs 1
+nochk '번까지예요 · 직접 녹음' automation/platform/80_production.gs
+nochk "번 남음</button>" order-preview.html
+chk 'VC_NO_COUNT' order-preview.html 1
 chk 'budget: 200000' automation/platform/80_production.gs 1
 nochk 'VC_LIM.perKey' automation/platform/80_production.gs
 nochk 'VC_LIM.practiceChars' automation/platform/80_production.gs

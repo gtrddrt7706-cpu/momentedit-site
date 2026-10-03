@@ -67,6 +67,15 @@ w2api.fetch = ((orig) => (url, q) => { const p = url.replace('https://api.typeca
 r = w.call({ op: 'enroll', who: 'groom', sec: 60, data: 'data:audio/wav;base64,AAAA' });
 ok('다시 만들기 → 복제가 먼저 · 앞 목소리(uc_a) 지우기는 그 뒤 · renewed', r.ok && r.renewed && JSON.stringify(w.calls) === JSON.stringify(['POST /v1/custom-voices/instant-clone', 'DELETE /v1/custom-voices/uc_a']) && w.st().groom.voiceId === 'uc_b', JSON.stringify(w.calls));
 ok('다시 읽으면 앞 읽은 녹음은 휴지통', Object.values(w.files).filter((f) => /^읽은 녹음/.test(f.name) && !f.trash).length === 1);
+/* ★[VC_NO_COUNT 2026-10-03 사장님] 목소리 만들기 «한 분 3번»을 걷었다 — 네 번째 · 다섯 번째도 된다 · 안전장치 20번 · 시험 예식(VOICE_STUDIO_CODES)은 그것도 없다 */
+{ const rs = []; for (let i = 0; i < 4; i++) { w.call({ op: 'phrase', who: 'groom' }); rs.push(w.call({ op: 'enroll', who: 'groom', sec: 60, data: 'data:audio/wav;base64,AAAA' })); }
+  ok('[VC_NO_COUNT] 같은 분이 세 번 넘게 다시 만들어도 막히지 않음 · status 의 left 가 0 이 아님', rs.every((x) => x.ok) && w.st().groom.tries >= 6 && w.call({ op: 'status' }).groom.left > 0, JSON.stringify(rs.map((x) => x.ok)) + ' tries ' + w.st().groom.tries);
+  const st = w.st(); st.groom.tries = 20; w.props.VC_ME0001 = JSON.stringify(st); w.call({ op: 'phrase', who: 'groom' });
+  const cap = w.call({ op: 'enroll', who: 'groom', sec: 60, data: 'data:audio/wav;base64,AAAA' });
+  ok('[VC_NO_COUNT] 20번째 뒤에만 안전장치 · 문구에 «직접 녹음» · «n번까지» 없음', !cap.ok && cap.limit && !/직접 녹음|번까지/.test(cap.error), JSON.stringify(cap));
+  w.props.VOICE_STUDIO_CODES = 'ME0001'; w.call({ op: 'phrase', who: 'groom' });
+  const sk = w.call({ op: 'enroll', who: 'groom', sec: 60, data: 'data:audio/wav;base64,AAAA' });
+  ok('[VC_NO_COUNT] 시험 예식은 20번 뒤에도 만들어짐 · left 줄지 않음', sk.ok && w.call({ op: 'status' }).groom.left === 20, JSON.stringify(sk)); }
 
 // 3 · 다시 만들기 실패 → 앞 목소리 그대로 · 업체 지우기 실패 → retry
 w = world({ api: Object.fromEntries([CLONE('uc_a')]) }); w.call({ op: 'consent', who: 'bride', agree: true }); w.call({ op: 'phrase', who: 'bride' }); w.call({ op: 'enroll', who: 'bride', sec: 60, data: 'data:audio/wav;base64,AA' });

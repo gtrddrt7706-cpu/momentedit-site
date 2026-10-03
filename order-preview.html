@@ -4058,7 +4058,7 @@ function _vsPanel(){ var cur=VS.hint||_vsCur();   // [VS_CHIP_ONCE] 칩에서 �
       var stx=p.ready?'목소리 만듦':(p.left===0)?'만들기를 다 썼어요 · 나레이션으로 나와요':'1분쯤 소리 내어 읽으면 돼요';
       return '<li><span class="n"><b>'+esc(who)+'</b><span>'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span>'
         +(!p.ready&&p.left!==0?'<button type="button" class="rowbtn mk-vb" data-fk="mkvsread:'+w+'" onclick="mkVcConsent(\''+w+'\')">1분 읽기 시작</button>':'')
-        +(p.ready?'<span class="mk-vbs">'+(p.left>0?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">새로 만들기 · '+p.left+'번 남음</button>':'')+'<button type="button" class="pk-link" data-fk="mkvcdel:'+w+'" onclick="mkVcDel(\''+w+'\')">지우기</button></span>':'')+'</li>'; }).join('')+'</ul>';   // [R1-08] 새로 만들기 · 지우기는 이 창에
+        +(p.ready?'<span class="mk-vbs">'+(p.left>0?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">새로 만들기</button>':'')+'<button type="button" class="pk-link" data-fk="mkvcdel:'+w+'" onclick="mkVcDel(\''+w+'\')">지우기</button></span>':'')+'</li>'; }).join('')+'</ul>';   // [R1-08] 새로 만들기 · 지우기는 이 창에
     return h+'<p class="mk-note">한 분만 만들어도 돼요 · 만든 분 목소리로 '+_vsWhere(true)+'를 채워요</p>'
       +'<button type="button" class="mk-dlg-go" data-fk="mkvsdone" onclick="mkVsClose()">다 됐어요</button>'
       +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mkvsback" onclick="mkVsPh(\'pick\')">다른 방법 고르기</button></div>'; }
@@ -4230,7 +4230,7 @@ function _vcSec(){ if(!_vcOn()) return ''; var any=((S.vfill||{}).guest==='ai'||
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}, nm=_vcName(w), who=(w==='groom'?'신랑':'신부')+' '+(nm===(w==='groom'?'신랑':'신부')?'':nm);   // [VC_CARD_0928 8-5] 사람 카드
     var stx=p.ready?'목소리 만듦'+(p.made?' · '+_vcDay(p.made):''):(p.left===0&&!p.ready)?'만들기를 다 썼어요 · 나레이션으로 나와요':p.consent?'동의했어요 · 1분 읽기가 남았어요':'아직 만들지 않았어요';   // [VC_LIMIT_UI]
     h+='<li class="mk-vr'+(p.ready?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(who.trim())+'</span><span class="mk-vs">'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span><span class="mk-vbs">'
-      +(p.ready?((p.left>0)?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">목소리 새로 만들기 · '+p.left+'번 남음</button>':'')+'<button type="button" class="rowbtn mk-vb" data-fk="mkvcdel:'+w+'" onclick="mkVcDel(\''+w+'\')">AI 목소리 지우기</button>'
+      +(p.ready?((p.left>0)?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">목소리 새로 만들기</button>':'')+'<button type="button" class="rowbtn mk-vb" data-fk="mkvcdel:'+w+'" onclick="mkVcDel(\''+w+'\')">AI 목소리 지우기</button>'
         :p.left===0?''   // [VC_LIMIT_UI] 다 쓴 분은 누를 단추가 없다
         :p.consent?'<button type="button" class="rowbtn mk-vb" data-fk="mkvcread:'+w+'" onclick="mkVcRead(\''+w+'\')">1분 읽기 시작</button>'
         :'<button type="button" class="rowbtn mk-vb" data-fk="mkvcok:'+w+'" onclick="mkVcConsent(\''+w+'\')">목소리 만들기 시작</button>')+'</span></li>';
@@ -4316,7 +4316,7 @@ function _vcMake(key,o){ o=o||{}; if(key==='g0') delete S.g0Moved;   /* [R8-20] 
 function _vcLineTools(key,lab,part){ var v=(S.up||{})[key]||{}; if(v.src!=='ai'||!_vcOn()) return ''; var t=String(v.tempo||'1'), left=VC.left&&VC.left[key]!=null?VC.left[key]:null, busy=!!MK_UP[key];
   var chip=function(val,l){ var on=t===val; return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'"'+(busy?' disabled':'')+' data-fk="mkaitempo:'+key+':'+val+'" onclick="mkAiTempo(\''+key+'\',\''+val+'\')">'+l+'</button>'; };
   if(part==='tempo') return '<div class="ls-cg mk-aitools" role="radiogroup" aria-label="'+esc(lab+' 빠르기')+'"><span class="gl">빠르기</span><span class="cg-c">'+chip('0.9','천천히')+chip('1','보통')+chip('1.1','조금 빠르게')+'</span></div>';   // [VC_CARD_HEAD] 빠르기 줄 · 아래 단추는 카드 한 줄([들어 보기] [다시 만들기] [지우기])
-  return (left===0?'<span class="mk-note">'+esc(VC_TXT.used)+'</span>':'<button type="button" class="pk-link mk-vlk" data-fk="mkairedo:'+key+'"'+(busy?' disabled':'')+' onclick="mkAiRedo(\''+key+'\')">이 줄 다시 만들기'+(left!=null?' · '+left+'번 남음':'')+'</button>')
+  return (left===0?'<span class="mk-note">'+esc(VC_TXT.used)+'</span>':'<button type="button" class="pk-link mk-vlk" data-fk="mkairedo:'+key+'"'+(busy?' disabled':'')+' onclick="mkAiRedo(\''+key+'\')">이 줄 다시 만들기</button>')   /* ★[VC_NO_COUNT 2026-10-03 사장님] «· n번 남음» 금지 — 9/28 줄마다 5번이 걷힌 뒤 left 는 예식 글자 예산(20만 자)이라 «198000번 남음»처럼 보였다. 다 쓰면 위 VC_TXT.used 한 줄이 말한다 */
     /* ★[VP_NO_DIRECT] «이 줄은 직접 녹음할게요» 단추는 걷었다(직접 녹음 빼기) — mkAiSelf 는 남겨 둔다 */
     +((S.upPrev||{})[key]?'<button type="button" class="pk-link" data-fk="mkaiback:'+key+'" onclick="mkAiBack(\''+key+'\')">되돌리기</button>':''); }
 window.mkAiTempo=function(key,v){ if(String(((S.up||{})[key]||{}).tempo||'1')===v) return; _vcMake(key,{tempo:v,retempo:true}).catch(function(){}); };
