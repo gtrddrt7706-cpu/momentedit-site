@@ -109,8 +109,26 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail', 'tribute-bow-groom', 'toast-both-pour-b',
   'narr-close-bow',   // ★[CLOSE_BOW 2026-09-26] 108 · 본식 끝 두 분 인사
   'fx-free',   // ★[GROUP_PHOTO 2026-09-26] 109 · 골라 트는 판 «자유 사진»
-  'end-1c-thanks-nomeal'];   // ★[PHOTO_THANKS 2026-09-26] 110 · 식사 없는 날 감사 인사(콘솔 전용)
-ok('FILES 맨 끝 89~110 이 새 줄 22개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'end-1c-thanks-nomeal',   // ★[PHOTO_THANKS 2026-09-26] 110 · 식사 없는 날 감사 인사(콘솔 전용)
+  'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter'];   /* ★[BRIDGE_LINK 2026-10-03] 111~114 · 이음말 넷 */
+ok('FILES 맨 끝 89~114 이 새 줄 26개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+/* [BRIDGE_LINK 2026-10-03] 이음말은 새 코스에서만 · 이웃 두 순간이 다 있을 때만 */
+{
+  const sl = (S, m) => C.build(S, { mode: m || 'console' }).cues.map((c) => c.slug);
+  const full = { course: 'open', on: { welcome: 1, vow: 1, ring: 1, declare: 1, tribute: 1, free: 1, letter: 1, cake: 1, toast: 1 }, freeWhat: 'video' };
+  const a = sl(full), at = (s) => a.indexOf(s);
+  ok('[BRIDGE_LINK] 다 담은 판 — 넷이 각자 자리(선언 뒤 · 인사 뒤 · 영상 뒤 · 편지 → 케이크)',
+    at('bridge-b3-clap-thanks') === at('declare-1-solemn') + 1 && at('bridge-b4-breath') === at('tribute-out') + 1
+    && at('bridge-b5-video-out') === at('narr-free-in-video') + 1 && at('bridge-b6-lighter') === at('narr-letter-end') + 1, a.join(' '));
+  ok('[BRIDGE_LINK] 옛 코스에는 없다', !sl({ course: 'damback' }).some((s) => /^bridge-b/.test(s)));
+  ok('[BRIDGE_LINK] 준비한 것이 영상이 아니면 B5 없음', !sl(Object.assign({}, full, { freeWhat: 'speech' })).includes('bridge-b5-video-out'));
+  const noCake = sl(Object.assign({}, full, { on: Object.assign({}, full.on, { cake: 0 }) }));
+  ok('[BRIDGE_LINK] 편지 바로 뒤가 케이크가 아니면 B6 없음', !noCake.includes('bridge-b6-lighter'), noCake.join(' '));
+  const last = sl({ course: 'open', on: { declare: 1 } });
+  ok('[BRIDGE_LINK] 뒤에 순간이 없으면(닫는 인사만) B3 없음', !last.includes('bridge-b3-clap-thanks'), last.join(' '));
+  const pv = C.build(full, { mode: 'console' }).cues, b3 = pv.find((c) => c.slug === 'bridge-b3-clap-thanks');
+  ok('[BRIDGE_LINK] 박수 뒤 첫 줄은 디렉터 GO(CLAP_GO)', !!b3 && b3.fire === 'manual');
+}
 /* ★[CLOSE_BOW 2026-09-26] 108 은 옛 코스에도 나온다 — 26(narr-close) 글이 «본식을 마칩니다»를 108 로 넘겨서, 108 을 빼면 옛 코스가 끝맺음 없이 사진으로 간다.
    (사장님 결정 3-1 CLAP_FEW 도 옛 코스 줄(16 · 20 · 24)을 바꿨다 — Q1 ② «옛 코스 소리 그대로»는 사장님 결정 둘에 한해 물러난다) */
 /* [PHOTO_THANKS 2026-09-26 사장님 결정] 110(식사 없는 날 감사 인사)도 옛 코스에 나온다 — 사진 뒤 흐름은 코스와 상관없이 같다(옛 45 배웅도 모든 코스에 나왔다). */

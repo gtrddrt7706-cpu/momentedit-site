@@ -46,7 +46,8 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 //   ★79_narr-entry-out-B 도 같은 커밋에서 폐지했지만 **FILES 에는 남는다** — RETIRED 로만 끈다.
 //     그래서 이 숫자는 86 → 87 «늘기만» 한다. 폐지가 숫자를 줄이면 뒤 번호가 밀린다.
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
-const N_FILES = 110;   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal(식사 없는 날 감사 인사)
+// [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114 · B3 박수 뒤 · B4 숨 고르기 · B5 영상 끝 · B6 편지 → 케이크) → 114. ★맨 끝에 붙였다.
+const N_FILES = 114;   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114
 //   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {

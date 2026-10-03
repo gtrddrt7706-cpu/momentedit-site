@@ -157,7 +157,7 @@ const ROLE_OF = (id) => {
        이웃이 전부 진행(우성)이라 진행으로 뺀다. N11(04 판) · N12(식전 영상)는 03 · 04 사이의 식전이라 안내 그대로.
        ★처음에 N 그룹 기본값(안내)을 그대로 받아 진희로 잡혔다 — 107 이 짝인 81(우성)과 목소리가 갈려 [VOICE_REGISTER] 가 잡았다.
          녹음 전이라 바로잡는 비용은 0 이다. */
-  if (/^N(0|9)$/.test(id) || /^N(1[3-9]|20)(-|$)/.test(id)) return '진행';      // [N_HOST] · 구 [VOICE_44_HOST] · [N_HOST_OPEN]
+  if (/^N(0|9)$/.test(id) || /^N(1[3-9]|2[01])(-|$)/.test(id)) return '진행';      /* [N_HOST] · 구 [VOICE_44_HOST] · [N_HOST_OPEN] · [BRIDGE_LINK] N21 이음말은 예식 안(이웃이 전부 진행) */
   if (/^N\d/.test(id)) return '안내';          // 폐식 후 브릿지
   if (/^G10$/.test(id)) return '편지';         // 혼주 편지 3분
   return '진행';                                // 나머지 전부 — 한 사람이 예식을 끌고 간다
@@ -168,13 +168,13 @@ const ROLE_OF = (id) => {
 //    편집기 렉 보고(협의안 §3-②)가 있어 한 파트를 60줄 안쪽으로 유지한다.
 const PARTS = [
   // ★[VOICE_44_HOST] N0 은 위에서 «진행»이 됐으므로 이 파트에서도 뺀다 — 안 빼면 한 파일에 두 목소리가 섞인다
-  { f: '1_안내.txt',   t: '식전 안내 + 폐식 브릿지', role: '안내', has: (id) => /^G1-|^N\d/.test(id) && !/^N(0|9)$/.test(id) && !/^N(1[3-9]|20)(-|$)/.test(id) },   // [N_HOST] [N_HOST_OPEN]
+  { f: '1_안내.txt',   t: '식전 안내 + 폐식 브릿지', role: '안내', has: (id) => /^G1-|^N\d/.test(id) && !/^N(0|9)$/.test(id) && !/^N(1[3-9]|2[01])(-|$)/.test(id) },   /* [N_HOST] [N_HOST_OPEN] · [BRIDGE_LINK] N21 은 3_진행_후반 */
   { f: '2_진행_전반.txt', t: '입장 + 고정 진행 나레이션', role: '진행', has: (id) => /^G2-|^G3-/.test(id) || /^N(1[34]|20)(-|$)/.test(id) },   // [N_HOST_OPEN] 화촉은 입장 바로 앞
   // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
   //   G6(베일)은 사라졌지만 has 패턴에는 남겨 둔다 — 남은 그룹 번호를 당기지 않았으므로
   //   빈 접두사를 지우는 것과 같고, 나중에 G6이 다른 용도로 생기면 이 파트가 맞는 자리다.
   { f: '3_진행_후반.txt', t: '편지 도입 · 선언 · 링워밍 · 헌정 · 축배', role: '진행',
-    has: (id) => /^G4-|^G5-|^W2-|^G6-|^G7-|^G8-|^G9-/.test(id) || /^N1[5-9](-|$)/.test(id) },   // [N_HOST_OPEN] 선언 · 인사 · 준비한 순서 · 축배
+    has: (id) => /^G4-|^G5-|^W2-|^G6-|^G7-|^G8-|^G9-/.test(id) || /^N(1[5-9]|21)(-|$)/.test(id) },   /* [N_HOST_OPEN] 선언 · 인사 · 준비한 순서 · 축배 · [BRIDGE_LINK] 이음말 넷 */
   { f: '4_혼주편지.txt', t: '어른께 드리는 안내 편지 (3분 통낭독)', role: '편지', has: (id) => id === 'G10' },
   /* ★[PART6_AFTER 2026-08-08] 예식 뒤 스물세 클립이 **어느 파트에도 안 들어가 있었다.**
      G12·G13·G14 가 새로 생겼는데 has 패턴을 아무도 늘리지 않았고, 파트에 안 잡힌 클립은
@@ -367,7 +367,8 @@ const clips = parse(SRC);
               ★104 narr-free-out-clap 은 흐름에서 뺐지만 개수는 안 움직였다 — 클립 · 대본 줄은 둔다([CLAP_FEW] 되살릴 근거). */
 /* [GROUP_PHOTO 2026-09-26 코워크 회신 9/26 2-5] 103 → 104 — 골라 트는 판에 fx-free(자유 사진 여는 말 · 109) 한 줄이 더해졌다 */
 /* [PHOTO_THANKS · THANKS_TEXT 2026-09-26 사장님 결정] 104 → 105 — 식사 없는 날 감사 인사(110 end-1c-thanks-nomeal) */
-const CLIP_COUNT = 105;
+/* [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 105 → 109 — 이음말 넷(111 bridge-b3-clap-thanks · 112 bridge-b4-breath · 113 bridge-b5-video-out · 114 bridge-b6-lighter · 이음말_초안_20261002.md 확정본) */
+const CLIP_COUNT = 109;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
