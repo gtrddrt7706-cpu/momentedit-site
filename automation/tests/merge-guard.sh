@@ -2281,6 +2281,13 @@ nochk '15_toast' assets/ritual-ref.js
 chk 'REF_TABLE' scripts/audit/listen-page.mjs 2
 node scripts/build-ref-examples.mjs --check || fail=1
 node scripts/audit/tx-merge.mjs >/dev/null || { echo '✗ TX_MERGE 칸별 합치기 검사 실패(node scripts/audit/tx-merge.mjs)'; fail=1; }   # [TX_MERGE 2026-09-27]
+# [RESTART_TX_TOMB 2026-10-03 · R3-01] «모두 비우기»는 지운 글 칸을 «빈 값 + 지금 시각»으로 남긴다 — 키를 버리면 서버 합치기가 지운 서약 · 편지를 되살린다
+chk 'RESTART_TX_TOMB' order-preview.html 1
+chk 'RESTART_TX_TOMB' scripts/audit/restart-tomb.mjs 1
+# [R3-12 PRACTICE_TITLE 2026-10-03 사장님 «넣기»] ③ 연습하기도 쪽 제목(명조 .mk-h h3)으로 시작 · 통계 줄은 그 아래 보조 글
+chk 'PRACTICE_TITLE' order-preview.html 1
+chk '<h3 id="prHead">처음부터 끝까지 연습해 봐요</h3>' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/restart-tomb.mjs >/dev/null 2>&1 || { echo 'FAIL restart-tomb: «모두 비우기» 뒤 지운 글이 서버 합치기에서 되살아납니다 — node scripts/audit/restart-tomb.mjs'; fail=1; }; fi
 chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
@@ -11697,7 +11704,7 @@ nochk "L('entryScene','첫 모습'" order-preview.html
 nochk "L('entryOut','맺는 말'" order-preview.html
 chk 'QUIET_LINES' order-preview.html 1   # [G5] 말 없는 사람 순간 — 옅은 줄
 chk 'TOAST_TALK_GLASS' order-preview.html 1   # [G5] «위하여» 줄은 잔 드는 큐 뒤
-chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)»
+chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선언 «선언 · 엄숙하게»([R3-10] 갈래 표와 «나레이션» 겹침 뺌)
 chk "var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};" order-preview.html 1   # 잔 드는 큐 (107 · 40 · 76)
 chk "return '두 분이 서로 반지를 끼워요';" order-preview.html 1   # [R1-45] «말 없이»는 위 나레이션이 말한다
 chk '하객 박수 · 두 분이 부부가 돼요' order-preview.html 1
@@ -13459,7 +13466,7 @@ chk 'VOICE_KIND_0928' assets/ritual-open.js 1
 chk "one: '식장에서 마이크로 직접 말해요. 여기 적는 글은 연습과 대본에 써요'" assets/ritual-open.js 1
 chk 'VOICE_MAP' order-preview.html 8
 chk 'function _voiceMap(jump)' order-preview.html 1
-chk '<summary>어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요</summary>' order-preview.html 1
+chk "<summary>'+(_vgPrep?'어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요':'어디서 직접 말하는지 한눈에 봐요')+'</summary>" order-preview.html 1   # [R3-08] 미리 준비가 없는 판은 제목을 줄인다(③ MAP_ONE 과 같은 판정)
 chk 'data-fk="mkvi"' order-preview.html 1
 nochk "순서를 안내하는 목소리예요. AI 음성으로" order-preview.html
 nochk '.vk-st.no{color:var(--seal)}' order-preview.html
@@ -13557,7 +13564,7 @@ chk '적은 글이 음성 업체(타입캐스트)로 보내져 소리로 만들�
 chk 'AI 연습 소리' order-preview.html 1
 chk 'function _ptRole(who)' order-preview.html 1
 # ★[VP_AI_0928 · VC_CARD_0928 · VC_LINE_0928 · VOICE_CLONE_0928 화면 코워크 0928 6-1 · 8장] AI 칸 · 사람 카드 · 동의 · 1분 읽기 · 줄 도구 · 빈 줄만 채우기
-chk "'ai','AI 두 분 목소리 만들기'" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션
+chk "'ai','AI 두 분 목소리'\]" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션 · [R3-07] 칩 이름은 선택 이름(«만들기» 뺌 · 동작은 섹션 제목이 맡는다)
 chk 'var VC_TXT=' order-preview.html 1
 chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
 chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
