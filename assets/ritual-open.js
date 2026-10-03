@@ -348,12 +348,12 @@
       for (var k2 = bt; k2 <= hiT; k2++) { if (env[k2] > env[bt]) bt = k2; }
       var cx = x(bt), cy = y(env[bt]);
       o.push('<circle class="flow-peak" data-t="' + bt + '" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (tiny ? 2.4 : (mini ? 3 : 5)) + '" fill="' + PEAK_INK + '" stroke="#fff" stroke-width="' + (mini ? 1.5 : 2) + '"/>');
-      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="700" text-anchor="' + an + '" fill="' + PEAK_INK + '">★ ' + fesc(p.n) + '</text>'); }
+      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="600" text-anchor="' + an + '" fill="' + PEAK_INK + '">★ ' + fesc(p.n) + '</text>'); }   /* [R7-08] 굵기 상한 600 */
     }
     if (names) { var last = [-1e9, -1e9];
       sg.forEach(function (s) { var nx = x(s.st + s.d / 2), tw = s.n.replace(/[\s·]/g, '').length * 11 + (s.n.match(/[\s·]/g) || []).length * 3.5, l = nx - tw / 2, r = nx + tw / 2, an2 = 'middle';
         if (l < 0) { an2 = 'start'; nx = Math.max(nx - tw / 2, 2); l = nx; r = nx + tw; } if (r > w) { an2 = 'end'; nx = Math.min(nx + tw / 2, w - 2); r = nx; l = nx - tw; }
-        for (var row = 0; row < 2; row++) { if (l > last[row] + 8) { o.push('<text x="' + nx.toFixed(1) + '" y="' + (h - B + 26 + row * 14) + '" font-size="11" text-anchor="' + an2 + '" fill="' + (s === p ? '#3A2D22' : '#5A554C') + '"' + (s === p ? ' font-weight="700"' : '') + '>' + fesc(s.n) + '</text>'); last[row] = r; break; } } });
+        for (var row = 0; row < 2; row++) { if (l > last[row] + 8) { o.push('<text x="' + nx.toFixed(1) + '" y="' + (h - B + 26 + row * 14) + '" font-size="11" text-anchor="' + an2 + '" fill="' + (s === p ? '#3A2D22' : '#5A554C') + '"' + (s === p ? ' font-weight="600"' : '') + '>' + fesc(s.n) + '</text>'); last[row] = r; break; } } });
     }
     /* 누르는 칸 — 순간 가운데에 폭 24 이상(짧은 순간은 12px 까지 좁아진다 · WCAG 2.5.8) · 그림 안으로 붙인다 · 이웃과 겹치면 뒤 칸이 위 */
     if (!mini) { sg.forEach(function (s, i) { var x0 = x(s.st), x1 = x(s.st + s.d), hw = Math.max(24, x1 - x0), rx = Math.max(0, Math.min(w - hw, (x0 + x1) / 2 - hw / 2));

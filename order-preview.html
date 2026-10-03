@@ -10,7 +10,7 @@
 <title>우리 예식 짓기 · Moment Edit</title><!-- [RIT_NAME_TWO 2026-09-27 4부 25] 이름은 둘 — 마이페이지 행 «식순» · 화면 안 «우리 예식 짓기» -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편 ③ · 사장님 선택 «바로 세우기»] 한글 글꼴(Noto Serif·Sans KR)엔 기울임꼴이 없어 italic 이 걸린 한글을 브라우저가 억지로 비틀었다(합성 기울임). 굵기 합성만 허용하고 기울임 합성을 끈다 — 한글은 바로 서고, Cormorant 처럼 진짜 기울임꼴이 있는 영문은 그대로 기운다. 지우지 말 것 · 공통 CSS 파일이 없어 고객 화면마다 한 줄씩 있다. */
 
@@ -24,6 +24,7 @@ html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편
   --sans:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',Roboto,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+b,strong{font-weight:600}   /* [R7-08] 브랜드 상한 600 — 굵기 지정 없는 <b> 가 브라우저 기본 700 을 받았다(더 구체적인 규칙이 덮는다) */
 html,body{height:100%}
 body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-height:1.7;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;min-height:100dvh;letter-spacing:-.01em;word-break:keep-all;overflow-wrap:break-word}   /* [POLISH_0925 2-11] 한글 줄바꿈 «완성됐어 / 요» 끊김 막기 */
 .q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.ev-n{font-family:var(--ko-serif);letter-spacing:0}
@@ -1152,7 +1153,8 @@ body.lsfull{overflow:hidden}
 .mk-valt[open] summary::after{transform:translateY(1px) rotate(-135deg)}
 .mk-tg{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--sub);font:inherit;font-size:12.5px;cursor:pointer}
 .mk-tg.on{border-color:var(--gold-deeper);color:var(--gold-deeper);background:#F4F0E9}
-.mk-tg.auto{cursor:default}
+.mk-pved{margin-top:10px}   /* [R7-09] 카드 머리 → 글칸 간격을 하객 맞이 카드와 같게 */
+.mk-tg.auto{cursor:default;border:0;background:none;min-height:0;padding:0;color:var(--sub)}   /* [R7-06] 끝난 상태(✓ 다 됐어요 · ✓ 링크 받았어요)는 단추 모양이 아니라 보조 글 한 줄 — 바로 위 «이동하기» 알약과 같은 꼴이라 누르는 것처럼 보였다 */
 .mk-tg .mk-mk{display:inline-flex}
 @media (max-width:999px){ .mk-tg,.mk-vb{margin-right:36px} }
 .mk-vx{padding:4px 0 12px;border-bottom:1px solid var(--border)}
@@ -1236,6 +1238,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-ltx1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}   /* [VP_FLOW_CLAMP] 두 분 목소리 줄 — 전문은 아래 줄 카드에 */
 .mk-flow li.q{color:var(--light);font-size:12.5px;padding-left:42px}   /* [MK_ROWS] 말 없는 줄 · 차례 줄도 나레이션 글과 같은 세로선 */   /* [QUIET_LINES] 말 없는 줄 = 옅게(--light) · 옛 ② 목록과 같은 색 */
 .mk-flow li.t{color:var(--accent);padding-left:42px}
+.mk-flow li.t b{font-weight:600}   /* [R7-08] 차례 이름(신랑 차례 · 말씀하실 차례 · 두 분 번갈아) */
 .mk-lab{display:flex;align-items:center;flex-wrap:wrap;gap:0 6px;font-size:11px;color:var(--sub);letter-spacing:.04em;min-height:18px}   /* [VOICE_GUIDE] 목소리 표(아이콘+글)와 줄 이름이 한 줄 가운데선에 — 옛 inline 은 아이콘 기준선 때문에 위아래로 어긋났다 */
 .mk-lab .vk{margin-right:0;vertical-align:0}
 .mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -10px;border:0;background:none;color:var(--accent);display:grid;place-items:center;cursor:pointer}
@@ -1604,7 +1607,7 @@ var TOAST={
 var GUEST=[
  ['입장 직후',
   "두 사람의 결혼식을 찾아 주셔서 감사드립니다. 앉으실 자리는, 신랑 신부가 한 분 한 분을 떠올리며 마련했습니다. 미리 받으신 안내 페이지에서 확인하실 수 있고, 자리가 헷갈리시면 입구에서 도와드리겠습니다. 기다리시는 동안, 편안히 머물러 주십시오.",
-  "저희 두 사람의 결혼식에 와 주셔서 감사합니다. 앉으실 자리는, 저희가 한 분 한 분 떠올리며 정했어요. 미리 받으신 안내 페이지에서 확인하실 수 있어요. 자리 찾기가 어려우시면, 입구에 도와드릴 분이 계세요."],
+  "저희 두 사람의 결혼식에 와 주셔서 감사합니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요. 기다리시는 동안 편안히 머물러 주세요."],
  ['시작 10분 전',
   "오늘의 예식이 십 분 뒤 시작됩니다. 한쪽에 간단한 다과와 음료를 준비해 두었습니다. 자리에 앉아 주시면 됩니다.",
   "저희 예식이 십 분 뒤 시작됩니다. 자리에 앉아 주시면 됩니다."],
@@ -3466,12 +3469,13 @@ function _sumSec(x){ x=Math.round(x); if(x<55) return '약 '+Math.max(5,Math.rou
 function _perSec(k,x){ if(k==='bless'||(k==='tribute'&&RitualOpen.chipOf('tribute',S)==='long')) return '약 1분'; return _sumSec(x); }
 function _lSum(k){
   var R=RitualOpen, bits=[];
-  if(k==='guest') return (S.guestVoice==='couple'?'두 분 목소리':'나레이션')+' · 하객이 들어오실 때 · 예식 10분 전 · 5분 전';
-  if(k==='prevideo') return (S.pvVoice==='couple'&&_vcOn()&&_recNeed('pv')?'두 분 소개글 · 두 분 목소리':'나레이션 소개')+' → 두 분의 영상 → 1분 전 안내';   /* [R6-03] 하객 맞이 · 입장처럼 목소리를 보인다 · 판정은 ② own 과 같다(소개글이 비면 스튜디오 한 줄) */   // [PREVIDEO_FREE]
+  if(k==='guest'){ var _gks=R.onOf(S,'prevideo')?['g0','g1','g2']:['g0','g1','g2','g3'], _gn=_gks.filter(_vcToNar).length;   /* [R7-04] ② 와 같은 판정([VC_TO_NAR]) · 1분 전 줄은 식전 영상이 있으면 그 줄로 간다 */
+    return (S.guestVoice!=='couple'||_gn===_gks.length?'나레이션':_gn?'두 분 목소리 · 일부 나레이션':'두 분 목소리')+' · 하객이 들어오실 때 · 예식 10분 전 · 5분 전'; }
+  if(k==='prevideo') return (S.pvVoice==='couple'&&_vcOn()&&_recNeed('pv')&&!_vcToNar('pv')?'두 분 소개글 · 두 분 목소리':'나레이션 소개')   /* [R7-04] 목소리를 다 쓴 빈 줄은 나레이션(VC_TO_NAR) */+' → 두 분의 영상 → 1분 전 안내';   /* [R6-03] 하객 맞이 · 입장처럼 목소리를 보인다 · 판정은 ② own 과 같다(소개글이 비면 스튜디오 한 줄) */   // [PREVIDEO_FREE]
   if(k==='ring') return '말 없이 반지를 끼워요 · 앞뒤로 나레이션';
   if(k==='_close') return '닫는 말 → 그 자리에서 단체 사진';
   if(k==='candle') return _candleWho();
-  if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'?'두 분 목소리':'나레이션');   /* [ENTRY_OUT_OFF] 맞절 없음 */   // [DETAIL_0925 B6] 목소리를 늘 보인다
+  if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'&&!_vcToNar('entry')?'두 분 목소리':'나레이션');   /* [R7-04] */   /* [ENTRY_OUT_OFF] 맞절 없음 */   // [DETAIL_0925 B6] 목소리를 늘 보인다
   if(k==='cake') return '두 분이 함께 케이크를 잘라요 · '+(R.chipOf('cakeBy',S)==='studio'?'케이크는 저희가 준비':'케이크 직접 준비');   /* [R2-20] 열한 줄 중 혼자 비어 있었다 */
   /* [R2-05] ④ 요약 전용 시간(_sumSec) · 순간 이름을 되풀이하던 앞 문장은 뺐다.
      [R3-02] 숫자는 ② 차례 줄과 같은 «한 분 몫»이다 — ②가 차례를 사람마다 나눠 보이면(신랑 차례 · 신부 차례) ④도 «한 분 약 n씩», 한 줄이면(서약 번갈아) 합계. 둘 다 _sumSec */
@@ -3528,7 +3532,7 @@ function _lSteps0(g,ks){
       if(own){
         /* [DETAIL_0925 B6] 두 분 목소리 — 두 분이 녹음하실 글(예시)을 그대로 보여 준다(입장 ENTRY[k].self · 하객 맞이 GUEST 두 분 판) */
         /* [COUPLE_EX_VOICE 2026-09-26] 예시 목소리(배역 녹음)가 글과 같으면 소리로 들려준다 — 당일엔 두 분이 녹음한 목소리가 나간다 */
-        if(c.k==='guest'){ var gi=/2-10min/.test(c.slug)?1:/3-5min/.test(c.slug)?2:/4-1min/.test(c.slug)?3:0; var gg=GUEST[gi], gt=_recNeed('g'+gi);   /* [LINE_EDIT] 두 분이 고친 글 */ var gu=_txStale('g'+gi)?null:_rfUrl('g'+gi); out.push({k:k,lab:(gu?'두 분 목소리 · ':'두 분이 녹음하실 글(예시) · ')+(gg?_lLabFix(gg[0]):''),txt:gt,own:true,up:'g'+gi,couple:!!gu,src:gu||_lCastSrc(CAST_GUEST[gi],gt),ms:Math.max(2600,Math.round(String(gt).length*160))}); }   // ★[REC_UPLOAD] 올린 두 분 녹음이 있으면 그 자리에서 그 소리
+        if(c.k==='guest'){ var gi=/2-10min/.test(c.slug)?1:/3-5min/.test(c.slug)?2:/4-1min/.test(c.slug)?3:0; var gg=GUEST[gi], gt=_recNeed('g'+gi);   /* [LINE_EDIT] 두 분이 고친 글 */ var gu=_upStale('g'+gi)?null:_rfUrl('g'+gi);   /* [R7-01] 읽는 분이 바뀐 소리는 틀지 않는다 */ out.push({k:k,lab:(gu?'두 분 목소리 · ':'두 분이 녹음하실 글(예시) · ')+(gg?_lLabFix(gg[0]):''),txt:gt,own:true,up:'g'+gi,couple:!!gu,src:gu||_lCastSrc(CAST_GUEST[gi],gt),ms:Math.max(2600,Math.round(String(gt).length*160))}); }   // ★[REC_UPLOAD] 올린 두 분 녹음이 있으면 그 자리에서 그 소리
         else if(c.k==='prevideo'){ var pt=_recNeed('pv'), pu=_pvStale()?null:_rfUrl('pv'); out.push({k:k,lab:pu?'두 분 목소리 · 영상 앞 소개':'두 분 소개글 · 아직 소리 없음',txt:pt,own:true,up:'pv',couple:!!pu,src:pu,pending:!pu,ms:Math.max(2600,Math.round(pt.length*160))}); }   // [PV_INTRO] 만든 소리가 없으면 글만(예시 목소리가 없다)
         else if(!ownDone){ ownDone=true; var et=_recNeed('entry'), eu=_txStale('entry')?null:_rfUrl('entry');   /* [LINE_EDIT] */ out.push({k:k,lab:eu?'두 분 목소리':'두 분이 녹음하실 글(예시)',txt:et,own:true,up:'entry',couple:!!eu,src:eu||_lCastSrc(CAST_ENTRY[S.entry],et),ms:Math.max(2600,Math.round(String(et).length*160))}); }
       }
@@ -3638,7 +3642,7 @@ function _mkItems(k){ var R=RitualOpen, out=[];
 function _mkItemDone(q){ var c=_mkChk();
   if(q.k==='bless'&&q.cat==='ask'&&String((S.tx||{})['bless.p']||'').trim()) return true;   // [R1-01] 받은 덕담 원고를 붙였으면 부탁은 끝난 것
   if(q.up&&_vcToNar(q.up)) return true;   /* [VC_TO_NAR] · [R5-02] 목소리 만들기를 다 쓴 분의 줄은 스튜디오 나레이션으로 나간다(카드 문구와 같은 판정) */
-  if(q.up) return !!(S.up&&S.up[q.up])&&!_txStale(q.up);   // [R1-02] 글을 고친 AI 줄은 다시 만들 때까지 미완료
+  if(q.up) return !!(S.up&&S.up[q.up])&&!_upStale(q.up);   /* [R7-01] 읽는 분이 바뀐 줄도 미완료 */   // [R1-02] 글을 고친 AI 줄은 다시 만들 때까지 미완료
   if(q.cat==='send'&&q.k==='prevideo'&&/^https?:\/\//i.test(String(S.growthLink||'').trim())) return true;
   return !!c[q.id]; }
 /* 할 일 — 세는 것만(챙길 것 · 부모님께 인사 칸은 세지 않는다) */
@@ -3769,10 +3773,12 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
     h+='<section class="mk-sec mk-prep"><div class="mk-sech"><h4>'+hd+'</h4>'+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+'</div>'
       +(cat==='ask'?_mkCopied('ask:'+k):'')+'<ul class="mk-vlist">';
     qs.forEach(function(q){ var due=(cat==='bring'&&q.due===0)?'':R.dueWord(q,wed), par=q.who==='parents', done=_mkItemDone(q);   /* [R1-30] «당일 챙길 것» 아래에서 «당일 가져오기»를 줄마다 되풀이하지 않는다 */
-      var tg=cat==='ask'?((q.k==='bless'&&c[q.id]==='site')?'<span class="mk-tg on auto"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>현장에서 하세요</span>':_mkTg(q.id,c[q.id]==='asked'||c[q.id]===1,'부탁드렸어요','asked'))   /* [R5-01] «원고 없이»(site)를 고른 동안은 누를 수 없는 표시 — 같은 칸을 덮어써 체크가 말없이 풀리던 것 */   /* [R6-07] «원고 없이»면 원고를 부탁한 것이 아니다 — 표시 글만 «현장에서 하세요»(완료 판정은 그대로) */
+      var _bSiteRow=q.k==='bless'&&cat==='ask'&&c[q.id]==='site';   /* [R7-02] «원고 없이»면 원고 부탁 줄(글 · 마감 · 표시)을 그리지 않는다 — 받지 않을 원고의 마감을 알리고 «✓ 현장에서 하세요»가 아래 체크칸을 되풀이했다.
+         [R5-01] 그래서 그동안 «부탁드렸어요» 단추가 같은 칸을 덮어써 체크를 말없이 풀 길도 없다 · 체크를 풀면 줄이 다시 나온다 · 완료 판정은 그대로(_mkItemDone) */
+      var tg=cat==='ask'?_mkTg(q.id,c[q.id]==='asked'||c[q.id]===1,'부탁드렸어요','asked')
         :cat==='send'?(q.k==='prevideo'?'<span class="mk-tg on auto" id="mkPvOk"'+(/^https?:\/\//i.test(String(S.growthLink||'').trim())?'':' style="display:none"')+'><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>링크 받았어요</span>':_mkTg(q.id,!!c[q.id],'보냈어요')):'';   // [PREVIDEO_FREE] 식전 영상은 링크 칸 하나 — «보냈어요» 손 표시 없음
       var wt=String(q.what), tl=wt.split(' · ').slice(1).join(' · '); if(cat==='bring'&&tl&&gn.indexOf(tl)>-1) wt=wt.split(' · ')[0];   // [MK_MIN] «케이크 · 크기 · 도착 시각은 상담 때…» — 칩 아래 안내가 이미 말한다
-      h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';
+      if(!_bSiteRow) h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';   /* [R7-02] */
       if(cat==='ask'&&k==='bless'){ var bv=(S.tx||{})['bless.p']||'';
         /* [R3-03] 원고 칸 먼저 · 체크는 그 아래 오른쪽(첫인사 · 서약과 같은 꼴) — 위에 두면 아래 원고 칸이 체크에 딸린 입력처럼 읽혔다.
            «원고 없이»를 고르면 원고 칸은 그리지 않는다 · 붙여 둔 원고(S.tx['bless.p'])는 지우지 않아 체크를 풀면 다시 보인다 */
@@ -3815,6 +3821,9 @@ function _g3Split(){ var t=_vtDef('g3'), p=t.match(/[^.?!]+[.?!]+/g)||[t]; retur
 function _vtEdit(key){ var c=(S.vtext||{})[_vtKey(key)]; return (c!=null&&String(c).trim())?String(c):''; }
 function _vtShown(key){ var c=_vtEdit(key); return c||(key==='g3'?_g3Split()[1]:_vtDef(key)); }
 function _txStale(key){ var v=(S.up||{})[key]; return !!(v&&typeof v==='object'&&v.src==='ai'&&v.tx&&v.tx!==_txSig(_recNeed(key))); }
+/* [R7-01 WHO_STALE] 만든 사람(S.up[key].by)과 지금 읽는 사람이 다르면 그 소리는 그 줄 것이 아니다 — 다른 기기에서 받은 값 등 어느 길로 어긋나도 «다시 만들어 주세요»로 드러낸다 */
+function _whoStale(key){ var v=(S.up||{})[key]; return !!(v&&typeof v==='object'&&v.src==='ai'&&/^(g\d|pv)$/.test(key)&&typeof v.by==='string'&&v.by!==_vcLineWho(key)); }
+function _upStale(key){ return _txStale(key)||_whoStale(key); }
 window.mkVtText=function(key,v){ S.vtext=S.vtext||{}; v=String(v||'').slice(0,300); if(v.trim()&&v.trim()!==(key==='g3'?_g3Split()[1]:_vtDef(key)).trim()) S.vtext[_vtKey(key)]=v; else delete S.vtext[_vtKey(key)]; _persist(); };
 window.mkVtReset=function(key){ if(S.vtext) delete S.vtext[_vtKey(key)]; _persist(); render(); };
 function _recNeed(key){ var _c=/^(g\d|entry)$/.test(key)?_vtEdit(key):''; if(_c) return key==='g3'?(_g3Split()[0]+' '+_c.trim()):_c.trim();   // [LINE_EDIT]
@@ -3857,11 +3866,16 @@ var PV_MAX=200, PV_EX=[
   ['웃음 한 스푼','이 영상을 만들다가 저희가 처음으로 크게 다툴 뻔했습니다. 그래도 끝까지 함께 만들었습니다. 재미있게 봐 주세요.'],
   ['고마움을 담아','오늘 와 주셔서 고맙습니다. 저희를 키워 주신 분들, 곁을 지켜 준 분들께 드리는 작은 인사입니다. 함께 봐 주세요.']
 ];
+/* ★[R7-03 G0_KEEP 2026-10-03] 하객 입장 때(g0) AI 기본 글을 바꿨다(사장님 10/3 «자리를 정하지 않은 예식 · 안내 페이지를 안 보낸 예식에도 맞게» · 스튜디오 01_guest-1-arrival 과 같은 까닭).
+   옛 기본 글로 이미 만든 g0 소리는 그 글을 «두 분이 고친 글»(S.vtext)로 옮겨 둔다 — 안 옮기면 _txStale 이 새 기본 글과 비교해
+   멀쩡한 소리를 모두 «글을 고쳤어요 · 다시 만들어 주세요» · 미완료로 바꾼다. 불러올 때 한 번(_applySaved) · 이미 고친 글이 있으면 건드리지 않는다 */
+var G0_OLD='저희 두 사람의 결혼식에 와 주셔서 감사합니다. 앉으실 자리는, 저희가 한 분 한 분 떠올리며 정했어요. 미리 받으신 안내 페이지에서 확인하실 수 있어요. 자리 찾기가 어려우시면, 입구에 도와드릴 분이 계세요.';
+function _g0Keep(){ try{ var u0=(S.up||{}).g0; if(u0&&typeof u0==='object'&&u0.src==='ai'&&u0.tx===_txSig(G0_OLD)&&!_vtEdit('g0')){ S.vtext=S.vtext||{}; S.vtext[_vtKey('g0')]=G0_OLD; } }catch(e){} }
 function _txSig(t){ t=String(t||''); var h=0; for(var i=0;i<t.length;i++){ h=(h*31+t.charCodeAt(i))|0; } return t.length+':'+(h>>>0).toString(36); }
-function _pvStale(){ return _txStale('pv'); }
+function _pvStale(){ return _upStale('pv'); }   /* [R7-01] */
 function _pvCount(t){ var n=String(t||'').trim().length; return n+' / '+PV_MAX+'자'+(n?' · 약 '+_mkSec(n)+'초':''); }
 function _pvEditor(){ var t=String(S.pvText||''), cur=PV_EX.findIndex(function(x){ return x[1]===t.trim(); });   /* [R2-12] 예시 칩은 .ex-chips(간격 6px · 줄바꿈)와 같은 규칙 · [R2-03] 줄 카드 안(머리 아래)에서 그린다 */
-  return '<div class="mk-pved"><div class="mk-sech"><h4 id="mkPvH">영상 앞 소개글</h4></div>'
+  return '<div class="mk-pved"><span id="mkPvH" class="sr-only">영상 앞 소개글</span>'   /* [R7-09] 보이는 소제목을 걷었다 — 카드 머리 «영상 앞 소개» 바로 아래 같은 말의 굵은 h4 가 새 구역처럼 보였다(하객 맞이 · 입장 카드엔 없다) · 글칸 이름표(aria-labelledby)로는 남긴다 */
     +'<p class="mk-note">영상이 시작되기 바로 전에 나와요. 예시를 눌러 시작하고 두 분 말로 고쳐 주세요</p>'
     +'<div class="ex-chips mk-pvex" role="group" aria-label="소개글 예시">'+PV_EX.map(function(x,i){ return '<button type="button" class="ex-chip'+(i===cur?' on':'')+'" aria-pressed="'+(i===cur)+'" data-fk="mkpvex:'+i+'" onclick="mkPvEx('+i+')">'+esc(x[0])+'</button>'; }).join('')+'</div>'
     +'<textarea class="ta grow mk-pvta" id="mkPvTa" rows="3" maxlength="'+PV_MAX+'" aria-labelledby="mkPvH" aria-describedby="mkPvN" placeholder="예시를 누르거나 직접 적어 주세요" oninput="mkPvText(this.value);_taGrow(this)" onchange="render()">'+esc(t)+'</textarea>'
@@ -3897,8 +3911,8 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
     /* ★★[VC_CARD_HEAD 2026-10-02 사장님 «1 · 하객 입장 때 신랑 · 약 24초 — 디자이너 관점으로 좀 더 개선»]
        한 줄에 번호 · 이름 · 사람 · 길이 · 상태를 다 이어 붙여 무엇이 제목인지 안 보였다. → 왼쪽 ▶ · 제목(이름) 한 줄 + 그 아래 옅은 한 줄(약 n초 · 상태) · 오른쪽 [신랑 | 신부].
        번호(1 · 2 …)는 걷었다 — 이름이 곧 차례(하객 입장 때 → 10분 전 → 5분 전 → 1분 전)다 */
-    var gi=/^g\d$/.test(q.up)?+q.up.slice(1):-1, rd=gi>-1?RitualOpen.guestReader(S,gi):'', pv=q.up==='pv', pvSt=_txStale(q.up), ed=ai&&!own(q.up)&&(gi>-1||q.up==='entry');   // [PV_INTRO] · [LINE_EDIT] ed = 이 줄 글을 두 분이 고칠 수 있다(AI 자리)
-    if(pv) rd=S.pvWho==='b'?'b':'g'; if(pvSt) st={t:'글을 고쳤어요 · 다시 만들어 주세요',file:1};
+    var gi=/^g\d$/.test(q.up)?+q.up.slice(1):-1, rd=gi>-1?RitualOpen.guestReader(S,gi):'', pv=q.up==='pv', pvSt=_upStale(q.up), ed=ai&&!own(q.up)&&(gi>-1||q.up==='entry');   // [PV_INTRO] · [LINE_EDIT] ed = 이 줄 글을 두 분이 고칠 수 있다(AI 자리)
+    if(pv) rd=S.pvWho==='b'?'b':'g'; if(pvSt) st={t:(_whoStale(q.up)&&!_txStale(q.up)?'읽는 분이 바뀌었어요':'글을 고쳤어요')+' · 다시 만들어 주세요',file:1};   /* [R7-01] «글을 고쳤어요»는 사실이 아닐 때가 있다 */
     var aiF=!!st.file&&((S.up||{})[q.up]||{}).src==='ai'&&!pvSt;   /* ★[AI_CARD_TIDY 2026-10-02 사장님 결정(R1-26)] AI 로 만든 줄은 머리 ▶ 가 그 파일을 튼다 — «들어 보기» 단추는 걷었다(같은 소리를 두 곳에서) */
     h+='<li class="mk-vr mk-vc'+(st.ok?' ok':'')+'"><div class="mk-vch">'+(aiF?'<button type="button" class="mk-pl mk-vpl" data-fk="mkvpl:'+q.up+'" aria-label="'+esc(lab+' 듣기')+'" onclick="mkUpPlay(\''+q.up+'\')">'+ICO_PLAY+'</button>':pix[q.up]!=null?'<button type="button" class="mk-pl mk-vpl" data-fk="mkvpl:'+q.up+'" aria-label="'+esc(lab+' 듣기')+'" onclick="mkLine(\''+k+'\','+pix[q.up]+')">'+ICO_PLAY+'</button>':'')
       +'<span class="mk-vhd"><span class="mk-vn">'+esc(lab)+'</span><span class="mk-vs">약 '+_mkSec(t.length)+'초'+(q.up==='entry'?' · 두 분이 한 문장씩 번갈아':'')+(q.up==='g3'&&R.onOf(S,'prevideo')?' · 식전 영상이 끝난'+NBS+'뒤에'+NBS+'흘러요':'')   /* [R2-18] 줄 카드 판에서도 «시작 1분 전»이 언제 흐르는지 · [R4-08] 머리 상태 줄 안으로(CSS 없는 덧말이 «✓ AI로 만들었어요» 아래 계단처럼 붙었다) */
@@ -4511,7 +4525,7 @@ function _mkIntro(){ var R=RitualOpen, ps=_mkPages().filter(function(k){ return 
       +'</div></details>'; }   /* ★[MAP_ONE 2026-10-02 사장님 결정(R1-07)] «이 식순의 차례» 사슬은 걷었다 — 바로 아래 번호 목록과 같은 순간을 두 번 늘어놓았다. 갈래는 목록 줄마다 둘째 줄 머리에. 되살리지 말 것 */
   h+='<ol class="mk-ilist">';
   ps.forEach(function(k){ var no=_mkNo(k), tags=[], op=MK.io===k;
-    var _vk=_vmKind(k); tags.push(_vk.v==='live'?'당일 직접':_vk.v==='prep'?'미리 준비'+(_vk.ok?' · 준비됨':' · 아직'):'나레이션');   /* [MAP_ONE] 둘째 줄 머리 = 갈래 */
+    var _vk=_vmKind(k); tags.push(_vk.v==='live'?'당일 직접':_vk.v==='prep'?(_vk.ok?'두 분 목소리 준비됨':'두 분 목소리 만들기 전'):'나레이션');   /* [MAP_ONE] 둘째 줄 머리 = 갈래 · [R7-05] 주어 없는 «준비됨»이 «보낼 것»과 한 줄에서 «영상이 다 됐다»로 읽혔다 */
     if(((R.onOf(S,k)||k==='guest')?_lGroups(k):[]).length) tags.push('고르기');
     if(_mkKinds(k).length) tags.push('두 분이 할 말');
     if(_mkItems(k).some(function(q){ return q.cat==='ask'||q.who==='parents'; })) tags.push('부탁');
@@ -4538,7 +4552,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
     h+='</ul></section>'; }
   var site=[]; ps.forEach(function(k){ if(k==='_sum'||_mkOff(k)) return; _mkKinds(k).forEach(function(kind){ TX_WHO.forEach(function(w){ var id=kind+'.'+w[0]; if(c[id]&&!String((S.tx||{})[id]||'').trim()) site.push((_mkNo(k)&&_mkNo(k)!=='식전'?_mkNo(k)+' ':'')+_mkName(k)+' · '+w[1]+(kind==='letter'?' · 따로 써서 가져와요':'')); }); }); _mkItems(k).forEach(function(q){ if(c[q.id]==='site') site.push((_mkNo(k)?_mkNo(k)+' ':'')+_mkName(k)+' · 부모님이 현장에서'); }); });
   if(site.length) h+='<section class="mk-sec"><h4>현장에서 하기로 한 것 '+site.length+'</h4><ul class="mk-list">'+site.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ul></section>';
-  var asks=[], sends=[], brings=[]; ps.forEach(function(k){ if(k==='_sum'||_mkOff(k)) return; _mkItems(k).forEach(function(q){ if(q.cat==='ask'&&q.who==='parents') asks.push(q); else if(q.cat==='send') sends.push(q); else if(q.cat==='bring') brings.push(q); }); });
+  var asks=[], sends=[], brings=[]; ps.forEach(function(k){ if(k==='_sum'||_mkOff(k)) return; _mkItems(k).forEach(function(q){ if(q.cat==='ask'&&q.who==='parents'){ if(_mkChk()[q.id]!=='site') asks.push(q); }   /* [R7-02] «원고 없이»는 «현장에서 하기로 한 것»에만 한 번 — «부탁드릴 것 · ✓ 다 됐어요»로 또 나와 원고가 온 것처럼 읽혔다 */ else if(q.cat==='send') sends.push(q); else if(q.cat==='bring') brings.push(q); }); });
   function li(q){ var due=(q.cat==='bring'&&q.due===0)?'':R.dueWord(q,wed); return '<li>'+esc(_ndd(q.what))+(due?NBS+'<span class="wr-due">·'+NBS+esc(_ndd(due))+'</span>':'')+'</li>'; }   /* [R1-30] 머리가 «당일 챙길 것»이라 당일 마감 글은 그리지 않는다(dueWord 는 마이페이지용 그대로) */
   /* 할 일 줄 — 왼쪽 할 것 · 언제까지 / 오른쪽 ✓(다 됨) 또는 «가기»(그 순간 쪽으로) */
   function row(nm,due,done,k){ return '<li class="mk-vr'+(done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(nm))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'
@@ -6220,13 +6234,13 @@ window.jumpTo=function(k){
   if(curSeq().indexOf(k)>-1 && !S.tune[k]){ S.tune[k]=true; buildSteps(); }
   for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k){ idx=i; render(); return; } }
 };
-var editReturn=false, _editSnap=null;
+var editReturn=false, _editSnap=null, _editSent=null;   /* [R7-07] _editSent = 수정 중 보낸 판 */
 window.editStep=function(k){ editReturn=true; _editSnap=JSON.stringify(S); if(isOpen()){ _editOpen(k); return; } jumpTo(k); };
 /* ★[EDIT_CANCEL_FILES 2026-10-03 · R6-01] ④ «변경»으로 들어간 수정의 «취소»는 글 · 칩 같은 고르는 값만 스냅샷으로 되돌린다.
    파일 작업(줄 «지우기» · AI 목소리 지우기 · «이 줄 다시 만들기»)은 그 자리에서 서버에 반영돼 되돌릴 수 없다 — 통째로 되돌리면 S.up 이
    휴지통에 간 옛 파일 id 를 가리켜 ② · ④ 는 «AI로 만들었어요» · 완료인데 소리는 없었다(새로 만든 파일은 연결이 끊겼다). 그래서 파일 상태는 지금 값을 둔다. 되돌리지 말 것 */
 function _editCancel(){ var cur=S; S=JSON.parse(_editSnap);
-  ['up','upPrev','vself','vtempo'].forEach(function(q){ if(cur[q]===undefined) delete S[q]; else S[q]=cur[q]; });
+  ['up','upPrev','vself','vtempo','guestWho','guestOne','pvWho'].forEach(function(q){ if(cur[q]===undefined) delete S[q]; else S[q]=cur[q]; });   /* [R7-01] 읽는 사람도 파일과 한 몸 — 바꾸는 순간 앞 사람 소리는 지워지고 새 사람으로 다시 만든다. 스냅샷 값으로 돌리면 칸은 «신부»인데 소리는 신랑이었다 */
   if(cur.fAt){ S.fAt=S.fAt||{}; Object.keys(cur.fAt).forEach(function(k){ if(/^up\./.test(k)) S.fAt[k]=cur.fAt[k]; }); }
   try{ _persist(); }catch(e){} }
 /* ★[EDIT_OPEN 2026-09-25 코워크 회신3 2-2] 새 코스 STEPS 에는 순간 화면이 없어 jumpTo(k) 가 아무 데도 못 가고
@@ -6970,6 +6984,7 @@ function _autoSend(){
      짓기 전 값으로 세면 보내자마자 '또 바뀐 것'이 되어 ①꼬리 저장이 한 번 더 나가고
      ②나가기가 「아직 안 저장됨」으로 읽어 또 저장한다 — 실측으로 둘 다 났다(검사가 잡았다). */
   _autoWait=true; _autoLast=_autoKey(); _autoState='saving'; _autoDirty=false; _autoPaint();
+  _editSent=(editReturn&&_editSnap)?JSON.stringify(S):null;   /* [R7-07 EDIT_SNAP_SAVED] 보낸 판 — 저장이 성공하면 이것이 취소 기준이 된다 */
   try{ parent.postMessage({type:'momentedit:orderDraft', data:pl}, window.location.origin); }
   catch(e){ _autoWait=false; _autoLast=''; _autoState='fail'; _autoPaint(); return; }
   /* 부모가 영영 답을 안 하면 스스로 푼다 — 안 그러면 자동 저장이 조용히 죽는다(EXIT_FEEDBACK 과 같은 병) */
@@ -7012,6 +7027,7 @@ function _applySaved(_sv){
   for(var _k in _sv.S){ S[_k]=_sv.S[_k]; }
   /* [CAKE_TOAST_SPLIT] 옛 초안은 ctSplit 이 없다 — 기본 S 의 표시가 남아 옮기기를 건너뛰지 않게 지우고 옮긴다 */
   if(!_sv.S.ctSplit) delete S.ctSplit; if(window.RitualOpen&&S.course==='open') RitualOpen.migrateCakeToast(S);
+  _g0Keep();   /* [R7-03 G0_KEEP] */
   if(!ENTRY[S.entry])S.entry='A'; if(!LETTER[S.letter])S.letter='parent'; if(!TRIBUTE.modes[S.tribute])S.tribute='flower'; if(!TOAST[S.toast])S.toast='toast'; if(!DECLARE[S.declare]&&!(window.RitualOpen&&RitualOpen.savedOk('declare',S.declare)))S.declare='1';   /* [SAVED_OK] 새 코스 값(clap)은 지키기 */ if(!DECLWHO[S.declareWho])S.declareWho='narr'; if(!RINGWARM[S.ringwarm])S.ringwarm='family'; if(['none','wine','cake'].indexOf(S.valley)<0)S.valley='none'; if(S.bless!=='on'&&S.bless!=='off')S.bless='off'; if(S.ring!=='on'&&S.ring!=='off')S.ring='on'; if(S.song!=='family'&&S.song!=='live')S.song='family'; S.welcome='self';
   courseStarted=true; _doneSaved=!!_sv.sv; _restored=true; _who=_sv.who||_who; buildSteps();
   // [ORD_INTRO2] 안내가 두 화면이 되며 단계가 하나 늘었다 — v 없는 옛 초안은 idx를 한 칸 밀어 같은 자리로 되돌린다
@@ -7188,7 +7204,7 @@ if(EMBED){
     if(ev.data.type==='momentedit:ritualFileData'){ _rfData(ev.data); return; }
     if(ev.data.type==='momentedit:voiceCloneDone'){ _vcDone(ev.data); return; }   // [VOICE_CLONE]   // [REC_UPLOAD] 올린 녹음을 두 분 계정으로 다시 받아 왔다
     if(ev.data.type==='momentedit:ritualFileDelDone'){ if(!ev.data.ok){ MK.toast=ev.data.error||'지우지 못했어요'; render(); } return; }   // [RITUAL_FILE] 마이페이지가 GAS 결과를 돌려준다
-    if(ev.data.type==='momentedit:orderDraftSaved'){ _txPullApply(ev.data.pull); _autoAck(true); return; }
+    if(ev.data.type==='momentedit:orderDraftSaved'){ _txPullApply(ev.data.pull); if(editReturn&&_editSnap&&_editSent) _editSnap=_editSent; _editSent=null; _autoAck(true); return; }   /* ★[R7-07 EDIT_SNAP_SAVED] 수정 중 머리 «저장»이 성공하면 그 판을 취소 기준으로 — 저장한 글을 «취소»로 옛 값 · 옛 시각으로 돌리면 다음 저장 때 서버 합치기가 «서버가 더 나중»으로 읽어 지운 글을 되살렸다 */
     if(ev.data.type==='momentedit:orderDraftFail'){ _autoAck(false); return; }
     // 저장 실패로 오버레이가 안 닫혔을 때 나가기 버튼 잠금 해제(재시도 가능)
     // [ORD_SAVE_STATE] 사유가 함께 오면 이 지면 안에서 브랜드 판으로 알린다 — 부모의 네이티브 alert 을 대신한다.
@@ -7201,7 +7217,7 @@ if(EMBED){
     }
     // [ORD_SAVE_STATE] 부모(mypage)의 완료 저장 결과 — 성공·실패 양쪽을 다 받는다.
     //   예전엔 실패만 받았다. 성공 신호가 없으니 '저장됨'을 미리 칠할 수밖에 없었고 그게 오표시의 뿌리였다.
-    if(ev.data.type==='momentedit:orderSaved'){ _txPullApply(ev.data.pull); _saveDone(true); return; }
+    if(ev.data.type==='momentedit:orderSaved'){ _txPullApply(ev.data.pull); if(editReturn&&_editSnap) _editSnap=JSON.stringify(S); _saveDone(true); return; }   /* [R7-07 EDIT_SNAP_SAVED] */
     if(ev.data.type==='momentedit:orderSaveFail'){ _saveDone(false, ev.data.msg); return; }   // [ORDER_SAVE_FAIL 2026-07-25] 회의 R-8
     if(ev.data.type==='momentedit:orderFill'){
       if(ev.data.cust) CUST=ev.data.cust;   // 신원 번들 — AI 상담 그라운딩·인계 식별용(기획 v3 §3-1)

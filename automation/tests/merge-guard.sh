@@ -13722,7 +13722,22 @@ chk '<b>말씀하실 차례</b>' order-preview.html 1
 chk 'R6-03' order-preview.html 1
 chk 'R6-04' order-preview.html 1
 chk 'R6-06' order-preview.html 1
-chk '현장에서 하세요</span>' order-preview.html 1
+nochk '현장에서 하세요</span>' order-preview.html 0   # [R7-02] «원고 없이»면 부탁 줄을 걷는다(R6-07 표시는 쓸 일이 없어졌다)
+chk '_bSiteRow' order-preview.html 2
+# [R7-01 … R7-09 2026-10-03 식순 라운드 점검 7] 취소는 읽는 사람도 지금 값 · 사람이 어긋난 AI 소리는 «다시 만들어 주세요» · 하객 입장 때 AI 기본 글 · 저장 뒤 취소 기준
+chk 'function _whoStale(key)' order-preview.html 1
+chk "'up','upPrev','vself','vtempo','guestWho','guestOne','pvWho'" order-preview.html 1
+chk 'R7-01' scripts/audit/edit-cancel-files.mjs 2
+chk 'G0_KEEP' order-preview.html 2
+chk '자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요. 기다리시는 동안 편안히 머물러 주세요.' assets/ritual-data.js 1
+chk 'cast 01_guest-1' 'docs/plans/식순연구/재녹음_목록_20261003.md' 2
+chk 'EDIT_SNAP_SAVED' order-preview.html 2
+chk '두 분 목소리 준비됨' order-preview.html 1
+chk '.mk-tg.auto{cursor:default;border:0;background:none' order-preview.html 1
+chk 'b,strong{font-weight:600}' order-preview.html 1
+nochk 'Noto+Sans+KR:wght@400;500;600;700' order-preview.html 0
+chk 'R7-04' order-preview.html 3
+chk '<span id="mkPvH" class="sr-only">' order-preview.html 1
 chk 'R5-02' order-preview.html 1
 chk 'function _vsMk()' order-preview.html 1
 chk 'R5-04' order-preview.html 1
