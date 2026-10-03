@@ -7442,8 +7442,8 @@ function invStepParents(box){
     var offOn=(m==='offline'||m==='both'), onOn=(m==='online'||m==='both');
     function chk(key,checked,label){ return '<label class="inv-chk"><input type="checkbox" data-acc="'+key+'" '+(checked?'checked':'')+'> '+label+'</label>'; }
     function dim(label,why){ return '<label class="inv-chk" style="opacity:.45;cursor:default"><input type="checkbox" disabled> '+label+' <span style="font-size:11px;color:var(--label-soft)">('+why+')</span></label>'; }
-    o+= offOn ? chk('family', d.accountFamily==='Y', '오프라인 청첩장') : dim('오프라인 청첩장','1단계에서 오프라인 초대 선택 시');
-    o+= onOn ? chk('online', d.accountOnline==='Y', '온라인 청첩장') : dim('온라인 청첩장','1단계에서 온라인 초대 선택 시');
+    o+= offOn ? chk('family', d.accountFamily==='Y', '오프라인 청첩장') : dim('오프라인 청첩장','기본 단계에서 오프라인 초대 선택 시');   /* [STEP_NONUM_OP 2026-10-03 사장님 «제작 부분에 다른 곳들도 숫자 있는 곳들 찾아서 삭제»] «1단계» → 걸음 이름(«기본» · _invStepNames) — 진행 표시에 번호가 없다([WZ_STEP_NONUM]) */
+    o+= onOn ? chk('online', d.accountOnline==='Y', '온라인 청첩장') : dim('온라인 청첩장','기본 단계에서 온라인 초대 선택 시');
     o+= onOn ? chk('live', d.accountLive==='Y', '모바일 참석 화면') : dim('모바일 참석 화면','온라인 초대에 함께 제공');
     return '<div class="inv-gate"><div class="inv-gate-q">계좌를 어디에 보여드릴까요? (만든 청첩장만)</div>'+o+'</div>';   // [INV_GATE_GAP] 2026-09-26 통합 점검 L6 · 인라인 margin-top:6px 가 .inv-gate 의 14px 를 덮어, 새 질문이 바로 위 신부 계좌 칸에 6px 로 붙었다(칸 이름표 위 12px 보다 좁아 묶음이 거꾸로 읽혔다) — 다른 질문과 같은 14px
   })();
@@ -7732,7 +7732,7 @@ function doPublishInv(box){
    무엇을 해야 할지가 안 보이고, 그 자리에서 고칠 수도 없다. 사람 말로 바꿔 준다. */
 function _invErrHuman(msg){
   msg=String(msg||'');
-  if(/eventId|영문 이름/.test(msg)) return '영문 이름을 확인해 주세요. 1단계에서 알파벳으로 적어 주시면 바로 만들어져요.';
+  if(/eventId|영문 이름/.test(msg)) return '영문 이름을 확인해 주세요. 기본 단계에서 알파벳으로 적어 주시면 바로 만들어져요.';
   return msg||'발행이 안 됐어요. 한 번 더 눌러 주세요.';
 }
 // (미리보기 버튼 제거됨) 확인 단계에선 샘플 대신, '만들기' 후 실제 청첩장(두 분 정보 반영)을 바로 보여주고 수정하게 함.

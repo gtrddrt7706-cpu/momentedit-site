@@ -37,8 +37,12 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
     RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; S.on.prevideo = 1; opSync();
   });
   await nx(); await pg.waitForTimeout(1400);
-  const d0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { open: !!d, t: d ? d.querySelector('.mk-dlg-t').textContent : '', opts: d ? [...d.querySelectorAll('[data-fk^="mkvs:"]')].map((b) => b.querySelector('b').textContent).join('|') : '', asked: S.vsAsked }; });
-  ok(W + ' ② 처음 들어오면 창이 먼저 — «안내 목소리 정하기» · [AI 두 분 목소리 | 스튜디오 나레이션]', d0.open && d0.t === '안내 목소리 정하기' && d0.opts === 'AI 두 분 목소리|스튜디오 나레이션' && d0.asked === 1, JSON.stringify(d0));
+  /* ★[VOICE_ONCE 2026-10-03 사장님] 종전 «② 처음 들어오면 창이 먼저(S.vsAsked)» → 저절로 뜨지 않는다 — 예식 흐름 다음 «두 분 목소리 만들기» 쪽이 그 일을 한다.
+     창 자체(고르기 · AI 사람 줄 · 동의로 이어짐)는 그대로라 «나레이션 자세히»(mkVsOpen)로 열어 아래를 잰다 */
+  ok(W + ' ② 처음 들어와도 창이 저절로 뜨지 않는다 [VOICE_ONCE]', await pg.evaluate(() => !document.getElementById('mkRecDlg')));
+  await pg.evaluate(() => mkVsOpen()); await pg.waitForTimeout(400);
+  const d0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { open: !!d, t: d ? d.querySelector('.mk-dlg-t').textContent : '', opts: d ? [...d.querySelectorAll('[data-fk^="mkvs:"]')].map((b) => b.querySelector('b').textContent).join('|') : '' }; });
+  ok(W + ' «나레이션 자세히» 창 — «안내 목소리 정하기» · [AI 두 분 목소리 | 스튜디오 나레이션]', d0.open && d0.t === '안내 목소리 정하기' && d0.opts === 'AI 두 분 목소리|스튜디오 나레이션', JSON.stringify(d0));
   if (SHOT) await pg.screenshot({ path: `${SHOT}/vs-pick-${W}.png` });
   await pg.click('[data-fk="mkvs:ai"]'); await pg.waitForTimeout(2500);
   const d1 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', gv: S.guestVoice, ev: S.entryVoice, pv: S.pvVoice, vf: JSON.stringify(S.vfill), rows: d ? d.querySelectorAll('.mk-vsp li').length : 0, read: d ? d.querySelectorAll('[data-fk="mkvsread:bride"]').length + '/' + d.querySelectorAll('[data-fk="mkvsread:groom"]').length : '', svg: !!(d && d.querySelector('.mk-vsg svg .wv')), anim: d && d.querySelector('.mk-vsg .wv') ? getComputedStyle(d.querySelector('.mk-vsg .wv')).animationName : '', made: __calls.filter((c) => /^make:/.test(c)).length }; });
@@ -53,8 +57,9 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' [다 됐어요] → 창이 닫힌다', await pg.evaluate(() => !document.getElementById('mkRecDlg')));
   await pg.evaluate(() => { VS.seen = false; mkGo('entry'); }); await pg.waitForTimeout(400);
   ok(W + ' 두 번째부터는 저절로 안 뜬다(S.vsAsked)', await pg.evaluate(() => !document.getElementById('mkRecDlg')));
-  const pill = await pg.evaluate(() => { const v = document.querySelector('.mk-vsbar'); return v ? { t: v.textContent, h: Math.round(v.querySelector('[data-fk="mkvsopen"]').getBoundingClientRect().height), pills: !!document.getElementById('obVoice') } : null; });
-  ok(W + ' ② 진행 줄 아래 «안내 목소리 · AI 두 분 목소리 · 나레이션 자세히»(누를 곳 44 · 머리 알약 줄에는 없음)', pill && /안내 목소리 · AI 두 분 목소리/.test(pill.t) && /나레이션 자세히/.test(pill.t) && pill.h >= 44 && !pill.pills, JSON.stringify(pill));
+  /* ★[VS_LINK_IN_ROW 2026-10-03 사장님] 종전 «② 진행 줄 아래 «안내 목소리 · AI 두 분 목소리 · 나레이션 자세히» 한 줄» → 그 줄은 없다 · «나레이션 자세히»는 목소리 준비 칩 줄 오른쪽 끝 */
+  const pill = await pg.evaluate(() => { const l = document.querySelector('[data-fk="mkvsopen"]'); return { bar: !!document.querySelector('.mk-vsbar'), inRow: !!(l && l.closest('.ls-cg.cg-vp')), t: l && l.textContent, h: l ? Math.round(l.getBoundingClientRect().height) : 0, pills: !!document.getElementById('obVoice') }; });
+  ok(W + ' ② 입장 — 한 줄(안내 목소리 · …) 없음 · «나레이션 자세히»는 목소리 준비 칩 줄 안(누를 곳 44 · 머리 알약 줄에는 없음) [VS_LINK_IN_ROW]', !pill.bar && pill.inRow && pill.t === '나레이션 자세히' && pill.h >= 44 && !pill.pills, JSON.stringify(pill));
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(1800);
   if (SHOT) { await pg.evaluate(() => { try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(300); await pg.screenshot({ path: `${SHOT}/vs-guest-${W}.png` }); }
   /* ★[AI_NOTE_OFF 2026-10-03 사장님] 종전 «AI 줄 카드에 «스튜디오 나레이션과 비교해 듣기» → 나레이션 파일» → 이제 «그 한 줄(글은 두 분 말로 … · 비교해 듣기) · 줄마다 «만들면 저절로 채워져요» 없음» */
@@ -92,7 +97,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const d5 = await pg.evaluate(() => ({ dlg: !!document.getElementById('mkRecDlg'), v: [S.guestVoice, S.entryVoice, S.pvVoice].join(','), vf: JSON.stringify(S.vfill || {}) }));
   ok(W + ' 스튜디오 → 세 자리 나레이션 · 창 닫힘', !d5.dlg && d5.v === 'nar,nar,nar' && d5.vf === '{}', JSON.stringify(d5));
   await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = false; render(); });
-  ok(W + ' AI 를 못 쓰는 예식엔 그 줄이 없다', await pg.evaluate(() => !document.querySelector('.mk-vsbar')));
+  ok(W + ' AI 를 못 쓰는 예식엔 «나레이션 자세히»도 없다 [VS_LINK_IN_ROW]', await pg.evaluate(() => !document.querySelector('.mk-vsbar') && !document.querySelector('[data-fk="mkvsopen"]')));
   /* ★[VS_CHIP_ONCE] 순간 쪽 칩을 처음 누르면 창이 한 번 — 누른 칩이 눌린 모양 · 두 번째는 안 뜬다 */
   await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; delete S.vsChip; mkGo('guest'); render(); }); await pg.waitForTimeout(500);
   await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(500);
