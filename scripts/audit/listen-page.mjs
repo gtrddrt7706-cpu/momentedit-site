@@ -816,11 +816,29 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(400); await pg.click('[data-fk="mkflow:prevideo"]'); await pg.waitForTimeout(400);
   const d = await rd();
   ok(`CF-6 ${w} «다시 담기» — 번호 · 합 · 머리 한 줄 · ① 상태가 처음 그대로 · 초점은 누른 단추에`, d.off.length === 0 && JSON.stringify(d.no) === JSON.stringify(a.no) && d.sum === a.sum && d.on.indexOf('ring') > -1 && d.on.indexOf('prevideo') > -1 && (await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'))) === 'mkflow:prevideo', JSON.stringify({ off: d.off, sum: d.sum }));
-  /* 이 방문에서 뺀 줄만 자리를 지킨다 — 떠났다 돌아오면 그때 담긴 순간만 */
-  await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(300); await pg.evaluate(() => { mkGo('guest'); }); await pg.waitForTimeout(300); await pg.evaluate(() => { mkGo('_intro'); }); await pg.waitForTimeout(400);
+  /* ★[FLOW_KEEP_STEP 2026-10-03 점검] 종전 «흐름 쪽을 떠났다 돌아오면 뺀 줄이 사라진다» → 이제 «② 안에서 오가면(다음 → 이전) 그대로 · ② 걸음을 떠나면(③ 연습하기) 사라진다» */
+  const dur0 = await pg.evaluate(() => document.querySelector('.cf-r[data-k="ring"] .cf-d').textContent);
+  await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(300);
+  const dur1 = await pg.evaluate(() => document.querySelector('.cf-r[data-k="ring"] .cf-d').textContent);
+  ok(`CF-11 ${w} 뺀 줄의 길이 = 담았을 때 길이(${dur0} → ${dur1}) [LEN_AS_ON]`, dur0 === dur1, JSON.stringify({ dur0, dur1 }));
+  await clickNext(pg); await pg.waitForTimeout(500); await pg.click('#prev'); await pg.waitForTimeout(500);
   const e = await rd();
-  ok(`CF-7 ${w} 떠났다 돌아오면 뺀 순간은 줄에서 사라진다(①에서 안 담은 것처럼) · 다시 담으려면 ① · 진행 줄 «+ 순간 더하기»`, e.keys.indexOf('ring') < 0 && e.off.length === 0, JSON.stringify(e.keys));
+  ok(`CF-7 ${w} 뺀 뒤 «다음» → «이전» — 뺀 줄은 그 자리에 옅게 · «다시 담기» 그대로 [FLOW_KEEP_STEP]`, e.at === '_intro' && e.keys.indexOf('ring') > -1 && e.off.join() === 'ring' && e.btn.ring === '다시 담기', JSON.stringify({ at: e.at, off: e.off, btn: e.btn.ring }));
+  await pg.evaluate(() => { opGoStep('practice'); }); await pg.waitForTimeout(500); await pg.evaluate(() => { opGoStep('listen'); mkGo('_intro'); }); await pg.waitForTimeout(500);
+  const e2 = await rd();
+  ok(`CF-7b ${w} ② 걸음을 떠났다(③) 돌아오면 뺀 순간은 줄에서 사라진다(①에서 안 담은 것처럼)`, e2.keys.indexOf('ring') < 0 && e2.off.length === 0, JSON.stringify(e2.keys));
   await pg.evaluate(() => { opTgl('ring'); mkGo('_intro'); }); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="mkflow:prevideo"]'); await pg.waitForTimeout(300);
+  const sayPre = await pg.evaluate(() => (document.getElementById('lsLive') || {}).textContent || '');
+  await pg.click('[data-fk="mkflow:prevideo"]'); await pg.waitForTimeout(300);
+  ok(`CF-12 ${w} 식전 영상을 빼면 알림은 «식전 영상을 뺐어요»에서 끝난다(본식 · 담은 순간 수 없음) [PRE_SAY]`, sayPre.trim() === '식전 영상을 뺐어요', sayPre);
+  /* ★[LEN_ONE 2026-10-03 점검] 한 순간의 길이는 한 자 — 예식 흐름 줄 = 그 순간 쪽 머리(«… 약 n분») */
+  const lens = await pg.evaluate(async () => { const wait = (ms) => new Promise((z) => setTimeout(z, ms)), flow = {}, page = {};
+    document.querySelectorAll('.mk-intro .cf-r').forEach((r) => { flow[r.dataset.k] = r.querySelector('.cf-d').textContent; });
+    for (const k of Object.keys(flow)) { if (k === 'guest' || !(k === '_close' || RitualOpen.onOf(S, k))) continue; mkGo(k); await wait(80); page[k] = ((document.querySelector('.mk-one .mk-sec-t') || {}).textContent || '').trim(); }
+    mkGo('_intro'); await wait(150); return { flow, page }; });
+  const bad = Object.keys(lens.page).filter((k) => lens.page[k] !== lens.flow[k]);
+  ok(`CF-10 ${w} 예식 흐름 줄 길이 = 그 순간 쪽 머리 길이 · ${Object.keys(lens.page).length}순간 [LEN_ONE]`, Object.keys(lens.page).length >= 10 && bad.length === 0, JSON.stringify(bad.map((k) => k + ':' + lens.flow[k] + '≠' + lens.page[k])));
   /* 모양 — 줄 높이 52 이상 · 단추 44 · 선은 머리카락 선만(상자 · 카드 없음) · 390 에서는 레일과 안 겹친다[RAIL_LOCKED] */
   const g = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-intro .cf-r')], bs = [...document.querySelectorAll('.mk-intro .cf-x')], rail = document.querySelector('#meAdvStack .me-fab, .me-fab'), rr = rail ? rail.getBoundingClientRect() : null;
     return { minH: Math.min(...rows.map((r) => r.getBoundingClientRect().height)), tap: Math.min(...bs.map((b) => b.getBoundingClientRect().height)), maxR: Math.max(...bs.map((b) => b.getBoundingClientRect().right), ...[...document.querySelectorAll('.mk-intro .cf-d')].map((x) => x.getBoundingClientRect().right)), railL: rr ? rr.left : 9999,

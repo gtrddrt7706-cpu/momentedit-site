@@ -37,7 +37,7 @@ for (const w of [360, 1280]) {
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); await nx(); await pg.waitForTimeout(1200);
   /* ★[COURSE_FLOW 2026-10-03 사장님] 첫 쪽의 목소리 범례 접이는 걷었다 — 누가 말하는지는 줄마다 한 낱말. 종전 «범례가 있다» → «범례 없음 · 줄 낱말이 이 식순의 갈래만» */
   const lg = await pg.evaluate(() => ({ legend: !!document.querySelector('.mk-intro .mk-legend'), v: [...document.querySelectorAll('.mk-intro .cf-v')].map((x) => x.textContent) }));
-  ok(`${w} 예식 흐름 쪽 — 범례 접이 없음 · 줄마다 누가 말하는지(나레이션 · 직접) · 나레이션 판엔 «두 분 목소리» 없음([R1-19]) [VOICE_KIND · COURSE_FLOW]`, !lg.legend && lg.v.includes('나레이션') && lg.v.includes('직접') && !lg.v.includes('두 분 목소리'), JSON.stringify(lg));
+  ok(`${w} 예식 흐름 쪽 — 범례 접이 없음 · 줄마다 누가 말하는지(나레이션 · 당일 직접) · 나레이션 판엔 «두 분 목소리» 없음([R1-19]) [VOICE_KIND · COURSE_FLOW]`, !lg.legend && lg.v.includes('나레이션') && lg.v.includes('당일 직접') && !lg.v.includes('직접') && !lg.v.includes('두 분 목소리'), JSON.stringify(lg));   /* [COURSE_FLOW_LIVE 2026-10-03] 줄 낱말 «직접» → «당일 직접»(② 쪽 머리 · 줄 카드와 같은 말) — 홀로 «직접»은 없다 */
   /* [CHIP_UNPICKED · MK_NO_HEADS] 안 고른 기본(나레이션)은 비어 보이고 · 누르면 소리가 나고 눌린 모양이 된다 · «고르기» · «흐름» 제목 없음 */
   const cu = await pg.evaluate(async () => { const z = (t) => new Promise((r) => setTimeout(r, t)); S.vsAsked = 1; RitualOpen.FEATURE.voiceClone = true; mkGo('guest');   /* [R2-15] */  render(); await z(300);   /* ★[VP_NO_DIRECT] 고르는 칸은 AI 가 켜진 예식에만(AI · 나레이션) — 시험에서 잠깐 켠다 */
     const b0 = document.querySelector('[data-fk="lsc:guestVoice:nar"]'), before = b0.getAttribute('aria-checked'), tab = document.querySelector('[data-fk^="lsc:guestVoice:"]').tabIndex;   /* [VP_CHOICE] 0928 부터 첫 칩은 «직접 녹음하기» — 안 고른 묶음은 첫 칩이 Tab 자리 */ b0.click(); await z(500);

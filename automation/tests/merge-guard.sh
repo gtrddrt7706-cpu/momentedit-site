@@ -8985,6 +8985,16 @@ nochk 'class="mk-irow"' order-preview.html
 nochk "<p class=\"mk-note\">비워 둔 칸은 예식 7일 전까지 채우면 돼요.</p>" order-preview.html
 chk 'COURSE_FLOW' scripts/audit/listen-page.mjs 3
 chk 'COURSE_FLOW' scripts/audit/rec-upload.mjs 2
+# ★[LEN_ONE · LEN_AS_ON · FLOW_KEEP_STEP · PRE_SAY 2026-10-03 최종 점검 넷] 한 순간의 길이 = 한 자(_flowSec 가운데 · 흐름 줄 = 순간 쪽 머리) · 뺀 줄은 담았다면의 길이 ·
+#   뺀 줄은 ② 안에서 오가도(다음 → 이전) 자리를 지킨다(② 걸음을 떠날 때만 놓는다) · 식전을 빼면 알림에 본식 · 담은 순간 수를 붙이지 않는다. listen-page CF-7 · CF-10~CF-12(깨 보고 믿음: 고치기 전 판 = 8줄 빨강)
+chk 'LEN_ONE' order-preview.html 1
+chk 'sec=Math.round((_fs.lo+_fs.hi)/2)' order-preview.html 1
+chk 'LEN_AS_ON' order-preview.html 1
+chk 'FLOW_KEEP_STEP' order-preview.html 1
+nochk "if(k!=='_intro') MK.flowKeep=null;" order-preview.html
+chk 'PRE_SAY' order-preview.html 1
+chk 'LEN_ONE' scripts/audit/listen-page.mjs 2
+chk 'FLOW_KEEP_STEP' scripts/audit/listen-page.mjs 2
 # ★★[VID_AUTO_ONLY 2026-10-03 사장님 «서는 분 칩을 누르면 영상이 다시 자동 재생 · 다른 곳들도 체크» · «정지/재생 뜨는데 그 기능도 삭제 · 자동 재생되고 1회 재생되면 끝»]
 #   ② 장면 영상은 쪽에 들어올 때 한 번(MK.pgTok) · 칩 · 줄 ▶ · 들어 보기 · 글 · 접기 · ⋯ · 누르기 · Enter 는 다시 안 튼다 · ① 창은 열 때 · «다시 듣기»만 · 영상은 꾸밈(aria-hidden · tabindex · 커서 · controls 없음).
 #   listen-page P-2b · P-5 · P-6 · P-8 · P-10 · P-11~P-13 이 play 를 가로채 센다(깨 보고 믿음: 옛 «소리를 틀면 그림도» 규칙을 되살리면 7줄 빨강 · 서약 칩 뒤 4번).

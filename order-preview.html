@@ -3775,7 +3775,7 @@ window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;  
     /* [R2-17] «나중에 언제든»은 근거 없는 안심(마감이 있다) · AI 판은 «AI 두 분 목소리»(_mkLeaveMsg) */
     ordAsk({title:hd+(/칸이 비어 있어요\.?$/.test(body)?' · 아직 비어 있어요':' · 아직 남은 일이 있어요'),   /* [R4-11] 빈 칸이 없는 쪽(부탁 · 보낼 것만 남음)은 «비어 있어요»가 아니다 */body:body+' 미완료로 두고 넘어갈게요. «한눈에 보기»에서 다시 찾을 수 있어요',yes:'다음으로',no:'돌아가서 채우기'}).then(function(ok){ if(ok) _mkGoNow(k); }); return; }
   _mkGoNow(k); };
-function _mkGoNow(k){ var m=_mkState(); m.at=k; m.seen[k]=1; LS.open=k; MK.pgTok=(MK.pgTok||0)+1; /* [VID_AUTO_ONLY] 쪽 들어옴 */ MK.navOpen=false;   /* [NAV_FOLD] 쪽이 바뀌면 접힌다(줄에서 골라도 · 아래 «다음»으로 가도) */ if(k!=='_intro') MK.flowKeep=null;   /* [COURSE_FLOW] 흐름 쪽을 떠나면 뺀 줄의 자리도 놓는다(돌아오면 그때 담긴 순간으로 다시) */
+function _mkGoNow(k){ var m=_mkState(); m.at=k; m.seen[k]=1; LS.open=k; MK.pgTok=(MK.pgTok||0)+1; /* [VID_AUTO_ONLY] 쪽 들어옴 */ MK.navOpen=false;   /* [NAV_FOLD] 쪽이 바뀌면 접힌다(줄에서 골라도 · 아래 «다음»으로 가도) */   /* ★[FLOW_KEEP_STEP 2026-10-03] «흐름 쪽을 떠나면 뺀 줄의 자리를 놓는다» 금지 — 2026-10-03 점검으로 삭제(다음 → 이전이면 뺀 줄이 사라졌다) · 자리는 ② 걸음을 떠날 때만 놓는다(render 의 COURSE_FLOW 줄) */
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
   _fxNext='#mkHead'; try{ window.scrollTo(0,0); }catch(e){} }
 function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i],d>0); return true; }   // [LEAVE_POP] 다음으로 갈 때만 묻는다
@@ -4532,7 +4532,7 @@ function renderMake(){
   if(MK.toast&&!_dlgOn()){ h+='<p class="mk-toast" role="status">'+esc(MK.toast)+'</p>'; MK.toast=''; }   // [REC_DLG] 창이 떠 있으면 알림은 창 안에
   if(k==='_sum') return h+_mkSum()+'</div>';
   if(k==='_intro') return h+_mkIntro()+'</div>';
-  var no=_mkNo(k), off=_mkOff(k), peak=R.peakOf(S), p=R.partsOf(k,S)||[0,0,0,0], sec=Math.round((p[0]||0)+(p[1]||0)+(p[2]||0));
+  var no=_mkNo(k), off=_mkOff(k), peak=R.peakOf(S), _fs=_flowSec(k), sec=Math.round((_fs.lo+_fs.hi)/2);   /* ★[LEN_ONE 2026-10-03] 순간 길이는 한 자 — 예식 흐름 줄과 같은 _flowSec 가운데 값(종전 대본 합 lo 만 써서 화촉 2분 ↔ 1분처럼 두 화면이 달랐다) */
   h+='<section class="mk-pg'+(off?' off':'')+'" aria-labelledby="mkHead">';
   if(off){ var dm=(m.dropMin||{})[k]; h+='<div class="mk-offb" role="status"><span>이 순간을 뺐어요 · 적어 두신 글은 그대로 있어요'+(dm?' · 본식 약 '+dm+'분 줄었어요':'')+'</span><button type="button" class="rowbtn" data-fk="mkundrop" onclick="mkUndrop(\''+k+'\')">다시 넣기</button></div>'; }
   /* [R2-21] 식전 영상도 «이 순간 빼기»(PREVIDEO_PICK 부터 뺄 수 있는 순간) · [R2-22] «식전 · 식전 영상» 겹말을 막는다(SCRIPT_LAB P1-7 과 같은 규칙) */
@@ -4577,14 +4577,17 @@ function _voiceMap(jump){ var ps=_mkPages().filter(function(k){ return k!=='_int
 /* [VOICE_MAP] 진행 줄 ⓘ = 예식 흐름 다시 보기 — 줄마다 목소리 한 낱말이 곧 목소리 지도다(옛 접이 #mkVMap 은 걷었다) */
 window.mkVoiceInfo=function(){ _fxNext='#mkHead'; mkGo('_intro'); };
 /* [COURSE_FLOW] 한 줄의 길이 — 본식 합(R.bodySec · span)과 같은 자(partsOf · 대본 합 lo · 넉넉 합 hi) · 화면에는 가운데 한 값(감동 흐름 FLOW_LINE 의 길이와 같은 셈) */
-function _flowSec(k){ var p=RitualOpen.partsOf(k,S)||[0,0,0,0]; return {lo:p[0]+p[1]+p[2],hi:p[0]+1.25*p[1]+p[2]+p[3]}; }
+function _flowSec(k){ var R=RitualOpen, T=S;
+  /* ★[LEN_AS_ON 2026-10-03] 뺀 순간은 «담았다면»으로 잰다(ritual-open momentLabel 과 같은 길) — 종전엔 빠진 차례로 재서 반지가 담기면 2분 · 빼면 1분으로 바뀌었다 */
+  if(k!=='_close'&&!R.onOf(S,k)){ T={}; for(var x in S) T[x]=S[x]; var on={}; for(var y in (S.on||{})) on[y]=S.on[y]; on[k]=1; T.on=on; }
+  var p=R.partsOf(k,T,R.bodySeq(T))||[0,0,0,0]; return {lo:p[0]+p[1]+p[2],hi:p[0]+1.25*p[1]+p[2]+p[3]}; }
 function _flowVoice(k){ var v=_vmKind(k).v; return v==='live'?'당일 직접':v==='prep'?'두 분 목소리':'나레이션'; }   /* [COURSE_FLOW_LIVE 2026-10-03] «직접»만으로는 누가 언제인지 안 읽힌다 — ② 쪽 머리 · 줄 카드가 쓰는 «당일 직접»과 같은 말 */
 /* [COURSE_FLOW] 빼기 · 다시 담기 = ① 과 같은 단추(opTgl) — ① · ② · ④ · 엔진이 한 상태를 본다 · 본식 순간이 하나도 안 남으면 막는다 */
 window.mkFlowTgl=function(k){ var R=RitualOpen; if(R.ALWAYS[k]||k==='_close') return; var on=R.onOf(S,k);
   if(on&&!R.PRE[k]&&!R.bodySeq(S).some(function(x){ return x!==k&&x!=='_close'; })){ ordTell({title:'본식 순간이 하나는 있어야 해요',body:'이 순간을 빼면 닫는 인사만 남아요. 다른 순간을 먼저 담은 뒤 빼 주세요.'}); return; }
   if(!MK.flowKeep) MK.flowKeep=_flowKeys();
   _fxNext='[data-fk="mkflow:'+k+'"]'; opTgl(k);
-  var sp=R.span(S), nm=_mkName(k); _lSay(nm+_josa(nm,'을','를')+(on?' 뺐어요':' 다시 담았어요')+' · 본식 '+sp.body+' · 담은 순간 '+_opMoments()); };
+  var sp=R.span(S), nm=_mkName(k); _lSay(nm+_josa(nm,'을','를')+(on?' 뺐어요':' 다시 담았어요')+(R.PRE[k]?'':' · 본식 '+sp.body+' · 담은 순간 '+_opMoments())); };   /* [PRE_SAY 2026-10-03] 식전은 본식 시간 · 담은 순간 수에 들지 않는다 — 그 말을 붙이면 «뺐는데 그대로»로 들렸다 */
 /* 흐름 쪽의 줄 — 엔진 차례(ORDER · 닫는 인사) 그대로 · 담긴 순간 + 이 방문에서 뺀 순간(flowKeep) · ①에서 안 담은 순간은 나오지 않는다 */
 function _flowKeys(){ var R=RitualOpen, keep=MK.flowKeep||[]; return R.ORDER.filter(function(k){ return R.onOf(S,k)||keep.indexOf(k)>-1; }); }
 function _mkIntro(){ var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S);
