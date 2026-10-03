@@ -11672,7 +11672,7 @@ chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 �
 chk "L('tribute','말의 길이'" order-preview.html 1
 chk "'인사 방식'" order-preview.html 1
 chk "\[\['고르기','예시에서 시작해 순간을 더하고 빼요.'\]" order-preview.html 1   # [E3] → [INTRO_JOURNEY 2026-09-27] 안내 화면 네 걸음 첫 줄
-chk "sub:'작은 예식은 보통 이런 흐름이에요. 마음에 드는 예시로 시작해서 더하고 빼면 돼요.'" order-preview.html 1
+chk "sub:'작은 예식은 보통 이런 흐름이에요.'}," order-preview.html 1   # [R2-38] 한 문장으로(«예시로 시작»은 아래 섹션 제목이 말한다)
 nochk '_pickVids' order-preview.html   # ① 카드 자동 재생 영상은 거뒀다 — 칸은 첫 장면 사진만(최종판 3-5 · 사장님 확인)
 nochk 'opVidOff' order-preview.html
 # ── ★[SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 = 부모 클립 앞 두 문장에서 멈춤(새 녹음 0) ──
@@ -13545,8 +13545,8 @@ chk 'function admAiLine(d)' admin.html 1
 chk '식순지를 뽑은 뒤 AI 줄이 바뀌었어요 · 다시 뽑기' admin.html 1
 chk "의 목소리로 만든 AI 음성입니다.'" admin.html 1
 # ★[PRACTICE_VOICE_0928 · PRACTICE_READ_0928 7-1 · 7-2] 연습 녹음 · 연습 AI 읽기 문구 · 배지 · 말하는 사람 → 목소리 · 기기에 안 남김
-chk '내 차례를 녹음하며 연습 · 끝나고 내 목소리로 다시 들어 볼 수 있어요' order-preview.html 1
-chk '연습 녹음은 이 기기에만 있어요. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요' order-preview.html 1
+chk '내 차례를 녹음해요 · 끝나고 내 목소리로 다시 들어 볼 수 있어요' order-preview.html 1   # [R2-39]
+chk '>녹음은 이 기기에만 있어요. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요' order-preview.html 1   # [R2-39]
 chk '방금 연습 다시 듣기' order-preview.html 1
 chk '연습 녹음 모두 지우기' order-preview.html 1
 chk '두 분 차례도 소리로 듣기 · AI가 연습용으로 읽어 줘요 · 예식에서는 나오지 않아요' order-preview.html 1

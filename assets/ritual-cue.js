@@ -669,7 +669,7 @@
             //   할지 모른다 — 화면이 소리를 설명하지 못하면 폴백이 조용했던 때와 같은 사고다.
             /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] S.vowHow — 'alt'(기본 · 번갈아) | 'each'(각자 차례로).
                모르는 값은 'alt'. 'each' 의 문자열도 ritual-story.js 의 LIVE · CAST_AT 키다(같은 커밋에서 함께). */
-            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 한 문장은 함께', est: 70, self: true, doing: 'say', peak: true,
+            t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께',   /* [R2-04] «마지막 두 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true,
             both: D.VOWBOTH,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
             fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 합창이 어긋나면 신부가 반 박자 먼저'

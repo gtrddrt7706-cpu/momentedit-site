@@ -38,7 +38,7 @@ for (const w of [360, 1280]) {
   const lg = await pg.evaluate(() => ({ t: (document.querySelector('.mk-legend') || {}).textContent || '' }));
   ok(`${w} 고른 순서 쪽 범례 — 이 식순에 있는 갈래만([R1-19] 나레이션 판엔 «미리 준비» 없음) · 나레이션 · 당일 직접 [VOICE_KIND]`, /나레이션/.test(lg.t) && !/두 분 목소리 · 미리 준비/.test((lg.t.split('이 식순의 차례')[0]) || '') && /당일 직접/.test(lg.t), lg.t);
   /* [CHIP_UNPICKED · MK_NO_HEADS] 안 고른 기본(나레이션)은 비어 보이고 · 누르면 소리가 나고 눌린 모양이 된다 · «고르기» · «흐름» 제목 없음 */
-  const cu = await pg.evaluate(async () => { const z = (t) => new Promise((r) => setTimeout(r, t)); RitualOpen.FEATURE.voiceClone = true; mkGo('guest'); render(); await z(300);   /* ★[VP_NO_DIRECT] 고르는 칸은 AI 가 켜진 예식에만(AI · 나레이션) — 시험에서 잠깐 켠다 */
+  const cu = await pg.evaluate(async () => { const z = (t) => new Promise((r) => setTimeout(r, t)); S.vsAsked = 1; RitualOpen.FEATURE.voiceClone = true; mkGo('guest');   /* [R2-15] */  render(); await z(300);   /* ★[VP_NO_DIRECT] 고르는 칸은 AI 가 켜진 예식에만(AI · 나레이션) — 시험에서 잠깐 켠다 */
     const b0 = document.querySelector('[data-fk="lsc:guestVoice:nar"]'), before = b0.getAttribute('aria-checked'), tab = document.querySelector('[data-fk^="lsc:guestVoice:"]').tabIndex;   /* [VP_CHOICE] 0928 부터 첫 칩은 «직접 녹음하기» — 안 고른 묶음은 첫 칩이 Tab 자리 */ b0.click(); await z(500);
     const after = document.querySelector('[data-fk="lsc:guestVoice:nar"]').getAttribute('aria-checked'), q = LP.q.length; try { lsStop(); } catch (e) {}
     const heads = [...document.querySelectorAll('.mk-pg h4')].map((e) => e.textContent).filter((t) => /^(고르기|흐름)$/.test(t)); RitualOpen.FEATURE.voiceClone = false; render(); const off = !document.querySelector('[data-fk^="lsc:guestVoice:"]'); return { before, tab, after, q, heads, off }; });
@@ -115,7 +115,7 @@ for (const w of [360, 1280]) {
   const off = await pg.evaluate(() => ({ vc: !!document.querySelector('.mk-aisec'), ai: document.querySelectorAll('[data-fk^="mkai:"]').length, chip: !!document.querySelector('[data-fk="lsc:guestVoice:ai"]') }));
   ok('3단계 스위치 꺼짐 — AI 칸 · 고르는 칸의 AI · [AI로 만들기]가 안 보인다 [VOICE_CLONE]', !off.vc && off.ai === 0 && !off.chip, JSON.stringify(off));
   /* ★[VOICE_CLONE_0928] 켜기(시험에서만) + 가짜 마이페이지 · 서버 — 동의 → 1분 읽기(글 둘 · 서버 확인 문장) → 만들기 → 그 사람의 빈 줄만 AI */
-  await pg.evaluate((MP3) => { RitualOpen.FEATURE.upLive = true; S.vsChip = 1;   /* [VS_CHIP_ONCE] 칩 첫 창은 voice-setup 이 잰다 */  RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; window.__vcCalls = [];   // [VOICE_UP_FROM] 날짜 문도 연 예식(시험)
+  await pg.evaluate((MP3) => { RitualOpen.FEATURE.upLive = true; S.vsChip = 1; S.vsAsked = 1;   /* [VS_CHIP_ONCE] 칩 첫 창 · [R2-15] ② 첫 진입 창은 voice-setup 이 잰다 */  RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; window.__vcCalls = [];   // [VOICE_UP_FROM] 날짜 문도 연 예식(시험)
     const st = { groom: { consent: false, ready: false, left: 3 }, bride: { consent: false, ready: false, left: 3 } };
     window.addEventListener('message', (ev) => { const d = ev.data || {}; if (d.type === 'momentedit:voiceClone') { const q = d.data; window.__vcCalls.push(q.op + ':' + (q.who || q.key || q.role || ''));
         let r = { ok: true }; if (q.op === 'status') r = { ok: true, groom: st.groom, bride: st.bride, per: {} }; if (q.op === 'consent') st[q.who].consent = true;
@@ -166,7 +166,7 @@ for (const w of [360, 1280]) {
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(1200);
-  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /연습 녹음은 이 기기에만 있어요\. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요/.test((document.querySelector('.pr-voice') || {}).textContent || ''), sw: /끝나고 내 목소리로 다시 들어 볼 수 있어요/.test((document.querySelector('.pr-voice') || {}).textContent || '') }));   // [PRACTICE_VOICE_0928 7-1]
+  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /녹음은 이 기기에만 있어요\. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요/.test((document.querySelector('.pr-voice') || {}).textContent || ''), sw: /끝나고 내 목소리로 다시 들어 볼 수 있어요/.test((document.querySelector('.pr-voice') || {}).textContent || '') }));   // [PRACTICE_VOICE_0928 7-1]
   await pg.click('[data-fk="prrec"]'); await pg.waitForTimeout(600);
   const n0 = out.length;
   await pg.evaluate(() => { lsPlayAll(); }); await pg.waitForTimeout(800);
