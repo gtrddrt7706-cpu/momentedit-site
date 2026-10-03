@@ -1437,6 +1437,7 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
       <div class="mp-label" id="mp_label">My Page</div><!-- NAME_BADGE_LABEL: 상품명이 여기 합류('My Page · 시그니처') · 알약 배지 복원 금지 -->
       <div class="names" id="mp_names">&nbsp;</div>
       <div class="wed-chip" id="mp_wedding" style="display:none"></div>
+      <div class="wed-chip" id="mp_cheer" style="display:none"></div><!-- [WED_DONE_CELEBRATE 2026-10-03] 예식 완료 뒤 축하 한 줄 · 날짜 줄과 같은 모양(새 상자 없음) -->
     </div>
 
     <!-- NOW 카드 (주인공) -->
@@ -3064,6 +3065,53 @@ function _mpRollbackNotice(d){
   mpAlert({ title:'화면이 앞 단계로 돌아가 있어요', body: lines.join('\n'), confirmText:'확인했어요' });
 }
 
+/* [WED_DONE_CELEBRATE] start */
+/* ★★[WED_DONE_CELEBRATE 2026-10-03 사장님 «모션그래픽 양쪽으로 폭죽 터지는 효과 · 디자이너 관점으로 적절하게» → «예식을 마친 뒤 처음 열 때 한 번»]
+   momentedit-design «튀는 모션 금지»의 사장님이 허락한 단 하나의 예외다 — 이 한 순간(예식 완료 뒤 첫 열기)에만 쓴다. 다른 곳에 다시 쓰지 말 것.
+   절제한 판: 브랜드 색 꽃잎 · 금빛 가루만(금 #B89A75 · 짙은 금 #7A5F37 · 진사 #6B2A24 조금 · 크림) · 네온 · 무지개 · 빛 번짐 · 흐림 없음 · 소리 없음.
+   양 아래 모서리에서 한 번씩 부드럽게 솟아 가운데 위로 호를 그리고, 천천히 흔들리며 내려와 사라진다(약 2.2초 · 한쪽 22개 · 폭 600 미만은 14개 · 튕김 · 흔들기 없음).
+   캔버스 하나(고정 · pointer-events:none · aria-hidden) · 끝나면 지운다 · 움직임 줄이기 · 데이터 절약이면 아예 안 돈다.
+   ★이 함수는 마이페이지 상태를 읽지 않는다(색 · 시간이 안에 다 있다) — 미리보기 쪽에 그대로 옮겨 쓸 수 있게. 부르는 판단은 아래 _mpWedCelebrate. */
+function mpCelebrate(opts){
+  opts=opts||{};
+  try{ if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return false; if(navigator.connection&&navigator.connection.saveData) return false; }catch(e){}
+  var doc=document, W=window.innerWidth, H=window.innerHeight, per=Math.max(8,Math.min(28,opts.perSide||(W<600?14:22))), dur=opts.duration||2200;   /* [CELE_NARROW] 폰은 한쪽 14개 — 390 실렌더에서 22개는 NOW 카드 글을 덮었다 */
+  var dpr=Math.min(2,window.devicePixelRatio||1), cv=doc.createElement('canvas');
+  cv.setAttribute('aria-hidden','true'); cv.className='mp-celebrate';
+  cv.style.cssText='position:fixed;left:0;top:0;width:'+W+'px;height:'+H+'px;pointer-events:none;z-index:9000';
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); doc.body.appendChild(cv);
+  var g=cv.getContext('2d'); if(!g){ cv.remove(); return false; } g.scale(dpr,dpr);
+  var COL=[['#B89A75',5],['#D6C2A0',3],['#EFE4D2',4],['#7A5F37',1],['#6B2A24',1]]   /* [CELE_LIGHT 2026-10-03] 짙은 금(#7A5F37)이 3/13 이면 390 에서 갈색 잎 · 흙먼지처럼 읽혔다 → 옅은 금(#D6C2A0) 3 · 짙은 금 1 */, bag=[]; COL.forEach(function(c){ for(var i=0;i<c[1];i++) bag.push(c[0]); });
+  var P=[], rnd=function(a,b){ return a+Math.random()*(b-a); };
+  [0,1].forEach(function(side){ for(var i=0;i<per;i++){
+    var ang=rnd(58,78)*Math.PI/180, sp=rnd(0.55,0.95)*Math.sqrt(H)*1.05, dir=side?-1:1, petal=Math.random()<0.55;   /* [CELE_NARROW] 옆으로 가는 거리는 화면 폭의 16~40% — 높이로 재면 폰에서 양쪽이 한가운데서 겹친다 */
+    P.push({ x:side?W+rnd(-6,6):rnd(-6,6), y:H+rnd(0,10), vx:dir*rnd(0.16,0.40)*W*1.9/60, vy:-Math.sin(ang)*sp, rot:rnd(0,Math.PI*2), vr:rnd(-1.6,1.6),
+      sz:petal?rnd(5,9):rnd(1.6,3.2), petal:petal, col:bag[Math.floor(Math.random()*bag.length)], ph:rnd(0,Math.PI*2), delay:rnd(0,160) }); } });
+  var t0=null, raf=window.requestAnimationFrame||function(f){ return setTimeout(function(){ f(Date.now()); },16); };
+  function frame(ts){ if(t0==null) t0=ts; var el=ts-t0; g.clearRect(0,0,W,H);
+    var live=false;
+    P.forEach(function(p){ var t=(el-p.delay)/1000; if(t<0){ live=true; return; } var life=(el-p.delay)/dur; if(life>=1) return; live=true;
+      var drag=Math.exp(-1.9*t), x=p.x+p.vx*(1-drag)/1.9*60, y=p.y+p.vy*(1-drag)/1.9*60+0.5*42*t*t*Math.min(1,t*1.4);   /* 솟는 힘은 잦아들고(ease-out) · 아래로는 천천히 */
+      x+=Math.sin(p.ph+t*2.2)*(p.petal?10:4)*Math.min(1,t);   /* 꽃잎은 천천히 흔들리며 */
+      var a=life<0.12?life/0.12:(life>0.6?Math.max(0,(1-life)/0.4):1);
+      g.save(); g.globalAlpha=a*(p.petal?0.92:0.85); g.translate(x,y); g.rotate(p.rot+p.vr*t); g.fillStyle=p.col;
+      if(p.petal){ g.beginPath(); g.ellipse(0,0,p.sz,p.sz*0.48,0,0,Math.PI*2); g.fill(); if(p.col==='#EFE4D2'){ g.strokeStyle='rgba(122,95,55,.35)'; g.lineWidth=0.6; g.stroke(); } }
+      else { g.beginPath(); g.arc(0,0,p.sz,0,Math.PI*2); g.fill(); }
+      g.restore(); });
+    if(live&&el<dur+400) raf(frame); else { try{ cv.remove(); }catch(e){} }
+  }
+  raf(frame);
+  return true;
+}
+/* [WED_DONE_CELEBRATE] end */
+/* [WED_DONE_CELEBRATE 2026-10-03] 부르는 판단 — 마이페이지 단계(d.stage · 서버 현재단계 원천)가 «예식 완료» 이후(예식완료 · 결과물전달 · 후기)이고
+   이 고객에게 아직 한 번도 안 띄웠으면 한 번. 날짜로 미루어 짐작하지 않는다. 스냅 상품(촬영완료)은 예식이 아니라 빼고 · 종료 고객(isException)도 뺀다.
+   한 번 = 이 기기에 고객 코드별로(me_wedcele_<코드> · 결과물 접이 me_deliv_<코드> 와 같은 꼴) — 서버에 적으려면 GAS 쪽 칸 · 재배포가 필요해 이 판은 기기 기억이다.
+   움직임 줄이기 · 데이터 절약이면 함수가 안 돌고, 그때는 «띄웠다»도 적지 않는다(나중에 켜면 그때 한 번) */
+var WED_DONE_STAGES=['예식완료','결과물전달','후기'];
+function _mpWedDone(d){ return !!(d && !d.isException && d.product!=='웨딩스냅' && WED_DONE_STAGES.indexOf(String(d.stage||''))>-1); }
+function _mpWedCelebrate(d){ try{ if(!_mpWedDone(d)) return; var k='me_wedcele_'+String(d.code||'x'); if(localStorage.getItem(k)==='o') return;
+  if(mpCelebrate()) localStorage.setItem(k,'o'); }catch(e){} }
 function renderMyPage(d){
   window._mpStateD = d;   // 전체 상태 전역 — 렌더 시작점에서 세팅(하위 렌더러·게이트가 같은 상태를 보게. 종전 렌더 말미 세팅은 초기 렌더 타이밍 구멍)
   setTimeout(function(){ try{ _mpRollbackNotice(d); }catch(e){} }, 700);   // [ROLLBACK_NOTICE] 화면이 다 그려진 뒤 한 박자 늦게 — 렌더 도중에 덮으면 무엇이 바뀌었는지 못 본다
@@ -3118,6 +3166,9 @@ function renderMyPage(d){
     el.innerHTML=escapeHtml(wl)+' '+m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2)+' <span style="font-weight:300">·</span> <span class="wed-dday">'+lab+_tTail+'</span>';   // DDAY_ONELINE(2026-07-25 사용자 지시) 한 줄 병기: 예식 2026.10.14 · D-80 · 오후 1:20 — 강조는 D-day 하나(줄당 강조 1개 유지) · 좁은 화면은 D-day 덩어리째 줄바꿈(nowrap) · 구 MPD_B1 별도 줄 승격 대체 · 당일 중립 톤(G12)은 lab 계산이 유지
     el.style.display='block';
   })();
+  /* [WED_DONE_CELEBRATE] 예식 완료 뒤 축하 한 줄 — 날짜 줄 바로 아래 같은 모양 · 축하 그림(한 번)과 짝 */
+  (function(){ var c=$('mp_cheer'); if(!c) return; if(_mpWedDone(d)){ c.textContent='두 분의 결혼을 진심으로 축하드려요'; c.style.display='block'; } else { c.textContent=''; c.style.display='none'; } })();
+  setTimeout(function(){ _mpWedCelebrate(d); }, 600);   /* 화면이 선 뒤 한 박자 — 그리는 도중에 겹치지 않게 */
 
   // NOW 헤드라인 (단계별 문구 = nextActionFor 결과)
   // NOW: 첫 문장 = 헤드라인(마침표 없이), 나머지 = 서브

@@ -56,7 +56,7 @@ async function open(w, opt) {
   await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); if (!/fonts\.g(oogleapis|static)\.com/.test(u)) ext.push(u.slice(0, 80)); return rt.fulfill({ status: 200, body: '' }); });
   if (opt.videos) await pg.addInitScript((vs) => { window.__LISTEN_TEST_VIDEOS = vs; }, opt.videos);
   /* [VID_PLAY_ALL] 헤드리스는 H.264 를 못 푼다 — 영상 play() 를 «불렸는가»로 잰다(소리 play 는 그대로) */
-  if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') return o.apply(this, arguments); if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('/').pop(), id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
+  if (opt.stubPlay) await pg.addInitScript(() => { window.__vplays = []; const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { if (this.tagName !== 'VIDEO') { const sr = this.getAttribute('src') || this.src || ''; if (sr && !/^data:/.test(sr)) (window.__aplays = window.__aplays || []).push(sr.split('/').pop()); return o.apply(this, arguments); } if (!this.__vid) this.__vid = ++window.__vidSeq || (window.__vidSeq = 1); window.__vplays.push({ f: (this.getAttribute('src') || '').split('/').pop(), id: this.__vid, w: this.closest('#pvM') ? 'sheet' : this.closest('#lsFull') ? 'full' : this.closest('.mk-vid') ? 'make' : 'other' }); return Promise.resolve(); }; });
   if (opt.draft) await pg.addInitScript((d) => { try { localStorage.setItem('me_order', JSON.stringify(d)); } catch (e) {} }, opt.draft);
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await pg.waitForTimeout(600);
   if (opt.videos) await pg.evaluate(() => { RitualOpen.VIDEO_READY.length = 0; (window.__LISTEN_TEST_VIDEOS || []).forEach((k) => RitualOpen.VIDEO_READY.push(k)); });   /* [VIDEO_IN_1003] 바꾼다 · 더하지 않는다 */
@@ -789,24 +789,32 @@ for (const w of [390, 1280]) {
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1500);
   const rd = () => pg.evaluate(() => { const R = RitualOpen, rows = [...document.querySelectorAll('.mk-intro .cf-r')];
     return { at: _mkState().at, keys: rows.map((r) => r.getAttribute('data-k')), off: rows.filter((r) => r.classList.contains('off')).map((r) => r.getAttribute('data-k')),
-      no: Object.fromEntries(rows.map((r) => [r.getAttribute('data-k'), r.querySelector('.cf-n').textContent])),
-      btn: Object.fromEntries(rows.map((r) => [r.getAttribute('data-k'), (r.querySelector('.cf-x') || {}).textContent || ''])),
+      /* ★[FLOW_TIMELINE 2026-10-03 사장님] 번호 칸 · «약 n분» 칸을 걷었다 — 종전 «번호» 검사는 «시작 시각»(본식 처음부터 몇 분째)으로 옮겼다 */
+      no: Object.fromEntries(rows.map((r) => [r.getAttribute('data-k'), (r.querySelector('.cf-t') || {}).textContent])),
+      offOk: (() => { let acc = 0, ok = true; rows.forEach((r) => { if (r.classList.contains('off') || !r.dataset.lo) return; if (Math.abs(+r.dataset.at - acc) > 0.01 || (r.querySelector('.cf-t') || {}).textContent !== Math.round(acc / 60) + '분') ok = false; acc += +r.dataset.mid; }); return ok; })(),
+      bar: (() => { const c = document.querySelector('.mk-intro .op-bar .c'), sp2 = R.span(S); return c ? { w: parseFloat(c.style.width), want: sp2.midMin / R.DAYMIN * 100, lab: document.querySelector('.mk-intro .op-bar').getAttribute('aria-label') } : null; })(),
+      /* [FLOW_MARK 2026-10-03 사장님] 글 단추 → ① 칸과 같은 표 — in = 단추 · aria-pressed=true · ✓ · 먹빛 / out = aria-pressed=false · ＋ / fix = 단추 아닌 옅은 ✓(«늘 있는 순간») */
+      btn: Object.fromEntries(rows.map((r) => { const m = r.querySelector('.cf-mk'), g = m ? m.querySelector('i').textContent : '', ap = m && m.getAttribute('aria-pressed');
+        const st = !m ? '' : m.tagName !== 'BUTTON' ? (m.getAttribute('aria-label') === '늘 있는 순간' && g === '✓' && getComputedStyle(m.querySelector('i')).backgroundColor === 'rgb(250, 250, 248)' ? 'fix' : 'fix?') : (ap === 'true' && g === '✓' && m.classList.contains('on') && /담김 · 누르면 빼기$/.test(m.getAttribute('aria-label'))) ? 'in' : (ap === 'false' && g === '+' && !m.classList.contains('on') && /빠짐 · 누르면 다시 담기$/.test(m.getAttribute('aria-label'))) ? 'out' : 'bad';
+        return [r.getAttribute('data-k'), st]; })),
       lo: rows.filter((r) => r.dataset.lo).reduce((a, r) => a + +r.dataset.lo, 0), hi: rows.filter((r) => r.dataset.hi).reduce((a, r) => a + +r.dataset.hi, 0), sec: R.bodySec(S), sp: R.span(S),
       allOn: rows.every((r) => r.dataset.k === '_close' || R.onOf(S, r.dataset.k)), always: Object.keys(R.ALWAYS).concat(['_close']),
-      sum: document.querySelector('[data-fk="mkflowsum"]').textContent, n: String(_opMoments()), pages: _mkPages(), on: Object.keys(S.on || {}).filter((k) => S.on[k]),
+      sum: (document.querySelector('[data-fk="mkflowsum"]') || {}).textContent, n: String(_opMoments()), pages: _mkPages(), on: Object.keys(S.on || {}).filter((k) => S.on[k]),
       eng: (() => { const r = ENG.RitualCue.build(S, { mode: 'preview' }), cs = Array.isArray(r) ? r : r.cues, o = []; cs.forEach((c) => { const k = c.k || (/^narr-close|^end-|^bridge-b6|fx-free/.test(c.slug) ? '_close' : ''); if (k && o.indexOf(k) < 0) o.push(k); }); return o; })(),
-      op: rows[0] ? getComputedStyle((document.querySelector('.mk-intro .cf-r.off .cf-m') || rows[0].querySelector('.cf-m'))).opacity : '' }; });
+      op: (() => { const e = document.querySelector('.mk-intro .cf-r.off .cf-nm') || (rows[0] && rows[0].querySelector('.cf-nm')); return e ? getComputedStyle(e).opacity : ''; })() };   /* 없는 칸은 빈 값 — 옛 판에서 던지지 않고 빨강으로 읽히게 */ });
   const a = await rd();
   const engOrd = a.eng.filter((k) => a.keys.indexOf(k) > -1);
   ok(`CF-1 ${w} 줄 차례 = 엔진이 트는 차례(${a.keys.join(' ')}) · 식전 · 본식 두 묶음 · ①에서 안 담은 순간 없음`, a.at === '_intro' && JSON.stringify(a.keys.filter((k) => engOrd.indexOf(k) > -1)) === JSON.stringify(engOrd) && engOrd.length >= a.keys.length - 1 && a.keys[a.keys.length - 1] === '_close' && a.allOn && (await pg.evaluate(() => document.querySelectorAll('.mk-intro .cf-g').length)) === 2, JSON.stringify({ keys: a.keys, eng: a.eng }));
   ok(`CF-2 ${w} 줄 길이의 합 = 본식 합(대본 ${a.sec[0]} · 넉넉 ${a.sec[1]}초) · 머리 한 줄 = «본식 ${a.sp.body} · 단체 사진 ${a.sp.photo} · 담은 순간 ${a.n}»`, Math.abs(a.lo - a.sec[0]) < 0.01 && Math.abs(a.hi - a.sec[1]) < 0.01 && a.sum.replace(/\u00a0/g, ' ') === '본식 ' + a.sp.body + ' · 단체 사진 ' + a.sp.photo + ' · 담은 순간 ' + a.n, JSON.stringify({ lo: a.lo, hi: a.hi, sec: a.sec, sum: a.sum }));
-  ok(`CF-3 ${w} 늘 있는 순간(하객 맞이 · 입장 · 닫는 인사)엔 단추 없음 · 나머지는 «빼기»`, a.btn.guest === '' && a.btn.entry === '' && a.btn._close === '' && a.keys.filter((k) => a.always.indexOf(k) < 0).every((k) => a.btn[k] === '빼기'), JSON.stringify(a.btn));
-  const decNo0 = +a.no.declare;
+  ok(`CF-3 ${w} 늘 있는 순간(하객 맞이 · 입장 · 닫는 인사)은 옅은 ✓(단추 아님) · 나머지는 먹빛 ✓ 단추(aria-pressed=true) [FLOW_MARK]`, a.btn.guest === 'fix' && a.btn.entry === 'fix' && a.btn._close === 'fix' && a.keys.filter((k) => a.always.indexOf(k) < 0).every((k) => a.btn[k] === 'in'), JSON.stringify(a.btn));
+  const decNo0 = a.no.declare;
+  ok(`CF-14 ${w} 위 막대 = ① [BAR_SUM] 과 같은 숫자 — 본식 ${a.bar && a.bar.w.toFixed(1)}% = 본식 가운데 ÷ ${await pg.evaluate(() => RitualOpen.DAYMIN)}분 · 이름에 «본식 ${a.sp.body} · 단체 사진 ${a.sp.photo}» [FLOW_TIMELINE]`, !!a.bar && Math.abs(a.bar.w - a.bar.want) < 0.02 && a.bar.lab.indexOf('본식 ' + a.sp.body + ' · 단체 사진 ' + a.sp.photo) > -1, JSON.stringify(a.bar));
+  ok(`CF-15 ${w} 시작 시각 = 앞 순간들 가운데 길이의 합(«${a.no.candle} · ${a.no.entry} · ${a.no.welcome} …») · 식전은 «예식 전» [FLOW_TIMELINE · LEN_ONE]`, a.offOk && a.no.candle === '0분' && a.no.guest === '예식 전' && a.no.prevideo === '예식 전', JSON.stringify(a.no));
   await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(400);
   const live = await pg.evaluate(() => (document.getElementById('lsLive') || {}).textContent || '');
   const b = await rd();
-  ok(`CF-4 ${w} «빼기» — 줄은 그 자리에 옅게(${b.op}) · «다시 담기» · 번호 빠짐 · 뒤 번호 하나씩 당김 · 합과 머리 한 줄이 바로 바뀜 · ① 상태도 뺌 · 소리 내어 알림`,
-    JSON.stringify(b.keys) === JSON.stringify(a.keys) && b.off.join() === 'ring' && Math.abs(+b.op - 0.4) < 0.01 && b.btn.ring === '다시 담기' && b.no.ring === '' && +b.no.declare === decNo0 - 1
+  ok(`CF-4 ${w} ✓ 누르면 — 줄은 그 자리에 옅게(${b.op}) · 표는 ＋(aria-pressed=false) · 시작 시각 빠짐 · 뒤 시작 시각이 당겨짐(선언 ${decNo0} → ${b.no.declare}) · 막대 본식이 줄어듦 · 합과 머리 한 줄이 바로 바뀜 · ① 상태도 뺌 · 소리 내어 알림`,
+    JSON.stringify(b.keys) === JSON.stringify(a.keys) && b.off.join() === 'ring' && Math.abs(+b.op - 0.4) < 0.01 && b.btn.ring === 'out' && b.no.ring === '' && b.offOk && b.no.declare !== decNo0 && b.bar.w < a.bar.w && Math.abs(b.bar.w - b.bar.want) < 0.02
       && Math.abs(b.lo - b.sec[0]) < 0.01 && b.sec[0] < a.sec[0] && b.sum.replace(/\u00a0/g, ' ') === '본식 ' + b.sp.body + ' · 단체 사진 ' + b.sp.photo + ' · 담은 순간 ' + b.n
       && b.on.indexOf('ring') < 0 && b.pages.indexOf('ring') < 0 && +b.n === +a.n - 1 && /반지 교환을 뺐어요 · 본식/.test(live),
     JSON.stringify({ off: b.off, op: b.op, no: b.no, sum: b.sum, on: b.on, live }));
@@ -815,15 +823,17 @@ for (const w of [390, 1280]) {
   ok(`CF-5 ${w} 식전 영상도 빼면 옅게 · 본식 합은 그대로(식전은 본식 시간에 안 든다)`, c.off.sort().join() === 'prevideo,ring' && Math.abs(c.sec[0] - b.sec[0]) < 0.01, JSON.stringify({ off: c.off, sec: c.sec }));
   await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(400); await pg.click('[data-fk="mkflow:prevideo"]'); await pg.waitForTimeout(400);
   const d = await rd();
-  ok(`CF-6 ${w} «다시 담기» — 번호 · 합 · 머리 한 줄 · ① 상태가 처음 그대로 · 초점은 누른 단추에`, d.off.length === 0 && JSON.stringify(d.no) === JSON.stringify(a.no) && d.sum === a.sum && d.on.indexOf('ring') > -1 && d.on.indexOf('prevideo') > -1 && (await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'))) === 'mkflow:prevideo', JSON.stringify({ off: d.off, sum: d.sum }));
+  ok(`CF-6 ${w} ＋ 누르면 다시 담김 — 시작 시각 · 합 · 머리 한 줄 · ① 상태가 처음 그대로 · 초점은 누른 단추에`, d.off.length === 0 && JSON.stringify(d.no) === JSON.stringify(a.no) && d.sum === a.sum && d.on.indexOf('ring') > -1 && d.on.indexOf('prevideo') > -1 && (await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'))) === 'mkflow:prevideo', JSON.stringify({ off: d.off, sum: d.sum }));
   /* ★[FLOW_KEEP_STEP 2026-10-03 점검] 종전 «흐름 쪽을 떠났다 돌아오면 뺀 줄이 사라진다» → 이제 «② 안에서 오가면(다음 → 이전) 그대로 · ② 걸음을 떠나면(③ 연습하기) 사라진다» */
-  const dur0 = await pg.evaluate(() => document.querySelector('.cf-r[data-k="ring"] .cf-d').textContent);
+  const dur0 = await pg.evaluate(() => document.querySelector('.cf-r[data-k="ring"]').dataset.mid);   /* [FLOW_TIMELINE] «약 n분» 칸은 걷었다 — 줄의 가운데 길이(data-mid)로 잰다 */
   await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(300);
-  const dur1 = await pg.evaluate(() => document.querySelector('.cf-r[data-k="ring"] .cf-d').textContent);
+  const dur1 = await pg.evaluate(() => document.querySelector('.cf-r[data-k="ring"]').dataset.mid);
+  const hollow = await pg.evaluate(() => { const r = document.querySelector('.cf-r[data-k="ring"]'), a = getComputedStyle(r.querySelector('.cf-dot'), '::after'); return { bg: a.backgroundColor, bw: a.borderTopWidth, t: (r.querySelector('.cf-t') || {}).textContent, op: getComputedStyle(r.querySelector('.cf-nm')).opacity }; });
+  ok(`CF-16 ${w} 뺀 줄 — 빈 점(속 빈 동그라미) · 시작 시각 없음 · 옅게 [FLOW_TIMELINE]`, hollow.bg === 'rgb(250, 250, 248)' && hollow.bw === '1px' && hollow.t === '' && Math.abs(+hollow.op - 0.4) < 0.01, JSON.stringify(hollow));
   ok(`CF-11 ${w} 뺀 줄의 길이 = 담았을 때 길이(${dur0} → ${dur1}) [LEN_AS_ON]`, dur0 === dur1, JSON.stringify({ dur0, dur1 }));
   await clickNext(pg); await pg.waitForTimeout(500); await pg.click('#prev'); await pg.waitForTimeout(500);
   const e = await rd();
-  ok(`CF-7 ${w} 뺀 뒤 «다음» → «이전» — 뺀 줄은 그 자리에 옅게 · «다시 담기» 그대로 [FLOW_KEEP_STEP]`, e.at === '_intro' && e.keys.indexOf('ring') > -1 && e.off.join() === 'ring' && e.btn.ring === '다시 담기', JSON.stringify({ at: e.at, off: e.off, btn: e.btn.ring }));
+  ok(`CF-7 ${w} 뺀 뒤 «다음» → «이전» — 뺀 줄은 그 자리에 옅게 · ＋ 그대로 [FLOW_KEEP_STEP]`, e.at === '_intro' && e.keys.indexOf('ring') > -1 && e.off.join() === 'ring' && e.btn.ring === 'out', JSON.stringify({ at: e.at, off: e.off, btn: e.btn.ring }));
   await pg.evaluate(() => { opGoStep('practice'); }); await pg.waitForTimeout(500); await pg.evaluate(() => { opGoStep('listen'); mkGo('_intro'); }); await pg.waitForTimeout(500);
   const e2 = await rd();
   ok(`CF-7b ${w} ② 걸음을 떠났다(③) 돌아오면 뺀 순간은 줄에서 사라진다(①에서 안 담은 것처럼)`, e2.keys.indexOf('ring') < 0 && e2.off.length === 0, JSON.stringify(e2.keys));
@@ -834,20 +844,25 @@ for (const w of [390, 1280]) {
   ok(`CF-12 ${w} 식전 영상을 빼면 알림은 «식전 영상을 뺐어요»에서 끝난다(본식 · 담은 순간 수 없음) [PRE_SAY]`, sayPre.trim() === '식전 영상을 뺐어요', sayPre);
   /* ★[LEN_ONE 2026-10-03 점검] 한 순간의 길이는 한 자 — 예식 흐름 줄 = 그 순간 쪽 머리(«… 약 n분») */
   const lens = await pg.evaluate(async () => { const wait = (ms) => new Promise((z) => setTimeout(z, ms)), flow = {}, page = {};
-    document.querySelectorAll('.mk-intro .cf-r').forEach((r) => { flow[r.dataset.k] = r.querySelector('.cf-d').textContent; });
+    document.querySelectorAll('.mk-intro .cf-r').forEach((r) => { if (r.dataset.mid) flow[r.dataset.k] = RitualOpen.secTxt(+r.dataset.mid); });   /* [FLOW_TIMELINE] 시작 시각의 바탕 값(data-mid) = 순간 쪽 머리 */
     for (const k of Object.keys(flow)) { if (k === 'guest' || !(k === '_close' || RitualOpen.onOf(S, k))) continue; mkGo(k); await wait(80); page[k] = ((document.querySelector('.mk-one .mk-sec-t') || {}).textContent || '').trim(); }
     mkGo('_intro'); await wait(150); return { flow, page }; });
-  const bad = Object.keys(lens.page).filter((k) => lens.page[k] !== lens.flow[k]);
-  ok(`CF-10 ${w} 예식 흐름 줄 길이 = 그 순간 쪽 머리 길이 · ${Object.keys(lens.page).length}순간 [LEN_ONE]`, Object.keys(lens.page).length >= 10 && bad.length === 0, JSON.stringify(bad.map((k) => k + ':' + lens.flow[k] + '≠' + lens.page[k])));
+  const nb = (x) => String(x || '').replace(/\u00a0/g, ' '); const bad = Object.keys(lens.page).filter((k) => nb(lens.page[k]) !== nb(lens.flow[k]));   /* 화면 글은 RIT_WRAP 이 NBSP 로 묶는다 */
+  ok(`CF-10 ${w} 시작 시각의 바탕 길이 = 그 순간 쪽 머리 길이 · ${Object.keys(lens.page).length}순간 [LEN_ONE]`, Object.keys(lens.page).length >= 10 && bad.length === 0, JSON.stringify(bad.map((k) => k + ':' + lens.flow[k] + '≠' + lens.page[k])));
   /* 모양 — 줄 높이 52 이상 · 단추 44 · 선은 머리카락 선만(상자 · 카드 없음) · 390 에서는 레일과 안 겹친다[RAIL_LOCKED] */
-  const g = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-intro .cf-r')], bs = [...document.querySelectorAll('.mk-intro .cf-x')], rail = document.querySelector('#meAdvStack .me-fab, .me-fab'), rr = rail ? rail.getBoundingClientRect() : null;
-    return { minH: Math.min(...rows.map((r) => r.getBoundingClientRect().height)), tap: Math.min(...bs.map((b) => b.getBoundingClientRect().height)), maxR: Math.max(...bs.map((b) => b.getBoundingClientRect().right), ...[...document.querySelectorAll('.mk-intro .cf-d')].map((x) => x.getBoundingClientRect().right)), railL: rr ? rr.left : 9999,
+  const g = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-intro .cf-r')], bs = [...document.querySelectorAll('.mk-intro button.cf-mk')], rail = document.querySelector('#meAdvStack .me-fab, .me-fab'), rr = rail ? rail.getBoundingClientRect() : null;
+    return { minH: Math.min(...rows.map((r) => r.getBoundingClientRect().height)), tap: Math.min(...bs.map((b) => b.getBoundingClientRect().height)), maxR: Math.max(...bs.map((b) => b.getBoundingClientRect().right), ...[...document.querySelectorAll('.mk-intro .cf-d')].map((x) => x.getBoundingClientRect().right)), badge: [...new Set([...document.querySelectorAll('.mk-intro .cf-mk i')].map((x) => Math.round(x.getBoundingClientRect().width)))], railL: rr ? rr.left : 9999,
       boxes: rows.filter((r) => { const c = getComputedStyle(r); return c.backgroundColor !== 'rgba(0, 0, 0, 0)' || c.borderTopWidth !== '0px' || c.borderRadius !== '0px' || c.boxShadow !== 'none'; }).length, fw: Math.max(...[...document.querySelectorAll('.mk-intro *')].map((x) => +getComputedStyle(x).fontWeight)),
       fs: [...new Set([...document.querySelectorAll('.mk-intro .cf-r *, .mk-intro .cf-g, .mk-intro .mk-one')].map((x) => getComputedStyle(x).fontSize))].sort(), sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }; });
   ok(`CF-8 ${w} 줄 ${Math.round(g.minH)}px(≥52) · 단추 ${Math.round(g.tap)}px(≥44) · 상자 · 카드 없음 · 굵기 ≤600 · 글자 RIT_TYPE5 안(${g.fs.join(' ')}) · 가로 넘침 없음${w < 1000 ? ' · 레일과 안 겹침(' + Math.round(g.maxR) + ' < ' + Math.round(g.railL) + ')' : ''}`,
-    g.minH >= 52 && g.tap >= 44 && g.boxes === 0 && g.fw <= 600 && g.fs.every((f) => ['11px', '12.5px', '14px', '16px', '20px'].includes(f)) && g.sw <= g.cw && (w >= 1000 || g.maxR <= g.railL), JSON.stringify(g));
+    g.minH >= 52 && g.tap >= 44 && g.badge.every((b) => b >= 24 && b <= 28) && g.boxes === 0 && g.fw <= 600 && g.fs.every((f) => ['11px', '12.5px', '14px', '16px', '20px'].includes(f)) && g.sw <= g.cw && (w >= 1000 || g.maxR <= g.railL), JSON.stringify(g));
   const t = await pg.evaluate(() => { mkFlowTgl('entry'); mkFlowTgl('_close'); mkFlowTgl('guest'); return { e: RitualOpen.onOf(S, 'entry'), g: RitualOpen.onOf(S, 'guest') }; });
   ok(`CF-9 ${w} 늘 있는 순간은 뺄 수 없다(단추 없음 · 함수도 무시)`, t.e && t.g, JSON.stringify(t));
+  /* [FLOW_MARK · FLOW_NO_STAR · FLOW_NO_VSBAR 2026-10-03 사장님] 예식 흐름 쪽엔 «빼기» · «다시 담기» 글 · ★ · 안내 목소리 줄이 없다 — 순간 쪽엔 목소리 줄이 그대로 */
+  await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(300);
+  const nx = await pg.evaluate(async () => { const it = document.querySelector('.mk-intro'), txt = it.innerText, rowsT = [...it.querySelectorAll('.cf-r')].map((r) => r.textContent).join(' '), o = { voice: /나레이션|당일 직접|두 분 목소리/.test(rowsT), cols: it.querySelectorAll('.cf-n,.cf-d,.cf-v').length, lw: Math.round(it.querySelector('.cf-l').getBoundingClientRect().width), word: /빼기|다시 담기/.test(txt), star: !!it.querySelector('.cf-r .op-star') || /★/.test([...it.querySelectorAll('.cf-r')].map((r) => r.textContent).join('')), vs: !!document.querySelector('.mk-vsbar') };
+    o.ringBtn = !!document.querySelector('button[data-fk="mkflow:ring"][aria-pressed="false"]'); opTgl('ring'); mkGo('vow'); await new Promise((z) => setTimeout(z, 200)); o.vsMoment = !!document.querySelector('.mk-vsbar') === !!_vsOk(); o.vsOpen = !_vsOk() || !!document.querySelector('[data-fk="mkvsopen"]'); o.peakHead = RitualOpen.peakOf(S); mkGo(o.peakHead); await new Promise((z) => setTimeout(z, 150)); o.starHead = !!document.querySelector('#mkHead .op-star'); mkGo('_intro'); await new Promise((z) => setTimeout(z, 150)); return o; });
+  ok(`CF-13 ${w} 예식 흐름 쪽 — 목소리 낱말(나레이션 · 당일 직접 · 두 분 목소리) · 번호 칸 · «약 n분» 칸 없음 [FLOW_NO_VOICE · FLOW_TIMELINE] · ${w >= 1000 ? '목록 폭 ≤ 560 · ' : ''}«빼기» · «다시 담기» 글 없음(뺀 줄이 있어도) · 줄에 ★ 없음 · 안내 목소리 줄 없음 / 순간 쪽엔 목소리 줄 · «나레이션 자세히» 그대로 · 순간 쪽 머리 ★ 그대로 [FLOW_MARK · FLOW_NO_STAR · FLOW_NO_VSBAR]`, nx.ringBtn && !nx.voice && nx.cols === 0 && (w < 1000 || nx.lw <= 560) && !nx.word && !nx.star && !nx.vs && nx.vsMoment && nx.vsOpen && nx.starHead, JSON.stringify(nx));
   ok(`CF ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -919,6 +934,29 @@ for (const [w, emb] of [[390, false], [390, true], [1280, true]]) {
   await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150); await pg.click('[data-fk="obguide"]'); await pg.waitForTimeout(500);
   ok(`TM-6 ${w} «안내 다시 보기» — 종전처럼 안내 첫 쪽으로`, await pg.evaluate(() => STEPS[idx].k === 'intro'));
   ok(`TM ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★[VP_CHIP_SILENT 2026-10-03 사장님 «여기 눌렀을 때 음성이 재생되게 하지 말자»] «어떻게 준비할까요» 칩은 고르기만 — 소리 0 · 흐르던 소리는 멈춘다. 내용 칩(화촉 서는 분)은 종전대로 «칩 = 듣기» */
+for (const w of [390, 1280]) {
+  const { ctx, pg, errs } = await open(w, { stubPlay: true });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1500);
+  await pg.evaluate(() => { S.vsAsked = 1; S.vsChip = 1; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.upLive = true; S.on.prevideo = 1; opSync(); });
+  const res = {};
+  for (const [k, key] of [['guest', 'guestVoice'], ['prevideo', 'pvVoice'], ['entry', 'entryVoice']]) {
+    await pg.evaluate((k) => { mkGo(k); render(); }, k); await pg.waitForTimeout(400);
+    const ids = await pg.evaluate((key) => [...document.querySelectorAll(`[data-fk^="lsc:${key}:"]`)].map((b) => b.getAttribute('data-fk')), key);
+    res[k] = { chips: ids.length, plays: 0, stopped: true };
+    for (const id of ids) { await pg.evaluate(() => { lsPlay(LS.open); }); await pg.waitForTimeout(300); await pg.evaluate(() => { window.__aplays = []; });
+      await pg.click(`[data-fk="${id}"]`); await pg.waitForTimeout(450);
+      const r = await pg.evaluate(() => ({ n: (window.__aplays || []).length, q: LP.q.length })); res[k].plays += r.n; if (r.q) res[k].stopped = false; }
+  }
+  await pg.evaluate(() => { lsStop(); mkGo('candle'); render(); window.__aplays = []; }); await pg.waitForTimeout(400);
+  const cw = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:candleWho:"]')].map((b) => b.getAttribute('data-fk')).find((f) => !document.querySelector(`[data-fk="${f}"]`).getAttribute('aria-checked') || document.querySelector(`[data-fk="${f}"]`).getAttribute('aria-checked') === 'false'));
+  if (cw) { await pg.click(`[data-fk="${cw}"]`); await pg.waitForTimeout(700); }
+  const candle = await pg.evaluate(() => (window.__aplays || []).length);
+  ok(`VPS-1 ${w} «어떻게 준비할까요» 칩(하객 맞이 ${res.guest.chips} · 식전 영상 ${res.prevideo.chips} · 입장 ${res.entry.chips}) — 눌러도 소리 0 · 흐르던 소리는 멈춤 [VP_CHIP_SILENT]`, Object.values(res).every((x) => x.chips >= 2 && x.plays === 0 && x.stopped), JSON.stringify(res));
+  ok(`VPS-2 ${w} 내용 칩(화촉 서는 분)은 종전대로 누르면 들린다(${candle})`, !!cw && candle > 0, JSON.stringify({ cw, candle }));
+  ok(`VPS ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
 await br.close(); srv.close();

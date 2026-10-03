@@ -8970,7 +8970,7 @@ chk 'MK.navOpen=false;   /\* \[NAV_FOLD\] 쪽이 바뀌면 접힌다' order-prev
 nochk '모든 순간 보기 ▾' order-preview.html
 chk 'NAV_FOLD' scripts/audit/listen-page.mjs 4
 # ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 · 뺀 이벤트는 옅은 투명으로 · 미니멀»]
-chk 'COURSE_FLOW_LIVE' order-preview.html 1   # 예식 흐름 줄의 목소리 말 «당일 직접»(② 쪽과 같은 말)
+nochk 'function _flowVoice' order-preview.html   # ★[FLOW_NO_VOICE 2026-10-03 사장님] 예식 흐름 줄의 목소리 낱말(종전 COURSE_FLOW_LIVE «당일 직접») 금지 — 2026-10-03 사용자 지시로 삭제
 #   ② 첫 쪽 = 예식 흐름(식전 · 본식 · 번호 · 이름 · 목소리 한 낱말 · 약 몇 분 · 빼기/다시 담기 = ① 과 같은 opTgl). 펼침 · 고를 것 · 만들러 가기 · 꼬리표 · 목소리 접이 · 7일 전 한 줄 금지.
 #   listen-page CF-1~CF-9 가 390 · 1280 실렌더로 잰다(깨 보고 믿음: 옛 첫 쪽 = 4줄 빨강 · 뺀 줄 흐림을 걷으면 CF-4 빨강).
 chk 'COURSE_FLOW' order-preview.html 8
@@ -8978,7 +8978,7 @@ chk 'window.mkFlowTgl=function' order-preview.html 1
 chk 'function _flowKeys' order-preview.html 1
 chk "'이 흐름으로 시작하기 · '" order-preview.html 1
 chk "k==='_intro'?'예식 흐름'" order-preview.html 1
-chk '.cf-r.off>:not(.cf-x){opacity:.4}' order-preview.html 1
+chk '.cf-r.off>:not(.cf-mk):not(.cf-dot){opacity:.4}' order-preview.html 1   # [FLOW_TIMELINE] 뺀 줄 흐림(표시 · 점 제외) · 종전 .cf-x «빼기» 글자 단추는 [FLOW_MARK] 로 걷었다
 nochk '">이 순간 만들러 가기 ›</button>' order-preview.html   # 그리는 단추(삭제 주석의 «…» 인용은 세지 않는다)
 nochk 'class="mk-itag"' order-preview.html
 nochk 'class="mk-irow"' order-preview.html
@@ -8995,6 +8995,63 @@ nochk "if(k!=='_intro') MK.flowKeep=null;" order-preview.html
 chk 'PRE_SAY' order-preview.html 1
 chk 'LEN_ONE' scripts/audit/listen-page.mjs 2
 chk 'FLOW_KEEP_STEP' scripts/audit/listen-page.mjs 2
+# ★★[FLOW_NO_VSBAR · FLOW_MARK · FLOW_NO_STAR · FLOW_NO_VOICE · FLOW_TIMELINE · FLOW_KEEP_SHOWN 2026-10-03 사장님] ② 첫 쪽 «예식 흐름» = 타임라인
+#   목소리 한 줄(_vsBar)은 흐름 쪽에만 없다(순간 쪽은 그대로 · 자세히 창도 거기서 열린다) · «빼기/다시 담기» 글자 대신 ① 의 .pk-sel 표식(✓ 담김 · ＋ 빠짐 · aria-pressed)
+#   · 늘 있는 순간은 누를 수 없는 흐린 ✓ · 흐름 줄엔 ★ · 목소리 낱말 없음 · 줄 = 시작 몇 분(식전은 «예식 전») · 세로 실선 · 점 · 이름 · 표식(숫자 · 길이 칸 없음)
+#   · 막대 = ① 과 같은 span 숫자 · 뺀 줄 = 흐림 · 빈 점 · 시각 없음 · 1000px 이상 폭 560 · 알림에 단체 사진 · 다시 담은 줄도 늘 보인다(매 그림마다 _flowKeys)
+#   listen-page CF-3 · CF-4 · CF-6 · CF-8 · CF-10~CF-16 이 390 · 1280 실렌더로 잰다(깨 보고 믿음: HEAD 판 = 빨강)
+chk 'FLOW_NO_VSBAR' order-preview.html 1
+chk "(k==='_intro'?'':_mkStrip(k)+_vsBar())" order-preview.html 1
+chk 'FLOW_MARK' order-preview.html 3
+chk 'class="pk-sel cf-mk' order-preview.html 1
+chk '누르면 다시 담기' order-preview.html 1
+nochk '"cf-x" data-fk="mkflow' order-preview.html   # ★«빼기/다시 담기» 글자 단추 금지 — 2026-10-03 사용자 지시로 삭제 [FLOW_MARK]
+chk 'FLOW_NO_STAR' order-preview.html 1
+chk 'FLOW_NO_VOICE' order-preview.html 2
+chk 'FLOW_TIMELINE' order-preview.html 4
+chk 'data-fk="mkflowbar"' order-preview.html 1
+chk "'예식 전'" order-preview.html 1
+chk 'FLOW_KEEP_SHOWN' order-preview.html 1
+chk '^  MK.flowKeep=_flowKeys();   /\* \[FLOW_KEEP_SHOWN' order-preview.html 1   # 매 그림마다 다시 찍는다(조건 없는 줄 · if(!MK.flowKeep) 판만이면 다시 담은 줄이 빼는 순간 사라진다)
+chk 'FLOW_NO_VSBAR' scripts/audit/listen-page.mjs 2
+chk 'FLOW_MARK' scripts/audit/listen-page.mjs 4
+chk 'FLOW_NO_STAR' scripts/audit/listen-page.mjs 2
+chk 'FLOW_TIMELINE' scripts/audit/listen-page.mjs 7
+chk 'FLOW_NO_VOICE' scripts/audit/rec-upload.mjs 2
+# ★★[VP_CHIP_SILENT 2026-10-03 사장님 «여기 눌렀을 때 음성이 재생되게 하지 말자»] 목소리 준비 칩(guestVoice · pvVoice · entryVoice)은 고르기만 · 울리던 것은 멈춘다
+#   내용 칩(서는 분 등)은 종전대로 «칩 = 듣기» · VS_CHIP_ONCE(처음 한 번 자세히 창)는 그대로. listen-page VPS-1 · VPS-2 · rec-upload(깨 보고 믿음: 이른 return 을 걷으면 VPS-1 빨강)
+chk 'VP_CHIP_SILENT' order-preview.html 1
+chk 'if(VS_KEYS.indexOf(key)>-1){ _stopAud(); if(LP.q.length) lsStop(true); return; }' order-preview.html 1
+chk 'VP_CHIP_SILENT' scripts/audit/listen-page.mjs 2
+chk 'VP_CHIP_SILENT' scripts/audit/rec-upload.mjs 2
+# ★★[G3_OPEN 2026-10-03 사장님 «고정 유지 하지 마»] 하객 맞이 4번 줄 = 한 칸 통째로 두 분 글 · 옛 꼬리만 적힌 초안은 한 번 머리+꼬리로 옮긴다(S.g3Open)
+#   «안내 음성» 말이 빠지면 부드러운 한 줄(#mkG3Rem) · 관리자 줄도 같은 말로. voice-setup G3 줄(깨 보고 믿음: HEAD 판 = 빨강)
+chk 'G3_OPEN' order-preview.html 12
+chk 'id="mkG3Rem"' order-preview.html 1
+chk '_g3Open();' order-preview.html 1
+chk 'S.g3Open' order-preview.html 3
+chk 'G3_OPEN' scripts/audit/voice-setup.mjs 6
+chk '하객 맞이 4번 줄에 안내 음성 알림 말이 남아 있는지' admin.html 1
+nochk '하객 맞이 4번 줄 앞 두 문장(진행 안내)이 들리는지' admin.html   # ★[G3_OPEN] 고정 두 문장이 없어졌다
+# ★[AI_NOTE_OFF 2026-10-03 사장님] AI 목소리 카드의 두 안내 금지 — «… 목소리를 만들면 이 줄이 저절로 채워져요» · «글은 두 분 말로 고쳐도 돼요 · 스튜디오 나레이션과 비교해 듣기»
+#   ★그 단추가 «비교해 듣기»의 유일한 길이었다 — 함께 사라졌다(mkNarAll 도 걷었다). voice-setup · vc-screen
+chk 'AI_NOTE_OFF' order-preview.html 3
+nochk 'class="mk-note mk-vtall"' order-preview.html   # ★2026-10-03 사용자 지시로 삭제
+nochk 'window.mkNarAll=function' order-preview.html   # ★2026-10-03 사용자 지시로 삭제(쓰는 곳 없음)
+chk 'AI_NOTE_OFF' scripts/audit/voice-setup.mjs 2
+chk 'AI_NOTE_OFF' scripts/audit/vc-screen.mjs 2
+# ★[VT_KEEP_SWITCH 2026-10-03 사장님] 스튜디오로 바꿨다 돌아와도 두 분이 쓴 글은 그대로(이미 그렇게 돌았다 · 검사로 고정). voice-setup(깨 보고 믿음: 바꿀 때 S.vtext 를 비우면 빨강)
+chk 'VT_KEEP_SWITCH' order-preview.html 1
+chk 'VT_KEEP_SWITCH' scripts/audit/voice-setup.mjs 4
+# ★[BLUR_TAP 2026-10-03 VT_KEEP_SWITCH 깨 보기에서 찾음] 글칸에서 나오며 바로 다시 그리면 그 누르기(칩)가 삼켜졌다 — 글을 적고 «스튜디오 나레이션»을 바로 누르면 첫 누르기가 헛돌았다(터치 · 마우스 실측)
+#   누르는 중에 나온 것이면 click 뒤로 미룬다. voice-setup 칩 길(칩 aria-checked 로 정말 바뀌었나까지 · 깨 보고 믿음: 바로 그리기로 되돌리면 빨강)
+chk 'BLUR_TAP' order-preview.html 1
+chk 'onchange="_taChange()"' order-preview.html 2
+nochk 'onchange="render()"' order-preview.html   # 글칸에서 나올 때 바로 다시 그리지 않는다 [BLUR_TAP]
+chk 'BLUR_TAP' scripts/audit/voice-setup.mjs 1
+# ★[LINE_NO_SEC 2026-10-03 사장님] 줄 카드 머리 «약 n초» 금지 · 입력 중 맞추던 줄(R8-13 일부)도 걷었다. voice-setup(카드 11장 머리)
+chk 'LINE_NO_SEC' order-preview.html 3
+chk 'LINE_NO_SEC' scripts/audit/voice-setup.mjs 2
 # ★★[VID_AUTO_ONLY 2026-10-03 사장님 «서는 분 칩을 누르면 영상이 다시 자동 재생 · 다른 곳들도 체크» · «정지/재생 뜨는데 그 기능도 삭제 · 자동 재생되고 1회 재생되면 끝»]
 #   ② 장면 영상은 쪽에 들어올 때 한 번(MK.pgTok) · 칩 · 줄 ▶ · 들어 보기 · 글 · 접기 · ⋯ · 누르기 · Enter 는 다시 안 튼다 · ① 창은 열 때 · «다시 듣기»만 · 영상은 꾸밈(aria-hidden · tabindex · 커서 · controls 없음).
 #   listen-page P-2b · P-5 · P-6 · P-8 · P-10 · P-11~P-13 이 play 를 가로채 센다(깨 보고 믿음: 옛 «소리를 틀면 그림도» 규칙을 되살리면 7줄 빨강 · 서약 칩 뒤 4번).
@@ -11941,6 +11998,23 @@ chk "_nxBalWhen('촬영 '+_pd.bal+'일 전'),'촬영완료'" mypage.html 1
 chk 'RES_FLOW_ONE' mypage.html 2
 chk 'var _resFlowOn = _resInFlow(d.result);' mypage.html 1
 chk 'RES_FLOW_NEXT' mypage.html 1
+# ★★[WED_DONE_CELEBRATE 2026-10-03 사장님 «양쪽으로 폭죽 · 디자이너 관점으로 적절하게» → «예식을 마친 뒤 처음 열 때 한 번»] 마이페이지
+#   momentedit-design «튀는 모션 금지»의 단 하나 예외 · 효과는 mpCelebrate(opts) 한 덩어리(start/end 표식 사이 · 상태를 안 읽는다) · 부르는 판단은 _mpWedCelebrate
+#   예식완료 · 결과물전달 · 후기에서 고객 코드마다 한 번(localStorage me_wedcele_<코드>) · 스냅 · 종료 고객 · 움직임 줄이기 · 데이터 절약은 안 돈다
+#   · 축하 한 줄(#mp_cheer) · 폰은 한쪽 14개 · 옆으로는 폭의 40% 안([CELE_NARROW] 390 실렌더에서 22개가 NOW 카드 글을 덮었다)
+#   wed-celebrate.mjs(390 · 1280 · 깨 보고 믿음: 띄웠다는 기록을 안 남기면 ② 빨강 · 단계 목록에 제작중을 넣으면 ③ 빨강)
+chk '/\* \[WED_DONE_CELEBRATE\] start \*/' mypage.html 1
+chk '/\* \[WED_DONE_CELEBRATE\] end \*/' mypage.html 1
+chk 'function mpCelebrate(opts)' mypage.html 1
+chk "var WED_DONE_STAGES=\['예식완료','결과물전달','후기'\];" mypage.html 1
+chk 'me_wedcele_' mypage.html 1
+chk 'pointer-events:none;z-index:9000' mypage.html 1
+chk "prefers-reduced-motion: reduce)').matches) return false" mypage.html 1
+chk '두 분의 결혼을 진심으로 축하드려요' mypage.html 1
+chk 'CELE_NARROW' mypage.html 2
+chk 'WED_DONE_CELEBRATE' scripts/audit/wed-celebrate.mjs 2
+nochk 'WED_DONE_CELEBRATE' order-preview.html   # ★④ 에는 두지 않는다(사장님 «마이페이지로») — 2026-10-03 사용자 지시
+if command -v node >/dev/null 2>&1; then node scripts/audit/wed-celebrate.mjs >/dev/null 2>&1; _wc=$?; [ "$_wc" = 1 ] && { echo 'FAIL wed-celebrate: 예식 뒤 첫 열기 축하가 어긋났습니다 — node scripts/audit/wed-celebrate.mjs'; fail=1; }; fi   # 2 = 브라우저 없음(못 쟀다 · 막지 않는다)
 chk 'if (_resInFlow(_rvU)) items = items.filter' mypage.html 1
 # [NEXT_PAY_PAST][STAGE_NEXT_SKIP][NOW_PREP_WORD] 2026-09-26 검토 — NEXT 결제 줄은 이미 지난 날짜를 예고하지 않는다(촬영 7일 안에 서명한 스냅) · 입금완료가 제작중과 같은 이름이라 건너뛰었으면 제작중과 같은 «다음 · 중도금·잔금» 덮어쓰기 · 입금완료 «청첩장부터»는 청첩장이 남았을 때만
 chk 'NEXT_PAY_PAST' mypage.html 1
@@ -13595,7 +13669,8 @@ chk 'VP_FLOW_CLAMP' order-preview.html 2
 chk 'function _vpNow(k)' order-preview.html 1
 chk "window.mkGuestOne=function(v)" order-preview.html 1
 chk '이 파일은 열 수 없어요. m4a · mp3 · wav 로 올려 주세요' order-preview.html 1
-chk '앞 두 문장은 하객께 드리는 안내라 그대로 읽어 주세요' order-preview.html 1
+nochk 'mk-vt4">앞 두 문장은 하객께 드리는 안내라' order-preview.html   # ★[G3_OPEN 2026-10-03 사장님 «고정 유지 하지 마»] 4번 줄 앞 두 문장 고정 안내 금지 — 2026-10-03 사용자 지시로 삭제
+nochk 'class="mk-note">앞 두 문장은 하객께 드리는 안내라' order-preview.html   # [G3_OPEN] 녹음 창 쪽 같은 안내
 nochk "esc(VOICE_LATE" order-preview.html   # ★[LATE_LINE_OFF 2026-09-28 사장님 «이건 사실과 달라 빼»] 7일 전 나레이션 한 줄을 화면에 다시 쓰지 않는다
 nochk '준비되지 않은 줄은 나레이션으로 진행해요' admin.html
 chk 'REC_LUFS=-16' assets/rec-process.js 1
@@ -13869,7 +13944,7 @@ chk 'R8-11' order-preview.html 1
 chk 'R8-12' order-preview.html 1
 chk 'R8-13' order-preview.html 2
 chk 'REF_PILL_OFF' order-preview.html 1
-chk '위 두 문장은 그대로 나가요 · 아래 칸만 고칠 수 있어요' order-preview.html 1
+nochk 'mk-vtn">위 두 문장은 그대로 나가요' order-preview.html   # ★[G3_OPEN 2026-10-03 사장님] 고정 두 문장(.mk-vtfix)과 그 설명 금지 — 2026-10-03 사용자 지시로 삭제
 nochk 'backdrop-filter' order-preview.html 0
 chk 'R8-17' order-preview.html 2
 chk '.seqr:last-child,.seqr:has(+ .dmnote)' order-preview.html 1

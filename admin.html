@@ -1026,7 +1026,7 @@ function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&c
         +' <button type="button" '+BT+' onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button>'
         +' <button type="button" '+BT+' onclick="admRfOk(\''+esc(k)+'\','+(ok?'false':'true')+')">'+(ok?'확인 ✓ · '+esc(ok.at||''):'확인')+'</button>'+upB+'</span></div>'; }).join('');
     if(!ks.length) h='<div class="kv"><span class="k">파일</span><span class="v">두 분 목소리를 고른 자리가 없어요</span></div>';
-    h='<p class="note" style="margin:4px 0 6px;color:var(--sub);font-size:12px">확인할 것 · 목소리가 그 사람인지 · 하객 맞이 4번 줄 앞 두 문장(진행 안내)이 들리는지 · D-5 쯤 한 번'+(nEmpty?' · 빈 줄 '+nEmpty+'개':'')+'</p>'+h;
+    h='<p class="note" style="margin:4px 0 6px;color:var(--sub);font-size:12px">확인할 것 · 목소리가 그 사람인지 · 하객 맞이 4번 줄에 안내 음성 알림 말이 남아 있는지 · D-5 쯤 한 번'+(nEmpty?' · 빈 줄 '+nEmpty+'개':'')+'</p>'+h;
     if(old.length) h+='<details style="margin-top:6px"><summary style="font-size:12px;color:var(--sub)">옛 파일 '+old.length+'개</summary>'+old.map(function(f){ return '<div class="kv"><span class="k">'+esc(f.label||'자리 모름')+'</span><span class="v">'+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+' <button type="button" '+BT+' onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button></span></div>'; }).join('')+'</details>';
     el.innerHTML=vh+h; }).catch(function(){ el.textContent='불러오지 못했어요'; }); }
 /* ★[VC_SLOTS 2026-09-28 · VC_FOLD_0928] AI 목소리 칸 — 요금제 칸은 예식마다 두 칸 쓰고 지우면 돌아온다 · 서버가 10분 캐시 */
