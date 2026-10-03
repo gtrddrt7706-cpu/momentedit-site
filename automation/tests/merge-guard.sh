@@ -13711,6 +13711,18 @@ chk 'RING_STAGE' assets/ritual-open.js 2
 nochk "out.push(\['반지를 건넬" assets/ritual-open.js 0
 # ★[R5 2026-10-03 식순 라운드 점검 5] 덕담 «원고 없이»를 덮어쓰던 단추 · 만들기를 다 쓴 줄 완료 · 식전 영상 뺀 식순의 목소리 창 · ④ 남은 갈래 · 부모님께 인사 머리말 · 어르신 모실 분
 chk 'R5-01' order-preview.html 1
+# [R6-01 … R6-07 2026-10-03 식순 라운드 점검 6] 수정 취소는 파일 상태를 되돌리지 않는다 · 목소리를 다 쓴 빈 줄은 한 판정으로 나레이션 · 덕담 차례는 이름 없이
+chk 'EDIT_CANCEL_FILES' order-preview.html 1
+chk 'function _editCancel()' order-preview.html 1
+chk 'EDIT_CANCEL_FILES' scripts/audit/edit-cancel-files.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/edit-cancel-files.mjs >/dev/null 2>&1; _ec=$?; [ "$_ec" = 1 ] && { echo 'FAIL edit-cancel-files: ④ «변경» 수정을 취소하면 지운 줄 파일이 되살아납니다 — node scripts/audit/edit-cancel-files.mjs'; fail=1; }; fi
+chk 'VC_TO_NAR' order-preview.html 4
+chk 'function _vcToNar(key)' order-preview.html 1
+chk '<b>말씀하실 차례</b>' order-preview.html 1
+chk 'R6-03' order-preview.html 1
+chk 'R6-04' order-preview.html 1
+chk 'R6-06' order-preview.html 1
+chk '현장에서 하세요</span>' order-preview.html 1
 chk 'R5-02' order-preview.html 1
 chk 'function _vsMk()' order-preview.html 1
 chk 'R5-04' order-preview.html 1
