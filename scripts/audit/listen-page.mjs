@@ -80,7 +80,8 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
   await pg.click('[data-fk="pto:declare"]'); await pg.waitForTimeout(500);
-  ok(`${w} ① 창 «② 에서 고를 것 · 누가 · 말투» · 남는 사진`, await pg.evaluate(() => /고를 것 · 누가 · 말투$/.test((document.getElementById('pvCh') || {}).textContent || '') && /남는 사진/.test((document.getElementById('pvShot') || {}).textContent || '')));
+  /* ★[STEP_NONUM_OP 2026-10-03 사장님] 종전 «② 하나씩 만들기에서 고를 것 · …» → 번호 없이 «하나씩 만들기에서 골라요 · …» */
+  ok(`${w} ① 창 «하나씩 만들기에서 골라요 · 누가 · 말투»(번호 없음) · 남는 사진 [STEP_NONUM_OP]`, await pg.evaluate(() => /^하나씩 만들기에서 골라요 · 누가 · 말투$/.test((document.getElementById('pvCh') || {}).textContent || '') && /남는 사진/.test((document.getElementById('pvShot') || {}).textContent || '')));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(400);
   ok(`${w} ① 소제목에 동그라미 번호 없음 · 남는 장면이라는 말 없음`, await pg.evaluate(() => ![...document.querySelectorAll('.pk-h,.pk-act-h,.pk-fp-h h3')].some((h) => /[①②③]/.test(h.textContent)) && !/남는 장면/.test(document.getElementById('stage').textContent)));
   ok(`${w} ① 고객 화면에 «판» 없음`, await pg.evaluate(() => !/판 바꿈|고를 수 있는 판|그 판으로/.test(document.getElementById('stage').textContent)));
@@ -104,8 +105,10 @@ for (const w of [390, 1280]) {
   await pg.click('#prev'); await pg.waitForTimeout(400);
   ok(`${w} ② «이전»은 앞 순간으로`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest'));
   /* [MK_PICK_TOP] 고르기가 먼저 · 그 아래 «고른 대로 들어 보기» · 흐름은 그 뒤 */
-  ok(`${w} ② 고를 것이 있는 쪽 = 칩이 곧 듣기 — «고른 대로 들어 보기» 단추 없음 · 고르기 → 흐름 [MK_PICK_TOP · MK_MIN]`, await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; render();   /* ★[VP_NO_DIRECT] 하객 맞이의 고르는 칸(AI · 나레이션)은 AI 가 켜진 예식에만 — 이 판정은 그 판에서 */ const a = document.querySelector('.mk-pick .ls-vars'), c = document.querySelector('.mk-flow'); const F = Node.DOCUMENT_POSITION_FOLLOWING; return !!a && !!c && !!(a.compareDocumentPosition(c) & F) && !document.querySelector('[data-fk="mkplay"]') && !/고른 대로 들어 보기/.test(document.getElementById('stage').textContent) && ((RitualOpen.FEATURE.voiceClone = false), render(), true); }));
-  ok(`${w} ② 하객 맞이 — 두 분 목소리 줄은 줄 카드 하나로(흐름 목록 없음) · «두 분이 녹음하실 글(예시)» 되풀이 없음 · «아직 안 보냈어요» 없음 [MK_MIN · VP_ONE_LIST]`, await pg.evaluate(() => { if (S.guestVoice !== 'couple') { S.guestVoice = 'couple'; opSync(); render(); } const f = (document.querySelector('.mk-voice') || {}).textContent || ''; return !document.querySelector('.mk-flowsec') && !!document.querySelector('.mk-vcards') && !/아직 안 보냈어요/.test(f) && (f.match(/두 분이 녹음하실 글\(예시\)/g) || []).length <= 1; }));
+  /* ★[MK_FORM_ONE 2026-10-03 사장님] 종전 «고를 것이 있는 쪽 = 칩이 곧 듣기 → «이 순간 들어 보기» 없음»(MK_MIN) → 칩은 소리를 안 낸다([CHIP_NO_AUTOPLAY]) ·
+     나레이션 두 줄 이상인 쪽은 모두 «이 순간 들어 보기» 하나(고르기 아래 · 흐름 머리) — 판정을 뒤집었다 */
+  ok(`${w} ② 고를 것이 있는 쪽도 «이 순간 들어 보기» 하나 — 고르기 → 들어 보기 → 흐름 · «고른 대로 들어 보기» 없음 [MK_PICK_TOP · MK_FORM_ONE]`, await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; render();   /* ★[VP_NO_DIRECT] 하객 맞이의 고르는 칸(AI · 나레이션)은 AI 가 켜진 예식에만 — 이 판정은 그 판에서 */ const a = document.querySelector('.mk-pick .ls-vars'), p = document.querySelectorAll('[data-fk="mkplay"]'), sec = document.querySelector('.mk-flowsec'); const F = Node.DOCUMENT_POSITION_FOLLOWING; return !!a && p.length === 1 && !!sec && !!(a.compareDocumentPosition(p[0]) & F) && !!p[0].closest('.mk-flowsec') && !/고른 대로 들어 보기/.test(document.getElementById('stage').textContent) && ((RitualOpen.FEATURE.voiceClone = false), render(), true); }));
+  ok(`${w} ② 하객 맞이 — 두 분 목소리 줄은 줄 카드 하나로(흐름 목록 없음) · «두 분이 녹음하실 글(예시)» 되풀이 없음 · «아직 안 보냈어요» 없음 [MK_MIN · VP_ONE_LIST]`, await pg.evaluate(() => { if (S.guestVoice !== 'couple') { S.guestVoice = 'couple'; opSync(); render(); } const f = (document.querySelector('.mk-voice') || {}).textContent || ''; return !document.querySelector('.mk-flow') && !!document.querySelector('.mk-vcards')   /* ★[MK_FORM_ONE 2026-10-03] 흐름 칸은 «이 순간 들어 보기» 머리만 남는다 — 목록(.mk-flow)이 없는지로 본다(종전 칸째 없음) */ && !/아직 안 보냈어요/.test(f) && (f.match(/두 분이 녹음하실 글\(예시\)/g) || []).length <= 1; }));
   /* [NAV_FOLD 2026-10-03 사장님] 진행 줄은 접힌 채 시작한다 — 줄의 모양 · 자리 · 흐림을 재는 아래 셋은 펼쳐서 잰다(접힌 줄은 크기 0 이라 «보인다»가 거저 참이 된다) */
   await pg.evaluate(() => mkFold(true)); await pg.waitForTimeout(200);
   ok(`${w} ② 진행 줄 = 글자 탭 — 번호 · 테두리 없음 · 읽어 주는 이름에는 번호 [MK_STRIP_TEXT]`, await pg.evaluate(() => { const its = [...document.querySelectorAll('#mkStrip .mk-it:not(.mk-add):not(.mk-vi)')]; return its.length > 3 && !document.querySelector('#mkStrip .mk-n') && its.every((b) => !/^\s*\d/.test(b.textContent) && getComputedStyle(b).borderTopWidth === '0px') && its.some((b) => /^\d+ /.test(b.getAttribute('aria-label') || '')); }));
@@ -131,14 +134,16 @@ for (const w of [390, 1280]) {
   ok(`${w} ② 칩 = radiogroup · radio · 누를 곳 44px · 고른 칩은 바탕이 다르다 [CHIP_CHECKED]`, await pg.evaluate(() => { const on = document.querySelector('.mk-pg .op-chip[aria-checked="true"]'), off = document.querySelector('.mk-pg .op-chip[aria-checked="false"]'); return !!on && !!off && on.getAttribute('role') === 'radio' && !!on.closest('[role=radiogroup]') && on.getBoundingClientRect().height >= 44 && getComputedStyle(on).backgroundColor !== getComputedStyle(off).backgroundColor; }));
   // 빼기 = 흐리게 남기고 다시 넣기 [DROP_DIM]
   await pg.evaluate(() => mkGo('bless')); await pg.waitForTimeout(400);
-  await pg.click('[data-fk="mkdrop"]'); await pg.waitForTimeout(400);
+  /* ★[MK_NO_DROP_LINK 2026-10-03 사장님] 순간 쪽 «이 순간 빼기» 단추는 걷었다(빼기는 예식 흐름 ✓/＋) — 뺀 쪽 모양은 옛 초안 길(mkDrop)로 연다 */
+  ok(`${w} ② 순간 쪽에 «이 순간 빼기» 없음 [MK_NO_DROP_LINK]`, await pg.evaluate(() => !document.querySelector('[data-fk="mkdrop"]') && !/이 순간 빼기/.test(document.querySelector('.mk-pg').textContent)));
+  await pg.evaluate(() => mkDrop('bless')); await pg.waitForTimeout(400);
   ok(`${w} ② 빼기 → 쪽은 제자리에 흐리게 · «다시 넣기» [DROP_DIM]`, await pg.evaluate(() => !RitualOpen.onOf(S, 'bless') && _mkPages().indexOf('bless') > -1 && !!document.querySelector('.mk-pg.off') && !!document.querySelector('[data-fk="mkundrop"]')));
   await pg.click('[data-fk="mkundrop"]'); await pg.waitForTimeout(400);
   ok(`${w} ② 다시 넣기 → 다시 담긴다`, await pg.evaluate(() => RitualOpen.onOf(S, 'bless') && !document.querySelector('.mk-pg.off')));
   ok(`${w} ② 가로 넘침 0`, await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   // 한눈에 보기 → ③ 연습하기
   await pg.evaluate(() => mkGo('_sum')); await pg.waitForTimeout(400);
-  ok(`${w} ② 마지막 쪽 = 한눈에 보기 · 아래 단추 «다음 · ③ 연습하기»`, await pg.evaluate(() => /한눈에 보기/.test(document.getElementById('mkHead').textContent) && /③ 연습하기/.test(document.getElementById('next').textContent)));
+  ok(`${w} ② 마지막 쪽 = 한눈에 보기 · 아래 단추 «다음 · 연습하기»(번호 없음 · STEP_NONUM_OP)`, await pg.evaluate(() => /한눈에 보기/.test(document.getElementById('mkHead').textContent) && document.getElementById('next').textContent.trim() === '다음 · 연습하기'));
   await clickNext(pg); await pg.waitForTimeout(700);
   ok(`${w} ③ 연습하기 — «처음부터 끝까지» · 막 단추 · 빠르게 훑기 [PRACTICE_STEP]`, await pg.evaluate(() => STEPS[idx].k === 'practice' && !!document.querySelector('[data-fk="prall"]') && document.querySelectorAll('[data-fk^="pra:"]').length > 0 && !!document.querySelector('[data-fk="prfast"]')));
   // 크게 보기 · Esc
@@ -213,7 +218,8 @@ for (const w of [390, 1280]) {
   // 걸음 표시로 옮기면 수정이 끝난다
   await pg.click(`[data-fk="${keys.find((f) => /candle|ring|declare|toast/.test(f)) || keys[0]}"]`); await pg.waitForTimeout(500);
   ok('2-2 수정 중 아래 단추 = «취소 / 요약으로 돌아가기» [RIT_BACK_WORD]', await pg.evaluate(() => editReturn && /요약으로 돌아가기/.test(document.getElementById('next').textContent)));
-  await pg.click('[data-fk="ops:pick"]'); await pg.waitForTimeout(500);
+  /* ★[STEP_COMPACT 2026-10-03 사장님] 순간 쪽 걸음 표시는 접힌 모양 — 걸음 이동은 «모든 순간 보기» 첫 줄(같은 opStepNav · 수정 끝내기 그대로) */
+  await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(250); await pg.click('[data-fk="mkstp:pick"]'); await pg.waitForTimeout(500);
   ok('2-2 걸음 표시로 옮기면 수정 끝 · 아래 단추가 제 이름 · ① 요약 다시 보임', await pg.evaluate(() => !editReturn && STEPS[idx].k === 'pick' && !/요약으로 돌아가기/.test(document.getElementById('next').textContent) && /이전/.test(document.getElementById('prev').textContent) && !!document.getElementById('opCta')));
   ok('2-2 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
@@ -255,7 +261,7 @@ for (const w of [390, 1280]) {
   const d = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, rows: [...document.querySelectorAll('.sumrow')].map((r) => r.querySelector('.sr-n').textContent.trim() + ' ' + r.querySelector('.sr-l').textContent.trim()), want: _lRows().map((k) => _lNo(k) + ' ' + _lName(k) + (k === RitualOpen.peakOf(S) ? ' ★' : '')) }))   /* [R2-33] ★ 은 이름 뒤 */;
   ok('3-1 ④ 순서 요약 = ② 줄 머리(번호 · 이름 · ★)', JSON.stringify(d.rows) === JSON.stringify(d.want), JSON.stringify(d.rows) + ' vs ' + JSON.stringify(d.want));
   ok('④ 준비할 것 = 한 줄 + «② 한눈에 보기에서 보기» · 목록을 또 늘어놓지 않는다 · 담은 순간 = ② 와 같은 셈 [DONE_PREP_ONE · MOMENTS_ONE]', !/쓸 글/.test(d.t) && /두\s분\s\d+가지/.test(d.t) && new RegExp('담은 순간 ' + mo.fn + ' ').test(d.t), d.t.slice(0, 400));
-  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ② 한눈에 보기에서 보기', /담은 순간 \d+ · 본식 약\s\d+~\d+분 · 단체 사진 약\s\d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /②\s한눈에 보기로 이동하기/.test(d.t), d.t.slice(0, 300));
+  ok('3-1 ④ «담은 순간 N · 본식 · 단체 사진» [I1_HEAD] · 옛 준비 말(D-14 · 덕담 1~2분) 없음 · ② 한눈에 보기에서 보기', /담은 순간 \d+ · 본식 약\s\d+~\d+분 · 단체 사진 약\s\d+~\d+분/.test(d.t) && !/D-14 ?부모님께 덕담|1~2분|D-7/.test(d.t) && /한눈에 보기로 이동하기/.test(d.t) && !/②\s?한눈에 보기/.test(d.t), d.t.slice(0, 300));   /* [STEP_NONUM_OP 2026-10-03] 종전 «② 한눈에 보기로 이동하기» → 번호 없이 */
   /* ★[GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 꽃 — ② 칩(담았을 때만 · 큰절이면 꽃 없음) · 맡기면 ③ 「저희가 준비해요 · 별도 비용」 · 초안에 실림 */
   const gd = await pg.evaluate(() => {
     const R = RitualOpen, T = JSON.parse(JSON.stringify(S)), keep = S, out = {};
@@ -334,7 +340,7 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
   ok('3장 크게 보기 동안 상담 말풍선도 잠긴다(inert)', await pg.evaluate(() => { const b = document.getElementById('meAdvStack'); return !b || b.hasAttribute('inert'); }));
   await pg.evaluate(() => { LP.i = LP.q.length; _lShow(); }); await pg.waitForTimeout(300);
-  ok('2-10 ③ 끝 화면 = [다시 보기] [다음 · ④ 완성] 둘 · 큰 ↻ 없음 [FLOW_MAKE]', await pg.evaluate(() => { const f = document.getElementById('lsFull'); const n = f.querySelector('[data-fk="lfnextstep"]'); return !!f.querySelector('[data-fk="lfagain"]') && !!n && /④\s완성/.test(n.textContent) && !f.querySelector('[data-fk="lfdone"]') && !f.querySelector('[data-fk="lftog"]'); }));
+  ok('2-10 ③ 끝 화면 = [다시 보기] [다음 · 완성] 둘 · 큰 ↻ 없음 [FLOW_MAKE · STEP_NONUM_OP]', await pg.evaluate(() => { const f = document.getElementById('lsFull'); const n = f.querySelector('[data-fk="lfnextstep"]'); return !!f.querySelector('[data-fk="lfagain"]') && !!n && n.textContent.trim() === '다음 · 완성' && !f.querySelector('[data-fk="lfdone"]') && !f.querySelector('[data-fk="lftog"]'); }));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
   // 3장 radiogroup 방향키 — ② 화촉 쪽 «고르기»
   await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(400);
@@ -343,10 +349,11 @@ for (const w of [390, 1280]) {
   ok('3장 칩 묶음은 방향키로 옮기며 고른다 · 포커스도 따라간다', await pg.evaluate((c) => (S.candleWho || '') !== c && document.activeElement.getAttribute('role') === 'radio' && document.activeElement.getAttribute('aria-checked') === 'true', c0));
   ok('3장 고른 칩만 Tab 으로 들어간다(roving)', await pg.evaluate(() => [...document.querySelectorAll('.mk-pg [role=radio]')].filter((r) => r.closest('[role=radiogroup]')).every((r) => r.tabIndex === (r.getAttribute('aria-checked') === 'true' ? 0 : -1))));
   await pg.evaluate(() => mkGo('ring')); await pg.waitForTimeout(400);
-  await pg.click('[data-fk="mkdrop"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => mkDrop('ring')); await pg.waitForTimeout(400);   /* [MK_NO_DROP_LINK] 단추가 없어 옛 초안 길로 */
   ok('3장 빼기 뒤 포커스 = «다시 넣기» [DROP_DIM]', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'mkundrop'));
   await pg.click('[data-fk="mkundrop"]'); await pg.waitForTimeout(400);
-  ok('3장 다시 넣은 뒤 포커스 = «이 순간 빼기»(같은 자리)', await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk') === 'mkdrop'));
+  /* ★[MK_NO_DROP_LINK 2026-10-03] 종전 «다시 넣은 뒤 포커스 = «이 순간 빼기»(같은 자리)» → 그 단추가 없어졌다 · 쪽 제목으로 */
+  ok('3장 다시 넣은 뒤 포커스 = 쪽 제목 [MK_NO_DROP_LINK]', await pg.evaluate(() => document.activeElement && document.activeElement.id === 'mkHead'));
   // 보낼 길 — ② 식전 영상 쪽
   await pg.evaluate(() => { if (!RitualOpen.onOf(S, 'prevideo')) { S.on.prevideo = 1; opSync(); } mkGo('prevideo'); }); await pg.waitForTimeout(400);
   const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, send: document.querySelectorAll('.send-how a[href^="https://pf.kakao.com"], .send-how a[href^="mailto:"]').length }));
@@ -453,8 +460,10 @@ else {
   ok('9-3 이미 고른 칩은 다시 틀지 않는다 [CHIP_NO_REPLAY]', c.tok === b.tok && c.p, JSON.stringify({ b: b.tok, c }));
   const other = await pg.evaluate(() => [...document.querySelectorAll('#lsFull .op-chip[data-fk^="lfc:entry:"]')].find((x) => x.getAttribute('aria-checked') !== 'true').getAttribute('data-fk'));
   await pg.click(`#lsFull [data-fk="${other}"]`); await pg.waitForTimeout(300);
-  const d = await pg.evaluate(() => { const r = { tok: LP.tok, stay: LP.stay, chips: document.querySelectorAll('#lsFull .op-chip').length }; let g = 0; while (!LP.paused && LP.cur === 'entry' && g++ < 30) _lNext(); r.after = { cur: LP.cur, p: LP.paused, hint: LP.hint, say: (document.querySelector('#lsFull .lf-state') || {}).textContent || '' }; return r; });
-  ok('9-4 소리 바뀌는 칩 → 그 순간만 다시 · 끝나면 다음으로 안 넘어가고 멈춰 선다 [CHIP_STAY]', d.tok > c.tok && d.stay === 'entry' && d.chips > 0 && d.after.cur === 'entry' && d.after.p && d.after.hint === 'heard' && /한 번 들려 드렸어요/.test(d.after.say), JSON.stringify(d));
+  /* ★[CHIP_NO_AUTOPLAY 2026-10-03 사장님 «칩을 눌러도 소리 안 나게 · 전부»] 종전 9-4 «소리 바뀌는 칩 → 그 순간만 다시 듣고 멈춰 선다(CHIP_STAY)» → 칩은 고르기만 —
+     그 순간부터 새로 세운 줄을 멈춘 채로 둔다(같은 카드 · 칩 펼친 그대로 · 소리 0). «다 골랐어요 · 이어서 듣기»(9-5)가 새로 고른 대로 튼다 */
+  const d = await pg.evaluate(() => ({ tok: LP.tok, cur: LP.cur, p: LP.paused, elP: !LP.el || LP.el.paused, chips: document.querySelectorAll('#lsFull .op-chip').length, q: LP.q.length }));
+  ok('9-4 소리 바뀌는 칩 → 소리 없이 멈춘 채 · 같은 순간 · 칩은 펼친 그대로 [CHIP_NO_AUTOPLAY]', d.tok > c.tok && d.cur === 'entry' && d.p && d.elP && d.chips > 0 && d.q > 0, JSON.stringify(d));
   await pg.click('#lsFull [data-fk="lfchoosedone"]'); await pg.waitForTimeout(300);
   ok('9-5 «다 골랐어요 · 이어서 듣기» → 다시 흐르고 칩은 접힌다', await pg.evaluate(() => !LP.paused && LP.choose === null && document.querySelectorAll('#lsFull .op-chip').length === 0));
   /* ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 두 분 · 가족 차례 = 소리 없이 글 + 막대 — 대역 목소리(06~14 · 24~26)는 어디서도 안 튼다
@@ -752,8 +761,8 @@ for (const w of [390, 1280]) {
   const st = () => pg.evaluate(() => { const n = document.getElementById('mkStrip'), sc = n && n.querySelector('.mk-sc'), b = n && n.querySelector('.mk-fbtn'), r = b && b.getBoundingClientRect();
     const mo = _mkPages().filter((k) => k !== '_intro' && k !== '_sum' && !_mkOff(k)), at0 = _mkState().at, no = _mkNo(at0), pre = mo.filter((k) => _mkNo(k) === '식전');
     const head = (document.querySelector('#mkHead .mk-hn') || {}).textContent || '';   /* 쪽 제목 번호와 같은 셈이어야 한다 */
-    return { has: !!n, hidden: !!(sc && sc.hidden), h: sc ? Math.round(sc.getBoundingClientRect().height) : -1, ex: b && b.getAttribute('aria-expanded'), ctl: b && b.getAttribute('aria-controls'), ctlOk: !!(b && document.getElementById(b.getAttribute('aria-controls')) === sc),
-      lab: b && b.textContent.trim(), pos: (n.querySelector('.mk-pos') || {}).textContent || '', at: at0, want: no === '식전' ? '식전 ' + (pre.indexOf(at0) + 1) + ' / ' + pre.length : '본식 ' + no + ' / ' + RitualOpen.bodySeq(S).length, headOk: no === '식전' || head === no, tap: r ? Math.round(r.height) : 0, navH: Math.round(n.getBoundingClientRect().height),
+    return { has: !!n, hidden: !!(sc && sc.hidden), h: sc ? Math.round(sc.getBoundingClientRect().height) : -1, ex: b && b.getAttribute('aria-expanded'), ctl: b && b.getAttribute('aria-controls'), ctlOk: !!(b && (b.getAttribute('aria-controls') || '').split(/\s+/).map((id) => document.getElementById(id)).indexOf(sc) > -1),   /* [STEP_COMPACT 2026-10-03] 펼침은 걸음 줄(mkStp) + 순간 줄(mkScP) 둘을 연다 */
+      lab: b && b.textContent.trim(), pos: ((n.querySelector('.mk-pos') || {}).textContent || '').replace(/^하나씩 만들기 · /, ''), pstep: ((n.querySelector('.mk-pos') || {}).textContent || '').indexOf('하나씩 만들기 · ') === 0,   /* [STEP_COMPACT] 머리 «하나씩 만들기 ·»(잘리면 빠진다)는 떼고 잰다 */ at: at0, want: no === '식전' ? '식전 ' + (pre.indexOf(at0) + 1) + ' / ' + pre.length : '본식 ' + no + ' / ' + RitualOpen.bodySeq(S).length, headOk: no === '식전' || head === no, tap: r ? Math.round(r.height) : 0, navH: Math.round(n.getBoundingClientRect().height),
       glyph: /[▾▴▼▲]/.test(n.querySelector('.mk-fold').textContent), arrows: !!n.querySelector('.mk-fold [data-fk="lmprev"],.mk-fold [aria-label*="앞 순간"]') }; });
   const a = await st();
   ok(`NF-1 ${w} ② 진행 줄은 접힌 채 시작 — 한 줄(«${a.pos}») · «모든 순간 보기» · aria-expanded=false · aria-controls 가 줄을 가리킨다 · 화살표 · ▾ 글자 없음 [NAV_FOLD]`,
@@ -954,8 +963,9 @@ for (const w of [390, 1280]) {
   const cw = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:candleWho:"]')].map((b) => b.getAttribute('data-fk')).find((f) => !document.querySelector(`[data-fk="${f}"]`).getAttribute('aria-checked') || document.querySelector(`[data-fk="${f}"]`).getAttribute('aria-checked') === 'false'));
   if (cw) { await pg.click(`[data-fk="${cw}"]`); await pg.waitForTimeout(700); }
   const candle = await pg.evaluate(() => (window.__aplays || []).length);
-  ok(`VPS-1 ${w} «어떻게 준비할까요» 칩(하객 맞이 ${res.guest.chips} · 식전 영상 ${res.prevideo.chips} · 입장 ${res.entry.chips}) — 눌러도 소리 0 · 흐르던 소리는 멈춤 [VP_CHIP_SILENT]`, Object.values(res).every((x) => x.chips >= 2 && x.plays === 0 && x.stopped), JSON.stringify(res));
-  ok(`VPS-2 ${w} 내용 칩(화촉 서는 분)은 종전대로 누르면 들린다(${candle})`, !!cw && candle > 0, JSON.stringify({ cw, candle }));
+  ok(`VPS-1 ${w} «어떻게 준비할까요» 칩(하객 맞이 ${res.guest.chips} · 식전 영상 ${res.prevideo.chips} · 입장 ${res.entry.chips}) — 눌러도 소리 0 · 흐르던 소리는 멈춤 [VP_CHIP_SILENT → CHIP_NO_AUTOPLAY]`, Object.values(res).every((x) => x.chips >= 2 && x.plays === 0 && x.stopped), JSON.stringify(res));
+  /* ★[CHIP_NO_AUTOPLAY 2026-10-03 사장님 «전부»] 종전 VPS-2 «내용 칩(화촉 서는 분)은 종전대로 누르면 들린다» → 내용 칩도 고르기만(소리 0) — 판정을 뒤집었다 */
+  ok(`VPS-2 ${w} 내용 칩(화촉 서는 분)도 눌러도 소리 0 [CHIP_NO_AUTOPLAY]`, !!cw && candle === 0, JSON.stringify({ cw, candle }));
   ok(`VPS ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
   await ctx.close();
 }

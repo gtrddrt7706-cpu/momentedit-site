@@ -8965,7 +8965,7 @@ chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
 chk 'NAV_FOLD' order-preview.html 6
 chk 'window.mkFold=function' order-preview.html 1
 chk 'window.mkNavGo=function' order-preview.html 1
-chk 'aria-controls="mkScP"' order-preview.html 1
+chk 'aria-controls="mkStp mkScP"' order-preview.html 1   # [STEP_COMPACT 2026-10-03] 펼침이 걸음 줄(mkStp) + 순간 줄(mkScP) 둘을 연다(종전 mkScP 하나)
 chk 'MK.navOpen=false;   /\* \[NAV_FOLD\] 쪽이 바뀌면 접힌다' order-preview.html 1
 nochk '모든 순간 보기 ▾' order-preview.html
 chk 'NAV_FOLD' scripts/audit/listen-page.mjs 4
@@ -9001,7 +9001,7 @@ chk 'FLOW_KEEP_STEP' scripts/audit/listen-page.mjs 2
 #   · 막대 = ① 과 같은 span 숫자 · 뺀 줄 = 흐림 · 빈 점 · 시각 없음 · 1000px 이상 폭 560 · 알림에 단체 사진 · 다시 담은 줄도 늘 보인다(매 그림마다 _flowKeys)
 #   listen-page CF-3 · CF-4 · CF-6 · CF-8 · CF-10~CF-16 이 390 · 1280 실렌더로 잰다(깨 보고 믿음: HEAD 판 = 빨강)
 chk 'FLOW_NO_VSBAR' order-preview.html 1
-chk "(k==='_intro'?'':_mkStrip(k)+_vsBar())" order-preview.html 1
+chk "(k==='_intro'?'':_mkStrip(k));" order-preview.html 1   # [VS_LINK_IN_ROW 2026-10-03] 순간 쪽에도 _vsBar 없음(종전 흐름 쪽만 없었다)
 chk 'FLOW_MARK' order-preview.html 3
 chk 'class="pk-sel cf-mk' order-preview.html 1
 chk '누르면 다시 담기' order-preview.html 1
@@ -9021,7 +9021,7 @@ chk 'FLOW_NO_VOICE' scripts/audit/rec-upload.mjs 2
 # ★★[VP_CHIP_SILENT 2026-10-03 사장님 «여기 눌렀을 때 음성이 재생되게 하지 말자»] 목소리 준비 칩(guestVoice · pvVoice · entryVoice)은 고르기만 · 울리던 것은 멈춘다
 #   내용 칩(서는 분 등)은 종전대로 «칩 = 듣기» · VS_CHIP_ONCE(처음 한 번 자세히 창)는 그대로. listen-page VPS-1 · VPS-2 · rec-upload(깨 보고 믿음: 이른 return 을 걷으면 VPS-1 빨강)
 chk 'VP_CHIP_SILENT' order-preview.html 1
-chk 'if(VS_KEYS.indexOf(key)>-1){ _stopAud(); if(LP.q.length) lsStop(true); return; }' order-preview.html 1
+nochk 'if(VS_KEYS.indexOf(key)>-1){ _stopAud(); if(LP.q.length) lsStop(true); return; }' order-preview.html   # ★[CHIP_NO_AUTOPLAY 2026-10-03 사장님 «전부»] 목소리 준비 칩만 조용하던 갈래를 걷었다 — 모든 칩이 같은 규칙(_lHush)
 chk 'VP_CHIP_SILENT' scripts/audit/listen-page.mjs 2
 chk 'VP_CHIP_SILENT' scripts/audit/rec-upload.mjs 2
 # ★★[G3_OPEN 2026-10-03 사장님 «고정 유지 하지 마»] 하객 맞이 4번 줄 = 한 칸 통째로 두 분 글 · 옛 꼬리만 적힌 초안은 한 번 머리+꼬리로 옮긴다(S.g3Open)
@@ -9052,6 +9052,66 @@ chk 'BLUR_TAP' scripts/audit/voice-setup.mjs 1
 # ★[LINE_NO_SEC 2026-10-03 사장님] 줄 카드 머리 «약 n초» 금지 · 입력 중 맞추던 줄(R8-13 일부)도 걷었다. voice-setup(카드 11장 머리)
 chk 'LINE_NO_SEC' order-preview.html 3
 chk 'LINE_NO_SEC' scripts/audit/voice-setup.mjs 2
+# ★★[STEP_NONUM_OP · STEP_COMPACT · VS_LINK_IN_ROW · MK_NO_DROP_LINK · CHIP_NO_AUTOPLAY · VOICE_ONCE · TEMPO_STEP · NOTE_OFF_1003 · MK_FORM_ONE 2026-10-03 사장님] ② 겉틀 묶음
+#   걸음 이름 번호 없음(화면 · 문자열 · 마이페이지 «기본 단계») · 순간 쪽 = 접은 걸음 표시(윗선 넷) + 접힌 줄 머리 «하나씩 만들기 ·» + 펼친 첫 줄 걸음 이동 ·
+#   «나레이션 자세히»는 목소리 준비 칩 줄 안 · 순간 쪽 «이 순간 빼기» 없음 · 어느 칩도 소리를 틀지 않는다(크게 보기는 멈춘 채 새 줄) · 예식 흐름 다음 «두 분 목소리 만들기» 쪽 ·
+#   말 빠르기 [−] 0 [＋](±0.3 · 0.8초 뒤 한 번) · 칩 아래 AI 설명 · 입장 «멘트를 바꾸면 …» 없음 · 순간 쪽 한 틀(들어 보기 = 나레이션 두 줄 이상 · 흐름 머리 · 차례 줄 길이 없음).
+#   make-shell.mjs · mk-form-one.mjs 가 390 · 1280 실렌더로 잰다(깨 보고 믿음 — 보고서의 깨 보기 표)
+chk 'STEP_NONUM_OP' order-preview.html 3
+chk "var OP_STEP_W=\[\['pick','고르기'\],\['listen','하나씩 만들기'\],\['practice','연습하기'\],\['done','완성'\]\];" order-preview.html 1
+nochk "\['pick','① 고르기'\]" order-preview.html   # ★걸음 이름 번호 금지 — 2026-10-03 사용자 지시로 삭제
+nochk "'② 하나씩 만들기에서 고를 것 · '" order-preview.html
+nochk "'다음 · ④ 완성'" order-preview.html
+nochk "④ 완성</button>" order-preview.html
+nochk "'다음 · ③ 연습하기'" order-preview.html
+nochk "③ 연습하기</button>" order-preview.html
+chk 'STEP_NONUM_OP' assets/ritual-open.js 1
+nochk "PREP_WHERE = '②" assets/ritual-open.js
+chk 'STEP_NONUM_OP' mypage.html 1
+nochk "'1단계에서" mypage.html   # 청첩장 걸음은 이름(«기본 단계») — 진행 표시에 번호가 없다
+chk 'STEP_COMPACT' order-preview.html 8
+chk 'class="op-steps-c" role="img"' order-preview.html 1
+chk 'function _mkStepRow(open)' order-preview.html 1
+chk 'function _mkPosFit()' order-preview.html 1
+chk 'VS_LINK_IN_ROW' order-preview.html 6
+chk 'class="pk-link cg-vsl" data-fk="mkvsopen"' order-preview.html 1
+nochk '.mk-vsbar{' order-preview.html   # ★순간 쪽 목소리 한 줄 금지 — 2026-10-03 사용자 지시로 삭제
+chk 'MK_NO_DROP_LINK' order-preview.html 4
+nochk 'data-fk="mkdrop" onclick' order-preview.html   # ★순간 쪽 «이 순간 빼기» 금지 — 2026-10-03 사용자 지시로 삭제(빼기는 예식 흐름 ✓/＋)
+chk 'data-fk="mkundrop"' order-preview.html 1   # 옛 초안의 뺀 쪽(«다시 넣기»)은 남긴다
+chk 'CHIP_NO_AUTOPLAY' order-preview.html 6
+chk 'function _lHush(k,hold)' order-preview.html 1
+chk 'function _lStart(ks,all,hold)' order-preview.html 1
+nochk "if(all){ var rs=_lRows(), i=rs.indexOf(k); _lStart(i>=0?rs.slice(i):\[k\],true); } else _lStart(\[k\],false);" order-preview.html   # ★칩 = 듣기(그 순간 다시) 금지 — 2026-10-03 사용자 지시로 삭제
+chk 'VOICE_ONCE' order-preview.html 12
+chk "_vsOk()?\['_voice'\]:\[\]" order-preview.html 1
+chk 'function _mkVoicePage()' order-preview.html 1
+chk 'function _vcNone()' order-preview.html 1
+chk 'window.mkVoiceLater=function' order-preview.html 1
+nochk "if(!S.vsAsked){ S.vsAsked=1; VS.open=true; VS.ph='pick'; }" order-preview.html   # ★② 첫 진입 창 금지 — 2026-10-03(목소리 쪽이 대신)
+nochk 'function _vcSec()' order-preview.html   # ★순간 쪽 사람 카드 칸 금지 — 2026-10-03 사용자 지시로 삭제
+chk 'TEMPO_STEP' order-preview.html 4
+chk 'function _tNorm(v)' order-preview.html 1
+chk 'window.mkVTStep=function' order-preview.html 1
+nochk "chip('0.9','천천히')" order-preview.html   # ★세 칩(천천히 · 보통 · 조금 빠르게) 금지 — 2026-10-03 사용자 지시로 삭제
+chk 'TEMPO_STEP' automation/platform/80_production.gs 3
+chk 'function _vcTempo(v)' automation/platform/80_production.gs 1
+nochk "({ '0.9': 0.9, '1': 1, '1.1': 1.1 })" automation/platform/80_production.gs   # 세 값 목록이면 1.2 가 조용히 1 로
+chk 'TEMPO_STEP' scripts/audit/vc-flow-sim.mjs 3
+chk 'NOTE_OFF_1003' order-preview.html 4
+nochk "ai:'각자 1분쯤 소리 내어 읽으면" order-preview.html   # ★칩 아래 AI 설명 금지 — 2026-10-03 사용자 지시로 삭제
+nochk "'멘트를 바꾸면 두 분 목소리 입장 인사도 아래에서 다시 만들어 주세요.'" order-preview.html   # ★금지 — 2026-10-03 사용자 지시로 삭제(R8-03 이 같은 말)
+chk 'MK_FORM_ONE' order-preview.html 6
+chk "h+=_mkFlow(k,_pn>=2?lb:'');" order-preview.html 1
+nochk "(gs.some(function(g){ return !g.q; })||_pn<2)?'':lb" order-preview.html   # ★«칩이 있으면 들어 보기 숨김» 금지 — 2026-10-03 사용자 지시로 삭제
+nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 길이 금지 — 2026-10-03
+chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
+chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
+chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
+chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 7
+chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 10
+if command -v node >/dev/null 2>&1; then node scripts/audit/make-shell.mjs >/dev/null 2>&1; _msh=$?; [ "$_msh" = 1 ] && { echo 'FAIL make-shell: ② 겉틀 · 목소리 · 소리 규칙이 어긋났습니다 — node scripts/audit/make-shell.mjs'; fail=1; }; fi   # 2 = 브라우저 없음
+if command -v node >/dev/null 2>&1; then node scripts/audit/mk-form-one.mjs >/dev/null 2>&1; _mfo=$?; [ "$_mfo" = 1 ] && { echo 'FAIL mk-form-one: ② 순간 쪽이 한 틀이 아닙니다 — TABLE=1 node scripts/audit/mk-form-one.mjs'; fail=1; }; fi
 # ★★[VID_AUTO_ONLY 2026-10-03 사장님 «서는 분 칩을 누르면 영상이 다시 자동 재생 · 다른 곳들도 체크» · «정지/재생 뜨는데 그 기능도 삭제 · 자동 재생되고 1회 재생되면 끝»]
 #   ② 장면 영상은 쪽에 들어올 때 한 번(MK.pgTok) · 칩 · 줄 ▶ · 들어 보기 · 글 · 접기 · ⋯ · 누르기 · Enter 는 다시 안 튼다 · ① 창은 열 때 · «다시 듣기»만 · 영상은 꾸밈(aria-hidden · tabindex · 커서 · controls 없음).
 #   listen-page P-2b · P-5 · P-6 · P-8 · P-10 · P-11~P-13 이 play 를 가로채 센다(깨 보고 믿음: 옛 «소리를 틀면 그림도» 규칙을 되살리면 7줄 빨강 · 서약 칩 뒤 4번).
@@ -11892,7 +11952,7 @@ nochk '고른 순간에만 나서요' order-preview.html 1   # 옛 코스 갈래
 chk '담은 순간에만 나서요' order-preview.html 1
 chk '이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.' assets/ritual-open.js 1
 chk '두 분이 하객께 목례 · 박수' order-preview.html 1
-chk '<em>→ ③에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번
+chk '<em>→ 한눈에 보기에서</em>' order-preview.html 1   # [G6] 줄마다 붙던 긴 말은 ② 머리에 한 번 · [STEP_NONUM_OP 2026-10-03] «③에서» → 이름
 chk 'G7 2026-09-26' order-preview.html 1   # [G7] 케이크 · 축배 줄 «케이크와 축배 · 양가 와인 한 병씩»
 chk 'G8 2026-09-26' order-preview.html 1   # [G8] 크게 보기 부제 «… · 녹음 전이라 글로 보여 드려요»
 chk '순간마다 한 화면이에요. 듣고, 고르고, 적은 뒤 «다음»을 눌러 주세요.' order-preview.html 1   # [FLOW_MAKE] ② 머리 글(옛 «줄을 누르면 … ③ 준비하기에 모여요»는 목록 화면과 함께 걷었다)
@@ -13536,7 +13596,7 @@ fi
 # [CHIP_UNPICKED · MK_NO_HEADS 2026-09-27 사장님 «안내 목소리 처음엔 안 눌린 상태로 · 눌러야 소리가 나오지» · «고르기 · 흐름 칸 잡아먹는 게 별로 · 더 미니멀하게»]
 chk 'CHIP_UNPICKED' order-preview.html 6
 chk 'touched:{}, ctSplit:1}' order-preview.html 1   # [CAKE_TOAST_SPLIT] 기본 S 끝에 ctSplit
-chk 'var first=!!(g0&&g0.picked===false&&!g0.q)' order-preview.html 1
+nochk 'var first=!!(g0&&g0.picked===false&&!g0.q)' order-preview.html   # ★[CHIP_NO_AUTOPLAY 2026-10-03 사장님] 안 고른 기본을 «눌러서 듣기» 금지 — 칩은 고르기만
 chk 'MK_NO_HEADS' order-preview.html 4
 nochk '<h4 id="mkPickH">고르기</h4>' order-preview.html
 nochk '<h4>흐름</h4>' order-preview.html
@@ -13807,7 +13867,7 @@ chk 'GUEST_WHO' admin.html 1
 nochk 'data-fk="mkone' order-preview.html
 chk 'VC_CARD_HEAD' order-preview.html 2   # 3) 줄 카드 머리 — ▶ · 제목 + 옅은 한 줄 · 오른쪽 신랑 | 신부 · 번호 없음
 nochk 'data-fk="mkrstart:' order-preview.html   # 13) «이 예시로 시작하기» 걷음
-chk 'mk-aisec' order-preview.html 3   # AI 칸은 줄 카드(mk-vc)와 다른 이름
+chk '.mk-vpage .mk-vr{flex-wrap:wrap' order-preview.html 1   # AI 사람 카드는 줄 카드(mk-vc)와 다른 이름 · ★[VOICE_ONCE 2026-10-03] 순간 쪽 .mk-aisec 칸을 걷고 «두 분 목소리 만들기» 쪽(.mk-vpage)으로
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
 chk 'REC_DLG' order-preview.html 6
 chk 'function _recDlgPaint()' order-preview.html 1
@@ -13869,7 +13929,7 @@ chk 'FLOW_LINE_TYPE' order-preview.html 1
 # ★[VOICE_SETUP 2026-10-02 사장님 «② 머리글 나레이션 자세히 → 창 · AI/스튜디오 고르기부터» · «② 들어갈 때 창으로 먼저 · 한 번 셋팅 → 세 자리 한꺼번에» · «비교해 듣기» · «휴대폰 녹음 가이드 · 모션»]
 #   깨 보고 믿음: mkVsPick 의 세 자리 반복을 guestVoice 하나로 줄이면 voice-setup «AI → 세 자리» 빨강(390 · 1280)
 chk 'VOICE_SETUP' order-preview.html 8   # [R1-09] 줄마다 «비교해 듣기»를 칸 머리 한 번으로 옮겨 하나 줄었다
-chk 'function _vsBar()' order-preview.html 1
+nochk 'function _vsBar()' order-preview.html   # ★[VS_LINK_IN_ROW 2026-10-03 사장님] «안내 목소리 · … · 나레이션 자세히» 한 줄 금지 — 2026-10-03 사용자 지시로 삭제 · 링크는 칩 줄 안(cg-vsl)
 chk 'function _vsCur()' order-preview.html 1   # 세 자리(guestVoice · entryVoice · pvVoice)를 한꺼번에 — voice-setup 이 값을 잰다
 chk '@keyframes mkVsWave' order-preview.html 1
 chk 'prefers-reduced-motion:reduce){ .mk-vsg .wv{animation:none' order-preview.html 1

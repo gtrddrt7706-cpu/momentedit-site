@@ -10,7 +10,7 @@ const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs'
 const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
-const FN = ['_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
+const FN = ['_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
 const code = [line(/var RF_KEYS[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_DOWN[^\n]*/), line(/var VC_COLOR[^\n]*/)].concat(FN.map(grab)).join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const miss = FN.filter((f) => !grab(f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -102,6 +102,17 @@ const r2 = w.call({ op: 'make', key: 'g0', text: '와 주셔서 고맙습니다'
 ok('같은 글 · 목소리 · 빠르기 → 다시 만들지 않음(TTS 한 번 · 한도에 안 셈)', r.ok && r2.ok && w.calls.filter((c) => /text-to-speech/.test(c)).length === 1 && w.st().make.per.g0 === 1 && w.st().make.total === 1, JSON.stringify(w.st().make));
 r = w.call({ op: 'make', key: 'g0', text: '와 주셔서 고맙습니다', one: 'groom', tempo: '1.1', retempo: true });
 ok('빠르기만 바꾸면 줄마다 센 수(per)에 안 셈 · 새로 만든 글자는 예산에 셈', r.ok && w.st().make.per.g0 === 1 && w.st().make.total === 2 && w.st().make.chars === '와 주셔서 고맙습니다'.length * 2, JSON.stringify(w.st().make));
+/* ★[TEMPO_STEP 2026-10-03 사장님 «말 빠르기를 더 세밀하게»] 빠르기는 숫자로 — 0.7 ~ 1.3 · 0.1 걸음 · 엉뚱한 값은 1. 종전 목록('0.9' · '1' · '1.1')이면 1.2 가 조용히 1 이 됐다.
+   업체에 실제로 보낸 audio_tempo 로 잰다(만들기 · 연습 읽기 둘 다) */
+{ const tw = world({ api: Object.fromEntries([CLONE('uc_t'), ['POST /v1/text-to-speech', [200, 'mp3']]]) });
+  tw.call({ op: 'consent', who: 'groom', agree: true }); tw.call({ op: 'phrase', who: 'groom' }); tw.call({ op: 'enroll', who: 'groom', sec: 60, data: 'data:audio/wav;base64,AA' });
+  const seen = [], of = tw.sb.UrlFetchApp.fetch;
+  tw.sb.UrlFetchApp.fetch = (u, q) => { if (/text-to-speech/.test(u)) { try { seen.push(JSON.parse(q.payload).output.audio_tempo); } catch (e) { seen.push('?'); } } return of(u, q); };
+  [['1.2', 0], ['1.9', 1], ['abc', 2], ['0.75', 3], ['0.4', 4], ['', 5]].forEach(([t, i]) => tw.call({ op: 'make', key: 'g' + (i % 4), text: i + '번 빠르기', one: 'groom', tempo: t })   /* 글 앞머리를 다르게 — 흉내 해시(computeDigest 스텁 = 글자 그대로)가 앞부분만 보고 겹친다 */);
+  tw.call({ op: 'practice', role: 'groom', text: '연습 빠르기', tempo: '1.3' });
+  ok('[TEMPO_STEP] 빠르기 1.2 받음 · 1.9 → 1.3 · 글자 → 1 · 0.75 → 0.8 · 0.4 → 0.7 · 빈 값 → 1 · 연습 1.3', JSON.stringify(seen) === JSON.stringify([1.2, 1.3, 1, 0.8, 0.7, 1, 1.3]), JSON.stringify(seen));
+  const n0 = seen.length; tw.call({ op: 'make', key: 'g0', text: '0번 빠르기', one: 'groom', tempo: '1.2' });
+  ok('[TEMPO_STEP] 한 번 만든 빠르기는 다시 부르지 않는다(캐시 열쇠에 빠르기)', seen.length === n0, JSON.stringify(seen)); }
 for (let i = 0; i < 12; i++) r = w.call({ op: 'make', key: 'g1', text: '글 ' + i, one: 'groom' });
 ok('[VC_BUDGET] 한 줄을 열두 번 다시 만들어도 막히지 않음 · «N번 남음»(left)을 보내지 않음', r.ok && r.left === undefined && w.call({ op: 'status' }).per === undefined, JSON.stringify(r));
 w.props.VC_ME0001 = JSON.stringify(Object.assign(w.st(), { practice: 199990 }));

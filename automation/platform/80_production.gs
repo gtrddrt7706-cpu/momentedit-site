@@ -1385,6 +1385,16 @@ function _vcCached(code, pre, voiceId, text, tempo, cfg) {   // 같은 글 · �
   var bytes = _vcTts(cfg, voiceId, text, tempo); try { fo.createFile(Utilities.newBlob(bytes, 'audio/mpeg', nm)); } catch (e) {}
   return { hit: false, b64: Utilities.base64Encode(bytes) }; }
 var VC_COLOR = ['파란', '노란', '빨간', '하얀', '초록', '까만', '분홍', '하늘색'], VC_THING = ['우산', '연필', '컵', '의자', '모자', '시계', '편지', '가방', '장갑', '공책', '사과', '종이배'];
+/* ★[TEMPO_STEP 2026-10-03 사장님 «말 빠르기를 더 세밀하게»] 화면이 «말 빠르기 [−] 0 [＋]»(−0.3 ~ +0.3 · 0.1 걸음)로 바뀌었다.
+   종전엔 '0.9' · '1' · '1.1' 세 값만 받고 나머지는 1 로 떨어뜨렸다 — 새 화면의 1.2 가 조용히 «보통»으로 만들어진다.
+   숫자로 읽고 0.7 ~ 1.3 에 묶고 0.1 단위로 맞춘다 · 읽을 수 없으면 1. 캐시 열쇠(_vcCached · voiceId|tempo|text)는 그대로 —
+   0.9 · 1 · 1.1 은 전과 같은 숫자라 이미 만든 소리가 그대로 맞는다 */
+function _vcTempo(v) {
+  /* [TEMPO_STEP] */
+  var x = parseFloat(v); if (!isFinite(x)) x = 1;
+  x = Math.min(1.3, Math.max(0.7, x));
+  return Math.round(x * 10) / 10;
+}
 function _vcKoNum(n) { var D = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'], t = Math.floor(n / 10), o = n % 10; return (t > 1 ? D[t] : '') + (t ? '십' : '') + D[o]; }
 function _vcNewPhrase() {   // [VOICE_CLONE_0928] 확인 문장 — 오늘 날짜 + 색 · 물건 둘(8-2). 예) 오늘은 구월 이십팔일, 파란 우산과 노란 연필.
   var d = new Date(), m = +Utilities.formatDate(d, 'Asia/Seoul', 'M'), dd = +Utilities.formatDate(d, 'Asia/Seoul', 'd'), R = function (a) { return a[Math.floor(Math.random() * a.length)]; };
@@ -1408,7 +1418,7 @@ function handleVoiceClone(body) {
     var t = String(body.text || '').trim().slice(0, 2000); if (!t) return { ok: false, error: '읽을 글이 없어요.' };
     var role = String(body.role || who || ''), own = (role === 'groom' || role === 'bride') && cfg.clone && st[role] && st[role].voiceId;
     var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || cfg.def.f || cfg.def.m; if (!vid) return down;
-    var tp = ({ '0.9': 0.9, '1': 1, '1.1': 1.1 })[String(body.tempo || '1')] || 1;
+    var tp = _vcTempo(body.tempo);   // [TEMPO_STEP] 0.7 ~ 1.3 · 0.1 걸음(종전 세 값만 받던 목록)
     if (_vcSpent(st) + t.length > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
     try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; _vcPut(code, st); }
       return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) }; } catch (e) { return _vcErr(code, e.http, 'practice', e.why || e.message); } }
@@ -1437,7 +1447,7 @@ function handleVoiceClone(body) {
     _vcPut(code, st); return { ok: true, who: who, tries: pp.tries, renewed: !!prev }; }
   if (op === 'make') { var key = String(body.key || ''); if (!RF_KEYS[key]) return { ok: false, error: '어느 자리인지 알 수 없어요.' };
     var text = String(body.text || '').trim().slice(0, 600); if (!text) return { ok: false, error: '읽을 글이 없어요.' };
-    var tempo = ({ '0.9': 0.9, '1': 1, '1.1': 1.1 })[String(body.tempo || '1')] || 1, one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
+    var tempo = _vcTempo(body.tempo), one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
     var lines = Array.isArray(body.lines) ? body.lines.slice(0, 12) : null;   // 입장 인사처럼 문장마다 읽는 사람이 다르면 [[who,text],…]
     st.make = st.make || { total: 0, per: {} };
     var retempo = body.retempo === true;   // 빠르기만 바꾼 것 — 줄마다 센 수(per · 기록용)에 넣지 않는다
