@@ -5521,8 +5521,8 @@ window._pvPlay=function(){
   var k=PV.k; if(!k) return; _pvStop(); var tok=PV.tok, ln=_pvLine(k); _pvBar(0);
   if(!ln){ return; }
   var vd=document.querySelector('#pvM video'), calm=_rm()||!!(navigator.connection&&navigator.connection.saveData);
-  if(vd){ try{ vd.currentTime=0; }catch(e){} if(!calm){ vd.loop=true; var vp=vd.play(); if(vp&&vp['catch']) vp['catch'](function(){}); } }
-  function done(){ if(tok!==PV.tok) return; if(vd){ vd.loop=false; try{ vd.pause(); }catch(e){} } _pvBar(1); }   // 영상은 그 장면에서 멈춘다(«다시 듣기»가 보이게)
+  if(vd){ try{ vd.currentTime=0; }catch(e){} if(!calm){ vd.loop=false; var vp=vd.play(); if(vp&&vp['catch']) vp['catch'](function(){}); } }
+  function done(){ if(tok!==PV.tok) return; _pvBar(1); }   /* ★[PV_VID_ONCE 2026-10-03 사장님 «음성이 끝나도 영상은 계속 진행 · 한 번 재생됐으면 반복이 아니라 멈추게 · 첫 화면에서»] ① 미리보기 영상은 소리와 따로 간다 — 소리가 먼저 끝나도 영상은 끝까지 가고, 반복(loop) 없이 마지막 장면에서 멈춘다(영상 마지막은 동작 완료 상태를 잡아 둔 장면). 종전엔 소리 동안 반복하다 소리가 끝나면 그 자리에서 끊었다. 다시 보려면 «다시 듣기» 또는 영상을 누른다 */
   function asText(){ var ms=Math.max(2400,String(ln.text||'').length*160), t0=Date.now();
     (function tick(){ if(tok!==PV.tok) return; var f=(Date.now()-t0)/ms; if(f>=1){ done(); return; } _pvBar(f); PV.raf=requestAnimationFrame(tick); })(); }
   if(!ln.src){ asText(); return; }
