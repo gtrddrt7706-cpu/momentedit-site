@@ -8929,6 +8929,9 @@ chk 'VIDEO_IN_1003' assets/ritual-open.js 1
 chk "'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close'" assets/ritual-open.js 1
 nochk 'var VIDEO_READY = \[\];' assets/ritual-open.js
 chk 'VIDEO_IN_1003' scripts/audit/listen-page.mjs 5
+chk 'PV_VID_ONCE' order-preview.html 1   # ① 미리보기 영상: 소리가 끝나도 끝까지 · 반복 없이 마지막 장면에서 멈춤(사장님 10/3)
+chk 'vd.loop=false; var vp=vd.play();' order-preview.html 1
+nochk 'vd.loop=true' order-preview.html
 chk 'VIDEO_IN_1003' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
