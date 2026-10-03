@@ -8946,9 +8946,9 @@ chk 'AI_LABEL_OFF' scripts/audit/listen-page.mjs 4
 #   원인 넷: ① 창 «if(!ln) return» 이 영상보다 앞(케이크 · 축배) [PV_VID_NOLINE] · 축배 대표 slug 가 WINE_POUR_OFF 뒤 없는 줄 [SAMPLE_TOAST_LIVE] ·
 #   ② 영상은 틀 곳이 없었다 [MK_VID_PLAY] · 크게 보기는 줄마다 새 <video> [LF_VID_KEEP]. 깨 보고 믿음: 고치기 전 판으로 돌리면 9줄 빨강.
 chk 'PV_VID_NOLINE' order-preview.html 1
-chk 'MK_VID_PLAY' order-preview.html 4
+chk 'MK_VID_PLAY' order-preview.html 3   # ★[VID_AUTO_ONLY 2026-10-03 사장님] 누르면 돈다 · 소리를 틀면 돈다 두 규칙을 걷어 남은 표식은 삭제 주석
 chk 'LF_VID_KEEP' order-preview.html 2
-chk 'window._lVidTap' order-preview.html 1
+nochk 'window._lVidTap=function' order-preview.html   # ★[VID_AUTO_ONLY 2026-10-03 사장님 «정지/재생 뜨는데 그 기능도 삭제»] 장면 영상 누르기 금지
 chk 'SAMPLE_TOAST_LIVE' assets/ritual-open.js 1
 nochk "toast: { slug: 'toast-both-pour-b'" assets/ritual-open.js
 chk 'VID_PLAY_ALL' scripts/audit/listen-page.mjs 2
@@ -8969,6 +8969,43 @@ chk 'aria-controls="mkScP"' order-preview.html 1
 chk 'MK.navOpen=false;   /\* \[NAV_FOLD\] 쪽이 바뀌면 접힌다' order-preview.html 1
 nochk '모든 순간 보기 ▾' order-preview.html
 chk 'NAV_FOLD' scripts/audit/listen-page.mjs 4
+# ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 · 뺀 이벤트는 옅은 투명으로 · 미니멀»]
+chk 'COURSE_FLOW_LIVE' order-preview.html 1   # 예식 흐름 줄의 목소리 말 «당일 직접»(② 쪽과 같은 말)
+#   ② 첫 쪽 = 예식 흐름(식전 · 본식 · 번호 · 이름 · 목소리 한 낱말 · 약 몇 분 · 빼기/다시 담기 = ① 과 같은 opTgl). 펼침 · 고를 것 · 만들러 가기 · 꼬리표 · 목소리 접이 · 7일 전 한 줄 금지.
+#   listen-page CF-1~CF-9 가 390 · 1280 실렌더로 잰다(깨 보고 믿음: 옛 첫 쪽 = 4줄 빨강 · 뺀 줄 흐림을 걷으면 CF-4 빨강).
+chk 'COURSE_FLOW' order-preview.html 8
+chk 'window.mkFlowTgl=function' order-preview.html 1
+chk 'function _flowKeys' order-preview.html 1
+chk "'이 흐름으로 시작하기 · '" order-preview.html 1
+chk "k==='_intro'?'예식 흐름'" order-preview.html 1
+chk '.cf-r.off>:not(.cf-x){opacity:.4}' order-preview.html 1
+nochk '">이 순간 만들러 가기 ›</button>' order-preview.html   # 그리는 단추(삭제 주석의 «…» 인용은 세지 않는다)
+nochk 'class="mk-itag"' order-preview.html
+nochk 'class="mk-irow"' order-preview.html
+nochk "<p class=\"mk-note\">비워 둔 칸은 예식 7일 전까지 채우면 돼요.</p>" order-preview.html
+chk 'COURSE_FLOW' scripts/audit/listen-page.mjs 3
+chk 'COURSE_FLOW' scripts/audit/rec-upload.mjs 2
+# ★★[VID_AUTO_ONLY 2026-10-03 사장님 «서는 분 칩을 누르면 영상이 다시 자동 재생 · 다른 곳들도 체크» · «정지/재생 뜨는데 그 기능도 삭제 · 자동 재생되고 1회 재생되면 끝»]
+#   ② 장면 영상은 쪽에 들어올 때 한 번(MK.pgTok) · 칩 · 줄 ▶ · 들어 보기 · 글 · 접기 · ⋯ · 누르기 · Enter 는 다시 안 튼다 · ① 창은 열 때 · «다시 듣기»만 · 영상은 꾸밈(aria-hidden · tabindex · 커서 · controls 없음).
+#   listen-page P-2b · P-5 · P-6 · P-8 · P-10 · P-11~P-13 이 play 를 가로채 센다(깨 보고 믿음: 옛 «소리를 틀면 그림도» 규칙을 되살리면 7줄 빨강 · 서약 칩 뒤 4번).
+chk 'VID_AUTO_ONLY' order-preview.html 8
+chk 'MK.pgTok=(MK.pgTok||0)+1' order-preview.html 1
+chk "tok=MK.pgTok+':'+k" order-preview.html 1
+nochk "' 장면 영상 · 누르면 재생 · 멈춤\" onclick=" order-preview.html
+nochk "vd.setAttribute('aria-label',c.n+' 장면 영상 · 누르면 멈춤 · 다시')" order-preview.html
+nochk 'LP.vidK=st.k' order-preview.html
+nochk '.lv video\[tabindex\]{cursor:pointer}' order-preview.html
+chk 'VID_AUTO_ONLY' scripts/audit/listen-page.mjs 6
+# ★★[TOP_MENU 2026-10-03 사장님 «추천대로 개선해서 적용해 보자»] 머리 줄 = «⋯» · 저장 · 나가기 — «안내 다시 보기» · «처음부터 다시 만들기»는 «⋯» 안(같은 처리기 · 같은 확인 창).
+#   aria-haspopup=menu · aria-expanded · 44px · Esc / 밖 누르기로 닫힘 · Esc 는 초점을 «⋯»로. listen-page TM-1~TM-6(390 · 390 마이페이지 · 1280 · 깨 보고 믿음: 두 단추를 줄로 되돌리면 빨강).
+chk 'TOP_MENU' order-preview.html 5
+chk "mb.setAttribute('aria-haspopup','menu')" order-preview.html 1
+chk 'function _obMenu' order-preview.html 1
+chk ' menu.appendChild(g); }' order-preview.html 1
+chk ' menu.appendChild(r); }' order-preview.html 1
+chk 'TOP_MENU' scripts/audit/listen-page.mjs 2
+# ★[FOLD_UNDER_STEPS 2026-10-03 사장님] ② 접힌 줄은 걸음 표시보다 한 단 가볍게(500) · 사이 여백은 걸음 표시의 제 아래 여백(4px)뿐 · 사이 선 없음(390: 접힌 줄 59 → 53px)
+chk 'FOLD_UNDER_STEPS' order-preview.html 3
 # ★[SEL_SEAL 2026-10-03 사장님 «파란 거 말고 우리 메인 홈페이지에서 사용한 진사 색상으로»] 고객이 보는 여섯 쪽의 글 고르기 색 = 메인과 같은 진사(실측 대비 9.24:1 · #3A2D22 on #E0D5D2)
 chk '::selection{background:rgba(107,42,36,0.18)' order-preview.html 1
 chk '::selection{background:rgba(107,42,36,0.18)' guide.html 1
@@ -13496,8 +13533,8 @@ chk "var REF_BEST={welcome:" order-preview.html 1   # [REF_BEST4] 대괄호는 g
 chk 'REF_BEST4' scripts/audit/listen-page.mjs 4
 chk 'MK_TODO_DOT' order-preview.html 3
 nochk "st==='todo'?'<span class=\"mk-mk o\"" order-preview.html
-chk 'MK_INTRO_OPEN' order-preview.html 2
-chk 'onclick="mkIntroOpen(' order-preview.html 1
+chk 'MK_INTRO_OPEN' order-preview.html 1   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(펼침 · 남은 표식은 삭제 주석)
+nochk 'onclick="mkIntroOpen(' order-preview.html   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(줄 펼침 금지)
 chk 'VOICE_TOP' order-preview.html 1   # [VOICE_MAP 2026-09-28] 목소리 안내가 목소리 지도로 바뀌며 표식 한 줄
 nochk '<section class="mk-sec mk-legend"><h4>목소리 세 가지</h4>' order-preview.html
 chk 'STEP_HEAD_ONE' order-preview.html 1
@@ -13506,7 +13543,7 @@ chk 'MK_LINE_PLAY' order-preview.html 1
 chk 'LP_WAIT_FIX' scripts/audit/listen-page.mjs 1
 # ★[2026-09-28 사장님 식순 ② 2차 여섯] 안내 첫 쪽부터 · 목소리 안내 접이 · ① 고르기 링크 삭제 · 줄 넘기기 · 플레이 바 한 덩어리 · 복사 단추 제목 옆
 chk 'GUIDE_FROM_FIRST' order-preview.html 1
-chk "g.addEventListener('click',function(){ opStepNav('intro'); });" order-preview.html 1
+chk "g.addEventListener('click',function(){ _obMenu(false); opStepNav('intro'); });" order-preview.html 1   # [TOP_MENU 2026-10-03] «⋯» 창을 닫고 같은 처리기(GUIDE_FROM_FIRST)
 chk 'MK_BACK1_OFF' order-preview.html 1
 nochk '순간을 더하거나 빼려면 ① 고르기로</button>' order-preview.html
 chk 'MK_SECH_NEAR' order-preview.html 1
@@ -13534,9 +13571,9 @@ chk 'VOICE_UP_FROM' scripts/audit/listen-page.mjs 1
 # ★[2026-09-28 코워크 0928 4 · 5장] 갈래 한 줄 설명 원천 문구 · 목소리 지도(② 첫 쪽 접이 · 처음 한 번 펼침 · ⓘ 다시 보기 · ③ 첫 화면) · 진행 줄 물결 · 진사는 점으로만 · 지도에 «AI» 없음
 chk 'VOICE_KIND_0928' assets/ritual-open.js 1
 chk "one: '식장에서 마이크로 직접 말해요. 여기 적는 글은 연습과 대본에 써요'" assets/ritual-open.js 1
-chk 'VOICE_MAP' order-preview.html 8
+chk 'VOICE_MAP' order-preview.html 7   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 · _vgOpen)
 chk 'function _voiceMap(jump)' order-preview.html 1
-chk "<summary>'+(_vgPrep?'어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요':'어디서 직접 말하는지 한눈에 봐요')+'</summary>" order-preview.html 1   # [R3-08] 미리 준비가 없는 판은 제목을 줄인다(③ MAP_ONE 과 같은 판정)
+nochk "_vgPrep?'어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요'" order-preview.html   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 «어디서 직접 말하는지 한눈에 봐요» 금지 · ③ 지도 접이는 그대로)
 chk 'data-fk="mkvi"' order-preview.html 1
 nochk "순서를 안내하는 목소리예요. AI 음성으로" order-preview.html
 nochk '.vk-st.no{color:var(--seal)}' order-preview.html
@@ -13763,7 +13800,7 @@ chk 'VOW_HOW' assets/ritual-story.js 2             # «각자 차례로» LIVE �
 chk 'VOW_HOW' assets/ritual-preview-link.js 2      # 미리듣기가 vowHow 를 옮긴다(alt|each 만)
 chk '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' assets/ritual-story.js 2
 nochk '마지막 한 문장은 하객분들 쪽으로' order-preview.html 0   # 인용은 두 문장이다
-chk 'MAP_ONE' order-preview.html 3                 # ② 첫 쪽 사슬 걷음 · 목록 줄 갈래 · ③ 지도 접이
+chk 'MAP_ONE' order-preview.html 2                 # ② 첫 쪽 사슬 걷음 · 목록 줄 갈래 · ③ 지도 접이   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 사슬 주석)
 nochk '<p class="mk-vgh">이 식순의 차례</p>' order-preview.html 0
 chk 'STRIP_ONE' order-preview.html 1               # 600 이하 진행 줄 한 줄 넘기기
 chk 'AI_CARD_TIDY' order-preview.html 4            # AI 줄 ▶ = 만든 파일 · 밑줄 글 단추 · 말 빠르기 한 줄
@@ -13808,10 +13845,10 @@ chk '저장해 둔 고침은 남아 있어요' order-preview.html 1
 chk 'WHO_IF_FILE' scripts/audit/edit-cancel-files.mjs 1
 chk '바뀐 분 목소리로 다시 만들기' order-preview.html 1
 chk '멘트를 바꿨어요' order-preview.html 1
-chk 'R8-04' order-preview.html 2
+chk 'R8-04' order-preview.html 1   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 «두 분 목소리 n/n줄» 꼬리표 · 한눈에 보기 쪽은 그대로)
 chk 'R8-05' order-preview.html 1
 chk 'BLESS_SITE_PREP' assets/ritual-open.js 1
-chk 'R8-06' order-preview.html 1
+chk 'R8-06' assets/ritual-open.js 1   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 «부탁» 꼬리표 · 원고 없는 덕담 거르기는 원천 prepList 가 한다)
 chk 'PIX_TWO' order-preview.html 1
 chk 'R8-11' order-preview.html 1
 chk 'R8-12' order-preview.html 1

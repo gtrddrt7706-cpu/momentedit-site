@@ -88,15 +88,16 @@ for (const w of [390, 1280]) {
   ok(`${w} [STEP_BASELINE 4-e] 걸음 표시 — 지난 걸음과 지금 걸음의 글줄이 같다`, await pg.evaluate(() => { const ys = [...document.querySelectorAll('.op-steps li')].map((li) => { const tw = document.createTreeWalker(li, NodeFilter.SHOW_TEXT); let t = tw.nextNode(); while (t && !t.textContent.trim()) t = tw.nextNode(); const r = document.createRange(); r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }); return ys.length === 4 && Math.max(...ys) - Math.min(...ys) <= 1; }));
   ok(`${w} ② 제목 «하나씩 만들기» · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '하나씩 만들기' && /하나씩 만들기/.test(document.querySelector('.op-steps li.on').textContent)));
   const pages = await pg.evaluate(() => _mkPages());
-  ok(`${w} ② 쪽 = 고른 순서 · 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE · MK_INTRO]`, pages[0] === '_intro' && pages[1] === 'guest' && pages[2] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
-  /* [MK_INTRO] 첫 쪽 = ① 에서 고른 순서 모아 보기 · 쪽마다 할 일 꼬리표 · «시작하기» */
-  const ii = await pg.evaluate(() => ({ at: _mkState().at, h: document.getElementById('mkHead').textContent, rows: document.querySelectorAll('.mk-ilist .mk-irow').length, tag: [...document.querySelectorAll('.mk-itag')].map((x) => x.textContent).join('|'), next: document.getElementById('next').textContent }));
-  ok(`${w} ② 첫 쪽 «고른 순서» — 순간마다 한 줄 · 할 일 꼬리표(고르기 · 두 분이 할 말) · «시작하기 · 하객 맞이 안내» [MK_INTRO]`, ii.at === '_intro' && ii.h === '고른 순서' && ii.rows === pages.length - 2 && /두 분이 할 말/.test(ii.tag) && /고르기/.test(ii.tag) && /^시작하기 · 하객 맞이 안내$/.test(ii.next.replace(/\u00a0/g, ' ')), JSON.stringify(ii));
-  ok(`${w} ② 고른 순서 쪽엔 진행 줄이 없다 — 목록이 곧 길잡이 [MK_MIN]`, await pg.evaluate(() => !document.getElementById('mkStrip') && document.querySelectorAll('.mk-ilist .mk-irow').length > 3));
+  ok(`${w} ② 쪽 = 예식 흐름 · 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE · MK_INTRO]`, pages[0] === '_intro' && pages[1] === 'guest' && pages[2] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
+  /* [MK_INTRO] 첫 쪽 = 예식 흐름 · «이 흐름으로 시작하기»
+     ★[COURSE_FLOW 2026-10-03 사장님] 종전 «할 일 꼬리표(고르기 · 두 분이 할 말)가 있다» → 이제 «없다»(꼬리표 · 펼침 · 고를 것 · 만들러 가기 · 목소리 접이 · 7일 전 한 줄 금지) */
+  const ii = await pg.evaluate(() => ({ at: _mkState().at, h: document.getElementById('mkHead').textContent, rows: document.querySelectorAll('.mk-intro .cf-r').length, tag: document.querySelectorAll('.mk-itag,.mk-irow,.mk-idet,.mk-igo,#mkVMap,.mk-legend').length, txt: document.querySelector('.mk-intro').textContent, next: document.getElementById('next').textContent }));
+  ok(`${w} ② 첫 쪽 «예식 흐름» — 순간마다 한 줄 · 꼬리표 · 펼침 · 목소리 접이 없음 · «이 흐름으로 시작하기 · 하객 맞이 안내» [MK_INTRO · COURSE_FLOW]`, ii.at === '_intro' && ii.h === '예식 흐름' && ii.rows === pages.length - 2 && ii.tag === 0 && !/두 분이 할 말|고를 것|만들러 가기|비워 둔 칸은|한눈에 봐요/.test(ii.txt) && /^이 흐름으로 시작하기 · 하객 맞이 안내$/.test(ii.next.replace(/\u00a0/g, ' ')), JSON.stringify({ ...ii, txt: ii.txt.slice(0, 120) }));
+  ok(`${w} ② 예식 흐름 쪽엔 진행 줄이 없다 — 목록이 곧 길잡이 [MK_MIN]`, await pg.evaluate(() => !document.getElementById('mkStrip') && document.querySelectorAll('.mk-intro .cf-r').length > 3));
   ok(`${w} ② 들어가자마자 소리 없음(자동 재생 없음)`, await pg.evaluate(() => !LP.q.length && (!LP.el || LP.el.paused)));
   await clickNext(pg); await pg.waitForTimeout(400);
   ok(`${w} ② «시작하기» → 하객 맞이 쪽 · 지금 쪽 aria-current`, await pg.evaluate(() => STEPS[idx].k === 'listen' && _mkState().at === 'guest' && !!document.querySelector('#mkStrip .mk-it.cur[aria-current="step"]')));
-  ok(`${w} ② 진행 순서 줄 = 쪽마다 단추 하나(고른 순서 쪽 제외) · «미완료 N» 단추 없음 · ⓘ(목소리 지도 다시 보기)는 따로 [MK_TODO_PASSED · VOICE_MAP]`, await pg.evaluate((n) => document.querySelectorAll('#mkStrip .mk-it:not(.mk-add):not(.mk-vi)').length === n && !document.querySelector('[data-fk="mktodo"]'), pages.length - 1));
+  ok(`${w} ② 진행 순서 줄 = 쪽마다 단추 하나(고른 순서 쪽 제외) · «미완료 N» 단추 없음 · ⓘ(예식 흐름 다시 보기)는 따로 [MK_TODO_PASSED · VOICE_MAP]`, await pg.evaluate((n) => document.querySelectorAll('#mkStrip .mk-it:not(.mk-add):not(.mk-vi)').length === n && !document.querySelector('[data-fk="mktodo"]'), pages.length - 1));
   await clickNext(pg); await pg.waitForTimeout(400);
   ok(`${w} ② «다음»은 다음 순간으로(걸음은 그대로)`, await pg.evaluate((p2) => STEPS[idx].k === 'listen' && _mkState().at === p2, pages[2]));
   ok(`${w} ② 표시는 지나온 쪽에만 — 지금 · 앞으로 올 쪽은 비어 있다 [MK_TODO_PASSED]`, await pg.evaluate(() => { const its = [...document.querySelectorAll('#mkStrip .mk-it:not(.mk-add):not(.mk-vi)')], ci = its.findIndex((b) => b.classList.contains('cur')); return ci === 1 && /done|todo/.test(its[0].className) && its.slice(ci).every((b) => !/ (done|todo)/.test(b.className)); }));
@@ -224,7 +225,10 @@ for (const w of [390, 1280]) {
   ok('3-5 ① 머리 = 네 걸음 표시 하나(옛 눈썹 · 막대 · 순서 n/N 숨김) · 처음부터 다시 만들기는 걸음 아래', await pg.evaluate(() => document.body.classList.contains('op4') && getComputedStyle(document.getElementById('pnow')).display === 'none' && getComputedStyle(document.querySelector('.prog-bar')).display === 'none'));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   // [HEAD_PILLS 2026-09-27 사장님] 걸음 아래 밑줄 글 → 머리 알약 넷(안내 보기 · 다시 만들기 · 저장 · 나가기)
-  ok('3-5 담은 뒤 머리 알약 «처음부터 다시 만들기»·«안내 다시 보기» · 걸음 아래 옛 글 없음', await pg.evaluate(() => { const v = (id) => { const e = document.getElementById(id); return !!e && !e.hidden && getComputedStyle(e).display !== 'none'; }; return v('obRestart') && v('obGuide') && !document.querySelector('.op-reset [data-fk="opreset"]'); }));
+  /* [TOP_MENU 2026-10-03 사장님] 두 줄은 «⋯» 안 — 창을 열고 같은 것을 잰다 */
+  await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150);
+  ok('3-5 담은 뒤 머리 «⋯» 안에 «처음부터 다시 만들기»·«안내 다시 보기» · 걸음 아래 옛 글 없음 [HEAD_PILLS · TOP_MENU]', await pg.evaluate(() => { const v = (id) => { const e = document.getElementById(id); return !!e && !e.hidden && getComputedStyle(e).display !== 'none' && e.getBoundingClientRect().height > 0; }; return v('obMore') && v('obRestart') && v('obGuide') && !document.querySelector('.op-reset [data-fk="opreset"]'); }));
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(150);
   await clickNext(pg); await pg.waitForTimeout(1500);
   ok('3-7 영상이 없으면 ② 쪽에 큰 빈 상자가 없다', await pg.evaluate(() => !RitualOpen.VIDEO_READY.length && !document.querySelector('.mk-vid')));
   const labs = await pg.evaluate(() => _lSteps(ENG, _lRows()).map((x) => x.lab).join('|'));
@@ -240,7 +244,7 @@ for (const w of [390, 1280]) {
   ok('3-4 ② 반지 쪽 = 챙길 것([R1-30] «당일 가져오기» 되풀이 없음) · 부모님께 인사 쪽 = 카드 선택 칸 · 케이크 · 축배 쪽 = 와인 부탁 · 챙길 것 없음 [WINE_POUR_OFF]', /반지 두 개[^·]*· 평소 끼던 반지여도 괜찮아요/.test(tRing) && !/당일 가져오기/.test(tRing) && /적어 두시면 카드로 드려요 · 비워 두셔도 돼요/.test(tTrib) && !/와인 한 병씩|와인 두 병|한 잔에 (붓|모아)/.test(tToast), tTrib.slice(0, 200));
   ok('② 한눈에 보기 — 한 항목은 한 번(녹음 줄 · 부탁 줄 되풀이 없음) · 미완료 배지 목록 없음 [MK_SUM_ONE]', !/미완료\s*하객 맞이/.test(tSum) && (tSum.match(/양가 어머님께서 불을 밝혀 주세요/g) || []).length <= 1 && (tSum.match(/시작 10분 전/g) || []).length === 0, tSum.slice(0, 300));
   const mo = await pg.evaluate(() => { const one = (t) => ((t.match(/담은 순간 (\d+)/) || [])[1]) || ''; const r = {}; mkGo('_intro'); r.intro = one(document.getElementById('stage').textContent); mkGo('_sum'); r.sum = one(document.getElementById('stage').textContent); r.fn = String(_opMoments()); return r; });
-  ok('② 고른 순서 · 한눈에 보기의 «담은 순간 N»이 같은 셈 [MOMENTS_ONE]', mo.intro === mo.fn && mo.sum === mo.fn && +mo.fn > 0, JSON.stringify(mo));
+  ok('② 예식 흐름 · 한눈에 보기의 «담은 순간 N»이 같은 셈 [MOMENTS_ONE]', mo.intro === mo.fn && mo.sum === mo.fn && +mo.fn > 0, JSON.stringify(mo));
   ok('3-4 한눈에 보기 = 미완료 · 부모님께 부탁드릴 것 · 보낼 것 · 당일 챙길 것 · 도와주실 분 · D-7 없음 [MK_HELPERS]', /미완료 \d+/.test(tSum) && /부모님께 부탁드릴 것/.test(tSum) && !/부모님께 부탁드릴 것 \d/.test(tSum) && /보낼 것/.test(tSum) && /당일 챙길 것/.test(tSum) && /도와주실 분/.test(tSum) && !/D-7|D-14/.test(tSum), tSum.slice(0, 300));
   /* [TRIB_CARD_OPT 사장님 «칸은 두되 선택»] 부모님께 드릴 말 칸은 미완료 셈에 안 든다 · 적으면 대본(카드 인쇄)에 · 비우면 대본에 없다 */
   await pg.evaluate(() => mkGo('tribute')); await pg.waitForTimeout(300);
@@ -674,6 +678,8 @@ else {
       if (!window.__vplays.some((p) => p.w === 'sheet' && p.f === want)) out.sheet.push(k);
       if (!_pvLine(k) && k !== 'cake') out.line.push(k);   /* 대표 줄이 있어야 하는 순간(케이크만 대표 줄이 없다) */
       if (document.querySelector('#pvSheet .pv-ai') || /AI로 만든 장면/.test(document.getElementById('pvM').textContent)) out.label.push('sheet:' + k);
+      { const vd = document.querySelector('#pvM video'); if (vd) { window.__vplays = []; vd.click(); vd.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); await wait(60);
+        if (window.__vplays.length || vd.hasAttribute('tabindex') || vd.getAttribute('aria-hidden') !== 'true' || getComputedStyle(vd).cursor === 'pointer' || vd.hasAttribute('controls')) out.sheetTap = (out.sheetTap || []).concat(k); } }   /* [VID_AUTO_ONLY] ① 창 영상도 누르는 기능 없음 */
       window.__vplays = []; _pvPlay(); await wait(150);
       if (!window.__vplays.some((p) => p.w === 'sheet' && p.f === want)) out.again.push(k);
       opPvClose(); await wait(250);
@@ -698,14 +704,15 @@ else {
       if (v) { window.__vplays = []; render(); await wait(60); if (document.querySelector('.mk-vid video') !== v || window.__vplays.some((p) => p.w === 'make')) out.keep2.push(k); }
       if (!v || (v.getAttribute('data-vk') && v.getAttribute('data-vk') !== k)) { out.make.push(k + ':없음'); continue; }
       if (!v.getAttribute('data-vk') && (v.getAttribute('src') || '').split('/').pop() !== R.firstVideo(k, S).mp4.split('/').pop()) { out.make.push(k + ':다른 영상'); continue; }
-      if (v.getAttribute('tabindex') !== '0') out.makeKey.push(k + ':tabindex');
+      /* [VID_AUTO_ONLY 2026-10-03 사장님 «정지/재생 뜨는데 그 기능도 삭제»] 종전 «누르면 돈다 · tabindex 0» → «누르기 · Enter 아무 일 없음 · tabindex 없음 · 손가락 커서 없음 · 꾸밈(aria-hidden)» */
+      if (v.hasAttribute('tabindex') || v.getAttribute('aria-hidden') !== 'true' || getComputedStyle(v).cursor === 'pointer' || v.hasAttribute('onclick') || v.hasAttribute('controls')) out.makeKey.push(k + ':모양');
       window.__vplays = []; v.click(); await wait(50);
-      if (!window.__vplays.some((p) => p.w === 'make')) out.make.push(k);
+      if (window.__vplays.some((p) => p.w === 'make')) out.make.push(k);
       window.__vplays = []; v.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); await wait(50);
-      if (!window.__vplays.some((p) => p.w === 'make')) out.makeKey.push(k);
+      if (window.__vplays.some((p) => p.w === 'make')) out.makeKey.push(k);
       if (document.querySelector('.mk-vid .lv-ai') || /AI로 만든 장면/.test(document.querySelector('.mk-vid').textContent)) out.label.push('make:' + k);
       window.__vplays = []; lsPlay(k); await wait(500);
-      if (!window.__vplays.some((p) => p.w === 'make')) out.makeSound.push(k);
+      if (window.__vplays.some((p) => p.w === 'make')) out.makeSound.push(k);   /* [VID_AUTO_ONLY] 소리를 틀어도 그림은 다시 안 돈다 */
       lsStop(); await wait(100);
     }
     out.n = ks.length;
@@ -713,26 +720,28 @@ else {
   });
   ok(`P-1 ① 창 — 영상 있는 ${r.n}순간 모두 열면 영상이 돈다(대표 줄이 없어도) [PV_VID_NOLINE]`, r.n >= 13 && r.sheet.length === 0, r.sheet.join(','));
   ok('P-2 ① 창 «다시 듣기 · 처음부터» 누르면 다시 돈다 · 모든 순간', r.again.length === 0, r.again.join(','));
+  ok('P-2b ① 창 영상 — 눌러도 · Enter 도 아무 일 없음 · tabindex · 손가락 커서 · controls 없음 · 꾸밈(«다시 듣기»만 다시 튼다) [VID_AUTO_ONLY 2026-10-03 사장님]', !(r.sheetTap || []).length, JSON.stringify(r.sheetTap || []));
   ok('P-3 ① 창 대표 줄 — 케이크 밖 모든 순간이 엔진에서 찾힌다(축배 76 · 죽은 slug 0) [SAMPLE_TOAST_LIVE]', r.line.length === 0, r.line.join(','));
   ok('P-4 크게 보기 — 모든 순간에서 영상이 불린다 · 다시 그려도 같은 영상 요소(처음으로 안 돌아감) [LF_VID_KEEP]', r.full.length === 0 && r.keep.length === 0, JSON.stringify({ full: r.full, keep: r.keep }));
-  ok('P-5 ② 하나씩 만들기 — 모든 순간의 그림을 누르면(Enter 도) 영상이 돈다 · tabindex 0 [MK_VID_PLAY]', r.make.length === 0 && r.makeKey.length === 0, JSON.stringify({ make: r.make, key: r.makeKey }));
-  ok('P-6 ② 그 순간 소리를 틀면 그 쪽 영상도 한 번 돈다 [MK_VID_PLAY]', r.makeSound.length === 0, r.makeSound.join(','));
+  /* [VID_AUTO_ONLY 2026-10-03 사장님] P-5 · P-6 은 «누르면 돈다 · 소리를 틀면 돈다» → «아무 일 없음»으로 뒤집었다(칩 · 들어 보기가 끝난 영상을 다시 틀던 원인) */
+  ok('P-5 ② 하나씩 만들기 — 그림을 눌러도(Enter 도) 아무 일 없음 · tabindex 없음 · 손가락 커서 없음 · 꾸밈 [VID_AUTO_ONLY]', r.make.length === 0 && r.makeKey.length === 0, JSON.stringify({ make: r.make, key: r.makeKey }));
+  ok('P-6 ② 그 순간 소리를 틀어도(들어 보기 · 칩) 그림은 다시 안 돈다 [VID_AUTO_ONLY]', r.makeSound.length === 0, r.makeSound.join(','));
   ok('P-8 ② 쪽이 보이면 영상이 꼭 한 번 돈다 · loop 없음 · 같은 쪽을 다시 그려도 다시 안 틀고 같은 요소 [LVID_ONCE 2026-10-03 사장님]', r.once.length === 0 && r.loop.length === 0 && r.keep2.length === 0, JSON.stringify({ once: r.once, loop: r.loop, keep: r.keep2 }));
   ok('P-9 크게 보기 영상도 loop 없음(한 번 · 끝 장면에 머문다) [LVID_ONCE]', !(r.fullLoop || []).length, JSON.stringify(r.fullLoop || []));
   ok('P-7 그림 위 «AI로 만든 장면» 이름표 0 — ① 창 · ② · 크게 보기 [AI_LABEL_OFF 2026-10-03 사장님]', r.label.length === 0, r.label.join(','));
   ok('P pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
-/* [LVID_ONCE 2026-10-03 사장님] 움직임 줄이기 — ② 쪽이 보여도 영상이 저절로 안 돈다 · 누르면 돈다 */
+/* [LVID_ONCE 2026-10-03 사장님] 움직임 줄이기 — ② 쪽이 보여도 영상이 저절로 안 돈다 · [VID_AUTO_ONLY] 눌러도 안 돈다(첫 장면 사진만) */
 {
   const { ctx, pg, errs } = await open(390, { stubPlay: true, reduce: true });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const r = await pg.evaluate(async () => { const wait = (ms) => new Promise((z) => setTimeout(z, ms)), auto = [], tap = [];
     for (const k of ['candle', 'vow', 'ring', 'toast']) { if (!S.on[k]) { S.on[k] = 1; opSync(); } window.__vplays = []; mkGo(k); render(); await wait(120);
       if (window.__vplays.some((p) => p.w === 'make')) auto.push(k);
-      const v = document.querySelector('.mk-vid video'); window.__vplays = []; if (v) v.click(); await wait(40); if (!window.__vplays.some((p) => p.w === 'make')) tap.push(k); }
+      const v = document.querySelector('.mk-vid video'); window.__vplays = []; if (v) v.click(); await wait(40); if (window.__vplays.some((p) => p.w === 'make')) tap.push(k); }
     return { auto, tap }; });
-  ok('P-10 움직임 줄이기 — ② 쪽 영상이 저절로 안 돈다 · 누르면 돈다 [LVID_ONCE]', r.auto.length === 0 && r.tap.length === 0, JSON.stringify(r));
+  ok('P-10 움직임 줄이기 — ② 쪽 영상이 저절로 안 돈다 · 눌러도 안 돈다(첫 장면 사진) [LVID_ONCE · VID_AUTO_ONLY]', r.auto.length === 0 && r.tap.length === 0, JSON.stringify(r));
   ok('P-10 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
@@ -774,6 +783,126 @@ for (const w of [390, 1280]) {
   await ctx.close();
 }
 function STEPS_K(k) { return k === 'listen'; }
+/* ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 · 뺀 이벤트는 옅은 투명으로»] ② 첫 쪽 = 예식 흐름 */
+for (const w of [390, 1280]) {
+  const { ctx, pg, errs } = await open(w);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1500);
+  const rd = () => pg.evaluate(() => { const R = RitualOpen, rows = [...document.querySelectorAll('.mk-intro .cf-r')];
+    return { at: _mkState().at, keys: rows.map((r) => r.getAttribute('data-k')), off: rows.filter((r) => r.classList.contains('off')).map((r) => r.getAttribute('data-k')),
+      no: Object.fromEntries(rows.map((r) => [r.getAttribute('data-k'), r.querySelector('.cf-n').textContent])),
+      btn: Object.fromEntries(rows.map((r) => [r.getAttribute('data-k'), (r.querySelector('.cf-x') || {}).textContent || ''])),
+      lo: rows.filter((r) => r.dataset.lo).reduce((a, r) => a + +r.dataset.lo, 0), hi: rows.filter((r) => r.dataset.hi).reduce((a, r) => a + +r.dataset.hi, 0), sec: R.bodySec(S), sp: R.span(S),
+      allOn: rows.every((r) => r.dataset.k === '_close' || R.onOf(S, r.dataset.k)), always: Object.keys(R.ALWAYS).concat(['_close']),
+      sum: document.querySelector('[data-fk="mkflowsum"]').textContent, n: String(_opMoments()), pages: _mkPages(), on: Object.keys(S.on || {}).filter((k) => S.on[k]),
+      eng: (() => { const r = ENG.RitualCue.build(S, { mode: 'preview' }), cs = Array.isArray(r) ? r : r.cues, o = []; cs.forEach((c) => { const k = c.k || (/^narr-close|^end-|^bridge-b6|fx-free/.test(c.slug) ? '_close' : ''); if (k && o.indexOf(k) < 0) o.push(k); }); return o; })(),
+      op: rows[0] ? getComputedStyle((document.querySelector('.mk-intro .cf-r.off .cf-m') || rows[0].querySelector('.cf-m'))).opacity : '' }; });
+  const a = await rd();
+  const engOrd = a.eng.filter((k) => a.keys.indexOf(k) > -1);
+  ok(`CF-1 ${w} 줄 차례 = 엔진이 트는 차례(${a.keys.join(' ')}) · 식전 · 본식 두 묶음 · ①에서 안 담은 순간 없음`, a.at === '_intro' && JSON.stringify(a.keys.filter((k) => engOrd.indexOf(k) > -1)) === JSON.stringify(engOrd) && engOrd.length >= a.keys.length - 1 && a.keys[a.keys.length - 1] === '_close' && a.allOn && (await pg.evaluate(() => document.querySelectorAll('.mk-intro .cf-g').length)) === 2, JSON.stringify({ keys: a.keys, eng: a.eng }));
+  ok(`CF-2 ${w} 줄 길이의 합 = 본식 합(대본 ${a.sec[0]} · 넉넉 ${a.sec[1]}초) · 머리 한 줄 = «본식 ${a.sp.body} · 단체 사진 ${a.sp.photo} · 담은 순간 ${a.n}»`, Math.abs(a.lo - a.sec[0]) < 0.01 && Math.abs(a.hi - a.sec[1]) < 0.01 && a.sum.replace(/\u00a0/g, ' ') === '본식 ' + a.sp.body + ' · 단체 사진 ' + a.sp.photo + ' · 담은 순간 ' + a.n, JSON.stringify({ lo: a.lo, hi: a.hi, sec: a.sec, sum: a.sum }));
+  ok(`CF-3 ${w} 늘 있는 순간(하객 맞이 · 입장 · 닫는 인사)엔 단추 없음 · 나머지는 «빼기»`, a.btn.guest === '' && a.btn.entry === '' && a.btn._close === '' && a.keys.filter((k) => a.always.indexOf(k) < 0).every((k) => a.btn[k] === '빼기'), JSON.stringify(a.btn));
+  const decNo0 = +a.no.declare;
+  await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(400);
+  const live = await pg.evaluate(() => (document.getElementById('lsLive') || {}).textContent || '');
+  const b = await rd();
+  ok(`CF-4 ${w} «빼기» — 줄은 그 자리에 옅게(${b.op}) · «다시 담기» · 번호 빠짐 · 뒤 번호 하나씩 당김 · 합과 머리 한 줄이 바로 바뀜 · ① 상태도 뺌 · 소리 내어 알림`,
+    JSON.stringify(b.keys) === JSON.stringify(a.keys) && b.off.join() === 'ring' && Math.abs(+b.op - 0.4) < 0.01 && b.btn.ring === '다시 담기' && b.no.ring === '' && +b.no.declare === decNo0 - 1
+      && Math.abs(b.lo - b.sec[0]) < 0.01 && b.sec[0] < a.sec[0] && b.sum.replace(/\u00a0/g, ' ') === '본식 ' + b.sp.body + ' · 단체 사진 ' + b.sp.photo + ' · 담은 순간 ' + b.n
+      && b.on.indexOf('ring') < 0 && b.pages.indexOf('ring') < 0 && +b.n === +a.n - 1 && /반지 교환을 뺐어요 · 본식/.test(live),
+    JSON.stringify({ off: b.off, op: b.op, no: b.no, sum: b.sum, on: b.on, live }));
+  await pg.click('[data-fk="mkflow:prevideo"]'); await pg.waitForTimeout(400);
+  const c = await rd();
+  ok(`CF-5 ${w} 식전 영상도 빼면 옅게 · 본식 합은 그대로(식전은 본식 시간에 안 든다)`, c.off.sort().join() === 'prevideo,ring' && Math.abs(c.sec[0] - b.sec[0]) < 0.01, JSON.stringify({ off: c.off, sec: c.sec }));
+  await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(400); await pg.click('[data-fk="mkflow:prevideo"]'); await pg.waitForTimeout(400);
+  const d = await rd();
+  ok(`CF-6 ${w} «다시 담기» — 번호 · 합 · 머리 한 줄 · ① 상태가 처음 그대로 · 초점은 누른 단추에`, d.off.length === 0 && JSON.stringify(d.no) === JSON.stringify(a.no) && d.sum === a.sum && d.on.indexOf('ring') > -1 && d.on.indexOf('prevideo') > -1 && (await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'))) === 'mkflow:prevideo', JSON.stringify({ off: d.off, sum: d.sum }));
+  /* 이 방문에서 뺀 줄만 자리를 지킨다 — 떠났다 돌아오면 그때 담긴 순간만 */
+  await pg.click('[data-fk="mkflow:ring"]'); await pg.waitForTimeout(300); await pg.evaluate(() => { mkGo('guest'); }); await pg.waitForTimeout(300); await pg.evaluate(() => { mkGo('_intro'); }); await pg.waitForTimeout(400);
+  const e = await rd();
+  ok(`CF-7 ${w} 떠났다 돌아오면 뺀 순간은 줄에서 사라진다(①에서 안 담은 것처럼) · 다시 담으려면 ① · 진행 줄 «+ 순간 더하기»`, e.keys.indexOf('ring') < 0 && e.off.length === 0, JSON.stringify(e.keys));
+  await pg.evaluate(() => { opTgl('ring'); mkGo('_intro'); }); await pg.waitForTimeout(400);
+  /* 모양 — 줄 높이 52 이상 · 단추 44 · 선은 머리카락 선만(상자 · 카드 없음) · 390 에서는 레일과 안 겹친다[RAIL_LOCKED] */
+  const g = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-intro .cf-r')], bs = [...document.querySelectorAll('.mk-intro .cf-x')], rail = document.querySelector('#meAdvStack .me-fab, .me-fab'), rr = rail ? rail.getBoundingClientRect() : null;
+    return { minH: Math.min(...rows.map((r) => r.getBoundingClientRect().height)), tap: Math.min(...bs.map((b) => b.getBoundingClientRect().height)), maxR: Math.max(...bs.map((b) => b.getBoundingClientRect().right), ...[...document.querySelectorAll('.mk-intro .cf-d')].map((x) => x.getBoundingClientRect().right)), railL: rr ? rr.left : 9999,
+      boxes: rows.filter((r) => { const c = getComputedStyle(r); return c.backgroundColor !== 'rgba(0, 0, 0, 0)' || c.borderTopWidth !== '0px' || c.borderRadius !== '0px' || c.boxShadow !== 'none'; }).length, fw: Math.max(...[...document.querySelectorAll('.mk-intro *')].map((x) => +getComputedStyle(x).fontWeight)),
+      fs: [...new Set([...document.querySelectorAll('.mk-intro .cf-r *, .mk-intro .cf-g, .mk-intro .mk-one')].map((x) => getComputedStyle(x).fontSize))].sort(), sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }; });
+  ok(`CF-8 ${w} 줄 ${Math.round(g.minH)}px(≥52) · 단추 ${Math.round(g.tap)}px(≥44) · 상자 · 카드 없음 · 굵기 ≤600 · 글자 RIT_TYPE5 안(${g.fs.join(' ')}) · 가로 넘침 없음${w < 1000 ? ' · 레일과 안 겹침(' + Math.round(g.maxR) + ' < ' + Math.round(g.railL) + ')' : ''}`,
+    g.minH >= 52 && g.tap >= 44 && g.boxes === 0 && g.fw <= 600 && g.fs.every((f) => ['11px', '12.5px', '14px', '16px', '20px'].includes(f)) && g.sw <= g.cw && (w >= 1000 || g.maxR <= g.railL), JSON.stringify(g));
+  const t = await pg.evaluate(() => { mkFlowTgl('entry'); mkFlowTgl('_close'); mkFlowTgl('guest'); return { e: RitualOpen.onOf(S, 'entry'), g: RitualOpen.onOf(S, 'guest') }; });
+  ok(`CF-9 ${w} 늘 있는 순간은 뺄 수 없다(단추 없음 · 함수도 무시)`, t.e && t.g, JSON.stringify(t));
+  ok(`CF ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★★[VID_AUTO_ONLY 2026-10-03 사장님 «서는 분 칩을 누르면 영상이 다시 자동 재생 · 다른 곳들도 체크» · «자동 재생되고 1회 재생되면 끝»]
+   ② 장면 영상이 도는 길은 «그 쪽에 들어올 때 한 번»뿐 — 칩 · 줄 ▶ · 들어 보기 · 글 적기 · 진행 줄 접기 · 그림 누르기 · Enter 는 횟수를 늘리지 않는다 */
+for (const w of [390, 1280]) {
+  const { ctx, pg, errs } = await open(w, { stubPlay: true });
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1500);
+  const n = (f) => pg.evaluate((f) => window.__vplays.filter((p) => p.w === 'make' && p.f === f).length, f);
+  const clickAll = async (sel) => { const els = await pg.$$(sel); for (const e of els) { if (await e.isVisible()) { await e.click(); await pg.waitForTimeout(250); } } return els.length; };
+  await pg.evaluate(() => { window.__vplays = []; mkGo('candle'); }); await pg.waitForTimeout(500);
+  const c0 = await n('candle.mp4');
+  const used = {};
+  used.chips = await clickAll('[data-fk^="lsc:candleWho:"]');
+  used.line = await clickAll('.mk-pl'); await pg.evaluate(() => lsStop());
+  used.play = await clickAll('[data-fk="mkplay"],[data-fk="mkvnowplay"]'); await pg.evaluate(() => lsStop());
+  await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(200); await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(200);
+  await pg.click('.mk-vid video', { force: true }).catch(() => {}); await pg.waitForTimeout(150);
+  await pg.evaluate(() => { const v = document.querySelector('.mk-vid video'); if (v) v.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); }); await pg.waitForTimeout(150);
+  const ta = await pg.$('.mk-pg textarea'); if (ta) { await ta.type('가나다'); await pg.waitForTimeout(300); used.ta = 1; }
+  const c1 = await n('candle.mp4');
+  await pg.evaluate(() => { mkGo('entry'); }); await pg.waitForTimeout(500);
+  const e0 = await n('entry.mp4');
+  used.entryChips = await clickAll('[data-fk^="lsc:entry:"]'); await pg.evaluate(() => lsStop());
+  const e1 = await n('entry.mp4');
+  await pg.click('#prev'); await pg.waitForTimeout(500);
+  const c2 = await n('candle.mp4');
+  ok(`P-11 ${w} ② 화촉 — 들어올 때 한 번(${c0}) · 서는 분 칩 ${used.chips} · 줄 ▶ ${used.line} · 들어 보기 ${used.play} · 진행 줄 접기 · 그림 누르기 · Enter · 글 적기 ${used.ta ? 1 : 0} 뒤에도 ${c1} [VID_AUTO_ONLY]`, c0 === 1 && c1 === 1 && used.chips >= 2 && used.line >= 1, JSON.stringify({ c0, c1, used }));
+  ok(`P-12 ${w} ② 입장 — 들어올 때 한 번(${e0}) · 입장 멘트 칩 ${used.entryChips} 뒤에도 ${e1} · «이전»으로 화촉에 다시 들어오면 새로 한 번(${c2})`, e0 === 1 && e1 === 1 && used.entryChips >= 2 && c2 === 2, JSON.stringify({ e0, e1, c2 }));
+  /* 글 적기 · 들어 보기가 있는 쪽(서약 · 첫인사)에서도 */
+  const more = {};
+  for (const k of ['vow', 'welcome', 'ring']) {
+    await pg.evaluate((k) => { mkGo(k); }, k); await pg.waitForTimeout(500);
+    const f = await pg.evaluate(() => (document.querySelector('.mk-vid video') || {}).getAttribute ? document.querySelector('.mk-vid video').getAttribute('src').split('/').pop() : '');
+    const a0 = await n(f); const u = { play: await clickAll('[data-fk="mkplay"],[data-fk="mkvnowplay"]') }; await pg.evaluate(() => lsStop());
+    const tas = await pg.$$('.mk-pg textarea'); u.ta = 0; for (const t of tas) { if (await t.isVisible()) { await t.type('가나'); u.ta++; await pg.waitForTimeout(200); } }
+    u.line = await clickAll('.mk-pl'); await pg.evaluate(() => lsStop());
+    more[k] = { a0, a1: await n(f), ...u };
+  }
+  ok(`P-13 ${w} ② 서약 · 첫인사 · 반지 — 글 적기 · 들어 보기 · 줄 ▶ 뒤에도 한 번 그대로(${JSON.stringify(more)}) [VID_AUTO_ONLY]`, Object.values(more).every((x) => x.a0 === 1 && x.a1 === 1) && Object.values(more).some((x) => x.ta > 0) && Object.values(more).some((x) => x.play > 0), JSON.stringify(more));
+  ok(`P ${w} VID_AUTO_ONLY pageerror 0`, errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
+/* ★★[TOP_MENU 2026-10-03 사장님 «추천대로 개선해서 적용해 보자»] 머리 줄 = «⋯» · 저장 · 나가기 — 두 줄(안내 다시 보기 · 처음부터 다시 만들기)은 «⋯» 안 */
+for (const [w, emb] of [[390, false], [390, true], [1280, true]]) {
+  const ctx = await br.newContext({ viewport: { width: w, height: 900 }, hasTouch: w < 1000 }); const pg = await ctx.newPage(); const errs = [];
+  pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); return rt.fulfill({ status: 200, body: '' }); });
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html${emb ? '?embed=1' : ''}`, { waitUntil: 'load' }); await pg.waitForTimeout(700);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
+  const row = await pg.evaluate(() => { const sl = document.getElementById('obExitSlot'), vis = [...sl.querySelectorAll(':scope > *, :scope > #obMoreWrap > .ob-more')].filter((e) => e.offsetParent && !e.closest('.ob-menu') && e.id !== 'obMoreWrap'), r = sl.getBoundingClientRect(), b = document.getElementById('obMore');
+    return { ids: vis.map((e) => e.id || e.className), tops: [...new Set(vis.map((e) => Math.round(e.getBoundingClientRect().top)))].length, right: Math.round(r.right), vw: innerWidth, left: Math.round(Math.min(...vis.map((e) => e.getBoundingClientRect().left))), tap: Math.round(b.getBoundingClientRect().height), hp: b.getAttribute('aria-haspopup'), ex: b.getAttribute('aria-expanded'), menuHidden: document.getElementById('obMenu').hidden, guideVis: !!document.getElementById('obGuide').offsetParent }; });
+  ok(`TM-1 ${w}${emb ? ' 마이페이지' : ''} 머리 줄 ${row.ids.join(' · ')} — 한 줄 · 화면 안 · «⋯» 44px · aria-haspopup=menu · 닫힌 채(두 줄 안 보임)`, row.tops === 1 && row.right <= row.vw && row.left >= 0 && row.tap >= 44 && row.hp === 'menu' && row.ex === 'false' && row.menuHidden && !row.guideVis && (!emb || (row.ids.includes('obSave') && row.ids.includes('obExit'))), JSON.stringify(row));
+  await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150);
+  const m = await pg.evaluate(() => { const mn = document.getElementById('obMenu'), its = [...mn.querySelectorAll('[role="menuitem"]')], c = getComputedStyle(mn), b = mn.getBoundingClientRect();
+    return { open: !mn.hidden, ex: document.getElementById('obMore').getAttribute('aria-expanded'), names: its.map((x) => x.textContent.trim()), focus: document.activeElement && document.activeElement.id, h: its.map((x) => Math.round(x.getBoundingClientRect().height)), full: its.every((x) => Math.abs(x.getBoundingClientRect().width - b.width + 2) <= 2), shadow: c.boxShadow, blur: c.backdropFilter || 'none', bg: c.backgroundColor, inView: b.left >= 0 && b.right <= innerWidth }; });
+  ok(`TM-2 ${w} «⋯» 누르면 작은 창 — 제 이름 그대로(${m.names.join(' · ')}) · 줄 44px · 폭 가득 · 크림 바탕 · 그림자 · 흐림 없음 · 첫 줄로 초점 · 화면 안`, m.open && m.ex === 'true' && m.names.join('|') === '안내 다시 보기|처음부터 다시 만들기' && m.h.every((x) => x >= 44) && m.full && m.shadow === 'none' && m.blur === 'none' && m.bg === 'rgb(250, 250, 248)' && m.focus === 'obGuide' && m.inView, JSON.stringify(m));
+  await pg.keyboard.press('ArrowDown'); const ad = await pg.evaluate(() => document.activeElement.id);
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(150);
+  const e = await pg.evaluate(() => ({ hidden: document.getElementById('obMenu').hidden, ex: document.getElementById('obMore').getAttribute('aria-expanded'), focus: document.activeElement.id, step: STEPS[idx].k }));
+  ok(`TM-3 ${w} 화살표로 다음 줄(${ad}) · Esc — 창만 닫히고(빌더 나가기 아님) 초점은 «⋯»`, ad === 'obRestart' && e.hidden && e.ex === 'false' && e.focus === 'obMore' && e.step === 'listen', JSON.stringify(e));
+  await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150); await pg.mouse.click(Math.round(w / 2), 700); await pg.waitForTimeout(150);
+  ok(`TM-4 ${w} 밖을 누르면 닫힌다`, await pg.evaluate(() => document.getElementById('obMenu').hidden && document.getElementById('obMore').getAttribute('aria-expanded') === 'false'));
+  await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150); await pg.click('[data-fk="obrestart"]'); await pg.waitForTimeout(400);
+  const rs = await pg.evaluate(() => ({ ask: !!document.querySelector('.ord-ask'), t: (document.querySelector('.ord-ask') || {}).textContent || '', on: RitualOpen.picked(S).length }));
+  await pg.click('.ord-ask button:has-text("취소")').catch(() => {}); await pg.waitForTimeout(300);
+  const rs2 = await pg.evaluate(() => RitualOpen.picked(S).length);
+  ok(`TM-5 ${w} «처음부터 다시 만들기» — 종전 확인 창 그대로(«고른 것을 모두 비울까요?») · 취소면 그대로`, rs.ask && /고른 것을 모두 비울까요/.test(rs.t) && rs.on > 0 && rs2 === rs.on, JSON.stringify({ ...rs, t: rs.t.slice(0, 40), rs2 }));
+  await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150); await pg.click('[data-fk="obguide"]'); await pg.waitForTimeout(500);
+  ok(`TM-6 ${w} «안내 다시 보기» — 종전처럼 안내 첫 쪽으로`, await pg.evaluate(() => STEPS[idx].k === 'intro'));
+  ok(`TM ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
+  await ctx.close();
+}
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
 process.exit(fail ? 1 : cant ? 2 : 0);
