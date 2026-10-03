@@ -373,7 +373,10 @@
   /* 순서 한 줄 [F1] — «식전 영상 →» 다음에 본식을 › 로 · 가장 벅찬 순간 뒤에 ★ */
   function orderParts(S) { var p = peakOf(S); return bodySeq(S).map(function (k) { return { k: k, n: CARDS[k].sn, peak: k === p }; }); }
   /* 준비 한 줄 [D5] — 0가지인 쪽은 뺀다 · «것 N가지»는 붙는 공백으로 */
-  function prepCount(S) { var c = 0, pp = 0; prepList(S).forEach(function (q) { if (q.who === 'parents') pp++; else c++; }); return { couple: c, parents: pp }; }
+  /* [R4-06] 선택 항목(부모님께 드릴 말 · «비워 두셔도 돼요» NOTE_TRIB)은 셈에서 뺀다 — ① · ④ 는 «두 분 8가지»인데 한눈에 보기 목록 · 미완료에는 7개였다.
+     셈을 내는 곳(① prepLine · ④ · 마이페이지 «준비할 것 N가지»)이 모두 이 판정을 쓴다 */
+  function prepOpt(q) { return !!q && q.note === NOTE_TRIB; }
+  function prepCount(S) { var c = 0, pp = 0; prepList(S).forEach(function (q) { if (prepOpt(q)) return; if (q.who === 'parents') pp++; else c++; }); return { couple: c, parents: pp }; }
   /* ★★[VOICE_KIND 2026-09-27 코워크 지시 2장 · 사장님 «미리 녹음하거나 AI로 하는 부분과 직접 육성으로 얘기해야 하는 부분을 고객 입장에서 직관적으로 구분»]
      줄마다 누가 어떻게 소리 내는지 — 한 곳(여기)에서 정하고 ② · ③ · 콘솔이 같은 값을 읽는다.
        narr = 나레이션(스튜디오 나레이터) · prep = 두 분 목소리 · 미리 준비(두 분이 식장에 없을 때 · 하객 맞이 · 입장 인사 «두 분 목소리»를 골랐을 때만)
@@ -406,7 +409,8 @@
     return '당일 직접'; }
   function prepLine(S) { var n = prepCount(S), a = [];
     if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께' + NB + '부탁드릴' + NB + '것' + NB + n.parents + '가지');   /* [R3-11] «부모님께 / 부탁드릴 것»으로 갈렸다 */   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
-    return a.length ? a.join(' · ') + ' · ② 하나씩 만들기 마지막 «한눈에' + NB + '보기»에서 모아 봐요' : ''; }   /* [R3-11] 화면 이름이 «한눈에 / 보기»로 쪼개지지 않게 */   // [R1-33] ② 이름은 «하나씩 만들기»   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
+    return a.join(' · '); }   /* [R4-07] 개수만 돌려준다 — 안내(PREP_WHERE)까지 한 줄로 붙이면 _ndd 가 « · » 양옆을 묶어 끊을 곳 없는 덩어리가 되고 390 에서 «두 분이»만 앞줄에 남았다. 안내는 부르는 쪽이 줄을 바꿔 붙인다 */
+  var PREP_WHERE = '② 하나씩 만들기 마지막 «한눈에' + NB + '보기»에서 모아 봐요';   /* [R3-11] 화면 이름이 «한눈에 / 보기»로 쪼개지지 않게 · [R4-07] prepLine 과 따로 */   // [R1-33] ② 이름은 «하나씩 만들기»   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
 
   /* ══ [TILE_PICK 2026-09-26 코워크 회신 6 3-5] 칸 글 — «무엇인지»만(두 줄 안) · CARDS.one 은 미리 보기 창에서 쓴다 ══ */
   var TILE = {
@@ -767,7 +771,7 @@
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
-    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
+    flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };
 });
