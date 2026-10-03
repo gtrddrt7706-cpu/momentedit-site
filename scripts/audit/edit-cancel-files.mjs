@@ -2,6 +2,7 @@
 //   글 · 칩은 스냅샷으로 돌아가지만 파일 상태(S.up)는 지운 그대로 남아야 한다(서버에서 이미 지워졌다).
 //   종전엔 S 를 통째로 되돌려 S.up 이 휴지통에 간 옛 파일 id 를 다시 가리켰고, ②·④ 는 완료인데 소리는 없었다.
 //
+//   [R7-01] 읽는 사람(guestWho · guestOne · pvWho)도 파일과 한 몸 — 취소 뒤 칸의 사람과 소리의 사람이 같아야 한다
 //   node scripts/audit/edit-cancel-files.mjs      # 390 · 1280
 // ★종료 코드 [CANT_LOOK] 0 = 통과 · 1 = 실패 · 2 = 재지 못함(도구 없음)
 // ★깨 보기: 같은 길을 종전 취소(S=JSON.parse(_editSnap))로 돌리면 S.up.g0 이 되살아나야 한다 — 이 검사가 살아 있는지 함께 본다.
@@ -31,7 +32,9 @@ for (const w of [390, 1280]) {
   // AI 판 · 하객 맞이 첫 줄(g0)을 AI 로 만들어 둔 상태 → ④
   await pg.evaluate(() => { RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; S.vsChip = 1; S.vsAsked = 1; S.guestVoice = 'couple'; S.vfill = { guest: 'ai' }; S.up = { g0: { n: 'AI', id: 'F_OLD', at: '2026-10-03 10:00', src: 'ai', by: 'groom' } }; S.fAt = S.fAt || {}; S.fAt['up.g0'] = 1000; S.welcome = 'self'; opSync(); goDone(); });
   await pg.waitForTimeout(500);
+  await pg.evaluate(() => { window.__ecOrig = _editCancel; });   // 깨 보기가 바꿔 끼운 취소를 다음 경우 앞에서 되돌린다
   const run = async (legacy) => {
+    await pg.evaluate(() => { window._editCancel = window.__ecOrig; });
     await pg.evaluate(() => { S.up = { g0: { n: 'AI', id: 'F_OLD', at: '2026-10-03 10:00', src: 'ai', by: 'groom' } }; S.fAt['up.g0'] = 1000; goDone(); });
     await pg.waitForTimeout(300);
     await pg.click('[data-fk="sum:guest"]'); await pg.waitForTimeout(500);
@@ -51,6 +54,28 @@ for (const w of [390, 1280]) {
   ok(`${w} 기기 저장본도 지운 상태(옛 파일 id 없음)`, !/F_OLD/.test(r.saved), r.saved.slice(0, 120));
   const b = await run(true);
   ok(`${w} 깨 보기 — 종전 취소는 옛 파일을 되살린다(검사가 살아 있음)`, b.up && b.up.id === 'F_OLD', JSON.stringify(b.up));
+  /* [R7-01] 읽는 사람 바꾸기 — 바꾸는 순간 앞 사람 소리는 지워지고 새 사람으로 다시 만든다. «취소» 뒤에도 읽는 사람과 소리의 사람이 같아야 한다(하객 맞이 g1 · 식전 영상 pv) */
+  const who = async (legacy) => {
+    await pg.evaluate(() => { window._editCancel = window.__ecOrig; });
+    await pg.evaluate(() => { S.on.prevideo = 1; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', prevideo: 'ai' }; S.pvText = '저희가 함께 걸어온 시간을 짧게 담았어요.';
+      S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'b' }; delete S.guestOne; S.pvWho = 'b';
+      S.up = { g1: { n: 'AI', id: 'F_B1', src: 'ai', by: 'bride', tx: _txSig(_recNeed('g1')) }, pv: { n: 'AI', id: 'F_BPV', src: 'ai', by: 'bride', tx: _txSig(_recNeed('pv')) } }; opSync(); goDone(); });
+    await pg.waitForTimeout(300);
+    await pg.click('[data-fk="sum:guest"]'); await pg.waitForTimeout(500);
+    // 바꾸고(앞 소리는 _mkUpDrop) · 새 사람 목소리로 다시 만들어진 셈(_vcMake 가 적는 것과 같은 꼴)
+    await pg.evaluate(() => { mkGuestWho(1, 'g'); S.up.g1 = { n: 'AI', id: 'F_G1', src: 'ai', by: 'groom', tx: _txSig(_recNeed('g1')) };
+      mkPvWho('g'); S.up.pv = { n: 'AI', id: 'F_GPV', src: 'ai', by: 'groom', tx: _txSig(_recNeed('pv')) }; });
+    if (legacy) await pg.evaluate(() => { window._editCancel = function () { var cur = S; S = JSON.parse(_editSnap); ['up', 'upPrev', 'vself', 'vtempo'].forEach(function (q) { if (cur[q] === undefined) delete S[q]; else S[q] = cur[q]; }); }; });   // 깨 보기 — R6-01 판 취소
+    await pg.click('#prev'); await pg.waitForTimeout(500);
+    await pg.click('[data-fk="sum:guest"]'); await pg.waitForTimeout(500);   // ④ «변경»으로 다시 들어가 본다
+    const r = await pg.evaluate(() => ({ k: STEPS[idx].k, g1: _vcLineWho('g1'), g1by: S.up.g1 && S.up.g1.by, pv: _vcLineWho('pv'), pvby: S.up.pv && S.up.pv.by, st: [_whoStale('g1'), _whoStale('pv')], done: _mkItems('guest').filter((q) => q.up === 'g1').map(_mkItemDone)[0] }));
+    await pg.click('#prev'); await pg.waitForTimeout(400);
+    return r;
+  };
+  const wr = await who(false);
+  ok(`${w} [R7-01] 읽는 사람을 바꾸고 «취소» — 하객 맞이 g1 · 식전 영상 pv 의 읽는 사람 = 소리의 사람`, wr.k === 'listen' && wr.g1 === wr.g1by && wr.pv === wr.pvby && wr.g1 === 'groom' && wr.pv === 'groom' && !wr.st[0] && !wr.st[1] && wr.done === true, JSON.stringify(wr));
+  const wb = await who(true);
+  ok(`${w} [R7-01] 깨 보기 — R6-01 판 취소는 사람이 어긋나고(신부 칸 · 신랑 소리) _whoStale 이 그것을 잡아 미완료로 센다`, wb.g1 === 'bride' && wb.g1by === 'groom' && wb.st[0] === true && wb.st[1] === true && wb.done === false, JSON.stringify(wb));
   ok(`${w} pageerror 0`, errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
