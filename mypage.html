@@ -3081,12 +3081,12 @@ function mpCelebrate(opts){
   cv.style.cssText='position:fixed;left:0;top:0;width:'+W+'px;height:'+H+'px;pointer-events:none;z-index:9000';
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); doc.body.appendChild(cv);
   var g=cv.getContext('2d'); if(!g){ cv.remove(); return false; } g.scale(dpr,dpr);
-  var COL=[['#B89A75',5],['#D6C2A0',3],['#EFE4D2',4],['#7A5F37',1],['#6B2A24',1]]   /* [CELE_LIGHT 2026-10-03] 짙은 금(#7A5F37)이 3/13 이면 390 에서 갈색 잎 · 흙먼지처럼 읽혔다 → 옅은 금(#D6C2A0) 3 · 짙은 금 1 */, bag=[]; COL.forEach(function(c){ for(var i=0;i<c[1];i++) bag.push(c[0]); });
+  var COL=[['#B89A75',4],['#D6C2A0',3],['#EFE4D2',3],['#E9CFC6',3],['#C9958B',2],['#B5BFA6',2],['#7A5F37',1],['#6B2A24',1]]   /* [CELE_VARIETY 2026-10-03 사장님 «꽃잎 모양 · 색을 조금 더 다양하게»] 옅은 장밋빛(#E9CFC6) · 마른 장미(#C9958B) · 옅은 세이지(#B5BFA6)를 더했다 — 장면 그림 속 부케(크림 · 장밋빛 · 잎)에서 가져온 색이라 브랜드 밖 색(보라 · 청록 · 형광)이 아니다 */   /* [CELE_LIGHT 2026-10-03] 짙은 금(#7A5F37)이 3/13 이면 390 에서 갈색 잎 · 흙먼지처럼 읽혔다 → 옅은 금(#D6C2A0) 3 · 짙은 금 1 */, bag=[]; COL.forEach(function(c){ for(var i=0;i<c[1];i++) bag.push(c[0]); });
   var P=[], rnd=function(a,b){ return a+Math.random()*(b-a); };
   [0,1].forEach(function(side){ for(var i=0;i<per;i++){
     var ang=rnd(58,78)*Math.PI/180, sp=rnd(0.55,0.95)*Math.sqrt(H)*1.05, dir=side?-1:1, petal=Math.random()<0.55;   /* [CELE_NARROW] 옆으로 가는 거리는 화면 폭의 16~40% — 높이로 재면 폰에서 양쪽이 한가운데서 겹친다 */
     P.push({ x:side?W+rnd(-6,6):rnd(-6,6), y:H+rnd(0,10), vx:dir*rnd(0.16,0.40)*W*1.9/60, vy:-Math.sin(ang)*sp, rot:rnd(0,Math.PI*2), vr:rnd(-1.6,1.6),
-      sz:petal?rnd(5,9):rnd(1.6,3.2), petal:petal, col:bag[Math.floor(Math.random()*bag.length)], ph:rnd(0,Math.PI*2), delay:rnd(0,160) }); } });
+      sz:petal?rnd(5,9):rnd(1.6,3.2), petal:petal, shp:Math.floor(Math.random()*4), col:bag[Math.floor(Math.random()*bag.length)], ph:rnd(0,Math.PI*2), delay:rnd(0,160) }); } });
   var t0=null, raf=window.requestAnimationFrame||function(f){ return setTimeout(function(){ f(Date.now()); },16); };
   function frame(ts){ if(t0==null) t0=ts; var el=ts-t0; g.clearRect(0,0,W,H);
     var live=false;
@@ -3095,7 +3095,12 @@ function mpCelebrate(opts){
       x+=Math.sin(p.ph+t*2.2)*(p.petal?10:4)*Math.min(1,t);   /* 꽃잎은 천천히 흔들리며 */
       var a=life<0.12?life/0.12:(life>0.6?Math.max(0,(1-life)/0.4):1);
       g.save(); g.globalAlpha=a*(p.petal?0.92:0.85); g.translate(x,y); g.rotate(p.rot+p.vr*t); g.fillStyle=p.col;
-      if(p.petal){ g.beginPath(); g.ellipse(0,0,p.sz,p.sz*0.48,0,0,Math.PI*2); g.fill(); if(p.col==='#EFE4D2'){ g.strokeStyle='rgba(122,95,55,.35)'; g.lineWidth=0.6; g.stroke(); } }
+      if(p.petal){ var z=p.sz; g.beginPath();   /* [CELE_VARIETY] 꽃잎 넷 — 0 둥근 잎 · 1 물방울 · 2 버들잎(양끝 뾰족) · 3 끝이 갈라진 벚잎 */
+        if(p.shp===1){ g.moveTo(-z,0); g.bezierCurveTo(-z*0.6,-z*0.62,z*0.5,-z*0.55,z,0); g.bezierCurveTo(z*0.5,z*0.55,-z*0.6,z*0.62,-z,0); }
+        else if(p.shp===2){ g.moveTo(-z*1.1,0); g.quadraticCurveTo(0,-z*0.5,z*1.1,0); g.quadraticCurveTo(0,z*0.5,-z*1.1,0); }
+        else if(p.shp===3){ g.moveTo(-z,0); g.bezierCurveTo(-z*0.5,-z*0.75,z*0.55,-z*0.7,z*0.95,-z*0.18); g.lineTo(z*0.62,0); g.lineTo(z*0.95,z*0.18); g.bezierCurveTo(z*0.55,z*0.7,-z*0.5,z*0.75,-z,0); }
+        else g.ellipse(0,0,z,z*0.48,0,0,Math.PI*2);
+        g.fill(); if(p.col==='#EFE4D2'){ g.strokeStyle='rgba(122,95,55,.35)'; g.lineWidth=0.6; g.stroke(); } }
       else { g.beginPath(); g.arc(0,0,p.sz,0,Math.PI*2); g.fill(); }
       g.restore(); });
     if(live&&el<dur+400) raf(frame); else { try{ cv.remove(); }catch(e){} }

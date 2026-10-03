@@ -11999,6 +11999,7 @@ chk 'RES_FLOW_ONE' mypage.html 2
 chk 'var _resFlowOn = _resInFlow(d.result);' mypage.html 1
 chk 'RES_FLOW_NEXT' mypage.html 1
 # ★★[WED_DONE_CELEBRATE 2026-10-03 사장님 «양쪽으로 폭죽 · 디자이너 관점으로 적절하게» → «예식을 마친 뒤 처음 열 때 한 번»] 마이페이지
+chk 'CELE_VARIETY' mypage.html 2   # 축하 꽃잎 모양 넷 · 부케 색(장밋빛 · 세이지) 더함(사장님 10/3)
 #   momentedit-design «튀는 모션 금지»의 단 하나 예외 · 효과는 mpCelebrate(opts) 한 덩어리(start/end 표식 사이 · 상태를 안 읽는다) · 부르는 판단은 _mpWedCelebrate
 #   예식완료 · 결과물전달 · 후기에서 고객 코드마다 한 번(localStorage me_wedcele_<코드>) · 스냅 · 종료 고객 · 움직임 줄이기 · 데이터 절약은 안 돈다
 #   · 축하 한 줄(#mp_cheer) · 폰은 한쪽 14개 · 옆으로는 폭의 40% 안([CELE_NARROW] 390 실렌더에서 22개가 NOW 카드 글을 덮었다)
