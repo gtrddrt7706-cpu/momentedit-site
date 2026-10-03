@@ -13094,7 +13094,10 @@ chk 'PHOTO_UNIT_ONE' scripts/check-ritual-cue.js 1
 #   셈(분 · 순간 수) · 소리 · 대본 내용은 안 바꿨다. 글과 모양만. 표식을 지우면 아래가 붉어진다.
 # ① 고르기
 chk 'RIT_CURVE_LABEL' order-preview.html 5          # 1 카드 곡선 아래 «감동 흐름» · 판은 둘 미만 · 평평하면 한 줄
-chk '<span class="pk-ex-cap">감동 흐름</span>' order-preview.html 1
+nochk '<span class="pk-ex-cap">감동 흐름</span>' order-preview.html   # [CURVE_CAP_OFF 2026-10-03 사장님] 카드마다 라벨 걷음 · 나중 결정이 이긴다
+chk 'CURVE_CAP_OFF' order-preview.html 1
+chk 'CONSENT_PV' order-preview.html 2
+chk '하객 맞이 안내 · 입장 인사 · 식전 영상 소개, 켜시면 연습 읽기에만' order-preview.html 1
 chk '순간을 더 담으면 흐름이 그려져요' order-preview.html 1
 chk 'RIT_PANEL_NOMIN' order-preview.html 1          # 2 흐름 판 머리의 «본식 약 N분» 뺌
 nochk 'pk-fp-body mo' order-preview.html 0

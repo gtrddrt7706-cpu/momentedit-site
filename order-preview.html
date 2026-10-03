@@ -4103,7 +4103,7 @@ var VC_TXT={
   title:function(nm){ return nm+' 님 목소리로 AI 목소리를 만들어요'; },
   self:function(nm){ return nm+' 님 본인이 직접 눌러 주세요. 다른 분이 대신 동의할 수 없어요'; },
   turn:function(w){ var t=w==='groom'?'신랑':'신부'; return t+' 차례예요 · '+t+'가 직접 눌러 주세요'; },
-  where:'어디에 쓰나요 · 이 예식의 하객 맞이 안내와 입장 인사, 켜시면 연습 읽기에만 써요',
+  where:'어디에 쓰나요 · 이 예식의 하객 맞이 안내 · 입장 인사 · 식전 영상 소개, 켜시면 연습 읽기에만 써요',   /* [CONSENT_PV 2026-10-03 사장님 «넣기»] 같은 목소리로 식전 영상 소개도 만든다(PV_INTRO) — 쓰는 곳과 동의 글이 같아야 한다 */
   what:'무엇을 보내나요 · 곧 읽으실 녹음을 음성 업체(타입캐스트)에 보내 목소리를 만들어요',
   when:'언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날, 만든 안내 소리는 예식 뒤 30일에 지워요. 그 전에도 바로 지울 수 있어요',
   opt:'안 해도 돼요 · 스튜디오 나레이션으로 진행할 수 있어요',   // [R2-08]
@@ -4114,7 +4114,7 @@ var VC_TXT={
   short:'조금 더 천천히, 끝까지 읽어 주세요',
   used:'다시 만들기를 다 썼어요. 지금 것을 쓰시거나, 지우면 스튜디오 나레이션으로 나와요',   // [R2-08]
   entryToo:'입장 인사도 같은 목소리로 만들었어요'
-}, VC_CONSENT_V='0928';
+}, VC_CONSENT_V='1003';   /* [CONSENT_PV] 동의 글이 바뀌었다(식전 영상 소개) — 어느 글에 동의했는지 서버 기록이 가른다 */
 function _vcDay(t){ var m=String(t||'').match(/^\d{4}-(\d{2})-(\d{2})/); return m?(+m[1])+'월 '+(+m[2])+'일':''; }
 function _vcSec(){ if(!_vcOn()) return ''; var any=((S.vfill||{}).guest==='ai'||(S.vfill||{}).entry==='ai'||(S.vfill||{}).prevideo==='ai'||Object.keys(S.up||{}).some(function(k){ return ((S.up||{})[k]||{}).src==='ai'; })); if(!any&&!VC.open) return '';
   if(!VC.st){ _vcStatus(); return '<section class="mk-sec mk-aisec"><h4 id="mkVcH">AI 두 분 목소리 만들기</h4><p class="mk-note">불러오는 중…</p></section>'; }
@@ -5268,7 +5268,7 @@ function _pkEx(ex){
   return '<button type="button" class="pk-ex" aria-pressed="'+(on?'true':'false')+'" data-fk="opx:'+ex.k+'" onclick="opEx(\''+ex.k+'\')">'
     +'<span class="pk-ex-t"><span class="pk-ex-n"><b>'+esc(ex.nm)+'</b><span class="pk-ex-m">본식 '+esc(_nb(es.body))+'</span>'+'</span>'
     +'<span class="pk-ex-f">'+f.map(esc).join('<br>')+'</span></span>'
-    +'<span class="pk-ex-gw" aria-hidden="true"><span class="pk-ex-g" data-fg="ex:'+ex.k+'"></span><span class="pk-ex-cap">감동 흐름</span></span></button>';   /* ★[RIT_CURVE_LABEL 2026-09-27 사장님 결정 A · 4부 1] 카드 곡선이 무엇인지 — 곡선 아래 오른쪽 작은 라벨 · 곡선 모양 · 크기는 그대로 */
+    +'<span class="pk-ex-gw" aria-hidden="true"><span class="pk-ex-g" data-fg="ex:'+ex.k+'"></span></span></button>';   /* ★[RIT_CURVE_LABEL 2026-09-27 사장님 결정 A] → ★[CURVE_CAP_OFF 2026-10-03 사장님 «예시 카드에서 빼기»] 카드마다 «감동 흐름» 글자를 걷는다 — 바로 아래 판 제목 «우리 예식의 감동 흐름» 한 번이면 된다(한 화면 다섯 번) · 곡선은 그대로 · 되살리지 말 것 */
 }
 function _pkPeakHtml(){
   var R=RitualOpen, pl=R.peakLine(S);
