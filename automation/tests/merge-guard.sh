@@ -1811,7 +1811,7 @@ nochk '두 집안은 서로의 가족이 되었습니다' assets/ritual-data.js
 #   신랑신부를 가리킨다 — 「두 분」이면 하객이 자기를 부른 줄 알고 한 박자 멈추고(코워크 지적),
 #   「두 사람」으로 바꾸면 N2(한 문장 3인칭+2인칭 혼용)에 걸린다. 낱말만으로는 못 푼다.
 #   ★N2 주석이 답을 적어 두었다 — 「문장을 갈라 3인칭→2인칭으로 가는 것은 VOICE_2ND 의 설계다」.
-chk '두 사람 곁에 서시면 됩니다' assets/ritual-data.js 2     # 폐식 → 전체 하객컷 전환 (NARR.close + NARV.close[0])
+chk '두 사람 곁에 서시면 됩니다' assets/ritual-data.js 2     # 폐식 → 전체 하객컷 전환 (NARR.close + NARV.close[0]) · [REDUB_KEEP_RULE 2026-10-03] 10/3 새 문안도 VOICE_2ND_GAP 의 «문장 가르기»를 지킨다(옛 녹음 두 문장 재사용)
 chk '오늘 예식의 마지막 순서입니다' assets/ritual-data.js 0              # 옛 문안이 되살아나면 실패
 chk 'DECL_SET_INVARIANT' scripts/check-ritual-mirror.js 1   # 선언 택1 세트 개수 3중 대조(원천·빌더·생성기)
 chk "ask:{d:'하객이 함께 답하기'" assets/ritual-data.js 1    # 응답형 = 선언 택1의 네 번째 선택지(덧붙임 아님)
@@ -8531,7 +8531,7 @@ chk '이 약속은 두 사람만의 것이 아닙니다' assets/ritual-data.js 1
 # ★[RING_FRAME 2026-09-20 사장님 「박수유도는?」] 반지 구간에 «왜 반지인가»와 «박수»가 둘 다 없었다.
 #   박수를 여는 진행 클립이 13개인데 반지만 0개였고, 서른 명 예식은 누가 먼저 치지 않으면 박수가 안 난다.
 #   ★수식어 없이 「박수」만 — 「큰 박수」는 성혼선언 네 갈래가, 「따뜻한 박수」는 입장 여섯 갈래가 이미 쓴다.
-chk '반지는 날마다 이 순간을 떠올리게 해 줄 거예요.' assets/ritual-data.js 2   # 15 — 왜 하는 순서인지 들리게
+chk '반지는 날마다 이 순간을 떠올리게 해 줄 것입니다.' assets/ritual-data.js 2   # 15 — 왜 하는 순서인지 들리게 · [REDUB_1003] «거예요»(해요체) → «것입니다»(나레이션 합쇼체 · 녹음 받음 10/3)
 # ★코워크 물음 「두 곳 중 하나가 어디냐」 — 실측: NARR.ring 본문과 어조표 «담백»(COURSES 갈래) 둘이다.
 #   둘은 같은 문장을 들고 있어 **함께** 바꿔야 한다. 한쪽만 고치면 코스에 따라 옛 말이 나간다.
 nochk '오래 기억되도록, 박수를 부탁드립니다.' assets/ritual-data.js   # ★[CLAP_FEW 2026-09-26] 반지 박수 문장은 뺐다(NARR.ring · 어조표 담백 둘 다)
@@ -9843,7 +9843,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 110' scripts/check-ritual-cue.js 1   # [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 114' scripts/check-ritual-cue.js 1   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -12759,6 +12759,9 @@ if command -v node >/dev/null 2>&1 && command -v ffmpeg >/dev/null 2>&1; then
   _vl=$(timeout 900 node scripts/audit/import-voice-lock.mjs 2>&1); _vlx=$?; echo "$_vl" | grep -E '^FAIL|결과' | head -8; if [ "$_vlx" = 1 ]; then echo "REVERT? scripts/audit/import-voice-lock.mjs: 녹음 들이기 성우 잠금 실패"; fail=1; fi
   _so=$(timeout 900 node scripts/audit/stage-order-name.mjs 2>&1); _sox=$?; echo "$_so" | grep -E '^FAIL|결과' | head -4; if [ "$_sox" = 1 ]; then echo "REVERT? scripts/audit/stage-order-name.mjs: 이름 차례 순서 증명 실패"; fail=1; fi
 fi
+# ★[STAGE_ORDER_SWAP_FAR 2026-10-03] ② 의 틀린 차례가 2_진행_전반 63문장에서 r=0.854 로 «더 그럴듯해» 보였다(바른 차례 0.845).
+#   짝을 입장 ↔ 같은 클립의 가장 긴 문장으로 바꾸고(예상 0.680) 재기 전에 사전 계산으로 이빨을 확인한다. 문턱 0.85 는 그대로.
+chk 'STAGE_ORDER_SWAP_FAR' scripts/audit/stage-order-name.mjs 2
 chk 'IMPORT_VOICE_LOCK' scripts/sent-lib.mjs 4
 chk 'ENTRY_GAP_KEEP' scripts/sent-lib.mjs 3
 chk 'TODO_RETIRED' scripts/sent-lib.mjs 1
@@ -12801,9 +12804,9 @@ nochk '그다음 신랑 어머님께 마이크를 건네 드려요' assets/ritua
 chk 'STEPMOM_RETIRE' scripts/sent-lib.mjs 1
 chk 'STEPMOM_RETIRE' scripts/audit/sent-lib-check.mjs 1
 # [TOAST_TEXT_2 · VOW_CHORUS_TEXT_2 2026-09-26 코워크 회신 8 덧 6] 사장님이 녹음하며 고친 축배 한 줄 · 서약 합창 = 배역 대본 · 녹음
-chk "두 분이 잔을 들어 위하여, 하시면 다 함께 위하여, 하고 답해 주세요." assets/ritual-data.js 2
+chk "두 분이 잔을 들어 위하여, 하시면 다 함께 위하여, 하고 답해 주세요." assets/ritual-data.js 1   # [REDUB_1003] 76(nar2)은 사장님 10/3 재녹음으로 «두 분이 위하여, 하시면 함께 위하여» — nar 한 곳만 남는다
 chk "두 분이 잔을 들어 위하여, 하시면 다 함께 위하여, 하고 답해 주세요." assets/ritual-open.js 1
-nochk "두 분이 위하여, 하시면" assets/ritual-data.js
+nochk "두 분이 위하여, 하시면 다 함께" assets/ritual-data.js   # [REDUB_1003] 옛 판(TOAST_TEXT_2 이전)만 막는다 · 76 새 문안 «…하시면 함께 위하여»는 사장님 10/3 결정
 chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응원해 주세요.".;' assets/ritual-data.js 1
 chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응원해 주세요.".;' order-preview.html 1
 chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
@@ -13762,6 +13765,19 @@ chk '.seqr:last-child,.seqr:has(+ .dmnote)' order-preview.html 1
 chk 'd:"감사 · 가족"' assets/ritual-data.js 1
 chk 'd:"감성 · 시적"' order-preview.html 1
 chk 'G0_MOVED_NOTE' order-preview.html 2
+# [BRIDGE_LINK · REDUB_1003 · REDUB_KEEP_RULE 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114) · 나레이션 여섯 자리 새 문안 · 배역 01_guest-1
+chk 'BRIDGE_LINK' assets/ritual-cue.js 3
+chk 'BRIDGE_LINK' assets/ritual-open.js 1
+chk 'BRIDGE_LINK' scripts/build-dubbing-script.mjs 1
+chk 'BRIDGE_LINK' scripts/build-typecast-import.mjs 3
+chk 'BRIDGE_LINK' scripts/check-ritual-cue.js 1
+chk 'BRIDGE_LINK' scripts/audit/open-course.mjs 3
+chk "'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter'" assets/ritual-cue.js 1
+chk 'REDUB_1003' assets/ritual-data.js 1
+chk 'REDUB_KEEP_RULE' assets/ritual-data.js 1
+chk '이제 두 사람은 부부입니다. 하객 여러분, 새 출발을 큰 박수로 축복해 주시면 감사하겠습니다.' assets/ritual-data.js 1   # [REDUB_KEEP_RULE] PERF_CANON_2 표준 수행문을 지킨다(옛 녹음 재사용)
+chk '이제 두 사람이 서로에게 약속을 건넬 차례입니다.' assets/ritual-data.js 2
+chk '먼저 다 함께 한 장, 이어서 가족과 친구분들 차례로 남기겠습니다.' order-preview.html 1
 chk 'R5-02' order-preview.html 1
 chk 'function _vsMk()' order-preview.html 1
 chk 'R5-04' order-preview.html 1

@@ -144,7 +144,10 @@
     'fx-free',
     /* ★★[PHOTO_THANKS · THANKS_TEXT 2026-09-26 사장님 결정] 110 end-1c-thanks-nomeal — 식사 없는 날의 감사 인사(45 는 식사 있는 날 판).
        **맨 끝에 붙였다**(위 경고 그대로 · 폐지 번호를 되살리지 않는다). */
-    'end-1c-thanks-nomeal'
+    'end-1c-thanks-nomeal',
+    /* ★★[BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 111~114 — 순간 사이 잇는 말(이음말 B3 · B4 · B5 · B6). **맨 끝에 붙였다**(위 경고 그대로).
+       원천 문안은 assets/ritual-open.js NAR.bridge · 끼우는 자리는 build() 의 [BRIDGE_LINK] 블록 · 새 코스(open)에서만 */
+    'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -214,7 +217,10 @@
     'toast-pour-mix': O.NAR.pourMix, 'toast-pour-family': O.NAR.pourFamily,
     'narr-free-in-video': O.NAR.freeIn.video, 'narr-free-in-stage': O.NAR.freeIn.stage, 'narr-free-in-gift': O.NAR.freeIn.gift, 'narr-free-in-speech': O.NAR.freeIn.speech,
     'narr-free-out-clap': O.NAR.freeOut, 'narr-free-fail': O.NAR.freeFail,
-    'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour
+    'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour,
+    /* [BRIDGE_LINK] 이음말 넷 — 원천 ritual-open NAR.bridge(여기는 이름표만) */
+    'bridge-b3-clap-thanks': O.NAR.bridge.clapThanks, 'bridge-b4-breath': O.NAR.bridge.breath,
+    'bridge-b5-video-out': O.NAR.bridge.videoOut, 'bridge-b6-lighter': O.NAR.bridge.lighter
   };
 
   // ── 유틸
@@ -1059,6 +1065,29 @@
         if (askOn) cues.push(askCue());
       }
     });
+
+    /* ★★[BRIDGE_LINK 2026-10-03 사장님 녹음 받음 · 이음말_초안_20261002.md] 순간 사이 잇는 말 — 새 코스(open)에서만 · 이웃 두 순간이 **다 있을 때만**.
+         B3 성혼 선언 → 다음 순간 : 선언 끝이 하객 박수(사람 순간 applause)일 때 · 박수 뒤 첫 줄이라 디렉터 GO([CLAP_GO] 그대로)
+         B4 부모님께 인사 → 다음 순간 : 인사 뒤에 다른 순간이 이어질 때
+         B5 준비한 순서(영상) → 다음 순간 : 준비한 것이 «영상»일 때만 · 영상 끝(사람 순간) 뒤라 디렉터 GO
+         B6 편지 → 케이크 : 편지 바로 뒤가 케이크일 때만
+       ★«다음 순간»은 이 식순(seq)의 순간이다 — 닫는 인사(_close)는 순간이 아니라 늘 붙는 마무리라 세지 않는다(그 앞에서 박수 · 숨 고르기를 또 말하지 않는다).
+       ★옛 코스는 소리가 종전과 같아야 한다 — 넣지 않는다. B1(입장 도착 뒤)은 «말 없음» 확정. */
+    if (D.COURSES[S.course] && D.COURSES[S.course].open) {
+      var _bl = [];
+      for (var bi = 0; bi < cues.length; bi++) {
+        var bc = cues[bi], bn = cues[bi + 1], slugB = '';
+        if (!bn || bn.k === bc.k || seq.indexOf(bc.k) < 0 || seq.indexOf(bn.k) < 0) { _bl.push(bc); continue; }
+        if (bc.k === 'declare' && bc.live && bc.live.applause) slugB = 'bridge-b3-clap-thanks';
+        else if (bc.k === 'tribute') slugB = 'bridge-b4-breath';
+        else if (bc.k === 'free' && (O.FREE_KIND[S.freeWhat] || 'video') === 'video') slugB = 'bridge-b5-video-out';
+        else if (bc.k === 'letter' && bn.k === 'cake') slugB = 'bridge-b6-lighter';
+        _bl.push(bc);
+        if (slugB) _bl.push(cue({ k: bc.k, blockN: bc.blockN, slug: slugB, name: '이음말 · ' + ({ 'bridge-b3-clap-thanks': '박수 뒤', 'bridge-b4-breath': '숨 고르기', 'bridge-b5-video-out': '영상 끝', 'bridge-b6-lighter': '가벼운 순서로' })[slugB],
+          text: EXTRA[slugB], duck: PARAM.duckMusic, note: '이음말 · 다음 순간이 무엇이든 맞는 한 줄(BRIDGE_LINK)' }));
+      }
+      cues = _bl;
+    }
 
     /* ★★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2 · 연구 A13 · B09] 행진이 없는 예식은 끝이 흐려진다 —
        «끝 선언 → 두 분 목례 → 박수 → 음악 바뀜»을 끝 신호로 둔다. ① 카드의 «두 분이 인사를 드리고 본식을 마쳐요»가 이제 소리에도 있다.

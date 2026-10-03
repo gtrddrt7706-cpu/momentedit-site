@@ -5,7 +5,7 @@
 //
 // 가짜 소리로 2_진행_전반 을 깐다 — 문장마다 예상 길이(음절 ÷ 5초) · 단, «신랑 신부, 입장!»(입장 여섯 자리)만 3.4초(사장님이 고른 1.4초 판 실측).
 //   ① 이름 차례 = 대장 차례 → 순서 검증을 통과(길이 상관은 참고로만 찍힘)
-//   ② 이름 두 개를 서로 바꾼 폴더 → 종전대로 r < 0.85 에서 멈춤(안전망은 그대로)
+//   ② 이름 두 개를 서로 바꾼 폴더(입장 ↔ 같은 클립의 가장 긴 문장) → 종전대로 r < 0.85 에서 멈춤(안전망은 그대로)
 // ★저장소 밖 임시 폴더에서 돈다 — 조립 결과(--out)와 _recorded.json 도 그 안에만 생긴다.
 // 종료 코드 0 통과 · 1 실패 · 2 재지 못함
 import fs from 'node:fs';
@@ -37,7 +37,23 @@ const r1 = run(good, path.join(T, 'out1')), o1 = r1.stdout + r1.stderr;
 const line1 = (o1.match(/순서 검증 · [^\n]*/) || [''])[0];
 ok(`① 이름 차례 = 대장 차례 → 멈추지 않는다(${flat.length}자리 · 입장 여섯 자리 3.4초) [STAGE_ORDER_BY_NAME]`, !/순서가 어긋난 것으로 보입니다/.test(o1) && /이름 차례 = 대장 차례/.test(o1), line1 || o1.slice(-300));
 /* 이름을 둘 바꿔 깐다 — 두 파일의 소리는 제자리인데 이름만 틀린 폴더(또는 소리가 바뀐 폴더)는 증명이 안 된다 */
-const sw = flat.slice(); const i = sw.findIndex((x) => /entry-A_3$/.test(x.id)); [sw[i], sw[i + 1]] = [sw[i + 1], sw[i]];
+/* ★[STAGE_ORDER_SWAP_FAR 2026-10-03] 바꾸는 짝은 «길이가 크게 다른 두 자리»여야 틀린 차례가 정말 틀려 보인다.
+   종전엔 입장(3.4초) 과 바로 뒤 «드디어, 시작입니다.»(8음절 · 예상 1.6초) 를 바꿨는데, 2_진행_전반 이 63문장이 된 뒤로
+   그 짝은 오히려 상관을 올렸다(바른 차례 r = 0.845 → 바꾼 차례 0.854). 3.4초 입장이 예상 1.6초 자리로 가면 «더 그럴듯해» 보였다.
+   그래서 같은 클립(entry-A) 안에서 입장과 «가장 긴 문장»을 바꾼다 — 같은 클립 안의 두 이름 맞바꿈이라는 뜻은 그대로다.
+   문턱 0.85 는 손대지 않는다. 아래 사전 계산이 0.85 를 못 넘기면(짝이 이빨을 잃으면) 재기 전에 그 사실을 먼저 말한다. */
+const sw = flat.slice(); const i = sw.findIndex((x) => /entry-A_3$/.test(x.id));
+const sylOf = (t) => (t.match(/[가-힣]/g) || []).length;
+const j = sw.reduce((b, x, k) => (/^05_entry-A_/.test(x.id) && sylOf(x.text) > sylOf(sw[b].text) ? k : b), i);
+[sw[i], sw[j]] = [sw[j], sw[i]];
+{ /* 사전 계산 — 조립기와 같은 자(음절 ÷ 5초 · 피어슨)로 이 가짜 소리의 틀린 차례가 0.85 아래인지 */
+  const secOf = (x) => (x.text === '신랑 신부, 입장!' ? 3.4 : Math.max(0.6, sylOf(x.text) / 5));
+  const a = sw.map(secOf), b = flat.map((x) => sylOf(x.text) / 5), n = a.length;
+  const ma = a.reduce((p, q) => p + q, 0) / n, mb = b.reduce((p, q) => p + q, 0) / n;
+  let u = 0, da = 0, db = 0; for (let k = 0; k < n; k++) { const p = a[k] - ma, q = b[k] - mb; u += p * q; da += p * p; db += q * q; }
+  const rr = u / Math.sqrt(da * db);
+  ok(`②-0 시험용 틀린 차례가 정말 틀렸다(${sw[j].id} ↔ ${sw[i].id} · 예상 r = ${rr.toFixed(3)} < 0.85) [STAGE_ORDER_SWAP_FAR]`, rr < 0.85, '짝을 다시 고를 것 — 문턱을 옮기지 말 것');
+}
 const bad = path.join(T, 'bad'); lay(bad, sw);
 const r2 = run(bad, path.join(T, 'out2')), o2 = r2.stdout + r2.stderr;
 ok('② 이름 차례가 대장과 다르면 종전대로 r < 0.85 에서 멈춘다(안전망 그대로)', r2.status === 1 && /순서가 어긋난 것으로 보입니다/.test(o2), (o2.match(/순서 검증 · [^\n]*/) || [''])[0] + ' · exit ' + r2.status);
