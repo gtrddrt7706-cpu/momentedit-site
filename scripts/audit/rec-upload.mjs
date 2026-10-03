@@ -7,7 +7,7 @@
 //   ② 그 자리(하객 맞이 1줄)가 두 분 소리로 바뀐다 — 4줄 중 1줄만 녹음 → 1줄은 두 분 목소리 · 3줄은 예시/나레이션 그대로
 //   ③ 파일 올리기: 앞뒤 2초 무음 + 작은 소리(-30dB) 3초 wav → 앞뒤가 잘리고(약 3.3초) 소리 크기가 나레이션 쪽으로(ffmpeg loudnorm 으로 -22 ~ -12 LUFS · 봉우리 ≤ -1dB)
 //   ④ 60초 넘는 파일은 올리지 않는다 · [지우기] 뒤 그 줄은 나레이션(예시)로
-//   ⑤ 줄 머리 갈래 표 — 나레이션 · 두 분 목소리 · 미리 준비(✓ · 아직) · 당일 직접 / 고른 순서 쪽 «목소리 세 가지»
+//   ⑤ 줄 머리 갈래 표 — 나레이션 · 두 분 목소리 · 미리 준비(✓ · 아직) · 당일 직접 / 예식 흐름 쪽 줄마다 한 낱말 [COURSE_FLOW]
 //   ⑥ pageerror 0 · 가로 넘침 0
 // ★종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함(도구 없음)
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import { execFileSync, spawnSync } from 'node:child_process'; import { createRequire } from 'node:module';
@@ -35,8 +35,9 @@ for (const w of [360, 1280]) {
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`); await pg.waitForTimeout(700);
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400); await nx(); await pg.waitForTimeout(1200);
-  const lg = await pg.evaluate(() => ({ t: (document.querySelector('.mk-legend') || {}).textContent || '' }));
-  ok(`${w} 고른 순서 쪽 범례 — 이 식순에 있는 갈래만([R1-19] 나레이션 판엔 «미리 준비» 없음) · 나레이션 · 당일 직접 [VOICE_KIND]`, /나레이션/.test(lg.t) && !/두 분 목소리 · 미리 준비/.test((lg.t.split('이 식순의 차례')[0]) || '') && /당일 직접/.test(lg.t), lg.t);
+  /* ★[COURSE_FLOW 2026-10-03 사장님] 첫 쪽의 목소리 범례 접이는 걷었다 — 누가 말하는지는 줄마다 한 낱말. 종전 «범례가 있다» → «범례 없음 · 줄 낱말이 이 식순의 갈래만» */
+  const lg = await pg.evaluate(() => ({ legend: !!document.querySelector('.mk-intro .mk-legend'), v: [...document.querySelectorAll('.mk-intro .cf-v')].map((x) => x.textContent) }));
+  ok(`${w} 예식 흐름 쪽 — 범례 접이 없음 · 줄마다 누가 말하는지(나레이션 · 당일 직접) · 나레이션 판엔 «두 분 목소리» 없음([R1-19]) [VOICE_KIND · COURSE_FLOW]`, !lg.legend && lg.v.includes('나레이션') && lg.v.includes('당일 직접') && !lg.v.includes('직접') && !lg.v.includes('두 분 목소리'), JSON.stringify(lg));   /* [COURSE_FLOW_LIVE 2026-10-03] 줄 낱말 «직접» → «당일 직접»(② 쪽 머리 · 줄 카드와 같은 말) — 홀로 «직접»은 없다 */
   /* [CHIP_UNPICKED · MK_NO_HEADS] 안 고른 기본(나레이션)은 비어 보이고 · 누르면 소리가 나고 눌린 모양이 된다 · «고르기» · «흐름» 제목 없음 */
   const cu = await pg.evaluate(async () => { const z = (t) => new Promise((r) => setTimeout(r, t)); S.vsAsked = 1; RitualOpen.FEATURE.voiceClone = true; mkGo('guest');   /* [R2-15] */  render(); await z(300);   /* ★[VP_NO_DIRECT] 고르는 칸은 AI 가 켜진 예식에만(AI · 나레이션) — 시험에서 잠깐 켠다 */
     const b0 = document.querySelector('[data-fk="lsc:guestVoice:nar"]'), before = b0.getAttribute('aria-checked'), tab = document.querySelector('[data-fk^="lsc:guestVoice:"]').tabIndex;   /* [VP_CHOICE] 0928 부터 첫 칩은 «직접 녹음하기» — 안 고른 묶음은 첫 칩이 Tab 자리 */ b0.click(); await z(500);
