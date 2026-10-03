@@ -2,6 +2,7 @@
 //   글 · 칩은 스냅샷으로 돌아가지만 파일 상태(S.up)는 지운 그대로 남아야 한다(서버에서 이미 지워졌다).
 //   종전엔 S 를 통째로 되돌려 S.up 이 휴지통에 간 옛 파일 id 를 다시 가리켰고, ②·④ 는 완료인데 소리는 없었다.
 //
+//   [R8-01] 저장 회신 전 «취소»는 막힌다 · [R8-07] 파일이 그대로인 줄의 읽는 사람은 취소로 돌아간다 · [R8-08] 수정 중 저장 뒤 취소는 알린다
 //   [R7-01] 읽는 사람(guestWho · guestOne · pvWho)도 파일과 한 몸 — 취소 뒤 칸의 사람과 소리의 사람이 같아야 한다
 //   node scripts/audit/edit-cancel-files.mjs      # 390 · 1280
 // ★종료 코드 [CANT_LOOK] 0 = 통과 · 1 = 실패 · 2 = 재지 못함(도구 없음)
@@ -76,6 +77,35 @@ for (const w of [390, 1280]) {
   ok(`${w} [R7-01] 읽는 사람을 바꾸고 «취소» — 하객 맞이 g1 · 식전 영상 pv 의 읽는 사람 = 소리의 사람`, wr.k === 'listen' && wr.g1 === wr.g1by && wr.pv === wr.pvby && wr.g1 === 'groom' && wr.pv === 'groom' && !wr.st[0] && !wr.st[1] && wr.done === true, JSON.stringify(wr));
   const wb = await who(true);
   ok(`${w} [R7-01] 깨 보기 — R6-01 판 취소는 사람이 어긋나고(신부 칸 · 신랑 소리) _whoStale 이 그것을 잡아 미완료로 센다`, wb.g1 === 'bride' && wb.g1by === 'groom' && wb.st[0] === true && wb.st[1] === true && wb.done === false, JSON.stringify(wb));
+  /* [R8-07] 파일이 없는 줄에서 읽는 사람만 바꾸고 «취소» — 바꾼 것이 원래대로 돌아와야 한다(하객 맞이 g2 · 식전 영상 pv) */
+  await pg.evaluate(() => { window._editCancel = window.__ecOrig; S.on.prevideo = 1; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', prevideo: 'ai' }; S.pvText = '저희가 함께 걸어온 시간을 짧게 담았어요.';
+    S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'b' }; delete S.guestOne; S.pvWho = 'b'; S.up = {}; opSync(); goDone(); });
+  await pg.waitForTimeout(300);
+  await pg.click('[data-fk="sum:guest"]'); await pg.waitForTimeout(500);
+  await pg.evaluate(() => { mkGuestWho(2, 'b'); mkPvWho('g'); });
+  const mid7 = await pg.evaluate(() => ({ g2: RitualOpen.guestReader(S, 2), pv: S.pvWho }));
+  await pg.click('#prev'); await pg.waitForTimeout(500);
+  const r7 = await pg.evaluate(() => ({ k: STEPS[idx].k, g2: RitualOpen.guestReader(S, 2), g1: RitualOpen.guestReader(S, 1), pv: S.pvWho || 'g' }));
+  ok(`${w} [R8-07 WHO_IF_FILE] 파일 없는 줄의 읽는 사람 바꾸기는 «취소»로 원래대로(g2 신랑 · pv 신부)`, mid7.g2 === 'b' && mid7.pv === 'g' && r7.k === 'done' && r7.g2 === 'g' && r7.g1 === 'b' && r7.pv === 'b', JSON.stringify({ mid7, r7 }));
+  /* [R8-01] 저장 회신을 기다리는 동안(_autoWait)에는 «취소»가 막힌다 — 늦은 회신이 버려져 서버 합치기가 취소한 글을 되살리던 틈 */
+  await pg.evaluate(() => { S.welcomeText = ''; goDone(); });
+  await pg.waitForTimeout(300);
+  await pg.click('[data-fk="sum:guest"]'); await pg.waitForTimeout(500);
+  await pg.evaluate(() => { S.welcomeText = '저장 중에 고친 글'; _autoWait = true; });
+  await pg.click('#prev'); await pg.waitForTimeout(400);
+  const r1 = await pg.evaluate(() => ({ er: editReturn, txt: S.welcomeText, k: STEPS[idx].k, dlg: (document.querySelector('.ord-ask .oa-t') || {}).textContent || '' }));
+  await pg.evaluate(() => { const b = document.querySelector('.ord-ask .oa-yes'); if (b) b.click(); });
+  await pg.waitForTimeout(300);
+  ok(`${w} [R8-01 CANCEL_WAIT_SAVE] 저장 중 «취소»는 막히고 «저장하는 중이에요»를 알린다(수정 판 그대로)`, r1.er === true && r1.txt === '저장 중에 고친 글' && r1.k === 'listen' && r1.dlg === '저장하는 중이에요', JSON.stringify(r1));
+  // 깨 보기 — 막지 않던 종전 취소(같은 순간에 _editCancel)는 글을 옛 판으로 돌려 늦은 회신이 기준을 못 옮긴다
+  const b1 = await pg.evaluate(() => { const keep = JSON.stringify(S), snap = _editSnap; _editCancel(); const out = { txt: S.welcomeText }; S = JSON.parse(keep); _editSnap = snap; return out; });
+  ok(`${w} [R8-01] 깨 보기 — 막지 않으면 저장 중 고친 글이 옛 판으로 돌아간다(검사가 살아 있음)`, b1.txt !== '저장 중에 고친 글', JSON.stringify(b1));
+  /* [R8-08 EDIT_SAVED_MID] 수정 중 저장이 됐으면 «취소» 뒤 «저장해 둔 고침은 남아 있어요»를 알린다 */
+  await pg.evaluate(() => { _autoWait = false; _editSavedMid = true; });
+  await pg.click('#prev'); await pg.waitForTimeout(500);
+  const r8 = await pg.evaluate(() => ({ k: STEPS[idx].k, er: editReturn, dlg: (document.querySelector('.ord-ask .oa-t') || {}).textContent || '', body: (document.querySelector('.ord-ask .oa-d') || {}).textContent || '' }));
+  await pg.evaluate(() => { const b = document.querySelector('.ord-ask .oa-yes'); if (b) b.click(); });
+  ok(`${w} [R8-08] 수정 중 저장된 뒤 «취소» → ④ 로 돌아오고 «저장해 둔 고침은 남아 있어요»(줄표 · 이모지 없음)`, r8.k === 'done' && r8.er === false && r8.dlg === '저장해 둔 고침은 남아 있어요' && !/\u2014/.test(r8.body), JSON.stringify(r8));
   ok(`${w} pageerror 0`, errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
