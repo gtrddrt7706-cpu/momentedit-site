@@ -1261,7 +1261,7 @@ function adminRitualFiles(code) {
   var out = []; if (fid) { try { var it = DriveApp.getFolderById(fid).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; var at = Utilities.formatDate(f.getDateCreated(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
     out.push({ key: _rfKeyOfName(f.getName()), label: RF_KEYS[_rfKeyOfName(f.getName())] || '', id: f.getId(), name: f.getName(), kb: Math.round(f.getSize() / 1024), at: at, late: !!(late && at.slice(0, 10) > late) }); } } catch (e) {} }
   out.sort(function (a, b) { return a.at < b.at ? 1 : -1; });   // 최신이 위 · 같은 자리에 여러 개면 맨 위가 지금 쓰는 것
-  var vc = null; try { vc = _vcSlots(); if (vc) { var vst = _vcSt(code); vc.me = { groom: _vcPub(vst.groom), bride: _vcPub(vst.bride) }; } } catch (e) { vc = null; }   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식의 AI 목소리(키가 없으면 null · 화면에 안 보인다)
+  var vc = null; try { vc = _vcSlots(); if (vc) { var vst = _vcSt(code); vc.me = { groom: _vcPub(vst.groom, code), bride: _vcPub(vst.bride, code) }; } } catch (e) { vc = null; }   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식의 AI 목소리(키가 없으면 null · 화면에 안 보인다)
   return { ok: true, code: code, wedding: wy, lateAfter: late, files: out, okMap: okMap, gone: props.getProperty('RFGONE_' + code) || '', vc: vc };
 }
 /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오 대신 올리기 — 카톡 · 메일로 파일을 보낸 고객을 위해 관리 화면이 줄마다 올린다.
@@ -1315,7 +1315,7 @@ function previewRitualFiles() { return purgeRitualFiles(true); }
    API(타입캐스트 Go SDK 원본으로 확인 2026-09-27): X-API-KEY 헤더 · 복제 POST /v1/custom-voices/instant-clone(multipart name · model · file · 돌려받는 voice_id 는 uc_) ·
      삭제 DELETE /v1/custom-voices/{id}(soft-delete) · 읽기 POST /v1/text-to-speech {voice_id,text,model,language,output{target_lufs,remove_silence_ms,audio_tempo,audio_format}}
    한도(5-7): 사람마다 목소리 만들기 3번 · ~~줄마다 5번 · 예식마다 50번 · 연습 2만 자~~ → [VC_BUDGET] 예식당 글자 예산 하나. 상태는 스크립트 속성 VC_<코드>(시트 열을 늘리지 않는다). */
-var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enroll: 3, budget: 200000, slotWarn: 45, minReadSec: 20 };
+var VC_BASE = 'https://api.typecast.ai', VC_MODEL = 'ssfm-v30', VC_LIM = { enroll: 20, budget: 200000, slotWarn: 45, minReadSec: 20 };   /* ★★[VC_NO_COUNT 2026-10-03 사장님 «한 고객 건당 3만 원 넘지 않는 선에서 AI 수정할 수 있게 했잖아 · 지금도 횟수 초과라고 떠 · 테스트도 못 하고 있어»] 목소리 만들기 «한 분 3번»을 걷었다 — 되살리지 말 것. 다시 만들면 새 목소리를 먼저 만들고 앞 목소리를 지우므로 업체 «목소리 칸»은 한 분 한 칸 그대로다. 남은 20 은 화면 버그로 끝없이 도는 것만 막는 안전장치이고(고객이 닿을 일 없음) · 시험 예식(VOICE_STUDIO_CODES)은 그것도 없다 · 돈은 예식당 글자 예산(VC_BUDGET) 하나로 지킨다 */
 /* ★★[VC_BUDGET 2026-10-02 사장님 «350만 원을 내고 이용하는데 그거 얼마 한다고 제한을 둬 · 한 팀 예식 진행에 3만 원 정도는 투자해도 괜찮다»]
    횟수 한도(줄마다 다시 만들기 5번 · 예식마다 만들기 50번 · 연습 읽기 2만 자)를 걷고 «예식당 글자 예산» 하나로 바꿨다 — 되살리지 말 것.
    예산 = 줄 만들기 + 연습 읽기에 실제로 새로 만든 글자 수(같은 글 · 목소리 · 빠르기로 다시 받은 것은 안 셈). 1글자 = 1크레딧 ·
@@ -1400,7 +1400,7 @@ function handleVoiceClone(body) {
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var cfg = _vcCfg(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
   var down = { ok: false, down: true, error: VC_DOWN };
-  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom), bride: _vcPub(st.bride), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
+  if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom, code), bride: _vcPub(st.bride, code), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
   if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
     ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
     _vcPut(code, st); return { ok: true, gone: gone }; }
@@ -1420,7 +1420,7 @@ function handleVoiceClone(body) {
     ph.phrase = { t: _vcNewPhrase(), at: fmtKST(new Date()) }; st[who] = ph; _vcPut(code, st); return { ok: true, who: who, phrase: ph.phrase.t }; }
   if (op === 'enroll') { var pp = st[who] || {}; if (!pp.consent) return { ok: false, error: WHO[who] + ' 동의가 먼저예요.' };
     if (!pp.phrase || !pp.phrase.t) return { ok: false, error: '확인 문장을 먼저 받아 주세요.' };
-    if ((pp.tries || 0) >= VC_LIM.enroll) return { ok: false, limit: true, error: '목소리 만들기는 한 분에 ' + VC_LIM.enroll + '번까지예요 · 직접 녹음으로 준비해 주세요' };
+    if (!_voiceStudio(code) && (pp.tries || 0) >= VC_LIM.enroll) return { ok: false, limit: true, error: '지금은 목소리를 더 만들 수 없어요. 만들어 둔 목소리를 쓰시거나 스튜디오 나레이션으로 진행돼요' };   // [VC_NO_COUNT] 안전장치만 · 시험 예식은 없음
     var b64 = String(body.data || '').replace(/^data:[^,]*,/, ''); if (!b64 || b64.length * 3 / 4 > 25 * 1048576) return { ok: false, error: '녹음이 비었거나 너무 커요.' };
     var sec = +body.sec || 0; if (sec && sec < VC_LIM.minReadSec) return { ok: false, short: true, error: '조금 더 천천히, 끝까지 읽어 주세요' };
     var bytes = Utilities.base64Decode(b64), mime = /^data:audio\/mpeg/.test(String(body.data)) ? 'audio/mpeg' : 'audio/wav';
@@ -1454,7 +1454,8 @@ function handleVoiceClone(body) {
     return { ok: true, key: key, parts: parts, total: st.make.total }; }   // [VC_BUDGET] left(줄마다 남은 번)를 보내지 않는다 — [다시 만들기]에 «N번 남음»이 안 붙는다
   return { ok: false, error: '알 수 없는 요청이에요.' };
 }
-function _vcPub(p) { p = p || {}; return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, left: Math.max(0, VC_LIM.enroll - (p.tries || 0)), made: p.made || '', deleted: p.deleted || '' }; }
+function _vcPub(p, code) { p = p || {}; var sk = !!code && _voiceStudio(code);   // [VC_NO_COUNT] 시험 예식은 남은 수가 줄지 않는다
+  return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, left: sk ? VC_LIM.enroll : Math.max(0, VC_LIM.enroll - (p.tries || 0)), made: p.made || '', deleted: p.deleted || '' }; }
 /* [VOICE_CLONE 5-5] 예식 뒤 30일 — purgeRitualFiles 가 코드마다 부른다(다음 날 지우기가 못 돈 것의 마지막 그물) */
 function _vcPurge(code) { return _vcPurgeNow(code); }
 /* ★[VOICE_CLONE_0928 8-6] 지금 지우기 — 업체 목소리(둘) · 읽은 녹음 · 연습 소리. 안내 소리(«AI 소리»)는 30일까지 둔다(예식 뒤 내려받기) */
