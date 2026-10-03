@@ -31,7 +31,11 @@ for f in files:
         # ★[TILE_SWALLOW 2026-09-26 코워크 회신8] 객체 항목도 삼킨다 — 코드 쪽이 `,` `{` `(` 로 끝나고 주석 쪽에 `이름: '…'` · `이름: {` · `이름: [` 가 있으면
         #   (TILE 표의 letter · toast 가 free 줄 뒤 주석에 먹혀 칸 글이 #872~#875 동안 비었다 · 종전 규칙은 «호출문»만 봐서 못 잡았다)
         obj = code.rstrip().endswith((',', '{', '(')) and re.search(r"(^|[\s,{])[A-Za-z_$][\w$]*\s*:\s*['\"{\[]", com)
-        if obj or re.search(r";\s*[A-Za-z_$][\w$.]*\([^)]*\)\s*;", com) or re.search(r"\b(document|window)\.[A-Za-z.]+\([^)]*\)\s*;", com):
+        # ★[R2-01 2026-10-02] try{…}catch(e){} 와 «이름=값; 이름=값;» 대입 두 문장도 삼킨다 — «모두 비우기»가 _doneSaved=false 를 못 해
+        #   저장 상태가 안 풀렸다(종전 규칙은 «;이름(…);» 호출 꼴만 봐서 놓쳤다)
+        tc = re.search(r"\btry\s*\{[^}]*\}\s*catch\s*\(", com)
+        asg = re.search(r"(^|[\s;{}])[A-Za-z_$][\w$.]*\s*=\s*[^=\s;][^;]*;\s*[A-Za-z_$][\w$.]*\s*=\s*[^=\s]", com)
+        if obj or tc or asg or re.search(r";\s*[A-Za-z_$][\w$.]*\([^)]*\)\s*;", com) or re.search(r"\b(document|window)\.[A-Za-z.]+\([^)]*\)\s*;", com):
             bad.append(f"{f}:{n}  {line.strip()[:160]}")
 if bad:
     print('❌ [COMMENT_SWALLOW] 줄 끝 // 주석이 코드 문장을 삼켰다(실행 안 됨) — 주석을 /* */ 로 바꾸거나 코드를 다음 줄로:')

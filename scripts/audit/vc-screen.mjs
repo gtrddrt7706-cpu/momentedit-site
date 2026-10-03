@@ -40,7 +40,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
     };
     const o = window.postMessage.bind(window);
     window.postMessage = function (m, t) { if (m && m.type === 'momentedit:ritualFile') { const k = m.data.key; window.__calls.push('upload:' + k); setTimeout(() => _mkUpDone({ key: k, ok: true, id: 'F' + k + Date.now(), name: m.data.name, at: '2026-09-28 10:00' }), 50); return; } return o(m, t); };
-    RitualOpen.FEATURE.upLive = true; S.vsChip = 1;   /* [VS_CHIP_ONCE] 칩 첫 창은 voice-setup 이 잰다 */  RitualOpen.FEATURE.voiceClone = true; S.guestVoice = 'couple'; S.entryVoice = 'couple'; opSync(); mkGo('guest');
+    RitualOpen.FEATURE.upLive = true; S.vsChip = 1; S.vsAsked = 1;   /* [VS_CHIP_ONCE] 칩 첫 창 · [R2-15] ② 첫 진입 창은 voice-setup 이 잰다(이제 스위치가 켜진 뒤 뜬다) */  RitualOpen.FEATURE.voiceClone = true; S.guestVoice = 'couple'; S.entryVoice = 'couple'; opSync(); mkGo('guest');
   });
   await pg.waitForTimeout(500);
   const chips = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:guestVoice"]')].map((e) => e.textContent).join('|'));

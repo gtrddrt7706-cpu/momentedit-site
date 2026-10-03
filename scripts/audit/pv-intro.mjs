@@ -50,7 +50,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.waitForTimeout(500);
   const off = await pg.evaluate(() => ({ chips: document.querySelectorAll('[data-fk^="lsc:pvVoice"]').length, ta: !!document.getElementById('mkPvTa'), row: !!document.querySelector('.mk-sech-r [data-fk="mkplay"]'), lab: [...document.querySelectorAll('.mk-flow .mk-lab')].map((e) => e.textContent).join('|') }));
   ok(W + ' AI 꺼짐 — 고르는 칸 · 글칸 없음 · 스튜디오 한 줄(이름 «식전 영상 소개») · 들어 보기 줄 [PLAY_ROW]', off.chips === 0 && !off.ta && off.row && /식전 영상 소개/.test(off.lab) && !/소개글/.test(off.lab), JSON.stringify(off));
-  await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; render(); });
+  await pg.evaluate(() => { S.vsAsked = 1; RitualOpen.FEATURE.voiceClone = true; render(); });   /* [R2-15] ② 첫 진입 창은 voice-setup 이 잰다 */
   await pg.waitForTimeout(300);
   const ch = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:pvVoice"]')].map((e) => e.textContent).join('|'));
   ok(W + ' AI 켜짐 — [두 분 소개글 · AI 목소리 | 스튜디오 나레이션]', ch === '두 분 소개글 · AI 목소리|스튜디오 나레이션', ch);
