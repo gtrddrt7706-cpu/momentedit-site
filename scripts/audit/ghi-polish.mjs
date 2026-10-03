@@ -5,7 +5,7 @@
 // 보는 것(최종판 5장 그대로)
 //   G4 입장 줄 — 맺는 말 · 첫 모습은 걷었다 [ENTRY_OUT_OFF] (옛 [ENTRY_OUT_MORE] 더 고르기 판은 없다)
 //   G5 «이렇게 흘러요» — «위하여» 줄이 잔 드는 큐 뒤(붓기 · 커팅 앞 아님) [TOAST_TALK_GLASS]
-//      말 없는 줄(옅게 · 소리 없음 · 재생 목록 밖) [QUIET_LINES] · 첫 줄 이름(화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)») [FIRST_LINE_NAME]
+//      말 없는 줄(옅게 · 소리 없음 · 재생 목록 밖) [QUIET_LINES] · 첫 줄 이름(화촉 «여는 말» · 선언 «선언 · 엄숙하게» · R3-10) [FIRST_LINE_NAME]
 //   H1 ③ 칸 이름 · aria-label · 대본 줄 = «첫인사» [H1_FIRST_HELLO]
 //   H2 ③ 보낼 것 — 식전 영상(링크 칸 · 설명 · 보내는 길 상자)이 한 덩어리 · 축배 음료 줄은 그 뒤 [H2_SEND_LUMP]
 //   H3 ③ 도와주실 분 — 불러 모아 주실 분(«가족 · 친구 스냅») [H3_CALLER_HELPER]
@@ -95,7 +95,7 @@ for (const w of [390, 1280]) {
     && g5b.entry.length === 1 && g5b.entry[0] === '음악에 맞춰 걸어 들어와요' && g5b.bow === '음악에 맞춰 걸어 들어와요'
     && g5b.ring[0] === '두 분이 서로 반지를 끼워요' && g5b.declare[0] === '하객 박수 · 두 분이 부부가 돼요' && g5b._close[0] === '두 분이 하객께 목례 · 박수'
     && g5b.fams === 'solemn:1,warm:1,clap:1,family:1', JSON.stringify(g5b));
-  ok(`${w} G5 첫 줄 이름 — 화촉 «여는 말» · 선언 «선언 · 나레이션(엄숙하게)» [FIRST_LINE_NAME]`, g5b.labs.candle === '여는 말' && g5b.labs.declare === '선언 · 나레이션(엄숙하게)', JSON.stringify(g5b.labs));
+  ok(`${w} G5 첫 줄 이름 — 화촉 «여는 말» · 선언 «선언 · 엄숙하게»(R3-10) [FIRST_LINE_NAME]`, g5b.labs.candle === '여는 말' && g5b.labs.declare === '선언 · 엄숙하게'   /* [R3-10] 갈래 표가 «나레이션»이라 이름에서 뺐다 */, JSON.stringify(g5b.labs));
   await pg.evaluate(() => mkGo('toast')); await pg.waitForTimeout(300);
   const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.mk-pg .mk-flow li')];
     return { txt: li.map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return (l.className === 'q' ? '[quiet]' : '') + c.textContent; }), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });

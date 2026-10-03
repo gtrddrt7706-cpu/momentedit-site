@@ -405,8 +405,8 @@
     if (k === 'free') return '당일 직접 · 축사하시는 분';
     return '당일 직접'; }
   function prepLine(S) { var n = prepCount(S), a = [];
-    if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께 부탁드릴' + NB + '것' + NB + n.parents + '가지');   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
-    return a.length ? a.join(' · ') + ' · ② 하나씩 만들기 마지막 «한눈에 보기»에서 모아 봐요' : ''; }   // [R1-33] ② 이름은 «하나씩 만들기»   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
+    if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께' + NB + '부탁드릴' + NB + '것' + NB + n.parents + '가지');   /* [R3-11] «부모님께 / 부탁드릴 것»으로 갈렸다 */   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
+    return a.length ? a.join(' · ') + ' · ② 하나씩 만들기 마지막 «한눈에' + NB + '보기»에서 모아 봐요' : ''; }   /* [R3-11] 화면 이름이 «한눈에 / 보기»로 쪼개지지 않게 */   // [R1-33] ② 이름은 «하나씩 만들기»   // [MOMENTS_ONE] 모아 보기는 ② 마지막 «한눈에 보기»로 옮겼다(옛 ③ 준비하기 폐지) — «③에서»는 틀린 길이었다
 
   /* ══ [TILE_PICK 2026-09-26 코워크 회신 6 3-5] 칸 글 — «무엇인지»만(두 줄 안) · CARDS.one 은 미리 보기 창에서 쓴다 ══ */
   var TILE = {
