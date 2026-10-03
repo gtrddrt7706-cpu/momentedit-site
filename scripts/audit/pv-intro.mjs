@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상 · 두 분이 소개글을 적어서 AI 목소리로도 할 수 있고 · 적절한 예시도»] 화면 흐름 시험(가짜 서버 · 390 · 1280).
-   보는 것: AI 가 꺼지면 고르는 칸 · 글칸 없음(스튜디오 한 줄) · 켜지면 [두 분 소개글 · AI 목소리 | 스튜디오 나레이션] → 글칸 · 예시 넷 · 빈 글이면 만들기 단추 없음 ·
+   보는 것: AI 가 꺼지면 고르는 칸 · 글칸 없음(스튜디오 한 줄) · 켜지면 [AI 두 분 목소리 | 스튜디오 나레이션]([R4-12]) → 글칸 · 예시 넷 · 빈 글이면 만들기 단추 없음 ·
      예시 → [AI로 만들기] → make(pv · 읽는 분 · 그 글) → 그 자리 파일(src ai · 글 지문) · 글을 고치면 «새 글로 다시 만들기» · 읽는 분을 바꾸면 만든 소리를 버린다 ·
      적어 둔 글을 예시로 덮기 전에 묻는다 · 엔진: pvVoice=couple 이면 식전 영상 큐가 두 분 목소리 자리(own) · 콘솔 pv → narr-prevideo-in · 들어 보기 줄 [PLAY_ROW]
    종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함(브라우저 없음) */
@@ -53,7 +53,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => { S.vsAsked = 1; RitualOpen.FEATURE.voiceClone = true; render(); });   /* [R2-15] ② 첫 진입 창은 voice-setup 이 잰다 */
   await pg.waitForTimeout(300);
   const ch = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:pvVoice"]')].map((e) => e.textContent).join('|'));
-  ok(W + ' AI 켜짐 — [두 분 소개글 · AI 목소리 | 스튜디오 나레이션]', ch === '두 분 소개글 · AI 목소리|스튜디오 나레이션', ch);
+  ok(W + ' AI 켜짐 — [AI 두 분 목소리 | 스튜디오 나레이션](R4-12)', ch === 'AI 두 분 목소리|스튜디오 나레이션', ch);
   await pg.click('[data-fk="lsc:pvVoice:ai"]'); await pg.waitForTimeout(400);
   const e0 = await pg.evaluate(() => ({ pv: S.pvVoice, vf: (S.vfill || {}).prevideo, ta: !!document.getElementById('mkPvTa'), ex: document.querySelectorAll('[data-fk^="mkpvex:"]').length, ai: !!document.querySelector('[data-fk="mkai:pv"]'), note: /소개글을 적으면 신랑 AI 목소리로/.test(document.querySelector('.mk-pg').textContent), card: document.querySelectorAll('[data-fk="mkupplay:pv"],[data-fk^="mkwho:pv:"]').length }));
   ok(W + ' AI 고름 — 글칸 · 예시 넷 · 빈 글이면 [AI로 만들기] 없이 한 줄 안내 · 읽는 분 [신랑 | 신부]', e0.pv === 'couple' && e0.vf === 'ai' && e0.ta && e0.ex === 4 && !e0.ai && e0.note && e0.card === 2, JSON.stringify(e0));
