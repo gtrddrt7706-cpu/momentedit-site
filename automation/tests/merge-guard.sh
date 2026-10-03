@@ -8933,6 +8933,45 @@ chk 'PV_VID_ONCE' order-preview.html 1   # ① 미리보기 영상: 소리가 �
 chk 'vd.loop=false; var vp=vd.play();' order-preview.html 1
 nochk 'vd.loop=true' order-preview.html
 chk 'VIDEO_IN_1003' docs/plans/식순연구/순간영상_장면대본_0927.md 1
+# ★[AI_LABEL_OFF 2026-10-03 사장님 «굳이 없어도 될 거 같아 · 그림이니까»] 장면 그림 위 «AI로 만든 장면(이에요 · 사람과 옷은 실제와 달라요)» 이름표 삭제 — 되살리지 말 것.
+#   ★같은 날 사장님 «ai 그 문구도 지워» — ① 칸 구석 «AI»(.pk-ai)와 칸 아래 한 줄(.pk-ainote)도 지웠다. AI 목소리 고지는 따로 · 그대로.
+chk 'AI_LABEL_OFF' order-preview.html 5
+nochk 'class="lv-ai"' order-preview.html
+nochk 'class="pv-ai"' order-preview.html
+nochk "'AI로 만든 장면이에요 · 사람과 옷은 실제와 달라요'" order-preview.html   # 그리는 글(따옴표 문자열) — 삭제 주석의 «…» 인용은 세지 않는다
+nochk 'class="pk-ai"' order-preview.html
+nochk 'class="pk-ainote"' order-preview.html
+chk 'AI_LABEL_OFF' scripts/audit/listen-page.mjs 4
+# ★[VID_PLAY_ALL 2026-10-03 사장님 «축배 등등 재생이 안 되는 영상이 있다»] 영상 있는 모든 순간에서 영상이 불린다 — listen-page P-1~P-7(play 를 가로채 잰다).
+#   원인 넷: ① 창 «if(!ln) return» 이 영상보다 앞(케이크 · 축배) [PV_VID_NOLINE] · 축배 대표 slug 가 WINE_POUR_OFF 뒤 없는 줄 [SAMPLE_TOAST_LIVE] ·
+#   ② 영상은 틀 곳이 없었다 [MK_VID_PLAY] · 크게 보기는 줄마다 새 <video> [LF_VID_KEEP]. 깨 보고 믿음: 고치기 전 판으로 돌리면 9줄 빨강.
+chk 'PV_VID_NOLINE' order-preview.html 1
+chk 'MK_VID_PLAY' order-preview.html 4
+chk 'LF_VID_KEEP' order-preview.html 2
+chk 'window._lVidTap' order-preview.html 1
+chk 'SAMPLE_TOAST_LIVE' assets/ritual-open.js 1
+nochk "toast: { slug: 'toast-both-pour-b'" assets/ritual-open.js
+chk 'VID_PLAY_ALL' scripts/audit/listen-page.mjs 2
+# ★[LVID_ONCE 2026-10-03 사장님 «여기 영상도 1회 재생될 수 있게 해 줘»] ② 쪽이 보이면 그 순간 영상이 한 번(소리 없음 · 반복 없음 · 끝 장면에서 멈춤) ·
+#   움직임 줄이기 · 데이터 절약이면 저절로 안 돈다(누르면 돈다) · 크게 보기도 loop 없음. listen-page P-8 · P-9 · P-10 이 play 를 가로채 잰다.
+chk 'LVID_ONCE' order-preview.html 5
+chk 'function _mkVidAfter' order-preview.html 1
+chk '_mkVidAfter(el,_mv0)' order-preview.html 1
+nochk '<video muted loop playsinline' order-preview.html
+chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
+# ★[SEL_SEAL 2026-10-03 사장님 «파란 거 말고 우리 메인 홈페이지에서 사용한 진사 색상으로»] 고객이 보는 여섯 쪽의 글 고르기 색 = 메인과 같은 진사(실측 대비 9.24:1 · #3A2D22 on #E0D5D2)
+chk '::selection{background:rgba(107,42,36,0.18)' order-preview.html 1
+chk '::selection{background:rgba(107,42,36,0.18)' guide.html 1
+chk '::selection{background:rgba(107,42,36,0.18)' seat.html 1
+chk '::selection{background:rgba(107,42,36,0.18)' cancel.html 1
+chk '::selection{background:rgba(107,42,36,0.18)' preview.html 1
+chk '::selection{background:rgba(107,42,36,0.18)' form.html 1
+# ★[THUMB_PICK 2026-10-03] ① 칸 그림(-640.webp)만 고른 장면 — candle 마지막 · entry 6.0초 · toast 2.0초(사장님) · tribute 8.0초(사장님) · prevideo 6.0초(사장님) · 나머지 첫 장면 · 창 poster 는 늘 첫 장면.
+#   listen-page V-5 가 그림끼리 견준다(깨 보고 믿음). 다시 구울 때는 encode-moment.sh 넷째 값.
+chk 'THUMB_PICK' assets/ritual-open.js 1
+chk 'THUMB_PICK' scripts/video/encode-moment.sh 2
+chk 'THUMB_PICK' scripts/audit/listen-page.mjs 2
+chk 'THUMB_PICK' docs/plans/식순연구/순간영상_장면대본_0927.md 1
 chk 'ENTRY_SCENE' assets/ritual-cue.js 2
 nochk 'narr-entry-out-bow' assets/ritual-cue.js
 chk 'S.entryScene' order-preview.html 1

@@ -438,7 +438,10 @@
     vow: { slug: 'narr-vow-in', cut: 2 }, ring: { slug: 'narr-ring-in', cut: 2 },
     declare: { slug: 'declare-1-solemn', cut: 2 }, tribute: { slug: 'tribute-in', cut: 2 },
     free: { slug: 'narr-free-in-video' }, letter: { slug: 'letter-each' },
-    toast: { slug: 'toast-both-pour-b', screen: '마지막으로, 다 같이 잔을 들어 주세요. 두 분이 «위하여» 하시면, 다 함께 «위하여» 하고 답해 주세요.' },
+    /* ★[SAMPLE_TOAST_LIVE 2026-10-03] 축배 대표 줄 = 지금 예식에서 나는 76 toast-both-b(글자 그대로 · 화면은 따옴표).
+       종전 107 toast-both-pour-b 는 [WINE_POUR_OFF](09-27)가 sampleS 를 «붓지 않음»으로 바꾼 뒤 미리 보기 엔진에 없는 줄이 되어
+       ① 창 축배가 글 · 소리 · 영상 셋 다 비어 있었다(되살리지 말 것). */
+    toast: { slug: 'toast-both-b', screen: '마지막으로, 두 사람에게 잔이 가는 동안 다 같이 잔을 들어 주세요. 두 분이 «위하여» 하시면, 함께 «위하여» 하고 답해 주세요.' },
     _close: { slug: 'narr-close-bow' }
   };
   function sampleOf(k, S) { var sm = SAMPLE[k]; if (!sm) return null; var o = { slug: sm.slug, cut: sm.cut || 0, screen: sm.screen || '' };
@@ -741,7 +744,15 @@
   var VIDEO_DIR = '/assets/video/moments/';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
      첫 장면 webp 두 벌(받은 표지 jpg = 첫 장면 · 1280 q80 · 640 q78 · encode-moment.sh 와 같은 값). 촬영표 17편 중 toast-pour 는 만들지 않았다(붓기 장면 없음 · 화면도 안 찾는다).
-     _close 는 close · entry 는 entry → entry-look 차례(videoKeys). 이름을 빼면 그 순간은 글 한 줄(SCENE)로 돌아간다 */
+     _close 는 close · entry 는 entry → entry-look 차례(videoKeys). 이름을 빼면 그 순간은 글 한 줄(SCENE)로 돌아간다
+     ★[THUMB_PICK 2026-10-03] ① 칸 그림(small · <이름>-640.webp · 칸에서만 쓴다)은 고른 장면 · 창과 영상 첫 장면(poster · <이름>.webp)은 늘 첫 장면:
+       candle  마지막(9.8초)  첫 장면은 초가 꺼져 있다 · 끝은 두 초 다 켜짐
+       entry   6.0초          첫 장면은 손과 부케 가까이 · 6초는 문으로 들어오는 두 분
+       toast   2.0초          사장님 지정 · 두 분이 잔을 가슴 높이로 든 장면
+       tribute 8.0초          사장님 지정 · 부케를 든 어머님을 안는 신부 · 곁의 신랑
+       prevideo 6.0초         사장님 지정 · 화면을 보는 하객 뒷모습 · 아버님 팔에 얹은 어머님 손
+       나머지  첫 장면        (끝 장면은 주인공이 빠진다 · 덕담 뒷모습 · 편지 손 · 닫는 인사 발)
+       다시 구울 때: sh scripts/video/encode-moment.sh 받은파일.mp4 <이름> 2500k <초> */
   var VIDEO_READY = ['guest', 'prevideo', 'candle', 'entry', 'entry-look', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'close'];
   function videoKeys(k, S) {
     if (k === 'cake') return ['cake'];   // [CAKE_TOAST_SPLIT] 두 순간 · 두 영상

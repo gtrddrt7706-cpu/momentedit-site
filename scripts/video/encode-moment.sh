@@ -1,6 +1,9 @@
 #!/bin/sh
 # [VIDEO_ENCODE 2026-09-26 코워크 회신5 4-8 · 연구 F05] 장면 영상 굽기 — 사장님이 주신 mp4 하나를 사이트 규격으로.
-#   쓰는 법:  sh scripts/video/encode-moment.sh 받은파일.mp4 entry-look [비트레이트(기본 2500k)]
+#   쓰는 법:  sh scripts/video/encode-moment.sh 받은파일.mp4 entry-look [비트레이트(기본 2500k)] [칸 그림 초(기본 첫 장면)]
+#   ★[THUMB_PICK 2026-10-03] 칸 그림(-640.webp)만 다른 장면에서 뜰 수 있다 — 넷째 값이 그 초. 창 · 영상 첫 장면(<이름>.webp)은 늘 첫 장면(재생이 튀지 않게).
+#     지금 고른 것: candle 9.8(마지막 · 두 초 다 켜짐) · entry 6.0(문으로 들어오는 두 분) · toast 2.0(사장님 지정 · 가슴 높이로 든 잔) · tribute 8.0(사장님 지정 · 어머님을 안는 신부) · prevideo 6.0(사장님 지정 · 화면을 보는 하객 뒷모습) · 나머지 첫 장면.
+#     다시 구울 때 넷째 값을 빼먹으면 첫 장면으로 돌아간다 — 표는 assets/ritual-open.js 의 [THUMB_PICK].
 #   만드는 것: assets/video/moments/<이름>.mp4 (H.264 High · 1280×720 · 소리 트랙 없음 · faststart)
 #             assets/video/moments/<이름>.webp (첫 장면 · poster · 창에서)
 #             assets/video/moments/<이름>-640.webp (첫 장면 칸용 작은 판 · 640px 폭) [POSTER_SMALL 2026-09-26 코워크 최종판 3-5]
@@ -11,7 +14,7 @@
 #   ★어두운 촛불 장면(candle · guest · prevideo)은 폰 밝기를 최대로 하고 계단 무늬(밴딩)가 보이는지 본다 —
 #     보이면 그 편만 비트레이트를 올려(예: 3500k) 다시 굽는다.
 set -e
-IN="$1"; NAME="$2"; BR="${3:-2500k}"
+IN="$1"; NAME="$2"; BR="${3:-2500k}"; TAT="${4:-}"
 [ -f "$IN" ] && [ -n "$NAME" ] || { echo "쓰는 법: sh scripts/video/encode-moment.sh 받은파일.mp4 이름 [비트레이트]"; exit 2; }
 OUT="$(dirname "$0")/../../assets/video/moments"; mkdir -p "$OUT"
 ffmpeg -y -i "$IN" -an -c:v libx264 -profile:v high -pix_fmt yuv420p \
@@ -19,6 +22,7 @@ ffmpeg -y -i "$IN" -an -c:v libx264 -profile:v high -pix_fmt yuv420p \
   -b:v "$BR" -maxrate "$BR" -bufsize "$(echo "$BR" | sed 's/k$//' | awk '{print $1*2"k"}')" \
   -movflags +faststart "$OUT/$NAME.mp4"
 ffmpeg -y -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=1280:720" -c:v libwebp -quality 80 "$OUT/$NAME.webp"
-ffmpeg -y -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=640:-2" -c:v libwebp -quality 78 "$OUT/$NAME-640.webp"   # [POSTER_SMALL]
+if [ -n "$TAT" ]; then ffmpeg -y -ss "$TAT" -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=640:-2" -c:v libwebp -quality 78 "$OUT/$NAME-640.webp"   # [THUMB_PICK]
+else ffmpeg -y -i "$OUT/$NAME.mp4" -frames:v 1 -vf "scale=640:-2" -c:v libwebp -quality 78 "$OUT/$NAME-640.webp"; fi   # [POSTER_SMALL]
 ls -la "$OUT/$NAME.mp4" "$OUT/$NAME.webp" "$OUT/$NAME-640.webp"
 ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$OUT/$NAME.mp4" | grep -q . && { echo "소리 트랙이 남았다 — 실패"; exit 1; } || echo "소리 트랙 없음 · 끝"
