@@ -8959,6 +8959,16 @@ chk 'function _mkVidAfter' order-preview.html 1
 chk '_mkVidAfter(el,_mv0)' order-preview.html 1
 nochk '<video muted loop playsinline' order-preview.html
 chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
+# ★[NAV_FOLD 2026-10-03 사장님 «하나씩 만들기 윗부분은 접혀져 있는 상태로 시작 · 카테고리가 많아 지저분 · 더 좋은 개선방안 있으면 적용»]
+#   ② 진행 순서 줄 = 접힌 한 줄(«순간 n / N» · 미완료 순간 수 · «모든 순간 보기») · 펼치면 종전 줄 그대로 · 고르면 가고 접힘 · ② 에 들어올 때마다 접힌 채.
+#   앞뒤 화살표 없음(아래 막대가 한다) · 펼침 표시는 가는 꺾쇠(▾ 글자 금지 · FOLD_CHEVRON). listen-page NF-1~NF-6 이 390 · 1280 실렌더로 잰다(깨 보고 믿음: 펼친 채 시작하게 하면 6줄 빨강).
+chk 'NAV_FOLD' order-preview.html 6
+chk 'window.mkFold=function' order-preview.html 1
+chk 'window.mkNavGo=function' order-preview.html 1
+chk 'aria-controls="mkScP"' order-preview.html 1
+chk 'MK.navOpen=false;   /\* \[NAV_FOLD\] 쪽이 바뀌면 접힌다' order-preview.html 1
+nochk '모든 순간 보기 ▾' order-preview.html
+chk 'NAV_FOLD' scripts/audit/listen-page.mjs 4
 # ★[SEL_SEAL 2026-10-03 사장님 «파란 거 말고 우리 메인 홈페이지에서 사용한 진사 색상으로»] 고객이 보는 여섯 쪽의 글 고르기 색 = 메인과 같은 진사(실측 대비 9.24:1 · #3A2D22 on #E0D5D2)
 chk '::selection{background:rgba(107,42,36,0.18)' order-preview.html 1
 chk '::selection{background:rgba(107,42,36,0.18)' guide.html 1

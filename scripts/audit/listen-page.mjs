@@ -105,8 +105,10 @@ for (const w of [390, 1280]) {
   /* [MK_PICK_TOP] 고르기가 먼저 · 그 아래 «고른 대로 들어 보기» · 흐름은 그 뒤 */
   ok(`${w} ② 고를 것이 있는 쪽 = 칩이 곧 듣기 — «고른 대로 들어 보기» 단추 없음 · 고르기 → 흐름 [MK_PICK_TOP · MK_MIN]`, await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; render();   /* ★[VP_NO_DIRECT] 하객 맞이의 고르는 칸(AI · 나레이션)은 AI 가 켜진 예식에만 — 이 판정은 그 판에서 */ const a = document.querySelector('.mk-pick .ls-vars'), c = document.querySelector('.mk-flow'); const F = Node.DOCUMENT_POSITION_FOLLOWING; return !!a && !!c && !!(a.compareDocumentPosition(c) & F) && !document.querySelector('[data-fk="mkplay"]') && !/고른 대로 들어 보기/.test(document.getElementById('stage').textContent) && ((RitualOpen.FEATURE.voiceClone = false), render(), true); }));
   ok(`${w} ② 하객 맞이 — 두 분 목소리 줄은 줄 카드 하나로(흐름 목록 없음) · «두 분이 녹음하실 글(예시)» 되풀이 없음 · «아직 안 보냈어요» 없음 [MK_MIN · VP_ONE_LIST]`, await pg.evaluate(() => { if (S.guestVoice !== 'couple') { S.guestVoice = 'couple'; opSync(); render(); } const f = (document.querySelector('.mk-voice') || {}).textContent || ''; return !document.querySelector('.mk-flowsec') && !!document.querySelector('.mk-vcards') && !/아직 안 보냈어요/.test(f) && (f.match(/두 분이 녹음하실 글\(예시\)/g) || []).length <= 1; }));
+  /* [NAV_FOLD 2026-10-03 사장님] 진행 줄은 접힌 채 시작한다 — 줄의 모양 · 자리 · 흐림을 재는 아래 셋은 펼쳐서 잰다(접힌 줄은 크기 0 이라 «보인다»가 거저 참이 된다) */
+  await pg.evaluate(() => mkFold(true)); await pg.waitForTimeout(200);
   ok(`${w} ② 진행 줄 = 글자 탭 — 번호 · 테두리 없음 · 읽어 주는 이름에는 번호 [MK_STRIP_TEXT]`, await pg.evaluate(() => { const its = [...document.querySelectorAll('#mkStrip .mk-it:not(.mk-add):not(.mk-vi)')]; return its.length > 3 && !document.querySelector('#mkStrip .mk-n') && its.every((b) => !/^\s*\d/.test(b.textContent) && getComputedStyle(b).borderTopWidth === '0px') && its.some((b) => /^\d+ /.test(b.getAttribute('aria-label') || '')); }));
-  ok(`${w} ② 지금 칸이 진행 줄 안에 보인다 [MK_STRIP_KEEP]`, await pg.evaluate(() => { const sc = document.querySelector('#mkStrip .mk-sc'), c = sc.querySelector('.mk-it.cur'), a = sc.getBoundingClientRect(), b = c.getBoundingClientRect(); return b.left >= a.left - 1 && b.right <= a.right + 1; }));
+  ok(`${w} ② 지금 칸이 진행 줄 안에 보인다 [MK_STRIP_KEEP]`, await pg.evaluate(() => { const sc = document.querySelector('#mkStrip .mk-sc'), c = sc.querySelector('.mk-it.cur'), a = sc.getBoundingClientRect(), b = c.getBoundingClientRect(); return b.width > 0 && a.width > 0 && b.left >= a.left - 1 && b.right <= a.right + 1; }));   /* [NAV_FOLD] 크기 0(접힘)이면 실패로 */
   ok(`${w} ② 진행 줄 — 모바일은 양끝 흐림(넘기기) · PC 는 줄바꿈(흐림 없음) [MK_STRIP_FADE · MK_STRIP_WRAP]`, await pg.evaluate((w) => { const c = getComputedStyle(document.querySelector('#mkStrip .mk-sc')); const m = /gradient/.test(c.maskImage || c.webkitMaskImage || ''); return w >= 1000 ? (!m && c.flexWrap === 'wrap') : (m && c.flexWrap === 'nowrap'); }, w));
   // 서약 쪽 — 흐름 · 참고 예시 · 두 칸
   await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(500);
@@ -591,6 +593,7 @@ else {
   for (const w of [1280, 390]) {
     const { ctx, pg } = await open(w);
     await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200); await clickNext(pg); await pg.waitForTimeout(400);
+    await pg.evaluate(() => mkFold(true)); await pg.waitForTimeout(200);   /* [NAV_FOLD] 펼쳐서 잰다 */
     const r = await pg.evaluate(() => { const sc = document.querySelector('#mkStrip .mk-sc'), b = sc.getBoundingClientRect(), its = [...sc.querySelectorAll('.mk-it')]; const tops = new Set(its.map((x) => Math.round(x.getBoundingClientRect().top)));
       return { cut: its.filter((x) => x.getBoundingClientRect().right > b.right + 1).length, lines: tops.size, scroll: sc.scrollWidth > sc.clientWidth + 1 }; });
     if (w >= 1000) ok(`${w} ② 진행 줄 — 줄바꿈 · 잘린 칸 0 · 두 줄 안팎 [MK_STRIP_WRAP]`, r.cut === 0 && r.lines >= 1 && r.lines <= 3 && !r.scroll, JSON.stringify(r));
@@ -733,6 +736,44 @@ else {
   ok('P-10 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
 }
+/* ★★[NAV_FOLD 2026-10-03 사장님 «하나씩 만들기 윗부분은 접혀져 있는 상태로 시작 · 카테고리가 많아 지저분»] 접힌 한 줄 — 390 · 1280 */
+for (const w of [390, 1280]) {
+  const { ctx, pg, errs } = await open(w);
+  await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200); await clickNext(pg); await pg.waitForTimeout(500);
+  const st = () => pg.evaluate(() => { const n = document.getElementById('mkStrip'), sc = n && n.querySelector('.mk-sc'), b = n && n.querySelector('.mk-fbtn'), r = b && b.getBoundingClientRect();
+    const mo = _mkPages().filter((k) => k !== '_intro' && k !== '_sum' && !_mkOff(k)), at0 = _mkState().at, no = _mkNo(at0), pre = mo.filter((k) => _mkNo(k) === '식전');
+    const head = (document.querySelector('#mkHead .mk-hn') || {}).textContent || '';   /* 쪽 제목 번호와 같은 셈이어야 한다 */
+    return { has: !!n, hidden: !!(sc && sc.hidden), h: sc ? Math.round(sc.getBoundingClientRect().height) : -1, ex: b && b.getAttribute('aria-expanded'), ctl: b && b.getAttribute('aria-controls'), ctlOk: !!(b && document.getElementById(b.getAttribute('aria-controls')) === sc),
+      lab: b && b.textContent.trim(), pos: (n.querySelector('.mk-pos') || {}).textContent || '', at: at0, want: no === '식전' ? '식전 ' + (pre.indexOf(at0) + 1) + ' / ' + pre.length : '본식 ' + no + ' / ' + RitualOpen.bodySeq(S).length, headOk: no === '식전' || head === no, tap: r ? Math.round(r.height) : 0, navH: Math.round(n.getBoundingClientRect().height),
+      glyph: /[▾▴▼▲]/.test(n.querySelector('.mk-fold').textContent), arrows: !!n.querySelector('.mk-fold [data-fk="lmprev"],.mk-fold [aria-label*="앞 순간"]') }; });
+  const a = await st();
+  ok(`NF-1 ${w} ② 진행 줄은 접힌 채 시작 — 한 줄(«${a.pos}») · «모든 순간 보기» · aria-expanded=false · aria-controls 가 줄을 가리킨다 · 화살표 · ▾ 글자 없음 [NAV_FOLD]`,
+    a.has && a.hidden && a.h === 0 && a.ex === 'false' && a.ctlOk && a.lab === '모든 순간 보기' && a.pos.indexOf(a.want) === 0 && a.headOk && a.tap >= 44 && a.navH <= 64 && !a.glyph && !a.arrows, JSON.stringify(a));
+  await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(300);
+  const b = await st();
+  const one = await pg.evaluate(() => { const sc = document.querySelector('#mkStrip .mk-sc'), its = [...sc.querySelectorAll('.mk-it')]; return { lines: new Set(its.map((x) => Math.round(x.getBoundingClientRect().top))).size, scroll: sc.scrollWidth > sc.clientWidth + 1, focus: document.activeElement && document.activeElement.getAttribute('data-fk') }; });
+  ok(`NF-2 ${w} 누르면 펼침 — aria-expanded=true · «접기» · 종전 줄 그대로(${w < 600 ? '한 줄 넘기기' : '줄바꿈'}) · 초점은 단추에`, !b.hidden && b.h > 30 && b.ex === 'true' && b.lab === '접기' && one.focus === 'mkfold' && (w < 600 ? (one.lines === 1 && one.scroll) : !one.scroll), JSON.stringify({ b, one }));
+  await pg.click('[data-fk="mkg:ring"]'); await pg.waitForTimeout(600);
+  const c = await st();
+  ok(`NF-3 ${w} 순간을 고르면 그 쪽으로 가고 다시 접힌다 · 접힌 줄 번호 = 쪽 제목 번호(«${c.pos}»)`, c.at === 'ring' && c.hidden && c.ex === 'false' && c.pos.indexOf(c.want) === 0 && c.headOk && /^본식/.test(c.pos), JSON.stringify(c));
+  await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(200); await pg.keyboard.press('Escape'); await pg.waitForTimeout(250);
+  const d = await st();
+  ok(`NF-4 ${w} 펼친 줄에서 Esc — 접히기만 한다(빌더 나가기 아님)`, d.hidden && d.ex === 'false' && STEPS_K(await pg.evaluate(() => STEPS[idx].k)) && (await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fk'))) === 'mkfold', JSON.stringify(d));
+  await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(200);
+  await pg.evaluate(() => { idx = STEPS.findIndex((x) => x.k === 'done'); render(); }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => opGoStep('listen')); await pg.waitForTimeout(500);
+  const e = await st();
+  ok(`NF-5 ${w} ② 에 다시 들어오면(④ 에서 와도) 접힌 채`, e.hidden && e.ex === 'false', JSON.stringify(e));
+  /* 미완료 — 지나온 미완료 순간이 있으면 접힌 줄에 «미완료 순간 n»(진사 글자 · 점 없음) · 줄의 진사 칸 수와 같다 */
+  const t = await pg.evaluate(() => { if (_mkState().at === 'vow') mkGo('ring'); S.on.vow = 1; opSync(); S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; _mkState().seen.vow = 1; render();   /* 혼인 서약을 지나왔고 비어 있다 → 미완료 하나는 반드시 있다 */
+    const n = document.querySelectorAll('#mkStrip .mk-it.todo').length, el = document.querySelector('#mkStrip .mk-left'), m = el ? el.textContent.match(/미완료 순간 (\d+)/) : null;
+    return { n, shown: m ? +m[1] : 0, col: el ? getComputedStyle(el).color : '', dot: el ? getComputedStyle(el, '::after').content : '' }; });
+  ok(`NF-6 ${w} 미완료 수 = 줄의 진사 칸 수(1 이상으로 만들어 잰다) · 진사 글자 · 점 없음 [TODO_NODOT]`, t.n >= 1 && t.shown === t.n && ((/rgb\(107, 42, 36\)/.test(t.col) && /none|normal/.test(t.dot))), JSON.stringify(t));
+  ok(`NF ${w} pageerror 0`, errs.length === 0, errs.join(' | '));
+  await pg.screenshot({ path: path.join(os.tmpdir(), `navfold-${w}.png`) });
+  await ctx.close();
+}
+function STEPS_K(k) { return k === 'listen'; }
 await br.close(); srv.close();
 console.log(fail ? `\n결과 — 실패 ${fail}건` : cant ? '\n결과 — 실패 0 · 재지 못한 줄 있음' : '\n결과 — 전부 통과');
 process.exit(fail ? 1 : cant ? 2 : 0);
