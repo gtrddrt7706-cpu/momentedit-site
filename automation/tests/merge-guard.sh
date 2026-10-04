@@ -9140,6 +9140,7 @@ chk 'PAUSE_NUM' order-preview.html 1
 chk 'PAUSE_FIVE' order-preview.html 2   # 문장 사이 쉼 5단계(−2 추가)
 chk 'VOICE_TUNE' order-preview.html 10   # 빠르기 · 쉼 = 사람별 · 목소리 만든 직후 예시 듣고 맞추기(필수) · 순간 쪽 조절 줄 걷음
 chk 'KEEP_LINE' order-preview.html 8   # 줄마다 «확정하기» — 다시 녹음 · 빠르기 · 쉼을 바꿔도 확정한 줄은 그대로
+chk 'KEEP_IN_PILL' order-preview.html 3   # 확정하기 · 확정됨 = 머리 단추 자리(목소리 만들기 → 만드는 중 → 확정하기 → 확정됨) · 같은 폭
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
 chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html
