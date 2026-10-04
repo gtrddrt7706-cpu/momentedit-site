@@ -9146,6 +9146,9 @@ chk 'KEEP_IN_PILL' order-preview.html 3   # 확정하기 · 확정됨 = 머리 �
 chk 'TUNE_PLAY_WIDE' order-preview.html 2   # 예시 듣기 = 예시 글 아래 전체 폭
 chk 'TUNE_SAMPLE_LONG' order-preview.html 1
 chk 'TUNE_DOTS' order-preview.html 3   # 빠르기 · 쉼 = 점 줄(7 · 5) · 라디오 · 44 · 말로 값
+chk 'TUNE_RECENTER' order-preview.html 4   # ★[TUNE_RECENTER 2026-10-04 사장님 «조금 빠르게 · 아주 길게가 표준»] 보통 = 빠르기 1.1 · 쉼 1.4초
+chk "var TEMPO_DEF='1.1'" order-preview.html 1
+chk 'PAUSE_DEF=900' order-preview.html 1
 chk 'TUNE_TEXT' order-preview.html 2   # 예시 글 고쳐 들어 보기
 chk 'TUNE_LEAD' order-preview.html 1   # 예시 앞 1초 빈소리(첫 소리 잘림)
 chk 'PLAY_LEAD' order-preview.html 5

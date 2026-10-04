@@ -220,13 +220,13 @@ for (const w of [390, 1280]) {
     ok(`${w} [TUNE_DOTS] 점 누르기 → «조금 빠르게» · 쉼 «길게» · 누를 때는 만들지 않는다(돈 0) · 아직 저장 안 함 · 초점은 누른 점`, mid.v === '조금 빠르게' && mid.p === '길게' && mid.makes === 0 && !mid.saved && mid.f === 'mktune:p:3', JSON.stringify(mid));
     await pg.focus('[data-fk="mktune:t:4"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(200);
     const ky = await pg.evaluate(() => ({ t: VC.tune.tempo, f: document.activeElement && document.activeElement.getAttribute('data-fk') }));
-    ok(`${w} [TUNE_DOTS] → 키로 한 칸(1.2 · 초점 따라감)`, ky.t === '1.2' && ky.f === 'mktune:t:5', JSON.stringify(ky));
+    ok(`${w} [TUNE_DOTS] → 키로 한 칸(1.3 · 초점 따라감 · [TUNE_RECENTER] 가운데 1.1)`, ky.t === '1.3' && ky.f === 'mktune:t:5', JSON.stringify(ky));
     await pg.click('[data-fk="mktune:t:4"]'); await pg.waitForTimeout(200);
     await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(500);
     const aft = await pg.evaluate(() => ({ vs: S.vset.groom, mk: window.__calls.filter((c) => c.op === 'make'), rate: _upRate('g0'), tk: _tKey('g0') }));
-    ok(`${w} [VOICE_TUNE] [이 목소리로 쓰기] → 신랑 기본값(1.1 · 600) · 신랑이 읽는 AI 줄마다 한 번 retempo 1.1 · 창 닫힘`, aft.vs.tempo === '1.1' && aft.vs.pause === 600 && aft.tk === '1.1' && aft.mk.length >= 1 && aft.mk.every((c) => String(c.tempo) === '1.1' && (c.key === 'g0' || c.key === 'g2')) && await pg.evaluate(() => !VC.tune), JSON.stringify(aft));
+    ok(`${w} [VOICE_TUNE] [이 목소리로 쓰기] → 신랑 값(1.2 · 1200 · [TUNE_RECENTER]) · 신랑이 읽는 AI 줄마다 한 번 retempo 1.2 · 창 닫힘`, aft.vs.tempo === '1.2' && aft.vs.pause === 1200 && aft.tk === '1.2' && aft.mk.length >= 1 && aft.mk.every((c) => String(c.tempo) === '1.2' && (c.key === 'g0' || c.key === 'g2')) && await pg.evaluate(() => !VC.tune), JSON.stringify(aft));
     const bt = await pg.evaluate(() => { S.vtempo = { guest: '0.9' }; return { g1: _tKey('g1'), g0: _tKey('g0') }; });
-    ok(`${w} [VOICE_TUNE] 신부 값이 없으면 옛 순간 값(0.9) · 신랑 줄은 신랑 값(1.1)`, bt.g1 === '0.9' && bt.g0 === '1.1', JSON.stringify(bt));
+    ok(`${w} [VOICE_TUNE] 신부 값이 없으면 옛 순간 값(0.9) · 신랑 줄은 신랑 값(1.2)`, bt.g1 === '0.9' && bt.g0 === '1.2', JSON.stringify(bt));
     ok(`${w} 화면 오류 0(사람별 빠르기)`, !errs.length, errs.join(' | '));
     await ctx.close(); }
 }
