@@ -1514,12 +1514,13 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)}
 .mk-vstat i{font-style:normal;font-size:11px;letter-spacing:.04em;color:var(--light)} .mk-vstat b{font-size:14px;font-weight:600;color:var(--accent)}
 .mk-vft{margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;padding:8px 0 4px;min-height:60px}
-.mk-vft.solo{display:block;margin-top:14px;padding:0 0 12px}   /* [SIM_R2] 안 만든 분 카드는 단추를 상태 바로 아래(빈 띠 없이) */
+.mk-vft.solo{display:block}   /* ★[SOLO_ROW 2026-10-04 사장님 «목소리 만들기 단추를 들어 보고 맞추기와 같은 줄로»] 안 만든 분 카드도 아랫줄(margin-top:auto · min-height 60 · 같은 위아래 여백)에 둔다 — 두 카드가 나란할 때 단추 줄이 한 높이 */
+.mk-vft.solo .mk-vbs{display:flex;align-items:center;min-height:48px;width:100%}
 .mk-vpcs .mk-vbs{display:block;margin:0}
 .mk-vgo{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 16px 0 6px;border:1px solid var(--gold-btn);border-radius:999px;background:var(--card);color:var(--accent);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer}
 .mk-vgo svg{width:10px;height:10px;padding:10px 9px 10px 11px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}
 .mk-vgo.pri{border-color:#4E3F31;background:#4E3F31;color:var(--card);padding:0 20px}
-.mk-vft.solo .mk-vgo{display:flex;width:100%;min-height:48px}
+.mk-vft.solo .mk-vgo{display:flex;width:100%;min-height:48px}   /* [SOLO_ROW] */
 @media (hover:hover){ .mk-vgo:hover{background:var(--bg2)} .mk-vgo.pri:hover{background:#4E3F31;filter:brightness(1.12)} }
 .mk-vsub{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--light)}
 .mk-vsub .pk-link{min-height:44px;display:inline-flex;align-items:center;font-size:12.5px;color:var(--light)}
