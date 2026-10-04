@@ -9117,6 +9117,14 @@ chk 'VC_WORD_GEN' order-preview.html 1
 chk 'READ_DLG_TIDY' order-preview.html 3
 chk 'REC_LEVEL' assets/rec-process.js 2
 chk 'REC_WARN2' assets/rec-process.js 1
+chk 'REC_LEVEL_IOS' assets/rec-process.js 3   # [REC_LEVEL_IOS 2026-10-04 사장님] 아이폰 한 뼘 보통 목소리(-47~-51dBFS)가 막대 10~20% · «작아요» — 막대 -62~-32 · 문턱 -54 · 키움 80배
+chk 'PHRASE_EARLY' order-preview.html 2   # 확인 문장을 창 열기 전에 받아 둔다(글 2 «녹음 시작» 잠김 없애기)
+chk 'VDEL_RIGHT' order-preview.html 2   # 지우기 = 날짜 오른쪽
+chk 'VB_SAME' order-preview.html 1   # 다시 만들기 · 1분 읽기 시작 같은 크기
+chk 'ENTRY_NOTE_OFF' order-preview.html 1
+chk 'RAIL_IGNORE_FULL' order-preview.html 1   # 폰에서 줄 카드 · 사람 카드 전체 폭
+chk 'PLAY_TOGGLE' order-preview.html 5   # 줄 ▶ = 틀기 · ■ = 멈추기 · 다시 ▶ 는 처음부터
+nochk 'data-fk="mkvcentry"' order-preview.html   # [ENTRY_NOTE_OFF 2026-10-04] «입장 인사도 같은 목소리로 · 들어 보러 가기» 줄
 chk 'TEMPO_WIDE' order-preview.html 1
 chk 'TEMPO_PREVIEW' order-preview.html 3
 chk 'TEMPO_BAKE' order-preview.html 5

@@ -8,11 +8,13 @@ function fmt(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+':'+('0'+(
    → 소리 크기를 나레이션에 맞춤(LUFS · BS.1770 · 목표 REC_LUFS · 봉우리 -1dB 아래) → 24kHz 16bit 모노 WAV.
    ★나레이션 실측(2026-09-28 · 나레이션 40개 · 브라우저 디코드 + 같은 식) = 중간값 -16.2 LUFS · 봉우리 -1.7dB → 목표 -16 LUFS(GAS VOICE_TARGET_LUFS 기본값과 같다)
    ★원신호의 아주 낮은 소리(직류 치우침 · 팬 · 전기 웅웅거림)를 «시끄러움»으로 보이지 않게 — 고역 통과 뒤에 잰다(데모 «-39dB» 오진) */
-var REC_LUFS=-16, REC_PEAK_LIM=-1, REC_SR=24000, REC_QUIET_DB=-42;   /* [REC_LEVEL] 말소리 RMS 가 이 아래면 «작아요» */
+var REC_LUFS=-16, REC_PEAK_LIM=-1, REC_SR=24000, REC_QUIET_DB=-54;   /* [REC_LEVEL] · [REC_LEVEL_IOS] 말소리 RMS 가 이 아래면 «작아요» */
 /* ★[REC_LEVEL 2026-10-04] 녹음 막대 — RMS 를 dBFS 로 바꿔 -55dB = 0% · -15dB = 100% 로 펼친다(종전: 봉우리 × 1.4 직선 → 보통 목소리 -35dB 가 막대 2% 였다).
    -55 = 조용한 방 바닥 소리쯤(막대가 비어 보인다) · -35 = 휴대폰 20~30cm 보통 목소리(막대 절반) · -15 = 아주 가깝거나 큰 소리(가득).
    올라갈 때는 빠르게(0.6) ·내려갈 때는 천천히(0.15) — 낱말 사이에서 막대가 깜빡이지 않는다 */
-var REC_METER_LO=-55, REC_METER_HI=-15;
+/* ★★[REC_LEVEL_IOS 2026-10-04 사장님 «여전히 소리가 작다고 하고 막대가 10~20% 에서 논다»] 아이폰 사파리는 자동 크기 맞춤을 거의 안 해 한 뼘 보통 목소리가 RMS -47 ~ -51 dBFS 로 들어온다(막대 10~20% 를 거꾸로 풀면 이 값).
+   그래서 막대를 -62 ~ -32 로 옮기고(보통 목소리 ≈ 40~50%) · «작아요»는 -54 아래만(정말 멀거나 속삭일 때) · 키움 상한 30배 → 80배(+38dB). 잡음은 따로 잰다(목소리와 주변 소리 차이 20dB) — 키워서 잡음이 커지면 그쪽 알림이 뜬다 */
+var REC_METER_LO=-62, REC_METER_HI=-32;
 function _recMeter(rms,prev){ var d=20*Math.log(Math.max(rms,1e-9))/Math.LN10, v=Math.max(0,Math.min(1,(d-REC_METER_LO)/(REC_METER_HI-REC_METER_LO))), p=prev||0; return v>p?p+(v-p)*0.6:p+(v-p)*0.15; }
 function _bqHp(x,sr,f){ var w=2*Math.PI*f/sr, c=Math.cos(w), al=Math.sin(w)/(2*0.7071), a0=1+al, b0=(1+c)/2/a0, b1=-(1+c)/a0, b2=b0, a1=-2*c/a0, a2=(1-al)/a0, y=new Float32Array(x.length), x1=0,x2=0,y1=0,y2=0;
   for(var i=0;i<x.length;i++){ var v=b0*x[i]+b1*x1+b2*x2-a1*y1-a2*y2; x2=x1; x1=x[i]; y2=y1; y1=v; y[i]=v; } return y; }
@@ -47,7 +49,7 @@ function _recProcess(ab,needSec){ var AC=window.AudioContext||window.webkitAudio
     if(db(speech)-db(floor)<20){ noisy=true; warn.push('주변 소리가 목소리에 비해 커요\n조용한 곳에서 다시 해 보세요'); }   // [REC_TRIM] 목소리와 주변 소리 차이 20dB 아래
     var pad=Math.round(sr*0.15), a0=Math.max(0,first*fr-pad), a1=Math.min(n,(last+1)*fr+pad), y=x.subarray(a0,a1);
     var lu=_lufs(y,sr), gain=Math.pow(10,(REC_LUFS-lu)/20), pk=0; for(var i2=0;i2<y.length;i2++){ var a2=Math.abs(y[i2]); if(a2>pk) pk=a2; }
-    var lim=Math.pow(10,REC_PEAK_LIM/20); if(pk*gain>lim) gain=lim/Math.max(pk,1e-9); gain=Math.min(gain,30);   // [REC_TRIM] LUFS 로 맞추고 봉우리 -1dB 아래
+    var lim=Math.pow(10,REC_PEAK_LIM/20); if(pk*gain>lim) gain=lim/Math.max(pk,1e-9); gain=Math.min(gain,80);   // [REC_TRIM] · [REC_LEVEL_IOS] 30 → 80 LUFS 로 맞추고 봉우리 -1dB 아래
     var dur=y.length/sr;
     if(needSec){ if(dur>needSec*2) warn.push('많이 길어요\n조금 빠르게 다시 녹음해 보세요'); else if(dur>needSec*1.2) warn.push('알맞은 길이(약 '+fmt(needSec)+')보다 조금 길어요\n그대로 써도 돼요'); if(dur<needSec*0.5) warn.push('조금 짧아요\n끝까지 읽었는지 들어 보세요'); }   // [REC_WARN2]
     var outN=Math.round(y.length*REC_SR/sr), oc=new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(1,Math.max(1,outN),REC_SR), ib=oc.createBuffer(1,y.length,sr);

@@ -1361,6 +1361,20 @@ function _vcCfg(code) { /* [VOICE_UP_FROM] off · studio · on — studio 는 VO
     def: { m: p.getProperty('TYPECAST_VOICE_M') || p.getProperty('TYPECAST_VOICE_GROOM') || '', f: p.getProperty('TYPECAST_VOICE_F') || p.getProperty('TYPECAST_VOICE_BRIDE') || '', om: p.getProperty('TYPECAST_VOICE_OM') || p.getProperty('TYPECAST_VOICE_FAMILY') || '', of: p.getProperty('TYPECAST_VOICE_OF') || p.getProperty('TYPECAST_VOICE_FAMILY') || '' } }; }   // [VOICE_CLONE_0928] 연습 기본 목소리 넷(남 · 여 · 윗세대 남 · 윗세대 여 · 7-2)
 function _vcSt(code) { var v = PropertiesService.getScriptProperties().getProperty('VC_' + code); try { return JSON.parse(v || '{}') || {}; } catch (e) { return {}; } }
 function _vcPut(code, st) { PropertiesService.getScriptProperties().setProperty('VC_' + code, JSON.stringify(st)); }
+/* ★★[VC_STATE_MERGE 2026-10-04 사장님 «글 2 를 읽고 만들기를 누르니 '확인 문장을 먼저 받아 주세요'»] 목소리 상태는 스크립트 속성 한 칸(VC_<코드>)이다.
+   종전에는 요청마다 «처음에 읽은 상태»를 통째로 다시 썼다 — 신랑 AI 줄 만들기(make · 타입캐스트 몇 초)가 도는 사이 신부 확인 문장(phrase)이 저장되면,
+   make 가 끝나며 옛 상태로 덮어 신부 문장이 지워졌다(lost update). 이제 쓰기 직전에 잠그고 다시 읽어, 이 요청이 바꾼 칸만 얹는다(세 갈래 합치기).
+   숫자(글자 수 · 만든 수)는 바꾼 만큼만 더한다 · 바꾸지 않은 칸은 다른 요청이 쓴 값을 그대로 둔다 */
+function _vcM3(f, b, m) {
+  var isO = function (v) { return v && typeof v === 'object' && !Array.isArray(v); };
+  if (isO(m) && isO(f) && (isO(b) || b == null)) { b = b || {}; var o = {}, k; for (k in f) o[k] = f[k];
+    for (k in m) o[k] = _vcM3(f[k], b[k], m[k]); for (k in b) if (!(k in m)) delete o[k]; return o; }
+  if (typeof m === 'number' && typeof b === 'number' && typeof f === 'number') return f + (m - b);
+  if (JSON.stringify(m) === JSON.stringify(b)) return f;
+  return m; }
+function _vcSave(code, base, mine) {   // [VC_STATE_MERGE]
+  var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { _vcPut(code, mine); return; }
+  try { _vcPut(code, _vcM3(_vcSt(code), base, mine)); } finally { try { lock.releaseLock(); } catch (e) {} } }
 function _vcFetch(cfg, method, path, opt) { opt = opt || {}; var o = { method: method, headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true };
   if (opt.json) { o.contentType = 'application/json'; o.payload = JSON.stringify(opt.json); } else if (opt.form) o.payload = opt.form;
   var r = UrlFetchApp.fetch(VC_BASE + path, o), c = r.getResponseCode();
@@ -1443,25 +1457,26 @@ function handleVoiceClone(body) {
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var cfg = _vcCfg(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
+  var st0 = JSON.parse(JSON.stringify(st)), save = function () { _vcSave(code, st0, st); st0 = JSON.parse(JSON.stringify(st)); };   // [VC_STATE_MERGE] 바꾼 칸만 얹는다
   var down = { ok: false, down: true, error: VC_DOWN };
   if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom, code), bride: _vcPub(st.bride, code), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
   if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
     ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
-    _vcPut(code, st); return { ok: true, gone: gone }; }
+    save(); return { ok: true, gone: gone }; }
   if (op === 'practice') { if (!cfg.tts || !cfg.key) return _vcGate(code, cfg, op, 'read');   // [VC_GATE_WHY]   // [VOICE_CLONE_0928] 7-2 연습 읽기 — 연습에서만 · 두 분이 켤 때만 · 숨긴 글은 화면이 보내지 않는다
     var t = String(body.text || '').trim().slice(0, 2000); if (!t) return { ok: false, error: '읽을 글이 없어요.' };
     var role = String(body.role || who || ''), own = (role === 'groom' || role === 'bride') && cfg.clone && st[role] && st[role].voiceId;
     var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || cfg.def.f || cfg.def.m; if (!vid) return down;
     var tp = _vcTempo(body.tempo);   // [TEMPO_STEP] 0.7 ~ 1.3 · 0.1 걸음(종전 세 값만 받던 목록)
     if (_vcSpent(st) + t.length > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
-    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; _vcPut(code, st); }
+    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; save(); }
       return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) }; } catch (e) { return _vcErr(code, e.http, 'practice', e.why || e.message); } }
   if (!cfg.clone || !cfg.key) return _vcGate(code, cfg, op, 'clone');   // ★[VC_GATE_WHY] 스위치 · 시험 예식 목록 · 키 가운데 무엇이 막았는지 남긴다
   if (!WHO[who] && op !== 'make') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };
   if (op === 'consent') { if (body.agree !== true) return { ok: false, error: '동의가 필요해요.' };
-    st[who] = st[who] || {}; st[who].consent = { at: fmtKST(new Date()), v: String(body.v || '0928').slice(0, 20) }; _vcPut(code, st); return { ok: true, who: who }; }
+    st[who] = st[who] || {}; st[who].consent = { at: fmtKST(new Date()), v: String(body.v || '0928').slice(0, 20) }; save(); return { ok: true, who: who }; }
   if (op === 'phrase') { var ph = st[who] || {}; if (!ph.consent) return { ok: false, error: WHO[who] + ' 동의가 먼저예요.' };   // [VOICE_CLONE_0928] 서버가 뽑는다 · 다시 읽으면 새로
-    ph.phrase = { t: _vcNewPhrase(), at: fmtKST(new Date()) }; st[who] = ph; _vcPut(code, st); return { ok: true, who: who, phrase: ph.phrase.t }; }
+    ph.phrase = { t: _vcNewPhrase(), at: fmtKST(new Date()) }; st[who] = ph; save(); return { ok: true, who: who, phrase: ph.phrase.t }; }
   if (op === 'enroll') { var pp = st[who] || {}; if (!pp.consent) return { ok: false, error: WHO[who] + ' 동의가 먼저예요.' };
     if (!pp.phrase || !pp.phrase.t) return { ok: false, error: '확인 문장을 먼저 받아 주세요.' };
     if (!_voiceStudio(code) && (pp.tries || 0) >= VC_LIM.enroll) return { ok: false, limit: true, error: '지금은 목소리를 더 만들 수 없어요. 만들어 둔 목소리를 쓰시거나 스튜디오 나레이션으로 진행돼요' };   // [VC_NO_COUNT] 안전장치만 · 시험 예식은 없음
@@ -1478,7 +1493,7 @@ function handleVoiceClone(body) {
       var rf = fo.createFile(Utilities.newBlob(bytes, mime, '읽은 녹음 · ' + WHO[who] + (mime === 'audio/mpeg' ? '.mp3' : '.wav'))); pp.read = { id: rf.getId(), phrase: pp.phrase.t, at: fmtKST(new Date()) }; } catch (e) {}
     pp.voiceId = nv; pp.made = fmtKST(new Date()); pp.phrase = null; st[who] = pp;
     if (prev) _vcDelVoice(cfg, st, prev);   // ★새 목소리가 된 뒤에 앞 목소리를 지운다(칸 수 그대로)
-    _vcPut(code, st); return { ok: true, who: who, tries: pp.tries, renewed: !!prev }; }
+    save(); return { ok: true, who: who, tries: pp.tries, renewed: !!prev }; }
   if (op === 'make') { var key = String(body.key || ''); if (!RF_KEYS[key]) return { ok: false, error: '어느 자리인지 알 수 없어요.' };
     var text = String(body.text || '').trim().slice(0, 600); if (!text) return { ok: false, error: '읽을 글이 없어요.' };
     var tempo = _vcTempo(body.tempo), pause = _vcPause(body.pause), one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
@@ -1494,7 +1509,7 @@ function handleVoiceClone(body) {
       if (!v2 || !jobs[i].text) continue;
       try { var c = _vcCached(code, 'AI 소리', v2, jobs[i].text, tempo, cfg, pause); if (!c.hit) { fresh = true; newChars += jobs[i].text.length; } parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); } catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
     if (!parts.length) return { ok: false, error: '아직 만든 AI 목소리가 없어요.' };
-    if (fresh) { st.make.total++; st.make.chars = (st.make.chars || 0) + newChars; if (!retempo) st.make.per[key] = (st.make.per[key] || 0) + 1; _vcPut(code, st); }
+    if (fresh) { st.make.total++; st.make.chars = (st.make.chars || 0) + newChars; if (!retempo) st.make.per[key] = (st.make.per[key] || 0) + 1; save(); }
     try { CacheService.getScriptCache().put('VCMK_' + code + '_' + key, '1', 1800); } catch (e) {}   // [RF_MAIL_AI] 이 줄은 AI 가 만들었다 — 곧 올라올 파일에 «도착» 메일을 보내지 않게(handleRitualFile)
     return { ok: true, key: key, parts: parts, total: st.make.total }; }   // [VC_BUDGET] left(줄마다 남은 번)를 보내지 않는다 — [다시 만들기]에 «N번 남음»이 안 붙는다
   return { ok: false, error: '알 수 없는 요청이에요.' };

@@ -83,7 +83,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 만들기 → 두 글을 0.4초 쉼으로 이어 한 파일(25초 넘음)', /enroll:groom:s2[5-9]/.test(calls), calls);
   const up = await pg.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(S.up || {}).map(([k, v]) => [k, v && v.src ? v.src + (v.by ? '/' + (Array.isArray(v.by) ? v.by.join('+') : v.by) : '') : String(v)]))));
   ok(W + ' 8-2 4) 신랑이 읽는 빈 줄(1번)만 AI · 녹음 있는 3번(g2)은 그대로 · 신부 줄(2 · 4번)은 비어 있음', /"g0":"ai\/groom"/.test(up) && /"g2":"rec"/.test(up) && !/"g1":"ai/.test(up) && !/"g3":"ai/.test(up), up + ' ' + calls);
-  ok(W + ' 입장 인사(두 분이 번갈아)도 만들고 문장마다 읽는 사람을 넘긴다 · «입장 인사도 같은 목소리로 만들었어요»', /make:entry:L\d/.test(calls) && /"entry":"ai/.test(up) && /입장 인사도 같은 목소리로 만들었어요/.test(await pg.evaluate(() => (document.querySelector('.mk-vpage') || {}).textContent || '')), calls);   /* [VOICE_ONCE] 알림(VC.note)은 «두 분 목소리 만들기» 쪽 사람 카드 아래 */
+  ok(W + ' 입장 인사(두 분이 번갈아)도 만들고 문장마다 읽는 사람을 넘긴다 · «입장 인사도 같은 목소리로…» 줄은 없다 [ENTRY_NOTE_OFF]', /make:entry:L\d/.test(calls) && /"entry":"ai/.test(up) && !/입장 인사도 같은 목소리로 만들었어요/.test(await pg.evaluate(() => (document.querySelector('.mk-vpage') || {}).textContent || '')), calls);   /* [VOICE_ONCE] 알림(VC.note)은 «두 분 목소리 만들기» 쪽 사람 카드 아래 */
   const dn = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
   ok(W + ' 만든 뒤 창이 «만들기» 걸음에서 «목소리를 만들었어요» · 채운 줄 수 · [확인] [REC_DLG]', /목소리를 만들었어요/.test(dn) && /2줄을 이 목소리로 채웠어요/.test(dn) && /확인/.test(dn), dn.slice(0, 200));
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
