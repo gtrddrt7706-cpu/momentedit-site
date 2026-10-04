@@ -13446,7 +13446,13 @@ nochk "class=\"cta-al\" data-fk=\"opnal\" onclick=\"opToNote()\">'+esc(R.firstSe
 chk 'RIT_SAVE_IDLE' order-preview.html 2            # 4 처음 연 화면은 꺼진 «저장»
 chk "ob-exit ob-save idle" order-preview.html 1
 chk 'RIT_PRICE_WORD' order-preview.html 1           # 5 «값» → «가격»
-chk '어떤 순간을 담아도 가격은 같아요 · 케이크 · 꽃을 맡기실 때만 따로예요.' order-preview.html 1   # [PRICE_SAME] 맡기는 케이크 · 꽃만 따로
+nochk '어떤 순간을 담아도 가격은 같아요' order-preview.html   # ★[EX_HEAD_OFF 2026-10-04 사장님] 예시 카드 위 제목 · 설명을 걷었다(PRICE_SAME 폐지)
+nochk '<h3 class="pk-h">예시로 시작하기</h3>' order-preview.html   # [EX_HEAD_OFF]
+chk 'EX_HEAD_OFF' order-preview.html 1
+# ★[PV_STILL_FIRST 2026-10-04 사장님 «영상이 바로 안 보이고 흰 배경에 나중에 영상이 올라온다»] 창은 칸이 받아 둔 첫 장면부터 · 영상은 돌기 시작하면 위로
+chk 'PV_STILL_FIRST' order-preview.html 4
+chk '<img class="pv-still" src="' order-preview.html 1
+chk "vd.addEventListener('playing',function(){ vd.classList.add('on'); });" order-preview.html 1
 nochk '무엇을 담아도 값은 같아요' order-preview.html 0
 chk 'RIT_UNDO_ABOVE' order-preview.html 1           # 6 되돌리기 알림이 «빈 칸에서 직접 고를게요»를 덮지 않게
 # ② 보고 듣기
@@ -14049,7 +14055,7 @@ chk 'MAP_ONE' order-preview.html 2                 # ② 첫 쪽 사슬 걷음 �
 nochk '<p class="mk-vgh">이 식순의 차례</p>' order-preview.html 0
 chk 'STRIP_ONE' order-preview.html 1               # 600 이하 진행 줄 한 줄 넘기기
 chk 'AI_CARD_TIDY' order-preview.html 4            # AI 줄 ▶ = 만든 파일 · 밑줄 글 단추 · 말 빠르기 한 줄
-chk 'PRICE_SAME' order-preview.html 1
+chk 'PRICE_SAME' order-preview.html 1   # [EX_HEAD_OFF] 폐지 기록으로 남은 이름
 chk 'RING_STAGE' order-preview.html 1
 chk 'RING_STAGE' assets/ritual-open.js 2
 nochk "out.push(\['반지를 건넬" assets/ritual-open.js 0
