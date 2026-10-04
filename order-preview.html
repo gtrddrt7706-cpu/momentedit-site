@@ -1472,7 +1472,18 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-tune-go.on svg{padding:7px}
 @media (hover:hover){ .mk-tune-go:hover{background:var(--bg2)} } .mk-tune-go[disabled]{opacity:.6;cursor:default}   /* [TUNE_PLAY_WIDE] = [PLAY_WIDE] 와 같은 모양 */
 .mk-tune-pl svg{width:10px;height:10px;padding:12px 11px 12px 13px;border:0;border-radius:50%;background:var(--bg2);box-shadow:inset 0 0 0 1px rgba(184,154,117,.5)} .mk-tune-pl.on svg{padding:12px;background:var(--accent);color:var(--bg);box-shadow:none}
-.mk-tune-ctl{margin:0 0 16px}
+.mk-tune-ctl{margin:0 0 18px;display:flex;flex-direction:column;gap:14px}
+.mk-dots-h{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 2px}
+.mk-dots-l{font-size:12.5px;color:var(--sub)} .mk-dots-v{font-size:14px;font-weight:600;color:var(--gold-deeper)}
+.mk-dots-t{position:relative;display:flex;justify-content:space-between;margin:0 -12px}
+.mk-dots-t::before{content:'';position:absolute;left:34px;right:34px;top:50%;height:1px;background:var(--border);pointer-events:none}
+.mk-dot{position:relative;width:44px;height:44px;flex:0 0 44px;padding:0;border:0;background:none;cursor:pointer;border-radius:50%}
+.mk-dot::after{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;box-sizing:border-box;border:1.5px solid var(--gold-deep);border-radius:50%;background:var(--card);transition:transform .2s cubic-bezier(.22,.61,.36,1),background .2s,border-color .2s}
+.mk-dot.mid::after{border-color:var(--gold-deeper);border-width:2px}
+.mk-dot.on::after{background:var(--accent);border-color:var(--accent);transform:scale(1.8)}
+@media (hover:hover){ .mk-dot:not(.on):hover::after{transform:scale(1.25)} }
+.mk-dot:focus-visible{outline:2px solid var(--accent);outline-offset:-4px}
+@media (prefers-reduced-motion:reduce){ .mk-dot::after{transition:none} }   /* [TUNE_DOTS] */
 .mk-vsetl{display:block;font-size:12.5px;color:var(--light)} .mk-vsetl.need{color:var(--seal)} .mk-vsetl .pk-link{min-height:44px;display:inline-flex;align-items:center;margin:-12px 0}   /* [VOICE_TUNE] */
 .mk-vtone{margin:6px 0 0} .mk-vtone .pk-link{min-height:44px;display:inline-flex;align-items:center;margin:-12px 0}   /* [TONE_HINT] */
 .mk-vst .mk-vdel2{display:inline-flex;align-items:center;min-height:44px;margin:-14px 0 -14px 0;padding:0;font-size:12.5px;color:var(--light);text-decoration:underline;text-underline-offset:3px}   /* [AI_PILL] 지우기 = 상태 줄 끝(✓ AI로 만들었어요 · 지우기) */
@@ -4468,12 +4479,26 @@ function _tuneStep(kind){ var T=VC.tune, isT=kind==='t', v=isT?T.tempo:T.pause, 
     +'<button type="button" class="tp-b" data-fk="'+id+'dn" aria-label="'+lab+' '+(isT?'느리게':'짧게')+'"'+(lo?' disabled':'')+' onclick="mkTuneStep(\''+kind+'\',-1)"><i aria-hidden="true">−</i></button>'
     +'<output class="tp-v" data-fk="'+id+'v" aria-live="polite" aria-label="'+lab+' '+sh+'">'+sh+'</output>'
     +'<button type="button" class="tp-b" data-fk="'+id+'up" aria-label="'+lab+' '+(isT?'빠르게':'길게')+'"'+(hi?' disabled':'')+' onclick="mkTuneStep(\''+kind+'\',1)"><i aria-hidden="true">＋</i></button></span></div>'; }
+/* ★★[TUNE_DOTS 2026-10-04 사장님 «＋ · − 보다 오른쪽 공간이 많이 남으니 점을 나열하고 눌러 고르게 · 디자인 검토도»]
+   점 줄 = 지금 어디쯤인지 한눈에 · 한 번에 원하는 곳으로. 말 빠르기 7단계(0.7 ~ 1.3 · 화면 −0.6 ~ +0.6) · 문장 사이 쉼 5단계. 값은 숫자 대신 말로.
+   디자인 점검: 점마다 누르는 칸 ≥ 44(7 × 44 = 308 ≤ 창 안쪽 폭) · 안 고른 점 테두리 #9A7B4F(크림 대비 3.78:1 — 그래픽 3:1 이상) · 이은 선은 꾸밈(옅게)
+   · 고른 점 = 먹빛 원(크게) · 보통 점은 테두리를 진하게 · 라디오(←→ 로 옮김 · 고른 점만 Tab) · 초점 테두리 · 움직임은 크기만 0.2초 */
+var TUNE_T=[['0.7','많이 느리게'],['0.8','느리게'],['0.9','조금 느리게'],['1','보통'],['1.1','조금 빠르게'],['1.2','빠르게'],['1.3','많이 빠르게']];
+var TUNE_P=[[100,'아주 짧게'],[150,'짧게'],[350,'보통'],[600,'길게'],[900,'아주 길게']];
+function _tuneIdx(kind){ var T=VC.tune, L=kind==='t'?TUNE_T:TUNE_P, v=kind==='t'?parseFloat(T.tempo):+T.pause, bi=0, bd=1e9; L.forEach(function(x,i){ var d=Math.abs(parseFloat(x[0])-v); if(d<bd){ bd=d; bi=i; } }); return bi; }
+function _tuneDots(kind){ var isT=kind==='t', L=isT?TUNE_T:TUNE_P, lab=isT?'말 빠르기':'문장 사이 쉼', ci=_tuneIdx(kind), mid=isT?3:2;
+  return '<div class="mk-dots" role="radiogroup" aria-label="'+lab+'" onkeydown="mkTuneKey(event,\''+kind+'\')"><div class="mk-dots-h"><span class="mk-dots-l">'+lab+'</span><span class="mk-dots-v">'+esc(L[ci][1])+'</span></div>'
+    +'<div class="mk-dots-t">'+L.map(function(x,i){ var on=i===ci; return '<button type="button" class="mk-dot'+(on?' on':'')+(i===mid?' mid':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" aria-label="'+esc(lab+' '+x[1])+'" data-fk="mktune:'+kind+':'+i+'" onclick="mkTuneSet(\''+kind+'\','+i+')"></button>'; }).join('')+'</div></div>'; }
+window.mkTuneSet=function(kind,i){ var T=VC.tune; if(!T) return; var L=kind==='t'?TUNE_T:TUNE_P; if(!L[i]) return;
+  if(kind==='t'){ if(T.tempo===_tNorm(L[i][0])) return; T.tempo=_tNorm(L[i][0]); } else { if(+T.pause===L[i][0]) return; T.pause=L[i][0]; }
+  _fxNext='[data-fk="mktune:'+kind+':'+i+'"]'; render(); clearTimeout(VC.tuneT); VC.tuneT=setTimeout(_vcSamplePlay,350); };   // 고르면 그 값으로 예시를 다시
+window.mkTuneKey=function(ev,kind){ var k=ev.key, L=kind==='t'?TUNE_T:TUNE_P, i=_tuneIdx(kind), n=k==='ArrowRight'||k==='ArrowUp'?i+1:k==='ArrowLeft'||k==='ArrowDown'?i-1:k==='Home'?0:k==='End'?L.length-1:-9; if(n===-9) return; ev.preventDefault(); if(n<0||n>=L.length) return; mkTuneSet(kind,n); };
 function _vcTuneBody(){ var T=VC.tune, nm=_vcName(T.who), r=VC.sraw[T.who], pl=MK.audKey==='tune'&&!!MK.aud;
   return (T.from==='enroll'?'<p class="mk-dlg-big" role="status"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span> '+esc(nm)+' 님 목소리가 준비됐어요</p>':'')
     +'<p class="mk-note mk-dlg-c1">예시를 들으며 빠르기와 쉼을 맞춰 주세요 · '+esc(nm)+' 님이 읽는 모든 줄에 쓰여요</p>'
     +'<div class="mk-tune-ex"><p class="mk-rect">'+esc(VC_SAMPLE)+'</p><button type="button" class="mk-tune-go'+(pl?' on':'')+'" data-fk="mktuneplay" aria-pressed="'+pl+'"'+(r?'':' disabled aria-busy="true"')+' onclick="mkTunePlay()">'+(pl?ICO_STOP:ICO_PLAY)+'<span>'+(r?(pl?'멈추기':'예시 들어 보기'):'예시를 불러오는 중…')+'</span></button></div>'   /* ★[TUNE_PLAY_WIDE 2026-10-04 사장님 «플레이 버튼이 애매 · 오른쪽 끝이 최선이야?»] 오른쪽 끝 작은 ▶ → 예시 글 아래 전체 폭(«이 순간 들어 보기»와 같은 모양) */
     +(T.err?'<p class="mk-exw" role="alert">'+esc(T.err)+'</p>':'')
-    +'<div class="mk-ctl mk-tune-ctl">'+_tuneStep('t')+_tuneStep('p')+'</div>'
+    +'<div class="mk-tune-ctl">'+_tuneDots('t')+_tuneDots('p')+'</div>'   /* [TUNE_DOTS] [−] 값 [＋] → 점 줄 */
     +(function(){ var n=_keepCount(T.who); return n?'<p class="mk-note mk-dlg-c1">확정한 '+n+'줄은 그대로 두고, 나머지 줄만 '+(T.from==='enroll'&&VC.read&&VC.read.renewed?'새 목소리로':'이 빠르기 · 쉼으로')+' 바꿔요</p>':''; })()   /* [KEEP_LINE] */
     +'<button type="button" class="mk-dlg-go" data-fk="mkvcuse" onclick="mkTuneUse()">이 목소리로 쓰기</button>'
     +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mktuneredo" onclick="mkTuneRedo()">톤이 마음에 안 들면 다시 녹음</button></div>'; }

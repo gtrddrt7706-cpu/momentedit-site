@@ -80,7 +80,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => { S.up = S.up || {}; S.up.g2 = { n: '녹음', id: 'Fg2old', src: 'rec', at: '' }; VC.read.take[1] = { wav: __tone(12), dur: 12 }; VC.read.take[2] = { wav: __tone(13), dur: 13 }; VC.read.short = false; VC.read.err = ''; render(); }); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(4000);
   /* ★[VOICE_TUNE 2026-10-04 사장님] 만든 직후 = 예시 듣고 빠르기 · 쉼 맞추기(필수) — «이 목소리로 쓰기» 전에는 줄을 채우지 않는다 */
-  const tn = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.innerText : '', use: !!document.querySelector('[data-fk="mkvcuse"]'), t1: !!document.querySelector('[data-fk="mktunetup"]'), p1: !!document.querySelector('[data-fk="mktunepup"]'), raw: !!VC.sraw.groom, need: !!(S.vsetNeed || {}).groom, g0: !!(S.up && S.up.g0 && S.up.g0.src === 'ai') }; });
+  const tn = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.innerText : '', use: !!document.querySelector('[data-fk="mkvcuse"]'), t1: !!document.querySelector('[data-fk="mktune:t:3"]'), p1: !!document.querySelector('[data-fk="mktune:p:2"]'), raw: !!VC.sraw.groom, need: !!(S.vsetNeed || {}).groom, g0: !!(S.up && S.up.g0 && S.up.g0.src === 'ai') }; });
   ok(W + ' 만든 직후 «목소리가 준비됐어요» · 예시 · 말 빠르기 · 문장 사이 쉼 · [이 목소리로 쓰기] · 아직 줄을 채우지 않음 [VOICE_TUNE]', /목소리가 준비됐어요/.test(tn.t) && tn.use && tn.t1 && tn.p1 && tn.raw && tn.need && !tn.g0, JSON.stringify(tn).slice(0, 300));
   await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(4000);
   const calls = await pg.evaluate(() => __calls.join(' '));
@@ -103,10 +103,10 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   /* ★[VOICE_TUNE] 빠르기는 목소리 쪽 «들어 보고 맞추기» — 누를 때는 예시만(만들지 않음) · [이 목소리로 쓰기]에 그 분 줄을 한 번씩 */
   await pg.evaluate(() => mkVcTune('groom')); await pg.waitForTimeout(600);
   const n0 = await pg.evaluate(() => __calls.filter((c) => c === 'make:g0').length);
-  await pg.click('[data-fk="mktunetdn"]'); await pg.waitForTimeout(500);
+  await pg.click('[data-fk="mktune:t:2"]'); await pg.waitForTimeout(500);   /* [TUNE_DOTS] «조금 느리게»(0.9) */
   const n1 = await pg.evaluate(() => __calls.filter((c) => c === 'make:g0').length);
   await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(2500);
-  ok(W + ' 사람별 빠르기 — 누를 때는 안 만들고 · [이 목소리로 쓰기]에 그 분 줄을 한 번(0.95) [VOICE_TUNE]', await pg.evaluate(([n0, n1]) => n1 === n0 && S.vset.groom.tempo === '0.95' && S.up.g0.tempo === '0.95' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, [n0, n1]));
+  ok(W + ' 사람별 빠르기 — 누를 때는 안 만들고 · [이 목소리로 쓰기]에 그 분 줄을 한 번(0.9) [VOICE_TUNE · TUNE_DOTS]', await pg.evaluate(([n0, n1]) => n1 === n0 && S.vset.groom.tempo === '0.9' && S.up.g0.tempo === '0.9' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, [n0, n1]));
   await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkvpl:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
   /* ★[VC_LINE_ERR] 줄 만들기가 실패하면 «보내는 중»에 멈추지 않고 그 줄 아래에 까닭 */
   /* [TEXT_PLAY_MAKE] 실패 길은 «고친 줄의 ▶»(그 줄을 먼저 만든다)로 연다 */
