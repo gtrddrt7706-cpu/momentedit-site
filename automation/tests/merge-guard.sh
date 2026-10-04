@@ -9109,7 +9109,7 @@ nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
 chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
 chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
-chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 3   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
+chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 2   # [VOICE_TUNE 2026-10-04] 순간 쪽 빠르기 시험은 사람별 맞추기 시험으로 바뀌었다   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
 chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 10
 # ★[VC_CARD_ONE · VC_WORD_GEN · READ_DLG_TIDY · REC_LEVEL · REC_WARN2 · TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE · TEXT_PLAY_MAKE · PAUSE_STEP · RF_MAIL_AI · RF_MAIL_THROTTLE 2026-10-04 사장님 실기기 시험 묶음]
 chk 'VC_CARD_ONE' order-preview.html 3
@@ -9138,6 +9138,7 @@ chk 'MIC_OFF_PLAY' order-preview.html 1   # 녹음이 끝나면 마이크를 닫
 chk 'STEP_LAB_CENTER' order-preview.html 1
 chk 'PAUSE_NUM' order-preview.html 1
 chk 'PAUSE_FIVE' order-preview.html 2   # 문장 사이 쉼 5단계(−2 추가)
+chk 'VOICE_TUNE' order-preview.html 10   # 빠르기 · 쉼 = 사람별 · 목소리 만든 직후 예시 듣고 맞추기(필수) · 순간 쪽 조절 줄 걷음
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
 chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html

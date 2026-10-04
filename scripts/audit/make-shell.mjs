@@ -207,35 +207,25 @@ for (const w of [390, 1280]) {
     ok(`${w} [VOICE_ONCE] AI 를 못 쓰는 예식 = 목소리 쪽 없음 · «이 흐름으로 시작하기 · 하객 맞이 안내»`, r.ps === '_intro,guest,prevideo' || (r.ps.indexOf('_voice') < 0 && r.next === '이 흐름으로 시작하기 · 하객 맞이 안내'), JSON.stringify(r));
     await ctx.close(); }
 
-  /* ── 말 빠르기 [TEMPO_STEP] ── */
+  /* ── 말 빠르기 · 문장 사이 쉼 = 사람별 [VOICE_TUNE 2026-10-04 사장님] (종전 순간 쪽 [TEMPO_STEP] 줄은 걷었다) ── */
   { const { ctx, pg, errs, nx } = await open(w, { ai: true, st: { ok: true, on: true, groom: { consent: true, ready: true, left: 2 }, bride: {}, per: {} } });
     await nx(); await pg.waitForTimeout(900);
-    await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; S.up = S.up || {}; ['g0', 'g1'].forEach((q) => { S.up[q] = { src: 'ai', id: 'local:' + q, tempo: '1', tx: _txSig(_recNeed(q)), by: 'groom' }; }); mkGo('guest'); }); await pg.waitForTimeout(500);
-    const st0 = await pg.evaluate(() => { const g = document.querySelector('.mk-tp'); return g ? { v: g.querySelector('.tp-v').textContent, live: g.querySelector('.tp-v').getAttribute('aria-live'), dn: g.querySelector('[data-fk="mkvtdn:guest"]').getAttribute('aria-label'), up: g.querySelector('[data-fk="mkvtup:guest"]').getAttribute('aria-label'), bw: Math.round(g.querySelector('.tp-b').getBoundingClientRect().width), bh: Math.round(g.querySelector('.tp-b').getBoundingClientRect().height), chips: !!document.querySelector('[data-fk^="mkvtempo:"]') } : null; });
-    ok(`${w} [TEMPO_STEP] «말 빠르기 [−] 0 [＋]» — 값 0 · aria-live polite · 단추 이름 «말 빠르기 느리게 / 빠르게» · 44×44 · 옛 세 칩 없음`, st0 && st0.v === '0' && st0.live === 'polite' && st0.dn === '말 빠르기 느리게' && st0.up === '말 빠르기 빠르게' && st0.bw >= 44 && st0.bh >= 44 && !st0.chips, JSON.stringify(st0));
-    if (SHOTS) { await pg.evaluate(() => { const g = document.querySelector('.mk-tp'); g && g.scrollIntoView({ block: 'center' }); }); await pg.screenshot({ path: path.join(SHOTS, `tempo-${w}.png`) }); }
+    await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; S.up = S.up || {}; ['g0', 'g2'].forEach((q) => { S.up[q] = { src: 'ai', id: 'local:' + q, tempo: '1', pause: 350, tx: _txSig(_recNeed(q)), by: 'groom' }; }); S.guestWho = { 0: 'g', 1: 'b', 2: 'g', 3: 'b' }; mkGo('guest'); }); await pg.waitForTimeout(500);
+    ok(`${w} [VOICE_TUNE] 순간 쪽에 «말 빠르기 · 문장 사이 쉼» 줄이 없다`, await pg.evaluate(() => !document.querySelector('.mk-pg .mk-tp') && !document.querySelector('[data-fk="mkvtone"]')));
+    await pg.evaluate(() => mkVcTune('groom')); await pg.waitForTimeout(500);
+    const st0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'), g = d && d.querySelector('.mk-tp'); return g ? { v: g.querySelector('.tp-v').textContent, live: g.querySelector('.tp-v').getAttribute('aria-live'), dn: d.querySelector('[data-fk="mktunetdn"]').getAttribute('aria-label'), up: d.querySelector('[data-fk="mktunetup"]').getAttribute('aria-label'), bw: Math.round(g.querySelector('.tp-b').getBoundingClientRect().width), bh: Math.round(g.querySelector('.tp-b').getBoundingClientRect().height), pv: d.querySelector('[data-fk="mktunepv"]').textContent, use: !!d.querySelector('[data-fk="mkvcuse"]'), redo: !!d.querySelector('[data-fk="mktuneredo"]') } : null; });
+    ok(`${w} [VOICE_TUNE] «○○ 님 목소리 맞추기» — 빠르기 0 · 쉼 0 · aria-live · «느리게 / 빠르게» · 44×44 · [이 목소리로 쓰기] · 다시 녹음`, st0 && st0.v === '0' && st0.live === 'polite' && st0.dn === '말 빠르기 느리게' && st0.up === '말 빠르기 빠르게' && st0.bw >= 44 && st0.bh >= 44 && st0.pv === '0' && st0.use && st0.redo, JSON.stringify(st0));
+    if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `tune-${w}.png`) });
     await pg.evaluate(() => { window.__calls.length = 0; });
-    await pg.click('[data-fk="mkvtup:guest"]'); await pg.click('[data-fk="mkvtup:guest"]'); await pg.waitForTimeout(300);
-    /* ★[TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04 사장님] 화면 −1.0 ~ +1.0(빠르기 1 + 0.5 × 값) · 누를 때 다시 만들지 않는다(재생 속도로 미리 듣기) · 쪽을 떠날 때 한 번 굽는다 */
-    const mid = await pg.evaluate(() => ({ v: document.querySelector('.mk-tp .tp-v').textContent, s: (S.vtempo || {}).guest, makes: window.__calls.filter((c) => c.op === 'make').length, f: document.activeElement && document.activeElement.getAttribute('data-fk'), rate: _upRate('g0') }));
-    ok(`${w} [TEMPO_WIDE · TEMPO_PREVIEW] ＋ 두 번 → «+0.2» · 저장 1.1 · 다시 만들지 않음 · 미리 듣기 재생 속도 1.1 · 초점은 ＋`, mid.v === '+0.2' && mid.s === '1.1' && mid.makes === 0 && mid.f === 'mkvtup:guest' && Math.abs(mid.rate - 1.1) < 1e-9, JSON.stringify(mid));
-    await pg.waitForTimeout(1200);
-    ok(`${w} [TEMPO_PREVIEW] 기다려도 만들지 않는다(돈 0)`, await pg.evaluate(() => window.__calls.filter((c) => c.op === 'make').length === 0));
-    await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(400);
-    const aft = await pg.evaluate(() => window.__calls.filter((c) => c.op === 'make'));
-    ok(`${w} [TEMPO_BAKE] 쪽을 떠나면 한 번 굽는다 — 만든 AI 줄마다 1.1 · 쉼 350 · retempo`, aft.length >= 1 && aft.every((c) => String(c.tempo) === '1.1' && c.retempo === true) && new Set(aft.map((c) => c.key)).size === aft.length, JSON.stringify(aft));
-    await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(400);
-    await pg.evaluate(() => { window.__calls.length = 0; }); for (let i = 0; i < 25; i++) { const b = await pg.$('[data-fk="mkvtdn:guest"]:not([disabled])'); if (!b) break; await b.click(); }
-    await pg.waitForTimeout(200);
-    const lo = await pg.evaluate(() => ({ v: document.querySelector('.mk-tp .tp-v').textContent, dn: document.querySelector('[data-fk="mkvtdn:guest"]').disabled, f: document.activeElement && document.activeElement.getAttribute('data-fk'), s: S.vtempo.guest }));
-    ok(`${w} [TEMPO_WIDE] 끝(−1.0 · 0.5)에서 − 가 꺼지고 초점은 ＋ 로`, lo.v === '−1.0' && lo.dn && lo.f === 'mkvtup:guest' && lo.s === '0.5', JSON.stringify(lo));
-    await pg.evaluate(() => { S.vtempo.guest = '0.9'; render(); }); await pg.waitForTimeout(200);
-    ok(`${w} [TEMPO_WIDE] 옛 초안 0.9 → «−0.2»(같은 빠르기 · 새 눈금)`, await pg.evaluate(() => document.querySelector('.mk-tp .tp-v').textContent === '−0.2'));
-    const ps = await pg.evaluate(() => { const o = document.querySelector('[data-fk="mkvpv:guest"]'); return { v: o && o.textContent, lab: o && o.closest('.mk-tp').getAttribute('aria-label') }; });
-    await pg.click('[data-fk="mkvpup:guest"]'); await pg.waitForTimeout(150);
-    const ps2 = await pg.evaluate(() => ({ v: document.querySelector('[data-fk="mkvpv:guest"]').textContent, s: (S.vpause || {}).guest, makes: window.__calls.filter((c) => c.op === 'make').length }));
-    ok(`${w} [PAUSE_STEP] «문장 사이 쉼 [−] 보통 [＋]» · ＋ → 길게(600) · 누를 때는 만들지 않는다`, ps.v === '0' && ps.lab === '문장 사이 쉼' && ps2.v === '+1' && ps2.s === 600 /* [PAUSE_NUM] */ && ps2.makes === 0, JSON.stringify({ ps, ps2 }));
-    ok(`${w} 화면 오류 0(말 빠르기)`, !errs.length, errs.join(' | '));
+    await pg.click('[data-fk="mktunetup"]'); await pg.click('[data-fk="mktunetup"]'); await pg.click('[data-fk="mktunepup"]'); await pg.waitForTimeout(500);
+    const mid = await pg.evaluate(() => ({ v: document.querySelector('[data-fk="mktunetv"]').textContent, p: document.querySelector('[data-fk="mktunepv"]').textContent, makes: window.__calls.filter((c) => c.op === 'make').length, f: document.activeElement && document.activeElement.getAttribute('data-fk'), saved: !!(S.vset && S.vset.groom) }));
+    ok(`${w} [VOICE_TUNE] ＋ 두 번 → «+0.2» · 쉼 ＋ → «+1» · 누를 때는 만들지 않는다(돈 0) · 아직 저장 안 함 · 초점은 ＋`, mid.v === '+0.2' && mid.p === '+1' && mid.makes === 0 && !mid.saved && mid.f === 'mktunepup', JSON.stringify(mid));
+    await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(500);
+    const aft = await pg.evaluate(() => ({ vs: S.vset.groom, mk: window.__calls.filter((c) => c.op === 'make'), rate: _upRate('g0'), tk: _tKey('g0') }));
+    ok(`${w} [VOICE_TUNE] [이 목소리로 쓰기] → 신랑 기본값(1.1 · 600) · 신랑이 읽는 AI 줄마다 한 번 retempo 1.1 · 창 닫힘`, aft.vs.tempo === '1.1' && aft.vs.pause === 600 && aft.tk === '1.1' && aft.mk.length >= 1 && aft.mk.every((c) => String(c.tempo) === '1.1' && (c.key === 'g0' || c.key === 'g2')) && await pg.evaluate(() => !VC.tune), JSON.stringify(aft));
+    const bt = await pg.evaluate(() => { S.vtempo = { guest: '0.9' }; return { g1: _tKey('g1'), g0: _tKey('g0') }; });
+    ok(`${w} [VOICE_TUNE] 신부 값이 없으면 옛 순간 값(0.9) · 신랑 줄은 신랑 값(1.1)`, bt.g1 === '0.9' && bt.g0 === '1.1', JSON.stringify(bt));
+    ok(`${w} 화면 오류 0(사람별 빠르기)`, !errs.length, errs.join(' | '));
     await ctx.close(); }
 }
 await br.close(); srv.close();
