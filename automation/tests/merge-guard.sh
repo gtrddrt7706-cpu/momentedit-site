@@ -14154,3 +14154,8 @@ chk 'VPAGE_TIDY' order-preview.html 5
 nochk '목소리 만들기가 남았어요' order-preview.html
 nochk 'padding:14px 16px;border-radius:12px;background:var(--bg2)}' order-preview.html
 chk '글 두 개를 소리 내어 읽어요 · 1분쯤' order-preview.html 1
+# ★[FLOW_NAMES_ONE 2026-10-04 사장님 «왜 부모님 인사만 내려가 있어? 다른 곳들은 안 그래»] 감동 흐름(PC) 이름표는 한 줄 — 옆으로 비켜 맞추고, 그래도 좁으면 작게,
+#   그래도 안 되면 번갈아 두 줄(한 이름만 떨어지지 않게 · 이름을 빼지 않는다). 옛 «닿으면 둘째 줄» 길로 되돌리지 말 것
+chk 'FLOW_NAMES_ONE' assets/ritual-open.js 2
+nochk 'for (var row = 0; row < 2; row++)' assets/ritual-open.js
+chk "var LB1 = lay(8, 11, 1), fs1 = 11; if (!LB1) { LB1 = lay(5, 10, 1.2); fs1 = 10; }" assets/ritual-open.js 1
