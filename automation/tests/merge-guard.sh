@@ -9125,6 +9125,8 @@ chk 'ENTRY_NOTE_OFF' order-preview.html 1
 chk 'RAIL_IGNORE_FULL' order-preview.html 1
 chk 'AI_PILL' order-preview.html 15   # [AI_PILL 2026-10-04 사장님] 줄 머리 [AI로 만들기] — 필요할 때만 스르륵 · 만드는 중 → 저장 중 → ✓ 완료 · 지우기는 상태 줄 끝
 chk 'VC_BOTH' order-preview.html 1   # 신랑 · 신부 둘 다 미리 만들어 두고 토글은 다시 안 만든다
+chk 'AI_PILL_CALM' order-preview.html 3   # 단추 글을 갈아 끼우지 않는다(만드는 중 하나) · 느린 페이드
+chk 'AI_PILL_WORD' order-preview.html 1   # 머리 단추 «목소리 만들기» · 만드는 중과 같은 폭
 chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안에서 맞춘다(0.2 · 0.5 · 0.9 · 1.4초)
 chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
 chk 'ASSET_V' order-preview.html 3   # 옛 파일을 쓰지 않게 ?v= · ?t=

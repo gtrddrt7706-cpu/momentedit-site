@@ -1445,13 +1445,13 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-whob{min-height:44px;min-width:52px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--sub);font:inherit;font-size:12.5px;cursor:pointer}
 .mk-whob.on{background:#F3ECDF;color:var(--accent);font-weight:600;box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [R1-10 SEL_ONE] 고른 것 = 금빛 테 + 옅은 금빛 바탕 + 먹빛 글자(칩 · 예시 · 창 판과 같은 말) */
 .mk-whob:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
-.mk-aip{position:relative;overflow:hidden;flex:0 0 auto;align-self:center;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:44px;max-width:0;margin:0;padding:0;border:1px solid transparent;border-radius:999px;background:#fff;color:var(--gold-deeper);font-family:var(--sans);font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;opacity:0;visibility:hidden;transform:translateX(8px);transition:max-width .45s var(--ease),padding .45s var(--ease),margin .45s var(--ease),opacity .3s var(--ease),transform .3s var(--ease),border-color .3s var(--ease),visibility 0s linear .45s}
-.mk-aip.on{max-width:150px;padding:0 11px;margin-left:-2px;border-color:var(--gold-btn);opacity:1;visibility:visible;transform:none;transition:max-width .45s var(--ease),padding .45s var(--ease),margin .45s var(--ease),opacity .3s var(--ease),transform .3s var(--ease),border-color .3s var(--ease),visibility 0s}
-.mk-aip .mk-aif{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(184,154,117,.22);pointer-events:none}
+.mk-aip{position:relative;overflow:hidden;flex:0 0 auto;align-self:center;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:44px;width:0;margin:0;padding:0;border:1px solid transparent;border-radius:999px;background:#fff;color:var(--gold-deeper);font-family:var(--sans);font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;opacity:0;visibility:hidden;transform:translateX(4px);transition:width .45s cubic-bezier(.22,.61,.36,1),padding .45s cubic-bezier(.22,.61,.36,1),margin .45s cubic-bezier(.22,.61,.36,1),opacity .45s cubic-bezier(.22,.61,.36,1),transform .45s cubic-bezier(.22,.61,.36,1),border-color .45s cubic-bezier(.22,.61,.36,1),visibility 0s linear .45s}
+.mk-aip.on{width:8.4em;padding:0 8px;margin-left:-2px;border-color:var(--gold-btn);opacity:1;visibility:visible;transform:none;transition:width .45s cubic-bezier(.22,.61,.36,1),padding .45s cubic-bezier(.22,.61,.36,1),margin .45s cubic-bezier(.22,.61,.36,1),opacity .45s cubic-bezier(.22,.61,.36,1) .12s,transform .45s cubic-bezier(.22,.61,.36,1) .12s,border-color .45s cubic-bezier(.22,.61,.36,1),visibility 0s}   /* [AI_PILL_CALM] 자리가 먼저 열리고(폭) 글이 뒤따라 서서히 */
+.mk-aip .mk-aif{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(184,154,117,.14);pointer-events:none}
 .mk-aip>span{position:relative}
 .mk-aip.make,.mk-aip.save,.mk-aip.done{cursor:default}
-.mk-aip.make .mk-aif{animation:mkAipFill var(--d,6s) cubic-bezier(.25,.6,.3,1) var(--dl,0s) forwards}
-.mk-aip.save .mk-aif,.mk-aip.done .mk-aif{width:100%;transition:width .3s var(--ease)}
+.mk-aip.make .mk-aif{animation:mkAipFill var(--d,6s) cubic-bezier(.3,.4,.4,1) var(--dl,0s) forwards}
+.mk-aip.save .mk-aif,.mk-aip.done .mk-aif{width:100%;transition:width .7s cubic-bezier(.22,.61,.36,1)}
 @keyframes mkAipFill{from{width:0}to{width:90%}}
 @media (prefers-reduced-motion:reduce){ .mk-aip,.mk-aip.on{transition:none} .mk-aip.make .mk-aif{animation:none;width:50%} }
 @media (max-width:999px){ .mk-vcards .mk-vch{gap:8px} .mk-vcards .mk-vhd .mk-vn{white-space:nowrap} .mk-vcards .mk-whob{min-width:46px;padding:0 10px} }   /* [AI_PILL] 390 에서 단추가 나와도 제목(«시작 10분 전»)이 두 줄로 꺾이지 않게 — 실측 제목 칸 86 → 108 */
@@ -4517,7 +4517,7 @@ function _vcSwap(key){ var a=_vcArgs(key,{}), who=_vcLineWho(key), alt=_vcAltGet
 function _aiNeed(key){ if(!_vcOn()||_vpCur(_vtMoment(key))!=='ai'||(S.vself||{})[key]||!_vcReadyFor(key)||!_recNeed(key)) return false; var v=(S.up||{})[key];
   if(v&&typeof v==='object') return v.src==='ai'?_vtNeed(key,true):true; return !v; }   // 녹음 · 파일 줄도 AI 로 바꿀 수 있게(종전 아래 [AI로 만들기] 자리 · 녹음은 [되돌리기]로 남는다)
 function _aiPill(key,lab){ MK.aiDone=MK.aiDone||{}; var up=MK_UP[key], st=up?(up==='make'?'make':'save'):MK.aiDone[key]?'done':'', on=!!(st||_aiNeed(key));
-  var t=st==='make'?'만드는 중':st==='save'?'저장 중':st==='done'?'✓ 완료':'AI로 만들기', sty='';
+  var t=st?'만드는 중':'목소리 만들기', sty='';   /* [AI_PILL_WORD 2026-10-04 사장님] «AI로 만들기» → «목소리 만들기» · 폭은 두 글 모두 같은 칸(8.4em) */   /* ★[AI_PILL_CALM 2026-10-04 사장님 «버튼이 확확 바뀌면 요란하고 가벼워 보인다»] «저장 중» · «✓ 완료»로 글을 갈아 끼우지 않는다 — 한 낱말(만드는 중)로 차오르다 다 차면 조용히 사라지고, 상태 줄 «✓ AI로 만들었어요»가 이어 말한다 */
   if(st==='make'){ var at=(MK.aiAt||{})[key]||Date.now(); sty=' style="--d:'+((MK.aiDur||{})[key]||6)+'s;--dl:-'+Math.max(0,(Date.now()-at)/1000).toFixed(2)+'s"'; }   // 다시 그려도 차오름이 처음부터 돌지 않게(지난 시간만큼 앞당긴다)
   return '<button type="button" class="mk-aip'+(on?' on':'')+(st?' '+st:'')+'" data-fk="mkai:'+key+'" aria-label="'+esc(lab+' · '+t)+'"'+(on?'':' tabindex="-1" aria-hidden="true"')+(st?' aria-disabled="true"':'')+sty+' onclick="mkAiGo(\''+key+'\')"><i class="mk-aif" aria-hidden="true"></i><span>'+t+'</span></button>'; }
 function _aiPillSync(key){ var b=document.querySelector('.mk-aip[data-fk="mkai:'+key+'"]'); if(!b||MK_UP[key]||(MK.aiDone||{})[key]) return; var on=_aiNeed(key);   // 글을 고치는 동안 다시 그리지 않고 단추만(스르륵)
@@ -4525,7 +4525,8 @@ function _aiPillSync(key){ var b=document.querySelector('.mk-aip[data-fk="mkai:'
 window.mkAiGo=function(key){ if(MK_UP[key]||(MK.aiDone||{})[key]) return; var v=(S.up||{})[key];
   if(v&&typeof v==='object'&&v.src==='ai'){ var m=_vtMoment(key); _vcMake(key,{tempo:_vtempoOf(m),pause:_vpauseOf(m),retempo:!_upStale(key)}).catch(function(){}); return; }
   mkAi(key); };
-function _aiDoneMark(key){ MK.aiDone=MK.aiDone||{}; MK.aiDone[key]=1; setTimeout(function(){ delete MK.aiDone[key]; var b=document.querySelector('.mk-aip[data-fk="mkai:'+key+'"]'); if(b&&!_aiNeed(key)&&!MK_UP[key]){ b.classList.remove('on'); b.setAttribute('tabindex','-1'); b.setAttribute('aria-hidden','true'); } else _aiPillSync(key); },1300); }   // «✓ 완료»를 잠깐 보이고 사라진다
+function _aiDoneMark(key){ MK.aiDone=MK.aiDone||{}; MK.aiDone[key]=1; setTimeout(function(){ delete MK.aiDone[key]; var b=document.querySelector('.mk-aip[data-fk="mkai:'+key+'"]');   // [AI_PILL_CALM] 다 찬 것만 잠깐(0.35초) 보이고 사라진다 — 오래 두면 «만드는 중» 옆에 «✓ AI로 만들었어요»가 같이 보여 말이 엇갈린다
+  if(b&&!_aiNeed(key)&&!MK_UP[key]){ b.classList.remove('on'); b.setAttribute('tabindex','-1'); b.setAttribute('aria-hidden','true'); } else _aiPillSync(key); },350); }   // «✓ 완료»를 잠깐 보이고 사라진다
 /* [VC_LINE_0928 8-2 5)] AI 줄 도구 — 빠르기 셋(천천히 · 보통 · 조금 빠르게 = 0.9 · 1.0 · 1.1 · 줄 한도에 안 셈) · [다시 만들기 · N번 남음] · [이 줄은 직접 녹음할게요] · 녹음이 있던 줄은 [되돌리기] */
 function _vcLineTools(key,lab,part){ var v=(S.up||{})[key]||{}; if(v.src!=='ai'||!_vcOn()) return ''; var t=String(v.tempo||'1'), left=VC.left&&VC.left[key]!=null?VC.left[key]:null, busy=!!MK_UP[key];
   /* ★줄마다 빠르기 칩(천천히 · 보통 · 조금 빠르게 · mkAiTempo) 금지 — 2026-10-03 사용자 지시로 삭제 [TEMPO_STEP] · 부르는 곳도 없었다(AI_CARD_TIDY 이후) · 빠르기는 순간 머리 «말 빠르기 [−] 0 [＋]» 하나 */
