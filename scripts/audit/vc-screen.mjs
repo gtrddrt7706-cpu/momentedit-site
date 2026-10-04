@@ -65,7 +65,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => mkGo('_voice')); await pg.waitForTimeout(400);   /* [VOICE_ONCE] 사람 카드는 이 쪽에 */
   await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(300);
   const cp = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');   // ★[REC_DLG] 동의 · 1분 읽기는 작은 창에서
-  ok(W + ' 8-4 동의 — 제목 · 본인이 직접 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구', /님 목소리로 AI 목소리를 만들어요/.test(cp) && /본인이 직접 눌러 주세요/.test(cp) && /언제 지우나요\s*읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
+  ok(W + ' 8-4 동의 — 제목 · 본인이 직접 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구', /님 목소리 만들기/.test(cp) && /본인이 직접 눌러 주세요/.test(cp) && /언제 지우나요\s*읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
   ok(W + ' 체크 전에는 [동의하고 읽으러 가기]가 막혀 있다', await pg.evaluate(() => document.getElementById('vcAgree').disabled));
   await pg.click('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(500);
   const rp1 = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');

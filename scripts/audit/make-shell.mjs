@@ -111,7 +111,7 @@ for (const w of [390, 1280]) {
     const ks = Object.keys(rows), vp = ks.filter((k) => ['guest', 'prevideo', 'entry'].includes(k));
     ok(`${w} [VS_LINK_IN_ROW] 순간 쪽 어디에도 «안내 목소리 · … · 나레이션 자세히» 한 줄 없음`, ks.every((k) => !rows[k].bar), ks.filter((k) => rows[k].bar).join(','));
     ok(`${w} [VS_LINK_IN_ROW] «나레이션 자세히» = 하객 맞이 · 식전 영상 · 입장의 목소리 준비 칩 줄 안 한 개(누를 곳 44) · 그 밖 순간엔 없음`, vp.length === 3 && vp.every((k) => rows[k].link === 1 && rows[k].inVp && rows[k].h >= 44) && ks.filter((k) => !vp.includes(k)).every((k) => rows[k].link === 0), JSON.stringify(rows));
-    if (w < 1000) ok(`${w} [VS_LINK_IN_ROW] 오른쪽 레일 자리(36px)를 비켜 선다 [RAIL_LOCKED]`, vp.every((k) => rows[k].right >= 36), vp.map((k) => k + ':' + rows[k].right).join(','));
+    if (w < 1000) ok(`${w} [VS_LINK_IN_ROW] 폰에서도 끝까지 쓴다 — 레일 자리를 비키지 않는다 [RAIL_IGNORE_FULL 2026-10-04 사장님]`, vp.every((k) => rows[k].right < 36), vp.map((k) => k + ':' + rows[k].right).join(','));
     ok(`${w} [MK_NO_DROP_LINK] 순간 쪽에 «이 순간 빼기» 없음(빼기는 예식 흐름 ✓/＋)`, ks.every((k) => !rows[k].drop), ks.filter((k) => rows[k].drop).join(','));
     ok(`${w} [NOTE_OFF_1003] 칩 아래 AI 설명(«각자 1분쯤 …» · «말투는 …») · 입장 «멘트를 바꾸면 …» 없음`, ks.every((k) => !rows[k].aiNote), ks.filter((k) => rows[k].aiNote).join(','));
     ok(`${w} [VOICE_ONCE] 순간 쪽에 «AI 두 분 목소리 만들기» 칸(사람 카드) 없음`, ks.every((k) => !rows[k].vcSec), ks.filter((k) => rows[k].vcSec).join(','));
@@ -191,7 +191,7 @@ for (const w of [390, 1280]) {
       await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'nar')); VS.inPick = false; render(); }); await pg.waitForTimeout(200);
       await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(400);
       const go = await pg.evaluate(() => ({ cur: _vsCur(), t: ((document.querySelector('#mkRecDlg .mk-dlg-t') || {}).textContent || '') }));
-      ok(`${w} [VOICE_ONCE] 이 쪽에서 «목소리 만들기 시작» → 세 자리 AI · 종전 동의 창(같은 갈래)`, go.cur === 'ai' && /님 목소리로 AI 목소리를 만들어요/.test(go.t), JSON.stringify(go));
+      ok(`${w} [VOICE_ONCE] 이 쪽에서 «목소리 만들기 시작» → 세 자리 AI · 종전 동의 창(같은 갈래)`, go.cur === 'ai' && /님 목소리 만들기/.test(go.t), JSON.stringify(go));
       await pg.evaluate(() => mkDlgClose()); await pg.waitForTimeout(250);
       await pg.click('[data-fk="mkvlater"]'); await pg.waitForTimeout(500);
       const lt = await pg.evaluate(() => ({ at: _mkRO().at, v: [S.guestVoice, S.entryVoice, S.pvVoice].join(','), vf: JSON.stringify(S.vfill || {}) }));

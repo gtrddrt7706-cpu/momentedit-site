@@ -137,7 +137,7 @@ ok('옛 코스 여섯 · 전 판 — 새 줄이 안 나온다(108 닫는 인사 
 
 /* ── 7. 빌더 배선 ── */
 const B = fs.readFileSync(P('order-preview.html'), 'utf8');
-ok('빌더가 ritual-open.js 를 본문 스크립트보다 먼저 읽는다', B.indexOf('<script src="/assets/ritual-open.js">') > -1 && B.indexOf('<script src="/assets/ritual-open.js">') < B.indexOf('var S={course:'));
+ok('빌더가 ritual-open.js 를 본문 스크립트보다 먼저 읽는다', B.search(/<script src="\/assets\/ritual-open\.js(\?v=[\w]+)?">/) > -1 && B.search(/<script src="\/assets\/ritual-open\.js(\?v=[\w]+)?">/) < B.indexOf('var S={course:')   /* [ASSET_V] ?v= 붙어도 */);
 ok('빌더 엔진 로더도 ritual-open.js 를 엔진 앞에', /'\/assets\/ritual-open\.js','\/assets\/ritual-cue\.js'/.test(B));
 ok('새 방문자 기본 코스 = open', /var S=\{course:'open'/.test(B));
 ok('새 코스에선 ↑↓ 가 막힌다', /if\(isOpen\(\)\) return;   \/\/ \[OPEN_COURSE\]/.test(B));

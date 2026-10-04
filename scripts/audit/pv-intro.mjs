@@ -66,7 +66,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.fill('#mkPvTa', t0.t + ' 고맙습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(300);
   const st = await pg.evaluate(() => ({ btn: (document.querySelector('[data-fk="mkai:pv"]') || {}).textContent || '', s: (document.querySelector('[data-fk="mkwho:pv:g"]').closest('.mk-vc') || {}).textContent || '' }));
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «다시 만들어 주세요 · [새 글로 다시 만들기]» → «▶ 를 누르면 새로 만들어요» · 단추 없음(▶ 가 만든다) */
-  ok(W + ' 글을 고치면 «글을 고쳤어요 · ▶ 를 누르면 새로 만들어요» · 단추 없음 [TEXT_PLAY_MAKE]', st.btn === '' && /글을 고쳤어요/.test(st.s) && /▶\s?를\s?누르면\s?새로\s?만들어요/.test(st.s), JSON.stringify(st).slice(0, 300));
+  ok(W + ' 글을 고치면 «글을 고쳤어요» · 머리 [AI로 만들기]가 스르륵 [AI_PILL]', st.btn === 'AI로 만들기' && /글을 고쳤어요/.test(st.s), JSON.stringify(st).slice(0, 300));
   await pg.click('[data-fk="mkpvex:1"]'); await pg.waitForTimeout(300);
   const ask = await pg.evaluate(() => { const d = document.querySelector('.ord-ask'); return d ? d.textContent : ''; });
   ok(W + ' 적어 둔 글을 예시로 덮기 전에 묻는다', /예시로 바꿀까요/.test(ask), ask.slice(0, 120));

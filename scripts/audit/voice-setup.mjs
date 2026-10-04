@@ -52,7 +52,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const d2 = await pg.evaluate(() => (document.querySelector('#mkRecDlg .mk-dlg-t') || {}).textContent || '');
   await pg.click('[data-fk="mkdlgx"]'); await pg.waitForTimeout(300);
   const d3 = await pg.evaluate(() => (document.querySelector('#mkRecDlg .mk-dlg-t') || {}).textContent || '');
-  ok(W + ' [1분 읽기 시작] → 동의 창 · 닫으면 이 창으로 돌아온다', /님 목소리로 AI 목소리를 만들어요/.test(d2) && d3 === 'AI 두 분 목소리 만들기', JSON.stringify({ d2, d3 }));
+  ok(W + ' [1분 읽기 시작] → 동의 창 · 닫으면 이 창으로 돌아온다', /님 목소리 만들기/.test(d2) && d3 === 'AI 두 분 목소리 만들기', JSON.stringify({ d2, d3 }));
   await pg.click('[data-fk="mkvsdone"]'); await pg.waitForTimeout(400);
   ok(W + ' [다 됐어요] → 창이 닫힌다', await pg.evaluate(() => !document.getElementById('mkRecDlg')));
   await pg.evaluate(() => { VS.seen = false; mkGo('entry'); }); await pg.waitForTimeout(400);
@@ -75,16 +75,16 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const le1 = await pg.evaluate(() => ({ need: _recNeed('g3'), btn: (document.querySelector('[data-fk="mkai:g3"]') || {}).textContent || '', play: !!document.querySelector('[data-fk="mkvpl:g3"]:not([disabled])'), st: ((document.querySelector('[data-fk="mkvt:g3"]') || {}).closest ? document.querySelector('[data-fk="mkvt:g3"]').closest('.mk-vc').textContent : ''), reset: !!document.querySelector('[data-fk="mkvtreset:g3"]') }));
   /* [G3_OPEN] 종전 «읽을 글 = 고정 두 문장 + 고친 글» → «읽을 글 = 고친 글 그대로» · «안내 음성»이 빠지면 막지 않는 권함 한 줄 */
   const rem1 = await pg.evaluate(() => { const r = document.getElementById('mkG3Rem'); return r ? { shown: !r.hidden, t: r.textContent, cls: r.className } : null; });
-  ok(W + ' 글을 고치면 읽을 글 = 고친 글 그대로 · «글을 고쳤어요 · ▶ 를 누르면 새로 만들어요» · [새 글로 다시 만들기] 없음 · ▶ 있음 · [처음 글로] · «안내 음성»이 빠지면 권함 한 줄(mk-note) [G3_OPEN]', le1.need === '조금 뒤에 뵙겠습니다.' && le1.btn === '' && le1.play && /글을 고쳤어요/.test(le1.st) && /▶\s?를\s?누르면\s?새로\s?만들어요/.test(le1.st) /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «[새 글로 다시 만들기]» 단추 → ▶ */ && le1.reset && !!rem1 && rem1.shown && rem1.t === '하객께 미리 준비한 안내 음성이라는 걸 알리는 말을 남겨 두시면 좋아요' && /mk-note/.test(rem1.cls), JSON.stringify({ le1, rem1 }).slice(0, 400));
+  ok(W + ' 글을 고치면 읽을 글 = 고친 글 그대로 · «글을 고쳤어요 · ▶ 를 누르면 새로 만들어요» · [새 글로 다시 만들기] 없음 · ▶ 있음 · [처음 글로] · «안내 음성»이 빠지면 권함 한 줄(mk-note) [G3_OPEN]', le1.need === '조금 뒤에 뵙겠습니다.' && le1.btn === 'AI로 만들기' /* [AI_PILL] 머리 단추가 스르륵 */ && le1.play && /글을 고쳤어요/.test(le1.st) /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «[새 글로 다시 만들기]» 단추 → ▶ */ && le1.reset && !!rem1 && rem1.shown && rem1.t === '하객께 미리 준비한 안내 음성이라는 걸 알리는 말을 남겨 두시면 좋아요' && /mk-note/.test(rem1.cls), JSON.stringify({ le1, rem1 }).slice(0, 400));
   await pg.fill('[data-fk="mkvt:g3"]', '곧 시작합니다. 오늘은 미리 준비한 안내 음성으로 진행돼요. 조금 뒤에 뵙겠습니다.'); await pg.waitForTimeout(150);
   const rem2 = await pg.evaluate(() => ({ hidden: document.getElementById('mkG3Rem').hidden, need: _recNeed('g3') }));
   ok(W + ' «안내 음성»을 되살리면 권함 한 줄이 바로 사라진다(다시 그리지 않아도) [G3_OPEN]', rem2.hidden && /안내 음성/.test(rem2.need), JSON.stringify(rem2));
   await pg.fill('[data-fk="mkvt:g3"]', '조금 뒤에 뵙겠습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkvpl:g3"]'); await pg.waitForTimeout(1500);   /* [TEXT_PLAY_MAKE] ▶ = 그 줄을 먼저 만들고 튼다 */
-  ok(W + ' 고친 줄의 ▶ → 새 글로 만든 뒤 튼다(«글을 고치고 ▶») [TEXT_PLAY_MAKE]', await pg.evaluate(() => { const v = S.up.g3; return !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))) && !document.querySelector('[data-fk="mkai:g3"]'); }));
+  ok(W + ' 고친 줄의 ▶ → 새 글로 만든 뒤 튼다(«글을 고치고 ▶») [TEXT_PLAY_MAKE]', await pg.evaluate(() => { const v = S.up.g3; return !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))) && !_aiNeed('g3'); }));   /* [AI_PILL] 만든 뒤엔 단추가 필요 없다(«✓ 완료» 뒤 사라짐) */
   await pg.click('[data-fk="mkvtreset:g3"]'); await pg.waitForTimeout(300);
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «다시 만들어 주세요» 단추(mkai) → 상태 «▶ 를 누르면 새로 만들어요» · ▶ 가 만든다 */
-  ok(W + ' [처음 글로] → 처음 글 · «▶ 를 누르면 새로 만들어요»', await pg.evaluate(() => _recNeed('g3') === GUEST[3][2] && _txStale('g3') && /▶\s?를\s?누르면\s?새로\s?만들어요/.test(document.querySelector('[data-fk="mkvt:g3"]').closest('.mk-vc').textContent) && !!document.querySelector('[data-fk="mkvpl:g3"]')));
+  ok(W + ' [처음 글로] → 처음 글 · «▶ 를 누르면 새로 만들어요»', await pg.evaluate(() => _recNeed('g3') === GUEST[3][2] && _txStale('g3') && !!document.querySelector('.mk-aip.on[data-fk="mkai:g3"]') /* [AI_PILL] */ && !!document.querySelector('[data-fk="mkvpl:g3"]')));
   /* ★[G3_OPEN] 옛 초안 옮기기 — S.vtext.g3 에 «앞 두 문장 뒤»만 있던 초안 → 글 전체(앞 두 문장 + 뒤) · 그 글로 만든 AI 소리는 «다시 만들어 주세요»가 안 뜬다 · 두 번 불러도 한 번만 */
   const mg = await pg.evaluate(() => { const head = _g3Split()[0], tail = '조금 뒤에 뵙겠습니다.', keep = { vt: JSON.stringify(S.vtext || {}), up: S.up.g3, open: S.g3Open };
     S.vtext = S.vtext || {}; S.vtext.g3 = tail; S.up.g3 = { src: 'ai', id: 'local:m', tx: _txSig(head + ' ' + tail), by: _vcLineWho('g3') }; delete S.g3Open;

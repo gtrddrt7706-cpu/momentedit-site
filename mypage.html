@@ -2306,7 +2306,7 @@ function openRitualBuilder(p, inv){
   //   2026-07-17 병합 역전으로 한 번 되살아나 재삭제됨. 닫기는 아래 플로팅 ✕가 담당 — 리뷰·복구·병합에서 바를 복원하지 말 것.
   var x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','닫기'); x.textContent='✕';
   x.style.cssText='position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:1px solid var(--border,#DDD8D1);background:rgba(255,255,255,.92);border-radius:999px;font-size:14px;color:var(--sub,#5A554C);cursor:pointer;box-shadow:0 1px 6px rgba(40,32,24,.08)';
-  var fr=document.createElement('iframe'); fr.id='mp_obFrame'; fr.src='/order-preview.html?embed=1'; fr.title='우리 예식 짓기';
+  var fr=document.createElement('iframe'); fr.id='mp_obFrame'; fr.src='/order-preview.html?embed=1&t='+Date.now();   /* [ASSET_V 2026-10-04] 열 때마다 새 주소 — 열어 둔 마이페이지가 옛 식순 화면을 다시 쓰지 않게 */ fr.title='우리 예식 짓기';
   fr.setAttribute('allow','microphone; autoplay');   // ★[MIC_ALLOW 2026-09-28 코워크 0928 3-1] 빌더 안 녹음(두 분 목소리 · 연습 녹음) — 같은 출처라도 브라우저마다 iframe 에 마이크를 안 넘겨서 적어 둔다 · 사이트 헤더는 microphone=(self)
   fr.style.cssText='flex:1 1 auto;width:100%;border:none;opacity:0;transition:opacity .25s ease';
   ov.appendChild(x); ov.appendChild(fr);

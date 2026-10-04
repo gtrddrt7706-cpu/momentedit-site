@@ -9122,7 +9122,19 @@ chk 'PHRASE_EARLY' order-preview.html 2   # 확인 문장을 창 열기 전에 �
 chk 'VDEL_RIGHT' order-preview.html 2   # 지우기 = 날짜 오른쪽
 chk 'VB_SAME' order-preview.html 1   # 다시 만들기 · 1분 읽기 시작 같은 크기
 chk 'ENTRY_NOTE_OFF' order-preview.html 1
-chk 'RAIL_IGNORE_FULL' order-preview.html 1   # 폰에서 줄 카드 · 사람 카드 전체 폭
+chk 'RAIL_IGNORE_FULL' order-preview.html 1
+chk 'AI_PILL' order-preview.html 15   # [AI_PILL 2026-10-04 사장님] 줄 머리 [AI로 만들기] — 필요할 때만 스르륵 · 만드는 중 → 저장 중 → ✓ 완료 · 지우기는 상태 줄 끝
+chk 'VC_BOTH' order-preview.html 1   # 신랑 · 신부 둘 다 미리 만들어 두고 토글은 다시 안 만든다
+chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안에서 맞춘다(0.2 · 0.5 · 0.9 · 1.4초)
+chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
+chk 'ASSET_V' order-preview.html 3   # 옛 파일을 쓰지 않게 ?v= · ?t=
+chk 'ASSET_V' mypage.html 1
+chk 'DLG_TITLE_ONE' order-preview.html 1
+chk 'VC_LEFT_WORD' order-preview.html 1
+chk 'ONE_OK_OFF' order-preview.html 1
+chk 'TOAST_TRUE' order-preview.html 1
+nochk '1분 읽기가 남았어요' order-preview.html   # [VC_LEFT_WORD]
+nochk '한 분만 만들어도 돼요 · 만든 분 목소리로' order-preview.html   # [ONE_OK_OFF]   # 폰에서 줄 카드 · 사람 카드 전체 폭
 chk 'PLAY_TOGGLE' order-preview.html 5   # 줄 ▶ = 틀기 · ■ = 멈추기 · 다시 ▶ 는 처음부터
 nochk 'data-fk="mkvcentry"' order-preview.html   # [ENTRY_NOTE_OFF 2026-10-04] «입장 인사도 같은 목소리로 · 들어 보러 가기» 줄
 chk 'TEMPO_WIDE' order-preview.html 1
