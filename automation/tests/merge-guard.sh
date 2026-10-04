@@ -9137,6 +9137,7 @@ chk 'REC_NOTE_OFF' order-preview.html 1
 chk 'MIC_OFF_PLAY' order-preview.html 1   # 녹음이 끝나면 마이크를 닫는다(아이폰 수화기 소리로 작게 들림)
 chk 'STEP_LAB_CENTER' order-preview.html 1
 chk 'PAUSE_NUM' order-preview.html 1
+chk 'PAUSE_FIVE' order-preview.html 2   # 문장 사이 쉼 5단계(−2 추가)
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
 chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html
