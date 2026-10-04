@@ -73,26 +73,21 @@ for (const w of [390, 1280]) {
     const pages = await pg.evaluate(() => _mkPages());
     ok(`${w} [VOICE_ONCE] 쪽 차례 = 예식 흐름 → 두 분 목소리 만들기 → 하객 맞이 …`, pages[0] === '_intro' && pages[1] === '_voice' && pages[2] === 'guest', pages.join(','));
     await pg.evaluate(() => mkGo('candle')); await pg.waitForTimeout(500);
-    const mo = await pg.evaluate(() => { const c = document.querySelector('.op-steps-c'), cs = (el) => getComputedStyle(el), lis = c ? [...c.querySelectorAll('li')] : [], bars = lis.map((l) => l.querySelector('.op-scb')), labs = lis.map((l) => l.querySelector('.op-scl'));
+    const mo = await pg.evaluate(() => { const c = document.querySelector('.op-steps-c'), cs = (el) => getComputedStyle(el), sp = c ? [...c.children] : [];
       const outer = (el) => { const r = el.getBoundingClientRect(), s = cs(el); return r.height + parseFloat(s.marginTop) + parseFloat(s.marginBottom); };
       const pos = document.querySelector('#mkStrip .mk-pos'), ps = pos && pos.querySelector('.mk-pstep');
-      const ctr = lis.every((l, i) => { const a = labs[i].getBoundingClientRect(), b = bars[i].getBoundingClientRect(); return a.bottom <= b.top && Math.abs((a.left + a.right) / 2 - (b.left + b.right) / 2) < 2; });
-      const btn = c && c.querySelector('button');
-      return { c: !!c, full: !!document.querySelector('.op-steps'), n: lis.length, cls: lis.map((s) => s.className).join(','), cols: bars.map((s) => s ? cs(s).backgroundColor : ''), h2: bars[0] ? Math.round(bars[0].getBoundingClientRect().height) : 0, al: c && c.getAttribute('aria-label'), cur: (c && c.querySelector('[aria-current="step"]') || {}).textContent, txt: labs.map((l) => l.textContent).join('|'), ctr, btns: c ? [...c.querySelectorAll('button')].map((b) => b.getAttribute('data-fk')) : [], bh: btn ? Math.round(btn.getBoundingClientRect().height) : 0, cut: labs.some((l) => l.scrollWidth > l.clientWidth + 1), h: c ? outer(c) : 0,
+      return { c: !!c, full: !!document.querySelector('.op-steps'), n: sp.length, cls: sp.map((s) => s.className).join(','), cols: sp.map((s) => cs(s).backgroundColor), h2: sp[0] ? Math.round(sp[0].getBoundingClientRect().height) : 0, al: c && c.getAttribute('aria-label'), role: c && c.getAttribute('role'), txt: c ? c.textContent : '', btn: c ? c.querySelectorAll('button').length : -1, h: c ? outer(c) : 0,
         pos: pos ? pos.textContent : '', pstep: ps ? !ps.hidden : null, pcut: pos ? pos.scrollWidth > pos.clientWidth + 1 : null }; });
-    ok(`${w} [STEP_COMPACT · STEP_LAB_TOP] 순간 쪽 = 접은 표시(칸 넷 · 2px · 칸 위 가운데 걸음 이름 · 지금 aria-current · 지나온 «고르기»만 단추 44 · 이름 안 잘림) · 이름 있는 표시 없음`, mo.c && !mo.full && mo.n === 4 && mo.cls === 'done,on,,' && mo.h2 === 2 && mo.txt === '고르기|하나씩 만들기|연습하기|완성' && mo.ctr && mo.cur === '하나씩 만들기' && JSON.stringify(mo.btns) === '["ops:pick"]' && mo.bh >= 44 && !mo.cut && mo.al === '진행 단계', JSON.stringify(mo));
+    ok(`${w} [STEP_COMPACT · STEP_LAB_TOP] 순간 쪽 = 접은 표시(윗선 네 칸 · 2px · 글자 없음 · 단추 없음 · role=img «4단계 중 2단계 · 하나씩 만들기») · 이름 있는 표시 없음`, mo.c && !mo.full && mo.n === 4 && mo.cls === 'done,on,,' && mo.h2 === 2 && !mo.txt && !mo.btn && mo.role === 'img' && mo.al === '4단계 중 2단계 · 하나씩 만들기', JSON.stringify(mo));
     ok(`${w} [STEP_COMPACT] 접은 표시의 색 = 이름 있는 표시 윗선 색(지나온 · 지금 · 남은)`, JSON.stringify(mo.cols.slice(0, 3)) === JSON.stringify(intro.cols.slice(0, 3)), JSON.stringify({ c: mo.cols, f: intro.cols }));
     ok(`${w} [STEP_COMPACT] 접힌 줄 = «하나씩 만들기 · 본식 n / N …»(잘리면 걸음 이름부터 뺀다 · 자리는 남는다) · 잘림 없음`, /본식\s*1\s*\/\s*\d+/.test(mo.pos) && mo.pcut === false && (mo.pstep ? /^하나씩 만들기 · /.test(mo.pos) : true) && (w < 1000 || mo.pstep === true), JSON.stringify(mo));
     console.log(`   · ${w} 세로로 아낀 높이 = ${Math.round(intro.h - mo.h)}px (이름 있는 표시 ${Math.round(intro.h)} → 접은 표시 ${Math.round(mo.h)})`);
-    if (w === 390) ok(`390 [STEP_COMPACT · STEP_LAB_TOP] 이름을 얹어도 이름 있는 표시보다 높지 않다`, mo.h <= intro.h, `${intro.h} → ${mo.h}`);
-    /* [STEP_LAB_TOP] 펼친 첫 줄에 걸음 줄이 없다 · 걸음 이동은 칸 위 이름 */
+    if (w === 390) ok(`390 [STEP_COMPACT] 위를 덜 차지한다(이름 있는 표시보다 25px 이상 낮다)`, intro.h - mo.h >= 25, `${intro.h} → ${mo.h}`);
+    /* [STEP_LAB_TOP] 펼친 첫 줄에 걸음 줄이 없다 */
     await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(250);
     const sp = await pg.evaluate(() => ({ stp: !!document.getElementById('mkStp'), ctl: document.querySelector('[data-fk="mkfold"]').getAttribute('aria-controls') }));
     ok(`${w} [STEP_LAB_TOP] «모든 순간 보기» 펼침에 걸음 줄 없음(순간 줄만)`, !sp.stp && sp.ctl === 'mkScP', JSON.stringify(sp));
     if (w === 390) await shot(pg, 'compact-open-390');
-    await pg.click('[data-fk="mkfold"]'); await pg.waitForTimeout(250);
-    await pg.click('.op-steps-c [data-fk="ops:pick"]'); await pg.waitForTimeout(500);
-    ok(`${w} [STEP_LAB_TOP] 칸 위 «고르기» → ① 로(같은 opStepNav)`, await pg.evaluate(() => STEPS[idx].k === 'pick'));
     for (const st of ['practice', 'done']) { await pg.evaluate((st) => opGoStep(st), st); await pg.waitForTimeout(700);
       const r = await pg.evaluate(() => ({ full: !!document.querySelector('.op-steps'), c: !!document.querySelector('.op-steps-c'), t: [...document.querySelectorAll('.op-steps li')].map((l) => l.textContent).join('|') }));
       ok(`${w} [STEP_COMPACT · STEP_NONUM_OP] ${st === 'practice' ? '③ 연습하기' : '④ 완성'} = 이름 있는 표시(번호 없음)`, r.full && !r.c && !/[①②③④]/.test(r.t), JSON.stringify(r)); }

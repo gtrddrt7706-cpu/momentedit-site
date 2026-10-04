@@ -803,15 +803,10 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .op-steps li{flex:1;text-align:center;padding-top:6px;border-top:2px solid var(--border);white-space:nowrap}
 .op-steps li.on{color:var(--accent);font-weight:600;border-top-color:var(--seal)}   /* [SEAL_POINTS] 지금 걸음 윗줄만 진사 — 마이페이지 진행 점과 같은 말 · 글자는 그대로 */
 .op-steps li.done{color:var(--ink2);border-top-color:var(--gold-deep)}
-.op-steps-c{display:flex;gap:4px;list-style:none;padding:0;margin:14px 0 0}   /* [STEP_COMPACT] 순간 쪽 = 접은 표시 · 칸 사이 · 색 · 굵기는 위 .op-steps 와 한 벌 */
-.op-steps-c li{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}   /* [STEP_LAB_TOP] 이름 위 · 칸 아래 · 가운데 */
-.op-scl{font-size:11px;line-height:1.3;letter-spacing:.04em;color:var(--light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.op-scb{display:block;align-self:stretch;height:2px;background:var(--border)}
-.op-steps-c li.on .op-scl{color:var(--accent);font-weight:600} .op-steps-c li.on .op-scb{background:var(--seal)}
-.op-steps-c li.done .op-scl{color:var(--ink2)} .op-steps-c li.done .op-scb{background:var(--gold-deep)}
-.op-scbtn{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;width:100%;min-height:44px;margin-top:-22px;padding:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer}   /* 누르는 자리 44 · 위로만 넓혀 줄 높이는 그대로 */
-.op-scbtn .op-scl{text-decoration:underline;text-underline-offset:3px}
-.op-scbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.op-steps-c{display:flex;gap:4px;margin:14px 0 0}   /* [STEP_COMPACT] 순간 쪽 = 윗선만 · 칸 사이 · 색 · 굵기는 위 .op-steps 와 한 벌 */
+.op-steps-c span{flex:1;height:2px;background:var(--border)}
+.op-steps-c span.on{background:var(--seal)}
+.op-steps-c span.done{background:var(--gold-deep)}
 .op-band.thin .op-bar,.op-band.thin .op-leg{display:none}
 .op-band.thin .op-mf{margin-top:4px}
 .lv{position:relative;display:block;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
@@ -3003,13 +2998,11 @@ function _opSteps(k){
   if(at<0) return '';
   /* ★[STEP_COMPACT 2026-10-03 사장님 «개별 순간 페이지부터는 고르기 · 하나씩 만들기 · 연습하기 · 완성 표시가 윗부분을 차지한다»] ② 의 순간 쪽(예식 흐름 다음부터)은
      같은 표시를 접은 모양 — 글자 없이 윗선 네 칸만(지나온 금빛 · 지금 진사 · 남은 옅게 = 위 .op-steps 윗선과 같은 색 · 같은 2px). 걸음 이름은 바로 아래 접힌 줄 머리가 말하고,
-     걸음 이동은 칸 위 이름에 있다([STEP_LAB_TOP] · 같은 opStepNav · 같은 규칙: 지나온 걸음만 누른다). ① · ② 예식 흐름 · ③ · ④ 는 종전 그대로 이름 있는 표시. */
-  /* ★★[STEP_LAB_TOP 2026-10-04 사장님 «고르기 · 하나씩 만들기 · 연습하기 · 완성 — 빼거나 가로바 위쪽 각각 센터로»] 접은 표시 네 칸 위에 걸음 이름을 가운데로(작은 글 11px).
-     지나온 걸음은 이름 + 칸이 한 단추(44 · 같은 opStepNav) — 걸음 이동이 늘 보인다. 그래서 «모든 순간 보기»를 펼친 첫 줄의 걸음 줄은 걷었다(_mkStepRow). */
-  if(k==='listen'&&_mkIdx()>0) return '<ol class="op-steps-c" data-fk="opsc" aria-label="진행 단계">'
-    +W.map(function(w,i){ var in_='<span class="op-scl">'+esc(w[1])+'</span><i class="op-scb" aria-hidden="true"></i>';
-      if(i<at) in_='<button type="button" class="op-scbtn" data-fk="ops:'+w[0]+'" onclick="opStepNav(\''+w[0]+'\')">'+in_+'</button>';
-      return '<li class="'+(i===at?'on':i<at?'done':'')+'"'+(i===at?' aria-current="step"':'')+'>'+in_+'</li>'; }).join('')+'</ol>';
+     걸음 이름 · 이동은 칸에 두지 않는다([STEP_LAB_TOP] · ① 로는 «이전»). ① · ② 예식 흐름 · ③ · ④ 는 종전 그대로 이름 있는 표시. */
+  /* ★[STEP_LAB_TOP 2026-10-04 사장님 «빼거나 가로바 위쪽 각각 센터로» → 같은 날 «텍스트 그냥 삭제»] 칸 위 걸음 이름 금지 — 2026-10-04 사용자 지시로 삭제.
+     접은 표시는 칸 넷만(글자 없음). 펼친 첫 줄 걸음 줄도 걷은 그대로 — 걸음 이름은 바로 아래 접힌 줄 머리가 말하고, ① 로는 «이전» · 예식 흐름 쪽 표시로 간다. */
+  if(k==='listen'&&_mkIdx()>0) return '<div class="op-steps-c" role="img" data-fk="opsc" aria-label="'+W.length+'단계 중 '+(at+1)+'단계 · '+esc(W[at][1])+'">'
+    +W.map(function(w,i){ return '<span class="'+(i===at?'on':i<at?'done':'')+'"></span>'; }).join('')+'</div>';
   return '<ol class="op-steps" aria-label="진행 단계">'+W.map(function(w,i){
     var lab=w[1];
     if(i<at) lab='<button type="button" class="op-stepb" data-fk="ops:'+w[0]+'" onclick="opStepNav(\''+w[0]+'\')">'+lab+'</button>';   // [DETAIL_0925 A1] 지난 걸음은 누를 수 있다 · [EDIT_OPEN] 수정 끝냄

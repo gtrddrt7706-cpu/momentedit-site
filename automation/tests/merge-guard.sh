@@ -9072,8 +9072,9 @@ nochk "PREP_WHERE = '②" assets/ritual-open.js
 chk 'STEP_NONUM_OP' mypage.html 1
 nochk "'1단계에서" mypage.html   # 청첩장 걸음은 이름(«기본 단계») — 진행 표시에 번호가 없다
 chk 'STEP_COMPACT' order-preview.html 5   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄(_mkStepRow · .mk-stp)을 걷어 8 → 5
-chk '<ol class="op-steps-c" data-fk="opsc"' order-preview.html 1
-chk 'STEP_LAB_TOP' order-preview.html 3   # ★[STEP_LAB_TOP 2026-10-04 사장님 «가로바 위쪽 각각 센터로»] 칸 위 가운데 이름 · 지나온 걸음 = 단추
+chk 'class="op-steps-c" role="img"' order-preview.html 1
+chk 'STEP_LAB_TOP' order-preview.html 3   # ★[STEP_LAB_TOP 2026-10-04 사장님 «텍스트 그냥 삭제»] 접은 표시 = 칸 넷만 · 칸 위 이름 · 펼친 걸음 줄 둘 다 없음
+nochk 'class="op-scl"' order-preview.html   # [STEP_LAB_TOP] 칸 위 걸음 이름 금지 — 2026-10-04 사용자 지시로 삭제
 chk 'function _mkPosFit()' order-preview.html 1
 chk 'VS_LINK_IN_ROW' order-preview.html 6
 chk 'class="pk-link cg-vsl" data-fk="mkvsopen"' order-preview.html 1

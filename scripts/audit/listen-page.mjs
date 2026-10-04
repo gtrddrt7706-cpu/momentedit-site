@@ -219,7 +219,7 @@ for (const w of [390, 1280]) {
   await pg.click(`[data-fk="${keys.find((f) => /candle|ring|declare|toast/.test(f)) || keys[0]}"]`); await pg.waitForTimeout(500);
   ok('2-2 수정 중 아래 단추 = «취소 / 요약으로 돌아가기» [RIT_BACK_WORD]', await pg.evaluate(() => editReturn && /요약으로 돌아가기/.test(document.getElementById('next').textContent)));
   /* ★[STEP_COMPACT 2026-10-03 사장님] 순간 쪽 걸음 표시는 접힌 모양 — 걸음 이동은 «모든 순간 보기» 첫 줄(같은 opStepNav · 수정 끝내기 그대로) */
-  await pg.click('.op-steps-c [data-fk="ops:pick"]');   /* [STEP_LAB_TOP] 걸음 이동 = 접은 표시 칸 위 이름 */ await pg.waitForTimeout(500);
+  await pg.evaluate(() => opStepNav('pick'));   /* [STEP_LAB_TOP] 순간 쪽엔 걸음 단추가 없다 — 같은 opStepNav 를 바로 부른다(수정 끝내기 규칙을 잰다) */ await pg.waitForTimeout(500);
   ok('2-2 걸음 표시로 옮기면 수정 끝 · 아래 단추가 제 이름 · ① 요약 다시 보임', await pg.evaluate(() => !editReturn && STEPS[idx].k === 'pick' && !/요약으로 돌아가기/.test(document.getElementById('next').textContent) && /이전/.test(document.getElementById('prev').textContent) && !!document.getElementById('opCta')));
   ok('2-2 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
