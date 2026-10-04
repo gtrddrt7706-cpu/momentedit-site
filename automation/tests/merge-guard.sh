@@ -12651,6 +12651,13 @@ nochk '/home/user/momentedit-site/' scripts/audit/copy-rule.mjs
 chk 'BIG_CTL_FIXED' order-preview.html 2
 chk 'lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;margin-top:auto' order-preview.html 1
 chk 'PC_SIDE_AIR' order-preview.html 2
+chk 'VC_CALM' order-preview.html 4   # ★[VC_CALM 2026-10-04 사장님 «'지금은 AI 목소리를 만들 수 없어요' 왜? 대책»] 앞일 우선 · 3초 뒤 조용히 한 번 더 · 옛 실패 글 걷기
+chk 'PLAY_ONE_LOOK' order-preview.html 3   # ★[PLAY_ONE_LOOK 2026-10-04 사장님 «왼쪽 플레이 단추 · 모양도 안 바뀜 · 일괄 통일»] 줄 ▶ 한 모양 · 나레이션 줄도 ▶/■
+chk 'VS_ONE_LINE' order-preview.html 1   # 두 분 목소리 설명 한 줄(미니멀) · 두 곳 같은 글
+chk 'UI_ONE' order-preview.html 15   # ★[UI_ONE 2026-10-04 사장님 «설정 따라 어쩔 수 없는 것 말고는 연속성 있게 같은 인터페이스»] 주 단추 알약 · 고른 것 한 모양 · 이 순간 들어 보기 ▶/■ · 플레이어 같은 묶음 · 쪽 제목 22/600 · 나레이션 줄 머리
+nochk 'var(--serif-ko,inherit)' order-preview.html   # 없는 토큰 — 팝업 제목이 고딕으로 떨어졌다
+nochk 'border:1px solid var(--gold-deeper);border-radius:50%;box-sizing:content-box}' order-preview.html   # 옛 테두리만 ▶
+nochk 'pk-prep-pc' order-preview.html
 chk 'SEAL_POINTS' order-preview.html 4
 chk 'SEAL_POINTS' assets/ritual-open.js 1
 chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
@@ -14150,7 +14157,7 @@ chk 'MINI_OFF_ROWS' order-preview.html 3
 chk "if(!st||LP.big||_rowCtl){ el.style.display='none'; }" order-preview.html 1
 chk 'data-ml=' order-preview.html 1
 # ★[VPAGE_TIDY 2026-10-04 사장님 «두 분 목소리 만들기 — 이게 최선이야? 디자이너 시선으로 비판 · 개선 · 반영»] 칠한 안내 상자 · 번호 걷음 · 단서는 작은 둘째 줄 · 안 만든 분 카드에 «무엇을 하는지» 한 줄 · «목소리 만들기가 남았어요» 걷음
-chk 'VPAGE_TIDY' order-preview.html 5
+chk 'VPAGE_TIDY' order-preview.html 4
 nochk '목소리 만들기가 남았어요' order-preview.html
 nochk 'padding:14px 16px;border-radius:12px;background:var(--bg2)}' order-preview.html
 chk '글 두 개를 소리 내어 읽어요 · 1분쯤' order-preview.html 1

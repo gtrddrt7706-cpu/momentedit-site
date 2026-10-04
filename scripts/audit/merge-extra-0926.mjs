@@ -174,7 +174,7 @@ await safe('P2-3', async () => {
   const r = await pg.evaluate(() => { const m = document.getElementById('lsMini'); window.scrollTo(0, document.body.scrollHeight); const ls = document.querySelectorAll('.mk-pg .mk-sec'); const last = ls[ls.length - 1]; const lb = last ? last.getBoundingClientRect() : null, mb = m.getBoundingClientRect();
     return { mini: getComputedStyle(m).display, cls: document.documentElement.classList.contains('lsmini'), pad: parseInt(document.documentElement.style.scrollPaddingBottom) || 0, clear: lb ? lb.bottom <= mb.top + 1 : null }; });
   /* ★[MINI_OFF_ROWS 2026-10-04 사장님 «밑에 재생 박스는 굳이 안 나와도 될 것 같아»] ② 순간 쪽은 줄 ▶ 가 ❚❚ 가 되고 작은 플레이어는 뜨지 않는다 — 여유(lsmini)도 없다 */
-  const pl = await pg.evaluate(() => document.querySelectorAll('.mk-pl[data-pl="1"]').length);
+  const pl = await pg.evaluate(() => document.querySelectorAll('.mk-pl[data-ml].on').length);
   ok('P2-3 ② 쪽 재생 — 작은 플레이어 없음 · 여유 없음 · 흐르는 줄 ▶ 가 ❚❚ [MINI_OFF_ROWS]', r.mini === 'none' && !r.cls && pl === 1, JSON.stringify({ r, pl }));
   await pg.evaluate(() => lsStop()); await pg.waitForTimeout(300);
   ok('P2-3 멈추면 여유도 거둔다', await pg.evaluate(() => !document.documentElement.classList.contains('lsmini')));
