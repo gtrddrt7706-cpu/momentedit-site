@@ -14172,13 +14172,12 @@ chk 'SITE_CHK_OFF' order-preview.html 4
 # ★[CUE_SIG 2026-10-04 사장님 «적을 수 있게 하고 현장이면 큐사인을 직접 적게»] 위 SITE_CHK_OFF 를 바꾼다 — 체크는 되살리고 끝 신호 칸을 붙인다
 chk "chk:'현장에서 바로 할게요'" order-preview.html 2
 chk 'CUE_SIG' order-preview.html 6
-chk 'CUE_SIG' assets/ritual-cue.js 5
-chk 'CUE_SIG' console.html 1
+chk 'CUE_SIG' console.html 2
 chk 'function _cueBox(id)' order-preview.html 1
-chk 'function endSig(S, items)' assets/ritual-cue.js 1
+chk 'function cueEnd(c)' console.html 1
+nochk 'endSig(S' assets/ritual-cue.js   # [CUE_SIG] 두 분 글은 엔진(미리 듣기 링크가 싣는 키)이 읽지 않는다 — 콘솔만
 chk 'function _txSite(kind,c,id)' order-preview.html 1
-# ★[PLAY_ALIGN 2026-10-04 사장님 «플레이 버튼이 위로 올라가 있는 느낌»] ② 나레이션 줄 ▶ 는 문장 첫 줄 가운데
-chk '.mk-flow li.n>.mk-pl{margin-top:11px}' order-preview.html 1
+# [PLAY_ALIGN] → main #985 PLAY_OPTIC(디자인 세션 · 사장님 확인)이 같은 일을 맡는다 — 겹치지 않게 걷었다
 # ★[PV_LINK_ONE 2026-10-04 사장님 «(영상이나 사진) 삭제 · 무조건 영상 · 날짜는 오른쪽 한 줄»]
 nochk '식전 영상 링크(영상이나 사진)' assets/ritual-open.js
 chk 'PV_LINK_ONE' assets/ritual-open.js 1

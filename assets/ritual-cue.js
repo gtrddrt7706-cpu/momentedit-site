@@ -225,12 +225,6 @@
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
-  /* [CUE_SIG] 끝 신호 — 칸마다 [id, 누구, 글 키(없으면 id)] · 글이 있으면 마지막 문장 «…», 현장이면 적은 신호 · 둘 다 없으면 빈 말 */
-  function lastSent(t) { var p = String(t || '').replace(/\s+/g, ' ').trim().match(/[^.!?。]+[.!?。]*/g) || []; var l = (p[p.length - 1] || '').trim(); return l.length > 40 ? '…' + l.slice(-40) : l; }
-  function endSig(S, items) { var tx = (S && S.tx) || {}, c = (S && S.mkc) || {}, cs = (S && S.cueSig) || {}, out = [];
-    items.forEach(function (it) { var t = String(tx[it[2] || it[0]] || '').trim(), cu = String(cs[it[0]] || '').trim();
-      if (t) out.push(it[1] + ' «' + lastSent(t) + '»'); else if (c[it[0]]) out.push(it[1] + ' · ' + (cu || '아직 안 적음 — 말이 끝나면 마이크를 받는다')); });
-    return out.join(' / '); }
   function sylSec(s) { return Math.round((syl(s) / PARAM.spm) * 60); }   // 대본 생성기와 동일 공식
   /* ★★[PAD3 2026-09-25] 두 자리로 «채우기만» 하고 자르지 않는다 — 옛 판 ('0'+n).slice(-2) 는 100 을 «00», 107 을 «07» 로 잘라
      새 줄이 이미 녹음된 07_vow-groom 자리에 앉을 뻔했다(녹음 대본에 07_toast-both-pour-b.mp3 로 찍혀 드러났다). */
@@ -643,16 +637,13 @@
       })()].slice(0, openC ? 1 : 2);   // [ENTRY_OUT_OFF]
     },
 
-    /* ★★[CUE_SIG 2026-10-04 사장님 «누군가는 끝나는 멘트에 맞춰 나레이션을 켜야 한다 · 적을 수 있게 하고 현장이면 큐사인을 직접 적게»]
-       두 분 · 부모님이 직접 말하는 자리의 «끝 신호» — 글을 적었으면 그 글의 마지막 문장, 현장에서 바로 하면 두 분이 적은 신호(S.cueSig).
-       콘솔이 live.end 를 «끝 신호:» 한 줄로 디렉터에게 보인다(고객 화면에는 안 보인다) */
     welcome: function (S) {
       var n = D.NARR.welcome;
       return [
         cue({
           k: 'welcome', blockN: '환영·첫인사', slug: 'narr-welcome-in', name: '환영·첫인사 시작', text: n.nar,
           hint: '두 분이 중앙에서 하객 쪽으로 돌아서면 · 속으로 셋을 세고',
-          live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: 46, self: true, doing: 'say', fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴', end: endSig(S, [['welcome.g', '신랑'], ['welcome.b', '신부']]) }   // [CUE_SIG]
+          live: { t: '두 분이 직접 인사 (디렉터가 핸드마이크 전달)', est: 46, self: true, doing: 'say', fallback: '말이 막히면 미리 받아 둔 인사말 카드를 건넴' }
         })
         /* ★★[WELCOME_OUT_DROP 2026-09-20] 「지금 들으신 것이 두 사람의 첫 인사였습니다」를 **큐째로 뺀다.**
            ★문안만 지우면 안 된다 — 큐가 남아 식장에서 «소리 없는 큐»가 된다([DROP_GUARD]).
@@ -685,7 +676,7 @@
             /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] S.vowHow — 'alt'(기본 · 번갈아) | 'each'(각자 차례로).
                모르는 값은 'alt'. 'each' 의 문자열도 ritual-story.js 의 LIVE · CAST_AT 키다(같은 커밋에서 함께). */
             t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께',   /* [R2-04] «마지막 두 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true,
-            both: D.VOWBOTH, end: endSig(S, [['vow.g', '신랑'], ['vow.b', '신부']]),   // [CUE_SIG]
+            both: D.VOWBOTH,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
             fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 합창이 어긋나면 신부가 반 박자 먼저'
           }
@@ -943,7 +934,7 @@
           live: {
             t: '두 분이 직접 편지 낭독', est: 165, self: true, doing: 'say', peak: true,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt, duck: PARAM.duckOff,
-            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 배우자가 이어 읽기 · 그다음 디렉터 대독', end: endSig(S, [['letter.g', '신랑'], ['letter.b', '신부']])   // [CUE_SIG]
+            fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 배우자가 이어 읽기 · 그다음 디렉터 대독'
           }
         }),
         cue({
@@ -1014,7 +1005,7 @@
             est: 100, self: !S.blessProxy, doing: 'say',
             swellAt: PARAM.bless.swellAt, swellTo: PARAM.bless.swellTo, swellMs: PARAM.bless.swellMs,
             longThreshold: PARAM.bless.longThreshold,
-            fallback: '2:30에 BGM이 자동으로 부풀어 신호 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다', end: S.blessProxy ? '' : endSig(S, [['p:bless:0', '부모님', 'bless.p']])   // [CUE_SIG]
+            fallback: '2:30에 BGM이 자동으로 부풀어 신호 · 3:00 넘으면 디렉터가 한 문장으로 받아 끊는다'
           }
         }),
         cue({
