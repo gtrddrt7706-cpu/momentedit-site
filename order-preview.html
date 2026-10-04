@@ -3911,7 +3911,7 @@ function _mkLeaveMsg(k){ if(!k||k==='_sum'||k==='_voice'||_mkOff(k)) return '';
   var tw=[]; ts.forEach(function(x){ if(x.kind==='tx'&&tw.indexOf(x.who)<0) tw.push(x.who); });
   if(tw.length) return head+tw.join(' · ')+' 칸이 비어 있어요. 미완료로 둘게요.';
   /* [R3-05] 그 밖 할 일도 첫 하나(ts[0])만 말하지 않는다 — AI 판 식전 영상은 «식전 영상 링크» · «AI 두 분 목소리» 둘이 남아도 링크만 말했다 */
-  var nms=[]; ts.forEach(function(x){ if(x.kind==='tx') return; var _sp=String(x.nm).split(' · '), n=(x.q&&x.q.up)?(function(){ var c=ts.filter(function(y){ return y.q&&y.q.up; }).length; return _vpCur(k)==='ai'?'AI 목소리를 만들지 않은 줄 '+c+'개':'두 분 목소리 녹음 '+c+'줄'; })():_sp[0]   /* [SIM_R1] 어느 줄인지 · 몇 줄인지 */.replace(/\s*\([^)]*\)\s*$/,'');
+  var nms=[]; ts.forEach(function(x){ if(x.kind==='tx') return; var _sp=String(x.nm).split(' · '), n=(x.q&&x.q.up)?(function(){ var c=ts.filter(function(y){ return y.q&&y.q.up; }).length; return _vpCur(k)==='ai'?'AI 목소리 '+c+'줄':'두 분 목소리 녹음 '+c+'줄'; })()   /* [SIM_R2] «AI 목소리 2줄»이 남아 있어요 — 새로 만들 줄 · 다시 만들 줄 둘 다 맞는 말 */:_sp[0]   /* [SIM_R1] 어느 줄인지 · 몇 줄인지 */.replace(/\s*\([^)]*\)\s*$/,'');
     if(!(x.q&&x.q.up)&&n===_mkName(k)) n=x.kind==='ask'?n+' 부탁':(_sp[1]||n).replace(/\s*\([^)]*\)\s*$/,'');   /* [R4-11] 첫 토막이 순간 이름뿐이면(«화촉 · 양가 어머님께서…») 무엇이 남았는지 안 보였다 → «화촉 부탁» */
     if(nms.indexOf(n)<0) nms.push(n); });
   var last=nms[nms.length-1];
