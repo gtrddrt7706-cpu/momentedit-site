@@ -148,8 +148,8 @@ for (const w of [390, 1280]) {
     await pg.click(`[data-fk="${other}"]`); await pg.waitForTimeout(300);
     const p1 = await pg.evaluate(() => ({ n: window.__aplays.length, q: LP.q.length, paused: !LP.el || LP.el.paused }));
     ok(`${w} [CHIP_NO_AUTOPLAY] 듣는 중에 칩 → 소리가 멈춘다(줄 비움 · 새 play 없음)`, p0.q > 0 && p1.q === 0 && p1.n === p0.n, JSON.stringify({ p0, p1 }));
-    await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(400);
-    const p2 = await pg.evaluate((fk) => { const want = fk.split(':')[2]; const st = _lSteps(ENG, ['candle']).filter((x) => x.src)[0]; return { n: window.__aplays.length, cur: S.candleWho, want, first: window.__aplays[window.__aplays.length - 1], exp: st && st.src }; }, other);
+    await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(1600);   /* [PLAY_LEAD] 처음 1초는 빈소리 — 그 뒤 첫 소리 */
+    const p2 = await pg.evaluate((fk) => { const want = fk.split(':')[2]; const st = _lSteps(ENG, ['candle']).filter((x) => x.src)[0]; const real = window.__aplays.filter((u) => !/^blob:/.test(String(u))); return { n: window.__aplays.length, cur: S.candleWho, want, first: real[real.length - 1], exp: st && st.src }; }, other);
     ok(`${w} [CHIP_NO_AUTOPLAY] «이 순간 들어 보기» = 새로 고른 대로(고른 값 ${p2.want} · 처음 튼 파일 = 지금 판의 첫 소리)`, p2.n > p1.n && p2.cur === p2.want && !!p2.exp && String(p2.first).endsWith(p2.exp.replace(/^\.?\//, '')), JSON.stringify(p2));
     await shot(pg, `moment-candle-${w}`);
     /* 연습 «이 순간 바꾸기» 칩 */

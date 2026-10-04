@@ -9144,6 +9144,12 @@ chk 'KEEP_IN_PILL' order-preview.html 3   # 확정하기 · 확정됨 = 머리 �
 chk 'TUNE_PLAY_WIDE' order-preview.html 2   # 예시 듣기 = 예시 글 아래 전체 폭
 chk 'TUNE_SAMPLE_LONG' order-preview.html 1
 chk 'TUNE_DOTS' order-preview.html 3   # 빠르기 · 쉼 = 점 줄(7 · 5) · 라디오 · 44 · 말로 값
+chk 'TUNE_TEXT' order-preview.html 2   # 예시 글 고쳐 들어 보기
+chk 'TUNE_LEAD' order-preview.html 1   # 예시 앞 1초 빈소리(첫 소리 잘림)
+chk 'PLAY_LEAD' order-preview.html 5
+chk 'PLAY_FRESH' order-preview.html 2   # ★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 순간 ▶에 안 먹는 오류 · 구조상 절대 그렇게 못 하게»] 재생 한 곳(_lShow)에서 낡은 줄을 새로 만든 뒤 튼다
+chk 'VC_CARD_V2' order-preview.html 2   # ★[VC_CARD_V2 2026-10-04 사장님 «빠르기 +0.2 · 쉼 +1 · 들어 보고 맞추기 구조 개편 · 모바일도»] 사람 카드 한 장 · 말로 두 칸 · 주 단추 하나   # ▶ 누르면 1초 빈소리 뒤 재생(줄 ▶ · 나레이션 · 작은 플레이어 첫 줄)
+chk 'TUNE_DOTS' order-preview.html 3
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
 chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html
@@ -14000,7 +14006,9 @@ chk 'VOICE_SETUP' scripts/audit/voice-setup.mjs 2
 # ★[LINE_EDIT · VS_CHIP_ONCE · PLAY_ONE 2026-10-02 사장님 «하객 맞이 같은 부분도 두 분이 직접 쓰고 AI 로» (범위: 세 자리) · «칩을 누르면 자세히 창이 처음 한 번» · «플레이 버튼이 겹치잖아»]
 chk 'LINE_EDIT' order-preview.html 4
 chk 'function _g3Split()' order-preview.html 1
-chk 'VS_CHIP_ONCE' order-preview.html 2
+chk 'VS_CHIP_ONCE' order-preview.html 1   # [VS_CHIP_OFF 2026-10-04] 저절로 열기는 걷었다(표식은 옛 주석 · 시험 이름으로 남는다)
+chk 'VS_CHIP_OFF' order-preview.html 1
+nochk 'S.vsChip=1; VS.open=true' order-preview.html
 chk 'PLAY_ONE' order-preview.html 2
 chk 'LINE_EDIT' scripts/audit/voice-setup.mjs 1
 chk 'VS_CHIP_ONCE' scripts/audit/voice-setup.mjs 1
