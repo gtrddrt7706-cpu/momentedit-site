@@ -9133,6 +9133,14 @@ chk 'VC_BOTH_CHECK' order-preview.html 3   # 나중에 만든 목소리도 이�
 chk 'AI_DONE_QUIET' order-preview.html 2   # «✓ AI로 만들었어요 · 지우기» 걷음
 chk 'TONE_HINT' order-preview.html 2   # 말투가 마음에 안 들 때 한 줄 + 다시 녹음하기
 chk 'READ_NO_SEC' order-preview.html 1
+chk 'REC_NOTE_OFF' order-preview.html 1
+chk 'MIC_OFF_PLAY' order-preview.html 1   # 녹음이 끝나면 마이크를 닫는다(아이폰 수화기 소리로 작게 들림)
+chk 'STEP_LAB_CENTER' order-preview.html 1
+chk 'PAUSE_NUM' order-preview.html 1
+chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
+chk 'AGREE_NOTE_OFF' order-preview.html 1
+nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html
+nochk '앞뒤 빈소리를 자르고 소리 크기를 나레이션에 맞췄어요 · 한 번 들어 보세요' order-preview.html
 nochk '천천히 읽어 주세요 · 30초쯤' order-preview.html   # [READ_NO_SEC]
 nochk 'mk-vdel2" data-fk="mkupdel' order-preview.html   # [AI_DONE_QUIET]
 chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안에서 맞춘다(0.2 · 0.5 · 0.9 · 1.4초)
