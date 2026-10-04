@@ -12656,6 +12656,33 @@ chk 'PLAY_ONE_LOOK' order-preview.html 3   # ★[PLAY_ONE_LOOK 2026-10-04 사장
 chk 'VS_ONE_LINE' order-preview.html 1   # 두 분 목소리 설명 한 줄(미니멀) · 두 곳 같은 글
 chk 'UI_ONE' order-preview.html 15   # ★[UI_ONE 2026-10-04 사장님 «설정 따라 어쩔 수 없는 것 말고는 연속성 있게 같은 인터페이스»] 주 단추 알약 · 고른 것 한 모양 · 이 순간 들어 보기 ▶/■ · 플레이어 같은 묶음 · 쪽 제목 22/600 · 나레이션 줄 머리
 chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 사장님 «플레이 단추가 위쪽 · B · 좀 더 내려»] 줄 ▶ 눈 맞춤 5px
+# ★[QA_0927 2026-10-04 사장님 «식순 섹션 버튼 하나씩 병렬 시뮬레이션 · 버그 · 지연 · 부자연스러운 것»] 네 갈래 점검에서 나온 것 — 연습 재생이 그리기마다 꺼짐 · 음악까지 미리듣기 · 빠르게 훑기 · 포커스 · 플레이어가 누른 곳을 덮음 외
+chk 'QA_PR_KEEP' order-preview.html 1
+chk 'QA_BIG_THEN' order-preview.html 2
+chk 'QA_FAST' order-preview.html 2
+chk 'QA_SEC' order-preview.html 4
+chk 'QA_SKIP_PLAY' order-preview.html 1
+chk 'QA_MINI_FOCUS' order-preview.html 3
+chk 'QA_MINI_COVER' order-preview.html 1
+chk 'QA_BIG_FOCUS' order-preview.html 1
+chk 'QA_JOSA' order-preview.html 1
+chk 'QA_ASK_FOCUS' order-preview.html 3
+chk 'QA_FX_ORDER' order-preview.html 1
+chk 'QA_REFILL' order-preview.html 2
+chk 'QA_EX_PRESSED' order-preview.html 1
+chk 'QA_EX_DBL' order-preview.html 1
+chk 'QA_PC_EMPTY_GO' order-preview.html 1
+chk 'QA_TIP_AWAY' order-preview.html 1
+chk 'QA_SHEET_SWIPE' order-preview.html 1
+chk 'QA_SAVE_FOCUS' order-preview.html 2
+chk 'QA_MENU_AWAY' order-preview.html 1
+chk 'QA_CNT_WORD' order-preview.html 1
+chk 'QA_BLESS_CNT' order-preview.html 1
+chk 'QA_TODO_UNIT' order-preview.html 1
+chk 'QA_END_WRAP' order-preview.html 1
+chk 'QA_EDIT_BACK' order-preview.html 1
+chk 'QA_PAGE_HUSH' order-preview.html 1
+chk "aria-disabled') === 'true'" scripts/check-ord-save.mjs 3   # [QA_SAVE_FOCUS] 포커스 동안은 aria-disabled 로 꺼진다
 nochk 'var(--serif-ko,inherit)' order-preview.html   # 없는 토큰 — 팝업 제목이 고딕으로 떨어졌다
 nochk 'border:1px solid var(--gold-deeper);border-radius:50%;box-sizing:content-box}' order-preview.html   # 옛 테두리만 ▶
 nochk 'pk-prep-pc' order-preview.html

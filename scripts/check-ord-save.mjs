@@ -91,7 +91,7 @@ try {
     const b = document.getElementById('obSave');
     return { n: window.__sent.filter((m) => m.type === 'momentedit:orderDraft').length,
              btn: b ? b.textContent.trim() : '', on: b ? b.className.indexOf('on') >= 0 : false,
-             dis: b ? b.disabled : null };
+             dis: b ? (b.disabled || b.getAttribute('aria-disabled') === 'true') : null };
   });
 
   /* ★⑧ [BADGE_GAP] 낭독기가 읽는 이름 — textContent 가 아니라 접근성 트리에서 읽는다.
@@ -136,7 +136,7 @@ try {
     parent.postMessage({ type: 'momentedit:orderDraftSaved' }, window.location.origin);
     await wait(300);
     return {
-      n: drafts.length, busy, done: b.textContent.trim(), dis: b.disabled,
+      n: drafts.length, busy, done: b.textContent.trim(), dis: b.disabled || b.getAttribute('aria-disabled') === 'true',   // [QA_SAVE_FOCUS] 포커스가 있는 동안은 aria-disabled 로 꺼진다
       seen: !!(d0 && d0.data && d0.data.S && Array.isArray(d0.data.S.seen)),
       seenN: d0 && d0.data && d0.data.S && d0.data.S.seen ? d0.data.S.seen.length : -1,
       course: !!(d0 && d0.data && d0.data.S && d0.data.S.course),
@@ -210,7 +210,7 @@ try {
     parent.postMessage({ type: 'momentedit:orderDraftFail' }, window.location.origin);
     await wait(300);
     const b = document.getElementById('obSave');
-    return { txt: b.textContent.trim(), cls: b.className, dis: b.disabled };
+    return { txt: b.textContent.trim(), cls: b.className, dis: b.disabled || b.getAttribute('aria-disabled') === 'true' };
   });
 
   /* ★⑥-b 저장 실패 상태(다시 저장)에서 나가기 — 판이 「저장이 아직 안 됐어요」라고 말해야 한다 [EXIT_ASK]
