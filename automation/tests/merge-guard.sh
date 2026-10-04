@@ -2286,7 +2286,7 @@ chk 'RESTART_TX_TOMB' order-preview.html 1
 chk 'RESTART_TX_TOMB' scripts/audit/restart-tomb.mjs 1
 # [R3-12 PRACTICE_TITLE 2026-10-03 사장님 «넣기»] ③ 연습하기도 쪽 제목(명조 .mk-h h3)으로 시작 · 통계 줄은 그 아래 보조 글
 chk 'PRACTICE_TITLE' order-preview.html 1
-chk '<h3 id="prHead">처음부터 끝까지 연습해 봐요</h3>' order-preview.html 1
+chk '<h3 id="prHead" tabindex="-1">처음부터 끝까지 연습해 봐요</h3>' order-preview.html 1   # [QA_MINI_FOCUS] 포커스 받는 머리
 # [R4-01 … R4-13 2026-10-03 식순 라운드 점검 4] 한 분 시간 «약 1분»(원고 300자 기준) · 원고 없이 덕담은 대본에서 원고를 뺀다 · 대본도 체크를 본다 · 선택 항목은 셈 밖 · 준비 줄 두 줄
 chk 'function _perSec(k,x)' order-preview.html 1
 chk 'function _blessSite()' order-preview.html 1
@@ -2296,7 +2296,7 @@ chk 'PREP_WHERE: PREP_WHERE' assets/ritual-open.js 1
 chk 'R4-06' mypage.html 1
 chk 'R4-02' admin.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/restart-tomb.mjs >/dev/null 2>&1 || { echo 'FAIL restart-tomb: «모두 비우기» 뒤 지운 글이 서버 합치기에서 되살아납니다 — node scripts/audit/restart-tomb.mjs'; fail=1; }; fi
-chk 'LP.q=_lRefExpand(_lSteps(' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
+chk 'LP.q=LP.fast?_q0:_lRefExpand(_q0)' order-preview.html 1       # 참고 예시는 재생 목록에만 · _lSteps(④ 대본 복사)에는 넣지 않는다
 chk 'CHIP_NO_REPLAY' scripts/audit/listen-page.mjs 1
 chk 'REF_EXAMPLE' scripts/audit/listen-page.mjs 2
 chk 'NOW_ONELINE' mypage.html 1                          # NOW 헤드라인 한 줄 원칙 + balance 안전망 · 빼면 '주세요' 3자만 둘째 줄에 남는 고아 줄이 돌아온다
@@ -13524,7 +13524,7 @@ chk '<span class="cg-c">' order-preview.html 1
 chk 'RIT_UNDO_INPLACE' order-preview.html 4         # 10 «이 순간 빼기»의 되돌리기는 뺀 그 자리
 chk 'class="ls-gone"' order-preview.html 1
 chk 'RIT_BIG_BTN' order-preview.html 2              # 11 작은 플레이어 «크게 보기» 글 단추
-chk 'class="lm-g" onclick="lsOpenBig()">크게 보기</button>' order-preview.html 1
+chk 'class="lm-g" data-fk="lmg" onclick="lsOpenBig()">크게 보기</button>' order-preview.html 1
 # ③ 준비하기
 chk 'RIT_FILE_CHECK' order-preview.html 5           # 12 새 코스 녹음 칸은 파일 창 대신 «챙겼어요» · 보내는 곳 안내는 한 번
 chk '챙겼어요</span></label>' order-preview.html 1
