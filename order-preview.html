@@ -972,7 +972,6 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-go{margin-top:auto;min-height:48px;border:0;border-radius:12px;background:var(--accent);color:#FAFAF8;font:inherit;font-weight:600;cursor:pointer}
   .pk-side .pk-peak{margin-top:0}
   .pk-side .op-note{margin-top:0}
-  .pk-prep-pc{margin-top:10px}
   .pk-acts{gap:18px;margin-bottom:48px}
   .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
   .pk-act-h{font-size:14px;color:var(--accent)}
@@ -4389,7 +4388,15 @@ function _vcSpent(key){ if(!_vcOn()||!VC.st) return false; var sp=function(w){ v
 function _vcToNar(key){ return _upLive()&&_vcOn()&&_vpCur(_vtMoment(key))==='ai'&&_vcSpent(key)&&!((S.up||{})[key]); }
 function _vcReadyFor(key){ if(!_vcOn()||!VC.st) return false; var w=_vcLineWho(key); return w==='both'?!!((VC.st.groom||{}).ready||(VC.st.bride||{}).ready):!!(VC.st[w]||{}).ready; }   // [VC_LINE_0928] 그 줄을 읽는 사람의 AI 목소리가 있을 때만 [AI로 만들기](8-2)
 function _vcReady(){ return _vcOn()&&VC.st&&((VC.st.groom||{}).ready||(VC.st.bride||{}).ready); }
-function _vc(op,data){ return new Promise(function(ok){ if(!EMBED){ ok({ok:false,down:true,error:'마이페이지에서 열면 쓸 수 있어요'}); return; }
+/* ★★[VC_CALM 2026-10-04 사장님 «'지금은 AI 목소리를 만들 수 없어요'가 왜 나오지? 이런 오류가 없게 문제를 파악하고 대책을»]
+   까닭: 미리 만들어 두기(ALT_READY · 다른 분 소리 · 빠르기 다시 굽기)가 업체에 여러 번 묻는 사이 두 분이 누른 것이 겹쳤다 —
+   업체가 «너무 잦음»(429)으로 거절하면 서버는 1.5초 뒤 한 번만 다시 묻고 «지금은 만들 수 없어요»를 돌려준다.
+   대책 셋: ①두 분이 누른 것(앞일)이 도는 동안 뒤일(미리 만들기)은 기다린다(VC.fg) ②앞일이 금방(30초 안) «지금은 안 돼요»면 3초 뒤 조용히 한 번 더
+   ③다시 할 때 옛 실패 글을 걷는다. 그래도 안 되면 그때 알린다 */
+function _vc(op,data){ var bg=!!(data&&data.bg), t0=Date.now(); if(op==='make'&&!bg) VC.fg=(VC.fg||0)+1;
+  var done=function(d){ if(op==='make'&&!bg) VC.fg=Math.max(0,(VC.fg||0)-1); return d; };
+  return _vc0(op,data).then(function(d){ if(op==='make'&&!bg&&d&&d.down&&!(data&&data._again)&&Date.now()-t0<30000){ return new Promise(function(r){ setTimeout(r,3000); }).then(function(){ return _vc0(op,Object.assign({},data,{_again:1})); }).then(done); } return done(d); }); }
+function _vc0(op,data){ return new Promise(function(ok){ if(!EMBED){ ok({ok:false,down:true,error:'마이페이지에서 열면 쓸 수 있어요'}); return; }
   var rid=++VC.rid; VC.cb[rid]=ok; setTimeout(function(){ if(VC.cb[rid]){ delete VC.cb[rid]; ok({ok:false,down:true,error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안 이 줄은 스튜디오 나레이션으로 나와요'}); } },95000);   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) — 실제 대안(스튜디오 나레이션)을 말한다 */
   try{ parent.postMessage({type:'momentedit:voiceClone',data:Object.assign({op:op,rid:rid},data||{})},window.location.origin); }catch(e){ delete VC.cb[rid]; ok({ok:false,down:true}); } }); }
 function _vcDone(d){ var f=VC.cb[d.rid]; if(f){ delete VC.cb[d.rid]; if(d&&d.error) d.error=_vcErrWord(d.error); f(d); } }
@@ -4496,7 +4503,7 @@ VC.tune=null; VC.sraw={};
 var TUNE_MAX=150;
 function _tuneText(){ var t=String(S.vtuneText||'').trim(); return t||VC_SAMPLE; }
 function _vcTuneOpen(w,from){ var o=(S.vset||{})[w]||{}; VC.tune={who:w,from:from,tempo:_tNorm(o.tempo||TEMPO_DEF),pause:_pNorm(o.pause||PAUSE_DEF),err:''}; render(); _vcSampleLoad(w,_tuneText()).then(function(r){ if(r&&VC.tune&&VC.tune.who===w) _vcSamplePlay(); }); }
-function _vcSampleLoad(w,text){ var c=VC.sraw[w]; if(c&&c.text===text) return Promise.resolve(c); var mine=function(){ return VC.tune&&VC.tune.who===w; };   /* [SIM_R1] 늦게 온 다른 분 답이 이 창에 쓰지 않게 */ if(mine()) VC.tune.loading=1; _tuneGoPaint();
+function _vcSampleLoad(w,text){ var c=VC.sraw[w]; if(c&&c.text===text) return Promise.resolve(c); var mine=function(){ return VC.tune&&VC.tune.who===w; };   /* [SIM_R1] 늦게 온 다른 분 답이 이 창에 쓰지 않게 */ if(mine()){ VC.tune.loading=1; VC.tune.err=''; render(); } _tuneGoPaint();   /* [VC_CALM] 다시 불러올 때 옛 실패 글을 걷는다(«만드는 중»과 실패 글이 함께 보였다) */
   return _vc('make',{key:'g0',text:text,tempo:'1',pause:150,one:w,retempo:true}).then(function(d){ if(mine()) VC.tune.loading=0;
     if(!d||!d.ok||!d.parts||!d.parts[0]){ if(mine()) VC.tune.err=(d&&d.error)||'예시를 불러오지 못했어요 · «예시 들어 보기»를 다시 눌러 주세요'; render(); return null; }
     var bin=atob(d.parts[0].data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); var AC=window.AudioContext||window.webkitAudioContext, ac=new AC();
@@ -4691,9 +4698,9 @@ function _vcAltGet(key,who,sig){ var o=(VC_ALT[key]||{})[who]; return o&&o.sig==
    ② 뒤에서 데우는 중에 누르면 새로 만들었다 → 데우는 중이면 그것을 기다린다(VC_ALTP · «만드는 중» 대신 «저장 중») */
 var VC_ALTP={};
 function _vcAltWarm(key,who,t,tempo,pause){ if(!/^(g\d|pv)$/.test(key)||!VC.st||!(VC.st[who]||{}).ready||!t) return; var sig=_vcAltSig(t,tempo,pause); if(_vcAltGet(key,who,sig)) return; var pk=key+'|'+who; if(VC_ALTP[pk]&&VC_ALTP[pk].sig===sig) return;
-  var pr=VC_ALTQ=VC_ALTQ.then(_vcAltIdle).then(function(){ if(_vcAltGet(key,who,sig)) return; if(VC_ALTP[pk]&&VC_ALTP[pk].p===pr) VC_ALTP[pk].go=1;   /* [SIM_R1] 업체에 묻기 시작한 것만 기다린다 — 줄 서 있기만 한 것은 기다리지 않고 바로 만든다 */ return _vc('make',{key:key,text:t,tempo:tempo,pause:pause,one:who,retempo:true}).then(function(d){ if(!d||!d.ok||!d.parts||!d.parts.length) return; return _vcProc(d,t,pause).then(function(p){ _vcAltPut(key,who,sig,p.wav); }); }).catch(function(){}); }).then(function(){ if(VC_ALTP[pk]&&VC_ALTP[pk].p===pr) delete VC_ALTP[pk]; });
+  var pr=VC_ALTQ=VC_ALTQ.then(_vcAltIdle).then(function(){ if(_vcAltGet(key,who,sig)) return; if(VC_ALTP[pk]&&VC_ALTP[pk].p===pr) VC_ALTP[pk].go=1;   /* [SIM_R1] 업체에 묻기 시작한 것만 기다린다 — 줄 서 있기만 한 것은 기다리지 않고 바로 만든다 */ return _vc('make',{key:key,text:t,tempo:tempo,pause:pause,one:who,retempo:true,bg:1}).then(function(d){ if(!d||!d.ok||!d.parts||!d.parts.length) return; return _vcProc(d,t,pause).then(function(p){ _vcAltPut(key,who,sig,p.wav); }); }).catch(function(){}); })   /* [VC_CALM] 뒤일 */.then(function(){ if(VC_ALTP[pk]&&VC_ALTP[pk].p===pr) delete VC_ALTP[pk]; });
   VC_ALTP[pk]={sig:sig,p:pr}; }
-function _vcAltIdle(){ return new Promise(function(ok){ var n=0; (function w(){ var busy=Object.keys(MK_UP).some(function(k){ return MK_UP[k]==='make'; }); if(!busy||++n>120) return ok(); setTimeout(w,500); })(); }); }   /* [PV_ERR_SHOW] 미리 데우기는 지금 만드는 줄이 끝난 뒤에 — 업체에 한꺼번에 두 번 묻지 않는다 */
+function _vcAltIdle(){ return new Promise(function(ok){ var n=0; (function w(){ var busy=(VC.fg||0)>0||Object.keys(MK_UP).some(function(k){ return MK_UP[k]==='make'; })||!!(VC.tune&&VC.tune.loading); if(!busy||++n>120) return ok(); setTimeout(w,500); })(); }); }   /* [VC_CALM] 앞일(누른 것 · 예시 불러오기)이 끝난 뒤에 */   /* [PV_ERR_SHOW] 미리 데우기는 지금 만드는 줄이 끝난 뒤에 — 업체에 한꺼번에 두 번 묻지 않는다 */
 function _vcWarmBoth(){ if(!_vcOn()||!VC.st) return; try{ _vcWarmAll('groom'); _vcWarmAll('bride'); }catch(e){} }   // [ALT_READY] ①
 /* 신랑 · 신부를 바꾼 줄 — 들고 있는 소리가 있으면 그것으로(만들지 않는다) · 없으면 만든다 */
 /* ★[SIM_R2] 목소리 상태를 받는 중에 누른 신랑 ↔ 신부 — 마지막에 누른 것 하나만 · 받기를 실패하면 소리를 지우지 않고 까닭을 말한다 */
@@ -5934,7 +5941,7 @@ function _pkPanel(){
   if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
     +'<p class="pk-fp-empty">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p></div></section>';   /* [R1-33] «늘 있어요»는 칸마다 표(.pk-fix)가 이미 말한다 */
   var _sg=R.flowSegs(S), flat=(n<2)||_sg.every(function(x){ return x.lv===_sg[0].lv; });   // [RIT_CURVE_LABEL]
-  var photo=_nb('단체 사진 '+sp.photo), prep=_ndd(R.prepLine(S)), prepW=prep?R.PREP_WHERE:'';   /* [R4-07] 개수 줄 · 안내 줄을 나눈다 */   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
+  var photo=_nb('단체 사진 '+sp.photo);   /* [PREP_LINE_OFF] 준비 줄을 걷어 prep · prepW 도 걷었다 */   /* [R4-07] 개수 줄 · 안내 줄을 나눈다 */   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
   var ord=(R.onOf(S,'prevideo')?'<span class="pk-pre">식전 영상 →</span> ':'')+R.orderParts(S).map(function(o){ return esc(o.n).replace(/ /g,NBS)+(o.peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':''); }).join(NBS+'› ');   /* 순간 이름 안에서는 안 갈린다(«닫는 / 인사» · 360) */   /* [F1] · [ORDER_ARROW_END 2026-09-26 직접 보며 점검] «›»는 앞 말에 붙인다 — 360 에서 둘째 줄이 «› 선언»으로 시작했다 · 줄 끝의 «›»는 «이어져요»로 읽힌다 */
   return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH">'
     /* ★[RIT_PANEL_NOMIN 2026-09-27 4부 2] 판 머리의 «본식 약 N분»을 뺐다 — 같은 숫자가 카드 · 판 머리 · 아래 막대에 셋이었다(카드와 막대에 남는다) */
@@ -5942,13 +5949,14 @@ function _pkPanel(){
     +(flat?'':'<p class="pk-fp-cap mo">'+PK_CAP+'</p>')
     /* ★[RIT_CURVE_LABEL 4부 1] 담은 순간이 둘 미만이거나 선이 평평하면(«늘 있어요»만) 곡선 대신 한 줄 */
     +(flat?'<p class="pk-fp-flat">순간을 더 담으면 흐름이 그려져요</p>':'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>')
-    +(prep?'<p class="pk-tm pco pk-prep-pc">'+esc(prep)+'<br>'+esc(prepW)+'</p>':'')+'</div>'   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
+    /* ★«두 분이 준비할 것 N가지 · 부모님께 부탁드릴 것 N가지 / 하나씩 만들기 마지막 «한눈에 보기»에서 모아 봐요» 줄 금지 — 2026-10-04 사용자 지시로 삭제 [PREP_LINE_OFF] (PC · 휴대폰 둘 다) */
+    +'</div>'   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
     +'<div class="pk-side">'
     +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
     +'<p class="pk-peak">'+_pkPeakHtml()+'</p>'
     +'<p class="pk-tm mo">'+ord+'</p>'
     +_noteHtml()
-    +'<p class="pk-tm mo">'+'본식과 단체'+NBS+'사진을 합쳐 늘 '+R.DAYMIN+'분이에요'+(prep?'<br>'+esc(prep)+'<br>'+esc(prepW):'')+'</p>'   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
+    +'<p class="pk-tm mo">'+'본식과 단체'+NBS+'사진을 합쳐 늘 '+R.DAYMIN+'분이에요'+'</p>'   /* [PREP_LINE_OFF] */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
     +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button>'
     +'</div></section>';
 }

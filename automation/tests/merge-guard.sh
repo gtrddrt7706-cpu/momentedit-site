@@ -12639,6 +12639,9 @@ nochk '/home/user/momentedit-site/' scripts/audit/copy-rule.mjs
 chk 'BIG_CTL_FIXED' order-preview.html 2
 chk 'lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;margin-top:auto' order-preview.html 1
 chk 'PC_SIDE_AIR' order-preview.html 2
+chk 'PREP_LINE_OFF' order-preview.html 2   # ★[PREP_LINE_OFF 2026-10-04 사장님 «삭제»] 감동 흐름 아래 «준비할 것 N가지 · …모아 봐요» 두 줄
+chk 'VC_CALM' order-preview.html 4   # ★[VC_CALM 2026-10-04 사장님 «'지금은 AI 목소리를 만들 수 없어요' 왜? 대책»] 앞일 우선 · 3초 뒤 조용히 한 번 더 · 옛 실패 글 걷기
+nochk 'pk-prep-pc' order-preview.html
 chk 'SEAL_POINTS' order-preview.html 4
 chk 'SEAL_POINTS' assets/ritual-open.js 1
 chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1

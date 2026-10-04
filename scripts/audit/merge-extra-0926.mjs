@@ -214,7 +214,7 @@ await safe('FB1', async () => {
   for (const w of [1000, 1150, 1280]) {
     const { ctx: c2, pg: p2 } = await open(w, 900); await next(p2); await next(p2); await p2.waitForTimeout(500); await p2.click('[data-fk="opx:family"]'); await p2.waitForTimeout(400);
     const r = await p2.evaluate(() => { const s = document.querySelector('.pk-side'), g = s.querySelector('.pk-go'), vis = [...s.children].filter((x) => x !== g && x.offsetParent), last = vis[vis.length - 1]; return { gap: Math.round(g.getBoundingClientRect().top - last.getBoundingClientRect().bottom), prepLeft: !!document.querySelector('.pk-fp-main .pk-prep-pc'), prepSide: !!s.querySelector('.pk-tm.pco') }; });
-    ok(`피드백1-2 PC ${w} 오른쪽 칸 — 단추 위 16px 이상 · 준비 줄은 그림 아래 [PC_SIDE_AIR]`, r.gap >= 16 && r.prepLeft && !r.prepSide, JSON.stringify(r));
+    ok(`피드백1-2 PC ${w} 오른쪽 칸 — 단추 위 16px 이상 · 준비 줄은 그림 아래 [PC_SIDE_AIR]`, r.gap >= 16 && !r.prepLeft && !r.prepSide /* [PREP_LINE_OFF 2026-10-04] 준비 줄은 그림 아래에서도 걷었다 */, JSON.stringify(r));
     await c2.close();
   }
   ok('[CAKE_TOAST_SPLIT] 케이크 커팅 · 축배는 두 카드(옛 [TOAST_ONE_OR] «하나만 해도 돼요»는 두 칸이 대신한다)', O.CARDS.cake && O.CARDS.cake.n === '케이크 커팅' && O.CARDS.toast.n === '축배' && !/케이크/.test(O.CARDS.toast.one));
