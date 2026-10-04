@@ -103,7 +103,7 @@ for (const w of [390, 1280]) {
       await pg.evaluate((k) => mkGo(k), k); await pg.waitForTimeout(350);
       rows[k] = await pg.evaluate(() => { const pg = document.querySelector('.mk-pg'), lk = [...document.querySelectorAll('[data-fk="mkvsopen"]')];
         return { bar: !!document.querySelector('.mk-vsbar'), link: lk.length, inVp: lk.every((b) => !!b.closest('.ls-cg.cg-vp')), drop: !!document.querySelector('[data-fk="mkdrop"]') || /이 순간 빼기/.test(pg ? pg.textContent : ''),
-          aiNote: /각자 1분쯤 소리 내어 읽으면|말투는 실제 목소리와 조금 다를 수|멘트를 바꾸면 두 분 목소리 입장 인사도/.test(pg ? pg.textContent : ''), vcSec: !!document.querySelector('.mk-aisec'), right: lk[0] ? Math.round(innerWidth - lk[0].getBoundingClientRect().right) : null, h: lk[0] ? Math.round(lk[0].getBoundingClientRect().height) : 0 }; }); }
+          aiNote: /각자 1분쯤 소리 내어 읽으면|각자 1분 읽으면|말투는 실제 목소리와 조금 다를 수|멘트를 바꾸면 두 분 목소리 입장 인사도/.test(pg ? pg.textContent : ''), vcSec: !!document.querySelector('.mk-aisec'), right: lk[0] ? Math.round(innerWidth - lk[0].getBoundingClientRect().right) : null, h: lk[0] ? Math.round(lk[0].getBoundingClientRect().height) : 0 }; }); }
     const ks = Object.keys(rows), vp = ks.filter((k) => ['guest', 'prevideo', 'entry'].includes(k));
     ok(`${w} [VS_LINK_IN_ROW] 순간 쪽 어디에도 «안내 목소리 · … · 나레이션 자세히» 한 줄 없음`, ks.every((k) => !rows[k].bar), ks.filter((k) => rows[k].bar).join(','));
     ok(`${w} [VS_LINK_IN_ROW] «나레이션 자세히» = 하객 맞이 · 식전 영상 · 입장의 목소리 준비 칩 줄 안 한 개(누를 곳 44) · 그 밖 순간엔 없음`, vp.length === 3 && vp.every((k) => rows[k].link === 1 && rows[k].inVp && rows[k].h >= 44) && ks.filter((k) => !vp.includes(k)).every((k) => rows[k].link === 0), JSON.stringify(rows));
@@ -178,7 +178,7 @@ for (const w of [390, 1280]) {
     const want = undefined;   /* [VPROG_OFF 2026-10-04 사장님] «신랑 남음 · 신부 남음» 진행 줄은 걷었다 — 없어야 한다 */
     ok(`${w} [VOICE_ONCE] «두 분 목소리 만들기» 쪽(${lab}) — 제목 · 진행 줄 없음 [VPROG_OFF] · 사람 카드 둘 · 다음 «다음 · 하객 맞이 안내» · 진행 줄 순간 칸 아님 · 접은 표시`, v.h === '두 분 목소리 만들기' && v.prog === want && v.cards === 2 && v.next === '다음 · 하객 맞이 안내' && !v.inStrip && v.c && /두 분 목소리/.test(v.pos), JSON.stringify(v));
     if (lab === 'both') ok(`${w} [VOICE_ONCE] 두 분 다 만들었으면 조용한 «준비됐어요» · «나중에 할게요» 없음`, /^두 분 목소리가 준비됐어요/.test(v.one) && !v.later, JSON.stringify(v));
-    else ok(`${w} [VOICE_ONCE] 아직이면 설명 한 줄(«각자 1분쯤 …» · «말투는 … 다를 수 있어요») + «나중에 할게요»`, /각자 1분쯤 소리 내어 읽으면/.test(v.one) && /다를 수 있어요/.test(v.one) && v.later, JSON.stringify(v));
+    else ok(`${w} [VOICE_ONCE] 아직이면 설명 한 줄(«각자 1분쯤 …» · «말투는 … 다를 수 있어요») + «나중에 할게요»`, v.one === '각자 1분 읽으면 그 목소리로 안내를 만들어요 · 말투는 조금 다를 수 있어요' /* [VS_ONE_LINE] */ && v.later, JSON.stringify(v));
     if (lab === 'none') {
       await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(400);
       const ng = await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; render(); const l = document.querySelector('[data-fk="mkvnone"]'); return { t: l && l.textContent, pos: (document.querySelector('#mkStrip .mk-pos') || {}).textContent }; });
