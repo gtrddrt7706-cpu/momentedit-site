@@ -4414,6 +4414,7 @@ function _vcConsentPanel(w){ var nm=_vcName(w), kv=function(x){ var i=x.indexOf(
     +'<button type="button" class="mk-dlg-go" id="vcAgree" data-fk="mkvcagree"'+(VC.agree&&!VC.agreeing?'':' disabled')+' onclick="mkVcAgree(\''+w+'\')">'+(VC.agreeing?'저장하는 중…':'동의하고 읽으러 가기')+'</button>'
     +(VC.agree?'':'<p class="mk-note mk-dlg-c1">위 칸에 체크하면 눌러져요</p>')
     +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mkvcno" onclick="mkDlgClose()">안 할게요</button></div>'; }
+/* ★«· 30초쯤» 금지 — 2026-10-04 사용자 지시로 삭제 [READ_NO_SEC] */
 /* 8-2 E 1분 읽기 — 글 둘을 한 번에 하나씩(글마다 30초쯤) · 둘째 글 끝에 확인 문장(서버가 뽑는다 · 다시 읽으면 새로) · 파일 올리기 없음
    [REC_DLG] 글 1 을 받으면 글 2 로 · 글 2 를 받으면 바로 만든다 · 못 되면 까닭을 창 안에 */
 function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
@@ -4427,7 +4428,7 @@ function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
   var t=n===1?VC_TXT.read1:VC_TXT.read2+(R.phrase?' '+R.phrase:''), got=R.take[n], rec=MK_REC&&MK_REC.key==='vc:'+w+':'+n?MK_REC:null, k='vc:'+w+':'+n;
   /* ★[READ_DLG_TIDY 2026-10-04 사장님 «디자이너 관점으로 문단 정리»] 안내 한 문단(괄호 · 가운뎃점으로 이은 두 문장)을 두 줄로 — 할 일 한 줄 · 요령 한 줄.
      줄마다 따로 감싸(.mk-rdl span = 블록) 390 · 1280 어디서나 «할 일 / 요령»이 같은 자리에서 끊긴다 · text-wrap:balance 로 한 줄 안에서도 고르게 */
-  var h='<p class="mk-note mk-rdl">'+(n===1?'<span>아래 글을 소리 내어 천천히 읽어 주세요 · 30초쯤</span><span>조용한 방에서, 휴대폰을 입에서 한 뼘 떼고 읽으면 좋아요</span>':'<span>한 글 더 남았어요</span><span>마지막 문장은 본인 확인용이라 그대로 읽어 주세요</span>')+'</p>'
+  var h='<p class="mk-note mk-rdl">'+(n===1?'<span>아래 글을 소리 내어 천천히 읽어 주세요</span><span>조용한 방에서, 휴대폰을 입에서 한 뼘 떼고 읽으면 좋아요</span>':'<span>한 글 더 남았어요</span><span>마지막 문장은 본인 확인용이라 그대로 읽어 주세요</span>')+'</p>'
     +(n===2&&R.take[1]&&!R.limit?'<p class="mk-vs mk-dlg-prev"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>글 1 · '+Math.round(R.take[1].dur)+'초 <button type="button" class="pk-link" data-fk="mkvcstep1" onclick="mkVcStep(1)">글 1 다시 읽기</button></p>':'')
     +'<p class="mk-rect">'+esc(t)+(n===2&&!R.phrase?' <span class="mk-note">(확인 문장을 받는 중…)</span>':'')+'</p>'
     +(R.err?'<div class="mk-recws" role="alert">'+_msg2(R.err)+'</div>':'')+'<div class="mk-recp" aria-live="polite">';   /* [REC_WARN2] */
