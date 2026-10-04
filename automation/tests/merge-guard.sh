@@ -9155,6 +9155,9 @@ chk 'PLAY_LEAD' order-preview.html 5
 chk 'PLAY_FRESH' order-preview.html 2   # ★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 순간 ▶에 안 먹는 오류 · 구조상 절대 그렇게 못 하게»] 재생 한 곳(_lShow)에서 낡은 줄을 새로 만든 뒤 튼다
 chk 'VC_CARD_V2' order-preview.html 2   # ★[VC_CARD_V2 2026-10-04 사장님 «빠르기 +0.2 · 쉼 +1 · 들어 보고 맞추기 구조 개편 · 모바일도»] 사람 카드 한 장 · 말로 두 칸 · 주 단추 하나   # ▶ 누르면 1초 빈소리 뒤 재생(줄 ▶ · 나레이션 · 작은 플레이어 첫 줄)
 chk 'VC_CARD_A' order-preview.html 3   # ★[VC_CARD_A 2026-10-04 사장님 «디자인 별론데 최선이야?» → 시안 A] 회색 상자 대신 가는 선 · 아랫줄 ▶ 왼쪽 · 다시 녹음 · 지우기 오른쪽
+chk 'ALT_READY' order-preview.html 5   # ★[ALT_READY 2026-10-04 사장님 «왜 만들지? 이미 만들어져 있어야»] 새로 고친 뒤 · 데우는 중에도 신랑 ↔ 신부 바꾸기에 새로 만들지 않는다
+chk 'ALT_READY' scripts/audit/alt-ready.mjs 1
+chk 'PV_ERR_SHOW' order-preview.html 3   # ★[PV_ERR_SHOW 2026-10-04] 영상 앞 소개 줄도 만들지 못한 까닭을 보인다 · 미리 데우기는 만드는 줄 뒤에
 nochk '.mk-vstat>span{display:flex;flex-direction:column;gap:2px;padding:10px' order-preview.html   # [VC_CARD_A] 회색 상자 금지 — 2026-10-04 사용자 지시로 삭제
 chk 'TUNE_DOTS' order-preview.html 3
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
