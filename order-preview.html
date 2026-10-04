@@ -4169,7 +4169,7 @@ function _recPanel(r){ var vc=/^vc:(groom|bride):(\d)$/.exec(r.key), n=vc?+vc[2]
   var w=!!(r.warn&&r.warn.length), use=n===1?(w?'그래도 이 녹음으로 다음 ›':'이 녹음으로 다음 ›'):n===2?(w?'그래도 이 녹음으로 만들기':'이 녹음으로 목소리 만들기'):(w?'그래도 이걸로 쓰기':'이걸로 쓰기');
   return '<audio controls preload="auto" data-fk="mkrecaud" src="'+esc(r.url)+'" style="width:100%"></audio>'
     +(w?'<div class="mk-recws">'+r.warn.map(_msg2).join('')+'</div>':'')   /* [REC_WARN2] «무엇이 / 어떻게» 두 줄 */
-    /* ★«0:16 · 앞뒤 빈소리를 자르고 소리 크기를 나레이션에 맞췄어요 · 한 번 들어 보세요» 줄 금지 — 2026-10-04 사용자 지시로 삭제 [REC_NOTE_OFF] · 길이는 위 플레이어가 보인다 */
+    /* ★«0:16 · 앞뒤 빈소리를 자르고 … 한 번 들어 보세요» 줄 금지 — 2026-10-04 사용자 지시로 삭제 [REC_NOTE_OFF] · 길이는 위 플레이어가 보인다 */
     +'<button type="button" class="mk-dlg-go" data-fk="mkrecuse" onclick="mkRecUse()">'+use+'</button>'
     +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mkrecagain" onclick="mkRecAgain()">다시 녹음</button>'
     +'</div>'; }   /* ★«잡음 줄이기 켜고 다시 녹음» 금지 — 2026-10-04 [REC_LEVEL] · 잡음 줄이기가 늘 켜져 있다 */   // [REC_TRIM] 알림이 있으면 막지 않고 «그래도 이걸로 쓰기»
