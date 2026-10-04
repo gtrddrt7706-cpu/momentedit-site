@@ -14159,3 +14159,13 @@ chk '글 두 개를 소리 내어 읽어요 · 1분쯤' order-preview.html 1
 chk 'FLOW_NAMES_ONE' assets/ritual-open.js 2
 nochk 'for (var row = 0; row < 2; row++)' assets/ritual-open.js
 chk "var LB1 = lay(8, 11, 1), fs1 = 11; if (!LB1) { LB1 = lay(5, 10, 1.2); fs1 = 10; }" assets/ritual-open.js 1
+# ★[SITE_CHK_OFF 2026-10-04 사장님 «현장에서 바로 할게요 삭제 · 그래야 큐사인을 알 수 있다»] 첫인사 · 서약 체크 칸 걷음 · 옛 체크는 다 된 것으로 세지 않는다
+chk 'SITE_CHK_OFF' order-preview.html 4
+nochk "chk:'현장에서 바로 할게요'" order-preview.html
+chk 'function _txSite(kind,c,id)' order-preview.html 1
+# ★[PLAY_ALIGN 2026-10-04 사장님 «플레이 버튼이 위로 올라가 있는 느낌»] ② 나레이션 줄 ▶ 는 문장 첫 줄 가운데
+chk '.mk-flow li.n>.mk-pl{margin-top:11px}' order-preview.html 1
+# ★[PV_LINK_ONE 2026-10-04 사장님 «(영상이나 사진) 삭제 · 무조건 영상 · 날짜는 오른쪽 한 줄»]
+nochk '식전 영상 링크(영상이나 사진)' assets/ritual-open.js
+chk 'PV_LINK_ONE' assets/ritual-open.js 1
+chk 'PV_LINK_ONE' order-preview.html 1
