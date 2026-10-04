@@ -12667,7 +12667,7 @@ chk 'QA_MINI_COVER' order-preview.html 1
 chk 'QA_BIG_FOCUS' order-preview.html 1
 chk 'QA_JOSA' order-preview.html 1
 chk 'QA_ASK_FOCUS' order-preview.html 3
-chk 'QA_FX_ORDER' order-preview.html 1
+chk 'QA_FX_ORDER' order-preview.html 2
 chk 'QA_REFILL' order-preview.html 2
 chk 'QA_EX_PRESSED' order-preview.html 1
 chk 'QA_EX_DBL' order-preview.html 1
@@ -12682,6 +12682,11 @@ chk 'QA_TODO_UNIT' order-preview.html 1
 chk 'QA_END_WRAP' order-preview.html 1
 chk 'QA_EDIT_BACK' order-preview.html 1
 chk 'QA_PAGE_HUSH' order-preview.html 1
+chk 'QA_REFILL_TG' order-preview.html 1
+chk 'QA_ASK_GONE' order-preview.html 2
+chk 'QA_RESET_FOCUS' order-preview.html 1
+chk 'QA_LINK_TYPING' order-preview.html 1
+chk 'QA_LINK_HOST' order-preview.html 1
 chk "aria-disabled') === 'true'" scripts/check-ord-save.mjs 3   # [QA_SAVE_FOCUS] 포커스 동안은 aria-disabled 로 꺼진다
 nochk 'var(--serif-ko,inherit)' order-preview.html   # 없는 토큰 — 팝업 제목이 고딕으로 떨어졌다
 nochk 'border:1px solid var(--gold-deeper);border-radius:50%;box-sizing:content-box}' order-preview.html   # 옛 테두리만 ▶

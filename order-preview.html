@@ -576,7 +576,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .ob-save,#obExit{min-width:86px}
 .ob-save.on{border-color:var(--gold-deeper);color:var(--gold-deeper);font-weight:600}
 .ob-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
-.ob-save:disabled,.ob-save[aria-disabled="true"]{opacity:1;color:var(--light);cursor:default}   /* ★[RIT_PILL_SANS 2026-09-27 4부 24] 알약은 다른 단추처럼 고딕 · 꺼진 «저장» · «저장됨»은 흐림(opacity .5 · 약 2.3:1) 대신 --light(약 5.4:1) */
+.ob-save:disabled,.ob-save[aria-disabled="true"],.ob-exit.ob-save:disabled:hover,.ob-exit.ob-save[aria-disabled="true"]:hover{opacity:1;border-color:var(--border);color:var(--light);cursor:default}   /* ★[RIT_PILL_SANS 2026-09-27 4부 24] 알약은 다른 단추처럼 고딕 · 꺼진 «저장» · «저장됨»은 흐림(opacity .5 · 약 2.3:1) 대신 --light(약 5.4:1) */
 #obExitSlot{display:flex;align-items:center;gap:7px;flex-shrink:0}
 /* [HEAD_PILLS 2026-09-27] 알약 넷(안내 · 다시 만들기 · 저장 · 나가기) — 좁은 화면은 짧은 이름 · 최소 폭을 풀어 한 줄에(390 · 360 실측) */
 .ob-nav .sh{display:none}
@@ -1688,7 +1688,7 @@ var OUT_DECLARE_FAMILY="이제 두 사람은 부부입니다. 다 함께 축하�
 var CLOSE_NAR="이제 사진을 남기겠습니다. 먼저 다 함께 한 장, 이어서 가족과 친구분들 차례로 남기겠습니다. 모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다.";   // [CLOSE_BOW 2026-09-26] 원천 D.NARR.close 와 같게(끝 선언은 108 로 나뉘었다)   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
-window.growHint=function(v){ var el=document.getElementById('growHint'); if(!el) return; var s=String(v||'').trim(), bad=!!(s&&!/^https?:\/\//i.test(s)); el.style.display=bad?'block':'none';
+window.growHint=function(v){ var el=document.getElementById('growHint'); if(!el) return; var s=String(v||'').trim(), bad=!!(s&&!/^https?:\/\//i.test(s)&&!('https://'.indexOf(s.toLowerCase())===0||'http://'.indexOf(s.toLowerCase())===0));   /* ★[QA_LINK_TYPING 2026-10-04 점검] «h» · «https:/»처럼 치는 중인 앞부분엔 오류를 띄우지 않는다 */ el.style.display=bad?'block':'none';
   var i=document.querySelector('input[aria-label="식전 영상 링크"]'); if(i){ if(bad) i.setAttribute('aria-invalid','true'); else i.removeAttribute('aria-invalid'); } };   // [A11Y_INVALID 3장] 오류가 화면 읽기에도 전해지게   /* [GROW_LINK_HINT] */
 window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; _lazyPersist(); render(); };
 window.copyGuestScript=function(){
@@ -3495,7 +3495,7 @@ window.opEx=function(k){
   var _now=Date.now(); if(_exTap.k===k&&_now-_exTap.t<400) return; _exTap={k:k,t:_now};   // ★[QA_EX_DBL 2026-10-04 점검] 두 번 톡(400ms 안)이 고르고 바로 빼던 것 — 한 번으로
   /* ★[EX_TOGGLE 2026-09-27 사장님 «한 번 클릭하면 선택되고 한 번 더 누르면 취소되게»] 같은 예시를 다시 누르면 비운다(빈 칸 · 되돌리기 알림은 그대로).
      종전엔 같은 예시를 다시 누르면 아무것도 안 했다 — 그래서 «빈 칸에서 직접 고를게요» 링크가 따로 있었다(그 링크는 뺐다 · 이 동작이 대신한다). */
-  if(R.sameAsExample(S,k)){ _opPrev=_pkSnap(); S.on={}; delete S.pickFrom; _mkForget(); _pkMsg='‹'+ex.nm+'› 예시를 뺐어요'; opSync(); _pkUndo('‹'+ex.nm+'› 예시를 뺐어요'); _fxNext='[data-fk="opx:'+k+'"]'; return; }
+  if(R.sameAsExample(S,k)){ _opPrev=_pkSnap(); S.on={}; delete S.pickFrom; _mkForget(); _pkMsg='‹'+ex.nm+'› 예시를 뺐어요'; _fxNext='[data-fk="opx:'+k+'"]'; opSync(); _pkUndo('‹'+ex.nm+'› 예시를 뺐어요'); return; }   /* [QA_FX_ORDER] 그리기 전에 — 뒤에 걸면 다음 ＋ 가 포커스를 이 카드로 끌어왔다 */
   _opPrev=_pkSnap();   // 빈 채에서 시작해도 되돌리기가 뜬다(빈 칸으로 돌아간다)
   R.applyExample(S,k); _mkForget(); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · 본식 '+R.span(S).body+' · 단체 사진 '+R.span(S).photo;
   opSync(); _pkUndo('‹'+ex.nm+'› 예시로 바꿨어요');
@@ -3879,7 +3879,7 @@ function _mkItemDone(q){ var c=_mkChk();
   if(q.k==='bless'&&q.cat==='ask'&&String((S.tx||{})['bless.p']||'').trim()) return true;   // [R1-01] 받은 덕담 원고를 붙였으면 부탁은 끝난 것
   if(q.up&&_vcToNar(q.up)) return true;   /* [VC_TO_NAR] · [R5-02] 목소리 만들기를 다 쓴 분의 줄은 스튜디오 나레이션으로 나간다(카드 문구와 같은 판정) */
   if(q.up) return !!(S.up&&S.up[q.up])&&!_upStale(q.up);   /* [R7-01] 읽는 분이 바뀐 줄도 미완료 */   // [R1-02] 글을 고친 AI 줄은 다시 만들 때까지 미완료
-  if(q.cat==='send'&&q.k==='prevideo'&&/^https?:\/\//i.test(String(S.growthLink||'').trim())) return true;
+  if(q.cat==='send'&&q.k==='prevideo'&&_linkOk(S.growthLink)) return true;
   return !!c[q.id]; }
 /* 할 일 — 세는 것만(챙길 것 · 부모님께 인사 칸은 세지 않는다) */
 function _mkTasks(k){ var t=[], c=_mkChk();
@@ -3961,7 +3961,7 @@ function _mkGoNow(k){ var m=_mkState(); if(m.at&&m.at!==k) _vtLeave(m.at);   /* 
   _fxNext='#mkHead';   /* ★[QA_FX_ORDER 2026-10-04 점검] 그리기 «전에» — 종전엔 그린 뒤에 걸어 두어 다음 아무 그리기(칩 하나)가 포커스를 머리로 끌어올렸다 */
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
   try{ window.scrollTo(0,0); }catch(e){} setTimeout(_vcWarmBoth,800);   /* [ALT_READY] ① 쪽에 들어오면 두 분 소리를 미리 */ }
-function _mkFocusEmpty(){ var el=[].slice.call(document.querySelectorAll('.mk textarea, .mk input[type="text"], .mk input[type="url"], .mk input:not([type])')).filter(function(x){ return !x.disabled&&!x.readOnly&&x.offsetParent&&!String(x.value||'').trim(); })[0];   // [QA_REFILL]
+function _mkFocusEmpty(){ var el=[].slice.call(document.querySelectorAll('.mk textarea, .mk input[type="text"], .mk input[type="url"], .mk input:not([type]), .mk .mk-tg[aria-pressed="false"]')).filter(function(x){ return !x.disabled&&x.offsetParent&&(x.tagName==='BUTTON'||(!x.readOnly&&!String(x.value||'').trim())); })[0];   // [QA_REFILL] · [QA_REFILL_TG] 빈 칸이 없으면 안 누른 «부탁드렸어요 · 보냈어요»로(화면 차례)
   if(!el) return; try{ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; el.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'}); el.focus({preventScroll:true}); }catch(e){} }
 function _mkStep(d){ var ps=_mkPages(), i=_mkIdx()+d; if(i<0) return false; if(i>=ps.length) return false; mkGo(ps[i],d>0); return true; }   // [LEAVE_POP] 다음으로 갈 때만 묻는다
 function _mkNextLab(){ var ps=_mkPages(), i=_mkIdx(); if(i>=ps.length-1) return '다음 · 연습하기'; var n=ps[i+1], no=_mkNo(n); return (ps[i]==='_intro'?'이 흐름으로 시작하기 · ':'다음 · ')   /* [COURSE_FLOW] */+((no&&no!=='식전')?no+' ':'')+_mkName(n); }
@@ -4039,7 +4039,7 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
       var _bSiteRow=q.k==='bless'&&cat==='ask'&&c[q.id]==='site';   /* [R7-02] «원고 없이»면 원고 부탁 줄(글 · 마감 · 표시)을 그리지 않는다 — 받지 않을 원고의 마감을 알리고 «✓ 현장에서 하세요»가 아래 체크칸을 되풀이했다.
          [R5-01] 그래서 그동안 «부탁드렸어요» 단추가 같은 칸을 덮어써 체크를 말없이 풀 길도 없다 · 체크를 풀면 줄이 다시 나온다 · 완료 판정은 그대로(_mkItemDone) */
       var tg=cat==='ask'?_mkTg(q.id,c[q.id]==='asked'||c[q.id]===1,'부탁드렸어요','asked')
-        :cat==='send'?(q.k==='prevideo'?'<span class="mk-tg on auto" id="mkPvOk"'+(/^https?:\/\//i.test(String(S.growthLink||'').trim())?'':' style="display:none"')+'><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>링크 받았어요</span>':_mkTg(q.id,!!c[q.id],'보냈어요')):'';   // [PREVIDEO_FREE] 식전 영상은 링크 칸 하나 — «보냈어요» 손 표시 없음
+        :cat==='send'?(q.k==='prevideo'?'<span class="mk-tg on auto" id="mkPvOk"'+(_linkOk(S.growthLink)?'':' style="display:none"')+'><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>링크 받았어요</span>':_mkTg(q.id,!!c[q.id],'보냈어요')):'';   // [PREVIDEO_FREE] 식전 영상은 링크 칸 하나 — «보냈어요» 손 표시 없음
       var wt=String(q.what), tl=wt.split(' · ').slice(1).join(' · '); if(cat==='bring'&&tl&&gn.indexOf(tl)>-1) wt=wt.split(' · ')[0];   // [MK_MIN] «케이크 · 크기 · 도착 시각은 상담 때…» — 칩 아래 안내가 이미 말한다
       if(!_bSiteRow) h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';   /* [R7-02] */
       if(cat==='ask'&&k==='bless'){ var bv=(S.tx||{})['bless.p']||'';
@@ -4055,7 +4055,8 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
     });
     h+='</ul></section>'; });
   return h; }
-function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=/^https?:\/\//i.test(String(v||'').trim())?'':'none'; }   /* [R1-44] 식전 영상 링크 «링크 받았어요» 표시를 다른 쪽에 다녀오지 않아도 바로 */
+function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=_linkOk(v)?'':'none'; }
+function _linkOk(v){ return /^https?:\/\/[^\s\/?#]+\.[^\s\/?#]+/i.test(String(v||'').trim()); }   /* ★[QA_LINK_HOST 2026-10-04 점검] «https://» 만 쳐도 «링크 받았어요»가 떴다 — 주소(점이 있는 이름)까지 있어야 */   /* [R1-44] 식전 영상 링크 «링크 받았어요» 표시를 다른 쪽에 다녀오지 않아도 바로 */
 /* ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부 · 지금은 너무 지저분하니 디자인적으로 깔끔하게 · 첨부 안 되어 있으면 미완료»]
    두 분 목소리 녹음 = 카드 하나. 녹음마다 한 줄(이름 · 상태 · 올리기) → 마이페이지 → GAS(handleRitualFile) → 드라이브.
    종전의 «녹음 · 대본을 드려요» 줄 + 체크 다섯 칸을 걷었다. 올리지 않은 줄은 미완료로 남는다(지나온 쪽이면 진행 줄에 진사 동그라미).
@@ -4139,7 +4140,7 @@ window.mkSlWho=function(key,i){ if(MK_UP[key]) return; if(_keepAsk(key,function(
   _fxNext='[data-fk="mkslw:'+key+':'+i+'"]'; render(); if(!(S.vself||{})[key]) _vcWhoAudio(key,_vtMoment(key));   /* [LINE_SPLIT] 읽는 분이 바뀐 소리는 걷고 새 차례로 채운다 — 머리 신랑 ↔ 신부와 같은 길(_vcWhoAudio · SIM_R3) */ };
 window.mkSlAdd=function(key){ var L=_slCopy(key); if(L.length>=SL_MAX) return; L.push({w:L[L.length-1].w==='g'?'b':'g',t:''}); _slPut(key,L); _fxNext='[data-fk="mksl:'+key+':'+(L.length-1)+'"]'; render(); };   // 새 줄은 앞줄과 다른 분 · 바로 그 칸에 초점
 window.mkSlDel=function(key,i){ if(_keepAsk(key,function(){ mkSlDel(key,i); })) return; var L=_slCopy(key); if(L.length<2||!L[i]) return; L.splice(i,1); _slPut(key,L); _fxNext='[data-fk="mksl:'+key+':'+Math.max(0,i-1)+'"]'; render(); };
-window.mkVtReset=function(key){ if(S.vlines) delete S.vlines[_slVk(key)];   /* [LINE_SPLIT] «처음 글로»는 줄 나눔도 처음으로 */ if(S.vtext) delete S.vtext[_vtKey(key)]; if(key==='g0') delete S.g0Moved; _persist(); render(); };   /* [R8-20] «처음 글로»를 누르면 알림을 걷는다 */
+window.mkVtReset=function(key){ if(S.vlines) delete S.vlines[_slVk(key)];   /* [LINE_SPLIT] «처음 글로»는 줄 나눔도 처음으로 */ if(S.vtext) delete S.vtext[_vtKey(key)]; if(key==='g0') delete S.g0Moved; _fxNext='[data-fk="mksl:'+key+':0"]'; _persist(); render(); };   /* [QA_RESET_FOCUS] 단추가 사라지니 그 줄 첫 칸으로 */   /* [R8-20] «처음 글로»를 누르면 알림을 걷는다 */
 function _recNeed(key){ if(/^(g\d|entry)$/.test(key)&&(S.vlines||{})[_slVk(key)]) return _slLines(key).map(function(x){ return x[1]; }).join(' ');   /* [LINE_SPLIT] 줄을 다 비우면 처음 글로 돌아가지 않는다 — 적은 줄 그대로 */ var _c=/^(g\d|entry)$/.test(key)?_vtEdit(key):''; if(_c) return _c.trim();   // [LINE_EDIT] · [G3_OPEN] 시작 1분 전도 고친 글 그대로(앞 두 문장을 붙이지 않는다)
   var t=''; if(/^g\d$/.test(key)){ var g=GUEST[+key.slice(1)]; t=g?g[2]:''; } else if(key==='entry') t=(ENTRY[S.entry]||{}).self||''; else if(key==='pv') t=String(S.pvText||'').trim(); return t; }   // [PV_INTRO]
 function _recFmt(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2); }
@@ -4697,7 +4698,7 @@ window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph
       if(VC.pre) delete VC.pre[w]; delete VC.sraw[w];   /* ★[SIM_R1 2026-10-04 시뮬레이션] 새 목소리 — 옛 목소리 예시를 들려주던 것 */ R.ph='tune'; R.renewed=!!d.renewed; S.vsetNeed=S.vsetNeed||{}; S.vsetNeed[w]=1; _persist(); VC.st=null; render(); _vcStatus(function(){ _vcTuneOpen(w,'enroll'); });   /* [VOICE_TUNE] 만든 직후 = 예시 듣고 맞추기(필수) · 줄 채우기는 «이 목소리로 쓰기» 뒤 */ },function(){ fail('만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); }); }; rd.readAsDataURL(j.wav); })
     .catch(function(){ fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요'); }); };
 window.mkVcDel=function(w){ var used=Object.keys(S.up||{}).filter(function(k){ var v=S.up[k]; return v&&v.src==='ai'&&(!v.by||v.by===w||(Array.isArray(v.by)&&v.by.indexOf(w)>-1)); });
-  ordAsk({title:_vcName(w)+' 님 AI 목소리를 지울까요?',body:used.length?'AI로 만든 줄 '+used.length+'줄은 나레이션으로 바뀌어요':'',yes:'지우기',no:'두기',danger:true}).then(function(ok){ if(!ok) return;   // [REC_DLG] 브라우저 confirm 대신 우리 판
+  ordAsk({title:_vcName(w)+' 님 AI 목소리를 지울까요?',body:used.length?'AI로 만든 줄 '+used.length+'줄은 나레이션으로 바뀌어요':'',yes:'지우기',no:'두기',danger:true,focusAfter:'[data-fk="mkvcok:'+w+'"],[data-fk="mkvcread:'+w+'"]'}).then(function(ok){ if(!ok) return;   // [REC_DLG] · [QA_ASK_GONE] 지운 뒤엔 그 분의 «목소리 만들기»로 브라우저 confirm 대신 우리 판
   used.forEach(function(k){ _mkUpDrop(k); }); Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); delete VC.sraw[w]; _persist();   /* [SIM_R1] 지운 목소리 예시도 */   // [VC_BOTH_CHECK] 지운 목소리 소리는 들고 있지 않는다
   _vc('delete',{who:w}).then(function(d){ VC.st=null; _vcStatus(); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); render(); }); }); };
 /* 8-2 4) 그 사람이 읽는 줄 가운데 «비어 있는» 줄만 AI 로 — 녹음 · 올린 파일 줄은 그대로. 다시 만들었으면(renewed) 그 사람의 AI 줄을 새 목소리로 다시 */
@@ -6145,7 +6146,7 @@ function _pvEl(){
   (function(){ var box=el.querySelector('.pv-box'), y0=null, dy=0;
     box.addEventListener('touchstart',function(e){ var t=e.target; if(!t.closest||!(t.closest('.pv-grab')||t.closest('.pv-h'))||t.closest('button')||box.scrollTop>0||window.innerWidth>=1000) { y0=null; return; } y0=e.touches[0].clientY; dy=0; box.style.transition='none'; },{passive:true});
     box.addEventListener('touchmove',function(e){ if(y0==null) return; dy=Math.max(0,e.touches[0].clientY-y0); box.style.transform=dy?'translateY('+dy+'px)':''; },{passive:true});
-    box.addEventListener('touchend',function(){ if(y0==null) return; y0=null; box.style.transition=''; box.style.transform=''; if(dy>80) opPvClose(); dy=0; });
+    box.addEventListener('touchend',function(){ if(y0==null) return; y0=null; box.style.transition=''; if(dy>80){ opPvClose(); setTimeout(function(){ box.style.transform=''; },320); } else box.style.transform=''; dy=0; });   /* 닫을 때는 내린 자리에서 사라진다(한 프레임 되튐 없이) */
     box.addEventListener('touchcancel',function(){ y0=null; dy=0; box.style.transition=''; box.style.transform=''; });
   })();
   el.addEventListener('keydown',function(e){
@@ -7502,7 +7503,7 @@ function ordAsk(opt){
         if(!_ordOv){ document.body.style.overflow=_ordBo||''; _ordBo=null; } },200);
       res(v);
       setTimeout(function(){ if(_ordOv) return; var a=document.activeElement; if(a&&a!==document.body&&!ov.contains(a)) return;   // [QA_ASK_FOCUS] 부르는 쪽이 이미 옮겼으면 그대로
-        var t=(_op&&document.body.contains(_op)&&!_op.disabled)?_op:(_opFk?document.querySelector('[data-fk="'+_opFk+'"]'):null)||(_opId?document.getElementById(_opId):null);
+        var t=(_op&&document.body.contains(_op)&&!_op.disabled)?_op:(_opFk?document.querySelector('[data-fk="'+_opFk+'"]'):null)||(_opId?document.getElementById(_opId):null)||(opt.focusAfter?document.querySelector(opt.focusAfter):null)||document.getElementById('mkHead')||document.getElementById('stepHead');   // [QA_ASK_GONE] 연 단추가 지워졌으면(지우기) 부르는 쪽이 정한 곳 → 쪽 제목
         if(t&&t.focus&&!t.disabled){ try{ t.focus({preventScroll:true}); }catch(e){} } },60); }
     ov.__ordClose=close; _ordOv=ov;
     /* [EXIT_ASK] dismissNull — Esc·바깥 클릭을 '아니오'와 구분해야 하는 판(예: 나가기 확인)은
