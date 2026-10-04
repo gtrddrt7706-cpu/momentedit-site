@@ -8965,7 +8965,8 @@ chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
 chk 'NAV_FOLD' order-preview.html 6
 chk 'window.mkFold=function' order-preview.html 1
 chk 'window.mkNavGo=function' order-preview.html 1
-chk 'aria-controls="mkStp mkScP"' order-preview.html 1   # [STEP_COMPACT 2026-10-03] 펼침이 걸음 줄(mkStp) + 순간 줄(mkScP) 둘을 연다(종전 mkScP 하나)
+chk 'aria-controls="mkScP" onclick="mkFold()"' order-preview.html 1   # [STEP_LAB_TOP 2026-10-04] 펼침은 순간 줄 하나 — 걸음 줄(mkStp)은 걷고 이름을 접은 표시 칸 위로
+nochk 'id="mkStp"' order-preview.html   # [STEP_LAB_TOP] 펼친 첫 줄 걸음 줄 금지 — 2026-10-04 사용자 지시로 삭제
 chk 'MK.navOpen=false;   /\* \[NAV_FOLD\] 쪽이 바뀌면 접힌다' order-preview.html 1
 nochk '모든 순간 보기 ▾' order-preview.html
 chk 'NAV_FOLD' scripts/audit/listen-page.mjs 4
@@ -9070,9 +9071,9 @@ chk 'STEP_NONUM_OP' assets/ritual-open.js 1
 nochk "PREP_WHERE = '②" assets/ritual-open.js
 chk 'STEP_NONUM_OP' mypage.html 1
 nochk "'1단계에서" mypage.html   # 청첩장 걸음은 이름(«기본 단계») — 진행 표시에 번호가 없다
-chk 'STEP_COMPACT' order-preview.html 8
-chk 'class="op-steps-c" role="img"' order-preview.html 1
-chk 'function _mkStepRow(open)' order-preview.html 1
+chk 'STEP_COMPACT' order-preview.html 5   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄(_mkStepRow · .mk-stp)을 걷어 8 → 5
+chk '<ol class="op-steps-c" data-fk="opsc"' order-preview.html 1
+chk 'STEP_LAB_TOP' order-preview.html 3   # ★[STEP_LAB_TOP 2026-10-04 사장님 «가로바 위쪽 각각 센터로»] 칸 위 가운데 이름 · 지나온 걸음 = 단추
 chk 'function _mkPosFit()' order-preview.html 1
 chk 'VS_LINK_IN_ROW' order-preview.html 6
 chk 'class="pk-link cg-vsl" data-fk="mkvsopen"' order-preview.html 1
