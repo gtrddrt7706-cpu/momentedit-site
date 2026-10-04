@@ -1513,7 +1513,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)}
 .mk-vstat i{font-style:normal;font-size:11px;letter-spacing:.04em;color:var(--light)} .mk-vstat b{font-size:14px;font-weight:600;color:var(--accent)}
 .mk-vft{margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;padding:8px 0 4px;min-height:60px}
-.mk-vft.solo{display:block;padding:14px 0 12px}
+.mk-vft.solo{display:block;margin-top:14px;padding:0 0 12px}   /* [SIM_R2] 안 만든 분 카드는 단추를 상태 바로 아래(빈 띠 없이) */
 .mk-vpcs .mk-vbs{display:block;margin:0}
 .mk-vgo{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 16px 0 6px;border:1px solid var(--gold-btn);border-radius:999px;background:var(--card);color:var(--accent);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer}
 .mk-vgo svg{width:10px;height:10px;padding:10px 9px 10px 11px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}
@@ -4508,11 +4508,12 @@ function _vcSamplePlay(force){ var T=VC.tune; if(!T||T.loading) return; var tx=_
   var url=URL.createObjectURL(_recWav(y,r.sr));
   try{ var a=new Audio(url); _rateSet(a,parseFloat(T.tempo)); a.onended=function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } try{ URL.revokeObjectURL(url); }catch(e){} }; var p=a.play(); if(p&&p.catch) p.catch(function(){}); MK.aud=a; MK.audKey='tune'; render(); }catch(e){} }
 function _tuneDiff(){ var T=VC.tune, r=T&&VC.sraw[T.who]; return !!(r&&r.text!==_tuneText()); }
-window.mkTunePlay=function(){ if(MK.audKey==='tune'&&MK.aud&&!_tuneDiff()){ _stopMk(); render(); return; } _vcSamplePlay(true); };   // 고친 글이면 듣는 중이어도 새 글로
+window.mkTunePlay=function(){ if(MK.audKey==='tune'&&MK.aud&&!String(S.vtuneText==null?VC_SAMPLE:S.vtuneText).trim()){ _stopMk(); render(); return; }   /* [SIM_R2] */ if(MK.audKey==='tune'&&MK.aud&&!_tuneDiff()){ _stopMk(); render(); return; } _vcSamplePlay(true); };   // 고친 글이면 듣는 중이어도 새 글로
 function _tuneGoLab(){ var T=VC.tune; if(!T) return ''; var r=VC.sraw[T.who], pl=MK.audKey==='tune'&&!!MK.aud;
   return T.loading?(r?'만드는 중…':'예시를 불러오는 중…'):_tuneDiff()?'이 글로 들어 보기':pl?'멈추기':'예시 들어 보기'; }
 function _tuneGoOn(){ return MK.audKey==='tune'&&!!MK.aud&&!_tuneDiff(); }
-function _tuneGoPaint(){ var b=document.querySelector('[data-fk="mktuneplay"]'); if(!b||!VC.tune) return; var on=_tuneGoOn(); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+'<span>'+esc(_tuneGoLab())+'</span>'; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.disabled=!!VC.tune.loading||!String(S.vtuneText==null?VC_SAMPLE:S.vtuneText).trim(); var rs=document.getElementById('mkTuneRs'); if(rs) rs.hidden=_tuneText()===VC_SAMPLE; }
+function _tuneGoPaint(){ var b=document.querySelector('[data-fk="mktuneplay"]'); if(!b||!VC.tune) return; var on=_tuneGoOn(); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+'<span>'+esc(_tuneGoLab())+'</span>'; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.disabled=!!VC.tune.loading||(!String(S.vtuneText==null?VC_SAMPLE:S.vtuneText).trim()&&!(MK.audKey==='tune'&&MK.aud)); var rs=document.getElementById('mkTuneRs'); if(rs) rs.hidden=!_tuneRawDiff(); }   /* [SIM_R2] 글을 비워도 «처음 예시로»가 남고 · 듣는 중이면 멈출 수 있다 */
+function _tuneRawDiff(){ return S.vtuneText!=null&&String(S.vtuneText).trim()!==VC_SAMPLE; }
 window.mkTuneText=function(v){ v=String(v||'').slice(0,TUNE_MAX); if(v.trim()===VC_SAMPLE) delete S.vtuneText; else S.vtuneText=v; _persist(); _tuneGoPaint(); };   // 다시 그리지 않는다(치는 동안 초점 · 글자 그대로)
 window.mkTuneReset=function(){ delete S.vtuneText; _persist(); _fxNext='[data-fk="mktunetext"]'; render(); };
 window.mkTuneStep=function(kind,d){ var T=VC.tune; if(!T) return;
@@ -4553,7 +4554,7 @@ function _vcTuneBody(){ var T=VC.tune, nm=_vcName(T.who), r=VC.sraw[T.who], pl=M
   return (T.from==='enroll'?'<p class="mk-dlg-big" role="status"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span> '+esc(nm)+' 님 목소리가 준비됐어요</p>':'')
     +'<p class="mk-note mk-dlg-c1">예시를 들으며 빠르기와 쉼을 맞춰 주세요 · '+esc(nm)+' 님이 읽는 모든 줄에 쓰여요</p>'
     +'<div class="mk-tune-ex"><textarea class="ta grow mk-tune-ta" data-fk="mktunetext" rows="3" maxlength="'+TUNE_MAX+'" aria-label="예시 글 · 고쳐서 들어 볼 수 있어요" oninput="mkTuneText(this.value);_taGrow(this)" onchange="_taChange()">'+esc(S.vtuneText!=null?S.vtuneText:VC_SAMPLE)+'</textarea>'
-    +'<p class="mk-note mk-tune-n">글을 고쳐서 들어 볼 수 있어요<button type="button" class="pk-link" id="mkTuneRs" data-fk="mktunereset"'+(_tuneText()===VC_SAMPLE?' hidden':'')+' onclick="mkTuneReset()">처음 예시로</button></p>'
+    +'<p class="mk-note mk-tune-n">글을 고쳐서 들어 볼 수 있어요<button type="button" class="pk-link" id="mkTuneRs" data-fk="mktunereset"'+(_tuneRawDiff()?'':' hidden')+' onclick="mkTuneReset()">처음 예시로</button></p>'
     +'<button type="button" class="mk-tune-go'+(_tuneGoOn()?' on':'')+'" data-fk="mktuneplay" aria-pressed="'+_tuneGoOn()+'"'+((T.loading||!r&&!T.err)&&!(r)?' aria-busy="true"':'')+(T.loading?' disabled':'')+' onclick="mkTunePlay()">'+(_tuneGoOn()?ICO_STOP:ICO_PLAY)+'<span>'+_tuneGoLab()+'</span></button></div>'   /* [TUNE_TEXT] 예시 글칸 · 단추 글은 상태대로 */   /* ★[TUNE_PLAY_WIDE 2026-10-04 사장님 «플레이 버튼이 애매 · 오른쪽 끝이 최선이야?»] 오른쪽 끝 작은 ▶ → 예시 글 아래 전체 폭(«이 순간 들어 보기»와 같은 모양) */
     +(T.err?'<p class="mk-exw" role="alert">'+esc(T.err)+'</p>':'')
     +'<div class="mk-tune-ctl">'+_tuneDots('t')+_tuneDots('p')+'</div>'   /* [TUNE_DOTS] [−] 값 [＋] → 점 줄 */
