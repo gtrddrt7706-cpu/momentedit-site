@@ -9072,8 +9072,9 @@ nochk "PREP_WHERE = '②" assets/ritual-open.js
 chk 'STEP_NONUM_OP' mypage.html 1
 nochk "'1단계에서" mypage.html   # 청첩장 걸음은 이름(«기본 단계») — 진행 표시에 번호가 없다
 chk 'STEP_COMPACT' order-preview.html 5   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄(_mkStepRow · .mk-stp)을 걷어 8 → 5
-chk '<ol class="op-steps-c" data-fk="opsc"' order-preview.html 1
-chk 'STEP_LAB_TOP' order-preview.html 3   # ★[STEP_LAB_TOP 2026-10-04 사장님 «가로바 위쪽 각각 센터로»] 칸 위 가운데 이름 · 지나온 걸음 = 단추
+chk 'class="op-steps-c" role="img"' order-preview.html 1
+chk 'STEP_LAB_TOP' order-preview.html 3   # ★[STEP_LAB_TOP 2026-10-04 사장님 «텍스트 그냥 삭제»] 접은 표시 = 칸 넷만 · 칸 위 이름 · 펼친 걸음 줄 둘 다 없음
+nochk 'class="op-scl"' order-preview.html   # [STEP_LAB_TOP] 칸 위 걸음 이름 금지 — 2026-10-04 사용자 지시로 삭제
 chk 'function _mkPosFit()' order-preview.html 1
 chk 'VS_LINK_IN_ROW' order-preview.html 6
 chk 'class="pk-link cg-vsl" data-fk="mkvsopen"' order-preview.html 1
@@ -9145,11 +9146,22 @@ chk 'KEEP_IN_PILL' order-preview.html 3   # 확정하기 · 확정됨 = 머리 �
 chk 'TUNE_PLAY_WIDE' order-preview.html 2   # 예시 듣기 = 예시 글 아래 전체 폭
 chk 'TUNE_SAMPLE_LONG' order-preview.html 1
 chk 'TUNE_DOTS' order-preview.html 3   # 빠르기 · 쉼 = 점 줄(7 · 5) · 라디오 · 44 · 말로 값
+chk 'TUNE_RECENTER' order-preview.html 4   # ★[TUNE_RECENTER 2026-10-04 사장님 «조금 빠르게 · 아주 길게가 표준»] 보통 = 빠르기 1.1 · 쉼 1.4초
+chk "var TEMPO_DEF='1.1'" order-preview.html 1
+chk 'PAUSE_DEF=900' order-preview.html 1
 chk 'TUNE_TEXT' order-preview.html 2   # 예시 글 고쳐 들어 보기
 chk 'TUNE_LEAD' order-preview.html 1   # 예시 앞 1초 빈소리(첫 소리 잘림)
 chk 'PLAY_LEAD' order-preview.html 5
 chk 'PLAY_FRESH' order-preview.html 2   # ★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 순간 ▶에 안 먹는 오류 · 구조상 절대 그렇게 못 하게»] 재생 한 곳(_lShow)에서 낡은 줄을 새로 만든 뒤 튼다
 chk 'VC_CARD_V2' order-preview.html 2   # ★[VC_CARD_V2 2026-10-04 사장님 «빠르기 +0.2 · 쉼 +1 · 들어 보고 맞추기 구조 개편 · 모바일도»] 사람 카드 한 장 · 말로 두 칸 · 주 단추 하나   # ▶ 누르면 1초 빈소리 뒤 재생(줄 ▶ · 나레이션 · 작은 플레이어 첫 줄)
+chk 'VC_CARD_A' order-preview.html 3   # ★[VC_CARD_A 2026-10-04 사장님 «디자인 별론데 최선이야?» → 시안 A] 회색 상자 대신 가는 선 · 아랫줄 ▶ 왼쪽 · 다시 녹음 · 지우기 오른쪽
+chk 'ALT_READY' order-preview.html 5   # ★[ALT_READY 2026-10-04 사장님 «왜 만들지? 이미 만들어져 있어야»] 새로 고친 뒤 · 데우는 중에도 신랑 ↔ 신부 바꾸기에 새로 만들지 않는다
+chk 'ALT_READY' scripts/audit/alt-ready.mjs 1
+chk 'PV_ERR_SHOW' order-preview.html 3   # ★[PV_ERR_SHOW 2026-10-04] 영상 앞 소개 줄도 만들지 못한 까닭을 보인다 · 미리 데우기는 만드는 줄 뒤에
+chk 'PLAY_TRUE' order-preview.html 7   # ★[PLAY_TRUE 2026-10-04 시뮬레이션] 저장이 끝나야 만들기 끝 · 같은 줄 두 번 안 만듦 · 틀기 직전 지금 파일 · 만드는 줄 건너뛰지 않음
+chk 'TA_KEEP' order-preview.html 3   # 글 치는 중 다시 그려도 커서 · 한글 조합 지킴
+chk 'SIM_R1' order-preview.html 10
+nochk '.mk-vstat>span{display:flex;flex-direction:column;gap:2px;padding:10px' order-preview.html   # [VC_CARD_A] 회색 상자 금지 — 2026-10-04 사용자 지시로 삭제
 chk 'TUNE_DOTS' order-preview.html 3
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
 chk 'AGREE_NOTE_OFF' order-preview.html 1

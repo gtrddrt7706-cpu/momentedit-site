@@ -103,10 +103,10 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   /* ★[VOICE_TUNE] 빠르기는 목소리 쪽 «들어 보고 맞추기» — 누를 때는 예시만(만들지 않음) · [이 목소리로 쓰기]에 그 분 줄을 한 번씩 */
   await pg.evaluate(() => mkVcTune('groom')); await pg.waitForTimeout(600);
   const n0 = await pg.evaluate(() => __calls.filter((c) => c === 'make:g0').length);
-  await pg.click('[data-fk="mktune:t:2"]'); await pg.waitForTimeout(500);   /* [TUNE_DOTS] «조금 느리게»(0.9) */
+  await pg.click('[data-fk="mktune:t:2"]'); await pg.waitForTimeout(500);   /* [TUNE_DOTS · TUNE_RECENTER] «조금 느리게»(1.0) */
   const n1 = await pg.evaluate(() => __calls.filter((c) => c === 'make:g0').length);
   await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(2500);
-  ok(W + ' 사람별 빠르기 — 누를 때는 안 만들고 · [이 목소리로 쓰기]에 그 분 줄을 한 번(0.9) [VOICE_TUNE · TUNE_DOTS]', await pg.evaluate(([n0, n1]) => n1 === n0 && S.vset.groom.tempo === '0.9' && S.up.g0.tempo === '0.9' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, [n0, n1]));
+  ok(W + ' 사람별 빠르기 — 누를 때는 안 만들고 · [이 목소리로 쓰기]에 그 분 줄을 한 번(1.0) [VOICE_TUNE · TUNE_DOTS]', await pg.evaluate(([n0, n1]) => n1 === n0 && S.vset.groom.tempo === '1' && S.up.g0.tempo === '1' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, [n0, n1]));
   await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkvpl:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
   /* ★[VC_LINE_ERR] 줄 만들기가 실패하면 «보내는 중»에 멈추지 않고 그 줄 아래에 까닭 */
   /* [TEXT_PLAY_MAKE] 실패 길은 «고친 줄의 ▶»(그 줄을 먼저 만든다)로 연다 */
