@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .ord-ask .oa-box{width:100%;max-width:340px;background:var(--card,#fff);border:1px solid var(--border,#DDD8D1);border-radius:14px;padding:26px 24px 18px;text-align:center;transform:translateY(8px);transition:transform .22s cubic-bezier(.22,1,.36,1)}
 .ord-ask.on .oa-box{transform:none}
 .ord-ask .oa-t{font-family:var(--serif-ko,inherit);font-size:16px;font-weight:600;color:var(--accent,#3A2D22);line-height:1.55;word-break:keep-all}
-.ord-ask .oa-d{font-size:12.5px;font-weight:300;color:var(--sub,#5A554C);line-height:1.75;margin-top:9px;word-break:keep-all}
+.ord-ask .oa-d{font-size:12.5px;font-weight:300;color:var(--sub,#5A554C);line-height:1.75;margin-top:9px;word-break:keep-all;white-space:pre-line}   /* [LEAVE_ASK_Q] 본문의 \n 을 줄바꿈으로 */
 .ord-ask .oa-btns{display:flex;gap:8px;margin-top:20px}
 .ord-ask .oa-btns.one{justify-content:stretch}   /* [ORD_TELL] 알림형은 버튼 하나 — 확인 버튼이 판 전체 폭 */
 .ord-ask .oa-btns button{flex:1;min-height:46px;border-radius:10px;font-family:var(--serif-ko,inherit);font-size:14px;cursor:pointer;padding:0 10px;word-break:keep-all}
@@ -1186,6 +1186,8 @@ body.lsfull{overflow:hidden}
 .mk-tg .mk-mk{display:inline-flex}
 @media (max-width:999px){ .mk-tg,.mk-vb{margin-right:36px} }
 .mk-vx{padding:4px 0 12px;border-bottom:1px solid var(--border)}
+/* [PV_SEND_ONE] 식전 영상 링크 한 덩어리 — 머리 없음 · 이름 줄과 칸 사이 선 없음 · 이름은 머리 굵기로 */
+.mk-one .mk-vlist{border-top:0;margin-top:0}.mk-one .mk-vr{border-bottom:0;padding-bottom:2px}.mk-one .mk-vx{border-bottom:0;padding-top:8px}.mk-one .mk-vn{font-weight:600}
 .mk-vx .upchk{margin-bottom:4px}
 /* ★«고른 순서» 펼침 목록(.mk-ilist · .mk-irow · 꺾쇠 · 펼친 칸 .mk-idet · 고를 것 · «이 순간 만들러 가기 ›») 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW 2026-10-03 사장님 «이 순간 만들러 가기 › 이건 삭제 · 고를 것도 삭제»]
    ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 후 다음으로 · 뺀 이벤트는 옅은 투명으로 · 미니멀하면서 깔끔하고 군더더기 없이»]
@@ -3924,7 +3926,7 @@ window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;  
   var msg=ask?_mkLeaveMsg(from):''; MK.leaveSaid=MK.leaveSaid||{};
   if(msg&&MK.leaveSaid[from]!==msg){ MK.leaveSaid[from]=msg; var p=msg.split(' · '), hd=p.shift(), body=p.join(' · ').replace(/\s*미완료로 둘게요\.?$/,'');
     /* [R2-17] «나중에 언제든»은 근거 없는 안심(마감이 있다) · AI 판은 «AI 두 분 목소리»(_mkLeaveMsg) */
-    ordAsk({title:hd+(/칸이 비어 있어요\.?$/.test(body)?' · 아직 비어 있어요':' · 아직 남은 일이 있어요'),   /* [R4-11] 빈 칸이 없는 쪽(부탁 · 보낼 것만 남음)은 «비어 있어요»가 아니다 */body:body+' 미완료로 두고 넘어갈게요. «한눈에 보기»에서 다시 찾을 수 있어요',yes:'다음으로',no:'돌아가서 채우기'}).then(function(ok){ if(ok) _mkGoNow(k); }); return; }
+    ordAsk({title:hd+(/칸이 비어 있어요\.?$/.test(body)?' · 아직 비어 있어요':' · 아직 남은 일이 있어요'),   /* [R4-11] 빈 칸이 없는 쪽(부탁 · 보낼 것만 남음)은 «비어 있어요»가 아니다 */body:body+'\n미완료로 두고 갈까요?',   /* ★[LEAVE_ASK_Q 2026-10-04 사장님 «두고 갈까요?로 · 문단 줄바꿈 · «한눈에 보기» 안내 줄 삭제»] 되살리지 말 것 */yes:'다음으로',no:'돌아가서 채우기'}).then(function(ok){ if(ok) _mkGoNow(k); }); return; }
   _mkGoNow(k); };
 function _mkGoNow(k){ var m=_mkState(); if(m.at&&m.at!==k) _vtLeave(m.at);   /* [TEMPO_BAKE] 떠나는 쪽을 굽는다(뒤에서 · 조용히) */ m.at=k; m.seen[k]=1; LS.open=k; MK.pgTok=(MK.pgTok||0)+1; /* [VID_AUTO_ONLY] 쪽 들어옴 */ MK.navOpen=false;   /* [NAV_FOLD] 쪽이 바뀌면 접힌다(줄에서 골라도 · 아래 «다음»으로 가도) */   /* ★[FLOW_KEEP_STEP 2026-10-03] «흐름 쪽을 떠나면 뺀 줄의 자리를 놓는다» 금지 — 2026-10-03 점검으로 삭제(다음 → 이전이면 뺀 줄이 사라졌다) · 자리는 ② 걸음을 떠날 때만 놓는다(render 의 COURSE_FLOW 줄) */
   _persist(); if(STEPS[idx]&&STEPS[idx].k!=='listen') { opGoStep('listen'); } else render();
@@ -3997,7 +3999,8 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
     if(cat==='ask'&&k==='bless'&&qs.every(function(q){ return q.k==='bless'&&c[q.id]==='site'; })) hd='덕담 원고';   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
-    h+='<section class="mk-sec mk-prep"><div class="mk-sech"><h4>'+hd+'</h4>'+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+'</div>'
+    var one=cat==='send'&&qs.length===1&&qs[0].k==='prevideo';   /* ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선을 걷고 이름 · 기한 · 칸을 한 덩어리로 */
+    h+='<section class="mk-sec mk-prep'+(one?' mk-one':'')+'">'+(one?'':'<div class="mk-sech"><h4>'+hd+'</h4>')+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+(one?'':'</div>')
       +(cat==='ask'?_mkCopied('ask:'+k):'')+'<ul class="mk-vlist">';
     qs.forEach(function(q){ var due=(cat==='bring'&&q.due===0)?'':R.dueWord(q,wed), par=q.who==='parents', done=_mkItemDone(q);   /* [R1-30] «당일 챙길 것» 아래에서 «당일 가져오기»를 줄마다 되풀이하지 않는다 */
       var _bSiteRow=q.k==='bless'&&cat==='ask'&&c[q.id]==='site';   /* [R7-02] «원고 없이»면 원고 부탁 줄(글 · 마감 · 표시)을 그리지 않는다 — 받지 않을 원고의 마감을 알리고 «✓ 현장에서 하세요»가 아래 체크칸을 되풀이했다.
@@ -5863,7 +5866,7 @@ function _nb(t){ return String(t||'').replace(/약 /g,'약'+NBS).replace(/단체
 function _nd(t){ return String(t||'').replace(/ · /g,' ·'+NBS); }
 function _n2(t){ return String(t||'').replace(/두 분/g,'두'+NBS+'분'); }   /* [R1-41] «두 / 분»으로 갈리지 않게 — 칸 · 미리 보기 창 · ② 쪽 설명 공통 */
 function _ndd(t){ return String(t||'').replace(/ · /g,NBS+'·'+NBS).replace(/알려 주기/g,'알려'+NBS+'주기'); }   /* [R2-31] «알려 / 주기» 한 동작이 두 줄로 갈리지 않게(화면에서만 · 원천 문구는 그대로) */   // [PREP_NO_DANGLE] 점이 줄 끝에도 줄 머리에도 안 서게 — 덩어리가 짧은 줄에만(칸 글처럼 좁은 곳엔 쓰지 않는다)   // [CHECKS_NO_DANGLE · 3-9] 가운뎃점은 뒤 말에 붙인다 — 줄 끝에 매달리지 않게
-var PK_CAP='예식이 차오르고 가라앉는 모양이에요';   // [FLOW_LINE · 최종판 3-3] 순간마다 점수로 읽히지 않게 · 전체의 모양으로(«선이 높을수록 …»은 거뒀다)
+/* ★[FLOW_MIN 2026-10-04 사장님 «준비할 것 N가지 · 한눈에 보기에서 모아 봐요 삭제 · 나머지 문구도 미니멀하게»] 판 아래 설명 «예식이 차오르고 가라앉는 모양이에요»(PK_CAP)는 걷었다 — 제목과 곡선이 이미 말한다 · 되살리지 말 것 */   // [FLOW_LINE · 최종판 3-3] 순간마다 점수로 읽히지 않게 · 전체의 모양으로(«선이 높을수록 …»은 거뒀다)
 var PK_GLYPH={
  prevideo:'<rect x="6" y="5" width="32" height="20" rx="2"/><path d="M19 11l7 4-7 4z" fill="currentColor"/>',
  candle:'<path d="M22 6c3 4 3 6 0 8-3-2-3-4 0-8z" fill="currentColor"/><rect x="19" y="15" width="6" height="12" rx="1"/>',
@@ -5919,21 +5922,20 @@ function _pkPanel(){
   if(!n) return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH"><div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'
     +'<p class="pk-fp-empty">아직 담은 순간이 없어요. 위 예시로 시작하거나, 아래에서 하나씩 담아 보세요.</p></div></section>';   /* [R1-33] «늘 있어요»는 칸마다 표(.pk-fix)가 이미 말한다 */
   var _sg=R.flowSegs(S), flat=(n<2)||_sg.every(function(x){ return x.lv===_sg[0].lv; });   // [RIT_CURVE_LABEL]
-  var photo=_nb('단체 사진 '+sp.photo), prep=_ndd(R.prepLine(S)), prepW=prep?R.PREP_WHERE:'';   /* [R4-07] 개수 줄 · 안내 줄을 나눈다 */   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
+  var photo=_nb('단체 사진 '+sp.photo), pl=R.peakLine(S);   /* [FLOW_MIN] 준비할 것 줄(prepLine · PREP_WHERE)은 이 판에서 걷었다 · ③ 한눈에 보기가 맡는다 */   /* [R4-07] 개수 줄 · 안내 줄을 나눈다 */   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
   var ord=(R.onOf(S,'prevideo')?'<span class="pk-pre">식전 영상 →</span> ':'')+R.orderParts(S).map(function(o){ return esc(o.n).replace(/ /g,NBS)+(o.peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':''); }).join(NBS+'› ');   /* 순간 이름 안에서는 안 갈린다(«닫는 / 인사» · 360) */   /* [F1] · [ORDER_ARROW_END 2026-09-26 직접 보며 점검] «›»는 앞 말에 붙인다 — 360 에서 둘째 줄이 «› 선언»으로 시작했다 · 줄 끝의 «›»는 «이어져요»로 읽힌다 */
   return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH">'
     /* ★[RIT_PANEL_NOMIN 2026-09-27 4부 2] 판 머리의 «본식 약 N분»을 뺐다 — 같은 숫자가 카드 · 판 머리 · 아래 막대에 셋이었다(카드와 막대에 남는다) */
-    +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3>'+(flat?'':'<span class="pk-fp-cap pco">'+PK_CAP+'</span>')+'</div>'
-    +(flat?'':'<p class="pk-fp-cap mo">'+PK_CAP+'</p>')
+    +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'   /* [FLOW_MIN] 설명 줄 없음 */
     /* ★[RIT_CURVE_LABEL 4부 1] 담은 순간이 둘 미만이거나 선이 평평하면(«늘 있어요»만) 곡선 대신 한 줄 */
     +(flat?'<p class="pk-fp-flat">순간을 더 담으면 흐름이 그려져요</p>':'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>')
-    +(prep?'<p class="pk-tm pco pk-prep-pc">'+esc(prep)+'<br>'+esc(prepW)+'</p>':'')+'</div>'   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
+    +'</div>'   /* [FLOW_MIN] PC 준비 줄 걷음 */   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
     +'<div class="pk-side">'
     +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
-    +'<p class="pk-peak">'+_pkPeakHtml()+'</p>'
+    +((!pl||flat)?'<p class="pk-peak">'+_pkPeakHtml()+'</p>':'')   /* [FLOW_MIN] 곡선 위 «★ 이름»과 흐름 줄의 ★이 이미 말한다 — 문장은 정점이 없거나(담아 보라는 안내) 곡선이 없을 때만 */
     +'<p class="pk-tm mo">'+ord+'</p>'
     +_noteHtml()
-    +'<p class="pk-tm mo">'+'본식과 단체'+NBS+'사진을 합쳐 늘 '+R.DAYMIN+'분이에요'+(prep?'<br>'+esc(prep)+'<br>'+esc(prepW):'')+'</p>'   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
+    +'<p class="pk-tm mo">본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
     +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button>'
     +'</div></section>';
 }

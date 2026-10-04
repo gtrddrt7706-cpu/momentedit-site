@@ -11971,7 +11971,19 @@ chk 'SAMPLE_CUT' order-preview.html 3
 nochk "slug: 'sample-" assets/ritual-open.js   # 대표 한 줄 새 녹음 다섯은 거뒀다 — 부모 클립 앞 두 문장에서 멈춘다(최종판 4장)
 chk 'POSTER_SMALL' scripts/video/encode-moment.sh 1
 chk 'POSTER_SMALL' assets/ritual-open.js 1
-chk "var PK_CAP='예식이 차오르고 가라앉는 모양이에요';" order-preview.html 1
+# ★[FLOW_MIN 2026-10-04 사장님 «준비할 것 N가지 · 한눈에 보기에서 모아 봐요 삭제 · 나머지 문구도 미니멀하게»] 감동 흐름 판 설명 · 준비할 것 줄을 걷었다
+nochk "var PK_CAP=" order-preview.html
+nochk "esc(prep)+'<br>'+esc(prepW)" order-preview.html
+chk 'FLOW_MIN' order-preview.html 5
+chk "본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'" order-preview.html 1
+# ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선 없이 한 덩어리
+chk 'PV_SEND_ONE' order-preview.html 2
+chk ".mk-one .mk-vlist{border-top:0" order-preview.html 1
+# ★[LEAVE_ASK_Q 2026-10-04 사장님 «두고 갈까요?로 · 줄바꿈 · «한눈에 보기»에서 다시 찾을 수 있어요 삭제»]
+chk '미완료로 두고 갈까요?' order-preview.html 1
+chk 'LEAVE_ASK_Q' order-preview.html 2
+nochk '«한눈에 보기»에서 다시 찾을 수 있어요' order-preview.html
+nochk '미완료로 두고 넘어갈게요' order-preview.html
 nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
 chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-open.js 1
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
