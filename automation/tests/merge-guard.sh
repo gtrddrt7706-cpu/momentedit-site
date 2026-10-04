@@ -14193,7 +14193,7 @@ chk "'양가 한 분씩 · 사진 때'" assets/ritual-open.js 1
 
 # ★[MINI_OFF_ROWS 2026-10-04 사장님 «여기 밑에 재생 박스는 굳이 안 나와도 될 것 같아»] ② 순간 쪽(줄 ▶ 가 있는 곳)은 작은 플레이어를 띄우지 않는다 — 흐르는 줄 ▶ 가 ❚❚(멈춤 · 이어서)
 chk 'MINI_OFF_ROWS' order-preview.html 3
-chk "if(!st||LP.big||_rowCtl){ el.style.display='none'; }" order-preview.html 1
+chk "if(!st||LP.big||_rowCtl){   // \[MINI_OFF_ROWS\]" order-preview.html 1   # [QA_MINI_FOCUS] 숨길 때 포커스 복귀가 같은 갈래에 붙었다
 chk 'data-ml=' order-preview.html 1
 # ★[VPAGE_TIDY 2026-10-04 사장님 «두 분 목소리 만들기 — 이게 최선이야? 디자이너 시선으로 비판 · 개선 · 반영»] 칠한 안내 상자 · 번호 걷음 · 단서는 작은 둘째 줄 · 안 만든 분 카드에 «무엇을 하는지» 한 줄 · «목소리 만들기가 남았어요» 걷음
 chk 'VPAGE_TIDY' order-preview.html 4
