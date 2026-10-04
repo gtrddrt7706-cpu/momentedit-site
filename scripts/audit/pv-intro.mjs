@@ -48,23 +48,23 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
     mkGo('prevideo'); try { lsStop(); } catch (e) {}
   });
   await pg.waitForTimeout(500);
-  const off = await pg.evaluate(() => ({ chips: document.querySelectorAll('[data-fk^="lsc:pvVoice"]').length, ta: !!document.getElementById('mkPvTa'), row: !!document.querySelector('.mk-sech-r [data-fk="mkplay"]'), lab: [...document.querySelectorAll('.mk-flow .mk-lab')].map((e) => e.textContent).join('|') }));
+  const off = await pg.evaluate(() => ({ chips: document.querySelectorAll('[data-fk^="lsc:pvVoice"]').length, ta: !!document.querySelector('[data-fk="mksl:pv:0"]'), row: !!document.querySelector('.mk-sech-r [data-fk="mkplay"]'), lab: [...document.querySelectorAll('.mk-flow .mk-lab')].map((e) => e.textContent).join('|') }));
   ok(W + ' AI 꺼짐 — 고르는 칸 · 글칸 없음 · 스튜디오 한 줄(이름 «식전 영상 소개») · 들어 보기 줄 [PLAY_ROW]', off.chips === 0 && !off.ta && off.row && /식전 영상 소개/.test(off.lab) && !/소개글/.test(off.lab), JSON.stringify(off));
   await pg.evaluate(() => { S.vsAsked = 1; RitualOpen.FEATURE.voiceClone = true; render(); });   /* [R2-15] ② 첫 진입 창은 voice-setup 이 잰다 */
   await pg.waitForTimeout(300);
   const ch = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:pvVoice"]')].map((e) => e.textContent).join('|'));
   ok(W + ' AI 켜짐 — [AI 두 분 목소리 | 스튜디오 나레이션](R4-12)', ch === 'AI 두 분 목소리|스튜디오 나레이션', ch);
   await pg.click('[data-fk="lsc:pvVoice:ai"]'); await pg.waitForTimeout(400);
-  const e0 = await pg.evaluate(() => ({ pv: S.pvVoice, vf: (S.vfill || {}).prevideo, ta: !!document.getElementById('mkPvTa'), ex: document.querySelectorAll('[data-fk^="mkpvex:"]').length, ai: !!document.querySelector('[data-fk="mkai:pv"]'), note: /소개글을 적으면 신랑 AI 목소리로/.test(document.querySelector('.mk-pg').textContent), card: document.querySelectorAll('[data-fk="mkupplay:pv"],[data-fk^="mkwho:pv:"]').length }));
-  ok(W + ' AI 고름 — 글칸 · 예시 넷 · 빈 글이면 [AI로 만들기] 없이 한 줄 안내 · 읽는 분 [신랑 | 신부]', e0.pv === 'couple' && e0.vf === 'ai' && e0.ta && e0.ex === 4 && !e0.ai && e0.note && e0.card === 2, JSON.stringify(e0));
+  const e0 = await pg.evaluate(() => ({ pv: S.pvVoice, vf: (S.vfill || {}).prevideo, ta: !!document.querySelector('[data-fk="mksl:pv:0"]'), ex: document.querySelectorAll('[data-fk^="mkpvex:"]').length, ai: !!document.querySelector('[data-fk="mkai:pv"]'), note: /소개글을 적으면 신랑 AI 목소리로/.test(document.querySelector('.mk-pg').textContent), card: document.querySelectorAll('[data-fk="mkupplay:pv"],[data-fk^="mkslw:pv:"]').length }));
+  ok(W + ' AI 고름 — 글칸 · 예시 넷 · 빈 글이면 [AI로 만들기] 없이 한 줄 안내 · 읽는 분 [신랑] 한 줄(LINE_SPLIT · 눌러 바꾼다)', e0.pv === 'couple' && e0.vf === 'ai' && e0.ta && e0.ex === 4 && !e0.ai && e0.note && e0.card === 1, JSON.stringify(e0));
   await pg.click('[data-fk="mkpvex:0"]'); await pg.waitForTimeout(300);
-  const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.getElementById('mkPvTa').value, ai: !!document.querySelector('[data-fk="mkai:pv"]'), on: (document.querySelector('[data-fk="mkpvex:0"]') || {}).getAttribute('aria-pressed') }));
+  const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.querySelector('[data-fk="mksl:pv:0"]').value, ai: !!document.querySelector('[data-fk="mkai:pv"]'), on: (document.querySelector('[data-fk="mkpvex:0"]') || {}).getAttribute('aria-pressed') }));
   ok(W + ' 예시 «담백하게» → 글칸에 들어가고 [AI로 만들기]가 생긴다', /^저희 두 사람이 함께 지나온 시간을/.test(t0.t) && t0.ta === t0.t && t0.ai && t0.on === 'true', JSON.stringify(t0));
   await pg.click('[data-fk="mkai:pv"]'); await pg.waitForTimeout(1500);
   const m = await pg.evaluate(() => ({ calls: __calls.join(','), text: (__last && __last.text) || '', up: S.up && S.up.pv, play: !!document.querySelector('[data-fk="mkvpl:pv"][onclick^="mkUpPlay"]') }));   /* [AI_CARD_TIDY] AI 파일은 머리 ▶ 가 튼다 */
   ok(W + ' [AI로 만들기] → make(pv · 신랑 · 그 글) → 그 자리 파일(src ai · 글 지문)', /make:pv:groom/.test(m.calls) && /upload:pv/.test(m.calls) && m.text === t0.t && m.up && m.up.src === 'ai' && !!m.up.tx && m.play, JSON.stringify(m).slice(0, 300));
-  await pg.fill('#mkPvTa', t0.t + ' 고맙습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(300);
-  const st = await pg.evaluate(() => ({ btn: (document.querySelector('[data-fk="mkai:pv"]') || {}).textContent || '', s: (document.querySelector('[data-fk="mkwho:pv:g"]').closest('.mk-vc') || {}).textContent || '' }));
+  await pg.fill('[data-fk="mksl:pv:0"]', t0.t + ' 고맙습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(300);
+  const st = await pg.evaluate(() => ({ btn: (document.querySelector('[data-fk="mkai:pv"]') || {}).textContent || '', s: (document.querySelector('[data-fk="mkslw:pv:0"]').closest('.mk-vc') || {}).textContent || '' }));
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «다시 만들어 주세요 · [새 글로 다시 만들기]» → «▶ 를 누르면 새로 만들어요» · 단추 없음(▶ 가 만든다) */
   ok(W + ' 글을 고치면 «글을 고쳤어요» · 머리 [AI로 만들기]가 스르륵 [AI_PILL]', st.btn === '목소리 만들기' && /글을 고쳤어요/.test(st.s), JSON.stringify(st).slice(0, 300));
   await pg.click('[data-fk="mkpvex:1"]'); await pg.waitForTimeout(300);
@@ -72,7 +72,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 적어 둔 글을 예시로 덮기 전에 묻는다', /예시로 바꿀까요/.test(ask), ask.slice(0, 120));
   await pg.click('.ord-ask .oa-no'); await pg.waitForTimeout(300);
   ok(W + ' «그대로 두기»면 적어 둔 글이 남는다', await pg.evaluate(() => / 고맙습니다\.$/.test(S.pvText)));
-  await pg.click('[data-fk="mkwho:pv:b"]'); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="mkslw:pv:0"]'); await pg.waitForTimeout(400);
   const wb = await pg.evaluate(() => ({ who: S.pvWho, up: !!(S.up && S.up.pv), mk: __calls.filter((c) => /make:pv:bride/.test(c)).length }));
   ok(W + ' 읽는 분을 신부로 — 신랑 목소리로 만든 소리는 버린다 · 신부 목소리가 없으면 만들지 않는다', wb.who === 'b' && !wb.up && wb.mk === 0, JSON.stringify(wb));
   ok(W + ' 화면 오류 없음', errs.length === 0, errs.slice(0, 2).join(' | '));

@@ -11984,7 +11984,19 @@ chk 'SAMPLE_CUT' order-preview.html 3
 nochk "slug: 'sample-" assets/ritual-open.js   # 대표 한 줄 새 녹음 다섯은 거뒀다 — 부모 클립 앞 두 문장에서 멈춘다(최종판 4장)
 chk 'POSTER_SMALL' scripts/video/encode-moment.sh 1
 chk 'POSTER_SMALL' assets/ritual-open.js 1
-chk "var PK_CAP='예식이 차오르고 가라앉는 모양이에요';" order-preview.html 1
+# ★[FLOW_MIN 2026-10-04 사장님 «준비할 것 N가지 · 한눈에 보기에서 모아 봐요 삭제 · 나머지 문구도 미니멀하게»] 감동 흐름 판 설명 · 준비할 것 줄을 걷었다
+nochk "var PK_CAP=" order-preview.html
+nochk "esc(prep)+'<br>'+esc(prepW)" order-preview.html
+chk 'FLOW_MIN' order-preview.html 5
+chk "본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'" order-preview.html 1
+# ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선 없이 한 덩어리
+chk 'PV_SEND_ONE' order-preview.html 2
+chk ".mk-send1 .mk-vlist{border-top:0" order-preview.html 1
+# ★[LEAVE_ASK_Q 2026-10-04 사장님 «두고 갈까요?로 · 줄바꿈 · «한눈에 보기»에서 다시 찾을 수 있어요 삭제»]
+chk '미완료로 두고 갈까요?' order-preview.html 1
+chk 'LEAVE_ASK_Q' order-preview.html 2
+nochk '«한눈에 보기»에서 다시 찾을 수 있어요' order-preview.html
+nochk '미완료로 두고 넘어갈게요' order-preview.html
 nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
 chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-open.js 1
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
@@ -13447,7 +13459,13 @@ nochk "class=\"cta-al\" data-fk=\"opnal\" onclick=\"opToNote()\">'+esc(R.firstSe
 chk 'RIT_SAVE_IDLE' order-preview.html 2            # 4 처음 연 화면은 꺼진 «저장»
 chk "ob-exit ob-save idle" order-preview.html 1
 chk 'RIT_PRICE_WORD' order-preview.html 1           # 5 «값» → «가격»
-chk '어떤 순간을 담아도 가격은 같아요 · 케이크 · 꽃을 맡기실 때만 따로예요.' order-preview.html 1   # [PRICE_SAME] 맡기는 케이크 · 꽃만 따로
+nochk '어떤 순간을 담아도 가격은 같아요' order-preview.html   # ★[EX_HEAD_OFF 2026-10-04 사장님] 예시 카드 위 제목 · 설명을 걷었다(PRICE_SAME 폐지)
+nochk '<h3 class="pk-h">예시로 시작하기</h3>' order-preview.html   # [EX_HEAD_OFF]
+chk 'EX_HEAD_OFF' order-preview.html 1
+# ★[PV_STILL_FIRST 2026-10-04 사장님 «영상이 바로 안 보이고 흰 배경에 나중에 영상이 올라온다»] 창은 칸이 받아 둔 첫 장면부터 · 영상은 돌기 시작하면 위로
+chk 'PV_STILL_FIRST' order-preview.html 4
+chk '<img class="pv-still" src="' order-preview.html 1
+chk "vd.addEventListener('playing',function(){ vd.classList.add('on'); });" order-preview.html 1
 nochk '무엇을 담아도 값은 같아요' order-preview.html 0
 chk 'RIT_UNDO_ABOVE' order-preview.html 1           # 6 되돌리기 알림이 «빈 칸에서 직접 고를게요»를 덮지 않게
 # ② 보고 듣기
@@ -14027,6 +14045,19 @@ chk 'PLAY_ONE' order-preview.html 2
 chk 'LINE_EDIT' scripts/audit/voice-setup.mjs 1
 chk 'VS_CHIP_ONCE' scripts/audit/voice-setup.mjs 1
 chk 'PLAY_ONE' scripts/audit/voice-setup.mjs 1
+# ★★[LINE_SPLIT 2026-10-04 사장님 «신랑 신부 입력칸이 안 나눠져 있다 · 줄 더하기 · 빼기로 분업에 맞게 · 같은 폼을 쓰는 곳은 전부(하객 맞이 등)»]
+#   두 분이 읽을 글 칸(하객 맞이 넷 · 입장 인사 · 식전 영상 소개)은 한 모양의 줄 편집기 — 줄마다 [신랑|신부] · 글 · × · «＋ 줄 더하기».
+#   한 칸 글상자(.mk-vtta · #mkPvTa)로 되돌리지 말 것. AI 는 줄마다 그 분 목소리(lines) · 읽는 분 차례가 바뀌면 «다시 만들기»(wq)
+if command -v node >/dev/null 2>&1; then node scripts/audit/line-split.mjs >/dev/null 2>&1; _ls=$?; [ "$_ls" = 1 ] && { echo 'FAIL line-split: 두 분 읽을 글 줄 편집기 흐름이 어긋났습니다 — node scripts/audit/line-split.mjs'; fail=1; }; fi
+chk 'LINE_SPLIT' order-preview.html 12
+chk 'LINE_SPLIT' scripts/audit/line-split.mjs 1
+chk 'function _slEditor(key,lab){' order-preview.html 1
+chk '+_slEditor(q.up,lab)' order-preview.html 1
+chk "+_slEditor('pv','영상 앞 소개글')" order-preview.html 1
+nochk 'class="ta grow mk-vtta"' order-preview.html
+nochk 'id="mkPvTa"' order-preview.html
+chk "wq:_slKeyOk(key)?_slWhoSig(key):undefined" order-preview.html 1
+chk "tx:_txSig(a.t),wq:wq}" order-preview.html 2
 # ── 2026-10-02 사장님 결정 여섯(라운드 점검 1의 결정 대기분) — 이름 = 결정 · 같은 커밋에 검사 [DECISION_GUARD]
 chk 'VOW_HOW' order-preview.html 5                 # 서약 읽는 방식 칩(한 줄씩 번갈아 · 각자 차례로) · 안내는 글칸 위 · 흐름 한 줄
 chk 'VOW_HOW' assets/ritual-cue.js 1               # 엔진 live.t 가 S.vowHow 를 따른다
@@ -14038,7 +14069,7 @@ chk 'MAP_ONE' order-preview.html 2                 # ② 첫 쪽 사슬 걷음 �
 nochk '<p class="mk-vgh">이 식순의 차례</p>' order-preview.html 0
 chk 'STRIP_ONE' order-preview.html 1               # 600 이하 진행 줄 한 줄 넘기기
 chk 'AI_CARD_TIDY' order-preview.html 4            # AI 줄 ▶ = 만든 파일 · 밑줄 글 단추 · 말 빠르기 한 줄
-chk 'PRICE_SAME' order-preview.html 1
+chk 'PRICE_SAME' order-preview.html 1   # [EX_HEAD_OFF] 폐지 기록으로 남은 이름
 chk 'RING_STAGE' order-preview.html 1
 chk 'RING_STAGE' assets/ritual-open.js 2
 nochk "out.push(\['반지를 건넬" assets/ritual-open.js 0
