@@ -12692,6 +12692,7 @@ chk 'QA_CHIP_FOCUS' order-preview.html 1
 chk 'QA_CHOOSE_SAY' order-preview.html 1
 chk 'QA_RC_ROVE' order-preview.html 1
 chk 'QA_DEL_BUSY' order-preview.html 1
+chk 'QA_LINK_BLUR' order-preview.html 1
 chk "aria-disabled') === 'true'" scripts/check-ord-save.mjs 3   # [QA_SAVE_FOCUS] 포커스 동안은 aria-disabled 로 꺼진다
 nochk 'var(--serif-ko,inherit)' order-preview.html   # 없는 토큰 — 팝업 제목이 고딕으로 떨어졌다
 nochk 'border:1px solid var(--gold-deeper);border-radius:50%;box-sizing:content-box}' order-preview.html   # 옛 테두리만 ▶

@@ -1688,7 +1688,10 @@ var OUT_DECLARE_FAMILY="이제 두 사람은 부부입니다. 다 함께 축하�
 var CLOSE_NAR="이제 사진을 남기겠습니다. 먼저 다 함께 한 장, 이어서 가족과 친구분들 차례로 남기겠습니다. 모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다.";   // [CLOSE_BOW 2026-09-26] 원천 D.NARR.close 와 같게(끝 선언은 108 로 나뉘었다)   // [CLOSE_V2 2026-08-08] 옛 문안은 "자리에서 그대로" 였다 — 새 설계는 전원이 앞으로 모인다
 window.setGuestVoice=function(v){ S.guestVoice=v; render(); };
 window.setEntryVoice=function(v){ S.entryVoice=v; render(); };
-window.growHint=function(v){ var el=document.getElementById('growHint'); if(!el) return; var s=String(v||'').trim(), bad=!!(s&&!/^https?:\/\//i.test(s)&&!('https://'.indexOf(s.toLowerCase())===0||'http://'.indexOf(s.toLowerCase())===0));   /* ★[QA_LINK_TYPING 2026-10-04 점검] «h» · «https:/»처럼 치는 중인 앞부분엔 오류를 띄우지 않는다 */ el.style.display=bad?'block':'none';
+window.growHint=function(v,fin){ var el=document.getElementById('growHint'); if(!el) return; var s=String(v||'').trim();
+  if(fin&&s&&/^https?:\/\//i.test(s)&&!_linkOk(s)){ el.textContent='주소가 끝까지 들어가지 않은 것 같아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.'; el.style.display='block'; var i0=document.querySelector('input[aria-label="식전 영상 링크"]'); if(i0) i0.setAttribute('aria-invalid','true'); return; }   /* ★[QA_LINK_BLUR 2026-10-04 점검] 치다 멈춘 «https://youtu»는 칸을 떠날 때 알린다 */
+  el.textContent='주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.';
+  var bad=!!(s&&!/^https?:\/\//i.test(s)&&!('https://'.indexOf(s.toLowerCase())===0||'http://'.indexOf(s.toLowerCase())===0));   /* ★[QA_LINK_TYPING 2026-10-04 점검] «h» · «https:/»처럼 치는 중인 앞부분엔 오류를 띄우지 않는다 */ el.style.display=bad?'block':'none';
   var i=document.querySelector('input[aria-label="식전 영상 링크"]'); if(i){ if(bad) i.setAttribute('aria-invalid','true'); else i.removeAttribute('aria-invalid'); } };   // [A11Y_INVALID 3장] 오류가 화면 읽기에도 전해지게   /* [GROW_LINK_HINT] */
 window.setGrowth=function(cb){ S.growth=cb.checked?'on':'off'; _lazyPersist(); render(); };
 window.copyGuestScript=function(){
@@ -4049,14 +4052,14 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
         h+='<li class="mk-vx">'+(_bSite?'':'<textarea class="ta grow" rows="2" maxlength="4000" aria-label="받은 덕담 원고" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\'bless.p\']=this.value;_taGrow(this);_fAt(\'tx.bless.p\');_persist();_mkStripRepaint();var _c=document.getElementById(\'mkc_bless_p\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
           +'<div class="mk-fl'+(_bSite?' end':'')+'">'   /* ★[QA_BLESS_CNT 2026-10-04 점검] 붙인 원고도 글자 수 · 초 — 다른 글 칸과 같게 */+(_bSite?'':'<span class="mk-cnt" id="mkc_bless_p">'+_mkCntT(String(bv).length,1e9)+'</span>')+'<label class="upchk mk-ck"><input type="checkbox" data-fk="mkbsite"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;mkbsite&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>원고 없이 부모님이 현장에서 바로 하실 거예요</span></label></div>'+((_bSite&&String(bv).trim())?'<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>':'')+'</li>'; }   /* [R4-02] 숨은 원고가 있으면 대본에서 뺀다는 것을 알린다 */   /* [R2-35] 두 분이 «그렇다»고 고르는 말 */
       if(cat==='send'&&q.k==='prevideo'){
-        h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_pvOkTg(this.value);_mkStripRepaint()" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">'
+        h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_pvOkTg(this.value);_mkStripRepaint()" onblur="growHint(this.value,true)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">'
           +'<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>'
           +'</li>'; }   /* [R1-14] 자리표시 글은 390 칸에 들어가게 짧게 · [R1-44] 붙이는 즉시 «링크 받았어요»(_pvOkTg) · ★★[PREVIDEO_FREE 2026-10-02 사장님 «식전 영상 규정을 제한하지 말 것 · 자유대로 · 붙여넣기 하나로» → «링크 칸 하나만»] 길이 · 장수 규정 · 카톡 · 메일 · 25MB 안내를 걷었다 · 되살리지 말 것 */
     });
     h+='</ul></section>'; });
   return h; }
 function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=_linkOk(v)?'':'none'; }
-function _linkOk(v){ return /^https?:\/\/[^\s\/?#]+\.[^\s\/?#]+/i.test(String(v||'').trim()); }   /* ★[QA_LINK_HOST 2026-10-04 점검] «https://» 만 쳐도 «링크 받았어요»가 떴다 — 주소(점이 있는 이름)까지 있어야 */   /* [R1-44] 식전 영상 링크 «링크 받았어요» 표시를 다른 쪽에 다녀오지 않아도 바로 */
+function _linkOk(v){ return /^https?:\/\/[^\s\/?#]+\.[^\s\/?#]+\S*$/i.test(String(v||'').trim()); }   // [QA_LINK_HOST] 가운데 띄어쓰기도 아니다   /* ★[QA_LINK_HOST 2026-10-04 점검] «https://» 만 쳐도 «링크 받았어요»가 떴다 — 주소(점이 있는 이름)까지 있어야 */   /* [R1-44] 식전 영상 링크 «링크 받았어요» 표시를 다른 쪽에 다녀오지 않아도 바로 */
 /* ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부 · 지금은 너무 지저분하니 디자인적으로 깔끔하게 · 첨부 안 되어 있으면 미완료»]
    두 분 목소리 녹음 = 카드 하나. 녹음마다 한 줄(이름 · 상태 · 올리기) → 마이페이지 → GAS(handleRitualFile) → 드라이브.
    종전의 «녹음 · 대본을 드려요» 줄 + 체크 다섯 칸을 걷었다. 올리지 않은 줄은 미완료로 남는다(지나온 쪽이면 진행 줄에 진사 동그라미).
@@ -5701,7 +5704,7 @@ function _lPaint(){
 }
 /* 크게 보기 — 기록 한 칸(뒤로 = 작게) · 뒤를 inert 로 잠그고 닫으면 누른 자리로 포커스를 돌려준다 */
 function _lOpenBig(){
-  if(!LP.big){ LP.opener=document.activeElement; try{ if(isOpen()&&!(history.state&&history.state.big)) history.pushState({opIdx:idx,big:1,gen:_opGen},''); }catch(e){} }
+  if(!LP.big){ var _mi=document.getElementById('lsMini'); LP.opener=(_mi&&_mi.contains(document.activeElement)&&LP.miniFrom)?LP.miniFrom:document.activeElement;   /* [QA_MINI_FOCUS] 작은 플레이어에서 다시 크게 열면 처음 연 단추를 그대로 기억 */ try{ if(isOpen()&&!(history.state&&history.state.big)) history.pushState({opIdx:idx,big:1,gen:_opGen},''); }catch(e){} }
   LP.big=true;
   try{ if(navigator.wakeLock&&!LP.lock) navigator.wakeLock.request('screen').then(function(l){ LP.lock=l; })['catch'](function(){}); }catch(e){}
 }
