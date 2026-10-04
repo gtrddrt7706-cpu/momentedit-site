@@ -14152,3 +14152,37 @@ chk 'function _vsMk()' order-preview.html 1
 chk 'R5-04' order-preview.html 1
 chk 'R5-05' order-preview.html 1
 chk "'양가 한 분씩 · 사진 때'" assets/ritual-open.js 1
+
+# ★[MINI_OFF_ROWS 2026-10-04 사장님 «여기 밑에 재생 박스는 굳이 안 나와도 될 것 같아»] ② 순간 쪽(줄 ▶ 가 있는 곳)은 작은 플레이어를 띄우지 않는다 — 흐르는 줄 ▶ 가 ❚❚(멈춤 · 이어서)
+chk 'MINI_OFF_ROWS' order-preview.html 3
+chk "if(!st||LP.big||_rowCtl){ el.style.display='none'; }" order-preview.html 1
+chk 'data-ml=' order-preview.html 1
+# ★[VPAGE_TIDY 2026-10-04 사장님 «두 분 목소리 만들기 — 이게 최선이야? 디자이너 시선으로 비판 · 개선 · 반영»] 칠한 안내 상자 · 번호 걷음 · 단서는 작은 둘째 줄 · 안 만든 분 카드에 «무엇을 하는지» 한 줄 · «목소리 만들기가 남았어요» 걷음
+chk 'VPAGE_TIDY' order-preview.html 4
+nochk '목소리 만들기가 남았어요' order-preview.html
+nochk 'padding:14px 16px;border-radius:12px;background:var(--bg2)}' order-preview.html
+chk '글 두 개를 소리 내어 읽어요 · 1분쯤' order-preview.html 1
+# ★[FLOW_NAMES_ONE 2026-10-04 사장님 «왜 부모님 인사만 내려가 있어? 다른 곳들은 안 그래»] 감동 흐름(PC) 이름표는 한 줄 — 옆으로 비켜 맞추고, 그래도 좁으면 작게,
+#   그래도 안 되면 번갈아 두 줄(한 이름만 떨어지지 않게 · 이름을 빼지 않는다). 옛 «닿으면 둘째 줄» 길로 되돌리지 말 것
+chk 'FLOW_NAMES_ONE' assets/ritual-open.js 2
+nochk 'for (var row = 0; row < 2; row++)' assets/ritual-open.js
+chk "var LB1 = lay(8, 11, 1), fs1 = 11; if (!LB1) { LB1 = lay(5, 10, 1.2); fs1 = 10; }" assets/ritual-open.js 1
+# ★[SITE_CHK_OFF 2026-10-04 사장님 «현장에서 바로 할게요 삭제 · 그래야 큐사인을 알 수 있다»] 첫인사 · 서약 체크 칸 걷음 · 옛 체크는 다 된 것으로 세지 않는다
+chk 'SITE_CHK_OFF' order-preview.html 4
+# ★[CUE_SIG 2026-10-04 사장님 «적을 수 있게 하고 현장이면 큐사인을 직접 적게»] 위 SITE_CHK_OFF 를 바꾼다 — 체크는 되살리고 끝 신호 칸을 붙인다
+chk "chk:'현장에서 바로 할게요'" order-preview.html 2
+chk 'CUE_SIG' order-preview.html 6
+chk 'CUE_SIG' console.html 2
+chk 'function _cueBox(id)' order-preview.html 1
+chk 'function cueEnd(c)' console.html 1
+nochk 'endSig(S' assets/ritual-cue.js   # [CUE_SIG] 두 분 글은 엔진(미리 듣기 링크가 싣는 키)이 읽지 않는다 — 콘솔만
+chk 'function _txSite(kind,c,id)' order-preview.html 1
+# [PLAY_ALIGN] → main #985 PLAY_OPTIC(디자인 세션 · 사장님 확인)이 같은 일을 맡는다 — 겹치지 않게 걷었다
+# ★[PV_LINK_ONE 2026-10-04 사장님 «(영상이나 사진) 삭제 · 무조건 영상 · 날짜는 오른쪽 한 줄»]
+nochk '식전 영상 링크(영상이나 사진)' assets/ritual-open.js
+chk 'PV_LINK_ONE' assets/ritual-open.js 1
+chk 'PV_LINK_ONE' order-preview.html 1
+# ★[TALK_BRIDGE 2026-10-04 사장님 «이 순간 들어 보기 = 전체 자동 재생 · 직접 말하는 자리는 "직접 읽어 주시는 시간입니다"로 한 번 짚고 바로 다음 나레이션»] ② 작은 재생만 · 연습 · 크게 보기는 차례 시간 그대로
+chk 'TALK_BRIDGE' order-preview.html 4
+chk 'function _lBridge(q)' order-preview.html 1
+chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-preview.html 1

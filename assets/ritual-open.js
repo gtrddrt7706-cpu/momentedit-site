@@ -350,11 +350,18 @@
       o.push('<circle class="flow-peak" data-t="' + bt + '" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (tiny ? 2.4 : (mini ? 3 : 5)) + '" fill="' + PEAK_INK + '" stroke="#fff" stroke-width="' + (mini ? 1.5 : 2) + '"/>');
       if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="600" text-anchor="' + an + '" fill="' + PEAK_INK + '">★ ' + fesc(p.n) + '</text>'); }   /* [R7-08] 굵기 상한 600 */
     }
-    if (names) { var last = [-1e9, -1e9];
-      sg.forEach(function (s) { var nx = x(s.st + s.d / 2), tw = s.n.replace(/[\s·]/g, '').length * 11 + (s.n.match(/[\s·]/g) || []).length * 3.5, l = nx - tw / 2, r = nx + tw / 2, an2 = 'middle';
-        if (l < 0) { an2 = 'start'; nx = Math.max(nx - tw / 2, 2); l = nx; r = nx + tw; } if (r > w) { an2 = 'end'; nx = Math.min(nx + tw / 2, w - 2); r = nx; l = nx - tw; }
-        for (var row = 0; row < 2; row++) { if (l > last[row] + 8) { o.push('<text x="' + nx.toFixed(1) + '" y="' + (h - B + 26 + row * 14) + '" font-size="11" text-anchor="' + an2 + '" fill="' + (s === p ? '#3A2D22' : '#5A554C') + '"' + (s === p ? ' font-weight="600"' : '') + '>' + fesc(s.n) + '</text>'); last[row] = r; break; } } });
-    }
+    /* ★[FLOW_NAMES_ONE 2026-10-04 사장님 «왜 부모님 인사만 내려가 있어? 다른 곳들은 안 그래»] 이름표가 앞 이름(짧은 «선언»)에 닿으면 둘째 줄로 내렸다 —
+       한 이름만 툭 떨어져 보였다. 이제 한 줄 안에서 먼저 옆으로 비켜 맞춘다(제 순간 가운데에서 이름 폭의 0.6 안쪽만) · 그래도 안 되면 종전 두 줄 */
+    if (names) { var lay = function (G1, cw, lim) { var LB = sg.map(function (s) { var tw = s.n.replace(/[\s·]/g, '').length * cw + (s.n.match(/[\s·]/g) || []).length * cw * 0.32, c = x(s.st + s.d / 2); return { s: s, c: c, tw: tw, l: c - tw / 2 }; }), i1;
+        for (i1 = 0; i1 < LB.length; i1++) LB[i1].l = Math.max(LB[i1].l, 2, i1 ? LB[i1 - 1].l + LB[i1 - 1].tw + G1 : 2);
+        for (i1 = LB.length - 1; i1 >= 0; i1--) LB[i1].l = Math.min(LB[i1].l, (i1 < LB.length - 1 ? LB[i1 + 1].l - G1 : w - 2) - LB[i1].tw);
+        return LB.every(function (b, i) { return b.l >= 1.5 && b.l + b.tw <= w - 1.5 && Math.abs(b.l + b.tw / 2 - b.c) <= Math.max(b.tw * lim, 24) && (!i || b.l >= LB[i - 1].l + LB[i - 1].tw + G1 - 0.5); }) ? LB : null; };
+      var nm = function (b, cx, row, fs) { return '<text x="' + cx.toFixed(1) + '" y="' + (h - B + 26 + row * 14) + '" font-size="' + fs + '" text-anchor="middle" fill="' + (b.s === p ? '#3A2D22' : '#5A554C') + '"' + (b.s === p ? ' font-weight="600"' : '') + '>' + fesc(b.s.n) + '</text>'; };
+      var LB1 = lay(8, 11, 1), fs1 = 11; if (!LB1) { LB1 = lay(5, 10, 1.2); fs1 = 10; }
+      if (LB1) LB1.forEach(function (b) { o.push(nm(b, b.l + b.tw / 2, 0, fs1)); });   // 한 줄
+      else sg.forEach(function (s, i) { var tw = s.n.length * 10, c = Math.max(2 + tw / 2, Math.min(w - 2 - tw / 2, x(s.st + s.d / 2))); o.push(nm({ s: s }, c, i % 2, 10.5)); });   // 그래도 좁으면 번갈아 두 줄(한 이름만 떨어지지 않게 · 이름을 빼지 않는다)
+      names = false; }
+    /* ★[FLOW_NAMES_ONE] 옛 «앞 이름에 닿으면 둘째 줄로» 길은 걷었다 — 한 이름만 떨어져 보였고, 두 줄이 다 차면 이름이 빠졌다 */
     /* 누르는 칸 — 순간 가운데에 폭 24 이상(짧은 순간은 12px 까지 좁아진다 · WCAG 2.5.8) · 그림 안으로 붙인다 · 이웃과 겹치면 뒤 칸이 위 */
     if (!mini) { sg.forEach(function (s, i) { var x0 = x(s.st), x1 = x(s.st + s.d), hw = Math.max(24, x1 - x0), rx = Math.max(0, Math.min(w - hw, (x0 + x1) / 2 - hw / 2));
       o.push('<rect class="flow-hit" data-i="' + i + '" x="' + rx.toFixed(1) + '" y="0" width="' + hw.toFixed(1) + '" height="' + h + '" fill="transparent"/>'); }); }   // ★[FLOW_ONE_IMG 코워크 추가 점검 · 접근성] 칸은 누르거나 올려 볼 때만 — 초점 칸 · 단추 역할은 뺐다(그림 하나 = role=img 하나 · 이름 순서는 그림 이름표가 말한다)
@@ -473,7 +480,7 @@
     switch (k) {
       /* [REC_UPLOAD 2026-09-27 코워크 3-8] 준비 목록 이름 «두 분 목소리 준비» · 마감 D-7 · 스튜디오 나레이션을 고르면 빠진다(아래 조건 그대로) */
       case 'guest': return S && S.guestVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 하객 맞이 안내 ' + voiceState(S, ['g0', 'g1', 'g2', 'g3']) : '하객 맞이 안내 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [VOICE_UP_FROM] 문이 닫혀 있으면 종전 글
-      case 'prevideo': return [['couple', '식전 영상 링크(영상이나 사진)', 'send', 3]];   // ★[PREVIDEO_FREE 2026-10-02 사장님] 길이 · 장수 규정 없음 · 링크 하나   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
+      case 'prevideo': return [['couple', '식전 영상 링크', 'send', 3]];   /* ★[PV_LINK_ONE 2026-10-04 사장님 «(영상이나 사진) 삭제 · 무조건 영상 · 날짜는 오른쪽 한 줄»] */   // ★[PREVIDEO_FREE 2026-10-02 사장님] 길이 · 장수 규정 없음 · 링크 하나   // [PREVIDEO_NAME 4-c] ③ 도 이 글을 쓴다   // [PREVIDEO_ALWAYS]
       case 'candle': { var cw = (S && S.candleWho) || DEF.candleWho;
         return cw === 'others' ? [['couple', '화촉을 밝혀 주실 두 분께 부탁드리기', 'ask', null, NOTE_ASK]] : [['parents', '화촉 · ' + (CANDLE_ASK[cw] || CANDLE_ASK.mothers) + ' 불을 밝혀 주세요', 'ask', null, NOTE_ASK]]; }
       case 'entry': return S && S.entryVoice === 'couple' ? [['couple', FEATURE.upLive ? '두 분 목소리 준비 · 입장 인사 ' + voiceState(S, ['entry']) : '입장 인사 녹음 · 대본을 드려요(휴대폰 음성 메모로 충분해요)', 'send', 7]] : [];   // [LISTEN_PAGE] 말투 · 첫 모습은 ② 에서 고른다
