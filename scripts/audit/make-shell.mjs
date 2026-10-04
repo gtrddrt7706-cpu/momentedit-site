@@ -234,7 +234,7 @@ for (const w of [390, 1280]) {
     const ps = await pg.evaluate(() => { const o = document.querySelector('[data-fk="mkvpv:guest"]'); return { v: o && o.textContent, lab: o && o.closest('.mk-tp').getAttribute('aria-label') }; });
     await pg.click('[data-fk="mkvpup:guest"]'); await pg.waitForTimeout(150);
     const ps2 = await pg.evaluate(() => ({ v: document.querySelector('[data-fk="mkvpv:guest"]').textContent, s: (S.vpause || {}).guest, makes: window.__calls.filter((c) => c.op === 'make').length }));
-    ok(`${w} [PAUSE_STEP] «문장 사이 쉼 [−] 보통 [＋]» · ＋ → 길게(600) · 누를 때는 만들지 않는다`, ps.v === '보통' && ps.lab === '문장 사이 쉼' && ps2.v === '길게' && ps2.s === 600 && ps2.makes === 0, JSON.stringify({ ps, ps2 }));
+    ok(`${w} [PAUSE_STEP] «문장 사이 쉼 [−] 보통 [＋]» · ＋ → 길게(600) · 누를 때는 만들지 않는다`, ps.v === '0' && ps.lab === '문장 사이 쉼' && ps2.v === '+1' && ps2.s === 600 /* [PAUSE_NUM] */ && ps2.makes === 0, JSON.stringify({ ps, ps2 }));
     ok(`${w} 화면 오류 0(말 빠르기)`, !errs.length, errs.join(' | '));
     await ctx.close(); }
 }

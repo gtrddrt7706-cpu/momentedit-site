@@ -1301,6 +1301,13 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-sech-r .mk-hbtn{min-width:0;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border:0;border-radius:999px;background:#4E3F31;color:var(--card);font-size:14px;font-weight:600}
 .mk-sech-r .mk-hbtn svg{width:10px;height:10px}
 @media (hover:hover){ .mk-sech-r .mk-hbtn:hover{filter:brightness(1.12)} }   /* [R1-40] 채운 주 단추는 «다음»과 같은 먹빛 #4E3F31 하나로 */
+/* ★[PLAY_WIDE 2026-10-04 사장님 «이 순간 들어 보기를 가로로 길게 · 전체 폭 · 디자이너 관점으로»] 칸 너비를 다 채운다. 다만 먹빛으로 꽉 채우면 아래 «다음»과 무게가 겹쳐
+   «어느 게 다음인가»가 흐려진다 — 크림 바탕 · 옅은 금 테 · 먹빛 글(둘째 단추)로 두고, ▶ 만 먹빛 동그라미 안에 둬 «듣기»로 읽히게. 높이 52 · 알약 */
+.mk-sech-r{display:block}
+.mk-sech-r .mk-hbtn{display:flex;width:100%;min-height:52px;gap:10px;padding:0 20px;border:1px solid var(--gold-btn);border-radius:999px;background:var(--card);color:var(--accent);font-size:14px;font-weight:600;letter-spacing:.01em;filter:none}
+.mk-sech-r .mk-hbtn svg{width:9px;height:9px;padding:7px 6px 7px 8px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}
+@media (hover:hover){ .mk-sech-r .mk-hbtn:hover{filter:none;background:var(--bg2)} }
+.mk-sech-r .mk-hbtn[disabled]{opacity:.6}
 .mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .mk-flow li{font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start;font-size:16px;line-height:1.75;color:var(--accent)}   /* ★[FLOW_LINE_TYPE 2026-10-02 사장님 «재생 버튼 메시지 글꼴과 스타일을 하객 맞이 카드랑 통일»] 나레이션 글 = 줄 카드 글(.mk-vtx 16 · 1.75 · accent) */
@@ -1406,7 +1413,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-dlg-x{flex:none;width:44px;height:44px;margin:-8px -12px 0 0;border:0;border-radius:999px;background:none;color:var(--sub);display:grid;place-items:center;cursor:pointer}
 .mk-dlg-x svg{width:16px;height:16px}
 .mk-dlg-steps{list-style:none;display:flex;gap:6px;margin:0 0 16px;padding:0}
-.mk-dlg-steps li{flex:1;padding-top:6px;border-top:2px solid var(--border);font-size:11px;letter-spacing:.04em;color:var(--light)}
+.mk-dlg-steps li{flex:1;padding-top:6px;border-top:2px solid var(--border);font-size:11px;letter-spacing:.04em;color:var(--light);text-align:center}   /* [STEP_LAB_CENTER 2026-10-04 사장님] 걸음 이름은 막대 가운데 */
 .mk-dlg-steps li.done{border-top-color:var(--gold);color:var(--sub)}
 .mk-dlg-steps li.on{border-top-color:var(--accent);color:var(--accent);font-weight:600}
 .mk-dlg .mk-rect{margin:10px 0 12px;padding:14px 16px;background:var(--bg2);border-radius:8px;font-size:16px;line-height:1.85}
@@ -4162,7 +4169,7 @@ function _recPanel(r){ var vc=/^vc:(groom|bride):(\d)$/.exec(r.key), n=vc?+vc[2]
   var w=!!(r.warn&&r.warn.length), use=n===1?(w?'그래도 이 녹음으로 다음 ›':'이 녹음으로 다음 ›'):n===2?(w?'그래도 이 녹음으로 만들기':'이 녹음으로 목소리 만들기'):(w?'그래도 이걸로 쓰기':'이걸로 쓰기');
   return '<audio controls preload="auto" data-fk="mkrecaud" src="'+esc(r.url)+'" style="width:100%"></audio>'
     +(w?'<div class="mk-recws">'+r.warn.map(_msg2).join('')+'</div>':'')   /* [REC_WARN2] «무엇이 / 어떻게» 두 줄 */
-    +'<p class="mk-note">'+_recFmt(r.dur)+' · 앞뒤 빈소리를 자르고 소리 크기를 나레이션에 맞췄어요 · 한 번 들어 보세요</p>'
+    /* ★«0:16 · 앞뒤 빈소리를 자르고 소리 크기를 나레이션에 맞췄어요 · 한 번 들어 보세요» 줄 금지 — 2026-10-04 사용자 지시로 삭제 [REC_NOTE_OFF] · 길이는 위 플레이어가 보인다 */
     +'<button type="button" class="mk-dlg-go" data-fk="mkrecuse" onclick="mkRecUse()">'+use+'</button>'
     +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mkrecagain" onclick="mkRecAgain()">다시 녹음</button>'
     +'</div>'; }   /* ★«잡음 줄이기 켜고 다시 녹음» 금지 — 2026-10-04 [REC_LEVEL] · 잡음 줄이기가 늘 켜져 있다 */   // [REC_TRIM] 알림이 있으면 막지 않고 «그래도 이걸로 쓰기»
@@ -4286,7 +4293,7 @@ function _mkRecGo(key){ if(MK_REC) _recStopAll();
 function _recStart(r){ var chunks=[], mime=['audio/webm;codecs=opus','audio/mp4','audio/webm','audio/ogg;codecs=opus'].filter(function(m){ try{ return MediaRecorder.isTypeSupported(m); }catch(e){ return false; } })[0]||'';
   try{ r.mr=mime?new MediaRecorder(r.stream,{mimeType:mime}):new MediaRecorder(r.stream); }catch(e){ MK_REC={key:r.key,ph:'err',msg:'녹음을 시작하지 못했어요 · 음성 메모로 녹음해 «파일»로 올려 주세요'}; render(); return; }
   r.mr.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
-  r.mr.onstop=function(){ if(MK_REC!==r) return; var b=new Blob(chunks,{type:r.mr.mimeType||mime||'audio/webm'}); clearInterval(r.iv); _recFromBlob(r.key,b,'rec'); };   /* [MIC_KEEP] 흐름은 창을 닫을 때 닫는다 */
+  r.mr.onstop=function(){ if(MK_REC!==r) return; var b=new Blob(chunks,{type:r.mr.mimeType||mime||'audio/webm'}); clearInterval(r.iv); _micDrop(); _recFromBlob(r.key,b,'rec'); };   /* ★[MIC_OFF_PLAY 2026-10-04 사장님 «녹음한 걸 들으려니 소리를 최대로 키워야 작게 들린다»] 아이폰은 마이크가 켜져 있으면 소리를 통화용(수화기 쪽 · 작게)으로 낸다 — 녹음이 끝나면 바로 닫는다. MIC_KEEP(허용 창 덜 묻기)보다 들어 보기가 먼저다 */
   try{ r.ac=new (window.AudioContext||window.webkitAudioContext)(); var an=r.ac.createAnalyser(); an.fftSize=1024; r.ac.createMediaStreamSource(r.stream).connect(an); var buf=new Float32Array(an.fftSize); r.lvlOf=function(){ an.getFloatTimeDomainData(buf); var q=0; for(var i=0;i<buf.length;i++) q+=buf[i]*buf[i]; r.sm=RecProcess.meter(Math.sqrt(q/buf.length),r.sm); return r.sm; }; }   /* [REC_LEVEL] RMS → dBFS(-55 ~ -15) · 부드럽게(RecProcess.meter 한 원천) */catch(e){ r.lvlOf=function(){ return 0; }; }
   r.ph='rec'; r.t0=Date.now(); r.el=0; r.mr.start(250); render();
   r.iv=setInterval(function(){ if(MK_REC!==r) return; r.el=(Date.now()-r.t0)/1000; r.lvl=r.lvlOf(); var l=document.getElementById('mkRecLvl'), t=document.getElementById('mkRecT'); if(l) l.style.width=Math.round(r.lvl*100)+'%'; if(t) t.textContent='녹음 중 · '+_recFmt(r.el);
@@ -4412,7 +4419,7 @@ function _vcConsentPanel(w){ var nm=_vcName(w), kv=function(x){ var i=x.indexOf(
     +'<ul class="mk-dlg-kv">'+[VC_TXT.where,VC_TXT.what,VC_TXT.when,VC_TXT.opt].map(kv).join('')+'</ul>'
     +'<label class="upchk mk-dlg-chk"><input type="checkbox" id="vcSelf" data-fk="vcself"'+(VC.agree?' checked':'')+' onchange="VC.agree=this.checked;render()"><span>'+esc(VC_TXT.check)+'</span></label>'
     +'<button type="button" class="mk-dlg-go" id="vcAgree" data-fk="mkvcagree"'+(VC.agree&&!VC.agreeing?'':' disabled')+' onclick="mkVcAgree(\''+w+'\')">'+(VC.agreeing?'저장하는 중…':'동의하고 읽으러 가기')+'</button>'
-    +(VC.agree?'':'<p class="mk-note mk-dlg-c1">위 칸에 체크하면 눌러져요</p>')
+    /* ★«위 칸에 체크하면 눌러져요» 줄 금지 — 2026-10-04 사용자 지시로 삭제 [AGREE_NOTE_OFF] */
     +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mkvcno" onclick="mkDlgClose()">안 할게요</button></div>'; }
 /* ★«· 30초쯤» 금지 — 2026-10-04 사용자 지시로 삭제 [READ_NO_SEC] */
 /* 8-2 E 1분 읽기 — 글 둘을 한 번에 하나씩(글마다 30초쯤) · 둘째 글 끝에 확인 문장(서버가 뽑는다 · 다시 읽으면 새로) · 파일 올리기 없음
@@ -4568,7 +4575,7 @@ function _vtempoOf(k){ var ups=_mkItems(k).filter(function(q){ return q.up; }); 
 /* ★★[PAUSE_STEP 2026-10-04 사장님 «문단 · 문장 사이 쉼이 너무 짧다»] 타입캐스트 remove_silence_ms = «남겨 둘 쉼의 최대 길이(ms · 0~1000)» — 그보다 긴 쉼을 그 길이로 줄인다(SDK 원본 · 0 = 쉼 없앰).
    종전엔 늘 150 이라 문장 사이가 0.15초로 깎였다. 짧게 150(종전) · 보통 350(기본 · 우리 스튜디오 나레이션 문장 사이 0.45초에 가깝게) · 길게 600 · 더 길게 900.
    ★상한이라 모델이 원래 쉬는 길이보다 길게는 못 늘린다 — 길게 · 더 길게는 «깎지 않는다»에 가깝다. 미리 듣기는 못 한다(소리 안에서 바뀐다) → 쪽을 떠날 때 · ▶ 를 누를 때 굽는다 */
-var PAUSE_ST=[[150,'짧게'],[350,'보통'],[600,'길게'],[900,'더 길게']], PAUSE_DEF=350;
+var PAUSE_ST=[[150,'−1'],[350,'0'],[600,'+1'],[900,'+2']], PAUSE_DEF=350;   /* ★[PAUSE_NUM 2026-10-04 사장님 «문장 사이 쉼 단계도 숫자로 · 말 빠르기와 같게»] 짧게 · 보통 · 길게 · 더 길게 → −1 · 0 · +1 · +2 (0 = 보통 0.5초) */
 function _pNorm(v){ var x=+v; for(var i=0;i<PAUSE_ST.length;i++) if(PAUSE_ST[i][0]===x) return x; return PAUSE_DEF; }
 function _vpauseOf(k){ return _pNorm((S.vpause||{})[k]||PAUSE_DEF); }
 function _upPause(key){ var v=(S.up||{})[key]||{}; return v.pause?_pNorm(v.pause):150; }   /* 쉼을 안 적은 옛 소리 = 150 으로 만든 것 */
