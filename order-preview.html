@@ -1460,6 +1460,12 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
    필요할 때(빈 줄 · 글 · 읽는 분 · 쉼이 바뀐 줄)만 0.3초 동안 8px 미끄러지며 나타난다 · 누르면 «만드는 중»(왼쪽에서 차오름) → «저장 중» → «✓ 완료» 뒤 사라진다.
    «보내는 중…» 상태 줄을 따로 띄우지 않는다 · 모션 줄이기면 움직임 없이 */
 .mk-vch .mk-vpl{align-self:center;margin:-10px -4px -10px -10px}   /* [VP_ONE_LIST] 줄 카드 머리 ▶ */
+.mk-vch .mk-vpl svg{width:10px;height:10px;padding:12px 11px 12px 13px;border:0;background:var(--bg2);box-shadow:inset 0 0 0 1px rgba(184,154,117,.5);transition:background .3s cubic-bezier(.22,.61,.36,1),color .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s cubic-bezier(.22,.61,.36,1)}
+.mk-vch .mk-vpl:hover svg{background:#EDEBE6}
+.mk-vch .mk-vpl.on svg{padding:12px;background:var(--accent);color:var(--bg);box-shadow:none}
+.mk-vch .mk-vpl[disabled] svg{opacity:.45}
+/* ★[PLAY_LOOK 2026-10-04 사장님 «플레이 버튼도 디자이너 관점으로 · 좀 애매해»] 가는 금선 고리 + 작은 ▸ 는 글자 옆 점처럼 보였다.
+   34px 크림 원(옅은 금 테) 안에 ▶(눈으로 가운데 · 오른쪽으로 2px) · 트는 동안은 먹색 원 + 크림 ■ — 지금 소리가 나는 줄이 한눈에. 누르는 칸은 44 그대로 */
 .mk-vtx{margin:8px 0 10px;font-size:16px;line-height:1.75;color:var(--accent);word-break:keep-all}
 .mk-vtl{list-style:none;margin:8px 0 10px;padding:0;display:flex;flex-direction:column;gap:4px}
 .mk-vtl li{font-size:16px;line-height:1.7;color:var(--accent);word-break:keep-all}
@@ -2470,8 +2476,10 @@ function _el(){
   return AUDEL;
 }
 function _next(){ if(AUDBTN&&AUDQ){ AUDI++; _step(AUDBTN,AUDTOK); } }
+/* ★[PLAY_TOGGLE_FIX 2026-10-04 사장님 «▶ 가 ■ 로 안 바뀐다»] 줄 ▶ 로 튼 소리(MK.aud)는 따로 멈춘다 — _stopAud 는 render() 가 매번 부르므로
+   거기서 멈추면 틀자마자 다시 그리며 꺼진다(■ 로 바뀔 틈이 없었다). 새 소리를 틀 때 · ■ 를 누를 때만 _stopMk */
+function _stopMk(){ try{ if(typeof MK!=='undefined'&&MK.aud){ var _a=MK.aud; MK.aud=null; MK.audKey=null; _a.onended=null; _a.pause(); } }catch(e){} }
 function _stopAud(){
-  try{ if(typeof MK!=='undefined'&&MK.aud){ var _a=MK.aud; MK.aud=null; MK.audKey=null; _a.onended=null; _a.pause(); } }catch(e){}   /* [PLAY_TOGGLE 2026-10-04] 줄 ▶ 로 튼 소리도 멈춘다 — 종전엔 ▶ 를 두 번 누르면 두 소리가 겹쳤다 */
   AUDTOK++;   // 늦게 도착한 조회 결과가 다음 버튼을 덮지 않게 — 표를 바꿔 무효화한다
   var b=AUDBTN; AUDBTN=null; AUDQ=null; AUDI=0; AUDOK=0; AUDSKIP=0; AUDWAIT=false;
   if(AUDEL){ try{ AUDEL.pause(); AUDEL.removeAttribute('src'); AUDEL.load(); }catch(e){} }
@@ -3473,7 +3481,7 @@ window.opNoteAct=function(i){
    ★자동 재생 없음 — 누른 뒤에만 소리. 음악 · 걸음 같은 말 없는 자리는 건너뛴다.
    ★고객 화면 말: «판 · 큐 · 슬러그»는 쓰지 않는다. «장면»은 AI 영상에만. 동사는 담기 · 빼기 한 쌍. */
 var LS={open:null, msg:'', undo:null, flash:null, offOpen:false, prepOpen:false};
-var ICO_STOP='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 7h10v10H7z"/></svg>';   /* [PLAY_TOGGLE] */
+var ICO_STOP='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 5h14v14H5z"/></svg>';   /* [PLAY_TOGGLE] */
 var ICO_PAUSE='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z"/></svg>';
 var ICO_NEXT='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 5v14l10-7zM16.5 5h2.5v14h-2.5z"/></svg>';
 var ICO_CHEV_L='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>', ICO_CHEV_R='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';   // [LINE_STEP] 줄 넘기기 ‹ ›
@@ -4096,7 +4104,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
     var aiLn=ai&&!own(q.up)&&(_vcReadyFor(q.up)||!!MK_UP[q.up]);   /* [AI_PILL] 이 줄은 머리 단추가 진행을 말한다 — 상태 줄 «만드는 중… · 보내는 중…»을 띄우지 않는다 */
     if(aiLn&&st.busy) st=Object.assign({},st,{t:''});
     var aiF=!!st.file&&((S.up||{})[q.up]||{}).src==='ai';   /* [TEXT_PLAY_MAKE] 고친 줄도 ▶ 가 그 줄을 만들고 튼다(종전엔 고친 줄 ▶ = 예시 목소리) */   /* ★[AI_CARD_TIDY 2026-10-02 사장님 결정(R1-26)] AI 로 만든 줄은 머리 ▶ 가 그 파일을 튼다 — «들어 보기» 단추는 걷었다(같은 소리를 두 곳에서) */
-    h+='<li class="mk-vr mk-vc'+(st.ok?' ok':'')+'"><div class="mk-vch">'+(aiF?'<button type="button" class="mk-pl mk-vpl" data-fk="mkvpl:'+q.up+'" aria-label="'+esc(lab+(st.busy?' 만드는 중':MK.audKey===q.up?' 멈추기':' 듣기'))+'"'+(st.busy?' disabled aria-busy="true"':'')+' onclick="mkUpPlay(\''+q.up+'\')">'+(MK.audKey===q.up?ICO_STOP:ICO_PLAY)+'</button>':pix[q.up]!=null?'<button type="button" class="mk-pl mk-vpl" data-fk="mkvpl:'+q.up+'" aria-label="'+esc(lab+' 듣기')+'" onclick="mkLine(\''+(pixK[q.up]||k)+'\','+pix[q.up]+')">'+ICO_PLAY+'</button>':'')
+    h+='<li class="mk-vr mk-vc'+(st.ok?' ok':'')+'"><div class="mk-vch">'+(aiF?'<button type="button" class="mk-pl mk-vpl'+(MK.audKey===q.up?' on':'')+'" data-fk="mkvpl:'+q.up+'" aria-label="'+esc(lab+(st.busy?' 만드는 중':MK.audKey===q.up?' 멈추기':' 듣기'))+'"'+(MK.audKey===q.up?' aria-pressed="true"':'')+''+(st.busy?' disabled aria-busy="true"':'')+' onclick="mkUpPlay(\''+q.up+'\')">'+(MK.audKey===q.up?ICO_STOP:ICO_PLAY)+'</button>':pix[q.up]!=null?'<button type="button" class="mk-pl mk-vpl" data-fk="mkvpl:'+q.up+'" aria-label="'+esc(lab+' 듣기')+'" onclick="mkLine(\''+(pixK[q.up]||k)+'\','+pix[q.up]+')">'+ICO_PLAY+'</button>':'')
       /* ★줄 카드 머리의 «약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 [LINE_NO_SEC 2026-10-03 사장님] · 나머지 덧말은 그대로 · 덧말도 상태도 없으면 줄을 그리지 않는다(순간 길이 LEN_ONE 은 그대로) */
       +'<span class="mk-vhd"><span class="mk-vn">'+esc(lab)+'</span>'+(function(){ var m=[q.up==='entry'?'두 분이 한 문장씩 번갈아':'',q.up==='g3'&&R.onOf(S,'prevideo')?'식전 영상이 끝난'+NBS+'뒤에'+NBS+'흘러요':''].filter(Boolean).join(' · '); return (m||st.t)?'<span class="mk-vs">'+m:''; })()   /* [R2-18] 줄 카드 판에서도 «시작 1분 전»이 언제 흐르는지 · [R4-08] 머리 상태 줄 안으로(CSS 없는 덧말이 «✓ AI로 만들었어요» 아래 계단처럼 붙었다) */
       +(st.t?'<span class="mk-vst"'+(st.busy?' role="status"':'')+'>'+(st.ok?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(st.t)+(aiF&&!st.busy?' · <button type="button" class="pk-link mk-vdel2" data-fk="mkupdel:'+q.up+'" aria-label="'+esc(lab+' 지우기')+'" onclick="mkUpDel(\''+q.up+'\')">지우기</button>':'')+'</span>':'')+((q.up==='entry'||(q.up==='g3'&&R.onOf(S,'prevideo'))||st.t)?'</span>':'')+'</span>'
@@ -4203,7 +4211,7 @@ function _narSrc(key){ if(!ENG||!ENG.RitualCue) return null; var s2=JSON.parse(J
   var c=r.cues.filter(function(x){ return x.slug===want||(key==='g3'&&/^guest-4-1min/.test(x.slug||'')); })[0];
   return c&&c.file?ENG.RitualCue.PARAM.clipDir+c.file+'.mp3':null; }
 /* ★mkNarAll(칸의 줄을 스튜디오 나레이션으로 차례로 · «비교해 듣기») 금지 — 2026-10-03 사용자 지시로 삭제 [AI_NOTE_OFF] */
-window.mkNarPlay=function(key){ var u=_narSrc(key); if(!u){ MK.toast='스튜디오 나레이션 소리를 찾지 못했어요'; render(); return; } _stopAud(); try{ var a=new Audio(u); a.play(); MK.aud=a; }catch(e){} };
+window.mkNarPlay=function(key){ var u=_narSrc(key); if(!u){ MK.toast='스튜디오 나레이션 소리를 찾지 못했어요'; render(); return; } _stopAud(); _stopMk(); try{ var a=new Audio(u); a.play(); MK.aud=a; }catch(e){} };
 function _dlgModel(){
   if(VC.panel){ var w0=VC.panel.who; return {t:VC_TXT.title(_vcName(w0)),step:0,body:_vcConsentPanel(w0)}; }
   if(VC.read){ var R=VC.read; return {t:VC_TXT.title(_vcName(R.who)),step:(R.ph==='busy'||R.ph==='done')?3:(R.step||1),body:_vcReadPanel(R.who)}; }
@@ -4629,9 +4637,9 @@ function _rfData(d){ if(!d||!d.ok||!d.data) return; try{ var bin=atob(d.data), u
    빠르기만 다르면 만들지 않고 재생 속도로 들려준다([TEMPO_PREVIEW]) · 글을 칠 때마다 만들지 않는다(돈이 든다) */
 /* ★[PLAY_TOGGLE 2026-10-04 사장님 «플레이 누르면 정지 버튼으로 바뀌고, 누르면 정지, 다시 플레이 누르면 처음부터»] 줄 카드 머리 ▶ = 틀기 · ■ = 멈추기(이어 듣기 없음 · 다시 ▶ 는 처음부터) */
 window.mkUpPlay=function(key){ if(MK_UP[key]) return;
-  if(MK.audKey===key&&MK.aud){ _stopAud(); render(); return; }   // [PLAY_TOGGLE] ■
+  if(MK.audKey===key&&MK.aud){ _stopMk(); render(); return; }   // [PLAY_TOGGLE] ■
   if(_vtNeed(key,true)){ _vcMake(key,{tempo:_vtempoOf(_vtMoment(key)),pause:_vpauseOf(_vtMoment(key)),retempo:!_upStale(key)}).then(function(){ setTimeout(function(){ mkUpPlay(key); },60); },function(){}); return; }
-  var u=_rfUrl(key); if(!u){ MK.toast='불러오는 중이에요 · 잠시 뒤 다시 눌러 주세요'; render(); return; } _stopAud(); try{ var a=new Audio(u); _rateSet(a,_upRate(key)); a.onended=function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } }; var _pp=a.play(); if(_pp&&_pp.catch) _pp.catch(function(){}); MK.aud=a; MK.audKey=key; render(); }catch(e){} };   /* [PLAY_TOGGLE] 끝나면 ▶ 로 */
+  var u=_rfUrl(key); if(!u){ MK.toast='불러오는 중이에요 · 잠시 뒤 다시 눌러 주세요'; render(); return; } _stopAud(); _stopMk(); try{ var a=new Audio(u); _rateSet(a,_upRate(key)); a.onended=function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } }; var _pp=a.play(); if(_pp&&_pp.catch) _pp.catch(function(){}); MK.aud=a; MK.audKey=key; render(); }catch(e){} };   /* [PLAY_TOGGLE] 끝나면 ▶ 로 */
 window.mkUpDel=function(key){ var v=(S.up||{})[key]; if(!v) return; ordAsk({title:'이 줄의 두 분 목소리를 지울까요?',body:'이 줄은 스튜디오 나레이션으로 나와요',yes:'지우기',no:'두기',danger:true}).then(function(ok){ if(ok) _mkUpDelGo(key); }); };   // [REC_DLG] 우리 판
 function _mkUpDelGo(key){ var v=(S.up||{})[key]; if(!v) return;
   var id=v&&v.id; if(EMBED&&id&&!/^local:/.test(id)){ try{ parent.postMessage({type:'momentedit:ritualFileDel', data:{key:key,id:id}}, window.location.origin); }catch(e){} }
@@ -4763,7 +4771,7 @@ window.mkRefPick=function(k,n,re){ LS.ref=LS.ref||{}; LS.ref[k]=n; if(re){ _fxNe
 /* ★★[LINE_STEP 2026-09-28 사장님 «플레이 버튼 쪽에 다음으로 넘길 수 있는 버튼 · 하객 입장 때 · 시작 10분 전 · 시작 5분 전 셋을 넘어 다니게 · 이전은 다음을 누르면 자연스럽게 생기게»]
    줄 ▶ 는 그 순간의 들을 수 있는 줄 전부를 줄 세우고(LP.q) 누른 줄부터 튼다 · LP.one = 한 줄 듣고 다음 줄 앞에서 멈춰 선다(저절로 이어 틀지 않는다 · 옛 한 줄 재생과 같은 느낌).
    작은 플레이어의 ‹ › 가 같은 순간 안의 줄을 오간다 — 첫 줄에선 ‹ 가 없고, 마지막 줄에선 › 가 없다 */
-window.mkLine=function(k,i){ var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; _stopAud(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
+window.mkLine=function(k,i){ var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
   var q=all.filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }), j=q.indexOf(st); if(j<0){ q=[st]; j=0; }
   LP.q=q; LP.i=j; LP.one=true; LP.paused=false; LP.all=false; LP.tok++; LP.last=null; _lShow(); };
 window.lsLine=function(d){ var a=LP.q[LP.i], j=LP.i+d, b=LP.q[j]; if(!a||!b||b.k!==a.k) return; LP.i=j; LP.paused=false; LP.hint=null; LP.stay=null; _lUnlock(); _lShow(); };   // [LINE_STEP]
@@ -5204,6 +5212,7 @@ function _lNext(){
   _lShow();
 }
 function _lStart(ks,all,hold){   /* hold = [CHIP_NO_AUTOPLAY] 줄은 새로 세우되 틀지 않는다(멈춘 채 · ▶ 로 이어서) */
+  if(!hold) _stopMk();   // [PLAY_TOGGLE_FIX] 아래 작은 플레이어가 틀면 줄 ▶ 소리는 멈춘다(겹치지 않게)
   _stopAud(); if(hold){ try{ if(LP.el) LP.el.pause(); }catch(e){} } else _lUnlock();   // [INAPP_UNLOCK] 탭 호출 스택 안에서
   LP.range={ks:ks.slice(),all:!!all}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null; LP.one=false;   // [CHIP_STAY] · [PRACTICE_CHOOSE] · [LINE_STEP] 쪽 · 전체 재생은 이어서 흐른다
   function go(){ LP.q=_lRefExpand(_lSteps(ENG,ks).filter(function(x){ return !x.quiet; })); LP.i=0; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; _lShow(); }
@@ -5240,8 +5249,8 @@ function _prHook(st){ _prStop(); if(!PR.on||!PR.stream||!st||!st.talk2||LP.pause
     PR.takes=PR.takes.filter(function(t){ if(t.nm===nm){ try{ URL.revokeObjectURL(t.url); }catch(e){} return false; } return true; });
     PR.takes.push({nm:nm,k:c.k,url:URL.createObjectURL(b),sec:Math.round((Date.now()-c.t0)/1000)}); if(STEPS[idx]&&STEPS[idx].k==='practice'&&!LP.big) render(); };
   try{ mr.start(250); }catch(e){ PR.cur=null; } }
-window.prPlay=function(i){ var t=PR.takes[i]; if(!t) return; _stopAud(); try{ var a=new Audio(t.url); a.play(); MK.aud=a; }catch(e){} };
-window.prPlayAll=function(){ var i=0; _stopAud(); (function nx(){ var t=PR.takes[i++]; if(!t) return; try{ var a=new Audio(t.url); MK.aud=a; a.onended=nx; a.play(); }catch(e){} })(); };
+window.prPlay=function(i){ var t=PR.takes[i]; if(!t) return; _stopAud(); _stopMk(); try{ var a=new Audio(t.url); a.play(); MK.aud=a; }catch(e){} };
+window.prPlayAll=function(){ var i=0; _stopAud(); _stopMk(); (function nx(){ var t=PR.takes[i++]; if(!t) return; try{ var a=new Audio(t.url); MK.aud=a; a.onended=nx; a.play(); }catch(e){} })(); };
 window.prClear=function(){ PR.takes.forEach(function(t){ try{ URL.revokeObjectURL(t.url); }catch(e){} }); PR.takes=[]; render(); };
 /* ★[VOICE_CLONE 4-2] 따라 보기 · AI로 읽어 주기(골라 켜기) — 켜면 연습 재생의 두 분 차례 글을 AI가 읽는다(그 사람의 AI 목소리 · 없으면 스튜디오 기본 목소리).
    처음 켤 때 한 번 알림(글이 음성 업체로 보내진다) · «현장에서» 고른 자리(글 없음)는 읽지 않는다 · 만든 소리는 글이 바뀔 때만 새로(이 기기 IndexedDB) · 한도는 서버가 센다 */
