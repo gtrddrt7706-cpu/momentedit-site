@@ -9111,7 +9111,7 @@ chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
 chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
 chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
 chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 2   # [VOICE_TUNE 2026-10-04] 순간 쪽 빠르기 시험은 사람별 맞추기 시험으로 바뀌었다   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
-chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 10
+chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 8   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄 시험 둘을 칸 위 이름 시험으로 바꿔 10 → 8
 # ★[VC_CARD_ONE · VC_WORD_GEN · READ_DLG_TIDY · REC_LEVEL · REC_WARN2 · TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE · TEXT_PLAY_MAKE · PAUSE_STEP · RF_MAIL_AI · RF_MAIL_THROTTLE 2026-10-04 사장님 실기기 시험 묶음]
 chk 'VC_CARD_ONE' order-preview.html 3
 chk 'VC_WORD_GEN' order-preview.html 1
@@ -9120,7 +9120,7 @@ chk 'REC_LEVEL' assets/rec-process.js 2
 chk 'REC_WARN2' assets/rec-process.js 1
 chk 'REC_LEVEL_IOS' assets/rec-process.js 3   # [REC_LEVEL_IOS 2026-10-04 사장님] 아이폰 한 뼘 보통 목소리(-47~-51dBFS)가 막대 10~20% · «작아요» — 막대 -62~-32 · 문턱 -54 · 키움 80배
 chk 'PHRASE_EARLY' order-preview.html 2   # 확인 문장을 창 열기 전에 받아 둔다(글 2 «녹음 시작» 잠김 없애기)
-chk 'VDEL_RIGHT' order-preview.html 2   # 지우기 = 날짜 오른쪽
+nochk 'class="mk-vsr"' order-preview.html   # [VDEL_RIGHT → VC_CARD_V2 2026-10-04 사장님 «구조 개편»] 지우기는 카드 맨 아래 «다시 녹음 · 지우기» 작은 글(날짜 오른쪽 자리는 걷었다)
 chk 'VB_SAME' order-preview.html 1   # 다시 만들기 · 1분 읽기 시작 같은 크기
 chk 'ENTRY_NOTE_OFF' order-preview.html 1
 chk 'RAIL_IGNORE_FULL' order-preview.html 1
