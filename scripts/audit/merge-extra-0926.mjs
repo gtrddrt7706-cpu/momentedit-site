@@ -173,7 +173,9 @@ await safe('P2-3', async () => {
   await pg.evaluate(() => { mkGo('vow'); lsPlay('vow'); }); await pg.waitForTimeout(800);   // 쪽 재생(«처음부터»는 크게 보기로 열려 작은 플레이어가 없다) · [FLOW_MAKE] ② 서약 쪽 맨 아래 = 두 분이 할 말 · 준비할 것
   const r = await pg.evaluate(() => { const m = document.getElementById('lsMini'); window.scrollTo(0, document.body.scrollHeight); const ls = document.querySelectorAll('.mk-pg .mk-sec'); const last = ls[ls.length - 1]; const lb = last ? last.getBoundingClientRect() : null, mb = m.getBoundingClientRect();
     return { mini: getComputedStyle(m).display, cls: document.documentElement.classList.contains('lsmini'), pad: parseInt(document.documentElement.style.scrollPaddingBottom) || 0, clear: lb ? lb.bottom <= mb.top + 1 : null }; });
-  ok('P2-3 작은 플레이어가 떠 있으면 맨 아래 «준비할 것»이 그 위로 올라온다 [MINI_ROOM]', r.mini === 'flex' && r.cls && r.pad > 100 && r.clear === true, JSON.stringify(r));
+  /* ★[MINI_OFF_ROWS 2026-10-04 사장님 «재생바 말이야»] ② 순간 쪽은 어떻게 들어도 아래 재생 바를 띄우지 않는다 — 지금 줄 ▶ 가 ⏹ · 아래 여유(lsmini)도 없다 */
+  const pl = await pg.evaluate(() => document.querySelectorAll('.mk-pl[data-ml].on').length);
+  ok('P2-3 ② 쪽 재생 — 아래 재생 바 · 여유 없음 · 지금 줄 ▶ 가 멈춤 [MINI_OFF_ROWS]', r.mini === 'none' && !r.cls && pl === 1, JSON.stringify({ r, pl }));
   await pg.evaluate(() => lsStop()); await pg.waitForTimeout(300);
   ok('P2-3 멈추면 여유도 거둔다', await pg.evaluate(() => !document.documentElement.classList.contains('lsmini')));
   await ctx.close();

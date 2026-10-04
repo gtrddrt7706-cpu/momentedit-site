@@ -123,7 +123,7 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="mkrc:vow:1"]'); await pg.waitForTimeout(250);
   await pg.click('[data-fk="mkplay"]'); await pg.waitForTimeout(500);
   ok(`${w} ② 펼친 예시(2)가 «이 순간 들어 보기»의 두 분 차례 글이 된다 · 소리 없음`, await pg.evaluate(() => LP.cur === 'vow' && LP.q.filter((s) => s.talk2).every((s) => s.refN === 1 && !s.src)));
-  ok(`${w} ② 재생 중 작은 플레이어`, await pg.evaluate(() => getComputedStyle(document.getElementById('lsMini')).display === 'flex'));
+  ok(`${w} ② 재생 중 — 아래 재생 바 없이 지금 줄 ▶ 가 멈춤 [MINI_OFF_ROWS]`, await pg.evaluate(() => getComputedStyle(document.getElementById('lsMini')).display === 'none' && document.querySelectorAll('.mk-pl[data-ml].on').length === 1));
   await pg.evaluate(() => lsStop());
   await pg.fill('#mkt_vow_g', '나는 약속'); await pg.fill('#mkt_vow_b', '나도 약속'); await pg.waitForTimeout(200);
   ok(`${w} ② 신랑 칸 · 신부 칸 따로 · 옛 한 칸(vowText)은 두 칸을 이어 붙인다 · 칸마다 고친 시각 [TX_MERGE]`, await pg.evaluate(() => S.tx['vow.g'] === '나는 약속' && S.tx['vow.b'] === '나도 약속' && S.vowText === '신랑 · 나는 약속\n\n신부 · 나도 약속' && S.fAt['tx.vow.g'] > 0 && S.fAt['tx.vow.b'] > 0));
