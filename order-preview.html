@@ -4810,6 +4810,7 @@ function _vtNeed(key,hard){ var v=(S.up||{})[key]; if(!v||typeof v!=='object'||v
 function _vtKeys(k,hard){ return _mkItems(k).filter(function(q){ return q.up; }).map(function(q){ return q.up; }).filter(function(key){ return _vtNeed(key,hard); }); }
 var VT_FAIL={};   /* [PLAY_TRUE] 방금 실패한 줄은 듣기마다 또 만들지 않는다(30초) — 까닭은 알림으로 */
 function _vtFailed(key){ return VT_FAIL[key]&&Date.now()-VT_FAIL[key]<30000; }
+var VT_SLOW={}; function _vtSlow(key){ return VT_SLOW[key]&&Date.now()-VT_SLOW[key]<120000&&!!VC_MKP[key]; }   // [SIM_R4] 아직 만드는 중인 줄을 이미 20초 기다렸다
 function _vtBake(keys){ keys=(keys||[]).filter(function(k){ return !(MK_UP[k]&&!VC_MKP[k]); }); var i=0;   /* [PLAY_TRUE] 만드는 중인 줄은 그것을 기다린다(VC_MKP) · 녹음 올리는 중인 줄만 건너뛴다 */
   return new Promise(function(done){ (function nx(){ var key=keys[i++]; if(!key){ done(); return; } if(!_vtNeed(key)){ nx(); return; } VT_BAKING[key]=1;
     var tries=0, go=function(){ tries++; _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)}).then(function(){ if(_vtNeed(key)&&tries<2) return go(); delete VT_BAKING[key]; nx(); },function(){ delete VT_BAKING[key]; VT_FAIL[key]=Date.now(); nx(); }); };   /* [SIM_R2] 실패는 정말 실패했을 때만 · 만드는 사이에 값이 바뀌었으면 한 번 더 */
@@ -5030,7 +5031,7 @@ function renderMake(){
        고를 것이 있으면 «고르기» 머리에(고른 대로 들어 보기) · 없으면 «흐름» 머리에(이 순간 들어 보기). 칩 아래 따로 떠 있던 큰 단추를 걷었다 */
     /* ★[MK_MIN 2026-09-27 사장님 «서는 분을 누르면 자동으로 음성이 나오는데 고른 대로 들어 보기는 없어도 되지 않아? · 지저분한 중복 전부 제거 · 미니멀하게»]
        고를 것이 있는 쪽 = 칩이 곧 듣기(누르면 그 판으로 들린다 · 아래 재생 막대가 멈춤을 맡는다) → 단추를 걷었다. 고를 것이 없는 쪽만 «흐름» 머리에 «이 순간 들어 보기». 되살리지 말 것 */
-    var lb='<button type="button" class="mk-hbtn" data-fk="mkplay"'+(MK.lsBusy===k?' disabled aria-busy="true"':'')+' onclick="lsPlay(\''+k+'\')">'+ICO_PLAY+' '+(MK.lsBusy===k?'만드는 중…':'이 순간 들어 보기')+'</button>';
+    var lb='<button type="button" class="mk-hbtn" data-fk="mkplay"'+(MK.lsBusy===k||(MK.lsPend||{})[k]?' disabled aria-busy="true"':'')+' onclick="lsPlay(\''+k+'\')">'+ICO_PLAY+' '+(MK.lsBusy===k||(MK.lsPend||{})[k]?'만드는 중…':'이 순간 들어 보기')+'</button>';
     if(gs.length) h+='<section class="mk-sec mk-pick" aria-label="고르기"><div class="ls-vars">'+_lGroupsHtml(k,gs,{vsLink:true})+'</div></section>';   // [MK_NO_HEADS]
     /* ★[PLAY_ONE 2026-10-02 사장님 «플레이 버튼이 겹치잖아»] 들을 줄이 하나뿐이면 «이 순간 들어 보기»를 두지 않는다 — 그 줄 ▶ 이 같은 일을 한다(첫인사 · 서약 · 반지 등) */
     var _pn=0; try{ if(ENG) _pn=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip&&!x.talk2; }).length; }catch(e){}
@@ -5451,6 +5452,7 @@ function _lShow(){
      소리가 실제로 나가는 이 한 곳에서 막는다 — 두 분 AI 줄이 지금 값(읽는 분의 빠르기 · 쉼 · 글 · 읽는 분)과 다르면 먼저 그 줄을 만들고 튼다.
      종전엔 «들어 보기» · 줄 ▶ 두 입구만 확인해, 전체 듣기 · 다음 줄 · 본식부터 · 연습은 옛 소리를 틀었다. 확정한 줄([KEEP_LINE])은 일부러 그대로 */
   if(st.up&&!st._tried&&_vtNeed(st.up)&&_vtFailed(st.up)){ st._tried=1; MK.toast=((MK.lineErr||{})[st.up])||'이 줄을 새 빠르기 · 쉼으로 만들지 못했어요 · 잠시 뒤 다시 들어 보세요'; render(); }   /* [SIM_R2] 방금 실패한 줄도 까닭은 말한다 */
+  if(st.up&&!st._tried&&_vtNeed(st.up)&&_vtSlow(st.up)) st._tried=1;   /* [SIM_R4] */
   if(st.up&&!st._tried&&_vtNeed(st.up)){ var _tk=LP.tok, _st=st, _bk=_st._bk=(_st._bk||0)+1; LP.baking=_st; MK.lsBusy=st.k; _lPaint(); render();
     var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R2] 듣기는 20초까지만 기다린다(올리기 한도 75초를 다 기다리면 그동안 소리가 없다) */
     Promise.race([_vtBake([st.up]),_slow]).then(function(r){ if(_st._bk!==_bk) return;   /* [SIM_R2] 같은 줄로 되돌아와 두 번 부르면 마지막 것만 — 앞 것이 1초 빈소리를 끊었다 */
@@ -5529,8 +5531,10 @@ window.lsStop=function(keepBig){
   if(!keepBig) lsCloseBig();
 };
 window.lsPlay=function(k){ var hk=_vtKeys(k); if(k==='prevideo'||k==='guest') hk=hk.concat(_vtKeys(k==='guest'?'prevideo':'guest').filter(function(x){ return x==='g3'&&hk.indexOf(x)<0; }));
-  if(hk.length){ if(MK.lsBusy===k) return; MK.lsBusy=k; render(); var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R3] 이 순간 들어 보기도 20초까지만 — 넘으면 지금 소리로 먼저 */
-    Promise.race([_vtBake(hk),_slow]).then(function(r){ if(MK.lsBusy!==k) return; MK.lsBusy=null; if(r==='slow') MK.toast='새 빠르기 · 쉼으로 만드는 데 오래 걸려요 · 지금 소리로 먼저 들려 드려요'; render(); _lStart([k],false); }); return; }   /* [SIM_R2] 두 번 눌러도 한 번 */   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
+  MK.lsPend=MK.lsPend||{}; if(hk.length){ if(MK.lsPend[k]) return; MK.lsPend[k]=1; render(); var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R3] 이 순간 들어 보기도 20초까지만 — 넘으면 지금 소리로 먼저 · [SIM_R4] 제 깃발(lsPend)을 쓴다 — 플레이어의 lsBusy 와 섞이면 누른 것이 버려졌다 */
+    Promise.race([_vtBake(hk),_slow]).then(function(r){ if(!MK.lsPend[k]) return; delete MK.lsPend[k];
+      if(r==='slow'){ var t=Date.now(); hk.forEach(function(q){ VT_SLOW[q]=t; }); }   /* [SIM_R4] 이미 20초 기다린 줄은 플레이어가 또 기다리지 않는다 */
+      render(); _lStart([k],false); if(r==='slow') setTimeout(function(){ MK.toast='새 빠르기 · 쉼으로 만드는 데 오래 걸려요 · 지금 소리로 먼저 들려 드려요'; render(); },80); }); return; }   /* [SIM_R2] 두 번 눌러도 한 번 */   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
   _lStart([k],false); };
 window.lsPlayAll=function(){ LP.noChips=!!(STEPS[idx]&&STEPS[idx].k==='done'); _lOpenBig(); _lStart(_lRows(),true); _lFull(); };   // ④ 에서는 바꿀 것 칩 없이
 window.lsBig=function(k){ LP.noChips=false; _lOpenBig(); _lStart([k],false); _lFull(); };
