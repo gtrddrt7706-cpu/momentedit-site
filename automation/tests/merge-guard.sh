@@ -12654,6 +12654,8 @@ chk 'PC_SIDE_AIR' order-preview.html 2
 chk 'VC_CALM' order-preview.html 4   # ★[VC_CALM 2026-10-04 사장님 «'지금은 AI 목소리를 만들 수 없어요' 왜? 대책»] 앞일 우선 · 3초 뒤 조용히 한 번 더 · 옛 실패 글 걷기
 chk 'PLAY_ONE_LOOK' order-preview.html 3   # ★[PLAY_ONE_LOOK 2026-10-04 사장님 «왼쪽 플레이 단추 · 모양도 안 바뀜 · 일괄 통일»] 줄 ▶ 한 모양 · 나레이션 줄도 ▶/■
 chk 'VS_ONE_LINE' order-preview.html 1   # 두 분 목소리 설명 한 줄(미니멀) · 두 곳 같은 글
+chk 'UI_ONE' order-preview.html 15   # ★[UI_ONE 2026-10-04 사장님 «설정 따라 어쩔 수 없는 것 말고는 연속성 있게 같은 인터페이스»] 주 단추 알약 · 고른 것 한 모양 · 이 순간 들어 보기 ▶/■ · 플레이어 같은 묶음 · 쪽 제목 22/600 · 나레이션 줄 머리
+nochk 'var(--serif-ko,inherit)' order-preview.html   # 없는 토큰 — 팝업 제목이 고딕으로 떨어졌다
 nochk 'border:1px solid var(--gold-deeper);border-radius:50%;box-sizing:content-box}' order-preview.html   # 옛 테두리만 ▶
 nochk 'pk-prep-pc' order-preview.html
 chk 'SEAL_POINTS' order-preview.html 4
