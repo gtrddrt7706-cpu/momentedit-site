@@ -146,6 +146,7 @@ for (const w of [360, 1280]) {
   ok('글 1 [이 녹음으로 다음 ›] → 저절로 «글 2» 걸음 · 둘째 글 끝에 서버 확인 문장 · 글 1 ✓ [REC_DLG]', c3 && c3b.step === '글 2' && /있으신가요\? 오늘은 구월 이십팔일/.test(c3b.t) && /글 1 다시 읽기/.test(c3b.t), JSON.stringify(c3b).slice(0, 300));
   await pg.evaluate(() => { const sr = 24000, n = sr * 25, x = new Float32Array(n); for (let i = 0; i < n; i++) x[i] = 0.2 * Math.sin(2 * Math.PI * 190 * i / sr); VC.read.take[2] = { wav: _recWav(x, sr), dur: 25 }; render(); });
   await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(3500);
+  await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(3500);   /* [VOICE_TUNE] 만든 직후 «이 목소리로 쓰기»(필수) 뒤에 줄을 채운다 */
   const c5 = await pg.evaluate(() => ({ ready: VC.st && VC.st.groom && VC.st.groom.ready, g0: (S.up.g0 || {}).src, g1: (S.up.g1 || {}).src, calls: __vcCalls.join(' '), done: (document.getElementById('mkRecDlg') || {}).textContent || '' }));
   ok('만들면 창이 «만들기» 걸음 · «목소리를 만들었어요» · 채운 줄 수를 말한다 [REC_DLG]', /목소리를 만들었어요/.test(c5.done) && /\d줄을 이 목소리로 채웠어요/.test(c5.done) && !/보냈어요/.test(c5.done), c5.done.slice(0, 200));
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);

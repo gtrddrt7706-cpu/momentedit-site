@@ -9138,6 +9138,7 @@ chk 'MIC_OFF_PLAY' order-preview.html 1   # 녹음이 끝나면 마이크를 닫
 chk 'STEP_LAB_CENTER' order-preview.html 1
 chk 'PAUSE_NUM' order-preview.html 1
 chk 'PAUSE_FIVE' order-preview.html 2   # 문장 사이 쉼 5단계(−2 추가)
+chk 'VOICE_TUNE' order-preview.html 10   # 빠르기 · 쉼 = 사람별 · 목소리 만든 직후 예시 듣고 맞추기(필수) · 순간 쪽 조절 줄 걷음
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
 chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html

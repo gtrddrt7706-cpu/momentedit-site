@@ -79,6 +79,10 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 합쳐 20초 안 → 창 안에 «조금 더 천천히, 끝까지 읽어 주세요» · [글 2 다시 읽기] · 서버를 안 부른다 [REC_DLG]', await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return !!d && /조금 더 천천히, 끝까지 읽어 주세요/.test(d.textContent) && /글 2 다시 읽기/.test(d.textContent) && !__calls.some((c) => /^enroll/.test(c)); }));
   await pg.evaluate(() => { S.up = S.up || {}; S.up.g2 = { n: '녹음', id: 'Fg2old', src: 'rec', at: '' }; VC.read.take[1] = { wav: __tone(12), dur: 12 }; VC.read.take[2] = { wav: __tone(13), dur: 13 }; VC.read.short = false; VC.read.err = ''; render(); }); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(4000);
+  /* ★[VOICE_TUNE 2026-10-04 사장님] 만든 직후 = 예시 듣고 빠르기 · 쉼 맞추기(필수) — «이 목소리로 쓰기» 전에는 줄을 채우지 않는다 */
+  const tn = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.innerText : '', use: !!document.querySelector('[data-fk="mkvcuse"]'), t1: !!document.querySelector('[data-fk="mktunetup"]'), p1: !!document.querySelector('[data-fk="mktunepup"]'), raw: !!VC.sraw.groom, need: !!(S.vsetNeed || {}).groom, g0: !!(S.up && S.up.g0 && S.up.g0.src === 'ai') }; });
+  ok(W + ' 만든 직후 «목소리가 준비됐어요» · 예시 · 말 빠르기 · 문장 사이 쉼 · [이 목소리로 쓰기] · 아직 줄을 채우지 않음 [VOICE_TUNE]', /목소리가 준비됐어요/.test(tn.t) && tn.use && tn.t1 && tn.p1 && tn.raw && tn.need && !tn.g0, JSON.stringify(tn).slice(0, 300));
+  await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(4000);
   const calls = await pg.evaluate(() => __calls.join(' '));
   ok(W + ' 만들기 → 두 글을 0.4초 쉼으로 이어 한 파일(25초 넘음)', /enroll:groom:s2[5-9]/.test(calls), calls);
   const up = await pg.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(S.up || {}).map(([k, v]) => [k, v && v.src ? v.src + (v.by ? '/' + (Array.isArray(v.by) ? v.by.join('+') : v.by) : '') : String(v)]))));
@@ -89,17 +93,20 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);   /* [VOICE_ONCE] 줄 카드는 순간 쪽에 */
   const tools = await pg.evaluate(() => { const c = [...document.querySelectorAll('.mk-vcards .mk-vr')].find((li) => li.querySelector('[data-fk="mkvpl:g0"]'));   /* [AI_DONE_QUIET] 줄 지우기는 걷었다 */ return c ? c.textContent : ''; });   /* [TEXT_PLAY_MAKE 2026-10-04] «이 줄 다시 만들기»가 없어져 ▶ · 지우기로 줄을 찾는다 */
-  ok(W + ' 8-2 5) AI 줄 — 다시 만들기(«n번 남음» 없음 [VC_NO_COUNT]) · 빠르기는 칸 머리 «말 빠르기» 한 줄 [AI_CARD_TIDY] (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', !/천천히/.test(tools) && !/이 줄 다시 만들기/.test(tools) /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «있다» → 없다(같은 글이면 캐시라 더하는 것이 없었다 · 고친 줄은 ▶ 가 만든다) */ && !/번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools) && !/들어 보기/.test(tools) && await pg.evaluate(() => !!document.querySelector('[data-fk="mkvtdn:guest"]') && !document.querySelector('[data-fk^="mkvtempo:"]') && !document.querySelector('[data-fk^="mkaitempo:"]')), tools);   /* ★[TEMPO_STEP 2026-10-03] 세 칩(mkvtempo) → «말 빠르기 [−] 0 [＋]» */
+  ok(W + ' 8-2 5) AI 줄 — 다시 만들기(«n번 남음» 없음 [VC_NO_COUNT]) · 빠르기는 칸 머리 «말 빠르기» 한 줄 [AI_CARD_TIDY] (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', !/천천히/.test(tools) && !/이 줄 다시 만들기/.test(tools) /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «있다» → 없다(같은 글이면 캐시라 더하는 것이 없었다 · 고친 줄은 ▶ 가 만든다) */ && !/번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools) && !/들어 보기/.test(tools) && await pg.evaluate(() => !document.querySelector('[data-fk="mkvtdn:guest"]') /* [VOICE_TUNE] 순간 쪽 조절 줄은 걷었다 */ && !document.querySelector('[data-fk^="mkvtempo:"]') && !document.querySelector('[data-fk^="mkaitempo:"]')), tools);   /* ★[TEMPO_STEP 2026-10-03] 세 칩(mkvtempo) → «말 빠르기 [−] 0 [＋]» */
   ok(W + ' 다 된 AI 줄은 상태 줄 없음(«AI로 만들었어요 · 지우기» 걷음 [AI_DONE_QUIET]) · 녹음 줄엔 머리 [목소리 만들기]', await pg.evaluate(() => !/AI로 만들었어요/.test(document.querySelector('.mk-vcards').textContent) && !document.querySelector('.mk-vcards [data-fk="mkupdel:g0"]') && !!document.querySelector('.mk-aip.on[data-fk="mkai:g2"]')));
   await pg.click('[data-fk="mkai:g2"]'); await pg.waitForTimeout(2500);
   ok(W + ' 녹음 줄을 AI로 → 녹음은 [되돌리기]로 남는다', await pg.evaluate(() => S.up.g2.src === 'ai' && S.upPrev && S.upPrev.g2 && S.upPrev.g2.src === 'rec' && !!document.querySelector('[data-fk="mkaiback:g2"]')));
   await pg.click('[data-fk="mkaiback:g2"]'); await pg.waitForTimeout(300);
   ok(W + ' [되돌리기] → 녹음으로 돌아간다', await pg.evaluate(() => S.up.g2.src === 'rec'));
   /* ★[TEMPO_BAKE 2026-10-04] 종전 «− 한 번 = 0.9 · 0.8초 뒤 다시 만든다» → 누를 때는 안 만든다 · 쪽을 떠날 때 한 번 굽는다(0.95 · 화면 −0.1) */
-  await pg.click('[data-fk="mkvtdn:guest"]'); await pg.waitForTimeout(600);
+  /* ★[VOICE_TUNE] 빠르기는 목소리 쪽 «들어 보고 맞추기» — 누를 때는 예시만(만들지 않음) · [이 목소리로 쓰기]에 그 분 줄을 한 번씩 */
+  await pg.evaluate(() => mkVcTune('groom')); await pg.waitForTimeout(600);
   const n0 = await pg.evaluate(() => __calls.filter((c) => c === 'make:g0').length);
-  await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(2500); await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);
-  ok(W + ' 빠르기만 바꾸면 누를 때는 안 만들고 · 쪽을 떠날 때 retempo 로 한 번(줄 한도에 안 셈) [TEMPO_BAKE]', await pg.evaluate((n0) => S.up.g0.tempo === '0.95' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, n0));
+  await pg.click('[data-fk="mktunetdn"]'); await pg.waitForTimeout(500);
+  const n1 = await pg.evaluate(() => __calls.filter((c) => c === 'make:g0').length);
+  await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(2500);
+  ok(W + ' 사람별 빠르기 — 누를 때는 안 만들고 · [이 목소리로 쓰기]에 그 분 줄을 한 번(0.95) [VOICE_TUNE]', await pg.evaluate(([n0, n1]) => n1 === n0 && S.vset.groom.tempo === '0.95' && S.up.g0.tempo === '0.95' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, [n0, n1]));
   await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkvpl:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
   /* ★[VC_LINE_ERR] 줄 만들기가 실패하면 «보내는 중»에 멈추지 않고 그 줄 아래에 까닭 */
   /* [TEXT_PLAY_MAKE] 실패 길은 «고친 줄의 ▶»(그 줄을 먼저 만든다)로 연다 */
