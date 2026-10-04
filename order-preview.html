@@ -4537,7 +4537,7 @@ function _vcPeople(page){
         :p.consent?'<button type="button" class="mk-vgo pri" data-fk="mkvcread:'+w+'" onclick="'+go('read')+'"><span>목소리 만들기</span></button>'   /* [VB_WORD] */
         :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'" onclick="'+go('consent')+'"><span>목소리 만들기</span></button>')+'</span>'
       +(p.ready?'<span class="mk-vsub">'+(p.left>0?'<button type="button" class="pk-link" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">다시 녹음</button><span aria-hidden="true">·</span>':'')
-        +'<button type="button" class="pk-link mk-vdel" data-fk="mkvcdel:'+w+'" aria-label="'+esc(who.trim()+' AI 목소리 지우기')+'" onclick="mkVcDel(\''+w+'\')">지우기</button></span>':'')+'</span></li>';   /* [VC_CARD_A] 아랫줄 닫기 */
+        +'<button type="button" class="pk-link mk-vdel" data-fk="mkvcdel:'+w+'" aria-label="'+esc(who.trim()+' AI 목소리 '+((VC.delBusy||{})[w]?'지우는 중':'지우기'))+'"'+((VC.delBusy||{})[w]?' aria-disabled="true" aria-busy="true"':'')+' onclick="mkVcDel(\''+w+'\')">'+((VC.delBusy||{})[w]?'지우는 중…':'지우기')+'</button></span>':'')+'</span></li>';   /* [VC_CARD_A] 아랫줄 닫기 */
   });   // [REC_DLG] 동의 · 1분 읽기는 작은 창에서
   return h+'</ul>'+(VC.note?'<p class="mk-note" role="status">'+VC.note+'</p>':''); }
 /* [VOICE_ONCE] 순간 쪽 — AI 를 골랐는데 아직 아무 목소리도 없으면 한 줄 + «만들기»(그 쪽으로) · 한 분이라도 있으면 줄이 그 목소리로 채워지니 말하지 않는다 */
@@ -4697,10 +4697,11 @@ window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph
         fail(d.error||'만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); return; }   // ★[VC_LIMIT_UI] 한도면 다시 누를 단추를 보이지 않는다
       if(VC.pre) delete VC.pre[w]; delete VC.sraw[w];   /* ★[SIM_R1 2026-10-04 시뮬레이션] 새 목소리 — 옛 목소리 예시를 들려주던 것 */ R.ph='tune'; R.renewed=!!d.renewed; S.vsetNeed=S.vsetNeed||{}; S.vsetNeed[w]=1; _persist(); VC.st=null; render(); _vcStatus(function(){ _vcTuneOpen(w,'enroll'); });   /* [VOICE_TUNE] 만든 직후 = 예시 듣고 맞추기(필수) · 줄 채우기는 «이 목소리로 쓰기» 뒤 */ },function(){ fail('만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); }); }; rd.readAsDataURL(j.wav); })
     .catch(function(){ fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요'); }); };
-window.mkVcDel=function(w){ var used=Object.keys(S.up||{}).filter(function(k){ var v=S.up[k]; return v&&v.src==='ai'&&(!v.by||v.by===w||(Array.isArray(v.by)&&v.by.indexOf(w)>-1)); });
+window.mkVcDel=function(w){ if((VC.delBusy||{})[w]) return; var used=Object.keys(S.up||{}).filter(function(k){ var v=S.up[k]; return v&&v.src==='ai'&&(!v.by||v.by===w||(Array.isArray(v.by)&&v.by.indexOf(w)>-1)); });
   ordAsk({title:_vcName(w)+' 님 AI 목소리를 지울까요?',body:used.length?'AI로 만든 줄 '+used.length+'줄은 나레이션으로 바뀌어요':'',yes:'지우기',no:'두기',danger:true,focusAfter:'[data-fk="mkvcok:'+w+'"],[data-fk="mkvcread:'+w+'"]'}).then(function(ok){ if(!ok) return;   // [REC_DLG] · [QA_ASK_GONE] 지운 뒤엔 그 분의 «목소리 만들기»로 브라우저 confirm 대신 우리 판
   used.forEach(function(k){ _mkUpDrop(k); }); Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); delete VC.sraw[w]; _persist();   /* [SIM_R1] 지운 목소리 예시도 */   // [VC_BOTH_CHECK] 지운 목소리 소리는 들고 있지 않는다
-  _vc('delete',{who:w}).then(function(d){ VC.st=null; _vcStatus(); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); render(); }); }); };
+  VC.delBusy=VC.delBusy||{}; VC.delBusy[w]=1; _fxNext='[data-fk="mkvcdel:'+w+'"]'; render();   /* ★[QA_DEL_BUSY 2026-10-04 점검] 서버 답을 기다리는 동안 «지우는 중…» · 두 번 못 누른다 */
+  _vc('delete',{who:w}).then(function(d){ delete VC.delBusy[w]; VC.st=null; _vcStatus(); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); _fxNext=d.ok?'[data-fk="mkvcok:'+w+'"],[data-fk="mkvcread:'+w+'"],#mkHead':'[data-fk="mkvcdel:'+w+'"]'; render(); }); }); };   /* [QA_ASK_GONE] 답이 늦어도 — 다시 그린 뒤 그 분의 «목소리 만들기»로 */
 /* 8-2 4) 그 사람이 읽는 줄 가운데 «비어 있는» 줄만 AI 로 — 녹음 · 올린 파일 줄은 그대로. 다시 만들었으면(renewed) 그 사람의 AI 줄을 새 목소리로 다시 */
 function _vcLineWho(key){ if(_slKeyOk(key)&&(key==='entry'||(S.vlines||{})[_slVk(key)])){ var L=_slLines(key); if(L.length&&!_slMixed(key)) return L[0][0]==='신부'?'bride':'groom'; if(L.length) return 'both'; }   /* [LINE_SPLIT] 한 분만 읽으면 그 분 · 나눠 읽으면 두 분 */ if(/^g\d$/.test(key)) return RitualOpen.guestReader(S,+key.slice(1))==='g'?'groom':'bride'; if(key==='pv') return S.pvWho==='b'?'bride':'groom'; return 'both'; }   // [PV_INTRO] 소개글은 한 분이 읽는다(기본 신랑)
 function _vcAutoFill(w,renew){ Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; });   /* [VC_BOTH_CHECK] 이 분 목소리가 새로 생겼다 — 들고 있던 옛 목소리 소리는 버린다 */ var ks=[]; if(S.guestVoice==='couple') ks=ks.concat(['g0','g1','g2','g3']); if(S.entryVoice==='couple') ks.push('entry'); if(S.pvVoice==='couple'&&_recNeed('pv')) ks.push('pv');   /* [PV_INTRO] 소개글을 적어 둔 때만 */
@@ -5049,8 +5050,8 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
      겹치면 그 칩들은 «누가 읽나»를 보인다. */
   var _pv=sets.map(_refPv), _pvN={}; _pv.forEach(function(x){ _pvN[x]=(_pvN[x]||0)+1; });
   _pv=_pv.map(function(x,i){ if(_pvN[x]<2) return x; var w=sets[i].map(function(p){ return p.who; }).filter(Boolean); return w.length>1?w.join(' · ')+' 나눠 읽기':(w[0]?w[0]+' 읽기':x); });
-  sets.forEach(function(set,n){ if(n>=main.length&&!parOpen) return; if(sitI.indexOf(n)>-1&&!sitOpen) return; var on=n===cur;
-    h+='<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_refTitle(set)||_pv[n])+'</span></button>'; });   // [REF_TITLE]
+  sets.forEach(function(set,n){ if(n>=main.length&&!parOpen) return; if(sitI.indexOf(n)>-1&&!sitOpen) return; var on=n===cur;   /* ★[QA_RC_ROVE 2026-10-04 점검] 라디오 묶음은 탭 한 번 — 고른 카드만 tabindex 0 · 옆 카드는 화살표 */
+    h+='<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(!(cur>=0)&&n===0))?'0':'-1')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_refTitle(set)||_pv[n])+'</span></button>'; });   // [REF_TITLE]
   if(sitI.length&&!sitOpen) h+='<button type="button" class="mk-rc mk-rpar" data-fk="mkrsit:'+k+'" aria-expanded="false" onclick="mkRefSit(\''+k+'\')"><b>상황에 맞는 예시 ›</b><span>'+esc(sitI.map(function(i){ var t=_refSit(main[i]); return REF_SIT[t]||t; }).filter(function(t,i,a){ return a.indexOf(t)===i; }).join(' · '))+'</span></button>';   // [REF_BEST4]
   if(par&&!parOpen) h+='<button type="button" class="mk-rc mk-rpar" data-fk="mkrpar:'+k+'" aria-expanded="false" onclick="mkRefPar(\''+k+'\')"><b>부모님이 하실 때 ›</b><span>덕담 예시 '+par+'벌</span></button>';
   h+='</div>';
@@ -6150,7 +6151,7 @@ function _pvEl(){
   (function(){ var box=el.querySelector('.pv-box'), y0=null, dy=0;
     box.addEventListener('touchstart',function(e){ var t=e.target; if(!t.closest||!(t.closest('.pv-grab')||t.closest('.pv-h'))||t.closest('button')||box.scrollTop>0||window.innerWidth>=1000) { y0=null; return; } y0=e.touches[0].clientY; dy=0; box.style.transition='none'; },{passive:true});
     box.addEventListener('touchmove',function(e){ if(y0==null) return; dy=Math.max(0,e.touches[0].clientY-y0); box.style.transform=dy?'translateY('+dy+'px)':''; },{passive:true});
-    box.addEventListener('touchend',function(){ if(y0==null) return; y0=null; box.style.transition=''; if(dy>80){ opPvClose(); setTimeout(function(){ box.style.transform=''; },320); } else box.style.transform=''; dy=0; });   /* 닫을 때는 내린 자리에서 사라진다(한 프레임 되튐 없이) */
+    box.addEventListener('touchend',function(){ if(y0==null) return; y0=null; box.style.transition=''; if(dy>80){ opPvClose(); box._sw=setTimeout(function(){ box.style.transform=''; },320); } else box.style.transform=''; dy=0; });   /* 닫을 때는 내린 자리에서 사라진다(한 프레임 되튐 없이) */
     box.addEventListener('touchcancel',function(){ y0=null; dy=0; box.style.transition=''; box.style.transform=''; });
   })();
   el.addEventListener('keydown',function(e){
@@ -6184,7 +6185,8 @@ window.opPv=function(k){
     try{ if(!(history.state&&history.state.pv)) history.pushState({opIdx:idx,pv:1,gen:_opGen},''); }catch(e){}
     ['.wrap','#nav','#meAdvStack','#pkSlim','#pkUndo'].forEach(function(q){ var w=document.querySelector(q); if(w) w.setAttribute('inert',''); });
   }
-  _pvDraw(); el.hidden=false;
+  _pvDraw(); var _bx=el.querySelector('.pv-box'); if(_bx){ clearTimeout(_bx._sw); _bx.style.transform=''; }   /* [QA_SHEET_SWIPE] 끌어 닫고 바로 다시 열면 내린 자리에서 열리던 것 */
+  el.hidden=false;
   document.body.classList.add('pvopen');   // [PV_ACT_STICKY]
   var bx=el.querySelector('.pv-box'); if(bx) bx.scrollTop=0;   // ★[PV_TOP 코워크 추가 점검 P1-8] 창은 늘 맨 위에서 — 앞서 연 창의 스크롤이 남아 장면이 가려져 열렸다
   var x=el.querySelector('.pv-x'); if(x) try{ x.focus({preventScroll:true}); }catch(e){}
