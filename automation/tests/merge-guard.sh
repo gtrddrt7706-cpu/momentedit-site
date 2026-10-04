@@ -8965,7 +8965,8 @@ chk 'LVID_ONCE' scripts/audit/listen-page.mjs 4
 chk 'NAV_FOLD' order-preview.html 6
 chk 'window.mkFold=function' order-preview.html 1
 chk 'window.mkNavGo=function' order-preview.html 1
-chk 'aria-controls="mkStp mkScP"' order-preview.html 1   # [STEP_COMPACT 2026-10-03] 펼침이 걸음 줄(mkStp) + 순간 줄(mkScP) 둘을 연다(종전 mkScP 하나)
+chk 'aria-controls="mkScP" onclick="mkFold()"' order-preview.html 1   # [STEP_LAB_TOP 2026-10-04] 펼침은 순간 줄 하나 — 걸음 줄(mkStp)은 걷고 이름을 접은 표시 칸 위로
+nochk 'id="mkStp"' order-preview.html   # [STEP_LAB_TOP] 펼친 첫 줄 걸음 줄 금지 — 2026-10-04 사용자 지시로 삭제
 chk 'MK.navOpen=false;   /\* \[NAV_FOLD\] 쪽이 바뀌면 접힌다' order-preview.html 1
 nochk '모든 순간 보기 ▾' order-preview.html
 chk 'NAV_FOLD' scripts/audit/listen-page.mjs 4
@@ -9070,9 +9071,9 @@ chk 'STEP_NONUM_OP' assets/ritual-open.js 1
 nochk "PREP_WHERE = '②" assets/ritual-open.js
 chk 'STEP_NONUM_OP' mypage.html 1
 nochk "'1단계에서" mypage.html   # 청첩장 걸음은 이름(«기본 단계») — 진행 표시에 번호가 없다
-chk 'STEP_COMPACT' order-preview.html 8
-chk 'class="op-steps-c" role="img"' order-preview.html 1
-chk 'function _mkStepRow(open)' order-preview.html 1
+chk 'STEP_COMPACT' order-preview.html 5   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄(_mkStepRow · .mk-stp)을 걷어 8 → 5
+chk '<ol class="op-steps-c" data-fk="opsc"' order-preview.html 1
+chk 'STEP_LAB_TOP' order-preview.html 3   # ★[STEP_LAB_TOP 2026-10-04 사장님 «가로바 위쪽 각각 센터로»] 칸 위 가운데 이름 · 지나온 걸음 = 단추
 chk 'function _mkPosFit()' order-preview.html 1
 chk 'VS_LINK_IN_ROW' order-preview.html 6
 chk 'class="pk-link cg-vsl" data-fk="mkvsopen"' order-preview.html 1
@@ -9110,7 +9111,7 @@ chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
 chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
 chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
 chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 2   # [VOICE_TUNE 2026-10-04] 순간 쪽 빠르기 시험은 사람별 맞추기 시험으로 바뀌었다   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
-chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 10
+chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 8   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄 시험 둘을 칸 위 이름 시험으로 바꿔 10 → 8
 # ★[VC_CARD_ONE · VC_WORD_GEN · READ_DLG_TIDY · REC_LEVEL · REC_WARN2 · TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE · TEXT_PLAY_MAKE · PAUSE_STEP · RF_MAIL_AI · RF_MAIL_THROTTLE 2026-10-04 사장님 실기기 시험 묶음]
 chk 'VC_CARD_ONE' order-preview.html 3
 chk 'VC_WORD_GEN' order-preview.html 1
@@ -9119,7 +9120,7 @@ chk 'REC_LEVEL' assets/rec-process.js 2
 chk 'REC_WARN2' assets/rec-process.js 1
 chk 'REC_LEVEL_IOS' assets/rec-process.js 3   # [REC_LEVEL_IOS 2026-10-04 사장님] 아이폰 한 뼘 보통 목소리(-47~-51dBFS)가 막대 10~20% · «작아요» — 막대 -62~-32 · 문턱 -54 · 키움 80배
 chk 'PHRASE_EARLY' order-preview.html 2   # 확인 문장을 창 열기 전에 받아 둔다(글 2 «녹음 시작» 잠김 없애기)
-chk 'VDEL_RIGHT' order-preview.html 2   # 지우기 = 날짜 오른쪽
+nochk 'class="mk-vsr"' order-preview.html   # [VDEL_RIGHT → VC_CARD_V2 2026-10-04 사장님 «구조 개편»] 지우기는 카드 맨 아래 «다시 녹음 · 지우기» 작은 글(날짜 오른쪽 자리는 걷었다)
 chk 'VB_SAME' order-preview.html 1   # 다시 만들기 · 1분 읽기 시작 같은 크기
 chk 'ENTRY_NOTE_OFF' order-preview.html 1
 chk 'RAIL_IGNORE_FULL' order-preview.html 1
@@ -9144,6 +9145,12 @@ chk 'KEEP_IN_PILL' order-preview.html 3   # 확정하기 · 확정됨 = 머리 �
 chk 'TUNE_PLAY_WIDE' order-preview.html 2   # 예시 듣기 = 예시 글 아래 전체 폭
 chk 'TUNE_SAMPLE_LONG' order-preview.html 1
 chk 'TUNE_DOTS' order-preview.html 3   # 빠르기 · 쉼 = 점 줄(7 · 5) · 라디오 · 44 · 말로 값
+chk 'TUNE_TEXT' order-preview.html 2   # 예시 글 고쳐 들어 보기
+chk 'TUNE_LEAD' order-preview.html 1   # 예시 앞 1초 빈소리(첫 소리 잘림)
+chk 'PLAY_LEAD' order-preview.html 5
+chk 'PLAY_FRESH' order-preview.html 2   # ★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 순간 ▶에 안 먹는 오류 · 구조상 절대 그렇게 못 하게»] 재생 한 곳(_lShow)에서 낡은 줄을 새로 만든 뒤 튼다
+chk 'VC_CARD_V2' order-preview.html 2   # ★[VC_CARD_V2 2026-10-04 사장님 «빠르기 +0.2 · 쉼 +1 · 들어 보고 맞추기 구조 개편 · 모바일도»] 사람 카드 한 장 · 말로 두 칸 · 주 단추 하나   # ▶ 누르면 1초 빈소리 뒤 재생(줄 ▶ · 나레이션 · 작은 플레이어 첫 줄)
+chk 'TUNE_DOTS' order-preview.html 3
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
 chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html
@@ -14000,7 +14007,9 @@ chk 'VOICE_SETUP' scripts/audit/voice-setup.mjs 2
 # ★[LINE_EDIT · VS_CHIP_ONCE · PLAY_ONE 2026-10-02 사장님 «하객 맞이 같은 부분도 두 분이 직접 쓰고 AI 로» (범위: 세 자리) · «칩을 누르면 자세히 창이 처음 한 번» · «플레이 버튼이 겹치잖아»]
 chk 'LINE_EDIT' order-preview.html 4
 chk 'function _g3Split()' order-preview.html 1
-chk 'VS_CHIP_ONCE' order-preview.html 2
+chk 'VS_CHIP_ONCE' order-preview.html 1   # [VS_CHIP_OFF 2026-10-04] 저절로 열기는 걷었다(표식은 옛 주석 · 시험 이름으로 남는다)
+chk 'VS_CHIP_OFF' order-preview.html 1
+nochk 'S.vsChip=1; VS.open=true' order-preview.html
 chk 'PLAY_ONE' order-preview.html 2
 chk 'LINE_EDIT' scripts/audit/voice-setup.mjs 1
 chk 'VS_CHIP_ONCE' scripts/audit/voice-setup.mjs 1
