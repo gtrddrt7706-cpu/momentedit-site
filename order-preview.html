@@ -4092,7 +4092,7 @@ function _vpNow(k){ var R=RitualOpen, ups=_mkItems(k).filter(function(q){ return
   return on.join(' · ')+'번은 두 분 목소리, '+off.join(' · ')+'번은 나레이션으로 나와요'; }
 /* [GUEST_WHO] 줄마다 읽는 사람 — 옛 S.guestOne 이 있으면 네 줄을 그 값으로 풀어 둔 뒤 그 줄만 바꾼다.
    AI 로 만든 줄을 다른 사람에게 넘기면 그 줄 소리는 앞 사람 목소리라 내려놓고, 새 사람 목소리가 있으면 바로 다시 만든다 */
-window.mkGuestWho=function(i,v){ if(v!=='g'&&v!=='b'||MK_UP['g'+i]) return; if(_keepAsk('g'+i,function(){ mkGuestWho(i,v); })) return;   /* 만드는 중엔 그대로(단추는 끄지 않는다 — 꺼지면 초점이 떨어진다) */ var R=RitualOpen, prev=R.guestReader(S,i); if(prev===v) return;
+window.mkGuestWho=function(i,v){ if(v!=='g'&&v!=='b'||MK_UP['g'+i]) return; if(_keepAsk('g'+i,function(){ mkGuestWho(i,v); })) return;   /* 만드는 중엔 그대로(단추는 끄지 않는다 — 꺼지면 초점이 떨어진다) */ var R=RitualOpen, prev=R.guestReader(S,i); if(prev===v){ if(_whoStale('g'+i)||VC.stErr) _vcWhoAudio('g'+i,'guest'); return; }   /* [SIM_R3] 실패 뒤 같은 분을 다시 누르면 소리를 맞춘다(종전엔 아무 일도 없었다) */
   if(!S.guestWho){ S.guestWho={}; for(var j=0;j<4;j++) S.guestWho[j]=R.guestReader(S,j); } delete S.guestOne; S.guestWho[i]=v;
   _vcWhoAudio('g'+i,'guest');   // AI 를 고른 날 · 새 사람 목소리가 있으면 그 줄을 바로 채운다 · [AI_PILL] 미리 만든 소리가 있으면 그것으로 · [SIM_R3] 읽는 분은 바로 바뀌고 소리만 상태를 받은 뒤
   _fxNext='[data-fk="mkwho:'+i+':'+v+'"]'; _persist(); render(); };
@@ -4125,7 +4125,7 @@ window.mkPvText=function(v){ S.pvText=String(v||'').slice(0,PV_MAX); if(S.vkeep&
 window.mkPvEx=function(i){ var x=PV_EX[i]; if(!x) return; var t=String(S.pvText||'').trim(), put=function(){ S.pvText=x[1]; _persist(); _fxNext='#mkPvTa'; render(); };
   if(!t||PV_EX.some(function(e){ return e[1]===t; })) return put();
   ordAsk({title:'예시로 바꿀까요?',body:'지금 적어 둔 소개글은 지워져요',yes:'예시로 바꾸기',no:'그대로 두기'}).then(function(ok){ if(ok) put(); }); };
-window.mkPvWho=function(v){ if(v!=='g'&&v!=='b'||MK_UP.pv) return; if(S.pvWho===v||(!S.pvWho&&v==='g')) return; if(_keepAsk('pv',function(){ mkPvWho(v); })) return; S.pvWho=v;
+window.mkPvWho=function(v){ if(v!=='g'&&v!=='b'||MK_UP.pv) return; if(S.pvWho===v||(!S.pvWho&&v==='g')){ if(_whoStale('pv')||VC.stErr) _vcWhoAudio('pv','prevideo'); return; }   /* [SIM_R3] */ if(_keepAsk('pv',function(){ mkPvWho(v); })) return; S.pvWho=v;
   _persist(); render(); _vcWhoAudio('pv','prevideo'); };   // [AI_PILL] · 다른 목소리로 만든 소리는 버린다(GUEST_WHO 와 같은 꼴)
 function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VOICE_UP_FROM]
   var R=RitualOpen, due=R.dueWord(ups[0],wed), alt=ups.every(function(q){ return (S.up||{})[q.up]==='sent'; });
