@@ -4375,6 +4375,7 @@ function _mkSendWav0(key,wav,url,src,nm,meta){ if(src==='ai'&&S.vkeep&&S.vkeep[k
     MK_PEND[key]={blob:wav,url:url,src:src,meta:meta||{}};
     try{ parent.postMessage({type:'momentedit:ritualFile', data:{key:key,name:_mkUpLabKey(key)+' · '+nm+'.wav',mime:'audio/wav',src:src,data:String(rd.result)}}, window.location.origin);   /* [RF_MAIL_AI] src = ai 면 서버가 «도착» 메일을 안 보낸다 */ }
     catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; MK.toast='보내지 못했어요 · 다시 눌러 주세요'; if(MK_REC) MK_REC.ph='review'; _upWaitDone(key,false); render(); } };
+  rd.onerror=function(){ clearTimeout(MK_UP[key]); delete MK_UP[key]; MK.lineErr=MK.lineErr||{}; MK.lineErr[key]='소리를 저장하지 못했어요 · 다시 눌러 주세요'; _upWaitDone(key,false); render(); };   // [SIM_R2] 파일 읽기 실패에도 풀린다
   rd.readAsDataURL(wav); }
 /* ★★[VOICE_CLONE 2026-09-27 코워크 «두 분 목소리» 5장 · 4-2] AI 두 분 목소리 · 연습 읽기 — RitualOpen.FEATURE 가 꺼져 있으면 아무것도 안 그린다.
    순서(사람마다 따로): ① 동의(각자 · 본인이 직접 누른다) ② 목소리 읽기(그 자리 녹음만 · 파일 받지 않음 · 마지막에 그날의 확인 문장) ③ 줄마다 [AI] → 빠르기 · 함께/한 사람 → 만들기 → 들어 보기 → 이걸로 쓰기
@@ -4805,8 +4806,8 @@ var VT_FAIL={};   /* [PLAY_TRUE] 방금 실패한 줄은 듣기마다 또 만들
 function _vtFailed(key){ return VT_FAIL[key]&&Date.now()-VT_FAIL[key]<30000; }
 function _vtBake(keys){ keys=(keys||[]).filter(function(k){ return !(MK_UP[k]&&!VC_MKP[k]); }); var i=0;   /* [PLAY_TRUE] 만드는 중인 줄은 그것을 기다린다(VC_MKP) · 녹음 올리는 중인 줄만 건너뛴다 */
   return new Promise(function(done){ (function nx(){ var key=keys[i++]; if(!key){ done(); return; } if(!_vtNeed(key)){ nx(); return; } VT_BAKING[key]=1;
-    var fin=function(){ delete VT_BAKING[key]; if(_vtNeed(key)) VT_FAIL[key]=Date.now(); nx(); };
-    _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)}).then(fin,fin); })(); }); }
+    var tries=0, go=function(){ tries++; _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)}).then(function(){ if(_vtNeed(key)&&tries<2) return go(); delete VT_BAKING[key]; nx(); },function(){ delete VT_BAKING[key]; VT_FAIL[key]=Date.now(); nx(); }); };   /* [SIM_R2] 실패는 정말 실패했을 때만 · 만드는 사이에 값이 바뀌었으면 한 번 더 */
+    go(); })(); }); }
 function _vtLeave(k){ if(!k||['guest','prevideo','entry'].indexOf(k)<0||!_vcOn()) return; var ks=_vtKeys(k); if(k==='guest'||k==='prevideo') ks=ks.concat(_vtKeys(k==='guest'?'prevideo':'guest').filter(function(x){ return x==='g3'; }));   /* 시작 1분 전(g3)은 두 쪽에 걸친다 */
   if(ks.length) _vtBake(ks); }
 function _vtAllKeys(){ var o=[]; ['guest','prevideo','entry'].forEach(function(k){ _vtKeys(k).forEach(function(x){ if(o.indexOf(x)<0) o.push(x); }); }); return o; }
@@ -5443,9 +5444,12 @@ function _lShow(){
   /* ★★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 이벤트 ▶ 에서 적용이 안 되는 걸 몇 번 봤다 · 구조상 절대 그럴 수 없게»]
      소리가 실제로 나가는 이 한 곳에서 막는다 — 두 분 AI 줄이 지금 값(읽는 분의 빠르기 · 쉼 · 글 · 읽는 분)과 다르면 먼저 그 줄을 만들고 튼다.
      종전엔 «들어 보기» · 줄 ▶ 두 입구만 확인해, 전체 듣기 · 다음 줄 · 본식부터 · 연습은 옛 소리를 틀었다. 확정한 줄([KEEP_LINE])은 일부러 그대로 */
-  if(st.up&&!st._tried&&_vtNeed(st.up)&&!_vtFailed(st.up)){ var _tk=LP.tok, _st=st; LP.baking=_st; MK.lsBusy=st.k; _lPaint(); render();
-    _vtBake([st.up]).then(function(){ if(LP.baking===_st) LP.baking=null; MK.lsBusy=null; _st._tried=1;
-      if(_vtNeed(_st.up)) MK.toast=((MK.lineErr||{})[_st.up])||'이 줄을 새 빠르기 · 쉼으로 만들지 못했어요 · 잠시 뒤 다시 들어 보세요';   /* [PV_ERR_SHOW] 까닭(서버 말)을 그대로 */
+  if(st.up&&!st._tried&&_vtNeed(st.up)&&_vtFailed(st.up)){ st._tried=1; MK.toast=((MK.lineErr||{})[st.up])||'이 줄을 새 빠르기 · 쉼으로 만들지 못했어요 · 잠시 뒤 다시 들어 보세요'; render(); }   /* [SIM_R2] 방금 실패한 줄도 까닭은 말한다 */
+  if(st.up&&!st._tried&&_vtNeed(st.up)){ var _tk=LP.tok, _st=st, _bk=_st._bk=(_st._bk||0)+1; LP.baking=_st; MK.lsBusy=st.k; _lPaint(); render();
+    var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R2] 듣기는 20초까지만 기다린다(올리기 한도 75초를 다 기다리면 그동안 소리가 없다) */
+    Promise.race([_vtBake([st.up]),_slow]).then(function(r){ if(_st._bk!==_bk) return;   /* [SIM_R2] 같은 줄로 되돌아와 두 번 부르면 마지막 것만 — 앞 것이 1초 빈소리를 끊었다 */
+      if(LP.baking===_st) LP.baking=null; if(MK.lsBusy===_st.k) MK.lsBusy=null; _st._tried=1;
+      if(_vtNeed(_st.up)) MK.toast=r==='slow'?'새 빠르기 · 쉼으로 만드는 데 오래 걸려요 · 지금 소리로 먼저 들려 드려요':(((MK.lineErr||{})[_st.up])||'이 줄을 새 빠르기 · 쉼으로 만들지 못했어요 · 잠시 뒤 다시 들어 보세요');   /* [PV_ERR_SHOW] 까닭(서버 말)을 그대로 */
       render(); if(LP.tok!==_tk||LP.q[LP.i]!==_st) return; _lShow(); }); return; }
   /* ★[PLAY_TRUE] 틀기 직전에 그 줄의 지금 파일을 다시 읽는다 — 줄을 세울 때 적어 둔 주소(뒤에서 새로 만든 뒤엔 옛 소리)를 믿지 않는다.
      글 · 읽는 분이 바뀐 채 만들지 못한 줄은 옛 소리를 틀지 않는다(다른 말이다) — 글만 보이고 넘어간다 */
@@ -5519,7 +5523,7 @@ window.lsStop=function(keepBig){
   if(!keepBig) lsCloseBig();
 };
 window.lsPlay=function(k){ var hk=_vtKeys(k); if(k==='prevideo'||k==='guest') hk=hk.concat(_vtKeys(k==='guest'?'prevideo':'guest').filter(function(x){ return x==='g3'&&hk.indexOf(x)<0; }));
-  if(hk.length){ MK.lsBusy=k; render(); _vtBake(hk).then(function(){ MK.lsBusy=null; render(); _lStart([k],false); }); return; }   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
+  if(hk.length){ if(MK.lsBusy===k) return; MK.lsBusy=k; render(); _vtBake(hk).then(function(){ if(MK.lsBusy===k) MK.lsBusy=null; render(); _lStart([k],false); }); return; }   /* [SIM_R2] 두 번 눌러도 한 번 */   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
   _lStart([k],false); };
 window.lsPlayAll=function(){ LP.noChips=!!(STEPS[idx]&&STEPS[idx].k==='done'); _lOpenBig(); _lStart(_lRows(),true); _lFull(); };   // ④ 에서는 바꿀 것 칩 없이
 window.lsBig=function(k){ LP.noChips=false; _lOpenBig(); _lStart([k],false); _lFull(); };
@@ -5568,7 +5572,7 @@ function _lPaint(){
   else {
     el.style.display='flex';
     var _pv=LP.q[LP.i-1], _nx=LP.q[LP.i+1], _hasP=!!(_pv&&_pv.k===st.k), _hasN=!!(_nx&&_nx.k===st.k), _n=0, _at=0; LP.q.forEach(function(x,j){ if(x.k===st.k){ _n++; if(j<=LP.i) _at++; } });   // [LINE_STEP]
-    el.innerHTML='<button type="button" class="lm-t" aria-label="크게 보기 · '+esc(_lName(st.k))+'" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+(_n>1?' <span class="lm-n">'+_at+' / '+_n+'</span>':'')+'</b><small>'+esc(st.talk||st.skip||st.own?st.txt:st.lab)+(st.pending&&!LS.allPend?' · 아직 녹음 전':'')+'</small></button>'
+    el.innerHTML='<button type="button" class="lm-t" aria-label="크게 보기 · '+esc(_lName(st.k))+'" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+(_n>1?' <span class="lm-n">'+_at+' / '+_n+'</span>':'')+'</b><small>'+(LP.baking===st?'새 빠르기 · 쉼으로 만드는 중… ':'')+esc(st.talk||st.skip||st.own?st.txt:st.lab)+(st.pending&&!LS.allPend?' · 아직 녹음 전':'')+'</small></button>'
       +'<button type="button" class="lm-g" onclick="lsOpenBig()">크게 보기</button>'   /* ★[RIT_BIG_BTN 2026-09-27 4부 11] 크게 보기로 가는 단추가 안 보였다(제목 줄이 단추인 줄 몰랐다) — 글 단추 */
       +(_hasP?'<button type="button" class="lm-b lm-l" data-fk="lmprev" onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>':'')
       +'<button type="button" class="lm-b lm-p" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
