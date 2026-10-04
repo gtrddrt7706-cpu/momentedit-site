@@ -1175,6 +1175,25 @@ function _rfFolderFor(code) {
   props.setProperty(pk, f.getId());
   return f;
 }
+/* [RF_MAIL_THROTTLE] 코드마다 30분에 한 통 — 줄에 넣고, 30분 지났으면 줄 전체를 한 통으로 보낸다 */
+function _rfMailQueue(code, line, url) {
+  /* [RF_MAIL_THROTTLE] */
+  var props = PropertiesService.getScriptProperties(), qk = 'RFQ_' + code, q = []; try { q = JSON.parse(props.getProperty(qk) || '[]'); } catch (e) { q = []; }
+  if (line) q.push({ t: fmtKST(new Date()), l: line, u: url || '' });
+  var last = +(props.getProperty('RFM_' + code) || 0), now = Date.now();
+  if (q.length && now - last >= 30 * 60 * 1000) {
+    if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 준비 파일 도착 · ' + code + ' · ' + q.length + '개 · ' + q.map(function (x) { return x.t + ' ' + x.l; }).join(' / ') + ' · 폴더 ' + (q[q.length - 1].u || ''));
+    props.setProperty('RFM_' + code, String(now)); props.deleteProperty(qk); return true;
+  }
+  props.setProperty(qk, JSON.stringify(q.slice(-30))); return false;
+}
+/* [RF_MAIL_THROTTLE] 남은 줄 비우기 — 매일(purgeVoiceClones 첫 줄) · 30분 지난 코드만 */
+function _rfMailFlush() {
+  /* [RF_MAIL_THROTTLE] */
+  var all = PropertiesService.getScriptProperties().getProperties(), n = 0;
+  Object.keys(all).forEach(function (k) { if (/^RFQ_/.test(k)) { try { if (_rfMailQueue(k.slice(4), '', '')) n++; } catch (e) {} } });
+  return n;
+}
 function handleRitualFile(body) {
   body = body || {};   // [RITUAL_FILE]
   var s = resolveSession(String(body.token || '').trim());
@@ -1198,7 +1217,13 @@ function handleRitualFile(body) {
   } catch (e) {
     return { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' };
   }
-  try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('예식 준비 파일 도착 · ' + code + ' · ' + RF_KEYS[key] + ' · ' + f.getName() + ' · ' + Math.round(bytes / 1024) + 'KB · 폴더 ' + folder.getUrl()); } catch (e) {}
+  /* ★★[RF_MAIL_AI · RF_MAIL_THROTTLE 2026-10-04 사장님 «1분에 7통»] AI 가 만든 줄 파일에는 «예식 준비 파일 도착» 메일을 보내지 않는다 —
+     AI 줄은 서버가 방금 만든 것이다(make 가 VCMK_<코드>_<자리> 를 30분 남긴다 · 화면도 src:'ai' 를 실어 보낸다 — 둘 중 하나면 AI).
+     두 분이 직접 올린 파일은 코드마다 30분에 한 통 — 그 사이 올린 것은 줄(RFQ_<코드>)에 모아 다음 메일에 함께 · 남은 줄은 다음 업로드나 매일(purgeVoiceClones) 비운다.
+     하루 메일 한도(Gmail)를 이 알림이 먹고 있었다 */
+  var _ai = String(body.src || '') === 'ai';
+  try { var _ck = CacheService.getScriptCache(), _ckey = 'VCMK_' + code + '_' + key; if (_ck.get(_ckey) === '1') { _ai = true; _ck.remove(_ckey); } } catch (e) {}
+  if (!_ai) { try { _rfMailQueue(code, RF_KEYS[key] + ' · ' + f.getName() + ' · ' + Math.round(bytes / 1024) + 'KB', folder.getUrl()); } catch (e) {} }
   return { ok: true, key: key, id: f.getId(), name: String(body.name || '').slice(0, 80), at: fmtKST(new Date()) };
 }
 
@@ -1370,19 +1395,22 @@ function _vcAlert(tag, text) { var p = PropertiesService.getScriptProperties(), 
 function _vcCharLog(n) { if (!(n > 0)) return; var p = PropertiesService.getScriptProperties(), k = 'VCCHARS_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM');
   p.setProperty(k, String((+p.getProperty(k) || 0) + n));
   try { if (typeof handleAiCostLog === 'function') handleAiCostLog({ surface: '목소리', model: 'typecast-' + VC_MODEL, in: n }); } catch (e) {} }   // 글자 수만 · 글은 남기지 않는다
-function _vcTts(cfg, voiceId, text, tempo) {
+function _vcTts(cfg, voiceId, text, tempo, pause) {
+  /* [PAUSE_STEP] remove_silence_ms = 남겨 둘 쉼의 최대 길이 — 종전엔 늘 150 */
   /* ★[VC_TTS_422 2026-09-28 WNJK3Y 실측] 목소리는 만들어졌는데 줄 읽기가 두 줄 다 422 — prompt 를 { preset: 'normal' } 으로 보냈다.
      ssfm-v30 의 prompt 는 { emotion_type: 'preset', emotion_preset: 'normal' } 모양이다(typecast-go PresetPrompt). 기본이 «보통»이라 아예 빼는 것이 가장 안전하다 — 다시 넣지 말 것 */
-  var x = _vcFetch(cfg, 'post', '/v1/text-to-speech', { json: { voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', output: { target_lufs: cfg.lufs, remove_silence_ms: 150, audio_tempo: tempo || 1, audio_format: 'mp3' } } });
+  var x = _vcFetch(cfg, 'post', '/v1/text-to-speech', { json: { voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', output: { target_lufs: cfg.lufs, remove_silence_ms: pause || 150, audio_tempo: tempo || 1, audio_format: 'mp3' } } });
   if (x.code !== 200) { var e = new Error('tts ' + x.code); e.http = x.code; e.why = _vcWhy(x); throw e; }   // [VC_WHY]
   _vcCharLog(String(text).length);
   return x.r.getBlob().getBytes(); }
 function _vcAiFolder(code) { var f = _rfFolderFor(code), it = f.getFoldersByName('AI'); return it.hasNext() ? it.next() : f.createFolder('AI'); }   // 관리 화면 목록(adminRitualFiles)은 하위 폴더를 안 본다
 function _vcHash(s) { return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8)).slice(0, 22); }
-function _vcCached(code, pre, voiceId, text, tempo, cfg) {   // 같은 글 · 목소리 · 빠르기 → 만들어 둔 것 [VOICE_CLONE_0928]
-  var nm = pre + ' · ' + _vcHash(voiceId + '|' + tempo + '|' + text) + '.mp3', fo = _vcAiFolder(code), it = fo.getFilesByName(nm);
+function _vcCached(code, pre, voiceId, text, tempo, cfg, pause) {   // 같은 글 · 목소리 · 빠르기 · 쉼 → 만들어 둔 것 [VOICE_CLONE_0928]
+  /* [PAUSE_STEP] 열쇠에 쉼을 넣는다 — 150(종전 값)이면 옛 열쇠 그대로라 이미 만든 소리가 맞는다 */
+  pause = pause || 150;
+  var nm = pre + ' · ' + _vcHash(voiceId + '|' + tempo + '|' + (pause === 150 ? '' : 'p' + pause + '|') + text) + '.mp3', fo = _vcAiFolder(code), it = fo.getFilesByName(nm);
   while (it.hasNext()) { var f0 = it.next(); if (!f0.isTrashed()) return { hit: true, b64: Utilities.base64Encode(f0.getBlob().getBytes()) }; }
-  var bytes = _vcTts(cfg, voiceId, text, tempo); try { fo.createFile(Utilities.newBlob(bytes, 'audio/mpeg', nm)); } catch (e) {}
+  var bytes = _vcTts(cfg, voiceId, text, tempo, pause); try { fo.createFile(Utilities.newBlob(bytes, 'audio/mpeg', nm)); } catch (e) {}
   return { hit: false, b64: Utilities.base64Encode(bytes) }; }
 var VC_COLOR = ['파란', '노란', '빨간', '하얀', '초록', '까만', '분홍', '하늘색'], VC_THING = ['우산', '연필', '컵', '의자', '모자', '시계', '편지', '가방', '장갑', '공책', '사과', '종이배'];
 /* ★[TEMPO_STEP 2026-10-03 사장님 «말 빠르기를 더 세밀하게»] 화면이 «말 빠르기 [−] 0 [＋]»(−0.3 ~ +0.3 · 0.1 걸음)로 바뀌었다.
@@ -1390,10 +1418,16 @@ var VC_COLOR = ['파란', '노란', '빨간', '하얀', '초록', '까만', '분
    숫자로 읽고 0.7 ~ 1.3 에 묶고 0.1 단위로 맞춘다 · 읽을 수 없으면 1. 캐시 열쇠(_vcCached · voiceId|tempo|text)는 그대로 —
    0.9 · 1 · 1.1 은 전과 같은 숫자라 이미 만든 소리가 그대로 맞는다 */
 function _vcTempo(v) {
-  /* [TEMPO_STEP] */
+  /* [TEMPO_STEP] · [TEMPO_WIDE 2026-10-04] 화면 −1.0 ~ +1.0 = 빠르기 0.5 ~ 1.5(1 + 0.5 × 값) · 0.05 걸음(타입캐스트 audio_tempo 는 0.5 ~ 2.0 «말 속도 배수» · 클수록 빠르다) */
   var x = parseFloat(v); if (!isFinite(x)) x = 1;
-  x = Math.min(1.3, Math.max(0.7, x));
-  return Math.round(x * 10) / 10;
+  x = Math.min(1.5, Math.max(0.5, x));
+  return Math.round(x * 20) / 20;
+}
+/* ★[PAUSE_STEP 2026-10-04 사장님 «문장 사이 쉼이 너무 짧다»] 문장 사이 쉼 = remove_silence_ms(남겨 둘 쉼 상한 · ms) — 정한 넷만 받는다 · 안 보낸 옛 화면은 150(종전 값) */
+function _vcPause(v) {
+  /* [PAUSE_STEP] */
+  var x = parseInt(v, 10);
+  return [150, 350, 600, 900].indexOf(x) > -1 ? x : 150;
 }
 function _vcKoNum(n) { var D = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'], t = Math.floor(n / 10), o = n % 10; return (t > 1 ? D[t] : '') + (t ? '십' : '') + D[o]; }
 function _vcNewPhrase() {   // [VOICE_CLONE_0928] 확인 문장 — 오늘 날짜 + 색 · 물건 둘(8-2). 예) 오늘은 구월 이십팔일, 파란 우산과 노란 연필.
@@ -1447,7 +1481,7 @@ function handleVoiceClone(body) {
     _vcPut(code, st); return { ok: true, who: who, tries: pp.tries, renewed: !!prev }; }
   if (op === 'make') { var key = String(body.key || ''); if (!RF_KEYS[key]) return { ok: false, error: '어느 자리인지 알 수 없어요.' };
     var text = String(body.text || '').trim().slice(0, 600); if (!text) return { ok: false, error: '읽을 글이 없어요.' };
-    var tempo = _vcTempo(body.tempo), one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
+    var tempo = _vcTempo(body.tempo), pause = _vcPause(body.pause), one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
     var lines = Array.isArray(body.lines) ? body.lines.slice(0, 12) : null;   // 입장 인사처럼 문장마다 읽는 사람이 다르면 [[who,text],…]
     st.make = st.make || { total: 0, per: {} };
     var retempo = body.retempo === true;   // 빠르기만 바꾼 것 — 줄마다 센 수(per · 기록용)에 넣지 않는다
@@ -1458,9 +1492,10 @@ function handleVoiceClone(body) {
     for (var i = 0; i < jobs.length; i++) { var jw = jobs[i].who || (st.groom && st.groom.voiceId ? 'groom' : 'bride'), v2 = st[jw] && st[jw].voiceId;
       if (!v2) { var ow = jw === 'groom' ? 'bride' : 'groom'; v2 = st[ow] && st[ow].voiceId; jw = ow; }   // 한 분만 만들었으면 그 목소리로
       if (!v2 || !jobs[i].text) continue;
-      try { var c = _vcCached(code, 'AI 소리', v2, jobs[i].text, tempo, cfg); if (!c.hit) { fresh = true; newChars += jobs[i].text.length; } parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); } catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
+      try { var c = _vcCached(code, 'AI 소리', v2, jobs[i].text, tempo, cfg, pause); if (!c.hit) { fresh = true; newChars += jobs[i].text.length; } parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); } catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
     if (!parts.length) return { ok: false, error: '아직 만든 AI 목소리가 없어요.' };
     if (fresh) { st.make.total++; st.make.chars = (st.make.chars || 0) + newChars; if (!retempo) st.make.per[key] = (st.make.per[key] || 0) + 1; _vcPut(code, st); }
+    try { CacheService.getScriptCache().put('VCMK_' + code + '_' + key, '1', 1800); } catch (e) {}   // [RF_MAIL_AI] 이 줄은 AI 가 만들었다 — 곧 올라올 파일에 «도착» 메일을 보내지 않게(handleRitualFile)
     return { ok: true, key: key, parts: parts, total: st.make.total }; }   // [VC_BUDGET] left(줄마다 남은 번)를 보내지 않는다 — [다시 만들기]에 «N번 남음»이 안 붙는다
   return { ok: false, error: '알 수 없는 요청이에요.' };
 }
@@ -1478,6 +1513,7 @@ function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0;
    dry=true 면 대상만 로그(previewVoiceClones) */
 function purgeVoiceClones(dry) {
   // [VOICE_CLONE_0928] 예식 다음 날 · 취소 · 노쇼 · 미계약 — 업체 목소리 · 읽은 녹음 · 연습 소리
+  if (!dry) { try { _rfMailFlush(); } catch (e) {} }   // [RF_MAIL_THROTTLE] 매일 — 30분 묶음에 남은 파일 알림
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
   Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var code = k.slice(3), st; try { st = JSON.parse(all[k] || '{}') || {}; } catch (e) { return; }
     var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
