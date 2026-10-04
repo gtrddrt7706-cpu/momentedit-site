@@ -11978,7 +11978,7 @@ chk 'FLOW_MIN' order-preview.html 5
 chk "본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'" order-preview.html 1
 # ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선 없이 한 덩어리
 chk 'PV_SEND_ONE' order-preview.html 2
-chk ".mk-one .mk-vlist{border-top:0" order-preview.html 1
+chk ".mk-send1 .mk-vlist{border-top:0" order-preview.html 1
 # ★[LEAVE_ASK_Q 2026-10-04 사장님 «두고 갈까요?로 · 줄바꿈 · «한눈에 보기»에서 다시 찾을 수 있어요 삭제»]
 chk '미완료로 두고 갈까요?' order-preview.html 1
 chk 'LEAVE_ASK_Q' order-preview.html 2

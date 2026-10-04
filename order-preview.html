@@ -1194,7 +1194,7 @@ body.lsfull{overflow:hidden}
 @media (max-width:999px){ .mk-tg,.mk-vb{margin-right:36px} }
 .mk-vx{padding:4px 0 12px;border-bottom:1px solid var(--border)}
 /* [PV_SEND_ONE] 식전 영상 링크 한 덩어리 — 머리 없음 · 이름 줄과 칸 사이 선 없음 · 이름은 머리 굵기로 */
-.mk-one .mk-vlist{border-top:0;margin-top:0}.mk-one .mk-vr{border-bottom:0;padding-bottom:2px}.mk-one .mk-vx{border-bottom:0;padding-top:8px}.mk-one .mk-vn{font-weight:600}
+.mk-send1 .mk-vlist{border-top:0;margin-top:0}.mk-send1 .mk-vr{border-bottom:0;padding-bottom:2px}.mk-send1 .mk-vx{border-bottom:0;padding-top:8px}.mk-send1 .mk-vn{font-weight:600}
 .mk-vx .upchk{margin-bottom:4px}
 /* ★«고른 순서» 펼침 목록(.mk-ilist · .mk-irow · 꺾쇠 · 펼친 칸 .mk-idet · 고를 것 · «이 순간 만들러 가기 ›») 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW 2026-10-03 사장님 «이 순간 만들러 가기 › 이건 삭제 · 고를 것도 삭제»]
    ★★[COURSE_FLOW 2026-10-03 사장님 «담은 이벤트가 실제로 어떤 순서로 진행되는지 러닝타임 순으로 한눈에 · 이벤트를 뺄 수 있게 · 여기서 최종 코스 확정 후 다음으로 · 뺀 이벤트는 옅은 투명으로 · 미니멀하면서 깔끔하고 군더더기 없이»]
@@ -4007,7 +4007,7 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
     if(cat==='ask'&&k==='bless'&&qs.every(function(q){ return q.k==='bless'&&c[q.id]==='site'; })) hd='덕담 원고';   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
     var one=cat==='send'&&qs.length===1&&qs[0].k==='prevideo';   /* ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선을 걷고 이름 · 기한 · 칸을 한 덩어리로 */
-    h+='<section class="mk-sec mk-prep'+(one?' mk-one':'')+'">'+(one?'':'<div class="mk-sech"><h4>'+hd+'</h4>')+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+(one?'':'</div>')
+    h+='<section class="mk-sec mk-prep'+(one?' mk-send1':'')+'">'+(one?'':'<div class="mk-sech"><h4>'+hd+'</h4>')+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+(one?'':'</div>')
       +(cat==='ask'?_mkCopied('ask:'+k):'')+'<ul class="mk-vlist">';
     qs.forEach(function(q){ var due=(cat==='bring'&&q.due===0)?'':R.dueWord(q,wed), par=q.who==='parents', done=_mkItemDone(q);   /* [R1-30] «당일 챙길 것» 아래에서 «당일 가져오기»를 줄마다 되풀이하지 않는다 */
       var _bSiteRow=q.k==='bless'&&cat==='ask'&&c[q.id]==='site';   /* [R7-02] «원고 없이»면 원고 부탁 줄(글 · 마감 · 표시)을 그리지 않는다 — 받지 않을 원고의 마감을 알리고 «✓ 현장에서 하세요»가 아래 체크칸을 되풀이했다.
