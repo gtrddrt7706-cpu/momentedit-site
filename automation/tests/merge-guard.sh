@@ -14055,7 +14055,8 @@ chk '+_slEditor(q.up,lab)' order-preview.html 1
 chk "+_slEditor('pv','영상 앞 소개글')" order-preview.html 1
 nochk 'class="ta grow mk-vtta"' order-preview.html
 nochk 'id="mkPvTa"' order-preview.html
-chk "wq:_slKeyOk(key)?_slWhoSig(key):undefined" order-preview.html 2
+chk "wq:_slKeyOk(key)?_slWhoSig(key):undefined" order-preview.html 1
+chk "tx:_txSig(a.t),wq:wq}" order-preview.html 2
 # ── 2026-10-02 사장님 결정 여섯(라운드 점검 1의 결정 대기분) — 이름 = 결정 · 같은 커밋에 검사 [DECISION_GUARD]
 chk 'VOW_HOW' order-preview.html 5                 # 서약 읽는 방식 칩(한 줄씩 번갈아 · 각자 차례로) · 안내는 글칸 위 · 흐름 한 줄
 chk 'VOW_HOW' assets/ritual-cue.js 1               # 엔진 live.t 가 S.vowHow 를 따른다
