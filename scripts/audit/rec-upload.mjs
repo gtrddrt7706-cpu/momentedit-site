@@ -154,7 +154,7 @@ for (const w of [360, 1280]) {
   ok('1분 읽기 — 글마다 [이걸로 쓰기] → [이 목소리로 만들기] → 준비됨 · 신랑이 읽는 빈 줄(1번)만 AI · 신부 줄(2번)은 비어 있음', c3 && c5.ready && c5.g0 === 'ai' && !c5.g1, JSON.stringify(c5));
   const c6 = await pg.evaluate(() => ({ src: (S.up.g0 || {}).src, st: document.querySelector('.mk-vcards .mk-vr').textContent, couple: _lSteps(ENG, ['guest']).filter((x) => x.couple).length }));
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «· 다시 만들기» → «이 줄 다시 만들기»를 걷었다(▶ 가 고친 줄을 만든다) — 지우기가 남는다 */
-  ok('그 줄이 AI 두 분 목소리(src ai · «AI로 만들었어요» · 지우기 · «이 줄 다시 만들기» 없음)', c6.src === 'ai' && /AI로 만들었어요/.test(c6.st) && /지우기/.test(c6.st) && !/이 줄 다시 만들기/.test(c6.st) && c6.couple >= 1, JSON.stringify(c6));
+  ok('그 줄이 AI 두 분 목소리(src ai · 상태 줄 · 지우기 · «이 줄 다시 만들기» 없음 [AI_DONE_QUIET])', c6.src === 'ai' && !/AI로 만들었어요/.test(c6.st) && !/지우기/.test(c6.st) && !/이 줄 다시 만들기/.test(c6.st) && c6.couple >= 1, JSON.stringify(c6));
   const c7 = await pg.evaluate(() => { opGoStep('done'); return new Promise((ok) => setTimeout(() => ok(!!document.querySelector('[data-fk="ainotice"]')), 800)); });
   ok('④ — 두 분 화면에는 «일부 안내는 … AI 음성이에요» 한 줄이 없다(하객 고지는 식순지 뒷면 한 줄 · [AI_NOTICE_0928 9-1])', !c7);
   await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(800);

@@ -9129,6 +9129,10 @@ chk 'AI_PILL_CALM' order-preview.html 3   # 단추 글을 갈아 끼우지 않�
 chk 'AI_PILL_WORD' order-preview.html 1   # 머리 단추 «목소리 만들기» · 만드는 중과 같은 폭
 chk 'PLAY_TOGGLE_FIX' order-preview.html 2   # 줄 ▶ 소리는 render 가 끄지 않는다 — _stopMk 따로
 chk 'PLAY_LOOK' order-preview.html 1   # 줄 ▶ 크림 원 · 트는 동안 먹색 원 + ■
+chk 'VC_BOTH_CHECK' order-preview.html 3   # 나중에 만든 목소리도 이미 만든 줄을 미리 입혀 둔다 · 옛 목소리 소리 버림
+chk 'AI_DONE_QUIET' order-preview.html 2   # «✓ AI로 만들었어요 · 지우기» 걷음
+chk 'TONE_HINT' order-preview.html 2   # 말투가 마음에 안 들 때 한 줄 + 다시 녹음하기
+nochk 'mk-vdel2" data-fk="mkupdel' order-preview.html   # [AI_DONE_QUIET]
 chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안에서 맞춘다(0.2 · 0.5 · 0.9 · 1.4초)
 chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
 chk 'ASSET_V' order-preview.html 3   # 옛 파일을 쓰지 않게 ?v= · ?t=
