@@ -9132,6 +9132,8 @@ chk 'PLAY_LOOK' order-preview.html 1   # 줄 ▶ 크림 원 · 트는 동안 먹
 chk 'VC_BOTH_CHECK' order-preview.html 3   # 나중에 만든 목소리도 이미 만든 줄을 미리 입혀 둔다 · 옛 목소리 소리 버림
 chk 'AI_DONE_QUIET' order-preview.html 2   # «✓ AI로 만들었어요 · 지우기» 걷음
 chk 'TONE_HINT' order-preview.html 2   # 말투가 마음에 안 들 때 한 줄 + 다시 녹음하기
+chk 'READ_NO_SEC' order-preview.html 1
+nochk '천천히 읽어 주세요 · 30초쯤' order-preview.html   # [READ_NO_SEC]
 nochk 'mk-vdel2" data-fk="mkupdel' order-preview.html   # [AI_DONE_QUIET]
 chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안에서 맞춘다(0.2 · 0.5 · 0.9 · 1.4초)
 chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
