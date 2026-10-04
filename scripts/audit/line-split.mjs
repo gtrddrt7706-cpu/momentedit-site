@@ -76,6 +76,16 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const p1 = await pg.evaluate(() => ({ t: (document.querySelector('[data-fk="mksl:pv:0"]') || {}).value || '', n: document.querySelectorAll('[data-fk^="mksl:pv:"]').length, pvText: S.pvText }));
   ok(W + ' 소개글 예시 — 한 줄로 들어간다', p1.n === 1 && p1.t && p1.t === p1.pvText, JSON.stringify(p1));
   if (SHOT) await pg.screenshot({ path: `${SHOT}/ls-pv-${W}.png`, fullPage: true });
+  /* [MINI_OFF_ROWS 2026-10-04] 줄 ▶ 로 틀면 아래 작은 플레이어 없음 · 그 ▶ 가 ⏹ */
+  await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(500);
+  await pg.evaluate(() => { const b = document.querySelector('.mk-flow .mk-pl[data-ml]'); b && b.click(); }); await pg.waitForTimeout(600);
+  const mo = await pg.evaluate(() => ({ mini: getComputedStyle(document.getElementById('lsMini')).display, on: document.querySelectorAll('.mk-pl[data-ml].on').length }));
+  ok(W + ' 줄 ▶ 로 들으면 아래 작은 플레이어가 없고 그 줄 ▶ 가 멈춤 단추 [MINI_OFF_ROWS]', mo.mini === 'none' && mo.on === 1, JSON.stringify(mo));
+  await pg.evaluate(() => lsStop()); await pg.waitForTimeout(200);
+  await pg.evaluate(() => { const b = document.querySelector('[data-fk="mkplay"]'); b && b.click(); }); await pg.waitForTimeout(700);
+  const mo2 = await pg.evaluate(() => ({ mini: getComputedStyle(document.getElementById('lsMini')).display, on: document.querySelectorAll('.mk-pl[data-ml].on').length, q: LP.q.length }));
+  ok(W + ' «이 순간 들어 보기»로 들어도 아래 재생 바 없음 · 지금 줄 ▶ 가 멈춤 [MINI_OFF_ROWS]', mo2.q === 0 || (mo2.mini === 'none' && mo2.on === 1), JSON.stringify(mo2));
+  await pg.evaluate(() => lsStop());
   const ov = await pg.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
   ok(W + ' 가로 넘침 없음 · pageerror 0', !ov && !errs.length, JSON.stringify(errs.slice(0, 3)));
   await ctx.close();

@@ -14168,7 +14168,13 @@ nochk 'for (var row = 0; row < 2; row++)' assets/ritual-open.js
 chk "var LB1 = lay(8, 11, 1), fs1 = 11; if (!LB1) { LB1 = lay(5, 10, 1.2); fs1 = 10; }" assets/ritual-open.js 1
 # ★[SITE_CHK_OFF 2026-10-04 사장님 «현장에서 바로 할게요 삭제 · 그래야 큐사인을 알 수 있다»] 첫인사 · 서약 체크 칸 걷음 · 옛 체크는 다 된 것으로 세지 않는다
 chk 'SITE_CHK_OFF' order-preview.html 4
-nochk "chk:'현장에서 바로 할게요'" order-preview.html
+# ★[CUE_SIG 2026-10-04 사장님 «적을 수 있게 하고 현장이면 큐사인을 직접 적게»] 위 SITE_CHK_OFF 를 바꾼다 — 체크는 되살리고 끝 신호 칸을 붙인다
+chk "chk:'현장에서 바로 할게요'" order-preview.html 2
+chk 'CUE_SIG' order-preview.html 6
+chk 'CUE_SIG' assets/ritual-cue.js 5
+chk 'CUE_SIG' console.html 1
+chk 'function _cueBox(id)' order-preview.html 1
+chk 'function endSig(S, items)' assets/ritual-cue.js 1
 chk 'function _txSite(kind,c,id)' order-preview.html 1
 # ★[PLAY_ALIGN 2026-10-04 사장님 «플레이 버튼이 위로 올라가 있는 느낌»] ② 나레이션 줄 ▶ 는 문장 첫 줄 가운데
 chk '.mk-flow li.n>.mk-pl{margin-top:11px}' order-preview.html 1

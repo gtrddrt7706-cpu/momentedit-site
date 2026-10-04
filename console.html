@@ -1348,6 +1348,7 @@ function render(){
   if (phase === 'live' && c.live) {
     tx.className = 'txt big';
     tx.textContent = liveLead(c.live)
+      + (c.live.end ? '끝 신호: ' + c.live.end + '\n' : '')   // [CUE_SIG 2026-10-04] 두 분 · 부모님이 직접 말하는 자리 — 이게 들리면(보이면) 다음 GO
       + (c.live.fallback ? '막히면: ' + c.live.fallback + '\n' : '')
       + (c.live.note ? c.live.note : '');
   } else {
