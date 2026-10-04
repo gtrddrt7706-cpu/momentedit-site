@@ -5454,7 +5454,7 @@ function _lShow(){
   if(st.up&&!st._tried&&_vtNeed(st.up)){ var _tk=LP.tok, _st=st, _bk=_st._bk=(_st._bk||0)+1; LP.baking=_st; MK.lsBusy=st.k; _lPaint(); render();
     var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R2] 듣기는 20초까지만 기다린다(올리기 한도 75초를 다 기다리면 그동안 소리가 없다) */
     Promise.race([_vtBake([st.up]),_slow]).then(function(r){ if(_st._bk!==_bk) return;   /* [SIM_R2] 같은 줄로 되돌아와 두 번 부르면 마지막 것만 — 앞 것이 1초 빈소리를 끊었다 */
-      if(LP.baking===_st) LP.baking=null; if(MK.lsBusy===_st.k) MK.lsBusy=null; _st._tried=1;
+      if(LP.baking===_st) LP.baking=null; if(MK.lsBusy===_st.k) MK.lsBusy=null; _st._tried=1; if(LP.tok!==_tk){ render(); return; }   /* [SIM_R3] 멈춘 뒤엔 알림도 없다 */
       if(_vtNeed(_st.up)) MK.toast=r==='slow'?'새 빠르기 · 쉼으로 만드는 데 오래 걸려요 · 지금 소리로 먼저 들려 드려요':(((MK.lineErr||{})[_st.up])||'이 줄을 새 빠르기 · 쉼으로 만들지 못했어요 · 잠시 뒤 다시 들어 보세요');   /* [PV_ERR_SHOW] 까닭(서버 말)을 그대로 */
       render(); if(LP.tok!==_tk||LP.q[LP.i]!==_st) return; _lShow(); }); return; }
   /* ★[PLAY_TRUE] 틀기 직전에 그 줄의 지금 파일을 다시 읽는다 — 줄을 세울 때 적어 둔 주소(뒤에서 새로 만든 뒤엔 옛 소리)를 믿지 않는다.
@@ -5529,7 +5529,8 @@ window.lsStop=function(keepBig){
   if(!keepBig) lsCloseBig();
 };
 window.lsPlay=function(k){ var hk=_vtKeys(k); if(k==='prevideo'||k==='guest') hk=hk.concat(_vtKeys(k==='guest'?'prevideo':'guest').filter(function(x){ return x==='g3'&&hk.indexOf(x)<0; }));
-  if(hk.length){ if(MK.lsBusy===k) return; MK.lsBusy=k; render(); _vtBake(hk).then(function(){ if(MK.lsBusy===k) MK.lsBusy=null; render(); _lStart([k],false); }); return; }   /* [SIM_R2] 두 번 눌러도 한 번 */   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
+  if(hk.length){ if(MK.lsBusy===k) return; MK.lsBusy=k; render(); var _slow=new Promise(function(ok){ setTimeout(function(){ ok('slow'); },20000); });   /* [SIM_R3] 이 순간 들어 보기도 20초까지만 — 넘으면 지금 소리로 먼저 */
+    Promise.race([_vtBake(hk),_slow]).then(function(r){ if(MK.lsBusy!==k) return; MK.lsBusy=null; if(r==='slow') MK.toast='새 빠르기 · 쉼으로 만드는 데 오래 걸려요 · 지금 소리로 먼저 들려 드려요'; render(); _lStart([k],false); }); return; }   /* [SIM_R2] 두 번 눌러도 한 번 */   /* [TEXT_PLAY_MAKE] 고친 줄이 있으면 먼저 만들고 */
   _lStart([k],false); };
 window.lsPlayAll=function(){ LP.noChips=!!(STEPS[idx]&&STEPS[idx].k==='done'); _lOpenBig(); _lStart(_lRows(),true); _lFull(); };   // ④ 에서는 바꿀 것 칩 없이
 window.lsBig=function(k){ LP.noChips=false; _lOpenBig(); _lStart([k],false); _lFull(); };
