@@ -1323,8 +1323,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-lab .vk{margin-right:0;vertical-align:0}
 .mk-lab .mk-ln{font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.01em}   /* ★[UI_ONE 2026-10-04 사장님 «나레이션 줄과 AI 줄 머리를 한 모양으로»] 줄 이름 = AI 줄 카드 제목과 같은 16/600 · 그 옆 작은 표시(나레이션) */
 .mk-flow li.n .mk-lab{min-height:28px;margin-bottom:2px}
-.mk-flow li.n .mk-pl{margin-top:-3px}
-.mk-vch:not(:has(.mk-vhd .mk-vs)) .mk-vpl{position:relative;top:5px}   /* [PLAY_OPTIC] 줄 카드 ▶ 도 같은 눈 맞춤(제목 한 줄일 때 · 아래 작은 줄이 있으면 이미 두 줄 가운데라 그대로) */   /* ★[PLAY_OPTIC 2026-10-04 사장님 «플레이 단추가 위쪽에 있는 것 같다» → B(눈 맞춤) · «좀 더 내려»] 수치로는 제목 줄 가운데(±0.5px)였지만 34px 원이 글자 위로 튀어나오고 굵은 한글은 글줄 아래쪽에 앉아 떠 보였다 — 5px 내려 눈으로 맞춘다 */
+.mk-flow li.n .mk-pl{margin-top:-3px}   /* ★[PLAY_OPTIC 2026-10-04 사장님 «플레이 단추가 위쪽에 있는 것 같다» → B(눈 맞춤) · «좀 더 내려»] 수치로는 제목 줄 가운데(±0.5px)였지만 34px 원이 글자 위로 튀어나오고 굵은 한글은 글줄 아래쪽에 앉아 떠 보였다 — 5px 내려 눈으로 맞춘다 */
+.mk-vch:not(:has(.mk-vhd .mk-vs)) .mk-vpl{position:relative;top:5px}   /* [PLAY_OPTIC] 줄 카드 ▶ 도 같은 눈 맞춤(제목 한 줄일 때 · 아래 작은 줄이 있으면 이미 두 줄 가운데라 그대로) */
 .mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -10px;border:0;background:none;color:var(--accent);display:grid;place-items:center;cursor:pointer}
 .mk-pl svg{width:10px;height:10px;padding:12px 11px 12px 13px;border:0;border-radius:50%;box-sizing:content-box;background:var(--bg2);box-shadow:inset 0 0 0 1px rgba(184,154,117,.5);transition:background .3s cubic-bezier(.22,.61,.36,1),color .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s cubic-bezier(.22,.61,.36,1)}   /* [MK_LINE_PLAY] 줄마다 ▶ 는 원 안 · ★[PLAY_ONE_LOOK 2026-10-04 사장님 «왼쪽 플레이 단추가 이상하고 모양도 안 바뀐다 · 한 곳을 말하면 다른 곳도 전부 통일»] 줄 ▶ 는 모두 줄 카드 ▶ 와 같은 모양(옅은 바탕 원 · 금빛 가는 테) · 트는 동안 ■(진한 원) */
 .mk-pl.on svg{padding:12px;background:var(--accent);color:var(--bg);box-shadow:none} .mk-pl[disabled] svg{opacity:.45}
