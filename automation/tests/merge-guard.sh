@@ -12651,6 +12651,11 @@ nochk '/home/user/momentedit-site/' scripts/audit/copy-rule.mjs
 chk 'BIG_CTL_FIXED' order-preview.html 2
 chk 'lf-ctl{display:flex;justify-content:center;align-items:center;gap:18px;position:sticky;bottom:0;margin-top:auto' order-preview.html 1
 chk 'PC_SIDE_AIR' order-preview.html 2
+chk 'VC_CALM' order-preview.html 4   # ★[VC_CALM 2026-10-04 사장님 «'지금은 AI 목소리를 만들 수 없어요' 왜? 대책»] 앞일 우선 · 3초 뒤 조용히 한 번 더 · 옛 실패 글 걷기
+chk 'PLAY_ONE_LOOK' order-preview.html 3   # ★[PLAY_ONE_LOOK 2026-10-04 사장님 «왼쪽 플레이 단추 · 모양도 안 바뀜 · 일괄 통일»] 줄 ▶ 한 모양 · 나레이션 줄도 ▶/■
+chk 'VS_ONE_LINE' order-preview.html 1   # 두 분 목소리 설명 한 줄(미니멀) · 두 곳 같은 글
+nochk 'border:1px solid var(--gold-deeper);border-radius:50%;box-sizing:content-box}' order-preview.html   # 옛 테두리만 ▶
+nochk 'pk-prep-pc' order-preview.html
 chk 'SEAL_POINTS' order-preview.html 4
 chk 'SEAL_POINTS' assets/ritual-open.js 1
 chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
