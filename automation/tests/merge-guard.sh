@@ -9109,7 +9109,7 @@ nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
 chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
 chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
-chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 3   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
+chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 2   # [VOICE_TUNE 2026-10-04] 순간 쪽 빠르기 시험은 사람별 맞추기 시험으로 바뀌었다   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
 chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 10
 # ★[VC_CARD_ONE · VC_WORD_GEN · READ_DLG_TIDY · REC_LEVEL · REC_WARN2 · TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE · TEXT_PLAY_MAKE · PAUSE_STEP · RF_MAIL_AI · RF_MAIL_THROTTLE 2026-10-04 사장님 실기기 시험 묶음]
 chk 'VC_CARD_ONE' order-preview.html 3
