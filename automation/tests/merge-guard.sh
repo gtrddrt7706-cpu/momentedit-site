@@ -11687,7 +11687,7 @@ chk 'OPEN_COURSE' assets/ritual-cue.js 10
 chk 'OPEN_COURSE' order-preview.html 20
 chk 'OPEN_COURSE' assets/ritual-data.js 3
 chk 'OPEN_COURSE' api/_ritual-kb.js 3
-chk "src=\"/assets/ritual-open.js\"" order-preview.html 1
+chk "src=\"/assets/ritual-open.js" order-preview.html 1   # [ASSET_V] ?v= 가 붙는다
 chk 'ritual-open.js' console.html 1
 chk 'ritual-open.js' order-audit.html 1
 chk 'DECLARE_CLAP' assets/ritual-cue.js 1          # 박수로 답하는 선언(사장님 결정 3) · ask/chorus 가 아니다
