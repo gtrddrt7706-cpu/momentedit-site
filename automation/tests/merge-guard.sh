@@ -14014,6 +14014,18 @@ chk 'PLAY_ONE' order-preview.html 2
 chk 'LINE_EDIT' scripts/audit/voice-setup.mjs 1
 chk 'VS_CHIP_ONCE' scripts/audit/voice-setup.mjs 1
 chk 'PLAY_ONE' scripts/audit/voice-setup.mjs 1
+# ★★[LINE_SPLIT 2026-10-04 사장님 «신랑 신부 입력칸이 안 나눠져 있다 · 줄 더하기 · 빼기로 분업에 맞게 · 같은 폼을 쓰는 곳은 전부(하객 맞이 등)»]
+#   두 분이 읽을 글 칸(하객 맞이 넷 · 입장 인사 · 식전 영상 소개)은 한 모양의 줄 편집기 — 줄마다 [신랑|신부] · 글 · × · «＋ 줄 더하기».
+#   한 칸 글상자(.mk-vtta · #mkPvTa)로 되돌리지 말 것. AI 는 줄마다 그 분 목소리(lines) · 읽는 분 차례가 바뀌면 «다시 만들기»(wq)
+if command -v node >/dev/null 2>&1; then node scripts/audit/line-split.mjs >/dev/null 2>&1; _ls=$?; [ "$_ls" = 1 ] && { echo 'FAIL line-split: 두 분 읽을 글 줄 편집기 흐름이 어긋났습니다 — node scripts/audit/line-split.mjs'; fail=1; }; fi
+chk 'LINE_SPLIT' order-preview.html 12
+chk 'LINE_SPLIT' scripts/audit/line-split.mjs 1
+chk 'function _slEditor(key,lab){' order-preview.html 1
+chk '+_slEditor(q.up,lab)' order-preview.html 1
+chk "+_slEditor('pv','영상 앞 소개글')" order-preview.html 1
+nochk 'class="ta grow mk-vtta"' order-preview.html
+nochk 'id="mkPvTa"' order-preview.html
+chk "wq:_slKeyOk(key)?_slWhoSig(key):undefined" order-preview.html 2
 # ── 2026-10-02 사장님 결정 여섯(라운드 점검 1의 결정 대기분) — 이름 = 결정 · 같은 커밋에 검사 [DECISION_GUARD]
 chk 'VOW_HOW' order-preview.html 5                 # 서약 읽는 방식 칩(한 줄씩 번갈아 · 각자 차례로) · 안내는 글칸 위 · 흐름 한 줄
 chk 'VOW_HOW' assets/ritual-cue.js 1               # 엔진 live.t 가 S.vowHow 를 따른다
