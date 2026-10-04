@@ -1498,24 +1498,28 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vt4{margin:-4px 0 10px}
 .mk-vpcs .mk-vr{flex-wrap:wrap;row-gap:8px} .mk-vpcs .mk-vt{flex:1 1 10em;min-width:10em}
 /* [VC_CARD_V2] 사람 카드 — 카드 한 장 · PC 둘 나란히 · 폰 위아래 */
-.mk-vlist.mk-vpcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;border-top:0;margin:14px 0 8px}
-.mk-vpcs>.mk-vpc{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:18px 18px 8px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.mk-vlist.mk-vpcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:start;gap:12px;border-top:0;margin:14px 0 8px}
+.mk-vpcs>.mk-vpc{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:16px 18px 4px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
 .mk-vpcs>.mk-vpc:last-child{border-bottom:1px solid var(--border)}
 .mk-vpcs>.mk-vpc.need{border-color:rgba(107,42,36,.35)}
-.mk-vpcs .mk-vt{flex:none;min-width:0;gap:4px}
+.mk-vpcs .mk-vt{flex:none;min-width:0;display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px}   /* [VC_CARD_A] 이름 왼쪽 · 상태 오른쪽 한 줄 */
 .mk-vpcs .mk-vn{font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.01em}
 .mk-vrole{display:inline-block;margin-right:8px;font-size:12.5px;font-weight:600;letter-spacing:.04em;color:var(--gold-deeper)}
-.mk-vpcs .mk-vs{white-space:normal;font-size:12.5px}
-.mk-vneed{padding:10px 12px;border-radius:8px;background:var(--bg2);font-size:12.5px;line-height:1.5;color:var(--seal)}
-.mk-vstat{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mk-vstat>span{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:8px;background:var(--bg2)}
+.mk-vpcs .mk-vs{white-space:normal;font-size:12.5px;color:var(--light)}
+.mk-vneed{margin-top:14px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:12.5px;line-height:1.5;color:var(--seal)}
+.mk-vstat{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.mk-vstat>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)}
 .mk-vstat i{font-style:normal;font-size:11px;letter-spacing:.04em;color:var(--light)} .mk-vstat b{font-size:14px;font-weight:600;color:var(--accent)}
+.mk-vft{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;padding:8px 0 4px;min-height:60px}
+.mk-vft.solo{display:block;padding:14px 0 12px}
 .mk-vpcs .mk-vbs{display:block;margin:0}
-.mk-vgo{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;padding:0 18px;border:1px solid var(--gold-btn);border-radius:999px;background:var(--card);color:var(--accent);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer}
-.mk-vgo svg{width:9px;height:9px;padding:7px 6px 7px 8px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}
-.mk-vgo.pri{border-color:#4E3F31;background:#4E3F31;color:var(--card)}
+.mk-vgo{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 16px 0 6px;border:1px solid var(--gold-btn);border-radius:999px;background:var(--card);color:var(--accent);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer}
+.mk-vgo svg{width:10px;height:10px;padding:10px 9px 10px 11px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}
+.mk-vgo.pri{border-color:#4E3F31;background:#4E3F31;color:var(--card);padding:0 20px}
+.mk-vft.solo .mk-vgo{display:flex;width:100%;min-height:48px}
 @media (hover:hover){ .mk-vgo:hover{background:var(--bg2)} .mk-vgo.pri:hover{background:#4E3F31;filter:brightness(1.12)} }
-.mk-vsub{display:flex;justify-content:center;align-items:center;gap:10px;font-size:12.5px;color:var(--light)}
+.mk-vsub{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--light)}
 .mk-vsub .pk-link{min-height:44px;display:inline-flex;align-items:center;font-size:12.5px;color:var(--light)}
 .mk-vpcs .mk-vsub .mk-vdel{margin:0}   /* [VC_CARD_ONE] 사람 카드 한 벌(목소리 쪽 · 창) — 종전 .mk-vpage 에만 */
 .mk-vpcs .mk-vdel{display:inline-flex;align-items:center;flex:none;min-height:44px;margin:-12px 0;padding:0;font-size:12.5px;color:var(--light);text-decoration:underline;text-underline-offset:3px}   /* [VC_CARD_ONE] 지우기 = 작은 밑줄(옅은 글 · 누를 곳 44 · 위아래 음수 여백으로 줄 높이를 안 먹는다) */
@@ -4424,14 +4428,16 @@ function _vcPeople(page){
     h+='<li class="mk-vr mk-vpc'+(p.ready?' ok':'')+(need?' need':'')+'"><span class="mk-vt"><span class="mk-vn"><span class="mk-vrole">'+role+'</span>'+esc(nm===role?'':nm)+'</span>'
       +'<span class="mk-vs">'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span>'
       +(need&&_vcOn()?'<span class="mk-vneed">예시를 들어 보고 말 빠르기 · 문장 사이 쉼을 정하면 끝나요</span>':'')
+      /* ★[VC_CARD_A 2026-10-04 사장님 «여기 디자인 별론데 최선이야?» → 시안 A] 회색 상자 둘 금지(입력칸처럼 보였다) — 가는 선 위아래 · 가운데 세로선 두 칸.
+         아랫줄 = 왼쪽 «▶ 들어 보고 맞추기»(제 크기) · 오른쪽 «다시 녹음 · 지우기» — 상자 안 상자를 걷고 높이를 줄였다 */
       +(p.ready&&_vcOn()&&!need?'<span class="mk-vstat" aria-label="'+esc(role+' 빠르기 '+_tuneWord('t',o.tempo)+' · 문장 사이 쉼 '+_tuneWord('p',o.pause))+'"><span><i>말 빠르기</i><b>'+_tuneWord('t',o.tempo)+'</b></span><span><i>문장 사이 쉼</i><b>'+_tuneWord('p',o.pause)+'</b></span></span>':'')
-      +'<span class="mk-vbs">'
+      +'<span class="mk-vft'+(p.ready?'':' solo')+'"><span class="mk-vbs">'
       +(p.ready?(_vcOn()?'<button type="button" class="mk-vgo'+(need?' pri':'')+'" data-fk="mkvctune:'+w+'" onclick="mkVcTune(\''+w+'\')">'+(need?'':ICO_PLAY)+'<span>'+(need?'빠르기 · 쉼 맞추기':'들어 보고 맞추기')+'</span></button>':'')
         :p.left===0?''   // [VC_LIMIT_UI] 다 쓴 분은 누를 단추가 없다
         :p.consent?'<button type="button" class="mk-vgo pri" data-fk="mkvcread:'+w+'" onclick="'+go('read')+'"><span>목소리 만들기</span></button>'   /* [VB_WORD] */
         :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'" onclick="'+go('consent')+'"><span>목소리 만들기</span></button>')+'</span>'
       +(p.ready?'<span class="mk-vsub">'+(p.left>0?'<button type="button" class="pk-link" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">다시 녹음</button><span aria-hidden="true">·</span>':'')
-        +'<button type="button" class="pk-link mk-vdel" data-fk="mkvcdel:'+w+'" aria-label="'+esc(who.trim()+' AI 목소리 지우기')+'" onclick="mkVcDel(\''+w+'\')">지우기</button></span>':'')+'</li>';
+        +'<button type="button" class="pk-link mk-vdel" data-fk="mkvcdel:'+w+'" aria-label="'+esc(who.trim()+' AI 목소리 지우기')+'" onclick="mkVcDel(\''+w+'\')">지우기</button></span>':'')+'</span></li>';   /* [VC_CARD_A] 아랫줄 닫기 */
   });   // [REC_DLG] 동의 · 1분 읽기는 작은 창에서
   return h+'</ul>'+(VC.note?'<p class="mk-note" role="status">'+VC.note+'</p>':''); }
 /* [VOICE_ONCE] 순간 쪽 — AI 를 골랐는데 아직 아무 목소리도 없으면 한 줄 + «만들기»(그 쪽으로) · 한 분이라도 있으면 줄이 그 목소리로 채워지니 말하지 않는다 */
