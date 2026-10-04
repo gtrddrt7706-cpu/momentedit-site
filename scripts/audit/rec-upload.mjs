@@ -149,7 +149,7 @@ for (const w of [360, 1280]) {
   const c5 = await pg.evaluate(() => ({ ready: VC.st && VC.st.groom && VC.st.groom.ready, g0: (S.up.g0 || {}).src, g1: (S.up.g1 || {}).src, calls: __vcCalls.join(' '), done: (document.getElementById('mkRecDlg') || {}).textContent || '' }));
   ok('만들면 창이 «만들기» 걸음 · «목소리를 만들었어요» · 채운 줄 수를 말한다 [REC_DLG]', /목소리를 만들었어요/.test(c5.done) && /\d줄을 이 목소리로 채웠어요/.test(c5.done) && !/보냈어요/.test(c5.done), c5.done.slice(0, 200));
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
-  ok('만든 뒤 «두 분 목소리 만들기» 쪽 진행 «신랑 ✓ · 신부 남음» [VOICE_ONCE]', await pg.evaluate(() => ((document.querySelector('[data-fk="mkvprog"]') || {}).textContent || '') === '신랑 ✓ · 신부 남음'));
+  ok('만든 뒤 «두 분 목소리 만들기» 쪽 진행 줄 없음 [VPROG_OFF 2026-10-04]', await pg.evaluate(() => !document.querySelector('[data-fk="mkvprog"]')));
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);
   ok('1분 읽기 — 글마다 [이걸로 쓰기] → [이 목소리로 만들기] → 준비됨 · 신랑이 읽는 빈 줄(1번)만 AI · 신부 줄(2번)은 비어 있음', c3 && c5.ready && c5.g0 === 'ai' && !c5.g1, JSON.stringify(c5));
   const c6 = await pg.evaluate(() => ({ src: (S.up.g0 || {}).src, st: document.querySelector('.mk-vcards .mk-vr').textContent, couple: _lSteps(ENG, ['guest']).filter((x) => x.couple).length }));
