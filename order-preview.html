@@ -1502,6 +1502,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vlist.mk-vpcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:stretch;gap:12px;border-top:0;margin:14px 0 8px}
 .mk-vpcs>.mk-vpc{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:16px 18px 4px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
 .mk-vpcs>.mk-vpc:last-child{border-bottom:1px solid var(--border)}
+.mk-vpcs>.mk-vpc:not(:has(.mk-vft)){padding-bottom:18px}   /* [SIM_R3] 아랫줄 없는 카드(다 쓴 분)도 위아래 여백을 맞춘다 */
 .mk-vpcs>.mk-vpc.need{border-color:rgba(107,42,36,.35)}
 .mk-vpcs .mk-vt{flex:none;min-width:0;display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px}   /* [VC_CARD_A] 이름 왼쪽 · 상태 오른쪽 한 줄 */
 .mk-vpcs .mk-vn{font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.01em}
