@@ -14182,3 +14182,7 @@ chk 'function _txSite(kind,c,id)' order-preview.html 1
 nochk '식전 영상 링크(영상이나 사진)' assets/ritual-open.js
 chk 'PV_LINK_ONE' assets/ritual-open.js 1
 chk 'PV_LINK_ONE' order-preview.html 1
+# ★[TALK_BRIDGE 2026-10-04 사장님 «이 순간 들어 보기 = 전체 자동 재생 · 직접 말하는 자리는 "직접 읽어 주시는 시간입니다"로 한 번 짚고 바로 다음 나레이션»] ② 작은 재생만 · 연습 · 크게 보기는 차례 시간 그대로
+chk 'TALK_BRIDGE' order-preview.html 4
+chk 'function _lBridge(q)' order-preview.html 1
+chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-preview.html 1

@@ -1321,7 +1321,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-ltx1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}   /* [VP_FLOW_CLAMP] 두 분 목소리 줄 — 전문은 아래 줄 카드에 */
 .mk-flow li.q{color:var(--light);font-size:12.5px;padding-left:42px}   /* [MK_ROWS] 말 없는 줄 · 차례 줄도 나레이션 글과 같은 세로선 */   /* [QUIET_LINES] 말 없는 줄 = 옅게(--light) · 옛 ② 목록과 같은 색 */
 .mk-flow li.t{color:var(--accent);padding-left:42px}
-.mk-flow li.t b{font-weight:600}   /* [R7-08] 차례 이름(신랑 차례 · 말씀하실 차례 · 두 분 번갈아) */
+.mk-flow li.t b{font-weight:600}
+.mk-flow li.t.now{color:var(--seal)}.mk-flow li.t.now b{color:var(--seal)}   /* [TALK_BRIDGE] */   /* [R7-08] 차례 이름(신랑 차례 · 말씀하실 차례 · 두 분 번갈아) */
 .mk-lab{display:flex;align-items:center;flex-wrap:wrap;gap:0 6px;font-size:11px;color:var(--sub);letter-spacing:.04em;min-height:18px}   /* [VOICE_GUIDE] 목소리 표(아이콘+글)와 줄 이름이 한 줄 가운데선에 — 옛 inline 은 아이콘 기준선 때문에 위아래로 어긋났다 */
 .mk-lab .vk{margin-right:0;vertical-align:0}
 .mk-lab .mk-ln{font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.01em}   /* ★[UI_ONE 2026-10-04 사장님 «나레이션 줄과 AI 줄 머리를 한 모양으로»] 줄 이름 = AI 줄 카드 제목과 같은 16/600 · 그 옆 작은 표시(나레이션) */
@@ -5470,6 +5471,13 @@ function _mkRefHead(k,set){ var day=_lRefDay(k,set), nm='예시 속 이름은 �
   return '그대로 써도 좋고, '+(day==='당일엔 부모님이 직접 말씀하세요'?'부모님':'그분')+' 이야기로 바꿔도 돼요 · '+nm; }
 function _lRefDay(k,set){ if(set&&set[0]&&set[0].parent) return '당일엔 준비하신 분이 직접 말해요';
   return k==='bless'?'당일엔 부모님이 직접 말씀하세요':k==='free'?'당일엔 준비하신 분이 직접 말해요':k==='declare'?'당일엔 가족 한 분이 직접 읽어요':'당일엔 두 분이 직접 말해요'; }
+/* ★★[TALK_BRIDGE 2026-10-04 사장님 «이 순간 들어 보기 누르면 전체 자동 재생 · 신랑 신부 대사 나오는 부분은 "직접 읽어 주시는 시간입니다" 이런 식으로 상황을 나레이션으로 한 번 짚고 바로 정해진 나레이션으로»]
+   ② «이 순간 들어 보기»(작은 재생 · 크게 보기 아님)에서 사람이 말하는 자리(talk)와 영상이 흐르는 자리(skip)는 «신랑 차례 · 신부 차례» 빈 시간 대신 안내 한 줄 → 바로 다음 나레이션.
+   소리는 미리 듣기 전용(당일 예식에는 없다) — 녹음(우성 · 재녹음_20261004)이 오면 TALK_BRIDGE_SRC 에 잇는다 · 그 전에는 글만 2.5초.
+   ③ 연습하기 · 크게 보기는 종전대로 차례 시간을 둔다(두 분이 연습하는 자리). 코스 전체 — 첫인사 · 덕담 · 서약 · 부모님께 인사 · 편지 · 축배 · 식전 영상 · 준비한 순서 */
+var TALK_BRIDGE={welcome:'두 분이 하객께 직접 첫인사를 드리는 시간입니다.',bless:'부모님께서 직접 덕담을 들려주시는 시간입니다.',vow:'두 분이 서로에게 직접 서약을 읽는 시간입니다.',tribute:'두 분이 부모님께 직접 마음을 전하는 시간입니다.',letter:'두 분이 서로에게 쓴 편지를 직접 읽는 시간입니다.',toast:'두 분이 위하여를 외치면, 하객이 함께 답하는 시간입니다.',prevideo:'이 자리에는 두 분이 준비한 영상이 흐릅니다.',free:'이 자리에는 두 분이 준비한 순서가 이어집니다.'};
+var TALK_BRIDGE_SRC={};   // 녹음이 오면 {welcome:'/assets/narration/…mp3', …}
+function _lBridge(q){ var out=[]; q.forEach(function(x){ if((x.talk||x.skip)&&TALK_BRIDGE[x.k]){ var src=TALK_BRIDGE_SRC[x.k]||null; out.push({k:x.k,lab:'직접 하는 자리',txt:TALK_BRIDGE[x.k],src:src,pending:!src,bridge:true,ms:2500}); return; } out.push(x); }); return out; }
 function _lRefExpand(q){
   var out=[]; LS.ref=LS.ref||{};
   q.forEach(function(x){
@@ -5541,7 +5549,7 @@ function _lStart(ks,all,hold){   /* hold = [CHIP_NO_AUTOPLAY] 줄은 새로 세�
   if(!hold) _stopMk();   // [PLAY_TOGGLE_FIX] 아래 작은 플레이어가 틀면 줄 ▶ 소리는 멈춘다(겹치지 않게)
   _stopAud(); if(hold){ try{ if(LP.el) LP.el.pause(); }catch(e){} } else _lUnlock();   // [INAPP_UNLOCK] 탭 호출 스택 안에서
   LP.range={ks:ks.slice(),all:!!all}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null; LP.one=false;   // [CHIP_STAY] · [PRACTICE_CHOOSE] · [LINE_STEP] 쪽 · 전체 재생은 이어서 흐른다
-  function go(){ LP.q=_lRefExpand(_lSteps(ENG,ks).filter(function(x){ return !x.quiet; })); LP.i=0; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
+  function go(){ var _q=_lSteps(ENG,ks).filter(function(x){ return !x.quiet; }); LP.q=(!LP.big&&STEPS[idx]&&STEPS[idx].k==='listen')?_lBridge(_q):_lRefExpand(_q);   /* [TALK_BRIDGE] ② 작은 재생은 안내 한 줄로 · 크게 보기 · 연습은 차례 시간 */ LP.i=0; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
   if(ENG&&LREC) go();
   else engine().then(function(g){ if(!g){ LS.msg='소리를 불러오지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; } _lrec().then(go); });
 }
@@ -5686,6 +5694,7 @@ function _lPaint(){
      아래 작은 플레이어는 그 줄들이 보이는 쪽에서는 띄우지 않는다. 줄 ▶ 가 없는 곳(연습 등)은 종전대로 작은 플레이어 */
   /* [MINI_OFF_ROWS] 줄 ▶ 의 «흐르는 중» 표시는 _mlPaint(UI_ONE · ⏹ 로 멈춤)가 맡는다 */
   try{ _mlPaint(); }catch(e){}   // [MINI_OFF_ROWS] 지금 흐르는 줄 ▶ → ⏹
+  [].forEach.call(document.querySelectorAll('.mk-flow li.t'),function(li){ li.classList.toggle('now',!!(st&&st.bridge&&!LP.big)); });   // [TALK_BRIDGE] 안내 한 줄 동안 «신랑 차례 · 신부 차례» 줄이 지금임을 보인다
   var _rowCtl=!!(st&&document.querySelector('.mk-pl[data-ml^="'+st.k+':"]'));   // [MINI_OFF_ROWS] ② 순간 쪽(줄 ▶ 가 있는 곳)은 줄 ▶ 로 듣든 «이 순간 들어 보기»로 듣든 아래 재생 바를 띄우지 않는다
   var _mOn=!!(st&&!LP.big&&!_rowCtl); document.documentElement.classList.toggle('lsmini',_mOn); try{ _opPad(); }catch(e){}   // ★[MINI_ROOM 코워크 추가 점검 P2-3] 작은 플레이어가 떠 있는 동안 아래 칸이 그 뒤로 숨지 않게
   if(!st||LP.big||_rowCtl){ el.style.display='none'; }   // [MINI_OFF_ROWS]
