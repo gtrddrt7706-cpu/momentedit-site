@@ -4364,12 +4364,17 @@ window.mkRecUse=function(){ var r=MK_REC; if(!r||r.ph!=='review') return; if(/^v
   if(!EMBED){ /* 그냥 연 미리보기 — 보낼 사람을 모른다 · 이 기기에서만 그 자리에 들어간다 */ if(!S.up) S.up={}; S.up[r.key]={n:(r.src==='rec'?'녹음':(r.name||'파일')),id:'local:'+Date.now(),at:'',src:r.src,local:1}; RF_URL[r.key]=r.url; _fAt('up.'+r.key); _persist(); MK_REC=null; MK.toast='이 기기에서 그 자리에 넣었어요 · 마이페이지에서 열면 저희에게 보내져요'; render(); return; }
   r.ph='busy'; r.msg='보내는 중…'; _mkSendWav(r.key,r.wav,r.url,r.src,r.src==='rec'?'녹음':(r.name||'파일'),{}); };
 /* [VC_LINE_0928] 한 자리 파일 보내기 — 녹음 · 올린 파일 · AI 줄이 같은 길(마이페이지 → handleRitualFile · 공개 주소 없음) · meta: AI 줄의 by(목소리 주인) · tempo */
-function _mkSendWav(key,wav,url,src,nm,meta){ if(src==='ai'&&S.vkeep&&S.vkeep[key]){ delete S.vkeep[key]; }   /* ★[SIM_R1] 새로 만든 소리는 «확정하기»부터 — 글 · 예시 · 멘트 칩이 바뀌어 다시 만든 줄이 듣지도 않은 소리로 «✓ 확정됨»이 되던 것 */ if(!EMBED){ if(!S.up) S.up={}; S.up[key]=Object.assign({n:nm,id:'local:'+Date.now(),at:'',src:src,local:1},meta||{}); RF_URL[key]=url; _fAt('up.'+key); _persist(); if(MK_REC&&MK_REC.key===key) MK_REC=null; if(src==='ai') _aiDoneMark(key); else MK.toast='이 기기에서 그 자리에 넣었어요 · 마이페이지에서 열면 저희에게 보내져요'; render(); return; }
+/* ★★[PLAY_TRUE 2026-10-04 시뮬레이션] 올리기가 «끝난 뒤»를 기다릴 수 있게 — 종전엔 _vcMake 가 올리기를 «시작»하면 끝난 것으로 쳐서
+   듣기가 옛 소리를 틀고(«만들지 못했어요» 거짓 알림) · 줄 ▶ 는 올리는 중이라 아무것도 안 했다. 이제 _mkUpDone 이 오면(또는 시간이 넘으면) 풀린다 */
+var UP_WAIT={};
+function _upWaitDone(key,ok){ var a=UP_WAIT[key]; delete UP_WAIT[key]; (a||[]).forEach(function(f){ try{ f(!!ok); }catch(e){} }); }
+function _mkSendWav(key,wav,url,src,nm,meta){ var _wp=new Promise(function(ok){ (UP_WAIT[key]=UP_WAIT[key]||[]).push(ok); }); try{ _mkSendWav0(key,wav,url,src,nm,meta); }catch(e){ _upWaitDone(key,false); } if(!EMBED) _upWaitDone(key,true); return _wp; }
+function _mkSendWav0(key,wav,url,src,nm,meta){ if(src==='ai'&&S.vkeep&&S.vkeep[key]){ delete S.vkeep[key]; }   /* ★[SIM_R1] 새로 만든 소리는 «확정하기»부터 — 글 · 예시 · 멘트 칩이 바뀌어 다시 만든 줄이 듣지도 않은 소리로 «✓ 확정됨»이 되던 것 */ if(!EMBED){ if(!S.up) S.up={}; S.up[key]=Object.assign({n:nm,id:'local:'+Date.now(),at:'',src:src,local:1},meta||{}); RF_URL[key]=url; _fAt('up.'+key); _persist(); if(MK_REC&&MK_REC.key===key) MK_REC=null; if(src==='ai') _aiDoneMark(key); else MK.toast='이 기기에서 그 자리에 넣었어요 · 마이페이지에서 열면 저희에게 보내져요'; render(); return; }
   var rd=new FileReader(); MK_UP[key]=1; render();
-  rd.onload=function(){ MK_UP[key]=setTimeout(function(){ if(MK_UP[key]){ delete MK_UP[key]; MK.toast='응답이 없어요 · 다시 눌러 주세요'; if(MK_REC&&MK_REC.key===key) MK_REC.ph='review'; render(); } },75000);
+  rd.onload=function(){ MK_UP[key]=setTimeout(function(){ if(MK_UP[key]){ delete MK_UP[key]; MK.toast='응답이 없어요 · 다시 눌러 주세요'; if(MK_REC&&MK_REC.key===key) MK_REC.ph='review'; _upWaitDone(key,false); render(); } },75000);
     MK_PEND[key]={blob:wav,url:url,src:src,meta:meta||{}};
     try{ parent.postMessage({type:'momentedit:ritualFile', data:{key:key,name:_mkUpLabKey(key)+' · '+nm+'.wav',mime:'audio/wav',src:src,data:String(rd.result)}}, window.location.origin);   /* [RF_MAIL_AI] src = ai 면 서버가 «도착» 메일을 안 보낸다 */ }
-    catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; MK.toast='보내지 못했어요 · 다시 눌러 주세요'; if(MK_REC) MK_REC.ph='review'; render(); } };
+    catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; MK.toast='보내지 못했어요 · 다시 눌러 주세요'; if(MK_REC) MK_REC.ph='review'; _upWaitDone(key,false); render(); } };
   rd.readAsDataURL(wav); }
 /* ★★[VOICE_CLONE 2026-09-27 코워크 «두 분 목소리» 5장 · 4-2] AI 두 분 목소리 · 연습 읽기 — RitualOpen.FEATURE 가 꺼져 있으면 아무것도 안 그린다.
    순서(사람마다 따로): ① 동의(각자 · 본인이 직접 누른다) ② 목소리 읽기(그 자리 녹음만 · 파일 받지 않음 · 마지막에 그날의 확인 문장) ③ 줄마다 [AI] → 빠르기 · 함께/한 사람 → 만들기 → 들어 보기 → 이걸로 쓰기
@@ -4635,15 +4640,19 @@ window.mkAi=function(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.s
   _vcMake(key,{}).catch(function(){}); };
 /* 한 줄 만들기 — 하객 맞이는 읽는 사람의 목소리 · 입장 인사는 문장마다 번갈아(한 파일로 잇는다) · 다듬기(_recProcess)를 거쳐 그 자리 파일로 올린다 */
 function _vcArgs(key,o){ o=o||{}; var prev=(S.up||{})[key]||{}; return {t:_recNeed(key),tempo:_tNorm(o.tempo||_tKey(key)||prev.tempo||'1'),pause:_pNorm(o.pause||_pKey(key))}; }   /* [VOICE_TUNE] 읽는 분 값 */   /* [AI_PILL] _vcMake 와 신랑 · 신부 미리 만들기가 같은 값을 쓴다 */
-function _vcMake(key,o){ o=o||{}; if(key==='g0') delete S.g0Moved;   /* [R8-20] 다시 만들면 알림을 걷는다 */ var t=_recNeed(key), prev=(S.up||{})[key]||{}, tempo=_tNorm(o.tempo||_tKey(key)||prev.tempo||'1'),   /* [TEMPO_STEP] 0.5 ~ 1.5 · 0.05 걸음 */ pause=_pNorm(o.pause||_pKey(key)),   /* [PAUSE_STEP] · [VOICE_TUNE] */   /* [AI_CARD_TIDY] 순간의 «말 빠르기»가 먼저 */ one=key==='entry'?'':_vcLineWho(key), lines=key==='entry'?entryAlt(t).map(function(x){ return [x[0]==='신랑'?'groom':'bride',x[1]]; }):null;
+/* [PLAY_TRUE] 같은 줄을 동시에 두 번 만들지 않는다 — 뒤 부름은 앞 것을 기다린다(업체 글자 두 번 · 올리기 둘이 엉켜 줄 정보를 잃던 것) */
+var VC_MKP={};
+function _vcMake(key,o){ if(VC_MKP[key]) return VC_MKP[key]; var p=_vcMake0(key,o), c=function(){ if(VC_MKP[key]===p) delete VC_MKP[key]; }; VC_MKP[key]=p; p.then(c,c); return p; }
+function _vcMake0(key,o){ o=o||{}; if(key==='g0') delete S.g0Moved;   /* [R8-20] 다시 만들면 알림을 걷는다 */ var t=_recNeed(key), prev=(S.up||{})[key]||{}, tempo=_tNorm(o.tempo||_tKey(key)||prev.tempo||'1'),   /* [TEMPO_STEP] 0.5 ~ 1.5 · 0.05 걸음 */ pause=_pNorm(o.pause||_pKey(key)),   /* [PAUSE_STEP] · [VOICE_TUNE] */   /* [AI_CARD_TIDY] 순간의 «말 빠르기»가 먼저 */ one=key==='entry'?'':_vcLineWho(key), lines=key==='entry'?entryAlt(t).map(function(x){ return [x[0]==='신랑'?'groom':'bride',x[1]]; }):null;
   MK_UP[key]='make'; MK.aiAt=MK.aiAt||{}; MK.aiAt[key]=Date.now(); MK.aiDur=MK.aiDur||{}; MK.aiDur[key]=Math.min(14,3+t.length*0.03).toFixed(1); if(MK.lineErr) delete MK.lineErr[key]; render();   // [VC_LINE_ERR] · [AI_PILL] 'make' = 만드는 중(올리는 동안은 _mkSendWav 가 다른 값으로 = 저장 중)
   return _vc('make',{key:key,text:t,tempo:tempo,pause:pause,one:one,lines:lines,retempo:!!o.retempo}).then(function(d){ delete MK_UP[key];
     if(!d.ok){ MK.lineErr=MK.lineErr||{}; MK.lineErr[key]=d.error||'만들지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); throw 0; }   /* ★[VC_LINE_ERR 2026-09-28 사장님 «AI로 만들기 눌러도 보내는 중 나오고 변화가 없는데»] 까닭은 화면 맨 위 알림이 아니라 그 줄 아래에(스크롤 위치에서 안 보였다) */
     VC.left=VC.left||{}; VC.left[key]=d.left;
     return _vcProc(d,t,pause).then(function(p2){ var by=d.parts.map(function(pt){ return pt.who; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
         if(by.length===1) _vcAltPut(key,by[0],_vcAltSig(t,tempo,pause),p2.wav);   // [AI_PILL] 만든 목소리도 들고 있다(신랑 ↔ 신부 오가도 바로)
-        _mkSendWav(key,p2.wav,URL.createObjectURL(p2.wav),'ai','AI',{by:by.length===1?by[0]:by,tempo:tempo,pause:pause,tx:_txSig(t)});
-        if(by.length===1){ var _ow=by[0]==='groom'?'bride':'groom'; _vcAltWarm(key,_ow,t,_tWho(_ow,key),_pWho(_ow,key)); } }); })   // [VOICE_TUNE] 다른 분은 그 분 값으로   // [PV_INTRO] tx = 만든 글의 지문(글을 고치면 «다시 만들어 주세요»)
+        var _sent=_mkSendWav(key,p2.wav,URL.createObjectURL(p2.wav),'ai','AI',{by:by.length===1?by[0]:by,tempo:tempo,pause:pause,tx:_txSig(t)});
+        if(by.length===1){ var _ow=by[0]==='groom'?'bride':'groom'; _vcAltWarm(key,_ow,t,_tWho(_ow,key),_pWho(_ow,key)); }
+        return _sent.then(function(ok){ if(!ok){ MK.lineErr=MK.lineErr||{}; if(!MK.lineErr[key]) MK.lineErr[key]='만든 소리를 저장하지 못했어요 · 다시 눌러 주세요'; render(); throw 0; } }); }); })   // [PLAY_TRUE] 저장이 끝나야 끝   // [VOICE_TUNE] 다른 분은 그 분 값으로   // [PV_INTRO] tx = 만든 글의 지문(글을 고치면 «다시 만들어 주세요»)
     .catch(function(e){ if(e!==0){ delete MK_UP[key]; MK.lineErr=MK.lineErr||{}; MK.lineErr[key]='만든 소리를 받지 못했어요 · 다시 눌러 주세요'; render(); } throw 0; }); }   // [VC_LINE_ERR] 받은 소리를 풀다 실패해도 «보내는 중»에 멈추지 않는다
 /* 받은 소리(parts) → 한 파일 — 이어 붙이고(0.25초 쉼) 다듬어(_recProcess) WAV */
 /* ★★[PAUSE_FIT 2026-10-04 사장님 «문장 사이 쉼 차이가 별로 안 난다 · 격차를 더 벌려야»] 서버 remove_silence_ms 는 «최대 길이»라 모델이 원래 쉬는 만큼보다 길게는 못 늘린다(PAUSE_STEP 주석).
@@ -4786,9 +4795,12 @@ var VT_BAKING={};
 function _vtNeed(key,hard){ var v=(S.up||{})[key]; if(!v||typeof v!=='object'||v.src!=='ai'||(S.vself||{})[key]||!_vcReadyFor(key)) return false; var m=_vtMoment(key); if((S.vkeep||{})[key]) return _upStale(key);   /* [KEEP_LINE] 확정한 줄은 빠르기 · 쉼이 바뀌어도 그대로 */
   if(_upStale(key)||_upPause(key)!==_pKey(key)) return true; return !hard&&_tNorm(v.tempo||'1')!==_tKey(key); }
 function _vtKeys(k,hard){ return _mkItems(k).filter(function(q){ return q.up; }).map(function(q){ return q.up; }).filter(function(key){ return _vtNeed(key,hard); }); }
-function _vtBake(keys){ keys=(keys||[]).filter(function(k){ return !VT_BAKING[k]&&!MK_UP[k]; }); var i=0;
+var VT_FAIL={};   /* [PLAY_TRUE] 방금 실패한 줄은 듣기마다 또 만들지 않는다(30초) — 까닭은 알림으로 */
+function _vtFailed(key){ return VT_FAIL[key]&&Date.now()-VT_FAIL[key]<30000; }
+function _vtBake(keys){ keys=(keys||[]).filter(function(k){ return !(MK_UP[k]&&!VC_MKP[k]); }); var i=0;   /* [PLAY_TRUE] 만드는 중인 줄은 그것을 기다린다(VC_MKP) · 녹음 올리는 중인 줄만 건너뛴다 */
   return new Promise(function(done){ (function nx(){ var key=keys[i++]; if(!key){ done(); return; } if(!_vtNeed(key)){ nx(); return; } VT_BAKING[key]=1;
-    _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)}).then(function(){ delete VT_BAKING[key]; nx(); },function(){ delete VT_BAKING[key]; nx(); }); })(); }); }
+    var fin=function(){ delete VT_BAKING[key]; if(_vtNeed(key)) VT_FAIL[key]=Date.now(); nx(); };
+    _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)}).then(fin,fin); })(); }); }
 function _vtLeave(k){ if(!k||['guest','prevideo','entry'].indexOf(k)<0||!_vcOn()) return; var ks=_vtKeys(k); if(k==='guest'||k==='prevideo') ks=ks.concat(_vtKeys(k==='guest'?'prevideo':'guest').filter(function(x){ return x==='g3'; }));   /* 시작 1분 전(g3)은 두 쪽에 걸친다 */
   if(ks.length) _vtBake(ks); }
 function _vtAllKeys(){ var o=[]; ['guest','prevideo','entry'].forEach(function(k){ _vtKeys(k).forEach(function(x){ if(o.indexOf(x)<0) o.push(x); }); }); return o; }
@@ -4835,7 +4847,7 @@ function _mkUpDelGo(key){ var v=(S.up||{})[key]; if(!v) return;
   var id=v&&v.id; if(EMBED&&id&&!/^local:/.test(id)){ try{ parent.postMessage({type:'momentedit:ritualFileDel', data:{key:key,id:id}}, window.location.origin); }catch(e){} }
   if(id) _rfDel(id); try{ RF_URL[key]&&URL.revokeObjectURL(RF_URL[key]); }catch(e){} delete RF_URL[key]; delete RF_URL[key+'#'];
   S.up[key]=0; _fAt('up.'+key); _persist(); MK.toast='지웠어요 · 이 줄은 스튜디오 나레이션으로 나와요'; render(); }
-function _mkUpDone(d){ var key=d.key; if(!key) return; clearTimeout(MK_UP[key]); delete MK_UP[key];
+function _mkUpDone(d){ var key=d.key; if(!key) return; clearTimeout(MK_UP[key]); delete MK_UP[key]; setTimeout(function(){ _upWaitDone(key,d.ok); },0);   /* [PLAY_TRUE] 아래에서 S.up 을 바꾼 뒤에 푼다 */ if(d.ok) delete VT_FAIL[key];
   var pend=MK_PEND[key]; delete MK_PEND[key];
   if(d.ok){ if(!S.up) S.up={}; S.up[key]=Object.assign({n:String(d.name||'녹음 파일').slice(0,80),id:d.id||'',at:d.at||'',src:pend?pend.src:'file'},(pend&&pend.meta)||{}); /* [VC_LINE_0928] AI 줄은 by · tempo 를 함께 */ _fAt('up.'+key); _persist();
     if(pend&&d.id){ _rfPut(d.id,pend.blob); RF_URL[key]=URL.createObjectURL(pend.blob); RF_URL[key+'#']=d.id; }
@@ -5372,7 +5384,7 @@ window.lsRef=function(k,n){ LS.ref=LS.ref||{}; if((LS.ref[k]||0)===n) return; LS
 var LP={q:[],i:0,cur:null,t:null,paused:false,all:false,tok:0,big:false,el:null,pre:null,range:null,ended:null,lock:null,last:null,stay:null,choose:null,hint:null,hintK:null};   // [CHIP_STAY] stay=칩으로 다시 들은 순간 · [PRACTICE_CHOOSE] choose=«이 순간 바꾸기»를 연 순간 · hint=멈춰 선 까닭
 function _lAud(){
   if(!LP.el){ LP.el=new Audio(); LP.el.preload='auto';
-    LP.el.addEventListener('ended',function(){ if(LP.el._lead){ LP.el._lead=0; var st=LP.q[LP.i]; if(st&&st.src&&!LP.paused){ LP.el.src=st.src; _rateSet(LP.el,(st.up&&st.couple)?_upRate(st.up):1); var p=LP.el.play(); if(p&&p['catch']) p['catch'](_lPlayErr); } return; } _lNext(); });   // [PLAY_LEAD] 1초 빈소리 뒤 첫 줄
+    LP.el.addEventListener('ended',function(){ if(LP.baking&&LP.q[LP.i]===LP.baking&&!LP.el._lead) return;   /* ★[PLAY_TRUE] 만드는 동안 끝난 무음(탭 잠금 풀기)이 그 줄을 건너뛰게 하던 것 */ if(LP.el._lead){ LP.el._lead=0; var st=LP.q[LP.i]; if(st&&st.src&&!LP.paused){ LP.el.src=st.src; _rateSet(LP.el,(st.up&&st.couple)?_upRate(st.up):1); var p=LP.el.play(); if(p&&p['catch']) p['catch'](_lPlayErr); } return; } _lNext(); });   // [PLAY_LEAD] 1초 빈소리 뒤 첫 줄
     LP.el.addEventListener('error',function(){ var st=LP.q[LP.i]; if(st&&st.src&&LP.el.getAttribute('src')){ st.src=null; st.pending=true; _lPaint(); _lTimer(st.ms); } }); }
   return LP.el;
 }
@@ -5425,8 +5437,13 @@ function _lShow(){
   /* ★★[PLAY_FRESH 2026-10-04 사장님 «정한 빠르기 · 쉼이 다른 이벤트 ▶ 에서 적용이 안 되는 걸 몇 번 봤다 · 구조상 절대 그럴 수 없게»]
      소리가 실제로 나가는 이 한 곳에서 막는다 — 두 분 AI 줄이 지금 값(읽는 분의 빠르기 · 쉼 · 글 · 읽는 분)과 다르면 먼저 그 줄을 만들고 튼다.
      종전엔 «들어 보기» · 줄 ▶ 두 입구만 확인해, 전체 듣기 · 다음 줄 · 본식부터 · 연습은 옛 소리를 틀었다. 확정한 줄([KEEP_LINE])은 일부러 그대로 */
-  if(st.up&&!st._fresh&&_vtNeed(st.up)){ var _tk=LP.tok, _st=st; _st._fresh=1; MK.lsBusy=st.k; _lPaint(); render();
-    _vtBake([st.up]).then(function(){ MK.lsBusy=null; if(LP.tok!==_tk||LP.q[LP.i]!==_st) return; var u=_rfUrl(_st.up); if(u) _st.src=u; if(_vtNeed(_st.up)) MK.toast=((MK.lineErr||{})[_st.up])||'이 줄을 새 빠르기 · 쉼으로 만들지 못했어요 · 잠시 뒤 다시 들어 보세요'; render(); _lShow(); }); return; }   /* [PV_ERR_SHOW] 까닭(서버 말)을 그대로 */
+  if(st.up&&!st._tried&&_vtNeed(st.up)&&!_vtFailed(st.up)){ var _tk=LP.tok, _st=st; LP.baking=_st; MK.lsBusy=st.k; _lPaint(); render();
+    _vtBake([st.up]).then(function(){ if(LP.baking===_st) LP.baking=null; MK.lsBusy=null; _st._tried=1;
+      if(_vtNeed(_st.up)) MK.toast=((MK.lineErr||{})[_st.up])||'이 줄을 새 빠르기 · 쉼으로 만들지 못했어요 · 잠시 뒤 다시 들어 보세요';   /* [PV_ERR_SHOW] 까닭(서버 말)을 그대로 */
+      render(); if(LP.tok!==_tk||LP.q[LP.i]!==_st) return; _lShow(); }); return; }
+  /* ★[PLAY_TRUE] 틀기 직전에 그 줄의 지금 파일을 다시 읽는다 — 줄을 세울 때 적어 둔 주소(뒤에서 새로 만든 뒤엔 옛 소리)를 믿지 않는다.
+     글 · 읽는 분이 바뀐 채 만들지 못한 줄은 옛 소리를 틀지 않는다(다른 말이다) — 글만 보이고 넘어간다 */
+  if(st.up){ var _uv=(S.up||{})[st.up]; if(_uv&&typeof _uv==='object'&&_uv.src==='ai'){ if(_upStale(st.up)) st.src=null; else { var _uu=_rfUrl(st.up); if(_uu) st.src=_uu; } } }
   /* ★«② 에서 소리를 틀면(들어 보기 · 줄 ▶ · 칩) 그 쪽 장면도 한 번» 규칙([MK_VID_PLAY] · LP.vidK) 금지 — 2026-10-03 사용자 지시로 삭제 [VID_AUTO_ONLY] · 칩을 누를 때마다 끝난 영상을 다시 틀었다 */
   if(st.src){
     if(LP.lead&&_leadUrl()){ LP.lead=false; a._lead=1; a.src=_leadUrl(); try{ a.playbackRate=1; }catch(e){} var p0=a.play(); if(p0&&p0['catch']) p0['catch'](_lPlayErr); return; }   // [PLAY_LEAD] 처음 줄 앞 1초
@@ -5451,8 +5468,8 @@ function _prHook(st){ _prStop(); if(!PR.on||!PR.stream||!st||!st.talk2||LP.pause
     PR.takes=PR.takes.filter(function(t){ if(t.nm===nm){ try{ URL.revokeObjectURL(t.url); }catch(e){} return false; } return true; });
     PR.takes.push({nm:nm,k:c.k,url:URL.createObjectURL(b),sec:Math.round((Date.now()-c.t0)/1000)}); if(STEPS[idx]&&STEPS[idx].k==='practice'&&!LP.big) render(); };
   try{ mr.start(250); }catch(e){ PR.cur=null; } }
-window.prPlay=function(i){ var t=PR.takes[i]; if(!t) return; _stopAud(); _stopMk(); try{ var a=new Audio(t.url); a.play(); MK.aud=a; }catch(e){} };
-window.prPlayAll=function(){ var i=0; _stopAud(); _stopMk(); (function nx(){ var t=PR.takes[i++]; if(!t) return; try{ var a=new Audio(t.url); MK.aud=a; a.onended=nx; a.play(); }catch(e){} })(); };
+window.prPlay=function(i){ var t=PR.takes[i]; if(!t) return; _stopAud(); _stopMk(); try{ var a=new Audio(); _playLead(a,t.url,1,null); MK.aud=a; }catch(e){} };   // [PLAY_LEAD] 연습 녹음도 1초 뒤
+window.prPlayAll=function(){ var i=0; _stopAud(); _stopMk(); (function nx(){ var t=PR.takes[i++]; if(!t) return; try{ var a=new Audio(); MK.aud=a; if(i===1) _playLead(a,t.url,1,nx); else { a.onended=nx; a.src=t.url; a.play(); } }catch(e){} })(); };   // [PLAY_LEAD] 처음만
 window.prClear=function(){ PR.takes.forEach(function(t){ try{ URL.revokeObjectURL(t.url); }catch(e){} }); PR.takes=[]; render(); };
 /* ★[VOICE_CLONE 4-2] 따라 보기 · AI로 읽어 주기(골라 켜기) — 켜면 연습 재생의 두 분 차례 글을 AI가 읽는다(그 사람의 AI 목소리 · 없으면 스튜디오 기본 목소리).
    처음 켤 때 한 번 알림(글이 음성 업체로 보내진다) · «현장에서» 고른 자리(글 없음)는 읽지 않는다 · 만든 소리는 글이 바뀔 때만 새로(이 기기 IndexedDB) · 한도는 서버가 센다 */

@@ -9158,6 +9158,9 @@ chk 'VC_CARD_A' order-preview.html 3   # ★[VC_CARD_A 2026-10-04 사장님 «�
 chk 'ALT_READY' order-preview.html 5   # ★[ALT_READY 2026-10-04 사장님 «왜 만들지? 이미 만들어져 있어야»] 새로 고친 뒤 · 데우는 중에도 신랑 ↔ 신부 바꾸기에 새로 만들지 않는다
 chk 'ALT_READY' scripts/audit/alt-ready.mjs 1
 chk 'PV_ERR_SHOW' order-preview.html 3   # ★[PV_ERR_SHOW 2026-10-04] 영상 앞 소개 줄도 만들지 못한 까닭을 보인다 · 미리 데우기는 만드는 줄 뒤에
+chk 'PLAY_TRUE' order-preview.html 7   # ★[PLAY_TRUE 2026-10-04 시뮬레이션] 저장이 끝나야 만들기 끝 · 같은 줄 두 번 안 만듦 · 틀기 직전 지금 파일 · 만드는 줄 건너뛰지 않음
+chk 'TA_KEEP' order-preview.html 3   # 글 치는 중 다시 그려도 커서 · 한글 조합 지킴
+chk 'SIM_R1' order-preview.html 10
 nochk '.mk-vstat>span{display:flex;flex-direction:column;gap:2px;padding:10px' order-preview.html   # [VC_CARD_A] 회색 상자 금지 — 2026-10-04 사용자 지시로 삭제
 chk 'TUNE_DOTS' order-preview.html 3
 chk 'PLAY_WIDE' order-preview.html 1   # «이 순간 들어 보기» 전체 폭 · 크림 바탕 둘째 단추
