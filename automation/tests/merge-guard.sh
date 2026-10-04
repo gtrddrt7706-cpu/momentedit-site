@@ -9053,6 +9053,7 @@ chk 'BLUR_TAP' scripts/audit/voice-setup.mjs 1
 chk 'LINE_NO_SEC' order-preview.html 3
 chk 'LINE_NO_SEC' scripts/audit/voice-setup.mjs 2
 # ★★[STEP_NONUM_OP · STEP_COMPACT · VS_LINK_IN_ROW · MK_NO_DROP_LINK · CHIP_NO_AUTOPLAY · VOICE_ONCE · TEMPO_STEP · NOTE_OFF_1003 · MK_FORM_ONE 2026-10-03 사장님] ② 겉틀 묶음
+nochk 'data-fk="mkvprog"' order-preview.html   # [VPROG_OFF 2026-10-04 사장님] «신랑 남음 · 신부 남음» 진행 줄 걷음
 #   걸음 이름 번호 없음(화면 · 문자열 · 마이페이지 «기본 단계») · 순간 쪽 = 접은 걸음 표시(윗선 넷) + 접힌 줄 머리 «하나씩 만들기 ·» + 펼친 첫 줄 걸음 이동 ·
 #   «나레이션 자세히»는 목소리 준비 칩 줄 안 · 순간 쪽 «이 순간 빼기» 없음 · 어느 칩도 소리를 틀지 않는다(크게 보기는 멈춘 채 새 줄) · 예식 흐름 다음 «두 분 목소리 만들기» 쪽 ·
 #   말 빠르기 [−] 0 [＋](±0.3 · 0.8초 뒤 한 번) · 칩 아래 AI 설명 · 입장 «멘트를 바꾸면 …» 없음 · 순간 쪽 한 틀(들어 보기 = 나레이션 두 줄 이상 · 흐름 머리 · 차례 줄 길이 없음).

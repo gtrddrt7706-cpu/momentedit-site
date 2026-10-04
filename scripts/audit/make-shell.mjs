@@ -178,8 +178,8 @@ for (const w of [390, 1280]) {
       cards: document.querySelectorAll('.mk-vpage .mk-vr').length, next: document.getElementById('next').textContent.trim(), pos: (document.querySelector('#mkStrip .mk-pos') || {}).textContent, c: !!document.querySelector('.op-steps-c'),
       inStrip: !!document.querySelector('#mkStrip [data-fk="mkg:_voice"]'), lines: [...document.querySelectorAll('.mk-vpage p')].length }));
     if (SHOTS) await shot(pg, `voice-${lab}-${w}`);
-    const want = lab === 'none' ? '신랑 남음 · 신부 남음' : lab === 'one' ? '신랑 ✓ · 신부 남음' : '신랑 ✓ · 신부 ✓';
-    ok(`${w} [VOICE_ONCE] «두 분 목소리 만들기» 쪽(${lab}) — 제목 · 진행 «${want}» · 사람 카드 둘 · 다음 «다음 · 하객 맞이 안내» · 진행 줄 순간 칸 아님 · 접은 표시`, v.h === '두 분 목소리 만들기' && v.prog === want && v.cards === 2 && v.next === '다음 · 하객 맞이 안내' && !v.inStrip && v.c && /두 분 목소리/.test(v.pos), JSON.stringify(v));
+    const want = undefined;   /* [VPROG_OFF 2026-10-04 사장님] «신랑 남음 · 신부 남음» 진행 줄은 걷었다 — 없어야 한다 */
+    ok(`${w} [VOICE_ONCE] «두 분 목소리 만들기» 쪽(${lab}) — 제목 · 진행 줄 없음 [VPROG_OFF] · 사람 카드 둘 · 다음 «다음 · 하객 맞이 안내» · 진행 줄 순간 칸 아님 · 접은 표시`, v.h === '두 분 목소리 만들기' && v.prog === want && v.cards === 2 && v.next === '다음 · 하객 맞이 안내' && !v.inStrip && v.c && /두 분 목소리/.test(v.pos), JSON.stringify(v));
     if (lab === 'both') ok(`${w} [VOICE_ONCE] 두 분 다 만들었으면 조용한 «준비됐어요» · «나중에 할게요» 없음`, /^두 분 목소리가 준비됐어요/.test(v.one) && !v.later, JSON.stringify(v));
     else ok(`${w} [VOICE_ONCE] 아직이면 설명 한 줄(«각자 1분쯤 …» · «말투는 … 다를 수 있어요») + «나중에 할게요»`, /각자 1분쯤 소리 내어 읽으면/.test(v.one) && /다를 수 있어요/.test(v.one) && v.later, JSON.stringify(v));
     if (lab === 'none') {

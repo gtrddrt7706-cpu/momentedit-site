@@ -4352,7 +4352,7 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
     +'<p class="mk-one">'+(both?'두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))+'에 이 목소리가 쓰여요':'각자 1분쯤 소리 내어 읽으면, 그 목소리로 '+esc(_vsWhere(true))+'를 만들어요. 말투는 실제 목소리와 조금 다를 수 있어요')+'</p>';   /* [NOTE_OFF_1003] 칩 아래에서 걷은 설명은 이 쪽 한 줄로만 */
   if(!st) return h+'<p class="mk-note" role="status">불러오는 중이에요…</p></section>';
   var mark=function(r){ return r?'<span class="mk-vpk ok">✓</span>':'<span class="mk-vpk">남음</span>'; };
-  h+='<p class="mk-vprog" data-fk="mkvprog" role="status" aria-label="신랑 '+(g.ready?'생성':'남음')+' · 신부 '+(b.ready?'생성':'남음')+'"><span aria-hidden="true">신랑 '+mark(g.ready)+' · 신부 '+mark(b.ready)+'</span></p>';
+  /* ★«신랑 남음 · 신부 남음» 진행 줄 금지 — 2026-10-04 사용자 지시로 삭제 [VPROG_OFF] · 각 카드 상태 줄(«목소리 생성 · 날짜» / «동의했어요 · 1분 읽기가 남았어요»)이 같은 말을 한다 */
   if(!both) h+='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';   /* 창(_vsPanel)과 같은 길잡이 */
   h+=_vcPeople(true);
   if(!both) h+='<div class="mk-vlater"><button type="button" class="pk-link" data-fk="mkvlater" onclick="mkVoiceLater()">나중에 할게요</button></div>';
