@@ -1398,6 +1398,30 @@
    "fn": "_vcTempo",
    "mark": "TEMPO_STEP",
    "why": "말 빠르기를 0.7~1.3 · 0.1 걸음으로 받는다(화면 «말 빠르기 [−] 0 [＋]») — 옛것이면 1.2 · 0.8 같은 새 값이 «보통»(1)으로 조용히 만들어진다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcTempo",
+   "mark": "TEMPO_WIDE",
+   "why": "말 빠르기 0.5~1.5(화면 −1.0~+1.0) — 옛것이면 0.7~1.3 에 묶여 끝 값이 덜 빨라·느려진다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcPause",
+   "mark": "PAUSE_STEP",
+   "why": "문장 사이 쉼(remove_silence_ms 150·350·600·900) — 옛것이면 늘 150 이라 쉼 단추가 소리를 안 바꾼다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_rfMailQueue",
+   "mark": "RF_MAIL_THROTTLE",
+   "why": "직접 올린 파일 알림을 코드마다 30분에 한 통으로 묶음 — 옛것이면 올릴 때마다 한 통"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFile",
+   "mark": "RF_MAIL_AI",
+   "why": "AI 가 만든 줄 파일엔 «예식 준비 파일 도착» 메일을 안 보냄 — 옛것이면 AI 줄마다 한 통(1분에 7통)"
   }
  ],
  "fns": {
@@ -1605,6 +1629,8 @@
    "_voiceUpLive",
    "_voicePub",
    "_rfFolderFor",
+   "_rfMailQueue",
+   "_rfMailFlush",
    "handleRitualFile",
    "_rfFileIn",
    "handleRitualFileGet",
@@ -1635,6 +1661,7 @@
    "_vcHash",
    "_vcCached",
    "_vcTempo",
+   "_vcPause",
    "_vcKoNum",
    "_vcNewPhrase",
    "_vcDelVoice",
@@ -2403,7 +2430,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-04 03:15 · 8dd9862d",
+ "_생성": "2026-10-04 11:44 · 4028c6c4",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2592,7 +2619,19 @@
    "b": ""
   },
   {
+   "key": "RFM_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
    "key": "RFOK_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "RFQ_",
    "kind": "state",
    "a": "",
    "b": ""
@@ -2845,5 +2884,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "ce25ce3eba4f"
+ "_표식서명": "99020c9cae28"
 }

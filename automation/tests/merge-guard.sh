@@ -9097,7 +9097,7 @@ nochk "chip('0.9','천천히')" order-preview.html   # ★세 칩(천천히 · �
 chk 'TEMPO_STEP' automation/platform/80_production.gs 3
 chk 'function _vcTempo(v)' automation/platform/80_production.gs 1
 nochk "({ '0.9': 0.9, '1': 1, '1.1': 1.1 })" automation/platform/80_production.gs   # 세 값 목록이면 1.2 가 조용히 1 로
-chk 'TEMPO_STEP' scripts/audit/vc-flow-sim.mjs 3
+chk 'TEMPO_STEP' scripts/audit/vc-flow-sim.mjs 2   # [TEMPO_WIDE 2026-10-04] 범위 검사 이름을 TEMPO_WIDE 로 옮겼다
 chk 'NOTE_OFF_1003' order-preview.html 4
 nochk "ai:'각자 1분쯤 소리 내어 읽으면" order-preview.html   # ★칩 아래 AI 설명 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'멘트를 바꾸면 두 분 목소리 입장 인사도 아래에서 다시 만들어 주세요.'" order-preview.html   # ★금지 — 2026-10-03 사용자 지시로 삭제(R8-03 이 같은 말)
@@ -9108,8 +9108,23 @@ nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
 chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
 chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
-chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 7
+chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 3   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
 chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 10
+# ★[VC_CARD_ONE · VC_WORD_GEN · READ_DLG_TIDY · REC_LEVEL · REC_WARN2 · TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE · TEXT_PLAY_MAKE · PAUSE_STEP · RF_MAIL_AI · RF_MAIL_THROTTLE 2026-10-04 사장님 실기기 시험 묶음]
+chk 'VC_CARD_ONE' order-preview.html 3
+chk 'VC_WORD_GEN' order-preview.html 1
+chk 'READ_DLG_TIDY' order-preview.html 3
+chk 'REC_LEVEL' assets/rec-process.js 2
+chk 'REC_WARN2' assets/rec-process.js 1
+chk 'TEMPO_WIDE' order-preview.html 1
+chk 'TEMPO_PREVIEW' order-preview.html 3
+chk 'TEMPO_BAKE' order-preview.html 5
+chk 'TEXT_PLAY_MAKE' order-preview.html 4
+chk 'PAUSE_STEP' order-preview.html 3
+chk 'PAUSE_STEP' automation/platform/80_production.gs 3
+chk 'TEMPO_WIDE' automation/platform/80_production.gs 1
+chk 'RF_MAIL_AI' automation/platform/80_production.gs 2
+chk 'RF_MAIL_THROTTLE' automation/platform/80_production.gs 3
 if command -v node >/dev/null 2>&1; then node scripts/audit/make-shell.mjs >/dev/null 2>&1; _msh=$?; [ "$_msh" = 1 ] && { echo 'FAIL make-shell: ② 겉틀 · 목소리 · 소리 규칙이 어긋났습니다 — node scripts/audit/make-shell.mjs'; fail=1; }; fi   # 2 = 브라우저 없음
 if command -v node >/dev/null 2>&1; then node scripts/audit/mk-form-one.mjs >/dev/null 2>&1; _mfo=$?; [ "$_mfo" = 1 ] && { echo 'FAIL mk-form-one: ② 순간 쪽이 한 틀이 아닙니다 — TABLE=1 node scripts/audit/mk-form-one.mjs'; fail=1; }; fi
 # ★★[VID_AUTO_ONLY 2026-10-03 사장님 «서는 분 칩을 누르면 영상이 다시 자동 재생 · 다른 곳들도 체크» · «정지/재생 뜨는데 그 기능도 삭제 · 자동 재생되고 1회 재생되면 끝»]
@@ -13867,14 +13882,14 @@ chk 'GUEST_WHO' admin.html 1
 nochk 'data-fk="mkone' order-preview.html
 chk 'VC_CARD_HEAD' order-preview.html 2   # 3) 줄 카드 머리 — ▶ · 제목 + 옅은 한 줄 · 오른쪽 신랑 | 신부 · 번호 없음
 nochk 'data-fk="mkrstart:' order-preview.html   # 13) «이 예시로 시작하기» 걷음
-chk '.mk-vpage .mk-vr{flex-wrap:wrap' order-preview.html 1   # AI 사람 카드는 줄 카드(mk-vc)와 다른 이름 · ★[VOICE_ONCE 2026-10-03] 순간 쪽 .mk-aisec 칸을 걷고 «두 분 목소리 만들기» 쪽(.mk-vpage)으로
+chk '.mk-vpcs .mk-vr{flex-wrap:wrap' order-preview.html 1   # AI 사람 카드는 줄 카드(mk-vc)와 다른 이름 · ★[VOICE_ONCE 2026-10-03] 순간 쪽 .mk-aisec 칸을 걷고 «두 분 목소리 만들기» 쪽(.mk-vpage)으로
 # ★[REC_DLG 2026-09-28 사장님 «작은 창이 열리고 그 안에서 · 지금은 조금 헷갈려»] 녹음 · AI 목소리는 작은 창 하나 — 카드 아래 펼침 금지 · 글 1 → 글 2 저절로 · 글 2 를 받으면 바로 만든다
 chk 'REC_DLG' order-preview.html 6
 chk 'function _recDlgPaint()' order-preview.html 1
 chk "d.id='mkRecDlg'" order-preview.html 1
 chk 'try{ _recDlgPaint(); }catch(e){}' order-preview.html 1
 chk "if(n===1){ R.step=2; render(); return; }" order-preview.html 1
-chk '처음 녹음할 때 브라우저가 마이크를 써도 되는지 물어요' order-preview.html 1
+chk '처음 한 번은 마이크 «허용»을 눌러 주세요' order-preview.html 1   # [READ_DLG_TIDY 2026-10-04] 두 줄 안내 → 한 줄(종전 «처음 녹음할 때 브라우저가 …»)
 chk "if(document.getElementById('mkRecDlg')) return;   // " order-preview.html 1
 nochk '<li class="mk-vx mk-recp"' order-preview.html
 nochk "if(!confirm(" order-preview.html

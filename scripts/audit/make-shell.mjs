@@ -216,17 +216,25 @@ for (const w of [390, 1280]) {
     if (SHOTS) { await pg.evaluate(() => { const g = document.querySelector('.mk-tp'); g && g.scrollIntoView({ block: 'center' }); }); await pg.screenshot({ path: path.join(SHOTS, `tempo-${w}.png`) }); }
     await pg.evaluate(() => { window.__calls.length = 0; });
     await pg.click('[data-fk="mkvtup:guest"]'); await pg.click('[data-fk="mkvtup:guest"]'); await pg.waitForTimeout(300);
-    const mid = await pg.evaluate(() => ({ v: document.querySelector('.mk-tp .tp-v').textContent, s: (S.vtempo || {}).guest, makes: window.__calls.filter((c) => c.op === 'make').length, f: document.activeElement && document.activeElement.getAttribute('data-fk') }));
-    ok(`${w} [TEMPO_STEP] ＋ 두 번 → «+0.2» · 저장 1.2 · 아직 다시 만들지 않음(0.8초 기다림) · 초점은 ＋ 에 남는다`, mid.v === '+0.2' && mid.s === '1.2' && mid.makes === 0 && mid.f === 'mkvtup:guest', JSON.stringify(mid));
-    await pg.waitForTimeout(1600);
+    /* ★[TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04 사장님] 화면 −1.0 ~ +1.0(빠르기 1 + 0.5 × 값) · 누를 때 다시 만들지 않는다(재생 속도로 미리 듣기) · 쪽을 떠날 때 한 번 굽는다 */
+    const mid = await pg.evaluate(() => ({ v: document.querySelector('.mk-tp .tp-v').textContent, s: (S.vtempo || {}).guest, makes: window.__calls.filter((c) => c.op === 'make').length, f: document.activeElement && document.activeElement.getAttribute('data-fk'), rate: _upRate('g0') }));
+    ok(`${w} [TEMPO_WIDE · TEMPO_PREVIEW] ＋ 두 번 → «+0.2» · 저장 1.1 · 다시 만들지 않음 · 미리 듣기 재생 속도 1.1 · 초점은 ＋`, mid.v === '+0.2' && mid.s === '1.1' && mid.makes === 0 && mid.f === 'mkvtup:guest' && Math.abs(mid.rate - 1.1) < 1e-9, JSON.stringify(mid));
+    await pg.waitForTimeout(1200);
+    ok(`${w} [TEMPO_PREVIEW] 기다려도 만들지 않는다(돈 0)`, await pg.evaluate(() => window.__calls.filter((c) => c.op === 'make').length === 0));
+    await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(400);
     const aft = await pg.evaluate(() => window.__calls.filter((c) => c.op === 'make'));
-    ok(`${w} [TEMPO_STEP] 마지막 누름 0.8초 뒤 한 번만 — 만든 AI 줄마다 1.2 · retempo(줄 한도에 안 셈)`, aft.length >= 1 && aft.every((c) => String(c.tempo) === '1.2' && c.retempo === true) && new Set(aft.map((c) => c.key)).size === aft.length, JSON.stringify(aft));
-    await pg.evaluate(() => { window.__calls.length = 0; }); for (let i = 0; i < 8; i++) { const b = await pg.$('[data-fk="mkvtdn:guest"]:not([disabled])'); if (!b) break; await b.click(); }
+    ok(`${w} [TEMPO_BAKE] 쪽을 떠나면 한 번 굽는다 — 만든 AI 줄마다 1.1 · 쉼 350 · retempo`, aft.length >= 1 && aft.every((c) => String(c.tempo) === '1.1' && c.retempo === true) && new Set(aft.map((c) => c.key)).size === aft.length, JSON.stringify(aft));
+    await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(400);
+    await pg.evaluate(() => { window.__calls.length = 0; }); for (let i = 0; i < 25; i++) { const b = await pg.$('[data-fk="mkvtdn:guest"]:not([disabled])'); if (!b) break; await b.click(); }
     await pg.waitForTimeout(200);
     const lo = await pg.evaluate(() => ({ v: document.querySelector('.mk-tp .tp-v').textContent, dn: document.querySelector('[data-fk="mkvtdn:guest"]').disabled, f: document.activeElement && document.activeElement.getAttribute('data-fk'), s: S.vtempo.guest }));
-    ok(`${w} [TEMPO_STEP] 끝(−0.3 · 0.7)에서 − 가 꺼지고 초점은 ＋ 로`, lo.v === '−0.3' && lo.dn && lo.f === 'mkvtup:guest' && lo.s === '0.7', JSON.stringify(lo));
+    ok(`${w} [TEMPO_WIDE] 끝(−1.0 · 0.5)에서 − 가 꺼지고 초점은 ＋ 로`, lo.v === '−1.0' && lo.dn && lo.f === 'mkvtup:guest' && lo.s === '0.5', JSON.stringify(lo));
     await pg.evaluate(() => { S.vtempo.guest = '0.9'; render(); }); await pg.waitForTimeout(200);
-    ok(`${w} [TEMPO_STEP] 옛 초안 0.9 → «−0.1»`, await pg.evaluate(() => document.querySelector('.mk-tp .tp-v').textContent === '−0.1'));
+    ok(`${w} [TEMPO_WIDE] 옛 초안 0.9 → «−0.2»(같은 빠르기 · 새 눈금)`, await pg.evaluate(() => document.querySelector('.mk-tp .tp-v').textContent === '−0.2'));
+    const ps = await pg.evaluate(() => { const o = document.querySelector('[data-fk="mkvpv:guest"]'); return { v: o && o.textContent, lab: o && o.closest('.mk-tp').getAttribute('aria-label') }; });
+    await pg.click('[data-fk="mkvpup:guest"]'); await pg.waitForTimeout(150);
+    const ps2 = await pg.evaluate(() => ({ v: document.querySelector('[data-fk="mkvpv:guest"]').textContent, s: (S.vpause || {}).guest, makes: window.__calls.filter((c) => c.op === 'make').length }));
+    ok(`${w} [PAUSE_STEP] «문장 사이 쉼 [−] 보통 [＋]» · ＋ → 길게(600) · 누를 때는 만들지 않는다`, ps.v === '보통' && ps.lab === '문장 사이 쉼' && ps2.v === '길게' && ps2.s === 600 && ps2.makes === 0, JSON.stringify({ ps, ps2 }));
     ok(`${w} 화면 오류 0(말 빠르기)`, !errs.length, errs.join(' | '));
     await ctx.close(); }
 }

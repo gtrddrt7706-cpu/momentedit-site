@@ -71,7 +71,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const rp1 = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
   await pg.evaluate(() => { VC.read.take[1] = { wav: __tone(6), dur: 6 }; mkVcStep(2); }); await pg.waitForTimeout(200);
   const rp = rp1 + ' || ' + await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
-  ok(W + ' 8-2 E — 한 번에 한 글(글 1 → 글 2) · 둘째 글 끝에 서버 확인 문장 · 파일 올리기 없음 안내 [REC_DLG]', /글 1/.test(rp1) && !/느티나무/.test(rp1) && /글 2/.test(rp) && /여러분도 그런 곳이 하나쯤 있으신가요\? 오늘은 구월 이십팔일, 파란 우산과 노란 연필\./.test(rp) && /파일은 올릴 수 없어요/.test(rp) && !(await pg.evaluate(() => !!document.querySelector('#mkRecDlg [data-fk^="mkup"],#mkRecDlg [data-fk="mkrecfile"]'))), rp.slice(0, 300));
+  ok(W + ' 8-2 E — 한 번에 한 글(글 1 → 글 2) · 둘째 글 끝에 서버 확인 문장 · 파일 올리기 없음 안내 [REC_DLG]', /글 1/.test(rp1) && !/느티나무/.test(rp1) && /글 2/.test(rp) && /여러분도 그런 곳이 하나쯤 있으신가요\? 오늘은 구월 이십팔일, 파란 우산과 노란 연필\./.test(rp) && !/파일은 올릴 수 없어요/.test(rp) /* ★[READ_DLG_TIDY 2026-10-04] 그 한 줄을 걷었다(파일 단추가 없다는 것은 아래가 잰다) */ && !(await pg.evaluate(() => !!document.querySelector('#mkRecDlg [data-fk^="mkup"],#mkRecDlg [data-fk="mkrecfile"]'))), rp.slice(0, 300));
   await full(pg, W, 's3-read');
   // 두 글이 짧으면(합쳐 20초 안) 만들기 전에 멈춘다
   await pg.evaluate(() => { VC.read.take[1] = { wav: __tone(6), dur: 6 }; VC.read.take[2] = { wav: __tone(7), dur: 7 }; render(); }); await pg.waitForTimeout(200);
@@ -88,19 +88,23 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 만든 뒤 창이 «만들기» 걸음에서 «목소리를 만들었어요» · 채운 줄 수 · [확인] [REC_DLG]', /목소리를 만들었어요/.test(dn) && /2줄을 이 목소리로 채웠어요/.test(dn) && /확인/.test(dn), dn.slice(0, 200));
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);   /* [VOICE_ONCE] 줄 카드는 순간 쪽에 */
-  const tools = await pg.evaluate(() => { const c = [...document.querySelectorAll('.mk-vcards .mk-vr')].find((li) => li.querySelector('[data-fk="mkairedo:g0"]')); return c ? c.textContent : ''; });
-  ok(W + ' 8-2 5) AI 줄 — 다시 만들기(«n번 남음» 없음 [VC_NO_COUNT]) · 빠르기는 칸 머리 «말 빠르기» 한 줄 [AI_CARD_TIDY] (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', !/천천히/.test(tools) && /이 줄 다시 만들기/.test(tools) && !/번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools) && !/들어 보기/.test(tools) && await pg.evaluate(() => !!document.querySelector('[data-fk="mkvtdn:guest"]') && !document.querySelector('[data-fk^="mkvtempo:"]') && !document.querySelector('[data-fk^="mkaitempo:"]')), tools);   /* ★[TEMPO_STEP 2026-10-03] 세 칩(mkvtempo) → «말 빠르기 [−] 0 [＋]» */
+  const tools = await pg.evaluate(() => { const c = [...document.querySelectorAll('.mk-vcards .mk-vr')].find((li) => li.querySelector('[data-fk="mkvpl:g0"]') && li.querySelector('[data-fk="mkupdel:g0"]')); return c ? c.textContent : ''; });   /* [TEXT_PLAY_MAKE 2026-10-04] «이 줄 다시 만들기»가 없어져 ▶ · 지우기로 줄을 찾는다 */
+  ok(W + ' 8-2 5) AI 줄 — 다시 만들기(«n번 남음» 없음 [VC_NO_COUNT]) · 빠르기는 칸 머리 «말 빠르기» 한 줄 [AI_CARD_TIDY] (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', !/천천히/.test(tools) && !/이 줄 다시 만들기/.test(tools) /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «있다» → 없다(같은 글이면 캐시라 더하는 것이 없었다 · 고친 줄은 ▶ 가 만든다) */ && !/번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools) && !/들어 보기/.test(tools) && await pg.evaluate(() => !!document.querySelector('[data-fk="mkvtdn:guest"]') && !document.querySelector('[data-fk^="mkvtempo:"]') && !document.querySelector('[data-fk^="mkaitempo:"]')), tools);   /* ★[TEMPO_STEP 2026-10-03] 세 칩(mkvtempo) → «말 빠르기 [−] 0 [＋]» */
   ok(W + ' 배지 «AI로 만들었어요» · 녹음 줄엔 [AI로 만들기](그 줄만)', await pg.evaluate(() => /AI로 만들었어요/.test(document.querySelector('.mk-vcards').textContent) && !!document.querySelector('[data-fk="mkai:g2"]')));
   await pg.click('[data-fk="mkai:g2"]'); await pg.waitForTimeout(2500);
   ok(W + ' 녹음 줄을 AI로 → 녹음은 [되돌리기]로 남는다', await pg.evaluate(() => S.up.g2.src === 'ai' && S.upPrev && S.upPrev.g2 && S.upPrev.g2.src === 'rec' && !!document.querySelector('[data-fk="mkaiback:g2"]')));
   await pg.click('[data-fk="mkaiback:g2"]'); await pg.waitForTimeout(300);
   ok(W + ' [되돌리기] → 녹음으로 돌아간다', await pg.evaluate(() => S.up.g2.src === 'rec'));
-  await pg.click('[data-fk="mkvtdn:guest"]'); await pg.waitForTimeout(2500);   /* [AI_CARD_TIDY] 순간 머리 «말 빠르기» · ★[TEMPO_STEP] − 한 번 = 0.9(0.8초 뒤 한 번 만든다) */
-  ok(W + ' 빠르기만 바꾸면 retempo 로(줄 한도에 안 셈)', await pg.evaluate(() => S.up.g0.tempo === '0.9' && __calls.filter((c) => c === 'make:g0').length >= 2));
-  await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkairedo:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
+  /* ★[TEMPO_BAKE 2026-10-04] 종전 «− 한 번 = 0.9 · 0.8초 뒤 다시 만든다» → 누를 때는 안 만든다 · 쪽을 떠날 때 한 번 굽는다(0.95 · 화면 −0.1) */
+  await pg.click('[data-fk="mkvtdn:guest"]'); await pg.waitForTimeout(600);
+  const n0 = await pg.evaluate(() => __calls.filter((c) => c === 'make:g0').length);
+  await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(2500); await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);
+  ok(W + ' 빠르기만 바꾸면 누를 때는 안 만들고 · 쪽을 떠날 때 retempo 로 한 번(줄 한도에 안 셈) [TEMPO_BAKE]', await pg.evaluate((n0) => S.up.g0.tempo === '0.95' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, n0));
+  await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkvpl:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
   /* ★[VC_LINE_ERR] 줄 만들기가 실패하면 «보내는 중»에 멈추지 않고 그 줄 아래에 까닭 */
-  await pg.evaluate(() => { window.__makeFail = true; }); await pg.click('[data-fk="mkairedo:g0"]'); await pg.waitForTimeout(800);
-  const le = await pg.evaluate(() => { const li = document.querySelector('[data-fk="mkairedo:g0"]') && document.querySelector('[data-fk="mkairedo:g0"]').closest('li'); return { busy: !!MK_UP.g0, err: li ? ((li.querySelector('.mk-exw') || {}).textContent || '') : '' }; });
+  /* [TEXT_PLAY_MAKE] 실패 길은 «고친 줄의 ▶»(그 줄을 먼저 만든다)로 연다 */
+  await pg.evaluate(() => { window.__makeFail = true; S.vtext = S.vtext || {}; S.vtext.g0 = _recNeed('g0') + ' 고침'; render(); }); await pg.click('[data-fk="mkvpl:g0"]'); await pg.waitForTimeout(800);
+  const le = await pg.evaluate(() => { const li = document.querySelector('[data-fk="mkvpl:g0"]') && document.querySelector('[data-fk="mkvpl:g0"]').closest('li'); return { busy: !!MK_UP.g0, err: li ? ((li.querySelector('.mk-exw') || {}).textContent || '') : '' }; });
   await pg.evaluate(() => { window.__makeFail = false; });
   ok(W + ' 줄 만들기 실패 → «보내는 중»에 멈추지 않고 그 줄 아래 까닭 [VC_LINE_ERR]', !le.busy && /만들지 못했어요/.test(le.err), JSON.stringify(le));
   ok(W + ' AI 줄에 «이 줄은 직접 녹음할게요» 단추가 없다 [VP_NO_DIRECT]', await pg.evaluate(() => !document.querySelector('[data-fk^="mkaiself:"]')));
