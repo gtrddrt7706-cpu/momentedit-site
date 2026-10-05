@@ -14300,3 +14300,9 @@ chk 'GUEST_ALL_G3' order-preview.html 2
 chk 'function _lGuestTail()' order-preview.html 1
 chk 'GUEST_ALL_G3' scripts/audit/turn-gap.mjs 1
 :
+# ★[LINE_EVEN 2026-10-05 사장님 «따로 입력한 줄의 읽는 속도 · 쉼이 윗줄과 따로 논다»] 섞인 줄 — 줄마다 문장 사이 쉼 · 줄끼리 빠르기(높이 그대로) · 옛 방식 줄은 머리 단추로 알림
+chk 'LINE_EVEN' order-preview.html 5
+chk 'function _wsola(x,sr,f)' order-preview.html 1
+chk 'function _lineEven(chs,sr,texts)' order-preview.html 1
+chk 'LINE_EVEN' scripts/audit/line-even.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/line-even.mjs >/dev/null 2>&1; _le=$?; [ "$_le" = 1 ] && { echo 'FAIL line-even: 섞인 줄의 빠르기 · 쉼 맞춤이 어긋났습니다 — node scripts/audit/line-even.mjs'; fail=1; }; fi

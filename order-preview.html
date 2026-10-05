@@ -4858,9 +4858,9 @@ function _vcMake0(key,o){ o=o||{}; if(key==='g0') delete S.g0Moved;   /* [R8-20]
   return _vc('make',{key:key,text:t,tempo:tempo,pause:pause,one:one,lines:lines,retempo:!!o.retempo}).then(function(d){   /* [SIM_R2] «만드는 중»은 받은 소리를 다듬는 동안에도 — 그 틈에 신랑 ↔ 신부를 누르면 옛 분 소리로 채워졌다 */
     if(!d.ok){ delete MK_UP[key]; MK.lineErr=MK.lineErr||{}; MK.lineErr[key]=d.error||'만들지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); throw 0; }   /* ★[VC_LINE_ERR 2026-09-28 사장님 «AI로 만들기 눌러도 보내는 중 나오고 변화가 없는데»] 까닭은 화면 맨 위 알림이 아니라 그 줄 아래에(스크롤 위치에서 안 보였다) */
     VC.left=VC.left||{}; VC.left[key]=d.left;
-    return _vcProc(d,t,pause,mx?{turns:_slTurns(key),onRaw:function(r){ VC_RAW[key]={sig:_slRawSig(key,t,tempo,pause),chs:r.chs,sr:r.sr,n:r.n}; }}:null).then(function(p2){ var by=d.parts.map(function(pt){ return pt.who; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
+    return _vcProc(d,t,pause,mx?{turns:_slTurns(key),texts:(lines||[]).map(function(l){ return l[1]; }),onRaw:function(r){ VC_RAW[key]={sig:_slRawSig(key,t,tempo,pause),chs:r.chs,sr:r.sr,n:r.n}; }}:null).then(function(p2){ var by=d.parts.map(function(pt){ return pt.who; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
         if(by.length===1) _vcAltPut(key,by[0],_vcAltSig(t,tempo,pause),p2.wav);   // [AI_PILL] 만든 목소리도 들고 있다(신랑 ↔ 신부 오가도 바로)
-        delete MK_UP[key]; var _sent=_mkSendWav(key,p2.wav,URL.createObjectURL(p2.wav),'ai','AI',{by:by.length===1?by[0]:by,tempo:tempo,pause:pause,tx:_txSig(t),wq:_slKeyOk(key)?_slWhoSig(key):undefined,tq:mx?_slTurnSig(key):undefined});   // [LINE_SPLIT] 만든 때의 읽는 분 차례 · [TURN_GAP] 넘기는 쉼
+        delete MK_UP[key]; var _sent=_mkSendWav(key,p2.wav,URL.createObjectURL(p2.wav),'ai','AI',{by:by.length===1?by[0]:by,tempo:tempo,pause:pause,tx:_txSig(t),wq:_slKeyOk(key)?_slWhoSig(key):undefined,tq:mx?_slTurnSig(key):undefined,pf:mx?LINE_EVEN_V:undefined});   /* [LINE_EVEN] 섞인 줄은 이 방식으로 만든 표시 */   // [LINE_SPLIT] 만든 때의 읽는 분 차례 · [TURN_GAP] 넘기는 쉼
         if(by.length===1){ var _ow=by[0]==='groom'?'bride':'groom'; _vcAltWarm(key,_ow,t,_tWho(_ow,key),_pWho(_ow,key)); }
         return _sent.then(function(ok){ if(!ok){ MK.lineErr=MK.lineErr||{}; if(!MK.lineErr[key]) MK.lineErr[key]='만든 소리를 저장하지 못했어요 · 다시 눌러 주세요'; render(); throw 0; } }); }); })   // [PLAY_TRUE] 저장이 끝나야 끝   // [VOICE_TUNE] 다른 분은 그 분 값으로   // [PV_INTRO] tx = 만든 글의 지문(글을 고치면 «다시 만들어 주세요»)
     .catch(function(e){ if(MK_UP[key]==='make') delete MK_UP[key]; if(e!==0){ delete MK_UP[key]; MK.lineErr=MK.lineErr||{}; MK.lineErr[key]='만든 소리를 받지 못했어요 · 다시 눌러 주세요'; render(); } throw 0; }); }   // [VC_LINE_ERR] 받은 소리를 풀다 실패해도 «보내는 중»에 멈추지 않는다
@@ -4878,10 +4878,33 @@ function _gapFit(x,sr,n,sec){ if(!n||!sec) return x; var fr=Math.max(1,Math.roun
   var edge=Math.round(sr*0.03), want=Math.round(sec*sr), parts=[], at=0, tot=0;
   runs.forEach(function(r){ var s0=r[0]*fr, s1=r[1]*fr; parts.push(x.subarray(at,s0+edge)); parts.push(new Float32Array(Math.max(0,want-2*edge))); at=s1-edge; });
   parts.push(x.subarray(at)); parts.forEach(function(p){ tot+=p.length; }); var y=new Float32Array(tot), o=0; parts.forEach(function(p){ y.set(p,o); o+=p.length; }); return y; }
+/* ★★[LINE_EVEN 2026-10-05 사장님 «이 첫걸음을 … 이 대사 부분만 따로 입력했는데 윗쪽 대사 속도 · 쉼이랑 아래 따로 작성한 대본의 읽음 속도 · 쉼이 일치하지 않고 따로 논다»]
+   줄을 여러 분이 나눠 읽으면(입장 인사 · 하객 맞이 · 식전 영상 소개의 섞인 줄) 업체가 줄마다 따로 읽어 이어 붙인다. 원인 둘 —
+   ① 문장 사이 쉼(PAUSE_FIT)을 조각이 «하나»일 때만 맞췄다 — 줄 사이는 고른 쉼(약 1.4초)인데 한 줄 안 문장 사이는 업체 그대로(약 0.3 ~ 0.5초)
+   ② 줄마다 말투가 달라 빠르기가 달랐다(«!»로 끝나는 짧은 문장은 빨라진다) — 이어 붙일 때 그대로 남았다
+   대책: ①조각마다 그 줄 글의 문장 수로 문장 사이 쉼을 맞춘다 ②조각마다 말소리 빠르기(글자 ÷ 소리 난 시간)를 재서 가운데 값에 맞춰 높이는 그대로 길이만 늘이거나 줄인다(±12% 안 · 6% 넘게 다를 때만).
+   업체에 다시 묻지 않는다(돈이 안 든다) · 옛 방식으로 만든 섞인 줄은 머리 단추가 «목소리 만들기»로 알린다(LINE_EVEN_V · 서버가 같은 글 소리를 들고 있어 다시 만들어도 새 비용 없음) */
+var LINE_EVEN_V=1;
+function _sylN(t){ t=String(t||''); var k=(t.match(/[가-힣]/g)||[]).length, w=(t.match(/[A-Za-z]+/g)||[]).reduce(function(a,x){ return a+Math.max(1,Math.round(x.length/3)); },0), d=(t.match(/[0-9]/g)||[]).length; return k+w+d; }   // 읽는 소리 마디 수(한글 글자 · 영문 대략 · 숫자)
+function _voicedSec(x,sr){ var fr=Math.max(1,Math.round(sr*0.02)), nf=Math.floor(x.length/fr), rms=[]; for(var f=0;f<nf;f++){ var q=0; for(var j=f*fr;j<(f+1)*fr;j++) q+=x[j]*x[j]; rms.push(Math.sqrt(q/fr)); }
+  var so=rms.slice().sort(function(a,b){ return a-b; }), thr=Math.max(Math.pow(10,-45/20),(so[Math.floor(so.length*0.1)]||0)*3), v=0; rms.forEach(function(r){ if(r>thr) v++; }); return v*fr/sr; }
+/* 높이를 그대로 두고 길이만 바꾼다(WSOLA · 30ms 창 · 반씩 겹침 · ±10ms 안에서 가장 닮은 자리) — f = 새 길이 ÷ 옛 길이 */
+function _wsola(x,sr,f){ if(!(f>0)||Math.abs(f-1)<0.01||x.length<sr*0.2) return x;
+  var N=Math.max(64,Math.round(sr*0.03)), Hs=Math.floor(N/2), Ha=Hs/f, tol=Math.round(sr*0.01), w=new Float32Array(N); for(var i=0;i<N;i++) w[i]=0.5-0.5*Math.cos(2*Math.PI*i/(N-1));
+  var outN=Math.ceil(x.length*f)+N, y=new Float32Array(outN), ws=new Float32Array(outN), prev=0, k=0, step=4;
+  for(;;k++){ var o=k*Hs; if(o+N>outN) break; var nom=Math.round(k*Ha), best=nom;
+    if(k>0){ var nat=prev+Hs, bs=-1e30; for(var dlt=-tol;dlt<=tol;dlt+=2){ var pos=nom+dlt; if(pos<0||pos+N>x.length) continue; var c=0; for(var j=0;j<N;j+=step) c+=x[pos+j]*(nat+j<x.length?x[nat+j]:0); if(c>bs){ bs=c; best=pos; } } }
+    if(best+N>x.length) break; for(var j2=0;j2<N;j2++){ y[o+j2]+=x[best+j2]*w[j2]; ws[o+j2]+=w[j2]; } prev=best; }
+  var end=Math.min(outN,k*Hs+Hs); for(var i2=0;i2<end;i2++) if(ws[i2]>1e-3) y[i2]/=ws[i2]; return y.subarray(0,Math.min(end,Math.round(x.length*f))); }
+function _lineEven(chs,sr,texts){ if(!texts||texts.length!==chs.length||chs.length<2) return chs;
+  var r=chs.map(function(c,i){ var v=_voicedSec(c,sr), n=_sylN(texts[i]); return (v>0.3&&n>=3)?n/v:0; }), ok=r.filter(function(x){ return x>0; }).sort(function(a,b){ return a-b; }); if(ok.length<2) return chs;
+  var mid=ok[Math.floor(ok.length/2)]; if(ok.length%2===0) mid=(ok[ok.length/2-1]+ok[ok.length/2])/2;
+  return chs.map(function(c,i){ if(!r[i]) return c; var f=r[i]/mid; if(Math.abs(f-1)<0.06) return c; f=Math.min(1.12,Math.max(0.88,f)); return _wsola(c,sr,f); }); }   // f>1 = 빠른 줄 → 길게
 function _vcProc(d,t,pause,o){ var AC=window.AudioContext||window.webkitAudioContext, ac=new AC(), gs=PAUSE_SEC[pause]||0;   // [PAUSE_FIT] · o = [TURN_GAP] {turns, onRaw}
   return Promise.all(d.parts.map(function(pt){ var bin=atob(pt.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return new Promise(function(ok,no){ var r=ac.decodeAudioData(u.buffer,ok,no); if(r&&r.then) r.then(ok,no); }); }))
     .then(function(bufs){ try{ ac.close(); }catch(e){} var sr=bufs[0].sampleRate, gap=Math.round(sr*(bufs.length>1&&gs?gs:0.25)), chs=bufs.map(function(b){ return b.getChannelData(0); });
-      if(chs.length===1&&gs) chs[0]=_gapFit(chs[0],sr,_gapN(t),gs);   // [PAUSE_FIT] 한 조각 = 그 안의 문장 사이 · 여러 조각(입장 인사) = 조각 사이
+      if(chs.length===1&&gs) chs[0]=_gapFit(chs[0],sr,_gapN(t),gs);
+      else if(chs.length>1&&o&&o.texts&&o.texts.length===chs.length){ if(gs) chs=chs.map(function(c,i){ return _gapFit(c,sr,_gapN(o.texts[i]),gs); }); chs=_lineEven(chs,sr,o.texts); }   // [LINE_EVEN] 줄마다 문장 사이 쉼 · 줄끼리 빠르기   // [PAUSE_FIT] 한 조각 = 그 안의 문장 사이 · 여러 조각(입장 인사) = 조각 사이
       if(o&&o.onRaw) try{ o.onRaw({chs:chs.slice(),sr:sr,n:chs.length}); }catch(e){}   // [TURN_GAP] 이 자리 들어 보기용 — 받은 조각을 이 기기에
       var tn=(o&&o.turns)||[], gp=[]; for(var bi0=0;bi0<chs.length-1;bi0++){ if(tn[bi0]!=null){ chs[bi0]=_edgeTrim(chs[bi0],sr,'end'); chs[bi0+1]=_edgeTrim(chs[bi0+1],sr,'start'); gp.push(Math.round(sr*_turnSec(tn[bi0],gs||0.25))); } else gp.push(gap); }   // [TURN_GAP] 고른 자리만 빈소리를 걷고 고른 길이로
       var n=chs.reduce(function(a,c){ return a+c.length; },0)+gp.reduce(function(a,g){ return a+g; },0), x=new Float32Array(n), at=0;
@@ -5016,7 +5039,7 @@ function _rateLive(){ try{ if(MK.aud&&MK.audKey) _rateSet(MK.aud,_upRate(MK.audK
 /* [TEMPO_BAKE] 구울 줄 — AI 로 만든 줄 가운데 글 · 읽는 분이 바뀌었거나(stale) 빠르기 · 쉼이 고른 값과 다른 것. hard = 미리 듣기로 못 메우는 것(글 · 사람 · 쉼) */
 var VT_BAKING={};
 function _vtNeed(key,hard,pill){ var v=(S.up||{})[key]; if(!v||typeof v!=='object'||v.src!=='ai'||(S.vself||{})[key]||!_vcReadyFor(key)) return false; var m=_vtMoment(key); if((S.vkeep||{})[key]) return _upStale(key);   /* [KEEP_LINE] 확정한 줄은 빠르기 · 쉼이 바뀌어도 그대로 */
-  if(_upStale(key)||_upPause(key)!==_pKey(key)) return true; if(pill&&_slKeyOk(key)&&(v.tq||'')!==_slTurnSig(key)) return true;   /* [TURN_GAP] 넘기는 쉼을 바꾼 줄 — [TURN_NO_AUTOMAKE] 머리 단추(«목소리 만들기»)만 알린다 · 쪽을 떠나거나 저장할 때 저절로 굽지 않는다 */ return !hard&&_tNorm(v.tempo||'1')!==_tKey(key); }
+  if(_upStale(key)||_upPause(key)!==_pKey(key)) return true; if(pill&&_slKeyOk(key)&&(v.tq||'')!==_slTurnSig(key)) return true; if(pill&&_slKeyOk(key)&&(key==='entry'||_slMixed(key))&&v.pf!==LINE_EVEN_V) return true;   /* [LINE_EVEN] 옛 방식으로 만든 섞인 줄 — 머리 단추만 알린다(TURN_NO_AUTOMAKE 와 같게) */   /* [TURN_GAP] 넘기는 쉼을 바꾼 줄 — [TURN_NO_AUTOMAKE] 머리 단추(«목소리 만들기»)만 알린다 · 쪽을 떠나거나 저장할 때 저절로 굽지 않는다 */ return !hard&&_tNorm(v.tempo||'1')!==_tKey(key); }
 function _vtKeys(k,hard){ return _mkItems(k).filter(function(q){ return q.up; }).map(function(q){ return q.up; }).filter(function(key){ return _vtNeed(key,hard); }); }
 var VT_FAIL={};   /* [PLAY_TRUE] 방금 실패한 줄은 듣기마다 또 만들지 않는다(30초) — 까닭은 알림으로 */
 function _vtFailed(key){ return VT_FAIL[key]&&Date.now()-VT_FAIL[key]<30000; }
