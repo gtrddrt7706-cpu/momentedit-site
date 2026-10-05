@@ -48,8 +48,9 @@ try {
     ok(`${w} C 연습 방법 둘(직접 · AI 로 먼저) · 처음엔 «직접» [PR_MODE]`, m0.n === 2 && m0.on === 'prm:self', JSON.stringify(m0));
     // 직접 — 말하는 차례 안내 + 막대 · AI 안 부름
     await pg.evaluate(() => { prFrom('vow'); }); await wait(500);
-    const d0 = await pg.evaluate(() => { const j = LP.q.findIndex((x, i) => i >= LP.i && x.talk2); if (j > -1) { LP.i = j; _lShow(); } const f = document.getElementById('lsFull'); return { cue: (f.querySelector('.lf-cue') || {}).textContent || '', bar: !!f.querySelector('.lf-tbar'), calls: window.__vcCalls.length }; });
+    const d0 = await pg.evaluate(() => { const j = LP.q.findIndex((x, i) => i >= LP.i && x.talk2); if (j > -1) { LP.i = j; _lShow(); } const f = document.getElementById('lsFull'); const kids = [...f.querySelectorAll('.lf-lab.who, .lf-cue, .lf-txt, .lf-tbar, .lf-ref')].map((e) => e.className.split(' ')[0] + (e.classList.contains('who') ? '.who' : '')); return { cue: (f.querySelector('.lf-cue') || {}).textContent || '', bar: !!f.querySelector('.lf-tbar'), calls: window.__vcCalls.length, order: kids.join('>'), chips: f.querySelectorAll('[data-fk^="lfr:"]').length }; });
     ok(`${w} C «직접» — 말하는 차례에 «…소리 내어 읽어 …» 안내 · 남은 시간 막대 · AI 안 부름 [PR_CUE]`, /소리 내어/.test(d0.cue) && d0.bar && d0.calls === 0, JSON.stringify(d0));
+    ok(`${w} C 말하는 차례 순서 = 누구 차례 → 할 일 → 글 → 남은 시간 → 글의 출처 · 연습 중 예시 번호 칩 없음 [PR_ORDER]`, /^lf-lab\.who>lf-cue>lf-txt>lf-tbar(>lf-ref)*$/.test(d0.order) && d0.chips === 0, JSON.stringify(d0));
     await pg.evaluate(() => lsStop()); await wait(300);
     // AI 로 먼저 — 처음엔 알림
     await pg.click('[data-fk="prm:ai"]'); await wait(200);
@@ -58,6 +59,12 @@ try {
     await pg.click('[data-fk="prmyes"]'); await wait(200);
     const a3 = await pg.evaluate(() => ({ mode: PT.mode, on: document.querySelector('.pr-mode [aria-checked="true"]').getAttribute('data-fk'), keep: localStorage.getItem('me_pr_mode') }));
     ok(`${w} C 알림에서 «AI 목소리로 듣기» → AI 로 먼저(이 기기에 기억)`, a3.mode === 'ai' && a3.on === 'prm:ai' && a3.keep === 'ai', JSON.stringify(a3));
+    // [PR_ORDER] 라디오는 화살표로 옮긴다
+    await pg.focus('[data-fk="prm:ai"]'); await pg.keyboard.press('ArrowLeft'); await wait(200);
+    const k1 = await pg.evaluate(() => ({ mode: PT.mode, foc: document.activeElement && document.activeElement.getAttribute('data-fk') }));
+    await pg.keyboard.press('ArrowRight'); await wait(200);
+    const k2 = await pg.evaluate(() => ({ mode: PT.mode, foc: document.activeElement && document.activeElement.getAttribute('data-fk') }));
+    ok(`${w} C 연습 방법은 화살표로 옮긴다 · 포커스도 따라간다 [PR_ORDER]`, k1.mode === 'self' && k1.foc === 'prm:self' && k2.mode === 'ai' && k2.foc === 'prm:ai', JSON.stringify({ k1, k2 }));
     await pg.evaluate(() => { LP.lead = false; window.__srcs = []; prFrom('vow'); }); await wait(500);
     await pg.evaluate(() => { const j = LP.q.findIndex((x, i) => i >= LP.i && x.talk2); if (j > -1) { LP.lead = false; LP.i = j; _lShow(); } }); await wait(100);
     const a4 = await pg.evaluate(() => ({ cue: (document.querySelector('#lsFull .lf-cue') || {}).textContent || '' }));
