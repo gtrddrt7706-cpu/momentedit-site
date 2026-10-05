@@ -76,6 +76,8 @@ for (const [W, mob] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => { _stopMk(); });
   await pg.click('[data-fk="mksltn:g0:1"]'); await pg.waitForTimeout(200);
   ok(W + ' 다시 누르면 접힌다', await pg.evaluate(() => !document.querySelector('[data-fk^="mksltd:g0:1:"]') && document.querySelector('[data-fk="mksltn:g0:1"]').getAttribute('aria-expanded') === 'false'));
+  const ga = await pg.evaluate(() => new Promise((res) => { const lab = _mpLab('guest'); _lStart(['guest'], false); setTimeout(() => { const q = LP.q.map((x) => x.bridge ? 'B:' + x.txt : (x.up || x.k)); lsStop(); const pq = _lSteps(ENG, ['prevideo']).map((x) => x.up || x.k); res({ lab, q, pv: RitualOpen.onOf(S, 'prevideo'), pq }); }, 400); }));
+  ok(W + ' 하객 맞이 «전체 듣기»는 카드 넷 다 — … 5분 전 → «식전 영상이 흐른 뒤» → 1분 전 · «4줄 이어서» [GUEST_ALL_G3]', ga.pv && /4줄 이어서/.test(ga.lab) && ga.q.slice(-3).join('|') === 'g2|B:식전 영상이 흐른 뒤|g3' && ga.pq.indexOf('g3') > -1, JSON.stringify(ga));
   ok(W + ' 가로 넘침 없음', await pg.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
   ok(W + ' pageerror 0', errs.length === 0, errs.join(' | ').slice(0, 300));
   await ctx.close();
