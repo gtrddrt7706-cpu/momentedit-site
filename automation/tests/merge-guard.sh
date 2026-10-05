@@ -14295,3 +14295,7 @@ chk 'GUEST_ALL_G3' order-preview.html 2
 chk 'function _lGuestTail()' order-preview.html 1
 chk 'GUEST_ALL_G3' scripts/audit/turn-gap.mjs 1
 :
+# ★[TURN_ONE_LINE 2026-10-05 사장님 «쉼 가로 라인 바로 위에 또 라인이 있어 깔끔하지 못하다» → «추천대로»] 쉼 줄이 따라오는 글칸은 밑줄을 숨긴다(쉼 줄 하나가 구분선)
+chk 'TURN_ONE_LINE' order-preview.html 2
+chk '.mk-slr:has(+.mk-slr>.mk-sltn) .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}' order-preview.html 1
+:
