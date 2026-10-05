@@ -14330,3 +14330,10 @@ chk 'VS_TWO_LINE' order-preview.html 1
 chk 'VS_NO_PURGE_NOTE' order-preview.html 1
 nochk "VS_ONE+' · 예식 다음 날 지워요" order-preview.html
 :
+# ★★[TONE_TIP · KEEP_GUIDE 2026-10-05 사장님 «쉼표 · 느낌표 · 문단에 따라 톤이 달라진다 · 예시 문구 부분에서 안내 · 확정함은 다시 녹음해도 고정 · 보기 좋게 보여 주며 · 고객 입장에서 쉽게»]
+chk 'var TONE_TIP=' order-preview.html 1
+chk '+_tuneTip(T)' order-preview.html 1
+chk 'KEEP_GUIDE' order-preview.html 2
+chk 'class="mk-keepg" role="note"' order-preview.html 1
+nochk '들어 보고 마음에 드는 줄은 «확정하기»를 눌러 두세요' order-preview.html
+:

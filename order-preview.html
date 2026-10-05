@@ -1529,6 +1529,22 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-keep.on{color:var(--gold-deeper);text-decoration:none;font-weight:600} .mk-keep .mk-mk{display:inline-flex}
 .mk-aip.keep{cursor:pointer} .mk-aip.kept{background:rgba(184,154,117,.16)} .mk-aip.kept>span{display:inline-flex;align-items:center;gap:3px} .mk-aip.kept .mk-mk{display:inline-flex}   /* [KEEP_IN_PILL] 확정됨 = 옅은 금빛 바탕 */
 .mk-keepn{margin:6px 0 0}   /* [KEEP_LINE] */
+.mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var(--border)}   /* [KEEP_GUIDE] 칠한 상자 없이 · 위는 앞 구분선이 이미 있어 아래 선만(겹선 금지) */
+.mk-keepv{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.mk-keepv i{font-style:normal;color:var(--light)}
+.mk-kp{display:inline-flex;align-items:center;gap:3px;min-height:30px;padding:0 12px;border:1px solid var(--gold-btn,#C2A988);border-radius:999px;background:#fff;color:var(--gold-deeper);font-size:12.5px;font-weight:600}
+.mk-kp.on{background:rgba(184,154,117,.16)} .mk-kp svg{width:11px;height:11px}
+.mk-keepl{margin:0;padding:0 0 0 16px;font-size:12.5px;line-height:1.7;color:var(--sub);word-break:keep-all}
+.mk-tip{margin:0 0 2px}   /* [TONE_TIP] */
+.mk-tip>summary{cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--gold-deeper)}
+.mk-tip>summary::-webkit-details-marker{display:none}
+.mk-tip>summary::after{content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 4px}
+.mk-tip[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
+.mk-tipl{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.mk-tipl li{display:grid;grid-template-columns:36px 1fr;align-items:baseline;gap:8px;font-size:14px;line-height:1.55;color:var(--accent);word-break:keep-all}
+.mk-tipl b{font-size:16px;font-weight:600;color:var(--gold-deeper);text-align:center;line-height:1} .mk-tipl b.w{font-size:11px}
+.mk-tipl small{display:block;font-size:12.5px;color:var(--light)}
+.mk-tipn{margin:8px 0 0}
 .mk-tune-ex{display:flex;flex-direction:column;gap:10px;margin:0 0 16px}.mk-tune-ex .mk-rect{margin:0}
 .mk-tune-ta{width:100%;box-sizing:border-box;font-size:16px;line-height:1.75;color:var(--accent);resize:none}
 .mk-tune-n{display:flex;justify-content:space-between;align-items:center;margin:-4px 0 0} .mk-tune-n .pk-link{min-height:44px;display:inline-flex;align-items:center;margin:-12px 0} .mk-tune-n .pk-link[hidden]{display:none}   /* [TUNE_TEXT] · [SIM_R1] 숨김이 이겨야 한다 */
@@ -4738,9 +4754,17 @@ window.mkTuneSet=function(kind,i){ var T=VC.tune; if(!T) return; var L=kind==='t
   if(kind==='t'){ if(T.tempo===_tNorm(L[i][0])) return; T.tempo=_tNorm(L[i][0]); } else { if(+T.pause===L[i][0]) return; T.pause=L[i][0]; }
   _fxNext='[data-fk="mktune:'+kind+':'+i+'"]'; render(); clearTimeout(VC.tuneT); VC.tuneT=setTimeout(_vcSamplePlay,350); };   // 고르면 그 값으로 예시를 다시
 window.mkTuneKey=function(ev,kind){ var k=ev.key, L=kind==='t'?TUNE_T:TUNE_P, i=_tuneIdx(kind), n=k==='ArrowRight'||k==='ArrowUp'?i+1:k==='ArrowLeft'||k==='ArrowDown'?i-1:k==='Home'?0:k==='End'?L.length-1:-9; if(n===-9) return; ev.preventDefault(); if(n<0||n>=L.length) return; mkTuneSet(kind,n); };
+/* ★★[TONE_TIP 2026-10-05 사장님 «쉼표 · 느낌표 · 문단을 붙인다거나에 따라 음절과 톤이 달라진다 · AI 음성 처음 만들고 예시 문구 부분에서 안내 · 디테일한 정보 같이 · 고객 입장에서 쉽게»]
+   예시 글 바로 위에 «쓰는 법에 따라 말투가 달라져요» 접기 — 처음 목소리를 만든 창(enroll)에선 펼쳐 두고, 카드에서 다시 열면 접어 둔다.
+   부호 넷(, . ! ?) · 줄 나누기 · 숫자 — 무엇이 달라지는지 + 짧은 예. 예시 글을 고쳐 바로 들어 보게 이끈다(만드는 것은 단추를 눌렀을 때만 · 글자 비용) */
+var TONE_TIP=[[',','짧게 숨을 고르고 이어 말해요','오늘, 이 자리에서'],['.','말을 맺고 한 박자 쉬어요','반갑습니다.'],['!','힘 있고 밝게 끝나요','박수 부탁드립니다!'],['?','끝을 올려 묻는 말투가 돼요','준비되셨나요?'],['줄','줄을 나누면 그 사이를 쉬어요 · 길이는 글 칸의 쉼 단추로',''],['숫자','한글로 적으면 또박또박 읽어요','10분 → 십 분']];
+function _tuneTip(T){ return '<details class="mk-tip"'+(T&&T.from==='enroll'?' open':'')+'><summary>쓰는 법에 따라 말투가 달라져요</summary><ul class="mk-tipl">'
+  +TONE_TIP.map(function(r){ return '<li><b'+(r[0].length>1?' class="w"':'')+'>'+esc(r[0])+'</b><span>'+esc(r[1])+(r[2]?'<small>'+esc(r[2])+'</small>':'')+'</span></li>'; }).join('')
+  +'</ul><p class="mk-note mk-tipn">아래 예시 글을 고친 뒤 들어 보면 바로 알 수 있어요</p></details>'; }
 function _vcTuneBody(){ var T=VC.tune, nm=_vcName(T.who), r=VC.sraw[T.who], pl=MK.audKey==='tune'&&!!MK.aud;
   return (T.from==='enroll'?'<p class="mk-dlg-big" role="status"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span> '+esc(nm)+' 님 목소리가 준비됐어요</p>':'')
     +'<p class="mk-note mk-dlg-c1 mk-two"><span>예시를 들으며 빠르기와 쉼을 맞춰 주세요</span><span>'+esc(nm)+' 님이 읽는 모든 줄에 쓰여요</span></p>'   /* [DLG_TWO_LINE] */
+    +_tuneTip(T)   /* [TONE_TIP] 예시 글 바로 위 */
     +'<div class="mk-tune-ex"><textarea class="ta grow mk-tune-ta" data-fk="mktunetext" rows="3" maxlength="'+TUNE_MAX+'" aria-label="예시 글 · 고쳐서 들어 볼 수 있어요" oninput="mkTuneText(this.value);_taGrow(this)" onchange="_taChange()">'+esc(S.vtuneText!=null?S.vtuneText:VC_SAMPLE)+'</textarea>'
     +'<p class="mk-note mk-tune-n">글을 고쳐서 들어 볼 수 있어요<button type="button" class="pk-link" id="mkTuneRs" data-fk="mktunereset"'+(_tuneRawDiff()?'':' hidden')+' onclick="mkTuneReset()">처음 예시로</button></p>'
     +'<button type="button" class="mk-tune-go'+(_tuneGoOn()?' on':'')+'" data-fk="mktuneplay" aria-pressed="'+_tuneGoOn()+'"'+((T.loading||!r&&!T.err)&&!(r)?' aria-busy="true"':'')+(T.loading?' disabled':'')+' onclick="mkTunePlay()">'+(_tuneGoOn()?ICO_STOP:ICO_PLAY)+'<span>'+_tuneGoLab()+'</span></button></div>'   /* [TUNE_TEXT] 예시 글칸 · 단추 글은 상태대로 */   /* ★[TUNE_PLAY_WIDE 2026-10-04 사장님 «플레이 버튼이 애매 · 오른쪽 끝이 최선이야?»] 오른쪽 끝 작은 ▶ → 예시 글 아래 전체 폭(«이 순간 들어 보기»와 같은 모양) */
@@ -4831,7 +4855,9 @@ function _keepCount(w){ return ['g0','g1','g2','g3','pv','entry'].filter(functio
 function _keepBtn(key,lab){ var on=!!(S.vkeep||{})[key];
   return '<button type="button" class="pk-link mk-keep'+(on?' on':'')+'" data-fk="mkkeep:'+key+'" aria-pressed="'+on+'" aria-label="'+esc(lab+(on?' · 확정됨 · 누르면 풀어요':' · 이 소리로 확정하기'))+'" onclick="mkKeep(\''+key+'\')">'+(on?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>확정됨':'확정하기')+'</button>'; }
 function _keepNote(ups){ var made=(ups||[]).filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; }); if(!made.length||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
-  return '<p class="mk-note mk-keepn">들어 보고 마음에 드는 줄은 «확정하기»를 눌러 두세요. 목소리를 다시 만들거나 빠르기 · 쉼을 바꿔도 확정한 줄은 그대로예요</p>'; }
+  /* ★★[KEEP_GUIDE 2026-10-05 사장님 «확정함 누르면 음성을 다시 녹음해도 고정이라고 · 보기 좋게 그 부분을 보여 주면서 설명 · 고객 입장에서 쉽게»] 한 줄 글 → 실제 단추 모양 둘(확정하기 → ✓ 확정됨)을 보여 주고 세 줄로 */
+  return '<div class="mk-keepg" role="note"><div class="mk-keepv" aria-hidden="true"><span class="mk-kp">확정하기</span><i>›</i><span class="mk-kp on">'+ICO_CHECK+'확정됨</span></div>'
+    +'<ul class="mk-keepl"><li>들어 보고 마음에 드는 줄은 확정해 두세요</li><li>확정한 줄은 목소리를 다시 녹음하거나 빠르기 · 쉼을 바꿔도 그대로 남아요</li><li>다시 고치고 싶으면 확정됨을 한 번 더 눌러 풀어요</li></ul></div>'; }
 window.mkKeep=function(key){ S.vkeep=S.vkeep||{}; if(S.vkeep[key]) delete S.vkeep[key]; else S.vkeep[key]=1; _fxNext='[data-fk="mkkeep:'+key+'"]'; _persist(); render(); };
 function _keepAsk(key,go){ if(!(S.vkeep||{})[key]) return false;
   ordAsk({title:'확정한 소리예요',body:'읽는 분을 바꾸면 이 줄을 새로 만들어요',yes:'바꾸기',no:'그대로 두기'}).then(function(ok){ if(!ok) return; delete S.vkeep[key]; _persist(); go(); }); return true; }
