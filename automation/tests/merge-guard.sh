@@ -14310,3 +14310,23 @@ nochk "+(single?'':'<button type=\"button\" data-fk=\"lfprev\"" order-preview.ht
 chk 'CTL_FIVE' scripts/audit/ctl-five.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/ctl-five.mjs >/dev/null 2>&1; _cf=$?; if [ "$_cf" = 1 ]; then echo 'FAIL ctl-five: 플레이 단추 다섯 칸 고정이 어긋났습니다 — node scripts/audit/ctl-five.mjs'; fail=1; fi; fi
 :
+# ★[PV_CHOOSE_OFF 2026-10-05 사장님 «하나씩 만들기에서 골라요 · 입장 멘트 · 어떻게 준비할까요 삭제 · 다른 곳들도 일괄»] 미리보기 창 한 줄 금지 — 창이 하나라 모든 순간
+chk 'PV_CHOOSE_OFF' order-preview.html 1
+nochk "ce.textContent=ch?('하나씩 만들기에서 골라요 · '+ch)" order-preview.html
+chk 'PV_CHOOSE_OFF' scripts/audit/listen-page.mjs 1
+chk 'PV_CHOOSE_OFF' scripts/audit/pick-v2.mjs 1
+:
+# ★[PV_FN_OFF 2026-10-05 사장님 «전체 나레이션은 연습하기에서 이어서 들어요 이 문구도 삭제»] 미리보기 창 맨 아래 한 줄 금지
+chk 'PV_FN_OFF' order-preview.html 1
+nochk '<p class="pv-fn">' order-preview.html
+:
+# ★★[PV_ONE_SHOT 2026-10-05 사장님 «같은 의미 · 고객 입장에서 하나로 · 다른 곳들도 하나씩 열어 보면서 중복 없이»] 미리보기 창 설명 + 남는 사진 = 순간마다 한 문장
+chk 'PV_ONE_SHOT' order-preview.html 3
+chk 'var PV_DESC={' order-preview.html 1
+nochk "innerHTML='<b>남는 사진</b> · '+esc(R.shotOf(k,S)" order-preview.html
+chk 'PV_ONE_SHOT' scripts/audit/listen-page.mjs 1
+# ★[VS_TWO_LINE · VS_NO_PURGE_NOTE 2026-10-05 사장님] 안내 목소리 창 설명 두 줄 · AI 칸 « · 예식 다음 날 지워요» 금지
+chk 'VS_TWO_LINE' order-preview.html 1
+chk 'VS_NO_PURGE_NOTE' order-preview.html 1
+nochk "VS_ONE+' · 예식 다음 날 지워요" order-preview.html
+:

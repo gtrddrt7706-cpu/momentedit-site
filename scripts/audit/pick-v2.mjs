@@ -73,7 +73,7 @@ for (const w of [390, 360]) {
     const after = await pg.evaluate(() => ({ tile: document.querySelector('[data-fk="opt:letter"]').getAttribute('aria-pressed'), on: !!(S.on && S.on.letter), act: document.getElementById('pvAct').textContent, open: !document.getElementById('pvSheet').hidden }));
     ok('창 안 담기 = 칸 상태 · 창은 열린 채', before === 'false' && after.tile === 'true' && after.on && /담겨 있어요/.test(after.act) && after.open, JSON.stringify(after));
     /* ★[STEP_NONUM_OP 2026-10-03 사장님] 종전 «② 하나씩 만들기에서 고를 것 · …» → 걸음 번호 없이 «하나씩 만들기에서 골라요 · …» */
-    ok('창 «하나씩 만들기에서 골라요 · 받는 분»(② 묶음 이름과 같게 · 번호 없음) [STEP_NONUM_OP]', await pg.evaluate(() => document.getElementById('pvCh').textContent === '하나씩 만들기에서 골라요 · 받는 분'));
+    ok('창에 «하나씩 만들기에서 골라요 · …» 줄이 없다 [PV_CHOOSE_OFF]', await pg.evaluate(() => { const c = document.getElementById('pvCh'); return !c || (c.hidden && !c.textContent); }));
     await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
     /* ★[UNDO_OFF 2026-09-28 사장님 «되돌리기는 삭제 · 확인 문구만 나오게»] 종전 검사(6초 되돌리기 알림 · 단추로 앞 예시로)는 지웠다 —
        이제 확인 문구만 · 단추 없음 · 터치 통과 · 3초 뒤 사라짐. 되돌리는 길은 같은 예시를 다시 누르는 [EX_TOGGLE]. */
