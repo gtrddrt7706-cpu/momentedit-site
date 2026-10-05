@@ -1399,6 +1399,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .pr-mo.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .pr-mo:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pr-ask{margin:-4px 0 14px}
+.pr-prep{margin:-6px 0 12px;color:var(--gold-deeper)}   /* [PT_PREP] AI 목소리 준비 진행 */
 .pr-askb{display:flex;flex-wrap:wrap;gap:8px}
 .lf-cue{margin:10px 0 0;font-size:14px;font-weight:500;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
 .lf-tbar{height:3px;margin:8px 0 0;border-radius:2px;background:var(--border);overflow:hidden}
@@ -5528,6 +5529,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
 /* ③ 연습하기(1단계) — 지금 쓰는 연습 재생(처음부터 끝까지 · 네 막 · 빠르게 훑기)으로 연다. 직접 해 보기 · 타이머는 다음 단계 */
 function renderPractice(){ var R=RitualOpen;
   _upWarm();   // [PLAY_WAIT_FILE]
+  if(ENG) setTimeout(_ptPrep,0);   // [PT_PREP] ③ 에 들어오면 AI 로 먼저 판은 바로 준비를 시작한다
   if(!ENG){ engine().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='practice') render(); }); }
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='practice') render(); }); }
   var rows=_lRows(), all=ENG?_lRefExpand(_lSteps(ENG,rows).filter(function(x){ return !x.quiet; })):[], len=0, turns=0, tPar=0, tOth=0;
@@ -5551,9 +5553,9 @@ function renderPractice(){ var R=RitualOpen;
     _modeH='<div class="pr-mode" role="radiogroup" aria-label="연습 방법" onkeydown="prModeKey(event)">'
       +[['self','직접 소리 내어','말하는 차례에 준비한 글을 읽어요'],['ai','AI 목소리로 먼저 듣기','말하는 차례도 AI 목소리로 읽어 드려요']].map(function(o){ var on=_md===o[0];
         return '<button type="button" class="pr-mo'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="prm:'+o[0]+'" onclick="prMode(\''+o[0]+'\')"><b>'+o[1]+'</b><span>'+o[2]+'</span></button>'; }).join('')+'</div>'
-      +(PT.askMode?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prMode(\'ai\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':''); }
+      +(_md==='ai'?'<p class="mk-note pr-prep" id="prPrep" role="status" aria-live="polite">'+esc(_ptPrepTxt())+'</p>':'')+(PT.askMode?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prMode(\'ai\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':''); }
   h+='<div class="pr-grid"><div class="pr-lead">'+_modeH
-    +'<button type="button" class="pr-hero" data-fk="prall" onclick="lsPlayAll()" aria-label="처음부터 끝까지 연습하기'+(_mins?' · 약 '+_mins+'분':'')+'">'
+    +'<button type="button" class="pr-hero" data-fk="prall" onclick="_ptGate(lsPlayAll)" aria-label="처음부터 끝까지 연습하기'+(_mins?' · 약 '+_mins+'분':'')+'">'
     +'<span class="pr-hm">'+(_hv?'<img src="'+esc(_hv.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
     +'<span class="pr-hl"><b>처음부터 시작하기</b>'+(_mins?'<span>약 '+_mins+'분 · 음악 없이 말과 나레이션만</span>':'')+'</span></button>'
     +(todo?'<p class="mk-note pr-todo">아직 안 적은 '+todo+'곳은 참고 예시 글로 보여 드려요</p>':'')   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
@@ -5577,8 +5579,8 @@ var PR_FROM_MP=false;   // [PR_ORDER] 마이페이지 «연습하기»로 열었
 window.prModeKey=function(ev){ var k=ev.key, d=(k==='ArrowRight'||k==='ArrowDown')?1:(k==='ArrowLeft'||k==='ArrowUp')?-1:0; if(!d) return; ev.preventDefault();   /* [PR_ORDER] 연습 방법 = 라디오 — 화살표로 옮긴다(고르지 않은 쪽은 tabindex -1) */
   var cur=(PT.mode==='ai'&&_ptOk())?'ai':'self'; prMode(cur==='ai'?'self':'ai'); };
 window.prMode=function(m,yes){ if(m==='ai'){ if(yes){ try{ localStorage.setItem('me_ptts_ok','1'); }catch(e){} } if(!_ptOk()){ PT.askMode=true; render(); return; } }
-  PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} _fxNext='[data-fk="prm:'+PT.mode+'"]'; render(); };   // [PR_MODE]
-window.prFrom=function(k){ var rs=_lRows(); if(rs.indexOf(k)<0) return; LP.fast=false; LP.noChips=false; LP.startK=k; _lOpenBig(); _lStart(rs,true); _lFull(); };   // [PR_JUMP] 전체를 세우고 그 순간에서 시작(앞 순간으로도 ⏮)
+  PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} if(PT.mode!=='ai'){ PT.prep=null; PT.startAfter=null; } _fxNext='[data-fk="prm:'+PT.mode+'"]'; render(); };   // [PR_MODE] · [PT_PREP] 직접으로 바꾸면 준비를 멈춘다(받던 것은 받아 둔다)
+window.prFrom=function(k){ var rs=_lRows(); if(rs.indexOf(k)<0) return; if(_ptAi()&&!(arguments[1])){ _ptGate(function(){ prFrom(k,1); }); return; } LP.fast=false; LP.noChips=false; LP.startK=k; _lOpenBig(); _lStart(rs,true); _lFull(); };   // [PR_JUMP] 전체를 세우고 그 순간에서 시작(앞 순간으로도 ⏮)
 
 function renderListen(){
   var R=RitualOpen, sp=R.span(S), peak=R.peakOf(S);
@@ -5893,7 +5895,7 @@ function _lShow(){
   if(st.up){ var _uv=(S.up||{})[st.up]; if(_uv&&typeof _uv==='object'&&_uv.id){ if(_uv.src==='ai'&&_upStale(st.up)) st.src=null; else { var _uu=_rfUrl(st.up); if(_uu) _lUpOn(st,_uu);
     else if(!st._wf){ st._wf=1; LP.loadK=st.k; _lPaint(); _lWaitUp(st,function(u){ LP.loadK=null; if(u) _lUpOn(st,u); _lShow(); }); return; } } } }
   if(_ptWant(st)&&!st.src&&!st._pt){ st._pt=1; var _o=_ptKey(st); if(PT.url[_o.h]){ st.src=PT.url[_o.h]; st.ptts=true; st.pending=false; }
-    else { var _tk2=LP.tok; LP.loadK=st.k; LP.loadAi=true; PT.errK=-1; _lPaint(); _ptFetch(st).then(function(u){ LP.loadK=null; LP.loadAi=false; if(LP.tok!==_tk2||LP.q[LP.i]!==st){ _lPaint(); return; } if(u){ st.src=u; st.ptts=true; st.pending=false; } else PT.errK=LP.i; _lShow(); }); return; } }   // [PR_MODE]
+    else { var _tk2=LP.tok; LP.tAt=0; LP.loadK=st.k; LP.loadAi=true; PT.errK=-1; _lPaint(); _ptFetch(st).then(function(u){ LP.loadK=null; LP.loadAi=false; if(LP.tok!==_tk2||LP.q[LP.i]!==st){ _lPaint(); return; } if(u){ st.src=u; st.ptts=true; st.pending=false; } else PT.errK=LP.i; _lShow(); }); return; } }   // [PR_MODE]
   if(_ptWant(st)) _ptNext();   // [PR_MODE] 다음 말하는 차례를 미리
   /* ★«② 에서 소리를 틀면(들어 보기 · 줄 ▶ · 칩) 그 쪽 장면도 한 번» 규칙([MK_VID_PLAY] · LP.vidK) 금지 — 2026-10-03 사용자 지시로 삭제 [VID_AUTO_ONLY] · 칩을 누를 때마다 끝난 영상을 다시 틀었다 */
   if(st.src){
@@ -6004,7 +6006,27 @@ function _ptFetch(st){ var o=_ptKey(st); if(PT.url[o.h]) return Promise.resolve(
   return (PT.busy[o.h]=_vc('practice',{role:o.w,who:o.w,text:st.txt}).then(function(d){ delete PT.busy[o.h];
     if(!d||!d.ok||!d.data){ PT.err=(d&&d.error)||'지금은 AI 목소리로 읽지 못했어요 · 이 차례는 글을 보며 읽어 주세요'; return null; }
     var bin=atob(d.data), u=new Uint8Array(bin.length); for(var j=0;j<bin.length;j++) u[j]=bin.charCodeAt(j); return (PT.url[o.h]=URL.createObjectURL(new Blob([u],{type:d.mime||'audio/mpeg'}))); })); }
-function _ptWant(st){ return !!(st&&st.talk2&&!st.site&&st.txt&&PT.mode==='ai'&&_ptOn()&&_ptOk()); }
+function _ptAi(){ return PT.mode==='ai'&&_ptOn()&&_ptOk()&&!!(STEPS[idx]&&STEPS[idx].k==='practice'); }   // [PT_PREP] AI 로 먼저 = ③ 연습하기에서만(② 의 듣기에는 섞지 않는다)
+function _ptWant(st){ return !!(st&&st.talk2&&!st.site&&st.txt&&_ptAi()); }
+/* ★★[PT_PREP 2026-10-05 사장님 «미리 전부 만들어서 딜레이 없이 가야 해»] AI 로 먼저 듣기 = 연습을 틀기 «전에» 말하는 차례 소리를 전부 만든다(셋씩 나란히).
+   ③ 에 들어오거나 AI 를 고르는 순간 시작 · 진행은 고르기 아래 한 줄(«AI 목소리 준비 중 · 3 / 8»). 다 되기 전에 재생을 누르면 «준비되면 바로 시작해요»로 기다렸다 바로 튼다.
+   만들지 못한 차례는 글 + 막대로(종전) — 그 수를 알린다. 글이 바뀌면(열쇠가 달라지면) 그 차례만 새로 */
+function _ptList(){ if(!ENG) return []; var seen={}, out=[];
+  _lRefExpand(_lSteps(ENG,_lRows()).filter(function(x){ return !x.quiet; })).forEach(function(st){ if(!(st.talk2&&!st.site&&st.txt)) return; var h=_ptKey(st).h; if(seen[h]) return; seen[h]=1; out.push(st); });
+  return out; }
+function _ptPrep(){ if(!_ptAi()) return; var L=_ptList(), key=L.map(function(x){ return _ptKey(x).h; }).join(',');
+  if(PT.prep&&PT.prep.key===key) return;
+  var P=PT.prep={key:key,n:L.length,done:0,fail:0,run:true}, todo=[];
+  L.forEach(function(x){ if(PT.url[_ptKey(x).h]) P.done++; else todo.push(x); });
+  var i=0, fin=function(){ if(PT.prep!==P||!P.run||P.done+P.fail<P.n) return; P.run=false; _ptPrepPaint(); var f=PT.startAfter; PT.startAfter=null; if(f) f(); };
+  var next=function(){ if(PT.prep!==P) return; var st=todo[i++]; if(!st) return; _ptFetch(st).then(function(u){ if(PT.prep!==P) return; if(u) P.done++; else P.fail++; _ptPrepPaint(); fin(); next(); }); };
+  if(!todo.length){ P.run=false; _ptPrepPaint(); return; }
+  for(var k=0;k<Math.min(3,todo.length);k++) next(); _ptPrepPaint(); }
+function _ptPrepTxt(){ var P=PT.prep; if(!_ptAi()||!P||!P.n) return '';
+  return P.run?('AI 목소리 준비 중 · '+P.done+' / '+P.n):P.fail?('AI 목소리 '+P.done+'개 준비됐어요 · '+P.fail+'개는 만들지 못해 그 차례는 글을 보며 읽어요'):('AI 목소리 '+P.n+'개 준비됐어요 · 기다림 없이 이어져요'); }
+function _ptPrepPaint(){ var el=document.getElementById('prPrep'); if(el) el.textContent=_ptPrepTxt(); var hb=document.querySelector('.pr-hero .pr-hl span');
+  if(hb&&PT.startAfter&&PT.prep&&PT.prep.run) hb.textContent='준비되면 바로 시작해요 · '+PT.prep.done+' / '+PT.prep.n; }
+function _ptGate(f){ if(_ptAi()){ _ptPrep(); if(PT.prep&&PT.prep.run){ PT.startAfter=f; _ptPrepPaint(); return; } } f(); }   // [PT_PREP] 다 되기 전에 누르면 기다렸다 바로
 function _ptOk(){ try{ return localStorage.getItem('me_ptts_ok')==='1'; }catch(e){ return false; } }
 function _ptNext(){ for(var j=LP.i+1;j<Math.min(LP.q.length,LP.i+16);j++){ var n=LP.q[j]; if(_ptWant(n)&&!n.src){ _ptFetch(n); return; } } }
 window.lsChooseDone=function(){ LP.choose=null; LP.stay=null; if(LP.paused) lsToggle(); else _lPaint(); };
@@ -6116,7 +6138,7 @@ function _lFull(){
     if(st.talk2){ var _ai=!!st.ptts, _mk=LP.loadK===st.k&&LP.loadAi;
       h+='<p class="lf-cue">'+esc(_mk?'AI 목소리로 만드는 중이에요 · 잠시만요':_ai?'AI 목소리로 들려 드려요 · 들으며 따라 읽어 보세요':st.site?'떠오르는 대로 소리 내어 말해 보세요':st.ref?'예시 글을 소리 내어 읽어 보세요':'준비한 글을 소리 내어 읽어 주세요')+'</p>'; }
     h+='<p class="lf-txt'+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+'">'+esc(st.txt||'')+'</p>';
-    if(st.talk2){ if(!st.src&&!LP.paused&&LP.tAt&&LP.tMs){ var _el=Math.max(0,Date.now()-LP.tAt); h+='<div class="lf-tbar" aria-hidden="true"><i style="animation-duration:'+LP.tMs+'ms;animation-delay:-'+Math.min(_el,LP.tMs)+'ms"></i></div>'; }
+    if(st.talk2){ if(!st.src&&!LP.paused&&LP.tAt&&LP.tMs&&LP.loadK!==st.k){   /* [PT_PREP] 만드는 중에는 막대를 그리지 않는다(앞 차례 시계로 꽉 찬 막대가 보였다) */ var _el=Math.max(0,Date.now()-LP.tAt); h+='<div class="lf-tbar" aria-hidden="true"><i style="animation-duration:'+LP.tMs+'ms;animation-delay:-'+Math.min(_el,LP.tMs)+'ms"></i></div>'; }
       if(PT.errK===LP.i&&PT.err) h+='<p class="lf-state" role="status">'+esc(PT.err)+'</p>'; }
     h+=_rh;   // [PR_ORDER]
     if(st.ref) h+='<p class="lf-refn">그대로 써도 좋고, '+(st.refDay==='당일엔 부모님이 직접 말씀하세요'?'부모님':(!st.refDay||st.refDay==='당일엔 두 분이 직접 말해요')?'두 분':'그분')+' 이야기로 바꿔도 돼요 · 예시 속 이름은 가상 인물이에요'+(st.refPar?' · 부모님 예시는 두 분 합쳐 3분을 넘기기 쉬워요':'')+'</p>';   // [R1-21] 말하는 사람별 · [REF_TABLE]

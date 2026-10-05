@@ -14423,6 +14423,16 @@ chk 'window.prModeKey=function(ev)' order-preview.html 1
 chk '<b>처음부터 시작하기</b>' order-preview.html 1
 chk 'PR_ORDER' scripts/audit/play-wait-file.mjs 2
 chk 'PR_ORDER' scripts/audit/pr-from-mypage.mjs 1
+# ★[PT_PREP · PT_VOICE_FALLBACK 2026-10-05 사장님 «미리 전부 만들어서 딜레이 없이» · «AI 음성 소리가 안 나는데?»] AI 로 먼저 = 틀기 전에 말하는 차례 소리를 전부(셋씩) · 다 되기 전 재생은 기다렸다 바로 ·
+#   서버 연습 읽기는 그분 목소리 → 스튜디오 기본 → 다른 분 AI 목소리 · 없으면 VCERR_ 기록
+chk 'PT_PREP' order-preview.html 7
+chk 'function _ptPrep()' order-preview.html 1
+chk 'function _ptGate(f)' order-preview.html 1
+chk 'onclick="_ptGate(lsPlayAll)"' order-preview.html 1
+chk 'PT_VOICE_FALLBACK' automation/platform/80_production.gs 1
+chk 'PT_VOICE_FALLBACK' scripts/audit/vc-par.mjs 1
+chk 'PT_PREP' scripts/audit/play-wait-file.mjs 2
+:
 # ★[ONEMIN_FIRST 2026-10-05 사장님 «식전 영상도 시작 이후 · 1분 전 멘트 뒤에 영상» → «추천대로»] 03 → 04(89 판) → 식전 영상 → 입장 · 02~04 = -14 · -9 · -5
 chk 'ONEMIN_FIRST' assets/ritual-cue.js 3
 chk 'ONEMIN_FIRST' order-preview.html 6
