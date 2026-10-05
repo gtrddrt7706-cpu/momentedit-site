@@ -14242,7 +14242,7 @@ chk 'PHRASE_NO_DEAD' scripts/audit/phrase-reload.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; [ "$_pr" = 1 ] && { echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; }; fi
 # ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 마이페이지 식순 줄 아래 접힘을 잠시 끈다(사장님이 다시 켜라 하기 전까지)
 chk 'var PREP_FOLD_OFF=true;' mypage.html 1
-chk "html: PREP_FOLD_OFF?'':_ritPrepFold(rd, base, dd)" mypage.html 1
+chk "html: PREP_FOLD_OFF?_ritPrepFold(rd, base, dd, true):_ritPrepFold(rd, base, dd)" mypage.html 1
 # ★[RELOAD_KEEP_AT 2026-10-05 사장님 «두 분 목소리에서 새로고침하면 이전 화면으로 간다»] orderFill(AI 스위치)을 받기 전에는 «두 분 목소리» 자리를 첫 쪽으로 덮어쓰지 않는다
 chk 'RELOAD_KEEP_AT' order-preview.html 3
 chk 'if(!_atWait){ m.at=k; m.seen\[k\]=1; }' order-preview.html 1
@@ -14261,3 +14261,12 @@ chk "tq:mx?_slTurnSig(key):undefined" order-preview.html 1
 chk "(v.tq||'')!==_slTurnSig(key)" order-preview.html 1
 chk 'TURN_GAP' scripts/audit/turn-gap.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/turn-gap.mjs >/dev/null 2>&1; _tg=$?; [ "$_tg" = 1 ] && { echo 'FAIL turn-gap: 줄 사이 넘기는 쉼이 어긋났습니다 — node scripts/audit/turn-gap.mjs'; fail=1; }; fi
+# ★★[PREP_LINK 2026-10-05 사장님 «미리듣기랑 준비할 것 · 클릭하면 볼 수 있게» → «추천대로»] 식순 줄 «미리듣기 · 준비할 것» · 누르면 줄 아래 목록 · 요약 줄은 계속 숨김
+chk 'PREP_LINK' mypage.html 6
+chk 'mp_ritPrepBox' mypage.html 3
+chk "_ritPre2={id:'mp_ritualPrep', label:'준비할 것'" mypage.html 1
+# ★[LINE_CARD 2026-10-05 사장님 «섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 순간 사이 가로선 → 여백
+chk 'LINE_CARD' order-preview.html 3
+chk '^\.mk-sl{background:var(--card);border:1px solid var(--border);border-radius:12px' order-preview.html 1
+chk 'PREP_LINK' scripts/audit/prep-link.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/prep-link.mjs >/dev/null 2>&1; _pl=$?; [ "$_pl" = 1 ] && { echo 'FAIL prep-link: 마이페이지 식순 «준비할 것» 펼치기가 어긋났습니다 — node scripts/audit/prep-link.mjs'; fail=1; }; fi

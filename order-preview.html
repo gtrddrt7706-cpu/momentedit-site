@@ -1484,7 +1484,12 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-slx{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:var(--light);cursor:pointer;padding:0;margin:-4px -12px -4px auto}
 .mk-slx svg{width:14px;height:14px}
 .mk-sladd{display:inline-flex;align-items:center;min-height:44px;margin:0}
-.mk-sltn{flex:1 1 100%;margin:-12px 0 0}   /* [TURN_GAP] 줄 사이 «쉼 보통 ›» — 가는 선 가운데 작은 글(평소) · 누르면 아래로 점 줄 */
+.mk-sl{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2px 16px;gap:0}   /* ★[LINE_CARD 2026-10-05 사장님 «하객 입장 때 · 시작 10분 전 등등 섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 머리 줄과 «＋ 줄 더하기»는 카드 밖 · 같은 편집기(하객 맞이 넷 · 입장 · 식전 영상 소개)는 전부 같은 모양 */
+.mk-sl>.mk-slr{padding:10px 0 4px}
+.mk-sl>.mk-slr:last-child .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}   /* [LINE_CARD] 마지막 줄 밑줄은 카드 테와 겹친다 */
+.mk-sl+.mk-slf{margin-top:6px}
+.mk-vcards>.mk-vc{border-bottom:0;padding-bottom:26px}   /* [LINE_CARD] 순간 사이 긴 가로선 → 여백(카드가 이미 가른다) */
+.mk-sltn{flex:1 1 100%;margin:-10px 0 0}   /* [TURN_GAP] 줄 사이 «쉼 보통 ›» — 가는 선 가운데 작은 글(평소) · 누르면 아래로 점 줄 */
 .mk-sltb{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0;border:0;background:none;cursor:pointer;color:var(--light);font-family:inherit;font-size:12.5px;letter-spacing:.02em}
 .mk-sltb::before,.mk-sltb::after{content:'';flex:1 1 auto;height:1px;background:var(--border)}
 .mk-sltb i{font-style:normal;display:inline-block;margin-left:-6px}
