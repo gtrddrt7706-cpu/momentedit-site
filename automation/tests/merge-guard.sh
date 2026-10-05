@@ -14408,3 +14408,11 @@ nochk 'data-fk="lfai"' order-preview.html
 nochk 'data-fk="ptts"' order-preview.html 1
 chk 'PLAY_WAIT_FILE' scripts/audit/play-wait-file.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/play-wait-file.mjs >/dev/null 2>&1; _pwf=$?; [ "$_pwf" = 1 ] && { echo 'FAIL play-wait-file: 두 분 소리 기다리기 · 연습 방법 · 말하는 차례 안내가 어긋났습니다 — node scripts/audit/play-wait-file.mjs'; fail=1; }; fi
+# ★[VPAGE_PC 2026-10-05 사장님 «PC 좀 이상해 · 넓게 · 적절하게»] 카드 안 한 줄 배치 금지 · 넓은 카드 위아래 · 쓰이는 곳은 담긴 자리 전부(나레이션 자리도)
+nochk '.mk-vpcs>.mk-vpc{display:grid;grid-template-columns:minmax(190px,1fr) 240px' order-preview.html
+chk "rows=VC_USE.filter(function(x){ return x\[2\]==='guest'||R.onOf(S,x\[2\]); })" order-preview.html 1
+:
+nochk '.mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var(--border)}' order-preview.html   # [KEEP_GUIDE] 아래 선 = 겹선 금지(2026-10-05)
+:
+chk 'G3_NO_MINI' order-preview.html 1   # [G3_NO_MINI 2026-10-05] 하객 맞이 쪽 «시작 1분 전» ▶ · 전체 듣기에도 아래 재생 바 없이
+:
