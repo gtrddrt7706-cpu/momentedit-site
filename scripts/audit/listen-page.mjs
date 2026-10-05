@@ -152,7 +152,7 @@ for (const w of [390, 1280]) {
     ok(`${w} ③ 고른 순간 목록 — «${k3}»을 누르면 크게 보기가 그 순간부터 · 전체 줄(앞 순간도 ⏮ 로) [PR_JUMP]`, j.big && j.cur === k3 && j.first !== k3 && j.all, JSON.stringify(j));
     await pg.evaluate(() => { lsStop(); }); await pg.waitForTimeout(500); }
   /* [PR_SIMPLE 2026-10-05] 장면 카드 하나 + 순간 목록 하나 · 줄마다 누가 말하나(나레이션 · 당일 직접 · 미리 준비) · 통계 줄 · «어떻게 볼까요» · 지도 접이 없음 */
-  { const v = await pg.evaluate(() => ({ map: !!document.querySelector('[data-fk="prvmap"]'), how: /어떻게 볼까요|말하는 차례/.test(document.querySelector('.op.pr').textContent), tags: [...document.querySelectorAll('.pr-row')].every((b) => !!b.querySelector('.vk')), heroImg: !!document.querySelector('.pr-hero .pr-hm img'), vids: RitualOpen.VIDEO_READY.length }));
+  { const v = await pg.evaluate(() => ({ map: !!document.querySelector('[data-fk="prvmap"]'), how: /어떻게 볼까요|말하는 차례 \d/.test(document.querySelector('.op.pr').textContent), tags: [...document.querySelectorAll('.pr-row')].every((b) => !!b.querySelector('.vk')), heroImg: !!document.querySelector('.pr-hero .pr-hm img'), vids: RitualOpen.VIDEO_READY.length }));
     ok(`${w} ③ 장면 카드 · 순간 목록(줄마다 갈래) · 통계 줄 · 지도 접이 없음 · 장면 그림(영상 ${v.vids}) [PR_SIMPLE]`, !v.map && !v.how && v.tags && (v.heroImg || !v.vids), JSON.stringify(v)); }
   /* [PR_WIDE] PC 는 좌우로 넓게 — 장면 카드와 목록이 나란히 · 폰은 위아래 */
   { const g = await pg.evaluate(() => { const a = document.querySelector('.pr-lead').getBoundingClientRect(), b = document.querySelector('.pr-pick').getBoundingClientRect(); return { side: b.left > a.right, wrap: Math.round(document.querySelector('.wrap').getBoundingClientRect().width), pr2: document.body.classList.contains('pr2') }; });
