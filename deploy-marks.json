@@ -1428,6 +1428,12 @@
    "fn": "handleRitualFile",
    "mark": "RF_MAIL_AI",
    "why": "AI 가 만든 줄 파일엔 «예식 준비 파일 도착» 메일을 안 보냄 — 옛것이면 AI 줄마다 한 통(1분에 7통)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_PAR",
+   "why": "AI 줄 만들기를 한꺼번에(fetchAll) 묻는다 — 옛것이면 줄 수만큼 차례로 물어 화면이 90초에 먼저 포기한다 · 60초 넘으면 VCSLOW_ 기록"
   }
  ],
  "fns": {

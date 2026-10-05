@@ -14370,3 +14370,17 @@ chk 'KEEP_GUIDE' order-preview.html 2
 chk 'class="mk-keepg" role="note"' order-preview.html 1
 nochk '들어 보고 마음에 드는 줄은 «확정하기»를 눌러 두세요' order-preview.html
 :
+# ★[VC_PAR · VC_SLOW_AGAIN · VC_FG_LIVE 2026-10-05 사장님 «왜 못 만드는 거지 · 이런 에러가 자주 있으면 안 되는데»] vcLastErrors 실측 — 오늘 실패는 서버 기록 0건(업체 거절 아님) · 화면이 90초에 먼저 포기했다
+#   서버: 저장본 없는 줄은 한꺼번에(fetchAll) · 60초 넘으면 VCSLOW_ / 화면: 기다리다 멈춘 것은 8초 뒤 한 번 더(저장본) · 앞일 도는 동안 미리 만들기 기다림(VC.fg) 되살림
+chk 'VC_PAR' automation/platform/80_production.gs 4
+chk 'function _vcCacheGet(code, pre, voiceId, text, tempo, pause)' automation/platform/80_production.gs 1
+chk 'function _vcTtsReq(cfg, voiceId, text, tempo, pause)' automation/platform/80_production.gs 1
+chk 'rs = UrlFetchApp.fetchAll(reqs)' automation/platform/80_production.gs 1
+chk 'VC_SLOW_AGAIN' order-preview.html 1
+chk 'VC_SLOW_AGAIN' mypage.html 1
+chk "timeout:!!(e&&e.name==='AbortError')" mypage.html 1
+chk "  if(op==='make'&&!bg) VC.fg=(VC.fg||0)+1;   /\* ★\[VC_FG_LIVE" order-preview.html 1
+chk 'VC_PAR' scripts/audit/vc-par.mjs 1
+chk 'VC_SLOW_AGAIN' scripts/audit/vc-slow-again.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-par.mjs >/dev/null 2>&1; _vp=$?; [ "$_vp" != 0 ] && { echo 'FAIL vc-par: AI 줄 만들기(서버 흉내)가 어긋났습니다 — node scripts/audit/vc-par.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-slow-again.mjs >/dev/null 2>&1; _vs=$?; [ "$_vs" = 1 ] && { echo 'FAIL vc-slow-again: 기다리다 멈춘 AI 만들기 다시 묻기가 어긋났습니다 — node scripts/audit/vc-slow-again.mjs'; fail=1; }; fi
