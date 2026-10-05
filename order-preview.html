@@ -1585,6 +1585,8 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-keep.on{color:var(--gold-deeper);text-decoration:none;font-weight:600} .mk-keep .mk-mk{display:inline-flex}
 .mk-aip.keep{cursor:pointer} .mk-aip.kept{background:rgba(184,154,117,.16)} .mk-aip.kept>span{display:inline-flex;align-items:center;gap:3px} .mk-aip.kept .mk-mk{display:inline-flex}   /* [KEEP_IN_PILL] 확정됨 = 옅은 금빛 바탕 */
 .mk-keepn{margin:6px 0 0}   /* [KEEP_LINE] */
+.q-say{font-family:var(--ko-serif);font-weight:500;letter-spacing:-.01em}   /* [GUIL_OFF] 읽는 말 = 명조 · 따옴표 없이 */
+.q-nm{font-weight:600}   /* [GUIL_OFF] 칩 · 단추 이름 = 조금 굵게 · 따옴표 없이 */
 .mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var(--border)}   /* [KEEP_GUIDE] 칠한 상자 없이 · 위는 앞 구분선이 이미 있어 아래 선만(겹선 금지) */
 .mk-keepv{display:flex;align-items:center;gap:8px;margin:0 0 8px}
 .mk-keepv i{font-style:normal;color:var(--light)}
@@ -1643,6 +1645,12 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vpcs .mk-vr{flex-wrap:wrap;row-gap:8px} .mk-vpcs .mk-vt{flex:1 1 10em;min-width:10em}
 /* [VC_CARD_V2] 사람 카드 — 카드 한 장 · PC 둘 나란히 · 폰 위아래 */
 .mk-vlist.mk-vpcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:stretch;gap:12px;border-top:0;margin:14px 0 8px}
+.mk-vuse{margin:22px 0 6px}   /* [VPAGE_PC] 이 목소리가 쓰이는 곳 */
+.mk-vuse-h{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--accent)}
+.mk-vuse ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--border)}
+.mk-vuse-r{display:grid;grid-template-columns:minmax(0,1fr) 48px 76px 14px;align-items:center;gap:8px;width:100%;min-height:48px;padding:0 2px;border:0;border-bottom:1px solid var(--border);background:none;font:inherit;font-size:14px;color:var(--accent);text-align:left;cursor:pointer}
+.mk-vuse-r .w{font-size:12.5px;color:var(--sub)} .mk-vuse-r .s{display:inline-flex;align-items:center;gap:3px;justify-content:flex-end;font-size:12.5px;color:var(--light)} .mk-vuse-r .s.made{color:var(--sub)} .mk-vuse-r .s.kept{color:var(--gold-deeper);font-weight:600} .mk-vuse-r .s svg{width:11px;height:11px}
+.mk-vuse-r i{font-style:normal;color:var(--light)} .mk-vuse-r:hover .n{text-decoration:underline;text-underline-offset:3px}
 .mk-vpcs>.mk-vpc{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:16px 18px 4px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
 .mk-vpcs>.mk-vpc:last-child{border-bottom:1px solid var(--border)}
 .mk-vpcs>.mk-vpc:not(:has(.mk-vft)){padding-bottom:18px}   /* [SIM_R3] 아랫줄 없는 카드(다 쓴 분)도 위아래 여백을 맞춘다 */
@@ -1674,6 +1682,15 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vc .mk-vbs.mk-vlinks{gap:0 16px;align-items:center;margin-left:-2px}   /* [AI_CARD_TIDY] 다시 만들기 · 지우기 = 밑줄 글 단추 · 글과 같은 왼쪽 선(.pk-link 안쪽 2px 만큼 당김) */
 .mk-vlk{color:var(--sub)}
 .mk-vpcs .mk-mk{display:inline-flex;vertical-align:-2px;margin-right:4px}   /* [R2-25] «✓ 신랑 · 신부 AI 목소리 준비됨»도 ✓ 와 글 사이 한 칸(줄 카드 «✓ AI로 만들었어요»와 같게) */
+@media (min-width:720px){   /* ★[VPAGE_PC] 넓은 화면 = 카드 위아래 · 카드 안 한 줄 */
+  .mk-vlist.mk-vpcs{grid-template-columns:1fr}
+  .mk-vpcs>.mk-vpc .mk-vs{white-space:nowrap}
+  .mk-vpcs>.mk-vpc{display:grid;grid-template-columns:minmax(190px,1fr) 240px minmax(0,auto);align-items:center;column-gap:24px;padding:16px 20px}
+  .mk-vpcs>.mk-vpc .mk-vt{grid-column:1;flex-direction:column;align-items:flex-start;justify-content:center}
+  .mk-vpcs>.mk-vpc .mk-vstat,.mk-vpcs>.mk-vpc .mk-vhow,.mk-vpcs>.mk-vpc .mk-vneed{grid-column:2;margin:0;padding:0 0 0 20px;border:0;border-left:1px solid var(--border)}
+  .mk-vpcs>.mk-vpc .mk-vft{grid-column:3;margin:0;padding:0;min-height:0;justify-content:flex-end;flex-wrap:nowrap;gap:4px 16px}
+  .mk-vpcs>.mk-vpc .mk-vft.solo{display:flex} .mk-vpcs>.mk-vpc .mk-vft.solo .mk-vbs{width:auto} .mk-vpcs>.mk-vpc .mk-vft.solo .mk-vgo{width:auto;min-width:200px}
+}
 .mk-vlk:disabled{opacity:.5;cursor:default}   /* [VC_CARD_0928] AI 칸(mk-aisec)은 줄 카드(mk-vc)와 다른 이름 — 같은 이름이면 카드 여백이 새어 든다 */
 .mk-one1{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
 .mk-one1l{margin:0 0 4px}
@@ -3972,7 +3989,7 @@ function _cueGet(id){ return String((S.cueSig||{})[id]||'').trim(); }
 function _txSiteDone(kind,c,id){ return _txSite(kind,c,id)&&!!_cueGet(id); }
 function _cueBox(id){ var fid='mkcue_'+id.replace(/[^a-z0-9]/gi,'_'), v=_cueGet(id);
   return '<div class="mk-cue"><label class="mk-cue-l" for="'+fid+'">끝 신호 · 디렉터가 이걸 보고 다음 안내를 켜요</label>'
-    +'<input class="tin mk-cue-in" id="'+fid+'" maxlength="60" value="'+esc(v)+'" placeholder="예) 마지막에 «감사합니다»라고 할게요" oninput="mkCue(\''+id+'\',this.value)" onchange="_taChange()">'
+    +'<input class="tin mk-cue-in" id="'+fid+'" maxlength="60" value="'+esc(v)+'" placeholder="예) 마지막에 감사합니다 하고 인사할게요" oninput="mkCue(\''+id+'\',this.value)" onchange="_taChange()">'
     +'<div class="ex-chips mk-cue-ex" role="group" aria-label="끝 신호 예시">'+CUE_EX.map(function(x,i){ return '<button type="button" class="ex-chip'+(v===x?' on':'')+'" aria-pressed="'+(v===x)+'" data-fk="mkcueex:'+id+':'+i+'" onclick="mkCueEx(\''+id+'\','+i+')">'+esc(x)+'</button>'; }).join('')+'</div></div>'; }
 window.mkCue=function(id,v){ S.cueSig=S.cueSig||{}; v=String(v||'').slice(0,60); if(v.trim()) S.cueSig[id]=v; else delete S.cueSig[id]; _fAt('cueSig.'+id); _persist(); try{ _mkStripRepaint(); }catch(e){} };
 window.mkCueEx=function(id,i){ mkCue(id,CUE_EX[i]); _fxNext='#mkcue_'+id.replace(/[^a-z0-9]/gi,'_'); render(); };
@@ -4733,6 +4750,15 @@ function _vcNone(){ var hd='<h4 id="mkVcH" class="sr-only">AI 두 분 목소리<
   return hd+'<p class="mk-note mk-vnone" data-fk="mkvnone">두 분 목소리를 아직 만들지 않았어요 · <button type="button" class="pk-link" data-fk="mkvoicego" onclick="mkGo(\'_voice\')">만들기</button></p>'; }
 /* [VOICE_ONCE] «두 분 목소리 만들기» 쪽 — 머리 · 한 줄 설명 · 진행(«신랑 ✓ · 신부 남음») · 휴대폰 녹음 길잡이 · 사람 카드 · «나중에 할게요»
    막지 않는다 — 동의는 스스로 고르는 것이라 «다음»은 늘 눌린다. 두 분 다 만들었으면 조용한 «준비됐어요»(다시 만들기 · 지우기는 카드에) */
+/* ★★[VPAGE_PC 2026-10-05 사장님 «PC 버전인데 아래쪽이 비어 있어 이상 · 가로 2개 말고 세로로 2개» → «추천대로»]
+   PC(넓은 화면)는 사람 카드를 위아래로 · 카드 안은 한 줄(이름 · 상태 | 빠르기 · 쉼 | 단추) — 폰은 종전 그대로(이미 세로).
+   카드 아래 «이 목소리가 쓰이는 곳»: 이 예식에서 AI 로 정한 자리(하객 맞이 넷 · 입장 인사 · 식전 영상 소개)마다 읽는 분 · 상태(아직 · 만듦 · 확정됨) · 누르면 그 순간으로 */
+var VC_USE=[['g0','하객 입장 때','guest'],['g1','시작 10분 전','guest'],['g2','시작 5분 전','guest'],['g3','시작 1분 전','guest'],['entry','입장 인사','entry'],['pv','식전 영상 소개','prevideo']];
+function _vcUseList(){ var R=RitualOpen, rows=VC_USE.filter(function(x){ return (x[2]==='guest'||R.onOf(S,x[2]))&&_vpCur(x[2])==='ai'&&!(S.vself||{})[x[0]]; });
+  if(!rows.length) return '';
+  var who=function(k){ var w=_vcLineWho(k); return w==='both'?'두 분':w==='bride'?'신부':'신랑'; };
+  return '<div class="mk-vuse"><h4 class="mk-vuse-h">이 목소리가 쓰이는 곳</h4><ul>'+rows.map(function(x){ var v=(S.up||{})[x[0]], ai=!!(v&&typeof v==='object'&&v.src==='ai'), kp=ai&&!!(S.vkeep||{})[x[0]], st=kp?'확정됨':ai?'만듦':'아직';
+    return '<li><button type="button" class="mk-vuse-r" data-fk="mkvuse:'+x[0]+'" onclick="mkGo(\''+x[2]+'\')"><span class="n">'+esc(x[1])+'</span><span class="w">'+who(x[0])+'</span><span class="s'+(kp?' kept':ai?' made':'')+'">'+(kp?ICO_CHECK:'')+st+'</span><i aria-hidden="true">›</i></button></li>'; }).join('')+'</ul></div>'; }
 function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   var g=(st&&st.groom)||{}, b=(st&&st.bride)||{}, both=!!(g.ready&&b.ready);
   var h='<section class="mk-pg mk-vpage" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">두 분 목소리 만들기</h3></div>'
@@ -4741,7 +4767,7 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   var mark=function(r){ return r?'<span class="mk-vpk ok">✓</span>':'<span class="mk-vpk">남음</span>'; };
   /* ★«신랑 남음 · 신부 남음» 진행 줄 금지 — 2026-10-04 사용자 지시로 삭제 [VPROG_OFF] · 각 카드 상태 줄(«목소리 생성 · 날짜» / «아직 만들지 않았어요»)이 같은 말을 한다 */
   if(!both) h+='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';   /* 창(_vsPanel)과 같은 길잡이 */
-  h+=_vcPeople(true);
+  h+=_vcPeople(true)+_vcUseList();   /* [VPAGE_PC] 카드 아래 «이 목소리가 쓰이는 곳» */
   if(!both) h+='<div class="mk-vlater"><button type="button" class="pk-link" data-fk="mkvlater" onclick="mkVoiceLater()">나중에 할게요</button></div>';
   return h+'</section>'; }
 /* [VOICE_ONCE] 이 쪽에서 «목소리 만들기 시작» — 세 자리가 아직 AI 가 아니면 AI 로(창의 «AI 두 분 목소리»와 같은 _lSet) 뒤 종전 동의 창 */
@@ -6508,9 +6534,9 @@ function _pvDraw(){
     if(vd) vd.setAttribute('aria-hidden','true');   /* ★① 창 영상 누르기 · Enter 로 멈춤/다시(tv · tabindex · «누르면 멈춤 · 다시» 이름) 금지 — 2026-10-03 사용자 지시로 삭제 [VID_AUTO_ONLY] · 창을 열 때와 «다시 듣기»(그 순간을 소리와 함께 다시)에만 돈다(_pvPlay) */
   }
   var t=ln?ln.text:'';
-  el.querySelector('#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):'';
+  el.querySelector('#pvQ').textContent=_n2(PV_DESC[k]||c.one); void t;   /* ★★[PV_DESC_TOP 2026-10-05 사장님 «멘트를 적기보단 이 코스를 간략하게 설명하는 문구가 좋겠다» → «추천대로»] 큰 자리 = 이 순간 설명 한 문장 · 멘트 인용(«…») 금지 — 사용자 지시로 삭제 · 멘트는 «다시 듣기»로 들린다 */
   el.querySelector('#pvSt').textContent=(ln&&!ln.src)?REC_PEND:'';
-  el.querySelector('#pvOne').textContent=_n2(PV_DESC[k]||c.one);   /* [R1-41] · [PV_ONE_SHOT] 설명과 남는 사진을 한 문장으로 */
+  var _po=el.querySelector('#pvOne'); _po.textContent=''; _po.hidden=true;   /* [PV_DESC_TOP] 설명은 위 큰 자리로 올렸다(같은 말을 두 번 하지 않게) · [PV_ONE_SHOT] */
   var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=''; ce.hidden=true;   /* ★«하나씩 만들기에서 골라요 · ○○ · ○○» 한 줄(미리보기 창) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_CHOOSE_OFF] «삭제 · 다른 곳들도 마찬가지 · 일괄» · 창이 하나라 모든 순간에서 함께 빠진다 · ch(CHOOSE_AT_LISTEN)는 남겨 둔다(② 묶음 이름 검사 [F2 · G3]) · [STEP_NONUM_OP] 의 번호 없는 이름 규칙은 다른 자리에 그대로 */ void ch;
   var _ps=el.querySelector('#pvShot'); _ps.innerHTML=''; _ps.hidden=true;   /* ★«남는 사진 · ○○» 따로 한 줄 금지 — 2026-10-05 사용자 지시로 합침 [PV_ONE_SHOT] «같은 의미 · 고객 입장에서 하나로 · 다른 곳들도 하나씩 열어 보면서 중복 없이» */
   _pvActs(ln);
@@ -7868,6 +7894,20 @@ window._obReload=function(){
     if(pulled>12&&ok==null) ok=!busy()&&!inner(st); if(ok===false){ tr=false; set(0); return; } set(pulled>70?2:pulled>12?1:0); },{passive:true});
   document.addEventListener('touchend',function(){ if(tr) end(true); },{passive:true});
   document.addEventListener('touchcancel',function(){ if(tr) end(false); },{passive:true}); })();
+/* ★★[GUIL_OFF 2026-10-05 사장님 ««» 이 문양 별론데 · 식순 전체 저 문양을 쓰는 곳들 일괄» → 제안 1번(글꼴로 구분) · «나머지도 추천대로»]
+   화면에 그려지는 글의 «…»를 그리는 순간 바꾼다(글 원천 · 대본 · 콘솔 · AI 상담은 그대로 — 이 화면만) — 토스트 · 창 · 알림 · 칩 글까지 한 규칙:
+   ①실제로 소리 내어 읽는 말(문장 끝 ~다 · ~요 · . ! ? 이거나 «위하여» «감사합니다») → 명조(.q-say) · 따옴표 없이
+   ②칩 · 단추 · 화면 이름(그 밖 · « · » 로 이은 묶음 이름 포함) → 조금 굵게(.q-nm) · 따옴표 없이
+   글칸(textarea · input) · 스크립트 안은 건드리지 않는다. ★«…»를 그대로 보여 주는 자리를 새로 만들지 말 것 — 이 규칙이 다 바꾼다 */
+var GUIL_SAY=/^(위하여!?|감사합니다)$/;
+function _guilKind(x){ x=String(x||'').trim(); if(GUIL_SAY.test(x)) return 'say'; if(x.indexOf(' · ')<0&&x.length>4&&/(다|요|[.!?])$/.test(x)) return 'say'; return 'nm'; }
+function _guilNode(t){ var p=t&&t.parentNode; if(!p||p.nodeType!==1||/^(TEXTAREA|INPUT|SCRIPT|STYLE|OPTION|TITLE|NOSCRIPT)$/.test(p.nodeName)) return; var v=t.nodeValue||''; if(v.indexOf('«')<0) return;
+  var re=/«([^«»\n]{1,120})»/g, m, last=0, f=null; while((m=re.exec(v))){ f=f||document.createDocumentFragment(); if(m.index>last) f.appendChild(document.createTextNode(v.slice(last,m.index))); var k=_guilKind(m[1]), e=document.createElement(k==='say'?'span':'b'); e.className=k==='say'?'q-say':'q-nm'; e.textContent=m[1]; f.appendChild(e); last=re.lastIndex; }
+  if(!f) return; if(last<v.length) f.appendChild(document.createTextNode(v.slice(last))); p.replaceChild(f,t); }
+function _guilScan(root){ if(!root) return; if(root.nodeType===3){ _guilNode(root); return; } if(root.nodeType!==1||!root.textContent||root.textContent.indexOf('«')<0) return;
+  var w=document.createTreeWalker(root,4,null), a=[], n; while((n=w.nextNode())) if(n.nodeValue.indexOf('«')>-1) a.push(n); a.forEach(_guilNode); }
+(function(){ try{ new MutationObserver(function(ms){ ms.forEach(function(m){ if(m.type==='characterData') _guilNode(m.target); else for(var i=0;i<m.addedNodes.length;i++) _guilScan(m.addedNodes[i]); }); }).observe(document.documentElement,{childList:true,subtree:true,characterData:true}); }catch(e){}
+  if(document.body) _guilScan(document.body); else document.addEventListener('DOMContentLoaded',function(){ _guilScan(document.body); }); })();
 /* ★★[HEAD_PILLS 2026-09-27 사장님 «처음부터 다시 만들기 위쪽 버튼 모양으로 3개 동일하게 · 안내 다시 보기도 합류 · 총 4개»]
    새 코스 ①~④ 머리 알약 넷 — 안내 다시 보기 · 처음부터 다시 만들기 · 저장 · 나가기(같은 모양 .ob-exit · 화면을 떠나는 것이 끝).
    저장 · 나가기는 마이페이지 안(임베드)에서만 있고, 앞 둘은 그냥 열어도 있다. 안내 화면 · 수정 중(editReturn)에는 앞 둘을 숨긴다. */

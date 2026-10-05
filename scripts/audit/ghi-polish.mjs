@@ -115,7 +115,7 @@ for (const w of [390, 1280]) {
     return { link: !!link, how: !!how, order: !!(link && how && (link.compareDocumentPosition(how) & Node.DOCUMENT_POSITION_FOLLOWING)) }; });
   ok(`${w} H2 ② 식전 영상 쪽 — 링크 칸 하나 · 보내는 길 상자 없음 [H2_SEND_LUMP → PREVIDEO_FREE 2026-10-02 사장님 «링크 칸 하나만»]`, h2.link && !h2.how, JSON.stringify(h2));
   await pg.evaluate(() => mkGo('_sum')); await pg.waitForTimeout(300);
-  ok(`${w} H3 ② 한눈에 보기 도와주실 분 «불러 모아 주실 분 · «가족 · 친구 스냅»» [H3_CALLER_HELPER]`, await pg.evaluate(() => /가족사진 때 친척분들을 불러 모아 주실 분\s*양가 한 분씩 · 마이페이지 «가족\s·\s친구\s스냅»에 적어 두면 디렉터가 먼저 말씀드려요/.test(document.getElementById('stage').textContent)));
+  ok(`${w} H3 ② 한눈에 보기 도와주실 분 «불러 모아 주실 분 · «가족 · 친구 스냅»» [H3_CALLER_HELPER]`, await pg.evaluate(() => /가족사진 때 친척분들을 불러 모아 주실 분\s*양가 한 분씩 · 마이페이지 «?가족\s·\s친구\s스냅»?에 적어 두면 디렉터가 먼저 말씀드려요/.test(document.getElementById('stage').textContent)));
   const scr = await pg.evaluate(() => { S.welcomeText = '안녕하세요'; return typeof buildScript === 'function' ? buildScript() : (typeof scriptText === 'function' ? scriptText() : ''); });
   if (scr) ok(`${w} H1 대본 줄 «첫인사(두 분 작성):»`, /첫인사\(두 분 작성\):\n안녕하세요/.test(scr) && !/인사말\(두 분 작성\)/.test(scr), scr.slice(0, 80));
   // I1 · I2 · I3 ④
