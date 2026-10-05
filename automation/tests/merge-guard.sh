@@ -14224,3 +14224,16 @@ chk 'PV_LINK_ONE' order-preview.html 1
 chk 'TALK_BRIDGE' order-preview.html 4
 chk 'function _lBridge(q)' order-preview.html 1
 chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-preview.html 1
+# ★★[PHRASE_NO_DEAD 2026-10-05 사장님 «여기서 진행이 안 돼 · 전에도 그랬는데 해결이 안 된 것 같아»] 확인 문장을 못 받으면 글 2 «녹음 시작»이 잠긴 채 남던 막다른 길 — 다시 묻기 · «확인 문장 다시 받기» 단추
+chk 'PHRASE_NO_DEAD' order-preview.html 7
+chk "data-fk=\"mkvcphrase\"" order-preview.html 1
+chk 'function _vcPhraseGet(w)' order-preview.html 1
+nochk "MK.dlgMsg=d.error||'확인 문장을 받지 못했어요 · 창을 닫고 다시 열어 주세요'" order-preview.html
+# ★★[REFRESH_BTN · ORDER_RELOAD 2026-10-05 사장님 «여기에 새로고침 버튼 · 모바일은 아래로 당기면 새로고침»] 마우스 기기 = 머리 줄 알약 · 손가락 기기 = 당겨서 · 지금 판을 마이페이지에 넘기고 창만 새로(옛 초안으로 덮지 않는다)
+chk 'REFRESH_BTN' order-preview.html 4
+chk "id='obReload'\|_rb.id='obReload'" order-preview.html 1
+chk 'ORDER_RELOAD' order-preview.html 1
+chk "momentedit:orderReload" mypage.html 1
+chk 'reload:!!_rdOv' mypage.html 1
+chk 'PHRASE_NO_DEAD' scripts/audit/phrase-reload.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; [ "$_pr" = 1 ] && { echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; }; fi
