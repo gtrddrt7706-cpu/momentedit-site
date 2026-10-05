@@ -14227,3 +14227,19 @@ chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-pre
 chk 'SL_TIDY' order-preview.html 6   # ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?»] 줄 편집기 — 글칸 폭 같게(× 는 칸 안) · 읽는 분 단추 첫 줄 높이 · 줄 더하기와 처음 글로 한 줄
 chk 'class="mk-whog mk-slwg" role="radiogroup"' order-preview.html 1   # ★[SL_TIDY 2026-10-05 사장님 «신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?»] 줄마다 [신랑 | 신부] 둘 다 보인다
 nochk 'class="mk-slw" data-fk="mkslw' order-preview.html   # 한 단추 «신부»(누르면 신랑) 금지 — 2026-10-05 사용자 지시로 삭제
+# ★★[PHRASE_NO_DEAD 2026-10-05 사장님 «여기서 진행이 안 돼 · 전에도 그랬는데 해결이 안 된 것 같아»] 확인 문장을 못 받으면 글 2 «녹음 시작»이 잠긴 채 남던 막다른 길 — 다시 묻기 · «확인 문장 다시 받기» 단추
+chk 'PHRASE_NO_DEAD' order-preview.html 7
+chk "data-fk=\"mkvcphrase\"" order-preview.html 1
+chk 'function _vcPhraseGet(w)' order-preview.html 1
+nochk "MK.dlgMsg=d.error||'확인 문장을 받지 못했어요 · 창을 닫고 다시 열어 주세요'" order-preview.html
+# ★★[REFRESH_BTN · ORDER_RELOAD 2026-10-05 사장님 «여기에 새로고침 버튼 · 모바일은 아래로 당기면 새로고침»] 마우스 기기 = 머리 줄 알약 · 손가락 기기 = 당겨서 · 지금 판을 마이페이지에 넘기고 창만 새로(옛 초안으로 덮지 않는다)
+chk 'REFRESH_BTN' order-preview.html 4
+chk "id='obReload'\|_rb.id='obReload'" order-preview.html 1
+chk 'ORDER_RELOAD' order-preview.html 1
+chk "momentedit:orderReload" mypage.html 1
+chk 'reload:!!_rdOv' mypage.html 1
+chk 'PHRASE_NO_DEAD' scripts/audit/phrase-reload.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; [ "$_pr" = 1 ] && { echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; }; fi
+# ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 마이페이지 식순 줄 아래 접힘을 잠시 끈다(사장님이 다시 켜라 하기 전까지)
+chk 'var PREP_FOLD_OFF=true;' mypage.html 1
+chk "html: PREP_FOLD_OFF?'':_ritPrepFold(rd, base, dd)" mypage.html 1

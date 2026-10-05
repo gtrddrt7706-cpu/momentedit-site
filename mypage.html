@@ -2314,7 +2314,7 @@ function openRitualBuilder(p, inv){
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.opacity='1'; });
   _mpLock();
-  var saved=false, _closed=false, _frameReady=false;   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
+  var saved=false, _closed=false, _frameReady=false, _rdOv=null;   // [ORDER_RELOAD] 새로고침 직전 빌더가 쥐고 있던 초안(서버에 아직 안 갔을 수 있다)   // [RITUAL_BACK_SAVE 2026-07-25] done 멱등화 · 뒤로가기 타임아웃/중복 경로 안전
   function done(){ if(_closed) return; _closed=true; bkDone(_bkId); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock(); if(saved){ _mpRefresh(); } }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }   // 부모 쪽 Esc도 빌더의 '저장 후 나가기' 경로로(iframe 미로드 시엔 그냥 닫기)
   function onMsg(ev){
@@ -2322,7 +2322,7 @@ function openRitualBuilder(p, inv){
     var d=ev.data||{};
     if(d.type==='momentedit:orderReady'){
       _frameReady=true;
-      var rd=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null;
+      var rd=_rdOv||((p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)?{S:p.ritualDraft.S}:null);   // [ORDER_RELOAD] 새로고침이면 열 때 받은 옛 초안 대신 방금 그 판
       // [V2_DRAFT_NOTICE 2026-07-25] 구버전(v2 이하) 초안 감지 — 침묵 폐기 대신 1회 안내 후 종전 동작(새로 시작 · 회의 R-6)
       //   [ORDER_OWNER] 안내 플래그도 계정별 키 — 같은 기기에서 계정이 바뀌면 그 계정은 안내를 다시 받아야 한다(앞 계정이 봤다고 건너뛰면 조용한 초안 폐기가 됨).
       if(p&&p.ritualDraft&&!rd){ try{ var _v2k='me_order_v2note_'+(String((p&&p.code)||'')||'guest'); if(!localStorage.getItem(_v2k)){ localStorage.setItem(_v2k,'1'); _miniToast('이전 버전에서 만든 식순 초안은 새 빌더로 이어지지 않아요 · 새로 시작해요'); } }catch(e){} }
@@ -2343,10 +2343,14 @@ function openRitualBuilder(p, inv){
       var _pho=false; try{ _pho=!!(window.RitualPreviewLink && RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)); }catch(e4){}
       var _meal=false; try{ _meal=!!(window.RitualPreviewLink && RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)); }catch(e5){}   // [MEAL_GUIDE] 모일 식당 «유무»만(이름 아님)
       var _vo=(p&&p.voice)||((p&&p.production&&p.production.voice))||null;   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · AI 스위치(켜짐 여부만)
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, voice:_vo}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, voice:_vo}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
+    /* ★★[ORDER_RELOAD 2026-10-05 사장님 «여기에 새로고침 버튼 · 모바일은 아래로 당기면 새로고침»] 빌더 안 새로고침 = 이 창(iframe)만 새로 연다(마이페이지 · 로그인은 그대로).
+       ★열 때 받은 초안(p.ritualDraft)을 다시 넣으면 그 뒤 고친 것(저장 단추를 안 누른 것)이 옛 판으로 덮인다 — 빌더가 보낸 지금 판을 대신 싣는다.
+       서버로 보내지는 않는다(저장은 사람 손이 정한다 · ORD_AUTOSAVE) */
+    if(d.type==='momentedit:orderReload'){ if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; try{ fr.src='/order-preview.html?embed=1&t='+Date.now(); }catch(e){} return; }
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderExit'){   // '저장 후 나가기'(다른 위저드와 동일 구조 · 2026-07-18) — 초안 서버 저장(done:false) 후 닫기 · 코스 시작 전(data 없음)은 그냥 닫기
       // 저장 실패 시 오버레이는 그대로 두고 빌더의 나가기 버튼 잠금(_obExiting)을 풀어 재시도 가능하게 — 안 풀면 버튼 영구 잠김
@@ -6671,6 +6675,7 @@ function _bouquetFold(base){
     +'<h4>받는 시각 · 장소</h4><ul><li>예식 당일 '+(when?escapeHtml(when)+'까지':'두 분 도착 10분 전까지')+' · 스튜디오로 보내 주세요 <span class="due">· 퀵이나 직접 가져오기 모두 괜찮아요</span></li>'
     +'<li>주문 · 결제는 플로리스트와 직접 하시면 돼요</li><li>부케 없이 오시거나 따로 준비하셔도 괜찮아요</li></ul></details>';
 }
+var PREP_FOLD_OFF=true;   // [PREP_FOLD_OFF] 사장님 «일단 여기서는 안 보이게» — 2026-10-05
 function _ritPrepFold(rd, base, dd){
   var sm=rd&&rd.summary; if(!sm||!sm.open||!(sm.prep||sm.helpers)) return '';
   var wm=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -6837,7 +6842,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },
-    { done: true, html: _ritPrepFold(rd, base, dd) },
+    { done: true, html: PREP_FOLD_OFF?'':_ritPrepFold(rd, base, dd) },   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
     { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2||_frB2||_ocB2), html: (function(){ var _ph=(_gpB2.photo||[]), _any=!!(_fxB2||_frB2||_ocB2); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_any?'완료 · 수정':'구도 고르기'); return row('가족 · 친구 스냅', (_ph.length||_any)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 3부 2] 구도가 있으면 «전체 하객 + N컷», 구도는 없고 다른 내용(요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크)이 있으면 «완료 · 수정» + ✓ — 종전엔 요청만 «요청 N개», 불러 모을 분 · 링크만이면 «구도 고르기»(✓ 없음)로 남아 저장 알림과 다른 말을 했다 */   /* [PHOTO_FRIEND_ROW] 친구 부탁만 = ✓ · 「완료 · 수정」 */   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */
