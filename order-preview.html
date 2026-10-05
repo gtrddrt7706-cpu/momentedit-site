@@ -4422,9 +4422,9 @@ function _vsPanel(){ var cur=VS.hint||_vsCur();   // [VS_CHIP_ONCE] 칩에서 �
     return h   /* ★«한 분만 만들어도 돼요 …» 한 줄 줄 금지 — 2026-10-04 사용자 지시로 삭제 [ONE_OK_OFF] (사장님 «한 분만 만들어도 되긴 하는데 이상하지») */
       +'<button type="button" class="mk-dlg-go" data-fk="mkvsdone" onclick="mkVsClose()">다 됐어요</button>'
       +'<div class="mk-dlg-sub"><button type="button" class="pk-link" data-fk="mkvsback" onclick="mkVsPh(\'pick\')">다른 방법 고르기</button></div>'; }
-  return '<p class="mk-note">'+(VS.hint?'고르신 «'+esc(VS_LAB[VS.hint])+'»를 '+_vsWhere()+'에 한 번에 쓸까요? 이 자리만 두려면 창을 닫아 주세요':_vsWhere()+'를 어떤 목소리로 할지 한 번에 정해요. 순간마다 나중에 바꿀 수 있어요')+'</p>'
+  return '<p class="mk-note">'+(VS.hint?'고르신 «'+esc(VS_LAB[VS.hint])+'»를 '+_vsWhere()+'에 한 번에 쓸까요? 이 자리만 두려면 창을 닫아 주세요':'<span class="mk-two"><span>'+_vsWhere()+'를 어떤 목소리로 할지 한 번에 정해요.</span><span>순간마다 나중에 바꿀 수 있어요</span></span>')+'</p>'   /* ★[VS_TWO_LINE 2026-10-05 사장님 «… 한 번에 정해요.(줄내림) 순간마다 나중에 바꿀 수 있어요»] 두 문장을 두 줄로(DLG_TWO_LINE 과 같은 모양) */
     +'<div class="mk-vso" role="group" aria-label="안내 목소리">'
-    +'<button type="button" data-fk="mkvs:ai" aria-pressed="'+(cur==='ai')+'" onclick="mkVsPick(\'ai\')"><b>AI 두 분 목소리</b><span>'+VS_ONE+' · 예식 다음 날 지워요</span></button>'   /* [R2-23] «두 / 분» · «세 / 자리» 줄갈림 막기 · [R1-29] 지우는 때(purgeVoiceClones · 80_production · 예식 다음 날) */
+    +'<button type="button" data-fk="mkvs:ai" aria-pressed="'+(cur==='ai')+'" onclick="mkVsPick(\'ai\')"><b>AI 두 분 목소리</b><span>'+VS_ONE+'</span></button>'   /* ★« · 예식 다음 날 지워요» 금지 — 2026-10-05 사용자 지시로 삭제 [VS_NO_PURGE_NOTE] · 지우는 때는 동의 창(VC_TXT.when)이 말한다 */   /* [R2-23] «두 / 분» · «세 / 자리» 줄갈림 막기 · [R1-29] 지우는 때(purgeVoiceClones · 80_production · 예식 다음 날) */
     +'<button type="button" data-fk="mkvs:nar" aria-pressed="'+(cur==='nar')+'" onclick="mkVsPick(\'nar\')"><b>스튜디오 나레이션</b><span>나레이터가 읽어요. 따로 준비할 것이 없어요</span></button>'
     +'</div>'; }
 var VS_LAB={ai:'AI 두 분 목소리',nar:'스튜디오 나레이션',mix:'순간마다 다르게'};
@@ -6338,6 +6338,24 @@ window.opPv=function(k){
   if(ENG&&LREC) _pvPlay();
   else Promise.all([engine(),_lrec()]).then(function(){ if(PV.k===k){ _pvDraw(); _pvPlay(); } });
 };
+/* ★★[PV_ONE_SHOT 2026-10-05 사장님 «남는 사진 · 문이 열리는 순간 · 두 분의 첫 장면 과 두 분이 함께 걸어 들어와, 나란히 서는 첫 장면을 남겨요 — 같은 의미 · 고객 입장에서 하나로» · «다른 곳들도 하나씩 열어 보며 중복 없이»]
+   ① 미리보기 창의 설명(c.one)과 «남는 사진»(c.shot)을 순간마다 한 문장으로 — 무엇을 하는지 + 무엇이 사진에 남는지. 시간 · 받는 것 · 준비하는 것 같은 사실은 한 글자도 빼지 않았다.
+   원천(ritual-open CARDS.one · shot)은 그대로 둔다(엔진 · AI 상담 · 다른 화면이 쓴다) — 이 창 문장만 여기서 */
+var PV_DESC={
+  prevideo:'하객이 자리에 앉는 동안 두 분이 준비한 영상이 흐르고, 영상을 보는 가족들의 얼굴을 사진으로 남겨요. 영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요.',
+  candle:'두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요. 불이 옮겨붙는 순간과 불빛에 비친 얼굴을 담아요.',
+  entry:'문이 열리고 두 분이 함께 걸어 들어와 나란히 서요. 두 분의 첫 장면을 사진으로 남겨요.',
+  welcome:'두 분이 하객을 바라보며 짧게 첫인사를 드려요.',
+  bless:'부모님이 두 분께 덕담을 들려주세요(한 분 1분쯤). 말씀하시는 부모님과 듣는 두 분을 함께 담아요.',
+  vow:'두 분이 서로를 보며 약속을 읽어요(한 분 1분쯤). 마주 본 옆얼굴을 담아요.',
+  ring:'서로의 손에 반지를 끼워 줘요. 반지가 손가락에 들어가는 두 손을 가까이 담아요.',
+  declare:'두 분이 부부가 되었음을 알리고, 하객 모두가 박수 치는 장면을 넓게 담아요.',
+  tribute:'부부가 되어 처음 부모님께 고마움을 전하고, 부모님 품에 안기는 순간을 담아요.',
+  letter:'부모님께, 또는 서로에게 쓴 편지를 읽어요. 읽는 목소리와 듣는 얼굴을 함께 담아요.',
+  cake:'두 분이 나이프를 함께 잡고 케이크를 잘라요. 맞잡은 두 손을 가까이 담아요.',
+  toast:'두 분이 먼저 «위하여»를 외치면 하객이 잔을 들고 함께 답해요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',
+  _close:'두 분이 인사를 드리고 본식을 마쳐요. 이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.'
+};   /* free(준비한 순서)는 고른 칩마다 남는 사진이 달라 원문 설명만 둔다 — 받는 것 · 받지 않는 것 안내가 길어 사진 말을 더하지 않는다 */
 function _pvDraw(){
   var R=RitualOpen, k=PV.k, c=R.CARDS[k], el=_pvEl(); if(!c) return;
   var ln=_pvLine(k), v=R.firstVideo(k,S), always=!!R.ALWAYS[k]||k==='_close';
@@ -6355,9 +6373,9 @@ function _pvDraw(){
   var t=ln?ln.text:'';
   el.querySelector('#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):'';
   el.querySelector('#pvSt').textContent=(ln&&!ln.src)?REC_PEND:'';
-  el.querySelector('#pvOne').textContent=_n2(c.one);   /* [R1-41] */
+  el.querySelector('#pvOne').textContent=_n2(PV_DESC[k]||c.one);   /* [R1-41] · [PV_ONE_SHOT] 설명과 남는 사진을 한 문장으로 */
   var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=''; ce.hidden=true;   /* ★«하나씩 만들기에서 골라요 · ○○ · ○○» 한 줄(미리보기 창) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_CHOOSE_OFF] «삭제 · 다른 곳들도 마찬가지 · 일괄» · 창이 하나라 모든 순간에서 함께 빠진다 · ch(CHOOSE_AT_LISTEN)는 남겨 둔다(② 묶음 이름 검사 [F2 · G3]) · [STEP_NONUM_OP] 의 번호 없는 이름 규칙은 다른 자리에 그대로 */ void ch;
-  el.querySelector('#pvShot').innerHTML='<b>남는 사진</b> · '+esc(R.shotOf(k,S)||c.shot||'');
+  var _ps=el.querySelector('#pvShot'); _ps.innerHTML=''; _ps.hidden=true;   /* ★«남는 사진 · ○○» 따로 한 줄 금지 — 2026-10-05 사용자 지시로 합침 [PV_ONE_SHOT] «같은 의미 · 고객 입장에서 하나로 · 다른 곳들도 하나씩 열어 보면서 중복 없이» */
   _pvActs(ln);
 }
 function _pvActs(ln){

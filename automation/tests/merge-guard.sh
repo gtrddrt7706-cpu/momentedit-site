@@ -14320,3 +14320,13 @@ chk 'PV_CHOOSE_OFF' scripts/audit/pick-v2.mjs 1
 chk 'PV_FN_OFF' order-preview.html 1
 nochk '<p class="pv-fn">' order-preview.html
 :
+# ★★[PV_ONE_SHOT 2026-10-05 사장님 «같은 의미 · 고객 입장에서 하나로 · 다른 곳들도 하나씩 열어 보면서 중복 없이»] 미리보기 창 설명 + 남는 사진 = 순간마다 한 문장
+chk 'PV_ONE_SHOT' order-preview.html 3
+chk 'var PV_DESC={' order-preview.html 1
+nochk "innerHTML='<b>남는 사진</b> · '+esc(R.shotOf(k,S)" order-preview.html
+chk 'PV_ONE_SHOT' scripts/audit/listen-page.mjs 1
+# ★[VS_TWO_LINE · VS_NO_PURGE_NOTE 2026-10-05 사장님] 안내 목소리 창 설명 두 줄 · AI 칸 « · 예식 다음 날 지워요» 금지
+chk 'VS_TWO_LINE' order-preview.html 1
+chk 'VS_NO_PURGE_NOTE' order-preview.html 1
+nochk "VS_ONE+' · 예식 다음 날 지워요" order-preview.html
+:
