@@ -1496,7 +1496,8 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-slc .mk-slf{margin:0 -16px;padding:0 16px;border-top:1px solid var(--border)}   /* [CARD_POLISH] 카드 안 맨 아래 — 가는 선 위 한 줄(44px) */
 .mk-slc .mk-slr:last-child .mk-slb .mk-slt.ta.grow{padding-bottom:12px}
 .mk-vcards>.mk-vc{border-bottom:0;padding-bottom:26px}   /* [LINE_CARD] 순간 사이 긴 가로선 → 여백(카드가 이미 가른다) */
-.mk-sltn{flex:1 1 100%;margin:-10px 0 0}   /* [TURN_GAP] 줄 사이 «쉼 보통 ›» — 가는 선 가운데 작은 글(평소) · 누르면 아래로 점 줄 */
+.mk-sltn{flex:1 1 100%;margin:-18px 0 1px}   /* [TURN_ONE_LINE] 글 아래 · 다음 [신랑|신부] 위 간격이 같게(실측 36 · 27 → 28 · 28) */
+.mk-slr:has(+.mk-slr>.mk-sltn) .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}   /* ★[TURN_ONE_LINE 2026-10-05 사장님 «쉼에 가로 라인이 있는데 바로 위에 또 있으니 깔끔하지 못하다» → «추천대로»] 쉼 줄이 따라오는 글칸은 밑줄을 숨긴다 — «─ 쉼 보통 › ─» 한 줄이 구분선 · 적는 동안(초점)엔 밑줄이 다시 · 같은 분이 잇는 줄은 밑줄 그대로 */   /* [TURN_GAP] 줄 사이 «쉼 보통 ›» — 가는 선 가운데 작은 글(평소) · 누르면 아래로 점 줄 */
 .mk-sltb{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0;border:0;background:none;cursor:pointer;color:var(--light);font-family:inherit;font-size:12.5px;letter-spacing:.02em}
 .mk-sltb::before,.mk-sltb::after{content:'';flex:1 1 auto;height:1px;background:var(--border)}
 .mk-sltb i{font-style:normal;display:inline-block;margin-left:-6px}
