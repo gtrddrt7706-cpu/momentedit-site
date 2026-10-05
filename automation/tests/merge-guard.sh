@@ -14239,10 +14239,10 @@ chk 'ORDER_RELOAD' order-preview.html 1
 chk "momentedit:orderReload" mypage.html 1
 chk 'reload:!!_rdOv' mypage.html 1
 chk 'PHRASE_NO_DEAD' scripts/audit/phrase-reload.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; [ "$_pr" = 1 ] && { echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; if [ "$_pr" = 1 ]; then echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; fi; fi
 # ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 마이페이지 식순 줄 아래 접힘을 잠시 끈다(사장님이 다시 켜라 하기 전까지)
 chk 'var PREP_FOLD_OFF=true;' mypage.html 1
-chk "html: PREP_FOLD_OFF?'':_ritPrepFold(rd, base, dd)" mypage.html 1
+chk "html: PREP_FOLD_OFF?_ritPrepFold(rd, base, dd, true):_ritPrepFold(rd, base, dd)" mypage.html 1
 # ★[RELOAD_KEEP_AT 2026-10-05 사장님 «두 분 목소리에서 새로고침하면 이전 화면으로 간다»] orderFill(AI 스위치)을 받기 전에는 «두 분 목소리» 자리를 첫 쪽으로 덮어쓰지 않는다
 chk 'RELOAD_KEEP_AT' order-preview.html 3
 chk 'if(!_atWait){ m.at=k; m.seen\[k\]=1; }' order-preview.html 1
@@ -14260,3 +14260,22 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/mini-off-ai.mjs >/de
 # ★[MP_ALL_WORD 2026-10-05 사장님 «전체 한 번에 재생된다는 느낌» → 시안 A 문구만] «이 순간 전체 듣기 · n줄 이어서»
 chk 'MP_ALL_WORD' order-preview.html 2
 chk "return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':'');" order-preview.html 1
+# ★★[TURN_GAP 2026-10-05 사장님 «사이에 턴 시간 · 바로 말이 나와야 하는 경우도 · 5단계로 사이에 · 더 나은 안으로 적용»] 신랑 ↔ 신부가 바뀌는 줄 사이 «쉼 보통 ›» → 누르면 5단계 점 줄 · 그 자리만 듣기 · 보통은 종전 소리 그대로
+chk 'TURN_GAP' order-preview.html 8
+chk "var TURN_L=\['바로','짧게','보통','길게','아주 길게'\], TURN_DEF=2" order-preview.html 1
+chk 'function _vcProc(d,t,pause,o)' order-preview.html 1
+chk "tq:mx?_slTurnSig(key):undefined" order-preview.html 1
+chk "(v.tq||'')!==_slTurnSig(key)" order-preview.html 1
+chk 'TURN_GAP' scripts/audit/turn-gap.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/turn-gap.mjs >/dev/null 2>&1; _tg=$?; if [ "$_tg" = 1 ]; then echo 'FAIL turn-gap: 줄 사이 넘기는 쉼이 어긋났습니다 — node scripts/audit/turn-gap.mjs'; fail=1; fi; fi
+# ★★[PREP_LINK 2026-10-05 사장님 «미리듣기랑 준비할 것 · 클릭하면 볼 수 있게» → «추천대로»] 식순 줄 «미리듣기 · 준비할 것» · 누르면 줄 아래 목록 · 요약 줄은 계속 숨김
+chk 'PREP_LINK' mypage.html 6
+chk 'mp_ritPrepBox' mypage.html 3
+chk "_ritPre2={id:'mp_ritualPrep', label:'준비할 것'" mypage.html 1
+# ★[LINE_CARD 2026-10-05 사장님 «섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 순간 사이 가로선 → 여백
+chk 'LINE_CARD' order-preview.html 3
+chk '^\.mk-sl{background:var(--card);border:1px solid var(--border);border-radius:12px' order-preview.html 1
+chk 'PREP_LINK' scripts/audit/prep-link.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/prep-link.mjs >/dev/null 2>&1; _pl=$?; if [ "$_pl" = 1 ]; then echo 'FAIL prep-link: 마이페이지 식순 «준비할 것» 펼치기가 어긋났습니다 — node scripts/audit/prep-link.mjs'; fail=1; fi; fi
+# ★[GUARD_TAIL_RC 2026-10-05] 끝 줄이 «[ x = 1 ] && {…}» 꼴이면 시험이 통과(0)할 때 그 줄이 1 로 끝나 가드 전체가 1 이 됐다(PR #991 · «ALL MARKERS OK» 뒤 빨강). 끝 node 검사는 if 꼴로 · 이 줄은 늘 0
+:
