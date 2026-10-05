@@ -2950,7 +2950,7 @@ function recoTxt(k){
    ★규칙: 부제는 제목이 말하지 않은 것만 말한다. 말할 게 없으면 비운다(빈 t는 화면에서 줄이 사라진다).
    ★감정이 핵심인 순간(편지)은 남긴다 — 그 한 줄이 정보이기도 하다. */
 var MOMENT={
- prevideo:{ph:'식전 영상',t:'하객이 모두 앉은 뒤, 입장 바로 앞에 상영해요 · 본식 시간에 들지 않아요',act:'영상 링크만 붙여 두시면 돼요.'},
+ prevideo:{ph:'식전 영상',t:'예식 시작 시각에 상영해요 · 끝나면 두 분이 입장해요',act:'영상 링크만 붙여 두시면 돼요.'},
  candle:{ph:'화촉',t:'촛불로 예식의 시작을 알리는 자리예요',act:'불을 밝힐 두 분을 골라 주세요.'},
  guest:{ph:'예식의 시작 · 하객 맞이',t:'여기서 예식이 시작돼요 · 하객이 앉는 동안 안내가 흘러요',act:'나레이션이 기본 · 원하면 두 분 목소리로도 만들 수 있어요.',info:true},
  entry:{ph:'식이 열려요',t:'멘트가 첫 장면을 만들어요',act:'나레이션 · 두 분 목소리 중 고르고, 입장 멘트를 골라주세요.'},
@@ -7421,7 +7421,7 @@ var BLOCK={
   guest:function(){ return null; }, // 식전 안내 트랙 · 본식 대본에는 미포함
   /* [OPEN_COURSE] 새 코스의 두 순간 — 문안 원천은 ritual-open.js 의 NAR */
   prevideo:function(){
-    return {n:'식전 영상',nar:RitualOpen.NAR.prevideoIn,cue:'1분 전 안내 뒤 · 두 분이 준비한 영상 상영 · 두 분은 문 밖에서 대기 · 본식 시간에 들지 않아요'};
+    return {n:'식전 영상',nar:RitualOpen.NAR.prevideoIn,cue:'예식 시작 시각 · 1분 전 안내 뒤 · 두 분이 준비한 영상 상영 · 두 분은 문 밖에서 대기 · 끝나면 입장'};
   },
   candle:function(){
     var w=S.candleWho, nm=''; RitualOpen.CANDLE_WHO.forEach(function(c){ if(c[0]===w) nm=c[1]; }); if(!nm){ w=RitualOpen.DEF.candleWho; nm='양가 어머님'; }

@@ -14446,6 +14446,15 @@ nochk '가로 mp4 · 3분 이내' api/_ritual-kb.js
 chk '두 분 입장 바로 앞에 불을 낮추고' api/_ritual-kb.js 1
 :
 # ★[ONEMIN_CLOCK_KEEP 2026-10-05 사장님 «추천대로»] 안내 시각은 영상 시작 기준(-14 · -9 · -5) · 영상은 본식 시작 4분 전 — 청첩장 시각과 4분 차이는 알고 유지
-chk 'ONEMIN_CLOCK_KEEP' assets/ritual-cue.js 1
-chk 'var at = pvOn ? \[null, -14, -9, -5\] : \[null, -10, -5, -1\]' assets/ritual-cue.js 1
+chk 'ONEMIN_CLOCK_KEEP' assets/ritual-cue.js 1   # (기록) 같은 날 CEREMONY_AT_VIDEO 로 걷음
+:
+# ★★[CEREMONY_AT_VIDEO 2026-10-05 사장님 «예식 시작 시간만 정해져 있고 · 영상이 길면 입장도 유연하게 늦어진다»] 영상 = 예식 시작 시각(0) · 안내 늘 -10 · -5 · -1
+chk 'CEREMONY_AT_VIDEO' assets/ritual-cue.js 3
+chk "fire: 'clock', atMin: 0,   // \[CEREMONY_AT_VIDEO" assets/ritual-cue.js 1
+chk 'var at = \[null, -10, -5, -1\], out = \[\];' assets/ritual-cue.js 1
+nochk '\[null, -14, -9, -5\]' assets/ritual-cue.js
+nochk '본식 시작 4분 전' assets/sequence-modal.js
+nochk '본식 시작 4분 전' api/_ritual-kb.js
+chk 'CEREMONY_AT_VIDEO' assets/ritual-open.js 1
+chk 'CEREMONY_AT_VIDEO' scripts/audit/open-course.mjs 2
 :
