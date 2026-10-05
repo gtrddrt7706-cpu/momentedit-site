@@ -215,6 +215,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .names{font-family:var(--serif-ko);font-size:23px;font-weight:500;color:var(--accent);line-height:1.4;overflow-wrap:anywhere}
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
 .welcome .wed-chip{display:block;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.02em}
+.welcome .wed-chip.cele-wait{opacity:0}   /* [CELE_LINE 2026-10-05] 축하 그림이 돌 차례면 한 줄은 숨겨 두었다가 */
+.welcome .wed-chip.cele-in{animation:celeIn 1.3s var(--ease) .5s both}   /* 터짐이 꼭대기에 닿을 때 피어난다 — 움직임과 말이 한 순간이 되게 */
+@keyframes celeIn{from{opacity:0;transform:translateY(6px);letter-spacing:.14em}to{opacity:1;transform:none;letter-spacing:.02em}}
 .welcome .wed-chip .wed-dday{display:inline;margin-left:2px;font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.01em;white-space:nowrap}   /* DDAY_ONELINE(2026-07-25 사용자 지시 "한 줄로"): MPD_B1 별도 줄 승격을 한 줄 병기로 전환 — 먹색 반굵기 강조(헌장 5)는 유지, 'D-80 · 시간' 덩어리는 nowrap으로 함께 줄바꿈 */
 
 /* ── NOW 카드 (주인공) ── */
@@ -3122,6 +3125,7 @@ function mpCelebrate(opts){
     else { o.sz=rnd(1.2,2.6)*z; o.col=pick(['#B89A75','#D6C2A0','#7A5F37']); o.drag=1.0; o.term=rnd(140,220); o.life=rnd(1700,2400); }
     return o; }
   [0,1].forEach(function(sd){ burst(sd,0,1); burst(sd,380,0.5); }); shower(Math.round((narrow?22:30)*k));
+  P.sort(function(a,b){ return a.z-b.z; });   /* 먼 것부터 그린다(가까운 것이 위) — 한 번만 정렬(매 프레임 정렬은 낡은 폰에서 끊김) */
   function petalPath(z,shp){ g.beginPath();   /* [CELE_VARIETY] 꽃잎 넷 — 0 둥근 잎 · 1 물방울 · 2 버들잎 · 3 끝이 갈라진 벚잎 */
     if(shp===1){ g.moveTo(-z,0); g.bezierCurveTo(-z*0.6,-z*0.62,z*0.5,-z*0.55,z,0); g.bezierCurveTo(z*0.5,z*0.55,-z*0.6,z*0.62,-z,0); }
     else if(shp===2){ g.moveTo(-z*1.1,0); g.quadraticCurveTo(0,-z*0.5,z*1.1,0); g.quadraticCurveTo(0,z*0.5,-z*1.1,0); }
@@ -3131,7 +3135,6 @@ function mpCelebrate(opts){
   var t0=null, last=null, raf=window.requestAnimationFrame||function(f){ return setTimeout(function(){ f(Date.now()); },16); };
   function frame(ts){ if(t0==null){ t0=ts; last=ts; } var el=ts-t0, dt=Math.min(0.034,(ts-last)/1000); last=ts; g.clearRect(0,0,W,H);
     var live=false;
-    P.sort(function(a,b){ return a.z-b.z; });   /* 먼 것부터 — 가까운 것이 위에 */
     for(var i=0;i<P.length;i++){ var p=P[i], age=el-p.born; if(age<0){ live=true; continue; } var life=age/p.life; if(life>=1||p.dead) continue; live=true;
       var a=life<0.06?life/0.06:(life>0.62?Math.max(0,(1-life)/0.38):1), tt=age/1000;
       g.save();
@@ -3159,8 +3162,10 @@ function mpCelebrate(opts){
    움직임 줄이기 · 데이터 절약이면 함수가 안 돌고, 그때는 «띄웠다»도 적지 않는다(나중에 켜면 그때 한 번) */
 var WED_DONE_STAGES=['예식완료','결과물전달','후기'];
 function _mpWedDone(d){ return !!(d && !d.isException && d.product!=='웨딩스냅' && WED_DONE_STAGES.indexOf(String(d.stage||''))>-1); }
-function _mpWedCelebrate(d){ try{ if(!_mpWedDone(d)) return; var k='me_wedcele_'+String(d.code||'x'); if(localStorage.getItem(k)==='o') return;
-  if(mpCelebrate()) localStorage.setItem(k,'o'); }catch(e){} }
+function _mpCeleDue(d){ try{ return _mpWedDone(d) && localStorage.getItem('me_wedcele_'+String(d.code||'x'))!=='o'; }catch(e){ return false; } }
+function _mpWedCelebrate(d){ var c=$('mp_cheer'); try{ if(!_mpWedDone(d)) return; var k='me_wedcele_'+String(d.code||'x'); if(localStorage.getItem(k)==='o'){ if(c) c.classList.remove('cele-wait'); return; }
+  if(mpCelebrate()){ localStorage.setItem(k,'o'); if(c){ c.classList.remove('cele-wait'); c.classList.add('cele-in'); } }   /* [CELE_LINE] 그림과 함께 한 줄이 피어난다 */
+  else if(c) c.classList.remove('cele-wait'); }catch(e){ if(c) c.classList.remove('cele-wait'); } }
 function renderMyPage(d){
   window._mpStateD = d;   // 전체 상태 전역 — 렌더 시작점에서 세팅(하위 렌더러·게이트가 같은 상태를 보게. 종전 렌더 말미 세팅은 초기 렌더 타이밍 구멍)
   setTimeout(function(){ try{ _mpRollbackNotice(d); }catch(e){} }, 700);   // [ROLLBACK_NOTICE] 화면이 다 그려진 뒤 한 박자 늦게 — 렌더 도중에 덮으면 무엇이 바뀌었는지 못 본다
@@ -3216,7 +3221,7 @@ function renderMyPage(d){
     el.style.display='block';
   })();
   /* [WED_DONE_CELEBRATE] 예식 완료 뒤 축하 한 줄 — 날짜 줄 바로 아래 같은 모양 · 축하 그림(한 번)과 짝 */
-  (function(){ var c=$('mp_cheer'); if(!c) return; if(_mpWedDone(d)){ c.textContent='두 분의 결혼을 진심으로 축하드려요'; c.style.display='block'; } else { c.textContent=''; c.style.display='none'; } })();
+  (function(){ var c=$('mp_cheer'); if(!c) return; if(_mpWedDone(d)){ c.textContent='두 분의 결혼을 진심으로 축하드려요'; c.style.display='block'; if(_mpCeleDue(d)&&!c.classList.contains('cele-in')) c.classList.add('cele-wait'); } else { c.textContent=''; c.style.display='none'; } })();
   setTimeout(function(){ _mpWedCelebrate(d); }, 600);   /* 화면이 선 뒤 한 박자 — 그리는 도중에 겹치지 않게 */
 
   // NOW 헤드라인 (단계별 문구 = nextActionFor 결과)
