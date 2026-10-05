@@ -9313,7 +9313,7 @@ chk 'MK_VID_CHIP' order-preview.html 1   # ② 케이크 · 축배 쪽 영상은
 chk 'MK_VID_CHIP' scripts/audit/listen-page.mjs 1
 nochk "_lVid(k,{big:true,name:k})" order-preview.html
 chk 'PC_GO_LABEL' order-preview.html 1   # PC ① 다음 단추 = «다음 · 하나씩 만들기»
-chk 'ONEMIN_HOME' order-preview.html 2   # 1분 전 안내 — 식전 영상이 있을 때만 그 뒤 · 없으면 하객 맞이(사라지지 않게)
+chk 'ONEMIN_HOME' order-preview.html 1   # (기록) 1분 전 안내 — 2026-10-05 [ONEMIN_FIRST] 로 늘 하객 맞이
 chk 'ONEMIN_HOME' scripts/audit/listen-page.mjs 1
 chk 'MK_PICK_ROW' order-preview.html 1   # 들어 보기 = 머리 줄 오른쪽 작은 단추(칩 아래 큰 단추 걷음)
 chk 'MK_COPY_RIGHT' order-preview.html 1   # 읽을 글 복사 = 제목 줄 오른쪽 · 아래 «복사됐어요»
@@ -14415,4 +14415,11 @@ chk "rows=VC_USE.filter(function(x){ return x\[2\]==='guest'||R.onOf(S,x\[2\]); 
 nochk '.mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var(--border)}' order-preview.html   # [KEEP_GUIDE] 아래 선 = 겹선 금지(2026-10-05)
 :
 chk 'G3_NO_MINI' order-preview.html 1   # [G3_NO_MINI 2026-10-05] 하객 맞이 쪽 «시작 1분 전» ▶ · 전체 듣기에도 아래 재생 바 없이
+:
+# ★[ONEMIN_FIRST 2026-10-05 사장님 «식전 영상도 시작 이후 · 1분 전 멘트 뒤에 영상» → «추천대로»] 03 → 04(89 판) → 식전 영상 → 입장 · 02~04 = -14 · -9 · -5
+chk 'ONEMIN_FIRST' assets/ritual-cue.js 3
+chk 'ONEMIN_FIRST' order-preview.html 6
+chk 'ONEMIN_FIRST' scripts/audit/open-course.mjs 3
+nochk "Array.prototype.splice.apply(got, \[got.length - 1, 0\].concat(BUILD.prevideo(S)))" assets/ritual-cue.js
+nochk "q.up==='g3'&&R.onOf(S,'prevideo')?'식전 영상이 끝난'" order-preview.html
 :

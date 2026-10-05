@@ -531,11 +531,17 @@
       var vi = (S.guestVoice === 'couple') ? 2 : 1;   // GUEST[i] = [라벨, 나레이션, 두분목소리]
       /* [OPEN_COURSE] 화촉이나 식전 영상이 입장보다 먼저면 04 첫 줄 «곧 문이 열리고»가 틀린 말이 된다(문이 아직 안 열린다).
          그날만 89(guest-4-1min-pre)로 바꾼다. 두 분 목소리 판은 첫 줄이 이미 «곧 저희 예식이 시작됩니다»라 그대로 맞다. */
-      /* ★[PREVIDEO_ALWAYS 2026-09-25] 식전 영상이 늘 있게 되면서 영상은 04 **앞**(본식 시작 4분 전)으로 옮겼다 — 04 는 영상이 끝난 뒤 나간다.
-         그래서 04 의 첫 줄 판은 «뒤에 오는 것»만 본다(코워크 3장): 화촉이면 89, 바로 입장이면 지금 줄 그대로(문이 곧 열린다). */
-      var preFirst = vi === 1 && seq && seq.indexOf('candle') > -1;
+      /* [PREVIDEO_ALWAYS 2026-09-25] 04 의 첫 줄 판은 «뒤에 오는 것»만 본다(코워크 3장): 화촉 · 식전 영상이면 89, 바로 입장이면 지금 줄 그대로(문이 곧 열린다).
+         ★«영상은 04 앞 · 04 는 영상이 끝난 뒤» 판은 2026-10-05 사장님 결정으로 뒤집혔다 [ONEMIN_FIRST] — 되살리지 말 것. */
+      /* ★★[ONEMIN_FIRST 2026-10-05 사장님 «식전 영상도 시작 이후 · 1분 전 멘트 뒤에 영상» → «추천대로»] 순서를 뒤집었다 —
+         03 → 04(1분 전 공지) → 식전 영상 → 입장. 영상이 예식의 첫 장면이고, 휴대폰 · 사진 공지는 불이 꺼지기 «전»에 나간다.
+         ★영상이 뒤에 오면 문이 아직 안 열린다 — 나레이션 판은 89(«곧 예식을 시작하겠습니다») · 녹음은 이미 있다.
+         ★시각: 영상 시작(본식 4분 전)을 «예식 시작»으로 보고 02 · 03 · 04 를 4분씩 앞당긴다(-14 · -9 · -5) — 안내 속 «십 분 뒤» · «오 분 전»이
+           영상 시작 기준으로 맞는다. 두 분 입장 시각(본식)은 그대로다. 영상이 없는 예식은 종전 그대로(-10 · -5 · -1 · 04 원래 판). */
+      var pvOn = !!(seq && seq.indexOf('prevideo') > -1);
+      var preFirst = vi === 1 && seq && (seq.indexOf('candle') > -1 || pvOn);
       var own = S.guestVoice === 'couple';
-      var at = [null, -10, -5, -1], out = [];
+      var at = pvOn ? [null, -14, -9, -5] : [null, -10, -5, -1], out = [];
       for (var i = 0; i < 4; i++) {
         out.push(cue({
           k: 'guest', blockN: '하객 맞이', slug: (i === 3 && preFirst) ? 'guest-4-1min-pre' : FILES[i], name: '하객 맞이 · ' + D.GUEST[i][0],
@@ -559,7 +565,7 @@
 
     // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
 
-    /* ★[OPEN_COURSE] 식전 영상 — 하객이 앉는 동안(04 뒤 · 입장 앞) 상영한다. 본식 시간에 들지 않는다.
+    /* ★[OPEN_COURSE] 식전 영상 — 하객이 모두 앉은 뒤(04 뒤 · 입장 앞 [ONEMIN_FIRST]) 상영한다. 본식 시간에 들지 않는다.
        ★영상이 끝나는 때는 사람이 본다 — live 가 있어 다음 큐(화촉 또는 입장)는 manual 이다. */
     prevideo: function (S) {
       /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상에 두 분이 소개글을 적어서 AI 목소리로도 할 수 있게 · 예시도»] S.pvVoice==='couple' 이면
@@ -1050,11 +1056,11 @@
     seq.forEach(function (k) {
       if (!BUILD[k]) return;
       if (k === 'declare' && askOn && !askPre) cues.push(askCue());
-      /* ★★[PREVIDEO_AT_4 2026-09-25 코워크 3장] 식전 영상은 본식 시작 4분 전(10:06)에 시작하고, 끝나면 1분 전 안내(04), 그다음 본식이다.
-         seq 에서는 guest 다음이지만 **소리는 03 과 04 사이**다 — guest 를 만든 자리에서 04 앞에 끼운다. */
+      /* ★★[PREVIDEO_AT_4 2026-09-25 코워크 3장] 식전 영상은 본식 시작 4분 전에 시작한다 — 시각은 그대로.
+         ★[ONEMIN_FIRST 2026-10-05] 자리는 하객 맞이 «끝»(04 · 사진 부탁 · 식전 안내 클립 뒤)으로 옮겼다 — 공지를 다 하고 불을 낮춘 뒤 영상 → 입장.
+         seq 에서는 guest 다음이라 그대로 두면 같은 자리지만, 식전 안내 클립이 guest 뒤에 붙으므로 그 뒤에 직접 박는다. */
       if (k === 'prevideo' && seq.indexOf('guest') > -1) return;
       var got = BUILD[k](S, seq) || [];   // [OPEN_COURSE] guest 가 seq 를 본다(04 판)
-      if (k === 'guest' && seq.indexOf('prevideo') > -1 && got.length) Array.prototype.splice.apply(got, [got.length - 1, 0].concat(BUILD.prevideo(S)));
       for (var i = 0; i < got.length; i++) cues.push(got[i]);
       // 하객 맞이 뒤에는 식전 고정 클립 2개가 붙는다(코스와 무관)
       if (k === 'guest') {
@@ -1063,6 +1069,7 @@
           text: EXTRA['online-3-welcome'], note: 'Couples 시트 digitalAttendance = Y인 날만'
         }));
         if (askOn) cues.push(askCue());
+        if (seq.indexOf('prevideo') > -1) cues.push.apply(cues, BUILD.prevideo(S));   // [ONEMIN_FIRST] 공지 다음 · 입장 앞
       }
     });
 
