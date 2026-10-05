@@ -14253,3 +14253,11 @@ chk "querySelectorAll('.op-steps,.mk-strip,.prog-bar')" order-preview.html 1
 chk 'DLG_TWO_LINE' order-preview.html 2
 chk 'mk-note mk-dlg-c1 mk-two' order-preview.html 4
 nochk "예시를 들으며 빠르기와 쉼을 맞춰 주세요 · " order-preview.html
+# ★★[TURN_GAP 2026-10-05 사장님 «사이에 턴 시간 · 바로 말이 나와야 하는 경우도 · 5단계로 사이에 · 더 나은 안으로 적용»] 신랑 ↔ 신부가 바뀌는 줄 사이 «쉼 보통 ›» → 누르면 5단계 점 줄 · 그 자리만 듣기 · 보통은 종전 소리 그대로
+chk 'TURN_GAP' order-preview.html 8
+chk "var TURN_L=\['바로','짧게','보통','길게','아주 길게'\], TURN_DEF=2" order-preview.html 1
+chk 'function _vcProc(d,t,pause,o)' order-preview.html 1
+chk "tq:mx?_slTurnSig(key):undefined" order-preview.html 1
+chk "(v.tq||'')!==_slTurnSig(key)" order-preview.html 1
+chk 'TURN_GAP' scripts/audit/turn-gap.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/turn-gap.mjs >/dev/null 2>&1; _tg=$?; [ "$_tg" = 1 ] && { echo 'FAIL turn-gap: 줄 사이 넘기는 쉼이 어긋났습니다 — node scripts/audit/turn-gap.mjs'; fail=1; }; fi
