@@ -145,7 +145,28 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => mkGo('_sum')); await pg.waitForTimeout(400);
   ok(`${w} ② 마지막 쪽 = 한눈에 보기 · 아래 단추 «다음 · 연습하기»(번호 없음 · STEP_NONUM_OP)`, await pg.evaluate(() => /한눈에 보기/.test(document.getElementById('mkHead').textContent) && document.getElementById('next').textContent.trim() === '다음 · 연습하기'));
   await clickNext(pg); await pg.waitForTimeout(700);
-  ok(`${w} ③ 연습하기 — «처음부터 끝까지» · 막 단추 · 빠르게 훑기 [PRACTICE_STEP]`, await pg.evaluate(() => STEPS[idx].k === 'practice' && !!document.querySelector('[data-fk="prall"]') && document.querySelectorAll('[data-fk^="pra:"]').length > 0 && !!document.querySelector('[data-fk="prfast"]')));
+  ok(`${w} ③ 연습하기 — «처음부터 끝까지» · 고른 순간 목록(담은 순간마다 하나) · «빠르게 훑기» · «한 부분만 보기» · «내 목소리로 연습» 없음 [PRACTICE_STEP · PR_JUMP · PR_FAST_OFF · PR_SEC_OFF · PR_VOICE_OFF]`, await pg.evaluate(() => STEPS[idx].k === 'practice' && !!document.querySelector('[data-fk="prall"]') && document.querySelectorAll('[data-fk^="prj:"]').length === _lRows().length && !document.querySelector('[data-fk="prfast"]') && !document.querySelectorAll('[data-fk^="pra:"]').length && !document.querySelector('.pr-voice')));
+  /* [PR_JUMP] 목록에서 누르면 크게 보기가 그 순간부터 · 앞 순간도 줄에 있다(⏮) */
+  { const k3 = await pg.evaluate(() => _lRows()[3]); await pg.click('[data-fk="prj:' + k3 + '"]'); await pg.waitForTimeout(900);
+    const j = await pg.evaluate(() => ({ big: LP.big, cur: (LP.q[LP.i] || {}).k, first: (LP.q[0] || {}).k, all: LP.all }));
+    ok(`${w} ③ 고른 순간 목록 — «${k3}»을 누르면 크게 보기가 그 순간부터 · 전체 줄(앞 순간도 ⏮ 로) [PR_JUMP]`, j.big && j.cur === k3 && j.first !== k3 && j.all, JSON.stringify(j));
+    await pg.evaluate(() => { lsStop(); }); await pg.waitForTimeout(500); }
+  /* [PR_SIMPLE 2026-10-05] 장면 카드 하나 + 순간 목록 하나 · 줄마다 누가 말하나(나레이션 · 당일 직접 · 미리 준비) · 통계 줄 · «어떻게 볼까요» · 지도 접이 없음 */
+  { const v = await pg.evaluate(() => ({ map: !!document.querySelector('[data-fk="prvmap"]'), how: /어떻게 볼까요|말하는 차례/.test(document.querySelector('.op.pr').textContent), tags: [...document.querySelectorAll('.pr-row')].every((b) => !!b.querySelector('.vk')), heroImg: !!document.querySelector('.pr-hero .pr-hm img'), vids: RitualOpen.VIDEO_READY.length }));
+    ok(`${w} ③ 장면 카드 · 순간 목록(줄마다 갈래) · 통계 줄 · 지도 접이 없음 · 장면 그림(영상 ${v.vids}) [PR_SIMPLE]`, !v.map && !v.how && v.tags && (v.heroImg || !v.vids), JSON.stringify(v)); }
+  /* [PR_WIDE] PC 는 좌우로 넓게 — 장면 카드와 목록이 나란히 · 폰은 위아래 */
+  { const g = await pg.evaluate(() => { const a = document.querySelector('.pr-lead').getBoundingClientRect(), b = document.querySelector('.pr-pick').getBoundingClientRect(); return { side: b.left > a.right, wrap: Math.round(document.querySelector('.wrap').getBoundingClientRect().width), pr2: document.body.classList.contains('pr2') }; });
+    ok(`${w} ③ ${w >= 1000 ? 'PC 좌우 두 단(넓은 폭)' : '폰 한 단'} [PR_WIDE]`, g.pr2 && (w >= 1000 ? g.side && g.wrap > 900 : !g.side), JSON.stringify(g)); }
+  /* [PR_RAIL] 처음부터 끝까지 크게 보기 — PC 는 오른쪽에 예식 순서(지금 순간 표시 · 누르면 그 순간부터) · 폰은 숨김 */
+  { await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(800);
+    const r0 = await pg.evaluate(() => { const r = document.querySelector('#lsFull .lf-rail'); const ks = []; LP.q.forEach((x) => { if (ks.indexOf(x.k) < 0) ks.push(x.k); }); return { vis: !!r && getComputedStyle(r).display !== 'none', n: r ? r.querySelectorAll('.lf-rr').length : 0, ks: ks.length, cur: (r && r.querySelector('[aria-current="step"]') || {}).getAttribute ? r.querySelector('[aria-current="step"]').getAttribute('data-fk') : '', k: (LP.q[LP.i] || {}).k }; });
+    if (w >= 1000) {
+      ok(`${w} ③ 크게 보기 오른쪽 예식 순서 — 순간마다 한 줄 · 지금 순간 표시 [PR_RAIL]`, r0.vis && r0.n === r0.ks && r0.cur === 'lfk:' + r0.k, JSON.stringify(r0));
+      const k5 = await pg.evaluate(() => _lRows()[5]); await pg.click('[data-fk="lfk:' + k5 + '"]'); await pg.waitForTimeout(600);
+      const r1 = await pg.evaluate(() => ({ k: (LP.q[LP.i] || {}).k, paused: LP.paused, cur: (document.querySelector('#lsFull [aria-current="step"]') || {}).textContent, foc: (document.activeElement && document.activeElement.getAttribute('data-fk')) || '' }));
+      ok(`${w} ③ 예식 순서에서 «${k5}»을 누르면 그 순간부터 흐른다 · 포커스 그 자리 [PR_RAIL]`, r1.k === k5 && !r1.paused && r1.foc === 'lfk:' + k5, JSON.stringify(r1));
+    } else ok(`${w} ③ 폰 크게 보기에는 예식 순서 목록이 안 보인다 [PR_RAIL]`, !r0.vis, JSON.stringify(r0));
+    await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop()); await pg.waitForTimeout(300); }
   // 크게 보기 · Esc
   await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
   ok(`${w} ③ «처음부터 끝까지» → 크게 보기 · 식전 표시 · 본식부터 단추 · 뒤는 inert`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /식전/.test(f.querySelector('.lf-h').textContent) && !!f.querySelector('[data-fk="lfskip"]') && f.querySelector('.lf-txt').textContent.length > 10 && document.querySelector('.wrap').hasAttribute('inert'); }));

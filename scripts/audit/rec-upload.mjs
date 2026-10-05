@@ -159,37 +159,12 @@ for (const w of [360, 1280]) {
   const c7 = await pg.evaluate(() => { opGoStep('done'); return new Promise((ok) => setTimeout(() => ok(!!document.querySelector('[data-fk="ainotice"]')), 800)); });
   ok('④ — 두 분 화면에는 «일부 안내는 … AI 음성이에요» 한 줄이 없다(하객 고지는 식순지 뒷면 한 줄 · [AI_NOTICE_0928 9-1])', !c7);
   await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(800);
-  await pg.click('[data-fk="ptts"]'); await pg.waitForTimeout(200);
-  const c8 = await pg.evaluate(() => /음성 업체\(타입캐스트\)로 보내져/.test(document.querySelector('.pr-voice').textContent) && /숨긴 글은 보내지 않아요/.test(document.querySelector('.pr-voice').textContent));
-  await pg.click('[data-fk="pttsyes"]'); await pg.waitForTimeout(200);
-  const c9 = await pg.evaluate(() => new Promise((ok) => { const st = { who: '신랑', txt: '연습 글입니다', talk2: true }; _ptSrc(st); setTimeout(() => ok({ u: String(_ptSrc(st) || '').slice(0, 5), site: _ptSrc({ who: '신부', txt: '떠오르는 대로', site: true }) }), 600); }));
-  ok('연습 읽기 — 처음 켤 때 알림(숨긴 글은 보내지 않아요) · [켜기] 뒤 두 분 차례 글을 AI 소리로(메모리만 · 기기에 안 남김) · «현장에서» 자리는 안 읽는다 [PRACTICE_READ_0928 7-2]', c8 && c9.u === 'blob:' && c9.site === null, JSON.stringify({ c8, c9 }));
+  const c8 = await pg.evaluate(() => !document.querySelector('[data-fk="ptts"]') && !document.querySelector('.pr-voice') && !document.querySelector('[data-fk="prrec"]'));
+  ok('③ 연습 — «내 목소리로 연습»(내 차례 녹음 · 두 분 차례 AI 읽기) 칸 없음 [PR_VOICE_OFF 2026-10-05 사용자 지시로 삭제]', c8);
   ok('3단계 pageerror 0', !errs.length, errs.join(' | '));
   await ctx.close();
 }
-/* ★[PRACTICE_VOICE] ③ 연습 — «내 차례를 녹음하며 연습» 켜면 두 분 차례마다 녹음 · 끝나고 줄마다 다시 듣기 · 서버로 아무것도 안 나감 */
-{
-  const ctx = await br.newContext({ viewport: { width: 390, height: 900 }, permissions: ['microphone'] }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
-  const out = [];
-  await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue(); out.push(u); return rt.fulfill({ status: 200, body: '' }); });
-  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`); await pg.waitForTimeout(700);
-  const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
-  await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
-  await pg.evaluate(() => opGoStep('practice')); await pg.waitForTimeout(1200);
-  const p0 = await pg.evaluate(() => ({ sec: !!document.querySelector('.pr-voice'), note: /녹음은 이 기기에만 있어요\. 다른 곳으로 보내지 않고, 이 화면을 나가면 지워져요/.test((document.querySelector('.pr-voice') || {}).textContent || ''), sw: /끝나고 다시 들어 볼 수 있어요/.test(   /* [R8-16] «내 목소리로»는 제목이 말한다 */(document.querySelector('.pr-voice') || {}).textContent || '') }));   // [PRACTICE_VOICE_0928 7-1]
-  await pg.click('[data-fk="prrec"]'); await pg.waitForTimeout(600);
-  const n0 = out.length;
-  await pg.evaluate(() => { lsPlayAll(); }); await pg.waitForTimeout(800);
-  await pg.evaluate(() => { let g = 0; while (!(LP.q[LP.i] && LP.q[LP.i].talk2) && g++ < 80) LP.i++; _lShow(); }); await pg.waitForTimeout(1600);
-  const p1 = await pg.evaluate(() => ({ rec: !!PR.cur, badge: !!document.querySelector('#lsFull .lf-rec') }));
-  await pg.evaluate(() => { _lNext(); }); await pg.waitForTimeout(500); await pg.evaluate(() => { lsStop(); }); await pg.waitForTimeout(600);
-  await pg.evaluate(() => render()); await pg.waitForTimeout(300);
-  const p2 = await pg.evaluate(() => ({ n: PR.takes.length, url: String((PR.takes[0] || {}).url || '').slice(0, 5), rows: document.querySelectorAll('.pr-voice [data-fk^="prplay:"]').length, lab: /방금 연습 다시 듣기/.test(document.querySelector('.pr-voice').textContent) && /연습 녹음 모두 지우기/.test(document.querySelector('.pr-voice').textContent) }));
-  const sent = out.slice(n0).filter((u) => !/fonts\.g/.test(u));
-  ok('연습 — «내 차례를 녹음하며 연습» · 두 분 차례에 «녹음 중» · 끝나면 줄마다 다시 듣기 · 서버로 아무것도 안 나감 [PRACTICE_VOICE]', p0.sec && p0.note && p0.sw && p2.lab && p1.rec && p1.badge && p2.n >= 1 && p2.url === 'blob:' && p2.rows === p2.n && sent.length === 0, JSON.stringify({ p0, p1, p2, sent }));
-  ok('연습 pageerror 0', !errs.length, errs.join(' | '));
-  await ctx.close();
-}
+/* ★[PRACTICE_VOICE] ③ 연습 «내 차례를 녹음하며 연습» 시험 금지 — 2026-10-05 사용자 지시로 칸 삭제 [PR_VOICE_OFF] · 칸이 없는 것은 위 c8 이 본다 */
 /* ★[REC_ADMIN] 당일 콘솔 — rf=코드 + 관리자 토큰이면 시작 전에 두 분 목소리를 받아 CLIPS 에 넣는다 · «소리 파일 확인» ✓ · 못 받은 줄은 나레이션 */
 {
   const wav = fs.readFileSync(quiet).toString('base64');

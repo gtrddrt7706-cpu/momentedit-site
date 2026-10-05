@@ -48,6 +48,8 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 줄끼리 빠르기를 맞춘다 — 빠른 셋째 줄은 길게(1.06 넘게) · 다른 줄은 0.88 ~ 1.12 안', r.spy.even >= 1 && r.spy.evenTexts === 3 && r.spy.ratio && r.spy.ratio[2] > 1.06 && r.spy.ratio.every((x) => x >= 0.879 && x <= 1.121), JSON.stringify(r.spy));
   ok(W + ' 만든 표시 pf = ' + 'LINE_EVEN_V · 오류 없음', r.src === 'ai' && r.pf === 1 && !r.err, JSON.stringify(r));
   // 옛 방식으로 만든 섞인 줄(pf 없음) → 머리 단추가 «목소리 만들기»로 알린다
+  /* 만든 직후 머리 단추는 잠깐 «다 됐어요»(aiDone)로 머문다 — 그 동안은 «만드는 중»으로 읽힌다(3번 중 2번 실패의 원인). 가라앉기를 기다린 뒤 잰다 */
+  for (let t = 0; t < 20; t++) { if (await pg.evaluate(() => ['make', 'save', 'done'].indexOf(_aiMode('entry')) < 0)) break; await pg.waitForTimeout(300); }
   await pg.evaluate(() => { delete S.up.entry.pf; render(); }); await pg.waitForTimeout(300);
   const pill = await pg.evaluate(() => { const b = document.querySelector('.mk-aip[data-key="entry"]'); return b ? b.textContent.trim() : ''; });
   ok(W + ' 옛 방식 섞인 줄 — 머리 단추 «목소리 만들기»', /목소리 만들기/.test(pill), pill);

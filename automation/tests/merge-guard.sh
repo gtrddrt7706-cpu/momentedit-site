@@ -14306,3 +14306,25 @@ chk 'function _wsola(x,sr,f)' order-preview.html 1
 chk 'function _lineEven(chs,sr,texts)' order-preview.html 1
 chk 'LINE_EVEN' scripts/audit/line-even.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/line-even.mjs >/dev/null 2>&1; _le=$?; [ "$_le" = 1 ] && { echo 'FAIL line-even: 섞인 줄의 빠르기 · 쉼 맞춤이 어긋났습니다 — node scripts/audit/line-even.mjs'; fail=1; }; fi
+# ★[PR_SIMPLE · PR_JUMP · PR_WIDE · PR_RAIL 2026-10-05 사장님 «연습 공간 · 고객 입장에서 필요한 것만 · 미니멀 · 영상은 빼지 말고 · PC 는 좌우를 넓게»]
+#   ③ 연습하기 = 장면 카드(처음부터 끝까지) + 순간 목록(장면 그림 · 번호 · 이름 · 누가 말하나) · PC 두 단 · 크게 보기 오른쪽 예식 순서
+#   빠르게 훑기 · 한 부분만 보기 · 내 목소리로 연습 · 통계 줄 · 지도 접이는 걷었다(사용자 지시)
+chk 'PR_SIMPLE' order-preview.html 2
+chk 'PR_JUMP' order-preview.html 4
+chk 'PR_WIDE' order-preview.html 3
+chk 'PR_RAIL' order-preview.html 6
+chk 'function _lRail(st)' order-preview.html 1
+chk 'window.lsGoK=function(k)' order-preview.html 1
+chk 'PR_FAST_OFF' order-preview.html 2
+chk 'PR_SEC_OFF' order-preview.html 2
+chk 'PR_VOICE_OFF' order-preview.html 1
+nochk 'data-fk="prfast"' order-preview.html
+nochk 'data-fk="prvmap"' order-preview.html
+nochk '<h4>어떻게 볼까요</h4>' order-preview.html
+# ★[PR_FROM_MYPAGE 2026-10-05 사장님 «여기서 미리듣기 이것도 연습하기로 바꾸기»] 마이페이지 식순 줄 보조 단추 = «연습하기» → 빌더 ③ 으로 연다
+chk 'PR_FROM_MYPAGE' mypage.html 3
+chk 'PR_FROM_MYPAGE' order-preview.html 2
+chk "_ritPre={id:'mp_ritualPreview', label:'연습하기'};" mypage.html 1
+nochk "_ritPre={id:'mp_ritualPreview', label:'미리듣기'};" mypage.html
+chk 'PR_FROM_MYPAGE' scripts/audit/pr-from-mypage.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-from-mypage.mjs >/dev/null 2>&1; _pfm=$?; [ "$_pfm" = 1 ] && { echo 'FAIL pr-from-mypage: 마이페이지 «연습하기»가 빌더 ③ 연습하기로 열리지 않습니다 — node scripts/audit/pr-from-mypage.mjs'; fail=1; }; fi

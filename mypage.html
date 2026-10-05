@@ -2306,7 +2306,7 @@ function openContractView(){
   }
 }
 // 식순 만들기 — 계약서와 동일한 iframe 오버레이(/order-preview.html?embed=1) · postMessage로 서버 초안 주입, 저장 수신 → saveProductionTrack(ritual)
-function openRitualBuilder(p, inv){
+function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice' = ③ 연습하기로 바로
   var old=$('mp_obViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_obViewer'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-label','우리 예식 짓기');
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column';
@@ -2351,7 +2351,7 @@ function openRitualBuilder(p, inv){
       var _pho=false; try{ _pho=!!(window.RitualPreviewLink && RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)); }catch(e4){}
       var _meal=false; try{ _meal=!!(window.RitualPreviewLink && RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)); }catch(e5){}   // [MEAL_GUIDE] 모일 식당 «유무»만(이름 아님)
       var _vo=(p&&p.voice)||((p&&p.production&&p.production.voice))||null;   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · AI 스위치(켜짐 여부만)
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, voice:_vo}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, voice:_vo, at:(opt&&opt.at)||''}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }
@@ -5839,7 +5839,11 @@ function renderProduction(p, inv){
     }
     startTrkFlow('dining', _dd0, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p, inv); });   // 식순 = order-preview 빌더(iframe 오버레이) 단일 경로 · 구 v2 위저드는 2026-07-25 삭제(도달 불가 데드코드)
-  var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualPreview(p, inv); });
+  /* ★★[PR_FROM_MYPAGE 2026-10-05 사장님 «여기서 미리듣기 이것도 연습하기로 바꾸기 · 옛날에 만들어 둔 것 같은데»] 식순 줄의 보조 단추 = «연습하기» —
+     누르면 식순 빌더가 ③ 연습하기 화면으로 바로 열린다(처음부터 끝까지 · 골라서 연습). ★옛 «미리듣기»(음악까지 콘솔 미리듣기 창 mp_rpViewer)로 되돌리지 말 것 —
+     음악까지 듣는 미리듣기는 빌더 ④ 완성 화면의 «미리듣기»가 맡는다. 아래 _mpRitPreview 는 서버 초안 조립 검사(preview-entry)가 쓰는 입구로만 남긴다. */
+  var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualBuilder(p, inv, {at:'practice'}); });
+  window._mpRitPreview=function(){ openRitualPreview(p, inv); };
   var rpp=$('mp_ritualPrep'); if(rpp) rpp.addEventListener('click', function(){ var bx=$('mp_ritPrepBox'); if(!bx) return; _ritPrepOpen=bx.hidden; bx.hidden=!_ritPrepOpen; rpp.setAttribute('aria-expanded', String(_ritPrepOpen)); });   // [PREP_LINK] 다시 그려도 연 채로(_ritPrepOpen)   // [PREVIEW_LINK_V1] 초안이 있을 때만 렌더되는 보조 버튼(row opt.pre) — 없으면 $() 가 null 이라 조용히 지나간다
   // [통합 행 · 스탭바이스탭 2026-07-19 사용자 지시] 진입은 항상 최종 확정 1단계부터(인원→음료→확정 저장→③좌석 자동) — 좌석 캔버스가 첫 화면으로 쏟아지지 않게.
   //   확정 완료 상태 재진입도 1단계부터(값 프리필 · '다음' 두 번이면 좌석) · 미완(이어하기)은 저장된 단계 자연 복원.
@@ -6827,7 +6831,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   //   ★'들려줄 게 있는가'의 판단은 링크 조립기 한 곳이 한다 — 주소가 나오면 있고, 빈 문자열이면 없다.
   //     여기서 rd._v===3 같은 조건을 따로 세우면, 조립기 조건이 바뀌는 날 버튼만 남아 빈 화면을 연다.
   var _ritPre=null;
-  try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리듣기'}; }catch(e){}
+  try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'연습하기'};   /* [PR_FROM_MYPAGE] 옛 «미리듣기» */ }catch(e){}
   var _ritPre2=null; try{ if(_ritPrepFold(rd, base, dd, true)) _ritPre2={id:'mp_ritualPrep', label:'준비할 것', ctl:'mp_ritPrepBox', open:_ritPrepOpen}; }catch(e){}   // [PREP_LINK] 목록이 있을 때만
   var _prepRows=[
     /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
