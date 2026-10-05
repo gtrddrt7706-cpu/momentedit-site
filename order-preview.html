@@ -1648,7 +1648,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vuse{margin:22px 0 6px}   /* [VPAGE_PC] 이 목소리가 쓰이는 곳 */
 .mk-vuse-h{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--accent)}
 .mk-vuse ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--border)}
-.mk-vuse-r{display:grid;grid-template-columns:minmax(0,1fr) 48px 76px 14px;align-items:center;gap:8px;width:100%;min-height:48px;padding:0 2px;border:0;border-bottom:1px solid var(--border);background:none;font:inherit;font-size:14px;color:var(--accent);text-align:left;cursor:pointer}
+.mk-vuse-r{display:grid;grid-template-columns:minmax(0,1fr) 48px 86px 14px;align-items:center;gap:8px;width:100%;min-height:48px;padding:0 2px;border:0;border-bottom:1px solid var(--border);background:none;font:inherit;font-size:14px;color:var(--accent);text-align:left;cursor:pointer}
 .mk-vuse-r .w{font-size:12.5px;color:var(--sub)} .mk-vuse-r .s{display:inline-flex;align-items:center;gap:3px;justify-content:flex-end;font-size:12.5px;color:var(--light)} .mk-vuse-r .s.made{color:var(--sub)} .mk-vuse-r .s.kept{color:var(--gold-deeper);font-weight:600} .mk-vuse-r .s svg{width:11px;height:11px}
 .mk-vuse-r i{font-style:normal;color:var(--light)} .mk-vuse-r:hover .n{text-decoration:underline;text-underline-offset:3px}
 .mk-vpcs>.mk-vpc{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:16px 18px 4px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
@@ -1682,14 +1682,13 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vc .mk-vbs.mk-vlinks{gap:0 16px;align-items:center;margin-left:-2px}   /* [AI_CARD_TIDY] 다시 만들기 · 지우기 = 밑줄 글 단추 · 글과 같은 왼쪽 선(.pk-link 안쪽 2px 만큼 당김) */
 .mk-vlk{color:var(--sub)}
 .mk-vpcs .mk-mk{display:inline-flex;vertical-align:-2px;margin-right:4px}   /* [R2-25] «✓ 신랑 · 신부 AI 목소리 준비됨»도 ✓ 와 글 사이 한 칸(줄 카드 «✓ AI로 만들었어요»와 같게) */
-@media (min-width:720px){   /* ★[VPAGE_PC] 넓은 화면 = 카드 위아래 · 카드 안 한 줄 */
-  .mk-vlist.mk-vpcs{grid-template-columns:1fr}
-  .mk-vpcs>.mk-vpc .mk-vs{white-space:nowrap}
-  .mk-vpcs>.mk-vpc{display:grid;grid-template-columns:minmax(190px,1fr) 240px minmax(0,auto);align-items:center;column-gap:24px;padding:16px 20px}
-  .mk-vpcs>.mk-vpc .mk-vt{grid-column:1;flex-direction:column;align-items:flex-start;justify-content:center}
-  .mk-vpcs>.mk-vpc .mk-vstat,.mk-vpcs>.mk-vpc .mk-vhow,.mk-vpcs>.mk-vpc .mk-vneed{grid-column:2;margin:0;padding:0 0 0 20px;border:0;border-left:1px solid var(--border)}
-  .mk-vpcs>.mk-vpc .mk-vft{grid-column:3;margin:0;padding:0;min-height:0;justify-content:flex-end;flex-wrap:nowrap;gap:4px 16px}
-  .mk-vpcs>.mk-vpc .mk-vft.solo{display:flex} .mk-vpcs>.mk-vpc .mk-vft.solo .mk-vbs{width:auto} .mk-vpcs>.mk-vpc .mk-vft.solo .mk-vgo{width:auto;min-width:200px}
+@media (min-width:720px){   /* ★[VPAGE_PC 2026-10-05 사장님 «PC 좀 이상해 · 아래 칸 많이 남으니 넓게 · 적절하게»] 넓은 화면 = 카드 위아래 · 카드 안은 폰과 같은 짜임(이름 · 상태 / 빠르기 · 쉼 / 단추)을 넓고 여유 있게.
+     ★카드 안 한 줄 배치(이름 | 빠르기 · 쉼 | 단추) 금지 — 2026-10-05 사용자 지시로 걷음 · 좁아서 «문장 사이 쉼»이 단추에 가리고 «다시 녹음»이 꺾였다 */
+  .mk-vlist.mk-vpcs{grid-template-columns:1fr;gap:16px}
+  .mk-vpcs>.mk-vpc{padding:22px 28px 10px}
+  .mk-vpcs>.mk-vpc .mk-vstat{margin-top:16px;padding:16px 0}
+  .mk-vpcs>.mk-vpc .mk-vstat b{font-size:16px}
+  .mk-vpcs>.mk-vpc .mk-vft{padding:12px 0 8px}
 }
 .mk-vlk:disabled{opacity:.5;cursor:default}   /* [VC_CARD_0928] AI 칸(mk-aisec)은 줄 카드(mk-vc)와 다른 이름 — 같은 이름이면 카드 여백이 새어 든다 */
 .mk-one1{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
@@ -4759,11 +4758,12 @@ function _vcNone(){ var hd='<h4 id="mkVcH" class="sr-only">AI 두 분 목소리<
    PC(넓은 화면)는 사람 카드를 위아래로 · 카드 안은 한 줄(이름 · 상태 | 빠르기 · 쉼 | 단추) — 폰은 종전 그대로(이미 세로).
    카드 아래 «이 목소리가 쓰이는 곳»: 이 예식에서 AI 로 정한 자리(하객 맞이 넷 · 입장 인사 · 식전 영상 소개)마다 읽는 분 · 상태(아직 · 만듦 · 확정됨) · 누르면 그 순간으로 */
 var VC_USE=[['g0','하객 입장 때','guest'],['g1','시작 10분 전','guest'],['g2','시작 5분 전','guest'],['g3','시작 1분 전','guest'],['entry','입장 인사','entry'],['pv','식전 영상 소개','prevideo']];
-function _vcUseList(){ var R=RitualOpen, rows=VC_USE.filter(function(x){ return (x[2]==='guest'||R.onOf(S,x[2]))&&_vpCur(x[2])==='ai'&&!(S.vself||{})[x[0]]; });
+function _vcUseList(){ var R=RitualOpen, rows=VC_USE.filter(function(x){ return x[2]==='guest'||R.onOf(S,x[2]); });   /* [VPAGE_PC] 담긴 자리는 다 보인다 — 스튜디오 나레이션으로 정한 자리는 그렇게 적는다(종전: AI 로 정한 자리만 · 하나도 없으면 목록이 통째로 안 보였다) */
   if(!rows.length) return '';
   var who=function(k){ var w=_vcLineWho(k); return w==='both'?'두 분':w==='bride'?'신부':'신랑'; };
   return '<div class="mk-vuse"><h4 class="mk-vuse-h">이 목소리가 쓰이는 곳</h4><ul>'+rows.map(function(x){ var v=(S.up||{})[x[0]], ai=!!(v&&typeof v==='object'&&v.src==='ai'), kp=ai&&!!(S.vkeep||{})[x[0]], st=kp?'확정됨':ai?'만듦':'아직';
-    return '<li><button type="button" class="mk-vuse-r" data-fk="mkvuse:'+x[0]+'" onclick="mkGo(\''+x[2]+'\')"><span class="n">'+esc(x[1])+'</span><span class="w">'+who(x[0])+'</span><span class="s'+(kp?' kept':ai?' made':'')+'">'+(kp?ICO_CHECK:'')+st+'</span><i aria-hidden="true">›</i></button></li>'; }).join('')+'</ul></div>'; }
+    var nar=_vpCur(x[2])!=='ai'||!!(S.vself||{})[x[0]]; if(nar){ st=(S.vself||{})[x[0]]?'직접 녹음':'나레이션'; kp=false; ai=false; }
+    return '<li><button type="button" class="mk-vuse-r" data-fk="mkvuse:'+x[0]+'" onclick="mkGo(\''+x[2]+'\')"><span class="n">'+esc(x[1])+'</span><span class="w">'+(nar?'':who(x[0]))+'</span><span class="s'+(kp?' kept':ai?' made':'')+'">'+(kp?ICO_CHECK:'')+st+'</span><i aria-hidden="true">›</i></button></li>'; }).join('')+'</ul></div>'; }
 function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   var g=(st&&st.groom)||{}, b=(st&&st.bride)||{}, both=!!(g.ready&&b.ready);
   var h='<section class="mk-pg mk-vpage" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">두 분 목소리 만들기</h3></div>'

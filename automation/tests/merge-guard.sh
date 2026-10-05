@@ -14394,3 +14394,7 @@ nochk "#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):''" order-preview.html
 chk 'VPAGE_PC' order-preview.html 3
 chk 'function _vcUseList()' order-preview.html 1
 :
+# ★[VPAGE_PC 2026-10-05 사장님 «PC 좀 이상해 · 넓게 · 적절하게»] 카드 안 한 줄 배치 금지 · 넓은 카드 위아래 · 쓰이는 곳은 담긴 자리 전부(나레이션 자리도)
+nochk '.mk-vpcs>.mk-vpc{display:grid;grid-template-columns:minmax(190px,1fr) 240px' order-preview.html
+chk "rows=VC_USE.filter(function(x){ return x\[2\]==='guest'||R.onOf(S,x\[2\]); })" order-preview.html 1
+:
