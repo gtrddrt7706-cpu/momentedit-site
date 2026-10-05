@@ -14284,3 +14284,9 @@ chk '^\.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;' ord
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
 # ★[GUARD_TAIL_RC 2026-10-05] 끝 줄이 «[ x = 1 ] && {…}» 꼴이면 시험이 통과(0)할 때 그 줄이 1 로 끝나 가드 전체가 1 이 됐다(PR #991 · «ALL MARKERS OK» 뒤 빨강). 끝 node 검사는 if 꼴로 · 이 줄은 늘 0
 :
+# ★[TURN_NO_AUTOMAKE 2026-10-05 사장님 «만들기를 눌러야지만 만들 수 있게 · 지금은 쉼 버튼 누르면 바로 만들어진다»] 쉼을 고르면 값만 · 머리 «목소리 만들기»를 눌러야 만든다
+chk 'TURN_NO_AUTOMAKE' order-preview.html 4
+nochk 'MK.turnT=setTimeout' order-preview.html
+chk "if(pill&&_slKeyOk(key)&&(v.tq||'')!==_slTurnSig(key))" order-preview.html 1
+chk 'TURN_NO_AUTOMAKE' scripts/audit/turn-gap.mjs 3
+:
