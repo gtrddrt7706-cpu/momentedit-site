@@ -1337,7 +1337,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-flow li.n .mk-lab{min-height:28px;margin-bottom:2px}
 .mk-flow li.n .mk-pl{margin-top:-3px}   /* ★[PLAY_OPTIC 2026-10-04 사장님 «플레이 단추가 위쪽에 있는 것 같다» → B(눈 맞춤) · «좀 더 내려»] 수치로는 제목 줄 가운데(±0.5px)였지만 34px 원이 글자 위로 튀어나오고 굵은 한글은 글줄 아래쪽에 앉아 떠 보였다 — 5px 내려 눈으로 맞춘다 */
 .mk-vch:not(:has(.mk-vhd .mk-vs)) .mk-vpl{position:relative;top:5px}   /* [PLAY_OPTIC] 줄 카드 ▶ 도 같은 눈 맞춤(제목 한 줄일 때 · 아래 작은 줄이 있으면 이미 두 줄 가운데라 그대로) */
-.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -10px;border:0;background:none;color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;border:0;background:none;color:var(--accent);display:grid;place-items:center;cursor:pointer}
 .mk-pl svg{width:10px;height:10px;padding:12px 11px 12px 13px;border:0;border-radius:50%;box-sizing:content-box;background:var(--bg2);box-shadow:inset 0 0 0 1px rgba(184,154,117,.5);transition:background .3s cubic-bezier(.22,.61,.36,1),color .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s cubic-bezier(.22,.61,.36,1)}   /* [MK_LINE_PLAY] 줄마다 ▶ 는 원 안 · ★[PLAY_ONE_LOOK 2026-10-04 사장님 «왼쪽 플레이 단추가 이상하고 모양도 안 바뀐다 · 한 곳을 말하면 다른 곳도 전부 통일»] 줄 ▶ 는 모두 줄 카드 ▶ 와 같은 모양(옅은 바탕 원 · 금빛 가는 테) · 트는 동안 ■(진한 원) */
 .mk-pl.on svg{padding:12px;background:var(--accent);color:var(--bg);box-shadow:none} .mk-pl[disabled] svg{opacity:.45}
 .mk-pl:hover svg{background:#EDEBE6} .mk-pl.on:hover svg{background:var(--accent)}
@@ -1475,8 +1475,12 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 /* [LINE_SPLIT] 줄 편집기 — 읽는 분 · 글 · 빼기 */
 .mk-sl{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:14px}
 .mk-slr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}   /* ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?» → 시안 «c,d 가 좋을 것 같은데»] 한 줄 = 위 [신랑 | 신부](둘 다 보이고 고른 쪽만 칠함 · 카드 머리와 같은 모양) + 빼기 × · 아래 밑줄 글(상자 없음 · 화면 폭 가득) */
-.mk-slr .mk-slwg{padding:2px}
-.mk-slr .mk-slwg .mk-whob{min-height:36px;min-width:48px;padding:0 12px}
+.mk-slr .mk-slwg{position:relative;padding:0 2px;border:0;background:none;margin:-5px 0}   /* ★[CARD_POLISH] ③ 카드 안 [신랑 | 신부]는 한 단계 작게 보인다(알약 36 → 30 · 테 42 → 34) — 누르는 칸은 44 그대로(단추 상자는 44 · 그림만 안쪽) · 글이 먼저 읽히게 */
+.mk-slr .mk-slwg::before{content:'';position:absolute;left:0;right:0;top:5px;bottom:5px;border:1px solid var(--border);border-radius:999px;background:var(--card);pointer-events:none}
+.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px;min-width:44px;padding:0 12px;background:none;box-shadow:none}
+.mk-slr .mk-slwg .mk-whob::before{content:'';position:absolute;left:0;right:0;top:7px;bottom:7px;border-radius:999px;z-index:-1;pointer-events:none}
+.mk-slr .mk-slwg .mk-whob.on{background:none;box-shadow:none}
+.mk-slr .mk-slwg .mk-whob.on::before{background:#F3ECDF;box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [SEL_ONE] 고른 쪽 모양은 그대로 · 크기만 */
 /* ★[SL_TIDY] 한 단추 «신부»(누르면 신랑 · .mk-slw) 금지 — 2026-10-05 사용자 지시로 [신랑 | 신부] 둘 다 보이게 바꿈(«신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?») */
 .mk-slb{position:relative;flex:1 1 100%;min-width:0;display:flex}
 .mk-slb .mk-slt.ta.grow{flex:1 1 auto;min-width:0;margin-top:0;min-height:0;padding:6px 0 10px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent}
@@ -1484,10 +1488,13 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-slx{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:var(--light);cursor:pointer;padding:0;margin:-4px -12px -4px auto}
 .mk-slx svg{width:14px;height:14px}
 .mk-sladd{display:inline-flex;align-items:center;min-height:44px;margin:0}
-.mk-sl{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2px 16px;gap:0}   /* ★[LINE_CARD 2026-10-05 사장님 «하객 입장 때 · 시작 10분 전 등등 섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 머리 줄과 «＋ 줄 더하기»는 카드 밖 · 같은 편집기(하객 맞이 넷 · 입장 · 식전 영상 소개)는 전부 같은 모양 */
+.mk-slc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2px 16px 0}   /* [CARD_POLISH] 카드 = 줄들 + 아래 «＋ 줄 더하기» 한 줄 */
+.mk-slc{margin-top:12px}   /* [CARD_POLISH] 머리 줄(▶ · 제목)과 카드 사이 숨 — 종전 3px 로 붙어 보였다 */
+.mk-slc .mk-sl{margin:0;gap:0}   /* ★[LINE_CARD 2026-10-05 사장님 «하객 입장 때 · 시작 10분 전 등등 섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 머리 줄과 «＋ 줄 더하기»는 카드 밖 · 같은 편집기(하객 맞이 넷 · 입장 · 식전 영상 소개)는 전부 같은 모양 */
 .mk-sl>.mk-slr{padding:10px 0 4px}
 .mk-sl>.mk-slr:last-child .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}   /* [LINE_CARD] 마지막 줄 밑줄은 카드 테와 겹친다 */
-.mk-sl+.mk-slf{margin-top:6px}
+.mk-slc .mk-slf{margin:0 -16px;padding:0 16px;border-top:1px solid var(--border)}   /* [CARD_POLISH] 카드 안 맨 아래 — 가는 선 위 한 줄(44px) */
+.mk-slc .mk-slr:last-child .mk-slb .mk-slt.ta.grow{padding-bottom:12px}
 .mk-vcards>.mk-vc{border-bottom:0;padding-bottom:26px}   /* [LINE_CARD] 순간 사이 긴 가로선 → 여백(카드가 이미 가른다) */
 .mk-sltn{flex:1 1 100%;margin:-10px 0 0}   /* [TURN_GAP] 줄 사이 «쉼 보통 ›» — 가는 선 가운데 작은 글(평소) · 누르면 아래로 점 줄 */
 .mk-sltb{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0;border:0;background:none;cursor:pointer;color:var(--light);font-family:inherit;font-size:12.5px;letter-spacing:.02em}
@@ -1548,7 +1555,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 /* ★★[AI_PILL 2026-10-04 사장님 «AI 만들기 단추를 신랑 왼쪽에 · 필요할 때만 스르륵 · 진행 상황도 그 단추에서»] 줄 머리 ▶ · 제목 ··· [AI로 만들기] [신랑|신부].
    필요할 때(빈 줄 · 글 · 읽는 분 · 쉼이 바뀐 줄)만 0.3초 동안 8px 미끄러지며 나타난다 · 누르면 «만드는 중»(왼쪽에서 차오름) → «저장 중» → «✓ 완료» 뒤 사라진다.
    «보내는 중…» 상태 줄을 따로 띄우지 않는다 · 모션 줄이기면 움직임 없이 */
-.mk-vch .mk-vpl{align-self:center;margin:-10px -4px -10px -10px}   /* [VP_ONE_LIST] 줄 카드 머리 ▶ */
+.mk-vch .mk-vpl{align-self:center;margin:-10px -4px -10px -5px}   /* ★[CARD_POLISH 2026-10-05 사장님 «추천대로 · 디자인적으로 완성도 높게 · 다른 곳들도 같이»] ① ▶ 원의 왼쪽 끝 = 글 · 카드의 왼쪽 선(종전 5px 바깥으로 튀어나왔다) — 줄 카드 머리 · 순간 대본 줄(.mk-pl) 모두 */   /* [VP_ONE_LIST] 줄 카드 머리 ▶ */
 .mk-vch .mk-vpl svg{width:10px;height:10px;padding:12px 11px 12px 13px;border:0;background:var(--bg2);box-shadow:inset 0 0 0 1px rgba(184,154,117,.5);transition:background .3s cubic-bezier(.22,.61,.36,1),color .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s cubic-bezier(.22,.61,.36,1)}
 .mk-vch .mk-vpl:hover svg{background:#EDEBE6}
 .mk-vch .mk-vpl.on svg{padding:12px;background:var(--accent);color:var(--bg);box-shadow:none}
@@ -4222,12 +4229,12 @@ function _slPut(key,L){ var vk=_slVk(key); L=L.slice(0,SL_MAX).map(function(x){ 
   if(S.vkeep&&S.vkeep[key]) delete S.vkeep[key];   /* [KEEP_LINE] 글 · 읽는 분을 고치면 확정은 풀린다 */
   _persist(); _aiPillSync(key); }
 function _slEditor(key,lab,right){ var L=_slRaw(key), n=L.length;   // right = [SL_TIDY] 아래 한 줄 오른쪽(처음 글로 · 글자 수)
-  return '<ol class="mk-sl" aria-label="'+esc(lab+' · 읽을 글')+'">'+L.map(function(x,i){ var nm=x.w==='b'?'신부':'신랑';
+  return '<div class="mk-slc"><ol class="mk-sl" aria-label="'+esc(lab+' · 읽을 글')+'">'+L.map(function(x,i){ var nm=x.w==='b'?'신부':'신랑';
       return '<li class="mk-slr">'+(i>0&&x.w!==L[i-1].w&&_slTurnOn(key)?_slTurnUi(key,i):'')+'<span class="mk-whog mk-slwg" role="radiogroup" aria-label="'+esc((n>1?(i+1)+'번째 줄 · ':'')+'누가 읽나요')+'">'+[['g','신랑'],['b','신부']].map(function(o){ var on=x.w===o[0]; return '<button type="button" class="mk-whob'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkslw:'+key+':'+i+':'+o[0]+'" onclick="mkSlWho(\''+key+'\','+i+',\''+o[0]+'\')">'+o[1]+'</button>'; }).join('')+'</span>'   /* [SL_TIDY] */
         +(n>1?'<button type="button" class="mk-slx" data-fk="mkslx:'+key+':'+i+'" aria-label="'+esc((i+1)+'번째 줄 빼기')+'" onclick="mkSlDel(\''+key+'\','+i+')">'+ICO_X+'</button>':'')
         +'<span class="mk-slb"><textarea class="ta grow mk-slt" rows="1" maxlength="300" data-fk="mksl:'+key+':'+i+'" aria-label="'+esc(lab+(n>1?' '+(i+1)+'번째 줄':'')+' · '+nm)+'" placeholder="읽을 글을 적어 주세요" oninput="mkSlText(\''+key+'\','+i+',this.value);_taGrow(this)" onchange="_taChange()">'+esc(x.t)+'</textarea>'
         +'</span></li>'; }).join('')+'</ol>'
-    +((n<SL_MAX||right)?'<div class="mk-slf">'+(n<SL_MAX?'<button type="button" class="pk-link mk-sladd" data-fk="mksladd:'+key+'" onclick="mkSlAdd(\''+key+'\')">＋ 줄 더하기</button>':'<span></span>')+(right||'')+'</div>':''); }
+    +((n<SL_MAX||right)?'<div class="mk-slf">'+(n<SL_MAX?'<button type="button" class="pk-link mk-sladd" data-fk="mksladd:'+key+'" onclick="mkSlAdd(\''+key+'\')">＋ 줄 더하기</button>':'<span></span>')+(right||'')+'</div>':'')+'</div>'; }   /* [CARD_POLISH] ② «＋ 줄 더하기 · 처음 글로»도 카드 안 맨 아래(.mk-slc) */
 window.mkSlText=function(key,i,v){ var L=_slCopy(key); if(!L[i]) return; L[i].t=String(v||''); _slPut(key,L);
   if(key==='g3'){ var _r=document.getElementById('mkG3Rem'); if(_r) _r.hidden=_g3HasNotice(); }
   if(key==='pv'){ var pn=document.getElementById('mkPvN'); if(pn) pn.textContent=_pvCount(S.pvText); } };
