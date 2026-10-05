@@ -59,7 +59,7 @@ for (const w of [390, 1280]) {
     /* ⑥ 도는 동안 누르기 */
     let clicked = false;
     if (on && await pg.$('canvas.mp-celebrate')) { await pg.evaluate(() => { window.__clk = 0; const b = document.getElementById('mp_refresh'); if (b) b.addEventListener('click', () => { window.__clk++; }, { once: true }); }); const b = await pg.$('#mp_refresh'); if (b) { const r = await b.boundingBox(); if (r) { await pg.mouse.click(r.x + r.width / 2, r.y + r.height / 2); clicked = await pg.evaluate(() => window.__clk === 1); } } }
-    let gone = false; try { await pg.waitForSelector('canvas.mp-celebrate', { state: 'detached', timeout: 6200 }); gone = true; } catch {}
+    let gone = false; try { await pg.waitForSelector('canvas.mp-celebrate', { state: 'detached', timeout: 6200 }); gone = true; } catch {}   /* [CELE_GRAND 2026-10-05] 세 박자 약 4.5초 + 여유 */
     const took = Date.now() - t0, line = await cheer(pg), flag = await pg.evaluate(() => localStorage.getItem('me_wedcele_QQ63CW'));
     ok(`① ${w} 예식완료 · 처음 열기 → 축하 그림 한 번(고정 · 화면 가득 · 누르기 통과 · aria-hidden) · 끝나면 지움 · 축하 한 줄은 피어나 남는다 [WED_DONE_CELEBRATE · CELE_STAY]`, on && meta && meta.pe === 'none' && meta.hidden === 'true' && meta.pos === 'fixed' && meta.full && !meta.hitCanvas && gone && line === '두 분의 결혼을 진심으로 축하드려요' && flag === 'o', JSON.stringify({ on, meta, gone, took, line, flag }));
     ok(`⑥ ${w} 그림이 도는 동안에도 누르기가 된다(새로고침 단추)`, clicked, JSON.stringify({ clicked }));
