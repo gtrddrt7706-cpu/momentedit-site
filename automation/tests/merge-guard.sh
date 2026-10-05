@@ -14398,3 +14398,7 @@ chk 'function _vcUseList()' order-preview.html 1
 nochk '.mk-vpcs>.mk-vpc{display:grid;grid-template-columns:minmax(190px,1fr) 240px' order-preview.html
 chk "rows=VC_USE.filter(function(x){ return x\[2\]==='guest'||R.onOf(S,x\[2\]); })" order-preview.html 1
 :
+nochk '.mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var(--border)}' order-preview.html   # [KEEP_GUIDE] 아래 선 = 겹선 금지(2026-10-05)
+:
+chk 'G3_NO_MINI' order-preview.html 1   # [G3_NO_MINI 2026-10-05] 하객 맞이 쪽 «시작 1분 전» ▶ · 전체 듣기에도 아래 재생 바 없이
+:

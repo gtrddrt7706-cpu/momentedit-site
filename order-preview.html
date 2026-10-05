@@ -1587,7 +1587,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-keepn{margin:6px 0 0}   /* [KEEP_LINE] */
 .q-say{font-family:var(--ko-serif);font-weight:500;letter-spacing:-.01em}   /* [GUIL_OFF] 읽는 말 = 명조 · 따옴표 없이 */
 .q-nm{font-weight:600}   /* [GUIL_OFF] 칩 · 단추 이름 = 조금 굵게 · 따옴표 없이 */
-.mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var(--border)}   /* [KEEP_GUIDE] 칠한 상자 없이 · 위는 앞 구분선이 이미 있어 아래 선만(겹선 금지) */
+.mk-keepg{margin:2px 0 2px;padding:4px 0 14px}   /* [KEEP_GUIDE] 칠한 상자 없이 · ★선 없음 — 위는 앞 구분선, 아래는 줄 카드 목록 윗선이 이미 있다(2026-10-05 사장님 «밑에 줄 나눔이 두 줄» · 겹선 금지) */
 .mk-keepv{display:flex;align-items:center;gap:8px;margin:0 0 8px}
 .mk-keepv i{font-style:normal;color:var(--light)}
 .mk-kp{display:inline-flex;align-items:center;gap:3px;min-height:30px;padding:0 12px;border:1px solid var(--gold-btn,#C2A988);border-radius:999px;background:#fff;color:var(--gold-deeper);font-size:12.5px;font-weight:600}
@@ -5976,7 +5976,7 @@ function _lPaint(){
   /* [MINI_OFF_ROWS] 줄 ▶ 의 «흐르는 중» 표시는 _mlPaint(UI_ONE · ⏹ 로 멈춤)가 맡는다 */
   try{ _mlPaint(); }catch(e){}   // [MINI_OFF_ROWS] 지금 흐르는 줄 ▶ → ⏹
   [].forEach.call(document.querySelectorAll('.mk-flow li.t'),function(li){ li.classList.toggle('now',!!(st&&st.bridge&&!LP.big)); });   // [TALK_BRIDGE] 안내 한 줄 동안 «신랑 차례 · 신부 차례» 줄이 지금임을 보인다
-  var _rowCtl=!!(st&&(document.querySelector('.mk-pl[data-ml^="'+st.k+':"]')||(STEPS[idx]&&STEPS[idx].k==='listen'&&_mkRO().at===st.k&&document.querySelector('.mk-vpl[data-fk^="mkvpl:"]'))));   /* ★[MINI_OFF_AI 2026-10-05 사장님 «AI 목소리 쪽은 아래 재생바가 나오는데 나레이션이랑 동일하게»] AI 목소리 카드 ▶ 가 있는 쪽도 재생 바 없이 — 지금 흐르는 카드 ▶ 가 ■(_mlPaint) */   // [MINI_OFF_ROWS] ② 순간 쪽(줄 ▶ 가 있는 곳)은 줄 ▶ 로 듣든 «이 순간 들어 보기»로 듣든 아래 재생 바를 띄우지 않는다
+  var _rowCtl=/* [G3_NO_MINI 2026-10-05 사장님 «시작 1분 전 여기만 하단에 재생 바가 튀어나와»] 1분 전은 엔진에선 식전 영상 소속 — 이 쪽에 그 줄 카드 ▶ 가 있으면 같은 쪽으로 본다 */!!(st&&(document.querySelector('.mk-pl[data-ml^="'+st.k+':"]')||(STEPS[idx]&&STEPS[idx].k==='listen'&&(_mkRO().at===st.k||(st.up&&document.querySelector('.mk-vpl[data-fk="mkvpl:'+st.up+'"]')))&&document.querySelector('.mk-vpl[data-fk^="mkvpl:"]'))));   /* ★[MINI_OFF_AI 2026-10-05 사장님 «AI 목소리 쪽은 아래 재생바가 나오는데 나레이션이랑 동일하게»] AI 목소리 카드 ▶ 가 있는 쪽도 재생 바 없이 — 지금 흐르는 카드 ▶ 가 ■(_mlPaint) */   // [MINI_OFF_ROWS] ② 순간 쪽(줄 ▶ 가 있는 곳)은 줄 ▶ 로 듣든 «이 순간 들어 보기»로 듣든 아래 재생 바를 띄우지 않는다
   var _fl=document.getElementById('lsFull'); if(!_mWas&&st&&!LP.big&&!_rowCtl) LP.miniFrom=(_fl&&_ae&&_fl.contains(_ae))?(LP.opener||null):(_ae&&!el.contains(_ae)&&_ae!==document.body?_ae:null);   /* [QA_MINI_FOCUS] ③ 은 작은 플레이어가 크게 보기를 접으며 뜬다 — 숨은 ⌄ 가 아니라 크게 보기를 연 단추를 기억한다 */
   var _mOn=!!(st&&!LP.big&&!_rowCtl); document.documentElement.classList.toggle('lsmini',_mOn); try{ _opPad(); }catch(e){}   // ★[MINI_ROOM 코워크 추가 점검 P2-3] 작은 플레이어가 떠 있는 동안 아래 칸이 그 뒤로 숨지 않게
   if(!st||LP.big||_rowCtl){   // [MINI_OFF_ROWS]
