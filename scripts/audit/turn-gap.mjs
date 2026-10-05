@@ -68,7 +68,7 @@ for (const [W, mob] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => mkAiGo('g0')); await pg.waitForTimeout(1500);
   const b1 = await pg.evaluate(() => ({ tq: (S.up.g0 || {}).tq, pill: _aiMode('g0') }));
   ok(W + ' «목소리 만들기»를 눌러야 새 쉼으로 만든다(tq 0:0) — 당일 콘솔 · 미리 듣기가 같은 소리', b1.tq === '0:0' && b1.pill !== 'need', JSON.stringify(b1));
-  const nr = await pg.evaluate(async () => { delete VC_RAW.g0; const m0 = __makes; mkSlTurnSet('g0', 1, 3); await new Promise((r) => setTimeout(r, 1200)); return { makes: __makes - m0, note: /«목소리 만들기»를 누르면 이 자리를 들어 볼 수 있어요/.test((document.querySelector('.mk-sltn.open') || {}).textContent || ''), play: !!document.querySelector('[data-fk="mksltp:g0:1"]') }; });
+  const nr = await pg.evaluate(async () => { delete VC_RAW.g0; const m0 = __makes; mkSlTurnSet('g0', 1, 3); await new Promise((r) => setTimeout(r, 1200)); return { makes: __makes - m0, note: /«?목소리 만들기»?를 누르면 이 자리를 들어 볼 수 있어요/.test((document.querySelector('.mk-sltn.open') || {}).textContent || ''), play: !!document.querySelector('[data-fk="mksltp:g0:1"]') }; });
   ok(W + ' 이 기기에 받은 소리가 없을 때(새로 연 창) 골라도 만들지 않고 «목소리 만들기를 누르면 …» 한 줄 [TURN_NO_AUTOMAKE]', nr.makes === 0 && nr.note && !nr.play, JSON.stringify(nr));
   await pg.click('[data-fk="mksltd:g0:1:2"]'); await pg.waitForTimeout(300);
   const r1 = await pg.evaluate(() => ({ p: S.vlines[_slVk('g0')][1].p, sig: _slTurnSig('g0') }));

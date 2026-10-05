@@ -14384,3 +14384,13 @@ chk 'VC_PAR' scripts/audit/vc-par.mjs 1
 chk 'VC_SLOW_AGAIN' scripts/audit/vc-slow-again.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-par.mjs >/dev/null 2>&1; _vp=$?; [ "$_vp" != 0 ] && { echo 'FAIL vc-par: AI 줄 만들기(서버 흉내)가 어긋났습니다 — node scripts/audit/vc-par.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-slow-again.mjs >/dev/null 2>&1; _vs=$?; [ "$_vs" = 1 ] && { echo 'FAIL vc-slow-again: 기다리다 멈춘 AI 만들기 다시 묻기가 어긋났습니다 — node scripts/audit/vc-slow-again.mjs'; fail=1; }; fi
+# ★★[GUIL_OFF · PV_DESC_TOP · VPAGE_PC 2026-10-05 사장님 ««» 문양 별로 · 식순 전체 일괄 → 1번(글꼴로 구분) · 나머지도 추천대로»]
+chk 'GUIL_OFF' order-preview.html 3
+chk 'function _guilNode(t)' order-preview.html 1
+chk '.q-say{font-family:var(--ko-serif)' order-preview.html 1
+nochk 'placeholder="예) 마지막에 «감사합니다»라고 할게요"' order-preview.html
+chk 'PV_DESC_TOP' order-preview.html 2
+nochk "#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):''" order-preview.html
+chk 'VPAGE_PC' order-preview.html 3
+chk 'function _vcUseList()' order-preview.html 1
+:
