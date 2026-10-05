@@ -151,7 +151,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   }
   const allHeads = Object.values(ls).flatMap((x) => x.heads);
   const g3 = (ls['guest:ai'].heads.find((h) => /시작 1분 전/.test(h)) || '');
-  ok(W + ` 줄 카드 머리에 «약 n초» 없음(${allHeads.length}장) · 덧말은 홀로(«${g3.replace('시작 1분 전', '').trim().slice(0, 24)}») · 빈 덧말 줄 0 [LINE_NO_SEC]`, allHeads.length >= 8 && !allHeads.some((h) => /약\s?\d+\s?초/.test(h)) && Object.values(ls).every((x) => x.empty === 0) && /^시작 1분 전\s*식전 영상이 끝난\s*뒤에\s*흘러요/.test(g3), JSON.stringify(ls).slice(0, 500));
+  ok(W + ` 줄 카드 머리에 «약 n초» 없음(${allHeads.length}장) · 덧말은 홀로(«${g3.replace('시작 1분 전', '').trim().slice(0, 24)}») · 빈 덧말 줄 0 [LINE_NO_SEC]`, allHeads.length >= 8 && !allHeads.some((h) => /약\s?\d+\s?초/.test(h)) && Object.values(ls).every((x) => x.empty === 0) && /^시작 1분 전/.test(g3) && !/식전 영상/.test(g3)   /* [ONEMIN_FIRST] «식전 영상이 끝난 뒤에 흘러요» 덧말 걷음 */, JSON.stringify(ls).slice(0, 500));
   ok(W + ' 화면 오류 없음', errs.length === 0, errs.slice(0, 2).join(' | '));
   await ctx.close();
 }

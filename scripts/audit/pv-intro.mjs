@@ -49,7 +49,8 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   });
   await pg.waitForTimeout(500);
   const off = await pg.evaluate(() => ({ chips: document.querySelectorAll('[data-fk^="lsc:pvVoice"]').length, ta: !!document.querySelector('[data-fk="mksl:pv:0"]'), row: !!document.querySelector('.mk-sech-r [data-fk="mkplay"]'), lab: [...document.querySelectorAll('.mk-flow .mk-lab')].map((e) => e.textContent).join('|') }));
-  ok(W + ' AI 꺼짐 — 고르는 칸 · 글칸 없음 · 스튜디오 한 줄(이름 «식전 영상 소개») · 들어 보기 줄 [PLAY_ROW]', off.chips === 0 && !off.ta && off.row && /식전 영상 소개/.test(off.lab) && !/소개글/.test(off.lab), JSON.stringify(off));
+  /* [ONEMIN_FIRST 2026-10-05] 1분 전 안내가 하객 맞이로 가 식전 영상 쪽은 들을 줄이 하나 — «이 순간 들어 보기» 없음([PLAY_ONE] · 그 줄 ▶ 이 같은 일) */
+  ok(W + ' AI 꺼짐 — 고르는 칸 · 글칸 없음 · 스튜디오 한 줄(이름 «식전 영상 소개») · 한 줄이라 «이 순간 들어 보기» 없음 [PLAY_ROW · ONEMIN_FIRST]', off.chips === 0 && !off.ta && !off.row && /식전 영상 소개/.test(off.lab) && !/소개글/.test(off.lab), JSON.stringify(off));
   await pg.evaluate(() => { S.vsAsked = 1; RitualOpen.FEATURE.voiceClone = true; render(); });   /* [R2-15] ② 첫 진입 창은 voice-setup 이 잰다 */
   await pg.waitForTimeout(300);
   const ch = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:pvVoice"]')].map((e) => e.textContent).join('|'));
