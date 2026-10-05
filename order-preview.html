@@ -5200,7 +5200,12 @@ function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k], on=!busy&&_mp
   return '<button type="button" class="mk-hbtn'+(on?' on':'')+'" data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?ICO_STOP:ICO_PLAY)+' '+(busy?'만드는 중':on?'멈추기':_mpLab(k))+'</button>'; }
 /* ★[MP_ALL_WORD 2026-10-05 사장님 «이 순간 들어 보기 → 전체 들어 보기 식으로 전체 한 번에 재생된다는 느낌» → 시안 A(문구만)] 줄 ▶ 와 같은 ▶ 라 «한 줄 듣기»와 갈리지 않았다 —
    글로 «전체 · n줄 이어서»를 말한다. n = 화면에 ▶ 가 붙은 줄(나레이션 줄 · 두 분 목소리 줄 · 말하는 자리 · 영상 자리는 뺀다) · 엔진 전이면 줄 수 없이 */
-function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length; }catch(e){} return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }
+/* ★[GUEST_ALL_G3 2026-10-05 사장님 «이 순간 전체 듣기에 왜 1분 전은 없어?» → «추천대로»] 식전 영상을 넣으면 «시작 1분 전»은 영상 뒤라 엔진에선 식전 영상 순간 소속이다 —
+   그런데 하객 맞이 쪽에 카드가 넷이라 «3줄 이어서»는 «빠졌다»로 읽혔다. 하객 맞이 쪽 전체 듣기는 보이는 넷을 다: … 5분 전 → (식전 영상 자리 · 2초 · «식전 영상이 흐른 뒤») → 1분 전.
+   식전 영상 쪽 듣기(영상 소개 → 영상 → 1분 전)는 그대로 · 크게 보기 · 연습 · 처음부터 끝까지는 엔진 순서 그대로 */
+function _lGuestTail(){ try{ if(!ENG||_lSteps(ENG,['guest']).some(function(x){ return x.up==='g3'; })) return []; var g3=_lSteps(ENG,['prevideo']).filter(function(x){ return x.up==='g3'&&!x.quiet; })[0]; if(!g3) return [];
+  return [{k:'guest',lab:'식전 영상 자리',txt:'식전 영상이 흐른 뒤',src:null,pending:true,bridge:true,ms:2000},g3]; }catch(e){ return []; } }
+function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length+(k==='guest'?_lGuestTail().length?1:0:0); }catch(e){} return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }
 function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈추기':_mpLab(k)); }); }   // [MP_ALL_WORD]
 window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; LP.lineKey=k+':'+i; LP.lineSt=st; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
   var q=all.filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }), j=q.indexOf(st); if(j<0){ q=[st]; j=0; }
@@ -5664,7 +5669,7 @@ function _lStart(ks,all,hold){   /* hold = [CHIP_NO_AUTOPLAY] 줄은 새로 세�
   if(!hold) _stopMk();   // [PLAY_TOGGLE_FIX] 아래 작은 플레이어가 틀면 줄 ▶ 소리는 멈춘다(겹치지 않게)
   _stopAud(); if(hold){ try{ if(LP.el) LP.el.pause(); }catch(e){} } else _lUnlock();   // [INAPP_UNLOCK] 탭 호출 스택 안에서
   LP.range={ks:ks.slice(),all:!!all}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null; LP.one=false;   // [CHIP_STAY] · [PRACTICE_CHOOSE] · [LINE_STEP] 쪽 · 전체 재생은 이어서 흐른다
-  function go(){ var _q0=_lSteps(ENG,ks).filter(function(x){ return !x.quiet; }); LP.q=LP.fast?_q0:_lRefExpand(_q0); if(!LP.big&&STEPS[idx]&&STEPS[idx].k==='listen') LP.q=_lBridge(_q0);   /* [TALK_BRIDGE] ② 작은 재생은 안내 한 줄로 · 크게 보기 · 연습은 차례 시간 */   /* ★[QA_FAST 2026-10-04 점검] «빠르게 훑기»는 말하는 자리를 3초 글 카드로 둔다(약 n분 셈 _lLen 과 같은 목록) — 종전엔 LP.fast 를 아무도 안 읽어 «처음부터 끝까지»와 같았다 */ LP.i=0; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
+  function go(){ var _q0=_lSteps(ENG,ks).filter(function(x){ return !x.quiet; }); LP.q=LP.fast?_q0:_lRefExpand(_q0); if(!LP.big&&STEPS[idx]&&STEPS[idx].k==='listen'){ LP.q=_lBridge(_q0); if(!all&&ks.length===1&&ks[0]==='guest') LP.q=LP.q.concat(_lGuestTail()); }   /* [GUEST_ALL_G3] 하객 맞이 쪽 «전체 듣기»는 카드 넷 다 */   /* [TALK_BRIDGE] ② 작은 재생은 안내 한 줄로 · 크게 보기 · 연습은 차례 시간 */   /* ★[QA_FAST 2026-10-04 점검] «빠르게 훑기»는 말하는 자리를 3초 글 카드로 둔다(약 n분 셈 _lLen 과 같은 목록) — 종전엔 LP.fast 를 아무도 안 읽어 «처음부터 끝까지»와 같았다 */ LP.i=0; LP.paused=!!hold; LP.all=!!all; LP.tok++; LP.last=null; LP.lead=!hold; _lShow(); }   // [PLAY_LEAD] 처음 줄만 1초 뒤
   if(ENG&&LREC) go();
   else engine().then(function(g){ if(!g){ LS.msg='소리를 불러오지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; } _lrec().then(go); });
 }

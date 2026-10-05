@@ -14290,3 +14290,8 @@ nochk 'MK.turnT=setTimeout' order-preview.html
 chk "if(pill&&_slKeyOk(key)&&(v.tq||'')!==_slTurnSig(key))" order-preview.html 1
 chk 'TURN_NO_AUTOMAKE' scripts/audit/turn-gap.mjs 3
 :
+# ★[GUEST_ALL_G3 2026-10-05 사장님 «이 순간 전체 듣기에 왜 1분 전은 없어?» → «추천대로»] 하객 맞이 쪽 전체 듣기는 카드 넷 다(5분 전 → 식전 영상 자리 2초 → 1분 전)
+chk 'GUEST_ALL_G3' order-preview.html 2
+chk 'function _lGuestTail()' order-preview.html 1
+chk 'GUEST_ALL_G3' scripts/audit/turn-gap.mjs 1
+:
