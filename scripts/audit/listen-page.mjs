@@ -590,14 +590,15 @@ else {
   await pg.screenshot({ path: path.join(os.tmpdir(), 'pc-go-1280.png') });
   await ctx.close();
 }
-/* ★[ONEMIN_HOME 2026-09-27] 1분 전 안내 — 식전 영상을 담으면 영상 뒤(식전 영상 쪽) · 안 담으면 하객 맞이 쪽 · 어느 쪽이든 사라지지 않는다 */
+/* [ONEMIN_HOME 2026-09-27 → ONEMIN_FIRST 2026-10-05] 1분 전 안내 — 어느 경우든 하객 맞이 쪽 · 사라지지 않는다 */
 {
   const { ctx, pg, errs } = await open(390);
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const r = await pg.evaluate(() => { const has = (k) => _lSteps(ENG, [k]).some((x) => /1분 전/.test((x.lab || '') + (x.txt || ''))); const out = {};
     S.on.prevideo = 1; opSync(); out.onPre = has('prevideo'); out.onGuest = has('guest'); mkGo('guest'); render(); out.note = /1분\s전\s안내는\s식전\s영상이\s끝난\s뒤에\s흘러요/.test(document.querySelector('.mk-flow').textContent);
     delete S.on.prevideo; opSync(); out.offGuest = has('guest'); out.all = _lSteps(ENG, _lRows()).some((x) => /1분 전/.test((x.lab || '') + (x.txt || ''))); return out; });
-  ok('12-1 1분 전 안내 — 식전 영상 있으면 그 뒤 · 하객 맞이 쪽에 «영상 뒤에 흘러요» 한 줄 · 식전 영상 없으면 하객 맞이 쪽 · 연습에서 안 사라짐 [ONEMIN_HOME]', r.onPre && !r.onGuest && r.note && r.offGuest && r.all, JSON.stringify(r));
+  /* ★[ONEMIN_FIRST 2026-10-05 사장님] 차례가 «1분 전 공지 → 식전 영상»으로 바뀌었다 — 1분 전은 식전 영상을 담아도 하객 맞이 쪽 · «영상 뒤에 흘러요» 줄 없음 */
+  ok('12-1 1분 전 안내 — 식전 영상을 담아도 안 담아도 하객 맞이 쪽 · «영상이 끝난 뒤에 흘러요» 줄 없음 · 연습에서 안 사라짐 [ONEMIN_FIRST]', !r.onPre && r.onGuest && !r.note && r.offGuest && r.all, JSON.stringify(r));
   /* [MK_COPY_RIGHT] 녹음 카드 — «읽을 글 복사하기»는 제목 줄 오른쪽 · 누르면 그 아래 «복사됐어요» */
   await pg.evaluate(() => { S.guestVoice = 'couple'; mkGo('guest'); render(); window.__clip = ''; navigator.clipboard.writeText = (t) => { window.__clip = t; return Promise.resolve(); }; }); await pg.waitForTimeout(300);
   const c0 = await pg.evaluate(() => { const b = document.querySelector('[data-fk="mkupcopy"]'), h = document.getElementById('mkVoiceH'); return { same: !!b && Math.abs(b.getBoundingClientRect().top - h.getBoundingClientRect().top) < 30, right: !!b && b.getBoundingClientRect().left > h.getBoundingClientRect().right }; });
