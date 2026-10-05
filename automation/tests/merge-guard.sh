@@ -14478,3 +14478,12 @@ nochk '본식 시작 4분 전' api/_ritual-kb.js
 chk 'CEREMONY_AT_VIDEO' assets/ritual-open.js 1
 chk 'CEREMONY_AT_VIDEO' scripts/audit/open-course.mjs 2
 :
+# ★★[EX_ONE 2026-10-05 사장님 «예시라고 한번 짚어 주는 게 어때 · 수정하면 안 될 것 같은 느낌 · 예시 부분 형태가 일관되지 않다 · 이벤트마다 통일»]
+#   글을 채우는 예시 = «참고 예시» 카드 한 모양(입장 AI 판 · 식전 영상 소개) · 예시 그대로인 줄에 «예시 글 · 고쳐 써도 돼요» · 끝 신호 칩 앞 «예시» · 고친 뒤 예시는 묻고 바꾼다
+chk 'EX_ONE' order-preview.html 7
+chk 'function _exCards(id,items,cur,fn)' order-preview.html 1
+chk 'function _exIs(key)' order-preview.html 1
+chk 'window.mkEntryEx=function(n)' order-preview.html 1
+nochk 'class="ex-chips mk-pvex"' order-preview.html
+chk 'EX_ONE' scripts/audit/ex-one.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-one.mjs >/dev/null 2>&1; _ex1=$?; [ "$_ex1" = 1 ] && { echo 'FAIL ex-one: 예시 모양 통일(참고 예시 카드 · 예시 글 표)이 어긋났습니다 — node scripts/audit/ex-one.mjs'; fail=1; }; fi

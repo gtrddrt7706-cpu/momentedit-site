@@ -72,7 +72,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(800);
   const p0 = await pg.evaluate(() => ({ ed: !!document.querySelector('[data-fk="mksl:pv:0"]'), old: !!document.getElementById('mkPvTa'), head: document.querySelectorAll('.mk-whog:not(.mk-slwg)').length }));
   ok(W + ' 식전 영상 소개 — 같은 줄 편집기 · 옛 한 칸 · 머리 고르기 없음', p0.ed && !p0.old && p0.head === 0, JSON.stringify(p0));
-  await pg.click('[data-fk="mkpvex:0"]'); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="mkex:pv:0"]'); await pg.waitForTimeout(400);
   const p1 = await pg.evaluate(() => ({ t: (document.querySelector('[data-fk="mksl:pv:0"]') || {}).value || '', n: document.querySelectorAll('[data-fk^="mksl:pv:"]').length, pvText: S.pvText }));
   ok(W + ' 소개글 예시 — 한 줄로 들어간다', p1.n === 1 && p1.t && p1.t === p1.pvText, JSON.stringify(p1));
   if (SHOT) await pg.screenshot({ path: `${SHOT}/ls-pv-${W}.png`, fullPage: true });
