@@ -1475,7 +1475,12 @@ function handleVoiceClone(body) {
   if (op === 'practice') { if (!cfg.tts || !cfg.key) return _vcGate(code, cfg, op, 'read');   // [VC_GATE_WHY]   // [VOICE_CLONE_0928] 7-2 연습 읽기 — 연습에서만 · 두 분이 켤 때만 · 숨긴 글은 화면이 보내지 않는다
     var t = String(body.text || '').trim().slice(0, 2000); if (!t) return { ok: false, error: '읽을 글이 없어요.' };
     var role = String(body.role || who || ''), own = (role === 'groom' || role === 'bride') && cfg.clone && st[role] && st[role].voiceId;
-    var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || cfg.def.f || cfg.def.m; if (!vid) return down;
+    /* ★[PT_VOICE_FALLBACK 2026-10-05 사장님 «AI 음성 소리가 안 나는데?»] 그 차례 사람의 AI 목소리가 없고 스튜디오 기본 목소리(TYPECAST_VOICE_M/F)도 비어 있으면
+       종전엔 기록 없이 VC_DOWN 이었다(vcLastErrors 에도 안 남음) — 한 분 목소리만 만든 예식에서 다른 분 차례가 늘 그랬다.
+       이제 순서: 그분 AI 목소리 → 스튜디오 기본 → 다른 분 AI 목소리(연습용이라 없는 것보다 낫다) → 아무 기본. 그래도 없으면 까닭을 VCERR_ 에 남긴다 */
+    var other = role === 'groom' ? 'bride' : role === 'bride' ? 'groom' : '', pal = cfg.clone && ((other && st[other] && st[other].voiceId) || (st.groom && st.groom.voiceId) || (st.bride && st.bride.voiceId));
+    var vid = own || ({ groom: cfg.def.m, bride: cfg.def.f, m: cfg.def.m, f: cfg.def.f, om: cfg.def.om, of: cfg.def.of })[role] || pal || cfg.def.f || cfg.def.m;
+    if (!vid) { try { PropertiesService.getScriptProperties().setProperty('VCERR_' + code, JSON.stringify({ at: fmtKST(new Date()), op: 'practice', http: 0, msg: '읽을 목소리 없음 · 두 분 AI 목소리도 스튜디오 기본(TYPECAST_VOICE_M · F)도 비어 있어요' })); } catch (e) {} return down; }
     var tp = _vcTempo(body.tempo);   // [TEMPO_STEP] 0.7 ~ 1.3 · 0.1 걸음(종전 세 값만 받던 목록)
     if (_vcSpent(st) + t.length > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
     try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; save(); }
