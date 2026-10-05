@@ -14097,9 +14097,9 @@ chk 'PLAY_ONE' scripts/audit/voice-setup.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/line-split.mjs >/dev/null 2>&1; _ls=$?; [ "$_ls" = 1 ] && { echo 'FAIL line-split: 두 분 읽을 글 줄 편집기 흐름이 어긋났습니다 — node scripts/audit/line-split.mjs'; fail=1; }; fi
 chk 'LINE_SPLIT' order-preview.html 12
 chk 'LINE_SPLIT' scripts/audit/line-split.mjs 1
-chk 'function _slEditor(key,lab){' order-preview.html 1
-chk '+_slEditor(q.up,lab)' order-preview.html 1
-chk "+_slEditor('pv','영상 앞 소개글')" order-preview.html 1
+chk 'function _slEditor(key,lab,right){' order-preview.html 1
+chk '+_slEditor(q.up,lab,' order-preview.html 1
+chk "+_slEditor('pv','영상 앞 소개글','" order-preview.html 1
 nochk 'class="ta grow mk-vtta"' order-preview.html
 nochk 'id="mkPvTa"' order-preview.html
 chk "wq:_slKeyOk(key)?_slWhoSig(key):undefined" order-preview.html 1
@@ -14224,6 +14224,9 @@ chk 'PV_LINK_ONE' order-preview.html 1
 chk 'TALK_BRIDGE' order-preview.html 4
 chk 'function _lBridge(q)' order-preview.html 1
 chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-preview.html 1
+chk 'SL_TIDY' order-preview.html 6   # ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?»] 줄 편집기 — 글칸 폭 같게(× 는 칸 안) · 읽는 분 단추 첫 줄 높이 · 줄 더하기와 처음 글로 한 줄
+chk 'class="mk-whog mk-slwg" role="radiogroup"' order-preview.html 1   # ★[SL_TIDY 2026-10-05 사장님 «신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?»] 줄마다 [신랑 | 신부] 둘 다 보인다
+nochk 'class="mk-slw" data-fk="mkslw' order-preview.html   # 한 단추 «신부»(누르면 신랑) 금지 — 2026-10-05 사용자 지시로 삭제
 # ★★[PHRASE_NO_DEAD 2026-10-05 사장님 «여기서 진행이 안 돼 · 전에도 그랬는데 해결이 안 된 것 같아»] 확인 문장을 못 받으면 글 2 «녹음 시작»이 잠긴 채 남던 막다른 길 — 다시 묻기 · «확인 문장 다시 받기» 단추
 chk 'PHRASE_NO_DEAD' order-preview.html 7
 chk "data-fk=\"mkvcphrase\"" order-preview.html 1

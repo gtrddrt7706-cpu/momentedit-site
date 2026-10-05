@@ -40,15 +40,15 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.click('[data-fk="mkvs:ai"]'); await pg.waitForTimeout(2500);
   if (await pg.isVisible('[data-fk="mkvsdone"]')) { await pg.click('[data-fk="mkvsdone"]'); await pg.waitForTimeout(400); }
   await pg.evaluate(() => mkGo('entry')); await pg.waitForTimeout(800);
-  const e0 = await pg.evaluate(() => { const r = [...document.querySelectorAll('.mk-sl[aria-label^="입장"] .mk-slr, [data-fk^="mksl:entry:"]')]; return { who: [...document.querySelectorAll('[data-fk^="mkslw:entry:"]')].map((b) => b.textContent), ta: document.querySelectorAll('[data-fk^="mksl:entry:"]').length, old: document.querySelectorAll('.mk-vtta').length, txt: [...document.querySelectorAll('[data-fk^="mksl:entry:"]')].map((t) => t.value) }; });
+  const e0 = await pg.evaluate(() => { const r = [...document.querySelectorAll('.mk-sl[aria-label^="입장"] .mk-slr, [data-fk^="mksl:entry:"]')]; return { who: [...document.querySelectorAll('[data-fk^="mkslw:entry:"][aria-checked="true"]')].map((b) => b.textContent), ta: document.querySelectorAll('[data-fk^="mksl:entry:"]').length, old: document.querySelectorAll('.mk-vtta').length, txt: [...document.querySelectorAll('[data-fk^="mksl:entry:"]')].map((t) => t.value) }; });
   ok(W + ' 입장 인사 — 문장마다 줄 · 신랑 · 신부 번갈아 · 한 칸 글상자 없음', e0.ta >= 2 && e0.who[0] === '신랑' && e0.who[1] === '신부' && e0.old === 0, JSON.stringify(e0));
   if (SHOT) await pg.screenshot({ path: `${SHOT}/ls-entry-${W}.png`, fullPage: true });
   await pg.click('[data-fk="mksladd:entry"]'); await pg.waitForTimeout(300);
-  const e1 = await pg.evaluate(() => { const n = document.querySelectorAll('[data-fk^="mksl:entry:"]').length; const last = document.querySelector('[data-fk="mksl:entry:' + (n - 1) + '"]'); return { n, foc: document.activeElement === last, lastWho: (document.querySelector('[data-fk="mkslw:entry:' + (n - 1) + '"]') || {}).textContent }; });
+  const e1 = await pg.evaluate(() => { const n = document.querySelectorAll('[data-fk^="mksl:entry:"]').length; const last = document.querySelector('[data-fk="mksl:entry:' + (n - 1) + '"]'); return { n, foc: document.activeElement === last, lastWho: (document.querySelector('[data-fk^="mkslw:entry:' + (n - 1) + ':"][aria-checked="true"]') || {}).textContent }; });
   ok(W + ' ＋ 줄 더하기 — 한 줄 늘고 · 앞줄과 다른 분 · 새 칸에 초점', e1.n === e0.ta + 1 && e1.foc && e1.lastWho === (e0.ta % 2 ? '신부' : '신랑') && true, JSON.stringify(e1));
   await pg.keyboard.type('마지막으로 함께 인사드립니다.'); await pg.waitForTimeout(200);
-  await pg.click('[data-fk="mkslw:entry:0"]'); await pg.waitForTimeout(300);
-  const e2 = await pg.evaluate(() => ({ w0: document.querySelector('[data-fk="mkslw:entry:0"]').textContent, lines: _vpLines('entry'), need: _recNeed('entry') }));
+  await pg.click('[data-fk^="mkslw:entry:0:"][aria-checked="false"]');   // [SL_TIDY] [신랑 | 신부] 둘 다 보인다 — 안 고른 쪽을 누른다 await pg.waitForTimeout(300);
+  const e2 = await pg.evaluate(() => ({ w0: document.querySelector('[data-fk^="mkslw:entry:0:"][aria-checked="true"]').textContent, lines: _vpLines('entry'), need: _recNeed('entry') }));
   ok(W + ' 읽는 분 바꾸기 — 첫 줄이 신부로 · 대본 줄에도 그대로 · 새 줄 글이 이어 붙음', e2.w0 === '신부' && e2.lines[0][0] === '신부' && /함께 인사드립니다/.test(e2.need) && e2.lines.length === e1.n, JSON.stringify(e2));
   await pg.click('[data-fk="mkslx:entry:' + (e1.n - 1) + '"]'); await pg.waitForTimeout(300);
   const e3 = await pg.evaluate(() => ({ n: document.querySelectorAll('[data-fk^="mksl:entry:"]').length, need: _recNeed('entry') }));
@@ -58,7 +58,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' AI 만들기 — 줄마다 그 분(lines: 신부 · 신부 …)', m1 && Array.isArray(m1.lines) && m1.lines[0][0] === 'bride' && m1.lines.length === e3.n, JSON.stringify(m1));
   /* 하객 맞이 · 식전 영상 소개도 같은 편집기 */
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(800);
-  const g0 = await pg.evaluate(() => ({ eds: [0, 1, 2, 3].filter((i) => document.querySelector('[data-fk="mksl:g' + i + ':0"]')).length, head: document.querySelectorAll('.mk-whog').length, old: document.querySelectorAll('.mk-vtta').length }));
+  const g0 = await pg.evaluate(() => ({ eds: [0, 1, 2, 3].filter((i) => document.querySelector('[data-fk="mksl:g' + i + ':0"]')).length, head: document.querySelectorAll('.mk-whog:not(.mk-slwg)').length, old: document.querySelectorAll('.mk-vtta').length }));
   ok(W + ' 하객 맞이 넷 — 같은 줄 편집기 · 머리 신랑|신부 고르기 · 한 칸 글상자 없음', g0.eds === 4 && g0.head === 0 && g0.old === 0, JSON.stringify(g0));
   if (SHOT) await pg.screenshot({ path: `${SHOT}/ls-guest-${W}.png`, fullPage: true });
   await pg.evaluate(() => _vcMake('g1', {}).catch(() => {})); await pg.waitForTimeout(900);
@@ -70,7 +70,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const m2 = await pg.evaluate(() => window.__make[0]);
   ok(W + ' 나눈 하객 맞이 줄 AI — lines 두 줄(앞 줄 · 새 줄 다른 분)', m2 && Array.isArray(m2.lines) && m2.lines.length === 2 && m2.lines[0][0] !== m2.lines[1][0], JSON.stringify(m2));
   await pg.evaluate(() => mkGo('prevideo')); await pg.waitForTimeout(800);
-  const p0 = await pg.evaluate(() => ({ ed: !!document.querySelector('[data-fk="mksl:pv:0"]'), old: !!document.getElementById('mkPvTa'), head: document.querySelectorAll('.mk-whog').length }));
+  const p0 = await pg.evaluate(() => ({ ed: !!document.querySelector('[data-fk="mksl:pv:0"]'), old: !!document.getElementById('mkPvTa'), head: document.querySelectorAll('.mk-whog:not(.mk-slwg)').length }));
   ok(W + ' 식전 영상 소개 — 같은 줄 편집기 · 옛 한 칸 · 머리 고르기 없음', p0.ed && !p0.old && p0.head === 0, JSON.stringify(p0));
   await pg.click('[data-fk="mkpvex:0"]'); await pg.waitForTimeout(400);
   const p1 = await pg.evaluate(() => ({ t: (document.querySelector('[data-fk="mksl:pv:0"]') || {}).value || '', n: document.querySelectorAll('[data-fk^="mksl:pv:"]').length, pvText: S.pvText }));
