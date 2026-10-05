@@ -14453,3 +14453,10 @@ chk 'ONEMIN_FIRST' scripts/audit/open-course.mjs 3
 nochk "Array.prototype.splice.apply(got, \[got.length - 1, 0\].concat(BUILD.prevideo(S)))" assets/ritual-cue.js
 nochk "q.up==='g3'&&R.onOf(S,'prevideo')?'식전 영상이 끝난'" order-preview.html
 :
+# ★[TURN_BREATH · TBAR_ALWAYS · TBAR_UP · PT_PREP_RETRY 2026-10-05 사장님 «턴이 너무 빠르다» · «진사색 가로줄이 사라졌다» · «타이머 배치가 처져 있다» · «왜 여기는 AI 만드는 중이지?»]
+chk 'TURN_BREATH' order-preview.html 1
+chk 'TBAR_ALWAYS' order-preview.html 3
+chk 'TBAR_UP' order-preview.html 1
+chk 'PT_PREP_RETRY' order-preview.html 2
+chk 'TURN_BREATH' scripts/audit/play-wait-file.mjs 1
+chk 'PT_PREP_RETRY' scripts/audit/play-wait-file.mjs 1
