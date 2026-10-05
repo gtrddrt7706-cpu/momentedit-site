@@ -14484,3 +14484,5 @@ chk 'CELE_GRAND' mypage.html 2
 chk "burst(sd,0,1); burst(sd,380,0.5); }); shower(" mypage.html 1
 chk 'CELE_GRAND' scripts/audit/wed-celebrate.mjs 2
 :
+chk 'CELE_LINE' mypage.html 2   # [CELE_LINE 2026-10-05] 축하 한 줄이 터짐과 함께 피어난다
+:
