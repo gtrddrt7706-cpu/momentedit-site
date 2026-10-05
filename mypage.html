@@ -6675,6 +6675,7 @@ function _bouquetFold(base){
     +'<h4>받는 시각 · 장소</h4><ul><li>예식 당일 '+(when?escapeHtml(when)+'까지':'두 분 도착 10분 전까지')+' · 스튜디오로 보내 주세요 <span class="due">· 퀵이나 직접 가져오기 모두 괜찮아요</span></li>'
     +'<li>주문 · 결제는 플로리스트와 직접 하시면 돼요</li><li>부케 없이 오시거나 따로 준비하셔도 괜찮아요</li></ul></details>';
 }
+var PREP_FOLD_OFF=true;   // [PREP_FOLD_OFF] 사장님 «일단 여기서는 안 보이게» — 2026-10-05
 function _ritPrepFold(rd, base, dd){
   var sm=rd&&rd.summary; if(!sm||!sm.open||!(sm.prep||sm.helpers)) return '';
   var wm=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -6841,7 +6842,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },
-    { done: true, html: _ritPrepFold(rd, base, dd) },
+    { done: true, html: PREP_FOLD_OFF?'':_ritPrepFold(rd, base, dd) },   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
     { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2||_frB2||_ocB2), html: (function(){ var _ph=(_gpB2.photo||[]), _any=!!(_fxB2||_frB2||_ocB2); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_any?'완료 · 수정':'구도 고르기'); return row('가족 · 친구 스냅', (_ph.length||_any)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 3부 2] 구도가 있으면 «전체 하객 + N컷», 구도는 없고 다른 내용(요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크)이 있으면 «완료 · 수정» + ✓ — 종전엔 요청만 «요청 N개», 불러 모을 분 · 링크만이면 «구도 고르기»(✓ 없음)로 남아 저장 알림과 다른 말을 했다 */   /* [PHOTO_FRIEND_ROW] 친구 부탁만 = ✓ · 「완료 · 수정」 */   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */

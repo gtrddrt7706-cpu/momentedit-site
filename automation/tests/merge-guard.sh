@@ -14237,3 +14237,6 @@ chk "momentedit:orderReload" mypage.html 1
 chk 'reload:!!_rdOv' mypage.html 1
 chk 'PHRASE_NO_DEAD' scripts/audit/phrase-reload.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; [ "$_pr" = 1 ] && { echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; }; fi
+# ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 마이페이지 식순 줄 아래 접힘을 잠시 끈다(사장님이 다시 켜라 하기 전까지)
+chk 'var PREP_FOLD_OFF=true;' mypage.html 1
+chk "html: PREP_FOLD_OFF?'':_ritPrepFold(rd, base, dd)" mypage.html 1
