@@ -5184,12 +5184,19 @@ window.mkRefPick=function(k,n,re){ LS.ref=LS.ref||{}; LS.ref[k]=n; if(re){ _fxNe
 function _mlOn(key){ var st=LP.q[LP.i]; if(!st||LP.paused||LP.big) return false; if(LP.lineSt===st) return LP.lineKey===key;
   /* ★[MINI_OFF_ROWS 2026-10-04 사장님 «재생바 말이야»] «이 순간 들어 보기»(한 순간 통째)로 흐를 때도 지금 줄 ▶ 가 ⏹ — 아래 재생 바 없이 멈출 수 있게 */
   var kk=String(key).split(':'); if(kk[0]!==st.k) return false; try{ var a=_lSteps(ENG,[st.k]), x=a[+kk[1]]; return !!(x&&x.txt===st.txt&&x.lab===st.lab); }catch(e){ return false; } }
-function _mlPaint(){ document.querySelectorAll('[data-ml]').forEach(function(b){ var on=_mlOn(b.getAttribute('data-ml')); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.innerHTML=on?ICO_STOP:ICO_PLAY; b.setAttribute('aria-pressed',String(on)); var l=b.getAttribute('aria-label')||''; b.setAttribute('aria-label',l.replace(/ (듣기|멈추기)$/,'')+(on?' 멈추기':' 듣기')); }); }
+function _mlPaint(){ var _s0=LP.q[LP.i];
+  document.querySelectorAll('.mk-vpl[data-fk^="mkvpl:"]').forEach(function(b){ var key=b.getAttribute('data-fk').slice(6), on=!!(_s0&&!LP.paused&&!LP.big&&_s0.up===key), was=b.getAttribute('data-lp')==='1'; if(on===was) return; b.setAttribute('data-lp',on?'1':'0');   /* [MINI_OFF_AI] 이 순간 들어 보기로 흐르는 AI 줄도 그 카드 ▶ 가 ■ · 누르면 멈춤 */
+    if(on){ b.classList.add('on'); b.innerHTML=ICO_STOP; b.setAttribute('aria-pressed','true'); b.setAttribute('onclick','lsStop()'); }
+    else if(MK.audKey!==key){ b.classList.remove('on'); b.innerHTML=ICO_PLAY; b.setAttribute('aria-pressed','false'); b.setAttribute('onclick',"mkUpPlay('"+key+"')"); } });
+  document.querySelectorAll('[data-ml]').forEach(function(b){ var on=_mlOn(b.getAttribute('data-ml')); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.innerHTML=on?ICO_STOP:ICO_PLAY; b.setAttribute('aria-pressed',String(on)); var l=b.getAttribute('aria-label')||''; b.setAttribute('aria-label',l.replace(/ (듣기|멈추기)$/,'')+(on?' 멈추기':' 듣기')); }); }
 /* ★[UI_ONE 2026-10-04 사장님 «형태가 설정에 따라 어쩔 수 없이 다른 것 말고는 연속성 있게 같은 인터페이스»] «이 순간 들어 보기»도 트는 동안 ■ 멈추기 — 다시 누르면 멈춘다 */
 function _mpOn(k){ return !!(LP.q.length&&LP.range&&!LP.one&&LP.range.ks.length===1&&LP.range.ks[0]===k&&!LP.paused); }
 function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k], on=!busy&&_mpOn(k);
-  return '<button type="button" class="mk-hbtn'+(on?' on':'')+'" data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?ICO_STOP:ICO_PLAY)+' '+(busy?'만드는 중':on?'멈추기':'이 순간 들어 보기')+'</button>'; }
-function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈추기':'이 순간 들어 보기'); }); }
+  return '<button type="button" class="mk-hbtn'+(on?' on':'')+'" data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?ICO_STOP:ICO_PLAY)+' '+(busy?'만드는 중':on?'멈추기':_mpLab(k))+'</button>'; }
+/* ★[MP_ALL_WORD 2026-10-05 사장님 «이 순간 들어 보기 → 전체 들어 보기 식으로 전체 한 번에 재생된다는 느낌» → 시안 A(문구만)] 줄 ▶ 와 같은 ▶ 라 «한 줄 듣기»와 갈리지 않았다 —
+   글로 «전체 · n줄 이어서»를 말한다. n = 화면에 ▶ 가 붙은 줄(나레이션 줄 · 두 분 목소리 줄 · 말하는 자리 · 영상 자리는 뺀다) · 엔진 전이면 줄 수 없이 */
+function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length; }catch(e){} return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }
+function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈추기':_mpLab(k)); }); }   // [MP_ALL_WORD]
 window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; LP.lineKey=k+':'+i; LP.lineSt=st; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
   var q=all.filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }), j=q.indexOf(st); if(j<0){ q=[st]; j=0; }
   LP.q=q; LP.i=j; LP.one=true; LP.paused=false; LP.all=false; LP.tok++; LP.last=null; _lShow(); };
@@ -5800,7 +5807,7 @@ function _lPaint(){
   /* [MINI_OFF_ROWS] 줄 ▶ 의 «흐르는 중» 표시는 _mlPaint(UI_ONE · ⏹ 로 멈춤)가 맡는다 */
   try{ _mlPaint(); }catch(e){}   // [MINI_OFF_ROWS] 지금 흐르는 줄 ▶ → ⏹
   [].forEach.call(document.querySelectorAll('.mk-flow li.t'),function(li){ li.classList.toggle('now',!!(st&&st.bridge&&!LP.big)); });   // [TALK_BRIDGE] 안내 한 줄 동안 «신랑 차례 · 신부 차례» 줄이 지금임을 보인다
-  var _rowCtl=!!(st&&document.querySelector('.mk-pl[data-ml^="'+st.k+':"]'));   // [MINI_OFF_ROWS] ② 순간 쪽(줄 ▶ 가 있는 곳)은 줄 ▶ 로 듣든 «이 순간 들어 보기»로 듣든 아래 재생 바를 띄우지 않는다
+  var _rowCtl=!!(st&&(document.querySelector('.mk-pl[data-ml^="'+st.k+':"]')||(STEPS[idx]&&STEPS[idx].k==='listen'&&_mkRO().at===st.k&&document.querySelector('.mk-vpl[data-fk^="mkvpl:"]'))));   /* ★[MINI_OFF_AI 2026-10-05 사장님 «AI 목소리 쪽은 아래 재생바가 나오는데 나레이션이랑 동일하게»] AI 목소리 카드 ▶ 가 있는 쪽도 재생 바 없이 — 지금 흐르는 카드 ▶ 가 ■(_mlPaint) */   // [MINI_OFF_ROWS] ② 순간 쪽(줄 ▶ 가 있는 곳)은 줄 ▶ 로 듣든 «이 순간 들어 보기»로 듣든 아래 재생 바를 띄우지 않는다
   var _fl=document.getElementById('lsFull'); if(!_mWas&&st&&!LP.big&&!_rowCtl) LP.miniFrom=(_fl&&_ae&&_fl.contains(_ae))?(LP.opener||null):(_ae&&!el.contains(_ae)&&_ae!==document.body?_ae:null);   /* [QA_MINI_FOCUS] ③ 은 작은 플레이어가 크게 보기를 접으며 뜬다 — 숨은 ⌄ 가 아니라 크게 보기를 연 단추를 기억한다 */
   var _mOn=!!(st&&!LP.big&&!_rowCtl); document.documentElement.classList.toggle('lsmini',_mOn); try{ _opPad(); }catch(e){}   // ★[MINI_ROOM 코워크 추가 점검 P2-3] 작은 플레이어가 떠 있는 동안 아래 칸이 그 뒤로 숨지 않게
   if(!st||LP.big||_rowCtl){   // [MINI_OFF_ROWS]
