@@ -14370,3 +14370,13 @@ chk 'KEEP_GUIDE' order-preview.html 2
 chk 'class="mk-keepg" role="note"' order-preview.html 1
 nochk '들어 보고 마음에 드는 줄은 «확정하기»를 눌러 두세요' order-preview.html
 :
+# ★★[GUIL_OFF · PV_DESC_TOP · VPAGE_PC 2026-10-05 사장님 ««» 문양 별로 · 식순 전체 일괄 → 1번(글꼴로 구분) · 나머지도 추천대로»]
+chk 'GUIL_OFF' order-preview.html 3
+chk 'function _guilNode(t)' order-preview.html 1
+chk '.q-say{font-family:var(--ko-serif)' order-preview.html 1
+nochk 'placeholder="예) 마지막에 «감사합니다»라고 할게요"' order-preview.html
+chk 'PV_DESC_TOP' order-preview.html 2
+nochk "#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):''" order-preview.html
+chk 'VPAGE_PC' order-preview.html 3
+chk 'function _vcUseList()' order-preview.html 1
+:
