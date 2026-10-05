@@ -62,4 +62,12 @@ const body = (lines) => ({ token: 't', op: 'make', key: 'entry', text: lines.map
   ok('⑦ 60초 넘은 만들기 → VCSLOW_ 기록(초 · 줄 수만 · 글 없음)', r.ok && w && w.sec > 60 && w.lines === 3 && !/길을|환영/.test(H.props.VCSLOW_TST1), H.props.VCSLOW_TST1);
   const lg = []; H.ctx.Logger.log = (s) => lg.push(s); H.ctx.vcLastErrors();
   ok('   vcLastErrors 가 느린 만들기도 함께 찍는다', /느린 만들기 \d+초 · 3줄/.test(lg.join('\n')), lg.join(' | ')); }
+// [PT_VOICE_FALLBACK] 연습 읽기 — 신랑 목소리 없음 · 스튜디오 기본 없음 → 신부 AI 목소리로 · 둘 다 없으면 VCERR_ 기록
+{ const H = make(); H.props.VC_TST1 = JSON.stringify({ bride: { voiceId: 'vb' } }); let used = '';
+  H.ctx.UrlFetchApp.fetch = (url, o) => { used = JSON.parse(o.payload).voice_id; return { getResponseCode: () => 200, getBlob: () => ({ getBytes: () => [1, 2] }) }; };
+  const r = H.ctx.handleVoiceClone({ token: 't', op: 'practice', role: 'groom', who: 'groom', text: '하윤아 고마워' });
+  ok('⑨ 신랑 목소리 · 스튜디오 기본 없음 → 신부 AI 목소리로 읽는다 [PT_VOICE_FALLBACK]', r.ok && used === 'vb', JSON.stringify({ r: r.ok, err: r.error, used }));
+  const H2 = make(); H2.props.VC_TST1 = JSON.stringify({});
+  const r2 = H2.ctx.handleVoiceClone({ token: 't', op: 'practice', role: 'groom', who: 'groom', text: '하윤아 고마워' }); const w = JSON.parse(H2.props.VCERR_TST1 || '{}');
+  ok('⑩ 읽을 목소리가 하나도 없으면 실패 · 까닭을 VCERR_ 에(practice · 읽을 목소리 없음)', !r2.ok && w.op === 'practice' && /읽을 목소리 없음/.test(w.msg || ''), JSON.stringify({ r2, w })); }
 console.log(fail ? `\nVC PAR FAIL ${fail}` : '\nVC PAR OK'); process.exit(fail ? 1 : 0);
