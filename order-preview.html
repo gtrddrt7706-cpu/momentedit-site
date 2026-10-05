@@ -1636,6 +1636,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .lf-ctl button{width:48px;height:48px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--accent);display:grid;place-items:center;cursor:pointer}
 .lf-ctl button.ln{width:44px;height:44px;border:0;background:none}   /* [UI_ONE] 줄 넘김은 작게(작은 플레이어 ‹ › 와 같은 말) */
 .lf-ctl button.big{width:60px;height:60px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
+.lf-ctl button:disabled,.ls-mini .lm-b:disabled{opacity:.3;cursor:default;pointer-events:none}   /* [CTL_FIVE] 못 누르는 칸은 흐리게 · 자리는 그대로 */
 .lf-end{text-align:center;font-size:14px;color:var(--ink2);margin:24px 0 0;line-height:1.7;word-break:keep-all}
 .lf-endb{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}
 .lf-endb .rowbtn{white-space:nowrap}   /* ★[QA_END_WRAP 2026-10-04 점검] 390 에서 단추 셋이 «다시/보기» · «완성/화면으로»처럼 글자째 두 줄로 갈렸다 — 단추는 한 줄, 넘치면 줄을 바꾼다 */
@@ -5828,11 +5829,11 @@ function _lPaint(){
     var _pv=LP.q[LP.i-1], _nx=LP.q[LP.i+1], _hasP=!!(_pv&&_pv.k===st.k), _hasN=!!(_nx&&_nx.k===st.k), _n=0, _at=0; LP.q.forEach(function(x,j){ if(x.k===st.k){ _n++; if(j<=LP.i) _at++; } });   // [LINE_STEP]
     el.innerHTML='<button type="button" class="lm-t" data-fk="lmt" aria-label="크게 보기 · '+esc(_lName(st.k))+'" onclick="lsOpenBig()"><b>'+esc(_lName(st.k))+(_n>1?' <span class="lm-n">'+_at+' / '+_n+'</span>':'')+'</b><small>'+(LP.baking===st?'새 빠르기 · 쉼으로 만드는 중… ':'')+esc((function(){ var _sb=st.talk||st.skip||st.own?st.txt:st.lab; return _sb===_lName(st.k)?(st.txt||''):_sb; })())+(st.pending&&!LS.allPend?' · 아직 녹음 전':'')+'</small></button>'
       +'<button type="button" class="lm-g" data-fk="lmg" onclick="lsOpenBig()">크게 보기</button>'   /* ★[RIT_BIG_BTN 2026-09-27 4부 11] 크게 보기로 가는 단추가 안 보였다(제목 줄이 단추인 줄 몰랐다) — 글 단추 */
-      +(LP.range&&LP.range.ks.length>1?'<button type="button" class="lm-b lm-mv" data-fk="lmprevk" onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>':'')   /* ★[UI_ONE 2026-10-04 사장님 «작은 플레이어 · 크게 보기 같은 단추 묶음»] 앞 순간 · 앞 줄 · 잠시 멈춤 · 다음 줄 · 다음 순간 */
-      +(_hasP?'<button type="button" class="lm-b lm-l" data-fk="lmprev" onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>':'')
+      +'<button type="button" class="lm-b lm-mv" data-fk="lmprevk"'+(LP.range&&LP.range.ks.length>1?'':' disabled aria-disabled="true"')+' onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>'   /* [CTL_FIVE] 늘 다섯 칸 */   /* ★[UI_ONE 2026-10-04 사장님 «작은 플레이어 · 크게 보기 같은 단추 묶음»] 앞 순간 · 앞 줄 · 잠시 멈춤 · 다음 줄 · 다음 순간 */
+      +'<button type="button" class="lm-b lm-l" data-fk="lmprev"'+(_hasP?'':' disabled aria-disabled="true"')+' onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>'
       +'<button type="button" class="lm-b lm-p" data-fk="lmtog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'잠시 멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
-      +(_hasN?'<button type="button" class="lm-b lm-l" data-fk="lmnext" onclick="lsLine(1)" aria-label="다음 줄">'+ICO_CHEV_R+'</button>':'')
-      +(LP.range&&LP.range.ks.length>1?'<button type="button" class="lm-b lm-mv" data-fk="lmnextk" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>':'')
+      +'<button type="button" class="lm-b lm-l" data-fk="lmnext"'+(_hasN?'':' disabled aria-disabled="true"')+' onclick="lsLine(1)" aria-label="다음 줄">'+ICO_CHEV_R+'</button>'
+      +'<button type="button" class="lm-b lm-mv" data-fk="lmnextk"'+(LP.range&&LP.range.ks.length>1?'':' disabled aria-disabled="true"')+' onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>'
       +'<button type="button" class="lm-b lm-x" data-fk="lmx" onclick="lsStop()" aria-label="듣기 끝내기">'+ICO_X+'</button>';
     if(_mFk){ var _mt=el.querySelector('[data-fk="'+_mFk+'"]')||el.querySelector('[data-fk="lmtog"]'); if(_mt) try{ _mt.focus({preventScroll:true}); }catch(e){} }   // [QA_MINI_FOCUS] 사라진 단추(마지막 줄의 ›)면 ❚❚ 로
     /* ★[QA_MINI_COVER 2026-10-04 점검] 처음 뜰 때 방금 누른 단추(«이 순간 들어 보기» · 줄 ▶)를 덮으면 그만큼 올린다 — 멈추려고 다시 누를 곳이 플레이어 뒤에 숨었다 */
@@ -5907,7 +5908,7 @@ function _lFull(){
     var hk=(LP.hintK===st.k)?LP.hint:null;
     if(!LP.noChips && (R.onOf(S,st.k)||st.k==='guest')){ var gs=_lGroups(st.k);
       if(gs.length){
-        if(practice&&LP.choose!==st.k) h+='<div class="lf-vars"><button type="button" class="lf-choose" data-fk="lfchoose" onclick="lsChoose()">이 순간 바꾸기 · '+esc(gs.filter(function(g){ return !g.more; }).map(function(g){ return g.l; }).join(' · '))+'</button></div>';
+        if(practice&&LP.choose!==st.k){}   /* ★«이 순간 바꾸기 · ○○» 단추(연습 중 칩 열기) 금지 — 2026-10-05 사용자 지시로 삭제 [PRACTICE_NO_CHOOSE] «연습 공간에서 이 부분은 삭제» · 연습은 듣기만(바꾸기는 ② 순간 쪽에서) · 모든 순간 같은 모양이라 다 걷었다(COURSE_WIDE) · lsChoose 는 남겨 둔다(부르는 곳 없음) */
         else {
           var say=hk==='heard'?(practice?'고른 대로 한 번 들려 드렸어요 · ▶ 를 누르면 이 순간부터 이어서 들어요':'고른 대로 한 번 들려 드렸어요 · ▶ 를 누르면 다시 들어요')
             :hk==='same'?'소리는 그대로예요 · 다시 틀지 않아요'
@@ -5932,11 +5933,13 @@ function _lFull(){
   var endNow=!st&&!!LP.ended;
   h+='</div>';   // .lf-body
   var _fp=LP.q[LP.i-1], _fn=LP.q[LP.i+1], _fhP=!!(st&&_fp&&_fp.k===st.k), _fhN=!!(st&&_fn&&_fn.k===st.k);   /* [UI_ONE] 작은 플레이어와 같은 묶음 — 앞 줄 · 다음 줄 */
-  if(!endNow) h+='<div class="lf-ctl">'+(single?'':'<button type="button" data-fk="lfprev" onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>')
-    +(_fhP?'<button type="button" class="ln" data-fk="lfprevl" onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>':'')
+  /* ★[CTL_FIVE 2026-10-05 사장님 «하단 플레이 단추가 왔다 갔다 이동한다 · 고정으로 전부 두고 못 누르는 건 투명 처리?» → «추천대로»] 다섯 칸(⏮ ‹ ❚❚ › ⏭)은 늘 같은 자리 —
+     못 누르는 것은 흐리게(disabled · 0.3) · 종전엔 ‹ › 는 같은 순간에 앞뒤 줄이 있을 때만, ⏮ ⏭ 는 여러 순간일 때만 그려 ❚❚ 가 좌우로 움직였다. 작은 플레이어도 같은 다섯 칸 */
+  if(!endNow) h+='<div class="lf-ctl">'+'<button type="button" data-fk="lfprev"'+(single?' disabled aria-disabled="true"':'')+' onclick="lsJump(-1)" aria-label="앞 순간">'+ICO_PREV+'</button>'
+    +'<button type="button" class="ln" data-fk="lfprevl"'+(_fhP?'':' disabled aria-disabled="true"')+' onclick="lsLine(-1)" aria-label="앞 줄">'+ICO_CHEV_L+'</button>'
     +'<button type="button" class="big" data-fk="lftog" onclick="lsToggle()" aria-label="'+(LP.paused?'이어서 듣기':'잠시 멈춤')+'">'+(LP.paused?ICO_PLAY:ICO_PAUSE)+'</button>'
-    +(_fhN?'<button type="button" class="ln" data-fk="lfnextl" onclick="lsLine(1)" aria-label="다음 줄">'+ICO_CHEV_R+'</button>':'')
-    +(single?'':'<button type="button" data-fk="lfnext" onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>')+'</div>';
+    +'<button type="button" class="ln" data-fk="lfnextl"'+(_fhN?'':' disabled aria-disabled="true"')+' onclick="lsLine(1)" aria-label="다음 줄">'+ICO_CHEV_R+'</button>'
+    +'<button type="button" data-fk="lfnext"'+(single?' disabled aria-disabled="true"':'')+' onclick="lsJump(1)" aria-label="다음 순간">'+ICO_NEXT+'</button>'+'</div>';   // [CTL_FIVE]
   h+='</div>';
   /* ★[LF_VID_KEEP 2026-10-03 사장님 «재생이 안 되는 영상이 있다»] 크게 보기는 줄이 바뀔 때마다(_lPaint) 통째로 다시 그린다 —
      종전엔 그때마다 새 <video>(preload none)가 생겨 한 순간 안에서도 줄마다 처음 장면으로 돌아가고, 폰은 받다 말고 다시 받았다(줄이 짧은 축배 · 케이크는 거의 안 움직였다).

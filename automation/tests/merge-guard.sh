@@ -2268,7 +2268,7 @@ chk 'CHIP_NO_REPLAY' order-preview.html 3
 chk 'if(g0&&g0.cur===v&&g0.picked!==false) return;' order-preview.html 1      # 이미 고른 칩은 아무것도 안 한다 · [CHIP_UNPICKED] 안 고른 기본은 눌러서 듣는다
 chk 'CHIP_STAY' order-preview.html 7
 chk 'PRACTICE_CHOOSE' order-preview.html 5
-chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
+nochk 'data-fk="lfchoose"' order-preview.html               # ★[PRACTICE_NO_CHOOSE 2026-10-05] 연습 중 «이 순간 바꾸기» 단추 금지 — 사용자 지시로 삭제
 chk 'REF_EXAMPLE' order-preview.html 4
 # ★[CAST_TEXT_ONLY 2026-09-27 사장님] 참고 예시는 글로만 — «이 목소리는 …» 문장은 걷었다(목소리가 없다) · 아래 nochk 가 되살아남을 막는다
 # [REF_TABLE 2026-09-27 코워크 참고 예시 대본] 예시는 표 한 곳(assets/ritual-ref.js · 자동 생성) · 폐지 클립(27 시어머님 답 · 15 하객대표 축사)은 넣지 않는다
@@ -14282,6 +14282,10 @@ chk 'CARD_POLISH' order-preview.html 6
 chk '<div class="mk-slc"><ol class="mk-sl"' order-preview.html 1
 chk '^\.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;' order-preview.html 1
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
+# ★[CTL_FIVE] 위 · [PRACTICE_NO_CHOOSE 2026-10-05 사장님 «이 순간 바꾸기 · 영상 앞 소개 · 연습 공간에서 이 부분은 삭제»] 연습은 듣기만 — 모든 순간에서 걷었다
+chk 'PRACTICE_NO_CHOOSE' order-preview.html 1
+chk 'PRACTICE_NO_CHOOSE' scripts/audit/listen-page.mjs 2
+chk 'PRACTICE_NO_CHOOSE' scripts/audit/make-shell.mjs 2
 # ★[GUARD_TAIL_RC 2026-10-05] 끝 줄이 «[ x = 1 ] && {…}» 꼴이면 시험이 통과(0)할 때 그 줄이 1 로 끝나 가드 전체가 1 이 됐다(PR #991 · «ALL MARKERS OK» 뒤 빨강). 끝 node 검사는 if 꼴로 · 이 줄은 늘 0
 :
 # ★[TURN_NO_AUTOMAKE 2026-10-05 사장님 «만들기를 눌러야지만 만들 수 있게 · 지금은 쉼 버튼 누르면 바로 만들어진다»] 쉼을 고르면 값만 · 머리 «목소리 만들기»를 눌러야 만든다
@@ -14298,4 +14302,11 @@ chk 'GUEST_ALL_G3' scripts/audit/turn-gap.mjs 1
 # ★[TURN_ONE_LINE 2026-10-05 사장님 «쉼 가로 라인 바로 위에 또 라인이 있어 깔끔하지 못하다» → «추천대로»] 쉼 줄이 따라오는 글칸은 밑줄을 숨긴다(쉼 줄 하나가 구분선)
 chk 'TURN_ONE_LINE' order-preview.html 2
 chk '.mk-slr:has(+.mk-slr>.mk-sltn) .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}' order-preview.html 1
+:
+# ★[CTL_FIVE 2026-10-05 사장님 «하단 플레이 단추가 왔다 갔다 이동한다 · 고정으로 전부 두고 못 누르는 건 투명 처리?» → «추천대로»] 크게 보기 · 작은 플레이어 다섯 칸 고정 · 못 누르는 칸은 흐리게
+chk 'CTL_FIVE' order-preview.html 4
+nochk "+(_fhP?'<button type=\"button\" class=\"ln\" data-fk=\"lfprevl\"" order-preview.html
+nochk "+(single?'':'<button type=\"button\" data-fk=\"lfprev\"" order-preview.html
+chk 'CTL_FIVE' scripts/audit/ctl-five.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ctl-five.mjs >/dev/null 2>&1; _cf=$?; if [ "$_cf" = 1 ]; then echo 'FAIL ctl-five: 플레이 단추 다섯 칸 고정이 어긋났습니다 — node scripts/audit/ctl-five.mjs'; fail=1; fi; fi
 :
