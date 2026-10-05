@@ -14289,3 +14289,14 @@ chk 'VC_UNREAD' order-preview.html 2
 chk 'function _vcUnread(t)' order-preview.html 1
 chk 'VC_UNREAD' scripts/audit/vc-unread.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-unread.mjs >/dev/null 2>&1; _vu=$?; [ "$_vu" = 1 ] && { echo 'FAIL vc-unread: 읽을 수 없는 줄을 업체에 보내 «지금은 만들 수 없어요»로 끝난다 — node scripts/audit/vc-unread.mjs'; fail=1; }; fi
+# ★[TURN_NO_AUTOMAKE 2026-10-05 사장님 «만들기를 눌러야지만 만들 수 있게 · 지금은 쉼 버튼 누르면 바로 만들어진다»] 쉼을 고르면 값만 · 머리 «목소리 만들기»를 눌러야 만든다
+chk 'TURN_NO_AUTOMAKE' order-preview.html 4
+nochk 'MK.turnT=setTimeout' order-preview.html
+chk "if(pill&&_slKeyOk(key)&&(v.tq||'')!==_slTurnSig(key))" order-preview.html 1
+chk 'TURN_NO_AUTOMAKE' scripts/audit/turn-gap.mjs 3
+:
+# ★[GUEST_ALL_G3 2026-10-05 사장님 «이 순간 전체 듣기에 왜 1분 전은 없어?» → «추천대로»] 하객 맞이 쪽 전체 듣기는 카드 넷 다(5분 전 → 식전 영상 자리 2초 → 1분 전)
+chk 'GUEST_ALL_G3' order-preview.html 2
+chk 'function _lGuestTail()' order-preview.html 1
+chk 'GUEST_ALL_G3' scripts/audit/turn-gap.mjs 1
+:
