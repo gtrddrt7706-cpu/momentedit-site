@@ -9109,7 +9109,7 @@ chk "h+=_mkFlow(k,_pn>=2?lb:'');" order-preview.html 1
 nochk "(gs.some(function(g){ return !g.q; })||_pn<2)?'':lb" order-preview.html   # ★«칩이 있으면 들어 보기 숨김» 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 길이 금지 — 2026-10-03
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
-chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
+chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 5   # [PRACTICE_NO_CHOOSE 2026-10-05] 8 → 5 — 연습 «이 순간 바꾸기» 칩 검사 셋은 단추와 함께 은퇴(사용자 지시로 삭제) · 연습 칩 없음은 PRACTICE_NO_CHOOSE 가 잰다
 chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
 chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 2   # [VOICE_TUNE 2026-10-04] 순간 쪽 빠르기 시험은 사람별 맞추기 시험으로 바뀌었다   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
 chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 8   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄 시험 둘을 칸 위 이름 시험으로 바꿔 10 → 8
