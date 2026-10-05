@@ -14486,6 +14486,8 @@ chk 'CELE_GRAND' scripts/audit/wed-celebrate.mjs 2
 :
 chk 'CELE_LINE' mypage.html 2   # [CELE_LINE 2026-10-05] 축하 한 줄이 터짐과 함께 피어난다
 :
-chk 'CELE_FADE' mypage.html 3   # [CELE_FADE 2026-10-05 사장님 «피어났다가 사라지는 건» → «작게»] 축하 한 줄은 그림과 한 순간 · 다시 열면 없음 · 움직임 줄이기는 정지 화면
-chk 'CELE_FADE' scripts/audit/wed-celebrate.mjs 3
+# [CELE_FADE → CELE_STAY 2026-10-05 사장님 «글씨 사라지는 게 무드에 안 맞는다»] 축하 한 줄은 피어나 남는다 · 다시 열어도 그대로
+chk 'CELE_STAY' mypage.html 3
+chk 'CELE_STAY' scripts/audit/wed-celebrate.mjs 3
+nochk "c.style.visibility='hidden'; },{once:true})" mypage.html
 :
