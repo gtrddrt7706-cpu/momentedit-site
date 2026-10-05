@@ -14224,3 +14224,4 @@ chk 'PV_LINK_ONE' order-preview.html 1
 chk 'TALK_BRIDGE' order-preview.html 4
 chk 'function _lBridge(q)' order-preview.html 1
 chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-preview.html 1
+chk 'SL_TIDY' order-preview.html 5   # ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?»] 줄 편집기 — 글칸 폭 같게(× 는 칸 안) · 읽는 분 단추 첫 줄 높이 · 줄 더하기와 처음 글로 한 줄
