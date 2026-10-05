@@ -14284,3 +14284,8 @@ chk '^\.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;' ord
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
 # ★[GUARD_TAIL_RC 2026-10-05] 끝 줄이 «[ x = 1 ] && {…}» 꼴이면 시험이 통과(0)할 때 그 줄이 1 로 끝나 가드 전체가 1 이 됐다(PR #991 · «ALL MARKERS OK» 뒤 빨강). 끝 node 검사는 if 꼴로 · 이 줄은 늘 0
 :
+# ★[VC_UNREAD 2026-10-05 사장님 «만드는 중에서 다시 목소리 만들기 버튼으로 돌아가는데 원인 파악»] 자음 · 모음만 있는 줄은 업체에 보내지 않고 «몇 번째 줄 · 고쳐 주세요»
+chk 'VC_UNREAD' order-preview.html 2
+chk 'function _vcUnread(t)' order-preview.html 1
+chk 'VC_UNREAD' scripts/audit/vc-unread.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-unread.mjs >/dev/null 2>&1; _vu=$?; [ "$_vu" = 1 ] && { echo 'FAIL vc-unread: 읽을 수 없는 줄을 업체에 보내 «지금은 만들 수 없어요»로 끝난다 — node scripts/audit/vc-unread.mjs'; fail=1; }; fi
