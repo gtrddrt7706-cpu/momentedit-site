@@ -81,7 +81,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
   await pg.click('[data-fk="pto:declare"]'); await pg.waitForTimeout(500);
   /* ★[STEP_NONUM_OP 2026-10-03 사장님] 종전 «② 하나씩 만들기에서 고를 것 · …» → 번호 없이 «하나씩 만들기에서 골라요 · …» */
-  ok(`${w} ① 창 «하나씩 만들기에서 골라요 · 누가 · 말투»(번호 없음) · 남는 사진 [STEP_NONUM_OP]`, await pg.evaluate(() => /^하나씩 만들기에서 골라요 · 누가 · 말투$/.test((document.getElementById('pvCh') || {}).textContent || '') && /남는 사진/.test((document.getElementById('pvShot') || {}).textContent || '')));
+  ok(`${w} ① 창 «하나씩 만들기에서 골라요 · …» 줄 없음 · 남는 사진은 그대로 [PV_CHOOSE_OFF]`, await pg.evaluate(() => { const c = document.getElementById('pvCh'); return (!c || (c.hidden && !c.textContent)) && /남는 사진/.test((document.getElementById('pvShot') || {}).textContent || ''); }));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(400);
   ok(`${w} ① 소제목에 동그라미 번호 없음 · 남는 장면이라는 말 없음`, await pg.evaluate(() => ![...document.querySelectorAll('.pk-h,.pk-act-h,.pk-fp-h h3')].some((h) => /[①②③]/.test(h.textContent)) && !/남는 장면/.test(document.getElementById('stage').textContent)));
   ok(`${w} ① 고객 화면에 «판» 없음`, await pg.evaluate(() => !/판 바꿈|고를 수 있는 판|그 판으로/.test(document.getElementById('stage').textContent)));

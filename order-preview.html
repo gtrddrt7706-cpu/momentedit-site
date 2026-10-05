@@ -6290,7 +6290,7 @@ function _pvEl(){
     +'<div class="pv-h"><h3 id="pvT"></h3><span class="pv-tag" id="pvTag"></span><button type="button" class="pv-x" data-pvx aria-label="닫기">'+ICO_X+'</button></div>'
     +'<div class="pv-media" id="pvM"></div><p class="pv-q" id="pvQ"></p><div class="pv-pb" aria-hidden="true"><i id="pvBar"></i></div><p class="pv-st" id="pvSt"></p>'
     +'<p class="pv-one" id="pvOne"></p><p class="pv-ch" id="pvCh"></p><p class="pv-shot" id="pvShot"></p><div class="pv-act" id="pvAct"></div>'
-    +'<p class="pv-fn">전체 나레이션은 연습하기에서 이어서 들어요</p></div>';
+    +'</div>';   /* ★«전체 나레이션은 연습하기에서 이어서 들어요» 한 줄(미리보기 창 맨 아래) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_FN_OFF] */
   el.addEventListener('click',function(e){ if(e.target&&e.target.closest&&e.target.closest('[data-pvx]')) opPvClose(); });
   /* ★[QA_SHEET_SWIPE 2026-10-04 점검] 손잡이가 있는데 끌어 내려도 안 닫혔다 — 손잡이 · 머리 줄을 80px 넘게 내리면 닫는다(단추 위에서 시작한 끌기는 아니다) */
   (function(){ var box=el.querySelector('.pv-box'), y0=null, dy=0;
@@ -6356,7 +6356,7 @@ function _pvDraw(){
   el.querySelector('#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):'';
   el.querySelector('#pvSt').textContent=(ln&&!ln.src)?REC_PEND:'';
   el.querySelector('#pvOne').textContent=_n2(c.one);   /* [R1-41] */
-  var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=ch?('하나씩 만들기에서 골라요 · '+ch):'';   /* [STEP_NONUM_OP] 번호 대신 이름 · «고를 것» → «골라요»(번호가 빠지니 이름만으로 문장이 선다) */ ce.hidden=!ch;   /* [F2] ② 묶음 이름과 같은 말(G3) */
+  var ch=R.CHOOSE_AT_LISTEN[k], ce=el.querySelector('#pvCh'); ce.textContent=''; ce.hidden=true;   /* ★«하나씩 만들기에서 골라요 · ○○ · ○○» 한 줄(미리보기 창) 금지 — 2026-10-05 사용자 지시로 삭제 [PV_CHOOSE_OFF] «삭제 · 다른 곳들도 마찬가지 · 일괄» · 창이 하나라 모든 순간에서 함께 빠진다 · ch(CHOOSE_AT_LISTEN)는 남겨 둔다(② 묶음 이름 검사 [F2 · G3]) · [STEP_NONUM_OP] 의 번호 없는 이름 규칙은 다른 자리에 그대로 */ void ch;
   el.querySelector('#pvShot').innerHTML='<b>남는 사진</b> · '+esc(R.shotOf(k,S)||c.shot||'');
   _pvActs(ln);
 }
