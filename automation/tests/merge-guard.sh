@@ -14394,3 +14394,17 @@ nochk "#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):''" order-preview.html
 chk 'VPAGE_PC' order-preview.html 3
 chk 'function _vcUseList()' order-preview.html 1
 :
+# ★★[PLAY_WAIT_FILE · PR_MODE · PR_CUE 2026-10-05 사장님 «준비됨인데 왜 목소리가 안 나오지» · «연습 전에 AI 로 먼저 들을지 직접 소리 내어 연습할지 고르게» · «준비한 멘트를 읽으시면 됩니다 · 흐름에 맞추어 쉽게»]
+#   두 분 소리 파일은 틀기 전에 받아 오기를 기다린다(최대 8초) · 연습 방법 둘(직접 · AI 로 먼저) · 말하는 차례 안내 한 줄 + 남은 시간 막대
+chk 'PLAY_WAIT_FILE' order-preview.html 6
+chk 'function _lWaitUp(st,done)' order-preview.html 1
+chk 'function _upWarm()' order-preview.html 1
+chk 'PR_MODE' order-preview.html 6
+chk 'window.prMode=function(m,yes)' order-preview.html 1
+chk 'function _ptWant(st)' order-preview.html 1
+chk 'PR_CUE' order-preview.html 3
+chk '<p class="lf-cue">' order-preview.html 1
+nochk 'data-fk="lfai"' order-preview.html
+nochk 'data-fk="ptts"' order-preview.html 1
+chk 'PLAY_WAIT_FILE' scripts/audit/play-wait-file.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/play-wait-file.mjs >/dev/null 2>&1; _pwf=$?; [ "$_pwf" = 1 ] && { echo 'FAIL play-wait-file: 두 분 소리 기다리기 · 연습 방법 · 말하는 차례 안내가 어긋났습니다 — node scripts/audit/play-wait-file.mjs'; fail=1; }; fi
