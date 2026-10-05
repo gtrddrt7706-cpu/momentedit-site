@@ -14274,8 +14274,13 @@ chk 'mp_ritPrepBox' mypage.html 3
 chk "_ritPre2={id:'mp_ritualPrep', label:'준비할 것'" mypage.html 1
 # ★[LINE_CARD 2026-10-05 사장님 «섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 순간 사이 가로선 → 여백
 chk 'LINE_CARD' order-preview.html 3
-chk '^\.mk-sl{background:var(--card);border:1px solid var(--border);border-radius:12px' order-preview.html 1
+chk '^\.mk-slc{background:var(--card);border:1px solid var(--border);border-radius:12px' order-preview.html 1   # [CARD_POLISH] 카드는 줄 + «＋ 줄 더하기»를 함께 감싼다(.mk-slc)
 chk 'PREP_LINK' scripts/audit/prep-link.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-link.mjs >/dev/null 2>&1; _pl=$?; if [ "$_pl" = 1 ]; then echo 'FAIL prep-link: 마이페이지 식순 «준비할 것» 펼치기가 어긋났습니다 — node scripts/audit/prep-link.mjs'; fail=1; fi; fi
+# ★[CARD_POLISH 2026-10-05 사장님 «추천대로 · 디자인적으로 완성도 높게 · 다른 곳들도 같이»] ① ▶ 원 왼쪽 = 글 · 카드 왼쪽 선 ② «＋ 줄 더하기»는 카드 안 ③ 카드 안 [신랑|신부] 그림만 작게(누르는 칸 44)
+chk 'CARD_POLISH' order-preview.html 6
+chk '<div class="mk-slc"><ol class="mk-sl"' order-preview.html 1
+chk '^\.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;' order-preview.html 1
+chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
 # ★[GUARD_TAIL_RC 2026-10-05] 끝 줄이 «[ x = 1 ] && {…}» 꼴이면 시험이 통과(0)할 때 그 줄이 1 로 끝나 가드 전체가 1 이 됐다(PR #991 · «ALL MARKERS OK» 뒤 빨강). 끝 node 검사는 if 꼴로 · 이 줄은 늘 0
 :
