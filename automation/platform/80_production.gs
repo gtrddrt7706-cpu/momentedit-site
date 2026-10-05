@@ -1403,6 +1403,7 @@ function _vcWhy(x) {   // [VC_WHY] 업체 오류 글 — JSON 이면 detail · m
 function vcLastErrors() {   // [VC_WHY] GAS 편집기에서 80_production 파일을 열고 → vcLastErrors 실행 · 예식마다 마지막 실패 한 건을 로그로(발송 · 변경 없음)
   var all = PropertiesService.getScriptProperties().getProperties(), out = [];
   Object.keys(all).forEach(function (k) { if (!/^VCERR_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(6) + ' · ' + (w.at || '') + ' · ' + (w.op || '') + ' · ' + (w.http ? 'HTTP ' + w.http : /^문 앞/.test(w.msg || '') ? '설정' : '연결 실패') + ' · ' + (w.msg || '(업체 글 없음)')); });   // [VC_GATE_WHY] 설정으로 막힌 것은 HTTP 가 없다
+  Object.keys(all).forEach(function (k) { if (!/^VCSLOW_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(7) + ' · ' + (w.at || '') + ' · 느린 만들기 ' + (w.sec || '?') + '초 · ' + (w.lines || '?') + '줄(새로 ' + (w.fresh || 0) + ')'); });   // [VC_PAR] 화면이 먼저 포기했을 수 있는 것
   Logger.log(out.length ? out.join('\n') : '실패 기록 없음'); return out; }
 function _vcAlert(tag, text) { var p = PropertiesService.getScriptProperties(), k = 'VCALERT_' + tag, d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
   if (p.getProperty(k) === d) return; p.setProperty(k, d); try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('[두 분 목소리] ' + text); } catch (e) {} }
@@ -1419,6 +1420,14 @@ function _vcTts(cfg, voiceId, text, tempo, pause) {
   return x.r.getBlob().getBytes(); }
 function _vcAiFolder(code) { var f = _rfFolderFor(code), it = f.getFoldersByName('AI'); return it.hasNext() ? it.next() : f.createFolder('AI'); }   // 관리 화면 목록(adminRitualFiles)은 하위 폴더를 안 본다
 function _vcHash(s) { return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8)).slice(0, 22); }
+/* [VC_PAR] _vcCached 를 둘로 나눴다 — 저장본 찾기(_vcCacheGet) · 업체에 물을 요청(_vcTtsReq). 열쇠 · 요청 모양은 _vcCached · _vcTts 와 같다(이미 만든 소리가 그대로 맞는다) */
+function _vcCacheGet(code, pre, voiceId, text, tempo, pause) { pause = pause || 150;
+  var nm = pre + ' · ' + _vcHash(voiceId + '|' + tempo + '|' + (pause === 150 ? '' : 'p' + pause + '|') + text) + '.mp3', fo = _vcAiFolder(code), it = fo.getFilesByName(nm);
+  while (it.hasNext()) { var f0 = it.next(); if (!f0.isTrashed()) return { b64: Utilities.base64Encode(f0.getBlob().getBytes()), nm: nm, fo: fo }; }
+  return { b64: '', nm: nm, fo: fo }; }
+function _vcTtsReq(cfg, voiceId, text, tempo, pause) {
+  return { url: VC_BASE + '/v1/text-to-speech', method: 'post', headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true, contentType: 'application/json',
+    payload: JSON.stringify({ voice_id: voiceId, text: text, model: VC_MODEL, language: 'kor', output: { target_lufs: cfg.lufs, remove_silence_ms: pause || 150, audio_tempo: tempo || 1, audio_format: 'mp3' } }) }; }
 function _vcCached(code, pre, voiceId, text, tempo, cfg, pause) {   // 같은 글 · 목소리 · 빠르기 · 쉼 → 만들어 둔 것 [VOICE_CLONE_0928]
   /* [PAUSE_STEP] 열쇠에 쉼을 넣는다 — 150(종전 값)이면 옛 열쇠 그대로라 이미 만든 소리가 맞는다 */
   pause = pause || 150;
@@ -1503,11 +1512,26 @@ function handleVoiceClone(body) {
     var jobs = lines ? lines.map(function (l) { return { who: WHO[l && l[0]] ? l[0] : '', text: String((l && l[1]) || '').trim().slice(0, 600) }; }) : [{ who: who2.length === 1 ? who2[0] : '', text: text }];
     var need = jobs.reduce(function (a, j) { return a + j.text.length; }, 0);
     if (_vcSpent(st) + need > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };   // [VC_BUDGET] 예식당 글자 예산 하나(줄 5번 · 예식 50번은 걷었다)
-    var parts = [], fresh = false, newChars = 0;
+    var parts = [], fresh = false, newChars = 0, t0 = Date.now(), todo = [];
+    /* ★★[VC_PAR 2026-10-05 사장님 «왜 못 만드는 거지 · 이런 에러가 자주 있으면 안 되는데»] vcLastErrors 실측 — 오늘 실패는 서버에 한 건도 없었다(업체 거절이 아니다).
+       화면(마이페이지 90초 · 빌더 95초)이 먼저 포기한 것이다: 줄마다 업체에 «차례로» 물어 줄 수만큼 길어졌고, 서버는 그 뒤에도 끝까지 만들어 저장해
+       다시 누르면 바로 됐다. 이제 저장본이 없는 줄은 «한꺼번에»(fetchAll) 묻는다 — 걸리는 시간 = 가장 긴 한 줄. 너무 잦음 · 바쁨(429 · 503)은 그 줄만 1.5초 뒤 한 번 더(종전과 같다).
+       60초를 넘긴 만들기는 VCSLOW_<코드>에 남긴다(글 · 소리 없이 초 · 줄 수만) — 다음에 «왜 늦었나»를 볼 수 있게 */
     for (var i = 0; i < jobs.length; i++) { var jw = jobs[i].who || (st.groom && st.groom.voiceId ? 'groom' : 'bride'), v2 = st[jw] && st[jw].voiceId;
       if (!v2) { var ow = jw === 'groom' ? 'bride' : 'groom'; v2 = st[ow] && st[ow].voiceId; jw = ow; }   // 한 분만 만들었으면 그 목소리로
       if (!v2 || !jobs[i].text) continue;
-      try { var c = _vcCached(code, 'AI 소리', v2, jobs[i].text, tempo, cfg, pause); if (!c.hit) { fresh = true; newChars += jobs[i].text.length; } parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); } catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
+      try { var c = _vcCacheGet(code, 'AI 소리', v2, jobs[i].text, tempo, pause); if (c.b64) parts.push({ who: jw, mime: 'audio/mpeg', data: c.b64 }); else { var slot = { who: jw, mime: 'audio/mpeg', data: '' }; parts.push(slot); todo.push({ slot: slot, v: v2, text: jobs[i].text, nm: c.nm, fo: c.fo }); } }
+      catch (e) { return _vcErr(code, e.http, 'make', e.why || e.message); } }
+    if (todo.length) {
+      var reqs = todo.map(function (t) { return _vcTtsReq(cfg, t.v, t.text, tempo, pause); }), rs;
+      try { rs = UrlFetchApp.fetchAll(reqs); } catch (e) { return _vcErr(code, 0, 'make', e.message); }
+      for (var j = 0; j < todo.length; j++) { var x = { code: rs[j].getResponseCode(), r: rs[j] };
+        if (x.code === 429 || x.code === 503) { Utilities.sleep(1500); try { var r2 = UrlFetchApp.fetch(reqs[j].url, reqs[j]); x = { code: r2.getResponseCode(), r: r2 }; } catch (e) { return _vcErr(code, 0, 'make', e.message); } }
+        if (x.code !== 200) return _vcErr(code, x.code, 'make', _vcWhy(x));
+        var by = x.r.getBlob().getBytes(); try { todo[j].fo.createFile(Utilities.newBlob(by, 'audio/mpeg', todo[j].nm)); } catch (e) {}
+        _vcCharLog(String(todo[j].text).length); todo[j].slot.data = Utilities.base64Encode(by); fresh = true; newChars += todo[j].text.length; } }
+    var sec = Math.round((Date.now() - t0) / 1000);
+    if (sec > 60) { try { PropertiesService.getScriptProperties().setProperty('VCSLOW_' + code, JSON.stringify({ at: fmtKST(new Date()), sec: sec, lines: jobs.length, fresh: todo.length })); } catch (e) {} }   // [VC_PAR]
     if (!parts.length) return { ok: false, error: '아직 만든 AI 목소리가 없어요.' };
     if (fresh) { st.make.total++; st.make.chars = (st.make.chars || 0) + newChars; if (!retempo) st.make.per[key] = (st.make.per[key] || 0) + 1; save(); }
     try { CacheService.getScriptCache().put('VCMK_' + code + '_' + key, '1', 1800); } catch (e) {}   // [RF_MAIL_AI] 이 줄은 AI 가 만들었다 — 곧 올라올 파일에 «도착» 메일을 보내지 않게(handleRitualFile)

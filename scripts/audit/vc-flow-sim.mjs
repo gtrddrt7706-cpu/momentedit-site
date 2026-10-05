@@ -10,7 +10,7 @@ const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs'
 const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
-const FN = ['_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
 const code = [line(/var RF_KEYS[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_DOWN[^\n]*/), line(/var VC_COLOR[^\n]*/)].concat(FN.map(grab)).join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const miss = FN.filter((f) => !grab(f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -30,7 +30,8 @@ function world(o) {
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => (k in props ? props[k] : null), setProperty: (k, v) => { props[k] = String(v); }, getProperties: () => Object.assign({}, props) }) },
     LockService: { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) },   /* [VC_STATE_MERGE] */
     CacheService: { getScriptCache: () => ({ get: (k) => cache[k] || null, put: (k, v) => { cache[k] = v; }, remove: (k) => { delete cache[k]; } }) },
-    UrlFetchApp: { fetch: (url, q) => { const p = url.replace('https://api.typecast.ai', ''), key = q.method.toUpperCase() + ' ' + p.replace(/\/uc_[^/]+$/, '/{id}'); calls.push(q.method.toUpperCase() + ' ' + p);
+    UrlFetchApp: { fetchAll(reqs) { return reqs.map((r) => this.fetch(r.url, r)); },   // [VC_PAR 2026-10-05] 줄 만들기는 한꺼번에(fetchAll) — 같은 세계의 fetch 로 하나씩 답한다(아래에서 fetch 를 바꿔 끼우면 그대로 따라간다)
+      fetch: (url, q) => { const p = url.replace('https://api.typecast.ai', ''), key = q.method.toUpperCase() + ' ' + p.replace(/\/uc_[^/]+$/, '/{id}'); calls.push(q.method.toUpperCase() + ' ' + p);
       let r = api[key]; if (typeof r === 'function') r = r(calls.length); return r ? res(r[0], r[1]) : res(404, {}); } },
     DriveApp: { getFileById: (id) => files[id].f },
     Utilities: { formatDate: (d, tz, f) => (f === 'yyyy-MM-dd' ? today : f === 'yyyy-MM' ? today.slice(0, 7) : f === 'M' ? String(+today.slice(5, 7)) : f === 'd' ? String(+today.slice(8, 10)) : today),

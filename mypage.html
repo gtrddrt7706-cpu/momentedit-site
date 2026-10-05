@@ -2418,7 +2418,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _vcAc=(typeof AbortController!=='undefined')?new AbortController():null, _vcT=_vcAc?setTimeout(function(){ try{ _vcAc.abort(); }catch(e){} },90000):null;
       fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({}, d.data, {action:'voiceClone', token:getToken()})),signal:_vcAc?_vcAc.signal:undefined})
         .then(function(r){ return r.json(); }).then(function(r){ if(_vcT) clearTimeout(_vcT); _vcBack(r||{ok:false}); })
-        .catch(function(){ if(_vcT) clearTimeout(_vcT); _vcBack({ok:false,down:true,error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안 이 줄은 스튜디오 나레이션으로 나와요'}); });   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) */
+        .catch(function(e){ if(_vcT) clearTimeout(_vcT); _vcBack({ok:false,down:true,timeout:!!(e&&e.name==='AbortError'),error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안 이 줄은 스튜디오 나레이션으로 나와요'}); });   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) · ★[VC_SLOW_AGAIN 2026-10-05] 90초 기다리다 멈춘 것은 timeout 표시 — 빌더가 8초 뒤 한 번 더 묻는다(서버는 그동안 만들어 저장한다) */
       return;
     }
     if((d.type==='momentedit:ritualFileGet'||d.type==='momentedit:ritualFileDel') && d.data && d.data.id){

@@ -1428,6 +1428,12 @@
    "fn": "handleRitualFile",
    "mark": "RF_MAIL_AI",
    "why": "AI 가 만든 줄 파일엔 «예식 준비 파일 도착» 메일을 안 보냄 — 옛것이면 AI 줄마다 한 통(1분에 7통)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_PAR",
+   "why": "AI 줄 만들기를 한꺼번에(fetchAll) 묻는다 — 옛것이면 줄 수만큼 차례로 물어 화면이 90초에 먼저 포기한다 · 60초 넘으면 VCSLOW_ 기록"
   }
  ],
  "fns": {
@@ -1667,6 +1673,8 @@
    "_vcTts",
    "_vcAiFolder",
    "_vcHash",
+   "_vcCacheGet",
+   "_vcTtsReq",
    "_vcCached",
    "_vcTempo",
    "_vcPause",
@@ -2438,7 +2446,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-04 12:42 · 476c9e98",
+ "_생성": "2026-10-05 20:57 · e71d6daf",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2892,5 +2900,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "0e9c898d6198"
+ "_표식서명": "51aba9e5c133"
 }
