@@ -5840,8 +5840,8 @@ function renderProduction(p, inv){
     startTrkFlow('dining', _dd0, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p, inv); });   // 식순 = order-preview 빌더(iframe 오버레이) 단일 경로 · 구 v2 위저드는 2026-07-25 삭제(도달 불가 데드코드)
   /* ★★[PR_FROM_MYPAGE 2026-10-05 사장님 «여기서 미리듣기 이것도 연습하기로 바꾸기 · 옛날에 만들어 둔 것 같은데»] 식순 줄의 보조 단추 = «연습하기» —
-     누르면 식순 빌더가 ③ 연습하기 화면으로 바로 열린다(처음부터 끝까지 · 골라서 연습). ★옛 «미리듣기»(음악까지 콘솔 미리듣기 창 mp_rpViewer)로 되돌리지 말 것 —
-     음악까지 듣는 미리듣기는 빌더 ④ 완성 화면의 «미리듣기»가 맡는다. 아래 _mpRitPreview 는 서버 초안 조립 검사(preview-entry)가 쓰는 입구로만 남긴다. */
+     누르면 식순 빌더가 ③ 연습하기 화면으로 바로 열린다(처음부터 끝까지 · 골라서 연습). ★옛 «미리듣기»(콘솔 미리듣기 창 mp_rpViewer)로 되돌리지 말 것 —
+     식순 전체 소리를 미리 듣는 일은 빌더 ④ 완성 화면의 «미리듣기»가 맡는다. 아래 _mpRitPreview 는 서버 초안 조립 검사(preview-entry)가 쓰는 입구로만 남긴다. */
   var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualBuilder(p, inv, {at:'practice'}); });
   window._mpRitPreview=function(){ openRitualPreview(p, inv); };
   var rpp=$('mp_ritualPrep'); if(rpp) rpp.addEventListener('click', function(){ var bx=$('mp_ritPrepBox'); if(!bx) return; _ritPrepOpen=bx.hidden; bx.hidden=!_ritPrepOpen; rpp.setAttribute('aria-expanded', String(_ritPrepOpen)); });   // [PREP_LINK] 다시 그려도 연 채로(_ritPrepOpen)   // [PREVIEW_LINK_V1] 초안이 있을 때만 렌더되는 보조 버튼(row opt.pre) — 없으면 $() 가 null 이라 조용히 지나간다

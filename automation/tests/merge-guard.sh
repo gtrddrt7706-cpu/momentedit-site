@@ -12660,7 +12660,7 @@ chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 사장님 «
 chk 'QA_PR_KEEP' order-preview.html 1
 chk 'QA_BIG_THEN' order-preview.html 2
 chk 'QA_FAST' order-preview.html 1
-chk 'QA_SEC' order-preview.html 4
+chk 'QA_SEC' order-preview.html 3   # [PR_SEC_OFF 2026-10-05] 한 부분만 보기(prAct) 걷으며 하나 줄었다
 chk 'QA_SKIP_PLAY' order-preview.html 1
 chk 'QA_MINI_FOCUS' order-preview.html 3
 chk 'QA_MINI_COVER' order-preview.html 1
@@ -13861,7 +13861,7 @@ chk 'VOICE_UP_FROM' scripts/audit/listen-page.mjs 1
 # ★[2026-09-28 코워크 0928 4 · 5장] 갈래 한 줄 설명 원천 문구 · 목소리 지도(② 첫 쪽 접이 · 처음 한 번 펼침 · ⓘ 다시 보기 · ③ 첫 화면) · 진행 줄 물결 · 진사는 점으로만 · 지도에 «AI» 없음
 chk 'VOICE_KIND_0928' assets/ritual-open.js 1
 chk "one: '식장에서 마이크로 직접 말해요. 여기 적는 글은 연습과 대본에 써요'" assets/ritual-open.js 1
-chk 'VOICE_MAP' order-preview.html 7   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 · _vgOpen)
+chk 'VOICE_MAP' order-preview.html 6   # [PR_SIMPLE 2026-10-05] ③ 지도 접이(prvmap)를 목록 줄 갈래로 합치며 하나 줄었다 ·   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 · _vgOpen)
 chk 'function _voiceMap(jump)' order-preview.html 1
 nochk "_vgPrep?'어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요'" order-preview.html   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 «어디서 직접 말하는지 한눈에 봐요» 금지 · ③ 지도 접이는 그대로)
 chk 'data-fk="mkvi"' order-preview.html 1
@@ -14111,7 +14111,7 @@ chk 'VOW_HOW' assets/ritual-story.js 2             # «각자 차례로» LIVE �
 chk 'VOW_HOW' assets/ritual-preview-link.js 2      # 미리듣기가 vowHow 를 옮긴다(alt|each 만)
 chk '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' assets/ritual-story.js 2
 nochk '마지막 한 문장은 하객분들 쪽으로' order-preview.html 0   # 인용은 두 문장이다
-chk 'MAP_ONE' order-preview.html 2                 # ② 첫 쪽 사슬 걷음 · 목록 줄 갈래 · ③ 지도 접이   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 사슬 주석)
+# [PR_SIMPLE 2026-10-05] MAP_ONE 은 ③ 지도 접이와 함께 걷었다(nochk prvmap 이 대신 지킨다) · 옛 줄: chk 'MAP_ONE' order-preview.html 2                 # ② 첫 쪽 사슬 걷음 · 목록 줄 갈래 · ③ 지도 접이   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 사슬 주석)
 nochk '<p class="mk-vgh">이 식순의 차례</p>' order-preview.html 0
 chk 'STRIP_ONE' order-preview.html 1               # 600 이하 진행 줄 한 줄 넘기기
 chk 'AI_CARD_TIDY' order-preview.html 4            # AI 줄 ▶ = 만든 파일 · 밑줄 글 단추 · 말 빠르기 한 줄
