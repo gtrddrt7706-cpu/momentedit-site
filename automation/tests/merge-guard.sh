@@ -14097,9 +14097,9 @@ chk 'PLAY_ONE' scripts/audit/voice-setup.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/line-split.mjs >/dev/null 2>&1; _ls=$?; [ "$_ls" = 1 ] && { echo 'FAIL line-split: 두 분 읽을 글 줄 편집기 흐름이 어긋났습니다 — node scripts/audit/line-split.mjs'; fail=1; }; fi
 chk 'LINE_SPLIT' order-preview.html 12
 chk 'LINE_SPLIT' scripts/audit/line-split.mjs 1
-chk 'function _slEditor(key,lab){' order-preview.html 1
-chk '+_slEditor(q.up,lab)' order-preview.html 1
-chk "+_slEditor('pv','영상 앞 소개글')" order-preview.html 1
+chk 'function _slEditor(key,lab,right){' order-preview.html 1
+chk '+_slEditor(q.up,lab,' order-preview.html 1
+chk "+_slEditor('pv','영상 앞 소개글','" order-preview.html 1
 nochk 'class="ta grow mk-vtta"' order-preview.html
 nochk 'id="mkPvTa"' order-preview.html
 chk "wq:_slKeyOk(key)?_slWhoSig(key):undefined" order-preview.html 1
