@@ -1463,19 +1463,19 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vhd .mk-vs{white-space:normal}
 .mk-vhd .mk-vst{display:block}   /* [AI_CARD_TIDY] 상태는 길이 아래 제 줄 — 한 줄에 이으면 « · »가 줄 끝에 홀로 남았다(390 실렌더) · [R1-39] ✓ 와 «AI로 만들었어요»가 줄 끝 · 줄 머리로 갈리지 않게(한 덩어리로 넘어간다) · 빈 ▶ 자리(.mk-vpl0)는 걷었다 */
 .mk-whog{flex:0 0 auto;display:inline-flex;border:1px solid var(--border);border-radius:999px;padding:2px;background:var(--card)}
-/* [LINE_SPLIT] 줄 편집기 — 왼쪽 읽는 분(누르면 바뀜) · 글 · 빼기 */
-.mk-sl{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
-.mk-slr{display:flex;align-items:flex-start;gap:8px}   /* ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?»] 글칸 폭은 줄 수와 상관없이 같다(빼기 ×는 칸 안 오른쪽 위) · 읽는 분 단추는 첫 줄 글과 같은 높이 · 줄 더하기와 처음 글로는 한 줄 */
-.mk-slb{position:relative;flex:1 1 auto;min-width:0;display:flex}
-.mk-slb .mk-slt.ta.grow{margin-top:0}
-.mk-slb.del .mk-slt.ta.grow{padding-right:40px}
-.mk-slb .mk-slx{position:absolute;top:2px;right:0}
-.mk-slw{flex:0 0 auto;min-width:52px;min-height:44px;margin-top:3px;padding:0 12px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
-.mk-slt.ta.grow{flex:1 1 auto;min-width:0;min-height:44px}
-.mk-slx{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:var(--light);cursor:pointer;padding:0}
+/* [LINE_SPLIT] 줄 편집기 — 읽는 분 · 글 · 빼기 */
+.mk-sl{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:14px}
+.mk-slr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}   /* ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?» → 시안 «c,d 가 좋을 것 같은데»] 한 줄 = 위 [신랑 | 신부](둘 다 보이고 고른 쪽만 칠함 · 카드 머리와 같은 모양) + 빼기 × · 아래 밑줄 글(상자 없음 · 화면 폭 가득) */
+.mk-slr .mk-slwg{padding:2px}
+.mk-slr .mk-slwg .mk-whob{min-height:36px;min-width:48px;padding:0 12px}
+/* ★[SL_TIDY] 한 단추 «신부»(누르면 신랑 · .mk-slw) 금지 — 2026-10-05 사용자 지시로 [신랑 | 신부] 둘 다 보이게 바꿈(«신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?») */
+.mk-slb{position:relative;flex:1 1 100%;min-width:0;display:flex}
+.mk-slb .mk-slt.ta.grow{flex:1 1 auto;min-width:0;margin-top:0;min-height:0;padding:6px 0 10px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent}
+.mk-slb .mk-slt.ta.grow:focus{border-bottom-color:var(--gold-deeper)}
+.mk-slx{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:var(--light);cursor:pointer;padding:0;margin:-4px -12px -4px auto}
 .mk-slx svg{width:14px;height:14px}
 .mk-sladd{display:inline-flex;align-items:center;min-height:44px;margin:0}
-.mk-slf{display:flex;align-items:center;gap:4px 20px;flex-wrap:wrap;margin:4px 0 0;padding-left:60px}   /* [SL_TIDY] 글칸 왼쪽 선(읽는 분 단추 52 + 틈 8)에 맞춘다 · 누르는 글은 왼쪽에 모은다(오른쪽 끝은 아이콘 레일 자리) */
+.mk-slf{display:flex;align-items:center;gap:4px 20px;flex-wrap:wrap;margin:2px 0 0}   /* [SL_TIDY] 누르는 글은 왼쪽에 모은다(오른쪽 끝은 아이콘 레일 자리) */
 .mk-slf .mk-note.mk-pvn{margin-left:auto}   /* 글자 수(누르지 않는 글)만 오른쪽 */
 .mk-slf .mk-note{margin:0}
 .mk-slf .pk-link{min-height:44px}
@@ -4157,16 +4157,17 @@ function _slPut(key,L){ var vk=_slVk(key); L=L.slice(0,SL_MAX).map(function(x){ 
   if(S.vkeep&&S.vkeep[key]) delete S.vkeep[key];   /* [KEEP_LINE] 글 · 읽는 분을 고치면 확정은 풀린다 */
   _persist(); _aiPillSync(key); }
 function _slEditor(key,lab,right){ var L=_slRaw(key), n=L.length;   // right = [SL_TIDY] 아래 한 줄 오른쪽(처음 글로 · 글자 수)
-  return '<ol class="mk-sl" aria-label="'+esc(lab+' · 읽을 글')+'">'+L.map(function(x,i){ var nm=x.w==='b'?'신부':'신랑', ot=x.w==='b'?'신랑':'신부';
-      return '<li class="mk-slr"><button type="button" class="mk-slw" data-fk="mkslw:'+key+':'+i+'" aria-label="'+esc((n>1?(i+1)+'번째 줄 ':'')+'읽는 분 '+nm+' · 누르면 '+ot)+'" onclick="mkSlWho(\''+key+'\','+i+')">'+nm+'</button>'
-        +'<span class="mk-slb'+(n>1?' del':'')+'"><textarea class="ta grow mk-slt" rows="1" maxlength="300" data-fk="mksl:'+key+':'+i+'" aria-label="'+esc(lab+(n>1?' '+(i+1)+'번째 줄':'')+' · '+nm)+'" placeholder="읽을 글을 적어 주세요" oninput="mkSlText(\''+key+'\','+i+',this.value);_taGrow(this)" onchange="_taChange()">'+esc(x.t)+'</textarea>'
-        +(n>1?'<button type="button" class="mk-slx" data-fk="mkslx:'+key+':'+i+'" aria-label="'+esc((i+1)+'번째 줄 빼기')+'" onclick="mkSlDel(\''+key+'\','+i+')">'+ICO_X+'</button>':'')+'</span></li>'; }).join('')+'</ol>'
+  return '<ol class="mk-sl" aria-label="'+esc(lab+' · 읽을 글')+'">'+L.map(function(x,i){ var nm=x.w==='b'?'신부':'신랑';
+      return '<li class="mk-slr"><span class="mk-whog mk-slwg" role="radiogroup" aria-label="'+esc((n>1?(i+1)+'번째 줄 · ':'')+'누가 읽나요')+'">'+[['g','신랑'],['b','신부']].map(function(o){ var on=x.w===o[0]; return '<button type="button" class="mk-whob'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkslw:'+key+':'+i+':'+o[0]+'" onclick="mkSlWho(\''+key+'\','+i+',\''+o[0]+'\')">'+o[1]+'</button>'; }).join('')+'</span>'   /* [SL_TIDY] */
+        +(n>1?'<button type="button" class="mk-slx" data-fk="mkslx:'+key+':'+i+'" aria-label="'+esc((i+1)+'번째 줄 빼기')+'" onclick="mkSlDel(\''+key+'\','+i+')">'+ICO_X+'</button>':'')
+        +'<span class="mk-slb"><textarea class="ta grow mk-slt" rows="1" maxlength="300" data-fk="mksl:'+key+':'+i+'" aria-label="'+esc(lab+(n>1?' '+(i+1)+'번째 줄':'')+' · '+nm)+'" placeholder="읽을 글을 적어 주세요" oninput="mkSlText(\''+key+'\','+i+',this.value);_taGrow(this)" onchange="_taChange()">'+esc(x.t)+'</textarea>'
+        +'</span></li>'; }).join('')+'</ol>'
     +((n<SL_MAX||right)?'<div class="mk-slf">'+(n<SL_MAX?'<button type="button" class="pk-link mk-sladd" data-fk="mksladd:'+key+'" onclick="mkSlAdd(\''+key+'\')">＋ 줄 더하기</button>':'<span></span>')+(right||'')+'</div>':''); }
 window.mkSlText=function(key,i,v){ var L=_slCopy(key); if(!L[i]) return; L[i].t=String(v||''); _slPut(key,L);
   if(key==='g3'){ var _r=document.getElementById('mkG3Rem'); if(_r) _r.hidden=_g3HasNotice(); }
   if(key==='pv'){ var pn=document.getElementById('mkPvN'); if(pn) pn.textContent=_pvCount(S.pvText); } };
-window.mkSlWho=function(key,i){ if(MK_UP[key]) return; if(_keepAsk(key,function(){ mkSlWho(key,i); })) return; var L=_slCopy(key); if(!L[i]) return; L[i].w=L[i].w==='b'?'g':'b'; _slPut(key,L);
-  _fxNext='[data-fk="mkslw:'+key+':'+i+'"]'; render(); if(!(S.vself||{})[key]) _vcWhoAudio(key,_vtMoment(key));   /* [LINE_SPLIT] 읽는 분이 바뀐 소리는 걷고 새 차례로 채운다 — 머리 신랑 ↔ 신부와 같은 길(_vcWhoAudio · SIM_R3) */ };
+window.mkSlWho=function(key,i,w){ if(MK_UP[key]) return; var L0=_slRaw(key); if(w&&L0[i]&&L0[i].w===w) return;   /* [SL_TIDY] 이미 고른 쪽은 그대로 */ if(_keepAsk(key,function(){ mkSlWho(key,i,w); })) return; var L=_slCopy(key); if(!L[i]) return; L[i].w=w||(L[i].w==='b'?'g':'b'); _slPut(key,L);
+  _fxNext='[data-fk="mkslw:'+key+':'+i+':'+L[i].w+'"]'; render(); if(!(S.vself||{})[key]) _vcWhoAudio(key,_vtMoment(key));   /* [LINE_SPLIT] 읽는 분이 바뀐 소리는 걷고 새 차례로 채운다 — 머리 신랑 ↔ 신부와 같은 길(_vcWhoAudio · SIM_R3) */ };
 window.mkSlAdd=function(key){ var L=_slCopy(key); if(L.length>=SL_MAX) return; L.push({w:L[L.length-1].w==='g'?'b':'g',t:''}); _slPut(key,L); _fxNext='[data-fk="mksl:'+key+':'+(L.length-1)+'"]'; render(); };   // 새 줄은 앞줄과 다른 분 · 바로 그 칸에 초점
 window.mkSlDel=function(key,i){ if(_keepAsk(key,function(){ mkSlDel(key,i); })) return; var L=_slCopy(key); if(L.length<2||!L[i]) return; L.splice(i,1); _slPut(key,L); _fxNext='[data-fk="mksl:'+key+':'+Math.max(0,i-1)+'"]'; render(); };
 window.mkVtReset=function(key){ if(S.vlines) delete S.vlines[_slVk(key)];   /* [LINE_SPLIT] «처음 글로»는 줄 나눔도 처음으로 */ if(S.vtext) delete S.vtext[_vtKey(key)]; if(key==='g0') delete S.g0Moved; _fxNext='[data-fk="mksl:'+key+':0"]'; _persist(); render(); };   /* [QA_RESET_FOCUS] 단추가 사라지니 그 줄 첫 칸으로 */   /* [R8-20] «처음 글로»를 누르면 알림을 걷는다 */

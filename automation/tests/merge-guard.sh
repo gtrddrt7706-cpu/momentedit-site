@@ -14224,4 +14224,6 @@ chk 'PV_LINK_ONE' order-preview.html 1
 chk 'TALK_BRIDGE' order-preview.html 4
 chk 'function _lBridge(q)' order-preview.html 1
 chk "두 분이 서로에게 직접 서약을 읽는 시간입니다." order-preview.html 1
-chk 'SL_TIDY' order-preview.html 5   # ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?»] 줄 편집기 — 글칸 폭 같게(× 는 칸 안) · 읽는 분 단추 첫 줄 높이 · 줄 더하기와 처음 글로 한 줄
+chk 'SL_TIDY' order-preview.html 6   # ★[SL_TIDY 2026-10-05 사장님 «이거 좀 이상한데 최선이야?»] 줄 편집기 — 글칸 폭 같게(× 는 칸 안) · 읽는 분 단추 첫 줄 높이 · 줄 더하기와 처음 글로 한 줄
+chk 'class="mk-whog mk-slwg" role="radiogroup"' order-preview.html 1   # ★[SL_TIDY 2026-10-05 사장님 «신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?»] 줄마다 [신랑 | 신부] 둘 다 보인다
+nochk 'class="mk-slw" data-fk="mkslw' order-preview.html   # 한 단추 «신부»(누르면 신랑) 금지 — 2026-10-05 사용자 지시로 삭제
