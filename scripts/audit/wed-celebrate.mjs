@@ -2,7 +2,7 @@
 //   node scripts/audit/wed-celebrate.mjs            # 390 · 1280
 //   SHOTS=<폴더> node scripts/audit/wed-celebrate.mjs # 움직이는 중 몇 장을 그 폴더에 찍는다
 // 보는 것
-//   ① 예식완료 · 처음 열기 → 캔버스가 뜨고(꾸밈 · 누르기 통과) 3.2초 안에 지워진다 · 날짜 줄 아래 «두 분의 결혼을 진심으로 축하드려요»
+//   ① 예식완료 · 처음 열기 → 캔버스가 뜨고(꾸밈 · 누르기 통과) 약 5초 안에 지워진다([CELE_GRAND] 세 박자 · 2026-10-05) · 날짜 줄 아래 «두 분의 결혼을 진심으로 축하드려요»
 //   ② 다시 열면(새로고침) 다시 안 뜬다 · 축하 한 줄은 그대로
 //   ③ 그 앞 단계(제작중 · 예식 준비 다 마침 포함)에서는 안 뜬다 · 한 줄도 없다
 //   ④ 처음 연 때가 결과물전달이어도 한 번 뜬다
@@ -47,7 +47,7 @@ async function open(ctx, state) {
   return { pg, errs };
 }
 const seen = async (pg, ms) => { try { await pg.waitForSelector('canvas.mp-celebrate', { state: 'attached', timeout: ms }); return true; } catch { return false; } };
-const cheer = (pg) => pg.evaluate(() => { const c = document.getElementById('mp_cheer'); return c && c.style.display !== 'none' ? c.textContent : ''; });
+const cheer = (pg) => pg.evaluate(() => { const c = document.getElementById('mp_cheer'); return c && c.style.display !== 'none' && getComputedStyle(c).visibility !== 'hidden' ? c.textContent : ''; });
 
 for (const w of [390, 1280]) {
   /* ① · ⑥ · ② */
@@ -59,12 +59,12 @@ for (const w of [390, 1280]) {
     /* ⑥ 도는 동안 누르기 */
     let clicked = false;
     if (on && await pg.$('canvas.mp-celebrate')) { await pg.evaluate(() => { window.__clk = 0; const b = document.getElementById('mp_refresh'); if (b) b.addEventListener('click', () => { window.__clk++; }, { once: true }); }); const b = await pg.$('#mp_refresh'); if (b) { const r = await b.boundingBox(); if (r) { await pg.mouse.click(r.x + r.width / 2, r.y + r.height / 2); clicked = await pg.evaluate(() => window.__clk === 1); } } }
-    let gone = false; try { await pg.waitForSelector('canvas.mp-celebrate', { state: 'detached', timeout: 3400 }); gone = true; } catch {}
+    let gone = false; try { await pg.waitForSelector('canvas.mp-celebrate', { state: 'detached', timeout: 6200 }); gone = true; } catch {}   /* [CELE_GRAND 2026-10-05] 세 박자 약 4.5초 + 여유 */
     const took = Date.now() - t0, line = await cheer(pg), flag = await pg.evaluate(() => localStorage.getItem('me_wedcele_QQ63CW'));
-    ok(`① ${w} 예식완료 · 처음 열기 → 축하 그림 한 번(고정 · 화면 가득 · 누르기 통과 · aria-hidden) · 끝나면 지움 · 축하 한 줄 [WED_DONE_CELEBRATE]`, on && meta && meta.pe === 'none' && meta.hidden === 'true' && meta.pos === 'fixed' && meta.full && !meta.hitCanvas && gone && line === '두 분의 결혼을 진심으로 축하드려요' && flag === 'o', JSON.stringify({ on, meta, gone, took, line, flag }));
+    ok(`① ${w} 예식완료 · 처음 열기 → 축하 그림 한 번(고정 · 화면 가득 · 누르기 통과 · aria-hidden) · 끝나면 지움 · 축하 한 줄은 피어나 남는다 [WED_DONE_CELEBRATE · CELE_STAY]`, on && meta && meta.pe === 'none' && meta.hidden === 'true' && meta.pos === 'fixed' && meta.full && !meta.hitCanvas && gone && line === '두 분의 결혼을 진심으로 축하드려요' && flag === 'o', JSON.stringify({ on, meta, gone, took, line, flag }));
     ok(`⑥ ${w} 그림이 도는 동안에도 누르기가 된다(새로고침 단추)`, clicked, JSON.stringify({ clicked }));
     await pg.reload({ waitUntil: 'domcontentloaded' }); const again = await seen(pg, 4500), line2 = await cheer(pg);
-    ok(`② ${w} 다시 열면 다시 안 뜬다 · 축하 한 줄은 그대로`, !again && line2 === '두 분의 결혼을 진심으로 축하드려요', JSON.stringify({ again, line2 }));
+    ok(`② ${w} 다시 열면 다시 안 뜬다 · 축하 한 줄은 그대로 [CELE_STAY]`, !again && line2 === '두 분의 결혼을 진심으로 축하드려요', JSON.stringify({ again, line2 }));
     ok(`①② ${w} 화면 오류 없음`, errs.length === 0, errs.join(' | '));
     await ctx.close(); }
   /* ③ 그 앞 단계 — 예식 준비 다 마침이어도 */
@@ -83,7 +83,8 @@ for (const w of [390, 1280]) {
   { const ctx = await br.newContext({ viewport: { width: w, height: 900 }, reducedMotion: 'reduce' });
     const { pg } = await open(ctx, base());
     const on = await seen(pg, 4500), flag = await pg.evaluate(() => localStorage.getItem('me_wedcele_QQ63CW'));
-    ok(`⑤ ${w} 움직임 줄이기면 안 뜬다 · 띄웠다고 적지도 않는다`, !on && flag === null, JSON.stringify({ on, flag }));
+    const lineRM = await cheer(pg); const opRM = await pg.evaluate(() => { const c = document.getElementById('mp_cheer'); return c ? getComputedStyle(c).opacity : ''; });
+    ok(`⑤ ${w} 움직임 줄이기면 안 뜬다 · 띄웠다고 적지도 않는다 · 축하 한 줄은 정지 화면으로 보인다 [CELE_STAY]`, !on && flag === null && lineRM === '두 분의 결혼을 진심으로 축하드려요' && opRM === '1', JSON.stringify({ on, flag, lineRM, opRM }));
     await ctx.close(); }
   for (const [lab, o] of [['스냅 상품 결과물전달', { product: '웨딩스냅', stage: '결과물전달' }], ['종료 고객', { isException: true }]]) {
     const ctx = await br.newContext({ viewport: { width: w, height: 900 } });

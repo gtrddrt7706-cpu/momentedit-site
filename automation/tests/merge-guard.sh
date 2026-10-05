@@ -14487,3 +14487,16 @@ chk 'window.mkEntryEx=function(n)' order-preview.html 1
 nochk 'class="ex-chips mk-pvex"' order-preview.html
 chk 'EX_ONE' scripts/audit/ex-one.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/ex-one.mjs >/dev/null 2>&1; _ex1=$?; [ "$_ex1" = 1 ] && { echo 'FAIL ex-one: 예시 모양 통일(참고 예시 카드 · 예시 글 표)이 어긋났습니다 — node scripts/audit/ex-one.mjs'; fail=1; }; fi
+# ★[CELE_GRAND 2026-10-05 사장님 «축포 어정쩡 · 더 화려하게 · 디자이너 시선»] 세 박자(터짐 · 메아리 380ms · 꽃비) · 깊이(z) · 뒤집히는 금박 · 리본 · 반짝임 · 약 4.5초
+#   브랜드 팔레트만 · 흐림 · 빛 번짐 · 소리 없음은 그대로([WED_DONE_CELEBRATE] 예외 범위 안)
+chk 'CELE_GRAND' mypage.html 2
+chk "burst(sd,0,1); burst(sd,380,0.5); }); shower(" mypage.html 1
+chk 'CELE_GRAND' scripts/audit/wed-celebrate.mjs 2
+:
+chk 'CELE_LINE' mypage.html 2   # [CELE_LINE 2026-10-05] 축하 한 줄이 터짐과 함께 피어난다
+:
+# [CELE_FADE → CELE_STAY 2026-10-05 사장님 «글씨 사라지는 게 무드에 안 맞는다»] 축하 한 줄은 피어나 남는다 · 다시 열어도 그대로
+chk 'CELE_STAY' mypage.html 3
+chk 'CELE_STAY' scripts/audit/wed-celebrate.mjs 3
+nochk "c.style.visibility='hidden'; },{once:true})" mypage.html
+:
