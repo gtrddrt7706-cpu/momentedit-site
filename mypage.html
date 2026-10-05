@@ -929,6 +929,14 @@ body.snp-open #mpToast{bottom:calc(var(--snp-toast-b,34px) + env(safe-area-inset
    ★밑줄은 넣지 않는다 — 이 화면의 밑줄은 링크 몫이고, 이건 같은 화면 안 동작이다. */
 .trk-act.trk-act-min{min-width:auto;padding:8px 10px;font-size:12px;color:var(--gold-deeper,#8A6A3B);border:0;background:transparent}
 .trk-act.trk-act-min:hover{color:var(--accent);border:0;background:transparent}
+.trk-mins{display:inline-flex;align-items:center;flex-wrap:nowrap;justify-content:flex-end}   /* [PREP_LINK] «미리듣기 · 준비할 것» 한 묶음 */
+@media (max-width:560px){ .trk.trk-two{flex-wrap:wrap;row-gap:0} .trk.trk-two .trk-mins{order:3;flex:1 1 100%;justify-content:flex-start;margin:-6px 0 -6px -10px} }   /* [PREP_LINK] 폰 — 둘이 «완료 · 수정» 옆에 안 들어가 두 줄로 쪼개졌다(390 실렌더) · «식순 ✓» 아래 둘째 줄로 */
+.trk-mins .trk-act-min+.trk-act-min::before{content:'·';margin:0 10px 0 -4px;color:var(--label-soft)}
+.trk-chev{display:inline-block;width:5px;height:5px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 7px}   /* [FOLD_CHEVRON] 같은 꺾쇠 · 열리면 위로 — ::after 는 .trk-act 의 손가락 자리(TAP44)가 쓰고 있어 요소로 */
+.trk-act-fold[aria-expanded="true"] .trk-chev{transform:rotate(-135deg);margin-top:3px}
+.rit-prep-link{padding-top:4px}
+.rit-prep-link[hidden]{display:none}
+.rit-prep-sum{margin:6px 0 2px;font-size:12.5px;color:var(--sub)}
 .trk-list .trk-st{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:104px;min-height:36px;padding:0 6px;box-sizing:border-box;flex:0 0 auto}   /* gap 필수 — flex 컨테이너는 자식 사이 공백 텍스트 노드를 렌더하지 않아, 넣지 않으면 체크와 글자가 '✓완료'로 붙는다 */
 /* RES_RELINK_SAME(2026-07-26 사용자 지적 연장) — 패널 안 '다시 보기'는 아래 CTA와 같은 폭으로 쌓이는데
    인라인 padding:7px 14px 때문에 혼자 6.6px 낮아 계단처럼 보였다. 기본 .cc-btn-ghost 높이를 그대로 쓰게 해
@@ -5831,7 +5839,8 @@ function renderProduction(p, inv){
     }
     startTrkFlow('dining', _dd0, p.base||{}); });
   var rt=$('mp_ritualStart'); if(rt) rt.addEventListener('click', function(){ openRitualBuilder(p, inv); });   // 식순 = order-preview 빌더(iframe 오버레이) 단일 경로 · 구 v2 위저드는 2026-07-25 삭제(도달 불가 데드코드)
-  var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualPreview(p, inv); });   // [PREVIEW_LINK_V1] 초안이 있을 때만 렌더되는 보조 버튼(row opt.pre) — 없으면 $() 가 null 이라 조용히 지나간다
+  var rp=$('mp_ritualPreview'); if(rp) rp.addEventListener('click', function(){ openRitualPreview(p, inv); });
+  var rpp=$('mp_ritualPrep'); if(rpp) rpp.addEventListener('click', function(){ var bx=$('mp_ritPrepBox'); if(!bx) return; _ritPrepOpen=bx.hidden; bx.hidden=!_ritPrepOpen; rpp.setAttribute('aria-expanded', String(_ritPrepOpen)); });   // [PREP_LINK] 다시 그려도 연 채로(_ritPrepOpen)   // [PREVIEW_LINK_V1] 초안이 있을 때만 렌더되는 보조 버튼(row opt.pre) — 없으면 $() 가 null 이라 조용히 지나간다
   // [통합 행 · 스탭바이스탭 2026-07-19 사용자 지시] 진입은 항상 최종 확정 1단계부터(인원→음료→확정 저장→③좌석 자동) — 좌석 캔버스가 첫 화면으로 쏟아지지 않게.
   //   확정 완료 상태 재진입도 1단계부터(값 프리필 · '다음' 두 번이면 좌석) · 미완(이어하기)은 저장된 단계 자연 복원.
   var fn=$('mp_finalStart'); if(fn) fn.addEventListener('click', function(){
@@ -6675,8 +6684,12 @@ function _bouquetFold(base){
     +'<h4>받는 시각 · 장소</h4><ul><li>예식 당일 '+(when?escapeHtml(when)+'까지':'두 분 도착 10분 전까지')+' · 스튜디오로 보내 주세요 <span class="due">· 퀵이나 직접 가져오기 모두 괜찮아요</span></li>'
     +'<li>주문 · 결제는 플로리스트와 직접 하시면 돼요</li><li>부케 없이 오시거나 따로 준비하셔도 괜찮아요</li></ul></details>';
 }
-var PREP_FOLD_OFF=true;   // [PREP_FOLD_OFF] 사장님 «일단 여기서는 안 보이게» — 2026-10-05
-function _ritPrepFold(rd, base, dd){
+var PREP_FOLD_OFF=true;   // [PREP_FOLD_OFF] 사장님 «일단 여기서는 안 보이게» — 2026-10-05 · 줄 아래 요약은 끈 채 «준비할 것» 글 단추로 연다([PREP_LINK])
+/* ★★[PREP_LINK 2026-10-05 사장님 «미리듣기랑 준비할 것 이런 식으로 해서 클릭하면 볼 수 있게» → «추천대로»] 식순 줄 오른쪽 «미리듣기 · 준비할 것»(같은 작은 글 단추) —
+   «준비할 것»을 누르면 그 줄 아래로 목록(두 분이 준비할 것 · 부모님께 · 저희가 · 도와주실 분)이 펼쳐지고 다시 누르면 접힌다. 숫자 요약은 펼친 안 첫 줄에만.
+   ★줄 아래 늘 보이던 «준비할 것 N가지 · 도와주실 분 N» 접힘 줄을 되살리지 말 것(PREP_FOLD_OFF) */
+var _ritPrepOpen=false;
+function _ritPrepFold(rd, base, dd, asLink){
   var sm=rd&&rd.summary; if(!sm||!sm.open||!(sm.prep||sm.helpers)) return '';
   var wm=String((base&&base.weddingDate)||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
   /* [PREP_DUE 코워크 회신3 3-4(a)] 빌더 RitualOpen.dueWord 와 같은 말 — 3 · 7 · 0(당일 가져오기) · 없음(그 항목의 한 줄).
@@ -6695,12 +6708,12 @@ function _ritPrepFold(rd, base, dd){
   var n=two.length+par.length+hp.length+stu.length; if(!n) return '';
   var _opt=(sm.prep||[]).filter(function(q){ return q&&q.who!=='parents'&&/비워 두셔도 돼요/.test(String(q.note||'')); }).length;   /* [R4-06] 선택 항목(부모님께 드릴 말 · 빌더 RitualOpen.prepOpt)은 목록엔 두고 셈에서 뺀다 — 빌더 ① · ④ 와 같은 셈 */
   var _np=two.length-_opt+par.length+stu.length, _sum=[(_np?'준비할 것 '+_np+'가지':''),(hp.length?'도와주실 분 '+hp.length:'')].filter(Boolean).join(' · ');   // ★[PREP_COUNT_SPLIT 코워크 추가 점검 P3] «준비할 것 · 도와주실 분 9가지»는 사람까지 «가지»로 셌다
-  return '<details class="rit-prep"><summary>'+_sum+'</summary>'   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 */
+  return (asLink?'<div class="rit-prep rit-prep-link" id="mp_ritPrepBox" role="region" aria-label="식순 준비할 것"'+(_ritPrepOpen?'':' hidden')+'><p class="rit-prep-sum">'+_sum+'</p>':'<details class="rit-prep"><summary>'+_sum+'</summary>')   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 · [PREP_LINK] 글 단추로 여는 판은 div */
     +(two.length?'<h4>두 분이 준비할 것</h4><ul>'+two.join('')+'</ul>':'')
     +(par.length?'<h4>부모님께 부탁드릴 것</h4><ul>'+par.join('')+'</ul>':'')
     +(stu.length?'<h4>저희가 준비해요</h4><ul>'+stu.map(function(w){ return '<li>'+escapeHtml(w)+' <span class="due">· 별도 비용 · 금액은 상담 때 안내해 드려요</span></li>'; }).join('')+'</ul>':'')
     +(hp.length?'<h4>도와주실 분</h4><ul>'+hp.map(function(x){ return '<li>'+escapeHtml(String(x[0]))+' <span class="due">· '+escapeHtml(String(x[1]))+'</span></li>'; }).join('')+'</ul>':'')
-    +'</details>';
+    +(asLink?'</div>':'</details>');
 }
 /* ★[REC_KEEP 2026-09-27 코워크 «두 분 목소리» 3-7] 예식 뒤 7일부터 30일까지 — «두 분 목소리 파일은 ○월 ○일에 지워져요 · 간직하려면 내려받으세요» + [내려받기].
    파일은 두 분 계정으로만 받는다(ritualFileGet · 공개 주소 없음). 30일이 지나면(purgeRitualFiles) 이 줄도 사라진다. */
@@ -6742,8 +6755,9 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //     기한 임박한 '최종 확정'만 opt.tag(제목 옆)로 D-n을 남긴다(놓치면 잔금·진행에 영향).
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
     //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
-    return '<div class="trk'+(sub?' has-sub':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'   /* [TRK_OK_GLUE] ✓ 는 마지막 낱말에 붙는다 — 320 에서 «가족 · 친구 스냅»의 ✓ 만 홀로 다음 줄로 떨어졌다 */
-      + (opt.pre?'<button type="button" class="cc-btn-ghost trk-act trk-act-min" id="'+opt.pre.id+'">'+escapeHtml(opt.pre.label)+'</button>':'')   /* opt.pre = 주 버튼 왼쪽 보조 동작(작은 규격). 행을 새로 만들지 않는다 — 목록 길이를 늘리지 말라는 지시(2026-07-25)와, 설명줄(sub) 금지(TRK_NO_SUB)를 둘 다 지키는 유일한 자리. */
+    return '<div class="trk'+(sub?' has-sub':'')+(opt.pre&&opt.pre2?' trk-two':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'   /* [TRK_OK_GLUE] ✓ 는 마지막 낱말에 붙는다 — 320 에서 «가족 · 친구 스냅»의 ✓ 만 홀로 다음 줄로 떨어졌다 */
+      + ((opt.pre||opt.pre2)?'<span class="trk-mins">':'')+(opt.pre?'<button type="button" class="cc-btn-ghost trk-act trk-act-min" id="'+opt.pre.id+'">'+escapeHtml(opt.pre.label)+'</button>':'')
+      + (opt.pre2?'<button type="button" class="cc-btn-ghost trk-act trk-act-min trk-act-fold" id="'+opt.pre2.id+'" aria-expanded="'+!!opt.pre2.open+'" aria-controls="'+opt.pre2.ctl+'">'+escapeHtml(opt.pre2.label)+'<i class="trk-chev" aria-hidden="true"></i></button>':'')+((opt.pre||opt.pre2)?'</span>':'')   /* [PREP_LINK] 둘째 보조 = 누르면 줄 아래 목록을 여닫는다 */   /* opt.pre = 주 버튼 왼쪽 보조 동작(작은 규격). 행을 새로 만들지 않는다 — 목록 길이를 늘리지 말라는 지시(2026-07-25)와, 설명줄(sub) 금지(TRK_NO_SUB)를 둘 다 지키는 유일한 자리. */
       + '<button type="button" class="cc-btn-ghost trk-act" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
       + (sub?'<div class="trk-sub">'+sub+'</div>':'');
   }
@@ -6814,6 +6828,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   //     여기서 rd._v===3 같은 조건을 따로 세우면, 조립기 조건이 바뀌는 날 버튼만 남아 빈 화면을 연다.
   var _ritPre=null;
   try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'미리듣기'}; }catch(e){}
+  var _ritPre2=null; try{ if(_ritPrepFold(rd, base, dd, true)) _ritPre2={id:'mp_ritualPrep', label:'준비할 것', ctl:'mp_ritPrepBox', open:_ritPrepOpen}; }catch(e){}   // [PREP_LINK] 목록이 있을 때만
   var _prepRows=[
     /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
        종전 순서는 청첩장 · 식순 · 애프터 웨딩 · 좌석·음료 · 단체 사진이었다. 식순 아래 접힘 두 줄(준비 목록 · 부케)은 식순에 딸린 것이라 식순과 함께 옮긴다.
@@ -6841,8 +6856,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
           (_seatDone?'완료 · 수정':(((t.seat||'')==='진행중')?'이어하기':'시작하기')),
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
-    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre}) },
-    { done: true, html: PREP_FOLD_OFF?'':_ritPrepFold(rd, base, dd) },   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
+    { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, null, {pre:_ritPre, pre2:_ritPre2}) },
+    { done: true, html: PREP_FOLD_OFF?_ritPrepFold(rd, base, dd, true):_ritPrepFold(rd, base, dd) },   // [PREP_LINK] 요약 줄은 끈 채 «준비할 것» 단추가 여는 목록   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
     { done: true, html: _bouquetFold(base) },   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2||_frB2||_ocB2), html: (function(){ var _ph=(_gpB2.photo||[]), _any=!!(_fxB2||_frB2||_ocB2); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_any?'완료 · 수정':'구도 고르기'); return row('가족 · 친구 스냅', (_ph.length||_any)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 3부 2] 구도가 있으면 «전체 하객 + N컷», 구도는 없고 다른 내용(요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크)이 있으면 «완료 · 수정» + ✓ — 종전엔 요청만 «요청 N개», 불러 모을 분 · 링크만이면 «구도 고르기»(✓ 없음)로 남아 저장 알림과 다른 말을 했다 */   /* [PHOTO_FRIEND_ROW] 친구 부탁만 = ✓ · 「완료 · 수정」 */   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */
