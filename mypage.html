@@ -216,8 +216,8 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .welcome .names .nim{font-size:16px;color:var(--sub);font-weight:400}
 .welcome .wed-chip{display:block;margin-top:11px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.02em}
 .welcome .wed-chip.cele-wait{opacity:0}   /* [CELE_LINE 2026-10-05] 축하 그림이 돌 차례면 한 줄은 숨겨 두었다가 */
-.welcome .wed-chip.cele-in{animation:celeIn 1.3s var(--ease) .5s both}   /* 터짐이 꼭대기에 닿을 때 피어난다 — 움직임과 말이 한 순간이 되게 */
-@keyframes celeIn{from{opacity:0;transform:translateY(6px);letter-spacing:.14em}to{opacity:1;transform:none;letter-spacing:.02em}}
+.welcome .wed-chip.cele-in{animation:celeIn 4.2s var(--ease) .5s both}   /* 터짐이 꼭대기에 닿을 때 피어나 · 꽃비와 함께 사라진다 */
+@keyframes celeIn{0%{opacity:0;transform:translateY(6px);letter-spacing:.14em}26%{opacity:1;transform:none;letter-spacing:.02em}72%{opacity:1;transform:none;letter-spacing:.02em}100%{opacity:0;transform:translateY(-4px);letter-spacing:.02em}}   /* ★[CELE_FADE 2026-10-05 사장님 «피어났다가 사라지는 건» → «작게»] */
 .welcome .wed-chip .wed-dday{display:inline;margin-left:2px;font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.01em;white-space:nowrap}   /* DDAY_ONELINE(2026-07-25 사용자 지시 "한 줄로"): MPD_B1 별도 줄 승격을 한 줄 병기로 전환 — 먹색 반굵기 강조(헌장 5)는 유지, 'D-80 · 시간' 덩어리는 nowrap으로 함께 줄바꿈 */
 
 /* ── NOW 카드 (주인공) ── */
@@ -3164,7 +3164,7 @@ var WED_DONE_STAGES=['예식완료','결과물전달','후기'];
 function _mpWedDone(d){ return !!(d && !d.isException && d.product!=='웨딩스냅' && WED_DONE_STAGES.indexOf(String(d.stage||''))>-1); }
 function _mpCeleDue(d){ try{ return _mpWedDone(d) && localStorage.getItem('me_wedcele_'+String(d.code||'x'))!=='o'; }catch(e){ return false; } }
 function _mpWedCelebrate(d){ var c=$('mp_cheer'); try{ if(!_mpWedDone(d)) return; var k='me_wedcele_'+String(d.code||'x'); if(localStorage.getItem(k)==='o'){ if(c) c.classList.remove('cele-wait'); return; }
-  if(mpCelebrate()){ localStorage.setItem(k,'o'); if(c){ c.classList.remove('cele-wait'); c.classList.add('cele-in'); } }   /* [CELE_LINE] 그림과 함께 한 줄이 피어난다 */
+  if(mpCelebrate()){ localStorage.setItem(k,'o'); if(c){ c.classList.remove('cele-wait'); c.classList.add('cele-in'); c.addEventListener('animationend',function(){ c.classList.remove('cele-in'); c.style.visibility='hidden'; },{once:true});   /* 자리는 남긴다 — display:none 이면 아래 카드가 한 줄 튀어 오른다(다음에 열 때부터 자리 없음) */ } }   /* [CELE_LINE] 그림과 함께 한 줄이 피어나고 · [CELE_FADE] 꽃비와 함께 사라진다 */
   else if(c) c.classList.remove('cele-wait'); }catch(e){ if(c) c.classList.remove('cele-wait'); } }
 function renderMyPage(d){
   window._mpStateD = d;   // 전체 상태 전역 — 렌더 시작점에서 세팅(하위 렌더러·게이트가 같은 상태를 보게. 종전 렌더 말미 세팅은 초기 렌더 타이밍 구멍)
@@ -3221,7 +3221,7 @@ function renderMyPage(d){
     el.style.display='block';
   })();
   /* [WED_DONE_CELEBRATE] 예식 완료 뒤 축하 한 줄 — 날짜 줄 바로 아래 같은 모양 · 축하 그림(한 번)과 짝 */
-  (function(){ var c=$('mp_cheer'); if(!c) return; if(_mpWedDone(d)){ c.textContent='두 분의 결혼을 진심으로 축하드려요'; c.style.display='block'; if(_mpCeleDue(d)&&!c.classList.contains('cele-in')) c.classList.add('cele-wait'); } else { c.textContent=''; c.style.display='none'; } })();
+  (function(){ var c=$('mp_cheer'); if(!c) return; if(_mpWedDone(d)&&(_mpCeleDue(d)||c.classList.contains('cele-in'))){ c.textContent='두 분의 결혼을 진심으로 축하드려요'; c.style.display='block'; if(!c.classList.contains('cele-in')) c.classList.add('cele-wait'); }   /* ★[CELE_FADE 2026-10-05] 축하 한 줄은 축하 그림과 한 순간이다 — 이미 본 기기에선 다시 안 띄운다(움직임 줄이기면 그림이 안 돌아 기록이 안 남으니 한 줄은 늘 정지 화면으로 보인다) */ else { c.textContent=''; c.style.display='none'; } })();
   setTimeout(function(){ _mpWedCelebrate(d); }, 600);   /* 화면이 선 뒤 한 박자 — 그리는 도중에 겹치지 않게 */
 
   // NOW 헤드라인 (단계별 문구 = nextActionFor 결과)

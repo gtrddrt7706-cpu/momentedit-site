@@ -14486,3 +14486,6 @@ chk 'CELE_GRAND' scripts/audit/wed-celebrate.mjs 2
 :
 chk 'CELE_LINE' mypage.html 2   # [CELE_LINE 2026-10-05] 축하 한 줄이 터짐과 함께 피어난다
 :
+chk 'CELE_FADE' mypage.html 3   # [CELE_FADE 2026-10-05 사장님 «피어났다가 사라지는 건» → «작게»] 축하 한 줄은 그림과 한 순간 · 다시 열면 없음 · 움직임 줄이기는 정지 화면
+chk 'CELE_FADE' scripts/audit/wed-celebrate.mjs 3
+:
