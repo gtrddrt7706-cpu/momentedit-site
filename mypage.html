@@ -3081,41 +3081,73 @@ function _mpRollbackNotice(d){
 /* ★★[WED_DONE_CELEBRATE 2026-10-03 사장님 «모션그래픽 양쪽으로 폭죽 터지는 효과 · 디자이너 관점으로 적절하게» → «예식을 마친 뒤 처음 열 때 한 번»]
    momentedit-design «튀는 모션 금지»의 사장님이 허락한 단 하나의 예외다 — 이 한 순간(예식 완료 뒤 첫 열기)에만 쓴다. 다른 곳에 다시 쓰지 말 것.
    절제한 판: 브랜드 색 꽃잎 · 금빛 가루만(금 #B89A75 · 짙은 금 #7A5F37 · 진사 #6B2A24 조금 · 크림) · 네온 · 무지개 · 빛 번짐 · 흐림 없음 · 소리 없음.
-   양 아래 모서리에서 한 번씩 부드럽게 솟아 가운데 위로 호를 그리고, 천천히 흔들리며 내려와 사라진다(약 2.2초 · 한쪽 22개 · 폭 600 미만은 14개 · 튕김 · 흔들기 없음).
+   양 아래 모서리에서 솟아 가운데 위로 호를 그리고, 흔들리며 내려와 사라진다 — 세 박자 · 약 4.5초는 아래 [CELE_GRAND](2026-10-05 «더 화려하게»).
    캔버스 하나(고정 · pointer-events:none · aria-hidden) · 끝나면 지운다 · 움직임 줄이기 · 데이터 절약이면 아예 안 돈다.
    ★이 함수는 마이페이지 상태를 읽지 않는다(색 · 시간이 안에 다 있다) — 미리보기 쪽에 그대로 옮겨 쓸 수 있게. 부르는 판단은 아래 _mpWedCelebrate. */
+/* ★★[CELE_GRAND 2026-10-05 사장님 «축포 어정쩡한데 · 좀 더 화려하게 · 디자이너 시선으로»] 2.2초 · 한쪽 14개 이슬비 → 세 박자 연출(약 4.5초)
+   ① 터짐(0ms): 양 아래 모서리에서 꽃잎 · 금박 · 리본 · 금가루가 부채꼴로 크게 솟는다 · 터지는 자리에 반짝임 셋
+   ② 메아리(380ms): 같은 자리에서 반쯤 작은 두 번째 터짐 — 한 번이면 «펑», 두 번이면 «축하»로 읽힌다
+   ③ 꽃비(650~1900ms): 화면 위에서 꽃잎 · 금박이 천천히 흔들리며 내려와 사라진다 — 터짐의 여운
+   깊이: 입자마다 거리(z) — 가까운 것은 크고 빠르고 진하고, 먼 것은 작고 느리고 옅다(평면 이슬비 → 공간).
+   금박은 뒤집히며(세로로 눌렸다 펴짐) 앞면 · 뒷면 색이 바뀐다 — 빛 번짐 없이 «반짝»을 낸다.
+   ★그대로 지키는 것: 브랜드 팔레트만([CELE_VARIETY] 부케 색 포함) · 네온 · 무지개 · 흐림 · 빛 번짐 없음 · 소리 없음 · 튕김 없음
+     캔버스 하나(고정 · pointer-events:none · aria-hidden) · 끝나면 지운다 · 움직임 줄이기 · 데이터 절약이면 안 돈다
+     [CELE_NARROW] 옆으로 가는 거리는 «폭»으로 잰다(높이로 재면 폰에서 양쪽이 한가운데서 겹친다) · 폰은 수를 줄인다 */
 function mpCelebrate(opts){
   opts=opts||{};
   try{ if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return false; if(navigator.connection&&navigator.connection.saveData) return false; }catch(e){}
-  var doc=document, W=window.innerWidth, H=window.innerHeight, per=Math.max(8,Math.min(28,opts.perSide||(W<600?14:22))), dur=opts.duration||2200;   /* [CELE_NARROW] 폰은 한쪽 14개 — 390 실렌더에서 22개는 NOW 카드 글을 덮었다 */
+  var doc=document, W=window.innerWidth, H=window.innerHeight, narrow=W<600, k=narrow?1:1.45, dur=opts.duration||4500;   /* [CELE_NARROW] 폰은 수를 줄인다(넓은 화면 1.45배) */
   var dpr=Math.min(2,window.devicePixelRatio||1), cv=doc.createElement('canvas');
   cv.setAttribute('aria-hidden','true'); cv.className='mp-celebrate';
   cv.style.cssText='position:fixed;left:0;top:0;width:'+W+'px;height:'+H+'px;pointer-events:none;z-index:9000';
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); doc.body.appendChild(cv);
   var g=cv.getContext('2d'); if(!g){ cv.remove(); return false; } g.scale(dpr,dpr);
-  var COL=[['#B89A75',4],['#D6C2A0',3],['#EFE4D2',3],['#E9CFC6',3],['#C9958B',2],['#B5BFA6',2],['#7A5F37',1],['#6B2A24',1]]   /* [CELE_VARIETY 2026-10-03 사장님 «꽃잎 모양 · 색을 조금 더 다양하게»] 옅은 장밋빛(#E9CFC6) · 마른 장미(#C9958B) · 옅은 세이지(#B5BFA6)를 더했다 — 장면 그림 속 부케(크림 · 장밋빛 · 잎)에서 가져온 색이라 브랜드 밖 색(보라 · 청록 · 형광)이 아니다 */   /* [CELE_LIGHT 2026-10-03] 짙은 금(#7A5F37)이 3/13 이면 390 에서 갈색 잎 · 흙먼지처럼 읽혔다 → 옅은 금(#D6C2A0) 3 · 짙은 금 1 */, bag=[]; COL.forEach(function(c){ for(var i=0;i<c[1];i++) bag.push(c[0]); });
-  var P=[], rnd=function(a,b){ return a+Math.random()*(b-a); };
-  [0,1].forEach(function(side){ for(var i=0;i<per;i++){
-    var ang=rnd(58,78)*Math.PI/180, sp=rnd(0.55,0.95)*Math.sqrt(H)*1.05, dir=side?-1:1, petal=Math.random()<0.55;   /* [CELE_NARROW] 옆으로 가는 거리는 화면 폭의 16~40% — 높이로 재면 폰에서 양쪽이 한가운데서 겹친다 */
-    P.push({ x:side?W+rnd(-6,6):rnd(-6,6), y:H+rnd(0,10), vx:dir*rnd(0.16,0.40)*W*1.9/60, vy:-Math.sin(ang)*sp, rot:rnd(0,Math.PI*2), vr:rnd(-1.6,1.6),
-      sz:petal?rnd(5,9):rnd(1.6,3.2), petal:petal, shp:Math.floor(Math.random()*4), col:bag[Math.floor(Math.random()*bag.length)], ph:rnd(0,Math.PI*2), delay:rnd(0,160) }); } });
-  var t0=null, raf=window.requestAnimationFrame||function(f){ return setTimeout(function(){ f(Date.now()); },16); };
-  function frame(ts){ if(t0==null) t0=ts; var el=ts-t0; g.clearRect(0,0,W,H);
+  /* [CELE_VARIETY 2026-10-03] 부케 색 — 크림 · 장밋빛 · 마른 장미 · 세이지 + 금 · 짙은 금 · 진사 조금 */
+  var PETAL=[['#EFE4D2',3],['#E9CFC6',4],['#C9958B',2],['#D6C2A0',3],['#B5BFA6',2],['#6B2A24',1]], FOIL=[['#B89A75','#9C8058'],['#D6C2A0','#9C8058'],['#E6D3AE','#B89A75']], RIB=['#B89A75','#C9958B','#6B2A24','#D6C2A0'];
+  var bag=[]; PETAL.forEach(function(c){ for(var n=0;n<c[1];n++) bag.push(c[0]); });
+  var P=[], rnd=function(a,b){ return a+Math.random()*(b-a); }, pick=function(a){ return a[Math.floor(Math.random()*a.length)]; };
+  var GR=narrow?900:1000;   /* 중력(px/s²) — 솟는 높이는 화면 높이에 맞춘다 */
+  function burst(side,at,scale){ var dir=side?-1:1, ox=side?W:0, oy=H+6, n=Math.round((narrow?54:62)*k*scale);
+    for(var i=0;i<n;i++){ var r=Math.random(), type=r<0.42?'petal':r<0.78?'foil':r<0.86?'ribbon':'dust', z=rnd(0.6,1.3);
+      var ang=rnd(62,84)*Math.PI/180, reach=rnd(0.6,1.0)*H, v0=Math.sqrt(2*GR*reach)*rnd(1.35,1.6);   /* 공기 저항을 이기고 이름 줄 근처까지 */
+      var vx=dir*rnd(0.10,0.42)*W*1.6;   /* [CELE_NARROW] 옆 거리는 «폭»의 10~42%(공기 저항 1.6 기준) — 두 쪽이 가운데서 살짝만 만난다 */
+      P.push(mk(type,ox+dir*rnd(-4,14),oy+rnd(0,10),vx*(0.7+0.3*z),-Math.sin(ang)*v0*(0.75+0.25*z),z,at+rnd(0,120))); }
+    for(var s=0;s<3;s++) P.push({type:'star',x:ox+dir*rnd(18,70),y:H-rnd(30,120),z:1,sz:rnd(5,9)*scale+2,born:at+s*70,life:520,col:pick(['#D6C2A0','#B89A75'])}); }
+  function shower(n){ for(var i=0;i<n;i++){ var z=rnd(0.55,1.15), type=Math.random()<0.6?'petal':'foil';
+    P.push(mk(type,rnd(W*0.04,W*0.96),-rnd(10,60),rnd(-20,20),rnd(30,90)*z,z,rnd(650,1900))); } }
+  function mk(type,x,y,vx,vy,z,born){ var o={type:type,x:x,y:y,vx:vx,vy:vy,z:z,born:born,rot:rnd(0,Math.PI*2),vr:rnd(-4,4),ph:rnd(0,Math.PI*2),fl:rnd(5,11),sw:rnd(14,34),life:rnd(2600,3400)};
+    if(type==='petal'){ o.sz=rnd(6,11)*z; o.shp=Math.floor(Math.random()*4); o.col=pick(bag); o.drag=1.5; o.term=rnd(70,120); }
+    else if(type==='foil'){ o.w=rnd(4,6.5)*z; o.h=rnd(8,12)*z; o.c=pick(FOIL); o.drag=1.8; o.term=rnd(80,140); }
+    else if(type==='ribbon'){ o.len=rnd(26,44)*z; o.col=pick(RIB); o.drag=1.2; o.term=rnd(110,170); o.lw=1.4*z+0.4; }
+    else { o.sz=rnd(1.2,2.6)*z; o.col=pick(['#B89A75','#D6C2A0','#7A5F37']); o.drag=1.0; o.term=rnd(140,220); o.life=rnd(1700,2400); }
+    return o; }
+  [0,1].forEach(function(sd){ burst(sd,0,1); burst(sd,380,0.5); }); shower(Math.round((narrow?22:30)*k));
+  function petalPath(z,shp){ g.beginPath();   /* [CELE_VARIETY] 꽃잎 넷 — 0 둥근 잎 · 1 물방울 · 2 버들잎 · 3 끝이 갈라진 벚잎 */
+    if(shp===1){ g.moveTo(-z,0); g.bezierCurveTo(-z*0.6,-z*0.62,z*0.5,-z*0.55,z,0); g.bezierCurveTo(z*0.5,z*0.55,-z*0.6,z*0.62,-z,0); }
+    else if(shp===2){ g.moveTo(-z*1.1,0); g.quadraticCurveTo(0,-z*0.5,z*1.1,0); g.quadraticCurveTo(0,z*0.5,-z*1.1,0); }
+    else if(shp===3){ g.moveTo(-z,0); g.bezierCurveTo(-z*0.5,-z*0.75,z*0.55,-z*0.7,z*0.95,-z*0.18); g.lineTo(z*0.62,0); g.lineTo(z*0.95,z*0.18); g.bezierCurveTo(z*0.55,z*0.7,-z*0.5,z*0.75,-z,0); }
+    else g.ellipse(0,0,z,z*0.48,0,0,Math.PI*2); }
+  function star(r){ g.beginPath(); g.moveTo(0,-r); g.quadraticCurveTo(0,0,r,0); g.quadraticCurveTo(0,0,0,r); g.quadraticCurveTo(0,0,-r,0); g.quadraticCurveTo(0,0,0,-r); g.fill(); }
+  var t0=null, last=null, raf=window.requestAnimationFrame||function(f){ return setTimeout(function(){ f(Date.now()); },16); };
+  function frame(ts){ if(t0==null){ t0=ts; last=ts; } var el=ts-t0, dt=Math.min(0.034,(ts-last)/1000); last=ts; g.clearRect(0,0,W,H);
     var live=false;
-    P.forEach(function(p){ var t=(el-p.delay)/1000; if(t<0){ live=true; return; } var life=(el-p.delay)/dur; if(life>=1) return; live=true;
-      var drag=Math.exp(-1.9*t), x=p.x+p.vx*(1-drag)/1.9*60, y=p.y+p.vy*(1-drag)/1.9*60+0.5*42*t*t*Math.min(1,t*1.4);   /* 솟는 힘은 잦아들고(ease-out) · 아래로는 천천히 */
-      x+=Math.sin(p.ph+t*2.2)*(p.petal?10:4)*Math.min(1,t);   /* 꽃잎은 천천히 흔들리며 */
-      var a=life<0.12?life/0.12:(life>0.6?Math.max(0,(1-life)/0.4):1);
-      g.save(); g.globalAlpha=a*(p.petal?0.92:0.85); g.translate(x,y); g.rotate(p.rot+p.vr*t); g.fillStyle=p.col;
-      if(p.petal){ var z=p.sz; g.beginPath();   /* [CELE_VARIETY] 꽃잎 넷 — 0 둥근 잎 · 1 물방울 · 2 버들잎(양끝 뾰족) · 3 끝이 갈라진 벚잎 */
-        if(p.shp===1){ g.moveTo(-z,0); g.bezierCurveTo(-z*0.6,-z*0.62,z*0.5,-z*0.55,z,0); g.bezierCurveTo(z*0.5,z*0.55,-z*0.6,z*0.62,-z,0); }
-        else if(p.shp===2){ g.moveTo(-z*1.1,0); g.quadraticCurveTo(0,-z*0.5,z*1.1,0); g.quadraticCurveTo(0,z*0.5,-z*1.1,0); }
-        else if(p.shp===3){ g.moveTo(-z,0); g.bezierCurveTo(-z*0.5,-z*0.75,z*0.55,-z*0.7,z*0.95,-z*0.18); g.lineTo(z*0.62,0); g.lineTo(z*0.95,z*0.18); g.bezierCurveTo(z*0.55,z*0.7,-z*0.5,z*0.75,-z,0); }
-        else g.ellipse(0,0,z,z*0.48,0,0,Math.PI*2);
-        g.fill(); if(p.col==='#EFE4D2'){ g.strokeStyle='rgba(122,95,55,.35)'; g.lineWidth=0.6; g.stroke(); } }
-      else { g.beginPath(); g.arc(0,0,p.sz,0,Math.PI*2); g.fill(); }
-      g.restore(); });
-    if(live&&el<dur+400) raf(frame); else { try{ cv.remove(); }catch(e){} }
+    P.sort(function(a,b){ return a.z-b.z; });   /* 먼 것부터 — 가까운 것이 위에 */
+    for(var i=0;i<P.length;i++){ var p=P[i], age=el-p.born; if(age<0){ live=true; continue; } var life=age/p.life; if(life>=1||p.dead) continue; live=true;
+      var a=life<0.06?life/0.06:(life>0.62?Math.max(0,(1-life)/0.38):1), tt=age/1000;
+      g.save();
+      if(p.type==='star'){ var q=Math.sin(Math.PI*life); g.globalAlpha=q; g.translate(p.x,p.y); g.rotate(life*0.8); g.fillStyle=p.col; star(p.sz*(0.4+0.6*q)); g.restore(); continue; }
+      var dr=Math.exp(-p.drag*dt); p.vx*=dr; p.vy=p.vy*dr+GR*(p.type==='dust'?0.55:0.32)*dt; if(p.vy>p.term) p.vy+= (p.term-p.vy)*Math.min(1,dt*4);   /* 공기 저항 — 솟는 힘은 잦아들고 내려올 땐 천천히 */
+      var sway=(p.type==='dust')?0:Math.sin(p.ph+tt*(p.type==='petal'?2.4:3.2))*p.sw*Math.min(1,tt*1.2)*dt*2.2;
+      p.x+=p.vx*dt+sway; p.y+=p.vy*dt; if(p.y>H+60&&p.vy>0) { p.dead=1; continue; }
+      g.globalAlpha=a*(0.5+0.45*Math.min(1,p.z)); g.translate(p.x,p.y);
+      if(p.type==='petal'){ g.rotate(p.rot+p.vr*tt*0.6); g.scale(1,0.55+0.45*Math.abs(Math.cos(p.ph+tt*p.fl*0.35))); g.fillStyle=p.col; petalPath(p.sz,p.shp); g.fill();
+        if(p.col==='#EFE4D2'){ g.strokeStyle='rgba(122,95,55,.35)'; g.lineWidth=0.6; g.stroke(); } }
+      else if(p.type==='foil'){ var f=Math.cos(p.ph+tt*p.fl); g.rotate(p.rot+p.vr*tt*0.4); g.scale(1,Math.max(0.08,Math.abs(f))); g.fillStyle=f>0?p.c[0]:p.c[1]; g.fillRect(-p.w/2,-p.h/2,p.w,p.h); }   /* 뒤집히며 앞 · 뒷면 — 반짝 */
+      else if(p.type==='ribbon'){ var ang=Math.atan2(p.vy,p.vx)+Math.PI; g.rotate(ang); g.strokeStyle=p.col; g.lineWidth=p.lw; g.lineCap='round'; g.beginPath();
+        for(var s2=0;s2<=10;s2++){ var u=s2/10, xx=u*p.len, yy=Math.sin(u*Math.PI*2.2+tt*7+p.ph)*4*p.z*(0.3+u); if(s2) g.lineTo(xx,yy); else g.moveTo(xx,yy); } g.stroke(); }
+      else { g.fillStyle=p.col; g.beginPath(); g.arc(0,0,p.sz,0,Math.PI*2); g.fill(); }
+      g.restore(); }
+    if(live&&el<dur+600) raf(frame); else { try{ cv.remove(); }catch(e){} }
   }
   raf(frame);
   return true;

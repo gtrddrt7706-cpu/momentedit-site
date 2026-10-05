@@ -14478,3 +14478,9 @@ nochk '본식 시작 4분 전' api/_ritual-kb.js
 chk 'CEREMONY_AT_VIDEO' assets/ritual-open.js 1
 chk 'CEREMONY_AT_VIDEO' scripts/audit/open-course.mjs 2
 :
+# ★[CELE_GRAND 2026-10-05 사장님 «축포 어정쩡 · 더 화려하게 · 디자이너 시선»] 세 박자(터짐 · 메아리 380ms · 꽃비) · 깊이(z) · 뒤집히는 금박 · 리본 · 반짝임 · 약 4.5초
+#   브랜드 팔레트만 · 흐림 · 빛 번짐 · 소리 없음은 그대로([WED_DONE_CELEBRATE] 예외 범위 안)
+chk 'CELE_GRAND' mypage.html 2
+chk "burst(sd,0,1); burst(sd,380,0.5); }); shower(" mypage.html 1
+chk 'CELE_GRAND' scripts/audit/wed-celebrate.mjs 2
+:
