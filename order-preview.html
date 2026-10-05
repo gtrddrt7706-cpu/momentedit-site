@@ -5366,11 +5366,9 @@ function _mpBtn(k,fk){ var busy=MK.lsBusy===k||(MK.lsPend||{})[k], on=!busy&&_mp
   return '<button type="button" class="mk-hbtn'+(on?' on':'')+'" data-fk="'+fk+'" data-mp="'+k+'" aria-pressed="'+on+'"'+(busy?' disabled aria-busy="true"':'')+' onclick="'+(on?'lsStop()':'lsPlay(\''+k+'\')')+'">'+(on?ICO_STOP:ICO_PLAY)+' '+(busy?'만드는 중':on?'멈추기':_mpLab(k))+'</button>'; }
 /* ★[MP_ALL_WORD 2026-10-05 사장님 «이 순간 들어 보기 → 전체 들어 보기 식으로 전체 한 번에 재생된다는 느낌» → 시안 A(문구만)] 줄 ▶ 와 같은 ▶ 라 «한 줄 듣기»와 갈리지 않았다 —
    글로 «전체 · n줄 이어서»를 말한다. n = 화면에 ▶ 가 붙은 줄(나레이션 줄 · 두 분 목소리 줄 · 말하는 자리 · 영상 자리는 뺀다) · 엔진 전이면 줄 수 없이 */
-/* ★[GUEST_ALL_G3 2026-10-05 사장님 «이 순간 전체 듣기에 왜 1분 전은 없어?» → «추천대로»] 식전 영상을 넣으면 «시작 1분 전»은 영상 뒤라 엔진에선 식전 영상 순간 소속이다 —
-   그런데 하객 맞이 쪽에 카드가 넷이라 «3줄 이어서»는 «빠졌다»로 읽혔다. 하객 맞이 쪽 전체 듣기는 보이는 넷을 다: … 5분 전 → (식전 영상 자리 · 2초 · «식전 영상이 흐른 뒤») → 1분 전.
-   식전 영상 쪽 듣기(영상 소개 → 영상 → 1분 전)는 그대로 · 크게 보기 · 연습 · 처음부터 끝까지는 엔진 순서 그대로 */
-function _lGuestTail(){ try{ if(!ENG||_lSteps(ENG,['guest']).some(function(x){ return x.up==='g3'; })) return []; var g3=_lSteps(ENG,['prevideo']).filter(function(x){ return x.up==='g3'&&!x.quiet; })[0]; if(!g3) return [];
-  return [{k:'guest',lab:'식전 영상 자리',txt:'식전 영상이 흐른 뒤',src:null,pending:true,bridge:true,ms:2000},g3]; }catch(e){ return []; } }
+/* [GUEST_ALL_G3 2026-10-05] 식전 영상 뒤에 있던 «시작 1분 전»을 하객 맞이 듣기 끝에 «식전 영상이 흐른 뒤» 쉼과 함께 붙이던 꼬리 —
+   ★[ONEMIN_FIRST 2026-10-05 사장님] 1분 전이 영상 앞(하객 맞이 순간)이 되어 엔진 차례 그대로 넷이 나온다. 꼬리는 늘 빈 것 · «식전 영상이 흐른 뒤» 쉼 되살리지 말 것 */
+function _lGuestTail(){ return []; }
 function _mpLab(k){ var n=0; try{ if(ENG) n=_lSteps(ENG,[k]).filter(function(x){ return !x.quiet&&!x.talk&&!x.skip; }).length+(k==='guest'?_lGuestTail().length?1:0:0); }catch(e){} return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':''); }
 function _mpPaint(){ document.querySelectorAll('.mk-hbtn[data-mp]').forEach(function(b){ var k=b.getAttribute('data-mp'), on=!b.disabled&&_mpOn(k); if(b.classList.contains('on')===on) return; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('onclick',on?'lsStop()':"lsPlay('"+k+"')"); b.innerHTML=(on?ICO_STOP:ICO_PLAY)+' '+(on?'멈추기':_mpLab(k)); }); }   // [MP_ALL_WORD]
 window.mkLine=function(k,i){ if(_mlOn(k+':'+i)){ lsStop(); _mlPaint(); return; } var all=_lSteps(ENG,[k]), st=all[i]; if(!st) return; LP.lineKey=k+':'+i; LP.lineSt=st; _stopAud(); _stopMk(); _lUnlock(); LP.range={ks:[k],all:false}; LP.ended=null; LP.stay=null; LP.choose=null; LP.hint=null;
@@ -6951,7 +6949,7 @@ function renderStep(k){
     h+=narBox(RitualOpen.NAR.prevideoIn,null);
     h+='<input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX" style="margin-top:12px">';
     h+='<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:#9E2B22">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>';
-    h+='<div class="wd" style="margin-top:6px">가로 mp4 3분 이내 · D-3까지 · 링크만 붙여 두시면 저희가 받아 둬요.</div>';
+    h+='<div class="wd" style="margin-top:6px">D-3까지 · 링크만 붙여 두시면 저희가 받아 둬요.</div>';   // ★길이 안내(«…분 이내») 금지 — [PREVIDEO_FREE 2026-10-02] 길이 규정 없음(2026-10-05 남은 자리 정리)
     /* [PREVIDEO_ALWAYS 2026-09-25 사장님 결정 2] 영상이 없어도 이 순간은 있다 — 사진으로 저희가 만든다(첫 장에 두 분 이름 · 날짜) */
     h+='<div class="reassure" style="margin-top:12px">영상이 없으면 사진을 올린 링크를 예식 3일 전까지 주세요. 저희가 영상으로 만들어 첫 장에 두 분 이름과 날짜를 넣어요.</div>';   // [PREVIDEO_FREE]
     h+='</div>'; return h;
