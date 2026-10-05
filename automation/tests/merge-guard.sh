@@ -14253,3 +14253,10 @@ chk "querySelectorAll('.op-steps,.mk-strip,.prog-bar')" order-preview.html 1
 chk 'DLG_TWO_LINE' order-preview.html 2
 chk 'mk-note mk-dlg-c1 mk-two' order-preview.html 4
 nochk "예시를 들으며 빠르기와 쉼을 맞춰 주세요 · " order-preview.html
+# ★[MINI_OFF_AI 2026-10-05 사장님 «모바일에서 나레이션 쪽이랑 다르게 AI 목소리 쪽은 아래 재생바가 나오는데 나레이션이랑 동일하게»] AI 카드 ▶ 가 있는 쪽도 재생 바 없이 · 흐르는 카드 ▶ 가 ■
+chk 'MINI_OFF_AI' order-preview.html 2
+chk 'MINI_OFF_AI' scripts/audit/mini-off-ai.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/mini-off-ai.mjs >/dev/null 2>&1; _moa=$?; [ "$_moa" = 1 ] && { echo 'FAIL mini-off-ai: AI 목소리 쪽에서 아래 재생 바가 다시 뜬다 — node scripts/audit/mini-off-ai.mjs'; fail=1; }; fi
+# ★[MP_ALL_WORD 2026-10-05 사장님 «전체 한 번에 재생된다는 느낌» → 시안 A 문구만] «이 순간 전체 듣기 · n줄 이어서»
+chk 'MP_ALL_WORD' order-preview.html 2
+chk "return '이 순간 전체 듣기'+(n>1?' · '+n+'줄 이어서':'');" order-preview.html 1
