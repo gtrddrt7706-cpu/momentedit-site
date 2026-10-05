@@ -28,6 +28,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
      네 곳에 박아 두어 **28건이 통째로 붉었다.** 문안은 사용자 지시로 자주 바뀐다 —
      버튼은 구조로 찾고(onclick), 글자는 이 상수 하나로만 잰다. */
 const PREVIEW_LABEL = '미리듣기';
+/* ★[PR_FROM_MYPAGE 2026-10-05 사장님] 마이페이지 식순 줄의 보조 단추는 «연습하기»(빌더 ③ 으로 연다) — 완성 화면의 «미리듣기»(음악까지)와 다른 일이 됐다.
+   그래서 줄 단추는 제 이름으로 재고, 서버 초안 조립(배웅 갈림 등)은 마이페이지가 남긴 입구 _mpRitPreview() 로 연다 */
+const ROW_LABEL = '연습하기';
 const SITE = path.resolve(HERE, '../..');
 const PORT = 8127;
 const VIEWPORTS = [
@@ -142,7 +145,7 @@ try {
         };
       });
       ok(open.ov, '오버레이(ob_rpViewer)가 열린다');
-      ok(open.allow === 'autoplay', 'iframe 에 autoplay 권한이 넘어간다', open.allow);
+      ok(/(^|;\s*)autoplay(;|$)/.test(open.allow || ''), 'iframe 에 autoplay 권한이 넘어간다(마이크 권한과 함께 · MIC_ALLOW)', open.allow);
       ok(open.z === '9999', '오버레이가 최상단(z-index 9999)', open.z);
       ok(open.ovf === 'hidden', '여는 동안 뒤 배경 스크롤이 잠긴다', open.ovf);
       ok(open.adv === true, '미리듣기 중엔 상담사 위젯이 숨는다(hideOn)', String(open.adv));
@@ -295,10 +298,10 @@ try {
           vw: window.innerWidth,
         };
       });
-      ok(row.pre, `식순 행에 「${PREVIEW_LABEL}」 보조 버튼이 선다`);
+      ok(row.pre, `식순 행에 「${ROW_LABEL}」 보조 버튼이 선다`);
       ok(row.main, '주 버튼(mp_ritualStart)은 그대로 있다');
       if (row.pre && row.main) {
-        ok(row.label === PREVIEW_LABEL, `보조 버튼 라벨이 완성 화면과 같다(「${PREVIEW_LABEL}」)`, row.label);
+        ok(row.label === ROW_LABEL, `보조 버튼 라벨 「${ROW_LABEL}」 [PR_FROM_MYPAGE]`, row.label);
         ok(row.rPre.r <= row.rMain.l + 0.5, '보조 버튼이 주 버튼 왼쪽에 선다', `pre.right=${row.rPre.r} main.left=${row.rMain.l}`);
         ok(row.rowOverflow <= 1, '행이 가로로 넘치지 않는다', `overflow=${row.rowOverflow}px`);
         ok(row.rMain.r <= row.vw + 0.5, '주 버튼이 화면 폭 안', `right=${row.rMain.r} vw=${row.vw}`);
@@ -331,7 +334,7 @@ try {
       ok(!none.c, '코스가 없으면 버튼이 안 뜬다');
       ok(none.back, '초안이 돌아오면 버튼도 돌아온다');
 
-      await page.evaluate(() => document.getElementById('mp_ritualPreview').click());
+      await page.evaluate(() => window._mpRitPreview());   // [PR_FROM_MYPAGE]
       await new Promise((r) => setTimeout(r, 900));
       const mOpen = await page.evaluate(() => {
         const ov = document.getElementById('mp_rpViewer');
@@ -344,7 +347,7 @@ try {
         };
       });
       ok(mOpen.ov, '오버레이(mp_rpViewer)가 열린다');
-      ok(mOpen.allow === 'autoplay', 'iframe 에 autoplay 권한이 넘어간다', mOpen.allow);
+      ok(/(^|;\s*)autoplay(;|$)/.test(mOpen.allow || ''), 'iframe 에 autoplay 권한이 넘어간다(마이크 권한과 함께 · MIC_ALLOW)', mOpen.allow);
       ok(mOpen.lockN > 0 && mOpen.fixed, '배경 스크롤이 잠긴다', `lockN=${mOpen.lockN} fixed=${mOpen.fixed}`);
       ok(mOpen.fsOpen === true, '[MP_FS_OVERLAYS] 단일 목록이 이 오버레이를 안다');
       ok(!mOpen.track, '[의도] 미리듣기는 「편집 중」으로 세지 않는다(듣기만 하니 저장 충돌 배너가 뜨면 안 된다)', String(mOpen.track));
@@ -437,7 +440,7 @@ try {
           renderMyPage(st);
           const b = document.getElementById('mp_ritualPreview');
           if (!b) return { err: '버튼 없음' };
-          b.click();
+          window._mpRitPreview();   // [PR_FROM_MYPAGE] 줄 단추는 이제 연습하기 — 조립은 남긴 입구로
           const fr = document.getElementById('mp_rpFrame');
           const src = fr ? fr.getAttribute('src') : '';
           const ov = document.getElementById('mp_rpViewer');

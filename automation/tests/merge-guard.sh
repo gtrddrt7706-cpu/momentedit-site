@@ -12660,7 +12660,7 @@ chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 사장님 «
 chk 'QA_PR_KEEP' order-preview.html 1
 chk 'QA_BIG_THEN' order-preview.html 2
 chk 'QA_FAST' order-preview.html 1
-chk 'QA_SEC' order-preview.html 4
+chk 'QA_SEC' order-preview.html 3   # [PR_SEC_OFF 2026-10-05] 한 부분만 보기(prAct) 걷으며 하나 줄었다
 chk 'QA_SKIP_PLAY' order-preview.html 1
 chk 'QA_MINI_FOCUS' order-preview.html 3
 chk 'QA_MINI_COVER' order-preview.html 1
@@ -13861,7 +13861,7 @@ chk 'VOICE_UP_FROM' scripts/audit/listen-page.mjs 1
 # ★[2026-09-28 코워크 0928 4 · 5장] 갈래 한 줄 설명 원천 문구 · 목소리 지도(② 첫 쪽 접이 · 처음 한 번 펼침 · ⓘ 다시 보기 · ③ 첫 화면) · 진행 줄 물결 · 진사는 점으로만 · 지도에 «AI» 없음
 chk 'VOICE_KIND_0928' assets/ritual-open.js 1
 chk "one: '식장에서 마이크로 직접 말해요. 여기 적는 글은 연습과 대본에 써요'" assets/ritual-open.js 1
-chk 'VOICE_MAP' order-preview.html 7   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 · _vgOpen)
+chk 'VOICE_MAP' order-preview.html 6   # [PR_SIMPLE 2026-10-05] ③ 지도 접이(prvmap)를 목록 줄 갈래로 합치며 하나 줄었다 ·   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 · _vgOpen)
 chk 'function _voiceMap(jump)' order-preview.html 1
 nochk "_vgPrep?'어디서 직접 말하고, 무엇을 미리 준비하는지 한눈에 봐요'" order-preview.html   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 목소리 접이 «어디서 직접 말하는지 한눈에 봐요» 금지 · ③ 지도 접이는 그대로)
 chk 'data-fk="mkvi"' order-preview.html 1
@@ -14111,7 +14111,7 @@ chk 'VOW_HOW' assets/ritual-story.js 2             # «각자 차례로» LIVE �
 chk 'VOW_HOW' assets/ritual-preview-link.js 2      # 미리듣기가 vowHow 를 옮긴다(alt|each 만)
 chk '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' assets/ritual-story.js 2
 nochk '마지막 한 문장은 하객분들 쪽으로' order-preview.html 0   # 인용은 두 문장이다
-chk 'MAP_ONE' order-preview.html 2                 # ② 첫 쪽 사슬 걷음 · 목록 줄 갈래 · ③ 지도 접이   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 사슬 주석)
+# [PR_SIMPLE 2026-10-05] MAP_ONE 은 ③ 지도 접이와 함께 걷었다(nochk prvmap 이 대신 지킨다) · 옛 줄: chk 'MAP_ONE' order-preview.html 2                 # ② 첫 쪽 사슬 걷음 · 목록 줄 갈래 · ③ 지도 접이   # ★[COURSE_FLOW 2026-10-03 사장님] ② 첫 쪽을 예식 흐름으로 다시 세우며 걷었다(첫 쪽 사슬 주석)
 nochk '<p class="mk-vgh">이 식순의 차례</p>' order-preview.html 0
 chk 'STRIP_ONE' order-preview.html 1               # 600 이하 진행 줄 한 줄 넘기기
 chk 'AI_CARD_TIDY' order-preview.html 4            # AI 줄 ▶ = 만든 파일 · 밑줄 글 단추 · 말 빠르기 한 줄
@@ -14288,6 +14288,11 @@ chk 'PRACTICE_NO_CHOOSE' scripts/audit/listen-page.mjs 2
 chk 'PRACTICE_NO_CHOOSE' scripts/audit/make-shell.mjs 2
 # ★[GUARD_TAIL_RC 2026-10-05] 끝 줄이 «[ x = 1 ] && {…}» 꼴이면 시험이 통과(0)할 때 그 줄이 1 로 끝나 가드 전체가 1 이 됐다(PR #991 · «ALL MARKERS OK» 뒤 빨강). 끝 node 검사는 if 꼴로 · 이 줄은 늘 0
 :
+# ★[VC_UNREAD 2026-10-05 사장님 «만드는 중에서 다시 목소리 만들기 버튼으로 돌아가는데 원인 파악»] 자음 · 모음만 있는 줄은 업체에 보내지 않고 «몇 번째 줄 · 고쳐 주세요»
+chk 'VC_UNREAD' order-preview.html 2
+chk 'function _vcUnread(t)' order-preview.html 1
+chk 'VC_UNREAD' scripts/audit/vc-unread.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-unread.mjs >/dev/null 2>&1; _vu=$?; [ "$_vu" = 1 ] && { echo 'FAIL vc-unread: 읽을 수 없는 줄을 업체에 보내 «지금은 만들 수 없어요»로 끝난다 — node scripts/audit/vc-unread.mjs'; fail=1; }; fi
 # ★[TURN_NO_AUTOMAKE 2026-10-05 사장님 «만들기를 눌러야지만 만들 수 있게 · 지금은 쉼 버튼 누르면 바로 만들어진다»] 쉼을 고르면 값만 · 머리 «목소리 만들기»를 눌러야 만든다
 chk 'TURN_NO_AUTOMAKE' order-preview.html 4
 nochk 'MK.turnT=setTimeout' order-preview.html
@@ -14299,6 +14304,34 @@ chk 'GUEST_ALL_G3' order-preview.html 2
 chk 'function _lGuestTail()' order-preview.html 1
 chk 'GUEST_ALL_G3' scripts/audit/turn-gap.mjs 1
 :
+# ★[LINE_EVEN 2026-10-05 사장님 «따로 입력한 줄의 읽는 속도 · 쉼이 윗줄과 따로 논다»] 섞인 줄 — 줄마다 문장 사이 쉼 · 줄끼리 빠르기(높이 그대로) · 옛 방식 줄은 머리 단추로 알림
+chk 'LINE_EVEN' order-preview.html 5
+chk 'function _wsola(x,sr,f)' order-preview.html 1
+chk 'function _lineEven(chs,sr,texts)' order-preview.html 1
+chk 'LINE_EVEN' scripts/audit/line-even.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/line-even.mjs >/dev/null 2>&1; _le=$?; [ "$_le" = 1 ] && { echo 'FAIL line-even: 섞인 줄의 빠르기 · 쉼 맞춤이 어긋났습니다 — node scripts/audit/line-even.mjs'; fail=1; }; fi
+# ★[PR_SIMPLE · PR_JUMP · PR_WIDE · PR_RAIL 2026-10-05 사장님 «연습 공간 · 고객 입장에서 필요한 것만 · 미니멀 · 영상은 빼지 말고 · PC 는 좌우를 넓게»]
+#   ③ 연습하기 = 장면 카드(처음부터 끝까지) + 순간 목록(장면 그림 · 번호 · 이름 · 누가 말하나) · PC 두 단 · 크게 보기 오른쪽 예식 순서
+#   빠르게 훑기 · 한 부분만 보기 · 내 목소리로 연습 · 통계 줄 · 지도 접이는 걷었다(사용자 지시)
+chk 'PR_SIMPLE' order-preview.html 2
+chk 'PR_JUMP' order-preview.html 4
+chk 'PR_WIDE' order-preview.html 3
+chk 'PR_RAIL' order-preview.html 6
+chk 'function _lRail(st)' order-preview.html 1
+chk 'window.lsGoK=function(k)' order-preview.html 1
+chk 'PR_FAST_OFF' order-preview.html 2
+chk 'PR_SEC_OFF' order-preview.html 2
+chk 'PR_VOICE_OFF' order-preview.html 1
+nochk 'data-fk="prfast"' order-preview.html
+nochk 'data-fk="prvmap"' order-preview.html
+nochk '<h4>어떻게 볼까요</h4>' order-preview.html
+# ★[PR_FROM_MYPAGE 2026-10-05 사장님 «여기서 미리듣기 이것도 연습하기로 바꾸기»] 마이페이지 식순 줄 보조 단추 = «연습하기» → 빌더 ③ 으로 연다
+chk 'PR_FROM_MYPAGE' mypage.html 3
+chk 'PR_FROM_MYPAGE' order-preview.html 2
+chk "_ritPre={id:'mp_ritualPreview', label:'연습하기'};" mypage.html 1
+nochk "_ritPre={id:'mp_ritualPreview', label:'미리듣기'};" mypage.html
+chk 'PR_FROM_MYPAGE' scripts/audit/pr-from-mypage.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-from-mypage.mjs >/dev/null 2>&1; _pfm=$?; [ "$_pfm" = 1 ] && { echo 'FAIL pr-from-mypage: 마이페이지 «연습하기»가 빌더 ③ 연습하기로 열리지 않습니다 — node scripts/audit/pr-from-mypage.mjs'; fail=1; }; fi
 # ★[TURN_ONE_LINE 2026-10-05 사장님 «쉼 가로 라인 바로 위에 또 라인이 있어 깔끔하지 못하다» → «추천대로»] 쉼 줄이 따라오는 글칸은 밑줄을 숨긴다(쉼 줄 하나가 구분선)
 chk 'TURN_ONE_LINE' order-preview.html 2
 chk '.mk-slr:has(+.mk-slr>.mk-sltn) .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}' order-preview.html 1
