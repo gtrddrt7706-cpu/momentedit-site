@@ -13,32 +13,34 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 const br = await pw.chromium.launch(); const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+/* CI 는 느리다 — 정해진 시간 대신 «될 때까지»(최대 6초) 기다린다 */
+const until = async (pg, fn, ms = 6000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await pg.evaluate(fn)) return true; await wait(150); } return false; };
 try {
   for (const w of [390, 1280]) {
     const pg = await br.newPage({ viewport: { width: w, height: 900 }, hasTouch: w < 1000 }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
     await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700);
     await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.entry = 'A'; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { groom: { ready: true }, bride: { ready: true } }; for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
-    await wait(500); await pg.evaluate(() => mkGo('entry')); await wait(500);
+    await until(pg, () => typeof ENG !== 'undefined' && !!ENG); await pg.evaluate(() => mkGo('entry')); await until(pg, () => !!document.querySelector('[data-fk^="mkex:entry:"]'));
     const a = await pg.evaluate(() => ({ cards: document.querySelectorAll('[data-fk^="mkex:entry:"]').length, b1: (document.querySelector('[data-fk="mkex:entry:0"] b') || {}).textContent, chips: document.querySelectorAll('[data-fk^="lsc:entry:"]').length, tag: !!document.querySelector('.mk-extag'), h: [...document.querySelectorAll('.mk-exs h4')].map((x) => x.textContent) }));
     ok(`${w} ① 입장(AI) = «참고 예시» 카드 6 · «예시 1» · 입장 멘트 칩 줄 없음 · ③ 예시 글 표`, a.cards === 6 && a.b1 === '예시 1' && a.chips === 0 && a.tag && a.h[0] === '참고 예시', JSON.stringify(a));
     // ④ 고친 뒤 다른 예시 → 묻는다
     await pg.evaluate(() => { _slPut('entry', [{ w: 'g', t: '저희가 직접 쓴 입장 인사입니다.' }]); render(); }); await wait(300);
     ok(`${w} ③ 고친 줄엔 «예시 글» 표가 없다`, await pg.evaluate(() => !document.querySelector('.mk-extag')));
-    await pg.click('[data-fk="mkex:entry:1"]'); await wait(300);
-    const asked = await pg.evaluate(() => /예시로 바꿀까요/.test(document.body.textContent));
+    await pg.click('[data-fk="mkex:entry:1"]');
+    const asked = await until(pg, () => /예시로 바꿀까요/.test(document.body.textContent) && [...document.querySelectorAll('button')].some((x) => x.textContent.trim() === '예시로 바꾸기'));
     ok(`${w} ④ 고친 뒤 다른 예시 → «예시로 바꿀까요?»`, asked);
-    await pg.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.trim() === '예시로 바꾸기'); if (b) b.click(); }); await wait(500);
+    await pg.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.trim() === '예시로 바꾸기'); if (b) b.click(); }); await until(pg, () => S.entry === 'B' && !!document.querySelector('.mk-extag'));
     const c = await pg.evaluate(() => ({ entry: S.entry, txt: _recNeed('entry'), self: ENTRY.B.self, tag: !!document.querySelector('.mk-extag') }));
     ok(`${w} ④ 바꾸면 예시 2 글로 · 표 다시`, c.entry === 'B' && c.txt.replace(/\s/g, '') === c.self.replace(/\s/g, '') && c.tag, JSON.stringify(c));
     // 스튜디오 판은 칩 줄
     await pg.evaluate(() => { S.vfill.entry = 'nar'; S.entryVoice = 'nar'; render(); }); await wait(300);
     ok(`${w} ① 스튜디오 나레이션 판은 «입장 멘트» 칩 줄 그대로 · 예시 카드 없음`, await pg.evaluate(() => document.querySelectorAll('[data-fk^="lsc:entry:"]').length === 6 && !document.querySelector('[data-fk^="mkex:entry:"]')));
     // ② 식전 영상 소개
-    await pg.evaluate(() => { S.pvText = ''; mkGo('prevideo'); }); await wait(500);
+    await pg.evaluate(() => { S.pvText = ''; mkGo('prevideo'); }); await until(pg, () => !!document.querySelector('[data-fk^="mkex:pv:"]'));
     const d = await pg.evaluate(() => ({ cards: document.querySelectorAll('[data-fk^="mkex:pv:"]').length, old: document.querySelectorAll('.mk-pvex,.ex-chip').length }));
     ok(`${w} ② 식전 영상 소개 = «참고 예시» 카드 4 · 옛 칩 없음`, d.cards === 4 && d.old === 0, JSON.stringify(d));
-    await pg.click('[data-fk="mkex:pv:1"]'); await wait(300);
+    await pg.click('[data-fk="mkex:pv:1"]'); await until(pg, () => S.pvText === PV_EX[1][1] && !!document.querySelector('.mk-extag'));
     ok(`${w} ② 예시를 누르면 글이 채워지고 «예시 글» 표`, await pg.evaluate(() => S.pvText === PV_EX[1][1] && !!document.querySelector('.mk-extag')));
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
