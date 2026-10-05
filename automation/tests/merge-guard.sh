@@ -14440,3 +14440,8 @@ chk 'ONEMIN_FIRST' scripts/audit/open-course.mjs 3
 nochk "Array.prototype.splice.apply(got, \[got.length - 1, 0\].concat(BUILD.prevideo(S)))" assets/ritual-cue.js
 nochk "q.up==='g3'&&R.onOf(S,'prevideo')?'식전 영상이 끝난'" order-preview.html
 :
+# ★[PREVIDEO_FREE 남은 자리 2026-10-05 · ONEMIN_FIRST 점검] 식전 영상 길이 규정 없음 — 빌더 힌트 · AI 상담 지식에 남았던 «3분 이내» 걷음
+nochk '가로 mp4 3분 이내' order-preview.html
+nochk '가로 mp4 · 3분 이내' api/_ritual-kb.js
+chk '두 분 입장 바로 앞에 불을 낮추고' api/_ritual-kb.js 1
+:
