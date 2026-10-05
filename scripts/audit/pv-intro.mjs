@@ -56,10 +56,10 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const ch = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:pvVoice"]')].map((e) => e.textContent).join('|'));
   ok(W + ' AI 켜짐 — [AI 두 분 목소리 | 스튜디오 나레이션](R4-12)', ch === 'AI 두 분 목소리|스튜디오 나레이션', ch);
   await pg.click('[data-fk="lsc:pvVoice:ai"]'); await pg.waitForTimeout(400);
-  const e0 = await pg.evaluate(() => ({ pv: S.pvVoice, vf: (S.vfill || {}).prevideo, ta: !!document.querySelector('[data-fk="mksl:pv:0"]'), ex: document.querySelectorAll('[data-fk^="mkpvex:"]').length, ai: !!document.querySelector('[data-fk="mkai:pv"]'), note: /소개글을 적으면 신랑 AI 목소리로/.test(document.querySelector('.mk-pg').textContent), card: document.querySelectorAll('[data-fk="mkupplay:pv"],[data-fk^="mkslw:pv:"][aria-checked="true"]').length }));
+  const e0 = await pg.evaluate(() => ({ pv: S.pvVoice, vf: (S.vfill || {}).prevideo, ta: !!document.querySelector('[data-fk="mksl:pv:0"]'), ex: document.querySelectorAll('[data-fk^="mkex:pv:"]').length, ai: !!document.querySelector('[data-fk="mkai:pv"]'), note: /소개글을 적으면 신랑 AI 목소리로/.test(document.querySelector('.mk-pg').textContent), card: document.querySelectorAll('[data-fk="mkupplay:pv"],[data-fk^="mkslw:pv:"][aria-checked="true"]').length }));
   ok(W + ' AI 고름 — 글칸 · 예시 넷 · 빈 글이면 [AI로 만들기] 없이 한 줄 안내 · 읽는 분 [신랑] 한 줄(LINE_SPLIT · 눌러 바꾼다)', e0.pv === 'couple' && e0.vf === 'ai' && e0.ta && e0.ex === 4 && !e0.ai && e0.note && e0.card === 1, JSON.stringify(e0));
-  await pg.click('[data-fk="mkpvex:0"]'); await pg.waitForTimeout(300);
-  const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.querySelector('[data-fk="mksl:pv:0"]').value, ai: !!document.querySelector('[data-fk="mkai:pv"]'), on: (document.querySelector('[data-fk="mkpvex:0"]') || {}).getAttribute('aria-pressed') }));
+  await pg.click('[data-fk="mkex:pv:0"]'); await pg.waitForTimeout(300);
+  const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.querySelector('[data-fk="mksl:pv:0"]').value, ai: !!document.querySelector('[data-fk="mkai:pv"]'), on: (document.querySelector('[data-fk="mkex:pv:0"]') || {}).getAttribute('aria-checked') }));
   ok(W + ' 예시 «담백하게» → 글칸에 들어가고 [AI로 만들기]가 생긴다', /^저희 두 사람이 함께 지나온 시간을/.test(t0.t) && t0.ta === t0.t && t0.ai && t0.on === 'true', JSON.stringify(t0));
   await pg.click('[data-fk="mkai:pv"]'); await pg.waitForTimeout(1500);
   const m = await pg.evaluate(() => ({ calls: __calls.join(','), text: (__last && __last.text) || '', up: S.up && S.up.pv, play: !!document.querySelector('[data-fk="mkvpl:pv"][onclick^="mkUpPlay"]') }));   /* [AI_CARD_TIDY] AI 파일은 머리 ▶ 가 튼다 */
@@ -68,7 +68,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const st = await pg.evaluate(() => ({ btn: (document.querySelector('[data-fk="mkai:pv"]') || {}).textContent || '', s: (document.querySelector('[data-fk^="mkslw:pv:0:"]').closest('.mk-vc') || {}).textContent || '' }));
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «다시 만들어 주세요 · [새 글로 다시 만들기]» → «▶ 를 누르면 새로 만들어요» · 단추 없음(▶ 가 만든다) */
   ok(W + ' 글을 고치면 «글을 고쳤어요» · 머리 [AI로 만들기]가 스르륵 [AI_PILL]', st.btn === '목소리 만들기' && /글을 고쳤어요/.test(st.s), JSON.stringify(st).slice(0, 300));
-  await pg.click('[data-fk="mkpvex:1"]'); await pg.waitForTimeout(300);
+  await pg.click('[data-fk="mkex:pv:1"]'); await pg.waitForTimeout(300);
   const ask = await pg.evaluate(() => { const d = document.querySelector('.ord-ask'); return d ? d.textContent : ''; });
   ok(W + ' 적어 둔 글을 예시로 덮기 전에 묻는다', /예시로 바꿀까요/.test(ask), ask.slice(0, 120));
   await pg.click('.ord-ask .oa-no'); await pg.waitForTimeout(300);
