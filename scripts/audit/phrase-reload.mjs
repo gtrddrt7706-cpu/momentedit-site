@@ -72,6 +72,25 @@ for (const [W, mob] of [[390, true], [1280, false]]) {
   // ④ reload 뒤 orderFill 은 이 기기 판을 덮지 않는다
   const kept = await pg.evaluate(() => new Promise((res) => { _restored = true; const before = JSON.stringify(S); window.postMessage({ type: 'momentedit:orderFill', reload: true, done: false, draft: { S: { course: 'open', on: {}, zzOld: 1 } } }, location.origin); setTimeout(() => res(JSON.stringify(S) === before && !S.zzOld), 300); }));
   ok(W + ' 새로고침 뒤 orderFill(reload) 은 이 기기 판을 그대로 둔다 [ORDER_RELOAD]', kept);
+  // ⑤ [RELOAD_KEEP_AT] «두 분 목소리» 쪽에서 새로고침 → 같은 쪽(스위치를 받기 전에 첫 쪽으로 덮어쓰지 않는다)
+  await pg.evaluate(() => { mkGo('_voice'); _persist(); }); await pg.waitForTimeout(300);
+  const at0 = await pg.evaluate(() => S.mk.at);
+  await pg.reload(); await pg.waitForTimeout(1200);
+  const at1 = await pg.evaluate(() => JSON.parse(localStorage.getItem('me_order')).S.mk.at);
+  await pg.evaluate(() => window.postMessage({ type: 'momentedit:orderFill', reload: true, done: false, voice: { up: true, clone: true, read: true }, draft: { S: S } }, location.origin)); await pg.waitForTimeout(500);
+  const pg1 = await pg.evaluate(() => ({ at: S.mk.at, page: !!document.querySelector('.mk-vpage') }));
+  ok(W + ' «두 분 목소리»에서 새로고침해도 그 쪽으로 돌아온다 [RELOAD_KEEP_AT]', at0 === '_voice' && at1 === '_voice' && pg1.at === '_voice' && pg1.page, JSON.stringify({ at0, at1, pg1 }));
+  if (mob) {
+    const c2 = await ctx.newCDPSession(pg); await pg.evaluate(() => window.scrollTo(0, 0));
+    await c2.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 200, y: 300 }] });
+    for (let y = 305; y <= 430; y += 15) { await c2.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 200, y }] }); await pg.waitForTimeout(16); }
+    const pos = await pg.evaluate(() => { const b = document.querySelector('.ob-pull'), h = document.getElementById('obExitSlot'); return { top: b.getBoundingClientRect().top, bot: b.getBoundingClientRect().bottom, head: h.getBoundingClientRect().bottom, strip: (() => { const r = [...document.querySelectorAll('.op-steps,.prog-bar,.mk-nav,.mk-strip')].map((e) => [e.className, Math.round(e.getBoundingClientRect().top), Math.round(e.getBoundingClientRect().height)]); window.__strips = r; const v = r.filter((x) => x[2] > 0 && x[1] >= h.getBoundingClientRect().bottom - 1).sort((a, b) => a[1] - b[1])[0]; return v ? v[1] : -1; })(), all: window.__strips }; });
+    if (process.env.SHOT) await pg.screenshot({ path: process.env.SHOT + '-pull.png', clip: { x: 0, y: 0, width: 390, height: 260 } }).catch(() => {});
+    await c2.send('Input.dispatchTouchEvent', { type: 'touchCancel', touchPoints: [] });
+    ok('390 당김 띠가 알약 줄(⋯ · 저장 · 나가기)과 진행 줄 사이에 선다 — 둘 다 안 가린다 [PULL_BELOW_HEAD]', pos.top >= pos.head - 1 && pos.bot <= pos.strip + 1, JSON.stringify(pos));
+  }
+  const two = await pg.evaluate(() => { VC.tune = { who: 'groom', from: 'card', tempo: '1.1', pause: 900, err: '' }; const h = _vcTuneBody(); VC.tune = null; const d = document.createElement('div'); d.innerHTML = h; const p = d.querySelector('.mk-two'); return p ? [...p.children].map((e) => e.textContent).join('|') : ''; });
+  ok(W + ' 빠르기 · 쉼 창 안내 두 줄 «예시를 들으며 …» / «○○ 님이 읽는 모든 줄에 쓰여요» [DLG_TWO_LINE]', /^예시를 들으며 빠르기와 쉼을 맞춰 주세요\|.+ 님이 읽는 모든 줄에 쓰여요$/.test(two), two);
   ok(W + ' pageerror 0', errs.length === 0, errs.join(' | ').slice(0, 300));
   await ctx.close();
 }
