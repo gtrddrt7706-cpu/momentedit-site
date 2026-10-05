@@ -14416,3 +14416,10 @@ nochk '.mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var
 :
 chk 'G3_NO_MINI' order-preview.html 1   # [G3_NO_MINI 2026-10-05] 하객 맞이 쪽 «시작 1분 전» ▶ · 전체 듣기에도 아래 재생 바 없이
 :
+# ★[PR_ORDER 2026-10-05 사장님 «형식이나 디자인 등 여러 방면으로 최선이야?»] 연습 점검 다섯 — 재생 카드 «처음부터 시작하기»(제목과 겹말) · 마이페이지에서 들어오면 «나중에 마이페이지에서» 줄 없음 ·
+#   연습 방법 라디오 화살표 · 말하는 차례 «누구 차례 → 할 일 → 글 → 남은 시간 → 글의 출처» · 연습 중 예시 번호 칩 없음
+chk 'PR_ORDER' order-preview.html 6
+chk 'window.prModeKey=function(ev)' order-preview.html 1
+chk '<b>처음부터 시작하기</b>' order-preview.html 1
+chk 'PR_ORDER' scripts/audit/play-wait-file.mjs 2
+chk 'PR_ORDER' scripts/audit/pr-from-mypage.mjs 1

@@ -1143,6 +1143,8 @@ body.lsfull{overflow:hidden}
 .lf-seg span.on{background:var(--seal)}   /* [UI_ONE] */
 .ls-full h3{font-family:var(--ko-serif);font-size:20px;font-weight:600;color:var(--accent);margin:0}
 .lf-lab{font-size:12.5px;color:var(--light);margin-top:2px}
+.lf-lab.who{margin-top:10px;font-size:16px;font-weight:600;color:var(--accent)}   /* [PR_ORDER] 말하는 차례 = «신랑 차례»가 머리 */
+.lf-lab.who+.lf-cue{margin-top:2px}
 .lf-txt{font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);margin:12px 0 14px;min-height:3.6em;word-break:keep-all;box-sizing:border-box}   /* [LF_STEADY] 잰 높이(테두리 포함)를 그대로 min-height 로 */
 .lf-txt.talk{font-family:var(--sans);font-size:14px;color:var(--sub);background:var(--bg2);border:1px dashed var(--border);border-radius:8px;padding:10px 12px}
 /* ★[FLOW_MAKE 2026-09-27] ② 하나씩 만들기 — 진행 순서 줄(가로로 밀림 · 지금 칸이 늘 보이게) · 한 화면 · 상태는 모양으로(색만으로 말하지 않는다) */
@@ -1398,7 +1400,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .pr-mo:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pr-ask{margin:-4px 0 14px}
 .pr-askb{display:flex;flex-wrap:wrap;gap:8px}
-.lf-cue{margin:10px 0 0;font-size:14px;font-weight:600;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
+.lf-cue{margin:10px 0 0;font-size:14px;font-weight:500;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
 .lf-tbar{height:3px;margin:8px 0 0;border-radius:2px;background:var(--border);overflow:hidden}
 .lf-tbar i{display:block;height:100%;background:var(--seal);transform-origin:left;animation:lfTbar linear forwards}
 @keyframes lfTbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
@@ -5547,14 +5549,14 @@ function renderPractice(){ var R=RitualOpen;
      AI 연습 읽기가 열린 예식(_ptOn)에서만 고른다 · 아니면 «직접»뿐이라 고르기를 그리지 않는다. 처음 «AI 로 먼저 듣기»를 고를 때 한 번 «글이 업체로 보내져요» 알림 */
 
   var _modeH=''; if(_ptOn()){ var _md=PT.mode==='ai'&&_ptOk()?'ai':'self';
-    _modeH='<div class="pr-mode" role="radiogroup" aria-label="연습 방법">'
+    _modeH='<div class="pr-mode" role="radiogroup" aria-label="연습 방법" onkeydown="prModeKey(event)">'
       +[['self','직접 소리 내어','말하는 차례에 준비한 글을 읽어요'],['ai','AI 목소리로 먼저 듣기','말하는 차례도 AI 목소리로 읽어 드려요']].map(function(o){ var on=_md===o[0];
         return '<button type="button" class="pr-mo'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="prm:'+o[0]+'" onclick="prMode(\''+o[0]+'\')"><b>'+o[1]+'</b><span>'+o[2]+'</span></button>'; }).join('')+'</div>'
       +(PT.askMode?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prMode(\'ai\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':''); }
   h+='<div class="pr-grid"><div class="pr-lead">'+_modeH
     +'<button type="button" class="pr-hero" data-fk="prall" onclick="lsPlayAll()" aria-label="처음부터 끝까지 연습하기'+(_mins?' · 약 '+_mins+'분':'')+'">'
     +'<span class="pr-hm">'+(_hv?'<img src="'+esc(_hv.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
-    +'<span class="pr-hl"><b>처음부터 끝까지</b>'+(_mins?'<span>약 '+_mins+'분 · 음악 없이 말과 나레이션만</span>':'')+'</span></button>'
+    +'<span class="pr-hl"><b>처음부터 시작하기</b>'+(_mins?'<span>약 '+_mins+'분 · 음악 없이 말과 나레이션만</span>':'')+'</span></button>'
     +(todo?'<p class="mk-note pr-todo">아직 안 적은 '+todo+'곳은 참고 예시 글로 보여 드려요</p>':'')   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
     +'</div>';
   /* ★«빠르게 훑기»(prfast) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_FAST_OFF]
@@ -5569,9 +5571,12 @@ function renderPractice(){ var R=RitualOpen;
     +'</ol></section></div>';
   /* ★[PR_MODE 2026-10-05 사장님] AI 로 듣기는 연습 시작 전 «연습 방법» 고르기로 돌아왔다(맨 위 pr-mode · 아래 체크박스 모양은 여전히 금지) */
   /* ★«내 목소리로 연습»(내 차례 녹음 prrec · 두 분 차례도 AI 로 듣기 ptts · _prSec) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_VOICE_OFF] (사장님 «녹음하는 기능 우리 삭제했잖아» → «추천대로») · 두 분 차례는 글을 보며 따라 읽는다 */
-  h+='<p class="mk-note pr-later">연습은 나중에 마이페이지 «연습하기»에서 해도 돼요</p>';   // [MK_MIN] · [PR_FROM_MYPAGE] 마이페이지 식순 줄의 «연습하기»가 이 화면으로 연다
+  if(!PR_FROM_MP) h+='<p class="mk-note pr-later">연습은 나중에 마이페이지 «연습하기»에서 해도 돼요</p>';   // [PR_ORDER] 마이페이지 «연습하기»로 들어온 판에는 «나중에 마이페이지에서»가 맞지 않는다   // [MK_MIN] · [PR_FROM_MYPAGE] 마이페이지 식순 줄의 «연습하기»가 이 화면으로 연다
   return h+'</div>'; }
 /* ★prAct(한 부분만 보기) · prFast(빠르게 훑기) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_SEC_OFF · PR_FAST_OFF] */
+var PR_FROM_MP=false;   // [PR_ORDER] 마이페이지 «연습하기»로 열었나
+window.prModeKey=function(ev){ var k=ev.key, d=(k==='ArrowRight'||k==='ArrowDown')?1:(k==='ArrowLeft'||k==='ArrowUp')?-1:0; if(!d) return; ev.preventDefault();   /* [PR_ORDER] 연습 방법 = 라디오 — 화살표로 옮긴다(고르지 않은 쪽은 tabindex -1) */
+  var cur=(PT.mode==='ai'&&_ptOk())?'ai':'self'; prMode(cur==='ai'?'self':'ai'); };
 window.prMode=function(m,yes){ if(m==='ai'){ if(yes){ try{ localStorage.setItem('me_ptts_ok','1'); }catch(e){} } if(!_ptOk()){ PT.askMode=true; render(); return; } }
   PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} _fxNext='[data-fk="prm:'+PT.mode+'"]'; render(); };   // [PR_MODE]
 window.prFrom=function(k){ var rs=_lRows(); if(rs.indexOf(k)<0) return; LP.fast=false; LP.noChips=false; LP.startK=k; _lOpenBig(); _lStart(rs,true); _lFull(); };   // [PR_JUMP] 전체를 세우고 그 순간에서 시작(앞 순간으로도 ⏮)
@@ -6101,9 +6106,10 @@ function _lFull(){
     if(st.ptts) h+='<p class="lf-ref"><span class="lf-refb">AI 연습 소리</span>예식에서는 나오지 않아요</p>';   // [PRACTICE_READ_0928] 배지 «AI 연습 소리»   // [VOICE_CLONE 4-2]
     if(st.talk2&&PR.cur&&PR.cur.k===st.k&&PR.cur.who===st.who) h+='<p class="lf-rec" role="status"><i aria-hidden="true"></i>내 목소리 녹음 중 · 이 휴대폰에만 남아요</p>';   // [PRACTICE_VOICE]
     if(LP.loadK===st.k&&!LP.loadAi) h+='<p class="lf-state" role="status">두 분 목소리를 불러오는 중이에요</p>';   // [PLAY_WAIT_FILE]
-    h+='<div class="lf-lab">'+esc(st.talk2||st.ref?st.who+' 차례':st.lab)+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</div>';   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
-    if(st.mine||st.site) h+='<p class="lf-ref"><span class="lf-refb">'+(st.mine?'두 분이 적은 글':'현장에서')+'</span>'+(st.mine?esc(st.txt.length+'자 · 약 '+_mkSec(st.txt.length)+'초'):'당일엔 직접 말해요')+'</p>';   // [CAST_TEXT_ONLY] 차례 카드 — 누구의 글인가
-    if(st.ref) h+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.refOf>1?' '+(st.refN+1):'')+(st.refSit?' · '+esc(REF_SIT[st.refSit]||st.refSit):'')+'</span>'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+'</p>';   /* [CAST_TEXT_ONLY] 목소리가 없으니 «이 목소리는 …» 문장도 없다 */   // [REF_EXAMPLE] · [REF_TABLE] 말하는 사람마다 한 줄 · «소리»가 아니라 «목소리»(나레이션은 당일에도 나온다)
+    h+='<div class="lf-lab'+(st.talk2?' who':'')+'">'+esc(st.talk2||st.ref?st.who+' 차례':st.lab)+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</div>';   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
+    var _rh=''; if(st.mine||st.site) _rh+='<p class="lf-ref"><span class="lf-refb">'+(st.mine?'두 분이 적은 글':'현장에서')+'</span>'+(st.mine?esc(st.txt.length+'자 · 약 '+_mkSec(st.txt.length)+'초'):'당일엔 직접 말해요')+'</p>';   // [CAST_TEXT_ONLY] 차례 카드 — 누구의 글인가
+    if(st.ref) _rh+='<p class="lf-ref"><span class="lf-refb">참고 예시'+(st.refOf>1?' '+(st.refN+1):'')+(st.refSit?' · '+esc(REF_SIT[st.refSit]||st.refSit):'')+'</span>'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+'</p>';   /* [CAST_TEXT_ONLY] 목소리가 없으니 «이 목소리는 …» 문장도 없다 */   // [REF_EXAMPLE] · [REF_TABLE] 말하는 사람마다 한 줄 · «소리»가 아니라 «목소리»(나레이션은 당일에도 나온다)
+    if(!st.talk2){ h+=_rh; _rh=''; }   /* ★[PR_ORDER 2026-10-05 «최선이야?» 점검] 말하는 차례는 «누구 차례 → 할 일 → 글 → 남은 시간» 순서로 읽히게 — 글의 출처(두 분이 적은 글 · 참고 예시)는 글 아래 작은 줄로 */
     /* ★★[PR_MODE · PR_CUE 2026-10-05 사장님 «연습하기 진행 전에 선택할 수 있게 · 적은 대사를 AI 로 입혀 우선 들어 볼 것인지 아니면 직접 소리 내서 연습할 것인지»
        «고객 입장에서 대사를 직접 말하면서 연습할 수 있게 · 준비한 멘트를 읽으시면 됩니다 이런 식으로 진행 흐름에 맞추어 쉽게»]
        말하는 차례(서약 · 편지 · 덕담 …)마다 «무엇을 하면 되는지» 한 줄 + 남은 시간 막대. AI 로 듣기를 고른 판은 그 차례를 그분의 AI 목소리로 읽어 준다(예식에서는 나오지 않는다).
@@ -6113,8 +6119,10 @@ function _lFull(){
     h+='<p class="lf-txt'+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+'">'+esc(st.txt||'')+'</p>';
     if(st.talk2){ if(!st.src&&!LP.paused&&LP.tAt&&LP.tMs){ var _el=Math.max(0,Date.now()-LP.tAt); h+='<div class="lf-tbar" aria-hidden="true"><i style="animation-duration:'+LP.tMs+'ms;animation-delay:-'+Math.min(_el,LP.tMs)+'ms"></i></div>'; }
       if(PT.errK===LP.i&&PT.err) h+='<p class="lf-state" role="status">'+esc(PT.err)+'</p>'; }
+    h+=_rh;   // [PR_ORDER]
     if(st.ref) h+='<p class="lf-refn">그대로 써도 좋고, '+(st.refDay==='당일엔 부모님이 직접 말씀하세요'?'부모님':(!st.refDay||st.refDay==='당일엔 두 분이 직접 말해요')?'두 분':'그분')+' 이야기로 바꿔도 돼요 · 예시 속 이름은 가상 인물이에요'+(st.refPar?' · 부모님 예시는 두 분 합쳐 3분을 넘기기 쉬워요':'')+'</p>';   // [R1-21] 말하는 사람별 · [REF_TABLE]
-    if(st.ref&&st.refOf>1) h+='<div class="lf-vars"><div class="ls-cg" role="radiogroup" aria-label="참고 예시"><span class="gl" aria-hidden="true">참고 예시</span><span class="cg-c">'
+    /* ★[PR_ORDER] 연습(처음부터 끝까지) 중에는 참고 예시 번호 칩을 그리지 않는다 — 예시 고르기는 ② 하나씩 만들기의 일(«이 순간 바꾸기» 걷음 PRACTICE_NO_CHOOSE 와 같은 까닭) */
+    if(st.ref&&st.refOf>1&&!practice) h+='<div class="lf-vars"><div class="ls-cg" role="radiogroup" aria-label="참고 예시"><span class="gl" aria-hidden="true">참고 예시</span><span class="cg-c">'
       +Array.apply(null,{length:st.refOf}).map(function(_,i){ var on=i===st.refN; return '<button type="button" class="op-chip" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="lfr:'+st.k+':'+i+'" onclick="lsRef(\''+st.k+'\','+i+')">예시 '+(i+1)+(((_lRefSets(st.k)[i]||[])[0]||{}).parent?' · 부모님':'')+'</button>'; }).join('')+'</span></div></div>';
     /* ★★[PRACTICE_CHOOSE 2026-09-27 사장님 «이 시스템이 들어 보는 건지 고르고 세팅하는 과정인지 헷갈린다»]
        연습(처음부터 끝까지)은 현장처럼 이어서 흐르고, 바꿀 것은 «이 순간 바꾸기» 안에 접어 둔다 — 열면 멈추고 «고르는 중»이 된다.
@@ -8460,7 +8468,7 @@ if(EMBED){
         if(_applySaved(_ap)){ _persist(); render(); }
       }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
       /* [PR_FROM_MYPAGE 2026-10-05] 마이페이지 식순 줄 «연습하기»로 열었으면 ③ 연습하기에서 시작한다(담은 순간이 있을 때만 · 없으면 그 자리) */
-      if(ev.data.at==='practice'&&courseStarted&&RitualOpen.picked(S).length){ try{ opGoStep('practice'); }catch(e){} }
+      if(ev.data.at==='practice'&&courseStarted&&RitualOpen.picked(S).length){ PR_FROM_MP=true; try{ opGoStep('practice'); }catch(e){} }
     }
   });
   try{ parent.postMessage({type:'momentedit:orderReady'},window.location.origin); }catch(e){}

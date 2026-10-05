@@ -35,6 +35,7 @@ try {
     ok(at === 'practice', '누르면 식순 빌더가 ③ 연습하기에서 열린다', at);
     ok(await page.evaluate(() => !document.getElementById('mp_rpViewer')), '옛 미리듣기 창(mp_rpViewer)은 열리지 않는다');
     ok(await page.evaluate(() => { const w = document.getElementById('mp_obFrame').contentWindow; return !!w.document.querySelector('[data-fk="prall"]') && w.document.querySelectorAll('[data-fk^="prj:"]').length > 2; }), '연습 화면에 «처음부터 끝까지» · 순간 목록이 선다');
+    ok(await page.evaluate(() => { const w = document.getElementById('mp_obFrame').contentWindow; return !w.document.querySelector('.pr-later'); }), '마이페이지에서 들어온 연습엔 «나중에 마이페이지에서» 줄이 없다 [PR_ORDER]');
     ok(errors.length === 0, 'JS 오류 0건', errors.slice(0, 2).join(' | '));
     await page.close();
   }
