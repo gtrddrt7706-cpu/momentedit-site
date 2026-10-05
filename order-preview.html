@@ -596,7 +596,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .ob-reload{display:inline-flex;align-items:center;justify-content:center}
 .ob-reload svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media (hover:none) and (pointer:coarse){ .ob-reload{display:none} }
-.ob-pull{position:fixed;left:0;right:0;top:0;text-align:center;font-size:12px;color:var(--gold-deeper);padding:14px 0 12px;background:linear-gradient(180deg,rgba(250,250,248,.96),rgba(250,250,248,0));opacity:0;pointer-events:none;z-index:900;transition:opacity .15s}
+.ob-pull{position:fixed;left:0;right:0;top:0;text-align:center;font-size:12.5px;color:var(--gold-deeper);padding:14px 0 12px;background:linear-gradient(180deg,rgba(250,250,248,.96),rgba(250,250,248,0));opacity:0;pointer-events:none;z-index:900;transition:opacity .15s}
 .ob-pull.on{opacity:1}
 
 /* ════════════════════════════════════════════════════════════════
@@ -4721,7 +4721,8 @@ window.mkVcPhrase=function(w){ _vcPhraseGet(w); };
 window.mkVcRead=function(w){ VC.read={who:w,take:{},phrase:'',step:1,ph:'read',err:''}; VC.panel=null; render(); _vcPhraseGet(w); };   /* [PHRASE_NO_DEAD] 못 받으면 창 위 빨간 글(MK.dlgMsg) 대신 글 2 자리에서 «다시 받기» */
 window.mkVcStep=function(n){ var R=VC.read; if(!R) return; if(MK_REC){ _recStopAll(); if(MK_REC.url) try{ URL.revokeObjectURL(MK_REC.url); }catch(e){} MK_REC=null; } R.step=n; R.err=''; R.short=false; MK.dlgMsg=''; render(); if(n===2&&!R.phrase&&!R.phBusy) _vcPhraseGet(R.who); };   // [PHRASE_NO_DEAD]
 function _vcTake(){ var r=MK_REC, m=r&&/^vc:(groom|bride):(\d)$/.exec(r.key); if(!m||!VC.read) return; var n=+m[2], R=VC.read; R.take[n]={wav:r.wav,dur:r.dur}; if(r.url) try{ URL.revokeObjectURL(r.url); }catch(e){} MK_REC=null; R.err=''; R.short=false;
-  if(n===1){ R.step=2; render(); if(!R.phrase&&!R.phBusy) _vcPhraseGet(R.who); return; }   // [REC_DLG] 글 1 → 글 2 · [PHRASE_NO_DEAD] 아직 없으면 다시 묻는다
+  if(n===1&&!R.phrase&&!R.phBusy) _vcPhraseGet(R.who);   // [PHRASE_NO_DEAD] 글 2 로 가기 전에 — 아직 없으면 다시 묻는다
+  if(n===1){ R.step=2; render(); return; }   // [REC_DLG] 글 1 → 글 2
   mkVcEnroll(); }   // [REC_DLG] 글 2 를 받으면 바로 만든다
 function _vcJoin(a,b){ return Promise.all([a.arrayBuffer(),b.arrayBuffer()]).then(function(ab){ var d=function(buf){ var v=new DataView(buf), n=(buf.byteLength-44)/2, f=new Float32Array(n); for(var i=0;i<n;i++) f[i]=v.getInt16(44+i*2,true)/32768; return {f:f,sr:v.getUint32(24,true)}; };
   var x=d(ab[0]), y=d(ab[1]), gap=Math.round(x.sr*0.4), o=new Float32Array(x.f.length+gap+y.f.length); o.set(x.f,0); o.set(y.f,x.f.length+gap); return {wav:_recWav(o,x.sr),sec:o.length/x.sr}; }); }   // 0.4초 쉼으로 이어 한 파일(WAV 16bit 모노)
