@@ -1483,7 +1483,8 @@ function handleVoiceClone(body) {
     if (!vid) { try { PropertiesService.getScriptProperties().setProperty('VCERR_' + code, JSON.stringify({ at: fmtKST(new Date()), op: 'practice', http: 0, msg: '읽을 목소리 없음 · 두 분 AI 목소리도 스튜디오 기본(TYPECAST_VOICE_M · F)도 비어 있어요' })); } catch (e) {} return down; }
     var tp = _vcTempo(body.tempo);   // [TEMPO_STEP] 0.7 ~ 1.3 · 0.1 걸음(종전 세 값만 받던 목록)
     if (_vcSpent(st) + t.length > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' };
-    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; save(); }
+    /* [PT_TUNE 2026-10-05 사장님 «빠르기랑 쉼 설정한 거 그대로 적용되는 거 맞아?»] 연습 읽기도 그분이 정한 쉼(remove_silence_ms)으로 — 종전엔 빠르기만 받고 쉼은 늘 150 */
+    try { var pc = _vcCached(code, '연습 소리', vid, t, tp, cfg, _vcPause(body.pause)); if (!pc.hit) { st.practice = (st.practice || 0) + t.length; save(); }
       return { ok: true, mime: 'audio/mpeg', data: pc.b64, mine: !!own, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) }; } catch (e) { return _vcErr(code, e.http, 'practice', e.why || e.message); } }
   if (!cfg.clone || !cfg.key) return _vcGate(code, cfg, op, 'clone');   // ★[VC_GATE_WHY] 스위치 · 시험 예식 목록 · 키 가운데 무엇이 막았는지 남긴다
   if (!WHO[who] && op !== 'make') return { ok: false, error: '누구의 목소리인지 알 수 없어요.' };

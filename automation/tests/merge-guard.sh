@@ -13964,7 +13964,7 @@ chk '방금 연습 다시 듣기' order-preview.html 1
 chk '연습 녹음 모두 지우기' order-preview.html 1
 chk '두 분 차례도 소리로 듣기 · AI가 연습용으로 읽어 줘요 · 예식에서는 나오지 않아요' order-preview.html 1
 chk '적은 글이 음성 업체(타입캐스트)로 보내져 소리로 만들어져요. 숨긴 글은 보내지 않아요' order-preview.html 1
-chk 'AI 연습 소리' order-preview.html 1
+chk '연습용으로만 잠깐 들려 드리는 AI 목소리예요 · 예식 당일엔 직접 말해요' order-preview.html 1   # [PT_TEMP 2026-10-05] 옛 배지 «AI 연습 소리»는 안내 한 줄로 합쳤다
 chk 'function _ptRole(who)' order-preview.html 1
 # ★[VP_AI_0928 · VC_CARD_0928 · VC_LINE_0928 · VOICE_CLONE_0928 화면 코워크 0928 6-1 · 8장] AI 칸 · 사람 카드 · 동의 · 1분 읽기 · 줄 도구 · 빈 줄만 채우기
 chk "'ai','AI 두 분 목소리'\]" order-preview.html 1   # [VP_NO_DIRECT] 고르는 칸 = AI 목소리 · 스튜디오 나레이션 · [R3-07] 칩 이름은 선택 이름(«만들기» 뺌 · 동작은 섹션 제목이 맡는다)
@@ -14392,7 +14392,7 @@ nochk 'placeholder="예) 마지막에 «감사합니다»라고 할게요"' orde
 chk 'PV_DESC_TOP' order-preview.html 2
 nochk "#pvQ').textContent=t?(/«/.test(t)?t:'«'+t+'»'):''" order-preview.html
 chk 'VPAGE_PC' order-preview.html 3
-chk 'function _vcUseList()' order-preview.html 1
+nochk 'function _vcUseList()' order-preview.html   # [VUSE_FLOW 2026-10-05 사장님] 옛 «쓰이는 곳» 목록은 맨 위 이해 줄 + 흐름 + 작은 창으로 바뀌었다
 :
 # ★★[PLAY_WAIT_FILE · PR_MODE · PR_CUE 2026-10-05 사장님 «준비됨인데 왜 목소리가 안 나오지» · «연습 전에 AI 로 먼저 들을지 직접 소리 내어 연습할지 고르게» · «준비한 멘트를 읽으시면 됩니다 · 흐름에 맞추어 쉽게»]
 #   두 분 소리 파일은 틀기 전에 받아 오기를 기다린다(최대 8초) · 연습 방법 둘(직접 · AI 로 먼저) · 말하는 차례 안내 한 줄 + 남은 시간 막대
@@ -14410,7 +14410,7 @@ chk 'PLAY_WAIT_FILE' scripts/audit/play-wait-file.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/play-wait-file.mjs >/dev/null 2>&1; _pwf=$?; [ "$_pwf" = 1 ] && { echo 'FAIL play-wait-file: 두 분 소리 기다리기 · 연습 방법 · 말하는 차례 안내가 어긋났습니다 — node scripts/audit/play-wait-file.mjs'; fail=1; }; fi
 # ★[VPAGE_PC 2026-10-05 사장님 «PC 좀 이상해 · 넓게 · 적절하게»] 카드 안 한 줄 배치 금지 · 넓은 카드 위아래 · 쓰이는 곳은 담긴 자리 전부(나레이션 자리도)
 nochk '.mk-vpcs>.mk-vpc{display:grid;grid-template-columns:minmax(190px,1fr) 240px' order-preview.html
-chk "rows=VC_USE.filter(function(x){ return x\[2\]==='guest'||R.onOf(S,x\[2\]); })" order-preview.html 1
+chk "all=VC_USE.filter(function(x){ return x\[2\]==='guest'||R.onOf(S,x\[2\]); })" order-preview.html 1   # [VUSE_FLOW] 담긴 자리 전부에서 AI 로 정한 자리만
 :
 nochk '.mk-keepg{margin:2px 0 2px;padding:4px 0 14px;border-bottom:1px solid var(--border)}' order-preview.html   # [KEEP_GUIDE] 아래 선 = 겹선 금지(2026-10-05)
 :
@@ -14432,3 +14432,16 @@ chk 'onclick="_ptGate(lsPlayAll)"' order-preview.html 1
 chk 'PT_VOICE_FALLBACK' automation/platform/80_production.gs 1
 chk 'PT_VOICE_FALLBACK' scripts/audit/vc-par.mjs 1
 chk 'PT_PREP' scripts/audit/play-wait-file.mjs 2
+# ★★[VUSE_FLOW 2026-10-05 사장님 «주인공 안내 목소리 · 기본 이해 · 어디서 쓰이는지만 · 누르면 작은 창 · 다음으로 쭉»] 두 분 목소리 만들기 맨 위 = 이해 한 줄 + 나오는 곳 흐름(상태 없음) · 작은 창(장면 · 언제 · 듣는 문장 · 들어 보기 · 이전 · 다음)
+chk 'VUSE_FLOW' order-preview.html 7
+chk 'function _vcUseIntro()' order-preview.html 1
+chk 'function _vcUseBody(rows,i)' order-preview.html 1
+chk 'VUSE_FLOW' scripts/audit/vuse-flow.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vuse-flow.mjs >/dev/null 2>&1; _vuf=$?; [ "$_vuf" = 1 ] && { echo 'FAIL vuse-flow: 두 분 목소리 «나오는 곳» 흐름 · 작은 창이 어긋났습니다 — node scripts/audit/vuse-flow.mjs'; fail=1; }; fi
+# ★[PT_TUNE · PT_TEMP · VUSE_FLOW 2026-10-05] 연습 AI 읽기 = 그분 빠르기 · 쉼 + 줄 만들기와 같은 다듬기 · «연습용으로만 잠깐» 안내
+chk 'PT_TUNE' order-preview.html 1
+chk 'function _ptTune(w)' order-preview.html 1
+chk 'PT_TUNE' automation/platform/80_production.gs 1
+chk "_vcCached(code, '연습 소리', vid, t, tp, cfg, _vcPause(body.pause))" automation/platform/80_production.gs 1
+chk 'PT_TUNE' scripts/audit/vc-par.mjs 1
+chk 'PT_TEMP' order-preview.html 1

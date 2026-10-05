@@ -70,4 +70,8 @@ const body = (lines) => ({ token: 't', op: 'make', key: 'entry', text: lines.map
   const H2 = make(); H2.props.VC_TST1 = JSON.stringify({});
   const r2 = H2.ctx.handleVoiceClone({ token: 't', op: 'practice', role: 'groom', who: 'groom', text: '하윤아 고마워' }); const w = JSON.parse(H2.props.VCERR_TST1 || '{}');
   ok('⑩ 읽을 목소리가 하나도 없으면 실패 · 까닭을 VCERR_ 에(practice · 읽을 목소리 없음)', !r2.ok && w.op === 'practice' && /읽을 목소리 없음/.test(w.msg || ''), JSON.stringify({ r2, w })); }
+// [PT_TUNE] 연습 읽기 — 받은 쉼(600)이 업체 요청 remove_silence_ms 로 · 빠르기 1.2 는 audio_tempo 로
+{ const H = make(); let out = null; H.ctx.UrlFetchApp.fetch = (url, o) => { out = JSON.parse(o.payload).output; return { getResponseCode: () => 200, getBlob: () => ({ getBytes: () => [1] }) }; };
+  const r = H.ctx.handleVoiceClone({ token: 't', op: 'practice', role: 'groom', who: 'groom', text: '고마워 하윤아', tempo: '1.2', pause: 600 });
+  ok('⑪ 연습 읽기에 그분 쉼 · 빠르기(remove_silence_ms 600 · audio_tempo 1.2) [PT_TUNE]', r.ok && out && out.remove_silence_ms === 600 && out.audio_tempo === 1.2, JSON.stringify(out)); }
 console.log(fail ? `\nVC PAR FAIL ${fail}` : '\nVC PAR OK'); process.exit(fail ? 1 : 0);

@@ -66,7 +66,7 @@ try {
     const k2 = await pg.evaluate(() => ({ mode: PT.mode, foc: document.activeElement && document.activeElement.getAttribute('data-fk') }));
     ok(`${w} C 연습 방법은 화살표로 옮긴다 · 포커스도 따라간다 [PR_ORDER]`, k1.mode === 'self' && k1.foc === 'prm:self' && k2.mode === 'ai' && k2.foc === 'prm:ai', JSON.stringify({ k1, k2 }));
     // [PT_PREP] AI 로 먼저 = 틀기 전에 전부 — 준비 중 줄 · 준비 중에 누르면 기다렸다 시작 · 말하는 차례에서 기다림 없음
-    await pg.evaluate(() => { PT.prep = null; for (const k in PT.url) delete PT.url[k]; window.__vcCalls = []; _vc0 = (op, d) => { window.__vcCalls.push(op + ':' + (d && d.role)); return new Promise((ok) => setTimeout(() => ok({ ok: true, mime: 'audio/mpeg', data: btoa('MP3DATA') }), 700)); }; render(); });
+    await pg.evaluate(() => { PT.prep = null; for (const k in PT.url) delete PT.url[k]; window.__vcCalls = []; window.__vcTune = []; S.vset = { groom: { tempo: '1.2', pause: 600 }, bride: { tempo: '0.9', pause: 350 } }; _vc0 = (op, d) => { window.__vcCalls.push(op + ':' + (d && d.role)); window.__vcTune.push((d && d.role) + '=' + (d && d.tempo) + '/' + (d && d.pause)); return new Promise((ok) => setTimeout(() => ok({ ok: true, mime: 'audio/mpeg', data: btoa('MP3DATA') }), 700)); }; render(); });
     await wait(150);
     const p0 = await pg.evaluate(() => ({ txt: (document.getElementById('prPrep') || {}).textContent || '', n: (PT.prep || {}).n || 0 }));
     ok(`${w} C AI 로 먼저 — ③ 에 들어오면 말하는 차례 소리를 바로 준비(«준비 중 · 0 / n») [PT_PREP]`, /준비 중 · \d+ \/ \d+/.test(p0.txt) && p0.n >= 2, JSON.stringify(p0));
@@ -78,7 +78,9 @@ try {
     ok(`${w} C 다 되면 바로 시작 · 차례마다 한 번씩만 만들었다`, p2.big && p2.prep === false && p2.done === p2.n && p2.calls === p2.n, JSON.stringify(p2));
     await pg.evaluate(() => { const j = LP.q.findIndex((x, i) => i >= LP.i && x.talk2); if (j > -1) { LP.lead = false; LP.i = j; _lShow(); } }); await wait(150);
     const a5 = await pg.evaluate(() => { const st = LP.q[LP.i] || {}; return { talk2: !!st.talk2, ptts: !!st.ptts, load: LP.loadK, cue: (document.querySelector('#lsFull .lf-cue') || {}).textContent || '', played: (window.__srcs || []).some((x) => /^blob:/.test(x)), badge: /AI 연습 소리/.test(document.getElementById('lsFull').textContent), calls: window.__vcCalls }; });
-    ok(`${w} C 말하는 차례에서 기다림 없이 바로 그분 AI 목소리 · «AI 연습 소리» 표 [PT_PREP · PR_MODE]`, a5.talk2 && a5.ptts && !a5.load && /들려 드려요/.test(a5.cue) && a5.played && a5.badge && a5.calls.length >= 1 && /^practice:(groom|bride)$/.test(a5.calls[0]), JSON.stringify(a5));
+    const tu = await pg.evaluate(() => window.__vcTune);
+    ok(`${w} C 연습 읽기에 그분이 정한 빠르기 · 쉼을 보낸다(신랑 1.2 / 600 · 신부 0.9 / 350) [PT_TUNE]`, tu.length > 0 && tu.every((x) => /^groom=1\.2\/600$|^bride=0\.9\/350$|^(om|of|m|f)=1\/\d+$/.test(x)) && tu.some((x) => /^groom=1\.2\/600$/.test(x)), JSON.stringify(tu));
+    ok(`${w} C 말하는 차례에서 기다림 없이 바로 그분 AI 목소리 · «연습용으로만 잠깐» 안내 [PT_PREP · PR_MODE · PT_TEMP]`, a5.talk2 && a5.ptts && !a5.load && /연습용으로만 잠깐 .* 예식 당일엔 직접 말해요/.test(a5.cue) && a5.played && a5.calls.length >= 1 && /^practice:(groom|bride)$/.test(a5.calls[0]), JSON.stringify(a5));
     await pg.evaluate(() => { lsStop(); RitualOpen.FEATURE.practiceTts = false; render(); }); await wait(300);
     ok(`${w} C 연습 읽기 스위치가 꺼지면 고르기 없음(직접뿐)`, await pg.evaluate(() => !document.querySelector('.pr-mode')));
     await pg.evaluate(() => { try { localStorage.removeItem('me_pr_mode'); } catch (e) {} PT.mode = 'self'; });
