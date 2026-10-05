@@ -149,21 +149,12 @@ for (const w of [390, 1280]) {
     const p2 = await pg.evaluate((fk) => { const want = fk.split(':')[2]; const st = _lSteps(ENG, ['candle']).filter((x) => x.src)[0]; const real = window.__aplays.filter((u) => !/^blob:/.test(String(u))); return { n: window.__aplays.length, cur: S.candleWho, want, first: real[real.length - 1], exp: st && st.src }; }, other);
     ok(`${w} [CHIP_NO_AUTOPLAY] «이 순간 들어 보기» = 새로 고른 대로(고른 값 ${p2.want} · 처음 튼 파일 = 지금 판의 첫 소리)`, p2.n > p1.n && p2.cur === p2.want && !!p2.exp && String(p2.first).endsWith(p2.exp.replace(/^\.?\//, '')), JSON.stringify(p2));
     await shot(pg, `moment-candle-${w}`);
-    /* 연습 «이 순간 바꾸기» 칩 */
+    /* ★[PRACTICE_NO_CHOOSE 2026-10-05 사장님 «연습 공간에서 이 부분은 삭제»] 연습 «이 순간 바꾸기» 단추를 걷었다 — 연습은 듣기만 · 칩은 어느 순간에도 없다 */
     await pg.evaluate(() => { lsStop(); opGoStep('practice'); }); await pg.waitForTimeout(800);
     await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(500);
-    let pr = { tries: 0, hit: null };
-    for (let i = 0; i < 12 && !pr.hit; i++) { const has = await pg.$('[data-fk="lfchoose"]'); if (has) { await has.click(); await pg.waitForTimeout(300); const fk = await pg.evaluate(() => { const b = document.querySelector('#lsFull [data-fk^="lfc:"][aria-checked="false"]'); return b && b.getAttribute('data-fk'); }); if (fk) pr.hit = fk; }
-      if (!pr.hit) { await pg.evaluate(() => { try { lsJump(1); } catch (e) {} }); await pg.waitForTimeout(300); } pr.tries++; }
-    if (pr.hit) { const q0 = await pg.evaluate(() => ({ n: window.__aplays.length, k: LP.cur }));
-      await pg.click(`[data-fk="${pr.hit}"]`); await pg.waitForTimeout(400);
-      const q1 = await pg.evaluate(() => ({ n: window.__aplays.length, q: LP.q.length, paused: LP.paused, big: !!document.getElementById('lsFull'), k: LP.cur }));
-      ok(`${w} [CHIP_NO_AUTOPLAY] 연습 «이 순간 바꾸기» 칩 → 소리 없이 멈춘 채(카드는 그대로 · 같은 순간)`, q1.n === q0.n && q1.q > 0 && q1.paused === true && q1.big && q1.k === q0.k, JSON.stringify({ q0, q1, fk: pr.hit }));
-      await pg.evaluate(() => lsToggle()); await pg.waitForTimeout(300);
-      const q2 = await pg.evaluate(() => ({ n: window.__aplays.length, paused: LP.paused }));
-      ok(`${w} [CHIP_NO_AUTOPLAY] 연습 재생(▶)을 누르면 새로 고른 대로 이어서 나온다`, !q2.paused && (q2.n > q1.n || (await pg.evaluate(() => !(LP.q[LP.i] || {}).src))), JSON.stringify(q2));
-      await shot(pg, `practice-${w}`); }
-    else ok(`${w} [CHIP_NO_AUTOPLAY] 연습에서 «이 순간 바꾸기» 칩을 찾았다`, false, JSON.stringify(pr));
+    let prSeen = 0, prBad = 0; for (let i = 0; i < 12; i++) { const r = await pg.evaluate(() => ({ btn: !!document.querySelector('#lsFull [data-fk="lfchoose"]'), chips: document.querySelectorAll('#lsFull [data-fk^="lfc:"]').length })); prSeen++; if (r.btn || r.chips) prBad++; await pg.evaluate(() => { try { lsJump(1); } catch (e) {} }); await pg.waitForTimeout(250); }
+    ok(`${w} [PRACTICE_NO_CHOOSE] 연습 중 어느 순간에도 «이 순간 바꾸기» · 칩이 없다`, prSeen > 0 && prBad === 0, JSON.stringify({ prSeen, prBad }));
+    await shot(pg, `practice-${w}`);
     ok(`${w} 화면 오류 0(소리)`, !errs.length, errs.join(' | '));
     await ctx.close(); }
 

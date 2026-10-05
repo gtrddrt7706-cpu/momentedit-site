@@ -2268,7 +2268,7 @@ chk 'CHIP_NO_REPLAY' order-preview.html 3
 chk 'if(g0&&g0.cur===v&&g0.picked!==false) return;' order-preview.html 1      # 이미 고른 칩은 아무것도 안 한다 · [CHIP_UNPICKED] 안 고른 기본은 눌러서 듣는다
 chk 'CHIP_STAY' order-preview.html 7
 chk 'PRACTICE_CHOOSE' order-preview.html 5
-chk 'data-fk="lfchoose"' order-preview.html 1               # 연습 중 칩은 «이 순간 바꾸기» 안에
+nochk 'data-fk="lfchoose"' order-preview.html               # ★[PRACTICE_NO_CHOOSE 2026-10-05] 연습 중 «이 순간 바꾸기» 단추 금지 — 사용자 지시로 삭제
 chk 'REF_EXAMPLE' order-preview.html 4
 # ★[CAST_TEXT_ONLY 2026-09-27 사장님] 참고 예시는 글로만 — «이 목소리는 …» 문장은 걷었다(목소리가 없다) · 아래 nochk 가 되살아남을 막는다
 # [REF_TABLE 2026-09-27 코워크 참고 예시 대본] 예시는 표 한 곳(assets/ritual-ref.js · 자동 생성) · 폐지 클립(27 시어머님 답 · 15 하객대표 축사)은 넣지 않는다
@@ -9109,7 +9109,7 @@ chk "h+=_mkFlow(k,_pn>=2?lb:'');" order-preview.html 1
 nochk "(gs.some(function(g){ return !g.q; })||_pn<2)?'':lb" order-preview.html   # ★«칩이 있으면 들어 보기 숨김» 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 길이 금지 — 2026-10-03
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
-chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 8
+chk 'CHIP_NO_AUTOPLAY' scripts/audit/make-shell.mjs 5   # [PRACTICE_NO_CHOOSE 2026-10-05] 8 → 5 — 연습 «이 순간 바꾸기» 칩 검사 셋은 단추와 함께 은퇴(사용자 지시로 삭제) · 연습 칩 없음은 PRACTICE_NO_CHOOSE 가 잰다
 chk 'VOICE_ONCE' scripts/audit/make-shell.mjs 15
 chk 'TEMPO_STEP' scripts/audit/make-shell.mjs 2   # [VOICE_TUNE 2026-10-04] 순간 쪽 빠르기 시험은 사람별 맞추기 시험으로 바뀌었다   # [TEMPO_WIDE · TEMPO_PREVIEW · TEMPO_BAKE 2026-10-04] 판정 이름을 옮겼다
 chk 'STEP_COMPACT' scripts/audit/make-shell.mjs 8   # [STEP_LAB_TOP 2026-10-04] 펼친 걸음 줄 시험 둘을 칸 위 이름 시험으로 바꿔 10 → 8
@@ -14282,6 +14282,10 @@ chk 'CARD_POLISH' order-preview.html 6
 chk '<div class="mk-slc"><ol class="mk-sl"' order-preview.html 1
 chk '^\.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;' order-preview.html 1
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
+# ★[CTL_FIVE] 위 · [PRACTICE_NO_CHOOSE 2026-10-05 사장님 «이 순간 바꾸기 · 영상 앞 소개 · 연습 공간에서 이 부분은 삭제»] 연습은 듣기만 — 모든 순간에서 걷었다
+chk 'PRACTICE_NO_CHOOSE' order-preview.html 1
+chk 'PRACTICE_NO_CHOOSE' scripts/audit/listen-page.mjs 2
+chk 'PRACTICE_NO_CHOOSE' scripts/audit/make-shell.mjs 2
 # ★[GUARD_TAIL_RC 2026-10-05] 끝 줄이 «[ x = 1 ] && {…}» 꼴이면 시험이 통과(0)할 때 그 줄이 1 로 끝나 가드 전체가 1 이 됐다(PR #991 · «ALL MARKERS OK» 뒤 빨강). 끝 node 검사는 if 꼴로 · 이 줄은 늘 0
 :
 # ★[VC_UNREAD 2026-10-05 사장님 «만드는 중에서 다시 목소리 만들기 버튼으로 돌아가는데 원인 파악»] 자음 · 모음만 있는 줄은 업체에 보내지 않고 «몇 번째 줄 · 고쳐 주세요»
@@ -14331,4 +14335,31 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/pr-from-mypage.mjs >
 # ★[TURN_ONE_LINE 2026-10-05 사장님 «쉼 가로 라인 바로 위에 또 라인이 있어 깔끔하지 못하다» → «추천대로»] 쉼 줄이 따라오는 글칸은 밑줄을 숨긴다(쉼 줄 하나가 구분선)
 chk 'TURN_ONE_LINE' order-preview.html 2
 chk '.mk-slr:has(+.mk-slr>.mk-sltn) .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}' order-preview.html 1
+:
+# ★[CTL_FIVE 2026-10-05 사장님 «하단 플레이 단추가 왔다 갔다 이동한다 · 고정으로 전부 두고 못 누르는 건 투명 처리?» → «추천대로»] 크게 보기 · 작은 플레이어 다섯 칸 고정 · 못 누르는 칸은 흐리게
+chk 'CTL_FIVE' order-preview.html 4
+nochk "+(_fhP?'<button type=\"button\" class=\"ln\" data-fk=\"lfprevl\"" order-preview.html
+nochk "+(single?'':'<button type=\"button\" data-fk=\"lfprev\"" order-preview.html
+chk 'CTL_FIVE' scripts/audit/ctl-five.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ctl-five.mjs >/dev/null 2>&1; _cf=$?; if [ "$_cf" = 1 ]; then echo 'FAIL ctl-five: 플레이 단추 다섯 칸 고정이 어긋났습니다 — node scripts/audit/ctl-five.mjs'; fail=1; fi; fi
+:
+# ★[PV_CHOOSE_OFF 2026-10-05 사장님 «하나씩 만들기에서 골라요 · 입장 멘트 · 어떻게 준비할까요 삭제 · 다른 곳들도 일괄»] 미리보기 창 한 줄 금지 — 창이 하나라 모든 순간
+chk 'PV_CHOOSE_OFF' order-preview.html 1
+nochk "ce.textContent=ch?('하나씩 만들기에서 골라요 · '+ch)" order-preview.html
+chk 'PV_CHOOSE_OFF' scripts/audit/listen-page.mjs 1
+chk 'PV_CHOOSE_OFF' scripts/audit/pick-v2.mjs 1
+:
+# ★[PV_FN_OFF 2026-10-05 사장님 «전체 나레이션은 연습하기에서 이어서 들어요 이 문구도 삭제»] 미리보기 창 맨 아래 한 줄 금지
+chk 'PV_FN_OFF' order-preview.html 1
+nochk '<p class="pv-fn">' order-preview.html
+:
+# ★★[PV_ONE_SHOT 2026-10-05 사장님 «같은 의미 · 고객 입장에서 하나로 · 다른 곳들도 하나씩 열어 보면서 중복 없이»] 미리보기 창 설명 + 남는 사진 = 순간마다 한 문장
+chk 'PV_ONE_SHOT' order-preview.html 3
+chk 'var PV_DESC={' order-preview.html 1
+nochk "innerHTML='<b>남는 사진</b> · '+esc(R.shotOf(k,S)" order-preview.html
+chk 'PV_ONE_SHOT' scripts/audit/listen-page.mjs 1
+# ★[VS_TWO_LINE · VS_NO_PURGE_NOTE 2026-10-05 사장님] 안내 목소리 창 설명 두 줄 · AI 칸 « · 예식 다음 날 지워요» 금지
+chk 'VS_TWO_LINE' order-preview.html 1
+chk 'VS_NO_PURGE_NOTE' order-preview.html 1
+nochk "VS_ONE+' · 예식 다음 날 지워요" order-preview.html
 :

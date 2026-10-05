@@ -81,7 +81,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
   await pg.click('[data-fk="pto:declare"]'); await pg.waitForTimeout(500);
   /* ★[STEP_NONUM_OP 2026-10-03 사장님] 종전 «② 하나씩 만들기에서 고를 것 · …» → 번호 없이 «하나씩 만들기에서 골라요 · …» */
-  ok(`${w} ① 창 «하나씩 만들기에서 골라요 · 누가 · 말투»(번호 없음) · 남는 사진 [STEP_NONUM_OP]`, await pg.evaluate(() => /^하나씩 만들기에서 골라요 · 누가 · 말투$/.test((document.getElementById('pvCh') || {}).textContent || '') && /남는 사진/.test((document.getElementById('pvShot') || {}).textContent || '')));
+  ok(`${w} ① 창 «하나씩 만들기에서 골라요 · …» 줄 없음 [PV_CHOOSE_OFF] · 설명과 남는 사진은 한 문장(따로 줄 없음) [PV_ONE_SHOT]`, await pg.evaluate(() => { const c = document.getElementById('pvCh'), sh = document.getElementById('pvShot'), one = (document.getElementById('pvOne') || {}).textContent || ''; return (!c || (c.hidden && !c.textContent)) && (!sh || (sh.hidden && !sh.textContent)) && one === _n2(PV_DESC.declare) && /박수 치는/.test(one); }));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(400);
   ok(`${w} ① 소제목에 동그라미 번호 없음 · 남는 장면이라는 말 없음`, await pg.evaluate(() => ![...document.querySelectorAll('.pk-h,.pk-act-h,.pk-fp-h h3')].some((h) => /[①②③]/.test(h.textContent)) && !/남는 장면/.test(document.getElementById('stage').textContent)));
   ok(`${w} ① 고객 화면에 «판» 없음`, await pg.evaluate(() => !/판 바꿈|고를 수 있는 판|그 판으로/.test(document.getElementById('stage').textContent)));
@@ -470,23 +470,8 @@ else {
   await pg.evaluate(() => lsPlayAll()); await pg.waitForTimeout(600);
   await pg.evaluate(() => { let g = 0; while (LP.cur !== 'entry' && g++ < 20) lsJump(1); }); await pg.waitForTimeout(300);
   const a = await pg.evaluate(() => ({ mode: (document.querySelector('#lsFull .lf-mode') || {}).textContent || '', chips: document.querySelectorAll('#lsFull .op-chip').length, btn: !!document.querySelector('#lsFull [data-fk="lfchoose"]') }));
-  ok('9-1 연습 중 머리 «연습 · n / N» · 칩은 «이 순간 바꾸기» 안에 접힘 [PRACTICE_CHOOSE]', /^연습 · /.test(a.mode) && a.chips === 0 && a.btn, JSON.stringify(a));
-  await pg.click('#lsFull [data-fk="lfchoose"]'); await pg.waitForTimeout(300);
-  const b = await pg.evaluate(() => ({ p: LP.paused, c: LP.choose, tok: LP.tok, mode: document.querySelector('#lsFull .lf-mode').textContent, chips: document.querySelectorAll('#lsFull .op-chip').length }));
-  ok('9-2 «이 순간 바꾸기» → 멈춤 · «고르는 중» · 칩 펼침', b.p && b.c === 'entry' && /^고르는 중/.test(b.mode) && b.chips > 0, JSON.stringify(b));
-  const cur = await pg.evaluate(() => document.querySelector('#lsFull .op-chip[aria-checked="true"]').getAttribute('data-fk'));
-  await pg.click(`#lsFull [data-fk="${cur}"]`); await pg.waitForTimeout(250);
-  /* [ENTRY_OUT_OFF 2026-10-02] 첫 모습(소리 같은 칩)을 걷었다 — 이미 고른 칩만 잰다 */
-  const c = await pg.evaluate(() => ({ tok: LP.tok, p: LP.paused }));
-  ok('9-3 이미 고른 칩은 다시 틀지 않는다 [CHIP_NO_REPLAY]', c.tok === b.tok && c.p, JSON.stringify({ b: b.tok, c }));
-  const other = await pg.evaluate(() => [...document.querySelectorAll('#lsFull .op-chip[data-fk^="lfc:entry:"]')].find((x) => x.getAttribute('aria-checked') !== 'true').getAttribute('data-fk'));
-  await pg.click(`#lsFull [data-fk="${other}"]`); await pg.waitForTimeout(300);
-  /* ★[CHIP_NO_AUTOPLAY 2026-10-03 사장님 «칩을 눌러도 소리 안 나게 · 전부»] 종전 9-4 «소리 바뀌는 칩 → 그 순간만 다시 듣고 멈춰 선다(CHIP_STAY)» → 칩은 고르기만 —
-     그 순간부터 새로 세운 줄을 멈춘 채로 둔다(같은 카드 · 칩 펼친 그대로 · 소리 0). «다 골랐어요 · 이어서 듣기»(9-5)가 새로 고른 대로 튼다 */
-  const d = await pg.evaluate(() => ({ tok: LP.tok, cur: LP.cur, p: LP.paused, elP: !LP.el || LP.el.paused, chips: document.querySelectorAll('#lsFull .op-chip').length, q: LP.q.length }));
-  ok('9-4 소리 바뀌는 칩 → 소리 없이 멈춘 채 · 같은 순간 · 칩은 펼친 그대로 [CHIP_NO_AUTOPLAY]', d.tok > c.tok && d.cur === 'entry' && d.p && d.elP && d.chips > 0 && d.q > 0, JSON.stringify(d));
-  await pg.click('#lsFull [data-fk="lfchoosedone"]'); await pg.waitForTimeout(300);
-  ok('9-5 «다 골랐어요 · 이어서 듣기» → 다시 흐르고 칩은 접힌다', await pg.evaluate(() => !LP.paused && LP.choose === null && document.querySelectorAll('#lsFull .op-chip').length === 0));
+  ok('9-1 연습 중 머리 «연습 · n / N» · 칩도 «이 순간 바꾸기» 단추도 없다 [PRACTICE_NO_CHOOSE]', /^연습 · /.test(a.mode) && a.chips === 0 && !a.btn, JSON.stringify(a));
+  /* ★[PRACTICE_NO_CHOOSE 2026-10-05 사장님 «연습 공간에서 이 부분은 삭제»] 9-2 ~ 9-5(연습 중 «이 순간 바꾸기» → 고르는 중 · 칩 · 다 골랐어요)는 단추를 걷어 잴 것이 없다 — 칩은 ② 순간 쪽에서 잰다(make-shell · listen-page 앞 절) */
   /* ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 두 분 · 가족 차례 = 소리 없이 글 + 막대 — 대역 목소리(06~14 · 24~26)는 어디서도 안 튼다
      [REF_EXAMPLE] 사람이 말하는 자리는 참고 예시(글)로 · [REF_TABLE] 표에서 고른 판의 벌 */
   const e = await pg.evaluate(() => { const mute = ENG.RitualStory.CAST_MUTE; return { q: LP.q.filter((x) => x.talk2 && x.k === 'welcome').length, steps: _lSteps(ENG, _lRows()).filter((x) => x.ref || x.talk2).length, noSrc: LP.q.filter((x) => x.talk2).every((x) => !x.src && x.pending && x.txt.length > 5 && x.ms > 0), mute: Object.keys(mute).length, castPlay: LP.q.filter((x) => x.src && /\/assets\/audio\/cast\/(0[6-9]|1[0-4]|2[4-6])_/.test(x.src)).length }; });
