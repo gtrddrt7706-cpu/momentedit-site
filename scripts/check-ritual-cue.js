@@ -202,7 +202,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
                       //   그 자리들이 옳은지는 위 §3-A 22큐 판정표 검사가 이미 고정하고 있다.
                       //   (식전 안내 2클립은 guest 뒤에 붙지만 규칙이 계산하는 자리다)
                       // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
-                      // [PREVIDEO_AT_4 2026-09-25] 식전 영상은 본식 시작 4분 전 시각고정(clock) — 03 과 04 사이에 엔진이 직접 박는다.
+                      // [PREVIDEO_AT_4 → CEREMONY_AT_VIDEO 2026-10-05] 식전 영상은 예식 시작 시각 고정(clock · atMin 0) — 04 와 입장 사이에 엔진이 직접 박는다.
                       const pinned = (i === 0 || c.k === 'entry' || c.k === 'prevideo' ||
                         (c.k === 'guest' && c.blockN !== '식전 안내'));
                       if (pinned) {

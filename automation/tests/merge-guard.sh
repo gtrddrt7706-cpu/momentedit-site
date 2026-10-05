@@ -12627,7 +12627,7 @@ chk 'AI_CHIP_WORDS' order-preview.html 1
 nochk '헌정은 어떤 방식들이' order-preview.html
 nochk '코스와 순간 하나하나' order-preview.html
 chk 'RESET_WORD' order-preview.html 1
-chk '본식 시작 4분 전에는 불을 낮추고' assets/sequence-modal.js 1   # «본식 4분 전»은 check-source-drift 가 본식 길이(4분)로 읽는다 — «시작»을 끼운다
+chk '식전 영상을 담으셨다면 이 시각에 불을 낮추고 영상을 먼저 틀고, 끝나면 입장해요' assets/sequence-modal.js 1   # [CEREMONY_AT_VIDEO 2026-10-05] 옛 «본식 시작 4분 전에는 불을 낮추고» 자리 — 영상은 예식 시작 시각
 nochk '예식 시작 4분 전' assets/sequence-modal.js
 nochk '청첩장·식순은 언제든' index.html
 chk '순서와 이음은 저희가 맞춥니다' index.html 3
@@ -14446,6 +14446,15 @@ nochk '가로 mp4 · 3분 이내' api/_ritual-kb.js
 chk '두 분 입장 바로 앞에 불을 낮추고' api/_ritual-kb.js 1
 :
 # ★[ONEMIN_CLOCK_KEEP 2026-10-05 사장님 «추천대로»] 안내 시각은 영상 시작 기준(-14 · -9 · -5) · 영상은 본식 시작 4분 전 — 청첩장 시각과 4분 차이는 알고 유지
-chk 'ONEMIN_CLOCK_KEEP' assets/ritual-cue.js 1
-chk 'var at = pvOn ? \[null, -14, -9, -5\] : \[null, -10, -5, -1\]' assets/ritual-cue.js 1
+chk 'ONEMIN_CLOCK_KEEP' assets/ritual-cue.js 1   # (기록) 같은 날 CEREMONY_AT_VIDEO 로 걷음
+:
+# ★★[CEREMONY_AT_VIDEO 2026-10-05 사장님 «예식 시작 시간만 정해져 있고 · 영상이 길면 입장도 유연하게 늦어진다»] 영상 = 예식 시작 시각(0) · 안내 늘 -10 · -5 · -1
+chk 'CEREMONY_AT_VIDEO' assets/ritual-cue.js 3
+chk "fire: 'clock', atMin: 0,   // \[CEREMONY_AT_VIDEO" assets/ritual-cue.js 1
+chk 'var at = \[null, -10, -5, -1\], out = \[\];' assets/ritual-cue.js 1
+nochk '\[null, -14, -9, -5\]' assets/ritual-cue.js
+nochk '본식 시작 4분 전' assets/sequence-modal.js
+nochk '본식 시작 4분 전' api/_ritual-kb.js
+chk 'CEREMONY_AT_VIDEO' assets/ritual-open.js 1
+chk 'CEREMONY_AT_VIDEO' scripts/audit/open-course.mjs 2
 :

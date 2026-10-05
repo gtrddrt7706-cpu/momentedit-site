@@ -48,7 +48,7 @@
      n 화면 이름 · sn 짧은 이름(띠·목록) · one 한 줄 설명 · shot 남는 장면 · who 누가 · why 이 자리인 까닭 */
   /* [GUESTS_ALL 2026-09-26 사장님 · 코워크 추가 전달 2 D13] «서른 분» → «하객 모두» — 하객이 스무 분인 두 분에게 «서른»은 틀린 말이 된다(정원 글은 그대로) */
   var CARDS = {
-    prevideo: { n: '식전 영상', sn: '식전 영상', one: '두 분이 준비한 영상을 하객이 모두 자리에 앉은 뒤, 입장 바로 앞에 상영해요. 영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요.', shot: '영상을 보는 가족들의 얼굴', who: '하객(두 분은 문 밖에서 기다려요)' },
+    prevideo: { n: '식전 영상', sn: '식전 영상', one: '예식 시작 시각에 두 분이 준비한 영상을 상영하고, 끝나면 두 분이 입장해요. 영상이 없으면 보내 주신 사진으로 저희가 영상을 만들어요.', shot: '영상을 보는 가족들의 얼굴', who: '하객(두 분은 문 밖에서 기다려요)' },
     candle: { n: '화촉', sn: '화촉', one: '두 집을 대표해 촛불을 밝히며 예식의 시작을 알려요.', shot: '초에 불이 옮겨붙는 순간 · 불빛에 비친 얼굴',   /* [DETAIL_0925 B15] 서는 분에 따라 «누가»는 빌더가 바꾼다 */ who: '양가 어머님(누가 서실지는 두 분이 정해요)' },
     entry: { n: '입장', sn: '입장', one: '두 분이 함께 걸어 들어와, 나란히 서는 첫 장면을 남겨요.', shot: '문이 열리는 순간 · 두 분의 첫 장면', who: '두 분' },
     welcome: { n: '첫인사', sn: '첫인사', one: '두 분이 하객께 짧게 첫인사를 드려요.', shot: '하객을 바라보며 인사하는 두 분', who: '두 분' },
@@ -267,6 +267,7 @@
   }
   // 카드의 «약 n분»(이 순간을 담으면)
   function momentLabel(k, S) {
+    if (k === 'prevideo') return '영상 길이만큼 · 끝나면 입장';   // [CEREMONY_AT_VIDEO 2026-10-05] 예식 시작 시각에 흐른다 — 길면 입장이 그만큼 늦어진다
     if (PRE[k]) return '본식 시간에 들지 않아요';
     var on = {}; for (var x in (S.on || {})) on[x] = S.on[x]; if (k !== '_close') on[k] = 1;
     var T = {}; for (var y in S) T[y] = S[y]; T.on = on;
@@ -606,7 +607,7 @@
 
   /* ── 자리 문구(명세 3-3) ── */
   function slotText(k, S) {
-    if (k === 'prevideo') return '하객이 모두 앉은 뒤 · 입장 바로 앞';   // [ONEMIN_FIRST 2026-10-05] 1분 전 공지 → 식전 영상 → 입장
+    if (k === 'prevideo') return '예식 시작 시각 · 입장 바로 앞';   // [CEREMONY_AT_VIDEO]   // [ONEMIN_FIRST 2026-10-05] 1분 전 공지 → 식전 영상 → 입장
     if (PRE[k]) return '하객이 앉는 동안 · 본식 앞';
     var order = ORDER.filter(function (x) { return !PRE[x]; }).concat(['_close']);
     var i = order.indexOf(k), p = null, n = null, x;
