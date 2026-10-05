@@ -14445,3 +14445,7 @@ nochk '가로 mp4 3분 이내' order-preview.html
 nochk '가로 mp4 · 3분 이내' api/_ritual-kb.js
 chk '두 분 입장 바로 앞에 불을 낮추고' api/_ritual-kb.js 1
 :
+# ★[ONEMIN_CLOCK_KEEP 2026-10-05 사장님 «추천대로»] 안내 시각은 영상 시작 기준(-14 · -9 · -5) · 영상은 본식 시작 4분 전 — 청첩장 시각과 4분 차이는 알고 유지
+chk 'ONEMIN_CLOCK_KEEP' assets/ritual-cue.js 1
+chk 'var at = pvOn ? \[null, -14, -9, -5\] : \[null, -10, -5, -1\]' assets/ritual-cue.js 1
+:

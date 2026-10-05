@@ -541,6 +541,8 @@
       var pvOn = !!(seq && seq.indexOf('prevideo') > -1);
       var preFirst = vi === 1 && seq && (seq.indexOf('candle') > -1 || pvOn);
       var own = S.guestVoice === 'couple';
+      /* ★[ONEMIN_CLOCK_KEEP 2026-10-05 사장님 «추천대로»(가)] 청첩장에는 본식(두 분 입장) 시각이 적혀 안내가 그보다 4분 이르게 말하는 것은 알고 둔다 —
+         하객은 «몇 분 뒤»만 듣고 시계를 맞춰 보지 않는다 · 영상 시작(본식 시작 4분 전)은 종전과 같다. 영상을 본식 시각으로 옮기는 안(나)은 고르지 않았다 · 다시 꺼내지 말 것 */
       var at = pvOn ? [null, -14, -9, -5] : [null, -10, -5, -1], out = [];
       for (var i = 0; i < 4; i++) {
         out.push(cue({
