@@ -14328,3 +14328,7 @@ chk "_ritPre={id:'mp_ritualPreview', label:'연습하기'};" mypage.html 1
 nochk "_ritPre={id:'mp_ritualPreview', label:'미리듣기'};" mypage.html
 chk 'PR_FROM_MYPAGE' scripts/audit/pr-from-mypage.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-from-mypage.mjs >/dev/null 2>&1; _pfm=$?; [ "$_pfm" = 1 ] && { echo 'FAIL pr-from-mypage: 마이페이지 «연습하기»가 빌더 ③ 연습하기로 열리지 않습니다 — node scripts/audit/pr-from-mypage.mjs'; fail=1; }; fi
+# ★[TURN_ONE_LINE 2026-10-05 사장님 «쉼 가로 라인 바로 위에 또 라인이 있어 깔끔하지 못하다» → «추천대로»] 쉼 줄이 따라오는 글칸은 밑줄을 숨긴다(쉼 줄 하나가 구분선)
+chk 'TURN_ONE_LINE' order-preview.html 2
+chk '.mk-slr:has(+.mk-slr>.mk-sltn) .mk-slb .mk-slt.ta.grow:not(:focus){border-bottom-color:transparent}' order-preview.html 1
+:
