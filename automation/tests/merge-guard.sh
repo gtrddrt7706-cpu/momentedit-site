@@ -14614,7 +14614,7 @@ nochk '.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal)' order
 chk 'VP_ASK_ONE' order-preview.html 2
 nochk 'mk-sec mk-vpask"' order-preview.html
 chk 'VU_VIDEO_KEEP' order-preview.html 1
-chk 'VU_PV_EX' order-preview.html 2
+chk 'VU_PV_EX' order-preview.html 1   # [VU_EX_LISTEN] 예시 1 빈 글 처리는 예시 칩으로 흡수
 chk 'VU_VIDEO_KEEP' scripts/audit/vuse-flow.mjs 2
 # ★[FIX_MARK_O 2026-10-06 사장님 «늘 있어요 · 체크 버튼 센터 정렬 · 다른 건 없을까 · 연속성» → «추천대로»(A)] 늘 있는 순간 = ✓ 와 같은 26px 빈 동그라미 + 점 · 범례 한 줄 · 예식 흐름 · ① 칸 둘 다
 chk 'FIX_MARK_O' order-preview.html 4
@@ -14627,6 +14627,18 @@ nochk 'function _fixLeg' order-preview.html
 # ★[FLOW_HOW1 2026-10-06 사장님 «뺄 것만 체크 표시로 풀어 달라고 짧게 한 줄»] 예식 흐름 위 할 일 한 줄
 chk 'FLOW_HOW1' order-preview.html 2
 chk '뺄 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1
+# ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 들면 다시 녹음해도 된다고 여기도 한 번 더»] 두 분 목소리 만들기 쪽 한 줄
+chk 'VOICE_REDO_NOTE' order-preview.html 1
+chk '말투가 마음에 들지 않으면 다시 녹음해 새로 만들 수 있어요' order-preview.html 1
+# ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로 첫 화면»] 안내 목소리 정하기 창 — 안 골랐으면 두 갈래 다 비어 있다
+chk 'VS_UNPICKED' order-preview.html 1
+chk 'VS_UNPICKED' scripts/audit/vp-ask-first.mjs 1
+# ★★[VU_EX_LISTEN 2026-10-06 사장님 «식전 영상 소개는 왜 들어 보기가 없어 · 간격 고정 · 예시는 만들어 넣어 놓자 · 임시로 들어 볼 수 있게만»] 목소리 «나오는 곳» 창 — 예시 칩 · 파일 없으면 그 자리 AI 읽기 · 높이 고정
+chk 'VU_EX_LISTEN' order-preview.html 4
+chk 'function _vuOpts(key)' order-preview.html 1
+chk 'function _vuFix()' order-preview.html 1
+chk 'VU_EX_LISTEN' scripts/audit/vu-ex-listen.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vu-ex-listen.mjs >/dev/null 2>&1; _vux=$?; if [ "$_vux" = 1 ]; then echo 'FAIL vu-ex-listen: 목소리 «나오는 곳» 창(예시 칩 · 들어 보기 · 높이 고정)이 어긋났습니다 — node scripts/audit/vu-ex-listen.mjs'; fail=1; fi; fi
 # ★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 · 다른 곳처럼 예시 1~4 같은 폼»] AI 판 하객 맞이 = «참고 예시» 카드 넷 · 누르면 네 줄이 한 번에
 chk 'GUEST_EX4' order-preview.html 4
 chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1
