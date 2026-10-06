@@ -14617,10 +14617,16 @@ chk 'VU_VIDEO_KEEP' order-preview.html 1
 chk 'VU_PV_EX' order-preview.html 2
 chk 'VU_VIDEO_KEEP' scripts/audit/vuse-flow.mjs 2
 # ★[FIX_MARK_O 2026-10-06 사장님 «늘 있어요 · 체크 버튼 센터 정렬 · 다른 건 없을까 · 연속성» → «추천대로»(A)] 늘 있는 순간 = ✓ 와 같은 26px 빈 동그라미 + 점 · 범례 한 줄 · 예식 흐름 · ① 칸 둘 다
-chk 'FIX_MARK_O' order-preview.html 5
+chk 'FIX_MARK_O' order-preview.html 4
 chk 'function _fixMk(cls)' order-preview.html 1
 nochk '<span class="cf-fix" role="img" aria-label="늘 있는 순간">늘 있어요</span>' order-preview.html
 nochk '<span class="pk-fix">늘 있어요</span>' order-preview.html
+# ★[FIX_LEG_OFF 2026-10-06 사장님 «고른 순간 · 늘 있는 순간 이거는 굳이 없어도 이해할 것 같아»] 범례 한 줄 삭제(예식 흐름 · ① 칸)
+chk 'FIX_LEG_OFF' order-preview.html 2
+nochk 'function _fixLeg' order-preview.html
+# ★[FLOW_HOW1 2026-10-06 사장님 «뺄 것만 체크 표시로 풀어 달라고 짧게 한 줄»] 예식 흐름 위 할 일 한 줄
+chk 'FLOW_HOW1' order-preview.html 2
+chk '뺄 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1
 # ★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 · 다른 곳처럼 예시 1~4 같은 폼»] AI 판 하객 맞이 = «참고 예시» 카드 넷 · 누르면 네 줄이 한 번에
 chk 'GUEST_EX4' order-preview.html 4
 chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1

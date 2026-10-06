@@ -1258,18 +1258,11 @@ body.lsfull{overflow:hidden}
    ① 칸과 같은 표(.pk-sel · 담김 = 먹빛 동그라미 ✓ · 안 담김 = 금빛 테 ＋)를 그대로 쓴다 — 여기서는 칸 모서리에 띄우지 않고 줄 끝에 세울 뿐(위치만 덮어쓴다).
    늘 있는 순간(하객 맞이 · 입장 · 닫는 인사)은 같은 ✓ 를 옅게(단추 아님) — 모든 줄이 «담겨 있음»을 말하고, 고정된 줄은 고정돼 보이게 */
 .cf-r .pk-sel{position:static;justify-self:end;font-size:12.5px}   /* 단추 자체의 글자 크기(브라우저 기본 13.33)를 이 쪽 RIT_TYPE5 로 · 글은 <i> 가 그린다 */
+.mk-intro .cf-how{margin:18px 0 0}   /* [FLOW_HOW1] */
 .cf-fixmk{justify-self:end;width:44px;height:44px;display:grid;place-items:center}   /* [FIX_MARK_O] · [CF_FIX_FIT] 넘치던 «늘 있어요» 알약 자리 · ✓ 단추(.pk-sel 44 · 동그라미 26)와 같은 자리 · 같은 가운데 */
 .pk-fixmk{position:absolute;top:0;right:0;width:44px;height:44px;display:grid;place-items:center;pointer-events:none}
 .fixmk{display:grid;place-items:center;box-sizing:border-box;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink2);background:rgba(255,255,255,.96)}
 .fixmk::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--ink2)}
-.onmk{display:grid;place-items:center;box-sizing:border-box;width:26px;height:26px;border-radius:50%;background:var(--ink2);color:#fff;font-style:normal;font-size:12.5px;line-height:1}
-.fix-leg{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--light)}
-.fix-leg .sm{width:16px;height:16px;font-size:11px}
-.fix-leg .fixmk.sm{border-width:1.2px;margin-left:8px}
-.fix-leg .fixmk.sm::after{width:4px;height:4px}
-.cf-legp{margin:14px 0 0;text-align:right}
-.pk-sh .fix-leg{margin-left:12px}
-@media (max-width:999px){ .pk-sh .fix-leg{margin-left:0} }
 .cf-r.off>:not(.cf-mk):not(.cf-dot){opacity:.4}
 .cf-r.off .cf-dot::after{opacity:.6}
 @media (max-width:999px){ .cf-r{padding-right:40px} }   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 비켜선다 */
@@ -5685,7 +5678,8 @@ function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
       +'<span class="cf-nm" aria-hidden="true">'+esc(nm)+'</span>'   /* ★예식 흐름 줄의 ★(가장 벅찬 순간) 금지 — 2026-10-03 사용자 지시로 삭제 [FLOW_NO_STAR 2026-10-03 사장님] · ① 칸 · 곡선 · 순간 쪽 머리는 그대로 */
       +(fixed?_fixMk('cf-fixmk')   /* ★[FIX_MARK_O 2026-10-06 사장님 «늘 있어요랑 체크 버튼이 센터 정렬 · 늘 있어요보다 다른 건 없을까 · 연속성» → «추천대로»(A)] ✓ 와 같은 크기 빈 동그라미 + 가운데 점 · 위 범례 한 줄이 뜻을 말한다 · ★«늘 있어요» 글 알약 금지 — 2026-10-06 사용자 지시로 바꿈 */   /* [FLOW_MARK] 단추 아님 · ★[UI_ONE 2026-10-04] 옅은 빈 ✓ 동그라미는 누를 수 있는 칸처럼 보였다 — ① 칸과 같은 «늘 있어요» 표 */
         :'<button type="button" class="pk-sel cf-mk'+(on?' on':'')+'" data-fk="mkflow:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(nm)+(on?' · 담김 · 누르면 빼기':' · 빠짐 · 누르면 다시 담기')+'" onclick="mkFlowTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>')+'</li>'; }   /* [FLOW_MARK] ① 칸과 같은 표 */
-  h+='<p class="cf-legp">'+_fixLeg()+'</p>';   /* [FIX_MARK_O] 범례 한 줄 — 오른쪽 열 표의 뜻 */
+  /* ★범례 한 줄 금지 — 2026-10-06 사용자 지시로 삭제 [FIX_LEG_OFF] «굳이 없어도 이해할 것 같아» */
+  h+='<p class="mk-note cf-how">뺄 순간만 ✓를 눌러 풀어 주세요</p>';   /* ★[FLOW_HOW1 2026-10-06 사장님 «뺄 것만 체크 표시로 풀어 달라고 짧게 설명 한 줄»] 범례 대신 할 일 한 줄 */
   if(pre.length) h+='<p class="cf-g" id="mkFgPre">식전</p><ol class="cf-l" aria-labelledby="mkFgPre">'+pre.map(row).join('')+'</ol>';
   h+='<p class="cf-g" id="mkFgBody">본식</p><ol class="cf-l" aria-labelledby="mkFgBody">'+body.map(row).join('')+'</ol>';
   /* ★«비워 둔 칸은 예식 7일 전까지 채우면 돼요.»([MK_MIN] 한 줄) 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW] · 같은 마감은 ④ «순서는 예식 14일 전까지, 글은 예식 7일 전까지»(EDIT_WINDOW) · 녹음 카드 마감(«예식 7일 전까지») · 넘김 창(«미완료로 둘게요»)이 말한다 */
@@ -6661,7 +6655,7 @@ function renderPick(){
   /* 감동 흐름 판(휴대폰) · 흐름 띠(PC) — 한 벌의 글을 CSS 가 두 모양으로 [FLOW_LINE] */
   h+=_pkPanel();
   /* 순간 칸 — 네 막 [ACTS_FOUR · TILE_PICK · D7] */
-  h+='<div class="pk-sh" id="pkActsH"><h3 class="pk-h">순간 더하고 빼기</h3><span class="pk-aux">칸을 누르면 미리 보고 들어요 · ＋로 담아요</span>'+_fixLeg()+'</div>';   /* [FIX_MARK_O] 범례 */
+  h+='<div class="pk-sh" id="pkActsH"><h3 class="pk-h">순간 더하고 빼기</h3><span class="pk-aux">칸을 누르면 미리 보고 들어요 · ＋로 담아요</span></div>';   /* ★범례(✓ 고른 순간 · ⊙ 늘 있는 순간) 금지 — 2026-10-06 사용자 지시로 삭제 [FIX_LEG_OFF] · 표만으로 읽힌다 */
   h+='<div class="pk-acts">'+R.SECTIONS.map(function(a,i){ return '<section class="pk-act" aria-labelledby="pkA'+i+'"><div class="pk-act-l"><h4 class="pk-act-h" id="pkA'+i+'">'+esc(a.n)+'</h4><p class="pk-act-d">'+esc(a.d)+'</p></div><div class="pk-tiles">'+a.ks.map(_pkTile).join('')+'</div></section>'; }).join('')+'</div>';
   /* ★① 칸 아래 «칸의 그림 자리에는 AI로 만든 장면 영상의 첫 장면이 들어가요» 한 줄 금지 — 2026-10-03 사용자 지시로 삭제 [AI_LABEL_OFF] */
   h+='</div>';
@@ -6706,7 +6700,6 @@ function _pkPanel(){
 }
 /* [FIX_MARK_O] 늘 있는 순간 표 — 누르는 단추가 아니다(그림 · 이름은 화면 읽기에) · 담김 ✓(먹빛 꽉 찬 동그라미)과 같은 26px 동그라미 · 속은 비고 가운데 점 */
 function _fixMk(cls){ return '<span class="'+cls+'" role="img" aria-label="늘 있는 순간 · 빼지 않아요"><i class="fixmk" aria-hidden="true"></i></span>'; }
-function _fixLeg(){ return '<span class="fix-leg" aria-hidden="true"><i class="onmk sm">✓</i>고른 순간<i class="fixmk sm"></i>늘 있는 순간</span>'; }
 function _pkTile(k){
   var R=RitualOpen, c=R.CARDS[k], always=!!R.ALWAYS[k]||k==='_close', on=always||R.onOf(S,k), opt=(k==='free'), v=R.firstVideo(k,S);
   var media=v?('<img src="'+esc(v.small||v.poster)+'" alt="" loading="lazy" decoding="async">'):_pkArt(k);   /* [TILE_PICK] 칸에서는 영상이 저절로 돌지 않는다 — 첫 장면 사진만 */
