@@ -125,7 +125,7 @@ for (const w of [390, 1280]) {
   const dbg = await pg.evaluate(() => ({ g: (S.tx || {})['vow.g'], set: _lRefSets('vow')[1].map((p) => p.who + ':' + p.txt.slice(0, 12)), cur: LP.cur, q: LP.q.map((s) => [String(s.txt || '').slice(0, 12), !!s.src, !!s.talk, !!s.talk2]) }));
   ok(`${w} ② 예시 2 카드 → 두 분 칸에 바로 들어간다 · «이 순간 들어 보기»는 소리 없이 흐른다 [CUE_FORM]`, await pg.evaluate(() => { const set = _lRefSets('vow')[1], g = (set.filter((p) => p.who === '신랑')[0] || {}).txt; return LP.cur === 'vow' && S.tx['vow.g'] === g && LP.q.length > 0 && LP.q.every((s) => !(s.talk2 && s.src)); }), JSON.stringify(dbg));   /* 글을 적은 순간의 ② 듣기는 두 분 차례를 안내 한 줄로 짚고 넘어간다(TALK_BRIDGE · 종전 그대로) */
   ok(`${w} ② 재생 중 — 아래 재생 바 없이 지금 줄 ▶ 가 멈춤 [MINI_OFF_ROWS]`, await pg.evaluate(() => getComputedStyle(document.getElementById('lsMini')).display === 'none' && document.querySelectorAll('.mk-pl[data-ml].on').length === 1));
-  await pg.evaluate(() => lsStop());
+  await pg.evaluate(() => { lsStop(); S.vowHow = 'each'; render(); });   /* [VOW_FORM] 두 칸은 «각자 차례로» 판 — 번갈아(기본)는 줄 칸(vow-form.mjs 가 잰다) */
   await pg.fill('#mkt_vow_g', '나는 약속'); await pg.fill('#mkt_vow_b', '나도 약속'); await pg.waitForTimeout(200);
   ok(`${w} ② 신랑 칸 · 신부 칸 따로 · 옛 한 칸(vowText)은 두 칸을 이어 붙인다 · 칸마다 고친 시각 [TX_MERGE]`, await pg.evaluate(() => S.tx['vow.g'] === '나는 약속' && S.tx['vow.b'] === '나도 약속' && S.vowText === '신랑 · 나는 약속\n\n신부 · 나도 약속' && S.fAt['tx.vow.g'] > 0 && S.fAt['tx.vow.b'] > 0));
   ok(`${w} ② 글자수 · 소리 내어 읽는 초`, await pg.evaluate(() => /5자 · 약 1초/.test(document.getElementById('mkc_vow_g').textContent)));
@@ -381,7 +381,7 @@ for (const w of [390, 1280]) {
   const w = await pg.evaluate(() => ({ t: document.getElementById('stage').textContent, send: document.querySelectorAll('.send-how a[href^="https://pf.kakao.com"], .send-how a[href^="mailto:"]').length }));
   /* ★[PREVIDEO_FREE 2026-10-02 사장님 «링크 칸 하나만»] 카톡 · 메일 보내기 · 길이 · 장수 규정은 걷었다 — 링크 칸 하나 · 규정 글 없음 */
   ok('2-4 · 2-8 ② 식전 영상 쪽 = 링크 칸 하나 · 카톡 · 메일 · 3분 · 30~40장 없음 [PREVIDEO_FREE]', w.send === 0 && !/30~40장|3분 안|25MB/.test(w.t) && /MYBOX/.test(await pg.evaluate(() => (document.querySelector('#stage input[aria-label="식전 영상 링크"]') || {}).placeholder || '')), w.send + ' ' + w.t.slice(0, 200));
-  await pg.evaluate(() => mkGo('vow')); await pg.waitForTimeout(400);
+  await pg.evaluate(() => { S.vowHow = 'each'; mkGo('vow'); }); await pg.waitForTimeout(400);   /* [VOW_FORM] 한 분 칸 = «각자 차례로» 판 */
   const warn = await pg.evaluate(() => { const t = document.getElementById('mkt_vow_g'); t.value = 'ㄱ'.repeat(300); t.dispatchEvent(new Event('input', { bubbles: true })); const a = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = 'ㄱ'.repeat(400); t.dispatchEvent(new Event('input', { bubbles: true })); const b = getComputedStyle(document.getElementById('mkc_vow_g')).color; t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); return [a, b]; });
   ok('2-5 서약 한 분 300자는 경고색 아님 · 400자(한 분 기준 넘음)는 경고색', warn[0] !== warn[1], JSON.stringify(warn));
   ok('추가전달 2 · 3장 pageerror 0', errs.length === 0, errs.join(' | '));

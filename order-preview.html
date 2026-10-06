@@ -1649,6 +1649,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vwr.both .mk-vwn{color:var(--gold-deeper)}
 .mk-vwfix{flex:1 1 100%;margin:0 0 6px;font-size:14px;line-height:1.7;color:var(--sub);word-break:keep-all}
 .mk-vwbn{margin:4px 0 0}
+.mk-vwcnt{margin-left:auto}
 .mk-txwhy{margin:0 0 4px}
 .mk-txalt{margin-top:8px}
 .mk-cue-n{margin:6px 0 0;font-size:12.5px}   /* [CARD_POLISH] 머리 줄(▶ · 제목)과 카드 사이 숨 — 종전 3px 로 붙어 보였다 */
@@ -4290,7 +4291,7 @@ function _txPullApply(p){ try{ if(!p||!p.fAt) return; var n=0, kinds={}, act=doc
   Object.keys(p.fAt).forEach(function(key){ var at=+p.fAt[key]||0; if(at<=(+S.fAt[key]||0)) return;
     var dot=key.indexOf('.'), grp=key.slice(0,dot), id=key.slice(dot+1);
     if(grp==='tx'){ if(actId==='mkt_'+id.replace('.','_')) return; S.tx[id]=String((p.tx||{})[id]||''); kinds[id.split('.')[0]]=1;
-      var ta=document.getElementById('mkt_'+id.replace('.','_')); if(ta) ta.value=S.tx[id]; }
+      var ta=document.getElementById('mkt_'+id.replace('.','_')); if(ta&&!(id.indexOf('vow.')===0&&_vowHow()==='alt')) ta.value=S.tx[id]; }   // [VOW_FORM] 번갈아 줄 칸은 한 줄이 한 칸이라 통째 글을 넣지 않는다(다음 그리기가 줄로 나눠 보인다)
     else if(grp==='mkc'){ c[id]=(p.mkc||{})[id]||0; }
     else if(grp==='up'){ if(!S.up) S.up={}; S.up[id]=(p.up||{})[id]||0; }
     else return;
@@ -4323,7 +4324,11 @@ function _vowRows(){ var f=_vowFirst(), sc=f==='g'?'b':'g', A=_vowSplit('vow.'+f
   if(!A.length) out.unshift({w:f,j:0,t:''}); if(!B.length) out.splice(1,0,{w:sc,j:0,t:''});   // 빈 분은 첫 줄 자리를 비워 둔다(번갈아 차례가 보이게)
   return out; }
 function _vowPut(w,L){ S.tx=S.tx||{}; S.txLn=S.txLn||{}; var id='vow.'+w; S.tx[id]=L.join('\n'); S.txLn[id]=1; _fAt('tx.'+id); _txLeg('vow'); _persist(); }
-window.mkVowLn=function(w,j,el){ var L=_vowSplit('vow.'+w); while(L.length<=j) L.push(''); L[j]=String(el.value||'').replace(/\n+/g,' '); _vowPut(w,L); _taGrow(el); try{ _mkStripRepaint(); }catch(e){} };
+function _txFirstSel(kind){ if(kind==='vow') return _vowHow()==='alt'?'[data-fk="mkvw:'+_vowFirst()+':0"]':'#mkt_vow_'+_vowFirst(); return '#mkt_'+kind+'_g'; }   // [VOW_FORM] «채우기» · 예시 뒤 초점 = 먼저 읽는 분의 첫 칸
+function _vowAllN(){ return _vowSplit('vow.g').concat(_vowSplit('vow.b')).join('').length; }
+window.mkVowLn=function(w,j,el){ var L=_vowSplit('vow.'+w); while(L.length<=j) L.push(''); L[j]=String(el.value||'').replace(/\n+/g,' '); _vowPut(w,L); _taGrow(el);
+  var cn=document.getElementById('mkc_vow_all'); if(cn){ var n=_vowAllN(), lim=TX_KIND.vow.lim*2; cn.textContent=_mkCntT(n,lim); cn.style.color=n>lim?'var(--seal)':''; }   /* 두 분 합친 글자 수 · 약 n초 */
+  try{ _mkStripRepaint(); }catch(e){} };
 window.mkVowAdd=function(){ var R=_vowRows(), f=_vowFirst(), sc=f==='g'?'b':'g', last=R[R.length-1], nw=last.w===f?sc:f, L=_vowSplit('vow.'+nw); L.push('');   /* 마지막 줄과 다른 분 · 그 분 줄 끝에 붙이면 번갈아 차례의 맨 끝에 선다 */ _vowPut(nw,L); _fxNext='[data-fk="mkvw:'+nw+':'+(L.length-1)+'"]'; render(); };
 window.mkVowDel=function(w,j){ var L=_vowSplit('vow.'+w); if(j>=L.length) return; L.splice(j,1); _vowPut(w,L); _fxNext='[data-fk="mkvwadd"]'; render(); };
 window.mkVowSite=function(on){ if(!S.mkc) S.mkc={}; ['vow.g','vow.b'].forEach(function(id){ S.mkc[id]=on?1:0; _fAt('mkc.'+id); }); _persist(); render(); };   // 번갈아 = 두 분이 한 칸 · 체크도 하나
@@ -4335,11 +4340,11 @@ function _vowForm(K,c){ var f=_vowFirst(), nm={g:'신랑',b:'신부'}, h='';
     if(site) h+='<p class="mk-note mk-cue-first">당일 두 분이 현장에서 번갈아 말해요</p>';
     else { h+='<ol class="mk-sl mk-vwl" aria-label="번갈아 읽을 서약 · 줄마다">'+R.map(function(x,i){ var lab=nm[x.w];
         return '<li class="mk-slr mk-vwr"><span class="mk-vwn">'+lab+'</span>'+(n>2?'<button type="button" class="mk-slx" data-fk="mkvwx:'+x.w+':'+x.j+'" aria-label="'+esc((i+1)+'번째 줄 빼기 · '+lab)+'" onclick="mkVowDel(\''+x.w+'\','+x.j+')">'+ICO_X+'</button>':'')
-          +'<span class="mk-slb"><textarea class="ta grow mk-slt" rows="1" maxlength="300" data-fk="mkvw:'+x.w+':'+x.j+'" aria-label="'+esc('서약 '+(i+1)+'번째 줄 · '+lab)+'" placeholder="'+esc((x.w==='b'?'신부가':'신랑이')+' 읽을 줄을 적어 주세요')+'" oninput="mkVowLn(\''+x.w+'\','+x.j+',this)" onchange="_taChange()">'+esc(x.t)+'</textarea></span></li>'; }).join('')+'</ol>'
-        +'<div class="mk-slf"><button type="button" class="pk-link mk-sladd" data-fk="mkvwadd" onclick="mkVowAdd()">＋ 줄 더하기</button></div>'; }
+          +'<span class="mk-slb"><textarea class="ta grow mk-slt" rows="1" maxlength="300" id="mkt_vow_'+x.w+(x.j?'_'+x.j:'')+'" data-fk="mkvw:'+x.w+':'+x.j+'" aria-label="'+esc('서약 '+(i+1)+'번째 줄 · '+lab)+'" placeholder="'+esc((x.w==='b'?'신부가':'신랑이')+' 읽을 줄을 적어 주세요')+'" oninput="mkVowLn(\''+x.w+'\','+x.j+',this)" onchange="_taChange()">'+esc(x.t)+'</textarea></span></li>'; }).join('')+'</ol>'
+        +'<div class="mk-slf"><button type="button" class="pk-link mk-sladd" data-fk="mkvwadd" onclick="mkVowAdd()">＋ 줄 더하기</button>'+(function(){ var n=_vowAllN(), lim=K.lim*2; return '<span class="mk-cnt mk-vwcnt" id="mkc_vow_all"'+(n>lim?' style="color:var(--seal)"':'')+'>'+_mkCntT(n,lim)+'</span>'; })()+'</div>'; }   /* 두 분 합친 글자 수 · 약 n초(한 분 기준 두 배) */
     h+='<div class="mk-vwbw">'+_vowBothRows()+'</div></div>';
     var _all=_vowSplit('vow.g').concat(_vowSplit('vow.b')).join(' '), _w=_exWarn('vow.g',_all);
-    if(!site&&_w) h+='<p class="mk-exw" role="status">'+esc(_w)+'</p>';
+    if(!site) h+='<p class="mk-exw" id="mkw_vow_g" role="status">'+esc(_w)+'</p>';   /* [EX_NAMES] 번갈아 판은 두 분 글을 한 번에 본다(빈 줄은 숨는다 · .mk-exw:empty) */
     return h; }
   h+='<div class="mk-slc mk-txc mk-vwc">';
   [f,f==='g'?'b':'g'].forEach(function(wk){ var id='vow.'+wk, v=(S.tx||{})[id]||'', chk=_txSite('vow',c,id), fid='mkt_vow_'+wk;
@@ -5741,7 +5746,7 @@ window.mkRefPar=function(k){ LS.refPar=LS.refPar||{}; LS.refPar[k]=1; render(); 
 window.mkRefSit=function(k,n){ if(n!=null){ mkRefPick(k,n,1); return; } LS.refSit=LS.refSit||{}; LS.refSit[k]=1;   /* [REF_ROW4] 상황 예시는 글 단추로 바로 고른다 */ var sets=_lRefSets(k), i=-1; sets.some(function(x,n){ if(!(x[0]&&x[0].parent)&&_refSit(x)){ i=n; return true; } return false; }); _fxNext=i>-1?'[data-fk="mkrc:'+k+':'+i+'"]':''; render(); };   // [REF_BEST4] 펼치면 첫 상황 예시 칩에 초점
 window.mkRefStart=function(k){ var sets=_lRefSets(k), cur=Math.min((LS.ref||{})[k]||0,sets.length-1), set=sets[cur], kind=_mkKinds(k)[0], n=0; if(!set||!kind) return;
   if(!S.tx) S.tx={}; TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], pt=set.filter(function(p){ return p.who===w[1]; })[0]; if(pt&&!String(S.tx[id]||'').trim()){ S.tx[id]=pt.txt; _fAt('tx.'+id); n++; } });
-  _txLeg(kind); _persist(); MK.toast=n?'예시를 두 분 칸에 옮겼어요 · 이름과 이야기를 두 분 것으로 바꿔 주세요':''; _fxNext='#mkt_'+kind+'_g'; render(); };
+  _txLeg(kind); _persist(); MK.toast=n?'예시를 두 분 칸에 옮겼어요 · 이름과 이야기를 두 분 것으로 바꿔 주세요':''; _fxNext=_txFirstSel(kind); render(); };
 window.mkRefPick=function(k,n,re){ LS.ref=LS.ref||{}; LS.ref[k]=n; if(re&&_mkRefFillable(k,n)){ _mkRefFill(k,n); return; } if(re){ _fxNext='[data-fk="mkrc:'+k+':'+n+'"]'; render(); } };
 /* ★[CUE_FORM 2026-10-06] 두 분 칸이 있는 순간(첫인사 · 서약 · 편지 · 부모님께 인사)은 예시 카드를 누르면 글이 칸에 바로 들어간다 — AI 줄 편집기와 같은 길(EX_ONE).
    그 예시에 그 분 줄이 있을 때만 채운다(부모님 예시 · 한 분 예시는 있는 줄만). 두 분이 고쳐 쓴 글이 있으면 먼저 묻는다(예시 그대로인 글은 묻지 않고 바꾼다).
@@ -7871,7 +7876,7 @@ function _editOpen(k){
   var ps=_mkPages(), tgt=ps.indexOf(k)>-1?k:(ps.indexOf('prevideo')>-1&&k==='guest'?'guest':'guest');
   var m=_mkState(); m.at=tgt; m.seen[tgt]=1; LS.open=tgt; MK.toast='';
   var kind=_mkKinds(tgt)[0], empty=kind&&!String((S.tx||{})[kind+'.g']||'').trim()&&!String((S.tx||{})[kind+'.b']||'').trim();
-  _edFocus={step:'listen',sel:empty?'#mkt_'+kind+'_g':'#mkHead'};
+  _edFocus={step:'listen',sel:empty?_txFirstSel(kind):'#mkHead'};   // [VOW_FORM] 서약 번갈아 판은 첫 줄 칸
   _edGo('listen');
 }
 /* 수정하러 갈 때는 기록을 되감지 않고(=뒤로 가기 아님) 새 칸으로 간다 — 되감으면 popstate 가 수정을 끝내 버린다 */
