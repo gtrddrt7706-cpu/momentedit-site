@@ -9169,7 +9169,10 @@ chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html
 nochk '앞뒤 빈소리를 자르고 소리 크기를 나레이션에 맞췄어요 · 한 번 들어 보세요' order-preview.html
 nochk '천천히 읽어 주세요 · 30초쯤' order-preview.html   # [READ_NO_SEC]
-nochk 'mk-vdel2" data-fk="mkupdel' order-preview.html   # [AI_DONE_QUIET]
+# [AI_DONE_QUIET] AI 줄의 «✓ AI로 만들었어요 · 지우기»는 걷은 그대로 — 아래 둘이 지킨다(상태 줄을 비우는 줄 · 지우기는 AI 가 아닌 줄만).
+#   ★[UP_BTN_OFF 2026-10-06] 녹음 · 파일 줄은 아래 «들어 보기 · 지우기» 단추 줄을 걷으며 지우기를 상태 줄 끝으로 옮겼다(지울 길이 없으면 다시 녹음 · 올리기로 못 간다) — 종전 nochk 'mk-vdel2" data-fk="mkupdel' 은 두 경우를 못 갈라 바꿨다 · 화면 검사 vc-screen · rec-upload 가 AI 줄 지우기 없음을 잰다
+chk "src==='ai') st=Object.assign({},st,{t:'',ok:0});" order-preview.html 1
+chk "st.file&&!st.busy&&!aiF?'<span aria-hidden" order-preview.html 1
 chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안에서 맞춘다(0.2 · 0.5 · 0.9 · 1.4초)
 chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
 chk 'ASSET_V' order-preview.html 3   # 옛 파일을 쓰지 않게 ?v= · ?t=
