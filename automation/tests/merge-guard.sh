@@ -12038,7 +12038,8 @@ chk 'TOAST_TALK_GLASS' order-preview.html 1   # [G5] «위하여» 줄은 잔 �
 chk 'FIRST_LINE_NAME' order-preview.html 1   # [G5] 화촉 «여는 말» · 선언 «선언 · 엄숙하게»([R3-10] 갈래 표와 «나레이션» 겹침 뺌)
 chk "var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};" order-preview.html 1   # 잔 드는 큐 (107 · 40 · 76)
 chk "return '두 분이 서로 반지를 끼워요';" order-preview.html 1   # [R1-45] «말 없이»는 위 나레이션이 말한다
-chk '하객 박수 · 두 분이 부부가 돼요' order-preview.html 1
+nochk "return '하객 박수 · 두 분이 부부가 돼요'" order-preview.html   # ★[STAGE_LINES 2026-10-06] 박수 뒤에 부부가 되는 것처럼 읽혔다 · 되살리지 말 것
+chk "return '하객이 박수로 축하해요';" order-preview.html 1
 chk '양가 와인을 한 잔에 모아요' order-preview.html 1   # [POUR_BY_PICK 코워크 회신7] 붓기 줄은 고른 판의 말로
 chk '두 분이 고른 와인을 한 잔에 부어요' order-preview.html 1
 chk 'UNDO_CLOSE_ON_TGL' order-preview.html 1   # [코워크 회신7 #868-1] 담기 · 빼기면 되돌리기 알림도 닫힘
@@ -14718,3 +14719,10 @@ chk 'VP_UNPICKED_ALL' order-preview.html 3
 chk 'VP_UNPICKED_ALL' scripts/audit/ex-prebake.mjs 1
 nochk "if(_vsCur()!=='ai'){ VS.inPick=true; try{ VS_KEYS.forEach(function(k){ _lSet(k,'ai'); });" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/ex-prebake.mjs >/dev/null 2>&1; _exp=$?; [ "$_exp" = 1 ] && { echo 'FAIL ex-prebake: 예시 소리 · 처음 글로 · 예시 포커스 · 목소리 미리 고르기가 어긋났습니다 — node scripts/audit/ex-prebake.mjs'; fail=1; }; [ "$_exp" = 0 ] && echo 'OK   ex-prebake'; fi
+# ★[STAGE_LINES 2026-10-06 사장님 «성혼 선언을 한 것인가? 의문» · «대사 이후에 액션을 하는데 화면에 그 내용이 없으니 헷갈려»] 나레이션 두 줄 사이엔 하는 일 줄 · 줄 이름은 «언제» · 선언 줄은 «성혼 선언문»
+chk 'STAGE_LINES' order-preview.html 7
+chk 'STAGE_LINES' assets/ritual-open.js 2
+chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
+chk "var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면'" order-preview.html 1
+nochk "one: '두 분이 부부가 되었음을 알려요.'" assets/ritual-open.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/stage-lines.mjs >/dev/null 2>&1; _stl=$?; [ "$_stl" = 1 ] && { echo 'FAIL stage-lines: 식순 줄 사이 하는 일 줄 · 줄 이름(언제) · 성혼 선언문이 어긋났습니다 — node scripts/audit/stage-lines.mjs'; fail=1; }; [ "$_stl" = 0 ] && echo 'OK   stage-lines'; fi
