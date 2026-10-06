@@ -368,7 +368,8 @@ const clips = parse(SRC);
 /* [GROUP_PHOTO 2026-09-26 코워크 회신 9/26 2-5] 103 → 104 — 골라 트는 판에 fx-free(자유 사진 여는 말 · 109) 한 줄이 더해졌다 */
 /* [PHOTO_THANKS · THANKS_TEXT 2026-09-26 사장님 결정] 104 → 105 — 식사 없는 날 감사 인사(110 end-1c-thanks-nomeal) */
 /* [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 105 → 109 — 이음말 넷(111 bridge-b3-clap-thanks · 112 bridge-b4-breath · 113 bridge-b5-video-out · 114 bridge-b6-lighter · 이음말_초안_20261002.md 확정본) */
-const CLIP_COUNT = 109;
+/* [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 109 → 121 — 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126 guest-ex2-1-arrival … guest-ex4-4-1min · N22-a~l) */
+const CLIP_COUNT = 121;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

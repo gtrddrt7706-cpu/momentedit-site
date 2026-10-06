@@ -14635,3 +14635,10 @@ nochk '잔희:' 'docs/plans/식순연구/타입캐스트/실청_다시_20260905.
 nochk '잔희' 'docs/plans/식순연구/타입캐스트/하객맞이예시_20261006_붙여넣기.txt'
 nochk '`잔희`(우리 안내)' scripts/build-typecast-import.mjs
 chk '진희: 어서 오세요.' 'docs/plans/식순연구/타입캐스트/하객맞이예시_20261006_붙여넣기.txt' 1
+# ★[GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 하객 맞이 스튜디오 나레이션 예시 2~4 — 115~126 · S.guestEx · 나레이션 판에도 «참고 예시» 카드
+chk 'GUEST_EX_NAR' assets/ritual-cue.js 4
+chk 'guestEx: \[' assets/ritual-open.js 1
+chk "'guestEx'," assets/ritual-preview-link.js 1
+chk 'window.mkGuestNarEx=function(n)' order-preview.html 1
+chk "_exCards('guestnar'," order-preview.html 1
+[ -f assets/audio/narration/126_guest-ex4-4-1min.mp3 ] && echo 'ok 126_guest-ex4-4-1min.mp3' || { echo 'REVERT? 하객 맞이 나레이션 예시 소리(115~126)가 없다'; fail=1; }

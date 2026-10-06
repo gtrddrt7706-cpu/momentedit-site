@@ -147,7 +147,10 @@
     'end-1c-thanks-nomeal',
     /* ★★[BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 111~114 — 순간 사이 잇는 말(이음말 B3 · B4 · B5 · B6). **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안은 assets/ritual-open.js NAR.bridge · 끼우는 자리는 build() 의 [BRIDGE_LINK] 블록 · 새 코스(open)에서만 */
-    'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter'
+    'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter',
+    /* ★★[GUEST_EX_NAR 2026-10-06 사장님 녹음] 115~126 — 하객 맞이 나레이션 예시 2~4(진희) · **맨 끝에 붙였다**(위 경고 그대로).
+       원천 문안 assets/ritual-open.js NAR.guestEx · 고르는 값 S.guestEx(0~3 · 0 = 01~04 그대로) · 스튜디오 나레이션 판에서만 */
+    'guest-ex2-1-arrival', 'guest-ex2-2-10min', 'guest-ex2-3-5min', 'guest-ex2-4-1min', 'guest-ex3-1-arrival', 'guest-ex3-2-10min', 'guest-ex3-3-5min', 'guest-ex3-4-1min', 'guest-ex4-1-arrival', 'guest-ex4-2-10min', 'guest-ex4-3-5min', 'guest-ex4-4-1min'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -220,7 +223,20 @@
     'tribute-bow-groom': O.NAR.bowGroom, 'toast-both-pour-b': O.NAR.toastBothPour,
     /* [BRIDGE_LINK] 이음말 넷 — 원천 ritual-open NAR.bridge(여기는 이름표만) */
     'bridge-b3-clap-thanks': O.NAR.bridge.clapThanks, 'bridge-b4-breath': O.NAR.bridge.breath,
-    'bridge-b5-video-out': O.NAR.bridge.videoOut, 'bridge-b6-lighter': O.NAR.bridge.lighter
+    'bridge-b5-video-out': O.NAR.bridge.videoOut, 'bridge-b6-lighter': O.NAR.bridge.lighter,
+    /* [GUEST_EX_NAR] 하객 맞이 나레이션 예시 2~4 — 원천 ritual-open NAR.guestEx */
+    'guest-ex2-1-arrival': O.NAR.guestEx[0][0],
+    'guest-ex2-2-10min': O.NAR.guestEx[0][1],
+    'guest-ex2-3-5min': O.NAR.guestEx[0][2],
+    'guest-ex2-4-1min': O.NAR.guestEx[0][3],
+    'guest-ex3-1-arrival': O.NAR.guestEx[1][0],
+    'guest-ex3-2-10min': O.NAR.guestEx[1][1],
+    'guest-ex3-3-5min': O.NAR.guestEx[1][2],
+    'guest-ex3-4-1min': O.NAR.guestEx[1][3],
+    'guest-ex4-1-arrival': O.NAR.guestEx[2][0],
+    'guest-ex4-2-10min': O.NAR.guestEx[2][1],
+    'guest-ex4-3-5min': O.NAR.guestEx[2][2],
+    'guest-ex4-4-1min': O.NAR.guestEx[2][3]
   };
 
   // ── 유틸
@@ -318,7 +334,8 @@
       if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
       s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
-      s.freeLen = O.chipOf('freeLen', s);   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
+      s.freeLen = O.chipOf('freeLen', s);
+      s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹.
          옛 초안의 bowGroom 도 flower 로(큰절 여는 줄 · 방석 지문이 안 나간다) · 빌더는 «원하시면 큰절을 올리셔도 돼요» 한 줄만 · ★신랑 큰절 칩 되살리지 말 것 */
@@ -543,13 +560,14 @@
            그래서 02 · 03 · 04 는 영상이 있든 없든 예식 시작 기준 −10 · −5 · −1 이다. 영상이 없는 날은 그 시각에 바로 입장.
            ★[ONEMIN_CLOCK_KEEP] «영상은 본식 시작 4분 전 · 안내는 −14 · −9 · −5» 판은 같은 날 이 결정으로 걷었다 — 되살리지 말 것 */
       var pvOn = !!(seq && seq.indexOf('prevideo') > -1);
-      var preFirst = vi === 1 && seq && (seq.indexOf('candle') > -1 || pvOn);
+      var gx = vi === 1 ? (+S.guestEx || 0) : 0;   // [GUEST_EX_NAR] 스튜디오 나레이션 판만 · 두 분 목소리 판은 두 분이 고른 글(S.vtext)
+      var preFirst = vi === 1 && !gx && seq && (seq.indexOf('candle') > -1 || pvOn);   // 예시 2~4 의 1분 전은 «곧 문이 열리고»가 없어 89 판이 필요 없다
       var own = S.guestVoice === 'couple';
       var at = [null, -10, -5, -1], out = [];   // [CEREMONY_AT_VIDEO] 늘 예식 시작 기준
       for (var i = 0; i < 4; i++) {
         out.push(cue({
-          k: 'guest', blockN: '하객 맞이', slug: (i === 3 && preFirst) ? 'guest-4-1min-pre' : FILES[i], name: '하객 맞이 · ' + D.GUEST[i][0],
-          text: (i === 3 && preFirst) ? EXTRA['guest-4-1min-pre'] : D.GUEST[i][vi], own: own, duck: PARAM.duckSpeech,
+          k: 'guest', blockN: '하객 맞이', slug: gx ? 'guest-ex' + (gx + 1) + '-' + ['1-arrival', '2-10min', '3-5min', '4-1min'][i] : (i === 3 && preFirst) ? 'guest-4-1min-pre' : FILES[i], name: '하객 맞이 · ' + D.GUEST[i][0],
+          text: gx ? O.NAR.guestEx[gx - 1][i] : (i === 3 && preFirst) ? EXTRA['guest-4-1min-pre'] : D.GUEST[i][vi], own: own, duck: PARAM.duckSpeech,
           fire: i === 0 ? 'manual' : 'clock', atMin: at[i],
           hint: i === 0 ? '문이 열리고 하객이 들어오기 시작하면' : '',
           note: i === 0 ? '입장 시간 동안 5~7분 간격으로 반복 재생(반복은 콘솔이 자동)' :

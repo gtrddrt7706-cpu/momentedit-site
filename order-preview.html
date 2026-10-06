@@ -4486,7 +4486,7 @@ function _pvCount(t){ var n=String(t||'').trim().length; return n+' / '+PV_MAX+'
    글을 채워 주는 예시는 한 모양 — 서약 · 편지와 같은 «참고 예시» 카드(예시 N · 느낌) + 한 줄 «누르면 아래 글이 이 예시로 바뀌어요 · 그대로 써도 좋고 두 분 말로 고쳐도 돼요».
    입장(AI 두 분 목소리 판) · 식전 영상 소개가 쓴다. ★스튜디오 나레이션 판의 입장 멘트는 «어느 나레이션을 읽나» 고르기(글을 고칠 수 없다)라 종전 칩 줄 그대로.
    예시 그대로인 줄 카드에는 «예시 글 · 고쳐 써도 돼요» 표(하객 맞이 넷 · 입장 · 식전 영상 소개) — 고치면 사라진다 */
-function _exCards(id,items,cur,fn){ return '<section class="mk-sec mk-ref mk-exs" aria-labelledby="mkExH_'+id+'"><h4 id="mkExH_'+id+'">참고 예시</h4><p class="lf-refn">누르면 아래 글이 이 예시로 바뀌어요 · 그대로 써도 좋고 두 분 말로 고쳐도 돼요</p>'
+function _exCards(id,items,cur,fn,note){ return '<section class="mk-sec mk-ref mk-exs" aria-labelledby="mkExH_'+id+'"><h4 id="mkExH_'+id+'">참고 예시</h4><p class="lf-refn">'+esc(note||'누르면 아래 글이 이 예시로 바뀌어요 · 그대로 써도 좋고 두 분 말로 고쳐도 돼요')+'</p>'
   +'<div class="mk-rcs" role="radiogroup" aria-label="참고 예시">'+items.map(function(x,n){ var on=n===cur; return '<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+((on||(cur<0&&n===0))?'0':'-1')+'" data-fk="mkex:'+id+':'+n+'" onclick="'+fn+'('+n+')"><b>예시 '+(n+1)+'</b><span>'+esc(x)+'</span></button>'; }).join('')+'</div></section>'; }
 function _exNorm(t){ return String(t||'').replace(/\s+/g,''); }
 /* ★★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 종류로 · 다른 곳들처럼 예시 1~4 같은 폼으로»] 두 분 목소리(AI) 판 하객 맞이 네 줄 = «참고 예시» 카드 넷.
@@ -4512,6 +4512,7 @@ var GUEST_EX=[
    "곧 저희 예식을 시작하겠습니다. 오늘 예식은 미리 준비한 안내 음성으로 진행되며, 순서와 목소리는 저희가 직접 정했습니다. 예식에 온전히 함께하실 수 있도록 휴대폰은 진동 모드로 부탁드립니다. 저희가 입장할 때 따로 일어서지 않으셔도 됩니다. 사진은 편히 남겨 주십시오. 잠시 후 뵙겠습니다."]]
 ];
 var GUEST_KEYS=['g0','g1','g2','g3'];
+window.mkGuestNarEx=function(n){ if(!GUEST_EX[n]) return; if(n) S.guestEx=n; else delete S.guestEx; _stopMk&&_stopMk(); buildSteps(); _fxNext='[data-fk="mkex:guestnar:'+n+'"]'; _persist(); render(); };   // [GUEST_EX_NAR] 나레이션 판 예시 고르기(0 = 01~04 그대로)
 function _guestExCur(){ for(var n=0;n<GUEST_EX.length;n++){ if(GUEST_KEYS.every(function(k,i){ return _exNorm(_recNeed(k))===_exNorm(GUEST_EX[n][1][i]); })) return n; } return -1; }   // [GUEST_EX4] 네 줄이 모두 그 예시일 때만 켜진다
 window.mkGuestEx=function(n){ var X=GUEST_EX[n]; if(!X) return;
   var go=function(){ GUEST_KEYS.forEach(function(k,i){ var w=(_slRaw(k)[0]||{}).w==='b'?'b':'g';
@@ -5618,7 +5619,8 @@ function renderMake(){
     /* ★[VP_ASK_ONE 2026-10-06 사장님 «나레이션 자세히와 '먼저 골라 주세요' 상자가 중복 · 통합해서 하나만 · 고객 입장에서»] 상자(두 갈래 설명 목록)를 걷었다 —
        두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
     if(_vpAsk){}
-    else h+=_mkFlow(k,_pn>=2?lb:'');
+    else { if(k==='guest'&&S.guestVoice!=='couple') h+=_exCards('guestnar',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','누르면 아래 나레이션이 이 예시로 바뀌어요 · 들어 보고 마음에 드는 것으로 골라 주세요');   /* ★[GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 스튜디오 나레이션 판도 예시 넷(같은 카드 · 같은 이름) · 고른 값 S.guestEx */
+      h+=_mkFlow(k,_pn>=2?lb:''); }
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);
   }
