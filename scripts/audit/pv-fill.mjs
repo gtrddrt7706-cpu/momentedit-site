@@ -42,6 +42,14 @@ try {
     await pg.evaluate(() => { S.up.pv = { src: 'rec', id: 'local:2', n: 'r' }; render(); }); await wait(200);
     const b = await pg.evaluate(() => ({ playBtn: !!document.querySelector('[data-fk="mkupplay:pv"]'), del: !!document.querySelector('.mk-vst [data-fk="mkupdel:pv"]'), bottomDel: !!document.querySelector('.mk-vbs [data-fk="mkupdel:pv"]'), head: !!document.querySelector('[data-fk="mkvpl:pv"]') }));
     ok(`${w} ④ 녹음 줄 — 아래 «들어 보기 · 지우기» 없음 · 머리 ▶ · 지우기는 상태 줄 끝 [UP_BTN_OFF]`, !b.playBtn && !b.bottomDel && b.del && b.head, JSON.stringify(b));
+    /* ⑤ [PV_EX_NAR 2026-10-07] 스튜디오 나레이션 판도 예시 넷 — 누르면 위 나레이션 줄이 그 예시 글 · 녹음 파일(128~130) */
+    await pg.evaluate(() => { _lSet('pvVoice', 'nar'); buildSteps(); render(); }); await wait(300);
+    const n0 = await pg.evaluate(() => ({ cards: [...document.querySelectorAll('[data-fk^="mkex:pvnar:"]')].map((b) => b.textContent.replace(/\s+/g, '')).join('|'), on: (document.querySelector('[data-fk^="mkex:pvnar:"][aria-pressed="true"],[data-fk^="mkex:pvnar:"][aria-checked="true"],[data-fk^="mkex:pvnar:"].on') || {}).getAttribute ? document.querySelector('[data-fk^="mkex:pvnar:"][aria-pressed="true"],[data-fk^="mkex:pvnar:"][aria-checked="true"],[data-fk^="mkex:pvnar:"].on').getAttribute('data-fk') : '' }));
+    await pg.click('[data-fk="mkex:pvnar:2"]'); await wait(400);
+    const n1 = await pg.evaluate(() => { const st = _lSteps(ENG, ['prevideo']).filter((x) => !x.skip && !x.quiet)[0] || {}; return { ex: S.pvEx, txt: st.txt, src: String(st.src || '').split('/').pop(), foc: document.activeElement && document.activeElement.getAttribute('data-fk'), row: ((document.querySelector('.mk-pg .mk-flowsec') || {}).textContent || '').indexOf('팝콘은 없지만') > -1 }; });
+    ok(`${w} ⑤ 스튜디오 나레이션 판 — 예시 1~4 카드 · 예시 3 → «팝콘은 없지만 …» · 129 녹음 · 포커스는 카드 [PV_EX_NAR]`, /예시1/.test(n0.cards) && /예시4/.test(n0.cards) && n1.ex === 2 && /^팝콘은 없지만/.test(n1.txt || '') && n1.src === '129_narr-prevideo-in-ex3.mp3' && n1.foc === 'mkex:pvnar:2' && n1.row, JSON.stringify({ n0, n1 }));
+    await pg.click('[data-fk="mkex:pvnar:0"]'); await wait(300);
+    ok(`${w} ⑤ 예시 1 → 90 녹음 그대로(«두 분이 준비한 영상을 함께 보시겠습니다.») [PV_EX_NAR]`, await pg.evaluate(() => { const st = _lSteps(ENG, ['prevideo']).filter((x) => !x.skip && !x.quiet)[0] || {}; return S.pvEx == null && /^두 분이 준비한 영상을/.test(st.txt || '') && /90_narr-prevideo-in\.mp3$/.test(st.src || ''); }));
     ok(`${w} pageerror 0`, !errs.length, errs.slice(0, 2).join(' | '));
     await pg.close();
   }

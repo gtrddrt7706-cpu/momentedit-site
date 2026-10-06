@@ -3918,7 +3918,7 @@ function _lGroups(k){
   function L(key,l,list,cur,q,note){ g.push({key:key,l:l,list:list,cur:cur,q:!!q,note:note||''}); }
   if(k==='guest'){ if(_upLive()){ if(_vpChoice('guest').length>1) L('guestVoice','어떻게 준비할까요',_vpChoice('guest'),_vpCur('guest'),false,_vpNoteOf('guest')); } else if(S.guestVoice==='couple') L('guestVoice','안내 목소리',[['nar','나레이션'],['couple','두 분 목소리']],'couple',false,'');   /* [LATE_LINE_OFF] */ }   // [VP_NO_DIRECT] 고를 것이 하나면 칸을 숨긴다 · 옛 판은 이미 «두 분 목소리»를 고른 초안만   // ★[VP_CHOICE 2026-09-28 코워크 0928 6-1] 문이 열리면 «어떻게 준비할까요» · 닫혀 있으면 종전 칩   // [DETAIL_0925 B6] 입장 목소리와 헷갈리지 않게 · [VOICE_LATE]
   /* ★[PV_INTRO 2026-10-02 사장님 «두 분이 소개글을 적어서 AI 목소리로도 할 수 있고 · 적절한 예시도»] 영상 앞 한 줄 — AI 가 켜진 예식에만 고른다(스튜디오 나레이션은 정해진 한 줄이라 두 분 글을 못 읽는다) */
-  if(k==='prevideo'&&_upLive()&&_vcOn()) L('pvVoice','영상 앞 소개',[['ai','AI 두 분 목소리'],['nar','스튜디오 나레이션']],_vpCur('prevideo')==='ai'?'ai':'nar',false,_vpCur('prevideo')==='ai'?'' /* ★식전 영상 칩 아래 AI 설명 금지 — 2026-10-03 사용자 지시로 삭제 [NOTE_OFF_1003] */:'«두 분이 준비한 영상을 함께 보시겠습니다» 한 줄을 나레이터가 읽어요');   /* [R4-12] 칩 이름은 앞뒤 쪽(하객 맞이 · 입장) · 머리 줄과 같은 «AI 두 분 목소리» — 이 쪽만 «두 분 소개글 · AI 목소리» · «한 분의 AI 목소리»로 세 이름이었다 */   /* [R8-12] 목소리가 준비된 판은 칩 아래 AI 설명을 걷는다(R2-26 _vpNoteOf 와 같은 판정 · 아래 «✓ AI 목소리 준비됨» · 카드 [신랑|신부]가 같은 말) */
+  if(k==='prevideo'&&_upLive()&&_vcOn()) L('pvVoice','영상 앞 소개',[['ai','AI 두 분 목소리'],['nar','스튜디오 나레이션']],_vpCur('prevideo')==='ai'?'ai':'nar',false,_vpCur('prevideo')==='ai'?'' /* ★식전 영상 칩 아래 AI 설명 금지 — 2026-10-03 사용자 지시로 삭제 [NOTE_OFF_1003] */:'아래에서 고른 예시 한 줄을 나레이터가 읽어요');   /* [PV_EX_NAR 2026-10-07] 종전 ««두 분이 준비한 영상을 함께 보시겠습니다» 한 줄을…» — 예시 넷이 생겨 예시 1 글을 박아 두면 다른 예시를 골랐을 때 틀린 말 */   /* [R4-12] 칩 이름은 앞뒤 쪽(하객 맞이 · 입장) · 머리 줄과 같은 «AI 두 분 목소리» — 이 쪽만 «두 분 소개글 · AI 목소리» · «한 분의 AI 목소리»로 세 이름이었다 */   /* [R8-12] 목소리가 준비된 판은 칩 아래 AI 설명을 걷는다(R2-26 _vpNoteOf 와 같은 판정 · 아래 «✓ AI 목소리 준비됨» · 카드 [신랑|신부]가 같은 말) */
   if(k==='candle') L('candleWho','서는 분',R.CANDLE_WHO,R.CANDLE_WHO.some(function(c){return c[0]===S.candleWho;})?S.candleWho:R.DEF.candleWho);
   if(k==='entry'){
     var cpl=S.entryVoice==='couple';
@@ -4665,6 +4665,7 @@ function _exWarm(w){ if(!_vcOn()||!VC.st||!(VC.st[w]||{}).ready) return;
   if(S.guestVoice==='couple') GUEST_KEYS.forEach(function(k,i){ if((S.vself||{})[k]||_vcLineWho(k)!==w) return; GUEST_EX.forEach(function(X){ var t=X[1][i]; if(t&&t!==_recNeed(k)) _vcAltWarm(k,w,t,_tWho(w,k),_pWho(w,k)); }); });
   if(S.pvVoice==='couple'&&!(S.vself||{}).pv&&_vcLineWho('pv')===w) PV_EX.forEach(function(e){ if(e[1]!==_recNeed('pv')) _vcAltWarm('pv',w,e[1],_tWho(w,'pv'),_pWho(w,'pv')); }); }
 window.mkGuestNarEx=function(n){ if(!GUEST_EX[n]) return; if(n) S.guestEx=n; else delete S.guestEx; _stopMk&&_stopMk(); buildSteps(); _fxNext='[data-fk="mkex:guestnar:'+n+'"]'; _persist(); render(); };   // [GUEST_EX_NAR] 나레이션 판 예시 고르기(0 = 01~04 그대로)
+window.mkPvNarEx=function(n){ if(!PV_EX[n]) return; if(n) S.pvEx=n; else delete S.pvEx; _stopMk&&_stopMk(); buildSteps(); _fxNext='[data-fk="mkex:pvnar:'+n+'"]'; _persist(); render(); };   /* [PV_EX_NAR 2026-10-07] 식전 영상 소개 나레이션 예시 — mkGuestNarEx 와 같은 꼴 */
 function _guestExCur(){ for(var n=0;n<GUEST_EX.length;n++){ if(GUEST_KEYS.every(function(k,i){ return _exNorm(_recNeed(k))===_exNorm(GUEST_EX[n][1][i]); })) return n; } return -1; }   // [GUEST_EX4] 네 줄이 모두 그 예시일 때만 켜진다
 window.mkGuestEx=function(n){ var X=GUEST_EX[n]; if(!X) return;
   /* ★[EX_BASE 2026-10-06] 고른 예시를 «기본 글»로 둔다(S.gExC) — 두 분이 고친 글 · 줄 나눔만 걷는다 · 읽는 분(S.guestWho)은 그대로.
@@ -5938,6 +5939,7 @@ function renderMake(){
        두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
     if(_vpAsk){}
     else { h+=_mkFlow(k,_pn>=2?lb:'');
+      if(k==='prevideo'&&S.pvVoice!=='couple') h+=_exCards('pvnar',PV_EX.map(function(x){ return x[0]; }),+S.pvEx||0,'mkPvNarEx','누르면 위 나레이션이 이 예시로 바뀌어요 · 들어 보고 마음에 드는 것으로 골라 주세요');   /* ★[PV_EX_NAR 2026-10-07 사장님 «스튜디오는 왜 예시가 없어 · 4개 똑같이»] 하객 맞이와 같은 카드 넷 · 녹음 128~130 */
       if(k==='guest'&&S.guestVoice!=='couple') h+=_exCards('guestnar',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','누르면 위 나레이션이 이 예시로 바뀌어요 · 들어 보고 마음에 드는 것으로 골라 주세요'); }   /* ★[GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 스튜디오 나레이션 판도 예시 넷(같은 카드 · 같은 이름) · 고른 값 S.guestEx · [MK_FORM_ONE] 흐름 → 참고 예시 차례 */
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);

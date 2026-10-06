@@ -152,7 +152,9 @@
        원천 문안 assets/ritual-open.js NAR.guestEx · 고르는 값 S.guestEx(0~3 · 0 = 01~04 그대로) · 스튜디오 나레이션 판에서만 */
     'guest-ex2-1-arrival', 'guest-ex2-2-10min', 'guest-ex2-3-5min', 'guest-ex2-4-1min', 'guest-ex3-1-arrival', 'guest-ex3-2-10min', 'guest-ex3-3-5min', 'guest-ex3-4-1min', 'guest-ex4-1-arrival', 'guest-ex4-2-10min', 'guest-ex4-3-5min', 'guest-ex4-4-1min',
     /* ★★[VOW_FIRST 2026-10-06 사장님] 127 — 혼인 서약 여는 말 · 신부가 먼저일 때(«신랑부터 시작하겠습니다»를 뺀 판). **맨 끝에 붙였다**(위 경고 그대로). */
-    'narr-vow-in-b'
+    'narr-vow-in-b',
+    /* ★★[PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 128~130 — 식전 영상 소개 나레이션 예시 2~4. **맨 끝에 붙였다**(위 경고 그대로) · 고르는 값 S.pvEx(0~3 · 0 = 90 그대로) · 스튜디오 나레이션 판에서만 */
+    'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -226,6 +228,8 @@
     /* [BRIDGE_LINK] 이음말 넷 — 원천 ritual-open NAR.bridge(여기는 이름표만) */
     'bridge-b3-clap-thanks': O.NAR.bridge.clapThanks, 'bridge-b4-breath': O.NAR.bridge.breath,
     'bridge-b5-video-out': O.NAR.bridge.videoOut, 'bridge-b6-lighter': O.NAR.bridge.lighter,
+    /* [PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 — 원천 ritual-open NAR.pvEx */
+    'narr-prevideo-in-ex2': O.NAR.pvEx[0], 'narr-prevideo-in-ex3': O.NAR.pvEx[1], 'narr-prevideo-in-ex4': O.NAR.pvEx[2],
     /* [GUEST_EX_NAR] 하객 맞이 나레이션 예시 2~4 — 원천 ritual-open NAR.guestEx */
     'guest-ex2-1-arrival': O.NAR.guestEx[0][0],
     'guest-ex2-2-10min': O.NAR.guestEx[0][1],
@@ -337,7 +341,8 @@
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
       s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
       s.freeLen = O.chipOf('freeLen', s);
-      s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
+      s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;
+      s.pvEx = /^[0-3]$/.test(String(s.pvEx)) ? +s.pvEx : 0;   // [PV_EX_NAR] 식전 영상 소개 나레이션 예시(0 = 90 그대로)   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹.
          옛 초안의 bowGroom 도 flower 로(큰절 여는 줄 · 방석 지문이 안 나간다) · 빌더는 «원하시면 큰절을 올리셔도 돼요» 한 줄만 · ★신랑 큰절 칩 되살리지 말 것 */
@@ -595,10 +600,10 @@
       /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상에 두 분이 소개글을 적어서 AI 목소리로도 할 수 있게 · 예시도»] S.pvVoice==='couple' 이면
          이 큐는 두 분 목소리 자리다(own) — 콘솔이 두 분이 만든 소리(pv)를 같은 슬러그에 물린다 · 소리가 없으면 스튜디오 나레이션 그대로(아래 글).
          소개글 자체는 엔진이 읽지 않는다(글칸은 미리듣기 주소에 싣지 않는다 · PREVIEW_KEYS) — 빌더가 화면에 보여 준다. */
-      var own = !!(S && S.pvVoice === 'couple');
+      var own = !!(S && S.pvVoice === 'couple'), px = own ? 0 : (+S.pvEx || 0), pslug = px ? 'narr-prevideo-in-ex' + (px + 1) : 'narr-prevideo-in';   // [PV_EX_NAR] 스튜디오 나레이션 판만 예시를 따른다(두 분 목소리 판은 같은 슬러그에 두 분 소리를 물린다)
       return [cue({
-        k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-in', name: '식전 영상 소개',
-        text: EXTRA['narr-prevideo-in'], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
+        k: 'prevideo', blockN: '식전 영상', slug: pslug, name: '식전 영상 소개',
+        text: EXTRA[pslug], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
         fire: 'clock', atMin: 0,   // [CEREMONY_AT_VIDEO 2026-10-05] 불을 낮추고 예식 시작 시각에 · 옛 [PREVIDEO_AT_4](본식 시작 4분 전) 걷음
         note: '영상 링크는 D-3 까지 받는다(영상이 없으면 링크로 받은 사진으로 저희가 영상 · 첫 장에 이름 · 날짜 · 길이 · 장수 규정 없음 [PREVIDEO_FREE]) · 상영 중 배경음은 끈다 · 불을 낮춘다',
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff }
