@@ -1,7 +1,7 @@
 // ★[EX_ROW 2026-10-06 사장님 «스튜디오 나레이션 윗쪽 버튼 그대로 써서 예시 글이 나오게 · 다른 곳도 전부 이 형태 · 예시 표시는 한 곳에»] (390 · 1280)
 //   ① AI 하객 맞이 = 위쪽 고르기 묶음에 «참고 예시» 칩 줄(어떻게 준비할까요 바로 아래) · 느낌 이름 넷 · 처음엔 안 눌린 모양 + «지금 글은 … 예시예요» · 옛 카드 없음
 //   ② 칩을 누르면 그 칩이 눌리고 아래 글이 바뀐다 · 안내 줄은 «고르면 아래 글이 바뀌어요»
-//   ③ 스튜디오 입장 = «어떻게 준비할까요»가 먼저 · «입장 멘트»가 아래 / 스튜디오 하객 맞이 = «안내 멘트» 줄(예시라는 말 없음)
+//   ③ 스튜디오 입장 = «어떻게 준비할까요»가 먼저 · «입장 멘트»가 아래 / 스튜디오 하객 맞이 = «안내 멘트» 줄(예시라는 말 · 덧말 없음)
 //   ④ 서약 = «두 분이 할 말» 바로 위 «참고 예시» 칩 줄 · 처음엔 안 눌림 · 누르면 칸에 들어가고 눌린 모양
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -33,7 +33,7 @@ try {
     ok(`${w} ③ 스튜디오 입장 — «어떻게 준비할까요»가 먼저 · «입장 멘트»가 아래`, c.findIndex((r) => r.l === '어떻게 준비할까요') === 0 && c.findIndex((r) => r.l === '입장 멘트') === 1, JSON.stringify(c));
     await pg.evaluate(() => mkGo('guest')); await wait(400);
     const d = await pg.evaluate(rows); const nar = d.find((r) => r.l === '안내 멘트');
-    ok(`${w} ③ 스튜디오 하객 맞이 — «안내 멘트» 칩 줄 · «참고 예시» 없음 · 안 고르면 «…로 진행돼요»`, nar && nar.c.length === 4 && !d.some((r) => r.l === '참고 예시') && /고르지 않으면/.test(nar.n), JSON.stringify(d));
+    ok(`${w} ③ 스튜디오 하객 맞이 — «안내 멘트» 칩 줄 · «참고 예시» 없음 · 덧말 없음(입장 멘트와 같게)`, nar && nar.c.length === 4 && !d.some((r) => r.l === '참고 예시') && !/아직 고르지 않았어요/.test(nar.n), JSON.stringify(d));
     await pg.evaluate(() => { S.tx = {}; mkGo('vow'); }); await wait(400);
     const e = await pg.evaluate(() => { const g = document.querySelector('.mk-ref [role=radiogroup][aria-label="참고 예시"]'), say = [...document.querySelectorAll('.mk-sec h4')].find((h) => h.textContent === '두 분이 할 말'); return { has: !!g, chips: g ? g.querySelectorAll('.op-chip').length : 0, on: g ? g.querySelectorAll('.op-chip[aria-checked="true"]').length : -1, below: !!(g && say && (g.compareDocumentPosition(say) & 4)) }; });
     ok(`${w} ④ 서약 — «두 분이 할 말» 위 «참고 예시» 칩 줄 넷 · 처음엔 안 눌림`, e.has && e.chips === 4 && e.on === 0 && e.below, JSON.stringify(e));
