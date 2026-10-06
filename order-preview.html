@@ -1550,8 +1550,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동안만 · 클래스로(ordAsk 의 body.style 과 섞이지 않게) */
 .mk-dlg{position:fixed;inset:0;z-index:2147482990;background:rgba(28,27,25,.42);display:flex;align-items:flex-end;justify-content:center}   /* ★[REC_DLG] 녹음 · AI 목소리 작은 창 — 모바일은 아래에서 올라오는 판 · 넓은 화면은 가운데 · 흐림(blur) 없음 */
 .mk-dlg-c{width:100%;max-width:520px;max-height:92vh;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--bg);border-radius:12px 12px 0 0;padding:16px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -6px 28px rgba(28,27,25,.16)}
-.mk-dlg.mk-dlg-top{align-items:flex-start;padding:max(12px,4dvh) 8px 0}.mk-dlg-top .mk-dlg-c{border-radius:12px;max-height:calc(100dvh - max(12px,4dvh) - 12px)}   /* [VU_FLOW_FREE] 위 고정 · 아래로만 늘고 준다 */
-@media (min-width:640px){.mk-dlg.mk-dlg-top{padding:max(24px,calc((100dvh - 780px) / 2)) 24px 24px}}
+.mk-dlg.mk-dlg-bot{align-items:flex-end;padding:12px 8px max(12px,4dvh)}.mk-dlg-bot .mk-dlg-c{border-radius:12px;max-height:calc(100dvh - max(12px,4dvh) - 12px)}   /* ★[VU_BOTTOM_FIX 2026-10-06 사장님 «다음 버튼이 자꾸 움직이니 불편 · 위쪽이 움직이게»] 아래 고정 · 위로만 늘고 준다 — 이전 · 다음 · 들어 보기가 늘 같은 자리. 종전 «위 고정»(VU_FLOW_FREE)은 그림이 제자리인 대신 단추가 60~120px 오르내렸다 · 되돌리지 말 것 */
+@media (min-width:640px){.mk-dlg.mk-dlg-bot{padding:24px 24px max(24px,calc((100dvh - 780px) / 2))}}
 @media (min-width:640px){.mk-dlg{align-items:center;padding:24px}.mk-dlg-c{border-radius:12px;padding:20px 24px 22px;box-shadow:0 8px 28px rgba(28,27,25,.18)}}
 .mk-dlg-h{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px}
 .mk-dlg-t{flex:1;margin:4px 0 0;font-family:var(--ko-serif);font-size:20px;font-weight:600;letter-spacing:-.02em;line-height:1.4;color:var(--accent);word-break:keep-all}
@@ -4879,7 +4879,7 @@ function _recDlgPaint(){ var m=_dlgModel(), d=document.getElementById('mkRecDlg'
   if(!d){ d=document.createElement('div'); d.id='mkRecDlg'; d.className='mk-dlg'; document.body.appendChild(d); MK.dlgFrom=MK.lastFk||''; _dlgInert(true); }
   if(h===DLG.html) return; DLG.html=h;
   var a=document.activeElement, fk=(a&&d.contains(a)&&a.getAttribute)?a.getAttribute('data-fk'):null;
-  d.innerHTML=h; d.classList.toggle('mk-dlg-top',h.indexOf('mk-vu-img')>-1);   /* [VU_FLOW_FREE] «나오는 곳» 창은 위를 고정 — 높이가 글만큼 바뀌어도 그림 · 칩이 제자리(가운데 · 아래 맞춤이면 «다음»마다 60~120px 튀었다 · 실측) */
+  d.innerHTML=h; d.classList.toggle('mk-dlg-bot',h.indexOf('mk-vu-img')>-1);   /* [VU_BOTTOM_FIX] «나오는 곳» 창은 아래를 고정 · [VU_FLOW_FREE] 종전엔 위를 고정 — 높이가 글만큼 바뀌어도 그림 · 칩이 제자리(가운데 · 아래 맞춤이면 «다음»마다 60~120px 튀었다 · 실측) */
   var tg=fk&&d.querySelector('[data-fk="'+fk+'"]'); if(!tg||tg.disabled) tg=d.querySelector('.mk-dlg-go:not([disabled])')||d.querySelector('#mkDlgT');
   try{ tg.focus({preventScroll:true}); }catch(e){} }
 document.addEventListener('click',function(e){ var b=e.target&&e.target.closest&&e.target.closest('[data-fk]'); if(b&&!b.closest('#mkRecDlg')) MK.lastFk=b.getAttribute('data-fk'); },true);   // 창을 닫으면 연 단추로 돌아간다
