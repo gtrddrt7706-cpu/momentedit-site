@@ -14614,7 +14614,7 @@ nochk '.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal)' order
 chk 'VP_ASK_ONE' order-preview.html 2
 nochk 'mk-sec mk-vpask"' order-preview.html
 chk 'VU_VIDEO_KEEP' order-preview.html 1
-chk 'VU_PV_EX' order-preview.html 2
+chk 'VU_PV_EX' order-preview.html 1   # [VU_EX_LISTEN] 예시 1 빈 글 처리는 예시 칩으로 흡수
 chk 'VU_VIDEO_KEEP' scripts/audit/vuse-flow.mjs 2
 # ★[FIX_MARK_O 2026-10-06 사장님 «늘 있어요 · 체크 버튼 센터 정렬 · 다른 건 없을까 · 연속성» → «추천대로»(A)] 늘 있는 순간 = ✓ 와 같은 26px 빈 동그라미 + 점 · 범례 한 줄 · 예식 흐름 · ① 칸 둘 다
 chk 'FIX_MARK_O' order-preview.html 4
