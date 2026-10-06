@@ -14756,3 +14756,6 @@ chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
 chk "var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면'" order-preview.html 1
 nochk "one: '두 분이 부부가 되었음을 알려요.'" assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/stage-lines.mjs >/dev/null 2>&1; _stl=$?; [ "$_stl" = 1 ] && { echo 'FAIL stage-lines: 식순 줄 사이 하는 일 줄 · 줄 이름(언제) · 성혼 선언문이 어긋났습니다 — node scripts/audit/stage-lines.mjs'; fail=1; }; if [ "$_stl" = 0 ]; then echo 'OK   stage-lines'; fi; fi   # [TAIL_RC]
+# ★[RD_SUM_2LINE 2026-10-06 사장님 «보기 좋게 두 줄로»] 다시 녹음 창 맺는 설명 = 두 문장 두 줄(360 · 390 · 1280 실측 각 한 줄)
+chk 'RD_SUM_2LINE' order-preview.html 2
+chk '<span>다시 녹음한 분의 확정 전 줄만 새 목소리로 바뀌어요.</span><span>마음에 드는 줄은 먼저 확정해 두세요.</span>' order-preview.html 1
