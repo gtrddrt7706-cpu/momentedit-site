@@ -14667,3 +14667,6 @@ chk "_exCards('guestnar'," order-preview.html 1
 [ -f assets/audio/narration/126_guest-ex4-4-1min.mp3 ] && echo 'ok 126_guest-ex4-4-1min.mp3' || { echo 'REVERT? 하객 맞이 나레이션 예시 소리(115~126)가 없다'; fail=1; }
 chk 'GUEST_EX_TONE' scripts/audit/voice-register.mjs 1   # [GUEST_EX_TONE 2026-10-06 사장님 «그대로 쓰기»] 하객 맞이 예시는 두 분이 고르는 말투 · 한 예시 안 네 줄은 한 층
 chk 'BOSS_STYLE' CLAUDE.md 1   # [BOSS_STYLE 2026-10-06] 사장님 작업 방식 취합본 — 지우지 말 것
+# ★★[BOSS_WAY_1006 2026-10-06 사장님 확정] 사장님이 추구하는 작업 방식 — CLAUDE.md 맨 위 절(지우지 말 것)
+chk 'BOSS_WAY_1006' CLAUDE.md 1
+chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
