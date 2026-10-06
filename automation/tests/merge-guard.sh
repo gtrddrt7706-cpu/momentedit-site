@@ -14541,3 +14541,11 @@ chk "var ENTRY_KEYS=\['A','B','D','E'\];" order-preview.html 1
 nochk 'class="mk-rc mk-rpar"' order-preview.html
 chk 'REF_ROW4' scripts/audit/listen-page.mjs 3
 :
+# ★★[CUE_FORM 2026-10-06 사장님] 두 분이 직접 말하는 순간 — 예시 카드가 곧 글칸 채우기 · 두 분 칸 한 카드 · 왜 적는지 한 줄 · 현장 체크 = 끝 신호(말이나 동작) · 콘솔은 체크한 분 끝 신호 먼저
+chk 'CUE_FORM' order-preview.html 8
+chk 'function _mkRefFill(k,n)' order-preview.html 1
+chk '끝 신호 · 끝날 때 하는 말이나 동작을 알려 주세요' order-preview.html 1
+chk 'CUE_FORM' console.html 1
+chk 'CUE_FORM' scripts/audit/cue-form.mjs 1
+nochk '아래 칸에 그대로 옮겨 적거나, 두 분 이야기로 바꿔 적어 주세요' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/cue-form.mjs >/dev/null 2>&1; _cuf=$?; [ "$_cuf" = 1 ] && { echo 'FAIL cue-form: 두 분이 할 말 칸(예시 채우기 · 현장 체크 · 끝 신호)이 어긋났습니다 — node scripts/audit/cue-form.mjs'; fail=1; }; fi

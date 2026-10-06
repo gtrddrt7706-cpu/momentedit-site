@@ -1,5 +1,5 @@
 // ★[EX_ONE 2026-10-05 사장님 «예시라고 한번 짚어 주는 게 어때 · 예시 부분 형태가 일관되지 않다 · 이벤트마다 통일»] 실브라우저(390 · 1280)
-//   ①입장(AI 판) = «참고 예시» 카드 6(예시 N · 느낌) · 위쪽 «입장 멘트» 칩 줄 없음 · 스튜디오 나레이션 판은 칩 줄 그대로
+//   ①입장(AI 판) = «참고 예시» 카드 4(예시 N · 느낌 · REF_ROW4 2026-10-06 에 6 → 4) · 위쪽 «입장 멘트» 칩 줄 없음 · 스튜디오 나레이션 판은 칩 줄 그대로
 //   ②식전 영상 소개 = «참고 예시» 카드 4 · 옛 이름표 없는 칩(.ex-chip) 없음 ③예시 그대로인 줄 카드에 «예시 글 · 고쳐 써도 돼요» · 고치면 사라짐
 //   ④입장 줄을 고쳐 둔 뒤 다른 예시를 누르면 묻고(«예시로 바꿀까요?») · 바꾸면 그 예시 글로
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
@@ -23,7 +23,7 @@ try {
     await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.entry = 'A'; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { groom: { ready: true }, bride: { ready: true } }; for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
     await until(pg, () => typeof ENG !== 'undefined' && !!ENG); await pg.evaluate(() => mkGo('entry')); await until(pg, () => !!document.querySelector('[data-fk^="mkex:entry:"]'));
     const a = await pg.evaluate(() => ({ cards: document.querySelectorAll('[data-fk^="mkex:entry:"]').length, b1: (document.querySelector('[data-fk="mkex:entry:0"] b') || {}).textContent, chips: document.querySelectorAll('[data-fk^="lsc:entry:"]').length, tag: !!document.querySelector('.mk-extag'), h: [...document.querySelectorAll('.mk-exs h4')].map((x) => x.textContent) }));
-    ok(`${w} ① 입장(AI) = «참고 예시» 카드 6 · «예시 1» · 입장 멘트 칩 줄 없음 · ③ 예시 글 표`, a.cards === 6 && a.b1 === '예시 1' && a.chips === 0 && a.tag && a.h[0] === '참고 예시', JSON.stringify(a));
+    ok(`${w} ① 입장(AI) = «참고 예시» 카드 4(REF_ROW4) · «예시 1» · 입장 멘트 칩 줄 없음 · ③ 예시 글 표`, a.cards === 4 && a.b1 === '예시 1' && a.chips === 0 && a.tag && a.h[0] === '참고 예시', JSON.stringify(a));
     // ④ 고친 뒤 다른 예시 → 묻는다
     await pg.evaluate(() => { _slPut('entry', [{ w: 'g', t: '저희가 직접 쓴 입장 인사입니다.' }]); render(); }); await wait(300);
     ok(`${w} ③ 고친 줄엔 «예시 글» 표가 없다`, await pg.evaluate(() => !document.querySelector('.mk-extag')));
