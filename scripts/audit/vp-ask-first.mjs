@@ -23,12 +23,12 @@ for (const W of [390, 1280]) {
   await pg.evaluate(() => { window._vc = (op) => Promise.resolve(op === 'status' ? { ok: true, on: true, groom: {}, bride: {}, per: {} } : { ok: false }); RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; S.vsChip = 1; S.vsAsked = 1; S.on.prevideo = 1; opSync(); });
   for (const [k, vk] of [['guest', 'guestVoice'], ['entry', 'entryVoice'], ['prevideo', 'pvVoice']]) {
     await pg.evaluate((k) => { mkGo(k); try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }, k); await pg.waitForTimeout(400);
-    const look = (vk) => pg.evaluate((vk) => ({ ask: (document.querySelector('.mk-vpask') || {}).textContent || '', flow: !!document.querySelector('.mk-flow'), cards: document.querySelectorAll('.mk-vc').length,
+    const look = (vk) => pg.evaluate((vk) => ({ ask: (document.querySelector('.mk-vpask1') || {}).textContent || '', box: !!document.querySelector('.mk-vpask'), flow: !!document.querySelector('.mk-flow'), cards: document.querySelectorAll('.mk-vc').length,
       note: [...document.querySelectorAll('.ls-gnote')].map((e) => e.textContent).join('|'), on: [...document.querySelectorAll('[data-fk^="lsc:' + vk + ':"]')].filter((e) => e.getAttribute('aria-checked') === 'true' || e.classList.contains('on')).length }), vk);
     const a = await look(vk);
     if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `vp-ask-${k}-${W}.png`), fullPage: true });
-    ok(`${W} ${k} 안 고름 — «먼저 골라 주세요» 칸(두 갈래 · 안 고르면 스튜디오 나레이션) · 흐름 · 줄 카드 · «나레이터가 읽어요» 없음 · 칩 비어 있음`,
-      /먼저 골라 주세요/.test(a.ask) && /AI 두 분 목소리/.test(a.ask) && /스튜디오 나레이션으로 진행돼요/.test(a.ask) && !a.flow && a.cards === 0 && !/나레이터가 읽어요/.test(a.note) && a.on === 0, JSON.stringify(a));
+    ok(`${W} ${k} 안 고름 — 칩 아래 한 줄(«아직 고르지 않았어요 · 안 고르면 스튜디오 나레이션») · 상자 없음 [VP_ASK_ONE] · 흐름 · 줄 카드 · «나레이터가 읽어요» 없음 · 칩 비어 있음`,
+      /아직 고르지 않았어요/.test(a.ask) && /스튜디오 나레이션으로 진행돼요/.test(a.ask) && !a.box /* [VP_ASK_ONE] 상자 없이 칩 아래 한 줄 */ && !a.flow && a.cards === 0 && !/나레이터가 읽어요/.test(a.note) && a.on === 0, JSON.stringify(a));
     await pg.click(`[data-fk="lsc:${vk}:nar"]`); await pg.waitForTimeout(400);
     const b = await look(vk);
     ok(`${W} ${k} 스튜디오 나레이션 고름 — 칸이 걷히고 흐름 · 덧말이 열린다`, !b.ask && b.flow && /나레이터가 읽어요/.test(b.note) && b.on === 1, JSON.stringify(b));

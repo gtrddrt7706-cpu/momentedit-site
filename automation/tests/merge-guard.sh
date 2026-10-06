@@ -14607,6 +14607,15 @@ chk '.mk-vlist .rowbtn.mk-vb{min-width:var(--mk-vb-w)' order-preview.html 1
 nochk '<span class="mk-extag">예시 글 · 고쳐 써도 돼요</span>' order-preview.html
 chk '들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요' order-preview.html 1
 chk 'EXTAG_OFF' order-preview.html 2
+# ★[FIELD_NO_RED 2026-10-06 사장님 «텍스트박스에 빨간색 테두리 없었으면»] 식순 글 칸은 진사 포커스 고리 없음 · 금빛 테두리 · 밑줄로만
+chk 'FIELD_NO_RED' order-preview.html 3
+nochk '.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal)' order-preview.html
+# ★[VP_ASK_ONE · VU_VIDEO_KEEP · VU_PV_EX 2026-10-06 사장님] «먼저 골라 주세요» 상자 걷고 칩 아래 한 줄 · 목소리 창 같은 영상 이어 재생 · 식전 영상 소개 빈 글 = 예시 1
+chk 'VP_ASK_ONE' order-preview.html 2
+nochk 'mk-sec mk-vpask"' order-preview.html
+chk 'VU_VIDEO_KEEP' order-preview.html 1
+chk 'VU_PV_EX' order-preview.html 2
+chk 'VU_VIDEO_KEEP' scripts/audit/vuse-flow.mjs 2
 # ★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 · 다른 곳처럼 예시 1~4 같은 폼»] AI 판 하객 맞이 = «참고 예시» 카드 넷 · 누르면 네 줄이 한 번에
 chk 'GUEST_EX4' order-preview.html 4
 chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1

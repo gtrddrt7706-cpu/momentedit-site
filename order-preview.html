@@ -704,7 +704,10 @@ button.oc-nm,button.crs-h,button.fold{width:100%}
 :where(a,button,input,textarea,select,[tabindex]):focus-visible{
   outline:2px solid var(--seal);outline-offset:3px;border-radius:4px}
 /* ★:where()는 특이도 0이라 .ta:focus{outline:none}(0,1,1)을 못 이긴다 — 같은 깊이로 다시 쓴다. */
-.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+/* ★★[FIELD_NO_RED 2026-10-06 사장님 «텍스트박스에 빨간색 테두리 없었으면 좋겠어»] 글 칸은 진사 테두리(포커스 고리)를 두르지 않는다 — 깜빡이는 커서와
+   금빛 테두리 · 밑줄이 «지금 여기 쓰는 중»을 말한다(상자 칸 = 테두리 금 · 밑줄 칸 = 밑줄 금 두 줄). 단추 · 칩의 포커스 고리는 그대로 둔다 */
+.ta:focus-visible,.tin:focus-visible,textarea:focus-visible,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit]):focus-visible{outline:none}
+.ta:focus,.tin:focus{border-color:var(--gold-deeper)}
 
 /* [ORD_H2] 단계 제목이 전부 <div>였다(h2 0개). 낭독기의 제목 이동으로는 아무 데도 못 간다. */
 h2.q-title,.done-hd h2.t{margin:0}
@@ -1464,10 +1467,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-rc b{font-size:12.5px;font-weight:600;color:var(--accent)}
 .mk-extag{display:inline-block;margin-left:8px;padding:1px 8px;border:1px solid var(--gold-deeper);border-radius:999px;font-size:11px;font-weight:500;color:var(--gold-deeper);vertical-align:2px;letter-spacing:.02em;white-space:nowrap}   /* [EX_ONE] 예시 그대로인 줄 */
 .mk-exs{border-top:0;padding-top:0;margin-top:6px}
-.mk-vpask{margin-top:8px;padding:16px 18px;border:1px dashed var(--border);border-radius:8px;background:var(--bg2)}   /* [VP_ASK_FIRST] */
-.mk-vpask-t{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--accent)}
-.mk-vpask-l{list-style:none;margin:0 0 8px;padding:0;font-size:12.5px;line-height:1.8;color:var(--sub)}
-.mk-vpask-l b{margin-right:8px;font-weight:600;color:var(--accent)}
+.mk-vu-exn{margin:-4px 0 12px;font-size:12.5px}   /* [VU_PV_EX] */
 .mk-exl{align-self:center;margin-right:2px;font-size:11px;color:var(--gold-deeper);letter-spacing:.04em}   /* [EX_ONE] 끝 신호 예시 칩 앞 «예시» */   /* [EX_ONE] 줄 카드 바로 위 */
 .mk-rc span{font-size:12.5px;color:var(--light);line-height:1.45;word-break:keep-all}
 .mk-rc.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;background:#F3ECDF}   /* [UI_ONE · SEL_ONE] 고른 것 한 모양 */
@@ -1586,7 +1586,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 /* ★[SL_TIDY] 한 단추 «신부»(누르면 신랑 · .mk-slw) 금지 — 2026-10-05 사용자 지시로 [신랑 | 신부] 둘 다 보이게 바꿈(«신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?») */
 .mk-slb{position:relative;flex:1 1 100%;min-width:0;display:flex}
 .mk-slb .mk-slt.ta.grow{flex:1 1 auto;min-width:0;margin-top:0;min-height:0;padding:6px 0 10px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent}
-.mk-slb .mk-slt.ta.grow:focus{border-bottom-color:var(--gold-deeper)}
+.mk-slb .mk-slt.ta.grow:focus{border-bottom-color:var(--gold-deeper);box-shadow:0 1px 0 var(--gold-deeper)}   /* [FIELD_NO_RED] 밑줄 칸은 쓰는 동안 금 밑줄을 두 줄 굵기로 */
 .mk-slx{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:var(--light);cursor:pointer;padding:0;margin:-4px -12px -4px auto}
 .mk-slx svg{width:14px;height:14px}
 .mk-sladd{display:inline-flex;align-items:center;min-height:44px;margin:0}
@@ -1600,7 +1600,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-txh .mk-extag{margin:0}
 .mk-txh .mk-ck{margin-left:auto}
 .mk-txc .mk-txta.ta.grow{width:100%;margin-top:0;padding:6px 0 10px;border:0;border-bottom:1px solid transparent;border-radius:0;background:transparent}   /* 칸 사이는 가는 선 하나 — 글칸 밑줄은 쓰는 동안만 */
-.mk-txc .mk-txta.ta.grow:focus{border-bottom-color:var(--gold-deeper);outline:none}
+.mk-txc .mk-txta.ta.grow:focus{border-bottom-color:var(--gold-deeper);box-shadow:0 1px 0 var(--gold-deeper);outline:none}   /* [FIELD_NO_RED] */
 .mk-txc .mk-txta.ta.grow{min-height:52px}
 .mk-txc .mk-txr .mk-fl{margin-top:2px}
 .mk-txc .mk-txr .mk-fl:not(:has(.mk-cnt:not(:empty))){display:none}   /* 글자 수가 빈 줄은 자리를 차지하지 않는다 */
@@ -4933,12 +4933,17 @@ function _vcUseSrc(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.src
 function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), who=w==='both'?'두 분':w==='bride'?'신부':'신랑', v=RitualOpen.firstVideo(x[2],S), src=_vcUseSrc(x[0]);
   return '<div class="mk-vu-img">'+(v?(v.mp4&&!_rm()?'<video muted playsinline loop autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
     +'<p class="mk-vu-when">'+esc(VC_USE_WHEN[x[0]]||'')+' · '+who+' 목소리</p>'
-    +'<p class="mk-vu-q">'+esc(_recNeed(x[0])||'')+'</p>'
+    +(function(){ var q=_recNeed(x[0])||'', ex=!q&&x[0]==='pv'; if(ex) q=PV_EX[0][1];   /* ★[VU_PV_EX 2026-10-06 사장님 «식전 영상 소개는 대사가 없네»] 소개글을 아직 안 적었으면 빈 칸 대신 예시 1 · «예시 글» 표 */
+      return '<p class="mk-vu-q">'+esc(q)+'</p>'+(ex?'<p class="mk-note mk-vu-exn">예시 글이에요 · 식전 영상 쪽에서 두 분 글로 바꿀 수 있어요</p>':''); })()
     +(src?'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" onclick="mkUsePlay()">'+ICO_PLAY+' 들어 보기</button>':'')
     +'<div class="mk-vu-nav"><button type="button" class="pk-link" data-fk="mkuseprev" onclick="mkUseGo(-1)"'+(i?'':' disabled')+'>‹ 이전</button><span class="mk-vu-n" aria-live="polite">'+(i+1)+' / '+n+'</span>'
     +'<button type="button" class="rowbtn" data-fk="mkusenext" onclick="mkUseGo(1)">'+(i<n-1?'다음 ›':'닫기')+'</button></div>'; }
+/* ★[VU_VIDEO_KEEP 2026-10-06 사장님 «다음 넘길 때마다 영상이 처음부터 다시 · 하객 입장부터 시작 1분 전까지는 같은 영상이니 재생하던 그대로»]
+   창을 다시 그려도 새 영상이 이전 영상과 같은 파일이면 이전 영상(재생 중인 그 요소)을 그 자리에 그대로 옮겨 붙인다 — 끊김 · 처음부터 없음 */
+function _vuKeep(fn){ var o=document.querySelector('.mk-vu-img video'), src=o&&o.getAttribute('src'); fn(); if(!o) return;
+  var n=document.querySelector('.mk-vu-img video'); if(n&&n!==o&&n.getAttribute('src')===src){ n.replaceWith(o); try{ if(o.paused) o.play().catch(function(){}); }catch(e){} } }
 window.mkUseOpen=function(i){ MK.use=i; render(); };
-window.mkUseGo=function(d){ var n=_vcUseRows().length; _stopMk(); var j=(MK.use||0)+d; if(j>=n){ MK.use=null; render(); return; } if(j<0) j=0; MK.use=j; render(); };
+window.mkUseGo=function(d){ var n=_vcUseRows().length; _stopMk(); var j=(MK.use||0)+d; if(j>=n){ MK.use=null; render(); return; } if(j<0) j=0; MK.use=j; _vuKeep(render); };
 window.mkUsePlay=function(){ var x=_vcUseRows()[MK.use||0]; if(!x) return; var src=_vcUseSrc(x[0]); if(!src) return; _stopAud(); _stopMk(); try{ var a=new Audio(); MK.aud=a; _playLead(a,src,1,null); }catch(e){} };
 function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   var g=(st&&st.groom)||{}, b=(st&&st.bride)||{}, both=!!(g.ready&&b.ready);
@@ -5610,9 +5615,9 @@ function renderMake(){
        안내 목소리 고르기(하객 맞이 · 입장 · 식전 영상 소개)를 아직 안 눌렀으면 아래 흐름(나레이션 줄 · 이 순간 전체 듣기)을 그리지 않고 «먼저 골라 주세요» 한 칸만.
        고르면 그 판의 흐름이 열린다. 칩이 비어 있는 것(CHIP_UNPICKED)은 그대로 · 안 고른 채 넘어가면 스튜디오 나레이션으로 흐른다는 것도 그 칸이 말한다 */
     var _vpAsk=gs.filter(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; })[0];
-    if(_vpAsk) h+='<section class="mk-sec mk-vpask" role="note" aria-label="안내 목소리 고르기"><p class="mk-vpask-t">어떻게 준비할지 먼저 골라 주세요</p>'
-      +'<ul class="mk-vpask-l"><li><b>AI 두 분 목소리</b> 두 분이 녹음한 목소리로 AI가 읽어요</li><li><b>스튜디오 나레이션</b> 저희 나레이터가 읽어요</li></ul>'
-      +'<p class="mk-note">고르지 않고 넘어가면 스튜디오 나레이션으로 진행돼요</p></section>';
+    /* ★[VP_ASK_ONE 2026-10-06 사장님 «나레이션 자세히와 '먼저 골라 주세요' 상자가 중복 · 통합해서 하나만 · 고객 입장에서»] 상자(두 갈래 설명 목록)를 걷었다 —
+       두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
+    if(_vpAsk){}
     else h+=_mkFlow(k,_pn>=2?lb:'');
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);
@@ -5874,7 +5879,7 @@ function _lChipRow(g,opt){
   return '<div class="ls-cg'+(/^(guest|entry|pv)Voice$/.test(g.key)?' cg-vp':'')+'" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
     return '<button type="button" class="op-chip" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(g.picked===false&&ci===0))?'0':'-1')+'" data-fk="lsc:'+g.key+':'+c[0]+'" onclick="lsChip(\''+g.key+'\',\''+c[0]+'\')">'+_chipT(c[1])+'</button>'; }).join('')
     +((opt&&opt.vsLink&&/^(guest|entry|pv)Voice$/.test(g.key)&&_vsOk())?'<button type="button" class="pk-link cg-vsl" data-fk="mkvsopen" onclick="mkVsOpen()">나레이션 자세히</button>':'')   /* [VS_LINK_IN_ROW] 같은 창 · VS_CHIP_ONCE 그대로 */
-    +(g.note&&!(g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
+    +((g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?'<span class="ls-gnote mk-vpask1">아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션으로 진행돼요</span>':g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 결과 설명 대신 한 줄 · [VP_ASK_ONE] 상자는 걷었다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
 }
 window.lsOpen=function(k){ LS.open=(LS.open===k?null:k); render(); };
 /* ★★[CHIP_NO_REPLAY 2026-09-27 사장님 «버튼을 누를 때마다 음성이 재생된다 · 나레이션이 달라지지 않는 버튼을 눌러도 반복해서 나온다»]
