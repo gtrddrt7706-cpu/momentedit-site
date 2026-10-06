@@ -4642,7 +4642,7 @@ function _exCards(id,items,cur,fn,note){ return '<section class="mk-sec mk-ref m
    처음엔 안 눌린 모양(CHIP_UNPICKED) — 기본 글이 들어 있으면 그 이름을 한 줄로 알린다. ★«참고 예시» 카드(.mk-rc 두 줄 상자) 금지 — 2026-10-06 사용자 지시로 칩 줄로 */
 function _exTouch(key){ S.touched=S.touched||{}; S.touched[key]=1; }
 function _exRowG(key,lab,names,cur,fn,fk,base,note){ var t=(S.touched||{})[key], picked=cur>=0&&(!!t||cur!==base);
-  var un=!picked&&cur>=0&&cur===base?(lab==='참고 예시'?'아직 고르지 않았어요 · 지금 글은 «'+names[cur]+'» 예시예요':'아직 고르지 않았어요 · 고르지 않으면 «'+names[cur]+'»로 진행돼요'):'';
+  var un=!picked&&cur>=0&&cur===base&&lab==='참고 예시'?'아직 고르지 않았어요 · 지금 글은 «'+names[cur]+'» 예시예요':'';   /* [EX_ROW] 스튜디오 멘트 줄(안내 · 소개)은 «입장 멘트»처럼 덧말 없음 — 방금 스튜디오를 고른 자리에 «아직 고르지 않았어요»가 또 뜨면 고른 것이 안 된 것처럼 읽혔다(vp-ask-first) */
   return {key:key,l:lab,list:names.map(function(x,n){ return [n,x]; }),cur:cur,picked:picked,fn:'_exTouch(\''+key+'\');'+fn,fk:fk,unote:un,note:note||''}; }
 function _exRows(k){ var out=[], R=RitualOpen, EXN='고르면 아래 글이 바뀌어요 · 고쳐 써도 돼요';
   if(k==='guest'){ if(S.guestVoice==='couple'&&_vpCur('guest')==='ai') out.push(_exRowG('exGuest','참고 예시',GUEST_EX.map(function(x){ return x[0]; }),_guestExCur(),'mkGuestEx','mkex:guest:',0,EXN));
