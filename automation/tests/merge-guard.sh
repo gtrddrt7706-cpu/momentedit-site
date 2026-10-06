@@ -14587,3 +14587,8 @@ chk 'CUE_FORM' console.html 1
 chk 'CUE_FORM' scripts/audit/cue-form.mjs 1
 nochk '아래 칸에 그대로 옮겨 적거나, 두 분 이야기로 바꿔 적어 주세요' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/cue-form.mjs >/dev/null 2>&1; _cuf=$?; if [ "$_cuf" = 1 ]; then echo 'FAIL cue-form: 두 분이 할 말 칸(예시 채우기 · 현장 체크 · 끝 신호)이 어긋났습니다 — node scripts/audit/cue-form.mjs'; fail=1; fi; fi   # ★[GUARD_TAIL_RC 2026-10-06] 맨 끝 줄이 «[ … ] && { … }»면 통과해도 거짓이 남아 종료코드 1(ALL MARKERS OK 인데 CI 빨강) — if 로 쓴다
+# ★[NO_CARET_TEXT 2026-10-06 사장님 «MOMENT EDIT 사이에 커서 · 없애 줘»] 포커스 받는 틀(tabindex=-1) 안 글자 커서 투명 · 입력칸은 되돌린다
+chk 'NO_CARET_TEXT' index.html 1
+chk 'NO_CARET_TEXT' order-preview.html 1
+chk 'NO_CARET_TEXT' schedule.html 1
+chk '\[tabindex="-1"\] input,\[tabindex="-1"\] textarea' index.html 1
