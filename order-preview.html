@@ -1455,13 +1455,14 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 @keyframes prBreath{from{opacity:1}to{opacity:.55}}
 @media (prefers-reduced-motion:reduce){ .pr-prep .pr-bar.run i{animation:none} }
 .pr-prep .pr-ps{margin:6px 0 0;font-size:12.5px;color:var(--sub)}
-.mk-wait{margin:8px 0 16px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--card)}   /* ★[WAIT_BOX 2026-10-06] 기다리는 칸 — 제목 · 움직이는 막대 · 한 줄 */
-.mk-wait-t{margin:0;font-size:14px;font-weight:600;color:var(--accent)}
-.mk-wait-bar{display:block;position:relative;height:4px;margin:10px 0 0;border-radius:2px;background:#E6E1D8;overflow:hidden}
-.mk-wait-bar i{position:absolute;top:0;left:0;width:35%;height:100%;border-radius:2px;background:var(--seal);animation:mkWait 1.2s var(--ease,ease) infinite}
-@keyframes mkWait{from{transform:translateX(-100%)}to{transform:translateX(290%)}}
-@media (prefers-reduced-motion:reduce){ .mk-wait-bar i{animation:none;width:100%;opacity:.45} }
-.mk-wait-s{margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
+.mk-wait{margin:8px 0 16px;padding:22px 20px 20px;border:1px solid var(--border);border-radius:12px;background:var(--card);text-align:center}   /* ★[WAIT_BOX 2026-10-06] 기다리는 칸 — 제목 · 움직이는 선 · 한 줄 */
+/* ★[WAIT_INK 2026-10-06 사장님 «이 로딩 표시는 무드에 안 맞아 · 디자이너 시선으로»] 굵은 버건디 막대(4px · 앱 로딩 같았다) → 가운데 맞춘 명조 제목 + 머리카락 한 줄 위를 천천히 오가는 금빛 잉크(2.4초 · 오가기). 막대로 되돌리지 말 것 */
+.mk-wait-t{margin:0;font:500 16px/1.5 var(--ko-serif);letter-spacing:-.01em;color:var(--accent);word-break:keep-all}
+.mk-wait-bar{display:block;position:relative;width:120px;height:1px;margin:14px auto 0;background:#E6E1D8;overflow:hidden}
+.mk-wait-bar i{position:absolute;top:0;left:0;width:56px;height:100%;background:linear-gradient(90deg,rgba(184,154,117,0),var(--gold) 50%,rgba(184,154,117,0));animation:mkWait 2.4s ease-in-out infinite alternate}
+@keyframes mkWait{from{transform:translateX(-56px)}to{transform:translateX(120px)}}
+@media (prefers-reduced-motion:reduce){ .mk-wait-bar i{animation:none;left:32px} }
+.mk-wait-s{margin:14px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
 .pr-askb{display:flex;flex-wrap:wrap;gap:8px}
 .lf-cue{margin:10px 0 0;font-size:14px;font-weight:500;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
 .lf-tbar{height:3px;margin:10px 0 2px;border-radius:2px;background:var(--border);overflow:hidden}
@@ -1801,6 +1802,11 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vstat{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .mk-vstat>span{display:flex;flex-direction:column;gap:2px;min-width:0}
 .mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)}
+.mk-vsd{position:relative;display:flex;justify-content:space-between;align-items:center;max-width:240px;height:16px;margin-top:8px}   /* [VSTAT_DOTS] 보기만 하는 점 줄 */
+.mk-vsd::before{content:'';position:absolute;left:4px;right:4px;top:50%;height:1px;background:var(--border)}
+.mk-vsd em{position:relative;width:8px;height:8px;box-sizing:border-box;border:1.5px solid var(--gold-deep);border-radius:50%;background:var(--card)}
+.mk-vsd em.mid{border-color:var(--gold-deeper)}
+.mk-vsd em.on{width:14px;height:14px;margin:0 -3px;background:var(--accent);border-color:var(--accent)}
 .mk-vstat i{font-style:normal;font-size:11px;letter-spacing:.04em;color:var(--light)} .mk-vstat b{font-size:14px;font-weight:600;color:var(--accent)}
 .mk-vft{margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;padding:8px 0 4px;min-height:60px}
 .mk-vft.solo{display:block}   /* ★[SOLO_ROW 2026-10-04 사장님 «목소리 만들기 단추를 들어 보고 맞추기와 같은 줄로»] 안 만든 분 카드도 아랫줄(margin-top:auto · min-height 60 · 같은 위아래 여백)에 둔다 — 두 카드가 나란할 때 단추 줄이 한 높이 */
@@ -5069,7 +5075,7 @@ function _vcPeople(page){
       +(need&&_vcOn()?'<span class="mk-vneed">예시를 들어 보고 말 빠르기 · 문장 사이 쉼을 정하면 끝나요</span>':'')
       /* ★[VC_CARD_A 2026-10-04 사장님 «여기 디자인 별론데 최선이야?» → 시안 A] 회색 상자 둘 금지(입력칸처럼 보였다) — 가는 선 위아래 · 가운데 세로선 두 칸.
          아랫줄 = 왼쪽 «▶ 들어 보고 맞추기»(제 크기) · 오른쪽 «다시 녹음 · 지우기» — 상자 안 상자를 걷고 높이를 줄였다 */
-      +(p.ready&&_vcOn()&&!need?'<span class="mk-vstat" aria-label="'+esc(role+' 빠르기 '+_tuneWord('t',o.tempo)+' · 문장 사이 쉼 '+_tuneWord('p',o.pause))+'"><span><i>말 빠르기</i><b>'+_tuneWord('t',o.tempo)+'</b></span><span><i>문장 사이 쉼</i><b>'+_tuneWord('p',o.pause)+'</b></span></span>':'')
+      +(p.ready&&_vcOn()&&!need?'<span class="mk-vstat" aria-label="'+esc(role+' 빠르기 '+_tuneWord('t',o.tempo)+' · 문장 사이 쉼 '+_tuneWord('p',o.pause))+'"><span><i>말 빠르기</i>'+_vstatDots('t',o.tempo)+'</span><span><i>문장 사이 쉼</i>'+_vstatDots('p',o.pause)+'</span></span>':'')
       +((p.ready||p.left!==0)?'<span class="mk-vft'+(p.ready?'':' solo')+'"><span class="mk-vbs">':'<span hidden><span>')   /* [SIM_R1] 다 쓴 분은 빈 아랫줄을 그리지 않는다 */
       +(p.ready?(_vcOn()?'<button type="button" class="mk-vgo'+(need?' pri':'')+'" data-fk="mkvctune:'+w+'" onclick="mkVcTune(\''+w+'\')">'+(need?'':ICO_PLAY)+'<span>'+(need?'빠르기 · 쉼 맞추기':'들어 보고 맞추기')+'</span></button>':'')
         :p.left===0?''   // [VC_LIMIT_UI] 다 쓴 분은 누를 단추가 없다
@@ -5101,7 +5107,7 @@ function _vcUseIntro(){ var rows=_vcUseRows(); if(!rows.length) return '';
 function _vcUseSrc(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.src==='ai'&&!_upStale(key)){ var u=_rfUrl(key); if(u) return u; }
   var t=_recNeed(key), gi=/^g(\d)$/.exec(key); if(gi) return _lCastSrc(CAST_GUEST[+gi[1]],t); if(key==='entry') return _lCastSrc(CAST_ENTRY[S.entry],t); return null; }
 function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), who=w==='both'?'두 분':w==='bride'?'신부':'신랑', v=RitualOpen.firstVideo(x[2],S), src=_vcUseSrc(x[0]);
-  return '<div class="mk-vu-img">'+(v?(v.mp4&&!_rm()?'<video muted playsinline loop autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
+  return '<div class="mk-vu-img">'+(v?(v.mp4&&!_rm()?'<video muted playsinline autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_ONCE 2026-10-06 사장님 «영상 반복 재생 아니고 한 번 재생하고 끝»] loop 없음 — 한 번 돌고 마지막 장면(동작이 끝난 모습)에서 멈춘다(LVID_ONCE · PV_VID_ONCE 와 같은 말) · 되풀이로 되돌리지 말 것 */ /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
     +'<p class="mk-vu-when">'+esc(VC_USE_WHEN[x[0]]||'')+' · '+who+' 목소리</p>'
     /* ★★[VU_EX_LISTEN 2026-10-06 사장님 «식전 영상 소개는 왜 들어 보기가 없어 · 다음 누를 때마다 위아래 간격 · 한 사이즈로 고정 · 예시는 만들어서 넣어 놓자 · 여기 역할은 임시로 들어 볼 수 있게만»]
        ① 예시가 있는 자리(식전 영상 소개 넷 · 입장 인사 넷)는 글 아래 «두 분 글 · 예시 1~4» 칩 — 고르면 그 글을 보여 주고 «들어 보기»가 그 글을 읽는다(두 분 글은 바꾸지 않는다 · 들어 보기 전용)
@@ -5122,7 +5128,7 @@ function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), w
 /* ★[VU_VIDEO_KEEP 2026-10-06 사장님 «다음 넘길 때마다 영상이 처음부터 다시 · 하객 입장부터 시작 1분 전까지는 같은 영상이니 재생하던 그대로»]
    창을 다시 그려도 새 영상이 이전 영상과 같은 파일이면 이전 영상(재생 중인 그 요소)을 그 자리에 그대로 옮겨 붙인다 — 끊김 · 처음부터 없음 */
 function _vuKeep(fn){ var o=document.querySelector('.mk-vu-img video'), src=o&&o.getAttribute('src'); fn(); if(!o) return;
-  var n=document.querySelector('.mk-vu-img video'); if(n&&n!==o&&n.getAttribute('src')===src){ n.replaceWith(o); try{ if(o.paused) o.play().catch(function(){}); }catch(e){} } }
+  var n=document.querySelector('.mk-vu-img video'); if(n&&n!==o&&n.getAttribute('src')===src){ n.replaceWith(o); try{ if(o.paused&&!o.ended) o.play().catch(function(){}); }catch(e){} } }   /* [VU_VIDEO_ONCE] 다 본 영상은 예시를 바꿔도 다시 틀지 않는다(끝 장면에 머문다) */
 var VU={sel:{},busy:false,err:'',url:{}};   // [VU_EX_LISTEN] sel = 자리마다 고른 칩 · url = 그 자리에서 읽은 소리(이 기기 · 이 방문만)
 function _vuOpts(key){ var me=_recNeed(key)||'', out=[];
   if(key==='pv'){ var mine=String(S.pvText||'').trim(), isEx=PV_EX.some(function(e){ return e[1]===mine; });
@@ -5260,6 +5266,11 @@ function _tuneIdx(kind){ var T=VC.tune, L=kind==='t'?TUNE_T:TUNE_P, v=kind==='t'
 function _tuneDots(kind){ var isT=kind==='t', L=isT?TUNE_T:TUNE_P, lab=isT?'말 빠르기':'문장 사이 쉼', ci=_tuneIdx(kind), mid=isT?3:2;
   return '<div class="mk-dots" role="radiogroup" aria-label="'+lab+'" onkeydown="mkTuneKey(event,\''+kind+'\')"><div class="mk-dots-h"><span class="mk-dots-l">'+lab+'</span><span class="mk-dots-v">'+esc(L[ci][1])+'</span></div>'
     +'<div class="mk-dots-t">'+L.map(function(x,i){ var on=i===ci; return '<button type="button" class="mk-dot'+(on?' on':'')+(i===mid?' mid':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" aria-label="'+esc(lab+' '+x[1])+'" data-fk="mktune:'+kind+':'+i+'" onclick="mkTuneSet(\''+kind+'\','+i+')"></button>'; }).join('')+'</div></div>'; }
+/* ★[VSTAT_DOTS 2026-10-06 사장님 «보통 · 보통 글씨 말고 맞추기 창의 점 표시 그대로 · 좌우 칸이 넓으니»] 카드의 빠르기 · 쉼 = 맞추기 창과 같은 점 줄(보기만 · 누르는 곳은 «들어 보고 맞추기»)
+   고른 점 = 먹빛 · 보통 점 = 진한 테두리 · 말(보통 · 조금 빠르게 …)은 읽는 분을 위해 카드 aria-label 에 남는다. 글씨로 되돌리지 말 것 */
+function _tuneIdxOf(kind,v){ var L=kind==='t'?TUNE_T:TUNE_P, x=kind==='t'?parseFloat(v):+v, bi=kind==='t'?3:2, bd=1e9; if(isNaN(x)) return bi; L.forEach(function(r,i){ var d=Math.abs(parseFloat(r[0])-x); if(d<bd){ bd=d; bi=i; } }); return bi; }
+function _vstatDots(kind,v){ var L=kind==='t'?TUNE_T:TUNE_P, ci=_tuneIdxOf(kind,v), mid=kind==='t'?3:2;
+  return '<span class="mk-vsd" aria-hidden="true">'+L.map(function(x,i){ return '<em class="'+(i===ci?'on':'')+(i===mid?' mid':'')+'"></em>'; }).join('')+'</span>'; }
 window.mkTuneSet=function(kind,i){ var T=VC.tune; if(!T) return; var L=kind==='t'?TUNE_T:TUNE_P; if(!L[i]) return;
   if(kind==='t'){ if(T.tempo===_tNorm(L[i][0])) return; T.tempo=_tNorm(L[i][0]); } else { if(+T.pause===L[i][0]) return; T.pause=L[i][0]; }
   _fxNext='[data-fk="mktune:'+kind+':'+i+'"]'; render(); clearTimeout(VC.tuneT); VC.tuneT=setTimeout(_vcSamplePlay,350); };   // 고르면 그 값으로 예시를 다시
