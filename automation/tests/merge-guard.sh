@@ -14509,3 +14509,8 @@ chk 'IMPECCABLE_DETECT' CLAUDE.md 1
 chk 'EXC_DETECT' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/design-md-sync.mjs >/dev/null 2>&1; _v=$?; if [ "$_v" = 1 ]; then echo 'FAIL design-md-sync: DESIGN.md 색이 index :root 와 갈렸거나 hover 글자가 장식 골드다 — node scripts/audit/design-md-sync.mjs'; fail=1; fi; fi
 :
+# ★[CF_FIX_FIT · EXTAG_OWN_LINE 2026-10-06 사장님 «식순 부분 전체적으로 돌려 볼까» · impeccable detect 46화면] 예식 흐름 «늘 있어요» 표가 회색 바탕 밖으로 넘침 · 폰에서 «예시 글» 표가 «목소리 만들기» 단추 밑으로
+chk 'CF_FIX_FIT' order-preview.html 1
+chk '.cf-fix{flex:0 0 auto;align-self:center;justify-self:end;width:max-content;' order-preview.html 1
+chk 'EXTAG_OWN_LINE' order-preview.html 1
+:
