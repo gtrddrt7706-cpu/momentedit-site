@@ -29,7 +29,9 @@ try {
     if (SHOT) { await pg.evaluate(() => document.querySelector('.mk-keepg').scrollIntoView({ block: 'center' })); await pg.screenshot({ path: `${SHOT}-g-${w}.png` }); }
     await pg.evaluate(() => mkGo('entry')); await wait(600);
     const b = await look(pg);
-    ok(`${w} ② 입장 인사 = «확정 안내 보기» 한 줄로 접힘`, b.shut && b.li.length === 0 && b.tg === '확정 안내 보기', JSON.stringify(b));
+    /* ★[KEEP_IN_ROW 2026-10-06 사장님 «확정 안내 보기도 나레이션 자세히 좌측으로»] 접힌 단추는 칩 줄(나레이션 자세히 왼쪽) — 두 가로선 사이 따로 뜬 줄 없음 */
+    const br2 = await pg.evaluate(() => { const t = document.querySelector('.mk-pick .cg-links [data-fk="mkkeept:entry"]'), v = t && t.nextElementSibling; return { inRow: !!t, t: t && t.textContent, next: v && v.getAttribute('data-fk'), alone: !!document.querySelector('.mk-keepg.shut') }; });
+    ok(`${w} ② 입장 인사 = 접힘 · «확정 안내 보기»는 칩 줄 «나레이션 자세히» 왼쪽 · 따로 뜬 줄 없음 [KEEP_IN_ROW]`, b.none && br2.inRow && br2.t === '확정 안내 보기' && br2.next === 'mkvsopen' && !br2.alone, JSON.stringify({ b, br2 }));
     if (SHOT) { await pg.evaluate(() => document.querySelector('.mk-keepg').scrollIntoView({ block: 'center' })); await pg.screenshot({ path: `${SHOT}-e-${w}.png` }); }
     await pg.click('[data-fk="mkkeept:entry"]'); await wait(300);
     const c = await look(pg); await pg.evaluate(() => render()); await wait(200); const c2 = await look(pg);

@@ -14766,3 +14766,16 @@ nochk 'mk-vu-tmp">임시로' order-preview.html
 nochk 'mk-vu-tmp' order-preview.html
 nochk 'P.style.minHeight=bh' order-preview.html
 chk "d.classList.toggle('mk-dlg-top',h.indexOf('mk-vu-img')>-1);" order-preview.html 1   # [VU_FLOW_FREE] 나오는 곳 창은 위 고정 — 다음마다 그림이 오르내리지 않게
+# ★[UP_BTN_OFF · UP_RACE · PV_FILL · VLIST_ONE_LINE · KEEP_IN_ROW · NO_BAR_SHIFT 2026-10-06 사장님] 식전 영상 쪽 정리 + 같은 꼴 전수
+#   아래 «들어 보기 · 지우기» 단추 줄 걷음(머리 ▶ · 상태 줄 끝 지우기) · 연달아 보낸 줄이 «파일 올렸어요»로 적히던 경합 · AI 고르면 소개글 예시 1 · 가로선 두 줄 · 확정 안내 보기를 칩 줄로 · 스크롤바로 좌우 흔들림
+chk 'UP_BTN_OFF' order-preview.html 3
+chk 'UP_RACE' order-preview.html 4
+chk 'PV_FILL' order-preview.html 4
+chk 'VLIST_ONE_LINE' order-preview.html 1
+chk 'KEEP_IN_ROW' order-preview.html 5
+chk 'NO_BAR_SHIFT' order-preview.html 2
+chk 'NO_BAR_SHIFT' seat.html 1
+chk "tk:d.data.tk" mypage.html 1
+chk 'PV_FILL' scripts/audit/pv-fill.mjs 1
+nochk 'data-fk="mkupplay:' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-fill.mjs >/dev/null 2>&1; _pvf=$?; [ "$_pvf" = 1 ] && { echo 'FAIL pv-fill: 식전 영상 소개 · 저장 경합 · 가로선 · 아래 단추 줄이 어긋났습니다 — node scripts/audit/pv-fill.mjs'; fail=1; }; if [ "$_pvf" = 0 ]; then echo 'OK   pv-fill'; fi; fi   # [TAIL_RC]
