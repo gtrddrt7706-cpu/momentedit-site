@@ -43,6 +43,11 @@ for (const W of [390, 1280]) {
   const res = await pg.evaluate(() => [...document.querySelectorAll('.ls-cg .op-chip, .op-chips .op-chip')].every((b) => { const t = b.querySelector('.cg-t'), a = t && getComputedStyle(t, '::after'); return !!a && a.fontWeight === '600' && a.content === JSON.stringify(t.textContent) && a.visibility === 'hidden'; }));
   ok(`${W} [CHIP_W_FIX] 칩마다 굵은 폭 사본(.cg-t::after · 600 · 숨김)이 있다`, res);
   ok(`${W} [CHIP_W_FIX] 입장 멘트 칩 ${fks.length}개를 하나씩 눌러도 칩 폭 · 줄 수가 같다`, fks.length >= 4 && seen.size === 1, [...seen].join(' / '));
+  /* ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로»] «안내 목소리 정하기» 창도 안 골랐으면 둘 다 비어 있고 · 고르면 그 갈래가 눌려 있다 */
+  const vs = await pg.evaluate(async () => { const t0 = S.touched; S.touched = {}; ['guestVoice', 'entryVoice', 'pvVoice'].forEach((k) => { delete S[k]; }); mkGo('guest'); await new Promise((r) => setTimeout(r, 200)); mkVsOpen(); await new Promise((r) => setTimeout(r, 200));
+    const a = [...document.querySelectorAll('[data-fk^="mkvs:"]')].map((b) => b.getAttribute('aria-pressed')).join(','); try { mkVsClose(); } catch (e) {} S.touched = Object.assign({}, t0, { guestVoice: 1, entryVoice: 1, pvVoice: 1 }); S.guestVoice = 'nar'; S.entryVoice = 'nar'; S.pvVoice = 'nar'; render(); await new Promise((r) => setTimeout(r, 200)); mkVsOpen(); await new Promise((r) => setTimeout(r, 200));
+    const b = [...document.querySelectorAll('[data-fk^="mkvs:"]')].map((x) => x.getAttribute('aria-pressed')).join(','); try { mkVsClose(); } catch (e) {} return { a, b }; });
+  ok(`${W} [VS_UNPICKED] 안내 목소리 창 — 안 골랐으면 두 갈래 다 비어 있고(false,false) · 나레이션을 고르면 나레이션이 눌린다`, vs.a === 'false,false' && vs.b === 'false,true', JSON.stringify(vs));
   ok(`${W} 화면 오류 없음`, !errs.length, errs.slice(0, 2).join(' | '));
   await ctx.close();
 }

@@ -4632,7 +4632,9 @@ function _vsWhere(short){ return _vsMk().map(function(k){ return {guest:short?'�
 function _vsCur(){ var a=_vsMk().map(_vpCur); return a.every(function(x){ return x==='ai'; })?'ai':a.every(function(x){ return x==='nar'; })?'nar':'mix'; }
 function _vsOk(){ return _upLive()&&_vcOn(); }
 var VS_ICO='<svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="8" y="10" width="20" height="36" rx="4"/><path d="M15 41h6"/><path class="wv w1" d="M34 23c2 1.5 2 8.5 0 10"/><path class="wv w2" d="M39 19c4 3 4 15 0 18"/><path class="wv w3" d="M44 15c6 4.5 6 21.5 0 26"/></svg>';
-function _vsPanel(){ var cur=VS.hint||_vsCur();   // [VS_CHIP_ONCE] 칩에서 열렸으면 그 칩이 눌린 모양
+/* ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로 첫 화면 나오게»] 안내 목소리 칩을 한 번도 안 골랐으면 창의 두 갈래도 비어 있다 — 기본값(스튜디오 나레이션)을 눌린 것처럼 보이지 않는다(CHIP_UNPICKED 와 같은 기준) */
+function _vsAnyPicked(){ return _vsMk().some(function(k){ try{ return _lGroups(k).some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked!==false; }); }catch(e){ return true; } }); }
+function _vsPanel(){ var cur=VS.hint||(_vsAnyPicked()?_vsCur():'');   // [VS_CHIP_ONCE] 칩에서 열렸으면 그 칩이 눌린 모양
   if(VS.ph==='ai'){ var h='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';
     if(!VC.st){ _vcStatus(); return h+'<p class="mk-note" role="status">불러오는 중이에요…</p>'; }
     h+=_vcPeople(false);   /* ★[VC_CARD_ONE 2026-10-04] 창의 사람 줄(.mk-vsp · «새로 만들기 | 지우기» 알약 둘)은 목소리 쪽과 같은 카드로 — 두 벌이면 말과 단추가 갈라진다 */
