@@ -100,7 +100,8 @@ const AX = {
   blessProxy: [false, true],
   ring: ['on', 'off'],
   song: ['family', 'live', 'off'],
-  digital: [false, true]
+  digital: [false, true],
+  vowFirst: ['g', 'b']   // ★[VOW_FIRST 2026-10-06] 신부부터면 여는 말이 127 — 안 훑으면 그 클립은 영영 대조되지 않는다
 };
 
 // 축 **두 개씩** 흔든다(전 조합이 아니라 쌍). 한 축씩만 흔들면 「두 분 목소리 × 느낌 C」처럼

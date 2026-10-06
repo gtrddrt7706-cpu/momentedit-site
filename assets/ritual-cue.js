@@ -150,7 +150,9 @@
     'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter',
     /* ★★[GUEST_EX_NAR 2026-10-06 사장님 녹음] 115~126 — 하객 맞이 나레이션 예시 2~4(진희) · **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-open.js NAR.guestEx · 고르는 값 S.guestEx(0~3 · 0 = 01~04 그대로) · 스튜디오 나레이션 판에서만 */
-    'guest-ex2-1-arrival', 'guest-ex2-2-10min', 'guest-ex2-3-5min', 'guest-ex2-4-1min', 'guest-ex3-1-arrival', 'guest-ex3-2-10min', 'guest-ex3-3-5min', 'guest-ex3-4-1min', 'guest-ex4-1-arrival', 'guest-ex4-2-10min', 'guest-ex4-3-5min', 'guest-ex4-4-1min'
+    'guest-ex2-1-arrival', 'guest-ex2-2-10min', 'guest-ex2-3-5min', 'guest-ex2-4-1min', 'guest-ex3-1-arrival', 'guest-ex3-2-10min', 'guest-ex3-3-5min', 'guest-ex3-4-1min', 'guest-ex4-1-arrival', 'guest-ex4-2-10min', 'guest-ex4-3-5min', 'guest-ex4-4-1min',
+    /* ★★[VOW_FIRST 2026-10-06 사장님] 127 — 혼인 서약 여는 말 · 신부가 먼저일 때(«신랑부터 시작하겠습니다»를 뺀 판). **맨 끝에 붙였다**(위 경고 그대로). */
+    'narr-vow-in-b'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -694,7 +696,8 @@
       var n = D.NARR.vow;
       return [
         cue({
-          k: 'vow', blockN: '혼인 서약', slug: 'narr-vow-in', name: '혼인 서약 시작', text: n.nar,
+          /* ★[VOW_FIRST 2026-10-06] S.vowFirst — 'g'(기본 · 신랑부터) | 'b'(신부부터). 신부부터면 «신랑부터…»가 없는 여는 말(127) */
+          k: 'vow', blockN: '혼인 서약', slug: S.vowFirst === 'b' ? 'narr-vow-in-b' : 'narr-vow-in', name: '혼인 서약 시작', text: S.vowFirst === 'b' ? n.narB : n.nar,
           live: {
             // ★[VOW_CHORUS 2026-08-04] 지문을 '각자 낭독'에서 '번갈아 → 마지막은 함께'로 바꿨다.
             //   ★이 문자열은 ritual-story.js 의 LIVE 키와 CAST_AT 의 'live:' 키이기도 하다.
@@ -704,6 +707,9 @@
             /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] S.vowHow — 'alt'(기본 · 번갈아) | 'each'(각자 차례로).
                모르는 값은 'alt'. 'each' 의 문자열도 ritual-story.js 의 LIVE · CAST_AT 키다(같은 커밋에서 함께). */
             t: S.vowHow === 'each' ? '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께',   /* [R2-04] «마지막 두 문장»으로 통일(VOWBOTH 는 두 문장) */ est: 70, self: true, doing: 'say', peak: true,
+            /* [VOW_FIRST] t 는 장면 열쇠라 그대로 두고(ritual-story LIVE · CAST_AT) 보여 줄 글만 tv · first 로 — 신부부터 «각자 차례로»면 «신부 먼저, 신랑 다음으로» */
+            first: S.vowFirst === 'b' ? 'b' : 'g',
+            tv: S.vowHow === 'each' ? (S.vowFirst === 'b' ? '신부 먼저, 신랑 다음으로 낭독 · 마지막 두 문장은 함께' : '신랑 먼저, 신부 다음으로 낭독 · 마지막 두 문장은 함께') : (S.vowFirst === 'b' ? '두 분이 한 줄씩 번갈아 낭독(신부부터) · 마지막 두 문장은 함께' : '두 분이 한 줄씩 번갈아 낭독 · 마지막 두 문장은 함께'),
             both: D.VOWBOTH,
             waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
             fallback: '멈추면 5초 뒤 [대기 클립] · 30초 넘으면 서약문을 배우자에게 건네 이어 읽기 · 마지막 합창이 어긋나면 신부가 반 박자 먼저'

@@ -10147,7 +10147,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 126' scripts/check-ritual-cue.js 1   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 127' scripts/check-ritual-cue.js 1   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -14712,6 +14712,23 @@ chk 'EX_MINE' order-preview.html 2
 chk 'txt:_exMine(r.text)' order-preview.html 1
 chk 'STALE_NOVOICE' scripts/audit/stale-novoice.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/stale-novoice.mjs >/dev/null 2>&1; _snv=$?; if [ "$_snv" = 1 ]; then echo 'FAIL stale-novoice: 바뀐 글 + 목소리 없음 ▶ · 예시 이름 입히기가 어긋났습니다 — node scripts/audit/stale-novoice.mjs'; fail=1; else echo "ok stale-novoice ($_snv)"; fi; fi
+# ★★[VOW_FIRST · VOW_FORM · VOW_BOTH_ROWS · VOW_UNPICK · CUE_LAST · TXALT_OFF 2026-10-06 사장님 «한 줄씩 번갈아 · 각자 차례로 구분 텍스트 박스 · 먼저 할 사람 순서 · 마지막 사람만 큐사인» → «추천대로»]
+chk 'VOW_FIRST' order-preview.html 4
+chk 'function _vowForm(K,c)' order-preview.html 1
+chk 'VOW_BOTH_ROWS' order-preview.html 2
+chk 'VOW_UNPICK' order-preview.html 1
+chk 'CUE_LAST' order-preview.html 2
+chk 'CUE_LAST' console.html 1
+chk 'TXALT_OFF' order-preview.html 1
+nochk '미리 적기 어려우면 «' order-preview.html
+chk "'narr-vow-in-b'" assets/ritual-cue.js 2
+chk 'narB:"이제 두 사람이 서로에게 약속을 건넬 차례입니다. 두 분, 한 걸음씩 다가서 주세요. 신부부터 시작하겠습니다."' assets/ritual-data.js 1
+chk "vowFirst: \['g', 'b'\]" scripts/check-text-audio.mjs 1   # [VOW_FIRST] 신부부터 판도 글 ↔ 소리 대조에 넣는다
+chk "'G3-3b', '혼인 서약 시작 · 신부부터', 'narr-vow-in-b'" scripts/build-dubbing-script.mjs 1
+chk "'vowFirst'" assets/ritual-preview-link.js 1
+chk 'c.live.tv || c.live.t' console.html 1
+chk 'VOW_FIRST' scripts/audit/vow-form.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vow-form.mjs >/dev/null 2>&1; _vwf=$?; if [ "$_vwf" = 1 ]; then echo 'FAIL vow-form: 서약 순서 · 글칸 · 끝 신호가 어긋났습니다 — node scripts/audit/vow-form.mjs'; fail=1; else echo "ok vow-form ($_vwf)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
 # ★[VU_LAYOUT · VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어 · 빈칸이 많아 비어 보인다» → «추천대로»] 나오는 곳 창 = 칩 → 들어 보기 → 글(글 길이만큼) · 하객 맞이도 예시 1~4

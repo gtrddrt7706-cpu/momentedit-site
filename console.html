@@ -1006,6 +1006,10 @@ function cueEnd(c){ if (!c || !c.live || c.live.doing !== 'say') return '';
   it.forEach(function(x){ var t = String(tx[x[2] || x[0]] || '').trim(), cu = String(cs[x[0]] || '').trim();
     /* ★[CUE_FORM 2026-10-06] «현장에서 바로»를 고른 분은 글칸이 접힌다 — 글이 남아 있어도 두 분이 적은 끝 신호(말이나 동작)가 먼저 */
     if (mk[x[0]]) out.push(x[1] + ' · ' + (cu || (t ? '«' + last(t) + '»' : '아직 안 적음 — 말이 끝나면 마이크를 받는다'))); else if (t) out.push(x[1] + ' «' + last(t) + '»'); });
+  /* ★[CUE_LAST 2026-10-06 사장님 «마지막 사람만 큐사인 알려 주면 되잖아»] 디렉터는 마지막 분이 끝났을 때만 알면 된다 —
+     서약은 끝에 두 분이 함께 읽는 두 문장(live.both)이 끝 신호 · 첫인사 · 편지는 마지막 분(신부 · 없으면 남은 분) 하나 */
+  if (c.k === 'vow' && c.live.both) { var _b = [].concat(c.live.both); return '두 분 함께 «' + last(_b[_b.length - 1]) + '»'; }
+  if (c.k === 'welcome' || c.k === 'letter') return out.length ? out[out.length - 1] : '';
   return out.join(' / '); }
 function fallbackCard(c, why, done){
   aNarr.removeAttribute('src'); try { aNarr.load(); } catch(e){}
@@ -1359,7 +1363,7 @@ function render(){
   if (phase === 'live') pill('l', liveBadge(c.live));
   if (c.own) pill('l', '두 분 목소리');
 
-  $('#nName').textContent = (phase === 'live' && c.live) ? c.live.t : c.name;
+  $('#nName').textContent = (phase === 'live' && c.live) ? (c.live.tv || c.live.t) : c.name;   // [VOW_FIRST] tv = 보여 줄 글(신부부터 등) · t 는 장면 열쇠
   if (phase === 'live' && c.live) {
     tx.className = 'txt big';
     tx.textContent = liveLead(c.live)
