@@ -4632,7 +4632,9 @@ function _vsWhere(short){ return _vsMk().map(function(k){ return {guest:short?'�
 function _vsCur(){ var a=_vsMk().map(_vpCur); return a.every(function(x){ return x==='ai'; })?'ai':a.every(function(x){ return x==='nar'; })?'nar':'mix'; }
 function _vsOk(){ return _upLive()&&_vcOn(); }
 var VS_ICO='<svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="8" y="10" width="20" height="36" rx="4"/><path d="M15 41h6"/><path class="wv w1" d="M34 23c2 1.5 2 8.5 0 10"/><path class="wv w2" d="M39 19c4 3 4 15 0 18"/><path class="wv w3" d="M44 15c6 4.5 6 21.5 0 26"/></svg>';
-function _vsPanel(){ var cur=VS.hint||_vsCur();   // [VS_CHIP_ONCE] 칩에서 열렸으면 그 칩이 눌린 모양
+/* ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로 첫 화면 나오게»] 안내 목소리 칩을 한 번도 안 골랐으면 창의 두 갈래도 비어 있다 — 기본값(스튜디오 나레이션)을 눌린 것처럼 보이지 않는다(CHIP_UNPICKED 와 같은 기준) */
+function _vsAnyPicked(){ return _vsMk().some(function(k){ try{ return _lGroups(k).some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked!==false; }); }catch(e){ return true; } }); }
+function _vsPanel(){ var cur=VS.hint||(_vsAnyPicked()?_vsCur():'');   // [VS_CHIP_ONCE] 칩에서 열렸으면 그 칩이 눌린 모양
   if(VS.ph==='ai'){ var h='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';
     if(!VC.st){ _vcStatus(); return h+'<p class="mk-note" role="status">불러오는 중이에요…</p>'; }
     h+=_vcPeople(false);   /* ★[VC_CARD_ONE 2026-10-04] 창의 사람 줄(.mk-vsp · «새로 만들기 | 지우기» 알약 둘)은 목소리 쪽과 같은 카드로 — 두 벌이면 말과 단추가 갈라진다 */
@@ -4920,7 +4922,8 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   var g=(st&&st.groom)||{}, b=(st&&st.bride)||{}, both=!!(g.ready&&b.ready);
   var h='<section class="mk-pg mk-vpage" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">두 분 목소리 만들기</h3></div>'
     +_vcUseIntro()   /* [VUSE_FLOW] 이해 먼저 → 만들기 */
-    +'<p class="mk-one">'+(both?'두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))+'에 이 목소리가 쓰여요':VS_ONE)+'</p>';   /* [NOTE_OFF_1003] 칩 아래에서 걷은 설명은 이 쪽 한 줄로만 */
+    +'<p class="mk-one">'+(both?'두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))+'에 이 목소리가 쓰여요':VS_ONE)+'</p>';
+  h+='<p class="mk-note mk-vredo">말투가 마음에 들지 않으면 다시 녹음해 새로 만들 수 있어요 · 확정해 둔 줄은 그대로 남아요</p>';   /* ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 드는 게 있으면 다시 녹음해도 된다고 여기도 한 번 더»] 순간 쪽 확정 안내(.mk-keepl «확정한 줄은 목소리를 다시 녹음하거나 … 그대로 남아요»)와 같은 뜻 · «언제든»은 쓰지 않는다(다시 만들기 횟수가 있다) */   /* [NOTE_OFF_1003] 칩 아래에서 걷은 설명은 이 쪽 한 줄로만 */
   if(!st) return h+'<p class="mk-note" role="status">불러오는 중이에요…</p></section>';
   var mark=function(r){ return r?'<span class="mk-vpk ok">✓</span>':'<span class="mk-vpk">남음</span>'; };
   /* ★«신랑 남음 · 신부 남음» 진행 줄 금지 — 2026-10-04 사용자 지시로 삭제 [VPROG_OFF] · 각 카드 상태 줄(«목소리 생성 · 날짜» / «아직 만들지 않았어요»)이 같은 말을 한다 */
