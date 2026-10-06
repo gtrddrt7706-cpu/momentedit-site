@@ -14669,5 +14669,11 @@ chk "_exCards('guestnar'," order-preview.html 1
 chk 'GUEST_EX_TONE' scripts/audit/voice-register.mjs 1   # [GUEST_EX_TONE 2026-10-06 사장님 «그대로 쓰기»] 하객 맞이 예시는 두 분이 고르는 말투 · 한 예시 안 네 줄은 한 층
 chk 'BOSS_STYLE' CLAUDE.md 1   # [BOSS_STYLE 2026-10-06] 사장님 작업 방식 취합본 — 지우지 말 것
 # ★★[BOSS_WAY_1006 2026-10-06 사장님 확정] 사장님이 추구하는 작업 방식 — CLAUDE.md 맨 위 절(지우지 말 것)
+# ★[REDO_FIG · VS_READY_SHORT 2026-10-06 사장님] «다시 녹음» 안내 → «자세히 보기» 작은 창(세 걸음 + 줄 그림) · 안내 목소리 창에서 두 분 목소리가 다 있으면 사람 카드 없이 «정했어요» 한 줄
+chk 'REDO_FIG' order-preview.html 3
+chk 'data-fk="mkredo"' order-preview.html 1
+chk 'VS_READY_SHORT' order-preview.html 3
+chk 'REDO_FIG' scripts/audit/redo-fig.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/redo-fig.mjs >/dev/null 2>&1; _rdf=$?; if [ "$_rdf" = 1 ]; then echo 'FAIL redo-fig: «다시 녹음» 자세히 보기 창 · 안내 목소리 창 짧은 확인이 어긋났습니다 — node scripts/audit/redo-fig.mjs'; fail=1; else echo "ok redo-fig ($_rdf)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
