@@ -14633,3 +14633,9 @@ chk '말투가 마음에 들지 않으면 다시 녹음해 새로 만들 수 있
 # ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로 첫 화면»] 안내 목소리 정하기 창 — 안 골랐으면 두 갈래 다 비어 있다
 chk 'VS_UNPICKED' order-preview.html 1
 chk 'VS_UNPICKED' scripts/audit/vp-ask-first.mjs 1
+# ★★[VU_EX_LISTEN 2026-10-06 사장님 «식전 영상 소개는 왜 들어 보기가 없어 · 간격 고정 · 예시는 만들어 넣어 놓자 · 임시로 들어 볼 수 있게만»] 목소리 «나오는 곳» 창 — 예시 칩 · 파일 없으면 그 자리 AI 읽기 · 높이 고정
+chk 'VU_EX_LISTEN' order-preview.html 4
+chk 'function _vuOpts(key)' order-preview.html 1
+chk 'function _vuFix()' order-preview.html 1
+chk 'VU_EX_LISTEN' scripts/audit/vu-ex-listen.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vu-ex-listen.mjs >/dev/null 2>&1; _vux=$?; if [ "$_vux" = 1 ]; then echo 'FAIL vu-ex-listen: 목소리 «나오는 곳» 창(예시 칩 · 들어 보기 · 높이 고정)이 어긋났습니다 — node scripts/audit/vu-ex-listen.mjs'; fail=1; fi; fi
