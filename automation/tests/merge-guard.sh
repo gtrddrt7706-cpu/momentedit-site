@@ -14735,6 +14735,14 @@ chk 'function _waitBox(t,s)' order-preview.html 1
 nochk '>불러오는 중이에요…</p>' order-preview.html
 chk 'WAIT_BOX' scripts/audit/wait-box.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/wait-box.mjs >/dev/null 2>&1; _wbx=$?; if [ "$_wbx" = 1 ]; then echo 'FAIL wait-box: 기다리는 칸이 어긋났습니다 — node scripts/audit/wait-box.mjs'; fail=1; else echo "ok wait-box ($_wbx)"; fi; fi
+# ★★[EX_RACE · EX_PREBAKE_ENTRY · EX_MINE_OLD 2026-10-06 사장님] 예시를 만드는 중 다른 예시를 눌러도 각자 기억 · 지금 글만 붙는다 / 입장 인사 예시도 미리 / 전에 채운 예시 원문에도 두 분 이름
+chk 'EX_RACE' order-preview.html 4
+chk 'function _vcSnap(key,o)' order-preview.html 1
+chk 'function _exWarmEntry()' order-preview.html 1
+chk 'EX_MINE_OLD' order-preview.html 2
+chk 'EX_RACE' scripts/audit/ex-race.mjs 1
+chk 'EX_MINE_OLD' scripts/audit/stale-novoice.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-race.mjs >/dev/null 2>&1; _exr=$?; if [ "$_exr" = 1 ]; then echo 'FAIL ex-race: 예시를 오가는 동안 만드는 일 · 미리 만들기가 어긋났습니다 — node scripts/audit/ex-race.mjs'; fail=1; else echo "ok ex-race ($_exr)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
 # ★[VU_LAYOUT · VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어 · 빈칸이 많아 비어 보인다» → «추천대로»] 나오는 곳 창 = 칩 → 들어 보기 → 글(글 길이만큼) · 하객 맞이도 예시 1~4

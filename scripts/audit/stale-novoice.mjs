@@ -39,6 +39,11 @@ try {
     ok(`${w} ③ 예시 이름 → 두 분 이름 · 토씨까지`, c.one === '나 김민수는 최지아를 아내로 · 민수야 · 지아가 · 지아로', c.one);
     ok(`${w} ⑤ 표 전체에 가상 신랑 · 신부 이름이 남지 않는다`, c.left === 0, String(c.left));
     ok(`${w} ④ 이름이 한글이 아니면 그대로`, c.keep === '신랑 이서준입니다 · 하윤아', c.keep);
+    /* [EX_MINE_OLD] 전에 채워 둔 예시(고치지 않은 원문)는 두 분 이름 판으로 · 고친 글은 그대로 */
+    const d = await pg.evaluate(() => { S.on = S.on || {}; S.on.welcome = 1; S.welcome = 'self'; const raw = RITUAL_REF.rows.filter((x) => x.key === 'welcome' && x.n === 3);
+      S.tx = { 'welcome.g': raw.find((x) => x.who === '신랑').text, 'welcome.b': raw.find((x) => x.who === '신부').text + ' 고친 끝' }; CUST = { groom: '김민수', bride: '최지아' }; mkGo('welcome');
+      const r = { g: S.tx['welcome.g'], b: S.tx['welcome.b'] }; CUST = null; return r; });
+    ok(`${w} ⑥ 전에 채워 둔 예시(고치지 않은 원문)는 두 분 이름으로 · 고친 글은 그대로 [EX_MINE_OLD]`, /신랑 김민수입니다/.test(d.g) && /정하윤/.test(d.b), JSON.stringify(d).slice(0, 200));
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
   }
