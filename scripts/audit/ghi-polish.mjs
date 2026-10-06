@@ -93,9 +93,9 @@ for (const w of [390, 1280]) {
   });
   ok(`${w} G5 말 없는 줄 — 순간마다 하나 · 표 그대로([R1-45] 입장 · 반지는 위 설명과 겹치지 않게) [QUIET_LINES]`, g5b.candle.length === 1 && /이 앞으로 나와 불을 밝혀요 · 말 없이$|가 앞으로 나와 불을 밝혀요 · 말 없이$/.test(g5b.candle[0])
     && g5b.entry.length === 1 && g5b.entry[0] === '음악에 맞춰 걸어 들어와요' && g5b.bow === '음악에 맞춰 걸어 들어와요'
-    && g5b.ring[0] === '두 분이 서로 반지를 끼워요' && g5b.declare[0] === '하객 박수 · 두 분이 부부가 돼요' && g5b._close[0] === '두 분이 하객께 목례 · 박수'
-    && g5b.fams === 'solemn:1,warm:1,clap:1,family:1', JSON.stringify(g5b));
-  ok(`${w} G5 첫 줄 이름 — 화촉 «여는 말» · 선언 «선언 · 엄숙하게»(R3-10) [FIRST_LINE_NAME]`, g5b.labs.candle === '여는 말' && g5b.labs.declare === '선언 · 엄숙하게'   /* [R3-10] 갈래 표가 «나레이션»이라 이름에서 뺐다 */, JSON.stringify(g5b.labs));
+    && g5b.ring[0] === '두 분이 서로 반지를 끼워요' && g5b.declare[0] === '하객이 박수로 축하해요' /* [STAGE_LINES 2026-10-06] 종전 «하객 박수 · 두 분이 부부가 돼요» */ && g5b._close[0] === '두 분이 하객께 목례 · 박수'
+    && g5b.fams === 'solemn:1,warm:1,clap:2,family:1' /* [STAGE_LINES] 박수판 = 증인의 박수 + 축하 박수 */, JSON.stringify(g5b));
+  ok(`${w} G5 첫 줄 이름 — 화촉 «시작할 때» · 선언 «성혼 선언문 · 엄숙하게»(R3-10 · STAGE_LINES) [FIRST_LINE_NAME]`, g5b.labs.candle === '시작할 때' && g5b.labs.declare === '성혼 선언문 · 엄숙하게' /* [STAGE_LINES 2026-10-06] 줄 이름 = 언제 · 선언문이 곧 선언 */   /* [R3-10] 갈래 표가 «나레이션»이라 이름에서 뺐다 */, JSON.stringify(g5b.labs));
   await pg.evaluate(() => mkGo('toast')); await pg.waitForTimeout(300);
   const g5c = await pg.evaluate(() => { const li = [...document.querySelectorAll('.mk-pg .mk-flow li')];
     return { txt: li.map((l) => { const c = l.cloneNode(true); c.querySelectorAll('.vk').forEach((v) => v.remove()); return (l.className === 'q' ? '[quiet]' : '') + c.textContent; }), quietColor: (() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return q ? getComputedStyle(q).color : ''; })() }; });
