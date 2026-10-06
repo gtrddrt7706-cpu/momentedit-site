@@ -14617,3 +14617,5 @@ nochk 'd:"서사형"' assets/ritual-data.js
 nochk 'd:"서사형"' order-preview.html
 chk 'd:"이야기처럼"' assets/ritual-data.js 1
 chk 'd:"새 출발처럼"' order-preview.html 1
+chk 'GUEST_EX_RS' order-preview.html 1   # [GUEST_EX_RS 2026-10-06] 하객 맞이 예시 2~4 — 제미나이 딥리서치 반영(상투어 · 과한 감성 · «슬슬» 뺌 · 어미 통일)
+nochk '"저희 두 사람의 결혼식에 귀한 걸음 해 주셔서' order-preview.html
