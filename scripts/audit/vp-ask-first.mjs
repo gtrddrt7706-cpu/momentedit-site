@@ -23,7 +23,7 @@ for (const W of [390, 1280]) {
   await pg.evaluate(() => { window._vc = (op) => Promise.resolve(op === 'status' ? { ok: true, on: true, groom: {}, bride: {}, per: {} } : { ok: false }); RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; S.vsChip = 1; S.vsAsked = 1; S.on.prevideo = 1; opSync(); });
   for (const [k, vk] of [['guest', 'guestVoice'], ['entry', 'entryVoice'], ['prevideo', 'pvVoice']]) {
     await pg.evaluate((k) => { mkGo(k); try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }, k); await pg.waitForTimeout(400);
-    const look = (vk) => pg.evaluate((vk) => ({ ask: (document.querySelector('.mk-vpask1') || {}).textContent || '', box: !!document.querySelector('.mk-vpask'), flow: !!document.querySelector('.mk-flow'), cards: document.querySelectorAll('.mk-vc').length,
+    const look = (vk) => pg.evaluate((vk) => ({ ask: ((([...document.querySelectorAll('.ls-cg')].find((g) => g.querySelector('[data-fk^="lsc:' + vk + ':"]')) || document).querySelector('.mk-vpask1')) || {}).textContent || '',   /* [EX_ROW 2026-10-07] 예시 칩 줄도 같은 줄(mk-vpask1 · «아직 고르지 않았어요 · 고르지 않으면 담백하게로») — 목소리 칩 줄 것만 */ box: !!document.querySelector('.mk-vpask'), flow: !!document.querySelector('.mk-flow'), cards: document.querySelectorAll('.mk-vc').length,
       note: [...document.querySelectorAll('.ls-gnote')].map((e) => e.textContent).join('|'), on: [...document.querySelectorAll('[data-fk^="lsc:' + vk + ':"]')].filter((e) => e.getAttribute('aria-checked') === 'true' || e.classList.contains('on')).length }), vk);
     const a = await look(vk);
     if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `vp-ask-${k}-${W}.png`), fullPage: true });
