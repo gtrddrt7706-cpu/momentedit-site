@@ -1683,11 +1683,12 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .q-say{font-family:var(--ko-serif);font-weight:500;letter-spacing:-.01em}   /* [GUIL_OFF] 읽는 말 = 명조 · 따옴표 없이 */
 .q-nm{font-weight:600}   /* [GUIL_OFF] 칩 · 단추 이름 = 조금 굵게 · 따옴표 없이 */
 .mk-keepg{margin:2px 0 2px;padding:4px 0 14px}   /* [KEEP_GUIDE] 칠한 상자 없이 · ★선 없음 — 위는 앞 구분선, 아래는 줄 카드 목록 윗선이 이미 있다(2026-10-05 사장님 «밑에 줄 나눔이 두 줄» · 겹선 금지) */
-.mk-keepv{display:flex;align-items:center;gap:8px;margin:0 0 8px}
-.mk-keepv i{font-style:normal;color:var(--light)}
+.mk-keepb{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;margin:2px 0}   /* [KEEP_ORDER] 단추 모양 둘은 ③ 줄 안에 */
+.mk-keepb i{font-style:normal;color:var(--light)}
+.mk-keepg.shut{padding:0 0 6px} .mk-keept{display:inline-flex;align-items:center}
 .mk-kp{display:inline-flex;align-items:center;gap:3px;min-height:30px;padding:0 12px;border:1px solid var(--gold-btn,#C2A988);border-radius:999px;background:#fff;color:var(--gold-deeper);font-size:12.5px;font-weight:600}
 .mk-kp.on{background:rgba(184,154,117,.16)} .mk-kp svg{width:11px;height:11px}
-.mk-keepl{margin:0;padding:0 0 0 16px;font-size:12.5px;line-height:1.7;color:var(--sub);word-break:keep-all}
+.mk-keepl{margin:0;padding:0 0 0 18px;font-size:12.5px;line-height:1.7;color:var(--sub);word-break:keep-all}
 .mk-tip{margin:0 0 2px}   /* [TONE_TIP] */
 .mk-tip>summary{cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--gold-deeper)}
 .mk-tip>summary::-webkit-details-marker{display:none}
@@ -4591,7 +4592,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
   /* [R1-09] «두 분 말로 고쳐도 돼요» · «비교해 듣기»는 줄마다 말고 이 칸 머리에 한 번 */
   /* ★«글은 두 분 말로 고쳐도 돼요 · 스튜디오 나레이션과 비교해 듣기» 한 줄(.mk-vtall · mknarall) 금지 — 2026-10-03 사용자 지시로 삭제 [AI_NOTE_OFF 2026-10-03 사장님]
      이 단추가 «비교해 듣기»의 유일한 길이었다(줄마다 mknar 는 R1-09 에 걷었다) — 비교해 듣기도 함께 사라졌다 · mkNarAll 도 걷었다(쓰는 곳 없음) */
-  if(ai) h+=_vcTempoRow(k,ups)+_keepNote(ups);   // [AI_CARD_TIDY] 말 빠르기는 순간 머리에 한 줄 · [KEEP_LINE] 확정 안내 한 줄
+  if(ai) h+=_vcTempoRow(k,ups)+_keepNote(ups,k);   // [AI_CARD_TIDY] 말 빠르기는 순간 머리에 한 줄 · [KEEP_LINE] 확정 안내 한 줄
   var pix={}, pixK={}; [k].forEach(function(kk){ try{ if(ENG) _lSteps(ENG,[kk]).forEach(function(x,i){ if(x.own&&x.up&&pix[x.up]==null){ pix[x.up]=i; pixK[x.up]=kk; } }); }catch(e){} });   /* [R8-09 PIX_TWO] «시작 1분 전»은 식전 영상 뒤 단계라 하객 맞이 단계에서 못 찾아 ▶ 가 빠지고 제목이 왼쪽 끝으로 붙었다 — 두 순간에서 찾고 어느 순간인지 기억한다 */   // [VP_ONE_LIST] 흐름에서 옮겨 온 듣기 — 줄 카드 머리 ▶
   if(ai&&k==='guest') h+=_exCards('guest',GUEST_EX.map(function(x){ return x[0]; }),_guestExCur(),'mkGuestEx');   // [GUEST_EX4] 하객 맞이도 같은 폼(줄 카드 바로 위)
   if(ai&&k==='entry') h+=_exCards('entry',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),ENTRY_KEYS.indexOf(S.entry),'mkEntryEx');   // [EX_ONE] AI 판 입장 멘트 = 참고 예시 카드(줄 카드 바로 위)
@@ -5234,10 +5235,22 @@ function _vcWarmAll(w){ if(!VC.st||!(VC.st[w]||{}).ready) return; ['g0','g1','g2
 function _keepCount(w){ return ['g0','g1','g2','g3','pv','entry'].filter(function(k){ var v=(S.up||{})[k], lw=_vcLineWho(k); return (S.vkeep||{})[k]&&v&&typeof v==='object'&&v.src==='ai'&&(lw===w||lw==='both'); }).length; }
 function _keepBtn(key,lab){ var on=!!(S.vkeep||{})[key];
   return '<button type="button" class="pk-link mk-keep'+(on?' on':'')+'" data-fk="mkkeep:'+key+'" aria-pressed="'+on+'" aria-label="'+esc(lab+(on?' · 확정됨 · 누르면 풀어요':' · 이 소리로 확정하기'))+'" onclick="mkKeep(\''+key+'\')">'+(on?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>확정됨':'확정하기')+'</button>'; }
-function _keepNote(ups){ var made=(ups||[]).filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; }); if(!made.length||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
-  /* ★★[KEEP_GUIDE 2026-10-05 사장님 «확정함 누르면 음성을 다시 녹음해도 고정이라고 · 보기 좋게 그 부분을 보여 주면서 설명 · 고객 입장에서 쉽게»] 한 줄 글 → 실제 단추 모양 둘(확정하기 → ✓ 확정됨)을 보여 주고 세 줄로 */
-  return '<div class="mk-keepg" role="note"><div class="mk-keepv" aria-hidden="true"><span class="mk-kp">확정하기</span><i>›</i><span class="mk-kp on">'+ICO_CHECK+'확정됨</span></div>'
-    +'<ul class="mk-keepl"><li>들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요</li><li>들어 보고 마음에 드는 줄은 확정해 두세요</li><li>확정한 줄은 목소리를 다시 녹음하거나 빠르기 · 쉼을 바꿔도 그대로 남아요</li><li>다시 고치고 싶으면 확정됨을 한 번 더 눌러 풀어요</li></ul></div>'; }
+function _keepNote(ups,k){ var made=(ups||[]).filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; }); if(!made.length||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
+  /* ★★[KEEP_GUIDE 2026-10-05 사장님 «확정함 누르면 음성을 다시 녹음해도 고정이라고 · 보기 좋게 그 부분을 보여 주면서 설명 · 고객 입장에서 쉽게»] 실제 단추 모양 둘(확정하기 → ✓ 확정됨)을 보여 주며 설명
+     ★★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 시작 · 처음 하객 맞이 부분만 펼쳐 있고 그 이후는 접힌 상태» → «추천대로»]
+     ①목소리 → ②예시 글 → ③확정(단추 모양은 이 줄 안으로) → ④다시 녹음해도 그대로 · 풀기(옛 넷째 줄을 합쳤다) — 하는 차례 그대로 네 줄.
+     펼침은 AI 를 쓰는 첫 순간(예식 차례 VS_MK · 보통 하객 맞이)만 · 그다음 순간은 «확정 안내 보기» 한 줄로 접는다(같은 설명을 세 번 읽지 않게). 눌러 연 것은 MK.keepT 가 기억한다 */
+  var first=_vsMk().filter(function(x){ return _vpCur(x)==='ai'; })[0]===k, T=MK.keepT||{}, open=(k in T)?T[k]:first;
+  var kp=function(on){ return '<span class="mk-kp'+(on?' on':'')+'">'+(on?ICO_CHECK:'')+(on?'확정됨':'확정하기')+'</span>'; };
+  var tg='<button type="button" class="pk-link mk-keept" data-fk="mkkeept:'+k+'" aria-expanded="'+open+'" onclick="mkKeepT(\''+k+'\')">'+(open?'확정 안내 접기':'확정 안내 보기')+'</button>';
+  if(!open) return '<div class="mk-keepg shut" role="note">'+tg+'</div>';
+  return '<div class="mk-keepg" role="note"><ol class="mk-keepl">'
+    +'<li>두 분 목소리를 만들면 아래 글이 그 목소리로 채워져요</li>'
+    +'<li>들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요</li>'
+    +'<li class="mk-keepv">들어 보고 마음에 드는 줄은 <span class="mk-keepb" aria-hidden="true">'+kp(false)+'<i>›</i>'+kp(true)+'</span></li>'
+    +'<li>확정한 줄은 다시 녹음하거나 빠르기 · 쉼을 바꿔도 그대로 남아요 · 풀려면 확정됨을 한 번 더 눌러요</li></ol>'
+    +(first&&!(k in T)?'':tg)+'</div>'; }
+window.mkKeepT=function(k){ MK.keepT=MK.keepT||{}; var first=_vsMk().filter(function(x){ return _vpCur(x)==='ai'; })[0]===k, cur=(k in MK.keepT)?MK.keepT[k]:first; MK.keepT[k]=!cur; _fxNext='[data-fk="mkkeept:'+k+'"]'; render(); };   // [KEEP_ORDER]
 window.mkKeep=function(key){ S.vkeep=S.vkeep||{}; if(S.vkeep[key]) delete S.vkeep[key]; else S.vkeep[key]=1; _fxNext='[data-fk="mkkeep:'+key+'"]'; _persist(); render(); };
 function _keepAsk(key,go){ if(!(S.vkeep||{})[key]) return false;
   ordAsk({title:'확정한 소리예요',body:'읽는 분을 바꾸면 이 줄을 새로 만들어요',yes:'바꾸기',no:'그대로 두기'}).then(function(ok){ if(!ok) return; delete S.vkeep[key]; _persist(); go(); }); return true; }

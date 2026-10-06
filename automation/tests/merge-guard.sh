@@ -14697,5 +14697,12 @@ chk '<html[^>]*spellcheck="false"' contract/fitting.html 1
 chk '<html[^>]*spellcheck="false"' contract/snap-v1-0.html 1
 chk '<html[^>]*spellcheck="false"' contract/v1-1.html 1
 nochk 'spellcheck="true"' order-preview.html
+# ★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 · 처음 하객 맞이만 펼치고 이후는 접기» → «추천대로»] 확정 안내 네 줄(목소리 → 예시 → 확정 → 그대로·풀기) · 첫 AI 순간만 펼침
+chk 'KEEP_ORDER' order-preview.html 2
+chk '<li>두 분 목소리를 만들면 아래 글이 그 목소리로 채워져요</li>' order-preview.html 1
+chk '확정 안내 보기' order-preview.html 1
+nochk '<li>다시 고치고 싶으면 확정됨을 한 번 더 눌러 풀어요</li>' order-preview.html
+chk 'KEEP_ORDER' scripts/audit/keep-order.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/keep-order.mjs >/dev/null 2>&1; _kor=$?; if [ "$_kor" = 1 ]; then echo 'FAIL keep-order: 확정 안내 순서 · 접힘이 어긋났습니다 — node scripts/audit/keep-order.mjs'; fail=1; else echo "ok keep-order ($_kor)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
