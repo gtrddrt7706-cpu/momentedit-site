@@ -1000,7 +1000,8 @@ function cueEnd(c){ if (!c || !c.live || c.live.doing !== 'say') return '';
   var tx = S.tx || {}, mk = S.mkc || {}, cs = S.cueSig || {}, out = [];
   var last = function(s){ var p = String(s || '').replace(/\s+/g, ' ').trim().match(/[^.!?。]+[.!?。]*/g) || []; var l = (p[p.length - 1] || '').trim(); return l.length > 40 ? '…' + l.slice(-40) : l; };
   it.forEach(function(x){ var t = String(tx[x[2] || x[0]] || '').trim(), cu = String(cs[x[0]] || '').trim();
-    if (t) out.push(x[1] + ' «' + last(t) + '»'); else if (mk[x[0]]) out.push(x[1] + ' · ' + (cu || '아직 안 적음 — 말이 끝나면 마이크를 받는다')); });
+    /* ★[CUE_FORM 2026-10-06] «현장에서 바로»를 고른 분은 글칸이 접힌다 — 글이 남아 있어도 두 분이 적은 끝 신호(말이나 동작)가 먼저 */
+    if (mk[x[0]]) out.push(x[1] + ' · ' + (cu || (t ? '«' + last(t) + '»' : '아직 안 적음 — 말이 끝나면 마이크를 받는다'))); else if (t) out.push(x[1] + ' «' + last(t) + '»'); });
   return out.join(' / '); }
 function fallbackCard(c, why, done){
   aNarr.removeAttribute('src'); try { aNarr.load(); } catch(e){}

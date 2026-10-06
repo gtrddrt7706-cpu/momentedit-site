@@ -14521,12 +14521,27 @@ chk 'CF_FIX_FIT' order-preview.html 1
 chk '.cf-fix{flex:0 0 auto;align-self:center;justify-self:end;width:max-content;' order-preview.html 1
 chk 'EXTAG_OWN_LINE' order-preview.html 1
 :
+# ★[VP_ASK_FIRST · STALE_BY_PILL · CHIP_W_FIX · PR_MODE_ONE_LINE 2026-10-06 사장님] 안 고른 안내 목소리 = «먼저 골라 주세요» · «글을 고쳤어요»는 목소리 만들기 왼쪽 · 칩 눌러도 줄 수 고정 · 연습 방법 설명 한 줄
+chk 'VP_ASK_FIRST' order-preview.html 2
+chk 'STALE_BY_PILL' order-preview.html 2
+chk 'CHIP_W_FIX' order-preview.html 2
+chk 'PR_MODE_ONE_LINE' order-preview.html 1
+chk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html 1
+chk 'VP_ASK_FIRST' scripts/audit/vp-ask-first.mjs 1
+chk 'STALE_BY_PILL' scripts/audit/pv-intro.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; if [ "$_vpa" = 1 ]; then echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; fi; fi
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
 chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
 chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1
 chk 'VU_VIDEO_PLAY' order-preview.html 2
 nochk "'<div class=\"mk-vu-img\">'+(v?'<img src=" order-preview.html
 :
+# ★[PR_MODE_UNPICKED · PT_PREP_SHOW · PT_NO_STALL 2026-10-06 사장님] 연습 방법은 처음에 비어 있다 · AI 준비는 진행 막대 칸 한 곳 · 다듬기 · 연결 실패로 준비가 서지 않는다
+chk 'PR_MODE_UNPICKED' order-preview.html 2
+chk 'PT_PREP_SHOW' order-preview.html 3
+chk 'PT_NO_STALL' order-preview.html 3
+chk 'PT_NO_STALL' scripts/audit/play-wait-file.mjs 1
+chk 'PR_MODE_UNPICKED' scripts/audit/play-wait-file.mjs 1
 # ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 추리자 · 1줄로 맞아떨어지게 · 다른 곳들도 베스트로 전부»] 참고 예시 카드는 늘 넷 이하(PC 한 줄 · 폰 2×2) · 상황 예시 · 부모님 예시는 카드 줄 아래 글 단추 · AI 입장 인사 예시 = A · B · D · E
 chk 'REF_ROW4' order-preview.html 3
 chk "var ENTRY_KEYS=\['A','B','D','E'\];" order-preview.html 1
@@ -14564,3 +14579,11 @@ chk 'ASK_SHORT' order-preview.html 3   # [ASK_SHORT 2026-10-06 사장님 «핵�
 nochk '고르기에서 빈 칸으로 다시 시작해요' order-preview.html
 nochk '올려 두신 두 분 목소리 녹음은 그대로 남겨 둬요' order-preview.html
 :
+# ★★[CUE_FORM 2026-10-06 사장님] 두 분이 직접 말하는 순간 — 예시 카드가 곧 글칸 채우기 · 두 분 칸 한 카드 · 왜 적는지 한 줄 · 현장 체크 = 끝 신호(말이나 동작) · 콘솔은 체크한 분 끝 신호 먼저
+chk 'CUE_FORM' order-preview.html 8
+chk 'function _mkRefFill(k,n)' order-preview.html 1
+chk '끝 신호 · 끝날 때 하는 말이나 동작을 알려 주세요' order-preview.html 1
+chk 'CUE_FORM' console.html 1
+chk 'CUE_FORM' scripts/audit/cue-form.mjs 1
+nochk '아래 칸에 그대로 옮겨 적거나, 두 분 이야기로 바꿔 적어 주세요' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/cue-form.mjs >/dev/null 2>&1; _cuf=$?; if [ "$_cuf" = 1 ]; then echo 'FAIL cue-form: 두 분이 할 말 칸(예시 채우기 · 현장 체크 · 끝 신호)이 어긋났습니다 — node scripts/audit/cue-form.mjs'; fail=1; fi; fi   # ★[GUARD_TAIL_RC 2026-10-06] 맨 끝 줄이 «[ … ] && { … }»면 통과해도 거짓이 남아 종료코드 1(ALL MARKERS OK 인데 CI 빨강) — if 로 쓴다

@@ -68,6 +68,11 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const st = await pg.evaluate(() => ({ btn: (document.querySelector('[data-fk="mkai:pv"]') || {}).textContent || '', s: (document.querySelector('[data-fk^="mkslw:pv:0:"]').closest('.mk-vc') || {}).textContent || '' }));
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «다시 만들어 주세요 · [새 글로 다시 만들기]» → «▶ 를 누르면 새로 만들어요» · 단추 없음(▶ 가 만든다) */
   ok(W + ' 글을 고치면 «글을 고쳤어요» · 머리 [AI로 만들기]가 스르륵 [AI_PILL]', st.btn === '목소리 만들기' && /글을 고쳤어요/.test(st.s), JSON.stringify(st).slice(0, 300));
+  /* ★[STALE_BY_PILL 2026-10-06 사장님] «글을 고쳤어요»는 제목 아래가 아니라 [목소리 만들기] 바로 왼쪽 · 같은 머리 줄 · 세로 가운데가 맞는다 */
+  const sp = await pg.evaluate(() => { const b = document.querySelector('.mk-aip[data-key="pv"]'), s = b && b.previousElementSibling, h = b && b.closest('.mk-vch'), r1 = s && s.getBoundingClientRect(), r2 = b && b.getBoundingClientRect();
+    return { side: !!(s && s.classList.contains('mk-vst-side') && /글을 고쳤어요/.test(s.textContent)), under: !!(h && h.querySelector('.mk-vhd .mk-vst')), left: !!(r1 && r2 && r1.right <= r2.left + 1), mid: r1 && r2 ? Math.abs((r1.top + r1.bottom) / 2 - (r2.top + r2.bottom) / 2) : 99, over: h ? h.scrollWidth - h.clientWidth : 99 }; });
+  if (process.env.SHOTS) { fs.mkdirSync(process.env.SHOTS, { recursive: true }); await (await pg.$('[data-fk="mkvpl:pv"]')).evaluate((e) => e.closest('.mk-vc').scrollIntoView({ block: 'center' })); await (await pg.$('.mk-aip[data-key="pv"]')).evaluate(() => 0); await pg.screenshot({ path: path.join(process.env.SHOTS, 'stale-by-pill-' + W + '.png') }); }
+  ok(W + ' [STALE_BY_PILL] «글을 고쳤어요»는 [목소리 만들기] 바로 왼쪽(제목 아래에 없음 · 세로 가운데 · 머리 줄 넘침 없음)', sp.side && !sp.under && sp.left && sp.mid < 3 && sp.over <= 0, JSON.stringify(sp));
   await pg.click('[data-fk="mkex:pv:1"]'); await pg.waitForTimeout(300);
   const ask = await pg.evaluate(() => { const d = document.querySelector('.ord-ask'); return d ? d.textContent : ''; });
   ok(W + ' 적어 둔 글을 예시로 덮기 전에 묻는다', /예시로 바꿀까요/.test(ask), ask.slice(0, 120));
