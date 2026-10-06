@@ -104,3 +104,11 @@
   `aria-hidden="true"` 이고 크기는 의도다(`momentedit-design` 「접근성 결정 기록」 · [TYPO_SCALE7] 예외).
   ★단 그 안에 버튼·링크가 생기면 이 예외는 끝난다 — 그때는 `aria-hidden` 부터 다시 본다.
 - **날짜**: 2026-09-25
+
+### [EXC_DETECT] `npx impeccable detect` 의 이 사이트 오탐 (2026-10-06 첫 실행)
+- **buried-raster** «<img> at opacity 0» — 등장 연출(`.reveal`) · 접힌 카드 사진이 처음엔 투명으로 시작한다. 결함 아님.
+- **tiny-text 11px** — 우리 크기 바닥이 11px 이다([TYPO_SCALE7]). 10.5 · 11.5 같은 반 px 는 진짜 결함이니 따로 본다.
+- **layout-transition max-height** — FAQ · 접힘 아코디언. 성능 개선 후보일 뿐 고장은 아니다.
+- **wide-tracking 0.51em** (마이페이지 머리 «MOMENT EDIT») — 브랜드 워드마크 자간 예외([TRACK_RAMP8]).
+- **low-contrast #000 on #6f2b24** (index) — `<head>` 첫 페인트용 html 바탕이라 실제 글자와 겹치지 않는다.
+- ★진짜였던 것: **hover 글자 골드**(2.5:1) → `--gold-text` 로 고치고 `[HOVER_GOLD_TEXT]` 로 막았다.

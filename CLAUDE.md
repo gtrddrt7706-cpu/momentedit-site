@@ -375,6 +375,12 @@ git push -u origin <브랜치>
 - 그 자리는 **우리 검사가 이미 메운다** — `scripts/audit/` 의 `home-a11y`·`footer-parity`·
   `section-rhythm`·`check-css-tokens`·`tap-targets`. 61개가 없다고 점검이 비는 것이 아니다.
 - 바이너리를 다른 길로 끌어오지 않는다. 릴리스가 열리면 `SOURCE.md` 에 적어 두고 그때 받는다.
+- ★★[IMPECCABLE_DETECT 2026-10-06 실측] **npm 판 `npx impeccable detect <파일>`(4.1.0)은 이 환경에서 돈다**(npm 은 허용 · 엔진 바이너리 없이 파일을 정적으로 읽는다).
+  노션 가이드(frontend-design → DESIGN.md → Impeccable)를 분석하다 확인했다. 첫 실행에서 **진짜 결함 하나**를 찾았다 —
+  고객 면 5곳 19자리에서 마우스를 올리면 글자가 장식 골드(#b89a75 · 2.5:1)로 바뀌었다 → `--gold-text` 로 고치고 `[HOVER_GOLD_TEXT]` 로 막았다.
+  ★오탐도 많다 — 등장 전 `opacity:0` 이미지(buried-raster) · 우리 크기 바닥 11px(tiny-text) · 아코디언 `max-height` 전환. `MOMENTEDIT_EXCEPTIONS.md` 의 `[EXC_DETECT]` 를 먼저 본다.
+- ★[DESIGN_MD_POINTER 2026-10-06] 루트 `DESIGN.md` · `PRODUCT.md` 는 impeccable · frontend-design 이 **먼저 읽는 자리**에 둔 우리 브랜드 요약본이다(정본은 여전히 `momentedit-design`).
+  다른 브랜드의 DESIGN.md(getdesign.md)를 가져와 덮지 않는다. 색 값은 `scripts/audit/design-md-sync.mjs` 가 `index.html :root` 와 대조한다.
 
 #### 화면 PR 점검 3단 (화면을 바꾼 PR 마다 · 순서대로)
 
