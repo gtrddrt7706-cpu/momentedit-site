@@ -14176,8 +14176,8 @@ nochk 'mk-vtn">위 두 문장은 그대로 나가요' order-preview.html   # ★
 nochk 'backdrop-filter' order-preview.html 0
 chk 'R8-17' order-preview.html 2
 chk '.seqr:last-child,.seqr:has(+ .dmnote)' order-preview.html 1
-chk 'd:"감사 · 가족"' assets/ritual-data.js 1
-chk 'd:"감성 · 시적"' order-preview.html 1
+chk 'd:"고마움을 담아"' assets/ritual-data.js 1   # [ENTRY_LAB_ONE 2026-10-06] 감사 · 가족 → 고마움을 담아
+chk 'd:"시처럼"' order-preview.html 1   # [ENTRY_LAB_ONE 2026-10-06] 감성 · 시적 → 시처럼
 chk 'G0_MOVED_NOTE' order-preview.html 2
 # [BRIDGE_LINK · REDUB_1003 · REDUB_KEEP_RULE 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114) · 나레이션 여섯 자리 새 문안 · 배역 01_guest-1
 chk 'BRIDGE_LINK' assets/ritual-cue.js 3
@@ -14612,3 +14612,8 @@ chk 'GUEST_EX4' order-preview.html 4
 chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1
 chk 'window.mkGuestEx=function(n)' order-preview.html 1
 chk "\['담백하게',\[GUEST\[0\]\[2\],GUEST\[1\]\[2\],GUEST\[2\]\[2\],GUEST\[3\]\[2\]\]\]" order-preview.html 1
+# ★[ENTRY_LAB_ONE 2026-10-06 사장님 «다른 곳들이랑 일관성 있게» → «맞추기»] 입장 예시 이름표 = «~하게 · ~처럼 · ~담아» 꼴(두 분이 할 말 · 식전 영상 · 하객 맞이와 같은 말투) · 녹음은 그대로
+nochk 'd:"서사형"' assets/ritual-data.js
+nochk 'd:"서사형"' order-preview.html
+chk 'd:"이야기처럼"' assets/ritual-data.js 1
+chk 'd:"새 출발처럼"' order-preview.html 1
