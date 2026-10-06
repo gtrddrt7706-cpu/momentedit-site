@@ -64,7 +64,7 @@ for (const P of PROFILES) {
     const ms = await pg.evaluate(() => (LP.q[0] || {}).ms || 0);
     await pg.waitForTimeout(ms + 1500);
     const r = await pg.evaluate(() => ({ log: window.__playLog, paused: LP.paused, i: LP.i, st: LP.q[LP.i] ? !!LP.q[LP.i].src : null, el: LP.el ? { p: LP.el.paused, t: LP.el.currentTime } : null }));
-    const real = r.log.filter((x) => /\.mp3$/.test(x.src));
+    const real = r.log.filter((x) => /\.mp3$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/.test(x.src));   /* ★[INAPP_BLOB 2026-10-06 점검] #979(정한 빠르기 · 쉼이 모든 ▶ 에)부터 소리는 다듬은 blob 주소로 튼다 — .mp3 만 세면 소리가 나도 0건이었다(10-04 부터 빨강) · «실제로 흐른다»(currentTime > 0)는 그대로 */
     ok(`${W} «${k}» 글 줄 뒤 소리 줄이 막히지 않고 실제로 흐른다(currentTime > 0)`, real.length > 0 && real.every((x) => x.ok) && !r.paused && r.el && r.el.t > 0, JSON.stringify(r));
     await pg.evaluate(() => lsStop());
   }
