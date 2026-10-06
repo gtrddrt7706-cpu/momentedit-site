@@ -1451,12 +1451,12 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .pr-prep .pr-ps{margin:6px 0 0;font-size:12.5px;color:var(--sub)}
 .mk-wait{margin:8px 0 16px;padding:22px 20px 20px;border:1px solid var(--border);border-radius:12px;background:var(--card);text-align:center}   /* ★[WAIT_BOX 2026-10-06] 기다리는 칸 — 제목 · 움직이는 선 · 한 줄 */
 /* ★[WAIT_INK 2026-10-06 사장님 «이 로딩 표시는 무드에 안 맞아 · 디자이너 시선으로»] 굵은 버건디 막대(4px · 앱 로딩 같았다) → 가운데 맞춘 명조 제목 + 머리카락 한 줄 위를 천천히 오가는 금빛 잉크(2.4초 · 오가기). 막대로 되돌리지 말 것 */
-.mk-wait-t{margin:0;font:500 15px/1.5 var(--ko-serif);letter-spacing:-.01em;color:var(--accent);word-break:keep-all}
+.mk-wait-t{margin:0;font:500 16px/1.5 var(--ko-serif);letter-spacing:-.01em;color:var(--accent);word-break:keep-all}
 .mk-wait-bar{display:block;position:relative;width:120px;height:1px;margin:14px auto 0;background:#E6E1D8;overflow:hidden}
 .mk-wait-bar i{position:absolute;top:0;left:0;width:56px;height:100%;background:linear-gradient(90deg,rgba(184,154,117,0),var(--gold) 50%,rgba(184,154,117,0));animation:mkWait 2.4s ease-in-out infinite alternate}
 @keyframes mkWait{from{transform:translateX(-56px)}to{transform:translateX(120px)}}
 @media (prefers-reduced-motion:reduce){ .mk-wait-bar i{animation:none;left:32px} }
-.mk-wait-s{margin:14px 0 0;font-size:12px;line-height:1.6;color:var(--sub);word-break:keep-all}
+.mk-wait-s{margin:14px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
 .pr-askb{display:flex;flex-wrap:wrap;gap:8px}
 .lf-cue{margin:10px 0 0;font-size:14px;font-weight:500;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
 .lf-tbar{height:3px;margin:10px 0 2px;border-radius:2px;background:var(--border);overflow:hidden}
