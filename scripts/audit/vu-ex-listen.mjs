@@ -47,6 +47,7 @@ for (const w of [390, 1280]) {
   for (let i = 0; i < 4; i++) { await pg.click('[data-fk="mkuseprev"]'); await wait(300); const g = await geo(); hs.push(g.qh); ys.push(g.ny); ps.push(g.P); }
   /* ★[VU_FLOW_FREE 2026-10-06 사장님 «그냥 창 움직이게 하고 최적화»] 종전 «다음 · 이전을 오가도 높이 같다» → 높이는 글만큼 · 본문에 최소 높이를 걸지 않는다 */
   ok(`${w} ③ 다음 · 이전 — 창 본문에 고정 높이 없음(글만큼) · 들어 보기와 이전 · 다음 사이 빈칸 30px 이하 [VU_FLOW_FREE]`, ps.every((p) => p && p.split(':')[2] === '') && await pg.evaluate(() => { const a = document.querySelector('[data-fk="mkuseplay"]').getBoundingClientRect(), n = document.querySelector('.mk-vu-nav').getBoundingClientRect(); return n.top - a.bottom <= 30; }), JSON.stringify({ hs, ys, ps }));
+  ok(`${w} ④ 다음 · 이전을 오가도 이전 · 다음 단추 자리 그대로(±1px) · 위쪽이 늘고 준다 [VU_BOTTOM_FIX]`, Math.max(...ys) - Math.min(...ys) <= 1, JSON.stringify(ys));
   ok(`${w} 화면 오류 없음`, !errs.length, errs.slice(0, 2).join(' | '));
   await pg.close();
 }

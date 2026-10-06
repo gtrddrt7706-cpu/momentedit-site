@@ -14787,7 +14787,11 @@ chk 'VU_FLOW_FREE' scripts/audit/vu-ex-listen.mjs 3
 nochk 'mk-vu-tmp">임시로' order-preview.html
 nochk 'mk-vu-tmp' order-preview.html
 nochk 'P.style.minHeight=bh' order-preview.html
-chk "d.classList.toggle('mk-dlg-top',h.indexOf('mk-vu-img')>-1);" order-preview.html 1   # [VU_FLOW_FREE] 나오는 곳 창은 위 고정 — 다음마다 그림이 오르내리지 않게
+# ★[VU_BOTTOM_FIX 2026-10-06 사장님 «다음 버튼이 자꾸 움직이니 불편 · 위쪽이 움직이게»] 나오는 곳 창은 아래 고정 — 이전 · 다음이 제자리 · 위로 늘고 준다
+chk "d.classList.toggle('mk-dlg-bot',h.indexOf('mk-vu-img')>-1);" order-preview.html 1
+chk 'VU_BOTTOM_FIX' order-preview.html 2
+nochk "d.classList.toggle('mk-dlg-top'," order-preview.html
+chk 'VU_BOTTOM_FIX' scripts/audit/vu-ex-listen.mjs 1
 # ★[UP_BTN_OFF · UP_RACE · PV_FILL · VLIST_ONE_LINE · KEEP_IN_ROW · NO_BAR_SHIFT 2026-10-06 사장님] 식전 영상 쪽 정리 + 같은 꼴 전수
 #   아래 «들어 보기 · 지우기» 단추 줄 걷음(머리 ▶ · 상태 줄 끝 지우기) · 연달아 보낸 줄이 «파일 올렸어요»로 적히던 경합 · AI 고르면 소개글 예시 1 · 가로선 두 줄 · 확정 안내 보기를 칩 줄로 · 스크롤바로 좌우 흔들림
 chk 'UP_BTN_OFF' order-preview.html 3
