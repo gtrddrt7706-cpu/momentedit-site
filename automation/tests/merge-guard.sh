@@ -14674,3 +14674,11 @@ chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
 chk 'VU_LAYOUT' order-preview.html 5
 chk 'VU_GUEST_EX' order-preview.html 1
 nochk 'm.remove(); if(hi) q.style.minHeight=hi' order-preview.html
+# ★[EX_PREBAKE · EX_BASE · EX_FOCUS_CARD · VP_UNPICKED_ALL 2026-10-06 사장님] 예시 소리는 미리 만들어 두고 고르면 바로 · «처음 글로»=고른 예시 · 예시를 눌러도 포커스는 카드(금색 줄 없음) · 목소리 쪽이 세 순간을 미리 고르지 않는다
+chk 'EX_PREBAKE' order-preview.html 7
+chk 'EX_BASE' order-preview.html 3
+chk 'EX_FOCUS_CARD' order-preview.html 1
+chk 'VP_UNPICKED_ALL' order-preview.html 3
+chk 'VP_UNPICKED_ALL' scripts/audit/ex-prebake.mjs 1
+nochk "if(_vsCur()!=='ai'){ VS.inPick=true; try{ VS_KEYS.forEach(function(k){ _lSet(k,'ai'); });" order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-prebake.mjs >/dev/null 2>&1; _exp=$?; [ "$_exp" = 1 ] && { echo 'FAIL ex-prebake: 예시 소리 · 처음 글로 · 예시 포커스 · 목소리 미리 고르기가 어긋났습니다 — node scripts/audit/ex-prebake.mjs'; fail=1; }; [ "$_exp" = 0 ] && echo 'OK   ex-prebake'; fi

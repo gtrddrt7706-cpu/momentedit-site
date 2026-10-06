@@ -179,11 +179,11 @@ for (const w of [390, 1280]) {
       await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'nar')); VS.inPick = false; render(); }); await pg.waitForTimeout(200);
       await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(400);
       const go = await pg.evaluate(() => ({ cur: _vsCur(), t: ((document.querySelector('#mkRecDlg .mk-dlg-t') || {}).textContent || '') }));
-      ok(`${w} [VOICE_ONCE] 이 쪽에서 «목소리 만들기 시작» → 세 자리 AI · 종전 동의 창(같은 갈래)`, go.cur === 'ai' && /님 목소리 만들기/.test(go.t), JSON.stringify(go));
+      ok(`${w} [VOICE_ONCE · VP_UNPICKED_ALL] 이 쪽에서 «목소리 만들기 시작» → 동의 창 · 세 순간 고른 값은 그대로(미리 AI 로 고르지 않는다)`, go.cur === 'nar' && /님 목소리 만들기/.test(go.t), JSON.stringify(go));
       await pg.evaluate(() => mkDlgClose()); await pg.waitForTimeout(250);
       await pg.click('[data-fk="mkvlater"]'); await pg.waitForTimeout(500);
       const lt = await pg.evaluate(() => ({ at: _mkRO().at, v: [S.guestVoice, S.entryVoice, S.pvVoice].join(','), vf: JSON.stringify(S.vfill || {}) }));
-      ok(`${w} [VOICE_ONCE] «나중에 할게요» → 스튜디오 나레이션으로 두고 하객 맞이로(막지 않는다)`, lt.at === 'guest' && lt.v === 'nar,nar,nar' && lt.vf === '{}', JSON.stringify(lt));
+      ok(`${w} [VOICE_ONCE · VP_UNPICKED_ALL] «나중에 할게요» → 하객 맞이로(막지 않는다) · 세 순간 고른 값은 그대로`, lt.at === 'guest' && lt.v === 'nar,nar,nar' && lt.vf === '{}', JSON.stringify(lt));
       await pg.evaluate(() => { opGoStep('done'); }); await pg.waitForTimeout(600); await pg.evaluate(() => _editOpen('entry')); await pg.waitForTimeout(600);
       ok(`${w} [VOICE_ONCE] ④ «변경»은 그 순간으로 바로(목소리 쪽을 거치지 않는다)`, await pg.evaluate(() => _mkRO().at === 'entry' && STEPS[idx].k === 'listen'));
     }
