@@ -14704,5 +14704,12 @@ chk '확정 안내 보기' order-preview.html 1
 nochk '<li>다시 고치고 싶으면 확정됨을 한 번 더 눌러 풀어요</li>' order-preview.html
 chk 'KEEP_ORDER' scripts/audit/keep-order.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/keep-order.mjs >/dev/null 2>&1; _kor=$?; if [ "$_kor" = 1 ]; then echo 'FAIL keep-order: 확정 안내 순서 · 접힘이 어긋났습니다 — node scripts/audit/keep-order.mjs'; fail=1; else echo "ok keep-order ($_kor)"; fi; fi
+# ★[STALE_NOVOICE · EX_MINE 2026-10-06 사장님] 글이 바뀐 AI 줄 + 목소리 없음 → ▶ 는 지금 글 · 머리에 «목소리 만들기» / 참고 예시 이름을 두 분 이름으로(토씨까지)
+chk 'STALE_NOVOICE' order-preview.html 4
+chk 'function _staleNoVoice(key)' order-preview.html 1
+chk 'EX_MINE' order-preview.html 2
+chk 'txt:_exMine(r.text)' order-preview.html 1
+chk 'STALE_NOVOICE' scripts/audit/stale-novoice.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/stale-novoice.mjs >/dev/null 2>&1; _snv=$?; if [ "$_snv" = 1 ]; then echo 'FAIL stale-novoice: 바뀐 글 + 목소리 없음 ▶ · 예시 이름 입히기가 어긋났습니다 — node scripts/audit/stale-novoice.mjs'; fail=1; else echo "ok stale-novoice ($_snv)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
