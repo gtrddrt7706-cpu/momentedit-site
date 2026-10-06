@@ -14607,3 +14607,8 @@ chk '.mk-vlist .rowbtn.mk-vb{min-width:var(--mk-vb-w)' order-preview.html 1
 nochk '<span class="mk-extag">예시 글 · 고쳐 써도 돼요</span>' order-preview.html
 chk '들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요' order-preview.html 1
 chk 'EXTAG_OFF' order-preview.html 2
+# ★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 · 다른 곳처럼 예시 1~4 같은 폼»] AI 판 하객 맞이 = «참고 예시» 카드 넷 · 누르면 네 줄이 한 번에
+chk 'GUEST_EX4' order-preview.html 4
+chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1
+chk 'window.mkGuestEx=function(n)' order-preview.html 1
+chk "\['담백하게',\[GUEST\[0\]\[2\],GUEST\[1\]\[2\],GUEST\[2\]\[2\],GUEST\[3\]\[2\]\]\]" order-preview.html 1

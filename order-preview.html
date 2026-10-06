@@ -4489,8 +4489,37 @@ function _pvCount(t){ var n=String(t||'').trim().length; return n+' / '+PV_MAX+'
 function _exCards(id,items,cur,fn){ return '<section class="mk-sec mk-ref mk-exs" aria-labelledby="mkExH_'+id+'"><h4 id="mkExH_'+id+'">참고 예시</h4><p class="lf-refn">누르면 아래 글이 이 예시로 바뀌어요 · 그대로 써도 좋고 두 분 말로 고쳐도 돼요</p>'
   +'<div class="mk-rcs" role="radiogroup" aria-label="참고 예시">'+items.map(function(x,n){ var on=n===cur; return '<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+((on||(cur<0&&n===0))?'0':'-1')+'" data-fk="mkex:'+id+':'+n+'" onclick="'+fn+'('+n+')"><b>예시 '+(n+1)+'</b><span>'+esc(x)+'</span></button>'; }).join('')+'</div></section>'; }
 function _exNorm(t){ return String(t||'').replace(/\s+/g,''); }
+/* ★★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 종류로 · 다른 곳들처럼 예시 1~4 같은 폼으로»] 두 분 목소리(AI) 판 하객 맞이 네 줄 = «참고 예시» 카드 넷.
+   예시 1 은 지금 기본 글(GUEST[i][2]) 그대로 · 누르면 네 줄이 한 번에 바뀐다 · 읽는 분(신랑 · 신부)은 줄마다 그대로 · 고쳐 둔 줄 · 확정한 줄이 있으면 먼저 묻는다.
+   ★1분 전 줄은 넷 다 «미리 준비한 안내 음성으로 진행»(AI 고지 · AI고지_G1-4 · 2026-07-26 확정)을 품는다 — 문안을 고칠 때 이 말을 빼지 말 것.
+   ★스튜디오 나레이션 판 넷은 사장님 녹음이 들어온 뒤에 잇는다(이 카드는 AI 판에만). 문안은 제미나이 리서치 뒤 다듬을 수 있다. */
+var GUEST_EX=[
+ ['담백하게',[GUEST[0][2],GUEST[1][2],GUEST[2][2],GUEST[3][2]]],
+ ['다정하게',["와 주셔서 정말 고마워요. 오늘 이 자리에 함께해 주시는 것만으로 저희에게는 큰 선물이에요. 자리가 헷갈리시면 입구에 계신 분께 편하게 물어봐 주세요.",
+   "십 분 뒤면 저희 예식이 시작돼요. 반가운 분들과 인사 나누시다가, 천천히 자리로 와 주세요.",
+   "이제 오 분 남았어요. 저희가 들어갈 때 여러분 얼굴을 가장 먼저 보고 싶어요. 자리에 앉아 기다려 주세요.",
+   "곧 저희 예식이 시작돼요. 오늘 예식은 미리 준비한 안내 음성으로 진행되고, 순서도 목소리도 저희가 함께 정했어요. 휴대폰은 잠시 진동으로 부탁드려요. 저희가 들어갈 때 일어서지 않으셔도 괜찮아요. 사진은 마음껏 남겨 주세요. 조금 뒤에 만나요."]],
+ ['밝고 경쾌하게',["어서 오세요. 저희 결혼식에 와 주셔서 감사합니다. 오늘은 격식보다 웃음이 많은 하루였으면 해요. 자리 안내가 필요하시면 입구에 도와드릴 분이 계세요.",
+   "십 분 뒤에 저희 예식이 시작돼요. 아직 못 나눈 인사가 있으시면 지금 나눠 주시고, 슬슬 자리로 와 주세요.",
+   "이제 오 분 남았어요. 저희는 문 뒤에서 조금 떨고 있어요. 자리에 앉아 따뜻하게 맞아 주세요.",
+   "곧 저희 예식이 시작됩니다. 오늘 예식은 미리 준비한 안내 음성으로 진행되고, 순서도 목소리도 저희가 골랐어요. 휴대폰은 잠깐 진동으로 바꿔 주세요. 저희가 들어갈 때 일어서실 필요는 없어요. 사진은 얼마든지 찍어 주세요. 이제 정말 시작이에요."]],
+ ['격식 있게',["저희 두 사람의 결혼식에 귀한 걸음 해 주셔서 감사드립니다. 자리 안내가 필요하시면 입구에서 도와드리겠습니다. 예식이 시작될 때까지 편안히 계시기 바랍니다.",
+   "저희 예식이 십 분 뒤에 시작됩니다. 준비되신 분부터 자리에 앉아 주시기 바랍니다.",
+   "예식 시작 오 분 전입니다. 모두 자리에 앉아 주시면, 저희가 곧 인사드리겠습니다.",
+   "곧 저희 예식을 시작하겠습니다. 오늘 예식은 미리 준비한 안내 음성으로 진행되며, 순서와 목소리는 저희가 직접 정했습니다. 휴대폰은 진동 모드로 부탁드립니다. 저희가 입장할 때 따로 일어서지 않으셔도 됩니다. 사진은 편히 남겨 주십시오. 잠시 후 뵙겠습니다."]]
+];
+var GUEST_KEYS=['g0','g1','g2','g3'];
+function _guestExCur(){ for(var n=0;n<GUEST_EX.length;n++){ if(GUEST_KEYS.every(function(k,i){ return _exNorm(_recNeed(k))===_exNorm(GUEST_EX[n][1][i]); })) return n; } return -1; }   // [GUEST_EX4] 네 줄이 모두 그 예시일 때만 켜진다
+window.mkGuestEx=function(n){ var X=GUEST_EX[n]; if(!X) return;
+  var go=function(){ GUEST_KEYS.forEach(function(k,i){ var w=(_slRaw(k)[0]||{}).w==='b'?'b':'g';
+      if(n===0){ if(S.vlines) delete S.vlines[_slVk(k)]; if(S.vtext) delete S.vtext[_vtKey(k)]; if(k==='g0') delete S.g0Moved; }
+      else _slPut(k,[{w:w,t:X[1][i]}]);
+      if(S.vkeep) delete S.vkeep[k]; _aiPillSync(k); });
+    _fxNext='[data-fk="mkex:guest:'+n+'"]'; _persist(); render(); };
+  var dirty=GUEST_KEYS.some(function(k){ return (S.vkeep||{})[k]||!_exIs(k); });   // 고쳐 둔 줄 · 확정한 줄이 하나라도 있으면 묻는다
+  if(dirty){ ordAsk({title:'예시로 바꿀까요?',body:'지금 적어 둔 하객 맞이 글은 지워져요',yes:'예시로 바꾸기',no:'그대로 두기'}).then(function(ok){ if(ok) go(); }); return; } go(); };
 function _exIs(key){ var t=_exNorm(_recNeed(key)); if(!t) return false;
-  if(/^g\d$/.test(key)){ var g=GUEST[+key.slice(1)]; return !!g&&t===_exNorm(g[2]); }
+  if(/^g\d$/.test(key)){ var gi=+key.slice(1); return GUEST_EX.some(function(x){ return t===_exNorm(x[1][gi]); }); }   // [GUEST_EX4] 넷 중 어느 예시든
   if(key==='entry') return t===_exNorm((ENTRY[S.entry]||{}).self);
   if(key==='pv') return PV_EX.some(function(x){ return t===_exNorm(x[1]); });
   return false; }
@@ -4531,6 +4560,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
      이 단추가 «비교해 듣기»의 유일한 길이었다(줄마다 mknar 는 R1-09 에 걷었다) — 비교해 듣기도 함께 사라졌다 · mkNarAll 도 걷었다(쓰는 곳 없음) */
   if(ai) h+=_vcTempoRow(k,ups)+_keepNote(ups);   // [AI_CARD_TIDY] 말 빠르기는 순간 머리에 한 줄 · [KEEP_LINE] 확정 안내 한 줄
   var pix={}, pixK={}; [k].forEach(function(kk){ try{ if(ENG) _lSteps(ENG,[kk]).forEach(function(x,i){ if(x.own&&x.up&&pix[x.up]==null){ pix[x.up]=i; pixK[x.up]=kk; } }); }catch(e){} });   /* [R8-09 PIX_TWO] «시작 1분 전»은 식전 영상 뒤 단계라 하객 맞이 단계에서 못 찾아 ▶ 가 빠지고 제목이 왼쪽 끝으로 붙었다 — 두 순간에서 찾고 어느 순간인지 기억한다 */   // [VP_ONE_LIST] 흐름에서 옮겨 온 듣기 — 줄 카드 머리 ▶
+  if(ai&&k==='guest') h+=_exCards('guest',GUEST_EX.map(function(x){ return x[0]; }),_guestExCur(),'mkGuestEx');   // [GUEST_EX4] 하객 맞이도 같은 폼(줄 카드 바로 위)
   if(ai&&k==='entry') h+=_exCards('entry',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),ENTRY_KEYS.indexOf(S.entry),'mkEntryEx');   // [EX_ONE] AI 판 입장 멘트 = 참고 예시 카드(줄 카드 바로 위)
   h+='<ul class="mk-vlist mk-vcards">';
   ups.forEach(function(q,qi){ var st=_mkUpState(q.up), lab=_mkUpLab(q), rec=MK_REC&&MK_REC.key===q.up?MK_REC:null, t=_recNeed(q.up), ln=_vpLines(q.up);
