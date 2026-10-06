@@ -28,8 +28,8 @@ function courseLines(full) {
     out.push(`  · ‹${ex.nm}› ${ex.title}: ${O.ORDER.filter((k) => !O.ALWAYS[k] && T.on[k]).map((k) => O.CARDS[k].sn).join(' · ')} · 본식 ${sp.body} · 단체 사진 ${sp.photo}`);
   });
   /* [FREE_OWN · SPEECH_IN_FREE 2026-09-25 코워크 회신 둘째 판] 준비한 순서는 예시에 없다 — 드물게, 있을 때만 */
-  out.push('- 준비한 순서: 고객이 특별히 준비했을 때만 담는다(드물다). 예시 넷에는 없고, 어느 예시에서 시작했든 더할 수 있다. 부모님께 인사 뒤 · 3분 · 2분 · 1분. 친구 · 가족의 축사도 이 순서의 한 판이다(따로 «축하의 말» 칸은 없다 · 원고는 분당 300자 안팎 · 사흘 전까지).');
-  out.push('- 부모님께 인사 방식: 꽃과 포옹(기본) · 원하면 신랑만 큰절(신부는 드레스라 서서 고개 숙여 인사).');
+  out.push('- 준비한 순서: 고객이 특별히 준비했을 때만 담는다(드물다). 예시 넷에는 없고, 어느 예시에서 시작했든 더할 수 있다. 부모님께 인사 뒤 · 3분 · 2분 · 1분. 무엇을: 영상 · 깜짝 선물 · 친구 · 가족의 축사 · 기타(고객이 직접 적는다 · 춤 · 공연 칩은 2026-10-06 걷었다 [FREE_ETC]). 친구 · 가족의 축사도 이 순서의 한 판이다(따로 «축하의 말» 칸은 없다 · 원고는 분당 300자 안팎 · 사흘 전까지).');
+  out.push('- 부모님께 인사: 꽃과 포옹 하나다(고르는 칸 없음). 신랑분은 원하시면 큰절을 올리셔도 된다 — 팁일 뿐 순서가 따로 있지 않다. 인사 말은 «말로 인사»(한마디부터 1분쯤까지) 또는 «말 없이».');   // [GROOM_BOW_TIP · TRIB_ONE_SAY 2026-10-06 사장님]
   out.push('- 노래: 축가 순서는 폐지됐고 라이브 노래는 받지 않는다. 영상 속 노래와 가족의 깜짝 축하는 괜찮다 — 「준비한 순서」에 넣는다(3분 안).');   // [SONG_RETIRED] 사장님 결정 1(2026-09-25)
   out.push('- 와인: 따로 순서도, 붓는 연출도 없다. 축배 잔(음료)은 스튜디오가 준비하고, 축배는 건배사만 한다. 두 분이 와인을 가져오실 필요 없다.');   // [WINE_POUR_OFF 2026-09-27 사장님]   // [WINE_RETIRED] 와인 세리머니 순서는 2026-08-16 폐지 · 붓기는 축배 안(사장님 결정 2 · 2026-09-25)
   out.push('- 옛 코스(이름으로 고르던 방식)로 이미 만든 식순은 그대로 유지된다. 그 이름을 먼저 꺼내 권하지 않는다.');
@@ -68,10 +68,11 @@ function narrLines() {
   out.push('');
   out.push('[부모님 헌정]');
   out.push(`- 도입: "${D.TRIBUTE.nar}" · 마무리: "${D.TRIBUTE.end}"`);
-  for (const k of Object.keys(D.TRIBUTE.modes)) out.push(`- ${D.TRIBUTE.modes[k].d}: ${D.TRIBUTE.modes[k].how}`);
+  for (const k of Object.keys(D.TRIBUTE.modes)) if (k === 'flower') out.push(`- ${D.TRIBUTE.modes[k].d}: ${D.TRIBUTE.modes[k].how}`);   // [GROOM_BOW_TIP] 큰절 · 신랑 큰절 · 포옹 판은 AI 에게 알리지 않는다(새 코스는 꽃과 포옹 하나)
   out.push('');
   out.push('[축배 · 케이크]');
   for (const k of Object.keys(D.TOAST)) out.push(`- ${D.TOAST[k].d}: "${D.TOAST[k].nar}"`);
+  out.push('- 준비물: 케이크 · 부모님께 드릴 꽃 · 기본 조화 부케는 저희가 준비한다(두 분이 챙길 것 없음). 케이크 · 꽃 · 생화 부케는 별도 비용이다. 식순을 짓는 때는 상담을 마친 뒤라 «상담 때 안내»라고 말하지 않는다.');   // [GOODS_STUDIO 2026-10-06 사장님]
   out.push('');
   out.push('[고정 순간 문안]');
   out.push(`- 첫인사 도입: "${D.NARR.welcome.nar}" · 마무리: "${D.NARR.welcome.end}"`);

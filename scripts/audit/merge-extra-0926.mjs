@@ -32,8 +32,8 @@ await safe('P2-5 알림 글과 단추가 같은 판정', () => {
   ok('P2-5 뒤쪽 사슬 = «말 없이» 글 + 단추 «인사를 «말 없이»로»', /말 없이/.test(back.msg) && ba === '인사를 «말 없이»로', back.msg + ' / ' + ba);
 });
 await safe('P2-1 닫은 알림 뒤에 걸린 알림이 뜬다', () => {
-  // 덕담 · 서약 · 인사 사슬 + 편지(부모님께) + 인사 400자 → 알림 ① 과 ② 가 함께 걸린다
-  const S = { on: { bless: 1, vow: 1, tribute: 1, letter: 1, toast: 1 }, tributeSay: 'long', letter: 'parent' };
+  // 덕담 · 서약 · 인사 사슬 + 축배 없음 → 알림 ①(셋 이어짐) 과 ③(끝이 조용) 이 함께 걸린다 · [TRIB_ONE_SAY 2026-10-06] ②(말 두 번)는 걷었다
+  const S = { on: { bless: 1, vow: 1, tribute: 1, letter: 1 }, tributeSay: 'long', letter: 'parent' };
   const L = (O.noticeList || (() => []))(S), n1 = O.noticeFull(S), shut = {}; if (n1) shut[n1.key] = 1;
   const n2 = O.noticeFull(S, shut);
   ok('P2-1 닫은 알림 뒤에 걸린 알림이 뜬다(앞 알림 «괜찮아요» → 다음 알림) [NOTICE_QUEUE]', L.length >= 2 && n1 && n2 && n2.key !== n1.key, JSON.stringify({ n: L.length, k1: n1 && n1.key, k2: n2 && n2.key }));

@@ -2849,7 +2849,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('반지 교환', s3d.ring==='off'?'뺌':'')
       /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 케이크 · 부모님께 드릴 꽃 — 맡긴 예식은 주문해야 한다(별도 비용).
          초안(summary.goods)은 고객 기기가 만든 값이라 배열이 아니면 행을 비운다([ADM_SUM_ESC]). */
-      +row('케이크 · 꽃', Array.isArray(sm3.goods)?sm3.goods.map(function(g){ return String((g&&g.what)||'')+' '+((g&&g.by)==='studio'?'저희가 준비(별도 비용 · 주문 필요)':'두 분이 준비'); }).join(' · '):'')
+      +row('케이크 · 꽃', Array.isArray(sm3.goods)?sm3.goods.map(function(g){ return String((g&&g.what)||''); }).filter(Boolean).join(' · ')+(sm3.goods.length?' · 저희가 준비(별도 비용 · 주문 필요)':''):'')   /* [GOODS_STUDIO 2026-10-06 사장님] 늘 저희가 준비 · 옛 초안의 «두 분이 준비»도 이제 저희가 · 기본 조화 부케는 모든 예식에 */
       /* ★[VEIL_RETIRED 2026-08-03] 베일 다운 행 삭제 — 전 예식 동시입장이라 실행 불가.
          값을 만들 경로가 코스·팔레트·큐 어디에도 없어 늘 빈 줄이었다. 되살리지 말 것. */
       /* ★[RINGWARM_RETIRED 2026-08-07 · LEGACY_LABEL] 링 워밍은 폐지됐고 새로 고를 길이 없다.

@@ -318,9 +318,11 @@
       if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
       s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
-      if (!O.CHIPS.freeLen.some(function (c) { return c[0] === String(s.freeLen); })) s.freeLen = O.DEF.freeLen; else s.freeLen = String(s.freeLen);
+      s.freeLen = O.chipOf('freeLen', s);   // [FREE_ETC] 1~3분(기타는 직접 적는다 · 계약서 «3분 안») · 모르는 값은 기본
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
-      if (s.tribute !== 'flower' && s.tribute !== 'bowGroom') s.tribute = 'flower';
+      /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹.
+         옛 초안의 bowGroom 도 flower 로(큰절 여는 줄 · 방석 지문이 안 나간다) · 빌더는 «원하시면 큰절을 올리셔도 돼요» 한 줄만 · ★신랑 큰절 칩 되살리지 말 것 */
+      if (s.tribute !== 'flower') s.tribute = 'flower';
       s.entryScene = 'look';   // [ENTRY_SCENE] · ★[ENTRY_OUT_OFF 2026-10-02] 새 코스에 맞절 없음 — 옛 초안의 bow 도 바라보기로
     } else {
       /* 옛 코스는 새 판이 없던 때와 **소리가 같아야** 한다 — 와인 붓기는 **값과 상관없이** 없다.
@@ -831,11 +833,11 @@
         var fk = O.FREE_KIND[S.freeWhat] || 'video', len = +S.freeLen || 3;   // norm 이 값을 이미 맞춰 둔다(FREE_WHAT)
         var nm = O.chipLabel('free', S);
         var play = (fk === 'video' || fk === 'stage');   // 파일을 트는 판만 «재생 안 됨»이 있다
-        var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)',
+        var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)', etc: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)',   // [FREE_ETC] 기타 = 옛 «자유 한 칸» 지문(장면 설명 열쇠 그대로)
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         return [cue({
-          k: 'free', blockN: '준비한 순서', slug: 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,
-          text: EXTRA['narr-free-in-' + fk], duck: PARAM.duckMusic, pick: nm,
+          k: 'free', blockN: '준비한 순서', slug: fk === 'etc' ? 'narr-free-in' : 'narr-free-in-' + fk, name: '준비한 순서 시작 · ' + nm,   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
+          text: fk === 'etc' ? D.NARR.freeIn : EXTRA['narr-free-in-' + fk], duck: PARAM.duckMusic, pick: nm,
           rescue: play ? { slug: 'narr-free-fail', name: '재생 안 됨 · 사진 시간으로 미룸', text: EXTRA['narr-free-fail'] } : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
           live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 6 : 60 * len + 8, duck: PARAM.duckOff, self: true,
@@ -970,10 +972,10 @@
                받는 자리에서 짧게 답하면 희소해서 오히려 세다. 길어야 20초로 못박는다.
              ★예시 음성은 27_tribute-reply(배역) 이지만 당일 콘솔은 배역 클립을 재생하지 않는다 —
                그래서 «여기 live 지문»에 자리를 만들어야 실제 예식에서 그 순간이 생긴다. */
-          pick: m.d + (D.COURSES[S.course].open && S.tributeSay !== 'none' ? ' · ' + (S.tributeSay === 'long' ? '준비한 말 400자씩' : '한마디씩') : ''),
+          pick: m.d + (D.COURSES[S.course].open && S.tributeSay !== 'none' ? ' · ' + '말로 인사' : ''),   // [TRIB_ONE_SAY] 한마디부터 1분쯤까지 · 시간 몫은 1분쯤씩(140)
           /* [OPEN_COURSE] 새 코스는 인사의 «말»을 고른다(한마디씩 · 400자씩 · 말 없이). 옛 코스는 지금 그대로 말 없이다. */
           live: (open && S.tributeSay !== 'none')
-            ? { t: '두 분이 부모님께 ' + (S.tributeSay === 'long' ? '준비한 말(400자씩)' : '한마디씩') + ' 전한 뒤 · ' + mcue, est: base + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
+            ? { t: '두 분이 부모님께 인사 말을 전한 뒤 · ' + mcue, est: base + (S.tributeSay === 'long' ? 140 : 35), self: true, doing: 'say' }
             : { t: mcue, est: base, self: true, doing: 'move' }
         }),
         cue({
