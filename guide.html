@@ -239,6 +239,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
 .state-x-s{font-size:13px;color:var(--sub);line-height:1.65;word-break:keep-all;text-wrap:pretty;text-align:center;margin-bottom:13px}
 .state-x-b{display:flex;align-items:center;justify-content:center;min-height:44px;padding:6px 12px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;background:var(--gold-text);color:#fff;word-break:keep-all}
 .state-x-b.sub{background:#fff;color:var(--gold-text);border:1px solid var(--border);margin-top:8px;font-weight:500}
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 <style>
 /* ════════════════════════════════════════════════════════════════

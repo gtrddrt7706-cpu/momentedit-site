@@ -14592,6 +14592,17 @@ chk 'NO_CARET_TEXT' index.html 1
 chk 'NO_CARET_TEXT' order-preview.html 1
 chk 'NO_CARET_TEXT' schedule.html 1
 chk '\[tabindex="-1"\] input,\[tabindex="-1"\] textarea' index.html 1
+# ★[NO_CARET_ALL · DONE_NO_SUM_LINK · DONE_TAG_PLAIN 2026-10-06 사장님] 사이트 전체 글자 커서 없음(입력칸만) · ④ «한눈에 보기로 이동하기» 삭제 · «✓ 다 됐어요» = «이동하기»와 같은 크기
+chk 'NO_CARET_ALL' index.html 1
+chk 'NO_CARET_ALL' mypage.html 1
+chk 'NO_CARET_ALL' order-preview.html 1
+chk 'NO_CARET_ALL' inquiry.html 1
+chk 'NO_CARET_ALL' schedule.html 1
+chk 'html{caret-color:transparent}' guide.html 1
+chk 'DONE_NO_SUM_LINK' order-preview.html 1
+nochk 'data-fk="done2write"' order-preview.html
+chk 'DONE_TAG_PLAIN' order-preview.html 2
+chk '.mk-vlist .rowbtn.mk-vb{min-width:var(--mk-vb-w)' order-preview.html 1
 # ★[EXTAG_OFF 2026-10-06 사장님 «예시 글 · 고쳐 써도 돼요 계속 나열 · 보기 별로» → «추천대로»] 칸 · 줄 카드마다 붙던 표 삭제 · 위에서 한 번만
 nochk '<span class="mk-extag">예시 글 · 고쳐 써도 돼요</span>' order-preview.html
 chk '들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요' order-preview.html 1

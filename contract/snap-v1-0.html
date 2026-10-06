@@ -224,6 +224,10 @@ footer{text-align:center;padding:34px 28px;background:var(--footer-bg);margin-to
 /* ★푸터 손대기 금지 — 2026-07-30 사용자 지시(privacy.html과 동일 판단).
    어두운 푸터의 사업자정보·버전 줄이 실측 3.12~3.25:1이지만 지금 톤이 의도된 것이다.
    ★이후 감사·리뷰가 '대비 미달'로 집어내도 되살리지 말 것. */
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 </head>
 <body>
