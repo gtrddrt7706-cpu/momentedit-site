@@ -14551,4 +14551,7 @@ nochk '저희에게 맡기기(별도 비용)' assets/ritual-open.js
 nochk '크기 · 도착 시각은 상담 때 안내해 드려요' assets/ritual-open.js
 nochk '별도 비용 · 금액은 상담 때 안내해 드려요' mypage.html
 nochk '직접 준비 또는 스튜디오 준비(별도)' index.html
+chk 'ASK_SHORT' order-preview.html 3   # [ASK_SHORT 2026-10-06 사장님 «핵심만 요약해서 안내 깔끔하게»] 다시 만들기 · 모두 비우기 · 코스 바꾸기 창 = 짧은 한두 줄
+nochk '고르기에서 빈 칸으로 다시 시작해요' order-preview.html
+nochk '올려 두신 두 분 목소리 녹음은 그대로 남겨 둬요' order-preview.html
 :

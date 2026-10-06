@@ -7454,7 +7454,7 @@ window.startCourse=function(v){
   if(courseStarted && v!==S.course){
     // [ORD_ASK] 코스 교체도 같은 판으로 — 시스템 confirm 을 남겨 두면 한 화면에 두 언어가 된다
     ordAsk({title:(COURSES[v]?COURSES[v].nm:'다른')+' 코스로 바꿀까요?',
-            body:'지금까지 고른 순서와 연출이 새 코스 추천으로 다시 세팅돼요. 적어 두신 서약문·편지는 그대로 남아요.',
+            body:'고른 순서가 새 코스로 다시 채워져요.\n적어 두신 글은 그대로 남아요.',   // [ASK_SHORT 2026-10-06]
             yes:'코스 바꾸기', no:'취소', danger:true}).then(function(ok){
       if(!ok) return;
       applyCourse(v); _seenK={};   // 새 코스는 처음부터 다시 걷기(옛 코스 방문 기록이 안 본 단계를 ✓로 열지 않게)
@@ -8136,7 +8136,7 @@ window.opRestart=function(){
   /* ★[RESTART_KEEP_REC 2026-09-27 점검 시뮬] 올려 둔 두 분 목소리 녹음(S.up)은 비우지 않는다 — «고른 것»이 아니라 두 분이 시간을 들여 만든 것이고,
      종전엔 연결만 끊겨(드라이브 파일은 30일까지 남는데 화면에선 사라짐) 다시 녹음해야 했다. 다시 «두 분 목소리»를 고르면 그대로 돌아온다. 되돌리지 말 것 */
   var _upKeep=S.up||{}, _hasUp=Object.keys(_upKeep).length>0;
-  ordAsk({title:'고른 것을 모두 비울까요?', body:'담은 순간 · 고른 것 · 적어 두신 글(첫인사 · 서약문 · 편지 · 부모님께 드릴 말)이 모두 지워지고, 고르기에서 빈 칸으로 다시 시작해요.'+(_hasUp?' 올려 두신 두 분 목소리 녹음은 그대로 남겨 둬요.':''),
+  ordAsk({title:'고른 것을 모두 비울까요?', body:'고른 순간과 적어 두신 글이 모두 지워져요.'+(_hasUp?'\n두 분 녹음은 그대로 남겨 둬요.':''),   /* ★[ASK_SHORT 2026-10-06 사장님 «핵심만 요약해서 안내 깔끔하게»] 글 목록(첫인사 · 서약문 …) · «고르기에서 빈 칸으로» 되살리지 말 것 */
           yes:'모두 비우기', no:'취소', danger:true}).then(function(ok){
     if(!ok) return;
     /* ★[RESTART_TX_TOMB 2026-10-03 · R3-01] 지운 글 칸은 키를 버리지 않고 «빈 값 + 지금 시각»으로 남긴다 — S 를 _S0 으로 통째로 갈면
@@ -8159,7 +8159,7 @@ window.opRestart=function(){
   });
 };
 window.resetAll=function(){
-  ordAsk({title:'처음부터 다시 만들까요?', body:'지금까지 담은 순간과 고른 것이 모두 지워져요. 적어 두신 글(첫인사 · 서약문 · 편지 · 부모님께 드릴 말)도 함께 지워져요.',   // [RESET_WORD 코워크 추가 점검 P2-9]
+  ordAsk({title:'처음부터 다시 만들까요?', body:'고른 순간과 적어 두신 글이 모두 지워져요.',   // [RESET_WORD 코워크 추가 점검 P2-9] · [ASK_SHORT 2026-10-06] 같은 창 같은 한 줄
           yes:'지우고 시작', no:'취소', danger:true}).then(function(ok){
     if(!ok) return;
     try{ localStorage.removeItem('me_order'); sessionStorage.setItem('me_order_reset','1'); sessionStorage.setItem('me_order_gen', String(Date.now())); }catch(e){}   // [STEP_NO_REWIND] 판 번호를 올려 지워진 판의 기록 칸을 건너뛴다
