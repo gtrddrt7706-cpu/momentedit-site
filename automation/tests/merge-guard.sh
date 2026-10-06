@@ -14670,3 +14670,7 @@ chk 'BOSS_STYLE' CLAUDE.md 1   # [BOSS_STYLE 2026-10-06] 사장님 작업 방식
 # ★★[BOSS_WAY_1006 2026-10-06 사장님 확정] 사장님이 추구하는 작업 방식 — CLAUDE.md 맨 위 절(지우지 말 것)
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
+# ★[VU_LAYOUT · VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어 · 빈칸이 많아 비어 보인다» → «추천대로»] 나오는 곳 창 = 칩 → 들어 보기 → 글(글 길이만큼) · 하객 맞이도 예시 1~4
+chk 'VU_LAYOUT' order-preview.html 5
+chk 'VU_GUEST_EX' order-preview.html 1
+nochk 'm.remove(); if(hi) q.style.minHeight=hi' order-preview.html

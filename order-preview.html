@@ -1474,7 +1474,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-vu-exn{margin:-4px 0 12px;font-size:12.5px}   /* [VU_PV_EX] */
 .mk-vu-fix{display:flex;flex-direction:column}.mk-vu-fix>.mk-vu-nav{margin-top:auto}   /* [VU_EX_LISTEN ③] 본문 높이 고정 · 이전 · 다음 줄은 바닥 */
 .mk-vu-exs{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}   /* [VU_EX_LISTEN] 들어 볼 글 칩 */
-.mk-vu-tmp{margin:6px 0 0;font-size:12.5px;text-align:center}
+.mk-vu-tmp{margin:-8px 0 14px;font-size:12.5px;text-align:center}   /* [VU_LAYOUT] 단추 바로 아래 · 글 위 */
 .mk-exl{align-self:center;margin-right:2px;font-size:11px;color:var(--gold-deeper);letter-spacing:.04em}   /* [EX_ONE] 끝 신호 예시 칩 앞 «예시» */   /* [EX_ONE] 줄 카드 바로 위 */
 .mk-rc span{font-size:12.5px;color:var(--light);line-height:1.45;word-break:keep-all}
 .mk-rc.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;background:#F3ECDF}   /* [UI_ONE · SEL_ONE] 고른 것 한 모양 */
@@ -1731,7 +1731,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vu-img img,.mk-vu-img video{display:block;width:100%;height:100%;object-fit:cover}   /* [VU_VIDEO_PLAY] 영상도 같은 틀 */
 .mk-vu-when{margin:0 0 6px;font-size:12.5px;color:var(--gold-deeper)}
 .mk-vu-q{margin:0 0 14px;padding:12px 14px;border-radius:8px;background:var(--bg2);font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);word-break:keep-all}
-.mk-vu-play{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.mk-vu-play{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0 0 14px}   /* [VU_LAYOUT] 단추 → 글 사이 */
 .mk-vu-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
 .mk-vu-nav .pk-link[disabled]{opacity:.35;cursor:default}
 .mk-vu-n{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
@@ -4948,11 +4948,12 @@ function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), w
        ② 들어 보기 = 만든 소리 → 녹음된 예시 목소리 → 없으면 그 자리에서 AI 로 읽기(연습 AI 읽기와 같은 길 · 저장 안 함 · «임시로 들려 드리는 목소리예요»)
        ③ 글 칸 높이는 창을 여는 동안 고정 — 이 창에서 보일 수 있는 가장 긴 글에 맞춘다(_vuFix) · 다음 · 예시를 눌러도 영상 · 단추가 제자리 */
     +(function(){ var O=_vuOpts(x[0]), j=_vuSel(x[0],O), o=O[j]||{txt:''};
-      return '<p class="mk-vu-q" id="mkVuQ">'+esc(o.txt)+'</p>'
-        +(O.length>1?'<div class="mk-vu-exs" role="radiogroup" aria-label="들어 볼 글">'+O.map(function(t,n){ var on=n===j; return '<button type="button" class="op-chip mk-vu-ex" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkuseex:'+n+'" onclick="mkUseEx('+n+')">'+_chipT(t.lab)+'</button>'; }).join('')+'</div>':'')
-        +(o.ex&&!O.some(function(t){ return t.own; })?'<p class="mk-note mk-vu-exn">예시 글이에요 · '+esc(x[0]==='pv'?'식전 영상':'입장')+' 쪽에서 두 분 글로 바꿀 수 있어요</p>':'')
-        +((o.src||_ptOn())?'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" onclick="mkUsePlay()"'+(VU.busy?' disabled aria-busy="true"':'')+'>'+ICO_PLAY+' '+(VU.busy?'준비 중…':'들어 보기')+'</button>'+(!o.src?'<p class="mk-note mk-vu-tmp">임시로 들려 드리는 AI 목소리예요</p>':''):'')
-        +(VU.err?'<p class="mk-exw" role="alert">'+esc(VU.err)+'</p>':''); })()
+      /* ★[VU_LAYOUT 2026-10-06 사장님 «빈칸이 많이 보여 비어 있는 듯 · 제일 긴 글에 맞춘 고정의 단점» → «추천대로»] 차례 = 예시 칩 → 들어 보기 → 글. 칩 · 단추는 늘 같은 자리 · 글 상자는 글 길이만큼(높이 고정 금지) · 남는 높이는 창 바닥(이전 · 다음 줄은 그대로 바닥 고정) */
+      return (O.length>1?'<div class="mk-vu-exs" role="radiogroup" aria-label="들어 볼 글">'+O.map(function(t,n){ var on=n===j; return '<button type="button" class="op-chip mk-vu-ex" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkuseex:'+n+'" onclick="mkUseEx('+n+')">'+_chipT(t.lab)+'</button>'; }).join('')+'</div>':'')
+        +((o.src||_ptOn())?'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" onclick="mkUsePlay()"'+(VU.busy?' disabled aria-busy="true"':'')+'>'+ICO_PLAY+' '+(VU.busy?'준비 중…':'들어 보기')+'</button>'+(!o.src?'<p class="mk-note mk-vu-tmp">임시로 들려 드리는 AI 목소리예요</p>':''):'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" disabled aria-disabled="true">'+ICO_PLAY+' 이 글은 아직 들어 볼 수 없어요</button>'   /* [VU_LAYOUT] 소리가 없어도 단추 자리를 지킨다 — 칩을 바꿀 때 글이 오르내리지 않게 */)
+        +(VU.err?'<p class="mk-exw" role="alert">'+esc(VU.err)+'</p>':'')
+        +'<p class="mk-vu-q" id="mkVuQ">'+esc(o.txt)+'</p>'
+        +(o.ex&&!O.some(function(t){ return t.own; })?'<p class="mk-note mk-vu-exn">예시 글이에요 · '+esc(x[0]==='pv'?'식전 영상':/^g\d$/.test(x[0])?'하객 맞이':'입장')+' 쪽에서 두 분 글로 바꿀 수 있어요</p>':''); })()
     +'<div class="mk-vu-nav"><button type="button" class="pk-link" data-fk="mkuseprev" onclick="mkUseGo(-1)"'+(i?'':' disabled')+'>‹ 이전</button><span class="mk-vu-n" aria-live="polite">'+(i+1)+' / '+n+'</span>'
     +'<button type="button" class="rowbtn" data-fk="mkusenext" onclick="mkUseGo(1)">'+(i<n-1?'다음 ›':'닫기')+'</button></div>'; }
 /* ★[VU_VIDEO_KEEP 2026-10-06 사장님 «다음 넘길 때마다 영상이 처음부터 다시 · 하객 입장부터 시작 1분 전까지는 같은 영상이니 재생하던 그대로»]
@@ -4967,12 +4968,15 @@ function _vuOpts(key){ var me=_recNeed(key)||'', out=[];
   if(key==='entry'){ var exs=ENTRY_KEYS.map(function(v){ return {v:v,txt:ENTRY[v].self}; }), hit=exs.some(function(e){ return _exNorm(e.txt)===_exNorm(me); });
     if(me&&!hit) out.push({lab:'두 분 글',txt:me,own:1,src:_vcUseSrc('entry')});
     exs.forEach(function(e,n){ out.push({lab:'예시 '+(n+1),txt:e.txt,ex:1,src:_exNorm(e.txt)===_exNorm(me)?_vcUseSrc('entry'):_lCastSrc(CAST_ENTRY[e.v],e.txt)}); }); return out; }
+  if(/^g\d$/.test(key)){ var gi=+key.slice(1), mn=_exNorm(me), gHit=GUEST_EX.some(function(e){ return _exNorm(e[1][gi])===mn; });   /* ★[VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어»] 하객 맞이 네 줄도 «두 분 글 · 예시 1~4» — 입장 · 식전 영상과 같은 칩(GUEST_EX4) · 예시 1 은 견본 목소리 녹음 · 2~4 는 그 자리 AI 읽기 */
+    if(me&&!gHit) out.push({lab:'두 분 글',txt:me,own:1,src:_vcUseSrc(key)});
+    GUEST_EX.forEach(function(e,n){ var t=e[1][gi]; out.push({lab:'예시 '+(n+1),txt:t,ex:1,src:_exNorm(t)===mn?_vcUseSrc(key):(n===0?_lCastSrc(CAST_GUEST[gi],t):null)}); }); return out; }
   return [{lab:'',txt:me,src:_vcUseSrc(key)}]; }
 function _vuSel(key,O){ var j=VU.sel[key]; if(j!=null&&O[j]) return j; var me=_exNorm(_recNeed(key)||'');
   for(var n=0;n<O.length;n++){ if(O[n].own||(me&&_exNorm(O[n].txt)===me)) return n; } return 0; }
 /* [VU_EX_LISTEN ③] 글 칸 높이 고정 — 이 창 모든 자리 · 모든 칩 글 중 가장 높은 것 */
 function _vuFix(){ var q=document.getElementById('mkVuQ'); if(!q) return; var rows=_vcUseRows(), m=document.createElement('p'); m.className='mk-vu-q'; m.style.cssText='position:absolute;visibility:hidden;left:-9999px;box-sizing:border-box;width:'+q.getBoundingClientRect().width+'px;min-height:0;margin:0';
-  q.parentNode.appendChild(m); var hi=0; rows.forEach(function(x){ _vuOpts(x[0]).forEach(function(o){ m.textContent=o.txt; hi=Math.max(hi,m.offsetHeight); }); }); m.remove(); if(hi) q.style.minHeight=hi+'px';
+  q.parentNode.appendChild(m); var hi=0; rows.forEach(function(x){ _vuOpts(x[0]).forEach(function(o){ m.textContent=o.txt; hi=Math.max(hi,m.offsetHeight); }); }); m.remove();   /* ★[VU_LAYOUT] 보이는 글 상자에 최소 높이 금지 — 2026-10-06 사용자 지시로 삭제(짧은 줄에서 빈 회색 칸) · hi 는 창 높이 재는 데만 쓴다 */
   /* 창 본문 전체도 — 칩 · 안내 줄이 있는 장과 없는 장의 차이로 «다음»이 오르내리지 않게 가장 높은 장에 맞추고 «이전 · 다음» 줄은 바닥에 */
   var P=q.parentNode, c=document.createElement('div'); c.className=P.className; c.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;box-sizing:border-box;width:'+P.getBoundingClientRect().width+'px;min-height:0';
   P.parentNode.appendChild(c); var bh=0;   /* 같은 조상 아래서 재야 창 안 글꼴 · 여백 규칙이 똑같이 걸린다 */ rows.forEach(function(x,i){ c.innerHTML=((P.querySelector('.mk-dlg-h')||{}).outerHTML||'')+_vcUseBody(rows,i).replace(/<video[^>]*><\/video>|<img[^>]*>/g,''); var mi=c.querySelector('.mk-vu-img'), pi=P.querySelector('.mk-vu-img'); if(mi&&pi) mi.style.height=pi.offsetHeight+'px'; var qq=c.querySelector('.mk-vu-q'); if(qq) qq.style.minHeight=hi+'px'; bh=Math.max(bh,c.offsetHeight); }); c.remove();
