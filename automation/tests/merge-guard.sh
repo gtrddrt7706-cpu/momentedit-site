@@ -14729,6 +14729,12 @@ chk "'vowFirst'" assets/ritual-preview-link.js 1
 chk 'c.live.tv || c.live.t' console.html 1
 chk 'VOW_FIRST' scripts/audit/vow-form.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vow-form.mjs >/dev/null 2>&1; _vwf=$?; if [ "$_vwf" = 1 ]; then echo 'FAIL vow-form: 서약 순서 · 글칸 · 끝 신호가 어긋났습니다 — node scripts/audit/vow-form.mjs'; fail=1; else echo "ok vow-form ($_vwf)"; fi; fi
+# ★[WAIT_BOX 2026-10-06 사장님 «불러오는 중 · 직관적이게 · 기다리면 되는구나 싶게»] 옅은 «불러오는 중이에요…» 한 줄 → 기다리는 칸(제목 · 움직이는 막대 · «잠깐이면 돼요» · 8초 넘으면 «조금 오래 걸리고 있어요»)
+chk 'WAIT_BOX' order-preview.html 6
+chk 'function _waitBox(t,s)' order-preview.html 1
+nochk '>불러오는 중이에요…</p>' order-preview.html
+chk 'WAIT_BOX' scripts/audit/wait-box.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/wait-box.mjs >/dev/null 2>&1; _wbx=$?; if [ "$_wbx" = 1 ]; then echo 'FAIL wait-box: 기다리는 칸이 어긋났습니다 — node scripts/audit/wait-box.mjs'; fail=1; else echo "ok wait-box ($_wbx)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
 # ★[VU_LAYOUT · VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어 · 빈칸이 많아 비어 보인다» → «추천대로»] 나오는 곳 창 = 칩 → 들어 보기 → 글(글 길이만큼) · 하객 맞이도 예시 1~4
