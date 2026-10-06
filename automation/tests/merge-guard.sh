@@ -12000,8 +12000,8 @@ nochk '미완료로 두고 넘어갈게요' order-preview.html
 nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
 chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-open.js 1
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
-chk "L('tribute','말의 길이'" order-preview.html 1
-chk "'인사 방식'" order-preview.html 1
+chk "L('tribute','인사 말'" order-preview.html 1   # [TRIB_ONE_SAY 2026-10-06] 한마디씩 · 1분쯤씩 → 하나로(«말로 인사»)
+nochk "'인사 방식'" order-preview.html   # [GROOM_BOW_TIP 2026-10-06] 인사 방식(꽃 · 신랑 큰절) 칩은 걷었다 — 큰절은 팁 한 줄
 chk "\[\['고르기','예시에서 시작해 순간을 더하고 빼요.'\]" order-preview.html 1   # [E3] → [INTRO_JOURNEY 2026-09-27] 안내 화면 네 걸음 첫 줄
 chk "sub:'작은 예식은 보통 이런 흐름이에요.'}," order-preview.html 1   # [R2-38] 한 문장으로(«예시로 시작»은 아래 섹션 제목이 말한다)
 nochk '_pickVids' order-preview.html   # ① 카드 자동 재생 영상은 거뒀다 — 칸은 첫 장면 사진만(최종판 3-5 · 사장님 확인)
@@ -14525,4 +14525,30 @@ chk 'REF_ROW4' order-preview.html 3
 chk "var ENTRY_KEYS=\['A','B','D','E'\];" order-preview.html 1
 nochk 'class="mk-rc mk-rpar"' order-preview.html
 chk 'REF_ROW4' scripts/audit/listen-page.mjs 3
+# ── ★[TRIB_ONE_SAY · GROOM_BOW_TIP · FREE_ETC · GOODS_STUDIO 2026-10-06 사장님] 식순 넷 ──
+#   부모님께 인사: 한마디씩 · 1분쯤씩 → «말로 인사» 하나(값 long · 시간 그대로) · 신랑 큰절은 칩이 아니라 팁 한 줄
+#   준비한 순서: 춤 · 공연 걷음 → «기타»(무엇을 적기 · 길이 1~3분 · 계약서 «3분 안») · 케이크 · 꽃 · 부케 = 저희가 준비(별도 비용)
+#   «상담 때 안내» 금지 — 식순은 상담을 다 마친 뒤 짓는다
+chk 'TRIB_ONE_SAY' assets/ritual-open.js 1
+chk "tribute: \[\['long', '말로 인사'\], \['none', '말 없이'\]\]" assets/ritual-open.js 1
+chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 1
+chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
+nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
+chk 'FREE_ETC' assets/ritual-open.js 2
+chk "\['etc', '기타'\]" assets/ritual-open.js 1
+nochk "\['stage', '춤 · 공연'\]" assets/ritual-open.js
+chk 'FREE_ETC' order-preview.html 2
+chk 'data-fk="freeetc"' order-preview.html 1
+chk 'max="3" data-fk="freelen"' order-preview.html 1
+chk 'GOODS_STUDIO' assets/ritual-open.js 3
+chk 'GOODS_STUDIO' order-preview.html 2
+chk 'GOODS_STUDIO' mypage.html 2
+chk 'GOODS_STUDIO' index.html 2
+chk 'GOODS_STUDIO' api/_kb.js 1
+chk '<li>기본 조화 부케</li>' index.html 1
+nochk "cakeBy: \[\['self', '직접 준비'\]" assets/ritual-open.js
+nochk '저희에게 맡기기(별도 비용)' assets/ritual-open.js
+nochk '크기 · 도착 시각은 상담 때 안내해 드려요' assets/ritual-open.js
+nochk '별도 비용 · 금액은 상담 때 안내해 드려요' mypage.html
+nochk '직접 준비 또는 스튜디오 준비(별도)' index.html
 :

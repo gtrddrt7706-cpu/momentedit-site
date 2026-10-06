@@ -147,7 +147,7 @@ for (const w of [390, 360]) {
     const R = RitualOpen, out = [], S0 = JSON.parse(JSON.stringify(S));
     try {
       Object.keys(R.CHOOSE_AT_LISTEN).forEach((k) => {
-        R.applyExample(S, 'family'); S.on[k] = 1; S.toast = 'both'; S.wine = 'mix'; S.tribute = ''; S.cakeBy = 'self'; S.flowerBy = 'self';
+        R.applyExample(S, 'family'); S.on[k] = 1; S.toast = 'both'; S.wine = 'mix'; S.tribute = ''; S.cakeBy = 'self'; S.flowerBy = 'self';   // [GOODS_STUDIO] 옛 값이 와도 칩이 안 생긴다
         const labs = _lGroups(k).map((g) => g.l);
         /* 한 묶음 이름 안에도 « · »가 있다(선언 «누가 · 말투») — 긴 이름부터 통째로 맞춘다 */
         const t = R.CHOOSE_AT_LISTEN[k].split(' · ');

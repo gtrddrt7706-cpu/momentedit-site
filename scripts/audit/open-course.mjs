@@ -35,7 +35,8 @@ const mmss = (x) => Math.floor(x / 60) + ':' + String(Math.round(x % 60)).padSta
 const SEC = { record: '11:18~16:08', promise: '13:24~19:19', brief: '7:53~11:44' };   // [WINE_POUR_OFF] 옛 11:49~16:49 · 13:55~20:00 · 8:24~12:25
 for (const k in SEC) { const b = O.bodySec(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› ${SEC[k]}`, mmss(b[0]) + '~' + mmss(b[1]) === SEC[k], mmss(b[0]) + '~' + mmss(b[1])); }
 ok('예시 넷에는 준비한 순서가 없다 · 알림 없음', O.EXAMPLES.every((e) => e.on.indexOf('free') < 0 && !O.noticeOf(O.applyExample({}, e.k))));
-ok('인사 한마디씩 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 한마디씩»', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'one'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 한마디씩'; })());
+/* [TRIB_ONE_SAY 2026-10-06] 말의 길이 하나(말로 인사 = long) · 옛 one 도 long 으로 */
+ok('[TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 말로 인사» · 칩은 말로 인사 · 말 없이 둘', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'long'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 말로 인사' && O.CHIPS.tribute.map((c) => c[1]).join('|') === '말로 인사|말 없이' && O.chipOf('tribute', { tributeSay: 'one' }) === 'long'; })());
 ok('[EX_BRIEF] 넷째 예시는 «간결»(서약 · 반지 · 선언 · 축배) · «전부»(all)는 거뒀다 · 약속의 인사는 말 없이', O.EXAMPLES.map((e) => e.k).join(',') === 'record,promise,family,brief' && !O.exampleOf('all') && O.exampleOf('brief').on.join(',') === 'prevideo,vow,ring,declare,cake,toast' && O.exampleOf('promise').set.tribute === 'none' && O.originOf({ on: { vow: 1 }, pickFrom: 'all' }) === '직접 고르셨어요.');
 const E = O.span({ on: {} });
 ok('빈 채 시작: 본식 약 2~3분 · 단체 사진 약 37~38분', E.body === '약 2~3분' && E.photo === '약 37~38분', `${E.body} / ${E.photo}`);
@@ -60,7 +61,7 @@ ok('① 앞쪽 사슬(덕담 · 서약 · 인사) → 알림 ①', O.noticeOf({ 
 ok('① 뒤쪽 사슬(인사 · 축사 · 편지) → 뒤쪽 문구', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'speech', freeLen: '1' }) === O.NOTICE.heavyBack);
 ok('① 인사 «말 없이»면 앉아 듣는 순간이 아니다', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, tributeSay: 'none', freeWhat: 'speech', freeLen: '1' }) !== O.NOTICE.heavyBack);
 ok('① 준비한 순서가 영상이면 사슬이 끊긴다', O.noticeOf({ on: { declare: 1, tribute: 1, free: 1, letter: 1, toast: 1 }, freeWhat: 'video', freeLen: '1' }) === '');
-ok('② 인사 400자 + 편지 부모님께 → 알림 ②', O.noticeOf({ on: { tribute: 1, declare: 1, letter: 1, ring: 1, toast: 1 }, tributeSay: 'long', letter: 'parent' }) === O.NOTICE.twice);
+ok('[TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → «말이 두 번» 알림 없음(서로의 부모님께라 겹치지 않는다)', O.noticeOf({ on: { tribute: 1, declare: 1, letter: 1, ring: 1, toast: 1 }, tributeSay: 'long', letter: 'parent' }) !== O.NOTICE.twice);
 /* [DETAIL_0925 A2] 알림 ③ 은 고른 순간이 넷 이상일 때만 — 셋 이하면 «끝이 조용하다»를 말하지 않는다 */
 ok('③ 축배 없음 + 끝이 선언 → 알림 ③(고른 순간 넷 이상일 때만)', O.noticeOf({ on: { declare: 1 } }) === ''
   && O.noticeOf({ on: { bless: 1, ring: 1, vow: 1, declare: 1 } }) === O.NOTICE.toast
@@ -101,9 +102,11 @@ ok('붓지 않는 날은 선창 81 그대로', (() => { const s = slugs({ course
 ok('[WINE_POUR_OFF] 옛 초안의 «양가 한 병씩» 값이 와도 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'toast', wine: 'family' }).every((x) => x.indexOf('toast-pour') < 0));
 ok('케이크만이면 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'cake', wine: 'mix' }).every((x) => x.indexOf('toast-pour') < 0));
 /* ★[CLAP_FEW 2026-09-26 사장님] 104(맺는 말 «따뜻한 박수 부탁드립니다»)는 흐름에서 뺐다 · 클립은 FILES 에 둔다 */
-ok('준비한 순서 판별 넷 → 여는 말 100~103 · 맺는 말 104 는 안 나온다(CLAP_FEW)', ['video', 'dance', 'gift', 'speech'].every((w) => { const s = slugs({ course: 'open', on: { free: 1 }, freeWhat: w }); const kind = O.FREE_KIND[w]; return s.indexOf('narr-free-in-' + kind) > -1 && s.indexOf('narr-free-out-clap') < 0 && s.indexOf('narr-free-in') < 0; }));
-ok('영상 · 무대 판만 «재생 안 됨»(105)을 든다', (() => { const f = (w) => C.build({ course: 'open', on: { free: 1 }, freeWhat: w }, { mode: 'console' }).cues.filter((c) => c.k === 'free')[0].rescue; return f('video').slug === 'narr-free-fail' && f('show').slug === 'narr-free-fail' && !f('gift') && !f('speech'); })());
-ok('신랑 큰절 → 106 · 사람 구간이 그 줄 뒤로', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'tribute-in,tribute-bow-groom,tribute-out' && !r[0].live && !!r[1].live; })());
+ok('준비한 순서 판별 → 영상 · 선물 · 축사는 여는 말 100 · 102 · 103 · 맺는 말 104 는 안 나온다(CLAP_FEW)', ['video', 'gift', 'speech'].every((w) => { const s = slugs({ course: 'open', on: { free: 1 }, freeWhat: w }); const kind = O.FREE_KIND[w]; return s.indexOf('narr-free-in-' + kind) > -1 && s.indexOf('narr-free-out-clap') < 0 && s.indexOf('narr-free-in') < 0; }));
+/* [FREE_ETC 2026-10-06] 춤 · 공연 걷음 · 기타 = 지목하지 않는 여는 말(58) · 옛 dance · stage 도 기타 · 길이는 직접(1~3분 · 계약서 «3분 안») */
+ok('[FREE_ETC] 기타(옛 dance · stage 포함) → 여는 말 58(narr-free-in) · 이름은 적은 글 · 길이 2분이면 사람 구간 60×2+8 · 6분을 적어도 3분으로 · 칩에 춤 · 공연 없음', ['etc', 'dance', 'stage'].every((w) => slugs({ course: 'open', on: { free: 1 }, freeWhat: w }).indexOf('narr-free-in') > -1) && (() => { const c = C.build({ course: 'open', on: { free: 1 }, freeWhat: 'etc', freeEtc: '형제 깜짝 영상편지', freeLen: '2' }, { mode: 'console' }).cues.filter((x) => x.k === 'free')[0]; return c.name === '준비한 순서 시작 · 형제 깜짝 영상편지 · 2분' && c.live.est === 128 && !c.rescue; })() && O.chipOf('freeLen', { freeLen: '6' }) === '3' && O.CHIPS.free.map((x) => x[1]).join('|') === '영상|깜짝 선물 · 전달|친구 · 가족의 축사|기타');
+ok('영상 판만 «재생 안 됨»(105)을 든다 · [FREE_ETC] 기타는 없다', (() => { const f = (w) => C.build({ course: 'open', on: { free: 1 }, freeWhat: w }, { mode: 'console' }).cues.filter((c) => c.k === 'free')[0].rescue; return f('video').slug === 'narr-free-fail' && !f('etc') && !f('gift') && !f('speech'); })());
+ok('[GROOM_BOW_TIP] 옛 초안의 신랑 큰절(bowGroom)도 꽃과 포옹 — 큰절 줄(106) 없음 · 사람 구간은 여는 말에', (() => { const r = C.build({ course: 'open', on: { tribute: 1 }, tribute: 'bowGroom' }, { mode: 'console' }).cues.filter((c) => c.k === 'tribute'); return r.map((c) => c.slug).join(',') === 'tribute-in,tribute-out' && !!r[0].live; })());
 ok('옛 코스에선 신랑 큰절이 꽃으로 돌아간다', slugs({ course: 'family', tribute: 'bowGroom' }).indexOf('tribute-bow-groom') < 0);
 ok('[ENTRY_SCENE] 첫 모습은 소리가 같다(맞절이어도 큐 목록이 바라보기와 같다)', JSON.stringify(slugs({ course: 'open', on: {}, entryScene: 'bow' })) === JSON.stringify(slugs({ course: 'open', on: {}, entryScene: 'look' })));
 ok('새 코스에 옛 경고 셋이 안 뜬다', C.build({ course: 'open', on: {} }, {}).meta.warn.length === 0);
@@ -182,7 +185,7 @@ if (process.argv.includes('--live')) {
     ok(`${w} 길이(3분 → 1분)가 띠에 곧장`, b3 !== b1, b3 + ' → ' + b1);
     await pg.click('[data-fk="opt:free"]'); await pg.waitForTimeout(400);
     await pg.click('[data-fk="opt:letter"]'); await pg.waitForTimeout(300); await pg.evaluate(() => { S.letter = 'parent'; render(); }); await pg.waitForTimeout(300); s = await g();
-    ok(`${w} 인사 400자 + 편지 부모님께 → 알림 ②`, s.note === O.NOTICE.twice, s.note);
+    ok(`${w} [TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → «말이 두 번» 알림 없음`, s.note !== O.NOTICE.twice, s.note);
     const steps = await pg.evaluate(() => (window.STEPS || []).map((x) => x.k).join(','));
     ok(`${w} 네 걸음 = 고르기 · 보고 듣기 · 글 적기 · 완성 [LISTEN_PAGE]`, steps === 'intro,intro2,pick,listen,write,done', steps);
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));

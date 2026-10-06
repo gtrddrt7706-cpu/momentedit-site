@@ -1068,6 +1068,9 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-cg{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:8px;align-items:start}
 .ls-cg .gl{min-width:0;padding-top:12px;line-height:1.4;word-break:keep-all}
 .ls-cg .cg-c{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+.fe-row .fe-what{flex:1 1 220px;min-width:0;font-size:16px}
+.fe-len{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--sub)}
+.fe-len .tin{width:72px;font-size:16px;text-align:center}   /* [FREE_ETC] 입력칸 16px(iOS 확대 방지 · A11Y_INPUT_16) */
 /* [TEMPO_STEP] 말 빠르기 [−] 0 [＋] — 칩과 같은 테 · 같은 높이(44) · 숫자는 고정폭 숫자(값이 바뀌어도 단추가 안 움직인다) · 장식 없음 */
 .mk-tp .cg-c{gap:0;flex-wrap:nowrap}
 .mk-ctl{display:flex;flex-wrap:wrap;column-gap:28px;row-gap:4px}   /* [PAUSE_STEP] 말 빠르기 · 문장 사이 쉼 한 칸 — PC 는 나란히 · 폰은 두 줄 */
@@ -1818,7 +1821,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 </div>
 <script src="/assets/ritual-open.js?v=1004f"></script><script src="/assets/rec-process.js?v=1004f"></script><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
-var S={course:'open',on:{},wine:'none',tributeSay:'one',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
+var S={course:'open',on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'video',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'both',song:'family',flash:false,
        welcomeText:'',vowText:'',letterText:'',mPeak:'',mClose:'',
        guestVoice:'nar',entryVoice:'nar',declareWho:'narr',growth:'off',growthLink:'',blessProxy:false,
@@ -1949,7 +1952,10 @@ var TRIBUTE={
    사장님 원문: «케이크 꽃은 별도로 돈받아야지» · «선택하게 해 고객이 준비하거나 우리한테 요청하거나» · 업체 소개는 하지 않는다(«그냥 우리가»).
    [NO_EXTRA_COST](무엇을 담아도 값은 같다)의 예외는 이 둘뿐이다 · 샴페인은 그대로 저희가 준비한다.
    ★「꽃은 저희가 준비해요」 · 「실물(샴페인·케이크)은 저희가 준비해요」 되살리지 말 것 — 값이 드는 것을 공짜로 약속한다. */
-var GOODS_WORD='두 분이 준비하시거나 저희에게 부탁하실 수 있어요(비용 별도)';
+/* ★★[GOODS_STUDIO 2026-10-06 사장님 «당일 준비 케이크랑 꽃이랑 부케랑 이런 건 우리가 준비하는 걸로 하자» · «케이크 · 부모님 꽃도 별도»]
+   고르는 칩(직접 준비 · 맡기기)은 걷었다 — 늘 저희가 준비하고 «별도 비용»을 붙인다(위 «공짜로 약속» 금지는 그대로 · 비용 말을 떼지 말 것).
+   «상담 때 안내» 금지 — 식순은 상담을 다 마친 뒤 짓는다(사장님 «식순을 준비하는 단계는 이미 상담을 전부 진행한 후야»). */
+var GOODS_WORD='저희가 준비해요 · 별도 비용이에요';
 var TOAST={
  /* ★[TOAST_SCENE 2026-08-09] 원천 assets/ritual-data.js 의 TOAST 사본 — 글자까지 같아야 한다.
     한 덩어리 문안을 '가르치고 → 부르고 → 받는' 장면으로 다시 썼다(경위는 원천 주석에).
@@ -2819,7 +2825,7 @@ var STEPDEF={
  valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
  toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
  song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
- free:{k:'free',title:'준비한 순서',sub:'특별히 준비한 순서가 있을 때 담아요(3분 안). 라이브 노래 · 연주는 받지 않아요 · 영상 속 노래 · 연주, 음원에 맞춘 춤은 괜찮아요.'},   // [FREE_WHAT] 새 코스는 나레이션이 무엇을에 맞춰 앞을 연다
+ free:{k:'free',title:'준비한 순서',sub:'특별히 준비한 순서가 있을 때 담아요(3분 안). 라이브 노래 · 연주는 받지 않아요 · 영상 속 노래 · 연주, 음원에 맞춘 순서는 괜찮아요. 목록에 없는 것은 «기타»에 적어 주세요.'},   // [FREE_WHAT] 새 코스는 나레이션이 무엇을에 맞춰 앞을 연다
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
@@ -3711,7 +3717,7 @@ function opChipLabel(k){
   return R.chipLabel(k,S);
 }
 /* [DETAIL_0925 B13] 절정이 없을 때 — 한마디씩 인사는 절정이 아니다(1분쯤씩이 절정) */
-var PEAK_NONE='가장 벅찬 순간(★)이 될 것을 하나 담아 보세요 · 성혼 선언 · 편지 낭독, 또는 1분쯤씩 전하는 부모님께 인사.';   // [G1 2026-09-26 코워크 최종판 5-1] ①~④ 같은 말 «가장 벅찬 순간»
+var PEAK_NONE='가장 벅찬 순간(★)이 될 것을 하나 담아 보세요 · 성혼 선언 · 편지 낭독, 또는 말로 전하는 부모님께 인사.';   /* [TRIB_ONE_SAY] */   // [G1 2026-09-26 코워크 최종판 5-1] ①~④ 같은 말 «가장 벅찬 순간»
 function _candleWho(){ var R=RitualOpen; return (R.CANDLE_WHO.filter(function(c){ return c[0]===(S.candleWho||R.DEF.candleWho); })[0]||[0,''])[1]; }
 window.opToListen=function(){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k==='listen'){ _opGo(i); return; } } };
 /* ★[DETAIL_0925 A2] 알림 — 한 번에 하나 · 풀어 주는 단추 · «괜찮아요»(④ 사진 시간 부족은 닫지 않는다) ·
@@ -3810,8 +3816,11 @@ function _lGroups(k){
   }
   if(k==='vow') L('vowHow','읽는 방식',[['alt','한 줄씩 번갈아'],['each','각자 차례로']],_vowHow(),true);   /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] 기본 번갈아(VOW_CHORUS) · 소리는 같아 q(다시 틀지 않음) */
   if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
-  if(k==='tribute'){ L('tribute','말의 길이',R.CHIPS.tribute,R.chipOf('tribute',S)); L('tributeHow','인사 방식',[['flower','꽃과 포옹'],['bowGroom','신랑 큰절']],S.tribute==='bowGroom'?'bowGroom':'flower',false,S.tribute==='bowGroom'?'신부는 드레스라 서서 인사해요':'');   /* [R1-35] [BOW_GROOM] 신랑 큰절을 골랐을 때만 칩 아래 힌트 */ _lGoods('tribute',L); }
-  if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S)); L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
+  if(k==='tribute'){ L('tribute','인사 말',R.CHIPS.tribute,R.chipOf('tribute',S),false,'신랑분은 원하시면 큰절을 올리셔도 돼요');   /* ★«인사 방식»(꽃과 포옹 · 신랑 큰절) 칩 금지 — 2026-10-06 사용자 지시로 삭제 [GROOM_BOW_TIP] · 늘 꽃과 포옹 · 큰절은 팁 한 줄 · [TRIB_ONE_SAY] «말의 길이» → «인사 말»(말로 인사 · 말 없이) */ _lGoods('tribute',L); }
+  if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S));
+    /* ★[FREE_ETC 2026-10-06 사장님 «기타 칸 · 직접 적을 수 있게 · 길이도 직접»] 기타면 무엇을 · 길이를 칸에 적는다(길이 칩 대신 1~3분) */
+    if(R.chipOf('free',S)==='etc') g.push({key:'freeEtc',l:'직접 적기',list:[],cur:'',q:true,note:'',html:'<input class="tin fe-what" type="text" maxlength="40" data-fk="freeetc" aria-label="무엇을 준비하나요" placeholder="예) 형제가 준비한 깜짝 영상편지" value="'+esc(S.freeEtc||'')+'" oninput="setv(\'freeEtc\',this.value)" onchange="lsFreeEtc()"><label class="fe-len"><input class="tin" type="number" inputmode="numeric" min="1" max="3" data-fk="freelen" aria-label="길이 · 분" value="'+esc(R.chipOf('freeLen',S))+'" onchange="lsFreeLen(this.value)"><span>분 · 3분까지</span></label>'});
+    else L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
   if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));
   if(k==='cake') _lGoods('cake',L);   // [CAKE_TOAST_SPLIT] 케이크 준비만 · 축배는 고를 것이 없다
   /* ★★[CHIP_UNPICKED 2026-09-27 사장님 «안내 목소리 처음에는 안 눌린 상태로 있어야지 · 그래야 누르면 소리가 나오지 · 나레이션 음성을 처음에 들을 방법이 없잖아»]
@@ -3827,7 +3836,7 @@ function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
   catch(e){} finally{ S=keep; _lInDef=false; }
   return o; }
 /* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
-function _lGoods(k,L){ var R=RitualOpen; R.goodsOf(S,k).forEach(function(g){ L(g.key,g.k==='cake'?'케이크 준비':'꽃 준비',R.CHIPS[g.key],g.by,true,g.by==='studio'?R.GOODS_COST:'크기 · 도착 시각은 상담 때 안내해 드려요'); }); }   /* [R1-30] «당일 가져오기»는 아래 «당일 챙길 것» 묶음 제목이 이미 말한다 */
+function _lGoods(){}   /* ★«케이크 준비 · 꽃 준비» 칩(직접 준비 · 맡기기) 금지 — 2026-10-06 사용자 지시로 삭제 [GOODS_STUDIO] · 늘 저희가 준비 · 안내는 순간 설명 줄과 ③ «저희가 준비해요»가 한다 */   /* [R1-30] «당일 가져오기»는 아래 «당일 챙길 것» 묶음 제목이 이미 말한다 */
 function _lSet(key,v){
   var R=RitualOpen;
   S.touched=S.touched||{}; S.touched[key]=1;   // [CHIP_UNPICKED]
@@ -3839,7 +3848,7 @@ function _lSet(key,v){
   else if(key==='entry') S.entry=v;
   else if(key==='entryOut') S.entryOut=v;
   else if(key==='entryScene') S.entryScene=(v==='bow'?'bow':'look');   // [ENTRY_SCENE] 새 키
-  else if(key==='tributeHow') S.tribute=(v==='bowGroom'?'bowGroom':'flower');
+  else if(key==='tributeHow') S.tribute='flower';   // [GROOM_BOW_TIP] 신랑 큰절 판은 걷었다
   else if(key==='vowHow') S.vowHow=(v==='each'?'each':'alt');   // [VOW_HOW] 모르는 값은 번갈아
   else R.setChip(S,key,v);
 }
@@ -3860,20 +3869,20 @@ function _lSum(k){
   if(k==='_close') return '닫는 말 → 그 자리에서 단체 사진';
   if(k==='candle') return _candleWho();
   if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'&&!_vcToNar('entry')?'두 분 목소리':'나레이션');   /* [R7-04] */   /* [ENTRY_OUT_OFF] 맞절 없음 */   // [DETAIL_0925 B6] 목소리를 늘 보인다
-  if(k==='cake') return '두 분이 함께 케이크를 잘라요 · '+(R.chipOf('cakeBy',S)==='studio'?'케이크는 저희가 준비':'케이크 직접 준비');   /* [R2-20] 열한 줄 중 혼자 비어 있었다 */
+  if(k==='cake') return '두 분이 함께 케이크를 잘라요 · 케이크는 저희가 준비 · 별도 비용';   /* [GOODS_STUDIO] 늘 저희가 */   /* [R2-20] 열한 줄 중 혼자 비어 있었다 */
   /* [R2-05] ④ 요약 전용 시간(_sumSec) · 순간 이름을 되풀이하던 앞 문장은 뺐다.
      [R3-02] 숫자는 ② 차례 줄과 같은 «한 분 몫»이다 — ②가 차례를 사람마다 나눠 보이면(신랑 차례 · 신부 차례) ④도 «한 분 약 n씩», 한 줄이면(서약 번갈아) 합계. 둘 다 _sumSec */
   var _p=((R.partsOf(k,S)||[])[1])||0, _tn=_lTurnN(k);
   function _each(x){ return _tn>1?'한 분 '+_perSec(k,Math.round(x/_tn))+'씩':_perSec(k,x); }   /* [R4-01] */
   if(k==='welcome'||k==='bless'||k==='vow') return '말하는 시간 '+((k==='vow'&&_vowHow()==='alt')?_sumSec(_p||100):_each(_p||({welcome:30,bless:150,vow:100})[k]));
-  if(k==='tribute'){ bits.push(R.chipOf('tribute',S)==='none'?R.chipLabel('tribute',S):'말하는 시간 '+_each(_p||30)); if(S.tribute==='bowGroom') bits.push('신랑 큰절'); R.goodsOf(S,'tribute').forEach(function(g){ bits.push(g.by==='studio'?'꽃은 저희가 준비':'꽃 직접 준비'); }); return bits.join(' · '); }   /* [R6-04] 꽃 준비도 케이크 줄([R2-20])과 같은 꼴 — 맡기기는 비용이 붙는 선택 · 신랑 큰절이면 goodsOf 가 비어 붙지 않는다 */   /* [R3-02] 칩 이름 뒤 합계를 걷었다 · [R4-01] 칩 이름과 시간을 겹쳐 쓰지 않는다 — «1분쯤씩 · 한 분 약 1분 10초» → «말하는 시간 한 분 약 1분씩» */
+  if(k==='tribute'){ bits.push(R.chipOf('tribute',S)==='none'?R.chipLabel('tribute',S):'말하는 시간 '+_each(_p||30)); if(false) bits.push('신랑 큰절')   /* [GROOM_BOW_TIP] */; R.goodsOf(S,'tribute').forEach(function(g){ bits.push(g.by==='studio'?'꽃은 저희가 준비':'꽃 직접 준비'); }); return bits.join(' · '); }   /* [R6-04] 꽃 준비도 케이크 줄([R2-20])과 같은 꼴 — 맡기기는 비용이 붙는 선택 · 신랑 큰절이면 goodsOf 가 비어 붙지 않는다 */   /* [R3-02] 칩 이름 뒤 합계를 걷었다 · [R4-01] 칩 이름과 시간을 겹쳐 쓰지 않는다 — «1분쯤씩 · 한 분 약 1분 10초» → «말하는 시간 한 분 약 1분씩» */
   if(k==='letter') return R.chipLabel('letter',S)+' · 말하는 시간 '+_sumSec(_p||120);
   var t=R.talkOf(k,S);
   if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech') return R.chipLabel('free',S);
   if(t) t=t.replace(/ · (약 [^·]+)$/,' · 말하는 시간 $1');   // [R1-06] ② 머리 «약 n»은 순간 전체 · 여기 숫자는 말하는 부분만 — 같은 «약 n»이라 어느 쪽이 맞는지 몰랐다
   if(t&&k==='toast') t=t.replace(/ · 말하는 시간 [^·]+$/,' · 한마디');   /* [R3-02] ② 축배 차례 줄은 «한마디» · ④만 «약 10초»였다 */
   if(t) bits.push(t); else { var vl=(typeof opChipLabel==='function')?opChipLabel(k):''; if(vl) bits.push(vl); }
-  if(k==='tribute'&&S.tribute==='bowGroom') bits.push('신랑 큰절');
+  /* [GROOM_BOW_TIP] «신랑 큰절» 덧말 걷음 */
   /* [CAKE_TOAST_SPLIT] 케이크 · 축배 요약 조각 없음 */
   return bits.filter(Boolean).join(' · ');
 }
@@ -3882,7 +3891,7 @@ function _lSum(k){
    엔진 이름은 그대로 둔다(현장 콘솔 · 생성기가 쓴다) · 여기서만 바꿔 보인다. 칩 이름과 같게(꽃과 포옹 · 1분쯤씩). */
 var LAB_FIX={'하객이 박수로 답하는':'박수를 청하는 말','부모님께':'여는 말','서로에게':'여는 말','입장 직후':'하객 입장 때',   /* [LAB_FIX2 2-6] */
   '편지 뒤 자리':'여는 말','예식의 문을 여는 자리':'여는 말','덕담 여는 말':'여는 말','축사 없음 안내':'여는 말','둘 다':'케이크 커팅','폐식 · 단체촬영 전환':'닫는 말'};
-function _lLabFix(l){ l=String(l||''); if(LAB_FIX[l]) return LAB_FIX[l]; if(/^(영상|춤 · 공연|깜짝 선물 · 전달|친구 · 가족의 축사) · \d+분$/.test(l)) return '여는 말'; return l.replace(/^꽃 헌정 · 준비한 말 400자씩$/,'꽃과 포옹 · 1분쯤씩').replace(/^꽃 헌정/,'꽃과 포옹'); }
+function _lLabFix(l){ l=String(l||''); if(LAB_FIX[l]) return LAB_FIX[l]; if(/^(영상|춤 · 공연|기타|깜짝 선물 · 전달|친구 · 가족의 축사) · \d+분$/.test(l)) return '여는 말'; return l.replace(/^꽃 헌정 · 준비한 말 400자씩$/,'꽃과 포옹 · 1분쯤씩').replace(/^꽃 헌정/,'꽃과 포옹'); }
 /* ★[OFF_LISTEN 2026-09-25 코워크 추가전달 2-1] «담지 않은 순간 · 들어 보고 담을 수 있어요»가 되게 한다.
    담지 않은 순간은 큐가 없어 ▶ 가 아무 일도 안 했고, 작은 그림은 크게 보기를 곧장 끝 화면으로 열었다.
    그 순간만 잠깐 담은 셈 치고(기본 칩 값) 큐를 만든 뒤 S 를 그대로 되돌린다 — 고객의 선택은 바뀌지 않는다. */
@@ -3937,7 +3946,7 @@ function _lSteps0(g,ks){
         if(k==='prevideo'){ out.push({k:k,lab:'두 분의 영상이 흐르는 자리',txt:'여기서 두 분의 영상이 흘러요 · 미리 듣기에서는 넘겨요',skip:true,ms:1600}); }   // [DETAIL_0925 B9] · [R2-36] «여기서» 두 번(가리키는 곳이 달랐다) → 미리 듣기에서는
         else if(!talked&&k!=='toast'){   // [G5] 축배는 잔 드는 큐 뒤에서 말한다(위)
           if(k==='free'&&R.FREE_KIND[R.chipOf('free',S)]!=='speech'){ talked=true;
-            var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='stage'?'준비한 춤 · 공연이 흘러요':'준비한 선물을 건네요';
+            var fk=R.FREE_KIND[R.chipOf('free',S)], what=fk==='video'?'준비한 영상이 흘러요':fk==='etc'?'두 분이 준비한 순서가 이어져요':'준비한 선물을 건네요';
             out.push({k:k,lab:'준비한 순서가 흐르는 자리',txt:'여기서 '+what+' · 약 '+R.chipOf('freeLen',S)+'분 · 미리 듣기에서는 넘겨요',skip:true,ms:3000}); }
           else { var t=R.talkOf(k,S); if(t){ talked=true; out.push({k:k,lab:'사람이 말하는 자리',txt:'여기서 '+t,talk:true,ms:3000}); } }
         }
@@ -4193,7 +4202,7 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return '';
   var kind=ks[0], K=TX_KIND[kind], R=RitualOpen, c=_mkChk();
   h+='<section class="mk-sec mk-say" aria-labelledby="mkSay"><h4 id="mkSay">두 분이 할 말</h4>';
   if(kind==='vow') h+='<p class="prep-hint">'+esc(_vowHowHint())+'</p>';   /* [VOW_HOW] 읽는 방식 안내는 글칸 «위»에 — 다 쓴 뒤에야 형식을 알던 자리(R1-05) */
-  if(kind==='tribute') h+='<p class="mk-note">'+esc(R.chipOf('tribute',S)==='long'?'한 분 300자 안팎':'한 분 한두 문장')+' · 적어 두시면 카드로 드려요 · 비워 두셔도 돼요</p>';   // [R1-20] 1분쯤 = 300자 · [TRIB_CARD_OPT] 그대로
+  if(kind==='tribute') h+='<p class="mk-note">한마디부터 1분쯤까지 · 적어 두시면 카드로 드려요 · 비워 두셔도 돼요</p>';   // [R1-20] 1분쯤 = 300자 · [TRIB_CARD_OPT] 그대로
   if(kind==='letter') h+='<p class="mk-note">당일 직접 읽어요 · 보내지 않아도 돼요</p>';   // NOTE_READ 그대로
   if(S.txMig&&S.txMig[kind]) h+='<p class="mk-note">전에 한 칸에 적어 두신 글을 신랑 칸에 옮겨 두었어요 · 두 칸으로 나눠 주세요</p>';
   TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], v=(S.tx||{})[id]||'', chk=_txSite(kind,c,id);   // [SITE_CHK_OFF]
@@ -5489,7 +5498,7 @@ function renderMake(){
        «이 순간 들어 보기»는 나레이션 소리가 두 줄 이상인 순간이면 모두(칩 유무와 상관없이 — 칩은 이제 소리를 안 낸다 [CHIP_NO_AUTOPLAY]) · 한 줄뿐이면 그 줄 ▶ 하나([PLAY_ONE]).
        종전 «고를 칩이 있으면 단추를 숨긴다»([MK_MIN] · [CHIP_LISTEN] · [CAKE_TOAST_SPLIT]) 금지 — 2026-10-03 사용자 지시로 삭제(칩이 듣기였던 때의 규칙이다) */
     h+=_mkFlow(k,_pn>=2?lb:'');
-    if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
+    if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);
   }
   h+=_mkWrite(k)+_mkPrep(k);
@@ -5584,7 +5593,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
      첫 줄(반지)에 대한 말처럼 읽혔다(390 실렌더 · 꽃 · 케이크 이야기였다). */
   var bnote=bdup.map(function(t){ return brings.filter(function(q){ return String(q.what).split(' · ').slice(1).join(' · ')===t; }).map(function(q){ return String(q.what).split(' · ')[0]; }).join(' · ')+': '+t; });
   if(brings.length) h+='<section class="mk-sec"><h4>당일 챙길 것</h4><ul class="mk-list">'+brings.map(function(q){ var t=String(q.what).split(' · ').slice(1).join(' · '); return bdup.indexOf(t)>-1?li({what:String(q.what).split(' · ')[0],cat:q.cat,due:q.due,note:q.note}):li(q); }).join('')+'</ul>'+(bnote.length?'<p class="mk-note">'+esc(bnote.join(' · '))+'</p>':'')+'</section>';
-  var stu=_studioList(); if(stu.length) h+='<section class="mk-sec"><h4>저희가 준비해요</h4><ul class="mk-list"><li>'+esc(stu.join(' · '))+' <span class="wr-due">· '+esc(R.GOODS_COST)+'</span></li></ul></section>';
+  h+='<section class="mk-sec"><h4>저희가 준비해요</h4><ul class="mk-list">'+_studioLis()+'</ul></section>';   // [GOODS_STUDIO] 부케 줄이 늘 있다
   var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});   // [MK_HELPERS] 옛 ③ 준비하기의 «도와주실 분»을 한눈에 보기가 이어 받는다(마이페이지 «도와주실 분»과 같은 목록)
   if(hp.length) h+='<section class="mk-sec"><h4>도와주실 분</h4><ul class="mk-list">'+hp.map(function(x){ return '<li class="mk-hp"><span>'+esc(x[0])+'</span><span class="wr-due">'+esc(x[1])+'</span></li>'; }).join('')+'</ul></section>';   /* [R2-13] 이름 위 · 덧말 아래 두 줄(덧말이 «·»로 줄 머리에 서지 않게) */
   return h+'</section>'; }
@@ -5708,7 +5717,7 @@ function _lExp(k,on){
     var st=_lSteps(ENG,[k]);
     if(st.length) h+='<div class="ls-flow"><b>이렇게 흘러요</b><ol>'+st.map(function(x){ return '<li class="'+(x.quiet?'quiet':(x.talk||x.skip?'talk':''))+'">'+esc((x.talk||x.skip||x.quiet)?x.txt.replace(/^여기서 /,''):x.lab)+(x.pending&&!LS.allPend?' <span class="ls-new">아직 녹음 전</span>':'')+'</li>'; }).join('')+'</ol></div>';
   } else h+='<div class="ls-flow"><b>이렇게 흘러요</b><p class="ls-note">불러오는 중이에요…</p></div>';
-  if(k==='tribute'&&on&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 한마디는 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';   // [DETAIL_0925 B16]
+  if(k==='tribute'&&on&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';   // [DETAIL_0925 B16]
   if(on || k==='guest'){
     var gs=_lGroups(k);
     if(gs.length) h+='<div class="ls-vars"><b>바꿀 수 있는 것 <span class="ls-hint">· 누르면 바로 그렇게 들려 드려요</span></b>'+_lGroupsHtml(k,gs)+'</div>';   // [DETAIL_0925 B4]
@@ -5738,7 +5747,10 @@ window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
   render();
   if(LP.big){ _lFull(); var f=document.getElementById('lsFull'), b=f&&f.querySelector(sel); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }
 };
+window.lsFreeEtc=function(){ buildSteps(); _persist(); render(); };   /* [FREE_ETC] 이름이 띠 · 흐름에 곧장 */
+window.lsFreeLen=function(v){ var n=Math.round(+v); if(!(n>=1)) n=1; if(n>3) n=3; S.freeLen=String(n); S.touched=S.touched||{}; S.touched.freeLen=1; buildSteps(); _persist(); _fxNext='[data-fk="freelen"]'; render(); };
 function _lChipRow(g,opt){
+  if(g.html) return '<div class="ls-cg fe-row"><span class="gl">'+esc(g.l)+'</span><span class="cg-c">'+g.html+'</span></div>';   /* [FREE_ETC] 칩 대신 칸 */
   /* ★[RIT_CHIP_GRID 2026-09-27 4부 9] 라벨 칸 + 칩 칸 두 열 — 줄을 넘긴 칩이 첫 칩 시작선에 선다(종전 flex 한 줄은 넘친 칩이 라벨 밑으로 들어가 왼쪽 선이 들쭉날쭉) */
   return '<div class="ls-cg'+(/^(guest|entry|pv)Voice$/.test(g.key)?' cg-vp':'')+'" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
     return '<button type="button" class="op-chip" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(g.picked===false&&ci===0))?'0':'-1')+'" data-fk="lsc:'+g.key+':'+c[0]+'" onclick="lsChip(\''+g.key+'\',\''+c[0]+'\')">'+esc(c[1])+'</button>'; }).join('')
@@ -6373,6 +6385,7 @@ function _vpChoice(k){ var c=[]; if(_vcOn()) c.push(['ai','AI 두 분 목소리'
 function _vpCur(k){ var key=k==='guest'?'guestVoice':k==='prevideo'?'pvVoice':'entryVoice';   /* [PV_INTRO] */ return S[key]==='couple'?(((S.vfill||{})[k]==='ai'&&_vcOn())?'ai':'couple'):'nar'; }
 var VOICE_LATE_UP='예식 7일 전까지 준비되지 않은 줄은 나레이션으로 진행해요';   // [VOICE_LATE] 문이 열린 뒤의 발 한 줄
 /* [STUDIO_PREP P11] 담은 순간에서 스튜디오가 준비하는 것 — 케이크 · 부모님께 드릴 꽃 */
+function _studioLis(){ var R=RitualOpen, stu=_studioList(); return (stu.length?'<li>'+esc(stu.join(' · '))+' <span class="wr-due">· '+esc(R.GOODS_COST)+'</span></li>':'')+'<li>'+esc(R.BOUQUET[0])+' <span class="wr-due">· '+esc(R.BOUQUET[1])+'</span></li>'; }   // [GOODS_STUDIO] ③ · 정리 화면 같은 두 줄
 function _studioList(){ var R=RitualOpen, out=[]; R.ORDER.filter(function(k){ return R.onOf(S,k); }).forEach(function(k){ R.studioOf(k,S).forEach(function(x){ if(out.indexOf(x)<0) out.push(x); }); }); return out; }
 function _dueDate(n){
   var d=(CUST&&CUST.weddingDate)||'', m=String(d).match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -6453,7 +6466,7 @@ function _openWrite(){
   if(bring.length) h+='<div class="wr-sec"><div class="wr-sub">챙길 것</div><ul class="wr-list">'+bring.map(li).join('')+'</ul></div>';
   if(ask.length) h+='<div class="wr-sec"><div class="wr-sub">부탁드릴 것</div><ul class="wr-list">'+ask.map(li).join('')+'</ul></div>';
   if(par.length) h+='<h3 class="sec-l wr-top">부모님께 부탁드릴 것</h3><ul class="wr-list">'+par.map(li).join('')+'</ul>';
-  var stu=_studioList(); if(stu.length) h+='<h3 class="sec-l wr-top">저희가 준비해요</h3><ul class="wr-list"><li>'+esc(stu.join(' · '))+' <span class="wr-due">· '+esc(R.GOODS_COST)+'</span></li></ul>';   // [GOODS_CHOICE] 맡긴 것만 · 별도 비용(포함처럼 읽히던 STUDIO_PREP 줄 대신)
+  h+='<h3 class="sec-l wr-top">저희가 준비해요</h3><ul class="wr-list">'+_studioLis()+'</ul>';   // [GOODS_CHOICE] 맡긴 것만 · 별도 비용(포함처럼 읽히던 STUDIO_PREP 줄 대신)
   var hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)});
   h+='<h3 class="sec-l wr-top">도와주실 분</h3><ul class="wr-list">'+hp.map(function(x){ return '<li class="mk-hp"><span>'+esc(x[0])+'</span><span class="wr-due">'+esc(x[1])+'</span></li>'; }).join('')+'</ul>';   /* [R2-13] */
   return h;
@@ -7218,14 +7231,14 @@ function renderStep(k){
      클립·문안·RINGWARM 상수는 그대로 둔다(FILES 번호가 인덱스+1이라 빼면 뒤가 전부 밀린다). */
   else if(k==='tribute'){
     h+=clip('tribute');
-    if(isOpen()) h+='<div class="dlabel">인사의 말</div>'+opChips('tribute',true)+'<div class="dlabel" style="margin-top:14px">인사 방식</div>';   // [OPEN_COURSE] 말의 길이는 고르기 화면과 같은 판
+    if(isOpen()) h+='<div class="dlabel">인사의 말</div>'+opChips('tribute',true)+'<div class="dlabel" style="margin-top:14px">인사 방식</div>';   /* [GROOM_BOW_TIP] 꽃과 포옹 한 장 · 큰절은 팁 */   // [OPEN_COURSE] 말의 길이는 고르기 화면과 같은 판
     /* ★★[BOW_RETIRED 2026-09-06 사장님 지시] 큰절 폐지 — *"큰절은 빼자 드레스에 큰절은 아닌 거 같아"*.
        되살리지 말 것. 리뷰가 「빠진 선택지」로 복원하지 않게 여기에 근거를 남긴다.
        ★모드 정의(MODE.bow)와 어조 문안(TONE.bow)은 지우지 않는다 — 이미 고른 고객의 옛 초안을
          읽어야 하고(LEGACY_LABEL 과 같은 이유), 어조표는 21_B_제안.md 가 원천인 생성물이다.
          «고를 수 있나»만 닫는다. 이 저장소가 SONG_RETIRED·WINE_RETIRED 에서 쓴 방식 그대로다. */
     /* [BOW_GROOM 2026-09-25 사장님 결정 5] 새 코스는 «꽃과 포옹 · 신랑 큰절» 둘이다(옛 두 분 큰절 bow 는 닫힌 채 · 옛 코스는 지금 그대로). */
-    (isOpen()?['flower','bowGroom']:['flower','hug']).forEach(function(v){
+    (isOpen()?['flower']:['flower','hug']).forEach(function(v){   /* [GROOM_BOW_TIP] 새 코스는 꽃과 포옹 하나 */
       var m=TRIBUTE.modes[v];
       h+=oc('tribute',v,m.d,m.how,S.tribute===v?TRIBUTE.nar:null,S.tribute===v?TRIBUTE.end:null,null,(v==='flower'&&S.tribute==='flower')?'꽃은 '+GOODS_WORD:null);   // [NO_EXTRA_COST] [GOODS_CHOICE]
     });
@@ -7295,9 +7308,9 @@ function writeCard(kind, showStatus){
       +'<div class="prep-hint">'+esc(_vowHowHint())+'</div>'   /* [VOW_HOW] 같은 안내 한 곳(_vowHowHint) */
       +'<div style="margin-top:12px">'+fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true))+'</div></div>';
   }
-  if(kind==='tribute'){   // [TRIB_CARD_OPT] 선택 칸 · 길이는 칩(한마디씩 / 1분쯤씩)을 따른다
-    var lg=RitualOpen.chipOf('tribute',S)==='long';
-    return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'한 분 300자 안팎':'한 분 한두 문장')+' · 적어 두시면 카드로 인쇄해 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="부모님께 드릴 말" aria-describedby="tribCntOv" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\');_taGrow(this)" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
+  if(kind==='tribute'){   // [TRIB_CARD_OPT] 선택 칸 · [TRIB_ONE_SAY] 길이는 한마디부터 1분쯤까지 하나
+    var lg=false;
+    return '<div class="wcard"><div class="wn">부모님께 드릴 말 <span class="wd" style="display:inline">· 선택</span></div><div class="wd">'+(lg?'':'한마디부터 1분쯤까지')+' · 적어 두시면 카드로 인쇄해 드려요. 비워 두시면 당일 직접 말씀하시면 돼요.</div><textarea class="ta grow" rows="4" maxlength="4000" aria-label="부모님께 드릴 말" aria-describedby="tribCntOv" oninput="setv(\'tributeText\',this.value);wcCnt(this,\'tribCnt\');_taGrow(this)" placeholder="부모님께 전하고 싶은 말을 적어 보세요">'+esc(S.tributeText||'')+'</textarea>'
       +'<div class="lenhint">'+wcCntSpan('tribCnt',S.tributeText)+'</div>'+_wcOv('tribCnt',S.tributeText)
       +'<div class="prep-hint">이렇게 쓰면 쉬워요 · 부모님이 해 주신 일 한 장면 → 그때 내 마음 → 앞으로 한 줄</div></div>';   /* [WRITE_FRAME] */
   }
@@ -7568,7 +7581,7 @@ var BLOCK={
     return {n:'편지 낭독',peak:true,nar:LETTER[S.letter].nar,self:'두 분이 직접 편지 낭독',end:"두 사람의 편지였습니다.",cue:(S.flash&&S.course==='gamdong'?'조명 낮춤 → 나레이션 안내로 하객 폰 불빛 점등 → ':'')+'배경 음악 낮게 시작 → 나레이션 도입 끝 → 편지 꺼내 낭독 (가장 감정적인 순간 · 울컥하면 배우자가 이어 읽기) → 끝나면 침묵 2초 유지 후 음악 서서히 올림(3~5초)'};
   },
   tribute:function(){
-    var say=(isOpen()&&S.tributeSay!=='none')?(' · '+(S.tributeSay==='long'?'준비한 말 400자씩':'한마디씩')):'';   // [OPEN_COURSE] 인사의 말
+    var say=(isOpen()&&S.tributeSay!=='none')?' · 말로 인사':'';   // [TRIB_ONE_SAY]   // [OPEN_COURSE] 인사의 말
     return {n:isOpen()?'부모님께 인사':'부모님 헌정',nar:TRIBUTE.nar+((isOpen()&&S.tribute==='bowGroom')?' '+RitualOpen.NAR.bowGroom:''),   /* [BOW_GROOM] */ self:'두 분이 부모님께 · '+TRIBUTE.modes[S.tribute].d+say,end:TRIBUTE.end,cue:TRIBUTE.modes[S.tribute].cue};
   },
   bless:function(){
