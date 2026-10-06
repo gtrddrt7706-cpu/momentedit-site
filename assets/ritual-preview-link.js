@@ -65,6 +65,7 @@
     'vow',                                     // 정점 선택(서약 켬/끔)
     /* ★[VOW_HOW 2026-10-02] 서약 읽는 방식 — 값은 'alt'|'each' 판 이름뿐(글 아님) · order-preview 의 «읽는 방식» 칩이 같은 커밋에서 만든다 */
     'vowHow',
+    'vowFirst',                                // ★[VOW_FIRST 2026-10-06] 먼저 읽는 분 'g'|'b' — 여는 말 소리가 갈린다(127)
     'declare', 'declareWho',                   // 성혼 선언 문안 · 누가
     'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
     'letter',                                  // 편지 낭독 대상
@@ -97,7 +98,7 @@
     if (!S) return o;
     for (var i = 0; i < KEYS.length; i++) {
       var k = KEYS[i];
-      if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : S[k];   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
+      if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : (k === 'vowFirst') ? (S[k] === 'b' ? 'b' : 'g') : S[k];   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
     }
     return o;
   }
