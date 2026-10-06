@@ -14592,3 +14592,7 @@ chk 'NO_CARET_TEXT' index.html 1
 chk 'NO_CARET_TEXT' order-preview.html 1
 chk 'NO_CARET_TEXT' schedule.html 1
 chk '\[tabindex="-1"\] input,\[tabindex="-1"\] textarea' index.html 1
+# ★[EXTAG_OFF 2026-10-06 사장님 «예시 글 · 고쳐 써도 돼요 계속 나열 · 보기 별로» → «추천대로»] 칸 · 줄 카드마다 붙던 표 삭제 · 위에서 한 번만
+nochk '<span class="mk-extag">예시 글 · 고쳐 써도 돼요</span>' order-preview.html
+chk '들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요' order-preview.html 1
+chk 'EXTAG_OFF' order-preview.html 2
