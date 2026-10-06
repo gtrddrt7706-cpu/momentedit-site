@@ -167,7 +167,7 @@ if (process.argv.includes('--live')) {
     await pg.click('#next'); await pg.waitForTimeout(600); await pg.click('#next'); await pg.waitForTimeout(600);
     /* [PICK_V2 2026-09-26] 띠(op-band)는 거뒀다 — 시간 둘은 아래 막대(#opCta) · 늘 있는 칸은 «늘 있어요»(.pk-fix) */
     const g = () => pg.evaluate(() => ({ band: ((document.getElementById('opCta') || {}).textContent || '').replace(/\u00a0/g, ' '), empty: (document.querySelector('.pk-fp-empty') || {}).textContent || '', note: (document.querySelector('.op-note .op-note-t') || {}).textContent || '', ow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      moves: document.querySelectorAll('.mvb').length, locks: document.querySelectorAll('.pk-fix').length, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
+      moves: document.querySelectorAll('.mvb').length, locks: document.querySelectorAll('.pk-fixmk').length   /* [FIX_MARK_O] */, text: (document.getElementById('stage') || document.body).textContent }));   // ★body 는 인라인 스크립트 글까지 센다
     let s = await g();
     ok(`${w} 빈 채 — 아래 막대 «입장 · 닫는 인사만으로도 …»([R1-33]) · 흐름 판 빈 글(숫자 비움)`, /닫는 인사만으로도 다음으로/.test(s.band) && /아직 담은 순간이 없어요/.test(s.empty), s.band + ' | ' + s.empty);
     ok(`${w} 빈 채 알림 없음 · 늘 있어요 둘(입장 · 닫는 인사 · 식전 영상은 담는 칸 [PREVIDEO_PICK]) · ↑↓ 없음 · 가로 넘침 0`, !s.note && s.locks === 2 && s.moves === 0 && s.ow <= 0, JSON.stringify({ note: s.note, locks: s.locks, moves: s.moves, ow: s.ow }));
