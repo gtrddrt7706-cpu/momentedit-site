@@ -1246,7 +1246,7 @@ body.lsfull{overflow:hidden}
    ① 칸과 같은 표(.pk-sel · 담김 = 먹빛 동그라미 ✓ · 안 담김 = 금빛 테 ＋)를 그대로 쓴다 — 여기서는 칸 모서리에 띄우지 않고 줄 끝에 세울 뿐(위치만 덮어쓴다).
    늘 있는 순간(하객 맞이 · 입장 · 닫는 인사)은 같은 ✓ 를 옅게(단추 아님) — 모든 줄이 «담겨 있음»을 말하고, 고정된 줄은 고정돼 보이게 */
 .cf-r .pk-sel{position:static;justify-self:end;font-size:12.5px}   /* 단추 자체의 글자 크기(브라우저 기본 13.33)를 이 쪽 RIT_TYPE5 로 · 글은 <i> 가 그린다 */
-.cf-fix{flex:0 0 auto;align-self:center;margin-right:8px;font-size:11px;font-weight:600;color:var(--sub);background:var(--bg2);border-radius:999px;padding:2px 8px;white-space:nowrap}   /* [UI_ONE] ① .pk-fix 와 같은 말 */
+.cf-fix{flex:0 0 auto;align-self:center;justify-self:end;width:max-content;margin-right:8px;font-size:11px;font-weight:600;color:var(--sub);background:var(--bg2);border-radius:999px;padding:2px 8px;white-space:nowrap}   /* [UI_ONE] ① .pk-fix 와 같은 말 · ★[CF_FIX_FIT 2026-10-06 impeccable detect] 44px 칸에 눌려 36px 이 되어 «늘 있어요»가 회색 바탕 밖으로 18px 넘쳤다 — 제 폭(max-content) · 오른쪽 끝 맞춤으로 왼쪽으로 자란다(오른쪽 끝 = ✓ 동그라미와 같은 줄) */
 .cf-r.off>:not(.cf-mk):not(.cf-dot){opacity:.4}
 .cf-r.off .cf-dot::after{opacity:.6}
 @media (max-width:999px){ .cf-r{padding-right:40px} }   /* 오른쪽 끝은 레일 자리[RAIL_LOCKED] — 비켜선다 */
@@ -1600,7 +1600,8 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-aip.save .mk-aif,.mk-aip.done .mk-aif{width:100%;transition:width .7s cubic-bezier(.22,.61,.36,1)}
 @keyframes mkAipFill{from{width:0}to{width:90%}}
 @media (prefers-reduced-motion:reduce){ .mk-aip,.mk-aip.on{transition:none} .mk-aip.make .mk-aif{animation:none;width:50%} }
-@media (max-width:999px){ .mk-vcards .mk-vch{gap:8px} .mk-vcards .mk-vhd .mk-vn{white-space:nowrap} .mk-vcards .mk-whob{min-width:46px;padding:0 10px} }   /* [AI_PILL] 390 에서 단추가 나와도 제목(«시작 10분 전»)이 두 줄로 꺾이지 않게 — 실측 제목 칸 86 → 108 */
+@media (max-width:999px){ .mk-vcards .mk-vch{gap:8px} .mk-vcards .mk-vhd .mk-vn{white-space:nowrap} .mk-vcards .mk-whob{min-width:46px;padding:0 10px} }
+@media (max-width:999px){ .mk-vcards .mk-vhd .mk-extag{display:block;width:max-content;max-width:100%;margin:4px 0 0} }   /* ★[EXTAG_OWN_LINE 2026-10-06 식순 점검] 제목 줄이 안 꺾이는(nowrap) 폰 폭에서 «예시 글 · 고쳐 써도 돼요» 표가 제목 줄에 붙어 «목소리 만들기» 단추 밑으로 들어갔다(390 실렌더) — 폰에선 제목 아래 제 줄 · PC 는 그대로 옆 */   /* [AI_PILL] 390 에서 단추가 나와도 제목(«시작 10분 전»)이 두 줄로 꺾이지 않게 — 실측 제목 칸 86 → 108 */
 .mk-keep{display:inline-flex;align-items:center;gap:4px;align-self:flex-start;min-height:44px;margin:-12px 0 -14px;padding:0;font-size:12.5px;color:var(--light);text-decoration:underline;text-underline-offset:3px}
 .mk-keep.on{color:var(--gold-deeper);text-decoration:none;font-weight:600} .mk-keep .mk-mk{display:inline-flex}
 .mk-aip.keep{cursor:pointer} .mk-aip.kept{background:rgba(184,154,117,.16)} .mk-aip.kept>span{display:inline-flex;align-items:center;gap:3px} .mk-aip.kept .mk-mk{display:inline-flex}   /* [KEEP_IN_PILL] 확정됨 = 옅은 금빛 바탕 */
