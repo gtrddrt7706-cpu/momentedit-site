@@ -14675,5 +14675,27 @@ chk 'data-fk="mkredo"' order-preview.html 1
 chk 'VS_READY_SHORT' order-preview.html 3
 chk 'REDO_FIG' scripts/audit/redo-fig.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/redo-fig.mjs >/dev/null 2>&1; _rdf=$?; if [ "$_rdf" = 1 ]; then echo 'FAIL redo-fig: «다시 녹음» 자세히 보기 창 · 안내 목소리 창 짧은 확인이 어긋났습니다 — node scripts/audit/redo-fig.mjs'; fail=1; else echo "ok redo-fig ($_rdf)"; fi; fi
+# ★[NO_SPELL_LINE 2026-10-06 사장님 «글씨 밑에 빨간 줄은 안 나오게»] 브라우저 맞춤법 밑줄 — <html spellcheck="false"> 하나로 모든 입력칸이 물려받는다(NO_CARET_ALL 과 같은 19쪽)
+#   (chk 는 한 줄에 하나 — 반복문 안 chk 는 GATE_RAN 대조가 어긋난다)
+chk '<html[^>]*spellcheck="false"' admin.html 1
+chk '<html[^>]*spellcheck="false"' cancel.html 1
+chk '<html[^>]*spellcheck="false"' console.html 1
+chk '<html[^>]*spellcheck="false"' form.html 1
+chk '<html[^>]*spellcheck="false"' guide.html 1
+chk '<html[^>]*spellcheck="false"' index.html 1
+chk '<html[^>]*spellcheck="false"' inquiry.html 1
+chk '<html[^>]*spellcheck="false"' invitation-gallery.html 1
+chk '<html[^>]*spellcheck="false"' live.html 1
+chk '<html[^>]*spellcheck="false"' mypage.html 1
+chk '<html[^>]*spellcheck="false"' order-preview.html 1
+chk '<html[^>]*spellcheck="false"' parents.html 1
+chk '<html[^>]*spellcheck="false"' preview.html 1
+chk '<html[^>]*spellcheck="false"' privacy.html 1
+chk '<html[^>]*spellcheck="false"' schedule.html 1
+chk '<html[^>]*spellcheck="false"' seat.html 1
+chk '<html[^>]*spellcheck="false"' contract/fitting.html 1
+chk '<html[^>]*spellcheck="false"' contract/snap-v1-0.html 1
+chk '<html[^>]*spellcheck="false"' contract/v1-1.html 1
+nochk 'spellcheck="true"' order-preview.html
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
