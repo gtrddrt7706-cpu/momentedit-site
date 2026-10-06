@@ -14669,6 +14669,41 @@ chk "_exCards('guestnar'," order-preview.html 1
 chk 'GUEST_EX_TONE' scripts/audit/voice-register.mjs 1   # [GUEST_EX_TONE 2026-10-06 사장님 «그대로 쓰기»] 하객 맞이 예시는 두 분이 고르는 말투 · 한 예시 안 네 줄은 한 층
 chk 'BOSS_STYLE' CLAUDE.md 1   # [BOSS_STYLE 2026-10-06] 사장님 작업 방식 취합본 — 지우지 말 것
 # ★★[BOSS_WAY_1006 2026-10-06 사장님 확정] 사장님이 추구하는 작업 방식 — CLAUDE.md 맨 위 절(지우지 말 것)
+# ★[REDO_FIG · VS_READY_SHORT 2026-10-06 사장님] «다시 녹음» 안내 → «자세히 보기» 작은 창(세 걸음 + 줄 그림) · 안내 목소리 창에서 두 분 목소리가 다 있으면 사람 카드 없이 «정했어요» 한 줄
+chk 'REDO_FIG' order-preview.html 3
+chk 'data-fk="mkredo"' order-preview.html 1
+chk 'VS_READY_SHORT' order-preview.html 3
+chk 'REDO_FIG' scripts/audit/redo-fig.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/redo-fig.mjs >/dev/null 2>&1; _rdf=$?; if [ "$_rdf" = 1 ]; then echo 'FAIL redo-fig: «다시 녹음» 자세히 보기 창 · 안내 목소리 창 짧은 확인이 어긋났습니다 — node scripts/audit/redo-fig.mjs'; fail=1; else echo "ok redo-fig ($_rdf)"; fi; fi
+# ★[NO_SPELL_LINE 2026-10-06 사장님 «글씨 밑에 빨간 줄은 안 나오게»] 브라우저 맞춤법 밑줄 — <html spellcheck="false"> 하나로 모든 입력칸이 물려받는다(NO_CARET_ALL 과 같은 19쪽)
+#   (chk 는 한 줄에 하나 — 반복문 안 chk 는 GATE_RAN 대조가 어긋난다)
+chk '<html[^>]*spellcheck="false"' admin.html 1
+chk '<html[^>]*spellcheck="false"' cancel.html 1
+chk '<html[^>]*spellcheck="false"' console.html 1
+chk '<html[^>]*spellcheck="false"' form.html 1
+chk '<html[^>]*spellcheck="false"' guide.html 1
+chk '<html[^>]*spellcheck="false"' index.html 1
+chk '<html[^>]*spellcheck="false"' inquiry.html 1
+chk '<html[^>]*spellcheck="false"' invitation-gallery.html 1
+chk '<html[^>]*spellcheck="false"' live.html 1
+chk '<html[^>]*spellcheck="false"' mypage.html 1
+chk '<html[^>]*spellcheck="false"' order-preview.html 1
+chk '<html[^>]*spellcheck="false"' parents.html 1
+chk '<html[^>]*spellcheck="false"' preview.html 1
+chk '<html[^>]*spellcheck="false"' privacy.html 1
+chk '<html[^>]*spellcheck="false"' schedule.html 1
+chk '<html[^>]*spellcheck="false"' seat.html 1
+chk '<html[^>]*spellcheck="false"' contract/fitting.html 1
+chk '<html[^>]*spellcheck="false"' contract/snap-v1-0.html 1
+chk '<html[^>]*spellcheck="false"' contract/v1-1.html 1
+nochk 'spellcheck="true"' order-preview.html
+# ★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 · 처음 하객 맞이만 펼치고 이후는 접기» → «추천대로»] 확정 안내 네 줄(목소리 → 예시 → 확정 → 그대로·풀기) · 첫 AI 순간만 펼침
+chk 'KEEP_ORDER' order-preview.html 2
+chk '<li>두 분 목소리를 만들면 아래 글이 그 목소리로 채워져요</li>' order-preview.html 1
+chk '확정 안내 보기' order-preview.html 1
+nochk '<li>다시 고치고 싶으면 확정됨을 한 번 더 눌러 풀어요</li>' order-preview.html
+chk 'KEEP_ORDER' scripts/audit/keep-order.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/keep-order.mjs >/dev/null 2>&1; _kor=$?; if [ "$_kor" = 1 ]; then echo 'FAIL keep-order: 확정 안내 순서 · 접힘이 어긋났습니다 — node scripts/audit/keep-order.mjs'; fail=1; else echo "ok keep-order ($_kor)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
 # ★[VU_LAYOUT · VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어 · 빈칸이 많아 비어 보인다» → «추천대로»] 나오는 곳 창 = 칩 → 들어 보기 → 글(글 길이만큼) · 하객 맞이도 예시 1~4
