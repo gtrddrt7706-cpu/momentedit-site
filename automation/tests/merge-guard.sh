@@ -14718,11 +14718,11 @@ chk 'EX_FOCUS_CARD' order-preview.html 1
 chk 'VP_UNPICKED_ALL' order-preview.html 3
 chk 'VP_UNPICKED_ALL' scripts/audit/ex-prebake.mjs 1
 nochk "if(_vsCur()!=='ai'){ VS.inPick=true; try{ VS_KEYS.forEach(function(k){ _lSet(k,'ai'); });" order-preview.html
-if command -v node >/dev/null 2>&1; then node scripts/audit/ex-prebake.mjs >/dev/null 2>&1; _exp=$?; [ "$_exp" = 1 ] && { echo 'FAIL ex-prebake: 예시 소리 · 처음 글로 · 예시 포커스 · 목소리 미리 고르기가 어긋났습니다 — node scripts/audit/ex-prebake.mjs'; fail=1; }; [ "$_exp" = 0 ] && echo 'OK   ex-prebake'; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-prebake.mjs >/dev/null 2>&1; _exb=$?; [ "$_exb" = 1 ] && { echo 'FAIL ex-prebake: 예시 소리 · 처음 글로 · 예시 포커스 · 목소리 미리 고르기가 어긋났습니다 — node scripts/audit/ex-prebake.mjs'; fail=1; }; if [ "$_exb" = 0 ]; then echo 'OK   ex-prebake'; fi; fi   # ★[TAIL_RC 2026-10-06] «[ … = 0 ] && echo»를 끝에 두면 브라우저 없는 CI(종료 2)에서 그 줄이 1 을 남기고, 맨 끝 줄이면 게이트 종료 코드가 1 이 된다(ALL MARKERS OK 인데 빨강) — if 로 쓴다
 # ★[STAGE_LINES 2026-10-06 사장님 «성혼 선언을 한 것인가? 의문» · «대사 이후에 액션을 하는데 화면에 그 내용이 없으니 헷갈려»] 나레이션 두 줄 사이엔 하는 일 줄 · 줄 이름은 «언제» · 선언 줄은 «성혼 선언문»
 chk 'STAGE_LINES' order-preview.html 7
 chk 'STAGE_LINES' assets/ritual-open.js 2
 chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
 chk "var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면'" order-preview.html 1
 nochk "one: '두 분이 부부가 되었음을 알려요.'" assets/ritual-open.js
-if command -v node >/dev/null 2>&1; then node scripts/audit/stage-lines.mjs >/dev/null 2>&1; _stl=$?; [ "$_stl" = 1 ] && { echo 'FAIL stage-lines: 식순 줄 사이 하는 일 줄 · 줄 이름(언제) · 성혼 선언문이 어긋났습니다 — node scripts/audit/stage-lines.mjs'; fail=1; }; [ "$_stl" = 0 ] && echo 'OK   stage-lines'; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/stage-lines.mjs >/dev/null 2>&1; _stl=$?; [ "$_stl" = 1 ] && { echo 'FAIL stage-lines: 식순 줄 사이 하는 일 줄 · 줄 이름(언제) · 성혼 선언문이 어긋났습니다 — node scripts/audit/stage-lines.mjs'; fail=1; }; if [ "$_stl" = 0 ]; then echo 'OK   stage-lines'; fi; fi   # [TAIL_RC]
