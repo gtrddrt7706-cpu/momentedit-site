@@ -20,7 +20,7 @@ try {
     await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
     await pg.addInitScript(() => { const o = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { window.__src = this.getAttribute('src') || this.src || ''; (window.__srcs = window.__srcs || []).push(window.__src); return Promise.resolve(); }; });
     await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(800);
-    const setUp = async (delay) => pg.evaluate((d) => { courseStarted = true; S.on = S.on || {}; ['entry', 'vow'].forEach((k) => { S.on[k] = 1; }); S.entryVoice = 'couple'; S.up = S.up || {}; S.up.entry = { n: '녹음', id: 'f-entry-1', src: 'rec' };
+    const setUp = async (delay) => pg.evaluate((d) => { courseStarted = true; S.on = S.on || {}; ['entry', 'vow'].forEach((k) => { S.on[k] = 1; }); S.entryVoice = 'couple'; S.touched = Object.assign({}, S.touched, { entryVoice: 1 });   /* [VP_ASK_FIRST] 고른 판 */ S.up = S.up || {}; S.up.entry = { n: '녹음', id: 'f-entry-1', src: 'rec' };
       for (const k in RF_URL) delete RF_URL[k]; for (const k in RF_LOAD) delete RF_LOAD[k];
       _rfGet = (id) => new Promise((ok) => { if (d < 0) { ok(null); return; } setTimeout(() => ok(new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/wav' })), d); });
       for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }, delay);

@@ -14514,3 +14514,12 @@ chk 'CF_FIX_FIT' order-preview.html 1
 chk '.cf-fix{flex:0 0 auto;align-self:center;justify-self:end;width:max-content;' order-preview.html 1
 chk 'EXTAG_OWN_LINE' order-preview.html 1
 :
+# ★[VP_ASK_FIRST · STALE_BY_PILL · CHIP_W_FIX · PR_MODE_ONE_LINE 2026-10-06 사장님] 안 고른 안내 목소리 = «먼저 골라 주세요» · «글을 고쳤어요»는 목소리 만들기 왼쪽 · 칩 눌러도 줄 수 고정 · 연습 방법 설명 한 줄
+chk 'VP_ASK_FIRST' order-preview.html 2
+chk 'STALE_BY_PILL' order-preview.html 2
+chk 'CHIP_W_FIX' order-preview.html 2
+chk 'PR_MODE_ONE_LINE' order-preview.html 1
+chk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html 1
+chk 'VP_ASK_FIRST' scripts/audit/vp-ask-first.mjs 1
+chk 'STALE_BY_PILL' scripts/audit/pv-intro.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; [ "$_vpa" = 1 ] && { echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; }; fi
