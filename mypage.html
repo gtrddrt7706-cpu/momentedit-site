@@ -6720,10 +6720,10 @@ function _bouquetFold(base){
   if(!BOUQUET_FLORISTS.length) return '';
   var t=String((base&&base.weddingTime)||'').slice(0,5), m=t.match(/^(\d{2}):(\d{2})$/), when='';
   if(m){ var a=(+m[1])*60+(+m[2])-60-10; if(/^(09:00|12:20|15:40)$/.test(t)) a+=60; when=String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0'); }   // 슬롯 ID(도착+60) · 계약 슬롯(도착) 둘 다
-  return '<details class="rit-prep"><summary>부케 · 협력 플로리스트</summary>'
+  return '<details class="rit-prep"><summary>생화 부케 · 협력 플로리스트</summary>'
     +'<ul>'+BOUQUET_FLORISTS.map(function(f){ var u=safeUrl?safeUrl(f.url):''; return '<li>'+(u?'<a href="'+escapeHtml(u)+'" target="_blank" rel="noopener">'+escapeHtml(f.n)+'</a>':escapeHtml(f.n))+(f.note?' <span class="due">· '+escapeHtml(f.note)+'</span>':'')+'</li>'; }).join('')+'</ul>'
     +'<h4>받는 시각 · 장소</h4><ul><li>예식 당일 '+(when?escapeHtml(when)+'까지':'두 분 도착 10분 전까지')+' · 스튜디오로 보내 주세요 <span class="due">· 퀵이나 직접 가져오기 모두 괜찮아요</span></li>'
-    +'<li>주문 · 결제는 플로리스트와 직접 하시면 돼요</li><li>부케 없이 오시거나 따로 준비하셔도 괜찮아요</li></ul></details>';
+    +'<li>주문 · 결제는 플로리스트와 직접 하시면 돼요</li><li>기본 조화 부케는 저희가 준비해요 · 생화를 원하실 때만 보세요</li></ul></details>';   // [GOODS_STUDIO]
 }
 var PREP_FOLD_OFF=true;   // [PREP_FOLD_OFF] 사장님 «일단 여기서는 안 보이게» — 2026-10-05 · 줄 아래 요약은 끈 채 «준비할 것» 글 단추로 연다([PREP_LINK])
 /* ★★[PREP_LINK 2026-10-05 사장님 «미리듣기랑 준비할 것 이런 식으로 해서 클릭하면 볼 수 있게» → «추천대로»] 식순 줄 오른쪽 «미리듣기 · 준비할 것»(같은 작은 글 단추) —
@@ -6742,17 +6742,20 @@ function _ritPrepFold(rd, base, dd, asLink){
     if(n!==3&&n!==7) n=/(3일 전|사흘 전)/.test(String(q.what||''))?3:7;
     if(!wm) return '예식 '+n+'일 전까지'; var d=new Date(+wm[1],+wm[2]-1,+wm[3]-n); return (d.getMonth()+1)+'월 '+d.getDate()+'일까지(예식 '+n+'일 전)'; }
   var two=[], par=[];
-  (sm.prep||[]).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
+  /* ★[GOODS_STUDIO 2026-10-06 사장님] 케이크 · 꽃 · 부케는 늘 저희가 준비 — 옛 초안이 «챙길 것»에 남긴 케이크 · 꽃 줄은 건너뛰고 «저희가 준비해요»로 옮긴다 */
+  var _oldGoods=/^(케이크|부모님께 드릴 꽃) · 크기 · 도착 시각/;
+  (sm.prep||[]).filter(function(q){ return !_oldGoods.test(String((q&&q.what)||'')); }).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
   var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
   /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 맡긴 케이크 · 꽃 — 직접 준비분은 이미 prep(챙길 것)에 있다 */
-  var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.by==='studio'; }).map(function(g){ return String(g.what||''); });
-  var n=two.length+par.length+hp.length+stu.length; if(!n) return '';
+  var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.what; }).map(function(g){ return String(g.what||''); });   // [GOODS_STUDIO] 옛 «직접 준비»도 이제 저희가
+  var _bq=Array.isArray(sm.prep);   // [GOODS_STUDIO] 기본 조화 부케 줄 — 준비 목록이 있는 초안에만(옛 초안은 아무것도 안 그린다)
+  var n=two.length+par.length+hp.length+stu.length+(_bq?1:0); if(!n) return '';
   var _opt=(sm.prep||[]).filter(function(q){ return q&&q.who!=='parents'&&/비워 두셔도 돼요/.test(String(q.note||'')); }).length;   /* [R4-06] 선택 항목(부모님께 드릴 말 · 빌더 RitualOpen.prepOpt)은 목록엔 두고 셈에서 뺀다 — 빌더 ① · ④ 와 같은 셈 */
   var _np=two.length-_opt+par.length+stu.length, _sum=[(_np?'준비할 것 '+_np+'가지':''),(hp.length?'도와주실 분 '+hp.length:'')].filter(Boolean).join(' · ');   // ★[PREP_COUNT_SPLIT 코워크 추가 점검 P3] «준비할 것 · 도와주실 분 9가지»는 사람까지 «가지»로 셌다
   return (asLink?'<div class="rit-prep rit-prep-link" id="mp_ritPrepBox" role="region" aria-label="식순 준비할 것"'+(_ritPrepOpen?'':' hidden')+'><p class="rit-prep-sum">'+_sum+'</p>':'<details class="rit-prep"><summary>'+_sum+'</summary>')   /* [DETAIL_0925 B2] 이름 한 쌍 — 빌더 ① · ② · ③ 과 같게 · [PREP_LINK] 글 단추로 여는 판은 div */
     +(two.length?'<h4>두 분이 준비할 것</h4><ul>'+two.join('')+'</ul>':'')
     +(par.length?'<h4>부모님께 부탁드릴 것</h4><ul>'+par.join('')+'</ul>':'')
-    +(stu.length?'<h4>저희가 준비해요</h4><ul>'+stu.map(function(w){ return '<li>'+escapeHtml(w)+' <span class="due">· 별도 비용 · 금액은 상담 때 안내해 드려요</span></li>'; }).join('')+'</ul>':'')
+    +((stu.length||_bq)?'<h4>저희가 준비해요</h4><ul>'+(stu.length?'<li>'+escapeHtml(stu.join(' · '))+' <span class="due">· 별도 비용이에요</span></li>':'')+(_bq?'<li>기본 조화 부케 <span class="due">· 생화를 원하시면 별도 비용이에요</span></li>':'')+'</ul>':'')   /* [GOODS_STUDIO] «금액은 상담 때» 금지 — 식순은 상담 뒤 · 빌더 ③ 과 같은 두 줄 */
     +(hp.length?'<h4>도와주실 분</h4><ul>'+hp.map(function(x){ return '<li>'+escapeHtml(String(x[0]))+' <span class="due">· '+escapeHtml(String(x[1]))+'</span></li>'; }).join('')+'</ul>':'')
     +(asLink?'</div>':'</details>');
 }
@@ -8629,9 +8632,9 @@ function photoSceneList(rd){
   var on=PHOTO_SCENE.filter(function(x){ return flow.indexOf(x.n)>-1; });
   /* [SCENE_BY_PICK] 판에 따라 장면을 고른다 — 신랑 큰절이면 절하고 일어나는 얼굴까지 · 준비한 순서는 무엇을에 따라 */
   var St=(rd||{}).S||{};
-  var FREE_SCENE={video:'함께 보며 웃는 하객들',stage:'무대를 보며 웃는 두 분',dance:'무대를 보며 웃는 두 분',show:'무대를 보며 웃는 두 분',gift:'선물을 건네받는 두 분',hand:'선물을 건네받는 두 분',speech:'말하는 분을 보며 웃는 두 분'};
+  var FREE_SCENE={video:'함께 보며 웃는 하객들',etc:'두 분이 준비한 순간',   /* [FREE_ETC 2026-10-06] 기타 */ stage:'무대를 보며 웃는 두 분',dance:'무대를 보며 웃는 두 분',show:'무대를 보며 웃는 두 분',gift:'선물을 건네받는 두 분',hand:'선물을 건네받는 두 분',speech:'말하는 분을 보며 웃는 두 분'};
   on=on.map(function(x){
-    if(x.n==='부모님께 인사' && St.tribute==='bowGroom') return {n:x.n, s:'꽃을 건네고 안기는 순간 · 절하고 일어나 마주 보는 얼굴'};
+    /* ★[GROOM_BOW_TIP 2026-10-06] 신랑 큰절 판은 걷었다 — 옛 초안의 bowGroom 도 꽃과 포옹 장면 그대로 */
     if(x.n==='준비한 순서' && FREE_SCENE[St.freeWhat]) return {n:x.n, s:FREE_SCENE[St.freeWhat]};
     return x;
   });

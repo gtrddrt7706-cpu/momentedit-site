@@ -9243,7 +9243,7 @@ chk 'PREP_DUE' assets/ritual-open.js 3   # 마감은 항목 데이터(3 · 7 · 
 nochk "due: /3일 전/.test" assets/ritual-open.js
 chk 'PREP_DUE' mypage.html 1   # 마이페이지 준비 칸도 같은 말(당일 · 마감 없음)
 chk 'STUDIO_PREP' assets/ritual-open.js 1   # (역사) 스튜디오 준비 → [GOODS_CHOICE] 로 바뀌었다(사장님 9/25 밤 «고르게 · 부탁은 별도»)
-chk 'GOODS_CHOICE' assets/ritual-open.js 3
+chk 'GOODS_CHOICE' assets/ritual-open.js 2   # [GOODS_STUDIO 2026-10-06] 고르기 판은 걷었다 · 역사 표식만
 chk 'GOODS_CHOICE' mypage.html 1
 chk 'GOODS_CHOICE' admin.html 1
 # [PICK_V2 3-1 · 사장님 말씀 1 · 2026-09-26] ① 머리에서 비용 줄을 뺐다 — 케이크 · 꽃 비용은 ② «케이크 준비 · 꽃 준비» · ③ «저희가 준비해요 · 별도 비용»에 [GOODS_CHOICE]
@@ -12000,8 +12000,8 @@ nochk '미완료로 두고 넘어갈게요' order-preview.html
 nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
 chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-open.js 1
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
-chk "L('tribute','말의 길이'" order-preview.html 1
-chk "'인사 방식'" order-preview.html 1
+chk "L('tribute','인사 말'" order-preview.html 1   # [TRIB_ONE_SAY 2026-10-06] 한마디씩 · 1분쯤씩 → 하나로(«말로 인사»)
+nochk "'인사 방식'" order-preview.html   # [GROOM_BOW_TIP 2026-10-06] 인사 방식(꽃 · 신랑 큰절) 칩은 걷었다 — 큰절은 팁 한 줄
 chk "\[\['고르기','예시에서 시작해 순간을 더하고 빼요.'\]" order-preview.html 1   # [E3] → [INTRO_JOURNEY 2026-09-27] 안내 화면 네 걸음 첫 줄
 chk "sub:'작은 예식은 보통 이런 흐름이에요.'}," order-preview.html 1   # [R2-38] 한 문장으로(«예시로 시작»은 아래 섹션 제목이 말한다)
 nochk '_pickVids' order-preview.html   # ① 카드 자동 재생 영상은 거뒀다 — 칸은 첫 장면 사진만(최종판 3-5 · 사장님 확인)
@@ -14540,6 +14540,35 @@ chk 'REF_ROW4' order-preview.html 3
 chk "var ENTRY_KEYS=\['A','B','D','E'\];" order-preview.html 1
 nochk 'class="mk-rc mk-rpar"' order-preview.html
 chk 'REF_ROW4' scripts/audit/listen-page.mjs 3
+# ── ★[TRIB_ONE_SAY · GROOM_BOW_TIP · FREE_ETC · GOODS_STUDIO 2026-10-06 사장님] 식순 넷 ──
+#   부모님께 인사: 한마디씩 · 1분쯤씩 → «말로 인사» 하나(값 long · 시간 그대로) · 신랑 큰절은 칩이 아니라 팁 한 줄
+#   준비한 순서: 춤 · 공연 걷음 → «기타»(무엇을 적기 · 길이 1~3분 · 계약서 «3분 안») · 케이크 · 꽃 · 부케 = 저희가 준비(별도 비용)
+#   «상담 때 안내» 금지 — 식순은 상담을 다 마친 뒤 짓는다
+chk 'TRIB_ONE_SAY' assets/ritual-open.js 1
+chk "tribute: \[\['long', '말로 인사'\], \['none', '말 없이'\]\]" assets/ritual-open.js 1
+chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 1
+chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
+nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
+chk 'FREE_ETC' assets/ritual-open.js 2
+chk "\['etc', '기타'\]" assets/ritual-open.js 1
+nochk "\['stage', '춤 · 공연'\]" assets/ritual-open.js
+chk 'FREE_ETC' order-preview.html 2
+chk 'data-fk="freeetc"' order-preview.html 1
+chk 'max="3" data-fk="freelen"' order-preview.html 1
+chk 'GOODS_STUDIO' assets/ritual-open.js 3
+chk 'GOODS_STUDIO' order-preview.html 2
+chk 'GOODS_STUDIO' mypage.html 2
+chk 'GOODS_STUDIO' index.html 2
+chk 'GOODS_STUDIO' api/_kb.js 1
+chk '<li>기본 조화 부케</li>' index.html 1
+nochk "cakeBy: \[\['self', '직접 준비'\]" assets/ritual-open.js
+nochk '저희에게 맡기기(별도 비용)' assets/ritual-open.js
+nochk '크기 · 도착 시각은 상담 때 안내해 드려요' assets/ritual-open.js
+nochk '별도 비용 · 금액은 상담 때 안내해 드려요' mypage.html
+nochk '직접 준비 또는 스튜디오 준비(별도)' index.html
+chk 'ASK_SHORT' order-preview.html 3   # [ASK_SHORT 2026-10-06 사장님 «핵심만 요약해서 안내 깔끔하게»] 다시 만들기 · 모두 비우기 · 코스 바꾸기 창 = 짧은 한두 줄
+nochk '고르기에서 빈 칸으로 다시 시작해요' order-preview.html
+nochk '올려 두신 두 분 목소리 녹음은 그대로 남겨 둬요' order-preview.html
 :
 # ★★[CUE_FORM 2026-10-06 사장님] 두 분이 직접 말하는 순간 — 예시 카드가 곧 글칸 채우기 · 두 분 칸 한 카드 · 왜 적는지 한 줄 · 현장 체크 = 끝 신호(말이나 동작) · 콘솔은 체크한 분 끝 신호 먼저
 chk 'CUE_FORM' order-preview.html 8
