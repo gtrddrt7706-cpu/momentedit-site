@@ -14738,7 +14738,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/wait-box.mjs >/dev/n
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
 # ★[VU_LAYOUT · VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어 · 빈칸이 많아 비어 보인다» → «추천대로»] 나오는 곳 창 = 칩 → 들어 보기 → 글(글 길이만큼) · 하객 맞이도 예시 1~4
-chk 'VU_LAYOUT' order-preview.html 5
+chk 'VU_LAYOUT' order-preview.html 1   # [VU_FLOW_FREE 2026-10-06] 차례가 칩 → 글 → 들어 보기로 바뀌어 옛 주석이 걷혔다
 chk 'VU_GUEST_EX' order-preview.html 1
 nochk 'm.remove(); if(hi) q.style.minHeight=hi' order-preview.html
 # ★[EX_PREBAKE · EX_BASE · EX_FOCUS_CARD · VP_UNPICKED_ALL 2026-10-06 사장님] 예시 소리는 미리 만들어 두고 고르면 바로 · «처음 글로»=고른 예시 · 예시를 눌러도 포커스는 카드(금색 줄 없음) · 목소리 쪽이 세 순간을 미리 고르지 않는다
@@ -14759,3 +14759,10 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/stage-lines.mjs >/de
 # ★[RD_SUM_2LINE 2026-10-06 사장님 «보기 좋게 두 줄로»] 다시 녹음 창 맺는 설명 = 두 문장 두 줄(360 · 390 · 1280 실측 각 한 줄)
 chk 'RD_SUM_2LINE' order-preview.html 2
 chk '<span>다시 녹음한 분의 확정 전 줄만 새 목소리로 바뀌어요.</span><span>마음에 드는 줄은 먼저 확정해 두세요.</span>' order-preview.html 1
+# ★[VU_FLOW_FREE 2026-10-06 사장님 «가장 긴 글 기준으로 창 맞췄는데 이상해 · 창 움직이게 최적화» · «들어 보기를 하단에» · «임시로 들려 드리는 AI 목소리예요 전부 삭제»]
+chk 'VU_FLOW_FREE' order-preview.html 3
+chk 'VU_FLOW_FREE' scripts/audit/vu-ex-listen.mjs 3
+nochk 'mk-vu-tmp">임시로' order-preview.html
+nochk 'mk-vu-tmp' order-preview.html
+nochk 'P.style.minHeight=bh' order-preview.html
+chk "d.classList.toggle('mk-dlg-top',h.indexOf('mk-vu-img')>-1);" order-preview.html 1   # [VU_FLOW_FREE] 나오는 곳 창은 위 고정 — 다음마다 그림이 오르내리지 않게
