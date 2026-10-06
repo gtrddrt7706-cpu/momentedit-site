@@ -1447,6 +1447,13 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 @keyframes prBreath{from{opacity:1}to{opacity:.55}}
 @media (prefers-reduced-motion:reduce){ .pr-prep .pr-bar.run i{animation:none} }
 .pr-prep .pr-ps{margin:6px 0 0;font-size:12.5px;color:var(--sub)}
+.mk-wait{margin:8px 0 16px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--card)}   /* ★[WAIT_BOX 2026-10-06] 기다리는 칸 — 제목 · 움직이는 막대 · 한 줄 */
+.mk-wait-t{margin:0;font-size:14px;font-weight:600;color:var(--accent)}
+.mk-wait-bar{display:block;position:relative;height:4px;margin:10px 0 0;border-radius:2px;background:#E6E1D8;overflow:hidden}
+.mk-wait-bar i{position:absolute;top:0;left:0;width:35%;height:100%;border-radius:2px;background:var(--seal);animation:mkWait 1.2s var(--ease,ease) infinite}
+@keyframes mkWait{from{transform:translateX(-100%)}to{transform:translateX(290%)}}
+@media (prefers-reduced-motion:reduce){ .mk-wait-bar i{animation:none;width:100%;opacity:.45} }
+.mk-wait-s{margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
 .pr-askb{display:flex;flex-wrap:wrap;gap:8px}
 .lf-cue{margin:10px 0 0;font-size:14px;font-weight:500;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
 .lf-tbar{height:3px;margin:10px 0 2px;border-radius:2px;background:var(--border);overflow:hidden}
@@ -4788,7 +4795,7 @@ var VS_ICO='<svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke="curr
 function _vsAnyPicked(){ return _vsMk().some(function(k){ try{ return _lGroups(k).some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked!==false; }); }catch(e){ return true; } }); }
 function _vsPanel(){ var cur=VS.hint||(_vsAnyPicked()?_vsCur():'');   // [VS_CHIP_ONCE] 칩에서 열렸으면 그 칩이 눌린 모양
   if(VS.ph==='ai'){ var h='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';
-    if(!VC.st){ _vcStatus(); return h+'<p class="mk-note" role="status">불러오는 중이에요…</p>'; }
+    if(!VC.st){ _vcStatus(); return h+_vcWaitBox(); }   // [WAIT_BOX]
     /* ★[VS_READY_SHORT 2026-10-06 사장님 «AI 두 분 목소리 누르면 (사람 카드가) 나오잖아 · 여기서 이걸 보여 줄 필요가 있어?»]
        이 창의 역할은 «안내 목소리 정하기»다. 두 분 목소리가 이미 있으면 정한 것으로 끝 — 사람 카드(빠르기 · 쉼 · 들어 보고 맞추기 · 다시 녹음 · 지우기)는
        «두 분 목소리 만들기» 쪽에만 둔다(VOICE_ONCE 와 같은 뜻). 아직 만들 분이 있으면 그때만 카드를 보인다(만들려면 필요하다). */
@@ -4986,7 +4993,12 @@ function _vcErrWord(t){ t=String(t||'');
     .replace(/지금 것을 쓰시거나 직접 녹음해 주세요/,'지금 것을 쓰시거나, 지우면 스튜디오 나레이션으로 나와요')
     .replace(/직접 녹음[^.·]*/,'스튜디오 나레이션으로 진행할 수 있어요'); }
 function _vcName(w){ var n=w==='groom'?((CUST&&CUST.groom)||''):((CUST&&CUST.bride)||''); return n||(w==='groom'?'신랑':'신부'); }
-function _vcStatus(then){ if(!_vcOn()) return; if(then) (VC.then=VC.then||[]).push(then); if(VC.loading) return; VC.loading=true; _vc('status').then(function(d){ VC.loading=false; VC.st=d&&d.ok?d:{groom:{},bride:{}}; VC.stErr=!(d&&d.ok);   /* [SIM_R2] 받기 실패를 «목소리 없음»과 가른다 */ setTimeout(_vcWarmBoth,1500);   /* [ALT_READY] ① 새로 고친 뒤에도 */ if(d&&d.per){ VC.left={}; Object.keys(d.per).forEach(function(k){ VC.left[k]=Math.max(0,5-d.per[k]); }); } render(); var q=VC.then||[]; VC.then=[]; q.forEach(function(f){ f(); }); }); }   // [REC_DLG] 불러오는 중에 온 부탁(만든 뒤 빈 줄 채우기)도 버리지 않고 끝나면 부른다
+/* ★★[WAIT_BOX 2026-10-06 사장님 «불러오는 중 · 직관적이게 · 고객 입장에서 기다리면 되는구나 싶게»] 옅은 글 «불러오는 중이에요…» 한 줄은
+   멈춘 화면인지 기다리는 화면인지 알 수 없었다 → 칸 하나: 무엇을 불러오나(제목) · 움직이는 진사 막대 · «잠깐이면 돼요 · 이 화면에서 기다려 주세요».
+   8초가 넘으면 «조금 오래 걸리고 있어요 · 이 화면을 그대로 두면 이어서 열려요»로 바꿔 «고장인가» 하지 않게. 연습 준비 막대(PT_PREP_SHOW)와 같은 진사 · 같은 굵기 */
+function _waitBox(t,s){ return '<div class="mk-wait" role="status" aria-live="polite"><p class="mk-wait-t">'+esc(t)+'</p><span class="mk-wait-bar" aria-hidden="true"><i></i></span>'+(s?'<p class="mk-wait-s">'+esc(s)+'</p>':'')+'</div>'; }
+function _vcWaitBox(){ var slow=VC.loadT0&&Date.now()-VC.loadT0>8000; return _waitBox('두 분 목소리를 불러오고 있어요',slow?'조금 오래 걸리고 있어요 · 이 화면을 그대로 두면 이어서 열려요':'잠깐이면 돼요 · 이 화면에서 기다려 주세요'); }
+function _vcStatus(then){ if(!_vcOn()) return; if(then) (VC.then=VC.then||[]).push(then); if(VC.loading) return; VC.loading=true; VC.loadT0=Date.now(); setTimeout(function(){ if(VC.loading&&!VC.st) render(); },8100);   /* [WAIT_BOX] 오래 걸리면 한 번 다시 그려 말을 바꾼다 */ _vc('status').then(function(d){ VC.loading=false; VC.st=d&&d.ok?d:{groom:{},bride:{}}; VC.stErr=!(d&&d.ok);   /* [SIM_R2] 받기 실패를 «목소리 없음»과 가른다 */ setTimeout(_vcWarmBoth,1500);   /* [ALT_READY] ① 새로 고친 뒤에도 */ if(d&&d.per){ VC.left={}; Object.keys(d.per).forEach(function(k){ VC.left[k]=Math.max(0,5-d.per[k]); }); } render(); var q=VC.then||[]; VC.then=[]; q.forEach(function(f){ f(); }); }); }   // [REC_DLG] 불러오는 중에 온 부탁(만든 뒤 빈 줄 채우기)도 버리지 않고 끝나면 부른다
 /* ★★[VOICE_CLONE_0928 코워크 0928 8장] AI 로 두 분 목소리 만들기 — 사람마다 따로: 동의(D) → 1분 읽기(E · 글 둘 · 글마다 다시 · 둘째 글 끝에 서버가 뽑은 확인 문장) → 만들기 → 줄 고르기(F · 줄 카드).
    ★AI 는 «그 사람이 읽는 빈 줄»만 채운다 — 녹음 · 올린 파일 줄은 덮지 않는다. 녹음이 있는 줄도 카드의 [AI로 만들기]를 누르면 그 줄만 AI(녹음은 [되돌리기]로 · 예식 전까지 둔다).
    ★문구는 여기 한 곳(VC_TXT)에 모은다 — 최종 문구는 법무 확인 뒤 사장님이 정한다(8-4). 업체 쪽 지우기 시점은 타입캐스트 서면 답을 받은 뒤 «언제 지우나요» 줄에 맞춘다(11장) */
@@ -5146,7 +5158,7 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
     +_vcUseIntro()   /* [VUSE_FLOW] 이해 먼저 → 만들기 */
     +'<p class="mk-one">'+(both?'두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))+'에 이 목소리가 쓰여요':VS_ONE)+'</p>';
   h+='<p class="mk-note mk-vredo">말투가 마음에 들지 않으면 다시 녹음해 새로 만들 수 있어요 · 확정해 둔 줄은 그대로 남아요 <button type="button" class="pk-link" data-fk="mkredo" aria-haspopup="dialog" onclick="mkRedoOpen()">자세히 보기</button></p>';   /* [REDO_FIG 2026-10-06 사장님 «클릭해서 작은 창으로 그림으로 보여 주면서 이해시키면 · 원하면 자세히 보기»] */   /* ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 드는 게 있으면 다시 녹음해도 된다고 여기도 한 번 더»] 순간 쪽 확정 안내(.mk-keepl «확정한 줄은 목소리를 다시 녹음하거나 … 그대로 남아요»)와 같은 뜻 · «언제든»은 쓰지 않는다(다시 만들기 횟수가 있다) */   /* [NOTE_OFF_1003] 칩 아래에서 걷은 설명은 이 쪽 한 줄로만 */
-  if(!st) return h+'<p class="mk-note" role="status">불러오는 중이에요…</p></section>';
+  if(!st) return h+_vcWaitBox()+'</section>';   // [WAIT_BOX]
   var mark=function(r){ return r?'<span class="mk-vpk ok">✓</span>':'<span class="mk-vpk">남음</span>'; };
   /* ★«신랑 남음 · 신부 남음» 진행 줄 금지 — 2026-10-04 사용자 지시로 삭제 [VPROG_OFF] · 각 카드 상태 줄(«목소리 생성 · 날짜» / «아직 만들지 않았어요»)이 같은 말을 한다 */
   if(!both) h+='<div class="mk-vsg">'+VS_ICO+'<ol><li>조용한 방에서</li><li>휴대폰은 입에서 한 뼘</li><li>평소 말하듯 천천히</li></ol></div>';   /* 창(_vsPanel)과 같은 길잡이 */
@@ -5653,7 +5665,7 @@ function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; var v=R.voice
    칩은 순간 설명 바로 아래 · 흐름 줄은 그 아래 이어서(줄마다 ▸ 와 목소리 표가 이미 «흐름»임을 말한다). 고를 것이 없는 쪽의 «이 순간 들어 보기»만 흐름 위 오른쪽에.
    참고 예시 · 두 분이 할 말 · 부탁은 할 일이 다른 칸이라 제목을 남긴다. 되살리지 말 것 */
 function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r">'+btn+'</div>':'';
-  if(!ENG) return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+'<p class="ls-note">불러오는 중이에요…</p></section>';
+  if(!ENG) return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+_waitBox('흐름을 불러오고 있어요','잠깐이면 돼요 · 이 화면에서 기다려 주세요')+'</section>';   // [WAIT_BOX]
   var st=_lSteps(ENG,[k]), exN=st.filter(function(x){ return x.own&&!x.couple; }).length;
   /* ★★[VP_ONE_LIST 2026-09-28 사장님 «흐름 목록과 줄 카드를 하나로 합치기»] 문이 열린 판에서 두 분 목소리 칸(줄 카드)이 보이면 — 두 분 목소리 줄은 흐름에 다시 적지 않는다.
      듣기(▶)는 줄 카드 머리로 옮겼다(_mkVoice). 나레이션 줄만 흐름에 남고, 남는 것이 없으면 흐름 칸을 통째로 걷는다 */
@@ -6066,7 +6078,7 @@ function _lExp(k,on){
   if(ENG){
     var st=_lSteps(ENG,[k]);
     if(st.length) h+='<div class="ls-flow"><b>이렇게 흘러요</b><ol>'+st.map(function(x){ return '<li class="'+(x.quiet?'quiet':(x.talk||x.skip?'talk':''))+'">'+esc((x.talk||x.skip||x.quiet)?x.txt.replace(/^여기서 /,''):x.lab)+(x.pending&&!LS.allPend?' <span class="ls-new">아직 녹음 전</span>':'')+'</li>'; }).join('')+'</ol></div>';
-  } else h+='<div class="ls-flow"><b>이렇게 흘러요</b><p class="ls-note">불러오는 중이에요…</p></div>';
+  } else h+='<div class="ls-flow"><b>이렇게 흘러요</b>'+_waitBox('흐름을 불러오고 있어요','잠깐이면 돼요 · 이 화면에서 기다려 주세요')+'</div>';   // [WAIT_BOX]
   if(k==='tribute'&&on&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';   // [DETAIL_0925 B16]
   if(on || k==='guest'){
     var gs=_lGroups(k);
