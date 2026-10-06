@@ -4629,7 +4629,8 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
     if(st.ok&&((S.up||{})[q.up]||{}).src==='ai') st=Object.assign({},st,{t:'',ok:0});   /* [SIM_R3] 목소리 상태를 받기 전에도(aiLn 거짓) 숨긴다 */   /* ★«✓ AI로 만들었어요 · 지우기» 줄 금지 — 2026-10-04 사용자 지시로 삭제 [AI_DONE_QUIET] · 다 된 줄은 ▶ 로 듣는다 · 상태 줄은 손볼 것(글 · 읽는 분이 바뀜)이 있을 때만 · 한 순간을 나레이션으로 돌리려면 위 «스튜디오 나레이션» 칩 */
     /* ★[STALE_BY_PILL 2026-10-06 사장님 «글을 고치면 '글을 고쳤어요'가 나오면서 목소리 만들기 단추로 바뀌잖아 · 그럼 '글을 고쳤어요'는 목소리 만들기 좌측에»]
        손볼 것(글을 고쳤어요 · 읽는 분이 바뀌었어요 · 멘트를 바꿨어요)이 머리 단추를 켰으면 그 말은 제목 아래가 아니라 단추 바로 왼쪽 — 까닭과 할 일이 한자리에 읽힌다 */
-    var stSide=!!(aiLn&&(!pv||t)&&st.t&&st.file&&!st.busy&&!st.ok&&_aiMode(q.up)), stT=stSide?'':st.t, mLn=q.up==='entry'&&!ed?_recWho('entry')+' 읽어요':'';
+    var nv=ai&&!own(q.up)&&_vcOn()&&!MK_UP[q.up]&&_staleNoVoice(q.up)&&!!st.t;   /* [STALE_NOVOICE] 글이 바뀌었는데 목소리가 없다 — 까닭 + «목소리 만들기»(두 분 목소리 쪽으로) */
+    var stSide=!!(aiLn&&(!pv||t)&&st.t&&st.file&&!st.busy&&!st.ok&&_aiMode(q.up))||nv, stT=stSide?'':st.t, mLn=q.up==='entry'&&!ed?_recWho('entry')+' 읽어요':'';
     var aiF=!!st.file&&((S.up||{})[q.up]||{}).src==='ai';   /* [TEXT_PLAY_MAKE] 고친 줄도 ▶ 가 그 줄을 만들고 튼다(종전엔 고친 줄 ▶ = 예시 목소리) */   /* ★[AI_CARD_TIDY 2026-10-02 사장님 결정(R1-26)] AI 로 만든 줄은 머리 ▶ 가 그 파일을 튼다 — «들어 보기» 단추는 걷었다(같은 소리를 두 곳에서) */
     h+='<li class="mk-vr mk-vc'+(st.ok?' ok':'')+'"><div class="mk-vch">'+(aiF?'<button type="button" class="mk-pl mk-vpl'+(MK.audKey===q.up?' on':'')+'" data-fk="mkvpl:'+q.up+'" aria-label="'+esc(lab+(st.busy?' 만드는 중':MK.audKey===q.up?' 멈추기':' 듣기'))+'"'+' aria-pressed="'+(MK.audKey===q.up)+'"'+''+(st.busy?' disabled aria-busy="true"':'')+' onclick="mkUpPlay(\''+q.up+'\')">'+(MK.audKey===q.up?ICO_STOP:ICO_PLAY)+'</button>':pix[q.up]!=null?(function(){ var mk=(pixK[q.up]||k)+':'+pix[q.up], on=_mlOn(mk); return '<button type="button" class="mk-pl mk-vpl'+(on?' on':'')+'" data-fk="mkvpl:'+q.up+'" data-ml="'+mk+'" aria-pressed="'+on+'" aria-label="'+esc(lab+(on?' 멈추기':' 듣기'))+'" onclick="mkLine(\''+(pixK[q.up]||k)+'\','+pix[q.up]+')">'+(on?ICO_STOP:ICO_PLAY)+'</button>'; })():'')
       /* ★줄 카드 머리의 «약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 [LINE_NO_SEC 2026-10-03 사장님] · 나머지 덧말은 그대로 · 덧말도 상태도 없으면 줄을 그리지 않는다(순간 길이 LEN_ONE 은 그대로) */
@@ -4637,6 +4638,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
       +(stT?'<span class="mk-vst"'+(st.busy?' role="status"':'')+'>'+(st.ok?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stT)+'</span>':'')   /* [AI_DONE_QUIET] 줄마다 «지우기» 걷었다 */+((mLn||stT)?'</span>':'')+'</span>'
       +(stSide?'<span class="mk-vst mk-vst-side" role="status">'+esc(st.t)+'</span>':'')   /* [STALE_BY_PILL] */   /* [KEEP_IN_PILL] 제목 아래 «확정하기» 걷음 · 머리 단추 자리로 */
       +(aiLn&&(!pv||t)?_aiPill(q.up,lab):'')   /* [AI_PILL] 신랑 | 신부 바로 왼쪽 */
+      +(nv?'<button type="button" class="mk-aip on" data-fk="mkvgo:'+q.up+'" aria-label="'+esc(lab+' · 두 분 목소리 만들러 가기')+'" onclick="mkGo(\'_voice\')"><i class="mk-aif" aria-hidden="true"></i><span>목소리 만들기</span></button>':'')   /* [STALE_NOVOICE] */
       +((gi>-1&&!ed)?'<span class="mk-whog" role="radiogroup" aria-label="'+esc(lab+' · 누가 읽나요')+'">'+[['g','신랑'],['b','신부']].map(function(o){ var on=rd===o[0]; return '<button type="button" class="mk-whob'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkwho:'+(pv?'pv':gi)+':'+o[0]+'" onclick="'+(pv?'mkPvWho(\''+o[0]+'\')':'mkGuestWho('+gi+',\''+o[0]+'\')')+'">'+o[1]+'</button>'; }).join('')+'</span>':'')   // [GUEST_WHO] · [PV_INTRO]
       +'</div>'
       +(q.up==='g0'&&S.g0Moved&&_vtEdit('g0')===G0_OLD?'<p class="mk-note">기본 글이 바뀌었어요 · 새 글로 만들려면 «처음 글로»를 누른 뒤 다시 만들어 주세요</p>':'')   /* [R8-20 G0_MOVED_NOTE] 옛 기본 글(안내 페이지 전제)로 만든 줄 */
@@ -5519,8 +5521,25 @@ function _rfData(d){ if(d&&!d.ok&&d.id) delete RF_LOAD[d.id];   /* [PLAY_WAIT_FI
 /* ★[TEMPO_BAKE · TEXT_PLAY_MAKE 2026-10-04 사장님 «AI 문장을 고친 뒤 다시 들으려면?» → «글을 고치고 ▶ 를 누르면 돼요»] ▶ = 고친 글 · 바뀐 사람 · 바뀐 쉼이면 그 줄만 먼저 만들고 튼다(«만드는 중…»).
    빠르기만 다르면 만들지 않고 재생 속도로 들려준다([TEMPO_PREVIEW]) · 글을 칠 때마다 만들지 않는다(돈이 든다) */
 /* ★[PLAY_TOGGLE 2026-10-04 사장님 «플레이 누르면 정지 버튼으로 바뀌고, 누르면 정지, 다시 플레이 누르면 처음부터»] 줄 카드 머리 ▶ = 틀기 · ■ = 멈추기(이어 듣기 없음 · 다시 ▶ 는 처음부터) */
+/* ★★[STALE_NOVOICE 2026-10-06 사장님 «예시 2번인데 플레이 누르면 예시 1번으로 읽는 소리가 나고 · 목소리 만들기 또한 없는데 · 다른 곳들도 마찬가지»]
+   AI 로 만든 줄의 글(멘트 · 예시 · 읽는 분)이 바뀌었는데 그 분 AI 목소리가 지금 없으면(지웠거나 아직) — 다시 만들 수가 없어 ▶ 가 옛 파일(바뀌기 전 글)을 틀었고,
+   머리 «목소리 만들기» 단추도 목소리가 있을 때만 그려져 할 일이 안 보였다. 하객 맞이 넷 · 식전 영상 소개 · 입장 인사 모두 같은 길이다.
+   ▶ = 지금 글을 들려준다: 고치지 않은 글이면 같은 글의 스튜디오 나레이션 파일 · 고친 글이면 연습 AI 읽기(그분 목소리가 없으면 스튜디오 목소리 · 저장 안 함).
+   머리 = «멘트를 바꿨어요 · 글을 고쳤어요» + «목소리 만들기»(누르면 두 분 목소리 쪽) */
+function _staleNoVoice(key){ var v=(S.up||{})[key]; return !!(v&&typeof v==='object'&&v.src==='ai'&&_upStale(key)&&!_vcReadyFor(key)&&!(S.vself||{})[key]); }
+function _playNowText(key){ var t=_recNeed(key); if(!t) return; var edited=!!(_vtEdit(key)||(/^(g\d|entry)$/.test(key)&&(S.vlines||{})[_slVk(key)])||key==='pv'), nar=_narSrc(key);
+  var play=function(u){ _stopAud(); _stopMk(); try{ var a=new Audio(); _playLead(a,u,1,function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } }); MK.aud=a; MK.audKey=key; render(); }catch(e){} };
+  if(nar&&!edited){ play(nar); return; }
+  if(_ptOn()){ var w=_vcLineWho(key), role=w==='bride'?'bride':'groom', hk='now|'+role+'|'+t; MK.nowUrl=MK.nowUrl||{}; if(MK.nowUrl[hk]){ play(MK.nowUrl[hk]); return; }
+    MK.toast='들려 드릴 소리를 준비하고 있어요'; render();
+    _vc('practice',{role:role,who:role,text:t,tempo:_tWho(role,key),pause:_pWho(role,key)}).then(function(d){ if(!d||!d.ok||!d.data){ MK.toast=(d&&d.error)||'지금은 들려 드리지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; }
+      var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); MK.nowUrl[hk]=URL.createObjectURL(new Blob([u],{type:d.mime||'audio/mpeg'})); play(MK.nowUrl[hk]); },
+      function(){ MK.toast='지금은 들려 드리지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); }); return; }
+  if(nar){ play(nar); return; }
+  MK.toast='두 분 목소리를 만들면 바뀐 글로 들려 드려요'; render(); }
 window.mkUpPlay=function(key){ if(MK_UP[key]) return;
   if(MK.audKey===key&&MK.aud){ _stopMk(); render(); return; }   // [PLAY_TOGGLE] ■
+  if(_staleNoVoice(key)){ _playNowText(key); return; }   // [STALE_NOVOICE] 옛 소리(바뀌기 전 글)를 틀지 않는다
   if(_vtNeed(key)){ _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)})   /* [PLAY_FRESH] 빠르기까지 지금 값으로 만든 뒤 튼다(재생 속도 흉내 대신) */.then(function(){ setTimeout(function(){ mkUpPlay(key); },60); },function(){}); return; }
   var u=_rfUrl(key); if(!u){ MK.toast='불러오는 중이에요 · 잠시 뒤 다시 눌러 주세요'; render(); return; } _stopAud(); _stopMk(); try{ var a=new Audio(); _playLead(a,u,_upRate(key),function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } }); MK.aud=a; MK.audKey=key; render(); }catch(e){} };   // [PLAY_LEAD]   /* [PLAY_TOGGLE] 끝나면 ▶ 로 */
 window.mkUpDel=function(key){ var v=(S.up||{})[key]; if(!v) return; ordAsk({title:'이 줄의 두 분 목소리를 지울까요?',body:'이 줄은 스튜디오 나레이션으로 나와요',yes:'지우기',no:'두기',danger:true}).then(function(ok){ if(ok) _mkUpDelGo(key); }); };   // [REC_DLG] 우리 판
@@ -6091,9 +6110,23 @@ function _lRefKey(k){ var R=RitualOpen;
   return []; }
 function _lRefMatch(rowKey,want){ var a=rowKey.split(':'), b=want.split(':'); if(a.length!==b.length) return false;
   for(var i=0;i<a.length;i++){ if(a[i].split('|').indexOf(b[i])<0) return false; } return true; }
+/* ★★[EX_MINE 2026-10-06 사장님 «이서준 · 정하윤 — 우리 데이터 긁어와서 신랑 · 신부 이름으로 입히면 조금이라도 손이 덜 가겠지» · «다른 곳들도 마찬가지»]
+   참고 예시(표 RITUAL_REF · 모든 자리)의 가상 이름을 두 분 이름으로 바꿔 보여 주고 채운다 — 읽는 곳이 _lRefRows 하나라 카드 · 칸 채우기 · 연습이 다 같이 바뀐다.
+   이서준 → 신랑 이름 · 정하윤 → 신부 이름 · 서준 · 하윤(부르는 이름) → 성을 뺀 이름. 표의 이름은 둘 다 받침이 있어(준 · 윤) 뒤 토씨를 새 이름에 맞춘다:
+   서준아 → 민지야 · 서준이가 → 민지가(받침 없으면 붙임 «이»를 뗀다) · 서준을/은 → 민지를/는 · 서준으로 → 민지로.
+   이름이 한글 2~4자가 아니면(예: 영문 · 빈칸 · 시험 고객) 바꾸지 않는다 — 예시 그대로 · «예시 속 이름» 알림(EX_NAMES)이 종전대로 일한다.
+   부모님 이름(이만수 · 김영자 등)은 우리가 모른다 — 그대로 둔다 */
+function _exNmOk(n){ return /^[가-힣]{2,4}$/.test(n||''); }
+function _exGiven(n){ return n.length===3?n.slice(1):n.length===4?n.slice(2):n; }
+function _exBat(s){ var c=s.charCodeAt(s.length-1)-0xAC00; return c>=0&&c<11172?c%28:0; }   // 0 = 받침 없음 · 8 = ㄹ
+function _exMine(t){ t=String(t||''); var g=String((CUST&&CUST.groom)||'').replace(/\s/g,''), b=String((CUST&&CUST.bride)||'').replace(/\s/g,'');
+  [['이서준','서준',g],['정하윤','하윤',b]].forEach(function(r){ var full=r[2]; if(!_exNmOk(full)) return; var gv=_exGiven(full), j=_exBat(gv);
+    t=t.replace(new RegExp('('+r[0]+'|'+r[1]+')(으로|이(?=[가-힣]|[ ,.!?…])|아(?![가-힣])|을|은)?','g'),function(m,w,p){ var isF=w===r[0], base=isF?full:gv, j=_exBat(base);
+      return base+(p==='으로'?(j&&j!==8?'으로':'로'):p==='이'?(j?'이':isF?'가':''):p==='아'?(j?'아':'야'):p==='을'?(j?'을':'를'):p==='은'?(j?'은':'는'):''); }); });   // 이: 성까지 쓴 이름 뒤면 토씨(이/가) · 부르는 이름 뒤면 붙임(받침 없으면 뗀다)
+  return t; }
 function _lRefRows(want){ var rows=(window.RITUAL_REF&&RITUAL_REF.rows)||[], by={}, order=[];
   rows.forEach(function(r){ if(!_lRefMatch(r.key,want)) return; if(!by[r.n]){ by[r.n]=[]; order.push(r.n); } by[r.n].push(r); });
-  return order.map(function(n){ return by[n].map(function(r){ return {who:r.who,id:r.id,txt:r.text,kyeol:r.kyeol,sit:r.sit||'',piece:r.piece||'',n:r.n,src:null}; }); }); }   // ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 참고 예시는 글로만 — 소리를 붙이지 않는다(대역 목소리 06~14 · 24~26 도 틀지 않는다)
+  return order.map(function(n){ return by[n].map(function(r){ return {who:r.who,id:r.id,txt:_exMine(r.text),kyeol:r.kyeol,sit:r.sit||'',piece:r.piece||'',n:r.n,src:null}; }); }); }   // ★★[CAST_TEXT_ONLY 2026-09-27 사장님] 참고 예시는 글로만 — 소리를 붙이지 않는다(대역 목소리 06~14 · 24~26 도 틀지 않는다)
 /* ★★[REF_BEST4 2026-09-28 사장님 «참고 예시는 4개까지가 적절한 거 같아 · 전부 추려 줘 · 베스트로»] 자리마다 고른 네 벌만 앞에 — 표(TSV · 144줄)는 그대로 두고 화면이 고른다.
    고른 기준: 결이 서로 겹치지 않는 넷(담백 · 장면 하나 · 다정 · 유머+진심이 뼈대) · 같은 결이면 글이 더 구체적인 쪽.
    서약은 «나 ○○○은 …» 격식 판을 남겼다(찾는 분이 많은 틀) · 축배는 짧은 세 줄이 살아 있는 넷 · 편지(서로에게)는 짧게 판을 남겼다(글이 막힐 때의 출구).
@@ -6112,7 +6145,7 @@ function _lRefSets(k){
   return sets; }
 /* [R1-21] 참고 예시 머리말 — 말하는 사람별로. 두 분 순간은 바로 위 흐름(«당일 직접 · 신랑 차례»)이 이미 말하니 «당일엔 …»을 빼고,
    덕담은 «부모님 이야기로», 가족 선언 · 준비하신 분은 «그분 이야기로». 두 분이 쓸 칸이 없는 쪽(축배)은 바꿔 쓰라는 말 없이 */
-function _mkRefHead(k,set){ var day=_lRefDay(k,set), nm='예시 속 이름은 가상 인물이에요';
+function _mkRefHead(k,set){ var day=_lRefDay(k,set), nm=(_exNmOk(String((CUST&&CUST.groom)||'').replace(/\s/g,''))||_exNmOk(String((CUST&&CUST.bride)||'').replace(/\s/g,'')))?'예시에 두 분 이름을 넣어 두었어요':'예시 속 이름은 가상 인물이에요';   /* [EX_MINE] */
   /* [R2-29] «당일엔 …» 앞머리는 모두 뺀다 — 몇 줄 위 차례 줄(«당일 직접 · 부모님 …»)이 이미 말한다 · 쓸 칸이 없는 쪽(축배)은 이름 안내만 */
   if(k==='tribute') return '누르면 아래 칸에 바로 들어가요 · 그대로 말해도 좋고 두 분 이야기로 바꿔도 돼요 · '+nm;   /* [CUE_FORM] */   /* [R5-05] 부모님께 인사 글칸은 선택 · «적어 주세요»라고 하지 않는다 */
   if(day==='당일엔 두 분이 직접 말해요') return _mkKinds(k).length?'누르면 아래 칸에 바로 들어가요 · 그대로 써도 좋고 두 분 말로 고쳐도 돼요 · '+nm:'';   /* [CUE_FORM] 카드가 곧 채우기 */   /* [R4-04] 예시를 고르면 그대로 쓰인다고 읽혔다(칸은 비어 미완료로 남는다) · 단추는 되살리지 않는다 */   /* [R3-09] 쓸 칸이 없는 쪽(축배)은 머리말 없음 — 축배 예시 12줄엔 이름이 하나도 없어 «가상 인물» 안내가 가리킬 것이 없었다 */
