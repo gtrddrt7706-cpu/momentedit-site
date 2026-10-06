@@ -2825,7 +2825,7 @@ var STEPDEF={
  valley:{k:'valley',title:'마무리 앞, 축하의 한 호흡 더할까요?',sub:'비움이 기본이에요. 원하면 폐식 전에 하나만 살짝 더해요.'},
  toast:{k:'toast',title:'축배와 케이크, 어떻게 즐길까요?',sub:''},
  song:{k:'song',title:'축가, 한 곡 더할까요?',sub:''}, /* [LEGACY_LABEL · SONG_RETIRED] 옛 초안 폴백 */
- free:{k:'free',title:'준비한 순서',sub:'특별히 준비한 순서가 있을 때 담아요(3분 안). 라이브 노래 · 연주는 받지 않아요 · 영상 속 노래 · 연주, 음원에 맞춘 순서는 괜찮아요. 목록에 없는 것은 «기타»에 적어 주세요.'},   // [FREE_WHAT] 새 코스는 나레이션이 무엇을에 맞춰 앞을 연다
+ free:{k:'free',title:'준비한 순서',sub:'특별히 준비한 순서가 있을 때 담아요(10분 안 · 길이는 두 분이 정해요). 라이브 노래 · 연주는 받지 않아요 · 영상 속 노래 · 연주, 음원에 맞춘 순서는 괜찮아요. 목록에 없는 것은 «기타»에 적어 주세요.'},   // [FREE_WHAT] 새 코스는 나레이션이 무엇을에 맞춰 앞을 연다
  letter:{k:'letter',title:'편지, 누구에게 전할까요?',sub:'이 예식의 감정이 가장 깊어지는 순간이에요.'},
  tribute:{k:'tribute',title:'부모님 헌정, 어떻게 전할까요?',sub:''},
  bless:{k:'bless',title:'부모님 덕담, 넣을까요?',sub:'부모님이나 가족 어른이 두 분에게 짧게 전하는 말씀이에요 · 한 분만 하셔도, 두 분을 아껴 온 다른 어른이 하셔도 좋아요.'},
@@ -3589,7 +3589,7 @@ var TUNE={
  /* [OPEN_PALETTE 2026-08-09] 자유 한 칸 — 팔레트 카드는 TUNE 에 문안이 있어야 그려진다
     (paletteCand 가 `if(!t) return;` 로 조용히 건너뛴다). GADD 만 열고 여기를 안 적으면 아무 일도 안 난다. */
  /* ★[OPEN_COURSE · SONG 2026-09-25 사장님 결정] 라이브 노래(축가)는 받지 않는다 · 영상 속 노래와 가족의 깜짝 축하는 괜찮다. */
- free:{n:'준비한 순서',c:'두 분이 준비한 영상이나 가족의 깜짝 축하 같은 순서예요(3분 안) · 라이브 노래는 받지 않아요'},
+ free:{n:'준비한 순서',c:'두 분이 준비한 영상이나 가족의 깜짝 축하 같은 순서예요(10분 안) · 라이브 노래는 받지 않아요'},
  prevideo:{n:'식전 영상',c:'입장 바로 앞, 두 분이 준비한 영상을 상영해요'},
  candle:{n:'화촉',c:'촛불을 밝혀 예식의 시작을 알려요'},
  letter:{n:'편지 낭독',c:'눌러 담은 마음을 편지로 읽어요'},
@@ -3818,9 +3818,10 @@ function _lGroups(k){
   if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
   if(k==='tribute'){ L('tribute','인사 말',R.CHIPS.tribute,R.chipOf('tribute',S),false,'신랑분은 원하시면 큰절을 올리셔도 돼요');   /* ★«인사 방식»(꽃과 포옹 · 신랑 큰절) 칩 금지 — 2026-10-06 사용자 지시로 삭제 [GROOM_BOW_TIP] · 늘 꽃과 포옹 · 큰절은 팁 한 줄 · [TRIB_ONE_SAY] «말의 길이» → «인사 말»(말로 인사 · 말 없이) */ _lGoods('tribute',L); }
   if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S));
-    /* ★[FREE_ETC 2026-10-06 사장님 «기타 칸 · 직접 적을 수 있게 · 길이도 직접»] 기타면 무엇을 · 길이를 칸에 적는다(길이 칩 대신 1~3분) */
-    if(R.chipOf('free',S)==='etc') g.push({key:'freeEtc',l:'직접 적기',list:[],cur:'',q:true,note:'',html:'<input class="tin fe-what" type="text" maxlength="40" data-fk="freeetc" aria-label="무엇을 준비하나요" placeholder="예) 형제가 준비한 깜짝 영상편지" value="'+esc(S.freeEtc||'')+'" oninput="setv(\'freeEtc\',this.value)" onchange="lsFreeEtc()"><label class="fe-len"><input class="tin" type="number" inputmode="numeric" min="1" max="3" data-fk="freelen" aria-label="길이 · 분" value="'+esc(R.chipOf('freeLen',S))+'" onchange="lsFreeLen(this.value)"><span>분 · 3분까지</span></label>'});
-    else L('freeLen','길이',R.CHIPS.freeLen,R.chipOf('freeLen',S)); }
+    /* ★[FREE_ETC 2026-10-06 사장님 «기타 칸 · 직접 적을 수 있게 · 길이도 직접»] 기타면 무엇을 칸에 적는다
+       ★[FREE_LEN10 2026-10-06 사장님 «3분 이상 할 수 있는 건데» → 10분까지] 길이는 모든 판에서 분을 직접 적는다(1~10 · 길이 칩 3 · 2 · 1 대신) · 계약서 v1.12 ①-2 */
+    if(R.chipOf('free',S)==='etc') g.push({key:'freeEtc',l:'직접 적기',list:[],cur:'',q:true,note:'',html:'<input class="tin fe-what" type="text" maxlength="40" data-fk="freeetc" aria-label="무엇을 준비하나요" placeholder="예) 형제가 준비한 깜짝 영상편지" value="'+esc(S.freeEtc||'')+'" oninput="setv(\'freeEtc\',this.value)" onchange="lsFreeEtc()">'});
+    g.push({key:'freeLen',l:'길이',list:R.CHIPS.freeLen,cur:R.chipOf('freeLen',S),q:true,note:'',html:'<label class="fe-len"><input class="tin" type="number" inputmode="numeric" min="1" max="10" data-fk="freelen" aria-label="길이 · 분" value="'+esc(R.chipOf('freeLen',S))+'" onchange="lsFreeLen(this.value)"><span>분 · 10분까지 · 길어지면 단체 사진 시간이 줄어요</span></label>'}); }
   if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));
   if(k==='cake') _lGoods('cake',L);   // [CAKE_TOAST_SPLIT] 케이크 준비만 · 축배는 고를 것이 없다
   /* ★★[CHIP_UNPICKED 2026-09-27 사장님 «안내 목소리 처음에는 안 눌린 상태로 있어야지 · 그래야 누르면 소리가 나오지 · 나레이션 음성을 처음에 들을 방법이 없잖아»]
@@ -5748,7 +5749,7 @@ window.lsMore=function(k){ LS.more=LS.more||{}; LS.more[k]=true;
   if(LP.big){ _lFull(); var f=document.getElementById('lsFull'), b=f&&f.querySelector(sel); if(b) try{ b.focus({preventScroll:true}); }catch(e){} }
 };
 window.lsFreeEtc=function(){ buildSteps(); _persist(); render(); };   /* [FREE_ETC] 이름이 띠 · 흐름에 곧장 */
-window.lsFreeLen=function(v){ var n=Math.round(+v); if(!(n>=1)) n=1; if(n>3) n=3; S.freeLen=String(n); S.touched=S.touched||{}; S.touched.freeLen=1; buildSteps(); _persist(); _fxNext='[data-fk="freelen"]'; render(); };
+window.lsFreeLen=function(v){ var n=Math.round(+v); if(!(n>=1)) n=1; if(n>10) n=10; S.freeLen=String(n); S.touched=S.touched||{}; S.touched.freeLen=1; buildSteps(); _persist(); _fxNext='[data-fk="freelen"]'; render(); };
 function _lChipRow(g,opt){
   if(g.html) return '<div class="ls-cg fe-row"><span class="gl">'+esc(g.l)+'</span><span class="cg-c">'+g.html+'</span></div>';   /* [FREE_ETC] 칩 대신 칸 */
   /* ★[RIT_CHIP_GRID 2026-09-27 4부 9] 라벨 칸 + 칩 칸 두 열 — 줄을 넘긴 칩이 첫 칩 시작선에 선다(종전 flex 한 줄은 넘친 칩이 라벨 밑으로 들어가 왼쪽 선이 들쭉날쭉) */
