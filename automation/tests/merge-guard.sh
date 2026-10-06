@@ -3910,7 +3910,7 @@ chk '실측인지 예상인지' assets/ritual-data.js 1
 
 # ── [REDUB_VOICE] 재더빙 붙여넣기는 클립마다 제 화자를 붙인다 (2026-08-10 · 적대 검증) ──
 # 옛 판은 VOICE(진행=우성) 하나를 모든 줄에 박았다. CONSOLE_TEXT 로 훑는 범위가 넓어지며
-# 안내(잔희) 클립이 들어오자 14줄 중 5줄이 틀린 화자로 나갔다 — 그대로 녹음하면 안내만 목소리가 바뀐다.
+# 안내(진희) 클립이 들어오자 14줄 중 5줄이 틀린 화자로 나갔다 — 그대로 녹음하면 안내만 목소리가 바뀐다.
 # ★PASTE_VOICE 는 형식(`화자: 대사`)만 봤다. 꼴이 맞아도 사람은 틀릴 수 있다.
 chk 'REDUB_VOICE' scripts/check-text-audio.mjs 1
 # [REDUB_TWIN 2026-08-10] 한 화면 자리에 녹음이 둘일 수 있다(guest-2-10min = 안내판 + 배역판).
@@ -5183,7 +5183,7 @@ chk "doing: 'move', duck: PARAM.duckMusic" assets/ritual-cue.js 1
 #   없는 버튼을 안내하는 셈이다. 그래서 04·45 «안»에 문장을 더하지 않고 별도 클립으로 뺐다.
 # ★photoShare 는 digital 과 같은 ★INJECT 키다 — 값은 **유무 boolean 뿐**이고 URL 은 안 싣는다
 #   (미리듣기 주소는 하객이 볼 수도 있는 공개 링크다).
-# ★화자는 사람이 정하지 않는다 — 파트(1_안내)의 role 에서 대장이 읽는다(→ 잔희). 코워크가 손으로
+# ★화자는 사람이 정하지 않는다 — 파트(1_안내)의 role 에서 대장이 읽는다(→ 진희). 코워크가 손으로
 #   적은 판은 '우성'이었고 그건 틀렸다. 기계가 읽은 값이 맞았다.
 chk 'PHOTO_ASK' assets/ritual-cue.js 5
 chk 'PHOTO_ASK' assets/ritual-preview-link.js 3
@@ -10147,7 +10147,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 114' scripts/check-ritual-cue.js 1   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 126' scripts/check-ritual-cue.js 1   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -14176,8 +14176,8 @@ nochk 'mk-vtn">위 두 문장은 그대로 나가요' order-preview.html   # ★
 nochk 'backdrop-filter' order-preview.html 0
 chk 'R8-17' order-preview.html 2
 chk '.seqr:last-child,.seqr:has(+ .dmnote)' order-preview.html 1
-chk 'd:"감사 · 가족"' assets/ritual-data.js 1
-chk 'd:"감성 · 시적"' order-preview.html 1
+chk 'd:"고마움을 담아"' assets/ritual-data.js 1   # [ENTRY_LAB_ONE 2026-10-06] 감사 · 가족 → 고마움을 담아
+chk 'd:"시처럼"' order-preview.html 1   # [ENTRY_LAB_ONE 2026-10-06] 감성 · 시적 → 시처럼
 chk 'G0_MOVED_NOTE' order-preview.html 2
 # [BRIDGE_LINK · REDUB_1003 · REDUB_KEEP_RULE 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114) · 나레이션 여섯 자리 새 문안 · 배역 01_guest-1
 chk 'BRIDGE_LINK' assets/ritual-cue.js 3
@@ -14488,7 +14488,7 @@ chk 'CEREMONY_AT_VIDEO' scripts/audit/open-course.mjs 2
 # ★★[EX_ONE 2026-10-05 사장님 «예시라고 한번 짚어 주는 게 어때 · 수정하면 안 될 것 같은 느낌 · 예시 부분 형태가 일관되지 않다 · 이벤트마다 통일»]
 #   글을 채우는 예시 = «참고 예시» 카드 한 모양(입장 AI 판 · 식전 영상 소개) · 예시 그대로인 줄에 «예시 글 · 고쳐 써도 돼요» · 끝 신호 칩 앞 «예시» · 고친 뒤 예시는 묻고 바꾼다
 chk 'EX_ONE' order-preview.html 7
-chk 'function _exCards(id,items,cur,fn)' order-preview.html 1
+chk 'function _exCards(id,items,cur,fn,note)' order-preview.html 1   # [GUEST_EX_NAR 2026-10-06] 설명 글 칸(note) 하나 더 — 나레이션 판은 «고쳐 써도» 대신 «들어 보고 골라»
 chk 'function _exIs(key)' order-preview.html 1
 chk 'window.mkEntryEx=function(n)' order-preview.html 1
 nochk 'class="ex-chips mk-pvex"' order-preview.html
@@ -14639,3 +14639,30 @@ chk 'function _vuOpts(key)' order-preview.html 1
 chk 'function _vuFix()' order-preview.html 1
 chk 'VU_EX_LISTEN' scripts/audit/vu-ex-listen.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vu-ex-listen.mjs >/dev/null 2>&1; _vux=$?; if [ "$_vux" = 1 ]; then echo 'FAIL vu-ex-listen: 목소리 «나오는 곳» 창(예시 칩 · 들어 보기 · 높이 고정)이 어긋났습니다 — node scripts/audit/vu-ex-listen.mjs'; fail=1; fi; fi
+# ★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 · 다른 곳처럼 예시 1~4 같은 폼»] AI 판 하객 맞이 = «참고 예시» 카드 넷 · 누르면 네 줄이 한 번에
+chk 'GUEST_EX4' order-preview.html 4
+chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1
+chk 'window.mkGuestEx=function(n)' order-preview.html 1
+chk "\['담백하게',\[GUEST\[0\]\[2\],GUEST\[1\]\[2\],GUEST\[2\]\[2\],GUEST\[3\]\[2\]\]\]" order-preview.html 1
+# ★[ENTRY_LAB_ONE 2026-10-06 사장님 «다른 곳들이랑 일관성 있게» → «맞추기»] 입장 예시 이름표 = «~하게 · ~처럼 · ~담아» 꼴(두 분이 할 말 · 식전 영상 · 하객 맞이와 같은 말투) · 녹음은 그대로
+nochk 'd:"서사형"' assets/ritual-data.js
+nochk 'd:"서사형"' order-preview.html
+chk 'd:"이야기처럼"' assets/ritual-data.js 1
+chk 'd:"새 출발처럼"' order-preview.html 1
+chk 'GUEST_EX_RS' order-preview.html 1   # [GUEST_EX_RS 2026-10-06] 하객 맞이 예시 2~4 — 제미나이 딥리서치 반영(상투어 · 과한 감성 · «슬슬» 뺌 · 어미 통일)
+nochk '"저희 두 사람의 결혼식에 귀한 걸음 해 주셔서' order-preview.html
+# ★[VOICE_JINHEE 2026-10-06 사장님 «잔희 아니고 진희 · 실수 없이»] 붙여넣기 · 안내 문서에 «잔희» 0 — 경위 주석(build-typecast-import · 이 파일 7360줄대 · 오디오북 기획 기록)만 남긴다
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/보이스찾기/README.md'
+nochk '잔희:' 'docs/plans/식순연구/타입캐스트/재더빙_20260817_1_안내.txt'
+nochk '잔희:' 'docs/plans/식순연구/타입캐스트/실청_다시_20260905.txt'
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/하객맞이예시_20261006_붙여넣기.txt'
+nochk '`잔희`(우리 안내)' scripts/build-typecast-import.mjs
+chk '진희: 어서 오세요.' 'docs/plans/식순연구/타입캐스트/하객맞이예시_20261006_붙여넣기.txt' 1
+# ★[GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 하객 맞이 스튜디오 나레이션 예시 2~4 — 115~126 · S.guestEx · 나레이션 판에도 «참고 예시» 카드
+chk 'GUEST_EX_NAR' assets/ritual-cue.js 4
+chk 'guestEx: \[' assets/ritual-open.js 1
+chk "'guestEx'," assets/ritual-preview-link.js 1
+chk 'window.mkGuestNarEx=function(n)' order-preview.html 1
+chk "_exCards('guestnar'," order-preview.html 1
+[ -f assets/audio/narration/126_guest-ex4-4-1min.mp3 ] && echo 'ok 126_guest-ex4-4-1min.mp3' || { echo 'REVERT? 하객 맞이 나레이션 예시 소리(115~126)가 없다'; fail=1; }
+chk 'GUEST_EX_TONE' scripts/audit/voice-register.mjs 1   # [GUEST_EX_TONE 2026-10-06 사장님 «그대로 쓰기»] 하객 맞이 예시는 두 분이 고르는 말투 · 한 예시 안 네 줄은 한 층

@@ -368,7 +368,8 @@ const clips = parse(SRC);
 /* [GROUP_PHOTO 2026-09-26 코워크 회신 9/26 2-5] 103 → 104 — 골라 트는 판에 fx-free(자유 사진 여는 말 · 109) 한 줄이 더해졌다 */
 /* [PHOTO_THANKS · THANKS_TEXT 2026-09-26 사장님 결정] 104 → 105 — 식사 없는 날 감사 인사(110 end-1c-thanks-nomeal) */
 /* [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 105 → 109 — 이음말 넷(111 bridge-b3-clap-thanks · 112 bridge-b4-breath · 113 bridge-b5-video-out · 114 bridge-b6-lighter · 이음말_초안_20261002.md 확정본) */
-const CLIP_COUNT = 109;
+/* [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 109 → 121 — 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126 guest-ex2-1-arrival … guest-ex4-4-1min · N22-a~l) */
+const CLIP_COUNT = 121;
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);
@@ -791,7 +792,7 @@ for (const p of manifest.parts) {
   }
   R.push('');
   R.push('★**한 글자 차이 이름을 조심하세요.** 검색창에서 나란히 뜹니다 — `서진`(우리 신부)과 `서현`(밈 지도 2관왕 · 탈락),');
-  R.push('`잔희`(우리 안내)와 `진희`(무료 30종). 잘못 고르면 가장 피하려던 목소리가 그 자리에 앉습니다.');
+  R.push('`진희`(우리 안내 · 2026-09-06 확정 · `잔희`는 오타였다). 잘못 고르면 가장 피하려던 목소리가 그 자리에 앉습니다.');
   R.push('자동 배정이 안 되는 자리가 있으면 그 이름이 실재하지 않는다는 뜻이니 알려 주세요.', '');
   R.push('선정 근거·탈락 사유는 `docs/plans/식순연구/더빙_타입캐스트_보이스_추천.md`, 고르는 과정은 `보이스찾기/README.md`입니다.', '');
 }
