@@ -50,7 +50,7 @@ async function open(w, o) {
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300);
   await pg.evaluate((o) => {
     window.__st = o.st || { ok: true, on: true, groom: {}, bride: {}, per: {} };
-    window._vc = function (op, d) { window.__calls.push({ op, key: d && d.key, tempo: d && d.tempo, retempo: d && d.retempo }); if (op === 'status') return Promise.resolve(JSON.parse(JSON.stringify(window.__st))); return Promise.resolve({ ok: false, error: '시험' }); };
+    window._vc = function (op, d) { window.__calls.push({ op, key: d && d.key, tempo: d && d.tempo, retempo: d && d.retempo, bg: d && d.bg }); if (op === 'status') return Promise.resolve(JSON.parse(JSON.stringify(window.__st))); return Promise.resolve({ ok: false, error: '시험' }); };
     if (o.ai) { RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; S.on.prevideo = 1; S.vsChip = 1; }
     opSync(); }, o);
   return { ctx, pg, errs, nx };
@@ -207,14 +207,14 @@ for (const w of [390, 1280]) {
     if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `tune-${w}.png`) });
     await pg.evaluate(() => { window.__calls.length = 0; });
     await pg.click('[data-fk="mktune:t:4"]'); await pg.click('[data-fk="mktune:p:3"]'); await pg.waitForTimeout(500);
-    const mid = await pg.evaluate(() => ({ v: document.querySelectorAll('#mkRecDlg .mk-dots-v')[0].textContent, p: document.querySelectorAll('#mkRecDlg .mk-dots-v')[1].textContent, makes: window.__calls.filter((c) => c.op === 'make').length, f: document.activeElement && document.activeElement.getAttribute('data-fk'), saved: !!(S.vset && S.vset.groom) }));
+    const mid = await pg.evaluate(() => ({ v: document.querySelectorAll('#mkRecDlg .mk-dots-v')[0].textContent, p: document.querySelectorAll('#mkRecDlg .mk-dots-v')[1].textContent, makes: window.__calls.filter((c) => c.op === 'make' && !c.bg).length /* [EX_PREBAKE] 예시 미리 만들기(bg)는 뒤에서 돈다 · 누른 것만 센다 */, f: document.activeElement && document.activeElement.getAttribute('data-fk'), saved: !!(S.vset && S.vset.groom) }));
     ok(`${w} [TUNE_DOTS] 점 누르기 → «조금 빠르게» · 쉼 «길게» · 누를 때는 만들지 않는다(돈 0) · 아직 저장 안 함 · 초점은 누른 점`, mid.v === '조금 빠르게' && mid.p === '길게' && mid.makes === 0 && !mid.saved && mid.f === 'mktune:p:3', JSON.stringify(mid));
     await pg.focus('[data-fk="mktune:t:4"]'); await pg.keyboard.press('ArrowRight'); await pg.waitForTimeout(200);
     const ky = await pg.evaluate(() => ({ t: VC.tune.tempo, f: document.activeElement && document.activeElement.getAttribute('data-fk') }));
     ok(`${w} [TUNE_DOTS] → 키로 한 칸(1.3 · 초점 따라감 · [TUNE_RECENTER] 가운데 1.1)`, ky.t === '1.3' && ky.f === 'mktune:t:5', JSON.stringify(ky));
     await pg.click('[data-fk="mktune:t:4"]'); await pg.waitForTimeout(200);
     await pg.click('[data-fk="mkvcuse"]'); await pg.waitForTimeout(500);
-    const aft = await pg.evaluate(() => ({ vs: S.vset.groom, mk: window.__calls.filter((c) => c.op === 'make'), rate: _upRate('g0'), tk: _tKey('g0') }));
+    const aft = await pg.evaluate(() => ({ vs: S.vset.groom, mk: window.__calls.filter((c) => c.op === 'make' && !c.bg) /* [EX_PREBAKE] */, rate: _upRate('g0'), tk: _tKey('g0') }));
     ok(`${w} [VOICE_TUNE] [이 목소리로 쓰기] → 신랑 값(1.2 · 1200 · [TUNE_RECENTER]) · 신랑이 읽는 AI 줄마다 한 번 retempo 1.2 · 창 닫힘`, aft.vs.tempo === '1.2' && aft.vs.pause === 1200 && aft.tk === '1.2' && aft.mk.length >= 1 && aft.mk.every((c) => String(c.tempo) === '1.2' && (c.key === 'g0' || c.key === 'g2')) && await pg.evaluate(() => !VC.tune), JSON.stringify(aft));
     const bt = await pg.evaluate(() => { S.vtempo = { guest: '0.9' }; return { g1: _tKey('g1'), g0: _tKey('g0') }; });
     ok(`${w} [VOICE_TUNE] 신부 값이 없으면 옛 순간 값(0.9) · 신랑 줄은 신랑 값(1.2)`, bt.g1 === '0.9' && bt.g0 === '1.2', JSON.stringify(bt));
