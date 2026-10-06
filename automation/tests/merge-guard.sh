@@ -14518,7 +14518,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/design-md-sync.mjs >
 :
 # ★[CF_FIX_FIT · EXTAG_OWN_LINE 2026-10-06 사장님 «식순 부분 전체적으로 돌려 볼까» · impeccable detect 46화면] 예식 흐름 «늘 있어요» 표가 회색 바탕 밖으로 넘침 · 폰에서 «예시 글» 표가 «목소리 만들기» 단추 밑으로
 chk 'CF_FIX_FIT' order-preview.html 1
-chk '.cf-fix{flex:0 0 auto;align-self:center;justify-self:end;width:max-content;' order-preview.html 1
+chk '.cf-fixmk{justify-self:end;width:44px;height:44px' order-preview.html 1   # [FIX_MARK_O 2026-10-06] «늘 있어요» 표 → 빈 동그라미(CF_FIX_FIT 의 넘침 문제도 함께 사라졌다)
 chk 'EXTAG_OWN_LINE' order-preview.html 1
 :
 # ★[VP_ASK_FIRST · STALE_BY_PILL · CHIP_W_FIX · PR_MODE_ONE_LINE 2026-10-06 사장님] 안 고른 안내 목소리 = «먼저 골라 주세요» · «글을 고쳤어요»는 목소리 만들기 왼쪽 · 칩 눌러도 줄 수 고정 · 연습 방법 설명 한 줄
@@ -14616,6 +14616,11 @@ nochk 'mk-sec mk-vpask"' order-preview.html
 chk 'VU_VIDEO_KEEP' order-preview.html 1
 chk 'VU_PV_EX' order-preview.html 2
 chk 'VU_VIDEO_KEEP' scripts/audit/vuse-flow.mjs 2
+# ★[FIX_MARK_O 2026-10-06 사장님 «늘 있어요 · 체크 버튼 센터 정렬 · 다른 건 없을까 · 연속성» → «추천대로»(A)] 늘 있는 순간 = ✓ 와 같은 26px 빈 동그라미 + 점 · 범례 한 줄 · 예식 흐름 · ① 칸 둘 다
+chk 'FIX_MARK_O' order-preview.html 5
+chk 'function _fixMk(cls)' order-preview.html 1
+nochk '<span class="cf-fix" role="img" aria-label="늘 있는 순간">늘 있어요</span>' order-preview.html
+nochk '<span class="pk-fix">늘 있어요</span>' order-preview.html
 # ★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 · 다른 곳처럼 예시 1~4 같은 폼»] AI 판 하객 맞이 = «참고 예시» 카드 넷 · 누르면 네 줄이 한 번에
 chk 'GUEST_EX4' order-preview.html 4
 chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1
