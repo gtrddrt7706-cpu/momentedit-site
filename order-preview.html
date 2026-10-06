@@ -5665,8 +5665,8 @@ function renderMake(){
     /* ★[VP_ASK_ONE 2026-10-06 사장님 «나레이션 자세히와 '먼저 골라 주세요' 상자가 중복 · 통합해서 하나만 · 고객 입장에서»] 상자(두 갈래 설명 목록)를 걷었다 —
        두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
     if(_vpAsk){}
-    else { if(k==='guest'&&S.guestVoice!=='couple') h+=_exCards('guestnar',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','누르면 아래 나레이션이 이 예시로 바뀌어요 · 들어 보고 마음에 드는 것으로 골라 주세요');   /* ★[GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 스튜디오 나레이션 판도 예시 넷(같은 카드 · 같은 이름) · 고른 값 S.guestEx */
-      h+=_mkFlow(k,_pn>=2?lb:''); }
+    else { h+=_mkFlow(k,_pn>=2?lb:'');
+      if(k==='guest'&&S.guestVoice!=='couple') h+=_exCards('guestnar',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','누르면 위 나레이션이 이 예시로 바뀌어요 · 들어 보고 마음에 드는 것으로 골라 주세요'); }   /* ★[GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 스튜디오 나레이션 판도 예시 넷(같은 카드 · 같은 이름) · 고른 값 S.guestEx · [MK_FORM_ONE] 흐름 → 참고 예시 차례 */
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사 말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
     h+=_mkRef(k);
   }

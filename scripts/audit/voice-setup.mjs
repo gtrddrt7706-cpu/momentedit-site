@@ -64,7 +64,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   if (SHOT) { await pg.evaluate(() => { try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(300); await pg.screenshot({ path: `${SHOT}/vs-guest-${W}.png` }); }
   /* ★[AI_NOTE_OFF 2026-10-03 사장님] 종전 «AI 줄 카드에 «스튜디오 나레이션과 비교해 듣기» → 나레이션 파일» → 이제 «그 한 줄(글은 두 분 말로 … · 비교해 듣기) · 줄마다 «만들면 저절로 채워져요» 없음» */
   const cmp = await pg.evaluate(() => ({ btn: document.querySelectorAll('[data-fk^="mknar:"],[data-fk^="mknarall:"]').length, t: document.querySelector('.mk-pg').textContent }));
-  ok(W + ' AI 줄 카드 — «글은 두 분 말로 고쳐도 돼요 · 스튜디오 나레이션과 비교해 듣기» 없음 · «목소리를 만들면 이 줄이 저절로 채워져요» 없음 [AI_NOTE_OFF]', cmp.btn === 0 && !/비교해 듣기|두 분 말로 고쳐도 돼요|저절로 채워져요/.test(cmp.t), JSON.stringify({ btn: cmp.btn }));
+  ok(W + ' AI 줄 카드 — «글은 두 분 말로 고쳐도 돼요 · 스튜디오 나레이션과 비교해 듣기» 없음 · «목소리를 만들면 이 줄이 저절로 채워져요» 없음 [AI_NOTE_OFF]', cmp.btn === 0 && !/비교해 듣기|글은 두 분 말로 고쳐도 돼요|저절로 채워져요/.test(cmp.t)   /* [GUEST_EX4] «참고 예시» 카드 설명(«그대로 써도 좋고 두 분 말로 고쳐도 돼요»)은 걷은 그 한 줄이 아니다 — 걷은 문장만 막는다 */, JSON.stringify({ btn: cmp.btn }));
   /* ★[LINE_EDIT] AI 자리의 줄 글을 두 분이 고친다 — 글칸 · 시작 1분 전은 앞 두 문장 고정 · 고치면 «다시 만들어 주세요» → 새 글로 만든다 */
   const le0 = await pg.evaluate(() => { const ta = document.querySelector('[data-fk="mksl:g0:0"]'), fx = document.querySelector('.mk-vtfix'), t3 = document.querySelector('[data-fk="mksl:g3:0"]');
     return { ta: !!ta, v: ta ? ta.value : '', fix: fx ? fx.textContent : '', t3: t3 ? t3.value : '', vtx: document.querySelectorAll('.mk-vcards .mk-vtx:not(.mk-vtfix)').length }; });
