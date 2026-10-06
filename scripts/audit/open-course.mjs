@@ -120,8 +120,17 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   'end-1c-thanks-nomeal',   // ★[PHOTO_THANKS 2026-09-26] 110 · 식사 없는 날 감사 인사(콘솔 전용)
   'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter',   /* ★[BRIDGE_LINK 2026-10-03] 111~114 · 이음말 넷 */
   ...[2, 3, 4].flatMap((e) => ['1-arrival', '2-10min', '3-5min', '4-1min'].map((t) => 'guest-ex' + e + '-' + t)),   /* ★[GUEST_EX_NAR 2026-10-06] 115~126 · 하객 맞이 나레이션 예시 2~4 */
-  'narr-vow-in-b'];   /* ★[VOW_FIRST 2026-10-06] 127 · 서약 여는 말 · 신부부터 */
-ok('FILES 맨 끝 89~127 이 새 줄 39개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-vow-in-b',   /* ★[VOW_FIRST 2026-10-06] 127 · 서약 여는 말 · 신부부터 */
+  'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4'];   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
+ok('FILES 맨 끝 89~130 이 새 줄 42개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+/* [PV_EX_NAR 2026-10-07] 식전 영상 소개 — 나레이션 판만 예시를 따른다 · 두 분 목소리 판은 90 슬러그 그대로(두 분 소리를 물린다) · 모르는 값은 0 */
+ok('[PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 → 128~130 · 두 분 목소리 판은 90 · 모르는 값은 90', (() => {
+  const g = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'prevideo').map((c) => c.slug + ':' + c.file).join(',');
+  const f = (n) => C.FILES.indexOf(n) + 1;
+  return g({ course: 'open', on: { prevideo: 1 }, pvEx: 2 }).indexOf('narr-prevideo-in-ex3') === 0 && f('narr-prevideo-in-ex3') === 129
+    && g({ course: 'open', on: { prevideo: 1 }, pvEx: 2, pvVoice: 'couple' }).indexOf('narr-prevideo-in:') === 0
+    && g({ course: 'open', on: { prevideo: 1 }, pvEx: 9 }).indexOf('narr-prevideo-in:') === 0;
+})());
 /* [GUEST_EX_NAR 2026-10-06] 나레이션 판만 예시를 따른다 · 두 분 목소리 판은 그대로 · 예시 2~4 는 89 판 없이(1분 전 첫 줄이 «곧 문이 열리고»가 아니다) · 모르는 값은 0 */
 ok('[GUEST_EX_NAR] 나레이션 예시 2~4 → 115~126 · 두 분 목소리 판은 01~04 · 영상이 있어도 89 대신 예시 1분 전', (() => {
   const g = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'guest').map((c) => c.slug).join(',');
