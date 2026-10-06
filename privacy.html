@@ -191,6 +191,10 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 /* [PRV_KO_TRACK] 한글에 영문용 자간 — '상담 페이지로'(8%)·'개정 시행일자'(14%) */
 .nav-back{letter-spacing:0.02em}
 .hero-meta{letter-spacing:0.02em;font-style:normal}
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 <style>::selection{background:rgba(107,42,36,0.18);color:var(--accent)}::-moz-selection{background:rgba(107,42,36,0.18);color:var(--accent)}</style>
 </head>

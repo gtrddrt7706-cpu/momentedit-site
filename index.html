@@ -5781,6 +5781,10 @@ body {
     transition: none;
   }
 }
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Service","@id":"https://momentedit.kr/#signature-service","serviceType":"프라이빗 웨딩 스튜디오","provider":{"@id":"https://momentedit.kr/#localbusiness"},"areaServed":[{"@type":"City","name":"서울특별시"},{"@type":"AdministrativeArea","name":"경기도"},{"@type":"AdministrativeArea","name":"인천광역시"}],"audience":{"@type":"Audience","audienceType":"가족·친구 30명 마이크로웨딩 · 프라이빗 웨딩"},"name":"The 140 Signature","description":"Getting Ready 20분 · Private Snap 60분 · Ceremony 8~25분 · 단체 사진 15~32분 · Farewell 20분. 촬영·예식·디지털 참석이 통합된 140분 올인원 웨딩 구성(다이닝 식사비는 식당 직접 결제)","offers":[{"@type":"Offer","name":"Weekend & Holiday","price":"3300000","priceCurrency":"KRW","availability":"https://schema.org/InStock"},{"@type":"Offer","name":"Weekday Special","price":"2500000","priceCurrency":"KRW","availability":"https://schema.org/InStock"}]}

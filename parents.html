@@ -411,6 +411,10 @@ nav .nav-links a, .nav-links a, .f-links a {
      하고, 그건 푸터 모양이 바뀌는 일이라 사용자 선택이 먼저다. */
 .journal-card-btn { padding-top: 16px; padding-bottom: 16px; margin-top: -16px; margin-bottom: -16px; }
 .nav-back { padding: 12px 6px; margin: -12px -6px; }
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 <!-- [EDGE_BACK] 왼쪽 가장자리 스와이프 → 뒤로가기. iOS는 시스템 제스처와 충돌하므로 스크립트 내부에서 자동 제외. -->
 <script src="/shared/edge-back.js" defer></script>

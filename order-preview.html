@@ -1220,6 +1220,9 @@ body.lsfull{overflow:hidden}
 .mk-pved{margin-top:10px}   /* [R7-09] 카드 머리 → 글칸 간격을 하객 맞이 카드와 같게 */
 .mk-tg.auto{cursor:default;border:0;background:none;min-height:0;padding:0;color:var(--sub)}   /* [R7-06] 끝난 상태(✓ 다 됐어요 · ✓ 링크 받았어요)는 단추 모양이 아니라 보조 글 한 줄 — 바로 위 «이동하기» 알약과 같은 꼴이라 누르는 것처럼 보였다 */
 .mk-tg .mk-mk{display:inline-flex}
+.mk-tg.on.auto{box-sizing:border-box;min-height:44px;min-width:var(--mk-vb-w,0);justify-content:center;padding:0 15px;border:1px solid var(--gold-deep);border-radius:999px;box-shadow:none;background:#F3ECDF;font-size:12.5px;font-weight:600;color:var(--gold-deeper);gap:6px}   /* ★[DONE_TAG_PLAIN 2026-10-06 사장님 «✓ 다 됐어요 · 여기 좀 이상한데» → «위 이동하기 버튼 크기 똑같이 하면 연속성 때문에 보기 좋겠지»] 끝난 표시는 «이동하기» 알약과 같은 크기 · 같은 틀(44 높이 · 같은 안쪽 여백 · 같은 너비) · 색만 «다 됨»(옅은 금 바탕) · 누르는 것이 아니다(cursor 기본). 종전엔 고른 칩의 안쪽 테만 남아 글자에 꽉 낀 알약이었다 */
+.mk-vlist{--mk-vb-w:104px}   /* [DONE_TAG_PLAIN] «이동하기»(실측 폭)와 같은 너비 — 한 목록 안 오른쪽 끝 열이 한 줄로 선다 */
+.mk-vlist .rowbtn.mk-vb{min-width:var(--mk-vb-w);justify-content:center}
 @media (max-width:999px){ .mk-tg,.mk-vb{margin-right:36px} }
 .mk-vx{padding:4px 0 12px;border-bottom:1px solid var(--border)}
 /* [PV_SEND_ONE] 식전 영상 링크 한 덩어리 — 머리 없음 · 이름 줄과 칸 사이 선 없음 · 이름은 머리 굵기로 */
@@ -1834,6 +1837,10 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 /* [NO_CARET_TEXT 2026-10-06] 누르면 포커스를 받는 창(tabindex="-1") 안 글자에 깜빡이는 커서가 그려지지 않게 · 입력칸은 그대로 */
 [tabindex="-1"]{caret-color:transparent}
 [tabindex="-1"] input,[tabindex="-1"] textarea,[tabindex="-1"] select,[tabindex="-1"] [contenteditable]{caret-color:auto}
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 </head>
 <body>
@@ -7779,7 +7786,7 @@ function _doneOpen(){
   var _td=_mkTodoN();   // [TODO_ROWS]
   h+='<h3 class="sec-l" style="margin-top:18px">당일까지 준비할 것</h3><p class="mk-one">'+(two.length?'두'+NBS+'분'+NBS+two.length+'가지':'')+(two.length&&par.length?' · ':'')+(par.length?'부모님께'+NBS+'부탁'+NBS+par.length+'가지':'')
     +(_td?' · <b class="mk-todo-n">미완료 '+_td+'가지</b>':'')+'</p>';
-  h+='<button type="button" class="ls-back" data-fk="done2write" onclick="mkGo(\'_sum\')">한눈에 보기로 이동하기</button>';   /* [R1-22] «보기» 겹침 걷고 밑줄 글 단추 · 셈 줄은 «두 분 N가지 · 부모님께 부탁 N가지 · 미완료 N» */
+  /* ★«한눈에 보기로 이동하기» 단추 금지 — 2026-10-06 사용자 지시로 삭제 [DONE_NO_SUM_LINK] · 셈 줄(«두 분 N가지 · 부모님께 부탁 N가지 · 미완료 N»)은 그대로 */
   /* ★[AI_NOTICE_0928 2026-09-28 코워크 0928 9-1] 0927 의 스위치(program · narration · both · none)와 이 자리의 «일부 안내는 … AI 음성이에요» 한 줄은 없앴다.
      하객에게 «AI»를 적는 곳은 식순지 뒷면 한 줄 하나(admin.html admAiLine) · 두 분 화면의 AI 표시는 줄 카드 배지(«AI로 만든 두 분 목소리»)가 한다 */
   h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry op">';   /* ★[RIT_SUMMARY_STACK 2026-09-27 4부 17] 390 에서 4칸이 비좁아 값이 2~3줄로 부서졌다 — 순번 · 이름 / 아래에 값 · «변경»은 글 단추 */
