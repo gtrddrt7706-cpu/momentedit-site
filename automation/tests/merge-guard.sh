@@ -14529,3 +14529,9 @@ chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry
 chk 'VU_VIDEO_PLAY' order-preview.html 2
 nochk "'<div class=\"mk-vu-img\">'+(v?'<img src=" order-preview.html
 :
+# ★[PR_MODE_UNPICKED · PT_PREP_SHOW · PT_NO_STALL 2026-10-06 사장님] 연습 방법은 처음에 비어 있다 · AI 준비는 진행 막대 칸 한 곳 · 다듬기 · 연결 실패로 준비가 서지 않는다
+chk 'PR_MODE_UNPICKED' order-preview.html 2
+chk 'PT_PREP_SHOW' order-preview.html 3
+chk 'PT_NO_STALL' order-preview.html 3
+chk 'PT_NO_STALL' scripts/audit/play-wait-file.mjs 1
+chk 'PR_MODE_UNPICKED' scripts/audit/play-wait-file.mjs 1

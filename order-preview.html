@@ -1403,7 +1403,15 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 @media (max-width:599px){ .pr-mode{grid-template-columns:minmax(0,1fr)} .pr-mo{min-height:0} }   /* ★[PR_MODE_ONE_LINE 2026-10-06 사장님 «한 줄로 적절하게»] 폰에선 두 칸이 나란하면 설명이 두 줄로 꺾인다 → 위아래로 세워 설명을 한 줄에 · AI 쪽은 «연습 전에 전체 흐름을 AI로 들어요»(흐름 파악이 목적) */
 .pr-mo:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pr-ask{margin:-4px 0 14px}
-.pr-prep{margin:-6px 0 12px;color:var(--gold-deeper)}   /* [PT_PREP] AI 목소리 준비 진행 */
+.pr-prep{margin:-4px 0 14px;padding:12px 14px;border-radius:8px;background:var(--bg2)}   /* [PT_PREP] · [PT_PREP_SHOW] 진행 막대 칸 */
+.pr-prep:empty{display:none}
+.pr-prep .pr-pt{margin:0;font-size:14px;font-weight:600;color:var(--accent)}
+.pr-prep .pr-bar{display:block;height:4px;margin:8px 0 0;border-radius:2px;background:#E6E1D8;overflow:hidden}
+.pr-prep .pr-bar i{display:block;height:100%;border-radius:2px;background:var(--seal);transition:width .45s cubic-bezier(.4,0,.2,1)}   /* [PROG_SEAL] 차오르는 것은 진사 */
+.pr-prep .pr-bar.run i{animation:prBreath 1.2s ease-in-out infinite alternate}
+@keyframes prBreath{from{opacity:1}to{opacity:.55}}
+@media (prefers-reduced-motion:reduce){ .pr-prep .pr-bar.run i{animation:none} }
+.pr-prep .pr-ps{margin:6px 0 0;font-size:12px;color:var(--sub)}
 .pr-askb{display:flex;flex-wrap:wrap;gap:8px}
 .lf-cue{margin:10px 0 0;font-size:14px;font-weight:500;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
 .lf-tbar{height:3px;margin:10px 0 2px;border-radius:2px;background:var(--border);overflow:hidden}
@@ -4743,7 +4751,7 @@ function _vc(op,data){ var bg=!!(data&&data.bg), t0=Date.now();
     if(again&&op==='make'&&d.timeout) return new Promise(function(r){ setTimeout(r,8000); }).then(function(){ return _vc0(op,Object.assign({},data,{_again:1})); }).then(function(d2){ if(d2&&d2.timeout) d2.error='오래 걸려 기다리다 멈췄어요 · 다시 눌러 주세요(이미 만든 줄은 바로 나와요). 그동안 이 줄은 스튜디오 나레이션으로 나와요'; return d2; }).then(done);
     if(((op==='make'&&!bg)||op==='phrase'||op==='consent')&&again&&Date.now()-t0<30000){ return new Promise(function(r){ setTimeout(r,3000); }).then(function(){ return _vc0(op,Object.assign({},data,{_again:1})); }).then(done); } return done(d); }); }
 function _vc0(op,data){ return new Promise(function(ok){ if(!EMBED){ ok({ok:false,down:true,error:'마이페이지에서 열면 쓸 수 있어요'}); return; }
-  var rid=++VC.rid; VC.cb[rid]=ok; setTimeout(function(){ if(VC.cb[rid]){ delete VC.cb[rid]; ok({ok:false,down:true,timeout:true,error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안 이 줄은 스튜디오 나레이션으로 나와요'}); } },(op==='phrase'||op==='consent'||op==='status')?30000:95000);   /* ★[PHRASE_NO_DEAD 2026-10-05] 확인 문장 · 동의 · 상태는 서버가 글자 몇 개만 쓴다 — 95초를 기다리게 하지 않는다(30초) */   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) — 실제 대안(스튜디오 나레이션)을 말한다 */
+  var rid=++VC.rid; VC.cb[rid]=ok; setTimeout(function(){ if(VC.cb[rid]){ delete VC.cb[rid]; ok({ok:false,down:true,timeout:true,error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안 이 줄은 스튜디오 나레이션으로 나와요'}); } },(op==='phrase'||op==='consent'||op==='status')?30000:op==='practice'?50000:95000);   /* [PT_NO_STALL] 연습 한 차례는 50초 — 넘으면 «못 만든 차례»로 넘기고 다음으로 */   /* ★[PHRASE_NO_DEAD 2026-10-05] 확인 문장 · 동의 · 상태는 서버가 글자 몇 개만 쓴다 — 95초를 기다리게 하지 않는다(30초) */   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) — 실제 대안(스튜디오 나레이션)을 말한다 */
   try{ parent.postMessage({type:'momentedit:voiceClone',data:Object.assign({op:op,rid:rid},data||{})},window.location.origin); }catch(e){ delete VC.cb[rid]; ok({ok:false,down:true}); } }); }
 function _vcDone(d){ var f=VC.cb[d.rid]; if(f){ delete VC.cb[d.rid]; if(d&&d.error) d.error=_vcErrWord(d.error); f(d); } }
 /* ★[R2-08 2026-10-02] 서버(80_production · VC_DOWN · 422 · 한도 · VC_BUDGET 예산) 문구가 아직 «직접 녹음»을 권한다 — 직접 녹음은 9/28 에 걷었다(VP_NO_DIRECT).
@@ -5620,11 +5628,11 @@ function renderPractice(){ var R=RitualOpen;
   /* ★★[PR_MODE 2026-10-05 사장님 «연습하기 진행 전에 선택 · 적은 대사를 AI 로 입혀 우선 들어 볼 것인지 아니면 직접 소리 내서 연습할 것인지»] 연습 방법 둘 —
      AI 연습 읽기가 열린 예식(_ptOn)에서만 고른다 · 아니면 «직접»뿐이라 고르기를 그리지 않는다. 처음 «AI 로 먼저 듣기»를 고를 때 한 번 «글이 업체로 보내져요» 알림 */
 
-  var _modeH=''; if(_ptOn()){ var _md=PT.mode==='ai'&&_ptOk()?'ai':'self';
+  var _modeH=''; if(_ptOn()){ var _md=PT.mode==='ai'&&_ptOk()?'ai':PT.mode==='self'?'self':'';   // [PR_MODE_UNPICKED] 고르기 전엔 ''
     _modeH='<div class="pr-mode" role="radiogroup" aria-label="연습 방법" onkeydown="prModeKey(event)">'
       +[['self','직접 소리 내어','말하는 차례에 준비한 글을 읽어요'],['ai','AI 목소리로 먼저 듣기','연습 전에 전체 흐름을 AI로 들어요']].map(function(o){ var on=_md===o[0];
-        return '<button type="button" class="pr-mo'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="prm:'+o[0]+'" onclick="prMode(\''+o[0]+'\')"><b>'+o[1]+'</b><span>'+o[2]+'</span></button>'; }).join('')+'</div>'
-      +(_md==='ai'?'<p class="mk-note pr-prep" id="prPrep" role="status" aria-live="polite">'+esc(_ptPrepTxt())+'</p>':'')+(PT.askMode?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prMode(\'ai\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':''); }
+        return '<button type="button" class="pr-mo'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!_md&&o[0]==='self'))?0:-1)+'" data-fk="prm:'+o[0]+'" onclick="prMode(\''+o[0]+'\')"><b>'+o[1]+'</b><span>'+o[2]+'</span></button>'; }).join('')+'</div>'
+      +(_md==='ai'?'<div class="pr-prep" id="prPrep" role="status" aria-live="polite">'+_ptPrepHtml()+'</div>':'')   /* ★[PT_PREP_SHOW 2026-10-06 사장님 «준비 중이구나 라는 걸 좀 더 드러나게 · 지금은 티가 별로 안 나»] 한 줄 → 진행 막대 칸 */+(PT.askMode?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prMode(\'ai\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':''); }
   h+='<div class="pr-grid"><div class="pr-lead">'+_modeH
     +'<button type="button" class="pr-hero" data-fk="prall" onclick="_ptGate(lsPlayAll)" aria-label="처음부터 끝까지 연습하기'+(_mins?' · 약 '+_mins+'분':'')+'">'
     +'<span class="pr-hm">'+(_hv?'<img src="'+esc(_hv.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
@@ -5648,7 +5656,7 @@ function renderPractice(){ var R=RitualOpen;
 /* ★prAct(한 부분만 보기) · prFast(빠르게 훑기) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_SEC_OFF · PR_FAST_OFF] */
 var PR_FROM_MP=false;   // [PR_ORDER] 마이페이지 «연습하기»로 열었나
 window.prModeKey=function(ev){ var k=ev.key, d=(k==='ArrowRight'||k==='ArrowDown')?1:(k==='ArrowLeft'||k==='ArrowUp')?-1:0; if(!d) return; ev.preventDefault();   /* [PR_ORDER] 연습 방법 = 라디오 — 화살표로 옮긴다(고르지 않은 쪽은 tabindex -1) */
-  var cur=(PT.mode==='ai'&&_ptOk())?'ai':'self'; prMode(cur==='ai'?'self':'ai'); };
+  var cur=(PT.mode==='ai'&&_ptOk())?'ai':PT.mode==='self'?'self':''; prMode(cur?(cur==='ai'?'self':'ai'):(d>0?'self':'ai')); };
 window.prMode=function(m,yes){ if(m==='ai'){ if(yes){ try{ localStorage.setItem('me_ptts_ok','1'); }catch(e){} } if(!_ptOk()){ PT.askMode=true; render(); return; } }
   PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} if(PT.mode!=='ai'){ PT.prep=null; PT.startAfter=null; } _fxNext='[data-fk="prm:'+PT.mode+'"]'; render(); };   // [PR_MODE] · [PT_PREP] 직접으로 바꾸면 준비를 멈춘다(받던 것은 받아 둔다)
 window.prFrom=function(k){ var rs=_lRows(); if(rs.indexOf(k)<0) return; if(_ptAi()&&!(arguments[1])){ _ptGate(function(){ prFrom(k,1); }); return; } LP.fast=false; LP.noChips=false; LP.startK=k; _lOpenBig(); _lStart(rs,true); _lFull(); };   // [PR_JUMP] 전체를 세우고 그 순간에서 시작(앞 순간으로도 ⏮)
@@ -6008,7 +6016,9 @@ window.prPlayAll=function(){ var i=0; _stopAud(); _stopMk(); (function nx(){ var
 window.prClear=function(){ PR.takes.forEach(function(t){ try{ URL.revokeObjectURL(t.url); }catch(e){} }); PR.takes=[]; render(); };
 /* ★[VOICE_CLONE 4-2] 따라 보기 · AI로 읽어 주기(골라 켜기) — 켜면 연습 재생의 두 분 차례 글을 AI가 읽는다(그 사람의 AI 목소리 · 없으면 스튜디오 기본 목소리).
    처음 켤 때 한 번 알림(글이 음성 업체로 보내진다) · «현장에서» 고른 자리(글 없음)는 읽지 않는다 · 만든 소리는 글이 바뀔 때만 새로(이 기기 IndexedDB) · 한도는 서버가 센다 */
-var PT={on:false,ask:false,url:{},busy:{},failH:{},mode:(function(){ try{ return localStorage.getItem('me_pr_mode')==='ai'?'ai':'self'; }catch(e){ return 'self'; } })()};   // [PR_MODE] 연습 방법(직접 · AI 로 먼저) — 이 기기에 기억
+var PT={on:false,ask:false,url:{},busy:{},failH:{},mode:''};   // [PR_MODE] 연습 방법(직접 · AI 로 먼저)
+/* ★[PR_MODE_UNPICKED 2026-10-06 사장님 «첫 화면 선택되어 있는데 선택 안 되어 있게»] 들어올 때는 둘 다 비어 있다(지난번 고른 것을 다시 눌러 두지 않는다) ·
+   고르기 전 «처음부터 시작하기»는 직접 소리 내어로 흐른다(_ptAi 가 'ai' 일 때만 AI) */
 function _ptOn(){ return !!(RitualOpen.FEATURE&&RitualOpen.FEATURE.practiceTts); }
 function _ptSec(){ if(!_ptOn()) return ''; var h='<label class="upchk"><input type="checkbox" data-fk="ptts"'+(PT.on?' checked':'')+' onchange="ptToggle(this.checked)"><span>두 분 차례도 소리로 듣기 · AI가 연습용으로 읽어 줘요 · 예식에서는 나오지 않아요</span></label>';   // [PRACTICE_READ_0928 7-2]
   if(PT.ask) h+='<div class="mk-recp"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 소리로 만들어져요. 숨긴 글은 보내지 않아요</p><span class="mk-vbs"><button type="button" class="rowbtn mk-recgo" data-fk="pttsyes" onclick="PT.ask=false;PT.on=true;try{localStorage.setItem(\'me_ptts_ok\',\'1\')}catch(e){};render()">켜기</button><button type="button" class="pk-link" data-fk="pttsno" onclick="PT.ask=false;render()">그만두기</button></span></div>';   // [PRACTICE_READ_0928] 처음 켤 때 한 번
@@ -6092,8 +6102,11 @@ function _ptFetch(st){ var o=_ptKey(st); if(PT.url[o.h]) return Promise.resolve(
   return (PT.busy[o.h]=_vc('practice',{role:o.w,who:o.w,text:st.txt,tempo:o.t,pause:o.p}).then(function(d){
     if(!d||!d.ok||!d.data){ delete PT.busy[o.h]; PT.err=(d&&d.error)||'지금은 AI 목소리로 읽지 못했어요 · 이 차례는 글을 보며 읽어 주세요'; return null; }
     var raw=function(){ var bin=atob(d.data), u=new Uint8Array(bin.length); for(var j=0;j<bin.length;j++) u[j]=bin.charCodeAt(j); return new Blob([u],{type:d.mime||'audio/mpeg'}); };
-    return _vcProc({parts:[{data:d.data}]},st.txt,o.p,null).then(function(p2){ return p2&&p2.wav?p2.wav:raw(); },function(){ return raw(); })   // [PT_TUNE] 줄 만들기와 같은 쉼 맞춤 · 다듬기
-      .then(function(b){ delete PT.busy[o.h]; return (PT.url[o.h]=URL.createObjectURL(b)); }); })); }
+    /* ★★[PT_NO_STALL 2026-10-06 사장님 «AI 목소리 준비 중 · 0 / 10 · 지금 아예 멈춰 있어»] 받은 소리를 다듬는(_vcProc) 쪽이 던지거나(오디오 문맥을 못 만든 기기) 끝나지 않으면
+       이 약속이 영영 안 풀려 준비가 0 에서 섰다 — 실패를 받는 자리가 없었다. 이제 다듬기는 8초 안에 못 끝내면 받은 그대로 · 어떤 실패도 «못 만든 차례»로 넘긴다 */
+    var proc; try{ proc=_vcProc({parts:[{data:d.data}]},st.txt,o.p,null); }catch(e){ proc=Promise.reject(e); }
+    return Promise.race([proc,new Promise(function(r){ setTimeout(function(){ r(null); },8000); })]).then(function(p2){ return p2&&p2.wav?p2.wav:raw(); },function(){ return raw(); })   // [PT_TUNE] 줄 만들기와 같은 쉼 맞춤 · 다듬기
+      .then(function(b){ delete PT.busy[o.h]; return (PT.url[o.h]=URL.createObjectURL(b)); }); }).catch(function(){ delete PT.busy[o.h]; return null; })); }
 function _ptAi(){ return PT.mode==='ai'&&_ptOn()&&_ptOk()&&!!(STEPS[idx]&&STEPS[idx].k==='practice'); }   // [PT_PREP] AI 로 먼저 = ③ 연습하기에서만(② 의 듣기에는 섞지 않는다)
 function _ptWant(st){ return !!(st&&st.talk2&&!st.site&&st.txt&&_ptAi()); }
 /* ★★[PT_PREP 2026-10-05 사장님 «미리 전부 만들어서 딜레이 없이 가야 해»] AI 로 먼저 듣기 = 연습을 틀기 «전에» 말하는 차례 소리를 전부 만든다(셋씩 나란히).
@@ -6104,20 +6117,26 @@ function _ptList(){ if(!ENG) return []; var seen={}, out=[];
   return out; }
 function _ptPrep(){ if(!_ptAi()) return; var L=_ptList(), key=L.map(function(x){ return _ptKey(x).h; }).join(',');
   if(PT.prep&&PT.prep.key===key) return;
-  var P=PT.prep={key:key,n:L.length,done:0,fail:0,run:true}, todo=[];
+  var P=PT.prep={key:key,n:L.length,done:0,fail:0,run:true,t0:Date.now()}, todo=[];   // [PT_PREP_SHOW] t0 = 오래 걸림 알림
+  clearInterval(PT.tick); PT.tick=setInterval(function(){ if(PT.prep!==P||!P.run){ clearInterval(PT.tick); return; } _ptPrepPaint(); },5000);   // 45초가 지나면 «조금 오래 걸리고 있어요»가 뜨게 다시 그린다
   L.forEach(function(x){ if(PT.url[_ptKey(x).h]) P.done++; else todo.push(x); });
   /* ★[PT_PREP_RETRY 2026-10-05 사장님 «왜 여기는 AI 만드는 중이지? 전부 준비하고 진행하기로 했는데»] 준비 중 실패한 차례는 그 차례에 와서 다시 만들며 기다렸다(«만드는 중»).
      이제 둘씩 나란히(업체 «너무 잦음»을 덜 부른다) · 실패한 것은 다 돈 뒤 한 번 더 · 그래도 못 만든 차례는 기다리지 않고 글 + 막대로(PT.failH) */
   var i=0, retry=[], fin=function(){ if(PT.prep!==P||!P.run||P.done+P.fail<P.n) return;
-      if(retry.length&&!P.again){ P.again=1; var rs=retry; retry=[]; P.fail-=rs.length; var k2=0, nx2=function(){ if(PT.prep!==P) return; var st=rs[k2++]; if(!st) return; _ptFetch(st).then(function(u){ if(PT.prep!==P) return; if(u) P.done++; else { P.fail++; PT.failH[_ptKey(st).h]=1; } _ptPrepPaint(); fin(); nx2(); }); }; nx2(); return; }
+      if(retry.length&&!P.again){ P.again=1; var rs=retry; retry=[]; P.fail-=rs.length; var k2=0, nx2=function(){ if(PT.prep!==P) return; var st=rs[k2++]; if(!st) return; _ptFetch(st).catch(function(){ return null; }).then(function(u){ if(PT.prep!==P) return; if(u) P.done++; else { P.fail++; PT.failH[_ptKey(st).h]=1; } _ptPrepPaint(); fin(); nx2(); }); }; nx2(); return; }
       P.run=false; _ptPrepPaint(); var f=PT.startAfter; PT.startAfter=null; if(f) f(); };
-  var next=function(){ if(PT.prep!==P) return; var st=todo[i++]; if(!st) return; _ptFetch(st).then(function(u){ if(PT.prep!==P) return; if(u) P.done++; else { P.fail++; retry.push(st); } _ptPrepPaint(); fin(); next(); }); };
+  var next=function(){ if(PT.prep!==P) return; var st=todo[i++]; if(!st) return; _ptFetch(st).catch(function(){ return null; }).then(function(u){ /* [PT_NO_STALL] */ if(PT.prep!==P) return; if(u) P.done++; else { P.fail++; retry.push(st); } _ptPrepPaint(); fin(); next(); }); };
   if(!todo.length){ P.run=false; _ptPrepPaint(); return; }
   for(var k=0;k<Math.min(2,todo.length);k++) next(); _ptPrepPaint(); }
+/* ★[PT_PREP_SHOW 2026-10-06] 준비 칸 = 큰 글(무엇 · 몇 개) + 진행 막대 + 작은 글(다 되면 · 오래 걸리면). 숫자는 이 칸 한 곳만 —
+   «처음부터 시작하기» 아래에도 «· 0 / 10»을 겹쳐 적던 것을 걷었다(사장님 «기존 위에 있는 건 뭐지?») */
+function _ptPrepHtml(){ var P=PT.prep; if(!_ptAi()||!P||!P.n) return '';
+  var pc=Math.round(100*(P.done+(P.run?0:P.fail))/P.n), slow=P.run&&P.t0&&(Date.now()-P.t0>45000);
+  var sub=P.run?(slow?'조금 오래 걸리고 있어요 · 기다리지 않으려면 «직접 소리 내어»로 시작해도 돼요':(PT.startAfter?'준비되면 바로 시작해요':'다 되면 끊김 없이 이어져요')):'';
+  return '<p class="pr-pt">'+esc(_ptPrepTxt())+'</p><span class="pr-bar'+(P.run?' run':'')+'" aria-hidden="true"><i style="width:'+(P.run?Math.max(4,pc):100)+'%"></i></span>'+(sub?'<p class="pr-ps">'+esc(sub)+'</p>':''); }
 function _ptPrepTxt(){ var P=PT.prep; if(!_ptAi()||!P||!P.n) return '';
   return P.run?('AI 목소리 준비 중 · '+P.done+' / '+P.n):P.fail?('AI 목소리 '+P.done+'개 준비됐어요 · '+P.fail+'개는 만들지 못해 그 차례는 글을 보며 읽어요'):('AI 목소리 '+P.n+'개 준비됐어요 · 기다림 없이 이어져요'); }
-function _ptPrepPaint(){ var el=document.getElementById('prPrep'); if(el) el.textContent=_ptPrepTxt(); var hb=document.querySelector('.pr-hero .pr-hl span');
-  if(hb&&PT.startAfter&&PT.prep&&PT.prep.run) hb.textContent='준비되면 바로 시작해요 · '+PT.prep.done+' / '+PT.prep.n; }
+function _ptPrepPaint(){ var el=document.getElementById('prPrep'); if(el) el.innerHTML=_ptPrepHtml(); }   // [PT_PREP_SHOW] 진행은 준비 칸 한 곳에서만
 function _ptGate(f){ if(_ptAi()){ _ptPrep(); if(PT.prep&&PT.prep.run){ PT.startAfter=f; _ptPrepPaint(); return; } } f(); }   // [PT_PREP] 다 되기 전에 누르면 기다렸다 바로
 function _ptOk(){ try{ return localStorage.getItem('me_ptts_ok')==='1'; }catch(e){ return false; } }
 function _ptNext(){ for(var j=LP.i+1;j<Math.min(LP.q.length,LP.i+16);j++){ var n=LP.q[j]; if(_ptWant(n)&&!n.src){ _ptFetch(n); return; } } }
