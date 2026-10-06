@@ -34,7 +34,7 @@ for (const W of [390, 1280]) {
     await pg.click(`[data-fk="mkrc:${k}:0"]`); await pg.waitForTimeout(400);
     const g1 = await cs(k + '.g'), b1 = await cs(k + '.b');
     const a1 = await pg.evaluate((k) => ({ on: (document.querySelector('.mk-rc[aria-checked="true"]') || {}).dataset?.fk || '', ta: (document.getElementById('mkt_' + k + '_g') || {}).value || '', tag: document.querySelectorAll('.mk-txc .mk-extag').length }), k);
-    ok(`${W} ${k} 예시 1 → 신랑 · 신부 칸에 바로 · 그 카드가 골라짐 · «예시 글» 표`, g1.length > 10 && b1.length > 10 && a1.ta === g1 && a1.on === `mkrc:${k}:0` && a1.tag === 2, JSON.stringify({ g1: g1.slice(0, 20), b1: b1.slice(0, 20), ...a1 }));
+    ok(`${W} ${k} 예시 1 → 신랑 · 신부 칸에 바로 · 그 카드가 골라짐 · «예시 글» 표 없음 [EXTAG_OFF]`, g1.length > 10 && b1.length > 10 && a1.ta === g1 && a1.on === `mkrc:${k}:0` && a1.tag === 0, JSON.stringify({ g1: g1.slice(0, 20), b1: b1.slice(0, 20), ...a1 }));
     if (k === 'welcome') await shot(pg, `cue-form-filled-${W}`);
     await pg.fill(`#mkt_${k}_g`, g1 + ' 고맙습니다.'); await pg.waitForTimeout(150);
     await pg.click(`[data-fk="mkrc:${k}:1"]`); await pg.waitForTimeout(300);
