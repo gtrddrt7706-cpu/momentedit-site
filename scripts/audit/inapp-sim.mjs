@@ -63,6 +63,8 @@ for (const P of PROFILES) {
     await pg.evaluate((x) => { mkGo(x); if (!document.querySelector('[data-fk="mkplay"]')) document.body.insertAdjacentHTML('beforeend', '<button id="__tp" style="position:fixed;left:0;top:0;width:60px;height:60px;z-index:9" onclick="lsPlay(\'' + x + '\')">t</button>'); }, k); await pg.waitForTimeout(300); await pg.tap((await pg.$('[data-fk="mkplay"]')) ? '[data-fk="mkplay"]' : '#__tp');   // [MK_MIN] 칩이 있는 쪽은 «들어 보기» 단추가 없다 — 같은 lsPlay 를 부르는 시험 단추를 손가락으로 누른다(탭 안 사용자 몸짓 그대로)   // [FLOW_MAKE] ② 는 순간마다 한 쪽 — 그 쪽 «이 순간 들어 보기» 
     const ms = await pg.evaluate(() => (LP.q[0] || {}).ms || 0);
     await pg.waitForTimeout(ms + 1500);
+    /* [INAPP_BLOB] 바쁠 때(전체 게이트)는 다듬기 · 1초 기다림이 늦어 한 번 재면 아직 시작 전이었다 — 막힘(ok:false · paused)은 그대로 잡고, 시작은 6초까지 기다린다 */
+    for (let t = 0; t < 12; t++) { if (await pg.evaluate(() => !!(LP.el && LP.el.currentTime > 0) || LP.paused || (window.__playLog || []).some((x) => !x.ok))) break; await pg.waitForTimeout(500); }
     const r = await pg.evaluate(() => ({ log: window.__playLog, paused: LP.paused, i: LP.i, st: LP.q[LP.i] ? !!LP.q[LP.i].src : null, el: LP.el ? { p: LP.el.paused, t: LP.el.currentTime } : null }));
     const real = r.log.filter((x) => /\.mp3$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/.test(x.src));   /* ★[INAPP_BLOB 2026-10-06 점검] #979(정한 빠르기 · 쉼이 모든 ▶ 에)부터 소리는 다듬은 blob 주소로 튼다 — .mp3 만 세면 소리가 나도 0건이었다(10-04 부터 빨강) · «실제로 흐른다»(currentTime > 0)는 그대로 */
     ok(`${W} «${k}» 글 줄 뒤 소리 줄이 막히지 않고 실제로 흐른다(currentTime > 0)`, real.length > 0 && real.every((x) => x.ok) && !r.paused && r.el && r.el.t > 0, JSON.stringify(r));
