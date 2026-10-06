@@ -39,10 +39,18 @@ const ONE_LEVEL = { 진희: '합쇼체' };
 const HAP = /(습니다|입니다|십시오|ㅂ니다)[.!?]?$/;
 const HAE = /(어요|아요|에요|예요|해요|세요|려요|워요|죠)[.!?]?$/;
 
+/* ★★[GUEST_EX_TONE 2026-10-06 사장님 «그대로 쓰기»] 하객 맞이 나레이션 예시 2~4(guest-ex*)는 «두 분이 고르는 말투»다 —
+     다정 · 웃음 한 스푼은 해요체, 격식은 합쇼체로 녹음했다. 진희의 한 층(합쇼체) 검사에서는 빼고,
+     대신 «한 예시 안의 네 줄은 같은 층»을 따로 잰다(아래 GUEST_EX_ONE). 예식 끝 안내는 종전대로 합쇼체다.
+     ★이 예외를 다른 클립으로 넓히지 않는다 — 새 클립이 해요체면 종전대로 빨강이다. */
+const EX_GROUP = new Map();
 const byVoice = new Map();
 for (const c of man.clips) {
   const v = c.voice || (man.voice || {})[c.role];
   if (!v || !ONE_LEVEL[v]) continue;
+  const _ex = /^guest-ex(\d)-/.exec(c.file || '');
+  if (_ex) { let h = 0, e = 0; for (const s of c.sents || []) { const t = (s.text || '').trim(); if (HAP.test(t)) h++; else if (HAE.test(t)) e++; }
+    if (!EX_GROUP.has(_ex[1])) EX_GROUP.set(_ex[1], []); EX_GROUP.get(_ex[1]).push({ id: c.no + '_' + c.file, lv: e > h ? '해요체' : '합쇼체' }); continue; }
   if (!c.sents || !c.sents.length) continue;
   let hap = 0, hae = 0;
   for (const s of c.sents) {
@@ -55,6 +63,12 @@ for (const c of man.clips) {
 
 let bad = 0;
 console.log('[VOICE_REGISTER] 사회자 목소리의 말투 층이 한 겹인가\n');
+/* [GUEST_EX_ONE] 하객 맞이 예시 하나 = 네 줄이 같은 층(줄마다 많은 쪽으로 판정) */
+for (const [g, rows] of EX_GROUP) {
+  const lv = rows[0].lv, odd = rows.filter((r) => r.lv !== lv);
+  console.log(`  하객 맞이 예시 ${g} — ${rows.length}줄 · ${lv}${odd.length ? ' · ✗ 층이 다른 줄 ' + odd.map((r) => r.id).join(' ') : ' 한 층'}`);
+  bad += odd.length;
+}
 for (const [v, rows] of byVoice) {
   const want = ONE_LEVEL[v];
   const mixed = rows.filter((r) => r.hap && r.hae);
