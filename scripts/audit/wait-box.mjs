@@ -24,6 +24,8 @@ try {
     await wait(300); await pg.evaluate(() => mkGo('_voice')); await wait(600);
     const a = await pg.evaluate(() => { const b = document.querySelector('.mk-vpage .mk-wait'); return { box: !!b, t: b && b.querySelector('.mk-wait-t').textContent, s: b && b.querySelector('.mk-wait-s').textContent, bar: !!(b && b.querySelector('.mk-wait-bar i')), role: b && b.getAttribute('role'), old: /불러오는 중이에요…/.test(document.querySelector('.mk-vpage').textContent) }; });
     ok(`${w} ① 기다리는 칸 — 제목 · 막대 · «잠깐이면 돼요» · 옛 한 줄 없음`, a.box && a.t === '두 분 목소리를 불러오고 있어요' && /잠깐이면 돼요/.test(a.s) && a.bar && a.role === 'status' && !a.old, JSON.stringify(a));
+    const ink = await pg.evaluate(() => { const b = document.querySelector('.mk-vpage .mk-wait'), bar = b.querySelector('.mk-wait-bar'), i = bar.querySelector('i'), t = b.querySelector('.mk-wait-t'), cs = getComputedStyle; return { h: bar.getBoundingClientRect().height, w: bar.getBoundingClientRect().width, bg: cs(i).backgroundImage, fam: cs(t).fontFamily, al: cs(b).textAlign, an: cs(i).animationDuration }; });
+    ok(`${w} ①-2 [WAIT_INK] 머리카락 한 줄(1px · 120px) · 금빛 잉크 · 명조 제목 · 가운데 · 2.4초`, ink.h === 1 && ink.w === 120 && /184, 154, 117/.test(ink.bg) && !/107, 42, 36/.test(ink.bg) && /Noto Serif KR/.test(ink.fam) && ink.al === 'center' && ink.an === '2.4s', JSON.stringify(ink));
     if (SHOT) { await pg.evaluate(() => { document.querySelector('.mk-wait').scrollIntoView({ block: 'center' }); }); await pg.screenshot({ path: `${SHOT}-${w}.png` }); }
     const b = await pg.evaluate(() => { VC.loadT0 = Date.now() - 9000; render(); return (document.querySelector('.mk-wait-s') || {}).textContent; });
     ok(`${w} ② 8초가 넘으면 «조금 오래 걸리고 있어요»`, /조금 오래 걸리고 있어요/.test(b || ''), b);

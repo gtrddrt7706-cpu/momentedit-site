@@ -14734,6 +14734,17 @@ chk 'WAIT_BOX' order-preview.html 6
 chk 'function _waitBox(t,s)' order-preview.html 1
 nochk '>불러오는 중이에요…</p>' order-preview.html
 chk 'WAIT_BOX' scripts/audit/wait-box.mjs 1
+# ★[WAIT_INK 2026-10-06 사장님 «로딩 표시가 무드에 안 맞아 · 디자이너 시선으로»] 굵은 버건디 막대 → 명조 제목 + 1px 선 위 금빛 잉크(가운데 · 2.4초 오가기)
+chk 'WAIT_INK' order-preview.html 1
+chk 'WAIT_INK' scripts/audit/wait-box.mjs 1
+nochk 'background:var(--seal);animation:mkWait' order-preview.html
+# ★[VU_VIDEO_ONCE 2026-10-06 사장님 «영상 반복 재생 아니고 한 번 재생하고 끝»] 순간 창 영상 loop 없음 · 다 본 영상은 예시를 바꿔도 다시 틀지 않는다
+chk 'VU_VIDEO_ONCE' order-preview.html 2
+nochk '<video muted playsinline loop autoplay preload="auto" poster="' order-preview.html
+# ★[VSTAT_DOTS 2026-10-06 사장님 «보통 · 보통 글씨 말고 점 표시 그대로»] 사람 카드의 빠르기 · 쉼 = 보기만 하는 점 줄
+chk 'VSTAT_DOTS' order-preview.html 2
+chk 'function _vstatDots(kind,v)' order-preview.html 1
+nochk "<span><i>말 빠르기</i><b>'+_tuneWord('t',o.tempo)" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/wait-box.mjs >/dev/null 2>&1; _wbx=$?; if [ "$_wbx" = 1 ]; then echo 'FAIL wait-box: 기다리는 칸이 어긋났습니다 — node scripts/audit/wait-box.mjs'; fail=1; else echo "ok wait-box ($_wbx)"; fi; fi
 # ★★[EX_RACE · EX_PREBAKE_ENTRY · EX_MINE_OLD 2026-10-06 사장님] 예시를 만드는 중 다른 예시를 눌러도 각자 기억 · 지금 글만 붙는다 / 입장 인사 예시도 미리 / 전에 채운 예시 원문에도 두 분 이름
 chk 'EX_RACE' order-preview.html 4
