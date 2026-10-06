@@ -93,6 +93,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 /* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
    페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
 html{caret-color:transparent}
+html,body{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}   /* [NO_BAR_SHIFT 2026-10-06] 스크롤바 전역 숨김(브랜드 규칙) — 이 면만 빠져 있어 좌석을 펼치고 접을 때 화면이 좌우로 흔들렸다 */
 input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 <style>

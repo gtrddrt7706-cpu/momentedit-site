@@ -9169,7 +9169,10 @@ chk 'AGREE_NOTE_OFF' order-preview.html 1
 nochk '위 칸에 체크하면 눌러져요</p>' order-preview.html
 nochk '앞뒤 빈소리를 자르고 소리 크기를 나레이션에 맞췄어요 · 한 번 들어 보세요' order-preview.html
 nochk '천천히 읽어 주세요 · 30초쯤' order-preview.html   # [READ_NO_SEC]
-nochk 'mk-vdel2" data-fk="mkupdel' order-preview.html   # [AI_DONE_QUIET]
+# [AI_DONE_QUIET] AI 줄의 «✓ AI로 만들었어요 · 지우기»는 걷은 그대로 — 아래 둘이 지킨다(상태 줄을 비우는 줄 · 지우기는 AI 가 아닌 줄만).
+#   ★[UP_BTN_OFF 2026-10-06] 녹음 · 파일 줄은 아래 «들어 보기 · 지우기» 단추 줄을 걷으며 지우기를 상태 줄 끝으로 옮겼다(지울 길이 없으면 다시 녹음 · 올리기로 못 간다) — 종전 nochk 'mk-vdel2" data-fk="mkupdel' 은 두 경우를 못 갈라 바꿨다 · 화면 검사 vc-screen · rec-upload 가 AI 줄 지우기 없음을 잰다
+chk "src==='ai') st=Object.assign({},st,{t:'',ok:0});" order-preview.html 1
+chk "st.file&&!st.busy&&!aiF?'<span aria-hidden" order-preview.html 1
 chk 'PAUSE_FIT' order-preview.html 3   # 문장 사이 쉼을 받은 소리 안에서 맞춘다(0.2 · 0.5 · 0.9 · 1.4초)
 chk 'MIC_KEEP' order-preview.html 5   # 녹음 창이 열린 동안 마이크를 닫지 않는다(허용 창 덜 묻기)
 chk 'ASSET_V' order-preview.html 3   # 옛 파일을 쓰지 않게 ?v= · ?t=
@@ -14774,3 +14777,16 @@ nochk 'mk-vu-tmp">임시로' order-preview.html
 nochk 'mk-vu-tmp' order-preview.html
 nochk 'P.style.minHeight=bh' order-preview.html
 chk "d.classList.toggle('mk-dlg-top',h.indexOf('mk-vu-img')>-1);" order-preview.html 1   # [VU_FLOW_FREE] 나오는 곳 창은 위 고정 — 다음마다 그림이 오르내리지 않게
+# ★[UP_BTN_OFF · UP_RACE · PV_FILL · VLIST_ONE_LINE · KEEP_IN_ROW · NO_BAR_SHIFT 2026-10-06 사장님] 식전 영상 쪽 정리 + 같은 꼴 전수
+#   아래 «들어 보기 · 지우기» 단추 줄 걷음(머리 ▶ · 상태 줄 끝 지우기) · 연달아 보낸 줄이 «파일 올렸어요»로 적히던 경합 · AI 고르면 소개글 예시 1 · 가로선 두 줄 · 확정 안내 보기를 칩 줄로 · 스크롤바로 좌우 흔들림
+chk 'UP_BTN_OFF' order-preview.html 3
+chk 'UP_RACE' order-preview.html 4
+chk 'PV_FILL' order-preview.html 4
+chk 'VLIST_ONE_LINE' order-preview.html 1
+chk 'KEEP_IN_ROW' order-preview.html 5
+chk 'NO_BAR_SHIFT' order-preview.html 2
+chk 'NO_BAR_SHIFT' seat.html 1
+chk "tk:d.data.tk" mypage.html 1
+chk 'PV_FILL' scripts/audit/pv-fill.mjs 1
+nochk 'data-fk="mkupplay:' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-fill.mjs >/dev/null 2>&1; _pvf=$?; [ "$_pvf" = 1 ] && { echo 'FAIL pv-fill: 식전 영상 소개 · 저장 경합 · 가로선 · 아래 단추 줄이 어긋났습니다 — node scripts/audit/pv-fill.mjs'; fail=1; }; if [ "$_pvf" = 0 ]; then echo 'OK   pv-fill'; fi; fi   # [TAIL_RC]

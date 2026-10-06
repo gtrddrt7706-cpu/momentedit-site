@@ -72,10 +72,10 @@ for (const w of [360, 1280]) {
   ok(`${w} 쓰지 않은 녹음에서 Esc → «이 녹음을 쓰지 않고 닫을까요?» · [돌아가기]면 창 그대로 [REC_DLG]`, /이 녹음을 쓰지 않고 닫을까요/.test(ce) && ce2.dlg && ce2.ph === 'review', JSON.stringify({ ce, ce2 }));
   await pg.click('[data-fk="mkrecuse"]'); await pg.waitForTimeout(500);
   const cz = await pg.evaluate(() => ({ dlg: !!document.getElementById('mkRecDlg'), inert: document.querySelectorAll('.wrap[inert]').length, focus: document.activeElement && document.activeElement.getAttribute('data-fk') }));
-  ok(`${w} [이걸로 쓰기] → 창이 닫히고 뒤가 풀리고 포커스는 그 줄 [들어 보기]로 [REC_DLG]`, !cz.dlg && !cz.inert && cz.focus === 'mkupplay:g0', JSON.stringify(cz));
-  const c4 = await pg.evaluate(() => { const st = _lSteps(ENG, ['guest']).filter((x) => x.own); return { up: !!(S.up && S.up.g0), n: st.length, couple: st.filter((x) => x.couple).length, src0: String(st[0] && st[0].src || '').slice(0, 5), others: st.slice(1).every((x) => !x.couple), tagOk: /녹음했어요/.test(((document.querySelector('[data-fk="mkupplay:g0"]') || {}).closest ? document.querySelector('[data-fk="mkupplay:g0"]').closest('li').textContent : '')),   /* [VP_ONE_LIST] 표 ✓ 는 줄 카드의 «녹음했어요» */ del: !!document.querySelector('[data-fk="mkupdel:g0"]') }; });
+  ok(`${w} [이걸로 쓰기] → 창이 닫히고 뒤가 풀리고 포커스는 그 줄 머리 ▶ 로 [REC_DLG · UP_BTN_OFF]`, !cz.dlg && !cz.inert && cz.focus === 'mkvpl:g0', JSON.stringify(cz));
+  const c4 = await pg.evaluate(() => { const st = _lSteps(ENG, ['guest']).filter((x) => x.own); return { up: !!(S.up && S.up.g0), n: st.length, couple: st.filter((x) => x.couple).length, src0: String(st[0] && st[0].src || '').slice(0, 5), others: st.slice(1).every((x) => !x.couple), tagOk: /녹음했어요/.test(((document.querySelector('[data-fk="mkvpl:g0"]') || {}).closest ? document.querySelector('[data-fk="mkvpl:g0"]').closest('li').textContent : '')),   /* [VP_ONE_LIST] 표 ✓ 는 줄 카드의 «녹음했어요» */ del: !!document.querySelector('[data-fk="mkupdel:g0"]') }; });
   await pg.evaluate(() => scrollTo(0, 0)); await shot(pg, w + '-used');
-  ok(`${w} [이걸로 쓰기] → 4줄 중 1줄만 두 분 소리(blob) · 나머지 셋은 그대로 · 표 ✓ · [들어 보기] [지우기] [REC_UPLOAD]`, c4.up && c4.couple === 1 && c4.src0 === 'blob:' && c4.others && c4.tagOk && c4.del, JSON.stringify(c4));
+  ok(`${w} [이걸로 쓰기] → 4줄 중 1줄만 두 분 소리(blob) · 나머지 셋은 그대로 · 표 ✓ · 머리 ▶ · 상태 줄 끝 지우기 [REC_UPLOAD · UP_BTN_OFF]`, c4.up && c4.couple === 1 && c4.src0 === 'blob:' && c4.others && c4.tagOk && c4.del, JSON.stringify(c4));
   /* ③ 파일 — 앞뒤 무음 · 작은 소리 */
   const [fc] = await Promise.all([pg.waitForEvent('filechooser'), pg.click('[data-fk="mkup:g1"]')]); await fc.setFiles(quiet);
   await pg.waitForFunction(() => MK_REC && MK_REC.ph === 'review', null, { timeout: 15000 }).catch(() => {});
