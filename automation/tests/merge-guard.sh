@@ -14626,7 +14626,8 @@ chk 'FIX_LEG_OFF' order-preview.html 2
 nochk 'function _fixLeg' order-preview.html
 # ★[FLOW_HOW1 2026-10-06 사장님 «뺄 것만 체크 표시로 풀어 달라고 짧게 한 줄»] 예식 흐름 위 할 일 한 줄
 chk 'FLOW_HOW1' order-preview.html 2
-chk '뺄 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1
+chk '덜어낼 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1   # [FLOW_HOW_TRIM 2026-10-06] «뺄» → «덜어낼»
+nochk '뺄 순간만 ✓를' order-preview.html
 # ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 들면 다시 녹음해도 된다고 여기도 한 번 더»] 두 분 목소리 만들기 쪽 한 줄
 chk 'VOICE_REDO_NOTE' order-preview.html 1
 chk '말투가 마음에 들지 않으면 다시 녹음해 새로 만들 수 있어요' order-preview.html 1
