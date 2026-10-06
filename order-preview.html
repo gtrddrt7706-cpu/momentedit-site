@@ -4379,7 +4379,7 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return '';
           +'<div class="mk-fl">'+_mkCnt(id,v,K.lim)+'</div>')
       +'</div>'; });
   h+='</div>'; }
-  /* ★«미리 적기 어려우면 «현장에서 바로 할게요»에 체크하고 …» 안내 줄 금지 — 2026-10-06 사장님 «추천대로»(서약 개선 4) [TXALT_OFF] · 체크칸이 스스로 말한다 */
+  /* ★체크칸 아래 «미리 적기 어려우면 … 체크하고 끝 신호만» 안내 줄 금지 — 2026-10-06 사장님 «추천대로»(서약 개선 4) [TXALT_OFF] · 체크칸이 스스로 말한다 */
   if(kind==='letter') h+='<p class="mk-note mk-txalt">보내지 않아도 돼요 · «'+esc(K.chk)+'»에 체크하면 끝 신호만 알려 주세요</p>';
   var ex=_mkRef(k)?'':kind==='vow'?fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true)):kind==='letter'?fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true)):'';
   if(ex) h+='<div style="margin-top:10px">'+ex+'</div>';
