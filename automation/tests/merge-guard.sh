@@ -9243,7 +9243,7 @@ chk 'PREP_DUE' assets/ritual-open.js 3   # 마감은 항목 데이터(3 · 7 · 
 nochk "due: /3일 전/.test" assets/ritual-open.js
 chk 'PREP_DUE' mypage.html 1   # 마이페이지 준비 칸도 같은 말(당일 · 마감 없음)
 chk 'STUDIO_PREP' assets/ritual-open.js 1   # (역사) 스튜디오 준비 → [GOODS_CHOICE] 로 바뀌었다(사장님 9/25 밤 «고르게 · 부탁은 별도»)
-chk 'GOODS_CHOICE' assets/ritual-open.js 3
+chk 'GOODS_CHOICE' assets/ritual-open.js 2   # [GOODS_STUDIO 2026-10-06] 고르기 판은 걷었다 · 역사 표식만
 chk 'GOODS_CHOICE' mypage.html 1
 chk 'GOODS_CHOICE' admin.html 1
 # [PICK_V2 3-1 · 사장님 말씀 1 · 2026-09-26] ① 머리에서 비용 줄을 뺐다 — 케이크 · 꽃 비용은 ② «케이크 준비 · 꽃 준비» · ③ «저희가 준비해요 · 별도 비용»에 [GOODS_CHOICE]

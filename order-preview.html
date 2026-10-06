@@ -1069,7 +1069,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-cg .gl{min-width:0;padding-top:12px;line-height:1.4;word-break:keep-all}
 .ls-cg .cg-c{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
 .fe-row .fe-what{flex:1 1 220px;min-width:0;font-size:16px}
-.fe-len{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--sub)}
+.fe-len{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--sub)}   /* [RIT_TYPE5] 이 면의 작은 글 단계 */
 .fe-len .tin{width:72px;font-size:16px;text-align:center}   /* [FREE_ETC] 입력칸 16px(iOS 확대 방지 · A11Y_INPUT_16) */
 /* [TEMPO_STEP] 말 빠르기 [−] 0 [＋] — 칩과 같은 테 · 같은 높이(44) · 숫자는 고정폭 숫자(값이 바뀌어도 단추가 안 움직인다) · 장식 없음 */
 .mk-tp .cg-c{gap:0;flex-wrap:nowrap}
@@ -5821,7 +5821,7 @@ function _lScrollTo(k){ var el=document.getElementById('lsr_'+k); if(el&&el.scro
 function _lRefKey(k){ var R=RitualOpen;
   if(k==='welcome'||k==='vow'||k==='bless') return [k];
   if(k==='letter') return ['letter:'+R.chipOf('letter',S)];
-  if(k==='tribute'){ var t=R.chipOf('tribute',S); if(t==='none') return []; return ['tribute:'+(t==='one'&&R.crossTribute(S)?'cross':t)]; }
+  if(k==='tribute'){ var t=R.chipOf('tribute',S); if(t==='none') return []; return ['tribute:'+(R.crossTribute(S)?'cross':t)]; }   // [TRIB_ONE_SAY 2026-10-06] 말은 «말로 인사»(long) 하나 — 서로의 부모님께면 cross 예시
   if(k==='toast'){ return ['toast:'+R.chipOf('toast',S)]; }   // [CAKE_TOAST_SPLIT] 축배 순간엔 늘 «위하여»
   if(k==='free') return R.FREE_KIND[R.chipOf('free',S)]==='speech'?['free:speech:'+R.chipOf('freeLen',S)]:[];
   if(k==='declare') return R.chipOf('declare',S)==='family'?['declare:family']:[];

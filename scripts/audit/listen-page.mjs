@@ -484,7 +484,7 @@ else {
   ok('9-7b 두 분 차례 — 적은 글 206자 → 42초 · «현장에서» → «떠오르는 대로 말해 보세요» [CAST_TEXT_ONLY]', tw.length === 2 && tw[0].mine && tw[0].s === 42 && tw[1].site && /떠오르는 대로 말해 보세요/.test(tw[1].t), JSON.stringify(tw));
   const rt = await pg.evaluate(() => { const ids = RITUAL_REF.rows.map((r) => r.id); const set = (k, patch) => { const keep = JSON.stringify(S); Object.assign(S, patch.S || {}); if (patch.on) S.on = Object.assign({}, S.on, patch.on); const r = _lRefSets(k); S = JSON.parse(keep); return r; };
     return { rows: RITUAL_REF.rows.length, retired: ids.filter((f) => /^(27_tribute-reply|15_toast)$/.test(f)).length,
-      cross: set('tribute', { S: { tributeSay: 'one', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
+      cross: set('tribute', { S: { tributeSay: 'long', letter: 'parent' }, on: { tribute: 1, letter: 1 } }).map((x) => x.map((p) => p.id).join('+')).join(' | '),
       sp1: set('free', { S: { freeWhat: 'speech', freeLen: '1' }, on: { free: 1, bless: 1 } }).map((x) => x.length).join(','),
       sp3off: set('free', { S: { freeWhat: 'speech', freeLen: '3', bless: 'off' }, on: { free: 1, bless: 0 } }).length }; });
   ok('9-9 참고 예시 표 144줄(EX_MORE) · 폐지 클립(27 · 15) 없음 · 서로의 부모님께 판 · 축하의 말 1분 = 조각 둘 × 고른 네 벌 · 덕담 없으면 부모님 예시(고른 넷 + 한 분이 하실 때) 다섯 벌 더 [REF_TABLE · EX_MORE · REF_BEST4]', rt.rows === 144 && rt.retired === 0 && /505_tribute-cross-groom/.test(rt.cross) && rt.sp1 === '2,2,2,2' && rt.sp3off === 9, JSON.stringify(rt));

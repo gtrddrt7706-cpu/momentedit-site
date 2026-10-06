@@ -557,7 +557,7 @@
   }
   var NOTICE = {
     heavy: '앉아서 듣는 순간이 셋 이어져요. 반지나 선언을 담으면 사이가 풀려요. 반지는 끼고 오셔도 할 수 있어요.',   /* [DETAIL_0925 A2] «남겨 두면» → «담으면» */
-    twice: '부모님께 드리는 말이 두 번이에요. 인사를 «한마디씩»으로 바꾸면 겹치지 않아요.',
+    /* ★twice(«부모님께 드리는 말이 두 번 · 한마디씩으로») 금지 — 2026-10-06 사용자 지시로 «한마디씩» 판을 걷어 함께 삭제 [TRIB_ONE_SAY] */
     toast: '끝이 조용한 편이에요. «축배»를 담으면 하객 모두가 함께 잔을 들며 밝게 끝나요(술 대신 음료도 돼요).',
     /* [NOTICE_0925 코워크 4-7] 뒤쪽 사슬(인사 · 축사 · 편지) — 앞쪽(덕담 · 서약)은 위 heavy 그대로 */
     heavyBack: '앉아서 듣는 순간이 셋 이어져요. 부모님께 인사를 «말 없이»로 하면 사이가 풀려요.',
@@ -603,8 +603,7 @@
       if (msg === NOTICE.heavyBack) n.acts.push(['인사를 «말 없이»로', 'tribute', 'none']);
       else { if (!onOf(S, 'ring')) n.acts.push(['반지 교환 담기', 'on', 'ring']); if (!onOf(S, 'declare')) n.acts.push(['성혼 선언 담기', 'on', 'declare']); }
       n.key = 'heavy:' + three.join(',');
-    } else if (msg === NOTICE.twice) { n.acts.push(['인사를 «한마디씩»으로', 'tribute', 'one']); n.key = 'twice'; }
-    else if (msg === NOTICE.toast) { n.acts.push(['축배 담기', 'on', 'toast']); n.key = 'toast'; }   // [CAKE_TOAST_SPLIT]
+    } else if (msg === NOTICE.toast) { n.acts.push(['축배 담기', 'on', 'toast']); n.key = 'toast'; }   // [CAKE_TOAST_SPLIT]
     else { n.close = false; n.key = 'short'; }
     return n;
   }
