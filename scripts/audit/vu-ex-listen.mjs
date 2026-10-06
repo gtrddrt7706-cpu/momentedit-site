@@ -29,23 +29,24 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="mkvuse:pv"]'); await wait(400);
   const geo = () => pg.evaluate(() => { const q = document.getElementById('mkVuQ'), n = document.querySelector('[data-fk="mkusenext"]'); return { P: q && (q.parentNode.className + ':' + Math.round(q.parentNode.getBoundingClientRect().height) + ':' + q.parentNode.style.minHeight + ':box' + Math.round(document.querySelector('#mkRecDlg [role=dialog]').getBoundingClientRect().top)), qh: q ? Math.round(q.getBoundingClientRect().height) : 0, ny: n ? Math.round(n.getBoundingClientRect().top) : 0, t: (document.getElementById('mkDlgT') || {}).textContent }; });
   const a = await pg.evaluate(() => ({ chips: [...document.querySelectorAll('[data-fk^="mkuseex:"]')].map((b) => b.textContent), q: (document.getElementById('mkVuQ') || {}).textContent || '', play: !!document.querySelector('[data-fk="mkuseplay"]'), tmp: !!document.querySelector('.mk-vu-tmp') }));
-  ok(`${w} ① 식전 영상 소개 — «예시 1~4» 칩 · 예시 1 글 · «들어 보기» 있음 · «임시로 들려 드리는 AI 목소리예요»`, a.chips.join('|') === '예시 1|예시 2|예시 3|예시 4' && a.q === await pg.evaluate(() => PV_EX[0][1]) && a.play && a.tmp, JSON.stringify(a));
+  ok(`${w} ① 식전 영상 소개 — «예시 1~4» 칩 · 예시 1 글 · «들어 보기» 있음 · «임시로 들려 드리는 AI 목소리예요» 없음 [VU_FLOW_FREE]`, a.chips.join('|') === '예시 1|예시 2|예시 3|예시 4' && a.q === await pg.evaluate(() => PV_EX[0][1]) && a.play && !a.tmp && !/임시로 들려/.test(await pg.evaluate(() => document.getElementById('mkRecDlg').textContent)), JSON.stringify(a));
   const g0 = await geo();
   if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `vu-ex-${w}.png`) });
   await pg.click('[data-fk="mkuseex:2"]'); await wait(300);
   const b = await pg.evaluate(() => ({ q: (document.getElementById('mkVuQ') || {}).textContent || '', pv: S.pvText }));
   const g1 = await geo();
-  ok(`${w} ① 예시 3 칩 → 그 글 · 두 분 글(S.pvText)은 그대로 · 글 칸 높이 · «다음» 자리 그대로`, b.q === await pg.evaluate(() => PV_EX[2][1]) && b.pv === '' && g1.qh === g0.qh && g1.ny === g0.ny, JSON.stringify({ b, g0, g1 }));
+  ok(`${w} ① 예시 3 칩 → 그 글 · 두 분 글(S.pvText)은 그대로 · 차례 = 칩 → 글 → 들어 보기 → 이전 · 다음 [VU_FLOW_FREE]`, b.q === await pg.evaluate(() => PV_EX[2][1]) && b.pv === '' && await pg.evaluate(() => { const y = (s) => { const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : -1; }; return y('[data-fk^="mkuseex:"]') < y('#mkVuQ') && y('#mkVuQ') < y('[data-fk="mkuseplay"]') && y('[data-fk="mkuseplay"]') < y('[data-fk="mkusenext"]'); }), JSON.stringify({ b, g0, g1 }));
   await pg.click('[data-fk="mkuseplay"]'); await wait(700);
   const c = await pg.evaluate(() => ({ calls: window.__calls.slice(), plays: window.__plays.slice() }));
   ok(`${w} ② 소리 파일이 없는 글 «들어 보기» → AI 로 읽기(practice · 신랑) · 그 소리를 튼다`, c.calls.some((x) => /^practice:groom:/.test(x)) && c.plays.some((x) => /^blob:/.test(x)), JSON.stringify(c));
   await pg.click('[data-fk="mkuseplay"]'); await wait(300);
-  ok(`${w} ② 같은 글 두 번째 «들어 보기»는 다시 만들지 않는다`, (await pg.evaluate(() => window.__calls.length)) === c.calls.length);
+  ok(`${w} ② 같은 글 두 번째 «들어 보기»는 다시 만들지 않는다`, (await pg.evaluate(() => window.__calls.filter((x) => /^practice:/.test(x)).length)) === c.calls.filter((x) => /^practice:/.test(x)).length);   /* [EX_PREBAKE] 예시 미리 만들기(make)는 뒤에서 돈다 · 들어 보기(practice)만 센다 */
   /* ③ 다음 · 이전 — 높이 그대로 */
   const hs = [g0.qh]; const ys = [g0.ny]; const ps = [g0.P];
   { await pg.click('[data-fk="mkusenext"]'); await wait(300); const g = await geo(); hs.push(g.qh); ys.push(g.ny); ps.push(g.P); }   // 식전 영상 소개 → 입장 인사(마지막)
   for (let i = 0; i < 4; i++) { await pg.click('[data-fk="mkuseprev"]'); await wait(300); const g = await geo(); hs.push(g.qh); ys.push(g.ny); ps.push(g.P); }
-  ok(`${w} ③ 다음 · 이전을 오가도 글 칸 높이 · «다음» 단추 자리가 같다`, new Set(hs).size === 1 && new Set(ys).size === 1, JSON.stringify({ hs, ys, ps }));
+  /* ★[VU_FLOW_FREE 2026-10-06 사장님 «그냥 창 움직이게 하고 최적화»] 종전 «다음 · 이전을 오가도 높이 같다» → 높이는 글만큼 · 본문에 최소 높이를 걸지 않는다 */
+  ok(`${w} ③ 다음 · 이전 — 창 본문에 고정 높이 없음(글만큼) · 들어 보기와 이전 · 다음 사이 빈칸 30px 이하 [VU_FLOW_FREE]`, ps.every((p) => p && p.split(':')[2] === '') && await pg.evaluate(() => { const a = document.querySelector('[data-fk="mkuseplay"]').getBoundingClientRect(), n = document.querySelector('.mk-vu-nav').getBoundingClientRect(); return n.top - a.bottom <= 30; }), JSON.stringify({ hs, ys, ps }));
   ok(`${w} 화면 오류 없음`, !errs.length, errs.slice(0, 2).join(' | '));
   await pg.close();
 }

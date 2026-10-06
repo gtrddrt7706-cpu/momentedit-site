@@ -1502,10 +1502,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-rc b{font-size:12.5px;font-weight:600;color:var(--accent)}
 .mk-extag{display:inline-block;margin-left:8px;padding:1px 8px;border:1px solid var(--gold-deeper);border-radius:999px;font-size:11px;font-weight:500;color:var(--gold-deeper);vertical-align:2px;letter-spacing:.02em;white-space:nowrap}   /* [EX_ONE] 예시 그대로인 줄 */
 .mk-exs{border-top:0;padding-top:0;margin-top:6px}
-.mk-vu-exn{margin:-4px 0 12px;font-size:12.5px}   /* [VU_PV_EX] */
-.mk-vu-fix{display:flex;flex-direction:column}.mk-vu-fix>.mk-vu-nav{margin-top:auto}   /* [VU_EX_LISTEN ③] 본문 높이 고정 · 이전 · 다음 줄은 바닥 */
+.mk-vu-exn{margin:-4px 0 12px;font-size:12.5px;word-break:keep-all;text-wrap:pretty}   /* [VU_PV_EX] · [VU_FLOW_FREE] 외톨이 «있어요» 막기 */
 .mk-vu-exs{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}   /* [VU_EX_LISTEN] 들어 볼 글 칩 */
-.mk-vu-tmp{margin:-8px 0 14px;font-size:12.5px;text-align:center}   /* [VU_LAYOUT] 단추 바로 아래 · 글 위 */
 .mk-exl{align-self:center;margin-right:2px;font-size:11px;color:var(--gold-deeper);letter-spacing:.04em}   /* [EX_ONE] 끝 신호 예시 칩 앞 «예시» */   /* [EX_ONE] 줄 카드 바로 위 */
 .mk-rc span{font-size:12.5px;color:var(--light);line-height:1.45;word-break:keep-all}
 .mk-rc.on{border-color:var(--gold-deep);box-shadow:0 0 0 1px var(--gold-deep) inset;background:#F3ECDF}   /* [UI_ONE · SEL_ONE] 고른 것 한 모양 */
@@ -1545,6 +1543,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동안만 · 클래스로(ordAsk 의 body.style 과 섞이지 않게) */
 .mk-dlg{position:fixed;inset:0;z-index:2147482990;background:rgba(28,27,25,.42);display:flex;align-items:flex-end;justify-content:center}   /* ★[REC_DLG] 녹음 · AI 목소리 작은 창 — 모바일은 아래에서 올라오는 판 · 넓은 화면은 가운데 · 흐림(blur) 없음 */
 .mk-dlg-c{width:100%;max-width:520px;max-height:92vh;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--bg);border-radius:12px 12px 0 0;padding:16px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -6px 28px rgba(28,27,25,.16)}
+.mk-dlg.mk-dlg-top{align-items:flex-start;padding:max(12px,4dvh) 8px 0}.mk-dlg-top .mk-dlg-c{border-radius:12px;max-height:calc(100dvh - max(12px,4dvh) - 12px)}   /* [VU_FLOW_FREE] 위 고정 · 아래로만 늘고 준다 */
+@media (min-width:640px){.mk-dlg.mk-dlg-top{padding:max(24px,calc((100dvh - 780px) / 2)) 24px 24px}}
 @media (min-width:640px){.mk-dlg{align-items:center;padding:24px}.mk-dlg-c{border-radius:12px;padding:20px 24px 22px;box-shadow:0 8px 28px rgba(28,27,25,.18)}}
 .mk-dlg-h{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px}
 .mk-dlg-t{flex:1;margin:4px 0 0;font-family:var(--ko-serif);font-size:20px;font-weight:600;letter-spacing:-.02em;line-height:1.4;color:var(--accent);word-break:keep-all}
@@ -1777,7 +1777,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-vu-img img,.mk-vu-img video{display:block;width:100%;height:100%;object-fit:cover}   /* [VU_VIDEO_PLAY] 영상도 같은 틀 */
 .mk-vu-when{margin:0 0 6px;font-size:12.5px;color:var(--gold-deeper)}
 .mk-vu-q{margin:0 0 14px;padding:12px 14px;border-radius:8px;background:var(--bg2);font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);word-break:keep-all}
-.mk-vu-play{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0 0 14px}   /* [VU_LAYOUT] 단추 → 글 사이 */
+.mk-vu-play{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:4px 0 0}   /* [VU_FLOW_FREE] 글 · 안내 아래 · 이전 · 다음 위 */
 .mk-vu-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
 .mk-vu-nav .pk-link[disabled]{opacity:.35;cursor:default}
 .mk-vu-n{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
@@ -4852,7 +4852,7 @@ function _recDlgPaint(){ var m=_dlgModel(), d=document.getElementById('mkRecDlg'
   if(!d){ d=document.createElement('div'); d.id='mkRecDlg'; d.className='mk-dlg'; document.body.appendChild(d); MK.dlgFrom=MK.lastFk||''; _dlgInert(true); }
   if(h===DLG.html) return; DLG.html=h;
   var a=document.activeElement, fk=(a&&d.contains(a)&&a.getAttribute)?a.getAttribute('data-fk'):null;
-  d.innerHTML=h;
+  d.innerHTML=h; d.classList.toggle('mk-dlg-top',h.indexOf('mk-vu-img')>-1);   /* [VU_FLOW_FREE] «나오는 곳» 창은 위를 고정 — 높이가 글만큼 바뀌어도 그림 · 칩이 제자리(가운데 · 아래 맞춤이면 «다음»마다 60~120px 튀었다 · 실측) */
   var tg=fk&&d.querySelector('[data-fk="'+fk+'"]'); if(!tg||tg.disabled) tg=d.querySelector('.mk-dlg-go:not([disabled])')||d.querySelector('#mkDlgT');
   try{ tg.focus({preventScroll:true}); }catch(e){} }
 document.addEventListener('click',function(e){ var b=e.target&&e.target.closest&&e.target.closest('[data-fk]'); if(b&&!b.closest('#mkRecDlg')) MK.lastFk=b.getAttribute('data-fk'); },true);   // 창을 닫으면 연 단추로 돌아간다
@@ -5089,10 +5089,13 @@ function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), w
     +(function(){ var O=_vuOpts(x[0]), j=_vuSel(x[0],O), o=O[j]||{txt:''};
       /* ★[VU_LAYOUT 2026-10-06 사장님 «빈칸이 많이 보여 비어 있는 듯 · 제일 긴 글에 맞춘 고정의 단점» → «추천대로»] 차례 = 예시 칩 → 들어 보기 → 글. 칩 · 단추는 늘 같은 자리 · 글 상자는 글 길이만큼(높이 고정 금지) · 남는 높이는 창 바닥(이전 · 다음 줄은 그대로 바닥 고정) */
       return (O.length>1?'<div class="mk-vu-exs" role="radiogroup" aria-label="들어 볼 글">'+O.map(function(t,n){ var on=n===j; return '<button type="button" class="op-chip mk-vu-ex" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkuseex:'+n+'" onclick="mkUseEx('+n+')">'+_chipT(t.lab)+'</button>'; }).join('')+'</div>':'')
-        +((o.src||_ptOn())?'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" onclick="mkUsePlay()"'+(VU.busy?' disabled aria-busy="true"':'')+'>'+ICO_PLAY+' '+(VU.busy?'준비 중…':'들어 보기')+'</button>'+(!o.src?'<p class="mk-note mk-vu-tmp">임시로 들려 드리는 AI 목소리예요</p>':''):'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" disabled aria-disabled="true">'+ICO_PLAY+' 이 글은 아직 들어 볼 수 없어요</button>'   /* [VU_LAYOUT] 소리가 없어도 단추 자리를 지킨다 — 칩을 바꿀 때 글이 오르내리지 않게 */)
-        +(VU.err?'<p class="mk-exw" role="alert">'+esc(VU.err)+'</p>':'')
+        /* ★[VU_FLOW_FREE 2026-10-06 사장님 «창 안 움직이게 가장 긴 글 기준으로 맞췄는데 생각보다 이상해서 그냥 창 움직이게 하고 최적화» · «들어 보기를 하단에 배치»]
+           차례 = 예시 칩 → 글 → 예시 안내 → 들어 보기(아래) → 이전 · 다음. 창 높이는 그 장의 글만큼(고정 금지 · _vuFix 는 높이를 걷기만 한다)
+           ★«임시로 들려 드리는 AI 목소리예요» 금지 — 2026-10-06 사용자 지시로 삭제(전부) */
         +'<p class="mk-vu-q" id="mkVuQ">'+esc(o.txt)+'</p>'
-        +(o.ex&&!O.some(function(t){ return t.own; })?'<p class="mk-note mk-vu-exn">예시 글이에요 · '+esc(x[0]==='pv'?'식전 영상':/^g\d$/.test(x[0])?'하객 맞이':'입장')+' 쪽에서 두 분 글로 바꿀 수 있어요</p>':''); })()
+        +(o.ex&&!O.some(function(t){ return t.own; })?'<p class="mk-note mk-vu-exn">예시 글이에요 · '+esc(x[0]==='pv'?'식전 영상':/^g\d$/.test(x[0])?'하객 맞이':'입장')+' 쪽에서 두 분 글로 바꿀 수 있어요</p>':'')
+        +(VU.err?'<p class="mk-exw" role="alert">'+esc(VU.err)+'</p>':'')
+        +((o.src||_ptOn())?'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" onclick="mkUsePlay()"'+(VU.busy?' disabled aria-busy="true"':'')+'>'+ICO_PLAY+' '+(VU.busy?'준비 중…':'들어 보기')+'</button>':'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" disabled aria-disabled="true">'+ICO_PLAY+' 이 글은 아직 들어 볼 수 없어요</button>'); })()
     +'<div class="mk-vu-nav"><button type="button" class="pk-link" data-fk="mkuseprev" onclick="mkUseGo(-1)"'+(i?'':' disabled')+'>‹ 이전</button><span class="mk-vu-n" aria-live="polite">'+(i+1)+' / '+n+'</span>'
     +'<button type="button" class="rowbtn" data-fk="mkusenext" onclick="mkUseGo(1)">'+(i<n-1?'다음 ›':'닫기')+'</button></div>'; }
 /* ★[VU_VIDEO_KEEP 2026-10-06 사장님 «다음 넘길 때마다 영상이 처음부터 다시 · 하객 입장부터 시작 1분 전까지는 같은 영상이니 재생하던 그대로»]
@@ -5114,12 +5117,7 @@ function _vuOpts(key){ var me=_recNeed(key)||'', out=[];
 function _vuSel(key,O){ var j=VU.sel[key]; if(j!=null&&O[j]) return j; var me=_exNorm(_recNeed(key)||'');
   for(var n=0;n<O.length;n++){ if(O[n].own||(me&&_exNorm(O[n].txt)===me)) return n; } return 0; }
 /* [VU_EX_LISTEN ③] 글 칸 높이 고정 — 이 창 모든 자리 · 모든 칩 글 중 가장 높은 것 */
-function _vuFix(){ var q=document.getElementById('mkVuQ'); if(!q) return; var rows=_vcUseRows(), m=document.createElement('p'); m.className='mk-vu-q'; m.style.cssText='position:absolute;visibility:hidden;left:-9999px;box-sizing:border-box;width:'+q.getBoundingClientRect().width+'px;min-height:0;margin:0';
-  q.parentNode.appendChild(m); var hi=0; rows.forEach(function(x){ _vuOpts(x[0]).forEach(function(o){ m.textContent=o.txt; hi=Math.max(hi,m.offsetHeight); }); }); m.remove();   /* ★[VU_LAYOUT] 보이는 글 상자에 최소 높이 금지 — 2026-10-06 사용자 지시로 삭제(짧은 줄에서 빈 회색 칸) · hi 는 창 높이 재는 데만 쓴다 */
-  /* 창 본문 전체도 — 칩 · 안내 줄이 있는 장과 없는 장의 차이로 «다음»이 오르내리지 않게 가장 높은 장에 맞추고 «이전 · 다음» 줄은 바닥에 */
-  var P=q.parentNode, c=document.createElement('div'); c.className=P.className; c.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;box-sizing:border-box;width:'+P.getBoundingClientRect().width+'px;min-height:0';
-  P.parentNode.appendChild(c); var bh=0;   /* 같은 조상 아래서 재야 창 안 글꼴 · 여백 규칙이 똑같이 걸린다 */ rows.forEach(function(x,i){ c.innerHTML=((P.querySelector('.mk-dlg-h')||{}).outerHTML||'')+_vcUseBody(rows,i).replace(/<video[^>]*><\/video>|<img[^>]*>/g,''); var mi=c.querySelector('.mk-vu-img'), pi=P.querySelector('.mk-vu-img'); if(mi&&pi) mi.style.height=pi.offsetHeight+'px'; var qq=c.querySelector('.mk-vu-q'); if(qq) qq.style.minHeight=hi+'px'; bh=Math.max(bh,c.offsetHeight); }); c.remove();
-  if(bh){ P.style.minHeight=bh+'px'; P.classList.add('mk-vu-fix'); } }
+function _vuFix(){ var q=document.getElementById('mkVuQ'); if(!q) return; var P=q.parentNode; P.style.minHeight=''; P.classList.remove('mk-vu-fix'); }   /* ★[VU_FLOW_FREE 2026-10-06] 가장 긴 장에 맞춰 창 높이를 고정하던 것 금지 — 2026-10-06 사용자 지시로 삭제(짧은 장에서 큰 빈칸) · 이름은 부르는 곳이 많아 남긴다 */
 window.mkUseEx=function(n){ var x=_vcUseRows()[MK.use||0]; if(!x) return; _stopMk(); VU.sel[x[0]]=n; VU.err=''; _fxNext='[data-fk="mkuseex:'+n+'"]'; render(); _vuFix(); };
 window.mkUseOpen=function(i){ MK.use=i; VU.err=''; render(); _vuFix(); };
 window.mkUseGo=function(d){ var n=_vcUseRows().length; _stopMk(); var j=(MK.use||0)+d; if(j>=n){ MK.use=null; render(); return; } if(j<0) j=0; MK.use=j; VU.err=''; _vuKeep(render); _vuFix(); };
