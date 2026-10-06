@@ -460,6 +460,11 @@ select {
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
   transition: top 0.12s var(--ease);
 }
+/* ★[NO_CARET_TEXT 2026-10-06 사장님 «MOMENT EDIT 사이에 커서가 나오는 이유 · 없애 줘»] <main id="main" tabindex="-1">(본문 바로가기 목적지)과
+   상담 도우미 창(tabindex="-1")은 누르면 포커스를 받는다 — 크롬은 포커스된 요소 안 글자를 누른 자리에 깜빡이는 커서를 그린다(로고 글자 사이 세로줄).
+   글 칸이 아닌 곳의 커서만 투명하게 · caret-color 는 물려받으니 입력칸은 다시 보이게 되돌린다. 글 고르기(복사)는 그대로 된다 */
+[tabindex="-1"]{caret-color:transparent}
+[tabindex="-1"] input,[tabindex="-1"] textarea,[tabindex="-1"] select,[tabindex="-1"] [contenteditable]{caret-color:auto}
 .skip-link:focus {
   top: 12px;
 }

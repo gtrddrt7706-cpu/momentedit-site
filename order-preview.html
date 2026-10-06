@@ -1831,6 +1831,9 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .op-reset-low .prog-reset{display:inline-flex;margin:0;padding:0 4px}
 /* [RIT_WIDTH_720] PC 에서 ②③④ 폭 — ①(1104)과 520 사이를 튀지 않게 720 */
 @media (min-width:1000px){ body.op4:not(.pk2) .wrap{max-width:720px} }
+/* [NO_CARET_TEXT 2026-10-06] 누르면 포커스를 받는 창(tabindex="-1") 안 글자에 깜빡이는 커서가 그려지지 않게 · 입력칸은 그대로 */
+[tabindex="-1"]{caret-color:transparent}
+[tabindex="-1"] input,[tabindex="-1"] textarea,[tabindex="-1"] select,[tabindex="-1"] [contenteditable]{caret-color:auto}
 </style>
 </head>
 <body>

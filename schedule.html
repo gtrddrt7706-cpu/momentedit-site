@@ -553,6 +553,9 @@ body.sticky-on footer{padding-bottom:104px}
 h2.card-title,h3.card-title{margin:0;display:inline}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+/* [NO_CARET_TEXT 2026-10-06] 누르면 포커스를 받는 창(tabindex="-1") 안 글자에 깜빡이는 커서가 그려지지 않게 · 입력칸은 그대로 */
+[tabindex="-1"]{caret-color:transparent}
+[tabindex="-1"] input,[tabindex="-1"] textarea,[tabindex="-1"] select,[tabindex="-1"] [contenteditable]{caret-color:auto}
 </style>
 </head>
 <body>
