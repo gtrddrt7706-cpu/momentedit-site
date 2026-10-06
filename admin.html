@@ -1013,7 +1013,7 @@ function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&c
     if(d.gone){ el.innerHTML=vh+'<div class="kv"><span class="k">지움</span><span class="v">'+esc(d.gone)+' (예식 30일 뒤)</span></div>'; return; }
     /* ★[RF_ROWS_0928 코워크 0928 6-7] 자리마다 한 줄 — 자리 · 갈래(두 분 녹음 · 올린 파일 · AI 목소리 · 비어 있음 → 나레이션) · 파일 [들어 보기] · 바뀐 때 · [확인 ✓] · 빈 줄엔 [연락하기].
        자리는 두 분이 «두 분 목소리»를 고른 식순만(하객 맞이 넷 · 입장 인사 하나) · 지금 쓰는 파일은 그 자리의 가장 새 파일 · 옛 파일은 아래에 따로 */
-    var S3=((((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).ritualDraft||{}).S)||{}, up=S3.up||{}, ks=[], LAB={g0:'하객 맞이 1 · 하객 입장 때',g1:'하객 맞이 2 · 시작 10분 전',g2:'하객 맞이 3 · 시작 5분 전',g3:'하객 맞이 4 · 시작 1분 전',entry:'입장 인사',pv:'식전 영상 소개'};
+    var S3=((((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).ritualDraft||{}).S)||{}, up=S3.up||{}, ks=[], LAB={g0:'하객 맞이 1 · 하객 입장 때',g1:'하객 맞이 2 · 시작 10분 전',g2:'하객 맞이 3 · 시작 5분 전',g3:'하객 맞이 4 · 시작 1분 전',pv:'식전 영상 소개',entry:'입장 인사'};
     if(S3.guestVoice==='couple') ks=ks.concat(['g0','g1','g2','g3']); if(S3.entryVoice==='couple') ks.push('entry'); if(S3.pvVoice==='couple') ks.push('pv');   // [PV_INTRO]
     var curF={}, old=[], BT='class="btn-line" style="padding:2px 8px;font-size:12px"';
     d.files.forEach(function(f){ if(f.key&&!curF[f.key]) curF[f.key]=f; else old.push(f); });
@@ -1056,7 +1056,7 @@ function admRfUp(k,btn){ var code=curDetail&&curDetail.code; if(!code||!window.R
   inp.click(); }
 /* [RF_ROWS_0928] 빈 줄 [연락하기] — 문자 앱을 그 줄 이름을 담아 연다(보내기는 사람이) */
 function admRfAsk(k){ var d=curDetail||{}, ph=d.phone?(window.meTelDigits?meTelDigits(d.phone):String(d.phone).replace(/[^0-9+]/g,'')):''; if(!ph) return '';
-  var L={g0:'하객 맞이 안내 1번(하객 입장 때)',g1:'하객 맞이 안내 2번(시작 10분 전)',g2:'하객 맞이 안내 3번(시작 5분 전)',g3:'하객 맞이 안내 4번(시작 1분 전)',entry:'입장 인사',pv:'식전 영상 소개'}[k]||'두 분 목소리';   // [PV_INTRO]
+  var L={g0:'하객 맞이 안내 1번(하객 입장 때)',g1:'하객 맞이 안내 2번(시작 10분 전)',g2:'하객 맞이 안내 3번(시작 5분 전)',g3:'하객 맞이 안내 4번(시작 1분 전)',pv:'식전 영상 소개',entry:'입장 인사'}[k]||'두 분 목소리';   // [PV_INTRO]
   var body='[모먼트에디트] 두 분 목소리 준비 · '+L+' 줄이 아직 비어 있어요. 마이페이지 식순 만들기에서 준비해 주세요.';   // ★[LATE_LINE_OFF 2026-09-28] «7일 전까지 준비되지 않은 줄은 나레이션» 은 사실과 달라 걷었다 · 직접 녹음을 뺐으니 «녹음하거나 파일을 올려»도 걷음
   return '<a class="btn-line" style="padding:2px 8px;font-size:12px" href="sms:'+esc(ph)+'?body='+encodeURIComponent(body)+'">연락하기</a>'; }
 function admRfPlay(id,btn){ var code=curDetail&&curDetail.code; if(!code) return; btn.disabled=true; btn.textContent='받는 중…';

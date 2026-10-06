@@ -13495,7 +13495,7 @@ chk 'RIT_CURVE_LABEL' order-preview.html 5          # 1 카드 곡선 아래 «�
 nochk '<span class="pk-ex-cap">감동 흐름</span>' order-preview.html   # [CURVE_CAP_OFF 2026-10-03 사장님] 카드마다 라벨 걷음 · 나중 결정이 이긴다
 chk 'CURVE_CAP_OFF' order-preview.html 1
 chk 'CONSENT_PV' order-preview.html 2
-chk '하객 맞이 안내 · 입장 인사 · 식전 영상 소개, 켜시면 연습 읽기에만' order-preview.html 1
+chk '하객 맞이 안내 · 식전 영상 소개 · 입장 인사, 켜시면 연습 읽기에만' order-preview.html 1   # [VOICE_ORDER 2026-10-06] 예식 차례대로
 chk '순간을 더 담으면 흐름이 그려져요' order-preview.html 1
 chk 'RIT_PANEL_NOMIN' order-preview.html 1          # 2 흐름 판 머리의 «본식 약 N분» 뺌
 nochk 'pk-fp-body mo' order-preview.html 0
@@ -14523,3 +14523,9 @@ chk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html 1
 chk 'VP_ASK_FIRST' scripts/audit/vp-ask-first.mjs 1
 chk 'STALE_BY_PILL' scripts/audit/pv-intro.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; [ "$_vpa" = 1 ] && { echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; }; fi
+# ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
+chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
+chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1
+chk 'VU_VIDEO_PLAY' order-preview.html 2
+nochk "'<div class=\"mk-vu-img\">'+(v?'<img src=" order-preview.html
+:
