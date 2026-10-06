@@ -14624,3 +14624,6 @@ nochk '<span class="pk-fix">늘 있어요</span>' order-preview.html
 # ★[FIX_LEG_OFF 2026-10-06 사장님 «고른 순간 · 늘 있는 순간 이거는 굳이 없어도 이해할 것 같아»] 범례 한 줄 삭제(예식 흐름 · ① 칸)
 chk 'FIX_LEG_OFF' order-preview.html 2
 nochk 'function _fixLeg' order-preview.html
+# ★[FLOW_HOW1 2026-10-06 사장님 «뺄 것만 체크 표시로 풀어 달라고 짧게 한 줄»] 예식 흐름 위 할 일 한 줄
+chk 'FLOW_HOW1' order-preview.html 2
+chk '뺄 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1

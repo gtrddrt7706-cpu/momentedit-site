@@ -1258,6 +1258,7 @@ body.lsfull{overflow:hidden}
    ① 칸과 같은 표(.pk-sel · 담김 = 먹빛 동그라미 ✓ · 안 담김 = 금빛 테 ＋)를 그대로 쓴다 — 여기서는 칸 모서리에 띄우지 않고 줄 끝에 세울 뿐(위치만 덮어쓴다).
    늘 있는 순간(하객 맞이 · 입장 · 닫는 인사)은 같은 ✓ 를 옅게(단추 아님) — 모든 줄이 «담겨 있음»을 말하고, 고정된 줄은 고정돼 보이게 */
 .cf-r .pk-sel{position:static;justify-self:end;font-size:12.5px}   /* 단추 자체의 글자 크기(브라우저 기본 13.33)를 이 쪽 RIT_TYPE5 로 · 글은 <i> 가 그린다 */
+.mk-intro .cf-how{margin:18px 0 0}   /* [FLOW_HOW1] */
 .cf-fixmk{justify-self:end;width:44px;height:44px;display:grid;place-items:center}   /* [FIX_MARK_O] · [CF_FIX_FIT] 넘치던 «늘 있어요» 알약 자리 · ✓ 단추(.pk-sel 44 · 동그라미 26)와 같은 자리 · 같은 가운데 */
 .pk-fixmk{position:absolute;top:0;right:0;width:44px;height:44px;display:grid;place-items:center;pointer-events:none}
 .fixmk{display:grid;place-items:center;box-sizing:border-box;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink2);background:rgba(255,255,255,.96)}
@@ -5643,6 +5644,7 @@ function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
       +(fixed?_fixMk('cf-fixmk')   /* ★[FIX_MARK_O 2026-10-06 사장님 «늘 있어요랑 체크 버튼이 센터 정렬 · 늘 있어요보다 다른 건 없을까 · 연속성» → «추천대로»(A)] ✓ 와 같은 크기 빈 동그라미 + 가운데 점 · 위 범례 한 줄이 뜻을 말한다 · ★«늘 있어요» 글 알약 금지 — 2026-10-06 사용자 지시로 바꿈 */   /* [FLOW_MARK] 단추 아님 · ★[UI_ONE 2026-10-04] 옅은 빈 ✓ 동그라미는 누를 수 있는 칸처럼 보였다 — ① 칸과 같은 «늘 있어요» 표 */
         :'<button type="button" class="pk-sel cf-mk'+(on?' on':'')+'" data-fk="mkflow:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(nm)+(on?' · 담김 · 누르면 빼기':' · 빠짐 · 누르면 다시 담기')+'" onclick="mkFlowTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>')+'</li>'; }   /* [FLOW_MARK] ① 칸과 같은 표 */
   /* ★범례 한 줄 금지 — 2026-10-06 사용자 지시로 삭제 [FIX_LEG_OFF] «굳이 없어도 이해할 것 같아» */
+  h+='<p class="mk-note cf-how">뺄 순간만 ✓를 눌러 풀어 주세요</p>';   /* ★[FLOW_HOW1 2026-10-06 사장님 «뺄 것만 체크 표시로 풀어 달라고 짧게 설명 한 줄»] 범례 대신 할 일 한 줄 */
   if(pre.length) h+='<p class="cf-g" id="mkFgPre">식전</p><ol class="cf-l" aria-labelledby="mkFgPre">'+pre.map(row).join('')+'</ol>';
   h+='<p class="cf-g" id="mkFgBody">본식</p><ol class="cf-l" aria-labelledby="mkFgBody">'+body.map(row).join('')+'</ol>';
   /* ★«비워 둔 칸은 예식 7일 전까지 채우면 돼요.»([MK_MIN] 한 줄) 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW] · 같은 마감은 ④ «순서는 예식 14일 전까지, 글은 예식 7일 전까지»(EDIT_WINDOW) · 녹음 카드 마감(«예식 7일 전까지») · 넘김 창(«미완료로 둘게요»)이 말한다 */
