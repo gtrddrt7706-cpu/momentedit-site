@@ -1437,7 +1437,11 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .lf-choose.done{margin:0 0 4px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
 .lf-ref{margin:0 0 8px;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [REF_EXAMPLE] */
 .lf-refn{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
-.mk-rcs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}   /* ★[REF_GRID 2026-10-02 사장님 «예시 4개의 네모 박스칸이 어긋나 있어»] 글 길이대로 늘던 flex 대신 같은 너비 칸 — PC 넷 · 좁으면 둘 */   /* [EX_MORE] 줄바꿈 · 가로 스크롤 없음 */
+.mk-rcs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}
+.mk-rmore{display:flex;flex-wrap:wrap;gap:0 16px;margin:-6px 0 10px}   /* [REF_ROW4] 상황 예시 · 부모님 예시 = 카드 줄 아래 작은 글 단추 */
+.mk-rlink{min-height:44px;font-size:12.5px}
+.mk-rlink.on{color:var(--accent);font-weight:600;text-decoration-thickness:2px}
+.mk-rgh{margin:8px 0 0;font-size:12.5px;font-weight:600;color:var(--sub)}   /* ★[REF_GRID 2026-10-02 사장님 «예시 4개의 네모 박스칸이 어긋나 있어»] 글 길이대로 늘던 flex 대신 같은 너비 칸 — PC 넷 · 좁으면 둘 */   /* [EX_MORE] 줄바꿈 · 가로 스크롤 없음 */
 .mk-rc{min-width:0;max-width:100%;display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:44px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--sub);font:inherit;text-align:left;cursor:pointer}
 .mk-rc b{font-size:12.5px;font-weight:600;color:var(--accent)}
 .mk-extag{display:inline-block;margin-left:8px;padding:1px 8px;border:1px solid var(--gold-deeper);border-radius:999px;font-size:11px;font-weight:500;color:var(--gold-deeper);vertical-align:2px;letter-spacing:.02em;white-space:nowrap}   /* [EX_ONE] 예시 그대로인 줄 */
@@ -4422,7 +4426,7 @@ function _exIs(key){ var t=_exNorm(_recNeed(key)); if(!t) return false;
   if(key==='entry') return t===_exNorm((ENTRY[S.entry]||{}).self);
   if(key==='pv') return PV_EX.some(function(x){ return t===_exNorm(x[1]); });
   return false; }
-var ENTRY_KEYS=['A','B','C','D','E','F'];
+var ENTRY_KEYS=['A','B','D','E'];   /* ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 · 1줄로 · 베스트로»] AI 판 입장 인사 참고 예시 = 결이 겹치지 않는 넷(서사 · 짧고 강하게 · 감성 · 감사·가족). 격식과 따뜻함(C)은 서사 · 감사와, 이야기의 시작(F)은 서사와 겹친다 — 나레이션 판 여섯 멘트(녹음)는 그대로 · 고른 판이 C · F 면 카드는 아무것도 안 켜진다 */
 window.mkEntryEx=function(n){ var v=ENTRY_KEYS[n]; if(!v||!ENTRY[v]) return; var go=function(){ if(S.vlines) delete S.vlines[_slVk('entry')]; if(S.vkeep) delete S.vkeep.entry; _lSet('entry',v); buildSteps(); _fxNext='[data-fk="mkex:entry:'+n+'"]'; _persist(); render(); };
   /* 고쳐 둔 줄이 있으면 예시를 눌러도 글이 안 바뀌었다(고친 줄이 이긴다) — 식전 영상 소개처럼 묻고 바꾼다 */
   if(S.vlines&&S.vlines[_slVk('entry')]&&!_exIs('entry')){ ordAsk({title:'예시로 바꿀까요?',body:'지금 적어 둔 입장 인사는 지워져요',yes:'예시로 바꾸기',no:'그대로 두기'}).then(function(ok){ if(ok) go(); }); return; } go(); };
@@ -5380,11 +5384,18 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
      겹치면 그 칩들은 «누가 읽나»를 보인다. */
   var _pv=sets.map(_refPv), _pvN={}; _pv.forEach(function(x){ _pvN[x]=(_pvN[x]||0)+1; });
   _pv=_pv.map(function(x,i){ if(_pvN[x]<2) return x; var w=sets[i].map(function(p){ return p.who; }).filter(Boolean); return w.length>1?w.join(' · ')+' 나눠 읽기':(w[0]?w[0]+' 읽기':x); });
-  sets.forEach(function(set,n){ if(n>=main.length&&!parOpen) return; if(sitI.indexOf(n)>-1&&!sitOpen) return; var on=n===cur;   /* ★[QA_RC_ROVE 2026-10-04 점검] 라디오 묶음은 탭 한 번 — 고른 카드만 tabindex 0 · 옆 카드는 화살표 */
-    h+='<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(!(cur>=0)&&n===0))?'0':'-1')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_refTitle(set)||_pv[n])+'</span></button>'; });   // [REF_TITLE]
-  if(sitI.length&&!sitOpen) h+='<button type="button" class="mk-rc mk-rpar" data-fk="mkrsit:'+k+'" aria-expanded="false" onclick="mkRefSit(\''+k+'\')"><b>상황에 맞는 예시 ›</b><span>'+esc(sitI.map(function(i){ var t=_refSit(main[i]); return REF_SIT[t]||t; }).filter(function(t,i,a){ return a.indexOf(t)===i; }).join(' · '))+'</span></button>';   // [REF_BEST4]
-  if(par&&!parOpen) h+='<button type="button" class="mk-rc mk-rpar" data-fk="mkrpar:'+k+'" aria-expanded="false" onclick="mkRefPar(\''+k+'\')"><b>부모님이 하실 때 ›</b><span>덕담 예시 '+par+'벌</span></button>';
-  h+='</div>';
+  /* ★★[REF_ROW4 2026-10-06 사장님 «예시 4개로 추리자 · 1줄로 맞아떨어지게 · 다른 곳들도 베스트로 전부»] 카드는 고른 넷만 — PC 한 줄(폰 2×2).
+     상황 예시(먼저 떠나신 분께 · 한 분이 하실 때 …)와 «부모님이 하실 때 ›»는 다섯째 카드로 붙어 줄을 넘겼다 → 카드 줄 아래 작은 글 단추로 내렸다(누르면 바로 그 예시 · 버리지 않는다 [REF_BEST4]).
+     ★다섯째 카드 금지 — 카드 줄은 늘 넷 이하 */
+  var _card=function(set,n){ var on=n===cur; return '<button type="button" class="mk-rc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(!(cur>=0)&&n===0))?'0':'-1')+'" data-fk="mkrc:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)"><b>'+esc(_refName(set,n))+'</b><span>'+esc(_refTitle(set)||_pv[n])+'</span></button>'; };   /* [QA_RC_ROVE] 고른 카드만 tabindex 0 · [REF_TITLE] */
+  var _link=function(set,n){ var on=n===cur, t=_refSit(set); return '<button type="button" class="pk-link mk-rlink'+(on?' on':'')+'" aria-pressed="'+(on?'true':'false')+'" data-fk="mkrsit:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)">'+esc((REF_SIT[t]||t)+' 예시')+'</button>'; };
+  var _grp=function(lo,hi){ var c='', l=''; for(var n=lo;n<hi;n++){ if(_refSit(sets[n])) l+=_link(sets[n],n); else c+=_card(sets[n],n); } return { c:c, l:l }; };
+  var gm=_grp(0,main.length);
+  h+=gm.c+'</div>';
+  var more=gm.l+(par&&!parOpen?'<button type="button" class="pk-link mk-rlink" data-fk="mkrpar:'+k+'" aria-expanded="false" onclick="mkRefPar(\''+k+'\')">부모님이 하실 때 예시 ›</button>':'');
+  if(more) h+='<div class="mk-rmore">'+more+'</div>';
+  if(par&&parOpen){ var gp=_grp(main.length,sets.length); h+='<p class="mk-rgh">부모님이 하실 때</p><div class="mk-rcs" role="radiogroup" aria-label="부모님 예시">'+gp.c+'</div>'+(gp.l?'<div class="mk-rmore">'+gp.l+'</div>':''); }
+  void sitOpen;
   var set=sets[cur], sit=_refSit(set), who='';
   h+='<div class="mk-rsel"><p class="sr-only">참고 '+esc(_refName(set,cur))+'</p>';   /* [R8-14 REF_PILL_OFF] 바로 위 칸에서 «예시 N»이 골라진 모양인데 «참고 예시 N» 알약이 또 붙어(고르는 칩과 같은 꼴) 누르는 것처럼 보였다 — 보이는 알약을 걷고 화면 읽기에는 남긴다 · ③ 연습 카드의 lf-refb 는 그대로 */
   set.forEach(function(pt){ h+='<p class="mk-rw">'+(pt.who!==who?'<b>'+esc(pt.who)+'</b>':'')+esc(pt.txt)+'<span class="mk-rl">'+pt.txt.length+'자 · 약 '+_mkSec(pt.txt.length)+'초</span></p>'; who=pt.who; });
@@ -5395,7 +5406,7 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   /* ★[REF_START_OFF 2026-10-02 사장님 «이 예시로 시작하기 이 버튼도 삭제»] 되살리지 말 것 — mkRefStart 는 남겨 둔다(부르는 곳 없음) */ void tgt;
   return h+'</div></section>'; }
 window.mkRefPar=function(k){ LS.refPar=LS.refPar||{}; LS.refPar[k]=1; render(); };
-window.mkRefSit=function(k){ LS.refSit=LS.refSit||{}; LS.refSit[k]=1; var sets=_lRefSets(k), i=-1; sets.some(function(x,n){ if(!(x[0]&&x[0].parent)&&_refSit(x)){ i=n; return true; } return false; }); _fxNext=i>-1?'[data-fk="mkrc:'+k+':'+i+'"]':''; render(); };   // [REF_BEST4] 펼치면 첫 상황 예시 칩에 초점
+window.mkRefSit=function(k,n){ if(n!=null){ mkRefPick(k,n,1); return; } LS.refSit=LS.refSit||{}; LS.refSit[k]=1;   /* [REF_ROW4] 상황 예시는 글 단추로 바로 고른다 */ var sets=_lRefSets(k), i=-1; sets.some(function(x,n){ if(!(x[0]&&x[0].parent)&&_refSit(x)){ i=n; return true; } return false; }); _fxNext=i>-1?'[data-fk="mkrc:'+k+':'+i+'"]':''; render(); };   // [REF_BEST4] 펼치면 첫 상황 예시 칩에 초점
 window.mkRefStart=function(k){ var sets=_lRefSets(k), cur=Math.min((LS.ref||{})[k]||0,sets.length-1), set=sets[cur], kind=_mkKinds(k)[0], n=0; if(!set||!kind) return;
   if(!S.tx) S.tx={}; TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], pt=set.filter(function(p){ return p.who===w[1]; })[0]; if(pt&&!String(S.tx[id]||'').trim()){ S.tx[id]=pt.txt; _fAt('tx.'+id); n++; } });
   _txLeg(kind); _persist(); MK.toast=n?'예시를 두 분 칸에 옮겼어요 · 이름과 이야기를 두 분 것으로 바꿔 주세요':''; _fxNext='#mkt_'+kind+'_g'; render(); };
