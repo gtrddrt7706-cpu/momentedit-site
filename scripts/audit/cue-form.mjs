@@ -29,11 +29,11 @@ for (const W of [390, 1280]) {
   const cs = (id) => pg.evaluate((id) => (S.tx || {})[id] || '', id);
   for (const k of ['welcome', 'vow', 'letter']) {
     await pg.evaluate((k) => { if (k === 'vow') S.vowHow = 'each'; mkGo(k); try { lsStop(); } catch (e) {} }, k); await pg.waitForTimeout(500);   /* [VOW_FORM] 두 칸 = «각자 차례로» 판(번갈아 줄 칸은 vow-form.mjs) */
-    const a0 = await pg.evaluate(() => ({ why: (document.querySelector('.mk-txwhy') || {}).textContent || '', alt: (document.querySelector('.mk-txalt') || {}).textContent || '', on: document.querySelectorAll('.mk-rc[aria-checked="true"]').length, rw: document.querySelectorAll('.mk-rw').length, card: !!document.querySelector('.mk-txc .mk-txr'), ta: document.querySelectorAll('.mk-txc textarea').length }));
+    const a0 = await pg.evaluate(() => ({ why: (document.querySelector('.mk-txwhy') || {}).textContent || '', alt: (document.querySelector('.mk-txalt') || {}).textContent || '', on: document.querySelectorAll('.mk-exc[aria-checked="true"]').length, rw: document.querySelectorAll('.mk-rw').length, card: !!document.querySelector('.mk-txc .mk-txr'), ta: document.querySelectorAll('.mk-txc textarea').length }));
     ok(`${W} ${k} 처음 — 왜 적는지 한 줄 · 체크 안내 줄은 편지만(그 밖은 체크칸이 말한다 [TXALT_OFF]) · 두 분 칸 = 한 카드 · 아무 예시도 안 골라짐 · 미리보기 글 없음`, /디렉터/.test(a0.why) && (k === 'letter' ? /끝 신호/.test(a0.alt) : a0.alt === '') && a0.card && a0.ta === 2 && a0.on === 0 && a0.rw === 0, JSON.stringify(a0));
     await pg.click(`[data-fk="mkrc:${k}:0"]`); await pg.waitForTimeout(400);
     const g1 = await cs(k + '.g'), b1 = await cs(k + '.b');
-    const a1 = await pg.evaluate((k) => ({ on: (document.querySelector('.mk-rc[aria-checked="true"]') || {}).dataset?.fk || '', ta: (document.getElementById('mkt_' + k + '_g') || {}).value || '', tag: document.querySelectorAll('.mk-txc .mk-extag').length }), k);
+    const a1 = await pg.evaluate((k) => ({ on: (document.querySelector('.mk-exc[aria-checked="true"]') || {}).dataset?.fk || '', ta: (document.getElementById('mkt_' + k + '_g') || {}).value || '', tag: document.querySelectorAll('.mk-txc .mk-extag').length }), k);
     ok(`${W} ${k} 예시 1 → 신랑 · 신부 칸에 바로 · 그 카드가 골라짐 · «예시 글» 표 없음 [EXTAG_OFF]`, g1.length > 10 && b1.length > 10 && a1.ta === g1 && a1.on === `mkrc:${k}:0` && a1.tag === 0, JSON.stringify({ g1: g1.slice(0, 20), b1: b1.slice(0, 20), ...a1 }));
     if (k === 'welcome') await shot(pg, `cue-form-filled-${W}`);
     await pg.fill(`#mkt_${k}_g`, g1 + ' 고맙습니다.'); await pg.waitForTimeout(150);

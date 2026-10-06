@@ -14792,6 +14792,18 @@ chk "d.classList.toggle('mk-dlg-bot',h.indexOf('mk-vu-img')>-1);" order-preview.
 chk 'VU_BOTTOM_FIX' order-preview.html 2
 nochk "d.classList.toggle('mk-dlg-top'," order-preview.html
 chk 'VU_BOTTOM_FIX' scripts/audit/vu-ex-listen.mjs 1
+# ★★[EX_ROW 2026-10-06 사장님 «스튜디오 나레이션 윗쪽 버튼 그대로 써서 예시 글 · 다른 곳도 전부 가로 타원 · 예시 표시는 버튼마다가 아니라 한 곳에»] 참고 예시 카드 → 칩 줄(이름표 «참고 예시» · 느낌 이름)
+chk 'EX_ROW' order-preview.html 8
+chk 'function _exRows(k)' order-preview.html 1
+chk 'function _exRowG(key,lab,names,cur,fn,fk,base,note)' order-preview.html 1
+nochk "if(ai&&k==='guest') h+=_exCards('guest'" order-preview.html
+nochk "if(ai&&k==='entry') h+=_exCards('entry'" order-preview.html
+nochk "+_exCards('pv',PV_EX.map" order-preview.html
+nochk "h+=_exCards('guestnar'" order-preview.html
+nochk "<b>'+esc(_refName(set,n))+'</b><span>'" order-preview.html
+nochk "L('pvVoice','영상 앞 소개'," order-preview.html
+chk 'EX_ROW' scripts/audit/ex-row.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-row.mjs >/dev/null 2>&1; _exr=$?; if [ "$_exr" = 1 ]; then echo 'FAIL ex-row: 예시 칩 줄이 어긋났습니다 — node scripts/audit/ex-row.mjs'; fail=1; else echo "ok ex-row ($_exr)"; fi; fi
 # ★[UP_BTN_OFF · UP_RACE · PV_FILL · VLIST_ONE_LINE · KEEP_IN_ROW · NO_BAR_SHIFT 2026-10-06 사장님] 식전 영상 쪽 정리 + 같은 꼴 전수
 #   아래 «들어 보기 · 지우기» 단추 줄 걷음(머리 ▶ · 상태 줄 끝 지우기) · 연달아 보낸 줄이 «파일 올렸어요»로 적히던 경합 · AI 고르면 소개글 예시 1 · 가로선 두 줄 · 확정 안내 보기를 칩 줄로 · 스크롤바로 좌우 흔들림
 chk 'UP_BTN_OFF' order-preview.html 3
