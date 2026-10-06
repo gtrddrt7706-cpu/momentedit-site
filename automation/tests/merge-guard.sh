@@ -14520,3 +14520,9 @@ chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry
 chk 'VU_VIDEO_PLAY' order-preview.html 2
 nochk "'<div class=\"mk-vu-img\">'+(v?'<img src=" order-preview.html
 :
+# ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 추리자 · 1줄로 맞아떨어지게 · 다른 곳들도 베스트로 전부»] 참고 예시 카드는 늘 넷 이하(PC 한 줄 · 폰 2×2) · 상황 예시 · 부모님 예시는 카드 줄 아래 글 단추 · AI 입장 인사 예시 = A · B · D · E
+chk 'REF_ROW4' order-preview.html 3
+chk "var ENTRY_KEYS=\['A','B','D','E'\];" order-preview.html 1
+nochk 'class="mk-rc mk-rpar"' order-preview.html
+chk 'REF_ROW4' scripts/audit/listen-page.mjs 3
+:
