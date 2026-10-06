@@ -14610,3 +14610,9 @@ chk 'EXTAG_OFF' order-preview.html 2
 # ★[FIELD_NO_RED 2026-10-06 사장님 «텍스트박스에 빨간색 테두리 없었으면»] 식순 글 칸은 진사 포커스 고리 없음 · 금빛 테두리 · 밑줄로만
 chk 'FIELD_NO_RED' order-preview.html 3
 nochk '.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal)' order-preview.html
+# ★[VP_ASK_ONE · VU_VIDEO_KEEP · VU_PV_EX 2026-10-06 사장님] «먼저 골라 주세요» 상자 걷고 칩 아래 한 줄 · 목소리 창 같은 영상 이어 재생 · 식전 영상 소개 빈 글 = 예시 1
+chk 'VP_ASK_ONE' order-preview.html 2
+nochk 'mk-sec mk-vpask"' order-preview.html
+chk 'VU_VIDEO_KEEP' order-preview.html 1
+chk 'VU_PV_EX' order-preview.html 2
+chk 'VU_VIDEO_KEEP' scripts/audit/vuse-flow.mjs 2
