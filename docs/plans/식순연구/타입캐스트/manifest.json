@@ -688,7 +688,7 @@
     {
       "no": "05",
       "id": "G2-A",
-      "label": "서사형",
+      "label": "이야기처럼",
       "file": "entry-A",
       "role": "진행",
       "part": "2_진행_전반.txt",
@@ -756,7 +756,7 @@
     {
       "no": "07",
       "id": "G2-C",
-      "label": "격식과 따뜻함",
+      "label": "격식 있게",
       "file": "entry-C",
       "role": "진행",
       "part": "2_진행_전반.txt",
@@ -787,7 +787,7 @@
     {
       "no": "08",
       "id": "G2-D",
-      "label": "감성 · 시적",
+      "label": "시처럼",
       "file": "entry-D",
       "role": "진행",
       "part": "2_진행_전반.txt",
@@ -818,7 +818,7 @@
     {
       "no": "09",
       "id": "G2-E",
-      "label": "감사 · 가족",
+      "label": "고마움을 담아",
       "file": "entry-E",
       "role": "진행",
       "part": "2_진행_전반.txt",
@@ -855,7 +855,7 @@
     {
       "no": "10",
       "id": "G2-F",
-      "label": "이야기의 시작",
+      "label": "새 출발처럼",
       "file": "entry-F",
       "role": "진행",
       "part": "2_진행_전반.txt",
@@ -2556,7 +2556,7 @@
     {
       "no": "80",
       "id": "G12-1C",
-      "label": "입장 닫는 말 · 격식과 따뜻함",
+      "label": "입장 닫는 말 · 격식 있게",
       "file": "narr-entry-out-C",
       "role": "진행",
       "part": "6_예식뒤.txt",
@@ -2581,7 +2581,7 @@
     {
       "no": "81",
       "id": "G12-1D",
-      "label": "입장 닫는 말 · 감성 · 시적",
+      "label": "입장 닫는 말 · 시처럼",
       "file": "narr-entry-out-D",
       "role": "진행",
       "part": "6_예식뒤.txt",
@@ -2606,7 +2606,7 @@
     {
       "no": "82",
       "id": "G12-1E",
-      "label": "입장 닫는 말 · 감사 · 가족",
+      "label": "입장 닫는 말 · 고마움을 담아",
       "file": "narr-entry-out-E",
       "role": "진행",
       "part": "6_예식뒤.txt",
@@ -2631,7 +2631,7 @@
     {
       "no": "83",
       "id": "G12-1F",
-      "label": "입장 닫는 말 · 이야기의 시작",
+      "label": "입장 닫는 말 · 새 출발처럼",
       "file": "narr-entry-out-F",
       "role": "진행",
       "part": "6_예식뒤.txt",

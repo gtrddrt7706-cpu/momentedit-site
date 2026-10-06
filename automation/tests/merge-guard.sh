@@ -3910,7 +3910,7 @@ chk '실측인지 예상인지' assets/ritual-data.js 1
 
 # ── [REDUB_VOICE] 재더빙 붙여넣기는 클립마다 제 화자를 붙인다 (2026-08-10 · 적대 검증) ──
 # 옛 판은 VOICE(진행=우성) 하나를 모든 줄에 박았다. CONSOLE_TEXT 로 훑는 범위가 넓어지며
-# 안내(잔희) 클립이 들어오자 14줄 중 5줄이 틀린 화자로 나갔다 — 그대로 녹음하면 안내만 목소리가 바뀐다.
+# 안내(진희) 클립이 들어오자 14줄 중 5줄이 틀린 화자로 나갔다 — 그대로 녹음하면 안내만 목소리가 바뀐다.
 # ★PASTE_VOICE 는 형식(`화자: 대사`)만 봤다. 꼴이 맞아도 사람은 틀릴 수 있다.
 chk 'REDUB_VOICE' scripts/check-text-audio.mjs 1
 # [REDUB_TWIN 2026-08-10] 한 화면 자리에 녹음이 둘일 수 있다(guest-2-10min = 안내판 + 배역판).
@@ -5183,7 +5183,7 @@ chk "doing: 'move', duck: PARAM.duckMusic" assets/ritual-cue.js 1
 #   없는 버튼을 안내하는 셈이다. 그래서 04·45 «안»에 문장을 더하지 않고 별도 클립으로 뺐다.
 # ★photoShare 는 digital 과 같은 ★INJECT 키다 — 값은 **유무 boolean 뿐**이고 URL 은 안 싣는다
 #   (미리듣기 주소는 하객이 볼 수도 있는 공개 링크다).
-# ★화자는 사람이 정하지 않는다 — 파트(1_안내)의 role 에서 대장이 읽는다(→ 잔희). 코워크가 손으로
+# ★화자는 사람이 정하지 않는다 — 파트(1_안내)의 role 에서 대장이 읽는다(→ 진희). 코워크가 손으로
 #   적은 판은 '우성'이었고 그건 틀렸다. 기계가 읽은 값이 맞았다.
 chk 'PHOTO_ASK' assets/ritual-cue.js 5
 chk 'PHOTO_ASK' assets/ritual-preview-link.js 3
@@ -14619,3 +14619,10 @@ chk 'd:"이야기처럼"' assets/ritual-data.js 1
 chk 'd:"새 출발처럼"' order-preview.html 1
 chk 'GUEST_EX_RS' order-preview.html 1   # [GUEST_EX_RS 2026-10-06] 하객 맞이 예시 2~4 — 제미나이 딥리서치 반영(상투어 · 과한 감성 · «슬슬» 뺌 · 어미 통일)
 nochk '"저희 두 사람의 결혼식에 귀한 걸음 해 주셔서' order-preview.html
+# ★[VOICE_JINHEE 2026-10-06 사장님 «잔희 아니고 진희 · 실수 없이»] 붙여넣기 · 안내 문서에 «잔희» 0 — 경위 주석(build-typecast-import · 이 파일 7360줄대 · 오디오북 기획 기록)만 남긴다
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/보이스찾기/README.md'
+nochk '잔희:' 'docs/plans/식순연구/타입캐스트/재더빙_20260817_1_안내.txt'
+nochk '잔희:' 'docs/plans/식순연구/타입캐스트/실청_다시_20260905.txt'
+nochk '잔희' 'docs/plans/식순연구/타입캐스트/하객맞이예시_20261006_붙여넣기.txt'
+nochk '`잔희`(우리 안내)' scripts/build-typecast-import.mjs
+chk '진희: 어서 오세요.' 'docs/plans/식순연구/타입캐스트/하객맞이예시_20261006_붙여넣기.txt' 1
