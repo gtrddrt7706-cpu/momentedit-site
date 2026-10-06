@@ -21,7 +21,7 @@
      ★두 분이 순서를 바꾸지 않는다(↑↓ 없음 · 사장님 9/25). 담으면 이 자리에 들어간다.
      guest(하객 맞이)는 목록에 안 보이고 늘 들어간다. entry 와 _close 는 «늘 있어요». */
   /* ★★[SPEECH_IN_FREE 2026-09-25 코워크 회신 둘째 판 · 사장님 결정 4] «축하의 말»을 따로 두지 않는다 —
-       친구 · 가족의 축사는 «준비한 순서»의 한 판이다(부모님께 인사 뒤 · 3분 안 · 드물게 쓰임).
+       친구 · 가족의 축사는 «준비한 순서»의 한 판이다(부모님께 인사 뒤 · 10분 안 · 드물게 쓰임).
        첫째 판의 speech 칸(선언 바로 뒤)은 거뒀다. 되살리지 말 것 — 사장님 «준비한 순서만 추가 가능하게».
      ★[PREVIDEO_ALWAYS 2026-09-25 사장님 결정 2 · 폐지] 식전 영상은 늘 있다 — 영상이 없는 날은 두 분이 보낸 사진으로 저희가 3분 영상을 만든다.
      ★★[PREVIDEO_PICK 2026-09-27 사장님 «식전 영상은 필수로 하지 말자 · 선택할 수 있게»] 위 결정을 뒤집는다 — 식전 영상은 담는 순간이다(여는 순간 칸).
@@ -110,7 +110,7 @@
     if (k === 'toast') return (S && S.on && (S.on.cake || S.on.toast)) ? toastMode(S) : (CHIP_OK('toast', S && S.toast) ? S.toast : 'both');   // [CAKE_TOAST_SPLIT] 담은 두 칸에서 따라 정한다
     if (k === 'wine') return 'none';   // [WINE_POUR_OFF]
     if (k === 'free') { var fv = FREE_OLD[S.freeWhat] || S.freeWhat; return CHIP_OK('free', fv) ? fv : 'video'; }
-    if (k === 'freeLen') return /^[1-3]$/.test(String(S.freeLen)) ? String(S.freeLen) : '3';   // [FREE_ETC] 기타는 분을 직접 적는다 · ★3분까지(계약서 ①-2 «3분 안» · 예식 길이 8~25분) · 칩(3 · 2 · 1)과 같은 값
+    if (k === 'freeLen') return /^(10|[1-9])$/.test(String(S.freeLen)) ? String(S.freeLen) : '3';   // [FREE_LEN10 2026-10-06 사장님] 분을 직접 적는다 · 1~10분(계약서 v1.12 ①-2 «10분 안 · 길어진 만큼 단체 사진이 준다»)
     if (k === 'entryScene') return S.entryScene === 'bow' ? 'bow' : 'look';
     if (k === 'cakeBy' || k === 'flowerBy') return 'studio';   // [GOODS_STUDIO] 늘 저희가 준비 · 옛 초안의 self 도 studio
     return '';

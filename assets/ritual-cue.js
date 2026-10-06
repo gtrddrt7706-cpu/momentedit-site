@@ -318,7 +318,7 @@
       if (s.letter === 'both') s.letter = O.DEF.letter;   // 새 코스 칩에 both 가 없다(명세 4장)
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
       s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
-      s.freeLen = O.chipOf('freeLen', s);   // [FREE_ETC] 1~3분(기타는 직접 적는다 · 계약서 «3분 안») · 모르는 값은 기본
+      s.freeLen = O.chipOf('freeLen', s);   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
       /* [BOW_GROOM] 새 코스의 인사 방식은 꽃과 포옹(기본) · 신랑 큰절 둘이다. 옛 bow(두 분 큰절)는 닫힌 채다([BOW_RETIRED]). */
       /* ★[GROOM_BOW_TIP 2026-10-06 사장님 «신랑 큰절이라고 언급은 하지 말고 · 본인이 하고 싶으면 자연스럽게 하겠지 · 팁같이만»] 고르는 판 bowGroom 을 걷었다 — 늘 꽃과 포옹.
          옛 초안의 bowGroom 도 flower 로(큰절 여는 줄 · 방석 지문이 안 나간다) · 빌더는 «원하시면 큰절을 올리셔도 돼요» 한 줄만 · ★신랑 큰절 칩 되살리지 말 것 */
