@@ -14522,7 +14522,7 @@ chk 'PR_MODE_ONE_LINE' order-preview.html 1
 chk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html 1
 chk 'VP_ASK_FIRST' scripts/audit/vp-ask-first.mjs 1
 chk 'STALE_BY_PILL' scripts/audit/pv-intro.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; [ "$_vpa" = 1 ] && { echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; if [ "$_vpa" = 1 ]; then echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; fi; fi
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
 chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
 chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1
@@ -14577,4 +14577,4 @@ chk '끝 신호 · 끝날 때 하는 말이나 동작을 알려 주세요' order
 chk 'CUE_FORM' console.html 1
 chk 'CUE_FORM' scripts/audit/cue-form.mjs 1
 nochk '아래 칸에 그대로 옮겨 적거나, 두 분 이야기로 바꿔 적어 주세요' order-preview.html
-if command -v node >/dev/null 2>&1; then node scripts/audit/cue-form.mjs >/dev/null 2>&1; _cuf=$?; [ "$_cuf" = 1 ] && { echo 'FAIL cue-form: 두 분이 할 말 칸(예시 채우기 · 현장 체크 · 끝 신호)이 어긋났습니다 — node scripts/audit/cue-form.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/cue-form.mjs >/dev/null 2>&1; _cuf=$?; if [ "$_cuf" = 1 ]; then echo 'FAIL cue-form: 두 분이 할 말 칸(예시 채우기 · 현장 체크 · 끝 신호)이 어긋났습니다 — node scripts/audit/cue-form.mjs'; fail=1; fi; fi   # ★[GUARD_TAIL_RC 2026-10-06] 맨 끝 줄이 «[ … ] && { … }»면 통과해도 거짓이 남아 종료코드 1(ALL MARKERS OK 인데 CI 빨강) — if 로 쓴다
