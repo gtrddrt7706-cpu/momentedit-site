@@ -14491,7 +14491,7 @@ chk 'CEREMONY_AT_VIDEO' scripts/audit/open-course.mjs 2
 :
 # ★★[EX_ONE 2026-10-05 사장님 «예시라고 한번 짚어 주는 게 어때 · 수정하면 안 될 것 같은 느낌 · 예시 부분 형태가 일관되지 않다 · 이벤트마다 통일»]
 #   글을 채우는 예시 = «참고 예시» 카드 한 모양(입장 AI 판 · 식전 영상 소개) · 예시 그대로인 줄에 «예시 글 · 고쳐 써도 돼요» · 끝 신호 칩 앞 «예시» · 고친 뒤 예시는 묻고 바꾼다
-chk 'EX_ONE' order-preview.html 7
+chk 'EX_ONE' order-preview.html 6   # [EX_ROW 2026-10-06] 식전 영상 소개 카드 줄 주석이 칩 줄로 바뀌어 하나 줄었다
 chk 'function _exCards(id,items,cur,fn,note)' order-preview.html 1   # [GUEST_EX_NAR 2026-10-06] 설명 글 칸(note) 하나 더 — 나레이션 판은 «고쳐 써도» 대신 «들어 보고 골라»
 chk 'function _exIs(key)' order-preview.html 1
 chk 'window.mkEntryEx=function(n)' order-preview.html 1
@@ -14646,7 +14646,7 @@ chk 'VU_EX_LISTEN' scripts/audit/vu-ex-listen.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vu-ex-listen.mjs >/dev/null 2>&1; _vux=$?; if [ "$_vux" = 1 ]; then echo 'FAIL vu-ex-listen: 목소리 «나오는 곳» 창(예시 칩 · 들어 보기 · 높이 고정)이 어긋났습니다 — node scripts/audit/vu-ex-listen.mjs'; fail=1; fi; fi
 # ★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 · 다른 곳처럼 예시 1~4 같은 폼»] AI 판 하객 맞이 = «참고 예시» 카드 넷 · 누르면 네 줄이 한 번에
 chk 'GUEST_EX4' order-preview.html 4
-chk "if(ai&&k==='guest') h+=_exCards('guest'," order-preview.html 1
+chk "out.push(_exRowG('exGuest','참고 예시',GUEST_EX.map(" order-preview.html 1   # [EX_ROW 2026-10-06] 하객 맞이 예시 카드 → 위쪽 «참고 예시» 칩 줄
 chk 'window.mkGuestEx=function(n)' order-preview.html 1
 chk "\['담백하게',\[GUEST\[0\]\[2\],GUEST\[1\]\[2\],GUEST\[2\]\[2\],GUEST\[3\]\[2\]\]\]" order-preview.html 1
 # ★[ENTRY_LAB_ONE 2026-10-06 사장님 «다른 곳들이랑 일관성 있게» → «맞추기»] 입장 예시 이름표 = «~하게 · ~처럼 · ~담아» 꼴(두 분이 할 말 · 식전 영상 · 하객 맞이와 같은 말투) · 녹음은 그대로
@@ -14668,7 +14668,7 @@ chk 'GUEST_EX_NAR' assets/ritual-cue.js 4
 chk 'guestEx: \[' assets/ritual-open.js 1
 chk "'guestEx'," assets/ritual-preview-link.js 1
 chk 'window.mkGuestNarEx=function(n)' order-preview.html 1
-chk "_exCards('guestnar'," order-preview.html 1
+chk "out.push(_exRowG('exGuestNar','안내 멘트',GUEST_EX.map(" order-preview.html 1   # [EX_ROW 2026-10-06] 스튜디오 하객 맞이 카드 → 위쪽 «안내 멘트» 칩 줄
 [ -f assets/audio/narration/126_guest-ex4-4-1min.mp3 ] && echo 'ok 126_guest-ex4-4-1min.mp3' || { echo 'REVERT? 하객 맞이 나레이션 예시 소리(115~126)가 없다'; fail=1; }
 chk 'GUEST_EX_TONE' scripts/audit/voice-register.mjs 1   # [GUEST_EX_TONE 2026-10-06 사장님 «그대로 쓰기»] 하객 맞이 예시는 두 분이 고르는 말투 · 한 예시 안 네 줄은 한 층
 chk 'BOSS_STYLE' CLAUDE.md 1   # [BOSS_STYLE 2026-10-06] 사장님 작업 방식 취합본 — 지우지 말 것
