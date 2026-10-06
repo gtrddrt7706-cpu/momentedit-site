@@ -1395,6 +1395,10 @@ button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inh
 @keyframes doneIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes doneRule{from{width:0;opacity:0}to{width:34px;opacity:.7}}
 @media(prefers-reduced-motion:reduce){.done-wrap,.done-rule{animation:none}}
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 <!-- MPD_E1 다음 postcode.v2.js head 동기 로드 제거 — 첫 화면 파싱 블로킹 주범. 주소검색 사용 시점에 ensurePostcode()가 동적 주입(QR lazy 패턴) · 동기 로드 복원 금지(2026-07-25) -->
 <!-- build: phase2n (완료카드 기본펼침·서명 즉시표시(prefetch)·중도금잔금 통합·시착비 환불단서·§4③ 명시) · redeploy 2026-06-09c -->

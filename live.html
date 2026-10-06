@@ -25,6 +25,10 @@ html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }
   html, body { background-color: #FAFAF8 !important; color: #1C1B19 !important; }
   img { filter: none !important; }
 }
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 <title>디지털 참석 · 평일결혼식·해외 하객을 위한 비공개 화면 | Moment Edit</title>
 <meta name="description" content="평일결혼식·해외 가족·멀리 사는 친구·거동이 불편한 어르신도 함께하는 디지털 참석. 모먼트에디트 프라이빗 스몰웨딩 스튜디오의 비공개 화면, 직계가족결혼식·하우스웨딩·마이크로웨딩 디지털 참석 예시 페이지.">

@@ -90,8 +90,8 @@ await safe('P1-2', async () => {
   await pg.goBack(); await pg.waitForTimeout(600);
   ok('P1-2 그다음 휴대폰 뒤로 → ② (기록이 맞다)', await step(pg) === 'listen', await step(pg));
   // ④ «② 한눈에 보기에서 보기» — [FLOW_MAKE] 옛 ③ 준비하기는 걷었다 · 준비할 것은 ② 마지막 «한눈에 보기»
-  await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(700); await pg.click('[data-fk="done2write"]'); await pg.waitForTimeout(600);
-  ok('P1-2 ④ «② 한눈에 보기에서 보기» → 빌더 안 ② 한눈에 보기', await step(pg) === 'listen' && await pg.evaluate(() => _mkState().at === '_sum'), await step(pg));
+  await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(700);
+  ok('P1-2 ④ «한눈에 보기로 이동하기» 단추 없음 [DONE_NO_SUM_LINK 2026-10-06 사용자 지시로 삭제]', await step(pg) === 'done' && await pg.evaluate(() => !document.querySelector('[data-fk="done2write"]')), await step(pg));
   await ctx.close();
 });
 await safe('P1-2 이전', async () => {

@@ -57,6 +57,10 @@ ol.terms li{margin:9px 0}
 /* [CTR_FOCUS] 포커스 표시 규칙이 없었다 */
 :where(a,button,input,textarea,select,summary,[tabindex]):focus-visible{
   outline:2px solid var(--seal);outline-offset:3px;border-radius:3px}
+/* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
+   페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
+html{caret-color:transparent}
+input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-color:auto}
 </style>
 </head>
 <body>
