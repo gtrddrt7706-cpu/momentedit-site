@@ -14535,3 +14535,9 @@ chk 'PT_PREP_SHOW' order-preview.html 3
 chk 'PT_NO_STALL' order-preview.html 3
 chk 'PT_NO_STALL' scripts/audit/play-wait-file.mjs 1
 chk 'PR_MODE_UNPICKED' scripts/audit/play-wait-file.mjs 1
+# ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 추리자 · 1줄로 맞아떨어지게 · 다른 곳들도 베스트로 전부»] 참고 예시 카드는 늘 넷 이하(PC 한 줄 · 폰 2×2) · 상황 예시 · 부모님 예시는 카드 줄 아래 글 단추 · AI 입장 인사 예시 = A · B · D · E
+chk 'REF_ROW4' order-preview.html 3
+chk "var ENTRY_KEYS=\['A','B','D','E'\];" order-preview.html 1
+nochk 'class="mk-rc mk-rpar"' order-preview.html
+chk 'REF_ROW4' scripts/audit/listen-page.mjs 3
+:

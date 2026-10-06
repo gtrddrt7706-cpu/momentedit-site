@@ -627,19 +627,19 @@ else {
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1200);
   const e = await pg.evaluate(() => { const o = { rows: RITUAL_REF.rows.length };
     S.on.tribute = 1; S.tributeSay = 'long'; opSync(); mkGo('tribute'); render();
-    o.long0 = document.querySelectorAll('.mk-ref .mk-rc:not(.mk-rpar)').length; o.sitBtn = !!document.querySelector('[data-fk="mkrsit:tribute"]'); mkRefSit('tribute');   // [REF_BEST4] 처음엔 고른 넷 + «상황에 맞는 예시 ›»
+    o.long0 = document.querySelectorAll('.mk-ref .mk-rc').length; o.sitBtn = document.querySelectorAll('.mk-ref .mk-rmore [data-fk^="mkrsit:tribute:"]').length;   // [REF_ROW4 2026-10-06] 카드는 고른 넷 · 상황 예시는 카드 줄 아래 글 단추
     const cs = [...document.querySelectorAll('.mk-ref .mk-rc')]; o.long = cs.length; o.lines = new Set(cs.map((c) => Math.round(c.getBoundingClientRect().top))).size; o.hs = document.documentElement.scrollWidth > innerWidth;
-    o.n7 = (cs[5] && cs[5].querySelector('b').textContent) || ''; mkRefPick('tribute', 5, 1); o.b7 = (document.querySelector('.mk-ref .mk-rsel .sr-only') || {}).textContent || '';   /* [R8-14] 배지는 화면 읽기에만 */ o.help = /먼저 떠나신 분께 드리는 글이에요/.test(document.querySelector('.mk-ref').textContent);
+    o.n7 = (document.querySelector('[data-fk="mkrsit:tribute:5"]') || {}).textContent || ''; mkRefPick('tribute', 5, 1); o.linkOn = !!document.querySelector('[data-fk="mkrsit:tribute:5"].on'); o.long1 = document.querySelectorAll('.mk-ref .mk-rc').length; o.b7 = (document.querySelector('.mk-ref .mk-rsel .sr-only') || {}).textContent || '';   /* [R8-14] 배지는 화면 읽기에만 */ o.help = /먼저 떠나신 분께 드리는 글이에요/.test(document.querySelector('.mk-ref').textContent);
     o.mood = /담백|다정|유머|격식|솔직하게|그리움|장면 하나|짧게/.test([...document.querySelectorAll('.mk-ref .mk-rc b, .mk-ref .lf-refb, .mk-ref .mk-rsel .sr-only')].map((x) => x.textContent).join('|'));
     S.on.free = 1; S.freeWhat = 'speech'; S.freeLen = '3'; delete S.on.bless; opSync(); mkGo('free'); render();
-    o.free0 = document.querySelectorAll('.mk-ref .mk-rc:not(.mk-rpar)').length; o.par = !!document.querySelector('[data-fk="mkrpar:free"]');
-    mkRefPar('free'); o.free1 = document.querySelectorAll('.mk-ref .mk-rc').length;
+    o.free0 = document.querySelectorAll('.mk-ref .mk-rc').length; o.par = !!document.querySelector('.mk-rmore [data-fk="mkrpar:free"]');
+    mkRefPar('free'); o.free1 = document.querySelectorAll('.mk-ref .mk-rc').length; o.parLink = !!document.querySelector('.mk-rmore [data-fk^="mkrsit:free:"]');
     S.tx = S.tx || {}; delete S.tx['vow.g']; delete S.tx['vow.b']; mkGo('vow'); render(); mkRefPick('vow', 3, 1); mkRefStart('vow');
     o.filled = !!String(S.tx['vow.g'] || '').trim() && !!String(S.tx['vow.b'] || '').trim(); o.warn = (document.getElementById('mkw_vow_g') || {}).textContent || '';
     o.startGone = !document.querySelector('[data-fk="mkrstart:vow"]'); return o; });
-  ok('13 [EX_MORE · REF_BEST4] 참고 예시 144줄 · 처음엔 고른 네 벌 + «상황에 맞는 예시 ›» · 펼치면 일곱 벌이 360 에서 줄바꿈(가로 스크롤 없음)', e.rows === 144 && e.long0 === 4 && e.sitBtn && e.long === 7 && e.lines >= 3 && !e.hs, JSON.stringify(e));
-  ok('13 상황 이름 — «예시 6 · 먼저 떠나신 분께» · 배지 «참고 예시 6 · 먼저 떠나신 분께» · 도움말 한 줄 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL · REF_BEST4]', e.n7 === '예시 6 · 먼저 떠나신 분께' && e.b7 === '참고 예시 6 · 먼저 떠나신 분께' && e.help && !e.mood, JSON.stringify(e));
-  ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌 + «부모님이 하실 때 ›» → 누르면 덕담 다섯 벌(고른 넷 + 한 분이 하실 때) [REF_BEST4]', e.free0 === 4 && e.par && e.free1 === 9, JSON.stringify(e));
+  ok('13 [EX_MORE · REF_BEST4 · REF_ROW4] 참고 예시 144줄 · 카드는 고른 네 벌(360 에서 2×2) · 상황 예시 셋은 카드 줄 아래 글 단추 · 누르면 그 예시가 골라지고 카드는 그대로 넷(가로 스크롤 없음)', e.rows === 144 && e.long0 === 4 && e.sitBtn === 3 && e.long === 4 && e.lines === 2 && e.linkOn && e.long1 === 4 && !e.hs, JSON.stringify(e));
+  ok('13 상황 이름 — «예시 6 · 먼저 떠나신 분께» · 배지 «참고 예시 6 · 먼저 떠나신 분께» · 도움말 한 줄 · 무드 이름은 칩 · 배지 어디에도 없음 [REF_NO_KYEOL · REF_BEST4]', e.n7 === '먼저 떠나신 분께 예시' && e.b7 === '참고 예시 6 · 먼저 떠나신 분께' && e.help && !e.mood, JSON.stringify(e));
+  ok('13 덕담 없는 식순의 축하의 말 — 고른 네 벌 + 글 단추 «부모님이 하실 때 예시 ›» → 누르면 덕담 고른 넷이 둘째 카드 줄 · «한 분이 하실 때»는 글 단추 [REF_BEST4 · REF_ROW4]', e.free0 === 4 && e.par && e.free1 === 8 && e.parLink, JSON.stringify(e));
   ok('13 «이 예시로 시작하기» — 빈 두 칸을 채우고 단추는 사라진다 · 예시 속 이름이 남으면 한 줄 알림 [EX_NAMES]', e.filled && e.startGone && /예시 속 이름 «.+»이 남아 있어요/.test(e.warn), JSON.stringify(e));
   ok('13 pageerror 0', errs.length === 0, errs.join(' | '));
   await ctx.close();
