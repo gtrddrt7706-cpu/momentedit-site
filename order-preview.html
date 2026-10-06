@@ -704,7 +704,10 @@ button.oc-nm,button.crs-h,button.fold{width:100%}
 :where(a,button,input,textarea,select,[tabindex]):focus-visible{
   outline:2px solid var(--seal);outline-offset:3px;border-radius:4px}
 /* ★:where()는 특이도 0이라 .ta:focus{outline:none}(0,1,1)을 못 이긴다 — 같은 깊이로 다시 쓴다. */
-.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+/* ★★[FIELD_NO_RED 2026-10-06 사장님 «텍스트박스에 빨간색 테두리 없었으면 좋겠어»] 글 칸은 진사 테두리(포커스 고리)를 두르지 않는다 — 깜빡이는 커서와
+   금빛 테두리 · 밑줄이 «지금 여기 쓰는 중»을 말한다(상자 칸 = 테두리 금 · 밑줄 칸 = 밑줄 금 두 줄). 단추 · 칩의 포커스 고리는 그대로 둔다 */
+.ta:focus-visible,.tin:focus-visible,textarea:focus-visible,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit]):focus-visible{outline:none}
+.ta:focus,.tin:focus{border-color:var(--gold-deeper)}
 
 /* [ORD_H2] 단계 제목이 전부 <div>였다(h2 0개). 낭독기의 제목 이동으로는 아무 데도 못 간다. */
 h2.q-title,.done-hd h2.t{margin:0}
@@ -1586,7 +1589,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 /* ★[SL_TIDY] 한 단추 «신부»(누르면 신랑 · .mk-slw) 금지 — 2026-10-05 사용자 지시로 [신랑 | 신부] 둘 다 보이게 바꿈(«신부를 누르면 신랑으로 바뀌잖아 고객 입장에서 알 수 있을까?») */
 .mk-slb{position:relative;flex:1 1 100%;min-width:0;display:flex}
 .mk-slb .mk-slt.ta.grow{flex:1 1 auto;min-width:0;margin-top:0;min-height:0;padding:6px 0 10px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent}
-.mk-slb .mk-slt.ta.grow:focus{border-bottom-color:var(--gold-deeper)}
+.mk-slb .mk-slt.ta.grow:focus{border-bottom-color:var(--gold-deeper);box-shadow:0 1px 0 var(--gold-deeper)}   /* [FIELD_NO_RED] 밑줄 칸은 쓰는 동안 금 밑줄을 두 줄 굵기로 */
 .mk-slx{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;color:var(--light);cursor:pointer;padding:0;margin:-4px -12px -4px auto}
 .mk-slx svg{width:14px;height:14px}
 .mk-sladd{display:inline-flex;align-items:center;min-height:44px;margin:0}
@@ -1600,7 +1603,7 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-txh .mk-extag{margin:0}
 .mk-txh .mk-ck{margin-left:auto}
 .mk-txc .mk-txta.ta.grow{width:100%;margin-top:0;padding:6px 0 10px;border:0;border-bottom:1px solid transparent;border-radius:0;background:transparent}   /* 칸 사이는 가는 선 하나 — 글칸 밑줄은 쓰는 동안만 */
-.mk-txc .mk-txta.ta.grow:focus{border-bottom-color:var(--gold-deeper);outline:none}
+.mk-txc .mk-txta.ta.grow:focus{border-bottom-color:var(--gold-deeper);box-shadow:0 1px 0 var(--gold-deeper);outline:none}   /* [FIELD_NO_RED] */
 .mk-txc .mk-txta.ta.grow{min-height:52px}
 .mk-txc .mk-txr .mk-fl{margin-top:2px}
 .mk-txc .mk-txr .mk-fl:not(:has(.mk-cnt:not(:empty))){display:none}   /* 글자 수가 빈 줄은 자리를 차지하지 않는다 */

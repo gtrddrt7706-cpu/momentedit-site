@@ -14607,3 +14607,6 @@ chk '.mk-vlist .rowbtn.mk-vb{min-width:var(--mk-vb-w)' order-preview.html 1
 nochk '<span class="mk-extag">예시 글 · 고쳐 써도 돼요</span>' order-preview.html
 chk '들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요' order-preview.html 1
 chk 'EXTAG_OFF' order-preview.html 2
+# ★[FIELD_NO_RED 2026-10-06 사장님 «텍스트박스에 빨간색 테두리 없었으면»] 식순 글 칸은 진사 포커스 고리 없음 · 금빛 테두리 · 밑줄로만
+chk 'FIELD_NO_RED' order-preview.html 3
+nochk '.ta:focus-visible,.tin:focus-visible{outline:2px solid var(--seal)' order-preview.html
