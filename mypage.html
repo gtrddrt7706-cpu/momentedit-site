@@ -6758,7 +6758,7 @@ function _ritPrepFold(rd, base, dd, asLink){
 }
 /* ★[REC_KEEP 2026-09-27 코워크 «두 분 목소리» 3-7] 예식 뒤 7일부터 30일까지 — «두 분 목소리 파일은 ○월 ○일에 지워져요 · 간직하려면 내려받으세요» + [내려받기].
    파일은 두 분 계정으로만 받는다(ritualFileGet · 공개 주소 없음). 30일이 지나면(purgeRitualFiles) 이 줄도 사라진다. */
-var RF_KEEP_LAB={g0:'하객 입장 때',g1:'시작 10분 전',g2:'시작 5분 전',g3:'시작 1분 전',entry:'입장 인사',pv:'식전 영상 소개'};   // [PV_INTRO]
+var RF_KEEP_LAB={g0:'하객 입장 때',g1:'시작 10분 전',g2:'시작 5분 전',g3:'시작 1분 전',pv:'식전 영상 소개',entry:'입장 인사'};   // [PV_INTRO]
 function _rfKeepList(rd){ var up=(rd&&rd.S&&rd.S.up)||{}; return Object.keys(up).filter(function(k){ var v=up[k]; return v&&typeof v==='object'&&v.id&&!/^local:/.test(v.id); }).map(function(k){ return {key:k,id:up[k].id,n:up[k].n||''}; }); }
 /* ★★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] 예식 뒤 7일부터 지울 때까지 — «두 분 목소리 파일은 ○월 ○일에 지워져요. 간직하려면 내려받으세요.» + [내려받기] [지금 지우기].
    ★내려받기는 서버가 attachment 로 돌려준다(api/voice-file.js) — 카톡 앱 안에서는 브라우저가 만든 파일(blob)을 못 내려받는다(종전 [REC_KEEP] 의 구멍).

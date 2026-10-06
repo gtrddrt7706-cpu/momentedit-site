@@ -813,7 +813,7 @@ function summarize(){
 /* ★★[REC_ADMIN · REC_UPLOAD 2026-09-27 코워크 «두 분 목소리» 3-6] 두 분 목소리 — 관리 화면의 «당일 콘솔»은 rf=코드를 붙여 연다.
    같은 사이트의 관리자 토큰(me_admin_token)으로 파일을 «시작 전에» 받아 CLIPS 에 넣는다 — 그 큐는 두 분 소리로 나가고, 못 받은 줄은 나레이션.
    자리 ↔ 큐: g0 guest-1-arrival · g1 guest-2-10min · g2 guest-3-5min · g3 guest-4-1min · entry entry-<고른 판> (두 분 목소리를 고른 자리만) */
-var RF_SLUG = { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min', pv: 'narr-prevideo-in' }, RF_LAB = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사', pv: '식전 영상 소개' }, RF_ST = {};
+var RF_SLUG = { g0: 'guest-1-arrival', g1: 'guest-2-10min', g2: 'guest-3-5min', g3: 'guest-4-1min', pv: 'narr-prevideo-in' }, RF_LAB = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', pv: '식전 영상 소개', entry: '입장 인사' }, RF_ST = {};
 var RF_EXEC = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
 var CLIPS = {};    // '16' → objectURL  ·  'narr-ring-out' → objectURL
 var BGMURL = '';
