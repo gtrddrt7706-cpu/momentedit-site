@@ -14500,3 +14500,12 @@ chk 'CELE_STAY' mypage.html 3
 chk 'CELE_STAY' scripts/audit/wed-celebrate.mjs 3
 nochk "c.style.visibility='hidden'; },{once:true})" mypage.html
 :
+# ★[DESIGN_MD_POINTER · HOVER_GOLD_TEXT 2026-10-06 사장님 «노션 가이드 분석해서 이용해 보자»] 루트 DESIGN.md · PRODUCT.md(impeccable 이 먼저 읽는 자리 · 정본은 momentedit-design)
+#   색 값 = index.html :root · 고객 면 hover 글자가 장식 골드(2.5:1)로 바뀌지 않게(npx impeccable detect 첫 실행에서 19자리 발견)
+chk 'DESIGN_MD_POINTER' DESIGN.md 1
+chk 'DESIGN_MD_POINTER' PRODUCT.md 1
+chk 'HOVER_GOLD_TEXT' scripts/audit/design-md-sync.mjs 2
+chk 'IMPECCABLE_DETECT' CLAUDE.md 1
+chk 'EXC_DETECT' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/design-md-sync.mjs >/dev/null 2>&1; _v=$?; if [ "$_v" = 1 ]; then echo 'FAIL design-md-sync: DESIGN.md 색이 index :root 와 갈렸거나 hover 글자가 장식 골드다 — node scripts/audit/design-md-sync.mjs'; fail=1; fi; fi
+:
