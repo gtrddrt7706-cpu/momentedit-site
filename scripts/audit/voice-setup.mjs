@@ -95,8 +95,8 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
     S.vtext = JSON.parse(keep.vt); S.up.g3 = keep.up; S.g3Open = keep.open; return a; });
   ok(W + ' 옛 «뒤만» 초안 → 글 전체(앞 두 문장 + 뒤) · 만든 AI 소리는 그대로 맞음(stale 아님) · 두 번 불러도 한 번만 [G3_OPEN]', mg.v === mg.head + ' 조금 뒤에 뵙겠습니다.' && /미리 준비한 안내 음성/.test(mg.v) && !mg.stale && mg.open === 1 && mg.v2 === mg.v, JSON.stringify(mg).slice(0, 300));
   await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400);
-  const dI = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', cols: d ? d.querySelectorAll('.mk-vsi-c').length : 0, pick: !!(d && d.querySelector('[data-fk^="mkvs:"]')), nar: !!(d && d.querySelector('[data-fk="mkvsi:nar"]')) }; });
-  ok(W + ' «나레이션 자세히» = 설명 창(두 갈래 · 들어 보기) · 고르기 없음 [VS_INFO]', dI.t === '안내 목소리, 무엇이 다른가요' && dI.cols === 2 && !dI.pick && dI.nar, JSON.stringify(dI));
+  const dI = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', cols: d ? d.querySelectorAll('.mk-vsi-c').length : 0, pick: !!(d && d.querySelector('[data-fk^="mkvs:"]')), play: d ? d.querySelectorAll('[data-fk^="mkvsi:"], .mk-vsi .mk-vgo').length : -1, todo: d ? [...d.querySelectorAll('.mk-vsi-t')].map((x) => x.textContent) : [] }; });   /* [VS_INFO_MIN 2026-10-07] 들어 보기 단추 없음 · 갈래마다 «할 일» 한 줄 */
+  ok(W + ' «나레이션 자세히» = 설명 창(두 갈래 · 할 일 한 줄 · 들어 보기 없음) · 고르기 없음 [VS_INFO · VS_INFO_MIN]', dI.t === '안내 목소리, 무엇이 다른가요' && dI.cols === 2 && !dI.pick && dI.play === 0 && dI.todo.length === 2, JSON.stringify(dI));
   await pg.evaluate(() => mkVsClose()); await pg.evaluate(() => mkVsOpen()); await pg.waitForTimeout(400);   /* 한 번에 정하기 창은 안쪽 길(mkVsOpen)로만 */
   const d4 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', ai: d ? d.querySelector('[data-fk="mkvs:ai"]').getAttribute('aria-pressed') : '' }; });
   ok(W + ' 한 번에 정하기 창(안쪽 길)은 지금 값(AI)이 눌린 모양', d4.t === '안내 목소리 정하기' && d4.ai === 'true', JSON.stringify(d4));
