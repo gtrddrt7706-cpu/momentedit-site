@@ -1410,7 +1410,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-flow li.n .mk-pl{width:44px;margin-left:-5px} .mk-flow li.n .mk-pl::before{inset:5px}   /* ★[FLOW_NODE_ROUND 2026-10-07] 흐름 ▶ 는 선 위 «마디»(▶ ● ○ 세 모양 · FLOW_THREAD)라 원 34 로 둔다 · 바탕 · 테 · 트는 동안 먹색은 줄 카드 알약(PLAY_PILL)과 한 집안. 가로 가운데 17 = 흐름선 · 글 47 = 행동 · 차례 줄과 같은 세로선. ★알약(58)으로 넓히면 선이 가운데를 비껴가고 글 줄이 갈린다 */
 .mk-flow li.q::after,.mk-flow li.t::after{content:'';position:absolute;left:13px;top:8.5px;width:9px;height:9px;border-radius:50%;box-sizing:border-box;z-index:1}
 .mk-flow li.q::after{background:var(--seal)}   /* ● 행동 — ★[FLOW_DOT_SEAL 2026-10-07 사장님 «양가 어머님이 … 말 없이 왼쪽 점 부분 진사 색상으로 · 다른 곳들도 마찬가지로»] 진사 = «점»에만 쓰는 강조(SNAP_TONE) · 그 순간에 «일어나는 일»이 먼저 보인다 · 금빛으로 되돌리지 말 것 */
-.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--gold-deeper)}   /* ○ 직접 말하는 차례 */
+.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--seal)}   /* ○ 직접 말하는 차례 — ★[FLOW_PEOPLE_SEAL 2026-10-07 사장님 «어떤 건 진사고 어떤 건 그냥 이거 · 구분 기준이 뭐야 · 최선이야?»] 기준 = 진사는 «사람이 하는 순서»(● 말 없이 하는 행동 · ○ 그 자리에서 하는 말) · 옅은 금빛 ▶ 는 저희가 준비한 안내 목소리. 모양은 말이 있나 없나 · 색은 사람이 하나를 말한다 · ○ 만 금빛으로 되돌리지 말 것(오후에 ● 만 진사여서 기준이 갈렸다) */
 .mk-flow li.t.now::after{border-color:var(--seal)}   /* [TALK_BRIDGE] 지금 차례면 마디도 진사 */
 .mk-flow li.q .qa{font-weight:500}
 .mk-qt{margin-left:8px;font-size:11px;font-weight:400;letter-spacing:.02em;color:var(--light);white-space:nowrap;vertical-align:1px}   /* [FLOW_THREAD] «말 없이» · «미리 듣기에서는 넘겨요» = 줄 끝 작은 표(나레이션 · 당일 직접 표와 같은 크기) */
@@ -3174,8 +3174,19 @@ document.addEventListener('focusout',function(){ if(_IME){ _IME=0; if(_IME_PEND)
 /* ★[UP_AI_HEAL 2026-10-07 사장님 «목소리 만들기인데 '파일 올렸어요'가 언밸런스»] UP_RACE(10-06 고침) 전에 저장된 AI 줄 일부가 «파일»(src 기본값)로 적혀 남았다 —
    상태는 «✓ 파일 올렸어요 · 지우기», 단추는 «목소리 만들기»로 서로 다른 말을 했다. AI 로 만든 소리는 이름이 «… · AI.wav» 라 그것으로 바로잡는다(진짜 파일 · 녹음은 그대로) */
 function _upHeal(){ var u=S&&S.up; if(!u) return; Object.keys(u).forEach(function(k){ var v=u[k]; if(v&&typeof v==='object'&&v.src!=='ai'&&v.src!=='rec'&&/ · AI\.wav$/.test(String(v.n||''))) v.src='ai'; }); }
+/* ★★[KEEP_Y 2026-10-07 사장님 «스튜디오 나레이션 버튼을 누르면 화면이 자동으로 위로 올라가는데 그대로 있게 · 다른 곳들도 마찬가지»]
+   칩 · 단추를 눌러 아래 글이 짧아지면(AI 줄 편집기 → 나레이션 안내) 페이지 높이가 줄어 브라우저가 스크롤을 끌어당겼다(1280 입장 인사 133px · 식전 영상 44px 튐).
+   다시 그리기 전에 «지금 보이는 화면 아래 끝»까지는 높이를 받쳐 둔다(body min-height) — 누른 단추가 제자리에 있다.
+   받침은 위로 스크롤하면 그만큼 줄고(_kyScroll) · 글이 길면 아무 일도 안 한다. 모든 다시 그리기에 걸린다(한 곳이 아니라 화면 전체 · COURSE_WIDE) */
+var KY={min:0,at:null};
+function _kyHold(){ try{ var b=document.body; if(!b) return; var at=''; try{ at=idx+'|'+(_mkState().at||''); }catch(e){ at=String(idx); } var moved=KY.at!=null&&KY.at!==at; KY.at=at;   // 다른 쪽으로 넘어가면 받침을 푼다(새 쪽은 제 높이로)
+  var need=Math.ceil(window.scrollY+window.innerHeight); if(moved||window.scrollY<1){ if(KY.min){ KY.min=0; b.style.minHeight=''; } return; }
+  KY.min=need; b.style.minHeight='max(100dvh,'+need+'px)'; }catch(e){} }
+function _kyScroll(){ if(!KY.min) return; var need=Math.ceil(window.scrollY+window.innerHeight); if(need>=KY.min) return; KY.min=window.scrollY<1?0:need; document.body.style.minHeight=KY.min?'max(100dvh,'+KY.min+'px)':''; }
+window.addEventListener('scroll',_kyScroll,{passive:true});
 function render(){
   try{ _upHeal(); }catch(e){}
+  _kyHold();   // [KEEP_Y] 다시 그리는 동안 화면이 위로 끌려가지 않게
   if(_IME&&document.activeElement&&/^(TEXTAREA|INPUT)$/.test(document.activeElement.tagName)){ _IME_PEND=1; return; }
   var _ae0=document.activeElement;   // [ORD_KEY] 다시 그리기 전 포커스 위치 기억
   /* ★[TA_KEEP 2026-10-04 시뮬레이션] 글을 치는 중에 다른 줄을 만들다 다시 그리면 커서가 맨 앞으로 가 글이 섞이고(하객 맞이) · 영상 앞 소개는 포커스를 잃어 남은 글이 사라졌다 —

@@ -14610,6 +14610,11 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★★[KEEP_Y 2026-10-07 사장님 «스튜디오 나레이션 누르면 화면이 위로 올라가는데 그대로 있게 · 다른 곳들도 마찬가지»] 다시 그리기 전에 보이는 화면 아래 끝까지 높이를 받친다
+chk 'KEEP_Y' order-preview.html 3
+chk '  _kyHold();   // \[KEEP_Y\]' order-preview.html 1
+chk 'KEEP_Y' scripts/audit/keep-y.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/keep-y.mjs >/dev/null 2>&1; _kyy=$?; if [ "$_kyy" = 1 ]; then echo 'FAIL keep-y: 칩을 누르면 화면이 위로 끌려갑니다 — node scripts/audit/keep-y.mjs'; fail=1; else echo "ok keep-y ($_kyy)"; fi; fi
 # ★★[TIP_ONCE 2026-10-07 사장님 «모션그래픽 부분만 없애고 팝업은 AI 두 분 목소리 누르면 나오게»] AI 두 분 목소리 처음 누를 때 한 번 확정 안내 창 · 그냥 닫힘 · 첫 순간 네 줄 펼침 없음
 chk 'TIP_ONCE' order-preview.html 6
 chk 'TIP_ONCE' scripts/audit/tip-once.mjs 1
@@ -14876,6 +14881,11 @@ chk 'FLOW_DOT_SEAL' order-preview.html 1
 chk '.mk-flow li.q::after{background:var(--seal)}' order-preview.html 1
 nochk '.mk-flow li.q::after{background:var(--gold-deeper)}' order-preview.html
 chk 'FLOW_DOT_SEAL' scripts/audit/flow-thread.mjs 1
+# ★[FLOW_PEOPLE_SEAL 2026-10-07 사장님 «구분 기준이 뭐야 · 최선이야?»] 진사 = 사람이 하는 순서(● · ○ 둘 다) · ▶ 안내 목소리는 옅은 금빛
+chk 'FLOW_PEOPLE_SEAL' order-preview.html 1
+chk '.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--seal)}' order-preview.html 1
+nochk '.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--gold-deeper)}' order-preview.html
+chk 'FLOW_PEOPLE_SEAL' scripts/audit/flow-thread.mjs 1
 # ★[FAST_FIRST 2026-10-07 사장님 «검사 같은 건 나중에 한 번에 · 요청한 것만 빠르게 반영»] 작업 방식 규칙이 CLAUDE.md 에 살아 있나(두 곳 — 절 · 화면 PR 점검 3단의 덧줄)
 chk 'FAST_FIRST' CLAUDE.md 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-thread.mjs >/dev/null 2>&1; _flt=$?; [ "$_flt" = 1 ] && { echo 'FAIL flow-thread: 순간 흐름(흐름선 · 마디 · 행동 줄)이 어긋났습니다 — node scripts/audit/flow-thread.mjs'; fail=1; }; fi
