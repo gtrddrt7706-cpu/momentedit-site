@@ -14450,7 +14450,8 @@ chk 'function _vcTtsReq(cfg, voiceId, text, tempo, pause)' automation/platform/8
 chk 'rs = UrlFetchApp.fetchAll(reqs)' automation/platform/80_production.gs 1
 chk 'VC_SLOW_AGAIN' order-preview.html 1
 chk 'VC_SLOW_AGAIN' mypage.html 1
-chk "timeout:!!(e&&e.name==='AbortError')" mypage.html 1
+chk "_to=!!(e&&e.name==='AbortError')" mypage.html 1   # [VC_NET_SPLIT] timeout:_to 로 넘긴다
+chk 'timeout:_to,' mypage.html 1
 chk "  if(op==='make'&&!bg) VC.fg=(VC.fg||0)+1;   /\* ★\[VC_FG_LIVE" order-preview.html 1
 chk 'VC_PAR' scripts/audit/vc-par.mjs 1
 chk 'VC_SLOW_AGAIN' scripts/audit/vc-slow-again.mjs 1
@@ -14623,6 +14624,11 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V8)을 가른다 — 끊긴 직후 상태 확인 한 번
+chk 'VC_NET_SPLIT' mypage.html 1
+chk 'VC_NET_SPLIT' order-preview.html 1
+chk "if(d.net==='srv') return 8;" order-preview.html 1
+chk 'VC_NET_SPLIT' scripts/audit/vc-down-kind.mjs 2
 # ★[THANKS_DEURIM 2026-10-07 사장님 «결혼식에 와 주셔서 (진심으로) 감사합니다 보단 감사드립니다 · 목소리 녹음 후 예시 글도»] 하객 맞이 담백하게 첫 줄 · 맞추기 예시 글 · 첫인사 예시
 chk 'THANKS_DEURIM' order-preview.html 1
 chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요' assets/ritual-data.js 1
@@ -15170,7 +15176,8 @@ chk 'VC_DOWN_KIND' order-preview.html 5
 chk 'function _vcDownWord(n)' order-preview.html 1
 chk "d.error=_vcDownWord(_vcDownN(d))" order-preview.html 1
 chk 'VC_DOWN_KIND' mypage.html 1
-chk "net:_to?0:(_bad?'bad':1)" mypage.html 1
+chk "net:_to?0:net" mypage.html 1   # [VC_NET_SPLIT] _fin(net) — 'bad' · 'srv' · 1
+chk "_fin(_bad?'bad':0)" mypage.html 1
 nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" order-preview.html
 nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" mypage.html
 nochk "d2.error='오래 걸려 기다리다 멈췄어요" order-preview.html
