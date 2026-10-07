@@ -24,6 +24,7 @@ const SKIP = new Set(['node_modules', '.git', '_deploy-patch', 'dist', 'build'])
 function walk(dir, out = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     if (SKIP.has(e.name)) continue;
+    if (e.name === 'worktrees' && path.basename(dir) === '.claude') continue;   // [WT_SKIP 2026-10-08] 에이전트 작업 폴더는 저장소 사본 — 지금 판만 잰다
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p, out);
     else if (/\.(html|css)$/i.test(e.name)) out.push(p);
