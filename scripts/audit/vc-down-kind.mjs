@@ -71,7 +71,7 @@ for (const w of [360, 390, 1280]) {
     ok('① 서버 kind → 바쁨 V1 · 요금제 V2 · 막힘 V3 · 그 밖 V4', /V1\)$/.test(m.busy) && /V2\)$/.test(m.plan) && /V3\)$/.test(m.gate) && /V4\)$/.test(m.fail), [m.busy, m.plan, m.gate, m.fail].join(' | '));
     ok('① 옛 마이페이지 글 — 시간 초과면 V5 · 아니면 연결 V6', /V5\)$/.test(m.relayTo) && /V6\)$/.test(m.relayNet), m.relayTo + ' | ' + m.relayNet);
     ok('① 새 마이페이지 — 연결 V6 · 서버 답이 깨짐 V7 · 서버에서 멈춤 V9 [VC_NET_SPLIT]', /V6\)$/.test(m.net) && /V7\)$/.test(m.bad) && /V9\)$/.test(m.srv), m.net + ' | ' + m.bad + ' | ' + m.srv);
-    ok('② 실패가 아닌 답은 종전 글 — 글자 문제(바꿔 읽기) · 로그인 만료(그대로) · 코드 없음', /글을 고쳐 다시 만들어 주세요/.test(m.unread) && m.sess === '로그인이 만료되었어요. 다시 로그인해 주세요.' && !/코드 V/.test(m.unread + m.sess), m.unread + ' | ' + m.sess);
+    ok('② 실패가 아닌 답 — 글자 문제는 종전 글(코드 없음) · 로그인 풀림은 «로그인이 풀렸어요 … (코드 V8)»', /글을 고쳐 다시 만들어 주세요/.test(m.unread) && m.sess === '로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 V8)' /* [VC_SESS_WORD] 로그인 풀림은 코드 표의 한 말(V8) */ && !/코드 V/.test(m.unread), m.unread + ' | ' + m.sess);
     ok('①② 어느 답에도 «그동안 이 줄은» · «직접 녹음» 없음', !/그동안 이 줄은|직접 녹음/.test(JSON.stringify(m)), '');
   }
   /* ③ 맞추기 창 — 서버 «바쁨»으로 실제 실패 */
