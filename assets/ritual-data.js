@@ -338,7 +338,7 @@ var COURSES={
        seq 는 그 파일의 ORDER 와 같아야 한다(scripts/audit/open-course.mjs 가 대조).
      ★hidden 인 까닭 — 옛 «코스 고르기» 카드 목록에 새 코스가 끼어들지 않게. 새 화면(고르기)이 따로 있다. */
   open:{nm:'직접 고른', badge:'순간 먼저', ready:true, hidden:true, open:true, min:'',
-    seq:['guest','prevideo','candle','entry','welcome','bless','vow','ring','declare','tribute','free','letter','cake','toast'],   // [CAKE_TOAST_SPLIT] ritual-open.js ORDER 와 같다(open-course.mjs 가 대조) · 축사는 free 의 한 판(SPEECH_IN_FREE)
+    seq:['guest','prevideo','candle','entry','welcome','bless','vow','ring','declare','tribute','free','letter','cake','toast','table'],   // [TABLE_GREET_1008] table = 닫는 인사 뒤 테이블 인사 · [CAKE_TOAST_SPLIT] ritual-open.js ORDER 와 같다(open-course.mjs 가 대조) · 축사는 free 의 한 판(SPEECH_IN_FREE)
     opt:[], one:'필요한 순간만 담으면 예식 순서대로 제자리에 들어가요', feel:'', flow:[], detail:[]
 },
   minimal:{nm:'미니멀', badge:'가장 짧게', ready:true, hidden:true, min:'약 18분',   // [COURSE_HIDDEN] 기록에 흡수
@@ -729,6 +729,8 @@ var NARR={
  /* ★[PHOTO_THANKS 2026-09-26 사장님 결정] close 에서 «가족분들은 조금만 더 머물러 주세요.»를 뺐다 — 가족 · 친구는 감사 인사(45) 때 따로 남는다.
     새 녹음 없음(sent-lib --rebind 로 뒤 두 자리를 한 칸 당긴다). 되살리지 말 것. */
  closeBow:"이것으로 오늘의 본식을 모두 마칩니다. 두 사람이 여러분께 인사드립니다. 본식의 마지막 박수를 보내 주세요.",
+ /* ★★[TABLE_GREET_1008 2026-10-08 사장님 결정] 131 테이블 인사 여는 말 — 닫는 인사(108 · 목례 · 박수) 뒤 · 두 분이 테이블을 도는 동안은 말 없음 · 다 돌면 26(close)이 사진으로 모은다(마무리 줄을 따로 두지 않는다 · 같은 말 두 번 금지). 녹음 전엔 글로 */
+ tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. 자리에서 편히 맞아 주세요.",
  close:"이제 사진을 남기겠습니다. 먼저 다 함께 한 장, 이어서 가족과 친구분들 차례로 남기겠습니다. 모두 앞으로 나와 주세요. 두 사람 곁에 서시면 됩니다."
 };
 // ★[VOW_CHORUS 2026-08-04] 서약의 마지막 한 문장은 두 분이 함께 — 화면·소리·대본의 단일 원천.
@@ -832,6 +834,7 @@ var PHOTOCUE={
 /* ★★[DAY_60 2026-09-26 사장님 결정 · 코워크 회신 9/26 2장] 스냅 50 → 60분 — 캔들존 25 · 이동 5 · 화이트존 25 · 입장 준비 5.
      본식 + 단체 사진 = **40분**(9/25 까지 50). 테이블 인사(자리마다 찾아가기)는 없앴다 — 인사는 배웅 줄에서
      두 분이 한 분 한 분께(30명 약 10분) + 환복 10분 = 배웅 20 그대로 [NO_TABLE_ROUND].
+     ★[TABLE_GREET_1008 2026-10-08 사장님] 테이블 인사가 «본식 끝 · 사진 앞»의 담는 순간으로 돌아왔다(ritual-open table) — 40분 안에서 본식 몫이 늘고 단체 사진이 준다 · 배웅 줄(한 분 한 분께)은 그대로.
      시각: 하객 입장 09:50 → **10:00** · 본식 10:10 → **10:20** · 배웅 11:00 · 끝 11:20(도착 · 끝 그대로).
      두 분의 캔들존 촬영은 09:45 에 끝나고, 이동을 마친 09:50 부터 캔들존이 완전히 빈다(하객 입장 10분 전).
      ★이 한 줄이 원천이다 — check-source-drift · check-ritual-cue · open-course 가 이 값으로 전부 다시 잰다. */

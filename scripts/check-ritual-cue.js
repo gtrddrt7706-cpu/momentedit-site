@@ -48,7 +48,7 @@ const no = (m) => { console.log('REVERT? cue: ' + m); fail = 1; };
 // [MEAL_GUIDE 2026-09-23] 식사 자리 안내 1개(88_guide-meal) → 88. ★맨 끝에 붙였다(코워크 표의 «87» 은 이미 쓰는 번호다).
 // [BRIDGE_LINK 2026-10-03 사장님 녹음 받음] 이음말 넷(111~114 · B3 박수 뒤 · B4 숨 고르기 · B5 영상 끝 · B6 편지 → 케이크) → 114. ★맨 끝에 붙였다.
 // [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126) → 126. ★맨 끝에 붙였다.
-const N_FILES = 130;   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
+const N_FILES = 131;   // [TABLE_GREET_1008 2026-10-08] 131 narr-table-in (테이블 인사 여는 말)   // [PV_EX_NAR 2026-10-07] 128~130 식전 영상 소개 나레이션 예시 2~4 ·   // [VOW_FIRST 2026-10-06] 127 narr-vow-in-b (서약 여는 말 · 신부부터)   // [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal · [BRIDGE_LINK] 111~114 · [GUEST_EX_NAR] 115~126
 //   // [CLOSE_BOW 2026-09-26] 108 narr-close-bow · [GROUP_PHOTO 2026-09-26] 109 fx-free 가 맨 끝에 붙었다
 /* ★[PAD3 2026-09-25] 번호는 «인덱스+1» 그대로여야 한다 — 두 자리로 자르면 100 이 «00», 107 이 «07» 이 된다(실제로 그랬다). */
 {
@@ -409,7 +409,7 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
        옛 표: 기록 5/5 · 4/5 · 약속 4/5 · 3/5 · 가족 2/5 · 2/4 · 가장 긴 조합 0/3 · 0/2 */
     const WANT = [   // [이름, S, 단체 사진 a~b, 요청 0 k/max, 요청 2 k/max]
       /* [WINE_POUR_OFF 2026-09-27] 와인 붓기를 걷어 본식이 약 30초 짧아졌다 — 옛 23~28 · 20~26 · 16~23(1/4) · 9~17 */
-      ['기록', O.applyExample({}, 'record'), '24~29', '4/5', '4/5'], ['약속', O.applyExample({}, 'promise'), '21~27', '3/5', '3/5'],
+      ['기록', O.applyExample({}, 'record'), '15~20', '1/3', '1/2'] /* [TABLE_GREET_1008 2026-10-08] 테이블 인사 9분이 본식에 들어 단체 사진 24~29 → 15~20 · 구도 4/5 → 1/3 · 1/2 */, ['약속', O.applyExample({}, 'promise'), '21~27', '3/5', '3/5'],
       ['가족', O.applyExample({}, 'family'), '17~24', '2/4', '2/4'], ['간결', O.applyExample({}, 'brief'), '28~32', '5/5', '5/5'],
       ['가장 긴 조합', longest, '10~18', '0/2', '0/2']];
     WANT.forEach(([nm, S, ab, w0, w2]) => {

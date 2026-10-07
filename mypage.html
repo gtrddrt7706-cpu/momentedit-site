@@ -2359,7 +2359,9 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _pho=false; try{ _pho=!!(window.RitualPreviewLink && RitualPreviewLink.photoShareOf(p&&p.guideinfoDraft)); }catch(e4){}
       var _meal=false; try{ _meal=!!(window.RitualPreviewLink && RitualPreviewLink.mealOf(p&&p.diningDraft, DN_PLACEHOLDER)); }catch(e5){}   // [MEAL_GUIDE] 모일 식당 «유무»만(이름 아님)
       var _vo=(p&&p.voice)||((p&&p.production&&p.production.voice))||null;   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · AI 스위치(켜짐 여부만)
-      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, voice:_vo, at:(opt&&opt.at)||''}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
+      /* ★[TABLE_GREET_1008 2026-10-08 사장님] 테이블 인사 시간 = 테이블 수 × 1분 30초 — 좌석 배치도의 테이블 수(없으면 확정 인원 ÷ 5 · SEAT_PER5) 한 숫자만 실어 준다 */
+      var _tbl=0; try{ var _sd=(p&&p.seatDraft)||{}; _tbl=(_sd.tables&&_sd.tables.length)||0; if(!_tbl){ var _hc=+(((p&&p.finalDraft)||{}).headcount)||0; if(_hc>0) _tbl=Math.ceil(_hc/5); } }catch(e6){}
+      fr.contentWindow.postMessage({type:'momentedit:orderFill', draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, voice:_vo, tables:_tbl, at:(opt&&opt.at)||''}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
       x.style.display='none';   // 빌더 안 닫기 버튼(.ob-close)이 살아났으므로 구석 플로팅 X는 숨김 — 로드 실패 시에만 남는 안전망(2026-07-18 사용자 지적)
     }

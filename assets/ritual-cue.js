@@ -154,7 +154,10 @@
     /* ★★[VOW_FIRST 2026-10-06 사장님] 127 — 혼인 서약 여는 말 · 신부가 먼저일 때(«신랑부터 시작하겠습니다»를 뺀 판). **맨 끝에 붙였다**(위 경고 그대로). */
     'narr-vow-in-b',
     /* ★★[PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 128~130 — 식전 영상 소개 나레이션 예시 2~4. **맨 끝에 붙였다**(위 경고 그대로) · 고르는 값 S.pvEx(0~3 · 0 = 90 그대로) · 스튜디오 나레이션 판에서만 */
-    'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4'
+    'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4',
+    /* ★★[TABLE_GREET_1008 2026-10-08 사장님 결정] 131 — 테이블 인사 여는 말(닫는 인사 뒤 · 사진 안내 26 앞). **맨 끝에 붙였다**(위 경고 그대로).
+       원천 문안 assets/ritual-data.js NARR.tableIn · 녹음 전이라 텍스트 카드로 흐른다 · 옛 narr-round-open(단체 사진 뒤 자리 찾아가기)은 되살리지 않는다 */
+    'narr-table-in'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -242,7 +245,8 @@
     'guest-ex4-1-arrival': O.NAR.guestEx[2][0],
     'guest-ex4-2-10min': O.NAR.guestEx[2][1],
     'guest-ex4-3-5min': O.NAR.guestEx[2][2],
-    'guest-ex4-4-1min': O.NAR.guestEx[2][3]
+    'guest-ex4-4-1min': O.NAR.guestEx[2][3],
+    'narr-table-in': D.NARR.tableIn   // [TABLE_GREET_1008]
   };
 
   // ── 유틸
@@ -1138,6 +1142,14 @@
       duck: -12,
       live: applause('두 분이 하객께 함께 목례 → 박수 → 음악 바뀜', PARAM.bow.closeSec)
     }));
+    /* ★★[TABLE_GREET_1008 2026-10-08 사장님 결정] 테이블 인사 — 닫는 인사(108 · 목례 · 박수) 뒤 · 사진 안내(26) 앞. 새 코스에서 담은 날만.
+       131 여는 말 → 사람 순간(두 분이 함께 테이블을 돌며 인사 · TABLE_SEC × 테이블 수 · 두 분 자유 · 다 돌면 디렉터 GO) → 26 이 사진으로 모은다(마무리 줄을 따로 두지 않는다). */
+    if (seq.indexOf('table') > -1 && D.COURSES[S.course] && D.COURSES[S.course].open) cues.push(cue({
+      k: 'table', blockN: '테이블 인사', slug: 'narr-table-in', name: '테이블 인사 · 두 분이 하객께', text: D.NARR.tableIn,
+      duck: -12, note: '닫는 인사 박수가 잦아들면 · 두 분이 자리를 떠나기 전에',
+      live: { t: '두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초쯤(' + O.tableN(S) + '테이블) · 다 돌면 GO → 사진 안내', est: O.TABLE_SEC * O.tableN(S), self: true, doing: 'move', duck: -12,
+        fallback: '길어지면 디렉터가 다음 테이블로 자연스럽게 안내 · 시간이 다 되면 26 으로 모은다' }
+    }));
     // 폐식 — 목록 밖 고정
     cues.push(cue({
       k: '_close', blockN: '폐식·단체촬영', slug: 'narr-close', name: '폐식 · 단체촬영 전환', text: D.NARR.close,
@@ -1177,6 +1189,7 @@
          이제 큐를 전부 밀어 넣은 **뒤에** live.est 를 합산해 남는 시간을 라운드로 준다.
          고정 자리 값을 바꾸면 라운드가 알아서 따라 움직인다. narr-photo-out 뒤의 IIFE 가 그 일을 한다.
          ★하한 10분 — 그 아래로는 '인사했다'가 성립하지 않는다(리서치 3차 · 테이블당 하한). */
+      /* ★[TABLE_GREET_1008] 테이블 인사는 본식 넉넉 합(bodySec)에 들어 있어 아래 bodyMin 이 저절로 센다 — 단체 사진 몫이 그만큼 준다(별도 계산 없음) */
       /* ★★[GROUP_PHOTO · NO_TABLE_ROUND 2026-09-26 사장님 결정 · 코워크 회신 9/26 2-4 · 2-5] 단체 사진 40분 안의 모양.
          전체 하객 약 6분 + 꼭 담고 싶은 사진 둘까지 약 2분 → 가족 구도(한 구도 약 3분 · 불러 모아 주실 분)
          → 남는 시간은 자유 사진 → 두 분 숨 고르기 2분 → 마무리(환복).

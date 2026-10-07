@@ -15223,3 +15223,25 @@ chk 'VOICE_OPEN_1008' deploy-marks.json 1
 chk 'VOICE_OPEN_1008' scripts/audit/voice-open.mjs 1
 chk 'VOICE_OPEN_1008' scripts/audit/snap-plan.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/voice-open.mjs >/dev/null 2>&1; _vop=$?; if [ "$_vop" != 0 ]; then echo 'FAIL voice-open: 두 분 목소리 오픈 날짜가 서버 · 처리방침 · 위탁 줄에서 어긋났습니다 — node scripts/audit/voice-open.mjs'; fail=1; else echo 'ok voice-open'; fi; fi
+# ★★[TABLE_GREET_1008 2026-10-08 사장님 «웨딩사진 전에 테이블 돌아다니면서 인사드리는 이벤트 추가» · 디테일 하나씩 결정] 테이블 인사(table) —
+#   닫는 인사(108) 뒤 · 사진 안내(26) 앞 · 두 분 함께 · 테이블당 1분 30초(TABLE_SEC) · 테이블 수 = 좌석 배치도(S.tableN · mypage orderFill tables) ·
+#   고르기에 다른 순간과 같은 모양 · 기본은 «기록» 예시만 · 길어지면 그대로 두고 단체 사진 부족 알림 · 마무리 줄 없음(26 이 모은다) · 131 narr-table-in(녹음 전 글) · 배웅 줄 그대로.
+#   ★9/26 NO_TABLE_ROUND(단체 사진 뒤 자리 찾아가기 · narr-round-open)는 그대로 닫혀 있다 — 이것은 본식 끝의 새 순간이다.
+chk 'TABLE_GREET_1008' assets/ritual-open.js 12
+chk "var AFTER_CLOSE = { table: 1 };" assets/ritual-open.js 1
+chk "function bodyOrder()" assets/ritual-open.js 1
+chk "'toast', 'table'\]" assets/ritual-open.js 2
+chk "table: { n: '테이블 인사'" assets/ritual-open.js 1
+chk 'TABLE_GREET_1008' assets/ritual-data.js 3
+chk "'cake','toast','table'\]" assets/ritual-data.js 1
+chk 'tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. 자리에서 편히 맞아 주세요."' assets/ritual-data.js 1
+chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
+chk "'narr-table-in'" assets/ritual-cue.js 3
+chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
+chk 'const N_FILES = 131;' scripts/check-ritual-cue.js 1
+chk 'TABLE_GREET_1008' order-preview.html 12
+chk 'var CUSTTBL=0;' order-preview.html 1
+chk 'TABLE_GREET_1008' mypage.html 1
+chk 'tables:_tbl' mypage.html 1
+chk 'TABLE_GREET_1008' scripts/audit/open-course.mjs 4
+chk 'TABLE_GREET_1008' scripts/audit/listen-page.mjs 1
