@@ -14623,6 +14623,13 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★[THANKS_DEURIM 2026-10-07 사장님 «결혼식에 와 주셔서 (진심으로) 감사합니다 보단 감사드립니다 · 목소리 녹음 후 예시 글도»] 하객 맞이 담백하게 첫 줄 · 맞추기 예시 글 · 첫인사 예시
+chk 'THANKS_DEURIM' order-preview.html 1
+chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요' assets/ritual-data.js 1
+chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요' order-preview.html 1
+chk "var VC_SAMPLE='오늘 저희 두 사람의 결혼식에 와 주셔서 진심으로 감사드립니다." order-preview.html 1
+nochk '함께해 주셔서 진심으로 감사합니다' order-preview.html
+chk 'var EX_OLD_1006={"0": {"0": \["저희 두 사람의 결혼식에 와 주셔서 감사합니다.' order-preview.html 1
 # ★★[TIP_NO_AUTO · TUNE_PLAY_TRUE · IOS_PLAY_SESSION 2026-10-07 사장님 «모바일에서 녹음하고 플레이 누르면 소리가 안 난다 · 말투 안내가 자동으로 자꾸 펼쳐진다»]
 chk 'TIP_NO_AUTO' order-preview.html 1
 nochk "<details class=\"mk-tip\"'+(T&&T.from==='enroll'?' open':'')" order-preview.html
