@@ -15420,7 +15420,7 @@ chk "'toast', 'table'\]" assets/ritual-open.js 2
 chk "table: { n: '테이블 인사'" assets/ritual-open.js 1
 chk 'TABLE_GREET_1008' assets/ritual-data.js 3
 chk "'cake','toast','table'\]" assets/ritual-data.js 1
-chk 'tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. 자리에서 편히 맞아 주세요."' assets/ritual-data.js 1
+chk 'tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. 자리에서 편히 맞아 주시면 됩니다."' assets/ritual-data.js 1
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
