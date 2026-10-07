@@ -14835,3 +14835,7 @@ chk '_exKeep1006();   /\* \[EX_TEXT_1006\]' order-preview.html 1
 chk 'EX_TEXT_1006' scripts/audit/ex-prebake.mjs 2
 nochk "'이 영상을 만들다가 저희가 처음으로 크게 다툴 뻔했습니다" order-preview.html
 #   (옛 하객 맞이 예시 글은 옮기기용 EX_OLD_1006 에 남아 있어 nochk 로 막지 않는다 · ex-prebake 가 새 글을 잰다)
+# ★[NAR_1006 2026-10-07 코워크 지시 · 사장님 확인 · 진희 다시 녹음 12클립] 90 · 115~117 · 119 · 120 · 123 · 125 · 126 · 128~130 — 녹음과 같은 글(원천 ritual-open NAR)
+chk 'NAR_1006' assets/ritual-open.js 3
+chk "prevideoIn: '두 사람의 영상을 함께 보시겠습니다.'," assets/ritual-open.js 1
+nochk '팝콘은 없지만' assets/ritual-open.js
