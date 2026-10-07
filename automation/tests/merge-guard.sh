@@ -15078,6 +15078,11 @@ nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);bor
 # ★[VFLOW_NOLINE 2026-10-07 사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자»] 나오는 곳 여섯 = 글 · › 만(점선 밑줄 없음)
 chk 'VFLOW_NOLINE' order-preview.html 2
 nochk 'white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep)' order-preview.html
+# ★[VFLOW_TAP · VFLOW_GAP 2026-10-07 사장님 «하객 맞이랑 준비됐어요 간격이 너무 멀다 · 누를 수 있는 글씨구나 인지할 수 있게»] 나오는 곳 = 가는 실선 밑줄(골드 · «자세히 보기»와 같은 표시) · 흐름 줄 아래 14 → 2
+chk 'VFLOW_TAP' order-preview.html 2
+chk 'white-space:nowrap;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--gold-deep);text-underline-offset:4px}' order-preview.html 1
+chk '.mk-vuse{margin:6px 0 2px}' order-preview.html 1
+nochk '.mk-vuse{margin:6px 0 14px}' order-preview.html
 # ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
 chk 'VCARD_CALM' order-preview.html 3
 chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
@@ -15223,9 +15228,17 @@ chk 'VOICE_OPEN_1008' deploy-marks.json 1
 chk 'VOICE_OPEN_1008' scripts/audit/voice-open.mjs 1
 chk 'VOICE_OPEN_1008' scripts/audit/snap-plan.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/voice-open.mjs >/dev/null 2>&1; _vop=$?; if [ "$_vop" != 0 ]; then echo 'FAIL voice-open: 두 분 목소리 오픈 날짜가 서버 · 처리방침 · 위탁 줄에서 어긋났습니다 — node scripts/audit/voice-open.mjs'; fail=1; else echo 'ok voice-open'; fi; fi
+# ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460)에선 «확정 안내 보기 · 나레이션 자세히»를
+#   칩 아래 제 줄이 아니라 질문 줄(«어떻게 준비할까요») 오른쪽 끝에 — 이름표와 같은 11px · 글자 아래 선 맞춤 · 누를 칸 44 는 위로(영상 아래 간격 15px 그대로).
+#   PC · 태블릿은 칩 줄 오른쪽 끝 그대로 · 하객 맞이 · 식전 영상 · 입장 셋 다(_lChipRow 한 곳) · make-shell 이 390 · 1280 에서 잰다(폰 배치를 빼면 빨강 · 돌연변이 확인)
+chk 'VS_LINK_TOP' order-preview.html 2
+chk "return (a||b)?'<span class=\"cg-links\">'+a+b+'</span>':'';" order-preview.html 1
+chk '.ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(11px \* 1.4 - 44px);right:0;height:44px' order-preview.html 1
+chk '.ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:11px;line-height:1.4}' order-preview.html 1
+chk 'VS_LINK_TOP' scripts/audit/make-shell.mjs 3
 # ★[ERR_CODE_PAY 2026-10-07 사장님 «오류 코드로 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»] 카드결제(꺼져 있음 · 켜기 전에 맞춤) — 토스 거절 P4 + 토스 코드 · 빈 복귀도 결제로그 ·
 #   승인 뒤 기록 함수가 던지면 B-1(관리자 알림 · «기록경고») · card-err.mjs 가 실제 .gs 로 태운다(try 를 걷으면 FAIL 4 · 돌연변이 확인)
 chk 'ERR_CODE_PAY' automation/platform/98_pay_card.gs 6
 chk "} catch (eRec) { rec = { ok: false, error: '기록 함수 예외 · '" automation/platform/98_pay_card.gs 1
 chk 'ERR_CODE_PAY' scripts/audit/card-err.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/card-err.mjs >/dev/null 2>&1; _cer=$?; [ "$_cer" = 1 ] && { echo 'FAIL card-err: 카드결제 실패 길(토스 거절 코드 · 빈 복귀 기록 · 승인 뒤 기록 실패 B-1)이 어긋났습니다 — node scripts/audit/card-err.mjs'; fail=1; }; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/card-err.mjs >/dev/null 2>&1; _cer=$?; if [ "$_cer" = 1 ]; then echo 'FAIL card-err: 카드결제 실패 길(토스 거절 코드 · 빈 복귀 기록 · 승인 뒤 기록 실패 B-1)이 어긋났습니다 — node scripts/audit/card-err.mjs'; fail=1; else echo "ok card-err ($_cer)"; fi; fi   # ★[GUARD_TAIL_RC] 끝 줄은 if 꼴로 — «[ … ] && { … }»면 통과해도 종료 코드 1 이 남는다(#1110 실측 · ALL MARKERS OK 인데 CI 빨강)
