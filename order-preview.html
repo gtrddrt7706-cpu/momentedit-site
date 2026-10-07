@@ -1837,6 +1837,7 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-vu-img img,.mk-vu-img video{display:block;width:100%;height:100%;object-fit:cover}   /* [VU_VIDEO_PLAY] 영상도 같은 틀 */
 .mk-vu-when{margin:0 0 6px;font-size:12.5px;color:var(--gold-deeper)}
 .mk-vu-q{margin:0 0 14px;padding:12px 14px;border-radius:8px;background:var(--bg2);font-family:var(--ko-serif);font-size:16px;line-height:1.85;color:var(--accent);word-break:keep-all}
+.mk-vu-wait{margin:4px 0 0;text-align:center;font-size:12.5px;color:var(--sub)}   /* [VU_OWN_VOICE] 목소리 만들기 전 들어 보기 자리 한 줄 */
 .mk-vu-play{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:4px 0 0}   /* [VU_FLOW_FREE] 글 · 안내 아래 · 이전 · 다음 위 */
 .mk-vu-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
 .mk-vu-nav .pk-link[disabled]{opacity:.35;cursor:default}
@@ -5307,7 +5308,9 @@ function _vcUseIntro(){ var rows=_vcUseRows(); if(!rows.length) return '';
   return '<div class="mk-vuse"><p class="mk-vuse-1">두 분이 입장하기 전, 하객에게 먼저 인사를 건네는 <b>주인공의 목소리</b>예요</p>'
     +'<ol class="mk-vflow" aria-label="이 목소리가 나오는 곳 · 누르면 그 자리를 보여 드려요">'+rows.map(function(x,i){ return '<li><button type="button" class="mk-vfb" data-fk="mkvuse:'+x[0]+'" onclick="mkUseOpen('+i+')">'+esc(x[1])+'</button></li>'; }).join('')+'</ol></div>'; }
 function _vcUseSrc(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.src==='ai'&&!_upStale(key)){ var u=_rfUrl(key); if(u) return u; }
-  var t=_recNeed(key), gi=/^g(\d)$/.exec(key); if(gi) return _lCastSrc(CAST_GUEST[+gi[1]],t); if(key==='entry') return _lCastSrc(CAST_ENTRY[S.entry],t); return null; }
+  return null; }   /* ★이 창에서 견본 목소리(성우 녹음 · _lCastSrc) 틀기 금지 — 2026-10-07 사용자 지시로 삭제 [VU_OWN_VOICE] (사장님 «목소리 만들기 전인데 들어 보기 누르면 담백하게는 나레이션 목소리 · 어떤 게 맞는지 모르겠다» → «추천대로»)
+   «주인공의 목소리»를 알려 주는 창이라 남의 목소리는 혼란만 준다. 만들기 전엔 들어 보기 대신 한 줄 · 만든 뒤엔 어떤 칩이든 두 분 목소리(만든 소리 → 그 자리 AI 읽기) */
+function _vuReady(key){ var w=_vcLineWho(key), st=VC.st||{}; return w==='both'?!!((st.groom||{}).ready&&(st.bride||{}).ready):!!((st[w==='bride'?'bride':'groom']||{}).ready); }   // [VU_OWN_VOICE] 이 자리를 읽는 분 목소리가 있나
 function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), who=w==='both'?'두 분':w==='bride'?'신부':'신랑', v=RitualOpen.firstVideo(x[2],S), src=_vcUseSrc(x[0]);
   return '<div class="mk-vu-img">'+(v?(v.mp4&&!_rm()?'<video muted playsinline autoplay preload="auto" poster="'+esc(v.poster)+'" src="'+esc(v.mp4)+'" aria-hidden="true"></video>':'<img src="'+esc(v.poster)+'" alt="">'):'')+'</div>'   /* ★[VU_VIDEO_ONCE 2026-10-06 사장님 «영상 반복 재생 아니고 한 번 재생하고 끝»] loop 없음 — 한 번 돌고 마지막 장면(동작이 끝난 모습)에서 멈춘다(LVID_ONCE · PV_VID_ONCE 와 같은 말) · 되풀이로 되돌리지 말 것 */ /* ★[VU_VIDEO_PLAY 2026-10-06 사장님 «영상 움직이게 해 주고 · 멈춰 있어»] 창 그림이 첫 장면(poster)만 보였다 — 소리 없이 되풀이 재생 · 움직임 줄이기면 종전처럼 정지 그림 */
     +'<p class="mk-vu-when">'+esc(VC_USE_WHEN[x[0]]||'')+' · '+who+' 목소리</p>'
@@ -5324,7 +5327,8 @@ function _vcUseBody(rows,i){ var x=rows[i], n=rows.length, w=_vcLineWho(x[0]), w
         +'<p class="mk-vu-q" id="mkVuQ">'+esc(o.txt)+'</p>'
         +(o.ex&&!O.some(function(t){ return t.own; })?'<p class="mk-note mk-vu-exn">예시 글이에요 · '+esc(x[0]==='pv'?'식전 영상':/^g\d$/.test(x[0])?'하객 맞이':'입장')+' 쪽에서 두 분 글로 바꿀 수 있어요</p>':'')
         +(VU.err?'<p class="mk-exw" role="alert">'+esc(VU.err)+'</p>':'')
-        +((o.src||_ptOn())?(function(w){ return '<button type="button" class="mk-dlg-go mk-vu-play'+w.c+'"'+w.s+' data-fk="mkuseplay" onclick="mkUsePlay()"'+(VU.busy?' disabled aria-busy="true"':'')+'>'; })(_wfx('vu',!!VU.busy,VU.busyD,VU.busyAt))+ICO_PLAY+' '+(VU.busy?'준비 중…':'들어 보기')+'</button>':'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" disabled aria-disabled="true">'+ICO_PLAY+' 이 글은 아직 들어 볼 수 없어요</button>'); })()
+        +(!_vuReady(x[0])?'<p class="mk-note mk-vu-wait" data-fk="mkusewait">두 분 목소리를 만들면 여기서 들어 볼 수 있어요</p>'   /* [VU_OWN_VOICE] 만들기 전 — 단추 대신 한 줄(소리 · 오류 문구 없음) */
+        :(o.src||_ptOn())?(function(w){ return '<button type="button" class="mk-dlg-go mk-vu-play'+w.c+'"'+w.s+' data-fk="mkuseplay" onclick="mkUsePlay()"'+(VU.busy?' disabled aria-busy="true"':'')+'>'; })(_wfx('vu',!!VU.busy,VU.busyD,VU.busyAt))+ICO_PLAY+' '+(VU.busy?'준비 중…':'들어 보기')+'</button>':'<button type="button" class="mk-dlg-go mk-vu-play" data-fk="mkuseplay" disabled aria-disabled="true">'+ICO_PLAY+' 이 글은 아직 들어 볼 수 없어요</button>'); })()
     +'<div class="mk-vu-nav"><button type="button" class="pk-link" data-fk="mkuseprev" onclick="mkUseGo(-1)"'+(i?'':' disabled')+'>‹ 이전</button><span class="mk-vu-n" aria-live="polite">'+(i+1)+' / '+n+'</span>'
     +'<button type="button" class="rowbtn" data-fk="mkusenext" onclick="mkUseGo(1)">'+(i<n-1?'다음 ›':'닫기')+'</button></div>'; }
 /* ★[VU_VIDEO_KEEP 2026-10-06 사장님 «다음 넘길 때마다 영상이 처음부터 다시 · 하객 입장부터 시작 1분 전까지는 같은 영상이니 재생하던 그대로»]
@@ -5339,10 +5343,10 @@ function _vuOpts(key){ var me=_recNeed(key)||'', out=[];
   /* [EX_ROW] 창 칩도 «예시 N» 대신 느낌 이름(순간 쪽 «참고 예시» 줄과 같은 말) · «예시»라는 말은 창 아래 한 줄이 한 번 말한다 */
   if(key==='entry'){ var exs=ENTRY_KEYS.map(function(v){ return {v:v,txt:ENTRY[v].self}; }), hit=exs.some(function(e){ return _exNorm(e.txt)===_exNorm(me); });
     if(me&&!hit) out.push({lab:'두 분 글',txt:me,own:1,src:_vcUseSrc('entry')});
-    exs.forEach(function(e,n){ out.push({lab:ENTRY[e.v].d,txt:e.txt,ex:1,src:_exNorm(e.txt)===_exNorm(me)?_vcUseSrc('entry'):_lCastSrc(CAST_ENTRY[e.v],e.txt)}); }); return out; }
+    exs.forEach(function(e,n){ out.push({lab:ENTRY[e.v].d,txt:e.txt,ex:1,src:_exNorm(e.txt)===_exNorm(me)?_vcUseSrc('entry'):null}); }); return out; }
   if(/^g\d$/.test(key)){ var gi=+key.slice(1), mn=_exNorm(me), gHit=GUEST_EX.some(function(e){ return _exNorm(e[1][gi])===mn; });   /* ★[VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어»] 하객 맞이 네 줄도 «두 분 글 · 예시 1~4» — 입장 · 식전 영상과 같은 칩(GUEST_EX4) · 예시 1 은 견본 목소리 녹음 · 2~4 는 그 자리 AI 읽기 */
     if(me&&!gHit) out.push({lab:'두 분 글',txt:me,own:1,src:_vcUseSrc(key)});
-    GUEST_EX.forEach(function(e,n){ var t=e[1][gi]; out.push({lab:e[0],txt:t,ex:1,src:_exNorm(t)===mn?_vcUseSrc(key):(n===0?_lCastSrc(CAST_GUEST[gi],t):null)}); }); return out; }
+    GUEST_EX.forEach(function(e,n){ var t=e[1][gi]; out.push({lab:e[0],txt:t,ex:1,src:_exNorm(t)===mn?_vcUseSrc(key):null}); }); return out; }
   return [{lab:'',txt:me,src:_vcUseSrc(key)}]; }
 function _vuSel(key,O){ var j=VU.sel[key]; if(j!=null&&O[j]) return j; var me=_exNorm(_recNeed(key)||'');
   for(var n=0;n<O.length;n++){ if(O[n].own||(me&&_exNorm(O[n].txt)===me)) return n; } return 0; }
@@ -5351,7 +5355,8 @@ function _vuFix(){ var q=document.getElementById('mkVuQ'); if(!q) return; var P=
 window.mkUseEx=function(n){ var x=_vcUseRows()[MK.use||0]; if(!x) return; _stopMk(); VU.sel[x[0]]=n; VU.err=''; _fxNext='[data-fk="mkuseex:'+n+'"]'; render(); _vuFix(); };
 window.mkUseOpen=function(i){ MK.use=i; VU.err=''; render(); _vuFix(); };
 window.mkUseGo=function(d){ var n=_vcUseRows().length; _stopMk(); var j=(MK.use||0)+d; if(j>=n){ MK.use=null; render(); return; } if(j<0) j=0; MK.use=j; VU.err=''; _vuKeep(render); _vuFix(); };
-window.mkUsePlay=function(){ var x=_vcUseRows()[MK.use||0]; if(!x||VU.busy) return; var O=_vuOpts(x[0]), o=O[_vuSel(x[0],O)]; if(!o||!o.txt) return;
+window.mkUsePlay=function(){ var x=_vcUseRows()[MK.use||0]; if(!x||VU.busy||!_vuReady(x[0])) return;   // [VU_OWN_VOICE]
+  var O=_vuOpts(x[0]), o=O[_vuSel(x[0],O)]; if(!o||!o.txt) return;
   var play=function(src){ _stopAud(); _stopMk(); try{ var a=new Audio(); MK.aud=a; _playLead(a,src,1,null); }catch(e){} };
   if(o.src){ play(o.src); return; }
   /* [VU_EX_LISTEN ②] 소리 파일이 없는 글 — 그 자리에서 AI 로 읽는다(연습 AI 읽기와 같은 길 · 저장 안 함 · 그분 목소리가 없으면 스튜디오 목소리) */
