@@ -14617,6 +14617,11 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★★[FLOW_FILL 2026-10-07 사장님 «전체 선택하면 문구가 나오면서 그래프 아래 빈 간격 · 확인 개선»] PC 흐름 판 그림 높이 = 오른쪽 칸 제 높이(상한 260)
+chk 'FLOW_FILL' order-preview.html 2
+chk 'function _pkFillH(el)' order-preview.html 1
+chk 'FLOW_FILL' scripts/audit/flow-fill.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-fill.mjs >/dev/null 2>&1; _ffl=$?; if [ "$_ffl" = 1 ]; then echo 'FAIL flow-fill: 흐름 판 그림 아래가 비었습니다 — node scripts/audit/flow-fill.mjs'; fail=1; else echo "ok flow-fill ($_ffl)"; fi; fi
 # ★[STEPB_NOLINE 2026-10-07 사장님 «고르기 · 하나씩 만들기 밑에 줄 삭제 · 연습하기 · 완성도 마찬가지»] 머리 네 걸음의 지난 걸음 밑줄 없음(마우스 올림만)
 chk 'STEPB_NOLINE' order-preview.html 2
 nochk 'cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:flex;align-items:flex-start;justify-content:center}' order-preview.html
