@@ -437,7 +437,7 @@ chk 'data-snapact="confirm"' admin.html 1
 chk 'SNAP_BRIEF' brief.html 1
 chk 'noindex, nofollow' brief.html 1
 chk '촬영(스냅)' privacy.html 1                      # D12 처리방침 위탁 한 줄
-chk '2026년 9월 26일' privacy.html 3                 # [SNAP_OPEN_NOW] 공고일 = 시행일 = 위탁 시작일(10조 단서 · 공고와 동시에 시행) — 처음엔 10월 3일(«7일 전 공지»)이었다
+chk '2026년 9월 26일' privacy.html 2                 # [SNAP_OPEN_NOW] ★10/8 개정(VOICE_OPEN_1008)으로 공고일 줄은 넘어갔다 — 시행 이력 · 사진작가 위탁 «부터»에 남는다. 공고일 = 시행일 = 위탁 시작일(10조 단서 · 공고와 동시에 시행) — 처음엔 10월 3일(«7일 전 공지»)이었다
 nochk '2026년 10월 3일' privacy.html                 # 옛 시행일이 되살아나면 서버(SNAP_V2.from)와 어긋난다
 chk 'SNAP_OPEN_NOW' automation/platform/80_production.gs 1
 chk 'SNAP_OPEN_NOW' privacy.html 1
@@ -14450,7 +14450,8 @@ chk 'function _vcTtsReq(cfg, voiceId, text, tempo, pause)' automation/platform/8
 chk 'rs = UrlFetchApp.fetchAll(reqs)' automation/platform/80_production.gs 1
 chk 'VC_SLOW_AGAIN' order-preview.html 1
 chk 'VC_SLOW_AGAIN' mypage.html 1
-chk "timeout:!!(e&&e.name==='AbortError')" mypage.html 1
+chk "_to=!!(e&&e.name==='AbortError')" mypage.html 1   # [VC_NET_SPLIT] timeout:_to 로 넘긴다
+chk 'timeout:_to,' mypage.html 1
 chk "  if(op==='make'&&!bg) VC.fg=(VC.fg||0)+1;   /\* ★\[VC_FG_LIVE" order-preview.html 1
 chk 'VC_PAR' scripts/audit/vc-par.mjs 1
 chk 'VC_SLOW_AGAIN' scripts/audit/vc-slow-again.mjs 1
@@ -14623,6 +14624,18 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★★[VC_NET_AGAIN · VC_NET_SEC 2026-10-08 사장님 «지금도 그러는데?» · «오류를 확실하게 잡아야지»] 아이폰은 60초 넘는 답을 끊는다(서버 실행 기록엔 오류 없음) — 만들기 · 연습 읽기는 연결로 끊기면 12초 · 20초 뒤 두 번 더(저장본) · 끊김 글에 «몇 초»
+chk 'VC_NET_AGAIN' order-preview.html 1
+chk "if((op==='make'||op==='practice')&&d&&d.down&&!d.ok&&d.net&&d.net!=='bad'&&nn<2)" order-preview.html 1
+chk 'VC_NET_SEC' order-preview.html 1
+chk 'VC_NET_SEC' mypage.html 1
+chk 'VC_NET_AGAIN' scripts/audit/vc-net-again.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-net-again.mjs >/dev/null 2>&1; _vna=$?; if [ "$_vna" = 1 ]; then echo 'FAIL vc-net-again: 목소리 만들기 끊김 다시 묻기가 어긋났습니다 — node scripts/audit/vc-net-again.mjs'; fail=1; else echo "ok vc-net-again ($_vna)"; fi; fi
+# ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V8)을 가른다 — 끊긴 직후 상태 확인 한 번
+chk 'VC_NET_SPLIT' mypage.html 1
+chk 'VC_NET_SPLIT' order-preview.html 1
+chk "if(d.net==='srv') return 8;" order-preview.html 1
+chk 'VC_NET_SPLIT' scripts/audit/vc-down-kind.mjs 2
 # ★[THANKS_DEURIM 2026-10-07 사장님 «결혼식에 와 주셔서 (진심으로) 감사합니다 보단 감사드립니다 · 목소리 녹음 후 예시 글도»] 하객 맞이 담백하게 첫 줄 · 맞추기 예시 글 · 첫인사 예시
 chk 'THANKS_DEURIM' order-preview.html 1
 chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요' assets/ritual-data.js 1
@@ -15167,10 +15180,11 @@ chk 'CONSENT_EVERY' scripts/audit/vc-screen.mjs 3
 #   서버 거절 · 연결 끊김 · 시간 초과가 같은 두 줄(«… 그동안 이 줄은 스튜디오 나레이션으로 나와요»)이던 것 → 원인마다 한 줄 + 코드 V0 ~ V7(숫자 = 무슨 일) · 360px 폰도 한 줄
 #   vc-down-kind.mjs 가 받는 자리 · 맞추기 창 실제 실패 · 한 줄 폭을 잰다 — 받는 자리를 옛 것으로 되돌리면 FAIL 7(돌연변이 확인)
 chk 'VC_DOWN_KIND' order-preview.html 5
-chk 'function _vcDownWord(n)' order-preview.html 1
-chk "d.error=_vcDownWord(_vcDownN(d))" order-preview.html 1
+chk 'function _vcDownWord(n,sec)' order-preview.html 1   # [VC_NET_SEC] 끊김 글에 몇 초
+chk "d.error=_vcDownWord(_vcDownN(d),d.sec)" order-preview.html 1
 chk 'VC_DOWN_KIND' mypage.html 1
-chk "net:_to?0:(_bad?'bad':1)" mypage.html 1
+chk "net:_to?0:net" mypage.html 1   # [VC_NET_SPLIT] _fin(net) — 'bad' · 'srv' · 1
+chk "_fin(_bad?'bad':0)" mypage.html 1
 nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" order-preview.html
 nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" mypage.html
 nochk "d2.error='오래 걸려 기다리다 멈췄어요" order-preview.html
@@ -15196,6 +15210,19 @@ chk 'src="/assets/err-codes.js"' admin.html 1
 chk 'ERR_CODES' assets/err-codes.js 1
 chk 'ERR_CODES' scripts/audit/err-codes.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-codes.mjs >/dev/null 2>&1; _erc=$?; if [ "$_erc" = 1 ]; then echo 'FAIL err-codes: 오류 코드 장치(표 · 서버 도장 · 관리자 찾기)가 어긋났습니다 — node scripts/audit/err-codes.mjs'; fail=1; else echo "ok err-codes ($_erc)"; fi; fi
+# ★★[VOICE_OPEN_1008 2026-10-08 사장님 «전체로 오픈해»] 두 분 목소리 전체 오픈 — VOICE_UP.from=2026-10-08 · 처리방침 개정(두 분 목소리 항목 · 보관 기간 · AI 목소리 생성 위탁 · 공고=시행 10/8).
+#   스냅(SNAP_OPEN_NOW)과 같은 결 — 선택 · 그 자리에서 본인이 따로 동의하므로 10조 단서로 공고일 시행. 2099 로 되돌리지 말 것 · 날짜 셋은 voice-open.mjs 가 맞춘다
+chk "var VOICE_UP = { from: '2026-10-08' }" automation/platform/80_production.gs 1
+nochk "from: '2099-12-31'" automation/platform/80_production.gs
+chk 'VOICE_OPEN_1008' automation/platform/80_production.gs 2
+chk 'VOICE_OPEN_1008' privacy.html 4
+chk 'id="voice-clone"' privacy.html 1
+chk '네오사피엔스㈜ (타입캐스트 Typecast, 국내)' privacy.html 1
+chk '2026년 10월 8일' privacy.html 3
+chk 'VOICE_OPEN_1008' deploy-marks.json 1
+chk 'VOICE_OPEN_1008' scripts/audit/voice-open.mjs 1
+chk 'VOICE_OPEN_1008' scripts/audit/snap-plan.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/voice-open.mjs >/dev/null 2>&1; _vop=$?; if [ "$_vop" != 0 ]; then echo 'FAIL voice-open: 두 분 목소리 오픈 날짜가 서버 · 처리방침 · 위탁 줄에서 어긋났습니다 — node scripts/audit/voice-open.mjs'; fail=1; else echo 'ok voice-open'; fi; fi
 # ★[ERR_CODE_PAY 2026-10-07 사장님 «오류 코드로 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»] 카드결제(꺼져 있음 · 켜기 전에 맞춤) — 토스 거절 P4 + 토스 코드 · 빈 복귀도 결제로그 ·
 #   승인 뒤 기록 함수가 던지면 B-1(관리자 알림 · «기록경고») · card-err.mjs 가 실제 .gs 로 태운다(try 를 걷으면 FAIL 4 · 돌연변이 확인)
 chk 'ERR_CODE_PAY' automation/platform/98_pay_card.gs 6

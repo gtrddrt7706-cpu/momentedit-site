@@ -61,7 +61,8 @@ else {
 
 // ── [SNAP_V2_FROM] 새 기획은 처리방침 시행일부터 — 서버 날짜 = privacy.html 시행일 = 위탁 줄의 «부터» 날짜
 const fr = gs.match(/maxUploads: \d+, from: '(\d{4})-(\d{2})-(\d{2})' \}/), pv = priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/), dl = priv.match(/촬영\(스냅\)[\s\S]{0,400}?(\d{4})년 (\d{1,2})월 (\d{1,2})일부터/);
-t(!!fr && !!pv && fr.slice(1, 4).join('-') === pv.slice(1, 4).join('-'), `새 기획 여는 날(SNAP_V2.from ${fr ? fr.slice(1, 4).join('-') : '못 읽음'}) = 처리방침 개정 시행일(${pv ? pv.slice(1, 4).join('.') : '못 읽음'})`);
+const frKo = fr ? `${+fr[1]}년 ${+fr[2]}월 ${+fr[3]}일` : '';   /* [VOICE_OPEN_1008 2026-10-08] 처리방침은 그 뒤로도 개정된다(10/8 두 분 목소리) — 맨 위 개정일은 «그 날 이후»면 되고, 스냅 시행일은 시행 이력 줄에 남아 있어야 한다 */
+t(!!fr && !!pv && pv.slice(1, 4).join('-') >= fr.slice(1, 4).join('-') && priv.indexOf(frKo) > -1, `새 기획 여는 날(SNAP_V2.from ${fr ? fr.slice(1, 4).join('-') : '못 읽음'}) ≤ 처리방침 맨 위 개정 시행일(${pv ? pv.slice(1, 4).join('.') : '못 읽음'}) · 시행 이력에 «${frKo}» 있음`);
 t(!!fr && !!dl && +dl[1] === +fr[1] && +dl[2] === +fr[2] && +dl[3] === +fr[3], `새 기획 여는 날 = 처리방침 «촬영(스냅)» 위탁 줄의 시작일(${dl ? dl.slice(1, 4).join('.') : '못 읽음'})`);
 const phRow = (priv.match(/촬영\(스냅\)<\/span>\s*<span class="spec-val">([^<]*)/) || [])[1] || '';
 t(/^모먼트에디트와 계약한 사진작가/.test(phRow) && phRow.indexOf('촬영별') === -1, '처리방침 위탁 줄 = «모먼트에디트와 계약한 사진작가» — 매번 바뀌는 외부 작가가 아니다(PHOTOG_CONTRACT 2026-09-26 사장님)');
