@@ -304,6 +304,17 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .hist{font-family:var(--mono);font-size:11px;color:var(--sub);line-height:1.8;max-height:160px;overflow-y:auto;background:var(--paper2);border-radius:7px;padding:9px 11px}
 .hist .hl{border-bottom:1px solid var(--divider);padding:2px 0}
 .hist .hl:last-child{border-bottom:none}
+/* ★[ADM_ERRLOG_BOX 2026-10-07 ERR_CODE_ADMIN] «최근 실패»·사고번호 결과 — 높이 상자(160px)에 갇혀 8줄 중 1줄만 보이던 것(#13).
+   세 줄 + «n건 더 보기» · 줄의 코드를 누르면 그 줄 아래에 뜻 · 할 일(ME_ERR.explain · 서버 호출 없음 · #14) */
+.hist.errs{max-height:none;overflow:visible}
+.hist .adm-ec{font:inherit;font-weight:700;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:5px;padding:0 7px;min-height:26px;cursor:pointer}
+.hist .adm-ec[aria-expanded="true"]{border-color:var(--gold-deep)}
+.hist .adm-ecx{margin:4px 0 3px;padding:7px 9px;background:#fff;border:1px solid var(--gold-line);border-radius:6px;font-family:var(--serif-ko);font-size:12px;color:var(--accent);line-height:1.65;word-break:keep-all;white-space:pre-line}
+.adm-more{display:block;margin:8px 0 0;padding:6px 10px;min-height:32px;border:1px solid var(--border);border-radius:7px;background:#fff;font-family:var(--serif-ko);font-size:12px;color:var(--sub);cursor:pointer}
+.adm-note{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);margin-top:6px;line-height:1.6;word-break:keep-all}
+/* [ADM_WHY] 실패 한 줄(빈 칸 · 카드 · 메모 옆) — 색은 상태 신호(경고)라 장식이 아니다 */
+.adm-why{font-family:var(--serif-ko);font-size:12.5px;color:var(--red);line-height:1.65;margin-top:6px;word-break:keep-all;overflow-wrap:anywhere}
+.adm-retry{display:inline-block;margin-top:10px;padding:7px 14px;min-height:36px;border:1px solid var(--border);border-radius:7px;background:#fff;font-family:var(--serif-ko);font-size:12.5px;color:var(--accent);cursor:pointer}
 
 /* 버튼 */
 .actions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
@@ -362,7 +373,10 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 /* [ADM_SLOW_NOTE] 해골이 오래 남을 때 한 줄 — 색은 상태 신호(경고)라 장식이 아니다. */
 .slow-note{font-size:13px;color:var(--sub);background:#FFF8E6;border:1px solid #F0E3C0;border-radius:8px;padding:8px 10px;margin-bottom:8px}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
-#toast{position:fixed;bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:11px 20px;border-radius:24px;opacity:0;transition:all .3s var(--ease);z-index:60;pointer-events:none;max-width:90%;text-align:center}
+#toast{position:fixed;bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;font-family:var(--serif-ko);font-size:13px;padding:11px 20px;border-radius:24px;opacity:0;transition:all .3s var(--ease);z-index:100020;pointer-events:none;max-width:90%;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
+/* ★[ADM_TOAST_LONG 2026-10-07 ERR_CODE_ADMIN] 실패 토스트는 오래(6초+) 남고 눌러서 닫는다(#24) · z-index 는 AI 직원실(9990) · 계약서 뷰어(99999) ·
+   확인판(100010) 위 — 종전 60 이라 그 위에서 뜬 실패 토스트(교육 저장 실패 · 서명 진본 못 받음)가 판 뒤에 가려 보이지 않았다 */
+#toast.show.err{pointer-events:auto;cursor:pointer}
 /* 상단 진행 바 — 모든 서버 호출(api) 중 표시: 처리 중임을 즉시 알림 */
 #topBusy{position:fixed;top:0;left:0;height:3px;width:100%;z-index:120;background:transparent;opacity:0;transition:opacity .2s ease;pointer-events:none}
 #topBusy.on{opacity:1}
@@ -468,7 +482,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <!-- 홈: 처리할 일 + 현황 -->
   <section id="homeView" style="display:none">
     <div class="search">
-      <input type="text" id="q" placeholder="개인코드·이름·연락처 · 오류 코드 검색" autocomplete="off">
+      <input type="text" id="q" placeholder="이름·연락처·코드 · 오류 코드" autocomplete="off"><!-- [ADM_Q_PH 2026-10-07 ERR_CODE_ADMIN] 360~390px 폰에서 안내가 잘리던 것(필요 약 274px · 칸 238~268px · #27) — 새 기능 «오류 코드»를 알리는 유일한 자리라 줄여서 다 보이게 -->
       <button id="btnSearch">검색</button>
     </div>
     <div id="recentWrap" class="recent" style="display:none"></div><!-- [ADM_AA6] 최근 본 고객 -->
@@ -508,7 +522,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 </main>
 
 <div id="topBusy" aria-hidden="true"></div>
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <div class="modal-ov" id="confirmModal">
   <div class="modal" id="modalBox">
@@ -608,7 +622,88 @@ function _chipLink(lb,v){ var h=_safeHref(v); return h?('<a href="'+esc(h)+'" ta
    값은 mypage.html SLOT_CLOCK 과 같다 — 스냅 길이가 바뀌면 check-source-drift (7)이 잡는다. 저장값은 그대로다. */
 var SLOT_CLOCK={'09:00':'10:20','12:20':'13:40','15:40':'17:00','10:00':'10:20','13:20':'13:40','16:40':'17:00'};   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
 function wedTimeKo(t){ t=String(t||'').slice(0,5); if(!t) return ''; var L={'09:00':'오전','12:20':'오후','15:40':'늦은 오후','10:00':'오전','13:20':'오후','16:40':'늦은 오후'}; var lab=L[t]; if(SLOT_CLOCK[t]) t=SLOT_CLOCK[t]; return (lab?lab+' ':'')+t; }
-function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
+/* ★[ADM_TOAST_LONG 2026-10-07 ERR_CODE_ADMIN] 토스트 — 글이 길면 오래(읽을 시간) · 실패(toastErr)는 6초 넘게 남고 눌러서 닫는다(#24).
+   종전엔 무엇이든 2.2초였고 타이머를 겹쳐 걸어, 앞 토스트의 타이머가 뒤 토스트를 일찍 지웠다 — 타이머는 하나만 둔다 */
+var _toastT=0;
+function toast(msg, ms){ var t=$('toast'); if(!t) return; clearTimeout(_toastT); t.classList.remove('err'); t.textContent=_nb(msg); t.classList.add('show');
+  _toastT=setTimeout(function(){ t.classList.remove('show'); t.classList.remove('err'); }, ms||Math.max(2200, Math.min(6000, String(msg==null?'':msg).length*80))); }
+function toastErr(msg){ if(!msg) return; toast(msg, Math.max(6000, Math.min(12000, String(msg).length*110))); var t=$('toast'); if(t) t.classList.add('err'); }
+/* ==ADM_WHY:START== ★★[ADM_WHY · ERR_CODE_ADMIN 2026-10-07 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»]
+   관리자 화면의 실패 한 줄을 «한 곳에서» 가른다 — 종전엔 자리마다 «오류» · «불러오기 실패» · «오류: Failed to fetch»(아이폰은 «Load failed»)였다.
+   x = 서버 답({ok:false, error}) 또는 던져진 것(api · fetch · 화면 코드)
+   · 서버 글 → 그대로(1~9 면 서버가 코드를 이미 붙였다 · 두 번 안 붙인다) · 옛 GAS 의 «알 수 없는 요청: fn» → 배포 안내를 덧붙인다
+   · 연결 끊김(api 가 meNet 을 붙인다 · Failed to fetch · Load failed · NetworkError) → «연결이 끊겼어요 (코드 X6)»
+     50초 넘게 기다린 끊김 = 아이폰 사파리가 오래 걸린 요청을 끊은 것일 수 있다 → «결과 모름 (코드 X5 · 61초)»
+   · 서버 답이 JSON 이 아님(api 의 __meHtml · LOAD_WHY) → 그 설명 + 서버 글 (코드 X7)
+   · 그 밖(화면 코드가 던짐) → «화면 오류 · 이름: 글»(코드 없음 · 우리 화면의 버그다)
+   o = { write:쓰기 동작이면 «처리됐는지 확인», base:서버가 까닭을 안 줬을 때의 말, todo:«다시 눌러 주세요» 대신 할 일 }
+   ★로그인 풀림은 _admLost 가 가른다(«로그인이 필요» · reason expired) — «권한» · «만료» 글자만으로 가르지 않는다:
+     예외 원문(«서버에서 오류가 났어요 · … 권한 …»)이 로그아웃으로 둔갑하면 2026-06-12 «됐다가 안 됨»이 돌아온다.
+   ★[ADM_CODE_NB] 코드 괄호 안에서 줄이 갈리지 않게 — 띄어쓰기는 U+00A0 · «코»와 «드» 사이는 U+2060(고객 화면과 같은 처방)
+   ★이 블록은 DOM 을 만지지 않는다 — scripts/audit/err-admin.mjs 가 이 블록만 떼어 노드에서 돌린다(바꾸면 그 검사도 함께). */
+function _nb(t){ return String(t==null?'':t).replace(/\(코\u2060?드[ \u00A0]([^)]*)\)/g, function(m, inner){ return '(코\u2060드\u00A0'+inner.replace(/ /g,'\u00A0')+')'; }); }
+function _admHas(t){ return /\(코\u2060?드[ \u00A0][A-Z]\d/.test(String(t||'')); }
+function _admIsRej(x){ return !!x && typeof x==='object' && (x instanceof Error || !!x.meNet || !!x.__meHtml || (typeof x.name==='string' && typeof x.message==='string' && !('ok' in x))); }
+function _admLost(x){ if(!x || typeof x!=='object' || _admIsRej(x)) return false; var t=String(x.error||''); return x.reason==='expired' || (/로그인이 필요/.test(t) && !/^서버에서 오류/.test(t)); }
+/* [ADM_HTML_TEXT] GAS 가 JSON 대신 HTML 을 주면 그 본문의 실제 글(실행 시간 초과 · 권한 재승인 · 할당량 · 문법 오류)을 함께 싣는다(#22) —
+   종전엔 늘 «배포가 깨졌거나 권한이 바뀐 상태»로 단정하고 본문은 버렸다 */
+function _admHtmlText(t){ var s=String(t||'').replace(/<head[\s\S]*?<\/head\s*>/i,' ').replace(/<(script|style|noscript)\b[\s\S]*?<\/\1\s*>/gi,' ').replace(/<!--[\s\S]*?-->/g,' ').replace(/<[^>]*>/g,' ')
+  .replace(/&nbsp;/gi,' ').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&quot;/gi,'"').replace(/&#0?39;|&#x27;/gi,"'").replace(/&amp;/gi,'&').replace(/\s+/g,' ').trim();
+  return s.length>90?s.slice(0,89)+'…':s; }
+function _admHtmlWhy(status, t){ var raw=String(t||''), isHtml=/^\s*(<!DOCTYPE|<html)/i.test(raw), sv=_admHtmlText(raw), dx;
+  if(/Exceeded maximum execution time|최대 실행 시간/i.test(sv)) dx='서버(GAS)가 실행 시간 한도에 걸려 멈췄어요 · 처리됐는지 확인해 주세요';
+  else if(/Authorization is required|authorization required|승인이 필요|권한이 필요/i.test(sv)) dx='GAS 권한 재승인이 필요해 보여요 · 편집기에서 함수 하나를 실행해 승인해 주세요';
+  else if(/too many times|Service invoked|할당량|quota|rate limit/i.test(sv)) dx='구글 서비스 할당량에 걸렸어요 · 잠시 뒤(길면 다음 날) 다시 해 주세요';
+  else dx='GAS 배포가 깨졌거나 접근 권한이 바뀌었을 수 있어요 · 99_deployCheck 파일의 deployStampCheck 로 확인해 주세요';
+  return '서버가 JSON 대신 '+(isHtml?'오류 페이지(HTML)':'알 수 없는 응답')+'를 돌려줬어요 (HTTP '+status+') · '+dx+(sv?' · 서버 글 «'+sv+'»':''); }
+function _why(x, o){
+  o=o||{}; var t, todo=o.todo||'다시 눌러 주세요';
+  if(_admIsRej(x)){
+    var nm=String(x.name||''), msg=String(x.message||'');
+    if(x.__meHtml) t=msg.replace(/\s+$/,'')+(_admHas(msg)?'':' (코드 X7)');
+    else if(nm==='AbortError'||nm==='TimeoutError') t='응답이 늦어 기다리다 멈췄어요 · '+(o.write?'처리됐는지 확인해 주세요':todo)+' (코드 X5)';
+    else if(x.meNet || (nm==='TypeError' && /failed to fetch|load failed|networkerror|network request failed/i.test(msg))){
+      var sec=Math.round((+x.meMs||0)/1000);
+      t = sec>=50 ? '오래 걸려 연결이 끊겼어요 · 서버는 끝냈을 수 있으니 처리됐는지 확인해 주세요 (코드 X5 · '+sec+'초)'
+                  : '연결이 끊겼어요 · '+(o.write?'처리됐는지 확인한 뒤 다시 눌러 주세요':todo)+' (코드 X6)';
+    }
+    else if(nm==='NotAllowedError') t='브라우저가 막았어요(소리 재생 · 복사 권한) · 화면을 한 번 누른 뒤 다시 눌러 주세요';
+    else if(nm==='NotSupportedError') t='이 기기가 이 파일을 열지 못했어요 (코드 M6)';
+    else t='화면 오류 · '+(nm&&nm!=='Error'?nm+': ':'')+(msg||String(x)).replace(/\s+/g,' ').slice(0,140);
+  } else if(!x || typeof x!=='object'){
+    t='서버 답이 비었어요 · '+todo+' (코드 X7)';
+  } else {
+    t=String(x.error||'').replace(/\s+/g,' ').trim().replace(/\.\s*\(코드 ([A-Z]\d)/,' (코드 $1');   // [ADM_WHY] 코드 앞 끝 마침표는 걷는다(«…주세요. (코드 B8)» → «…주세요 (코드 B8)» · 재배포 전 옛 서버 글)
+    if(/^알 수 없는 요청: /.test(t) && !/배포/.test(t)) t+=' · GAS 새 버전 배포가 필요해요(99_deployCheck 의 deployStampCheck)';   // [ADM_WHY] 옛 GAS — 화면이 새 기능을 부르는데 재배포 전(#23)
+    if(!t) t=o.base||'처리하지 못했어요 · 다시 눌러 주세요';
+  }
+  return _nb(t);
+}
+/* [ADM_ERR_SEARCH] 검색창 코드 읽기 — 고객이 옮겨 적은 모양을 다 받는다(#12): «.» «-» «ㆍ»(한글 자판 가운뎃점) «/» «:» · U+00A0 · U+2060 · 전각 괄호 «（ ）» ·
+   «코드 V6이요» 처럼 문장 속 · «· 61초» 꼬리. 글자+숫자가 표에 없으면(S10 · Q6 · 기기 M 의 8) ex 가 null — 화면이 «표에 없는 코드»라고 말한다.
+   돌려주는 것 = { code, eid(사고번호 4글자), ex(ME_ERR.explain), bare(검색어가 코드 하나뿐) } · 코드 모양이 아니면 null(고객 검색) */
+var ADM_SEP=/[()\[\]{}<>\u00AB\u00BB\u300C-\u300F\u3008\u3009\u00B7\u318D\u119E\u2022\u2027\u2219\u30FB.,\-\u2010-\u2015\/\\:;|~'"`!?]/g;
+function _errParse(q){
+  var s=String(q==null?'':q);
+  try{ s=s.normalize('NFKC'); }catch(e){}
+  s=s.replace(/[\u2060\u200B-\u200D\uFEFF\u00AD]/g,'').replace(/[\u00A0\u3000]/g,' ').toUpperCase()
+     .replace(/\d+\s*초/g,' ').replace(/코드/g,' ').replace(ADM_SEP,' ').replace(/\s+/g,' ').trim();
+  if(!s) return null;
+  var code='', eid='', other=0, toks=s.split(' ');
+  for(var i=0;i<toks.length;i++){ var core=toks[i].replace(/^[가-힣]+/,'').replace(/[가-힣]+$/,'');
+    if(!core) continue;   // «이요» · «떴어요» 같은 한글 말
+    if(!code && /^[A-Z]\d{1,3}$/.test(core)){ code=core; continue; }
+    if(!eid && /^[A-HJ-NP-Z2-9]{4}$/.test(core)){ eid=core; continue; }
+    other++; }
+  if(other || (!code && !eid)) return null;
+  var E=(typeof ME_ERR!=='undefined')?ME_ERR:null;
+  return { code:code, eid:eid, ex:(code && /^[A-Z]\d$/.test(code) && E) ? E.explain(code) : null, bare:(!eid && s===code) };
+}
+/* ==ADM_WHY:END== */
+/* [ADM_AI_WHY] AI 직원실 실패 한 줄 — «불러오기 실패» · «오류» 대신 무엇을 못 했는지 + 까닭(서버 글 · 연결 X6 · 깨진 답 X7) */
+function _aiFail(head, x){ return '<div class="adm-why" style="color:#b00;font-size:12px">'+esc(head+' · '+_why(x,{base:'다시 열어 주세요'}))+'</div>'; }
+/* [ADM_WHY] 확인판(confirmModal)이 열려 있으면 그 판의 빨간 줄에, 닫혔으면 토스트로 — 판이 닫힌 뒤 난 실패가 안 보이던 자리 */
+function _mSay(line){ var m=$('confirmModal'); if(m&&m.classList.contains('show')) mErr(line); else toastErr(line); }
 /* ★[SNAP_PICK_V2 2026-09-26] 스냅 기획 관리자 버튼 — 확인·회신 · 촬영 브리프 주소(새 주소는 옛 주소를 닫는다) · 올린 그림(작은 그림).
    서버: 80_production adminSnapConfirm·adminSnapBrief·adminSnapThumbs(admin.gs adminCall 등록). 상세가 다시 그려져도 살아 있게 문서에 한 번 건다. */
 document.addEventListener('click', function(e){
@@ -616,24 +711,26 @@ document.addEventListener('click', function(e){
   var act=b.getAttribute('data-snapact'), code=curDetail.code; if(!code||b.disabled) return;
   var done=function(){ b.disabled=false; };
   b.disabled=true;
-  if(act==='confirm'){ var inp=$('snapReply'); gas('adminSnapConfirm', code, inp?inp.value:'').then(function(r){ done(); if(r&&r.ok){ toast('스냅 기획 확인됨 · 두 분 카드에 보여요'); openDetail(code); } else toast((r&&r.error)||'실패'); }).catch(function(){ done(); toast('오류'); }); return; }
+  /* [ADM_WHY] 실패 까닭 한 줄(서버 글 · 연결 X6 · 깨진 답 X7) — 종전 «실패» · «오류» 두 낱말 */
+  if(act==='confirm'){ var inp=$('snapReply'); gas('adminSnapConfirm', code, inp?inp.value:'').then(function(r){ done(); if(r&&r.ok){ toast('스냅 기획 확인됨 · 두 분 카드에 보여요'); openDetail(code); } else toastErr(_why(r,{base:'확인 표시를 남기지 못했어요'})); }).catch(function(e){ done(); toastErr(_why(e,{write:true})); }); return; }
   if(act==='brief'||act==='renew'){
-    var runBrief=function(){ gas('adminSnapBrief', code, act==='renew').then(function(r){ done(); var o=$('snapBriefOut'); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
+    var runBrief=function(){ gas('adminSnapBrief', code, act==='renew').then(function(r){ done(); var o=$('snapBriefOut'); if(!(r&&r.ok)){ toastErr(_why(r,{base:'브리프 주소를 만들지 못했어요'})); return; }
       if(o) o.innerHTML='<a href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+esc(r.url)+'</a> · '+esc(r.until||'')+'까지 열려요 · 작가에게만 보내 주세요';
-      try{ navigator.clipboard.writeText(r.url).then(function(){ toast('브리프 주소를 복사했어요'); }); }catch(e2){} }).catch(function(){ done(); toast('오류'); }); };
+      /* [ADM_COPY_TRUTH] 복사가 막혀도(아이폰 사파리는 서버를 기다린 뒤의 복사를 막는다) 거짓 «복사했어요»도 «서버 연결» 토스트도 없이 — 주소는 위에 보인다 */
+      try{ navigator.clipboard.writeText(r.url).then(function(){ toast('브리프 주소를 복사했어요'); }, function(){ toastErr('주소는 만들었는데 복사가 안 됐어요 · 위 주소를 길게 눌러 복사해 주세요'); }); }catch(e2){ toastErr('주소는 만들었는데 복사가 안 됐어요 · 위 주소를 길게 눌러 복사해 주세요'); } }).catch(function(e){ done(); toastErr(_why(e,{write:true})); }); };
     if(act==='renew'){ done();   // 새 주소는 옛 주소를 닫는다 — 관리자 확인판으로 한 번 묻는다(브라우저 기본 확인창 금지 · merge-guard)
       openModal({ title:'브리프 새 주소', text:li('지금 주소는 바로 닫혀요')+li('작가에게 새 주소를 다시 보내야 해요'), yes:'새 주소 만들기', danger:true,
         onYes:function(){ closeModal(); b.disabled=true; runBrief(); } }); return; }
     runBrief(); return; }
   if(act==='withdraw'){ done();   // [SNAP_CONSENT] 되돌릴 수 없다 — 관리자 확인판으로 한 번 묻는다(브라우저 기본 확인창 금지 · merge-guard)
     openModal({ title:'스냅 기획 지우기', text:li('고른 장면 · 메모 · 링크 · 올린 사진을 지우고 동의 기록도 지워요')+li('촬영 브리프 주소는 바로 닫혀요 · 사진작가에게 이미 보냈다면 알려 주세요')+li('두 분이 부탁했을 때만 · 두 분 카드는 빈 카드로 돌아가요'), yes:'지우기', danger:true,
-      onYes:function(){ closeModal(); b.disabled=true; gas('adminSnapWithdraw', code).then(function(r){ b.disabled=false; if(r&&r.ok){ toast('스냅 기획을 지웠어요 · 동의 거둠'); openDetail(code); } else toast((r&&r.error)||'실패'); }).catch(function(){ b.disabled=false; toast('오류'); }); } });
+      onYes:function(){ closeModal(); b.disabled=true; gas('adminSnapWithdraw', code).then(function(r){ b.disabled=false; if(r&&r.ok){ toast('스냅 기획을 지웠어요 · 동의 거둠'); openDetail(code); } else toastErr(_why(r,{base:'지우지 못했어요'})); }).catch(function(e){ b.disabled=false; toastErr(_why(e,{write:true})); }); } });
     return; }
-  if(act==='thumbs'){ gas('adminSnapThumbs', code).then(function(r){ done(); if(!(r&&r.ok)){ toast((r&&r.error)||'실패'); return; }
+  if(act==='thumbs'){ gas('adminSnapThumbs', code).then(function(r){ done(); if(!(r&&r.ok)){ toastErr(_why(r,{base:'올린 그림을 불러오지 못했어요'})); return; }
       var zs=((curDetail.mirror&&curDetail.mirror.production&&curDetail.mirror.production.snapDraft)||{}).zones||{};
       Array.prototype.forEach.call(document.querySelectorAll('[data-snapth]'), function(box){ var z=zs[box.getAttribute('data-snapth')]||{};
         box.innerHTML=(z.ups||[]).map(function(u){ var src=r.thumbs&&r.thumbs[u.id]; return src?('<img src="'+esc(src)+'" alt="올린 그림">'):''; }).join(''); });
-      b.style.display='none'; }).catch(function(){ done(); toast('오류'); }); return; }
+      b.style.display='none'; }).catch(function(e){ done(); toastErr(_why(e)); }); return; }
   done();
 });
 
@@ -790,7 +887,10 @@ var _silentN=0;   // [ADM_AA7] 조용한 갱신 깊이 — >0이면 상단 진�
 function _busy(on){ if(on && _silentN>0) return; _busyN=Math.max(0,_busyN+(on?1:-1)); var b=document.getElementById('topBusy'); if(b) b.classList.toggle('on', _busyN>0); }
 function api(payload){
   _busy(true);
-  var off=function(){ _busy(false); };
+  var off=function(){ _busy(false); }, t0=Date.now();
+  /* ★[ADM_NET_TAG 2026-10-07 ERR_CODE_ADMIN] 연결이 끊긴 실패에 표시(meNet)와 기다린 시간(meMs)을 붙인다 — _why 가 «연결 끊김(X6)»과
+     «오래 걸려 끊김 · 결과 모름(X5)»을 가른다. 아이폰 사파리는 60초 넘은 요청을 «Load failed»로 끊는데 그때 서버는 끝냈을 수 있다(#5) */
+  var net=function(e){ try{ if(e&&typeof e==='object'){ e.meNet=1; e.meMs=Date.now()-t0; } }catch(_){} return Promise.reject(e); };
   return fetch(EXEC_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) })
     /* ★[LOAD_WHY 2026-09-21 사장님 「오류 이런게뜨는데 확인개선」]
        종전엔 r.json() 을 맨몸으로 불렀다. 그래서 GAS 가 JSON 대신 «오류 HTML» 을 돌려주면
@@ -798,34 +898,36 @@ function api(payload){
        그 문장은 «무엇이 잘못됐는지»도 «무엇을 하면 되는지»도 말하지 않는다.
        GAS 가 HTML 을 돌려주는 경우는 정해져 있다: ①스크립트가 컴파일/실행에 실패(붙여넣다 잘림 포함)
        ②배포 접근 권한이 «모든 사용자»가 아님 → 구글 로그인 페이지 ③배포 URL 이 죽음.
-       셋 다 «우리 쪽»이라 재시도로는 안 풀린다. 그래서 다음 한 걸음까지 문장에 넣는다. */
+       셋 다 «우리 쪽»이라 재시도로는 안 풀린다. 그래서 다음 한 걸음까지 문장에 넣는다.
+       ★[ADM_HTML_TEXT 2026-10-07] 문장은 _admHtmlWhy 가 만든다 — 본문의 실제 글(실행 시간 초과 · 권한 재승인 · 할당량)을 읽어 진단을 고르고 서버 글을 함께 싣는다 */
     .then(function(r){ return r.text().then(function(t){
       try { return JSON.parse(t); }
       catch(_p){
-        var isHtml = /^\s*(<!DOCTYPE|<html)/i.test(t||'');
-        var err = new Error('서버가 JSON 대신 ' + (isHtml ? '오류 페이지(HTML)' : '알 수 없는 응답') + '를 돌려줬어요 (HTTP ' + r.status + '). '
-          + 'GAS 배포가 깨졌거나 접근 권한이 바뀐 상태입니다. 99_deployCheck 파일의 deployStampCheck 를 실행해 확인해 주세요.');
-        err.__meHtml = 1;
+        var err = new Error(_admHtmlWhy(r.status, t));
+        err.__meHtml = 1; err.meHttp = r.status;
         throw err;
       }
-    }); })
+    }, net); }, net)
     .then(function(j){ off(); return j; }, function(e){ off(); throw e; });
 }
 /* [ADM_NETFAIL 2026-08-04] gas() 52곳 중 .catch는 3곳뿐 — 오프라인·GAS 다운이면 대부분의 화면이
    아무 안내 없이 멈추고 콘솔에만 rejection이 쌓였다. 개별 catch를 다 달기 전의 최소 안전망:
    잡히지 않은 rejection을 토스트 한 줄로 알린다(4초 중복 억제 · 콘솔 로그는 보존). */
+/* ★[ADM_REJ_SORT 2026-10-07 ERR_CODE_ADMIN] 안전망이 «무엇이 거절됐는지»를 본다(#6) — 종전엔 어떤 거절이든 «서버 연결이 안 돼요»였다.
+   실측: 재생 못 하는 목소리 파일의 play() 거절 · 아이폰이 서버를 기다린 뒤의 복사(clipboard)를 막은 것도 서버 탓 토스트로 떴고,
+   catch 없는 gas() 의 LOAD_WHY 설명(HTML 응답)도 여기서 버려졌다. 이제 _why 가 가른다(연결 X6 · 깨진 답 X7 · 막힘 · 화면 오류) */
 var _lastNetToast=0;
 window.addEventListener('unhandledrejection', function(ev){
   try{ console.warn('[unhandled]', ev.reason); }catch(e){}
   var now=Date.now();
-  if(now-_lastNetToast>4000){ _lastNetToast=now; try{ toast('서버 연결이 안 돼요 · 잠시 후 다시 시도해 주세요'); }catch(e){} }
+  if(now-_lastNetToast>4000){ _lastNetToast=now; try{ var r=ev.reason; toastErr((r===undefined||r===null)?'화면 오류 · 까닭 없이 멈춘 요청이 있어요 · 다시 눌러 주세요':_why(r)); }catch(e){} }
   ev.preventDefault();
 });
 // 시착 동의서 문서 뷰어(관리자) — /contract/fitting.html 오버레이 + 서버(adminFittingDoc) 데이터 채움 + 인쇄=PDF
 function openFittingDoc(code){
   gas('adminFittingDoc', code).then(function(res){
     /* [ADM_MODAL 2026-08-03] 알린 뒤 곧바로 빠져나가는 자리 — admAlert를 기다리지 않아도 return이 그대로 흐름을 끊는다(뒤에 실행할 코드가 없다) */
-    if(!res || !res.ok){ admAlert({ title:'동의서를 불러오지 못했어요', body:(res&&res.error)||'잠시 후 다시 시도해 주세요.' }); return; }
+    if(!res || !res.ok){ admAlert({ title:'동의서를 불러오지 못했어요', body:_why(res,{base:'잠시 후 다시 시도해 주세요.'}) }); return; }   // [ADM_WHY]
     var doc=res.doc||{};
     var old=document.getElementById('ad_ftViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
     var ov=document.createElement('div'); ov.id='ad_ftViewer';
@@ -853,7 +955,7 @@ function openFittingDoc(code){
     }
     x.addEventListener('click',done); window.addEventListener('message',onMsg);
   /* [ADM_MODAL 2026-08-03] 네트워크 실패 알림 — 콜백 끝이라 흐름 변화 없음 */
-  }).catch(function(){ admAlert({ title:'동의서를 불러오지 못했어요', body:'네트워크 상태를 확인한 뒤 다시 시도해 주세요.' }); });
+  }).catch(function(e){ admAlert({ title:'동의서를 불러오지 못했어요', body:_why(e) }); });   // [ADM_WHY] 종전 «네트워크 상태를 확인» — 서버 · 화면 오류도 네트워크 탓으로 말했다
 }
 
 // [좌석표 프린트] 현재 열린 상세(curDetail)의 좌석 배치를 인쇄용 A4 문서로 — 시각 배치도 + 음료 색점 + 테이블별 명단 + 음료 합계.
@@ -1017,7 +1119,7 @@ function _orderSheetDoc(d){
 }
 /* [REC_ADMIN] 두 분 목소리 — 목록(최신이 위 · 같은 자리는 맨 위가 지금 쓰는 것) · 들어 보기(받아서 blob) · 확인 ✓ · D-7 뒤 바뀜 표시 */
 function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&curDetail.code; if(!el||!code) return; el.textContent='불러오는 중…';
-  gas('adminRitualFiles', code).then(function(d){ if(!d||!d.ok){ el.textContent=(d&&d.error)||'불러오지 못했어요'; return; }
+  gas('adminRitualFiles', code).then(function(d){ if(!d||!d.ok){ el.textContent='파일 목록을 불러오지 못했어요 · '+_why(d,{base:'다시 눌러 주세요'}); return; }   // [ADM_WHY]
     var vh=admVcLine(d.vc);   // [VC_SLOTS · VC_FOLD_0928] 쓰는 칸 / 전체 칸 · 이 예식 AI 목소리 — 키가 없으면 빈칸
     if(d.vc) setTimeout(admVcUsage,0);
     if(d.gone){ el.innerHTML=vh+'<div class="kv"><span class="k">지움</span><span class="v">'+esc(d.gone)+' (예식 30일 뒤)</span></div>'; return; }
@@ -1038,31 +1140,42 @@ function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&c
     if(!ks.length) h='<div class="kv"><span class="k">파일</span><span class="v">두 분 목소리를 고른 자리가 없어요</span></div>';
     h='<p class="note" style="margin:4px 0 6px;color:var(--sub);font-size:12px">확인할 것 · 목소리가 그 사람인지 · 하객 맞이 4번 줄에 안내 음성 알림 말이 남아 있는지 · D-5 쯤 한 번'+(nEmpty?' · 빈 줄 '+nEmpty+'개':'')+'</p>'+h;
     if(old.length) h+='<details style="margin-top:6px"><summary style="font-size:12px;color:var(--sub)">옛 파일 '+old.length+'개</summary>'+old.map(function(f){ return '<div class="kv"><span class="k">'+esc(f.label||'자리 모름')+'</span><span class="v">'+esc(f.name)+' · '+f.kb+'KB · '+esc(f.at)+' <button type="button" '+BT+' onclick="admRfPlay(\''+esc(f.id)+'\',this)">들어 보기</button></span></div>'; }).join('')+'</details>';
-    el.innerHTML=vh+h; }).catch(function(){ el.textContent='불러오지 못했어요'; }); }
+    el.innerHTML=vh+h; }).catch(function(e){ el.textContent='파일 목록을 불러오지 못했어요 · '+_why(e); }); }
 /* ★[VC_SLOTS 2026-09-28 · VC_FOLD_0928] AI 목소리 칸 — 요금제 칸은 예식마다 두 칸 쓰고 지우면 돌아온다 · 서버가 10분 캐시 */
 function admVcLine(v){ if(!v) return ''; var W={groom:'신랑',bride:'신부'}, me=v.me||{}, st=['groom','bride'].map(function(w){ var p=me[w]||{}; return W[w]+' '+(p.ready?'만듦':p.deleted?'지움 '+p.deleted:p.consent?'동의만':'없음'); }).join(' · ');
   return '<div class="kv"><span class="k">AI 목소리 칸</span><span class="v">'+(v.used==null?'?':v.used)+' / '+(v.total==null?50:v.total)+(v.plan?' · 요금제 '+esc(v.plan):'')+(v.on?'':' · 스위치 꺼짐')+(v.err?' · <b style="color:var(--red)">조회 실패 '+esc(v.err)+'</b>':'')+'<span id="admVcChars"></span></span></div>'
     +'<div class="kv"><span class="k">이 예식 AI 목소리</span><span class="v">'+esc(st)+'<span id="admVcRead"></span></span></div>'; }
 /* [VOICE_CLONE_0928 6-7 · 8-7] «이번 달 AI 글자 n / 200,000» · 읽은 녹음 듣기(예식 다음 날까지) + 그때 뽑힌 확인 문장 · D-5 쯤 스튜디오가 한 번 */
 function admVcUsage(){ var code=curDetail&&curDetail.code; if(!code) return;
-  gas('adminVoiceUsage', code).then(function(u){ if(!u||!u.ok) return; var c=document.getElementById('admVcChars'), r=document.getElementById('admVcRead');
+  /* ★[ADM_VC_USAGE_FAIL 2026-10-07 ERR_CODE_ADMIN] 못 받으면 그렇다고 쓴다(#16) — 종전엔 아무것도 안 그려 «이번 달 AI 글자»와 «마지막 실패» 줄이 그냥 없었다(= 실패 없음으로 읽혔다) */
+  var _vcFail=function(x){ var c=document.getElementById('admVcChars'); if(c) c.innerHTML=' · <b style="color:var(--red)">사용량 · 마지막 실패를 불러오지 못했어요</b> '+esc(_why(x,{base:'까닭을 받지 못했어요'})); };
+  gas('adminVoiceUsage', code).then(function(u){ if(!u||!u.ok){ _vcFail(u); return; } var c=document.getElementById('admVcChars'), r=document.getElementById('admVcRead');
     if(c) c.innerHTML=' · 이번 달 AI 글자 '+Number(u.chars||0).toLocaleString()+' / '+Number(u.charsCap||200000).toLocaleString();
     if(r) r.innerHTML=['groom','bride'].map(function(w){ var q=(u.who||{})[w]||{}; if(!q.read) return ''; return ' · '+(w==='groom'?'신랑':'신부')+' 확인 문장 «'+esc(q.read.phrase)+'» <button type="button" class="btn-line" style="padding:2px 8px;font-size:12px" onclick="admVcRead(\''+w+'\',this)">읽은 녹음 듣기</button>'; }).join('')+(u.retry?' · <b style="color:var(--red)">업체 지우기 다시 시도 '+u.retry+'개</b>':'')
-      +(u.lastErr?'<br><b style="color:var(--red)">마지막 실패</b> '+esc(u.lastErr.at||'')+' · '+esc({enroll:'목소리 만들기',make:'줄 만들기',practice:'연습 읽기'}[u.lastErr.op]||u.lastErr.op||'')+' · '+esc(u.lastErr.http?'HTTP '+u.lastErr.http:/^문 앞/.test(u.lastErr.msg||'')?'설정':'연결 실패')+(u.lastErr.msg?' · 업체 답 «'+esc(u.lastErr.msg)+'»':''):''); }).catch(function(){}); }   // [VC_WHY] 타입캐스트가 왜 거절했는지
+      +(u.lastErr?'<br><b style="color:var(--red)">마지막 실패</b> '+esc(u.lastErr.at||'')+' · '+esc({enroll:'목소리 만들기',make:'줄 만들기',practice:'연습 읽기'}[u.lastErr.op]||u.lastErr.op||'')+' · '+esc(u.lastErr.http?'HTTP '+u.lastErr.http:/^문 앞/.test(u.lastErr.msg||'')?'설정':'연결 실패')+(u.lastErr.msg?' · 업체 답 «'+esc(u.lastErr.msg)+'»':''):''); }).catch(_vcFail); }   // [VC_WHY] 타입캐스트가 왜 거절했는지
 function admVcRead(w,btn){ var code=curDetail&&curDetail.code; if(!code) return; btn.disabled=true;
-  gas('adminVoiceRead', code, w).then(function(d){ btn.disabled=false; if(!d||!d.ok){ toast((d&&d.error)||'받지 못했어요'); return; }
-    var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); new Audio(URL.createObjectURL(new Blob([u],{type:d.mime||'audio/wav'}))).play(); }).catch(function(){ btn.disabled=false; toast('받지 못했어요'); }); }
+  gas('adminVoiceRead', code, w).then(function(d){ btn.disabled=false; if(!d||!d.ok){ toastErr('읽은 녹음을 받지 못했어요 · '+_why(d,{base:'다시 눌러 주세요'})); return; }
+    var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); _admPlay(new Blob([u],{type:d.mime||'audio/wav'})); }).catch(function(e){ btn.disabled=false; toastErr('읽은 녹음을 받지 못했어요 · '+_why(e)); }); }
+/* ★[ADM_PLAY_FAIL 2026-10-07 ERR_CODE_ADMIN] 재생 실패를 말한다(P5) — 막힘(NotAllowedError · 자동 재생 · 무음 모드) M7 · 못 엶(형식 · 깨진 파일) M6.
+   종전엔 play() 를 맨몸으로 불러, 못 여는 파일은 아무 소리 없이 끝나거나 전역 안전망이 «서버 연결이 안 돼요»라고 했다(#6) */
+function _playWhy(e){ return (e&&e.name==='NotAllowedError')?'소리 재생이 막혔어요 · 화면을 한 번 누른 뒤 다시 눌러 주세요 (코드 M7)':'이 기기가 소리 파일을 열지 못했어요 · 다른 기기로 들어 보거나 파일을 다시 받아 주세요 (코드 M6)'; }
+function _admPlay(blob){ var a=new Audio(URL.createObjectURL(blob)), said=false, say=function(e){ if(said) return; said=true; toastErr(_playWhy(e)); };
+  a.onerror=function(){ say(null); }; try{ var p=a.play(); if(p&&p.catch) p.catch(function(e){ if(e&&e.name==='AbortError') return; say(e); }); }catch(e){ say(e); } return a; }
 /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오 대신 올리기 — 두 분 화면과 **같은 다듬기**(assets/rec-process.js · 80Hz · 앞뒤 빈소리 · LUFS -16)를 거쳐 WAV 로 올린다.
    알림(작음 · 찢어짐 · 주변 소리 · 길이)은 막지 않고 한 번 묻는다. 못 여는 파일은 올리지 않는다(두 분 화면과 같다) */
-function admRfUp(k,btn){ var code=curDetail&&curDetail.code; if(!code||!window.RecProcess) return;
+function admRfUp(k,btn){ var code=curDetail&&curDetail.code; if(!code) return;
+  /* ★[ADM_RF_UP_FAIL 2026-10-07 ERR_CODE_ADMIN] 눌렀는데 아무 일도 없던 셋(#37) — 다듬기 도구가 없음 · 다듬은 파일을 못 읽음(버튼이 «올리는 중…»에 잠김) · 올리기 실패의 까닭 */
+  if(!window.RecProcess){ toastErr('다듬기 도구(rec-process.js)를 불러오지 못했어요 · 새로고침한 뒤 다시 눌러 주세요'); return; }
   var inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*,.m4a,.mp3,.aac,.wav,.webm,.mp4';
   inp.onchange=function(){ var f=inp.files&&inp.files[0]; if(!f) return; if(f.size>20*1048576){ toast('한 개에 20MB 까지예요'); return; } btn.disabled=true; btn.textContent='다듬는 중…';
     f.arrayBuffer().then(function(ab){ return RecProcess.process(ab,0); }).then(function(o){
       if(o.dur>60){ throw new Error('60초가 넘어요'); }
       return (o.warn.length?admConfirm({ title:'그래도 올릴까요?', body:o.warn.join('\n'), yes:'그대로 올리기' }):Promise.resolve(true)).then(function(go){ if(!go){ btn.disabled=false; btn.textContent='파일 올리기'; return; }   // [ADM_MODAL] 브라우저 confirm 대신
       btn.textContent='올리는 중…'; var rd=new FileReader(); rd.onload=function(){ gas('adminRitualFileUp', code, k, String(f.name||'').replace(/\.[^.]+$/,'').slice(0,40), 'audio/wav', String(rd.result)).then(function(d){
-        btn.disabled=false; btn.textContent='파일 올리기'; if(!d||!d.ok){ toast((d&&d.error)||'올리지 못했어요'); return; } toast('올렸어요 · 두 분 화면과 당일 콘솔에 들어가요'); admRfLoad(); }).catch(function(){ btn.disabled=false; btn.textContent='파일 올리기'; toast('올리지 못했어요'); }); }; rd.readAsDataURL(o.wav); });
-    }).catch(function(e){ btn.disabled=false; btn.textContent='파일 올리기'; toast(e&&e.message==='60초가 넘어요'?'60초가 넘어요 · 한 줄만 올려 주세요':'이 파일은 열 수 없어요. m4a · mp3 · wav 로 올려 주세요'); }); };
+        btn.disabled=false; btn.textContent='파일 올리기'; if(!d||!d.ok){ toastErr('올리지 못했어요 · '+_why(d,{base:'다시 눌러 주세요'})); return; } toast('올렸어요 · 두 분 화면과 당일 콘솔에 들어가요'); admRfLoad(); }).catch(function(e){ btn.disabled=false; btn.textContent='파일 올리기'; toastErr('올리지 못했어요 · '+_why(e,{write:true})); }); };
+      rd.onerror=function(){ btn.disabled=false; btn.textContent='파일 올리기'; toastErr('이 기기가 다듬은 파일을 읽지 못했어요 · 다시 눌러 주세요 (코드 M6)'); };
+      rd.readAsDataURL(o.wav); });
+    }).catch(function(e){ btn.disabled=false; btn.textContent='파일 올리기'; toastErr(e&&e.message==='60초가 넘어요'?'60초가 넘어요 · 한 줄만 올려 주세요':'이 파일은 열 수 없어요 · m4a · mp3 · wav 로 올려 주세요 (코드 M6)'); }); };
   inp.click(); }
 /* [RF_ROWS_0928] 빈 줄 [연락하기] — 문자 앱을 그 줄 이름을 담아 연다(보내기는 사람이) */
 function admRfAsk(k){ var d=curDetail||{}, ph=d.phone?(window.meTelDigits?meTelDigits(d.phone):String(d.phone).replace(/[^0-9+]/g,'')):''; if(!ph) return '';
@@ -1070,10 +1183,13 @@ function admRfAsk(k){ var d=curDetail||{}, ph=d.phone?(window.meTelDigits?meTelD
   var body='[모먼트에디트] 두 분 목소리 준비 · '+L+' 줄이 아직 비어 있어요. 마이페이지 식순 만들기에서 준비해 주세요.';   // ★[LATE_LINE_OFF 2026-09-28] «7일 전까지 준비되지 않은 줄은 나레이션» 은 사실과 달라 걷었다 · 직접 녹음을 뺐으니 «녹음하거나 파일을 올려»도 걷음
   return '<a class="btn-line" style="padding:2px 8px;font-size:12px" href="sms:'+esc(ph)+'?body='+encodeURIComponent(body)+'">연락하기</a>'; }
 function admRfPlay(id,btn){ var code=curDetail&&curDetail.code; if(!code) return; btn.disabled=true; btn.textContent='받는 중…';
-  gas('adminRitualFileGet', code, id).then(function(d){ btn.disabled=false; btn.textContent='들어 보기'; if(!d||!d.ok){ toast((d&&d.error)||'받지 못했어요'); return; }
-    var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); var a=new Audio(URL.createObjectURL(new Blob([u],{type:d.mime||'audio/wav'}))); a.play(); })
-    .catch(function(){ btn.disabled=false; btn.textContent='들어 보기'; toast('받지 못했어요'); }); }
-function admRfOk(key,on){ var code=curDetail&&curDetail.code; if(!code) return; gas('adminRitualFileOk', code, key, on).then(function(){ admRfLoad(); }); }
+  gas('adminRitualFileGet', code, id).then(function(d){ btn.disabled=false; btn.textContent='들어 보기'; if(!d||!d.ok){ toastErr('파일을 받지 못했어요 · '+_why(d,{base:'다시 눌러 주세요'})); return; }
+    var bin=atob(d.data), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); _admPlay(new Blob([u],{type:d.mime||'audio/wav'})); })   // [ADM_PLAY_FAIL]
+    .catch(function(e){ btn.disabled=false; btn.textContent='들어 보기'; toastErr('파일을 받지 못했어요 · '+_why(e)); }); }
+/* ★[ADM_RF_OK_FAIL 2026-10-07 ERR_CODE_ADMIN] «확인 ✓» — 서버가 거절해도 목록만 다시 읽어 ✓ 가 안 생긴 채 말이 없었다(#17 · 실측) · catch 도 없었다 */
+function admRfOk(key,on){ var code=curDetail&&curDetail.code; if(!code) return;
+  gas('adminRitualFileOk', code, key, on).then(function(r){ if(!(r&&r.ok)) toastErr('확인 표시를 남기지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'})); admRfLoad(); })
+    .catch(function(e){ toastErr('확인 표시를 남기지 못했어요 · '+_why(e,{write:true})); }); }
 /* ★[AI_NOTICE_0928 9-1] 식순지 뒷면 한 줄 틀 — «[자리]의 [누구] 목소리[도 / 가운데 일부는], [누구]의 목소리로 만든 AI 음성입니다.»
    자리: AI 줄이 있는 자리만(하객 맞이 안내 · 입장 인사) · 누구: 그 줄을 읽는 사람이 둘이면 «두 사람», 한 분이면 «신랑» / «신부» ·
    [도]: 이름 넣은 자리의 두 분 목소리 줄이 모두 AI 일 때 · 한 자리라도 일부만 AI 면 «가운데 일부는».
@@ -1195,14 +1311,14 @@ function aiTeachPrompt(target, ctxLine, cb, prefill){ target=target||'전체';
     var i=0;
     var doOne=function(force){
       if(i>=targets.length){ close(); if(cb)cb(true,t); return; }
-      gas('aiKbNoteAdd',targets[i],t,force).catch(function(){ return {ok:false,error:'서버 연결이 안 돼요'}; }).then(function(r){
+      gas('aiKbNoteAdd',targets[i],t,force).catch(function(e){ return {ok:false,error:_why(e,{write:true})}; }).then(function(r){   // [ADM_WHY] 종전 «서버 연결이 안 돼요» — 깨진 답 · 화면 오류도 그렇게 말했다
         if(r&&r.ok){ i++; doOne(false); }
         else if(r&&r.blocked){ btn.disabled=false; btn.textContent='교육하기';
           /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 이 분기는 .then 콜백의 끝이고 반환값을 쓰는 곳이 없어(doOne은 콜백이 스스로 이어간다),
              분기 전체를 .then 안으로 옮기면 예·아니오 두 갈래가 그대로 보존된다. 버튼 되돌리기는 확인 판을 열기 전에 이미 끝냈다. */
           admConfirm({ title:'그래도 가르칠까요?', body:(r.error||'핵심 수치처럼 보여요.')+'\n가격·정책이 틀리면 고객에게 그대로 나가요.', yes:'그대로 교육' })
             .then(function(go){ if(go){ btn.disabled=true; btn.textContent='교육 중…'; doOne(true); } else { if(cb)cb(false); } }); }
-        else { feed.style.color='#b00'; feed.textContent=((targets.length>1?('['+targets[i]+'] '):'')+((r&&r.error)||'추가 실패')); btn.disabled=false; btn.textContent='교육하기'; }
+        else { feed.style.color='#b00'; feed.textContent=((targets.length>1?('['+targets[i]+'] '):'')+_why(r,{base:'추가하지 못했어요'})); btn.disabled=false; btn.textContent='교육하기'; }
       });
     };
     doOne(false);
@@ -1424,7 +1540,7 @@ function openAiTeam(){
     var au=document.getElementById('teachAuto');
     /* 실제 고객 질문 중 막힌·애매한 것 — 아침 메일이 싣는 것과 같은 원천(aiQuestionLog). */
     gas('aiQuestionLog').then(function(r){
-      if(!(r&&r.ok!==false)){ au.innerHTML='<div style="color:#b00;font-size:12px">질문 목록을 불러오지 못했어요 · 새로고침 해주세요</div>'; return; }
+      if(!(r&&r.ok!==false)){ au.innerHTML=_aiFail('질문 목록을 불러오지 못했어요', r); return; }   // [ADM_AI_WHY]
       var items=(r.items||[]).filter(function(x){ return x&&x.q&&(x.flag==='막힘'||x.flag==='애매'); }).slice(0,8);
       if(!items.length){ au.innerHTML='<div style="font-size:12px;color:#75705F">고칠 것이 없어요 · 막히거나 애매한 질문이 아직 없습니다.</div>'; return; }
       au.innerHTML='<div style="font-size:13px;font-weight:600;color:#3a2f25;margin-bottom:6px">고칠 것 '+items.length+'건</div>'
@@ -1441,7 +1557,7 @@ function openAiTeam(){
           out.innerHTML='';
           gas('aiDraftAnswer', q).then(function(d){
             b.disabled=false; b.textContent=t0;
-            if(!(d&&d.ok)){ out.innerHTML='<div style="color:#b00;font-size:12px">'+esc((d&&d.error)||'초안을 못 만들었어요')+'</div>'; return; }
+            if(!(d&&d.ok)){ out.innerHTML=_aiFail('초안을 못 만들었어요', d); return; }
             if(!d.grounded){
               /* ★근거가 없으면 초안을 보여주지 않는다 — 여기서 그럴듯한 문장을 보여주면
                  사장이 그것을 사실로 착각해 승인한다. 그 순간 거짓이 전 직원에 박힌다. */
@@ -1472,10 +1588,10 @@ function openAiTeam(){
               admPrompt({ title:'고쳐서 가르치기', body:'초안을 고쳐 주세요. 이대로 직원들이 답합니다.', value:d.draft, label:'답변' })
                 .then(function(v){ if(v&&String(v).trim()) teach(String(v).trim()); });
             });
-          }).catch(function(){ b.disabled=false; b.textContent=t0; out.innerHTML='<div style="color:#b00;font-size:12px">초안을 못 만들었어요 · 네트워크를 확인해 주세요</div>'; });
+          }).catch(function(e){ b.disabled=false; b.textContent=t0; out.innerHTML=_aiFail('초안을 못 만들었어요', e); });
         });
       });
-    }).catch(function(){ au.innerHTML='<div style="color:#b00;font-size:12px">질문 목록을 불러오지 못했어요</div>'; });
+    }).catch(function(e){ au.innerHTML=_aiFail('질문 목록을 불러오지 못했어요', e); });
     /* 아래쪽 — 종전 교육/개선 화면을 그대로 잇는다(bd 를 덮지 않게 대상만 바꿔 호출) */
     var host=document.getElementById('teachEdu');
     var _bd=bd; bd=host; try{ rEdu(); }catch(e){} bd=_bd;
@@ -1500,11 +1616,12 @@ function openAiTeam(){
 
   function rRoster(){ var R=[['메인 상담','홈 예비고객 상담','메인'],['마이 비서','마이페이지 상담','마이페이지'],['예약 담당','날짜·시간 예약','예약'],['애프터 컨시어지','식당·애프터 추천','애프터'],['인계 비서','상담사 연결 브리핑','핸드오프'],['식순 도우미','예식 순서 설계 상담','식순']];   /* [AI_ROSTER_RITUAL 2026-08-03] 식순 AI(api/ritual-advisor)는 돌아가고 비용도 쓰는데 명단에만 없었다 — 그래서 교육 대상에서도 빠져 있었다. 지우지 말 것. */
     bd.innerHTML='<div style="font-size:11px;color:#75705F;margin-bottom:8px">AI 6명을 한곳에서 · 교육으로 알려주고 · 테스트로 점검하고 · 인건비를 봅니다.</div><div style="color:#75705F;font-size:12px">최근 24시간 불러오는 중…</div>';
-    gas('aiCostSummary24h').then(function(r){ var by={}; if(r&&r.ok&&r.day&&r.day.bySurface){ r.day.bySurface.forEach(function(s){ by[s.surface]=s; }); }
-      var h='<div style="font-size:11px;color:#75705F;margin-bottom:10px">AI 6명을 한곳에서 · 교육 · 테스트 · 인건비. (최근 24시간 활동)</div><table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:#75705F;font-size:11px;text-align:left"><th style="padding:4px;font-weight:500">직원</th><th style="padding:4px;font-weight:500">역할</th><th style="padding:4px;font-weight:500;text-align:right">24시간</th></tr>'
-       +R.map(function(x){ var s=by[x[2]]||{calls:0,krw:0}; return '<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;font-weight:600">'+esc(x[0])+'</td><td style="padding:8px 4px;color:#5a554c">'+esc(x[1])+'</td><td style="padding:8px 4px;text-align:right;color:#75705f;font-size:11px">'+(Number(s.calls)||0)+'회 · ₩'+(Number(s.krw)||0).toLocaleString('ko-KR')+'</td></tr>'; }).join('')+'</table>';
-      bd.innerHTML=h;
-    }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">활동 정보를 불러오지 못했어요.</div>'; }); }
+    /* ★[ADM_AI_WHY 2026-10-07 ERR_CODE_ADMIN] 못 받으면 0회 · ₩0 표를 그리지 않는다(#26) — «아무도 일하지 않았다»로 읽혔다 · 명단은 그대로 보이고 숫자 자리에 «-» */
+    var paint=function(r, fail){ var by={}, okR=!fail&&!!(r&&r.ok); if(okR&&r.day&&r.day.bySurface){ r.day.bySurface.forEach(function(s){ by[s.surface]=s; }); }
+      var h='<div style="font-size:11px;color:#75705F;margin-bottom:10px">AI 6명을 한곳에서 · 교육 · 테스트 · 인건비. (최근 24시간 활동)</div>'+(okR?'':_aiFail('최근 24시간 활동을 불러오지 못했어요', fail||r))+'<table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:#75705F;font-size:11px;text-align:left"><th style="padding:4px;font-weight:500">직원</th><th style="padding:4px;font-weight:500">역할</th><th style="padding:4px;font-weight:500;text-align:right">24시간</th></tr>'
+       +R.map(function(x){ var s=by[x[2]]||{calls:0,krw:0}; return '<tr style="border-top:1px solid #f0ebe3"><td style="padding:8px 4px;color:#3a2f25;font-weight:600">'+esc(x[0])+'</td><td style="padding:8px 4px;color:#5a554c">'+esc(x[1])+'</td><td style="padding:8px 4px;text-align:right;color:#75705f;font-size:11px">'+(okR?((Number(s.calls)||0)+'회 · ₩'+(Number(s.krw)||0).toLocaleString('ko-KR')):'-')+'</td></tr>'; }).join('')+'</table>';
+      bd.innerHTML=h; };
+    gas('aiCostSummary24h').then(function(r){ paint(r, null); }).catch(function(e){ paint(null, e); }); }
   //  핵심정보 — 가격·일정·정책의 단일 진실원. 여기서 고치면 재배포 없이 5직원 모두 최대 2분 내 반영. 변경은 이력에 남아 되돌리기 가능.
   function rFacts(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:6px">가격·일정·정책 등 <b>핵심 사실</b> · 여기서 고치면 <b>재배포 없이</b> 5직원 모두 최대 2분 내 반영돼요. 잘못 넣으면 고객에게 그대로 나가니 신중히 · 변경은 이력에 남아 되돌릴 수 있어요.</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><input id="fKey" placeholder="항목(예: 본식 가격)" style="width:34%;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"><input id="fVal" placeholder="값(예: 330만원)" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px"></div>'
@@ -1515,11 +1632,12 @@ function openAiTeam(){
     document.getElementById('fAdd').addEventListener('click',function(){ var k=document.getElementById('fKey').value.trim(), v=document.getElementById('fVal').value.trim(), d=document.getElementById('fDesc').value.trim(); if(!k||!v){ admAlert({ title:'항목과 값을 모두 입력해 주세요' }); return; }
       admConfirm({ title:'핵심정보를 저장할까요?', body:'"'+k+'" = "'+v+'"\n저장하면 고객 답변에 바로 쓰여요.', yes:'저장' }).then(function(go){
         if(!go) return;
-        gas('aiFactSet',k,v,d).then(function(r){ if(r&&r.ok){ document.getElementById('fKey').value=''; document.getElementById('fVal').value=''; document.getElementById('fDesc').value=''; loadFacts(); } else admAlert({ title:'저장하지 못했어요', body:(r&&r.error)||'잠시 후 다시 시도해 주세요.' }); });
+        gas('aiFactSet',k,v,d).then(function(r){ if(r&&r.ok){ document.getElementById('fKey').value=''; document.getElementById('fVal').value=''; document.getElementById('fDesc').value=''; loadFacts(); } else admAlert({ title:'저장하지 못했어요', body:_why(r,{base:'잠시 후 다시 시도해 주세요.'}) }); })
+          .catch(function(e){ admAlert({ title:'저장하지 못했어요', body:_why(e,{write:true}) }); });   // [ADM_AI_WHY] catch 가 없어 전역 토스트로만 갔다
       }); });
     loadFacts(); }
   function loadFacts(){ var el=document.getElementById('fList'); if(!el) return; el.innerHTML='<div style="color:#75705F;font-size:12px">불러오는 중…</div>';
-    gas('aiFactsList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } var fs=r.facts||[]; if(!fs.length){ el.innerHTML='<div style="color:#75705F;font-size:12px">아직 핵심정보가 없어요. 위에서 추가해 주세요. (없으면 기존 코드 기본값이 쓰여요)</div>'; return; }
+    gas('aiFactsList').then(function(r){ if(!r||!r.ok){ el.innerHTML=_aiFail('핵심정보를 불러오지 못했어요', r); return; } var fs=r.facts||[]; if(!fs.length){ el.innerHTML='<div style="color:#75705F;font-size:12px">아직 핵심정보가 없어요. 위에서 추가해 주세요. (없으면 기존 코드 기본값이 쓰여요)</div>'; return; }
       el.innerHTML=fs.map(function(f){ return '<div style="border-top:1px solid #f0ebe3;padding:8px 0;font-size:13px"><div style="display:flex;align-items:center;gap:8px"><b style="color:#3a2f25;min-width:90px">'+esc(f.key)+'</b><span style="flex:1;color:#6B2A24;font-weight:600">'+esc(f.value)+'</span><button class="fEd" data-k="'+esc(f.key)+'" data-v="'+esc(f.value)+'" data-d="'+esc(f.desc)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">수정</button><button class="fHs" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">이력</button><button class="fDel" data-k="'+esc(f.key)+'" style="padding:3px 8px;border:1px solid #e6c9c5;background:#fff;color:#b00;border-radius:4px;font-size:11px;cursor:pointer">삭제</button></div>'+(f.desc?'<div style="font-size:10px;color:#75705F;margin-top:2px"> '+esc(f.desc)+' · '+esc(f.at)+'</div>':'<div style="font-size:10px;color:#cfc7b8;margin-top:2px">'+esc(f.at)+'</div>')+'</div>'; }).join('');
       Array.prototype.forEach.call(el.querySelectorAll('.fEd'),function(b){ b.addEventListener('click',function(){ document.getElementById('fKey').value=b.getAttribute('data-k'); document.getElementById('fVal').value=b.getAttribute('data-v'); document.getElementById('fDesc').value=b.getAttribute('data-d'); document.getElementById('fVal').focus(); }); });
       /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤 삭제 호출만 이어지던 자리라 그 호출을 .then 안으로 옮겼다(아니오는 아무것도 안 함 — 원래와 같다) */
@@ -1530,27 +1648,29 @@ function openAiTeam(){
            서버는 되살릴 수 있는데 화면에 길이 없으면 사용자에겐 복구 불가와 같다 —
            ①문구로 사실을 말하고 ②지운 직후 그 키의 이력을 바로 펼쳐 되돌리기에 닿게 한다. */
         admConfirm({ title:'"'+k+'" 항목을 삭제할까요?', body:'삭제하면 이 항목은 기존 코드 기본값으로 돌아가요.\n지운 뒤에도 아래 이력에서 직전 값으로 되돌릴 수 있어요.', yes:'삭제', danger:true })
-          .then(function(go){ if(go) gas('aiFactDelete',k).then(function(r){ loadFacts(); if(r&&r.ok) showFactHist(k); }); }); }); });
+          .then(function(go){ if(go) gas('aiFactDelete',k).then(function(r){ loadFacts(); if(r&&r.ok) showFactHist(k); else admAlert({ title:'삭제하지 못했어요', body:_why(r,{base:'잠시 후 다시 시도해 주세요.'}) }); }, function(e){ admAlert({ title:'삭제하지 못했어요', body:_why(e,{write:true}) }); }); }); }); });   // [ADM_AI_WHY] 거절 · 끊김이 무음이었다
       Array.prototype.forEach.call(el.querySelectorAll('.fHs'),function(b){ b.addEventListener('click',function(){ showFactHist(b.getAttribute('data-k')); }); });
-    }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+    }).catch(function(e){ el.innerHTML=_aiFail('핵심정보를 불러오지 못했어요', e); }); }
+  /* [ADM_AI_WHY] 이력은 «못 불러옴»과 «없음»을 가른다 — 종전엔 실패도 «변경 이력이 없어요»라 지운 항목을 되돌릴 길이 없는 것처럼 보였다(DEL_TRUTH 의 약속이 깨졌다) */
   function showFactHist(key){ var el=document.getElementById('fHist'); if(!el) return; el.innerHTML='<div style="color:#75705F;font-size:12px;margin-top:8px">이력 불러오는 중…</div>';
-    gas('aiFactHistory',key).then(function(r){ var h=(r&&r.history)||[]; if(!h.length){ el.innerHTML='<div style="font-size:12px;color:#75705F;margin-top:8px">"'+esc(key)+'" 변경 이력이 없어요.</div>'; return; }
+    var histFail=function(x){ el.innerHTML='<div style="margin-top:8px">'+_aiFail('"'+key+'" 이력을 불러오지 못했어요 · 이력이 없다는 뜻이 아니에요', x)+'</div>'; };
+    gas('aiFactHistory',key).then(function(r){ if(!(r&&r.ok)){ histFail(r); return; } var h=r.history||[]; if(!h.length){ el.innerHTML='<div style="font-size:12px;color:#75705F;margin-top:8px">"'+esc(key)+'" 변경 이력이 없어요.</div>'; return; }
       el.innerHTML='<div style="margin-top:10px;border-top:1px dashed #e0d8cc;padding-top:8px"><div style="font-size:12px;color:#75705f;margin-bottom:4px">"'+esc(key)+'" 변경 이력 <button id="fRb" style="margin-left:6px;padding:2px 8px;border:1px solid #d9cfc1;background:#fff;border-radius:4px;font-size:11px;cursor:pointer">직전 값으로 되돌리기</button></div>'
        +h.map(function(x){ return '<div style="font-size:11px;color:#5a554c;padding:3px 0">'+esc(x.at)+' · '+esc(x.prev||'(없음)')+' → <b>'+esc(x.next)+'</b></div>'; }).join('')+'</div>';
       /* [ADM_MODAL 2026-08-03] 동기 confirm → Promise. 확인 뒤 되돌리기 호출만 이어지던 자리라 그 호출을 .then 안으로 옮겼다 */
       var rb=document.getElementById('fRb'); if(rb) rb.addEventListener('click',function(){ var b=this; if(b.disabled) return; b.disabled=true;   /* [ROLLBACK_ONCE 2026-09-05 점검·연타] aiFactRollback 은 «비멱등»이다 — 되돌림 자체가 새 이력이 되어, 두 번 부르면 hist[0].prev 가 방금 값이라 원래대로 되돌아온다(고객 답변에 쓰이는 값이다). */
         admConfirm({ title:'"'+key+'" 항목을 직전 값으로 되돌릴까요?', body:'되돌린 값이 고객 답변에 바로 쓰여요.', yes:'되돌리기' })
           .then(function(go){ if(!go){ b.disabled=false; return; }
-            gas('aiFactRollback',key).then(function(rr){ if(rr&&rr.ok){ el.innerHTML=''; loadFacts(); } else { b.disabled=false; admAlert({ title:'되돌리지 못했어요', body:(rr&&rr.error)||'잠시 후 다시 시도해 주세요.' }); } }).catch(function(){ b.disabled=false; }); })
+            gas('aiFactRollback',key).then(function(rr){ if(rr&&rr.ok){ el.innerHTML=''; loadFacts(); } else { b.disabled=false; admAlert({ title:'되돌리지 못했어요', body:_why(rr,{base:'잠시 후 다시 시도해 주세요.'}) }); } }).catch(function(e){ b.disabled=false; admAlert({ title:'되돌리지 못했어요', body:_why(e,{write:true}) }); }); })
           .catch(function(){ b.disabled=false; }); });
-    }); }
+    }).catch(histFail); }
   /* ★★[SAVE_FALSE_OK 2026-08-16 전수점검] 결과를 안 보고 목록만 다시 읽던 넷(교육 켜기·끄기·삭제 · 회귀셋 켜기·끄기·삭제).
      목록을 서버에서 다시 읽으니 화면은 진실을 그리지만, **실패했다는 말이 어디에도 없었다** —
      관리자는 자기가 잘못 눌렀다고 여기고 다시 누른다. 바꾸는 대상이 AI 가 고객에게 하는 말이라
      조용한 실패의 파급이 고객 화면까지 간다. runAct·메모 저장은 이미 이 수준이다.
      ★renderEdu 와 loadReg **두 함수가 함께 쓰므로 여기(공용 스코프)에 둔다** — 한쪽 안에 두면 다른 쪽에서 터진다. */
-  function _eduDone(pr, reload, what){ return pr.then(function(r){ if(!(r&&r.ok)) toast((r&&r.error)||(what+'이(가) 안 됐어요 · 다시 눌러 주세요')); reload(); },
-    function(){ toast(what+'이(가) 안 됐어요 · 네트워크를 확인해 주세요'); reload(); }); }
+  function _eduDone(pr, reload, what){ return pr.then(function(r){ if(!(r&&r.ok)) toastErr(what+'이(가) 안 됐어요 · '+_why(r,{base:'다시 눌러 주세요'})); reload(); },
+    function(e){ toastErr(what+'이(가) 안 됐어요 · '+_why(e,{write:true})); reload(); }); }   // [ADM_AI_WHY] 종전 «네트워크를 확인» — 서버 · 화면 오류도 네트워크 탓
   function rEdu(){ bd.innerHTML='<div style="font-size:12px;color:#75705f;margin-bottom:8px">직원에게 알려줄 보충지식 · 추가 후 <b>최대 2분 뒤 반영</b> · 가격·계약 등 핵심 수치는 확인 후에만</div>'
      +'<div style="display:flex;gap:6px;margin-bottom:4px"><select id="eduTg" style="padding:6px;border:1px solid #d9cfc1;border-radius:5px;font-size:12px"><option value="전체">전체 (5명 모두)</option><option value="메인">메인</option><option value="마이">마이</option><option value="예약">예약</option><option value="애프터">애프터</option></select>'
      +'<input id="eduTx" placeholder="예) 주차는 건물 뒤편 5대까지 가능" style="flex:1;padding:6px 8px;border:1px solid #d9cfc1;border-radius:5px;font-size:13px">'
@@ -1565,7 +1685,7 @@ function openAiTeam(){
          재시도 호출(doAdd(true))만 .then 안으로 옮기면 예·아니오 두 갈래가 그대로 보존된다(아니오는 원래도 아무것도 안 했다). */
       var doAdd=function(force){ btn.disabled=true; gas('aiKbNoteAdd',tg,t,force,memo).then(function(r){ btn.disabled=false; if(r&&r.ok){ document.getElementById('eduTx').value=''; document.getElementById('eduMemo').value=''; loadEdu(); }
         else if(r&&r.blocked){ admConfirm({ title:'그래도 추가할까요?', body:(r.error||'핵심 수치처럼 보여요.')+'\n가격·정책이 틀리면 고객에게 그대로 나가요.', yes:'그대로 추가' }).then(function(go){ if(go) doAdd(true); }); }
-        else admAlert({ title:'추가하지 못했어요', body:(r&&r.error)||'잠시 후 다시 시도해 주세요.' }); }).catch(function(){ btn.disabled=false; }); };   /* [EDU_ADD_ONCE] 망 오류에도 버튼이 잠긴 채 남지 않게 */
+        else admAlert({ title:'추가하지 못했어요', body:_why(r,{base:'잠시 후 다시 시도해 주세요.'}) }); }).catch(function(e){ btn.disabled=false; admAlert({ title:'추가하지 못했어요', body:_why(e,{write:true}) }); }); };   /* [EDU_ADD_ONCE] 망 오류에도 버튼이 잠긴 채 남지 않게 · [ADM_AI_WHY] 끊김도 말한다(종전 무음) */
       doAdd(false); });
     document.getElementById('eduSearch').addEventListener('input',function(){ renderEdu(); });
     loadEdu(); }
@@ -1592,8 +1712,8 @@ function openAiTeam(){
         .then(function(go){ if(go) _eduDone(gas('aiKbNoteDelete',b.getAttribute('data-del')), loadEdu, '교육 삭제'); }); }); });
   }
   function loadEdu(){ var el=document.getElementById('eduList'); if(!el) return; el.innerHTML='<div style="color:#75705F;font-size:12px">불러오는 중…</div>';
-    gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패</div>'; return; } _eduNotes=r.notes||[]; renderEdu();
-    }).catch(function(){ el.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+    gas('aiKbNoteList').then(function(r){ if(!r||!r.ok){ el.innerHTML=_aiFail('교육 목록을 불러오지 못했어요', r); return; } _eduNotes=r.notes||[]; renderEdu();
+    }).catch(function(e){ el.innerHTML=_aiFail('교육 목록을 불러오지 못했어요', e); }); }
   //  개선 — 자기개선 루프: ⓪ 자동 안전망 상태·수동 점검 ① 전 직원 일괄 점검+교육 효과 확인 ② 실제 고객 질문(빈도) 교육 후보
   function rImprove(){
     bd.innerHTML='<div id="impHealth" style="background:#faf7f2;border:1px solid #eee5d9;border-radius:8px;padding:10px 12px;margin-bottom:14px"></div>'
@@ -1731,7 +1851,7 @@ function openAiTeam(){
        응답 형태가 어긋나면(ok 키 없음·오류 객체) arr 이 빈 배열이 되어 «대기 건이 없어요 (AI가 다 처리 중)»
        라는 **안심 문구**가 떴다 — 고객이 사람을 찾는 인계가 쌓이는 동안 관리자는 다 처리됐다고 믿는다.
        ★목록이 진짜 비어 있는 것과 못 불러온 것은 화면에서 반드시 달라야 한다. */
-    gas('adminListAiHandoffs').then(function(r){ if(!(r&&r.ok!==false&&(r.items||r.list||r.handoffs||Array.isArray(r)))){ bd.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패 · 대기 건이 없다는 뜻이 아니에요 · 새로고침 해주세요</div>'; return; } var arr=(r&&(r.items||r.list||r.handoffs))||(Array.isArray(r)?r:[]);
+    gas('adminListAiHandoffs').then(function(r){ if(!(r&&r.ok!==false&&(r.items||r.list||r.handoffs||Array.isArray(r)))){ bd.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패 · 대기 건이 없다는 뜻이 아니에요 · '+esc(_why(r,{base:'새로고침 해주세요'}))+'</div>'; return; } var arr=(r&&(r.items||r.list||r.handoffs))||(Array.isArray(r)?r:[]);
       if(!arr.length){ bd.innerHTML='<div style="color:#75705F;font-size:12px">상담사 연결(인계) 대기 건이 없어요. (AI가 다 처리 중)</div>'; return; }
       var head='<div style="font-size:12px;color:#75705f;margin-bottom:8px">AI가 못 풀어 넘긴 건 · 대기 <b>'+(Number(r&&r.pending)||arr.length)+'</b>건 · 처리하면 목록에서 사라져요</div>';
       bd.innerHTML=head+arr.slice(0,30).map(function(x){ var cf=x.confidence||''; var cust=x.customer||'비로그인 방문자';
@@ -1753,9 +1873,10 @@ function openAiTeam(){
         admConfirm({ title:'이 인계를 처리완료로 표시할까요?', body:'인계 목록에서 사라져요.', yes:'처리완료' }).then(function(go){
           if(!go) return;
           b.disabled=true; b.textContent='처리 중…';
-          gas('adminResolveAiHandoff',b.getAttribute('data-id')).catch(function(){ return null; }).then(function(rr){ if(rr&&rr.ok) rHandoff(); else { b.disabled=false; b.textContent='✓ 처리완료'; admAlert({ title:'처리하지 못했어요', body:(rr&&rr.error)||'잠시 후 다시 시도해 주세요.' }); } });
+          gas('adminResolveAiHandoff',b.getAttribute('data-id')).then(function(rr){ if(rr&&rr.ok) rHandoff(); else { b.disabled=false; b.textContent='✓ 처리완료'; admAlert({ title:'처리하지 못했어요', body:_why(rr,{base:'잠시 후 다시 시도해 주세요.'}) }); } },
+            function(e){ b.disabled=false; b.textContent='✓ 처리완료'; admAlert({ title:'처리하지 못했어요', body:_why(e,{write:true}) }); });   // [ADM_AI_WHY]
         }); }); });
-    }).catch(function(){ bd.innerHTML='<div style="color:#b00;font-size:12px">오류</div>'; }); }
+    }).catch(function(e){ bd.innerHTML='<div style="color:#b00;font-size:12px">불러오기 실패 · 대기 건이 없다는 뜻이 아니에요 · '+esc(_why(e))+'</div>'; }); }
   show('명단');
 }
 function gasRaw(fn){
@@ -1775,13 +1896,18 @@ function ddayLabel(n,isSnap){ if(n==null) return ''; var w=isSnap?'촬영':'예�
 function stageStyle(s){ var c=STAGE_COLOR[s]||['#EEE','#555']; return 'background:'+c[0]+';color:'+c[1]; }
 function designLabel(v){ var n=('0'+String(v||'').replace(/[^0-9]/g,'')).slice(-2); return DESIGNS[n]?(n+' '+DESIGNS[n]):(v?('디자인 '+n):''); }
 
-/* 복사(피드백) — mypage invCopy 패턴 */
-function copyText(text,btn){
-  function done(){ if(btn){ var t=btn.getAttribute('data-lbl')||btn.textContent; btn.setAttribute('data-lbl',t); btn.textContent='복사됨'; setTimeout(function(){ btn.textContent=t; },1400); } }
-  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(function(){ legacyCopy(text); done(); }); }
-  else { legacyCopy(text); done(); }
+/* 복사(피드백) — mypage invCopy 패턴
+   ★[ADM_COPY_TRUTH 2026-10-07 ERR_CODE_ADMIN] 됐을 때만 «복사됨»(P4) — 종전엔 clipboard 가 거절하고 execCommand 가 false 를 돌려줘도 «복사됨»이었다.
+   안 되면 보이는 한 줄(코드 없음) + 글을 판에 띄워 손으로 고르게 한다(FAQ 복사의 manual 과 같은 처방) · cb(ok) 로 부른 자리도 결과를 안다 */
+function copyText(text,btn,cb){
+  text=String(text==null?'':text);
+  function fin(ok){ if(btn){ var t=btn.getAttribute('data-lbl')||btn.textContent; btn.setAttribute('data-lbl',t); btn.textContent=ok?'복사됨':'복사 안 됨'; setTimeout(function(){ btn.textContent=t; },ok?1400:2600); }
+    if(!ok) admAlert({ title:'복사가 안 됐어요', body:'이 브라우저가 복사를 막았어요 · 아래 글을 길게 눌러 직접 복사해 주세요.', pre:text });
+    if(cb) cb(ok); }
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(function(){ fin(true); }, function(){ fin(legacyCopy(text)); }); }
+  else fin(legacyCopy(text));
 }
-function legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);}catch(e){} }
+function legacyCopy(t){ var ok=false; try{ var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); ok=!!document.execCommand('copy'); document.body.removeChild(ta);}catch(e){ ok=false; } return ok; }
 
 /* ── 부팅 ── */
 if(TOKEN) loadHome(); else showLogin();
@@ -1811,11 +1937,17 @@ function _bkRender(blocks){
     b.addEventListener('click', function(){
       b.disabled=true; b.textContent='해제 중';
       gas('adminRemoveWeddingBlock', b.getAttribute('data-bkdel')).then(function(r){
-        if(r&&r.ok) _bkRender(r.blocks); else { b.disabled=false; b.textContent='해제'; mErr((r&&r.error)||'해제 실패'); }
-      }).catch(function(){ b.disabled=false; b.textContent='해제'; });
+        if(r&&r.ok) _bkRender(r.blocks); else { b.disabled=false; b.textContent='해제'; mErr('해제하지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'})); }
+      }).catch(function(e){ b.disabled=false; b.textContent='해제'; mErr('해제하지 못했어요 · '+_why(e,{write:true})); });   // [ADM_BLOCKS_FAIL] 끊김이 무음이었다(#20)
     });
   });
 }
+/* ★[ADM_BLOCKS_FAIL 2026-10-07 ERR_CODE_ADMIN] 막은 날짜 목록을 못 받으면 «불러오는 중…»이 영원히 남았다(#20 · 빈 catch · !ok 무시) —
+   막아 둔 날을 볼 수도 풀 수도 없고 까닭도 없었다. 이제 까닭 한 줄 + «다시 불러오기» */
+function _bkLoad(){ var box=$('bkList'); if(box) box.textContent='불러오는 중…';
+  var fail=function(x){ var bx=$('bkList'); if(!bx) return; bx.innerHTML='<div class="adm-why" style="margin:0 0 6px">막은 날짜 목록을 불러오지 못했어요 · '+esc(_why(x,{base:'다시 불러와 주세요'}))+'</div><button type="button" class="adm-retry" data-bkretry>다시 불러오기</button>';
+    var rb=bx.querySelector('[data-bkretry]'); if(rb) rb.addEventListener('click', _bkLoad); };
+  gas('adminListWeddingBlocks').then(function(r){ if(r&&r.ok) _bkRender(r.blocks); else fail(r); }).catch(fail); }
 function openBlocksModal(){
   openModal({
     title:'날짜 막기 · 휴무 관리',
@@ -1826,7 +1958,7 @@ function openBlocksModal(){
       +'<label style="display:flex;gap:4px;align-items:center;font-size:12px"><input type="checkbox" class="bkSlot" value="12:20" checked>오후</label>'
       +'<label style="display:flex;gap:4px;align-items:center;font-size:12px"><input type="checkbox" class="bkSlot" value="15:40" checked>늦은 오후</label></div>',
     yes:'이 날짜 막기',
-    init:function(){ gas('adminListWeddingBlocks').then(function(r){ if(r&&r.ok) _bkRender(r.blocks); }).catch(function(){}); },
+    init:_bkLoad,   // [ADM_BLOCKS_FAIL]
     onYes:function(){
       var d=($('bkDate')&&$('bkDate').value)||'';
       if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){ mErr('날짜를 선택해 주세요'); return; }
@@ -1836,19 +1968,20 @@ function openBlocksModal(){
       gas('adminSetWeddingBlock', d, slots).then(function(r){
         mBusy(false,'이 날짜 막기');
         if(r&&r.ok){ _bkRender(r.blocks); $('bkDate').value=''; mErr(''); }
-        else mErr((r&&r.error)||'저장 실패');
-      }).catch(function(e){ mBusy(false,'이 날짜 막기'); mErr('오류: '+((e&&e.message)||e)); });
+        else mErr('막지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'}));
+      }).catch(function(e){ mBusy(false,'이 날짜 막기'); mErr('막지 못했어요 · '+_why(e,{write:true})); });   // [ADM_WHY] 종전 «오류: Failed to fetch»
     }
   });
 }
 $('btnBack').addEventListener('click', goBack);
+$('toast').addEventListener('click', function(){ if(!this.classList.contains('err')) return; clearTimeout(_toastT); this.classList.remove('show'); this.classList.remove('err'); });   // [ADM_TOAST_LONG] 실패 토스트는 눌러서 닫는다
 $('btnArcBack').addEventListener('click', loadHome);
 $('btnRvBack').addEventListener('click', loadHome);   /* [SV_UNSEEN] 목록으로 — 홈을 새로 받아 알림 수를 서버 기준으로 맞춘다 */
 $('btnSearch').addEventListener('click', doSearch);
 $('q').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
 $('btnAsearch').addEventListener('click', function(){ _arcQuery=$('aq').value.trim(); loadArchive(); });
 $('aq').addEventListener('keydown', function(e){ if(e.key==='Enter'){ _arcQuery=$('aq').value.trim(); loadArchive(); } });
-function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='reviews'){ openReviews(); } else if(_origin==='search'&&_lastQuery){ $('q').value=_lastQuery; doSearch(); } else { loadHome(); } }
+function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='reviews'){ openReviews(); } else if(_origin==='search'&&_lastQuery){ $('q').value=_lastQuery; if(_lastQueryKind==='people') _doSearchPeople(_lastQuery); else doSearch(); } else { loadHome(); } }   // [ADM_ERR_SEARCH] «A3» 고객 검색에서 들어왔으면 고객 검색으로
 
 /* ── 로그인·세션 ── */
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
@@ -1867,9 +2000,14 @@ function _admKeepNote(){ var el=$('lgKeep'); if(!el) return; var t='';
   el.textContent=t; el.style.display=t?'block':'none'; }
 function showLogin(){ setTopbar(false); show('login'); _admKeepNote(); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 // [ADM_AA7] 세션이 끊기면 폴링 타이머도 정지(로그인 화면에서 무한 호출 방지)
-function authFail(msg){ _pollStop(); TOKEN=''; _ls('del','me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
+function authFail(msg){ _pollStop(); TOKEN=''; _ls('del','me_admin_token'); _admCloseAll(); showLogin(); var le=$('lgErr'); if(le) le.textContent = _nb(msg || '세션이 만료되었어요. 다시 로그인해 주세요.'); }
+/* [ADM_WHY] 로그인 화면으로 갈 때 위에 떠 있던 판(확인판 · 알림판 · AI 직원실)을 거둔다 — 안 거두면 로그인 화면 위에 낡은 판이 남는다 */
+function _admCloseAll(){ try{ var m=$('confirmModal'); if(m&&m.classList.contains('show')) closeModal(); }catch(e){} try{ _admDlgEnd(false); }catch(e){}
+  ['ad_aiTeam','ad_aiCost','ad_aiTest'].forEach(function(id){ var x=document.getElementById(id); if(x&&x.parentNode) x.parentNode.removeChild(x); }); }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
-function netFail(msg){ showLogin(); var le=$('lgErr'); if(le) le.textContent='연결이 잠시 불안정해요. 로그인 정보는 유지되어 있으니 새로고침(F5)하면 바로 다시 열려요.'+(msg?(' · '+msg):''); }
+/* ★[ADM_HOME_WHY 2026-10-07 ERR_CODE_ADMIN] 첫 화면 실패를 까닭대로(#2) — 종전엔 HTML 응답(LOAD_WHY 설명) · 서버 예외 · 연결 끊김이 모두
+   «연결이 잠시 불안정해요 … 새로고침(F5)하면 바로 다시 열려요»였다(LOAD_WHY 설명은 인자 없이 버려졌다). 이제 부른 자리가 한 줄을 만든다(_why) */
+function netFail(msg){ showLogin(); var le=$('lgErr'); if(le) le.textContent=_nb(msg||'연결이 잠시 불안정해요. 로그인 정보는 유지되어 있으니 새로고침(F5)하면 바로 다시 열려요.'); }
 function doLogin(){
   var id=$('lgId').value.trim(), pw=$('lgPw').value;
   if(!id||!pw){ $('lgErr').textContent='아이디·비밀번호를 입력해 주세요.'; return; }
@@ -1877,8 +2015,8 @@ function doLogin(){
   gasRaw('adminLogin', id, pw).then(function(r){
     $('lgBtn').disabled=false; $('lgBtn').textContent='로그인';
     if(r&&r.ok){ TOKEN=r.token; _ls('set','me_admin_token',TOKEN); $('lgPw').value=''; setWho(r.name); setTopbar(true); loadHome(); _pollStart(); }   // [ADM_AA7]
-    else { $('lgErr').textContent=(r&&r.error)||'로그인 실패'; }
-  }).catch(function(e){ $('lgBtn').disabled=false; $('lgBtn').textContent='로그인'; $('lgErr').textContent='오류: '+(e&&e.message||e); });
+    else { $('lgErr').textContent=_why(r,{base:'로그인하지 못했어요'}); }
+  }).catch(function(e){ $('lgBtn').disabled=false; $('lgBtn').textContent='로그인'; $('lgErr').textContent=_why(e); });   // [ADM_WHY] 종전 «오류: Failed to fetch» · 아이폰 «오류: Load failed»(#5)
 }
 /* [ADM_AA7] 자동 갱신 — 폰을 두고 온 사이 들어온 입금 신호·새 신청이 새로고침 없이 반영되게.
      · 75초 주기 조용한 폴링(진행바·스켈레톤 없음) + 탭 복귀(hidden→visible) 즉시 1회
@@ -1944,8 +2082,9 @@ function loadHome(silent){
     if(seq!==_navSeq) return;   /* [NAV_SEQ] 도착 사이 다른 화면으로 갔다 — 실패 응답도 그리지 않는다(로그인 화면으로 튕기지 않게) */
     if(!d||!d.ok){
       // 진짜 인증 실패(토큰 무효·만료)만 로그아웃. GAS 일시 오류는 토큰 보존(netFail).
-      if(d && /로그인이 필요|만료|권한/.test(String(d.error||''))) authFail();
-      else if(!silent) netFail(d && d.error);   // [ADM_AA7] 조용한 갱신의 일시 오류로 오류 화면을 띄우지 않는다
+      //   [ADM_HOME_WHY] 가르는 자는 _admLost(«로그인이 필요» · reason expired) — «만료» · «권한» 글자만으로 가르면 예외 원문이 로그아웃으로 둔갑한다
+      if(_admLost(d)) authFail();
+      else if(!silent){ var _hw=_why(d,{base:'첫 화면을 불러오지 못했어요'}); netFail((/^서버/.test(_hw)?_hw:'서버가 처리하지 못했어요 · '+_hw)+' · 로그인 정보는 그대로예요'); }   // [ADM_AA7] 조용한 갱신의 일시 오류로 오류 화면을 띄우지 않는다
       return;
     }
     // 단계 목록 = 서버(00_platform-config) 단일 출처 우선 — 아래 하드코딩 STAGE_FLOW는 첫 로드용 폴백. GAS서 단계가 바뀌어도 보드·게이트가 어긋나지 않게.
@@ -1973,7 +2112,7 @@ function loadHome(silent){
   }).catch(function(e){
     if(silent){ _silentN=Math.max(0,_silentN-1); return; }   // [ADM_AA7] 조용한 갱신 실패는 조용히 넘긴다(다음 주기에 다시 시도)
     if(!_homeRetried){ _homeRetried=true; setTimeout(loadHome, 1200); return; }   // 일시 네트워크 오류 1회 자동 재시도
-    _homeRetried=false; netFail();
+    _homeRetried=false; netFail(_why(e,{todo:'로그인 정보는 그대로라 새로고침(F5)하면 다시 열려요'}));   // [ADM_HOME_WHY] 연결 X6 · 깨진 답 X7(LOAD_WHY 설명 그대로) · 화면 오류
   });
 }
 var curHome=null;
@@ -2066,8 +2205,8 @@ function renderQueue(d){
       gas('adminSetFittingCount', code, Number(v)).then(function(r){
         // [ADM_AA8] 네 번째 인자 = "이 값은 방금 저장됐다" 플래그. 모달에서 값을 그대로 두면 같은 저장을 두 번 보내지 않는다(고치면 정상 저장).
         if(r&&r.ok){ doConsultDone(code, names, v, true); loadHome(); }   // 저장 완료 → 프리필된 상담완료 모달 + 배지 갱신
-        else { b.disabled=false; b.textContent='저장'; inp.style.borderColor='var(--seal)'; openModal({ title:'벌수 기록 실패', text:li((r&&r.error)||'잠시 후 다시 시도해 주세요.'), yes:'확인', onYes:function(){ closeModal(); } }); }
-      }).catch(function(){ b.disabled=false; b.textContent='저장'; });
+        else { b.disabled=false; b.textContent='저장'; inp.style.borderColor='var(--seal)'; if(_admLost(r)){ authFail(); return; } openModal({ title:'벌수 기록 실패', text:li(_why(r,{base:'잠시 후 다시 시도해 주세요.'})), yes:'확인', onYes:function(){ closeModal(); } }); }
+      }).catch(function(e){ b.disabled=false; b.textContent='저장'; inp.style.borderColor='var(--seal)'; openModal({ title:'벌수 기록 실패', text:li(_why(e,{write:true})), yes:'확인', onYes:function(){ closeModal(); } }); });   // ★[ADM_FIT_INLINE_FAIL 2026-10-07 ERR_CODE_ADMIN] 끊김에 버튼만 되돌아오고 말이 없었다(#8 · .catch 가 전역 안전망까지 막음)
     });
   });
 }
@@ -2245,13 +2384,13 @@ document.addEventListener('click', function(e){
   var b=t.closest('[data-rv-ok]'); if(!b) return;
   var code=b.getAttribute('data-rv-ok'); b.disabled=true; b.textContent='확인 중';
   gas('adminSurveySeen', code).then(function(r){
-    if(!r||!r.ok){ b.disabled=false; b.textContent='확인'; toast((r&&r.error)||'확인 표시를 남기지 못했어요 · 다시 눌러 주세요'); return; }
+    if(!r||!r.ok){ b.disabled=false; b.textContent='확인'; toastErr('확인 표시를 남기지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'})); return; }
     var sv=(curHome&&curHome.survey)||{};
     (sv.recent||[]).forEach(function(x){ if(x.code===code){ x.seen=r.seen||'확인'; delete x.full; } });
     sv.unseen=(sv.recent||[]).filter(function(x){ return !x.seen; }).length;
     if(curHome){ renderReviews(curHome); try{ renderSurvey(curHome); }catch(_e){} }
     toast('확인했어요');
-  }).catch(function(){ b.disabled=false; b.textContent='확인'; toast('연결이 안 돼요 · 잠시 후 다시 눌러 주세요'); });
+  }).catch(function(e){ b.disabled=false; b.textContent='확인'; toastErr('확인 표시를 남기지 못했어요 · '+_why(e,{write:true})); });   // [ADM_WHY]
 });
 /* [SV_RESP_VIEW] 후기 화면의 «전체 응답 보기» — 누를 때 상세를 한 번 불러와 그 자리에 펼친다.
    ★실패하면 말한다(조용히 빈 칸을 남기지 않는다) · 두 번째 누름은 접기. */
@@ -2268,12 +2407,12 @@ document.addEventListener('click', function(e){
     b.disabled=false;
     /* ★[SV_OPEN_RETRY] 서버가 거절하면(세션 만료 등) «원문이 없다»로 읽지 않는다 — 실패는 알리고, 캐시하지 않아 다시 누르면 재시도한다.
        종전엔 거절도 「찾지 못했어요」로 적고 data-loaded 를 박아, 다시 눌러도 그 문장만 나왔다. openDetail 과 같은 처리다. */
-    if(!d||!d.ok){ b.textContent='전체 응답 보기'; toast((d&&d.error)||'불러오지 못했어요 · 잠시 후 다시 눌러 주세요'); return; }
+    if(!d||!d.ok){ b.textContent='전체 응답 보기'; toastErr('응답을 불러오지 못했어요 · '+_why(d,{base:'잠시 후 다시 눌러 주세요'})); return; }
     var rawS=d.raw&&d.raw['설문응답'];
     if(!rawS){ box.innerHTML='<div class="svr-legacy">응답 원문을 찾지 못했어요 · 고객 상세에서 확인해 주세요.</div>'; }
     else { try{ box.innerHTML=svResponseHtml(JSON.parse(rawS), ''); }catch(_e){ box.innerHTML='<div class="svr-legacy">응답을 읽지 못했어요 · 시트의 설문응답 칸을 확인해 주세요.</div>'; } }
     box.setAttribute('data-loaded','1'); box.hidden=false; if(pv) pv.hidden=true; b.textContent='접기';
-  }).catch(function(){ b.disabled=false; b.textContent='전체 응답 보기'; toast('불러오지 못했어요 · 잠시 후 다시 눌러 주세요'); });
+  }).catch(function(e){ b.disabled=false; b.textContent='전체 응답 보기'; toastErr('응답을 불러오지 못했어요 · '+_why(e)); });   // [ADM_WHY]
 });
 function renderResults(d){
   var wrap=$('resultsWrap'); if(!wrap) return;
@@ -2359,33 +2498,70 @@ function toggleOpen(key,on){ var a=getOpen(); var i=a.indexOf(key); if(on&&i===-
 /* ★★[ERR_CODES 2026-10-07 사장님 «고객이 오류 코드를 알려 주면 관리자가 어떤 문제인지 알 수 있게»] 검색창에 «S6» · «V2» 를 치면 서버에 묻지 않고 뜻 · 할 일을,
    «S9 · 7KQ2» 나 사고번호 4글자를 치면 오류기록(adminErrLog)에서 그 줄을 보여 준다. 사고번호로 못 찾으면 종전 고객 검색으로 넘어간다 */
 function _errCardHtml(x){ return '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--label-soft);margin-bottom:4px">오류 코드</div><div style="font-size:18px;font-weight:600;color:var(--ink)">'+esc(x.code)+' · '+esc(x.what)+'</div><div style="font-size:13px;color:var(--sub);margin-top:4px">어디서 · '+esc(x.area)+'</div><div style="font-size:14px;color:var(--ink);margin-top:10px;line-height:1.6">'+esc(x.fix)+'</div></div>'; }
-function _errRowsHtml(rows){ return rows.map(function(r){ return '<div class="hl" style="line-height:1.55"><b>'+esc(r.ec)+'</b>'+(r.eid?' · '+esc(r.eid):'')+' · '+esc(r.at)+' · '+esc(r.act||'')+(r.code?' · <a href="#" data-errcode="'+esc(r.code)+'">'+esc(r.code)+'</a>':'')+'<br><span style="color:var(--sub)">'+esc(r.text||'')+'</span>'+(r.why?'<br><span style="color:var(--label-soft);font-size:12px">까닭 · '+esc(r.why)+'</span>':'')+(r.extra?'<span style="color:var(--label-soft);font-size:12px"> · '+esc(r.extra)+'</span>':'')+'</div>'; }).join(''); }
-function _errSearch(q){ var Q=q.toUpperCase().replace(/코드/g,' ').replace(/[()·,]/g,' ').replace(/\d+\s*초/g,' ').replace(/\s+/g,' ').trim(), m1=/^([A-Z]\d)$/.exec(Q), m2=/^(?:([A-Z]\d)\s+)?([A-HJ-NP-Z2-9]{4})$/.exec(Q);   /* [ERR_CODES] «V6 · 61초» 처럼 초가 붙은 꼬리는 떼고 읽는다(VC_NET_SEC) */
-  if(!m1&&!m2) return false; var E=window.ME_ERR;
-  if(m1){ var x=E&&E.explain(m1[1]); if(!x) return false; $('queueWrap').innerHTML=_errCardHtml(x); $('pipeWrap').innerHTML=''; var _r1=$('resultsWrap'); if(_r1) _r1.innerHTML=''; var _s1=$('surveyWrap'); if(_s1) _s1.innerHTML=''; show('home'); return true; }
+/* ★[ADM_ERR_SEARCH 2026-10-07 ERR_CODE_ADMIN] 표에 없는 코드(S10 · Q6 · 기기 M 의 8)는 «표에 없는 코드예요»라고 말한다(#12) —
+   종전엔 고객 검색으로 떨어져 «결과가 없어요 · 종료·취소된 고객은 아카이브…»라 모르는 코드인지 손님이 없는지 안 보였다 */
+function _errUnknownHtml(c){ var L=c.charAt(0), E=window.ME_ERR, A=(E&&E.area)||{};
+  var why=!A[L]?('앞 글자는 '+Object.keys(A).join(' · ')+' 중 하나예요'):(c.length>2?('코드는 글자 하나 + 숫자 하나예요(예: '+L+'6)'):(L==='M'?'M(기기)은 1~7만 있어요':'이 번호는 표에 없어요'));
+  return '<div class="card" style="padding:14px 16px"><div style="font-size:12px;color:var(--label-soft);margin-bottom:4px">오류 코드</div><div style="font-size:18px;font-weight:600;color:var(--ink)">'+esc(c)+' · 표에 없는 코드예요</div><div style="font-size:13px;color:var(--sub);margin-top:4px;line-height:1.6">'+(A[L]?('어디서 · '+esc(A[L])+'<br>'):'')+esc(why)+'</div><div class="adm-note">옮겨 적다 틀렸을 수 있어요 · 화면 사진을 받아 코드를 다시 확인해 주세요</div></div>'; }
+/* [ADM_ERR_SEARCH] «A3» · «K7» 처럼 개인코드 앞 두 글자로 고객을 찾을 길(#28) · 사고번호를 못 찾았을 때도 */
+function _errPeopleBtn(q){ return '<button type="button" class="adm-retry" data-people="'+esc(q)+'">\''+esc(q)+'\' 고객으로 찾기</button>'; }
+/* [ADM_ERRLOG_BOX] 오류기록 줄 — 코드는 누르는 단추(그 줄 아래에 뜻) · lim 줄만 보이고 나머지는 «n건 더 보기» · 고객이 본 글은 코드 괄호 안에서 줄이 갈리지 않게(_nb) */
+function _errRowsHtml(rows, lim){ lim=lim||0; return rows.map(function(r,i){ return '<div class="hl"'+((lim&&i>=lim)?' hidden data-errmore':'')+' style="line-height:1.55">'+(r.ec?'<button type="button" class="adm-ec" data-ec="'+esc(r.ec)+'" aria-expanded="false" title="코드 뜻 보기">'+esc(r.ec)+'</button>':'<b>-</b>')+(r.eid?' · '+esc(r.eid):'')+' · '+esc(r.at)+' · '+esc(r.act||'')+(r.code?' · <a href="#" data-errcode="'+esc(r.code)+'">'+esc(r.code)+'</a>':'')+'<br><span style="color:var(--sub)">'+esc(_nb(r.text||''))+'</span>'+(r.why?'<br><span style="color:var(--label-soft);font-size:12px">까닭 · '+esc(r.why)+'</span>':'')+(r.extra?'<span style="color:var(--label-soft);font-size:12px"> · '+esc(r.extra)+'</span>':'')+'</div>'; }).join('')
+  +((lim&&rows.length>lim)?'<button type="button" class="adm-more" data-errmorebtn>'+(rows.length-lim)+'건 더 보기</button>':''); }
+function _errShow(html){ $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML=''; var _r=$('resultsWrap'); if(_r) _r.innerHTML=''; var _s=$('surveyWrap'); if(_s) _s.innerHTML=''; show('home'); }
+var _lastQueryKind='';   /* [ADM_ERR_SEARCH] 'err' 코드 · 사고번호 / 'people' 고객 — «← 목록»이 같은 화면으로 돌아가게(«A3» 고객 검색 뒤에 코드 카드로 가지 않게) */
+function _errSearch(q){ var P=_errParse(q); if(!P) return false;   /* [ERR_CODES] «V6 · 61초» 처럼 초가 붙은 꼬리는 떼고 읽는다(VC_NET_SEC) · 읽기는 _errParse(ADM_ERR_SEARCH) */
+  var E=window.ME_ERR, card=P.code?(P.ex?_errCardHtml(P.ex):_errUnknownHtml(P.code)):'';
+  _lastQuery=q; _lastQueryKind='err';   // [ADM_ERR_SEARCH] #9 — 75초 폴링 · 탭 복귀가 이 카드를 홈 목록으로 덮지 않게 · «← 목록»이 이 결과로 돌아오게
+  if(!P.eid){ ++_navSeq; _errShow(card+((P.bare&&/^[ACDEFGHJKMNPQRTUVWXY34679]+$/.test(P.code))?_errPeopleBtn(q):'')); return true; }   // 개인코드 글자(20_customers-data · 혼동 문자 뺌)로만 된 검색어일 때만 «고객으로 찾기» — «S6» 에는 안 단다   /* [NAV_SEQ] 늦게 온 검색 응답이 이 카드를 덮지 않게 */
   var seq=++_navSeq; show('loading'); $('loading').innerHTML='<div class="spinner"></div>사고번호 찾는 중…';
-  gas('adminErrLog','',5,m2[2]).then(function(d){ if(seq!==_navSeq) return; var rows=(d&&d.ok&&d.rows)||[];
-    if(!rows.length){ _doSearchPeople(q); return; }
-    var x=E&&E.explain(rows[0].ec), html='<div class="sect-h"><span class="tt">사고번호 '+esc(m2[2])+'</span></div>'+(x?_errCardHtml(x):'')+'<div class="card"><div class="card-h"><span class="ct">오류기록</span></div><div class="hist">'+_errRowsHtml(rows)+'</div></div>';
-    $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML=''; var _r2=$('resultsWrap'); if(_r2) _r2.innerHTML=''; var _s2=$('surveyWrap'); if(_s2) _s2.innerHTML='';
-    $('queueWrap').querySelectorAll('[data-errcode]').forEach(function(a){ a.addEventListener('click',function(ev){ ev.preventDefault(); openDetail(a.getAttribute('data-errcode'),'search'); }); });
-    show('home'); }).catch(function(){ if(seq!==_navSeq) return; _doSearchPeople(q); });
+  gas('adminErrLog','',5,P.eid).then(function(d){ if(seq!==_navSeq) return;
+    if(!(d&&d.ok)){ if(_admLost(d)){ authFail(); return; } _errLogFail(q,P,card,_why(d,{base:'오류기록을 불러오지 못했어요'})); return; }
+    var rows=d.rows||[];
+    if(rows.length){ var x=E&&E.explain(rows[0].ec); _errShow('<div class="sect-h"><span class="tt">사고번호 '+esc(P.eid)+'</span></div>'+(x?_errCardHtml(x):card)+'<div class="card"><div class="card-h"><span class="ct">오류기록</span></div><div class="hist errs">'+_errRowsHtml(rows)+'</div></div>'); return; }
+    /* 0줄 — 코드가 함께 왔으면(«S9 · 7KQ2») 고객 이름일 리 없다: 코드 뜻 + «오류기록에 없어요». 사고번호만이면 개인코드 · 전화 끝자리일 수 있어 고객 검색으로 */
+    if(P.code){ _errShow(card+'<div class="card"><div class="card-h"><span class="ct">오류기록</span></div><div class="adm-why">사고번호 '+esc(P.eid)+' 를 오류기록에서 못 찾았어요 · 번호를 다시 확인해 주세요</div></div>'); return; }
+    _doSearchPeople(q, /[A-Z]/.test(P.eid)?('오류기록에 사고번호 '+P.eid+' 는 없어요 · 아래는 고객 검색 결과예요'):''); })
+  .catch(function(e){ if(seq!==_navSeq) return; _errLogFail(q,P,card,_why(e)); });
   return true; }
+/* ★[ADM_ERR_SEARCH] 사고번호 조회가 실패했을 때(#11) — 종전엔 조용히 고객 검색으로 넘어가 «'7KQ2' 결과가 없어요»였다(번호가 없는지 GAS 가 옛 판인지 구분 불가).
+   숫자 넷(전화 끝자리일 수 있다)은 고객 검색을 그대로 하고 위에 한 줄 · 그 밖은 까닭 카드(+ «고객으로 찾기») */
+function _errLogFail(q,P,card,line){
+  if(!P.code && /^\d{4}$/.test(P.eid)){ _doSearchPeople(q, '오류기록은 불러오지 못했어요 · '+line); return; }
+  _errShow(card+'<div class="card"><div class="card-h"><span class="ct">오류기록</span></div><div class="adm-why">사고번호 '+esc(P.eid)+' 를 찾지 못했어요 · '+esc(line)+'</div>'+(P.code?'':_errPeopleBtn(q))+'</div>'); }
+/* [ADM_ERR_SEARCH · ADM_ERRLOG_BOX] 코드 · 오류기록 줄의 단추 — 문서에 한 번 건다(목록이 다시 그려져도 살아 있게) */
+document.addEventListener('click', function(e){
+  var t=(e.target&&e.target.closest)?e.target:null; if(!t) return;
+  var ec=t.closest('[data-ec]'); if(ec){ e.preventDefault(); _errExplainToggle(ec); return; }
+  var pp=t.closest('[data-people]'); if(pp){ var pq=pp.getAttribute('data-people'); var qi=$('q'); if(qi) qi.value=pq; _doSearchPeople(pq); return; }
+  var rs=t.closest('[data-research]'); if(rs){ _doSearchPeople(rs.getAttribute('data-research')); return; }
+  var ac=t.closest('a[data-errcode]'); if(ac){ e.preventDefault(); openDetail(ac.getAttribute('data-errcode'),'search'); return; }
+  var mb=t.closest('[data-errmorebtn]'); if(mb){ var box=mb.parentNode; Array.prototype.forEach.call(box.querySelectorAll('[data-errmore]'), function(x){ x.hidden=false; }); box.removeChild(mb); }
+});
+/* [ADM_ERRLOG_BOX] 줄의 코드를 누르면 그 줄 아래에 «무슨 일 · 어디서 · 할 일»(ME_ERR.explain · 서버 호출 없음 · #14) — 다시 누르면 접힌다 */
+function _errExplainToggle(b){ var row=b.closest('.hl')||b.parentNode, x=row&&row.querySelector('.adm-ecx'), c=b.getAttribute('data-ec'); if(!row) return;
+  if(x){ x.parentNode.removeChild(x); b.setAttribute('aria-expanded','false'); return; }
+  var E=window.ME_ERR, ex=E&&E.explain(c), d=document.createElement('div'); d.className='adm-ecx';
+  d.textContent=ex?(ex.code+' · '+ex.what+'\n어디서 · '+ex.area+'\n할 일 · '+ex.fix):(c+' · 표에 없는 코드예요');   // 세 줄(무슨 일 / 어디서 / 할 일) — 자리 이름 안에도 « · »가 있어 한 줄로 이으면 경계가 안 보인다
+  row.appendChild(d); b.setAttribute('aria-expanded','true'); }
 function doSearch(){
   var q=$('q').value.trim();
   if(!q){ loadHome(); return; }
   if(_errSearch(q)) return;   // [ERR_CODES]
   _doSearchPeople(q); }
-function _doSearchPeople(q){
-  _lastQuery=q;
+/* ★[ADM_SEARCH_FAIL 2026-10-07 ERR_CODE_ADMIN] 검색 실패를 그 자리에(#18) — 종전 «검색 실패» · «검색 오류» 2.2초 토스트 뒤 앞 결과가 그대로 남았고
+   로그인 풀림(«로그인이 필요»)도 버렸다. note = 위에 붙일 한 줄(사고번호를 못 찾은 까닭 등) */
+function _searchFail(q, line, note){ _errShow('<div class="sect-h"><span class="tt">검색 결과</span></div><div class="empty">\''+esc(q)+'\' 검색하지 못했어요<div class="adm-why">'+esc(line)+'</div><button type="button" class="adm-retry" data-research="'+esc(q)+'">다시 검색</button></div>'+(note?'<div class="adm-note">'+esc(note)+'</div>':'')); }
+function _doSearchPeople(q, note){
+  _lastQuery=q; _lastQueryKind='people';
   var seq=++_navSeq;   /* [NAV_SEQ] */
   show('loading'); $('loading').innerHTML='<div class="spinner"></div>검색 중…';
   gas('adminSearch', q).then(function(d){
     if(seq!==_navSeq) return;   /* [NAV_SEQ] 늦게 온 검색 결과가 홈(처리할 일)을 덮지 않는다 */
-    if(!d||!d.ok){ toast('검색 실패'); show('home'); return; }
+    if(!d||!d.ok){ if(_admLost(d)){ authFail(); return; } _searchFail(q, _why(d,{base:'다시 검색해 주세요'}), note); return; }
     /* [ADM_SEARCH2 2026-08-04] ①서버 30건 상한(admin.gs:1123)을 사용자에게 알림 — 흔한 성씨 검색 시 "30이 전부"로 오인
        ②서버가 동명이인 구분용으로 보내는 it.wedding(예식일)을 드디어 표시 ③빈 결과에 아카이브 안내(종료 고객은 여기 안 나옴) */
-    var html='<div class="sect-h"><span class="tt">검색 결과</span><span class="ct">'+(d.results.length>=30?'30+':d.results.length)+'</span></div>';
+    var html='<div class="sect-h"><span class="tt">검색 결과</span><span class="ct">'+(d.results.length>=30?'30+':d.results.length)+'</span></div>'+(note?'<div class="adm-note" style="margin:0 2px 10px">'+esc(note)+'</div>':'');
     if(!d.results.length) html+='<div class="empty">\''+esc(q)+'\' 결과가 없어요<div style="font-size:12px;color:var(--label-soft);margin-top:6px">종료·취소된 고객은 아카이브에서 찾을 수 있어요</div></div>';
     else{ html+=d.results.map(function(it){
       return '<div class="qrow" data-code="'+esc(it.code)+'"><div class="ql"><div class="qn">'+esc(it.names)+' <span style="font-size:10px;color:var(--label-soft)">'+esc(prodLabel(it.product))+'</span></div><div class="qs">'+esc(it.stage||'')+' · '+esc(it.code)+(it.wedding?(' · '+esc(it.wedding)):'')+'</div></div><span style="color:var(--label-soft)">›</span></div>';
@@ -2394,7 +2570,7 @@ function _doSearchPeople(q){
     $('queueWrap').innerHTML=html; $('pipeWrap').innerHTML=''; var _rw=$('resultsWrap'); if(_rw) _rw.innerHTML=''; var _sw=$('surveyWrap'); if(_sw) _sw.innerHTML='';
     $('queueWrap').querySelectorAll('.qrow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'search'); }); });
     show('home');
-  }).catch(function(){ if(seq!==_navSeq) return; toast('검색 오류'); show('home'); });   /* [NAV_SEQ] */
+  }).catch(function(e){ if(seq!==_navSeq) return; _searchFail(q, _why(e), note); });   /* [NAV_SEQ] */
 }
 
 /* ════════ 상세 ════════ */
@@ -2430,7 +2606,7 @@ function openDetail(code, origin, focusKind){
   show('loading'); $('loading').innerHTML='<div class="skel" style="height:40px"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   gas('adminDetail', code).then(function(d){
     if(seq!==_navSeq) return;   /* [NAV_SEQ] 늦게 온 다른 고객 — 지금 화면을 덮지 않는다 */
-    if(!d||!d.ok){ toast(d&&d.error||'불러오기 실패'); loadHome(); return; }
+    if(!d||!d.ok){ if(_admLost(d)){ authFail(); return; } toastErr('고객 정보를 불러오지 못했어요 · '+_why(d,{base:'다시 눌러 주세요'})); loadHome(); return; }   // [ADM_WHY] 종전 «불러오기 실패» · 로그인 풀림도 버렸다
     curDetail=d; _recentPush(d.code||code, d.names); renderDetail(d); show('detail');   // [ADM_AA6] 조회 성공한 고객만 기록
     setTimeout(function(){
       // ★CARD_STAGE_ORDER 2026-07-25: 지금 단계 카드가 최상단으로 재배치되므로, 일반 열람은 헤더(이름·단계·연락)부터 위에서 보이게 하고,
@@ -2440,7 +2616,7 @@ function openDetail(code, origin, focusKind){
         target.classList.add('focus'); setTimeout(function(){ target.classList.remove('focus'); },2200); }
       else window.scrollTo(0,0);
     }, 60);   // 큐 일감 카드로만 자동 스크롤 (없으면 상단부터)
-  }).catch(function(e){ if(seq!==_navSeq) return; toast('오류'); loadHome(); });   /* [NAV_SEQ] */
+  }).catch(function(e){ if(seq!==_navSeq) return; toastErr('고객 정보를 열지 못했어요 · '+_why(e)); loadHome(); });   /* [NAV_SEQ] · [ADM_WHY] 종전 «오류» — 연결 끊김(X6)과 화면 오류를 가른다 */
 }
 
 function renderDetail(d){
@@ -2476,12 +2652,12 @@ function renderDetail(d){
     h+='<button class="fields-toggle" id="fldToggle">신청 내용 보기 ▾</button><div class="fields" id="fldBox">'+fieldGroups(c.fields)+'</div>';
   }
   // 카드 (product-aware) — ★CARD_STAGE_ORDER 2026-07-25: 지금 단계 카드를 최상단으로 재배치
-  orderCards(d.cards, d.stage).forEach(function(k){ h+=renderCard(k,d,isSnap); });
+  orderCards(d.cards, d.stage).forEach(function(k){ h+=_cardSafe(k,d,isSnap); });   // [ADM_CARD_ISOLATE] 카드 하나가 던져도 나머지는 그린다
   // 메모
   h+='<div class="card"><div class="card-h"><span class="ct">관리자 메모</span><span style="margin-left:auto;font-size:10px;color:var(--label-soft)">내부 전용</span></div>'+
      '<textarea class="memo-area" id="memoArea" placeholder="고객에겐 안 보이는 내부 메모">'+esc(d.memo||'')+'</textarea>'+
-     '<div class="actions"><button class="btn btn-line btn-sm" id="memoSave">메모 저장</button></div></div>';
-  h+='<div class="card" id="admErrCard" hidden><div class="card-h"><span class="ct">최근 실패</span><span style="margin-left:auto;font-size:10px;color:var(--label-soft)">고객 화면 오류 코드 · 오류기록 시트</span></div><div class="hist" id="admErrList"></div></div>';   // [ERR_CODES]
+     '<div class="actions"><button class="btn btn-line btn-sm" id="memoSave">메모 저장</button></div><div class="adm-why" id="memoNote" role="status"></div></div>';   // [ADM_MEMO_FAIL] 저장 안 된 까닭이 버튼 옆에 남는다
+  h+='<div class="card" id="admErrCard" hidden><div class="card-h"><span class="ct">최근 실패</span><span style="margin-left:auto;font-size:10px;color:var(--label-soft)">고객 화면 오류 코드 · 오류기록 시트</span></div><div class="hist errs" id="admErrList"></div><div class="adm-note" id="admErrNote"></div></div>';   // [ERR_CODES] · [ADM_ERRLOG_BOX] 높이 상자 없이 · 안내는 상자 밖
   // 처리 이력
   if(d.history&&d.history.length){
     h+='<div class="card"><div class="card-h"><span class="ct">처리 이력</span></div><div class="hist">'+d.history.map(function(l){ return '<div class="hl">'+esc(shortHist(l))+'</div>'; }).join('')+'</div></div>';
@@ -2493,10 +2669,16 @@ function renderDetail(d){
   bindDetail(d);
   admErrLoad(d.code);   // [ERR_CODES]
 }
-/* [ERR_CODES] 고객 상세 «최근 실패» — 이 고객이 최근 본 오류 8줄(코드 · 시각 · 동작 · 고객이 본 글 · 내부 까닭). 줄의 코드를 누르면 뜻이 나온다 */
+/* [ERR_CODES] 고객 상세 «최근 실패» — 이 고객이 최근 본 오류 8줄(코드 · 시각 · 동작 · 고객이 본 글 · 내부 까닭). 줄의 코드를 누르면 뜻이 나온다
+   ★[ADM_ERRLOG_FAIL 2026-10-07 ERR_CODE_ADMIN] 못 불러오면 카드를 보이고 그렇다고 쓴다(#10) — 종전엔 거절(옛 GAS «알 수 없는 요청») · 끊김도 0줄처럼 카드를 숨겨
+   «이 고객은 실패가 없다»로 읽혔다. 0줄이면 숨기는 것은 그대로(설계). 세 줄 + «n건 더 보기» · 안내는 상자 밖(#13) */
+function _cardSafe(k,d,isSnap){ try{ return renderCard(k,d,isSnap); }catch(e){ try{ console.error('상세 카드 렌더 실패 · '+k, e); }catch(_){} var m=cardMeta(k,isSnap)||{t:k};   /* ★[ADM_CARD_ISOLATE 2026-10-07 ERR_CODE_ADMIN] #4 — 시트 값 하나가 카드 함수를 깨뜨리면 상세 전체가 «오류»와 함께 홈으로 튕겨 그 고객은 영영 안 열렸다(HOME_SECTION_ISOLATE 와 같은 처방) */
+  return '<div class="card" data-k="'+esc(k)+'"><div class="card-h"><span class="ct">'+esc(m.t)+'</span></div><div class="adm-why">이 카드를 못 그렸어요 · '+esc(_why(e))+' · 다른 카드는 그대로 쓸 수 있어요</div></div>'; } }
 function admErrLoad(code){ if(!code) return; var want=code;
-  gas('adminErrLog',code,8).then(function(r){ if(!curDetail||curDetail.code!==want) return; var rows=(r&&r.ok&&r.rows)||[], c=document.getElementById('admErrCard'), l=document.getElementById('admErrList'); if(!c||!l||!rows.length) return;
-    l.innerHTML=_errRowsHtml(rows.map(function(x){ var y={}; for(var k in x) y[k]=x[k]; y.code=''; return y; }))+'<div style="font-size:12px;color:var(--label-soft);margin-top:6px">코드 뜻은 검색창에 코드(예: '+esc(rows[0].ec)+')를 치면 나와요</div>'; c.hidden=false; }).catch(function(){}); }
+  var fail=function(x){ if(!curDetail||curDetail.code!==want) return; var c=document.getElementById('admErrCard'), l=document.getElementById('admErrList'), n=document.getElementById('admErrNote'); if(!c||!l) return;
+    l.innerHTML='<div class="adm-why" style="margin:0">오류기록을 불러오지 못했어요 · 실패가 없다는 뜻이 아니에요 · '+esc(_why(x,{base:'다시 열어 주세요'}))+'</div>'; if(n) n.textContent=''; c.hidden=false; };
+  gas('adminErrLog',code,8).then(function(r){ if(!curDetail||curDetail.code!==want) return; if(!(r&&r.ok)){ fail(r); return; } var rows=r.rows||[], c=document.getElementById('admErrCard'), l=document.getElementById('admErrList'), n=document.getElementById('admErrNote'); if(!c||!l||!rows.length) return;
+    l.innerHTML=_errRowsHtml(rows.map(function(x){ var y={}; for(var k in x) y[k]=x[k]; y.code=''; return y; }),3); if(n) n.textContent='코드를 누르면 뜻이 나와요 · 검색창에 코드나 사고번호를 쳐도 돼요'; c.hidden=false; }).catch(fail); }
 function shortHist(l){ // [YYYY-MM-DD HH:mm] who: action → [M/D HH:mm] who: action
   return String(l||'').replace(/^\[(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}:\d{2})\]/, function(_,y,mo,da,hm){ var yr=(+y!==new Date().getFullYear())?(y+'/'):''; return '['+yr+(+mo)+'/'+(+da)+' '+hm+']'; });
 }
@@ -2647,8 +2829,8 @@ function saveFittingCount(code, btn){
   if(btn){ btn.disabled=true; btn.textContent='저장 중…'; }
   gas('adminSetFittingCount', code, Number(v)).then(function(r){
     if(r&&r.ok){ toast('✓ 시착 '+r.count+'벌 기록'+(r.extra?(' · 추가 시착비 '+_moneyNum(r.extra).toLocaleString()+'원 별도 청구'):'')); if(_view==='detail') openDetail(code); else _restore(); }
-    else { _restore(); toast((r&&r.error)||'저장 실패'); }
-  }).catch(function(){ _restore(); toast('저장 실패 · 잠시 후 다시'); });
+    else { _restore(); toastErr('벌수를 저장하지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'})); }
+  }).catch(function(e){ _restore(); toastErr('벌수를 저장하지 못했어요 · '+_why(e,{write:true})); });   // [ADM_WHY] 종전 «저장 실패 · 잠시 후 다시»
 }
 function consentHtml(cs){
   var h='';
@@ -2828,11 +3010,11 @@ function cardProduction(d){
   } else if(r['eventId']){ raw+='<b>발행됨</b> · eventId '+esc(r['eventId']); }
   else { raw+='<b>-</b>'; }
   if(d.stage==='제작중'&&inv&&inv.status!=='완료') raw+='<div class="cnote">🟡 고객이 청첩장을 만드는 중이에요</div>';
-  raw += prodTracksHtml(d.mirror?d.mirror.production:null);
+  raw += prodTracksHtml(d.mirror?d.mirror.production:null, d);   // [ADM_AI_LINE_D] 고객 상세(d)를 아래로 넘긴다
   return '<div class="raw">'+raw+'</div><div class="cnote">청첩장·다이닝·식순·최종확정은 고객이 만들어요 (관리자 보기 전용)</div>';
 }
 function _tstat(s){ return s==='완료'?'완료 ✓':(s==='진행중'?'작성 중':'시작 전'); }
-function prodTracksHtml(prod){
+function prodTracksHtml(prod, d){
   if(!prod) return '<div class="cnote">다이닝 · 식순 · 최종확정 · 정보 없음</div>';
   var t=prod.tracks||{}, dd=prod.diningDraft||null, rd=prod.ritualDraft||null, fd=prod.finalDraft||null, h='';
   h+='<div class="cnote">다이닝 <b>'+esc(_tstat(t.dining))+'</b>';
@@ -2861,10 +3043,14 @@ function prodTracksHtml(prod){
     else if(sn){ var _ss=[]; if((sn.people||[]).length)_ss.push(esc(sn.people.join('·'))); if((sn.refs||[]).length)_ss.push('레퍼런스 '+sn.refs.length); if((sn.mustHaves||[]).length)_ss.push('원하는 컷 '+sn.mustHaves.length); if(sn.toneStyle)_ss.push(esc(sn.toneStyle)); var _snm=(sn.moodCandle||[]).length+(sn.moodWhite||[]).length; if(_snm)_ss.push('무드 '+_snm); if(_ss.length)h+=' · '+_ss.join(' · '); }
     h+='</div>';
   }
-  if(dd||rd||fd||sd||sn) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정·스냅 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd,sd,prod.seatToken,prod.guideinfoDraft,sn)+'</div>';
+  if(dd||rd||fd||sd||sn) h+='<button class="mt" data-mt="tracks">다이닝·식순·최종확정·스냅 상세 ▾</button><div class="mbody" id="mb_tracks">'+prodTrackDetail(dd,rd,fd,sd,prod.seatToken,prod.guideinfoDraft,sn,d)+'</div>';
   return h;
 }
-function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
+/* ★★[ADM_AI_LINE_D 2026-10-07 ERR_CODE_ADMIN 실브라우저 시험이 잡았다] 이 함수는 «d»(고객 상세)를 받지 않는데 식순지 AI 줄 점검(AI_NOTICE_0928 · #923)이
+   d.code · admAiSig(d) 를 읽어, 식순 v3 초안이 있는 고객은 «ReferenceError: d is not defined» 로 제작 카드가 죽었다 —
+   종전엔 그 예외가 상세 전체를 «오류» 토스트와 함께 홈으로 튕겼다(#4 «그 고객은 영영 열리지 않는다»의 실제 원인). 이제 d 를 넘겨 받는다 */
+function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
+  d=d||curDetail||{};
   function row(k,v){ return v?('<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'):''; }
   /* ★[ADM_LINK_CLICK 2026-08-13 점검 발견] 고객이 붙여 넣은 링크(성장영상·하객 사진 모으기·
      스냅 영감·영상)를 눌리는 링크로 — 종전엔 맨글자라 관리자가 손으로 긁어 복사해야 했다.
@@ -2913,9 +3099,11 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       :(s3d.tx&&String(s3d.tx['free.p']||'').trim())?'<div class="kv"><span class="k">축사 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['free.p']).trim())+'</span></div>':'')   /* [R2-06] 두 분이 붙여 둔 부모님 덕담 원고(큰 글씨 카드로 준비) — 저장 초안 S.tx 그대로(GAS 변경 없음) */
       +row('직접 쓰는 글', [s3d.vowText?'서약문':null, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null, (s3d.tx&&(String(s3d.tx['toast.g']||'').trim()||String(s3d.tx['toast.b']||'').trim()))?'축배 한마디':null /* [TOAST_SAY 2026-10-07] S.tx 두 칸 */].filter(function(x){return x;}).join(' · ')||'아직 없음')
       +(s3d.growth==='on'?lrow('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');   /* [ADM_LINK_CLICK] */
+    /* ★[ADM_PV_VOICE_BTN 2026-10-07 ERR_CODE_ADMIN] 식전 영상 소개(pvVoice)만 두 분 목소리로 고른 예식도 «파일 보기»가 뜬다(#15) — 종전엔 하객 맞이 · 입장 인사만 보아
+       pv 파일 · AI 목소리 칸 · «마지막 실패»(V4 안내가 가리키는 줄)를 볼 길이 없었다. admRfLoad 는 이미 pv 를 그린다 */
     /* ★[REC_ADMIN 2026-09-27 코워크 «두 분 목소리» 3-8] 하객 맞이 · 입장 인사를 «두 분 목소리»로 고른 예식 — 파일 목록 · 들어 보기 · 확인 ✓ (D-5 쯤 스튜디오가 들어 봄) */
     (function(){ var pr=admAiPrinted(d.code); if(pr!=null&&pr!==admAiSig(d)) h+='<div class="kv"><span class="k">식순지</span><span class="v"><b style="color:var(--red)">식순지를 뽑은 뒤 AI 줄이 바뀌었어요 · 다시 뽑기</b></span></div>'; })();   /* [AI_NOTICE_0928 9-1] */
-    if(s3d.guestVoice==='couple'||s3d.entryVoice==='couple') h+='<div class="grp-l">두 분 목소리 <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" data-fk="admrf" onclick="admRfLoad()">파일 보기</button></div><div id="admRf"></div>';
+    if(s3d.guestVoice==='couple'||s3d.entryVoice==='couple'||s3d.pvVoice==='couple') h+='<div class="grp-l">두 분 목소리 <button type="button" class="btn-line" style="margin-left:8px;padding:3px 10px;font-size:12px" data-fk="admrf" onclick="admRfLoad()">파일 보기</button></div><div id="admRf"></div>';
   }
   else if(rd){ h+='<div class="grp-l">식순</div>'+row('사회자',rd.mc)+row('입장곡',rd.entryMusic)+row('퇴장곡',rd.exitMusic)+row('식순',(rd.events&&rd.events.length)?rd.events.join(', '):'')+row('추가 순서',rd.extraOrder)+row('축가 곡',rd.songTitle)+row('축가 가수',rd.songArtist)+row('반주',rd.accompaniment)+row('타임라인',rd.timeline); }
   // 단체 사진 구도 — 본식 뒤 단체 기록(예식 준비에서 선택 · guideinfoDraft.photo). 고른 순서 = 촬영 순서. 전체 하객만이면 생략(2026-07-19)
@@ -3022,7 +3210,7 @@ function cardResult(d,isSnap){
   raw+=lk('원본',r['원본링크'])+lk('보정본',r['보정본폴더'])+(isSnap?'':lk('영상',r['영상링크']));
   // ② 고객이 고른 컷 — 번호/파일명 그대로(A안). 보정 대상.
   var picks=r['선택사진'], pn=r['선택수'];
-  if(picks){ raw+='<div class="res-sel"><b>고른 컷 '+esc(pn||'')+'컷</b>'+(r['선택확정일시']?(' · '+esc(r['선택확정일시'])):'')+' <button type="button" class="btn btn-line" style="padding:2px 10px;font-size:11px;vertical-align:1px" onclick="(function(b){var e=b.parentNode.querySelector(\'.res-sel-list\'); if(e){ legacyCopy(e.textContent.trim()); b.textContent=\'복사됨\'; setTimeout(function(){ b.textContent=\'복사\'; },1500); }})(this)">복사</button><div class="res-sel-list">'+esc(picks)+'</div></div>'; }   // [C-1 2026-07-25] 보정 작업용 콤마 구분 복사(Lightroom 필터 호환)
+  if(picks){ raw+='<div class="res-sel"><b>고른 컷 '+esc(pn||'')+'컷</b>'+(r['선택확정일시']?(' · '+esc(r['선택확정일시'])):'')+' <button type="button" class="btn btn-line" style="padding:2px 10px;font-size:11px;vertical-align:1px" onclick="(function(b){var e=b.parentNode.querySelector(\'.res-sel-list\'); if(e) copyText(e.textContent.trim(), b); })(this)">복사</button><div class="res-sel-list">'+esc(picks)+'</div></div>'; }   // [C-1 2026-07-25] 보정 작업용 콤마 구분 복사(Lightroom 필터 호환)
   // [MPD3_GALF] B안 제출("파일명(ID)")이면 고른 컷을 썸네일로도 표시(파일명 병기 · 운영 계정은 Drive 접근 가능 전제)
   if(picks){ try{ var _gm=String(picks).match(/([^,()]+)\(([A-Za-z0-9_-]{10,})\)/g)||[];
     if(_gm.length){ var _gth=_gm.slice(0,60).map(function(t){ var m2=t.match(/^\s*([^()]*)\(([A-Za-z0-9_-]{10,})\)\s*$/); if(!m2) return '';
@@ -3121,7 +3309,7 @@ function _forcePreview(code){
   if(!st.value){ box.style.display='none'; box.innerHTML=''; return; }
   box.style.display='block'; box.innerHTML='<span class="adv-prev-h">확인 중</span>';
   gas('adminForceStagePreview', code, st.value).then(function(p){
-    if(!(p&&p.ok)){ box.innerHTML='<span class="adv-prev-h">미리보기를 불러오지 못했어요</span><div>'+esc((p&&p.error)||'')+'</div>'; return; }
+    if(!(p&&p.ok)){ box.innerHTML='<span class="adv-prev-h">미리보기를 불러오지 못했어요</span><div>'+esc(_why(p,{base:'단계를 다시 골라 주세요'}))+'</div>'; return; }
     var h='<span class="adv-prev-h">'+esc(p.from||'')+' → '+esc(p.to||'')+'</span>';
     if(p.noop) h+='<div>바뀌는 것이 없어요</div>';
     if((p.cleared||[]).length) h+='<div class="adv-prev-x">비워짐 · '+p.cleared.map(esc).join(' · ')+'</div>';
@@ -3134,7 +3322,7 @@ function _forcePreview(code){
     if((p.kept||[]).length) h+='<div class="adv-prev-k">유지됨 · '+p.kept.map(esc).join(' · ')+' <span style="color:var(--label-soft)">(확인된 수납은 강제 변경으로 지워지지 않아요 · 되돌리려면 입금 확인 취소)</span></div>';
     if(!(p.cleared||[]).length && !(p.consent||[]).length && !p.bookingReset && !p.noop) h+='<div>비워지는 데이터는 없어요</div>';
     box.innerHTML=h;
-  }).catch(function(){ box.innerHTML='<span class="adv-prev-h">미리보기를 불러오지 못했어요</span>'; });
+  }).catch(function(e){ box.innerHTML='<span class="adv-prev-h">미리보기를 불러오지 못했어요</span><div>'+esc(_why(e))+'</div>'; });   // [ADM_WHY]
 }
 
 function bindDetail(d){
@@ -3220,15 +3408,19 @@ $('cm_no').addEventListener('click', function(e){ if(_dlgTooSoon(e,_modalOpenedA
 $('cm_yes').addEventListener('click', function(e){ if(_dlgTooSoon(e,_modalOpenedAt)) return; if(_modalYes) _modalYes(); });
 $('confirmModal').addEventListener('click', function(e){ if(e.target===$('confirmModal')){ if(_dlgTooSoon(e,_modalOpenedAt)) return; closeModal(); } });
 document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&$('confirmModal').classList.contains('show')) closeModal(); });
-function mErr(m){ $('cm_err').textContent=m||''; }
+function mErr(m){ $('cm_err').textContent=_nb(m||''); }   // [ADM_CODE_NB] 코드 괄호 안에서 줄이 갈리지 않게
 function mBusy(b,lbl){ $('cm_yes').disabled=b; $('cm_yes').textContent=b?'처리 중…':(lbl||'확인'); }
 function b(s){ return '<b>'+esc(s)+'</b>'; }
 function li(s){ return '<span class="li">· '+esc(s)+'</span>'; }
 
+/* ★[ADM_WHY 2026-10-07 ERR_CODE_ADMIN] 확인판 실패 줄(#5) — 종전 «오류: Failed to fetch» · 아이폰 «오류: Load failed»(영어 원문)였고, 사파리가 60초 넘은 요청을
+   끊은 것도 같은 글이라 «서버는 끝냈을 수 있음»을 알 수 없어 계약서 발송 · 입금 확인을 다시 눌렀다. 이제 연결 끊김은 «처리됐는지 확인한 뒤»(X6) ·
+   오래 걸린 끊김은 결과 모름(X5) · 로그인 풀림은 로그인 화면으로 · 처리는 됐는데 화면을 다시 그리다 멈춘 것은 그렇다고 말한다 */
 function runAct(fnArgs, code, lbl){
   mBusy(true); mErr('');
-  gas.apply(null, fnArgs).then(function(r){ if(r&&r.ok){ afterAction(code,r,fnArgs[0]); } else { mBusy(false,lbl); mErr(r&&r.error||'실패'); } })
-    .catch(function(e){ mBusy(false,lbl); mErr('오류: '+(e&&e.message||e)); });
+  gas.apply(null, fnArgs).then(function(r){ if(r&&r.ok){ try{ afterAction(code,r,fnArgs[0]); }catch(e){ toastErr('처리는 됐어요 · 화면을 다시 그리다 멈췄어요 · 새로고침해 주세요 · '+_why(e)); } }
+      else { mBusy(false,lbl); if(_admLost(r)){ authFail(); return; } mErr(_why(r,{base:'처리하지 못했어요 · 다시 눌러 주세요'})); } })
+    .catch(function(e){ mBusy(false,lbl); _mSay(_why(e,{write:true})); });
 }
 function afterAction(code,res,act){
   closeModal();
@@ -3244,7 +3436,7 @@ function afterAction(code,res,act){
     var _rnFl=(STAGE_FLOW[(curDetail&&curDetail.product)||'시그니처']||STAGE_FLOW['시그니처']||[]);
     var _rnI=_rnFl.indexOf(_rnCur), _rnP=_rnFl.indexOf('입금완료');
     if(_rnI!==-1&&_rnP!==-1&&_rnI<_rnP&&STAGE_EX.indexOf(_rnCur)===-1){
-      toast('단계가 그대로예요 · GAS(admin) 새 버전 재배포가 아직 안 됐어요 · 지금은 고급 → 강제 변경 → 입금완료로 푸세요');
+      toastErr('단계가 그대로예요 · GAS(admin) 새 버전 재배포가 아직 안 됐어요 · 지금은 고급 → 강제 변경 → 입금완료로 푸세요');   // [ADM_TOAST_LONG] 2.2초엔 다 못 읽었다(#24)
       if(_view==='detail') openDetail(code,'home'); return;
     }
   }
@@ -3301,10 +3493,9 @@ function _bindCopyNotify(){
     var hint=$('cpNfHint'); btn.disabled=true; btn.textContent='문구 불러오는 중';
     gas('adminNotifyText', btn.getAttribute('data-code'), 'cust.paymentConfirmed', _AC5_KIND).then(function(r){
       btn.disabled=false; btn.textContent='카톡 문구 복사';
-      if(!(r&&r.ok&&r.text)){ if(hint) hint.textContent=(r&&r.error)||'문구를 불러오지 못했어요'; return; }
-      copyText(r.text, btn);
-      if(hint) hint.textContent='복사했어요 · 카카오톡에 붙여넣어 보내 주세요';
-    }).catch(function(){ btn.disabled=false; btn.textContent='카톡 문구 복사'; if(hint) hint.textContent='문구를 불러오지 못했어요'; });
+      if(!(r&&r.ok&&r.text)){ if(hint) hint.textContent='문구를 불러오지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'}); return; }
+      copyText(r.text, btn, function(ok){ if(hint) hint.textContent=ok?'복사했어요 · 카카오톡에 붙여넣어 보내 주세요':'복사가 안 됐어요 · 뜬 판의 글을 길게 눌러 복사해 주세요'; });   // [ADM_COPY_TRUTH] 됐을 때만 «복사했어요»
+    }).catch(function(e){ btn.disabled=false; btn.textContent='카톡 문구 복사'; if(hint) hint.textContent='문구를 불러오지 못했어요 · '+_why(e); });
   });
 }
 // 큐에서 열면 서버가 만든 요약 문장(sub)을 통째로 한 줄에 — 앞단에서 쪼개 해석하지 않는다. 상세에서 열면 기록된 값에서 조립.
@@ -3425,7 +3616,7 @@ function doEditContact(code, names, d){
       if(stage==='edit'){
         mBusy(true);
         gas('adminSetContactPreview', code, v.ph, v.em).then(function(r){
-          if(!(r&&r.ok)){ mBusy(false,'바뀔 내용 확인'); mErr((r&&r.error)||'확인하지 못했어요'); return; }
+          if(!(r&&r.ok)){ mBusy(false,'바뀔 내용 확인'); mErr(_why(r,{base:'확인하지 못했어요'})); return; }
           if(r.already){ mBusy(false,'바뀔 내용 확인'); mErr(r.message||'바뀌는 값이 없어요'); return; }
           stage='confirm';
           var hint=$('ecHint');   // ★입력칸은 그대로 두고 그 «아래»에만 쓴다
@@ -3436,16 +3627,16 @@ function doEditContact(code, names, d){
             hint.style.display='';
           }
           mBusy(false,'정정 실행'); mErr('');
-        }).catch(function(e){ mBusy(false,'바뀔 내용 확인'); mErr('오류: '+(e&&e.message||e)); });
+        }).catch(function(e){ mBusy(false,'바뀔 내용 확인'); mErr(_why(e)); });   // [ADM_WHY]
         return;
       }
       mBusy(true);
       gas('adminSetContact', code, v.ph, v.em, v.rs).then(function(r){
-        if(!(r&&r.ok)){ mBusy(false,'정정 실행'); mErr((r&&r.error)||'정정하지 못했어요'); return; }
+        if(!(r&&r.ok)){ mBusy(false,'정정 실행'); mErr(_why(r,{base:'정정하지 못했어요'})); return; }
         closeModal();
         toast(r.wasSilent ? '연락처 정정 완료 · 이제 알림이 나가요' : '연락처 정정 완료');
         openDetail(code);   // 새 값으로 다시 그린다 — 경고 줄도 함께 사라진다
-      }).catch(function(e){ mBusy(false,'정정 실행'); mErr('오류: '+(e&&e.message||e)); });
+      }).catch(function(e){ mBusy(false,'정정 실행'); mErr(_why(e,{write:true})); });   // [ADM_WHY]
     }
   });
 }
@@ -3471,14 +3662,15 @@ function doUndoPay(code,names,milestone,d){
           onYes:function(){
             mBusy(true);
             gas('adminUndoCashReceipt', code, p.blockKey).then(function(r2){
-              if(!(r2&&r2.ok)){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr((r2&&r2.error)||'영수증 취소 실패'); return; }
+              if(!(r2&&r2.ok)){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr('영수증 취소를 못 했어요 · '+_why(r2,{base:'다시 눌러 주세요'})); return; }
               closeModal(); toast('영수증 발행 취소됨 · 이어서 입금 확인 취소');
               setTimeout(function(){ doUndoPay(code,names,milestone,d); }, 400);   // 같은 흐름을 이어 간다
-            }).catch(function(e){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr('오류: '+(e&&e.message||e)); });
+            }).catch(function(e){ mBusy(false,'진행 · 영수증 취소 후 계속'); mErr(_why(e,{write:true})); });   // [ADM_WHY]
           } });
         return;
       }
-      openModal({ title:'되돌릴 수 없어요', text:b(names)+li((p&&p.error)||'확인하지 못했어요'), yes:'확인', onYes:function(){ closeModal(); } }); return; }
+      if(_admLost(p)){ authFail(); return; }
+      openModal({ title:'되돌릴 수 없어요', text:b(names)+li(_why(p,{base:'확인하지 못했어요'})), yes:'확인', onYes:function(){ closeModal(); } }); return; }
     if(p.already){ toast('이미 되돌려진 상태예요'); return; }
     var rows=(p.plan||[]).map(function(x){ return li(x.label+' · 확인('+esc(x.at||'')+') → '+x.to); }).join('');
     var st=p.stage?li('현재단계 '+p.stage.from+' → '+p.stage.to):'';
@@ -3496,7 +3688,7 @@ function doUndoPay(code,names,milestone,d){
         if(!r){ mErr('되돌리는 사유를 입력해 주세요'); return; }
         runAct(['adminUndoConfirmPayment',code,milestone,r],code,'입금 확인 취소');
       } });
-  }).catch(function(){ toast('확인 실패 · 잠시 후 다시 시도해 주세요'); });
+  }).catch(function(e){ toastErr('되돌릴 내용을 확인하지 못했어요 · '+_why(e)); });   // ★[ADM_UNDO_WHY 2026-10-07 ERR_CODE_ADMIN] #25 종전 «확인 실패 · 잠시 후 다시» — 서버 글 · 연결을 버렸다
 }
 /* ★★[ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "처리할일에 나오고 원클릭으로 팝업 안내가 나오고 진행을
    클릭하면 모든 그환경에 필요한 모든셋팅이 가능하게"] 되돌림 정리 원클릭 — 큐 버튼 하나로.
@@ -3507,7 +3699,7 @@ function doUndoPay(code,names,milestone,d){
 function doFixStage(code,names,sub){
   toast('상태 확인 중');
   gas('adminDetail', code).then(function(d){
-    if(!(d&&d.ok)){ toast('상태를 불러오지 못했어요 · 행을 눌러 상세에서 진행해 주세요'); return; }
+    if(!(d&&d.ok)){ if(_admLost(d)){ authFail(); return; } toastErr('상태를 불러오지 못했어요 · '+_why(d,{base:'행을 눌러 상세에서 진행해 주세요'})); return; }   // [ADM_UNDO_WHY]
     var r=d.raw||{};
     var payOk=(r['입금상태']==='확인');
     var signed=(r['계약상태']==='서명완료');
@@ -3551,12 +3743,15 @@ function doFixStage(code,names,sub){
         yes:'진행 · '+restTxt+' 확인 취소',
         onYes:function(){ closeModal(); doUndoPay(code,names,ms,d); } });
     } else { toast('정리할 입금 확인이 없어요 · 이미 정리된 상태예요'); loadHome(); }
-  }).catch(function(){ toast('확인 실패 · 잠시 후 다시 시도해 주세요'); });
+  }).catch(function(e){ toastErr('상태를 불러오지 못했어요 · '+_why(e)); });   // [ADM_UNDO_WHY]
 }
 function doMarkRefundedInline(code,names){   // [REFUND_QUEUE_INLINE 2026-07-25] 큐 버튼 전용 — 상세 화면으로 들어가지 않고 완료 확인 팝업만 띄운다. 계좌·환불완료 여부는 상세를 조회해 doMarkRefunded에 넘김(계좌 있으면 복사 제공 · 없으면 카톡 안내). 상세를 보고 싶으면 행(줄)을 누르면 됨.
-  gas('adminDetail', code).then(function(d){ doMarkRefunded(code, names, (d&&d.ok)?d:null); })
-    .catch(function(){ doMarkRefunded(code, names, null); });
+  /* ★[ADM_REFUND_NODATA 2026-10-07 ERR_CODE_ADMIN] 상세를 못 받으면 «환불 완료» 판을 열지 않는다(#7) — 종전엔 d=null 로 열어
+     계좌가 있어도 «환불 계좌 미입력 · 카카오톡으로 받아…»라고 했고 환불 예상액 줄도 빠졌다. 그 판에서 완료를 누르면 확인 없이 큐에서 사라진다 */
+  gas('adminDetail', code).then(function(d){ if(d&&d.ok){ doMarkRefunded(code, names, d); return; } if(_admLost(d)){ authFail(); return; } _refundNoData(code, names, _why(d,{base:'다시 눌러 주세요'})); })
+    .catch(function(e){ _refundNoData(code, names, _why(e)); });
 }
+function _refundNoData(code,names,line){ openModal({ title:'환불 정보를 불러오지 못했어요', text:b(names)+li(line)+li('계좌 · 환불액을 확인해야 해서 여기서는 완료할 수 없어요'), yes:'상세 열기', onYes:function(){ closeModal(); openDetail(code,'home','환불송금'); } }); }
 function doMarkRefunded(code,names,d){ var acct=(d&&d.consult&&d.consult.refund)||'';
   // [ADM_AB2] 얼마를 보냈어야 하는지를 모달 안에서 — 상세 카드와 같은 계산(_rqLine). 산정 전이면 그렇다고 적는다.
   var _rq=d&&d.refundQuote, _rqLi=_rq ? li(_rq.pending?'환불액 산정 전이에요 · 벌수 기록 필요':_rqLine(_rq,true)) : '';
@@ -3588,14 +3783,14 @@ function doConsultDone(code,names,fitN,fitSaved){
       function _done(){
         gas('adminMarkConsultDone', code).then(function(r2){
           if(r2&&r2.ok){ afterAction(code,r2,'adminMarkConsultDone'); }
-          else { mBusy(false,'벌수 기록 · 상담완료'); mErr((r2&&r2.error)||'상담완료 실패'); }
-        }).catch(function(e){ mBusy(false,'벌수 기록 · 상담완료'); mErr('오류: '+((e&&e.message)||e)); });
+          else { mBusy(false,'벌수 기록 · 상담완료'); if(_admLost(r2)){ authFail(); return; } mErr(_why(r2,{base:'상담완료를 처리하지 못했어요'})); }
+        }).catch(function(e){ mBusy(false,'벌수 기록 · 상담완료'); mErr(_why(e,{write:true})); });   // [ADM_WHY]
       }
       if(_skipFit){ _done(); return; }
       gas('adminSetFittingCount', code, Number(v)).then(function(r){
-        if(!(r&&r.ok)){ mBusy(false,'벌수 기록 · 상담완료'); mErr((r&&r.error)||'벌수 기록 실패'); return; }
+        if(!(r&&r.ok)){ mBusy(false,'벌수 기록 · 상담완료'); if(_admLost(r)){ authFail(); return; } mErr('벌수를 기록하지 못했어요 · '+_why(r,{base:'다시 눌러 주세요'})); return; }
         _done();
-      }).catch(function(e){ mBusy(false,'벌수 기록 · 상담완료'); mErr('오류: '+((e&&e.message)||e)); });
+      }).catch(function(e){ mBusy(false,'벌수 기록 · 상담완료'); mErr(_why(e,{write:true})); });   // [ADM_WHY]
     }
   });
 }
@@ -3671,10 +3866,13 @@ function _cpnTake(files){
   $('cpnStat').textContent='이미지 압축 중…';
   var budget = files.length>1 ? 22000 : 44000;   // 셀 5만자 한계 대비 이미지당 예산(base64 글자수)
   Promise.all(files.map(function(file){ return _cpnCompress(file, budget); })).then(function(arr){
-    _cpnImgs=arr.filter(Boolean);
+    /* ★[ADM_CPN_WHY 2026-10-07 ERR_CODE_ADMIN] 까닭별로(#38) — 못 여는 그림(HEIC 등 · M6)과 «셀 한도 안으로 못 줄인 큰 그림»이 같은 «이미지를 읽지 못했어요»였고,
+       두 장 중 한 장이 실패하면 «준비됨 · 1장»으로 조용히 빠졌다. _cpnCompress 는 실패를 {fail:'open'|'big'|'read'} 로 돌려준다 */
+    var bad=arr.filter(function(x){ return x && typeof x==='object'; }), why=!bad.length?'':(bad.some(function(x){ return x.fail==='big'; })?'너무 커서 줄이지 못했어요 · 바코드 부분만 잘라 다시 올려 주세요':'이 기기가 그림을 열지 못했어요(HEIC 등) · JPG · PNG 캡처로 다시 올려 주세요 (코드 M6)');
+    _cpnImgs=arr.filter(function(x){ return typeof x==='string' && x; });
     var pv=$('cpnPrev'); pv.innerHTML=_cpnImgs.map(function(s){ return '<img src="'+s+'" style="width:88px;height:88px;object-fit:contain;border:1px solid #e6e0d8;border-radius:8px;background:#fff">'; }).join('');
-    $('cpnStat').textContent=_cpnImgs.length?('준비됨 · '+_cpnImgs.length+'장'):'이미지를 읽지 못했어요';
-  }).catch(function(){ $('cpnStat').textContent='이미지 처리 오류 · 다시 시도해 주세요'; });
+    $('cpnStat').textContent=_nb(_cpnImgs.length?('준비됨 · '+_cpnImgs.length+'장'+(bad.length?(' · '+bad.length+'장은 못 읽었어요 · '+why):'')):('이미지를 읽지 못했어요 · '+why));
+  }).catch(function(e){ $('cpnStat').textContent='이미지 처리 오류 · '+_why(e); });
 }
 // 파일 → 캔버스 축소 → JPEG. 목표 글자수 이내가 될 때까지 해상도·품질을 낮춰 재시도.
 function _cpnCompress(file, budget){
@@ -3694,12 +3892,12 @@ function _cpnCompress(file, budget){
         var out='';
         for(var i=0;i<widths.length;i++){ for(var j=0;j<qs.length;j++){ var d=tryOut(widths[i],qs[j]); if(d.length<budget){ out=d; break; } } if(out) break; }
         if(!out){ out=tryOut(360,0.42); if(out.length>=budget) out=''; }   // 그래도 크면 실패 처리
-        resolve(out||'');
+        resolve(out||{fail:'big'});   // [ADM_CPN_WHY]
       };
-      img.onerror=function(){ resolve(''); };
+      img.onerror=function(){ resolve({fail:'open'}); };
       img.src=fr.result;
     };
-    fr.onerror=function(){ resolve(''); };
+    fr.onerror=function(){ resolve({fail:'read'}); };
     fr.readAsDataURL(file);
   });
 }
@@ -3854,7 +4052,7 @@ function openContractViewer(d, ov2){
     /* ★[SAVE_FALSE_OK] 진본을 못 가져오면 **말한다** — 이 블록은 이미 '서명완료'로 표시된 계약서에서만 돌아서,
        조용히 실패하면 «서명완료»라고 적힌 문서가 서명칸만 빈 채로 인쇄돼 나간다(바로 위 인쇄 버튼).
        빈 catch 는 전역 unhandledrejection 안전망까지 무력화한다 — 그래서 여기서 직접 말해야 한다. */
-    try{ gas('adminGetSignature', d.code, '계약').then(function(rr){ if(!(rr&&rr.ok&&rr.dataUrl)){ toast('서명 진본을 불러오지 못했어요 · 서명칸이 빈 채로 인쇄됩니다'); } else { fillData.signImage=rr.dataUrl; if(fr.contentWindow) fr.contentWindow.postMessage({type:'momentedit:contractFill', data:fillData}, location.origin); } }).catch(function(){ toast('서명 진본을 불러오지 못했어요 · 서명칸이 빈 채로 인쇄됩니다'); }); }catch(e){}
+    try{ gas('adminGetSignature', d.code, '계약').then(function(rr){ if(!(rr&&rr.ok&&rr.dataUrl)){ toastErr('서명 진본을 불러오지 못했어요 · 서명칸이 빈 채로 인쇄돼요 · '+_why(rr,{base:'계약서를 닫았다가 다시 열어 주세요'})); } else { fillData.signImage=rr.dataUrl; if(fr.contentWindow) fr.contentWindow.postMessage({type:'momentedit:contractFill', data:fillData}, location.origin); } }).catch(function(e){ toastErr('서명 진본을 불러오지 못했어요 · 서명칸이 빈 채로 인쇄돼요 · '+_why(e,{todo:'계약서를 닫았다가 다시 열어 주세요'})); }); /* ★[ADM_SIG_WHY 2026-10-07 ERR_CODE_ADMIN] 서명 진본 실패는 오래(6초+) · 까닭 + 코드 — 종전엔 2.2초 만에 사라지고 왜인지 몰랐다 */ }catch(e){}
   }
 }
 
@@ -3891,14 +4089,16 @@ function openSetResult(code,names,isSnap,d){
 
 function openPropose(code,names){
   gas('adminAvailability').then(function(d){
-    if(d&&d.ok){ SLOTS.weekday=d.slotsWeekday||[]; SLOTS.weekend=d.slotsWeekend||[]; }
+    /* ★[ADM_PROPOSE_FAIL 2026-10-07 ERR_CODE_ADMIN] 시간표를 못 받으면 창을 열지 않는다(#21) — 종전엔 그대로 열어 모든 날이 «가능한 시간 없음»이었다 */
+    if(!(d&&d.ok)){ if(_admLost(d)){ authFail(); return; } toastErr('시간표를 불러오지 못해 제안 창을 열지 않았어요 · '+_why(d,{base:'다시 눌러 주세요'})); return; }
+    SLOTS.weekday=d.slotsWeekday||[]; SLOTS.weekend=d.slotsWeekend||[];
     var extra='<div class="field"><label>날짜</label><input type="date" id="pDate"></div>'+
       '<div class="field"><label>시간</label><select id="pTime"><option value="">날짜를 먼저 선택</option></select></div>'+
       '<div class="field"><label>메모(선택)</label><input type="text" id="pMemo" placeholder="고객에게 전할 한마디"></div>';
     openModal({ title:'시간 변경 제안', text:bumpName(names)+'님께 새 시간을 제안해요.', extra:extra, yes:'제안 보내기',
       init:function(){ var pd=$('pDate'); if(pd) pd.addEventListener('change',function(){ fillTimes(pd.value); }); },
       onYes:function(){ var nd=$('pDate').value, nt=$('pTime').value; if(!nd||!nt){ mErr('날짜와 시간을 선택해 주세요.'); return; } runAct(['adminProposeTime',code,nd,nt,$('pMemo').value||''],code,'제안 보내기'); } });
-  }).catch(function(){ toast('슬롯 로드 실패'); });
+  }).catch(function(e){ toastErr('시간표를 불러오지 못했어요 · '+_why(e)); });
 }
 function fillTimes(dateStr){ var sel=$('pTime'); if(!sel) return; var slots=[]; if(dateStr){ var d=new Date(dateStr+'T00:00:00'); var wd=d.getDay(); slots=(wd===0||wd===6)?SLOTS.weekend:SLOTS.weekday; } sel.innerHTML=slots.length?slots.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join(''):'<option value="">가능한 시간 없음</option>'; }
 
@@ -3927,7 +4127,7 @@ function doForce(code,names,target,reason){
       if((p.kept||[]).length) facts+=li('그대로 남아요 · '+p.kept.map(esc).join(' · '));
       if(p.bookingReset) facts+=li('⚠ 상담 예약과 캘린더 일정이 초기화돼요');
       if(!(p.cleared||[]).length && !(p.consent||[]).length && !p.bookingReset) facts+=li('비워지는 데이터는 없어요 · 단계만 바뀌어요');
-    } else { facts+=li('미리보기를 못 불러왔어요 · 그래도 진행하면 서버 판단대로 처리돼요'); }
+    } else { facts+=li('미리보기를 못 불러왔어요('+_why(p,{base:'까닭 없음'})+') · 그래도 진행하면 서버 판단대로 처리돼요'); }
     if(STAGE_EX.indexOf(target)!==-1) facts+=li('종료 처리예요 · 받은 금액이 있고 환불 계좌가 없으면 고객에게 계좌 요청 안내가 나가요');
     /* ★★[ROLLBACK_SLOT 2026-08-18 사용자 결정] 예식 «자리»는 관리자가 고른다 — 기본은 잠근 채 두기.
        되돌리면 계약상태가 비워지고, 그러면 그 날짜가 다른 분께 열린다(점유 판정이 계약상태를 본다).
@@ -3949,17 +4149,22 @@ function doForce(code,names,target,reason){
       text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+facts+li('이력에 남아요'), yes:'강제 변경',
       onYes:function(){ var op=(_slPick&&$('fSlotOpen')&&$('fSlotOpen').checked)?true:false;
         runAct(['adminForceStage',code,target,reason,op],code,'강제 변경'); } });
-  }).catch(function(){
+  }).catch(function(e){
     openModal({ title:'강제로 단계를 바꿀까요?', danger:true,
-      text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('미리보기를 못 불러왔어요')+li('이력에 남아요'), yes:'강제 변경',
+      text:bumpName(names)+li('→ '+target+'(으)로 강제 변경')+li('미리보기를 못 불러왔어요 · '+_why(e))+li('이력에 남아요'), yes:'강제 변경',
       onYes:function(){ runAct(['adminForceStage',code,target,reason],code,'강제 변경'); } });
   });
 }
 
+/* ★[ADM_MEMO_FAIL 2026-10-07 ERR_CODE_ADMIN] 메모 저장 실패가 2.2초 «저장 실패» · «오류»로 사라졌다(#19 · 놓치면 저장 안 된 줄 모른다).
+   이제 까닭이 버튼 아래(memoNote)에 남는다. ★로그인이 풀려도 로그인 화면으로 보내지 않는다 — 보내면 적어 둔 메모가 사라진다 */
 function saveMemo(){
-  var memo=$('memoArea').value, btn=$('memoSave');
-  btn.disabled=true; btn.textContent='저장 중…';
-  gas('adminSaveMemo', curDetail.code, memo).then(function(d){ btn.disabled=false; btn.textContent='메모 저장'; toast(d&&d.ok?'저장됨':'저장 실패'); }).catch(function(){ btn.disabled=false; btn.textContent='메모 저장'; toast('오류'); });
+  var memo=$('memoArea').value, btn=$('memoSave'), nt=$('memoNote');
+  btn.disabled=true; btn.textContent='저장 중…'; if(nt) nt.textContent='';
+  var fail=function(line){ btn.disabled=false; btn.textContent='메모 저장'; if(nt) nt.textContent=_nb('저장 안 됨 · '+line); toastErr('메모 저장 안 됨 · 까닭은 버튼 아래에 있어요'); };
+  gas('adminSaveMemo', curDetail.code, memo).then(function(d){ if(d&&d.ok){ btn.disabled=false; btn.textContent='메모 저장'; toast('저장됨'); return; }
+      fail(_admLost(d)?'로그인이 풀렸어요 · 메모를 복사해 둔 뒤 다시 로그인해 주세요':_why(d,{base:'다시 눌러 주세요'})); })
+    .catch(function(e){ fail(_why(e,{write:true})); });
 }
 
 /* ════════ 아카이브 ════════ */
@@ -3970,16 +4175,20 @@ function loadArchive(){
   var seq=++_navSeq;   /* [NAV_SEQ] */
   gas('adminArchive', _arcQuery, _arcFilter).then(function(d){
     if(seq!==_navSeq) return;   /* [NAV_SEQ] */
-    if(!d||!d.ok){ toast('불러오기 실패'); return; }
+    if(!d||!d.ok){ if(_admLost(d)){ authFail(); return; } _arcFail(_why(d,{base:'다시 불러와 주세요'})); return; }
     renderArchive(d); show('archive');
-  }).catch(function(){ if(seq!==_navSeq) return; toast('오류'); });
+  }).catch(function(e){ if(seq!==_navSeq) return; _arcFail(_why(e)); });
 }
+/* ★[ADM_ARC_FAIL 2026-10-07 ERR_CODE_ADMIN] 보관 실패(#3) — 종전엔 2.2초 토스트 뒤 «불러오는 중…» 해골이 그대로 남고 15초 뒤 «서버 응답이 늦어요 … F5»가
+   덧붙었다(서버는 이미 거절로 답했다). 이제 해골에서 빠져나와 아카이브 화면에 까닭 한 줄 + «다시 불러오기» */
+function _arcFail(line){ renderArchive({results:[], total:0, _fail:line}); show('archive'); }
 function renderArchive(d){
   var chips=[['all','전체'],['done','완료(전달)'],['stopped','중단']];
   $('aChips').innerHTML=chips.map(function(c){ return '<div class="achip'+(_arcFilter===c[0]?' active':'')+'" data-f="'+c[0]+'">'+esc(c[1])+'</div>'; }).join('');
   $('aChips').querySelectorAll('.achip').forEach(function(el){ el.addEventListener('click', function(){ _arcFilter=el.getAttribute('data-f'); loadArchive(); }); });
   var html='';
-  if(!d.results.length) html='<div class="empty">'+(_arcQuery?('\''+esc(_arcQuery)+'\' 결과가 없어요'):'끝난 고객이 없어요')+'</div>';
+  if(d._fail) html='<div class="empty">아카이브를 불러오지 못했어요<div class="adm-why">'+esc(d._fail)+'</div><button type="button" class="adm-retry" id="arcRetry">다시 불러오기</button></div>';   // [ADM_ARC_FAIL]
+  else if(!d.results.length) html='<div class="empty">'+(_arcQuery?('\''+esc(_arcQuery)+'\' 결과가 없어요'):'끝난 고객이 없어요')+'</div>';
   else {
     if(!_arcQuery) html+='<div class="qhead">최근 종료 '+d.results.length+'명'+(d.total>d.results.length?(' (전체 '+d.total+')'):'')+'</div>';
     html+=d.results.map(function(r){
@@ -3992,6 +4201,7 @@ function renderArchive(d){
     }).join('');
   }
   $('archiveBody').innerHTML=html;
+  var _arR=$('arcRetry'); if(_arR) _arR.addEventListener('click', function(){ loadArchive(); });   // [ADM_ARC_FAIL]
   $('archiveBody').querySelectorAll('.arow').forEach(function(el){ el.addEventListener('click', function(){ openDetail(el.getAttribute('data-code'),'archive'); }); });
 }
 </script>

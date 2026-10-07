@@ -15750,3 +15750,34 @@ chk 'ERR_G3_WIDE' assets/err-codes.js 1
 chk '복사가 안 됐어요 · 길게 눌러 복사해 주세요' i/cover-01.html 1
 nochk '계좌번호를 길게 눌러 복사해 주세요' schedule.html
 chk 'UNKNOWN_ACT_DOT' automation/consultation/consultation-booking.gs 1
+# ★★[ERR_CODE_ADMIN 2026-10-07 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»]
+#   관리자 화면 실패 = «무엇이 · 왜» 한 줄 — _why 한 곳(서버 글 그대로 · 연결 X6 · 오래 끊김 결과 모름 X5 · 깨진 답 X7 · 화면 오류) · 로그인 풀림은 _admLost(«로그인이 필요»만 · 예외 원문의 «권한»은 아님)
+#   코드 괄호 안 U+00A0 · U+2060(_nb · ADM_CODE_NB) · 코드 검색 읽기(_errParse · 구분자 · 전각 괄호 · 표에 없는 코드) · 실패 토스트 6초+ · 카드 하나 고장 격리(_cardSafe)
+#   식순 v3 초안이 있는 고객 상세가 «d is not defined» 로 «오류» + 홈이던 것(ADM_AI_LINE_D · #923 부터) · brief X5 · X6 · X7 · audio-review 로컬 전용 · 어조 실청 · order-audit · 실청판 · 문안 되돌리기
+#   err-admin.mjs 가 가짜 GAS + 실브라우저로 잰다 — 폴링 덮기 · ADM_AI_LINE_D · _nb · 확인판 끊김 · brief 를 되돌리면 빨강(돌연변이 확인)
+chk 'ERR_CODE_ADMIN' admin.html 25
+chk 'function _why(x, o)' admin.html 1
+chk 'function _admLost(x)' admin.html 1
+chk 'function toastErr(msg)' admin.html 1
+chk 'function _errParse(q)' admin.html 1
+chk 'function _cardSafe(k,d,isSnap)' admin.html 1
+chk 'ADM_AI_LINE_D' admin.html 2
+chk 'function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d)' admin.html 1
+chk "_lastQuery=q; _lastQueryKind='err';" admin.html 1
+chk 'ADM_CODE_NB' admin.html 2
+chk "||s3d.pvVoice==='couple') h+=" admin.html 1
+nochk "mErr('오류: '" admin.html
+nochk "toast('서버 연결이 안 돼요" admin.html
+nochk "toast('검색 실패')" admin.html
+nochk 'legacyCopy(text); done();' admin.html
+chk 'BRIEF_ERR_CODE' brief.html 2
+chk 'AR_LOCAL_ONLY' audio-review.html 2
+chk 'TONE_PLAY_FAIL' scripts/build-listen-tone.mjs 2
+chk 'TONE_PLAY_FAIL' audio-review-tone.html 2
+chk 'AUDIT_ENGINE_ERRS' order-audit.html 3
+chk 'CRASH_TEXT' scripts/build-listen-all.mjs 1
+chk 'PICK_COPY_TRUTH' scripts/pick-back.tpl.html 1
+chk 'PICK_CAN_SAVE' scripts/pick-back.tpl.html 2
+chk 'PICK_COPY_TRUTH' pick-final.html 1
+chk 'ERR_CODE_ADMIN' scripts/audit/err-admin.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-admin.mjs >/dev/null 2>&1; _eca=$?; if [ "$_eca" = 1 ]; then echo 'FAIL err-admin: 관리자 · 브리프 · 내부 화면 실패 문구(까닭 한 줄 + 코드 · 코드 검색 · 카드 격리 · 복사)가 어긋났습니다 — node scripts/audit/err-admin.mjs'; fail=1; else echo "ok err-admin ($_eca)"; fi; fi
