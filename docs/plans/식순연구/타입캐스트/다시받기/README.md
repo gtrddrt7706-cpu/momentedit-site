@@ -10,6 +10,7 @@
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
 | 1_진한.txt | 진한 | 3 | 1 |
+| 2_진희.txt | 진희 | 2 | 1 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
@@ -17,5 +18,11 @@
 # 진한 — 3줄 · 1클립
 node scripts/assemble-narration.mjs --in <진한_받은폴더> \
   --clip =01_guest-1
+```
+
+```
+# 진희 — 2줄 · 1클립
+node scripts/assemble-narration.mjs --in <진희_받은폴더> \
+  --clip =131_narr-table-in
 ```
 

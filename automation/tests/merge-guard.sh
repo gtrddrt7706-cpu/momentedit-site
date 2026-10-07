@@ -10167,7 +10167,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 130' scripts/check-ritual-cue.js 1   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 131' scripts/check-ritual-cue.js 1   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -12025,7 +12025,7 @@ chk 'LEAVE_ASK_Q' order-preview.html 2
 nochk '«한눈에 보기»에서 다시 찾을 수 있어요' order-preview.html
 nochk '미완료로 두고 넘어갈게요' order-preview.html
 nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
-chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-open.js 1
+chk "feel: '밝고 경쾌하게 · 하객과 가까이'" assets/ritual-open.js 1   # [TABLE_GREET_1008] 옛 «단체 사진을 넉넉히» — 테이블 인사가 들어 소개를 바꿨다(사장님)
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
 chk "L('tribute','인사 말'" order-preview.html 1   # [TRIB_ONE_SAY 2026-10-06] 한마디씩 · 1분쯤씩 → 하나로(«말로 인사»)
 nochk "'인사 방식'" order-preview.html   # [GROOM_BOW_TIP 2026-10-06] 인사 방식(꽃 · 신랑 큰절) 칩은 걷었다 — 큰절은 팁 한 줄
@@ -13834,10 +13834,10 @@ nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
 # ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 새 코스의 케이크 커팅 · 축배는 두 순간
 #   엔진 줄(녹음 · 시간)은 종전 «케이크와 축배»를 나눠 담는다 · 옛 초안은 migrateCakeToast 가 옮긴다 · 옛 코스는 한 덩어리 그대로
 chk 'CAKE_TOAST_SPLIT' assets/ritual-open.js 10
-chk "'letter', 'cake', 'toast'\];" assets/ritual-open.js 1
+chk "'letter', 'cake', 'toast', 'table'\];" assets/ritual-open.js 1   # [TABLE_GREET_1008] ORDER 끝 table
 chk 'function migrateCakeToast(S)' assets/ritual-open.js 1
 chk 'function toastMode(S)' assets/ritual-open.js 1
-chk "'letter','cake','toast'\]" assets/ritual-data.js 1
+chk "'letter','cake','toast','table'\]" assets/ritual-data.js 1   # [TABLE_GREET_1008]
 chk 'CAKE_TOAST_SPLIT' assets/ritual-cue.js 2
 chk 'O.migrateCakeToast(s);' assets/ritual-cue.js 1
 chk 'CAKE_TOAST_SPLIT' order-preview.html 10
@@ -15457,3 +15457,25 @@ nochk 'function _vcSnap(w){' order-preview.html
 chk 'R.enrSnap=_vcEnrSnap(w)' order-preview.html 1
 chk "'vc-enroll-sim.mjs': 600" scripts/audit/run-all.mjs 1
 if command -v node >/dev/null 2>&1; then PAR=8 ONLY='^(ok-fast|ios-cut-70s|pc-100s|old-ios-cut-70s|ios-cut-fail|tc-422|close-reopen|reload-mid|two-tabs|renew-cut)$' node scripts/audit/vc-enroll-sim.mjs >/dev/null 2>&1; _ves=$?; if [ "$_ves" = 1 ]; then echo 'FAIL vc-enroll-sim: 목소리 만들기(녹음 뒤) — 결과 모름 확인 · 한 분 한 번 · 녹음 거절 · 새는 목소리 판정이 어긋났습니다 — node scripts/audit/vc-enroll-sim.mjs'; fail=1; else echo "ok vc-enroll-sim ($_ves)"; fi; fi
+# ★★[TABLE_GREET_1008 2026-10-08 사장님 «웨딩사진 전에 테이블 돌아다니면서 인사드리는 이벤트 추가» · 디테일 하나씩 결정] 테이블 인사(table) —
+#   닫는 인사(108) 뒤 · 사진 안내(26) 앞 · 두 분 함께 · 테이블당 1분 30초(TABLE_SEC) · 테이블 수 = 좌석 배치도(S.tableN · mypage orderFill tables) ·
+#   고르기에 다른 순간과 같은 모양 · 기본은 «기록» 예시만 · 길어지면 그대로 두고 단체 사진 부족 알림 · 마무리 줄 없음(26 이 모은다) · 131 narr-table-in(녹음 전 글) · 배웅 줄 그대로.
+#   ★9/26 NO_TABLE_ROUND(단체 사진 뒤 자리 찾아가기 · narr-round-open)는 그대로 닫혀 있다 — 이것은 본식 끝의 새 순간이다.
+chk 'TABLE_GREET_1008' assets/ritual-open.js 12
+chk "var AFTER_CLOSE = { table: 1 };" assets/ritual-open.js 1
+chk "function bodyOrder()" assets/ritual-open.js 1
+chk "'toast', 'table'\]" assets/ritual-open.js 2
+chk "table: { n: '테이블 인사'" assets/ritual-open.js 1
+chk 'TABLE_GREET_1008' assets/ritual-data.js 3
+chk "'cake','toast','table'\]" assets/ritual-data.js 1
+chk 'tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. 자리에서 편히 맞아 주시면 됩니다."' assets/ritual-data.js 1
+chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
+chk "'narr-table-in'" assets/ritual-cue.js 3
+chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
+chk 'const N_FILES = 131;' scripts/check-ritual-cue.js 1
+chk 'TABLE_GREET_1008' order-preview.html 12
+chk 'var CUSTTBL=0;' order-preview.html 1
+chk 'TABLE_GREET_1008' mypage.html 1
+chk 'tables:_tbl' mypage.html 1
+chk 'TABLE_GREET_1008' scripts/audit/open-course.mjs 4
+chk 'TABLE_GREET_1008' scripts/audit/listen-page.mjs 1

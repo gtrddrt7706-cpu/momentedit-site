@@ -75,7 +75,7 @@ for (const w of [390, 1280]) {
   ok(`${w} ① 에 걸음 표시(① 고르기가 지금)`, await pg.evaluate(() => { const o = document.querySelector('.op-steps li.on'); return !!o && /고르기/.test(o.textContent); }));
   /* [PICK_V2 2026-09-26 코워크 최종판 3장] ① 은 예시 → 감동 흐름 → 네 막 칸 → 아래 막대. 판 칩 · 카드 · 자동 재생 영상은 없다. */
   ok(`${w} ① 칸에 판 칩이 없다(② 로 옮김)`, await pg.evaluate(() => document.querySelectorAll('.pk .op-chip').length === 0));
-  ok(`${w} ① 칸 열넷(케이크 커팅 · 축배 따로 · CAKE_TOAST_SPLIT) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 14 && t.every((c) => c.querySelector('.pk-media')); }));
+  ok(`${w} ① 칸 열다섯(케이크 커팅 · 축배 따로 · CAKE_TOAST_SPLIT · 테이블 인사 TABLE_GREET_1008) · 칸마다 16:9 그림 자리 [TILE_PICK]`, await pg.evaluate(() => { const t = [...document.querySelectorAll('.pk-tile')]; return t.length === 15 /* [TABLE_GREET_1008] + 테이블 인사 */ && t.every((c) => c.querySelector('.pk-media')); }));
   ok(`${w} ① 빈 채 아래 막대는 숫자 없이 «입장 · 닫는 인사만으로도 …»([R1-33]) [BAR_SUM]`, await pg.evaluate(() => { const c = document.getElementById('opCta'); return !!c && /입장 · 닫는 인사만으로도 다음으로 갈 수 있어요/.test(c.textContent) && !/\d/.test(c.textContent); }));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(400);
   ok(`${w} ① 담으면 아래 막대 «본식 · 단체 사진» 시간 둘 · 개수 없음 [BAR_SUM]`, await pg.evaluate(() => { const t = (document.getElementById('opCta') || {}).textContent || ''; return /본식\s약\s?\d+~\d+분\s·\s단체\s사진\s약\s?\d+~\d+분/.test(t) && !/담은 순간|고른 순간/.test(t); }));
@@ -89,7 +89,7 @@ for (const w of [390, 1280]) {
   ok(`${w} [STEP_BASELINE 4-e] 걸음 표시 — 지난 걸음과 지금 걸음의 글줄이 같다`, await pg.evaluate(() => { const ys = [...document.querySelectorAll('.op-steps li')].map((li) => { const tw = document.createTreeWalker(li, NodeFilter.SHOW_TEXT); let t = tw.nextNode(); while (t && !t.textContent.trim()) t = tw.nextNode(); const r = document.createRange(); r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }); return ys.length === 4 && Math.max(...ys) - Math.min(...ys) <= 1; }));
   ok(`${w} ② 제목 «하나씩 만들기» · 걸음 표시`, await pg.evaluate(() => document.getElementById('stepHead').textContent === '하나씩 만들기' && /하나씩 만들기/.test(document.querySelector('.op-steps li.on').textContent)));
   const pages = await pg.evaluate(() => _mkPages());
-  ok(`${w} ② 쪽 = 예식 흐름 · 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE · MK_INTRO]`, pages[0] === '_intro' && pages[1] === 'guest' && pages[2] === 'prevideo' && pages[pages.length - 2] === '_close' && pages[pages.length - 1] === '_sum', pages.join(','));
+  ok(`${w} ② 쪽 = 예식 흐름 · 하객 맞이 · 식전 영상 · 담은 순간 · 닫는 인사 · 한눈에 보기 [FLOW_MAKE · MK_INTRO]`, pages[0] === '_intro' && pages[1] === 'guest' && pages[2] === 'prevideo' && (pages[pages.length - 2] === '_close' || (pages[pages.length - 2] === 'table' && pages[pages.length - 3] === '_close')) /* [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 쪽 */ && pages[pages.length - 1] === '_sum', pages.join(','));
   /* [MK_INTRO] 첫 쪽 = 예식 흐름 · «이 흐름으로 시작하기»
      ★[COURSE_FLOW 2026-10-03 사장님] 종전 «할 일 꼬리표(고르기 · 두 분이 할 말)가 있다» → 이제 «없다»(꼬리표 · 펼침 · 고를 것 · 만들러 가기 · 목소리 접이 · 7일 전 한 줄 금지) */
   const ii = await pg.evaluate(() => ({ at: _mkState().at, h: document.getElementById('mkHead').textContent, rows: document.querySelectorAll('.mk-intro .cf-r').length, tag: document.querySelectorAll('.mk-itag,.mk-irow,.mk-idet,.mk-igo,#mkVMap,.mk-legend').length, txt: document.querySelector('.mk-intro').textContent, next: document.getElementById('next').textContent }));
@@ -563,7 +563,7 @@ else {
       R.ORDER.concat(['_close']).forEach((k) => R.videoKeys(k, S).forEach((n) => miss('videoKeys:' + k, n)));
     }
     [['toast', 'toast-both'], ['toast', 'toast-pour-mix'], ['toast', 'toast-pour-family'], ['entry', 'entry-out'], ['tribute', 'narr-bow-groom'], ['_close', '']]
-      .concat(R.ORDER.map((k) => [k, ''])).forEach(([k, sl]) => miss('scene:' + k + '/' + sl, _lSceneName({ k: k, slug: sl })));
+      .concat(R.ORDER.map((k) => [k, ''])).forEach(([k, sl]) => { if (!R.videoKeys(k, S).length) return; /* [TABLE_GREET_1008] 영상을 만들지 않는 순간(테이블 인사)은 이름을 안 찾는다 */ miss('scene:' + k + '/' + sl, _lSceneName({ k: k, slug: sl })); });
     return out;
   }, NAMES);
   ok('10-1 ② 잔 들기 줄 = toast.mp4 — 케이크와 축배 · 축배만(두 와인 · 양가 · 붓지 않음) [TOAST_FILE_ONE]', Object.values(r.raise).every((n) => n === 'toast'), JSON.stringify(r.raise));

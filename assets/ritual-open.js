@@ -30,7 +30,16 @@
   /* ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 케이크 커팅(cake)과 축배(toast)는 두 순간이다.
      엔진의 줄(녹음 · 시간)은 종전 «케이크와 축배» 그대로를 두 순간에 나눠 담는다 — 새 녹음 없음 · 둘 다 담은 날 총 시간 그대로.
      옛 초안(on.toast + S.toast both/cake/toast)은 migrateCakeToast 가 두 칸으로 옮긴다. 옛 코스(open 아님)는 한 덩어리 그대로. */
-  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast'];
+  /* ★★[TABLE_GREET_1008 2026-10-08 사장님 «웨딩사진 전에 테이블 돌아다니면서 인사드리는 이벤트 추가» · 디테일 하나씩 결정]
+       테이블 인사(table) — 닫는 인사(108 목례 · 박수) **뒤** · 사진 안내(26) **앞**. 두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초(TABLE_SEC) ·
+       테이블 수는 좌석 배치도(S.tableN · 마이페이지가 orderFill 로 실어 준다 · 없으면 하객 수 ÷ 5 · 그것도 없으면 6) · 두 분 자유 · 시간이 다 되면 26 이 사진으로 모은다(새 마무리 줄 없음).
+       고르기에서 다른 순간과 같은 모양 · 기본은 «기록» 예시에만 · 시간이 길어지면 그대로 두고 단체 사진 부족 알림(RANGE_40 ④) · 배웅 줄은 그대로.
+       ★9/26 [NO_TABLE_ROUND] 는 «단체 사진 뒤 자리마다 찾아가기»를 뺀 결정이었다 — 이것은 그 자리가 아니라 본식 끝 · 사진 앞의 새 순간이다(옛 narr-round-open 은 되살리지 않는다).
+       ★ORDER 끝에 두지만 bodySeq 는 _close 뒤에 놓는다(AFTER_CLOSE) — ORDER 를 쓰는 화면(고르기 · 흐름 · 쪽)은 bodyOrder() 로 자리를 잡는다. */
+  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'table'];
+  var AFTER_CLOSE = { table: 1 };   // [TABLE_GREET_1008] 닫는 인사 뒤에 서는 순간
+  var TABLE_SEC = 90;               // [TABLE_GREET_1008] 테이블당 1분 30초(사장님 결정 · 고정)
+  function tableN(S) { var n = +((S || {}).tableN); if (!(n >= 1)) n = 6; return Math.min(12, Math.max(1, Math.round(n))); }   // [TABLE_GREET_1008] 좌석 배치도 테이블 수 · 모르면 6(30명 ÷ 5 · SEAT_PER5)
   var ALWAYS = { guest: 1, entry: 1 };   // [PREVIDEO_PICK] prevideo 는 뺐다
   var PRE = { guest: 1, prevideo: 1 };          // 본식 시간에 들지 않는다(하객이 앉는 동안)
   var PICKABLE = ORDER.filter(function (k) { return !ALWAYS[k]; });
@@ -41,7 +50,7 @@
     { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'welcome'] },
     { n: '약속의 순간', d: '말과 반지로 부부가 되는 자리', ks: ['bless', 'vow', 'ring', 'declare'] },
     { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['tribute', 'free', 'letter'] },
-    { n: '축하 · 닫는 순간', d: '케이크를 자르고 잔을 들고, 인사와 사진으로', ks: ['cake', 'toast', '_close'] }   // [CAKE_TOAST_SPLIT]
+    { n: '축하 · 닫는 순간', d: '케이크를 자르고 잔을 들고, 인사와 사진으로', ks: ['cake', 'toast', '_close', 'table'] }   // [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤
   ];
 
   /* ── 카드 문구(시안 2판 EV + 명세 4장 고침) ──
@@ -61,7 +70,8 @@
     letter: { n: '편지 낭독', sn: '편지', one: '부모님께, 또는 서로에게 쓴 편지를 읽어요.', shot: '편지를 읽는 목소리와 듣는 얼굴', who: '두 분' },
     cake: { n: '케이크 커팅', sn: '케이크', one: '두 분이 나이프를 함께 잡고 케이크를 잘라요.', shot: '함께 자르는 두 손', who: '두 분' },   // [CAKE_TOAST_SPLIT]
     toast: { n: '축배', sn: '축배', one: '모두 잔을 들어 «위하여». 두 분이 먼저 외치고 하객이 함께 답해요. 축배 잔은 저희가 준비해요.', shot: '모두의 잔', who: '두 분 · 하객 모두', why: '잔을 드는 자리는 여기 하나예요.' },   // [CAKE_TOAST_SPLIT] · [WINE_POUR_OFF]
-    _close: { n: '닫는 인사', sn: '닫는 인사', one: '두 분이 인사를 드리고 본식을 마쳐요. 이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.', shot: '두 분 뒤로 보이는 하객들 · 단체 사진', who: '두 분 · 하객 모두' }
+    _close: { n: '닫는 인사', sn: '닫는 인사', one: '두 분이 인사를 드리고 본식을 마쳐요. 이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.', shot: '두 분 뒤로 보이는 하객들 · 단체 사진', who: '두 분 · 하객 모두' },
+    table: { n: '테이블 인사', sn: '테이블 인사', one: '본식을 마친 두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블마다 1분 30초쯤 · 다 돌면 그대로 모두 모여 단체 사진으로 이어져요.', shot: '하객 테이블로 다가가는 두 분 · 자리에서 맞는 얼굴들', who: '두 분 · 하객 모두' }   // [TABLE_GREET_1008]
   };
 
   /* ── 판 칩(카드 안 · 담은 뒤에만 보인다) ──
@@ -163,7 +173,7 @@
     /* ★★[EX_BRIEF 2026-09-26 사장님 결정 · 코워크 회신 9/26 3-2] 넷째 «전부» → «간결» · «약속»의 부모님께 인사 → 말 없이.
          «전부»(all)는 거뒀다 — 저장된 초안의 pickFrom:'all' 은 exampleOf 가 null 이라 originOf 가 «직접 고르셨어요.»로 조용히 보인다
          (담은 순간은 그대로). 되살리지 말 것. feel = 카드의 분위기 한 줄(① 개편 [PICK_V2] 이 쓴다). */
-    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 단체 사진을 넉넉히', on: ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'cake', 'toast'], set: { entry: 'A', declare: 'clap', tribute: 'none' } },
+    { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객과 가까이' /* [TABLE_GREET_1008 사장님 «기록에 넣고 소개를 바꾼다»] 옛 «단체 사진을 넉넉히» — 테이블 인사 9분이 들어 단체 사진 15~20 */, on: ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'cake', 'toast', 'table'], set: { entry: 'A', declare: 'clap', tribute: 'none' } },
     { k: 'promise', nm: '약속', title: '서로에게 쓴 말', feel: '서로에게 쓴 말이 중심 · 부모님께는 꽃과 포옹', on: ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'tribute', 'letter', 'cake', 'toast'], set: { entry: 'F', declare: 'warm', tribute: 'none', letter: 'each' } },
     { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'cake', 'toast'], set: { entry: 'E', declare: 'solemn', tribute: 'long' } },
     { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 약속과 선언에 집중', on: ['prevideo', 'vow', 'ring', 'declare', 'cake', 'toast'], set: { entry: 'A', declare: 'solemn' } }
@@ -196,7 +206,9 @@
     return S;
   }
   function seqOf(S) { return ORDER.filter(function (k) { return onOf(S, k); }); }       // guest 포함 · _close 제외
-  function bodySeq(S) { return seqOf(S).filter(function (k) { return !PRE[k]; }).concat(['_close']); }   // 본식만 + 닫는 인사
+  /* [TABLE_GREET_1008] 본식 차례 = 담은 순간(식전 · 닫는 인사 뒤 것 제외) → 닫는 인사 → 닫는 인사 뒤 순간(테이블 인사) */
+  function bodyOrder() { return ORDER.filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(['_close']).concat(ORDER.filter(function (k) { return AFTER_CLOSE[k]; })); }
+  function bodySeq(S) { return seqOf(S).filter(function (k) { return !PRE[k] && !AFTER_CLOSE[k]; }).concat(['_close']).concat(seqOf(S).filter(function (k) { return AFTER_CLOSE[k]; })); }   // 본식만 + 닫는 인사 + 그 뒤 순간
   function picked(S) { return PICKABLE.filter(function (k) { return S && S.on && S.on[k]; }); }
 
   /* ── 시간 표(부록 A · 초) — [대본(성우), 사람 말, 말 없는 시간, 여유] ──
@@ -224,7 +236,8 @@
        말 없는 시간 +11(목례 3 · 박수 8) · 여유 +2(박수 7~9초 ±1 · 목례 ±1 · 연구 B02 · D02). 인사 유무 판 차이는 그대로.
        ★처음엔 여유 +4 로 넣었는데 «전부» 예시 넉넉 합(×1.25 포함)이 25:01 로 고객 범위(RANGE 12~25 · 코워크 결정)를 넘었다.
          +3 도 25:00.1 이라 넘는다. 범위는 설계 결정이라 코드가 넓히지 않고, 여유를 +2 로 두었다(구현 보고 6 에 적음). */
-    _close: { withTribute: [44, 0, 19, 15], noTribute: [44, 0, 24, 10] }
+    _close: { withTribute: [44, 0, 19, 15], noTribute: [44, 0, 24, 10] },
+    table: [7, 0, 90, 0]   // [TABLE_GREET_1008] 여는 말 7초 · 말 없는 시간 = TABLE_SEC × 테이블 수(partsOf 가 채운다) · 마무리 말(26)은 닫는 인사 몫에 이미 들어 있다
   };
   function partsOf(k, S, seq) {
     S = S || {}; seq = seq || bodySeq(S);
@@ -240,6 +253,7 @@
       case 'cake': return onOf(S, 'toast') ? t.both : t.only;   // [CAKE_TOAST_SPLIT]
       case 'toast': return onOf(S, 'cake') ? t.both : t.only;
       case '_close': return seq.indexOf('tribute') > -1 ? t.withTribute : t.noTribute;
+      case 'table': return [t[0], 0, TABLE_SEC * tableN(S), 0];   // [TABLE_GREET_1008] 두 분 자유라 넉넉 여유 없이 테이블 수 × 1분 30초
     }
     return Array.isArray(t) ? t : [0, 0, 0, 0];
   }
@@ -435,7 +449,8 @@
     // [TILE_FREE_COMMA 코워크 회신7] 360 에서 «· 축사…»가 줄 머리로 — 칸 글만 쉼표
     // ★[TILE_SWALLOW 2026-09-26 코워크 회신8] 이 주석이 한때 free 줄 뒤에 붙어 letter · toast 두 항목을 삼켰다(칸 글이 빈 채 #872~#875) — 주석은 항목 줄 뒤에 붙이지 말 것
     free: '영상, 선물, 축사, 기타 가운데 하나', letter: '부모님이나 서로에게 쓴 편지를 읽어요', cake: '두 분이 함께 케이크를 잘라요', toast: '다 함께 잔을 들어 «위하여»',
-    _close: '두 분이 인사하고 본식을 마쳐요'
+    _close: '두 분이 인사하고 본식을 마쳐요',
+    table: '두 분이 테이블을 돌며 하객께 인사해요'   // [TABLE_GREET_1008]
   };
   var TILE_CANDLE = { parents: '양가 부모님이 촛불로 시작을 알려요', fathers: '양가 아버님이 촛불로 시작을 알려요', others: '두 분이 부탁한 분들이 촛불을 밝혀요' };
   for (var _tk in TILE) if (CARDS[_tk]) CARDS[_tk].tile = TILE[_tk];
@@ -460,7 +475,8 @@
        종전 107 toast-both-pour-b 는 [WINE_POUR_OFF](09-27)가 sampleS 를 «붓지 않음»으로 바꾼 뒤 미리 보기 엔진에 없는 줄이 되어
        ① 창 축배가 글 · 소리 · 영상 셋 다 비어 있었다(되살리지 말 것). */
     toast: { slug: 'toast-both-b', screen: '마지막으로, 두 사람에게 잔이 가는 동안 다 같이 잔을 들어 주세요. 두 분이 «위하여» 하시면, 함께 «위하여» 하고 답해 주세요.' },
-    _close: { slug: 'narr-close-bow' }
+    _close: { slug: 'narr-close-bow' },
+    table: { slug: 'narr-table-in' }   // [TABLE_GREET_1008] 131 · 녹음 전엔 글로
   };
   function sampleOf(k, S) { var sm = SAMPLE[k]; if (!sm) return null; var o = { slug: sm.slug, cut: sm.cut || 0, screen: sm.screen || '' };
     if (sm.who) o.slug = 'narr-candle-in-' + ((S && S.candleWho) || DEF.candleWho); return o; }
@@ -570,6 +586,7 @@
     heavyBack: '앉아서 듣는 순간이 셋 이어져요. 부모님께 인사를 «말 없이»로 하면 사이가 풀려요.',
     /* [NOTICE_0925 코워크 4-1] 알림 ④ — 맨 뒤 차례. N 은 내림(«약 N분»은 그보다 줄지 않는다는 뜻) */
     /* ★[RANGE_40 2026-09-26] 테이블 인사가 없어졌다([NO_TABLE_ROUND]) — 줄이는 차례는 자유 사진 → 숨 고르기 → 뒤에 고른 구도 */
+    /* ★[TABLE_GREET_1008] 테이블 인사가 본식 끝(사진 앞)에 돌아왔다 — 본식 합에 들어 단체 사진이 그만큼 준다. 사장님 «그대로 두고 알림» — 이 알림 ④가 그 일을 한다 */
     short: function (n) { return '천천히 진행되면 단체 사진이 약 ' + n + '분으로 줄어요. 전체 사진은 그대로 두고, 가족 구도는 앞쪽부터 담아요. 순간을 하나 덜면 여유가 생겨요.'; }
   };
   var SHORT_MIN = 16;   // [RANGE_40] 단체 사진이 이보다 짧아질 수 있으면(늦어진 날) 알림 ④ — 전체 사진 8 + 가족 구도 둘 6 + 두 분 숨 고르기 2
@@ -624,7 +641,8 @@
   function slotText(k, S) {
     if (k === 'prevideo') return '예식 시작 시각 · 입장 바로 앞';   // [CEREMONY_AT_VIDEO]   // [ONEMIN_FIRST 2026-10-05] 1분 전 공지 → 식전 영상 → 입장
     if (PRE[k]) return '하객이 앉는 동안 · 본식 앞';
-    var order = ORDER.filter(function (x) { return !PRE[x]; }).concat(['_close']);
+    if (AFTER_CLOSE[k]) return onOf(S, k) ? (bodySeq(S).indexOf(k) + 1) + '번째 · 닫는 인사 다음' : '담으면 닫는 인사 다음, 단체 사진 앞에 들어가요';   // [TABLE_GREET_1008]
+    var order = bodyOrder().filter(function (x) { return !AFTER_CLOSE[x]; });
     var i = order.indexOf(k), p = null, n = null, x;
     for (x = i - 1; x >= 0; x--) if (onOf(S, order[x])) { p = order[x]; break; }
     for (x = i + 1; x < order.length; x++) if (onOf(S, order[x]) || order[x] === '_close') { n = order[x]; break; }
@@ -790,7 +808,8 @@
     welcome: '두 분이 마이크 하나로 차례로 인사해요', bless: '자리에서 마이크를 든 부모님 · 듣는 두 분의 뒷모습',
     vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
     tribute: '두 분이 부모님께 꽃을 건네고 안겨요', free: '앞 스크린의 영상을 보며 손을 맞잡는 부모님', letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
-    cake: '두 손이 함께 나이프로 케이크를 잘라요', toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요'
+    cake: '두 손이 함께 나이프로 케이크를 잘라요', toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요',
+    table: '두 분이 테이블 사이를 걸으며 하객과 인사를 나눠요'   // [TABLE_GREET_1008] 영상 없음(장면 글 한 줄)
   };
   var VIDEO_DIR = '/assets/video/moments/';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
@@ -813,6 +832,7 @@
     if (k === 'entry') return ['entry', 'entry-look'];
     if (k === 'tribute') return ['tribute'];
     if (k === '_close') return ['close'];
+    if (AFTER_CLOSE[k]) return [];   // [TABLE_GREET_1008] 테이블 인사는 영상을 만들지 않는다 — 장면 글(SCENE) 한 줄
     return [k];
   }
   /* [POSTER_SMALL 2026-09-26 코워크 최종판 3-5] small = 칸용 첫 장면(640px · encode-moment.sh 가 함께 굽는다) — 칸은 영상을 돌리지 않는다 */
@@ -841,7 +861,7 @@
   return {
     SCENE: SCENE, VIDEO_DIR: VIDEO_DIR, VIDEO_READY: VIDEO_READY, videoKeys: videoKeys, videoOf: videoOf, firstVideo: firstVideo, talkOf: talkOf, secTxt: secTxt,
     prepList: prepList, whyOf: whyOf, PREP_CAT: PREP_CAT, dueWord: dueWord, studioOf: studioOf, goodsOf: goodsOf, GOODS_COST: GOODS_COST, BOUQUET: BOUQUET, BOUQUET_LINE: BOUQUET_LINE, savedOk: savedOk,
-    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS,
+    ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
