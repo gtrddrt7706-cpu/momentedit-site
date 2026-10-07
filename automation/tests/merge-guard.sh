@@ -14860,3 +14860,12 @@ chk 'EX_TEXT_1007' order-preview.html 2
 chk 'EX_LAB_JOY' order-preview.html 1
 nochk "\['웃음 한 스푼'," order-preview.html
 nochk "'웃음 한 스푼 ·" scripts/build-dubbing-script.mjs
+# ★[NAR_1007 2026-10-07 코워크 회신 · 진희 다시 녹음 15클립] 90 · 115~123 · 125 · 126 · 128~130 — 하객 맞이 «다정하게 · 유쾌하게» 녹음도 합쇼체(AI 글 EX_TEXT_1007 과 같은 글)
+chk 'NAR_1007' assets/ritual-open.js 1
+chk 'NAR_1007' assets/audio/narration/_recorded.json 1
+chk "'십 분 뒤에 예식이 시작됩니다. 못 나눈 인사는 지금이 기회입니다.'," assets/ritual-open.js 1
+nochk '기다려 볼게요' assets/ritual-open.js
+nochk '지금 마저 나눠 주세요' assets/ritual-open.js
+#   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
+chk '걷음 2026-10-07 · NAR_1007' scripts/audit/voice-register.mjs 1
+nochk 'EX_GROUP' scripts/audit/voice-register.mjs
