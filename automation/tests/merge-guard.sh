@@ -14320,10 +14320,13 @@ chk '^\.mk-pl{position:relative;isolation:isolate;flex:0 0 auto;width:58px;heigh
 #   줄 ▶ 는 원 → 흰 알약(확정하기 알약과 한 집안) · 기다림은 흐리게 꺼 두지 않고 «차오름»(어림 시간 · 90% · 다 되면 끝까지 · 회전 없음)
 #   일곱 곳 한 모양 — 줄 ▶ · 흐름 ▶(원 · FLOW_WAIT) · 이 순간 전체 듣기 · «이 목소리가 나오는 곳» 창 들어 보기 · «목소리 맞추기» 창(빠르기와 쉼) 들어 보기 · 작은 플레이어 ❚❚ · 크게 보기 ❚❚ ([COURSE_WIDE])
 #   (쉼 «이 자리 들어 보기»는 기다림이 생기지 않아 넣지 않았다 · MK.turnLoad 를 세우는 곳이 없다)
-#   미리 만든 소리를 조용히 올리는 동안(MK_UPQ)에도 ▶ 는 누를 수 있다 — 누르면 올라간 뒤 바로 튼다(EX_NO_AUTO 의 길을 disabled 가 막고 있었다)
+#   ★[PLAY_WAIT_LOCK 2026-10-07 사장님 «이 상태에서는 누를 수 없게 · 로딩이 끝나면 누를 수 있게»] 차오르는 동안은 일곱 곳 모두 못 누른다(오전의 PLAY_WAIT_TAP «올리는 동안도 누름»은 걷었다)
 chk 'PLAY_PILL' order-preview.html 2
 chk 'WAIT_FILL' order-preview.html 16
-chk 'PLAY_WAIT_TAP' order-preview.html 1
+chk 'PLAY_WAIT_LOCK' order-preview.html 3
+nochk "(_wq?' aria-busy=\"true\"'" order-preview.html   # [PLAY_WAIT_LOCK] 올리는 동안 누를 수 있게(옛 PLAY_WAIT_TAP) 되돌리지 말 것
+chk "(/ ld/.test(w.c)?' disabled aria-busy=\"true\"':'')" order-preview.html 4   # [PLAY_WAIT_LOCK] 줄 카드 나레이션 ▶ · 흐름 ▶ · 작은 · 큰 플레이어 ❚❚
+chk "b.disabled=/ ld/.test(c);" order-preview.html 1   # [PLAY_WAIT_LOCK] 다시 그리지 않고 칠할 때(_wfPaint)도 못 누름
 nochk '^\.mk-vch \.mk-vpl svg{' order-preview.html   # [PLAY_PILL] 줄 카드 머리 아이콘에 따로 칠하면 알약 안에 네모가 겹친다(10-07 실렌더) — 모양은 .mk-pl::before 한 곳
 chk '^\.mk-pl:focus-visible{outline:none} \.mk-pl:focus-visible::before{outline:2px solid var(--seal);outline-offset:3px}' order-preview.html 1   # [PILL_FOCUS] 키보드 고리도 알약 모양 · 단추 칸(58×44)에 두르면 모서리 4px 네모가 알약을 감쌌다(10-07 390 실렌더 · 같은 줄 «목소리 만들기» 알약은 고리도 알약)
 chk 'function _wfx(id,on,d,at)' order-preview.html 1
@@ -14342,7 +14345,7 @@ chk '^\.mk-vsd{position:relative;display:flex;justify-content:space-between;alig
 chk "})(_mlWait(k+':'+i))" order-preview.html 1
 chk "_wfPaint(b,_mlWait(b.getAttribute('data-ml')))" order-preview.html 1
 chk '.mk-flow li.n .mk-pl.wfill::after{inset:5px}' order-preview.html 1
-nochk "(st.busy?' disabled aria-busy=\"true\"':'')+' onclick=\"mkUpPlay(" order-preview.html
+chk "(st.busy?' disabled aria-busy=\"true\"':'')+' onclick=\"mkUpPlay(" order-preview.html 1   # [PLAY_WAIT_LOCK] 줄 카드 AI ▶ = 기다리는 동안 늘 못 누름
 nochk 'Math.min(14,3+' order-preview.html 1   # [WAIT_FILL] 어림 시간은 _waitEst 한 곳
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
 # ★[CTL_FIVE] 위 · [PRACTICE_NO_CHOOSE 2026-10-05 사장님 «이 순간 바꾸기 · 영상 앞 소개 · 연습 공간에서 이 부분은 삭제»] 연습은 듣기만 — 모든 순간에서 걷었다
