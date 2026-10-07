@@ -1328,7 +1328,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-vlater{margin:18px 0 0;text-align:center}
 .mk-vsok{text-align:center;margin:0}   /* [VS_READY_SHORT] */
 .mk-vpage .mk-vredo>span{display:block;text-wrap:pretty;word-break:keep-all}   /* [VOICE_INTRO_ONE] → [VOICE_INTRO_LINE] 한 줄 */
-.mk-vredo .pk-link{display:inline-flex;align-items:center;min-height:44px;margin:-12px 0 -12px 2px;vertical-align:middle;white-space:nowrap}   /* [REDO_FIG] 줄 높이는 그대로 · 누르는 칸은 44 */
+.mk-vredo .pk-link{display:inline-block;min-height:0;padding:12px 0;margin:-12px 0 -12px 4px;vertical-align:baseline;font-size:inherit;line-height:inherit;white-space:nowrap}   /* ★[REDO_LINK_ALIGN 2026-10-07 사장님 «각자 1분 읽기 · 아쉬우면 다시 녹음해요랑 자세히 보기 정렬이 안 맞는다»] 글과 같은 기준선 · 같은 크기(종전 inline-flex 가운데 맞춤 · 12.5px 라 아래로 처졌다) · 누르는 칸은 위아래 12px 로 44 */   /* [REDO_FIG] 줄 높이는 그대로 · 누르는 칸은 44 */
 .mk-rd-steps{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:10px}
 .mk-rd-steps li{display:flex;align-items:flex-start;gap:10px}
 .mk-rd-n{flex:none;width:22px;height:22px;border-radius:999px;border:1px solid var(--gold-deeper);color:var(--gold-deeper);font-size:11px;font-weight:600;display:grid;place-items:center;margin-top:1px}
@@ -1829,6 +1829,9 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-vuse-1 b{font-weight:600}
 .mk-vflow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;row-gap:0}
 .mk-vflow li{display:inline-flex;align-items:center}
+.mk-vflow-n{display:none}   /* [VFLOW_ONE_LINE] 폰만 묶은 판 */
+h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabindex="-1"]:focus,section[tabindex="-1"]:focus,div[tabindex="-1"]:focus,p[tabindex="-1"]:focus{outline:none}   /* ★[HEAD_FOCUS_NORING 2026-10-07 사장님 «모바일에서 빨간색 띠가 생기는데 삭제» · 같은 꼴 전수(COURSE_WIDE)] 쪽을 옮기거나 창을 열 때 화면 읽기용으로 초점만 옮기는 제목 · 상자(누를 수 없음)에 폰이 진사 테두리를 그렸다 · 단추 · 글칸 테두리는 그대로 */
+@media (max-width:560px){ .mk-vflow-w{display:none} .mk-vflow-n{display:flex;flex-wrap:nowrap} }
 .mk-vflow li:not(:last-child)::after{content:'›';margin:0 9px;color:var(--light)}
 .mk-vfb{min-height:44px;padding:0;border:0;border-radius:0;background:none;color:var(--accent);font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:none}   /* ★나오는 곳 여섯의 점선 밑줄 금지 — 2026-10-07 사용자 지시로 삭제 [VFLOW_NOLINE] (사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자») · 글 · › 만 남긴다 */   /* ★[VFLOW_TEXT 2026-10-07 사장님 «디자인적으로 이게 최선인가 · 디자이너 시선으로»] 나오는 곳 여섯 = 글 흐름(점선 밑줄 · ›). 종전 흰 알약(테두리 · 12.5px)은 이 쪽에서 가장 무거운 덩어리였고(폰 두 줄 · 할 일인 목소리 카드보다 무거움) «서는 분» · 예시 칩처럼 «하나 고르는 칩»으로 읽혔다. 누르는 칸 44 는 그대로 · 점선 밑줄 = «누르면 그 자리를 보여 드려요»(자세히 보기와 같은 글 단추 계열) · 알약으로 되돌리지 말 것 */
 @media (hover:hover){ .mk-vfb:hover{text-decoration:underline;text-decoration-color:var(--gold-deep);text-underline-offset:6px} }   /* [VFLOW_NOLINE] 마우스를 올렸을 때만 밑줄 */
@@ -5306,7 +5309,9 @@ var VC_USE_WHEN={g0:'하객이 식장에 들어설 때',g1:'예식 시작 10분 
 function _vcUseRows(){ var R=RitualOpen, all=VC_USE.filter(function(x){ return x[2]==='guest'||R.onOf(S,x[2]); }), ai=all.filter(function(x){ return _vpCur(x[2])==='ai'&&!(S.vself||{})[x[0]]; }); return ai.length?ai:all; }   // AI 로 정한 자리만 · 하나도 없으면 쓸 수 있는 자리 전부
 function _vcUseIntro(){ var rows=_vcUseRows(); if(!rows.length) return '';
   return '<div class="mk-vuse"><p class="mk-vuse-1">두 분이 입장하기 전, 하객에게 먼저 인사를 건네는 <b>주인공의 목소리</b>예요</p>'
-    +'<ol class="mk-vflow" aria-label="이 목소리가 나오는 곳 · 누르면 그 자리를 보여 드려요">'+rows.map(function(x,i){ return '<li><button type="button" class="mk-vfb" data-fk="mkvuse:'+x[0]+'" onclick="mkUseOpen('+i+')">'+esc(x[1])+'</button></li>'; }).join('')+'</ol></div>'; }
+    +'<ol class="mk-vflow mk-vflow-w" aria-label="이 목소리가 나오는 곳 · 누르면 그 자리를 보여 드려요">'+rows.map(function(x,i){ return '<li><button type="button" class="mk-vfb" data-fk="mkvuse:'+x[0]+'" onclick="mkUseOpen('+i+')">'+esc(x[1])+'</button></li>'; }).join('')+'</ol>'
+    +(function(){ var seen={}, g=[]; rows.forEach(function(x,i){ var m=x[2]; if(seen[m]!=null){ g[seen[m]].n++; return; } seen[m]=g.length; g.push({k:x[0],m:m,i:i,n:1,t:x[1]}); });   /* ★[VFLOW_ONE_LINE 2026-10-07 사장님 «하객 입장 때부터 입장 인사까지 모바일 한 줄로»] 폰은 하객 맞이 넷을 한 이름으로 묶는다(누르면 첫 줄부터 · 창의 ‹ 이전 · 다음 › 으로 넷을 다 본다) · PC 는 종전 여섯 그대로 */
+      return '<ol class="mk-vflow mk-vflow-n" aria-label="이 목소리가 나오는 곳 · 누르면 그 자리를 보여 드려요">'+g.map(function(x){ return '<li><button type="button" class="mk-vfb" data-fk="mkvusen:'+x.k+'" onclick="mkUseOpen('+x.i+')">'+esc(x.m==='guest'&&x.n>1?'하객 맞이 안내':x.t)+'</button></li>'; }).join('')+'</ol>'; })()+'</div>'; }
 function _vcUseSrc(key){ var v=(S.up||{})[key]; if(v&&typeof v==='object'&&v.src==='ai'&&!_upStale(key)){ var u=_rfUrl(key); if(u) return u; }
   return null; }   /* ★이 창에서 견본 목소리(성우 녹음 · _lCastSrc) 틀기 금지 — 2026-10-07 사용자 지시로 삭제 [VU_OWN_VOICE] (사장님 «목소리 만들기 전인데 들어 보기 누르면 담백하게는 나레이션 목소리 · 어떤 게 맞는지 모르겠다» → «추천대로»)
    «주인공의 목소리»를 알려 주는 창이라 남의 목소리는 혼란만 준다. 만들기 전엔 들어 보기 대신 한 줄 · 만든 뒤엔 어떤 칩이든 두 분 목소리(만든 소리 → 그 자리 AI 읽기) */
@@ -7313,7 +7318,7 @@ function _pkPanel(){
     +'<div class="pk-side">'
     +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
     +((!pl||flat)?'<p class="pk-peak">'+_pkPeakHtml()+'</p>':'')   /* [FLOW_MIN] 곡선 위 «★ 이름»과 흐름 줄의 ★이 이미 말한다 — 문장은 정점이 없거나(담아 보라는 안내) 곡선이 없을 때만 */
-    +'<p class="pk-tm mo">'+ord+'</p>'
+    /* ★순서 줄(«식전 영상 → 화촉 › 입장 › … › 닫는 인사») 금지 — 2026-10-07 사용자 지시로 삭제 [FLOW_NO_ORDER] «어차피 다음 페이지에서 알 수 있으니» · 순서는 ② 예식 흐름이 말한다 */
     +'<p class="pk-tm mo">본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
     +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button>'
     +'</div>'+_noteHtml()+'</section>';   /* ★[NOTE_UNDER 2026-10-07 사장님 «추천대로»] 단추가 있는 알림은 판 맨 끝 — PC 는 왼쪽 그림 바로 아래(오른쪽만 길어져 그림 아래가 비던 것) · 폰은 판 맨 아래 */
@@ -8879,7 +8884,7 @@ function _headPills(k){
   if(!w){ w=document.createElement('span'); w.id='obMoreWrap';
     mb=document.createElement('button'); mb.type='button'; mb.className='ob-exit ob-more'; mb.id='obMore'; mb.setAttribute('data-fk','obmore'); mb.setAttribute('aria-haspopup','menu'); mb.setAttribute('aria-expanded','false'); mb.setAttribute('aria-controls','obMenu'); mb.setAttribute('aria-label','더 보기 · 안내 다시 보기 · 처음부터 다시 만들기'); mb.innerHTML='<span aria-hidden="true">⋯</span>';
     menu=document.createElement('div'); menu.className='ob-menu'; menu.id='obMenu'; menu.setAttribute('role','menu'); menu.setAttribute('aria-labelledby','obMore'); menu.hidden=true;
-    mb.addEventListener('click',function(){ _obMenu(menu.hidden); });
+    mb.addEventListener('click',function(e){ _obMenu(menu.hidden,false,!e||e.detail===0); });   /* ★[MENU_TAP_NORING 2026-10-07 사장님 «모바일에서 빨간색 띠가 생기는데 삭제»] 손가락 · 마우스로 열면 첫 줄로 초점을 옮기지 않는다(옮기면 폰이 진사 테두리를 그렸다) · 키보드(Enter · Space = detail 0)로 열 때만 첫 줄로 */
     menu.addEventListener('keydown',function(e){ var its=[].slice.call(menu.querySelectorAll('[role="menuitem"]')), i=its.indexOf(document.activeElement);
       if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); _obMenu(false,true); }
       else if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); var n=its[(i+(e.key==='ArrowDown'?1:its.length-1))%its.length]; if(n) n.focus(); }
@@ -8898,10 +8903,10 @@ function _headPills(k){
   /* ★[VOICE_SETUP 2026-10-02] «나레이션 자세히»는 머리 알약 줄에 두지 않는다 — 390 에서 알약 다섯이 넘쳐 첫 알약이 잘렸다(실렌더). ② 진행 줄 바로 아래 한 줄(_vsBar) */
 }
 /* [TOP_MENU] 열기 · 닫기 — 열면 첫 줄로 초점 · 닫으며 back=true 면 «⋯»로 초점 */
-function _obMenu(open,back){ var menu=document.getElementById('obMenu'), mb=document.getElementById('obMore'); if(!menu||!mb) return;
+function _obMenu(open,back,kbd){ var menu=document.getElementById('obMenu'), mb=document.getElementById('obMore'); if(!menu||!mb) return;
   if(!!open===!menu.hidden){ if(!open&&back) try{ mb.focus({preventScroll:true}); }catch(e){} return; }
   menu.hidden=!open; mb.setAttribute('aria-expanded',String(!!open));
-  if(open){ var f=menu.querySelector('[role="menuitem"]'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
+  if(open&&kbd){ var f=menu.querySelector('[role="menuitem"]'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }   /* [MENU_TAP_NORING] */
   else if(back) try{ mb.focus({preventScroll:true}); }catch(e){} }
 /* ★★[RESTART_IN_PLACE 2026-09-27 사장님 «누르면 처음 화면으로 가는 게 아니고 선택했던 것들이 전부 취소되게»]
    새 코스는 새로고침 · 안내 화면으로 가지 않는다 — 담은 순간 · 고른 것 · 적어 둔 글을 빈 판(_S0)으로 되돌리고 ① 고르기에 머문다.

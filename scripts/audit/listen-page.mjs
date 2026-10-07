@@ -936,7 +936,11 @@ for (const [w, emb] of [[390, false], [390, true], [1280, true]]) {
   await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150);
   const m = await pg.evaluate(() => { const mn = document.getElementById('obMenu'), its = [...mn.querySelectorAll('[role="menuitem"]')], c = getComputedStyle(mn), b = mn.getBoundingClientRect();
     return { open: !mn.hidden, ex: document.getElementById('obMore').getAttribute('aria-expanded'), names: its.map((x) => x.textContent.trim()), focus: document.activeElement && document.activeElement.id, h: its.map((x) => Math.round(x.getBoundingClientRect().height)), full: its.every((x) => Math.abs(x.getBoundingClientRect().width - b.width + 2) <= 2), shadow: c.boxShadow, blur: c.backdropFilter || 'none', bg: c.backgroundColor, inView: b.left >= 0 && b.right <= innerWidth }; });
-  ok(`TM-2 ${w} «⋯» 누르면 작은 창 — 제 이름 그대로(${m.names.join(' · ')}) · 줄 44px · 폭 가득 · 크림 바탕 · 그림자 · 흐림 없음 · 첫 줄로 초점 · 화면 안`, m.open && m.ex === 'true' && m.names.join('|') === '안내 다시 보기|처음부터 다시 만들기' && m.h.every((x) => x >= 44) && m.full && m.shadow === 'none' && m.blur === 'none' && m.bg === 'rgb(250, 250, 248)' && m.focus === 'obGuide' && m.inView, JSON.stringify(m));
+  ok(`TM-2 ${w} «⋯» 누르면 작은 창 — 제 이름 그대로(${m.names.join(' · ')}) · 줄 44px · 폭 가득 · 크림 바탕 · 그림자 · 흐림 없음 · 손가락으로 열면 초점은 «⋯»에 그대로(첫 줄 테두리 없음 · MENU_TAP_NORING) · 화면 안`, m.open && m.ex === 'true' && m.names.join('|') === '안내 다시 보기|처음부터 다시 만들기' && m.h.every((x) => x >= 44) && m.full && m.shadow === 'none' && m.blur === 'none' && m.bg === 'rgb(250, 250, 248)' && m.focus !== 'obGuide' && m.inView, JSON.stringify(m));
+  /* [MENU_TAP_NORING 2026-10-07] 키보드로 열 때만 첫 줄로 초점 — 닫고 «⋯»에서 Enter */
+  await pg.click('[data-fk="obmore"]'); await pg.waitForTimeout(150); await pg.focus('#obMore'); await pg.keyboard.press('Enter'); await pg.waitForTimeout(150);
+  const kf = await pg.evaluate(() => document.activeElement && document.activeElement.id);
+  ok(`TM-2b ${w} 키보드(Enter)로 열면 첫 줄로 초점 [MENU_TAP_NORING]`, kf === 'obGuide', kf);
   await pg.keyboard.press('ArrowDown'); const ad = await pg.evaluate(() => document.activeElement.id);
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(150);
   const e = await pg.evaluate(() => ({ hidden: document.getElementById('obMenu').hidden, ex: document.getElementById('obMore').getAttribute('aria-expanded'), focus: document.activeElement.id, step: STEPS[idx].k }));
