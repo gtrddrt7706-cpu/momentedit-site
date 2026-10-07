@@ -15083,6 +15083,13 @@ chk 'VFLOW_TAP' order-preview.html 2
 chk 'white-space:nowrap;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--gold-deep);text-underline-offset:4px}' order-preview.html 1
 chk '.mk-vuse{margin:6px 0 2px}' order-preview.html 1
 nochk '.mk-vuse{margin:6px 0 14px}' order-preview.html
+# ★[CG_TOP_ALL · CG_EVEN 2026-10-07 사장님 «화촉 서는 분이 다른 곳 형태랑 다르다 · 버튼이 지저분하게 2줄»] 폰은 모든 고르기 줄이 이름표 위 · 칩 아래 · 한 줄에 안 들어가면 같은 폭 칸(2 × 2 · 3 × 2)
+chk 'CG_TOP_ALL' order-preview.html 1
+chk '@media (max-width:460px){.ls-cg{grid-template-columns:minmax(0,1fr);row-gap:6px}.ls-cg .gl{padding-top:0}}' order-preview.html 1
+nochk '@media (max-width:460px){.ls-cg.cg-vp{grid-template-columns:minmax(0,1fr);row-gap:6px}' order-preview.html
+chk 'CG_EVEN' order-preview.html 3
+chk 'function _cgEven(){' order-preview.html 1
+chk '  _cgEven();   // \[CG_EVEN\]' order-preview.html 1
 # ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
 chk 'VCARD_CALM' order-preview.html 3
 chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
