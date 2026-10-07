@@ -562,7 +562,11 @@ function _declWhoLabel(k){
      "…착수"   작업을 시작함              : 보정 착수
      "…등록/발송/보내기/발급/회수"  물건·문서를 만들어 내보내거나 거둠
    ★새 액션을 추가할 땐 위 4갈래 중 하나를 골라 쓰고, 큐 라벨(btnLbl)과 상세 라벨(ab)을 반드시 같은 문자열로 둔다. */
-var TOKEN = localStorage.getItem('me_admin_token') || '';
+/* ★[ADM_LS_SAFE 2026-10-07 점검] 저장소(localStorage)가 막힌 브라우저(사이트 데이터 차단 · 일부 시크릿)에서는 읽기만 해도 오류가 난다 —
+   이 줄이 맨 위라 관리자 화면이 통째로 멈췄고, 같은 날 넣은 «로그인을 저장하지 못해요» 안내(ADM_KEEP_LOGIN)도 그 상황에서만 안 떴다.
+   저장소는 이 한 곳(_ls)으로만 만진다 — 막혀 있으면 조용히 비우고(읽기 '' · 쓰기 생략) 로그인 화면이 안내 한 줄과 함께 뜬다 */
+function _ls(op,k,v){ try{ var st=window.localStorage; if(op==='get') return st.getItem(k); if(op==='set') st.setItem(k,v); else if(op==='del') st.removeItem(k); }catch(e){} return null; }
+var TOKEN = _ls('get','me_admin_token') || '';
 var EXEC_URL = "https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
 var SLOTS = { weekday: [], weekend: [] };
 var curDetail = null;
@@ -1863,7 +1867,7 @@ function _admKeepNote(){ var el=$('lgKeep'); if(!el) return; var t='';
   el.textContent=t; el.style.display=t?'block':'none'; }
 function showLogin(){ setTopbar(false); show('login'); _admKeepNote(); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 // [ADM_AA7] 세션이 끊기면 폴링 타이머도 정지(로그인 화면에서 무한 호출 방지)
-function authFail(msg){ _pollStop(); TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
+function authFail(msg){ _pollStop(); TOKEN=''; _ls('del','me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
 function netFail(msg){ showLogin(); var le=$('lgErr'); if(le) le.textContent='연결이 잠시 불안정해요. 로그인 정보는 유지되어 있으니 새로고침(F5)하면 바로 다시 열려요.'+(msg?(' · '+msg):''); }
 function doLogin(){
@@ -1872,7 +1876,7 @@ function doLogin(){
   $('lgBtn').disabled=true; $('lgBtn').textContent='로그인 중…'; $('lgErr').textContent='';
   gasRaw('adminLogin', id, pw).then(function(r){
     $('lgBtn').disabled=false; $('lgBtn').textContent='로그인';
-    if(r&&r.ok){ TOKEN=r.token; localStorage.setItem('me_admin_token',TOKEN); $('lgPw').value=''; setWho(r.name); setTopbar(true); loadHome(); _pollStart(); }   // [ADM_AA7]
+    if(r&&r.ok){ TOKEN=r.token; _ls('set','me_admin_token',TOKEN); $('lgPw').value=''; setWho(r.name); setTopbar(true); loadHome(); _pollStart(); }   // [ADM_AA7]
     else { $('lgErr').textContent=(r&&r.error)||'로그인 실패'; }
   }).catch(function(e){ $('lgBtn').disabled=false; $('lgBtn').textContent='로그인'; $('lgErr').textContent='오류: '+(e&&e.message||e); });
 }
@@ -1918,7 +1922,7 @@ if(TOKEN) _pollStart();
    ★로그아웃은 «이 기기에서 흔적을 지운다»는 약속이다 — 토큰만 지우는 것은 그 약속의 절반이다.
    ★열어 둔 패널(OPEN_KEY)·목록 필터(FILTER_KEY)는 개인정보가 아니라 그대로 둔다. */
 function doLogout(){ _pollStop(); try{ gasRaw('adminLogout', TOKEN); }catch(e){} TOKEN='';
-  localStorage.removeItem('me_admin_token');
+  _ls('del','me_admin_token');
   try{ localStorage.removeItem(RECENT_KEY); }catch(e){}
   try{ var w=$('recentWrap'); if(w){ w.innerHTML=''; w.style.display='none'; } }catch(e){}   // 화면에 떠 있던 칩도 즉시 치운다
   setTopbar(false); showLogin(); }
@@ -2299,7 +2303,7 @@ function resultRow(it){
 }
 
 function renderPipeline(d){
-  var filter=localStorage.getItem(FILTER_KEY)||'시그니처';
+  var filter=_ls('get',FILTER_KEY)||'시그니처';
   var pc=d.pipeCounts||{}, html='';
   html+='<div class="sect-h"><span class="tt">진행 중 현황</span></div>';
   html+='<div class="ptabs">'+
@@ -2308,7 +2312,7 @@ function renderPipeline(d){
     tabBtn('전체','전체 ',(pc['시그니처']||0)+(pc['웨딩스냅']||0),filter)+'</div>';
   html+='<div id="pipeBody"></div>';
   $('pipeWrap').innerHTML=html;
-  $('pipeWrap').querySelectorAll('.ptab').forEach(function(t){ t.addEventListener('click', function(){ localStorage.setItem(FILTER_KEY,t.getAttribute('data-f')); renderPipeline(curHome); }); });
+  $('pipeWrap').querySelectorAll('.ptab').forEach(function(t){ t.addEventListener('click', function(){ _ls('set',FILTER_KEY,t.getAttribute('data-f')); renderPipeline(curHome); }); });
   renderPipeBody(d, filter);
 }
 function tabBtn(f,label,n,cur){ return '<div class="ptab'+(cur===f?' active':'')+'" data-f="'+f+'">'+esc(label)+'<span class="pc">'+(n||0)+'</span></div>'; }
@@ -2349,7 +2353,7 @@ function bindPipe(){
   $('pipeBody').querySelectorAll('.pcust').forEach(function(c){ c.addEventListener('click', function(){ openDetail(c.getAttribute('data-code'),'home'); }); });
 }
 function getOpen(){ try{ return JSON.parse(localStorage.getItem(OPEN_KEY)||'[]'); }catch(e){ return []; } }
-function toggleOpen(key,on){ var a=getOpen(); var i=a.indexOf(key); if(on&&i===-1)a.push(key); if(!on&&i!==-1)a.splice(i,1); localStorage.setItem(OPEN_KEY,JSON.stringify(a)); }
+function toggleOpen(key,on){ var a=getOpen(); var i=a.indexOf(key); if(on&&i===-1)a.push(key); if(!on&&i!==-1)a.splice(i,1); _ls('set',OPEN_KEY,JSON.stringify(a)); }
 
 /* ════════ 검색 ════════ */
 function doSearch(){

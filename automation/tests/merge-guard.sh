@@ -15090,3 +15090,11 @@ nochk "&&_mkKinds(k).length>0&&k!=='tribute'&&TX_WHO.some(" order-preview.html
 chk 'todo=_mkUnwritten()' order-preview.html 1
 chk 'PR_TODO_TRUE' scripts/audit/ref-form.mjs 1
 chk 'TX_OPT' scripts/audit/ref-form.mjs 1
+# ★[ADM_LS_SAFE 2026-10-07 점검] 관리자 저장소 접근은 _ls 한 곳 — 저장이 막힌 브라우저에서 맨 위 토큰 읽기가 화면을 통째로 멈췄다
+#   (로그인 화면조차 안 떴고, 같은 날 넣은 ADM_KEEP_LOGIN «로그인을 저장하지 못해요» 안내도 바로 그 상황에서만 안 떴다) · admin-ls-safe 고치기 전 판 4건 빨강
+if command -v node >/dev/null 2>&1; then node scripts/audit/admin-ls-safe.mjs >/dev/null 2>&1; _als=$?; [ "$_als" = 1 ] && { echo 'FAIL admin-ls-safe: 저장이 막힌 브라우저에서 관리자 로그인 화면이 안 뜹니다 — node scripts/audit/admin-ls-safe.mjs'; fail=1; }; :; fi
+chk 'function _ls(op,k,v){ try{' admin.html 1
+chk "var TOKEN = _ls('get','me_admin_token') || '';" admin.html 1
+nochk "var TOKEN = localStorage.getItem('me_admin_token')" admin.html
+nochk "localStorage.setItem('me_admin_token'" admin.html
+chk 'ADM_LS_SAFE' scripts/audit/admin-ls-safe.mjs 1
