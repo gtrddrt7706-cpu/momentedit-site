@@ -440,7 +440,7 @@
   }
 
   // ─── 메인 ───────────────────────────────────────────────
-  function reveal() { document.body.classList.add('couple-ready'); }
+  function reveal() { document.body.classList.add('couple-ready'); try { document.documentElement.removeAttribute('data-me-wait'); } catch (e) {} }   // [ERR_CODE_PAGES] 기다림 한 줄(HY_WAIT)도 함께 거둔다
   function designNum() { return (document.body.getAttribute('data-design') || '00').trim(); }
 
   // innerHTML 교체로 죽은 본문 스크립트 재실행 (결선 시 <script type="me/inert">로 표시됨)
@@ -667,7 +667,22 @@
         } catch (e) {}
       } catch (e) {}
     }
-    var failsafe = setTimeout(reveal, 5000);
+    /* ★★[ERR_CODE_PAGES · HY_WAIT 2026-10-07] 5초 안전망이 몸통을 그냥 열면 아직 못 채운 «{{GROOM_NAME}}» 같은 자리 표시가 하객에게 그대로 보였다
+       (조회에 시간 제한도 없어 서버가 늦으면 늘 그랬다). 이제 5초에는 몸통을 열지 않고 «청첩장을 불러오고 있어요» 한 줄만 띄운다 —
+       html 의 ::after 라 투명한 body 위에서도 보이고, 채울 HTML(document.body.innerHTML)은 건드리지 않는다.
+       조회는 한 번에 15초까지 · 실패하면 한 번 더 묻고, 그래도 안 되면 종전처럼 예시로 그리되 띠에 까닭과 코드를 단다(G5 · G6 · G7 · G9) */
+    function waitLine() {
+      try {
+        if (!document.getElementById('meHyWaitCss')) {
+          var st = document.createElement('style'); st.id = 'meHyWaitCss';
+          st.textContent = 'html[data-me-wait]::after{content:attr(data-me-wait);position:fixed;left:0;right:0;top:46%;padding:0 24px;text-align:center;'
+            + 'font:400 13px/1.7 system-ui,-apple-system,sans-serif;color:#6E675C;letter-spacing:.02em;pointer-events:none;z-index:2147483000}';
+          (document.head || document.documentElement).appendChild(st);
+        }
+        document.documentElement.setAttribute('data-me-wait', '청첩장을 불러오고 있어요');
+      } catch (e) { reveal(); }
+    }
+    var failsafe = setTimeout(waitLine, 5000);
 
     if (!eventId) { markDemo('링크가 잘렸을 수 있어요'); apply(SAMPLE); clearTimeout(failsafe); reveal(); return; }
 
@@ -700,8 +715,26 @@
       apply(cached); clearTimeout(failsafe); reveal(); rendered = true;
     }
 
-    fetch(WEBHOOK + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=' + (location.pathname.indexOf('/i-family/') !== -1 ? 'family' : 'online') + (forceFresh ? '&fresh=1' : ''))
-      .then(function (r) { return r.json(); })
+    /* [ERR_CODE_PAGES] 조회 한 번 = 15초까지(AbortController 가 없는 옛 브라우저도 타이머로 끝낸다) · 실패하면 1.5초 뒤 한 번 더 */
+    var getUrl = WEBHOOK + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=' + (location.pathname.indexOf('/i-family/') !== -1 ? 'family' : 'online') + (forceFresh ? '&fresh=1' : '');
+    function getCouple() {
+      return new Promise(function (resolve, reject) {
+        var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null, over = false;
+        var tm = setTimeout(function () { over = true; try { if (ac) ac.abort(); } catch (e) {} var er = new Error('timeout'); er.name = 'AbortError'; reject(er); }, 15000);
+        fetch(getUrl, ac ? { signal: ac.signal } : undefined).then(function (r) { return r.json(); })
+          .then(function (d) { clearTimeout(tm); if (!over) resolve(d); }, function (e) { clearTimeout(tm); if (!over) reject(e); });
+      });
+    }
+    function again() { return new Promise(function (r) { setTimeout(r, 1500); }).then(getCouple); }
+    /* 서버의 INTERNAL_ERROR(서버 쪽 사고 · ecode G9 · 사고번호 eid)는 «그런 예식 없음»이 아니다 — 종전엔 «주소를 다시 확인해 주세요»로 떨어졌다 */
+    function hyWhy(e, d) {
+      if (d) return '서버에서 오류가 났어요 · 새로 고쳐 주세요 (코드 G9' + (d.eid ? ' · ' + String(d.eid).replace(/[^A-Z0-9]/gi, '').slice(0, 8) : '') + ')';
+      var n = (e && e.name === 'AbortError') ? 5 : (e && e.name === 'SyntaxError') ? 7 : 6, off = false;
+      try { off = navigator.onLine === false; } catch (x) {}
+      return (n === 5 ? '응답이 늦어요' : n === 7 ? '서버가 잠깐 멈췄어요' : off ? '인터넷이 끊겼어요' : '연결이 끊겼어요') + ' · 새로 고쳐 주세요 (코드 G' + n + ')';
+    }
+    getCouple()
+      .then(function (d) { return (d && d.ok === false && d.error === 'INTERNAL_ERROR') ? again() : d; }, again)
       .then(function (data) {
         if (data && data.ok && data.couple) {
           data.couple.eventId = eventId;
@@ -712,17 +745,22 @@
           try { localStorage.setItem(cacheKey, fresh); } catch (_) {}
           if (!rendered || prev !== fresh) apply(data.couple);
         } else if (!rendered) {
+          if (data && data.error === 'INTERNAL_ERROR') {   // [ERR_CODE_PAGES] 서버 오류 — 전에 본 진짜 내용이 있으면 그것을 쓴다(아래 catch 와 같은 대접)
+            var _c0 = safeCache(cacheKey);
+            if (_c0) { apply(_c0); return; }
+            markDemo(hyWhy(null, data)); apply(SAMPLE); return;
+          }
           /* [DEMO_BADGE] 서버가 «그런 예식 없음»을 답한 경우 — eventId 는 있었지만 잘못된 값이다.
              여기서도 표본으로 떨어지므로 같은 표시를 단다(«없는 주소»를 진짜 초대장으로 보이게 두지 않는다). */
           markDemo('주소를 다시 확인해 주세요');
           apply(SAMPLE);
         }
       })
-      .catch(function () {
+      .catch(function (e) {
         if (rendered) return;
         var _c = safeCache(cacheKey);
         if (_c) { apply(_c); return; }          // 전에 본 진짜 내용이 있으면 그것을 쓴다(표본 아님)
-        markDemo('연결이 불안정해요');            // [DEMO_BADGE] 표본으로 떨어질 때만 표시
+        markDemo(hyWhy(e));                     // [DEMO_BADGE] 표본으로 떨어질 때만 표시 · [ERR_CODE_PAGES] 종전 «연결이 불안정해요» → 까닭 + 코드(G5 · G6 · G7)
         apply(SAMPLE);
       })
       .then(function () { if (!rendered) { clearTimeout(failsafe); reveal(); } injectGuideCta(eventId); });   // 주입은 최종 렌더 뒤(innerHTML 교체에 지워지지 않게)

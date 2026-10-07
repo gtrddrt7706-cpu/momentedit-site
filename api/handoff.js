@@ -4,10 +4,10 @@
 // 그 브리핑을 (설정 시) GAS 웹훅으로 전달해 관리자 페이지 카드로 띄운다.
 //
 // 환경변수:
-//   ANTHROPIC_API_KEY     ← 필수 (없으면 503)
+//   ANTHROPIC_API_KEY     ← 요약(브리핑)에 필요. 없거나 업체가 실패해도 대화 원문은 GAS 로 보낸다([ERR_CODE_PAGES] HANDOFF_RAW · 관리자 시험(test)만 503 · 502)
 //   HANDOFF_WEBHOOK_URL   ← 선택. GAS /exec URL. 설정되면 브리핑을 관리자에게 전달.
 //
-// 고객에게는 브리핑을 보여주지 않는다(관리자 전용). 프론트는 "전달됐어요"만 표시.
+// 고객에게는 브리핑을 보여주지 않는다(관리자 전용). 프론트는 delivered 가 true 일 때만 "전달했어요"라 말한다(아니면 why 로 코드 A3 · A4).
 
 const KNOWLEDGE = require('./_kb');
 const RITUAL_KB = require('./_ritual-kb');   // 접점 '식순' 인계는 식순 지식으로 브리핑(일반 KB엔 이벤트 상세가 없어 없는 옵션을 지어낼 위험 · 기획 v3 §1-2)
@@ -48,10 +48,6 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify({ error: 'rate_limited' }));
   }
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    res.statusCode = 503; res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    return res.end(JSON.stringify({ error: 'handoff_unconfigured' }));
-  }
   try {
     const body = await readJson(req);
     const page = String((body && body.page) || '').slice(0, 20) || '메인';
@@ -75,38 +71,62 @@ module.exports = async (req, res) => {
       + (state ? '\n\n[고객이 만들던 식순 상태]\n' + state.replace(/[<>]/g, '') : '')
       + '\n\n[대화]\n' + history.join('\n') + '\n\n위 고객을 위해 대표용 브리핑을 작성하세요.';
 
-    const anthRes = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system: await (async () => {
-          const blocks = [{ type: 'text', text: systemFor(page), cache_control: { type: 'ephemeral' } }];
-          try { const facts = await require('./_facts')(); if (facts) blocks.push({ type: 'text', text: '[운영 핵심정보 · 최신·최우선]\n' + facts }); } catch (e) {}   // 제안답변의 가격·기한이 낡지 않게(advisor와 동일)
-          return blocks;
-        })(),
-        output_config: { format: { type: 'json_schema', schema: SCHEMA } },
-        messages: [{ role: 'user', content: userMsg }],
-      }),
-    });
-    if (!anthRes.ok) {
-      console.error('handoff_anthropic_error', anthRes.status, (await safeText(anthRes)).slice(0, 300));
-      res.statusCode = 502; res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      return res.end(JSON.stringify({ error: 'upstream_error' }));
+    /* ★★[ERR_CODE_PAGES · HANDOFF_RAW 2026-10-07] 요약(브리핑)이 실패해도 인계는 잃지 않는다 — 종전엔 키가 없거나(503) 업체가 실패하면(502)
+       GAS 로 아무것도 안 보내고 끝나, 고객이 디렉터 연결을 눌렀는데 관리자 화면엔 흔적이 없었다. 이제 요약이 안 되면 «요약 실패» 표시와
+       대화 원문만 보낸다(GAS handleAiHandoff 는 brief.summary 가 없어도 conversation 만 있으면 받는다).
+       ★관리자 시험 호출(test)은 GAS 로 보내지 않으므로, 요약이 실패하면 종전대로 실패 번호(503 · 502)를 돌려준다 — 매일 안전점검(ai-safety)이 요약 고장을 계속 잡게 */
+    let brief = null, briefWhy = '';
+    if (!apiKey) briefWhy = 'unconfigured';
+    else {
+      try {
+        const ac = new AbortController(), tmo = setTimeout(() => ac.abort(), 25000);   // 업체가 붙잡고 있으면 25초에 끊고 원문이라도 보낸다
+        let anthRes;
+        try {
+          anthRes = await fetch(API_URL, {
+            method: 'POST', signal: ac.signal,
+            headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+            body: JSON.stringify({
+              model: MODEL,
+              max_tokens: MAX_TOKENS,
+              system: await (async () => {
+                const blocks = [{ type: 'text', text: systemFor(page), cache_control: { type: 'ephemeral' } }];
+                try { const facts = await require('./_facts')(); if (facts) blocks.push({ type: 'text', text: '[운영 핵심정보 · 최신·최우선]\n' + facts }); } catch (e) {}   // 제안답변의 가격·기한이 낡지 않게(advisor와 동일)
+                return blocks;
+              })(),
+              output_config: { format: { type: 'json_schema', schema: SCHEMA } },
+              messages: [{ role: 'user', content: userMsg }],
+            }),
+          });
+        } finally { clearTimeout(tmo); }
+        if (!anthRes.ok) {
+          console.error('handoff_anthropic_error', anthRes.status, (await safeText(anthRes)).slice(0, 300));
+          briefWhy = 'upstream_' + anthRes.status;
+        } else {
+          const data = await anthRes.json();
+          /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 */
+          try { await require('./_costlog')(page === '식순' ? '핸드오프:식순' : '핸드오프', MODEL, data.usage, { isTest: !!(body && body.test) }); } catch (e) {}   // 식순발 인계 비용의 기원 보존(인건비 집계)
+          try { brief = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) { brief = null; }
+          if (!brief || typeof brief !== 'object' || !brief.summary) { brief = null; briefWhy = 'parse'; }
+        }
+      } catch (e) { console.error('handoff_brief_fail', e && e.message); briefWhy = (e && e.name === 'AbortError') ? 'timeout' : 'exception'; }
     }
-    const data = await anthRes.json();
-    /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 */
-    try { await require('./_costlog')(page === '식순' ? '핸드오프:식순' : '핸드오프', MODEL, data.usage, { isTest: !!(body && body.test) }); } catch (e) {}   // 식순발 인계 비용의 기원 보존(인건비 집계)
-    let brief = {};
-    try { brief = JSON.parse((data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('')); } catch (e) {}
+    if (!brief) {
+      if (body && body.test) {   // 관리자 시험 — 요약 고장을 숨기지 않는다(ai-safety «인계 브리핑 동작»이 ok:true 만 본다)
+        res.statusCode = (briefWhy === 'unconfigured') ? 503 : 502; res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        return res.end(JSON.stringify({ error: (briefWhy === 'unconfigured') ? 'handoff_unconfigured' : 'upstream_error', why: briefWhy }));
+      }
+      console.warn('handoff_raw_forward', briefWhy);
+      brief = { category: '요약 실패', confidence: '낮음', summary: 'AI 요약을 만들지 못했어요(' + briefWhy + ') · 아래 대화 원문을 확인해 주세요.', suggestedReply: '', rationale: '요약 단계 실패로 대화 원문만 전달됐어요.' };
+    }
     // 안전망: 전각 줄표 제거
     ['summary', 'suggestedReply', 'rationale', 'category'].forEach((k) => { if (typeof brief[k] === 'string') brief[k] = brief[k].replace(/—/g, '·'); });
 
-    // 관리자에게 전달 (GAS 웹훅 설정 시). 실패해도 고객 응답은 성공 처리.
-    let delivered = false;
+    // 관리자에게 전달 (GAS 웹훅 설정 시). 실패해도 고객 응답은 200 — 대신 delivered · why 로 화면이 사실대로 말한다([ERR_CODE_PAGES])
+    let delivered = false, why = '';
     const hook = require('./_livehook')();   // [PREVIEW_GUARD_API] 미리보기에서는 관리자 인계를 운영 시트에 안 쓴다
-    if (hook && /^https:\/\//.test(hook) && !(body && body.test)) {   // 관리자 테스트는 관리자 인계 목록에 안 남김
+    if (!hook || !/^https:\/\//.test(hook)) why = 'no_hook';
+    else if (body && body.test) why = 'test';   // 관리자 테스트는 관리자 인계 목록에 안 남김
+    else {
       try {
         const r = await fetch(hook, {
           method: 'POST', headers: { 'content-type': 'application/json' },
@@ -114,11 +134,12 @@ module.exports = async (req, res) => {
         });
         let jj = null; try { jj = await r.json(); } catch (e) {}
         delivered = !!(r.ok && jj && jj.ok === true && jj.id);   // GAS는 미지의 action에도 200을 주므로 ok·id까지 확인(라우팅 누락 감지)
-      } catch (e) { console.error('handoff_forward_fail', e && e.message); }
+        if (!delivered) why = 'gas_' + (jj && jj.error ? String(jj.error).replace(/[^\w가-힣 .-]/g, '').slice(0, 40) : (r.ok ? 'bad_reply' : 'http_' + r.status));
+      } catch (e) { console.error('handoff_forward_fail', e && e.message); why = 'gas_unreachable'; }
     }
 
     res.statusCode = 200; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
-    return res.end(JSON.stringify({ ok: true, delivered: delivered }));   // 고객엔 브리핑 비노출
+    return res.end(JSON.stringify(Object.assign({ ok: true, delivered: delivered }, why ? { why: why } : {}, briefWhy ? { brief: false, briefWhy: briefWhy } : {})));   // 고객엔 브리핑 비노출
   } catch (err) {
     console.error('handoff_exception', err && err.message);
     res.statusCode = 500; res.setHeader('Content-Type', 'application/json; charset=utf-8');

@@ -885,6 +885,30 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 // ── 서버(Google Apps Script) 주입 데이터 ──
 // 데모용 isAvail()/FULL 더미를 제거하고, 시트·캘린더 실제 데이터로 교체했습니다.
 var EXEC_URL="https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec";
+/* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+   실패마다 한 줄 + «(코드 X#)» · 이 화면의 글자는 B(상담 예약 · 신청) · P(카드 결제) · A(날짜 확인 AI) · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
+   브라우저가 가르는 셋: 기다리다 멈춤(AbortError) 5 · 연결 끊김(fetch 실패) 6 · 서버 답이 JSON 이 아님(GAS 오류 화면 · 베르셀 504) 7.
+   종전엔 «불러오기 실패 · 새로고침» · «네트워크 오류» 한 문장이 서버 사고 · 인터넷 끊김 · 시간 초과를 다 덮었다.
+   서버(GAS)가 글 끝에 «(코드 X#)»를 붙여 보내면 그대로(두 번 붙이지 않는다) · ecode 만 오면 1~9 일 때 붙인다(0 은 글이 곧 까닭).
+   cancel · inquiry · seat · guide 와 같은 함수 이름이다 — 한 곳만 고치지 말 것 */
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
+function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
+function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
+  if(m) t=t.slice(0,m.index);
+  if(!/^[A-Z]\d$/.test(ec)) ec='';
+  if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
+  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글
+  if(!t){ t=fb; ec=ec||L+'0'; }
+  if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
+  return t+(tail?' ('+tail+')':''); }
+/* [ERR_CODE_PAGES] AI(날짜 확인) 응답 → 코드 A# — 429 몰림 1 · 업체 401·402·403 → 2 · 503 꺼짐 3 · 502 업체 실패 4(업체 번호를 함께) · 500 서버 9 · 400 질문 0 ·
+   시간 초과 5 · 연결 6 · JSON 이 아님(베르셀 504 등) 7. assets/advisor-widget.js · index.html 위젯과 같은 표 */
+function _aiCode(st,j,e){ if(e) return 'A'+_ecN(e); if(!j) return 'A7'+(st&&st!==200?' · '+st:''); var u=+(j.upstream||0);
+  if(st===429) return 'A1'; if(st===503) return 'A3'; if(st===502) return ((u===401||u===402||u===403)?'A2':'A4')+(u?' · '+u:''); if(st>=500) return 'A9'; return 'A0'; }
+function _aiWord(c){ var n=c.charAt(1), off=(n==='6'&&_ecOff());
+  return ({'0':'질문을 읽지 못했어요','1':'질문이 잠깐 많았어요','2':'AI 확인이 잠시 멈췄어요','3':'AI 확인이 꺼져 있어요','4':'AI가 답을 만들지 못했어요','5':'답이 너무 늦어요','6':off?'인터넷이 끊겼어요':'연결이 끊겼어요','7':'서버가 잠깐 멈췄어요','9':'서버에서 오류가 났어요'})[n]||'지금은 확인하지 못했어요'; }
 // ── 커스텀 날짜 선택 컴포넌트(마이페이지 계약서 폼과 동일) — 예식일 임시고정용. OS 기본 달력 대신 우리 폼 달력 사용 ──
 function _g(i){return document.getElementById(i);}
 // SCHED_AI_ROUTE: 막다른 안내(전 슬롯 마감·가능일 0·임시고정 시간 마감)에서 AI 스케줄 도우미만 먼저 열고 이동
@@ -1224,7 +1248,7 @@ function doSubmit(){
   const _sel={d:key(selDate),t:selTime,h:_holdPayload()}, _sig=JSON.stringify(_sel);
   const _openPay=function(){
     var cfg=window.__depCard;
-    if(!cfg||!cfg.clientKey||!(cfg.amount>0)){ restore(); meAlert('카드결제를 불러오지 못했어요. 잠시 후 다시 시도하시거나 계좌이체로 진행해 주세요.'); return; }
+    if(!cfg||!cfg.clientKey||!(cfg.amount>0)){ restore(); meAlert('카드결제를 불러오지 못했어요 · 계좌이체로 진행해 주세요 (코드 P3)'); return; }   // [ERR_CODE_PAGES] 결제 설정(cardPayConfig)이 없다 — 다시 눌러도 같다
     btn.querySelector('span').textContent='결제창 여는 중';
     _loadToss(function(){
       try{
@@ -1236,9 +1260,13 @@ function doSubmit(){
           successUrl:base+'me_pay=1&m='+encodeURIComponent('예약금'), failUrl:base+'me_pay=0'
         });
         // 결제창을 그냥 닫으면(PC 창) promise 가 USER_CANCEL 로 끝난다 — 버튼을 풀어 다시 누를 수 있게
-        if(pr&&pr.catch) pr.catch(function(err){ restore(); meAlert((err&&err.code==='USER_CANCEL')?{lead:'결제를 취소했어요.',items:['고르신 시간은 신청으로 접수돼 있어요.','버튼을 한 번 더 누르시면 다시 결제하실 수 있어요. 계좌이체로 바꾸셔도 돼요.']}:'결제를 진행하지 못했어요. 잠시 후 다시 시도해 주세요.'); });
-      }catch(e){ restore(); meAlert('결제창을 열지 못했어요. 잠시 후 다시 시도하시거나 계좌이체로 진행해 주세요.'); }
-    }, function(){ restore(); meAlert('결제창을 불러오지 못했어요. 잠시 후 다시 시도하시거나 계좌이체로 진행해 주세요.'); });
+        /* ★[ERR_CODE_PAGES] 토스가 준 까닭(err.code)을 버리지 않는다 — 종전엔 «결제를 진행하지 못했어요» 한 줄이라 카드사 거절 · 설정 오류 · 창 오류가 같았다.
+           토스 코드는 영문 그대로 붙인다(관리자가 토스 문서에서 바로 찾는다 · 개인정보 없음) */
+        if(pr&&pr.catch) pr.catch(function(err){ restore(); var _tc=String((err&&err.code)||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,40);
+          meAlert(_tc==='USER_CANCEL'?{lead:'결제를 취소했어요.',items:['고르신 시간은 신청으로 접수돼 있어요.','버튼을 한 번 더 누르시면 다시 결제하실 수 있어요. 계좌이체로 바꾸셔도 돼요.']}
+            :{lead:'결제를 진행하지 못했어요 · 다시 누르시거나 계좌이체로 해 주세요 (코드 P0'+(_tc?' · '+_tc:'')+')',items:['고르신 시간은 신청으로 접수돼 있어요.']}); });
+      }catch(e){ restore(); var _tc2=String((e&&e.code)||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,40); meAlert('결제창을 열지 못했어요 · 다시 누르시거나 계좌이체로 해 주세요 (코드 P0'+(_tc2?' · '+_tc2:'')+')'); }   // [ERR_CODE_PAGES]
+    }, function(){ restore(); meAlert('결제창을 불러오지 못했어요 · 다시 누르시거나 계좌이체로 해 주세요 (코드 P6)'); });   // [ERR_CODE_PAGES] 토스 결제 스크립트를 받지 못했다(연결 · 차단)
   };
   if(_card && window.__cardSubmitted===_sig){ _openPay(); return; }
   // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
@@ -1264,15 +1292,15 @@ function doSubmit(){
         setTimeout(function(){ location.href='/mypage.html'; }, 2000);
       } else {
         var sum=document.getElementById('summary');
-        sum.textContent=(res&&res.error)?res.error:'신청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+        sum.textContent=_ecSrv(res,'B','신청을 받지 못했어요 · 잠시 뒤 다시 눌러 주세요');   // [ERR_CODE_PAGES] 서버 글(코드 포함)을 그대로 · 글이 없으면 B0
         sum.classList.remove('on'); sum.style.color='var(--seal)';
         sum.scrollIntoView({behavior:'smooth',block:'center'});
         restore();
       }
     })
-    .catch(function(){
+    .catch(function(e){
       var sum=document.getElementById('summary');
-      sum.textContent='네트워크 오류 · 잠시 후 다시 시도해 주세요.';
+      sum.textContent=_ecNet(e,'B','다시 눌러 주세요');   // [ERR_CODE_PAGES] 연결 끊김 B6 · 서버 답이 깨짐 B7 — 종전엔 둘 다 «네트워크 오류»
       sum.classList.remove('on'); sum.style.color='var(--seal)';
       restore();
     });
@@ -1323,7 +1351,7 @@ renderCal();renderTime();updateSummary();
   window.__payRetDone=true;
   var clean=function(keepSel){ try{ if(!keepSel) sessionStorage.removeItem('me_pay_sel'); sessionStorage.removeItem('me_pay_tok'); }catch(e){}
     try{ var _me=q.get('me'); history.replaceState(null,'',location.pathname+(_me?('?me='+encodeURIComponent(_me)):'')); }catch(e){} };
-  if(q.get('me_pay')!=='1'){   // 취소·실패 — 고르셨던 시간을 되살려 바로 다시 결제할 수 있게(신청은 이미 들어가 있다)
+  var restoreSel=function(){   // 고르셨던 시간을 되살려 바로 다시 결제할 수 있게(신청은 이미 들어가 있다)
     try{ var sv=JSON.parse(sessionStorage.getItem('me_pay_sel')||'null');
       if(sv&&sv.d&&sv.t){ var a=String(sv.d).split('-'), d=new Date(+a[0],+a[1]-1,+a[2]);
         if(isAvail(d) && slotsFor(d).indexOf(sv.t)!==-1 && ((SERVER.full||{})[sv.d]||[]).indexOf(sv.t)===-1){
@@ -1331,21 +1359,42 @@ renderCal();renderTime();updateSummary();
           renderCal(); renderTime(); updateSummary(); revealGuide();
           window.__wantCard=true; var _pc=document.getElementById('payM_card'), _pm=document.getElementById('payMethod'); if(_pc&&_pm&&!_pm.hidden){ _pc.checked=true; _payApply(); }
           if(!sv.h) window.__cardSubmitted=JSON.stringify(sv);   // 임시 고정은 다시 체크해야 하니, 고정을 요청했던 신청은 한 번 더 넣는다
-        } } }catch(e){}
+        } } }catch(e){} };
+  if(q.get('me_pay')!=='1'){   // 취소·실패
+    restoreSel();
     clean(true);
-    meAlert({lead:'결제를 취소했어요.',items:['고르신 시간은 신청으로 접수돼 있어요.','버튼을 한 번 더 누르시면 다시 결제하실 수 있어요. 계좌이체로 바꾸셔도 돼요.']});
+    /* ★★[ERR_CODE_PAGES · PAY_FAIL_KIND 2026-10-07] 토스는 failUrl 에 code · message 를 붙여 돌려보낸다 — 종전엔 그것을 버리고 전부 «결제를 취소했어요»라 했다
+       (카드사가 거절해도 · 결제가 중간에 끊겨도 «취소»로 들렸다). 고객이 직접 닫은 것(PAY_PROCESS_CANCELED)만 «취소»다.
+       failUrl 로 돌아왔다는 것은 승인 전에 멈췄다는 뜻이다 — 돈이 나가는 승인(cardConfirm)을 우리 서버가 부르지 않았다. 그래서 «돈은 나가지 않았어요»는 이 갈래에서만 쓴다.
+       토스 코드는 영문 그대로 붙인다(관리자가 토스 문서에서 바로 찾는다 · 개인정보 없음) */
+    var _tc=String(q.get('code')||'').replace(/[^A-Za-z0-9_]/g,'').slice(0,40);
+    if(!_tc||_tc==='PAY_PROCESS_CANCELED'||_tc==='USER_CANCEL') meAlert({lead:'결제를 취소했어요.',items:['고르신 시간은 신청으로 접수돼 있어요.','버튼을 한 번 더 누르시면 다시 결제하실 수 있어요. 계좌이체로 바꾸셔도 돼요.']});
+    else if(/^(REJECT_|INVALID_CARD|INVALID_STOPPED_CARD|EXCEED_|RESTRICTED_|NOT_SUPPORTED_(CARD|INSTALLMENT))/.test(_tc)) meAlert({lead:'카드사에서 결제를 받지 않았어요 · 다른 카드로 해 주세요 (코드 P4 · '+_tc+')',items:['고르신 시간은 신청으로 접수돼 있어요.','계좌이체로 바꾸셔도 돼요.']});
+    else if(_tc==='PAY_PROCESS_ABORTED') meAlert({lead:'결제가 중간에 끊겼어요 · 돈은 나가지 않았어요 (코드 P5)',items:['고르신 시간은 신청으로 접수돼 있어요.','버튼을 한 번 더 누르시면 다시 결제하실 수 있어요.']});
+    else meAlert({lead:'결제가 되지 않았어요 · 다시 누르시거나 계좌이체로 해 주세요 (코드 P0 · '+_tc+')',items:['고르신 시간은 신청으로 접수돼 있어요.']});
     return;
   }
   var pk=q.get('paymentKey'), oid=q.get('orderId'), amt=Math.round(Number(q.get('amount'))||0);
-  if(!pk||!oid||!(amt>0)){ clean(); return; }
+  /* ★[ERR_CODE_PAGES] 성공 주소인데 결제 정보(paymentKey · orderId · amount)가 빠졌다 — 종전엔 아무 말 없이 돌아갔다.
+     승인(cardConfirm)을 부를 수 없으니 이 결제는 끝나지 않았다. 고르셨던 시간을 되살리고 다시 결제하게 한다 */
+  if(!pk||!oid||!(amt>0)){ restoreSel(); clean(true); meAlert({lead:'결제 정보를 받지 못했어요 · 다시 결제해 주세요 (코드 P0)',items:['고르신 시간은 신청으로 접수돼 있어요.']}); return; }
   var sum=document.getElementById('summary'); if(sum){ sum.textContent='결제를 확인하고 있어요…'; sum.style.color=''; }
-  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cardConfirm',token:SERVER.token,milestone:'예약금',paymentKey:pk,orderId:oid,amount:amt})})
-    .then(function(r){return r.json();})
+  /* ★★[ERR_CODE_PAGES · PAY_CONFIRM_AGAIN 2026-10-07] 승인 확인(cardConfirm)이 실패해 보여도 돈은 이미 움직였을 수 있다 —
+     연결이 끊기거나(6) 답이 깨지거나(7) 늦은(5) 것은 «결과 모름»이다. 같은 주문 번호로 한 번 더 물으면 서버가 끝난 결제를 «성공»으로 다시 알려 준다
+     (98_pay_card _depositCardConfirm · 같은 orderId 재호출은 다시 청구하지 않는다). 그래서 2.5초 뒤 한 번 저절로 다시 묻고,
+     그래도 안 되면 무슨 일인지 코드(P5 · P6 · P7)와 함께 말한다. 종전엔 셋 다 «결제 확인을 마치지 못했어요» 한 줄이었다 */
+  var confirmPay=function(again){
+    var ac=(typeof AbortController!=='undefined')?new AbortController():null, tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },40000):null;
+    return fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cardConfirm',token:SERVER.token,milestone:'예약금',paymentKey:pk,orderId:oid,amount:amt}),signal:ac?ac.signal:undefined})
+      .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; })
+      .catch(function(e){ if(again) throw e; return new Promise(function(res){ setTimeout(res,2500); }).then(function(){ return confirmPay(true); }); });
+  };
+  confirmPay(false)
     .then(function(d){
       clean();
       if(sum) updateSummary();
       if(d&&d.ok&&d.already){ meAlert(d.alreadyMsg||'이미 처리된 결제예요.'); return; }
-      if(!(d&&d.ok)){ meAlert((d&&d.error)||'결제 확인을 마치지 못했어요. 카카오톡으로 알려 주시면 결제 상태를 확인해 드릴게요.'); return; }
+      if(!(d&&d.ok)){ meAlert(_ecSrv(d,'P','결제 확인을 마치지 못했어요 · 카카오톡으로 알려 주세요')); return; }   // [ERR_CODE_PAGES]
       try{ localStorage.removeItem('me_state_v1'); }catch(e){}
       var md=document.querySelector('#modal .modal'), lab=md&&md.querySelector('.modal-label'), body=md&&md.querySelector('.modal-body'), warn=md&&md.querySelector('.modal-warn'), help=md&&md.querySelector('.modal-help');
       if(lab) lab.textContent=d.approved?'Reservation Confirmed':'Payment Received';
@@ -1358,7 +1407,8 @@ renderCal();renderTime();updateSummary();
       document.getElementById('modal').classList.add('show');
       setTimeout(function(){ if(md&&md.focus){ try{ md.focus({preventScroll:true}); }catch(e){ try{ md.focus(); }catch(e2){} } } }, 60);
     })
-    .catch(function(){ clean(); if(sum) updateSummary(); meAlert('결제 확인을 마치지 못했어요. 카카오톡으로 알려 주시면 결제 상태를 확인해 드릴게요.'); });
+    .catch(function(e){ clean(); if(sum) updateSummary(); var n=_ecN(e), off=(n===6&&_ecOff());   // [ERR_CODE_PAGES] 두 번 물어도 답이 없다 — 결과를 모른다
+      meAlert({lead:(n===5?'결제 확인이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+' · 카카오톡으로 알려 주세요 (코드 P'+n+')',items:['결제가 됐는지 확인해 드릴게요.']}); });
 })();
 // 예식일 임시고정 — 커스텀 달력 주입 + 실시간 점유 반영(weddingAvailability: 서명완료·승인 홀드 점유 맵).
 //   전 슬롯(3타임) 마감일은 달력에서 선택 불가, 일부 마감이면 시간 셀렉트에서 해당 슬롯만 '마감' 비활성.
@@ -1445,16 +1495,20 @@ if(_hdw){
       busy=true; btn.disabled=true; btn.innerHTML='<span class="bdot"></span>확인 중';   /* [BUSY_ONE] 사이트 공통 숨쉬는 점 */
       _loadWT();   // 점유 맵 미로드 시 로드 시작(아래 fetch와 병행, 없으면 빈 맵으로도 동작)
       var typing=bub('일정을 확인하고 있어요…','bot');
-      fetch('/api/schedule-advisor',{method:'POST',headers:{'content-type':'application/json'},
+      /* ★[ERR_CODE_PAGES] 종전엔 r.ok 를 안 보고 «지금은 확인이 어려워요» 한 줄 — 몰림(429) · 꺼짐(503) · 업체 실패(502) · 서버 오류(500) · 시간 초과 · 연결 · 베르셀 504(JSON 아님)가 같았다.
+         이제 _aiCode 로 A# 를 가른다. 서버가 점유 맵을 못 받아 «확인 시스템 연결이 원활하지 않다»고 답한 것(avail:'unknown')도 코드를 단다(A4 조회 실패 · A3 설정 없음) */
+      var _acA=(typeof AbortController!=='undefined')?new AbortController():null, _tmA=_acA?setTimeout(function(){ try{ _acA.abort(); }catch(e){} },30000):null;
+      fetch('/api/schedule-advisor',{method:'POST',headers:{'content-type':'application/json'},signal:_acA?_acA.signal:undefined,
         body:JSON.stringify({messages:hist.slice(-10),taken:WT||{},today:todayYmd(),page:'스케줄',consult:{days:_consultOpenDays()}})})
-        .then(function(r){return r.json();})
-        .then(function(j){
+        .then(function(r){ return r.text().then(function(x){ var j=null; try{ j=JSON.parse(x); }catch(e){} return {ok:r.ok,st:r.status,j:j}; }); })
+        .then(function(res){
           typing.remove();
-          var t=(j&&j.reply)||'지금은 확인이 어려워요. 잠시 후 다시 시도해 주세요.';
-          bub(t,'bot'); hist.push({role:'assistant',content:t});
+          var j=res.j;
+          if(res.ok&&j&&j.reply){ bub(j.reply+(j.avail==='unknown'?' (코드 '+(j.availWhy==='unset'?'A3':'A4')+')':''),'bot'); hist.push({role:'assistant',content:j.reply}); return; }
+          var c=_aiCode(res.st,j,null); bub(_aiWord(c)+' · '+(c==='A0'?'다시 적어 주세요':'잠시 뒤 다시 물어봐 주세요')+' (코드 '+c+')','bot');
         })
-        .catch(function(){ typing.remove(); bub('지금은 확인이 어려워요. 잠시 후 다시 시도해 주세요.','bot'); })
-        .then(function(){ busy=false; btn.disabled=false; btn.textContent='확인'; });
+        .catch(function(e){ typing.remove(); var c=_aiCode(0,null,e); bub(_aiWord(c)+' · 잠시 뒤 다시 물어봐 주세요 (코드 '+c+')','bot'); })
+        .then(function(){ if(_tmA) clearTimeout(_tmA); busy=false; btn.disabled=false; btn.textContent='확인'; });
     });
   })();
 }
@@ -1464,7 +1518,7 @@ if(_hdw){
 //   GAS 콜드스타트가 길어도 빈 달력이 멈춰 보이지 않게 로딩 안내·타임아웃 처리.
 (function(){
   function $(i){return document.getElementById(i);}
-  function fail(msg){ /* [SCHED_FAIL_AA] 오류 화면도 고객이 실제로 보는 면이다 — 링크색 #9A7F5F는 2.6:1 미달이라 텍스트용 골드로. main 랜드마크도 유지한다. */
+  function fail(msg, retry){ /* [SCHED_FAIL_AA] 오류 화면도 고객이 실제로 보는 면이다 — 링크색 #9A7F5F는 2.6:1 미달이라 텍스트용 골드로. main 랜드마크도 유지한다. */
     /* ★[SCHED_FAIL_H1 2026-09-11 점검] 이 함수는 body 를 «통째로» 갈아치운다 — 그때 532행의 <h1>
        까지 지워져 오류 화면엔 제목이 하나도 없었다(실측: document.querySelectorAll('h1').length === 0).
        낭독기로 들어온 사람은 이 쪽이 무슨 화면인지 알 길이 없다.
@@ -1473,9 +1527,12 @@ if(_hdw){
          원래 있던 첫 <br> 은 뺀다(실측 main 높이 284px → 284px 동일 · 390/1280 둘 다). */
     var _i=msg.indexOf('<br>');
     var _head=(_i<0?msg:msg.slice(0,_i)), _rest=(_i<0?'':msg.slice(_i+4));
+    /* [ERR_CODE_PAGES] retry — 재시도가 답인 실패(시간 초과 · 연결 · 서버 답이 깨짐 · 몰림 · 서버 오류)에만 «다시 불러오기». 마이페이지 링크와 같은 모양 */
     document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'
       +'<h1 style="font:inherit;margin:0">'+_head+'</h1>'+_rest
-      +'<br><br><a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>'; }
+      +'<br><br>'+(retry?'<button type="button" id="schedRetry" style="font:inherit;color:#7A5F37;background:none;border:0;border-bottom:1px solid #DDD8D1;border-radius:0;padding:0;cursor:pointer">다시 불러오기</button><span aria-hidden="true" style="color:#B8B0A4;margin:0 12px">·</span>':'')
+      +'<a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>';
+    var _rb=document.getElementById('schedRetry'); if(_rb) _rb.onclick=function(){ location.reload(); }; }
   var token=(function(){try{return localStorage.getItem('me_token')||'';}catch(e){return'';}})()||(new URLSearchParams(location.search).get('token')||'')
     ||(function(){try{return sessionStorage.getItem('me_pay_tok')||'';}catch(e){return'';}})();   // [PAY_METHOD] 토스 복귀 주소엔 토큰이 없다 — 결제창을 열 때 이 탭에만 적어 둔 것
 
@@ -1503,7 +1560,7 @@ if(_hdw){
   }catch(e){}
   // ② 서버 응답(타임아웃 25초)
   var done=false;
-  var killer=setTimeout(function(){ if(done)return; done=true; if(!painted){ clearNote(); fail('일정을 불러오는 데 시간이 너무 걸려요.<br>잠시 후 새로고침 해주세요.'); } },25000);
+  var killer=setTimeout(function(){ if(done)return; done=true; if(!painted){ clearNote(); fail('일정을 불러오지 못했어요.<br>응답이 늦어요 (코드 B5)',1); } },25000);   // [ERR_CODE_PAGES]
   fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAvailability',token:token})})
     .then(function(r){return r.json();})
     .then(function(s){
@@ -1511,7 +1568,7 @@ if(_hdw){
       if(s&&s.cancelled){ try{ localStorage.removeItem('me_state_v1'); localStorage.removeItem(CACHE_KEY); }catch(e){}
         fail('이 예약은 <b style="color:#6B2A24">취소된 상태</b>예요.<br>현재 상태는 마이페이지에서 확인하실 수 있어요.<br><br><span style="font-size:12px;color:#A39C8E">잠시 후 마이페이지로 이동합니다…</span>');
         setTimeout(function(){ location.href='/mypage.html'; }, 2200); return; }
-      if(!s||!s.ok){ if(!painted) fail((s&&s.error)||'일정을 불러오지 못했어요.'); return; }
+      if(!s||!s.ok){ if(!painted){ var _sm=_ecSrv(s,'B','잠시 뒤 다시 불러와 주세요'), _sr=/\(코드 [A-Z][145679]/.test(_sm); fail('일정을 불러오지 못했어요.<br>'+_esc(_sm),_sr); } return; }   // [ERR_CODE_PAGES] 서버 글(코드 포함) · 재시도가 답일 때만 «다시 불러오기»
       try{ localStorage.setItem(CACHE_KEY, JSON.stringify({at:Date.now(), data:s})); }catch(e){}
       s.token=token; s.me=!!me;
       if(!painted){ applyHead(s); boot(s); }   // 캐시로 이미 그렸으면 재그리기 보류(사용자 선택 보존)
@@ -1522,7 +1579,7 @@ if(_hdw){
       }
       window.__schedShownSig=JSON.stringify({a:s.avail,f:s.full});
     })
-    .catch(function(){ if(done)return; done=true; clearTimeout(killer); clearNote(); if(!painted) fail('불러오기 실패 · 새로고침 해주세요.'); });
+    .catch(function(e){ if(done)return; done=true; clearTimeout(killer); clearNote(); if(!painted) fail('일정을 불러오지 못했어요.<br>'+_ecNet(e,'B',''),1); });   // [ERR_CODE_PAGES] 연결 끊김 B6 · 서버 답이 깨짐 B7 — 종전엔 둘 다 «불러오기 실패 · 새로고침 해주세요»
 })();
 </script>
 <!-- 진행 시간표 FAB — 예약(inquiry) 페이지와 동일 아이콘·위치(우측 세로중앙). 클릭 시 sequence-modal 열림 -->

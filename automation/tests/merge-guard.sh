@@ -15249,3 +15249,77 @@ chk 'ERR_CODE_PAY' automation/platform/98_pay_card.gs 6
 chk "} catch (eRec) { rec = { ok: false, error: '기록 함수 예외 · '" automation/platform/98_pay_card.gs 1
 chk 'ERR_CODE_PAY' scripts/audit/card-err.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/card-err.mjs >/dev/null 2>&1; _cer=$?; if [ "$_cer" = 1 ]; then echo 'FAIL card-err: 카드결제 실패 길(토스 거절 코드 · 빈 복귀 기록 · 승인 뒤 기록 실패 B-1)이 어긋났습니다 — node scripts/audit/card-err.mjs'; fail=1; else echo "ok card-err ($_cer)"; fi; fi   # ★[GUARD_TAIL_RC] 끝 줄은 if 꼴로 — «[ … ] && { … }»면 통과해도 종료 코드 1 이 남는다(#1110 실측 · ALL MARKERS OK 인데 CI 빨강)
+# ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+#   고객 · 하객 · 직원 화면의 실패 한 줄 끝에 «(코드 X#)» — 예약 · 문의 · 취소(B) · 결제(P) · AI 상담(A) · 하객 화면(G) · 당일 콘솔(L · M). 서버 쪽은 ERR_CODE_GAS(#1108).
+#   여섯 쪽(cancel · schedule · inquiry · seat · guide · live)이 같은 네 함수(_ecN · _ecOff · _ecNet · _ecSrv)를 쓴다 — err-pages.mjs 가 몸통이 같은지 잰다.
+#   «결과 모름»(5 · 7)인 쓰기는 다시 물어 결과를 말한다(취소 · 카드 승인 확인 · 신청서) · 디렉터 전달은 답을 받은 뒤에만 «전달했어요».
+#   err-pages.mjs 돌연변이 확인: 취소 다시 묻기(recheck) · 위젯 전달 확인(r.ok)을 되돌리면 FAIL. 되돌리지 말 것
+chk 'ERR_CODE_PAGES' cancel.html 10
+chk 'ERR_CODE_PAGES' schedule.html 18
+chk 'ERR_CODE_PAGES' inquiry.html 5
+chk 'ERR_CODE_PAGES' seat.html 8
+chk 'ERR_CODE_PAGES' guide.html 15
+chk 'ERR_CODE_PAGES' live.html 12
+chk 'ERR_CODE_PAGES' console.html 5
+chk 'ERR_CODE_PAGES' index.html 5
+chk 'ERR_CODE_PAGES' shared/hydrate.js 5
+chk 'ERR_CODE_PAGES' assets/advisor-widget.js 7
+chk 'ERR_CODE_PAGES' api/advisor.js 5
+chk 'ERR_CODE_PAGES' api/handoff.js 3
+chk 'ERR_CODE_PAGES' api/schedule-advisor.js 4
+chk 'ERR_CODE_PAGES' api/_qlog.js 1
+chk 'ERR_CODE_PAGES' scripts/audit/err-pages.mjs 1
+#   자리마다 이름을 지은 결정 — 취소 다시 묻기 · 결제 실패 까닭 · 승인 다시 묻기 · 신청서 다시 보내기 · 사진 까닭 · 좌석 칸 까닭 · 라이브 기다림 · 라이브 실패 가르기 · 청첩장 기다림 · 디렉터 전달 확인 · 인계 원문 · 점유 모름
+chk 'CANCEL_RECHECK' cancel.html 1
+chk 'PAY_FAIL_KIND' schedule.html 1
+chk 'PAY_CONFIRM_AGAIN' schedule.html 1
+chk 'INQ_SEND_AGAIN' inquiry.html 1
+chk 'GP_WHY' guide.html 1
+chk 'SEAT_MAP_WHY' guide.html 1
+chk 'LIVE_WAIT_NOT_DUMMY' live.html 1
+chk 'LIVE_LOAD_KIND' live.html 1
+chk 'HY_WAIT' shared/hydrate.js 2
+chk 'HANDOFF_TRUTH' assets/advisor-widget.js 2
+chk 'HANDOFF_RAW' api/handoff.js 2
+chk 'AVAIL_UNSET' api/schedule-advisor.js 1
+chk 'function _ecSrv(d,L,fb)' cancel.html 1
+chk 'function _ecSrv(d,L,fb)' schedule.html 1
+chk 'function _ecSrv(d,L,fb)' inquiry.html 1
+chk 'function _ecSrv(d,L,fb)' seat.html 1
+chk 'function _ecSrv(d,L,fb)' guide.html 1
+chk 'function _ecSrv(d,L,fb)' live.html 1
+chk 'recheck(n, 3)' cancel.html 1
+chk "api({action:'emailCancel', token:TOKEN, sig:SIG, acct:acct}, 45000)" cancel.html 1
+chk '.btn .bdot{background:currentColor}' cancel.html 1
+chk 'function _aiCode(st,j,e)' schedule.html 1
+chk 'function fail(msg, retry)' schedule.html 1
+chk 'function send(again)' inquiry.html 1
+chk 'function resetBtn(msg, sys)' inquiry.html 1
+chk 'function seatFailHtml(sm)' seat.html 1
+chk 'function seatMapSay(t, sm, again)' guide.html 1
+chk 'function _gpG3(v)' guide.html 1
+chk 'function liveWaitWord(n, eid)' live.html 1
+chk "setNotLoaded(true); sayNotLoaded('wait');" live.html 1
+chk 'function sayNotLoaded(n, eid)' live.html 1
+chk 'function letterWord(d)' live.html 1
+chk 'function hyWhy(e, d)' shared/hydrate.js 1
+chk 'function waitLine()' shared/hydrate.js 1
+chk 'function rfWhy(d, e)' console.html 1
+chk 'doHandoff().then(function (r)' assets/advisor-widget.js 1
+chk 'function aiCode(st, j, e)' assets/advisor-widget.js 1
+chk 'function aiCode(st,j,e)' index.html 1
+chk "console.warn('handoff_raw_forward', briefWhy)" api/handoff.js 1
+chk 'upstream: anthRes.status' api/advisor.js 1
+chk 'function availHookSet()' api/schedule-advisor.js 1
+chk "opts.flag === '오류'" api/_qlog.js 1
+nochk "showMsg('안내','예약 정보를 불러오지 못했어요','네트워크" cancel.html
+nochk "textContent='취소에 실패했어요" cancel.html
+nochk "showError('네트워크 오류입니다" live.html
+nochk 'showError(data.error)' live.html
+nochk 'JSON.stringify(payload) }).catch(function () {})' assets/advisor-widget.js
+nochk 'doHandoff();' assets/advisor-widget.js
+nochk "'지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.'" index.html
+nochk "'연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.'" index.html
+nochk 'test(hook)) return {};' api/schedule-advisor.js
+nochk "JSON.stringify({ error: 'handoff_unconfigured' })" api/handoff.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-pages.mjs >/dev/null 2>&1; _epg=$?; if [ "$_epg" = 1 ]; then echo 'FAIL err-pages: 고객 · 하객 화면의 실패 문구(까닭 한 줄 + 코드 · 결과 모름 다시 묻기 · 디렉터 전달 확인)가 어긋났습니다 — node scripts/audit/err-pages.mjs'; fail=1; else echo "ok err-pages ($_epg)"; fi; fi

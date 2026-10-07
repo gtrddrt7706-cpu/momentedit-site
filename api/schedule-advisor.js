@@ -200,11 +200,13 @@ module.exports = async (req, res) => {
 
     // 가용성: 로그인 클라이언트(schedule.html)가 준 taken 우선, 없으면 GAS 서버측 조회(비로그인 inquiry)
     let taken = normalizeTaken(body && body.taken);
-    let availUnknown = false;
+    let availUnknown = false, availWhy = '';
     if (Object.keys(taken).length === 0) {
       const got = await fetchAvailability();
-      if (got === null) availUnknown = true;   // 점유 조회 불가 — '가능' 단정 금지(더블부킹 방지)
-      else taken = normalizeTaken(got);
+      if (got === null) {   // 점유 조회 불가 — '가능' 단정 금지(더블부킹 방지)
+        availUnknown = true; availWhy = availHookSet() ? 'fail' : 'unset';
+        console.warn('sched_avail_unknown', availWhy);   // [ERR_CODE_PAGES] 종전엔 아무 기록 없이 답 글 안에서만 «연결이 원활하지 않다»고 말했다
+      } else taken = normalizeTaken(got);
     }
 
     // 반복 방지·신비주의: 대화 기록에서 "이미 확정 안내한 날짜→타임"과 "이미 CTA/희소성을 안내했는지"를 코드로 집계.
@@ -252,7 +254,9 @@ module.exports = async (req, res) => {
     // [fail-closed] 점유 조회 불가 상태에서 특정 날짜'나 시기 후보'를 '가능'으로 단정하면 더블부킹 위험 — 안전 안내로 대체.
     //   ex.date(특정일)뿐 아니라 ex.periodFrom(시기 질문 → 서버가 후보일을 골라 '가능' 단정)도 함께 차단해야 한다.
     //   상담 일정(consult)은 예식 점유 맵과 무관하므로 차단하지 않는다(SCHED_AI_CONSULT).
+    let availNoted = false;   // [ERR_CODE_PAGES] 답 글이 «확인 시스템 연결이 원활하지 않다»를 말했는가 — 그때만 화면에 avail:'unknown'(코드 A4 · 설정 없음 A3)
     if (availUnknown && ex && ex.intent !== 'consult' && (ex.date || ex.periodFrom)) {
+      availNoted = true;
       verdict = '지금은 일정 확인 시스템 연결이 잠시 원활하지 않다. 이 날짜가 가능한지 단정하지 말고, "잠시 후 다시 물어봐 주시면 바로 확인해 드리겠다"고 정중히 안내하라. 가능·마감 어느 쪽도 말하지 마라.';
     }
 
@@ -278,9 +282,12 @@ module.exports = async (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
-    return res.end(JSON.stringify({ reply: text }));
+    return res.end(JSON.stringify(availNoted ? { reply: text, avail: 'unknown', availWhy: availWhy } : { reply: text }));
   } catch (err) {
     console.error('sched_advisor_exception', err && err.message);
+    /* [ERR_CODE_PAGES] 업체(Anthropic) 실패는 500 이 아니라 502 + 업체 번호 — 화면이 A4(· 529) · A2(401·402·403)로 가른다. 그 밖은 500(A9) */
+    const up = /^upstream_(\d{3})$/.exec(String((err && err.message) || ''));
+    if (up) { res.statusCode = 502; res.setHeader('Content-Type', 'application/json; charset=utf-8'); return res.end(JSON.stringify({ error: 'upstream_error', upstream: Number(up[1]) })); }
     res.statusCode = 500; res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.end(JSON.stringify({ error: 'server_error' }));
   }
@@ -482,9 +489,13 @@ function normalizeTaken(input) {
   return out;
 }
 // 비로그인(inquiry) 요청용 — GAS에서 점유 맵을 서버측으로만 조회(클라이언트에 비노출 · 실패 시 빈 맵)
+/* ★[ERR_CODE_PAGES · AVAIL_UNSET 2026-10-07] 주소(HANDOFF_WEBHOOK_URL)가 없으면 «빈 점유 맵 {}»이 아니라 null(모름)이다.
+   종전엔 {} 를 돌려 «모든 날이 비었다»로 읽혔다 — 설정이 빠진 배포에서 AI 가 아무 날이나 «진행 가능»이라 말할 수 있었다(더블부킹 위험).
+   probe 의 availSource 도 그때 'gas' 로 거짓 초록이었다 */
+function availHookSet() { const hook = process.env.HANDOFF_WEBHOOK_URL; return !!(hook && /^https:\/\//.test(hook)); }
 async function fetchAvailability() {
   const hook = process.env.HANDOFF_WEBHOOK_URL;
-  if (!hook || !/^https:\/\//.test(hook)) return {};
+  if (!hook || !/^https:\/\//.test(hook)) return null;
   try {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 4000);

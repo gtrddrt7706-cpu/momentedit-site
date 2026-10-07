@@ -174,6 +174,8 @@ body{
 .tbl-list{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:126px;margin-top:-6px}
 .seat-li{position:static;transform:none;max-width:none;box-shadow:none}
 
+/* [ERR_CODE_PAGES] 검색 실패 줄의 «다시 찾기» — guide.html 의 .gp-retry 와 같은 모양(글줄 안 밑줄 단추 · 누르는 칸 44px) */
+.gp-retry{font:inherit;color:var(--gold-deep);background:none;border:0;border-bottom:1px solid currentColor;padding:0 0 1px;cursor:pointer;min-height:44px}
 /* [SEAT_RETRY] 실패 화면의 '다시 불러오기'. 만료·못찾음엔 안 붙는다(눌러도 달라지지 않는다). */
 .retry-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
   margin-top:18px;padding:0 26px;font-family:var(--serif-ko);font-size:14px;
@@ -208,6 +210,29 @@ function gapi(payload){
     body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
     .then(function(r){ if(tm) clearTimeout(tm); return r; }, function(e){ if(tm) clearTimeout(tm); throw e; });
 }
+/* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+   실패마다 한 줄 + «(코드 G#)» · G = 하객 · 부모님 화면 · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
+   브라우저가 가르는 셋: 기다리다 멈춤(AbortError · gapi 12초) 5 · 연결 끊김(fetch 실패) 6 · 서버 답이 JSON 이 아님(GAS 오류 화면) 7.
+   종전엔 셋 다 «네트워크 상태를 확인한 뒤 다시 눌러 주세요»였다 — 서버 쪽 사고(7)에도 하객의 인터넷을 탓했다.
+   서버(GAS)가 글 끝에 «(코드 X#)»를 붙여 보내면 그대로(두 번 붙이지 않는다) · ecode 만 오면 1~9 일 때 붙인다(0 은 글이 곧 까닭).
+   guide · cancel · schedule · inquiry 와 같은 함수 이름이다 — 한 곳만 고치지 말 것(guide.html 은 같은 좌석 검색을 한 벌 더 가진다) */
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
+function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
+function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
+  if(m) t=t.slice(0,m.index);
+  if(!/^[A-Z]\d$/.test(ec)) ec='';
+  if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
+  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글
+  if(!t){ t=fb; ec=ec||L+'0'; }
+  if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
+  return t+(tail?' ('+tail+')':''); }
+function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[145679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }
+/* [ERR_CODE_PAGES] 좌석 검색 실패 — 한 줄(까닭 + 코드) 옆에 «다시 찾기». 종전엔 같은 성함을 다시 쳐야 했다(입력이 그대로면 검색이 안 돈다) */
+function _frFail(fr, msg, again){ fr.textContent=msg; if(!again) return;
+  var b=document.createElement('button'); b.type='button'; b.className='gp-retry'; b.textContent='다시 찾기'; b.addEventListener('click', again);
+  fr.appendChild(document.createTextNode(' ')); fr.appendChild(b); }
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
 function fmtDate(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
@@ -420,10 +445,10 @@ function renderMineOnly(seat, t){
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(my!==seq) return;   // 더 최신 입력이 있었음 — 늦은 응답 무시(입력 역전·지운 뒤 잔상 방지)
-        if(!d || !d.ok){ fr.textContent=(d&&d.error)||'잠시 후 다시 시도해 주세요.'; return; }
+        if(!d || !d.ok){ _frFail(fr, _ecSrv(d,'G','자리를 찾지 못했어요'), _ecRetry(d)?function(){ search(v); }:null); return; }   // [ERR_CODE_PAGES] 서버 글(코드 포함) · 다시 해서 될 때만 «다시 찾기»
         var h=hitsHtml(v, d.hits||[]); last={q:v,html:h}; fr.innerHTML=h;
       })
-      .catch(function(){ var fr2=$('fr'); if(my===seq && fr2) fr2.textContent='잠시 후 다시 시도해 주세요. 네트워크 상태를 확인해 주세요.'; });
+      .catch(function(e){ var fr2=$('fr'); if(my===seq && fr2) _frFail(fr2, _ecNet(e,'G',''), function(){ search(v); }); });   // [ERR_CODE_PAGES] 종전 «네트워크 상태를 확인해 주세요» 한 줄 → 까닭(G5 · G6 · G7) + 다시 찾기
   }
   if(q) q.addEventListener('input', function(){ seq++; if(tm) clearTimeout(tm); tm=setTimeout(function(){ search(q.value); }, 450); });   // 입력 즉시 이전 응답 무효화
 }
@@ -438,9 +463,9 @@ function renderMineOnly(seat, t){
 //   하객 전원의 실명이 들어 있다. 캐시하면 링크를 한 번 연 기기마다 하객 명단이 남는다.
 //   이 페이지는 '명단을 기기로 받지 않는다'는 원칙('내 자리만' 모드)이 설계의 뼈대라, 캐시가 그걸 뒤집는다.
 //   느린 회선 대비는 자동 재시도와 버튼으로만 한다.
-function seatFailHtml(){
+function seatFailHtml(sm){   // [ERR_CODE_PAGES] sm = 무슨 일 · 할 일 · 코드 한 줄(연결 G6 · 시간 G5 · 서버 답이 깨짐 G7 · 서버 거절 글)
   return '<div class="card"><h1 class="state" role="status">좌석 안내를 불러오지 못했어요.'
-    +'<div class="sm">네트워크 상태를 확인한 뒤 다시 눌러 주세요.</div>'
+    +'<div class="sm">'+esc(sm)+'</div>'
     +'<button type="button" class="retry-btn" id="retryBtn">다시 불러오기</button></h1></div>';
 }
 (function boot(){
@@ -464,15 +489,21 @@ function seatFailHtml(){
           } else {
             $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
           } }
-        else { $('root').innerHTML=stateHtml((d&&d.error)||'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]
+        else if(_ecRetry(d)){ failed(_ecSrv(d,'G','다시 눌러 주세요')); }   // [ERR_CODE_PAGES] 서버가 몰렸거나 서버 오류(G1 · G9) — 링크 탓이 아니다 · 다시 불러오기
+        else { $('root').innerHTML=stateHtml((d&&d.error)?_ecSrv(d,'G',''):'좌석 안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]
       })
-      .catch(function(){
+      .catch(function(e){
         if(attempt<2){
-          $('root').innerHTML=stateHtml('연결이 느려요','다시 불러오고 있어요…');
+          var _n=_ecN(e);   // [ERR_CODE_PAGES] 종전엔 무슨 실패든 «연결이 느려요» — 시간 초과 · 연결 끊김 · 서버 답이 깨짐을 가른다(코드는 다시 시도를 다 한 뒤에)
+          $('root').innerHTML=stateHtml(_n===5?'응답이 늦어요':_n===7?'서버가 잠깐 멈췄어요':_ecOff()?'인터넷이 끊겼어요':'연결이 끊겼어요','다시 불러오고 있어요…');
           setTimeout(function(){ load(attempt+1); }, attempt===0?1200:3000);
           return;
         }
-        $('root').innerHTML=seatFailHtml();
+        failed(_ecNet(e,'G',''));   // 할 일은 «다시 불러오기» 단추가 말한다(제목 · 까닭 · 단추가 한 번씩 · GUIDE_RETRY 와 같은 원칙)
+      });
+  }
+  function failed(sm){
+        $('root').innerHTML=seatFailHtml(sm);
         var b=$('retryBtn');
         if(b) b.addEventListener('click', function(){
           /* ★[RETRY_NO_TAG 2026-08-25 하객 경로 점검] stateHtml 은 esc() 로 이스케이프한다 — 여기만 태그를 넘겨
@@ -481,7 +512,6 @@ function seatFailHtml(){
              ★stateHtml 에 HTML 을 넘기지 말 것 — 그 함수의 이스케이프는 하객 이름 등 데이터용 방어라 풀면 안 된다. */
           $('root').innerHTML='<div class="card"><div class="state" role="status"><span class="bdot"></span>좌석 안내를 불러오는 중이에요…</div></div>'; load(0);
         });
-      });
   }
   load(0);
 })();
