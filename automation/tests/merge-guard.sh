@@ -15000,3 +15000,26 @@ nochk '지금 마저 나눠 주세요' assets/ritual-open.js
 #   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
 chk '걷음 2026-10-07 · NAR_1007' scripts/audit/voice-register.mjs 1
 nochk 'EX_GROUP' scripts/audit/voice-register.mjs
+# ★★[REF_FORM 2026-10-07 사장님 «여기 부분 다른 곳들과 다르게 텍스트박스가 아닌데 · 다른 곳들도 형태가 다른 것이 있는지 하나하나 확인해서 개선»]
+#   참고 예시 아래 모양 — 두 분이 말하는 순간(첫인사 · 서약 · 부모님께 인사 · 편지 · 축배)은 예시가 «두 분이 할 말» 칸을 채운다 [TOAST_SAY]
+#   · 예시 칩 이름이 겹치지 않는다 [REF_TITLE_WHO] · 한 분 몫 글자 수는 끝에 한 번 [REF_ONE_COUNT] · 축사 · 가족 낭독 흐름은 한 줄 [FLOW_ONE_TURN]
+#   · 한눈에 보기에 두 분이 부탁하는 줄도 [SUM_ASK_ALL] · 가족 낭독 예시 안내는 인쇄해 건네는 선언문 [DECL_REF_HEAD]
+#   깨 보고 믿음: main(축배 읽기만 · 칩 «한 분이 읽어요» 두 번 · 축사 «신부 오빠 차례» 네 줄)에 ref-form 을 돌리면 10건 빨강 · 종료 코드 1
+chk 'TOAST_SAY' assets/ritual-open.js 3
+chk "if (w !== 'cake') out.push(\['couple', '축배 한마디 · 한 분 한 문장쯤', 'write', null, NOTE_TOAST\]);" assets/ritual-open.js 1
+chk "toast:{nm:'축배 한마디',chk:'',lim:60}" order-preview.html 1
+chk 'TOAST_SAY' order-preview.html 6
+chk 'TOAST_SAY' console.html 2
+chk 'TOAST_SAY' mypage.html 1
+chk 'TOAST_SAY' admin.html 1
+chk 'REF_TITLE_WHO' order-preview.html 1
+chk 'REF_ONE_COUNT' order-preview.html 1
+chk 'FLOW_ONE_TURN' order-preview.html 3
+chk 'SUM_ASK_ALL' order-preview.html 1
+chk 'DECL_REF_HEAD' order-preview.html 1
+nochk "_mkItems(k).forEach(function(q){ if(q.cat==='ask'&&q.who==='parents'){ if(_mkChk()\[q.id\]!=='site') asks.push(q); }" order-preview.html
+chk 'REF_FORM' scripts/audit/ref-form.mjs 1
+# ★[GUARD_LAST_LINE 2026-10-07] 이 파일의 «마지막 줄»의 종료 코드가 곧 게이트의 종료 코드다(트랩이 exit 없이 끝난다).
+#   «[ … = 1 ] && { … }»로 끝나는 줄이 맨 끝이면 검사가 «통과»할 때 [ ] 가 1 을 남겨 — ALL MARKERS OK 를 찍고도 CI 가 빨갛다(#1088 실측).
+#   그래서 node 검사 줄은 «; :»로 닫는다 · 이 아래에 줄을 더해도 같은 꼴로 닫을 것
+if command -v node >/dev/null 2>&1; then node scripts/audit/ref-form.mjs >/dev/null 2>&1; _rff=$?; [ "$_rff" = 1 ] && { echo 'FAIL ref-form: 참고 예시 아래 모양(두 분 칸 · 칩 이름 · 글자 수 · 흐름 한 줄 · 한눈에 보기 부탁)이 어긋났습니다 — node scripts/audit/ref-form.mjs'; fail=1; }; :; fi
