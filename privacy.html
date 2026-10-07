@@ -214,7 +214,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   <h1 class="hero-title">개인정보 처리방침</h1>
   <div class="hero-sub">모먼트에디트 (Moment Edit)<span class="hero-seal-dot" aria-hidden="true"></span></div>
   <div class="hero-divider"></div>
-  <div class="hero-meta">개정 시행일자 · 2026.09.26 (공고 2026.09.26)</div><!-- [SNAP_PRIVACY 2026-09-26 사장님 결정 D12] 처음엔 자기 규정 «시행 7일 전 공지»(10조)로 공고 9/26 · 시행 10/3 이었다. ★[SNAP_OPEN_NOW 2026-09-26 사장님 결정] 스냅 기획은 선택이고 그 자리에서 따로 동의를 받게 되어(SNAP_CONSENT) 10조 단서(«정보주체의 권리에 불리하지 않은 변경은 공고와 동시에 시행»)로 공고일에 시행한다. 날짜는 80_production SNAP_V2.from 과 같아야 한다(snap-plan 이 잰다) -->
+  <div class="hero-meta">개정 시행일자 · 2026.10.08 (공고 2026.10.08)</div><!-- ★[VOICE_OPEN_1008 2026-10-08 사장님 «전체로 오픈해»] 두 분 목소리 항목 추가 · AI 목소리 생성 위탁 추가 — 선택 · 그 자리에서 본인이 따로 동의하므로 10조 단서로 공고일에 시행. 날짜는 80_production VOICE_UP.from · 아래 «AI 목소리 생성» 위탁 줄의 «부터»와 같아야 한다(voice-open.mjs 가 잰다) --><!-- [SNAP_PRIVACY 2026-09-26 사장님 결정 D12] 처음엔 자기 규정 «시행 7일 전 공지»(10조)로 공고 9/26 · 시행 10/3 이었다. ★[SNAP_OPEN_NOW 2026-09-26 사장님 결정] 스냅 기획은 선택이고 그 자리에서 따로 동의를 받게 되어(SNAP_CONSENT) 10조 단서(«정보주체의 권리에 불리하지 않은 변경은 공고와 동시에 시행»)로 공고일에 시행한다. 날짜는 80_production SNAP_V2.from 과 같아야 한다(snap-plan 이 잰다) -->
 </div>
 
 <main>
@@ -274,6 +274,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         <div class="spec-row" id="snap-plan"><!-- [SNAP_CONSENT] 마이페이지 스냅 기획 동의의 «개인정보 처리방침 전문 보기»가 이 줄로 온다(id 를 바꾸지 말 것) -->
           <span class="spec-key">스냅 기획</span>
           <span class="spec-val">공간별로 고른 촬영 장면, 참고 링크, 두 분이 올린 참고 사진, 촬영 작가에게 전할 메모(잘 나오는 쪽·신경 쓰이는 점 등) (선택 · 따로 동의를 받은 경우에만)</span>
+        </div>
+        <div class="spec-row" id="voice-clone"><!-- [VOICE_OPEN_1008] 식순 빌더 동의 화면(VC_CONSENT · 어디에 쓰나요 · 무엇을 보내나요 · 언제 지우나요)과 같은 말을 해야 한다 -->
+          <span class="spec-key">두 분 목소리</span>
+          <span class="spec-val">예식 안내를 두 분 목소리로 하기로 고른 경우, 직접 녹음하거나 올린 음성 파일, AI 목소리를 만들기 위해 읽은 녹음과 그것으로 만든 AI 목소리(음성 모델), 그 목소리로 읽을 안내 글 (선택 · 그 자리에서 본인이 직접 동의한 경우에만)</span>
         </div>
         <div class="spec-row">
           <span class="spec-key">결과물</span>
@@ -343,6 +347,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
           <span class="spec-val">청첩장 게재 정보(혼주 성함·계좌), 하객 편지, 전자서명 이미지, AI 상담 인계 정보, 스냅 기획에 올린 참고 사진·참고 링크·메모는 예식 또는 서비스 종료 후 <strong>6개월 이내</strong> 파기 (관계 법령상 보관 의무가 있는 계약·결제 관련 서명은 해당 기간까지 보관)</span>
         </div>
         <div class="spec-row">
+          <span class="spec-key">두 분 목소리</span>
+          <span class="spec-val">AI 목소리를 만들기 위해 읽은 녹음, 만든 AI 목소리(음성 모델), 연습 소리는 예식 <strong>다음 날</strong> 삭제(예식 취소·미진행 시 즉시), 직접 녹음·올린 음성 파일과 그 목소리로 만든 안내 소리는 예식 뒤 <strong>30일</strong>에 삭제 · 그 전에도 마이페이지에서 바로 지울 수 있음</span><!-- [VOICE_OPEN_1008] 서버 purgeVoiceClones(다음 날) · purgeRitualFiles(30일) 과 같은 값 -->
+        </div>
+        <div class="spec-row">
           <span class="spec-key">즉시 파기</span>
           <span class="spec-val">정보주체의 삭제 요청 시 즉시 파기 (관계 법령상 보관 의무가 있는 경우 제외)</span>
         </div>
@@ -406,6 +414,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
           <span class="spec-key">AI 상담 응대</span>
           <span class="spec-val">Anthropic PBC (Claude, 해외/미국) · 마이페이지·챗봇 AI 상담 응대 (문의 내용, 로그인 시 진행 상황·성함, 상담원 연결 요청 시 연락처)</span>
         </div>
+        <div class="spec-row">
+          <span class="spec-key">AI 목소리 생성</span>
+          <span class="spec-val">네오사피엔스㈜ (타입캐스트 Typecast, 국내) · 두 분이 읽은 녹음으로 AI 목소리를 만들고 예식 안내 글을 그 목소리로 읽기 (읽은 녹음, 읽을 안내 글(두 분 성함이 들어갈 수 있음) · 연락처는 제공하지 않음 · 만든 AI 목소리는 예식 다음 날 업체에서도 삭제 · 2026년 10월 8일부터)</span>
+        </div><!-- [VOICE_OPEN_1008] «부터» 날짜 = VOICE_UP.from -->
         <div class="spec-row">
           <span class="spec-key">촬영(스냅)</span>
           <span class="spec-val">모먼트에디트와 계약한 사진작가 (국내) · 예식 당일 스냅 촬영 및 촬영 브리프 확인 (예식 일시, 스냅 기획 내용·두 분이 올린 참고 사진, 촬영 이미지 · 성함·연락처는 제공하지 않음 · 2026년 9월 26일부터)</span>
@@ -518,11 +530,11 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         </div>
         <div class="spec-row">
           <span class="spec-key">개정 공고일자</span>
-          <span class="spec-val">2026년 9월 26일</span>
+          <span class="spec-val">2026년 10월 8일</span>
         </div>
         <div class="spec-row">
           <span class="spec-key">시행일자</span>
-          <span class="spec-val">2026년 9월 26일 (스냅 기획 항목 추가 · 선택 동의를 받은 경우에만 수집, 촬영 사진작가 위탁 추가) · 10조 단서에 따라 공고와 동시에 시행 · 직전 개정 2026년 7월 12일 (문자·알림톡·AI 상담·카드결제 위탁사 추가)</span>
+          <span class="spec-val">2026년 10월 8일 (두 분 목소리 항목 추가 · 선택 동의를 받은 경우에만 수집, AI 목소리 생성 위탁 추가) · 10조 단서에 따라 공고와 동시에 시행 · 직전 개정 2026년 9월 26일 (스냅 기획 항목 추가 · 선택 동의를 받은 경우에만 수집, 촬영 사진작가 위탁 추가 · 공고와 동시에 시행) · 그 전 개정 2026년 7월 12일 (문자·알림톡·AI 상담·카드결제 위탁사 추가)</span>
         </div>
       </div>
     </div>

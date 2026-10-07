@@ -437,7 +437,7 @@ chk 'data-snapact="confirm"' admin.html 1
 chk 'SNAP_BRIEF' brief.html 1
 chk 'noindex, nofollow' brief.html 1
 chk '촬영(스냅)' privacy.html 1                      # D12 처리방침 위탁 한 줄
-chk '2026년 9월 26일' privacy.html 3                 # [SNAP_OPEN_NOW] 공고일 = 시행일 = 위탁 시작일(10조 단서 · 공고와 동시에 시행) — 처음엔 10월 3일(«7일 전 공지»)이었다
+chk '2026년 9월 26일' privacy.html 2                 # [SNAP_OPEN_NOW] ★10/8 개정(VOICE_OPEN_1008)으로 공고일 줄은 넘어갔다 — 시행 이력 · 사진작가 위탁 «부터»에 남는다. 공고일 = 시행일 = 위탁 시작일(10조 단서 · 공고와 동시에 시행) — 처음엔 10월 3일(«7일 전 공지»)이었다
 nochk '2026년 10월 3일' privacy.html                 # 옛 시행일이 되살아나면 서버(SNAP_V2.from)와 어긋난다
 chk 'SNAP_OPEN_NOW' automation/platform/80_production.gs 1
 chk 'SNAP_OPEN_NOW' privacy.html 1
@@ -15210,6 +15210,19 @@ chk 'src="/assets/err-codes.js"' admin.html 1
 chk 'ERR_CODES' assets/err-codes.js 1
 chk 'ERR_CODES' scripts/audit/err-codes.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-codes.mjs >/dev/null 2>&1; _erc=$?; if [ "$_erc" = 1 ]; then echo 'FAIL err-codes: 오류 코드 장치(표 · 서버 도장 · 관리자 찾기)가 어긋났습니다 — node scripts/audit/err-codes.mjs'; fail=1; else echo "ok err-codes ($_erc)"; fi; fi
+# ★★[VOICE_OPEN_1008 2026-10-08 사장님 «전체로 오픈해»] 두 분 목소리 전체 오픈 — VOICE_UP.from=2026-10-08 · 처리방침 개정(두 분 목소리 항목 · 보관 기간 · AI 목소리 생성 위탁 · 공고=시행 10/8).
+#   스냅(SNAP_OPEN_NOW)과 같은 결 — 선택 · 그 자리에서 본인이 따로 동의하므로 10조 단서로 공고일 시행. 2099 로 되돌리지 말 것 · 날짜 셋은 voice-open.mjs 가 맞춘다
+chk "var VOICE_UP = { from: '2026-10-08' }" automation/platform/80_production.gs 1
+nochk "from: '2099-12-31'" automation/platform/80_production.gs
+chk 'VOICE_OPEN_1008' automation/platform/80_production.gs 2
+chk 'VOICE_OPEN_1008' privacy.html 4
+chk 'id="voice-clone"' privacy.html 1
+chk '네오사피엔스㈜ (타입캐스트 Typecast, 국내)' privacy.html 1
+chk '2026년 10월 8일' privacy.html 3
+chk 'VOICE_OPEN_1008' deploy-marks.json 1
+chk 'VOICE_OPEN_1008' scripts/audit/voice-open.mjs 1
+chk 'VOICE_OPEN_1008' scripts/audit/snap-plan.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/voice-open.mjs >/dev/null 2>&1; _vop=$?; if [ "$_vop" != 0 ]; then echo 'FAIL voice-open: 두 분 목소리 오픈 날짜가 서버 · 처리방침 · 위탁 줄에서 어긋났습니다 — node scripts/audit/voice-open.mjs'; fail=1; else echo 'ok voice-open'; fi; fi
 # ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460)에선 «확정 안내 보기 · 나레이션 자세히»를
 #   칩 아래 제 줄이 아니라 질문 줄(«어떻게 준비할까요») 오른쪽 끝에 — 이름표와 같은 11px · 글자 아래 선 맞춤 · 누를 칸 44 는 위로(영상 아래 간격 15px 그대로).
 #   PC · 태블릿은 칩 줄 오른쪽 끝 그대로 · 하객 맞이 · 식전 영상 · 입장 셋 다(_lChipRow 한 곳) · make-shell 이 390 · 1280 에서 잰다(폰 배치를 빼면 빨강 · 돌연변이 확인)
