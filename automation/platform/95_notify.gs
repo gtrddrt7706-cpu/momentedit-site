@@ -1244,6 +1244,7 @@ function ZZ_kakaoTestAll(code) {
 // 누적 횟수는 ScriptProperty LOCK_BUSY_N. 메일은 하루 1통(폭주 방지).
 function lockBusySignal(where) {
   try {
+    if (!where && typeof __ERR_ACT !== 'undefined' && __ERR_ACT) where = __ERR_ACT;   // [ERR_CODE_GAS] 어느 동작에서 막혔는지 — 종전엔 가입 · 입금 확인 · AI 인계 세 곳만 적혔다
     var p = PropertiesService.getScriptProperties();
     var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
     var n = (Number(p.getProperty('LOCK_BUSY_N')) || 0) + 1;
@@ -1259,4 +1260,86 @@ function _lockedAppend(sh, arr) {
   var lk = null;
   try { lk = LockService.getScriptLock(); if (!lk.tryLock(3000)) lk = null; } catch (e) { lk = null; }
   try { sh.appendRow(arr); } finally { if (lk) { try { lk.releaseLock(); } catch (e) {} } }
+}
+
+/* ★★[ERR_CODE_GAS 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+   고객 요청의 실패 응답(ok:false)마다 짧은 코드를 붙이고 «오류기록» 시트에 남긴다. 글자 = 자리(동작 이름으로 정한다) · 숫자 = 무슨 일.
+   표의 원천은 assets/err-codes.js(관리자 화면 검색창에 코드를 치면 뜻이 나온다) — 아래 _errArea 와 그 표의 글자가 같아야 한다(scripts/audit/err-codes.mjs).
+   서버가 정하는 숫자: 1 몰림(잠금 대기 문구) · 3 설정 · 배포(모르는 동작 · «… is not defined») · 8 로그인 풀림(reason) · 9 예상 못 한 오류(사고번호 eid) ·
+   핸들러가 정한 ecode(목소리 V1~V4 · 드라이브 실패 U4 · G4 · D4 · L4 · C4) · 그 밖 0(핸들러의 구체적인 글이 이미 까닭을 말한다 — 글에는 안 붙이고 ecode 칸에만).
+   개인정보: 토큰 · 요청 본문은 남기지 않는다 — 시각 · 사고번호 · 코드 · 동작 · 개인코드 · 고객이 본 글 · 내부 까닭(200자)만. 5,000줄을 넘으면 앞 1,000줄을 지운다 */
+var ERR_LOG_SHEET = '오류기록';
+var ERR_SKIP = { adminLogin: 1, adminLogout: 1, adminCall: 1, advisorLog: 1, awDemandLog: 1, aiCostLog: 1, aiKbNotes: 1, aiFacts: 1, aiSafetyAlert: 1, leadClick: 1 };   // 관리자 · 기록용 호출은 도장 · 기록하지 않는다
+var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 area 와 같다
+  V: ['voiceClone'],
+  U: ['ritualFile', 'snapRefUpload'],
+  D: ['ritualFileDel', 'ritualFilePurgeMine', 'snapWithdraw'],
+  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation'],
+  L: ['signup', 'login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery'],
+  P: ['paymentSignal', 'midSignal', 'balanceSignal', 'extraRetouchSignal', 'cardConfirm', 'cardPayConfig', 'saveCashReceipt', 'saveRefundAccount'],
+  C: ['weddingAvailability', 'changeWeddingHold', 'cancelWeddingHold', 'quoteWeddingChange', 'requestWeddingChange', 'cancelWeddingChange', 'requestContract', 'requestContractResend', 'signFittingConsent', 'signContract'],
+  B: ['getAvailability', 'submitSchedule', 'cancelReservation', 'emailCancelInfo', 'emailCancel', 'acceptProposal', 'leadCapture', ''],
+  A: ['aiHandoff', 'aiAvailability'],
+  G: ['seatView', 'guideView', 'guestPhoto', 'guestLetter', 'getCouple'],
+  R: ['submitResultSelection', 'requestExtraRetouch', 'confirmRetouch', 'requestRevision', 'submitSurvey']
+};
+function _errArea(a) {   // [ERR_CODE_GAS]
+  a = String(a == null ? '' : a);
+  for (var k in ERR_AREA) if (ERR_AREA[k].indexOf(a) > -1) return k;
+  return 'X';
+}
+function _errId() { var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', t = ''; for (var i = 0; i < 4; i++) t += A.charAt(Math.floor(Math.random() * A.length)); return t; }   // [ERR_CODE_GAS] 사고번호 — 헷갈리는 0 · O · 1 · I 는 뺀다
+var ERR_BUSY_RE = /^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 잠금 대기 초과 문구(70 · 80 · 85 핸들러 약 30곳)
+function _errStamp(out) {   // [ERR_CODE_GAS] jsonOut 이 ok:false 를 내보내기 직전에 한 번
+  try {
+    var act = (typeof __ERR_ACT !== 'undefined') ? __ERR_ACT : '';
+    var why = String(out._why || ''); delete out._why;
+    if (ERR_SKIP[act]) return out;
+    var ec = String(out.ecode || '');
+    if (!/^[A-Z]\d$/.test(ec)) {
+      var sess = /^(expired|invalid|no_token)$/.test(String(out.reason || ''));
+      ec = _errArea(act) + (sess ? 8 : (typeof out.error === 'string' && ERR_BUSY_RE.test(out.error)) ? 1 : 0);
+    }
+    out.ecode = ec;
+    var n = +ec.charAt(1);
+    if (n && typeof out.error === 'string' && /[가-힣]/.test(out.error) && !/\(코드 [A-Z]\d/.test(out.error)) out.error = out.error.replace(/\s+$/, '') + ' (코드 ' + ec + (out.eid ? ' · ' + out.eid : '') + ')';
+    _errRecord(act, ec, out.error, why, out.eid || '', out.http ? 'HTTP ' + out.http : '');
+  } catch (e) {}
+  return out;
+}
+function _errWho() {   // 개인코드만 — 로그인 토큰 → 하객 안내 토큰 순
+  var t = (typeof __ERR_TOK !== 'undefined') ? __ERR_TOK : ''; if (!t) return '';
+  try { var r = (typeof findCustomerByToken === 'function') ? findCustomerByToken(t) : null; if (!r && typeof _findCustomerBy === 'function') r = _findCustomerBy('안내공유토큰', t, false); return r ? String(r.get('개인코드') || '') : ''; } catch (e) { return ''; }
+}
+function _errRecord(act, ec, text, why, eid, extra) {   // [ERR_CODE_GAS] 오류기록 시트 한 줄 · 같은 실패(사람 · 동작 · 코드 · 글)는 10분에 한 줄 · 사고번호가 있으면 늘 남긴다
+  try {
+    var who = _errWho();
+    var key = 'ERRD_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [who, act, ec, text].join('|'), Utilities.Charset.UTF_8)).slice(0, 22);
+    var c = CacheService.getScriptCache(); if (!eid && c.get(key)) return; c.put(key, '1', 600);
+    var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(ERR_LOG_SHEET);
+    if (!sh) { sh = ss.insertSheet(ERR_LOG_SHEET); sh.appendRow(['시각', '사고번호', '코드', '동작', '개인코드', '고객이 본 글', '내부 까닭', '덧']); sh.setFrozenRows(1); }
+    var D = (typeof _deFormula === 'function') ? _deFormula : function (v) { return v; };
+    sh.appendRow([fmtKST(new Date()), eid || '', ec, String(act || '(없음)').slice(0, 40), D(who), D(String(text || '').slice(0, 200)), D(String(why || '').slice(0, 200)), D(String(extra || '').slice(0, 60))]);
+    if (sh.getLastRow() > 5000) sh.deleteRows(2, 1000);
+    var n = +String(ec).charAt(1);
+    if (n === 9 || (n === 3 && ec !== 'V3') || (n === 4 && /^[PCBUGD]/.test(ec))) _errAlert(ec, act, text, why, eid);   // V3(목소리 스위치 · 시험 예식 목록)은 종전 결정대로 메일 없음 — VCERR_ 에만(VC_GATE_WHY)
+  } catch (e) { try { console.warn('[ERR_CODE_GAS] 기록 실패 ' + ec + ' ' + (e && e.message)); } catch (_) {} }
+}
+function _errAlert(ec, act, text, why, eid) {   // [ERR_CODE_GAS] 관리자 메일 — 코드마다 하루 한 통(9 · 3 · 결제 · 계약 · 예약 · 올리기 · 하객 · 지우기의 4)
+  try {
+    var p = PropertiesService.getScriptProperties(), d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), k = 'ERRALERT_' + ec;
+    if (p.getProperty(k) === d) return; p.setProperty(k, d);
+    _nfAdminLineEmail('고객 화면 오류 ' + ec + (eid ? ' · 사고번호 ' + eid : '') + ' · 동작 ' + (act || '없음') + ' · 고객이 본 글 «' + String(text || '').slice(0, 80) + '»' + (why ? ' · 까닭 ' + String(why).slice(0, 140) : '') + ' · 같은 코드는 오늘 더 보내지 않아요(오류기록 시트에 다 남아요) / 오류 확인');
+  } catch (e) {}
+}
+function adminErrLog(code, n, eid) {   // [ERR_CODE_GAS] 관리자 화면 — 오류기록 최근 n줄(개인코드 · 사고번호로 거른다) · 읽기 전용 · adminCall
+  n = Math.max(1, Math.min(50, +n || 10)); code = String(code || '').trim().toUpperCase(); eid = String(eid || '').trim().toUpperCase();
+  var sh = SpreadsheetApp.getActive().getSheetByName(ERR_LOG_SHEET); if (!sh || sh.getLastRow() < 2) return { ok: true, rows: [] };
+  var last = sh.getLastRow(), from = Math.max(2, last - 2999), v = sh.getRange(from, 1, last - from + 1, 8).getDisplayValues(), out = [];
+  for (var i = v.length - 1; i >= 0 && out.length < n; i--) {
+    if (code && String(v[i][4]).toUpperCase() !== code) continue;
+    if (eid && String(v[i][1]).toUpperCase() !== eid) continue;
+    out.push({ at: v[i][0], eid: v[i][1], ec: v[i][2], act: v[i][3], code: v[i][4], text: v[i][5], why: v[i][6], extra: v[i][7] });
+  }
+  return { ok: true, rows: out };
 }

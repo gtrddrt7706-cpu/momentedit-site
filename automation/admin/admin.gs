@@ -186,6 +186,7 @@ function adminCall(token, fn, args) {
       adminRitualFiles: adminRitualFiles, adminRitualFileGet: adminRitualFileGet, adminRitualFileOk: adminRitualFileOk, adminVoiceUsage: adminVoiceUsage, adminVoiceRead: adminVoiceRead, adminRitualFileUp: adminRitualFileUp,   // [VOICE_CLONE_0928] AI 목소리 칸 · 글자 · 읽은 녹음 · [RF_STUDIO_UP] 스튜디오 대신 올리기(80_production)
         // [REC_ADMIN] 두 분 목소리 — 관리 화면 목록 · 들어 보기 · 확인 ✓ / 당일 콘솔 미리 받기(80_production)
       adminNotifyText: adminNotifyText,   // [ADM_AC5]
+      adminErrLog: adminErrLog,   // [ERR_CODE_GAS] 오류기록 — 고객 상세 «최근 실패» · 검색창의 사고번호(95_notify)
       /* ★★[CONTACT_FIX] 여기 등록을 빠뜨리면 화면·서버를 다 만들어도 기능이 통째로 죽는다 —
          adminCall 이 `{ok:false, error:'알 수 없는 요청: …'}` 를 돌려주고, 화면은 멀쩡히 그려지며
          모달까지 뜬 뒤 «누르는 순간에만» 죽는다. 2026-09-21 에 실제로 그렇게 내보냈다.
