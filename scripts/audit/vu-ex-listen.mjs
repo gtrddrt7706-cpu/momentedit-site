@@ -63,7 +63,7 @@ for (const w of [390, 1280]) {
     VC.st = { groom: { ready: false }, bride: { ready: false } }; window.__calls = []; _vc0 = (op, d) => { window.__calls.push(op + ':' + (d && d.role)); return new Promise((ok) => setTimeout(() => ok({ ok: true, mime: 'audio/mpeg', data: btoa('MP3') }), 100)); };
     for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
   await wait(500); await pg.evaluate(() => mkGo('_voice')); await wait(700);
-  await pg.evaluate(() => document.querySelector('[data-fk="mkvuse:g1"]').click()); await wait(400);   /* [VFLOW_ONE_LINE] 폰에서는 줄 단추가 숨고 묶음 단추(mkvusen)만 보인다 — «시작 10분 전» 창은 DOM click 으로 연다(①은 보이는 단추로 잰다) */
+  await pg.evaluate(() => mkUseOpen(_vcUseRows().findIndex((x) => x[0] === 'g1'))); await wait(400);   // 폰은 나오는 곳 줄이 한 줄로 접혀(#1102) 버튼이 안 보일 수 있다 — 창을 바로 연다
   for (const n of [0, 1, 2]) { await pg.click(`[data-fk="mkuseex:${n}"]`); await wait(250); }
   const d = await pg.evaluate(() => ({ wait: (document.querySelector('[data-fk="mkusewait"]') || {}).textContent || '', btn: !!document.querySelector('[data-fk="mkuseplay"]'), err: !!document.querySelector('.mk-vu-q ~ .mk-exw'), plays: window.__plays.length, calls: window.__calls.filter((x) => /^practice/.test(x)).length }));
   ok(`${w} ⑤ 만들기 전 — 들어 보기 대신 한 줄 · 칩을 눌러도 소리 · 오류 문구 없음 [VU_OWN_VOICE]`, d.wait === '두 분 목소리를 만들면 여기서 들어 볼 수 있어요' && !d.btn && !d.err && d.plays === 0 && d.calls === 0, JSON.stringify(d));
