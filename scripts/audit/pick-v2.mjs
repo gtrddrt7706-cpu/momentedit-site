@@ -132,8 +132,8 @@ for (const w of [390, 360]) {
   ok('PC 얇은 띠는 처음엔 안 보인다', !/\bon\b/.test(pc.slim), pc.slim);
   ok('PC 막마다 한 줄(4 · 4 · 3 · 3 · 마지막 막 = 케이크 커팅 · 축배 · 닫는 인사 [CAKE_TOAST_SPLIT])', pc.tiles === '4,4,3,3', pc.tiles);
   await pg.evaluate(() => document.getElementById('pkActsH').scrollIntoView({ block: 'start' })); await pg.waitForTimeout(500);
-  const sl = await pg.evaluate((lim) => { const s = document.getElementById('pkSlim'); const r = [...s.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width > 0 && b.right > lim + 0.5; }).length; return { on: s.classList.contains('on'), t: s.textContent, r }; }, lim);
-  ok('PC 흐름 띠가 나가면 얇은 띠(시간 둘 · ★) · 레일 자리 비움', sl.on && /본식\s약\s?\d+~\d+분\s·\s단체\s사진/.test(sl.t) && /★/.test(sl.t) && sl.r === 0, JSON.stringify(sl));
+  const sl = await pg.evaluate((lim) => { const s = document.getElementById('pkSlim'); const r = [...s.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width > 0 && b.right > lim + 0.5; }).length; return { on: s.classList.contains('on'), t: s.textContent, r, pk: !!s.querySelector('.op-pk') }; }, lim);
+  ok('PC 흐름 띠가 나가면 얇은 띠(시간 둘 · 진사 벅찬 순간 이름 · ★ 없음 [PEAK_COLOR]) · 레일 자리 비움', sl.on && /본식\s약\s?\d+~\d+분\s·\s단체\s사진/.test(sl.t) && !/★/.test(sl.t) && sl.pk && sl.r === 0, JSON.stringify(sl));
   await pg.click('[data-fk="pto:declare"]'); await pg.waitForTimeout(600);
   const sh = await pg.evaluate((lim) => { const b = document.querySelector('.pv-box').getBoundingClientRect(); return { w: Math.round(b.width), right: Math.round(b.right), cx: Math.round(b.left + b.width / 2) }; }, lim);
   ok('PC 미리 보기 = 가운데 창 680 · 레일 자리 비움', sh.w === 680 && sh.right <= lim && Math.abs(sh.cx - 640) <= 1, JSON.stringify(sh));

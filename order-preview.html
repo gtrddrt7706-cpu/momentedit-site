@@ -775,7 +775,8 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-ex[aria-pressed="true"]{border-color:var(--gold-deep);background:#F3ECDF}
 .op-ex b{display:block;font-size:14px} .op-ex .t{display:block;font-size:12.5px;color:var(--ink2);margin-top:3px} .op-ex .l{display:block;font-size:11px;color:var(--light);margin-top:3px;word-break:keep-all}
 #next.seal{background:var(--seal);border-color:var(--seal);color:#FAFAF8}   /* [SEAL_POINTS] ④ 확정 단추 */
-.op-star{color:var(--seal)}   /* [DETAIL_0925 C1] ★ 도 글자 · ★[SEAL_POINTS 2026-09-26 사장님] 가장 벅찬 순간은 진사(9:1 넘음) — ①~④ 같은 색 */
+.op-star{color:var(--seal)}
+.op-pk{color:var(--seal)}   /* ★[PEAK_COLOR 2026-10-07 사장님 «별 부분은 조금 유치한 거 같아 · 색상으로만 포인트 · 고급스러운 무드» · «별 들어간 곳 다른 곳들도 전부»] 가장 벅찬 순간은 ★ 없이 이름을 진사로만 · 화면 읽기에는 «가장 벅찬 순간»을 숨은 글로 */   /* [DETAIL_0925 C1] ★ 도 글자 · ★[SEAL_POINTS 2026-09-26 사장님] 가장 벅찬 순간은 진사(9:1 넘음) — ①~④ 같은 색 */
 .op-card button:focus-visible,.op-ex:focus-visible,.op-jump:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
 /* [LIST_WRAP] 목록 항목은 한 덩어리로 · [FREE_OWN] 맨 아래 묶음은 위와 한 칸 띄운다 · 더하기 단추 */
 .nw{white-space:nowrap}
@@ -1260,7 +1261,7 @@ body.lsfull{overflow:hidden}
 .cf-r.off .cf-dot::after{background:var(--bg);border:1px solid var(--gold-deep)}
 .cf-nm{font-size:14px;line-height:1.5;color:var(--accent);word-break:keep-all}
 .mk-intro .op-bar{margin:12px 0 3px}
-@media (min-width:1000px){ .mk-intro .cf-l,.mk-intro .op-bar,.mk-intro .op-leg{max-width:560px} }
+/* ★[FLOW_FULL_W 2026-10-07 사장님 «고르기 · 하나씩 만들기 · 연습하기 · 완성 가로 사이즈랑 그 밑 본식 · 단체 사진 바 가로 사이즈가 안 맞고 작다 · 아래 부분들도 같이»] PC 560px 상한 걷음 — 흐름 막대 · 범례 · 목록이 위 걸음 띠와 같은 폭(본문 폭) */
 /* ★«빼기» · «다시 담기» 글 단추(.cf-x) 금지 — 2026-10-03 사용자 지시로 삭제 [FLOW_MARK 2026-10-03 사장님 «빼기라는 문자가 연속되니까 조금 이상 · 문양으로»]
    ① 칸과 같은 표(.pk-sel · 담김 = 먹빛 동그라미 ✓ · 안 담김 = 금빛 테 ＋)를 그대로 쓴다 — 여기서는 칸 모서리에 띄우지 않고 줄 끝에 세울 뿐(위치만 덮어쓴다).
    늘 있는 순간(하객 맞이 · 입장 · 닫는 인사)은 같은 ✓ 를 옅게(단추 아님) — 모든 줄이 «담겨 있음»을 말하고, 고정된 줄은 고정돼 보이게 */
@@ -3841,7 +3842,8 @@ function opChipLabel(k){
   return R.chipLabel(k,S);
 }
 /* [DETAIL_0925 B13] 절정이 없을 때 — 한마디씩 인사는 절정이 아니다(1분쯤씩이 절정) */
-var PEAK_NONE='가장 벅찬 순간(★)이 될 것을 하나 담아 보세요 · 성혼 선언 · 편지 낭독, 또는 말로 전하는 부모님께 인사.';   /* [TRIB_ONE_SAY] */   // [G1 2026-09-26 코워크 최종판 5-1] ①~④ 같은 말 «가장 벅찬 순간»
+function _pkName(h,on){ return on?'<span class="op-pk">'+h+'<span class="sr-only"> · 가장 벅찬 순간</span></span>':h; }   /* [PEAK_COLOR] */
+var PEAK_NONE='가장 벅찬 순간이 될 것을 하나 담아 보세요 · 성혼 선언 · 편지 낭독, 또는 말로 전하는 부모님께 인사.';   /* [TRIB_ONE_SAY] */   // [G1 2026-09-26 코워크 최종판 5-1] ①~④ 같은 말 «가장 벅찬 순간»
 function _candleWho(){ var R=RitualOpen; return (R.CANDLE_WHO.filter(function(c){ return c[0]===(S.candleWho||R.DEF.candleWho); })[0]||[0,''])[1]; }
 window.opToListen=function(){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k==='listen'){ _opGo(i); return; } } };
 /* ★[DETAIL_0925 A2] 알림 — 한 번에 하나 · 풀어 주는 단추 · «괜찮아요»(④ 사진 시간 부족은 닫지 않는다) ·
@@ -5983,7 +5985,7 @@ function renderMake(){
   h+='<section class="mk-pg'+(off?' off':'')+'" aria-labelledby="mkHead">';
   if(off){ var dm=(m.dropMin||{})[k]; h+='<div class="mk-offb" role="status"><span>이 순간을 뺐어요 · 적어 두신 글은 그대로 있어요'+(dm?' · 본식 약 '+dm+'분 줄었어요':'')+'</span><button type="button" class="rowbtn" data-fk="mkundrop" onclick="mkUndrop(\''+k+'\')">다시 넣기</button></div>'; }
   /* [R2-21] 식전 영상도 «이 순간 빼기»(PREVIDEO_PICK 부터 뺄 수 있는 순간) · [R2-22] «식전 · 식전 영상» 겹말을 막는다(SCRIPT_LAB P1-7 과 같은 규칙) */
-  h+='<div class="mk-h"><h3 id="mkHead" tabindex="-1">'+((no&&!(no==='식전'&&/^식전/.test(_mkName(k))))?'<span class="mk-hn">'+esc(no)+'</span> · ':'')+esc(_mkName(k))+(k===peak&&!off?' <span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':'')+'</h3>'
+  h+='<div class="mk-h"><h3 id="mkHead" tabindex="-1">'+((no&&!(no==='식전'&&/^식전/.test(_mkName(k))))?'<span class="mk-hn">'+esc(no)+'</span> · ':'')+_pkName(esc(_mkName(k)),k===peak&&!off)+'</h3>'
     +'</div>';   /* ★순간 쪽 «이 순간 빼기» 글 단추(.mk-drop) 금지 — 2026-10-03 사용자 지시로 삭제 [MK_NO_DROP_LINK 2026-10-03 사장님 «빼기는 예식 흐름의 ✓/＋에서만»] · 뺀 순간 쪽(«이 순간을 뺐어요 · 다시 넣기»)은 남긴다 — 옛 초안(S.mk.drop)이 그 쪽을 연다 */
   var one=(R.CARDS[k]&&R.CARDS[k].one)||(k==='guest'?'하객이 들어와 자리에 앉는 동안 안내가 흘러요.':'');
   if(one||sec) h+='<p class="mk-one">'+esc(_n2(one.replace(/\(한 분 1분쯤\)/,'')))+(sec&&k!=='guest'?' <span class="mk-sec-t">'+esc(R.secTxt(sec))+'</span>':'')+'</p>';
@@ -6207,7 +6209,7 @@ function renderListen(){
     +'<span class="ls-hl"><span class="ls-hb" aria-hidden="true">'+ICO_PLAY+'</span><b>처음부터 보고 듣기</b></span>'
     +'<span class="ls-len">'+(len?('다 보는 데 약 '+Math.max(1,Math.round(len/60))+'분 · 말하는 자리는 짧게 넘겨요'):'')+'</span></button>';
   if(LS.allPend) h+='<p class="ls-note ls-allpend">'+esc(REC_PEND)+'</p>';   // [RIT_NAME_TWO] «녹음 전» 안내는 한 문장
-  h+='<p class="ls-peak">'+(peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span> 표시는 이 예식에서 가장 벅찬 순간이에요.':esc(PEAK_NONE))+'</p>';   // [DETAIL_0925 B13]
+  h+='<p class="ls-peak">'+(peak?'<span class="op-pk">색으로 표시한 순간</span>이 이 예식에서 가장 벅찬 순간이에요.':esc(PEAK_NONE))+'</p>';   // [DETAIL_0925 B13]
   h+='<div class="ls-rows">';
   /* ★[RIT_UNDO_INPLACE 2026-09-27 4부 10] «이 순간 빼기»의 되돌리기는 뺀 그 자리에 한 줄 — 종전엔 목록 맨 아래(.ls-msg)에 떠서 찾으러 내려가야 했다 */
   var _gone=(LS.undo&&LS.undo.at>=0)?LS.undo:null, _rs=_lRows(), _gi=_gone?Math.min(_gone.at,_rs.length):-1;
@@ -6241,7 +6243,7 @@ function _lRow(k,on,no,peak){
      그림을 누르면 작은 플레이어로 그 순간이 들린다 · 크게 보기는 작은 플레이어 제목과 «처음부터 보고 듣기»가 맡는다. */
   var _pl=(LP.q.length&&LP.cur===k&&!LP.paused);   /* [A11Y_PLAYTOG 3장] 이 줄이 재생 중이면 ▶ 대신 «멈춤»(다시 누르면 처음부터 다시 틀던 것) */
   h+='<button type="button" class="ls-th ls-play" aria-label="'+esc(_lName(k))+(_pl?' 멈춤':' 듣기')+'" data-fk="lsp:'+k+'" data-pl="'+(_pl?'1':'0')+'" onclick="'+(_pl?'lsToggle()':'lsPlay(\''+k+'\')')+'">'+(_lAnyVid()?_lVid(k,{mini:true}):'')+'<span class="ls-pi" aria-hidden="true">'+(_pl?ICO_PAUSE:ICO_PLAY)+'</span></button>';
-  h+='<button type="button" class="ls-main" aria-expanded="'+(open?'true':'false')+'" data-fk="lsm:'+k+'" onclick="lsOpen(\''+k+'\')"><span class="nm">'+esc(_lName(k))+(on&&k===peak?' <span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':'')+'</span><span class="sp">'+esc(on?_ndd(_lSum(k)):'담지 않았어요')+'</span></button>';   // ★[DOT_GLUE 코워크 추가 점검 · 접근성] 점이 줄 머리 · 끝에 서지 않게(②·③·④ 같은 규칙) · [R2-33] ★ 은 이름 뒤
+  h+='<button type="button" class="ls-main" aria-expanded="'+(open?'true':'false')+'" data-fk="lsm:'+k+'" onclick="lsOpen(\''+k+'\')"><span class="nm">'+_pkName(esc(_lName(k)),on&&k===peak)+'</span><span class="sp">'+esc(on?_ndd(_lSum(k)):'담지 않았어요')+'</span></button>';   // ★[DOT_GLUE 코워크 추가 점검 · 접근성] 점이 줄 머리 · 끝에 서지 않게(②·③·④ 같은 규칙) · [R2-33] ★ 은 이름 뒤
   h+='<span class="ls-acts">'+(on?'':'<button type="button" class="ls-add" aria-label="'+esc(_lName(k))+' 담기" data-fk="lsa:'+k+'" onclick="lsAdd(\''+k+'\')">+ 담기</button>')+'</span>';
   if(open) h+='<div class="ls-x">'+_lExp(k,on)+'</div>';
   return h+'</div>';
@@ -6778,7 +6780,7 @@ function _lFull(){
     var ks=[]; LP.q.forEach(function(x){ if(ks.indexOf(x.k)<0) ks.push(x.k); });
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';
-    h+='<h3>'+esc(_lName(st.k))+(st.k===R.peakOf(S)?' <span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':'')+'</h3>';   /* [R2-33] ★ 은 이름 뒤(① · ② 와 같게) */
+    h+='<h3>'+_pkName(esc(_lName(st.k)),st.k===R.peakOf(S))+'</h3>';   /* [R2-33] ★ 은 이름 뒤(① · ② 와 같게) */
     h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':((S.up||{})[st.up]||{}).src==='ai'?'AI로 만든 두 분 목소리':'두 분이 올린 파일'):st.src?'예시 목소리 · 두 분이 준비하면 그 목소리로 바뀌어요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
     /* ★«AI 연습 소리 · 예식에서는 나오지 않아요» 배지 금지 — 2026-10-05 사용자 지시로 삭제 [PT_TEMP] (사장님 «임시라는 걸 강조해 문구 만들어 노출») · 말하는 차례 안내 한 줄(lf-cue)이 «연습용으로만 잠깐 … 예식 당일엔 직접 말해요»로 말한다 */   // [PRACTICE_READ_0928] 배지 «AI 연습 소리»   // [VOICE_CLONE 4-2]
     if(st.talk2&&PR.cur&&PR.cur.k===st.k&&PR.cur.who===st.who) h+='<p class="lf-rec" role="status"><i aria-hidden="true"></i>내 목소리 녹음 중 · 이 휴대폰에만 남아요</p>';   // [PRACTICE_VOICE]
@@ -7092,9 +7094,9 @@ function _pkEx(ex){
 }
 function _pkPeakHtml(){
   var R=RitualOpen, pl=R.peakLine(S);
-  if(!pl) return '<span class="op-star" aria-hidden="true">★</span> '+esc(R.PEAK_NONE);
-  if(pl.tail) return '<span class="op-star" aria-hidden="true">★</span> '+esc(pl.tail);   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */
-  return '<span class="op-star" aria-hidden="true">★</span> 가장 벅찬 순간은 <b>'+esc(pl.n)+'</b>'+pl.be+'.';   /* [D3] */
+  if(!pl) return esc(R.PEAK_NONE);   /* [PEAK_COLOR] ★ 걷음 */
+  if(pl.tail) return esc(pl.tail);   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */
+  return '가장 벅찬 순간은 <b class="op-pk">'+esc(pl.n)+'</b>'+pl.be+'.';   /* [D3] */
 }
 function _pkPanel(){
   var R=RitualOpen, sp=R.span(S), n=R.picked(S).length;
@@ -7103,7 +7105,7 @@ function _pkPanel(){
     +'<div class="pk-side"><button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button></div></section>';   /* ★[QA_PC_EMPTY_GO 2026-10-04 점검] PC 는 아래 막대(#nav)를 숨기는데 빈 판엔 이 단추도 없어 갈 길이 없었다 — 휴대폰 막대와 같은 길 */   /* [R1-33] «늘 있어요»는 칸마다 표(.pk-fix)가 이미 말한다 */
   var _sg=R.flowSegs(S), flat=(n<2)||_sg.every(function(x){ return x.lv===_sg[0].lv; });   // [RIT_CURVE_LABEL]
   var photo=_nb('단체 사진 '+sp.photo), pl=R.peakLine(S);   /* [FLOW_MIN] 준비할 것 줄(prepLine · PREP_WHERE)은 이 판에서 걷었다 · ③ 한눈에 보기가 맡는다 */   /* [R4-07] 개수 줄 · 안내 줄을 나눈다 */   // [PREP_NO_DANGLE] «· ③에서 모아 봐요»가 줄 머리로 떨어졌다(390 실렌더) — 이 줄은 점 양옆을 붙인다
-  var ord=(R.onOf(S,'prevideo')?'<span class="pk-pre">식전 영상 →</span> ':'')+R.orderParts(S).map(function(o){ return esc(o.n).replace(/ /g,NBS)+(o.peak?'<span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':''); }).join(NBS+'› ');   /* 순간 이름 안에서는 안 갈린다(«닫는 / 인사» · 360) */   /* [F1] · [ORDER_ARROW_END 2026-09-26 직접 보며 점검] «›»는 앞 말에 붙인다 — 360 에서 둘째 줄이 «› 선언»으로 시작했다 · 줄 끝의 «›»는 «이어져요»로 읽힌다 */
+  var ord=(R.onOf(S,'prevideo')?'<span class="pk-pre">식전 영상 →</span> ':'')+R.orderParts(S).map(function(o){ return _pkName(esc(o.n).replace(/ /g,NBS),o.peak); }).join(NBS+'› ');   /* 순간 이름 안에서는 안 갈린다(«닫는 / 인사» · 360) */   /* [F1] · [ORDER_ARROW_END 2026-09-26 직접 보며 점검] «›»는 앞 말에 붙인다 — 360 에서 둘째 줄이 «› 선언»으로 시작했다 · 줄 끝의 «›»는 «이어져요»로 읽힌다 */
   return '<section class="pk-fp" id="pkFlow" aria-labelledby="pkFlowH">'
     /* ★[RIT_PANEL_NOMIN 2026-09-27 4부 2] 판 머리의 «본식 약 N분»을 뺐다 — 같은 숫자가 카드 · 판 머리 · 아래 막대에 셋이었다(카드와 막대에 남는다) */
     +'<div class="pk-fp-main"><div class="pk-fp-h"><h3 id="pkFlowH">우리 예식의 감동 흐름</h3></div>'   /* [FLOW_MIN] 설명 줄 없음 */
@@ -7173,7 +7175,7 @@ function _pkSlim(){
   if(!el){ el=document.createElement('div'); el.id='pkSlim'; el.className='pk-slim'; el.setAttribute('role','region'); el.setAttribute('aria-label','담은 순간 요약'); document.body.appendChild(el); }
   var n=R.picked(S).length, sp=R.span(S), pk=R.peakOf(S);
   var nt=R.noticeFull(S,_noteShut);
-  el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b> ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+'<span class="op-star" aria-hidden="true">★</span> '+esc(R.CARDS[pk].n):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
+  el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b> ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+_pkName(esc(R.CARDS[pk].n),1):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
       +(nt?'<button type="button" class="al" onclick="opToNote()">'+esc(R.firstSentences(nt.msg,1))+' ›</button>':'')+'</span>')
     :'<span class="t">입장 · 닫는 인사만으로도 다음으로 갈 수 있어요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 하나씩 만들기</button>';   /* [R1-33] */
   _pkSlimCheck();
@@ -8268,7 +8270,7 @@ function _doneOpen(){
     if(_pd.some(function(x){ return x.q&&!x.q.up&&x.q.cat==='send'; })) _bits.push('보낼 것 남음');
     var mark=empty?'글 비어 있음':!_pq?'':_bits.join(' · ');
     h+='<div class="sumrow">'+(no==='식전'?'<div class="sr-n sr-pre">식전</div>':'<div class="sr-n">'+esc(no)+'</div>')
-      +'<div class="sr-l">'+esc(_lName(k))+(k===peak?' <span class="op-star" role="img" aria-label="가장 벅찬 순간">★</span>':'')+'</div>'   /* [R2-33] */
+      +'<div class="sr-l">'+_pkName(esc(_lName(k)),k===peak)+'</div>'   /* [R2-33] */
       +'<div class="sr-v">'+esc(_ndd(_lSum(k)))+(mark?'<span class="sr-empty">'+esc(mark)+'</span>':'')+'</div>'
       +'<button class="sr-c" aria-label="'+esc(_lName(k))+(mark?' '+(empty?'글 ':'')+'채우기':' 바꾸기')+'" data-fk="sum:'+k+'" onclick="editStep(\''+k+'\')">'+(mark?'채우기':'변경')+'</button></div>';
   });
@@ -8291,7 +8293,7 @@ function scriptTextOpen(){
   var peak=R.peakOf(S), lines=['우리 예식 대본 · '+headLine(0),''];
   _lRows().forEach(function(k){
     var no=_lNo(k), nm=_lName(k);
-    lines.push((no==='식전'?(/^식전/.test(nm)?'':'식전 '):no+'. ')+(k===peak?'★ ':'')+nm);   // [SCRIPT_LAB P1-7] «식전 식전 영상» 겹말을 막는다
+    lines.push((no==='식전'?(/^식전/.test(nm)?'':'식전 '):no+'. ')+nm+(k===peak?' (가장 벅찬 순간)':''));   /* [PEAK_COLOR] 글로만 나가는 대본은 색이 없어 말로 */   // [SCRIPT_LAB P1-7] «식전 식전 영상» 겹말을 막는다
     _lSteps(ENG,[k]).forEach(function(x){
       if(x.skip) lines.push('('+x.txt.replace(/ · 미리 듣기에서는 넘겨요$/,'')+')');
       else if(x.quiet) lines.push('('+x.txt+')');   // [G5] 말 없는 사람 순간
