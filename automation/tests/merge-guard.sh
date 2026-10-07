@@ -14315,7 +14315,7 @@ chk '<div class="mk-slc"><ol class="mk-sl"' order-preview.html 1
 chk '^\.mk-pl{position:relative;isolation:isolate;flex:0 0 auto;width:58px;height:44px;margin:-8px 0;' order-preview.html 1   # [PLAY_PILL] 줄 ▶ = 가로 알약 · 칸 = 알약 폭이라 왼쪽 밀기 없음([CARD_POLISH] ① 알약 왼쪽 끝 = 글 · 카드 왼쪽 선)
 # ★★[PLAY_PILL · WAIT_FILL · PLAY_WAIT_TAP 2026-10-07 사장님 «입장 인사 왼쪽 플레이 버튼 · 가로 타원으로 · 로딩을 직관적으로 · 점점 진해지면서» → 시안 셋 중 A «차오르는 알약»]
 #   줄 ▶ 는 원 → 흰 알약(확정하기 알약과 한 집안) · 기다림은 흐리게 꺼 두지 않고 «차오름»(어림 시간 · 90% · 다 되면 끝까지 · 회전 없음)
-#   여섯 곳 한 모양 — 줄 ▶ · 이 순간 전체 듣기 · «이 목소리가 나오는 곳» 창 들어 보기 · «목소리 맞추기» 창(빠르기와 쉼) 들어 보기 · 작은 플레이어 ❚❚ · 크게 보기 ❚❚ ([COURSE_WIDE])
+#   일곱 곳 한 모양 — 줄 ▶ · 흐름 ▶(원 · FLOW_WAIT) · 이 순간 전체 듣기 · «이 목소리가 나오는 곳» 창 들어 보기 · «목소리 맞추기» 창(빠르기와 쉼) 들어 보기 · 작은 플레이어 ❚❚ · 크게 보기 ❚❚ ([COURSE_WIDE])
 #   (쉼 «이 자리 들어 보기»는 기다림이 생기지 않아 넣지 않았다 · MK.turnLoad 를 세우는 곳이 없다)
 #   미리 만든 소리를 조용히 올리는 동안(MK_UPQ)에도 ▶ 는 누를 수 있다 — 누르면 올라간 뒤 바로 튼다(EX_NO_AUTO 의 길을 disabled 가 막고 있었다)
 chk 'PLAY_PILL' order-preview.html 2
@@ -14325,15 +14325,19 @@ nochk '^\.mk-vch \.mk-vpl svg{' order-preview.html   # [PLAY_PILL] 줄 카드 �
 chk '^\.mk-pl:focus-visible{outline:none} \.mk-pl:focus-visible::before{outline:2px solid var(--seal);outline-offset:3px}' order-preview.html 1   # [PILL_FOCUS] 키보드 고리도 알약 모양 · 단추 칸(58×44)에 두르면 모서리 4px 네모가 알약을 감쌌다(10-07 390 실렌더 · 같은 줄 «목소리 만들기» 알약은 고리도 알약)
 chk 'function _wfx(id,on,d,at)' order-preview.html 1
 chk 'function _waitEst(t)' order-preview.html 1
-chk 'function _lpWait(st)' order-preview.html 1
+chk 'function _lpWait(st,id)' order-preview.html 1
 chk '@keyframes wfIn{' order-preview.html 1
 chk '.wfill.ld::after{animation:wfIn' order-preview.html 1
 chk 'prefers-reduced-motion:reduce){ .wfill.ld::after' order-preview.html 1
 chk "_wfx('mp:'+k" order-preview.html 1
 chk "_wfx('vu'," order-preview.html 1
 chk "_wfx('tune'," order-preview.html 1
-chk "_wfx('lp'," order-preview.html 1
+chk "_wfx(id||'lp'," order-preview.html 1
 chk "(_lpWait(st))" order-preview.html 2
+chk 'FLOW_WAIT' order-preview.html 4   # [FLOW_WAIT 2026-10-07 사장님 «원형에 로딩 시간 효과는 살린 거야?»] 흐름 ▶(원)도 차오름 — 헬퍼 · 칠하기 · 그리기 · CSS
+chk "})(_mlWait(k+':'+i))" order-preview.html 1
+chk "_wfPaint(b,_mlWait(b.getAttribute('data-ml')))" order-preview.html 1
+chk '.mk-flow li.n .mk-pl.wfill::after{inset:5px}' order-preview.html 1
 nochk "(st.busy?' disabled aria-busy=\"true\"':'')+' onclick=\"mkUpPlay(" order-preview.html
 nochk 'Math.min(14,3+' order-preview.html 1   # [WAIT_FILL] 어림 시간은 _waitEst 한 곳
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
