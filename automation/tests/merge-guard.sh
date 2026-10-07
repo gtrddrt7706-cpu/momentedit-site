@@ -14678,6 +14678,11 @@ chk "if(open&&kbd){ var f=menu.querySelector" order-preview.html 1
 chk 'MENU_TAP_NORING' scripts/audit/listen-page.mjs 2
 # ★[FLOW_NO_ORDER 2026-10-07 사장님 «식전 영상에서 닫는 인사까지 순서는 제거 · 어차피 다음 페이지에서 알 수 있으니»] 고르기 감동 흐름 판의 순서 줄 걷음 — 되살리지 말 것
 chk 'FLOW_NO_ORDER' order-preview.html 1
+# ★[REDO_LINK_ALIGN · VFLOW_ONE_LINE · HEAD_FOCUS_NORING 2026-10-07 사장님] «자세히 보기» 글과 같은 기준선 · 폰은 나오는 곳 한 줄(하객 맞이 안내 · 식전 영상 소개 · 입장 인사) · 초점만 옮기는 제목에 진사 테두리 없음
+chk 'REDO_LINK_ALIGN' order-preview.html 1
+chk 'VFLOW_ONE_LINE' order-preview.html 2
+chk 'VFLOW_ONE_LINE' scripts/audit/vuse-flow.mjs 1
+chk 'HEAD_FOCUS_NORING' order-preview.html 1
 nochk "+'<p class=\"pk-tm mo\">'+ord+'</p>'" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/ex-old-cover.mjs >/dev/null 2>&1; _eoc=$?; if [ "$_eoc" = 1 ]; then echo 'FAIL ex-old-cover: 예시 글이 바뀌었는데 옛 글이 EX_OLD_1006 · PV_OLD 에 없습니다 — node scripts/audit/ex-old-cover.mjs'; fail=1; elif [ "$_eoc" = 2 ]; then echo 'skip ex-old-cover: origin/main 없음'; else echo 'ok ex-old-cover: 바뀐 예시 글은 옛 글 목록에 있다'; fi; fi
 chk 'function _exNOf(key)' order-preview.html 1
