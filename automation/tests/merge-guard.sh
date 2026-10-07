@@ -15834,3 +15834,14 @@ nochk "있어요. 잠시 뒤 다시 눌러 주세요. (코드 S5)" order-preview
 nochk "if (/요청을 처리하지 못했어요/.test(t)) return '서버 오류(드라이브일 수 있어요) (코드 L9)';" console.html
 chk 'VC_JOIN_M6' order-preview.html 1
 nochk "fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요')" order-preview.html
+chk 'INV_PUB_AGAIN' mypage.html 2
+chk 'INV_PUB_AGAIN' scripts/audit/err-mypage.mjs 2
+chk 'REVIEW_NOINDEX' scripts/build-script-review.mjs 1
+chk 'name="robots" content="noindex,nofollow"' script-review.html 1
+chk 'GETCOUPLE_CONTRACT' automation/consultation/consultation-booking.gs 1
+nochk "error: '청첩장 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.' });" automation/consultation/consultation-booking.gs
+chk 'function liveSrvFail(d)' live.html 1
+chk 'function hySrv(d)' shared/hydrate.js 1
+chk 'GETCOUPLE_CONTRACT' scripts/audit/err-pages.mjs 3
+chk 'ADM_SHAPE_X7' admin.html 1
+chk 'ADM_SHAPE_X7' scripts/audit/err-admin.mjs 1

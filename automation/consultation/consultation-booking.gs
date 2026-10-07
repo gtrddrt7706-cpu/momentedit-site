@@ -170,7 +170,7 @@ function doGet(e) {
     try { Logger.log('doGet 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
     if (p && p.action === 'getCouple') {   // ★[GETCOUPLE_JSON_ERR 2026-10-08 점검] 청첩장 · 라이브의 JSON 길은 예외도 JSON(G9 · 87_letter 미붙임이면 G3) — 종전엔 안내 HTML 이 나가 하객 화면은 «깨진 답 G7», 기록은 X9 로 갈렸다
       var _ge = String((err && err.message) || err || ''); __ERR_ON = true; __ERR_ACT = 'getCouple';
-      return jsonOut({ ok: false, ecode: 'G' + (/is not defined|is not a function/.test(_ge) ? 3 : 9), eid: (typeof _errId === 'function') ? _errId() : '', _why: String((err && err.stack) || _ge).replace(/\s+/g, ' ').slice(0, 200), error: '청첩장 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.' });
+      return jsonOut({ ok: false, ecode: 'G' + (/is not defined|is not a function/.test(_ge) ? 3 : 9), eid: (typeof _errId === 'function') ? _errId() : '', _why: String((err && err.stack) || _ge).replace(/\s+/g, ' ').slice(0, 200), error: 'INTERNAL_ERROR' });   // ★[GETCOUPLE_CONTRACT 2026-10-08 점검 R2] 하객 화면(live · 청첩장 24장 hydrate)은 error === 'INTERNAL_ERROR' 로 «서버 사고»를 가른다 — 한글 글을 주면 «이 링크로는 예식을 찾을 수 없습니다»(링크 탓)로 떨어졌다(87_letter ltGetCouple 과 같은 약속)
     }
     var _gid = ''; try { if (typeof _errId === 'function') { _gid = _errId(); _errRecord('get:' + String(p.action || p.page || '').slice(0, 30), 'X9', '문제가 발생했습니다', String((err && err.stack) || (err && err.message) || err).replace(/\s+/g, ' ').slice(0, 200), _gid, ''); } } catch (_g) {}   // [ERR_CODE_GAS]
     return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.' + (_gid ? ' (코드 X9 · ' + _gid + ')' : ''), false);   // 내부 예외 원문 비노출

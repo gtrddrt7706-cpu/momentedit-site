@@ -89,6 +89,8 @@ const n1 = rec.length; const q4 = st('seatView', { ok: false, mineOnly: true, er
 ok('⑤ «내 자리만»은 실패가 아니다 — 오류기록에 안 남는다', rec.length === n1 && !q4.ecode, JSON.stringify(q4));
 const q5 = st('ritualFileGet', { ok: false, error: '파일을 열지 못했어요.' }), q6 = st('login', { ok: false, error: '개인코드(이메일) 또는 비밀번호가 올바르지 않습니다.' });
 ok('⑤ [ERR_FAILISH_4] ecode 없는 «…하지 못했어요»는 4 로 코드가 붙는다 · 입력 확인(비밀번호 틀림)은 0 · 코드 안 붙음', q5.ecode === 'L4' && q5.error === '파일을 열지 못했어요 (코드 L4)' && q6.ecode === 'L0' && !/\(코드/.test(q6.error), JSON.stringify([q5, q6]));
+{ const CB = rd('automation/consultation/consultation-booking.gs'); const m = /if \(p && p\.action === 'getCouple'\) \{[^\n]*GETCOUPLE_JSON_ERR[\s\S]{0,900}?return jsonOut\(\{[^\n]*\}\);/.exec(CB);
+  ok('⑤ [GETCOUPLE_CONTRACT] 청첩장 조회 예외는 error: \'INTERNAL_ERROR\' — 하객 화면이 서버 사고와 «없는 예식»을 이 글로 가른다', !!m && /error: 'INTERNAL_ERROR'/.test(m[0]) && /ecode: 'G'/.test(m[0]), m ? m[0].slice(-160) : '블록 없음'); }
 const SRC_NF = rd('automation/platform/95_notify.gs');
 ok('⑤ 사고번호 찾기는 시트 전체(eid 면 2행부터)', /from = eid \? 2 : Math\.max\(2, last - 2999\)/.test(SRC_NF));
 
