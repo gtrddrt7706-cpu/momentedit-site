@@ -15503,3 +15503,61 @@ chk 'TABLE_GREET_1008' mypage.html 1
 chk 'tables:_tbl' mypage.html 1
 chk 'TABLE_GREET_1008' scripts/audit/open-course.mjs 4
 chk 'TABLE_GREET_1008' scripts/audit/listen-page.mjs 1
+# ★★[ERR_SRV_REASON · ERR_CODE_DOT · ERR_CODE_NOWRAP 2026-10-07 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지» — 마이페이지 1라운드]
+#   P1 서버 한글 까닭(0)은 코드 없이(글이 곧 까닭 · 하객 · 예약 화면 _ecSrv 와 같은 판단) · P2 코드 앞 마침표 걷음 · 코드는 어느 칸에 넣어도 한 덩어리(nowrap · 글은 그대로)
+#   #1 PAY_FAIL_KIND(failUrl 갈래 · 승인 거절 토스 코드) · #2 #3 SEAT_FIN_SKIP · #4 ECHO_LOST_CODE(S3) · #5 PV_IMG_CODE · #6 SNAP_REFS_MISS · #7 QR_LOAD_FAIL · #8 WIZ_EXIT_CODE
+#   #9 SNAP_THUMB_FAIL · #10 PAY_RET_EMPTY · #11 LOAD_FAIL_SPIN · #17 PRIVACY_FAIL_ONE · P6 ERR_MID_NOCODE(_wrSlow 중간 줄) — err-mypage.mjs ⑨~⑮ 가 되돌리면 빨강(돌연변이 확인)
+chk 'ERR_SRV_REASON' mypage.html 4
+chk 'if(i.t && !i.n) return i.t;' mypage.html 1
+chk 'if(i.has) return _errTidy(i.t);' mypage.html 1
+chk 'function _errTidy(t)' mypage.html 1
+chk 'ERR_CODE_DOT' mypage.html 6
+nochk '잠시 후 다시 시도하거나 계좌이체로 진행해 주세요. (코드 P6)' mypage.html
+nochk '결제 준비 중이에요. 잠시 후 다시 열어 주세요. (코드 P3)' mypage.html
+nochk '결제 금액을 불러오지 못했어요. 디렉터가 확인해 드릴게요. (코드 P3)' mypage.html
+nochk '주소 검색을 불러오지 못했어요. 잠시 뒤 다시 눌러 주세요. (코드 C6)' mypage.html
+nochk '응답이 늦어지고 있어요. 이미 만들어졌을 수도 있어요' mypage.html
+nochk '불러오지 못했어요 (코드 L7). ' mypage.html
+chk 'ERR_CODE_NOWRAP' mypage.html 15
+chk 'function _errSet(el, line)' mypage.html 1
+chk 'function _errNowrap(el)' mypage.html 1
+chk 'else if(o.body){ b.innerHTML=_errHtml(String(o.body));' mypage.html 1
+chk "t.textContent=msg; t.style.opacity='1'; _errNowrap(t);" mypage.html 1
+nochk 'textContent=_dncErr(' mypage.html
+nochk 'textContent=_saveFailBody(' mypage.html
+nochk 'escapeHtml(_sigMiss(' mypage.html
+chk 'ERR_CODE_TAIL' mypage.html 1
+chk 'ERR_MID_NOCODE' mypage.html 1
+nochk "처리됐는지 확인하고 있어요 (코드 '+L+'5)" mypage.html
+chk "if(!opts.silent || window._curView==='loading') _loadSlowRetry(x);" mypage.html 1
+chk 'SEAT_FIN_SKIP' mypage.html 4
+nochk "trim()) return Promise.resolve(null);" mypage.html
+chk "if(r&&r.ok&&r.skip){ if(st) st.textContent='자리에 이름을 한 분 이상 적으면 함께 저장돼요'; return; }" mypage.html 1
+chk 'ECHO_LOST_CODE' mypage.html 1
+nochk '반복되면 문의로 알려 주세요. 디렉터가 확인해 도와드릴게요.' mypage.html
+chk 'PV_IMG_CODE' mypage.html 1
+nochk 'pv-modal-err">이미지를 불러오지 못했어요.' mypage.html
+chk 'SNAP_REFS_MISS' mypage.html 3
+nochk "|| !p.snapV2 || !window.SNAP_REFS){ box.style.display='none'" mypage.html
+chk 'SNAP_THUMB_FAIL' mypage.html 3
+nochk 'if(!(r&&r.ok&&r.thumbs)) return; var k;' mypage.html
+chk 'function _qrFailLine(todo)' mypage.html 1
+nochk 'QR 이미지는 준비 중이에요' mypage.html
+nochk 'QR은 준비 중이에요' mypage.html
+chk 'function _wizFailCode(x)' mypage.html 1
+nochk "body:failed?'방금 저장이 실패했어요. 다시 저장하고 나갈까요?'" mypage.html
+chk 'PAY_FAIL_KIND' mypage.html 2
+chk "else if(_tc==='PAY_PROCESS_ABORTED')" mypage.html 1
+nochk "if(q.get('me_pay')==='0'){ mpAlert('결제를 취소했어요." mypage.html
+chk 'PAY_RET_EMPTY' mypage.html 1
+nochk 'if(!milestone||!paymentKey||!oid||!(amt>0)){ clean(); return; }' mypage.html
+chk 'PRIVACY_FAIL_ONE' mypage.html 1
+chk 'ERR_SRV_REASON' scripts/audit/err-mypage.mjs 3
+chk 'ERR_CODE_NOWRAP' scripts/audit/err-mypage.mjs 3
+chk 'SEAT_FIN_SKIP' scripts/audit/err-mypage.mjs 2
+chk 'SNAP_THUMB_FAIL' scripts/audit/err-mypage.mjs 2
+chk 'PAY_FAIL_KIND' scripts/audit/err-mypage.mjs 3
+#   [MINI_TOAST_WIDE] 작은 알림(_miniToast)이 화면 반쪽(left:50%)에 갇혀 실패 줄이 세 줄로 접히던 것 — mpToast 와 같은 처방(max-content · keep-all · balance)
+chk 'MINI_TOAST_WIDE' mypage.html 1
+chk 'pointer-events:none;width:max-content;box-sizing:border-box;word-break:keep-all;text-wrap:balance' mypage.html 1
+chk 'MINI_TOAST_WIDE' scripts/audit/err-mypage.mjs 1
