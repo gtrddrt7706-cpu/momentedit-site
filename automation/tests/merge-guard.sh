@@ -14550,7 +14550,11 @@ chk 'PR_MODE_UNPICKED' scripts/audit/play-wait-file.mjs 1
 chk 'REF_ROW4' order-preview.html 3
 chk "var ENTRY_KEYS=\['A','B','C','D','E','F'\];" order-preview.html 1   # [EX_SAME_COUNT 2026-10-07] AI 판 입장 예시 = 스튜디오 입장 멘트와 같은 여섯
 chk 'EX_SAME_COUNT' order-preview.html 1
-chk 'EX_ROW_PLACE' order-preview.html 1   # [EX_ROW_PLACE 2026-10-07 사장님 «추천대로»] 현장 순간 예시 줄은 «두 분이 할 말» 바로 위
+chk 'EX_ROW_PLACE' order-preview.html 1
+# ★[UP_AI_HEAL · VST_RIGHT 2026-10-07 사장님] «… · AI.wav» 인데 «파일»로 적힌 옛 줄 바로잡기 · 줄 카드 상태는 제목 오른쪽
+chk 'UP_AI_HEAL' order-preview.html 1
+chk 'function _upHeal()' order-preview.html 1
+chk 'VST_RIGHT' order-preview.html 1   # [EX_ROW_PLACE 2026-10-07 사장님 «추천대로»] 현장 순간 예시 줄은 «두 분이 할 말» 바로 위
 nochk 'class="mk-rc mk-rpar"' order-preview.html
 chk 'REF_ROW4' scripts/audit/listen-page.mjs 3
 # ── ★[TRIB_ONE_SAY · GROOM_BOW_TIP · FREE_ETC · GOODS_STUDIO 2026-10-06 사장님] 식순 넷 ──
