@@ -1343,6 +1343,10 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-rd-r{font-size:12.5px;color:var(--sub);text-align:center;white-space:nowrap}
 .mk-rd-r.new{color:var(--seal);font-weight:600}
 .mk-rd-sum{margin:0}
+.mk-rd-fig.kp .mk-rd-hd,.mk-rd-fig.kp .mk-rd-row{grid-template-columns:minmax(0,1fr) 70px 12px 84px}   /* [KEEP_DLG] 읽는 분 칸 없이 · 결과 «새로 만들어요»가 한 줄 */
+.mk-rd-fig.kp .mk-rd-hd span:first-child{grid-column:auto}
+.mk-rd-fig.kp .mk-rd-l{white-space:normal;word-break:keep-all;line-height:1.4}
+.mk-rd-steps .mk-keepb{display:flex;margin:6px 0 0}
 .mk-rd-sum>span{display:block}   /* [RD_SUM_2LINE] 두 문장을 두 줄로 · 줄마다 text-wrap:pretty 로 외톨이 글자 막기 */
 .mk-rd-sum>span{text-wrap:pretty}
 .mk-cue{margin:10px 0 4px}.mk-cue-l{display:block;margin:0 0 6px;font-size:12.5px;color:var(--sub)}.mk-cue-ex{margin-top:8px}   /* [CUE_SIG] */
@@ -1549,7 +1553,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-inapp-t{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--accent)}
 .mk-inapp-b{display:flex;flex-direction:column;gap:8px;margin:12px 0 8px}
 .mk-inapp-go{min-height:48px;border:0;border-radius:999px;background:var(--accent);color:#FAFAF8;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
-html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동안만 · 클래스로(ordAsk 의 body.style 과 섞이지 않게) */
+html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동안만 · 클래스로(ordAsk 의 body.style 과 섞이지 않게) */   /* ★[DLG_KEEP_Y 2026-10-07] body 는 잠그지 않는다 — body 가 화면 높이(900)라 html · body 를 함께 숨기면 문서가 한 화면으로 줄어 창을 열자마자 뒤 화면이 맨 위로 튀고, 닫아도 맨 위에 남았다(실측 scrollY 163 → 0 · 모든 창 공통) */
 .mk-dlg{position:fixed;inset:0;z-index:2147482990;background:rgba(28,27,25,.42);display:flex;align-items:flex-end;justify-content:center}   /* ★[REC_DLG] 녹음 · AI 목소리 작은 창 — 모바일은 아래에서 올라오는 판 · 넓은 화면은 가운데 · 흐림(blur) 없음 */
 .mk-dlg-c{width:100%;max-width:520px;max-height:92vh;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--bg);border-radius:12px 12px 0 0;padding:16px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -6px 28px rgba(28,27,25,.16)}
 .mk-dlg.mk-dlg-bot{align-items:flex-end;padding:12px 8px max(12px,4dvh)}.mk-dlg-bot .mk-dlg-c{border-radius:12px;max-height:calc(100dvh - max(12px,4dvh) - 12px)}   /* ★[VU_BOTTOM_FIX 2026-10-06 사장님 «다음 버튼이 자꾸 움직이니 불편 · 위쪽이 움직이게»] 아래 고정 · 위로만 늘고 준다 — 이전 · 다음 · 들어 보기가 늘 같은 자리. 종전 «위 고정»(VU_FLOW_FREE)은 그림이 제자리인 대신 단추가 60~120px 오르내렸다 · 되돌리지 말 것 */
@@ -4907,12 +4911,13 @@ function _dlgModel(){
   if(VC.read){ var R=VC.read; return {t:VC_TXT.title(_vcName(R.who)),step:(R.ph==='busy'||R.ph==='done'||R.ph==='tune')?3:(R.step||1),body:_vcReadPanel(R.who)}; }
   if(MK_REC&&!/^vc:/.test(MK_REC.key)) return {t:_mkUpLabKey(MK_REC.key)+' · 녹음',body:_recLineBody(MK_REC)};
   if(MK.redo) return {t:'다시 녹음하면 이렇게 돼요',body:_redoBody()};   // [REDO_FIG]
+  if(MK.keepDlg) return {t:'확정하면 이렇게 돼요',body:_keepBody(MK.keepDlg)};   // [KEEP_DLG]
   if(MK.use!=null){ var _ur=_vcUseRows(); if(_ur.length){ var _ui=Math.max(0,Math.min(MK.use,_ur.length-1)); return {t:_ur[_ui][1],body:_vcUseBody(_ur,_ui)}; } MK.use=null; }   // [VUSE_FLOW]
   if(VS.open&&_vsOk()) return {t:VS.ph==='ai'&&!(VC.st&&(VC.st.groom||{}).ready&&(VC.st.bride||{}).ready)?'AI 두 분 목소리 만들기':'안내 목소리 정하기',body:_vsPanel()};   /* [VS_READY_SHORT] 만들 것이 없으면 «만들기» 제목도 없다 */   // [VOICE_SETUP] 읽기 · 동의가 끝나면 이 창으로 돌아온다
   return null; }
 function _dlgSteps(at){ return '<ol class="mk-dlg-steps" aria-label="만드는 순서">'+['동의','글 1','글 2','만들기'].map(function(x,i){ return '<li class="'+(i<at?'done':i===at?'on':'')+'"'+(i===at?' aria-current="step"':'')+'>'+x+'</li>'; }).join('')+'</ol>'; }
-function _dlgInert(on){ if(on){ DLG.inert=[]; [].forEach.call(document.body.children,function(c){ if(c.id==='mkRecDlg'||c.id==='mkInApp'||c.id==='lsLive'||c.id==='pkSlim'||c.tagName==='SCRIPT'||(c.classList&&c.classList.contains('ord-ask'))) return; if(!c.inert){ c.inert=true; DLG.inert.push(c); } }); document.documentElement.classList.add('mk-dlg-lock'); }   // ★[DLG_SCROLL_LOCK] body.style 을 쓰지 않는다 — 확인 판(ordAsk)이 0.2초 뒤 body.style.overflow 를 «열 때 본 값»(=잠금)으로 되돌려, 창을 닫은 뒤에도 스크롤이 멈춰 있었다(사장님 실측 2026-09-28)
-  else { DLG.inert.forEach(function(c){ c.inert=false; }); DLG.inert=[]; document.documentElement.classList.remove('mk-dlg-lock'); } }
+function _dlgInert(on){ if(on){ DLG.inert=[]; [].forEach.call(document.body.children,function(c){ if(c.id==='mkRecDlg'||c.id==='mkInApp'||c.id==='lsLive'||c.id==='pkSlim'||c.tagName==='SCRIPT'||(c.classList&&c.classList.contains('ord-ask'))) return; if(!c.inert){ c.inert=true; DLG.inert.push(c); } }); DLG.sy=window.scrollY; document.documentElement.classList.add('mk-dlg-lock'); }   // ★[DLG_SCROLL_LOCK] body.style 을 쓰지 않는다 — 확인 판(ordAsk)이 0.2초 뒤 body.style.overflow 를 «열 때 본 값»(=잠금)으로 되돌려, 창을 닫은 뒤에도 스크롤이 멈춰 있었다(사장님 실측 2026-09-28)
+  else { DLG.inert.forEach(function(c){ c.inert=false; }); DLG.inert=[]; document.documentElement.classList.remove('mk-dlg-lock'); if(DLG.sy!=null&&Math.abs(window.scrollY-DLG.sy)>1) try{ window.scrollTo(0,DLG.sy); }catch(e){} DLG.sy=null; } }   /* [DLG_KEEP_Y] 닫으면 연 자리로 */
 function _recDlgPaint(){ var m=_dlgModel(), d=document.getElementById('mkRecDlg');
   if(!m){ if(d){ d.remove(); _dlgInert(false); DLG.html=''; MK.dlgMsg=''; var fr=MK.dlgFrom||'', f=fr&&(document.querySelector('[data-fk="'+fr+'"]:not([disabled])')||document.querySelector('[data-fk="mkvpl:'+fr.split(':')[1]+'"]'))   /* [UP_BTN_OFF] 아래 «들어 보기»가 없어져 머리 ▶ 로 */||document.getElementById('mkHead'); MK.dlgFrom=''; if(f&&!f.disabled) try{ f.focus({preventScroll:true}); }catch(e){} } return; }
   if(MK.toast){ MK.dlgInfo=MK.toast; MK.toast=''; }   /* [UI_ONE] 알림(성공 · 안내)은 창 안에서도 중립 글 — 실패(dlgMsg)만 진사 */   // 창이 떠 있으면 알림 글은 창 안에(아래 화면 알림은 창에 가려 안 보인다)
@@ -4933,6 +4938,7 @@ document.addEventListener('keydown',function(e){ var d=document.getElementById('
     if(e.shiftKey&&i<=0){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&(i===f.length-1||i<0)){ e.preventDefault(); f[0].focus(); } } });
 window.mkDlgClose=function(){ var R=VC.read, r=MK_REC;
   if(MK.redo){ MK.redo=false; render(); return; }   // [REDO_FIG]
+  if(MK.keepDlg){ MK.keepDlg=null; render(); return; }   // [KEEP_DLG]
   if(MK.use!=null){ MK.use=null; _stopMk(); render(); return; }   // [VUSE_FLOW]
   var lose=(R&&R.ph!=='done'&&R.ph!=='busy'&&R.ph!=='tune'&&(R.take[1]||R.take[2]))   /* [SIM_R1] 목소리를 만든 뒤(맞추기)엔 잃을 것이 없다 */||(r&&r.ph==='review'&&!/^vc:/.test(r.key));
   if(!R&&!r&&!VC.panel&&VS.open){ VS.open=false; VS.hint=''; render(); return; }   // [VOICE_SETUP] 이 창만 떠 있으면 닫는다(읽기 · 동의 중이면 그것만 닫고 이 창으로)
@@ -5207,10 +5213,11 @@ window.mkUsePlay=function(){ var x=_vcUseRows()[MK.use||0]; if(!x||VU.busy) retu
    목소리 쪽 «다시 녹음» 안내 한 줄 → «자세히 보기» → 작은 창: 세 걸음 + 줄마다 어떻게 되는지 그림 한 장.
    그림은 실제 동작 그대로다 — 다시 녹음하면 _vcAutoFill(renew) 가 «그분이 읽는 · AI 로 만든 · 확정 안 한 줄»만 새 목소리로 다시 만든다
    (확정한 줄 · 다른 분이 읽는 줄 · 직접 녹음한 줄은 그대로). 확정 칩 모양은 순간 쪽 [KEEP_IN_PILL] 과 같은 옅은 금빛. */
-function _redoBody(){
-  var row=function(who,ln,st,kept,res,isNew){ return '<li class="mk-rd-row"><span class="mk-rd-who">'+who+'</span><span class="mk-rd-l">'+ln+'</span>'
+function _rdRow(who,ln,st,kept,res,isNew){ return '<li class="mk-rd-row">'+(who?'<span class="mk-rd-who">'+who+'</span>':'')+'<span class="mk-rd-l">'+ln+'</span>'
     +'<span class="mk-rd-pill'+(kept?' kept':'')+'">'+(kept?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span> ':'')+st+'</span>'
-    +'<span class="mk-rd-arw" aria-hidden="true">→</span><span class="mk-rd-r'+(isNew?' new':'')+'">'+res+'</span></li>'; };
+    +'<span class="mk-rd-arw" aria-hidden="true">→</span><span class="mk-rd-r'+(isNew?' new':'')+'">'+res+'</span></li>'; }   /* [KEEP_DLG] «다시 녹음» 창과 «확정» 창이 같은 그림 줄을 쓴다(who 가 비면 읽는 분 칸 없이) */
+function _redoBody(){
+  var row=_rdRow;
   return '<ol class="mk-rd-steps">'
     +'<li><span class="mk-rd-n" aria-hidden="true">1</span><p><b>목소리 카드에서 «다시 녹음»</b>글 두 개를 다시 읽어요</p></li>'
     +'<li><span class="mk-rd-n" aria-hidden="true">2</span><p><b>새 AI 목소리가 만들어져요</b>이전 목소리 대신 새 목소리를 써요</p></li>'
@@ -5223,6 +5230,26 @@ function _redoBody(){
     +'<p class="mk-note mk-rd-sum"><span>다시 녹음한 분의 확정 전 줄만 새 목소리로 바뀌어요.</span><span>마음에 드는 줄은 먼저 확정해 두세요.</span></p>'   /* [RD_SUM_2LINE 2026-10-06 사장님 «보기 좋게 두 줄로»] 종전 «새 목소리로 바뀌는 줄은 다시 녹음한 분이 읽는 줄 중 확정하지 않은 줄뿐이에요 · …» 한 줄 → 두 문장 두 줄 · 첫 문장은 360px 에서도 한 줄(30자)로 줄였다 */
     +'<button type="button" class="mk-dlg-go" data-fk="mkredook" onclick="mkDlgClose()">알겠어요</button>'; }
 window.mkRedoOpen=function(){ MK.redo=true; render(); };
+/* ★[KEEP_DLG 2026-10-07 사장님 «확정 안내 보기 누르면 다시 녹음하면 이렇게 돼요 창처럼 · 상황에 맞게 조금 바꿔서» → «추천대로»]
+   종전엔 «확정 안내 보기»가 칩 아래로 네 줄을 펼쳐 아래 화면을 밀었다 → 작은 창. 세 걸음 + 줄마다 그림 한 장 — «다시 녹음» 창(REDO_FIG)과 같은 그림 꼴.
+   그림 첫 줄은 지금 보는 순간 이름(«내 얘기»로 읽히게) · 둘째 줄은 같은 순간의 다음 줄, 없으면 AI 를 쓰는 다른 순간.
+   첫 AI 순간(보통 하객 맞이)의 펼친 네 줄은 그대로 둔다([KEEP_ORDER] «처음만 펼침»). 그다음 순간의 «확정 안내 보기»만 이 창을 연다. */
+function _keepBody(k){
+  var nm={guest:'하객 맞이',entry:'입장 인사',prevideo:'식전 영상 소개'}, lab=function(m,i){ return m==='guest'?nm.guest+' '+(i+1):(nm[m]||''); };
+  var other=k==='guest'?null:(_vsMk().filter(function(x){ return x!==k&&_vpCur(x)==='ai'; })[0]||_vsMk().filter(function(x){ return x!==k; })[0]);
+  var l1=lab(k,0)||'첫 줄', l2=k==='guest'?lab('guest',1):(other?lab(other,0):'다른 줄');
+  var kp=function(on){ return '<span class="mk-kp'+(on?' on':'')+'">'+(on?ICO_CHECK:'')+(on?'확정됨':'확정하기')+'</span>'; };
+  return '<ol class="mk-rd-steps">'
+    +'<li><span class="mk-rd-n" aria-hidden="true">1</span><p><b>두 분 목소리로 글이 채워져요</b>목소리를 만들면 아래 글을 그 목소리로 읽어요</p></li>'
+    +'<li><span class="mk-rd-n" aria-hidden="true">2</span><p><b>들어 보고 마음에 들면 확정</b><span class="mk-keepb">'+kp(false)+'<i aria-hidden="true">›</i>'+kp(true)+'</span></p></li>'
+    +'<li><span class="mk-rd-n" aria-hidden="true">3</span><p><b>확정한 줄은 그대로 남아요</b>첫 줄만 확정하고 다시 녹음하거나 빠르기를 바꿨을 때</p></li></ol>'
+    +'<div class="mk-rd-fig kp"><div class="mk-rd-hd" aria-hidden="true"><span>줄</span><span>지금</span><span></span><span>바꾼 뒤</span></div><ul>'
+    +_rdRow('',esc(l1),'확정됨',true,'그대로',false)
+    +_rdRow('',esc(l2),'확정 전',false,'새로 만들어요',true)
+    +'</ul></div>'
+    +'<p class="mk-note mk-rd-sum"><span>확정한 줄은 다시 녹음해도 그대로예요.</span><span>풀려면 확정됨을 한 번 더 누르면 돼요.</span></p>'
+    +'<button type="button" class="mk-dlg-go" data-fk="mkkeepok" onclick="mkDlgClose()">알겠어요</button>'; }
+window.mkKeepOpen=function(k){ MK.keepDlg=k; render(); };   // [KEEP_DLG]
 function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   var g=(st&&st.groom)||{}, b=(st&&st.bride)||{}, both=!!(g.ready&&b.ready);
   var h='<section class="mk-pg mk-vpage" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">두 분 목소리 만들기</h3></div>'
@@ -5437,7 +5464,7 @@ var KEEP_ROW={};   /* [KEEP_IN_ROW] 이번 그리기에서 칩 줄에 접힌 단
 function _keepShutBtn(k){ var ups=_mkItems(k).filter(function(q){ return q.up; }), made=ups.filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; });
   if(_vpCur(k)!=='ai'||!made.length||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
   var first=_vsMk().filter(function(x){ return _vpCur(x)==='ai'; })[0]===k, T=MK.keepT||{}, open=(k in T)?T[k]:first; if(open) return '';
-  KEEP_ROW[k]=1; return '<button type="button" class="pk-link mk-keept cg-kt" data-fk="mkkeept:'+k+'" aria-expanded="false" onclick="mkKeepT(\''+k+'\')">확정 안내 보기</button>'; }   /* [KEEP_IN_ROW] _keepNote 와 같은 조건 */
+  KEEP_ROW[k]=1; return '<button type="button" class="pk-link mk-keept cg-kt" data-fk="mkkeept:'+k+'" aria-haspopup="dialog" onclick="mkKeepOpen(\''+k+'\')">확정 안내 보기</button>'; }   /* [KEEP_DLG] 펼치지 않고 작은 창 */   /* [KEEP_IN_ROW] _keepNote 와 같은 조건 */
 function _keepNote(ups,k){ var made=(ups||[]).filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; }); if(!made.length||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
   /* ★★[KEEP_GUIDE 2026-10-05 사장님 «확정함 누르면 음성을 다시 녹음해도 고정이라고 · 보기 좋게 그 부분을 보여 주면서 설명 · 고객 입장에서 쉽게»] 실제 단추 모양 둘(확정하기 → ✓ 확정됨)을 보여 주며 설명
      ★★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 시작 · 처음 하객 맞이 부분만 펼쳐 있고 그 이후는 접힌 상태» → «추천대로»]
@@ -5446,7 +5473,7 @@ function _keepNote(ups,k){ var made=(ups||[]).filter(function(q){ var v=(S.up||{
   var first=_vsMk().filter(function(x){ return _vpCur(x)==='ai'; })[0]===k, T=MK.keepT||{}, open=(k in T)?T[k]:first;
   var kp=function(on){ return '<span class="mk-kp'+(on?' on':'')+'">'+(on?ICO_CHECK:'')+(on?'확정됨':'확정하기')+'</span>'; };
   var tg='<button type="button" class="pk-link mk-keept" data-fk="mkkeept:'+k+'" aria-expanded="'+open+'" onclick="mkKeepT(\''+k+'\')">'+(open?'확정 안내 접기':'확정 안내 보기')+'</button>';
-  if(!open) return KEEP_ROW[k]?'':'<div class="mk-keepg shut" role="note">'+tg+'</div>';   /* ★[KEEP_IN_ROW 2026-10-06 사장님 «확정 안내 보기도 나레이션 자세히 좌측으로»] 칩 줄에 그렸으면 여기선 안 그린다(두 가로선 사이 한 줄이 따로 떠 있었다) · 칩 줄이 없는 판은 종전대로 */
+  if(!open) return KEEP_ROW[k]?'':'<div class="mk-keepg shut" role="note"><button type="button" class="pk-link mk-keept" data-fk="mkkeept:'+k+'" aria-haspopup="dialog" onclick="mkKeepOpen(\''+k+'\')">확정 안내 보기</button></div>';   /* [KEEP_DLG] 칩 줄이 없는 판도 창으로 */   /* ★[KEEP_IN_ROW 2026-10-06 사장님 «확정 안내 보기도 나레이션 자세히 좌측으로»] 칩 줄에 그렸으면 여기선 안 그린다(두 가로선 사이 한 줄이 따로 떠 있었다) · 칩 줄이 없는 판은 종전대로 */
   return '<div class="mk-keepg" role="note"><ol class="mk-keepl">'
     +'<li>두 분 목소리를 만들면 아래 글이 그 목소리로 채워져요</li>'
     +'<li>들어 있는 글은 예시예요 · 그대로 써도, 고쳐 써도 돼요</li>'
