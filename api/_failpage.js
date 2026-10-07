@@ -14,7 +14,7 @@ module.exports = function failPage(res, status, title, line) {
   res.end('<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">'
     + '<title>' + esc(title) + ' · Moment Edit</title><style>html{color-scheme:light only}body{margin:0;min-height:100vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center;'
     + 'padding:24px 16px;background:#FAFAF8;color:#3A2D22;font-family:"Noto Serif KR","Nanum Myeongjo",serif;word-break:keep-all}main{max-width:420px;text-align:center}'
-    + 'h1{font:inherit;font-size:15px;font-weight:500;margin:0 0 8px}p{font-size:13.5px;line-height:1.8;color:#5A554C;margin:0 0 22px}.c{white-space:nowrap}'
+    + 'h1{font:inherit;font-size:16px;font-weight:500;margin:0 0 8px}p{font-size:14px;line-height:1.8;color:#5A554C;margin:0 0 22px}.c{white-space:nowrap}'
     + 'a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 24px;border:1px solid #DDD8D1;border-radius:999px;background:#fff;color:#3A2D22;text-decoration:none;font-size:13px}'
     + 'a:focus-visible{outline:2px solid #6B2A24;outline-offset:3px}</style></head><body><main role="alert"><h1>' + esc(title) + '</h1><p>' + body + '</p>'
     + '<a href="/mypage.html" target="_top" id="back">돌아가기</a></main>'
