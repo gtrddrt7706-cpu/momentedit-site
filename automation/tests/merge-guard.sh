@@ -14872,6 +14872,18 @@ nochk '팝콘은 없지만' assets/ritual-open.js
 # ★[VOICE_INTRO_ONE 2026-10-07 사장님 «이거 합쳐서 안내하자 · 디자이너 시선 · 고객 입장»] 두 분 목소리 쪽 머리 안내 두 줄 → 한 단락 두 문장(무엇이 되나 / 아쉬우면 다시 녹음 · 자세히 보기)
 chk 'VOICE_INTRO_ONE' order-preview.html 2
 nochk '확정해 둔 줄은 그대로 남아요 <button' order-preview.html
+# ★[VFLOW_TEXT · VSTAT_GUTTER · VREADY_ONE 2026-10-07 사장님 «두 분 목소리 만들기 · 디자인적으로 이게 최선인가 · 디자이너 시선으로»]
+#   ① 나오는 곳 여섯 = 글 흐름(점선 밑줄 · ›) — 흰 알약은 «고르는 칩»처럼 읽혔고 쪽에서 가장 무거웠다 · 누르는 칸 44 는 그대로
+#   ② 카드 «말 빠르기» 점 줄 왼칸에도 16 — 폰에서 일곱째 점이 가운데 세로선에 붙었다
+#   ③ 두 분 다 만든 판 첫 문장은 «준비됐어요» 하나 — «…에 이 목소리가 쓰여요»는 바로 위 흐름 줄과 같은 말이었다
+chk 'VFLOW_TEXT' order-preview.html 1
+chk '.mk-vfb{min-height:44px;padding:0;border:0;border-radius:0;background:none;color:var(--accent);font:inherit;font-size:14px;' order-preview.html 1
+nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);border-radius:999px' order-preview.html
+chk 'VSTAT_GUTTER' order-preview.html 1
+chk '.mk-vstat>span:first-child{padding-right:16px}' order-preview.html 1
+chk 'VREADY_ONE' order-preview.html 1
+chk "both?'두 분 목소리가 준비됐어요.':'각자 1분 읽으면" order-preview.html 1
+nochk "두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))" order-preview.html
 # ★[EX_TEXT_1007 2026-10-07 코워크 10/7 고친 판] 하객 맞이 «다정하게 · 유쾌하게» AI 글 합쇼체 · 옛 글(최초 · 10/6)로 만든 소리는 옮긴다
 chk 'EX_TEXT_1007' order-preview.html 2
 # ★[EX_LAB_JOY 2026-10-07 사장님 «웃음 한 스푼 이런 문구 너무 구려 · 올드하잖아»] 예시 이름 «웃음 한 스푼» → «유쾌하게» — 되살리지 말 것
