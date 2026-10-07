@@ -14716,6 +14716,13 @@ chk '<li>두 분 목소리를 만들면 아래 글이 그 목소리로 채워져
 chk '확정 안내 보기' order-preview.html 1
 nochk '<li>다시 고치고 싶으면 확정됨을 한 번 더 눌러 풀어요</li>' order-preview.html
 chk 'KEEP_ORDER' scripts/audit/keep-order.mjs 1
+# ★[KEEP_DLG 2026-10-07 사장님 «확정 안내 보기 누르면 다시 녹음 창처럼 · 상황에 맞게» → «추천대로»] 펼치지 않고 작은 창(세 걸음 + 그림 두 줄 · 첫 줄 = 지금 순간)
+chk 'KEEP_DLG' order-preview.html 8
+chk "{t:'확정하면 이렇게 돼요'" order-preview.html 1
+chk 'KEEP_DLG' scripts/audit/keep-order.mjs 1
+# ★[DLG_KEEP_Y 2026-10-07] 창을 열면 뒤 화면이 맨 위로 튀던 것(모든 창) — 잠금은 html 하나 · 닫으면 연 자리로. body 를 같이 숨기지 말 것
+chk 'DLG_KEEP_Y' order-preview.html 2
+nochk 'html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/keep-order.mjs >/dev/null 2>&1; _kor=$?; if [ "$_kor" = 1 ]; then echo 'FAIL keep-order: 확정 안내 순서 · 접힘이 어긋났습니다 — node scripts/audit/keep-order.mjs'; fail=1; else echo "ok keep-order ($_kor)"; fi; fi
 # ★[STALE_NOVOICE · EX_MINE 2026-10-06 사장님] 글이 바뀐 AI 줄 + 목소리 없음 → ▶ 는 지금 글 · 머리에 «목소리 만들기» / 참고 예시 이름을 두 분 이름으로(토씨까지)
 chk 'STALE_NOVOICE' order-preview.html 4
