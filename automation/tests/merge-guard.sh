@@ -15026,3 +15026,16 @@ chk 'REF_FORM' scripts/audit/ref-form.mjs 1
 #   «[ … = 1 ] && { … }»로 끝나는 줄이 맨 끝이면 검사가 «통과»할 때 [ ] 가 1 을 남겨 — ALL MARKERS OK 를 찍고도 CI 가 빨갛다(#1088 실측).
 #   그래서 node 검사 줄은 «; :»로 닫는다 · 이 아래에 줄을 더해도 같은 꼴로 닫을 것
 if command -v node >/dev/null 2>&1; then node scripts/audit/ref-form.mjs >/dev/null 2>&1; _rff=$?; [ "$_rff" = 1 ] && { echo 'FAIL ref-form: 참고 예시 아래 모양(두 분 칸 · 칩 이름 · 글자 수 · 흐름 한 줄 · 한눈에 보기 부탁)이 어긋났습니다 — node scripts/audit/ref-form.mjs'; fail=1; }; :; fi
+# ★★[SPEECH_SCRIPT 2026-10-07 사장님 «하나하나 확인해서 개선»] 받은 원고 칸 — 덕담(부모님)에만 있고 축사(준비하신 분)에는 없었다.
+#   같은 칸 · 같은 «원고 없이 현장에서 바로» 체크 · 같은 끝 신호 · 대본 · 콘솔 · 관리자 · 준비 목록까지 한 벌(ref-form ⑨)
+chk 'SPEECH_SCRIPT' order-preview.html 7
+chk "free:{id:'free.p',nm:'받은 축사 원고',fk:'mkfsite',site:'원고 없이 현장에서 바로 하실 거예요',hd:'축사 원고'}" order-preview.html 1
+nochk "if(cat==='ask'&&k==='bless'){ var bv=(S.tx||{})\['bless.p'\]||'';" order-preview.html
+chk 'SPEECH_SCRIPT' assets/ritual-open.js 1
+chk 'SPEECH_SCRIPT' console.html 1
+chk "free: \[\['p:free:0','축사하시는 분','free.p'\]\]" console.html 1
+chk 'SPEECH_SCRIPT' admin.html 1
+chk 'SPEECH_SCRIPT' scripts/audit/ref-form.mjs 1
+# ★[GUIL_FLEX_SPACE 2026-10-07 점검] «…»를 명조로 바꿀 때 칩 · 단추(flex) 안에서는 한 덩이로 묶는다 — 끝 신호 예시 «마지막에감사합니다라고»(ref-form ⑩)
+chk 'GUIL_FLEX_SPACE' order-preview.html 1
+chk 'GUIL_FLEX_SPACE' scripts/audit/ref-form.mjs 1
