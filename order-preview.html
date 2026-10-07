@@ -4273,12 +4273,19 @@ function _mkItems(k){ var R=RitualOpen, out=[];
   /* [RITUAL_FILE] 녹음 칸이 있으면 «… 녹음 · 대본을 드려요» 한 줄은 뺀다 — 같은 일을 두 번 세지 않는다(녹음 칸 카드가 그 말을 한다) */
   if(out.some(function(q){ return q.up; })) out=out.filter(function(q){ return q.up||!(q.cat==='send'&&/녹음|두 분 목소리 준비/.test(q.what)); });   // [PREP_VOICE_0928] 준비 목록 글이 «두 분 목소리 준비 · … «녹음 2 · 빈 줄 1»»로 바뀌어도 같은 일
   return out; }
-function _mkItemDone(q){ var c=_mkChk();
-  if(q.k==='bless'&&q.cat==='ask'&&String((S.tx||{})['bless.p']||'').trim()) return true;   // [R1-01] 받은 덕담 원고를 붙였으면 부탁은 끝난 것
+/* ★★[SPEECH_SCRIPT 2026-10-07 사장님 «하나하나 확인해서 개선»] 받은 원고 칸 — 덕담(부모님)에만 있고 축사(준비하신 분)에는 없었다.
+   축사 부탁 줄은 «받으면 큰 글씨로 돌려드려요»라 하고 콘솔 엔진은 «원고 큰 글씨 사본이 디렉터에게도 있다»고 두는데, 두 분이 원고를 넣을 곳이 없었다.
+   같은 칸 · 같은 «원고 없이 현장에서 바로» 체크 · 같은 끝 신호(CUE_SIG) — 저장 칸만 다르다(S.tx['free.p'] · 서버는 S.tx 를 칸마다 합친다 · GAS 변경 없음) */
+var ASK_SCRIPT={bless:{id:'bless.p',nm:'받은 덕담 원고',fk:'mkbsite',site:'원고 없이 부모님이 현장에서 바로 하실 거예요',hd:'덕담 원고'},
+  free:{id:'free.p',nm:'받은 축사 원고',fk:'mkfsite',site:'원고 없이 현장에서 바로 하실 거예요',hd:'축사 원고'}};
+function _askScript(q){ if(!q||q.cat!=='ask') return null; if(q.k==='bless') return ASK_SCRIPT.bless;
+  if(q.k==='free'&&RitualOpen.FREE_KIND[RitualOpen.chipOf('free',S)]==='speech') return ASK_SCRIPT.free; return null; }
+function _mkItemDone(q){ var c=_mkChk(), _sp=_askScript(q);
+  if(_sp&&String((S.tx||{})[_sp.id]||'').trim()) return true;   // [R1-01] 받은 원고를 붙였으면 부탁은 끝난 것 · [SPEECH_SCRIPT] 덕담 · 축사
   if(q.up&&_vcToNar(q.up)) return true;   /* [VC_TO_NAR] · [R5-02] 목소리 만들기를 다 쓴 분의 줄은 스튜디오 나레이션으로 나간다(카드 문구와 같은 판정) */
   if(q.up) return !!(S.up&&S.up[q.up])&&!_upStale(q.up);   /* [R7-01] 읽는 분이 바뀐 줄도 미완료 */   // [R1-02] 글을 고친 AI 줄은 다시 만들 때까지 미완료
   if(q.cat==='send'&&q.k==='prevideo'&&_linkOk(S.growthLink)) return true;
-  if(q.k==='bless'&&q.cat==='ask'&&c[q.id]==='site') return !!_cueGet(q.id);   // [CUE_SIG] 원고 없이면 끝 신호까지
+  if(_sp&&c[q.id]==='site') return !!_cueGet(q.id);   // [CUE_SIG] 원고 없이면 끝 신호까지 · [SPEECH_SCRIPT]
   return !!c[q.id]; }
 /* 할 일 — 세는 것만(챙길 것 · 부모님께 인사 칸은 세지 않는다) */
 function _mkTasks(k){ var t=[], c=_mkChk();
@@ -4500,23 +4507,23 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
   ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
-    if(cat==='ask'&&k==='bless'&&qs.every(function(q){ return q.k==='bless'&&c[q.id]==='site'; })) hd='덕담 원고';   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
+    if(cat==='ask'&&qs.every(function(q){ return _askScript(q)&&c[q.id]==='site'; })) hd=_askScript(qs[0]).hd;   // [SPEECH_SCRIPT] 축사도   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
     var one=cat==='send'&&qs.length===1&&qs[0].k==='prevideo';   /* ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선을 걷고 이름 · 기한 · 칸을 한 덩어리로 */
     h+='<section class="mk-sec mk-prep'+(one?' mk-send1':'')+'">'+(one?'':'<div class="mk-sech"><h4>'+hd+'</h4>')+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+(one?'':'</div>')
       +(cat==='ask'?_mkCopied('ask:'+k):'')+'<ul class="mk-vlist">';
     qs.forEach(function(q){ var due=(cat==='bring'&&q.due===0)?'':R.dueWord(q,wed), par=q.who==='parents', done=_mkItemDone(q);   /* [R1-30] «당일 챙길 것» 아래에서 «당일 가져오기»를 줄마다 되풀이하지 않는다 */
-      var _bSiteRow=q.k==='bless'&&cat==='ask'&&c[q.id]==='site';   /* [R7-02] «원고 없이»면 원고 부탁 줄(글 · 마감 · 표시)을 그리지 않는다 — 받지 않을 원고의 마감을 알리고 «✓ 현장에서 하세요»가 아래 체크칸을 되풀이했다.
+      var _sp=_askScript(q), _bSiteRow=!!_sp&&c[q.id]==='site';   /* [SPEECH_SCRIPT] 덕담 · 축사 */   /* [R7-02] «원고 없이»면 원고 부탁 줄(글 · 마감 · 표시)을 그리지 않는다 — 받지 않을 원고의 마감을 알리고 «✓ 현장에서 하세요»가 아래 체크칸을 되풀이했다.
          [R5-01] 그래서 그동안 «부탁드렸어요» 단추가 같은 칸을 덮어써 체크를 말없이 풀 길도 없다 · 체크를 풀면 줄이 다시 나온다 · 완료 판정은 그대로(_mkItemDone) */
       var tg=cat==='ask'?_mkTg(q.id,c[q.id]==='asked'||c[q.id]===1,'부탁드렸어요','asked')
         :cat==='send'?(q.k==='prevideo'?'<span class="mk-tg on auto" id="mkPvOk"'+(_linkOk(S.growthLink)?'':' style="display:none"')+'><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>링크 받았어요</span>':_mkTg(q.id,!!c[q.id],'보냈어요')):'';   // [PREVIDEO_FREE] 식전 영상은 링크 칸 하나 — «보냈어요» 손 표시 없음
       var wt=String(q.what), tl=wt.split(' · ').slice(1).join(' · '); if(cat==='bring'&&tl&&gn.indexOf(tl)>-1) wt=wt.split(' · ')[0];   // [MK_MIN] «케이크 · 크기 · 도착 시각은 상담 때…» — 칩 아래 안내가 이미 말한다
       if(!_bSiteRow) h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';   /* [R7-02] */
-      if(cat==='ask'&&k==='bless'){ var bv=(S.tx||{})['bless.p']||'';
+      if(_sp){ var bv=(S.tx||{})[_sp.id]||'', _cid='mkc_'+_sp.id.replace('.','_');   // [SPEECH_SCRIPT] 칸 id 만 다르다
         /* [R3-03] 원고 칸 먼저 · 체크는 그 아래 오른쪽(첫인사 · 서약과 같은 꼴) — 위에 두면 아래 원고 칸이 체크에 딸린 입력처럼 읽혔다.
            «원고 없이»를 고르면 원고 칸은 그리지 않는다 · 붙여 둔 원고(S.tx['bless.p'])는 지우지 않아 체크를 풀면 다시 보인다 */
         var _bSite=c[q.id]==='site';
-        h+='<li class="mk-vx">'+(_bSite?'':'<textarea class="ta grow" rows="2" maxlength="4000" aria-label="받은 덕담 원고" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\'bless.p\']=this.value;_taGrow(this);_fAt(\'tx.bless.p\');_persist();_mkStripRepaint();var _c=document.getElementById(\'mkc_bless_p\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
-          +'<div class="mk-fl'+(_bSite?' end':'')+'">'   /* ★[QA_BLESS_CNT 2026-10-04 점검] 붙인 원고도 글자 수 · 초 — 다른 글 칸과 같게 */+(_bSite?'':'<span class="mk-cnt" id="mkc_bless_p">'+_mkCntT(String(bv).length,1e9)+'</span>')+'<label class="upchk mk-ck"><input type="checkbox" data-fk="mkbsite"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;mkbsite&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>원고 없이 부모님이 현장에서 바로 하실 거예요</span></label></div>'+(_bSite?_cueBox(q.id):'')+((_bSite&&String(bv).trim())?'<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>':'')+'</li>'; }   /* [R4-02] 숨은 원고가 있으면 대본에서 뺀다는 것을 알린다 */   /* [R2-35] 두 분이 «그렇다»고 고르는 말 */
+        h+='<li class="mk-vx">'+(_bSite?'':'<textarea class="ta grow" rows="2" maxlength="4000" aria-label="'+_sp.nm+'" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\''+_sp.id+'\']=this.value;_taGrow(this);_fAt(\'tx.'+_sp.id+'\');_persist();_mkStripRepaint();var _c=document.getElementById(\''+_cid+'\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
+          +'<div class="mk-fl'+(_bSite?' end':'')+'">'   /* ★[QA_BLESS_CNT 2026-10-04 점검] 붙인 원고도 글자 수 · 초 — 다른 글 칸과 같게 */+(_bSite?'':'<span class="mk-cnt" id="'+_cid+'">'+_mkCntT(String(bv).length,1e9)+'</span>')+'<label class="upchk mk-ck"><input type="checkbox" data-fk="'+_sp.fk+'"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;'+_sp.fk+'&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>'+esc(_sp.site)+'</span></label></div>'+(_bSite?_cueBox(q.id):'')+((_bSite&&String(bv).trim())?'<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>':'')+'</li>'; }   /* [R4-02] 숨은 원고가 있으면 대본에서 뺀다는 것을 알린다 */   /* [R2-35] 두 분이 «그렇다»고 고르는 말 */
       if(cat==='send'&&q.k==='prevideo'){
         h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_pvOkTg(this.value);_mkStripRepaint()" onblur="growHint(this.value,true)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">'
           +'<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>'
@@ -8428,7 +8435,10 @@ function scriptTextOpen(){
     if(k==='tribute' && S.tributeText) lines.push('부모님께 드릴 말(두 분 작성 · 카드로 인쇄):\n'+S.tributeText);   // [TRIB_CARD_OPT] 선택 — 비었으면 당일 직접
     if(k==='toast' && _txJoin('toast')) lines.push('축배 한마디(두 분 작성):\n'+_txJoin('toast'));   // [TOAST_SAY] 선택 — 비었으면 당일 «위하여»만
     if(k==='bless'&&_blessSite()) lines.push('덕담: 원고 없이 부모님이 현장에서 바로 하세요');   /* [R4-02] «원고 없이»를 골랐으면 숨은 원고를 싣지 않는다(스튜디오가 숨은 원고로 카드를 만들게 됐다) */
-    else if(k==='bless'&&String((S.tx||{})['bless.p']||'').trim()) lines.push('덕담 원고(부모님 · 큰 글씨 카드로 준비):\n'+String(S.tx['bless.p']).trim());   /* [R2-06] 붙여 둔 덕담 원고를 대본(복사 · 파일)에 — 저장 초안(S.tx)으로 관리자 화면에도 간다 */
+    else if(k==='bless'&&String((S.tx||{})['bless.p']||'').trim()) lines.push('덕담 원고(부모님 · 큰 글씨 카드로 준비):\n'+String(S.tx['bless.p']).trim());
+    var _fq=k==='free'?_mkItems('free').filter(function(q){ return !!_askScript(q); })[0]:null;   // [SPEECH_SCRIPT] 축사 — 덕담과 같은 두 줄
+    if(_fq&&_mkChk()[_fq.id]==='site') lines.push('축사: 원고 없이 현장에서 바로 하세요');
+    else if(_fq&&String((S.tx||{})['free.p']||'').trim()) lines.push('축사 원고(준비하신 분 · 큰 글씨 카드로 준비):\n'+String(S.tx['free.p']).trim());   /* [R2-06] 붙여 둔 덕담 원고를 대본(복사 · 파일)에 — 저장 초안(S.tx)으로 관리자 화면에도 간다 */
     /* ★[RIT_NO_CUE_COPY 2026-09-27 4부 20] 복사 · 파일 저장은 고객용이다 — «큐:»(현장 진행 지시) 줄을 싣지 않는다. 스태프 콘솔 · 엔진의 큐는 그대로다. */
     lines.push('');
   });
@@ -8779,7 +8789,11 @@ var GUIL_SAY=/^(위하여!?|감사합니다)$/;
 function _guilKind(x){ x=String(x||'').trim(); if(GUIL_SAY.test(x)) return 'say'; if(x.indexOf(' · ')<0&&x.length>4&&/(다|요|[.!?])$/.test(x)) return 'say'; return 'nm'; }
 function _guilNode(t){ var p=t&&t.parentNode; if(!p||p.nodeType!==1||/^(TEXTAREA|INPUT|SCRIPT|STYLE|OPTION|TITLE|NOSCRIPT)$/.test(p.nodeName)) return; var v=t.nodeValue||''; if(v.indexOf('«')<0) return;
   var re=/«([^«»\n]{1,120})»/g, m, last=0, f=null; while((m=re.exec(v))){ f=f||document.createDocumentFragment(); if(m.index>last) f.appendChild(document.createTextNode(v.slice(last,m.index))); var k=_guilKind(m[1]), e=document.createElement(k==='say'?'span':'b'); e.className=k==='say'?'q-say':'q-nm'; e.textContent=m[1]; f.appendChild(e); last=re.lastIndex; }
-  if(!f) return; if(last<v.length) f.appendChild(document.createTextNode(v.slice(last))); p.replaceChild(f,t); }
+  if(!f) return; if(last<v.length) f.appendChild(document.createTextNode(v.slice(last)));
+  /* ★[GUIL_FLEX_SPACE 2026-10-07 점검] 칩 · 단추(inline-flex)는 글 조각마다 따로 놓여 조각 끝 띄어쓰기가 사라졌다 — 끝 신호 예시 «마지막에감사합니다라고 할게요».
+     부모가 flex · grid 면 바꾼 조각을 한 덩이(span)로 묶어 띄어쓰기를 살린다 · 그 밖(글 줄)은 종전 그대로 */
+  var _d=''; try{ _d=getComputedStyle(p).display||''; }catch(e){}
+  if(/flex|grid/.test(_d)){ var _w=document.createElement('span'); _w.appendChild(f); p.replaceChild(_w,t); } else p.replaceChild(f,t); }
 function _guilScan(root){ if(!root) return; if(root.nodeType===3){ _guilNode(root); return; } if(root.nodeType!==1||!root.textContent||root.textContent.indexOf('«')<0) return;
   var w=document.createTreeWalker(root,4,null), a=[], n; while((n=w.nextNode())) if(n.nodeValue.indexOf('«')>-1) a.push(n); a.forEach(_guilNode); }
 (function(){ try{ new MutationObserver(function(ms){ ms.forEach(function(m){ if(m.type==='characterData') _guilNode(m.target); else for(var i=0;i<m.addedNodes.length;i++) _guilScan(m.addedNodes[i]); }); }).observe(document.documentElement,{childList:true,subtree:true,characterData:true}); }catch(e){}

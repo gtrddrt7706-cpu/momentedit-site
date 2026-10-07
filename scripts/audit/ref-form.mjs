@@ -69,6 +69,24 @@ try {
   ok('④ 가족 낭독 예시 — 읽는 분마다 이름 · 글자 수 한 번', dc.counts === dc.whos.length && dc.counts >= 1, JSON.stringify(dc));
   await go('bless'); const bl = await look('bless');
   ok('④ 덕담 예시 — 분마다 이름 · 글자 수 한 번(종전 그대로)', bl.counts === bl.whos.length && bl.counts === 2 && bl.talk.length === 1 && bl.talk[0] === '말씀하실 차례', JSON.stringify(bl));
+  /* ⑨ 받은 원고 칸 — 덕담 · 축사 같은 꼴 [SPEECH_SCRIPT] */
+  await go('bless'); const bk = await pg.evaluate(() => ({ ta: !!document.querySelector('.mk-pg textarea[aria-label="받은 덕담 원고"]'), ck: !!document.querySelector('.mk-pg [data-fk="mkbsite"]') }));
+  ok('⑨ 덕담 — 받은 원고 칸 · «원고 없이» 체크(종전 그대로)', bk.ta && bk.ck, JSON.stringify(bk));
+  await go('free');
+  const sp = await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0], ta = document.querySelector('.mk-pg textarea[aria-label="받은 축사 원고"]'), r = { ta: !!ta, ck: !!document.querySelector('.mk-pg [data-fk="mkfsite"]') };
+    if (!q || !ta) return r; r.d0 = _mkItemDone(q); ta.value = '하윤아, 결혼 축하한다. 오빠는 언제나 네 편이다.'; ta.dispatchEvent(new Event('input')); r.d1 = _mkItemDone(q); r.sc1 = /축사 원고\(준비하신 분/.test(scriptText());
+    r.cnt = ((document.getElementById('mkc_free_p') || {}).textContent || '').trim(); mkChk(q.id, true, 'site'); r.ta2 = !!document.querySelector('.mk-pg textarea[aria-label="받은 축사 원고"]'); r.cue = !!document.querySelector('.mk-pg .mk-cue');
+    r.pl = RitualOpen.prepList(S).some((x) => x.k === 'free' && x.cat === 'ask'); r.sc2 = /축사: 원고 없이 현장에서 바로 하세요/.test(scriptText()); r.hd = /축사 원고/.test(document.querySelector('.mk-pg').textContent);
+    mkChk(q.id, false); ta && (S.tx['free.p'] = ''); return r; });
+  ok('⑨ 축사 — 받은 원고 칸 · 붙이면 부탁 다 됨 · 대본에 «축사 원고» · 글자 수', sp.ta && sp.ck && sp.d0 === false && sp.d1 === true && sp.sc1 && /자 · 약 \d+초/.test(sp.cnt || ''), JSON.stringify(sp));
+  ok('⑨ 축사 «원고 없이» — 칸 접히고 끝 신호 칸 · 준비 목록에서 원고 부탁 빠짐 · 대본 한 줄 · 머리 «축사 원고»', sp.ta2 === false && sp.cue && sp.pl === false && sp.sc2 && sp.hd, JSON.stringify(sp));
+  const con = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
+  ok('⑨ 콘솔 끝 신호 — 축사도 받은 원고 · 끝 신호를 본다', /free: \[\['p:free:0','축사하시는 분','free\.p'\]\]/.test(con));
+  /* ⑩ 끝 신호 예시 칩(inline-flex) — 명조로 바꾼 말(«감사합니다») 앞뒤 띄어쓰기가 산다 [GUIL_FLEX_SPACE] */
+  await go('free'); await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0]; if (q) mkChk(q.id, true, 'site'); }); await pg.waitForTimeout(250);
+  const chipTxt = await pg.evaluate(() => ((document.querySelector('.mk-pg .mk-cue-ex .ex-chip') || {}).innerText || ''));
+  ok('⑩ 끝 신호 예시 칩 — «마지막에 감사합니다라고 할게요»(띄어쓰기 그대로) [GUIL_FLEX_SPACE]', /마지막에 감사합니다라고 할게요/.test(chipTxt.replace(/\s+/g, ' ')), JSON.stringify(chipTxt));
+  await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0]; if (q) mkChk(q.id, false); });
   /* ⑦ 가족 낭독 예시 안내 — 바꿀 칸도 이름도 없는 글이다 [DECL_REF_HEAD] */
   await go('declare'); const dh = await pg.evaluate(() => ((document.querySelector('.mk-pg .mk-ref .ls-gnote') || {}).textContent || '').trim());
   ok('⑦ 가족 낭독 예시 안내 = 인쇄해 건네 드리는 선언문(«바꿔도 돼요 · 가상 인물» 없음) [DECL_REF_HEAD]', /선언문은 큰 글씨로 인쇄해/.test(dh) && !/바꿔도 돼요|가상 인물/.test(dh), dh);

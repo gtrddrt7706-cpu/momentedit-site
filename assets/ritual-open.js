@@ -772,7 +772,8 @@
     ORDER.filter(function (k) { return onOf(S, k); }).forEach(function (k) {
       /* [R8-06 BLESS_SITE_PREP] 덕담 «원고 없이 부모님이 현장에서 바로»(빌더 S.mkc['p:bless:j'] = 'site' · j 는 prepOf 순번 · _mkItems 와 같은 꼴)면 원고 부탁을 목록에서 뺀다 —
          한눈에 보기에서만 빠지고 ① 개수 · ② 첫 쪽 · ④ · 마이페이지(summary.prep)는 받지 않을 원고의 마감을 계속 셌다. 원천 한 곳에서 거른다 */
-      prepOf(k, S).forEach(function (q, j) { if (k === 'bless' && (q[2] || 'send') === 'ask' && ((S && S.mkc) || {})['p:bless:' + j] === 'site') return; out.push({ k: k, who: q[0], what: q[1], cat: q[2] || 'send', due: q[3] === undefined ? 7 : q[3], note: q[4] || '' }); });   /* [PREP_DUE] */
+      /* [SPEECH_SCRIPT 2026-10-07] 축사도 «원고 없이 현장에서 바로»면 원고 부탁을 뺀다(덕담과 같은 꼴 · 빌더 S.mkc['p:free:j']) */
+      prepOf(k, S).forEach(function (q, j) { if ((k === 'bless' || (k === 'free' && FREE_KIND[chipOf('free', S)] === 'speech')) && (q[2] || 'send') === 'ask' && ((S && S.mkc) || {})['p:' + k + ':' + j] === 'site') return; out.push({ k: k, who: q[0], what: q[1], cat: q[2] || 'send', due: q[3] === undefined ? 7 : q[3], note: q[4] || '' }); });   /* [PREP_DUE] */
     });
     return out;
   }

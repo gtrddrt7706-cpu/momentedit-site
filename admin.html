@@ -2879,7 +2879,10 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn){
       +row('축가', ({family:'가족·지인',live:'라이브 연주'})[s3d.song]||'')
       /* [R4-02] 두 분이 «원고 없이 부모님이 현장에서 바로»를 골랐으면(덕담 부탁 칸 mkc 'p:bless:N' = 'site') 숨은 원고를 보이지 않는다 — 카드를 만들 원고가 아니다 */
       +((s3d.mkc&&Object.keys(s3d.mkc).some(function(id){ return /^p:bless:/.test(id)&&s3d.mkc[id]==='site'; }))?'<div class="kv"><span class="k">덕담 원고</span><span class="v">원고 없이 부모님이 현장에서 바로</span></div>'
-      :(s3d.tx&&String(s3d.tx['bless.p']||'').trim())?'<div class="kv"><span class="k">덕담 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['bless.p']).trim())+'</span></div>':'')   /* [R2-06] 두 분이 붙여 둔 부모님 덕담 원고(큰 글씨 카드로 준비) — 저장 초안 S.tx 그대로(GAS 변경 없음) */
+      :(s3d.tx&&String(s3d.tx['bless.p']||'').trim())?'<div class="kv"><span class="k">덕담 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['bless.p']).trim())+'</span></div>':'')
+      /* [SPEECH_SCRIPT 2026-10-07] 축사 원고 — 덕담과 같은 두 갈래(«원고 없이»면 숨은 원고를 보이지 않는다) · 준비한 순서가 축사일 때만 */
+      +(s3d.freeWhat!=='speech'?'':(s3d.mkc&&s3d.mkc['p:free:0']==='site')?'<div class="kv"><span class="k">축사 원고</span><span class="v">원고 없이 현장에서 바로</span></div>'
+      :(s3d.tx&&String(s3d.tx['free.p']||'').trim())?'<div class="kv"><span class="k">축사 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['free.p']).trim())+'</span></div>':'')   /* [R2-06] 두 분이 붙여 둔 부모님 덕담 원고(큰 글씨 카드로 준비) — 저장 초안 S.tx 그대로(GAS 변경 없음) */
       +row('직접 쓰는 글', [s3d.vowText?'서약문':null, s3d.letterText?'편지':null, s3d.welcomeText?'인사말':null, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null, (s3d.tx&&(String(s3d.tx['toast.g']||'').trim()||String(s3d.tx['toast.b']||'').trim()))?'축배 한마디':null /* [TOAST_SAY 2026-10-07] S.tx 두 칸 */].filter(function(x){return x;}).join(' · ')||'아직 없음')
       +(s3d.growth==='on'?lrow('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');   /* [ADM_LINK_CLICK] */
     /* ★[REC_ADMIN 2026-09-27 코워크 «두 분 목소리» 3-8] 하객 맞이 · 입장 인사를 «두 분 목소리»로 고른 예식 — 파일 목록 · 들어 보기 · 확인 ✓ (D-5 쯤 스튜디오가 들어 봄) */
