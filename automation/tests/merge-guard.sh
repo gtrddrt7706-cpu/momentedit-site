@@ -14283,7 +14283,7 @@ chk 'PULL_BELOW_HEAD' order-preview.html 2
 chk "querySelectorAll('.op-steps,.mk-strip,.prog-bar')" order-preview.html 1
 # ★[DLG_TWO_LINE 2026-10-05 사장님 «적절하게 두 줄 배치»] 목소리 창 안 «· 로 이은 두 문장» 안내는 문장마다 한 줄
 chk 'DLG_TWO_LINE' order-preview.html 2
-chk 'mk-note mk-dlg-c1 mk-two' order-preview.html 4
+chk 'mk-note mk-dlg-c1 mk-two' order-preview.html 3   # [VC_DOWN_KIND 2026-10-07] 확인 문장 실패 줄은 두 줄 안내가 아니라 «까닭 한 줄 + 코드»(실패 = 한 줄 · 나중 결정)
 nochk "예시를 들으며 빠르기와 쉼을 맞춰 주세요 · " order-preview.html
 # ★[MINI_OFF_AI 2026-10-05 사장님 «모바일에서 나레이션 쪽이랑 다르게 AI 목소리 쪽은 아래 재생바가 나오는데 나레이션이랑 동일하게»] AI 카드 ▶ 가 있는 쪽도 재생 바 없이 · 흐르는 카드 ▶ 가 ■
 chk 'MINI_OFF_AI' order-preview.html 2
@@ -15144,3 +15144,16 @@ chk 'mkVcRead(w,1)' order-preview.html 1
 chk 'agreedNow:!!now' order-preview.html 1
 chk 'n===1&&!R.agreedNow&&!R.limit' order-preview.html 1
 chk 'CONSENT_SEEN' scripts/audit/vc-screen.mjs 2
+# ★★[VC_DOWN_KIND 2026-10-07 사장님 «PC 에서 '지금은 AI 목소리를 만들 수 없어요' 왜?» · «경고 문구 한 줄로 요약» · «실패 종류별로 다르게 · 스크린샷만으로 원인을 알게 · 아주 좋은 생각»]
+#   서버 거절 · 연결 끊김 · 시간 초과가 같은 두 줄(«… 그동안 이 줄은 스튜디오 나레이션으로 나와요»)이던 것 → 원인마다 한 줄 + 코드 V0 ~ V7(숫자 = 무슨 일) · 360px 폰도 한 줄
+#   vc-down-kind.mjs 가 받는 자리 · 맞추기 창 실제 실패 · 한 줄 폭을 잰다 — 받는 자리를 옛 것으로 되돌리면 FAIL 7(돌연변이 확인)
+chk 'VC_DOWN_KIND' order-preview.html 5
+chk 'function _vcDownWord(n)' order-preview.html 1
+chk "d.error=_vcDownWord(_vcDownN(d))" order-preview.html 1
+chk 'VC_DOWN_KIND' mypage.html 1
+chk "net:_to?0:(_bad?'bad':1)" mypage.html 1
+nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" order-preview.html
+nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" mypage.html
+nochk "d2.error='오래 걸려 기다리다 멈췄어요" order-preview.html
+chk 'VC_DOWN_KIND' scripts/audit/vc-down-kind.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-down-kind.mjs >/dev/null 2>&1; _vdk=$?; if [ "$_vdk" = 1 ]; then echo 'FAIL vc-down-kind: AI 목소리 실패 문구(원인별 한 줄 + 코드 V0 ~ V7)가 어긋났습니다 — node scripts/audit/vc-down-kind.mjs'; fail=1; else echo "ok vc-down-kind ($_vdk)"; fi; fi
