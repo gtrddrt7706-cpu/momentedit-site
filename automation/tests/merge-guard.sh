@@ -15196,3 +15196,9 @@ chk 'src="/assets/err-codes.js"' admin.html 1
 chk 'ERR_CODES' assets/err-codes.js 1
 chk 'ERR_CODES' scripts/audit/err-codes.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-codes.mjs >/dev/null 2>&1; _erc=$?; if [ "$_erc" = 1 ]; then echo 'FAIL err-codes: 오류 코드 장치(표 · 서버 도장 · 관리자 찾기)가 어긋났습니다 — node scripts/audit/err-codes.mjs'; fail=1; else echo "ok err-codes ($_erc)"; fi; fi
+# ★[ERR_CODE_PAY 2026-10-07 사장님 «오류 코드로 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»] 카드결제(꺼져 있음 · 켜기 전에 맞춤) — 토스 거절 P4 + 토스 코드 · 빈 복귀도 결제로그 ·
+#   승인 뒤 기록 함수가 던지면 B-1(관리자 알림 · «기록경고») · card-err.mjs 가 실제 .gs 로 태운다(try 를 걷으면 FAIL 4 · 돌연변이 확인)
+chk 'ERR_CODE_PAY' automation/platform/98_pay_card.gs 6
+chk "} catch (eRec) { rec = { ok: false, error: '기록 함수 예외 · '" automation/platform/98_pay_card.gs 1
+chk 'ERR_CODE_PAY' scripts/audit/card-err.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/card-err.mjs >/dev/null 2>&1; _cer=$?; [ "$_cer" = 1 ] && { echo 'FAIL card-err: 카드결제 실패 길(토스 거절 코드 · 빈 복귀 기록 · 승인 뒤 기록 실패 B-1)이 어긋났습니다 — node scripts/audit/card-err.mjs'; fail=1; }; fi
