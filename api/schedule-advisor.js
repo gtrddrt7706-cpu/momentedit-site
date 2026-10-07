@@ -274,7 +274,15 @@ module.exports = async (req, res) => {
     let text = textOf(rep).trim().replace(/—/g, '·').replace(/\*\*/g, '')
       .replace(/^[ \t]*#{1,6}[ \t]+/gm, '').replace(/^[ \t]*[-*][ \t]+/gm, '· ');
     text = fixWeekdayText(text, ex.date);   // 표기 정합: 모델이 고객 문구의 잘못된 요일을 따라 적으면 실제 요일로 교정(규칙 7-2 백스톱)
-    if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';
+    /* ★[SCHED_AI_EMPTY 2026-10-07 triage-pages #16] 모델이 빈 글을 돌려주면 종전엔 200 «죄송합니다. 잠시 후 다시 확인해 주시겠어요?»를 보통 답처럼 코드 없이 보였다 —
+       답을 못 만든 것이다. 업체 실패와 같은 502(upstream 0)로 돌려 화면이 «AI가 답을 만들지 못했어요 · 잠시 뒤 다시 물어봐 주세요 (코드 A4)»로 말하게 한다
+       (schedule.html _aiCode · 위젯 aiCode 가 이미 그렇게 읽는다). 못 푼 질문은 «오류»로 남긴다(advisor.js logFail 과 같은 결) */
+    if (!text) {
+      console.warn('sched_advisor_empty_reply');
+      try { await require('./_qlog')('예약', history[history.length - 1].content, { escalate: true, flag: '오류', reply: '', isTest }); } catch (e) {}
+      res.statusCode = 502; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
+      return res.end(JSON.stringify({ error: 'upstream_error', upstream: 0, why: 'empty' }));
+    }
 
     /* [AI_TEST_TAG 2026-08-07] 끄지 말고 태깅 — 위 advisor.js 주석 참조 */
     try { await require('./_qlog')('예약', history[history.length - 1].content, { reply: text, isTest }); } catch (e) {}

@@ -891,18 +891,23 @@ var EXEC_URL="https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8
    종전엔 «불러오기 실패 · 새로고침» · «네트워크 오류» 한 문장이 서버 사고 · 인터넷 끊김 · 시간 초과를 다 덮었다.
    서버(GAS)가 글 끝에 «(코드 X#)»를 붙여 보내면 그대로(두 번 붙이지 않는다) · ecode 만 오면 1~9 일 때 붙인다(0 은 글이 곧 까닭).
    cancel · inquiry · seat · guide 와 같은 함수 이름이다 — 한 곳만 고치지 말 것 */
-function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:(e&&e.name==='TypeError'&&/Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message||'')))?6:0; }   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만 · 그 밖의 스크립트 예외는 0
 function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
 function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';   // [ERR_N_HONEST] 화면 쪽 스크립트 예외(0) — 연결 탓으로 말하지 않는다 · 다시 눌러도 같은 자리에서 멈추니 새로 고치게
   return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
 function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
   if(m) t=t.slice(0,m.index);
   if(!/^[A-Z]\d$/.test(ec)) ec='';
   if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
-  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글
+  else if(/^요청을 처리하지 못했어요\. 잠시 후 다시 시도해 주세요\.?$/.test(t)){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글 · [ERR_NO_DOT_PAGE] 서버가 코드 앞 마침표를 걷어 보내도(«잠시 후 다시 시도해 주세요 (코드 B9 · 7KQ2)») 맞는다
   if(!t){ t=fb; ec=ec||L+'0'; }
   if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
-  return t+(tail?' ('+tail+')':''); }
+  return tail?t.replace(/[\s.]+$/,'')+' ('+tail+')':t; }   // [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다(«주세요. (코드» 금지)
+/* ★[ERR_CODE_GLUE 2026-10-07 코디 · 신청서 390px 실측 «(코드 B9 / · 7KQ2)»] «(코드 X# · 사고번호)»는 한 덩어리다 — 괄호 안에서 줄이 갈리지 않게 nowrap 으로 싼다
+   (mypage _errHtml 과 같은 처리). 글자는 그대로라 textContent 로 읽는 검사 · 낭독기 · /\(코드 [A-Z]\d/ 감지는 달라지지 않는다. 여섯 쪽이 글자까지 같은 사본 — 한 곳만 고치지 말 것 */
+function _ecGlue(h){ return String(h==null?'':h).replace(/\(코드 [^)<]*\)/g,function(c){ return '<span class="ec-code" style="white-space:nowrap">'+c+'</span>'; }); }
+function _ecHtml(t){ return _ecGlue(String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; })); }
 /* [ERR_CODE_PAGES] AI(날짜 확인) 응답 → 코드 A# — 429 몰림 1 · 업체 401·402·403 → 2 · 503 꺼짐 3 · 502 업체 실패 4(업체 번호를 함께) · 500 서버 9 · 400 질문 0 ·
    시간 초과 5 · 연결 6 · JSON 이 아님(베르셀 504 등) 7. assets/advisor-widget.js · index.html 위젯과 같은 표 */
 function _aiCode(st,j,e){ if(e) return 'A'+_ecN(e); if(!j) return 'A7'+(st&&st!==200?' · '+st:''); var u=+(j.upstream||0);
@@ -1175,9 +1180,9 @@ function meAlert(msg){
     var h='';
     if(msg.lead) h+='<div style="font-weight:500;color:var(--accent,#3A2D22);margin-bottom:'+((msg.items&&msg.items.length)?'7px':'0')+'">'+esc2(msg.lead)+'</div>';
     (msg.items||[]).forEach(function(it,i){ h+='<div style="display:flex;gap:7px'+(i?';margin-top:3px':'')+'"><span style="color:var(--gold-deep,#9a7b3f)">·</span><span>'+esc2(it)+'</span></div>'; });
-    m.innerHTML=h;
+    m.innerHTML=_ecGlue(h);   // [ERR_CODE_GLUE] «(코드 P4 · REJECT_CARD_COMPANY)»가 괄호 안에서 갈리지 않게
   } else {
-    m.innerHTML=String(msg).split('\n').map(esc2).join('<br>');
+    m.innerHTML=_ecGlue(String(msg).split('\n').map(esc2).join('<br>'));
   }
   ov.style.display='flex';
   function close(){ ov.style.display='none'; ok.removeEventListener('click',close); ov.removeEventListener('click',bg); document.removeEventListener('keydown',onKey); }
@@ -1189,12 +1194,19 @@ function meAlert(msg){
 function _holdPayload(){ var c=document.getElementById('holdChk'); if(!c||!c.checked) return null; var d=(document.getElementById('holdDate')||{}).value||'', s=(document.getElementById('holdSlot')||{}).value||''; return (d&&s)?{date:d,slot:s}:null; }
 // 신청 처리 (서버 전송 → 시트 기록 + 미쿠 알림 → 확정 팝업)
 // 입금 계좌 복사 — 첫 결제(예약금) 마찰 ↓. 마이페이지 결제 카드와 동일한 UX.
-function _legacyCopy(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }catch(e){} }
+/* ★[COPY_FAIL_SHOW 2026-10-07 triage-pages #13 · ERR_CODES P4] 복사가 안 되면 «복사됨»이라 하지 않는다 — 종전엔 execCommand 가 false(실패)를 돌려줘도 보지 않고
+   «복사됨 · 계좌번호를 복사했어요»였다. 예약금 송금 직전이라 예전 클립보드의 다른 번호가 은행 앱에 붙을 수 있다.
+   실패면 계좌 줄 바로 아래 보이는 한 줄 · 기기 쪽 일이라 코드는 없다(할 일이 글에 있다). 청첩장 24장 · live 와 같은 말 */
+function _legacyCopy(t){ var ok=false; try{ var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ ta.setSelectionRange(0,t.length); }catch(_){} ok=document.execCommand('copy'); document.body.removeChild(ta); }catch(e){ ok=false; } return !!ok; }
 function copyAcct(){
   var t=((document.getElementById('t_account')||{}).textContent||'').trim(); if(!t) return;
   var btn=document.getElementById('acctCopyBtn');
-  var ok=function(){ if(btn){ btn.textContent='복사됨'; setTimeout(function(){ btn.textContent='복사'; },1500); } _say('계좌번호를 복사했어요'); };   // [CR_OPTIN] 계좌 옆 버튼 — «복사됐습니다»는 360px 에서 버튼을 다음 줄로 밀어 1.5초 동안 화면이 출렁였다(홈과 같은 «복사됨»)
-  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(function(){ _legacyCopy(t); ok(); }); } else { _legacyCopy(t); ok(); } }catch(e){ _legacyCopy(t); ok(); }
+  var line=function(on){ var row=btn&&btn.parentNode, n=document.getElementById('acctCopyErr');   // 계좌 줄(.acct-line) 바로 아래
+    if(!n&&on&&row&&row.parentNode){ n=document.createElement('span'); n.id='acctCopyErr'; n.setAttribute('role','alert'); n.style.cssText='display:block;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all'; row.parentNode.insertBefore(n,row.nextSibling); }
+    if(n){ n.textContent=on?'복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요':''; n.style.display=on?'':'none'; } };
+  var ok=function(){ line(false); if(btn){ btn.textContent='복사됨'; setTimeout(function(){ btn.textContent='복사'; },1500); } _say('계좌번호를 복사했어요'); };   // [CR_OPTIN] 계좌 옆 버튼 — «복사됐습니다»는 360px 에서 버튼을 다음 줄로 밀어 1.5초 동안 화면이 출렁였다(홈과 같은 «복사됨»)
+  var legacy=function(){ if(_legacyCopy(t)) ok(); else line(true); };
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(legacy); } else legacy(); }catch(e){ legacy(); }
 }
 window.copyAcct=copyAcct;   /* ★[COPY_ACCT_GLOBAL 2026-09-25 실측] 이 함수는 boot() 안에 있어 전역이 아니다. 계좌 옆 버튼의 onclick="copyAcct()" 가
    전역에서 찾다가 «copyAcct is not defined» 로 끝나 — 예약금 계좌 «복사» 버튼이 아무 일도 안 하고 있었다(main 에서 재현).
@@ -1269,10 +1281,28 @@ function doSubmit(){
     }, function(){ restore(); meAlert('결제창을 불러오지 못했어요 · 다시 누르시거나 계좌이체로 해 주세요 (코드 P6)'); });   // [ERR_CODE_PAGES] 토스 결제 스크립트를 받지 못했다(연결 · 차단)
   };
   if(_card && window.__cardSubmitted===_sig){ _openPay(); return; }
-  // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
-  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((!_card&&document.getElementById('depCRWant')&&document.getElementById('depCRWant').checked)?((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,''):''),hold:_holdPayload(),payBy:(_card?'card':'bank')})})
-    .then(function(r){return r.json();})
-    .then(function(res){
+  /* ★★[SCHED_SUBMIT_RECHECK 2026-10-07 triage-pages #7] 신청(submitSchedule)은 «쓰기»다 — 종전엔 시간 제한이 없어 답이 안 오면 «신청 중»이 끝없이 돌았고 아무 말도 없었다
+     (inquiry 40초 · cancel 45초 · 카드 확인 40초와 달리 이것만 0). 이제 45초를 기다리고, 그래도 답이 없거나(5) 서버 답이 깨지면(7) «결과 모름»이라
+     일정(getAvailability)을 다시 물어 «고르신 날짜가 들어갔는지»로 말한다(cancel 의 CANCEL_RECHECK 와 같은 결 · 같은 말).
+     ★같은 날짜 안에서 시간만 바꾼 신청은 날짜로 가를 수 없다 — 그때는 «결과를 못 받았어요»라고 정직하게 말한다(다시 눌러도 같은 줄을 고쳐 쓸 뿐이라 안전하다) */
+  var _sum=function(t){ var s=document.getElementById('summary'); s.innerHTML=_ecHtml(t); s.classList.remove('on'); s.style.color='var(--seal)'; return s; };   // [ERR_CODE_GLUE]
+  var _ymdP=function(v){ var m=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(String(v||'')); return m?m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2):''; };   // 서버 currentDate 는 «2027-01-09» · 화면 key() 는 «2027-1-9»
+  var _recheck=function(n){
+    var want=_ymdP(key(selDate)), before=_ymdP(SERVER.currentDate);
+    btn.querySelector('span').textContent='신청됐는지 확인 중';
+    _sum(n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요');   // [ERR_RECHECK_NOCODE] 다시 묻는 «중간» 줄엔 코드 없음 — 결과를 말하는 마지막 줄에만(P6)
+    var ac=(typeof AbortController!=='undefined')?new AbortController():null, tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} },25000):null;
+    fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getAvailability',token:SERVER.token}),signal:ac?ac.signal:undefined})
+      .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; })
+      .then(function(s){
+        if(s&&s.cancelled){ _onRes(s); return; }
+        var now=_ymdP(s&&s.ok?s.currentDate:'');
+        if(s&&s.ok&&want&&now===want&&before!==want){ _onRes({ok:true}); return; }   // 고르신 날짜가 들어가 있다 — 신청이 된 것이다(완료 창 · 카드면 결제창)
+        restore(); _sum((s&&s.ok&&now!==want)?'아직 신청 전이에요 · 다시 눌러 주세요 (코드 B'+n+')':'결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')');
+      })
+      .catch(function(){ restore(); _sum('결과를 못 받았어요 · 다시 눌러 주세요 (코드 B'+n+')'); });
+  };
+  var _onRes=function(res){
       if(res&&res.ok&&_card){ window.__cardSubmitted=_sig; try{ localStorage.removeItem('me_state_v1'); }catch(e){} _openPay(); return; }
       if(res&&res.ok){
         try{ localStorage.removeItem('me_state_v1'); }catch(e){}   // 마이페이지 상태 캐시 무효화 → 복귀 시 옛 화면(신청 전) 깜빡임 방지 · 최신 상태만 노출
@@ -1291,17 +1321,19 @@ function doSubmit(){
         sumc.scrollIntoView({behavior:'smooth',block:'center'});
         setTimeout(function(){ location.href='/mypage.html'; }, 2000);
       } else {
-        var sum=document.getElementById('summary');
-        sum.textContent=_ecSrv(res,'B','신청을 받지 못했어요 · 잠시 뒤 다시 눌러 주세요');   // [ERR_CODE_PAGES] 서버 글(코드 포함)을 그대로 · 글이 없으면 B0
-        sum.classList.remove('on'); sum.style.color='var(--seal)';
+        var sum=_sum(_ecSrv(res,'B','신청을 받지 못했어요 · 잠시 뒤 다시 눌러 주세요'));   // [ERR_CODE_PAGES] 서버 글(코드 포함)을 그대로 · 글이 없으면 B0
         sum.scrollIntoView({behavior:'smooth',block:'center'});
         restore();
       }
-    })
-    .catch(function(e){
-      var sum=document.getElementById('summary');
-      sum.textContent=_ecNet(e,'B','다시 눌러 주세요');   // [ERR_CODE_PAGES] 연결 끊김 B6 · 서버 답이 깨짐 B7 — 종전엔 둘 다 «네트워크 오류»
-      sum.classList.remove('on'); sum.style.color='var(--seal)';
+  };
+  // 실제 서버 전송 → 시트 기록(상태=시간선택완료) + 미쿠 알림 메일
+  var _acS=(typeof AbortController!=='undefined')?new AbortController():null, _tmS=_acS?setTimeout(function(){ try{ _acS.abort(); }catch(e){} },45000):null;   // [SCHED_SUBMIT_RECHECK] 45초
+  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitSchedule',token:SERVER.token,dateKey:key(selDate),time:selTime,flex:flex,etc:etc,payer:payer,cashReceipt:((!_card&&document.getElementById('depCRWant')&&document.getElementById('depCRWant').checked)?((document.getElementById('depCR')||{}).value||'').replace(/[^0-9]/g,''):''),hold:_holdPayload(),payBy:(_card?'card':'bank')}),signal:_acS?_acS.signal:undefined})
+    .then(function(r){ if(_tmS) clearTimeout(_tmS); return r.json(); }, function(e){ if(_tmS) clearTimeout(_tmS); throw e; })
+    .then(_onRes)
+    .catch(function(e){ var n=_ecN(e);
+      if(n===5||n===7){ _recheck(n); return; }   // [SCHED_SUBMIT_RECHECK] 결과 모름 — 다시 물어 결과를 말한다
+      _sum(_ecNet(e,'B','다시 눌러 주세요'));   // [ERR_CODE_PAGES] 연결 끊김 B6 · 화면 쪽 예외 B0(ERR_N_HONEST) — 종전엔 둘 다 «네트워크 오류»
       restore();
     });
 }
@@ -1408,7 +1440,7 @@ renderCal();renderTime();updateSummary();
       setTimeout(function(){ if(md&&md.focus){ try{ md.focus({preventScroll:true}); }catch(e){ try{ md.focus(); }catch(e2){} } } }, 60);
     })
     .catch(function(e){ clean(); if(sum) updateSummary(); var n=_ecN(e), off=(n===6&&_ecOff());   // [ERR_CODE_PAGES] 두 번 물어도 답이 없다 — 결과를 모른다
-      meAlert({lead:(n===5?'결제 확인이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+' · 카카오톡으로 알려 주세요 (코드 P'+n+')',items:['결제가 됐는지 확인해 드릴게요.']}); });
+      meAlert({lead:(n===5?'결제 확인이 늦어요':n===7?'서버가 잠깐 멈췄어요':!n?'화면 오류예요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+' · 카카오톡으로 알려 주세요 (코드 P'+n+')',items:['결제가 됐는지 확인해 드릴게요.']}); });   // [ERR_N_HONEST] 0 = 화면 쪽 예외(결과는 모른다 · 연결 탓이 아니다)
 })();
 // 예식일 임시고정 — 커스텀 달력 주입 + 실시간 점유 반영(weddingAvailability: 서명완료·승인 홀드 점유 맵).
 //   전 슬롯(3타임) 마감일은 달력에서 선택 불가, 일부 마감이면 시간 셀렉트에서 해당 슬롯만 '마감' 비활성.
@@ -1430,12 +1462,19 @@ if(_hdw){
     var note=document.getElementById('holdSlotNote');
     if(note){ var allClosed = d && takenList.length>=WSLOT_N; note.style.display=allClosed?'block':'none'; }
   }
+  /* ★[HOLD_WT_WHY 2026-10-07 triage-pages #9] 예식 가능 시간(weddingAvailability)을 못 받으면 «선택 불가» 표시가 비어 모든 시간이 비어 보였다 — 조용히 삼켰다.
+     마이페이지(_wedAvailLoad · ERR_CODE_MYPAGE)와 같은 말(«예식 가능 시간을 확인하지 못했어요» · 360px 한 줄이라 할 일은 뺐다 — 다시 체크하면 다시 묻고 신청은 서버가 다시 본다)로 시간 칸 아래 한 줄: 서버 글(C4 · C8 …) · 브라우저 실패는 같은 말 + C5 · C6 · C7.
+     신청은 서버가 다시 확인해 겹쳐 잡히지는 않는다(submitSchedule _weddingSlotTaken). 다시 체크하면 다시 묻는다(WT 를 비워 둔다) */
+  function _wtSay(t){ var n=document.getElementById('holdWtErr'), sl=document.getElementById('holdSlotNote');
+    if(!n&&t&&sl&&sl.parentNode){ n=document.createElement('div'); n.id='holdWtErr'; n.setAttribute('role','status'); n.style.cssText='font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all'; sl.parentNode.insertBefore(n, sl.nextSibling); }
+    if(n){ n.innerHTML=_ecHtml(t||''); n.style.display=t?'':'none'; } }
   function _loadWT(){
-    if(WT||_wtLoading) return; _wtLoading=true;
+    if(WT||_wtLoading) return; _wtLoading=true; _wtSay('');
     fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'weddingAvailability',token:SERVER.token})})
       .then(function(r){return r.json();})
-      .then(function(res){ _wtLoading=false; if(res&&res.ok){ WT=res.taken||{}; _syncHoldSlots(); } })
-      .catch(function(){ _wtLoading=false; });
+      .then(function(res){ _wtLoading=false; if(res&&res.ok){ WT=res.taken||{}; _syncHoldSlots(); return; }
+        _wtSay(_ecSrv(res,'C','예식 가능 시간을 확인하지 못했어요')); })
+      .catch(function(e){ _wtLoading=false; var n=_ecN(e); _wtSay(n?'예식 가능 시간을 확인하지 못했어요 (코드 C'+n+')':_ecNet(e,'C','')); });
   }
   _hdw.innerHTML=dtPickerHtml('mphd','holdDate','예식 날짜를 선택해 주세요',{});
   initDatePicker({wrap:'mphd_wrap',trigger:'mphd_trigger',text:'mphd_text',panel:'mphd_panel',grid:'mphd_grid',title:'mphd_title',prev:'mphd_prev',next:'mphd_next',hidden:'holdDate',onPick:_syncHoldSlots});   // 날짜는 전부 선택 가능 · 달력에 전역 가용성(인기/스케줄) 신호를 안 띄움
@@ -1484,7 +1523,7 @@ if(_hdw){
       msgs.style.display='block';
       var d=document.createElement('div');
       d.style.cssText='max-width:92%;font-family:var(--serif-ko);font-size:13px;line-height:1.7;word-break:keep-all;white-space:pre-wrap;border-radius:11px;padding:9px 12px;margin:0 0 7px;'+(who==='me'?'margin-left:auto;background:var(--seal);color:#fff':'background:var(--bg2,#F5F3EF);color:var(--accent)');
-      d.textContent=t; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d;
+      d.innerHTML=_ecHtml(t); msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d;   // [ERR_CODE_GLUE] 글은 그대로(이스케이프) · «(코드 A#)»만 한 덩어리로
     }
     function todayYmd(){ var n=new Date(); return n.getFullYear()+'-'+('0'+(n.getMonth()+1)).slice(-2)+'-'+('0'+n.getDate()).slice(-2); }
     f.addEventListener('submit',function(e){
@@ -1504,10 +1543,10 @@ if(_hdw){
         .then(function(res){
           typing.remove();
           var j=res.j;
-          if(res.ok&&j&&j.reply){ bub(j.reply+(j.avail==='unknown'?' (코드 '+(j.availWhy==='unset'?'A3':'A4')+')':''),'bot'); hist.push({role:'assistant',content:j.reply}); return; }
+          if(res.ok&&j&&j.reply){ bub(j.avail==='unknown'?String(j.reply).replace(/[\s.]+$/,'')+' (코드 '+(j.availWhy==='unset'?'A3':'A4')+')':j.reply,'bot'); hist.push({role:'assistant',content:j.reply}); return; }   // [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다
           var c=_aiCode(res.st,j,null); bub(_aiWord(c)+' · '+(c==='A0'?'다시 적어 주세요':'잠시 뒤 다시 물어봐 주세요')+' (코드 '+c+')','bot');
         })
-        .catch(function(e){ typing.remove(); var c=_aiCode(0,null,e); bub(_aiWord(c)+' · 잠시 뒤 다시 물어봐 주세요 (코드 '+c+')','bot'); })
+        .catch(function(e){ typing.remove(); var c=_aiCode(0,null,e); bub((_ecN(e)?_aiWord(c)+' · 잠시 뒤 다시 물어봐 주세요':'화면 오류예요 · 새로 고쳐 주세요')+' (코드 '+c+')','bot'); })   // [ERR_N_HONEST] A0 이 «질문을 읽지 못했어요»(서버 400)로 읽히지 않게
         .then(function(){ if(_tmA) clearTimeout(_tmA); busy=false; btn.disabled=false; btn.textContent='확인'; });
     });
   })();
@@ -1529,7 +1568,7 @@ if(_hdw){
     var _head=(_i<0?msg:msg.slice(0,_i)), _rest=(_i<0?'':msg.slice(_i+4));
     /* [ERR_CODE_PAGES] retry — 재시도가 답인 실패(시간 초과 · 연결 · 서버 답이 깨짐 · 몰림 · 서버 오류)에만 «다시 불러오기». 마이페이지 링크와 같은 모양 */
     document.body.innerHTML='<main style="font-family:\'Noto Serif KR\',serif;text-align:center;padding:90px 24px;color:#5A554C;line-height:1.85;font-size:14px">'
-      +'<h1 style="font:inherit;margin:0">'+_head+'</h1>'+_rest
+      +'<h1 style="font:inherit;margin:0">'+_ecGlue(_head)+'</h1>'+_ecGlue(_rest)   // [ERR_CODE_GLUE]
       +'<br><br>'+(retry?'<button type="button" id="schedRetry" style="font:inherit;color:#7A5F37;background:none;border:0;border-bottom:1px solid #DDD8D1;border-radius:0;padding:0;cursor:pointer">다시 불러오기</button><span aria-hidden="true" style="color:#B8B0A4;margin:0 12px">·</span>':'')
       +'<a href="/mypage.html" style="color:#7A5F37;text-decoration:none;border-bottom:1px solid #DDD8D1">마이페이지로</a></main>';
     var _rb=document.getElementById('schedRetry'); if(_rb) _rb.onclick=function(){ location.reload(); }; }
@@ -1537,7 +1576,10 @@ if(_hdw){
     ||(function(){try{return sessionStorage.getItem('me_pay_tok')||'';}catch(e){return'';}})();   // [PAY_METHOD] 토스 복귀 주소엔 토큰이 없다 — 결제창을 열 때 이 탭에만 적어 둔 것
 
   var me=new URLSearchParams(location.search).get('me');
-  if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.'); return; }
+  /* [SCHED_NO_TOKEN 2026-10-07 triage-pages #10] 이 탭에 로그인 표(me_token)가 없다 — 카톡 앱 안에서 바깥 브라우저로 넘어왔거나 · 시크릿 창 · 저장소 차단.
+     종전 «마이페이지에서 다시 시도해 주세요»는 코드가 없어 스크린샷으로 까닭을 못 갈랐다. cancel 의 «자격 없음»과 같은 B8(로그인 풀림)
+     둘째 줄은 360px 한 줄 — «로그인한 뒤»를 넣으면 390 에서도 코드만 다음 줄로 떨어졌다(윗줄이 이미 «로그인이 필요해요») */
+  if(!token){ fail('로그인이 필요해요.<br>마이페이지에서 다시 열어 주세요 (코드 B8)'); return; }
   // ORDER_OWNER 자매 수정(2026-07-25): 가능일 캐시에 고객 성함·선택날짜가 담김 — 계정 전환 시 이전 계정 캐시가 잠깐 그려지지 않게 토큰별 키로 분리(+옛 공용 키 1회 정리)
   var CACHE_KEY='me_sched_avail_v1:'+token.slice(-10), painted=false;
   try{ localStorage.removeItem('me_sched_avail_v1'); }catch(e){}

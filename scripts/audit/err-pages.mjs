@@ -13,6 +13,9 @@
       청첩장(hydrate) 서버가 안 오면 «{{…}}»를 보이지 않고 기다림 한 줄 → 예시 + G5 · G9(F9)
       guide 사진 설정 없음 G3(다시 시도 없음) · 드라이브 실패 G4 · 연결 G6(F10) · 좌석 «아직 배치가 없어요»(F11) · seat 서버 답이 깨짐 G7(F2) · 콘솔 로그인 풀림 L8(F12)
    ④ 360px 폰에서 한 줄 — 취소 · 좌석 · 예약 화면의 실패 줄
+   ⑤ [ERR_PAGES_R2 2026-10-07 2라운드] ERR_N_HONEST(0 = 화면 쪽 예외 · 6 은 fetch 실패 글만) · ERR_NO_DOT_PAGE(코드 앞 마침표 · 마침표 없는 옛 doPost 글) ·
+      ERR_RETRY_3 · ERR_CODE_GLUE(«(코드 …)» 괄호 안 줄바꿈 기회 없음) · SCHED_SUBMIT_RECHECK · SCHED_NO_TOKEN · HOLD_WT_WHY · LETTER_TIMEOUT · COPY_FAIL_SHOW(청첩장 24 · live · schedule) ·
+      SHARE_COPY_FAIL · PLAY_FAIL_SAY(parents · 홈 저널) · PV_IMG_CODE · GUIDE_MINE_SWAP · HANDOFF_ECODE · SCHED_AI_EMPTY · SCRIPT_FILE_BACK(script-file · voice-file)
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import zlib from 'node:zlib';
 import { Readable } from 'node:stream'; import { createRequire } from 'node:module';
@@ -31,7 +34,7 @@ function fnBody(src, name) {   // 'function name(' 의 몸통 — 중괄호를 �
 }
 const norm = (t) => String(t || '').replace(/\/\/[^\n]*/g, '').replace(/\s+/g, '');
 const SIX = ['cancel.html', 'schedule.html', 'inquiry.html', 'seat.html', 'guide.html', 'live.html'];
-for (const fn of ['_ecN', '_ecOff', '_ecNet', '_ecSrv']) {
+for (const fn of ['_ecN', '_ecOff', '_ecNet', '_ecSrv', '_ecGlue', '_ecHtml']) {   // [ERR_CODE_GLUE] 새 두 함수도 여섯 쪽이 글자까지 같아야 한다
   const bodies = SIX.map((f) => norm(fnBody(read(f), fn)));
   ok(`① ${fn} — 여섯 쪽(${SIX.join(' · ')})이 같은 몸통`, bodies.every((b) => b && b === bodies[0]), SIX.filter((f, i) => bodies[i] !== bodies[0]).join(','));
 }
@@ -52,6 +55,55 @@ for (const fn of ['_ecN', '_ecOff', '_ecNet', '_ecSrv']) {
   ok('① 옛 실패 문구가 남아 있지 않다(서버 사고도 «네트워크»로 말하던 것 · 영문 오류 이름 · 자리 표시를 여는 안전망)', !left.length, left.join(' | '));
   const w = read('assets/advisor-widget.js');
   ok('① 위젯 — «전달했어요»는 /api/handoff 답을 받은 뒤(doHandoff().then)에만', /doHandoff\(\)\.then\(function \(r\) \{\s*if \(r\.ok\)/.test(w) && w.lastIndexOf("'디렉터에게 바로 전달했어요") > w.indexOf('doHandoff().then('), '');
+}
+
+{
+  /* [ERR_RETRY_3] _ecRetry 는 네 쪽(cancel · inquiry · seat · guide)에 있다 — 같은 몸통 */
+  const FOUR = ['cancel.html', 'inquiry.html', 'seat.html', 'guide.html'];
+  const rb = FOUR.map((f) => norm(fnBody(read(f), '_ecRetry')));
+  ok('① [ERR_RETRY_3] _ecRetry — 네 쪽이 같은 몸통', rb.every((b) => b && b === rb[0]), FOUR.filter((f, i) => rb[i] !== rb[0]).join(','));
+  /* 함수 자체를 노드에서 돌려 본다(cancel 판 · 여섯 쪽이 같으니 하나로 충분) */
+  const src = ['_ecN', '_ecOff', '_ecNet', '_ecSrv', '_ecGlue', '_ecHtml', '_ecRetry'].map((n) => fnBody(read('cancel.html'), n)).join('\n');
+  const F = new Function('navigator', src + '\nreturn { _ecN, _ecNet, _ecSrv, _ecGlue, _ecHtml, _ecRetry };')({ onLine: true });
+  const te = (m) => new TypeError(m);
+  ok('① [ERR_N_HONEST] _ecN — 6 은 fetch 가 연결을 못 한 글(Failed to fetch · Load failed · NetworkError · network error)일 때만 · 그 밖의 예외는 0',
+    F._ecN(te('Failed to fetch')) === 6 && F._ecN(te('Load failed')) === 6 && F._ecN(te('NetworkError when attempting to fetch resource.')) === 6 && F._ecN(te('network error')) === 6
+    && F._ecN(te("Cannot read properties of null (reading 'addEventListener')")) === 0 && F._ecN(new Error('boom')) === 0 && F._ecN(null) === 0
+    && F._ecN({ name: 'AbortError' }) === 5 && F._ecN(new SyntaxError('Unexpected token <')) === 7);
+  ok('① [ERR_N_HONEST] 화면 쪽 예외 → «화면 오류예요 · 새로 고쳐 주세요 (코드 X0)» — «연결이 끊겼어요»가 아니다(할 일 칸을 받아도 새로 고치게)',
+    F._ecNet(te('q is null'), 'B', '다시 눌러 주세요') === '화면 오류예요 · 새로 고쳐 주세요 (코드 B0)' && F._ecNet(te('Failed to fetch'), 'G', '') === '연결이 끊겼어요 (코드 G6)', F._ecNet(te('q is null'), 'B', 'x'));
+  const dp1 = F._ecSrv({ ok: false, ecode: 'B9', eid: '7KQ2', error: '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요 (코드 B9 · 7KQ2)' }, 'B', 'x');
+  const dp2 = F._ecSrv({ ok: false, error: '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요. (코드 B9 · 7KQ2)' }, 'B', 'x');
+  ok('① [ERR_NO_DOT_PAGE] 서버가 끝 마침표를 걷어 보낸 옛 doPost 글도 짧은 말로 · 꼬리(코드 · 사고번호)는 그대로', dp1 === '서버에서 오류가 났어요 · 다시 해 주세요 (코드 B9 · 7KQ2)' && dp2 === dp1, { dp1, dp2 });
+  const rt = ['요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요 (코드 B9 · 7KQ2)', '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요. (코드 B9 · 7KQ2)', '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요', '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.',
+    '서버에서 오류가 났어요 · 잠시 뒤 다시 해 주세요 (코드 B9 · 7KQ2)'].map((e) => F._ecRetry({ ok: false, error: e }));
+  ok('① [ERR_NO_DOT_PAGE] _ecRetry — 옛 doPost 글은 마침표 · 코드가 있든 없든, 통합 뒤 새 서버 글(9)도 «다시 불러오기»로 같게 본다', rt.every(Boolean), rt);
+  const d3 = F._ecSrv({ error: '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요. (코드 B8)' }, 'B', 'x');
+  ok('① [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다 · 0 은 글만(P1) · 화면 대체 글에만 X0',
+    d3 === '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요 (코드 B8)' && F._ecSrv({ ecode: 'G0', error: '아직 배치가 없어요.' }, 'G', 'x') === '아직 배치가 없어요.'
+    && F._ecSrv({ ecode: 'G3', error: '설정이 없어요.' }, 'G', 'x') === '설정이 없어요 (코드 G3)' && F._ecSrv(null, 'B', '신청을 받지 못했어요') === '신청을 받지 못했어요 (코드 B0)', d3);
+  ok('① [ERR_RETRY_3] _ecRetry — 3(설정 · 배포 «잠시 뒤 다시 눌러 주세요»)도 다시 해 볼 일 · 0 · 8 은 아니다',
+    F._ecRetry({ ecode: 'G3' }) && F._ecRetry({ error: '지금은 처리할 수 없어요. 잠시 뒤 다시 눌러 주세요 (코드 G3)' }) && !F._ecRetry({ ecode: 'G0', error: 'x' }) && !F._ecRetry({ ecode: 'B8' }));
+  ok('① [ERR_CODE_GLUE] _ecHtml — 글은 이스케이프 · «(코드 …)»만 nowrap 한 덩어리(글자는 그대로)',
+    F._ecHtml('a<b (코드 B9 · 7KQ2)') === 'a&lt;b <span class="ec-code" style="white-space:nowrap">(코드 B9 · 7KQ2)</span>' && F._ecGlue('x <b>y</b>') === 'x <b>y</b>');
+  /* [COPY_FAIL_SHOW] 청첩장 24장 + live — 복사 도움 함수 두 개가 글자까지 같고, execCommand 는 그 함수 안 한 곳뿐(돌려받은 값을 본다) */
+  const INV = fs.readdirSync(path.join(ROOT, 'i')).filter((f) => /^cover-0\d\.html$/.test(f)).map((f) => 'i/' + f)
+    .concat(fs.readdirSync(path.join(ROOT, 'i/invitations')).filter((f) => /^invitation-0[1-8]-.*\.html$/.test(f)).map((f) => 'i/invitations/' + f))
+    .concat(fs.readdirSync(path.join(ROOT, 'i-family')).filter((f) => /^family-0\d\.html$/.test(f)).map((f) => 'i-family/' + f));
+  ok('① [COPY_FAIL_SHOW] 청첩장이 24장이다(셀 수 있어야 아래 검사가 뜻이 있다)', INV.length === 24, INV.length);
+  for (const fn of ['meCopyText', 'meCopyFail']) {
+    const all = INV.concat(['live.html']), b = all.map((f) => norm(fnBody(read(f), fn)));
+    ok(`① [COPY_FAIL_SHOW] ${fn} — 청첩장 24장 · live 가 같은 몸통`, b.every((x) => x && x === b[0]), all.filter((f, i) => b[i] !== b[0]).join(','));
+  }
+  const exec = INV.concat(['live.html']).filter((f) => (read(f).match(/execCommand\('copy'\)/g) || []).length !== 1 || /'복사에 실패했습니다'|'복사 실패 · 수동으로/.test(read(f)));   // 따옴표째(코드) — 주석이 옛 문구를 인용하는 것은 괜찮다
+  ok('① [COPY_FAIL_SHOW] execCommand(copy) 는 도움 함수 한 곳뿐 · 옛 «복사에 실패했습니다»(화면 읽기 전용) · «복사 실패 · 수동으로» 없음', !exec.length, exec.join(','));
+  const sch = read('schedule.html');
+  ok('① [COPY_FAIL_SHOW] schedule 예약금 계좌 — _legacyCopy 가 돌려받은 값을 돌려준다 · 실패면 «복사됨» 대신 한 줄', /ok=document\.execCommand\('copy'\)/.test(sch) && /if\(_legacyCopy\(t\)\) ok\(\); else line\(true\)/.test(sch));
+  /* [ADV_TWO_COPIES] 위젯 두 벌 — codeHtml · aiN 이 같은 몸통 */
+  for (const fn of ['codeHtml', 'aiN']) {
+    const a = norm(fnBody(read('index.html'), fn)), b = norm(fnBody(read('assets/advisor-widget.js'), fn));
+    ok(`① [ADV_TWO_COPIES] 위젯 ${fn} — 홈 인라인 사본과 파일판이 같은 몸통`, !!a && a === b);
+  }
 }
 
 /* ══════════ ② 서버(api) — 노드에서 핸들러를 직접 ══════════ */
@@ -100,7 +152,50 @@ const CONVO = [{ role: 'user', content: '환불 규정이 복잡해서 사람과
   ok('② schedule-advisor — 점유를 모르는 채 답하면 avail:\'unknown\' · availWhy:\'unset\'(화면이 코드 A3 를 단다)', r.status === 200 && r.j && r.j.avail === 'unknown' && r.j.availWhy === 'unset', r.j);
   r = await callApi('schedule-advisor.js', { messages: [{ role: 'user', content: '10월 9일 가능해요?' }], taken: { '2027-01-01': ['09:00'] } }, { ANTHROPIC_API_KEY: 'k' }, (u) => (u === ANT ? J({ type: 'error' }, 401) : J({})));
   ok('② schedule-advisor — 업체 401 은 500 이 아니라 502 + upstream:401(화면 A2)', r.status === 502 && r.j && r.j.upstream === 401, { status: r.status, j: r.j });
+  /* [SCHED_AI_EMPTY] 모델이 빈 글을 돌려주면 200 «죄송합니다…»가 아니라 502 upstream 0(화면 A4) · 못 푼 질문을 «오류»로 남긴다 */
+  n = 0;
+  r = await callApi('schedule-advisor.js', { messages: [{ role: 'user', content: '2027년 10월 9일 오후 예식 가능한가요?' }], today: '2026-10-07', page: '예약', taken: { '2027-01-01': ['09:00'] } }, { ANTHROPIC_API_KEY: 'k', HANDOFF_WEBHOOK_URL: HOOK },
+    (u) => (u === ANT ? (++n === 1 ? J({ content: [{ type: 'text', text: JSON.stringify({ intent: 'check', date: '2027-10-09', periodFrom: '', periodTo: '', weekendOnly: false, slot: '12:20', anySlot: false }) }], usage: {} })
+      : J({ content: [{ type: 'text', text: '   ' }], usage: {} })) : J({ ok: true })));
+  ok('② schedule-advisor [SCHED_AI_EMPTY] — 빈 답 → 502 upstream 0 (종전 200 «죄송합니다» 코드 없음) · 질문은 «오류»로 기록', r.status === 502 && r.j && r.j.upstream === 0 && !r.j.reply
+    && r.calls.some((c) => c.b.action === 'advisorLog' && c.b.flag === '오류'), { status: r.status, j: r.j });
+  /* [HANDOFF_ECODE] GAS 가 거절한 까닭을 화면 코드로 — 비밀 키 불일치 A3 · 미배포(모르는 동작 A3) · 잠금 대기 A1 · 서버 오류 A9(사고번호) · JSON 아님 A7 */
+  const BRIEF = () => J({ content: [{ type: 'text', text: JSON.stringify({ category: '환불', summary: '요약', suggestedReply: '답', rationale: '근거', confidence: '보통' }) }], usage: {} });   // 부를 때마다 새 응답(몸통은 한 번만 읽힌다)
+  for (const [gas, want, nm] of [[() => J({ ok: false, ecode: 'A0', error: 'unauthorized' }), { ecode: 'A3' }, '비밀 키 불일치(unauthorized) → A3'],
+    [() => J({ ok: false, ecode: 'A3', error: '지금은 처리할 수 없어요. 잠시 뒤 다시 눌러 주세요 (코드 A3)' }), { ecode: 'A3' }, 'GAS 미배포(모르는 동작) → A3'],
+    [() => J({ ok: false, error: 'busy' }), { ecode: 'A1' }, '잠금 대기(busy) → A1'],
+    [() => J({ ok: false, ecode: 'A9', eid: 'K7QA', error: '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요 (코드 A9 · K7QA)' }), { ecode: 'A9', eid: 'K7QA' }, 'GAS 오류 → A9 · 사고번호'],
+    [() => new Response('<html>Service invoked too many times</html>', { status: 200, headers: { 'Content-Type': 'text/html' } }), { ecode: 'A7' }, 'GAS 답이 JSON 아님 → A7']]) {
+    r = await callApi('handoff.js', { messages: CONVO, page: '메인' }, { ANTHROPIC_API_KEY: 'k', HANDOFF_WEBHOOK_URL: HOOK }, (u, b) => (u.startsWith(HOOK) ? (b.action === 'aiHandoff' ? gas() : J({ ok: true })) : BRIEF()));
+    ok(`② handoff [HANDOFF_ECODE] — ${nm}`, r.status === 200 && r.j && r.j.delivered === false && r.j.ecode === want.ecode && (!want.eid || r.j.eid === want.eid), r.j);
+  }
 }
+/* [SCRIPT_FILE_BACK] 폼 POST 로 «파일로» 받는 두 길 — 실패해도 화면을 흰 글 한 줄로 덮지 않는다: 까닭 + 코드(한 덩어리) + «돌아가기» */
+{
+  const formReq = (body, ip) => { const q = Readable.from([Buffer.from(body)]); q.method = 'POST'; q.headers = { 'x-real-ip': ip, 'content-type': 'application/x-www-form-urlencoded' }; q.socket = { remoteAddress: ip }; return q; };
+  const call = async (file, body, ipx) => { const h = require(path.join(ROOT, 'api', file)), res = fakeRes(); await h(formReq(body, ipx), res); return res; };
+  const page = (res) => /text\/html/.test(res.h['content-type'] || '') && /id="back"/.test(res.body) && /history\.back\(\)/.test(res.body) && /돌아가기/.test(res.body);
+  let x = await call('script-file.js', 'text=&name=a.txt', ip());
+  ok('② script-file [SCRIPT_FILE_BACK] — 빈 글 400 → 까닭 + 돌아가기(종전 흰 화면 «보낼 글이 없어요.»)', x.statusCode === 400 && page(x) && /보낼 글이 없어요/.test(x.body), x.body.slice(0, 120));
+  const ipR = ip(); for (let i = 0; i < 20; i++) await call('script-file.js', 'text=x&name=a.txt', ipR);
+  x = await call('script-file.js', 'text=x&name=a.txt', ipR);
+  ok('② script-file [SCRIPT_FILE_BACK] — 몰림 429 → «요청이 몰렸어요 · … (코드 X1)» · 코드는 한 덩어리 · 돌아가기', x.statusCode === 429 && page(x) && /<span class="c">\(코드 X1\)<\/span>/.test(x.body), x.body.slice(0, 160));
+  x = await call('script-file.js', 'text=' + encodeURIComponent('안녕') + '&name=a.txt', ip());
+  ok('② script-file — 성공은 종전대로 attachment(화면을 덮지 않는다)', x.statusCode === 200 && /^attachment;/.test(x.h['content-disposition'] || ''), x.h);
+  const f0 = globalThis.fetch;
+  const vcall = async (form, fake) => { globalThis.fetch = fake; try { return await call('voice-file.js', new URLSearchParams(form).toString(), ip()); } finally { globalThis.fetch = f0; } };
+  const ab = () => { const e = new Error('aborted'); e.name = 'AbortError'; return e; };
+  for (const [form, fake, want, nm] of [
+    [{ id: 'FILEID_abcdef0123' }, async () => { throw new Error('no call'); }, /로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 <span class="c">\(코드 L8\)<\/span>/, '토큰 없음 → L8'],
+    [{ token: 'T', id: 'FILEID_abcdef0123' }, async () => { throw ab(); }, /응답이 늦어요 · 마이페이지에서 다시 눌러 주세요 <span class="c">\(코드 L5\)<\/span>/, 'GAS 늦음 → L5'],
+    [{ token: 'T', id: 'FILEID_abcdef0123' }, async () => { throw new TypeError('fetch failed'); }, /파일을 받지 못했어요 · 마이페이지에서 다시 눌러 주세요 <span class="c">\(코드 L4\)<\/span>/, 'GAS 못 닿음 → L4'],
+    [{ token: 'T', id: 'FILEID_abcdef0123' }, async () => ({ json: async () => { throw new SyntaxError('Unexpected token <'); } }), /서버가 잠깐 멈췄어요 · 마이페이지에서 다시 눌러 주세요 <span class="c">\(코드 L7\)<\/span>/, 'GAS 답 깨짐 → L7'],
+    [{ token: 'T', id: 'FILEID_abcdef0123' }, async () => ({ json: async () => ({ ok: false, ecode: 'L4', error: '파일을 받지 못했어요.' }) }), /파일을 받지 못했어요 <span class="c">\(코드 L4\)<\/span>/, 'GAS 거절 + ecode 만 → 끝 마침표 걷고 코드']]) {
+    const v = await vcall(form, fake);
+    ok(`② voice-file [SCRIPT_FILE_BACK] — ${nm} · 돌아가기`, page(v) && want.test(v.body), v.body.replace(/^[\s\S]*<main[^>]*>/, '').slice(0, 160));
+  }
+}
+
 
 if (!pw) { console.log('못 쟀다 — playwright 없음(화면 검사 생략)'); process.exit(fail ? 1 : 2); }
 const T = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.mp3': 'audio/mpeg' };
@@ -133,11 +228,12 @@ const stub = (routeSrc, seed) => `window.__ME_PREVIEW_GUARD_TEST_OFF = true;
       _st(function(){ res(new Response(typeof x.body === 'string' ? x.body : JSON.stringify(x.body), { status: x.status || 200, headers: x.headers || { 'Content-Type': 'application/json' } })); }, x.delay || 15); }); };
 })();`;
 const errs = [];
-async function open(url, routeSrc, { w = 390, seed = null } = {}) {
+async function open(url, routeSrc, { w = 390, seed = null, init = '' } = {}) {
   const ctx = await br.newContext({ viewport: { width: w, height: 844 } }); const pg = await ctx.newPage();
   pg.on('pageerror', (e) => errs.push(url.split('?')[0] + ' ' + e.message));
   await pg.route('**/*', (rt) => (rt.request().url().startsWith(BASE) ? rt.continue() : rt.fulfill({ status: 200, body: '' })));
   await pg.addInitScript(stub(routeSrc, seed));
+  if (init) await pg.addInitScript(init);   // [ERR_PAGES_R2] 기기 쪽 실패를 꾸민다(재생 거절 · 복사 실패)
   await pg.goto(BASE + url, { waitUntil: 'load' }).catch(() => {});
   return { ctx, pg };
 }
@@ -146,6 +242,19 @@ const txt = (pg, sel) => pg.evaluate((s) => { const e = document.querySelector(s
 const lines = (pg, sel) => pg.evaluate((s) => { const e = document.querySelector(s); if (!e) return 0; const r = document.createRange(); r.selectNodeContents(e);
   return new Set([...r.getClientRects()].filter((x) => x.width > 1).map((x) => Math.round(x.top + x.height / 2))).size; }, sel);
 const calls = (pg, act) => pg.evaluate((a) => window.__calls.filter((c) => c.b.action === a || (a && c.url.indexOf(a) >= 0)).length, act);
+/* ★[ERR_CODE_GLUE] «(코드 …)» 괄호 안에 줄바꿈 기회가 없는가 — 보이는 글 속 «(코드»마다 그 괄호가 white-space:nowrap 인 한 요소 안에 통째로 있어야 한다.
+   (390px 신청서에서 «(코드 B9 / · 7KQ2)»로 괄호 안이 갈렸다 · 코디 실측) 빈 배열 = 통과 */
+const gluedBad = (pg, sel) => pg.evaluate((s) => { const root = s ? document.querySelector(s) : document.body; if (!root) return ['없음 ' + s]; const bad = [];
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+  while ((n = w.nextNode())) { const t = n.nodeValue || ''; let i = t.indexOf('(코드');
+    while (i > -1) { const el = n.parentElement, cs = el && getComputedStyle(el), close = t.indexOf(')', i);
+      const shown = !!el && cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0;
+      if (shown && !(cs.whiteSpace === 'nowrap' && close > -1)) bad.push(t.slice(Math.max(0, i - 10), close > -1 ? close + 1 : i + 14));
+      i = t.indexOf('(코드', i + 1); } }
+  return bad; }, sel);
+const FAILCOPY = `(function(){ try { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: function(){ return Promise.reject(new DOMException('denied', 'NotAllowedError')); } } }); } catch (e) {}
+  try { Object.defineProperty(navigator, 'share', { configurable: true, value: undefined }); } catch (e) {}
+  document.execCommand = function(){ return false; }; })();`;   // [COPY_FAIL_SHOW] 클립보드 거절 + execCommand 실패(false)
 const run = async (name, fn) => { try { await fn(); } catch (e) { ok(name + ' — 실행 도중 멈춤', false, String(e && e.message || e).split('\n')[0]); } };
 
 /* ══════════ ③ 화면 ══════════ */
@@ -156,16 +265,17 @@ await run('③ cancel', async () => {
     if (b.action === 'emailCancel') return 'hang';`);
   await until(pg, () => !!document.getElementById('go'));
   await pg.click('#go');
-  const said = await until(pg, () => /^응답이 늦어요 \(코드 B5\)$/.test(((document.getElementById('cErr') || {}).textContent || '').trim()) && /취소됐는지 확인 중/.test((document.getElementById('go') || {}).textContent || ''), null, 9000);
+  const said = await until(pg, () => /^응답이 늦어요$/.test(((document.getElementById('cErr') || {}).textContent || '').trim()) && /취소됐는지 확인 중/.test((document.getElementById('go') || {}).textContent || ''), null, 9000);   // [ERR_RECHECK_NOCODE] 다시 묻는 중간 줄엔 코드 없음(P6)
   const doneOk = await until(pg, () => /예약이 취소되었어요/.test(document.body.innerText), null, 9000);
-  ok('③ cancel(F3) — 취소 요청이 늦으면(45초) «결과 모름»: 단추 «● 취소됐는지 확인 중» + «응답이 늦어요 (코드 B5)» → 상태를 다시 물어 취소됐으면 완료 화면(종전 «취소에 실패했어요»)', said && doneOk && (await calls(pg, 'emailCancelInfo')) >= 2, { said, doneOk, t: await txt(pg, '#card') });
+  ok('③ cancel(F3) — 취소 요청이 늦으면(45초) «결과 모름»: 단추 «● 취소됐는지 확인 중» + «응답이 늦어요»(중간 줄 · 코드 없음 P6) → 상태를 다시 물어 취소됐으면 완료 화면(종전 «취소에 실패했어요»)', said && doneOk && (await calls(pg, 'emailCancelInfo')) >= 2, { said, doneOk, t: await txt(pg, '#card') });
   await ctx.close();
   const c2 = await open('/cancel.html?token=TKN&sig=SIG', `if (b.action === 'emailCancelInfo') return { body: ${JSON.stringify(INFO_OK)} }; if (b.action === 'emailCancel') return 'hang';`, { w: 360 });
   await until(c2.pg, () => !!document.getElementById('go'));
   await c2.pg.click('#go');
   const left = await until(c2.pg, () => /아직 취소 전이에요 · 다시 눌러 주세요 \(코드 B5\)/.test((document.getElementById('cErr') || {}).textContent || '') && !document.getElementById('go').disabled, null, 9000);
   const l0 = await lines(c2.pg, '#cErr');
-  ok('③ cancel(F3) — 다시 물어도 아직 확정 상태면 «아직 취소 전이에요 · 다시 눌러 주세요 (코드 B5)» 한 줄(360) · 단추가 풀린다', left && l0 === 1, { left, l0, t: await txt(c2.pg, '#cErr') });
+  const g0 = await gluedBad(c2.pg, '#cErr');
+  ok('③ cancel(F3) — 다시 물어도 아직 확정 상태면 «아직 취소 전이에요 · 다시 눌러 주세요 (코드 B5)» 한 줄(360) · 단추가 풀린다 · 코드는 한 덩어리', left && l0 === 1 && !g0.length, { left, l0, g0, t: await txt(c2.pg, '#cErr') });
   await c2.ctx.close();
   /* 무효 링크 — 서버 거절 «유효하지 않은 링크예요»는 «불러오지 못했어요» 제목이 아니라 링크 안내 + B8 · 다시 불러오기 없음 */
   const b = await open('/cancel.html?token=TKN&sig=BAD', `return { body: { ok: false, ecode: 'B0', error: '유효하지 않은 링크예요.' } };`);
@@ -265,7 +375,7 @@ await run('③ AI 위젯', async () => {
   }
   /* F8 — 날짜 확인 AI(위젯 스케줄 갈래) 503 → A3 · 서버가 점유를 모른 채 답함 → 답 끝에 코드 */
   for (const [resp, want, nm] of [[`{ status: 503, body: { error: 'unconfigured' } }`, /AI 상담이 꺼져 있어요 · 잠시 뒤 다시 물어봐 주세요 \(코드 A3\)$/, '503 → A3'],
-    [`{ body: { reply: '지금은 일정 확인 시스템 연결이 잠시 원활하지 않아요.', avail: 'unknown', availWhy: 'fail' } }`, /원활하지 않아요\. \(코드 A4\)$/, '점유 모름(avail unknown) → 답 끝 A4']]) {
+    [`{ body: { reply: '지금은 일정 확인 시스템 연결이 잠시 원활하지 않아요.', avail: 'unknown', availWhy: 'fail' } }`, /원활하지 않아요 \(코드 A4\)$/, '점유 모름(avail unknown) → 답 끝 A4 · 코드 앞 끝 마침표는 걷는다(ERR_NO_DOT_PAGE)']]) {
     const { ctx, pg } = await open('/inquiry.html', `if (url.indexOf('/api/schedule-advisor') >= 0) return ${resp};`, { w: 1280 });
     await until(pg, () => !!(window.MEAdvisor && window.MEAdvisor.ask), null, 8000);
     await pg.evaluate(() => window.MEAdvisor.ask('내년 10월 9일 예식 가능한가요?'));
@@ -320,23 +430,24 @@ await run('③ 청첩장(hydrate)', async () => {
   const b = await open('/i/cover-01.html?e=evt-hy-2', `if (url.indexOf('action=getCouple') >= 0) return { body: { ok: false, error: 'INTERNAL_ERROR', ecode: 'G9', eid: 'K3QZ' } };`);
   await until(b.pg, () => !!document.getElementById('meDemoBadge'), null, 6000);
   const bd = (await txt(b.pg, '#meDemoBadge'));
-  ok('③ 청첩장(F9) — 서버 INTERNAL_ERROR 는 «주소를 다시 확인해 주세요»가 아니라 «서버에서 오류가 났어요 … (코드 G9 · K3QZ)»', /\(코드 G9 · K3QZ\)/.test(bd) && !/주소를 다시 확인/.test(bd) && (await calls(b.pg, 'action=getCouple')) === 2, bd);
+  const gbd = await gluedBad(b.pg, '#meDemoBadge');
+  ok('③ 청첩장(F9) — 서버 INTERNAL_ERROR 는 «주소를 다시 확인해 주세요»가 아니라 «서버에서 오류가 났어요 … (코드 G9 · K3QZ)» · 코드는 한 덩어리', /\(코드 G9 · K3QZ\)/.test(bd) && !/주소를 다시 확인/.test(bd) && (await calls(b.pg, 'action=getCouple')) === 2 && !gbd.length, { bd, gbd });
   await b.ctx.close();
 });
 
 const GUIDE = (extra) => ({ ok: true, guide: Object.assign({ groom: '김도현', bride: '정하윤', date: '2027-12-17', seatToken: 'stok', seatFull: true, dining: { on: false }, photoShare: '' }, extra || {}) });
 await run('③ guide', async () => {
   for (const [resp, want, retry, nm] of [
-    [`{ body: { ok: false, ecode: 'G3', error: '아직 준비 중이에요. 두 분께 알려 주세요. (코드 G3)' } }`, /아직 준비 중이에요\. 두 분께 알려 주세요\. \(코드 G3\)/, false, '설정 없음(새 GAS · G3) → 멈춤 · 다시 시도 없음'],
-    [`{ body: { ok: false, error: '아직 준비 중이에요. 두 분께 알려 주세요.' } }`, /아직 준비 중이에요\. 두 분께 알려 주세요\. \(코드 G3\)/, false, '설정 없음(옛 GAS · 코드 없음) → G3 붙임 · 다시 시도 없음'],
+    [`{ body: { ok: false, ecode: 'G3', error: '아직 준비 중이에요. 두 분께 알려 주세요. (코드 G3)' } }`, /아직 준비 중이에요\. 두 분께 알려 주세요 \(코드 G3\)/, false, '설정 없음(새 GAS · G3) → 멈춤 · 다시 시도 없음 · 코드 앞 마침표 없음(ERR_NO_DOT_PAGE)'],
+    [`{ body: { ok: false, error: '아직 준비 중이에요. 두 분께 알려 주세요.' } }`, /아직 준비 중이에요\. 두 분께 알려 주세요 \(코드 G3\)/, false, '설정 없음(옛 GAS · 코드 없음) → G3 붙임 · 다시 시도 없음 · 코드 앞 마침표 없음(ERR_NO_DOT_PAGE)'],
     [`{ body: { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' } }`, /2장이 전해지지 않았어요 · 사진을 저장하지 못했어요 \(코드 G4\)/, true, '드라이브 실패(옛 글) → G4 · 연결 탓 아님 · 다시 시도'],
     [`'net'`, /2장이 전해지지 않았어요 · 연결이 끊겼어요 \(코드 G6\)/, true, '연결 끊김 → G6 · 다시 시도']]) {
     const { ctx, pg } = await open('/guide.html?g=t_err', `if (b.action === 'guideView') return { body: ${JSON.stringify(GUIDE({ seatToken: '' }))} }; if (b.action === 'guestPhoto') return ${resp};`);
     await until(pg, () => !!document.getElementById('gpPick'));
     await pg.setInputFiles('#gpFile', PNGS);
     await until(pg, () => !window.__gpBusy && /코드/.test((document.getElementById('gpStat') || {}).textContent || ''), null, 8000);
-    const t = await txt(pg, '#gpStat'), hasRetry = !!(await pg.$('#gpRetry')), n = await calls(pg, 'guestPhoto');
-    ok(`③ guide 사진(F10) — ${nm}`, want.test(t) && hasRetry === retry && (retry || n === 1) && !/연결/.test(retry && /G4/.test(nm) ? t : ''), { t, hasRetry, n });
+    const t = await txt(pg, '#gpStat'), hasRetry = !!(await pg.$('#gpRetry')), n = await calls(pg, 'guestPhoto'), gb = await gluedBad(pg, '#gpStat');
+    ok(`③ guide 사진(F10) — ${nm}`, want.test(t) && hasRetry === retry && (retry || n === 1) && !/연결/.test(retry && /G4/.test(nm) ? t : '') && !/\. \(코드/.test(t) && !gb.length, { t, hasRetry, n, gb });
     await ctx.close();
   }
   for (const [resp, want, nm] of [[`{ body: { ok: false, ecode: 'G0', error: '아직 배치가 없어요.' } }`, /좌석 배치를 준비하고 있어요\. ?두 분이 배치를 마치면 여기에 보여요\./, '«아직 배치가 없어요» → 준비 안내(새로고침 아님)'],
@@ -380,6 +491,212 @@ await run('③ 콘솔', async () => {
   const t2 = await txt(b.pg, '#rfChk');
   ok('③ 콘솔(F12) — rf 코드 없이 열면 «파일 없음»이 아니라 «받지 않음 · … «당일 콘솔» 단추로 열어야 받아요»', /받지 않음 · 나레이션으로 나감 · 관리 화면 «당일 콘솔» 단추로 열어야 받아요/.test(t2) && !/파일 없음/.test(t2), t2);
   await b.ctx.close();
+});
+
+/* ══════════ ⑤ 2라운드 [ERR_PAGES_R2] ══════════ */
+const pickAndSend = async (pg) => {
+  await until(pg, () => !!document.querySelector('#calGrid button.day.avail'), null, 8000);
+  await pg.evaluate(() => document.querySelector('#calGrid button.day.avail').click());
+  await until(pg, () => !!document.querySelector('#slots button.slot:not(.full)'));
+  await pg.evaluate(() => { document.querySelector('#slots button.slot:not(.full)').click(); const p = document.getElementById('depPayer'); if (p) p.value = '정하윤'; document.getElementById('submitBtn').click(); });
+};
+await run('⑤ schedule 신청 결과 모름(SCHED_SUBMIT_RECHECK)', async () => {
+  /* 신청(submitSchedule)이 영영 안 오면(45초 → 4.5초) «결과 모름» — 일정을 다시 물어 고른 날짜가 들어가 있으면 완료 창 · 아니면 다시 누르게 · 다시 묻기도 끊기면 «결과를 못 받았어요» */
+  const route = (mode) => `if (b.action === 'getAvailability') { var k = window.__calls.filter(function(c){ return c.b.action === 'getAvailability'; }).length, a = JSON.parse(${JSON.stringify(JSON.stringify(AV))});
+      if (k > 1) { ${mode === 'lost' ? "return 'hang';" : ''} var p = String(window.__pick || '').split('-'); a.currentDate = ${mode === 'yes' ? "p.length === 3 ? p[0] + '-' + ('0' + p[1]).slice(-2) + '-' + ('0' + p[2]).slice(-2) : ''" : "'2020-01-01'"}; return { body: a, delay: 1200 }; }
+      return { body: a }; }
+    if (b.action === 'submitSchedule') { window.__pick = b.dateKey; return 'hang'; }
+    if (b.action === 'cardPayConfig') return { body: { ok: true, enabled: false } }; if (b.action === 'weddingAvailability') return { body: { ok: true, taken: {} } };`;
+  for (const [mode, w, want, nm] of [['yes', 390, null, '다시 물어 고른 날짜가 들어가 있으면 → 완료 창(종전엔 «신청 중»이 끝없이 돌았다)'],
+    ['no', 360, /^아직 신청 전이에요 · 다시 눌러 주세요 \(코드 B5\)$/, '다시 물어도 아직이면 → «아직 신청 전이에요 · 다시 눌러 주세요 (코드 B5)» 한 줄(360) · 단추가 풀린다'],
+    ['lost', 360, /^결과를 못 받았어요 · 다시 눌러 주세요 \(코드 B5\)$/, '다시 묻기도 답이 없으면 → «결과를 못 받았어요 · 다시 눌러 주세요 (코드 B5)»']]) {
+    const { ctx, pg } = await open('/schedule.html', route(mode), { w, seed: { ls: { me_token: TK } } });
+    await pickAndSend(pg);
+    const checking = await until(pg, () => /^응답이 늦어요$/.test((document.getElementById('summary').textContent || '').trim()) && /신청됐는지 확인 중/.test(document.getElementById('submitBtn').textContent), null, 12000);   // [ERR_RECHECK_NOCODE] 다시 묻는 중간 줄엔 코드 없음(P6)
+    let res = {}, good = false;
+    if (mode === 'yes') { good = await until(pg, () => document.getElementById('modal').classList.contains('show'), null, 12000); res = { modal: good }; }
+    else { good = await until(pg, (re) => new RegExp(re).test((document.getElementById('summary').textContent || '').trim()) && !document.getElementById('submitBtn').disabled, want.source, 12000);
+      res = { t: await txt(pg, '#summary'), l: await lines(pg, '#summary'), gb: await gluedBad(pg, '#summary') }; good = good && res.l === 1 && !res.gb.length; }
+    ok(`⑤ schedule(SCHED_SUBMIT_RECHECK) — ${nm}`, checking && good && (await calls(pg, 'getAvailability')) >= 2, Object.assign({ checking }, res));
+    await ctx.close();
+  }
+});
+await run('⑤ schedule 로그인 표 없음 · 예식 시간 조회 실패 · 계좌 복사 실패', async () => {
+  let s = await open('/schedule.html', `return { body: { ok: true } };`, { w: 360 });
+  await until(s.pg, () => /로그인이 필요해요/.test(document.body.innerText));
+  const nt = await txt(s.pg, 'main'), ngb = await gluedBad(s.pg, 'main');
+  const nl = await s.pg.evaluate(() => { const m = document.querySelector('main'); const w = document.createTreeWalker(m, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) { if (/마이페이지에서 다시 열어 주세요/.test(n.textContent)) { const e = n.parentElement.closest('.ec-code') ? n.parentElement.parentElement : n.parentElement; const r = document.createRange(); r.setStart(n, 0); const g = e.querySelector('.ec-code'); if (g) r.setEndAfter(g); else r.setEnd(n, n.textContent.length); return new Set([...r.getClientRects()].filter((x) => x.width > 1).map((x) => Math.round(x.top))).size; } } return -1; });
+  ok('⑤ schedule(SCHED_NO_TOKEN) — 이 탭에 로그인 표가 없으면 «마이페이지에서 다시 열어 주세요 (코드 B8)» · 코드는 한 덩어리 · 둘째 줄이 360 한 줄(종전 코드 없음)', /마이페이지에서 다시 열어 주세요 \(코드 B8\)/.test(nt) && !ngb.length && nl === 1, { nt, ngb, nl });
+  await s.ctx.close();
+  for (const [resp, want, nm] of [[`'net'`, /^예식 가능 시간을 확인하지 못했어요 \(코드 C6\)$/, '연결 끊김 → C6'], [`{ body: { ok: false, ecode: 'C4', error: '예식 가능 시간을 확인하지 못했어요 (코드 C4)' } }`, /^예식 가능 시간을 확인하지 못했어요 \(코드 C4\)$/, '서버 실패 → 서버 글(C4)']]) {
+    s = await open('/schedule.html', SCHED(`if (b.action === 'weddingAvailability') return ${resp};`).replace("if (b.action === 'weddingAvailability') return { body: { ok: true, taken: {} } };", ''), { w: 360, seed: { ls: { me_token: TK } } });
+    await until(s.pg, () => !!document.querySelector('#calGrid button.day'));
+    await s.pg.evaluate(() => { const c = document.getElementById('holdChk'); c.click(); });
+    const got = await until(s.pg, (re) => new RegExp(re).test(((document.getElementById('holdWtErr') || {}).textContent || '').trim()), want.source, 8000);
+    const l = await lines(s.pg, '#holdWtErr'), gb = await gluedBad(s.pg, '#holdWtErr');
+    ok(`⑤ schedule(HOLD_WT_WHY) — 예식 가능 시간을 못 받으면 «선택 불가»가 빈 채 말없이 두지 않는다: ${nm} · 한 줄(360) · 마이페이지와 같은 말`, got && l === 1 && !gb.length, { t: await txt(s.pg, '#holdWtErr'), l, gb });
+    await s.ctx.close();
+  }
+  s = await open('/schedule.html', SCHED(), { w: 360, seed: { ls: { me_token: TK } }, init: FAILCOPY });
+  await until(s.pg, () => !!document.querySelector('#calGrid button.day'));
+  await s.pg.evaluate(() => window.copyAcct());
+  const cf = await until(s.pg, () => /복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요/.test(((document.getElementById('acctCopyErr') || {}).textContent || '')));
+  const bt = await txt(s.pg, '#acctCopyBtn');
+  ok('⑤ schedule(COPY_FAIL_SHOW) — 복사가 안 되면 «복사됨»이 아니라 계좌 줄 아래 «복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요»', cf && bt === '복사', { bt });
+  await s.ctx.close();
+});
+await run('⑤ live 편지 시간 제한 · 계좌 복사 실패', async () => {
+  const L = await open('/live.html?e=evt-letter-2', `if (url.indexOf('action=getCouple') >= 0) return { body: ${JSON.stringify(COUPLE)} }; if (b.action === 'guestLetter') return 'hang';`);
+  await until(L.pg, () => document.body.classList.contains('couple-ready'));
+  await L.pg.evaluate(() => { document.getElementById('lfMessage').value = '축하해요'; document.getElementById('lfGuestName').value = '하객'; document.getElementById('letterForm').requestSubmit(); });
+  const got = await until(L.pg, () => getComputedStyle(document.getElementById('letterError')).display !== 'none', null, 9000);
+  const le = await txt(L.pg, '#letterError'), gb = await gluedBad(L.pg, '#letterError');
+  ok('⑤ live(LETTER_TIMEOUT) — 편지가 30초 안에 답이 없으면 «보내는 중»에 갇히지 않고 «편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 (코드 G5)»', got && /편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 \(코드 G5\)/.test(le) && !gb.length, { le, gb });
+  const w0 = await L.pg.evaluate(() => liveWaitWord(0));
+  ok('⑤ live(ERR_N_HONEST) — 그리기 예외(0)는 «연결이 끊겼어요 (코드 G6)»가 아니라 «화면 오류예요 · 새로 고쳐 주세요 (코드 G0)»', w0 === '화면 오류예요 · 새로 고쳐 주세요 (코드 G0)' && /sayNotLoaded\(_ecN\(err\)\)/.test(read('live.html')), w0);
+  await L.ctx.close();
+  const C = await open('/live.html?e=evt-copy-1', `if (url.indexOf('action=getCouple') >= 0) return { body: ${JSON.stringify(COUPLE)} };`, { init: FAILCOPY });
+  await until(C.pg, () => document.body.classList.contains('couple-ready'));
+  await C.pg.evaluate(() => { const b = [...document.querySelectorAll('.env-copy')].find((x) => x.dataset.account) || document.querySelector('.env-copy'); b.dataset.account = b.dataset.account || '12345678901234'; b.closest('.env-item').classList.add('open'); b.click(); });
+  const cf = await until(C.pg, () => /복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요/.test(((document.querySelector('.me-copy-fail') || {}).textContent || '')));
+  const toast = await C.pg.evaluate(() => { const t = document.getElementById('toast'); return t.classList.contains('show') ? t.textContent : ''; });
+  ok('⑤ live(COPY_FAIL_SHOW) — 계좌 복사가 안 되면 «Copied»·2초 «복사 실패»가 아니라 그 줄 아래 보이는 한 줄', cf && !/Copied|복사되었습니다/.test(toast), { toast });
+  await C.ctx.close();
+});
+await run('⑤ 청첩장 계좌 복사 실패(COPY_FAIL_SHOW)', async () => {
+  for (const f of ['/i/cover-01.html', '/i/cover-02.html', '/i/cover-04.html', '/i/cover-08.html', '/i-family/family-03.html']) {
+    const { ctx, pg } = await open(f + '?e=test-couple', `return { body: { ok: true } };`, { init: FAILCOPY });
+    await until(pg, () => document.body.classList.contains('couple-ready'), null, 8000);
+    const before = await pg.evaluate(() => { const b = document.querySelector('.env-acc-copy[data-account]:not([data-account=""]),.acc-copy[data-copy]:not([data-copy=""]),.env-acc-copy[data-copy]:not([data-copy=""])');
+      if (!b) return null; const it = b.closest('details,.env-acc-item,.acc-item,.env-acc'); if (it) { if (it.tagName === 'DETAILS') it.open = true; it.classList.add('open'); } window.__cb = b; const t0 = b.textContent; b.click(); return t0; });
+    const cf = await until(pg, () => /복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요/.test(((document.querySelector('.me-copy-fail') || {}).textContent || '')));
+    const st = await pg.evaluate(() => ({ btn: window.__cb.textContent, toast: ((document.getElementById('toast') || {}).textContent || '') }));
+    ok(`⑤ 청첩장 ${f}(COPY_FAIL_SHOW) — 복사가 안 되면 «Copied»·«복사됨»이 아니라 계좌 줄 아래 «복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요»`, before !== null && cf && st.btn === before && !/복사됨/.test(st.toast), { before, st });
+    await ctx.close();
+  }
+  const { ctx, pg } = await open('/i/cover-01.html?e=test-couple', `return { body: { ok: true } };`, { init: `Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: function(){ return Promise.resolve(); } } });` });
+  await until(pg, () => document.body.classList.contains('couple-ready'), null, 8000);
+  await pg.evaluate(() => { const b = document.querySelector('.env-acc-copy[data-account]:not([data-account=""])'); window.__cb = b; b.click(); });
+  const okd = await until(pg, () => window.__cb.textContent === 'Copied');
+  ok('⑤ 청첩장(COPY_FAIL_SHOW) — 복사가 되면 종전대로 «Copied» · 실패 줄 없음', okd && !(await pg.$('.me-copy-fail')));
+  await ctx.close();
+});
+await run('⑤ guide · seat 2라운드', async () => {
+  /* [GUIDE_MINE_SWAP] 전체 배치도로 그린 뒤 서버가 «내 자리만»이라 답하면 — 검색칸 없는 채로 멈춰 «연결이 끊겼어요 (코드 G6)»가 숨은 칸에 쓰이던 것 */
+  let g = await open('/guide.html?g=t_mine', `if (b.action === 'guideView') return { body: ${JSON.stringify(GUIDE())} }; if (b.action === 'seatView') return b.q ? { body: { ok: true, hits: [{ no: 3, label: '테이블 3' }] } } : { body: { ok: false, mineOnly: true } };`);
+  const sw = await until(g.pg, () => !!document.getElementById('q') && !document.getElementById('seatMap'), null, 8000);
+  await g.pg.evaluate(() => { const q = document.getElementById('q'); q.value = '김민수'; q.dispatchEvent(new Event('input', { bubbles: true })); });
+  const hit = await until(g.pg, () => /테이블 3/.test((document.getElementById('fr') || {}).textContent || ''), null, 6000);
+  const gt = await txt(g.pg, '#root');
+  ok('⑤ guide(GUIDE_MINE_SWAP) — «내 자리만»으로 바뀌면 좌석 칸이 «내 자리 찾기» 검색으로 바뀌고 검색이 된다(종전 칸이 비고 말 없음)', sw && hit && /내 자리 찾기/.test(gt) && !/연결이 끊겼어요/.test(gt), { sw, hit });
+  await g.ctx.close();
+  /* [ERR_RETRY_3] 설정 · 배포(G3 «잠시 뒤 다시 눌러 주세요») — 링크 탓 부제 · 캐시 지우기 없이 «다시 불러오기» */
+  const G3 = `{ body: { ok: false, ecode: 'G3', error: '지금은 처리할 수 없어요. 잠시 뒤 다시 눌러 주세요 (코드 G3)' } }`;
+  g = await open('/guide.html?g=t_g3', `if (b.action === 'guideView') return ${G3};`);
+  await until(g.pg, () => !!document.getElementById('retryBtn'), null, 8000);
+  const g3t = await txt(g.pg, '#root');
+  ok('⑤ guide(ERR_RETRY_3) — G3 은 «링크가 만료되었거나…»가 아니라 까닭 + «다시 불러오기»', /\(코드 G3\)/.test(g3t) && !/링크가 만료/.test(g3t) && !/\. \(코드/.test(g3t), g3t);
+  await g.ctx.close();
+  g = await open('/guide.html?g=t_g3c', `if (b.action === 'guideView') return ${G3};`, { seed: { ls: { me_guide_t_g3c: JSON.stringify(GUIDE().guide) } } });
+  await until(g.pg, () => (window.__calls || []).some((c) => c.b.action === 'guideView'), null, 6000); await g.pg.waitForTimeout(400);
+  const kept = await g.pg.evaluate(() => !!localStorage.getItem('me_guide_t_g3c') && /김도현/.test(document.body.innerText));
+  ok('⑤ guide(ERR_RETRY_3) — G3 이면 전에 본 안내(캐시)를 지우지 않는다(종전엔 링크 문제로 보고 지웠다)', kept);
+  await g.ctx.close();
+  let st = await open('/seat.html?t=T1234567890ab', `if (b.action === 'seatView') return ${G3};`, { w: 360 });
+  await until(st.pg, () => !!document.getElementById('retryBtn'), null, 8000);
+  const s3 = await txt(st.pg, '#root');
+  ok('⑤ seat(ERR_RETRY_3) — G3 은 링크 탓 부제 없이 까닭 + «다시 불러오기»', /\(코드 G3\)/.test(s3) && !/링크가 만료/.test(s3), s3);
+  await st.ctx.close();
+  /* [ERR_N_HONEST] 그리기 예외(서버 답의 모양이 틀림 → TypeError)는 «연결이 끊겼어요 (코드 G6)»가 아니다 — 저절로 다시 묻지 않고 G0 · 단추는 화면을 새로 연다 */
+  st = await open('/seat.html?t=T1234567890ab', `if (b.action === 'seatView') return { body: { ok: true, seat: { groom: '김도현', bride: '정하윤', date: '2027-12-17', tables: 5 } } };`, { w: 360 });
+  await until(st.pg, () => !!document.getElementById('retryBtn'), null, 8000);
+  const s0 = await txt(st.pg, '#root'), l0 = await lines(st.pg, '#root .state .sm'), gb0 = await gluedBad(st.pg, '#root');
+  ok('⑤ seat(ERR_N_HONEST) — 그리기 예외 → «화면 오류예요 · 새로 고쳐 주세요 (코드 G0)» 한 줄(360) · 다시 묻지 않음(1번)', /화면 오류예요 · 새로 고쳐 주세요 \(코드 G0\)/.test(s0) && !/연결이 끊겼어요/.test(s0) && l0 === 1 && !gb0.length && (await calls(st.pg, 'seatView')) === 1, { s0, l0, gb0 });
+  await st.ctx.close();
+  ok('⑤ guide(GUIDE_DEMO_CODE) — 표본 그리기 예외도 코드(G0)와 함께', /renderDemo\(\); \}catch\(e\)\{ \$\('root'\)\.innerHTML=stateHtml\('샘플 화면을 그리지 못했어요\.',_ecNet\(e,'G',''\),0\)/.test(read('guide.html')));
+});
+await run('⑤ AI 위젯 · 공유 2라운드', async () => {
+  /* [HANDOFF_ECODE] api/handoff 가 넘긴 GAS 까닭 코드(A3)를 그대로 — 종전엔 delivered:false 면 늘 A4 */
+  let w = await open('/inquiry.html', `if (url.indexOf('/api/advisor') >= 0) return { body: { reply: '확인이 필요해 디렉터에게 연결해 드릴게요.', escalate: true } }; if (url.indexOf('/api/handoff') >= 0) return { body: { ok: true, delivered: false, why: 'gas_unauthorized', ecode: 'A3' } };`, { w: 360 });
+  await until(w.pg, () => !!(window.MEAdvisor && window.MEAdvisor.ask), null, 8000);
+  await w.pg.evaluate(() => window.MEAdvisor.ask('계약금 환불이 되나요?'));
+  await until(w.pg, () => { const e = document.querySelector('.me-adv-esc-t'); return !!e && !/전달하고 있어요/.test(e.textContent); });
+  const et = await escTxt(w.pg), egb = await gluedBad(w.pg, '.me-adv-esc-t');
+  ok('⑤ 위젯(HANDOFF_ECODE) — GAS 설정 문제는 «자동 전달이 안 됐어요 · 카카오톡으로 남겨 주세요 (코드 A3)» · 코드는 한 덩어리', /^자동 전달이 안 됐어요 · 카카오톡으로 남겨 주세요 \(코드 A3\)$/.test(et) && !egb.length, { et, egb });
+  await w.ctx.close();
+  /* [ERR_CODE_GLUE] 위젯 답 풍선 · 홈 인라인 사본도 한 덩어리 */
+  for (const pgUrl of ['/inquiry.html', '/index.html']) {
+    w = await open(pgUrl, `if (url.indexOf('/api/advisor') >= 0) return { status: 429, body: { error: 'rate_limited', escalate: true } };`, { w: 360 });
+    await until(w.pg, (u) => (u === '/inquiry.html' ? !!(window.MEAdvisor && window.MEAdvisor.ask) : !!document.getElementById('meAdvForm')), pgUrl, 8000);
+    if (pgUrl === '/inquiry.html') await w.pg.evaluate(() => window.MEAdvisor.ask('식사는 어떻게 되나요?'));
+    else await w.pg.evaluate(() => { const i = document.getElementById('meAdvInput'); i.value = '식사는 어떻게 되나요?'; document.getElementById('meAdvForm').requestSubmit(); });
+    await until(w.pg, () => /코드 A1/.test([...document.querySelectorAll('.me-adv-msg.bot')].map((m) => m.textContent).join('')));
+    const gb = await w.pg.evaluate(() => { const m = [...document.querySelectorAll('.me-adv-msg.bot')].pop(); const sp = m && m.querySelector('.ec-code'); return sp ? getComputedStyle(sp).whiteSpace + '|' + sp.textContent : 'none'; });
+    ok(`⑤ 위젯 ${pgUrl}(ERR_CODE_GLUE) — 답 풍선의 «(코드 A1)»은 nowrap 한 덩어리 · 글자는 그대로`, gb === 'nowrap|(코드 A1)', gb);
+    await w.ctx.close();
+  }
+  /* [SHARE_COPY_FAIL] PC 에서 공유 복사가 안 되면 말없이 지나가지 않는다 — 위젯 파일판(토스트를 만든다) · 홈(meToast) 같은 말 */
+  w = await open('/inquiry.html', `return { body: {} };`, { w: 1280, init: FAILCOPY });
+  await until(w.pg, () => !!document.getElementById('meAdvShare'), null, 8000);
+  await w.pg.evaluate(() => document.getElementById('meAdvShare').click());
+  const sf = await until(w.pg, () => /^복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요$/.test(((document.getElementById('meAdvToast') || {}).textContent || '').trim()));
+  ok('⑤ 위젯 공유(SHARE_COPY_FAIL) — 복사가 안 되면 «복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요» 한 줄(종전 말 없음 · ✓ 표시)', sf);
+  await w.ctx.close();
+  w = await open('/index.html', `return { body: {} };`, { w: 360, init: FAILCOPY });
+  await w.pg.waitForTimeout(300);
+  await w.pg.evaluate(() => window.meShareSite(null));
+  const hf = await until(w.pg, () => /^복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요$/.test(((document.getElementById('meToast') || {}).textContent || '').trim()));
+  const tw = await w.pg.evaluate(() => { const t = document.getElementById('meToast'); t.textContent = '재생이 막혔어요 · 다시 눌러 주세요 (코드 M7)'; t.classList.add('on'); const r = document.createRange(); r.selectNodeContents(t); return new Set([...r.getClientRects()].filter((x) => x.width > 1).map((x) => Math.round(x.top + x.height / 2))).size; });
+  ok('⑤ 홈 공유(SHARE_COPY_FAIL) — execCommand 실패를 «복사됨»이라 하지 않는다 · 위젯과 같은 말 · [TOAST_WIDTH] 360px 토스트가 180px 칸에 접히지 않는다(한 줄)', hf && tw === 1, { hf, tw });
+  await w.ctx.close();
+});
+await run('⑤ 신청서 개인코드 복사 실패(COPY_FAIL_SHOW)', async () => {
+  /* 신청 완료 화면의 «코드 복사» — execCommand 가 실패해도 «복사됐어요 ✓»라 하던 것(청첩장 · live · schedule 계좌와 같은 병) */
+  const { ctx, pg } = await open('/inquiry.html', `return { body: {} };`, { w: 360, init: FAILCOPY });
+  await pg.waitForTimeout(300);
+  await pg.evaluate(() => { showSuccess('ME7K2Q'); document.getElementById('meCopyCode').click(); });
+  const cf = await until(pg, () => /^복사가 안 됐어요 · 코드를 길게 눌러 복사해 주세요$/.test(((document.getElementById('meCopyCodeErr') || {}).textContent || '').trim()));
+  const bt = await txt(pg, '#meCopyCode');
+  ok('⑤ 신청서(COPY_FAIL_SHOW) — 개인코드 복사가 안 되면 «복사됐어요 ✓»가 아니라 단추 아래 «복사가 안 됐어요 · 코드를 길게 눌러 복사해 주세요»', cf && bt === '코드 복사', { bt });
+  await ctx.close();
+});
+await run('⑤ 재생 실패(PLAY_FAIL_SAY) · 미리보기(PV_IMG_CODE)', async () => {
+  const PLAYNO = (nm) => `try { Object.defineProperty(window, 'speechSynthesis', { configurable: true, get: function(){ return undefined; } }); } catch (e) {}
+    try { window.SpeechSynthesisUtterance = undefined; } catch (e) {}
+    HTMLMediaElement.prototype.play = function(){ return Promise.reject(new DOMException('x', '${nm}')); };`;   // 기기 음성은 끈다(음원 길만 잰다)
+  for (const [nm, want, code] of [['NotAllowedError', /^재생이 막혔어요 · 다시 눌러 주세요 \(코드 M7\)$/, 'M7'], ['NotSupportedError', /^소리를 못 열었어요 · 다시 눌러 주세요 \(코드 M6\)$/, 'M6']]) {
+    let { ctx, pg } = await open('/parents.html', `return { body: {} };`, { w: 360, init: PLAYNO(nm) });
+    await until(pg, () => { const b = document.getElementById('listenBtn'); return !!b && !b.hidden; }, null, 8000);
+    await pg.evaluate(() => document.getElementById('listenBtn').click());
+    const got = await until(pg, (re) => new RegExp(re).test(((document.getElementById('listenErr') || {}).textContent || '').trim()), want.source, 6000);
+    const l = await lines(pg, '#listenErr'), gb = await gluedBad(pg, '#listenErr'), lab = await txt(pg, '#listenBtn');
+    ok(`⑤ parents(PLAY_FAIL_SAY) — 재생 ${nm} → 도구 줄 아래 «… (코드 ${code})» 한 줄(360) · 단추는 «듣기»로(종전 말 없이 되돌아감)`, got && l === 1 && !gb.length && lab === '듣기', { t: await txt(pg, '#listenErr'), l, gb, lab });
+    await ctx.close();
+    ({ ctx, pg } = await open('/index.html', `return { body: {} };`, { w: 360, init: PLAYNO(nm) }));
+    await until(pg, () => !!document.querySelector('.journal-listen:not([hidden])'), null, 8000);
+    await pg.evaluate(() => document.querySelector('.journal-listen:not([hidden])').click());
+    const jt = await until(pg, (re) => new RegExp(re).test(((document.getElementById('meToast') || {}).textContent || '').trim()), want.source, 6000);
+    ok(`⑤ 홈 저널 낭독(PLAY_FAIL_SAY) — 재생 ${nm} → 토스트 «… (코드 ${code})»(종전 말 없이 ▶ 로 돌아감)`, jt, await txt(pg, '#meToast'));
+    await ctx.close();
+  }
+  const { ctx, pg } = await open('/preview.html?img=/assets/preview/__none__.png&t=' + encodeURIComponent('예시'), `return { body: {} };`, { w: 360 });
+  await until(pg, () => !!document.querySelector('.pv-err'), null, 6000);
+  const pv = await txt(pg, '.pv-err'), pgb = await gluedBad(pg, '.pv-err');
+  ok('⑤ preview(PV_IMG_CODE) — 미리보기 이미지를 못 받으면 코드와 함께(L4 · 오프라인이면 L6) · 한 덩어리', /미리보기 이미지를 불러오지 못했어요\. ?잠시 뒤 다시 열어 주세요 \(코드 L4\)/.test(pv) && !pgb.length, { pv, pgb });
+  await ctx.close();
+});
+await run('④ 360 2라운드 — 새 실패 줄이 한 줄', async () => {
+  const one = async (url, route, seed, prep, sel, texts) => { const { ctx, pg } = await open(url, route, { w: 360, seed });
+    await pg.waitForTimeout(700); if (prep) await pg.evaluate(prep);
+    const r = await pg.evaluate(([s, T]) => { const e = document.querySelector(s); if (!e) return ['없음 ' + s]; let p = e; while (p) { if (getComputedStyle(p).display === 'none') p.style.display = 'block'; p = p.parentElement; }
+      return T.map((t) => { e.textContent = t; const rg = document.createRange(); rg.selectNodeContents(e); return new Set([...rg.getClientRects()].filter((x) => x.width > 1).map((x) => Math.round(x.top + x.height / 2))).size; }); }, [sel, texts]);
+    await ctx.close(); return r; };
+  const r1 = await one('/cancel.html?token=TKN&sig=SIG', `return { body: ${JSON.stringify(INFO_OK)} };`, null, () => { if (!document.getElementById('cErr')) { const d = document.createElement('div'); d.className = 'note'; d.id = 'cErr'; document.getElementById('card').appendChild(d); } }, '#cErr', ['화면 오류예요 · 새로 고쳐 주세요 (코드 B0)']);
+  const r2 = await one('/seat.html?t=T1234567890ab', `return 'hang';`, null, () => { document.getElementById('root').innerHTML = '<div class="card"><h1 class="state">좌석 안내를 불러오지 못했어요.<div class="sm" id="smx">x</div></h1></div>'; }, '#smx', ['화면 오류예요 · 새로 고쳐 주세요 (코드 G0)']);
+  const r3 = await one('/live.html?e=evt-w-1', `return 'hang';`, null, null, '.live-notloaded-box .lp-message-desc', ['화면 오류예요 · 새로 고쳐 주세요 (코드 G0)']);
+  const r4 = await one('/schedule.html', SCHED(), { ls: { me_token: TK } }, null, '#summary', ['화면 오류예요 · 새로 고쳐 주세요 (코드 B0)', '아직 신청 전이에요 · 다시 눌러 주세요 (코드 B5)', '결과를 못 받았어요 · 다시 눌러 주세요 (코드 B5)']);
+  const all = [].concat(r1, r2, r3, r4);
+  ok('④ 360 2라운드 — 화면 쪽 예외 줄(cancel B0 · seat G0 · live G0 · schedule B0) · 다시 묻는 중 줄이 한 줄씩', all.every((x) => x === 1), JSON.stringify({ r1, r2, r3, r4 }));
 });
 
 ok('③ 화면 오류(pageerror) 0', !errs.length, errs.slice(0, 3).join(' | '));

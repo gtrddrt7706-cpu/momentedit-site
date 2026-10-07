@@ -446,21 +446,26 @@ function gapi(payload){
    종전엔 셋 다 «네트워크 상태를 확인한 뒤 다시 눌러 주세요»였다 — 서버 쪽 사고(7)에도 하객의 인터넷을 탓했다.
    서버(GAS)가 글 끝에 «(코드 X#)»를 붙여 보내면 그대로(두 번 붙이지 않는다) · ecode 만 오면 1~9 일 때 붙인다(0 은 글이 곧 까닭).
    seat · cancel · schedule · inquiry 와 같은 함수 이름이다 — 한 곳만 고치지 말 것(좌석 검색은 seat.html 에 한 벌 더 있다) */
-function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:(e&&e.name==='TypeError'&&/Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message||'')))?6:0; }   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만 · 그 밖의 스크립트 예외는 0
 function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
 function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';   // [ERR_N_HONEST] 화면 쪽 스크립트 예외(0) — 연결 탓으로 말하지 않는다 · 다시 눌러도 같은 자리에서 멈추니 새로 고치게
   return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
 function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
   if(m) t=t.slice(0,m.index);
   if(!/^[A-Z]\d$/.test(ec)) ec='';
   if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
-  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글
+  else if(/^요청을 처리하지 못했어요\. 잠시 후 다시 시도해 주세요\.?$/.test(t)){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글 · [ERR_NO_DOT_PAGE] 서버가 코드 앞 마침표를 걷어 보내도(«잠시 후 다시 시도해 주세요 (코드 B9 · 7KQ2)») 맞는다
   if(!t){ t=fb; ec=ec||L+'0'; }
   if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
-  return t+(tail?' ('+tail+')':''); }
-function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[145679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }
+  return tail?t.replace(/[\s.]+$/,'')+' ('+tail+')':t; }   // [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다(«주세요. (코드» 금지)
+/* ★[ERR_CODE_GLUE 2026-10-07 코디 · 신청서 390px 실측 «(코드 B9 / · 7KQ2)»] «(코드 X# · 사고번호)»는 한 덩어리다 — 괄호 안에서 줄이 갈리지 않게 nowrap 으로 싼다
+   (mypage _errHtml 과 같은 처리). 글자는 그대로라 textContent 로 읽는 검사 · 낭독기 · /\(코드 [A-Z]\d/ 감지는 달라지지 않는다. 여섯 쪽이 글자까지 같은 사본 — 한 곳만 고치지 말 것 */
+function _ecGlue(h){ return String(h==null?'':h).replace(/\(코드 [^)<]*\)/g,function(c){ return '<span class="ec-code" style="white-space:nowrap">'+c+'</span>'; }); }
+function _ecHtml(t){ return _ecGlue(String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; })); }
+function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[1345679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }   // [ERR_RETRY_3] 3(설정 · 배포 · «잠시 뒤 다시 눌러 주세요»)도 다시 해 볼 일이다 — 링크 탓으로 말하지 않는다
 /* [ERR_CODE_PAGES] 좌석 검색 실패 — 한 줄(까닭 + 코드) 옆에 «다시 찾기». 종전엔 같은 성함을 다시 쳐야 했다(입력이 그대로면 검색이 안 돈다) */
-function _frFail(fr, msg, again){ fr.textContent=msg; if(!again) return;
+function _frFail(fr, msg, again){ fr.innerHTML=_ecHtml(msg); if(!again) return;   // [ERR_CODE_GLUE] 글자는 그대로 · «(코드 X#)»만 한 덩어리
   var b=document.createElement('button'); b.type='button'; b.className='gp-retry'; b.textContent='다시 찾기'; b.addEventListener('click', again);
   fr.appendChild(document.createTextNode(' ')); fr.appendChild(b); }
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
@@ -501,7 +506,7 @@ var EXIT_HTML='<div class="state-x">'
   +'<a class="state-x-b" href="https://pf.kakao.com/_CfxcxlX/chat" target="_blank" rel="noopener">카카오톡으로 문의하기</a>'
   +'<a class="state-x-b sub" href="mailto:contact@momentedit.kr">메일로 문의 · contact@momentedit.kr</a>'
   +'</div>';
-function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+esc(msg)+(sm?'<div class="sm">'+esc(sm)+'</div>':'')+'</div>'+(x?EXIT_HTML:'')+'</div>'; }
+function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+_ecHtml(msg)+(sm?'<div class="sm">'+_ecHtml(sm)+'</div>':'')+'</div>'+(x?EXIT_HTML:'')+'</div>'; }   // [ERR_CODE_GLUE] _ecHtml = esc + «(코드 X#)» 한 덩어리
 function mapUrl(v){ return (v.url && /^https?:/i.test(v.url)) ? v.url : ('https://map.kakao.com/?q='+encodeURIComponent(v.n||'')); }
 function telUrl(t){ return 'tel:'+String(t||'').replace(/[^0-9+]/g,''); }
 var ICON_MAP='<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>';
@@ -577,7 +582,7 @@ function gpDoneMsg(n){ return n+'장 전해졌어요'; }
 var GP_DONE_SUB='두 분께 바로 전해졌어요 · 이름도 가입도 필요 없어요.';
 function gpSay(msg, kind){
   var el=document.getElementById('gpStat'); if(!el) return;
-  el.className='gp-stat'+(kind?' gp-'+kind:''); el.innerHTML=msg; el.style.display='';
+  el.className='gp-stat'+(kind?' gp-'+kind:''); el.innerHTML=_ecGlue(msg); el.style.display='';   // [ERR_CODE_GLUE] msg 는 이미 HTML(esc 된 까닭) — 코드만 한 덩어리로
 }
 function bindGuestUpload(){
   var pick=document.getElementById('gpPick'), inp=document.getElementById('gpFile');
@@ -627,7 +632,7 @@ function bindGuestUpload(){
           .then(function(r){ return r.json(); })
           .then(function(v){ if(v&&v.ok){ res({ok:true}); return; }
             var g3=_gpG3(v), m=_ecSrv(v,'G','사진을 받지 못했어요');
-            if(g3&&!/\(코드 /.test(m)) m+=' (코드 G3)';   // 옛 GAS 는 코드를 안 붙인다 — 설정 없음은 G3
+            if(g3&&!/\(코드 /.test(m)) m=m.replace(/[\s.]+$/,'')+' (코드 G3)';   // 옛 GAS 는 코드를 안 붙인다 — 설정 없음은 G3 · [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다
             res({ok:false, msg:m, stop:!!(v&&(v.expired||v.full))||g3, why:_gpWhy(v)}); })
           .catch(function(e){ res({ok:false, why:_ecNet(e,'G','')}); });   // [ERR_CODE_PAGES] 연결 G6 · 서버 답이 깨짐 G7
       };
@@ -812,8 +817,14 @@ function bindSeat(seatToken, full){
       .then(function(d){
         if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; renderFullMap(); }
         else if(d&&d.mineOnly){   // 부부가 그 사이 '내 자리만'으로 전환(캐시 포함) — 죽은 검색 대신 서버 검색으로 강등
-          SEAT_STATE='mine'; var _sm0=$('seatMap'); if(_sm0) _sm0.style.display='none';
-          var _sv=bindSeatServer(seatToken, q); if(q.value) _sv(q.value); return;
+          /* ★[GUIDE_MINE_SWAP 2026-10-07 triage-pages #12] 전체 배치도 모양(검색칸 #q 없음)으로 그린 뒤 이 답이 오면 종전엔 bindSeatServer(seatToken, null) 이
+             TypeError 로 멈췄다 → catch 가 «연결이 끊겼어요 (코드 G6)»를 방금 숨긴 #seatMap 에 써서 좌석 칸이 비고 말도 없었다(캐시가 남은 하객).
+             이제 좌석 칸을 «내 자리 찾기» 모양(seatFindHtml(false) · 제목 · 검색칸 · 안내 그대로)으로 바꿔 그린 뒤 그 검색칸에 잇는다 */
+          SEAT_STATE='mine';
+          var _sec=$('seatMap'); while(_sec&&!(_sec.classList&&_sec.classList.contains('sec'))) _sec=_sec.parentNode;
+          if(_sec&&_sec.parentNode){ var _w=document.createElement('div'); _w.innerHTML=seatFindHtml(false); _sec.parentNode.replaceChild(_w.firstChild, _sec); }
+          var _q=$('q'); if(_q){ var _sv=bindSeatServer(seatToken, _q); if(_q.value) _sv(_q.value); }
+          return;
         }
         /* ★★[ERR_CODE_PAGES · SEAT_MAP_WHY 2026-10-07] 종전엔 서버가 무엇을 답하든 «좌석 안내를 불러오지 못했어요 · 잠시 후 새로고침해 주세요» —
            «아직 배치가 없어요»(새로고침해도 그대로) · 링크가 닫힌 것(d.expired) · 서버 오류가 같은 말이었다. 셋을 가른다.
@@ -827,7 +838,7 @@ function bindSeat(seatToken, full){
   }
   /* [ERR_CODE_PAGES] 좌석 칸 안내 한 곳 — again 이면 «다시 불러오기»(재시도가 답일 때만). 그 밖 상태는 SEAT_STATE='fail' 로 둔다(findSeat 가 본다) */
   function seatMapSay(t, sm, again){ SEAT_STATE='fail'; var _sf=$('seatMap'); if(!_sf) return;
-    _sf.innerHTML='<div class="state" style="padding:20px">'+esc(t)+'<div class="sm">'+esc(sm)+'</div>'+(again?'<button type="button" class="retry-btn" id="seatMapRetry">다시 불러오기</button>':'')+'</div>';
+    _sf.innerHTML='<div class="state" style="padding:20px">'+esc(t)+'<div class="sm">'+_ecHtml(sm)+'</div>'+(again?'<button type="button" class="retry-btn" id="seatMapRetry">다시 불러오기</button>':'')+'</div>';
     var rb=$('seatMapRetry'); if(rb) rb.addEventListener('click', function(){ _sf.innerHTML='<div class="state" style="padding:20px"><span class="bdot"></span>좌석 안내를 불러오는 중이에요…</div>'; started=false; startLoad(); }); }
   startLoad();
 }
@@ -908,6 +919,7 @@ function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾�
   return '<b>'+esc(v)+'</b> 님이 <b>여러 자리</b>에서 검색돼요 · 성함을 전체로 입력해 주세요.';
 }
 function bindSeatServer(seatToken, q){
+  if(!q) return function(){};   // [GUIDE_MINE_SWAP] 검색칸이 없으면 잇지 않는다(종전 TypeError → «연결이 끊겼어요»로 읽혔다)
   var tm=null, seq=0, last=null;   // last={q,html} — 같은 검색 재입력 시 서버 재호출 없이 재사용
   function search(v){
     var fr=$('fr'); if(!fr) return; v=String(v||'').trim();
@@ -984,7 +996,7 @@ function failHtml(sm){
   //   제목은 '무슨 일이 있었나', 보조는 '무엇을 하면 되나', 버튼은 '그 행동'으로 역할을 나눈다.
   // [ERR_CODE_PAGES] sm = 무슨 일 · 할 일 · 코드 한 줄(연결 G6 · 시간 G5 · 서버 답이 깨짐 G7 · 서버 거절 글) — 종전엔 늘 «네트워크 상태를 확인한 뒤»
   return '<div class="card"><div class="state" role="status">안내를 불러오지 못했어요.'
-    +'<div class="sm">'+esc(sm)+'</div>'
+    +'<div class="sm">'+_ecHtml(sm)+'</div>'   // [ERR_CODE_GLUE]
     +'<button type="button" class="retry-btn" id="retryBtn">다시 불러오기</button></div></div>';
 }
 /* ════════ [GUIDE_DEMO] ?g=demo — 표본 화면 ════════
@@ -1139,7 +1151,7 @@ function renderDemo(){
 }
 (function boot(){
   var g=guideToken();   // [GUIDE_PATH_READ] 경로 형태(/g/<토큰>)도 받는다
-  if(g==='demo'){ try{ renderDemo(); }catch(e){ $('root').innerHTML=stateHtml('샘플을 불러오지 못했어요.','',0); } return; }   // [GUIDE_DEMO]
+  if(g==='demo'){ try{ renderDemo(); }catch(e){ $('root').innerHTML=stateHtml('샘플 화면을 그리지 못했어요.',_ecNet(e,'G',''),0); } return; }   // [GUIDE_DEMO] · [GUIDE_DEMO_CODE 2026-10-07 triage-pages #18] 종전엔 코드 없는 한 줄 — 표본 그리기 예외는 화면 쪽(G0 · ERR_N_HONEST)
   if(!g){ $('root').innerHTML=stateHtml('잘못된 주소예요.','청첩장에 안내된 링크로 다시 들어와 주세요.',1); return; }   // [STATE_EXIT]
   var cacheKey='me_guide_'+g;
 
@@ -1177,20 +1189,21 @@ function renderDemo(){
           $('root').innerHTML=stateHtml((d&&d.error)?_ecSrv(d,'G',''):'안내를 찾을 수 없어요.','링크가 만료되었거나 아직 준비 중일 수 있어요.',1); }   // [STATE_EXIT]
       })
       .catch(function(e){
-        if(attempt<2){
-          var _n=_ecN(e);   // [ERR_CODE_PAGES] 종전엔 무슨 실패든 «연결이 느려요» — 시간 초과 · 연결 끊김 · 서버 답이 깨짐을 가른다(코드는 다시 시도를 다 한 뒤에)
+        var _n=_ecN(e);   // [ERR_CODE_PAGES] 종전엔 무슨 실패든 «연결이 느려요» — 시간 초과 · 연결 끊김 · 서버 답이 깨짐을 가른다(코드는 다시 시도를 다 한 뒤에)
+        if(attempt<2&&_n){   // [ERR_N_HONEST] 화면 쪽 예외(0)는 다시 물어도 같은 자리에서 멈춘다 — 저절로 다시 묻지 않고 바로 까닭 · 단추를 준다
           if(!painted) $('root').innerHTML=stateHtml(_n===5?'응답이 늦어요':_n===7?'서버가 잠깐 멈췄어요':_ecOff()?'인터넷이 끊겼어요':'연결이 끊겼어요','다시 불러오고 있어요…');
           setTimeout(function(){ load(attempt+1); }, attempt===0?1200:3000);
           return;
         }
         if(painted) return;   // 캐시로 이미 보여 주고 있으면 굳이 지우지 않는다
-        failed(_ecNet(e,'G',''));   // 할 일은 «다시 불러오기» 단추가 말한다(GUIDE_RETRY — 제목 · 까닭 · 단추가 한 번씩)
+        failed(_ecNet(e,'G',''), !_n);   // 할 일은 «다시 불러오기» 단추가 말한다(GUIDE_RETRY — 제목 · 까닭 · 단추가 한 번씩)
       });
   }
-  function failed(sm){
+  function failed(sm, hard){   // [ERR_N_HONEST] hard = 화면 쪽 예외 — 단추가 화면을 새로 연다(같은 코드로 다시 그리면 같은 자리에서 멈춘다)
         $('root').innerHTML=failHtml(sm);
         var b=$('retryBtn');
-        if(b) b.addEventListener('click', function(){
+        if(b&&hard) b.addEventListener('click', function(){ location.reload(); });
+        else if(b) b.addEventListener('click', function(){
           /* ★[RETRY_NO_TAG 2026-08-25 하객 경로 점검] stateHtml 은 esc() 로 이스케이프한다 — 여기만 태그를 넘겨
              «<span class="bdot"></span>» 가 글자 그대로 화면에 찍혔다. 예식 당일 회선이 몰려 재시도를 누르는,
              가장 취약한 순간에 가장 눈에 띄게 깨지는 자리였다. 초기 로딩 카드와 같은 마크업을 직접 그린다.

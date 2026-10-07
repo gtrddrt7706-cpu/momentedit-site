@@ -7,7 +7,7 @@
 //   ANTHROPIC_API_KEY     ← 요약(브리핑)에 필요. 없거나 업체가 실패해도 대화 원문은 GAS 로 보낸다([ERR_CODE_PAGES] HANDOFF_RAW · 관리자 시험(test)만 503 · 502)
 //   HANDOFF_WEBHOOK_URL   ← 선택. GAS /exec URL. 설정되면 브리핑을 관리자에게 전달.
 //
-// 고객에게는 브리핑을 보여주지 않는다(관리자 전용). 프론트는 delivered 가 true 일 때만 "전달했어요"라 말한다(아니면 why 로 코드 A3 · A4).
+// 고객에게는 브리핑을 보여주지 않는다(관리자 전용). 프론트는 delivered 가 true 일 때만 "전달했어요"라 말한다(아니면 ecode · why 로 코드 A1 · A3 · A4 · A7 · A9 · HANDOFF_ECODE).
 
 const KNOWLEDGE = require('./_kb');
 const RITUAL_KB = require('./_ritual-kb');   // 접점 '식순' 인계는 식순 지식으로 브리핑(일반 KB엔 이벤트 상세가 없어 없는 옵션을 지어낼 위험 · 기획 v3 §1-2)
@@ -122,7 +122,7 @@ module.exports = async (req, res) => {
     ['summary', 'suggestedReply', 'rationale', 'category'].forEach((k) => { if (typeof brief[k] === 'string') brief[k] = brief[k].replace(/—/g, '·'); });
 
     // 관리자에게 전달 (GAS 웹훅 설정 시). 실패해도 고객 응답은 200 — 대신 delivered · why 로 화면이 사실대로 말한다([ERR_CODE_PAGES])
-    let delivered = false, why = '';
+    let delivered = false, why = '', ecode = '', eid = '';
     const hook = require('./_livehook')();   // [PREVIEW_GUARD_API] 미리보기에서는 관리자 인계를 운영 시트에 안 쓴다
     if (!hook || !/^https:\/\//.test(hook)) why = 'no_hook';
     else if (body && body.test) why = 'test';   // 관리자 테스트는 관리자 인계 목록에 안 남김
@@ -134,12 +134,24 @@ module.exports = async (req, res) => {
         });
         let jj = null; try { jj = await r.json(); } catch (e) {}
         delivered = !!(r.ok && jj && jj.ok === true && jj.id);   // GAS는 미지의 action에도 200을 주므로 ok·id까지 확인(라우팅 누락 감지)
-        if (!delivered) why = 'gas_' + (jj && jj.error ? String(jj.error).replace(/[^\w가-힣 .-]/g, '').slice(0, 40) : (r.ok ? 'bad_reply' : 'http_' + r.status));
+        if (!delivered) {
+          why = 'gas_' + (jj && jj.error ? String(jj.error).replace(/[^\w가-힣 .-]/g, '').slice(0, 40) : (r.ok ? 'bad_reply' : 'http_' + r.status));
+          /* ★[HANDOFF_ECODE 2026-10-07 triage-pages #11] GAS 의 까닭을 화면 코드로 넘긴다 — 종전엔 비밀 키 불일치(unauthorized) · GAS 미배포(모르는 동작 A3)도
+             화면이 A4(처리 실패)로 말해 관리자가 설정을 볼 생각을 못 했고, 베르셀 쪽이라 오류기록에도 남지 않았다.
+             설정(HANDOFF_SECRET ≠ AI_HANDOFF_SECRET · 미배포) A3 · 잠금 대기(busy) A1 · GAS 가 1~9 를 실어 보내면 그대로(사고번호 함께) ·
+             GAS 답이 JSON 이 아님(오류 화면 · 할당량 · 권한 재승인) A7 · 그 밖은 화면이 A4 로 말한다 */
+          const gec = String((jj && jj.ecode) || '');
+          if (jj && jj.error === 'unauthorized') ecode = 'A3';
+          else if (jj && jj.error === 'busy') ecode = 'A1';
+          else if (/^A[1-9]$/.test(gec)) { ecode = gec; eid = String((jj && jj.eid) || '').replace(/[^A-Z0-9]/gi, '').slice(0, 8); }
+          else if (!jj) ecode = 'A7';
+          if (ecode) console.warn('handoff_gas_fail', ecode, why);
+        }
       } catch (e) { console.error('handoff_forward_fail', e && e.message); why = 'gas_unreachable'; }
     }
 
     res.statusCode = 200; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.setHeader('Cache-Control', 'no-store');
-    return res.end(JSON.stringify(Object.assign({ ok: true, delivered: delivered }, why ? { why: why } : {}, briefWhy ? { brief: false, briefWhy: briefWhy } : {})));   // 고객엔 브리핑 비노출
+    return res.end(JSON.stringify(Object.assign({ ok: true, delivered: delivered }, why ? { why: why } : {}, ecode ? { ecode: ecode } : {}, eid ? { eid: eid } : {}, briefWhy ? { brief: false, briefWhy: briefWhy } : {})));   // 고객엔 브리핑 비노출 · [HANDOFF_ECODE] ecode 는 화면 코드(A#)
   } catch (err) {
     console.error('handoff_exception', err && err.message);
     res.statusCode = 500; res.setHeader('Content-Type', 'application/json; charset=utf-8');

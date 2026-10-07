@@ -15561,3 +15561,187 @@ chk 'PAY_FAIL_KIND' scripts/audit/err-mypage.mjs 3
 chk 'MINI_TOAST_WIDE' mypage.html 1
 chk 'pointer-events:none;width:max-content;box-sizing:border-box;word-break:keep-all;text-wrap:balance' mypage.html 1
 chk 'MINI_TOAST_WIDE' scripts/audit/err-mypage.mjs 1
+# ★★[ERR_PAGES_R2 2026-10-07 2라운드 사장님 «표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»] 공개 페이지 · 하객 화면 · 위젯 · 청첩장 · api 실패 문구
+#   ERR_N_HONEST — 6(연결 끊김)은 fetch 가 연결을 못 한 글(Failed to fetch · Load failed · NetworkError)일 때만 · 그 밖의 스크립트 예외는 0 «화면 오류예요 · 새로 고쳐 주세요 (코드 X0)»
+#     (종전엔 화면 쪽 TypeError 도 «연결이 끊겼어요 (코드 G6)» — guide «내 자리만» 사고 #12) · 위젯 aiN · 청첩장 hyWhy 도 같은 줄
+#   ERR_NO_DOT_PAGE — 코드 앞 끝 마침표를 걷는다 · 서버가 마침표를 걷어 보낸 옛 doPost 글도 짧은 말로 · ERR_RETRY_3 — 3(설정 · 배포)도 «다시 불러오기»(링크 탓 아님 · 캐시를 안 지운다)
+#   ERR_CODE_GLUE — «(코드 X# · 사고번호)»는 nowrap 한 덩어리(390px 신청서에서 괄호 안이 갈렸다) · 여섯 쪽 _ecGlue · _ecHtml 은 글자까지 같은 사본(err-pages ①)
+#   자리 결정 — SCHED_SUBMIT_RECHECK(신청 45초 · 결과 모름은 다시 물어 말한다) · SCHED_NO_TOKEN(B8) · HOLD_WT_WHY(C4~C7) · LETTER_TIMEOUT(G5) · COPY_FAIL_SHOW(청첩장 24 · live · schedule · 신청서)
+#     SHARE_COPY_FAIL · PLAY_FAIL_SAY(M7 막힘 · M6 못 엶) · PV_IMG_CODE(L4 · L6) · GUIDE_MINE_SWAP · GUIDE_DEMO_CODE · HANDOFF_ECODE(A3 · A1 · A7 · A9) · SCHED_AI_EMPTY · SCRIPT_FILE_BACK · TOAST_WIDTH
+#   err-pages.mjs 돌연변이 확인(2026-10-07): 신청 45초 제한 · cancel 코드 한 덩어리 · schedule _ecN 한 쪽 · guide 내 자리만 검색칸 잇기를 되돌리면 FAIL. 되돌리지 말 것
+chk 'ERR_N_HONEST' cancel.html 3
+chk 'ERR_NO_DOT_PAGE' cancel.html 2
+chk 'ERR_CODE_GLUE' cancel.html 2
+chk 'function _ecGlue(h)' cancel.html 1
+chk 'function _ecHtml(t)' cancel.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" cancel.html 1
+chk "return tail?t.replace(/" cancel.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" cancel.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" cancel.html
+chk 'ERR_N_HONEST' schedule.html 3
+chk 'ERR_NO_DOT_PAGE' schedule.html 2
+chk 'ERR_CODE_GLUE' schedule.html 2
+chk 'function _ecGlue(h)' schedule.html 1
+chk 'function _ecHtml(t)' schedule.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" schedule.html 1
+chk "return tail?t.replace(/" schedule.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" schedule.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" schedule.html
+chk 'ERR_N_HONEST' inquiry.html 3
+chk 'ERR_NO_DOT_PAGE' inquiry.html 2
+chk 'ERR_CODE_GLUE' inquiry.html 2
+chk 'function _ecGlue(h)' inquiry.html 1
+chk 'function _ecHtml(t)' inquiry.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" inquiry.html 1
+chk "return tail?t.replace(/" inquiry.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" inquiry.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" inquiry.html
+chk 'ERR_N_HONEST' seat.html 3
+chk 'ERR_NO_DOT_PAGE' seat.html 2
+chk 'ERR_CODE_GLUE' seat.html 2
+chk 'function _ecGlue(h)' seat.html 1
+chk 'function _ecHtml(t)' seat.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" seat.html 1
+chk "return tail?t.replace(/" seat.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" seat.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" seat.html
+chk 'ERR_N_HONEST' guide.html 3
+chk 'ERR_NO_DOT_PAGE' guide.html 2
+chk 'ERR_CODE_GLUE' guide.html 2
+chk 'function _ecGlue(h)' guide.html 1
+chk 'function _ecHtml(t)' guide.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" guide.html 1
+chk "return tail?t.replace(/" guide.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" guide.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" guide.html
+chk 'ERR_N_HONEST' live.html 3
+chk 'ERR_NO_DOT_PAGE' live.html 2
+chk 'ERR_CODE_GLUE' live.html 2
+chk 'function _ecGlue(h)' live.html 1
+chk 'function _ecHtml(t)' live.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" live.html 1
+chk "return tail?t.replace(/" live.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" live.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" live.html
+chk 'ERR_RETRY_3' cancel.html 1
+chk 'ERR_RETRY_3' inquiry.html 1
+chk 'ERR_RETRY_3' seat.html 1
+chk 'ERR_RETRY_3' guide.html 1
+chk 'SCHED_SUBMIT_RECHECK' schedule.html 3
+chk "if(n===5||n===7){ _recheck(n); return; }" schedule.html 1
+chk "_acS.abort(); }catch(e){} },45000)" schedule.html 1
+chk 'SCHED_NO_TOKEN' schedule.html 1
+chk "마이페이지에서 다시 열어 주세요 (코드 B8)" schedule.html 1
+nochk "fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.')" schedule.html
+chk 'HOLD_WT_WHY' schedule.html 1
+chk 'function _wtSay(t)' schedule.html 1
+nochk ".catch(function(){ _wtLoading=false; });" schedule.html
+chk 'COPY_FAIL_SHOW' schedule.html 1
+chk "if(_legacyCopy(t)) ok(); else line(true);" schedule.html 1
+nochk "document.execCommand('copy'); document.body.removeChild(ta); }catch(e){} }" schedule.html
+chk 'COPY_FAIL_SHOW' inquiry.html 2
+chk "if (legacyCopy(code)) done(); else line(true);" inquiry.html 1
+chk "if (again || (n !== 5 && n !== 7)) throw e;" inquiry.html 1
+chk 'LETTER_TIMEOUT' live.html 3
+chk "showError(_ecN(err) === 5 ? '편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 (코드 G5)'" live.html 1
+chk 'sayNotLoaded(_ecN(err))' live.html 1
+nochk 'sayNotLoaded(lastKind || 6)' live.html
+chk 'COPY_FAIL_SHOW' live.html 2
+chk 'function meCopyFail(btn, on)' live.html 1
+nochk "catch (e2) { showToast('복사 실패'); }" live.html
+chk 'GUIDE_MINE_SWAP' guide.html 2
+chk 'if(!q) return function(){};' guide.html 1
+chk '_w.innerHTML=seatFindHtml(false);' guide.html 1
+nochk 'if(q.value) _sv(q.value); return;' guide.html
+chk 'GUIDE_DEMO_CODE' guide.html 1
+chk 'function failed(sm, hard)' guide.html 1
+chk 'function failed(sm, hard)' seat.html 1
+chk 'PLAY_FAIL_SAY' parents.html 5
+chk 'var playFail=function(e)' parents.html 1
+chk 'u.onerror=function(ev)' parents.html 1
+nochk 'u.onend=u.onerror=done;' parents.html
+chk 'PLAY_FAIL_SAY' index.html 3
+chk 'var playFail = function(e)' index.html 1
+nochk 'pr.catch(function(){ stop(); });' index.html
+chk 'SHARE_COPY_FAIL' index.html 1
+chk 'TOAST_WIDTH' index.html 1
+chk 'width: max-content;' index.html 1
+chk 'function codeHtml(t)' index.html 1
+chk 'ERR_N_HONEST' index.html 3
+chk 'SHARE_COPY_FAIL' assets/advisor-widget.js 2
+chk 'var shareFail = function ()' assets/advisor-widget.js 1
+nochk 'navigator.clipboard.writeText(data.url).then(shareCopied).catch(function () {});' assets/advisor-widget.js
+chk 'function codeHtml(t)' assets/advisor-widget.js 1
+chk 'HANDOFF_ECODE' assets/advisor-widget.js 1
+chk 'ERR_N_HONEST' assets/advisor-widget.js 4
+chk 'ERR_N_HONEST' shared/hydrate.js 1
+chk 'ERR_CODE_GLUE' shared/hydrate.js 1
+chk 'PV_IMG_CODE' preview.html 1
+chk 'HANDOFF_ECODE' api/handoff.js 3
+chk 'ecode ? { ecode: ecode } : {}' api/handoff.js 1
+chk 'SCHED_AI_EMPTY' api/schedule-advisor.js 1
+chk "upstream: 0, why: 'empty'" api/schedule-advisor.js 1
+nochk "if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';" api/schedule-advisor.js
+chk 'SCRIPT_FILE_BACK' api/_failpage.js 1
+chk 'history.back()' api/_failpage.js 1
+chk "require('./_failpage')" api/script-file.js 1
+chk "require('./_failpage')" api/voice-file.js 1
+nochk "res.end('잠시 뒤에 다시 눌러 주세요.')" api/script-file.js
+chk 'COPY_FAIL_SHOW' i/cover-01.html 2
+chk 'function meCopyFail(btn, on)' i/cover-01.html 1
+chk 'COPY_FAIL_SHOW' i/cover-02.html 2
+chk 'function meCopyFail(btn, on)' i/cover-02.html 1
+chk 'COPY_FAIL_SHOW' i/cover-03.html 2
+chk 'function meCopyFail(btn, on)' i/cover-03.html 1
+chk 'COPY_FAIL_SHOW' i/cover-04.html 2
+chk 'function meCopyFail(btn, on)' i/cover-04.html 1
+chk 'COPY_FAIL_SHOW' i/cover-05.html 2
+chk 'function meCopyFail(btn, on)' i/cover-05.html 1
+chk 'COPY_FAIL_SHOW' i/cover-06.html 2
+chk 'function meCopyFail(btn, on)' i/cover-06.html 1
+chk 'COPY_FAIL_SHOW' i/cover-07.html 2
+chk 'function meCopyFail(btn, on)' i/cover-07.html 1
+chk 'COPY_FAIL_SHOW' i/cover-08.html 2
+chk 'function meCopyFail(btn, on)' i/cover-08.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-01-classic.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-01-classic.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-02-editorial.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-02-editorial.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-03-letterpress.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-03-letterpress.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-04-Vermilion.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-04-Vermilion.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-05-botanical.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-05-botanical.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-06-hangeul.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-06-hangeul.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-07-architect.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-07-architect.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-08-noir.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-08-noir.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-01.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-01.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-02.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-02.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-03.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-03.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-04.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-04.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-05.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-05.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-06.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-06.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-07.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-07.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-08.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-08.html 1
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i/cover-02.html
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i/invitations/invitation-02-editorial.html
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i-family/family-01.html
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i-family/family-02.html
+chk 'ERR_PAGES_R2' scripts/audit/err-pages.mjs 1
+#   ERR_RECHECK_NOCODE(P6) — 저절로 다시 묻는 «중간» 줄(응답이 늦어요 · 서버가 잠깐 멈췄어요)엔 코드 없음 · 결과를 말하는 마지막 줄에만(취소 · 신청 같은 결)
+chk 'ERR_RECHECK_NOCODE' cancel.html 1
+chk 'ERR_RECHECK_NOCODE' schedule.html 1
+nochk "say((n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요')+' (코드 B'+n+')')" cancel.html
+nochk "_sum((n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요')+' (코드 B'+n+')')" schedule.html
