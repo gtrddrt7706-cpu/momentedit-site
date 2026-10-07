@@ -14802,6 +14802,18 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/ex-prebake.mjs >/dev
 chk 'STAGE_LINES' order-preview.html 7
 chk 'STAGE_LINES' assets/ritual-open.js 2
 chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
+# ★★[FLOW_THREAD 2026-10-07 사장님 «양가 어머님이 앞으로 나와 불을 밝혀요 · 말 없이 — 이런 상황에서 이런 멘트 → 그다음 이런 액션 한눈에 · 다른 곳들도 · 여기서 정하고 일괄 수정» → 시안 A «흐름선»]
+#   ② 순간 쪽 흐름 = 세로 흐름선 + 마디(▶ 나레이션 · ● 행동 · ○ 직접 말하는 차례) · 행동 줄 먹빛 16px(종전 옅게 12.5 = QUIET_LINES 는 이 결정으로 바뀜)
+#   깨 보고 믿음: A 없는 화면에 flow-thread 를 돌리면 50건 빨강 · 종료 코드 1
+chk 'FLOW_THREAD' order-preview.html 7
+chk ".mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px" order-preview.html 1
+chk 'function _qRow(t)' order-preview.html 1
+nochk '.mk-flow li.q{color:var(--light);font-size:12.5px' order-preview.html
+nochk "if(x.quiet){ h+='<li class=\"q\">'+esc(x.txt)" order-preview.html
+nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
+chk 'FLOW_THREAD' scripts/audit/flow-thread.mjs 1
+chk 'FLOW_THREAD' scripts/audit/ghi-polish.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-thread.mjs >/dev/null 2>&1; _flt=$?; [ "$_flt" = 1 ] && { echo 'FAIL flow-thread: 순간 흐름(흐름선 · 마디 · 행동 줄)이 어긋났습니다 — node scripts/audit/flow-thread.mjs'; fail=1; }; fi
 chk "var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면'" order-preview.html 1
 nochk "one: '두 분이 부부가 되었음을 알려요.'" assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/stage-lines.mjs >/dev/null 2>&1; _stl=$?; [ "$_stl" = 1 ] && { echo 'FAIL stage-lines: 식순 줄 사이 하는 일 줄 · 줄 이름(언제) · 성혼 선언문이 어긋났습니다 — node scripts/audit/stage-lines.mjs'; fail=1; }; if [ "$_stl" = 0 ]; then echo 'OK   stage-lines'; fi; fi   # [TAIL_RC]

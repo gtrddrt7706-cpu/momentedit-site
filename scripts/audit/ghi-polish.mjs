@@ -104,7 +104,8 @@ for (const w of [390, 1280]) {
   ok(`${w} G5 화면 — 잔 드는 큐 → «위하여» 순서 · 붓기 줄 없음 [WINE_POUR_OFF]`, pi < 0 && gi >= 0 && wi === gi + 1, JSON.stringify(g5c));
   /* 옅은 줄의 색 · 재생 길이는 반지 교환 쪽(말 없이 지나가는 줄)에서 잰다 — 축배의 옅은 줄(붓기)은 걷었다 */
   await pg.evaluate(() => { S.on.ring = 1; opSync(); mkGo('ring'); render(); }); await pg.waitForTimeout(300);
-  ok(`${w} G5 옅은 줄 색 = --light`, await pg.evaluate(() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return !!q && getComputedStyle(q).color === 'rgb(110, 105, 89)'; }));
+  /* ★[FLOW_THREAD 2026-10-07 사장님 → 시안 A «흐름선»] 행동 줄 = 먹빛 · ● 마디 — 종전 «G5 옅은 줄 색 = --light»(QUIET_LINES)는 이 결정으로 바뀌었다(행동이 위 멘트의 각주처럼 읽혔다) · 자세한 잣대는 flow-thread.mjs */
+  ok(`${w} G5 행동 줄 = 먹빛 · ● 마디 [FLOW_THREAD]`, await pg.evaluate(() => { const q = document.querySelector('.mk-pg .mk-flow li.q'); return !!q && getComputedStyle(q).color === 'rgb(58, 45, 34)' && getComputedStyle(q, '::after').backgroundColor === 'rgb(122, 95, 55)'; }));
   ok(`${w} G5 옅은 줄은 재생 목록 · 들을 길이에 안 든다`, await pg.evaluate(() => { const st = _lSteps(ENG, ['ring']), q = st.filter((x) => x.quiet); return q.length === 1 && _lLen(q) === 0; }));
   // H1 · H2 · H3 — [FLOW_MAKE] 옛 ③ 준비하기는 걷었다: 첫인사 칸은 ② 첫인사 쪽 · 보낼 길은 ② 식전 영상 쪽 · 도와주실 분은 ② 한눈에 보기
   await pg.evaluate(() => { S.on.welcome = 1; S.welcome = 'self'; S.on.prevideo = 1; opSync(); mkGo('welcome'); }); await pg.waitForTimeout(400);
