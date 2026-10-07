@@ -127,7 +127,7 @@ for (const w of [390, 1280]) {
       names: svg ? svg.querySelectorAll('text').length : 0, fw: f ? Math.round(f.getBoundingClientRect().width) : 0,
       edit: [...document.querySelectorAll('.done-edit')].map((e) => e.textContent.replace(/\u00a0/g, ' ')), ow: document.documentElement.scrollWidth - innerWidth }; });
   ok(`${w} I1 ④ 머리 «담은 순간 N · 본식 약 … · 단체 사진 약 …» [I1_HEAD]`, /^담은 순간 \d+ · 본식 약 \d+~\d+분 · 단체 사진 약 \d+~\d+분$/.test(d.s), d.s);
-  ok(`${w} I2 ④ 감동 흐름 그림 — 진사 이름(★ 없음) · 폭 맞춤${w >= 1000 ? ' · 순간 이름 · 높이 150' : ' · 높이 112'} [I2_DONE_FLOW]`, d.svg && d.star && Math.abs(d.w - d.fw) <= 2 && (w >= 1000 ? (d.h === 150 && d.names > 3) : d.h === 112), JSON.stringify(d));
+  ok(`${w} I2 ④ 감동 흐름 그림 — 진사 이름(★ 없음) · 폭 맞춤${w >= 1000 ? ' · 순간 이름 줄 없음 · 높이 120' : ' · 높이 112'} [I2_DONE_FLOW] · [FLOW_NONAMES 2026-10-07 사장님 «그래프 밑 글씨 빽빽 · 아예 빼기»]`, d.svg && d.star && Math.abs(d.w - d.fw) <= 2 && (w >= 1000 ? (d.h === 120 && d.names <= 1) : d.h === 112), JSON.stringify(d));
   ok(`${w} I3 ④ «순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.» 한 번 [I3_EDIT_WINDOW]`, d.edit.length === 1 && d.edit[0] === '순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.', JSON.stringify(d.edit));
   ok(`${w} ④ 가로 넘침 0`, d.ow <= 0, d.ow);
   ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
