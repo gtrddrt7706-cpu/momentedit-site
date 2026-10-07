@@ -9271,7 +9271,7 @@ function replayHeroAnimation(){
           // 키 미설정·오류 등: 우아한 폴백. ★[ERR_CODE_PAGES 2026-10-07] 종전엔 «진단 코드는 화면 대신 콘솔로»였다 — 이제 짧은 코드(A#)만 문구 끝에 붙인다(스크린샷으로 원인이 보이게 · 사장님 지시)
           try{ console.warn('advisor fallback', (res.status||'?'), (j&&j.error)||''); }catch(e){}
           var c=aiCode(res.status,res.j,null);
-          addMsg(aiWord(c)+' · 디렉터가 직접 안내해 드릴게요 (코드 '+c+')','bot');
+          addMsg(aiWord(c)+' · 아래에서 디렉터와 이어서 상담하실 수 있어요 (코드 '+c+')','bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — «디렉터가 직접 안내해 드릴게요»는 전달이 실패해도 약속이라 걷었다(책임질 수 없는 안심 금지) */
           logQ(lastQ, true);
           showEscalation();
           scrollQTop(pendingQEl);
@@ -9281,7 +9281,7 @@ function replayHeroAnimation(){
         typing.remove();
         try{ console.warn('advisor fallback network'); }catch(e2){}
         var c=aiCode(0,null,e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정합니다» — 시간 A5 · 연결 A6 · 깨진 답 A7
-        addMsg(aiWord(c)+' · 디렉터가 직접 안내해 드릴게요 (코드 '+c+')','bot');
+        addMsg(aiWord(c)+' · 아래에서 디렉터와 이어서 상담하실 수 있어요 (코드 '+c+')','bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — «디렉터가 직접 안내해 드릴게요»는 전달이 실패해도 약속이라 걷었다(책임질 수 없는 안심 금지) */
         logQ(lastQ, true);
         showEscalation();
         scrollQTop(pendingQEl);

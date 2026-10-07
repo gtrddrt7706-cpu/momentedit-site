@@ -239,8 +239,8 @@ const escTxt = (pg) => pg.evaluate(() => { const e = document.querySelector('.me
 await run('③ AI 위젯', async () => {
   const H504 = `{ status: 504, body: '<html><body>An error occurred with your deployment · FUNCTION_INVOCATION_TIMEOUT</body></html>', headers: { 'Content-Type': 'text/html', 'x-vercel-error': 'FUNCTION_INVOCATION_TIMEOUT' } }`;
   for (const [pgUrl, label] of [['/inquiry.html', '파일판(assets/advisor-widget.js)'], ['/index.html', '홈 인라인 사본']]) {
-    for (const [resp, want, nm] of [[`{ status: 429, body: { error: 'rate_limited', escalate: true } }`, /질문이 잠깐 많았어요 · 디렉터가 직접 안내해 드릴게요 \(코드 A1\)$/, '429 → A1'],
-      [H504, /서버가 잠깐 멈췄어요 · 디렉터가 직접 안내해 드릴게요 \(코드 A7 · 504\)$/, '베르셀 504(HTML) → A7 · 504']]) {
+    for (const [resp, want, nm] of [[`{ status: 429, body: { error: 'rate_limited', escalate: true } }`, /질문이 잠깐 많았어요 · 아래에서 디렉터와 이어서 상담하실 수 있어요 \(코드 A1\)$/, '429 → A1'],
+      [H504, /서버가 잠깐 멈췄어요 · 아래에서 디렉터와 이어서 상담하실 수 있어요 \(코드 A7 · 504\)$/, '베르셀 504(HTML) → A7 · 504']]) {
       const { ctx, pg } = await open(pgUrl, `if (url.indexOf('/api/advisor') >= 0) return ${resp}; if (url.indexOf('/api/handoff') >= 0) return { body: { ok: true, delivered: true } };`, { w: 1280 });
       await until(pg, (u) => (u === '/inquiry.html' ? !!(window.MEAdvisor && window.MEAdvisor.ask) : !!document.getElementById('meAdvForm')), pgUrl, 8000);   // 위젯이 다 선 뒤에 묻는다(고정 시간이 아니라)
       if (pgUrl === '/inquiry.html') await pg.evaluate(() => window.MEAdvisor.ask('식사는 어떻게 되나요?'));

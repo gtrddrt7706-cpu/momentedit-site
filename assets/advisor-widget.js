@@ -421,14 +421,14 @@
           // 오류 시엔 응답의 escalate/toBooking 플래그(코드마다 제각각)를 믿지 않고 클라 모드로만 판정 —
           //   익명이면 인계 금지·예약 유도, 임베드면 인계(기획 v3 §6 · 익명 dead-end 인계 원천 차단).
           var anon = isAnonMode(), c = aiCode(res.status, res.j, null);   // [ERR_CODE_PAGES] 종전 «지금은 자동 답변을 불러오지 못했어요» 한 줄 → 까닭 + 코드
-          addMsg(aiWord(c) + ' · ' + (anon ? '상담 예약 페이지에서 이어서 확인해 주세요' : '디렉터가 직접 안내해 드릴게요') + ' (코드 ' + c + ')', 'bot');
+          addMsg(aiWord(c) + ' · ' + (anon ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
           escalateOrBook();
         }
       })
       .catch(function (e) {
         typing.remove();
         var c = aiCode(0, null, e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정해요» — 시간 A5 · 연결 A6 · 깨진 답 A7
-        addMsg(aiWord(c) + ' · ' + (isAnonMode() ? '상담 예약 페이지에서 이어서 확인해 주세요' : '디렉터가 직접 안내해 드릴게요') + ' (코드 ' + c + ')', 'bot');
+        addMsg(aiWord(c) + ' · ' + (isAnonMode() ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
         escalateOrBook();
       })
       .then(function () { sending = false; sendBtn.disabled = false; });

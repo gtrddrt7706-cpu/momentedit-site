@@ -15323,3 +15323,9 @@ nochk "'연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드�
 nochk 'test(hook)) return {};' api/schedule-advisor.js
 nochk "JSON.stringify({ error: 'handoff_unconfigured' })" api/handoff.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-pages.mjs >/dev/null 2>&1; _epg=$?; if [ "$_epg" = 1 ]; then echo 'FAIL err-pages: 고객 · 하객 화면의 실패 문구(까닭 한 줄 + 코드 · 결과 모름 다시 묻기 · 디렉터 전달 확인)가 어긋났습니다 — node scripts/audit/err-pages.mjs'; fail=1; else echo "ok err-pages ($_epg)"; fi; fi
+# ★[HANDOFF_TRUTH 2026-10-07] AI 실패 말풍선이 «디렉터가 직접 안내해 드릴게요»를 무조건 약속하던 것 — 아래 전달 카드가 «자동 전달이 안 됐어요»라 하면 어긋났다(책임질 수 없는 안심 금지).
+#   카톡 단추 카드는 늘 나오므로 «아래에서 디렉터와 이어서 상담하실 수 있어요»(늘 참)로
+nochk "'디렉터가 직접 안내해 드릴게요') + ' (코드 '" assets/advisor-widget.js
+nochk "' · 디렉터가 직접 안내해 드릴게요 (코드 '" index.html
+chk '아래에서 디렉터와 이어서 상담하실 수 있어요' assets/advisor-widget.js 2
+chk '아래에서 디렉터와 이어서 상담하실 수 있어요' index.html 2
