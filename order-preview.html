@@ -1098,7 +1098,17 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .tp-b:disabled{color:var(--border);cursor:default}
 .tp-v{display:inline-block;min-width:56px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;color:var(--accent)}
 @media (max-width:460px){.ls-cg.cg-vp{grid-template-columns:minmax(0,1fr);row-gap:6px}.ls-cg.cg-vp .gl{padding-top:0}}   /* [EX_ROW] 예시 줄도 같은 꼴(폰에서 이름표 위) — 한 묶음 안 칩 시작선이 한 줄 */   /* [R3-06] 좁은 폭에서만 라벨 위 · 칩 아래(VP_CHIP_ROW 원뜻) — 폭과 상관없이 두니 1280 에서 칩 시작선이 370 → 298 → 370 으로 들쭉날쭉했다 */
-@media (min-width:461px){.ls-cg{grid-template-columns:96px minmax(0,1fr)}}   /* [R3-06] 넓은 폭은 라벨 칸을 96px 로 — «어떻게 준비할까요»가 한 줄에 서고(R2-24 가 막으려던 두 줄 접힘) 칩 시작선이 한 줄로 맞는다 */
+@media (min-width:461px){.ls-cg{grid-template-columns:96px minmax(0,1fr)}}
+/* ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460 · 이름표가 칩 위에 서는 폭)에선
+   «확정 안내 보기 · 나레이션 자세히»를 칩 아래 제 줄이 아니라 질문 줄(«어떻게 준비할까요») 오른쪽 끝에 — 이름표와 같은 11px · 같은 줄 높이(1.4) · 글자 아래 선을 맞춘다.
+   질문 줄은 제 높이 그대로(영상 아래 15px · 칩까지 6px = «참고 예시»와 같다) — 링크를 누르는 칸 44 는 글자 아래 선에서 «위로» 늘린다(칩 쪽으로 겹치지 않게).
+   위로 늘어난 칸은 바로 위 영상(.mk-vid · 누르는 기능 없음 · aria-hidden) 아래 끝에 조금 걸친다 — 질문 줄을 44 로 세우면 영상과의 사이가 15 → 44px 로 벌어졌다(실측).
+   종전 칩 아래 제 줄(오른쪽 · [KEEP_IN_ROW])은 줄이 하나 더 들었다. PC · 태블릿(이름표 칸 + 칩 칸 두 열)은 종전대로 칩 줄 오른쪽 끝 */
+@media (max-width:460px){
+  .ls-cg.cg-vp.cg-hl{position:relative}
+  .ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(11px * 1.4 - 44px);right:0;height:44px;margin:0;align-items:flex-end;gap:16px}
+  .ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:11px;line-height:1.4}
+}   /* [R3-06] 넓은 폭은 라벨 칸을 96px 로 — «어떻게 준비할까요»가 한 줄에 서고(R2-24 가 막으려던 두 줄 접힘) 칩 시작선이 한 줄로 맞는다 */
 /* [R2-24] 폭과 상관없이 라벨 위 · 칩 아래 — 461 이상에서 64px 칸에 «어떻게 / 준비할까요»가 두 줄로 접혔다 */   /* ★[VP_CHIP_ROW 2026-09-28 사장님 «한 줄로 · 안 들어오면 어떻게 준비할까요를 첫 줄에 놓고 버튼을 아래로»] 칩 둘이 라벨 옆에 안 들어가는 폭에서만 */
 /* [RIT_BIG_BTN] 작은 플레이어의 «크게 보기» 글 단추 — 좁으면 제목이 첫 줄, 단추가 둘째 줄 */
 .ls-mini{flex-wrap:wrap;row-gap:2px}
@@ -6530,10 +6540,11 @@ window.lsFreeLen=function(v){ var n=Math.round(+v); if(!(n>=1)) n=1; if(n>10) n=
 function _lChipRow(g,opt){
   if(g.html) return '<div class="ls-cg fe-row"><span class="gl">'+esc(g.l)+'</span><span class="cg-c">'+g.html+'</span></div>';   /* [FREE_ETC] 칩 대신 칸 */
   /* ★[RIT_CHIP_GRID 2026-09-27 4부 9] 라벨 칸 + 칩 칸 두 열 — 줄을 넘긴 칩이 첫 칩 시작선에 선다(종전 flex 한 줄은 넘친 칩이 라벨 밑으로 들어가 왼쪽 선이 들쭉날쭉) */
-  return '<div class="ls-cg'+((/^(guest|entry|pv)Voice$/.test(g.key)||g.fn)?' cg-vp':'')+'" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
+  var lm=g.key==='guestVoice'?'guest':g.key==='pvVoice'?'prevideo':'entry', lk=(opt&&opt.vsLink&&/^(guest|entry|pv)Voice$/.test(g.key))?(function(){ var a=_keepShutBtn(lm), b=_vsOk()?'<button type="button" class="pk-link cg-vsl" data-fk="mkvsopen" onclick="mkVsInfo(\''+lm+'\')">나레이션 자세히</button>':'';   /* [VS_INFO] 고르는 창이 아니라 설명 창 */
+      return (a||b)?'<span class="cg-links">'+a+b+'</span>':''; })():'';   /* [KEEP_IN_ROW] 확정 안내 보기 · 나레이션 자세히 = 한 묶음(하나만 있어도 묶음 · [VS_LINK_TOP] 폰에선 질문 줄 오른쪽) */
+  return '<div class="ls-cg'+((/^(guest|entry|pv)Voice$/.test(g.key)||g.fn)?' cg-vp':'')+(lk?' cg-hl':'')+'" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
     return '<button type="button" class="op-chip'+(g.fn?' mk-exc':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(g.picked===false&&ci===0))?'0':'-1')+'" data-fk="'+(g.fk?g.fk+c[0]:'lsc:'+g.key+':'+c[0])+'" onclick="'+(g.fn?g.fn+'('+c[0]+')':'lsChip(\''+g.key+'\',\''+c[0]+'\')')+'">'+_chipT(c[1])+'</button>'; }).join('')   /* [EX_ROW] 예시 줄은 제 함수(g.fn)와 data-fk(g.fk)로 */
-    +(function(){ if(!(opt&&opt.vsLink&&/^(guest|entry|pv)Voice$/.test(g.key))) return ''; var a=_keepShutBtn(g.key==='guestVoice'?'guest':g.key==='pvVoice'?'prevideo':'entry'), b=_vsOk()?'<button type="button" class="pk-link cg-vsl" data-fk="mkvsopen" onclick="mkVsInfo(\''+(g.key==='guestVoice'?'guest':g.key==='pvVoice'?'prevideo':'entry')+'\')">나레이션 자세히</button>':'';   /* [VS_INFO] 고르는 창이 아니라 설명 창 */
-        return (a&&b)?'<span class="cg-links">'+a+b+'</span>':a+b; })()   /* [KEEP_IN_ROW] 확정 안내 보기 · 나레이션 자세히 = 한 묶음(자리가 모자라면 묶음째 다음 줄 오른쪽) */   /* [VS_LINK_IN_ROW] 같은 창 · VS_CHIP_ONCE 그대로 */
+    +lk   /* [VS_LINK_IN_ROW] 같은 창 · VS_CHIP_ONCE 그대로 · 위에서 만든 한 묶음 */
     +((g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?'<span class="ls-gnote mk-vpask1">아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션으로 진행돼요</span>':g.unote?'<span class="ls-gnote mk-vpask1">'+esc(g.unote)+'</span>':g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 결과 설명 대신 한 줄 · [VP_ASK_ONE] 상자는 걷었다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
 }
 window.lsOpen=function(k){ LS.open=(LS.open===k?null:k); render(); };

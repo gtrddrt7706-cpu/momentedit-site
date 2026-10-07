@@ -15210,3 +15210,11 @@ chk 'src="/assets/err-codes.js"' admin.html 1
 chk 'ERR_CODES' assets/err-codes.js 1
 chk 'ERR_CODES' scripts/audit/err-codes.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-codes.mjs >/dev/null 2>&1; _erc=$?; if [ "$_erc" = 1 ]; then echo 'FAIL err-codes: 오류 코드 장치(표 · 서버 도장 · 관리자 찾기)가 어긋났습니다 — node scripts/audit/err-codes.mjs'; fail=1; else echo "ok err-codes ($_erc)"; fi; fi
+# ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460)에선 «확정 안내 보기 · 나레이션 자세히»를
+#   칩 아래 제 줄이 아니라 질문 줄(«어떻게 준비할까요») 오른쪽 끝에 — 이름표와 같은 11px · 글자 아래 선 맞춤 · 누를 칸 44 는 위로(영상 아래 간격 15px 그대로).
+#   PC · 태블릿은 칩 줄 오른쪽 끝 그대로 · 하객 맞이 · 식전 영상 · 입장 셋 다(_lChipRow 한 곳) · make-shell 이 390 · 1280 에서 잰다(폰 배치를 빼면 빨강 · 돌연변이 확인)
+chk 'VS_LINK_TOP' order-preview.html 2
+chk "return (a||b)?'<span class=\"cg-links\">'+a+b+'</span>':'';" order-preview.html 1
+chk '.ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(11px \* 1.4 - 44px);right:0;height:44px' order-preview.html 1
+chk '.ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:11px;line-height:1.4}' order-preview.html 1
+chk 'VS_LINK_TOP' scripts/audit/make-shell.mjs 3
