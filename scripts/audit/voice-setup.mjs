@@ -95,8 +95,11 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
     S.vtext = JSON.parse(keep.vt); S.up.g3 = keep.up; S.g3Open = keep.open; return a; });
   ok(W + ' 옛 «뒤만» 초안 → 글 전체(앞 두 문장 + 뒤) · 만든 AI 소리는 그대로 맞음(stale 아님) · 두 번 불러도 한 번만 [G3_OPEN]', mg.v === mg.head + ' 조금 뒤에 뵙겠습니다.' && /미리 준비한 안내 음성/.test(mg.v) && !mg.stale && mg.open === 1 && mg.v2 === mg.v, JSON.stringify(mg).slice(0, 300));
   await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400);
+  const dI = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', cols: d ? d.querySelectorAll('.mk-vsi-c').length : 0, pick: !!(d && d.querySelector('[data-fk^="mkvs:"]')), nar: !!(d && d.querySelector('[data-fk="mkvsi:nar"]')) }; });
+  ok(W + ' «나레이션 자세히» = 설명 창(두 갈래 · 들어 보기) · 고르기 없음 [VS_INFO]', dI.t === '안내 목소리, 무엇이 다른가요' && dI.cols === 2 && !dI.pick && dI.nar, JSON.stringify(dI));
+  await pg.evaluate(() => mkVsClose()); await pg.evaluate(() => mkVsOpen()); await pg.waitForTimeout(400);   /* 한 번에 정하기 창은 안쪽 길(mkVsOpen)로만 */
   const d4 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.querySelector('.mk-dlg-t').textContent : '', ai: d ? d.querySelector('[data-fk="mkvs:ai"]').getAttribute('aria-pressed') : '' }; });
-  ok(W + ' «나레이션 자세히»를 누르면 고르기부터 · 지금 값(AI)이 눌린 모양', d4.t === '안내 목소리 정하기' && d4.ai === 'true', JSON.stringify(d4));
+  ok(W + ' 한 번에 정하기 창(안쪽 길)은 지금 값(AI)이 눌린 모양', d4.t === '안내 목소리 정하기' && d4.ai === 'true', JSON.stringify(d4));
   await pg.click('[data-fk="mkvs:nar"]'); await pg.waitForTimeout(400);
   const d5 = await pg.evaluate(() => ({ dlg: !!document.getElementById('mkRecDlg'), v: [S.guestVoice, S.entryVoice, S.pvVoice].join(','), vf: JSON.stringify(S.vfill || {}) }));
   ok(W + ' 스튜디오 → 세 자리 나레이션 · 창 닫힘', !d5.dlg && d5.v === 'nar,nar,nar' && d5.vf === '{}', JSON.stringify(d5));
@@ -140,9 +143,9 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.click('[data-fk="mksl:g2:0"]'); await pg.keyboard.press('End'); await pg.keyboard.type(' 창으로 바꿔도');
   const t2 = await pg.$eval('[data-fk="mksl:g2:0"]', (e) => e.value);
   await pg.evaluate(() => document.activeElement && document.activeElement.blur()); await pg.waitForTimeout(300);   /* 창 단추는 화면 위쪽 — 칸에서 먼저 나온다(칸에서 나오면 다시 그려진다) */
-  await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:nar"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => mkVsOpen()); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:nar"]'); await pg.waitForTimeout(400);
   const midW = await pg.evaluate(() => ({ v: S.guestVoice, g2: (S.vtext || {}).g2 || '' }));
-  await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:ai"]'); await pg.waitForTimeout(500);
+  await pg.evaluate(() => mkVsOpen()); await pg.waitForTimeout(400); await pg.click('[data-fk="mkvs:ai"]'); await pg.waitForTimeout(500);
   const backW = await pg.$eval('[data-fk="mksl:g2:0"]', (e) => e.value).catch(() => '(칸 없음)');
   ok(W + ' 창으로 스튜디오 → 다시 AI 해도 하객 맞이 g2 글이 그대로 [VT_KEEP_SWITCH]', midW.v === 'nar' && midW.g2 === t2 && backW === t2, JSON.stringify({ midW, backW: backW.slice(-12), t2: t2.slice(-12) }));
   /* ★[LINE_NO_SEC 2026-10-03 사장님] 줄 카드 머리의 «약 n초»는 없다(AI · 직접 녹음 판 모두) — 덧말(«식전 영상이 끝난 뒤에 흘러요» · «두 분이 한 문장씩 번갈아»)은 홀로 · 빈 덧말 줄 없음 · 소개글을 적어도 머리에 초가 안 생긴다 */

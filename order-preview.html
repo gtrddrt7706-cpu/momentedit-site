@@ -1597,6 +1597,15 @@ html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}   /* [DLG_SCROLL_LOCK] �
 .mk-dlg-kv{list-style:none;margin:12px 0 14px;padding:12px 16px;background:var(--bg2);border-radius:8px;display:flex;flex-direction:column;gap:10px}
 .mk-dlg-kv li{font-size:12.5px;line-height:1.7;color:var(--sub);word-break:keep-all}
 .mk-dlg-kv b{display:block;font-size:12.5px;font-weight:600;color:var(--accent)}
+.mk-vsi{display:grid;grid-template-columns:1fr;gap:10px;margin:2px 0 12px}   /* [VS_INFO] 두 갈래를 위아래로 — 창 폭(520)에 나란히 두면 글이 잘게 꺾였다(1280 실렌더) */
+.mk-vsi-c{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px 16px 12px}
+.mk-vsi-c h4{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--accent)}
+.mk-vsi-c dl{margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:10px;row-gap:4px}
+.mk-vsi-c dt{font-size:12.5px;color:var(--light);white-space:nowrap}
+.mk-vsi-c dd{margin:0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
+.mk-vsi-c .mk-vgo{margin-top:10px}   /* [VS_INFO] 들어 보기는 사람 카드 «들어 보고 맞추기»와 같은 단추(UI_ONE) */
+.mk-vsi-n{margin:10px 0 0}
+.mk-vsi-w{margin:0 0 12px}
 .mk-dlg-chk{margin:4px 0 0}
 .mk-dlg-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin:14px 0 0;border:0;border-radius:999px;background:#4E3F31;color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}   /* [UI_ONE] 주 단추 = 알약 · #4E3F31 · 14/600 · 48 */
 .mk-dlg-go.stop{background:var(--seal)}
@@ -4888,7 +4897,22 @@ var VS_LAB={ai:'AI 두 분 목소리',nar:'스튜디오 나레이션',mix:'순�
 /* ★_vsBar(«안내 목소리 · AI 두 분 목소리 ··· 나레이션 자세히» 한 줄) 금지 — 2026-10-03 사용자 지시로 삭제 [VS_LINK_IN_ROW] · 같은 단추(data-fk=mkvsopen · mkVsOpen)는 칩 줄 안에 산다 */
 window.mkVsOpenAi=function(){ if(!_vsOk()) return; VS.open=true; VS.ph='ai'; VS.hint=''; render(); };   // [R1-08]
 window.mkVsOpen=function(){ if(!_vsOk()) return; VS.open=true; VS.ph='pick'; VS.hint=''; render(); };
-window.mkVsPh=function(p){ VS.ph=p==='ai'?'ai':'pick'; render(); };
+/* ★★[VS_INFO 2026-10-07 사장님 «나레이션 자세히 클릭했는데 설명이 여기서 설명하는 거랑 거리가 있다 · 의도 파악» → «추천대로»]
+   «자세히»는 설명을 기대하게 하는데 «안내 목소리 정하기»(세 순간 한 번에 고르기)가 열렸다 — 바로 옆 칩과 같은 고르기를 또 묻고, 궁금한 «무엇이 다른가»에는 답하지 않았다.
+   이제 이 링크는 설명 창: 두 갈래를 나란히(누가 읽나 · 두 분이 할 일 · 글) + 이 순간을 그 갈래로 들어 보기 + 쓰이는 곳 한 줄. 고르기는 칩 한 곳에서만.
+   ★«나레이션 자세히»로 «한 번에 정하기» 창을 다시 열지 말 것(mkVsOpen 은 안쪽 길로만 남는다) */
+window.mkVsInfo=function(mom){ if(!_vsOk()) return; VS.open=true; VS.ph='info'; VS.mom=mom||'guest'; VS.hint=''; render(); };
+function _vsInfoKey(m){ return m==='entry'?'entry':m==='prevideo'?'pv':'g0'; }
+function _vsInfoBody(){ var m=VS.mom||'guest', k=_vsInfoKey(m), u=(S.up||{})[k], aiOk=!!(u&&typeof u==='object'&&u.src==='ai'), nm={guest:'하객 맞이',prevideo:'식전 영상 소개',entry:'입장 인사'}[m];
+  var col=function(id,ttl,rows,play){ return '<section class="mk-vsi-c" aria-labelledby="mkVsi_'+id+'"><h4 id="mkVsi_'+id+'">'+ttl+'</h4><dl>'+rows.map(function(r){ return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>'; }).join('')+'</dl>'+play+'</section>'; };
+  var aiPlay=aiOk?'<button type="button" class="mk-vgo" data-fk="mkvsi:ai" onclick="mkUpPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(nm)+' 들어 보기</span></button>':'<p class="mk-note mk-vsi-n">'+(_vcReadyFor(k)?'AI 두 분 목소리를 고르면 이 자리에 만들어져요':'두 분 목소리를 만들면 들어 볼 수 있어요')+'</p>';
+  var narPlay='<button type="button" class="mk-vgo" data-fk="mkvsi:nar" onclick="mkNarPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(nm)+' 들어 보기</span></button>';
+  return '<div class="mk-vsi">'
+    +col('ai','AI 두 분 목소리',[['누가 읽나요','두 분 목소리로 AI가 읽어요'],['두 분이 할 일','각자 1분 읽기 · 한 번이면 돼요'],['글','예시를 고르거나 두 분 말로 고쳐 써요'],['말투','실제 목소리와 조금 다를 수 있어요']],aiPlay)
+    +col('nar','스튜디오 나레이션',[['누가 읽나요','스튜디오 나레이터가 읽어요'],['두 분이 할 일','없어요'],['글','고른 멘트 그대로 읽어요']],narPlay)
+    +'</div><p class="mk-note mk-vsi-w">'+esc(_vsWhere())+'에 쓰여요 · 순간마다 따로 고를 수 있어요</p>'
+    +'<button type="button" class="mk-dlg-go" data-fk="mkvsdone" onclick="mkVsClose()">확인</button>'; }
+window.mkVsPh=function(p){ VS.ph=p==='ai'?'ai':p==='info'?'info':'pick'; render(); };
 window.mkVsPick=function(v){ VS.inPick=true; VS.hint=''; try{ VS_KEYS.forEach(function(k){ _lSet(k,v==='ai'?'ai':'nar'); }); } finally{ VS.inPick=false; } _persist();
   if(v==='ai'){ VS.ph='ai'; var fill=function(){ ['groom','bride'].forEach(function(w){ if(VC.st&&(VC.st[w]||{}).ready) _vcAutoFill(w,false); }); }; if(VC.st) fill(); else _vcStatus(fill); render(); return; }   // 이미 만든 목소리가 있으면 빈 줄을 바로 채운다
   VS.open=false; MK.toast=_vsWhere()+_josa(_vsWhere(),'을','를')+' 스튜디오 나레이션으로 정했어요';   /* [R6-06] 창 문장(_vsWhere · R5-03)과 같은 함수 — 식전 영상을 뺀 식순에도 그 자리를 말했다 */ render(); };
@@ -4908,6 +4932,7 @@ function _dlgModel(){
   if(MK_REC&&!/^vc:/.test(MK_REC.key)) return {t:_mkUpLabKey(MK_REC.key)+' · 녹음',body:_recLineBody(MK_REC)};
   if(MK.redo) return {t:'다시 녹음하면 이렇게 돼요',body:_redoBody()};   // [REDO_FIG]
   if(MK.use!=null){ var _ur=_vcUseRows(); if(_ur.length){ var _ui=Math.max(0,Math.min(MK.use,_ur.length-1)); return {t:_ur[_ui][1],body:_vcUseBody(_ur,_ui)}; } MK.use=null; }   // [VUSE_FLOW]
+  if(VS.open&&_vsOk()&&VS.ph==='info') return {t:'안내 목소리, 무엇이 다른가요',body:_vsInfoBody()};   // [VS_INFO]
   if(VS.open&&_vsOk()) return {t:VS.ph==='ai'&&!(VC.st&&(VC.st.groom||{}).ready&&(VC.st.bride||{}).ready)?'AI 두 분 목소리 만들기':'안내 목소리 정하기',body:_vsPanel()};   /* [VS_READY_SHORT] 만들 것이 없으면 «만들기» 제목도 없다 */   // [VOICE_SETUP] 읽기 · 동의가 끝나면 이 창으로 돌아온다
   return null; }
 function _dlgSteps(at){ return '<ol class="mk-dlg-steps" aria-label="만드는 순서">'+['동의','글 1','글 2','만들기'].map(function(x,i){ return '<li class="'+(i<at?'done':i===at?'on':'')+'"'+(i===at?' aria-current="step"':'')+'>'+x+'</li>'; }).join('')+'</ol>'; }
@@ -6265,7 +6290,7 @@ function _lChipRow(g,opt){
   /* ★[RIT_CHIP_GRID 2026-09-27 4부 9] 라벨 칸 + 칩 칸 두 열 — 줄을 넘긴 칩이 첫 칩 시작선에 선다(종전 flex 한 줄은 넘친 칩이 라벨 밑으로 들어가 왼쪽 선이 들쭉날쭉) */
   return '<div class="ls-cg'+((/^(guest|entry|pv)Voice$/.test(g.key)||g.fn)?' cg-vp':'')+'" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
     return '<button type="button" class="op-chip'+(g.fn?' mk-exc':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(g.picked===false&&ci===0))?'0':'-1')+'" data-fk="'+(g.fk?g.fk+c[0]:'lsc:'+g.key+':'+c[0])+'" onclick="'+(g.fn?g.fn+'('+c[0]+')':'lsChip(\''+g.key+'\',\''+c[0]+'\')')+'">'+_chipT(c[1])+'</button>'; }).join('')   /* [EX_ROW] 예시 줄은 제 함수(g.fn)와 data-fk(g.fk)로 */
-    +(function(){ if(!(opt&&opt.vsLink&&/^(guest|entry|pv)Voice$/.test(g.key))) return ''; var a=_keepShutBtn(g.key==='guestVoice'?'guest':g.key==='pvVoice'?'prevideo':'entry'), b=_vsOk()?'<button type="button" class="pk-link cg-vsl" data-fk="mkvsopen" onclick="mkVsOpen()">나레이션 자세히</button>':'';
+    +(function(){ if(!(opt&&opt.vsLink&&/^(guest|entry|pv)Voice$/.test(g.key))) return ''; var a=_keepShutBtn(g.key==='guestVoice'?'guest':g.key==='pvVoice'?'prevideo':'entry'), b=_vsOk()?'<button type="button" class="pk-link cg-vsl" data-fk="mkvsopen" onclick="mkVsInfo(\''+(g.key==='guestVoice'?'guest':g.key==='pvVoice'?'prevideo':'entry')+'\')">나레이션 자세히</button>':'';   /* [VS_INFO] 고르는 창이 아니라 설명 창 */
         return (a&&b)?'<span class="cg-links">'+a+b+'</span>':a+b; })()   /* [KEEP_IN_ROW] 확정 안내 보기 · 나레이션 자세히 = 한 묶음(자리가 모자라면 묶음째 다음 줄 오른쪽) */   /* [VS_LINK_IN_ROW] 같은 창 · VS_CHIP_ONCE 그대로 */
     +((g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?'<span class="ls-gnote mk-vpask1">아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션으로 진행돼요</span>':g.unote?'<span class="ls-gnote mk-vpask1">'+esc(g.unote)+'</span>':g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 결과 설명 대신 한 줄 · [VP_ASK_ONE] 상자는 걷었다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
 }

@@ -113,7 +113,7 @@ for (const w of [390, 1280]) {
     ok(`${w} [VOICE_ONCE] 순간 쪽에 «AI 두 분 목소리 만들기» 칸(사람 카드) 없음`, ks.every((k) => !rows[k].vcSec), ks.filter((k) => rows[k].vcSec).join(','));
     await pg.evaluate(() => mkGo('entry')); await pg.waitForTimeout(350); if (w === 390) await shot(pg, 'moment-entry-ai-390'); if (w === 1280) await shot(pg, 'moment-entry-ai-1280');
     await pg.click('[data-fk="mkvsopen"]'); await pg.waitForTimeout(400);
-    ok(`${w} [VS_LINK_IN_ROW] 칩 줄의 «나레이션 자세히» → 같은 창(«안내 목소리 정하기»)`, await pg.evaluate(() => ((document.querySelector('#mkRecDlg .mk-dlg-t') || {}).textContent || '') === '안내 목소리 정하기'));
+    ok(`${w} [VS_LINK_IN_ROW · VS_INFO] 칩 줄의 «나레이션 자세히» → 설명 창(«안내 목소리, 무엇이 다른가요»)`, await pg.evaluate(() => ((document.querySelector('#mkRecDlg .mk-dlg-t') || {}).textContent || '') === '안내 목소리, 무엇이 다른가요'));
     await pg.evaluate(() => mkDlgClose()); await pg.waitForTimeout(250);
     /* 옛 초안의 뺀 쪽 */
     await pg.evaluate(() => { mkGo('bless'); }); await pg.waitForTimeout(300); await pg.evaluate(() => mkDrop('bless')); await pg.waitForTimeout(350);

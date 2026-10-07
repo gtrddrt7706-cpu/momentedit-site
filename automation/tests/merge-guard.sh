@@ -14558,6 +14558,11 @@ chk 'EX_ROW_PLACE' order-preview.html 1
 chk 'EX_NO_AUTO' order-preview.html 6
 chk 'function _exQuiet(key)' order-preview.html 1
 chk 'function _exLate(key)' order-preview.html 1
+# ★★[VS_INFO 2026-10-07 사장님 «나레이션 자세히가 설명과 거리가 있다» → «추천대로»] 링크는 설명 창(두 갈래 · 들어 보기) · 한 번에 정하기는 안쪽 길로만
+chk 'VS_INFO' order-preview.html 4
+chk 'window.mkVsInfo=function(mom)' order-preview.html 1
+nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
+chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
 chk 'EX_NO_AUTO' scripts/audit/ex-race.mjs 3
 # ★[UP_AI_HEAL · VST_RIGHT 2026-10-07 사장님] «… · AI.wav» 인데 «파일»로 적힌 옛 줄 바로잡기 · 줄 카드 상태는 제목 오른쪽
