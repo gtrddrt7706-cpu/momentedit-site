@@ -4285,6 +4285,9 @@ function _mkOff(k){ return !!(_mkRO().drop[k]) && !RitualOpen.onOf(S,k); }
 function _mkNo(k){ if(k==='_sum'||k==='_intro'||k==='_voice') return ''; if(k==='guest'||RitualOpen.PRE[k]) return '식전'; if(_mkOff(k)) return ''; var b=RitualOpen.bodySeq(S), i=b.indexOf(k); return i<0?'':String(i+1); }
 function _mkName(k){ return k==='_sum'?'한눈에 보기':k==='_intro'?'예식 흐름':k==='_voice'?'두 분 목소리 만들기':_lName(k); }   /* [VOICE_ONCE] */   /* [COURSE_FLOW] «고른 순서» → «예식 흐름» */
 /* 두 분이 할 말이 있는 자리 — 원천(prepOf)의 «쓸 글»을 따른다(첫인사 · 서약 · 편지 · 부모님께 인사) */
+/* ★[TX_OPT 2026-10-07 점검] 선택 칸(비워 둬도 되는 글) = 부모님께 인사 · 축배 한마디 — 미완료 셈 · ④ «글 비어 있음» · 연습 «안 적은 곳»이 이 한 곳을 본다.
+   ④ 요약이 부모님께 인사만 빼고 축배는 «글 비어 있음 · 채우기»로 그려 머리 «미완료 N»과 표시가 어긋났다(TOAST_SAY 때 빠뜨림) */
+function _txOpt(kind){ return kind==='tribute'||kind==='toast'; }
 function _mkKinds(k){ var R=RitualOpen; if(!TX_KIND[k]) return []; if(k==='tribute'&&R.chipOf('tribute',S)==='none') return [];
   return R.prepOf(k,S).some(function(q){ return q[2]==='write'; })?[k]:[]; }
 function _mkItems(k){ var R=RitualOpen, out=[];
@@ -4312,7 +4315,7 @@ function _mkItemDone(q){ var c=_mkChk(), _sp=_askScript(q);
   return !!c[q.id]; }
 /* 할 일 — 세는 것만(챙길 것 · 부모님께 인사 칸은 세지 않는다) */
 function _mkTasks(k){ var t=[], c=_mkChk();
-  _mkKinds(k).forEach(function(kind){ if(kind==='tribute'||kind==='toast') return;   // [TOAST_SAY] 축배 한마디도 선택 칸 — 셈에 안 든다
+  _mkKinds(k).forEach(function(kind){ if(_txOpt(kind)) return;   // [TOAST_SAY] 축배 한마디도 선택 칸 — 셈에 안 든다 · [TX_OPT] 판별 한 곳
     TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], txt=String((S.tx||{})[id]||'').trim(); t.push({id:id,kind:'tx',who:w[1],nm:TX_KIND[kind].nm,done:_txSite(kind,c,id)?_txSiteDone(kind,c,id):!!txt}); }); });   /* [CUE_FORM] 현장이면 글이 있어도 끝 신호를 본다(글칸은 접혀 있다) */   // [CUE_SIG] 현장이면 끝 신호까지 적어야 다 됨
   _mkItems(k).forEach(function(q){ if(q.cat==='bring') return; t.push({id:q.id,kind:q.cat,who:q.who==='parents'?'부모님':'',nm:q.what,done:_mkItemDone(q),q:q}); });
   return t; }
@@ -4323,6 +4326,10 @@ function _mkStat(k){ if(k==='_sum'||k==='_intro'||k==='_voice') return ''; var m
   var ts=_mkTasks(k), seen=!!m.seen[k];
   if(!seen) return '';
   return ts.every(function(x){ return x.done; })?'done':'todo'; }
+/* ★[PR_TODO_TRUE 2026-10-07 점검] ③ 연습 «아직 안 적은 N곳은 참고 예시 글로 보여 드려요»의 N — 종전엔 미완료 셈(_mkTodoN · 부탁 · 보낼 것 · 녹음까지)이라
+   «화촉 부탁 남음»도 «안 적은 곳»으로 셌다. 이제 두 분 글칸이 빈 순간 수(현장에서 바로 고른 칸 제외 · 선택 칸 포함 — 연습에서 참고 예시가 보인다) */
+function _mkUnwritten(){ var n=0, c=_mkChk(); _mkPages().forEach(function(k){ if(k==='_sum'||k==='_voice'||k==='_intro'||_mkOff(k)) return; var kind=_mkKinds(k)[0]; if(!kind) return;
+  if(TX_WHO.some(function(w){ var id=kind+'.'+w[0]; return !String((S.tx||{})[id]||'').trim()&&!_txSite(kind,c,id); })) n++; }); return n; }
 function _mkTodoAll(){ var out=[]; _mkPages().forEach(function(k){ if(k==='_sum'||k==='_voice'||_mkOff(k)) return; _mkTasks(k).forEach(function(x){ if(!x.done) out.push({k:k,t:x}); }); }); return out; }
 /* ★[TODO_ROWS 2026-09-27 점검 시뮬] «미완료 N»은 한눈에 보기에 보이는 «줄» 수로 센다 — 한 순간의 신랑 · 신부 칸은 한 줄(«신랑 · 신부 칸이 비어 있어요»),
    한 순간의 두 분 목소리 녹음 여러 개도 한 줄이다. 종전엔 칸 수로 세어 머리는 «미완료 9»인데 아래 줄은 7개였다(390 실렌더). */
@@ -6315,7 +6322,7 @@ function renderPractice(){ var R=RitualOpen;
   if(!LREC){ _lrec().then(function(){ if(STEPS[idx]&&STEPS[idx].k==='practice') render(); }); }
   var rows=_lRows(), all=ENG?_lRefExpand(_lSteps(ENG,rows).filter(function(x){ return !x.quiet; })):[], len=0, turns=0, tPar=0, tOth=0;
   all.forEach(function(x){ len+=x.talk2?Math.round((x.ms||0)/1000):x.talk||x.skip?3:Math.round(String(x.txt||'').length*0.16); if(x.talk2||x.talk){ turns++; if(x.refPar||x.k==='bless') tPar++; else if(x.k==='free'||x.k==='declare') tOth++; } });   // [CAST_TEXT_ONLY] 두 분 차례 = 막대 길이(ms) · [R1-23] 부모님 덕담 · 준비하신 분 차례는 따로 센다
-  var fast=ENG?_lLen(_lSteps(ENG,rows)):0, todo=_mkTodoN(), n=_opMoments();   // [TODO_ROWS]
+  var fast=ENG?_lLen(_lSteps(ENG,rows)):0, todo=_mkUnwritten(), n=_opMoments();   // [TODO_ROWS] → [PR_TODO_TRUE] «안 적은 곳» 수
   var h='<div class="op pr">';
   /* ★★[PR_SIMPLE 2026-10-05 사장님 «연습 공간 · 고객 입장에서 필요한 것만 · 미니멀 · 디자인 완성도 · 영상은 빼지 말고 · PC 는 좌우를 넓게»]
      연습하러 온 두 분에게 필요한 것은 셋이다 — ①어디서부터 틀까(처음부터 · 골라서) ②내 차례가 어디인가 ③얼마나 걸리나.
@@ -8439,7 +8446,7 @@ function _doneOpen(){
      하객에게 «AI»를 적는 곳은 식순지 뒷면 한 줄 하나(admin.html admAiLine) · 두 분 화면의 AI 표시는 줄 카드 배지(«AI로 만든 두 분 목소리»)가 한다 */
   h+='<h3 class="sec-l">순서 요약 · 원하는 곳을 바로 고쳐요</h3><div class="sumry op">';   /* ★[RIT_SUMMARY_STACK 2026-09-27 4부 17] 390 에서 4칸이 비좁아 값이 2~3줄로 부서졌다 — 순번 · 이름 / 아래에 값 · «변경»은 글 단추 */
   _lRows().forEach(function(k){
-    var _c=_mkChk(), no=_lNo(k), empty=(k!=='welcome'||S.welcome==='self')&&_mkKinds(k).length>0&&k!=='tribute'&&TX_WHO.some(function(w){ var id=k+'.'+w[0]; return !String((S.tx||{})[id]||'').trim()&&!_txSiteDone(k,_c,id); });   /* [R2-07] ② 와 같은 셈 — 체크 칸이 있는 글만 체크도 다 된 것 [SITE_CHK_OFF] */
+    var _c=_mkChk(), no=_lNo(k), empty=(k!=='welcome'||S.welcome==='self')&&_mkKinds(k).length>0&&!_txOpt(k)&&TX_WHO.some(function(w){ var id=k+'.'+w[0]; return !String((S.tx||{})[id]||'').trim()&&!_txSiteDone(k,_c,id); });   /* [R2-07] ② 와 같은 셈 — 체크 칸이 있는 글만 체크도 다 된 것 [SITE_CHK_OFF] */
     /* [R4-05] 글 칸 밖의 남은 할 일(부탁 · 보낼 것 · 두 분 목소리)도 같은 자리에 표시 — 머리는 «미완료 6»인데 표시가 붙은 줄은 둘뿐이라 나머지가 다 된 것처럼 보였다 */
     var _pd=(empty||_mkOff(k))?[]:_mkTasks(k).filter(function(x){ return !x.done&&x.kind!=='tx'; }), _pq=_pd[0]&&_pd[0].q;
     var _bits=[]; if(_pd.some(function(x){ return x.q&&x.q.up; })) _bits.push(_vpCur(k)==='ai'?'AI 목소리 남음':'녹음 남음');   /* [R5-04] 남은 갈래를 다 말한다(첫 하나만 말하던 것) */
