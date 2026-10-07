@@ -1382,7 +1382,6 @@ chk 'FOLD_319' index.html 1
 #   momentedit-design 을 최우선 권위로 못 박았다 — SKILL.md 머리 + CLAUDE.md 두 곳.
 #   ★한쪽만 남으면 «어느 쪽을 먼저 읽었나»에 따라 판단이 갈린다. 둘 다 유지할 것.
 chk 'DESIGN_AUTHORITY' CLAUDE.md 1
-chk 'FAST_FIRST' CLAUDE.md 2   # [FAST_FIRST 2026-10-07 사장님] 요청은 바로 반영 · 무거운 검사는 끝에 한 번에 — 일하는 방식 6절 + 화면 PR 점검 3단 머리 두 곳
 chk '이 문서가 디자인 판단의 최종 권위다' .claude/skills/momentedit-design/SKILL.md 1
 chk '행번호를 믿지 말 것' .claude/skills/momentedit-design/SKILL.md 1
 # ★[SEC_TITLE_DEVICE 2026-09-06 코워크 합의] 「index 27px vs inquiry 17px 이라 위계가 약하다」는
@@ -12682,7 +12681,9 @@ chk 'PLAY_ONE_LOOK' order-preview.html 3   # ★[PLAY_ONE_LOOK 2026-10-04 사장
 chk 'VS_ONE_LINE' order-preview.html 1   # 두 분 목소리 설명 한 줄(미니멀) · 두 곳 같은 글
 chk 'UI_ONE' order-preview.html 15   # ★[UI_ONE 2026-10-04 사장님 «설정 따라 어쩔 수 없는 것 말고는 연속성 있게 같은 인터페이스»] 주 단추 알약 · 고른 것 한 모양 · 이 순간 들어 보기 ▶/■ · 플레이어 같은 묶음 · 쪽 제목 22/600 · 나레이션 줄 머리
 chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 «좀 더 내려» → 2026-10-07 사장님 «조금 내려가 있다»] 줄 ▶ = 글자 잉크 가운데(실측 0 ~ -0.5px)
-chk '^\.mk-flow li\.n \.mk-pl{margin-top:-7px}' order-preview.html 1   # [PLAY_OPTIC] 흐름 줄 ▶ 알약 = 글자 잉크 가운데(390 0.0 · 1280 -0.5px)
+chk '^\.mk-flow li\.n \.mk-pl{margin-top:-7px}' order-preview.html 1   # [PLAY_OPTIC] 흐름 줄 ▶ 원 = 글자 잉크 가운데(390 0.0 · 1280 -0.5px) · 흐름선 시작 · 끝도 15
+chk '^\.mk-flow li\.n \.mk-pl{width:44px;margin-left:-5px} \.mk-flow li\.n \.mk-pl::before{inset:5px}' order-preview.html 1   # [FLOW_NODE_ROUND] 흐름 ▶ = 선 위 마디 → 원 34 · 가로 가운데 17 = 흐름선 · 글 47(알약으로 넓히면 선이 비껴간다)
+chk 'li.n:last-child::before{height:15px}' order-preview.html 1   # [PLAY_OPTIC] 흐름선이 ▶ 원 가운데(15)에서 멈춘다
 nochk 'mk-vpl{position:relative;top:5px}' order-preview.html   # [PLAY_OPTIC] 줄 카드 ▶ 5px 내림 = 사장님이 «조금 내려가 있다»로 짚은 값(10-07) — 되살리지 않는다
 # ★[QA_0927 2026-10-04 사장님 «식순 섹션 버튼 하나씩 병렬 시뮬레이션 · 버그 · 지연 · 부자연스러운 것»] 네 갈래 점검에서 나온 것 — 연습 재생이 그리기마다 꺼짐 · 음악까지 미리듣기 · 빠르게 훑기 · 포커스 · 플레이어가 누른 곳을 덮음 외
 chk 'QA_PR_KEEP' order-preview.html 1
@@ -14605,10 +14606,14 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
-# ★[TIP_FLY_OFF 2026-10-07 사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»] 처음 누를 때 안내 창 · 링크로 접혀 들어가는 모션 · 빛남 — 되살리지 말 것
+# ★★[TIP_ONCE 2026-10-07 사장님 «모션그래픽 부분만 없애고 팝업은 AI 두 분 목소리 누르면 나오게»] AI 두 분 목소리 처음 누를 때 한 번 확정 안내 창 · 그냥 닫힘 · 첫 순간 네 줄 펼침 없음
+chk 'TIP_ONCE' order-preview.html 6
+chk 'TIP_ONCE' scripts/audit/tip-once.mjs 1
+# ★[TIP_FLY_OFF 2026-10-07 사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»] 링크로 접혀 들어가는 움직임 · 빛남 — 되살리지 말 것
 chk 'TIP_FLY_OFF' order-preview.html 1
 nochk 'function _tipFly(' order-preview.html
 nochk '@keyframes tipGlow' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/tip-once.mjs >/dev/null 2>&1; _tfy=$?; if [ "$_tfy" = 1 ]; then echo 'FAIL tip-once: AI 두 분 목소리 처음 누를 때 안내 창이 어긋났습니다 — node scripts/audit/tip-once.mjs'; fail=1; else echo "ok tip-once ($_tfy)"; fi; fi
 nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
 chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
@@ -14850,6 +14855,26 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/ex-prebake.mjs >/dev
 chk 'STAGE_LINES' order-preview.html 7
 chk 'STAGE_LINES' assets/ritual-open.js 2
 chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
+# ★★[FLOW_THREAD 2026-10-07 사장님 «양가 어머님이 앞으로 나와 불을 밝혀요 · 말 없이 — 이런 상황에서 이런 멘트 → 그다음 이런 액션 한눈에 · 다른 곳들도 · 여기서 정하고 일괄 수정» → 시안 A «흐름선»]
+#   ② 순간 쪽 흐름 = 세로 흐름선 + 마디(▶ 나레이션 · ● 행동 · ○ 직접 말하는 차례) · 행동 줄 먹빛 16px(종전 옅게 12.5 = QUIET_LINES 는 이 결정으로 바뀜)
+#   깨 보고 믿음: A 없는 화면에 flow-thread 를 돌리면 50건 빨강 · 종료 코드 1
+chk 'FLOW_THREAD' order-preview.html 7
+chk ".mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px" order-preview.html 1
+chk 'function _qRow(t)' order-preview.html 1
+nochk '.mk-flow li.q{color:var(--light);font-size:12.5px' order-preview.html
+nochk "if(x.quiet){ h+='<li class=\"q\">'+esc(x.txt)" order-preview.html
+nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
+chk 'FLOW_THREAD' scripts/audit/flow-thread.mjs 1
+chk 'FLOW_THREAD' scripts/audit/ghi-polish.mjs 1
+chk 'FLOW_THREAD' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 규칙 문서에도 한 벌로 적었다 — 새 «멘트 → 행동» 화면은 이 모양
+# ★[FLOW_DOT_SEAL 2026-10-07 사장님 «말 없이 왼쪽 점 부분 진사 색상으로 · 다른 곳들도 마찬가지로»] ● 행동 점 = 진사 · 금빛으로 되돌리지 말 것
+chk 'FLOW_DOT_SEAL' order-preview.html 1
+chk '.mk-flow li.q::after{background:var(--seal)}' order-preview.html 1
+nochk '.mk-flow li.q::after{background:var(--gold-deeper)}' order-preview.html
+chk 'FLOW_DOT_SEAL' scripts/audit/flow-thread.mjs 1
+# ★[FAST_FIRST 2026-10-07 사장님 «검사 같은 건 나중에 한 번에 · 요청한 것만 빠르게 반영»] 작업 방식 규칙이 CLAUDE.md 에 살아 있나(두 곳 — 절 · 화면 PR 점검 3단의 덧줄)
+chk 'FAST_FIRST' CLAUDE.md 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-thread.mjs >/dev/null 2>&1; _flt=$?; [ "$_flt" = 1 ] && { echo 'FAIL flow-thread: 순간 흐름(흐름선 · 마디 · 행동 줄)이 어긋났습니다 — node scripts/audit/flow-thread.mjs'; fail=1; }; fi
 chk "var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면'" order-preview.html 1
 nochk "one: '두 분이 부부가 되었음을 알려요.'" assets/ritual-open.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/stage-lines.mjs >/dev/null 2>&1; _stl=$?; [ "$_stl" = 1 ] && { echo 'FAIL stage-lines: 식순 줄 사이 하는 일 줄 · 줄 이름(언제) · 성혼 선언문이 어긋났습니다 — node scripts/audit/stage-lines.mjs'; fail=1; }; if [ "$_stl" = 0 ]; then echo 'OK   stage-lines'; fi; fi   # [TAIL_RC]
@@ -14920,6 +14945,21 @@ nochk '팝콘은 없지만' assets/ritual-open.js
 # ★[VOICE_INTRO_ONE 2026-10-07 사장님 «이거 합쳐서 안내하자 · 디자이너 시선 · 고객 입장»] 두 분 목소리 쪽 머리 안내 두 줄 → 한 단락 두 문장(무엇이 되나 / 아쉬우면 다시 녹음 · 자세히 보기)
 chk 'VOICE_INTRO_ONE' order-preview.html 2
 nochk '확정해 둔 줄은 그대로 남아요 <button' order-preview.html
+# ★[VFLOW_TEXT · VSTAT_GUTTER · VREADY_ONE 2026-10-07 사장님 «두 분 목소리 만들기 · 디자인적으로 이게 최선인가 · 디자이너 시선으로»]
+#   ① 나오는 곳 여섯 = 글 흐름(점선 밑줄 · ›) — 흰 알약은 «고르는 칩»처럼 읽혔고 쪽에서 가장 무거웠다 · 누르는 칸 44 는 그대로
+#   ② 카드 «말 빠르기» 점 줄 왼칸에도 16 — 폰에서 일곱째 점이 가운데 세로선에 붙었다
+#   ③ 두 분 다 만든 판 첫 문장은 «준비됐어요» 하나 — «…에 이 목소리가 쓰여요»는 바로 위 흐름 줄과 같은 말이었다
+chk 'VFLOW_TEXT' order-preview.html 1
+chk '.mk-vfb{min-height:44px;padding:0;border:0;border-radius:0;background:none;color:var(--accent);font:inherit;font-size:14px;' order-preview.html 1
+nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);border-radius:999px' order-preview.html
+# ★[VFLOW_NOLINE 2026-10-07 사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자»] 나오는 곳 여섯 = 글 · › 만(점선 밑줄 없음)
+chk 'VFLOW_NOLINE' order-preview.html 2
+nochk 'white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep)' order-preview.html
+chk 'VSTAT_GUTTER' order-preview.html 1
+chk '.mk-vstat>span:first-child{padding-right:16px}' order-preview.html 1
+chk 'VREADY_ONE' order-preview.html 1
+chk "both?'두 분 목소리가 준비됐어요.':'각자 1분 읽으면" order-preview.html 1
+nochk "두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))" order-preview.html
 # ★[EX_TEXT_1007 2026-10-07 코워크 10/7 고친 판] 하객 맞이 «다정하게 · 유쾌하게» AI 글 합쇼체 · 옛 글(최초 · 10/6)로 만든 소리는 옮긴다
 chk 'EX_TEXT_1007' order-preview.html 2
 # ★[EX_LAB_JOY 2026-10-07 사장님 «웃음 한 스푼 이런 문구 너무 구려 · 올드하잖아»] 예시 이름 «웃음 한 스푼» → «유쾌하게» — 되살리지 말 것
