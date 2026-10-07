@@ -4704,7 +4704,7 @@ function _exIs(key){ var t=_exNorm(_recNeed(key)); if(!t) return false;
   if(key==='entry') return t===_exNorm((ENTRY[S.entry]||{}).self);
   if(key==='pv') return PV_EX.some(function(x){ return t===_exNorm(x[1]); });
   return false; }
-var ENTRY_KEYS=['A','B','D','E'];   /* ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 · 1줄로 · 베스트로»] AI 판 입장 인사 참고 예시 = 결이 겹치지 않는 넷(서사 · 짧고 강하게 · 감성 · 감사·가족). 격식과 따뜻함(C)은 서사 · 감사와, 이야기의 시작(F)은 서사와 겹친다 — 나레이션 판 여섯 멘트(녹음)는 그대로 · 고른 판이 C · F 면 카드는 아무것도 안 켜진다 */
+var ENTRY_KEYS=['A','B','C','D','E','F'];   /* ★[EX_SAME_COUNT 2026-10-07 사장님 «AI 두 분 목소리랑 스튜디오 나레이션 아래 버튼 4개로만 제한했었는데 버튼 스타일이 달라졌으니 동일하게»] 카드(두 줄 상자)일 때는 한 줄에 넷이 한계였다 — 칩 줄이 되어 스튜디오 «입장 멘트»와 같은 여섯 · 같은 차례 · 같은 이름(EX_ROW) */   /* ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 · 1줄로 · 베스트로»] AI 판 입장 인사 참고 예시 = 결이 겹치지 않는 넷(서사 · 짧고 강하게 · 감성 · 감사·가족). 격식과 따뜻함(C)은 서사 · 감사와, 이야기의 시작(F)은 서사와 겹친다 — 나레이션 판 여섯 멘트(녹음)는 그대로 · 고른 판이 C · F 면 카드는 아무것도 안 켜진다 */
 window.mkEntryEx=function(n){ var v=ENTRY_KEYS[n]; if(!v||!ENTRY[v]) return; var go=function(){ if(S.vlines) delete S.vlines[_slVk('entry')]; if(S.vkeep) delete S.vkeep.entry; _lSet('entry',v); buildSteps(); _fxNext='[data-fk="mkex:entry:'+n+'"]'; _persist(); render(); _exAudio(['entry']); };   /* [EX_PREBAKE] 입장은 두 분이 나눠 읽어 미리 만들 수 없다 — 누르면 바로 새로 만든다(목소리 만들기를 다시 누르지 않아도) */
   /* 고쳐 둔 줄이 있으면 예시를 눌러도 글이 안 바뀌었다(고친 줄이 이긴다) — 식전 영상 소개처럼 묻고 바꾼다 */
   if(S.vlines&&S.vlines[_slVk('entry')]&&!_exIs('entry')){ ordAsk({title:'예시로 바꿀까요?',body:'지금 적어 둔 입장 인사는 지워져요',yes:'예시로 바꾸기',no:'그대로 두기'}).then(function(ok){ if(ok) go(); }); return; } go(); };
