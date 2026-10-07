@@ -1848,7 +1848,7 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-vneed{margin-top:14px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:12.5px;line-height:1.5;color:var(--seal)}
 .mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}   /* ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋(위 · 아래 가로선 · 가운데 세로선) 금지 — 테 하나만. 빠르기 · 쉼 = 이름 + 작은 점 두 줄(누르는 칸이 아니라 지금 설정 «표시»로 읽힌다 · 점 모양은 VSTAT_DOTS 그대로). 종전 VC_CARD_A 의 «가는 선 위아래 · 가운데 세로선 두 칸»과 VSTAT_GUTTER(세로선 옆 16)는 이 결정으로 바뀌었다 · 선을 되살리지 말 것 */
 .mk-vstat>span{display:flex;flex-direction:row;align-items:center;min-width:0}
-.mk-vsd{position:relative;display:flex;justify-content:space-between;align-items:center;flex:0 1 168px;max-width:168px;height:12px}   /* [VSTAT_DOTS] 보기만 하는 점 줄 */
+.mk-vsd{position:relative;display:flex;justify-content:space-between;align-items:center;flex:1 1 auto;max-width:240px;height:12px}   /* [VSTAT_DOTS] 보기만 하는 점 줄 · ★[VSTAT_WIDE 2026-10-07 사장님 «오른쪽으로 공간이 많으니 조금만 늘려도» → «추천대로»] 168 고정 → 오른쪽 끝까지 · 최대 240. 폰은 카드 안쪽 끝(«지우기» 끝선)에 맞춰 232 · PC 는 240 에서 멈춘다(더 넓히면 점 사이가 멀어져 떠 보인다) */
 .mk-vsd::before{content:'';position:absolute;left:4px;right:4px;top:50%;height:1px;background:var(--border)}
 .mk-vsd em{position:relative;width:6px;height:6px;box-sizing:border-box;border:1.25px solid var(--gold-deep);border-radius:50%;background:var(--card)}   /* [VCARD_CALM] 작은 점 — 카드에서는 보기 전용 표시 */
 .mk-vsd em.mid{border-color:var(--gold-deeper)}
