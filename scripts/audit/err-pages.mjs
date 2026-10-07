@@ -540,9 +540,9 @@ await run('⑤ schedule 로그인 표 없음 · 예식 시간 조회 실패 · �
   s = await open('/schedule.html', SCHED(), { w: 360, seed: { ls: { me_token: TK } }, init: FAILCOPY });
   await until(s.pg, () => !!document.querySelector('#calGrid button.day'));
   await s.pg.evaluate(() => window.copyAcct());
-  const cf = await until(s.pg, () => /복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요/.test(((document.getElementById('acctCopyErr') || {}).textContent || '')));
+  const cf = await until(s.pg, () => /복사가 안 됐어요 · 길게 눌러 복사해 주세요/.test(((document.getElementById('acctCopyErr') || {}).textContent || '')));
   const bt = await txt(s.pg, '#acctCopyBtn');
-  ok('⑤ schedule(COPY_FAIL_SHOW) — 복사가 안 되면 «복사됨»이 아니라 계좌 줄 아래 «복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요»', cf && bt === '복사', { bt });
+  ok('⑤ schedule(COPY_FAIL_SHOW) — 복사가 안 되면 «복사됨»이 아니라 계좌 줄 아래 «복사가 안 됐어요 · 길게 눌러 복사해 주세요»', cf && bt === '복사', { bt });
   await s.ctx.close();
 });
 await run('⑤ live 편지 시간 제한 · 계좌 복사 실패', async () => {
@@ -558,7 +558,7 @@ await run('⑤ live 편지 시간 제한 · 계좌 복사 실패', async () => {
   const C = await open('/live.html?e=evt-copy-1', `if (url.indexOf('action=getCouple') >= 0) return { body: ${JSON.stringify(COUPLE)} };`, { init: FAILCOPY });
   await until(C.pg, () => document.body.classList.contains('couple-ready'));
   await C.pg.evaluate(() => { const b = [...document.querySelectorAll('.env-copy')].find((x) => x.dataset.account) || document.querySelector('.env-copy'); b.dataset.account = b.dataset.account || '12345678901234'; b.closest('.env-item').classList.add('open'); b.click(); });
-  const cf = await until(C.pg, () => /복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요/.test(((document.querySelector('.me-copy-fail') || {}).textContent || '')));
+  const cf = await until(C.pg, () => /복사가 안 됐어요 · 길게 눌러 복사해 주세요/.test(((document.querySelector('.me-copy-fail') || {}).textContent || '')));
   const toast = await C.pg.evaluate(() => { const t = document.getElementById('toast'); return t.classList.contains('show') ? t.textContent : ''; });
   ok('⑤ live(COPY_FAIL_SHOW) — 계좌 복사가 안 되면 «Copied»·2초 «복사 실패»가 아니라 그 줄 아래 보이는 한 줄', cf && !/Copied|복사되었습니다/.test(toast), { toast });
   await C.ctx.close();
@@ -569,9 +569,9 @@ await run('⑤ 청첩장 계좌 복사 실패(COPY_FAIL_SHOW)', async () => {
     await until(pg, () => document.body.classList.contains('couple-ready'), null, 8000);
     const before = await pg.evaluate(() => { const b = document.querySelector('.env-acc-copy[data-account]:not([data-account=""]),.acc-copy[data-copy]:not([data-copy=""]),.env-acc-copy[data-copy]:not([data-copy=""])');
       if (!b) return null; const it = b.closest('details,.env-acc-item,.acc-item,.env-acc'); if (it) { if (it.tagName === 'DETAILS') it.open = true; it.classList.add('open'); } window.__cb = b; const t0 = b.textContent; b.click(); return t0; });
-    const cf = await until(pg, () => /복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요/.test(((document.querySelector('.me-copy-fail') || {}).textContent || '')));
+    const cf = await until(pg, () => /복사가 안 됐어요 · 길게 눌러 복사해 주세요/.test(((document.querySelector('.me-copy-fail') || {}).textContent || '')));
     const st = await pg.evaluate(() => ({ btn: window.__cb.textContent, toast: ((document.getElementById('toast') || {}).textContent || '') }));
-    ok(`⑤ 청첩장 ${f}(COPY_FAIL_SHOW) — 복사가 안 되면 «Copied»·«복사됨»이 아니라 계좌 줄 아래 «복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요»`, before !== null && cf && st.btn === before && !/복사됨/.test(st.toast), { before, st });
+    ok(`⑤ 청첩장 ${f}(COPY_FAIL_SHOW) — 복사가 안 되면 «Copied»·«복사됨»이 아니라 계좌 줄 아래 «복사가 안 됐어요 · 길게 눌러 복사해 주세요»`, before !== null && cf && st.btn === before && !/복사됨/.test(st.toast), { before, st });
     await ctx.close();
   }
   const { ctx, pg } = await open('/i/cover-01.html?e=test-couple', `return { body: { ok: true } };`, { init: `Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: function(){ return Promise.resolve(); } } });` });

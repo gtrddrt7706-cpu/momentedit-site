@@ -1203,7 +1203,7 @@ function copyAcct(){
   var btn=document.getElementById('acctCopyBtn');
   var line=function(on){ var row=btn&&btn.parentNode, n=document.getElementById('acctCopyErr');   // 계좌 줄(.acct-line) 바로 아래
     if(!n&&on&&row&&row.parentNode){ n=document.createElement('span'); n.id='acctCopyErr'; n.setAttribute('role','alert'); n.style.cssText='display:block;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.7;margin-top:8px;word-break:keep-all'; row.parentNode.insertBefore(n,row.nextSibling); }
-    if(n){ n.textContent=on?'복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요':''; n.style.display=on?'':'none'; } };
+    if(n){ n.textContent=on?'복사가 안 됐어요 · 길게 눌러 복사해 주세요':''; n.style.display=on?'':'none'; } };
   var ok=function(){ line(false); if(btn){ btn.textContent='복사됨'; setTimeout(function(){ btn.textContent='복사'; },1500); } _say('계좌번호를 복사했어요'); };   // [CR_OPTIN] 계좌 옆 버튼 — «복사됐습니다»는 360px 에서 버튼을 다음 줄로 밀어 1.5초 동안 화면이 출렁였다(홈과 같은 «복사됨»)
   var legacy=function(){ if(_legacyCopy(t)) ok(); else line(true); };
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok).catch(legacy); } else legacy(); }catch(e){ legacy(); }

@@ -2311,7 +2311,7 @@ function doPost(e) {
         submitApplication(body);
         return jsonOut({ ok: true });
       default:   // [ERR_CODE_GAS] 화면에 새 동작이 있는데 GAS 를 새로 배포하지 않았을 때 — 설정 · 배포(3) · 관리자 메일
-        return jsonOut({ ok: false, ecode: (typeof _errArea === 'function' ? _errArea(action) : 'X') + '3', _why: '알 수 없는 동작 ' + action.slice(0, 40) + ' · GAS 새 배포 확인', error: '지금은 처리할 수 없어요. 잠시 뒤 다시 눌러 주세요.' });
+        return jsonOut({ ok: false, ecode: (typeof _errArea === 'function' ? _errArea(action) : 'X') + '3', _why: '알 수 없는 동작 ' + action.slice(0, 40) + ' · GAS 새 배포 확인', error: '지금은 처리할 수 없어요 · 잠시 뒤 다시 눌러 주세요' });   // [UNKNOWN_ACT_DOT 2026-10-08] 한 줄 말투(가운데 마침표가 카드에서 두 줄을 만들었다)
     }
   } catch (err) {
     try { Logger.log('doPost 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}

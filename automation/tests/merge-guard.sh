@@ -15745,3 +15745,8 @@ chk 'ERR_RECHECK_NOCODE' cancel.html 1
 chk 'ERR_RECHECK_NOCODE' schedule.html 1
 nochk "say((n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요')+' (코드 B'+n+')')" cancel.html
 nochk "_sum((n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요')+' (코드 B'+n+')')" schedule.html
+chk 'ERR_ZERO_SCREEN' assets/err-codes.js 1
+chk 'ERR_G3_WIDE' assets/err-codes.js 1
+chk '복사가 안 됐어요 · 길게 눌러 복사해 주세요' i/cover-01.html 1
+nochk '계좌번호를 길게 눌러 복사해 주세요' schedule.html
+chk 'UNKNOWN_ACT_DOT' automation/consultation/consultation-booking.gs 1
