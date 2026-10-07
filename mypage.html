@@ -2426,7 +2426,14 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _vcAc=(typeof AbortController!=='undefined')?new AbortController():null, _vcT=_vcAc?setTimeout(function(){ try{ _vcAc.abort(); }catch(e){} },90000):null;
       fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({}, d.data, {action:'voiceClone', token:getToken()})),signal:_vcAc?_vcAc.signal:undefined})
         .then(function(r){ return r.json(); }).then(function(r){ if(_vcT) clearTimeout(_vcT); _vcBack(r||{ok:false}); })
-        .catch(function(e){ if(_vcT) clearTimeout(_vcT); var _to=!!(e&&e.name==='AbortError'), _bad=!_to&&!!(e&&e.name==='SyntaxError'); _vcBack({ok:false,down:true,timeout:!!(e&&e.name==='AbortError'),net:_to?0:(_bad?'bad':1),error:_to?'오래 걸려 멈췄어요 · 다시 눌러 주세요 (코드 V5)':_bad?'서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 V7)':'연결이 끊겼어요 · 다시 눌러 주세요 (코드 V6)'}); });   /* ★[VC_DOWN_KIND 2026-10-07] 셋을 가른다 — 기다리다 멈춤(V5) · 서버 답이 JSON 이 아님 = GAS 오류 쪽(V7) · 연결 끊김(V6). 종전엔 셋 다 «지금은 AI 목소리를 만들 수 없어요 …» 한 문장이라 서버 거절과도 구분이 안 됐다 */   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) · ★[VC_SLOW_AGAIN 2026-10-05] 90초 기다리다 멈춘 것은 timeout 표시 — 빌더가 8초 뒤 한 번 더 묻는다(서버는 그동안 만들어 저장한다) */
+        .catch(function(e){ if(_vcT) clearTimeout(_vcT); var _to=!!(e&&e.name==='AbortError'), _bad=!_to&&!!(e&&e.name==='SyntaxError');
+          var _fin=function(net){ _vcBack({ok:false,down:true,timeout:_to,net:_to?0:net,error:_to?'오래 걸려 멈췄어요 · 다시 눌러 주세요 (코드 V5)':net==='bad'?'서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 V7)':net==='srv'?'서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V8)':'연결이 끊겼어요 · 다시 눌러 주세요 (코드 V6)'}); };
+          if(_to||_bad){ _fin(_bad?'bad':0); return; }
+          /* ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?» (맞추기 창 «연결이 끊겼어요 (코드 V6)»)] 브라우저는 «인터넷이 끊김»과 «서버가 처리하다 죽어 오류 페이지(CORS 없음)를 줌»을 같은 오류로 준다.
+             끊긴 직후 가벼운 상태 확인(status) 한 번 — 서버가 답하면 연결은 멀쩡하고 그 요청만 서버에서 멈춘 것(V8 · GAS 실행 기록에 남는다) · 답이 없으면 진짜 연결 끊김(V6) */
+          var _pc=(typeof AbortController!=='undefined')?new AbortController():null, _pt=_pc?setTimeout(function(){ try{ _pc.abort(); }catch(x){} },12000):null;
+          fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'voiceClone',op:'status',token:getToken()}),signal:_pc?_pc.signal:undefined})
+            .then(function(r){ return r.json(); }).then(function(){ if(_pt) clearTimeout(_pt); _fin('srv'); }, function(){ if(_pt) clearTimeout(_pt); _fin(1); }); });   /* ★[VC_DOWN_KIND 2026-10-07] 셋을 가른다 — 기다리다 멈춤(V5) · 서버 답이 JSON 이 아님 = GAS 오류 쪽(V7) · 연결 끊김(V6). 종전엔 셋 다 «지금은 AI 목소리를 만들 수 없어요 …» 한 문장이라 서버 거절과도 구분이 안 됐다 */   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) · ★[VC_SLOW_AGAIN 2026-10-05] 90초 기다리다 멈춘 것은 timeout 표시 — 빌더가 8초 뒤 한 번 더 묻는다(서버는 그동안 만들어 저장한다) */
       return;
     }
     if((d.type==='momentedit:ritualFileGet'||d.type==='momentedit:ritualFileDel') && d.data && d.data.id){

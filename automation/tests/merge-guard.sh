@@ -14623,6 +14623,11 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V8)을 가른다 — 끊긴 직후 상태 확인 한 번
+chk 'VC_NET_SPLIT' mypage.html 1
+chk 'VC_NET_SPLIT' order-preview.html 1
+chk "if(d.net==='srv') return 8;" order-preview.html 1
+chk 'VC_NET_SPLIT' scripts/audit/vc-down-kind.mjs 2
 # ★[THANKS_DEURIM 2026-10-07 사장님 «결혼식에 와 주셔서 (진심으로) 감사합니다 보단 감사드립니다 · 목소리 녹음 후 예시 글도»] 하객 맞이 담백하게 첫 줄 · 맞추기 예시 글 · 첫인사 예시
 chk 'THANKS_DEURIM' order-preview.html 1
 chk '결혼식에 와 주셔서 감사드립니다. 자리 안내가 필요하시면, 입구에 도와드릴 분이 계세요' assets/ritual-data.js 1
