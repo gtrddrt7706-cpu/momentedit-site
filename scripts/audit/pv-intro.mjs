@@ -55,7 +55,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.waitForTimeout(300);
   const ch = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:pvVoice"]')].map((e) => e.textContent).join('|'));
   ok(W + ' AI 켜짐 — [AI 두 분 목소리 | 스튜디오 나레이션](R4-12)', ch === 'AI 두 분 목소리|스튜디오 나레이션', ch);
-  await pg.evaluate(() => { S.tipSeen = { keep: 1, nar: 1 }; });   /* [TIP_FLY 2026-10-07] 처음 누를 때 뜨는 안내는 tip-fly 검사가 본다 · 여기선 본 고객으로 */ await pg.click('[data-fk="lsc:pvVoice:ai"]'); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="lsc:pvVoice:ai"]'); await pg.waitForTimeout(400);
   const e0 = await pg.evaluate(() => ({ pv: S.pvVoice, vf: (S.vfill || {}).prevideo, ta: !!document.querySelector('[data-fk="mksl:pv:0"]'), ex: document.querySelectorAll('[data-fk^="mkex:pv:"]').length, ai: !!document.querySelector('[data-fk="mkai:pv"]'), note: S.pvText === PV_EX[0][1],   /* ★[PV_FILL 2026-10-06] 종전 «빈 글이면 한 줄 안내» → AI 를 고르면 예시 1 글이 들어 있다(빈 글 안내는 pv-fill.mjs 가 잰다) */ card: document.querySelectorAll('[data-fk="mkupplay:pv"],[data-fk^="mkslw:pv:"][aria-checked="true"]').length }));
   ok(W + ' AI 고름 — 글칸 · 예시 넷 · 글은 예시 1 [PV_FILL] · 읽는 분 [신랑] 한 줄(LINE_SPLIT · 눌러 바꾼다)', e0.pv === 'couple' && e0.vf === 'ai' && e0.ta && e0.ex === 4 && e0.note && e0.card === 1, JSON.stringify(e0));
   await pg.click('[data-fk="mkex:pv:0"]'); await pg.waitForTimeout(300);
