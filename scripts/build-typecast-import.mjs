@@ -371,7 +371,7 @@ const clips = parse(SRC);
 /* [GUEST_EX_NAR 2026-10-06 사장님 녹음(진희)] 109 → 121 — 하객 맞이 나레이션 예시 2~4 × 네 시점(115~126 guest-ex2-1-arrival … guest-ex4-4-1min · N22-a~l) */
 /* [VOW_FIRST 2026-10-06 사장님 «신랑 신부 먼저 할 사람 순서»] 121 → 122 — 혼인 서약 여는 말 · 신부부터(127 narr-vow-in-b · G3-3b). 녹음 전엔 13번 앞 두 문장을 잘라 쓴다 */
 /* [PV_EX_NAR 2026-10-07 사장님 녹음(진희)] 122 → 125 — 식전 영상 소개 나레이션 예시 2~4(128~130 · N23-a~c) */
-const CLIP_COUNT = 125;
+const CLIP_COUNT = 126;   // [TABLE_GREET_1008 2026-10-08] +1 — 131 narr-table-in(테이블 인사 여는 말 · N24) · 옛 125
 if (clips.length !== CLIP_COUNT) {
   console.error(`✗ 클립 수 불일치: ${clips.length} (기대 ${CLIP_COUNT})`);
   console.error(`  대본을 늘렸거나 줄였다면 scripts/build-typecast-import.mjs 의 CLIP_COUNT 를`);

@@ -2542,7 +2542,8 @@ var COURSES={
    "free",
    "letter",
    "cake",
-   "toast"
+   "toast",
+   "table"
   ],
   "opt": [],
   "one": "필요한 순간만 담으면 예식 순서대로 제자리에 들어가요",
@@ -4216,7 +4217,7 @@ function _lQuiet(k,c){
   if(k==='toast'&&sl==='toast-pour-family') return '양가 와인을 한 잔에 모아요';   // [POUR_BY_PICK 코워크 회신7 #872-1] 판 이름과 같은 말 — «양가 와인 한 병씩»을 골랐는데 «두 와인…»이면 «안 먹혔나?»로 읽힌다
   if(k==='toast'&&/^toast-pour-/.test(sl)) return '두 분이 고른 와인을 한 잔에 부어요';
   if(k==='_close'&&sl==='narr-close-bow') return '두 분이 하객께 목례 · 박수';
-  if(k==='table'&&sl==='narr-table-in') return '두 분이 테이블을 돌며 하객 한 분 한 분께 인사해요';   /* [TABLE_GREET_1008] 사람 줄 */
+  if(k==='table'&&sl==='narr-table-in') return '두 분이 테이블을 돌며 하객과 인사를 나눠요';   /* [TABLE_GREET_1008] 사람 줄 */
   return '';
 }
 
@@ -7539,7 +7540,7 @@ var PV_DESC={
   cake:'두 분이 나이프를 함께 잡고 케이크를 잘라요. 맞잡은 두 손을 가까이 담아요.',
   toast:'두 분이 먼저 «위하여»를 외치면 하객이 잔을 들고 함께 답해요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',
   _close:'두 분이 인사를 드리고 본식을 마쳐요. 이어서 하객 모두와 한 장, 그다음 가족 · 친구와 사진을 남겨요.',
-  table:'본식을 마친 두 분이 함께 테이블을 돌며 하객 한 분 한 분께 인사해요. 테이블로 다가가는 두 분과 자리에서 맞는 얼굴들을 담아요.'   /* [TABLE_GREET_1008] */
+  table:'본식을 마친 두 분이 함께 테이블을 돌며 하객과 인사를 나눠요. 테이블로 다가가는 두 분과 자리에서 맞는 얼굴들을 담아요.'   /* [TABLE_GREET_1008] */
 };   /* free(준비한 순서)는 고른 칩마다 남는 사진이 달라 원문 설명만 둔다 — 받는 것 · 받지 않는 것 안내가 길어 사진 말을 더하지 않는다 */
 function _pvDraw(){
   var R=RitualOpen, k=PV.k, c=R.CARDS[k], el=_pvEl(); if(!c) return;
