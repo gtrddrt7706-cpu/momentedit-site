@@ -14575,6 +14575,11 @@ chk 'function _exLate(key)' order-preview.html 1
 # ★★[VS_INFO 2026-10-07 사장님 «나레이션 자세히가 설명과 거리가 있다» → «추천대로»] 링크는 설명 창(두 갈래 · 들어 보기) · 한 번에 정하기는 안쪽 길로만
 chk 'VS_INFO' order-preview.html 4
 chk 'window.mkVsInfo=function(mom)' order-preview.html 1
+# ★★[TIP_FLY 2026-10-07 사장님 «팝업 닫으면 확정 안내 보기 쪽으로 쏙 들어가는 모션 · 나레이션 자세히도 같이» → «추천대로»] 안내 목소리 칩을 처음 누를 때 한 번 · 창이 링크로 접혀 들어가고 링크가 빛난다
+chk 'TIP_FLY' order-preview.html 6
+chk 'function _tipFly(sel,done)' order-preview.html 1
+chk 'TIP_FLY' scripts/audit/tip-fly.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tip-fly.mjs >/dev/null 2>&1; _tfy=$?; if [ "$_tfy" = 1 ]; then echo 'FAIL tip-fly: 처음 누를 때 안내 · 링크로 접혀 들어가기가 어긋났습니다 — node scripts/audit/tip-fly.mjs'; fail=1; else echo "ok tip-fly ($_tfy)"; fi; fi
 nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
 chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html

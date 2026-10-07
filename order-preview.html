@@ -1602,6 +1602,9 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-dlg-kv{list-style:none;margin:12px 0 14px;padding:12px 16px;background:var(--bg2);border-radius:8px;display:flex;flex-direction:column;gap:10px}
 .mk-dlg-kv li{font-size:12.5px;line-height:1.7;color:var(--sub);word-break:keep-all}
 .mk-dlg-kv b{display:block;font-size:12.5px;font-weight:600;color:var(--accent)}
+@keyframes tipGlow{0%{background-color:rgba(184,154,117,.32)}100%{background-color:rgba(184,154,117,0)}}   /* [TIP_FLY] 링크 자리를 알려 주는 은은한 금빛 한 번 */
+.tip-glow{animation:tipGlow 1.3s ease-out 1;border-radius:4px}
+@media (prefers-reduced-motion:reduce){ .tip-glow{animation-duration:.01s;background-color:rgba(184,154,117,.2)} }
 .mk-vsi{display:grid;grid-template-columns:1fr;gap:10px;margin:2px 0 12px}   /* [VS_INFO] 두 갈래를 위아래로 — 창 폭(520)에 나란히 두면 글이 잘게 꺾였다(1280 실렌더) */
 .mk-vsi-c{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px 16px 12px}
 .mk-vsi-c h4{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--accent)}
@@ -4923,7 +4926,7 @@ window.mkVsPh=function(p){ VS.ph=p==='ai'?'ai':p==='info'?'info':'pick'; render(
 window.mkVsPick=function(v){ VS.inPick=true; VS.hint=''; try{ VS_KEYS.forEach(function(k){ _lSet(k,v==='ai'?'ai':'nar'); }); } finally{ VS.inPick=false; } _persist();
   if(v==='ai'){ VS.ph='ai'; var fill=function(){ ['groom','bride'].forEach(function(w){ if(VC.st&&(VC.st[w]||{}).ready) _vcAutoFill(w,false); }); }; if(VC.st) fill(); else _vcStatus(fill); render(); return; }   // 이미 만든 목소리가 있으면 빈 줄을 바로 채운다
   VS.open=false; MK.toast=_vsWhere()+_josa(_vsWhere(),'을','를')+' 스튜디오 나레이션으로 정했어요';   /* [R6-06] 창 문장(_vsWhere · R5-03)과 같은 함수 — 식전 영상을 뺀 식순에도 그 자리를 말했다 */ render(); };
-window.mkVsClose=function(){ VS.open=false; VS.hint=''; render(); };
+window.mkVsClose=function(){ if(VS.tip&&VS.ph==='info'){ VS.tip=false; _tipSeen('nar'); _tipFly('[data-fk="mkvsopen"]',function(){ VS.open=false; VS.hint=''; render(); }); return; } VS.tip=false; VS.open=false; VS.hint=''; render(); };   // [TIP_FLY]
 window.mkVsVoicePg=function(){ VS.open=false; VS.hint=''; render(); mkGo('_voice'); };   /* 이미 그 쪽이면 mkGo 는 아무것도 안 한다 — 창은 먼저 닫는다 */   // [VS_READY_SHORT] 빠르기 · 다시 녹음은 그 쪽에서
 /* [VOICE_SETUP] 비교해 듣기 — 같은 자리를 스튜디오 나레이션으로(엔진에서 세 자리를 나레이션으로 돌린 판의 그 큐 파일) */
 function _narSrc(key){ if(!ENG||!ENG.RitualCue) return null; var s2=JSON.parse(JSON.stringify(S)); s2.guestVoice='nar'; s2.entryVoice='nar'; s2.pvVoice='nar'; var r; try{ r=ENG.RitualCue.build(s2,{mode:'preview'}); }catch(e){ return null; }
@@ -4966,10 +4969,10 @@ document.addEventListener('keydown',function(e){ var d=document.getElementById('
     if(e.shiftKey&&i<=0){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&(i===f.length-1||i<0)){ e.preventDefault(); f[0].focus(); } } });
 window.mkDlgClose=function(){ var R=VC.read, r=MK_REC;
   if(MK.redo){ MK.redo=false; render(); return; }   // [REDO_FIG]
-  if(MK.keepDlg){ MK.keepDlg=null; render(); return; }   // [KEEP_DLG]
+  if(MK.keepDlg){ var _kk=MK.keepDlg; if(MK.keepTip){ MK.keepTip=false; _tipSeen('keep'); _tipFly('[data-fk="mkkeept:'+_kk+'"]',function(){ MK.keepDlg=null; render(); }); return; } MK.keepDlg=null; render(); return; }   // [KEEP_DLG] · [TIP_FLY]
   if(MK.use!=null){ MK.use=null; _stopMk(); render(); return; }   // [VUSE_FLOW]
   var lose=(R&&R.ph!=='done'&&R.ph!=='busy'&&R.ph!=='tune'&&(R.take[1]||R.take[2]))   /* [SIM_R1] 목소리를 만든 뒤(맞추기)엔 잃을 것이 없다 */||(r&&r.ph==='review'&&!/^vc:/.test(r.key));
-  if(!R&&!r&&!VC.panel&&VS.open){ VS.open=false; VS.hint=''; render(); return; }   // [VOICE_SETUP] 이 창만 떠 있으면 닫는다(읽기 · 동의 중이면 그것만 닫고 이 창으로)
+  if(!R&&!r&&!VC.panel&&VS.open){ mkVsClose(); return; }   // [TIP_FLY] 설명 창도 같은 길   // [VOICE_SETUP] 이 창만 떠 있으면 닫는다(읽기 · 동의 중이면 그것만 닫고 이 창으로)
   if(!lose){ _dlgShut(); return; }
   ordAsk({title:R?'읽기를 그만둘까요?':'이 녹음을 쓰지 않고 닫을까요?',body:R?'읽은 녹음은 지워져요. 다음에 처음부터 읽어요':'녹음은 지워지고 이 줄은 그대로예요',yes:'그만두기',no:R?'계속 읽기':'돌아가기',danger:true}).then(function(ok){ if(ok) _dlgShut(); }); };
 function _dlgShut(){ _micDrop(); if(VC.tune){ VC.tune=null; _stopMk(); }   // [MIC_KEEP] · [VOICE_TUNE]
@@ -5277,7 +5280,21 @@ function _keepBody(k){
     +'</ul></div>'
     +'<p class="mk-note mk-rd-sum"><span>확정한 줄은 다시 녹음해도 그대로예요.</span><span>풀려면 확정됨을 한 번 더 누르면 돼요.</span></p>'
     +'<button type="button" class="mk-dlg-go" data-fk="mkkeepok" onclick="mkDlgClose()">알겠어요</button>'; }
-window.mkKeepOpen=function(k){ MK.keepDlg=k; render(); };   // [KEEP_DLG]
+window.mkKeepOpen=function(k){ MK.keepDlg=k; MK.keepTip=false; render(); };   // [KEEP_DLG]
+/* ★★[TIP_FLY 2026-10-07 사장님 «AI 두 분 목소리 누르면 팝업 · 닫기 누르면 확정 안내 보기 쪽으로 쏙 들어가는 모션 · 저쪽을 누르면 다시 볼 수 있다는 인지» · «나레이션 자세히도 같이» → «추천대로»]
+   안내 목소리 칩을 처음 누를 때 한 번 — AI 두 분 목소리 → 확정 안내 창 · 스튜디오 나레이션 → «무엇이 다른가요» 창(둘이 겹치지 않게 누른 쪽 하나만).
+   «알겠어요 · 확인 · ✕»를 누르면 창이 그 링크(«확정 안내 보기» · «나레이션 자세히») 자리로 작아지며 들어가고(0.45초 · 튀지 않는 감속) 링크가 한 번 은은하게 빛난다 — 다시 보는 곳을 알려 준다.
+   움직임 줄이기면 창만 닫고 빛만. 본 것은 S.tipSeen 이 기억한다(다시 뜨지 않는다). ★10-04 걷은 «칩 누르면 뜨는 고르기 창»(VS_CHIP_OFF)을 되살린 것이 아니다 — 설명 한 번 · 고르기 없음 */
+function _tipFly(sel,done){ var d=document.getElementById('mkRecDlg'), card=d&&d.querySelector('.mk-dlg-c'), link=document.querySelector(sel), rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var glow=function(){ var l=document.querySelector(sel); if(!l) return; l.classList.remove('tip-glow'); void l.offsetWidth; l.classList.add('tip-glow'); setTimeout(function(){ l.classList.remove('tip-glow'); },1400); };
+  var fin=function(){ done(); requestAnimationFrame(glow); };
+  if(!card||!link||rm||!card.animate){ fin(); return; }
+  var b=link.getBoundingClientRect(); if(b.top<0||b.bottom>innerHeight){ try{ link.scrollIntoView({block:'center'}); }catch(e){} b=link.getBoundingClientRect(); }
+  var a=card.getBoundingClientRect(), dx=(b.left+b.width/2)-(a.left+a.width/2), dy=(b.top+b.height/2)-(a.top+a.height/2), sc=Math.max(0.04,b.width/a.width);
+  try{ d.animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-in',fill:'forwards'}).onfinish=null; card.style.transformOrigin='50% 50%';
+    var an=card.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:'translate('+dx+'px,'+dy+'px) scale('+sc+')',opacity:0.2}],{duration:450,easing:'cubic-bezier(.55,0,.25,1)',fill:'forwards'});
+    an.onfinish=fin; }catch(e){ fin(); } }
+function _tipSeen(kind){ S.tipSeen=S.tipSeen||{}; S.tipSeen[kind]=1; _persist(); }
 function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   var g=(st&&st.groom)||{}, b=(st&&st.bride)||{}, both=!!(g.ready&&b.ready);
   var h='<section class="mk-pg mk-vpage" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">두 분 목소리 만들기</h3></div>'
@@ -5490,15 +5507,15 @@ function _keepBtn(key,lab){ var on=!!(S.vkeep||{})[key];
   return '<button type="button" class="pk-link mk-keep'+(on?' on':'')+'" data-fk="mkkeep:'+key+'" aria-pressed="'+on+'" aria-label="'+esc(lab+(on?' · 확정됨 · 누르면 풀어요':' · 이 소리로 확정하기'))+'" onclick="mkKeep(\''+key+'\')">'+(on?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>확정됨':'확정하기')+'</button>'; }
 var KEEP_ROW={};   /* [KEEP_IN_ROW] 이번 그리기에서 칩 줄에 접힌 단추를 그린 순간 */
 function _keepShutBtn(k){ var ups=_mkItems(k).filter(function(q){ return q.up; }), made=ups.filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; });
-  if(_vpCur(k)!=='ai'||!made.length||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
-  var first=_vsMk().filter(function(x){ return _vpCur(x)==='ai'; })[0]===k, T=MK.keepT||{}, open=(k in T)?T[k]:first; if(open) return '';
+  if(_vpCur(k)!=='ai'||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';   /* [TIP_FLY] AI 를 고르면 늘 — 처음 창이 들어갈 자리 · 만든 줄이 없어도 */
   KEEP_ROW[k]=1; return '<button type="button" class="pk-link mk-keept cg-kt" data-fk="mkkeept:'+k+'" aria-haspopup="dialog" onclick="mkKeepOpen(\''+k+'\')">확정 안내 보기</button>'; }   /* [KEEP_DLG] 펼치지 않고 작은 창 */   /* [KEEP_IN_ROW] _keepNote 와 같은 조건 */
-function _keepNote(ups,k){ var made=(ups||[]).filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; }); if(!made.length||made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
+function _keepNote(ups,k){ var made=(ups||[]).filter(function(q){ var v=(S.up||{})[q.up]; return v&&typeof v==='object'&&v.src==='ai'; }); if(made.some(function(q){ return (S.vkeep||{})[q.up]; })) return '';
   /* ★★[KEEP_GUIDE 2026-10-05 사장님 «확정함 누르면 음성을 다시 녹음해도 고정이라고 · 보기 좋게 그 부분을 보여 주면서 설명 · 고객 입장에서 쉽게»] 실제 단추 모양 둘(확정하기 → ✓ 확정됨)을 보여 주며 설명
      ★★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 시작 · 처음 하객 맞이 부분만 펼쳐 있고 그 이후는 접힌 상태» → «추천대로»]
      ①목소리 → ②예시 글 → ③확정(단추 모양은 이 줄 안으로) → ④다시 녹음해도 그대로 · 풀기(옛 넷째 줄을 합쳤다) — 하는 차례 그대로 네 줄.
      펼침은 AI 를 쓰는 첫 순간(예식 차례 VS_MK · 보통 하객 맞이)만 · 그다음 순간은 «확정 안내 보기» 한 줄로 접는다(같은 설명을 세 번 읽지 않게). 눌러 연 것은 MK.keepT 가 기억한다 */
-  var first=_vsMk().filter(function(x){ return _vpCur(x)==='ai'; })[0]===k, T=MK.keepT||{}, open=(k in T)?T[k]:first;
+  /* ★[TIP_FLY 2026-10-07] 첫 AI 순간에 펼쳐 두던 네 줄 금지 — 처음 한 번 창으로 보여 주고 «확정 안내 보기»로 접혀 들어간다(같은 설명을 두 곳에 두지 않는다) */
+  var first=false, T=MK.keepT||{}, open=false; void T;
   var kp=function(on){ return '<span class="mk-kp'+(on?' on':'')+'">'+(on?ICO_CHECK:'')+(on?'확정됨':'확정하기')+'</span>'; };
   var tg='<button type="button" class="pk-link mk-keept" data-fk="mkkeept:'+k+'" aria-expanded="'+open+'" onclick="mkKeepT(\''+k+'\')">'+(open?'확정 안내 접기':'확정 안내 보기')+'</button>';
   if(!open) return KEEP_ROW[k]?'':'<div class="mk-keepg shut" role="note"><button type="button" class="pk-link mk-keept" data-fk="mkkeept:'+k+'" aria-haspopup="dialog" onclick="mkKeepOpen(\''+k+'\')">확정 안내 보기</button></div>';   /* [KEEP_DLG] 칩 줄이 없는 판도 창으로 */   /* ★[KEEP_IN_ROW 2026-10-06 사장님 «확정 안내 보기도 나레이션 자세히 좌측으로»] 칩 줄에 그렸으면 여기선 안 그린다(두 가로선 사이 한 줄이 따로 떠 있었다) · 칩 줄이 없는 판은 종전대로 */
@@ -6335,6 +6352,8 @@ window.lsChip=function(key,v){
   var k=(LP.big&&LP.q.length&&LP.cur)?LP.cur:(LS.open||(LP.q.length?LP.cur:null)), g0=null;   // [FLOW_MAKE] 크게 보기의 칩은 지금 흐르는 순간 것 — ② 는 LS.open 이 늘 보고 있는 쪽이라 그쪽을 먼저 보면 남의 칩으로 읽는다
   if(k) _lGroups(k).forEach(function(g){ if(g.key===key) g0=g; });
   if(g0&&g0.cur===v&&g0.picked!==false) return;   // [CHIP_NO_REPLAY] 이미 고른 칩 · [CHIP_UNPICKED] 안 고른 기본은 눌러서 고른다(★«눌러서 그 소리를 듣기»(var first) 금지 — 2026-10-03 사용자 지시로 삭제 [CHIP_NO_AUTOPLAY])
+  if((key==='guestVoice'||key==='entryVoice'||key==='pvVoice')&&_vsOk()&&!LP.big){ var _tk=v==='ai'?'keep':'nar', _tm=key==='guestVoice'?'guest':key==='pvVoice'?'prevideo':'entry';   /* [TIP_FLY] 고객이 칩을 처음 누를 때 한 번(코드가 값을 바꿀 때는 아니다) · 누른 쪽 안내 하나만 */
+    if(!(S.tipSeen||{})[_tk]){ if(_tk==='keep'){ MK.keepDlg=_tm; MK.keepTip=true; } else { VS.open=true; VS.ph='info'; VS.mom=_tm; VS.hint=''; VS.tip=true; } } }
   var hold=_lHold(k);   /* [CHIP_NO_AUTOPLAY] 다시 그리기 전에 잰다 — ③ 연습에서는 render() 가 흐르던 줄을 비운다(2736 · ② 를 떠나면 멈춤) */
   _lSet(key,v); buildSteps(); LS.msg=''; LS.undo=null;
   render();
@@ -8863,7 +8882,7 @@ function _persist(){ try{ localStorage.setItem('me_order', JSON.stringify({v:2,S
      ★_seenK 를 비교값에 되넣지 말 것 — 이 제보가 재현된다. */
 var _autoT=null, _autoState='', _autoDirty=false, _autoWait=false, _autoGT=null, _autoLast='';
 var _saveAfterAuto=false;   // [ORD_SAVE_AFTER_AUTO] 완성 저장이 자동 저장의 답을 기다리는 중
-function _autoKey(){ try{ var o={}; for(var k in S) o[k]=S[k]; delete o.vsAsked; delete o.vsChip;   /* [R2-14] 목소리 창을 «봤다»는 표시도 걸음이다 */
+function _autoKey(){ try{ var o={}; for(var k in S) o[k]=S[k]; delete o.vsAsked; delete o.vsChip; delete o.tipSeen;   /* [TIP_FLY] 안내를 «봤다»는 표시는 저장할 변경이 아니다 */   /* [R2-14] 목소리 창을 «봤다»는 표시도 걸음이다 */
   if(S.mk){ o.mk={}; for(var j in S.mk) if(j!=='at'&&j!=='seen') o.mk[j]=S.mk[j]; ['drop','dropMin'].forEach(function(x){ if(o.mk[x]&&!Object.keys(o.mk[x]).length) delete o.mk[x]; }); if(!Object.keys(o.mk).length) delete o.mk; }   /* [R2-14] ② 에 들어가기만 해도 생기는 빈 drop{} · dropMin{} 은 바뀐 값이 아니다 */
   return JSON.stringify(o); }catch(e){ return ''; } }   /* [MK_RO] ② 에서 보고 있는 쪽(mk.at) · 본 쪽(mk.seen)도 걸음이다 — 저장 표시를 켜지 않는다(SEEN_NOT_DIRTY 와 같은 까닭) */   // [SEEN_NOT_DIRTY] 고객이 고른 것(S)만 — 걸음(_seenK)은 위 근거로 뺐다
 /* ★★[ORD_SAVE_BTN 2026-08-13 사용자 지시 "지금은 자동저장이잖아 그렇게하지말고 저장 버튼을 따로 만들자"]
