@@ -207,7 +207,8 @@ ok(upl({ token: 't1', zone: 'candle', data: img, thumb: th }).ok === false && sb
 
 // 14) [SNAP_V2_FROM] 처리방침 시행일 전에는 새 기획이 닫혀 있다 — 참고 사진 수집·작가 위탁이 공고한 날보다 먼저 시작되지 않게
 const PRIV = fs.readFileSync(new URL('../../privacy.html', import.meta.url), 'utf8'), PVD = (PRIV.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/) || []).slice(1).join('-');
-ok(!!PVD && FROM === PVD, '14a 여는 날(SNAP_V2.from) = 처리방침 «개정 시행일자» [SNAP_OPEN_NOW]', { FROM, PVD });
+const FROM_KO = FROM.replace(/^(\d{4})-0?(\d+)-0?(\d+)$/, '$1년 $2월 $3일');   /* [VOICE_OPEN_1008 2026-10-08] 처리방침은 그 뒤로도 개정된다(10/8 두 분 목소리) — 맨 위 개정일은 «그 날 이후»면 되고, 스냅 시행일은 시행 이력에 남아 있어야 한다 */
+ok(!!PVD && PVD >= FROM && PRIV.indexOf(FROM_KO) > -1, '14a 여는 날(SNAP_V2.from) ≤ 처리방침 맨 위 «개정 시행일자» · 시행 이력에 그 날짜 [SNAP_OPEN_NOW]', { FROM, PVD, FROM_KO });
 fresh(40);
 save({ v: 2, zones: { candle: { picks: ['c05'] } } }, true);                     // 시행일이 지난 세상에서 하나 저장해 둔다
 const pre = sb.adminSnapBrief('C1'); ok(!!(pre && pre.ok && pre.url), '14b 시행일이 지났으면 브리프를 만든다', pre);
