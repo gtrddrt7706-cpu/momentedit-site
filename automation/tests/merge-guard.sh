@@ -14579,10 +14579,14 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
-# ★[TIP_FLY_OFF 2026-10-07 사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»] 처음 누를 때 안내 창 · 링크로 접혀 들어가는 모션 · 빛남 — 되살리지 말 것
+# ★★[TIP_ONCE 2026-10-07 사장님 «모션그래픽 부분만 없애고 팝업은 AI 두 분 목소리 누르면 나오게»] AI 두 분 목소리 처음 누를 때 한 번 확정 안내 창 · 그냥 닫힘 · 첫 순간 네 줄 펼침 없음
+chk 'TIP_ONCE' order-preview.html 6
+chk 'TIP_ONCE' scripts/audit/tip-once.mjs 1
+# ★[TIP_FLY_OFF 2026-10-07 사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»] 링크로 접혀 들어가는 움직임 · 빛남 — 되살리지 말 것
 chk 'TIP_FLY_OFF' order-preview.html 1
 nochk 'function _tipFly(' order-preview.html
 nochk '@keyframes tipGlow' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/tip-once.mjs >/dev/null 2>&1; _tfy=$?; if [ "$_tfy" = 1 ]; then echo 'FAIL tip-once: AI 두 분 목소리 처음 누를 때 안내 창이 어긋났습니다 — node scripts/audit/tip-once.mjs'; fail=1; else echo "ok tip-once ($_tfy)"; fi; fi
 nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
 chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
