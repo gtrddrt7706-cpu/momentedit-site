@@ -13934,7 +13934,7 @@ nochk '두 분 녹음(파일 수령 필요)' automation/admin/Admin.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-flow-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-flow: AI 목소리 순서 · 한도 · 지우기 판정이 어긋났습니다 — node scripts/audit/vc-flow-sim.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
 chk 'VOICE_CLONE_0928' automation/platform/80_production.gs 6
-chk 'if (prev) _vcDelVoice(cfg, st, prev);' automation/platform/80_production.gs 1
+chk '\[prev, now\]\.forEach(function (v, i, a) { if (v && v !== nv && a.indexOf(v) === i) _vcDelVoice(c.cfg, st, v); });' automation/platform/80_production.gs 1   # 새 목소리가 된 뒤에 앞 목소리 지우기 — [VC_ENROLL_PREV 2026-10-08] 저장 시점의 앞 목소리까지(종전 줄 'if (prev) _vcDelVoice(cfg, st, prev);' · 같은 결정을 넓혔다 · vc-flow-sim 이 순서를 잰다)
 chk "if (op === 'phrase')" automation/platform/80_production.gs 1
 chk 'function purgeVoiceClones(dry)' automation/platform/80_production.gs 1
 chk 'purgeVoiceClones' automation/platform/96_ai_cost.gs 1
