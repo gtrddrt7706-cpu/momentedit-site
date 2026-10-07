@@ -12867,7 +12867,7 @@ nochk 'var _sd=new Date(), _sd' mypage.html
 chk 'CHG_HINT_RETRY' mypage.html 5
 chk "CHG_HINT_RETRY='고르신 시간을 한 번 더 누르시면 수수료를 알려드려요.'" mypage.html 1
 chk "if(!(r&&r.error)) _hintRetry(); return; }" mypage.html 1
-chk "_err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); _hintRetry(); });" mypage.html 1
+chk "_err(_quoteErr(e)); _hintRetry(); });" mypage.html 1   # [ERR_CODE_MYPAGE 2026-10-07] 통신 실패 글을 원인 한 줄 + 코드(C5 · C6 · C7)로 — 종전 «수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.»(의도한 변경)
 # [CI_EDIT_BACK] 2026-09-26 통합 점검 L7 — 계약서 요청 뒤 «입력 정보 수정»에 «돌아가기»(요청 완료 카드로 · 바꾼 칸이 있으면 한 번 묻는다)
 chk 'CI_EDIT_BACK' mypage.html 2
 chk 'id="mp_ciBack">돌아가기</button>' mypage.html 1
@@ -14631,10 +14631,16 @@ chk 'VC_NET_SEC' order-preview.html 1
 chk 'VC_NET_SEC' mypage.html 1
 chk 'VC_NET_AGAIN' scripts/audit/vc-net-again.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-net-again.mjs >/dev/null 2>&1; _vna=$?; if [ "$_vna" = 1 ]; then echo 'FAIL vc-net-again: 목소리 만들기 끊김 다시 묻기가 어긋났습니다 — node scripts/audit/vc-net-again.mjs'; fail=1; else echo "ok vc-net-again ($_vna)"; fi; fi
-# ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V8)을 가른다 — 끊긴 직후 상태 확인 한 번
+# ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V9 · ★[ERR_CODES] 종전 V8 — 8 은 사이트 전체에서 로그인 풀림)을 가른다 — 끊긴 직후 상태 확인 한 번
 chk 'VC_NET_SPLIT' mypage.html 1
 chk 'VC_NET_SPLIT' order-preview.html 1
-chk "if(d.net==='srv') return 8;" order-preview.html 1
+chk "if(d.net==='srv') return 9;" order-preview.html 1
+nochk "if(d.net==='srv') return 8;" order-preview.html
+nochk "서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V8)" mypage.html
+# ★[ERR_ONE_MEANING 2026-10-07 사장님 «오류 코드로 관리자가 어떤 문제인지 알 수 있게»] 숫자 하나는 어디서나 한 뜻 — 8 = 로그인 풀림(서버 도장 · 코드 표 · _ecLine). 목소리 서버 멈춤은 V9
+chk 'ERR_ONE_MEANING' CLAUDE.md 1
+chk "'로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요','서버에서 멈췄어요 · 다시 눌러 주세요'];" order-preview.html 1
+chk "(n===6||n===9)&&sec" order-preview.html 1
 chk 'VC_NET_SPLIT' scripts/audit/vc-down-kind.mjs 2
 # ★[THANKS_DEURIM 2026-10-07 사장님 «결혼식에 와 주셔서 (진심으로) 감사합니다 보단 감사드립니다 · 목소리 녹음 후 예시 글도»] 하객 맞이 담백하게 첫 줄 · 맞추기 예시 글 · 첫인사 예시
 chk 'THANKS_DEURIM' order-preview.html 1
@@ -15260,3 +15266,146 @@ chk 'ERR_CODE_PAY' automation/platform/98_pay_card.gs 6
 chk "} catch (eRec) { rec = { ok: false, error: '기록 함수 예외 · '" automation/platform/98_pay_card.gs 1
 chk 'ERR_CODE_PAY' scripts/audit/card-err.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/card-err.mjs >/dev/null 2>&1; _cer=$?; if [ "$_cer" = 1 ]; then echo 'FAIL card-err: 카드결제 실패 길(토스 거절 코드 · 빈 복귀 기록 · 승인 뒤 기록 실패 B-1)이 어긋났습니다 — node scripts/audit/card-err.mjs'; fail=1; else echo "ok card-err ($_cer)"; fi; fi   # ★[GUARD_TAIL_RC] 끝 줄은 if 꼴로 — «[ … ] && { … }»면 통과해도 종료 코드 1 이 남는다(#1110 실측 · ALL MARKERS OK 인데 CI 빨강)
+# ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+#   고객 · 하객 · 직원 화면의 실패 한 줄 끝에 «(코드 X#)» — 예약 · 문의 · 취소(B) · 결제(P) · AI 상담(A) · 하객 화면(G) · 당일 콘솔(L · M). 서버 쪽은 ERR_CODE_GAS(#1108).
+#   여섯 쪽(cancel · schedule · inquiry · seat · guide · live)이 같은 네 함수(_ecN · _ecOff · _ecNet · _ecSrv)를 쓴다 — err-pages.mjs 가 몸통이 같은지 잰다.
+#   «결과 모름»(5 · 7)인 쓰기는 다시 물어 결과를 말한다(취소 · 카드 승인 확인 · 신청서) · 디렉터 전달은 답을 받은 뒤에만 «전달했어요».
+#   err-pages.mjs 돌연변이 확인: 취소 다시 묻기(recheck) · 위젯 전달 확인(r.ok)을 되돌리면 FAIL. 되돌리지 말 것
+chk 'ERR_CODE_PAGES' cancel.html 10
+chk 'ERR_CODE_PAGES' schedule.html 18
+chk 'ERR_CODE_PAGES' inquiry.html 5
+chk 'ERR_CODE_PAGES' seat.html 8
+chk 'ERR_CODE_PAGES' guide.html 15
+chk 'ERR_CODE_PAGES' live.html 12
+chk 'ERR_CODE_PAGES' console.html 5
+chk 'ERR_CODE_PAGES' index.html 5
+chk 'ERR_CODE_PAGES' shared/hydrate.js 5
+chk 'ERR_CODE_PAGES' assets/advisor-widget.js 7
+chk 'ERR_CODE_PAGES' api/advisor.js 5
+chk 'ERR_CODE_PAGES' api/handoff.js 3
+chk 'ERR_CODE_PAGES' api/schedule-advisor.js 4
+chk 'ERR_CODE_PAGES' api/_qlog.js 1
+chk 'ERR_CODE_PAGES' scripts/audit/err-pages.mjs 1
+#   자리마다 이름을 지은 결정 — 취소 다시 묻기 · 결제 실패 까닭 · 승인 다시 묻기 · 신청서 다시 보내기 · 사진 까닭 · 좌석 칸 까닭 · 라이브 기다림 · 라이브 실패 가르기 · 청첩장 기다림 · 디렉터 전달 확인 · 인계 원문 · 점유 모름
+chk 'CANCEL_RECHECK' cancel.html 1
+chk 'PAY_FAIL_KIND' schedule.html 1
+chk 'PAY_CONFIRM_AGAIN' schedule.html 1
+chk 'INQ_SEND_AGAIN' inquiry.html 1
+chk 'GP_WHY' guide.html 1
+chk 'SEAT_MAP_WHY' guide.html 1
+chk 'LIVE_WAIT_NOT_DUMMY' live.html 1
+chk 'LIVE_LOAD_KIND' live.html 1
+chk 'HY_WAIT' shared/hydrate.js 2
+chk 'HANDOFF_TRUTH' assets/advisor-widget.js 2
+chk 'HANDOFF_RAW' api/handoff.js 2
+chk 'AVAIL_UNSET' api/schedule-advisor.js 1
+chk 'function _ecSrv(d,L,fb)' cancel.html 1
+chk 'function _ecSrv(d,L,fb)' schedule.html 1
+chk 'function _ecSrv(d,L,fb)' inquiry.html 1
+chk 'function _ecSrv(d,L,fb)' seat.html 1
+chk 'function _ecSrv(d,L,fb)' guide.html 1
+chk 'function _ecSrv(d,L,fb)' live.html 1
+chk 'recheck(n, 3)' cancel.html 1
+chk "api({action:'emailCancel', token:TOKEN, sig:SIG, acct:acct}, 45000)" cancel.html 1
+chk '.btn .bdot{background:currentColor}' cancel.html 1
+chk 'function _aiCode(st,j,e)' schedule.html 1
+chk 'function fail(msg, retry)' schedule.html 1
+chk 'function send(again)' inquiry.html 1
+chk 'function resetBtn(msg, sys)' inquiry.html 1
+chk 'function seatFailHtml(sm)' seat.html 1
+chk 'function seatMapSay(t, sm, again)' guide.html 1
+chk 'function _gpG3(v)' guide.html 1
+chk 'function liveWaitWord(n, eid)' live.html 1
+chk "setNotLoaded(true); sayNotLoaded('wait');" live.html 1
+chk 'function sayNotLoaded(n, eid)' live.html 1
+chk 'function letterWord(d)' live.html 1
+chk 'function hyWhy(e, d)' shared/hydrate.js 1
+chk 'function waitLine()' shared/hydrate.js 1
+chk 'function rfWhy(d, e)' console.html 1
+chk 'doHandoff().then(function (r)' assets/advisor-widget.js 1
+chk 'function aiCode(st, j, e)' assets/advisor-widget.js 1
+chk 'function aiCode(st,j,e)' index.html 1
+chk "console.warn('handoff_raw_forward', briefWhy)" api/handoff.js 1
+chk 'upstream: anthRes.status' api/advisor.js 1
+chk 'function availHookSet()' api/schedule-advisor.js 1
+chk "opts.flag === '오류'" api/_qlog.js 1
+nochk "showMsg('안내','예약 정보를 불러오지 못했어요','네트워크" cancel.html
+nochk "textContent='취소에 실패했어요" cancel.html
+nochk "showError('네트워크 오류입니다" live.html
+nochk 'showError(data.error)' live.html
+nochk 'JSON.stringify(payload) }).catch(function () {})' assets/advisor-widget.js
+nochk 'doHandoff();' assets/advisor-widget.js
+nochk "'지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.'" index.html
+nochk "'연결이 잠시 불안정합니다. 디렉터가 직접 안내해 드릴게요.'" index.html
+nochk 'test(hook)) return {};' api/schedule-advisor.js
+nochk "JSON.stringify({ error: 'handoff_unconfigured' })" api/handoff.js
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-pages.mjs >/dev/null 2>&1; _epg=$?; if [ "$_epg" = 1 ]; then echo 'FAIL err-pages: 고객 · 하객 화면의 실패 문구(까닭 한 줄 + 코드 · 결과 모름 다시 묻기 · 디렉터 전달 확인)가 어긋났습니다 — node scripts/audit/err-pages.mjs'; fail=1; else echo "ok err-pages ($_epg)"; fi; fi
+# ★[HANDOFF_TRUTH 2026-10-07] AI 실패 말풍선이 «디렉터가 직접 안내해 드릴게요»를 무조건 약속하던 것 — 아래 전달 카드가 «자동 전달이 안 됐어요»라 하면 어긋났다(책임질 수 없는 안심 금지).
+#   카톡 단추 카드는 늘 나오므로 «아래에서 디렉터와 이어서 상담하실 수 있어요»(늘 참)로
+nochk "'디렉터가 직접 안내해 드릴게요') + ' (코드 '" assets/advisor-widget.js
+nochk "' · 디렉터가 직접 안내해 드릴게요 (코드 '" index.html
+chk '아래에서 디렉터와 이어서 상담하실 수 있어요' assets/advisor-widget.js 2
+chk '아래에서 디렉터와 이어서 상담하실 수 있어요' index.html 2
+# ★★[ERR_CODE_MYPAGE 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+#   마이페이지 실패 문구 = 원인 한 줄 + «(코드 X#)»(글자 = 자리 · 숫자 = 무슨 일 · assets/err-codes.js 와 같은 뜻) · 보내기 한 벌(_post)이 늦음 5 · 끊김 6 · 깨진 답 7 을 가른다
+#   F1 까닭 없는 getMyState 실패에 로그아웃 · 초안 삭제하던 결함 · F5 저장 실패 판 · F6 거짓 «다른 기기에서 먼저 저장됐어요» · F7 빌더 중계 까닭 · F10 다이닝 AI 영문 기술어 · F11 카드 승인 확인
+#   err-mypage.mjs 가 가짜 GAS 로 잰다 — F1 을 되돌리거나 _post 의 종류 표시를 지우면 빨강(돌연변이 확인)
+chk 'ERR_CODE_MYPAGE' mypage.html 110
+chk "else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }" mypage.html 1
+nochk "else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }" mypage.html
+chk 'function _post(payload, ms){' mypage.html 1
+chk "e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');" mypage.html 1
+chk 'function _errLine(x, L, base, todo){' mypage.html 1
+chk 'function _wrSlow(o, okf){' mypage.html 1
+chk "return p.then(function(r){ return _errNorm(r,'S',ERR_SAVE_BASE); }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });" mypage.html 1
+chk 'var _trkSlow={};' mypage.html 1
+chk "var _gL=_isDel?'D':'L'" mypage.html 1
+chk 'function _relayErr(r){' mypage.html 1
+chk 'function _dncErr(x, ac, http){' mypage.html 1
+chk 'function _sigMiss(x, todo){' mypage.html 1
+chk 'function _wedAvailLoad(cb, errId){' mypage.html 1
+chk "if(_errSess(d)){ returnDone=false; _errGoLogin(d,'P'); return; }" mypage.html 1
+chk "if(_n===1||(_n>=5&&_n<=7)||_n===9){ _retry(_errLine(d,'P')); return; }" mypage.html 1
+nochk "결제 확인 중 문제가 생겼어요. 디렉터가 확인해서 도와드릴게요.'); clean();" mypage.html
+chk '이 사진 형식은 열 수 없어요 · 다른 사진을 골라 주세요 (코드 M6)' mypage.html 1
+nochk '처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.' mypage.html
+nochk "content:'이 부분은 상담 때 디렉터가 함께 안내드릴게요." mypage.html
+nochk "body:(msg||'네트워크가 잠시 불안정한 것 같아요.')" mypage.html
+nochk "_gBack({ok:false,error:'불러오지 못했어요. 연결을 확인해 주세요.'})" mypage.html
+nochk ".catch(function(){ _dfAck(false); });" mypage.html
+nochk "q.resolve({ok:false, error:''})" mypage.html
+chk 'ERR_CODE_MYPAGE' scripts/audit/err-mypage.mjs 1
+chk "mode === 'notok' ? { ok:false, reason:'invalid'" scripts/audit/admin-inject.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-mypage.mjs >/dev/null 2>&1; _emp=$?; if [ "$_emp" = 1 ]; then echo 'FAIL err-mypage: 마이페이지 실패 문구(원인 한 줄 + 코드) · 로그아웃 조건(F1) · 저장 실패 판 · 빌더 중계가 어긋났습니다 — node scripts/audit/err-mypage.mjs'; fail=1; else echo "ok err-mypage ($_emp)"; fi; fi
+# ★★[ERR_CODE_BUILDER 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 쓸 수 있을 만한 곳들 조사해서 전부 개선해 보자»]
+#   식순 화면 실패 글 = «무슨 일 · 할 일 (코드 X#)» — 글자 = 어디서(V 목소리 · U 올리기 · D 지우기 · S 저장 · L 불러오기 · M 기기) · 숫자 = 무슨 일(VC_DOWN_KIND 와 같은 표)
+#   마이페이지 · 서버 글에 코드가 이미 있으면 그대로(두 번 안 붙임) · 목소리 정보를 못 받으면 «목소리 만들기» 단추 대신 까닭 + «다시 불러오기» · 지우기 실패에 «불러오지 못했어요» 금지
+#   마이크 까닭 M1 ~ M5(1분 읽기엔 파일을 권하지 않는다) · 받은 소리를 못 풂 = M6 · 75초 = U5 · 16초 = S5 · ▶ · 이어 듣기 실패 = L6 연결 · L0 파일 없음 · M6 못 엶 · M7 막힘(_mediaCode · «녹음 전»과 가른다 · 뜻은 assets/err-codes.js 표)
+#   err-builder.mjs 가 실브라우저로 잰다 — 목소리 정보 실패 가림 · start 의 try 를 되돌리면 빨강(돌연변이 확인)
+chk 'ERR_CODE_BUILDER' order-preview.html 80
+chk 'function _ecLine(L,d)' order-preview.html 1
+chk 'function _micWhy(e,key)' order-preview.html 1
+chk 'function _openWhy(e,src,key)' order-preview.html 1
+chk 'function _vcStFail(fk)' order-preview.html 1
+chk 'function _rfDelDone(d)' order-preview.html 1
+chk 'if(VC.stErr&&!VC.st) return _vcStFail(' order-preview.html 1   # [VC_STATUS_RETRY] 마지막으로 받은 상태가 있으면 그것으로 그린다(T3) · 모를 때만 까닭
+chk "VC.stWhy=VC.stErr?_ecLine('V',d||{}):''; VC.st=d&&d.ok?d:(VC.stLast||null);" order-preview.html 1   # 받은 까닭(코드)을 VC_STATUS_RETRY 몸통에 함께
+chk "function _vcErrBox(){ var c=_ecCodeOf(VC.stWhy)||'V0'" order-preview.html 1   # «불러오지 못했어요» 칸에도 코드 · 로그인(V8)이면 그 말
+chk "if(!VC.st){ if(VC.stErr) return hd+_vcStFail('mkvcstre3');" order-preview.html 1
+chk "_upFail(key,_ecWord('U',5))" order-preview.html 1
+chk "_saveDone(false,_ecWord('S',5))" order-preview.html 1
+chk "_autoAck(false,_ecLine('S',ev.data))" order-preview.html 1
+chk "momentedit:ritualFileDelDone'){ _rfDelDone(ev.data)" order-preview.html 1
+chk 'try{ r.mr.start(250); }catch(e)' order-preview.html 1
+chk 'function _mediaCode(el)' order-preview.html 1
+chk "if(!AUDOK){ _fail(b,me,'소리를 불러오지 못했어요 (코드 '+" order-preview.html 1
+chk 'ERR_CODE_BUILDER' assets/rec-process.js 1
+chk 'meKind' assets/rec-process.js 2
+nochk "MK.toast='응답이 없어요 · 다시 눌러 주세요'" order-preview.html
+nochk "'만든 소리를 받지 못했어요 · 다시 눌러 주세요'" order-preview.html
+nochk '음성 메모로 녹음해 «파일»로 올려 주세요' order-preview.html
+nochk "'저장 확인이 오지 않았어요. 네트워크를 확인하고 다시 저장해 주세요.'" order-preview.html
+nochk "MK.toast=ev.data.error||'지우지 못했어요'" order-preview.html
+nochk "r.ph='rec'; r.t0=Date.now(); r.el=0; r.mr.start(250);" order-preview.html
+chk 'ERR_CODE_BUILDER' scripts/audit/err-builder.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-builder.mjs >/dev/null 2>&1; _ecb=$?; if [ "$_ecb" = 1 ]; then echo 'FAIL err-builder: 식순 화면 실패 문구(까닭 한 줄 + 코드 V · U · D · S · L · M)가 어긋났습니다 — node scripts/audit/err-builder.mjs'; fail=1; else echo "ok err-builder ($_ecb)"; fi; fi

@@ -24,7 +24,7 @@ try {
     return pg.evaluate(() => ({ n: window.__n, ok: !!(window.__r && window.__r.ok), err: (window.__r || {}).error || '', fg: VC.fg }));
   };
   const a = await run(2, 1, 'make'); ok('① 만들기 — 연결로 두 번 끊겨도 세 번째에 받아 온다 · 앞일 셈 0', a.n === 3 && a.ok && a.fg === 0, JSON.stringify(a));
-  const p = await run(2, 'srv', 'practice'); ok('① 연습 읽기 — 서버에서 멈춤(V8)도 다시 묻는다', p.n === 3 && p.ok, JSON.stringify(p));
+  const p = await run(2, 'srv', 'practice'); ok('① 연습 읽기 — 서버에서 멈춤(V9)도 다시 묻는다', p.n === 3 && p.ok, JSON.stringify(p));
   const b = await run(5, 1, 'make'); ok('② 세 번 다 끊기면 그때 실패 글(V6)을 그대로 보인다 · 네 번째는 묻지 않는다', b.n === 3 && !b.ok && /V6/.test(b.err) && b.fg === 0, JSON.stringify(b));
   const c = await run(5, 'bad', 'make'); ok('③ 서버 답이 깨짐(V7)은 연결 다시 묻기를 하지 않는다(종전 한 번만)', c.n <= 2 && !c.ok, JSON.stringify(c));
   ok('화면 오류 없음', !errs.length, errs.slice(0, 2).join(' | '));

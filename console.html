@@ -778,20 +778,47 @@ function rfKindLab(k){ var v = (S.up || {})[k]; return v && v.src === 'ai' ? 'AI
 function rfKeys(){ var ks = []; if (S.guestVoice === 'couple') ks = ks.concat(['g0','g1','g2','g3']); if (S.entryVoice === 'couple') ks.push('entry'); if (S.pvVoice === 'couple') ks.push('pv'); return ks; }   // [PV_INTRO] 식전 영상 소개 — 파일이 없으면 스튜디오 나레이션 그대로
 function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(); if (!sec || !box) return; sec.hidden = !ks.length; if (!ks.length) return;
   /* ★[RF_KIND_0928 코워크 0928 6-5] 줄마다 «두 분 녹음 · 받아 둠» · «AI 목소리 · 받아 둠» · «나레이션으로 나감» — 올린 파일도 두 분이 녹음한 것이라 «두 분 녹음» */
-  box.innerHTML = ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + ' · 받아 둠' : st === 'busy' ? '받는 중…' : st === 'fail' ? '받지 못함 · 나레이션으로 나감' : '파일 없음 · 나레이션으로 나감';
+  /* ★[ERR_CODE_PAGES 2026-10-07] «받지 못함»에 까닭(RF_WHY · 코드 L#)을 붙이고, 아예 받지 않은 것(RF_SKIP)은 «파일 없음»과 가른다 —
+     종전엔 rf 코드 없이 열었거나 이 기기에 관리자 로그인이 없을 때도 «파일 없음», 로그인 풀림 · 지워진 파일 · 드라이브 오류 · 연결 끊김이 모두 «받지 못함»이었다 */
+  box.innerHTML = ks.map(function(k){ var st = RF_ST[k] || 'none', t = st === 'ok' ? '✓ ' + rfKindLab(k) + ' · 받아 둠' : st === 'busy' ? '받는 중…'
+      : st === 'fail' ? '받지 못함 · 나레이션으로 나감' + (RF_WHY[k] ? ' · ' + esc(RF_WHY[k]) : '')
+      : RF_SKIP === 'norf' ? '받지 않음 · 나레이션으로 나감 · 관리 화면 «당일 콘솔» 단추로 열어야 받아요'
+      : RF_SKIP === 'notok' ? '받지 않음 · 나레이션으로 나감 · 이 기기에 관리자 로그인이 없어요 (코드 L8)'
+      : '파일 없음 · 나레이션으로 나감';
     return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + t + '</span></div>'; }).join(''); }
+/* ★[ERR_CODE_PAGES 2026-10-07] 받지 못한 까닭 — 직원이 읽는 짧은 말 + 코드(L = 불러오기 · 숫자 = 무슨 일 · assets/err-codes.js 와 같은 뜻).
+   e = 요청 자체가 실패(시간 L5 · 연결 L6 · 서버 답이 깨짐 L7 · 미리보기 주소에서 막음 L3) · d = 서버(adminCall)가 거절한 답 */
+function rfWhy(d, e){
+  if (e) {
+    if (window.ME_PREVIEW_GUARD && window.ME_PREVIEW_GUARD.on) return '미리보기 주소라 서버 연결을 막았어요 (코드 L3)';
+    var n = (e.name === 'AbortError') ? 5 : (e.name === 'SyntaxError') ? 7 : 6, off = false; try { off = navigator.onLine === false; } catch (x) {}
+    return (n === 5 ? '응답이 늦어요' : n === 7 ? '서버 답이 깨졌어요(GAS 오류 화면)' : off ? '이 기기 인터넷이 끊겼어요' : '연결이 끊겼어요') + ' (코드 L' + n + ')';
+  }
+  var t = String((d && d.error) || ''), c = /\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t);
+  if (/로그인이 필요|로그인이 만료/.test(t)) return '관리자 로그인이 풀렸어요 · 관리 화면에서 다시 로그인해 주세요 (코드 L8)';
+  if (/찾을 수 없어요/.test(t)) return '파일이 지워졌거나 옮겨졌어요 (코드 L0)';
+  if (d && d.ok && !d.data) return '빈 파일이 왔어요 (코드 L4)';
+  if (/요청을 처리하지 못했어요/.test(t)) return '서버 오류(드라이브일 수 있어요) (코드 L9)';
+  return (t ? t.replace(/\s*\(코드[^)]*\)\s*$/, '') : '서버가 거절했어요') + ' (' + (c ? c[1] : '코드 L0') + ')';
+}
+var RF_WHY = {}, RF_SKIP = '';   // [ERR_CODE_PAGES] 줄마다 받지 못한 까닭 · 아예 받지 않은 까닭(norf rf 코드 없음 · notok 관리자 토큰 없음)
 function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
-  var up = S.up || {}; rfPaint(); if (!code || !tok) return;
-  var call = function(fn, args){ return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: fn, args: args }) }).then(function(r){ return r.json(); }).then(function(d){ return (d && d.result) || d; }); };
+  var up = S.up || {}; RF_SKIP = !code ? 'norf' : !tok ? 'notok' : ''; rfPaint(); if (!code || !tok) return;
+  /* [ERR_CODE_PAGES] 요청 단계의 실패에만 __rfNet 표시 — 받은 뒤 이 기기에서 파일을 열다 난 실패(M6)와 가른다 */
+  var call = function(fn, args){ return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: fn, args: args }) }).then(function(r){ return r.json(); }).then(function(d){ return (d && d.result) || d; }, function(e){ try { if (e && typeof e === 'object') e.__rfNet = 1; } catch (x) {} throw e; }); };
   /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오가 대신 올린 파일은 두 분 초안(S.up)에 없다 — 관리 목록(adminRitualFiles · 최신이 위)에서
      자리마다 가장 새 파일을 찾아 채운다. 두 분이 올린 id 가 목록에 있으면 그것을 쓴다. 목록을 못 받으면 종전대로 S.up 만 */
-  call('adminRitualFiles', [code]).catch(function(){ return null; }).then(function(L){ var newest = {}, have = {};
+  call('adminRitualFiles', [code]).then(function(L){ return { L: L }; }, function(e){ return { L: null, e: e }; }).then(function(x){ var L = x.L, newest = {}, have = {};
+    /* [ERR_CODE_PAGES] 목록을 못 받았으면 «파일 없음»이라 말하지 않는다 — 있는지 모르는 것이다. 두 분 초안에 id 가 없는 줄은 목록 실패 까닭으로 «받지 못함» */
+    var listWhy = (L && L.ok) ? '' : '목록을 못 받았어요 · ' + rfWhy(L, x.e);
     ((L && L.ok && L.files) || []).forEach(function(f){ if (f.key && !newest[f.key]) newest[f.key] = f.id; have[f.id] = 1; });
-    rfKeys().forEach(function(k){ var v = up[k], id = (v && typeof v === 'object' && v.id && !/^local:/.test(v.id) && (!L || !L.ok || have[v.id])) ? v.id : (newest[k] || ''); if (!id) return; RF_ST[k] = 'busy'; rfPaint();
-      call('adminRitualFileGet', [code, id]).then(function(d){ if (!d || !d.ok || !d.data) throw 0;
+    rfKeys().forEach(function(k){ var v = up[k], id = (v && typeof v === 'object' && v.id && !/^local:/.test(v.id) && (!L || !L.ok || have[v.id])) ? v.id : (newest[k] || '');
+      if (!id) { if (listWhy) { RF_ST[k] = 'fail'; RF_WHY[k] = listWhy; rfPaint(); } return; }
+      RF_ST[k] = 'busy'; rfPaint();
+      call('adminRitualFileGet', [code, id]).then(function(d){ if (!d || !d.ok || !d.data) { RF_WHY[k] = rfWhy(d); throw 0; }
         var bin = atob(d.data), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
         CLIPS[rfSlugOf(k)] = URL.createObjectURL(new Blob([u], { type: d.mime || 'audio/wav' })); RF_ST[k] = 'ok'; rfPaint(); try { render(); } catch (e) {} })
-        .catch(function(){ RF_ST[k] = 'fail'; rfPaint(); }); }); }); }
+        .catch(function(e){ if (e !== 0) RF_WHY[k] = (e && e.__rfNet) ? rfWhy(null, e) : '받은 파일을 이 기기에서 열지 못했어요 (코드 M6)'; RF_ST[k] = 'fail'; rfPaint(); }); }); }); }
 function fmt(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + ('0' + (s%60)).slice(-2); }
 function fmtMin(s){ return Math.round(s/60) + '분'; }
 

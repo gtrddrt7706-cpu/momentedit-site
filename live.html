@@ -2160,6 +2160,30 @@ window.addEventListener('load', () => {
 // ═══════════════════════════════════════════════════════════════
 // [LETTER_SWITCH 2026-09-25] 조회·편지 모두 본 GAS(87_letter)로 — 옛 Letter System 웹훅은 은퇴(LETTER_MERGED)
 const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQfBDPDocq4VeUd8y78TtyrMTZ3a3g_eOmYwOIc6im5yXo3z1pJv7QgSBEQ/exec';
+/* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+   하객 화면(G)의 실패마다 한 줄 + «(코드 G#)» · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
+   브라우저가 가르는 셋: 기다리다 멈춤(AbortError) 5 · 연결 끊김(fetch 실패) 6 · 서버 답이 JSON 이 아님(GAS 오류 화면) 7.
+   서버(87_letter)는 영문 오류 이름을 준다 — INTERNAL_ERROR(서버 오류 · ecode G9 · 사고번호 eid) 는 한글 한 줄로 바꿔 «(코드 G9 · 사고번호)»를 붙이고,
+   INVALID_EVENT_ID · COUPLE_NOT_FOUND(링크가 틀림 · G0)는 «링크를 다시 확인» 안내 그대로(코드 없음). 하객에게 영문 오류 이름을 보이지 않는다.
+   seat · guide · cancel · schedule · inquiry 와 같은 함수 이름이다 */
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
+function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
+function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
+  if(m) t=t.slice(0,m.index);
+  if(!/^[A-Z]\d$/.test(ec)) ec='';
+  if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }
+  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }
+  if(!t){ t=fb; ec=ec||L+'0'; }
+  if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
+  return t+(tail?' ('+tail+')':''); }
+/* [ERR_CODE_PAGES] 예식 정보를 못 불러왔을 때 안내(.live-notloaded-box)의 설명 한 줄 — n: 'wait'(아직 기다리는 중 · 코드 없음) · 5 · 6 · 7 · 9 */
+function liveWaitWord(n, eid){
+  if(n==='wait') return '응답을 기다리고 있어요 · 잠시만 두시면 저절로 이어져요';
+  var off=(n===6&&_ecOff()), keep=' · 이 화면이 계속 다시 시도하고 있어요';
+  return (n===5?'응답이 늦어요'+keep:n===7?'서버가 잠깐 멈췄어요'+keep:n===9?'서버에서 오류가 났어요'+keep:off?'인터넷이 끊겼어요 · 연결되면 저절로 이어져요':'연결이 끊겼어요'+keep)
+    +(n==='wait'?'':' (코드 G'+n+(n===9&&eid?' · '+eid:'')+')'); }
 
 // 부부 자유입력(이름·혼주·예금주)을 innerHTML에 넣기 전 이스케이프 — 저장형 XSS 방지(정상 텍스트엔 무영향)
 function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
@@ -2180,7 +2204,10 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
   const forceFresh = params.get('fresh') === '1';   // &fresh=1 → 캐시 무시(편집 중 즉시 확인)
 
   // v3.2 · FOUC 방지: 최종 안전망 (5초 후 강제 표시)
+  /* ★[ERR_CODE_PAGES · LIVE_WAIT_NOT_DUMMY 2026-10-07] 5초가 지나도 답이 없을 때 그냥 열면 «정적 표본 부부»(이름 · 날짜 · 계좌)가 드러난다 —
+     LIVE_NOT_LOADED 가 막은 것과 같은 사고가 «느린» 갈래에 남아 있었다. 실제 예식 링크면 기다림 안내(코드 없음)를 띄우고 연다 */
   const failsafeTimer = setTimeout(() => {
+    if (eventId && eventId !== 'test-couple' && !infoApplied) { setNotLoaded(true); sayNotLoaded('wait'); }
     document.body.classList.add('couple-ready');
   }, 5000);
 
@@ -2291,6 +2318,12 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     const box = document.querySelector('.live-notloaded-box');
     if (box) box.hidden = !on;
   }
+  /* [ERR_CODE_PAGES] 그 안내의 설명 한 줄(까닭 + 코드) — 종전엔 무슨 실패든 «연결이 불안정한 것 같습니다»(서버 오류 · 서버 답이 깨짐에도 하객 인터넷 탓).
+     setNotLoaded(true) 바로 뒤에 부른다(LIVE_NOT_LOADED 가드가 그 부름을 지킨다 · 몸통은 종전 그대로) */
+  function sayNotLoaded(n, eid){
+    const desc = document.querySelector('.live-notloaded-box .lp-message-desc');
+    if (desc) desc.textContent = liveWaitWord(n, eid);
+  }
 
   // 캐시 우선: 같은 부부 재방문은 즉시 렌더. 그 뒤 백그라운드로 최신값 갱신.
   if (!forceFresh) {
@@ -2311,25 +2344,41 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
   // 시트에서 부부 정보 fetch (캐시 없으면 지금 렌더, 있으면 캐시만 갱신)
   // 네트워크·서버 일시 오류 시 2.5초·6초 뒤 자동 재시도(총 3회)
   // 예식 시각 하객 동시 접속 폭주로 서버가 순간 밀려도 하객 조작 없이 자동 복구.
+  /* ★★[ERR_CODE_PAGES · LIVE_LOAD_KIND 2026-10-07] 종전엔 서버의 INTERNAL_ERROR(서버 쪽 사고)도 «이 링크로는 예식을 찾을 수 없습니다»였고,
+     서버 답이 깨진 것(JSON 아님)도 «연결이 불안정한 것 같습니다»였다. 이제 셋을 가른다 —
+     ①링크가 틀림(INVALID_EVENT_ID · COUPLE_NOT_FOUND) → 링크 안내 그대로 ②서버 오류(INTERNAL_ERROR) → 다시 묻고, 그래도면 «(코드 G9 · 사고번호)»
+     ③시간 초과 · 연결 · 서버 답이 깨짐 → 다시 묻고, 그래도면 «(코드 G5 · G6 · G7)». ②③은 폴링이 이어받아 저절로 회복한다. 한 번 묻는 데 15초까지 */
+  let lastKind = 0, lastEid = '';
   try {
     const url = COUPLE_WEBHOOK_URL + '?action=getCouple&eventId=' + encodeURIComponent(eventId) + '&view=live' + (forceFresh ? '&fresh=1' : '');
     let data = null;
     for (let attempt = 0; attempt < 3; attempt++) {
+      const ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const tm = ac ? setTimeout(() => { try { ac.abort(); } catch (_) {} }, 15000) : null;
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, ac ? { signal: ac.signal } : undefined);
         data = await res.json();
+        if (tm) clearTimeout(tm);
+        if (data && data.ok === false && data.error === 'INTERNAL_ERROR' && attempt < 2) {   // 서버 쪽 사고 — 링크 탓이 아니다 · 다시 묻는다
+          lastKind = 9; lastEid = String(data.eid || '');
+          await new Promise(r => setTimeout(r, attempt === 0 ? 2500 : 6000));
+          continue;
+        }
         break;
       } catch (netErr) {
+        if (tm) clearTimeout(tm);
+        lastKind = _ecN(netErr);
         if (attempt === 2) throw netErr;
         await new Promise(r => setTimeout(r, attempt === 0 ? 2500 : 6000));
       }
     }
 
-    if (!data.ok) {
-      console.warn('[Live] Couple not found:', eventId, data.error);
+    if (!data || !data.ok) {
+      console.warn('[Live] Couple not loaded:', eventId, data && data.error);
+      if (data && data.error === 'INTERNAL_ERROR') { if (!infoApplied) { setNotLoaded(true); sayNotLoaded(9, String(data.eid || lastEid)); } return; }   // [ERR_CODE_PAGES] 서버 오류 G9 — 링크 안내가 아니다
       // [LIVE_LINK_UNKNOWN] 서버가 '그런 예식 없다'고 답한 경우만.
       // 캐시로 이미 그린 하객(infoApplied)은 건드리지 않는다 — 멀쩡한 화면을 지우면 안 된다.
-      if (!infoApplied) setLinkUnknown(true);
+      if (!infoApplied) { setNotLoaded(false); setLinkUnknown(true); }
       return; // finally에서 표시
     }
 
@@ -2337,6 +2386,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     if (!rendered) {
       applyCoupleInfo(data.couple);
       infoApplied = true;
+      setNotLoaded(false);   // [ERR_CODE_PAGES] 5초 안전망이 띄운 기다림 안내를 거둔다
     }
     // 캐시로 먼저 그렸어도 최신 응답에 영상(vimeoId)이 생겼으면 즉시 부착.
     // attachVimeoPlayer는 이미 부착됐거나 vimeoId 없으면 no-op → 항상 호출해도 안전.
@@ -2346,7 +2396,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     console.error('[Live] Failed to load couple info:', err);
     /* ★[LIVE_NOT_LOADED 2026-09-12] 여기서 아무것도 안 하면 아래 finally 가 «정적 더미»를 공개한다.
        캐시로 이미 그린 하객(infoApplied)은 건드리지 않는다 — 멀쩡한 화면을 지우면 안 된다. */
-    if (!infoApplied) setNotLoaded(true);
+    if (!infoApplied) { setNotLoaded(true); sayNotLoaded(lastKind || 6); }   // [ERR_CODE_PAGES] 시간 G5 · 연결 G6 · 서버 답이 깨짐 G7
   } finally {
     if (!rendered) {
       clearTimeout(failsafeTimer);
@@ -2857,6 +2907,14 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
     });
   }
 
+  /* [ERR_CODE_PAGES] 편지 서버(87_letter ltGuestLetter)의 거절 → 하객이 읽을 한 줄. 한글 글(몰림 · 빈칸)은 그대로 · 영문 이름은 바꾼다 */
+  function letterWord(d){
+    const t = String(d.error || ''), eid = String(d.eid || ''), ec = /^[A-Z]\d$/.test(String(d.ecode || '')) ? String(d.ecode) : '';
+    if (t === 'INTERNAL_ERROR') return '편지를 전하다 서버에서 오류가 났어요 · 다시 보내 주세요 (코드 G9' + (eid ? ' · ' + eid : '') + ')';
+    if (t === 'INVALID_EVENT_ID') return '이 링크로는 편지를 보낼 수 없어요 · 받으신 링크를 다시 확인해 주세요';
+    if (/^[A-Z_]+$/.test(t)) return '편지를 전하지 못했어요 · 다시 보내 주세요 (코드 ' + (ec || 'G0') + ')';
+    return _ecSrv(d, 'G', '편지를 전하지 못했어요 · 다시 보내 주세요');
+  }
   // 제출
   /* [LETTER_SEND] 보내는 중 재진입 차단 — 버튼만 disabled로 두면 이름 칸에서 Enter를 눌러
      같은 편지가 한 번 더 나갈 수 있다(폼 submit은 버튼을 거치지 않는다). */
@@ -2912,13 +2970,13 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
       }
       done();
       if (data && data.error === 'BLOCKED_CONTENT') { showBlocked(); return; }
-      if (data && data.error) { showError(data.error); return; }
-      showError('편지가 전해졌는지 확인하지 못했어요. 잠시 후 한 번 더 보내 주세요.');
+      if (data && data.error) { showError(letterWord(data)); return; }   // [ERR_CODE_PAGES] 영문 오류 이름(INTERNAL_ERROR)을 하객에게 그대로 보이지 않는다
+      showError('편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 (코드 G7)');   // [ERR_CODE_PAGES] 서버 답이 JSON 이 아님(GAS 오류 화면 · 할당량)
     } catch (err) {
       sending = false;
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
-      showError('네트워크 오류입니다. 잠시 후 다시 시도해 주세요.');
+      showError(_ecNet(err, 'G', '잠시 뒤 다시 보내 주세요'));   // [ERR_CODE_PAGES] 종전 «네트워크 오류입니다» — 연결 G6
     }
   });
 
