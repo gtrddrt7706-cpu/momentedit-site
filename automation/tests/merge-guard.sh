@@ -8951,6 +8951,9 @@ chk 'LF_VID_KEEP' order-preview.html 2
 nochk 'window._lVidTap=function' order-preview.html   # ★[VID_AUTO_ONLY 2026-10-03 사장님 «정지/재생 뜨는데 그 기능도 삭제»] 장면 영상 누르기 금지
 chk 'SAMPLE_TOAST_LIVE' assets/ritual-open.js 1
 nochk "toast: { slug: 'toast-both-pour-b'" assets/ritual-open.js
+chk "cake: { slug: 'toast-both' }" assets/ritual-open.js 1   # [SAMPLE_CAKE 2026-10-07 사장님 «부분만 선택할 때 이것만 음성이 없었어»] 케이크 창 소리
+# [SAMPLE_CAKE] 고르기 칸(SECTIONS)에 그림이 있는 순간마다 미리 듣기 줄(SAMPLE)이 있어야 한다 — 칸을 누르면 그 창이 열린다(opPv) — 새 순간을 만들고 표를 안 고치면 그 창만 소리가 없다(케이크가 09-27 부터 그랬다)
+if command -v node >/dev/null 2>&1; then _sc=$(node -e "const R=require('./assets/ritual-open.js'); const m=[].concat.apply([],R.SECTIONS.map(function(s){ return s.ks; })).filter(function(k){ return !R.SAMPLE[k]; }); if(m.length){ console.log(m.join(',')); process.exit(1); }" 2>&1) && echo 'ok sample-cover: 고르기 칸 순간마다 미리 듣기 줄이 있다 [SAMPLE_CAKE]' || { echo "REVERT? sample-cover: 미리 듣기 줄(SAMPLE)이 없는 순간 — $_sc [SAMPLE_CAKE]"; fail=1; }; fi
 chk 'VID_PLAY_ALL' scripts/audit/listen-page.mjs 2
 # ★[LVID_ONCE 2026-10-03 사장님 «여기 영상도 1회 재생될 수 있게 해 줘»] ② 쪽이 보이면 그 순간 영상이 한 번(소리 없음 · 반복 없음 · 끝 장면에서 멈춤) ·
 #   움직임 줄이기 · 데이터 절약이면 저절로 안 돈다(누르면 돈다) · 크게 보기도 loop 없음. listen-page P-8 · P-9 · P-10 이 play 를 가로채 잰다.
