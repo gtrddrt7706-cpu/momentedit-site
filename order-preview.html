@@ -5274,10 +5274,10 @@ function _b64Blob(b64,mime){ var bin=atob(b64), u=new Uint8Array(bin.length); fo
 var UP_WAIT={};
 function _upWaitDone(key,ok){ var a=UP_WAIT[key]; delete UP_WAIT[key]; (a||[]).forEach(function(f){ try{ f(!!ok); }catch(e){} }); }
 function _mkSendWav(key,wav,url,src,nm,meta){ var _wp=new Promise(function(ok){ (UP_WAIT[key]=UP_WAIT[key]||[]).push(ok); }); try{ _mkSendWav0(key,wav,url,src,nm,meta); }catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; _upFail(key,_ecWord('U',0)); _upWaitDone(key,false); render(); } if(!EMBED) _upWaitDone(key,true); return _wp; }   // [ERR_CODE_BUILDER] 보내기 전에 던지면 «보내는 중…»에 멈추지 않게
-function _mkSendWav0(key,wav,url,src,nm,meta){ if(src==='ai'&&S.vkeep&&S.vkeep[key]){ delete S.vkeep[key]; }   /* ★[SIM_R1] 새로 만든 소리는 «확정하기»부터 — 글 · 예시 · 멘트 칩이 바뀌어 다시 만든 줄이 듣지도 않은 소리로 «✓ 확정됨»이 되던 것 */ if(!EMBED){ if(!S.up) S.up={}; S.up[key]=Object.assign({n:nm,id:'local:'+Date.now(),at:'',src:src,local:1},meta||{}); RF_URL[key]=url; _fAt('up.'+key); _persist(); if(MK_REC&&MK_REC.key===key) MK_REC=null; if(src==='ai'){ if(!MK_UPQ[key]) _aiDoneMark(key); } else MK.toast='이 기기에서 그 자리에 넣었어요 · 마이페이지에서 열면 저희에게 보내져요'; render(); return; }
+function _mkSendWav0(key,wav,url,src,nm,meta,again){ if(src==='ai'&&S.vkeep&&S.vkeep[key]){ delete S.vkeep[key]; }   /* ★[SIM_R1] 새로 만든 소리는 «확정하기»부터 — 글 · 예시 · 멘트 칩이 바뀌어 다시 만든 줄이 듣지도 않은 소리로 «✓ 확정됨»이 되던 것 */ if(!EMBED){ if(!S.up) S.up={}; S.up[key]=Object.assign({n:nm,id:'local:'+Date.now(),at:'',src:src,local:1},meta||{}); RF_URL[key]=url; _fAt('up.'+key); _persist(); if(MK_REC&&MK_REC.key===key) MK_REC=null; if(src==='ai'){ if(!MK_UPQ[key]) _aiDoneMark(key); } else MK.toast='이 기기에서 그 자리에 넣었어요 · 마이페이지에서 열면 저희에게 보내져요'; render(); return; }
   var rd=new FileReader(), _pv=MK_UP[key]; MK.upAt=MK.upAt||{}; MK.upAt[key]=(_pv==='make'||_pv==='swap')&&(MK.aiAt||{})[key]?MK.aiAt[key]:Date.now(); MK_UP[key]=1; render();   /* [WAIT_FILL] 만들고 바로 올리면 같은 시계 · 미리 만든 소리만 올리면 새 시계 */
-  rd.onload=function(){ MK_UP[key]=setTimeout(function(){ if(MK_UP[key]){ delete MK_UP[key]; _upFail(key,_ecWord('U',5)); _upWaitDone(key,false); render(); } },75000);   /* ★[ERR_CODE_BUILDER] 75초 = 답이 늦은 것이지 실패가 아니다(서버는 그 뒤에도 저장할 수 있다) — «확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)» · 종전 «응답이 없어요» 알림 + AI 줄의 «만든 소리를 저장하지 못했어요»가 두 번 떴다 → 한 곳(창 · 그 줄)에 한 번 */
-    var tk=(MK_SEQ=MK_SEQ+1); MK_PEND[key]=MK_PEND[key]||{}; MK_PEND[key][tk]={blob:wav,url:url,src:src,meta:meta||{}}; MK_PEND[key].last=tk;   /* ★[UP_RACE 2026-10-06 사장님 «파일 올렸어요 · 이건 뭐지 · 버그인 거 같아»] 같은 줄을 연달아 보내면(예시를 빨리 바꿔 누르면) 종전엔 뒤 것이 앞 것의 짐(MK_PEND)을 덮어 — 먼저 온 답이 뒤 짐을 가져가고 뒤 답은 짐이 없어 «파일 올렸어요»(src 기본값)로 적혔다. 보낼 때마다 번호를 달고 «마지막에 보낸 것»만 S.up 에 적는다 */
+  rd.onload=function(){ MK_UP[key]=setTimeout(function(){ if(MK_UP[key]){ var _P=MK_PEND[key]||{}, _pd=_P[_P.last]; if(_pd&&_upAgain(key,_pd,{_to:1})) return;   /* [UP_AGAIN] 화면이 75초 기다리다 멈춘 것도 같은 길 */ delete MK_UP[key]; _upFail(key,_ecWord('U',5)); _upWaitDone(key,false); render(); } },75000);   /* ★[ERR_CODE_BUILDER] 75초 = 답이 늦은 것이지 실패가 아니다(서버는 그 뒤에도 저장할 수 있다) — «확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)» · 종전 «응답이 없어요» 알림 + AI 줄의 «만든 소리를 저장하지 못했어요»가 두 번 떴다 → 한 곳(창 · 그 줄)에 한 번 */
+    var tk=(MK_SEQ=MK_SEQ+1); MK_PEND[key]=MK_PEND[key]||{}; MK_PEND[key][tk]={blob:wav,url:url,src:src,meta:meta||{},nm:nm,n:again||0};   /* [UP_AGAIN] 다시 보낼 때 같은 이름 · 몇 번째인지 */ MK_PEND[key].last=tk;   /* ★[UP_RACE 2026-10-06 사장님 «파일 올렸어요 · 이건 뭐지 · 버그인 거 같아»] 같은 줄을 연달아 보내면(예시를 빨리 바꿔 누르면) 종전엔 뒤 것이 앞 것의 짐(MK_PEND)을 덮어 — 먼저 온 답이 뒤 짐을 가져가고 뒤 답은 짐이 없어 «파일 올렸어요»(src 기본값)로 적혔다. 보낼 때마다 번호를 달고 «마지막에 보낸 것»만 S.up 에 적는다 */
     try{ parent.postMessage({type:'momentedit:ritualFile', data:{key:key,tk:tk,name:_mkUpLabKey(key)+' · '+nm+'.wav',mime:'audio/wav',src:src,data:String(rd.result)}}, window.location.origin);   /* [RF_MAIL_AI] src = ai 면 서버가 «도착» 메일을 안 보낸다 */ }
     catch(e){ clearTimeout(MK_UP[key]); delete MK_UP[key]; _upFail(key,_ecWord('U',6)); _upWaitDone(key,false); render(); } };   // [ERR_CODE_BUILDER] 마이페이지로 못 보냄 = 연결(U6) · 녹음 창이면 창 안 빨간 글
   rd.onerror=function(){ clearTimeout(MK_UP[key]); delete MK_UP[key]; _upFail(key,EC_M6); _upWaitDone(key,false); render(); };   // [SIM_R2] 파일 읽기 실패에도 풀린다 · [ERR_CODE_BUILDER] 이 기기가 소리를 못 읽은 것(M6)
@@ -5332,7 +5332,7 @@ function _vc(op,data){ var bg=!!(data&&data.bg), t0=Date.now();
 function _vc0(op,data){ return new Promise(function(ok){ if(!EMBED){ ok({ok:false,down:true,error:'마이페이지에서 열면 쓸 수 있어요'}); return; }
   var rid=++VC.rid; VC.cb[rid]=ok; setTimeout(function(){ if(VC.cb[rid]){ delete VC.cb[rid]; ok({ok:false,down:true,timeout:true,error:_vcDownWord(5)}); } },(op==='phrase'||op==='consent'||op==='status')?30000:op==='practice'?50000:95000);   /* [PT_NO_STALL] 연습 한 차례는 50초 — 넘으면 «못 만든 차례»로 넘기고 다음으로 */   /* ★[PHRASE_NO_DEAD 2026-10-05] 확인 문장 · 동의 · 상태는 서버가 글자 몇 개만 쓴다 — 95초를 기다리게 하지 않는다(30초) */   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) — 실제 대안(스튜디오 나레이션)을 말한다 */
   try{ parent.postMessage({type:'momentedit:voiceClone',data:Object.assign({op:op,rid:rid},data||{})},window.location.origin); }catch(e){ delete VC.cb[rid]; ok({ok:false,down:true,net:true,error:_vcDownWord(6)}); } }); }   // [VC_DOWN_KIND]
-function _vcDone(d){ var f=VC.cb[d.rid]; if(f){ delete VC.cb[d.rid]; if(d&&d.down&&!d.ok){ if(!d.net&&!d.kind&&/그동안 이 줄은/.test(d.error||'')) d.net=true; d.error=_vcDownWord(_vcDownN(d),d.sec); } else if(d&&d.error) d.error=_vcErrWord(d.error); f(d); } }   /* [VC_DOWN_KIND] 옛 마이페이지(연결 실패 글 «그동안 이 줄은 …»)도 연결로 읽는다 */
+function _vcDone(d){ var f=VC.cb[d.rid]; if(f){ delete VC.cb[d.rid]; if(d&&!d.ok&&(/^(expired|invalid|no_token)$/.test(String(d.reason||''))||/^V8$/.test(String(d.ecode||'')))){ d.sess=true; d.error=_vcDownWord(8); } else if(d&&d.down&&!d.ok){   /* ★[VC_SESS_WORD 2026-10-07 VC_SIM 3라운드] 로그인이 풀린 답은 서버 글(«로그인이 만료됐어요…» · 옛 서버는 코드도 없다) 대신 한 말 «로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요 (코드 V8)» — 맞추기 창에 코드 없는 글이 떴다 */ if(!d.net&&!d.kind&&/그동안 이 줄은/.test(d.error||'')) d.net=true; d.error=_vcDownWord(_vcDownN(d),d.sec); } else if(d&&d.error) d.error=_vcErrWord(d.error); f(d); } }   /* [VC_DOWN_KIND] 옛 마이페이지(연결 실패 글 «그동안 이 줄은 …»)도 연결로 읽는다 */
 /* ★★[VC_DOWN_KIND 2026-10-07 사장님 «PC 에서 '지금은 AI 목소리를 만들 수 없어요' 왜? 원인 파악» · «저 경고 문구 한 줄로 요약» · «실패 종류별로 다르게 해서 스크린샷만으로 원인을 알게 · 아주 좋은 생각»]
    종전엔 서버 거절 · 마이페이지 연결 끊김 · 시간 초과가 모두 같은 두 줄(«… 그동안 이 줄은 스튜디오 나레이션으로 나와요»)이라 스크린샷으로는 원인을 가를 수 없었다(10/04 · 10/05 · 10/07 세 번).
    맞추기 창처럼 «줄»이 없는 자리에서도 «이 줄은»이라 했다. 이제 한 줄 + 코드 — V = 목소리 · 숫자 = 무슨 일(ERR_CODES 표 · 관리자 화면 «오류 코드»와 같은 뜻).
@@ -5404,7 +5404,7 @@ function _vcPeople(page){
   var h='<ul class="mk-vlist mk-vpcs">';
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}; if(p.consent&&!p.ready&&p.left!==0) try{ _vcPre(w); }catch(e){} });   // [PHRASE_EARLY] 1분 읽기가 남은 분 — 창을 열기 전에 확인 문장을 받아 둔다
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}, nm=_vcName(w), role=w==='groom'?'신랑':'신부', who=role+' '+(nm===role?'':nm);   // [VC_CARD_0928 8-5] 사람 카드
-    var stx=/* [VC_LEFT_WORD] */p.ready?'목소리 생성'+(p.made?' · '+_vcDay(p.made):''):(p.left===0&&!p.ready)?'만들기를 다 썼어요 · 나레이션으로 나와요':'아직 만들지 않았어요';   /* ★[VPAGE_TIDY] «목소리 만들기가 남…» 상태 말 금지 — 바로 아래 [목소리 만들기] 단추와 같은 말을 두 번 · «남았어요»는 숙제처럼 읽혔다 */   // [VC_LIMIT_UI] · [VC_WORD_GEN]
+    var stx=/* [VC_LEFT_WORD] */p.ready?'목소리 생성'+(_vcDay(p.made)?' · '+_vcDay(p.made):''):   /* [VC_SIM] 날짜를 못 읽으면 «목소리 생성 ·»처럼 점만 남던 것 */(p.left===0&&!p.ready)?'만들기를 다 썼어요 · 나레이션으로 나와요':'아직 만들지 않았어요';   /* ★[VPAGE_TIDY] «목소리 만들기가 남…» 상태 말 금지 — 바로 아래 [목소리 만들기] 단추와 같은 말을 두 번 · «남았어요»는 숙제처럼 읽혔다 */   // [VC_LIMIT_UI] · [VC_WORD_GEN]
     var go=function(){ return (page?'mkVoiceGo':'mkVcConsent')+'(\''+w+'\')'; };   /* [VOICE_ONCE] · [CONSENT_EVERY] 시작은 늘 동의부터 — «글 1 부터» 갈래가 없다 */
     var need=p.ready&&!!(S.vsetNeed||{})[w], o=(S.vset||{})[w]||{};
     h+='<li class="mk-vr mk-vpc'+(p.ready?' ok':'')+(need?' need':'')+'"><span class="mk-vt"><span class="mk-vn"><span class="mk-vrole">'+role+'</span>'+esc(nm===role?'':nm)+'</span>'
@@ -5736,17 +5736,31 @@ window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph
   var w=R.who, fail=function(msg){ R.ph='read'; R.step=2; R.err=msg; render(); };
   R.ph='busy'; R.err=''; R.short=false; render();
   _vcJoin(R.take[1].wav,R.take[2].wav).then(function(j){ if(j.sec<20){ R.short=true; fail('두 글을 합쳐 '+Math.round(j.sec)+'초라 목소리를 만들기엔 짧아요\n'+VC_TXT.short); return; }   /* [REC_WARN2] */   // 두 글을 합쳐 20초가 안 되면 만들기 전에 멈춘다
-    var rd=new FileReader(); rd.onload=function(){ _vc('enroll',{who:w,data:String(rd.result),sec:Math.round(j.sec)}).then(function(d){
+    var rd=new FileReader(); rd.onload=function(){ _vcEnrollSafe(w,{data:String(rd.result),sec:Math.round(j.sec)}).then(function(d){
       if(!d.ok){ if(d.limit) R.limit=true;
         if(/확인 문장/.test(d.error||'')){ if(VC.pre) delete VC.pre[w]; R.phrase=''; R.take[2]=null; fail('확인 문장을 새로 받았어요 · 글 2 를 한 번 더 읽어 주세요'); _vcPhraseGet(w); return; }   /* [PHRASE_NO_DEAD] 다시 받기도 막다른 길 없이 */   /* [PHRASE_EARLY] 서버가 문장을 잃었으면(옛 덮어쓰기 · VC_STATE_MERGE 전) 새로 받아 글 2 만 다시 */
         fail(d.error||'만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); return; }   // ★[VC_LIMIT_UI] 한도면 다시 누를 단추를 보이지 않는다
       if(VC.pre) delete VC.pre[w]; delete VC.sraw[w];   /* ★[SIM_R1 2026-10-04 시뮬레이션] 새 목소리 — 옛 목소리 예시를 들려주던 것 */ R.ph='tune'; R.renewed=!!d.renewed; S.vsetNeed=S.vsetNeed||{}; S.vsetNeed[w]=1; _persist(); VC.st=null; render(); _vcStatus(function(){ _vcTuneOpen(w,'enroll'); });   /* [VOICE_TUNE] 만든 직후 = 예시 듣고 맞추기(필수) · 줄 채우기는 «이 목소리로 쓰기» 뒤 */ },function(){ fail('만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); }); }; rd.onerror=function(){ fail('녹음을 열지 못했어요\n글 2 를 다시 읽어 주세요 (코드 M6)'); };   /* ★[ERR_CODE_BUILDER] 받는 쪽이 없어 «…목소리를 만드는 중이에요»에 영영 멈췄다 — 읽기 걸음으로 돌아간다 */ rd.readAsDataURL(j.wav); })
     .catch(function(){ fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요'); }); };
+/* ★★[ENROLL_SAFE 2026-10-07 사장님 «오류 관련 시뮬레이션 · 라운드별로 문제 없을 때까지 안정화»(VC_SIM 1라운드)]
+   1분 녹음으로 목소리를 만드는 요청(enroll)은 녹음을 올리고 업체가 복제하느라 오래 걸린다 — 아이폰은 60초에 «연결 끊김»으로 끊는데 서버는 끝까지 만들어 둔다.
+   종전엔 화면이 바로 «서버에서 멈췄어요 (V9 · 61초)» → 다시 누르면 서버가 «확인 문장을 먼저»(만들 때 문장을 비웠다) → 글 2 를 또 읽게 했다. 이미 목소리가 생겼는데도.
+   이제 끊기거나(연결 · 시간 · 바쁨) 문장을 잃었다는 답이면 먼저 상태(status)로 «이 요청 뒤에 목소리가 생겼나»(만든 횟수가 늘었나)를 본다 —
+   60초 근처에서 끊긴 것은 서버가 아직 만드는 중일 수 있어 10초마다 최대 90초 본다 · 생겼으면 성공으로 이어 간다.
+   안 생겼으면(서버가 정말 실패) 같은 녹음으로 한 번 더 조용히 보낸다(문장은 성공해야 비워지니 그대로 쓸 수 있다) · 그래도 안 되면 그때 실패 글 */
+function _vcEnrollSafe(w,data){ var p0=((VC.st||{})[w])||{}, t0=p0.tries||0, had=!!p0.ready;
+  var made=function(){ return _vc('status').then(function(s){ var p=(s&&s.ok&&s[w])||{}; return (p.ready&&(p.tries||0)>t0)?p:null; }); };
+  var poll=function(n){ return made().then(function(p){ if(p) return {ok:true,who:w,tries:p.tries,renewed:had,_rec:1}; if(n<=0) return null; return new Promise(function(r){ setTimeout(r,10000); }).then(function(){ return poll(n-1); }); }); };
+  var go=function(again){ return _vc('enroll',Object.assign({},data,{who:w})).then(function(d){ if(d&&d.ok) return d;
+    var lost=/확인 문장/.test((d&&d.error)||''), tr=!!(d&&d.down&&!d.limit&&(d.net||d.timeout||d.kind==='busy'));
+    if(!lost&&!tr) return d;
+    return poll(lost?0:(((+d.sec||0)>=55||d.timeout)?9:0)).then(function(r){ if(r) return r; if(!again&&tr) return new Promise(function(z){ setTimeout(z,3000); }).then(function(){ return go(true); }); return d; }); }); };
+  return go(false); }
 window.mkVcDel=function(w){ if((VC.delBusy||{})[w]) return; var used=Object.keys(S.up||{}).filter(function(k){ var v=S.up[k]; return v&&v.src==='ai'&&(!v.by||v.by===w||(Array.isArray(v.by)&&v.by.indexOf(w)>-1)); });
   ordAsk({title:_vcName(w)+' 님 AI 목소리를 지울까요?',body:used.length?'AI로 만든 줄 '+used.length+'줄은 나레이션으로 바뀌어요':'',yes:'지우기',no:'두기',danger:true,focusAfter:'[data-fk="mkvcok:'+w+'"]'}).then(function(ok){ if(!ok) return;   // [REC_DLG] · [QA_ASK_GONE] 지운 뒤엔 그 분의 «목소리 만들기»로 브라우저 confirm 대신 우리 판
   used.forEach(function(k){ _mkUpDrop(k); }); Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); delete VC.sraw[w]; _persist();   /* [SIM_R1] 지운 목소리 예시도 */   // [VC_BOTH_CHECK] 지운 목소리 소리는 들고 있지 않는다
   VC.delBusy=VC.delBusy||{}; VC.delBusy[w]=1; _fxNext='[data-fk="mkvcdel:'+w+'"]'; render();   /* ★[QA_DEL_BUSY 2026-10-04 점검] 서버 답을 기다리는 동안 «지우는 중…» · 두 번 못 누른다 */
-  _vc('delete',{who:w}).then(function(d){ delete VC.delBusy[w]; VC.st=null; VC.stErr=false; _vcStatus(null,true); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); _fxNext=d.ok?'[data-fk="mkvcok:'+w+'"],#mkHead':'[data-fk="mkvcdel:'+w+'"]'; render(); }); }); };   /* [QA_ASK_GONE] 답이 늦어도 — 다시 그린 뒤 그 분의 «목소리 만들기»로 */
+  _vc('delete',{who:w}).then(function(d){ if(d&&!d.ok&&d.down&&(d.net||d.timeout)){ var _dl=((+d.sec||0)>=55||d.timeout)?6:0, _dp=function(n){ return _vc('status').then(function(st){ if(st&&st.ok&&!((st[w]||{}).ready)) return {ok:true}; if(n<=0) return d; return new Promise(function(r){ setTimeout(r,5000); }).then(function(){ return _dp(n-1); }); }); }; return _dp(_dl); }   /* 60초 근처에서 끊긴 것은 서버가 아직 지우는 중일 수 있어 5초마다 30초까지 */   /* ★[DEL_SAFE 2026-10-07 VC_SIM 3라운드] 지우는 요청이 끊겨도 서버는 지웠을 수 있다 — 상태를 보고 목소리가 없으면 «지웠어요»(종전엔 카드는 «아직 만들지 않았어요»인데 알림은 «연결이 끊겼어요») */ return d; }).then(function(d){ delete VC.delBusy[w]; VC.st=null; VC.stErr=false; _vcStatus(null,true); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); _fxNext=d.ok?'[data-fk="mkvcok:'+w+'"],#mkHead':'[data-fk="mkvcdel:'+w+'"]'; render(); }); }); };   /* [QA_ASK_GONE] 답이 늦어도 — 다시 그린 뒤 그 분의 «목소리 만들기»로 */
 /* 8-2 4) 그 사람이 읽는 줄 가운데 «비어 있는» 줄만 AI 로 — 녹음 · 올린 파일 줄은 그대로. 다시 만들었으면(renewed) 그 사람의 AI 줄을 새 목소리로 다시 */
 function _vcLineWho(key){ if(_slKeyOk(key)&&(key==='entry'||(S.vlines||{})[_slVk(key)])){ var L=_slLines(key); if(L.length&&!_slMixed(key)) return L[0][0]==='신부'?'bride':'groom'; if(L.length) return 'both'; }   /* [LINE_SPLIT] 한 분만 읽으면 그 분 · 나눠 읽으면 두 분 */ if(/^g\d$/.test(key)) return RitualOpen.guestReader(S,+key.slice(1))==='g'?'groom':'bride'; if(key==='pv') return S.pvWho==='b'?'bride':'groom'; return 'both'; }   // [PV_INTRO] 소개글은 한 분이 읽는다(기본 신랑)
 function _vcAutoFill(w,renew){ Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); VC_MIX={}; VC_MIXP={};   /* [EX_RACE] 나눠 읽는 줄 기억도 — 한 분 목소리가 바뀌었다 */   /* [VC_BOTH_CHECK] 이 분 목소리가 새로 생겼다 — 들고 있던 옛 목소리 소리는 버린다 */ var ks=[]; if(S.guestVoice==='couple') ks=ks.concat(['g0','g1','g2','g3']); if(S.entryVoice==='couple') ks.push('entry'); if(S.pvVoice==='couple'&&_recNeed('pv')) ks.push('pv');   /* [PV_INTRO] 소개글을 적어 둔 때만 */
@@ -6140,10 +6154,19 @@ function _mkUpDelGo(key){ var v=(S.up||{})[key]; if(!v) return;
   var id=v&&v.id; if(EMBED&&id&&!/^local:/.test(id)) _rfDelSend(key,id,v);   // [ERR_CODE_BUILDER] 못 지우면 이 줄을 되돌려 다시 누를 수 있게(_rfDelDone)
   if(id) _rfDel(id); try{ RF_URL[key]&&URL.revokeObjectURL(RF_URL[key]); }catch(e){} delete RF_URL[key]; delete RF_URL[key+'#'];
   S.up[key]=0; _fAt('up.'+key); _persist(); MK.toast='지웠어요 · 이 줄은 스튜디오 나레이션으로 나와요'; render(); }
+/* ★★[UP_AGAIN 2026-10-07 VC_SIM 1라운드] 줄 파일 올리기가 연결 · 시간 · 깨진 답으로 실패하면(U5 · U6 · U7) 같은 파일을 8초 · 20초 뒤 두 번까지 저절로 다시 보낸다 —
+   종전엔 그 줄 아래 «연결이 끊겼어요 (코드 U6)»가 남고 그 줄은 AI 소리가 비어 있었다(고객이 그 줄 «목소리 만들기»를 다시 눌러야 했다).
+   서버는 같은 자리에 새 파일을 하나 더 만들 뿐이라(지난 것은 그대로 · S.up 은 마지막 것) 두 번 보내도 탈이 없다 · 다시 보내는 동안 «보내는 중» 그대로 */
+function _upAgain(key,pend,d){ if(!pend||(pend.n||0)>=2) return false; var e=String((d&&d.ecode)||''), k=String((d&&d.kind)||'');
+  if(!(/^U[567]$/.test(e)||k==='slow'||k==='net'||k==='bad'||(d&&d._to))) return false;
+  clearTimeout(MK_UP[key]); MK_UP[key]=1;
+  setTimeout(function(){ try{ _mkSendWav0(key,pend.blob,pend.url,pend.src,pend.nm,pend.meta,(pend.n||0)+1); }catch(e){ delete MK_UP[key]; _upFail(key,_ecWord('U',6)); _upWaitDone(key,false); render(); } },(pend.n||0)?20000:8000);
+  return true; }
 function _mkUpDone(d){ var key=d.key; if(!key) return;
   /* [UP_RACE] 답의 번호(d.tk) — 옛 마이페이지(번호를 안 돌려줌)면 먼저 보낸 것부터(차례대로 온다) · 마지막에 보낸 것이 아니면 S.up 을 건드리지 않는다(뒤 것이 곧 온다) */
   var P=MK_PEND[key]||{}, ks=Object.keys(P).filter(function(x){ return x!=='last'; }).map(Number).sort(function(a,b){ return a-b; }), tk=d.tk!=null?+d.tk:ks[0], pend=P[tk]; delete P[tk];
   if(pend&&tk!==P.last) return;
+  if(!d.ok&&pend&&_upAgain(key,pend,d)){ if(!Object.keys(P).filter(function(x){ return x!=='last'; }).length) delete MK_PEND[key]; return; }   // [UP_AGAIN]
   if(!pend&&d.tk!=null) return;   /* [UP_RACE] 이미 지나간 번호(마지막 것이 먼저 와 적힌 뒤 늦게 온 앞 답) — 덮어쓰지 않는다 */
   if(!ks.filter(function(x){ return x!==tk; }).length) delete MK_PEND[key];   /* 아직 안 온 앞 답이 있으면 짐을 남겨 «지나간 것»으로 알아보게 */
   clearTimeout(MK_UP[key]); delete MK_UP[key]; setTimeout(function(){ _upWaitDone(key,d.ok); },0);   /* [PLAY_TRUE] 아래에서 S.up 을 바꾼 뒤에 푼다 */ if(d.ok) delete VT_FAIL[key];
