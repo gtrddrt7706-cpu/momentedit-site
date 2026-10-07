@@ -14599,7 +14599,13 @@ chk "return _exFirst(key); }" order-preview.html 1
 chk 'EX_LABEL_HONEST' order-preview.html 1
 chk "'예시를 바꿨어요':'글을 고쳤어요'" order-preview.html 1
 nochk "'읽는 분이 바뀌었어요':'글을 고쳤어요')" order-preview.html
-chk 'EX_OLD_IS_EX' order-preview.html 6
+chk 'EX_OLD_IS_EX' order-preview.html 8
+chk 'var PV_OLD={' order-preview.html 1
+chk "if(!t||_exIs('pv')) return put();" order-preview.html 1
+# ★[EX_OLD_COVER 2026-10-07 사장님 «확실하게»] 예시 글을 바꾸면 옛 글을 EX_OLD_1006 · PV_OLD 에 남겨야 한다 — origin/main 과 대조(브라우저 없이 CI 에서 돈다)
+chk 'EX_OLD_COVER' scripts/audit/ex-old-cover.mjs 1
+chk 'EX_PROMISE' CLAUDE.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-old-cover.mjs >/dev/null 2>&1; _eoc=$?; if [ "$_eoc" = 1 ]; then echo 'FAIL ex-old-cover: 예시 글이 바뀌었는데 옛 글이 EX_OLD_1006 · PV_OLD 에 없습니다 — node scripts/audit/ex-old-cover.mjs'; fail=1; elif [ "$_eoc" = 2 ]; then echo 'skip ex-old-cover: origin/main 없음'; else echo 'ok ex-old-cover: 바뀐 예시 글은 옛 글 목록에 있다'; fi; fi
 chk 'function _exNOf(key)' order-preview.html 1
 chk 'EX_WARM_ORDER' order-preview.html 1
 chk 'EX_FIRST' scripts/audit/ex-promise.mjs 1

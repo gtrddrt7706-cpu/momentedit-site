@@ -4655,6 +4655,9 @@ var PV_MAX=200, PV_EX=[
   ['유쾌하게','본편에 앞서, 저희가 예고편을 가져왔어요. 편하게 즐겨 주세요.'],
   ['고마움을 담아','이 영상으로 먼저 고맙다는 인사를 드릴게요.']
 ];
+/* [EX_OLD_IS_EX 2026-10-07] 식전 영상 소개 예시의 «옛 글»(10/6 EX_TEXT_1006 전) — 그 글로 소리를 만든 고객의 S.pvText 는 그대로 옛 글이다. 예시로 세어 칩이 켜지고 «예시로 바꿀까요?»를 묻지 않는다.
+   ★예시 글을 또 바꾸면 종전 글을 여기(같은 번호)에 더한다 — scripts/audit/ex-old-cover.mjs 가 origin/main 과 대조해 빠뜨리면 빨강 */
+var PV_OLD={"0":["저희 두 사람이 함께 지나온 시간을 짧게 담았습니다. 예식이 시작되기 전, 편안하게 봐 주세요."],"1":["처음 만난 날부터 오늘까지, 저희가 함께 웃던 순간들을 모았습니다. 화면 곳곳에 여러분도 계십니다. 반가운 얼굴을 찾아봐 주세요."],"2":["이 영상을 만들다가 저희가 처음으로 크게 다툴 뻔했습니다. 그래도 끝까지 함께 만들었습니다. 재미있게 봐 주세요."],"3":["오늘 와 주셔서 고맙습니다. 저희를 키워 주신 분들, 곁을 지켜 준 분들께 드리는 작은 인사입니다. 함께 봐 주세요."]};
 /* ★[R7-03 G0_KEEP 2026-10-03] 하객 입장 때(g0) AI 기본 글을 바꿨다(사장님 10/3 «자리를 정하지 않은 예식 · 안내 페이지를 안 보낸 예식에도 맞게» · 스튜디오 01_guest-1-arrival 과 같은 까닭).
    옛 기본 글로 이미 만든 g0 소리는 그 글을 «두 분이 고친 글»(S.vtext)로 옮겨 둔다 — 안 옮기면 _txStale 이 새 기본 글과 비교해
    멀쩡한 소리를 모두 «글을 고쳤어요 · 다시 만들어 주세요» · 미완료로 바꾼다. 불러올 때 한 번(_applySaved) · 이미 고친 글이 있으면 건드리지 않는다 */
@@ -4781,7 +4784,7 @@ function _exNOf(key){ var t=_exNorm(_recNeed(key)); if(!t) return -1;
     var o=(S.exOld||{})[_vtKey(key)]; if(o!=null){ var O=[].concat(((EX_OLD_1006[o]||{})[gi])||[]); if(O.some(function(x){ return t===_exNorm(x); })) return +o; }
     if(key==='g0'&&S.g0Moved&&typeof G0_OLD!=='undefined'&&t===_exNorm(G0_OLD)) return 0; return -1; }
   if(key==='entry') return t===_exNorm((ENTRY[S.entry]||{}).self)?0:-1;
-  if(key==='pv'){ for(var m=0;m<PV_EX.length;m++){ if(t===_exNorm(PV_EX[m][1])) return m; } } return -1; }
+  if(key==='pv'){ for(var m=0;m<PV_EX.length;m++){ if(t===_exNorm(PV_EX[m][1])) return m; } if(typeof PV_OLD!=='undefined'){ for(var q in PV_OLD){ if(PV_OLD[q].some(function(x){ return t===_exNorm(x); })) return +q; } } } return -1; }
 function _exIs(key){ return _exNOf(key)>=0; }
 var ENTRY_KEYS=['A','B','C','D','E','F'];   /* ★[EX_SAME_COUNT 2026-10-07 사장님 «AI 두 분 목소리랑 스튜디오 나레이션 아래 버튼 4개로만 제한했었는데 버튼 스타일이 달라졌으니 동일하게»] 카드(두 줄 상자)일 때는 한 줄에 넷이 한계였다 — 칩 줄이 되어 스튜디오 «입장 멘트»와 같은 여섯 · 같은 차례 · 같은 이름(EX_ROW) */   /* ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 · 1줄로 · 베스트로»] AI 판 입장 인사 참고 예시 = 결이 겹치지 않는 넷(서사 · 짧고 강하게 · 감성 · 감사·가족). 격식과 따뜻함(C)은 서사 · 감사와, 이야기의 시작(F)은 서사와 겹친다 — 나레이션 판 여섯 멘트(녹음)는 그대로 · 고른 판이 C · F 면 카드는 아무것도 안 켜진다 */
 window.mkEntryEx=function(n){ var v=ENTRY_KEYS[n]; if(!v||!ENTRY[v]) return; var go=function(){ if(S.vlines) delete S.vlines[_slVk('entry')]; if(S.vkeep) delete S.vkeep.entry; _lSet('entry',v); buildSteps(); _fxNext='[data-fk="mkex:entry:'+n+'"]'; _persist(); render(); _exAudio(['entry']); };   /* [EX_PREBAKE_ENTRY] 멘트마다 섞은 소리를 미리 만든다 · 없으면 [EX_FIRST] 가 맨 앞에서 따로(«준비 중» → «확정하기») */
@@ -4796,7 +4799,7 @@ function _pvEditor(){ var t=String(S.pvText||''), cur=PV_EX.findIndex(function(x
 window.mkPvText=function(v){ S.pvText=String(v||'').slice(0,PV_MAX); if(S.vkeep&&S.vkeep.pv) delete S.vkeep.pv;   /* [KEEP_LINE] */ _persist(); _aiPillSync('pv');   /* [AI_PILL] */ var n=document.getElementById('mkPvN'); if(n) n.textContent=_pvCount(S.pvText); };
 /* ★[R8-13] 입력 중 카드 머리 «약 n초»를 맞추던 줄 금지 — 2026-10-03 사용자 지시로 삭제 [LINE_NO_SEC] · 머리 길이가 없어졌다(아래 «n / 300자» 세는 줄은 그대로) */
 window.mkPvEx=function(i){ var x=PV_EX[i]; if(!x) return; var t=String(S.pvText||'').trim(), put=function(){ S.pvText=x[1]; if(S.vlines) delete S.vlines.pv; if(S.vkeep) delete S.vkeep.pv; _persist(); _fxNext='[data-fk="mkex:pv:'+i+'"]'; render(); _exAudio(['pv']); };   /* ★[EX_FOCUS_CARD 2026-10-06 사장님 «예시 클릭하면 텍스트박스 아래 골드색 가로선 · 애초에 안 나오게»] 초점은 누른 카드에 둔다(글칸으로 옮기면 입력 표시 선이 그어졌다) · [EX_PREBAKE] 소리도 바로 */   /* [LINE_SPLIT] 예시는 한 줄 · 지금 읽는 분 */
-  if(!t||PV_EX.some(function(e){ return e[1]===t; })) return put();
+  if(!t||_exIs('pv')) return put();   /* [EX_OLD_IS_EX] 옛 예시 글도 두 분이 쓴 글이 아니다 — 묻지 않는다 */
   ordAsk({title:'예시로 바꿀까요?',body:'지금 적어 둔 소개글은 지워져요',yes:'예시로 바꾸기',no:'그대로 두기'}).then(function(ok){ if(ok) put(); }); };
 window.mkPvWho=function(v){ if(v!=='g'&&v!=='b'||MK_UP.pv) return; if(S.pvWho===v||(!S.pvWho&&v==='g')){ if(_whoStale('pv')||VC.stErr) _vcWhoAudio('pv','prevideo'); return; }   /* [SIM_R3] */ if(_keepAsk('pv',function(){ mkPvWho(v); })) return; S.pvWho=v; if((S.vlines||{}).pv) S.vlines.pv.forEach(function(x){ x.w=v; });   /* [LINE_SPLIT] */
   _persist(); render(); _vcWhoAudio('pv','prevideo'); };   // [AI_PILL] · 다른 목소리로 만든 소리는 버린다(GUEST_WHO 와 같은 꼴)
