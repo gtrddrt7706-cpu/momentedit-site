@@ -270,8 +270,8 @@ function _ltRateCheck(eventId) {
     var cache = CacheService.getScriptCache();
     var kMin = 'lr_m_' + eventId, kHr = 'lr_h_' + eventId;
     var m = Number(cache.get(kMin) || 0), h = Number(cache.get(kHr) || 0);
-    if (m >= 3)  return { ok: false, error: '편지가 연달아 도착하고 있어요. 잠시 뒤에 다시 보내 주세요.' };
-    if (h >= 40) return { ok: false, error: '지금은 편지가 많이 몰렸어요. 잠시 뒤에 다시 시도해 주세요.' };
+    if (m >= 3)  return { ok: false, ecode: 'G1', error: '편지가 연달아 도착하고 있어요 · 잠시 뒤에 다시 보내 주세요' };   // [LT_RATE_G1 2026-10-08 점검] 몰림은 1 — 종전 G0 이라 코드가 안 붙어 «(코드 없음)» 스크린샷만 왔다
+    if (h >= 40) return { ok: false, ecode: 'G1', error: '지금은 편지가 많이 몰렸어요 · 잠시 뒤에 다시 보내 주세요' };
     cache.put(kMin, String(m + 1), 60);
     cache.put(kHr, String(h + 1), 3600);
   } catch (_e) {}   // 캐시가 막히면 제한 없이 통과 — 편지를 막는 것보다 낫다

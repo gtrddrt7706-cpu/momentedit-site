@@ -1500,6 +1500,60 @@
    "fn": "handleCardConfirm",
    "mark": "ERR_CODE_PAY",
    "why": "카드 승인 뒤 기록 함수가 던져도 B-1(관리자 즉시 알림 · 결제로그 «기록경고»)로 · 토스 거절 P4 + 토스 코드 · 빈 복귀도 결제로그 — 옛것이면 돈은 받았는데 흔적이 Logger 뿐"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "handleCardConfirm",
+   "mark": "PAY_UNKNOWN",
+   "why": "토스 승인이 연결 예외 · 이미 처리됨이면 조회로 확인 → 됐으면 성공 · 모르면 P5(다시 결제하지 마세요) + 관리자 메일 · 거절은 한국어 한 줄 + 토스 코드"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltRateCheck",
+   "mark": "LT_RATE_G1",
+   "why": "편지 몰림은 G1(코드가 붙는다)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "SCHED_SESSION_NO_EXPIRE",
+   "why": "마이페이지 로그인 길은 «신청 후 7일» 링크 기한을 보지 않는다(문의 8일째부터 일정 선택 · 변경이 막히던 것)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "ADMIN_EXC_WHY",
+   "why": "관리자 동작의 예외는 원문 160자를 관리자 화면에 + 오류기록(사고번호)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "GETCOUPLE_JSON_ERR",
+   "why": "청첩장 · 라이브 조회 예외도 JSON(G9 · G3) — 안내 HTML 이 나가 하객 화면이 G7 로 보던 것"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errStamp",
+   "mark": "ERR_NO_DOT",
+   "why": "코드를 붙이기 전에 끝 마침표를 걷는다 · 관리자 9 는 기록 · «내 자리만»은 기록 안 함"
+  },
+  {
+   "file": "95_notify",
+   "fn": "adminErrLog",
+   "mark": "ERR_EID_ALL",
+   "why": "사고번호 찾기는 시트 전체(5,000줄)"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCall",
+   "mark": "ADMIN_UNKNOWN_FN",
+   "why": "옛 GAS 에서 새 기능을 부르면 «새 버전 배포가 필요해요»까지"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errStamp",
+   "mark": "ERR_FAILISH_4",
+   "why": "핸들러가 ecode 없이 «…하지 못했어요»를 돌려주면 0 이 아니라 4 로 코드를 붙인다(화면은 0 에 코드를 안 붙인다)"
   }
  ],
  "fns": {
@@ -2028,6 +2082,9 @@
    "_payCfg",
    "_payExpectedAmount",
    "_tossConfirm",
+   "_tossLookup",
+   "_tossConfirmSafe",
+   "_tossFailOut",
    "_payMarkCard",
    "_payLog",
    "_payPreValidate",
@@ -2524,7 +2581,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-08 01:06 · f8087494",
+ "_생성": "2026-10-08 03:48 · b86dcdf9",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -2996,5 +3053,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "4df0fffa5296"
+ "_표식서명": "a5e87d98da43"
 }

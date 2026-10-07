@@ -15420,3 +15420,20 @@ nochk "MK.toast=ev.data.error||'지우지 못했어요'" order-preview.html
 nochk "r.ph='rec'; r.t0=Date.now(); r.el=0; r.mr.start(250);" order-preview.html
 chk 'ERR_CODE_BUILDER' scripts/audit/err-builder.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-builder.mjs >/dev/null 2>&1; _ecb=$?; if [ "$_ecb" = 1 ]; then echo 'FAIL err-builder: 식순 화면 실패 문구(까닭 한 줄 + 코드 V · U · D · S · L · M)가 어긋났습니다 — node scripts/audit/err-builder.mjs'; fail=1; else echo "ok err-builder ($_ecb)"; fi; fi
+# ★★[PAY_UNKNOWN · SCHED_SESSION_NO_EXPIRE · ADMIN_EXC_WHY · GETCOUPLE_JSON_ERR · ERR_NO_DOT · ERR_EID_ALL · LT_RATE_G1 · ERR_AREA_SIGNUP_B · ADMIN_UNKNOWN_FN 2026-10-08 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»] 점검 1라운드 서버 묶음
+#   카드 승인 «결과 모름»은 조회로 확인(됐으면 성공 · 모르면 P5 · 다시 결제하지 마세요) · 로그인 길은 7일 링크 기한 없음(문의 8일째부터 일정 선택이 막히던 것) ·
+#   관리자 예외는 까닭 + 오류기록 · 청첩장 조회 예외는 JSON G9 · 코드 앞 마침표 걷기 · 사고번호는 시트 전체 · 편지 몰림 G1 · 신청서 = B · 옛 GAS 안내. card-err ⑤ · err-codes ⑤ 가 실제로 태운다(되돌리면 빨강 · 돌연변이 확인)
+chk 'PAY_UNKNOWN' automation/platform/98_pay_card.gs 5
+chk 'function _tossConfirmSafe(cfg, paymentKey, orderId, amount)' automation/platform/98_pay_card.gs 1
+nochk "error: '결제 승인에 실패했습니다. ' + (t.error || '')" automation/platform/98_pay_card.gs
+chk "if (!viaSession && isExpired(row.get('신청일시')))" automation/consultation/consultation-booking.gs 1
+chk 'SCHED_SESSION_NO_EXPIRE' automation/consultation/consultation-booking.gs 2
+chk 'ADMIN_EXC_WHY' automation/consultation/consultation-booking.gs 1
+chk 'GETCOUPLE_JSON_ERR' automation/consultation/consultation-booking.gs 1
+chk 'ERR_AREA_SIGNUP_B' automation/platform/95_notify.gs 1
+chk 'ERR_NO_DOT' automation/platform/95_notify.gs 1
+chk 'ERR_EID_ALL' automation/platform/95_notify.gs 1
+chk 'ERR_STATE_QUIET' automation/platform/95_notify.gs 1
+chk 'LT_RATE_G1' automation/platform/87_letter.gs 1
+chk 'ADMIN_UNKNOWN_FN' automation/admin/admin.gs 1
+chk 'ERR_FAILISH_4' automation/platform/95_notify.gs 1

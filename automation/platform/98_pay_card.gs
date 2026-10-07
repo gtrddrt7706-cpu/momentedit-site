@@ -70,6 +70,34 @@ function _tossConfirm(cfg, paymentKey, orderId, amount) {
     return { ok: false, error: (e && e.message) || '요청 실패', code: 'FETCH_EXCEPTION' };
   }
 }
+/* ★★[PAY_UNKNOWN 2026-10-08 점검 · 사장님 «표기 안 된 다른 에러는 없는지 딥하게»] 토스 승인 요청이 «연결 예외»(시간 초과 · 끊김)이거나
+   «이미 처리된 결제»면 토스는 이미 돈을 받았을 수 있다 — 종전엔 둘 다 «결제 승인에 실패했습니다 (코드 P4)»라 고객이 새 주문으로 다시 결제할 수 있었다.
+   이제 토스에 그 결제를 한 번 조회해 «완료 · 같은 주문 · 같은 금액»이면 성공으로 이어 기록하고, 조회도 안 되면 «결과 모름(P5) · 다시 결제하지 마세요» + 관리자 즉시 메일.
+   그 밖의 거절은 한국어 한 줄 + 토스 코드 꼬리(P4 · REJECT_CARD_COMPANY) — 토스 · GAS 영문 원문은 _why(오류기록)로만 */
+function _tossLookup(cfg, paymentKey) {
+  try {
+    var auth = Utilities.base64Encode(cfg.secret + ':');
+    var resp = UrlFetchApp.fetch('https://api.tosspayments.com/v1/payments/' + encodeURIComponent(paymentKey), { method: 'get', headers: { Authorization: 'Basic ' + auth }, muteHttpExceptions: true });
+    var code = resp.getResponseCode(), data = {}; try { data = JSON.parse(resp.getContentText()); } catch (e) {}
+    return (code >= 200 && code < 300) ? { ok: true, data: data } : { ok: false, code: (data && data.code) || ('HTTP ' + code) };
+  } catch (e) { return { ok: false, code: 'FETCH_EXCEPTION' }; }
+}
+function _tossConfirmSafe(cfg, paymentKey, orderId, amount) {   // [PAY_UNKNOWN] 승인 · 결과 모름이면 조회로 확인
+  var t = _tossConfirm(cfg, paymentKey, orderId, amount);
+  if (t.ok || !/^(FETCH_EXCEPTION|ALREADY_PROCESSED_PAYMENT)$/.test(String(t.code || ''))) return t;
+  var lk = _tossLookup(cfg, paymentKey), d = (lk && lk.data) || {};
+  if (lk.ok && String(d.status || '') === 'DONE' && String(d.orderId || '') === String(orderId) && Math.round(Number(d.totalAmount || 0)) === Math.round(Number(amount))) return { ok: true, data: d, recovered: String(t.code) };
+  return { ok: false, unknown: true, code: String(t.code || ''), error: String(t.error || ''), lookup: String((lk && lk.code) || (lk && lk.ok ? 'status ' + (d.status || '') : '')) };
+}
+function _tossFailOut(t, code, milestone, amount, orderId) {   // [PAY_UNKNOWN] 화면에 갈 실패 한 벌(두 결제 길 공통)
+  var tc = String((t && t.code) || '').replace(/[^A-Z0-9_]/gi, '').slice(0, 40), why = 'toss ' + tc + ' ' + String((t && t.error) || '').slice(0, 140) + (t && t.lookup ? ' · 조회 ' + t.lookup : '');
+  if (t && t.unknown) {
+    try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카드결제 결과 모름·수동확인 | 코드 ' + code + ' | ' + milestone + ' ' + Number(amount || 0).toLocaleString() + '원 | 토스 주문 ' + orderId + ' | ' + why + ' | 토스 관리자에서 이 주문이 결제됐는지 확인해 주세요'); } catch (e) {}
+    return { ok: false, ecode: 'P5', unknown: true, tossCode: tc, _why: why, error: '결제가 됐는지 확인하고 있어요 · 다시 결제하지 마시고 카카오톡으로 알려 주세요' };
+  }
+  var rej = /^(REJECT_|INVALID_CARD|INVALID_STOPPED_CARD|EXCEED_|RESTRICTED_|NOT_SUPPORTED_(CARD|INSTALLMENT))/.test(tc);
+  return { ok: false, ecode: 'P4', tossCode: tc, _why: why, error: (rej ? '카드사에서 승인하지 않았어요 · 다른 카드로 해 주세요' : '결제 승인이 되지 않았어요 · 다시 결제하시거나 계좌이체로 해 주세요') + ' (코드 P4' + (tc ? ' · ' + tc : '') + ')' };
+}
 
 // 카드결제 마커 — 해당 원장 키를 '카드(매출전표)'로 표시해 현금영수증 발급 큐에서 제외.
 //   확인 직후(같은 락 안) 동의기록을 최신으로 다시 읽어 결제수단만 병합 → 코어가 쓴 영수증기준일 등 다른 키 보존.
@@ -199,11 +227,12 @@ function _depositCardConfirm(body, cfg) {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, result: '실패', memo: '금액불일치 기대' + expected });
       return { ok: false, error: '결제 금액이 일치하지 않습니다. 다시 시도해 주세요.' };
     }
-    var t = _tossConfirm(cfg, paymentKey, orderId, amount);
+    var t = _tossConfirmSafe(cfg, paymentKey, orderId, amount);   // [PAY_UNKNOWN]
     if (!t.ok) {
-      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스실패', memo: (t.error || '') + ' ' + (t.code || '') });
-      return { ok: false, ecode: 'P4', tossCode: String(t.code || ''), _why: 'toss ' + (t.code || '') + ' ' + String(t.error || '').slice(0, 150), error: '결제 승인에 실패했습니다. ' + (t.error || '') };   // [ERR_CODE_PAY]
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: t.unknown ? '토스결과모름' : '토스실패', memo: (t.error || '') + ' ' + (t.code || '') + (t.lookup ? ' · 조회 ' + t.lookup : '') });
+      return _tossFailOut(t, code, milestone, amount, orderId);   // [ERR_CODE_PAY] · [PAY_UNKNOWN]
     }
+    if (t.recovered) _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스조회성공', memo: '승인 응답 ' + t.recovered + ' · 조회로 완료 확인' });   // [PAY_UNKNOWN]
     // ★[DEPOSIT_B1] 여기부터는 돈을 이미 받았다(토스 승인 완료). 기록이 실패해도 던지지 않는다 — 던지면 화면은 «실패»를 보고 관리자는 아무것도 모른다.
     //   기존 카드 경로의 B-1 과 같은 처방: 관리자에게 즉시 메일(수동 보정) · 화면엔 «결제가 끝났어요 · 디렉터가 확인 뒤 메일로».
     var _recErr = '';
@@ -327,11 +356,12 @@ function handleCardConfirm(body) {
     }
 
     // 토스 승인
-    var t = _tossConfirm(cfg, paymentKey, orderId, amount);
+    var t = _tossConfirmSafe(cfg, paymentKey, orderId, amount);   // [PAY_UNKNOWN]
     if (!t.ok) {
-      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스실패', memo: (t.error || '') + ' ' + (t.code || '') });
-      return { ok: false, ecode: 'P4', tossCode: String(t.code || ''), _why: 'toss ' + (t.code || '') + ' ' + String(t.error || '').slice(0, 150), error: '결제 승인에 실패했습니다. ' + (t.error || '') };   // [ERR_CODE_PAY]
+      _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: t.unknown ? '토스결과모름' : '토스실패', memo: (t.error || '') + ' ' + (t.code || '') + (t.lookup ? ' · 조회 ' + t.lookup : '') });
+      return _tossFailOut(t, code, milestone, amount, orderId);   // [ERR_CODE_PAY] · [PAY_UNKNOWN]
     }
+    if (t.recovered) _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스조회성공', memo: '승인 응답 ' + t.recovered + ' · 조회로 완료 확인' });   // [PAY_UNKNOWN]
 
     // 성공 → 확인 기록(기록·단계전이·고객 안심알림 일관).
     //   ★ 계약금은 관리자 함수(adminConfirmPayment)를 직접 부르면 안 됨 — ① _requireAdmin() 가드로 즉시 throw

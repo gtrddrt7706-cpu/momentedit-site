@@ -168,6 +168,10 @@ function doGet(e) {
     return serveApplyA();                             // 기본: 화면 A (신청 폼, 공개)
   } catch (err) {
     try { Logger.log('doGet 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
+    if (p && p.action === 'getCouple') {   // ★[GETCOUPLE_JSON_ERR 2026-10-08 점검] 청첩장 · 라이브의 JSON 길은 예외도 JSON(G9 · 87_letter 미붙임이면 G3) — 종전엔 안내 HTML 이 나가 하객 화면은 «깨진 답 G7», 기록은 X9 로 갈렸다
+      var _ge = String((err && err.message) || err || ''); __ERR_ON = true; __ERR_ACT = 'getCouple';
+      return jsonOut({ ok: false, ecode: 'G' + (/is not defined|is not a function/.test(_ge) ? 3 : 9), eid: (typeof _errId === 'function') ? _errId() : '', _why: String((err && err.stack) || _ge).replace(/\s+/g, ' ').slice(0, 200), error: '청첩장 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.' });
+    }
     var _gid = ''; try { if (typeof _errId === 'function') { _gid = _errId(); _errRecord('get:' + String(p.action || p.page || '').slice(0, 30), 'X9', '문제가 발생했습니다', String((err && err.stack) || (err && err.message) || err).replace(/\s+/g, ' ').slice(0, 200), _gid, ''); } } catch (_g) {}   // [ERR_CODE_GAS]
     return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.' + (_gid ? ' (코드 X9 · ' + _gid + ')' : ''), false);   // 내부 예외 원문 비노출
   }
@@ -857,7 +861,7 @@ function _slotTaken(dateKey, time, exceptRowNum) {
 }
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
-function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer, payBy) {
+function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer, payBy, viaSession) {
   /* [DEPOSIT_CARD 2026-09-25] 카드로 낼 신청이면 관리자 알림이 «승인 필요»가 아니라 «카드 결제 대기 · 결제되면 자동 확정»이어야 한다.
      화면은 신청을 «먼저» 넣고 토스 결제창을 연다 — 그 사이 관리자가 승인을 누르면 actApprove 가 입금확인을 적어 버려
      결제 없이 확정된다. 그래서 알림·관리자 큐가 카드 대기를 알게 한다(동의기록.예약금결제='카드').
@@ -869,7 +873,9 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
   var row = findRowByToken(sheet, colOf, token);
   if (!row) throw new Error('신청 정보를 찾을 수 없습니다.');
   if (String(row.get('상태') || '').trim() === ST.CANCELLED) throw new Error('취소된 예약입니다. 다시 진행을 원하시면 카카오톡으로 문의해 주세요.');
-  if (isExpired(row.get('신청일시'))) throw new Error('전용 링크 유효기간이 지났습니다.');
+  /* ★★[SCHED_SESSION_NO_EXPIRE 2026-10-08 점검] «신청 후 7일» 은 옛 메일 «전용 링크»(화면 B)의 수명이다 — 마이페이지 로그인 길(handleSubmitSchedule)엔 걸지 않는다.
+     종전엔 같은 함수를 타서 문의 8일째부터 마이페이지 «일정 선택 · 시간 변경»이 늘 «전용 링크 유효기간이 지났습니다»로 막혔다(마이페이지는 단추를 계속 보여 줬다). 되돌리지 말 것 */
+  if (!viaSession && isExpired(row.get('신청일시'))) throw new Error('전용 링크 유효기간이 지났습니다.');
   if (!dateKey || !time) throw new Error('날짜와 시간을 선택해 주세요.');
 
   // 제출된 시간이 그 날짜(요일)의 유효 슬롯인지 검증 — 잘못된 값 차단
@@ -2163,7 +2169,7 @@ function handleSubmitSchedule(body) {
     return { ok: false, cancelled: true, error: '취소된 예약이라 일정을 선택할 수 없어요.' };
   }
   var consultToken = String(a.consult.get('토큰') || '');
-  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null, body.cashReceipt, body.payer, body.payBy);   // [DEPOSIT_CARD] payBy='card' — 카드로 낼 신청
+  return submitSchedule(consultToken, body.dateKey, body.time, body.flex || [], body.etc || '', body.hold || null, body.cashReceipt, body.payer, body.payBy, true);   // [DEPOSIT_CARD] payBy='card' — 카드로 낼 신청 · [SCHED_SESSION_NO_EXPIRE] 로그인 길(7일 링크 기한 없음)
 }
 
 // cancelReservation — 상담/촬영 취소(환불 없음: 입금 전). 확정상태면 24h 기한 KST 재확인.
@@ -2316,6 +2322,9 @@ function doPost(e) {
     var _intended = !!(_em && _em.length <= 140 && /[가-힣]/.test(_em)
       && !/[<>{}]|https?:|Error:|Exception|undefined|null|cannot |TypeError|ReferenceError| at |\(\)|실행하세요|시트 없음/i.test(_em));
     var _userMsg = _intended ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';
+    /* ★[ADMIN_EXC_WHY 2026-10-08 점검] 관리자 동작(adminCall · 인증 통과)의 예외는 원문 160자를 관리자 화면에 — 종전엔 «요청을 처리하지 못했어요»만 떠
+       할당량 · 시간 초과 · 데이터 한 줄의 TypeError 를 GAS 실행 기록에서만 볼 수 있었다. 고객 화면 길은 그대로(원문 비노출) */
+    if (!_intended && __ERR_ACT === 'adminCall' && typeof _CURRENT_ADMIN !== 'undefined' && _CURRENT_ADMIN) _userMsg = '서버에서 오류가 났어요 · ' + _em.replace(/\s+/g, ' ').slice(0, 160);
     var _out = { ok: false, error: _userMsg };
     __ERR_ON = true;
     if (!_intended) {   // [ERR_CODE_GAS] 예상 못 한 오류 = 9(«… is not defined/function» 은 붙여넣기 · 배포 누락 = 3) · 사고번호로 오류기록의 그 줄을 찾는다

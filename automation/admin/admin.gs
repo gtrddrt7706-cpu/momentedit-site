@@ -208,7 +208,7 @@ function adminCall(token, fn, args) {
       solapiUsageSummary: solapiUsageSummary
     };
     var f = FNS[fn];
-    if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn };
+    if (!f) return { ok: false, error: '알 수 없는 요청: ' + fn + ' · GAS 새 버전 배포가 필요해요(99_deployCheck 의 deployStampCheck)' };   // [ADMIN_UNKNOWN_FN 2026-10-08] 화면이 새 기능을 부르는데 GAS 가 옛 판일 때 할 일까지
     return f.apply(null, args);
   } finally { _AUTHED = false; }
 }
