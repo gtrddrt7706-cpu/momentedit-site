@@ -14928,8 +14928,12 @@ nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);bor
 # ★[VFLOW_NOLINE 2026-10-07 사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자»] 나오는 곳 여섯 = 글 · › 만(점선 밑줄 없음)
 chk 'VFLOW_NOLINE' order-preview.html 2
 nochk 'white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep)' order-preview.html
-chk 'VSTAT_GUTTER' order-preview.html 1
-chk '.mk-vstat>span:first-child{padding-right:16px}' order-preview.html 1
+# ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
+chk 'VCARD_CALM' order-preview.html 3
+chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
+nochk '.mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)}' order-preview.html
+nochk '.mk-vstat{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;padding:12px 0;border-top' order-preview.html
+nochk '.mk-vpcs .mk-vhow{display:block;margin:14px 0 0;padding:12px 0 0;border-top:1px solid var(--border)' order-preview.html
 chk 'VREADY_ONE' order-preview.html 1
 chk "both?'두 분 목소리가 준비됐어요.':'각자 1분 읽으면" order-preview.html 1
 nochk "두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))" order-preview.html
