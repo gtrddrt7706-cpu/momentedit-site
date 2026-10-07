@@ -15781,3 +15781,54 @@ chk 'PICK_CAN_SAVE' scripts/pick-back.tpl.html 2
 chk 'PICK_COPY_TRUTH' pick-final.html 1
 chk 'ERR_CODE_ADMIN' scripts/audit/err-admin.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-admin.mjs >/dev/null 2>&1; _eca=$?; if [ "$_eca" = 1 ]; then echo 'FAIL err-admin: 관리자 · 브리프 · 내부 화면 실패 문구(까닭 한 줄 + 코드 · 코드 검색 · 카드 격리 · 복사)가 어긋났습니다 — node scripts/audit/err-admin.mjs'; fail=1; else echo "ok err-admin ($_eca)"; fi; fi
+# ★★[ERR_R1_BUILDER 2026-10-07 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»] 식순 화면 · 미리 듣기 1라운드(triage-builder 23항목)
+#   서버 까닭 글 + 0 은 코드 없이(페이지들 _ecSrv 와 같은 판단) · 목소리 거절도 받는 자리 한 곳 · 두 분 소리 파일을 못 받으면 글 + 코드 · 기다리는 줄을 탭 잠금 무음이 건너뛰지 않음
+#   크게 보기 · ③ · ④ 에서도 보이는 알림 · 줄의 일은 그 줄 아래 · 맞추기 재생 막힘 M7 · 해독 실패 M6 + 문맥 닫기 · 빈 줄 채우기 결과 코드 · M0 · 저장 꾸러미 예외 S9 · 코드 앞 마침표 없음
+#   «(코드 …)» 한 덩어리(nowrap · 그리는 순간에만) · 콘솔 고객 미리 듣기 실패 한 줄(L7 · L3 · L9 · L0 · M7) — err-builder ⑪ ⑫ 가 실브라우저로 잰다(돌연변이 확인)
+chk 'ERR_ZERO_TEXT' order-preview.html 8
+chk 'if(n<=0) return _ecTidy(t);' order-preview.html 1
+chk "var c=_ecCodeOf(w)||(w?'V0':'');" order-preview.html 1   # 연습 차례 요약 글 — 서버 글만 온 거절도 V0
+chk "c=_ecCodeOf(_le)||(_le?'V0':'');" order-preview.html 1   # 다시 만들기 알림
+chk "_afc=_ecCodeOf(_autoWhy)||(_autoWhy?'S0':'');" order-preview.html 1   # 나가기 판
+chk 'RF_LINE_CLEAR' order-preview.html 3
+chk 'function _rfLineOff(key)' order-preview.html 1
+chk 'VC_DONE_LINE' order-preview.html 1
+chk "d.error=_ecLine('V',{error:_vcErrWord(d.error||''),ecode:d.ecode});" order-preview.html 1
+chk 'PLAY_FILE_WHY' order-preview.html 6
+chk 'function _lUpFail(st,v)' order-preview.html 1
+chk 'if(u) _lUpOn(st,u); else _lUpFail(st,_uv); _lShow();' order-preview.html 1
+chk 'LOAD_WAIT_KEEP' order-preview.html 1
+chk 'ENG_FAIL_SHOW' order-preview.html 1
+chk 'LISTEN_NOTE' order-preview.html 3
+chk 'function _lNote(st,t)' order-preview.html 1
+chk 'NOW_LINE_FAIL' order-preview.html 2
+chk 'TURN_PLAY_FAIL' order-preview.html 2
+chk 'TUNE_PLAY_WHY' order-preview.html 2
+chk 'SAMPLE_CTX_CLOSE' order-preview.html 1
+chk 'SAMPLE_M6' order-preview.html 1
+chk 'FILL_CODES' order-preview.html 2
+chk 'SKIP_CODE' order-preview.html 1
+chk 'MIC_M0' order-preview.html 1
+chk 'MIC_M0' assets/err-codes.js 1
+chk 'UP_AGAIN_THROW' order-preview.html 1
+chk 'SAVE_THROW_SAY' order-preview.html 1
+chk 'EXIT_THROW_SAY' order-preview.html 1
+chk 'CODE_NO_DOT' order-preview.html 2
+chk 'CODE_NOWRAP' order-preview.html 6
+chk 'function _ecNw(root)' order-preview.html 1
+chk 'CODE_NOWRAP' console.html 2
+chk 'function ecWrap(h)' console.html 1
+chk 'GUEST_WHY' console.html 5
+chk 'GUEST_REC_WHY' console.html 2
+chk 'GUEST_LINK_CUT' console.html 4
+chk 'GUEST_LOST_LINE' console.html 2
+chk 'GUEST_BUILD_FAIL' console.html 2
+chk 'RF_SRV_ERR' console.html 1
+chk '__meLostAlerted' console.html 1   # [COURSE_LOST_LOUD] 디렉터 알림은 그대로(고객 화면만 GUEST_LOST_LINE)
+chk 'ERR_R1_BUILDER' scripts/audit/err-builder.mjs 3
+chk 'RF_LINE_CLEAR' scripts/audit/err-builder.mjs 2
+nochk "if(AUDSKIP){ _fail(b,me,'일부는 아직 준비 중이에요" order-preview.html
+nochk "(코드 M'+(c||3)+')'" order-preview.html
+nochk "pp.catch(function(){}); MK.aud=au;" order-preview.html
+nochk "있어요. 잠시 뒤 다시 눌러 주세요. (코드 S5)" order-preview.html
+nochk "if (/요청을 처리하지 못했어요/.test(t)) return '서버 오류(드라이브일 수 있어요) (코드 L9)';" console.html

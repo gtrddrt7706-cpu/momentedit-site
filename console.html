@@ -256,6 +256,10 @@ body.guest .go{max-width:420px;margin-left:auto;margin-right:auto}
    ★--dim 은 GUEST_DIM_AA 로 4.74:1(크림)이 된 뒤라 본문 크기에서도 AA 를 넘는다.
      그 전 값(#8A8478 · 3.55:1)이었다면 이 줄부터 새 위반이 됐을 것이다. */
 #gIntro .cue{color:var(--dim);font-size:12.5px;line-height:1.7;margin:0 0 4px}
+/* [GUEST_WHY · GUEST_LINK_CUT] 고객 화면의 실패 한 줄 — 진사(빌더 · 마이페이지 실패 글과 같은 색) · 코드는 한 덩어리(CODE_NOWRAP) */
+#gIntro .gerr{color:var(--seal);font-size:13.5px;line-height:1.75;margin:6px 0 12px;word-break:keep-all}
+.gwhy{margin:10px 0 0;font-size:13px;line-height:1.6;color:var(--seal);word-break:keep-all}
+.ec-nw{white-space:nowrap}
 
 /* ★PREVIEW_BED — 배경 음악 성격 고지. 음악이 실제로 흐를 때만 선다.
    소리가 안 나는데 "배경 음악은 예시예요"라고 쓰면 그 줄이 거짓말이 된다. */
@@ -339,6 +343,11 @@ body.guest .now .hint,body.guest .now .safe{margin-bottom:auto}
 body.guest .now:has(.hint:not([hidden])) .txt,
 body.guest .now:has(.safe:not([hidden])) .txt,
 body.guest .now:has(.safe:not([hidden])) .hint{margin-bottom:0}
+/* [GUEST_WHY] 까닭 한 줄은 글 바로 아래 — 남는 세로는 그 밑이 먹는다(팁 · 안심이 서 있으면 그 밑) */
+body.guest .now .gwhy{margin-bottom:auto}
+body.guest .now:has(.gwhy:not([hidden])) .txt,
+body.guest .now:has(.hint:not([hidden])) .gwhy,
+body.guest .now:has(.safe:not([hidden])) .gwhy{margin-bottom:0}
 
 /* ④ 진행 막대 — 6px 금색 띠 → 실선. 금색을 통으로 칠하는 자리는 여기 한 줄뿐 */
 body.guest .prog{height:3px;margin-top:18px}
@@ -586,6 +595,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
          한쪽만 고치면 한 화면이 서로 다른 말을 한다. -->
   <p class="len" id="giUpto" style="display:none"></p>
   <p class="len" id="giLen"></p>
+  <p class="gerr" id="giWhy" role="alert" hidden></p><!-- [GUEST_LINK_CUT · GUEST_LOST_LINE · GUEST_BUILD_FAIL] 미리 듣기를 시작할 수 없거나(주소가 잘림 · 순서를 못 만듦) 기본 순서로 들려줄 때 까닭 한 줄(코드) -->
   <!-- ★★[PREVIEW_SOUND_CUE 2026-08-16] 이 화면은 **누르는 순간 소리가 난다.** 그런데 그 사실을
        어디에도 적지 않았다. 고객이 겪는 두 가지가 둘 다 우리가 미리 말해 줄 수 있는 것이다:
          ① 지하철·카페에서 눌렀다가 소리가 새는 것
@@ -619,6 +629,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
         <div class="blk" id="nBlk" hidden><div class="bn"></div><div class="bh"></div></div>
         <h2 id="nName">준비됨</h2>
         <div class="txt" id="nTxt"></div>
+        <p class="gwhy" id="gWhy" role="status" hidden></p><!-- [GUEST_WHY] 고객 미리 듣기 — 소리가 실패해 글로 흐른 까닭 한 줄(코드) -->
         <div class="hint" id="nHint" hidden></div>
         <div class="safe" id="nSafe" hidden></div>
         <div class="prog" id="nProg"><i></i></div>
@@ -722,9 +733,12 @@ if (GUEST) MODE = 'preview';              // 고객 화면은 언제나 저절�
 var S = { course:'damback', entry:'A', declareWho:'narr', declare:'1',
           letter:'parent', bless:'off', valley:'none', guestVoice:'nar', digital:false };
 
+var S_BAD = false;   // [GUEST_LINK_CUT] 주소의 S 를 못 풀었다(잘린 링크)
 if (QS.get('S')) {
-  try { var d = JSON.parse(decodeURIComponent(escape(atob(QS.get('S'))))); for (var k in d) S[k] = d[k]; } catch(e){}
+  try { var d = JSON.parse(decodeURIComponent(escape(atob(QS.get('S'))))); for (var k in d) S[k] = d[k]; } catch(e){ S_BAD = true; }
 }
+/* ★[GUEST_LINK_CUT 2026-10-07 1라운드 점검] 메신저로 옮기다 잘린 미리 듣기 주소(S 를 못 풂)는 고객 화면에서 시작하지 않는다 —
+   종전엔 예외를 삼켜 기본 S(코스 «약속»)가 그대로 흘러, 고른 것과 다른 예식을 말없이 들려줬다. 인트로에 까닭 한 줄(L7) · «듣기 시작» 없음(gStop) */
 if (QS.get('course')) S.course = QS.get('course');
 
 var OPT = {
@@ -785,7 +799,7 @@ function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(); if 
       : RF_SKIP === 'norf' ? '받지 않음 · 나레이션으로 나감 · 관리 화면 «당일 콘솔» 단추로 열어야 받아요'
       : RF_SKIP === 'notok' ? '받지 않음 · 나레이션으로 나감 · 이 기기에 관리자 로그인이 없어요 (코드 L8)'
       : '파일 없음 · 나레이션으로 나감';
-    return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + t + '</span></div>'; }).join(''); }
+    return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + ecWrap(t) + '</span></div>'; }).join(''); }   // [CODE_NOWRAP] 코드는 한 덩어리
 /* ★[ERR_CODE_PAGES 2026-10-07] 받지 못한 까닭 — 직원이 읽는 짧은 말 + 코드(L = 불러오기 · 숫자 = 무슨 일 · assets/err-codes.js 와 같은 뜻).
    e = 요청 자체가 실패(시간 L5 · 연결 L6 · 서버 답이 깨짐 L7 · 미리보기 주소에서 막음 L3) · d = 서버(adminCall)가 거절한 답 */
 function rfWhy(d, e){
@@ -798,7 +812,7 @@ function rfWhy(d, e){
   if (/로그인이 필요|로그인이 만료/.test(t)) return '관리자 로그인이 풀렸어요 · 관리 화면에서 다시 로그인해 주세요 (코드 L8)';
   if (/찾을 수 없어요/.test(t)) return '파일이 지워졌거나 옮겨졌어요 (코드 L0)';
   if (d && d.ok && !d.data) return '빈 파일이 왔어요 (코드 L4)';
-  if (/요청을 처리하지 못했어요/.test(t)) return '서버 오류(드라이브일 수 있어요) (코드 L9)';
+  if (/요청을 처리하지 못했어요|서버에서 오류가 났어요/.test(t)) return '서버 오류(드라이브일 수 있어요) (' + (c ? c[1] : '코드 L9') + ')';   /* ★[RF_SRV_ERR 2026-10-07 1라운드 점검] 서버 일반 오류 글이 «서버에서 오류가 났어요 · 잠시 뒤 다시 해 주세요 (코드 L9 · 사고번호)»로 바뀌어도 같은 갈래 · 받은 코드 꼬리(사고번호)는 버리지 않는다(오류기록에서 그 줄을 찾는 열쇠) */
   return (t ? t.replace(/\s*\(코드[^)]*\)\s*$/, '') : '서버가 거절했어요') + ' (' + (c ? c[1] : '코드 L0') + ')';
 }
 var RF_WHY = {}, RF_SKIP = '';   // [ERR_CODE_PAGES] 줄마다 받지 못한 까닭 · 아예 받지 않은 까닭(norf rf 코드 없음 · notok 관리자 토큰 없음)
@@ -834,7 +848,8 @@ function summarize(){
   /* [COURSE_LOST_LOUD] 저장된 코스를 엔진이 모르면 틀기 전에 운영자를 멈춰 세운다(한 번). */
   if (m.lostCourse) {
     lines.unshift('<span style="color:#b3261e;font-weight:700">⚠ 저장된 코스 «' + esc(m.lostCourse) + '» 를 모릅니다 — 지금 이 큐는 «약속» 코스로 대신 만든 것입니다. 고객이 고른 식순과 다를 수 있으니 틀기 전에 확인하세요.</span>');
-    if (!window.__meLostAlerted) { window.__meLostAlerted = true; try { alert('저장된 코스 «' + m.lostCourse + '» 를 모릅니다.\n지금 큐는 «약속» 코스로 대신 만든 것이라 고객이 고른 식순과 다를 수 있어요.\n틀기 전에 식순을 확인하세요.'); } catch (e) {} }
+    if (GUEST) G_LOST = String(m.lostCourse);   /* ★[GUEST_LOST_LINE 2026-10-07 1라운드 점검] 고객 미리 듣기에는 디렉터용 시스템 판(alert · 고객을 3인칭으로)을 띄우지 않는다 — 인트로에 한 줄(L3 · gNote) */
+    else if (!window.__meLostAlerted) { window.__meLostAlerted = true; try { alert('저장된 코스 «' + m.lostCourse + '» 를 모릅니다.\n지금 큐는 «약속» 코스로 대신 만든 것이라 고객이 고른 식순과 다를 수 있어요.\n틀기 전에 식순을 확인하세요.'); } catch (e) {} }
   }
   if (m.noClip) lines.push('<span style="color:var(--gold-text)">녹음이 없는 자리 ' + m.noClip + '곳 — 문안 카드로 지나갑니다</span>');
   $('#sum').innerHTML = lines.join('<br>');
@@ -972,9 +987,14 @@ function toast(m){
    빌더 ② 보고 듣기와 같은 규칙 · 같은 norm(글자 · 숫자 · 한글만). 다르면 문안 카드로 지난다(고객 화면엔 꼬리표 없음 · GUEST_SKIN).
    ★현장(console) 모드는 건드리지 않는다 — 당일 진행은 파일이 있으면 그대로 튼다(규칙을 바꾸는 것은 사장님 결정).
    녹음 기록을 못 읽으면 «모르면 글»(빈 표 → 전부 카드). */
-var REC_T = null;
-if (MODE === 'preview') fetch('/assets/audio/narration/_recorded.json').then(function(r){ return r.json(); })
-  .then(function(j){ REC_T = (j && j.clips) || {}; })['catch'](function(){ REC_T = {}; });
+var REC_T = null, REC_ERR = '', REC_P = null, G_LOST = '';
+/* ★[GUEST_REC_WHY 2026-10-07 1라운드 점검] 녹음 목록(_recorded.json)을 못 받으면 까닭 코드(REC_ERR · 서버 거절 L0 · 연결 L6 · 깨진 답 L7 · 늦음 L5)를 들고 한 번 더 받는다(3초 뒤).
+   «듣기 시작»은 목록을 받은 뒤(최대 8초) 첫 순서로 간다 — 종전엔 목록이 오기 전 0.7초에 시작해 첫 나레이션이 글 카드로 흘렀고, 실패해도 고객 화면엔 아무 말이 없었다(빌더는 LREC_ERR · _pendT 로 말한다) */
+function recLoad(again){
+  REC_P = fetch('/assets/audio/narration/_recorded.json').then(function(r){ if (!r.ok) { var e0 = new Error('rec'); e0.meN = 0; throw e0; } return r.json()['catch'](function(){ var e7 = new Error('rec'); e7.meN = 7; throw e7; }); }, function(){ var e6 = new Error('rec'); e6.meN = 6; throw e6; })
+    .then(function(j){ REC_T = (j && j.clips) || {}; REC_ERR = ''; }, function(e){ if (!again) return new Promise(function(ok){ setTimeout(ok, 3000); }).then(function(){ return recLoad(true); }); if (!REC_T) REC_T = {}; REC_ERR = 'L' + ((e && e.meN != null) ? e.meN : 6); });
+  return REC_P; }
+if (MODE === 'preview') recLoad();
 function recOk(c){
   if (MODE !== 'preview') return true;
   if (CLIPS[c.no] || CLIPS[c.slug]) return true;   // 디렉터가 직접 불러온 파일은 그대로
@@ -996,12 +1016,12 @@ function srcOf(c){
      특히 배역 예시 클립은 est 자체가 없다(3초로 시작한다) — 다시 걸지 않으면 전부 3초에 끊긴다. */
 function playSrc(url, estSec, cb){
   var dur = estSec || 3, done = false, tmr = null;
-  function settle(ok, why){
+  function settle(ok, why, err){
     if (done) return; done = true;
     if (tmr) clearTimeout(tmr);
     stopProg();
     aNarr.onerror = aNarr.onloadedmetadata = aNarr.onended = null;
-    cb(ok, why);
+    cb(ok, why, err);
   }
   function arm(){
     if (tmr) clearTimeout(tmr);
@@ -1016,7 +1036,7 @@ function playSrc(url, estSec, cb){
   aNarr.onended = function(){ settle(true); };
   aNarr.src = url;
   var p = aNarr.play();
-  if (p && p.catch) p.catch(function(){ settle(false, '재생 막힘'); });
+  if (p && p.then) p.then(function(){ gUnlockOff(); }, function(e){ if (e && e.name === 'AbortError' && aNarr.getAttribute('src') !== url) return; settle(false, '재생 막힘', e); });   /* [GUEST_WHY] 까닭(err)을 넘긴다 · 소리가 나면 «한 번 누르면» 대기를 푼다 · ★다음 순서가 이미 이 요소를 가져간 뒤의 AbortError 는 이 순서의 실패가 아니다(종전엔 새 순서의 소리와 손잡이를 지웠다) */
   arm(); runProg(dur, null);
 }
 
@@ -1038,9 +1058,28 @@ function cueEnd(c){ if (!c || !c.live || c.live.doing !== 'say') return '';
   if (c.k === 'vow' && c.live.both) { var _b = [].concat(c.live.both); return '두 분 함께 «' + last(_b[_b.length - 1]) + '»'; }
   if (c.k === 'welcome' || c.k === 'letter' || c.k === 'toast') return out.length ? out[out.length - 1] : '';   // [TOAST_SAY] 축배도 신랑 다음 신부 — 마지막 분 하나
   return out.join(' / '); }
-function fallbackCard(c, why, done){
+/* ★★[GUEST_WHY 2026-10-07 1라운드 점검] 고객 미리 듣기에서 소리가 «실패해서» 글 카드로 흐른 순서는 그 까닭 한 줄(코드)을 글 아래에 —
+   종전엔 setPill 이 고객 화면에서 바로 돌아가 녹음 목록을 못 받음 · 파일을 못 엶 · 재생 막힘이 전부 말없는 글 카드였다(배경 음악만 흐른다).
+   ★«녹음 없음» · «글 바뀜 · 재녹음 전»(목록을 받았는데 그 글의 녹음이 없음)은 우리 준비 상태라 종전대로 말하지 않는다(GUEST_SKIN).
+   말은 빌더(_pendT · _playFail)와 같다: 못 받음 L# «소리를 불러오지 못해 글로 보여 드려요» · 못 엶 M6 «소리를 틀지 못해 글로 보여 드려요» ·
+   막힘 M7 «재생이 막혔어요 · 화면을 한 번 누르면 이어서 들려요»(누르면 그 손가락 안에서 소리 요소를 풀어 다음 순서부터 들린다 · gUnlockArm) */
+var GWHY = null, G_UNLOCK = null, G_SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+function gMediaCode(){ var c = (aNarr.error && aNarr.error.code) || 0, s = String(aNarr.currentSrc || aNarr.getAttribute('src') || ''); if (/^(blob|data):/.test(s)) return 'M6'; if (c === 2 || navigator.onLine === false) return 'L6'; return c === 4 ? 'L0' : 'M6'; }   // 빌더 _mediaCode 와 같은 판단
+function gWhyOf(why, err){
+  if (why === '재생 막힘') { if (err && err.name === 'AbortError') return ''; if (err && err.name === 'NotAllowedError') return 'M7'; return gMediaCode(); }
+  if (why === '파일 없음') return gMediaCode();
+  if (why === '글 바뀜 · 재녹음 전' && REC_ERR) return REC_ERR;
+  return ''; }
+function gWhyText(code){ return code === 'M7' ? '재생이 막혔어요 · 화면을 한 번 누르면 이어서 들려요 (코드 M7)' : (/^L/.test(code) ? '소리를 불러오지 못해 글로 보여 드려요' : '소리를 틀지 못해 글로 보여 드려요') + ' (코드 ' + code + ')'; }
+function gWhyPaint(){ var e = $('#gWhy'); if (!e) return; var on = !!(GUEST && GWHY && GWHY.i === cur && (phase === 'clip' || phase === 'post' || phase === 'done')); e.hidden = !on; e.innerHTML = on ? ecWrap(esc(GWHY.t)) : ''; }   // 그 순서의 글 카드가 떠 있는 동안만(사람 구간 · 끝 화면엔 없다)
+function gUnlockOff(){ if (!G_UNLOCK) return; document.removeEventListener('pointerdown', G_UNLOCK, true); document.removeEventListener('keydown', G_UNLOCK, true); G_UNLOCK = null; }
+function gUnlockArm(){ if (G_UNLOCK) return; G_UNLOCK = function(){ gUnlockOff(); audioOn(); try { if (!aNarr.getAttribute('src') || aNarr.paused) { aNarr.src = G_SILENT; var q = aNarr.play(); if (q && q.catch) q.catch(function(){}); } } catch (e) {} };   // 지금 소리가 흐르면 건드리지 않는다
+  document.addEventListener('pointerdown', G_UNLOCK, true); document.addEventListener('keydown', G_UNLOCK, true); }
+function fallbackCard(c, why, done, err){
+  var _gc = GUEST ? gWhyOf(why, err) : '';   // [GUEST_WHY] 소리 요소를 비우기 전에 까닭을 읽는다(load() 가 error 를 지운다)
   aNarr.removeAttribute('src'); try { aNarr.load(); } catch(e){}
   setPill('card', why);
+  if (_gc) { GWHY = { i: cur, t: gWhyText(_gc) }; if (_gc === 'M7') gUnlockArm(); gWhyPaint(); }
   var dur = c.est || 3;
   var d = (MODE === 'preview') ? Math.min(dur, Math.max(3.5, (c.text || '').length / 17)) : dur;
   runProg(d, done);
@@ -1070,9 +1109,9 @@ function playClip(c, done){
   var url = srcOf(c);
   if (!url) return fallbackCard(c, '녹음 없음', done);
   if (!recOk(c)) return fallbackCard(c, '글 바뀜 · 재녹음 전', done);   // [TEXT_AUDIO_MATCH]
-  playSrc(url, c.est || 3, function(ok, why){
+  playSrc(url, c.est || 3, function(ok, why, err){
     if (ok) return done();
-    fallbackCard(c, why || '파일 없음', done);
+    fallbackCard(c, why || '파일 없음', done, err);   // [GUEST_WHY]
   });
 }
 
@@ -1116,7 +1155,7 @@ function fire(i, opt){
   opt = opt || {};
   if (!R || i < 0 || i >= R.cues.length) return finish();
   clearT();
-  cur = i; fired[i] = true;
+  cur = i; fired[i] = true; GWHY = null;   // [GUEST_WHY] 새 순서 — 앞 판(다시 듣기 · 이전)의 까닭이 남지 않게
   var c = resolve(R.cues[i]);
   liveT0 = 0;                          // 방금 판정에 썼다 · 다음 큐로 새지 않게 여기서 끊는다
   castNow = null;                      // ★배역 예시는 큐를 넘어가지 않는다(배지가 다음 자리로 새는 것을 막는다)
@@ -1262,6 +1301,7 @@ function gBlock(bn){
 
 function render(){
   if (!R) return;
+  gWhyPaint();   // [GUEST_WHY] 지금 순서의 까닭 한 줄만(다음 순서로 가면 걷힌다)
   // [FREE_RESCUE] 사람 구간이 «재생 안 됨»을 가진 큐면 대기 클립 단추의 이름을 바꾼다 — 누르면 할 일이 이름이다.
   var _bw = $('#bWait');
   if (_bw) { var _rs = (phase === 'live' && R.cues[cur] && R.cues[cur].rescue);
@@ -1454,6 +1494,9 @@ function up(n1, n2){
   if (GUEST) $('.up').classList.toggle('blank', !n1 && !n2);
 }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]; }); }
+/* ★[CODE_NOWRAP 2026-10-07 1라운드 점검] «(코드 L9 · 7KQ2)»가 괄호 안에서 줄이 갈리지 않게 한 덩어리(.ec-nw · white-space:nowrap)로 — 마이페이지 _errHtml · 식순 화면 _ecNw 와 같은 모양.
+   h 는 이미 이스케이프한 HTML(코드 글자에는 &<>" 가 없다) · 글 자체는 그대로 */
+function ecWrap(h){ return String(h == null ? '' : h).replace(/\(코드 [A-Z]\d[^)]*\)/g, function(m){ return '<span class="ec-nw">' + m + '</span>'; }); }
 
 /* ─────────────────────────────────────────────────────
    5. 버튼
@@ -1695,8 +1738,10 @@ setInterval(tick, 1000);
    6. 시작 / 나가기
    ───────────────────────────────────────────────────── */
 $('#go').onclick = function(){
+  if (GUEST && S_BAD) { gStop('미리 듣기 주소가 잘렸어요 · 마이페이지에서 다시 열어 주세요 (코드 L7)'); return; }   // [GUEST_LINK_CUT]
   try { R = RitualCue.build(S, {mode:MODE}); }
-  catch(e){ toast('순서를 만들 수 없습니다: ' + e.message); return; }
+  catch(e){ if (GUEST) { try { console.warn('preview build', e); } catch (x) {} R = null; gStop('미리 듣기를 만들지 못했어요 · 마이페이지에서 다시 열어 주세요 (코드 L9)'); return; } toast('순서를 만들 수 없습니다: ' + e.message); return; }   /* ★[GUEST_BUILD_FAIL 2026-10-07 1라운드 점검] 고객 화면에 영어 예외 글(TypeError …) · 디렉터 말투를 띄우지 않는다 — 인트로로 돌아가 까닭 한 줄(L9) · 예외는 콘솔에만 */
+  GWHY = null; gUnlockOff();   // [GUEST_WHY] 새로 들을 때 앞 판의 까닭 · 대기를 걷는다
   resetRun();
 
   var tv = $('#tStart').value;
@@ -1718,7 +1763,8 @@ $('#go').onclick = function(){
   if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function(w){ wakeLock = w; }).catch(function(){});
   render();
 
-  if (MODE === 'preview') later(function(){ advance(); }, 700);
+  if (MODE === 'preview') { var _rp = REC_P || recLoad(), _r0 = R;   // [GUEST_REC_WHY] 녹음 목록을 받은 뒤(최대 8초) 첫 순서로 — 그사이 멈춤 · 나가기 · 손으로 «다음»이면 그대로 둔다
+    later(function(){ Promise.race([_rp, new Promise(function(ok){ setTimeout(ok, 8000); })]).then(function(){ if (!REC_T && !REC_ERR) REC_ERR = 'L5'; if (R === _r0 && cur < 0 && phase === 'idle' && !PAUSED) advance(); }); }, 700); }
 };
 
 /* ★★[EXIT_CONFIRM 2026-09-12] 진행 중인 예식을 «확인 한 번 없이» 버리고 있었다.
@@ -1800,7 +1846,14 @@ if (GUEST) {
     }
   } catch(e){ $('#giLen').textContent = ''; }
   $('#giGo').onclick = function(){ gi.classList.remove('on'); $('#go').click(); };
+  if (S_BAD) gStop('미리 듣기 주소가 잘렸어요 · 마이페이지에서 다시 열어 주세요 (코드 L7)');   // [GUEST_LINK_CUT]
+  else if (G_LOST) gNote('고르신 코스를 찾지 못해 기본 순서로 들려드려요 (코드 L3)');   // [GUEST_LOST_LINE] 들을 수는 있다(단추 그대로)
 } else if (QS.get('auto') === '1') $('#go').click();
+/* [GUEST_LINK_CUT · GUEST_BUILD_FAIL] 미리 듣기를 시작할 수 없으면 인트로에 까닭 한 줄 — 흐름 · 길이 · 소리 안내와 «듣기 시작»은 걷는다(눌러도 같은 답이다) */
+function gStop(t){ var gi = $('#gIntro'); if (!gi) return; gi.classList.add('on'); $('#run').classList.remove('on'); clearT();
+  gNote(t); ['#giFlow', '#giUpto', '#giLen', '#gIntro .cue'].forEach(function(q){ var e = $(q); if (e) e.style.display = 'none'; });
+  var g = $('#giGo'); if (g) { g.disabled = true; g.style.display = 'none'; } }
+function gNote(t){ var w = $('#giWhy'); if (!w) return; w.innerHTML = ecWrap(esc(t)); w.hidden = false; }
 })();
 </script>
 </body>
