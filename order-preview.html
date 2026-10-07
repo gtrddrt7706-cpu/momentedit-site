@@ -1397,12 +1397,25 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-hbtn[data-mp] svg{width:10px;height:10px;padding:10px 9px 10px 11px;border-radius:50%;background:var(--accent);color:var(--card);box-sizing:content-box}
 .mk-hbtn[data-mp].on svg{padding:10px}
 .mk-hbtn[data-mp][disabled]{opacity:.45}
-.mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.mk-flow li{font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
+.mk-flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}   /* [FLOW_THREAD] 줄 사이는 li 아래 여백 — 흐름선이 줄 사이에서 끊기지 않게 */
+.mk-flow li{position:relative;padding-bottom:20px;font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
+.mk-flow>li:last-child{padding-bottom:0}
+/* ★★[FLOW_THREAD 2026-10-07 사장님 «양가 어머님이 앞으로 나와 불을 밝혀요 · 말 없이 — 이런 상황에서 이런 멘트가 나오고 그다음 이런 액션이 있구나 한눈에 · 다른 곳들도 · 여기서 정하고 일괄 수정» → 시안 A «흐름선»]
+   순간 쪽 흐름 = 세로 흐름선 하나 + 마디. 마디 모양이 갈래를 말한다 — ▶ 들어 볼 나레이션 · ● 행동(말 없이 · 박수 · 음악) · ○ 사람이 그 자리에서 직접 말하는 차례.
+   종전엔 행동 줄이 12.5px 옅은 글(QUIET_LINES)이라 위 멘트의 각주처럼 읽혔고, 세 갈래가 세 모양 · 세 들여쓰기(47 · 42 · 42+아이콘)였다.
+   글 · 차례 · 소리는 그대로 — 모양만. 행동 줄을 옅게 · 작게 되돌리지 말 것 */
+.mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px;background:rgba(184,154,117,.55)}   /* [FLOW_THREAD] 선 = 장식(--gold 55%) · ▶ 원 테와 같은 금빛 */
+.mk-flow>li:first-child::before{top:19px}.mk-flow>li:last-child::before{bottom:auto;height:13px}.mk-flow>li.n:last-child::before{height:19px}.mk-flow>li:only-child::before{display:none}   /* 첫 마디에서 시작 · 마지막 마디에서 멈춘다(▶ 원 가운데 19 · 점 가운데 13) */
+.mk-flow li.n .mk-pl{position:relative;z-index:1}   /* ▶ 원이 선 위에 앉는다 */
+.mk-flow li.q::after,.mk-flow li.t::after{content:'';position:absolute;left:13px;top:8.5px;width:9px;height:9px;border-radius:50%;box-sizing:border-box;z-index:1}
+.mk-flow li.q::after{background:var(--gold-deeper)}   /* ● 행동 */
+.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--gold-deeper)}   /* ○ 직접 말하는 차례 */
+.mk-flow li.t.now::after{border-color:var(--seal)}   /* [TALK_BRIDGE] 지금 차례면 마디도 진사 */
+.mk-flow li.q .qa{font-weight:500}
+.mk-qt{margin-left:8px;font-size:11px;font-weight:400;letter-spacing:.02em;color:var(--light);white-space:nowrap;vertical-align:1px}   /* [FLOW_THREAD] «말 없이» · «미리 듣기에서는 넘겨요» = 줄 끝 작은 표(나레이션 · 당일 직접 표와 같은 크기) */
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start;font-size:16px;line-height:1.75;color:var(--accent)}   /* ★[FLOW_LINE_TYPE 2026-10-02 사장님 «재생 버튼 메시지 글꼴과 스타일을 하객 맞이 카드랑 통일»] 나레이션 글 = 줄 카드 글(.mk-vtx 16 · 1.75 · accent) */
 .mk-ltx1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}   /* [VP_FLOW_CLAMP] 두 분 목소리 줄 — 전문은 아래 줄 카드에 */
-.mk-flow li.q{color:var(--light);font-size:12.5px;padding-left:42px}   /* [MK_ROWS] 말 없는 줄 · 차례 줄도 나레이션 글과 같은 세로선 */   /* [QUIET_LINES] 말 없는 줄 = 옅게(--light) · 옛 ② 목록과 같은 색 */
-.mk-flow li.t{color:var(--accent);padding-left:42px}
+.mk-flow li.q,.mk-flow li.t{padding-left:47px;font-size:16px;line-height:1.6;color:var(--accent)}   /* ★[FLOW_THREAD] 행동 · 차례 줄 = 나레이션 글과 같은 세로선(47) · 같은 16px. 종전 «말 없는 줄 = 옅게 12.5px»(QUIET_LINES · MK_ROWS 42)는 이 결정으로 바뀌었다 */
 .mk-flow li.t b{font-weight:600}
 .mk-flow li.t.now{color:var(--seal)}.mk-flow li.t.now b{color:var(--seal)}   /* [TALK_BRIDGE] */   /* [R7-08] 차례 이름(신랑 차례 · 말씀하실 차례 · 두 분 번갈아) */
 .mk-lab{display:flex;align-items:center;flex-wrap:wrap;gap:0 6px;font-size:11px;color:var(--sub);letter-spacing:.04em;min-height:18px}   /* [VOICE_GUIDE] 목소리 표(아이콘+글)와 줄 이름이 한 줄 가운데선에 — 옛 inline 은 아이콘 기준선 때문에 위아래로 어긋났다 */
@@ -1546,7 +1559,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .vk-st.no::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--seal)}   /* ★[VOICE_KIND_0928 4-2] 진사는 점으로만 · 글자는 옅게 */
 .lf-vk{margin:0 0 4px}
 .vk-note{margin-left:6px;font-size:11px;color:var(--light)}
-.mk-flow li.t .vk{margin-right:8px}
+.mk-flow li.t .vk{margin:0 0 0 8px}   /* [FLOW_THREAD] 차례 이름이 먼저 · 표(당일 직접)는 뒤 — 나레이션 줄(이름 · 표)과 같은 차례 */
 .mk-lglist{list-style:none;margin:6px 0 10px;padding:0;display:flex;flex-direction:column;gap:6px}
 .mk-lglist li{font-size:12.5px;color:var(--sub);line-height:1.6}
 .mk-inapp{position:fixed;inset:0;z-index:2147483000;background:rgba(28,27,25,.42);display:flex;align-items:flex-end;justify-content:center;padding:16px}   /* [INAPP_MIC] */
@@ -1792,11 +1805,11 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-vuse{margin:6px 0 14px}   /* [VUSE_FLOW] 이해 한 줄 + 나오는 곳 흐름 */
 .mk-vuse-1{margin:0 0 8px;font-size:14px;line-height:1.7;color:var(--accent);word-break:keep-all}
 .mk-vuse-1 b{font-weight:600}
-.mk-vflow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;row-gap:4px}
+.mk-vflow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;row-gap:0}
 .mk-vflow li{display:inline-flex;align-items:center}
-.mk-vflow li:not(:last-child)::after{content:'›';margin:0 4px;color:var(--light)}
-.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap}
-.mk-vfb:hover{border-color:var(--gold-deep)}
+.mk-vflow li:not(:last-child)::after{content:'›';margin:0 9px;color:var(--light)}
+.mk-vfb{min-height:44px;padding:0;border:0;border-radius:0;background:none;color:var(--accent);font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep);text-decoration-thickness:1.5px;text-underline-offset:6px}   /* ★[VFLOW_TEXT 2026-10-07 사장님 «디자인적으로 이게 최선인가 · 디자이너 시선으로»] 나오는 곳 여섯 = 글 흐름(점선 밑줄 · ›). 종전 흰 알약(테두리 · 12.5px)은 이 쪽에서 가장 무거운 덩어리였고(폰 두 줄 · 할 일인 목소리 카드보다 무거움) «서는 분» · 예시 칩처럼 «하나 고르는 칩»으로 읽혔다. 누르는 칸 44 는 그대로 · 점선 밑줄 = «누르면 그 자리를 보여 드려요»(자세히 보기와 같은 글 단추 계열) · 알약으로 되돌리지 말 것 */
+@media (hover:hover){ .mk-vfb:hover{text-decoration-style:solid} }
 .mk-vfb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .mk-vu-img{aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);margin:0 0 12px}
 .mk-vu-img img,.mk-vu-img video{display:block;width:100%;height:100%;object-fit:cover}   /* [VU_VIDEO_PLAY] 영상도 같은 틀 */
@@ -1818,6 +1831,7 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-vstat{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .mk-vstat>span{display:flex;flex-direction:column;gap:2px;min-width:0}
 .mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)}
+.mk-vstat>span:first-child{padding-right:16px}   /* ★[VSTAT_GUTTER 2026-10-07] 왼칸에도 16 — 폰(390)에서 «말 빠르기» 일곱째 점이 가운데 세로선에 붙어 있었다(오른칸만 16 띄웠다) */
 .mk-vsd{position:relative;display:flex;justify-content:space-between;align-items:center;max-width:240px;height:16px;margin-top:8px}   /* [VSTAT_DOTS] 보기만 하는 점 줄 */
 .mk-vsd::before{content:'';position:absolute;left:4px;right:4px;top:50%;height:1px;background:var(--border)}
 .mk-vsd em{position:relative;width:8px;height:8px;box-sizing:border-box;border:1.5px solid var(--gold-deep);border-radius:50%;background:var(--card)}
@@ -5283,7 +5297,8 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
     +_vcUseIntro()   /* [VUSE_FLOW] 이해 먼저 → 만들기 */
     /* ★[VOICE_INTRO_ONE 2026-10-07 사장님 «이거 합쳐서 안내하자 · 디자이너 시선 · 고객 입장에서»] 종전 두 줄(«각자 1분 읽으면 … · 말투는 조금 다를 수 있어요» / «말투가 마음에 들지 않으면 다시 녹음해 … · 확정해 둔 줄은 그대로 남아요 · 자세히 보기»)이
        같은 «말투» 이야기를 두 번 했다 → 한 단락 두 문장 + 끝에 «자세히 보기» · «확정한 줄은 그대로»는 자세히 보기 창(마음에 드는 줄은 먼저 확정해 두세요)이 그림으로 말한다 */
-    +'<p class="mk-one mk-vredo"><span>'+(both?'두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))+'에 이 목소리가 쓰여요.':'각자 1분 읽으면 그 목소리로 안내를 만들어요.')+'</span>'
+    /* ★[VREADY_ONE 2026-10-07 사장님 «이게 최선인가 · 디자이너 시선»] 두 분 다 만든 판의 «하객 맞이 · 식전 영상 소개 · 입장 인사에 이 목소리가 쓰여요» 금지 — 바로 위 «나오는 곳» 흐름 줄(_vcUseIntro)이 같은 자리를 이름으로 말한다(한 화면에 같은 말 두 번). 첫 문장은 «준비됐어요» 하나 */
+    +'<p class="mk-one mk-vredo"><span>'+(both?'두 분 목소리가 준비됐어요.':'각자 1분 읽으면 그 목소리로 안내를 만들어요.')+'</span>'
     +'<span>말투가 아쉬우면 다시 녹음하면 돼요. <button type="button" class="pk-link" data-fk="mkredo" aria-haspopup="dialog" onclick="mkRedoOpen()">자세히 보기</button></span></p>';   /* 줄 1 = 무엇이 되나 · 줄 2 = 아쉬우면 · 자세히 보기(한 덩어리로 줄바꿈) */   /* [REDO_FIG 2026-10-06 사장님 «클릭해서 작은 창으로 그림으로 보여 주면서 이해시키면 · 원하면 자세히 보기»] */   /* ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 드는 게 있으면 다시 녹음해도 된다고 여기도 한 번 더»] 순간 쪽 확정 안내(.mk-keepl «확정한 줄은 목소리를 다시 녹음하거나 … 그대로 남아요»)와 같은 뜻 · «언제든»은 쓰지 않는다(다시 만들기 횟수가 있다) */   /* [NOTE_OFF_1003] 칩 아래에서 걷은 설명은 이 쪽 한 줄로만 */
   if(!st) return h+_vcWaitBox()+'</section>';   // [WAIT_BOX]
   var mark=function(r){ return r?'<span class="mk-vpk ok">✓</span>':'<span class="mk-vpk">남음</span>'; };
@@ -5845,6 +5860,9 @@ function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; var v=R.voice
 /* ★★[MK_NO_HEADS 2026-09-27 사장님 «고르기 · 흐름 저게 칸 잡아먹는 게 별로 · 더 미니멀하게»] «고르기» · «흐름» 제목과 그 위 선을 걷었다 —
    칩은 순간 설명 바로 아래 · 흐름 줄은 그 아래 이어서(줄마다 ▸ 와 목소리 표가 이미 «흐름»임을 말한다). 고를 것이 없는 쪽의 «이 순간 들어 보기»만 흐름 위 오른쪽에.
    참고 예시 · 두 분이 할 말 · 부탁은 할 일이 다른 칸이라 제목을 남긴다. 되살리지 말 것 */
+/* [FLOW_THREAD] 행동 줄(● 마디) — 끝의 «말 없이» · «미리 듣기에서는 넘겨요»만 작은 표로 뗀다(엔진 글은 그대로 · 다른 « · »는 행동의 일부라 두 분이 하객께 «목례 · 박수»처럼 남긴다) */
+var Q_TAG=/ · (말 없이|미리 듣기에서는 넘겨요)$/;
+function _qRow(t){ t=String(t||''); var m=t.match(Q_TAG); return '<li class="q"><span class="qa">'+esc(m?t.slice(0,m.index):t)+'</span>'+(m?'<span class="mk-qt"><span class="sr-only"> · </span>'+esc(m[1])+'</span>':'')+'</li>'; }
 function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r">'+btn+'</div>':'';
   if(!ENG) return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+_waitBox('흐름을 불러오고 있어요','잠깐이면 돼요 · 이 화면에서 기다려 주세요')+'</section>';   // [WAIT_BOX]
   var st=_lSteps(ENG,[k]), exN=st.filter(function(x){ return x.own&&!x.couple; }).length;
@@ -5856,13 +5874,13 @@ function _mkFlow(k,btn){ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r
   var h='<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+(exN?'<p class="mk-note">'+(_upLive()?((k==='guest'||k==='entry')&&_vpCur(k)==='ai'?'두 분 목소리 줄은 «두 분 목소리 만들기»에서 목소리를 만들면 채워져요':'두 분 목소리 줄은 아래 «두 분 목소리 준비»에서 한 줄씩 준비해요'):exN>1?'두 분이 녹음하실 글(예시)이에요':'두 분 목소리 줄의 글은 녹음하실 글(예시)이에요')+'</p>':'')+'<ol class="mk-flow">';   // [VP_FLOW_CLAMP] 문이 열리면 글 전문은 아래 줄 카드가 보인다 — 흐름에선 첫 줄만
   st.forEach(function(x,i){ if(one&&(x.own||x.quiet||x.skip)) return;   // [VP_ONE_LIST] · [R2-03]
     if(x.own) x={lab:String(x.lab||'').replace(/^(두 분이 녹음하실 글\(예시\)|두 분 목소리)( · )?/,''),txt:x.txt,pending:x.pending,own:true,up:x.up,couple:x.couple};
-    if(x.quiet){ h+='<li class="q">'+esc(x.txt)+'</li>'; return; }
+    if(x.quiet){ h+=_qRow(x.txt); return; }
     if(x.talk){ var sets=_lRefSets(k), whos=sets.length?sets[0].map(function(p){ return p.who; }):['두 분'], hs=R.partsOf(k,S)[1]||0, each=whos.length?Math.round(hs/whos.length):0;
-      if(k==='vow'&&_vowHow()==='alt'&&hs){ var _hm=Math.round(hs); h+='<li class="t">'+_vTag(k,{talk:true})+'<b>두 분 번갈아 · '+(_vowFirst()==='b'?'신부부터':'신랑부터')+'</b></li>'; return; }   /* [VOW_FIRST] */
+      if(k==='vow'&&_vowHow()==='alt'&&hs){ var _hm=Math.round(hs); h+='<li class="t"><b>두 분 번갈아 · '+(_vowFirst()==='b'?'신부부터':'신랑부터')+'</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [VOW_FIRST] */
       if(k==='vow'&&_vowFirst()==='b') whos=whos.slice().reverse();   /* [VOW_FIRST] 각자 차례로 · 신부부터 */   /* ★[MK_FORM_ONE] 차례 줄 «약 1분 40초» 금지 — 2026-10-03 사용자 지시로 삭제(길이는 순간 머리 한 곳 · LEN_ONE · LINE_NO_SEC) */   /* [VOW_HOW] 번갈아 읽으면 차례가 둘로 나뉘지 않는다 · 한 줄(약 1분 40초) */
-      if(k==='bless'){ h+='<li class="t">'+_vTag(k,{talk:true})+'<b>말씀하실 차례</b></li>'; return; }   /* ★[MK_FORM_ONE] «· 한 분 약 1분» 금지 — 2026-10-03 사용자 지시로 삭제 */   /* [R6-02] 덕담은 말할 분을 고르는 칸이 없다 — 참고 예시 1의 인물(«신랑 아버지 · 신부 어머니»)을 차례로 박으면 순서가 정해진 것처럼 읽혔다(① «한 분만 하셔도 · 다른 어른이 하셔도») · «부모님 차례»는 앞 표 «부모님»과 겹쳐 쓰지 않는다 */
-      whos.forEach(function(w){ h+='<li class="t">'+_vTag(k,{talk:true})+'<b>'+esc(w)+' 차례</b>'+(k==='toast'?' · 한마디':'')+'</li>'; }); return; }   /* ★[MK_FORM_ONE] 차례 줄 «· 약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 · 축배 «한마디»는 길이가 아니라 말의 꼴이라 둔다 */   /* [R2-30] 축배 차례만 길이가 비었다 */   /* [R4-01] 덕담 · 인사 «1분쯤씩»은 한 분 «약 1분»(_perSec) */   /* [R3-02] 한 분 시간은 ④ 요약과 같은 _sumSec — ②는 분 반올림(R.secTxt) · ④는 10초 단위라 덕담이 «약 1분 + 약 1분» ↔ «약 2분 30초»로 갈렸다 */   /* [R1-31] 차례 카드는 5초 단위 — 첫인사 한 분 13초가 «약 10초»로 내려가 바로 아래 예시(13~14초)와 어긋났다. 원천 TIME 은 명세 고정(open-course 예시 시간)이라 그대로 */
-    if(x.skip){ h+='<li class="q">'+esc(String(x.txt||'').replace(/ · 약 \d+분(?= · |$)/,''))+'</li>'; return; }   /* ★[MK_FORM_ONE] 흐름 줄 «· 약 n분»(마음의 순간 영상 길이) 금지 — 2026-10-03 사용자 지시로 삭제 · 고른 길이는 바로 위 칩이 말한다 · ④ 대본(6701)은 그대로 */
+      if(k==='bless'){ h+='<li class="t"><b>말씀하실 차례</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* ★[MK_FORM_ONE] «· 한 분 약 1분» 금지 — 2026-10-03 사용자 지시로 삭제 */   /* [R6-02] 덕담은 말할 분을 고르는 칸이 없다 — 참고 예시 1의 인물(«신랑 아버지 · 신부 어머니»)을 차례로 박으면 순서가 정해진 것처럼 읽혔다(① «한 분만 하셔도 · 다른 어른이 하셔도») · «부모님 차례»는 앞 표 «부모님»과 겹쳐 쓰지 않는다 */
+      whos.forEach(function(w){ h+='<li class="t"><b>'+esc(w)+' 차례</b>'+(k==='toast'?' · 한마디':'')+_vTag(k,{talk:true})+'</li>'; }); return; }   /* ★[MK_FORM_ONE] 차례 줄 «· 약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 · 축배 «한마디»는 길이가 아니라 말의 꼴이라 둔다 */   /* [R2-30] 축배 차례만 길이가 비었다 */   /* [R4-01] 덕담 · 인사 «1분쯤씩»은 한 분 «약 1분»(_perSec) */   /* [R3-02] 한 분 시간은 ④ 요약과 같은 _sumSec — ②는 분 반올림(R.secTxt) · ④는 10초 단위라 덕담이 «약 1분 + 약 1분» ↔ «약 2분 30초»로 갈렸다 */   /* [R1-31] 차례 카드는 5초 단위 — 첫인사 한 분 13초가 «약 10초»로 내려가 바로 아래 예시(13~14초)와 어긋났다. 원천 TIME 은 명세 고정(open-course 예시 시간)이라 그대로 */
+    if(x.skip){ h+=_qRow(String(x.txt||'').replace(/ · 약 \d+분(?= · |$)/,'')); return; }   /* ★[MK_FORM_ONE] 흐름 줄 «· 약 n분»(마음의 순간 영상 길이) 금지 — 2026-10-03 사용자 지시로 삭제 · 고른 길이는 바로 위 칩이 말한다 · ④ 대본(6701)은 그대로 */
     h+='<li class="n"><button type="button" class="mk-pl'+(_mlOn(k+':'+i)?' on':'')+'" data-ml="'+k+':'+i+'" aria-pressed="'+_mlOn(k+':'+i)+'" aria-label="'+esc((x.lab||'나레이션')+(_mlOn(k+':'+i)?' 멈추기':' 듣기'))+'" onclick="mkLine(\''+k+'\','+i+')">'+(_mlOn(k+':'+i)?ICO_STOP:ICO_PLAY)+'</button><span><span class="mk-lab">'+(x.lab?'<b class="mk-ln">'+esc(x.lab)+'</b>':'')+_vTag(k,x)+(x.pending?' · <span class="ls-new">'+esc(REC_PEND)+'</span>':'')+'</span>'+(x.own&&_upLive()?'<span class="mk-ltx1">'+esc(x.txt||'')+'</span>':esc(x.txt||''))+'</span></li>';
   });
   /* ★«1분 전 안내는 식전 영상이 끝난 뒤에 흘러요 · 다음 쪽에서» 줄 금지 — 2026-10-05 사장님 결정으로 1분 전이 영상 앞이 됐다 [ONEMIN_FIRST] */
