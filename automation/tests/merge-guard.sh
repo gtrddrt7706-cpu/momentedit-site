@@ -14450,7 +14450,8 @@ chk 'function _vcTtsReq(cfg, voiceId, text, tempo, pause)' automation/platform/8
 chk 'rs = UrlFetchApp.fetchAll(reqs)' automation/platform/80_production.gs 1
 chk 'VC_SLOW_AGAIN' order-preview.html 1
 chk 'VC_SLOW_AGAIN' mypage.html 1
-chk "timeout:!!(e&&e.name==='AbortError')" mypage.html 1
+chk "_to=!!(e&&e.name==='AbortError')" mypage.html 1   # [VC_NET_SPLIT] timeout:_to 로 넘긴다
+chk 'timeout:_to,' mypage.html 1
 chk "  if(op==='make'&&!bg) VC.fg=(VC.fg||0)+1;   /\* ★\[VC_FG_LIVE" order-preview.html 1
 chk 'VC_PAR' scripts/audit/vc-par.mjs 1
 chk 'VC_SLOW_AGAIN' scripts/audit/vc-slow-again.mjs 1
@@ -15175,7 +15176,8 @@ chk 'VC_DOWN_KIND' order-preview.html 5
 chk 'function _vcDownWord(n)' order-preview.html 1
 chk "d.error=_vcDownWord(_vcDownN(d))" order-preview.html 1
 chk 'VC_DOWN_KIND' mypage.html 1
-chk "net:_to?0:(_bad?'bad':1)" mypage.html 1
+chk "net:_to?0:net" mypage.html 1   # [VC_NET_SPLIT] _fin(net) — 'bad' · 'srv' · 1
+chk "_fin(_bad?'bad':0)" mypage.html 1
 nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" order-preview.html
 nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" mypage.html
 nochk "d2.error='오래 걸려 기다리다 멈췄어요" order-preview.html
