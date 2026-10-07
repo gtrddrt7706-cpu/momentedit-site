@@ -529,6 +529,25 @@ await run('⑤ schedule 신청 결과 모름(SCHED_SUBMIT_RECHECK)', async () =>
     await ctx.close();
   }
 });
+/* [SCHED_DBL_RESIDUE 2026-10-08 점검 R4] 신청을 두 번 눌러도 한 번만 보낸다 · 끊김(B6) 뒤 다시 눌러 되면 완료 창(실패 줄에 갇히지 않는다) */
+await run('⑤ schedule 두 번 누름 · 끊김 뒤 다시 성공 [SCHED_DBL_RESIDUE]', async () => {
+  const R = (mode) => `if (b.action === 'getAvailability') return { body: JSON.parse(${JSON.stringify(JSON.stringify(AV))}) };
+    if (b.action === 'submitSchedule') { var k = window.__calls.filter(function(c){ return c.b.action === 'submitSchedule'; }).length; return ${mode === 'net' ? "k === 1 ? 'net' : { body: { ok: true } }" : "{ body: { ok: true }, delay: 700 }"}; }
+    if (b.action === 'cardPayConfig') return { body: { ok: true, enabled: false } }; if (b.action === 'weddingAvailability') return { body: { ok: true, taken: {} } };`;
+  { const { ctx, pg } = await open('/schedule.html', R('dbl'), { w: 390, seed: { ls: { me_token: TK } } });
+    await pickAndSend(pg); await pg.evaluate(() => { document.getElementById('submitBtn').click(); document.getElementById('submitBtn').click(); });
+    const shown = await until(pg, () => document.getElementById('modal').classList.contains('show'), null, 8000);
+    ok('⑤ schedule [SCHED_DBL_RESIDUE] — 신청을 거듭 눌러도 submitSchedule 은 한 번 · 완료 창', shown && (await calls(pg, 'submitSchedule')) === 1, { shown, n: await calls(pg, 'submitSchedule') });
+    await ctx.close(); }
+  { const { ctx, pg } = await open('/schedule.html', R('net'), { w: 360, seed: { ls: { me_token: TK } } });
+    await pickAndSend(pg);
+    const e1 = await until(pg, () => /\(코드 B6\)/.test(document.getElementById('summary').textContent || '') && !document.getElementById('submitBtn').disabled, null, 8000);
+    const t1 = await txt(pg, '#summary');
+    await pg.evaluate(() => document.getElementById('submitBtn').click());
+    const shown = await until(pg, () => document.getElementById('modal').classList.contains('show'), null, 8000);
+    ok('⑤ schedule [SCHED_DBL_RESIDUE] — 끊김이면 «연결이 끊겼어요 · 다시 눌러 주세요 (코드 B6)» · 단추가 풀려 다시 누르면 완료 창', e1 && /연결이 끊겼어요 · 다시 눌러 주세요 \(코드 B6\)/.test(t1) && shown && (await calls(pg, 'submitSchedule')) === 2, { e1, t1, shown });
+    await ctx.close(); }
+});
 await run('⑤ schedule 로그인 표 없음 · 예식 시간 조회 실패 · 계좌 복사 실패', async () => {
   let s = await open('/schedule.html', `return { body: { ok: true } };`, { w: 360 });
   await until(s.pg, () => /로그인이 필요해요/.test(document.body.innerText));
