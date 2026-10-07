@@ -2184,12 +2184,15 @@ function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.
 function _ecGlue(h){ return String(h==null?'':h).replace(/\(코드 [^)<]*\)/g,function(c){ return '<span class="ec-code" style="white-space:nowrap">'+c+'</span>'; }); }
 function _ecHtml(t){ return _ecGlue(String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; })); }
 /* [ERR_CODE_PAGES] 예식 정보를 못 불러왔을 때 안내(.live-notloaded-box)의 설명 한 줄 — n: 'wait'(아직 기다리는 중 · 코드 없음) · 5 · 6 · 7 · 9 */
+/* [GETCOUPLE_CONTRACT 2026-10-08 점검 R2] 서버 쪽 일 = INTERNAL_ERROR 이거나 코드 숫자 1~9 — 링크가 틀린 것(G0 · INVALID_EVENT_ID · COUPLE_NOT_FOUND)만 «이 링크로는 예식을 찾을 수 없습니다» */
+function liveSrvFail(d){ return !!d && d.ok===false && (d.error==='INTERNAL_ERROR' || /^[A-Z][1-9]$/.test(String(d.ecode||''))); }
+function liveSrvN(d){ var c=String((d&&d.ecode)||''); return /^[A-Z][1-9]$/.test(c) ? +c.charAt(1) : 9; }
 function liveWaitWord(n, eid){
   if(n==='wait') return '응답을 기다리고 있어요 · 잠시만 두시면 저절로 이어져요';
   if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 G0)';   // [ERR_N_HONEST] 화면 쪽 예외(그리기 · 영상 붙이기) — 종전엔 «연결이 끊겼어요 (코드 G6)»로 떨어졌다
   var off=(n===6&&_ecOff()), keep=' · 이 화면이 계속 다시 시도하고 있어요';
-  return (n===5?'응답이 늦어요'+keep:n===7?'서버가 잠깐 멈췄어요'+keep:n===9?'서버에서 오류가 났어요'+keep:off?'인터넷이 끊겼어요 · 연결되면 저절로 이어져요':'연결이 끊겼어요'+keep)
-    +(n==='wait'?'':' (코드 G'+n+(n===9&&eid?' · '+eid:'')+')'); }
+  return (n===5?'응답이 늦어요'+keep:n===7?'서버가 잠깐 멈췄어요'+keep:n===1?'요청이 몰렸어요'+keep:(n===9||n===3||n===4||n===2)?'서버에서 오류가 났어요'+keep:off?'인터넷이 끊겼어요 · 연결되면 저절로 이어져요':'연결이 끊겼어요'+keep)
+    +(n==='wait'?'':' (코드 G'+n+((n===9||n===3||n===4||n===2)&&eid?' · '+eid:'')+')'); }
 
 // 부부 자유입력(이름·혼주·예금주)을 innerHTML에 넣기 전 이스케이프 — 저장형 XSS 방지(정상 텍스트엔 무영향)
 function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
@@ -2365,8 +2368,8 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
         const res = await fetch(url, ac ? { signal: ac.signal } : undefined);
         data = await res.json();
         if (tm) clearTimeout(tm);
-        if (data && data.ok === false && data.error === 'INTERNAL_ERROR' && attempt < 2) {   // 서버 쪽 사고 — 링크 탓이 아니다 · 다시 묻는다
-          lastKind = 9; lastEid = String(data.eid || '');
+        if (liveSrvFail(data) && attempt < 2) {   // 서버 쪽 사고 — 링크 탓이 아니다 · 다시 묻는다 · [GETCOUPLE_CONTRACT] 코드 숫자 1~9 도 서버 쪽
+          lastKind = liveSrvN(data); lastEid = String(data.eid || '');
           await new Promise(r => setTimeout(r, attempt === 0 ? 2500 : 6000));
           continue;
         }
@@ -2381,7 +2384,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
 
     if (!data || !data.ok) {
       console.warn('[Live] Couple not loaded:', eventId, data && data.error);
-      if (data && data.error === 'INTERNAL_ERROR') { if (!infoApplied) { setNotLoaded(true); sayNotLoaded(9, String(data.eid || lastEid)); } return; }   // [ERR_CODE_PAGES] 서버 오류 G9 — 링크 안내가 아니다
+      if (liveSrvFail(data)) { if (!infoApplied) { setNotLoaded(true); sayNotLoaded(liveSrvN(data), String(data.eid || lastEid)); } return; }   // [ERR_CODE_PAGES] 서버 오류 G9 — 링크 안내가 아니다
       // [LIVE_LINK_UNKNOWN] 서버가 '그런 예식 없다'고 답한 경우만.
       // 캐시로 이미 그린 하객(infoApplied)은 건드리지 않는다 — 멀쩡한 화면을 지우면 안 된다.
       if (!infoApplied) { setNotLoaded(false); setLinkUnknown(true); }

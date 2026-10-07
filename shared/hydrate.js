@@ -726,15 +726,17 @@
       });
     }
     function again() { return new Promise(function (r) { setTimeout(r, 1500); }).then(getCouple); }
+    /* [GETCOUPLE_CONTRACT 2026-10-08 점검 R2] 서버 쪽 일 = INTERNAL_ERROR 이거나 코드 숫자가 1~9(설정 G3 · 서버 오류 G9 …) — «그런 예식 없음»(G0)만 주소 안내로 */
+    function hySrv(d) { return !!d && d.ok === false && (d.error === 'INTERNAL_ERROR' || /^[A-Z][1-9]$/.test(String(d.ecode || ''))); }
     /* 서버의 INTERNAL_ERROR(서버 쪽 사고 · ecode G9 · 사고번호 eid)는 «그런 예식 없음»이 아니다 — 종전엔 «주소를 다시 확인해 주세요»로 떨어졌다 */
     function hyWhy(e, d) {
-      if (d) return '서버에서 오류가 났어요 · 새로 고쳐 주세요 (코드 G9' + (d.eid ? ' · ' + String(d.eid).replace(/[^A-Z0-9]/gi, '').slice(0, 8) : '') + ')';
+      if (d) return '서버에서 오류가 났어요 · 새로 고쳐 주세요 (코드 ' + (/^[A-Z][1-9]$/.test(String(d.ecode || '')) ? d.ecode : 'G9') + (d.eid ? ' · ' + String(d.eid).replace(/[^A-Z0-9]/gi, '').slice(0, 8) : '') + ')';
       var n = (e && e.name === 'AbortError') ? 5 : (e && e.name === 'SyntaxError') ? 7 : (e && e.name === 'TypeError' && /Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message || ''))) ? 6 : 0, off = false;   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만(여섯 쪽 _ecN 과 같은 줄)
       try { off = navigator.onLine === false; } catch (x) {}
       return (n === 5 ? '응답이 늦어요' : n === 7 ? '서버가 잠깐 멈췄어요' : !n ? '화면 오류예요' : off ? '인터넷이 끊겼어요' : '연결이 끊겼어요') + ' · 새로 고쳐 주세요 (코드 G' + n + ')';   // 0 = 그리기 예외(apply) — 연결 탓이 아니다
     }
     getCouple()
-      .then(function (d) { return (d && d.ok === false && d.error === 'INTERNAL_ERROR') ? again() : d; }, again)
+      .then(function (d) { return hySrv(d) ? again() : d; }, again)
       .then(function (data) {
         if (data && data.ok && data.couple) {
           data.couple.eventId = eventId;
@@ -745,7 +747,7 @@
           try { localStorage.setItem(cacheKey, fresh); } catch (_) {}
           if (!rendered || prev !== fresh) apply(data.couple);
         } else if (!rendered) {
-          if (data && data.error === 'INTERNAL_ERROR') {   // [ERR_CODE_PAGES] 서버 오류 — 전에 본 진짜 내용이 있으면 그것을 쓴다(아래 catch 와 같은 대접)
+          if (hySrv(data)) {   // [ERR_CODE_PAGES] · [GETCOUPLE_CONTRACT] 서버 오류 — 전에 본 진짜 내용이 있으면 그것을 쓴다(아래 catch 와 같은 대접)
             var _c0 = safeCache(cacheKey);
             if (_c0) { apply(_c0); return; }
             markDemo(hyWhy(null, data)); apply(SAMPLE); return;

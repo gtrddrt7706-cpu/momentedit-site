@@ -77,6 +77,7 @@ if (vmOk) {
   const na = new Error('play() failed'); na.name = 'NotAllowedError';
   ok('① 브라우저가 막음(NotAllowedError) → «브라우저가 막았어요»(서버 탓 아님)', /^브라우저가 막았어요/.test(W(na)), W(na));
   ok('① 서버 거절 글은 그대로', W({ ok: false, error: '계약 서명 완료 후 입금 확인이 가능합니다.' }) === '계약 서명 완료 후 입금 확인이 가능합니다.');
+  ok('① [ADM_SHAPE_X7] 됐다(ok)는데 기대한 목록이 없으면 «서버 답 모양이 달라요 · … (코드 X7)» · 글 없는 거절은 받은 코드 · 기본 글 끝 마침표는 걷는다', W({ ok: true }, { base: '새로고침해 주세요' }) === '서버 답 모양이 달라요 · 새로고침해 주세요 (코드 X7)' && W({ ok: false, ecode: 'S4' }, { base: '잠시 후 다시 시도해 주세요.' }) === '잠시 후 다시 시도해 주세요 (코드 S4)', W({ ok: true }, { base: '새로고침해 주세요' }) + ' | ' + W({ ok: false, ecode: 'S4' }, { base: '잠시 후 다시 시도해 주세요.' }));
   const x9 = { ok: false, error: '서버에서 오류가 났어요 · TypeError: x (코드 X9 · AB23)' };
   ok('① 서버가 붙인 코드는 두 번 안 붙인다 · 괄호 안 띄어쓰기는 U+00A0 · «코»«드» 사이 U+2060', W(x9) === x9.error && X._why(x9).includes('(코\u2060드\u00A0X9\u00A0·\u00A0AB23)'), JSON.stringify(X._why(x9)));
   ok('① 옛 GAS «알 수 없는 요청: fn» → 배포 안내를 덧붙인다(#23) · 이미 붙은 글엔 두 번 안 붙인다', W({ ok: false, error: '알 수 없는 요청: adminErrLog' }) === '알 수 없는 요청: adminErrLog · GAS 새 버전 배포가 필요해요(99_deployCheck 의 deployStampCheck)'

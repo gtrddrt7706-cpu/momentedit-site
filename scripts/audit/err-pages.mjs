@@ -389,13 +389,16 @@ await run('③ AI 위젯', async () => {
 const COUPLE = { ok: true, couple: { groomName: '김도현', brideName: '정하윤', groomNameEn: 'Kim Do Hyun', brideNameEn: 'Jeong Ha Yoon', weddingDate: '2027-12-17', weddingTime: '14:00' } };
 await run('③ live', async () => {
   for (const [resp, kind] of [[`{ body: { ok: false, error: 'INTERNAL_ERROR', ecode: 'G9', eid: 'K3QZ' } }`, 'G9'], [`{ body: { ok: false, error: 'COUPLE_NOT_FOUND', ecode: 'G0' } }`, 'link'],
-    [`{ body: '<html>Script error</html>', headers: { 'Content-Type': 'text/html' } }`, 'G7']]) {
+    [`{ body: '<html>Script error</html>', headers: { 'Content-Type': 'text/html' } }`, 'G7'],
+    [`{ body: { ok: false, ecode: 'G9', eid: 'K3QZ', error: '청첩장 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.' } }`, 'G9k'], [`{ body: { ok: false, error: 'INTERNAL_ERROR', ecode: 'G3', eid: 'K3QZ' } }`, 'G3']]) {
     const { ctx, pg } = await open('/live.html?e=evt-err-1', `if (url.indexOf('action=getCouple') >= 0) return ${resp};`);
     await until(pg, (k) => (k === 'link' ? !document.querySelector('.link-unknown-box').hidden : /\(코드 G\d/.test(document.querySelector('.live-notloaded-box .lp-message-desc').textContent)), kind, 9000);
     const st = await pg.evaluate(() => ({ nl: !document.querySelector('.live-notloaded-box').hidden, lu: !document.querySelector('.link-unknown-box').hidden,
       d: document.querySelector('.live-notloaded-box .lp-message-desc').textContent.trim(), dummy: getComputedStyle(document.querySelector('#envelope') || document.body).display }));
     if (kind === 'G9') ok('③ live(F9) — 서버 INTERNAL_ERROR 는 «링크로는 찾을 수 없습니다»가 아니라 기다림 안내 + «(코드 G9 · 사고번호)»', st.nl && !st.lu && /서버에서 오류가 났어요 · 이 화면이 계속 다시 시도하고 있어요 \(코드 G9 · K3QZ\)/.test(st.d), st);
     if (kind === 'link') ok('③ live(F9) — COUPLE_NOT_FOUND 는 링크 안내 그대로(코드 없음) · 기다림 안내 아님', st.lu && !st.nl, st);
+    if (kind === 'G9k') ok('③ live [GETCOUPLE_CONTRACT] — 한글 글이어도 코드 숫자가 1~9(서버 쪽)면 링크 안내가 아니라 «서버에서 오류가 났어요 … (코드 G9 · K3QZ)»', st.nl && !st.lu && /\(코드 G9 · K3QZ\)/.test(st.d), st);
+    if (kind === 'G3') ok('③ live [GETCOUPLE_CONTRACT] — 설정 · 미배포(G3)도 서버 쪽 · «연결이 끊겼어요»가 아니라 «서버에서 오류가 났어요 … (코드 G3 · K3QZ)»', st.nl && !st.lu && /서버에서 오류가 났어요 · 이 화면이 계속 다시 시도하고 있어요 \(코드 G3 · K3QZ\)/.test(st.d), st);
     if (kind === 'G7') ok('③ live(F9) — 서버 답이 깨짐(HTML)은 «연결이 불안정»이 아니라 «서버가 잠깐 멈췄어요 … (코드 G7)»', st.nl && /서버가 잠깐 멈췄어요 · 이 화면이 계속 다시 시도하고 있어요 \(코드 G7\)/.test(st.d), st);
     await ctx.close();
   }
@@ -433,6 +436,11 @@ await run('③ 청첩장(hydrate)', async () => {
   const gbd = await gluedBad(b.pg, '#meDemoBadge');
   ok('③ 청첩장(F9) — 서버 INTERNAL_ERROR 는 «주소를 다시 확인해 주세요»가 아니라 «서버에서 오류가 났어요 … (코드 G9 · K3QZ)» · 코드는 한 덩어리', /\(코드 G9 · K3QZ\)/.test(bd) && !/주소를 다시 확인/.test(bd) && (await calls(b.pg, 'action=getCouple')) === 2 && !gbd.length, { bd, gbd });
   await b.ctx.close();
+  const k = await open('/i/cover-01.html?e=evt-hy-3', `if (url.indexOf('action=getCouple') >= 0) return { body: { ok: false, ecode: 'G3', eid: 'K3QZ', error: '청첩장 정보를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.' } };`);
+  await until(k.pg, () => !!document.getElementById('meDemoBadge'), null, 6000);
+  const kd = await txt(k.pg, '#meDemoBadge');
+  ok('③ 청첩장 [GETCOUPLE_CONTRACT] — 한글 글 + 코드 숫자 1~9(G3)도 «주소를 다시 확인»이 아니라 «서버에서 오류가 났어요 … (코드 G3 · K3QZ)»', /\(코드 G3 · K3QZ\)/.test(kd) && !/주소를 다시 확인/.test(kd), kd);
+  await k.ctx.close();
 });
 
 const GUIDE = (extra) => ({ ok: true, guide: Object.assign({ groom: '김도현', bride: '정하윤', date: '2027-12-17', seatToken: 'stok', seatFull: true, dining: { on: false }, photoShare: '' }, extra || {}) });
