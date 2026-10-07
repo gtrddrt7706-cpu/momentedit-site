@@ -5549,6 +5549,10 @@ function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
   /* ★[READ_DLG_TIDY 2026-10-04 사장님 «디자이너 관점으로 문단 정리»] 안내 한 문단(괄호 · 가운뎃점으로 이은 두 문장)을 두 줄로 — 할 일 한 줄 · 요령 한 줄.
      줄마다 따로 감싸(.mk-rdl span = 블록) 390 · 1280 어디서나 «할 일 / 요령»이 같은 자리에서 끊긴다 · text-wrap:balance 로 한 줄 안에서도 고르게 */
   var h='<p class="mk-note mk-rdl">'+(n===1?'<span>아래 글을 소리 내어 천천히 읽어 주세요</span><span>조용한 방에서, 휴대폰을 입에서 한 뼘 떼고 읽으면 좋아요</span>':'<span>한 글 더 남았어요</span><span>마지막 문장은 본인 확인용이라 그대로 읽어 주세요</span>')+'</p>'
+    /* ★[CONSENT_SEEN 2026-10-07 사장님 «pc버전은 동의 부분이 자동으로 건너 뛰기 되는데?»] PC 차이가 아니었다 — 동의는 서버가 사람마다 기억해서(80_production · consent)
+       한 번 동의한 분은 어느 기기에서든 «글 1»부터 연다(다시 묻지 않는다). 그런데 걸음 표시엔 «동의»가 지난 걸음으로만 칠해져 «건너뛰었다»로 읽혔다(390 · 1280 같음 · 실측).
+       → 글 2 의 «✓ 글 1 · N초»와 같은 자리 · 같은 모양으로 «✓ 동의 · 앞서 해 주셨어요» 한 줄. 이 창에서 방금 동의했으면(agreedNow) 달지 않는다(중복) */
+    +(n===1&&!R.agreedNow&&!R.limit?'<p class="mk-vs mk-dlg-prev mk-dlg-agreed"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>동의 · 앞서 해 주셨어요</p>':'')
     +(n===2&&R.take[1]&&!R.limit?'<p class="mk-vs mk-dlg-prev"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>글 1 · '+Math.round(R.take[1].dur)+'초 <button type="button" class="pk-link" data-fk="mkvcstep1" onclick="mkVcStep(1)">글 1 다시 읽기</button></p>':'')
     +'<p class="mk-rect">'+esc(t)+(n===2&&!R.phrase?' <span class="mk-note">'+(R.phErr?'(확인 문장을 아직 못 받았어요)':'(확인 문장을 받는 중…)')+'</span>':'')+'</p>'
     +(R.err?'<div class="mk-recws" role="alert">'+_msg2(R.err)+'</div>':'')+'<div class="mk-recp" aria-live="polite">';   /* [REC_WARN2] */
@@ -5564,7 +5568,7 @@ function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
 window.mkVcConsent=function(w){ VC.panel={who:w}; VC.agree=false; VC.read=null; render(); };
 window.mkVcAgree=function(w){ if(!VC.agree||VC.agreeing) return; VC.agreeing=true; render();
   _vc('consent',{who:w,agree:true,v:VC_CONSENT_V}).then(function(d){ VC.agreeing=false; if(!d.ok){ MK.dlgMsg=d.error||'동의를 저장하지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; }
-    VC.panel=null; VC.agree=false; VC.st=Object.assign({},VC.st,{}); VC.st[w]=Object.assign({},VC.st[w],{consent:true}); mkVcRead(w); }); };
+    VC.panel=null; VC.agree=false; VC.st=Object.assign({},VC.st,{}); VC.st[w]=Object.assign({},VC.st[w],{consent:true}); mkVcRead(w,1); }); };   // [CONSENT_SEEN] 방금 동의 — 글 1 에 «앞서 해 주셨어요»를 달지 않는다
 /* ★[PHRASE_EARLY 2026-10-04 사장님 «확인 문장을 받는 중… 에서 녹음 시작이 바로 안 켜진다»] 확인 문장은 서버(GAS)가 뽑아 돌려주는데, 창을 연 뒤에야 물었다 —
    서버가 깨어나는 데 걸리는 몇 초~십수 초 동안 글 2 «녹음 시작»이 잠겨 있었다. 이제 동의한 분 카드가 그려질 때 미리 받아 둔다(분마다 한 번 · VC.pre).
    창을 열 때 받아 둔 문장이 있으면 그대로 쓴다(서버도 같은 문장을 들고 있다 · 만들고 나면 서버가 비운다) */
@@ -5576,7 +5580,7 @@ function _vcPre(w){ VC.pre=VC.pre||{}; if(VC.pre[w]) return VC.pre[w]; VC.pre[w]
 function _vcPhraseGet(w){ var R=VC.read; if(!R||R.who!==w||R.phrase) return; R.phErr=false; R.phBusy=true; MK.dlgMsg=''; render();
   _vcPre(w).then(function(d){ if(VC.read!==R) return; R.phBusy=false; if(d.ok&&d.phrase){ R.phrase=d.phrase; R.phErr=false; } else R.phErr=true; render(); }); }
 window.mkVcPhrase=function(w){ _vcPhraseGet(w); };
-window.mkVcRead=function(w){ VC.read={who:w,take:{},phrase:'',step:1,ph:'read',err:''}; VC.panel=null; render(); _vcPhraseGet(w); };   /* [PHRASE_NO_DEAD] 못 받으면 창 위 빨간 글(MK.dlgMsg) 대신 글 2 자리에서 «다시 받기» */
+window.mkVcRead=function(w,now){ VC.read={who:w,take:{},phrase:'',step:1,ph:'read',err:'',agreedNow:!!now}; VC.panel=null; render(); _vcPhraseGet(w); };   /* [CONSENT_SEEN] now = 이 창에서 방금 동의했다(mkVcAgree) · 아니면 글 1 에 «동의 · 앞서 해 주셨어요» */   /* [PHRASE_NO_DEAD] 못 받으면 창 위 빨간 글(MK.dlgMsg) 대신 글 2 자리에서 «다시 받기» */
 window.mkVcStep=function(n){ var R=VC.read; if(!R) return; if(MK_REC){ _recStopAll(); if(MK_REC.url) try{ URL.revokeObjectURL(MK_REC.url); }catch(e){} MK_REC=null; } R.step=n; R.err=''; R.short=false; MK.dlgMsg=''; render(); if(n===2&&!R.phrase&&!R.phBusy) _vcPhraseGet(R.who); };   // [PHRASE_NO_DEAD]
 function _vcTake(){ var r=MK_REC, m=r&&/^vc:(groom|bride):(\d)$/.exec(r.key); if(!m||!VC.read) return; var n=+m[2], R=VC.read; R.take[n]={wav:r.wav,dur:r.dur}; if(r.url) try{ URL.revokeObjectURL(r.url); }catch(e){} MK_REC=null; R.err=''; R.short=false;
   if(n===1&&!R.phrase&&!R.phBusy) _vcPhraseGet(R.who);   // [PHRASE_NO_DEAD] 글 2 로 가기 전에 — 아직 없으면 다시 묻는다
