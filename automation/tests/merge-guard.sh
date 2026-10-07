@@ -15836,3 +15836,5 @@ chk 'VC_JOIN_M6' order-preview.html 1
 nochk "fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요')" order-preview.html
 chk 'INV_PUB_AGAIN' mypage.html 2
 chk 'INV_PUB_AGAIN' scripts/audit/err-mypage.mjs 2
+chk 'REVIEW_NOINDEX' scripts/build-script-review.mjs 1
+chk 'name="robots" content="noindex,nofollow"' script-review.html 1

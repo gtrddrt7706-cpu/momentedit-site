@@ -219,8 +219,10 @@ const card = (c) => {
 };
 
 const RET = Object.keys(Cue.RETIRED || {});
+// [REVIEW_NOINDEX 2026-10-08 점검 R2] 웹에 공개되는 내부 대본 정리본 — 검색에 안 잡히게(관리자 갈래 제안)
 const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
 <title>예식 대본 정리본</title>
 <style>
 :root{--bg:#FBF9F5;--ink:#2B2723;--mute:#7A7269;--line:#E6DFD4;--ok:#8A9A7B;--review:#C08A3E;--lock:#8B8FA8;--card:#FFFFFF}
