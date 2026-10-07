@@ -15180,8 +15180,8 @@ chk 'CONSENT_EVERY' scripts/audit/vc-screen.mjs 3
 #   서버 거절 · 연결 끊김 · 시간 초과가 같은 두 줄(«… 그동안 이 줄은 스튜디오 나레이션으로 나와요»)이던 것 → 원인마다 한 줄 + 코드 V0 ~ V7(숫자 = 무슨 일) · 360px 폰도 한 줄
 #   vc-down-kind.mjs 가 받는 자리 · 맞추기 창 실제 실패 · 한 줄 폭을 잰다 — 받는 자리를 옛 것으로 되돌리면 FAIL 7(돌연변이 확인)
 chk 'VC_DOWN_KIND' order-preview.html 5
-chk 'function _vcDownWord(n)' order-preview.html 1
-chk "d.error=_vcDownWord(_vcDownN(d))" order-preview.html 1
+chk 'function _vcDownWord(n,sec)' order-preview.html 1   # [VC_NET_SEC] 끊김 글에 몇 초
+chk "d.error=_vcDownWord(_vcDownN(d),d.sec)" order-preview.html 1
 chk 'VC_DOWN_KIND' mypage.html 1
 chk "net:_to?0:net" mypage.html 1   # [VC_NET_SPLIT] _fin(net) — 'bad' · 'srv' · 1
 chk "_fin(_bad?'bad':0)" mypage.html 1
