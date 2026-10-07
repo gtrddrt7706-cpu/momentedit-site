@@ -14761,7 +14761,9 @@ chk '덜어낼 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1   
 nochk '뺄 순간만 ✓를' order-preview.html
 # ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 들면 다시 녹음해도 된다고 여기도 한 번 더»] 두 분 목소리 만들기 쪽 한 줄
 chk 'VOICE_REDO_NOTE' order-preview.html 1
-chk '말투가 아쉬우면 다시 녹음하면 돼요. <button type="button" class="pk-link" data-fk="mkredo"' order-preview.html 1   # [VOICE_INTRO_ONE 2026-10-07] 두 줄 → 한 단락
+chk "+(both?'준비됐어요':'각자 1분 읽기')+' · 아쉬우면 다시 녹음해요 <button type=\"button\" class=\"pk-link\" data-fk=\"mkredo\"" order-preview.html 1   # [VOICE_INTRO_LINE 2026-10-07 사장님 «한 줄로 · 미니멀하게»] 두 줄 → 한 줄
+nochk '말투가 아쉬우면 다시 녹음하면 돼요. <button' order-preview.html   # [VOICE_INTRO_LINE] 옛 두 번째 줄
+chk 'VOICE_INTRO_LINE' order-preview.html 2
 # ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로 첫 화면»] 안내 목소리 정하기 창 — 안 골랐으면 두 갈래 다 비어 있다
 chk 'VS_UNPICKED' order-preview.html 1
 chk 'VS_UNPICKED' scripts/audit/vp-ask-first.mjs 1
