@@ -15098,6 +15098,9 @@ nochk ":'아래에서 고른 멘트를 나레이터가 읽어요');" order-previ
 nochk "+'<p class=\"mk-note\">영상이 시작되기 바로 전에 나와요</p>'" order-preview.html
 nochk "<p class=\"mk-note mk-txalt\">보내지 않아도 돼요" order-preview.html
 chk 'if(rows<2&&b.length<4) return;' order-preview.html 1
+# ★[BLESS_CK_TOP 2026-10-07 사장님 «추천대로»] 덕담 · 축사 «원고 없이» 체크 = 원고 칸 위 머리 줄 오른쪽(첫인사 · 서약 · 편지와 같은 자리)
+chk 'BLESS_CK_TOP' order-preview.html 2
+chk "h+='<li class=\"mk-vx\">'+'<div class=\"mk-txh mk-bsh\"><label class=\"upchk mk-ck\">" order-preview.html 1
 # ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
 chk 'VCARD_CALM' order-preview.html 3
 chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
