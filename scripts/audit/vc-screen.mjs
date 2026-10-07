@@ -69,6 +69,12 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 체크 전에는 [동의하고 읽으러 가기]가 막혀 있다', await pg.evaluate(() => document.getElementById('vcAgree').disabled));
   await pg.click('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(500);
   const rp1 = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
+  /* ★[CONSENT_SEEN 2026-10-07 사장님 «pc버전은 동의 부분이 자동으로 건너 뛰기 되는데?»] 동의는 서버가 사람마다 기억한다(PC 차이 아님) — 닫고 다시 열면 글 1 부터.
+     그 까닭을 글 1 에 한 줄(«✓ 동의 · 앞서 해 주셨어요») · 이 창에서 방금 동의했으면 달지 않는다. 실제 단추(카드의 [목소리 만들기])로 다시 연다 */
+  await pg.evaluate(() => mkDlgClose()); await pg.waitForTimeout(300);
+  await pg.click('[data-fk="mkvcread:groom"]'); await pg.waitForTimeout(400);
+  const rp0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.innerText : '', chk: !!document.getElementById('vcSelf'), on: ((d && d.querySelector('.mk-dlg-steps li.on')) || {}).textContent || '' }; });
+  ok(W + ' 방금 동의한 글 1 엔 «앞서 해 주셨어요» 없음 · 닫고 다시 열면 동의 칸 없이 글 1 + «동의 · 앞서 해 주셨어요» [CONSENT_SEEN]', !/앞서 해 주셨어요/.test(rp1) && !rp0.chk && rp0.on === '글 1' && /동의 · 앞서 해 주셨어요/.test(rp0.t), JSON.stringify({ rp1: rp1.slice(0, 80), rp0 }).slice(0, 300));
   await pg.evaluate(() => { VC.read.take[1] = { wav: __tone(6), dur: 6 }; mkVcStep(2); }); await pg.waitForTimeout(200);
   const rp = rp1 + ' || ' + await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
   ok(W + ' 8-2 E — 한 번에 한 글(글 1 → 글 2) · 둘째 글 끝에 서버 확인 문장 · 파일 올리기 없음 안내 [REC_DLG]', /글 1/.test(rp1) && !/느티나무/.test(rp1) && /글 2/.test(rp) && /여러분도 그런 곳이 하나쯤 있으신가요\? 오늘은 구월 이십팔일, 파란 우산과 노란 연필\./.test(rp) && !/파일은 올릴 수 없어요/.test(rp) /* ★[READ_DLG_TIDY 2026-10-04] 그 한 줄을 걷었다(파일 단추가 없다는 것은 아래가 잰다) */ && !(await pg.evaluate(() => !!document.querySelector('#mkRecDlg [data-fk^="mkup"],#mkRecDlg [data-fk="mkrecfile"]'))), rp.slice(0, 300));

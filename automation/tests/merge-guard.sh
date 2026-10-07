@@ -15109,3 +15109,11 @@ chk 'STRAY_FILE' automation/tests/merge-guard.sh 1
 # ★[DEPOSIT_TEST_WEEKDAY 2026-10-07 점검] deposit-card-screen ⑦ 이 «오늘 + 3일»을 골라 주말이면 붉었다(제품은 맞게 동작 · 주말엔 11:30 없음) — 3일 뒤부터 첫 평일
 chk 'DEPOSIT_TEST_WEEKDAY' scripts/audit/deposit-card-screen.mjs 1
 nochk "const sel = JSON.stringify({ d: dk(3), t: '11:30', h: null });" scripts/audit/deposit-card-screen.mjs
+# ★[CONSENT_SEEN 2026-10-07 사장님 «pc버전은 동의 부분이 자동으로 건너 뛰기 되는데?»] PC 차이가 아니었다 — 동의는 서버(80_production · consent)가 사람마다 기억해
+#   한 번 동의한 분은 어느 기기에서든 «글 1»부터 연다. 걸음 표시만으론 «건너뛰었다»로 읽혀 글 1 에 «✓ 동의 · 앞서 해 주셨어요» 한 줄(이 창에서 방금 동의했으면 없음).
+#   vc-screen 이 실제 카드 단추로 닫고 다시 열어 잰다 · 줄을 빼도(2건) 방금 동의한 창에 달아도(2건) 빨강(돌연변이 확인)
+chk 'CONSENT_SEEN' order-preview.html 3
+chk 'mkVcRead(w,1)' order-preview.html 1
+chk 'agreedNow:!!now' order-preview.html 1
+chk 'n===1&&!R.agreedNow&&!R.limit' order-preview.html 1
+chk 'CONSENT_SEEN' scripts/audit/vc-screen.mjs 2
