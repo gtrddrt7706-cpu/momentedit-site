@@ -39,6 +39,7 @@ ok('⓪ _errLine 이 서버 까닭(0)엔 코드를 안 붙이고(if(i.t && !i.n)
   ok('⓪ 실패 줄을 넣는 칸이 textContent · escapeHtml 로 코드를 쪼개지 않는다 — 전부 _errSet · _errHtml [ERR_CODE_NOWRAP]', !left.length && (MY.match(/_errSet\(/g) || []).length >= 20, left.join(' | ') + ' · _errSet=' + (MY.match(/_errSet\(/g) || []).length); }
 ok('⓪ 판 본문(body 글) · 알림(_miniToast · mpToast)도 코드를 한 덩어리로 [ERR_CODE_NOWRAP]', /else if\(o\.body\)\{ b\.innerHTML=_errHtml\(String\(o\.body\)\);/.test(MY) && /t\.textContent=msg; t\.style\.opacity='1'; _errNowrap\(t\);/.test(MY) && /_errSet\(t, msg\); clearTimeout\(t\._h1\)/.test(MY));
 
+ok('⓪ 청첩장 발행 시간 초과는 한 번 저절로 다시 보내 결과를 받는다(30초 · 멱등) [INV_PUB_AGAIN]', /if\(_to&&!_pubAgain\)\{ _pubAgain=true;/.test(MY) && /_pubSend\(\)\.then\(_pubOk,_pubErr\);\n\}/.test(MY) && /\+window\.__INV_PUB_MS\|\|30000/.test(MY));
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(fail ? 1 : 2); }
 const T = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.mp3': 'audio/mpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.woff2': 'font/woff2' };
 const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
@@ -497,6 +498,23 @@ await sec('⑮', async () => {
   await ctx.close();
 });
 
+/* ⑯ [INV_PUB_AGAIN 2026-10-08 점검 R2] 청첩장 발행 시간 초과 — 한 번 저절로 다시 보내 결과를 받는다 · 두 번 다 늦으면 S5 */
+await sec('⑯', async () => {
+  let n = 0;
+  GAS = { getMyState: { json: STATE() }, publishInvitation: () => (++n === 1 ? { hold: 1500, json: { ok: true, skipped: true } } : { json: { ok: true, skipped: true } }) };
+  const { ctx, pg } = await open(390, "localStorage.setItem('me_token','TOK');");
+  await pg.goto(`${BASE}/mypage.html`); await pg.waitForTimeout(1500);
+  const run = () => pg.evaluate(() => { window.__INV_PUB_MS = 500; window.__toasts = []; const ot = window._miniToast; if (!ot.__w) { const w2 = function (m) { window.__toasts.push(String(m)); return ot.apply(this, arguments); }; w2.__w = true; window._miniToast = w2; }
+    INVFLOW.draft = { method: 'none' }; let b = document.getElementById('__ivbox'); if (b) b.remove(); b = document.createElement('div'); b.id = '__ivbox'; b.innerHTML = '<button id="iv_pub">청첩장 만들기</button><p id="iv_err"></p>'; document.body.appendChild(b); doPublishInv(b); });
+  await run(); await pg.waitForTimeout(2600);
+  const a = await pg.evaluate(() => ({ err: (document.getElementById('iv_err') || {}).textContent || '', step: INVFLOW.step || '' }));
+  ok('⑯ 첫 발행이 늦어도 한 번 다시 보내 결과(완료)를 받는다 · S5 없음 [INV_PUB_AGAIN]', n === 2 && !/코드 S5/.test(a.err) && a.step === 'done', JSON.stringify({ n, a }));
+  n = 0; GAS.publishInvitation = () => (++n, { hold: 1500, json: { ok: true, skipped: true } });
+  await run(); await pg.waitForTimeout(3200);
+  const b2 = await pg.evaluate(() => { const b = document.getElementById('iv_pub') || {}; return { err: (document.getElementById('iv_err') || {}).textContent || '', btn: b.textContent || '', dis: !!b.disabled }; });
+  ok('⑯ 두 번 다 늦으면 «응답이 늦어요 · 새로고침해 만들어졌는지 확인해 주세요 (코드 S5)» · 단추가 풀린다', n === 2 && /\(코드 S5\)$/.test(b2.err) && !b2.dis && !/중…$/.test(b2.btn), JSON.stringify({ n, b2 }));
+  await ctx.close();
+});
 await br.close(); srv.close();
 console.log(fail ? `\nFAIL ${fail}건` : '\n전부 통과');
 process.exit(fail ? 1 : 0);
