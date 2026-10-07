@@ -12040,9 +12040,9 @@ chk "stopMs=(rec&&typeof rec==='object')?(+rec.cut2Ms||0):0" order-preview.html 
 #   깨 보고 믿음: 맺는 말 접기 · «위하여» 자리 · ④ 그림 채우기를 하나씩 빼면 ghi-polish 가 빨강 10건(390 · 1280)
 if command -v node >/dev/null 2>&1; then _ghi=$(timeout 400 node scripts/audit/ghi-polish.mjs 2>&1); _ghx=$?; echo "$_ghi" | grep -E '^FAIL|GHI' | head -12; if [ "$_ghx" = 1 ]; then echo "REVERT? scripts/audit/ghi-polish.mjs: ② ③ ④ 다듬기 검사 실패"; fail=1; fi; fi
 chk 'GHI' scripts/audit/ghi-polish.mjs 1
-chk 'aria-label="가장 벅찬 순간"' order-preview.html 4   # [G1] ★ 이름 «절정» → «가장 벅찬 순간»(①~④)
+chk '<span class="sr-only"> · 가장 벅찬 순간</span>' order-preview.html 1   # [G1] 이름 «절정» → «가장 벅찬 순간» · [PEAK_COLOR 2026-10-07] ★ 의 aria-label 넷 → 진사 이름 + 숨은 글(_pkName 하나)
 nochk 'aria-label="절정"' order-preview.html
-chk '</span> 표시는 이 예식에서 가장 벅찬 순간이에요.' order-preview.html 1   # [G1] ★ 는 따로 이름을 단 span
+chk '색으로 표시한 순간</span>이 이 예식에서 가장 벅찬 순간이에요.' order-preview.html 1   # [G1] · [PEAK_COLOR] ★ 범례 → 색 범례
 chk 'class="lsg"' order-preview.html 1   # [G2] ② 띠 두 시간 사이 흐름선 64×18
 # ★[ENTRY_OUT_OFF 2026-10-02 사장님 지시 «서로를 바라봐 주세요 · 이건 굳이 없어도 될 거 같아 · 맞절도 빼고»] 옛 G4 ENTRY_OUT_MORE(맺는 말 «더 고르기») 판은 걷었다
 chk 'ENTRY_OUT_OFF' order-preview.html 3   # 묶음 걷기 · 요약 · 말 없는 줄
