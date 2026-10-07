@@ -136,7 +136,11 @@ const SC = [
   { id: 'ios-cut-300s', ms: [300000], cut: [60000], want: 'ok' },
   { id: 'pc-100s', ms: [100000], w: 1280, want: 'ok' },
   { id: 'pc-200s', ms: [200000], w: 1280, want: 'ok' },
-  { id: 'ios-cut-fail', ms: [70000], cut: [60000], clone: [500, {}], want: 'err', msg: /V4/, by: 110000 },
+  { id: 'ios-cut-fail', ms: [70000], cut: [60000], clone: [500, {}], want: 'err', msg: /V4/, by: 200000, enrolls: 2 },   // 서버가 정말 실패(작업표) → 한 번 더 조용히 → 또 실패면 그때 오류(ENROLL_SAFE)
+  { id: 'ios-cut-fail-once', ms: [70000], cut: [60000], clone: (n) => (n === 1 ? [500, {}] : null), want: 'ok', enrolls: 2, clones: 2 },   // 한 번만 실패 → 다시 누르지 않고 끝까지
+  { id: 'tc-500-once', ms: [5000], clone: (n) => (n === 1 ? [500, {}] : null), want: 'ok', enrolls: 2 },
+  { id: 'crash-early', old: true, ms: [40000, 8000], crash: [true, false], want: 'ok', enrolls: 2, clones: 1 },   // 옛 서버 · 40초에 서버가 죽음(일 없음) → 두 번 물어 안 생김 → 한 번 더 조용히(VC_SIM «서버가 죽음»)
+  { id: 'crash-early-new', ms: [40000, 8000], crash: [true, false], want: 'ok', enrolls: 2, clones: 1 },   // 새 서버 · 작업표가 없다 = 닿지 않음 → 한 번 더 조용히
   { id: 'ios-cut-422', ms: [70000], cut: [60000], clone: [422, { detail: 'invalid audio' }], want: 'err', msg: REC, redo: true, by: 110000 },
   { id: 'old-ios-cut-70s', old: true, ms: [70000], cut: [60000], want: 'ok' },
   { id: 'old-pc-200s', old: true, ms: [200000], w: 1280, want: 'ok' },
@@ -149,7 +153,7 @@ const SC = [
   { id: 'tc-429', ms: [5000], clone: [429, {}], want: 'err', msg: /V1/ },
   { id: 'tc-500', ms: [5000], clone: [500, {}], want: 'err', msg: /V4/ },
   { id: 'gas-html', ms: [5000], html: [true], want: 'ok' },
-  { id: 'gas-html-early', ms: [3000], noRun: [true], want: 'err', msg: /V7/, by: 40000 },
+  { id: 'gas-html-early', ms: [3000], noRun: [true], want: 'err', msg: /V7/, by: 70000, enrolls: 2 },   // 서버가 일하지 않고 오류 화면(할당량 · 권한) → 작업표 없음 = 닿지 않음 → 한 번 더 조용히 → 또면 그때 V7
   { id: 'lock-fail-start', ms: [10000], lockFail: (n, calls) => !calls.some((k) => /instant-clone/.test(k)) && n > 2, want: 'ok' },
   { id: 'lock-fail-save', ms: [10000], lockFail: (n, calls) => calls.some((k) => /instant-clone/.test(k)), want: 'ok' },
   { id: 'session', ms: [3000], tok: 'X', want: 'err', msg: /로그인/ },
@@ -195,9 +199,10 @@ async function run(sc) {
     if (op === 'status' && statusDown > 0) { statusDown--; return route.abort('connectionreset').catch(() => {}); }
     if (op !== 'enroll') return f(W.call(body), 400);
     const n = out.enrolls++, at = (a, d) => (Array.isArray(a) ? (a[n] !== undefined ? a[n] : a[a.length - 1]) : (a !== undefined ? a : d));
-    const ms = at(sc.ms, 5000), cut = at(sc.cut, 0), html = at(sc.html, false), noRun = at(sc.noRun, false);
+    const ms = at(sc.ms, 5000), cut = at(sc.cut, 0), html = at(sc.html, false), noRun = at(sc.noRun, false), crash = at(sc.crash, false);
     out.timeline.push('enroll#' + (n + 1));
     if (noRun) return sleep(ms / SCALE).then(() => route.fulfill({ status: 500, contentType: 'text/html', body: '<html><body>Google Apps Script quota</body></html>' })).catch(() => {});
+    if (crash) return sleep(ms / SCALE).then(() => { out.timeline.push('crash@' + ms / 1000 + 's'); return route.abort('connectionreset'); }).catch(() => {});   // 서버가 처리하다 죽음 — 일을 하지 않았다(업체 호출 전)
     let done = false;
     if (cut && cut < ms) setTimeout(() => { if (!done) { done = true; if (sc.cutDown) statusDown = sc.cutDown; route.abort('connectionreset').catch(() => {}); out.timeline.push('cut@' + cut / 1000 + 's'); } }, cut / SCALE);
     const job = W.begin(body); pending++;   /* 업체 호출 전까지 — 검증 · 작업표 시작 */
@@ -230,7 +235,9 @@ async function run(sc) {
   await startEnroll(f);
   let tab2 = null, t2 = null, ctx2 = null; if (sc.tab2 === 'ready') { ctx2 = await mkCtx(); tab2 = await ctx2.newPage(); t2 = await open(tab2); await startEnroll(t2); }   // 두 번째 탭도 글 두 개를 다 읽어 둔다
   if (sc.tok) await pg.evaluate((t) => { window.__TOK = t; }, sc.tok);
-  const t0 = Date.now(); await f.click('[data-fk="mkvcmake"]'); if (sc.offline) offline = true;
+  const triesBefore = (W.st().groom && W.st().groom.tries) || 0;   // 이번 만들기 전 서버의 «만든 수» — 화면이 «준비됐어요»로 갈 때 이것이 늘어 있어야 한다
+  if (sc.offline) offline = true;   // 누르기 전에 — 누른 뒤에 끊으면 만들기 요청이 먼저 나가는 경합이 있었다(시험 쪽 · 13가지를 한꺼번에 돌릴 때)
+  const t0 = Date.now(); await f.click('[data-fk="mkvcmake"]');
   if (sc.dbl) { await f.click('[data-fk="mkvcmake"]', { timeout: 300 }).catch(() => {}); await f.evaluate(() => { try { mkVcEnroll(); } catch (e) {} }); }
   if (sc.close) { await sleep(300); await f.evaluate(() => mkDlgClose()); }
   const look = (fr) => fr.evaluate(() => { const d = document.getElementById('mkRecDlg'), R = VC.read, tt = document.querySelector('.mk-toast'); return { ph: R && R.ph, step: R && R.step, err: (R && R.err) || '', enr: !!(VC.enr && VC.enr.groom), panel: !!VC.panel, tune: !!document.querySelector('[data-fk="mkvcuse"]') || !!VC.tune || (R && R.ph === 'tune'), dlg: d ? d.innerText.replace(/\s+/g, ' ').slice(0, 160) : '', toast: (tt && tt.textContent) || MK.toast || MK.dlgMsg || '', ready: !!(VC.st && VC.st.groom && VC.st.groom.ready), readyB: !!(VC.st && VC.st.bride && VC.st.bride.ready), card: ((document.querySelector('.mk-vpc') || {}).textContent || '').replace(/\s+/g, ' ').slice(0, 80) }; });
@@ -249,6 +256,7 @@ async function run(sc) {
       else { ctx2 = await mkCtx(); tab2 = await ctx2.newPage(); t2 = await open(tab2); await sleep(500); const c2 = await look(t2); out.tab2Card = c2.card; out.timeline.push('tab2 카드 «' + c2.card.slice(0, 40) + '»');
         if (/만드는 중/.test(c2.card)) { await t2.click('[data-fk="mkvcok:groom"]').catch(() => {}); await sleep(200); out.tab2Open = await look(t2); out.timeline.push('tab2 카드 누름 → ' + out.tab2Open.ph + (out.tab2Open.panel ? ' +동의창' : '')); } } }
     if (/조금 오래 걸리고 있어요/.test(s.dlg)) slowSeen = true;
+    if (s.tune && out.tuneTries === undefined) out.tuneTries = (W.st().groom && W.st().groom.tries) || 0;   // 화면이 처음 «준비됐어요»로 간 순간 서버의 만든 수
     if (sc.downAt && !downGo && now >= sc.downAt[0]) { downGo = true; statusDown = sc.downAt[1]; out.timeline.push('상태 묻기 ' + sc.downAt[1] + '번 끊김'); }
     if (sc.tokAt && !tokGo && now >= sc.tokAt) { tokGo = true; await pg.evaluate(() => { window.__TOK = 'X'; }); out.timeline.push('로그인 풀림'); }
     if (sc.bride && !brideGo && now >= sc.bride) { brideGo = true; await f.evaluate(() => { _dlgShut(); }); await sleep(200); await startEnroll(f, 'bride'); await f.click('[data-fk="mkvcmake"]'); out.timeline.push('신부 만들기'); }
@@ -267,6 +275,7 @@ async function run(sc) {
   if (sc.want === 'err') { if (fin.tune) why.push('오류여야 하는데 준비로 갔다'); if (!fin.err && !fin.toast) why.push('오류 글이 없다'); else { const t = fin.err || fin.toast; if (sc.msg && !sc.msg.test(t)) why.push('글이 기대와 다르다 «' + t.slice(0, 80) + '»'); if (sc.nomsg && sc.nomsg.test(t)) why.push('틀린 안내 «' + t.slice(0, 80) + '»'); }
     if (sc.redo && fin.step !== 1) why.push('녹음 거절인데 글 1 부터가 아니다(걸음 ' + fin.step + ')');
     if (sc.by && errAt > sc.by) why.push('오류를 너무 늦게 알렸다(' + Math.round(errAt / 1000) + '초 · 기대 ' + sc.by / 1000 + '초 안)'); }
+  if (sc.want === 'ok' && !sc.bride && !sc.tab2 && out.tuneTries !== undefined && !(out.tuneTries > triesBefore)) why.push('서버가 다 만들기 전에 «준비됐어요»로 갔다(만든 수 ' + triesBefore + ' → ' + out.tuneTries + ') · 다시 녹음이면 옛 목소리로 맞추기를 듣는다');
   if (sc.slow === true && !slowSeen) why.push('40초가 넘었는데 «조금 오래 걸리고 있어요»가 안 나왔다');
   if (sc.slow === false && slowSeen) why.push('금방 끝났는데 «조금 오래 걸리고 있어요»가 나왔다');
   if (sc.bride && !(out.st.groom && out.st.groom.voiceId && out.st.bride && out.st.bride.voiceId)) why.push('두 분 중 한 분 목소리가 저장되지 않았다 · ' + JSON.stringify({ g: out.st.groom && out.st.groom.voiceId, b: out.st.bride && out.st.bride.voiceId }));
@@ -285,6 +294,12 @@ async function run(sc) {
 }
 
 let fail = 0;
+/* ★[FN_NAME_ONE 2026-10-08 VC_SIM 과 합친 뒤 실측] 새 함수 _vcSnap(w)가 줄 만들기 사진 _vcSnap(key,o)(EX_RACE)와 이름이 같아 뒤 선언이 덮었다 —
+   «보내기 전 만든 수»가 엉뚱한 값이 돼, 다시 녹음이 끊기면 서버가 끝내기 전에 옛 목소리로 «만들었어요»가 됐다. 오류 없이 조용히 틀린다 → 이름을 센다 */
+for (const f of ['order-preview.html', 'mypage.html']) { const src = fs.readFileSync(path.join(ROOT, f), 'utf8'), c = {};
+  for (const m of src.matchAll(/^function\s+([A-Za-z_$][\w$]*)\s*\(/gm)) c[m[1]] = (c[m[1]] || 0) + 1;
+  for (const m of src.matchAll(/^window\.([A-Za-z_$][\w$]*)\s*=\s*function/gm)) c['window.' + m[1]] = (c['window.' + m[1]] || 0) + 1;
+  const dup = Object.entries(c).filter(([, v]) => v > 1).map(([k, v]) => k + '×' + v); console.log((dup.length ? 'FAIL ' : 'ok   ') + f + ' 최상위 함수 이름 ' + Object.keys(c).length + '개가 하나씩 [FN_NAME_ONE]' + (dup.length ? ' → 겹침 ' + dup.join(', ') : '')); if (dup.length) fail++; }
 const SO = serverOnly();
 for (const [m, c, d] of SO) { console.log((c ? 'ok   ' : 'FAIL ') + m + (c ? '' : ' → ' + d)); if (!c) fail++; }
 /* 브라우저가 없으면(CI merge-guard) 서버 쪽만 판정하고 끝낸다 — 서버 실패는 1, 통과면 «화면은 재지 못함»(2) */

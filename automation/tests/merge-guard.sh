@@ -14631,6 +14631,21 @@ chk 'VC_NET_SEC' order-preview.html 1
 chk 'VC_NET_SEC' mypage.html 1
 chk 'VC_NET_AGAIN' scripts/audit/vc-net-again.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-net-again.mjs >/dev/null 2>&1; _vna=$?; if [ "$_vna" = 1 ]; then echo 'FAIL vc-net-again: 목소리 만들기 끊김 다시 묻기가 어긋났습니다 — node scripts/audit/vc-net-again.mjs'; fail=1; else echo "ok vc-net-again ($_vna)"; fi; fi
+# ★★[VC_SIM · ENROLL_SAFE · UP_AGAIN · VC_SESS_WORD · DEL_SAFE 2026-10-07 사장님 «오류 관련 직접 시뮬레이션 · 라운드별로 문제 없을 때까지 안정화»]
+#   진짜 마이페이지 중계 + 식순 화면 + 가짜 서버(아이폰 60초 끊김 · 서버 죽음 · 깨진 답 · 바쁨 · 오프라인 · 로그인 풀림 · 올리기 · 지우기) 23장면 — 전부는 매일 밤(run-all) · 여기선 고친 자리 넷만
+chk 'ENROLL_SAFE' order-preview.html 1
+# ★[ENROLL_SAFE → VC_ENROLL_SURE 2026-10-08] 같은 요청을 두 세션이 함께 고쳤다 — _vcEnrollSafe(90초만 보고 같은 녹음 다시 보내기)는 합치며 걷었다(서버가 90초 넘게 만들면 업체 목소리가 하나 더 생겨 칸이 샜다).
+#   그 생각(끊겨도 서버가 만들었으면 성공 · 정말 실패면 한 번 더 조용히)은 _vcEnrWait · _vcEnrAgain · mkVcEnroll 의 again 이 잇는다 — 아래 VC_ENROLL_SURE 블록이 지킨다
+nochk 'function _vcEnrollSafe(w,data){' order-preview.html
+chk 'function _vcEnrAgain(d){' order-preview.html 1
+chk "if(!ph&&!wait){ if(_vcEnrAgain(d)&&again()) return;" order-preview.html 1
+chk "if(!r.phrase&&again&&(r.lost||(r.job&&_vcEnrAgain(r.d)))&&again()) return;" order-preview.html 1   # 끊김만으로는 다시 보내지 않는다(서버가 아직 만드는 중일 수 있다)
+chk 'UP_AGAIN' order-preview.html 4
+chk 'function _upAgain(key,pend,d){' order-preview.html 1
+chk 'VC_SESS_WORD' order-preview.html 1
+chk 'DEL_SAFE' order-preview.html 1
+chk 'VC_SIM' scripts/audit/vc-sim.mjs 1
+if command -v node >/dev/null 2>&1; then ONLY='만들기(1분 녹음)가 60초를 넘겨,줄 올리기 두 번 연달아,로그인 풀림,지우기가 60초' node scripts/audit/vc-sim.mjs >/dev/null 2>&1; _vsm=$?; if [ "$_vsm" = 1 ]; then echo 'FAIL vc-sim: 목소리 오류 장면(1분 녹음 끊김 · 올리기 끊김 · 로그인 풀림 · 지우기 끊김)이 어긋났습니다 — node scripts/audit/vc-sim.mjs'; fail=1; else echo "ok vc-sim ($_vsm)"; fi; fi
 # ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V9 · ★[ERR_CODES] 종전 V8 — 8 은 사이트 전체에서 로그인 풀림)을 가른다 — 끊긴 직후 상태 확인 한 번
 chk 'VC_NET_SPLIT' mypage.html 1
 chk 'VC_NET_SPLIT' order-preview.html 1
@@ -15436,5 +15451,9 @@ chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/pla
 chk "if (op === 'enroll' && c >= 400 && c < 500 && c !== 401 && c !== 402 && c !== 403 && c !== 429) {" automation/platform/80_production.gs 1   # [VC_ENROLL_BADREC]
 chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
 chk 'VC_ENROLL_SIM' scripts/audit/vc-enroll-sim.mjs 1
+chk 'FN_NAME_ONE' scripts/audit/vc-enroll-sim.mjs 1   # 최상위 함수 이름 겹침(_vcSnap 두 벌 · 뒤 선언이 앞을 조용히 덮었다)
+chk 'function _vcEnrSnap(w){' order-preview.html 1
+nochk 'function _vcSnap(w){' order-preview.html
+chk 'R.enrSnap=_vcEnrSnap(w)' order-preview.html 1
 chk "'vc-enroll-sim.mjs': 600" scripts/audit/run-all.mjs 1
 if command -v node >/dev/null 2>&1; then PAR=8 ONLY='^(ok-fast|ios-cut-70s|pc-100s|old-ios-cut-70s|ios-cut-fail|tc-422|close-reopen|reload-mid|two-tabs|renew-cut)$' node scripts/audit/vc-enroll-sim.mjs >/dev/null 2>&1; _ves=$?; if [ "$_ves" = 1 ]; then echo 'FAIL vc-enroll-sim: 목소리 만들기(녹음 뒤) — 결과 모름 확인 · 한 분 한 번 · 녹음 거절 · 새는 목소리 판정이 어긋났습니다 — node scripts/audit/vc-enroll-sim.mjs'; fail=1; else echo "ok vc-enroll-sim ($_ves)"; fi; fi

@@ -123,8 +123,8 @@ async function open(w) {
   await wait(700);
   const f3b = await pg.evaluate(() => (document.querySelector('#mkRecDlg .mk-exw.mk-dlg-msg') || {}).textContent || '');
   ok('③ 옛 마이페이지 중계 글 → U6 «연결이 끊겨 못 올렸어요»', f3b === '연결이 끊겨 못 올렸어요 · 다시 눌러 주세요 (코드 U6)', f3b);
-  await pg.evaluate(() => { window.__mock['momentedit:ritualFile'] = () => null; __shrink({ 75000: 150 }); mkRecUse(); });
-  await wait(900);
+  await pg.evaluate(() => { window.__mock['momentedit:ritualFile'] = () => null; __shrink({ 75000: 150, 8000: 40, 20000: 40 }); mkRecUse(); });   /* [UP_AGAIN] 75초 답 없음도 두 번 더 보낸 뒤에야 U5 */
+  await wait(1600);
   const f3c = await pg.evaluate(() => { __unshrink(); const d = document.getElementById('mkRecDlg'); return { msg: (d && d.querySelector('.mk-exw.mk-dlg-msg') || {}).textContent || '', info: !!(d && d.querySelector('.mk-toast')), le: (MK.lineErr || {}).g0 || '', ph: MK_REC && MK_REC.ph }; });
   ok('③ 75초 답 없음 → «확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)» 한 곳(창) · «응답이 없어요» 없음', f3c.msg === '확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)' && !f3c.info && !f3c.le && f3c.ph === 'review', JSON.stringify(f3c));
   await pg.evaluate(() => { MK_REC = null; MK.dlgMsg = ''; render(); });
@@ -178,11 +178,11 @@ async function open(w) {
   const f10 = await pg.evaluate(() => ({ le: (MK.lineErr || {}).g0 || '', shown: [...document.querySelectorAll('.mk-pg .mk-exw[role="alert"]')].map((p) => p.textContent) }));
   ok('⑧ 받은 소리를 이 기기가 못 풂 → M6 «소리를 열지 못했어요» · «만든 소리를 받지 못했어요» 아님 · 그 줄 아래', f10.le === '소리를 열지 못했어요 · 다시 눌러 주세요 (코드 M6)' && f10.shown.indexOf(f10.le) > -1, JSON.stringify(f10));
   await pg.evaluate(async () => { const b64 = await __b64(__wav(2, 24000)); window.__mock['momentedit:voiceClone'] = (d) => (d.op === 'status' ? window.__STOK : d.op === 'make' ? { ok: true, left: 900, parts: [{ who: 'groom', mime: 'audio/wav', data: b64 }] } : { ok: false, error: 'x' });
-    window.__mock['momentedit:ritualFile'] = () => null; __shrink({ 75000: 200 }); if (MK.lineErr) delete MK.lineErr.g1; MK.toast = ''; __trapToast();
+    window.__mock['momentedit:ritualFile'] = () => null; __shrink({ 75000: 200, 8000: 40, 20000: 40 }); window.__sent0 = window.__sent.filter((t) => t === 'momentedit:ritualFile').length; if (MK.lineErr) delete MK.lineErr.g1; MK.toast = ''; __trapToast();
     _vcMake('g1', {}).catch(() => {}); });
-  await wait(2500);
-  const f3d = await pg.evaluate(() => { __unshrink(); const o = { le: (MK.lineErr || {}).g1 || '', toasts: (window.__toasts || []).join(' | '), sent: window.__sent.filter((t) => t === 'momentedit:ritualFile').length }; __untrapToast(); return o; });
-  ok('③ AI 줄 75초 → 그 줄 아래 U5 한 번(«응답이 없어요» 알림 · «만든 소리를 저장하지 못했어요» 겹침 없음)', f3d.le === '확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)' && !/응답이 없어요|저장하지 못했어요/.test(f3d.toasts) && f3d.sent > 0, JSON.stringify(f3d));
+  await wait(3500);
+  const f3d = await pg.evaluate(() => { __unshrink(); const o = { le: (MK.lineErr || {}).g1 || '', toasts: (window.__toasts || []).join(' | '), sent: window.__sent.filter((t) => t === 'momentedit:ritualFile').length - window.__sent0 }; __untrapToast(); return o; });
+  ok('③ AI 줄 75초 → 그 줄 아래 U5 한 번(«응답이 없어요» 알림 · «만든 소리를 저장하지 못했어요» 겹침 없음)', f3d.le === '확인이 늦어요 · 올라갔을 수 있어요 (코드 U5)' && !/응답이 없어요|저장하지 못했어요/.test(f3d.toasts) && f3d.sent === 3 /* [UP_AGAIN] 처음 + 두 번 더 */, JSON.stringify(f3d));
 
   /* ⑥ F6 ▶ 파일 받기 */
   await pg.evaluate(() => { S.up = S.up || {}; S.up.g2 = { n: '녹음', id: 'f-g2-404', src: 'rec', at: '' }; delete RF_URL.g2; delete RF_URL['g2#']; delete RF_LOAD['f-g2-404']; delete RF_ERR['f-g2-404']; if (MK.lineErr) delete MK.lineErr.g2;
