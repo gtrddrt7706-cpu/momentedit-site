@@ -14672,6 +14672,13 @@ chk "if(!t||_exIs('pv')) return put();" order-preview.html 1
 # ★[EX_OLD_COVER 2026-10-07 사장님 «확실하게»] 예시 글을 바꾸면 옛 글을 EX_OLD_1006 · PV_OLD 에 남겨야 한다 — origin/main 과 대조(브라우저 없이 CI 에서 돈다)
 chk 'EX_OLD_COVER' scripts/audit/ex-old-cover.mjs 1
 chk 'EX_PROMISE' CLAUDE.md 1
+# ★[MENU_TAP_NORING 2026-10-07 사장님 «모바일에서 빨간색 띠가 생기는데 삭제»] «⋯»를 손가락으로 열면 첫 줄로 초점을 옮기지 않는다(폰이 진사 테두리를 그렸다) · 키보드로 열 때만
+chk 'MENU_TAP_NORING' order-preview.html 2
+chk "if(open&&kbd){ var f=menu.querySelector" order-preview.html 1
+chk 'MENU_TAP_NORING' scripts/audit/listen-page.mjs 2
+# ★[FLOW_NO_ORDER 2026-10-07 사장님 «식전 영상에서 닫는 인사까지 순서는 제거 · 어차피 다음 페이지에서 알 수 있으니»] 고르기 감동 흐름 판의 순서 줄 걷음 — 되살리지 말 것
+chk 'FLOW_NO_ORDER' order-preview.html 1
+nochk "+'<p class=\"pk-tm mo\">'+ord+'</p>'" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/ex-old-cover.mjs >/dev/null 2>&1; _eoc=$?; if [ "$_eoc" = 1 ]; then echo 'FAIL ex-old-cover: 예시 글이 바뀌었는데 옛 글이 EX_OLD_1006 · PV_OLD 에 없습니다 — node scripts/audit/ex-old-cover.mjs'; fail=1; elif [ "$_eoc" = 2 ]; then echo 'skip ex-old-cover: origin/main 없음'; else echo 'ok ex-old-cover: 바뀐 예시 글은 옛 글 목록에 있다'; fi; fi
 chk 'function _exNOf(key)' order-preview.html 1
 chk 'EX_WARM_ORDER' order-preview.html 1
