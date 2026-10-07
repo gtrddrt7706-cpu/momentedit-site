@@ -1155,10 +1155,11 @@ function _gpFolderFor(cust, sheet, colOf) {
    문이 닫혀 있으면 고객 예식은 종전 방식(대본 복사 · 카톡 · 메일로 보내기) · 서버도 올리기를 받지 않는다.
    ★스튜디오 시험 예식은 문과 상관없이 연다 — 스크립트 속성 VOICE_STUDIO_CODES 에 개인코드를 쉼표로(사장님 시험 예식).
    AI 스위치(VOICE_CLONE · PRACTICE_READ)도 off · studio · on 세 단계 — studio 면 이 시험 예식에서만 보인다(_vcCfg). */
-var VOICE_UP = { from: '2099-12-31' };
+var VOICE_UP = { from: '2026-10-08' };   // ★[VOICE_OPEN_1008 2026-10-08 사장님 «전체로 오픈해»] 처리방침 개정 공고 · 시행 10/8(privacy.html 두 분 목소리 항목 · AI 목소리 생성 위탁) — 같은 날 연다. 2099 로 되돌리지 말 것
 function _voiceStudio(code) { var v = String(PropertiesService.getScriptProperties().getProperty('VOICE_STUDIO_CODES') || ''); return !!code && v.split(/[\s,]+/).filter(Boolean).indexOf(String(code)) > -1; }
 function _voiceUpLive(code) {
   // [VOICE_UP_FROM] 날짜 문 — 시행일부터 · 시험 예식은 늘 열림
+  // [VOICE_OPEN_1008] 2026-10-08 전체 오픈 — 날짜 셋(VOICE_UP.from · privacy.html 개정 시행일자 · «AI 목소리 생성» 위탁 줄 «부터»)은 scripts/audit/voice-open.mjs 가 맞춘다
   return (typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= VOICE_UP.from) || _voiceStudio(code);
 }
 function _voicePub(code) {
