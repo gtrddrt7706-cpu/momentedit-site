@@ -1521,6 +1521,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 @keyframes mkWait{from{transform:translateX(-56px)}to{transform:translateX(120px)}}
 @media (prefers-reduced-motion:reduce){ .mk-wait-bar i{animation:none;left:32px} }
 .mk-wait-s{margin:14px 0 0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
+.mk-wait-bar.mk-enr-bar{margin:14px auto}   /* [VC_ENROLL_SURE] 목소리 만드는 중 창 — 제목 아래 · 안내 위 같은 간격(6라운드 실측: 아래 글에 0px 로 붙었다) */
 .pr-askb{display:flex;flex-wrap:wrap;gap:8px}
 .lf-cue{margin:10px 0 0;font-size:14px;font-weight:500;color:var(--seal);word-break:keep-all}   /* [PR_CUE] 말하는 차례 — 무엇을 하면 되는지 한 줄 */
 .lf-tbar{height:3px;margin:10px 0 2px;border-radius:2px;background:var(--border);overflow:hidden}
@@ -5354,7 +5355,7 @@ function _vcErrBox(){ var c=_ecCodeOf(VC.stWhy)||'V0', lg=/^V8\b/.test(c), t='�
 window.mkVcRetry=function(){ _vcStatus(null,true); render(); };
 try{ document.addEventListener('visibilitychange',function(){ if(!document.hidden&&VC.stErr&&!VC.loading) _vcStatus(null,true); }); window.addEventListener('online',function(){ if(VC.stErr&&!VC.loading) _vcStatus(null,true); }); }catch(e){}   /* [VC_STATUS_RETRY] 화면에 돌아오면 · 망이 돌아오면 */
 function _vcWaitBox(){ var slow=VC.loadT0&&Date.now()-VC.loadT0>8000; return _waitBox('두 분 목소리를 불러오고 있어요',slow?'조금 오래 걸리고 있어요 · 이 화면을 그대로 두면 이어서 열려요':'잠깐이면 돼요 · 이 화면에서 기다려 주세요'); }
-function _vcStatus(then,force){ if(!_vcOn()) return; if(then) (VC.then=VC.then||[]).push(then); if(VC.loading) return; if(VC.stErr&&!force) return;   /* [VC_STATUS_RETRY] 못 받은 뒤엔 그리기마다 또 묻지 않는다 — 타이머(10초) · 화면 복귀 · «다시 불러오기»만 */ if(VC.stRetryT){ clearTimeout(VC.stRetryT); VC.stRetryT=null; } VC.loading=true; VC.loadT0=Date.now(); setTimeout(function(){ if(VC.loading&&!VC.st) render(); },8100);   /* [WAIT_BOX] 오래 걸리면 한 번 다시 그려 말을 바꾼다 */ _vc('status').then(function(d){ VC.loading=false; VC.stErr=!(d&&d.ok); VC.stWhy=VC.stErr?_ecLine('V',d||{}):''; VC.st=d&&d.ok?d:(VC.stLast||null); if(d&&d.ok){ VC.stLast=d; VC.stFail=0; } else { VC.stFail=(VC.stFail||0)+1; if(VC.stFail<=12) VC.stRetryT=setTimeout(function(){ _vcStatus(null,true); },10000); }   /* [SIM_R2] 받기 실패를 «목소리 없음»과 가른다 · [VC_STATUS_RETRY] 못 받으면 이 탭에서 마지막으로 받은 상태(있으면)를 쓰고 · 없으면 «모름»(null) — «아직 만들지 않았어요»로 그리지 않는다 · 10초마다 다시(최대 12번 = 2분) */ try{ _exFirstStale(); }catch(e){}   /* [EX_FIRST] 상태를 받자마자 */ setTimeout(_vcWarmBoth,1500);   /* [ALT_READY] ① 새로 고친 뒤에도 */ if(d&&d.per){ VC.left={}; Object.keys(d.per).forEach(function(k){ VC.left[k]=Math.max(0,5-d.per[k]); }); } render(); var q=VC.then||[]; VC.then=[]; q.forEach(function(f){ f(); }); }); }   // [REC_DLG] 불러오는 중에 온 부탁(만든 뒤 빈 줄 채우기)도 버리지 않고 끝나면 부른다
+function _vcStatus(then,force){ if(!_vcOn()) return; if(then) (VC.then=VC.then||[]).push(then); if(VC.loading) return; if(VC.stErr&&!force) return;   /* [VC_STATUS_RETRY] 못 받은 뒤엔 그리기마다 또 묻지 않는다 — 타이머(10초) · 화면 복귀 · «다시 불러오기»만 */ if(VC.stRetryT){ clearTimeout(VC.stRetryT); VC.stRetryT=null; } VC.loading=true; VC.loadT0=Date.now(); setTimeout(function(){ if(VC.loading&&!VC.st) render(); },8100);   /* [WAIT_BOX] 오래 걸리면 한 번 다시 그려 말을 바꾼다 */ _vc('status').then(function(d){ VC.loading=false; VC.stErr=!(d&&d.ok); VC.stWhy=VC.stErr?_ecLine('V',d||{}):''; VC.st=d&&d.ok?d:(VC.stLast||null); if(d&&d.ok){ VC.stLast=d; VC.stFail=0; try{ _vcJobAdopt(d); }catch(e){} } else { VC.stFail=(VC.stFail||0)+1; if(VC.stFail<=12) VC.stRetryT=setTimeout(function(){ _vcStatus(null,true); },10000); }   /* [SIM_R2] 받기 실패를 «목소리 없음»과 가른다 · [VC_STATUS_RETRY] 못 받으면 이 탭에서 마지막으로 받은 상태(있으면)를 쓰고 · 없으면 «모름»(null) — «아직 만들지 않았어요»로 그리지 않는다 · 10초마다 다시(최대 12번 = 2분) */ try{ _exFirstStale(); }catch(e){}   /* [EX_FIRST] 상태를 받자마자 */ setTimeout(_vcWarmBoth,1500);   /* [ALT_READY] ① 새로 고친 뒤에도 */ if(d&&d.per){ VC.left={}; Object.keys(d.per).forEach(function(k){ VC.left[k]=Math.max(0,5-d.per[k]); }); } render(); var q=VC.then||[]; VC.then=[]; q.forEach(function(f){ f(); }); }); }   // [REC_DLG] 불러오는 중에 온 부탁(만든 뒤 빈 줄 채우기)도 버리지 않고 끝나면 부른다
 /* ★★[VOICE_CLONE_0928 코워크 0928 8장] AI 로 두 분 목소리 만들기 — 사람마다 따로: 동의(D) → 1분 읽기(E · 글 둘 · 글마다 다시 · 둘째 글 끝에 서버가 뽑은 확인 문장) → 만들기 → 줄 고르기(F · 줄 카드).
    ★AI 는 «그 사람이 읽는 빈 줄»만 채운다 — 녹음 · 올린 파일 줄은 덮지 않는다. 녹음이 있는 줄도 카드의 [AI로 만들기]를 누르면 그 줄만 AI(녹음은 [되돌리기]로 · 예식 전까지 둔다).
    ★문구는 여기 한 곳(VC_TXT)에 모은다 — 최종 문구는 법무 확인 뒤 사장님이 정한다(8-4). 업체 쪽 지우기 시점은 타입캐스트 서면 답을 받은 뒤 «언제 지우나요» 줄에 맞춘다(11장) */
@@ -5396,14 +5397,15 @@ window.mkVcStRe=function(){ if(VC.loading) return; VC.stErr=false; VC.stWhy=''; 
 function _vcPeople(page){
   if(VC.stErr&&!VC.st) return _vcStFail(page?'mkvcstre':'mkvcstre2');   // [ERR_CODE_BUILDER] 모르는 동안 사람 카드(만들기 단추)를 그리지 않는다 · [VC_STATUS_RETRY] 이 탭에서 마지막으로 받은 상태가 있으면 그것으로 그린다
   var h='<ul class="mk-vlist mk-vpcs">';
-  ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}; if(p.consent&&!p.ready&&p.left!==0) try{ _vcPre(w); }catch(e){} });   // [PHRASE_EARLY] 1분 읽기가 남은 분 — 창을 열기 전에 확인 문장을 받아 둔다
+  ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}; if(p.consent&&!p.ready&&p.left!==0&&!(VC.enr||{})[w]) try{ _vcPre(w); }catch(e){} });   // [VC_ENROLL_ONE] 만드는 중인 분은 새 문장을 받지 않는다   // [PHRASE_EARLY] 1분 읽기가 남은 분 — 창을 열기 전에 확인 문장을 받아 둔다
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}, nm=_vcName(w), role=w==='groom'?'신랑':'신부', who=role+' '+(nm===role?'':nm);   // [VC_CARD_0928 8-5] 사람 카드
-    var stx=/* [VC_LEFT_WORD] */p.ready?'목소리 생성'+(_vcDay(p.made)?' · '+_vcDay(p.made):''):   /* [VC_SIM] 날짜를 못 읽으면 «목소리 생성 ·»처럼 점만 남던 것 */(p.left===0&&!p.ready)?'만들기를 다 썼어요 · 나레이션으로 나와요':'아직 만들지 않았어요';   /* ★[VPAGE_TIDY] «목소리 만들기가 남…» 상태 말 금지 — 바로 아래 [목소리 만들기] 단추와 같은 말을 두 번 · «남았어요»는 숙제처럼 읽혔다 */   // [VC_LIMIT_UI] · [VC_WORD_GEN]
+    var mk=(VC.enr||{})[w];   /* ★[VC_ENROLL_ONE] 창을 닫아도 만들기는 이어진다 — 카드도 «만드는 중»(종전엔 «목소리 만들기» 단추가 그대로라 또 누르면 하나 더 만들었다) */
+    var stx=/* [VC_LEFT_WORD] */p.ready?'목소리 생성'+(_vcDay(p.made)?' · '+_vcDay(p.made):''):   /* [VC_SIM] 날짜를 못 읽으면 «목소리 생성 ·»처럼 점만 남던 것 */(p.left===0&&!p.ready)?'만들기를 다 썼어요 · 나레이션으로 나와요':'아직 만들지 않았어요';   /* [VC_ENROLL_ONE] 만드는 중에도 상태 글은 그대로 — 단추 «만드는 중…»과 같은 말을 두 번 하지 않는다(6라운드 실측 · BOSS_WAY 3) */   /* ★[VPAGE_TIDY] «목소리 만들기가 남…» 상태 말 금지 — 바로 아래 [목소리 만들기] 단추와 같은 말을 두 번 · «남았어요»는 숙제처럼 읽혔다 */   // [VC_LIMIT_UI] · [VC_WORD_GEN]
     var go=function(){ return (page?'mkVoiceGo':'mkVcConsent')+'(\''+w+'\')'; };   /* [VOICE_ONCE] · [CONSENT_EVERY] 시작은 늘 동의부터 — «글 1 부터» 갈래가 없다 */
     var need=p.ready&&!!(S.vsetNeed||{})[w], o=(S.vset||{})[w]||{};
     h+='<li class="mk-vr mk-vpc'+(p.ready?' ok':'')+(need?' need':'')+'"><span class="mk-vt"><span class="mk-vn"><span class="mk-vrole">'+role+'</span>'+esc(nm===role?'':nm)+'</span>'
       +'<span class="mk-vs">'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span>'
-      +(!p.ready&&p.left!==0?'<span class="mk-vhow">글 두 개를 소리 내어 읽어요 · 1분쯤</span>':'')   /* [VPAGE_TIDY] 안 만든 분 카드의 빈 가운데 — 단추를 누르면 무엇을 하는지 미리 */
+      +(!p.ready&&p.left!==0&&!mk?'<span class="mk-vhow">글 두 개를 소리 내어 읽어요 · 1분쯤</span>':'')   /* [VPAGE_TIDY] 안 만든 분 카드의 빈 가운데 — 단추를 누르면 무엇을 하는지 미리 */
       +(need&&_vcOn()?'<span class="mk-vneed">예시를 들어 보고 말 빠르기 · 문장 사이 쉼을 정하면 끝나요</span>':'')
       /* ★[VC_CARD_A 2026-10-04 사장님 «여기 디자인 별론데 최선이야?» → 시안 A] 회색 상자 둘 금지(입력칸처럼 보였다) — 가는 선 위아래 · 가운데 세로선 두 칸.
          아랫줄 = 왼쪽 «▶ 들어 보고 맞추기»(제 크기) · 오른쪽 «다시 녹음 · 지우기» — 상자 안 상자를 걷고 높이를 줄였다 */
@@ -5413,8 +5415,8 @@ function _vcPeople(page){
         :p.left===0?''   // [VC_LIMIT_UI] 다 쓴 분은 누를 단추가 없다
         /* ★동의한 분은 «글 1»부터 여는 단추(mkvcread · 동의 걸음을 건너뜀) 금지 — 2026-10-07 사용자 지시로 삭제 [CONSENT_EVERY]
            (사장님 «폰은 동의가 나오는데 같은 아이디로 PC만 건너뛴다 · 지금도» — 화면이 연 순간의 동의 기록으로 갈래를 골라, 먼저 열어 둔 화면과 새로 연 화면이 갈렸다) */
-        :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'" onclick="'+go()+'"><span>목소리 만들기</span></button>')+'</span>'   /* [VB_WORD] */
-      +(p.ready?'<span class="mk-vsub">'+(p.left>0?'<button type="button" class="pk-link" data-fk="mkvcre:'+w+'" onclick="mkVcConsent(\''+w+'\')">다시 녹음</button><span aria-hidden="true">·</span>':'')
+        :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'"'+(mk?' aria-busy="true"':'')+' onclick="'+go()+'"><span>'+(mk?'만드는 중…':'목소리 만들기')+'</span></button>')+'</span>'   /* [VC_ENROLL_ONE] 같은 자리 · 같은 크기 — 누르면 «만드는 중» 창 */   /* [VB_WORD] */
+      +(p.ready?'<span class="mk-vsub">'+(p.left>0?'<button type="button" class="pk-link" data-fk="mkvcre:'+w+'"'+(mk?' aria-busy="true"':'')+' onclick="mkVcConsent(\''+w+'\')">'+(mk?'만드는 중…':'다시 녹음')+'</button><span aria-hidden="true">·</span>':'')
         +'<button type="button" class="pk-link mk-vdel" data-fk="mkvcdel:'+w+'" aria-label="'+esc(who.trim()+' AI 목소리 '+((VC.delBusy||{})[w]?'지우는 중':'지우기'))+'"'+((VC.delBusy||{})[w]?' aria-disabled="true" aria-busy="true"':'')+' onclick="mkVcDel(\''+w+'\')">'+((VC.delBusy||{})[w]?'지우는 중…':'지우기')+'</button></span>':'')+'</span></li>';   /* [VC_CARD_A] 아랫줄 닫기 */
   });   // [REC_DLG] 동의 · 1분 읽기는 작은 창에서
   return h+'</ul>'+(VC.note?'<p class="mk-note" role="status">'+VC.note+'</p>':''); }
@@ -5678,7 +5680,7 @@ function _vcTuneBody(){ var T=VC.tune, nm=_vcName(T.who), r=VC.sraw[T.who], pl=M
 /* 8-2 E 1분 읽기 — 글 둘을 한 번에 하나씩(글마다 30초쯤) · 둘째 글 끝에 확인 문장(서버가 뽑는다 · 다시 읽으면 새로) · 파일 올리기 없음
    [REC_DLG] 글 1 을 받으면 글 2 로 · 글 2 를 받으면 바로 만든다 · 못 되면 까닭을 창 안에 */
 function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
-  if(R.ph==='busy') return '<p class="mk-dlg-big" role="status">'+esc(nm)+' 님 목소리를 만드는 중이에요</p><p class="mk-note mk-dlg-c1 mk-two"><span>잠시만 기다려 주세요</span><span>창을 닫아도 만들기는 이어져요</span></p>';
+  if(R.ph==='busy') return '<p class="mk-dlg-big" role="status">'+esc(nm)+' 님 목소리를 만드는 중이에요</p><span class="mk-wait-bar mk-enr-bar" aria-hidden="true"><i></i></span><p class="mk-note mk-dlg-c1 mk-two"><span>'+(R.slow?'조금 오래 걸리고 있어요':'잠시만 기다려 주세요')+'</span><span>창을 닫아도 만들기는 이어져요</span></p>';   /* [VC_ENROLL_SURE] 1~2분 걸린다 — 멈춘 화면이 아니라는 표시(WAIT_BOX 의 움직이는 선) · 40초가 넘거나 연결이 끊겨 서버에 묻는 동안은 «조금 오래 걸리고 있어요» */
   if(R.ph==='tune') return VC.tune?_vcTuneBody():'<p class="mk-dlg-big" role="status">'+esc(nm)+' 님 목소리가 준비됐어요</p><p class="mk-note mk-dlg-c1">예시를 불러오는 중이에요</p>';   // [VOICE_TUNE]
   if(R.ph==='done'){ var F=VC.fill||{};
     return '<p class="mk-dlg-big" role="status"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span> '+esc(nm)+' 님 목소리를 만들었어요</p>'
@@ -5703,7 +5705,8 @@ function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
   else if(n===2&&!R.phrase&&R.phErr) h+='<p class="mk-exw mk-dlg-c1" role="alert">'+esc(R.phWhy||'확인 문장을 받지 못했어요 · 다시 받아 주세요')+'</p><button type="button" class="mk-dlg-go" data-fk="mkvcphrase" onclick="mkVcPhrase(\''+w+'\')">확인 문장 다시 받기</button>';   /* [PHRASE_NO_DEAD] 잠긴 «녹음 시작» 대신 누를 수 있는 단추 */
   else h+=_micNote()+'<button type="button" class="mk-dlg-go" data-fk="mkvcrec:'+n+'"'+(n===2&&!R.phrase?' disabled aria-busy="true"':'')+' onclick="mkRecGo(\''+k+'\')">녹음 시작</button>';
   return h+'</div>'; }   /* ★«파일은 올릴 수 없어요. ○○ 님 목소리로만 만들기 위해서예요» 한 줄 금지 — 2026-10-04 사용자 지시로 삭제 [READ_DLG_TIDY] · 창에 파일 올리기 단추가 없다(VC_TXT.noFile 은 남겨 둔다 · 쓰는 곳 없음) */
-window.mkVcConsent=function(w){ VC.panel={who:w}; VC.agree=false; VC.read=null; render(); };
+window.mkVcConsent=function(w){ var E=(VC.enr||{})[w]; if(E){ VC.panel=null; VC.agree=false; VC.read=E.R; render(); return; }   /* ★[VC_ENROLL_ONE] 만드는 중인 분 — 새 동의 · 읽기를 열지 않고 그 «만드는 중» 창을 다시 연다(카드 · 다시 녹음 · 순간 쪽 단추 모두 여기로 온다) */
+  VC.panel={who:w}; VC.agree=false; VC.read=null; render(); };
 window.mkVcAgree=function(w){ if(!VC.agree||VC.agreeing) return; VC.agreeing=true; render();
   _vc('consent',{who:w,agree:true,v:VC_CONSENT_V}).then(function(d){ VC.agreeing=false; if(!d.ok){ MK.dlgMsg=d.error||'동의를 저장하지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; }
     VC.panel=null; VC.agree=false; VC.st=Object.assign({},VC.st,{}); VC.st[w]=Object.assign({},VC.st[w],{consent:true}); mkVcRead(w); }); };
@@ -5726,30 +5729,79 @@ function _vcTake(){ var r=MK_REC, m=r&&/^vc:(groom|bride):(\d)$/.exec(r.key); if
   mkVcEnroll(); }   // [REC_DLG] 글 2 를 받으면 바로 만든다
 function _vcJoin(a,b){ return Promise.all([a.arrayBuffer(),b.arrayBuffer()]).then(function(ab){ var d=function(buf){ var v=new DataView(buf), n=(buf.byteLength-44)/2, f=new Float32Array(n); for(var i=0;i<n;i++) f[i]=v.getInt16(44+i*2,true)/32768; return {f:f,sr:v.getUint32(24,true)}; };
   var x=d(ab[0]), y=d(ab[1]), gap=Math.round(x.sr*0.4), o=new Float32Array(x.f.length+gap+y.f.length); o.set(x.f,0); o.set(y.f,x.f.length+gap); return {wav:_recWav(o,x.sr),sec:o.length/x.sr}; }); }   // 0.4초 쉼으로 이어 한 파일(WAV 16bit 모노)
-window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph==='busy') return; _tuneUnlock(); _micDrop();   // [TUNE_PLAY_TRUE] 만든 뒤 저절로 트는 예시가 막히지 않게 · 마이크는 여기서 닫는다
-  var w=R.who, fail=function(msg){ R.ph='read'; R.step=2; R.err=msg; render(); };
-  R.ph='busy'; R.err=''; R.short=false; render();
+/* ★★[VC_ENROLL_SURE 2026-10-08 사장님 «두 분 목소리 만들기에서 녹음 후에 목소리 만들기 이 부분 오류가 자주 나는데 · 모든 경우의 수 병렬로 직접 시뮬레이션 · 개선이 없을 때까지 라운드별로»]
+   시뮬레이션(scripts/audit/vc-enroll-sim.mjs · 이 화면 → 마이페이지 중계 → GAS 원문 → 가짜 업체) 첫 라운드 21가지 중 11가지가 틀렸다. 뿌리는 하나 —
+   만들기는 녹음(두 글 · 최대 2분 · 수 MB)을 올리고 업체가 복제하느라 1~2분 걸린다. 아이폰 사파리는 60초에 연결을 끊고(V9 · V6) PC 는 90초에 기다리기를 멈춘다(V5).
+   서버는 끊긴 뒤에도 끝까지 만들어 저장하는데 화면은 «만들지 못했어요»라 했고, 다시 누르면 ①서버가 아직 만드는 중이면 업체 목소리가 하나 더 생겼고(칸이 샘)
+   ②다 만든 뒤면 확인 문장이 이미 비어 «글 2 를 한 번 더 읽어 주세요»가 떴다(만들어진 목소리를 두고 또 읽게 했다).
+   이제 결과 모름(V5 · V6 · V7 · V9)이면 «만드는 중»을 그대로 두고 상태(status)로 확인한다 — 만들어졌으면 성공 길 · 서버가 실패를 남겼으면 그 까닭 · 서버에 닿지 않았으면 그때 오류.
+   서버 작업표(VC_ENROLL_JOB · 80_production)가 있으면 그 표의 끝까지, 없으면(GAS 를 새로 배포하기 전) 보낸 뒤 4분까지 «만든 수 · 만든 때»가 바뀌었나로 본다 */
+var VC_ENR={poll:6000,old:240000,job:400000,slow:40000};
+function _vcEnrSnap(w){ var p=((VC.st||VC.stLast||{})[w])||null; return p?{tries:+p.tries||0,made:String(p.made||''),ready:!!p.ready}:null; }   // [VC_ENROLL_SURE] 보내기 전 «만든 수 · 만든 때» · ★이름을 _vcSnap 으로 두지 말 것 — 줄 만들기 사진(EX_RACE _vcSnap(key,o))이 같은 이름이라 뒤 선언이 덮어, 다시 녹음이 끊기면 옛 목소리로 «만들었어요»가 됐다(VC_SIM 합친 뒤 실측 · VC_NAME_ONE)
+function _vcMadeSince(p,s){ return !!(p&&p.ready&&s&&((+p.tries||0)>s.tries||(p.made&&String(p.made)!==s.made))); }
+function _vcEnrUnknown(d){ return !!(d&&!d.ok&&d.down&&(d.timeout||d.net)); }   // 기다리다 멈춤(V5) · 연결 끊김(V6) · 답 깨짐(V7) · 서버에서 멈춤(V9) — 서버는 끝냈을 수 있다
+function _vcEnrJobD(j){ var n=/^V[1-9]$/.test(j.ecode||'')?+j.ecode.charAt(1):_vcDownN({kind:j.kind}); return j.kind==='rec'?{ok:false,bad:true,kind:'rec'}:{ok:false,down:true,kind:j.kind,error:_vcDownWord(n)}; }   // 서버가 작업표에 남긴 실패 → 서버가 바로 답했을 때와 같은 모양
+var VC_REC_BAD='이 녹음으로는 목소리를 만들지 못했어요\n조용한 방에서 글 1 부터 다시 읽어 주세요 (코드 V0)';   /* ★[VC_ENROLL_BADREC 2026-10-08 시뮬레이션 tc-422 · tc-400-long] 업체가 녹음을 받지 않았다(422 · 400 · 413 · 415) — 종전엔 줄 만들기 문구(«이 줄 글에 … 글을 고쳐»)나 «잠시 뒤 다시(V4)»였다. 같은 녹음을 다시 보내면 또 거절된다 → 글 1 부터 */
+function _vcEnrMsg(d){ var h=+d.http||0; if(d.bad||d.kind==='rec'||(h>=400&&h<500&&[401,402,403,429].indexOf(h)<0)) return {msg:VC_REC_BAD,redo:true}; return {msg:d.error||_vcDownWord(4)}; }
+/* [VC_ENROLL_SURE] 결과 모름 → 상태로 확인 · quick = 확인 문장이 비어 거절된 때(앞 만들기가 이미 끝났나 · 아직 도나만 본다) */
+function _vcEnrWait(E,d0,quick){ var early=!d0.timeout&&(+d0.sec||0)>0&&(+d0.sec||0)<55; return new Promise(function(done){ var gone=0, bad=0, k=0;   // early = 60초 끊김 전에 끊김(서버가 죽었거나 요청이 닿지 않음 · 서버가 아직 만드는 중일 가능성이 낮다)
+  (function nx(){ setTimeout(function(){ if((VC.enr||{})[E.w]!==E) return done({ok:false,d:d0});
+    _vc0('status').then(function(st){ k++;
+      if(st&&st.ok){ bad=0; VC.stLast=st; var p=st[E.w]||{}, j=p.job&&p.job.jid===E.jid?p.job:null;
+        if(_vcMadeSince(p,E.snap)) return done({ok:true,renewed:j?!!j.renewed:!!(E.snap&&E.snap.ready)});   // 만들어졌다 — 끊긴 뒤 서버가 끝까지 만들었다
+        if(j&&j.end) return done({ok:false,d:_vcEnrJobD(j),job:true});   // 서버가 실패를 남겼다 — 그 까닭으로
+        if(quick){ var oj=p.job; if(oj&&!oj.end&&oj.age*1000<VC_ENR.job){ E.jid=oj.jid; quick=false; } else return done({ok:false,d:d0,phrase:true}); }   // 앞 만들기가 아직 돈다(다른 탭 · 새로 고친 화면) — 그 끝을 본다
+        else if(!j&&st.jobs&&++gone>=2) return done({ok:false,d:d0,lost:true});   // 작업표를 싣는 서버인데 이 표가 없다 = 요청이 서버에 닿지 않았다
+        else if(!st.jobs&&early&&k>=2) return done({ok:false,d:d0,lost:true});   // ★[ENROLL_SAFE] 옛 서버 · 금방 끊김 — 두 번 물어도 안 생겼으면 서버가 죽은 것(VC_SIM «서버가 죽음 — 목소리 안 생김»)
+        else if(j&&j.age*1000>=VC_ENR.job) return done({ok:false,d:d0,lost:true}); }   // 서버 한 번 실행(6분)을 넘겼다 = 죽은 작업
+      else if(st&&st.reason) return done({ok:false,d:st});   // 로그인이 풀렸다 — 그 말로
+      else if(quick&&k>=2) return done({ok:false,d:d0,phrase:true});
+      else if(++bad>=3) return done({ok:false,d:d0});   // 상태도 세 번 못 받았다 — 연결부터(다시 누르면 서버가 «만드는 중 · 다 만듦»을 알려 준다)
+      if(Date.now()-E.t0>=((st&&st.jobs)?VC_ENR.job:VC_ENR.old)) return done({ok:false,d:d0,lost:!!(st&&st.jobs)});   // ★옛 서버가 4분이 지나도 «만든 수»가 그대로면 그때 오류 — 아직 만드는 중일 수 있어 다시 보내지 않는다(겹쳐 만들면 업체 칸이 샌다 · vc-enroll-sim old-late-retry)
+      nx(); }); },k?VC_ENR.poll:(quick?0:1500)); })(); }); }
+/* ★[ENROLL_SAFE 2026-10-07 VC_SIM → 2026-10-08 VC_ENROLL_SURE 와 합침] 서버가 정말 못 만들었으면(업체 바쁨 · 처리 실패 · 서버 오류 · 요청이 닿지 않음) 같은 녹음으로 한 번 더 조용히 —
+   확인 문장은 만들어져야 비워지니 그대로 쓸 수 있다. 녹음 거절(V0) · 요금제(V2) · 설정(V3) · 한도 · 로그인 풀림은 다시 보내도 같아서 보내지 않는다 */
+function _vcEnrAgain(d){ return !!d&&!d.limit&&!d.sess&&!d.bad&&d.kind!=='rec'&&d.kind!=='plan'&&d.kind!=='gate'&&(d.kind==='busy'||d.kind==='fail'||/^V[14]$/.test(String(d.ecode||''))); }   // ★끊김(V5 · V6 · V9 · V7) 자체는 «서버가 실패했다»가 아니다 — 상태로 실패를 확인한 것(lost · 작업표)만 다시 보낸다(vc-enroll-sim old-late-retry · 겹쳐 만들면 칸이 샌다)
+/* [VC_ENROLL_SURE] 만들기 한 번의 끝(성공 · 실패 · 결과 모름 뒤 확인) — 이 창에서 누른 것과 새로 연 화면이 이어받은 것(_vcJobAdopt)이 같은 길로 끝난다 */
+function _vcEnrCtl(E){ var w=E.w, R=E.R;
+  var end=function(){ if((VC.enr||{})[w]===E) delete VC.enr[w]; R.slow=false; };
+  var fail=function(msg,redo){ end(); if(redo||!R.take[1]){ R.take={}; R.step=1; } else R.step=2; R.ph='read'; R.err=msg;
+    if(VC.read!==R) MK.toast=_vcName(w)+' 님 목소리 · '+String(msg).split('\n').join(' · ');   // 까닭 글이 이미 «만들지 못했어요 · …»라 머리는 이름만(«…를 만들지 못했어요 · 만들지 못했어요» 겹침 · 6라운드 실측)   /* ★[VC_ENROLL_CLOSED] 창을 닫았으면(«창을 닫아도 만들기는 이어져요») 실패도 알림으로 — 종전엔 아무 말 없이 카드가 «목소리 만들기»로 돌아갔다 */
+    render(); };
+  var good=function(d){ end(); if(VC.pre) delete VC.pre[w]; delete VC.sraw[w];   /* ★[SIM_R1 2026-10-04 시뮬레이션] 새 목소리 — 옛 목소리 예시를 들려주던 것 */ R.ph='tune'; R.renewed=!!d.renewed; S.vsetNeed=S.vsetNeed||{}; S.vsetNeed[w]=1; _persist(); VC.st=null; render(); _vcStatus(function(){ _vcTuneOpen(w,'enroll'); }); };   /* [VOICE_TUNE] 만든 직후 = 예시 듣고 맞추기(필수) · 줄 채우기는 «이 목소리로 쓰기» 뒤 */
+  var after=function(d0,quick,again){ if(!quick){ R.slow=true; render(); } return _vcEnrWait(E,d0,quick).then(function(r){ if(r.ok) return good(r);
+    if(!r.phrase&&again&&(r.lost||(r.job&&_vcEnrAgain(r.d)))&&again()) return;   // [ENROLL_SAFE] 정말 못 만들었으면 한 번 더 조용히(이 창에서 누른 것만 · 이어받은 것은 녹음이 없다)
+    if(r.phrase){ if(VC.pre) delete VC.pre[w]; R.phrase=''; R.take[2]=null; fail('확인 문장을 새로 받았어요 · 글 2 를 한 번 더 읽어 주세요'); _vcPhraseGet(w); return; }   /* [PHRASE_NO_DEAD] 다시 받기도 막다른 길 없이 */   /* [PHRASE_EARLY] 서버가 문장을 잃었으면(옛 덮어쓰기 · VC_STATE_MERGE 전) 새로 받아 글 2 만 다시 · [VC_ENROLL_SURE] 앞 만들기가 끝났으면 위에서 성공 길로 */
+    var m=_vcEnrMsg(r.d||d0); fail(m.msg,m.redo); }); };
+  return {end:end,fail:fail,good:good,after:after}; }
+/* ★[VC_ENROLL_ONE 2026-10-08 시뮬레이션 reload-mid] 마이페이지는 식순 화면을 열 때마다 새로 불러온다 — 만드는 중에 나갔다 오면 이 탭의 기억(VC.enr)이 없다.
+   종전엔 카드가 «목소리 만들기»로 떠 처음부터 다시 읽게 했다(그사이 서버는 만들고 있었다). 서버 작업표가 «만드는 중»이면 그 끝을 이어서 본다 */
+function _vcJobAdopt(st){ if(!st||!st.ok||!st.jobs) return; ['groom','bride'].forEach(function(w){ var p=st[w]||{}, j=p.job; if(!j||j.end||j.age*1000>=VC_ENR.job||(VC.enr||{})[w]) return;
+  VC.enr=VC.enr||{}; var R={who:w,take:{},phrase:'',step:1,ph:'busy',err:'',slow:true}, E={w:w,R:R,snap:{tries:+p.tries||0,made:String(p.made||''),ready:!!p.ready},t0:Date.now()-j.age*1000,jid:j.jid}; R.enrSnap=E.snap; VC.enr[w]=E;
+  _vcEnrCtl(E).after({ok:false,down:true,net:'srv',error:_vcDownWord(9)}); }); }
+window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph==='busy') return; var w=R.who;
+  var E0=(VC.enr||{})[w]; if(E0){ if(E0.R!==R) VC.read=E0.R; else R.ph='busy'; render(); return; }   /* ★[VC_ENROLL_ONE] 이 분 만들기가 아직 돈다 — 두 번 보내지 않고 그 «만드는 중» 창으로(종전엔 창을 닫고 다시 열어 누르면 업체 목소리를 하나 더 만들었다 · 이어받은 만들기면 그 창을 연다) */
+  _tuneUnlock(); _micDrop();   // [TUNE_PLAY_TRUE] 만든 뒤 저절로 트는 예시가 막히지 않게 · 마이크는 여기서 닫는다
+  if(!R.enrSnap) R.enrSnap=_vcEnrSnap(w); VC.enr=VC.enr||{}; var E={w:w,R:R,snap:R.enrSnap,t0:Date.now(),jid:''}; VC.enr[w]=E;   // [VC_ENROLL_SURE] 이 창 첫 만들기 전의 «만든 수 · 만든 때» · 작업표 이름
+  var C=_vcEnrCtl(E), fail=C.fail;
+  R.ph='busy'; R.err=''; R.short=false; R.slow=false; render();
+  setTimeout(function(){ if(VC.enr[w]===E&&R.ph==='busy'&&!R.slow){ R.slow=true; render(); } },VC_ENR.slow);   // [VC_ENROLL_SURE] 40초가 넘으면 «조금 오래 걸리고 있어요»
   _vcJoin(R.take[1].wav,R.take[2].wav).then(function(j){ if(j.sec<20){ R.short=true; fail('두 글을 합쳐 '+Math.round(j.sec)+'초라 목소리를 만들기엔 짧아요\n'+VC_TXT.short); return; }   /* [REC_WARN2] */   // 두 글을 합쳐 20초가 안 되면 만들기 전에 멈춘다
-    var rd=new FileReader(); rd.onload=function(){ _vcEnrollSafe(w,{data:String(rd.result),sec:Math.round(j.sec)}).then(function(d){
-      if(!d.ok){ if(d.limit) R.limit=true;
-        if(/확인 문장/.test(d.error||'')){ if(VC.pre) delete VC.pre[w]; R.phrase=''; R.take[2]=null; fail('확인 문장을 새로 받았어요 · 글 2 를 한 번 더 읽어 주세요'); _vcPhraseGet(w); return; }   /* [PHRASE_NO_DEAD] 다시 받기도 막다른 길 없이 */   /* [PHRASE_EARLY] 서버가 문장을 잃었으면(옛 덮어쓰기 · VC_STATE_MERGE 전) 새로 받아 글 2 만 다시 */
-        fail(d.error||'만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); return; }   // ★[VC_LIMIT_UI] 한도면 다시 누를 단추를 보이지 않는다
-      if(VC.pre) delete VC.pre[w]; delete VC.sraw[w];   /* ★[SIM_R1 2026-10-04 시뮬레이션] 새 목소리 — 옛 목소리 예시를 들려주던 것 */ R.ph='tune'; R.renewed=!!d.renewed; S.vsetNeed=S.vsetNeed||{}; S.vsetNeed[w]=1; _persist(); VC.st=null; render(); _vcStatus(function(){ _vcTuneOpen(w,'enroll'); });   /* [VOICE_TUNE] 만든 직후 = 예시 듣고 맞추기(필수) · 줄 채우기는 «이 목소리로 쓰기» 뒤 */ },function(){ fail('만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); }); }; rd.onerror=function(){ fail('녹음을 열지 못했어요\n글 2 를 다시 읽어 주세요 (코드 M6)'); };   /* ★[ERR_CODE_BUILDER] 받는 쪽이 없어 «…목소리를 만드는 중이에요»에 영영 멈췄다 — 읽기 걸음으로 돌아간다 */ rd.readAsDataURL(j.wav); })
+    var rd=new FileReader(); rd.onload=function(){ var data=String(rd.result), sec=Math.round(j.sec);
+      var again=function(){ if(E.again||VC.enr[w]!==E) return false; E.again=true; setTimeout(send,3000); return true; };   // ★[ENROLL_SAFE] 한 번만 · 3초 뒤 · 그동안 «만드는 중» 그대로
+      var send=function(){ if(VC.enr[w]!==E) return; E.t0=Date.now(); E.jid='e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); _vc('enroll',{who:w,jid:E.jid,data:data,sec:sec}).then(function(d){
+        if(d.ok) return C.good(d);
+        if(d.limit) R.limit=true;   // ★[VC_LIMIT_UI] 한도면 다시 누를 단추를 보이지 않는다
+        var ph=/확인 문장/.test(d.error||''), wait=_vcEnrUnknown(d)||!!d.wait;
+        if(!ph&&!wait){ if(_vcEnrAgain(d)&&again()) return; var m=_vcEnrMsg(d); fail(m.msg,m.redo); return; }   // [ENROLL_SAFE] 서버가 바로 «바쁨 · 처리 실패»라 답했으면 한 번 더 조용히
+        if(d.wait&&d.jid) E.jid=String(d.jid);   // [VC_ENROLL_ONE] 다른 탭 · 기기에서 같은 분 만들기가 돈다 — 그 표의 끝을 본다
+        C.after(d,ph&&!wait,again); },function(){ fail(_vcDownWord(4)); }); };
+      send(); }; rd.onerror=function(){ fail('녹음을 열지 못했어요\n글 2 를 다시 읽어 주세요 (코드 M6)'); };   /* ★[ERR_CODE_BUILDER] 받는 쪽이 없어 «…목소리를 만드는 중이에요»에 영영 멈췄다 — 읽기 걸음으로 돌아간다 */ rd.readAsDataURL(j.wav); })
     .catch(function(){ fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요'); }); };
-/* ★★[ENROLL_SAFE 2026-10-07 사장님 «오류 관련 시뮬레이션 · 라운드별로 문제 없을 때까지 안정화»(VC_SIM 1라운드)]
-   1분 녹음으로 목소리를 만드는 요청(enroll)은 녹음을 올리고 업체가 복제하느라 오래 걸린다 — 아이폰은 60초에 «연결 끊김»으로 끊는데 서버는 끝까지 만들어 둔다.
-   종전엔 화면이 바로 «서버에서 멈췄어요 (V9 · 61초)» → 다시 누르면 서버가 «확인 문장을 먼저»(만들 때 문장을 비웠다) → 글 2 를 또 읽게 했다. 이미 목소리가 생겼는데도.
-   이제 끊기거나(연결 · 시간 · 바쁨) 문장을 잃었다는 답이면 먼저 상태(status)로 «이 요청 뒤에 목소리가 생겼나»(만든 횟수가 늘었나)를 본다 —
-   60초 근처에서 끊긴 것은 서버가 아직 만드는 중일 수 있어 10초마다 최대 90초 본다 · 생겼으면 성공으로 이어 간다.
-   안 생겼으면(서버가 정말 실패) 같은 녹음으로 한 번 더 조용히 보낸다(문장은 성공해야 비워지니 그대로 쓸 수 있다) · 그래도 안 되면 그때 실패 글 */
-function _vcEnrollSafe(w,data){ var p0=((VC.st||{})[w])||{}, t0=p0.tries||0, had=!!p0.ready;
-  var made=function(){ return _vc('status').then(function(s){ var p=(s&&s.ok&&s[w])||{}; return (p.ready&&(p.tries||0)>t0)?p:null; }); };
-  var poll=function(n){ return made().then(function(p){ if(p) return {ok:true,who:w,tries:p.tries,renewed:had,_rec:1}; if(n<=0) return null; return new Promise(function(r){ setTimeout(r,10000); }).then(function(){ return poll(n-1); }); }); };
-  var go=function(again){ return _vc('enroll',Object.assign({},data,{who:w})).then(function(d){ if(d&&d.ok) return d;
-    var lost=/확인 문장/.test((d&&d.error)||''), tr=!!(d&&d.down&&!d.limit&&(d.net||d.timeout||d.kind==='busy'));
-    if(!lost&&!tr) return d;
-    return poll(lost?0:(((+d.sec||0)>=55||d.timeout)?9:0)).then(function(r){ if(r) return r; if(!again&&tr) return new Promise(function(z){ setTimeout(z,3000); }).then(function(){ return go(true); }); return d; }); }); };
-  return go(false); }
+/* ★★[ENROLL_SAFE 2026-10-07 VC_SIM(다른 세션 · #1120) → 2026-10-08 VC_ENROLL_SURE 와 합침 · 같은 사장님 요청(«오류 · 시뮬레이션 · 라운드별로 안정화»)을 두 세션이 함께 고쳤다]
+   그쪽 생각(끊겨도 서버가 만들었으면 성공 · 정말 실패면 한 번 더 조용히)은 그대로 이어받았다 — 위 _vcEnrWait(상태 확인) · _vcEnrAgain(한 번 더) · mkVcEnroll 의 again.
+   ★_vcEnrollSafe(90초만 보고 같은 녹음을 다시 보내기)를 되살리지 말 것 — 서버가 90초 넘게 만드는 중이면 업체 목소리가 하나 더 생겨 칸이 샜다(vc-enroll-sim retry-during).
+     이제는 서버 작업표(VC_ENROLL_JOB)로 «아직 만드는 중»을 알고 기다리며, 옛 서버는 «만든 수 · 만든 때»로 4분까지 · 금방 끊긴 것은 두 번 물어 본다 */
 window.mkVcDel=function(w){ if((VC.delBusy||{})[w]) return; var used=Object.keys(S.up||{}).filter(function(k){ var v=S.up[k]; return v&&v.src==='ai'&&(!v.by||v.by===w||(Array.isArray(v.by)&&v.by.indexOf(w)>-1)); });
   ordAsk({title:_vcName(w)+' 님 AI 목소리를 지울까요?',body:used.length?'AI로 만든 줄 '+used.length+'줄은 나레이션으로 바뀌어요':'',yes:'지우기',no:'두기',danger:true,focusAfter:'[data-fk="mkvcok:'+w+'"]'}).then(function(ok){ if(!ok) return;   // [REC_DLG] · [QA_ASK_GONE] 지운 뒤엔 그 분의 «목소리 만들기»로 브라우저 confirm 대신 우리 판
   used.forEach(function(k){ _mkUpDrop(k); }); Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); delete VC.sraw[w]; _persist();   /* [SIM_R1] 지운 목소리 예시도 */   // [VC_BOTH_CHECK] 지운 목소리 소리는 들고 있지 않는다
