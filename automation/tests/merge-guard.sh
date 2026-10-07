@@ -14324,6 +14324,12 @@ chk '^\.mk-pl{position:relative;isolation:isolate;flex:0 0 auto;width:58px;heigh
 chk 'PLAY_PILL' order-preview.html 2
 chk 'WAIT_FILL' order-preview.html 16
 chk 'PLAY_WAIT_LOCK' order-preview.html 3
+# ★[EX_UNPICKED 2026-10-07 사장님 «입장 파트 첫 화면에서 새 출발처럼 버튼 클릭되어 있는 거 수정»] 예시 코스가 정한 값도 «기본» — 두 분이 누르지 않았으면 안 눌린 모양
+chk 'EX_UNPICKED' order-preview.html 2
+chk 'function _exS0(keep){' order-preview.html 1
+chk 'try{ var s0=_exS0(keep);' order-preview.html 1   # [EX_UNPICKED] _lDefCurs 의 기본 = 미개봉 판 + 고른 예시
+nochk "try{ var s0=JSON.parse(_S0); \['on','off','course','extra','tune'\]" order-preview.html   # [EX_UNPICKED] 미개봉 판과만 견주던 옛 기준(예시 값이 눌린 모양으로 떴다)
+chk "'mkEntryEx','mkex:entry:',Math.max(0,ENTRY_KEYS.indexOf(_exS0(S).entry))" order-preview.html 1   # [EX_UNPICKED] AI 판 입장 참고 예시 기준도 예시 값
 nochk "(_wq?' aria-busy=\"true\"'" order-preview.html   # [PLAY_WAIT_LOCK] 올리는 동안 누를 수 있게(옛 PLAY_WAIT_TAP) 되돌리지 말 것
 chk "(/ ld/.test(w.c)?' disabled aria-busy=\"true\"':'')" order-preview.html 4   # [PLAY_WAIT_LOCK] 줄 카드 나레이션 ▶ · 흐름 ▶ · 작은 · 큰 플레이어 ❚❚
 chk "b.disabled=/ ld/.test(c);" order-preview.html 1   # [PLAY_WAIT_LOCK] 다시 그리지 않고 칠할 때(_wfPaint)도 못 누름

@@ -4015,8 +4015,13 @@ function _lGroups(k){
   return g;
 }
 var _lInDef=false;
+/* ★★[EX_UNPICKED 2026-10-07 사장님 «입장 파트 첫 화면에서 새 출발처럼 버튼 클릭되어 있는 거 수정 개선»] 예시 코스(기록 · 약속 · 가족 · 간결)가 정한 값도 «기본»이다.
+   종전엔 미개봉 기본(_S0)과만 견줘서, 예시가 바꿔 둔 묶음(약속 = 입장 «새 출발처럼» · 선언 «나레이션 · 따뜻하게» · 인사 «말 없이» / 가족 = 입장 «고마움을 담아»)이
+   두 분이 누르지 않았는데 눌린 모양으로 떴다([BOSS_WAY] «미리 골라 둔 것처럼 보이지 않게»). 이제 기본 = 미개봉 판 + 고른 예시. 직접 누른 묶음(S.touched)과 바꾼 묶음만 눌린 모양.
+   ★예시 값을 다시 «고른 것»으로 세지 말 것 */
+function _exS0(keep){ var s0=JSON.parse(_S0), R=RitualOpen; if(keep&&keep.pickFrom&&R.exampleOf&&R.exampleOf(keep.pickFrom)) R.applyExample(s0,keep.pickFrom); return s0; }
 function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
-  try{ var s0=JSON.parse(_S0); ['on','off','course','extra','tune'].forEach(function(q){ if(keep[q]!==undefined) s0[q]=keep[q]; }); S=s0; _lGroups(k).forEach(function(x){ o[x.key]=x.cur; }); }
+  try{ var s0=_exS0(keep); ['on','off','course','extra','tune'].forEach(function(q){ if(keep[q]!==undefined) s0[q]=keep[q]; }); S=s0; _lGroups(k).forEach(function(x){ o[x.key]=x.cur; }); }
   catch(e){} finally{ S=keep; _lInDef=false; }
   return o; }
 /* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
@@ -4730,7 +4735,7 @@ function _exRowG(key,lab,names,cur,fn,fk,base,note){ var t=(S.touched||{})[key],
 function _exRows(k){ var out=[], R=RitualOpen, EXN='고르면 아래 글이 바뀌어요 · 고쳐 써도 돼요';
   if(k==='guest'){ if(S.guestVoice==='couple'&&_vpCur('guest')==='ai') out.push(_exRowG('exGuest','참고 예시',GUEST_EX.map(function(x){ return x[0]; }),_guestExCur(),'mkGuestEx','mkex:guest:',0,EXN));
     else if(S.guestVoice!=='couple') out.push(_exRowG('exGuestNar','안내 멘트',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','mkex:guestnar:',0,'')); }
-  if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') out.push(_exRowG('exEntry','참고 예시',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),_exIs('entry')?ENTRY_KEYS.indexOf(S.entry):-1,'mkEntryEx','mkex:entry:',0,EXN));
+  if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') out.push(_exRowG('exEntry','참고 예시',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),_exIs('entry')?ENTRY_KEYS.indexOf(S.entry):-1,'mkEntryEx','mkex:entry:',Math.max(0,ENTRY_KEYS.indexOf(_exS0(S).entry)),EXN));   // [EX_UNPICKED] 기준 = 고른 예시의 입장
   if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice!=='couple') out.push(_exRowG('exPvNar','소개 멘트',PV_EX.map(function(x){ return x[0]; }),+S.pvEx||0,'mkPvNarEx','mkex:pvnar:',0,''));   /* [EX_ROW · PV_EX_NAR] 스튜디오 판 식전 영상 소개 넷(녹음 128~130)도 위쪽 칩 줄 */
   if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice==='couple'&&_vcOn()&&_vpCur('prevideo')==='ai'){ var pt=String(S.pvText||'').trim(); out.push(_exRowG('exPv','참고 예시',PV_EX.map(function(x){ return x[0]; }),PV_EX.findIndex(function(x){ return x[1]===pt; }),'mkPvEx','mkex:pv:',-1,EXN)); }
   return out; }
