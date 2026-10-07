@@ -890,7 +890,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-peak b{font-weight:600}
 .pk-tm{font-size:12.5px;line-height:1.6;color:var(--light);margin:8px 0 0;word-break:keep-all}
 .pk-pre{white-space:nowrap}
-.pk-side .op-note{margin-top:8px}
+.pk-fp>.op-note{margin-top:12px}   /* [NOTE_UNDER] */
 .pk-acts{display:grid;gap:20px}
 .pk-act-h{font-size:14px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
 .pk-act-d{font-size:12.5px;color:var(--light);margin:0 0 8px;line-height:1.45}
@@ -973,6 +973,8 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 /* 예시 확인 알림 줄 — 3초 · [UNDO_OFF] 되돌리기 단추 없음 */
 .pk-undo{position:fixed;left:50%;bottom:calc(128px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);background:var(--accent);color:#FAFAF8;font-size:12.5px;border-radius:22px;padding:12px 18px;box-shadow:0 2px 10px rgba(0,0,0,.18);word-break:keep-all;pointer-events:none}   /* [UNDO_OFF] 단추가 없으니 여백을 고르게 · 누를 것이 없어 아래를 가리지 않게 터치는 통과 */
 .pk-undo[hidden]{display:none}
+.pk-undo.wrap{flex-direction:column;gap:2px;text-align:center;width:max-content;max-width:min(calc(100vw - 32px),440px)}   /* [SHORT_TOAST] 단체 사진 알림은 두 줄까지 · 예시 확인 문구가 떠 있으면 그 아래 */
+.pk-undo.wrap span{white-space:normal;word-break:keep-all}
 .pk-undo span{white-space:nowrap}
 .pk-intro-back{display:none}
 @media (min-width:1000px){ .pk-intro-back{display:inline-block;margin:0 0 4px} }   /* [UNDO_ABOVE_BAR] 390 에서도 «‹가족› 예시로 / 바꿨어요»로 갈렸다 — 한 줄(폭은 100vw−32 안) */
@@ -991,14 +993,16 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
   .pk-ex{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:14px}
   .pk-ex-gw{margin-top:auto;padding-top:8px}   /* [RIT_CURVE_LABEL] 라벨까지 함께 카드 아래로 */
   .pk-ex-g svg{height:44px}
-  .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:28px;padding:18px 20px;margin-top:18px}
-  .pk-fg{min-height:152px}
+  .pk-fp{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px 28px;grid-template-rows:auto 1fr;padding:18px 20px;margin-top:18px}
+  .pk-fg{min-height:120px}   /* [FLOW_NONAMES] 이름 줄이 빠진 높이 */
   .pk-side{border-left:1px solid var(--bg2);padding-left:28px;display:flex;flex-direction:column;gap:16px}   /* ★[PC_SIDE_AIR 2026-09-26 사장님 «우측 정보랑 버튼이 너무 낑겨»] 덩어리 사이 16 · 준비 줄은 왼쪽 그림 아래로 */
   .pk-big{font-size:12.5px;color:var(--sub);line-height:1.6;margin:0}
   .pk-big strong{display:block;font-size:26px;color:var(--accent);font-weight:600;line-height:1.25;margin:4px 0 6px}
   .pk-go{margin-top:auto;min-height:48px;border:0;border-radius:12px;background:var(--accent);color:#FAFAF8;font:inherit;font-weight:600;cursor:pointer}
   .pk-side .pk-peak{margin-top:0}
-  .pk-side .op-note{margin-top:0}
+  .pk-fp>.pk-fp-main{grid-column:1;grid-row:1}
+  .pk-fp>.pk-side{grid-column:2;grid-row:1 / span 2}
+  .pk-fp>.op-note{grid-column:1;grid-row:2;margin-top:0;align-self:start}   /* [NOTE_UNDER] PC 는 그림 아래 */
   .pk-acts{gap:18px;margin-bottom:48px}
   .pk-act{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;align-items:start}
   .pk-act-h{font-size:14px;color:var(--accent)}
@@ -3278,7 +3282,7 @@ function render(){
   try{ [].forEach.call(el.querySelectorAll('.ta.grow'),_taGrow); }catch(e){}   // [RIT_VOW_GROW] 적어 둔 글이 있으면 그 높이로
   /* ★[PICK_V2] ① 은 제 배치를 쓴다(PC 이야기판 · 아래 막대 흐림) — 수정하러 온 길(editReturn)에는 아래 단추(취소 · 저장)를 남긴다 */
   var _pk=(st.k==='pick'&&isOpen()); document.body.classList.toggle('pk2',_pk); document.body.classList.toggle('pr2',st.k==='practice'&&isOpen());   /* [PR_WIDE] ③ 연습하기는 PC 에서 넓게 */ document.body.classList.toggle('pk2e',_pk&&!!editReturn);
-  if(_pk) try{ _pickPaint(); }catch(e){} else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
+  if(_pk){ try{ _pickPaint(); }catch(e){} try{ _shortCheck(); }catch(e){} /* [SHORT_TOAST] */ } else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
   _paintCta(st.k);
   try{ var _rl=document.getElementById('opResetLow'); if(_rl) _rl.hidden=true; }catch(e){}   // [RIT_RESTART_LOW] ★[HEAD_PILLS 2026-09-27 사장님] ④ 맨 아래 밑줄 글도 머리 알약(#obRestart)으로 옮겼다 — 늘 숨긴다
   _headPills(st.k);   // [HEAD_PILLS]
@@ -3424,7 +3428,7 @@ function _paintCta(k){
   var show=isOpen()&&k==='pick'&&!editReturn;
   if(!show){ if(c) c.remove(); _ctaKey=''; return; }
   if(!c){ c=document.createElement('div'); c.id='opCta'; c.className='op-cta'; nav.insertBefore(c,nav.firstChild); }
-  var R=RitualOpen, n=R.picked(S).length, sp=R.span(S), nt=R.noticeFull(S,_noteShut), key=n?(sp.body+'|'+sp.photo):'';
+  var R=RitualOpen, n=R.picked(S).length, sp=R.span(S), nt=_noteFull(_noteShut), key=n?(sp.body+'|'+sp.photo):'';
   /* [BAR_DOT_EVEN 2026-09-26 직접 보며 점검] 두 시간은 flex 칸이라 «·» 앞은 column-gap 6px · 뒤는 NBSP 3px 로 점이 한쪽으로 쏠려 보였다(390 실측) —
      뒤를 반각 공백(U+2002 · 12px 글에서 6px)으로 맞춘다. 줄은 nowrap 이라 갈리지 않는다 */
   var h=n?('<span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span> <span class="nw">·\u2002단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b></span>')
@@ -3439,10 +3443,11 @@ function _paintCta(k){
 }
 /* [RIT_BAR_ONELINE] 지금 열린 알림 수 — 닫은(괜찮아요) 것은 빼고, 닫을 수 없는 것은 센다(noticeFull 을 차례로 넘기며) */
 function _noteCount(){ var R=RitualOpen, sh={}, c=0, k; for(k in _noteShut) sh[k]=_noteShut[k];
-  for(var i=0;i<8;i++){ var nt=R.noticeFull(S,sh); if(!nt) break; c++; if(!nt.close) break; sh[nt.key]=1; } return c||1; }
+  for(var i=0;i<8;i++){ var nt=_noteFull(sh); if(!nt) break; c++; if(!nt.close) break; sh[nt.key]=1; } return c||1; }
 window.opToNote=function(){   // 알림 한 줄 → 흐름 판의 알림으로(초점까지)
   if(!_noteWide){ _noteWide=true; render(); }   // [NOTE_PARA] 건너온 사람에게는 펼친 채로 — 얇은 띠에서 숨는 단추까지 보이게
-  var t=document.querySelector('.pk-side .op-note .op-note-t'); if(!t) return;
+  var t=document.querySelector('#pkFlow .op-note .op-note-t');   // [NOTE_UNDER]
+   if(!t) return;
   try{ t.scrollIntoView({block:'center',behavior:_rm()?'auto':'smooth'}); }catch(e){ t.scrollIntoView(); }
   try{ t.focus({preventScroll:true}); }catch(e){}
 };
@@ -3902,8 +3907,21 @@ window.opToListen=function(){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k==='
 /* ★[DETAIL_0925 A2] 알림 — 한 번에 하나 · 풀어 주는 단추 · «괜찮아요»(④ 사진 시간 부족은 닫지 않는다) ·
    띠가 얇아지면 한 줄로 줄고 누르면 펼친다(알림이 화면의 27~43% 를 가리던 것을 막는다). 닫은 것은 같은 상황에서만 기억한다. */
 var _noteShut={}, _noteWide=false;
+/* ★★[SHORT_TOAST 2026-10-07 사장님 «"천천히 진행되면 단체 사진이 …" 문구를 요약해 핵심만 아래 팝업으로 잠깐 나왔다 사라지게» → «추천대로»]
+   단체 사진 부족 알림(엔진 key 'short')은 판 · 아래 막대 · 위 얇은 띠의 상자에서 뺐다(_noteFull) — 담아서 짧아지는 «그 순간» 아래 알림으로 한 번 4초.
+   «전체 사진은 그대로 · 가족 구도는 앞쪽부터»는 저희가 당일에 하는 일이라 뺐다. 놓쳐도 오른쪽 «단체 사진 약 N~M분»이 늘 말한다.
+   ★단체 사진 문구를 판 상자로 되돌리기 금지 — 2026-10-07 사용자 지시로 삭제(그 상자가 오른쪽만 길게 만들어 그림 아래가 비었다) */
+function _noteFull(sh){ var n=RitualOpen.noticeFull(S,sh); return (n&&n.key==='short')?null:n; }   // [SHORT_TOAST]
+var _shortWas=null;   // 지난번 단체 사진 하한(분) · 부족하지 않으면 99
+function _shortCheck(){ var R=RitualOpen, pa=R.span(S).pa, now=(R.picked(S).length&&pa<R.SHORT_MIN)?pa:99;
+  if(_shortWas===null){ _shortWas=now; return; } var fire=now<_shortWas; _shortWas=now; if(!fire) return;   // 부족해지는 순간 · 부족한 채 더 줄어드는 순간에 한 번씩
+  var msg='단체 사진이 약 '+R.span(S).pa+'분으로 줄어요 · 순간을 하나 덜면 여유가 생겨요';
+  setTimeout(function(){ var u=document.getElementById('pkUndo'); if(!u){ u=document.createElement('div'); u.id='pkUndo'; u.className='pk-undo'; document.body.appendChild(u); }
+    var two=!u.hidden&&u.textContent; clearTimeout(_undoT); u.classList.add('wrap'); u.innerHTML=(two?u.innerHTML:'')+'<span>'+esc(msg)+'</span>'; u.hidden=false; _pkUndoPos();   // 예시 확인 문구가 떠 있으면 그 아래 둘째 줄
+    try{ _lSay(msg); }catch(e){}
+    _undoT=setTimeout(function(){ u.hidden=true; u.innerHTML=''; u.classList.remove('wrap'); _opPrev=null; },4000); },0); }
 function _noteHtml(){
-  var n=RitualOpen.noticeFull(S,_noteShut); if(!n) return '';   // [NOTICE_QUEUE] 닫은 것은 건너뛰고 다음 알림
+  var n=_noteFull(_noteShut); if(!n) return '';   // [NOTICE_QUEUE] 닫은 것은 건너뛰고 다음 알림
   var h='<div class="op-note'+(_noteWide?' wide':'')+'"><p class="op-note-t" tabindex="-1" data-fk="opnote" onclick="opNoteWide()">'+esc(n.msg)+'</p>';   // ★[NOTE_PARA 코워크 추가 점검 · 접근성] 글은 단추가 아니라 문단 — 화면 읽기는 글 전체를 그대로 읽는다(줄임은 눈에만) · 얇은 띠에서 누르면 펼치는 것은 손가락 편의
   if(n.acts.length||n.close){ h+='<span class="op-note-a">';
     n.acts.forEach(function(a,i){ h+='<button type="button" class="op-note-b" data-fk="opna:'+i+'" onclick="opNoteAct('+i+')">'+esc(a[0])+'</button>'; });
@@ -3912,9 +3930,9 @@ function _noteHtml(){
   return h+'</div>';
 }
 window.opNoteWide=function(){ _noteWide=!_noteWide; render(); };
-window.opNoteShut=function(){ var n=RitualOpen.noticeFull(S,_noteShut); if(n&&n.close) _noteShut[n.key]=1; _fxNext='#stepHead'; render(); };
+window.opNoteShut=function(){ var n=_noteFull(_noteShut); if(n&&n.close) _noteShut[n.key]=1; _fxNext='#stepHead'; render(); };
 window.opNoteAct=function(i){
-  var n=RitualOpen.noticeFull(S,_noteShut), a=n&&n.acts[i]; if(!a) return;
+  var n=_noteFull(_noteShut), a=n&&n.acts[i]; if(!a) return;
   if(a[1]==='on'){ if(!S.on) S.on={}; S.on[a[2]]=1; } else RitualOpen.setChip(S,a[1],a[2]);
   _fxNext='#stepHead';   // [A11Y_FOCUS] 알림이 풀리면 단추가 사라진다
   opSync();   // ★[OP_SYNC_ALL 코워크 추가 점검 P1-3] 담기는 늘 opSync 로 — 옛 갈래 키(ring · bless · growth)와 저장이 함께 간다
@@ -7274,10 +7292,9 @@ function _pkPanel(){
     +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
     +((!pl||flat)?'<p class="pk-peak">'+_pkPeakHtml()+'</p>':'')   /* [FLOW_MIN] 곡선 위 «★ 이름»과 흐름 줄의 ★이 이미 말한다 — 문장은 정점이 없거나(담아 보라는 안내) 곡선이 없을 때만 */
     +'<p class="pk-tm mo">'+ord+'</p>'
-    +_noteHtml()
     +'<p class="pk-tm mo">본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
     +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button>'
-    +'</div></section>';
+    +'</div>'+_noteHtml()+'</section>';   /* ★[NOTE_UNDER 2026-10-07 사장님 «추천대로»] 단추가 있는 알림은 판 맨 끝 — PC 는 왼쪽 그림 바로 아래(오른쪽만 길어져 그림 아래가 비던 것) · 폰은 판 맨 아래 */
 }
 /* [FIX_MARK_O] 늘 있는 순간 표 — 누르는 단추가 아니다(그림 · 이름은 화면 읽기에) · 담김 ✓(먹빛 꽉 찬 동그라미)과 같은 26px 동그라미 · 속은 비고 가운데 점 */
 function _fixMk(cls){ return '<span class="'+cls+'" role="img" aria-label="늘 있는 순간 · 빼지 않아요"><i class="fixmk" aria-hidden="true"></i></span>'; }
@@ -7292,21 +7309,14 @@ function _pkTile(k){
       :'<button type="button" class="pk-sel'+(on?' on':'')+'" data-fk="opt:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(c.n)+' 담기" onclick="opTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>')
     +'</div>';
 }
-/* ★★[FLOW_FILL 2026-10-07 사장님 «전체 선택하면 "천천히 진행되면 단체 사진이 …" 문구가 나오면서 그래프 아래에 빈 간격이 생긴다 · 확인 개선»]
-   PC 흐름 판은 두 칸(왼쪽 그림 · 오른쪽 시간 · 알림 · 단추)이 같은 높이로 선다 — 오른쪽에 알림이 붙어 길어지면 왼쪽 그림 아래가 비었다(1280 실측 약 70px).
-   그림 높이를 오른쪽 칸의 «제 높이»(단추를 아래로 미는 auto 여백은 빼고 잰다)에 맞춰 늘린다 · 알림이 없으면 기본 152 그대로 · 순간 이름 줄은 늘 맨 아래.
-   상한 260 — 그보다 길면 곡선이 과장된다 */
-function _pkFillH(el){ try{ var fp=el.closest('.pk-fp'), sd=fp&&fp.querySelector('.pk-side'), mn=fp&&fp.querySelector('.pk-fp-main'); if(!sd||!mn) return 0;
-  var cs=getComputedStyle(sd), gap=parseFloat(cs.rowGap)||0, ks=[].filter.call(sd.children,function(c){ return c.offsetParent!==null&&getComputedStyle(c).display!=='none'; });
-  var nat=ks.reduce(function(t,c){ return t+c.getBoundingClientRect().height; },0)+gap*Math.max(0,ks.length-1)+(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0);
-  var wr=el.closest('.pk-fg-wrap')||el, sv=el.getBoundingClientRect().height, other=(wr.getBoundingClientRect().top-mn.getBoundingClientRect().top)+(parseFloat(getComputedStyle(wr).marginBottom)||0)+(wr.getBoundingClientRect().height-sv);   // 왼쪽은 늘어난 칸 높이가 아니라 제 글 높이로 잰다
-  var h=Math.round(nat-other); return h>152?Math.min(260,h):0; }catch(e){ return 0; } }
+/* ★그래프를 오른쪽 칸 높이만큼 늘리기(_pkFillH · FLOW_FILL) 금지 — 2026-10-07 사용자 지시로 삭제 [FLOW_PLAIN] (사장님 «그래프가 찐빵이 되니까 모양이 안 이쁘다» → «추천대로»)
+   빈칸의 원인(오른쪽에 붙던 단체 사진 문구)을 잠깐 뜨는 알림으로 옮기고(SHORT_TOAST) · 단추가 있는 알림은 PC 에서 그림 아래로(NOTE_UNDER) 보냈다 */
 /* 그림 채우기 — 칸을 그린 뒤 실제 폭으로. 숨은 쪽(폭 0)은 건너뛴다 */
 function _pickPaint(){
   var R=RitualOpen, wide=window.matchMedia&&matchMedia('(min-width:1000px)').matches;
   document.querySelectorAll('.pk [data-fg]').forEach(function(el){
     var key=el.getAttribute('data-fg'), w=Math.round(el.getBoundingClientRect().width); if(w<40) return;
-    if(key==='panel'){ var sg=R.flowSegs(S), fh=wide?_pkFillH(el):0; el.innerHTML=R.flowSVG(sg,w,fh?{names:true,h:fh,label:'우리 예식의 감동 흐름'}:{names:wide,label:'우리 예식의 감동 흐름'}); _pkTips(el,sg); }   // [FLOW_FILL]
+    if(key==='panel'){ var sg=R.flowSegs(S); el.innerHTML=R.flowSVG(sg,w,wide?{h:120,label:'우리 예식의 감동 흐름'}:{label:'우리 예식의 감동 흐름'}); _pkTips(el,sg); }   // ★그림 밑 순간 이름 줄(names) 금지 — 2026-10-07 사용자 지시로 삭제 [FLOW_NONAMES] (사장님 «그래프 밑 글씨가 너무 빽빽 · 아예 빼기» → «추천대로») · 정점 이름은 위에 · 다른 이름은 마우스를 올리거나 누르면 말풍선(_pkTips) · 폰과 같은 모양
     else if(key.indexOf('ex:')===0){ var ex=R.exampleOf(key.slice(3)); el.innerHTML=R.flowSVG(R.flowSegs(R.applyExample({},ex.k)),w,{mini:true,h:wide?44:40,label:ex.nm+' 예시 흐름'}); }
   });
   _pkSlim();
@@ -7320,7 +7330,7 @@ function _donePaint(){
   var R=RitualOpen, wide=window.matchMedia&&matchMedia('(min-width:1000px)').matches;
   document.querySelectorAll('.done-flow [data-fg="done"]').forEach(function(el){
     var w=Math.round(el.getBoundingClientRect().width); if(w<40) return;
-    var sg=R.flowSegs(S); el.innerHTML=R.flowSVG(sg,w,wide?{names:true,h:150,label:'우리 예식의 감동 흐름'}:{label:'우리 예식의 감동 흐름'}); _pkTips(el,sg);
+    var sg=R.flowSegs(S); el.innerHTML=R.flowSVG(sg,w,wide?{h:120,label:'우리 예식의 감동 흐름'}:{label:'우리 예식의 감동 흐름'}); _pkTips(el,sg);   // [FLOW_NONAMES] ④ 완성의 같은 그림도 이름 줄 없이
   });
 }
 function _pkTips(host,sg){
@@ -7341,7 +7351,7 @@ function _pkSlim(){
   if(!on){ if(el) el.classList.remove('on'); return; }
   if(!el){ el=document.createElement('div'); el.id='pkSlim'; el.className='pk-slim'; el.setAttribute('role','region'); el.setAttribute('aria-label','담은 순간 요약'); document.body.appendChild(el); }
   var n=R.picked(S).length, sp=R.span(S), pk=R.peakOf(S);
-  var nt=R.noticeFull(S,_noteShut);
+  var nt=_noteFull(_noteShut);   // [SHORT_TOAST]
   el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b> ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+_pkName(esc(R.CARDS[pk].n),1):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
       +(nt?'<button type="button" class="al" onclick="opToNote()">'+esc(R.firstSentences(nt.msg,1))+' ›</button>':'')+'</span>')
     :'<span class="t">입장 · 닫는 인사만으로도 다음으로 갈 수 있어요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 하나씩 만들기</button>';   /* [R1-33] */
