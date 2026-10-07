@@ -15409,3 +15409,32 @@ nochk "MK.toast=ev.data.error||'지우지 못했어요'" order-preview.html
 nochk "r.ph='rec'; r.t0=Date.now(); r.el=0; r.mr.start(250);" order-preview.html
 chk 'ERR_CODE_BUILDER' scripts/audit/err-builder.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-builder.mjs >/dev/null 2>&1; _ecb=$?; if [ "$_ecb" = 1 ]; then echo 'FAIL err-builder: 식순 화면 실패 문구(까닭 한 줄 + 코드 V · U · D · S · L · M)가 어긋났습니다 — node scripts/audit/err-builder.mjs'; fail=1; else echo "ok err-builder ($_ecb)"; fi; fi
+# ★★[VC_ENROLL_SURE · VC_ENROLL_ONE · VC_ENROLL_JOB · VC_ENROLL_PREV · VC_ENROLL_BADREC · VC_ENROLL_CLOSED 2026-10-08 사장님 «두 분 목소리 만들기에서 녹음 후에 목소리 만들기 오류가 자주 · 모든 경우의 수 병렬로 직접 시뮬레이션 · 개선이 없을 때까지 라운드별로»]
+#   만들기는 녹음(수 MB)을 올리고 업체가 복제하느라 1~2분 — 아이폰 60초 끊김(V9 · V6) · PC 90초(V5)에 화면은 «실패»라 했는데 서버는 끝까지 만들었다.
+#   다시 누르면 업체 목소리가 하나 더 생기거나(칸이 샘) «글 2 를 한 번 더 읽어 주세요»였다. 422 · 400 은 줄 만들기 문구 · «잠시 뒤 다시»였다. 창을 닫은 뒤 실패는 말이 없었다.
+#   이제 결과 모름이면 상태(작업표 · 만든 수)로 확인 · 한 분 한 번(화면 · 서버 둘 다) · 저장 시점의 앞 목소리도 지움 · 녹음 거절은 글 1 부터 · 닫았으면 알림.
+#   scripts/audit/vc-enroll-sim.mjs 가 화면 · 중계 · 서버 원문으로 42가지(+서버 4)를 돈다 — 고친 것 일곱을 하나씩 되돌리면 각각 빨강(돌연변이 확인 2026-10-08)
+chk 'VC_ENROLL_SURE' order-preview.html 5
+chk 'function _vcEnrUnknown(d){ return !!(d&&!d.ok&&d.down&&(d.timeout||d.net)); }' order-preview.html 1
+chk 'function _vcEnrWait(E,d0,quick)' order-preview.html 1
+chk 'if(_vcMadeSince(p,E.snap)) return done(' order-preview.html 1
+chk "var ph=/확인 문장/.test(d.error||''), wait=_vcEnrUnknown(d)||!!d.wait;" order-preview.html 1
+chk 'VC_ENROLL_ONE' order-preview.html 5
+chk 'var E0=(VC.enr||{})\[w\]; if(E0){ if(E0.R!==R) VC.read=E0.R; else R.ph=' order-preview.html 1
+chk 'var E=(VC.enr||{})\[w\]; if(E){ VC.panel=null; VC.agree=false; VC.read=E.R; render(); return; }' order-preview.html 1
+chk 'try{ _vcJobAdopt(d); }catch(e){}' order-preview.html 1
+chk "if(VC.read!==R) MK.toast=_vcName(w)+' 님 목소리 · '" order-preview.html 1   # [VC_ENROLL_CLOSED]
+chk 'return {msg:VC_REC_BAD,redo:true};' order-preview.html 1   # [VC_ENROLL_BADREC]
+chk 'mk-wait-bar mk-enr-bar' order-preview.html 1
+nochk "fail(d.error||'만들지 못했어요 · 잠시 뒤 \[다시 만들기\]를 눌러 주세요')" order-preview.html
+chk 'VC_ENROLL_JOB' automation/platform/80_production.gs 5
+chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+chk "deleted: p.deleted || '', job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1
+chk 'if (r.ok || hasJob) c.save(); return r; };' automation/platform/80_production.gs 1   # 성공은 작업표가 없어도 저장(시뮬레이션이 잡은 사라지는 목소리)
+chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
+chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
+chk "if (op === 'enroll' && c >= 400 && c < 500 && c !== 401 && c !== 402 && c !== 403 && c !== 429) {" automation/platform/80_production.gs 1   # [VC_ENROLL_BADREC]
+chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
+chk 'VC_ENROLL_SIM' scripts/audit/vc-enroll-sim.mjs 1
+chk "'vc-enroll-sim.mjs': 600" scripts/audit/run-all.mjs 1
+if command -v node >/dev/null 2>&1; then PAR=8 ONLY='^(ok-fast|ios-cut-70s|pc-100s|old-ios-cut-70s|ios-cut-fail|tc-422|close-reopen|reload-mid|two-tabs|renew-cut)$' node scripts/audit/vc-enroll-sim.mjs >/dev/null 2>&1; _ves=$?; if [ "$_ves" = 1 ]; then echo 'FAIL vc-enroll-sim: 목소리 만들기(녹음 뒤) — 결과 모름 확인 · 한 분 한 번 · 녹음 거절 · 새는 목소리 판정이 어긋났습니다 — node scripts/audit/vc-enroll-sim.mjs'; fail=1; else echo "ok vc-enroll-sim ($_ves)"; fi; fi

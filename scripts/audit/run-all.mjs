@@ -42,7 +42,7 @@ const SKIP = {
 
 /* ★느린 것에만 시간을 더 준다 — 느린 게 결함이 아닌 경우가 있다.
      stage-reach 는 여정 상태공간을 너비우선으로 연다(약 290초). 멈춘 게 아니다. */
-const SLOW = { 'stage-reach.mjs': 600 };
+const SLOW = { 'stage-reach.mjs': 600, 'vc-enroll-sim.mjs': 600 };   // vc-enroll-sim — 목소리 만들기 42가지를 화면 · 중계 · 서버 원문으로 끝까지(서버가 6분 걸리는 경우까지 10배속) · 야간 러너는 3개씩만 동시에
 const TIMEOUT = Number(process.env.AUDIT_TIMEOUT || 300);
 const JOBS = Number(process.env.AUDIT_JOBS || 4);   // 포트를 박아 쓰는 감사가 있어 과하게 안 올린다
 
