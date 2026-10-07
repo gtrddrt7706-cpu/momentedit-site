@@ -1466,7 +1466,8 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
 .mk-fld{margin:0 0 14px}
 .mk-who{display:block;margin:0 0 6px;font-size:12.5px;font-weight:600;color:var(--accent)}
 .mk-fl{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
-.mk-fl.end{justify-content:flex-end}   /* [R3-03] 덕담 «원고 없이» 체크 — 글자 수 칸이 없어도 오른쪽에 */
+.mk-fl.end{justify-content:flex-end}
+.mk-bsh{margin:0 0 4px}   /* [BLESS_CK_TOP] 덕담 · 축사 «원고 없이» 체크 머리 줄 — 오른쪽(mk-ck margin-left:auto) */
 .mk-cnt{font-size:12.5px;color:var(--gold-deeper)}
 .mk-q{margin:0 0 14px}
 .mk-qt{font-size:14px;line-height:1.7;color:var(--ink2);word-break:keep-all}
@@ -4584,11 +4585,12 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
       var wt=String(q.what), tl=wt.split(' · ').slice(1).join(' · '); if(cat==='bring'&&tl&&gn.indexOf(tl)>-1) wt=wt.split(' · ')[0];   // [MK_MIN] «케이크 · 크기 · 도착 시각은 상담 때…» — 칩 아래 안내가 이미 말한다
       if(!_bSiteRow) h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';   /* [R7-02] */
       if(_sp){ var bv=(S.tx||{})[_sp.id]||'', _cid='mkc_'+_sp.id.replace('.','_');   // [SPEECH_SCRIPT] 칸 id 만 다르다
-        /* [R3-03] 원고 칸 먼저 · 체크는 그 아래 오른쪽(첫인사 · 서약과 같은 꼴) — 위에 두면 아래 원고 칸이 체크에 딸린 입력처럼 읽혔다.
+        /* ★★[BLESS_CK_TOP 2026-10-07 사장님 «추천대로»(SAME_PLACE 점검 · 덕담 체크칸)] «원고 없이 … 바로 하실 거예요» 체크는 원고 칸 «위» 머리 줄 오른쪽 — 첫인사 · 서약 · 편지(.mk-txh)와 같은 자리.
+           종전 [R3-03](원고 칸 아래 오른쪽 · 위에 두면 칸이 체크에 딸린 것처럼 읽힌다)은 그때 첫인사 · 서약도 아래였을 때의 맞춤이었다 — CUE_FORM 이 그쪽을 머리 줄로 올리며 덕담 · 축사만 남았다. 아래로 되돌리지 말 것.
            «원고 없이»를 고르면 원고 칸은 그리지 않는다 · 붙여 둔 원고(S.tx['bless.p'])는 지우지 않아 체크를 풀면 다시 보인다 */
         var _bSite=c[q.id]==='site';
-        h+='<li class="mk-vx">'+(_bSite?'':'<textarea class="ta grow" rows="2" maxlength="4000" aria-label="'+_sp.nm+'" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\''+_sp.id+'\']=this.value;_taGrow(this);_fAt(\'tx.'+_sp.id+'\');_persist();_mkStripRepaint();var _c=document.getElementById(\''+_cid+'\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
-          +'<div class="mk-fl'+(_bSite?' end':'')+'">'   /* ★[QA_BLESS_CNT 2026-10-04 점검] 붙인 원고도 글자 수 · 초 — 다른 글 칸과 같게 */+(_bSite?'':'<span class="mk-cnt" id="'+_cid+'">'+_mkCntT(String(bv).length,1e9)+'</span>')+'<label class="upchk mk-ck"><input type="checkbox" data-fk="'+_sp.fk+'"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;'+_sp.fk+'&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>'+esc(_sp.site)+'</span></label></div>'+(_bSite?_cueBox(q.id):'')+((_bSite&&String(bv).trim())?'<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>':'')+'</li>'; }   /* [R4-02] 숨은 원고가 있으면 대본에서 뺀다는 것을 알린다 */   /* [R2-35] 두 분이 «그렇다»고 고르는 말 */
+        h+='<li class="mk-vx">'+'<div class="mk-txh mk-bsh"><label class="upchk mk-ck"><input type="checkbox" data-fk="'+_sp.fk+'"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;'+_sp.fk+'&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>'+esc(_sp.site)+'</span></label></div>'+(_bSite?'':'<textarea class="ta grow" rows="2" maxlength="4000" aria-label="'+_sp.nm+'" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\''+_sp.id+'\']=this.value;_taGrow(this);_fAt(\'tx.'+_sp.id+'\');_persist();_mkStripRepaint();var _c=document.getElementById(\''+_cid+'\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
+          +(_bSite?'':'<div class="mk-fl"><span class="mk-cnt" id="'+_cid+'">'+_mkCntT(String(bv).length,1e9)+'</span></div>')   /* ★[QA_BLESS_CNT 2026-10-04 점검] 붙인 원고도 글자 수 · 초 */+(_bSite?_cueBox(q.id):'')+((_bSite&&String(bv).trim())?'<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>':'')+'</li>'; }   /* [R4-02] 숨은 원고가 있으면 대본에서 뺀다는 것을 알린다 */   /* [R2-35] 두 분이 «그렇다»고 고르는 말 */
       if(cat==='send'&&q.k==='prevideo'){
         h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_pvOkTg(this.value);_mkStripRepaint()" onblur="growHint(this.value,true)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">'
           +'<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>'
