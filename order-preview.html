@@ -5291,7 +5291,7 @@ function _keepBody(k){
     +'<button type="button" class="mk-dlg-go" data-fk="mkkeepok" onclick="mkDlgClose()">알겠어요</button>'; }
 window.mkKeepOpen=function(k){ MK.keepDlg=k; MK.keepTip=false; render(); };   // [KEEP_DLG]
 /* ★★[TIP_ONCE 2026-10-07 사장님 «모션그래픽 부분만 없애고 팝업은 AI 두 분 목소리 누르면 나오게»] AI 두 분 목소리 칩을 처음 누를 때 한 번 «확정하면 이렇게 돼요» 창(네 줄 설명).
-   «알겠어요 · ✕»면 그냥 닫힌다. 다시 보는 곳은 칩 줄의 «확정 안내 보기»(AI 를 고르면 늘). 본 것은 S.tipSeen.keep 이 기억한다(다시 뜨지 않는다 · 저장할 변경으로 세지 않는다).
+   «알겠어요 · ✕»면 그냥 닫힌다. 다시 보는 곳은 칩 줄의 «확정 안내 보기»(AI 를 고르면 늘). 본 것은 S.tipSeen.keep 이 기억한다(다시 뜨지 않는다 · 저장할 변경으로 세지 않는다). ★«처음 한 번만»은 사장님 결정(2026-10-07 «추천대로» · 누를 때마다 뜨면 칩을 오가는 고객이 같은 창을 계속 닫는다) — 다시 묻지 말 것.
    ★창이 링크로 접혀 들어가는 움직임 · 링크 금빛 빛남(_tipFly · tipGlow) 금지 — 2026-10-07 사용자 지시로 삭제 [TIP_FLY_OFF] (사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»)
    ★스튜디오 나레이션 첫 누름 창(«무엇이 다른가요»)은 두지 않는다 — 사장님이 AI 쪽만 말했다. 그 설명은 «나레이션 자세히»를 눌렀을 때만 */
 function _tipSeen(kind){ S.tipSeen=S.tipSeen||{}; S.tipSeen[kind]=1; _persist(); }
