@@ -14648,6 +14648,30 @@ nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
 chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
 chk 'EX_NO_AUTO' scripts/audit/ex-race.mjs 3
+# ★★[EX_FIRST · EX_LABEL_HONEST · EX_OLD_IS_EX · EX_WARM_ORDER 2026-10-07 사장님 «고치지 않고 첫 화면에서 버튼만 눌렀는데 글을 고쳤어요 · 처음 AI 목소리 입히면 다른 곳들도 동시에 입혀지게 한 약속이 자꾸 흔들린다 · 몇 번째냐»]
+#   원인: 미리 만든 소리는 탭 기억뿐 · 데우기는 한 줄 차례(26건)라 «다정하게» 네 줄이 1 · 4 · 18 · 21번째 · 그 사이 누르면 캐시 미스로 아무것도 안 함 · 문구는 지문만 보고 «글을 고쳤어요»
+#   고침: 캐시 미스면 맨 앞에서 따로 만든다(«준비 중» → «확정하기») · 지금 글이 예시면 «예시를 바꿨어요» · 옮겨 둔 옛 예시 글도 예시(칩 켜짐 · 묻지 않음) · 데우기는 고른 예시부터
+#   ★ex-promise.mjs 가 실제 데우기 차례 그대로 약속을 잰다(T1~T6) — _exFirst 를 비우면 빨강(돌연변이 확인 2026-10-07)
+chk 'EX_FIRST' order-preview.html 14
+chk 'function _exFirst(key)' order-preview.html 1
+chk 'function _exFirstStale()' order-preview.html 1
+chk 'function _exPrep(key)' order-preview.html 1
+chk "return _exFirst(key); }" order-preview.html 1
+chk 'EX_LABEL_HONEST' order-preview.html 1
+chk "'예시를 바꿨어요':'글을 고쳤어요'" order-preview.html 1
+nochk "'읽는 분이 바뀌었어요':'글을 고쳤어요')" order-preview.html
+chk 'EX_OLD_IS_EX' order-preview.html 8
+chk 'var PV_OLD={' order-preview.html 1
+chk "if(!t||_exIs('pv')) return put();" order-preview.html 1
+# ★[EX_OLD_COVER 2026-10-07 사장님 «확실하게»] 예시 글을 바꾸면 옛 글을 EX_OLD_1006 · PV_OLD 에 남겨야 한다 — origin/main 과 대조(브라우저 없이 CI 에서 돈다)
+chk 'EX_OLD_COVER' scripts/audit/ex-old-cover.mjs 1
+chk 'EX_PROMISE' CLAUDE.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-old-cover.mjs >/dev/null 2>&1; _eoc=$?; if [ "$_eoc" = 1 ]; then echo 'FAIL ex-old-cover: 예시 글이 바뀌었는데 옛 글이 EX_OLD_1006 · PV_OLD 에 없습니다 — node scripts/audit/ex-old-cover.mjs'; fail=1; elif [ "$_eoc" = 2 ]; then echo 'skip ex-old-cover: origin/main 없음'; else echo 'ok ex-old-cover: 바뀐 예시 글은 옛 글 목록에 있다'; fi; fi
+chk 'function _exNOf(key)' order-preview.html 1
+chk 'EX_WARM_ORDER' order-preview.html 1
+chk 'EX_FIRST' scripts/audit/ex-promise.mjs 1
+chk 'EX_FIRST' scripts/audit/ex-race.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-promise.mjs >/dev/null 2>&1; _exp=$?; if [ "$_exp" = 1 ]; then echo 'FAIL ex-promise: 예시 소리 약속(누르면 준비 중 → 확정하기 · 글을 고쳤어요 없음)이 어긋났습니다 — node scripts/audit/ex-promise.mjs'; fail=1; elif [ "$_exp" = 2 ]; then echo 'skip ex-promise: 브라우저 없음'; else echo 'ok ex-promise: 예시 소리 약속 T1~T6'; fi; fi
 # ★[UP_AI_HEAL · VST_RIGHT 2026-10-07 사장님] «… · AI.wav» 인데 «파일»로 적힌 옛 줄 바로잡기 · 줄 카드 상태는 제목 오른쪽
 chk 'UP_AI_HEAL' order-preview.html 1
 chk 'function _upHeal()' order-preview.html 1
