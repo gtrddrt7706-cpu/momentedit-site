@@ -69,12 +69,14 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 체크 전에는 [동의하고 읽으러 가기]가 막혀 있다', await pg.evaluate(() => document.getElementById('vcAgree').disabled));
   await pg.click('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(500);
   const rp1 = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
-  /* ★[CONSENT_SEEN 2026-10-07 사장님 «pc버전은 동의 부분이 자동으로 건너 뛰기 되는데?»] 동의는 서버가 사람마다 기억한다(PC 차이 아님) — 닫고 다시 열면 글 1 부터.
-     그 까닭을 글 1 에 한 줄(«✓ 동의 · 앞서 해 주셨어요») · 이 창에서 방금 동의했으면 달지 않는다. 실제 단추(카드의 [목소리 만들기])로 다시 연다 */
+  /* ★[CONSENT_EVERY 2026-10-07 사장님 «폰은 동의가 나오는데 같은 아이디로 PC만 동의를 건너뛴다 · 지금도»] 시작할 때마다 동의부터 —
+     동의한 뒤 닫고 다시 열어도 동의 걸음(체크는 비어 있고 단추는 막힘) · «글 1 부터» 단추는 없다. 같은 날 넣은 «✓ 동의 · 앞서 해 주셨어요» 줄(CONSENT_SEEN)은 걷었다 */
   await pg.evaluate(() => mkDlgClose()); await pg.waitForTimeout(300);
-  await pg.click('[data-fk="mkvcread:groom"]'); await pg.waitForTimeout(400);
-  const rp0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return { t: d ? d.innerText : '', chk: !!document.getElementById('vcSelf'), on: ((d && d.querySelector('.mk-dlg-steps li.on')) || {}).textContent || '' }; });
-  ok(W + ' 방금 동의한 글 1 엔 «앞서 해 주셨어요» 없음 · 닫고 다시 열면 동의 칸 없이 글 1 + «동의 · 앞서 해 주셨어요» [CONSENT_SEEN]', !/앞서 해 주셨어요/.test(rp1) && !rp0.chk && rp0.on === '글 1' && /동의 · 앞서 해 주셨어요/.test(rp0.t), JSON.stringify({ rp1: rp1.slice(0, 80), rp0 }).slice(0, 300));
+  const re0 = await pg.evaluate(() => ({ read: !!document.querySelector('[data-fk^="mkvcread:"]'), ok: !!document.querySelector('[data-fk="mkvcok:groom"]') }));
+  await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(400);
+  const rp0 = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'), c = document.getElementById('vcSelf'), b = document.getElementById('vcAgree'); return { chk: !!c, checked: !!(c && c.checked), dis: !!(b && b.disabled), on: ((d && d.querySelector('.mk-dlg-steps li.on')) || {}).textContent || '', seen: /앞서 해 주셨어요/.test(d ? d.textContent : '') }; });
+  ok(W + ' 동의한 분도 닫고 다시 열면 동의부터 — 체크 비어 있음 · 단추 막힘 · «글 1 부터» 단추 없음 · 방금 동의한 글 1 엔 «앞서 해 주셨어요» 없음 [CONSENT_EVERY]', !re0.read && re0.ok && rp0.chk && !rp0.checked && rp0.dis && rp0.on === '동의' && !rp0.seen && !/앞서 해 주셨어요/.test(rp1), JSON.stringify({ re0, rp0 }));
+  if (await pg.$('#vcSelf')) { await pg.click('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(500); }   /* 동의 걸음이 안 뜨는 판(되돌린 판)도 끝까지 돌아 FAIL 을 찍게 */
   await pg.evaluate(() => { VC.read.take[1] = { wav: __tone(6), dur: 6 }; mkVcStep(2); }); await pg.waitForTimeout(200);
   const rp = rp1 + ' || ' + await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
   ok(W + ' 8-2 E — 한 번에 한 글(글 1 → 글 2) · 둘째 글 끝에 서버 확인 문장 · 파일 올리기 없음 안내 [REC_DLG]', /글 1/.test(rp1) && !/느티나무/.test(rp1) && /글 2/.test(rp) && /여러분도 그런 곳이 하나쯤 있으신가요\? 오늘은 구월 이십팔일, 파란 우산과 노란 연필\./.test(rp) && !/파일은 올릴 수 없어요/.test(rp) /* ★[READ_DLG_TIDY 2026-10-04] 그 한 줄을 걷었다(파일 단추가 없다는 것은 아래가 잰다) */ && !(await pg.evaluate(() => !!document.querySelector('#mkRecDlg [data-fk^="mkup"],#mkRecDlg [data-fk="mkrecfile"]'))), rp.slice(0, 300));
@@ -97,6 +99,11 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const dn = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
   ok(W + ' 만든 뒤 창이 «만들기» 걸음에서 «목소리를 만들었어요» · 채운 줄 수 · [확인] [REC_DLG]', /목소리를 만들었어요/.test(dn) && /2줄을 이 목소리로 채웠어요/.test(dn) && /확인/.test(dn), dn.slice(0, 200));
   await pg.click('[data-fk="mkvcdone"]'); await pg.waitForTimeout(300);
+  /* [CONSENT_EVERY] 만든 뒤 «다시 녹음»도 동의부터 */
+  await pg.evaluate(() => mkGo('_voice')); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="mkvcre:groom"]'); await pg.waitForTimeout(400);
+  const rr = await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'), r = { on: ((d && d.querySelector('.mk-dlg-steps li.on')) || {}).textContent || '', chk: !!document.getElementById('vcSelf') }; mkDlgClose(); return r; }); await pg.waitForTimeout(300);
+  ok(W + ' 만든 뒤 «다시 녹음»도 동의 걸음부터 [CONSENT_EVERY]', rr.on === '동의' && rr.chk, JSON.stringify(rr));
   await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(500);   /* [VOICE_ONCE] 줄 카드는 순간 쪽에 */
   const tools = await pg.evaluate(() => { const c = [...document.querySelectorAll('.mk-vcards .mk-vr')].find((li) => li.querySelector('[data-fk="mkvpl:g0"]'));   /* [AI_DONE_QUIET] 줄 지우기는 걷었다 */ return c ? c.textContent : ''; });   /* [TEXT_PLAY_MAKE 2026-10-04] «이 줄 다시 만들기»가 없어져 ▶ · 지우기로 줄을 찾는다 */
   ok(W + ' 8-2 5) AI 줄 — 다시 만들기(«n번 남음» 없음 [VC_NO_COUNT]) · 빠르기는 칸 머리 «말 빠르기» 한 줄 [AI_CARD_TIDY] (직접 녹음 단추는 뺐다 [VP_NO_DIRECT])', !/천천히/.test(tools) && !/이 줄 다시 만들기/.test(tools) /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «있다» → 없다(같은 글이면 캐시라 더하는 것이 없었다 · 고친 줄은 ▶ 가 만든다) */ && !/번 남음/.test(tools) && !/이 줄은 직접 녹음할게요/.test(tools) && !/들어 보기/.test(tools) && await pg.evaluate(() => !document.querySelector('[data-fk="mkvtdn:guest"]') /* [VOICE_TUNE] 순간 쪽 조절 줄은 걷었다 */ && !document.querySelector('[data-fk^="mkvtempo:"]') && !document.querySelector('[data-fk^="mkaitempo:"]')), tools);   /* ★[TEMPO_STEP 2026-10-03] 세 칩(mkvtempo) → «말 빠르기 [−] 0 [＋]» */

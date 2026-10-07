@@ -14283,7 +14283,7 @@ chk 'PULL_BELOW_HEAD' order-preview.html 2
 chk "querySelectorAll('.op-steps,.mk-strip,.prog-bar')" order-preview.html 1
 # ★[DLG_TWO_LINE 2026-10-05 사장님 «적절하게 두 줄 배치»] 목소리 창 안 «· 로 이은 두 문장» 안내는 문장마다 한 줄
 chk 'DLG_TWO_LINE' order-preview.html 2
-chk 'mk-note mk-dlg-c1 mk-two' order-preview.html 4
+chk 'mk-note mk-dlg-c1 mk-two' order-preview.html 3   # [VC_DOWN_KIND 2026-10-07] 확인 문장 실패 줄은 두 줄 안내가 아니라 «까닭 한 줄 + 코드»(실패 = 한 줄 · 나중 결정)
 nochk "예시를 들으며 빠르기와 쉼을 맞춰 주세요 · " order-preview.html
 # ★[MINI_OFF_AI 2026-10-05 사장님 «모바일에서 나레이션 쪽이랑 다르게 AI 목소리 쪽은 아래 재생바가 나오는데 나레이션이랑 동일하게»] AI 카드 ▶ 가 있는 쪽도 재생 바 없이 · 흐르는 카드 ▶ 가 ■
 chk 'MINI_OFF_AI' order-preview.html 2
@@ -15143,11 +15143,27 @@ chk 'STRAY_FILE' automation/tests/merge-guard.sh 1
 # ★[DEPOSIT_TEST_WEEKDAY 2026-10-07 점검] deposit-card-screen ⑦ 이 «오늘 + 3일»을 골라 주말이면 붉었다(제품은 맞게 동작 · 주말엔 11:30 없음) — 3일 뒤부터 첫 평일
 chk 'DEPOSIT_TEST_WEEKDAY' scripts/audit/deposit-card-screen.mjs 1
 nochk "const sel = JSON.stringify({ d: dk(3), t: '11:30', h: null });" scripts/audit/deposit-card-screen.mjs
-# ★[CONSENT_SEEN 2026-10-07 사장님 «pc버전은 동의 부분이 자동으로 건너 뛰기 되는데?»] PC 차이가 아니었다 — 동의는 서버(80_production · consent)가 사람마다 기억해
-#   한 번 동의한 분은 어느 기기에서든 «글 1»부터 연다. 걸음 표시만으론 «건너뛰었다»로 읽혀 글 1 에 «✓ 동의 · 앞서 해 주셨어요» 한 줄(이 창에서 방금 동의했으면 없음).
-#   vc-screen 이 실제 카드 단추로 닫고 다시 열어 잰다 · 줄을 빼도(2건) 방금 동의한 창에 달아도(2건) 빨강(돌연변이 확인)
-chk 'CONSENT_SEEN' order-preview.html 3
-chk 'mkVcRead(w,1)' order-preview.html 1
-chk 'agreedNow:!!now' order-preview.html 1
-chk 'n===1&&!R.agreedNow&&!R.limit' order-preview.html 1
-chk 'CONSENT_SEEN' scripts/audit/vc-screen.mjs 2
+# ★[CONSENT_EVERY 2026-10-07 사장님 «폰은 동의가 나오는데 같은 아이디로 PC만 동의를 건너뛴다 · 지금도» · «동의 신랑신부 각각 받자»]
+#   목소리를 만들기 시작할 때마다 그 분 본인 동의부터(사람 카드 · 다시 녹음 · 맞추기 창의 다시 녹음 · 안내 목소리 창).
+#   종전엔 화면이 연 순간의 동의 기록으로 «글 1 부터»를 골라, 먼저 열어 둔 화면과 새로 연 화면이 같은 아이디에서도 갈렸다.
+#   같은 날 넣은 «✓ 동의 · 앞서 해 주셨어요» 줄(CONSENT_SEEN · #1101)은 «다른 분 동의로 넘어간 것»처럼 읽혀 걷었다(동의는 원래 사람마다 따로 저장된다).
+#   vc-screen 이 동의 뒤 닫고 다시 열기 · 다시 녹음을 잰다 · 동의 기록이 있으면 글 1 부터 여는 판으로 되돌리면 2건 빨강(돌연변이 확인)
+chk 'CONSENT_EVERY' order-preview.html 5
+nochk 'data-fk="mkvcread:' order-preview.html
+nochk '앞서 해 주셨어요</p>' order-preview.html
+nochk "if(fn==='read') mkVcRead(w)" order-preview.html
+chk "if(w) mkVcConsent(w); };   // \[CONSENT_EVERY\]" order-preview.html 1
+chk 'CONSENT_EVERY' scripts/audit/vc-screen.mjs 3
+# ★★[VC_DOWN_KIND 2026-10-07 사장님 «PC 에서 '지금은 AI 목소리를 만들 수 없어요' 왜?» · «경고 문구 한 줄로 요약» · «실패 종류별로 다르게 · 스크린샷만으로 원인을 알게 · 아주 좋은 생각»]
+#   서버 거절 · 연결 끊김 · 시간 초과가 같은 두 줄(«… 그동안 이 줄은 스튜디오 나레이션으로 나와요»)이던 것 → 원인마다 한 줄 + 코드 V0 ~ V7(숫자 = 무슨 일) · 360px 폰도 한 줄
+#   vc-down-kind.mjs 가 받는 자리 · 맞추기 창 실제 실패 · 한 줄 폭을 잰다 — 받는 자리를 옛 것으로 되돌리면 FAIL 7(돌연변이 확인)
+chk 'VC_DOWN_KIND' order-preview.html 5
+chk 'function _vcDownWord(n)' order-preview.html 1
+chk "d.error=_vcDownWord(_vcDownN(d))" order-preview.html 1
+chk 'VC_DOWN_KIND' mypage.html 1
+chk "net:_to?0:(_bad?'bad':1)" mypage.html 1
+nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" order-preview.html
+nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다시 눌러 주세요. 그동안" mypage.html
+nochk "d2.error='오래 걸려 기다리다 멈췄어요" order-preview.html
+chk 'VC_DOWN_KIND' scripts/audit/vc-down-kind.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-down-kind.mjs >/dev/null 2>&1; _vdk=$?; if [ "$_vdk" = 1 ]; then echo 'FAIL vc-down-kind: AI 목소리 실패 문구(원인별 한 줄 + 코드 V0 ~ V7)가 어긋났습니다 — node scripts/audit/vc-down-kind.mjs'; fail=1; else echo "ok vc-down-kind ($_vdk)"; fi; fi
