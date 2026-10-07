@@ -16,6 +16,8 @@
  *   D5 «두 분께» 편지 — 신랑·신부 주소가 같으면(대소문자 무시) 한 통만 [LETTER_ONE_ADDR 2026-09-26]
  *      청첩장 발행이 두 칸을 가입 이메일 하나로 채워 같은 메일이 두 통 갔다. 기준값의 편지들은 주소가 서로 달라 대조는 그대로이고,
  *      같은 주소 경우는 아래 oneAddrGuard 가 따로 잰다.
+ *   D6 편지 몰림 응답 — 한 줄 말투(«. » → « · » · 끝 마침표 없음) + 몰림 코드 G1 [LT_RATE_G1 · LT_RATE_ECODE 2026-10-08]
+ *      화면 실패 코드 장치(ERR_CODES)가 «(코드 G1)»을 붙이게. 시간당 몰림 글도 «다시 시도해» → «다시 보내»로 같은 말이 됐다.
  * 시험 데이터는 전부 지어낸 값이다(실제 고객 정보 없음).
  */
 import fs from 'node:fs';
@@ -357,9 +359,12 @@ const N = runNew();
 migrateGuards();
 oneAddrGuard();   // [LETTER_ONE_ADDR] D5
 const diff = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+/* [LT_RATE_G1] D6 — 기준값의 옛 몰림 글을 새 응답 모양으로 옮겨 대조한다(그 밖의 응답은 한 글자도 그대로) */
+const D6 = { '편지가 연달아 도착하고 있어요. 잠시 뒤에 다시 보내 주세요.': '편지가 연달아 도착하고 있어요 · 잠시 뒤에 다시 보내 주세요', '지금은 편지가 많이 몰렸어요. 잠시 뒤에 다시 시도해 주세요.': '지금은 편지가 많이 몰렸어요 · 잠시 뒤에 다시 보내 주세요' };
+const d6 = (r) => (r && r.ok === false && D6[r.error]) ? { ok: false, ecode: 'G1', error: D6[r.error] } : r;
 COUPLE_CASES.forEach((c, i) => ok(diff(N.couple[i], G.couple[i]), `getCouple ${JSON.stringify(c)} 응답이 옛 웹훅과 다르다`));
 LETTERS.forEach((L, i) => {
-  ok(diff(N.letters[i].res, G.letters[i].res), `편지 ${i + 1}(${L.eventId}) 응답이 다르다: ${JSON.stringify(N.letters[i].res)} ≠ ${JSON.stringify(G.letters[i].res)}`);
+  ok(diff(N.letters[i].res, d6(G.letters[i].res)), `편지 ${i + 1}(${L.eventId}) 응답이 다르다: ${JSON.stringify(N.letters[i].res)} ≠ ${JSON.stringify(d6(G.letters[i].res))}`);
   ok(diff(N.letters[i].couple, G.letters[i].couple), `편지 ${i + 1}(${L.eventId}) 두 분께 가는 메일이 다르다`);
   ok(diff(N.letters[i].admin, G.letters[i].admin), `편지 ${i + 1}(${L.eventId}) 관리자 알림이 다르다: ${JSON.stringify(N.letters[i].admin)} ≠ ${JSON.stringify(G.letters[i].admin)}`);
 });

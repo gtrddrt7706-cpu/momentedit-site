@@ -200,7 +200,7 @@ function ltGuestLetter(body) {
 
     // [LETTER_RATE] 한 예식으로 편지가 쏟아지는 것을 막는다 — 할당량과 두 분의 받은편지함을 함께 지킨다.
     var rl = _ltRateCheck(eventId);
-    if (!rl.ok) return { ok: false, error: rl.error };
+    if (!rl.ok) return { ok: false, ecode: rl.ecode, error: rl.error };   // [LT_RATE_ECODE 2026-10-08 점검] 몰림 코드(G1)를 그대로 넘긴다 — 종전엔 여기서 떨어져 G0(코드 없음)이 됐다
 
     // 금지어 검사 — ★본문만 보면 이름·관계 칸으로 그대로 새어 나간다(둘 다 메일에 그대로 찍힌다).
     var mod = _ltCheckBanned([guestName, relation, message].filter(Boolean).join(' \n '));
@@ -270,8 +270,8 @@ function _ltRateCheck(eventId) {
     var cache = CacheService.getScriptCache();
     var kMin = 'lr_m_' + eventId, kHr = 'lr_h_' + eventId;
     var m = Number(cache.get(kMin) || 0), h = Number(cache.get(kHr) || 0);
-    if (m >= 3)  return { ok: false, error: '편지가 연달아 도착하고 있어요. 잠시 뒤에 다시 보내 주세요.' };
-    if (h >= 40) return { ok: false, error: '지금은 편지가 많이 몰렸어요. 잠시 뒤에 다시 시도해 주세요.' };
+    if (m >= 3)  return { ok: false, ecode: 'G1', error: '편지가 연달아 도착하고 있어요 · 잠시 뒤에 다시 보내 주세요' };   // [LT_RATE_G1 2026-10-08 점검] 몰림은 1 — 종전 G0 이라 코드가 안 붙어 «(코드 없음)» 스크린샷만 왔다
+    if (h >= 40) return { ok: false, ecode: 'G1', error: '지금은 편지가 많이 몰렸어요 · 잠시 뒤에 다시 보내 주세요' };
     cache.put(kMin, String(m + 1), 60);
     cache.put(kHr, String(h + 1), 3600);
   } catch (_e) {}   // 캐시가 막히면 제한 없이 통과 — 편지를 막는 것보다 낫다

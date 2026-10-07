@@ -51,6 +51,7 @@ textarea{width:100%;max-width:720px;margin:12px auto 0;display:block;height:180p
 <p class="url"><a href="https://momentedit.kr/pick-final.html">momentedit.kr/pick-final.html</a></p>
 <p class="lead">아래 <b>__N__곳</b>은 <b>이미 바뀌어 저장소에 들어가 있습니다.</b> 식순 순서대로 놓았습니다. 읽어 보시고 <b>예전 문장이 더 낫다 싶은 것만</b> 골라 주세요.</p>
 <p class="lead">그대로 두실 것은 <b>누르지 않으셔도 됩니다.</b> 중간에 닫으셔도 누른 것은 남습니다.</p>
+<p class="lead" id="noSave" style="display:none;color:var(--back)">이 창은 누른 것을 기억하지 못해요(앱 안 창 · 시크릿) · 새로고침하면 사라지니 다 고른 뒤 «결과 만들기»로 뽑아 복사해 주세요.</p>
 </header>
 <div class="bar"><div class="in">
 <span class="cnt">되돌릴 것 <b id="nback">0</b>건 · 본 것 <span id="nseen">0</span>/<span id="ntot">0</span></span>
@@ -67,6 +68,9 @@ textarea{width:100%;max-width:720px;margin:12px auto 0;display:block;height:180p
 var D = __DATA__, KEY = 'pickback___KEY__';
 var st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ st = {}; }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+/* [PICK_CAN_SAVE 2026-10-07] 누른 것을 기억할 수 있는 창인지 미리 본다(#36) — 앱 안 창 · 시크릿은 저장이 막혀 새로고침에 사라지는데
+   위 안내는 «누른 것은 남습니다»라고 했다(order-audit 은 안내했다) */
+var CAN_SAVE = (function(){ try { localStorage.setItem(KEY + '-t', '1'); localStorage.removeItem(KEY + '-t'); return true; } catch(e){ return false; } })();
 function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function draw(){
   var L = document.getElementById('list'); L.innerHTML = ''; var seen = {};
@@ -115,7 +119,12 @@ document.getElementById('fin').onclick = function(){
 document.getElementById('cpy').onclick = function(){
   var r = document.getElementById('res'), b = this;
   if (r.classList.contains('hid')) document.getElementById('fin').click();
-  r.select(); try { document.execCommand('copy'); b.textContent = '복사됨'; } catch(e){}
-  setTimeout(function(){ b.textContent = '복사'; }, 1600); };
+  /* [PICK_COPY_TRUTH 2026-10-07] 됐을 때만 «복사됨»(P4) — execCommand 가 false 를 돌려줘도 «복사됨»이던 자리 · 안 되면 «길게 눌러 복사» */
+  var done = function(ok){ b.textContent = ok ? '복사됨' : '길게 눌러 복사'; setTimeout(function(){ b.textContent = '복사'; }, ok ? 1600 : 2600); };
+  r.select(); var okc = false; try { okc = !!document.execCommand('copy'); } catch(e){ okc = false; }
+  if (okc) { done(true); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(r.value).then(function(){ done(true); }, function(){ done(false); });
+  else done(false); };
+if (!CAN_SAVE) { var _ns = document.getElementById('noSave'); if (_ns) _ns.style.display = ''; }   // [PICK_CAN_SAVE]
 draw();
 </script></body></html>

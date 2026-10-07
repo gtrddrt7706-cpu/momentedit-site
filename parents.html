@@ -370,6 +370,11 @@ html,body{background-color:#FAFAF8 !important;color:#1C1B19 !important}
 .tools .tools-size{font-family:var(--serif-ko);font-size:12px;color:var(--light);margin-right:2px;white-space:nowrap}
 /* 끝에 닿은 버튼 — 눌러도 안 되는 이유를 손에도 알린다. 흐리기만 하면 '고장'처럼 보이므로 커서까지 바꾼다. */
 .tools button:disabled{color:#A6A196;border-color:#EAE6DE;cursor:default}
+/* [PLAY_FAIL_SAY 2026-10-07] 듣기 실패 한 줄 — 도구 줄(.tools) 바로 아래 · 같은 폭 · 같은 오른쪽 끝 · 인쇄엔 없다 */
+.listen-err{max-width:var(--max);margin:0 auto;padding:0 28px 10px;text-align:right;font-family:var(--serif-ko);font-size:12.5px;color:var(--seal);line-height:1.6;word-break:keep-all}
+@media(max-width:680px){.listen-err{padding:0 22px 8px}}
+@media screen and (min-width:1024px){.listen-err{max-width:920px;padding-left:32px;padding-right:32px}}
+@media print{.listen-err{display:none!important}}
 .tools button:disabled:hover{color:#A6A196;border-color:#EAE6DE}
 ::selection{background:rgba(107,42,36,0.18);color:var(--accent)}
 /* 편지 화면엔 떠다니는 채팅 아이콘은 숨기고(하단 버튼으로 연다), 우측에는 공유 버튼만 남긴다 */
@@ -725,6 +730,13 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       pending=setTimeout(function(){ pending=null; barSay(false); fn(); },LEAD_IN);
     };
 
+    /* ★[PLAY_FAIL_SAY 2026-10-07 triage-pages #15] «듣기»를 누른 뒤 재생이 거절되거나(NotAllowedError · 저전력 · 무음) 소리를 못 열면(받기 · 디코드 실패 · 기기 음성 오류)
+       단추만 조용히 «듣기»로 돌아갔다 — 이유가 없었다. 이제 도구 줄 아래 한 줄 · 기기(M) 코드: 막힘 M7 · 못 엶 M6(홈 저널 낭독 · 식순 화면과 같은 뜻).
+       다시 누르면 줄을 걷는다. 멈춤을 눌러 끊긴 것(AbortError · canceled · interrupted)은 실패가 아니다 */
+    var errSay=function(t){ var el=document.getElementById('listenErr'), tl=document.querySelector('.tools');
+      if(!el&&t&&tl&&tl.parentNode){ el=document.createElement('p'); el.id='listenErr'; el.className='listen-err'; el.setAttribute('role','alert'); tl.parentNode.insertBefore(el, tl.nextSibling); }
+      if(el){ el.innerHTML=t?t.replace(/\(코드 [^)<]*\)/g,function(c){ return '<span class="ec-code" style="white-space:nowrap">'+c+'</span>'; }):''; el.hidden=!t; } };   // [ERR_CODE_GLUE] 코드는 한 덩어리
+    var playFail=function(e){ errSay((e&&(e.name==='NotAllowedError'||e.error==='not-allowed'))?'재생이 막혔어요 · 다시 눌러 주세요 (코드 M7)':'소리를 못 열었어요 · 다시 눌러 주세요 (코드 M6)'); };
     var ttsStop=function(){ if(canTTS){try{synth.cancel();}catch(e){}} speaking=false; };
     /* [SEEK_THEN_OPEN] 되감기가 끝나기를 기다리는 문지기 — 아래 audioToggle 이 세우고 여기서 거둔다 */
     var seekOpen=null, seekGuard=null;
@@ -754,7 +766,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       for(var j=0;j<parts.length;j++){
         var u=new SpeechSynthesisUtterance(parts[j]);
         u.lang='ko-KR'; if(v)u.voice=v; u.rate=0.95; u.pitch=1;
-        u.onend=u.onerror=done;
+        u.onend=done;
+        u.onerror=function(ev){ done(); var er=String((ev&&ev.error)||''); if(er==='canceled'||er==='interrupted') return; playFail(ev); };   // [PLAY_FAIL_SAY] 기기 음성이 못 읽었다(not-allowed → M7 · 그 밖 → M6)
         synth.speak(u);
       }
       speaking=true; setPlaying(true);
@@ -764,15 +777,15 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       if(!audioEl){
         audioEl=new Audio(AUDIO_SRC); audioEl.preload='auto';
         audioEl.addEventListener('ended',function(){setPlaying(false);});
-        audioEl.addEventListener('error',function(){setPlaying(false);});
+        audioEl.addEventListener('error',function(){ var was=playingUi; stopAll(); if(was) playFail(null); });   // [PLAY_FAIL_SAY] 누른 뒤에 못 열었을 때만 말한다 · 리드인 예약도 함께 걷는다
       }
       if(audioEl.paused){
         /* [LISTEN_LEAD_IN] volume 이 아니라 muted 를 쓴다 — iOS Safari 는 volume 을 코드로 못 바꾼다(무시된다).
            muted 는 바뀐다. volume=0 으로 짜면 아이폰에서만 앞 2초가 그대로 들리고 되감긴다. */
         try{ audioEl.muted=true; audioEl.currentTime=0; }catch(e){}
-        var p=null; try{ p=audioEl.play(); }catch(e){ setPlaying(false); return; }
+        var p=null; try{ p=audioEl.play(); }catch(e){ setPlaying(false); playFail(e); return; }
         // 재생이 거절될 수 있다(자동재생 정책·디코드 실패) — 라벨만 '멈춤'으로 남아 거짓말하지 않게 되돌린다
-        if(p&&p.catch)p.catch(function(){ clearPending(); try{ audioEl.muted=false; }catch(e2){} setPlaying(false); });
+        if(p&&p.catch)p.catch(function(e){ var was=playingUi; clearPending(); try{ audioEl.muted=false; }catch(e2){} setPlaying(false); if(was&&!(e&&e.name==='AbortError')) playFail(e); });   // [PLAY_FAIL_SAY]
         /* ★★[SEEK_THEN_OPEN 2026-09-05] 되감기가 «끝난 뒤에» 음을 연다.
            종전엔 currentTime=0 과 muted=false 가 한 줄에 붙어 있었다. currentTime 게터는 새 위치를
            즉시 보고하지만 디코더가 실제로 옮겨 앉는 것은 그 뒤라, 그 사이 몇십 ms 동안 옛 위치
@@ -814,6 +827,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     };
 
     btn.addEventListener('click',function(){
+      errSay('');                                        // [PLAY_FAIL_SAY] 다시 누르면 지난 실패 줄을 걷는다
       if(pending)return stopAll();                       // 기다리는 중에 또 누르면 «취소»다
       if(mode==='audio')return audioToggle();
       if(mode==='tts'){ if(speaking)return stopAll(); ttsWarm(); return lead(ttsStart); }

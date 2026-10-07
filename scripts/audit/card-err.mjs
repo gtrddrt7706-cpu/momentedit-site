@@ -25,7 +25,7 @@ const B = { token: 't', milestone: '중도금', paymentKey: 'pk_1', orderId: 'oi
 
 mk(); G._tossConfirm = () => ({ ok: false, error: '카드사에서 승인하지 않았어요', code: 'REJECT_CARD_COMPANY' });
 let r = call(B);
-say('① 토스 거절 → ecode P4 · tossCode 그대로 · 문구 «결제 승인에 실패했습니다» · 결제로그 «토스실패»', r && r.ok === false && r.ecode === 'P4' && r.tossCode === 'REJECT_CARD_COMPANY' && /결제 승인에 실패했습니다/.test(r.error) && logs.some((x) => x.result === '토스실패'), JSON.stringify(r));
+say('① 토스 거절 → ecode P4 · tossCode 그대로 · 한국어 한 줄 «카드사에서 승인하지 않았어요 · 다른 카드로 해 주세요 (코드 P4 · REJECT_CARD_COMPANY)» · 영문 · 토스 원문 없음 · 결제로그 «토스실패» [PAY_UNKNOWN]', r && r.ok === false && r.ecode === 'P4' && r.tossCode === 'REJECT_CARD_COMPANY' && r.error === '카드사에서 승인하지 않았어요 · 다른 카드로 해 주세요 (코드 P4 · REJECT_CARD_COMPANY)' && logs.some((x) => x.result === '토스실패'), JSON.stringify({ r, logs }));
 
 mk(); r = call(Object.assign({}, B, { paymentKey: '' }));
 say('② 결제 정보 없음 → P0 · 결제로그에 «결제 정보 없음»(종전엔 흔적 없음)', r && r.ok === false && r.ecode === 'P0' && logs.some((x) => /결제 정보 없음/.test(x.memo || '')), JSON.stringify({ r, logs }));
@@ -39,6 +39,21 @@ say('③ 결제로그 «성공 · 기록경고»(돈 받은 흔적이 남는다)
 mk(); G._tossConfirm = () => ({ ok: true, data: {} }); G.adminConfirmMid = () => ({ ok: true });
 r = call(B);
 say('④ 정상 승인 · 기록 성공은 종전 그대로(ok · recorded:true)', r && r.ok === true && r.recorded === true, JSON.stringify(r));
+
+/* ⑤ [PAY_UNKNOWN 2026-10-08] 토스 승인이 «연결 예외 · 이미 처리됨»이면 돈이 나갔을 수 있다 — 조회로 확인해 됐으면 성공 · 모르면 P5(다시 결제하지 마세요) + 관리자 메일 */
+mk(); G._tossConfirm = () => ({ ok: false, error: 'Exception: Timeout: https://api.tosspayments.com/v1/payments/confirm', code: 'FETCH_EXCEPTION' });
+G._tossLookup = () => ({ ok: true, data: { status: 'DONE', orderId: 'oid_1', totalAmount: 500000 } }); G.adminConfirmMid = () => ({ ok: true });
+r = call(B);
+say('⑤ 연결 예외 → 조회가 «완료 · 같은 주문 · 같은 금액»이면 성공으로 기록(ok · recorded) · 결제로그 «토스조회성공»', r && r.ok === true && r.recorded === true && logs.some((x) => x.result === '토스조회성공'), JSON.stringify({ r, logs }));
+mk(); G._tossConfirm = () => ({ ok: false, error: 'Exception: Timeout', code: 'FETCH_EXCEPTION' }); G._tossLookup = () => ({ ok: false, code: 'FETCH_EXCEPTION' });
+r = call(B);
+say('⑤ 연결 예외 + 조회도 실패 → P5 · unknown · «다시 결제하지 마시고» · 영문 · 토스 주소 없음 · 관리자 «결과 모름» 메일 · 결제로그 «토스결과모름»', r && r.ok === false && r.ecode === 'P5' && r.unknown === true && /다시 결제하지 마시고/.test(r.error || '') && !/[A-Za-z]{4,}|https?:/.test(r.error || '') && alerts.some((t) => /결과 모름/.test(t)) && logs.some((x) => x.result === '토스결과모름'), JSON.stringify({ r, alerts, logs }));
+mk(); G._tossConfirm = () => ({ ok: false, error: '이미 처리된 결제 입니다.', code: 'ALREADY_PROCESSED_PAYMENT' }); G._tossLookup = () => ({ ok: true, data: { status: 'DONE', orderId: 'oid_1', totalAmount: 1000 } });
+r = call(B);
+say('⑤ 이미 처리됨 + 조회 금액이 다르면 성공으로 넘기지 않는다 → P5', r && r.ok === false && r.ecode === 'P5', JSON.stringify(r));
+mk(); G._tossConfirm = () => ({ ok: false, error: 'HTTP 500', code: '' });
+r = call(B);
+say('⑤ 토스 5xx(코드 없음) → P4 «결제 승인이 되지 않았어요 · …» · 조회는 안 한다(결과 모름이 아님)', r && r.ok === false && r.ecode === 'P4' && /^결제 승인이 되지 않았어요/.test(r.error || '') && !/HTTP/.test(r.error || ''), JSON.stringify(r));
 
 console.log(rc ? '━━ card-err — ❌ 어긋남' : '━━ card-err — ✅ 전부 통과');
 process.exit(rc);

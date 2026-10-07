@@ -154,6 +154,7 @@ function scan(needle) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const rel = path.relative(root, path.join(dir, e.name));
       if (/^(node_modules|\.git|_deploy-patch)$/.test(e.name)) continue;
+      if (rel === '.claude/worktrees') continue;   // [WT_SKIP 2026-10-08] 에이전트 작업 폴더(.claude/worktrees/agent-*)는 저장소 사본이다 — 읽으면 같은 파일을 두 번 세고, 검사 스크립트 속 시험 글을 «드리프트»로 잡는다(로컬에서만 생기는 가짜 빨강 · CI 엔 없다)
       if (e.isDirectory()) walk(path.join(dir, e.name));
       else if (EXT.test(e.name) && !FROZEN.test(rel + '/')) files.push(rel);
     }

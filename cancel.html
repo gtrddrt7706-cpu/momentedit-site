@@ -108,25 +108,30 @@ function api(payload, ms){   // [ERR_CODE_PAGES] ms = 쓰기 동작만 길게(�
    종전엔 셋 다 «네트워크 상태를 확인하고» 한 문장이라, 서버 쪽 사고도 고객 인터넷 탓으로 말했다.
    서버(GAS)가 글 끝에 «(코드 X#)»를 붙여 보내면 그대로 쓰고(두 번 붙이지 않는다) · ecode 만 오면 1~9 일 때 붙인다(0 은 글이 곧 까닭).
    seat · guide · schedule · inquiry 와 같은 네 함수 이름이다 — 한 곳만 고치지 말 것 */
-function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:(e&&e.name==='TypeError'&&/Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message||'')))?6:0; }   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만 · 그 밖의 스크립트 예외는 0
 function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
 function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';   // [ERR_N_HONEST] 화면 쪽 스크립트 예외(0) — 연결 탓으로 말하지 않는다 · 다시 눌러도 같은 자리에서 멈추니 새로 고치게
   return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
 function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
   if(m) t=t.slice(0,m.index);
   if(!/^[A-Z]\d$/.test(ec)) ec='';
   if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
-  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글
+  else if(/^요청을 처리하지 못했어요\. 잠시 후 다시 시도해 주세요\.?$/.test(t)){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글 · [ERR_NO_DOT_PAGE] 서버가 코드 앞 마침표를 걷어 보내도(«잠시 후 다시 시도해 주세요 (코드 B9 · 7KQ2)») 맞는다
   if(!t){ t=fb; ec=ec||L+'0'; }
   if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
-  return t+(tail?' ('+tail+')':''); }
-function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[145679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }
+  return tail?t.replace(/[\s.]+$/,'')+' ('+tail+')':t; }   // [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다(«주세요. (코드» 금지)
+/* ★[ERR_CODE_GLUE 2026-10-07 코디 · 신청서 390px 실측 «(코드 B9 / · 7KQ2)»] «(코드 X# · 사고번호)»는 한 덩어리다 — 괄호 안에서 줄이 갈리지 않게 nowrap 으로 싼다
+   (mypage _errHtml 과 같은 처리). 글자는 그대로라 textContent 로 읽는 검사 · 낭독기 · /\(코드 [A-Z]\d/ 감지는 달라지지 않는다. 여섯 쪽이 글자까지 같은 사본 — 한 곳만 고치지 말 것 */
+function _ecGlue(h){ return String(h==null?'':h).replace(/\(코드 [^)<]*\)/g,function(c){ return '<span class="ec-code" style="white-space:nowrap">'+c+'</span>'; }); }
+function _ecHtml(t){ return _ecGlue(String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; })); }
+function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[1345679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }   // [ERR_RETRY_3] 3(설정 · 배포 · «잠시 뒤 다시 눌러 주세요»)도 다시 해 볼 일이다 — 링크 탓으로 말하지 않는다
 function _ecLink(d){ return !!d&&(String(d.ecode||'').charAt(1)==='8'||/유효하지 않은 링크/.test(String(d.error||''))); }
 function q(name){ var m=new RegExp('[?&]'+name+'=([^&]*)').exec(location.search); return m?decodeURIComponent(m[1].replace(/\+/g,' ')):''; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 var TOKEN=q('token'), SIG=q('sig'), card=document.getElementById('card');
 function showMsg(eyebrow,title,desc,note){ var _ko=/[가-힣]/.test(eyebrow||'');   // [CAN_KO_TRACK] 한글 eyebrow는 영문용 .22em 자간이 과하다
-  card.innerHTML='<div class="eyebrow'+(_ko?' ko':'')+'" aria-hidden="true">'+esc(eyebrow)+'</div><h2 class="title">'+title+'</h2>'+(desc?'<div class="desc">'+desc+'</div>':'')+(note?'<div class="note">'+note+'</div>':''); }
+  card.innerHTML='<div class="eyebrow'+(_ko?' ko':'')+'" aria-hidden="true">'+esc(eyebrow)+'</div><h2 class="title">'+title+'</h2>'+(desc?'<div class="desc">'+_ecGlue(desc)+'</div>':'')+(note?'<div class="note">'+_ecGlue(note)+'</div>':''); }   // [ERR_CODE_GLUE] 실패 줄의 «(코드 X#)»는 한 덩어리로
 /* [ERR_CODE_PAGES] 다시 불러오기 — 재시도가 답인 실패(몰림 · 시간 초과 · 연결 · 서버 답 깨짐 · 서버 오류)에만 단추를 붙인다.
    «링크를 열 수 없어요 · 예약이 없어요»처럼 다시 눌러도 같은 답이 오는 자리에는 붙이지 않는다(헛된 기대 금지) */
 function _ecAgain(){ card.insertAdjacentHTML('beforeend','<button type="button" class="btn btn-ghost" id="again">다시 불러오기</button>');
@@ -191,7 +196,7 @@ function loadInfo(){
       var _ae=document.getElementById('acct'), acct=_ae?(_ae.value||'').trim():'';   // [DEPOSIT_CARD] 카드면 계좌 칸이 없다
       var b=document.getElementById('go'); b.disabled=true; b.innerHTML='<span class="bdot"></span>처리 중';   /* [BUSY_ONE] textContent 면 태그가 글자로 찍힌다 */
       var done=function(){ showMsg('Done','예약이 취소되었어요',(byCard?'예약금은 결제하신 카드로 취소해 드릴게요.<br>카드사에 따라 반영까지 며칠 걸릴 수 있어요.':'입력하신 계좌로 예약금을 환불해 드릴게요.<br>(영업일 기준 수일 소요)')+'<br><br>다시 찾아주실 때 언제든 편하게 모실게요.'); };
-      var say=function(t){ var _e=document.getElementById('cErr'); if(_e){ _e.style.display=''; _e.textContent=t; } };   // [CAN_ALERT] OS alert 대체 — 화면 안에서, 낭독기에도 들리게
+      var say=function(t){ var _e=document.getElementById('cErr'); if(_e){ _e.style.display=''; _e.innerHTML=_ecHtml(t); } };   // [CAN_ALERT] OS alert 대체 — 화면 안에서, 낭독기에도 들리게 · [ERR_CODE_GLUE] 코드는 한 덩어리(글자는 같다)
       var back=function(t){ b.disabled=false; b.textContent='예약 취소하기'; say(t); };
       /* ★★[ERR_CODE_PAGES · CANCEL_RECHECK 2026-10-07] 취소는 «쓰기»다. 답을 못 받은 것(5 기다리다 멈춤 · 7 서버 답이 깨짐)은 «실패»가 아니라 «결과 모름»이다.
          서버(emailCancel)는 캘린더 삭제 · 메일 셋 · 알림까지 하느라 12초를 자주 넘었고, 그동안 서버는 취소를 끝내는데 화면은 «취소에 실패했어요»라 말했다.
@@ -211,8 +216,9 @@ function loadInfo(){
         b.disabled=false; b.textContent='예약 취소하기'; showMsg('안내','취소를 완료하지 못했어요', esc(_ecSrv(r,'B','취소를 받지 못했어요 · 잠시 뒤 다시 열어 주세요')));
       }).catch(function(e){ var n=_ecN(e);
         if(n===6){ back(_ecNet(e,'B','다시 눌러 주세요')); return; }   // [ERR_CODE_PAGES] 연결이 끊긴 것은 요청이 서버에 닿지 않은 쪽이 대부분 — 다시 눌러도 서버가 이미 취소면 «이미 취소»로 답한다
-        /* 무엇을 하는 중인지는 단추가(● 취소됐는지 확인 중) · 무슨 일인지는 줄이(코드) — 360px 폰의 좁은 카드(258px)에서 한 줄씩 */
-        b.innerHTML='<span class="bdot"></span>취소됐는지 확인 중'; say((n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요')+' (코드 B'+n+')'); recheck(n, 3);
+        if(!n){ back(_ecNet(e,'B','')); return; }   // [ERR_N_HONEST] 화면 쪽 예외(0) — «서버가 잠깐 멈췄어요»가 아니다 · 새로 고치면 지금 상태(취소됨 · 확정)를 다시 보여 준다
+        /* 무엇을 하는 중인지는 단추가(● 취소됐는지 확인 중) · 무슨 일인지는 줄이(코드는 결과를 말하는 마지막 줄에) — 360px 폰의 좁은 카드(258px)에서 한 줄씩 */
+        b.innerHTML='<span class="bdot"></span>취소됐는지 확인 중'; say(n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요'); recheck(n, 3);   // [ERR_RECHECK_NOCODE 2026-10-07] 저절로 다시 묻는 «중간» 줄엔 코드 없음 — 결과를 말하는 마지막 줄(아직 취소 전 · 결과를 못 받았어요)에만(P6)
       });
     });
   }).catch(function(e){ showMsg('안내','예약 정보를 불러오지 못했어요', esc(_ecNet(e,'B',''))); _ecAgain(); });   // [ERR_CODE_PAGES] 할 일은 «다시 불러오기» 단추가 말한다

@@ -1275,10 +1275,10 @@ var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 a
   U: ['ritualFile', 'snapRefUpload'],
   D: ['ritualFileDel', 'ritualFilePurgeMine', 'snapWithdraw'],
   S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation'],
-  L: ['signup', 'login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery'],
+  L: ['login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery'],
   P: ['paymentSignal', 'midSignal', 'balanceSignal', 'extraRetouchSignal', 'cardConfirm', 'cardPayConfig', 'saveCashReceipt', 'saveRefundAccount'],
   C: ['weddingAvailability', 'changeWeddingHold', 'cancelWeddingHold', 'quoteWeddingChange', 'requestWeddingChange', 'cancelWeddingChange', 'requestContract', 'requestContractResend', 'signFittingConsent', 'signContract'],
-  B: ['getAvailability', 'submitSchedule', 'cancelReservation', 'emailCancelInfo', 'emailCancel', 'acceptProposal', 'leadCapture', ''],
+  B: ['signup', 'getAvailability', 'submitSchedule', 'cancelReservation', 'emailCancelInfo', 'emailCancel', 'acceptProposal', 'leadCapture', ''],   // [ERR_AREA_SIGNUP_B 2026-10-08] 신청서 보내기(signup)는 B — 종전 L 이라 같은 신청 화면에 L1 · L9 와 B5 · B6 이 섞였다
   A: ['aiHandoff', 'aiAvailability'],
   G: ['seatView', 'guideView', 'guestPhoto', 'guestLetter', 'getCouple'],
   R: ['submitResultSelection', 'requestExtraRetouch', 'confirmRetouch', 'requestRevision', 'submitSurvey']
@@ -1294,15 +1294,18 @@ function _errStamp(out) {   // [ERR_CODE_GAS] jsonOut 이 ok:false 를 내보내
   try {
     var act = (typeof __ERR_ACT !== 'undefined') ? __ERR_ACT : '';
     var why = String(out._why || ''); delete out._why;
-    if (ERR_SKIP[act]) return out;
+    if (ERR_SKIP[act] && !(act === 'adminCall' && /^[A-Z]9$/.test(String(out.ecode || '')))) return out;   // [ADMIN_EXC_WHY] 관리자 동작의 예상 못 한 오류(9)는 오류기록에 남긴다(사고번호로 찾게)
+    if (out.mineOnly) return out;   // [ERR_STATE_QUIET 2026-10-08] «내 자리만» 설정은 실패가 아니다 — 오류기록을 시끄럽게 하지 않는다
     var ec = String(out.ecode || '');
     if (!/^[A-Z]\d$/.test(ec)) {
       var sess = /^(expired|invalid|no_token)$/.test(String(out.reason || ''));
-      ec = _errArea(act) + (sess ? 8 : (typeof out.error === 'string' && ERR_BUSY_RE.test(out.error)) ? 1 : 0);
+      /* [ERR_FAILISH_4 2026-10-08 점검] 핸들러가 ecode 없이 «…하지 못했어요»(처리 실패)를 돌려주면 0(글이 곧 까닭 · 코드 안 붙음)이 아니라 4 —
+         화면들은 0 에 코드를 안 붙이므로(입력 확인 · 거절은 글이 까닭) 진짜 실패가 코드 없이 나가지 않게 서버가 가른다 */
+      ec = _errArea(act) + (sess ? 8 : (typeof out.error === 'string' && ERR_BUSY_RE.test(out.error)) ? 1 : (typeof out.error === 'string' && /(못했|못 했|실패했|오류가 (났|발생)|문제가 (생겼|발생))/.test(out.error)) ? 4 : 0);
     }
     out.ecode = ec;
     var n = +ec.charAt(1);
-    if (n && typeof out.error === 'string' && /[가-힣]/.test(out.error) && !/\(코드 [A-Z]\d/.test(out.error)) out.error = out.error.replace(/\s+$/, '') + ' (코드 ' + ec + (out.eid ? ' · ' + out.eid : '') + ')';
+    if (n && typeof out.error === 'string' && /[가-힣]/.test(out.error) && !/\(코드 [A-Z]\d/.test(out.error)) out.error = out.error.replace(/[\s.。]+$/, '') + ' (코드 ' + ec + (out.eid ? ' · ' + out.eid : '') + ')';   // [ERR_NO_DOT 2026-10-08] 끝 마침표를 걷고 붙인다 — «…주세요. (코드 B8)» → «…주세요 (코드 B8)»
     _errRecord(act, ec, out.error, why, out.eid || '', out.http ? 'HTTP ' + out.http : '');
   } catch (e) {}
   return out;
@@ -1335,7 +1338,7 @@ function _errAlert(ec, act, text, why, eid) {   // [ERR_CODE_GAS] 관리자 메�
 function adminErrLog(code, n, eid) {   // [ERR_CODE_GAS] 관리자 화면 — 오류기록 최근 n줄(개인코드 · 사고번호로 거른다) · 읽기 전용 · adminCall
   n = Math.max(1, Math.min(50, +n || 10)); code = String(code || '').trim().toUpperCase(); eid = String(eid || '').trim().toUpperCase();
   var sh = SpreadsheetApp.getActive().getSheetByName(ERR_LOG_SHEET); if (!sh || sh.getLastRow() < 2) return { ok: true, rows: [] };
-  var last = sh.getLastRow(), from = Math.max(2, last - 2999), v = sh.getRange(from, 1, last - from + 1, 8).getDisplayValues(), out = [];
+  var last = sh.getLastRow(), from = eid ? 2 : Math.max(2, last - 2999), v = sh.getRange(from, 1, last - from + 1, 8).getDisplayValues(), out = [];   // [ERR_EID_ALL 2026-10-08] 사고번호는 시트 전체(5,000줄)에서 — 몇 주 지난 번호도 찾게
   for (var i = v.length - 1; i >= 0 && out.length < n; i--) {
     if (code && String(v[i][4]).toUpperCase() !== code) continue;
     if (eid && String(v[i][1]).toUpperCase() !== eid) continue;

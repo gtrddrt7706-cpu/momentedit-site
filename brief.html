@@ -99,12 +99,25 @@ function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
 function safeUrl(u){ var v=String(u==null?'':u).trim(); return /^https?:\/\//i.test(v)?v:'about:blank'; }
 function qp(n){ try{ return new URLSearchParams(location.search).get(n)||''; }catch(e){ return ''; } }
+/* ★[BRIEF_ERR_CODE 2026-10-07 ERR_CODE_ADMIN] 실패를 종류대로(#31) — 종전엔 12초 시간 초과 · 연결 끊김 · GAS 가 준 HTML(JSON 이 아님)이 모두
+   «연결이 끊겼어요. 잠시 뒤 새로고침해 주세요.»였고 코드가 없어, 작가가 화면을 보내 줘도 원인을 가를 수 없었다.
+   여기서 종류를 붙인다(meKind) — 늦음 slow(X5) · 끊김 net(X6) · 깨진 답 bad(X7). 그 밖(화면 코드가 던짐)은 코드 없이 «브리프를 그리지 못했어요».
+   글자 X = 이 동작(snapBrief)은 서버 ERR_AREA 에 없어 서버도 X 로 찍는다(관리 · 그 밖). 코드 괄호 안은 줄이 갈리지 않게(nbCode) */
+function kindOf(e, k){ try{ if(e&&typeof e==='object'&&!e.meKind) e.meKind=(e.name==='AbortError'||e.name==='TimeoutError')?'slow':k; }catch(_){} return e; }
 function gapi(payload, ms){   // 읽기 12초(GAS 콜드스타트를 자르지 않는 값 · seat/guide 와 같은 처방) · 사진은 30초
   var ac=(typeof AbortController!=='undefined')?new AbortController():null;
   var tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} }, ms||12000):null;
   return fetch(EXEC_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
-    .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; });
+    .then(function(r){ return r.text().then(function(t){ if(tm) clearTimeout(tm); try{ return JSON.parse(t); }catch(_p){ var x=new Error('JSON 이 아닌 답 (HTTP '+r.status+')'); x.meKind='bad'; throw x; } },
+        function(e){ if(tm) clearTimeout(tm); throw kindOf(e,'net'); }); },
+      function(e){ if(tm) clearTimeout(tm); throw kindOf(e,'net'); });
 }
+function nbCode(t){ return String(t==null?'':t).replace(/\(코\u2060?드[ \u00A0]([^)]*)\)/g, function(m, inner){ return '(코\u2060드\u00A0'+inner.replace(/ /g,'\u00A0')+')'; }); }
+function failLine(e){ var k=e&&e.meKind;
+  if(k==='slow') return '응답이 늦어요.<br>잠시 뒤 새로고침해 주세요 (코드 X5)';
+  if(k==='bad') return '서버 답이 깨졌어요.<br>잠시 뒤 새로고침해 주세요 (코드 X7)';
+  if(k==='net') return '연결이 끊겼어요.<br>잠시 뒤 새로고침해 주세요 (코드 X6)';
+  return '브리프를 그리지 못했어요.<br>새로고침해도 그대로면 이 화면을 디렉터에게 보내 주세요<br><span style="font-size:11px;color:var(--light)">'+esc(String((e&&e.name)||'오류')+': '+String((e&&e.message)||e||'')).slice(0,120)+'</span>'; }
 function dateKo(ymd){
   var m=String(ymd||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return '';
   var dt=new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));
@@ -116,7 +129,7 @@ function tile(R, s, no){
   var pic=src?('<picture><source srcset="'+src+'" type="image/webp"><img src="'+jpg+'" alt="'+esc(s.name)+' 레퍼런스" loading="lazy"></picture>'):('<div class="ph" aria-hidden="true">'+esc(String(s.id||'').toUpperCase())+'</div>');   // 사진 전엔 장면 번호 — 촬영 목록표(docs/plans/스냅_레퍼런스_촬영목록표.md)와 맞춰 보게
   return '<div class="tile'+(no?' pick':'')+'">'+pic+(no?('<span class="no">'+no+'</span>'):'')+'<span class="nm">'+esc(s.name)+'</span><span class="fr">'+esc(s.frame||'')+((s.needs&&s.needs.length)?(' · <span class="need">'+esc(s.needs.join(', '))+'</span>'):'')+'</span></div>';
 }
-function state(msg){ $('root').innerHTML='<div class="state" role="status">'+msg+'</div>'; }
+function state(msg){ $('root').innerHTML='<div class="state" role="status">'+nbCode(msg)+'</div>'; }
 (function(){
   var b=qp('b'), R=window.SNAP_REFS;
   if(!/^[a-f0-9]{40}$/.test(b)){ state('주소가 잘못됐어요.<br>디렉터에게 받은 주소 전체를 그대로 열어 주세요.'); return; }
@@ -174,7 +187,7 @@ function state(msg){ $('root').innerHTML='<div class="state" role="status">'+msg
         else im.alt='사진을 불러오지 못했어요';
       }).catch(function(){ im.alt='사진을 불러오지 못했어요'; });
     });
-  }).catch(function(){ state('연결이 끊겼어요.<br>잠시 뒤 새로고침해 주세요.'); });
+  }).catch(function(e){ state(failLine(e)); });   // [BRIEF_ERR_CODE] 늦음 X5 · 끊김 X6 · 깨진 답 X7 · 화면 오류
 })();
 </script>
 </body>

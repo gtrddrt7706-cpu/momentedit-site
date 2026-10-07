@@ -1502,10 +1502,88 @@
    "why": "카드 승인 뒤 기록 함수가 던져도 B-1(관리자 즉시 알림 · 결제로그 «기록경고»)로 · 토스 거절 P4 + 토스 코드 · 빈 복귀도 결제로그 — 옛것이면 돈은 받았는데 흔적이 Logger 뿐"
   },
   {
+   "file": "98_pay_card",
+   "fn": "handleCardConfirm",
+   "mark": "PAY_UNKNOWN",
+   "why": "토스 승인이 연결 예외 · 이미 처리됨이면 조회로 확인 → 됐으면 성공 · 모르면 P5(다시 결제하지 마세요) + 관리자 메일 · 거절은 한국어 한 줄 + 토스 코드"
+  },
+  {
+   "file": "87_letter",
+   "fn": "_ltRateCheck",
+   "mark": "LT_RATE_G1",
+   "why": "편지 몰림은 G1(코드가 붙는다)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "submitSchedule",
+   "mark": "SCHED_SESSION_NO_EXPIRE",
+   "why": "마이페이지 로그인 길은 «신청 후 7일» 링크 기한을 보지 않는다(문의 8일째부터 일정 선택 · 변경이 막히던 것)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "ADMIN_EXC_WHY",
+   "why": "관리자 동작의 예외는 원문 160자를 관리자 화면에 + 오류기록(사고번호)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doGet",
+   "mark": "GETCOUPLE_JSON_ERR",
+   "why": "청첩장 · 라이브 조회 예외도 JSON(G9 · G3) — 안내 HTML 이 나가 하객 화면이 G7 로 보던 것"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errStamp",
+   "mark": "ERR_NO_DOT",
+   "why": "코드를 붙이기 전에 끝 마침표를 걷는다 · 관리자 9 는 기록 · «내 자리만»은 기록 안 함"
+  },
+  {
+   "file": "95_notify",
+   "fn": "adminErrLog",
+   "mark": "ERR_EID_ALL",
+   "why": "사고번호 찾기는 시트 전체(5,000줄)"
+  },
+  {
+   "file": "admin",
+   "fn": "adminCall",
+   "mark": "ADMIN_UNKNOWN_FN",
+   "why": "옛 GAS 에서 새 기능을 부르면 «새 버전 배포가 필요해요»까지"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errStamp",
+   "mark": "ERR_FAILISH_4",
+   "why": "핸들러가 ecode 없이 «…하지 못했어요»를 돌려주면 0 이 아니라 4 로 코드를 붙인다(화면은 0 에 코드를 안 붙인다)"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errStamp",
+   "mark": "ADMIN_EXC_WHY",
+   "why": "관리자 동작의 예상 못 한 오류(9)는 오류기록에 남긴다(사고번호로 찾게)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "EXC_SHORT_WORD",
+   "why": "예상 못 한 오류의 고객 글을 «서버에서 오류가 났어요 · 다시 해 주세요»로 짧게"
+  },
+  {
+   "file": "87_letter",
+   "fn": "ltGuestLetter",
+   "mark": "LT_RATE_ECODE",
+   "why": "편지 몰림 코드(G1)를 응답에 그대로 넘긴다(종전엔 떨어져 코드 없음)"
+  },
+  {
    "file": "80_production",
    "fn": "handleVoiceClone",
    "mark": "VC_ENROLL_JOB",
    "why": "목소리 만들기 작업표(끊긴 뒤에도 서버가 끝까지 만든 것을 화면이 상태로 확인) · 같은 분 겹친 만들기 거절 · 저장 시점의 앞 목소리도 지움 · 업체가 녹음을 받지 않으면(4xx) «처음부터 다시 읽기» — 옛것이면 아이폰 60초 · PC 90초 끊김에 화면이 «실패»라 하고, 다시 누르면 업체 목소리가 새거나 글 2 를 또 읽게 한다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "UNKNOWN_ACT_DOT",
+   "why": "모르는 동작(GAS 미배포) 글을 한 줄 말투로 · «지금은 처리할 수 없어요 · 잠시 뒤 다시 눌러 주세요»"
   }
  ],
  "fns": {
@@ -2037,6 +2115,9 @@
    "_payCfg",
    "_payExpectedAmount",
    "_tossConfirm",
+   "_tossLookup",
+   "_tossConfirmSafe",
+   "_tossFailOut",
    "_payMarkCard",
    "_payLog",
    "_payPreValidate",
@@ -2533,7 +2614,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-08 03:22 · d9c2a84d",
+ "_생성": "2026-10-08 05:02 · 4f95b1e4",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3005,5 +3086,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "4465e0d468db"
+ "_표식서명": "a5acd08dcda6"
 }

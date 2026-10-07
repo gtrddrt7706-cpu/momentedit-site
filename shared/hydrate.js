@@ -643,7 +643,7 @@
           ? '예시 청첩장이에요 · 이름·날짜·계좌 모두 예시'
           : '예시 청첩장이에요 · 실제 초대장이 아닙니다'
             + '<br><span style="font:400 11px/1.5 system-ui,-apple-system,sans-serif;color:#5A554C;letter-spacing:.02em">이름·날짜·계좌 모두 예시예요'
-            + (why ? (' · ' + why) : '') + '</span>';
+            + (why ? (' · ' + String(why).replace(/\(코드 [^)<]*\)/g, function (c) { return '<span class="ec-code" style="white-space:nowrap">' + c + '</span>'; })) : '') + '</span>';   // [ERR_CODE_GLUE] «(코드 G9 · 사고번호)»는 한 덩어리
         document.body.insertBefore(b, document.body.firstChild);
         document.documentElement.setAttribute('data-demo', '1');
         /* [DEMO_ACCT_MARK] 돈이 움직이는 자리에서 한 번 더 — 계좌 복사 버튼이 있는 블록의 머리에.
@@ -729,9 +729,9 @@
     /* 서버의 INTERNAL_ERROR(서버 쪽 사고 · ecode G9 · 사고번호 eid)는 «그런 예식 없음»이 아니다 — 종전엔 «주소를 다시 확인해 주세요»로 떨어졌다 */
     function hyWhy(e, d) {
       if (d) return '서버에서 오류가 났어요 · 새로 고쳐 주세요 (코드 G9' + (d.eid ? ' · ' + String(d.eid).replace(/[^A-Z0-9]/gi, '').slice(0, 8) : '') + ')';
-      var n = (e && e.name === 'AbortError') ? 5 : (e && e.name === 'SyntaxError') ? 7 : 6, off = false;
+      var n = (e && e.name === 'AbortError') ? 5 : (e && e.name === 'SyntaxError') ? 7 : (e && e.name === 'TypeError' && /Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message || ''))) ? 6 : 0, off = false;   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만(여섯 쪽 _ecN 과 같은 줄)
       try { off = navigator.onLine === false; } catch (x) {}
-      return (n === 5 ? '응답이 늦어요' : n === 7 ? '서버가 잠깐 멈췄어요' : off ? '인터넷이 끊겼어요' : '연결이 끊겼어요') + ' · 새로 고쳐 주세요 (코드 G' + n + ')';
+      return (n === 5 ? '응답이 늦어요' : n === 7 ? '서버가 잠깐 멈췄어요' : !n ? '화면 오류예요' : off ? '인터넷이 끊겼어요' : '연결이 끊겼어요') + ' · 새로 고쳐 주세요 (코드 G' + n + ')';   // 0 = 그리기 예외(apply) — 연결 탓이 아니다
     }
     getCouple()
       .then(function (d) { return (d && d.ok === false && d.error === 'INTERNAL_ERROR') ? again() : d; }, again)

@@ -156,6 +156,9 @@ function engine(){
    ③선택지 하나씩만 바꾼 상태 를 전부 돌려, 나온 큐를 슬러그로 모은다. */
 function sweep(){
   var C = G.RitualCue, D = G, out = new Map();
+  /* ★[AUDIT_ENGINE_ERRS 2026-10-07 ERR_CODE_ADMIN] 엔진이 한 조합에서 던지면 그 조합의 자리가 목록에서 «조용히» 빠졌다(#34 · catch 가 return 뿐) —
+     아래 «빠진 게 있어요» 줄은 나레이션 클립만 세서 일부만 알렸다. 몇 번 던졌는지 · 첫 글을 세어 머리에 적는다 */
+  var ERRS = { n: 0, first: '' };
   var EX = {welcome:1,bless:1,ringwarm:1,valley:1,letter:1,tribute:1,toast:1,song:1,free:1};
   var OPTS = {
     entry:Object.keys(D.ENTRY), declare:Object.keys(D.DECLARE), declareWho:Object.keys(D.DECLWHO),
@@ -168,7 +171,7 @@ function sweep(){
      courses = 추가 순간까지 켜면 그 코스에서 **할 수 있는** 자리.
      둘을 안 가르면 거의 모든 자리가 모든 코스에 뜬다 — 코스 필터가 아무 의미가 없어진다. */
   function run(S, tag, mode, isBase){
-    var r; try{ r = C.build(S, {mode: mode || 'preview'}); }catch(e){ return; }
+    var r; try{ r = C.build(S, {mode: mode || 'preview'}); }catch(e){ ERRS.n++; if(!ERRS.first) ERRS.first = (S.course||'') + (tag ? ' · ' + tag : '') + ' · ' + mode + ' — ' + String((e && e.message) || e).slice(0, 120); return; }
     r.cues.forEach(function(c){
       var key = c.slug || ('txt:' + c.blockN + '|' + c.name);
       if(!out.has(key)){
@@ -218,6 +221,7 @@ function sweep(){
      '전부 나열'이 목적인 화면이라 그 조용함이 제일 나쁘다. 그래서 개수를 화면에 적는다. */
   all.cover = { have: new Set(all.filter(function(e){ return e.slug; }).map(function(e){ return e.slug; })).size,
                 need: C.FILES.length };
+  all.errs = ERRS;   // [AUDIT_ENGINE_ERRS]
   return all;
 }
 
@@ -466,7 +470,8 @@ document.getElementById('copy').onclick = function(){
   document.getElementById('mk').click();
   var o = document.getElementById('out');
   o.removeAttribute('readonly'); o.select(); o.setSelectionRange(0, 99999);
-  try{ document.execCommand('copy'); this.textContent = '복사됨'; }catch(e){ this.textContent = '길게 눌러 복사'; }
+  var okc = false; try{ okc = !!document.execCommand('copy'); }catch(e){ okc = false; }
+  this.textContent = okc ? '복사됨' : '길게 눌러 복사';   /* [AUDIT_COPY_TRUTH 2026-10-07] execCommand 가 false 를 돌려줘도 «복사됨»이던 자리(P4) */
   o.setAttribute('readonly','readonly');
   var self = this; setTimeout(function(){ self.textContent = '결과 복사'; }, 1800);
 };
@@ -497,7 +502,8 @@ engine().then(function(){
   document.querySelector('.lede').innerHTML =
     '모든 코스·모든 선택지를 합쳐 <b>' + EVENTS.length + '개</b>예요. 하나씩 들어 보고 유지·수정·제거를 눌러 주세요.'
     + '<br><span style="color:' + (full ? '#3f7d54' : '#a8453a') + '">나레이션 클립 ' + cv.need + '개 중 '
-    + cv.have + '개가 이 목록에 있어요' + (full ? ' · 빠진 것 없음' : ' · ★빠진 게 있어요') + '.</span>';
+    + cv.have + '개가 이 목록에 있어요' + (full ? ' · 빠진 것 없음' : ' · ★빠진 게 있어요') + '.</span>'
+    + (EVENTS.errs && EVENTS.errs.n ? '<br><span style="color:#a8453a">★엔진 오류 ' + EVENTS.errs.n + '건 · 그 조합의 자리는 이 목록에서 빠졌어요 · 첫 글: ' + esc(EVENTS.errs.first) + '</span>' : '');   /* [AUDIT_ENGINE_ERRS] */
   render();
 })['catch'](function(err){
   document.getElementById('list').innerHTML =

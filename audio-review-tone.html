@@ -95,6 +95,7 @@ border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--tex
     <label style="margin-left:auto;font-size:13px"><input type="checkbox" id="onlyLeft"> 남은 것만</label>
     <label style="font-size:13px"><input type="checkbox" id="onlyFlag"> 의심만 (12)</label>
   </div>
+  <div id="playErr" class="hide" role="status" style="margin:6px 0 0;font-size:13px;color:var(--seal)"></div>
 </div>
 
 <div id="list"></div>
@@ -139,10 +140,26 @@ $('pick').onchange = function (e) {
 /* 재생 — 문장 하나 / 클립 통째(사이 쉼 0.45s · 참고용) */
 var cur = null;
 function stop() { if (cur) { try { cur.pause(); } catch (e) {} cur = null; } }
+/* [TONE_PLAY_FAIL 2026-10-07] 재생이 실패하면 말한다(#33) — 종전엔 play() 에 catch · onerror 가 없어 못 여는 형식(아이폰의 flac · ogg 등)이면 무음이었고,
+   «클립 통째»는 onended 가 안 와 그 자리에서 멈췄다. 못 열면 한 줄 + 다음 문장으로 · 막힘(자동 재생 · 무음 모드)이면 한 줄 + 멈춤 */
+function playErr(label, e) {
+  var el = $('playErr'); if (!el) return;
+  el.textContent = (e && e.name === 'NotAllowedError') ? '재생이 막혔어요 · 화면을 한 번 누른 뒤 다시 눌러 주세요'
+    : ('이 소리를 못 열었어요 · ' + label + ' (이 기기가 못 여는 형식이거나 깨진 파일일 수 있어요)');
+  el.className = '';
+}
+function playSafe(a, label, onBad) {
+  var said = false, bad = function (e) { if (said) return; said = true; playErr(label, e); if (onBad) onBad(e); };
+  a.onerror = function () { bad(null); };
+  try { var p = a.play(); if (p && p.catch) p.catch(function (e) { if (e && e.name === 'AbortError') return; bad(e); }); } catch (e) { bad(e); }
+}
 function play1(i, done) {
   stop(); var u = AUD[i];
   if (!u) { alert('그 자리 소리를 아직 못 찾았어요. 폴더를 고르셨나요?'); return; }
-  var a = new Audio(u); cur = a; a.onended = function () { cur = null; if (done) done(); }; a.play();
+  var el = $('playErr'); if (el) el.className = 'hide';
+  var a = new Audio(u), over = false, fin = function () { if (over) return; over = true; if (cur === a) cur = null; if (done) done(); };
+  cur = a; a.onended = fin;
+  playSafe(a, 'audio_' + i, function (e) { if (e && e.name === 'NotAllowedError') { over = true; if (cur === a) cur = null; return; } fin(); });
 }
 function playClip(ci) {
   var ns = D.clips[ci].n, k = 0;
@@ -201,7 +218,7 @@ function draw() {
 $('list').addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   if (b.dataset.p != null) return play1(+b.dataset.p);
-  if (b.dataset.old) { stop(); var u = OLDA[b.dataset.old]; if (u) { var a = new Audio(u); cur = a; a.play(); } return; }
+  if (b.dataset.old) { stop(); var u = OLDA[b.dataset.old]; if (u) { var a = new Audio(u); cur = a; playSafe(a, '옛 클립 ' + b.dataset.old, null); } return; }   /* [TONE_PLAY_FAIL] */
   if (b.dataset.clip != null) return playClip(+b.dataset.clip);
   if (b.dataset.v) { var i = +b.dataset.i; setV(i, V[i] === b.dataset.v ? null : b.dataset.v); }
 });

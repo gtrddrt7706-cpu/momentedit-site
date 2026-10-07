@@ -1526,12 +1526,18 @@ function showSuccess(code){
       if (btn && !btn.dataset.bound) {
         btn.dataset.bound = '1';
         btn.addEventListener('click', function(){
-          var done = function(){ btn.textContent = '복사됐어요 ✓'; setTimeout(function(){ btn.textContent='코드 복사'; }, 1800); };
+          /* [COPY_FAIL_SHOW 2026-10-07 · ERR_CODES P4] 복사가 안 되면 «복사됐어요 ✓»라 하지 않는다 — 종전엔 execCommand 가 실패해도 그렇게 말했다.
+             실패면 단추 아래 보이는 한 줄 · 기기 쪽 일이라 코드는 없다(청첩장 · live · schedule 계좌 복사와 같은 결) */
+          var line = function(on){ var n = document.getElementById('meCopyCodeErr');
+            if (!n && on) { n = document.createElement('div'); n.id = 'meCopyCodeErr'; n.setAttribute('role', 'alert'); n.style.cssText = 'margin-top:8px;font-family:var(--serif-ko);font-size:12px;color:var(--seal);line-height:1.6;word-break:keep-all'; btn.parentNode.insertBefore(n, btn.nextSibling); }
+            if (n) { n.textContent = on ? '복사가 안 됐어요 · 코드를 길게 눌러 복사해 주세요' : ''; n.style.display = on ? '' : 'none'; } };
+          var done = function(){ line(false); btn.textContent = '복사됐어요 ✓'; setTimeout(function(){ btn.textContent='코드 복사'; }, 1800); };
+          var legacy = function(){ if (legacyCopy(code)) done(); else line(true); };
           try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(code).then(done).catch(function(){ legacyCopy(code); done(); });
-            } else { legacyCopy(code); done(); }
-          } catch(_e){ legacyCopy(code); done(); }
+              navigator.clipboard.writeText(code).then(done).catch(legacy);
+            } else legacy();
+          } catch(_e){ legacy(); }
         });
       }
     }
@@ -1543,14 +1549,16 @@ function showSuccess(code){
   try { history.replaceState({submitted:true}, '', window.location.pathname + '#submitted'); } catch(e){}
 }
 
-// 구형 브라우저용 복사 폴백
+// 구형 브라우저용 복사 폴백 — [COPY_FAIL_SHOW] 됐는지(true · false)를 돌려준다
 function legacyCopy(text){
+  var ok = false;
   try {
     var ta = document.createElement('textarea');
-    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-  } catch(_e){}
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); try { ta.setSelectionRange(0, text.length); } catch(_s){}
+    ok = document.execCommand('copy'); document.body.removeChild(ta);
+  } catch(_e){ ok = false; }
+  return !!ok;
 }
 
 form.addEventListener('submit', (e) => {
@@ -1577,19 +1585,24 @@ form.addEventListener('submit', (e) => {
    종전엔 서버 사고 · 연결 끊김이 모두 «전송이 안 됐어요. 잠시 후 다시 시도해 주세요» 한 줄이었다.
    서버(GAS)가 글 끝에 «(코드 X#)»를 붙여 보내면 그대로(두 번 붙이지 않는다) · ecode 만 오면 1~9 일 때 붙인다(0 은 글이 곧 까닭 — 입력 확인 글에는 코드를 안 붙인다).
    cancel · schedule · seat · guide 와 같은 함수 이름이다 — 한 곳만 고치지 말 것 */
-function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:(e&&e.name==='TypeError'&&/Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message||'')))?6:0; }   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만 · 그 밖의 스크립트 예외는 0
 function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
 function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';   // [ERR_N_HONEST] 화면 쪽 스크립트 예외(0) — 연결 탓으로 말하지 않는다 · 다시 눌러도 같은 자리에서 멈추니 새로 고치게
   return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
 function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
   if(m) t=t.slice(0,m.index);
   if(!/^[A-Z]\d$/.test(ec)) ec='';
   if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
-  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글
+  else if(/^요청을 처리하지 못했어요\. 잠시 후 다시 시도해 주세요\.?$/.test(t)){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글 · [ERR_NO_DOT_PAGE] 서버가 코드 앞 마침표를 걷어 보내도(«잠시 후 다시 시도해 주세요 (코드 B9 · 7KQ2)») 맞는다
   if(!t){ t=fb; ec=ec||L+'0'; }
   if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
-  return t+(tail?' ('+tail+')':''); }
-function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[145679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }
+  return tail?t.replace(/[\s.]+$/,'')+' ('+tail+')':t; }   // [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다(«주세요. (코드» 금지)
+/* ★[ERR_CODE_GLUE 2026-10-07 코디 · 신청서 390px 실측 «(코드 B9 / · 7KQ2)»] «(코드 X# · 사고번호)»는 한 덩어리다 — 괄호 안에서 줄이 갈리지 않게 nowrap 으로 싼다
+   (mypage _errHtml 과 같은 처리). 글자는 그대로라 textContent 로 읽는 검사 · 낭독기 · /\(코드 [A-Z]\d/ 감지는 달라지지 않는다. 여섯 쪽이 글자까지 같은 사본 — 한 곳만 고치지 말 것 */
+function _ecGlue(h){ return String(h==null?'':h).replace(/\(코드 [^)<]*\)/g,function(c){ return '<span class="ec-code" style="white-space:nowrap">'+c+'</span>'; }); }
+function _ecHtml(t){ return _ecGlue(String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; })); }
+function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[1345679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }   // [ERR_RETRY_3] 3(설정 · 배포 · «잠시 뒤 다시 눌러 주세요»)도 다시 해 볼 일이다 — 링크 탓으로 말하지 않는다
 
 function meDoSubmit(){
   if (submitBtn.disabled) return;   // 재진입 가드 — 확인 모달 연타·중복 호출 시 이중 제출 방지(모달은 display:none으로 실클릭은 이미 차단)
@@ -1604,7 +1617,7 @@ function meDoSubmit(){
     submitBtn.classList.remove('loading');
     submitBtn.querySelector('.btn-text').textContent = '신청서 보내기';   /* [LOADING_CENTER] 기본 글자와 같은 말로 되돌린다 */
     submitBtn.removeAttribute('aria-busy');
-    submitError.textContent = msg || '전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 카톡·전화로 주셔도 돼요.';
+    submitError.innerHTML = _ecHtml(msg || '전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 카톡·전화로 주셔도 돼요.');   // [ERR_CODE_GLUE] 390px 실측 «(코드 B9 / · 7KQ2)»처럼 괄호 안에서 갈리지 않게 · 글자는 그대로
     /* [ERR_CODE_PAGES] 서버 · 연결 실패(sys)에는 다른 길을 한 줄 더 — 입력 확인 글(비밀번호 · 이메일)에는 붙이지 않는다 */
     if (sys) { submitError.appendChild(document.createElement('br')); submitError.appendChild(document.createTextNode('계속 안 되면 카톡·전화로 주셔도 돼요.')); }
     submitError.classList.add('show');
@@ -1624,7 +1637,7 @@ function meDoSubmit(){
       signal: ac ? ac.signal : undefined
     })
     .then(function(res){ if (tm) clearTimeout(tm); return res.json(); }, function(e){ if (tm) clearTimeout(tm); throw e; })
-    .catch(function(e){ if (again || _ecN(e) === 6) throw e; return send(true); });
+    .catch(function(e){ var n = _ecN(e); if (again || (n !== 5 && n !== 7)) throw e; return send(true); });   // [ERR_N_HONEST] 다시 보내는 것은 «결과 모름»(5 · 7)일 때만 — 연결 끊김(6) · 화면 쪽 예외(0)는 다시 보내도 같다
   }
   send(false)
   .then(function(data){

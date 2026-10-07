@@ -153,7 +153,11 @@
     + '.me-adv-send{flex:0 0 auto;width:44px;height:44px;border:none;border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .3s var(--ease,ease),transform .3s var(--ease,ease)}'
     + '.me-adv-send:hover{opacity:.88;transform:translateY(-1px)}'
     + '.me-adv-send:disabled{opacity:.4;cursor:default;transform:none}'
-    + '.me-adv-send svg{width:20px;height:20px}';
+    + '.me-adv-send svg{width:20px;height:20px}'
+    /* [SHARE_COPY_FAIL] 홈 .me-toast 와 같은 모양(새 값 없음) — 홈 밖 쪽에서만 쓴다 */
+    + '.me-adv-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,8px);z-index:300;max-width:min(420px,calc(100vw - 32px));width:max-content;padding:11px 20px;background:var(--accent,#3A2D22);color:var(--bg,#FAFAF8);font-family:var(--serif-ko,serif);font-size:13px;font-weight:400;letter-spacing:0.02em;line-height:1.5;text-align:center;word-break:keep-all;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .45s var(--ease,ease),transform .45s var(--ease,ease)}'
+    + '.me-adv-toast.on{opacity:1;transform:translate(-50%,0)}'
+    + '@media (prefers-reduced-motion:reduce){.me-adv-toast{transition:none}}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var SHARE = (CFG.share && CFG.share.url) ? CFG.share : null;
@@ -221,9 +225,12 @@
 
   function place(el) { body.appendChild(el); }
   function scrollDown() { body.scrollTop = body.scrollHeight; }
+  /* ★[ERR_CODE_GLUE 2026-10-07] «(코드 A# · …)»는 한 덩어리 — 괄호 안에서 줄이 갈리지 않게 nowrap 으로 싼다(여섯 쪽 _ecGlue · mypage _errHtml 과 같은 처리).
+     글은 그대로 이스케이프해 넣는다(질문 · 답 글자는 바뀌지 않는다 · textContent 로 읽는 검사도 같다). index.html 인라인 사본과 같은 함수(ADV_TWO_COPIES) */
+  function codeHtml(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }).replace(/\(코드 [^)<]*\)/g, function (c) { return '<span class="ec-code" style="white-space:nowrap">' + c + '</span>'; }); }
   function addMsg(t, who) {
     var d = document.createElement('div');
-    d.className = 'me-adv-msg ' + who; d.textContent = t;
+    d.className = 'me-adv-msg ' + who; d.innerHTML = codeHtml(t);
     place(d); scrollDown(); return d;
   }
   function addTyping() {
@@ -247,7 +254,8 @@
      AI 상담(A) 실패를 한 줄 + «(코드 A#)»로 — 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻):
      429 몰림 1 · 업체 401·402·403 → 2 · 503 꺼짐(키 없음) 3 · 502 업체 실패 4(업체 HTTP 번호를 함께) · 500 서버 9 · 400 질문 0 ·
      기다리다 멈춤 5 · 연결 끊김 6 · 답이 JSON 이 아님(베르셀 504 · 함수 오류 화면) 7. index.html 위젯 · schedule.html 날짜 확인과 같은 표다 */
-  function aiN(e) { return (e && e.name === 'AbortError') ? 5 : (e && e.name === 'SyntaxError') ? 7 : 6; }
+  function aiN(e) { return (e && e.name === 'AbortError') ? 5 : (e && e.name === 'SyntaxError') ? 7 : (e && e.name === 'TypeError' && /Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message || ''))) ? 6 : 0; }   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만 · 그 밖의 스크립트 예외는 0
+  var AI_SCREEN = '화면 오류예요 · 새로 고쳐 주세요';   // [ERR_N_HONEST] 0 은 서버 400(«질문을 읽지 못했어요»)과 말이 다르다 — 화면 쪽 예외
   function aiCode(st, j, e) {
     if (e) return 'A' + aiN(e);
     if (!j) return 'A7' + (st && st !== 200 ? ' · ' + st : '');
@@ -282,7 +290,7 @@
     handoffP = aiFetch('/api/handoff', payload, 45000).then(function (res) {
       var j = res.j || null;
       if (res.ok && j && j.ok === true && j.delivered === true) return { ok: true };
-      if (res.ok && j && j.ok === true) return { ok: false, code: j.why === 'no_hook' ? 'A3' : 'A4' };   // 서버는 받았는데 관리자 쪽(GAS)에 못 넣었다
+      if (res.ok && j && j.ok === true) return { ok: false, code: /^A[1-9]$/.test(String(j.ecode || '')) ? j.ecode + (j.eid ? ' · ' + String(j.eid).replace(/[^A-Z0-9]/gi, '').slice(0, 8) : '') : (j.why === 'no_hook' ? 'A3' : 'A4') };   // 서버는 받았는데 관리자 쪽(GAS)에 못 넣었다 · [HANDOFF_ECODE] api/handoff 가 GAS 까닭을 코드로 넘긴다(비밀 키 불일치 · 미배포 A3 · 몰림 A1 · 서버 오류 A9)
       return { ok: false, code: aiCode(res.status, j, null), unsure: !j };
     }, function (e) { var n = aiN(e); return { ok: false, code: 'A' + n, unsure: n !== 6 }; });
     return handoffP;
@@ -313,7 +321,7 @@
           : '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.');
         return;
       }
-      t.textContent = (r.unsure ? '전달됐는지 확인하지 못했어요' : '자동 전달이 안 됐어요') + ' · ' + (ki.mail ? '이메일로' : '카카오톡으로') + ' 남겨 주세요 (코드 ' + r.code + ')';
+      t.innerHTML = codeHtml((r.unsure ? '전달됐는지 확인하지 못했어요' : '자동 전달이 안 됐어요') + ' · ' + (ki.mail ? '이메일로' : '카카오톡으로') + ' 남겨 주세요 (코드 ' + r.code + ')');   // [ERR_CODE_GLUE]
     });
     box.appendChild(t);
     var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
@@ -391,14 +399,14 @@
           typing.remove();
           var j = res.j;
           if (res.ok && j && j.reply) {
-            addMsg(j.reply + (j.avail === 'unknown' ? ' (코드 ' + (j.availWhy === 'unset' ? 'A3' : 'A4') + ')' : ''), 'bot');
+            addMsg(j.avail === 'unknown' ? String(j.reply).replace(/[\s.]+$/, '') + ' (코드 ' + (j.availWhy === 'unset' ? 'A3' : 'A4') + ')' : j.reply, 'bot');   // [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다(«…않아요. (코드» 금지)
             transcript.push({ role: 'assistant', content: j.reply });
             return;
           }
           var c = aiCode(res.status, j, null);
           addMsg(aiWord(c) + ' · ' + (c === 'A0' ? '다시 적어 주세요' : '잠시 뒤 다시 물어봐 주세요') + ' (코드 ' + c + ')', 'bot');
         })
-        .catch(function (e) { typing.remove(); var c = aiCode(0, null, e); addMsg(aiWord(c) + ' · 잠시 뒤 다시 물어봐 주세요 (코드 ' + c + ')', 'bot'); })
+        .catch(function (e) { typing.remove(); var c = aiCode(0, null, e); addMsg((aiN(e) ? aiWord(c) + ' · 잠시 뒤 다시 물어봐 주세요' : AI_SCREEN) + ' (코드 ' + c + ')', 'bot'); })   // [ERR_N_HONEST]
         .then(function () { sending = false; sendBtn.disabled = false; });
       return;
     }
@@ -427,8 +435,8 @@
       })
       .catch(function (e) {
         typing.remove();
-        var c = aiCode(0, null, e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정해요» — 시간 A5 · 연결 A6 · 깨진 답 A7
-        addMsg(aiWord(c) + ' · ' + (isAnonMode() ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
+        var c = aiCode(0, null, e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정해요» — 시간 A5 · 연결 A6 · 깨진 답 A7 · [ERR_N_HONEST] 화면 쪽 예외 A0
+        addMsg((aiN(e) ? aiWord(c) + ' · ' + (isAnonMode() ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') : AI_SCREEN) + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
         escalateOrBook();
       })
       .then(function () { sending = false; sendBtn.disabled = false; });
@@ -579,11 +587,25 @@
       _shIco.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       setTimeout(function () { _shIco.innerHTML = _shSvg; }, 1600);
     }
+    /* ★[SHARE_COPY_FAIL 2026-10-07 triage-pages #14 · ERR_CODES P4] PC(공유 시트 없음)에서 복사가 안 되면 말없이 지나갔다(.catch 빈 함수) · execCommand 는 실패해도 ✓ 였다.
+       이제 index.html 공유(meShareSite)와 같은 말을 화면 아래 한 줄로 · 기기 쪽 일이라 코드는 없다. 홈은 자체 토스트(meToast)가 있어 그것을 쓰고, 없으면 같은 모양을 여기서 만든다 */
+    var shareFail = function () {
+      var msg = '복사가 안 됐어요 · 주소창의 주소를 직접 복사해 주세요';
+      if (typeof window.meToast === 'function') { window.meToast(msg); return; }
+      try {
+        var el = document.getElementById('meAdvToast');
+        if (!el) { el = document.createElement('div'); el.id = 'meAdvToast'; el.className = 'me-adv-toast'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
+        el.textContent = msg; if (el._t) clearTimeout(el._t);
+        requestAnimationFrame(function () { el.classList.add('on'); });
+        el._t = setTimeout(function () { el.classList.remove('on'); el._t = null; }, 4200);
+      } catch (e) {}
+    };
     shareBtn.addEventListener('click', function () {
       var data = { url: SHARE.url };   // 글 없이 링크만 — 카톡 등에서 문구가 메시지로 같이 입력되지 않게(메인홈과 동일)
-      if (navigator.share) { navigator.share(data).catch(function () {}); return; }
-      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data.url).then(shareCopied).catch(function () {}); return; }
-      try { var t = document.createElement('textarea'); t.value = data.url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); shareCopied(); } catch (e) {}
+      if (navigator.share) { navigator.share(data).catch(function () {}); return; }   // 공유 시트를 닫은 것(AbortError)은 실패가 아니다
+      var legacy = function () { var ok = false; try { var t = document.createElement('textarea'); t.value = data.url; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;font-size:16px'; document.body.appendChild(t); t.select(); ok = document.execCommand('copy'); document.body.removeChild(t); } catch (e) { ok = false; } if (ok) shareCopied(); else shareFail(); };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data.url).then(shareCopied).catch(legacy); return; }
+      legacy();
     });
   }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });

@@ -1902,6 +1902,13 @@ details.env-acc-item[open] > summary.env-acc-q{
     requestAnimationFrame(() => { announce.textContent = msg; });
   };
 
+  /* ★[COPY_FAIL_SHOW 2026-10-07 triage-pages #13 · ERR_CODES P4] 계좌 복사가 안 되면 «Copied»라 하지 않는다 — 종전엔 execCommand 가 false(실패)를 돌려줘도 보지 않았고,
+     실패 문구가 있어도 화면 읽기 전용(sr-only)이거나 토스트 한마디였다(08 판은 아예 말이 없었다). 축의 송금 직전이라 예전 클립보드의 다른 계좌가 은행 앱에 붙을 수 있다.
+     실패면 그 계좌 줄 바로 아래 보이는 한 줄 · 기기 쪽 일이라 코드는 없다(할 일이 글에 있다). 24장 · live · schedule 이 같은 말 · 두 함수는 24장이 글자까지 같다 — 한 장만 고치지 말 것 */
+  function meCopyText(t){ var ta=document.createElement('textarea'), ok=false; ta.value=t; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none;font-size:16px'; document.body.appendChild(ta); try{ ta.focus(); ta.select(); ta.setSelectionRange(0, t.length); }catch(_){} try{ ok=document.execCommand('copy'); }catch(_){ ok=false; } document.body.removeChild(ta); return !!ok; }
+  function meCopyFail(btn, on){ var row=btn&&btn.parentNode, box=row&&row.parentNode, n=row&&row.nextElementSibling; if(!box) return;
+    if(!(n&&n.className==='me-copy-fail')){ if(!on) return; n=document.createElement('div'); n.className='me-copy-fail'; n.setAttribute('role','alert'); n.style.cssText='width:100%;box-sizing:border-box;font-size:12px;line-height:1.6;letter-spacing:0;margin:6px 0 0;opacity:.92'; box.insertBefore(n, row.nextSibling); }
+    if(on) n.textContent='복사가 안 됐어요 · 길게 눌러 복사해 주세요'; else box.removeChild(n); }
   document.querySelectorAll('.env-acc-copy').forEach(copyBtn => {
     copyBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -1909,6 +1916,7 @@ details.env-acc-item[open] > summary.env-acc-q{
       if (!account) return;
 
       const showFeedback = () => {
+        meCopyFail(copyBtn, false);
         copyBtn.textContent = 'Copied';
         copyBtn.classList.add('copied');
         announceMessage('계좌번호가 복사되었습니다');
@@ -1922,15 +1930,8 @@ details.env-acc-item[open] > summary.env-acc-q{
         await navigator.clipboard.writeText(account);
         showFeedback();
       } catch (err) {
-        const textarea = document.createElement('textarea');
-        textarea.value = account;
-        textarea.style.position = 'fixed';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.select();
-        try { document.execCommand('copy'); } catch (e2) {}
-        document.body.removeChild(textarea);
-        showFeedback();
+        // [COPY_FAIL_SHOW] 돌려받은 값을 본다 — 종전엔 execCommand 가 실패해도 «Copied»였다
+        if (meCopyText(account)) showFeedback(); else meCopyFail(copyBtn, true);
       }
     });
   });

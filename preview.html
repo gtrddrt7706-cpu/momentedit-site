@@ -86,7 +86,10 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       var img = new Image();
       img.alt = title || '청첩장 예시';
       img.onload = function(){ frame.innerHTML=''; frame.appendChild(img); };
-      img.onerror = function(){ frame.innerHTML='<div class="pv-err">미리보기 이미지를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>'; };
+      /* [PV_IMG_CODE 2026-10-07 triage-pages #17] 종전엔 코드 없는 두 줄 — 스크린샷으로 까닭을 못 갈랐다. 인터넷이 끊겼으면 L6 · 붙어 있는데 못 받았으면 L4(파일 · 서버 쪽)
+         · 코드는 한 덩어리(ERR_CODE_GLUE) */
+      img.onerror = function(){ var off=false; try{ off=navigator.onLine===false; }catch(_){}
+        frame.innerHTML='<div class="pv-err">미리보기 이미지를 불러오지 못했어요.<br>'+(off?'인터넷이 끊겼어요':'잠시 뒤 다시 열어 주세요')+' <span class="ec-code" style="white-space:nowrap">(코드 L'+(off?6:4)+')</span></div>'; };
       img.src = src;
     } else {
       frame.innerHTML='<div class="pv-err">표시할 미리보기가 없어요.</div>';

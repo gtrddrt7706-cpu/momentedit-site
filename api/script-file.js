@@ -27,11 +27,16 @@ function safeName(n) {
   return (s && /\.txt$/.test(s)) ? s : '우리예식대본.txt';
 }
 
+/* ★[SCRIPT_FILE_BACK 2026-10-07 triage-builder #23] 실패하면 이 응답이 빌더(식순 화면 iframe)를 통째로 덮는다 — 종전엔 흰 화면 글 한 줄 · 돌아갈 단추 · 코드 없음.
+   이제 _failpage(까닭 한 줄 + 코드 + «돌아가기»). 자리 X(그 밖 · 파일 만들기) · 몰림 1 · 너무 김 · 빈 글은 까닭이 글이라 코드 없이(P1) */
+const failPage = require('./_failpage');
+const FAIL_T = '파일을 만들지 못했어요';
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.statusCode = 405; res.setHeader('Allow', 'POST'); res.end(); return; }
-  if (!rateGate(req, 20, 200)) { res.statusCode = 429; res.setHeader('Content-Type', 'text/plain; charset=utf-8'); res.end('잠시 뒤에 다시 눌러 주세요.'); return; }
+  if (!rateGate(req, 20, 200)) { failPage(res, 429, FAIL_T, '요청이 몰렸어요 · 잠시 뒤 다시 눌러 주세요 (코드 X1)'); return; }
   let raw = '';
-  try { raw = await readBody(req); } catch (e) { res.statusCode = 413; res.setHeader('Content-Type', 'text/plain; charset=utf-8'); res.end('글이 너무 길어요 · «대본 복사»를 써 주세요.'); return; }
+  try { raw = await readBody(req); } catch (e) { failPage(res, 413, FAIL_T, '글이 너무 길어요 · «대본 복사»를 써 주세요'); return; }
   let text = '', name = '';
   const ct = String(req.headers['content-type'] || '');
   try {
@@ -39,7 +44,7 @@ module.exports = async (req, res) => {
     else { const p = new URLSearchParams(raw); text = p.get('text'); name = p.get('name'); }
   } catch (e) { text = ''; }
   text = String(text || '');
-  if (!text.trim()) { res.statusCode = 400; res.setHeader('Content-Type', 'text/plain; charset=utf-8'); res.end('보낼 글이 없어요.'); return; }
+  if (!text.trim()) { failPage(res, 400, FAIL_T, '보낼 글이 없어요'); return; }
   const fn = safeName(name);
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');

@@ -15424,6 +15424,30 @@ nochk "MK.toast=ev.data.error||'지우지 못했어요'" order-preview.html
 nochk "r.ph='rec'; r.t0=Date.now(); r.el=0; r.mr.start(250);" order-preview.html
 chk 'ERR_CODE_BUILDER' scripts/audit/err-builder.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-builder.mjs >/dev/null 2>&1; _ecb=$?; if [ "$_ecb" = 1 ]; then echo 'FAIL err-builder: 식순 화면 실패 문구(까닭 한 줄 + 코드 V · U · D · S · L · M)가 어긋났습니다 — node scripts/audit/err-builder.mjs'; fail=1; else echo "ok err-builder ($_ecb)"; fi; fi
+# ★★[PAY_UNKNOWN · SCHED_SESSION_NO_EXPIRE · ADMIN_EXC_WHY · GETCOUPLE_JSON_ERR · ERR_NO_DOT · ERR_EID_ALL · LT_RATE_G1 · ERR_AREA_SIGNUP_B · ADMIN_UNKNOWN_FN 2026-10-08 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»] 점검 1라운드 서버 묶음
+#   카드 승인 «결과 모름»은 조회로 확인(됐으면 성공 · 모르면 P5 · 다시 결제하지 마세요) · 로그인 길은 7일 링크 기한 없음(문의 8일째부터 일정 선택이 막히던 것) ·
+#   관리자 예외는 까닭 + 오류기록 · 청첩장 조회 예외는 JSON G9 · 코드 앞 마침표 걷기 · 사고번호는 시트 전체 · 편지 몰림 G1 · 신청서 = B · 옛 GAS 안내. card-err ⑤ · err-codes ⑤ 가 실제로 태운다(되돌리면 빨강 · 돌연변이 확인)
+chk 'PAY_UNKNOWN' automation/platform/98_pay_card.gs 5
+chk 'function _tossConfirmSafe(cfg, paymentKey, orderId, amount)' automation/platform/98_pay_card.gs 1
+nochk "error: '결제 승인에 실패했습니다. ' + (t.error || '')" automation/platform/98_pay_card.gs
+chk "if (!viaSession && isExpired(row.get('신청일시')))" automation/consultation/consultation-booking.gs 1
+chk 'SCHED_SESSION_NO_EXPIRE' automation/consultation/consultation-booking.gs 2
+chk 'ADMIN_EXC_WHY' automation/consultation/consultation-booking.gs 1
+chk 'GETCOUPLE_JSON_ERR' automation/consultation/consultation-booking.gs 1
+chk 'ERR_AREA_SIGNUP_B' automation/platform/95_notify.gs 1
+chk 'ERR_NO_DOT' automation/platform/95_notify.gs 1
+chk 'ERR_EID_ALL' automation/platform/95_notify.gs 1
+chk 'ERR_STATE_QUIET' automation/platform/95_notify.gs 1
+chk 'LT_RATE_G1' automation/platform/87_letter.gs 1
+chk 'ADMIN_UNKNOWN_FN' automation/admin/admin.gs 1
+chk 'ERR_FAILISH_4' automation/platform/95_notify.gs 1
+chk 'EXC_SHORT_WORD' automation/consultation/consultation-booking.gs 1
+nochk "var _userMsg = _intended ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';" automation/consultation/consultation-booking.gs
+chk 'WT_SKIP' scripts/check-source-drift.mjs 1
+chk 'WT_SKIP' scripts/audit/css-comment-nest.mjs 1
+chk 'LT_RATE_ECODE' automation/platform/87_letter.gs 1
+chk 'D6 편지 몰림 응답' scripts/audit/letter-sim.mjs 1
+chk "extractFunction(SRC_CARD, '_tossConfirmSafe')" automation/tests/pay-card.test.js 1
 # ★★[VC_ENROLL_SURE · VC_ENROLL_ONE · VC_ENROLL_JOB · VC_ENROLL_PREV · VC_ENROLL_BADREC · VC_ENROLL_CLOSED 2026-10-08 사장님 «두 분 목소리 만들기에서 녹음 후에 목소리 만들기 오류가 자주 · 모든 경우의 수 병렬로 직접 시뮬레이션 · 개선이 없을 때까지 라운드별로»]
 #   만들기는 녹음(수 MB)을 올리고 업체가 복제하느라 1~2분 — 아이폰 60초 끊김(V9 · V6) · PC 90초(V5)에 화면은 «실패»라 했는데 서버는 끝까지 만들었다.
 #   다시 누르면 업체 목소리가 하나 더 생기거나(칸이 샘) «글 2 를 한 번 더 읽어 주세요»였다. 422 · 400 은 줄 만들기 문구 · «잠시 뒤 다시»였다. 창을 닫은 뒤 실패는 말이 없었다.
@@ -15479,3 +15503,334 @@ chk 'TABLE_GREET_1008' mypage.html 1
 chk 'tables:_tbl' mypage.html 1
 chk 'TABLE_GREET_1008' scripts/audit/open-course.mjs 4
 chk 'TABLE_GREET_1008' scripts/audit/listen-page.mjs 1
+# ★★[ERR_SRV_REASON · ERR_CODE_DOT · ERR_CODE_NOWRAP 2026-10-07 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지» — 마이페이지 1라운드]
+#   P1 서버 한글 까닭(0)은 코드 없이(글이 곧 까닭 · 하객 · 예약 화면 _ecSrv 와 같은 판단) · P2 코드 앞 마침표 걷음 · 코드는 어느 칸에 넣어도 한 덩어리(nowrap · 글은 그대로)
+#   #1 PAY_FAIL_KIND(failUrl 갈래 · 승인 거절 토스 코드) · #2 #3 SEAT_FIN_SKIP · #4 ECHO_LOST_CODE(S3) · #5 PV_IMG_CODE · #6 SNAP_REFS_MISS · #7 QR_LOAD_FAIL · #8 WIZ_EXIT_CODE
+#   #9 SNAP_THUMB_FAIL · #10 PAY_RET_EMPTY · #11 LOAD_FAIL_SPIN · #17 PRIVACY_FAIL_ONE · P6 ERR_MID_NOCODE(_wrSlow 중간 줄) — err-mypage.mjs ⑨~⑮ 가 되돌리면 빨강(돌연변이 확인)
+chk 'ERR_SRV_REASON' mypage.html 4
+chk 'if(i.t && !i.n) return i.t;' mypage.html 1
+chk 'if(i.has) return _errTidy(i.t);' mypage.html 1
+chk 'function _errTidy(t)' mypage.html 1
+chk 'ERR_CODE_DOT' mypage.html 6
+nochk '잠시 후 다시 시도하거나 계좌이체로 진행해 주세요. (코드 P6)' mypage.html
+nochk '결제 준비 중이에요. 잠시 후 다시 열어 주세요. (코드 P3)' mypage.html
+nochk '결제 금액을 불러오지 못했어요. 디렉터가 확인해 드릴게요. (코드 P3)' mypage.html
+nochk '주소 검색을 불러오지 못했어요. 잠시 뒤 다시 눌러 주세요. (코드 C6)' mypage.html
+nochk '응답이 늦어지고 있어요. 이미 만들어졌을 수도 있어요' mypage.html
+nochk '불러오지 못했어요 (코드 L7). ' mypage.html
+chk 'ERR_CODE_NOWRAP' mypage.html 15
+chk 'function _errSet(el, line)' mypage.html 1
+chk 'function _errNowrap(el)' mypage.html 1
+chk 'else if(o.body){ b.innerHTML=_errHtml(String(o.body));' mypage.html 1
+chk "t.textContent=msg; t.style.opacity='1'; _errNowrap(t);" mypage.html 1
+nochk 'textContent=_dncErr(' mypage.html
+nochk 'textContent=_saveFailBody(' mypage.html
+nochk 'escapeHtml(_sigMiss(' mypage.html
+chk 'ERR_CODE_TAIL' mypage.html 1
+chk 'ERR_MID_NOCODE' mypage.html 1
+nochk "처리됐는지 확인하고 있어요 (코드 '+L+'5)" mypage.html
+chk "if(!opts.silent || window._curView==='loading') _loadSlowRetry(x);" mypage.html 1
+chk 'SEAT_FIN_SKIP' mypage.html 4
+nochk "trim()) return Promise.resolve(null);" mypage.html
+chk "if(r&&r.ok&&r.skip){ if(st) st.textContent='자리에 이름을 한 분 이상 적으면 함께 저장돼요'; return; }" mypage.html 1
+chk 'ECHO_LOST_CODE' mypage.html 1
+nochk '반복되면 문의로 알려 주세요. 디렉터가 확인해 도와드릴게요.' mypage.html
+chk 'PV_IMG_CODE' mypage.html 1
+nochk 'pv-modal-err">이미지를 불러오지 못했어요.' mypage.html
+chk 'SNAP_REFS_MISS' mypage.html 3
+nochk "|| !p.snapV2 || !window.SNAP_REFS){ box.style.display='none'" mypage.html
+chk 'SNAP_THUMB_FAIL' mypage.html 3
+nochk 'if(!(r&&r.ok&&r.thumbs)) return; var k;' mypage.html
+chk 'function _qrFailLine(todo)' mypage.html 1
+nochk 'QR 이미지는 준비 중이에요' mypage.html
+nochk 'QR은 준비 중이에요' mypage.html
+chk 'function _wizFailCode(x)' mypage.html 1
+nochk "body:failed?'방금 저장이 실패했어요. 다시 저장하고 나갈까요?'" mypage.html
+chk 'PAY_FAIL_KIND' mypage.html 2
+chk "else if(_tc==='PAY_PROCESS_ABORTED')" mypage.html 1
+nochk "if(q.get('me_pay')==='0'){ mpAlert('결제를 취소했어요." mypage.html
+chk 'PAY_RET_EMPTY' mypage.html 1
+nochk 'if(!milestone||!paymentKey||!oid||!(amt>0)){ clean(); return; }' mypage.html
+chk 'PRIVACY_FAIL_ONE' mypage.html 1
+chk 'ERR_SRV_REASON' scripts/audit/err-mypage.mjs 3
+chk 'ERR_CODE_NOWRAP' scripts/audit/err-mypage.mjs 3
+chk 'SEAT_FIN_SKIP' scripts/audit/err-mypage.mjs 2
+chk 'SNAP_THUMB_FAIL' scripts/audit/err-mypage.mjs 2
+chk 'PAY_FAIL_KIND' scripts/audit/err-mypage.mjs 3
+#   [MINI_TOAST_WIDE] 작은 알림(_miniToast)이 화면 반쪽(left:50%)에 갇혀 실패 줄이 세 줄로 접히던 것 — mpToast 와 같은 처방(max-content · keep-all · balance)
+chk 'MINI_TOAST_WIDE' mypage.html 1
+chk 'pointer-events:none;width:max-content;box-sizing:border-box;word-break:keep-all;text-wrap:balance' mypage.html 1
+chk 'MINI_TOAST_WIDE' scripts/audit/err-mypage.mjs 1
+# ★★[ERR_PAGES_R2 2026-10-07 2라운드 사장님 «표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»] 공개 페이지 · 하객 화면 · 위젯 · 청첩장 · api 실패 문구
+#   ERR_N_HONEST — 6(연결 끊김)은 fetch 가 연결을 못 한 글(Failed to fetch · Load failed · NetworkError)일 때만 · 그 밖의 스크립트 예외는 0 «화면 오류예요 · 새로 고쳐 주세요 (코드 X0)»
+#     (종전엔 화면 쪽 TypeError 도 «연결이 끊겼어요 (코드 G6)» — guide «내 자리만» 사고 #12) · 위젯 aiN · 청첩장 hyWhy 도 같은 줄
+#   ERR_NO_DOT_PAGE — 코드 앞 끝 마침표를 걷는다 · 서버가 마침표를 걷어 보낸 옛 doPost 글도 짧은 말로 · ERR_RETRY_3 — 3(설정 · 배포)도 «다시 불러오기»(링크 탓 아님 · 캐시를 안 지운다)
+#   ERR_CODE_GLUE — «(코드 X# · 사고번호)»는 nowrap 한 덩어리(390px 신청서에서 괄호 안이 갈렸다) · 여섯 쪽 _ecGlue · _ecHtml 은 글자까지 같은 사본(err-pages ①)
+#   자리 결정 — SCHED_SUBMIT_RECHECK(신청 45초 · 결과 모름은 다시 물어 말한다) · SCHED_NO_TOKEN(B8) · HOLD_WT_WHY(C4~C7) · LETTER_TIMEOUT(G5) · COPY_FAIL_SHOW(청첩장 24 · live · schedule · 신청서)
+#     SHARE_COPY_FAIL · PLAY_FAIL_SAY(M7 막힘 · M6 못 엶) · PV_IMG_CODE(L4 · L6) · GUIDE_MINE_SWAP · GUIDE_DEMO_CODE · HANDOFF_ECODE(A3 · A1 · A7 · A9) · SCHED_AI_EMPTY · SCRIPT_FILE_BACK · TOAST_WIDTH
+#   err-pages.mjs 돌연변이 확인(2026-10-07): 신청 45초 제한 · cancel 코드 한 덩어리 · schedule _ecN 한 쪽 · guide 내 자리만 검색칸 잇기를 되돌리면 FAIL. 되돌리지 말 것
+chk 'ERR_N_HONEST' cancel.html 3
+chk 'ERR_NO_DOT_PAGE' cancel.html 2
+chk 'ERR_CODE_GLUE' cancel.html 2
+chk 'function _ecGlue(h)' cancel.html 1
+chk 'function _ecHtml(t)' cancel.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" cancel.html 1
+chk "return tail?t.replace(/" cancel.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" cancel.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" cancel.html
+chk 'ERR_N_HONEST' schedule.html 3
+chk 'ERR_NO_DOT_PAGE' schedule.html 2
+chk 'ERR_CODE_GLUE' schedule.html 2
+chk 'function _ecGlue(h)' schedule.html 1
+chk 'function _ecHtml(t)' schedule.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" schedule.html 1
+chk "return tail?t.replace(/" schedule.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" schedule.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" schedule.html
+chk 'ERR_N_HONEST' inquiry.html 3
+chk 'ERR_NO_DOT_PAGE' inquiry.html 2
+chk 'ERR_CODE_GLUE' inquiry.html 2
+chk 'function _ecGlue(h)' inquiry.html 1
+chk 'function _ecHtml(t)' inquiry.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" inquiry.html 1
+chk "return tail?t.replace(/" inquiry.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" inquiry.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" inquiry.html
+chk 'ERR_N_HONEST' seat.html 3
+chk 'ERR_NO_DOT_PAGE' seat.html 2
+chk 'ERR_CODE_GLUE' seat.html 2
+chk 'function _ecGlue(h)' seat.html 1
+chk 'function _ecHtml(t)' seat.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" seat.html 1
+chk "return tail?t.replace(/" seat.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" seat.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" seat.html
+chk 'ERR_N_HONEST' guide.html 3
+chk 'ERR_NO_DOT_PAGE' guide.html 2
+chk 'ERR_CODE_GLUE' guide.html 2
+chk 'function _ecGlue(h)' guide.html 1
+chk 'function _ecHtml(t)' guide.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" guide.html 1
+chk "return tail?t.replace(/" guide.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" guide.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" guide.html
+chk 'ERR_N_HONEST' live.html 3
+chk 'ERR_NO_DOT_PAGE' live.html 2
+chk 'ERR_CODE_GLUE' live.html 2
+chk 'function _ecGlue(h)' live.html 1
+chk 'function _ecHtml(t)' live.html 1
+chk "if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';" live.html 1
+chk "return tail?t.replace(/" live.html 1
+nochk "(e&&e.name==='SyntaxError')?7:6; }" live.html
+nochk "t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'" live.html
+chk 'ERR_RETRY_3' cancel.html 1
+chk 'ERR_RETRY_3' inquiry.html 1
+chk 'ERR_RETRY_3' seat.html 1
+chk 'ERR_RETRY_3' guide.html 1
+chk 'SCHED_SUBMIT_RECHECK' schedule.html 3
+chk "if(n===5||n===7){ _recheck(n); return; }" schedule.html 1
+chk "_acS.abort(); }catch(e){} },45000)" schedule.html 1
+chk 'SCHED_NO_TOKEN' schedule.html 1
+chk "마이페이지에서 다시 열어 주세요 (코드 B8)" schedule.html 1
+nochk "fail('로그인이 필요해요.<br>마이페이지에서 다시 시도해 주세요.')" schedule.html
+chk 'HOLD_WT_WHY' schedule.html 1
+chk 'function _wtSay(t)' schedule.html 1
+nochk ".catch(function(){ _wtLoading=false; });" schedule.html
+chk 'COPY_FAIL_SHOW' schedule.html 1
+chk "if(_legacyCopy(t)) ok(); else line(true);" schedule.html 1
+nochk "document.execCommand('copy'); document.body.removeChild(ta); }catch(e){} }" schedule.html
+chk 'COPY_FAIL_SHOW' inquiry.html 2
+chk "if (legacyCopy(code)) done(); else line(true);" inquiry.html 1
+chk "if (again || (n !== 5 && n !== 7)) throw e;" inquiry.html 1
+chk 'LETTER_TIMEOUT' live.html 3
+chk "showError(_ecN(err) === 5 ? '편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 (코드 G5)'" live.html 1
+chk 'sayNotLoaded(_ecN(err))' live.html 1
+nochk 'sayNotLoaded(lastKind || 6)' live.html
+chk 'COPY_FAIL_SHOW' live.html 2
+chk 'function meCopyFail(btn, on)' live.html 1
+nochk "catch (e2) { showToast('복사 실패'); }" live.html
+chk 'GUIDE_MINE_SWAP' guide.html 2
+chk 'if(!q) return function(){};' guide.html 1
+chk '_w.innerHTML=seatFindHtml(false);' guide.html 1
+nochk 'if(q.value) _sv(q.value); return;' guide.html
+chk 'GUIDE_DEMO_CODE' guide.html 1
+chk 'function failed(sm, hard)' guide.html 1
+chk 'function failed(sm, hard)' seat.html 1
+chk 'PLAY_FAIL_SAY' parents.html 5
+chk 'var playFail=function(e)' parents.html 1
+chk 'u.onerror=function(ev)' parents.html 1
+nochk 'u.onend=u.onerror=done;' parents.html
+chk 'PLAY_FAIL_SAY' index.html 3
+chk 'var playFail = function(e)' index.html 1
+nochk 'pr.catch(function(){ stop(); });' index.html
+chk 'SHARE_COPY_FAIL' index.html 1
+chk 'TOAST_WIDTH' index.html 1
+chk 'width: max-content;' index.html 1
+chk 'function codeHtml(t)' index.html 1
+chk 'ERR_N_HONEST' index.html 3
+chk 'SHARE_COPY_FAIL' assets/advisor-widget.js 2
+chk 'var shareFail = function ()' assets/advisor-widget.js 1
+nochk 'navigator.clipboard.writeText(data.url).then(shareCopied).catch(function () {});' assets/advisor-widget.js
+chk 'function codeHtml(t)' assets/advisor-widget.js 1
+chk 'HANDOFF_ECODE' assets/advisor-widget.js 1
+chk 'ERR_N_HONEST' assets/advisor-widget.js 4
+chk 'ERR_N_HONEST' shared/hydrate.js 1
+chk 'ERR_CODE_GLUE' shared/hydrate.js 1
+chk 'PV_IMG_CODE' preview.html 1
+chk 'HANDOFF_ECODE' api/handoff.js 3
+chk 'ecode ? { ecode: ecode } : {}' api/handoff.js 1
+chk 'SCHED_AI_EMPTY' api/schedule-advisor.js 1
+chk "upstream: 0, why: 'empty'" api/schedule-advisor.js 1
+nochk "if (!text) text = '죄송합니다. 잠시 후 다시 확인해 주시겠어요?';" api/schedule-advisor.js
+chk 'SCRIPT_FILE_BACK' api/_failpage.js 1
+chk 'history.back()' api/_failpage.js 1
+chk "require('./_failpage')" api/script-file.js 1
+chk "require('./_failpage')" api/voice-file.js 1
+nochk "res.end('잠시 뒤에 다시 눌러 주세요.')" api/script-file.js
+chk 'COPY_FAIL_SHOW' i/cover-01.html 2
+chk 'function meCopyFail(btn, on)' i/cover-01.html 1
+chk 'COPY_FAIL_SHOW' i/cover-02.html 2
+chk 'function meCopyFail(btn, on)' i/cover-02.html 1
+chk 'COPY_FAIL_SHOW' i/cover-03.html 2
+chk 'function meCopyFail(btn, on)' i/cover-03.html 1
+chk 'COPY_FAIL_SHOW' i/cover-04.html 2
+chk 'function meCopyFail(btn, on)' i/cover-04.html 1
+chk 'COPY_FAIL_SHOW' i/cover-05.html 2
+chk 'function meCopyFail(btn, on)' i/cover-05.html 1
+chk 'COPY_FAIL_SHOW' i/cover-06.html 2
+chk 'function meCopyFail(btn, on)' i/cover-06.html 1
+chk 'COPY_FAIL_SHOW' i/cover-07.html 2
+chk 'function meCopyFail(btn, on)' i/cover-07.html 1
+chk 'COPY_FAIL_SHOW' i/cover-08.html 2
+chk 'function meCopyFail(btn, on)' i/cover-08.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-01-classic.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-01-classic.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-02-editorial.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-02-editorial.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-03-letterpress.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-03-letterpress.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-04-Vermilion.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-04-Vermilion.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-05-botanical.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-05-botanical.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-06-hangeul.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-06-hangeul.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-07-architect.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-07-architect.html 1
+chk 'COPY_FAIL_SHOW' i/invitations/invitation-08-noir.html 2
+chk 'function meCopyFail(btn, on)' i/invitations/invitation-08-noir.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-01.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-01.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-02.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-02.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-03.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-03.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-04.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-04.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-05.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-05.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-06.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-06.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-07.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-07.html 1
+chk 'COPY_FAIL_SHOW' i-family/family-08.html 2
+chk 'function meCopyFail(btn, on)' i-family/family-08.html 1
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i/cover-02.html
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i/invitations/invitation-02-editorial.html
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i-family/family-01.html
+nochk "catch (e2) { announceMessage('복사에 실패했습니다'); }" i-family/family-02.html
+chk 'ERR_PAGES_R2' scripts/audit/err-pages.mjs 1
+#   ERR_RECHECK_NOCODE(P6) — 저절로 다시 묻는 «중간» 줄(응답이 늦어요 · 서버가 잠깐 멈췄어요)엔 코드 없음 · 결과를 말하는 마지막 줄에만(취소 · 신청 같은 결)
+chk 'ERR_RECHECK_NOCODE' cancel.html 1
+chk 'ERR_RECHECK_NOCODE' schedule.html 1
+nochk "say((n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요')+' (코드 B'+n+')')" cancel.html
+nochk "_sum((n===5?'응답이 늦어요':'서버가 잠깐 멈췄어요')+' (코드 B'+n+')')" schedule.html
+chk 'ERR_ZERO_SCREEN' assets/err-codes.js 1
+chk 'ERR_G3_WIDE' assets/err-codes.js 1
+chk '복사가 안 됐어요 · 길게 눌러 복사해 주세요' i/cover-01.html 1
+nochk '계좌번호를 길게 눌러 복사해 주세요' schedule.html
+chk 'UNKNOWN_ACT_DOT' automation/consultation/consultation-booking.gs 1
+# ★★[ERR_CODE_ADMIN 2026-10-07 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»]
+#   관리자 화면 실패 = «무엇이 · 왜» 한 줄 — _why 한 곳(서버 글 그대로 · 연결 X6 · 오래 끊김 결과 모름 X5 · 깨진 답 X7 · 화면 오류) · 로그인 풀림은 _admLost(«로그인이 필요»만 · 예외 원문의 «권한»은 아님)
+#   코드 괄호 안 U+00A0 · U+2060(_nb · ADM_CODE_NB) · 코드 검색 읽기(_errParse · 구분자 · 전각 괄호 · 표에 없는 코드) · 실패 토스트 6초+ · 카드 하나 고장 격리(_cardSafe)
+#   식순 v3 초안이 있는 고객 상세가 «d is not defined» 로 «오류» + 홈이던 것(ADM_AI_LINE_D · #923 부터) · brief X5 · X6 · X7 · audio-review 로컬 전용 · 어조 실청 · order-audit · 실청판 · 문안 되돌리기
+#   err-admin.mjs 가 가짜 GAS + 실브라우저로 잰다 — 폴링 덮기 · ADM_AI_LINE_D · _nb · 확인판 끊김 · brief 를 되돌리면 빨강(돌연변이 확인)
+chk 'ERR_CODE_ADMIN' admin.html 25
+chk 'function _why(x, o)' admin.html 1
+chk 'function _admLost(x)' admin.html 1
+chk 'function toastErr(msg)' admin.html 1
+chk 'function _errParse(q)' admin.html 1
+chk 'function _cardSafe(k,d,isSnap)' admin.html 1
+chk 'ADM_AI_LINE_D' admin.html 2
+chk 'function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d)' admin.html 1
+chk "_lastQuery=q; _lastQueryKind='err';" admin.html 1
+chk 'ADM_CODE_NB' admin.html 2
+chk "||s3d.pvVoice==='couple') h+=" admin.html 1
+nochk "mErr('오류: '" admin.html
+nochk "toast('서버 연결이 안 돼요" admin.html
+nochk "toast('검색 실패')" admin.html
+nochk 'legacyCopy(text); done();' admin.html
+chk 'BRIEF_ERR_CODE' brief.html 2
+chk 'AR_LOCAL_ONLY' audio-review.html 2
+chk 'TONE_PLAY_FAIL' scripts/build-listen-tone.mjs 2
+chk 'TONE_PLAY_FAIL' audio-review-tone.html 2
+chk 'AUDIT_ENGINE_ERRS' order-audit.html 3
+chk 'CRASH_TEXT' scripts/build-listen-all.mjs 1
+chk 'PICK_COPY_TRUTH' scripts/pick-back.tpl.html 1
+chk 'PICK_CAN_SAVE' scripts/pick-back.tpl.html 2
+chk 'PICK_COPY_TRUTH' pick-final.html 1
+chk 'ERR_CODE_ADMIN' scripts/audit/err-admin.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-admin.mjs >/dev/null 2>&1; _eca=$?; if [ "$_eca" = 1 ]; then echo 'FAIL err-admin: 관리자 · 브리프 · 내부 화면 실패 문구(까닭 한 줄 + 코드 · 코드 검색 · 카드 격리 · 복사)가 어긋났습니다 — node scripts/audit/err-admin.mjs'; fail=1; else echo "ok err-admin ($_eca)"; fi; fi
+# ★★[ERR_R1_BUILDER 2026-10-07 사장님 «직접 테스트 · 표기 안 된 다른 에러는 없는지 딥하게 · 라운드별로 개선책이 없을 때까지»] 식순 화면 · 미리 듣기 1라운드(triage-builder 23항목)
+#   서버 까닭 글 + 0 은 코드 없이(페이지들 _ecSrv 와 같은 판단) · 목소리 거절도 받는 자리 한 곳 · 두 분 소리 파일을 못 받으면 글 + 코드 · 기다리는 줄을 탭 잠금 무음이 건너뛰지 않음
+#   크게 보기 · ③ · ④ 에서도 보이는 알림 · 줄의 일은 그 줄 아래 · 맞추기 재생 막힘 M7 · 해독 실패 M6 + 문맥 닫기 · 빈 줄 채우기 결과 코드 · M0 · 저장 꾸러미 예외 S9 · 코드 앞 마침표 없음
+#   «(코드 …)» 한 덩어리(nowrap · 그리는 순간에만) · 콘솔 고객 미리 듣기 실패 한 줄(L7 · L3 · L9 · L0 · M7) — err-builder ⑪ ⑫ 가 실브라우저로 잰다(돌연변이 확인)
+chk 'ERR_ZERO_TEXT' order-preview.html 8
+chk 'if(n<=0) return _ecTidy(t);' order-preview.html 1
+chk "var c=_ecCodeOf(w)||(w?'V0':'');" order-preview.html 1   # 연습 차례 요약 글 — 서버 글만 온 거절도 V0
+chk "c=_ecCodeOf(_le)||(_le?'V0':'');" order-preview.html 1   # 다시 만들기 알림
+chk "_afc=_ecCodeOf(_autoWhy)||(_autoWhy?'S0':'');" order-preview.html 1   # 나가기 판
+chk 'RF_LINE_CLEAR' order-preview.html 3
+chk 'function _rfLineOff(key)' order-preview.html 1
+chk 'VC_DONE_LINE' order-preview.html 1
+chk "d.error=_ecLine('V',{error:_vcErrWord(d.error||''),ecode:d.ecode});" order-preview.html 1
+chk 'PLAY_FILE_WHY' order-preview.html 6
+chk 'function _lUpFail(st,v)' order-preview.html 1
+chk 'if(u) _lUpOn(st,u); else _lUpFail(st,_uv); _lShow();' order-preview.html 1
+chk 'LOAD_WAIT_KEEP' order-preview.html 1
+chk 'ENG_FAIL_SHOW' order-preview.html 1
+chk 'LISTEN_NOTE' order-preview.html 3
+chk 'function _lNote(st,t)' order-preview.html 1
+chk 'NOW_LINE_FAIL' order-preview.html 2
+chk 'TURN_PLAY_FAIL' order-preview.html 2
+chk 'TUNE_PLAY_WHY' order-preview.html 2
+chk 'SAMPLE_CTX_CLOSE' order-preview.html 1
+chk 'SAMPLE_M6' order-preview.html 1
+chk 'FILL_CODES' order-preview.html 2
+chk 'SKIP_CODE' order-preview.html 1
+chk 'MIC_M0' order-preview.html 1
+chk 'MIC_M0' assets/err-codes.js 1
+chk 'UP_AGAIN_THROW' order-preview.html 1
+chk 'SAVE_THROW_SAY' order-preview.html 1
+chk 'EXIT_THROW_SAY' order-preview.html 1
+chk 'CODE_NO_DOT' order-preview.html 2
+chk 'CODE_NOWRAP' order-preview.html 6
+chk 'function _ecNw(root)' order-preview.html 1
+chk 'CODE_NOWRAP' console.html 2
+chk 'function ecWrap(h)' console.html 1
+chk 'GUEST_WHY' console.html 5
+chk 'GUEST_REC_WHY' console.html 2
+chk 'GUEST_LINK_CUT' console.html 4
+chk 'GUEST_LOST_LINE' console.html 2
+chk 'GUEST_BUILD_FAIL' console.html 2
+chk 'RF_SRV_ERR' console.html 1
+chk '__meLostAlerted' console.html 1   # [COURSE_LOST_LOUD] 디렉터 알림은 그대로(고객 화면만 GUEST_LOST_LINE)
+chk 'ERR_R1_BUILDER' scripts/audit/err-builder.mjs 3
+chk 'RF_LINE_CLEAR' scripts/audit/err-builder.mjs 2
+nochk "if(AUDSKIP){ _fail(b,me,'일부는 아직 준비 중이에요" order-preview.html
+nochk "(코드 M'+(c||3)+')'" order-preview.html
+nochk "pp.catch(function(){}); MK.aud=au;" order-preview.html
+nochk "있어요. 잠시 뒤 다시 눌러 주세요. (코드 S5)" order-preview.html
+nochk "if (/요청을 처리하지 못했어요/.test(t)) return '서버 오류(드라이브일 수 있어요) (코드 L9)';" console.html
+chk 'VC_JOIN_M6' order-preview.html 1
+nochk "fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요')" order-preview.html

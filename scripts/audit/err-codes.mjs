@@ -78,5 +78,19 @@ ok('④ 모르는 동작 → X · 빈 동작(상담 신청 글) → B', g._errAr
 const r9 = st('cardConfirm', { ok: false, reason: 'weird', error: '결제 정보가 올바르지 않습니다.' });
 ok('④ 로그인과 무관한 reason 은 8 이 아니다', r9.ecode === 'P0', JSON.stringify(r9));
 
+/* ⑤ [ERR_NO_DOT · ERR_AREA_SIGNUP_B · ADMIN_EXC_WHY · ERR_STATE_QUIET 2026-10-08 점검] */
+const q1 = st('signup', { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' });
+ok('⑤ 신청서 보내기(signup)는 B — 같은 신청 화면의 B5 · B6 과 한 글자', q1.ecode === 'B1' && g._errArea('signup') === 'B' && g._errArea('login') === 'L', JSON.stringify(q1));
+const q2 = st('getMyState', { ok: false, reason: 'expired', error: '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요.' });
+ok('⑤ 코드 앞 끝 마침표를 걷는다 «…로그인해 주세요 (코드 L8)»', q2.error === '오래 머무르셔서 보안을 위해 로그아웃됐어요. 다시 로그인해 주세요 (코드 L8)', q2.error);
+const n0 = rec.length; const q3 = st('adminCall', { ok: false, ecode: 'X9', eid: 'AB23', _why: 'TypeError: x', error: '서버에서 오류가 났어요 · TypeError: x' });
+ok('⑤ 관리자 동작의 예상 못 한 오류(9)는 오류기록에 남는다(사고번호로 찾게) · 9 가 아닌 관리자 실패는 여전히 안 남긴다', rec.length === n0 + 1 && /AB23/.test(q3.error) && (st('adminCall', { ok: false, error: '로그인이 필요합니다.' }), rec.length === n0 + 1), JSON.stringify(q3));
+const n1 = rec.length; const q4 = st('seatView', { ok: false, mineOnly: true, error: '내 자리만 보여 드려요' });
+ok('⑤ «내 자리만»은 실패가 아니다 — 오류기록에 안 남는다', rec.length === n1 && !q4.ecode, JSON.stringify(q4));
+const q5 = st('ritualFileGet', { ok: false, error: '파일을 열지 못했어요.' }), q6 = st('login', { ok: false, error: '개인코드(이메일) 또는 비밀번호가 올바르지 않습니다.' });
+ok('⑤ [ERR_FAILISH_4] ecode 없는 «…하지 못했어요»는 4 로 코드가 붙는다 · 입력 확인(비밀번호 틀림)은 0 · 코드 안 붙음', q5.ecode === 'L4' && q5.error === '파일을 열지 못했어요 (코드 L4)' && q6.ecode === 'L0' && !/\(코드/.test(q6.error), JSON.stringify([q5, q6]));
+const SRC_NF = rd('automation/platform/95_notify.gs');
+ok('⑤ 사고번호 찾기는 시트 전체(eid 면 2행부터)', /from = eid \? 2 : Math\.max\(2, last - 2999\)/.test(SRC_NF));
+
 console.log(fail ? `\nFAIL ${fail}건` : '\n전부 통과');
 process.exit(fail ? 1 : 0);

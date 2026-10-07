@@ -2094,24 +2094,24 @@ if (document.documentElement.classList.contains('me-inframe')) {
 }
 
 // ── 계좌번호 복사 ──
+/* ★[COPY_FAIL_SHOW 2026-10-07 triage-pages #13 · ERR_CODES P4] 계좌 복사가 안 되면 «Copied»라 하지 않는다 — 종전엔 execCommand 가 false(실패)를 돌려줘도 보지 않았고,
+   실패 문구가 있어도 화면 읽기 전용(sr-only)이거나 2초 토스트 «복사 실패» 한마디였다. 축의 송금 직전이라 예전 클립보드의 다른 계좌가 은행 앱에 붙을 수 있다.
+   실패면 그 계좌 줄 바로 아래 보이는 한 줄 · 기기 쪽 일이라 코드는 없다(할 일이 글에 있다). 청첩장 24장 · live · schedule 이 같은 말 · 두 함수는 청첩장과 글자까지 같다 */
+function meCopyText(t){ var ta=document.createElement('textarea'), ok=false; ta.value=t; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none;font-size:16px'; document.body.appendChild(ta); try{ ta.focus(); ta.select(); ta.setSelectionRange(0, t.length); }catch(_){} try{ ok=document.execCommand('copy'); }catch(_){ ok=false; } document.body.removeChild(ta); return !!ok; }
+function meCopyFail(btn, on){ var row=btn&&btn.parentNode, box=row&&row.parentNode, n=row&&row.nextElementSibling; if(!box) return;
+  if(!(n&&n.className==='me-copy-fail')){ if(!on) return; n=document.createElement('div'); n.className='me-copy-fail'; n.setAttribute('role','alert'); n.style.cssText='width:100%;box-sizing:border-box;font-size:12px;line-height:1.6;letter-spacing:0;margin:6px 0 0;opacity:.92'; box.insertBefore(n, row.nextSibling); }
+  if(on) n.textContent='복사가 안 됐어요 · 길게 눌러 복사해 주세요'; else box.removeChild(n); }
 document.querySelectorAll('.env-copy').forEach(btn => {
   btn.addEventListener('click', async (e) => {
     e.stopPropagation();
     const account = btn.dataset.account;
     try {
       await navigator.clipboard.writeText(account);
-      showToast('Copied · 복사되었습니다');
+      meCopyFail(btn, false); showToast('Copied · 복사되었습니다');
     } catch (err) {
-      // Fallback (구형 브라우저)
-      const ta = document.createElement('textarea');
-      ta.value = account;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); showToast('Copied · 복사되었습니다'); }
-      catch (e2) { showToast('복사 실패'); }
-      document.body.removeChild(ta);
+      // Fallback (구형 브라우저) — [COPY_FAIL_SHOW] 돌려받은 값을 본다
+      if (meCopyText(account)) { meCopyFail(btn, false); showToast('Copied · 복사되었습니다'); }
+      else meCopyFail(btn, true);
     }
   });
 });
@@ -2166,21 +2166,27 @@ const COUPLE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyR3n9MrPJNQ
    서버(87_letter)는 영문 오류 이름을 준다 — INTERNAL_ERROR(서버 오류 · ecode G9 · 사고번호 eid) 는 한글 한 줄로 바꿔 «(코드 G9 · 사고번호)»를 붙이고,
    INVALID_EVENT_ID · COUPLE_NOT_FOUND(링크가 틀림 · G0)는 «링크를 다시 확인» 안내 그대로(코드 없음). 하객에게 영문 오류 이름을 보이지 않는다.
    seat · guide · cancel · schedule · inquiry 와 같은 함수 이름이다 */
-function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:(e&&e.name==='TypeError'&&/Failed to fetch|Load failed|Network ?Error|network connection|Internet connection/i.test(String(e.message||'')))?6:0; }   // [ERR_N_HONEST] 6 은 fetch 가 연결을 못 한 글일 때만 · 그 밖의 스크립트 예외는 0
 function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
 function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 '+L+'0)';   // [ERR_N_HONEST] 화면 쪽 스크립트 예외(0) — 연결 탓으로 말하지 않는다 · 다시 눌러도 같은 자리에서 멈추니 새로 고치게
   return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
 function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
   if(m) t=t.slice(0,m.index);
   if(!/^[A-Z]\d$/.test(ec)) ec='';
-  if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }
-  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }
+  if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
+  else if(/^요청을 처리하지 못했어요\. 잠시 후 다시 시도해 주세요\.?$/.test(t)){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글 · [ERR_NO_DOT_PAGE] 서버가 코드 앞 마침표를 걷어 보내도(«잠시 후 다시 시도해 주세요 (코드 B9 · 7KQ2)») 맞는다
   if(!t){ t=fb; ec=ec||L+'0'; }
   if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
-  return t+(tail?' ('+tail+')':''); }
+  return tail?t.replace(/[\s.]+$/,'')+' ('+tail+')':t; }   // [ERR_NO_DOT_PAGE] 코드 앞 끝 마침표는 걷는다(«주세요. (코드» 금지)
+/* ★[ERR_CODE_GLUE 2026-10-07 코디 · 신청서 390px 실측 «(코드 B9 / · 7KQ2)»] «(코드 X# · 사고번호)»는 한 덩어리다 — 괄호 안에서 줄이 갈리지 않게 nowrap 으로 싼다
+   (mypage _errHtml 과 같은 처리). 글자는 그대로라 textContent 로 읽는 검사 · 낭독기 · /\(코드 [A-Z]\d/ 감지는 달라지지 않는다. 여섯 쪽이 글자까지 같은 사본 — 한 곳만 고치지 말 것 */
+function _ecGlue(h){ return String(h==null?'':h).replace(/\(코드 [^)<]*\)/g,function(c){ return '<span class="ec-code" style="white-space:nowrap">'+c+'</span>'; }); }
+function _ecHtml(t){ return _ecGlue(String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; })); }
 /* [ERR_CODE_PAGES] 예식 정보를 못 불러왔을 때 안내(.live-notloaded-box)의 설명 한 줄 — n: 'wait'(아직 기다리는 중 · 코드 없음) · 5 · 6 · 7 · 9 */
 function liveWaitWord(n, eid){
   if(n==='wait') return '응답을 기다리고 있어요 · 잠시만 두시면 저절로 이어져요';
+  if(!n) return '화면 오류예요 · 새로 고쳐 주세요 (코드 G0)';   // [ERR_N_HONEST] 화면 쪽 예외(그리기 · 영상 붙이기) — 종전엔 «연결이 끊겼어요 (코드 G6)»로 떨어졌다
   var off=(n===6&&_ecOff()), keep=' · 이 화면이 계속 다시 시도하고 있어요';
   return (n===5?'응답이 늦어요'+keep:n===7?'서버가 잠깐 멈췄어요'+keep:n===9?'서버에서 오류가 났어요'+keep:off?'인터넷이 끊겼어요 · 연결되면 저절로 이어져요':'연결이 끊겼어요'+keep)
     +(n==='wait'?'':' (코드 G'+n+(n===9&&eid?' · '+eid:'')+')'); }
@@ -2322,7 +2328,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
      setNotLoaded(true) 바로 뒤에 부른다(LIVE_NOT_LOADED 가드가 그 부름을 지킨다 · 몸통은 종전 그대로) */
   function sayNotLoaded(n, eid){
     const desc = document.querySelector('.live-notloaded-box .lp-message-desc');
-    if (desc) desc.textContent = liveWaitWord(n, eid);
+    if (desc) desc.innerHTML = _ecHtml(liveWaitWord(n, eid));   // [ERR_CODE_GLUE] «(코드 G9 · 사고번호)»는 한 덩어리 · 글자는 그대로
   }
 
   // 캐시 우선: 같은 부부 재방문은 즉시 렌더. 그 뒤 백그라운드로 최신값 갱신.
@@ -2396,7 +2402,7 @@ function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, funct
     console.error('[Live] Failed to load couple info:', err);
     /* ★[LIVE_NOT_LOADED 2026-09-12] 여기서 아무것도 안 하면 아래 finally 가 «정적 더미»를 공개한다.
        캐시로 이미 그린 하객(infoApplied)은 건드리지 않는다 — 멀쩡한 화면을 지우면 안 된다. */
-    if (!infoApplied) { setNotLoaded(true); sayNotLoaded(lastKind || 6); }   // [ERR_CODE_PAGES] 시간 G5 · 연결 G6 · 서버 답이 깨짐 G7
+    if (!infoApplied) { setNotLoaded(true); sayNotLoaded(_ecN(err)); }   // [ERR_CODE_PAGES] 시간 G5 · 연결 G6 · 서버 답이 깨짐 G7 · [ERR_N_HONEST] 그리기 예외는 G0 — 종전 «lastKind || 6»은 앞 시도의 까닭 · 연결 탓으로 떨어졌다
   } finally {
     if (!rendered) {
       clearTimeout(failsafeTimer);
@@ -2893,7 +2899,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
     requestAnimationFrame(() => {
       errorBox.classList.add('is-visible');
     });
-    errorDescEl.textContent = msg || '잠시 후 다시 시도해 주세요.';
+    errorDescEl.innerHTML = _ecHtml(msg || '잠시 후 다시 시도해 주세요.');   // [ERR_CODE_GLUE] 글자는 그대로 · «(코드 X#)»만 한 덩어리
   }
   function showBlocked(){
     form.style.display = 'none';
@@ -2944,6 +2950,11 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
       recipient: recipient,
     };
 
+    /* ★[LETTER_TIMEOUT 2026-10-07 triage-pages #8] 편지 보내기에 시간 제한이 없어 예식장 와이파이가 끊기면 «보내는 중»이 끝없이 잠겼다 · 말도 없었다.
+       30초를 기다리고 넘으면 «결과 모름»(G5) — 편지는 서버가 이미 받았을 수 있고(같은 편지를 가려내는 길이 없다) 한 통도 안 가는 것보다
+       두 통 가는 편이 낫다는 [LETTER_SEND] 판단 그대로 G7 줄과 같은 말로 «한 번 더 보내 주세요». 몸통을 읽는 동안 멈춰도 같은 타이머가 끊는다 */
+    const _ltAc = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const _ltTm = _ltAc ? setTimeout(() => { try { _ltAc.abort(); } catch (_) {} }, 30000) : null;
     try {
       // Apps Script 웹 앱은 Content-Type 미명시(기본 text/plain) 시
       // preflight 없이 바로 POST 가능. body 에 JSON 문자열 그대로 전송.
@@ -2951,6 +2962,7 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
         method: 'POST',
         body: JSON.stringify(payload),
         redirect: 'follow',
+        signal: _ltAc ? _ltAc.signal : undefined,
       });
 
       const done = () => { sending = false; submitBtn.classList.remove('loading'); submitBtn.disabled = false; };
@@ -2961,7 +2973,9 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
          서버가 ok를 말해 줄 때만 성공으로 친다. 확인이 안 되면 다시 보내게 하는 편이 낫다
          (같은 편지가 두 번 가는 쪽이, 한 통도 안 가는 쪽보다 낫다). */
       let data = null;
-      try { data = JSON.parse(await res.text()); } catch (_) { data = null; }
+      const _raw = await res.text();   // [LETTER_TIMEOUT] 여기서 멈춰도 30초에 끊긴다(AbortError → G5)
+      if (_ltTm) clearTimeout(_ltTm);
+      try { data = JSON.parse(_raw); } catch (_) { data = null; }
 
       if (data && data.ok) {
         done();
@@ -2973,10 +2987,11 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
       if (data && data.error) { showError(letterWord(data)); return; }   // [ERR_CODE_PAGES] 영문 오류 이름(INTERNAL_ERROR)을 하객에게 그대로 보이지 않는다
       showError('편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 (코드 G7)');   // [ERR_CODE_PAGES] 서버 답이 JSON 이 아님(GAS 오류 화면 · 할당량)
     } catch (err) {
+      if (_ltTm) clearTimeout(_ltTm);
       sending = false;
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
-      showError(_ecNet(err, 'G', '잠시 뒤 다시 보내 주세요'));   // [ERR_CODE_PAGES] 종전 «네트워크 오류입니다» — 연결 G6
+      showError(_ecN(err) === 5 ? '편지가 전해졌는지 확인하지 못했어요 · 한 번 더 보내 주세요 (코드 G5)' : _ecNet(err, 'G', '잠시 뒤 다시 보내 주세요'));   // [ERR_CODE_PAGES] 종전 «네트워크 오류입니다» — 연결 G6 · [LETTER_TIMEOUT] 30초 G5(결과 모름 · G7 줄과 같은 말)
     }
   });
 
