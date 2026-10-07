@@ -356,7 +356,7 @@
       for (var k2 = bt; k2 <= hiT; k2++) { if (env[k2] > env[bt]) bt = k2; }
       var cx = x(bt), cy = y(env[bt]);
       o.push('<circle class="flow-peak" data-t="' + bt + '" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (tiny ? 2.4 : (mini ? 3 : 5)) + '" fill="' + PEAK_INK + '" stroke="#fff" stroke-width="' + (mini ? 1.5 : 2) + '"/>');
-      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="600" text-anchor="' + an + '" fill="' + PEAK_INK + '">★ ' + fesc(p.n) + '</text>'); }   /* [R7-08] 굵기 상한 600 */
+      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="600" text-anchor="' + an + '" fill="' + PEAK_INK + '">' + fesc(p.n) + '</text>'); }   /* [R7-08] 굵기 상한 600 */   /* ★[PEAK_COLOR 2026-10-07 사장님 «별은 유치 · 색으로만 · 고급스러운 무드»] 곡선 위 이름 앞 ★ 걷음 · 진사 글자만 */
     }
     /* ★[FLOW_NAMES_ONE 2026-10-04 사장님 «왜 부모님 인사만 내려가 있어? 다른 곳들은 안 그래»] 이름표가 앞 이름(짧은 «선언»)에 닿으면 둘째 줄로 내렸다 —
        한 이름만 툭 떨어져 보였다. 이제 한 줄 안에서 먼저 옆으로 비켜 맞춘다(제 순간 가운데에서 이름 폭의 0.6 안쪽만) · 그래도 안 되면 종전 두 줄 */

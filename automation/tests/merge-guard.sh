@@ -9018,6 +9018,20 @@ chk 'FLOW_NO_VSBAR' scripts/audit/listen-page.mjs 2
 chk 'FLOW_MARK' scripts/audit/listen-page.mjs 4
 chk 'FLOW_NO_STAR' scripts/audit/listen-page.mjs 2
 chk 'FLOW_TIMELINE' scripts/audit/listen-page.mjs 7
+# ★[FLOW_FULL_W 2026-10-07 사장님 «걸음 띠와 본식 · 단체 사진 바 가로가 안 맞고 작다 · 아래도 같이»] 위 «1000px 이상 폭 560»은 걷었다 — 막대 · 범례 · 목록 = 걸음 띠 폭(listen-page CF-13 이 잰다)
+chk 'FLOW_FULL_W' order-preview.html 1
+nochk '.mk-intro .cf-l,.mk-intro .op-bar,.mk-intro .op-leg{max-width:560px}' order-preview.html
+chk 'FLOW_FULL_W' scripts/audit/listen-page.mjs 1
+# ★[PEAK_COLOR 2026-10-07 사장님 «별 부분은 조금 유치 · 색상으로만 포인트 · 고급스러운 무드» · «별 들어간 곳 다른 곳들도 전부»] 가장 벅찬 순간 = 진사 이름(★ 없음) — ★ 을 되살리지 말 것
+chk 'PEAK_COLOR' order-preview.html 4
+chk 'PEAK_COLOR' assets/ritual-open.js 1
+nochk 'aria-label="가장 벅찬 순간">★' order-preview.html
+nochk 'aria-hidden="true">★</span>' order-preview.html
+nochk "(k===peak?'★ ':'')" order-preview.html
+nochk '가장 벅찬 순간(★)' order-preview.html
+nochk "PEAK_INK + '\">★ '" assets/ritual-open.js
+chk 'PEAK_COLOR' scripts/audit/listen-page.mjs 2
+chk 'PEAK_COLOR' scripts/audit/pick-v2.mjs 1
 chk 'FLOW_NO_VOICE' scripts/audit/rec-upload.mjs 2
 # ★★[VP_CHIP_SILENT 2026-10-03 사장님 «여기 눌렀을 때 음성이 재생되게 하지 말자»] 목소리 준비 칩(guestVoice · pvVoice · entryVoice)은 고르기만 · 울리던 것은 멈춘다
 #   내용 칩(서는 분 등)은 종전대로 «칩 = 듣기» · VS_CHIP_ONCE(처음 한 번 자세히 창)는 그대로. listen-page VPS-1 · VPS-2 · rec-upload(깨 보고 믿음: 이른 return 을 걷으면 VPS-1 빨강)
@@ -12026,9 +12040,9 @@ chk "stopMs=(rec&&typeof rec==='object')?(+rec.cut2Ms||0):0" order-preview.html 
 #   깨 보고 믿음: 맺는 말 접기 · «위하여» 자리 · ④ 그림 채우기를 하나씩 빼면 ghi-polish 가 빨강 10건(390 · 1280)
 if command -v node >/dev/null 2>&1; then _ghi=$(timeout 400 node scripts/audit/ghi-polish.mjs 2>&1); _ghx=$?; echo "$_ghi" | grep -E '^FAIL|GHI' | head -12; if [ "$_ghx" = 1 ]; then echo "REVERT? scripts/audit/ghi-polish.mjs: ② ③ ④ 다듬기 검사 실패"; fail=1; fi; fi
 chk 'GHI' scripts/audit/ghi-polish.mjs 1
-chk 'aria-label="가장 벅찬 순간"' order-preview.html 4   # [G1] ★ 이름 «절정» → «가장 벅찬 순간»(①~④)
+chk '<span class="sr-only"> · 가장 벅찬 순간</span>' order-preview.html 1   # [G1] 이름 «절정» → «가장 벅찬 순간» · [PEAK_COLOR 2026-10-07] ★ 의 aria-label 넷 → 진사 이름 + 숨은 글(_pkName 하나)
 nochk 'aria-label="절정"' order-preview.html
-chk '</span> 표시는 이 예식에서 가장 벅찬 순간이에요.' order-preview.html 1   # [G1] ★ 는 따로 이름을 단 span
+chk '색으로 표시한 순간</span>이 이 예식에서 가장 벅찬 순간이에요.' order-preview.html 1   # [G1] · [PEAK_COLOR] ★ 범례 → 색 범례
 chk 'class="lsg"' order-preview.html 1   # [G2] ② 띠 두 시간 사이 흐름선 64×18
 # ★[ENTRY_OUT_OFF 2026-10-02 사장님 지시 «서로를 바라봐 주세요 · 이건 굳이 없어도 될 거 같아 · 맞절도 빼고»] 옛 G4 ENTRY_OUT_MORE(맺는 말 «더 고르기») 판은 걷었다
 chk 'ENTRY_OUT_OFF' order-preview.html 3   # 묶음 걷기 · 요약 · 말 없는 줄
