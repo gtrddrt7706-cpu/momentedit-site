@@ -15,7 +15,7 @@ if (a < 0) { console.log('━━ prep-order — _prepRows 배열을 못 찾았�
 const b = my.indexOf('\n  ];', a);
 const blk = my.slice(a, b);
 const want = [["row('청첩장'", '청첩장'], ["row('좌석 · 음료'", '좌석 · 음료'], ["row('애프터 웨딩'", '애프터 웨딩'], ["row('식순'", '식순'],
-  ['_ritPrepFold(', '식순 준비 목록(식순에 딸림)'], ['_bouquetFold(', '부케(식순에 딸림)'], ["row('가족 · 친구 스냅'", '가족 · 친구 스냅']];
+  /* [PR_PREP_ONE 2026-10-07] 식순 준비 목록 행은 연습 화면으로 옮겼다(사장님 «연습 · 준비 하나로») */ ['_bouquetFold(', '부케(식순에 딸림)'], ["row('가족 · 친구 스냅'", '가족 · 친구 스냅']];
 const pos = want.map(([k, n]) => [blk.indexOf(k), n]);
 const bad = [];
 pos.forEach(([p, n]) => { if (p < 0) bad.push(`«${n}» 행을 배열에서 못 찾았다`); });

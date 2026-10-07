@@ -27,12 +27,16 @@ try {
     await page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load' }); await wait(900);
     await page.evaluate((st) => { show('mypageView'); renderMyPage(st); }, seed); await wait(400);
     const lab = await page.evaluate(() => { const b = document.getElementById('mp_ritualPreview'); return b ? b.textContent.trim() : ''; });
-    ok(lab === '연습하기', '식순 줄 보조 단추 «연습하기»', lab);
+    ok(lab === '연습 · 준비 ›', '식순 줄 보조 단추 «연습 · 준비 ›»([PR_PREP_ONE])', lab);
     ok(await page.evaluate(() => !/미리듣기/.test((document.getElementById('mp_ritualStart') || {}).closest ? document.getElementById('mp_ritualStart').closest('.trk').textContent : '')), '식순 줄에 옛 «미리듣기» 글이 없다');
     await page.evaluate(() => document.getElementById('mp_ritualPreview').click());
     let at = '';
     for (let t = 0; t < 40; t++) { await wait(250); at = await page.evaluate(() => { const f = document.getElementById('mp_obFrame'); try { const w = f && f.contentWindow; return (w && w.STEPS && w.STEPS[w.idx]) ? w.STEPS[w.idx].k : ''; } catch (e) { return 'err'; } }); if (at === 'practice') break; }
     ok(at === 'practice', '누르면 식순 빌더가 ③ 연습하기에서 열린다', at);
+    await wait(600);
+    const pf = await page.evaluate(() => { const f = document.getElementById('mp_obFrame'); try { const d = f.contentWindow.document, x = d.querySelector('.pr-prepf'); return { has: !!x, open: !!(x && x.open), sum: x ? x.querySelector('summary').textContent : '' }; } catch (e) { return { err: String(e) }; } });
+    ok(pf.has && pf.open && /준비할 것 \d+가지/.test(pf.sum), '연습 화면에 «준비할 것» 목록이 펼친 채 있다 [PR_PREP_FOLD]', JSON.stringify(pf));
+    if (process.env.PFM_SHOT) { await page.evaluate(() => { const f = document.getElementById('mp_obFrame'); const x = f.contentWindow.document.querySelector('.pr-prepf'); if (x) x.scrollIntoView({ block: 'start' }); }); await wait(300); await page.screenshot({ path: process.env.PFM_SHOT + '-' + V.n + '.png' }); }
     ok(await page.evaluate(() => !document.getElementById('mp_rpViewer')), '옛 미리듣기 창(mp_rpViewer)은 열리지 않는다');
     ok(await page.evaluate(() => { const w = document.getElementById('mp_obFrame').contentWindow; return !!w.document.querySelector('[data-fk="prall"]') && w.document.querySelectorAll('[data-fk^="prj:"]').length > 2; }), '연습 화면에 «처음부터 끝까지» · 순간 목록이 선다');
     ok(await page.evaluate(() => { const w = document.getElementById('mp_obFrame').contentWindow; return !w.document.querySelector('.pr-later'); }), '마이페이지에서 들어온 연습엔 «나중에 마이페이지에서» 줄이 없다 [PR_ORDER]');

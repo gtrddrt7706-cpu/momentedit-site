@@ -30,7 +30,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PREVIEW_LABEL = '미리듣기';
 /* ★[PR_FROM_MYPAGE 2026-10-05 사장님] 마이페이지 식순 줄의 보조 단추는 «연습하기»(빌더 ③ 으로 연다) — 완성 화면의 «미리듣기»(음악까지)와 다른 일이 됐다.
    그래서 줄 단추는 제 이름으로 재고, 서버 초안 조립(배웅 갈림 등)은 마이페이지가 남긴 입구 _mpRitPreview() 로 연다 */
-const ROW_LABEL = '연습하기';
+const ROW_LABEL = '연습 · 준비 ›';   // [PR_PREP_ONE 2026-10-07] 연습하기 · 준비할 것 → 하나
 const SITE = path.resolve(HERE, '../..');
 const PORT = 8127;
 const VIEWPORTS = [

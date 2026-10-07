@@ -1,6 +1,6 @@
-// ★[PREP_LINK 2026-10-05 사장님 «미리듣기랑 준비할 것 · 클릭하면 볼 수 있게» → «추천대로»] mypage 식순 줄 실렌더 점검(390 · 1280)
-//   보는 것: ①줄 아래 «준비할 것 N가지 · 도와주실 분 N» 요약 줄은 없다(PREP_FOLD_OFF) ②오른쪽 «미리듣기 · 준비할 것» 나란히
-//     ③«준비할 것»을 누르면 줄 아래 목록이 열리고(aria-expanded) 다시 누르면 접힌다 ④폰에서 줄이 넘치지 않는다 ⑤목록이 없으면 단추도 없다
+// ★[PREP_LINK → PR_PREP_ONE 2026-10-07 사장님 «연습하기 · 준비할 것을 그 윗줄로 · 한 줄로 · 하나로 통합» → «추천대로»] mypage 식순 줄 실렌더 점검(390 · 1280)
+//   보는 것: ①보조 단추는 «연습 · 준비 ›» 하나(옛 «준비할 것» 단추 · 줄 아래 목록 없음) ②«식순 ✓»과 같은 줄(폰 포함) ③폰에서 줄이 넘치지 않는다
+//   (준비 목록은 연습 화면으로 옮겼다 — order-preview PR_PREP_FOLD · pr-from-mypage 가 연다)
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import path from 'node:path'; import { spawn } from 'node:child_process'; import { fileURLToPath } from 'node:url';
 import { launchBrowser } from './_browser.mjs';
@@ -20,25 +20,15 @@ try {
     const { page, errors } = await eng.newPage({ port: PORT, viewport: V.viewport });
     await page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load' }); await new Promise((r) => setTimeout(r, 900));
     await page.evaluate((st) => { show('mypageView'); renderMyPage(st); }, seed(SUM)); await new Promise((r) => setTimeout(r, 300));
-    const a = await page.evaluate(() => { const b = document.getElementById('mp_ritualPrep'), pv = document.getElementById('mp_ritualPreview'), bx = document.getElementById('mp_ritPrepBox'), tr = b && b.closest('.trk');
-      return { btn: !!b, lab: b && b.textContent.trim(), exp: b && b.getAttribute('aria-expanded'), pv: !!pv, same: !!(b && pv && b.parentNode === pv.parentNode && pv.nextElementSibling === b), hidden: bx ? bx.hidden : null,
-        oldSum: [...document.querySelectorAll('.rit-prep>summary')].length, over: tr ? tr.scrollWidth - tr.clientWidth : -1, rowH: tr ? Math.round(tr.getBoundingClientRect().height) : 0 }; });
-    ok(a.oldSum === 0, '줄 아래 «준비할 것 N가지 · 도와주실 분 N» 요약 줄이 없다 [PREP_FOLD_OFF]', JSON.stringify(a));
-    ok(a.btn && a.lab === '준비할 것' && a.pv && a.same, '오른쪽 «미리듣기 · 준비할 것» 나란히 [PREP_LINK]', JSON.stringify(a));
-    ok(a.hidden === true && a.exp === 'false', '처음엔 접혀 있다', JSON.stringify(a));
-    ok(a.over <= 1, '식순 줄이 넘치지 않는다', JSON.stringify(a));
-    const ln = await page.evaluate(() => { const pv = document.getElementById('mp_ritualPreview').getBoundingClientRect(), b = document.getElementById('mp_ritualPrep').getBoundingClientRect(), nm = document.getElementById('mp_ritualStart').closest('.trk').querySelector('.trk-nm').getBoundingClientRect(); return { oneLine: Math.abs(pv.top - b.top) < 2, pvL: Math.round(pv.left), nmL: Math.round(nm.left) }; });
-    ok(ln.oneLine, '«미리듣기 · 준비할 것»이 한 줄(쪼개지지 않는다)', JSON.stringify(ln));
-    await page.click('#mp_ritualPrep'); await new Promise((r) => setTimeout(r, 200));
-    const b = await page.evaluate(() => { const bx = document.getElementById('mp_ritPrepBox'); return { hidden: bx.hidden, exp: document.getElementById('mp_ritualPrep').getAttribute('aria-expanded'), t: bx.innerText }; });
-    ok(!b.hidden && b.exp === 'true' && /두 분이 준비할 것/.test(b.t) && /도와주실 분/.test(b.t) && /준비할 것 3가지 · 도와주실 분 2/.test(b.t), '누르면 줄 아래 목록이 열린다(숫자는 안 첫 줄)', JSON.stringify(b).slice(0, 300));
-    if (process.env.SHOT) { const el = await page.$('#mp_ritualStart'); const tr = await el.evaluateHandle((e) => e.closest('.trk').parentNode); await tr.asElement().screenshot({ path: process.env.SHOT + '-' + V.n + '.png' }).catch(() => {}); }
-    await page.click('#mp_ritualPrep'); await new Promise((r) => setTimeout(r, 200));
-    ok(await page.evaluate(() => document.getElementById('mp_ritPrepBox').hidden && document.getElementById('mp_ritualPrep').getAttribute('aria-expanded') === 'false'), '다시 누르면 접힌다');
-    await page.evaluate((st) => renderMyPage(st), seed({ open: true }));
-    ok(await page.evaluate(() => !document.getElementById('mp_ritualPrep') && !!document.getElementById('mp_ritualStart')), '목록이 없으면 «준비할 것» 단추도 없다');
-    ok(errors.length === 0, 'JS 오류 0', errors.join(' | ').slice(0, 200));
+    const a = await page.evaluate(() => { const pv = document.getElementById('mp_ritualPreview'), st = document.getElementById('mp_ritualStart'), row = st && st.closest('.trk'), nm = row && row.querySelector('.trk-nm');
+      const r1 = pv && pv.getBoundingClientRect(), r2 = nm && nm.getBoundingClientRect(), r3 = st && st.getBoundingClientRect();
+      return { lab: pv ? pv.textContent.trim() : '', old: !!document.getElementById('mp_ritualPrep') || !!document.getElementById('mp_ritPrepBox'), sameLine: !!(r1 && r2 && Math.abs((r1.top + r1.bottom) / 2 - (r2.top + r2.bottom) / 2) < 10 && Math.abs((r1.top + r1.bottom) / 2 - (r3.top + r3.bottom) / 2) < 10), over: row ? row.scrollWidth > row.clientWidth + 1 : true, sum: /준비할 것 \d+가지/.test(document.body.innerText) }; });
+    ok(a.lab === '연습 · 준비 ›' && !a.old, '보조 단추 «연습 · 준비 ›» 하나 · 옛 «준비할 것» 단추 · 목록 없음 [PR_PREP_ONE]', JSON.stringify(a));
+    ok(a.sameLine && !a.over, '«식순 ✓» · «연습 · 준비 ›» · «완료 · 수정»이 한 줄 · 넘침 없음', JSON.stringify(a));
+    ok(!a.sum, '마이페이지에 «준비할 것 N가지» 요약 줄 없음(PREP_FOLD_OFF)', JSON.stringify(a));
+    ok(!errors.length, 'pageerror 0', errors.slice(0, 2).join(' | '));
     await page.close();
   }
-} finally { await eng.close(); server.kill(); }
+} catch (e) { console.log('예외', e && e.message); fail++; }
+finally { await eng.close(); server.kill(); }
 console.log(fail ? `\nPREP_LINK FAIL ${fail}` : '\nPREP_LINK OK'); process.exit(fail ? 1 : 0);

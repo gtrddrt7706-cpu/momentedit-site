@@ -14281,8 +14281,11 @@ chk 'TURN_GAP' scripts/audit/turn-gap.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/turn-gap.mjs >/dev/null 2>&1; _tg=$?; if [ "$_tg" = 1 ]; then echo 'FAIL turn-gap: 줄 사이 넘기는 쉼이 어긋났습니다 — node scripts/audit/turn-gap.mjs'; fail=1; fi; fi
 # ★★[PREP_LINK 2026-10-05 사장님 «미리듣기랑 준비할 것 · 클릭하면 볼 수 있게» → «추천대로»] 식순 줄 «미리듣기 · 준비할 것» · 누르면 줄 아래 목록 · 요약 줄은 계속 숨김
 chk 'PREP_LINK' mypage.html 6
-chk 'mp_ritPrepBox' mypage.html 3
-chk "_ritPre2={id:'mp_ritualPrep', label:'준비할 것'" mypage.html 1
+# ★[PR_PREP_ONE 2026-10-07 사장님 «연습하기 · 준비할 것을 하나로 통합» → «추천대로»] 식순 줄 보조 단추는 «연습 · 준비 ›» 하나 · 준비 목록은 연습 화면(PR_PREP_FOLD)
+chk 'PR_PREP_ONE' mypage.html 2
+nochk "_ritPre2={id:'mp_ritualPrep', label:'준비할 것'" mypage.html
+chk 'PR_PREP_FOLD' order-preview.html 2
+chk 'function _prPrepFold()' order-preview.html 1
 # ★[LINE_CARD 2026-10-05 사장님 «섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 순간 사이 가로선 → 여백
 chk 'LINE_CARD' order-preview.html 3
 chk '^\.mk-slc{background:var(--card);border:1px solid var(--border);border-radius:12px' order-preview.html 1   # [CARD_POLISH] 카드는 줄 + «＋ 줄 더하기»를 함께 감싼다(.mk-slc)
@@ -14339,7 +14342,7 @@ nochk '<h4>어떻게 볼까요</h4>' order-preview.html
 # ★[PR_FROM_MYPAGE 2026-10-05 사장님 «여기서 미리듣기 이것도 연습하기로 바꾸기»] 마이페이지 식순 줄 보조 단추 = «연습하기» → 빌더 ③ 으로 연다
 chk 'PR_FROM_MYPAGE' mypage.html 3
 chk 'PR_FROM_MYPAGE' order-preview.html 2
-chk "_ritPre={id:'mp_ritualPreview', label:'연습하기'};" mypage.html 1
+chk "_ritPre={id:'mp_ritualPreview', label:'연습 · 준비 ›'};" mypage.html 1   # [PR_PREP_ONE 2026-10-07]
 nochk "_ritPre={id:'mp_ritualPreview', label:'미리듣기'};" mypage.html
 chk 'PR_FROM_MYPAGE' scripts/audit/pr-from-mypage.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-from-mypage.mjs >/dev/null 2>&1; _pfm=$?; [ "$_pfm" = 1 ] && { echo 'FAIL pr-from-mypage: 마이페이지 «연습하기»가 빌더 ③ 연습하기로 열리지 않습니다 — node scripts/audit/pr-from-mypage.mjs'; fail=1; }; fi
