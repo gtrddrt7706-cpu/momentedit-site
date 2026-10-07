@@ -1,7 +1,8 @@
 // ★[EX_RACE · EX_PREBAKE_ENTRY 2026-10-06 사장님 «예시 3번 만드는 중 4번을 누르고 다시 3번 → 확정하기가 아니라 목소리 만들기 · 글을 고쳤어요» · «예시 다른 걸 눌러도 기다릴 필요 없이»] (390)
 //   가짜 서버(_vc make 0.8초 · _vcProc 바로)로 실제 차례를 재현한다
-//   ①하객 맞이: 3번 → (만드는 중) 4번 → 3번 — 끝나면 네 줄 모두 지금 글(3번) 소리 · 만드는 중 없음 · 머리 «확정하기»
-//   ②그 사이 만든 4번 소리도 기억 — 4번을 누르면 업체에 다시 묻지 않고 바로 붙는다 ③같은 글은 한 번만 만든다
+//   ⓪[EX_NO_AUTO 2026-10-07] 미리 만든 소리가 없는 예시는 고르기만 해서는 만들지 않는다(«목소리 만들기»를 눌러야)
+//   ①하객 맞이: 3번 «목소리 만들기» → 4번 → 3번 — 끝나면 네 줄 모두 3번 소리 · 만드는 중 없음 · 머리 «확정하기» ③같은 글은 한 번만
+//   ②미리 만든 예시는 누르자마자 «확정하기»(만드는 중 · 반짝임 없음) ⑤고른 뒤에 미리 만들기가 끝나면 그 줄에 조용히 붙는다
 //   ④입장 인사: 미리 만들기(_exWarmEntry)가 멘트마다 두 분 섞은 소리를 기억 — 멘트를 바꾸면 바로 붙고 «확정하기»
 //   ★«done» = 붙인 직후 잠깐 나오는 완료 표시(MK.aiDone) — 그 뒤 «확정하기». 둘 다 «기다림 없음»이다
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
@@ -31,23 +32,36 @@ try {
     S.up = {}; ['g0', 'g1', 'g2', 'g3'].forEach((k) => { S.up[k] = { src: 'ai', by: _vcLineWho(k), name: 'x', tx: _txSig(_recNeed(k)), tempo: _tKey(k), pause: _pKey(k), wq: _slWhoSig(k) }; });
     mkGo('guest'); });
   await wait(500);
-  await pg.evaluate(() => mkGuestEx(2)); await wait(150);
+  /* ★[EX_NO_AUTO 2026-10-07] 예시를 고르기만 해서는 새로 만들지 않는다 — 미리 만든 소리가 있으면 조용히 붙이고, 없으면 «목소리 만들기»를 눌러야 만든다 */
+  await pg.evaluate(() => { window.__warm = window._vcWarmAll; window._vcWarmAll = () => {}; window.__mk.length = 0; });   // 미리 만들기를 잠깐 멈추고 «없을 때»를 본다
+  await pg.evaluate(() => mkGuestEx(2)); await wait(1200);
+  const z = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; return { up: ks.map((k) => MK_UP[k] || ''), mode: ks.map((k) => _aiMode(k)), mk: window.__mk.filter((x) => !/^bg:/.test(x)) }; });
+  ok(`${w} ⓪ 미리 만든 소리가 없는 예시를 고르면 저절로 만들지 않는다 — «만드는 중» 없음 · 단추 «목소리 만들기» [EX_NO_AUTO]`, z.up.every((x) => !x) && z.mode.every((m) => m === 'need') && !z.mk.length, JSON.stringify(z));
+  /* ① 직접 누른 일의 경합 — 3번에서 «목소리 만들기» → 4번 → 3번: 하던 일을 기억해 끝까지 */
+  await pg.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => mkAiGo(k)); }); await wait(150);
   const mid = await pg.evaluate(() => ['g0', 'g1', 'g2', 'g3'].map((k) => MK_UP[k]).join(','));
   await pg.evaluate(() => mkGuestEx(3)); await wait(150);
   await pg.evaluate(() => mkGuestEx(2)); await wait(3500);
   const a = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; return { cur: _guestExCur(), match: ks.map((k) => (S.up[k] || {}).tx === _txSig(_recNeed(k))), up: ks.map((k) => MK_UP[k] || ''), mode: ks.map((k) => _aiMode(k)), stale: ks.map((k) => _upStale(k)), mk: window.__mk.slice() }; });
-  ok(`${w} ① 3 → 4 → 3 — 네 줄 모두 3번 글 소리 · 만드는 중 없음 · 머리 «확정하기»`, a.cur === 2 && a.match.every(Boolean) && a.up.every((x) => !x) && a.mode.every((m) => m === 'keep') && !a.stale.some(Boolean), JSON.stringify({ mid, ...a, mk: a.mk.length }));
-  const ex3 = a.mk.filter((x) => !/^bg:/.test(x)).length;
-  await pg.evaluate(() => { window.__mk.length = 0; mkGuestEx(3); }); await wait(250);
+  ok(`${w} ① 3번 «목소리 만들기» → 4번 → 3번 — 네 줄 모두 3번 글 소리 · 만드는 중 없음 · 머리 «확정하기» [EX_RACE]`, /make/.test(mid) && a.cur === 2 && a.match.every(Boolean) && a.up.every((x) => !x) && a.mode.every((m) => m === 'keep') && !a.stale.some(Boolean), JSON.stringify({ mid, ...a, mk: a.mk.length }));
+  ok(`${w} ③ 같은 글은 한 번만 만든다(3번 4줄 = 4번 이하)`, a.mk.filter((x) => !/^bg:/.test(x)).length <= 4, JSON.stringify(a.mk));
+  /* ② 미리 만든 소리가 있으면 바로 · 조용히 — «만드는 중» · «저장 중» 없이 곧장 «확정하기» */
+  await pg.evaluate(() => { window._vcWarmAll = window.__warm; _vcWarmAll('groom'); _vcWarmAll('bride'); }); await pg.evaluate(async () => { let q; do { q = VC_ALTQ; await q; } while (q !== VC_ALTQ); });   // 뒤 줄이 다 빌 때까지
+  await pg.evaluate(() => { window.__mk.length = 0; mkGuestEx(3); });
+  const b0 = await pg.evaluate(() => ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k))); await wait(400);
   const b = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; return { cur: _guestExCur(), match: ks.map((k) => (S.up[k] || {}).tx === _txSig(_recNeed(k))), mode: ks.map((k) => _aiMode(k)), mk: window.__mk.slice() }; });
-  ok(`${w} ② 그 사이 만든 4번 소리는 기억 — 4번을 누르면 다시 묻지 않고 바로 붙는다 · «확정하기»`, b.cur === 3 && b.match.every(Boolean) && b.mode.every((m) => m === 'keep' || m === 'done') && !b.mk.some((x) => /^g\d:/.test(x)), JSON.stringify(b));
-  ok(`${w} ③ 같은 글은 한 번만 만든다(3번 4줄 + 4번 4줄 = 8번 이하)`, ex3 <= 8, JSON.stringify(a.mk));
+  ok(`${w} ② 미리 만든 4번 — 누르자마자 «확정하기»(만드는 중 · 반짝임 없음) · 업체에 다시 묻지 않음 [EX_NO_AUTO]`, b0.every((m) => m === 'keep') && b.cur === 3 && b.match.every(Boolean) && b.mode.every((m) => m === 'keep') && !b.mk.some((x) => /^g\d:/.test(x)), JSON.stringify({ b0, ...b }));
+  /* ⑤ 고른 뒤에 미리 만들기가 끝나면 그 줄에 조용히 붙는다 */
+  const e = await pg.evaluate(async () => { window._vcWarmAll = () => {}; VC_ALT = {}; mkGuestEx(1); await new Promise((r) => setTimeout(r, 300)); const before = ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k));
+    window._vcWarmAll = window.__warm; _vcWarmAll('groom'); _vcWarmAll('bride'); let q; do { q = VC_ALTQ; await q; } while (q !== VC_ALTQ); await new Promise((r) => setTimeout(r, 300));
+    const ks = ['g0', 'g1', 'g2', 'g3']; return { before, after: ks.map((k) => _aiMode(k)), match: ks.map((k) => (S.up[k] || {}).tx === _txSig(_recNeed(k))) }; });
+  ok(`${w} ⑤ 고를 때 없던 소리는 미리 만들기가 끝나면 저절로 조용히 붙는다(목소리 만들기 → 확정하기) [EX_NO_AUTO]`, e.before.every((m) => m === 'need') && e.after.every((m) => m === 'keep') && e.match.every(Boolean), JSON.stringify(e));
   /* ④ 입장 인사 미리 만들기 */
   const c = await pg.evaluate(async () => { window.__mk.length = 0; S.entry = 'A'; S.up.entry = { src: 'ai', by: ['groom', 'bride'], name: 'x' }; const sn = _vcSnap('entry', {}); Object.assign(S.up.entry, { tx: _txSig(sn.t), tempo: sn.tempo, pause: sn.pause, wq: sn.wq, tq: sn.tq, pf: LINE_EVEN_V });
-    _exWarmEntry(); await new Promise((r) => setTimeout(r, 6500)); const made = window.__mk.slice(); window.__mk.length = 0;
-    mkGo('entry'); await new Promise((r) => setTimeout(r, 300)); mkEntryEx(2); await new Promise((r) => setTimeout(r, 300));
-    return { made, after: window.__mk.slice(), match: S.up.entry.tx === _txSig(_recNeed('entry')), mode: _aiMode('entry'), up: MK_UP.entry || '' }; });
-  ok(`${w} ④ 입장 인사 — 멘트마다 미리 만들어 기억 · 멘트를 바꾸면 바로 붙고 «확정하기»(다시 묻지 않음)`, c.made.filter((x) => /^bg:entry:/.test(x)).length >= 4 && !c.after.some((x) => /entry:/.test(x)) && c.match && (c.mode === 'keep' || c.mode === 'done') && !c.up, JSON.stringify(c));
+    _exWarmEntry(); { let q; do { q = VC_ALTQ; await q; } while (q !== VC_ALTQ); } const made = window.__mk.slice(); window.__mk.length = 0;
+    mkGo('entry'); await new Promise((r) => setTimeout(r, 300)); mkEntryEx(2); const m0 = _aiMode('entry'); await new Promise((r) => setTimeout(r, 300));
+    const e0 = S.entry, all6 = ENTRY_KEYS.every((v) => { S.entry = v; const ok = !!_exCached('entry'); S.entry = e0; return ok; }); return { made: made.length, all6, after: window.__mk.filter((x) => /^entry:/.test(x)), match: S.up.entry.tx === _txSig(_recNeed('entry')), m0, mode: _aiMode('entry'), up: MK_UP.entry || '' }; });
+  ok(`${w} ④ 입장 인사 — 멘트 여섯 모두 미리 만들어 기억 · 멘트를 바꾸면 바로 «확정하기»(다시 묻지 않음 · 만드는 중 없음)`, c.all6 && !c.after.length && c.match && c.m0 === 'keep' && c.mode === 'keep' && !c.up, JSON.stringify(c));
   ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
   await pg.close();
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
