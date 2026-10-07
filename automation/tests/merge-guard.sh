@@ -14872,6 +14872,11 @@ chk 'FLOW_DOT_SEAL' order-preview.html 1
 chk '.mk-flow li.q::after{background:var(--seal)}' order-preview.html 1
 nochk '.mk-flow li.q::after{background:var(--gold-deeper)}' order-preview.html
 chk 'FLOW_DOT_SEAL' scripts/audit/flow-thread.mjs 1
+# ★[FLOW_PEOPLE_SEAL 2026-10-07 사장님 «구분 기준이 뭐야 · 최선이야?»] 진사 = 사람이 하는 순서(● · ○ 둘 다) · ▶ 안내 목소리는 옅은 금빛
+chk 'FLOW_PEOPLE_SEAL' order-preview.html 1
+chk '.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--seal)}' order-preview.html 1
+nochk '.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--gold-deeper)}' order-preview.html
+chk 'FLOW_PEOPLE_SEAL' scripts/audit/flow-thread.mjs 1
 # ★[FAST_FIRST 2026-10-07 사장님 «검사 같은 건 나중에 한 번에 · 요청한 것만 빠르게 반영»] 작업 방식 규칙이 CLAUDE.md 에 살아 있나(두 곳 — 절 · 화면 PR 점검 3단의 덧줄)
 chk 'FAST_FIRST' CLAUDE.md 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-thread.mjs >/dev/null 2>&1; _flt=$?; [ "$_flt" = 1 ] && { echo 'FAIL flow-thread: 순간 흐름(흐름선 · 마디 · 행동 줄)이 어긋났습니다 — node scripts/audit/flow-thread.mjs'; fail=1; }; fi
