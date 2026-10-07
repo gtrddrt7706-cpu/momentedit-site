@@ -91,7 +91,7 @@ function ltGetCouple(p) {
     return payload;
   } catch (err) {
     try { console.error('[getCouple] ' + err); } catch (_) {}
-    return { ok: false, error: 'INTERNAL_ERROR' };   // 외부엔 일반화 — 상세 정보 누출 방지
+    return { ok: false, ecode: 'G9', eid: (typeof _errId === 'function') ? _errId() : '', _why: String(err && err.stack || err).replace(/\s+/g, ' ').slice(0, 200), error: 'INTERNAL_ERROR' };   // 외부엔 일반화 — 상세 정보 누출 방지 · [ERR_CODE_GAS] 오류기록에 남는다
   }
 }
 
@@ -223,8 +223,12 @@ function ltGuestLetter(body) {
     var sent = _ltSendToRecipients(couple, guestName, relation, message, recipient);
     return { ok: true, delivered: sent > 0 };
   } catch (err) {
-    _ltAdminMail('[Moment Edit] 편지 시스템 오류', '오류: ' + err + '\n\n원본: ' + JSON.stringify(body || {}));
-    return { ok: false, error: 'INTERNAL_ERROR' };   // 외부엔 일반화 — 상세는 관리자 메일
+    /* ★[ERR_CODE_GAS 2026-10-07] 종전엔 실패할 때마다 하객 편지 원문(이름 · 관계 · 글)을 실은 관리자 메일을 보냈다(중복 억제 없음).
+       이제 하루 한 통 · 원문 없이(예식 번호 · 오류 글만) · 자세한 것은 오류기록 시트(G9 · 사고번호) */
+    var _eid = (typeof _errId === 'function') ? _errId() : '';
+    try { var _pp = PropertiesService.getScriptProperties(), _dd = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+      if (_pp.getProperty('LT_ERRMAIL') !== _dd) { _pp.setProperty('LT_ERRMAIL', _dd); _ltAdminMail('[Moment Edit] 편지 시스템 오류', '오류: ' + String(err).slice(0, 300) + '\n예식: ' + String((body && body.eventId) || '').slice(0, 40) + (_eid ? '\n사고번호: ' + _eid : '') + '\n(편지 원문은 싣지 않아요 · 같은 날 더 보내지 않아요 · 오류기록 시트에 다 남아요)'); } } catch (_m) {}
+    return { ok: false, ecode: 'G9', eid: _eid, _why: String(err && err.stack || err).replace(/\s+/g, ' ').slice(0, 200), error: 'INTERNAL_ERROR' };   // 외부엔 일반화 — 화면이 한국어 한 줄로 바꿔 보인다
   }
 }
 

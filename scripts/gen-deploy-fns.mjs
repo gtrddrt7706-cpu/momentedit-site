@@ -186,6 +186,7 @@ const PROPS = {
   RFSTUDIO_: ['state'], VCCHARS_: ['state'], VCERR_: ['state'],   /* [VC_WHY] 예식마다 AI 목소리 마지막 실패 한 건 */   /* [RF_STUDIO_UP] 스튜디오가 대신 올린 파일 · [VOICE_CLONE_0928] 이번 달 AI 글자 수(뒤에 코드 · 달이 붙는 접두사) */
   RFQ_: ['state'], RFM_: ['state'],   /* [RF_MAIL_THROTTLE 2026-10-04] 직접 올린 파일 알림 줄 · 마지막 메일 시각(코드별) */
   VC_: ['state'],   /* [VOICE_CLONE] 코드별 동의 · voice_id · 한도 셈(코드가 뒤에 붙는 접두사) */
+  LT_ERRMAIL: ['state'], ERRALERT_: ['state'], NSERR_: ['state'],   /* [ERR_CODE_GAS 2026-10-07] 편지 오류 메일 하루 한 통 · 고객 화면 오류 코드별 메일 하루 한 통(코드가 뒤에) · «⚠️오류» 알림 제목별 하루 한 통(해시가 뒤에) */
 };
 
 /* ★표가 저장소를 따라가는지 — getProperty 로 읽는 키가 표에 다 있는가.

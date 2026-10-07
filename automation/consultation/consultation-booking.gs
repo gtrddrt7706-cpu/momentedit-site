@@ -161,13 +161,15 @@ function doGet(e) {
     if (p.action === 'payconfirm') return servePayConfirm(p);   // [메일 원클릭] 입금 확인(서명·14일·멱등)
     // [LETTER_MERGED] 청첩장 16종·라이브·공유 미리보기의 부부 정보 조회(87_letter · 옛 Letter System 웹훅에서 옮김).
     //  ★반드시 아래 handleAction 보다 위 — action 이 붙은 GET 은 전부 메일 버튼으로 떨어진다.
+    if (p.action === 'getCouple') { __ERR_ON = true; __ERR_ACT = 'getCouple'; __ERR_TOK = ''; }   // [ERR_CODE_GAS] 하객 청첩장 · 라이브의 예식 정보 조회도 실패 코드 · 오류기록(아래 줄은 LETTER_ROUTE 가 글자 그대로 지킨다 — 합치지 말 것)
     if (p.action === 'getCouple') return jsonOut(ltGetCouple(p));
     if (p.action) return handleAction(p);            // 메일 버튼(승인/변경/수락/재선택)
     if (p.page === 'schedule' && p.token) return serveScheduleB(p.token, p.me === '1'); // 화면 B (me=1: 마이페이지 진입)
     return serveApplyA();                             // 기본: 화면 A (신청 폼, 공개)
   } catch (err) {
     try { Logger.log('doGet 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
-    return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.', false);   // 내부 예외 원문 비노출
+    var _gid = ''; try { if (typeof _errId === 'function') { _gid = _errId(); _errRecord('get:' + String(p.action || p.page || '').slice(0, 30), 'X9', '문제가 발생했습니다', String((err && err.stack) || (err && err.message) || err).replace(/\s+/g, ' ').slice(0, 200), _gid, ''); } } catch (_g) {}   // [ERR_CODE_GAS]
+    return infoPage('문제가 발생했습니다', '잠시 후 다시 시도해 주세요. 계속되면 contact@momentedit.kr 로 문의해 주세요.' + (_gid ? ' (코드 X9 · ' + _gid + ')' : ''), false);   // 내부 예외 원문 비노출
   }
 }
 
@@ -1841,7 +1843,9 @@ function safeAttr(url) {
 // 관리자 알림 (참고 .gs notifyStudio · 24h dedup)
 function notifyStudio(subject, body, dedupKey) {
   try {
-    if (!CONFIG.SEND_ADMIN_MAIL) return;   // 관리자 메일 전부 OFF · 신규신청·오류알림 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
+    /* ★[ERR_CODE_GAS 2026-10-07] «⚠️오류» 알림(확정 메일 · 캘린더 · 환불 요청 메일 실패 등)이 이 스위치에 막혀 아무에게도 안 갔다 —
+       고객은 «보냈어요»를 보는데 메일은 안 가고 관리자도 모르는 자리였다. 스위치가 꺼져 있어도 오류만은 관리자 메일로(제목마다 하루 한 통) */
+    if (!CONFIG.SEND_ADMIN_MAIL) { if (/오류|실패/.test(String(subject || '')) && typeof _nfAdminLineEmail === 'function') { var _pk = 'NSERR_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(subject), Utilities.Charset.UTF_8)).slice(0, 16), _pp = PropertiesService.getScriptProperties(), _dd = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'); if (_pp.getProperty(_pk) !== _dd) { _pp.setProperty(_pk, _dd); _nfAdminLineEmail(String(subject).replace(/⚠️?/g, '') + ' · ' + String(body || '').replace(/\s+/g, ' ').slice(0, 300)); } } return; }   // 관리자 메일 전부 OFF · 신규신청 포함 카톡으로만. (복구: SEND_ADMIN_MAIL=true)
     if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
     if (dedupKey) {
       var c = CacheService.getScriptCache();
@@ -2118,7 +2122,7 @@ function formatConsultationSheet() {
 // 세션 → 개인코드 → 상담행 → 상담토큰 으로 잇는 어댑터(★4 두 축 공존의 실제 코드).
 function _sessionToConsult(token) {
   var s = resolveSession(token);                 // platform/30 · Customers 세션 검증
-  if (!s.ok) return { ok: false, error: _sessionMsg(s.reason) };
+  if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };   // [ERR_CODE_GAS] reason 을 넘긴다 — 종전엔 버려 화면이 만료 · 무효를 못 갈랐다
   var code = String(s.row.get('개인코드') || '').trim();
   var consult = code ? findRowByPersonalCode(code) : null;  // 상담예약 행(없으면 null·원자성 케이스)
   return { ok: true, code: code, cust: s.row, consult: consult };
@@ -2127,7 +2131,7 @@ function _sessionToConsult(token) {
 // getAvailability — 세션 확인 후 슬롯 가능/마감 반환(재사용)
 function handleGetAvailability(body) {
   var a = _sessionToConsult(body && body.token);
-  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   // [취소 동기화] 관리자/고객이 취소한 예약(또는 예외 단계 고객) — 새로고침해도 선택 화면 대신 취소 상태로 전환되게 플래그
   var _bst = a.consult ? String(a.consult.get('상태') || '').trim() : '';
   var _cst = a.cust ? String(a.cust.get('현재단계') || '').trim() : '';
@@ -2150,7 +2154,7 @@ function handleGetAvailability(body) {
 // submitSchedule — 세션→상담토큰 변환 후 기존 함수 호출(재사용)
 function handleSubmitSchedule(body) {
   var a = _sessionToConsult(body && body.token);
-  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   if (!a.consult) return { ok: false, error: '상담 신청 정보를 찾을 수 없습니다.' };
   // [취소 동기화] 페이지를 열어둔 사이 취소된 경우 — 제출 시점에도 차단(프런트가 cancelled로 마이페이지 전환)
   var _bst2 = String(a.consult.get('상태') || '').trim();
@@ -2170,7 +2174,7 @@ function handleSubmitSchedule(body) {
    잠그려면 actCancel 의 I/O 를 큐로 빼는 리팩터가 먼저다 — 그 전엔 잠금이 개악이다. */
 function handleCancelReservation(body) {
   var a = _sessionToConsult(body && body.token);
-  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   if (!a.consult) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
   var sheet = getSheet(); var colOf = buildHeaderIndex(sheet);
   var r = row(sheet, colOf, a.consult.num);
@@ -2195,7 +2199,7 @@ function handleCancelReservation(body) {
 // acceptProposal — 변경제안 수락 → 확정(재사용). 반환 HTML(infoPage)은 버리고 JSON만 응답.
 function handleAcceptProposal(body) {
   var a = _sessionToConsult(body && body.token);
-  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   if (!a.consult) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
   var sheet = getSheet(); var colOf = buildHeaderIndex(sheet);
   var r = row(sheet, colOf, a.consult.num);
@@ -2216,6 +2220,7 @@ function doPost(e) {
     }
     var body = Array.isArray(raw) ? {} : raw;
     var action = String((body && body.action) || '').trim();
+    __ERR_ON = true; __ERR_ACT = action; __ERR_TOK = String((body && body.token) || '');   // [ERR_CODE_GAS] jsonOut 이 실패 응답에 코드를 붙일 때 쓴다 · 토큰은 기록하지 않는다(개인코드를 찾는 데만)
     switch (action) {
       // ── 통합 플랫폼 ──
       case 'signup':     return jsonOut(handleSignup(body));
@@ -2299,21 +2304,33 @@ function doPost(e) {
       case '':
         submitApplication(body);
         return jsonOut({ ok: true });
-      default:
-        return jsonOut({ ok: false, error: '알 수 없는 요청입니다.' });
+      default:   // [ERR_CODE_GAS] 화면에 새 동작이 있는데 GAS 를 새로 배포하지 않았을 때 — 설정 · 배포(3) · 관리자 메일
+        return jsonOut({ ok: false, ecode: (typeof _errArea === 'function' ? _errArea(action) : 'X') + '3', _why: '알 수 없는 동작 ' + action.slice(0, 40) + ' · GAS 새 배포 확인', error: '지금은 처리할 수 없어요. 잠시 뒤 다시 눌러 주세요.' });
     }
   } catch (err) {
     try { Logger.log('doPost 오류: ' + (err && err.stack || err && err.message || err)); } catch (_) {}
     // 의도적 사용자 안내(짧은 한글 문장)만 그대로 노출 → 만료·24h·정책·'로그인이 필요' 등이 제네릭에 묻히지 않게.
     // 내부 JS 예외(영문·스택·코드기호)는 제네릭으로 차단(원문 비노출·정보노출 방지).
     var _em = String((err && err.message) || '');
-    var _userMsg = (_em && _em.length <= 140 && /[가-힣]/.test(_em)
-      && !/[<>{}]|https?:|Error:|Exception|undefined|null|cannot |TypeError|ReferenceError| at /i.test(_em))
-      ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';
-    return jsonOut({ ok: false, error: _userMsg });
+    /* [ERR_CODE_GAS] 관리자용 설정 안내(«시트 없음: … setupCustomers()를 먼저 실행하세요.»)가 고객 화면에 새던 것도 막는다 — «()» · «실행하세요» · «시트 없음» */
+    var _intended = !!(_em && _em.length <= 140 && /[가-힣]/.test(_em)
+      && !/[<>{}]|https?:|Error:|Exception|undefined|null|cannot |TypeError|ReferenceError| at |\(\)|실행하세요|시트 없음/i.test(_em));
+    var _userMsg = _intended ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';
+    var _out = { ok: false, error: _userMsg };
+    __ERR_ON = true;
+    if (!_intended) {   // [ERR_CODE_GAS] 예상 못 한 오류 = 9(«… is not defined/function» 은 붙여넣기 · 배포 누락 = 3) · 사고번호로 오류기록의 그 줄을 찾는다
+      try { _out.eid = (typeof _errId === 'function') ? _errId() : ''; _out.ecode = ((typeof _errArea === 'function') ? _errArea(__ERR_ACT) : 'X') + (/is not defined|is not a function/.test(_em) ? 3 : 9); _out._why = String((err && err.stack) || _em).replace(/\s+/g, ' ').slice(0, 200); } catch (_e2) {}
+    }
+    return jsonOut(_out);
   }
 }
+/* ★★[ERR_CODE_GAS 2026-10-07 사장님 «스크린샷이나 고객이 알려 주는 오류 코드로 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+   doPost 가 동작 이름을 쥐고(__ERR_ON) 실패 응답(ok:false)을 내보내기 직전 _errStamp(95_notify)가 코드를 붙이고 «오류기록» 시트에 남긴다.
+   ★변수는 이 파일에 둔다 — 95_notify 를 아직 안 붙여넣은 판에서도 doGet 의 jsonOut 이 ReferenceError 로 죽지 않게(typeof 로 함수만 확인한다) */
+var __ERR_ON = false, __ERR_ACT = '', __ERR_TOK = '';
 function jsonOut(obj) {
+  if (__ERR_ON && obj && obj.ok === false && typeof _errStamp === 'function') { try { obj = _errStamp(obj) || obj; } catch (_es) {} }   // [ERR_CODE_GAS]
+  if (obj && obj._why !== undefined) delete obj._why;   // 내부 까닭은 고객에게 안 나간다(95_notify 를 안 붙인 판에서도)
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 

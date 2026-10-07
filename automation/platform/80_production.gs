@@ -1214,8 +1214,8 @@ function handleRitualFile(body) {
     folder = _rfFolderFor(code);
     var nm = RF_KEYS[key] + ' · ' + _gpSafeName(body.name, mime);
     f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, nm));
-  } catch (e) {
-    return { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' };
+  } catch (e) {   // [ERR_CODE_GAS] 요청은 서버에 왔다 — 드라이브(용량 · 권한 · 폴더) 실패를 연결 탓으로 말하지 않는다
+    return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 저장하지 못했어요. 다시 눌러 주세요.' };
   }
   /* ★★[RF_MAIL_AI · RF_MAIL_THROTTLE 2026-10-04 사장님 «1분에 7통»] AI 가 만든 줄 파일에는 «예식 준비 파일 도착» 메일을 보내지 않는다 —
      AI 줄은 서버가 방금 만든 것이다(make 가 VCMK_<코드>_<자리> 를 30분 남긴다 · 화면도 src:'ai' 를 실어 보낸다 — 둘 중 하나면 AI).
@@ -1242,10 +1242,12 @@ function handleRitualFileGet(body) {
   var s = resolveSession(String(body.token || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-  var f = _rfFileIn(code, String(body.id || '').trim());
-  if (!f) return { ok: false, error: '파일을 찾을 수 없어요.' };
-  var b = f.getBlob(); if (b.getBytes().length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
-  return { ok: true, key: String(body.key || ''), id: f.getId(), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
+  try {   // [ERR_CODE_GAS] 드라이브 실패는 L4 로(종전엔 doPost 의 일반 문구)
+    var f = _rfFileIn(code, String(body.id || '').trim());
+    if (!f) return { ok: false, error: '파일을 찾을 수 없어요.' };
+    var b = f.getBlob(); if (b.getBytes().length > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '파일이 너무 커요.' };
+    return { ok: true, key: String(body.key || ''), id: f.getId(), mime: b.getContentType() || 'audio/wav', data: Utilities.base64Encode(b.getBytes()) };
+  } catch (e) { return { ok: false, ecode: 'L4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 불러오지 못했어요. 다시 눌러 주세요.' }; }
 }
 /* ★[VOICE_KEEP 2026-09-28 코워크 0928 8-6] 두 분이 먼저 «목소리 파일 모두 지우기» — 그 예식 폴더(안내 소리 · 대신 올린 파일 · AI 소리 · 읽은 녹음 · 연습 소리)를 통째로 휴지통,
    업체 쪽 AI 목소리도 지운다(_vcPurgeNow). 기록 RFGONE_<코드>=오늘 — 마이페이지 알림 줄이 사라지고, 30일 지우기(purgeRitualFiles)는 건너뛴다 */
@@ -1254,7 +1256,9 @@ function handleRitualFilePurgeMine(body) {
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('RF_' + code), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
-  if (fid) { try { DriveApp.getFolderById(fid).setTrashed(true); } catch (e) {} }
+  /* ★[ERR_CODE_GAS 2026-10-07] 종전엔 폴더 휴지통이 실패해도 삼키고 «지웠어요»(ok)라 했다 — 파일은 남는데 두 분은 지운 줄 안다(개인정보 약속).
+     이미 없는 폴더(못 찾음)는 지운 것과 같다 · 그 밖의 실패는 D4 로 돌려주고 RFGONE 을 적지 않는다(다시 누르면 된다) */
+  if (fid) { try { DriveApp.getFolderById(fid).setTrashed(true); } catch (e) { var _m = String(e && e.message || e); if (!/not found|could not be found|No item|찾을 수 없/i.test(_m)) return { ok: false, ecode: 'D4', _why: 'drive ' + _m.slice(0, 180), error: '파일을 다 지우지 못했어요. 다시 눌러 주세요.' }; } }
   try { _vcPurgeNow(code); } catch (e) {}
   props.setProperty('RFGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {}
   return { ok: true, gone: today };
@@ -1267,7 +1271,7 @@ function handleRitualFileDel(body) {
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var f = _rfFileIn(code, String(body.id || '').trim());
   if (!f) return { ok: true, gone: true };   // 이미 없음 = 지운 것과 같다(멱등)
-  try { f.setTrashed(true); } catch (e) { return { ok: false, error: '지우지 못했어요. 다시 눌러 주세요.' }; }
+  try { f.setTrashed(true); } catch (e) { return { ok: false, ecode: 'D4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '지우지 못했어요. 다시 눌러 주세요.' }; }   // [ERR_CODE_GAS]
   return { ok: true, key: String(body.key || ''), id: String(body.id || '') };
 }
 
@@ -1299,7 +1303,7 @@ function adminRitualFileUp(code, key, name, mime, data) {
   mime = String(mime || '').trim().toLowerCase(); if (!/^audio\/[a-z0-9.+-]+$/.test(mime)) return { ok: false, error: '소리 파일만 올릴 수 있어요.' };
   var b64 = String(data || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, ''); if (!b64) return { ok: false, error: '파일이 비어 있어요.' };
   if (b64.length * 3 / 4 > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '한 개에 ' + GP_MAX_FILE_MB + 'MB 까지 올릴 수 있어요.' };
-  var f; try { f = _rfFolderFor(code).createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, RF_KEYS[key] + ' · 스튜디오 · ' + _gpSafeName(name, mime))); } catch (e) { return { ok: false, error: '올리다 끊겼어요.' }; }
+  var f; try { f = _rfFolderFor(code).createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, RF_KEYS[key] + ' · 스튜디오 · ' + _gpSafeName(name, mime))); } catch (e) { return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 저장하지 못했어요.' }; }   // [ERR_CODE_GAS]
   var p = PropertiesService.getScriptProperties(), m = _rfStudioUps(code); m[key] = { id: f.getId(), name: String(name || '').slice(0, 60), at: fmtKST(new Date()) }; p.setProperty('RFSTUDIO_' + code, JSON.stringify(m));
   return { ok: true, key: key, id: f.getId(), at: m[key].at };
 }
@@ -1389,13 +1393,16 @@ function _vcErr(code, c, op, why) {   // [VOICE_CLONE_0928] 8-3 오류 — 422 �
   try { PropertiesService.getScriptProperties().setProperty('VCERR_' + code, JSON.stringify(W)); } catch (e) {}
   try { console.warn('[VC_WHY] ' + code + ' ' + W.op + ' HTTP ' + W.http + ' ' + W.msg); } catch (e) {}
   if (c === 422) return { ok: false, bad: true, error: '이 줄 글에 소리로 읽기 어려운 글자가 있어요. 글을 고치거나 직접 녹음해 주세요' };
-  _vcAlert('vcerr_' + code + '_' + (c || 0), '타입캐스트가 거절했어요 · ' + (W.op || '?') + ' · HTTP ' + (c || '연결 실패') + (W.msg ? ' · ' + W.msg : '') + ' · 예식 ' + code
+  /* ★[ERR_CODE_GAS · VC_DOWN_KIND 2026-10-07] 화면이 원인별 한 줄 + 코드(V1 몰림 · V2 요금제 · V4 그 밖)로 보이게 kind · http · ecode 를 싣는다.
+     HTTP 가 없으면 업체가 거절한 것이 아니다(드라이브 · 업체 연결 실패) — 종전엔 관리자 메일이 그것도 «타입캐스트가 거절했어요»라고 했다 */
+  var _kind = (c === 429 || c === 503) ? 'busy' : (c === 401 || c === 402 || c === 403) ? 'plan' : 'fail';
+  _vcAlert('vcerr_' + code + '_' + (c || 0), (c ? '타입캐스트가 거절했어요' : '서버 · 드라이브 · 업체 연결 오류') + ' · ' + (W.op || '?') + ' · HTTP ' + (c || '없음') + (W.msg ? ' · ' + W.msg : '') + ' · 예식 ' + code
     + (c === 402 ? ' · 크레딧이 모자라요 · 요금제를 확인해 주세요' : c === 403 ? ' · 목소리 칸이 찼거나 요금제가 복제를 허용하지 않아요' : c === 401 ? ' · 키가 맞지 않아요' : ''));
-  return { ok: false, down: true, error: VC_DOWN }; }
+  return { ok: false, down: true, kind: _kind, http: c || 0, ecode: 'V' + ({ busy: 1, plan: 2, fail: 4 })[_kind], _why: W.msg, error: VC_DOWN }; }   // [ERR_CODE_GAS]
 function _vcGate(code, cfg, op, kind) {   // ★[VC_GATE_WHY 2026-09-28 WNJK3Y 실측] 확인 문장 단계에서 «지금은 AI 목소리를 만들 수 없어요»가 떴는데 기록이 없었다 — 문 앞에서 막힌 까닭도 VCERR_ 에(메일은 안 보낸다 · 설정 문제라)
   var m = cfg.mode[kind], why = !cfg.key ? 'TYPECAST_API_KEY 가 비어 있어요' : m === 'off' ? (kind === 'read' ? 'PRACTICE_READ' : 'VOICE_CLONE') + ' 가 off 예요(studio 또는 on 이어야 해요)' : m === 'studio' ? 'VOICE_STUDIO_CODES 에 ' + code + ' 가 없어요' : '스위치가 막혀 있어요';
   try { PropertiesService.getScriptProperties().setProperty('VCERR_' + code, JSON.stringify({ at: fmtKST(new Date()), op: op || '', http: 0, msg: '문 앞에서 막힘 · ' + why })); } catch (e) {}
-  return { ok: false, down: true, error: VC_DOWN }; }
+  return { ok: false, down: true, kind: 'gate', ecode: 'V3', _why: why, error: VC_DOWN }; }   // [ERR_CODE_GAS] 스위치 · 시험 예식 목록 · 키 = 설정(3)
 function _vcWhy(x) {   // [VC_WHY] 업체 오류 글 — JSON 이면 detail · message · error 를 · 아니면 앞 200자
   var t = ''; try { t = String(x.r.getContentText() || ''); } catch (e) { return ''; }
   try { var j = JSON.parse(t), m = j.detail || j.message || j.error || j.msg || ''; if (m) return (typeof m === 'string' ? m : JSON.stringify(m)).slice(0, 200); } catch (e) {}
@@ -1467,7 +1474,7 @@ function handleVoiceClone(body) {
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
   var cfg = _vcCfg(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
   var st0 = JSON.parse(JSON.stringify(st)), save = function () { _vcSave(code, st0, st); st0 = JSON.parse(JSON.stringify(st)); };   // [VC_STATE_MERGE] 바꾼 칸만 얹는다
-  var down = { ok: false, down: true, error: VC_DOWN };
+  var down = { ok: false, down: true, kind: 'gate', ecode: 'V3', error: VC_DOWN };   // [ERR_CODE_GAS] 읽을 목소리 없음(스튜디오 기본 목소리 비어 있음) = 설정(3)
   if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, groom: _vcPub(st.groom, code), bride: _vcPub(st.bride, code), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
   if (op === 'delete') { var ws = who === 'all' ? ['groom', 'bride'] : [who], gone = [];
     ws.forEach(function (w) { var p = st[w]; if (!p || !p.voiceId) return; _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); gone.push(w); });
@@ -1668,26 +1675,27 @@ function handleGuestPhoto(body) {
 
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   // ★열 가드 — 없으면 저장하지 않는다. writeCell 이 조용히 건너뛰어 '올렸는데 없다'가 되는 것을 막는다.
-  if (!colOf['하객사진폴더ID']) return { ok: false, error: '아직 준비 중이에요. 두 분께 알려 주세요.' };
+  if (!colOf['하객사진폴더ID']) return { ok: false, ecode: 'G3', _why: 'Customers 에 하객사진폴더ID 열 없음', error: '아직 준비 중이에요. 두 분께 알려 주세요.' };   // [ERR_CODE_GAS] 설정(3) — 다시 눌러도 안 된다
 
   if ((Number(cust.get('하객사진수') || 0) || 0) >= GP_MAX_FILES) return { ok: false, full: true, error: '사진이 충분히 모였어요. 고맙습니다.' };
   if ((Number(cust.get('하객사진MB') || 0) || 0) * 1048576 + bytes > GP_MAX_TOTAL_MB * 1048576) return { ok: false, full: true, error: '사진이 충분히 모였어요. 고맙습니다.' };
 
   // (1) 폴더 확보 — 첫 하객 여럿이 동시에 눌러도 폴더가 둘 생기지 않게 짧게 잠근다.
   var lock = LockService.getScriptLock(), fid = '';
+  /* [ERR_CODE_GAS 2026-10-07] 잠금 대기(G1)와 폴더 만들기 실패(G4)를 가른다 — 종전엔 둘 다 «지금은 붐벼요» */
+  try { lock.waitLock(20000); } catch (e) { try { if (typeof lockBusySignal === 'function') lockBusySignal('guestPhoto'); } catch (_l) {} return { ok: false, ecode: 'G1', error: '지금은 붐벼요. 잠시 뒤 다시 눌러 주세요.' }; }
   try {
-    lock.waitLock(20000);
     fid = _gpFolderFor(_findCustomerBy('안내공유토큰', token, false) || cust, sheet, colOf);
   } catch (e) {
-    return { ok: false, error: '지금은 붐벼요. 잠시 뒤 다시 눌러 주세요.' };
+    return { ok: false, ecode: 'G4', _why: 'gp folder ' + String(e && e.message || e).slice(0, 170), error: '사진 둘 곳을 열지 못했어요. 잠시 뒤 다시 눌러 주세요.' };
   } finally { try { lock.releaseLock(); } catch (e2) {} }
-  if (!fid) return { ok: false, error: '저장할 곳을 열지 못했어요.' };
+  if (!fid) return { ok: false, ecode: 'G3', _why: 'gp folder 없음', error: '저장할 곳을 열지 못했어요.' };
 
   // (2) 파일 쓰기 — ★잠금 밖. 여기가 느린 구간이라 잠그면 하객들이 줄을 서다 당일에 실패한다.
   try {
     DriveApp.getFolderById(fid).createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, _gpSafeName(body.name, mime)));
-  } catch (e) {
-    return { ok: false, error: '올리다 끊겼어요. 다시 눌러 주세요.' };
+  } catch (e) {   // [ERR_CODE_GAS] 드라이브 실패 — 연결 탓(«끊겼어요»)으로 말하지 않는다
+    return { ok: false, ecode: 'G4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '사진을 저장하지 못했어요. 다시 눌러 주세요.' };
   }
 
   // (3) 집계 — 다시 짧게 잠그고 **그때 읽은 값**에 더한다(동시 업로드로 숫자가 덮이지 않게).
@@ -2022,7 +2030,7 @@ function handleSnapRefUpload(body) {
     var folder = DriveApp.getFolderById(fid);
     f1 = folder.createFile(Utilities.newBlob(Utilities.base64Decode(full.b64), full.mime, zone + '_' + stamp + '.' + ext(full.mime)));
     f2 = folder.createFile(Utilities.newBlob(Utilities.base64Decode(thumb.b64), thumb.mime, zone + '_' + stamp + '_th.' + ext(thumb.mime)));
-  } catch (e) { trash(); return { ok: false, error: '사진을 올리다 끊겼어요. 다시 해 주세요.' }; }
+  } catch (e) { trash(); return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '사진을 저장하지 못했어요. 다시 해 주세요.' }; }   // [ERR_CODE_GAS]
   try { lock.waitLock(15000); } catch (e) { trash(); return { ok: false, error: '잠시 후 다시 시도해 주세요.' }; }
   try {
     var cust2 = findCustomerByCode(code);

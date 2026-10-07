@@ -15176,3 +15176,23 @@ nochk "error:'지금은 AI 목소리를 만들 수 없어요 · 잠시 뒤 다�
 nochk "d2.error='오래 걸려 기다리다 멈췄어요" order-preview.html
 chk 'VC_DOWN_KIND' scripts/audit/vc-down-kind.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-down-kind.mjs >/dev/null 2>&1; _vdk=$?; if [ "$_vdk" = 1 ]; then echo 'FAIL vc-down-kind: AI 목소리 실패 문구(원인별 한 줄 + 코드 V0 ~ V7)가 어긋났습니다 — node scripts/audit/vc-down-kind.mjs'; fail=1; else echo "ok vc-down-kind ($_vdk)"; fi; fi
+# ★★[ERR_CODES · ERR_CODE_GAS 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+#   글자 = 자리 · 숫자 = 무슨 일. 표 = assets/err-codes.js · 서버 = 95_notify(_errStamp · 오류기록 · adminErrLog) + 라우터(jsonOut · doPost) · 관리자 = 검색창 «코드 찾기» · 고객 상세 «최근 실패»
+#   err-codes.mjs 가 표 · 서버 글자 · 박힌 코드 · 가짜 GAS 도장을 잰다 — 도장이 글에 코드를 안 붙이게 바꾸면 FAIL 5(돌연변이 확인)
+chk 'ERR_CODE_GAS' automation/consultation/consultation-booking.gs 8
+chk 'ERR_CODE_GAS' automation/platform/95_notify.gs 6
+chk 'ERR_CODE_GAS' automation/platform/80_production.gs 10
+chk 'ERR_CODE_GAS' automation/platform/70_journey.gs 1
+chk 'ERR_CODE_GAS' automation/platform/87_letter.gs 2
+chk 'adminErrLog: adminErrLog,' automation/admin/admin.gs 1
+chk 'function _errStamp(out)' automation/platform/95_notify.gs 1
+chk "if (__ERR_ON && obj && obj.ok === false && typeof _errStamp === 'function')" automation/consultation/consultation-booking.gs 1
+chk "ecode: 'D4', _why: 'drive ' + _m.slice(0, 180), error: '파일을 다 지우지 못했어요" automation/platform/80_production.gs 1
+nochk "  if (fid) { try { DriveApp.getFolderById(fid).setTrashed(true); } catch (e) {} }" automation/platform/80_production.gs
+nochk "} catch (e) { return { ok: true, taken: {}, slots: WEDDING_SLOT.SLOTS" automation/platform/70_journey.gs
+nochk "원본: ' + JSON.stringify(body || {})" automation/platform/87_letter.gs
+chk 'ERR_CODES' admin.html 3
+chk 'src="/assets/err-codes.js"' admin.html 1
+chk 'ERR_CODES' assets/err-codes.js 1
+chk 'ERR_CODES' scripts/audit/err-codes.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-codes.mjs >/dev/null 2>&1; _erc=$?; if [ "$_erc" = 1 ]; then echo 'FAIL err-codes: 오류 코드 장치(표 · 서버 도장 · 관리자 찾기)가 어긋났습니다 — node scripts/audit/err-codes.mjs'; fail=1; else echo "ok err-codes ($_erc)"; fi; fi

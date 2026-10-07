@@ -409,7 +409,10 @@ function handleWeddingAvailability(body) {
       _bk[_bd].forEach(function (t) { if (taken[_bd].indexOf(t) === -1) taken[_bd].push(t); });
     }
     return { ok: true, taken: taken, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS };
-  } catch (e) { return { ok: true, taken: {}, slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS }; }
+  } catch (e) {   /* ★[ERR_CODE_GAS 2026-10-07] 종전엔 조회가 실패해도 ok:true · 빈 표를 돌려줘 이미 찬 시간이 비어 보였다(요청할 때에야 «이미 마감»).
+       실패는 실패로 — C4 · 화면은 «확인하지 못했어요» 한 줄을 띄운다(신청은 서버가 다시 확인하므로 겹쳐 잡히지는 않는다) */
+    return { ok: false, ecode: 'C4', _why: 'availability ' + String(e && e.message || e).slice(0, 170), error: '예식 가능 시간을 확인하지 못했어요. 잠시 뒤 다시 열어 주세요.', slots: WEDDING_SLOT.SLOTS, labels: WEDDING_SLOT.LABELS };
+  }
 }
 // [임시고정 셀프 관리] 변경 — 새 날짜·슬롯으로 '요청' 재등록(승인됐던 것도 디렉터 재확인). 점유 검증은 요청 생성과 동일.
 function handleChangeWeddingHold(body) {
