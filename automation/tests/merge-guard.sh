@@ -15078,6 +15078,18 @@ nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);bor
 # ★[VFLOW_NOLINE 2026-10-07 사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자»] 나오는 곳 여섯 = 글 · › 만(점선 밑줄 없음)
 chk 'VFLOW_NOLINE' order-preview.html 2
 nochk 'white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep)' order-preview.html
+# ★[VFLOW_TAP · VFLOW_GAP 2026-10-07 사장님 «하객 맞이랑 준비됐어요 간격이 너무 멀다 · 누를 수 있는 글씨구나 인지할 수 있게»] 나오는 곳 = 가는 실선 밑줄(골드 · «자세히 보기»와 같은 표시) · 흐름 줄 아래 14 → 2
+chk 'VFLOW_TAP' order-preview.html 2
+chk 'white-space:nowrap;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--gold-deep);text-underline-offset:4px}' order-preview.html 1
+chk '.mk-vuse{margin:6px 0 2px}' order-preview.html 1
+nochk '.mk-vuse{margin:6px 0 14px}' order-preview.html
+# ★[CG_TOP_ALL · CG_EVEN 2026-10-07 사장님 «화촉 서는 분이 다른 곳 형태랑 다르다 · 버튼이 지저분하게 2줄»] 폰은 모든 고르기 줄이 이름표 위 · 칩 아래 · 한 줄에 안 들어가면 같은 폭 칸(2 × 2 · 3 × 2)
+chk 'CG_TOP_ALL' order-preview.html 1
+chk '@media (max-width:460px){.ls-cg{grid-template-columns:minmax(0,1fr);row-gap:6px}.ls-cg .gl{padding-top:0}}' order-preview.html 1
+nochk '@media (max-width:460px){.ls-cg.cg-vp{grid-template-columns:minmax(0,1fr);row-gap:6px}' order-preview.html
+chk 'CG_EVEN' order-preview.html 3
+chk 'function _cgEven(){' order-preview.html 1
+chk '  _cgEven();   // \[CG_EVEN\]' order-preview.html 1
 # ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
 chk 'VCARD_CALM' order-preview.html 3
 chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
@@ -15223,6 +15235,14 @@ chk 'VOICE_OPEN_1008' deploy-marks.json 1
 chk 'VOICE_OPEN_1008' scripts/audit/voice-open.mjs 1
 chk 'VOICE_OPEN_1008' scripts/audit/snap-plan.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/voice-open.mjs >/dev/null 2>&1; _vop=$?; if [ "$_vop" != 0 ]; then echo 'FAIL voice-open: 두 분 목소리 오픈 날짜가 서버 · 처리방침 · 위탁 줄에서 어긋났습니다 — node scripts/audit/voice-open.mjs'; fail=1; else echo 'ok voice-open'; fi; fi
+# ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460)에선 «확정 안내 보기 · 나레이션 자세히»를
+#   칩 아래 제 줄이 아니라 질문 줄(«어떻게 준비할까요») 오른쪽 끝에 — 이름표와 같은 11px · 글자 아래 선 맞춤 · 누를 칸 44 는 위로(영상 아래 간격 15px 그대로).
+#   PC · 태블릿은 칩 줄 오른쪽 끝 그대로 · 하객 맞이 · 식전 영상 · 입장 셋 다(_lChipRow 한 곳) · make-shell 이 390 · 1280 에서 잰다(폰 배치를 빼면 빨강 · 돌연변이 확인)
+chk 'VS_LINK_TOP' order-preview.html 2
+chk "return (a||b)?'<span class=\"cg-links\">'+a+b+'</span>':'';" order-preview.html 1
+chk '.ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(11px \* 1.4 - 44px);right:0;height:44px' order-preview.html 1
+chk '.ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:11px;line-height:1.4}' order-preview.html 1
+chk 'VS_LINK_TOP' scripts/audit/make-shell.mjs 3
 # ★★[TABLE_GREET_1008 2026-10-08 사장님 «웨딩사진 전에 테이블 돌아다니면서 인사드리는 이벤트 추가» · 디테일 하나씩 결정] 테이블 인사(table) —
 #   닫는 인사(108) 뒤 · 사진 안내(26) 앞 · 두 분 함께 · 테이블당 1분 30초(TABLE_SEC) · 테이블 수 = 좌석 배치도(S.tableN · mypage orderFill tables) ·
 #   고르기에 다른 순간과 같은 모양 · 기본은 «기록» 예시만 · 길어지면 그대로 두고 단체 사진 부족 알림 · 마무리 줄 없음(26 이 모은다) · 131 narr-table-in(녹음 전 글) · 배웅 줄 그대로.
