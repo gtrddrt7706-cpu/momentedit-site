@@ -2919,7 +2919,7 @@ var ERR_BUSY_OLD=/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?
 function _errIsRej(x){ return !!x && typeof x==='object' && (x instanceof Error || !!x.meKind || (typeof x.name==='string' && typeof x.message==='string' && !('ok' in x))); }   // 서버 답이 아니라 «던져진 것»인가
 function _errKind(x){ if(!_errIsRej(x)) return ''; if(x.meKind) return x.meKind; if(x.__meTimeout||x.name==='AbortError'||x.name==='TimeoutError') return 'slow'; if(x.name==='SyntaxError') return 'bad'; return ''; }   // slow 5 · net 6 · bad 7 · '' 모름 0(화면 코드 오류 등)
 function _errSess(x){ return !!(x && typeof x==='object' && !_errIsRej(x) && ERR_SESS[x.reason]); }
-function _errInfo(x, L){   // → { n:숫자, c:'S6'(사고번호가 있으면 'S9 · 7KQ2'), t:서버 한글 글, has:글에 이미 코드가 있나 }
+function _errInfo(x, L){   /* → { n:숫자, c:'S6'(사고번호가 있으면 'S9 · 7KQ2'), t:서버 한글 글, has:글에 이미 코드가 있나 } · [COMMENT_SWALLOW] 줄 끝 // 에 코드 모양을 두지 않는다 */
   L=L||(x&&x.meAct&&ERR_ACT[x.meAct])||'X';
   if(_errIsRej(x)){ var k=_errKind(x), n0=k==='slow'?5:k==='net'?6:k==='bad'?7:0; return {n:n0, c:L+n0, t:''}; }
   if(!x || typeof x!=='object') return {n:7, c:L+'7', t:''};   // JSON 이지만 객체가 아닌 답 — 깨진 답으로 센다
