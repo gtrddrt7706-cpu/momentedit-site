@@ -14624,6 +14624,13 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★★[VC_NET_AGAIN · VC_NET_SEC 2026-10-08 사장님 «지금도 그러는데?» · «오류를 확실하게 잡아야지»] 아이폰은 60초 넘는 답을 끊는다(서버 실행 기록엔 오류 없음) — 만들기 · 연습 읽기는 연결로 끊기면 12초 · 20초 뒤 두 번 더(저장본) · 끊김 글에 «몇 초»
+chk 'VC_NET_AGAIN' order-preview.html 1
+chk "if((op==='make'||op==='practice')&&d&&d.down&&!d.ok&&d.net&&d.net!=='bad'&&nn<2)" order-preview.html 1
+chk 'VC_NET_SEC' order-preview.html 1
+chk 'VC_NET_SEC' mypage.html 1
+chk 'VC_NET_AGAIN' scripts/audit/vc-net-again.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-net-again.mjs >/dev/null 2>&1; _vna=$?; if [ "$_vna" = 1 ]; then echo 'FAIL vc-net-again: 목소리 만들기 끊김 다시 묻기가 어긋났습니다 — node scripts/audit/vc-net-again.mjs'; fail=1; else echo "ok vc-net-again ($_vna)"; fi; fi
 # ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V8)을 가른다 — 끊긴 직후 상태 확인 한 번
 chk 'VC_NET_SPLIT' mypage.html 1
 chk 'VC_NET_SPLIT' order-preview.html 1
