@@ -14634,7 +14634,7 @@ chk '덜어낼 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1   
 nochk '뺄 순간만 ✓를' order-preview.html
 # ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 들면 다시 녹음해도 된다고 여기도 한 번 더»] 두 분 목소리 만들기 쪽 한 줄
 chk 'VOICE_REDO_NOTE' order-preview.html 1
-chk '말투가 마음에 들지 않으면 다시 녹음해 새로 만들 수 있어요' order-preview.html 1
+chk '말투가 아쉬우면 다시 녹음하면 돼요. <button type="button" class="pk-link" data-fk="mkredo"' order-preview.html 1   # [VOICE_INTRO_ONE 2026-10-07] 두 줄 → 한 단락
 # ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로 첫 화면»] 안내 목소리 정하기 창 — 안 골랐으면 두 갈래 다 비어 있다
 chk 'VS_UNPICKED' order-preview.html 1
 chk 'VS_UNPICKED' scripts/audit/vp-ask-first.mjs 1
@@ -14842,3 +14842,6 @@ nochk "'이 영상을 만들다가 저희가 처음으로 크게 다툴 뻔했�
 chk 'NAR_1006' assets/ritual-open.js 3
 chk "prevideoIn: '두 사람의 영상을 함께 보시겠습니다.'," assets/ritual-open.js 1
 nochk '팝콘은 없지만' assets/ritual-open.js
+# ★[VOICE_INTRO_ONE 2026-10-07 사장님 «이거 합쳐서 안내하자 · 디자이너 시선 · 고객 입장»] 두 분 목소리 쪽 머리 안내 두 줄 → 한 단락 두 문장(무엇이 되나 / 아쉬우면 다시 녹음 · 자세히 보기)
+chk 'VOICE_INTRO_ONE' order-preview.html 2
+nochk '확정해 둔 줄은 그대로 남아요 <button' order-preview.html
