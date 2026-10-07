@@ -93,6 +93,16 @@ try {
   /* ⑧ 한눈에 보기 — 두 분이 부탁하는 줄(축사하실 분)도 목록에 · 머리 «부탁드릴 것» [SUM_ASK_ALL] */
   await go('_sum'); const sm = await pg.evaluate(() => { const t = document.querySelector('.mk-pg').textContent.replace(/\u00a0/g, ' '); return { speech: /축사하실 분께 부탁드리기/.test(t), head: /(^|[^모님께 ])부탁드릴 것/.test(t.replace(/부모님께 부탁드릴 것/g, '')), par: /부모님께 부탁드릴 것/.test(t) }; });
   ok('⑧ 한눈에 보기 — 축사 부탁 줄이 있고 머리는 «부탁드릴 것»(부모님 것만일 때만 «부모님께») [SUM_ASK_ALL]', sm.speech && sm.head && !sm.par, JSON.stringify(sm));
+  /* ⑪ ④ 완성 요약 — 선택 칸(축배 · 부모님께 인사)이 비어도 «글 비어 있음 · 채우기»가 아니다 [TX_OPT] */
+  const done = await pg.evaluate(() => { S.tx = S.tx || {}; ['toast.g', 'toast.b', 'tribute.g', 'tribute.b'].forEach((id) => { S.tx[id] = ''; }); const i = STEPS.findIndex((x) => x.k === 'done'); if (i < 0) return null; idx = i; render();
+    const row = (nm) => { const r = [...document.querySelectorAll('.sumrow')].find((x) => (x.querySelector('.sr-l') || {}).textContent === nm); return r ? { mark: ((r.querySelector('.sr-empty') || {}).textContent || ''), btn: (r.querySelector('.sr-c') || {}).textContent } : null; };
+    return { toast: row('축배'), trib: row('부모님께 인사'), welcome: row('첫인사') }; });
+  ok('⑪ ④ 요약 — 축배 · 부모님께 인사(선택 칸)는 비어도 «글 비어 있음» 없음 · 첫인사는 표시 [TX_OPT]', !!done && done.toast && !/글 비어 있음/.test(done.toast.mark) && (!done.trib || !/글 비어 있음/.test(done.trib.mark)) && done.welcome && /글 비어 있음/.test(done.welcome.mark), JSON.stringify(done));
+  /* ⑫ ③ 연습 «아직 안 적은 N곳» = 두 분 글칸이 빈 순간 수(부탁 · 보낼 것은 세지 않는다) [PR_TODO_TRUE] */
+  const pr = await pg.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'practice'); if (i < 0) return null; idx = i; render(); const t = ((document.querySelector('.pr-todo') || {}).textContent || ''); const m = t.match(/아직 안 적은 (\d+)곳/);
+    const want = _mkPages().filter((k) => k[0] !== '_' && !_mkOff(k) && _mkKinds(k)[0] && TX_WHO.some((w) => !String((S.tx || {})[_mkKinds(k)[0] + '.' + w[0]] || '').trim() && !_txSite(_mkKinds(k)[0], _mkChk(), _mkKinds(k)[0] + '.' + w[0]))).length;
+    return { shown: m ? +m[1] : 0, want, todo: _mkTodoN() }; });
+  ok('⑫ ③ 연습 «아직 안 적은 N곳» = 글칸이 빈 순간 수(미완료 셈과 다를 수 있다) [PR_TODO_TRUE]', !!pr && pr.shown === pr.want && pr.want > 0, JSON.stringify(pr));
   ok('⑥ 화면 오류 0', errs.length === 0, errs.slice(0, 3).join(' | '));
 } catch (e) { console.log('못 쟀다 —', e && e.message); await br.close(); srv.close(); process.exit(2); }
 await br.close(); srv.close();

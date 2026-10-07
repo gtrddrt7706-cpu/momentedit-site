@@ -15082,3 +15082,11 @@ chk 'SPEECH_SCRIPT' scripts/audit/ref-form.mjs 1
 # ★[GUIL_FLEX_SPACE 2026-10-07 점검] «…»를 명조로 바꿀 때 칩 · 단추(flex) 안에서는 한 덩이로 묶는다 — 끝 신호 예시 «마지막에감사합니다라고»(ref-form ⑩)
 chk 'GUIL_FLEX_SPACE' order-preview.html 1
 chk 'GUIL_FLEX_SPACE' scripts/audit/ref-form.mjs 1
+# ★[TX_OPT · PR_TODO_TRUE 2026-10-07 점검(사장님 «오늘 한 작업 스텝바이스텝으로 점검»)] 선택 칸 판별 한 곳(_txOpt · 부모님께 인사 · 축배 한마디)
+#   ④ 요약이 축배를 «글 비어 있음 · 채우기»로 그렸다(머리 «미완료 N»과 어긋남) · ③ 연습 «아직 안 적은 N곳»이 부탁 · 보낼 것까지 센 미완료 수였다 — ref-form ⑪ ⑫
+chk 'function _txOpt(kind){ return kind===' order-preview.html 1
+chk '&&!_txOpt(k)&&TX_WHO.some(' order-preview.html 1
+nochk "&&_mkKinds(k).length>0&&k!=='tribute'&&TX_WHO.some(" order-preview.html
+chk 'todo=_mkUnwritten()' order-preview.html 1
+chk 'PR_TODO_TRUE' scripts/audit/ref-form.mjs 1
+chk 'TX_OPT' scripts/audit/ref-form.mjs 1
