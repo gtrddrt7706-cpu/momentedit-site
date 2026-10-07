@@ -14554,6 +14554,12 @@ chk 'REF_ROW4' order-preview.html 3
 chk "var ENTRY_KEYS=\['A','B','C','D','E','F'\];" order-preview.html 1   # [EX_SAME_COUNT 2026-10-07] AI 판 입장 예시 = 스튜디오 입장 멘트와 같은 여섯
 chk 'EX_SAME_COUNT' order-preview.html 1
 chk 'EX_ROW_PLACE' order-preview.html 1
+# ★★[EX_NO_AUTO 2026-10-07 사장님 «참고 예시 클릭만 하면 만드는 중으로 자동 생성 · 이도 저도 아니다»] 예시를 고르면 미리 만든 소리는 조용히 바로(«확정하기») · 없으면 저절로 만들지 않는다(«목소리 만들기») · 미리 만들기가 끝나면 그 줄에 조용히
+chk 'EX_NO_AUTO' order-preview.html 6
+chk 'function _exQuiet(key)' order-preview.html 1
+chk 'function _exLate(key)' order-preview.html 1
+nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
+chk 'EX_NO_AUTO' scripts/audit/ex-race.mjs 3
 # ★[UP_AI_HEAL · VST_RIGHT 2026-10-07 사장님] «… · AI.wav» 인데 «파일»로 적힌 옛 줄 바로잡기 · 줄 카드 상태는 제목 오른쪽
 chk 'UP_AI_HEAL' order-preview.html 1
 chk 'function _upHeal()' order-preview.html 1

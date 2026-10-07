@@ -40,12 +40,12 @@ try {
     { const { pg, errs } = await open(w);
       await pg.evaluate(() => { _lSet('guestVoice', 'ai'); _lSet('pvVoice', 'ai'); VC.st = { ok: true, groom: { ready: true }, bride: { ready: true } }; buildSteps(); render(); });
       const warm = await pg.evaluate(() => { const got = []; const keep = window._vcAltWarm; window._vcAltWarm = (k, who, t) => got.push(k + ':' + who + ':' + t); try { _exWarm('groom'); _exWarm('bride'); } finally { window._vcAltWarm = keep; }
-        const want = []; GUEST_KEYS.forEach((k, i) => GUEST_EX.forEach((X) => { if (X[1][i] !== _recNeed(k)) want.push(k); })); PV_EX.forEach((e) => { if (e[1] !== _recNeed('pv')) want.push('pv'); });
+        const want = []; GUEST_KEYS.forEach((k, i) => GUEST_EX.forEach((X) => { if (X[1][i] !== _recNeed(k) || _aiNeed(k)) want.push(k); })); PV_EX.forEach((e) => { if (e[1] !== _recNeed('pv') || _aiNeed('pv')) want.push('pv'); });   /* [EX_NO_AUTO 2026-10-07] 소리가 지금 글과 안 맞는 줄은 지금 글도 미리 만든다 */
         return { n: got.length, want: want.length, keys: [...new Set(got.map((x) => x.split(':')[0]))].sort().join(',') }; });
       ok(`${w} ① 목소리가 생기면 하객 맞이 넷 · 식전 영상 소개의 다른 예시 글을 전부 미리 만든다 [EX_PREBAKE]`, warm.n === warm.want && warm.n > 0 && warm.keys === 'g0,g1,g2,g3,pv', JSON.stringify(warm));
       await pg.evaluate(() => mkGo('guest')); await wait(500);
-      const sw = await pg.evaluate(() => { GUEST_KEYS.forEach((k) => { S.up[k] = { src: 'ai', id: 'local:' + k, tx: _txSig(_recNeed(k)), by: _vcLineWho(k) }; }); const got = []; const keep = window._vcSwap; window._vcSwap = (k) => got.push(k);
-        try { mkGuestEx(2); } finally { window._vcSwap = keep; } return { got: got.join(','), edited: GUEST_KEYS.some((k) => _vtEdit(k)), t: _recNeed('g1') === GUEST_EX[2][1][1] }; });
+      const sw = await pg.evaluate(() => { GUEST_KEYS.forEach((k) => { S.up[k] = { src: 'ai', id: 'local:' + k, tx: _txSig(_recNeed(k)), by: _vcLineWho(k) }; }); const got = []; const keep = window._exQuiet; window._exQuiet = (k) => got.push(k);   /* [EX_NO_AUTO] 예시를 고르면 _exQuiet(미리 만든 것이면 조용히 · 없으면 만들지 않음) */
+        try { mkGuestEx(2); } finally { window._exQuiet = keep; } return { got: got.join(','), edited: GUEST_KEYS.some((k) => _vtEdit(k)), t: _recNeed('g1') === GUEST_EX[2][1][1] }; });
       ok(`${w} ① 예시 3 을 고르면 넷 다 그 글 소리로 바로 바꾼다 · «글을 고쳤어요» 아님 [EX_PREBAKE]`, sw.got === 'g0,g1,g2,g3' && !sw.edited && sw.t, JSON.stringify(sw));
       await wait(300);
       const foc = await pg.evaluate(() => { const a = document.activeElement; return a ? (a.getAttribute('data-fk') || a.tagName) : ''; });
