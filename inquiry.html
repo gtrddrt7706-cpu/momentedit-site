@@ -1571,6 +1571,26 @@ form.addEventListener('submit', (e) => {
   });
 });
 
+/* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+   실패마다 한 줄 + «(코드 B#)» · B = 상담 예약 · 문의 · 예약 취소 · 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻).
+   브라우저가 가르는 셋: 기다리다 멈춤(AbortError) 5 · 연결 끊김(fetch 실패) 6 · 서버 답이 JSON 이 아님(GAS 오류 화면) 7.
+   종전엔 서버 사고 · 연결 끊김이 모두 «전송이 안 됐어요. 잠시 후 다시 시도해 주세요» 한 줄이었다.
+   서버(GAS)가 글 끝에 «(코드 X#)»를 붙여 보내면 그대로(두 번 붙이지 않는다) · ecode 만 오면 1~9 일 때 붙인다(0 은 글이 곧 까닭 — 입력 확인 글에는 코드를 안 붙인다).
+   cancel · schedule · seat · guide 와 같은 함수 이름이다 — 한 곳만 고치지 말 것 */
+function _ecN(e){ return (e&&e.name==='AbortError')?5:(e&&e.name==='SyntaxError')?7:6; }
+function _ecOff(){ try{ return navigator.onLine===false; }catch(x){ return false; } }
+function _ecNet(e,L,todo){ var n=_ecN(e), off=(n===6&&_ecOff());
+  return (n===5?'응답이 늦어요':n===7?'서버가 잠깐 멈췄어요':off?'인터넷이 끊겼어요':'연결이 끊겼어요')+(todo?' · '+todo:'')+' (코드 '+L+n+')'; }   // todo 가 비면 «무슨 일 (코드)»만 — 바로 아래 «다시 불러오기» 단추가 할 일을 말하는 자리
+function _ecSrv(d,L,fb){ var t=String((d&&d.error)||'').trim(), ec=String((d&&d.ecode)||''), eid=String((d&&d.eid)||''), m=/\s*\((코드 [A-Z]\d[^)]*)\)\s*$/.exec(t), tail=m?m[1]:'';
+  if(m) t=t.slice(0,m.index);
+  if(!/^[A-Z]\d$/.test(ec)) ec='';
+  if(/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/.test(t)){ t='요청이 몰렸어요 · 다시 해 주세요'; ec=ec||L+'1'; }   // 옛 GAS 잠금 대기 글
+  else if(t==='요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'){ t='서버에서 오류가 났어요 · 다시 해 주세요'; ec=ec||L+'9'; }   // 옛 GAS doPost 일반 오류 글
+  if(!t){ t=fb; ec=ec||L+'0'; }
+  if(!tail&&ec&&(ec.charAt(1)!=='0'||t===fb)) tail='코드 '+ec+(eid?' · '+eid:'');
+  return t+(tail?' ('+tail+')':''); }
+function _ecRetry(d){ var c=/\(코드 [A-Z](\d)/.exec(String((d&&d.error)||'')), n=c?c[1]:String((d&&d.ecode)||'').charAt(1); return /^[145679]$/.test(n)||/서버 혼잡|요청을 처리하지 못했어요/.test(String((d&&d.error)||'')); }
+
 function meDoSubmit(){
   if (submitBtn.disabled) return;   // 재진입 가드 — 확인 모달 연타·중복 호출 시 이중 제출 방지(모달은 display:none으로 실클릭은 이미 차단)
   submitBtn.disabled = true;
@@ -1579,25 +1599,39 @@ function meDoSubmit(){
   submitBtn.setAttribute('aria-busy', 'true');   /* [LOADING_CENTER] 화면낭독기에도 «일하는 중»을 알린다 */   /* [LOADING_ONE] 바로 아래 줄이 「보내 드립니다」라 말이 이어진다 */
 
   // 자체 도메인에서 Apps Script 백엔드(doPost)로 전송 → 시트 기록 + 전용 URL 메일 자동 발송
-  function resetBtn(msg){
+  function resetBtn(msg, sys){
     submitBtn.disabled = false;
     submitBtn.classList.remove('loading');
     submitBtn.querySelector('.btn-text').textContent = '신청서 보내기';   /* [LOADING_CENTER] 기본 글자와 같은 말로 되돌린다 */
     submitBtn.removeAttribute('aria-busy');
     submitError.textContent = msg || '전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 카톡·전화로 주셔도 돼요.';
+    /* [ERR_CODE_PAGES] 서버 · 연결 실패(sys)에는 다른 길을 한 줄 더 — 입력 확인 글(비밀번호 · 이메일)에는 붙이지 않는다 */
+    if (sys) { submitError.appendChild(document.createElement('br')); submitError.appendChild(document.createTextNode('계속 안 되면 카톡·전화로 주셔도 돼요.')); }
     submitError.classList.add('show');
   }
-  fetch(EXEC_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // 단순 요청 → CORS preflight 회피
-    body: JSON.stringify(buildPayload())
-  })
-  .then(function(res){ return res.json(); })
+  /* ★★[ERR_CODE_PAGES · INQ_SEND_AGAIN 2026-10-07] 신청서는 «쓰기»다 — 기다리다 멈춤(5) · 서버 답이 깨짐(7)은 «실패»가 아니라 «결과 모름»이다.
+     서버(40_signup handleSignup)는 같은 이메일 · 성함으로 2분 안에 다시 오면 새 줄 · 메일을 만들지 않고 같은 개인코드로 답한다(SIGNUP_ 중복 막기).
+     그래서 한 번은 저절로 다시 보내 결과를 받는다 — 접수됐으면 그 코드로 완료 화면 · 아니면 코드와 함께 다시 보내게 한다.
+     종전엔 시간 제한도 없어 응답이 안 오면 «보내는 중»이 끝나지 않았다(40초) */
+  var payload = buildPayload();
+  function send(again){
+    var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var tm = ac ? setTimeout(function(){ try { ac.abort(); } catch(e){} }, 40000) : null;
+    return fetch(EXEC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // 단순 요청 → CORS preflight 회피
+      body: JSON.stringify(payload),
+      signal: ac ? ac.signal : undefined
+    })
+    .then(function(res){ if (tm) clearTimeout(tm); return res.json(); }, function(e){ if (tm) clearTimeout(tm); throw e; })
+    .catch(function(e){ if (again || _ecN(e) === 6) throw e; return send(true); });
+  }
+  send(false)
   .then(function(data){
     if (data && data.ok) { showSuccess(data.code); }
-    else { resetBtn((data && data.error) ? data.error : null); }
+    else { resetBtn(_ecSrv(data, 'B', '신청서를 받지 못했어요 · 잠시 뒤 다시 보내 주세요'), _ecRetry(data) || !(data && data.error)); }   // [ERR_CODE_PAGES]
   })
-  .catch(function(){ resetBtn(); });
+  .catch(function(e){ resetBtn(_ecNet(e, 'B', '다시 보내 주세요'), true); });   // [ERR_CODE_PAGES] 연결 끊김 B6 · 두 번 다 늦음 B5 · 서버 답이 깨짐 B7
 }
 
 /* [JS_REQUIRED_REACH] 고르는 «즉시» 오류 표시를 거둔다 — 다음 제출까지 기다리지 않는다. */

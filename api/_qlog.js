@@ -13,7 +13,7 @@ module.exports = async function logQuestion(surface, q, opts) {
     const escalate = !!(opts && opts.escalate);
     const reply = String((opts && opts.reply) || '');
     const shaky = !escalate && SHAKY.test(reply);
-    const flag = escalate ? '막힘' : (shaky ? '애매' : '정상');
+    const flag = (opts && opts.flag === '오류') ? '오류' : (escalate ? '막힘' : (shaky ? '애매' : '정상'));   // [ERR_CODE_PAGES] '오류' = AI 가 답을 못 만든 질문(업체 실패 · 서버 오류) — 종전엔 성공한 질문만 남아 실패한 질문은 기록이 없었다
     const isTest = !!(opts && opts.isTest);   // [AI_TEST_TAG] 테스트도 적재·태그만 — 집계(aiQuestionLog·리포트)는 GAS가 제외
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 2000);

@@ -243,15 +243,49 @@
   /* ★[ADV_ESC_ONLY 2026-08-03] refreshKakaoLink() 삭제 — 상시 카톡 링크가 사라져 대상이 없다.
      카톡/이메일 주소 결정은 kakaoInfo()가 계속 담당하며, showEscalation()이 그때 읽어 쓴다. */
 
+  /* ★★[ERR_CODE_PAGES 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+     AI 상담(A) 실패를 한 줄 + «(코드 A#)»로 — 숫자 = 무슨 일(assets/err-codes.js 표와 같은 뜻):
+     429 몰림 1 · 업체 401·402·403 → 2 · 503 꺼짐(키 없음) 3 · 502 업체 실패 4(업체 HTTP 번호를 함께) · 500 서버 9 · 400 질문 0 ·
+     기다리다 멈춤 5 · 연결 끊김 6 · 답이 JSON 이 아님(베르셀 504 · 함수 오류 화면) 7. index.html 위젯 · schedule.html 날짜 확인과 같은 표다 */
+  function aiN(e) { return (e && e.name === 'AbortError') ? 5 : (e && e.name === 'SyntaxError') ? 7 : 6; }
+  function aiCode(st, j, e) {
+    if (e) return 'A' + aiN(e);
+    if (!j) return 'A7' + (st && st !== 200 ? ' · ' + st : '');
+    var u = +(j.upstream || 0);
+    if (st === 429) return 'A1'; if (st === 503) return 'A3';
+    if (st === 502) return ((u === 401 || u === 402 || u === 403) ? 'A2' : 'A4') + (u ? ' · ' + u : '');
+    if (st >= 500) return 'A9'; return 'A0';
+  }
+  function aiWord(c) { var n = c.charAt(1), off = false; try { off = n === '6' && navigator.onLine === false; } catch (x) {}
+    return ({ '0': '질문을 읽지 못했어요', '1': '질문이 잠깐 많았어요', '2': 'AI 상담이 잠시 멈췄어요', '3': 'AI 상담이 꺼져 있어요', '4': 'AI가 답을 만들지 못했어요',
+      '5': '답이 너무 늦어요', '6': off ? '인터넷이 끊겼어요' : '연결이 끊겼어요', '7': '서버가 잠깐 멈췄어요', '9': '서버에서 오류가 났어요' })[n] || '지금은 답하지 못했어요'; }
+  /* 응답을 글로 받아 JSON 을 직접 푼다 — r.json() 이 깨진 답(HTML)에 던지는 것과 상태 번호를 함께 쥐려고 */
+  function aiFetch(url, body, ms) {
+    var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null, tm = ac ? setTimeout(function () { try { ac.abort(); } catch (e) {} }, ms) : null;
+    return fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: ac ? ac.signal : undefined })
+      .then(function (r) { return r.text().then(function (x) { if (tm) clearTimeout(tm); var j = null; try { j = JSON.parse(x); } catch (e) {} return { ok: r.ok, status: r.status, j: j }; }); },
+            function (e) { if (tm) clearTimeout(tm); throw e; });
+  }
+
   // ── 에스컬레이션: 답 못 푸는 경우 중간 버튼 없이 바로 카톡 상담 연결(showEscalation)을 띄운다(2026-07-05 사용자 지시) ──
+  /* ★★[ERR_CODE_PAGES · HANDOFF_TRUTH 2026-10-07] 종전엔 /api/handoff 를 던져 두기만 하고 답을 안 기다린 채 «디렉터에게 바로 전달했어요»라 했다 —
+     몰림(429) · 꺼짐(503) · 업체 실패(502) · 연결 끊김 · 서버의 delivered:false(관리자 시트에 못 넣음)에도 같은 말이었다.
+     이제 답을 기다려 전달됐을 때만 «전달했어요» · 아니면 «자동 전달이 안 됐어요 · 카카오톡으로 남겨 주세요 (코드 A#)».
+     답을 못 받은 것(5 늦음 · 7 깨짐)은 «결과 모름»이라 «전달됐는지 확인하지 못했어요»로 말한다(서버는 이미 넣었을 수 있다) */
+  var handoffP = null;
   function doHandoff() {
-    if (handoffSent || transcript.length === 0) return; handoffSent = true;
+    if (handoffP) return handoffP;
+    if (handoffSent || transcript.length === 0) return Promise.resolve({ ok: false, code: 'A0' }); handoffSent = true;
     var payload = { messages: transcript.slice(-16), page: PAGE };
     try { var c = (typeof CFG.customer === 'function') ? CFG.customer() : null; if (c) payload.customer = c; } catch (e) {}
     try { if (typeof CFG.state === 'function') { var _hs = CFG.state(); if (_hs) payload.state = String(_hs).slice(0, CFG.stateMax || 1800); } } catch (e) {}
-    try {
-      fetch('/api/handoff', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) }).catch(function () {});
-    } catch (e) {}
+    handoffP = aiFetch('/api/handoff', payload, 45000).then(function (res) {
+      var j = res.j || null;
+      if (res.ok && j && j.ok === true && j.delivered === true) return { ok: true };
+      if (res.ok && j && j.ok === true) return { ok: false, code: j.why === 'no_hook' ? 'A3' : 'A4' };   // 서버는 받았는데 관리자 쪽(GAS)에 못 넣었다
+      return { ok: false, code: aiCode(res.status, j, null), unsure: !j };
+    }, function (e) { var n = aiN(e); return { ok: false, code: 'A' + n, unsure: n !== 6 }; });
+    return handoffP;
   }
   // 익명(비로그인) 모드 판정 — advExtra().embed가 false면 인계 대신 예약 유도(연락 불가 dead-end 방지 · 기획 v3 §6)
   function isAnonMode() {
@@ -265,15 +299,22 @@
   }
   function showEscalation() {
     if (escShown) return; escShown = true;
-    doHandoff();
-    var ki = kakaoInfo();
+    var ki = kakaoInfo(), night = (lastNight || nightNowKST());
     var box = document.createElement('div'); box.className = 'me-adv-esc';
     var t = document.createElement('div'); t.className = 'me-adv-esc-t';
-    t.textContent = (lastNight || nightNowKST())
-      ? '문의를 디렉터에게 남겼어요. 내일 영업시간에 이어서 답해드려요.'
-      : (ki.mail
-      ? '디렉터에게 바로 전달했어요. 이메일로 이어서 문의하실 수 있어요.'
-      : '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.');
+    t.setAttribute('role', 'status');
+    t.textContent = '디렉터에게 전달하고 있어요.';   // [ERR_CODE_PAGES · HANDOFF_TRUTH] 답을 받기 전에는 «전달했어요»라 하지 않는다 · 카톡 단추는 바로 보인다
+    doHandoff().then(function (r) {
+      if (r.ok) {
+        t.textContent = night
+          ? '문의를 디렉터에게 남겼어요. 내일 영업시간에 이어서 답해드려요.'
+          : (ki.mail
+          ? '디렉터에게 바로 전달했어요. 이메일로 이어서 문의하실 수 있어요.'
+          : '디렉터에게 바로 전달했어요. 카카오톡으로 이어서 상담하실 수 있어요.');
+        return;
+      }
+      t.textContent = (r.unsure ? '전달됐는지 확인하지 못했어요' : '자동 전달이 안 됐어요') + ' · ' + (ki.mail ? '이메일로' : '카카오톡으로') + ' 남겨 주세요 (코드 ' + r.code + ')';
+    });
     box.appendChild(t);
     var btns = document.createElement('div'); btns.className = 'me-adv-esc-btns';
     var k = document.createElement('a');
@@ -343,16 +384,21 @@
     var typing = addTyping();
     if (useSched) {
       // 컨텍스트 연속성: 통합 transcript를 넘겨, 앞서 말한 날짜가 다른 엔진을 거쳤어도 유지되게 한다.
-      fetch('/api/schedule-advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages: transcript.slice(-12), today: todayYmd(), page: PAGE }) })
-        .then(function (r) { return r.json(); })
-        .then(function (j) {
+      /* [ERR_CODE_PAGES] 종전엔 r.ok 를 안 보고 «지금은 일정 확인이 어려워요» 한 줄 — 몰림 · 꺼짐 · 업체 실패 · 서버 오류 · 시간 · 연결 · 베르셀 504 가 같았다.
+         서버가 점유 맵을 못 받아 «연결이 원활하지 않다»고 답한 것(avail:'unknown')도 코드를 단다(A4 조회 실패 · A3 설정 없음) */
+      aiFetch('/api/schedule-advisor', { messages: transcript.slice(-12), today: todayYmd(), page: PAGE }, 30000)
+        .then(function (res) {
           typing.remove();
-          var t = (j && j.reply) || '지금은 일정 확인이 어려워요. 잠시 후 다시 시도해 주세요.';
-          addMsg(t, 'bot');
-          transcript.push({ role: 'assistant', content: t });
+          var j = res.j;
+          if (res.ok && j && j.reply) {
+            addMsg(j.reply + (j.avail === 'unknown' ? ' (코드 ' + (j.availWhy === 'unset' ? 'A3' : 'A4') + ')' : ''), 'bot');
+            transcript.push({ role: 'assistant', content: j.reply });
+            return;
+          }
+          var c = aiCode(res.status, j, null);
+          addMsg(aiWord(c) + ' · ' + (c === 'A0' ? '다시 적어 주세요' : '잠시 뒤 다시 물어봐 주세요') + ' (코드 ' + c + ')', 'bot');
         })
-        .catch(function () { typing.remove(); addMsg('지금은 일정 확인이 어려워요. 잠시 후 다시 시도해 주세요.', 'bot'); })
+        .catch(function (e) { typing.remove(); var c = aiCode(0, null, e); addMsg(aiWord(c) + ' · 잠시 뒤 다시 물어봐 주세요 (코드 ' + c + ')', 'bot'); })
         .then(function () { sending = false; sendBtn.disabled = false; });
       return;
     }
@@ -360,9 +406,7 @@
     // (마이·식순) 로그인 고객의 실시간 상태를 함께 전송 → AI가 개인 질문에 실데이터로 답(전송 시점에 최신값으로 읽음)
     try { if (typeof CFG.state === 'function') { var _s = CFG.state(); if (_s) advBody.state = String(_s).slice(0, CFG.stateMax || 1800); } } catch (e) {}
     try { if (typeof CFG.advExtra === 'function') { var _x = CFG.advExtra(); if (_x) { for (var _k in _x) advBody[_k] = _x[_k]; } } } catch (e) {}   // 식순: embed·customer 등 판별 필드
-    fetch(CFG.endpoint || '/api/advisor', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(advBody) })
-      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+    aiFetch(CFG.endpoint || '/api/advisor', advBody, 30000)   // [ERR_CODE_PAGES] 30초 제한 · 깨진 답(HTML)도 상태 번호와 함께 받는다
       .then(function (res) {
         typing.remove();
         var j = res.j || {};
@@ -376,14 +420,15 @@
           try { console.warn('advisor fallback', (res.status || '?'), (j && j.error) || ''); } catch (e) {}
           // 오류 시엔 응답의 escalate/toBooking 플래그(코드마다 제각각)를 믿지 않고 클라 모드로만 판정 —
           //   익명이면 인계 금지·예약 유도, 임베드면 인계(기획 v3 §6 · 익명 dead-end 인계 원천 차단).
-          var anon = isAnonMode();
-          addMsg(anon ? '지금은 자동 답변을 불러오지 못했어요. 상담 예약 페이지에서 이어서 확인하실 수 있어요.' : '지금은 자동 답변을 불러오지 못했어요. 디렉터가 직접 안내해 드릴게요.', 'bot');
+          var anon = isAnonMode(), c = aiCode(res.status, res.j, null);   // [ERR_CODE_PAGES] 종전 «지금은 자동 답변을 불러오지 못했어요» 한 줄 → 까닭 + 코드
+          addMsg(aiWord(c) + ' · ' + (anon ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
           escalateOrBook();
         }
       })
-      .catch(function () {
+      .catch(function (e) {
         typing.remove();
-        addMsg(isAnonMode() ? '연결이 잠시 불안정해요. 상담 예약 페이지에서 이어서 확인하실 수 있어요.' : '연결이 잠시 불안정해요. 디렉터가 직접 안내해 드릴게요.', 'bot');
+        var c = aiCode(0, null, e);   // [ERR_CODE_PAGES] 종전 «연결이 잠시 불안정해요» — 시간 A5 · 연결 A6 · 깨진 답 A7
+        addMsg(aiWord(c) + ' · ' + (isAnonMode() ? '상담 예약 페이지에서 이어서 확인해 주세요' : '아래에서 디렉터와 이어서 상담하실 수 있어요') + ' (코드 ' + c + ')', 'bot');   /* [HANDOFF_TRUTH] 아래 카드(카톡 단추)는 늘 나온다 — 전달 실패에도 약속하던 «디렉터가 직접 안내해 드릴게요»는 걷었다 */
         escalateOrBook();
       })
       .then(function () { sending = false; sendBtn.disabled = false; });

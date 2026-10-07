@@ -26,8 +26,13 @@ function _lufs(x,sr){   // BS.1770-4 통합 소리 크기(모노) — K 가중(�
   var bl=Math.round(0.4*sr), hop=Math.round(0.1*sr), z=[]; for(var s=0;s+bl<=y.length;s+=hop){ var q=0; for(var i=s;i<s+bl;i++) q+=y[i]*y[i]; z.push(q/bl); }
   var L=function(m){ return -0.691+10*Math.log(Math.max(m,1e-12))/Math.LN10; }, ab=z.filter(function(m){ return L(m)>-70; }); if(!ab.length) return -70;
   var m1=ab.reduce(function(a,b){ return a+b; },0)/ab.length, g=ab.filter(function(m){ return L(m)>L(m1)-10; }); return L(g.reduce(function(a,b){ return a+b; },0)/g.length); }
-function _recProcess(ab,needSec){ var AC=window.AudioContext||window.webkitAudioContext, ac=new AC();
-  return new Promise(function(ok,no){ try{ var p=ac.decodeAudioData(ab,ok,no); if(p&&p.then) p.then(ok,no); }catch(e){ no(e); } }).then(function(buf){ try{ ac.close(); }catch(e){}
+/* ★[ERR_CODE_BUILDER 2026-10-07] 못 연 까닭을 가른다(식순 화면이 M6 한 줄로 말한다) — meKind: empty(빈 녹음 · 전화로 끊김) · ctx(오디오 문맥을 못 만듦 · 아이폰 한도 · 파일 탓 아님) · decode(정말 못 여는 소리).
+   해독이 실패해도 문맥을 닫는다 — 종전엔 성공할 때만 닫아, 실패가 쌓이면 다음 녹음부터 문맥을 못 만들어 멀쩡한 m4a 도 «m4a 로 올려 주세요»였다 */
+function _recErr(k,e){ var x=(e&&typeof e==='object')?e:new Error(String(e||k)); try{ x.meKind=k; }catch(_){} return x; }
+function _recProcess(ab,needSec){ var AC=window.AudioContext||window.webkitAudioContext, ac;
+  if(!ab||!ab.byteLength) return Promise.reject(_recErr('empty'));
+  try{ ac=new AC(); }catch(e){ return Promise.reject(_recErr('ctx',e)); }
+  return new Promise(function(ok,no){ try{ var p=ac.decodeAudioData(ab,ok,no); if(p&&p.then) p.then(ok,no); }catch(e){ no(e); } }).then(null,function(e){ try{ ac.close(); }catch(_){} throw _recErr('decode',e); }).then(function(buf){ try{ ac.close(); }catch(e){}
     var sr=buf.sampleRate, n=buf.length, ch=buf.numberOfChannels, x=new Float32Array(n);
     for(var c=0;c<ch;c++){ var d=buf.getChannelData(c); for(var i=0;i<n;i++) x[i]+=d[i]/ch; }
     var clip=0; for(var i0=0;i0<n;i0++){ if(Math.abs(x[i0])>=0.985) clip++; }   // 찢어짐은 원신호에서

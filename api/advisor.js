@@ -108,6 +108,10 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify({ error: 'advisor_unconfigured', escalate: true }));
   }
 
+  /* ★[ERR_CODE_PAGES 2026-10-07] 실패한 질문도 질문 로그에 남긴다(구분 '오류' · 상담연결 Y — 화면이 디렉터 연결로 넘기므로).
+     종전 _qlog 는 답을 만든 뒤에만 불려, 업체 실패(502) · 서버 오류(500)로 끝난 질문은 어디에도 없었다 */
+  let qSurface = '메인', qLast = '', qTest = false;
+  const logFail = async () => { if (!qLast) return; try { await require('./_qlog')(qSurface, qLast, { escalate: true, flag: '오류', reply: '', isTest: qTest }); } catch (e) {} };
   try {
     const body = await readJson(req);
     let history = Array.isArray(body && body.messages) ? body.messages : [];
@@ -136,6 +140,7 @@ module.exports = async (req, res) => {
     // 마이페이지 그라운딩: 로그인 고객의 실시간 상태 요약(단계·결제·예식일 등)을 받으면 개인 질문에 실데이터로 즉답한다.
     const state = (body && typeof body.state === 'string') ? body.state.slice(0, MAX_STATE_LEN).trim() : '';
     const grounded = (page === '마이') && state.length > 0;
+    qSurface = (page === '마이') ? '마이페이지' : '메인'; qLast = history[history.length - 1].content; qTest = !!(body && body.test);   // [ERR_CODE_PAGES]
 
     let systemText = SYSTEM_PROMPT;
     if (page !== '마이') systemText += SALES_CORE;
@@ -181,9 +186,11 @@ module.exports = async (req, res) => {
     if (!anthRes.ok) {
       const detail = await safeText(anthRes);
       console.error('anthropic_error', anthRes.status, detail.slice(0, 300));
+      await logFail();   // [ERR_CODE_PAGES]
       res.statusCode = 502;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      return res.end(JSON.stringify({ error: 'upstream_error', escalate: true }));
+      /* [ERR_CODE_PAGES] upstream = 업체(Anthropic) HTTP 번호 — 화면이 «(코드 A4 · 529)»처럼 붙인다(401·402·403 이면 A2 = 우리 쪽 키 · 요금제) */
+      return res.end(JSON.stringify({ error: 'upstream_error', escalate: true, upstream: anthRes.status }));
     }
 
     const data = await anthRes.json();
@@ -241,6 +248,7 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify({ reply: text, escalate, toBooking }));
   } catch (err) {
     console.error('advisor_exception', err && err.message);
+    await logFail();   // [ERR_CODE_PAGES]
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.end(JSON.stringify({ error: 'server_error', escalate: true }));
