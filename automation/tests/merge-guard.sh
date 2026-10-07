@@ -1382,6 +1382,7 @@ chk 'FOLD_319' index.html 1
 #   momentedit-design 을 최우선 권위로 못 박았다 — SKILL.md 머리 + CLAUDE.md 두 곳.
 #   ★한쪽만 남으면 «어느 쪽을 먼저 읽었나»에 따라 판단이 갈린다. 둘 다 유지할 것.
 chk 'DESIGN_AUTHORITY' CLAUDE.md 1
+chk 'FAST_FIRST' CLAUDE.md 2   # [FAST_FIRST 2026-10-07 사장님] 요청은 바로 반영 · 무거운 검사는 끝에 한 번에 — 일하는 방식 6절 + 화면 PR 점검 3단 머리 두 곳
 chk '이 문서가 디자인 판단의 최종 권위다' .claude/skills/momentedit-design/SKILL.md 1
 chk '행번호를 믿지 말 것' .claude/skills/momentedit-design/SKILL.md 1
 # ★[SEC_TITLE_DEVICE 2026-09-06 코워크 합의] 「index 27px vs inquiry 17px 이라 위계가 약하다」는
