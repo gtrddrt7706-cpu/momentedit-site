@@ -794,7 +794,8 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .wr-cat{display:inline-block;font-size:12.5px;line-height:1.5;color:var(--gold-deeper);border:1px solid var(--border);border-radius:4px;padding:0 5px;margin-right:2px;white-space:nowrap}
 .wr-item{font-size:12.5px;color:var(--sub);margin:4px 0 8px}
 .op-gnote{font-size:12.5px;color:var(--light);margin:-2px 0 8px}
-.op-stepb{border:0;background:none;padding:6px 0 0;min-height:44px;width:100%;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:flex;align-items:flex-start;justify-content:center}   /* [POLISH_0925 2-11] 지난 걸음 글줄을 지금 걸음과 맞춘다(단추는 가운데 정렬이라 몇 px 낮게 앉았다) */
+.op-stepb{border:0;background:none;padding:6px 0 0;min-height:44px;width:100%;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-decoration:none;display:flex;align-items:flex-start;justify-content:center}   /* ★지난 걸음(고르기 · 하나씩 만들기 · 연습하기) 밑줄 금지 — 2026-10-07 사용자 지시로 삭제 [STEPB_NOLINE] (사장님 «고르기 · 하나씩 만들기 밑에 줄 삭제 · 연습하기 · 완성도 마찬가지») · 누를 수 있다는 것은 윗선 금빛 · 진한 글자로 */
+@media (hover:hover){ .op-stepb:hover{text-decoration:underline;text-underline-offset:3px} }   /* [STEPB_NOLINE] 마우스를 올렸을 때만 */   /* [POLISH_0925 2-11] 지난 걸음 글줄을 지금 걸음과 맞춘다(단추는 가운데 정렬이라 몇 px 낮게 앉았다) */
 .op-steps li.done{padding-top:0}   /* [STEP_BASELINE 코워크 회신4 4-e] 글줄은 단추 안 6px 로 맞춘다 — li 여백을 빼고 단추 padding 0 이던 때 지난 걸음이 6px 위에 앉았다 */
 .op-note{display:flex;flex-direction:column;gap:6px}
 .op-note-t{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:default;line-height:1.55}

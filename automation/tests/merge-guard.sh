@@ -14606,6 +14606,9 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★[STEPB_NOLINE 2026-10-07 사장님 «고르기 · 하나씩 만들기 밑에 줄 삭제 · 연습하기 · 완성도 마찬가지»] 머리 네 걸음의 지난 걸음 밑줄 없음(마우스 올림만)
+chk 'STEPB_NOLINE' order-preview.html 2
+nochk 'cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:flex;align-items:flex-start;justify-content:center}' order-preview.html
 # ★★[KEEP_Y 2026-10-07 사장님 «스튜디오 나레이션 누르면 화면이 위로 올라가는데 그대로 있게 · 다른 곳들도 마찬가지»] 다시 그리기 전에 보이는 화면 아래 끝까지 높이를 받친다
 chk 'KEEP_Y' order-preview.html 3
 chk '  _kyHold();   // \[KEEP_Y\]' order-preview.html 1
