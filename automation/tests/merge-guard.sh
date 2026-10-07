@@ -15847,3 +15847,4 @@ chk 'ADM_SHAPE_X7' admin.html 1
 chk 'ADM_SHAPE_X7' scripts/audit/err-admin.mjs 1
 chk 'ADM_LOST_X8' admin.html 1
 chk 'ADM_LOST_X8' scripts/audit/err-admin.mjs 1
+chk 'SCHED_DBL_RESIDUE' scripts/audit/err-pages.mjs 3
