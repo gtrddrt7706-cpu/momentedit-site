@@ -14836,6 +14836,11 @@ nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
 chk 'FLOW_THREAD' scripts/audit/flow-thread.mjs 1
 chk 'FLOW_THREAD' scripts/audit/ghi-polish.mjs 1
 chk 'FLOW_THREAD' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 규칙 문서에도 한 벌로 적었다 — 새 «멘트 → 행동» 화면은 이 모양
+# ★[FLOW_DOT_SEAL 2026-10-07 사장님 «말 없이 왼쪽 점 부분 진사 색상으로 · 다른 곳들도 마찬가지로»] ● 행동 점 = 진사 · 금빛으로 되돌리지 말 것
+chk 'FLOW_DOT_SEAL' order-preview.html 1
+chk '.mk-flow li.q::after{background:var(--seal)}' order-preview.html 1
+nochk '.mk-flow li.q::after{background:var(--gold-deeper)}' order-preview.html
+chk 'FLOW_DOT_SEAL' scripts/audit/flow-thread.mjs 1
 # ★[FAST_FIRST 2026-10-07 사장님 «검사 같은 건 나중에 한 번에 · 요청한 것만 빠르게 반영»] 작업 방식 규칙이 CLAUDE.md 에 살아 있나(두 곳 — 절 · 화면 PR 점검 3단의 덧줄)
 chk 'FAST_FIRST' CLAUDE.md 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-thread.mjs >/dev/null 2>&1; _flt=$?; [ "$_flt" = 1 ] && { echo 'FAIL flow-thread: 순간 흐름(흐름선 · 마디 · 행동 줄)이 어긋났습니다 — node scripts/audit/flow-thread.mjs'; fail=1; }; fi

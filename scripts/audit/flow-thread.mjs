@@ -4,7 +4,7 @@
    ① 세 갈래(▶ 나레이션 · ● 행동 · ○ 직접 말하는 차례) 글 왼끝이 한 세로선(±1px)
    ② 마디 가운데가 한 세로선(±1.5px) — ▶ 원 · ● 점 · ○ 테
    ③ 흐름선 — 줄 사이 틈 0 · 첫 마디에서 시작 · 마지막 마디에서 멈춘다
-   ④ 행동 줄 = 먹빛 16px · ● 점은 금빛 짙은(#7A5F37) · 차례 줄 ○ = 속이 빈 테
+   ④ 행동 줄 = 먹빛 16px · ● 점은 진사(#6B2A24 · FLOW_DOT_SEAL 10/07) · 차례 줄 ○ = 금빛 짙은 속이 빈 테
    ⑤ 끝의 «말 없이» · «미리 듣기에서는 넘겨요» = 작은 표(.mk-qt) · 행동 글에는 안 남는다
    ⑥ 화면 오류 0
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -51,7 +51,7 @@ try {
       const first = R[0], last = R[R.length - 1];
       ok(`${w} ${k} ③ 흐름선 — 줄 사이 틈 0 · 선 1px · 첫 마디에서 시작 · 마지막 마디에서 멈춤`, d.gap === '0px' && cont && R.length > 1 && R.every((r) => r.bfW === '1px')
         && first.bfTop === (first.c === 'n' ? '19px' : '13px') && last.bfH === (last.c === 'n' ? '19px' : '13px'), JSON.stringify({ gap: d.gap, cont, f: [first.c, first.bfTop], l: [last.c, last.bfH] }));
-      R.filter((r) => r.c === 'q').forEach((r) => ok(`${w} ${k} ④ 행동 줄 먹빛 16px · ● 금빛 짙은 «${r.qa.slice(0, 14)}»`, r.color === 'rgb(58, 45, 34)' && r.fs === '16px' && r.afBg === 'rgb(122, 95, 55)', [r.color, r.fs, r.afBg].join(' ')));
+      R.filter((r) => r.c === 'q').forEach((r) => ok(`${w} ${k} ④ 행동 줄 먹빛 16px · ● 진사 [FLOW_DOT_SEAL] «${r.qa.slice(0, 14)}»`, r.color === 'rgb(58, 45, 34)' && r.fs === '16px' && r.afBg === 'rgb(107, 42, 36)', [r.color, r.fs, r.afBg].join(' ')));
       R.filter((r) => r.c === 't').forEach((r) => ok(`${w} ${k} ④ 차례 줄 ○ 속이 빈 테`, r.afBd === 'rgb(122, 95, 55)' && r.afBg === 'rgb(250, 250, 248)', [r.afBd, r.afBg].join(' ')));
       if (k === 'candle') ok(`${w} ${k} ⑤ «말 없이» = 작은 표 · 행동 글에는 없다`, R.some((r) => r.c === 'q' && r.qt.replace(/\s|·/g, '') === '말없이' && !/말 없이/.test(r.qa)), JSON.stringify(R.filter((r) => r.c === 'q').map((r) => [r.qa, r.qt])));
       if (k === 'prevideo') ok(`${w} ${k} ⑤ «미리 듣기에서는 넘겨요» = 작은 표`, R.some((r) => r.c === 'q' && /미리 듣기에서는 넘겨요/.test(r.qt) && !/미리 듣기/.test(r.qa)), JSON.stringify(R.filter((r) => r.c === 'q').map((r) => [r.qa, r.qt])));
