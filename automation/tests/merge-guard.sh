@@ -12867,7 +12867,7 @@ nochk 'var _sd=new Date(), _sd' mypage.html
 chk 'CHG_HINT_RETRY' mypage.html 5
 chk "CHG_HINT_RETRY='고르신 시간을 한 번 더 누르시면 수수료를 알려드려요.'" mypage.html 1
 chk "if(!(r&&r.error)) _hintRetry(); return; }" mypage.html 1
-chk "_err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); _hintRetry(); });" mypage.html 1
+chk "_err(_quoteErr(e)); _hintRetry(); });" mypage.html 1   # [ERR_CODE_MYPAGE 2026-10-07] 통신 실패 글을 원인 한 줄 + 코드(C5 · C6 · C7)로 — 종전 «수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.»(의도한 변경)
 # [CI_EDIT_BACK] 2026-09-26 통합 점검 L7 — 계약서 요청 뒤 «입력 정보 수정»에 «돌아가기»(요청 완료 카드로 · 바꾼 칸이 있으면 한 번 묻는다)
 chk 'CI_EDIT_BACK' mypage.html 2
 chk 'id="mp_ciBack">돌아가기</button>' mypage.html 1
@@ -15329,3 +15329,34 @@ nochk "'디렉터가 직접 안내해 드릴게요') + ' (코드 '" assets/advis
 nochk "' · 디렉터가 직접 안내해 드릴게요 (코드 '" index.html
 chk '아래에서 디렉터와 이어서 상담하실 수 있어요' assets/advisor-widget.js 2
 chk '아래에서 디렉터와 이어서 상담하실 수 있어요' index.html 2
+# ★★[ERR_CODE_MYPAGE 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»]
+#   마이페이지 실패 문구 = 원인 한 줄 + «(코드 X#)»(글자 = 자리 · 숫자 = 무슨 일 · assets/err-codes.js 와 같은 뜻) · 보내기 한 벌(_post)이 늦음 5 · 끊김 6 · 깨진 답 7 을 가른다
+#   F1 까닭 없는 getMyState 실패에 로그아웃 · 초안 삭제하던 결함 · F5 저장 실패 판 · F6 거짓 «다른 기기에서 먼저 저장됐어요» · F7 빌더 중계 까닭 · F10 다이닝 AI 영문 기술어 · F11 카드 승인 확인
+#   err-mypage.mjs 가 가짜 GAS 로 잰다 — F1 을 되돌리거나 _post 의 종류 표시를 지우면 빨강(돌연변이 확인)
+chk 'ERR_CODE_MYPAGE' mypage.html 110
+chk "else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }" mypage.html 1
+nochk "else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }" mypage.html
+chk 'function _post(payload, ms){' mypage.html 1
+chk "e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');" mypage.html 1
+chk 'function _errLine(x, L, base, todo){' mypage.html 1
+chk 'function _wrSlow(o, okf){' mypage.html 1
+chk "return p.then(function(r){ return _errNorm(r,'S',ERR_SAVE_BASE); }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });" mypage.html 1
+chk 'var _trkSlow={};' mypage.html 1
+chk "var _gL=_isDel?'D':'L'" mypage.html 1
+chk 'function _relayErr(r){' mypage.html 1
+chk 'function _dncErr(x, ac, http){' mypage.html 1
+chk 'function _sigMiss(x, todo){' mypage.html 1
+chk 'function _wedAvailLoad(cb, errId){' mypage.html 1
+chk "if(_errSess(d)){ returnDone=false; _errGoLogin(d,'P'); return; }" mypage.html 1
+chk "if(_n===1||(_n>=5&&_n<=7)||_n===9){ _retry(_errLine(d,'P')); return; }" mypage.html 1
+nochk "결제 확인 중 문제가 생겼어요. 디렉터가 확인해서 도와드릴게요.'); clean();" mypage.html
+chk '이 사진 형식은 열 수 없어요 · 다른 사진을 골라 주세요 (코드 M6)' mypage.html 1
+nochk '처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.' mypage.html
+nochk "content:'이 부분은 상담 때 디렉터가 함께 안내드릴게요." mypage.html
+nochk "body:(msg||'네트워크가 잠시 불안정한 것 같아요.')" mypage.html
+nochk "_gBack({ok:false,error:'불러오지 못했어요. 연결을 확인해 주세요.'})" mypage.html
+nochk ".catch(function(){ _dfAck(false); });" mypage.html
+nochk "q.resolve({ok:false, error:''})" mypage.html
+chk 'ERR_CODE_MYPAGE' scripts/audit/err-mypage.mjs 1
+chk "mode === 'notok' ? { ok:false, reason:'invalid'" scripts/audit/admin-inject.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-mypage.mjs >/dev/null 2>&1; _emp=$?; if [ "$_emp" = 1 ]; then echo 'FAIL err-mypage: 마이페이지 실패 문구(원인 한 줄 + 코드) · 로그아웃 조건(F1) · 저장 실패 판 · 빌더 중계가 어긋났습니다 — node scripts/audit/err-mypage.mjs'; fail=1; else echo "ok err-mypage ($_emp)"; fi; fi

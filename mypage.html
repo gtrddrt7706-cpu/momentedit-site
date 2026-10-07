@@ -1867,7 +1867,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .mp-modal{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(40,32,24,0.30);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}   /* z 1000→11000 (TRACK_REV_GUARD) — 전체화면 오버레이(9999·10000) 위에서도 충돌 다이얼로그가 보이게 */
     /* 저장 중 즉시 피드백 베일 — 오버레이(950) 위·모달(1000) 아래(z960). 멈춘 것처럼 보여 반복 클릭하던 문제(2026-07-20 · marker: flow-busy) */
     .flow-busy{position:fixed;inset:0;z-index:960;display:flex;align-items:center;justify-content:center;background:rgba(250,250,248,.66);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
-    .flow-busy-box{display:flex;align-items:center;gap:10px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 18px;box-shadow:0 8px 30px rgba(28,27,25,.12)}
+    .flow-busy-box{display:flex;align-items:center;gap:10px;font-family:var(--serif-ko);font-size:14px;color:var(--accent);background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 18px;box-shadow:0 8px 30px rgba(28,27,25,.12);max-width:calc(100vw - 32px);box-sizing:border-box;text-wrap:balance;word-break:keep-all}   /* [ERR_CODE_MYPAGE] 긴 말(«응답이 늦어요 · 처리됐는지 확인하고 있어요 (코드 P5)»)이 들어와도 화면 가장자리에 붙지 않게 · 줄이 바뀌면 고르게 · «저장 중…» 같은 짧은 말은 그대로 */
     /* [BUSY_ONE] '일하는 중' 표시를 한 언어로 (2026-08-03 사용자 "진사 점 깜빡이는 거랑 2개가 있는 것 같은데 확인해서 통일시키자").
        실측 — 같은 화면 안에 ①진사 점이 숨쉬는 표시(불러오는 중)와 ②금색 링이 도는 스피너(저장 중)가 함께 있었다.
        브랜드 언어는 조용한 쪽이다(회전하는 기계식 스피너는 이 지면의 말이 아니다) — 진사 점 하나로 맞춘다.
@@ -2313,6 +2313,11 @@ function openContractView(){
     else { try{ api({action:'getSignature', token:getToken(), type:'계약'}).then(function(r){ if(r&&r.ok&&r.dataUrl) _applySig(r.dataUrl); }).catch(function(){}); }catch(e){} }
   }
 }
+/* ★[ERR_CODE_MYPAGE F7 2026-10-07] 빌더(order-preview)로 돌려주는 실패 답에 붙이는 칸 — 이름은 그대로 두고 «더한다»(옛 빌더도 그대로 읽힌다).
+   error · msg = 원인 한 줄 + 코드(지금까지 받던 그 칸) · ecode = 'S6' 처럼 코드만 · sess = 로그인이 풀렸다(다시 로그인해야 저장 · 올리기가 된다) ·
+   kind = 'slow'(기다리다 멈춤 · 서버는 끝냈을 수 있다) · 'net'(연결) · 'bad'(서버 답이 깨짐) · ''(서버가 답했다) */
+function _relayErr(r){ var o={ ecode:'', sess:false, kind:'' }; try{ if(r&&typeof r==='object'){ o.ecode=String(r.ecode||'').split(' ')[0] || (r.ok===false?_errCode(r,'S').split(' ')[0]:''); o.sess=!!(r.sess||_errSess(r)); o.kind=String(r.kind||''); } }catch(e){} return o; }
+function _relayFail(x, L, base){ var line=_errLine(x, L, base); return { ok:false, error:line, msg:line, ecode:_errCode(x, L).split(' ')[0], sess:_errSess(x), kind:_errKind(x) }; }
 // 식순 만들기 — 계약서와 동일한 iframe 오버레이(/order-preview.html?embed=1) · postMessage로 서버 초안 주입, 저장 수신 → saveProductionTrack(ritual)
 function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice' = ③ 연습하기로 바로
   var old=$('mp_obViewer'); if(old&&old.parentNode) old.parentNode.removeChild(old);
@@ -2374,15 +2379,15 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
          alert 은 동기 차단이라, 닫기 전까지 아래 postMessage 가 나가지 못했다. 그 사이 빌더는
          낙관 표시한 '저장됨'을 그대로 들고 있었고, 한 화면에 "저장 실패" 알림과 "저장됨" 버튼이 공존했다
          (2026-08-03 사용자 스크린샷). 메시지를 먼저 보내고, 전달이 안 될 때만 네이티브로 물러선다. */
-      var _exFail=function(msg){
-        var sent=false;
-        try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReset', msg:msg}, location.origin); sent=true; }catch(e){}
+      var _exFail=function(r){   // [ERR_CODE_MYPAGE F7] 저장 결과를 통째로 받아 까닭(msg · 코드)을 빌더에 그대로 — 종전엔 끊김 · 시간 초과 · 거절이 같은 말이었다
+        var msg=_saveFailBody(r), sent=false;
+        try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:orderExitReset', msg:msg}, _relayErr(r)), location.origin); sent=true; }catch(e){}
         if(!sent) mpAlert(msg);
       };
       if(d.data && d.data.S){
         apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
-          .then(function(r){ if(r&&r.ok){ saved=true; if(_closed){ _mpRefresh(); } else done(); } else { _exFail((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요.'); } })   // RITUAL_BACK_SAVE — 타임아웃으로 먼저 닫힌 뒤 저장이 성공하면 대시보드 갱신
-          .catch(function(){ _exFail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });
+          .then(function(r){ if(r&&r.ok){ saved=true; if(_closed){ _mpRefresh(); } else done(); } else { _exFail(r); } })   // RITUAL_BACK_SAVE — 타임아웃으로 먼저 닫힌 뒤 저장이 성공하면 대시보드 갱신
+          .catch(function(e){ _exFail(_errRes(e,'S',ERR_SAVE_BASE)); });
       } else { done(); }
       return;
     }
@@ -2391,13 +2396,13 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
        서버본이 그대로 살아 돌아와 완성 화면으로 열렸다(2026-08-03 사용자 제보).
        ★비운다 = 빈 S를 done:false로 저장. 빌더는 course 없는 초안을 복원하지 않는다(_applySaved 게이트). */
     if(d.type==='momentedit:orderReset'){
-      var _ack=function(){ try{ fr.contentWindow.postMessage({type:'momentedit:orderResetDone'}, location.origin); }catch(e){} };
+      var _ack=function(r){ try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:orderResetDone', ok:!!(r&&r.ok)}, (r&&r.ok)?{}:Object.assign({msg:_saveFailBody(r)}, _relayErr(r))), location.origin); }catch(e){} };   // [ERR_CODE_MYPAGE F7] 결과(ok · msg · 코드)를 함께 — 종전엔 type 만 보냈다
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:{}, summary:{}}, done:false})
         /* [SAVE_FALSE_OK] 빌더는 어차피 진행시킨다(응답이 없어도 2.5초 뒤 스스로 간다 · order-preview 3197).
            그러니 막지는 않되 **말은 한다** — 비우기가 실패하면 옛 초안이 서버에 남아, 아무것도 안 짓고 나갔다가
            다시 들어오면 되살아난다(2026-08-03 사고). 종전엔 성공·실패 모두 조용히 _ack() 만 했다. */
-        .then(function(r){ if(r&&r.ok){ saved=true; } else { try{ mpToast('처음부터 다시 만들기가 저장되지 않았어요 · 새로 만들면 덮어써져요'); }catch(e){} } _ack(); })
-        .catch(function(){ try{ mpToast('처음부터 다시 만들기가 저장되지 않았어요 · 새로 만들면 덮어써져요'); }catch(e){} _ack(); });   // saved=나갈 때 대시보드 갱신 여부
+        .then(function(r){ if(r&&r.ok){ saved=true; } else { try{ _errToast('처음부터 다시 만들기가 저장되지 않았어요 · 새로 만들면 덮어써져요 (코드 '+_errCode(r,'S')+')'); }catch(e){} } _ack(r); })   // [ERR_CODE_MYPAGE] 코드 · 읽을 시간
+        .catch(function(e){ var r=_errRes(e,'S',ERR_SAVE_BASE); try{ _errToast('처음부터 다시 만들기가 저장되지 않았어요 · 새로 만들면 덮어써져요 (코드 '+r.ecode+')'); }catch(_e){} _ack(r); });   // saved=나갈 때 대시보드 갱신 여부
       return;
     }
     /* ★★[ORD_AUTOSAVE 2026-08-12 사용자 지시 "저장 후 나가기 말고 그냥 나가기는 없어?"]
@@ -2411,11 +2416,9 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
        api() 의 12초는 파일에는 짧다 — 60초로 따로 보낸다. 결과(성공 · 실패 사유)는 빌더로 돌려준다(빌더가 칸에 «보냈어요 · 파일 이름»을 그린다). */
     if(d.type==='momentedit:ritualFile' && d.data){
       var _rfBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:'momentedit:ritualFileDone', key:d.data.key, tk:d.data.tk}, o)   /* [UP_RACE 2026-10-06] 보낸 번호를 그대로 돌려준다 — 식순 화면이 «마지막에 보낸 것»만 적는다 */, location.origin); }catch(e){} };
-      var _rfAc=(typeof AbortController!=='undefined')?new AbortController():null, _rfT=_rfAc?setTimeout(function(){ try{ _rfAc.abort(); }catch(e){} },60000):null;
-      fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'ritualFile', token:getToken(), key:d.data.key, name:d.data.name, mime:d.data.mime, src:String(d.data.src||'').slice(0,8), data:d.data.data})   /* [RF_MAIL_AI 2026-10-04] AI 줄이면 «도착» 메일 없음 */,signal:_rfAc?_rfAc.signal:undefined})
-        .then(function(r){ return r.json(); })
-        .then(function(r){ if(_rfT) clearTimeout(_rfT); _rfBack(r&&r.ok?{ok:true,name:r.name,id:r.id,at:r.at}:{ok:false,error:(r&&r.error)||'올리지 못했어요. 다시 눌러 주세요.'}); })
-        .catch(function(){ if(_rfT) clearTimeout(_rfT); _rfBack({ok:false,error:'올리지 못했어요. 연결을 확인하고 다시 눌러 주세요.'}); });
+      _post({action:'ritualFile', token:getToken(), key:d.data.key, name:d.data.name, mime:d.data.mime, src:String(d.data.src||'').slice(0,8), data:d.data.data}, 60000)   /* [RF_MAIL_AI 2026-10-04] AI 줄이면 «도착» 메일 없음 */
+        .then(function(r){ _rfBack(r&&r.ok?{ok:true,name:r.name,id:r.id,at:r.at}:_relayFail(r,'U','파일을 올리지 못했어요 · 다시 눌러 주세요')); },
+              function(e){ _rfBack(_relayFail(e,'U','파일을 올리지 못했어요 · 다시 눌러 주세요')); });   // ★[ERR_CODE_MYPAGE F7] 종전 «올리지 못했어요. 연결을 확인하고…» 하나 — 늦음 U5(서버는 저장했을 수 있다) · 끊김 U6 · 깨진 답 U7 · 서버 U4 · 로그인 풀림 U8
       return;
     }
     /* ★[REC_UPLOAD 2026-09-27 코워크 · 사장님 «올리면 그 부분에서 자동 재생까지»] 올린 녹음을 빌더로 다시 받아 온다(두 분 계정 토큰 · 공개 주소 없음) ·
@@ -2439,19 +2442,18 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
     }
     if((d.type==='momentedit:ritualFileGet'||d.type==='momentedit:ritualFileDel') && d.data && d.data.id){
       var _isDel=d.type==='momentedit:ritualFileDel', _gBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:_isDel?'momentedit:ritualFileDelDone':'momentedit:ritualFileData', key:d.data.key, id:d.data.id}, o), location.origin); }catch(e){} };
-      var _gAc=(typeof AbortController!=='undefined')?new AbortController():null, _gT=_gAc?setTimeout(function(){ try{ _gAc.abort(); }catch(e){} },60000):null;
-      fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id}),signal:_gAc?_gAc.signal:undefined})
-        .then(function(r){ return r.json(); })
-        .then(function(r){ if(_gT) clearTimeout(_gT); _gBack(r&&r.ok?{ok:true,mime:r.mime,data:r.data}:{ok:false,error:(r&&r.error)||'불러오지 못했어요.'}); })
-        .catch(function(){ if(_gT) clearTimeout(_gT); _gBack({ok:false,error:'불러오지 못했어요. 연결을 확인해 주세요.'}); });
+      /* ★[ERR_CODE_MYPAGE F7] 지우기와 받기가 같은 실패 글(«불러오지 못했어요…»)을 나눠 썼다 — 지우기는 D(지우기) · 받기는 L(불러오기)로 */
+      var _gL=_isDel?'D':'L', _gBase=_isDel?'지우지 못했어요 · 다시 눌러 주세요':'파일을 불러오지 못했어요 · 다시 눌러 주세요';
+      _post({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id}, 60000)
+        .then(function(r){ _gBack(r&&r.ok?{ok:true,mime:r.mime,data:r.data}:_relayFail(r,_gL,_gBase)); }, function(e){ _gBack(_relayFail(e,_gL,_gBase)); });
       return;
     }
     if(d.type==='momentedit:orderDraft' && d.data && d.data.S){
       /* [TX_MERGE 2026-09-27] 서버가 다른 기기의 더 나중 칸(pull)을 돌려주면 빌더에 실어 보낸다 — 빌더가 그 칸을 화면에 채운다 */
-      var _dfAck=function(ok,pull){ try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail', pull:pull||null}, location.origin); }catch(e){} };
+      var _dfAck=function(ok,pull,r){ try{ fr.contentWindow.postMessage(Object.assign({type:ok?'momentedit:orderDraftSaved':'momentedit:orderDraftFail', pull:pull||null}, ok?{}:Object.assign({msg:_saveFailBody(r)}, _relayErr(r))), location.origin); }catch(e){} };   // ★[ERR_CODE_MYPAGE F7] 실패 까닭(msg · error · ecode · sess · kind)을 함께 — 종전엔 type 만 보내 빌더가 «왜»를 몰랐다(로그인 풀림 · 12,000자 한도 · 몰림 · 끊김)
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:false})
-        .then(function(r){ if(r&&r.ok){ saved=true; _dfAck(true, r.txPull); } else _dfAck(false); })
-        .catch(function(){ _dfAck(false); });
+        .then(function(r){ if(r&&r.ok){ saved=true; _dfAck(true, r.txPull); } else _dfAck(false, null, r); })
+        .catch(function(e){ _dfAck(false, null, _errRes(e,'S',ERR_SAVE_BASE)); });
       return;
     }
     if(d.type==='momentedit:orderSave' && d.data && d.data.S){
@@ -2459,13 +2461,13 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
          성공·실패를 **양쪽 다** 빌더에 돌려준다. 예전엔 실패만 보냈다 — 성공 신호가 없으니
          빌더는 누르는 즉시 '저장됨'을 낙관 표시할 수밖에 없었고, 그게 거짓 저장 상태의 뿌리였다.
          실패 사유는 alert 이 아니라 msg 로 실어 보낸다(빌더가 자기 지면 안에서 브랜드 판으로 보여 줌). */
-      var _svAck=function(ok,msg,pull){
-        try{ fr.contentWindow.postMessage({type:ok?'momentedit:orderSaved':'momentedit:orderSaveFail', msg:msg||'', pull:pull||null}, location.origin); }
-        catch(e){ if(!ok) mpAlert(msg||'저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.'); }
+      var _svAck=function(ok,msg,pull,r){
+        try{ fr.contentWindow.postMessage(Object.assign({type:ok?'momentedit:orderSaved':'momentedit:orderSaveFail', msg:msg||'', pull:pull||null}, ok?{}:_relayErr(r)), location.origin); }   // [ERR_CODE_MYPAGE F7] 코드 · 로그인 풀림 · 종류를 함께
+        catch(e){ if(!ok) mpAlert(msg||_saveFailBody(r)); }
       };
       apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:{_v:3, S:d.data.S, summary:d.data.summary||{}}, done:true})
-        .then(function(r){ if(r&&r.ok){ saved=true; _svAck(true,'',r.txPull); } else { _svAck(false,(r&&r.error)||'저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.'); } })
-        .catch(function(){ _svAck(false,'저장이 안 됐어요. 네트워크를 확인하고 다시 저장해 주세요.'); });
+        .then(function(r){ if(r&&r.ok){ saved=true; _svAck(true,'',r.txPull); } else { _svAck(false,_saveFailBody(r),null,r); } })   // [ERR_CODE_MYPAGE] 종전 «네트워크를 확인하고» — 까닭을 모른 채 연결 탓으로 말했다
+        .catch(function(e){ var r=_errRes(e,'S',ERR_SAVE_BASE); _svAck(false,r.error,null,r); });
     }
   }
   x.addEventListener('click',done);
@@ -2547,13 +2549,13 @@ function _toastOverBar(t){ try{
 }catch(e){} }
 /* ★[TOAST_ONE 2026-09-27 사장님 «일관성»] 알림 한 벌 — mpToast · 되돌리기 알림(.ph-undo)과 같은 색(rgba 58,45,34) · 모서리 22 · 여백 11/22 · 낭독(role=status).
      종전엔 이것만 알약(999) · 다른 갈색 · 좁은 여백이라 좌석 화면 알림이 다른 앱처럼 보였고, 화면 읽기 프로그램은 읽지 않았다. */
-function _miniToast(msg){ try{ var t=document.createElement('div'); t.setAttribute('role','status'); t.setAttribute('aria-live','polite'); t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,45,34,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 22px;border-radius:22px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center;pointer-events:none'; document.body.appendChild(t);
+function _miniToast(msg, ms){ try{ var t=document.createElement('div'); t.setAttribute('role','status'); t.setAttribute('aria-live','polite'); t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:rgba(58,45,34,.92);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 22px;border-radius:22px;z-index:12000;opacity:0;transition:opacity .25s;max-width:86vw;text-align:center;pointer-events:none'; document.body.appendChild(t);
   _toastOverBar(t);   // [TOAST_OVER_BAR]
   /* [TOAST_STUCK] mpToast 와 같은 처방 — 숨김은 '보인 순간'에 건다(경위는 mpToast 주석).
      여기는 매번 새 요소라 마지막에 제거까지 한다. 절대 시한도 함께 둔다. */
   var _gone=false, _rm=function(){ if(_gone) return; _gone=true; t.style.opacity='0'; setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); },300); };
-  requestAnimationFrame(function(){ t.textContent=msg; t.style.opacity='1'; setTimeout(_rm,2600); });   // [TOAST_ONE] 글은 붙인 «뒤»에 — 새 알림 노드에 글을 들고 들어가면 화면 읽기가 건너뛴다(빈 칸 → 글 = 바뀜으로 읽는다)
-  setTimeout(_rm,7000); }catch(e){} }
+  requestAnimationFrame(function(){ t.textContent=msg; t.style.opacity='1'; setTimeout(_rm,ms||2600); });   /* [ERR_CODE_MYPAGE] 실패 알림(_errToast)은 더 길게 — 코드를 읽고 찍을 시간 */   // [TOAST_ONE] 글은 붙인 «뒤»에 — 새 알림 노드에 글을 들고 들어가면 화면 읽기가 건너뛴다(빈 칸 → 글 = 바뀜으로 읽는다)
+  setTimeout(_rm,Math.max(7000,(ms||0)+2000)); }catch(e){} }
 // 시착 동의서 문서 뷰어 — 계약서와 동일한 오버레이(iframe /contract/fitting.html · 인쇄=PDF 저장).
 function openFittingView(){
   var doc=window._fittingDoc; if(!doc) return;
@@ -2889,25 +2891,159 @@ function cacheState(d){ try{
   localStorage.setItem(STATE_CACHE_KEY, JSON.stringify({ t:getToken(), d:c }));
 }catch(e){} }
 function readCachedState(){ try{ var c=JSON.parse(localStorage.getItem(STATE_CACHE_KEY)||'null'); if(c && c.t && c.t===getToken() && c.d) return c.d; }catch(e){} return null; }
-function showErr(id,msg){ var el=$(id); if(el){ el.textContent=msg||'문제가 잠깐 생겼어요. 다시 시도해 주세요. 계속 안 되면 카카오톡으로 디렉터에게 알려 주세요.'; el.classList.add('show'); } }   // MPD_B13 기본 에러 편지체+출구(재시도·문의)
+function showErr(id,msg,L){ var el=$(id); if(el){ if(msg&&typeof msg==='object') msg=_errLine(msg, L||'L');   /* [ERR_CODE_MYPAGE] 실패(서버 답 · 끊김)를 넘기면 원인 한 줄 + 코드로 */
+  el.textContent=msg||'문제가 잠깐 생겼어요. 다시 시도해 주세요. 계속 안 되면 카카오톡으로 디렉터에게 알려 주세요.'; el.classList.add('show'); } }   // MPD_B13 기본 에러 편지체+출구(재시도·문의)
 function hideErr(id){ var el=$(id); if(el) el.classList.remove('show'); }
+
+/* ★★[ERR_CODE_MYPAGE 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류 코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 쓸 수 있을 만한 곳들 조사해서 전부 개선해 보자»]
+   실패를 알리는 줄 끝에 «(코드 X#)» — 글자 = 어디서 · 숫자 = 무슨 일. 뜻은 assets/err-codes.js 한 곳(관리자 검색창이 그 표로 풀어 준다) · 목소리(VC_DOWN_KIND V0~V7)와 같은 표.
+     글자  V AI 목소리 · U 올리기 · D 지우기 · S 저장 · L 불러오기 · 로그인 · P 결제 · 입금 · C 계약 · 서명 · 시착 · 예식일 · B 상담 예약 · A AI 상담 · R 결과물 · 후기 · M 기기 · X 그 밖
+     숫자  0 서버가 거절(글이 곧 까닭) · 1 몰림 · 2 계정 · 요금제 · 키 · 3 설정 · 배포 · 4 처리 실패 · 5 시간 초과(결과 모름) · 6 연결 끊김 · 7 서버 답이 깨짐 · 8 로그인 풀림 · 9 예상 못 한 오류
+   ★종전엔 연결 끊김 · 시간 초과 · 서버 오류가 모두 «잠시 후 다시 시도해 주세요»였고, 서버가 까닭을 안 준 실패는 전부 «네트워크가 잠시 불안정»이었다 — 스크린샷으로 원인을 가를 수 없었다.
+   ★서버(GAS _errStamp)는 실패 답에 ecode 를 싣고 1~9 는 글 끝에 코드를 직접 붙여 온다(9 는 «(코드 S9 · 7KQ2)»처럼 사고번호까지) — 이미 붙어 있으면 다시 붙이지 않는다.
+     0(처리 함수가 정한 말)은 서버가 글에 안 붙이므로 여기서 ecode 를 붙인다. ecode 가 없는 옛 서버는 글로 가린다(잠금 대기 문구 → 1 · «요청을 처리하지 못했어요» → 9 · 그 밖 → 0).
+   ★브라우저에서 난 실패는 여기서 가른다 — 기다리다 멈춤 5 · 연결 끊김 6 · 서버 답이 JSON 이 아님 7. 로그인 풀림(reason)은 8 → 로그인으로.
+   ★5 는 «실패»가 아니라 «결과 모름»이다 — 서버는 잠금을 15초까지 기다리며 계속 도는데 화면은 12초에 멈춘다. 쓰기 동작은 _wrSlow 가 상태를 다시 불러 결과를 말한다.
+   ★고객이 직접 고칠 입력 안내(«입금자명을 입력해 주세요»)에는 코드를 붙이지 않는다. 코드는 서버 · 연결 · 기기 실패에만. */
+var ERR_W={1:'요청이 몰렸어요',5:'응답이 늦어요',6:'연결이 끊겼어요',7:'서버가 잠깐 멈췄어요',8:'로그인이 풀렸어요'};   // [ERR_CODE_MYPAGE] 앞 반 = 무슨 일(정직하게)
+var ERR_DO={1:'잠시 뒤 다시 눌러 주세요',5:'잠시 뒤 다시 눌러 주세요',6:'다시 눌러 주세요',7:'다시 눌러 주세요',8:'다시 로그인해 주세요'};   // 뒤 반 = 할 일(자리마다 바꿔 쓸 수 있다 · 8 은 늘 로그인)
+var ERR_ACT={login:'L',autologin:'L',verify:'L',getMyState:'L',findCode:'L',resetPw:'L',doResetPw:'L',getSignature:'L',getResultGallery:'L',snapThumbs:'L',ritualFileGet:'L',
+  getAvailability:'B',submitSchedule:'B',cancelReservation:'B',acceptProposal:'B',
+  weddingAvailability:'C',changeWeddingHold:'C',cancelWeddingHold:'C',quoteWeddingChange:'C',requestWeddingChange:'C',cancelWeddingChange:'C',requestContract:'C',requestContractResend:'C',signFittingConsent:'C',signContract:'C',
+  paymentSignal:'P',midSignal:'P',balanceSignal:'P',extraRetouchSignal:'P',cardConfirm:'P',cardPayConfig:'P',saveCashReceipt:'P',saveRefundAccount:'P',
+  submitResultSelection:'R',requestExtraRetouch:'R',confirmRetouch:'R',requestRevision:'R',submitSurvey:'R',
+  saveProductionBase:'S',saveProductionTrack:'S',saveInvitationDraft:'S',saveInvitationPreview:'S',publishInvitation:'S',
+  snapRefUpload:'U',ritualFile:'U',ritualFileDel:'D',ritualFilePurgeMine:'D',snapWithdraw:'D',voiceClone:'V'};   // 서버 95_notify ERR_AREA 와 같은 글자 — 브라우저에서 난 실패도 같은 글자로
+var ERR_SESS={expired:1,invalid:1,no_token:1};
+var ERR_BUSY_OLD=/^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 옛 서버의 잠금 대기 문구(서버 ERR_BUSY_RE 와 같다)
+function _errIsRej(x){ return !!x && typeof x==='object' && (x instanceof Error || !!x.meKind || (typeof x.name==='string' && typeof x.message==='string' && !('ok' in x))); }   // 서버 답이 아니라 «던져진 것»인가
+function _errKind(x){ if(!_errIsRej(x)) return ''; if(x.meKind) return x.meKind; if(x.__meTimeout||x.name==='AbortError'||x.name==='TimeoutError') return 'slow'; if(x.name==='SyntaxError') return 'bad'; return ''; }   // slow 5 · net 6 · bad 7 · '' 모름 0(화면 코드 오류 등)
+function _errSess(x){ return !!(x && typeof x==='object' && !_errIsRej(x) && ERR_SESS[x.reason]); }
+function _errInfo(x, L){   // → { n:숫자, c:'S6'(사고번호가 있으면 'S9 · 7KQ2'), t:서버 한글 글, has:글에 이미 코드가 있나 }
+  L=L||(x&&x.meAct&&ERR_ACT[x.meAct])||'X';
+  if(_errIsRej(x)){ var k=_errKind(x), n0=k==='slow'?5:k==='net'?6:k==='bad'?7:0; return {n:n0, c:L+n0, t:''}; }
+  if(!x || typeof x!=='object') return {n:7, c:L+'7', t:''};   // JSON 이지만 객체가 아닌 답 — 깨진 답으로 센다
+  var t=String(x.error||'').trim(), m=t.match(/\(코드 ([A-Z])(\d)((?: · [A-Z0-9]{2,8})?)\)/);
+  if(m) return {n:+m[2], c:m[1]+m[2]+m[3], t:t, has:true};
+  if(t && !/[가-힣]/.test(t)) t='';   // 영문 기술어(INTERNAL_ERROR 등)는 고객에게 싣지 않는다
+  var ec=String(x.ecode||''), okc=/^[A-Z]\d$/.test(ec);
+  var n=ERR_SESS[x.reason]?8:okc?+ec.charAt(1):ERR_BUSY_OLD.test(t)?1:/^요청을 처리하지 못했어요/.test(t)?9:0;
+  return {n:n, c:(okc?ec.charAt(0):L)+n+(x.eid?' · '+String(x.eid).replace(/[^A-Z0-9]/gi,'').slice(0,8):''), t:t};
+}
+function _errCode(x, L){ return _errInfo(x, L).c; }
+/* 실패 한 줄 — x = 서버 답(ok:false) 또는 던져진 것(api · _post 가 meKind 를 붙인다) · L = 글자 · base = 서버가 까닭을 안 줬을 때의 말 · todo = 1·5·6·7 의 «할 일»(문자열 또는 {5:'…'}) */
+function _errLine(x, L, base, todo){
+  var i=_errInfo(x, L); if(i.has) return i.t;
+  var d=(todo&&typeof todo==='object')?todo[i.n]:todo;
+  var w=i.t || (i.n===8 ? ERR_W[8]+' · '+ERR_DO[8] : (ERR_W[i.n] ? ERR_W[i.n]+' · '+(d||ERR_DO[i.n]) : (base||'처리하지 못했어요 · 다시 눌러 주세요')));
+  return w.replace(/\s+$/,'')+' (코드 '+i.c+')';
+}
+function _errClip(t, max){ t=String(t||''); if(t.length<=max) return t; var m=t.match(/\s*\(코드 [^)]*\)$/), tail=m?m[0]:''; return t.slice(0, Math.max(10, max-tail.length-1)).replace(/\s+$/,'')+'…'+tail; }   // 줄일 때도 코드는 남긴다
+function _errRes(e, L, base){ var i=_errInfo(e, L), k=_errKind(e); return {ok:false, error:_errLine(e, L, base), ecode:i.c.split(' ')[0], kind:k, slow:k==='slow'}; }   // 던져진 실패 → 값(저장 사슬이 까닭을 잃지 않게)
+function _errNorm(r, L, base){   // 서버 답을 화면에 바로 쓸 수 있게 — 실패면 error 를 원인 한 줄 + 코드로 · ecode · 로그인 풀림(sess) 표시
+  if(r && r.ok) return r;
+  if(r && typeof r==='object' && (r._noCode || r.code==='rev')) return r;   // 화면이 스스로 고른 말(충돌 판에서 «최신 불러오기» 등)은 실패 코드가 아니다
+  if(!r || typeof r!=='object') return {ok:false, error:_errLine(r, L, base), ecode:L+'7', kind:'bad'};
+  var i=_errInfo(r, L); r.ok=false; r.error=_errLine(r, L, base); r.ecode=i.c.split(' ')[0]; if(_errSess(r)) r.sess=true; return r;
+}
+/* 로그인이 풀렸다 — 로그인 화면으로(그 줄을 로그인 칸에). 편집 겹화면이 떠 있으면 새로 열어 겹화면 밑에 로그인 화면이 깔리지 않게 한다 */
+function _errGoLogin(x, L){
+  var line=_errLine(x, L);
+  clearToken();
+  try{ if(_wizCurId() || _mpFsOpen()){ sessionStorage.setItem('me_login_note', line); location.reload(); return; } }catch(e){}
+  try{ closeLedModal(); }catch(e){} try{ _flowBusy(false); }catch(e){}
+  show('loginView'); softLoginNote(line);
+}
+/* [ERR_CODE_MYPAGE] 한 번 누르는 쓰기 동작 — 성공 · 실패(원인 한 줄 + 코드) · 로그인 풀림(로그인으로) · 시간 초과(결과 모름 → 확인하고 말한다)를 한 곳에서.
+   o = { p:보낼 것, L:글자, base:서버가 까닭을 안 줄 때의 말, ok(d, late):성공, fail(line):실패를 그 자리에, done(state):반영됐나(시간 초과 때 확인 · 없으면 확인 안 함) }
+   ★성공 처리 안에서 난 예외는 실패로 세지 않는다(PUBLISH_FAIL_CHANNEL 과 같은 이유 — 된 일을 «안 됐다»고 말하지 않는다). */
+function _act(o){
+  var okf=function(d, late){ try{ o.ok(d, late); }catch(e){ try{ console.warn('[ERR_CODE_MYPAGE] 성공 처리 예외', e); }catch(_){} } };
+  return api(o.p).then(function(d){
+    if(d&&d.ok){ okf(d); return; }
+    if(_errSess(d)){ _errGoLogin(d, o.L); return; }
+    o.fail(_errLine(d, o.L, o.base, o.todo), d);
+  }, function(e){
+    if(o.done && _errKind(e)==='slow'){ _wrSlow(o, okf); return; }
+    o.fail(_errLine(e, o.L, o.base, o.todo), e);
+  });
+}
+/* 쓰기 동작이 시간 초과 — 서버는 끝냈을 수 있다. «확인하고 있어요»를 띄우고 상태를 두 번(약 2.5초 · 8.5초 뒤) 다시 불러 반영됐으면 성공과 같은 길로, 아니면 다시 누르게 */
+function _wrSlow(o, okf){
+  var L=o.L, n=0, end=function(f){ try{ _flowBusy(false); }catch(_){} f(); };
+  _flowBusy(true, '<span class="ln-bal">응답이 늦어요.</span><span class="ln-bal">처리됐는지 확인하고 있어요 (코드 '+L+'5)</span>');   // 베일 상자는 폰에서 한 줄에 다 안 들어간다 — 늘 두 줄(문장마다 한 덩어리 · 가운뎃점이 줄 끝에 매달리지 않게 마침표 · DOT_SPLIT 과 같은 처방)
+  var again=function(){ if(n<2){ setTimeout(look, 6000); return true; } return false; };
+  var look=function(){ n++;
+    api({action:'getMyState', token:getToken()}).then(function(d){
+      if(d&&d.ok){ var hit=false; try{ hit=!!o.done(d); }catch(_){}
+        if(hit){ end(function(){ try{ cacheState(d); }catch(_){} _miniToast('확인했어요 · 처리됐어요'); okf(d, true); }); return; }
+        if(again()) return; end(function(){ o.fail('아직 반영되지 않았어요 · 다시 눌러 주세요 (코드 '+L+'5)'); }); return; }
+      if(_errSess(d)){ end(function(){ _errGoLogin(d, L); }); return; }
+      if(again()) return; end(function(){ o.fail(ERR_W[5]+' · '+ERR_DO[5]+' (코드 '+L+'5)'); });
+    }, function(){ if(again()) return; end(function(){ o.fail(ERR_W[5]+' · '+ERR_DO[5]+' (코드 '+L+'5)'); }); });
+  };
+  setTimeout(look, 2500);
+}
+/* 실패 알림 판 — 제목 = 무엇이 안 됐나(같은 «처리가 안 됐어요»를 단추 여섯이 나눠 쓰던 것) · 본문 = 원인 한 줄 + 코드 */
+function _errAlert(title, line){ return mpAlert({ title:title, bodyHtml:_errHtml(line) }); }
+/* 판 본문 — 코드 «(코드 X#)»는 한 덩어리로(판 글칸이 좁은 폰에서 줄이 바뀌면 코드가 통째로 다음 줄로 · «(코드 / S6)»처럼 갈리지 않게) */
+function _errHtml(line){ return String(line==null?'':line).split('\n').map(function(t){ var m=t.match(/^([\s\S]*?)\s*(\(코드 [^)]*\))$/); return m ? escapeHtml(m[1])+' <span class="err-code" style="white-space:nowrap">'+escapeHtml(m[2])+'</span>' : escapeHtml(t); }).join('<br>'); }
+function _errToast(line){ _miniToast(line, 5200); }   // 실패 알림은 읽고 찍을 수 있게 조금 길게(종전 1.6초 토스트는 코드를 읽기 전에 사라졌다)
+var ERR_SAVE_BASE='저장이 안 됐어요 · 다시 눌러 주세요';   // 저장(S)에서 서버가 까닭을 안 줬거나 화면 코드가 실패했을 때
+/* [ERR_CODE_MYPAGE F5] 저장 실패 판 본문 — 원인 한 줄 + 코드(종전 «네트워크가 잠시 불안정한 것 같아요» 하나로 모든 실패를 말했다) */
+function _saveFailBody(r){ return (r&&typeof r==='object'&&r.error) ? String(r.error) : (typeof r==='string'&&r ? r : _errLine(r&&typeof r==='object'?r:null,'S',ERR_SAVE_BASE)); }
+/* 눌러서 바로 저장되는 토글(공개 · 찜 · 좌석 공개 방식)이 실패해 되돌렸을 때 — 무엇이(저장) · 할 일(다시 누르기)은 종전 말 그대로 두고 까닭은 코드로(알림 한 줄에 서버 문장까지 싣지 않는다) */
+function _saveToggleLine(r){ return '저장이 안 됐어요 · 다시 눌러 주세요 (코드 '+_errCode(r&&typeof r==='object'?r:null,'S')+')'; }
+/* 로그인이 풀린 저장 — «다시 저장»을 몇 번 눌러도 안 된다. 로그인으로 보낸다(고친 내용이 남지 않는다는 것도 숨기지 않는다) */
+function _saveSessAsk(r){
+  return mpConfirm({ title:'로그인이 풀렸어요', bodyHtml:_errHtml('다시 로그인해 주세요 · 고친 내용은 저장되지 않았어요 (코드 '+_errCode(r,'S')+')'), yes:'로그인하기', no:'그대로 두기', dismissNull:true })
+    .then(function(v){ if(v===true) _errGoLogin(r,'S'); return v; });
+}
+/* 시간 초과 뒤 «반영됐나» — 입금 알림 단추는 «대기»일 때만 보인다. 그 밖으로 바뀌었으면 들어간 것이다 */
+function _doneSig(k){ return function(d){ var x=d&&d[k]; return !!(x && (x.confirmed || (x.status && x.status!=='대기'))); }; }
+var _doneBal=_doneSig('balance');
+/* [ERR_CODE_MYPAGE] 예식 가능 시간(weddingAvailability) — 실패하면 «마감» 표시가 비어 «다 비어 있음»처럼 보였다(조용히 삼켰다).
+   그 사실을 고르는 칸 옆에 한 줄로(서버 «…확인하지 못했어요 … (코드 C4)» 그대로 · 브라우저 실패는 같은 말 + C5 · C6 · C7). 신청은 서버가 다시 확인해 겹쳐 잡히지는 않는다 */
+function _wedAvailLoad(cb, errId){
+  var say=function(t){ var el=$(errId); if(el){ el.textContent=t||''; el.style.display=t?'':'none'; } };
+  say('');
+  api({action:'weddingAvailability', token:getToken()}).then(function(r){
+    if(r&&r.ok){ try{ cb(r); }catch(e){} return; }
+    say(_errLine(r, 'C', '예식 가능 시간을 확인하지 못했어요 · 잠시 뒤 다시 열어 주세요'));
+  }, function(e){ say('예식 가능 시간을 확인하지 못했어요 · 잠시 뒤 다시 열어 주세요 (코드 '+_errCode(e,'C')+')'); });
+}
+/* [ERR_CODE_MYPAGE F9] 서명 이미지 — «정말 없음»(서버가 빈 값으로 답함)과 «못 불러옴»(거절 · 끊김 · 로그인 풀림)을 가른다. 종전엔 둘 다 «서명 기록을 찾지 못했어요» */
+function _sigMiss(x, todo){
+  if(x && typeof x==='object' && !_errIsRej(x) && x.ok) return '저장된 서명 이미지가 없어요';
+  return _errLine(x, 'L', '서명을 불러오지 못했어요 · '+(todo||'다시 펼쳐 주세요'), todo||'다시 펼쳐 주세요');
+}
 
 // fetch (단순 요청 → CORS preflight 회피)
 function api(payload){   // MPD_E3 12초 타임아웃 — GAS 콜드스타트·불안정 망에서 무한 스피너 방지(각 호출부 catch가 재시도 안내)
-  var ac=(typeof AbortController!=='undefined')?new AbortController():null;
   /* ★[LOAD_WHY 2026-09-21 사장님 「이건 무슨문제가있는거야? 원인파악」]
      시간 초과인지 아닌지를 여기서 표시해 둔다. 종전엔 이 catch 가 네 가지를 한 덩어리로 삼켰다 —
      ①12초 초과 ②망 끊김 ③CORS·권한 ④**200 인데 JSON 이 아님**(GAS 가 오류 HTML 을 돌려줄 때).
      그래서 화면이 늘 「연결이 느려요」라고만 말했고, 백엔드가 깨진 경우에도 고객은
-     «내 인터넷이 느린가» 하며 계속 재시도만 하게 된다. 아래 _loadSlowRetry 가 이 표시를 읽는다. */
-  var tm=ac?setTimeout(function(){ try{ ac.__meTimeout=1; ac.abort(); }catch(e){} }, 12000):null;
+     «내 인터넷이 느린가» 하며 계속 재시도만 하게 된다. 아래 _loadSlowRetry 가 이 표시를 읽는다.
+     ★[ERR_CODE_MYPAGE] 넷을 가른다 — 던져진 것마다 meKind(slow · net · bad) · meHttp(받은 상태 번호) · meAct(동작)를 붙인다(_post). __meTimeout 은 종전 그대로 */
+  return _post(payload, 12000);
+}
+/* [ERR_CODE_MYPAGE] GAS 로 보내기 한 벌 — api(12초) · 파일 올리기(60초) · 빌더 중계가 같은 길을 지나 실패 종류가 늘 붙는다 */
+function _post(payload, ms){
+  var ac=(typeof AbortController!=='undefined')?new AbortController():null, st=0, body=false;
+  var tm=ac?setTimeout(function(){ try{ ac.__meTimeout=1; ac.abort(); }catch(e){} }, ms||12000):null;
   return fetch(EXEC_URL, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload),
     signal:ac?ac.signal:undefined
-  }).then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); try{ if(ac&&ac.__meTimeout) e.__meTimeout=1; }catch(_){} throw e; })
-    .then(null, function(e){ if(tm) clearTimeout(tm); try{ if(ac&&ac.__meTimeout) e.__meTimeout=1; }catch(_){} throw e; });   /* [LOAD_WHY] r.json() 실패(오류 HTML)도 같은 자리로 모은다 */
+  }).then(function(r){ st=r.status; body=true; return r.json(); })
+    .then(function(d){ if(tm) clearTimeout(tm); return d; }, function(e){ if(tm) clearTimeout(tm);   /* [LOAD_WHY] r.json() 실패(오류 HTML)도 같은 자리로 모은다 */
+      if(!e || typeof e!=='object') e=new Error(String(e));
+      try{ var to=!!(ac&&ac.__meTimeout); if(to) e.__meTimeout=1;
+        e.meKind=to?'slow':(body?(e.name==='SyntaxError'?'bad':(e.name==='AbortError'?'slow':'net')):'net');   // 답을 받기 전 = 연결 · 받은 뒤 JSON 이 아님 = 깨진 답
+        e.meHttp=st; e.meAct=String((payload&&payload.action)||''); }catch(_){}
+      throw e; });
 }
 
 function qp(name){
@@ -2941,14 +3077,7 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
     return;
   }
   var urlToken = qp('token');
-  if (urlToken) {
-    show('loading');
-    api({action:'autologin', token:urlToken}).then(function(d){
-      if (d && d.ok) { setToken(d.token || urlToken); cleanUrl(); loadMyState(); }
-      else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
-    }).catch(function(){ show('loginView'); });
-    return;
-  }
+  if (urlToken) { _autoLogin(urlToken); return; }   // [ERR_CODE_MYPAGE] F2 — 알림 링크 진입
   var t = getToken();
   if (t) {
     var cached = readCachedState();
@@ -2961,7 +3090,19 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
   }
   show('loginView');
   prefillLoginCode();   // 신청 완료 화면에서 ?code=로 넘어온 경우 개인코드 미리 채움
+  try{ var _ln=sessionStorage.getItem('me_login_note'); if(_ln){ sessionStorage.removeItem('me_login_note'); softLoginNote(_ln); } }catch(e){}   // [ERR_CODE_MYPAGE] 편집 중 로그인이 풀려 새로 열었을 때 — 까닭(코드)을 로그인 칸에
 })();
+/* ★[ERR_CODE_MYPAGE F2 2026-10-07] 알림 링크(?token=)로 들어왔는데 실패하면 — 종전엔 까닭과 상관없이 빈 로그인 화면이었고
+   주소의 토큰도 버렸다(서버가 잠깐 멈췄을 뿐인데 링크가 죽은 것처럼 보였다). 로그인이 풀린 링크(reason)일 때만 로그인으로 보내고,
+   서버 · 연결 실패는 토큰을 주소에 둔 채 «다시 불러오기»로 같은 링크를 다시 시도한다(새로고침해도 다시 시도된다). */
+function _autoLogin(urlToken){
+  show('loading');
+  api({action:'autologin', token:urlToken}).then(function(d){
+    if (d && d.ok) { setToken(d.token || urlToken); cleanUrl(); loadMyState(); return; }
+    if (_errSess(d)) { clearToken(); cleanUrl(); show('loginView'); softLoginNote(_errLine(d,'L')); return; }   // 만료 · 무효 링크 — 로그인으로
+    _loadSlowRetry(d, function(){ _autoLogin(urlToken); });
+  }, function(e){ _loadSlowRetry(e, function(){ _autoLogin(urlToken); }); });
+}
 
 function cleanUrl(){ try { history.replaceState({}, '', window.location.pathname); } catch(e){} }
 // 신청 완료 화면 "마이페이지 로그인" 버튼(?code=)으로 진입 시 개인코드 자동 입력
@@ -2985,8 +3126,8 @@ $('loginForm').addEventListener('submit', function(e){
   var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
   api({action:'login', code:code, pw:pw}).then(function(d){
     if (d && d.ok && d.token){ setToken(d.token); loadMyState(); }
-    else { showErr('li_err', (d&&d.error)||'로그인이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
-  }).catch(function(){ showErr('li_err','연결이 잠시 불안정해요. 다시 시도해 주세요.'); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25)
+    else { showErr('li_err', _errLine(d, 'L', '로그인이 안 됐어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] F3 서버 까닭 + 코드
+  }).catch(function(e){ showErr('li_err', _errLine(e, 'L')); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25) · [ERR_CODE_MYPAGE] F3 «연결이 잠시 불안정해요» 하나로 묶이던 끊김 L6 · 늦음 L5 · 깨진 답 L7 을 가른다
   .then(function(){ btn.disabled=false; btn.textContent='로그인'; });
 });
 
@@ -2999,10 +3140,40 @@ function loadMyState(opts){
                             실측: 느린 로드 중 로그아웃하면 늦게 온 상태가 로그인 화면을 덮어 앞사람 화면이 다시 떴다(한 기기를 부부가 함께 쓴다 · LOGOUT_SWEEP 과 같은 이유) */
   api({action:'getMyState', token:_tok}).then(function(d){
     if(getToken()!==_tok){ _fin(); return; }   /* [STATE_SEQ] 늦게 온 남의 화면 — 캐시에도 남기지 않는다 */
-    if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); }
-    else { clearToken(); show('loginView'); if(d && d.error) softLoginNote(d.error); }
+    if (d && d.ok){ cacheState(d); renderMyPage(d); show('mypageView'); var _lb=document.getElementById('mp_loadBar'); if(_lb&&_lb.parentNode) _lb.parentNode.removeChild(_lb); }   // [ERR_CODE_MYPAGE] 다시 불러왔으면 «최신 내용을 불러오지 못했어요» 막대를 걷는다
+    /* ★★[ERR_CODE_MYPAGE F1 2026-10-07] 로그아웃은 서버가 «로그인이 풀렸다»(reason)고 할 때만.
+       종전엔 까닭 없는 실패(서버 예외 · 새 배포 누락 · 시트 시간 초과)에도 clearToken() 을 불러 — 고객이 로그아웃되고
+       보내지 않은 이 기기의 초안(me_order · me_snapLocal_*)까지 지워졌다(LOGOUT_SWEEP 이 로그아웃 때 쓸어 담는다).
+       그 밖의 실패는 토큰 · 초안을 그대로 두고 원인 한 줄 + 코드 + «다시 불러오기»(_loadFail). */
+    else if (_errSess(d)){ clearToken(); show('loginView'); softLoginNote(_errLine(d,'L')); }
+    else { _loadFail(d, opts); }
     _fin();
-  }).catch(function(e){ if(getToken()!==_tok){ _fin(); return; } var cached=readCachedState(); if(cached){ renderMyPage(cached); show('mypageView'); } else if(!opts.silent){ _loadSlowRetry(e); } _fin(); });   /* [LOAD_WHY] 실패 이유를 그대로 넘겨 화면이 «느림»과 «그 밖»을 갈라 말하게 */   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
+  }).catch(function(e){ if(getToken()!==_tok){ _fin(); return; } _loadFail(e, opts); _fin(); });   /* [LOAD_WHY] 실패 이유를 그대로 넘겨 화면이 «느림»과 «그 밖»을 갈라 말하게 */   /* [STATE_SEQ] 로그아웃 뒤엔 «다시 시도» 화면도 띄우지 않는다 */   // 네트워크 끊김: 캐시 있으면 화면 유지(로그아웃 X) · 캐시 없으면 재시도 안내(MPD_E3)
+}
+/* [ERR_CODE_MYPAGE F1] 불러오기 실패 — 보이던 마이페이지(또는 이 토큰의 저장본)가 있으면 그대로 두고 위에 한 줄 막대(코드 + 다시 불러오기),
+   보일 것이 없으면(첫 로드) 다시 불러오기 화면. 어느 쪽도 로그아웃하지 않는다. */
+function _loadFail(x, opts){
+  opts=opts||{};
+  var onPage=(window._curView==='mypageView'), cached=onPage?null:readCachedState();
+  if(cached){ try{ renderMyPage(cached); show('mypageView'); onPage=true; }catch(e){} }
+  if(onPage){ _loadFailBar(x); return; }
+  if(!opts.silent) _loadSlowRetry(x);
+}
+/* 보이는 화면이 최신이 아닐 수 있다는 한 줄 — [PROD_MULTITAB] «다른 탭에서 저장됐어요» 막대와 같은 자리 · 같은 모양(같은 역할의 표시는 같은 모양) */
+function _loadFailBar(x){
+  var old=document.getElementById('mp_loadBar'); if(old&&old.parentNode) old.parentNode.removeChild(old);
+  var bar=document.createElement('div'); bar.id='mp_loadBar'; bar.setAttribute('role','status');
+  bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:12500;background:rgba(58,45,34,.96);color:#fff;font-family:var(--serif-ko,serif);font-size:13px;padding:11px 14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center';
+  try{ bar.style.paddingTop='calc(11px + env(safe-area-inset-top,0px))'; }catch(e){}
+  var tx=document.createElement('span'); tx.textContent='최신 내용을 불러오지 못했어요 (코드 '+_errCode(x,'L')+')';
+  var btn=document.createElement('button'); btn.type='button'; btn.textContent='다시 불러오기';
+  btn.style.cssText='border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:5px 13px;font-family:inherit;font-size:12px;cursor:pointer';
+  btn.addEventListener('click', function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); _mpRefresh(); });
+  var cx=document.createElement('button'); cx.type='button'; cx.textContent='닫기'; cx.setAttribute('aria-label','알림 닫기');
+  cx.style.cssText='border:none;background:transparent;color:rgba(255,255,255,.7);font-family:inherit;font-size:12px;cursor:pointer';
+  cx.addEventListener('click', function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); });
+  bar.appendChild(tx); bar.appendChild(btn); bar.appendChild(cx);
+  document.body.appendChild(bar);
 }
 
 /* [BUSY_ONE] 동작을 마치고 돌아올 때의 갱신 — 화면을 비우지 않는다.
@@ -3012,21 +3183,21 @@ function _mpRefresh(label){
   _flowBusy(true, label || '불러오는 중…');
   loadMyState({ silent: true, done: function(){ _flowBusy(false); } });
 }
-function _loadSlowRetry(err){   // MPD_E3 무한 스피너 → 재시도 안내 전환(첫 로드·캐시 없음 한정)
+function _loadSlowRetry(err, retry){   // MPD_E3 무한 스피너 → 재시도 안내 전환(첫 로드·캐시 없음 한정)
   var el=$('loading'); if(!el){ show('loginView'); return; }
   /* ★[LOAD_WHY] 종전엔 무슨 일이 났든 「연결이 느려요」 한 문장이었다. 그런데 이 자리는
      «200 인데 JSON 이 아님»(GAS 오류 HTML)에서도 똑같이 뜬다 — 즉 우리 쪽이 깨졌을 때도
      고객에게 «당신 인터넷이 느리다»라고 말하고 있었다. 확인하지 않은 원인을 단정하지 않는다.
      ★그리고 [MPD_B13](에러 문구엔 재시도 + 문의 출구를 함께)을 이 화면만 안 지키고 있었다.
      다시 시도해도 안 되는 고객에게 «다음 한 걸음»이 없으면 그대로 막힌다. */
-  var slow = !!(err && err.__meTimeout);
-  var msg = slow
-    ? '연결이 느려요.<br>잠시 후 다시 시도해 주세요.'
-    : '불러오지 못했어요.<br>다시 시도해도 안 되면 카카오톡으로 디렉터에게 알려 주세요.';
-  el.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.75">'+msg+'</div>'
-    +'<button type="button" class="cc-btn" style="width:auto;padding:11px 26px;margin-top:14px" id="mp_retryLoad">다시 시도</button>';
+  /* ★[ERR_CODE_MYPAGE F2] 둘로 가르던 것(느림 · 그 밖)을 원인 한 줄 + 코드로 — 늦음 L5 · 끊김 L6 · 서버 답이 깨짐 L7 · 서버가 거절 L0 ·
+     서버 오류 L9(사고번호) · 화면 코드 오류 L0. 아래 줄은 [MPD_B13] 의 문의 출구 — 코드를 함께 알려 달라고 한다(관리자가 그 코드로 원인을 찾는다) */
+  var line = _errLine(err, 'L', '불러오지 못했어요 · 다시 불러와 주세요', '다시 불러와 주세요');
+  el.innerHTML='<div style="font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.75;padding:0 16px">'+escapeHtml(line)+'</div>'
+    +'<div style="font-family:var(--serif-ko);font-size:12px;color:var(--light);text-align:center;line-height:1.7;margin-top:6px;padding:0 16px">계속 안 되면 이 코드를 카카오톡으로 알려 주세요</div>'
+    +'<button type="button" class="cc-btn" style="width:auto;padding:11px 26px;margin-top:14px" id="mp_retryLoad">다시 불러오기</button>';
   show('loading');
-  var bt=$('mp_retryLoad'); if(bt) bt.addEventListener('click', function(){ el.innerHTML='<div class="busy-row"><span class="spinner"></span><span>불러오는 중…</span></div>'; loadMyState(); });
+  var bt=$('mp_retryLoad'); if(bt) bt.addEventListener('click', function(){ el.innerHTML='<div class="busy-row"><span class="spinner"></span><span>불러오는 중…</span></div>'; if(typeof retry==='function') retry(); else loadMyState(); });
 }
 
 // 진행바 표시 라벨 — 백엔드 stage 코드(완료형)를 고객용 '액션' 라벨로 (표시 전용·단계값 불변)
@@ -4299,9 +4470,8 @@ function renderLedger(l){
     lbs.disabled=true; lbs.textContent='처리 중…';
     function reset(){ lbs.disabled=false; lbs.textContent='입금했어요'; }
     var cr=(($('mp_lbCR')&&$('mp_lbCR').value)||'').trim();
-    api({action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-    }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+    _act({ p:{action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}, L:'P', base:'잠시 뒤 다시 눌러 주세요', done:_doneBal,   // [ERR_CODE_MYPAGE] F4 · 시간 초과면 반영됐는지 확인
+      ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('잔금 입금 알림을 보내지 못했어요', line); reset(); } });
   });
   // ★재렌더 복원 — 펼쳐뒀던 패널을 새 상태 기준으로 다시 연다(예식일 변경 위저드·잔금 결제 안내)
   if(chgWasOpen && lc){ lc.textContent='닫기'; var _rpn=$('mp_ledChgPanel'); if(_rpn) renderChangeWizard(window._mpStateD||{}, _rpn); }
@@ -4313,9 +4483,9 @@ function doEditCashReceipt(tail){
   mpModalOpen({ title:'소득공제 번호', bodyHtml:'<div style="font-size:13px;color:var(--sub);line-height:1.65;margin-bottom:11px;text-align:left;word-break:keep-all">현금영수증을 <b>소득공제</b>로 받으실 휴대폰 번호나 사업자번호를 적어 주세요. 비우고 저장하면 등록이 해제돼요(자진발급).'+cur+'</div><input type="tel" inputmode="numeric" id="mp_crEdit" class="cc-input" placeholder="휴대폰 또는 사업자번호" autocomplete="off" oninput="this.value=meTelDigits(this.value)">', confirmText:'저장', cancelText:'취소' }).then(function(ok){
     if(!ok) return;
     var v=(($('mp_crEdit')&&$('mp_crEdit').value)||'').trim();
-    api({action:'saveCashReceipt', token:getToken(), cashReceipt:v}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'저장이 안 됐어요. 한 번 더 시도해 주세요.'); }
-    }).catch(function(){ mpAlert('저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); });
+    _act({ p:{action:'saveCashReceipt', token:getToken(), cashReceipt:v}, L:'P', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+      done:function(d){ return !!(d.ledger && String(d.ledger.cashTail||'')===String(v).replace(/[^0-9]/g,'').slice(-4)); },
+      ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('소득공제 번호를 저장하지 못했어요', line); } });
   });
 }
 // [③] 시착 동의 내용 재열람 — 내 내역 '서류'에서. 서명 이미지는 payload(dc.sig)에 실려와 로딩 없이 즉시 표기.
@@ -4333,8 +4503,8 @@ function showFittingTerms(docs){
       if(_sigCache['시착']){ _sigImg(slot,_sigCache['시착']); }
       else api({action:'getSignature', token:getToken(), type:'시착'}).then(function(r){
         if(r&&r.ok&&r.dataUrl){ _sigCache['시착']=r.dataUrl; _sigImg(slot,r.dataUrl); }
-        else slot.innerHTML='<span class="cc-sig-ph">서명 기록을 찾지 못했어요.</span>';
-      }).catch(function(){ slot.innerHTML='<span class="cc-sig-ph">서명을 불러오지 못했어요.</span>'; });
+        else slot.innerHTML='<span class="cc-sig-ph">'+escapeHtml(_sigMiss(r,'다시 열어 주세요'))+'</span>';   // [ERR_CODE_MYPAGE] F9 «정말 없음»과 «못 불러옴»을 가른다
+      }).catch(function(e){ slot.innerHTML='<span class="cc-sig-ph">'+escapeHtml(_sigMiss(e,'다시 열어 주세요'))+'</span>'; });
     }
   }
 }
@@ -4370,20 +4540,20 @@ function doHoldEdit(h){
   var bodyHtml='<div style="text-align:left">'
     +'<div id="mp_heDateLab" style="font-size:12px;color:var(--sub);margin:0 0 6px">예식 날짜</div>'+dtPickerHtml('mphe','mp_heDate','날짜를 선택해 주세요',{value:(h&&h.date)||'',labelledby:'mp_heDateLab'})   // [FIELD_NAMES] 2라운드 R2 · 보이는 이름표와 잇는다(label 로 바꾸면 인라인이 돼 2px 밀린다)
     +'<label for="mp_heSlot" style="display:block;font-size:12px;color:var(--sub);margin:12px 0 6px">예식 시간 · 본예식 시작 기준</label><select id="mp_heSlot" class="cc-input">'+opts+'</select>'   // [FIELD_NAMES] 보이는 이름표를 칸과 잇는다 — 종전엔 화면 읽기가 이름 없는 목록으로 읽었다
+    +'<div class="cc-mini" id="mp_heAvErr" role="status" style="margin-top:8px;color:var(--seal);line-height:1.6;text-align:left;display:none"></div>'   /* [ERR_CODE_MYPAGE] 예식 가능 시간 조회 실패 한 줄 */
     +'<div class="cc-mini" style="margin-top:8px;color:var(--light);line-height:1.6;text-align:left">변경을 요청하시면 디렉터가 다시 확인한 뒤 안내드려요.</div></div>';
   var p=mpModalOpen({ title:'예식일 변경', bodyHtml:bodyHtml, confirmText:'변경 요청', cancelText:'닫기' });
   var taken={};
   function _sync(d){ var sel=$('mp_heSlot'); if(!sel) return; var list=(d&&taken[d])||[]; [].forEach.call(sel.options,function(op){ if(!op.value) return; if(!op.getAttribute('data-label')) op.setAttribute('data-label',op.textContent); var t=list.indexOf(op.value)!==-1; op.disabled=t; op.textContent=op.getAttribute('data-label')+(t?' · 선택 불가':''); }); if(sel.value&&list.indexOf(sel.value)!==-1) sel.value=''; }
   initDatePicker({wrap:'mphe_wrap',trigger:'mphe_trigger',text:'mphe_text',panel:'mphe_panel',grid:'mphe_grid',title:'mphe_title',prev:'mphe_prev',next:'mphe_next',hidden:'mp_heDate',onPick:_sync});
-  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ taken=r.taken||{}; var d=($('mp_heDate')||{}).value||''; if(d) _sync(d); } }).catch(function(){});
+  _wedAvailLoad(function(r){ taken=r.taken||{}; var d=($('mp_heDate')||{}).value||''; if(d) _sync(d); }, 'mp_heAvErr');   // [ERR_CODE_MYPAGE] 실패하면 «마감»이 비어 보이지 않게 그 사실을 한 줄로
   p.then(function(ok){
     if(!ok) return;
     var d=($('mp_heDate')||{}).value||'', t=($('mp_heSlot')||{}).value||'';
     if(!d||!t){ mpAlert('예식 날짜와 시간을 모두 선택해 주세요.').then(function(){ doHoldEdit({date:d||((h&&h.date)||''),slot:t||((h&&h.slot)||'')}); }); return; }
-    api({action:'changeWeddingHold', token:getToken(), date:d, slot:t}).then(function(r){
-      if(r&&r.ok){ loadMyState(); }
-      else { mpAlert((r&&r.error)||'변경 요청이 안 됐어요. 한 번 더 시도해 주세요.').then(function(){ doHoldEdit({date:d,slot:t}); }); }
-    }).catch(function(){ mpAlert('변경 요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); });
+    _act({ p:{action:'changeWeddingHold', token:getToken(), date:d, slot:t}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+      done:function(st){ return !!(st.hold && st.hold.date===d && st.hold.slot===t); },
+      ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('예식일 변경 요청을 보내지 못했어요', line).then(function(){ doHoldEdit({date:d,slot:t}); }); } });
   });
 }
 // [임시고정 셀프 관리] 취소 — 잡아둔 예식 일정 해제
@@ -4394,7 +4564,8 @@ function doHoldEdit(h){
 function doHoldCancel(){
   mpModalOpen({ title:'예식일 임시 고정을 취소할까요?', bodyHtml:'<div style="text-align:left;font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all"><span class="ln-bal">잡아둔 예식 일정이 풀려서 그 시간에 다른 예약을 받을 수 있게 돼요.</span><span class="ln-bal">다시 고정하시려면 카카오톡으로 알려&nbsp;주세요.</span></div>', confirmText:'고정 취소', cancelText:'닫기' }).then(function(ok){
     if(!ok) return;
-    api({action:'cancelWeddingHold', token:getToken()}).then(function(r){ if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'취소가 안 됐어요. 한 번 더 시도해 주세요.'); } }).catch(function(){ mpAlert('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); });
+    _act({ p:{action:'cancelWeddingHold', token:getToken()}, L:'C', base:'잠시 뒤 다시 눌러 주세요', done:function(st){ return !st.hold; },   // [ERR_CODE_MYPAGE] F4
+      ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('임시 고정을 취소하지 못했어요', line); } });
   });
 }
 
@@ -4438,13 +4609,12 @@ function renderRefundBank(rb){
     var v=($('mp_rbAcct').value||'').trim(), btn=$('mp_rbSave'), msg=$('mp_rbMsg');
     if(v.length<5){ msg.style.color='var(--seal)'; msg.textContent='은행명·계좌번호·예금주를 함께 적어 주세요.'; return; }
     btn.disabled=true; btn.textContent='저장 중…';
-    api({action:'saveRefundAccount', token:getToken(), acct:v}).then(function(r){
-      if(r&&r.ok){ msg.style.color='var(--gold-deep)'; msg.textContent='저장됐어요. 입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.'; btn.textContent='계좌 변경';
+    _act({ p:{action:'saveRefundAccount', token:getToken(), acct:v}, L:'P', base:'환불 계좌를 저장하지 못했어요 · 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · «연결이 불안정해요»(4439) → 원인 한 줄 + 코드
+      done:function(st){ return !!(st.refundBank && String(st.refundBank.acct||'').trim()===v); },
+      ok:function(){ msg.style.color='var(--gold-deep)'; msg.textContent='저장됐어요. 입력해 주신 계좌로 영업일 기준 수일 내 송금해 드려요.'; btn.textContent='계좌 변경'; btn.disabled=false;
         var _sv=$('mp_rbSaved'); if(!_sv){ _sv=document.createElement('div'); _sv.id='mp_rbSaved'; _sv.className='cc-note'; _sv.style.cssText='text-align:left;margin:10px 0 0;line-height:1.6'; var _ca=box.querySelector('.cc-actions'); if(_ca) _ca.parentNode.insertBefore(_sv,_ca); }
-        _sv.innerHTML=_rbSavedHtml(v); }   // [RB_SAVED_LINE] 방금 저장한 값으로 글줄도 맞춘다
-      else { msg.style.color='var(--seal)'; msg.textContent=(r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'; btn.textContent='계좌 저장'; }
-      btn.disabled=false;
-    }).catch(function(){ msg.style.color='var(--seal)'; msg.textContent='연결이 불안정해요. 잠시 후 다시 시도해 주세요.'; btn.disabled=false; btn.textContent='계좌 저장'; });
+        _sv.innerHTML=_rbSavedHtml(v); },   // [RB_SAVED_LINE] 방금 저장한 값으로 글줄도 맞춘다
+      fail:function(line){ msg.style.color='var(--seal)'; msg.textContent=line; btn.disabled=false; btn.textContent='계좌 저장'; } });
   });
 }
 
@@ -4579,16 +4749,16 @@ function doCancelRes(){
   if(acctEl && acct.length<5){ if(errEl) errEl.textContent='환불 계좌를 입력해 주세요. (은행·계좌번호·예금주)'; acctEl.focus(); return; }   // [DEPOSIT_CARD] 카드 예약금이면 계좌 칸이 없다 — 그대로 취소
   var btn=$('mp_cancelConfirm'); if(btn){ btn.disabled=true; btn.textContent='취소 처리 중…'; }
   function reset(msg){ if(errEl) errEl.textContent=msg||''; if(btn){ btn.disabled=false; btn.textContent='취소 확정'; } }
-  api({action:'cancelReservation', token:getToken(), acct:acct}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { reset((d&&d.error)||'취소가 안 됐어요. 한 번 더 시도해 주세요.'); }
-  }).catch(function(){ reset('취소가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); });
+  _act({ p:{action:'cancelReservation', token:getToken(), acct:acct}, L:'B', base:'예약을 취소하지 못했어요 · 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · 상담 예약 = B
+    done:function(st){ return !!(st.consult && st.consult.status==='취소'); },
+    ok:function(){ loadMyState(); }, fail:function(line){ reset(line); } });
 }
 function doAcceptProp(){
   var btn=$('mp_acceptProp'); if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent='수락 중…'; }   // MPD_G3 수락 버튼 로딩 상태 — 비동기 버튼 중 유일하게 무방비라 이중 탭 위험(2026-07-25)
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='이 시간으로 수락'; } }
-  api({action:'acceptProposal', token:getToken()}).then(function(d){
-    if (d && d.ok){ loadMyState(); } else { mpAlert((d && d.error) || '수락이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('수락이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'acceptProposal', token:getToken()}, L:'B', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+    done:function(st){ return !!(st.consult && st.consult.status && st.consult.status!=='변경제안'); },
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('제안하신 시간을 수락하지 못했어요', line); reset(); } });
 }
 
 /* [FIT_CAP_LINE 2026-09-26 마이페이지 점검 pre-3] 미계약 취소 시 시착비 공제 안내 — 서명한 동의서 원문은 «1벌당 50,000원 · 최대 100,000원»인데
@@ -4674,10 +4844,9 @@ function doSignFitting(){
     if(!sig) return;   // 취소 또는 미서명
     var btn=$('mp_signFitting'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='동의하고 서명'; } }
-    api({action:'signFittingConsent', token:getToken(), signature:sig}).then(function(d){
-      if (d && d.ok){ loadMyState(); }
-      else { mpAlert((d && d.error) || '서명이 접수되지 않았어요. 한 번 더 시도해 주세요.'); reset(); }
-    }).catch(function(){ mpAlert('서명이 접수되지 않았어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+    _act({ p:{action:'signFittingConsent', token:getToken(), signature:sig}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+      done:function(st){ return !!(st.fitting && st.fitting.signed); },
+      ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('시착 동의 서명이 접수되지 않았어요', line); reset(); } });
   });
 }
 
@@ -4733,6 +4902,7 @@ function renderContractReqForm(ctx){
        «…두었어요. 날짜· / 시간은 바꾸셔도 돼요.»로 가운뎃점을 줄 끝에 매달았다(360 도 같다 · 실측). 글자는 그대로다(chk 로 잠김). */
     +((!ci.weddingDate&&hd.date)?'<div class="cc-note" id="mp_ciHoldNote" style="margin:8px 0 0;text-align:left;line-height:1.7;word-break:keep-all">임시 고정하신 일정으로 채워 두었어요. <b style="color:var(--sub);font-weight:500;white-space:nowrap">날짜·시간은 바꾸셔도 돼요.</b> 요청하시면 바꾼 일정으로 다시 잡아 드리고, 먼저 고정한 일정은 풀려요.</div>':'')
     +'</div>'
+    +'<div class="cc-note" id="mp_ciAvErr" role="status" style="display:none;margin:6px 0 0;text-align:left;color:var(--seal)"></div>'   /* [ERR_CODE_MYPAGE] 예식 가능 시간 조회 실패 한 줄 */
     +'<input type="hidden" id="mp_ciWedTime" value="'+escapeHtml(preSlot)+'">'
     +weddingSequenceRef('시간대를 고르실 때 참고할 요약 시간표예요. 세부 식순은 계약 후 예식 준비 단계에서 직접 설계하실 수 있어요.')
     +'<button type="button" class="seq-open-btn" data-seq-open="full" style="margin-top:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>시간대별 전체 진행 시간표 보기</button>'
@@ -4771,7 +4941,7 @@ function renderContractReqForm(ctx){
   }
   initDatePicker({wrap:'mpcw_wrap',trigger:'mpcw_trigger',text:'mpcw_text',panel:'mpcw_panel',grid:'mpcw_grid',title:'mpcw_title',prev:'mpcw_prev',next:'mpcw_next',hidden:'mp_ciWed',onPick:_renderSlots});
   if(preWed) _renderSlots(preWed);
-  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ _wedAvail.taken=r.taken||{}; if(r.slots&&r.slots.length)_wedAvail.slots=r.slots; if(r.labels)_wedAvail.labels=r.labels; var dd=($('mp_ciWed')&&$('mp_ciWed').value)||preWed||''; if(dd)_renderSlots(dd); } }).catch(function(){});
+  _wedAvailLoad(function(r){ _wedAvail.taken=r.taken||{}; if(r.slots&&r.slots.length)_wedAvail.slots=r.slots; if(r.labels)_wedAvail.labels=r.labels; var dd=($('mp_ciWed')&&$('mp_ciWed').value)||preWed||''; if(dd)_renderSlots(dd); }, 'mp_ciAvErr');   // [ERR_CODE_MYPAGE] 실패를 «다 비어 있음»으로 삼키지 않는다
   function _wireAddr(base){ function op(){ openAddrSearch(base+'_road', base+'_jibun', base+'_detail'); } var f=$(base+'_find'); if(f) f.addEventListener('click',op); var rd=$(base+'_road'); if(rd) rd.addEventListener('click',op); }
   _wireAddr('mp_ciGA'); _wireAddr('mp_ciBA');
   var tl=$('mp_ciTerms'); if(tl) tl.addEventListener('click', function(e){ e.preventDefault(); showContractPrivacy(); });
@@ -4830,9 +5000,10 @@ function doRequestContract(){
   if(!info.consent) return fail('개인정보 수집·이용에 동의해 주세요.');
   var btn=$('mp_ciSubmit'), _btnLbl=(btn&&btn.textContent)||'계약서 요청하기'; if(btn){ btn.disabled=true; btn.textContent='요청 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent=_btnLbl; } }   // [CI_EDIT_PREFILL] 수정 모드(«수정한 정보 보내기»)면 그 말로 되돌린다
-  api({action:'requestContract', token:getToken(), info:info}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { fail((d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ fail('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  var _rq0=String((((window._mpStateD||{}).contractInfo)||{}).requestedAt||'');   // 시간 초과 뒤 «새로 들어갔나»를 가를 기준
+  _act({ p:{action:'requestContract', token:getToken(), info:info}, L:'C', base:'계약서 요청을 보내지 못했어요 · 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+    done:function(st){ var c=st.contractInfo||{}; return !!(c.requested && String(c.requestedAt||'')!==_rq0); },
+    ok:function(){ loadMyState(); }, fail:function(line){ fail(line); reset(); } });
 }
 
 // [02-3+02-4 병합] 본 계약 + 계약금을 한 카드로 — 어차피 한 번에 진행. 서명 → 같은 카드에서 계약금 → 완료 시 접힘.
@@ -4941,10 +5112,9 @@ function renderContractPayment(c, p, ctx){
       box.innerHTML=h; box.style.display='block';
       var rs=$('mp_ctResend'); if(rs) rs.addEventListener('click', function(){
         rs.disabled=true; rs.textContent='요청 중…';
-        api({action:'requestContractResend', token:getToken()}).then(function(r){
-          if(r&&r.ok){ rs.textContent='요청했어요 · 24시간 안에 보내고 카톡으로 알려드려요'; }
-          else { rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
-        }).catch(function(){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; mpAlert('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); });
+        _act({ p:{action:'requestContractResend', token:getToken()}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · 재발송 요청은 화면 상태가 안 바뀌어 확인할 길이 없다 — 시간 초과는 다시 눌러도 알림 한 번 더일 뿐
+          ok:function(){ rs.textContent='요청했어요 · 24시간 안에 보내고 카톡으로 알려드려요'; },
+          fail:function(line){ rs.disabled=false; rs.textContent='계약서 재발송 요청'; _errAlert('재발송 요청을 보내지 못했어요', line); } });
       });
       return;
     }
@@ -5123,6 +5293,7 @@ function renderChangeWizard(ctx, host){
     +'</div></details>'
     +'<label class="pf-l" id="mp_chgDateLab" style="margin-top:12px">변경할 예식 날짜</label>'+dtPickerHtml('mpchg','mp_chgDate','날짜를 선택해 주세요',{labelledby:'mp_chgDateLab'})   // [FIELD_NAMES] 2라운드 R2
     +'<div id="mp_chgSlots" style="display:none"><label class="pf-l" style="margin-top:10px">예식 시간 <span style="color:var(--light);font-weight:300">· 본예식 시작 기준</span></label><div class="wed-slot-row" id="mp_chgSlotRow"></div><div class="cc-note" id="mp_chgSlotNote" style="margin:5px 0 0;text-align:left"></div></div>'
+    +'<div class="cc-note" id="mp_chgAvErr" role="status" style="display:none;margin:6px 0 0;text-align:left;color:var(--seal)"></div>'   /* [ERR_CODE_MYPAGE] 예식 가능 시간 조회 실패 한 줄 */
     +'<input type="hidden" id="mp_chgTime" value="">'
     +'<div id="mp_chgQuote"></div>'
     +'<div id="mp_chgErr" class="cc-note" style="color:var(--seal);text-align:center;min-height:14px;margin-top:8px"></div>'
@@ -5159,6 +5330,8 @@ function renderChangeWizard(ctx, host){
   }
   function _resetQuote(){ _quote=null; var q=$('mp_chgQuote'); if(q) q.innerHTML=''; _setSubmit(false); _err(''); }
   function _hintRetry(){ var h=$('mp_chgHint'); if(h) h.textContent=CHG_HINT_RETRY; }   // [CHG_HINT_RETRY] 다시 누르면 _fetchQuote 가 다시 돈다 — 성공하면 _setSubmit(true) 가 READY 로 바꾼다
+  /* [ERR_CODE_MYPAGE] 수수료 확인 실패 한 줄 = 무엇이(수수료) + 원인 + 코드 · 할 일은 아래 줄(CHG_HINT_RETRY «한 번 더 누르시면»)이 말하니 되풀이하지 않는다 */
+  function _quoteErr(x){ var i=_errInfo(x,'C'); if(i.has) return i.t; var w=ERR_W[i.n]; return (i.t || ('수수료를 확인하지 못했어요'+(w?' · '+w:'')))+' (코드 '+i.c+')'; }
   function _fetchQuote(){
     var d=($('mp_chgDate')||{}).value||'', t=($('mp_chgTime')||{}).value||'';
     if(!d||!t){ _resetQuote(); return; }
@@ -5167,7 +5340,7 @@ function renderChangeWizard(ctx, host){
     api({action:'quoteWeddingChange', token:getToken(), toDate:d, toSlot:t}).then(function(r){
       // 선택이 그 사이 바뀌었으면 무시(늦게 도착한 응답이 화면을 덮지 않게)
       if(d!==(($('mp_chgDate')||{}).value||'') || t!==(($('mp_chgTime')||{}).value||'')) return;
-      if(!r||!r.ok){ _resetQuote(); _err((r&&r.error)||'수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); if(!(r&&r.error)) _hintRetry(); return; }   // [CHG_HINT_RETRY] 까닭 없는 실패만
+      if(!r||!r.ok){ _resetQuote(); _err(_quoteErr(r)); if(!(r&&r.error)) _hintRetry(); return; }   // [CHG_HINT_RETRY] 까닭 없는 실패만 · [ERR_CODE_MYPAGE] 까닭 + 코드
       _quote={fee:Math.round(Number(r.fee)||0), basis:String(r.basis||''), account:String(r.account||''), holder:String(r.holder||'')};
       var h;
       if(_quote.fee>0){
@@ -5181,10 +5354,10 @@ function renderChangeWizard(ctx, host){
       if(q) q.innerHTML=h;
       var ac=$('mp_chgAcctCopy'); if(ac) ac.addEventListener('click', function(){ var tt=String(_quote.account||''); if(!tt) return; var ok=function(){ ac.textContent='복사됐어요'; setTimeout(function(){ ac.textContent='계좌 복사'; },1500); }; copyThen(tt, ok); });
       _setSubmit(true);
-    }).catch(function(){ _resetQuote(); _err('수수료 확인에 실패했어요. 잠시 후 다시 시도해 주세요.'); _hintRetry(); });   // [CHG_HINT_RETRY] 통신 실패
+    }).catch(function(e){ _resetQuote(); _err(_quoteErr(e)); _hintRetry(); });   // [CHG_HINT_RETRY] 통신 실패 · [ERR_CODE_MYPAGE] 늦음 C5 · 끊김 C6 · 깨진 답 C7
   }
   initDatePicker({wrap:'mpchg_wrap',trigger:'mpchg_trigger',text:'mpchg_text',panel:'mpchg_panel',grid:'mpchg_grid',title:'mpchg_title',prev:'mpchg_prev',next:'mpchg_next',hidden:'mp_chgDate',onPick:_renderSlots});
-  api({action:'weddingAvailability', token:getToken()}).then(function(r){ if(r&&r.ok){ _av.taken=r.taken||{}; if(r.slots&&r.slots.length)_av.slots=r.slots; if(r.labels)_av.labels=r.labels; var dd=($('mp_chgDate')&&$('mp_chgDate').value)||''; if(dd)_renderSlots(dd); } }).catch(function(){});
+  _wedAvailLoad(function(r){ _av.taken=r.taken||{}; if(r.slots&&r.slots.length)_av.slots=r.slots; if(r.labels)_av.labels=r.labels; var dd=($('mp_chgDate')&&$('mp_chgDate').value)||''; if(dd)_renderSlots(dd); }, 'mp_chgAvErr');   // [ERR_CODE_MYPAGE] 실패를 «다 비어 있음»으로 삼키지 않는다
   var bk=$('mp_chgBack'); if(bk) bk.addEventListener('click', function(){
     if(inline){ box.style.display='none'; box.innerHTML=''; var lo=$('mp_ledChgOpen'); if(lo) lo.textContent='예식일 변경'; }   // 패널만 닫고 내 내역 유지
     else loadMyState();
@@ -5200,8 +5373,7 @@ function renderChangeWizard(ctx, host){
     }
     sb.disabled=true; sb.textContent='요청 중…';
     function reset(){ sb.disabled=false; sb.textContent='변경 요청하기'; }
-    api({action:'requestWeddingChange', token:getToken(), toDate:d, toSlot:t, payerName:payer}).then(function(r){
-      if(r&&r.ok){
+    var _chgOk=function(){
         var lab=wedTimeKo(t)||(_av.labels&&_av.labels[t])||t;
         box.innerHTML='<div class="consult-card"><div class="cc-eyebrow en-22">Change</div>'
           +'<div class="cc-title">변경 요청을 받았어요</div>'
@@ -5209,17 +5381,19 @@ function renderChangeWizard(ctx, host){
           +'<div class="cc-note" style="text-align:center">디렉터 확인 후 적용돼요 · 적용되면 카카오톡으로 알려드려요</div>'
           +'<div class="cc-actions"><button type="button" class="cc-btn" id="mp_chgDoneOk">확인</button></div></div>';
         var ok=$('mp_chgDoneOk'); if(ok) ok.addEventListener('click', function(){ loadMyState(); });
-      } else { _err((r&&r.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-    }).catch(function(){ _err('요청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+    };
+    _act({ p:{action:'requestWeddingChange', token:getToken(), toDate:d, toSlot:t, payerName:payer}, L:'C', base:'변경 요청을 보내지 못했어요 · 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+      done:function(st){ var q=st.change&&st.change.request; return !!(q && q.to && q.to.date===d && q.to.slot===t); },
+      ok:_chgOk, fail:function(line){ _err(line); reset(); } });
   });
 }
 // [02-9] 변경 요청 철회 — 동의기록.변경요청 삭제(기존 예식일 유지). 언제든 다시 요청 가능.
 function doCancelWeddingChange(){
   mpModalOpen({ title:'변경 요청을 철회할까요?', bodyHtml:'<div style="text-align:left;font-size:13px;color:var(--sub);line-height:1.7;word-break:keep-all">요청하신 예식일 변경이 취소되고 기존 예식일이 그대로 유지돼요. 필요하시면 언제든 다시 요청하실 수 있어요.</div>', confirmText:'요청 철회', cancelText:'닫기' }).then(function(ok){
     if(!ok) return;
-    api({action:'cancelWeddingChange', token:getToken()}).then(function(r){
-      if(r&&r.ok){ loadMyState(); } else { mpAlert((r&&r.error)||'철회가 안 됐어요. 한 번 더 시도해 주세요.'); }
-    }).catch(function(){ mpAlert('철회가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); });
+    _act({ p:{action:'cancelWeddingChange', token:getToken()}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+      done:function(st){ var q=st.change&&st.change.request; return !(q && q.to); },
+      ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('변경 요청을 철회하지 못했어요', line); } });
   });
 }
 // [02-3] 서명본 자동 보관 — 채워진+서명된 계약서를 숨김 iframe으로 렌더해 자기완결 HTML로 직렬화. cb(html)·실패 시 cb(''). 베스트에포트(서명 흐름 방해 X).
@@ -5271,10 +5445,10 @@ function doSignContract(){
     var btn=$('mp_signContract'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='계약서 서명하기'; } }
     _archiveSignedContract(sig, function(_html){   // 서명본 보관용 HTML 만든 뒤(베스트에포트) 서명
-      api({action:'signContract', token:getToken(), signature:sig, archiveHtml:_html||'', archiveName:(window._contractFill&&window._contractFill.docTitle)||''}).then(function(d){
-        if (d && d.ok){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요.\n모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); }
-        else { mpAlert((d && d.error) || '서명이 접수되지 않았어요. 한 번 더 시도해 주세요.'); reset(); }
-      }).catch(function(){ mpAlert('서명이 접수되지 않았어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+      _act({ p:{action:'signContract', token:getToken(), signature:sig, archiveHtml:_html||'', archiveName:(window._contractFill&&window._contractFill.docTitle)||''}, L:'C', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · 시간 초과 = 서명됐는지 확인
+        done:function(st){ return !!(st.contract && st.contract.signed); },
+        ok:function(){ mpAlert({ title:'계약이 체결되었어요', body:'서명이 완료되었어요.\n모먼트에디트와 함께하게 되어 기뻐요.', confirmText:'확인' }).then(function(){ loadMyState(); }); },
+        fail:function(line){ _errAlert('계약서 서명이 접수되지 않았어요', line); reset(); } });
     });
   });
 }
@@ -5472,9 +5646,8 @@ function doBalanceSignal(){
   var btn=$('mp_bSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_bCR')&&$('mp_bCR').value)||'').trim();
-  api({action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'balanceSignal', token:getToken(), payerName:payer, cashReceipt:cr}, L:'P', base:'잠시 뒤 다시 눌러 주세요', done:_doneBal,   // [ERR_CODE_MYPAGE] F4
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('잔금 입금 알림을 보내지 못했어요', line); reset(); } });
 }
 // [02-4b] 중도금 카드 — 결제 마일스톤(D-149). 잔금 '함께 결제'(합계)·잔금 기한(D-9) 이내 합계 자동 흡수.
 function renderMid(p, bal){
@@ -5568,9 +5741,8 @@ function doMidSignal(){
   if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_mCR')&&$('mp_mCR').value)||'').trim();
-  api({action:'midSignal', token:getToken(), payerName:payer, withBalance:combo, cashReceipt:cr}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'midSignal', token:getToken(), payerName:payer, withBalance:combo, cashReceipt:cr}, L:'P', base:'잠시 뒤 다시 눌러 주세요', done:_doneSig('midpayment'),   // [ERR_CODE_MYPAGE] F4
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert(combo?'중도금 · 잔금 입금 알림을 보내지 못했어요':'중도금 입금 알림을 보내지 못했어요', line); reset(); } });
 }
 function doPaySignal(){
   var payer=(($('mp_payer')&&$('mp_payer').value)||'').trim();
@@ -5578,10 +5750,8 @@ function doPaySignal(){
   var btn=$('mp_paySignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
   var cr=(($('mp_payerCR')&&$('mp_payerCR').value)||'').trim();
-  api({action:'paymentSignal', token:getToken(), payerName:payer, cashReceipt:cr}).then(function(d){
-    if(d&&d.ok){ loadMyState(); }
-    else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'paymentSignal', token:getToken(), payerName:payer, cashReceipt:cr}, L:'P', base:'잠시 뒤 다시 눌러 주세요', done:_doneSig('payment'),   // [ERR_CODE_MYPAGE] F4
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('계약금 입금 알림을 보내지 못했어요', line); reset(); } });
 }
 
 // ============================ 카드결제 (토스페이먼츠) · 프론트 — 사전 구축 · 기능 플래그 OFF면 전부 비활성 ============================
@@ -5596,14 +5766,14 @@ var meCardPay = (function(){
     if(window.TossPayments){ cb(); return; }
     var s=document.createElement('script'); s.src=TOSS_SDK;
     s.onload=function(){ cb(); };
-    s.onerror=function(){ try{ mpAlert('결제 창을 불러오지 못했어요. 잠시 후 다시 시도하거나 계좌이체로 진행해 주세요.'); }catch(e){} if(onFail) onFail(); };
+    s.onerror=function(){ try{ mpAlert('결제 창을 불러오지 못했어요. 잠시 후 다시 시도하거나 계좌이체로 진행해 주세요. (코드 P6)'); }catch(e){} if(onFail) onFail(); };   // [ERR_CODE_MYPAGE] 결제 모듈(토스 SDK)을 못 받았다 = 연결
     document.head.appendChild(s);
   }
   function newOrderId(){ return 'ME'+Date.now()+Math.floor(Math.random()*1e6); }
   function pay(milestone, amount, btn){
     var reset=function(){ if(btn){ btn.disabled=false; btn.textContent='카드로 결제'; } };   // 실패 시에만 복구(성공하면 토스로 리다이렉트되어 페이지가 떠남)
-    if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요. 잠시 후 다시 열어 주세요.'); return; }
-    if(!(amount>0)){ mpAlert('결제 금액을 불러오지 못했어요. 디렉터가 확인해 드릴게요.'); return; }
+    if(!cfg||!cfg.clientKey){ mpAlert('결제 준비 중이에요. 잠시 후 다시 열어 주세요. (코드 P3)'); return; }   // [ERR_CODE_MYPAGE] 결제 설정(키)이 아직 없다 = 3
+    if(!(amount>0)){ mpAlert('결제 금액을 불러오지 못했어요. 디렉터가 확인해 드릴게요. (코드 P3)'); return; }
     if(btn){ btn.disabled=true; btn.textContent='결제창 여는 중…'; }   // 더블탭 방지 · 반응감
     loadSdk(function(){
       try{
@@ -5614,8 +5784,8 @@ var meCardPay = (function(){
           successUrl: base+'?me_pay=1&m='+encodeURIComponent(milestone), failUrl: base+'?me_pay=0'   // milestone을 URL에도 실어 sessionStorage 유실 대비(F-2)
         });
         // 결제창을 그냥 닫으면 promise reject(USER_CANCEL) — catch 없으면 버튼이 '여는 중…'으로 영구잠김
-        if(pr&&pr.catch) pr.catch(function(err){ if(!(err&&err.code==='USER_CANCEL')) mpAlert('결제를 진행하지 못했어요. 잠시 후 다시 시도해 주세요.'); reset(); });
-      }catch(e){ mpAlert('결제를 진행하지 못했어요. 잠시 후 다시 시도해 주세요.'); reset(); }
+        if(pr&&pr.catch) pr.catch(function(err){ if(!(err&&err.code==='USER_CANCEL')) mpAlert({ title:'결제를 진행하지 못했어요', body:'카드 결제 창이 결제를 마치지 못했어요 · 잠시 뒤 다시 눌러 주세요 (코드 P4'+((err&&err.code)?' · '+String(err.code).replace(/[^A-Z0-9_]/gi,'').slice(0,40):'')+')' }); reset(); });   /* [ERR_CODE_MYPAGE] F11 토스 오류 코드(REJECT_CARD_COMPANY 등)를 P4 옆에 — 카드사 거절인지 창 문제인지 스크린샷으로 갈린다 */
+      }catch(e){ mpAlert({ title:'결제를 진행하지 못했어요', body:'카드 결제 창을 열지 못했어요 · 잠시 뒤 다시 눌러 주세요 (코드 P0)' }); reset(); }   // [ERR_CODE_MYPAGE] 이 결제 묶음(meCardPay)은 따로 떼어 시험한다(pay-front-check) — 바깥 도우미 없이 mpAlert 만 쓴다
     }, reset);
   }
   function buildWrap(m, onClick, ariaLabel){   // 카드 버튼 1개 조립(라이브·미리보기 공용)
@@ -5683,12 +5853,22 @@ var meCardPay = (function(){
     if(q.get('me_pay')==='0'){ mpAlert('결제를 취소했어요. 필요하면 언제든 다시 하실 수 있어요.'); clean(); return; }
     var paymentKey=q.get('paymentKey'), oid=q.get('orderId'), amt=Math.round(Number(q.get('amount'))||0);
     if(!milestone||!paymentKey||!oid||!(amt>0)){ clean(); return; }
-    api({action:'cardConfirm', token:getToken(), milestone:milestone, paymentKey:paymentKey, orderId:oid, amount:amt}).then(function(d){
+    /* ★[ERR_CODE_MYPAGE F11] 승인 확인이 «끝났다»고 확인되기 전에는 주소의 paymentKey 를 지우지 않는다 — 종전엔 연결이 끊겨도 clean() 해
+       새로고침으로 다시 확인할 길이 사라졌다(돈은 나갔는데 기록 확인을 못 하는 상태). 결과 모름(늦음 · 끊김 · 깨진 답 · 몰림 · 서버 오류)이면
+       주소를 그대로 두고 «다시 확인»을 준다. 서버가 분명히 답한 것(성공 · 이미 처리 · 거절)만 정리한다. 승인 확인은 서버가 같은 결제를 두 번 잡지 않는다(already). */
+    var _cc=function(){ api({action:'cardConfirm', token:getToken(), milestone:milestone, paymentKey:paymentKey, orderId:oid, amount:amt}).then(function(d){
       if(d&&d.ok&&d.already){ mpAlert({ title:'안내', body:(d.alreadyMsg||'이미 처리된 결제예요.'), confirmText:'확인' }); }   // 미캡처(이미 확인·입금신고중) — '결제 완료'로 오인시키지 않음
       else if(d&&d.ok){ mpAlert({ title:'결제가 완료됐어요', body:(milestone?mLabel(milestone)+' ':'')+'결제가 안전하게 끝났어요.\n마이페이지에 바로 반영돼요.', confirmText:'확인' }); }
-      else { mpAlert((d&&d.error)||'결제 확인에 실패했어요. 디렉터가 바로 확인해 드릴게요.'); }
+      else {
+        var _n=_errInfo(d,'P').n;
+        if(_errSess(d)){ returnDone=false; _errGoLogin(d,'P'); return; }   // 로그인하면 주소의 결제 정보로 다시 확인한다(지우지 않았다 · 다시 그릴 때 handleReturn 이 한 번 더 돈다)
+        if(_n===1||(_n>=5&&_n<=7)||_n===9){ _retry(_errLine(d,'P')); return; }   // 몰림 · 늦음 · 끊김 · 깨진 답 · 예상 못 한 오류 = 승인됐는지 모른다 → 주소를 두고 다시 확인(서버가 토스에 못 닿은 것도 같다)
+        _errAlert('결제 확인에 실패했어요', _errLine(d,'P','디렉터가 바로 확인해 드릴게요'));
+      }
       clean(); try{ loadMyState(); }catch(e){}
-    }).catch(function(){ mpAlert('결제 확인 중 문제가 생겼어요. 디렉터가 확인해서 도와드릴게요.'); clean(); });
+    }, function(e){ _retry(_errLine(e,'P','다시 확인을 눌러 주세요','다시 확인을 눌러 주세요')); }); };
+    var _retry=function(line){ mpConfirm({ title:'결제 확인이 끝나지 않았어요', bodyHtml:_errHtml(line+'\n결제는 이미 됐을 수 있어요'), yes:'다시 확인', no:'닫기', dismissNull:true }).then(function(v){ if(v===true) _cc(); }); };
+    _cc();
   }
   function demo(){   // ?preview_card=1 — 로그인·결제단계 없이도 마이페이지 안에서 카드 배치를 보도록 데모 카드 1장 주입(파라미터 있을 때만·라이브 무해)
     if(!PREVIEW) return;
@@ -5747,7 +5927,7 @@ function _prefetchSig(type){   // 서명완료 카드가 그려질 때 백그라
 function _sigImg(slot, dataUrl){
   var img=new Image(); img.className='cc-sig-img'; img.alt='서명';
   img.onload=function(){ slot.innerHTML=''; slot.appendChild(img); };
-  img.onerror=function(){ slot.innerHTML='<span class="cc-sig-ph">서명 이미지를 불러오지 못했어요.</span>'; };
+  img.onerror=function(){ slot.innerHTML='<span class="cc-sig-ph">서명 이미지를 열지 못했어요 (코드 M6)</span>'; };   // [ERR_CODE_MYPAGE] 받은 그림을 이 기기가 못 연 것 — 연결 · 서버 탓이 아니다
   img.src=dataUrl;
 }
 function _loadSig(scope){
@@ -5757,8 +5937,8 @@ function _loadSig(scope){
   wrap.setAttribute('data-loaded','1');
   api({action:'getSignature', token:getToken(), type:type}).then(function(r){
     if(r && r.ok && r.dataUrl){ _sigCache[type]=r.dataUrl; _sigImg(slot, r.dataUrl); }
-    else { slot.innerHTML='<span class="cc-sig-ph">서명 기록을 찾지 못했어요.</span>'; }
-  }).catch(function(){ slot.innerHTML='<span class="cc-sig-ph">서명을 불러오지 못했어요. 잠시 후 다시 펼쳐 주세요.</span>'; wrap.removeAttribute('data-loaded'); });
+    else { slot.innerHTML='<span class="cc-sig-ph">'+escapeHtml(_sigMiss(r))+'</span>'; if(!(r&&r.ok)) wrap.removeAttribute('data-loaded'); }   // [ERR_CODE_MYPAGE] F9 «정말 없음»(서버 ok · 빈 값)과 «못 불러옴»(거절 · 로그인 풀림)을 가른다 · 못 불러왔으면 다시 펼칠 때 다시 묻는다
+  }).catch(function(e){ slot.innerHTML='<span class="cc-sig-ph">'+escapeHtml(_sigMiss(e))+'</span>'; wrap.removeAttribute('data-loaded'); });
 }
 
 // ── 한글 → 로마자(제안용·기본 매핑). 완벽 변환 아님 → 고객이 자유 수정 ──
@@ -6323,8 +6503,11 @@ function _galMore(first){
   var g=_GAL; if(!g) return;
   var next=g.page+1; if(!first && next>g.pages) return;
   var mb=$('mp_galMore'); if(mb){ mb.disabled=true; mb.textContent='불러오는 중…'; }
+  var _galErr=function(x){ if(first||!mb) return; mb.disabled=false; mb.textContent='더 보기 · '+g.files.length+'/'+g.total+'장';   /* [ERR_CODE_MYPAGE] 종전엔 말없이 단추만 되살렸다 — 사진을 더 못 불러온 까닭 한 줄 */
+    var n=$('mp_galMoreErr'); if(!n){ n=document.createElement('div'); n.id='mp_galMoreErr'; n.className='cc-mini'; n.setAttribute('role','status'); n.style.cssText='margin:6px 0 0;color:var(--seal);text-align:center'; mb.parentNode.insertBefore(n, mb.nextSibling); }
+    n.textContent=_errLine(x,'L','사진을 더 불러오지 못했어요 · 다시 눌러 주세요'); };
   api({action:'getResultGallery', token:getToken(), page:next}).then(function(d){
-    if(!(d&&d.ok&&d.files&&d.files.length)){ if(first){ /* 폴백: 번호 입력 유지 */ } else if(mb){ mb.disabled=false; mb.textContent='더 보기'; } return; }
+    if(!(d&&d.ok&&d.files&&d.files.length)){ if(first){ /* 폴백: 번호 입력 유지 */ } else if(d&&d.ok){ if(mb){ mb.disabled=false; mb.textContent='더 보기'; } } else _galErr(d); return; }
     g.page=d.page||next; g.pages=d.pages||1; g.total=d.total||d.files.length;
     d.files.forEach(function(f){ if(f&&f.id){ g.files.push(f); } });
     if(first){
@@ -6333,7 +6516,7 @@ function _galMore(first){
       m.forEach(function(t){ var id=t.slice(1,-1); if(!g.sel[id]){ g.sel[id]=true; g.order.push(id); } });
     }
     _galRender();
-  }).catch(function(){ if(!first && mb){ mb.disabled=false; mb.textContent='더 보기'; } });
+  }).catch(function(e){ _galErr(e); });
 }
 function _galRender(){
   var g=_GAL, w=$('mp_galWrap'); if(!g||!w) return;
@@ -6378,9 +6561,8 @@ function _galSubmit(){
   var picks=g.order.map(function(id){ return { id:id, name:byId[id]||'' }; });
   var btn=$('mp_galSubmit'); if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
-  api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'submitResultSelection', token:getToken(), picks:picks}, L:'R', base:'잠시 뒤 다시 눌러 주세요', done:_donePick(),   // [ERR_CODE_MYPAGE] F4
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('고른 컷을 보내지 못했어요', line); reset(); } });
 }
 function doSubmitSelection(){
   // [PICK_NORMALIZE] 제출 = 정규화된 캐논 문자열(쉼표+공백) — 표시(칩·카운트)와 저장이 항상 일치. 초과 안내는 상시 카운터가 담당(종전 1회성 confirm 대체 · 회의 A-1 합의)
@@ -6390,18 +6572,19 @@ function doSubmitSelection(){
   var btn=$('mp_pickSubmit');
   if(btn){ btn.disabled=true; btn.textContent='제출 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='고른 컷 제출'; } }
-  api({action:'submitResultSelection', token:getToken(), picks:picks}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'제출이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('제출이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'submitResultSelection', token:getToken(), picks:picks}, L:'R', base:'잠시 뒤 다시 눌러 주세요', done:_donePick(),   // [ERR_CODE_MYPAGE] F4
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('고른 컷 번호를 보내지 못했어요', line); reset(); } });
 }
+/* [ERR_CODE_MYPAGE] 시간 초과 뒤 «컷 선택이 들어갔나» — 선택 시각(선택일시)이 보낼 때와 달라졌으면 들어간 것이다 */
+function _donePick(){ var r0=((window._mpStateD||{}).result)||{}, t0=String(r0['선택일시']||''); return function(st){ var r=st.result||{}; return !!(String(r['선택일시']||'') && String(r['선택일시']||'')!==t0); }; }
 function doConfirmRetouch(){
   mpConfirm({ title:'보정본을 확정할까요?', body:'보정본에 만족하시면 이대로 확정할게요.\n확정하면 최종본으로 전달돼요.\n받으신 컷을 다듬고 싶으시면 ④의 수정 요청하기(무료 1회)로, 새 컷 추가는 ③ 추가 보정으로 알려 주세요.', yes:'네, 확정할게요', no:'다시 볼게요' }).then(function(ok){   // REVISION_LOOP — 카카오톡 안내를 공식 경로(수정 요청하기)로 대체
     if(!ok) return;
     var btn=$('mp_confirmReto'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
     function reset(){ if(btn){ btn.disabled=false; btn.textContent='확인했어요 · 만족해요'; } }
-    api({action:'confirmRetouch', token:getToken()}).then(function(d){
-      if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-    }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+    _act({ p:{action:'confirmRetouch', token:getToken()}, L:'R', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+      done:function(st){ var r=st.result||{}; return r.status==='컨펌완료'||r.status==='전달완료'; },
+      ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('보정본 확정을 보내지 못했어요', line); reset(); } });
   });
 }
 function doSubmitSurvey(res){
@@ -6433,9 +6616,9 @@ function doSubmitSurvey(res){
     var nv=nb?String(nb.value||'').trim():''; if(nv) notes[it.k]=nv.slice(0,500);
     snap.push({ k:it.k, q:it.q, req:it.req?1:0, v:(grp&&grp.getAttribute('data-sel'))||'', o:it.o.map(function(o){ return [o[0],o[1]]; }) });
   });
-  api({action:'submitSurvey', token:getToken(), answers:answers, notes:notes, snap:snap, review:review, reviewPublic:pub}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'submitSurvey', token:getToken(), answers:answers, notes:notes, snap:snap, review:review, reviewPublic:pub}, L:'R', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+    done:function(st){ var r=st.result||{}; return !!(r.survey && r.survey.status==='완료'); },
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('후기를 보내지 못했어요', line); reset(); } });
 }
 // [REVISION_LOOP 2026-07-25] 무료 재보정 수정 요청 폼 — 카테고리 칩(복수) + 사유(1000자) → requestRevision.
 //   제출 성공 시 loadMyState로 접수 확인 상태 재렌더(침묵 큐 방지). 대기 중 재요청은 서버도 멱등 차단.
@@ -6456,9 +6639,10 @@ function _bindRevision(){
     if(!picked.length && !note){ mpAlert('다듬고 싶은 부분을 골라 주시거나 적어 주세요.'); return; }
     sub.disabled=true; sub.textContent='보내는 중…';
     function reset(){ sub.disabled=false; sub.textContent='수정 요청 보내기'; }
-    api({action:'requestRevision', token:getToken(), cats:picked, note:note}).then(function(d){
-      if(d&&d.ok){ _mpRefresh(); } else { mpAlert((d&&d.error)||'전송이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-    }).catch(function(){ mpAlert('전송이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+    var _rv0=((((window._mpStateD||{}).result)||{}).revision||{}).round||0;
+    _act({ p:{action:'requestRevision', token:getToken(), cats:picked, note:note}, L:'R', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+      done:function(st){ var v=(st.result||{}).revision; return !!(v && v.pending && (v.round||0)>_rv0); },
+      ok:function(){ _mpRefresh(); }, fail:function(line){ _errAlert('수정 요청을 보내지 못했어요', line); reset(); } });
   });
 }
 function doRequestExtra(){
@@ -6466,18 +6650,19 @@ function doRequestExtra(){
   if(!(qty>0)){ mpAlert('추가 보정 수량을 입력해 주세요.'); return; }
   var btn=$('mp_exReq'); if(btn){ btn.disabled=true; btn.textContent='신청 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='추가 보정 신청'; } }
-  api({action:'requestExtraRetouch', token:getToken(), qty:qty}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'신청이 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('신청이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  var _ex0=((((window._mpStateD||{}).result)||{}).extra)||{}, _exS0=String(_ex0.status||''), _exQ0=Number(_ex0['수량']||0);
+  _act({ p:{action:'requestExtraRetouch', token:getToken(), qty:qty}, L:'R', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4
+    done:function(st){ var x=((st.result||{}).extra)||{}; return String(x.status||'')!=='대기' && (String(x.status||'')!==_exS0 || Number(x['수량']||0)!==_exQ0); },
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('추가 보정 신청을 보내지 못했어요', line); reset(); } });
 }
 function doExtraSignal(){
   var payer=(($('mp_exPayer')&&$('mp_exPayer').value)||'').trim();
   if(!payer){ mpAlert('입금하신 분 성함을 입력해 주세요.'); return; }
   var btn=$('mp_exSignal'); if(btn){ btn.disabled=true; btn.textContent='처리 중…'; }
   function reset(){ if(btn){ btn.disabled=false; btn.textContent='입금했어요'; } }
-  api({action:'extraRetouchSignal', token:getToken(), payerName:payer}).then(function(d){
-    if(d&&d.ok){ loadMyState(); } else { mpAlert((d&&d.error)||'처리가 안 됐어요. 한 번 더 시도해 주세요.'); reset(); }
-  }).catch(function(){ mpAlert('처리가 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); reset(); });
+  _act({ p:{action:'extraRetouchSignal', token:getToken(), payerName:payer}, L:'P', base:'잠시 뒤 다시 눌러 주세요',   // [ERR_CODE_MYPAGE] F4 · 입금 알림 = P
+    done:function(st){ var x=((st.result||{}).extra)||{}; return (x.status==='결제대기'||x.status==='완료') && String(x.payerName||'')===payer; },
+    ok:function(){ loadMyState(); }, fail:function(line){ _errAlert('추가 보정 입금 알림을 보내지 못했어요', line); reset(); } });
 }
 // 구버전(결과물 status 없음) 폴백 — 셀렉트 백엔드 배포 전까지 기존 카드 그대로(①④⑤ 링크, ②③ 자리).
 function renderResultLegacy(res, box){
@@ -6591,7 +6776,7 @@ function ensurePostcode(cb){   // MPD_E1 postcode lazy-load(ensureQR 패턴) —
 }
 function openAddrSearch(roadId, jibunId, detailId){
   if(typeof daum==='undefined'||!daum.Postcode){
-    ensurePostcode(function(ok){ if(ok) openAddrSearch(roadId, jibunId, detailId); else mpAlert('주소 검색을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); });
+    ensurePostcode(function(ok){ if(ok) openAddrSearch(roadId, jibunId, detailId); else mpAlert('주소 검색을 불러오지 못했어요. 잠시 뒤 다시 눌러 주세요. (코드 C6)'); });   // [ERR_CODE_MYPAGE] 주소 검색 모듈을 못 받았다 = 연결
     return;
   }
   var ov=$('mp_addrOverlay');
@@ -6638,9 +6823,9 @@ function showContractPrivacy(at){
   if(_privacyHtml){ body.innerHTML=_privacyHtml; go(); return; }
   fetch('privacy.html').then(function(r){ return r.text(); }).then(function(html){
     var doc=new DOMParser().parseFromString(html,'text/html'), main=doc.querySelector('main');
-    _privacyHtml = main ? main.innerHTML : '<p style="text-align:center">불러오지 못했어요. <a href="privacy.html" target="_blank" rel="noopener">전체 보기</a></p>';
+    _privacyHtml = main ? main.innerHTML : '<p style="text-align:center">불러오지 못했어요 (코드 L7). <a href="privacy.html" target="_blank" rel="noopener">전체 보기</a></p>';   // [ERR_CODE_MYPAGE] 받은 글이 처리방침 꼴이 아니다
     body.innerHTML=_privacyHtml; go();
-  }).catch(function(){ body.innerHTML='<p style="text-align:center;color:var(--sub)">불러오지 못했어요.<br><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--gold-deep)">새 창에서 보기</a></p>'; });
+  }).catch(function(){ body.innerHTML='<p style="text-align:center;color:var(--sub)">불러오지 못했어요 (코드 L6)<br><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--gold-deep)">새 창에서 보기</a></p>'; });
 }
 function fmtWedKo(ymd){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(ymd||'')) return '';
@@ -6788,10 +6973,21 @@ function _rfKeepNote(rd, base, voice){ voice=voice||{}; var L=_rfKeepList(rd); i
     +(voice.aiGone?'<p style="margin:0 0 6px">AI 목소리와 읽은 녹음은 예식 다음 날 지웠어요.</p>':'')
     +'<div style="display:flex;flex-wrap:wrap;gap:6px">'+li+'<button type="button" class="cc-btn-ghost" data-fk="rfpurge" onclick="rfPurgeMine(this)">지금 지우기</button></div></div>'; }
 window.rfPurgeMine=function(btn){ mpConfirm({ title:'두 분 목소리 파일을 모두 지울까요?', body:'지우면 되돌릴 수 없어요.', yes:'모두 지우기' }).then(function(go){ if(!go) return; _rfPurgeGo(btn); }); };   // [VOICE_KEEP] 브라우저 confirm 대신 마이페이지 창
+/* ★[ERR_CODE_MYPAGE 2026-10-07] «모두 지우기» — 종전엔 시간 한도가 없었고(답이 안 오면 «지우는 중…»에 멈춤) 실패 알림은 1.6초 토스트라 읽기도 전에 사라졌다.
+   이제 60초 한도 · 실패는 단추 아래 한 줄로 남긴다(원인 + D 코드). 서버가 «다 지우지 못했어요 (코드 D4)»를 돌려주면 «지웠어요»라고 하지 않는다.
+   시간 초과는 «모름» — 상태를 다시 불러 지운 날(voice.gone)이 생겼는지 보고 말한다(_act · _wrSlow) */
 function _rfPurgeGo(btn){ btn.disabled=true; btn.textContent='지우는 중…';
-  fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'ritualFilePurgeMine',token:getToken()})}).then(function(r){ return r.json(); }).then(function(r){
-    if(r&&r.ok){ var p=window._lastProd||{}; p.voice=Object.assign({},p.voice,{gone:r.gone}); var el=btn.closest('.rf-keep'); if(el) el.outerHTML='<p class="rf-keep" role="status" style="font-size:14px;color:var(--sub)">두 분 목소리 파일을 모두 지웠어요.</p>'; return; }
-    btn.disabled=false; btn.textContent='지금 지우기'; mpToast((r&&r.error)||'지우지 못했어요. 다시 눌러 주세요.'); }).catch(function(){ btn.disabled=false; btn.textContent='지금 지우기'; mpToast('지우지 못했어요. 다시 눌러 주세요.'); }); }
+  var box=btn.closest('.rf-keep'), say=function(t){ if(!box) { if(t) _errToast(t); return; } var n=box.querySelector('.rf-keep-err'); if(!n){ n=document.createElement('p'); n.className='rf-keep-err'; n.setAttribute('role','alert'); n.style.cssText='margin:6px 0 0;font-size:13px;color:var(--seal)'; box.appendChild(n); } n.textContent=t||''; };
+  say('');
+  var gone=function(g){ var p=window._lastProd||{}; p.voice=Object.assign({},p.voice,{gone:g}); var el=btn.closest('.rf-keep'); if(el) el.outerHTML='<p class="rf-keep" role="status" style="font-size:14px;color:var(--sub)">두 분 목소리 파일을 모두 지웠어요.</p>'; };
+  _post({action:'ritualFilePurgeMine',token:getToken()}, 60000).then(function(r){
+    if(r&&r.ok){ gone(r.gone); return; }
+    btn.disabled=false; btn.textContent='지금 지우기';
+    if(_errSess(r)){ _errGoLogin(r,'D'); return; }
+    say(_errLine(r,'D','지우지 못했어요 · 다시 눌러 주세요')); },
+  function(e){
+    if(_errKind(e)==='slow'){ _wrSlow({ L:'D', done:function(st){ var v=(st.production&&st.production.voice)||st.voice||{}; return !!v.gone; }, fail:function(line){ btn.disabled=false; btn.textContent='지금 지우기'; say(line); } }, function(st){ var v=(st&&((st.production&&st.production.voice)||st.voice))||{}; gone(v.gone); }); return; }
+    btn.disabled=false; btn.textContent='지금 지우기'; say(_errLine(e,'D','지우지 못했어요 · 다시 눌러 주세요')); }); }
 function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};
   t=t||{}; inv=inv||{};
@@ -7010,7 +7206,8 @@ function exitInvFlow(){ _mpHoldScroll();   // #8 나가기도 저장 — 성공 
        안내 없이 편집 화면이 닫히고 방금 적은 것이 사라졌다(청첩장 · 좌석 · 스냅 기획 · 애프터 웨딩 네 곳 실측 · 막대 아래 흐린 «저장하고 마치기» 자리를 한 번 더 눌러도 같다).
        → null(닫기)은 판만 닫고 이 화면에 머문다. 입력과 뒤로가기 층은 바로 위에서 이미 되살렸으니 더 할 일이 없다.
          명시적으로 «저장 없이 나가기»를 누른 false 만 버린다. 나가기 판(_wizExit)의 v===null 갈래와 같은 규칙. */
-    mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY]
+    if(r&&r.sess){ _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE F5] 로그인이 풀린 실패는 «다시 저장»을 되풀이시키지 않는다
+    mpConfirm({ title:'저장이 안 됐어요', bodyHtml:_errHtml(_saveFailBody(r)), yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY]
       .then(function(again){ if(again===null) return; if(again){ exitInvFlow(); } else { bkKill(INVFLOW); INVFLOW.active=false; _mpRefresh(); } });
   });
 }
@@ -7154,10 +7351,12 @@ function _wizSave(){
   var st=WIZ_ST[id]||(WIZ_ST[id]={});
   if(st.wait) return;
   st.wait=true; st.fail=false; _wizPaint();
-  var done=function(ok,msg){ st.wait=false; st.fail=!ok; _wizPaint(); if(!ok) _miniToast(String(msg||'저장이 안 됐어요 · 다시 저장을 눌러 주세요').slice(0,80)); };
+  var done=function(ok,msg,r){ st.wait=false; st.fail=!ok; _wizPaint(); if(ok) return;
+    if(r&&r.sess){ _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE F5] 로그인이 풀린 저장은 «다시 저장»으로 풀리지 않는다 — 로그인으로
+    if(id!=='inv') _errToast(_errClip(msg||'저장이 안 됐어요 · 다시 저장을 눌러 주세요 (코드 S0)', 80)); };   // [ERR_CODE_MYPAGE] 원인 한 줄 + 코드 · 읽을 시간 · 청첩장은 saveInvDraft 가 이미 알린다(같은 자리에 알림 둘이 겹치지 않게)
   var p; try{ p=WIZ_ADAPT[id].save(); }catch(e){ done(false,''); return; }   // 기준선 갱신은 각 save 함수 안의 _wizWatch 가 맡는다
   if(!p||!p.then){ done(true); return; }
-  p.then(function(r){ done(!!(r&&r.ok), r&&r.error); }).catch(function(){ done(false,''); });
+  p.then(function(r){ done(!!(r&&r.ok), r&&r.error, r); }).catch(function(e){ done(false, _errLine(e,'S',ERR_SAVE_BASE)); });
 }
 /* [WIZ_EXIT_ONE] 뒤로가기로 들어온 나가기를 취소하면 그 히스토리 층은 이미 소비됐다 —
    다시 걸어 두지 않으면 다음 뒤로가기가 페이지를 통째로 떠난다(위저드 안 내용째로). */
@@ -7244,16 +7443,17 @@ function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step;
   var _snap=INVFLOW.draft; try{ _snap=JSON.parse(JSON.stringify(INVFLOW.draft)); }catch(e){}
   return _wizWatch('inv', _saveQueued('inv', {action:'saveInvitationDraft', token:getToken(), draft:_snap}, api)
   .then(function(r){
+    r=_errNorm(r,'S',ERR_SAVE_BASE);   // [ERR_CODE_MYPAGE A2] 실패면 원인 한 줄 + 코드 · 로그인 풀림(sess)
     try{ if(r&&r.ok) _prodBcSend('invitation', ''); }catch(e){}
     // [후속2] 단계 이동 호출부(3곳)는 결과를 안 보고 넘어간다 — 여기서 한 번만 알린다.
     //   가드('저장 준비가 아직 끝나지 않았어요')·손상 격리('저장 데이터 점검이 필요해…')가 이 지점에서 안 보이면
     //   '무증상 대신 명시적 거부'라는 가드의 목적이 절반만 달성된다. 손상은 시트 수동 편집으로도 나는 실사용 경로.
-    try{ if(!(r&&r.ok)) _miniToast(_invSaveFailMsg(r&&r.error)); }catch(e2){}   // [SAVE_FALSE_OK] 통신 실패도 말한다 — 서버가 답을 준 실패만 말하던 첫 판 · [INV_DONE_SAVE_MSG] 말은 지금 화면에 있는 손잡이를 가리킨다
+    try{ if(!(r&&r.ok)) _miniToast(_invSaveFailMsg(r&&r.error), 5200); }catch(e2){}   // [SAVE_FALSE_OK] 통신 실패도 말한다 — 서버가 답을 준 실패만 말하던 첫 판 · [INV_DONE_SAVE_MSG] 말은 지금 화면에 있는 손잡이를 가리킨다
     return r;
   }))
   /* [SAVE_FALSE_OK] 통신 실패도 값으로 돌려준다 — 빈 catch 는 undefined 를 내보내
      호출부(초대방식·부모·디자인 '다음' 3곳)의 결과 검사를 통째로 무력화한다(saveTrkDraft 와 같은 병). */
-  .catch(function(){ try{ _miniToast(_invSaveFailMsg('')); }catch(e){} return {ok:false, error:''}; }); }
+  .catch(function(e){ var r=_errRes(e,'S',ERR_SAVE_BASE); try{ _miniToast(_invSaveFailMsg(r.error), 5200); }catch(_e){} return r; }); }   // [ERR_CODE_MYPAGE A2] 끊김 · 늦음 · 깨진 답을 가른다(종전 {ok:false,error:''})
 /* ★[INV_DONE_SAVE_MSG 2026-09-26 통합 점검 L7] 발행 직후 초안 저장([INV_PUB_SAVE])이 실패하면 «두 분의 청첩장이 완성됐어요» 위에
    «저장이 안 됐어요 · 다시 저장을 눌러 주세요»가 떴다 — 완성 화면(과 «청첩장 단계를 마쳤어요» 화면)에는 머리 「저장」 손잡이가 없어 누를 「다시 저장」이 없다.
    방금 청첩장이 만들어진 분께 실패처럼 읽히고, 잃은 것도 없다(서버 발행은 남고 재진입이 완성 화면을 복원한다).
@@ -7262,7 +7462,7 @@ function saveInvDraft(){ INVFLOW.draft._step = INVFLOW.step;
 function _invSaveFailMsg(err){
   var _noHandle=false; try{ _noHandle=!!(INVFLOW.active && !INVFLOW._exiting && INVFLOW.step==='done' && !document.querySelector('#mp_production [data-wiz-save]')); }catch(e){}
   if(_noHandle) return (_invLiveUrls(INVFLOW.draft)?'청첩장은 만들어졌어요.':'청첩장 단계는 마쳤어요.')+' 「완료」\u2060를 누르면 한 번 더 저장해요.';   // 알림 칸이 좁아(390 에서 195px) « · »로 이으면 점이 줄 끝에 걸린다 → 마침표 · 「완료」와 「를」 사이는 U+2060(«「완료」 / 를» 갈림)
-  return String(err||'저장이 안 됐어요 · 다시 저장을 눌러 주세요').slice(0,80);
+  return _errClip(err||'저장이 안 됐어요 · 다시 저장을 눌러 주세요 (코드 S0)', 80);   // [ERR_CODE_MYPAGE] 줄여도 코드는 남긴다
 }
 function renderInvFlow(box){
   try{ ensureInviteFab(); }catch(e){}
@@ -7786,7 +7986,7 @@ function doPublishInv(box){
      ★그리고 12초 타임아웃(api 의 AbortController)은 **실패가 아니라 모름**이다 — 서버는 만들었는데
        답만 늦은 경우가 있어, 재시도를 권하되 이미 됐을 수 있음을 함께 말한다(발행은 멱등이라 재시도 안전). */
   api({action:'publishInvitation', token:getToken(), draft:sendDraft}).then(function(r){
-    if(!(r&&r.ok)){ reset(_invErrHuman((r&&r.error)||'')); return; }
+    if(!(r&&r.ok)){ if(_errSess(r)){ reset(_errLine(r,'S')); _saveSessAsk(r); return; } reset(_invErrHuman(r)); return; }   // [ERR_CODE_MYPAGE] 까닭 + 코드 · 로그인 풀림이면 로그인으로
     if(r.urls){ INVFLOW.draft.invitationUrls=r.urls; INVFLOW.draft.eventId=r.eventId||INVFLOW.draft.eventId; INVFLOW.step='done'; }   // 재진입 때 완성 화면 복원용(저장 draft에 보존)
     else if(r.skipped){ INVFLOW.draft.invitationUrls=null; INVFLOW.draft.eventId=''; INVFLOW.step='done'; }   // none 전환 시 옛 링크 잔존 → 재진입이 은퇴한 청첩장을 '완성됨'으로 되살리던 것 정리(2026-07-18 리뷰)
     /* ★[INV_PUB_SAVE] 발행 결과(링크 · eventId · 완성 단계)를 초안에 바로 남긴다 — 종전엔 「완료」를 눌러야만 저장돼,
@@ -7803,17 +8003,18 @@ function doPublishInv(box){
     try{ invStepDone(box, r); }
     catch(e){ reset(''); _miniToast('청첩장은 만들어졌어요 · 화면을 새로고침하면 링크가 보여요'); saveInvDraft(); }
   }, function(e){
-    var _to=(e&&(e.name==='AbortError'||/abort/i.test(String(e.message||''))));
-    reset(_to ? '응답이 늦어지고 있어요. 이미 만들어졌을 수도 있어요 · 새로고침해 확인하시고, 없으면 한 번 더 눌러 주세요.'
-              : '발행이 안 됐어요. 잠시 후 다시 시도해 주세요. (입력은 저장돼 있어요)');
+    var _to=(_errKind(e)==='slow') || (e&&(e.name==='AbortError'||/abort/i.test(String(e.message||''))));
+    /* [ERR_CODE_MYPAGE] 시간 초과는 «모름»(발행은 멱등이라 다시 눌러도 안전) — 종전 문장 그대로 + S5 · 그 밖은 끊김 S6 · 깨진 답 S7 */
+    reset(_to ? '응답이 늦어지고 있어요. 이미 만들어졌을 수도 있어요 · 새로고침해 확인하시고, 없으면 한 번 더 눌러 주세요. (코드 S5)'
+              : _errLine(e,'S','발행이 안 됐어요 · 다시 눌러 주세요','다시 눌러 주세요 · 입력은 저장돼 있어요'));
   });
 }
 /* [INV_EN_GATE] 서버 문구 중 기술어(eventId·코드)는 고객 화면에 그대로 싣지 않는다 —
    무엇을 해야 할지가 안 보이고, 그 자리에서 고칠 수도 없다. 사람 말로 바꿔 준다. */
 function _invErrHuman(msg){
-  msg=String(msg||'');
-  if(/eventId|영문 이름/.test(msg)) return '영문 이름을 확인해 주세요. 기본 단계에서 알파벳으로 적어 주시면 바로 만들어져요.';
-  return msg||'발행이 안 됐어요. 한 번 더 눌러 주세요.';
+  var r=(msg&&typeof msg==='object')?msg:null; msg=r?String(r.error||''):String(msg||'');   // [ERR_CODE_MYPAGE] 서버 답(r)을 받으면 코드까지
+  if(/eventId|영문 이름/.test(msg)) return '영문 이름을 확인해 주세요. 기본 단계에서 알파벳으로 적어 주시면 바로 만들어져요.'+(r?' (코드 '+_errCode(r,'S')+')':'');
+  return r ? _errLine(r,'S','발행이 안 됐어요 · 다시 눌러 주세요') : (msg||'발행이 안 됐어요. 한 번 더 눌러 주세요.');
 }
 // (미리보기 버튼 제거됨) 확인 단계에선 샘플 대신, '만들기' 후 실제 청첩장(두 분 정보 반영)을 바로 보여주고 수정하게 함.
 //   디자인별 예시 이미지는 3단계(디자인 선택)의 각 섹션에 인라인으로 계속 노출.
@@ -8255,14 +8456,29 @@ function _saveQueued(key, payload, sender){
   }
   _sqBusy[key]=true;
   var drain=function(){ _sqBusy[key]=false; var q=_sqNext[key]; if(!q) return; _sqNext[key]=null;
-    _saveQueued(key, q.payload, sender).then(q.resolve, function(){ q.resolve({ok:false, error:''}); }); };
+    _saveQueued(key, q.payload, sender).then(q.resolve, function(e){ q.resolve(_errRes(e,'S',ERR_SAVE_BASE)); }); };   // [ERR_CODE_MYPAGE] 줄 서 있던 저장이 실패해도 까닭(늦음 · 끊김 · 깨진 답)을 잃지 않는다 — 종전 {ok:false,error:''} 는 모든 실패를 «네트워크»로 만들었다
   return sender(payload).then(function(r){ drain(); return r; }, function(e){ drain(); throw e; });
 }
 function apiTrackSave(payload){
   var _t=(payload&&payload.track)||'';
-  if(!_t) return _trkSend(payload);
-  return _saveQueued('trk:'+_t, payload, _trkSend);
+  var p=_t ? _saveQueued('trk:'+_t, payload, _trkSend) : _trkSend(payload);
+  /* ★[ERR_CODE_MYPAGE A2] 저장 결과를 한 꼴로 — 실패는 늘 {ok:false, error:원인 한 줄 + 코드, ecode, sess(로그인 풀림), slow(결과 모름)}.
+     종전엔 거절 · 끊김이 사슬마다 다르게 삼켜져(빈 catch · error:'') 위저드 판이 늘 «네트워크가 잠시 불안정한 것 같아요»였다.
+     ★이제 이 함수는 던지지 않는다 — 부르는 쪽은 r.ok 하나만 보면 된다(.catch 는 화면 코드 예외만 받는다). */
+  return p.then(function(r){ return _errNorm(r,'S',ERR_SAVE_BASE); }, function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });
 }
+/* ★[ERR_CODE_MYPAGE F6 2026-10-07] 거짓 «다른 기기에서 먼저 저장됐어요» — 우리 저장이 시간 초과(화면만 포기)됐는데 서버는 늦게 저장을 끝냈으면
+   서버 rev 가 하나 올라가 다음 저장이 충돌로 돌아왔다(다른 기기는 없었다). 그 판에서 «최신 불러오기»를 고르면 방금 쓴 것이 사라질 수 있었다.
+   트랙마다 «시간 초과로 결과를 모르는 마지막 초안»을 기억했다가, 충돌의 서버 최신본이 그 초안(또는 지금 보낸 것)과 같으면 우리 것이다 —
+   지금 보낸 것과 같으면 이미 저장된 것(성공) · 다르면 새 rev 로 한 번 더 보낸다. 같은지 확신이 안 서면 종전대로 충돌 판(안전한 쪽). */
+var _trkSlow={};
+function _draftNorm(v){
+  if(v===null||v===undefined||v==='') return undefined;
+  if(Object.prototype.toString.call(v)==='[object Array]'){ var a=v.map(_draftNorm); while(a.length && a[a.length-1]===undefined) a.pop(); return a.length ? a.map(function(x){ return x===undefined?null:x; }) : undefined; }
+  if(typeof v==='object'){ var o={}, any=false; Object.keys(v).sort().forEach(function(k){ var n=_draftNorm(v[k]); if(n!==undefined){ o[k]=n; any=true; } }); return any?o:undefined; }
+  return v;
+}
+function _draftSame(a,b){ try{ return JSON.stringify(_draftNorm(a))===JSON.stringify(_draftNorm(b)); }catch(e){ return false; } }
 function _trkSend(payload){
   // 전송 시점 스냅샷과 비교 — 라이브 객체(SEATFLOW.tables 등)는 응답 대기 중 사용자가 계속 편집해 오탐이 나므로.
   // JSON 왕복 복사라 undefined 값 키도 전송본과 동일하게 떨어져 나감(구조 비교 기준 일치).
@@ -8271,8 +8487,20 @@ function _trkSend(payload){
   //   최신 상태의 trackRevs가 있을 때만(구 GAS·미로드면 rev 없이 종전 동작). 저장 성공 시 서버가 준 새 rev로 갱신해 자기 연속 저장 오탐 방지.
   try{ var _trs=(window._mpStateD&&window._mpStateD.production&&window._mpStateD.production.trackRevs)||null;
     if(_trs && payload && payload.track && payload.rev==null && !payload.force && _trs[payload.track]!=null) payload.rev=_trs[payload.track]; }catch(e){}
+  var _tk=(payload&&payload.track)||'';
   return api(payload).then(function(r){
-    if(r && r.ok===false && r.code==='rev') return _revConflict(payload, r);
+    if(r && r.ok===false && r.code==='rev'){
+      var _lt=r.latest||{}, _sl=_tk?_trkSlow[_tk]:null;   // [ERR_CODE_MYPAGE F6]
+      if(_sl && _lt.draft && (_draftSame(_lt.draft, _sl) || _draftSame(_lt.draft, _sent))){
+        delete _trkSlow[_tk];
+        try{ var _t3=(window._mpStateD&&window._mpStateD.production&&window._mpStateD.production.trackRevs); if(_t3 && _lt.rev!=null) _t3[_tk]=_lt.rev; }catch(e){}
+        if(_draftSame(_lt.draft, _sent)) return { ok:true, rev:_lt.rev, draft:_lt.draft, late:true };   // 늦게 저장된 것이 곧 지금 보낸 것 — 이미 저장돼 있다
+        var p3={}; for(var k3 in payload){ if(payload.hasOwnProperty(k3)) p3[k3]=payload[k3]; } p3.rev=_lt.rev;
+        return _trkSend(p3);   // 늦게 저장된 것은 우리 앞 판 — 새 rev 로 이번 판을 한 번 더
+      }
+      return _revConflict(payload, r);
+    }
+    if(r && r.ok && _tk) delete _trkSlow[_tk];
     try{ if(r && r.ok && r.rev!=null && payload && payload.track){ var _t2=(window._mpStateD&&window._mpStateD.production&&window._mpStateD.production.trackRevs); if(_t2) _t2[payload.track]=r.rev; } }catch(e){}
     try{ if(r && r.ok && payload && payload.track) _prodBcSend(payload.track, r.rev); }catch(e){}   // PROD_MULTITAB — 저장 성공을 다른 탭에 알림(같은 트랙 편집 중이면 배너)
     try{
@@ -8289,7 +8517,7 @@ function _trkSend(payload){
       }
     }catch(e){}
     return r;
-  });
+  }, function(e){ if(_tk && _sent && _errKind(e)==='slow') _trkSlow[_tk]=_sent; throw e; });   // [ERR_CODE_MYPAGE F6] 결과 모름 — 다음 충돌이 «우리 것이 늦게 저장된 것»인지 가릴 수 있게 보낸 초안을 남긴다
 }
 // [TRACK_REV_GUARD] rev 충돌 2버튼 UX — '최신 내용 불러오기(권장)' 또는 '내가 쓴 내용으로 저장'(force · 서버가 직전본 1세대 백업).
 //   덮어쓰기는 2단 확인 · 다이얼로그를 닫으면 저장 취소(실수로 덮어쓰지 않게). 반환값은 저장 결과 형태 유지(호출부 alert 흐름 그대로).
@@ -8297,11 +8525,11 @@ function _revConflict(payload, r){
   return mpConfirm({ title:'다른 기기에서 먼저 저장됐어요',
     body:'같은 항목을 다른 기기(또는 다른 탭)에서 먼저 저장했어요.\n최신 내용을 불러와 이어서 수정하시길 권해요.',
     yes:'최신 내용 불러오기', no:'내가 쓴 내용으로 저장' }).then(function(load){
-    if(load){ _mpRefresh(); return { ok:false, error:'다른 기기의 최신 내용을 불러왔어요. 바꾸실 부분만 다시 저장해 주세요.' }; }
+    if(load){ _mpRefresh(); return { ok:false, error:'다른 기기의 최신 내용을 불러왔어요. 바꾸실 부분만 다시 저장해 주세요.', _noCode:true }; }   // [ERR_CODE_MYPAGE] 고객이 고른 결과 — 실패 코드를 붙이지 않는다
     return mpConfirm({ title:'이 화면의 내용으로 덮어쓸까요?',
       body:'다른 기기에서 저장된 내용이 이 화면의 내용으로 바뀌어요.\n직전 내용은 저희 쪽에 1회분 보관돼 문제가 생기면 디렉터가 복구를 도와드려요.',
       yes:'덮어쓰기', no:'돌아가기' }).then(function(fc){
-      if(!fc) return { ok:false, error:'저장을 멈췄어요. 최신 내용을 확인한 뒤 다시 저장해 주세요.' };
+      if(!fc) return { ok:false, error:'저장을 멈췄어요. 최신 내용을 확인한 뒤 다시 저장해 주세요.', _noCode:true };
       var p2={}; for(var k in payload){ if(payload.hasOwnProperty(k)) p2[k]=payload[k]; }
       delete p2.rev; p2.force=true;
       return apiTrackSave(p2);
@@ -8323,20 +8551,21 @@ function saveSeat(done){
          종전엔 console.warn 만 남기고 좌석 결과만 돌려줘, 자리는 저장됐는데 요금은 안 저장된 상태로
          '자리 배치를 저장했어요' 토스트가 떴다(FIN_SAVE_LOUD 가 3주를 살았다고 적어 둔 그 사고의 화면 쪽).
          ★좌석 저장 자체는 되돌리지 않는다 — 자리는 실제로 저장됐다. 다만 «다 됐다»고 말하지 않는다. */
-      return _seatFinSave().then(function(fr){ return (fr&&fr.ok)?r:{ok:false, error:'인원·요금이 저장되지 않았어요 · 한 번 더 저장해 주세요', _seatOk:true}; }); }));
+      return _seatFinSave().then(function(fr){ return (fr&&fr.ok)?r:{ok:false, error:'인원·요금이 저장되지 않았어요 · 한 번 더 저장해 주세요'+((fr&&fr.ok===false)?' (코드 '+_errCode(fr,'S')+')':''), sess:!!(fr&&fr.sess), _seatOk:true}; }); }));   // [ERR_CODE_MYPAGE] 파생 저장이 실패한 까닭(코드)을 함께
 }
 function exitSeatFlow(){ _mpHoldScroll();   // 저장 실패 시 편집 내용 무음 유실 금지 — exitTrkFlow와 동일하게 복귀+재시도 제공
   if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
   SEATFLOW.active=false; _flowBusy(true);   // '저장 중…' 베일(제작 접점 일관 · 오버레이 유지)
-  var _fail=function(msg){
+  var _fail=function(r){   // [ERR_CODE_MYPAGE F5] 저장 결과(r)를 그대로 받는다 — 원인 한 줄 + 코드 · 로그인 풀림
     _flowBusy(false); SEATFLOW._exiting=false;
     SEATFLOW.active=true; show('mypageView'); renderSeat($('mp_production'));   // 편집 화면 복원(입력 보존)
     if(!bkAlive(SEATFLOW._bk)) SEATFLOW._bk=bkOpen(function(){ exitSeatFlow(); });   // 뒤로가기로 나가다 실패 — 가드 재무장
-    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY] 바깥 누름 · Esc = null → 판만 닫고 머문다(까닭은 exitInvFlow 의 같은 표식)
+    if(r&&r.sess){ _saveSessAsk(r); return; }
+    mpConfirm({ title:'저장이 안 됐어요', bodyHtml:_errHtml(_saveFailBody(r)), yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY] 바깥 누름 · Esc = null → 판만 닫고 머문다(까닭은 exitInvFlow 의 같은 표식)
       .then(function(again){ if(again===null) return; if(again){ exitSeatFlow(); } else { bkKill(SEATFLOW); SEATFLOW.active=false; _mpRefresh(); } });
   };
-  saveSeat(false).then(function(r){ if(!(r&&r.ok)){ _fail(r&&r.error); return; }   // [SAVE_FALSE_OK] 'ok===false 가 아니면 성공'은 응답이 비었을 때 뚫린다 — 성공을 확인하고 넘어간다
-    window._mpNextToast='자리 배치를 저장했어요 · 하객 좌석 안내 링크는 예식 준비 카드에 있어요'; _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); _mpRefresh(); }).catch(function(){ _fail(''); });
+  saveSeat(false).then(function(r){ if(!(r&&r.ok)){ _fail(r); return; }   // [SAVE_FALSE_OK] 'ok===false 가 아니면 성공'은 응답이 비었을 때 뚫린다 — 성공을 확인하고 넘어간다
+    window._mpNextToast='자리 배치를 저장했어요 · 하객 좌석 안내 링크는 예식 준비 카드에 있어요'; _flowBusy(false); SEATFLOW._exiting=false; bkKill(SEATFLOW); _mpRefresh(); }).catch(function(e){ _fail(_errRes(e,'S',ERR_SAVE_BASE)); });
 }
 function _seatErr(m){ var e=$('seat_err'); if(e) e.textContent=m||''; }
 function seatSharePanelHtml(token){
@@ -9327,15 +9556,16 @@ function exitPhotoFlow(){ _mpHoldScroll();   // 식순·스냅 오버레이와 �
   var _tearDown=_photoTearDown;
   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 사장님 지시문 6편 3부 2] 고른 구도가 없으면 «사진작가에게 전달돼요»라고 하지 않는다 — 전달될 구도가 없다(행도 «구도 고르기»가 아니게 맞췄다) */
   var _close=function(){ window._mpNextToast=(PHOTOFLOW.sel||[]).length?'가족 · 친구 스냅을 저장했어요 · 촬영 때 사진작가에게 전달돼요':'저장했어요 · 고른 구도는 아직 없어요';   /* [GROUP_SNAP_NAME] */ _tearDown(); _mpRefresh(); };   // MPD4_F1 완료 확인+다음 연결(§8-1-① · 성공=토스트 H2)
-  var _fail=function(msg){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장)
+  var _fail=function(r){   // 오버레이 유지 → 다시 '저장 후 나가기' 가능(뒤로가기로 층이 소비됐으면 가드 재무장) · [ERR_CODE_MYPAGE F5] 저장 결과(r)를 그대로 받는다
     _flowBusy(false); PHOTOFLOW._exiting=false;
     if(!bkAlive(PHOTOFLOW._bk)) PHOTOFLOW._bk=bkOpen(function(){ exitPhotoFlow(); });
+    if(r&&r.sess){ _saveSessAsk(r); return; }
     /* [PHOTO_FAIL_STAY] 2026-09-26 · 점검 2라운드 — 판 바깥 · Esc 는 «저장 없이 나가기»가 아니다(dismissNull · [WIZ_EXIT_ONE] 규칙).
          종전엔 바깥을 누르거나 Esc 만 눌러도 오버레이가 닫히고 구도 · 링크가 말없이 사라졌다(390 터치 · 1280 Esc 실측 · 서버엔 {seatMode} 만).
          null 이면 판만 닫고 이 화면에 머문다 — 위 두 줄이 화면과 뒤로가기 층을 이미 되살려 뒀다. */
-    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true }).then(function(again){ if(again===null) return; if(again){ exitPhotoFlow(); } else { _tearDown(); _mpRefresh(); } });
+    mpConfirm({ title:'저장이 안 됐어요', bodyHtml:_errHtml(_saveFailBody(r)), yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true }).then(function(again){ if(again===null) return; if(again){ exitPhotoFlow(); } else { _tearDown(); _mpRefresh(); } });
   };
-  savePhoto().then(function(r){ if(!(r&&r.ok)){ _fail(r&&r.error); return; } _close(); }).catch(function(){ _fail(''); });   // [SAVE_FALSE_OK] 'ok===false 가 아니면 성공'은 응답이 비었을 때 뚫린다 — 성공을 확인하고 넘어간다
+  savePhoto().then(function(r){ if(!(r&&r.ok)){ _fail(r); return; } _close(); }).catch(function(e){ _fail(_errRes(e,'S',ERR_SAVE_BASE)); });   // [SAVE_FALSE_OK] 'ok===false 가 아니면 성공'은 응답이 비었을 때 뚫린다 — 성공을 확인하고 넘어간다
 }
 // ── 스냅 기획(촬영 전 · '예식 준비' 앞) — marker: SNAP_PREP_FLOW · 전체화면 오버레이 marker: SNAP_PREP_OVERLAY
 /* ★★[SNAP_PICK_V2 2026-09-26 사장님 회의 · «고르는 스냅 기획»] 다섯 걸음 — 이날의 스냅 · 캔들존 · 화이트존 · 사진작가가 알면 좋은 것 · 사진작가에게 전해요.
@@ -9733,9 +9963,7 @@ function _snapResize(file, max, q){ return new Promise(function(res, rej){
   im.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('img')); };
   im.src=url; }); }
 function _snapApiLong(payload){   // 올리기는 12초 한도(api)로는 모자란다 — 60초
-  var ac=(typeof AbortController!=='undefined')?new AbortController():null, tm=ac?setTimeout(function(){ try{ ac.abort(); }catch(e){} }, 60000):null;
-  return fetch(EXEC_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), signal:ac?ac.signal:undefined })
-    .then(function(r){ if(tm) clearTimeout(tm); return r.json(); }, function(e){ if(tm) clearTimeout(tm); throw e; });
+  return _post(payload, 60000);   // [ERR_CODE_MYPAGE] api 와 같은 길 — 실패 종류(늦음 · 끊김 · 깨진 답)가 붙는다
 }
 function _snapUpload(zone, file){
   var D=SNAPFLOW.d||{}, Z=(D.zones||{})[zone], R=window.SNAP_REFS; if(!Z||!R) return;
@@ -9746,12 +9974,12 @@ function _snapUpload(zone, file){
     /* [SNAP_AGREE_LAST] 동의 전 — 보내지 않고 이 화면에만 담아 둔다(id 없음). 마지막 걸음에서 동의하고 저장할 때 _snapCommit 이 보낸다 */
     if(SNAPFLOW.needAgree){ Z.ups.push({ id:'', th:'', n:String(file.name||'').slice(0,60), _full:two[0], _thumb:two[1] }); _flowBusy(false); renderSnapFlow(); return; }
     return _snapApiLong({ action:'snapRefUpload', token:getToken(), zone:zone, name:String(file.name||'').slice(0,60), data:two[0], thumb:two[1] }).then(function(r){
-      if(!(r&&r.ok&&r.id)){ _flowBusy(false); mpAlert((r&&r.error)||'사진을 올리지 못했어요. 다시 해 주세요.'); return; }
+      if(!(r&&r.ok&&r.id)){ _flowBusy(false); if(_errSess(r)){ _errGoLogin(r,'U'); return; } _errAlert('사진을 올리지 못했어요', _errLine(r,'U','다시 해 주세요')); return; }   // [ERR_CODE_MYPAGE F8] 서버 까닭(드라이브 U4 등) + 코드
       SNAP_THUMBS[r.th]=two[1];
       Z.ups.push({ id:String(r.id), th:String(r.th||''), n:String(file.name||'').slice(0,60) });
       _flowBusy(false); renderSnapFlow(); saveSnap().catch(function(){});
-    });
-  }).catch(function(){ _flowBusy(false); mpAlert('사진을 올리지 못했어요. 사진이 너무 크거나 연결이 끊겼을 수 있어요. 다시 해 주세요.'); });
+    }, function(e){ _flowBusy(false); _errAlert('사진을 올리지 못했어요', _errLine(e,'U','다시 해 주세요')); });   // [ERR_CODE_MYPAGE F8] 보내다 멈춤 U5 · 끊김 U6 · 깨진 답 U7
+  }, function(){ _flowBusy(false); _errAlert('사진을 올리지 못했어요', '이 사진 형식은 열 수 없어요 · 다른 사진을 골라 주세요 (코드 M6)'); });   /* ★[ERR_CODE_MYPAGE F8] 이 기기가 사진을 못 연 것(HEIC 등 해독 실패 · _snapResize) — 종전엔 «사진이 너무 크거나 연결이 끊겼을 수 있어요»로 연결과 섞였다 */
 }
 /* ★[SNAP_CONSENT] 거두기 — «스냅 기획 지우기» · 확인 창 한 번 · 서버가 기획 · 올린 사진 · 링크 · 메모 · 동의 기록을 지운다 → 카드는 빈 카드로.
    ★저장하지 않고 닫는다 — 지우려는 사람에게 «저장하지 않은 변경이 있어요»를 묻지 않는다. 확인 창 문구는 코워크 명세 그대로. */
@@ -9760,9 +9988,9 @@ function _snapWithdrawAsk(){
     if(y!==true) return;
     _flowBusy(true, '지우는 중…');
     _snapApiLong({ action:'snapWithdraw', token:getToken() }).then(function(r){
-      if(!(r&&r.ok)){ _flowBusy(false); mpAlert((r&&r.error)||'지우지 못했어요. 다시 해 주세요.'); return; }
+      if(!(r&&r.ok)){ _flowBusy(false); if(_errSess(r)){ _errGoLogin(r,'D'); return; } _errAlert('스냅 기획을 지우지 못했어요', _errLine(r,'D','다시 해 주세요')); return; }   // [ERR_CODE_MYPAGE] 지우기 = D
       window._mpNextToast='스냅 기획을 지웠어요'; _snapLocalDel(); _snapTearDown(); _mpRefresh();
-    }).catch(function(){ _flowBusy(false); mpAlert('지우지 못했어요. 연결을 확인하고 다시 해 주세요.'); });
+    }, function(e){ _flowBusy(false); _errAlert('스냅 기획을 지우지 못했어요', _errLine(e,'D','다시 해 주세요')); });
   });
 }
 function saveSnap(){
@@ -9778,9 +10006,9 @@ function _snapCommit(){
   ['candle','white'].forEach(function(k){ (((D.zones||{})[k]||{}).ups||[]).forEach(function(u){ if(u&&!u.id&&u._full) pend.push({ k:k, u:u }); }); });
   pend.forEach(function(x){ chain=chain.then(function(bad){ if(bad) return bad;
     return _snapApiLong({ action:'snapRefUpload', token:getToken(), zone:x.k, name:x.u.n, data:x.u._full, thumb:x.u._thumb, snapConsent:1 }).then(function(r){
-      if(!(r&&r.ok&&r.id)) return { ok:false, error:(r&&r.error)||'사진을 보내지 못했어요. 다시 저장해 주세요.' };
+      if(!(r&&r.ok&&r.id)) return { ok:false, error:_errLine(r,'U','사진을 보내지 못했어요 · 다시 저장해 주세요'), sess:_errSess(r), ecode:_errCode(r,'U').split(' ')[0] };   // [ERR_CODE_MYPAGE] 올리기 = U
       SNAP_THUMBS[r.th]=x.u._thumb; x.u.id=String(r.id); x.u.th=String(r.th||''); delete x.u._full; delete x.u._thumb; return null;
-    }, function(){ return { ok:false, error:'사진을 보내다 연결이 끊겼어요. 다시 저장해 주세요.' }; }); }); });
+    }, function(e){ return _errRes(e,'U','사진을 보내지 못했어요 · 다시 저장해 주세요'); }); }); });   // [ERR_CODE_MYPAGE] 종전 «연결이 끊겼어요»로 단정 — 늦음 U5 · 끊김 U6 · 깨진 답 U7 을 가른다
   return chain.then(function(bad){ return bad||saveSnap(); });
 }
 /* ★[SNAP_AGREE_LAST] 저장 전 관문 — 동의 전이고 체크가 안 켜져 있으면 저장하지 않는다. 마지막 걸음으로 데려가 체크 줄을 보여 주고 한 줄로 알린다
@@ -9822,13 +10050,14 @@ function exitSnapFlow(){ _mpHoldScroll();   // 저장 후 오버레이 닫기 ·
   if(!_snapAgreeGate()) return;   // [SNAP_AGREE_LAST] 동의 전이면 저장하지 않고 마지막 걸음의 체크 줄로(«저장하고 마치기» · 나가기 판 «저장하고 나가기» 공용)
   SNAPFLOW._exiting=true; _flowBusy(true);
   var _close=function(){ window._mpNextToast=_snapFilledD(SNAPFLOW.d||{})?'스냅 기획을 저장했어요':'저장했어요 · 고른 장면은 아직 없어요';   /* ★[SNAP_EMPTY_SAVE 2026-09-27 고객 점검] 아무것도 안 고르고 저장하면 카드는 «스냅 기획하기»로 남는데 알림은 «저장했어요»뿐이었다 — 가족 · 친구 스냅 [PHOTO_EMPTY_SAVE] 와 같은 말 */   /* 바로 앞 화면이 «디렉터가 확인해 사진작가에게 전해요»를 말했다 — 알림에서 되풀이하지 않는다 */ _snapTearDown(); _mpRefresh(); };   // MPD4_F1 저장-복귀 확인 토스트(단체 사진·좌석과 같은 방식)
-  var _fail=function(msg){
+  var _fail=function(r){   // [ERR_CODE_MYPAGE F5] 저장 결과(r)를 그대로 받는다 — 원인 한 줄 + 코드 · 로그인 풀림
     _flowBusy(false); SNAPFLOW._exiting=false;
     if(!bkAlive(SNAPFLOW._bk)) SNAPFLOW._bk=bkOpen(function(){ exitSnapFlow(); });
-    mpConfirm({ title:'저장이 안 됐어요', body:(msg||'네트워크가 잠시 불안정한 것 같아요.')+'\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY] 바깥 누름 · Esc = null → 판만 닫고 머문다(까닭은 exitInvFlow 의 같은 표식)
+    if(r&&r.sess){ _saveSessAsk(r); return; }
+    mpConfirm({ title:'저장이 안 됐어요', bodyHtml:_errHtml(_saveFailBody(r)), yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY] 바깥 누름 · Esc = null → 판만 닫고 머문다(까닭은 exitInvFlow 의 같은 표식)
       .then(function(again){ if(again===null) return; if(again){ exitSnapFlow(); } else { _snapTearDown(); _mpRefresh(); } });
   };
-  (SNAPFLOW.needAgree?_snapCommit():saveSnap()).then(function(r){ if(!(r&&r.ok)){ _fail(r&&r.error); return; } _close(); }).catch(function(){ _fail('저장이 안 됐어요. 네트워크를 확인하고 다시 시도해 주세요.'); });   // [SAVE_FALSE_OK] 성공을 확인하고 넘어간다 · [SNAP_AGREE_LAST] 동의 전이면 담아 둔 사진부터
+  (SNAPFLOW.needAgree?_snapCommit():saveSnap()).then(function(r){ if(!(r&&r.ok)){ _fail(r); return; } _close(); }).catch(function(e){ _fail(_errRes(e,'S',ERR_SAVE_BASE)); });   // [SAVE_FALSE_OK] 성공을 확인하고 넘어간다 · [SNAP_AGREE_LAST] 동의 전이면 담아 둔 사진부터
 }
 function _snapSummary(sd){   // 카드 한 줄 — 공간별 고른 수
   sd=sd||{}; var zs=sd.zones||{}, c=((zs.candle||{}).picks||[]).length, w=((zs.white||{}).picks||[]).length, u=((zs.candle||{}).ups||[]).length+((zs.white||{}).ups||[]).length;
@@ -10247,14 +10476,19 @@ function wireProdConfirm(box, p){
       btn.disabled=true; btn.textContent='확정 기록 중…';
       var _pl={action:'saveProductionTrack', token:getToken(), track:'confirm', draft:{snap:snap}, done:true};
       if(p&&p.rev!=null) _pl.rev=p.rev;   // 상태 지문 — 배우자 다른 탭이 먼저 수정했으면 서버가 옛 화면 확인을 거부
+      var _cfDone=function(){ _cfOpenNext=true; window._cfScroll=true; _mpRefresh(); };
+      var _cfAt0=String((((window._mpStateD||{}).production||{}).confirm||{}).at||'');
+      var _cfFail=function(line, stale){ btn.disabled=false; btn.textContent=t0; _errAlert('확정이 저장되지 않았어요', line).then(function(){ if(stale){ _mpRefresh(); } }); };   // [ERR_CODE_MYPAGE] 제목 = 무엇이 · 본문 = 원인 한 줄 + 코드
       apiTrackSave(_pl).then(function(r){
-        if(r&&r.ok){ _cfOpenNext=true; window._cfScroll=true; _mpRefresh(); }   // 재렌더 후 패널 유지+배너로 스크롤 — 재렌더가 맨 위로 가 확정 기록(맨 아래)이 안 보이던 것 복원(2026-07-18 · 중복블록 정리 2026-07-22)
+        if(r&&r.ok){ _cfDone(); }   // 재렌더 후 패널 유지+배너로 스크롤 — 재렌더가 맨 위로 가 확정 기록(맨 아래)이 안 보이던 것 복원(2026-07-18 · 중복블록 정리 2026-07-22)
+        else if(r&&r.sess){ btn.disabled=false; btn.textContent=t0; _errGoLogin(r,'S'); }   // [ERR_CODE_MYPAGE] F12 로그인 풀림 → 로그인으로
+        else if(r&&r.slow){ _wrSlow({ L:'S', fail:function(line){ _cfFail(line); },   // [ERR_CODE_MYPAGE] 시간 초과 = 결과 모름 — 확정이 남았는지 확인하고 말한다
+            done:function(st){ var pr=st.production||{}, c=pr.confirm; return !!(c && c.at && !pr.confirmStale && String(c.at)!==_cfAt0); } }, _cfDone); }
         else {
-          btn.disabled=false; btn.textContent=t0;
           var _stale=!!(r&&r.error&&String(r.error).indexOf('갱신')!==-1);   // 지문 불일치 — 안내 확인 후 최신 내용으로 재렌더
-          mpAlert((r&&r.error)||'확정이 저장되지 않았어요. 한 번 더 시도해 주세요.').then(function(){ if(_stale){ _mpRefresh(); } });
+          _cfFail((r&&r.error)||_errLine(r,'S'), _stale);
         }
-      }).catch(function(){ btn.disabled=false; btn.textContent=t0; mpAlert('확정이 저장되지 않았어요. 잠시 후 다시 시도해 주세요.'); });
+      }).catch(function(e){ _cfFail(_errLine(e,'S')); });
     });
   });
 }
@@ -10280,7 +10514,7 @@ function wireGuideInfoEditor(box, gi){
   // 공개 방식 = 캔버스 아래 별도 카드의 라디오 2택(전체 공개 / 내 자리만 검색) — 2026-07-19 개편(구 상단 체크박스 폐지)
   function syncBox(){ var on=(gi.seatMode==='mine'); Array.prototype.forEach.call(box.querySelectorAll('input[name="seatmode"]'),function(r){ r.checked=(r.value===(on?'mine':'all')); r.closest('.sp-opt')&&r.closest('.sp-opt').classList.toggle('on',r.checked); }); }   // 흐려짐(잠금) 제거 — 즉시적용+백그라운드 저장(2026-07-19)
   function save(after){   // 조용히 저장 — 성공 콜백만, 실패는 콜백으로(알럿 없음)
-    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:collect(), done:true}).then(function(r){ if(after) after(!!(r&&r.ok)); }).catch(function(){ if(after) after(false); });
+    apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'guideinfo', draft:collect(), done:true}).then(function(r){ if(after) after(!!(r&&r.ok), r); }).catch(function(e){ if(after) after(false, _errRes(e,'S',ERR_SAVE_BASE)); });   // [ERR_CODE_MYPAGE] 결과(까닭)도 넘긴다
   }
   // [즉시적용 + 백그라운드 저장 · 2026-07-19 사용자 지시] 고르는 순간 강조가 바로 켜지고(대기·흐려짐 없음), 저장은 뒤에서 조용히. 실패했을 때만 되돌리고 토스트.
   //   GAS 저장이 1~3초라 '저장 대기 잠금(흐려짐)'이 긴 로딩처럼 보이던 것 해소. 이진 토글이라 마지막 선택이 진실(연타 무해).
@@ -10289,7 +10523,7 @@ function wireGuideInfoEditor(box, gi){
       var _prev=(gi.seatMode==='mine')?'mine':'all', _next=(r.value==='mine')?'mine':'all';
       if(_next===_prev) return;
       gi.seatMode=_next; syncBox();   // 즉시 반영
-      save(function(okd){ if(!okd && (gi.seatMode===_next)){ gi.seatMode=_prev; syncBox(); try{ mpToast('저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){} } });   // 실패 시에만 되돌림(그새 다른 선택 안 했을 때만)
+      save(function(okd, r){ if(!okd && (gi.seatMode===_next)){ gi.seatMode=_prev; syncBox(); try{ _errToast(_saveToggleLine(r)); }catch(e){} } });   // 실패 시에만 되돌림(그새 다른 선택 안 했을 때만) · [ERR_CODE_MYPAGE] 같은 말 + 까닭 코드
     });
   });
 }
@@ -10323,10 +10557,10 @@ function _seatNoteSave(st){
   p.then(function(r){
     if(r&&r.ok){ if(st) st.textContent='저장됐어요'; return; }
     if(st) st.textContent='저장이 안 됐어요 · 다시 적어 주세요';
-    try{ mpToast('미리 알려주실 것이 저장되지 않았어요'); }catch(e){}
-  }).catch(function(){
+    try{ _errToast('미리 알려주실 것이 저장되지 않았어요'+((r&&r.ok===false)?' (코드 '+_errCode(r,'S')+')':'')); }catch(e){}   // [ERR_CODE_MYPAGE] 까닭 코드
+  }).catch(function(e){
     if(st) st.textContent='저장이 안 됐어요 · 다시 적어 주세요';
-    try{ mpToast('미리 알려주실 것이 저장되지 않았어요'); }catch(e){}
+    try{ _errToast('미리 알려주실 것이 저장되지 않았어요 (코드 '+_errCode(e,'S')+')'); }catch(_e){}
   });
 }
 function wireSeatNote(box){
@@ -10696,8 +10930,8 @@ function bindSeat(box){
       function _proceed(){
         if(SEATFLOW._exiting) return; SEATFLOW._exiting=true;   // 배치 완료(done 저장·토큰 발급) 후 바로 오버레이 종료 — 공유 패널 폐지(2026-07-19). 이중 클릭·뒤로가기 재진입 방지
         var b2=_done, _label='배치 완료'; b2.disabled=true; b2.setAttribute('aria-busy','true'); _flowBusy(true);   // ★[BUSY_ONE_PLACE] 버튼 글자는 그대로 — 대기 표시는 한가운데 베일 하나뿐이다(옛 판은 버튼도 '저장 중…'으로 바뀌어 한 동작에 표시가 둘이었다)
-        saveSeat(true).then(function(r){ if(r&&r.ok){ _flowBusy(false); SEATFLOW._exiting=false; SEATFLOW.token=r.seatToken||SEATFLOW.token; SEATFLOW.active=false; bkKill(SEATFLOW); _mpRefresh(); } else { _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; b2.removeAttribute('aria-busy'); _seatErr((r&&r.error)||'저장이 안 됐어요.'); } })
-          .catch(function(){ _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; b2.removeAttribute('aria-busy'); _seatErr('저장이 안 됐어요. 한 번 더 시도해 주세요.'); });
+        saveSeat(true).then(function(r){ if(r&&r.ok){ _flowBusy(false); SEATFLOW._exiting=false; SEATFLOW.token=r.seatToken||SEATFLOW.token; SEATFLOW.active=false; bkKill(SEATFLOW); _mpRefresh(); } else { _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; b2.removeAttribute('aria-busy'); _seatErr(_saveFailBody(r)); if(r&&r.sess) _saveSessAsk(r); } })   // [ERR_CODE_MYPAGE] 원인 한 줄 + 코드 · 로그인 풀림이면 로그인으로
+          .catch(function(e){ _flowBusy(false); SEATFLOW._exiting=false; b2.textContent=_label; b2.disabled=false; b2.removeAttribute('aria-busy'); _seatErr(_errLine(e,'S',ERR_SAVE_BASE)); });
       }
       _proceed();
       return;
@@ -10736,8 +10970,8 @@ function startTrkFlow(track, draft, base){
 function saveTrkDraft(done){
   TRKFLOW.draft._step = TRKFLOW.step;
   return _wizWatch('trk', apiTrackSave({action:'saveProductionTrack', token:getToken(), track:TRKFLOW.track, draft:TRKFLOW.draft, done:!!done}))
-    .then(function(r){ return (r&&typeof r.ok!=='undefined') ? r : {ok:false, error:''}; })   // ok 키가 없는 응답도 성공으로 세지 않는다
-    .catch(function(){ return {ok:false, error:''}; });
+    .then(function(r){ return (r&&typeof r.ok!=='undefined') ? r : _errNorm(r,'S',ERR_SAVE_BASE); })   // ok 키가 없는 응답도 성공으로 세지 않는다 · [ERR_CODE_MYPAGE] 까닭(S7)을 남긴다
+    .catch(function(e){ return _errRes(e,'S',ERR_SAVE_BASE); });   // [ERR_CODE_MYPAGE A2] 종전 {ok:false,error:''} — 위저드 판이 까닭 없이 «네트워크»라고 했다
 }
 function exitTrkFlow(){ _mpHoldScroll();   // 누르는 즉시 스피너 → 저장 성공 시에만 나감. 실패면 위저드 복귀+재시도 확인(입력 조용히 유실 방지 · 2026-07-11)
   if(TRKFLOW._exiting) return; TRKFLOW._exiting=true;   // 재시도 대기 중 뒤로가기·이중 클릭 재진입 방지
@@ -10747,7 +10981,8 @@ function exitTrkFlow(){ _mpHoldScroll();   // 누르는 즉시 스피너 → 저
     if(r&&r.ok){ _flowBusy(false); bkKill(TRKFLOW); _mpRefresh(); return; }   // 층 소비는 '정말 나갈 때'만 — 실패 복귀 시 뒤로가기 가드 유지
     _flowBusy(false); TRKFLOW.active=true; show('mypageView');   // 화면 DOM은 그대로 있어 입력 보존
     if(!bkAlive(TRKFLOW._bk)) TRKFLOW._bk=bkOpen(function(){ exitTrkFlow(); });   // 뒤로가기로 나가다 실패 — 가드 재무장
-    mpConfirm({ title:'저장이 안 됐어요', body:(r&&r.error)?(r.error+'\n한 번 더 저장해 볼까요?'):'네트워크가 잠시 불안정한 것 같아요.\n한 번 더 저장해 볼까요?', yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY] 바깥 누름 · Esc = null → 판만 닫고 머문다(까닭은 exitInvFlow 의 같은 표식)
+    if(r&&r.sess){ _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE F5]
+    mpConfirm({ title:'저장이 안 됐어요', bodyHtml:_errHtml(_saveFailBody(r)), yes:'다시 저장', no:'저장 없이 나가기', dismissNull:true })   // [SAVEFAIL_STAY] 바깥 누름 · Esc = null → 판만 닫고 머문다(까닭은 exitInvFlow 의 같은 표식)
       .then(function(again){ if(again===null) return; if(again){ exitTrkFlow(); } else { bkKill(TRKFLOW); TRKFLOW.active=false; _mpRefresh(); } });
   });
 }
@@ -10776,6 +11011,22 @@ function trkShell(stepNo, q, sub, body, last, lastLabel, result){
     + '<div class="inv-nav wz-bar"><div id="trk_err" class="wz-err" role="alert"></div>'+navLeft+'<button type="button" class="cc-btn" id="trk_next">'+(lastLabel||(last?'완료':'다음'))+'</button></div>'   // [WZ_BAR] 오류 줄은 막대 안
     + '</div>';
 }
+/* [ERR_CODE_MYPAGE F10] 애프터 웨딩 AI 추천 실패 한 줄 — 서버(api/after-concierge.js)의 영문 기술어 · HTTP 상태 · 브라우저 실패를 A 코드로.
+   할 일은 늘 «아래에서 직접 골라 주세요»(아래 목록은 AI 없이도 쓸 수 있다) */
+var DNC_DO='아래에서 직접 골라 주세요';
+function _dncErr(x, ac, http){
+  if(_errIsRej(x)){ var to=!!(ac&&ac.__meTimeout)||x.name==='AbortError'||http===504, n=to?5:(x.name==='SyntaxError'?7:6);   // 504 = 함수 시간 초과(베르셀이 JSON 아닌 글로 답한다)
+    return (n===5?'AI 추천이 늦어요':n===7?'AI 추천 답이 깨졌어요':'연결이 끊겼어요')+' · '+DNC_DO+' (코드 A'+n+')'; }
+  var e=String((x&&x.error)||''), h=Number(x&&x.http)||0;
+  if(/\(코드 [A-Z]\d/.test(e)) return e;
+  if(e==='unconfigured') return 'AI 추천이 꺼져 있어요 · '+DNC_DO+' (코드 A3)';
+  if(e==='ai_unavailable'||e==='ai_parse') return 'AI가 답을 만들지 못했어요 · '+DNC_DO+' (코드 A4)';
+  if(e==='server_error') return 'AI 추천이 잠깐 멈췄어요 · '+DNC_DO+' (코드 A9)';
+  if(h===429) return '요청이 몰렸어요 · 1분 뒤 다시 보내 주세요 (코드 A1)';
+  if(h===504) return 'AI 추천이 늦어요 · '+DNC_DO+' (코드 A5)';
+  if(!x||typeof x!=='object') return 'AI 추천 답이 깨졌어요 · '+DNC_DO+' (코드 A7)';
+  return ((/[가-힣]/.test(e)?e.replace(/[.\s]+$/,''):'AI가 질문을 받지 못했어요'))+' · '+DNC_DO+' (코드 A0)';
+}
 // [애프터웨딩 수요 로깅] 고객이 누른 니즈·인원·필터를 개인정보 없이 적재(GAS '애프터수요로그' · 90일 자동정리). 어디부터 검증·보강할지 데이터 근거.
 function logAwDemand(p){ try{ api(Object.assign({action:'awDemandLog', token:getToken()}, p||{})); }catch(e){} }   // fire-and-forget(실패 무시)
 function bindTrk(box, render, collect, opt){
@@ -10797,7 +11048,7 @@ function bindTrk(box, render, collect, opt){
   var _dnFavSaved=function(undo){ saveTrkDraft(false).then(function(r){
     if(r&&r.ok) return;
     try{ if(typeof undo==='function') undo(); }catch(e){}
-    try{ mpToast('저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){}
+    try{ _errToast(_saveToggleLine(r)); }catch(e){}   // [ERR_CODE_MYPAGE] 같은 말 + 까닭 코드(종전엔 코드 없이 «저장이 안 됐어요 · 다시 눌러 주세요» 한 가지)
   }); };
   var _dnStarBind=function(el,fn){ el.addEventListener('click',fn); el.addEventListener('keydown',function(e){ if(e.repeat) return; if(e.key==='Enter'||e.key===' '){ fn(e); } }); };   // e.repeat 가드 — 키 꾹 누름 자동반복이 토글·POST·재렌더를 연사하지 않게
   Array.prototype.forEach.call(box.querySelectorAll('[data-favcard]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favcard'); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db'})){ _dnFavSaved(function(){ _dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db'}); render(box); }); } _dnRerenderKeep(function(){ return _dnFindByAttr('data-favcard',_n); }); }); });   // 카드 전체 = 담기 토글
@@ -10832,9 +11083,12 @@ function bindTrk(box, render, collect, opt){
       if(inp){ inp.value=''; } d2._dncTyped='';   // 보낸 질문은 입력 보존 대상에서 해제
       render(box);   // 고객 진사 말풍선 + AI 점점점을 렌더로 즉시(첫 메시지 슬림 뷰에서도 동작)
       var mg0=$('dncMsgs'); if(mg0) mg0.scrollTop=mg0.scrollHeight;
-      fetch('/api/after-concierge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:d2._chat})})
-        .then(function(_rr){return _rr.json();})
-        .then(function(r){
+      /* ★[ERR_CODE_MYPAGE F10] AI 추천(api/after-concierge) — 종전엔 영문 기술어(ai_unavailable · ai_parse · server_error · unconfigured)를 그대로 보였고,
+         시간 한도가 없었으며, 깨진 답 · 늦음도 «연결이 잠시 불안정해요»였다. 한글 한 줄 + A 코드로(_dncErr) · 40초 한도(A5) */
+      var _dac=(typeof AbortController!=='undefined')?new AbortController():null, _dst=0, _dtm=_dac?setTimeout(function(){ try{ _dac.__meTimeout=1; _dac.abort(); }catch(e){} },40000):null;
+      fetch('/api/after-concierge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:d2._chat}),signal:_dac?_dac.signal:undefined})
+        .then(function(_rr){ _dst=_rr.status; return _rr.json().then(function(j){ if(j&&typeof j==='object'&&!j.ok&&!j.http) j.http=_dst; return j; }); })
+        .then(function(r){ if(_dtm) clearTimeout(_dtm); var _md=false;
           d2._sending=false; d2._pendingTyping=false;
           if(r&&r.ok){
             d2._aiNoRes=false;   // 새 응답 도착 — 지난 '못 찾음' 제안 상태 해제
@@ -10845,16 +11099,19 @@ function bindTrk(box, render, collect, opt){
             logAwDemand({source:'ai', category:r.category||'', theme:(r.filters&&r.filters.theme)||'', food:(r.filters&&r.filters.food)||'', head:(d2._filters&&d2._filters.headN)||''});   // 수요 로깅(개인정보 없음)
             if(r.source==='kakao' && r.places && r.places.length){ d2._places=r.places.slice(0,7); }
             else if(r.source==='kakao'){ d2._places=[]; d2._aiNoRes=true; d2._chat=d2._chat.concat([{role:'assistant',content:'지도에서 딱 맞는 곳을 찾지 못했어요. 장소 종류를 넣어 말씀해 주시면 잘 찾아져요. (예: 아이랑 갈 실내 놀이방 · 고기 굽는 단체 뒤풀이 집) 아래 버튼을 눌러 바로 다시 찾아보셔도 돼요.'}]).slice(-10); }
-            else if(r.mapDown){ d2._chat=d2._chat.concat([{role:'assistant',content:'이 부분은 상담 때 디렉터가 함께 안내드릴게요.'}]).slice(-10); }
+            /* ★[ERR_CODE_MYPAGE F10] 지도 조회가 실패한 것 — 종전 «이 부분은 상담 때 디렉터가 함께 안내드릴게요»는 상담을 마친 두 분에게 틀린 말이었다(식순 · 애프터 웨딩은 상담 뒤).
+               대화 기록(AI 에게 다시 가는 글)에 넣지 않고 입력 칸 아래 한 줄로 — 단계와 상관없는 말 + 코드 */
+            else if(r.mapDown){ _md=true; }
             else { d2._places=[]; }
             render(box);
             var mg=$('dncMsgs'); if(mg) mg.scrollTop=mg.scrollHeight;
+            if(_md){ var er4=$('dn_aiErr'); if(er4) er4.textContent='지도 정보를 잠시 못 불러왔어요 · 아래에서 직접 골라 주세요 (코드 A4)'; }
           } else {
             render(box);
-            var er2=$('dn_aiErr'); if(er2) er2.textContent=(r&&r.error)||'지금은 아래에서 직접 골라 주세요.';
+            var er2=$('dn_aiErr'); if(er2) er2.textContent=_dncErr(r);
           }
         })
-        .catch(function(){ d2._sending=false; d2._pendingTyping=false; render(box); var er3=$('dn_aiErr'); if(er3) er3.textContent='연결이 잠시 불안정해요. 아래에서 직접 골라 주세요.'; });
+        .catch(function(e){ if(_dtm) clearTimeout(_dtm); d2._sending=false; d2._pendingTyping=false; render(box); var er3=$('dn_aiErr'); if(er3) er3.textContent=_dncErr(e, _dac, _dst); });
     };
     _dncF.addEventListener('submit',function(e){ e.preventDefault(); _dncGo(); });
     var _dncInp=$('dncInput'); if(_dncInp){ _dncInp.addEventListener('input',function(){ TRKFLOW.draft._dncTyped=_dncInp.value; }); }   // 쓰다 만 질문 보존 — 응답 도착·필터 탭·당겨서 새로고침의 재렌더에도 입력이 남게(value 시드와 짝)
@@ -10867,7 +11124,7 @@ function bindTrk(box, render, collect, opt){
     if(opt.validate){ var msg=opt.validate(); if(msg){ if($('trk_err')) $('trk_err').textContent=msg; else mpAlert(msg); return; } }
     if(opt.last){ var b=$('trk_next'), _lbl0=b?b.textContent:'완료'; if(b){ b.disabled=true; b.textContent='저장 중…'; }   // [DN_NONE_RESULT] 실패하면 원래 라벨(닫기 · 저장하고 닫기)로 되돌린다 — 종전엔 늘 «완료»로 바뀌었다
       saveTrkDraft(true).then(function(r){
-        if(!(r && r.ok)){ if($('trk_err')) $('trk_err').textContent=((r&&r.error)||'저장이 안 됐어요. 잠시 후 다시 시도해 주세요. 계속 안 되면 디렉터에게 알려 주세요.'); if(b){ b.disabled=false; b.textContent=_lbl0; } return; }   // [SAVE_FALSE_OK] 성공을 확인하고 닫는다 — 'ok===false 가 아니면 성공'은 응답이 없을 때 뚫린다(exitTrkFlow 와 같은 극성)
+        if(!(r && r.ok)){ if($('trk_err')) $('trk_err').textContent=_saveFailBody(r); if(b){ b.disabled=false; b.textContent=_lbl0; } if(r&&r.sess) _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE] 원인 한 줄 + 코드 · 로그인 풀림   // [SAVE_FALSE_OK] 성공을 확인하고 닫는다 — 'ok===false 가 아니면 성공'은 응답이 없을 때 뚫린다(exitTrkFlow 와 같은 극성)
         bkKill(TRKFLOW); var _wasFinal=(TRKFLOW.track==='final'); TRKFLOW.active=false;
         if(_wasFinal) window._seatNext=true;   // [통합 · 2026-07-19] 최종 확정 저장 직후 자리 배치로 자동 연결(명단이 머릿속에 있는 순간) — renderProduction이 소비
         loadMyState();   // 완료로 나가는 경로도 뒤로가기 층 소비 — 잔층이 남으면 다음 뒤로가기가 유령 저장(확인서 해제)을 일으킴
@@ -11337,13 +11594,13 @@ function renderDining(box){
       var _undo=function(msg){
         _nn.disabled=false; _nn.classList.remove('busy'); if(_nd) _nd.textContent=_d0;
         d.venuePick=''; d.dining_on=''; syncVenue();   // 화면도 되돌린다 — 서버가 모르는 결정을 화면만 기억하지 않게
-        try{ mpToast(msg||'저장이 안 됐어요 · 다시 눌러 주세요'); }catch(e){}
+        try{ _errToast(msg||'저장이 안 됐어요 · 다시 눌러 주세요 (코드 S0)'); }catch(e){}   // [ERR_CODE_MYPAGE]
       };
       _nn.disabled=true; _nn.classList.add('busy'); if(_nd) _nd.textContent='저장하는 중이에요';
       saveTrkDraft(true).then(function(r){
-        if(!(r && r.ok)){ _undo(r&&r.error); return; }
+        if(!(r && r.ok)){ _undo(r&&r.error); if(r&&r.sess) _saveSessAsk(r); return; }
         TRKFLOW.step=1; renderDining(box);
-      }, function(){ _undo('저장이 안 됐어요 · 연결을 확인하고 다시 눌러 주세요'); });
+      }, function(e){ _undo(_errLine(e,'S',ERR_SAVE_BASE)); });   // [ERR_CODE_MYPAGE] 종전 «연결을 확인하고» — 연결 탓인지 모르는 채로 말했다
     });   // 안 함 = 완결된 결정 → 완료(dining_on='N')로 저장 · _step=1(재진입 시 안내없이 화면) · 행은 '안 함' 배지
 
     return;   // 게이트만 렌더(하단 '다음' 없음 · 나가기는 data-wiz-exit 전역 위임 · 뒤로가기는 TRKFLOW._bk)
@@ -11558,8 +11815,8 @@ $('forgotForm').addEventListener('submit', function(e){
         ? '입력하신 이메일이 등록되어 있다면 개인코드를 보내드렸어요. 메일함을 확인해 주세요.'
         : '입력하신 이메일이 등록되어 있다면 재설정 링크를 보내드렸어요. 메일함을 확인해 주세요.';
       ok.classList.add('show');
-    } else { showErr('fg_err',(d&&d.error)||'요청이 안 됐어요. 한 번 더 시도해 주세요.'); }
-  }).catch(function(){ showErr('fg_err'); })
+    } else { showErr('fg_err', _errLine(d,'L','메일을 보내지 못했어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] 서버 까닭 + 코드
+  }).catch(function(e){ showErr('fg_err', _errLine(e,'L')); })   // [ERR_CODE_MYPAGE] 종전 기본 문구(«문제가 잠깐 생겼어요…») — 늦음 L5 · 끊김 L6 · 깨진 답 L7 로
   .then(function(){ btn.disabled=false; btn.textContent='보내기'; });
 });
 
@@ -11579,8 +11836,8 @@ $('resetForm').addEventListener('submit', function(e){
       cleanUrl();
       if (d.token) loadMyState();
       else { show('loginView'); softLoginNote('비밀번호가 바뀌어 보안을 위해 로그아웃됐어요. 새 비밀번호로 다시 로그인해 주세요.'); }
-    } else { showErr('rs_err',(d&&d.error)||'재설정이 안 됐어요. 잠시 후 다시 시도해 주세요.'); }
-  }).catch(function(){ showErr('rs_err'); })
+    } else { showErr('rs_err', _errLine(d,'L','재설정이 안 됐어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] 서버 까닭 + 코드
+  }).catch(function(e){ showErr('rs_err', _errLine(e,'L','',{5:'새 비밀번호로 로그인해 보세요'})); })   // [ERR_CODE_MYPAGE] 시간 초과는 «모름» — 바뀌었을 수 있으니 새 비밀번호로 먼저 해 보게
   .then(function(){ btn.disabled=false; btn.textContent='변경하기'; });
 });
 
