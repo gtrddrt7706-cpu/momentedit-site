@@ -149,7 +149,7 @@ function _depositCardTrace(code, text) {   // 처리이력 — _recordHandler �
 function _depositCardConfig(body, cfg) {
   var _mk = '[DEPOSIT_CARD]';
   var a = (typeof _sessionToConsult === 'function') ? _sessionToConsult(String((body && body.token) || '').trim()) : { ok: false, error: '예약 정보를 불러올 수 없습니다.' };
-  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.ok) return { ok: false, reason: a.reason, error: a.error };   // [ERR_CODE_PAY] 로그인 까닭을 넘긴다
   var why = _depositCardBlock(a.consult, a.cust);
   if (why) return { ok: true, enabled: false, reason: why };
   return { ok: true, enabled: true, clientKey: cfg.clientKey, amount: _payDepositAmount(), orderName: '모먼트에디트 상담 예약금' };
@@ -157,12 +157,12 @@ function _depositCardConfig(body, cfg) {
 function _depositCardConfirm(body, cfg) {
   var _mk = '[DEPOSIT_CARD]';
   var a = (typeof _sessionToConsult === 'function') ? _sessionToConsult(String((body && body.token) || '').trim()) : { ok: false, error: '예약 정보를 불러올 수 없습니다.' };
-  if (!a.ok) return { ok: false, error: a.error };
+  if (!a.ok) return { ok: false, reason: a.reason, error: a.error };   // [ERR_CODE_PAY] 로그인 까닭을 넘긴다
   var code = a.code, milestone = '예약금';
   var paymentKey = String((body && body.paymentKey) || '').trim();
   var orderId = String((body && body.orderId) || '').trim();
   var amount = Math.round(Number((body && body.amount) || 0));
-  if (!paymentKey || !orderId || !(amount > 0)) return { ok: false, error: '결제 정보가 올바르지 않습니다.' };
+  if (!paymentKey || !orderId || !(amount > 0)) { try { _payLog({ code: code, milestone: String((body && body.milestone) || ''), amount: amount || '', orderId: orderId || '', paymentKey: paymentKey || '', result: '실패', memo: '결제 정보 없음(복귀 주소에 값이 비었다) [ERR_CODE_PAY]' }); } catch (_pl) {} return { ok: false, ecode: 'P0', error: '결제 정보가 올바르지 않습니다.' }; }
   var lock = _payLock();
   if (!lock) { try { lockBusySignal(); } catch (_e) {} return { ok: false, error: '잠시 후 다시 시도해 주세요. (서버 혼잡)' }; }
   var rowNum = null, _dk = '', _tm = '';
@@ -202,7 +202,7 @@ function _depositCardConfirm(body, cfg) {
     var t = _tossConfirm(cfg, paymentKey, orderId, amount);
     if (!t.ok) {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스실패', memo: (t.error || '') + ' ' + (t.code || '') });
-      return { ok: false, error: '결제 승인에 실패했습니다. ' + (t.error || '') };
+      return { ok: false, ecode: 'P4', tossCode: String(t.code || ''), _why: 'toss ' + (t.code || '') + ' ' + String(t.error || '').slice(0, 150), error: '결제 승인에 실패했습니다. ' + (t.error || '') };   // [ERR_CODE_PAY]
     }
     // ★[DEPOSIT_B1] 여기부터는 돈을 이미 받았다(토스 승인 완료). 기록이 실패해도 던지지 않는다 — 던지면 화면은 «실패»를 보고 관리자는 아무것도 모른다.
     //   기존 카드 경로의 B-1 과 같은 처방: 관리자에게 즉시 메일(수동 보정) · 화면엔 «결제가 끝났어요 · 디렉터가 확인 뒤 메일로».
@@ -248,7 +248,7 @@ function handleCardConfirm(body) {
   var paymentKey = String((body && body.paymentKey) || '').trim();
   var orderId = String((body && body.orderId) || '').trim();
   var amount = Math.round(Number((body && body.amount) || 0));
-  if (!paymentKey || !orderId || !(amount > 0)) return { ok: false, error: '결제 정보가 올바르지 않습니다.' };
+  if (!paymentKey || !orderId || !(amount > 0)) { try { _payLog({ code: (s && s.row ? String(s.row.get('개인코드') || '') : ''), milestone: String((body && body.milestone) || ''), amount: amount || '', orderId: orderId || '', paymentKey: paymentKey || '', result: '실패', memo: '결제 정보 없음(복귀 주소에 값이 비었다) [ERR_CODE_PAY]' }); } catch (_pl) {} return { ok: false, ecode: 'P0', error: '결제 정보가 올바르지 않습니다.' }; }
 
   /* ★[PAY_LOCK_REENTRANT 2026-08-30] 여기서 부르는 기록 함수들(_confirmDepositCore·adminConfirmMid/Balance/MidBalance)이
      2026-08-30부터 자기 락을 갖는다. 이 자리가 LockService 를 직접 잡고 있으면 안쪽 함수의 finally 가
@@ -330,7 +330,7 @@ function handleCardConfirm(body) {
     var t = _tossConfirm(cfg, paymentKey, orderId, amount);
     if (!t.ok) {
       _payLog({ code: code, milestone: milestone, amount: amount, orderId: orderId, paymentKey: paymentKey, result: '토스실패', memo: (t.error || '') + ' ' + (t.code || '') });
-      return { ok: false, error: '결제 승인에 실패했습니다. ' + (t.error || '') };
+      return { ok: false, ecode: 'P4', tossCode: String(t.code || ''), _why: 'toss ' + (t.code || '') + ' ' + String(t.error || '').slice(0, 150), error: '결제 승인에 실패했습니다. ' + (t.error || '') };   // [ERR_CODE_PAY]
     }
 
     // 성공 → 확인 기록(기록·단계전이·고객 안심알림 일관).
@@ -338,6 +338,7 @@ function handleCardConfirm(body) {
     //     ② 임박 시 중도금·잔금까지 자동 번들(카드는 계약금만 실결제라 미결제분이 확인됨). → 가드·번들 없는 코어를 bundle:false로 호출.
     //   중도금·잔금 확인함수(adminConfirmMid/Balance)는 가드 없음·STAGE_EXCEPTIONS 차단·안심알림까지 카드에 그대로 맞음 → 재사용.
     var rec;
+    try {   /* ★[ERR_CODE_PAY 2026-10-07] 승인 뒤(돈은 이미 받았다) 기록 함수가 던지면 아래 B-1(관리자 즉시 메일 · 결제로그 «기록경고») 길로 — 종전엔 예외가 doPost 로 새 흔적이 Logger 뿐이었다 */
     if (milestone === '계약금') rec = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: false, via: '카드' }) : { ok: false };
     else if (milestone === '중도금') rec = (typeof adminConfirmMid === 'function') ? adminConfirmMid(code) : { ok: false };
     else if (milestone === '잔금') rec = (typeof adminConfirmBalance === 'function') ? adminConfirmBalance(code) : { ok: false };
@@ -355,6 +356,7 @@ function handleCardConfirm(body) {
       }
     }
     else rec = (typeof adminConfirmExtra === 'function') ? adminConfirmExtra(code) : { ok: false };   // 추가보정 — 가드 없음·'완료' 전이+안심알림, 카드에 그대로 맞음(80_production)
+    } catch (eRec) { rec = { ok: false, error: '기록 함수 예외 · ' + String(eRec && eRec.message || eRec).slice(0, 160) }; }   // [ERR_CODE_PAY] → 아래 B-1
     // [SYNC-3] 카드=매출전표 → 현금영수증 발급 큐에서 제외(_cashReceiptLedger가 결제수단 마커로 판정). ★원장에 항목이 있는 결제분만 마킹★
     //   · 중도금·잔금 → 동명 원장 키.
     //   · 계약금은 상품별로 다름:

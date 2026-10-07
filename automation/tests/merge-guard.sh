@@ -15243,3 +15243,9 @@ chk "return (a||b)?'<span class=\"cg-links\">'+a+b+'</span>':'';" order-preview.
 chk '.ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(11px \* 1.4 - 44px);right:0;height:44px' order-preview.html 1
 chk '.ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:11px;line-height:1.4}' order-preview.html 1
 chk 'VS_LINK_TOP' scripts/audit/make-shell.mjs 3
+# ★[ERR_CODE_PAY 2026-10-07 사장님 «오류 코드로 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»] 카드결제(꺼져 있음 · 켜기 전에 맞춤) — 토스 거절 P4 + 토스 코드 · 빈 복귀도 결제로그 ·
+#   승인 뒤 기록 함수가 던지면 B-1(관리자 알림 · «기록경고») · card-err.mjs 가 실제 .gs 로 태운다(try 를 걷으면 FAIL 4 · 돌연변이 확인)
+chk 'ERR_CODE_PAY' automation/platform/98_pay_card.gs 6
+chk "} catch (eRec) { rec = { ok: false, error: '기록 함수 예외 · '" automation/platform/98_pay_card.gs 1
+chk 'ERR_CODE_PAY' scripts/audit/card-err.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/card-err.mjs >/dev/null 2>&1; _cer=$?; if [ "$_cer" = 1 ]; then echo 'FAIL card-err: 카드결제 실패 길(토스 거절 코드 · 빈 복귀 기록 · 승인 뒤 기록 실패 B-1)이 어긋났습니다 — node scripts/audit/card-err.mjs'; fail=1; else echo "ok card-err ($_cer)"; fi; fi   # ★[GUARD_TAIL_RC] 끝 줄은 if 꼴로 — «[ … ] && { … }»면 통과해도 종료 코드 1 이 남는다(#1110 실측 · ALL MARKERS OK 인데 CI 빨강)
