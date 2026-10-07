@@ -72,6 +72,12 @@ try {
   { const { pg, errs } = await open({ makeMs: 300 }); await aiUp(pg, 'unknown'); await pg.evaluate(() => mkGo('guest')); await wait(120); const a = await look(pg); await wait(2400); const b = await look(pg);
     ok('T5 예시 글은 그대로인데 소리가 옛 글(배포로 글이 바뀐 고객) — 들어오자마자 «준비 중» · 누르지 않아도 «확정하기» · «글을 고쳤어요» 0', a.mode === 'prep,prep,prep,prep' && a.edited === 0 && a.need === 0 && b.mode === 'keep,keep,keep,keep' && b.fresh && b.edited === 0 && b.fg === 0, JSON.stringify({ a, b }));
     ok('T5 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
+  /* T5b 식전 영상 소개 — 첫 화면(사장님 캡처 2026-10-07): «다정하게» 글인데 소리는 다른 글 · 아무것도 안 눌러도 «준비 중» → «확정하기» */
+  { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.pvText = PV_EX[1][1]; S.up = S.up || {}; S.up.pv = { src: 'ai', by: _vcLineWho('pv'), name: 'x', tx: _txSig('옛날 소개글'), tempo: _tKey('pv'), pause: _pKey('pv'), wq: _slWhoSig('pv') }; mkGo('prevideo'); }); await wait(120);
+    const a = await pg.evaluate(() => ({ mode: _aiMode('pv'), st: document.getElementById('stage').innerText, chip: !!document.querySelector('[data-fk="mkex:pv:1"][aria-pressed="true"], [data-fk="mkex:pv:1"][aria-checked="true"]') })); await wait(1500);
+    const b = await pg.evaluate(() => ({ mode: _aiMode('pv'), fresh: S.up.pv.tx === _txSig(_recNeed('pv')), st: document.getElementById('stage').innerText, fg: window.__mk.filter((m) => !m.bg).length }));
+    ok('T5b 식전 영상 소개 첫 화면 — 들어오자마자 «준비 중» · 누르지 않아도 «확정하기» · «글을 고쳤어요 · 목소리 만들기» 없음', a.mode === 'prep' && !/글을 고쳤어요|목소리 만들기/.test(a.st) && b.mode === 'keep' && b.fresh && !/글을 고쳤어요|목소리 만들기/.test(b.st) && b.fg === 0, JSON.stringify({ a: { mode: a.mode, chip: a.chip }, b: { mode: b.mode, fresh: b.fresh, fg: b.fg } }));
+    ok('T5b pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* T6 */
   { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.up = S.up || {}; S.up.pv = { src: 'ai', by: _vcLineWho('pv'), name: 'x', tx: _txSig(_recNeed('pv')), tempo: _tKey('pv'), pause: _pKey('pv'), wq: _slWhoSig('pv') }; mkGo('prevideo'); }); await wait(150);
     await pg.evaluate(() => mkPvEx(1)); await wait(120);
