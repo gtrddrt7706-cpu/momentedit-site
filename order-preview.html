@@ -7228,12 +7228,21 @@ function _pkTile(k){
       :'<button type="button" class="pk-sel'+(on?' on':'')+'" data-fk="opt:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(c.n)+' 담기" onclick="opTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>')
     +'</div>';
 }
+/* ★★[FLOW_FILL 2026-10-07 사장님 «전체 선택하면 "천천히 진행되면 단체 사진이 …" 문구가 나오면서 그래프 아래에 빈 간격이 생긴다 · 확인 개선»]
+   PC 흐름 판은 두 칸(왼쪽 그림 · 오른쪽 시간 · 알림 · 단추)이 같은 높이로 선다 — 오른쪽에 알림이 붙어 길어지면 왼쪽 그림 아래가 비었다(1280 실측 약 70px).
+   그림 높이를 오른쪽 칸의 «제 높이»(단추를 아래로 미는 auto 여백은 빼고 잰다)에 맞춰 늘린다 · 알림이 없으면 기본 152 그대로 · 순간 이름 줄은 늘 맨 아래.
+   상한 260 — 그보다 길면 곡선이 과장된다 */
+function _pkFillH(el){ try{ var fp=el.closest('.pk-fp'), sd=fp&&fp.querySelector('.pk-side'), mn=fp&&fp.querySelector('.pk-fp-main'); if(!sd||!mn) return 0;
+  var cs=getComputedStyle(sd), gap=parseFloat(cs.rowGap)||0, ks=[].filter.call(sd.children,function(c){ return c.offsetParent!==null&&getComputedStyle(c).display!=='none'; });
+  var nat=ks.reduce(function(t,c){ return t+c.getBoundingClientRect().height; },0)+gap*Math.max(0,ks.length-1)+(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0);
+  var wr=el.closest('.pk-fg-wrap')||el, sv=el.getBoundingClientRect().height, other=(wr.getBoundingClientRect().top-mn.getBoundingClientRect().top)+(parseFloat(getComputedStyle(wr).marginBottom)||0)+(wr.getBoundingClientRect().height-sv);   // 왼쪽은 늘어난 칸 높이가 아니라 제 글 높이로 잰다
+  var h=Math.round(nat-other); return h>152?Math.min(260,h):0; }catch(e){ return 0; } }
 /* 그림 채우기 — 칸을 그린 뒤 실제 폭으로. 숨은 쪽(폭 0)은 건너뛴다 */
 function _pickPaint(){
   var R=RitualOpen, wide=window.matchMedia&&matchMedia('(min-width:1000px)').matches;
   document.querySelectorAll('.pk [data-fg]').forEach(function(el){
     var key=el.getAttribute('data-fg'), w=Math.round(el.getBoundingClientRect().width); if(w<40) return;
-    if(key==='panel'){ var sg=R.flowSegs(S); el.innerHTML=R.flowSVG(sg,w,{names:wide,label:'우리 예식의 감동 흐름'}); _pkTips(el,sg); }
+    if(key==='panel'){ var sg=R.flowSegs(S), fh=wide?_pkFillH(el):0; el.innerHTML=R.flowSVG(sg,w,fh?{names:true,h:fh,label:'우리 예식의 감동 흐름'}:{names:wide,label:'우리 예식의 감동 흐름'}); _pkTips(el,sg); }   // [FLOW_FILL]
     else if(key.indexOf('ex:')===0){ var ex=R.exampleOf(key.slice(3)); el.innerHTML=R.flowSVG(R.flowSegs(R.applyExample({},ex.k)),w,{mini:true,h:wide?44:40,label:ex.nm+' 예시 흐름'}); }
   });
   _pkSlim();

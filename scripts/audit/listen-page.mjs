@@ -957,7 +957,7 @@ for (const [w, emb] of [[390, false], [390, true], [1280, true]]) {
 for (const w of [390, 1280]) {
   const { ctx, pg, errs } = await open(w, { stubPlay: true });
   await toPick(pg); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300); await clickNext(pg); await pg.waitForTimeout(1500);
-  await pg.evaluate(() => { S.vsAsked = 1; S.vsChip = 1; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.upLive = true; S.on.prevideo = 1; opSync(); });
+  await pg.evaluate(() => { S.vsAsked = 1; S.vsChip = 1; S.tipSeen = { keep: 1 }; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.upLive = true; S.on.prevideo = 1; opSync(); });   // [TIP_ONCE] 안내 창을 이미 본 고객 — 이 검사는 칩 소리만 본다(처음 창은 tip-once 가 본다)
   const res = {};
   for (const [k, key] of [['guest', 'guestVoice'], ['prevideo', 'pvVoice'], ['entry', 'entryVoice']]) {
     await pg.evaluate((k) => { mkGo(k); render(); }, k); await pg.waitForTimeout(400);
