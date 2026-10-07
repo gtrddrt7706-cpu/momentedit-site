@@ -15096,6 +15096,14 @@ nochk '@media (max-width:460px){.ls-cg.cg-vp{grid-template-columns:minmax(0,1fr)
 chk 'CG_EVEN' order-preview.html 3
 chk 'function _cgEven(){' order-preview.html 1
 chk '  _cgEven();   // \[CG_EVEN\]' order-preview.html 1
+# ★[SAME_PLACE 2026-10-07 사장님 «다른 곳들도 형태가 다르거나 다른 곳에 배치된 것 점검»] 반지 안내 → «당일 챙길 것» 줄 아래 · 넷 이상 칩 줄 = 늘 같은 폭 칸 · 식전 영상 나레이션 설명 = 하객 맞이 · 입장과 같은 말 · «영상이 시작되기 바로 전에 나와요» 걷음 · 편지 안내 = 카드 위 한 줄
+chk 'SAME_PLACE' order-preview.html 6
+nochk "if(k==='ring'&&!off) h+='<p class=\"mk-note\">반지는 단상 위에 미리 놓아 둬요</p>';" order-preview.html
+chk "if(cat==='bring'&&q.k==='ring'&&!due) due='반지는 단상 위에 미리 놓아 둬요';" order-preview.html 1
+nochk ":'아래에서 고른 멘트를 나레이터가 읽어요');" order-preview.html
+nochk "+'<p class=\"mk-note\">영상이 시작되기 바로 전에 나와요</p>'" order-preview.html
+nochk "<p class=\"mk-note mk-txalt\">보내지 않아도 돼요" order-preview.html
+chk 'if(rows<2&&b.length<4) return;' order-preview.html 1
 # ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
 chk 'VCARD_CALM' order-preview.html 3
 chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
