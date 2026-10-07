@@ -15102,3 +15102,10 @@ chk 'ADM_LS_SAFE' scripts/audit/admin-ls-safe.mjs 1
 chk 'FREE_MARK_RESET' order-preview.html 1
 chk "else if(key==='free'){ var _fk0=R.FREE_KIND\[R.chipOf('free',S)\]; R.setChip(S,key,v);" order-preview.html 1
 chk 'FREE_MARK_RESET' scripts/audit/ref-form.mjs 1
+# ★[STRAY_FILE 2026-10-07 점검] 셸 «>» 실수로 생긴 0바이트 파일(이름 «=1000? · PC 는 그림 바로 아래…»)이 저장소 맨 위에 커밋됐다(#1094) — 같은 꼴이 다시 들어오면 빨강
+#   -z: 특수 글자가 든 이름은 git 이 따옴표로 감싸 찍는다(그냥 ls-files 면 ^= 가 안 맞는다)
+_stray=$(git ls-files -z 2>/dev/null | tr '\0' '\n' | grep -c '^=' 2>/dev/null); [ "${_stray:-0}" -gt 0 ] && { echo "FAIL stray-file: 이름이 «=» 로 시작하는 파일 ${_stray}개 — 셸 > 실수로 생긴 찌꺼기(git rm 으로 지울 것)"; fail=1; }; :
+chk 'STRAY_FILE' automation/tests/merge-guard.sh 1
+# ★[DEPOSIT_TEST_WEEKDAY 2026-10-07 점검] deposit-card-screen ⑦ 이 «오늘 + 3일»을 골라 주말이면 붉었다(제품은 맞게 동작 · 주말엔 11:30 없음) — 3일 뒤부터 첫 평일
+chk 'DEPOSIT_TEST_WEEKDAY' scripts/audit/deposit-card-screen.mjs 1
+nochk "const sel = JSON.stringify({ d: dk(3), t: '11:30', h: null });" scripts/audit/deposit-card-screen.mjs

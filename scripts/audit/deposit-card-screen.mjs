@@ -173,7 +173,10 @@ await step({ cfg: ON, query: RET, confirm: { ok: true, recorded: true, approved:
 });
 
 // ⑦ 취소 복귀 → 되살림 → 다시 결제
-const sel = JSON.stringify({ d: dk(3), t: '11:30', h: null });
+/* ★[DEPOSIT_TEST_WEEKDAY 2026-10-07 점검] 고른 날은 «3일 뒤부터 첫 평일» — 종전 dk(3) 은 오늘 요일에 따라 토 · 일이 되어
+   주말 슬롯(18:20)에 없는 11:30 을 되살리라고 했다(수 · 목 · 금에 돌리면 빨강 · 제품은 맞게 동작). 날짜에 따라 붉어지는 검사를 막는다 */
+const wkOff = (from) => { for (let i = from; i < from + 7; i++) { const w = dOf(i).getDay(); if (w > 0 && w < 6) return i; } return from; };
+const sel = JSON.stringify({ d: dk(wkOff(3)), t: '11:30', h: null });
 await step({ cfg: ON, query: '?me_pay=0', seed: { me_pay_sel: sel, me_pay_tok: TOKEN } }, async (page) => {
   const a = await alertText(page);
   ok(/결제를 취소했어요/.test(a), '⑦ 취소하고 돌아왔는데 안내가 없다 → ' + a);
