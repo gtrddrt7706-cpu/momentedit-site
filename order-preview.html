@@ -5832,6 +5832,8 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   var sitI=[]; main.forEach(function(x,i){ if(_refSit(x)) sitI.push(i); }); var sitOpen=sitI.length&&(((LS.refSit||{})[k])||sitI.indexOf(cur)>-1);
   /* [MK_MIN] «당일엔 두 분이 직접 말해요»는 머리 아래 한 번 */
   var _rh=_mkRefHead(k,sets[cur]);
+  /* ★[EX_ROW_PLACE 2026-10-07 사장님 «추천대로»] 현장에서 말하는 순간(서약 · 편지 · 첫인사 · 덕담 …)의 «참고 예시» 줄은 이 자리(«두 분이 할 말» 바로 위)에 둔다 —
+     맨 위 고르기 묶음으로 올리면 폰에서 누른 글이 흐름 줄 너머 화면 밖에서 바뀐다. 모양은 위쪽 칩 줄과 같다(EX_ROW). 위로 올리자는 제안을 다시 하지 않는다 */
   var h='<section class="mk-sec mk-ref" aria-label="참고 예시">';   /* [EX_ROW] 머리 h4 · 머리말 줄 대신 칩 줄 이름표(참고 예시) + 칩 아래 한 줄(_rh) */   /* [R1-21] 말하는 사람별 머리말 · [R3-09] 머리말이 비면(축배) 줄을 그리지 않는다 */
   h+='<div class="ls-cg cg-vp mk-rcg" role="radiogroup" aria-label="참고 예시"><span class="gl" aria-hidden="true">참고 예시</span><span class="cg-c">';
   /* [REF_PV_WHO 2026-09-27 점검 시뮬] 글이 같은 예시(성혼 선언 · 가족 낭독 세 벌은 문장이 같고 읽는 사람만 다르다)는 미리보기가 같은 글로 겹쳤다 —
