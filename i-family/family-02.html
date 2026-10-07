@@ -1648,7 +1648,7 @@ details[open] .env-acc-plus{transform:rotate(45deg)}
   function meCopyText(t){ var ta=document.createElement('textarea'), ok=false; ta.value=t; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none;font-size:16px'; document.body.appendChild(ta); try{ ta.focus(); ta.select(); ta.setSelectionRange(0, t.length); }catch(_){} try{ ok=document.execCommand('copy'); }catch(_){ ok=false; } document.body.removeChild(ta); return !!ok; }
   function meCopyFail(btn, on){ var row=btn&&btn.parentNode, box=row&&row.parentNode, n=row&&row.nextElementSibling; if(!box) return;
     if(!(n&&n.className==='me-copy-fail')){ if(!on) return; n=document.createElement('div'); n.className='me-copy-fail'; n.setAttribute('role','alert'); n.style.cssText='width:100%;box-sizing:border-box;font-size:12px;line-height:1.6;letter-spacing:0;margin:6px 0 0;opacity:.92'; box.insertBefore(n, row.nextSibling); }
-    if(on) n.textContent='복사가 안 됐어요 · 계좌번호를 길게 눌러 복사해 주세요'; else box.removeChild(n); }
+    if(on) n.textContent='복사가 안 됐어요 · 길게 눌러 복사해 주세요'; else box.removeChild(n); }
   document.querySelectorAll('.env-acc-copy').forEach(copyBtn => {
     copyBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
