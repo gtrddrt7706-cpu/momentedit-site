@@ -103,6 +103,16 @@ try {
     const want = _mkPages().filter((k) => k[0] !== '_' && !_mkOff(k) && _mkKinds(k)[0] && TX_WHO.some((w) => !String((S.tx || {})[_mkKinds(k)[0] + '.' + w[0]] || '').trim() && !_txSite(_mkKinds(k)[0], _mkChk(), _mkKinds(k)[0] + '.' + w[0]))).length;
     return { shown: m ? +m[1] : 0, want, todo: _mkTodoN() }; });
   ok('⑫ ③ 연습 «아직 안 적은 N곳» = 글칸이 빈 순간 수(미완료 셈과 다를 수 있다) [PR_TODO_TRUE]', !!pr && pr.shown === pr.want && pr.want > 0, JSON.stringify(pr));
+  /* ⑬ 준비한 순서 «무엇을» 갈래를 바꾸면 할 일 표시가 따라오지 않는다 — 칸 번호(p:free:0)가 같다 [FREE_MARK_RESET] */
+  await go('free');
+  await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0]; if (q) mkChk(q.id, true, 'site'); S.tx = S.tx || {}; S.tx['free.p'] = ''; render(); }); await pg.waitForTimeout(200);
+  const vk = '[data-fk="lsc:free:video"]', sk = '[data-fk="lsc:free:speech"]';
+  let fm = { video: null, speech: null };
+  if (await pg.$(vk)) { await pg.click(vk); await pg.waitForTimeout(350);
+    fm.video = await pg.evaluate(() => { const v = _mkItems('free')[0], tg = v && document.querySelector('.mk-pg [data-fk="mktg:' + v.id + '"]'); const r = { done: v ? _mkItemDone(v) : null, pressed: tg ? tg.getAttribute('aria-pressed') : null }; if (v) mkChk(v.id, true); return r; });
+    await pg.waitForTimeout(200); await pg.click(sk); await pg.waitForTimeout(350);
+    fm.speech = await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0], tg = q && document.querySelector('.mk-pg [data-fk="mktg:' + q.id + '"]'); return { done: q ? _mkItemDone(q) : null, pressed: tg ? tg.getAttribute('aria-pressed') : null }; }); }
+  ok('⑬ 축사 «원고 없이» → 영상: «보냈어요» 안 눌림 · 할 일 남음 / 영상 «보냈어요» → 축사: «부탁드렸어요» 안 눌림 [FREE_MARK_RESET]', !!fm.video && fm.video.done === false && fm.video.pressed !== 'true' && !!fm.speech && fm.speech.done === false && fm.speech.pressed !== 'true', JSON.stringify(fm));
   ok('⑥ 화면 오류 0', errs.length === 0, errs.slice(0, 3).join(' | '));
 } catch (e) { console.log('못 쟀다 —', e && e.message); await br.close(); srv.close(); process.exit(2); }
 await br.close(); srv.close();
