@@ -60,7 +60,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' AI 고름 — 글칸 · 예시 넷 · 글은 예시 1 [PV_FILL] · 읽는 분 [신랑] 한 줄(LINE_SPLIT · 눌러 바꾼다)', e0.pv === 'couple' && e0.vf === 'ai' && e0.ta && e0.ex === 4 && e0.note && e0.card === 1, JSON.stringify(e0));
   await pg.click('[data-fk="mkex:pv:0"]'); await pg.waitForTimeout(300);
   const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.querySelector('[data-fk="mksl:pv:0"]').value, ai: !!document.querySelector('[data-fk="mkai:pv"]'), on: (document.querySelector('[data-fk="mkex:pv:0"]') || {}).getAttribute('aria-checked') }));
-  ok(W + ' 예시 «담백하게» → 글칸에 들어가고 [AI로 만들기]가 생긴다', /^저희 두 사람이 함께 지나온 시간을/.test(t0.t) && t0.ta === t0.t && t0.ai && t0.on === 'true', JSON.stringify(t0));
+  ok(W + ' 예시 «담백하게» → 글칸에 들어가고 [AI로 만들기]가 생긴다', t0.t === await pg.evaluate(() => PV_EX[0][1]) /* [EX_TEXT_1006] 글은 원천(PV_EX)과 대조 — 문구를 박아 두지 않는다 */ && t0.ta === t0.t && t0.ai && t0.on === 'true', JSON.stringify(t0));
   await pg.click('[data-fk="mkai:pv"]'); await pg.waitForTimeout(1500);
   const m = await pg.evaluate(() => ({ calls: __calls.join(','), text: (__last && __last.text) || '', up: S.up && S.up.pv, play: !!document.querySelector('[data-fk="mkvpl:pv"][onclick^="mkUpPlay"]') }));   /* [AI_CARD_TIDY] AI 파일은 머리 ▶ 가 튼다 */
   ok(W + ' [AI로 만들기] → make(pv · 신랑 · 그 글) → 그 자리 파일(src ai · 글 지문)', /make:pv:groom/.test(m.calls) && /upload:pv/.test(m.calls) && m.text === t0.t && m.up && m.up.src === 'ai' && !!m.up.tx && m.play, JSON.stringify(m).slice(0, 300));
