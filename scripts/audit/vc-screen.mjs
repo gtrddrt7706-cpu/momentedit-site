@@ -65,7 +65,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => mkGo('_voice')); await pg.waitForTimeout(400);   /* [VOICE_ONCE] 사람 카드는 이 쪽에 */
   await pg.click('[data-fk="mkvcok:groom"]'); await pg.waitForTimeout(300);
   const cp = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');   // ★[REC_DLG] 동의 · 1분 읽기는 작은 창에서
-  ok(W + ' 8-4 동의 — 제목 · 본인이 직접 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구', /님 목소리 만들기/.test(cp) && /본인이 직접 눌러 주세요/.test(cp) && /언제 지우나요\s*읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
+  ok(W + ' 8-4 동의 — 제목 · 직접 눌러 주세요(한 번만) · 대신 동의할 수 없어요 · 어디에 · 무엇을 · 언제 지우나요 · 안 해도 돼요 · 체크 문구 [CONSENT_ONE_ASK]', /님 목소리 만들기/.test(cp) && (cp.match(/직접 눌러 주세요/g) || []).length === 1 /* ★[CONSENT_ONE_ASK 2026-10-08] 종전 «본인이 직접 눌러 주세요» — 굵은 줄과 같은 부탁을 두 번 했다 */ && /대신 동의할 수 없어요/.test(cp) && /언제 지우나요\s*읽은 녹음과 AI 목소리는 예식 다음 날/.test(cp) && /안 해도 돼요/.test(cp) && /제 목소리로 AI 목소리를 만드는 것에 동의해요/.test(cp), cp);
   ok(W + ' 체크 전에는 [동의하고 읽으러 가기]가 막혀 있다', await pg.evaluate(() => document.getElementById('vcAgree').disabled));
   await pg.click('#vcSelf'); await pg.click('#vcAgree'); await pg.waitForTimeout(500);
   const rp1 = await pg.evaluate(() => (document.getElementById('mkRecDlg') || {}).innerText || '');
@@ -84,7 +84,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   // 두 글이 짧으면(합쳐 20초 안) 만들기 전에 멈춘다
   await pg.evaluate(() => { VC.read.take[1] = { wav: __tone(6), dur: 6 }; VC.read.take[2] = { wav: __tone(7), dur: 7 }; render(); }); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(600);
-  ok(W + ' 합쳐 20초 안 → 창 안에 «조금 더 천천히, 끝까지 읽어 주세요» · [글 2 다시 읽기] · 서버를 안 부른다 [REC_DLG]', await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'); return !!d && /조금 더 천천히, 끝까지 읽어 주세요/.test(d.textContent) && /글 2 다시 읽기/.test(d.textContent) && !__calls.some((c) => /^enroll/.test(c)); }));
+  ok(W + ' 합쳐 20초 안 → 창 안에 «글 1 을 조금 더 천천히, 끝까지 읽어 주세요» · 큰 단추 [글 1 다시 읽기](짧은 쪽) · 서버를 안 부른다 [REC_DLG · SHORT_WHICH]', await pg.evaluate(() => { const d = document.getElementById('mkRecDlg'), b = d && d.querySelector('.mk-dlg-go'); return !!d && /글 1 을 조금 더 천천히, 끝까지 읽어 주세요/.test(d.textContent) && !!b && b.getAttribute('data-fk') === 'mkvcrec:1' && /글 1 다시 읽기/.test(b.textContent) && !__calls.some((c) => /^enroll/.test(c)); }));   /* ★[SHORT_WHICH 2026-10-08] 6초 + 7초 — 글 1 이 짧다. 종전 기대 «[글 2 다시 읽기]»는 짧은 쪽을 보지 않던 동작을 굳힌 것이었다 */
   await pg.evaluate(() => { S.up = S.up || {}; S.up.g2 = { n: '녹음', id: 'Fg2old', src: 'rec', at: '' }; VC.read.take[1] = { wav: __tone(12), dur: 12 }; VC.read.take[2] = { wav: __tone(13), dur: 13 }; VC.read.short = false; VC.read.err = ''; render(); }); await pg.waitForTimeout(200);
   await pg.click('[data-fk="mkvcmake"]'); await pg.waitForTimeout(4000);
   /* ★[VOICE_TUNE 2026-10-04 사장님] 만든 직후 = 예시 듣고 빠르기 · 쉼 맞추기(필수) — «이 목소리로 쓰기» 전에는 줄을 채우지 않는다 */
