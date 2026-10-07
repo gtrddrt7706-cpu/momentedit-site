@@ -14623,6 +14623,12 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
+# ★★[VU_OWN_VOICE 2026-10-07 사장님 «목소리 만들기 전인데 들어 보기 누르면 담백하게는 나레이션 목소리 · 어떤 게 맞는지» → «추천대로»] 두 분 목소리 창 = 만들기 전엔 한 줄 · 만든 뒤엔 어떤 칩이든 두 분 목소리 · 견본 녹음 안 틂
+chk 'VU_OWN_VOICE' order-preview.html 4
+chk 'function _vuReady(key)' order-preview.html 1
+nochk 'if(gi) return _lCastSrc(CAST_GUEST' order-preview.html
+nochk '(n===0?_lCastSrc(CAST_GUEST[gi],t):null)' order-preview.html
+chk 'VU_OWN_VOICE' scripts/audit/vu-ex-listen.mjs 2
 # ★★[FLOW_PLAIN · FLOW_NONAMES · SHORT_TOAST · NOTE_UNDER 2026-10-07 사장님 «그래프가 찐빵 · 밑 글씨 빽빽 · 단체 사진 문구는 아래 팝업으로 잠깐» → «전부 추천대로»]
 chk 'FLOW_PLAIN' order-preview.html 1
 nochk 'function _pkFillH(' order-preview.html

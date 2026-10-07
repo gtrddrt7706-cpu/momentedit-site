@@ -22,7 +22,7 @@ for (const w of [390, 1280]) {
   await pg.addInitScript(() => { window.__plays = []; HTMLMediaElement.prototype.play = function () { if (this.tagName === 'AUDIO') window.__plays.push(String(this.getAttribute('src') || this.src || '')); return Promise.resolve(); }; });
   await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700);
-  await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.pvText = ''; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; VC.st = { groom: { ready: true }, bride: { ready: false } };
+  await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.pvText = ''; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true; VC.st = { groom: { ready: true }, bride: { ready: true } };   /* [VU_OWN_VOICE 2026-10-07] 이 검사는 «목소리를 만든 뒤» — 만들기 전은 아래 ⑤ */
     window.__calls = []; _vc0 = (op, d) => { window.__calls.push(op + ':' + (d && d.role) + ':' + String(d && d.text || '').slice(0, 8)); return new Promise((ok) => setTimeout(() => ok({ ok: true, mime: 'audio/mpeg', data: btoa('MP3') }), 200)); };
     for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
   await wait(500); await pg.evaluate(() => mkGo('_voice')); await wait(700);
@@ -49,6 +49,29 @@ for (const w of [390, 1280]) {
   ok(`${w} ③ 다음 · 이전 — 창 본문에 고정 높이 없음(글만큼) · 들어 보기와 이전 · 다음 사이 빈칸 30px 이하 [VU_FLOW_FREE]`, ps.every((p) => p && p.split(':')[2] === '') && await pg.evaluate(() => { const a = document.querySelector('[data-fk="mkuseplay"]').getBoundingClientRect(), n = document.querySelector('.mk-vu-nav').getBoundingClientRect(); return n.top - a.bottom <= 30; }), JSON.stringify({ hs, ys, ps }));
   ok(`${w} ④ 다음 · 이전을 오가도 이전 · 다음 단추 자리 그대로(±1px) · 위쪽이 늘고 준다 [VU_BOTTOM_FIX]`, Math.max(...ys) - Math.min(...ys) <= 1, JSON.stringify(ys));
   ok(`${w} 화면 오류 없음`, !errs.length, errs.slice(0, 2).join(' | '));
+  await pg.close();
+}
+/* ★[VU_OWN_VOICE 2026-10-07 사장님 «목소리 만들기 전인데 들어 보기 누르면 담백하게는 나레이션 목소리 · 어떤 게 맞는지» → «추천대로»]
+   ⑤ 만들기 전: 들어 보기 단추 대신 «두 분 목소리를 만들면 여기서 들어 볼 수 있어요» · 칩을 눌러도 글만 바뀌고 소리 · 오류 문구 없음
+   ⑥ 만든 뒤: 하객 맞이 «담백하게»(예시 1)도 견본 녹음이 아니라 두 분 목소리(practice) */
+for (const w of [390, 1280]) {
+  const pg = await br.newPage({ viewport: { width: w, height: 900 } }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.addInitScript(() => { window.__plays = []; HTMLMediaElement.prototype.play = function () { if (this.tagName === 'AUDIO') window.__plays.push(String(this.getAttribute('src') || this.src || '')); return Promise.resolve(); }; });
+  await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+  await pg.goto(`http://127.0.0.1:${port}/order-preview.html`, { waitUntil: 'load' }); await wait(700);
+  await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; RitualOpen.FEATURE.practiceTts = true;
+    VC.st = { groom: { ready: false }, bride: { ready: false } }; window.__calls = []; _vc0 = (op, d) => { window.__calls.push(op + ':' + (d && d.role)); return new Promise((ok) => setTimeout(() => ok({ ok: true, mime: 'audio/mpeg', data: btoa('MP3') }), 100)); };
+    for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
+  await wait(500); await pg.evaluate(() => mkGo('_voice')); await wait(700);
+  await pg.click('[data-fk="mkvuse:g1"]'); await wait(400);
+  for (const n of [0, 1, 2]) { await pg.click(`[data-fk="mkuseex:${n}"]`); await wait(250); }
+  const d = await pg.evaluate(() => ({ wait: (document.querySelector('[data-fk="mkusewait"]') || {}).textContent || '', btn: !!document.querySelector('[data-fk="mkuseplay"]'), err: !!document.querySelector('.mk-vu-q ~ .mk-exw'), plays: window.__plays.length, calls: window.__calls.filter((x) => /^practice/.test(x)).length }));
+  ok(`${w} ⑤ 만들기 전 — 들어 보기 대신 한 줄 · 칩을 눌러도 소리 · 오류 문구 없음 [VU_OWN_VOICE]`, d.wait === '두 분 목소리를 만들면 여기서 들어 볼 수 있어요' && !d.btn && !d.err && d.plays === 0 && d.calls === 0, JSON.stringify(d));
+  await pg.evaluate(() => { VC.st = { groom: { ready: true }, bride: { ready: true } }; render(); }); await wait(300);
+  await pg.click('[data-fk="mkuseex:0"]'); await wait(250); await pg.click('[data-fk="mkuseplay"]'); await wait(500);
+  const e = await pg.evaluate(() => ({ plays: window.__plays.slice(), calls: window.__calls.filter((x) => /^practice/.test(x)) }));
+  ok(`${w} ⑥ 만든 뒤 — «담백하게»도 두 분 목소리(practice) · 견본 녹음 아님 [VU_OWN_VOICE]`, e.calls.length === 1 && e.plays.length === 1 && /^blob:/.test(e.plays[0]), JSON.stringify(e));
+  ok(`${w} ⑤⑥ 화면 오류 없음`, !errs.length, errs.slice(0, 2).join(' | '));
   await pg.close();
 }
 await br.close(); srv.close();
