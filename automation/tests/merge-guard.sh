@@ -15098,3 +15098,7 @@ chk "var TOKEN = _ls('get','me_admin_token') || '';" admin.html 1
 nochk "var TOKEN = localStorage.getItem('me_admin_token')" admin.html
 nochk "localStorage.setItem('me_admin_token'" admin.html
 chk 'ADM_LS_SAFE' scripts/audit/admin-ls-safe.mjs 1
+# ★[FREE_MARK_RESET 2026-10-07 점검] 준비한 순서 «무엇을» 갈래를 바꾸면 할 일 표시(p:free:N)를 비운다 — 축사 «원고 없이» · «부탁드렸어요»가 영상 «보냈어요»로 넘어가던 것(ref-form ⑬)
+chk 'FREE_MARK_RESET' order-preview.html 1
+chk "else if(key==='free'){ var _fk0=R.FREE_KIND\[R.chipOf('free',S)\]; R.setChip(S,key,v);" order-preview.html 1
+chk 'FREE_MARK_RESET' scripts/audit/ref-form.mjs 1

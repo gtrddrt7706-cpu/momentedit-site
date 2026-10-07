@@ -4058,6 +4058,12 @@ function _lSet(key,v){
   else if(key==='tributeHow') S.tribute='flower';   // [GROOM_BOW_TIP] 신랑 큰절 판은 걷었다
   else if(key==='vowHow') S.vowHow=(v==='each'?'each':'alt');   // [VOW_HOW] 모르는 값은 번갈아
   else if(key==='vowFirst') S.vowFirst=(v==='b'?'b':'g');   // [VOW_FIRST]
+  else if(key==='free'){ var _fk0=R.FREE_KIND[R.chipOf('free',S)]; R.setChip(S,key,v); var _fk1=R.FREE_KIND[R.chipOf('free',S)];
+    /* ★[FREE_MARK_RESET 2026-10-07 점검] 무엇을(영상 · 선물 · 축사 · 기타) 갈래가 바뀌면 그 자리 할 일 표시(p:free:N)를 비운다 — 갈래마다 칸 번호가 같아(p:free:0)
+       축사 «원고 없이»(site) · «부탁드렸어요»(asked)가 영상 «보냈어요»로 눌린 채 넘어가, 보내지 않은 영상이 다 된 것으로 셌다(거꾸로도 같다).
+       받은 축사 원고(S.tx['free.p'])는 지우지 않는다 — 다시 축사로 오면 그대로. 끄는 것은 0(TX_MERGE · 지우면 다른 기기 값이 되살아난다) */
+    if(_fk0!==_fk1){ if(S.mkc) Object.keys(S.mkc).forEach(function(id){ if(/^p:free:/.test(id)&&S.mkc[id]){ S.mkc[id]=0; _fAt('mkc.'+id); } });
+      if(S.cueSig) Object.keys(S.cueSig).forEach(function(id){ if(/^p:free:/.test(id)){ delete S.cueSig[id]; _fAt('cueSig.'+id); } }); } }
   else R.setChip(S,key,v);
 }
 /* [R3-02] ② 차례 줄이 몇 사람으로 나뉘나 — ② «이렇게 흘러요»의 whos(참고 예시 첫 벌의 말하는 사람)와 같은 셈 */
