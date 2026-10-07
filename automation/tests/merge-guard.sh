@@ -10167,7 +10167,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 130' scripts/check-ritual-cue.js 1   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
+chk 'N_FILES = 131' scripts/check-ritual-cue.js 1   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -12025,7 +12025,7 @@ chk 'LEAVE_ASK_Q' order-preview.html 2
 nochk '«한눈에 보기»에서 다시 찾을 수 있어요' order-preview.html
 nochk '미완료로 두고 넘어갈게요' order-preview.html
 nochk '선이 높을수록 마음이 벅차오르는' order-preview.html
-chk "feel: '밝고 경쾌하게 · 단체 사진을 넉넉히'" assets/ritual-open.js 1
+chk "feel: '밝고 경쾌하게 · 하객과 가까이'" assets/ritual-open.js 1   # [TABLE_GREET_1008] 옛 «단체 사진을 넉넉히» — 테이블 인사가 들어 소개를 바꿨다(사장님)
 chk "L('entry','입장 멘트'" order-preview.html 1   # [G3 · F2] ② 묶음 이름 = ① 창 «② 보고 듣기에서 고를 것»
 chk "L('tribute','인사 말'" order-preview.html 1   # [TRIB_ONE_SAY 2026-10-06] 한마디씩 · 1분쯤씩 → 하나로(«말로 인사»)
 nochk "'인사 방식'" order-preview.html   # [GROOM_BOW_TIP 2026-10-06] 인사 방식(꽃 · 신랑 큰절) 칩은 걷었다 — 큰절은 팁 한 줄
@@ -13834,10 +13834,10 @@ nochk "'두 분이 두 와인을 한 잔에 붓기': {" assets/ritual-story.js
 # ★★[CAKE_TOAST_SPLIT 2026-09-27 사장님 «케이크랑 축배는 분리하는 게 좋을 거 같아 · 영상도 2개로»] 새 코스의 케이크 커팅 · 축배는 두 순간
 #   엔진 줄(녹음 · 시간)은 종전 «케이크와 축배»를 나눠 담는다 · 옛 초안은 migrateCakeToast 가 옮긴다 · 옛 코스는 한 덩어리 그대로
 chk 'CAKE_TOAST_SPLIT' assets/ritual-open.js 10
-chk "'letter', 'cake', 'toast'\];" assets/ritual-open.js 1
+chk "'letter', 'cake', 'toast', 'table'\];" assets/ritual-open.js 1   # [TABLE_GREET_1008] ORDER 끝 table
 chk 'function migrateCakeToast(S)' assets/ritual-open.js 1
 chk 'function toastMode(S)' assets/ritual-open.js 1
-chk "'letter','cake','toast'\]" assets/ritual-data.js 1
+chk "'letter','cake','toast','table'\]" assets/ritual-data.js 1   # [TABLE_GREET_1008]
 chk 'CAKE_TOAST_SPLIT' assets/ritual-cue.js 2
 chk 'O.migrateCakeToast(s);' assets/ritual-cue.js 1
 chk 'CAKE_TOAST_SPLIT' order-preview.html 10
@@ -13934,7 +13934,7 @@ nochk '두 분 녹음(파일 수령 필요)' automation/admin/Admin.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-flow-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-flow: AI 목소리 순서 · 한도 · 지우기 판정이 어긋났습니다 — node scripts/audit/vc-flow-sim.mjs'; fail=1; }; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-selftest-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-selftest: 타입캐스트 시험 함수 판정이 어긋났습니다 — node scripts/audit/vc-selftest-sim.mjs'; fail=1; }; fi
 chk 'VOICE_CLONE_0928' automation/platform/80_production.gs 6
-chk 'if (prev) _vcDelVoice(cfg, st, prev);' automation/platform/80_production.gs 1
+chk '\[prev, now\]\.forEach(function (v, i, a) { if (v && v !== nv && a.indexOf(v) === i) _vcDelVoice(c.cfg, st, v); });' automation/platform/80_production.gs 1   # 새 목소리가 된 뒤에 앞 목소리 지우기 — [VC_ENROLL_PREV 2026-10-08] 저장 시점의 앞 목소리까지(종전 줄 'if (prev) _vcDelVoice(cfg, st, prev);' · 같은 결정을 넓혔다 · vc-flow-sim 이 순서를 잰다)
 chk "if (op === 'phrase')" automation/platform/80_production.gs 1
 chk 'function purgeVoiceClones(dry)' automation/platform/80_production.gs 1
 chk 'purgeVoiceClones' automation/platform/96_ai_cost.gs 1
@@ -14634,8 +14634,12 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-net-again.mjs >/d
 # ★★[VC_SIM · ENROLL_SAFE · UP_AGAIN · VC_SESS_WORD · DEL_SAFE 2026-10-07 사장님 «오류 관련 직접 시뮬레이션 · 라운드별로 문제 없을 때까지 안정화»]
 #   진짜 마이페이지 중계 + 식순 화면 + 가짜 서버(아이폰 60초 끊김 · 서버 죽음 · 깨진 답 · 바쁨 · 오프라인 · 로그인 풀림 · 올리기 · 지우기) 23장면 — 전부는 매일 밤(run-all) · 여기선 고친 자리 넷만
 chk 'ENROLL_SAFE' order-preview.html 1
-chk 'function _vcEnrollSafe(w,data){' order-preview.html 1
-chk '_vcEnrollSafe(w,{data:String(rd.result),sec:Math.round(j.sec)})' order-preview.html 1
+# ★[ENROLL_SAFE → VC_ENROLL_SURE 2026-10-08] 같은 요청을 두 세션이 함께 고쳤다 — _vcEnrollSafe(90초만 보고 같은 녹음 다시 보내기)는 합치며 걷었다(서버가 90초 넘게 만들면 업체 목소리가 하나 더 생겨 칸이 샜다).
+#   그 생각(끊겨도 서버가 만들었으면 성공 · 정말 실패면 한 번 더 조용히)은 _vcEnrWait · _vcEnrAgain · mkVcEnroll 의 again 이 잇는다 — 아래 VC_ENROLL_SURE 블록이 지킨다
+nochk 'function _vcEnrollSafe(w,data){' order-preview.html
+chk 'function _vcEnrAgain(d){' order-preview.html 1
+chk "if(!ph&&!wait){ if(_vcEnrAgain(d)&&again()) return;" order-preview.html 1
+chk "if(!r.phrase&&again&&(r.lost||(r.job&&_vcEnrAgain(r.d)))&&again()) return;" order-preview.html 1   # 끊김만으로는 다시 보내지 않는다(서버가 아직 만드는 중일 수 있다)
 chk 'UP_AGAIN' order-preview.html 4
 chk 'function _upAgain(key,pend,d){' order-preview.html 1
 chk 'VC_SESS_WORD' order-preview.html 1
@@ -15444,3 +15448,58 @@ chk 'WT_SKIP' scripts/audit/css-comment-nest.mjs 1
 chk 'LT_RATE_ECODE' automation/platform/87_letter.gs 1
 chk 'D6 편지 몰림 응답' scripts/audit/letter-sim.mjs 1
 chk "extractFunction(SRC_CARD, '_tossConfirmSafe')" automation/tests/pay-card.test.js 1
+# ★★[VC_ENROLL_SURE · VC_ENROLL_ONE · VC_ENROLL_JOB · VC_ENROLL_PREV · VC_ENROLL_BADREC · VC_ENROLL_CLOSED 2026-10-08 사장님 «두 분 목소리 만들기에서 녹음 후에 목소리 만들기 오류가 자주 · 모든 경우의 수 병렬로 직접 시뮬레이션 · 개선이 없을 때까지 라운드별로»]
+#   만들기는 녹음(수 MB)을 올리고 업체가 복제하느라 1~2분 — 아이폰 60초 끊김(V9 · V6) · PC 90초(V5)에 화면은 «실패»라 했는데 서버는 끝까지 만들었다.
+#   다시 누르면 업체 목소리가 하나 더 생기거나(칸이 샘) «글 2 를 한 번 더 읽어 주세요»였다. 422 · 400 은 줄 만들기 문구 · «잠시 뒤 다시»였다. 창을 닫은 뒤 실패는 말이 없었다.
+#   이제 결과 모름이면 상태(작업표 · 만든 수)로 확인 · 한 분 한 번(화면 · 서버 둘 다) · 저장 시점의 앞 목소리도 지움 · 녹음 거절은 글 1 부터 · 닫았으면 알림.
+#   scripts/audit/vc-enroll-sim.mjs 가 화면 · 중계 · 서버 원문으로 42가지(+서버 4)를 돈다 — 고친 것 일곱을 하나씩 되돌리면 각각 빨강(돌연변이 확인 2026-10-08)
+chk 'VC_ENROLL_SURE' order-preview.html 5
+chk 'function _vcEnrUnknown(d){ return !!(d&&!d.ok&&d.down&&(d.timeout||d.net)); }' order-preview.html 1
+chk 'function _vcEnrWait(E,d0,quick)' order-preview.html 1
+chk 'if(_vcMadeSince(p,E.snap)) return done(' order-preview.html 1
+chk "var ph=/확인 문장/.test(d.error||''), wait=_vcEnrUnknown(d)||!!d.wait;" order-preview.html 1
+chk 'VC_ENROLL_ONE' order-preview.html 5
+chk 'var E0=(VC.enr||{})\[w\]; if(E0){ if(E0.R!==R) VC.read=E0.R; else R.ph=' order-preview.html 1
+chk 'var E=(VC.enr||{})\[w\]; if(E){ VC.panel=null; VC.agree=false; VC.read=E.R; render(); return; }' order-preview.html 1
+chk 'try{ _vcJobAdopt(d); }catch(e){}' order-preview.html 1
+chk "if(VC.read!==R) MK.toast=_vcName(w)+' 님 목소리 · '" order-preview.html 1   # [VC_ENROLL_CLOSED]
+chk 'return {msg:VC_REC_BAD,redo:true};' order-preview.html 1   # [VC_ENROLL_BADREC]
+chk 'mk-wait-bar mk-enr-bar' order-preview.html 1
+nochk "fail(d.error||'만들지 못했어요 · 잠시 뒤 \[다시 만들기\]를 눌러 주세요')" order-preview.html
+chk 'VC_ENROLL_JOB' automation/platform/80_production.gs 5
+chk 'jobs: 1, groom: _vcPub(st.groom, code)' automation/platform/80_production.gs 1
+chk "deleted: p.deleted || '', job: _vcJobPub(p.job) }; }" automation/platform/80_production.gs 1
+chk 'if (r.ok || hasJob) c.save(); return r; };' automation/platform/80_production.gs 1   # 성공은 작업표가 없어도 저장(시뮬레이션이 잡은 사라지는 목소리)
+chk 'if (j && !j.end && j.jid !== jid && Date.now() - (+j.at || 0) < VC_JOB_MS) return { busy: j };' automation/platform/80_production.gs 1   # [VC_ENROLL_ONE] 서버 쪽 겹침 거절
+chk "var now = ((_vcSt(code) || {})\[who\] || {}).voiceId || '';" automation/platform/80_production.gs 1   # [VC_ENROLL_PREV]
+chk "if (op === 'enroll' && c >= 400 && c < 500 && c !== 401 && c !== 402 && c !== 403 && c !== 429) {" automation/platform/80_production.gs 1   # [VC_ENROLL_BADREC]
+chk '_vcJobStart' scripts/audit/vc-flow-sim.mjs 1
+chk 'VC_ENROLL_SIM' scripts/audit/vc-enroll-sim.mjs 1
+chk 'FN_NAME_ONE' scripts/audit/vc-enroll-sim.mjs 1   # 최상위 함수 이름 겹침(_vcSnap 두 벌 · 뒤 선언이 앞을 조용히 덮었다)
+chk 'function _vcEnrSnap(w){' order-preview.html 1
+nochk 'function _vcSnap(w){' order-preview.html
+chk 'R.enrSnap=_vcEnrSnap(w)' order-preview.html 1
+chk "'vc-enroll-sim.mjs': 600" scripts/audit/run-all.mjs 1
+if command -v node >/dev/null 2>&1; then PAR=8 ONLY='^(ok-fast|ios-cut-70s|pc-100s|old-ios-cut-70s|ios-cut-fail|tc-422|close-reopen|reload-mid|two-tabs|renew-cut)$' node scripts/audit/vc-enroll-sim.mjs >/dev/null 2>&1; _ves=$?; if [ "$_ves" = 1 ]; then echo 'FAIL vc-enroll-sim: 목소리 만들기(녹음 뒤) — 결과 모름 확인 · 한 분 한 번 · 녹음 거절 · 새는 목소리 판정이 어긋났습니다 — node scripts/audit/vc-enroll-sim.mjs'; fail=1; else echo "ok vc-enroll-sim ($_ves)"; fi; fi
+# ★★[TABLE_GREET_1008 2026-10-08 사장님 «웨딩사진 전에 테이블 돌아다니면서 인사드리는 이벤트 추가» · 디테일 하나씩 결정] 테이블 인사(table) —
+#   닫는 인사(108) 뒤 · 사진 안내(26) 앞 · 두 분 함께 · 테이블당 1분 30초(TABLE_SEC) · 테이블 수 = 좌석 배치도(S.tableN · mypage orderFill tables) ·
+#   고르기에 다른 순간과 같은 모양 · 기본은 «기록» 예시만 · 길어지면 그대로 두고 단체 사진 부족 알림 · 마무리 줄 없음(26 이 모은다) · 131 narr-table-in(녹음 전 글) · 배웅 줄 그대로.
+#   ★9/26 NO_TABLE_ROUND(단체 사진 뒤 자리 찾아가기 · narr-round-open)는 그대로 닫혀 있다 — 이것은 본식 끝의 새 순간이다.
+chk 'TABLE_GREET_1008' assets/ritual-open.js 12
+chk "var AFTER_CLOSE = { table: 1 };" assets/ritual-open.js 1
+chk "function bodyOrder()" assets/ritual-open.js 1
+chk "'toast', 'table'\]" assets/ritual-open.js 2
+chk "table: { n: '테이블 인사'" assets/ritual-open.js 1
+chk 'TABLE_GREET_1008' assets/ritual-data.js 3
+chk "'cake','toast','table'\]" assets/ritual-data.js 1
+chk 'tableIn:"두 분이 하객분들께 직접 인사를 드리러 갑니다. 자리에서 편히 맞아 주시면 됩니다."' assets/ritual-data.js 1
+chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
+chk "'narr-table-in'" assets/ritual-cue.js 3
+chk "if (seq.indexOf('table') > -1 && D.COURSES\[S.course\] && D.COURSES\[S.course\].open) cues.push(cue({" assets/ritual-cue.js 1
+chk 'const N_FILES = 131;' scripts/check-ritual-cue.js 1
+chk 'TABLE_GREET_1008' order-preview.html 12
+chk 'var CUSTTBL=0;' order-preview.html 1
+chk 'TABLE_GREET_1008' mypage.html 1
+chk 'tables:_tbl' mypage.html 1
+chk 'TABLE_GREET_1008' scripts/audit/open-course.mjs 4
+chk 'TABLE_GREET_1008' scripts/audit/listen-page.mjs 1

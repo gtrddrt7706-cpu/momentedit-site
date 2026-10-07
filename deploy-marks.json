@@ -1572,6 +1572,12 @@
    "fn": "ltGuestLetter",
    "mark": "LT_RATE_ECODE",
    "why": "편지 몰림 코드(G1)를 응답에 그대로 넘긴다(종전엔 떨어져 코드 없음)"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleVoiceClone",
+   "mark": "VC_ENROLL_JOB",
+   "why": "목소리 만들기 작업표(끊긴 뒤에도 서버가 끝까지 만든 것을 화면이 상태로 확인) · 같은 분 겹친 만들기 거절 · 저장 시점의 앞 목소리도 지움 · 업체가 녹음을 받지 않으면(4xx) «처음부터 다시 읽기» — 옛것이면 아이폰 60초 · PC 90초 끊김에 화면이 «실패»라 하고, 다시 누르면 업체 목소리가 새거나 글 2 를 또 읽게 한다"
   }
  ],
  "fns": {
@@ -1819,6 +1825,9 @@
    "_vcKoNum",
    "_vcNewPhrase",
    "_vcDelVoice",
+   "_vcJobPub",
+   "_vcJobStart",
+   "_vcEnrollAfter",
    "handleVoiceClone",
    "_vcPub",
    "_vcPurge",
@@ -2599,7 +2608,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-08 04:27 · 1e1ce8c9",
+ "_생성": "2026-10-08 04:55 · 6987a561",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3071,5 +3080,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "db97c74a2fb7"
+ "_표식서명": "c84ff2714c0c"
 }

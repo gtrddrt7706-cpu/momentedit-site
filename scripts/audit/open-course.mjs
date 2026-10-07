@@ -21,20 +21,21 @@ process.on('exit', (code) => { if (bad && code === 0) process.exitCode = 1; });
 
 /* ── 1. 순서 · 코스 ── */
 ok('COURSES.open.seq = ritual-open.js ORDER (v4 · guest 포함)', JSON.stringify(D.COURSES.open.seq) === JSON.stringify(O.ORDER), D.COURSES.open.seq.join(','));
-ok('v4 순서(명세 0장)', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,bless,vow,ring,declare,tribute,free,letter,cake,toast');   // [CAKE_TOAST_SPLIT]
+ok('v4 순서(명세 0장) + 닫는 인사 뒤 테이블 인사 [TABLE_GREET_1008]', O.ORDER.filter((k) => k !== 'guest').join(',') === 'prevideo,candle,entry,welcome,bless,vow,ring,declare,tribute,free,letter,cake,toast,table' && O.AFTER_CLOSE.table === 1 && O.bodySeq({ on: { vow: 1, table: 1 } }).join(',') === 'entry,vow,_close,table');   // [CAKE_TOAST_SPLIT]
 ok('옛 코스 여섯은 지우지 않고 숨긴다(Q1 ①)', ['damback', 'gamdong', 'family', 'minimal', 'festive', 'record'].every((k) => D.COURSES[k] && D.COURSES[k].hidden));
 ok('새 코스도 옛 카드 목록엔 없다(hidden)', D.COURSES.open.hidden === true && D.COURSES.open.open === true);
 
 /* ── 2. 시간 — [DAY_60 · RANGE_40 · EX_BRIEF 2026-09-26] 스냅 60 · 합 40 · 넷째 예시 «간결» · «약속» 인사 말 없이(코워크 회신 9/26 2-3 · 2-6 표) ── */
 /* ★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2] 닫는 인사(108 · 목례 · 박수)가 들어가 본식이 +16~19초 · 사진과 인사가 그만큼 준다(합 50 그대로) */
 // [WINE_POUR_OFF 2026-09-27 사장님] 와인 붓기(두 와인을 한 잔에 · 기본)를 걷어 축배가 약 30초 짧아졌다 — 옛 12~17 · 14~20 · 17~24 / 23~28 · 20~26 · 16~23
-const WANT = { record: ['약 11~16분', '약 24~29분'], promise: ['약 13~19분', '약 21~27분'], family: ['약 16~23분', '약 17~24분'], brief: ['약 8~12분', '약 28~32분'] };
+/* ★[TABLE_GREET_1008 2026-10-08 사장님] «기록» 예시에 테이블 인사(6테이블 × 1분 30초 = 9분)가 들어가 11~16 → 20~25 · 단체 사진 24~29 → 15~20 */
+const WANT = { record: ['약 20~25분', '약 15~20분'], promise: ['약 13~19분', '약 21~27분'], family: ['약 16~23분', '약 17~24분'], brief: ['약 8~12분', '약 28~32분'] };
 for (const k in WANT) { const s = O.span(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› 본식 ${WANT[k][0]} · 사진과 인사 ${WANT[k][1]}`, s.body === WANT[k][0] && s.photo === WANT[k][1], `${s.body} / ${s.photo}`); }
 // 4-9 초 단위 — 기록 11:49~16:49 · 약속 14:25~20:39 · 전부 17:47~24:59 (CLOSE_BOW 뒤 · 옛 11:33~16:31 · 14:09~20:21 · 17:31~24:41)
 const mmss = (x) => Math.floor(x / 60) + ':' + String(Math.round(x % 60)).padStart(2, '0');
-const SEC = { record: '11:18~16:08', promise: '13:24~19:19', brief: '7:53~11:44' };   // [WINE_POUR_OFF] 옛 11:49~16:49 · 13:55~20:00 · 8:24~12:25
+const SEC = { record: '20:25~25:15' /* [TABLE_GREET_1008] 테이블 인사 9분 + 여는 말 7초 · 옛 11:18~16:08 */, promise: '13:24~19:19', brief: '7:53~11:44' };   // [WINE_POUR_OFF] 옛 11:49~16:49 · 13:55~20:00 · 8:24~12:25
 for (const k in SEC) { const b = O.bodySec(O.applyExample({}, k)); ok(`예시 ‹${O.exampleOf(k).nm}› ${SEC[k]}`, mmss(b[0]) + '~' + mmss(b[1]) === SEC[k], mmss(b[0]) + '~' + mmss(b[1])); }
-ok('예시 넷에는 준비한 순서가 없다 · 알림 없음', O.EXAMPLES.every((e) => e.on.indexOf('free') < 0 && !O.noticeOf(O.applyExample({}, e.k))));
+ok('예시 넷에는 준비한 순서가 없다 · 알림 없음(기록만 알림 ④ — 테이블 인사로 단체 사진 15~20 [TABLE_GREET_1008])', O.EXAMPLES.every((e) => e.on.indexOf('free') < 0 && (e.k === 'record' ? O.noticeOf(O.applyExample({}, e.k)) === O.NOTICE.short(15) : !O.noticeOf(O.applyExample({}, e.k)))));
 /* [TRIB_ONE_SAY 2026-10-06] 말의 길이 하나(말로 인사 = long) · 옛 one 도 long 으로 */
 ok('[TRIB_ONE_SAY] 말로 인사 + 편지 부모님께 → 인사 판 이름 «서로의 부모님께 말로 인사» · 칩은 말로 인사 · 말 없이 둘', (() => { const S = O.applyExample({}, 'family'); S.on.letter = 1; O.setChip(S, 'tribute', 'long'); O.setChip(S, 'letter', 'parent'); return O.chipLabel('tribute', S) === '서로의 부모님께 말로 인사' && O.CHIPS.tribute.map((c) => c[1]).join('|') === '말로 인사|말 없이' && O.chipOf('tribute', { tributeSay: 'one' }) === 'long'; })());
 ok('[EX_BRIEF] 넷째 예시는 «간결»(서약 · 반지 · 선언 · 축배) · «전부»(all)는 거뒀다 · 약속의 인사는 말 없이', O.EXAMPLES.map((e) => e.k).join(',') === 'record,promise,family,brief' && !O.exampleOf('all') && O.exampleOf('brief').on.join(',') === 'prevideo,vow,ring,declare,cake,toast' && O.exampleOf('promise').set.tribute === 'none' && O.originOf({ on: { vow: 1 }, pickFrom: 'all' }) === '직접 고르셨어요.');
@@ -50,9 +51,9 @@ for (let m = 0; m < (1 << O.PICKABLE.length); m++) {
     const b = O.bodySec(S)[1]; if (b > mx) mx = b;
   }
 }
-ok('전 조합 넉넉 합 ≤ 35분(가장 무거운 판 + 준비한 순서 3분)', mx / 60 <= 35, (mx / 60).toFixed(1) + '분');
+ok('전 조합 넉넉 합 ≤ 45분(가장 무거운 판 + 준비한 순서 3분 + 테이블 인사 9분 [TABLE_GREET_1008])', mx / 60 <= 45, (mx / 60).toFixed(1) + '분');
 ok('고객 범위(RANGE) 합 = 40 · 예시 넷이 그 안', O.RANGE.body[0] + O.RANGE.photo[1] === O.DAYMIN && O.RANGE.body[1] + O.RANGE.photo[0] === O.DAYMIN
-  && Object.keys(WANT).every((k) => { const s = O.bodySec(O.applyExample({}, k)); return s[0] / 60 >= O.RANGE.body[0] - 4 && s[1] / 60 <= O.RANGE.body[1]; }));
+  && Object.keys(WANT).every((k) => { const s = O.bodySec(O.applyExample({}, k)); return s[0] / 60 >= O.RANGE.body[0] - 4 && Math.round(s[1] / 60) <= O.RANGE.body[1]; }));   /* [TABLE_GREET_1008] 고객이 보는 값(span · 분으로 둥글림)으로 잰다 — 기록 넉넉 합 25.2분 = 화면 «약 20~25분» */
 ok('40 = DAY(140 − 준비 − 스냅 − 배웅) · 스냅 60 [DAY_60]', O.DAYMIN === 40 && O.DAYMIN === D.DAY.total - D.DAY.ready - D.DAY.snap - D.DAY.farewell && D.DAY.snap === 60);
 
 ok('모든 순간에 칸 글이 있다(tileOf 빈 값 0) [TILE_SWALLOW]', Object.keys(O.CARDS).every((k) => O.tileOf(k, {}).length > 0), Object.keys(O.CARDS).filter((k) => !O.tileOf(k, {})).join(','));
@@ -121,8 +122,9 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers', '
   'bridge-b3-clap-thanks', 'bridge-b4-breath', 'bridge-b5-video-out', 'bridge-b6-lighter',   /* ★[BRIDGE_LINK 2026-10-03] 111~114 · 이음말 넷 */
   ...[2, 3, 4].flatMap((e) => ['1-arrival', '2-10min', '3-5min', '4-1min'].map((t) => 'guest-ex' + e + '-' + t)),   /* ★[GUEST_EX_NAR 2026-10-06] 115~126 · 하객 맞이 나레이션 예시 2~4 */
   'narr-vow-in-b',   /* ★[VOW_FIRST 2026-10-06] 127 · 서약 여는 말 · 신부부터 */
-  'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4'];   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
-ok('FILES 맨 끝 89~130 이 새 줄 42개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
+  'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4',
+  'narr-table-in'];   /* ★[TABLE_GREET_1008 2026-10-08] 131 · 테이블 인사 여는 말 */   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
+ok('FILES 맨 끝 89~131 이 새 줄 43개', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
 /* [PV_EX_NAR 2026-10-07] 식전 영상 소개 — 나레이션 판만 예시를 따른다 · 두 분 목소리 판은 90 슬러그 그대로(두 분 소리를 물린다) · 모르는 값은 0 */
 ok('[PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 → 128~130 · 두 분 목소리 판은 90 · 모르는 값은 90', (() => {
   const g = (S) => C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'prevideo').map((c) => c.slug + ':' + c.file).join(',');

@@ -10,7 +10,7 @@ const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs'
 const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
 const code = [line(/var RF_KEYS[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_DOWN[^\n]*/), line(/var VC_COLOR[^\n]*/)].concat(FN.map(grab)).join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const miss = FN.filter((f) => !grab(f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -91,7 +91,7 @@ ok('다시 만들기 402 → 고객 문구 하나 · 앞 목소리 그대로 · 
 /* ★[VC_WHY] 거절 까닭을 남긴다(HTTP · 업체 글) · 실패는 두 분의 3번에 세지 않는다 · 코드 · HTTP 가 다르면 메일도 따로 */
 { const t0 = w.st().bride.tries; w.sb.UrlFetchApp.fetch = (url) => ({ getResponseCode: () => (/instant-clone/.test(url) ? 400 : 500), getContentText: () => JSON.stringify({ detail: 'audio too long' }), getBlob: () => ({ getBytes: () => [] }) });
   w.call({ op: 'phrase', who: 'bride' }); const r4 = w.call({ op: 'enroll', who: 'bride', sec: 60, data: 'data:audio/wav;base64,AA' }); const E = JSON.parse(w.props.VCERR_ME0001 || '{}');
-  ok('실패 까닭 — VCERR_<코드>에 HTTP · 업체 글 · 관리자 메일에 같은 까닭 · 3번에 안 셈 · 고객 문구는 하나 [VC_WHY]', !r4.ok && /잠시 뒤 다시/.test(r4.error) && E.http === 400 && E.op === 'enroll' && /audio too long/.test(E.msg) && w.st().bride.tries === t0 && w.mails.some((m) => /HTTP 400 · audio too long/.test(m)), JSON.stringify({ E, t0, t1: w.st().bride.tries, mails: w.mails }));
+  ok('실패 까닭 — VCERR_<코드>에 HTTP · 업체 글 · 관리자 메일에 같은 까닭 · 3번에 안 셈 · 고객 문구는 하나 [VC_WHY] · 만들기 400 은 «처음부터 다시 읽어 주세요»(V0) [VC_ENROLL_BADREC]', !r4.ok && /처음부터 다시 읽어 주세요/.test(r4.error) && r4.bad && r4.ecode === 'V0' && E.http === 400 && E.op === 'enroll' && /audio too long/.test(E.msg) && w.st().bride.tries === t0 && w.mails.some((m) => /HTTP 400 · audio too long/.test(m)), JSON.stringify({ E, t0, t1: w.st().bride.tries, mails: w.mails }));
   const lg = w.sb.vcLastErrors(); ok('vcLastErrors — 예식마다 마지막 실패 한 줄 [VC_WHY]', lg.length === 1 && /ME0001 .* enroll .* HTTP 400 .* audio too long/.test(lg[0]), JSON.stringify(lg)); }
 r = w.call({ op: 'delete', who: 'bride' });
 ok('업체 지우기 실패(500) → retry 목록에 남김', r.ok && (w.st().retry || []).indexOf('uc_a') > -1, JSON.stringify(w.st()));

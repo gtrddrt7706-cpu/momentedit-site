@@ -47,7 +47,7 @@ for (const w of [390, 1280]) {
   await pg.click('[data-fk="opx:record"]'); await pg.waitForTimeout(300);
   const u0 = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return !!u && !u.hidden; });
   await pg.click('[data-fk="opt:letter"]'); await pg.waitForTimeout(300);
-  const u1 = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return { shown: !!u && !u.hidden, letter: !!(S.on && S.on.letter) }; });
+  const u1 = await pg.evaluate(() => { const u = document.getElementById('pkUndo'); return { shown: !!u && !u.hidden && /되돌리/.test(u.textContent) /* [TABLE_GREET_1008] 같은 자리에 단체 사진 알림(SHORT_TOAST)이 뜰 수 있다 — 되돌리기 알림만 센다 */, letter: !!(S.on && S.on.letter) }; });
   ok(`${w} ① 예시 → ＋ 담기 → 되돌리기 알림이 닫힌다 · 담은 것은 그대로 [UNDO_CLOSE_ON_TGL]`, u0 && !u1.shown && u1.letter, JSON.stringify({ u0, u1 }));
   await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(500);
   await go(pg, 'listen');
