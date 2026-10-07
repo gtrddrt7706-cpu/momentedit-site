@@ -14836,6 +14836,8 @@ nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
 chk 'FLOW_THREAD' scripts/audit/flow-thread.mjs 1
 chk 'FLOW_THREAD' scripts/audit/ghi-polish.mjs 1
 chk 'FLOW_THREAD' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 규칙 문서에도 한 벌로 적었다 — 새 «멘트 → 행동» 화면은 이 모양
+# ★[FAST_FIRST 2026-10-07 사장님 «검사 같은 건 나중에 한 번에 · 요청한 것만 빠르게 반영»] 작업 방식 규칙이 CLAUDE.md 에 살아 있나(두 곳 — 절 · 화면 PR 점검 3단의 덧줄)
+chk 'FAST_FIRST' CLAUDE.md 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-thread.mjs >/dev/null 2>&1; _flt=$?; [ "$_flt" = 1 ] && { echo 'FAIL flow-thread: 순간 흐름(흐름선 · 마디 · 행동 줄)이 어긋났습니다 — node scripts/audit/flow-thread.mjs'; fail=1; }; fi
 chk "var LAB_WHEN={'여는 말':'시작할 때','맺는 말':'끝나면'" order-preview.html 1
 nochk "one: '두 분이 부부가 되었음을 알려요.'" assets/ritual-open.js
