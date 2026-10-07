@@ -59,10 +59,10 @@ try {
       const pf = await pg.evaluate(() => { const a = document.activeElement; return { fk: a ? (a.getAttribute('data-fk') || a.tagName) : '', t: S.pvText === PV_EX[2][1] }; });
       ok(`${w} ③ 식전 영상 예시를 눌러도 포커스는 카드(글칸 금색 줄 없음) [EX_FOCUS_CARD]`, pf.fk === 'mkex:pv:2' && pf.t, JSON.stringify(pf));
       /* ★[EX_TEXT_1006 2026-10-07 코워크 지시] AI 예시 글을 고쳤다 — 옛 예시 글로 AI 소리를 만든 줄은 옛 글을 두 분 글로 옮긴다 · 소리 없는 줄은 새 글 */
-      const mg = await pg.evaluate(() => { const keep = JSON.stringify({ up: S.up, vt: S.vtext, ex: S.gExC, vl: S.vlines }); S.gExC = 1; S.vlines = {}; S.vtext = {}; S.up = { g0: { src: 'ai', id: 'l', tx: _txSig(EX_OLD_1006[1][0]), by: 'groom' } };
-        _exKeep1006(); const r = { g0: _recNeed('g0') === EX_OLD_1006[1][0], g0stale: _txStale('g0'), g1: _recNeed('g1') === GUEST_EX[1][1][1], g1new: GUEST_EX[1][1][1] !== EX_OLD_1006[1][1] };
-        _exKeep1006(); r.twice = _recNeed('g0') === EX_OLD_1006[1][0]; const k = JSON.parse(keep); S.up = k.up; S.vtext = k.vt; S.gExC = k.ex; S.vlines = k.vl; return r; });
-      ok(`${w} [EX_TEXT_1006] 옛 예시 글로 만든 AI 소리는 그 글을 두 분 글로(«글을 고쳤어요» 아님) · 소리 없는 줄은 새 예시 글 · 두 번 불러도 같다`, mg.g0 && !mg.g0stale && mg.g1 && mg.g1new && mg.twice, JSON.stringify(mg));
+      const mg = await pg.evaluate(() => { const keep = JSON.stringify({ up: S.up, vt: S.vtext, ex: S.gExC, vl: S.vlines }); S.gExC = 1; S.vlines = {}; S.vtext = {}; S.up = { g0: { src: 'ai', id: 'l', tx: _txSig(EX_OLD_1006[1][0][0]), by: 'groom' }, g1: { src: 'ai', id: 'l1', tx: _txSig(EX_OLD_1006[1][1][1]), by: 'groom' } };   /* [EX_TEXT_1007] 최초 글 · 10/6 글 둘 다 */
+        _exKeep1006(); const r = { g0: _recNeed('g0') === EX_OLD_1006[1][0][0], g0stale: _txStale('g0'), g1: _recNeed('g1') === EX_OLD_1006[1][1][1] && !_txStale('g1'), g2: _recNeed('g2') === GUEST_EX[1][1][2], g1new: GUEST_EX[1][1][1] !== EX_OLD_1006[1][1][1] };
+        _exKeep1006(); r.twice = _recNeed('g0') === EX_OLD_1006[1][0][0]; const k = JSON.parse(keep); S.up = k.up; S.vtext = k.vt; S.gExC = k.ex; S.vlines = k.vl; return r; });
+      ok(`${w} [EX_TEXT_1006] 옛 예시 글로 만든 AI 소리는 그 글을 두 분 글로(«글을 고쳤어요» 아님) · 소리 없는 줄은 새 예시 글 · 두 번 불러도 같다`, mg.g0 && !mg.g0stale && mg.g1 && mg.g2 && mg.g1new && mg.twice, JSON.stringify(mg));
       ok(`${w} [EX_TEXT_1006] 식전 영상 소개 AI 예시 넷 = 코워크 확정 글`, await pg.evaluate(() => PV_EX.map((x) => x[1]).join('|') === '저희 두 사람의 영상입니다. 먼저 보여 드릴게요.|여러분께 꼭 보여 드리고 싶었던 장면들이에요.|본편에 앞서, 저희가 예고편을 가져왔어요. 편하게 즐겨 주세요.|이 영상으로 먼저 고맙다는 인사를 드릴게요.'));
       ok(`${w} ①②③ pageerror 0`, !errs.length, errs.slice(0, 2).join(' | '));
       await pg.close(); }

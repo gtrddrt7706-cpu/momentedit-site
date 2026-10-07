@@ -14847,3 +14847,9 @@ nochk '팝콘은 없지만' assets/ritual-open.js
 # ★[VOICE_INTRO_ONE 2026-10-07 사장님 «이거 합쳐서 안내하자 · 디자이너 시선 · 고객 입장»] 두 분 목소리 쪽 머리 안내 두 줄 → 한 단락 두 문장(무엇이 되나 / 아쉬우면 다시 녹음 · 자세히 보기)
 chk 'VOICE_INTRO_ONE' order-preview.html 2
 nochk '확정해 둔 줄은 그대로 남아요 <button' order-preview.html
+# ★[EX_TEXT_1007 2026-10-07 코워크 10/7 고친 판] 하객 맞이 «다정하게 · 유쾌하게» AI 글 합쇼체 · 옛 글(최초 · 10/6)로 만든 소리는 옮긴다
+chk 'EX_TEXT_1007' order-preview.html 2
+# ★[EX_LAB_JOY 2026-10-07 사장님 «웃음 한 스푼 이런 문구 너무 구려 · 올드하잖아»] 예시 이름 «웃음 한 스푼» → «유쾌하게» — 되살리지 말 것
+chk 'EX_LAB_JOY' order-preview.html 1
+nochk "\['웃음 한 스푼'," order-preview.html
+nochk "'웃음 한 스푼 ·" scripts/build-dubbing-script.mjs
