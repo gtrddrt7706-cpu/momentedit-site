@@ -14335,6 +14335,7 @@ chk "_wfx('tune'," order-preview.html 1
 chk "_wfx(id||'lp'," order-preview.html 1
 chk "(_lpWait(st))" order-preview.html 2
 chk 'FLOW_WAIT' order-preview.html 4   # [FLOW_WAIT 2026-10-07 사장님 «원형에 로딩 시간 효과는 살린 거야?»] 흐름 ▶(원)도 차오름 — 헬퍼 · 칠하기 · 그리기 · CSS
+chk '^\.mk-vsd{position:relative;display:flex;justify-content:space-between;align-items:center;flex:1 1 auto;max-width:240px;' order-preview.html 1   # [VSTAT_WIDE 2026-10-07 사장님 «추천대로»] 카드 빠르기 · 쉼 점 줄 = 오른쪽 끝까지 · 최대 240(168 고정으로 되돌리지 말 것)
 chk "})(_mlWait(k+':'+i))" order-preview.html 1
 chk "_wfPaint(b,_mlWait(b.getAttribute('data-ml')))" order-preview.html 1
 chk '.mk-flow li.n .mk-pl.wfill::after{inset:5px}' order-preview.html 1
