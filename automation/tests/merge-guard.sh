@@ -15023,7 +15023,7 @@ nochk '.mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)
 nochk '.mk-vstat{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;padding:12px 0;border-top' order-preview.html
 nochk '.mk-vpcs .mk-vhow{display:block;margin:14px 0 0;padding:12px 0 0;border-top:1px solid var(--border)' order-preview.html
 chk 'VREADY_ONE' order-preview.html 1
-chk "both?'두 분 목소리가 준비됐어요.':'각자 1분 읽으면" order-preview.html 1
+chk "both?'준비됐어요':'각자 1분 읽기'" order-preview.html 1   # [VREADY_ONE → VOICE_INTRO_LINE 2026-10-07] 다 만든 판 첫마디는 «준비됐어요» 하나 · 머리는 한 줄
 nochk "두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))" order-preview.html
 # ★[EX_TEXT_1007 2026-10-07 코워크 10/7 고친 판] 하객 맞이 «다정하게 · 유쾌하게» AI 글 합쇼체 · 옛 글(최초 · 10/6)로 만든 소리는 옮긴다
 chk 'EX_TEXT_1007' order-preview.html 2
