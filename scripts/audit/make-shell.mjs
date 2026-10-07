@@ -169,7 +169,7 @@ for (const w of [390, 1280]) {
     const want = undefined;   /* [VPROG_OFF 2026-10-04 사장님] «신랑 남음 · 신부 남음» 진행 줄은 걷었다 — 없어야 한다 */
     ok(`${w} [VOICE_ONCE] «두 분 목소리 만들기» 쪽(${lab}) — 제목 · 진행 줄 없음 [VPROG_OFF] · 사람 카드 둘 · 다음 «다음 · 하객 맞이 안내» · 진행 줄 순간 칸 아님 · 접은 표시`, v.h === '두 분 목소리 만들기' && v.prog === want && v.cards === 2 && v.next === '다음 · 하객 맞이 안내' && !v.inStrip && v.c && /두 분 목소리/.test(v.pos), JSON.stringify(v));
     if (lab === 'both') ok(`${w} [VOICE_ONCE] 두 분 다 만들었으면 조용한 «준비됐어요» · «나중에 할게요» 없음`, /^두 분 목소리가 준비됐어요/.test(v.one) && !v.later, JSON.stringify(v));
-    else ok(`${w} [VOICE_ONCE] 아직이면 설명 한 줄(«각자 1분쯤 …» · «말투는 … 다를 수 있어요») + «나중에 할게요»`, v.one === '각자 1분 읽으면 그 목소리로 안내를 만들어요 · 말투는 조금 다를 수 있어요' /* [VS_ONE_LINE] */ && v.later, JSON.stringify(v));
+    else ok(`${w} [VOICE_ONCE] 아직이면 설명 한 줄(«각자 1분쯤 …» · «말투는 … 다를 수 있어요») + «나중에 할게요»`, /^각자 1분 읽으면 그 목소리로 안내를 만들어요\.말투가 아쉬우면 다시 녹음하면 돼요\. 자세히 보기$/.test(v.one) /* [VS_ONE_LINE → VOICE_INTRO_ONE 2026-10-07] 두 줄을 한 단락 두 문장으로 */ && v.later, JSON.stringify(v));
     if (lab === 'none') {
       await pg.evaluate(() => mkGo('guest')); await pg.waitForTimeout(400);
       const ng = await pg.evaluate(() => { VS.inPick = true; VS_KEYS.forEach((k) => _lSet(k, 'ai')); VS.inPick = false; render(); const l = document.querySelector('[data-fk="mkvnone"]'); return { t: l && l.textContent, pos: (document.querySelector('#mkStrip .mk-pos') || {}).textContent }; });

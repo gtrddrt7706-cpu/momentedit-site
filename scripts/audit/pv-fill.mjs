@@ -22,10 +22,10 @@ try {
     await pg.evaluate(() => { courseStarted = true; S.on.prevideo = 1; S.pvText = ''; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { ok: true, groom: { ready: true }, bride: {} }; buildSteps(); for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); break; } mkGo('prevideo'); });
     await wait(400);
     await pg.evaluate(() => { _lSet('pvVoice', 'ai'); buildSteps(); render(); }); await wait(400);
-    const a = await pg.evaluate(() => ({ t: S.pvText, flow: !!document.querySelector('.mk-pg .mk-flowsec'), narRow: /두 분이 준비한 영상을 함께 보시겠습니다/.test((document.querySelector('.mk-pg .mk-flowsec') || {}).textContent || '') }));
+    const a = await pg.evaluate(() => ({ t: S.pvText, flow: !!document.querySelector('.mk-pg .mk-flowsec'), narRow: ((t) => t.indexOf(RitualOpen.NAR.prevideoIn) > -1)((document.querySelector('.mk-pg .mk-flowsec') || {}).textContent || '') }));
     ok(`${w} ① AI 를 고르면 소개글 = 예시 1 · 흐름에 나레이션 줄 없음 [PV_FILL]`, a.t === await pg.evaluate(() => PV_EX[0][1]) && !a.narRow, JSON.stringify(a));
     await pg.evaluate(() => { S.pvText = ''; render(); }); await wait(200);
-    const a2 = await pg.evaluate(() => ({ narRow: /두 분이 준비한 영상을 함께 보시겠습니다/.test((document.querySelector('.mk-pg .mk-flowsec') || {}).textContent || ''), note: ((document.querySelector('.mk-voice .mk-vaiw') || {}).textContent || '') }));
+    const a2 = await pg.evaluate(() => ({ narRow: ((t) => t.indexOf(RitualOpen.NAR.prevideoIn) > -1)((document.querySelector('.mk-pg .mk-flowsec') || {}).textContent || ''), note: ((document.querySelector('.mk-voice .mk-vaiw') || {}).textContent || '') }));
     ok(`${w} ① 소개글을 비우면 흐름 줄 대신 카드 안내 «비워 두면 스튜디오 나레이션이 소개해요» [PV_FILL]`, !a2.narRow && /비워 두면 스튜디오 나레이션이 소개해요/.test(a2.note), JSON.stringify(a2));
     await pg.evaluate(() => { S.pvText = PV_EX[0][1]; render(); }); await wait(200);
     /* ② 답이 거꾸로 와도 · 번호 없는 옛 마이페이지여도 */
@@ -46,10 +46,10 @@ try {
     await pg.evaluate(() => { _lSet('pvVoice', 'nar'); buildSteps(); render(); }); await wait(300);
     const n0 = await pg.evaluate(() => ({ cards: [...document.querySelectorAll('[data-fk^="mkex:pvnar:"]')].map((b) => b.textContent.replace(/\s+/g, '')).join('|'), on: (document.querySelector('[data-fk^="mkex:pvnar:"][aria-pressed="true"],[data-fk^="mkex:pvnar:"][aria-checked="true"],[data-fk^="mkex:pvnar:"].on') || {}).getAttribute ? document.querySelector('[data-fk^="mkex:pvnar:"][aria-pressed="true"],[data-fk^="mkex:pvnar:"][aria-checked="true"],[data-fk^="mkex:pvnar:"].on').getAttribute('data-fk') : '' }));
     await pg.click('[data-fk="mkex:pvnar:2"]'); await wait(400);
-    const n1 = await pg.evaluate(() => { const st = _lSteps(ENG, ['prevideo']).filter((x) => !x.skip && !x.quiet)[0] || {}; return { ex: S.pvEx, txt: st.txt, src: String(st.src || '').split('/').pop(), foc: document.activeElement && document.activeElement.getAttribute('data-fk'), row: ((document.querySelector('.mk-pg .mk-flowsec') || {}).textContent || '').indexOf('팝콘은 없지만') > -1 }; });
-    ok(`${w} ⑤ 스튜디오 나레이션 판 — «소개 멘트» 칩 넷 · 예시 3 → «팝콘은 없지만 …» · 129 녹음 · 포커스는 카드 [PV_EX_NAR]`, n0.cards === (await pg.evaluate(() => PV_EX.map((x) => x[0].replace(/\s+/g, '')).join('|'))) /* [EX_ROW] 위쪽 «소개 멘트» 칩 줄 · 느낌 이름 */ && n1.ex === 2 && /^팝콘은 없지만/.test(n1.txt || '') && n1.src === '129_narr-prevideo-in-ex3.mp3' && n1.foc === 'mkex:pvnar:2' && n1.row, JSON.stringify({ n0, n1 }));
+    const n1 = await pg.evaluate(() => { const st = _lSteps(ENG, ['prevideo']).filter((x) => !x.skip && !x.quiet)[0] || {}; return { ex: S.pvEx, txt: st.txt, want: RitualOpen.NAR.pvEx[1], src: String(st.src || '').split('/').pop(), foc: document.activeElement && document.activeElement.getAttribute('data-fk'), row: ((document.querySelector('.mk-pg .mk-flowsec') || {}).textContent || '').indexOf(RitualOpen.NAR.pvEx[1]) > -1 }; });
+    ok(`${w} ⑤ 스튜디오 나레이션 판 — «소개 멘트» 칩 넷 · 예시 3 → «예시 3 글» · 129 녹음 · 포커스는 카드 [PV_EX_NAR]`, n0.cards === (await pg.evaluate(() => PV_EX.map((x) => x[0].replace(/\s+/g, '')).join('|'))) /* [EX_ROW] 위쪽 «소개 멘트» 칩 줄 · 느낌 이름 */ && n1.ex === 2 && n1.txt === n1.want && n1.src === '129_narr-prevideo-in-ex3.mp3' && n1.foc === 'mkex:pvnar:2' && n1.row, JSON.stringify({ n0, n1 }));
     await pg.click('[data-fk="mkex:pvnar:0"]'); await wait(300);
-    ok(`${w} ⑤ 예시 1 → 90 녹음 그대로(«두 분이 준비한 영상을 함께 보시겠습니다.») [PV_EX_NAR]`, await pg.evaluate(() => { const st = _lSteps(ENG, ['prevideo']).filter((x) => !x.skip && !x.quiet)[0] || {}; return S.pvEx == null && /^두 분이 준비한 영상을/.test(st.txt || '') && /90_narr-prevideo-in\.mp3$/.test(st.src || ''); }));
+    ok(`${w} ⑤ 예시 1 → 90 녹음 그대로(예시 1 글 = NAR.prevideoIn) [PV_EX_NAR]`, await pg.evaluate(() => { const st = _lSteps(ENG, ['prevideo']).filter((x) => !x.skip && !x.quiet)[0] || {}; return S.pvEx == null && (st.txt || '') === RitualOpen.NAR.prevideoIn   /* [NAR_1006] 글은 원천과 대조 */ && /90_narr-prevideo-in\.mp3$/.test(st.src || ''); }));
     ok(`${w} pageerror 0`, !errs.length, errs.slice(0, 2).join(' | '));
     await pg.close();
   }
