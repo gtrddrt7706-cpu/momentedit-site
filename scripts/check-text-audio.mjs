@@ -322,7 +322,12 @@ if (process.argv.includes('--redub')) {
   for (const r of noAudio) {
     if (bad.some((b) => b.slug === r.slug)) continue;
     lines.push('[' + r.no + '] ' + r.slug + '   (신규)');
-    for (const l of voiceLines(r, sentsOf(r.screen))) lines.push(l);   // [SENT_VOICE]
+    /* ★[LIST_NEW_SENTS 2026-10-08 · TABLE_GREET_1008] 명단도 붙여넣기와 같은 자로 문장을 읽는다 — 화면 글이 없는 새 클립은 대장(manifest)에서.
+       종전엔 붙여넣기만 [NEW_CLIP_SENTS] 로 대장을 봤고 명단은 화면 글만 봐서, 콘솔 전용 새 클립(131 narr-table-in)이 명단에 0문장으로 적혔다
+       → build-dub-onefile 이 «문장이 0개다 · 명단과 붙여넣기가 어긋난다»로 붉었다(CI guard · PR #1116). */
+    let _ls = sentsOf(r.screen);
+    if (!_ls.length) { const _mc = man.clips.find((c) => pad2(c.no) + '_' + c.file === pad2(+r.no || 0) + '_' + r.slug); if (_mc && _mc.sents) _ls = _mc.sents.map((x) => x.text); }
+    for (const l of voiceLines(r, _ls)) lines.push(l);   // [SENT_VOICE]
     lines.push('');
   }
   fs.writeFileSync(REDUB, lines.join('\n'));
