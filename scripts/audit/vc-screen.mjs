@@ -45,7 +45,7 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.waitForTimeout(500);
   const chips = await pg.evaluate(() => [...document.querySelectorAll('[data-fk^="lsc:guestVoice"]')].map((e) => e.textContent).join('|'));
   ok(W + ' 6-1 AI 칸이 첫 칸으로 보인다(voiceClone 켜짐 · 직접 녹음은 옛 초안에만 [VP_NO_DIRECT])', /^AI 두 분 목소리\|스튜디오 나레이션/.test(chips)   /* [R3-07] 칩 이름 «AI 두 분 목소리» */, chips);
-  await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
+  await pg.evaluate(() => { S.tipSeen = { keep: 1, nar: 1 }; });   /* [TIP_FLY 2026-10-07] 처음 누를 때 뜨는 안내는 tip-fly 검사가 본다 · 여기선 본 고객으로 */ await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
   /* ★[VOICE_ONCE 2026-10-03 사장님] 사람 카드는 순간 쪽이 아니라 «두 분 목소리 만들기» 쪽 하나에 — 순간 쪽엔 아직 없을 때 한 줄 */
   ok(W + ' AI 칸을 고르면 두 분 목소리 + 빈 줄 기본 AI · 순간 쪽엔 사람 카드 없이 한 줄 «아직 만들지 않았어요 · 만들기» [VOICE_ONCE]', await pg.evaluate(() => S.guestVoice === 'couple' && S.vfill.guest === 'ai' && !document.querySelector('.mk-aisec') && !!document.querySelector('[data-fk="mkvnone"]')), await pg.evaluate(() => JSON.stringify({ gv: S.guestVoice, vf: S.vfill, sec: !!document.querySelector('.mk-aisec') })));
   await pg.evaluate(() => mkGo('_voice')); await pg.waitForTimeout(400);
