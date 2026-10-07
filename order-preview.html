@@ -2905,6 +2905,11 @@ function _el(){
 function _next(){ if(AUDBTN&&AUDQ){ AUDI++; _step(AUDBTN,AUDTOK); } }
 /* ★[PLAY_TOGGLE_FIX 2026-10-04 사장님 «▶ 가 ■ 로 안 바뀐다»] 줄 ▶ 로 튼 소리(MK.aud)는 따로 멈춘다 — _stopAud 는 render() 가 매번 부르므로
    거기서 멈추면 틀자마자 다시 그리며 꺼진다(■ 로 바뀔 틈이 없었다). 새 소리를 틀 때 · ■ 를 누를 때만 _stopMk */
+/* ★★[IOS_PLAY_SESSION 2026-10-07 사장님 «모바일에서 녹음하고 플레이 누르면 소리가 안 난다»]
+   아이폰 사파리는 마이크를 한 번 쓰면 소리 세션이 «녹음+재생»으로 바뀌어, 마이크를 닫은 뒤에도 소리가 수화기(귀 대는 곳)로 아주 작게 나가거나
+   무음 스위치에 막힌다. 마이크를 열 때는 «녹음+재생», 닫을 때와 틀기 직전에는 «재생»으로 세션을 돌려 둔다(navigator.audioSession · iOS 16.4+ · 없으면 아무것도 안 한다) */
+function _asPlay(){ try{ if(navigator.audioSession&&!(typeof _micLive==='function'&&_micLive())&&navigator.audioSession.type!=='playback') navigator.audioSession.type='playback'; }catch(e){} }
+function _asRec(){ try{ if(navigator.audioSession) navigator.audioSession.type='play-and-record'; }catch(e){} }
 function _stopMk(){ try{ if(typeof MK!=='undefined'&&MK.aud){ var _a=MK.aud; MK.aud=null; MK.audKey=null; _a.onended=null; _a.pause(); } }catch(e){} }
 function _stopAud(){
   AUDTOK++;   // 늦게 도착한 조회 결과가 다음 버튼을 덮지 않게 — 표를 바꿔 무효화한다
@@ -5105,8 +5110,8 @@ window.mkRecCancel=function(){ _recStopAll(); _micDrop(); if(MK_REC&&MK_REC.url)
    대신 덜 묻게 한다: 녹음 창이 열려 있는 동안 마이크를 닫지 않고 글 1 · 글 2 · 다시 녹음에 같은 흐름을 쓴다(종전엔 녹음마다 닫아 아이폰이 다시 물었다). 창을 닫으면 닫는다 */
 var MIC_KEEP=null;
 function _micLive(){ return MIC_KEEP&&MIC_KEEP.getTracks().some(function(t){ return t.readyState==='live'; }); }
-function _micGet(){ if(_micLive()) return Promise.resolve(MIC_KEEP); return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:true,autoGainControl:true}}).then(function(st){ MIC_KEEP=st; return st; }); }
-function _micDrop(){ if(MIC_KEEP){ try{ MIC_KEEP.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} MIC_KEEP=null; } }
+function _micGet(){ if(_micLive()) return Promise.resolve(MIC_KEEP); _asRec();   /* [IOS_PLAY_SESSION] */ return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:true,autoGainControl:true}}).then(function(st){ MIC_KEEP=st; return st; }); }
+function _micDrop(){ if(MIC_KEEP){ try{ MIC_KEEP.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} MIC_KEEP=null; } _asPlay(); }   // [IOS_PLAY_SESSION]
 function _recStopAll(){ var r=MK_REC; if(!r) return; clearInterval(r.iv); clearTimeout(r.cd); try{ if(r.mr&&r.mr.state!=='inactive') r.mr.stop(); }catch(e){} try{ if(r.stream&&r.stream!==MIC_KEEP) (r.stream.getTracks()||[]).forEach(function(t){ t.stop(); }); }catch(e){} try{ r.ac&&r.ac.close(); }catch(e){} }
 /* ★★[INAPP_MIC 2026-09-28 코워크 0928 3-2] 카톡 · 인스타 · 네이버 앱 안 브라우저는 앱에 따라 마이크를 못 쓴다 — 녹음 칸(직접 녹음 · AI 읽기 · 연습 녹음)을 누를 때 한 번 알린다(막지 않는다).
    [브라우저로 열기](카톡만 · kakaotalk://web/openExternal · 빌더는 iframe 안이라 맨 위 창에서) · [주소 복사] · [여기서 해 볼게요].
@@ -5464,10 +5469,16 @@ function _vcSamplePlay(force){ var T=VC.tune; if(!T||T.loading) return; var tx=_
   if(!r||r.text!==tx){ if(!force) return;   /* 점을 누를 때는 만든 소리만 다시 튼다 — 새 글은 «들어 보기»를 눌렀을 때만 만든다(돈) */ _vcSampleLoad(T.who,tx).then(function(q){ if(q&&VC.tune===T) _vcSamplePlay(true); }); return; }   // 고친 글이면 먼저 만들고 튼다
   _stopAud(); _stopMk();
   var y0=_gapFit(r.x,r.sr,_gapN(tx),PAUSE_SEC[T.pause]||0.5), lead=Math.round(r.sr*1.0*parseFloat(T.tempo)), y=new Float32Array(lead+y0.length); y.set(y0,lead);   /* ★[TUNE_LEAD 2026-10-04 사장님 «누르고 1초 뒤에 소리가 나오게 · 처음이 씹힌다»] 앞에 1초 빈소리 — 휴대폰 스피커가 깨어나는 동안 첫 소리가 잘렸다(재생 속도를 곱해 실제로 1초) */
-  var url=URL.createObjectURL(_recWav(y,r.sr));
-  try{ var a=new Audio(url); _rateSet(a,parseFloat(T.tempo)); a.onended=function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } try{ URL.revokeObjectURL(url); }catch(e){} }; var p=a.play(); if(p&&p.catch) p.catch(function(){}); MK.aud=a; MK.audKey='tune'; render(); }catch(e){} }
+  var url=URL.createObjectURL(_recWav(y,r.sr)); _asPlay();   // [IOS_PLAY_SESSION]
+  /* ★[TUNE_PLAY_TRUE 2026-10-07 사장님 «모바일에서 녹음하고 플레이 누르면 소리가 안 난다»] ①같은 소리 요소 하나를 쓰고(누를 때 풀어 둔 것 · _tuneAud) ②틀기가 막히면(아이폰은 탭 밖 재생을 막는다 · 만든 직후 저절로 틀 때)
+     «멈추기»로 둔 채 조용하던 것 — 막히면 «예시 들어 보기»로 돌려 눌러서 듣게 한다 */
+  try{ var a=_tuneAud(); a.onended=function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } try{ URL.revokeObjectURL(url); }catch(e){} }; a.src=url; _rateSet(a,parseFloat(T.tempo)); var p=a.play(); if(p&&p.catch) p.catch(function(){ if(MK.aud===a){ MK.aud=null; MK.audKey=null; render(); } }); MK.aud=a; MK.audKey='tune'; render(); }catch(e){} }
+var TUNE_EL=null;
+function _tuneAud(){ if(!TUNE_EL){ TUNE_EL=new Audio(); TUNE_EL.preload='auto'; } return TUNE_EL; }
+function _tuneUnlock(){ var a=_tuneAud(); if(MK.aud===a) return; try{ a.src=L_SILENT; var p=a.play(); if(p&&p.catch) p.catch(function(){}); }catch(e){} }   // [TUNE_PLAY_TRUE] 손가락 탭 안에서 한 번 풀어 둔다 — 뒤에 저절로 틀어도 막히지 않게
 function _tuneDiff(){ var T=VC.tune, r=T&&VC.sraw[T.who]; return !!(r&&r.text!==_tuneText()); }
-window.mkTunePlay=function(){ if(MK.audKey==='tune'&&MK.aud&&!String(S.vtuneText==null?VC_SAMPLE:S.vtuneText).trim()){ _stopMk(); render(); return; }   /* [SIM_R2] */ if(MK.audKey==='tune'&&MK.aud&&!_tuneDiff()){ _stopMk(); render(); return; } _vcSamplePlay(true); };   // 고친 글이면 듣는 중이어도 새 글로
+window.mkTunePlay=function(){ _tuneUnlock();   // [TUNE_PLAY_TRUE]
+ if(MK.audKey==='tune'&&MK.aud&&!String(S.vtuneText==null?VC_SAMPLE:S.vtuneText).trim()){ _stopMk(); render(); return; }   /* [SIM_R2] */ if(MK.audKey==='tune'&&MK.aud&&!_tuneDiff()){ _stopMk(); render(); return; } _vcSamplePlay(true); };   // 고친 글이면 듣는 중이어도 새 글로
 function _tuneGoLab(){ var T=VC.tune; if(!T) return ''; var r=VC.sraw[T.who], pl=MK.audKey==='tune'&&!!MK.aud;
   return T.loading?(r?'만드는 중…':'예시를 불러오는 중…'):_tuneDiff()?'이 글로 들어 보기':pl?'멈추기':'예시 들어 보기'; }
 function _tuneGoOn(){ return MK.audKey==='tune'&&!!MK.aud&&!_tuneDiff(); }
@@ -5484,7 +5495,7 @@ window.mkTuneUse=function(){ var T=VC.tune; if(!T) return; var w=T.who, from=T.f
   if(from==='enroll'&&VC.read&&VC.read.who===w){ var R=VC.read, ren=!!R.renewed; R.ph='done'; VC.fill={doing:true,n:0,entry:false}; render(); _vcAutoFill(w,ren); if(!ren) _vcRebakeWho(w); return; }
   render(); if(need) _vcAutoFill(w,false); _vcRebakeWho(w); };
 function _vcRebakeWho(w){ var ks=['g0','g1','g2','g3','pv','entry'].filter(function(k){ var v=(S.up||{})[k]; if(!v||typeof v!=='object'||v.src!=='ai') return false; var lw=_vcLineWho(k); return (lw===w||lw==='both')&&_vtNeed(k); }); if(ks.length) _vtBake(ks); }
-window.mkVcTune=function(w){ _vcTuneOpen(w,'card'); };
+window.mkVcTune=function(w){ _tuneUnlock(); _vcTuneOpen(w,'card'); };   // [TUNE_PLAY_TRUE]
 window.mkTuneRedo=function(){ var w=VC.tune&&VC.tune.who; _stopMk(); VC.tune=null; if(w) mkVcRead(w); };
 function _tuneStep(kind){ var T=VC.tune, isT=kind==='t', v=isT?T.tempo:T.pause, lab=isT?'말 빠르기':'문장 사이 쉼', ps=PAUSE_ST.map(function(x){ return x[0]; }), pi=ps.indexOf(v),
     lo=isT?parseFloat(v)<=TEMPO_MIN+1e-9:pi<=0, hi=isT?parseFloat(v)>=TEMPO_MAX-1e-9:pi>=ps.length-1, sh=isT?_tShow(v):PAUSE_ST[pi][1], id=isT?'mktunet':'mktunep';
@@ -5518,7 +5529,10 @@ window.mkTuneKey=function(ev,kind){ var k=ev.key, L=kind==='t'?TUNE_T:TUNE_P, i=
    예시 글 바로 위에 «쓰는 법에 따라 말투가 달라져요» 접기 — 처음 목소리를 만든 창(enroll)에선 펼쳐 두고, 카드에서 다시 열면 접어 둔다.
    부호 넷(, . ! ?) · 줄 나누기 · 숫자 — 무엇이 달라지는지 + 짧은 예. 예시 글을 고쳐 바로 들어 보게 이끈다(만드는 것은 단추를 눌렀을 때만 · 글자 비용) */
 var TONE_TIP=[[',','짧게 숨을 고르고 이어 말해요','오늘, 이 자리에서'],['.','말을 맺고 한 박자 쉬어요','반갑습니다.'],['!','힘 있고 밝게 끝나요','박수 부탁드립니다!'],['?','끝을 올려 묻는 말투가 돼요','준비되셨나요?'],['줄','줄을 나누면 그 사이를 쉬어요 · 길이는 글 칸의 쉼 단추로',''],['숫자','한글로 적으면 또박또박 읽어요','10분 → 십 분']];
-function _tuneTip(T){ return '<details class="mk-tip"'+(T&&T.from==='enroll'?' open':'')+'><summary>쓰는 법에 따라 말투가 달라져요</summary><ul class="mk-tipl">'
+/* ★처음 만든 창에서 «쓰는 법에 따라 말투가 달라져요»를 저절로 펼쳐 두기 금지 — 2026-10-07 사용자 지시로 삭제 [TIP_NO_AUTO] (사장님 «말투 안내가 자동으로 자꾸 펼쳐진다»)
+   종전엔 다시 그릴 때마다(점 · 들어 보기 · 글 고치기) open 이 새로 붙어, 접어도 다시 펼쳐졌다. 이제 늘 접혀 시작하고 고객이 펼치거나 접은 대로 이 방문 동안 기억한다(VC.tipOpen) */
+window.mkTipTg=function(el){ VC.tipOpen=!!el.open; };
+function _tuneTip(T){ return '<details class="mk-tip"'+(VC.tipOpen?' open':'')+' ontoggle="mkTipTg(this)"><summary>쓰는 법에 따라 말투가 달라져요</summary><ul class="mk-tipl">'
   +TONE_TIP.map(function(r){ return '<li><b'+(r[0].length>1?' class="w"':'')+'>'+esc(r[0])+'</b><span>'+esc(r[1])+(r[2]?'<small>'+esc(r[2])+'</small>':'')+'</span></li>'; }).join('')
   +'</ul><p class="mk-note mk-tipn">아래 예시 글을 고친 뒤 들어 보면 바로 알 수 있어요</p></details>'; }
 function _vcTuneBody(){ var T=VC.tune, nm=_vcName(T.who), r=VC.sraw[T.who], pl=MK.audKey==='tune'&&!!MK.aud, _tw=_wfx('tune',!!T.loading,T.loadD,T.loadAt);   /* [WAIT_FILL] */
@@ -5584,7 +5598,8 @@ function _vcTake(){ var r=MK_REC, m=r&&/^vc:(groom|bride):(\d)$/.exec(r.key); if
   mkVcEnroll(); }   // [REC_DLG] 글 2 를 받으면 바로 만든다
 function _vcJoin(a,b){ return Promise.all([a.arrayBuffer(),b.arrayBuffer()]).then(function(ab){ var d=function(buf){ var v=new DataView(buf), n=(buf.byteLength-44)/2, f=new Float32Array(n); for(var i=0;i<n;i++) f[i]=v.getInt16(44+i*2,true)/32768; return {f:f,sr:v.getUint32(24,true)}; };
   var x=d(ab[0]), y=d(ab[1]), gap=Math.round(x.sr*0.4), o=new Float32Array(x.f.length+gap+y.f.length); o.set(x.f,0); o.set(y.f,x.f.length+gap); return {wav:_recWav(o,x.sr),sec:o.length/x.sr}; }); }   // 0.4초 쉼으로 이어 한 파일(WAV 16bit 모노)
-window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph==='busy') return; var w=R.who, fail=function(msg){ R.ph='read'; R.step=2; R.err=msg; render(); };
+window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph==='busy') return; _tuneUnlock(); _micDrop();   // [TUNE_PLAY_TRUE] 만든 뒤 저절로 트는 예시가 막히지 않게 · 마이크는 여기서 닫는다
+  var w=R.who, fail=function(msg){ R.ph='read'; R.step=2; R.err=msg; render(); };
   R.ph='busy'; R.err=''; R.short=false; render();
   _vcJoin(R.take[1].wav,R.take[2].wav).then(function(j){ if(j.sec<20){ R.short=true; fail('두 글을 합쳐 '+Math.round(j.sec)+'초라 목소리를 만들기엔 짧아요\n'+VC_TXT.short); return; }   /* [REC_WARN2] */   // 두 글을 합쳐 20초가 안 되면 만들기 전에 멈춘다
     var rd=new FileReader(); rd.onload=function(){ _vc('enroll',{who:w,data:String(rd.result),sec:Math.round(j.sec)}).then(function(d){
@@ -6658,7 +6673,7 @@ var L_SILENT='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAAC
    휴대폰 스피커가 깨어나는 동안 첫 소리가 잘렸다. 같은 요소를 그대로 이어 쓰니 «탭 안에서 풀린 요소만 재생» 규칙(아이폰 · 카톡)도 지킨다 */
 var _LEAD_URL=null;
 function _leadUrl(){ if(!_LEAD_URL){ try{ _LEAD_URL=URL.createObjectURL(_recWav(new Float32Array(8000),8000)); }catch(e){} } return _LEAD_URL; }
-function _playLead(a,src,rate,onEnd){ var L=_leadUrl(), go=function(){ a.onended=onEnd||null; a.src=src; _rateSet(a,rate||1); var q=a.play(); if(q&&q.catch) q.catch(function(){}); };
+function _playLead(a,src,rate,onEnd){ _asPlay();   /* [IOS_PLAY_SESSION] */ var L=_leadUrl(), go=function(){ a.onended=onEnd||null; a.src=src; _rateSet(a,rate||1); var q=a.play(); if(q&&q.catch) q.catch(function(){}); };
   if(!L){ go(); return; } a.onended=function(){ go(); }; a.src=L; try{ a.playbackRate=1; }catch(e){} var p=a.play(); if(p&&p.catch) p.catch(function(){ go(); }); }
 function _lUnlock(){
   var a=_lAud(); if(LP.unlocked) return;
