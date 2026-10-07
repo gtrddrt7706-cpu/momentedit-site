@@ -1605,14 +1605,14 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 @keyframes tipGlow{0%{background-color:rgba(184,154,117,.32)}100%{background-color:rgba(184,154,117,0)}}   /* [TIP_FLY] 링크 자리를 알려 주는 은은한 금빛 한 번 */
 .tip-glow{animation:tipGlow 1.3s ease-out 1;border-radius:4px}
 @media (prefers-reduced-motion:reduce){ .tip-glow{animation-duration:.01s;background-color:rgba(184,154,117,.2)} }
-.mk-vsi{display:grid;grid-template-columns:1fr;gap:10px;margin:2px 0 12px}   /* [VS_INFO] 두 갈래를 위아래로 — 창 폭(520)에 나란히 두면 글이 잘게 꺾였다(1280 실렌더) */
-.mk-vsi-c{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px 16px 12px}
-.mk-vsi-c h4{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--accent)}
-.mk-vsi-c dl{margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:10px;row-gap:4px}
-.mk-vsi-c dt{font-size:12.5px;color:var(--light);white-space:nowrap}
-.mk-vsi-c dd{margin:0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}
-.mk-vsi-c .mk-vgo{margin-top:10px}   /* [VS_INFO] 들어 보기는 사람 카드 «들어 보고 맞추기»와 같은 단추(UI_ONE) */
-.mk-vsi-n{margin:10px 0 0}
+.mk-vsi{margin:0 0 14px}   /* [VS_INFO] · [VS_INFO_MIN] 상자 없이 두 갈래를 가는 선 하나로 가른다 */
+.mk-vsi-c{padding:12px 0}
+.mk-vsi-c+.mk-vsi-c{border-top:1px solid var(--border)}
+.mk-vsi-c h4{margin:0 0 4px;font-size:14px;font-weight:600;color:var(--accent)}
+.mk-vsi-s{margin:0;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all;text-wrap:pretty}
+.mk-vsi-t{margin:4px 0 0;font-size:12.5px;color:var(--sub)}
+.mk-vsi-t span{color:var(--light);margin-right:4px}
+.mk-vsi-w>span,.mk-vsi-s>span{display:block;text-wrap:pretty}
 .mk-vsi-w{margin:0 0 12px}
 .mk-dlg-chk{margin:4px 0 0}
 .mk-dlg-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin:14px 0 0;border:0;border-radius:999px;background:#4E3F31;color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}   /* [UI_ONE] 주 단추 = 알약 · #4E3F31 · 14/600 · 48 */
@@ -4911,16 +4911,14 @@ window.mkVsOpen=function(){ if(!_vsOk()) return; VS.open=true; VS.ph='pick'; VS.
    이제 이 링크는 설명 창: 두 갈래를 나란히(누가 읽나 · 두 분이 할 일 · 글) + 이 순간을 그 갈래로 들어 보기 + 쓰이는 곳 한 줄. 고르기는 칩 한 곳에서만.
    ★«나레이션 자세히»로 «한 번에 정하기» 창을 다시 열지 말 것(mkVsOpen 은 안쪽 길로만 남는다) */
 window.mkVsInfo=function(mom){ if(!_vsOk()) return; VS.open=true; VS.ph='info'; VS.mom=mom||'guest'; VS.hint=''; render(); };
-function _vsInfoKey(m){ return m==='entry'?'entry':m==='prevideo'?'pv':'g0'; }
-function _vsInfoBody(){ var m=VS.mom||'guest', k=_vsInfoKey(m), u=(S.up||{})[k], aiOk=!!(u&&typeof u==='object'&&u.src==='ai'), nm={guest:'하객 맞이',prevideo:'식전 영상 소개',entry:'입장 인사'}[m];
-  var col=function(id,ttl,rows,play){ return '<section class="mk-vsi-c" aria-labelledby="mkVsi_'+id+'"><h4 id="mkVsi_'+id+'">'+ttl+'</h4><dl>'+rows.map(function(r){ return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>'; }).join('')+'</dl>'+play+'</section>'; };
-  var ln=k==='pv'?'영상 앞 소개':_mkUpLabKey(k);   /* [VS_INFO] 트는 것은 이 순간의 첫 줄 하나 — 이름도 그 줄로(하객 맞이 넷 중 «하객 입장 때») */
-  var aiPlay=aiOk?'<button type="button" class="mk-vgo" data-fk="mkvsi:ai" onclick="mkUpPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(ln)+' 들어 보기</span></button>':'<p class="mk-note mk-vsi-n">'+(_vcReadyFor(k)?'AI 두 분 목소리를 고르면 이 자리에 만들어져요':'두 분 목소리를 만들면 들어 볼 수 있어요')+'</p>';
-  var narPlay='<button type="button" class="mk-vgo" data-fk="mkvsi:nar" onclick="mkNarPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(ln)+' 들어 보기</span></button>';
+function _vsInfoBody(){
+  /* ★[VS_INFO_MIN 2026-10-07 사장님 «플레이 버튼까지는 없어도 될 거 같고 · 간략하게 미니멀하게 안내 개선»] 카드 둘 · 네 줄 표 · 들어 보기 단추 → 갈래마다 이름 · 한 문장 · «할 일» 한 줄.
+     들어 보기는 순간 쪽 줄 머리 ▶ 에 있다(UP_BTN_OFF) — 설명 창에서 또 틀지 않는다. 이 창에서 «들어 보기» 단추를 되살리지 말 것 */
+  var col=function(id,ttl,say,todo){ return '<section class="mk-vsi-c" aria-labelledby="mkVsi_'+id+'"><h4 id="mkVsi_'+id+'">'+ttl+'</h4><p class="mk-vsi-s">'+say+'</p><p class="mk-vsi-t"><span>할 일</span> '+todo+'</p></section>'; };
   return '<div class="mk-vsi">'
-    +col('ai','AI 두 분 목소리',[['누가 읽나요','두 분 목소리로 AI가 읽어요'],['두 분이 할 일','각자 1분 읽기 · 한 번이면 돼요'],['글','예시를 고르거나 두 분 말로 고쳐 써요'],['말투','실제 목소리와 조금 다를 수 있어요']],aiPlay)
-    +col('nar','스튜디오 나레이션',[['누가 읽나요','스튜디오 나레이터가 읽어요'],['두 분이 할 일','없어요'],['글','고른 멘트 그대로 읽어요']],narPlay)
-    +'</div><p class="mk-note mk-vsi-w">'+esc(_vsWhere())+'에 쓰여요 · 순간마다 따로 고를 수 있어요</p>'
+    +col('ai','AI 두 분 목소리','<span>두 분 목소리로 AI가 읽어요.</span><span>실제 목소리와 조금 다를 수 있어요.</span>','각자 1분 한 번 읽기')
+    +col('nar','스튜디오 나레이션','스튜디오 나레이터가 고른 멘트 그대로 읽어요.','없어요')
+    +'</div><p class="mk-note mk-vsi-w"><span>'+esc(_vsWhere())+'에 쓰여요.</span><span>순간마다 따로 고를 수 있어요.</span></p>'   /* [VS_INFO_MIN] 두 문장 두 줄(외톨이 «있어요» 막기 · RD_SUM_2LINE 과 같은 꼴) */
     +'<button type="button" class="mk-dlg-go" data-fk="mkvsdone" onclick="mkVsClose()">확인</button>'; }
 window.mkVsPh=function(p){ VS.ph=p==='ai'?'ai':p==='info'?'info':'pick'; render(); };
 window.mkVsPick=function(v){ VS.inPick=true; VS.hint=''; try{ VS_KEYS.forEach(function(k){ _lSet(k,v==='ai'?'ai':'nar'); }); } finally{ VS.inPick=false; } _persist();
