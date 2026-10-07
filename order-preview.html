@@ -5278,7 +5278,7 @@ function _vcPeople(page){
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}; if(p.consent&&!p.ready&&p.left!==0) try{ _vcPre(w); }catch(e){} });   // [PHRASE_EARLY] 1분 읽기가 남은 분 — 창을 열기 전에 확인 문장을 받아 둔다
   ['groom','bride'].forEach(function(w){ var p=VC.st[w]||{}, nm=_vcName(w), role=w==='groom'?'신랑':'신부', who=role+' '+(nm===role?'':nm);   // [VC_CARD_0928 8-5] 사람 카드
     var stx=/* [VC_LEFT_WORD] */p.ready?'목소리 생성'+(p.made?' · '+_vcDay(p.made):''):(p.left===0&&!p.ready)?'만들기를 다 썼어요 · 나레이션으로 나와요':'아직 만들지 않았어요';   /* ★[VPAGE_TIDY] «목소리 만들기가 남…» 상태 말 금지 — 바로 아래 [목소리 만들기] 단추와 같은 말을 두 번 · «남았어요»는 숙제처럼 읽혔다 */   // [VC_LIMIT_UI] · [VC_WORD_GEN]
-    var go=function(fn){ return page?'mkVoiceGo(\''+w+'\',\''+fn+'\')':(fn==='consent'?'mkVcConsent':'mkVcRead')+'(\''+w+'\')'; };   /* [VOICE_ONCE] */
+    var go=function(){ return (page?'mkVoiceGo':'mkVcConsent')+'(\''+w+'\')'; };   /* [VOICE_ONCE] · [CONSENT_EVERY] 시작은 늘 동의부터 — «글 1 부터» 갈래가 없다 */
     var need=p.ready&&!!(S.vsetNeed||{})[w], o=(S.vset||{})[w]||{};
     h+='<li class="mk-vr mk-vpc'+(p.ready?' ok':'')+(need?' need':'')+'"><span class="mk-vt"><span class="mk-vn"><span class="mk-vrole">'+role+'</span>'+esc(nm===role?'':nm)+'</span>'
       +'<span class="mk-vs">'+(p.ready?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stx)+'</span></span>'
@@ -5290,9 +5290,10 @@ function _vcPeople(page){
       +((p.ready||p.left!==0)?'<span class="mk-vft'+(p.ready?'':' solo')+'"><span class="mk-vbs">':'<span hidden><span>')   /* [SIM_R1] 다 쓴 분은 빈 아랫줄을 그리지 않는다 */
       +(p.ready?(_vcOn()?'<button type="button" class="mk-vgo'+(need?' pri':'')+'" data-fk="mkvctune:'+w+'" onclick="mkVcTune(\''+w+'\')">'+(need?'':ICO_PLAY)+'<span>'+(need?'빠르기 · 쉼 맞추기':'들어 보고 맞추기')+'</span></button>':'')
         :p.left===0?''   // [VC_LIMIT_UI] 다 쓴 분은 누를 단추가 없다
-        :p.consent?'<button type="button" class="mk-vgo pri" data-fk="mkvcread:'+w+'" onclick="'+go('read')+'"><span>목소리 만들기</span></button>'   /* [VB_WORD] */
-        :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'" onclick="'+go('consent')+'"><span>목소리 만들기</span></button>')+'</span>'
-      +(p.ready?'<span class="mk-vsub">'+(p.left>0?'<button type="button" class="pk-link" data-fk="mkvcre:'+w+'" onclick="mkVcRead(\''+w+'\')">다시 녹음</button><span aria-hidden="true">·</span>':'')
+        /* ★동의한 분은 «글 1»부터 여는 단추(mkvcread · 동의 걸음을 건너뜀) 금지 — 2026-10-07 사용자 지시로 삭제 [CONSENT_EVERY]
+           (사장님 «폰은 동의가 나오는데 같은 아이디로 PC만 건너뛴다 · 지금도» — 화면이 연 순간의 동의 기록으로 갈래를 골라, 먼저 열어 둔 화면과 새로 연 화면이 갈렸다) */
+        :'<button type="button" class="mk-vgo pri" data-fk="mkvcok:'+w+'" onclick="'+go()+'"><span>목소리 만들기</span></button>')+'</span>'   /* [VB_WORD] */
+      +(p.ready?'<span class="mk-vsub">'+(p.left>0?'<button type="button" class="pk-link" data-fk="mkvcre:'+w+'" onclick="mkVcConsent(\''+w+'\')">다시 녹음</button><span aria-hidden="true">·</span>':'')
         +'<button type="button" class="pk-link mk-vdel" data-fk="mkvcdel:'+w+'" aria-label="'+esc(who.trim()+' AI 목소리 '+((VC.delBusy||{})[w]?'지우는 중':'지우기'))+'"'+((VC.delBusy||{})[w]?' aria-disabled="true" aria-busy="true"':'')+' onclick="mkVcDel(\''+w+'\')">'+((VC.delBusy||{})[w]?'지우는 중…':'지우기')+'</button></span>':'')+'</span></li>';   /* [VC_CARD_A] 아랫줄 닫기 */
   });   // [REC_DLG] 동의 · 1분 읽기는 작은 창에서
   return h+'</ul>'+(VC.note?'<p class="mk-note" role="status">'+VC.note+'</p>':''); }
@@ -5443,7 +5444,7 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
   return h+'</section>'; }
 /* [VOICE_ONCE] 이 쪽에서 «목소리 만들기 시작» — 종전 동의 창으로 바로(세 순간 고르기는 건드리지 않는다 · [VP_UNPICKED_ALL]) */
 window.mkVoiceGo=function(w,fn){   /* ★«목소리 만들기 시작»이 세 순간(하객 맞이 · 식전 영상 · 입장)을 AI 로 미리 고르던 것 금지 — 2026-10-06 사용자 지시로 삭제 [VP_UNPICKED_ALL] (사장님 «다른 이벤트들도 전부 선택 안 한 상태가 처음 셋팅값으로») · 순간마다 두 분이 고른다 */
-  if(fn==='read') mkVcRead(w); else mkVcConsent(w); };
+  mkVcConsent(w); };   // [CONSENT_EVERY] 동의한 분도 동의부터(종전 fn==='read' 면 글 1 부터)
 /* [VOICE_ONCE] «나중에 할게요» — 지금은 스튜디오 나레이션으로 두고 다음 쪽(하객 맞이)으로. 나중에 이 쪽이나 «나레이션 자세히»에서 바꿀 수 있다 */
 window.mkVoiceLater=function(){   /* ★«나중에 할게요»가 세 순간을 스튜디오 나레이션으로 미리 고르던 것 금지 — 2026-10-06 사용자 지시로 삭제 [VP_UNPICKED_ALL] · 안 고른 채로 두면 순간 쪽이 «아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션»이라고 말한다 */
   var ps=_mkPages(), i=ps.indexOf('_voice'); mkGo(ps[i+1]||'guest'); };
@@ -5501,7 +5502,7 @@ window.mkTuneUse=function(){ var T=VC.tune; if(!T) return; var w=T.who, from=T.f
   render(); if(need) _vcAutoFill(w,false); _vcRebakeWho(w); };
 function _vcRebakeWho(w){ var ks=['g0','g1','g2','g3','pv','entry'].filter(function(k){ var v=(S.up||{})[k]; if(!v||typeof v!=='object'||v.src!=='ai') return false; var lw=_vcLineWho(k); return (lw===w||lw==='both')&&_vtNeed(k); }); if(ks.length) _vtBake(ks); }
 window.mkVcTune=function(w){ _tuneUnlock(); _vcTuneOpen(w,'card'); };   // [TUNE_PLAY_TRUE]
-window.mkTuneRedo=function(){ var w=VC.tune&&VC.tune.who; _stopMk(); VC.tune=null; if(w) mkVcRead(w); };
+window.mkTuneRedo=function(){ var w=VC.tune&&VC.tune.who; _stopMk(); VC.tune=null; if(w) mkVcConsent(w); };   // [CONSENT_EVERY] 다시 녹음도 동의부터
 function _tuneStep(kind){ var T=VC.tune, isT=kind==='t', v=isT?T.tempo:T.pause, lab=isT?'말 빠르기':'문장 사이 쉼', ps=PAUSE_ST.map(function(x){ return x[0]; }), pi=ps.indexOf(v),
     lo=isT?parseFloat(v)<=TEMPO_MIN+1e-9:pi<=0, hi=isT?parseFloat(v)>=TEMPO_MAX-1e-9:pi>=ps.length-1, sh=isT?_tShow(v):PAUSE_ST[pi][1], id=isT?'mktunet':'mktunep';
   return '<div class="ls-cg mk-aitools mk-tp" role="group" aria-label="'+lab+'"><span class="gl" aria-hidden="true">'+lab+'</span><span class="cg-c">'
@@ -5568,10 +5569,7 @@ function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
   /* ★[READ_DLG_TIDY 2026-10-04 사장님 «디자이너 관점으로 문단 정리»] 안내 한 문단(괄호 · 가운뎃점으로 이은 두 문장)을 두 줄로 — 할 일 한 줄 · 요령 한 줄.
      줄마다 따로 감싸(.mk-rdl span = 블록) 390 · 1280 어디서나 «할 일 / 요령»이 같은 자리에서 끊긴다 · text-wrap:balance 로 한 줄 안에서도 고르게 */
   var h='<p class="mk-note mk-rdl">'+(n===1?'<span>아래 글을 소리 내어 천천히 읽어 주세요</span><span>조용한 방에서, 휴대폰을 입에서 한 뼘 떼고 읽으면 좋아요</span>':'<span>한 글 더 남았어요</span><span>마지막 문장은 본인 확인용이라 그대로 읽어 주세요</span>')+'</p>'
-    /* ★[CONSENT_SEEN 2026-10-07 사장님 «pc버전은 동의 부분이 자동으로 건너 뛰기 되는데?»] PC 차이가 아니었다 — 동의는 서버가 사람마다 기억해서(80_production · consent)
-       한 번 동의한 분은 어느 기기에서든 «글 1»부터 연다(다시 묻지 않는다). 그런데 걸음 표시엔 «동의»가 지난 걸음으로만 칠해져 «건너뛰었다»로 읽혔다(390 · 1280 같음 · 실측).
-       → 글 2 의 «✓ 글 1 · N초»와 같은 자리 · 같은 모양으로 «✓ 동의 · 앞서 해 주셨어요» 한 줄. 이 창에서 방금 동의했으면(agreedNow) 달지 않는다(중복) */
-    +(n===1&&!R.agreedNow&&!R.limit?'<p class="mk-vs mk-dlg-prev mk-dlg-agreed"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>동의 · 앞서 해 주셨어요</p>':'')
+    /* ★«✓ 동의 · 앞서 해 주셨어요» 줄(CONSENT_SEEN · #1101) 금지 — 2026-10-07 같은 날 사용자 지시로 걷음 [CONSENT_EVERY] · 글 1 은 이제 늘 방금 동의한 뒤에만 열린다(달 일이 없다) */
     +(n===2&&R.take[1]&&!R.limit?'<p class="mk-vs mk-dlg-prev"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>글 1 · '+Math.round(R.take[1].dur)+'초 <button type="button" class="pk-link" data-fk="mkvcstep1" onclick="mkVcStep(1)">글 1 다시 읽기</button></p>':'')
     +'<p class="mk-rect">'+esc(t)+(n===2&&!R.phrase?' <span class="mk-note">'+(R.phErr?'(확인 문장을 아직 못 받았어요)':'(확인 문장을 받는 중…)')+'</span>':'')+'</p>'
     +(R.err?'<div class="mk-recws" role="alert">'+_msg2(R.err)+'</div>':'')+'<div class="mk-recp" aria-live="polite">';   /* [REC_WARN2] */
@@ -5587,7 +5585,7 @@ function _vcReadPanel(w){ var R=VC.read, nm=_vcName(w), n=R.step||1;
 window.mkVcConsent=function(w){ VC.panel={who:w}; VC.agree=false; VC.read=null; render(); };
 window.mkVcAgree=function(w){ if(!VC.agree||VC.agreeing) return; VC.agreeing=true; render();
   _vc('consent',{who:w,agree:true,v:VC_CONSENT_V}).then(function(d){ VC.agreeing=false; if(!d.ok){ MK.dlgMsg=d.error||'동의를 저장하지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); return; }
-    VC.panel=null; VC.agree=false; VC.st=Object.assign({},VC.st,{}); VC.st[w]=Object.assign({},VC.st[w],{consent:true}); mkVcRead(w,1); }); };   // [CONSENT_SEEN] 방금 동의 — 글 1 에 «앞서 해 주셨어요»를 달지 않는다
+    VC.panel=null; VC.agree=false; VC.st=Object.assign({},VC.st,{}); VC.st[w]=Object.assign({},VC.st[w],{consent:true}); mkVcRead(w); }); };
 /* ★[PHRASE_EARLY 2026-10-04 사장님 «확인 문장을 받는 중… 에서 녹음 시작이 바로 안 켜진다»] 확인 문장은 서버(GAS)가 뽑아 돌려주는데, 창을 연 뒤에야 물었다 —
    서버가 깨어나는 데 걸리는 몇 초~십수 초 동안 글 2 «녹음 시작»이 잠겨 있었다. 이제 동의한 분 카드가 그려질 때 미리 받아 둔다(분마다 한 번 · VC.pre).
    창을 열 때 받아 둔 문장이 있으면 그대로 쓴다(서버도 같은 문장을 들고 있다 · 만들고 나면 서버가 비운다) */
@@ -5599,7 +5597,7 @@ function _vcPre(w){ VC.pre=VC.pre||{}; if(VC.pre[w]) return VC.pre[w]; VC.pre[w]
 function _vcPhraseGet(w){ var R=VC.read; if(!R||R.who!==w||R.phrase) return; R.phErr=false; R.phBusy=true; MK.dlgMsg=''; render();
   _vcPre(w).then(function(d){ if(VC.read!==R) return; R.phBusy=false; if(d.ok&&d.phrase){ R.phrase=d.phrase; R.phErr=false; } else R.phErr=true; render(); }); }
 window.mkVcPhrase=function(w){ _vcPhraseGet(w); };
-window.mkVcRead=function(w,now){ VC.read={who:w,take:{},phrase:'',step:1,ph:'read',err:'',agreedNow:!!now}; VC.panel=null; render(); _vcPhraseGet(w); };   /* [CONSENT_SEEN] now = 이 창에서 방금 동의했다(mkVcAgree) · 아니면 글 1 에 «동의 · 앞서 해 주셨어요» */   /* [PHRASE_NO_DEAD] 못 받으면 창 위 빨간 글(MK.dlgMsg) 대신 글 2 자리에서 «다시 받기» */
+window.mkVcRead=function(w){ VC.read={who:w,take:{},phrase:'',step:1,ph:'read',err:''}; VC.panel=null; render(); _vcPhraseGet(w); };   /* [PHRASE_NO_DEAD] 못 받으면 창 위 빨간 글(MK.dlgMsg) 대신 글 2 자리에서 «다시 받기» · [CONSENT_EVERY] 부르는 곳은 동의 저장 뒤(mkVcAgree) 하나 */
 window.mkVcStep=function(n){ var R=VC.read; if(!R) return; if(MK_REC){ _recStopAll(); if(MK_REC.url) try{ URL.revokeObjectURL(MK_REC.url); }catch(e){} MK_REC=null; } R.step=n; R.err=''; R.short=false; MK.dlgMsg=''; render(); if(n===2&&!R.phrase&&!R.phBusy) _vcPhraseGet(R.who); };   // [PHRASE_NO_DEAD]
 function _vcTake(){ var r=MK_REC, m=r&&/^vc:(groom|bride):(\d)$/.exec(r.key); if(!m||!VC.read) return; var n=+m[2], R=VC.read; R.take[n]={wav:r.wav,dur:r.dur}; if(r.url) try{ URL.revokeObjectURL(r.url); }catch(e){} MK_REC=null; R.err=''; R.short=false;
   if(n===1&&!R.phrase&&!R.phBusy) _vcPhraseGet(R.who);   // [PHRASE_NO_DEAD] 글 2 로 가기 전에 — 아직 없으면 다시 묻는다
@@ -5618,10 +5616,10 @@ window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph
       if(VC.pre) delete VC.pre[w]; delete VC.sraw[w];   /* ★[SIM_R1 2026-10-04 시뮬레이션] 새 목소리 — 옛 목소리 예시를 들려주던 것 */ R.ph='tune'; R.renewed=!!d.renewed; S.vsetNeed=S.vsetNeed||{}; S.vsetNeed[w]=1; _persist(); VC.st=null; render(); _vcStatus(function(){ _vcTuneOpen(w,'enroll'); });   /* [VOICE_TUNE] 만든 직후 = 예시 듣고 맞추기(필수) · 줄 채우기는 «이 목소리로 쓰기» 뒤 */ },function(){ fail('만들지 못했어요 · 잠시 뒤 [다시 만들기]를 눌러 주세요'); }); }; rd.readAsDataURL(j.wav); })
     .catch(function(){ fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요'); }); };
 window.mkVcDel=function(w){ if((VC.delBusy||{})[w]) return; var used=Object.keys(S.up||{}).filter(function(k){ var v=S.up[k]; return v&&v.src==='ai'&&(!v.by||v.by===w||(Array.isArray(v.by)&&v.by.indexOf(w)>-1)); });
-  ordAsk({title:_vcName(w)+' 님 AI 목소리를 지울까요?',body:used.length?'AI로 만든 줄 '+used.length+'줄은 나레이션으로 바뀌어요':'',yes:'지우기',no:'두기',danger:true,focusAfter:'[data-fk="mkvcok:'+w+'"],[data-fk="mkvcread:'+w+'"]'}).then(function(ok){ if(!ok) return;   // [REC_DLG] · [QA_ASK_GONE] 지운 뒤엔 그 분의 «목소리 만들기»로 브라우저 confirm 대신 우리 판
+  ordAsk({title:_vcName(w)+' 님 AI 목소리를 지울까요?',body:used.length?'AI로 만든 줄 '+used.length+'줄은 나레이션으로 바뀌어요':'',yes:'지우기',no:'두기',danger:true,focusAfter:'[data-fk="mkvcok:'+w+'"]'}).then(function(ok){ if(!ok) return;   // [REC_DLG] · [QA_ASK_GONE] 지운 뒤엔 그 분의 «목소리 만들기»로 브라우저 confirm 대신 우리 판
   used.forEach(function(k){ _mkUpDrop(k); }); Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); delete VC.sraw[w]; _persist();   /* [SIM_R1] 지운 목소리 예시도 */   // [VC_BOTH_CHECK] 지운 목소리 소리는 들고 있지 않는다
   VC.delBusy=VC.delBusy||{}; VC.delBusy[w]=1; _fxNext='[data-fk="mkvcdel:'+w+'"]'; render();   /* ★[QA_DEL_BUSY 2026-10-04 점검] 서버 답을 기다리는 동안 «지우는 중…» · 두 번 못 누른다 */
-  _vc('delete',{who:w}).then(function(d){ delete VC.delBusy[w]; VC.st=null; _vcStatus(); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); _fxNext=d.ok?'[data-fk="mkvcok:'+w+'"],[data-fk="mkvcread:'+w+'"],#mkHead':'[data-fk="mkvcdel:'+w+'"]'; render(); }); }); };   /* [QA_ASK_GONE] 답이 늦어도 — 다시 그린 뒤 그 분의 «목소리 만들기»로 */
+  _vc('delete',{who:w}).then(function(d){ delete VC.delBusy[w]; VC.st=null; _vcStatus(); MK.toast=d.ok?'지웠어요':(d.error||'지우지 못했어요'); _fxNext=d.ok?'[data-fk="mkvcok:'+w+'"],#mkHead':'[data-fk="mkvcdel:'+w+'"]'; render(); }); }); };   /* [QA_ASK_GONE] 답이 늦어도 — 다시 그린 뒤 그 분의 «목소리 만들기»로 */
 /* 8-2 4) 그 사람이 읽는 줄 가운데 «비어 있는» 줄만 AI 로 — 녹음 · 올린 파일 줄은 그대로. 다시 만들었으면(renewed) 그 사람의 AI 줄을 새 목소리로 다시 */
 function _vcLineWho(key){ if(_slKeyOk(key)&&(key==='entry'||(S.vlines||{})[_slVk(key)])){ var L=_slLines(key); if(L.length&&!_slMixed(key)) return L[0][0]==='신부'?'bride':'groom'; if(L.length) return 'both'; }   /* [LINE_SPLIT] 한 분만 읽으면 그 분 · 나눠 읽으면 두 분 */ if(/^g\d$/.test(key)) return RitualOpen.guestReader(S,+key.slice(1))==='g'?'groom':'bride'; if(key==='pv') return S.pvWho==='b'?'bride':'groom'; return 'both'; }   // [PV_INTRO] 소개글은 한 분이 읽는다(기본 신랑)
 function _vcAutoFill(w,renew){ Object.keys(VC_ALT).forEach(function(k){ if(VC_ALT[k]) delete VC_ALT[k][w]; }); VC_MIX={}; VC_MIXP={};   /* [EX_RACE] 나눠 읽는 줄 기억도 — 한 분 목소리가 바뀌었다 */   /* [VC_BOTH_CHECK] 이 분 목소리가 새로 생겼다 — 들고 있던 옛 목소리 소리는 버린다 */ var ks=[]; if(S.guestVoice==='couple') ks=ks.concat(['g0','g1','g2','g3']); if(S.entryVoice==='couple') ks.push('entry'); if(S.pvVoice==='couple'&&_recNeed('pv')) ks.push('pv');   /* [PV_INTRO] 소개글을 적어 둔 때만 */
