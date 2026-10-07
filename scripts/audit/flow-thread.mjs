@@ -50,7 +50,7 @@ try {
       const cont = R.every((r, i) => i === 0 || Math.abs(r.top - R[i - 1].bottom) <= 0.5);
       const first = R[0], last = R[R.length - 1];
       ok(`${w} ${k} ③ 흐름선 — 줄 사이 틈 0 · 선 1px · 첫 마디에서 시작 · 마지막 마디에서 멈춤`, d.gap === '0px' && cont && R.length > 1 && R.every((r) => r.bfW === '1px')
-        && first.bfTop === (first.c === 'n' ? '19px' : '13px') && last.bfH === (last.c === 'n' ? '19px' : '13px'), JSON.stringify({ gap: d.gap, cont, f: [first.c, first.bfTop], l: [last.c, last.bfH] }));
+        && first.bfTop === (first.c === 'n' ? '15px' : '13px') && last.bfH === (last.c === 'n' ? '15px' : '13px')   /* [PLAY_OPTIC 2026-10-07] ▶ 원 가운데 19 → 15(글자 잉크 가운데) */, JSON.stringify({ gap: d.gap, cont, f: [first.c, first.bfTop], l: [last.c, last.bfH] }));
       R.filter((r) => r.c === 'q').forEach((r) => ok(`${w} ${k} ④ 행동 줄 먹빛 16px · ● 진사 [FLOW_DOT_SEAL] «${r.qa.slice(0, 14)}»`, r.color === 'rgb(58, 45, 34)' && r.fs === '16px' && r.afBg === 'rgb(107, 42, 36)', [r.color, r.fs, r.afBg].join(' ')));
       R.filter((r) => r.c === 't').forEach((r) => ok(`${w} ${k} ④ 차례 줄 ○ 속이 빈 테`, r.afBd === 'rgb(122, 95, 55)' && r.afBg === 'rgb(250, 250, 248)', [r.afBd, r.afBg].join(' ')));
       if (k === 'candle') ok(`${w} ${k} ⑤ «말 없이» = 작은 표 · 행동 글에는 없다`, R.some((r) => r.c === 'q' && r.qt.replace(/\s|·/g, '') === '말없이' && !/말 없이/.test(r.qa)), JSON.stringify(R.filter((r) => r.c === 'q').map((r) => [r.qa, r.qt])));
