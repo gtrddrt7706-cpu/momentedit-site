@@ -453,6 +453,9 @@
     vow: { slug: 'narr-vow-in', cut: 2 }, ring: { slug: 'narr-ring-in', cut: 2 },
     declare: { slug: 'declare-1-solemn', cut: 2 }, tribute: { slug: 'tribute-in', cut: 2 },
     free: { slug: 'narr-free-in-video' }, letter: { slug: 'letter-each' },
+    /* ★[SAMPLE_CAKE 2026-10-07 사장님 «부분만 선택할 때 이것만 음성이 없었어»] 케이크 커팅 대표 줄 = 42 toast-both(«케이크가 준비되어 있습니다…» · 이미 녹음 · 새 녹음 0).
+       [CAKE_TOAST_SPLIT](09-27)로 케이크가 따로 순간이 될 때 이 표에 줄을 안 걸어, ① 창이 «처음부터»만 띄우고 소리가 없었다. slug 이름이 toast 인 것은 옛 «케이크와 축배» 시절 이름 그대로라서다(엔진 줄은 k=cake) */
+    cake: { slug: 'toast-both' },
     /* ★[SAMPLE_TOAST_LIVE 2026-10-03] 축배 대표 줄 = 지금 예식에서 나는 76 toast-both-b(글자 그대로 · 화면은 따옴표).
        종전 107 toast-both-pour-b 는 [WINE_POUR_OFF](09-27)가 sampleS 를 «붓지 않음»으로 바꾼 뒤 미리 보기 엔진에 없는 줄이 되어
        ① 창 축배가 글 · 소리 · 영상 셋 다 비어 있었다(되살리지 말 것). */
