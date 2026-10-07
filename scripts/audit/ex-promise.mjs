@@ -6,7 +6,7 @@
 //   T3 정말 글을 고친 줄은 그대로 «글을 고쳤어요 · 목소리 만들기»(참 양성 보존) · 뒤에서 만들지 않는다
 //   T4 뒤 만들기가 실패하면 «목소리 만들기 · 예시를 바꿨어요»(«글을 고쳤어요» 아님)
 //   T5 배포로 예시 글이 바뀐 고객(소리는 옛 글) → 쪽에 들어오자마자 «준비 중» → 누르지 않아도 «확정하기»
-//   T6 식전 영상 소개 예시(mkPvEx)도 같은 길
+//   T6 식전 영상 소개 예시(mkPvEx)도 같은 길 · T7 입장 인사 멘트 칩(mkEntryEx · 섞은 소리)도 같은 길
 //   EXP_ROOT=<다른 폴더> 로 돌리면 그 판을 잰다(돌연변이 검사용). 종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -27,8 +27,8 @@ async function open(o) {
   await pg.evaluate((o) => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' };
     RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { ok: true, groom: { ready: true }, bride: { ready: true } };
     window.__mk = []; window.__t0 = Date.now(); const failRe = o.fail ? new RegExp(o.fail) : null;
-    window._vc = (op, a) => { if (op === 'make') { window.__mk.push({ t: Date.now() - window.__t0, bg: !!a.bg, key: a.key, who: a.one || '', tx: String(a.text).slice(0, 12) }); const who = a.one || 'groom';
-        return new Promise((res, rej) => setTimeout(() => (failRe && failRe.test(String(a.text)) ? rej(new Error('fail')) : res({ ok: true, parts: [{ who }], left: 5 })), o.makeMs || 400)); }
+    window._vc = (op, a) => { if (op === 'make') { window.__mk.push({ t: Date.now() - window.__t0, bg: !!a.bg, key: a.key, who: a.one || '', tx: String(a.text).slice(0, 12) }); const who = a.one || 'groom', parts = a.lines ? [...new Set(a.lines.map((l) => l[0]))].map((x) => ({ who: x })) : [{ who }];   /* 입장 인사는 줄마다 읽는 분 — 서버가 분마다 한 조각씩 돌려준다(ex-race 와 같은 모의) */
+        return new Promise((res, rej) => setTimeout(() => (failRe && failRe.test(String(a.text)) ? rej(new Error('fail')) : res({ ok: true, parts, left: 5 })), o.makeMs || 400)); }
       if (op === 'status') return Promise.resolve({ ok: true, groom: { ready: true }, bride: { ready: true } }); return Promise.resolve({ ok: true }); };
     window._vcProc = (d, t) => Promise.resolve({ wav: new Blob(['w:' + t], { type: 'audio/wav' }) });
     for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); break; } }, o);
@@ -79,6 +79,13 @@ try {
     const b = await pg.evaluate(() => ({ mode: _aiMode('pv'), fresh: S.up.pv.tx === _txSig(_recNeed('pv')), st: document.getElementById('stage').innerText, fg: window.__mk.filter((m) => !m.bg).length }));
     ok('T6 식전 영상 소개 예시도 — «준비 중» → «확정하기» · «글을 고쳤어요» 0', a.mode === 'prep' && !/글을 고쳤어요/.test(a.st) && b.mode === 'keep' && b.fresh && !/글을 고쳤어요/.test(b.st) && b.fg === 0, JSON.stringify({ a: a.mode, b: { mode: b.mode, fresh: b.fresh, fg: b.fg } }));
     ok('T6 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
+  /* T7 입장 인사(두 분이 나눠 읽는 줄 · 섞은 소리) */
+  { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.up = S.up || {}; S.up.entry = { src: 'ai', by: _vcLineWho('entry'), name: 'x', tx: _txSig(_recNeed('entry')), tempo: _tKey('entry'), pause: _pKey('entry'), wq: _slWhoSig('entry') }; mkGo('entry'); }); await wait(150);
+    await pg.evaluate(() => mkEntryEx(2)); await wait(120);
+    const a = await pg.evaluate(() => ({ mode: _aiMode('entry'), st: document.getElementById('stage').innerText })); await wait(1500);
+    const b = await pg.evaluate(() => ({ mode: _aiMode('entry'), fresh: S.up.entry.tx === _txSig(_recNeed('entry')), st: document.getElementById('stage').innerText, fg: window.__mk.filter((m) => !m.bg).length, mix: window.__mk.filter((m) => m.key === 'entry').length }));
+    ok('T7 입장 인사 멘트 칩도 — «준비 중» → «확정하기» · «멘트를 바꿨어요 · 목소리 만들기» 없음', a.mode === 'prep' && !/멘트를 바꿨어요|글을 고쳤어요/.test(a.st) && b.mode === 'keep' && b.fresh && !/멘트를 바꿨어요|글을 고쳤어요/.test(b.st) && b.fg === 0 && b.mix >= 1, JSON.stringify({ a: a.mode, b: { mode: b.mode, fresh: b.fresh, fg: b.fg, mix: b.mix } }));
+    ok('T7 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
 finally { await br.close(); srv.close(); }
 console.log(fail ? `\nEX PROMISE FAIL ${fail}` : '\nEX PROMISE OK'); process.exit(fail ? 1 : 0);

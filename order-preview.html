@@ -4741,16 +4741,20 @@ function _exQuiet(key){ var c=_exCached(key);
    ②쪽에 들어올 때(_vcWarmBoth) «예시 글인데 소리는 옛 글»인 줄도 같은 길로 먼저 채운다(_exFirstStale) — 배포로 예시 글이 바뀐 고객이 아무것도 안 눌러도 «확정하기»로 돌아온다.
    ③_exWarm 차례는 고른 예시의 네 줄부터(EX_WARM_ORDER). ★검사 scripts/audit/ex-promise.mjs 가 실제 시간 흐름(데우기 차례 그대로)으로 약속을 잰다 — 이 함수를 비우면 빨강 */
 var VC_ALTF={}, VC_ALTFQ=[], VC_ALTF_N=0, VC_ALTF_MAX=3;
-function _exPrep(key){ var f=VC_ALTF[key]; if(!f||!_txStale(key)) return false; var a=_vcArgs(key,{}); return f.sig===_vcAltSig(a.t,a.tempo,a.pause); }
-function _exFirst(key){ try{ if(!_vcOn()||!/^(g\d|pv)$/.test(key)||!_vcReadyFor(key)||(S.vself||{})[key]||MK_UP[key]) return false; if(_slKeyOk(key)&&_slMixed(key)) return false;
-  var a=_vcArgs(key,{}), who=_vcLineWho(key), t=a.t; if(!t||who==='both'||!VC.st||!(VC.st[who]||{}).ready) return false; var sig=_vcAltSig(t,a.tempo,a.pause);
-  if(_vcAltGet(key,who,sig)) return _exQuiet(key);
-  if(VC_ALTF[key]&&VC_ALTF[key].sig===sig) return true;
-  var job={key:key,who:who,t:t,tempo:a.tempo,pause:a.pause,sig:sig}; VC_ALTF[key]=job; VC_ALTFQ.push(job); _exFirstNext(); return true; }catch(e){ return false; } }
+function _exSig(key){ if(_slKeyOk(key)&&_slMixed(key)){ var sn=_vcSnap(key,{}); return {mix:1,sn:sn,sig:_vcMixSig(sn)}; } var a=_vcArgs(key,{}); return {mix:0,a:a,who:_vcLineWho(key),sig:_vcAltSig(a.t,a.tempo,a.pause)}; }   /* [EX_FIRST] 입장 인사처럼 두 분이 나눠 읽는 줄은 섞은 소리 열쇠(VC_MIX) · 나머지는 한 분 열쇠(VC_ALT) — _exCached 와 같은 열쇠 */
+function _exPrep(key){ var f=VC_ALTF[key]; if(!f||!_txStale(key)) return false; try{ return f.sig===_exSig(key).sig; }catch(e){ return false; } }
+function _exFirst(key){ try{ if(!_vcOn()||!/^(g\d|pv|entry)$/.test(key)||!_vcReadyFor(key)||(S.vself||{})[key]||MK_UP[key]) return false;
+  var x=_exSig(key);
+  if(x.mix){ if(!x.sn||!x.sn.t||!x.sn.lines||!x.sn.lines.length||!x.sn.lines.every(function(l){ return (VC.st[l[0]]||{}).ready; })) return false; if(_vcMixGet(key,x.sig)) return _exQuiet(key); }
+  else { if(!x.a.t||x.who==='both'||!VC.st||!(VC.st[x.who]||{}).ready) return false; if(_vcAltGet(key,x.who,x.sig)) return _exQuiet(key); }
+  if(VC_ALTF[key]&&VC_ALTF[key].sig===x.sig) return true;
+  var job=x.mix?{key:key,mix:1,sn:x.sn,sig:x.sig}:{key:key,who:x.who,t:x.a.t,tempo:x.a.tempo,pause:x.a.pause,sig:x.sig}; VC_ALTF[key]=job; VC_ALTFQ.push(job); _exFirstNext(); return true; }catch(e){ return false; } }
 function _exFirstNext(){ while(VC_ALTF_N<VC_ALTF_MAX&&VC_ALTFQ.length){ var j=VC_ALTFQ.shift(); if(VC_ALTF[j.key]!==j) continue;   // 그 사이 다른 글로 옮겼으면 묻지 않는다
-    VC_ALTF_N++; (function(j){ _vc('make',{key:j.key,text:j.t,tempo:j.tempo,pause:j.pause,one:j.who,retempo:true,bg:1}).then(function(d){ if(!d||!d.ok||!d.parts||!d.parts.length) return; return _vcProc(d,j.t,j.pause).then(function(p){ _vcAltPut(j.key,j.who,j.sig,p.wav); }); }).catch(function(){})
-      .then(function(){ VC_ALTF_N--; var hit=!!_vcAltGet(j.key,j.who,j.sig); if(VC_ALTF[j.key]===j) delete VC_ALTF[j.key]; if(hit) _exLate(j.key); _exFirstNext(); render(); }); })(j); } }
-function _exFirstStale(){ try{ var any=false; ['g0','g1','g2','g3','pv'].forEach(function(k){ var u=(S.up||{})[k]; if(!u||typeof u!=='object'||u.src!=='ai'||!_exIs(k)||!_txStale(k)||!_vcReadyFor(k)) return; if(_exFirst(k)) any=true; }); if(any) render(); }catch(e){} }
+    VC_ALTF_N++; (function(j){ var req=j.mix
+      ?_vc('make',{key:j.key,text:j.sn.t,tempo:j.sn.tempo,pause:j.sn.pause,one:'',lines:j.sn.lines,retempo:true,bg:1}).then(function(d){ if(!d||!d.ok||!d.parts||!d.parts.length) return; return _vcProc(d,j.sn.t,j.sn.pause,{turns:j.sn.turns,texts:j.sn.lines.map(function(l){ return l[1]; })}).then(function(p){ var by=d.parts.map(function(pt){ return pt.who; }).filter(function(x,i,a){ return a.indexOf(x)===i; }); if(by.length===1) _vcAltPut(j.key,by[0],_vcAltSig(j.sn.t,j.sn.tempo,j.sn.pause),p.wav); else _vcMixPut(j.key,j.sig,{wav:p.wav,by:by}); }); })   /* _exWarmEntry 와 같은 저장 */
+      :_vc('make',{key:j.key,text:j.t,tempo:j.tempo,pause:j.pause,one:j.who,retempo:true,bg:1}).then(function(d){ if(!d||!d.ok||!d.parts||!d.parts.length) return; return _vcProc(d,j.t,j.pause).then(function(p){ _vcAltPut(j.key,j.who,j.sig,p.wav); }); });
+      req.catch(function(){}).then(function(){ VC_ALTF_N--; var hit=false; try{ hit=!!_exCached(j.key); }catch(e){} if(VC_ALTF[j.key]===j) delete VC_ALTF[j.key]; if(hit) _exLate(j.key); _exFirstNext(); render(); }); })(j); } }
+function _exFirstStale(){ try{ var any=false; ['g0','g1','g2','g3','pv','entry'].forEach(function(k){ var u=(S.up||{})[k]; if(!u||typeof u!=='object'||u.src!=='ai'||!_exIs(k)||!_txStale(k)||!_vcReadyFor(k)) return; if(_exFirst(k)) any=true; }); if(any) render(); }catch(e){} }
 function _exLate(key){ try{ if(!_vcOn()||MK_UP[key]||(S.vself||{})[key]||!_exIs(key)) return; var u=(S.up||{})[key]; if(!u||typeof u!=='object'||u.src!=='ai'||!_aiNeed(key)||!_exCached(key)) return; _exQuiet(key); }catch(e){} }
 function _exAudio(keys){ if(!_vcOn()) return; var any=false; keys.forEach(function(k){ var u=(S.up||{})[k]; if(!u||typeof u!=='object'||u.src!=='ai'||(S.vself||{})[k]||!_vcReadyFor(k)||!_recNeed(k)) return; if(u.tx===_txSig(_recNeed(k))) return; if(_exQuiet(k)) any=true; }); if(any) render(); }   /* [EX_FIRST] «준비 중»이 바로 보이게 */   // [EX_NO_AUTO] 종전 _vcSwap(만들기까지)
 /* 하객 맞이 · 식전 영상 소개의 예시 글을 그 줄 읽는 분 목소리로 뒤에서 미리 만든다(한 번 만든 것은 서버가 들고 있어 돈이 다시 들지 않는다 · ALT_READY) */
@@ -4780,7 +4784,7 @@ function _exNOf(key){ var t=_exNorm(_recNeed(key)); if(!t) return -1;
   if(key==='pv'){ for(var m=0;m<PV_EX.length;m++){ if(t===_exNorm(PV_EX[m][1])) return m; } } return -1; }
 function _exIs(key){ return _exNOf(key)>=0; }
 var ENTRY_KEYS=['A','B','C','D','E','F'];   /* ★[EX_SAME_COUNT 2026-10-07 사장님 «AI 두 분 목소리랑 스튜디오 나레이션 아래 버튼 4개로만 제한했었는데 버튼 스타일이 달라졌으니 동일하게»] 카드(두 줄 상자)일 때는 한 줄에 넷이 한계였다 — 칩 줄이 되어 스튜디오 «입장 멘트»와 같은 여섯 · 같은 차례 · 같은 이름(EX_ROW) */   /* ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 · 1줄로 · 베스트로»] AI 판 입장 인사 참고 예시 = 결이 겹치지 않는 넷(서사 · 짧고 강하게 · 감성 · 감사·가족). 격식과 따뜻함(C)은 서사 · 감사와, 이야기의 시작(F)은 서사와 겹친다 — 나레이션 판 여섯 멘트(녹음)는 그대로 · 고른 판이 C · F 면 카드는 아무것도 안 켜진다 */
-window.mkEntryEx=function(n){ var v=ENTRY_KEYS[n]; if(!v||!ENTRY[v]) return; var go=function(){ if(S.vlines) delete S.vlines[_slVk('entry')]; if(S.vkeep) delete S.vkeep.entry; _lSet('entry',v); buildSteps(); _fxNext='[data-fk="mkex:entry:'+n+'"]'; _persist(); render(); _exAudio(['entry']); };   /* [EX_PREBAKE] 입장은 두 분이 나눠 읽어 미리 만들 수 없다 — 누르면 바로 새로 만든다(목소리 만들기를 다시 누르지 않아도) */
+window.mkEntryEx=function(n){ var v=ENTRY_KEYS[n]; if(!v||!ENTRY[v]) return; var go=function(){ if(S.vlines) delete S.vlines[_slVk('entry')]; if(S.vkeep) delete S.vkeep.entry; _lSet('entry',v); buildSteps(); _fxNext='[data-fk="mkex:entry:'+n+'"]'; _persist(); render(); _exAudio(['entry']); };   /* [EX_PREBAKE_ENTRY] 멘트마다 섞은 소리를 미리 만든다 · 없으면 [EX_FIRST] 가 맨 앞에서 따로(«준비 중» → «확정하기») */
   /* 고쳐 둔 줄이 있으면 예시를 눌러도 글이 안 바뀌었다(고친 줄이 이긴다) — 식전 영상 소개처럼 묻고 바꾼다 */
   if(S.vlines&&S.vlines[_slVk('entry')]&&!_exIs('entry')){ ordAsk({title:'예시로 바꿀까요?',body:'지금 적어 둔 입장 인사는 지워져요',yes:'예시로 바꾸기',no:'그대로 두기'}).then(function(ok){ if(ok) go(); }); return; } go(); };
 function _pvEditor(){ var t=String(S.pvText||''), cur=PV_EX.findIndex(function(x){ return x[1]===t.trim(); });   /* [R2-12] 예시 칩은 .ex-chips(간격 6px · 줄바꿈)와 같은 규칙 · [R2-03] 줄 카드 안(머리 아래)에서 그린다 */
@@ -5515,7 +5519,7 @@ function _vcAutoFill(w,renew){ Object.keys(VC_ALT).forEach(function(k){ if(VC_AL
 function _exWarmEntry(){ if(!_vcOn()||!VC.st||S.entryVoice!=='couple'||(S.vself||{}).entry||_vpCur('entry')!=='ai') return;
   var e0=S.entry; ENTRY_KEYS.forEach(function(v){ if(!ENTRY[v]) return; var sn; try{ S.entry=v; sn=_vcSnap('entry',{}); } catch(e){ sn=null; } finally{ S.entry=e0; }
     if(!sn||!sn.t||!sn.lines||!sn.lines.length) return; if(!sn.lines.every(function(l){ return (VC.st[l[0]]||{}).ready; })) return;
-    var sig=_vcMixSig(sn); if(_vcMixGet('entry',sig)||VC_MIXP[sig]) return; VC_MIXP[sig]=1;
+    var sig=_vcMixSig(sn); if(_vcMixGet('entry',sig)||VC_MIXP[sig]||(VC_ALTF.entry&&VC_ALTF.entry.sig===sig)) return; VC_MIXP[sig]=1;   /* [EX_FIRST] 맨 앞에서 따로 만드는 중이면 차례엔 안 세운다 */
     VC_ALTQ=VC_ALTQ.then(_vcAltIdle).then(function(){ if(_vcMixGet('entry',sig)) return;
       return _vc('make',{key:'entry',text:sn.t,tempo:sn.tempo,pause:sn.pause,one:'',lines:sn.lines,retempo:true,bg:1}).then(function(d){ if(!d||!d.ok||!d.parts||!d.parts.length) return;
         return _vcProc(d,sn.t,sn.pause,{turns:sn.turns,texts:sn.lines.map(function(l){ return l[1]; })}).then(function(p){ var by=d.parts.map(function(pt){ return pt.who; }).filter(function(x,i,a){ return a.indexOf(x)===i; }); if(by.length===1) _vcAltPut('entry',by[0],_vcAltSig(sn.t,sn.tempo,sn.pause),p.wav); else _vcMixPut('entry',sig,{wav:p.wav,by:by}); _exLate('entry'); });   /* [EX_NO_AUTO] */ }).catch(function(){}); })

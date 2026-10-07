@@ -14591,7 +14591,7 @@ chk 'EX_NO_AUTO' scripts/audit/ex-race.mjs 3
 #   원인: 미리 만든 소리는 탭 기억뿐 · 데우기는 한 줄 차례(26건)라 «다정하게» 네 줄이 1 · 4 · 18 · 21번째 · 그 사이 누르면 캐시 미스로 아무것도 안 함 · 문구는 지문만 보고 «글을 고쳤어요»
 #   고침: 캐시 미스면 맨 앞에서 따로 만든다(«준비 중» → «확정하기») · 지금 글이 예시면 «예시를 바꿨어요» · 옮겨 둔 옛 예시 글도 예시(칩 켜짐 · 묻지 않음) · 데우기는 고른 예시부터
 #   ★ex-promise.mjs 가 실제 데우기 차례 그대로 약속을 잰다(T1~T6) — _exFirst 를 비우면 빨강(돌연변이 확인 2026-10-07)
-chk 'EX_FIRST' order-preview.html 12
+chk 'EX_FIRST' order-preview.html 14
 chk 'function _exFirst(key)' order-preview.html 1
 chk 'function _exFirstStale()' order-preview.html 1
 chk 'function _exPrep(key)' order-preview.html 1
