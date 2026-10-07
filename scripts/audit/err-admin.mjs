@@ -105,6 +105,7 @@ if (vmOk) {
 }
 
 /* ══════════ ② 실브라우저 ══════════ */
+ok('⓪ [ADM_LOST_X8] 관리자 로그인 풀림 기본 글에도 (코드 X8) — 로그인 풀림은 어디서나 8', /_nb\(msg \|\| '세션이 만료되었어요 · 다시 로그인해 주세요 \(코드 X8\)'\)/.test(ADM));
 if (!pw) { console.log('못 쟀다 — playwright 없음'); console.log(fail ? `\nFAIL ${fail}건` : '\n⓪ ① 통과 · ② ③ 못 잼'); process.exit(fail ? 1 : 2); }
 const T = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.mp3': 'audio/mpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.woff2': 'font/woff2', '.ico': 'image/x-icon' };
 const FAKE404 = new Set();

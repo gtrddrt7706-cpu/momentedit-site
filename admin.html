@@ -2003,7 +2003,7 @@ function _admKeepNote(){ var el=$('lgKeep'); if(!el) return; var t='';
   el.textContent=t; el.style.display=t?'block':'none'; }
 function showLogin(){ setTopbar(false); show('login'); _admKeepNote(); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 // [ADM_AA7] 세션이 끊기면 폴링 타이머도 정지(로그인 화면에서 무한 호출 방지)
-function authFail(msg){ _pollStop(); TOKEN=''; _ls('del','me_admin_token'); _admCloseAll(); showLogin(); var le=$('lgErr'); if(le) le.textContent = _nb(msg || '세션이 만료되었어요. 다시 로그인해 주세요.'); }
+function authFail(msg){ _pollStop(); TOKEN=''; _ls('del','me_admin_token'); _admCloseAll(); showLogin(); var le=$('lgErr'); if(le) le.textContent = _nb(msg || '세션이 만료되었어요 · 다시 로그인해 주세요 (코드 X8)'); }   // [ADM_LOST_X8 2026-10-08 점검 R3] 로그인 풀림은 어디서나 8(ERR_ONE_MEANING) — 고객 화면(L8 · S8)과 같은 꼴
 /* [ADM_WHY] 로그인 화면으로 갈 때 위에 떠 있던 판(확인판 · 알림판 · AI 직원실)을 거둔다 — 안 거두면 로그인 화면 위에 낡은 판이 남는다 */
 function _admCloseAll(){ try{ var m=$('confirmModal'); if(m&&m.classList.contains('show')) closeModal(); }catch(e){} try{ _admDlgEnd(false); }catch(e){}
   ['ad_aiTeam','ad_aiCost','ad_aiTest'].forEach(function(id){ var x=document.getElementById(id); if(x&&x.parentNode) x.parentNode.removeChild(x); }); }
