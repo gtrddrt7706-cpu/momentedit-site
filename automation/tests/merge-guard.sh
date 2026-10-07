@@ -12680,7 +12680,9 @@ chk 'VC_CALM' order-preview.html 4   # ★[VC_CALM 2026-10-04 사장님 «'지�
 chk 'PLAY_ONE_LOOK' order-preview.html 3   # ★[PLAY_ONE_LOOK 2026-10-04 사장님 «왼쪽 플레이 단추 · 모양도 안 바뀜 · 일괄 통일»] 줄 ▶ 한 모양 · 나레이션 줄도 ▶/■
 chk 'VS_ONE_LINE' order-preview.html 1   # 두 분 목소리 설명 한 줄(미니멀) · 두 곳 같은 글
 chk 'UI_ONE' order-preview.html 15   # ★[UI_ONE 2026-10-04 사장님 «설정 따라 어쩔 수 없는 것 말고는 연속성 있게 같은 인터페이스»] 주 단추 알약 · 고른 것 한 모양 · 이 순간 들어 보기 ▶/■ · 플레이어 같은 묶음 · 쪽 제목 22/600 · 나레이션 줄 머리
-chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 사장님 «플레이 단추가 위쪽 · B · 좀 더 내려»] 줄 ▶ 눈 맞춤 5px
+chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 «좀 더 내려» → 2026-10-07 사장님 «조금 내려가 있다»] 줄 ▶ = 글자 잉크 가운데(실측 0 ~ -0.5px)
+chk '^\.mk-flow li\.n \.mk-pl{margin-top:-7px}' order-preview.html 1   # [PLAY_OPTIC] 흐름 줄 ▶ 알약 = 글자 잉크 가운데(390 0.0 · 1280 -0.5px)
+nochk 'mk-vpl{position:relative;top:5px}' order-preview.html   # [PLAY_OPTIC] 줄 카드 ▶ 5px 내림 = 사장님이 «조금 내려가 있다»로 짚은 값(10-07) — 되살리지 않는다
 # ★[QA_0927 2026-10-04 사장님 «식순 섹션 버튼 하나씩 병렬 시뮬레이션 · 버그 · 지연 · 부자연스러운 것»] 네 갈래 점검에서 나온 것 — 연습 재생이 그리기마다 꺼짐 · 음악까지 미리듣기 · 빠르게 훑기 · 포커스 · 플레이어가 누른 곳을 덮음 외
 chk 'QA_PR_KEEP' order-preview.html 1
 chk 'QA_BIG_THEN' order-preview.html 2
@@ -14308,7 +14310,30 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/prep-link.mjs >/dev/
 # ★[CARD_POLISH 2026-10-05 사장님 «추천대로 · 디자인적으로 완성도 높게 · 다른 곳들도 같이»] ① ▶ 원 왼쪽 = 글 · 카드 왼쪽 선 ② «＋ 줄 더하기»는 카드 안 ③ 카드 안 [신랑|신부] 그림만 작게(누르는 칸 44)
 chk 'CARD_POLISH' order-preview.html 6
 chk '<div class="mk-slc"><ol class="mk-sl"' order-preview.html 1
-chk '^\.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;' order-preview.html 1
+chk '^\.mk-pl{position:relative;isolation:isolate;flex:0 0 auto;width:58px;height:44px;margin:-8px 0;' order-preview.html 1   # [PLAY_PILL] 줄 ▶ = 가로 알약 · 칸 = 알약 폭이라 왼쪽 밀기 없음([CARD_POLISH] ① 알약 왼쪽 끝 = 글 · 카드 왼쪽 선)
+# ★★[PLAY_PILL · WAIT_FILL · PLAY_WAIT_TAP 2026-10-07 사장님 «입장 인사 왼쪽 플레이 버튼 · 가로 타원으로 · 로딩을 직관적으로 · 점점 진해지면서» → 시안 셋 중 A «차오르는 알약»]
+#   줄 ▶ 는 원 → 흰 알약(확정하기 알약과 한 집안) · 기다림은 흐리게 꺼 두지 않고 «차오름»(어림 시간 · 90% · 다 되면 끝까지 · 회전 없음)
+#   여섯 곳 한 모양 — 줄 ▶ · 이 순간 전체 듣기 · «이 목소리가 나오는 곳» 창 들어 보기 · «목소리 맞추기» 창(빠르기와 쉼) 들어 보기 · 작은 플레이어 ❚❚ · 크게 보기 ❚❚ ([COURSE_WIDE])
+#   (쉼 «이 자리 들어 보기»는 기다림이 생기지 않아 넣지 않았다 · MK.turnLoad 를 세우는 곳이 없다)
+#   미리 만든 소리를 조용히 올리는 동안(MK_UPQ)에도 ▶ 는 누를 수 있다 — 누르면 올라간 뒤 바로 튼다(EX_NO_AUTO 의 길을 disabled 가 막고 있었다)
+chk 'PLAY_PILL' order-preview.html 2
+chk 'WAIT_FILL' order-preview.html 16
+chk 'PLAY_WAIT_TAP' order-preview.html 1
+nochk '^\.mk-vch \.mk-vpl svg{' order-preview.html   # [PLAY_PILL] 줄 카드 머리 아이콘에 따로 칠하면 알약 안에 네모가 겹친다(10-07 실렌더) — 모양은 .mk-pl::before 한 곳
+chk '^\.mk-pl:focus-visible{outline:none} \.mk-pl:focus-visible::before{outline:2px solid var(--seal);outline-offset:3px}' order-preview.html 1   # [PILL_FOCUS] 키보드 고리도 알약 모양 · 단추 칸(58×44)에 두르면 모서리 4px 네모가 알약을 감쌌다(10-07 390 실렌더 · 같은 줄 «목소리 만들기» 알약은 고리도 알약)
+chk 'function _wfx(id,on,d,at)' order-preview.html 1
+chk 'function _waitEst(t)' order-preview.html 1
+chk 'function _lpWait(st)' order-preview.html 1
+chk '@keyframes wfIn{' order-preview.html 1
+chk '.wfill.ld::after{animation:wfIn' order-preview.html 1
+chk 'prefers-reduced-motion:reduce){ .wfill.ld::after' order-preview.html 1
+chk "_wfx('mp:'+k" order-preview.html 1
+chk "_wfx('vu'," order-preview.html 1
+chk "_wfx('tune'," order-preview.html 1
+chk "_wfx('lp'," order-preview.html 1
+chk "(_lpWait(st))" order-preview.html 2
+nochk "(st.busy?' disabled aria-busy=\"true\"':'')+' onclick=\"mkUpPlay(" order-preview.html
+nochk 'Math.min(14,3+' order-preview.html 1   # [WAIT_FILL] 어림 시간은 _waitEst 한 곳
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
 # ★[CTL_FIVE] 위 · [PRACTICE_NO_CHOOSE 2026-10-05 사장님 «이 순간 바꾸기 · 영상 앞 소개 · 연습 공간에서 이 부분은 삭제»] 연습은 듣기만 — 모든 순간에서 걷었다
 chk 'PRACTICE_NO_CHOOSE' order-preview.html 1
