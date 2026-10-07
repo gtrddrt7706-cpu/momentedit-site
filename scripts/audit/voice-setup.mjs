@@ -107,9 +107,9 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' AI 를 못 쓰는 예식엔 «나레이션 자세히»도 없다 [VS_LINK_IN_ROW]', await pg.evaluate(() => !document.querySelector('.mk-vsbar') && !document.querySelector('[data-fk="mkvsopen"]')));
   /* ★[VS_CHIP_ONCE → VS_CHIP_OFF 2026-10-04 사장님] 칩을 처음 눌러도 창이 저절로 뜨지 않는다 — 고른 것만 바뀐다 */
   await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = true; delete S.vsChip; mkGo('guest'); render(); }); await pg.waitForTimeout(500);
-  await pg.evaluate(() => { S.tipSeen = { keep: 1, nar: 1 }; });   /* [TIP_FLY 2026-10-07] 처음 누를 때 뜨는 안내는 tip-fly 검사가 본다 · 여기선 본 고객으로 */ await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(500);
+  await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(500);
   ok(W + ' 칩을 처음 눌러도 창이 안 뜬다 · 고른 것만 AI [VS_CHIP_OFF]', await pg.evaluate(() => !document.getElementById('mkRecDlg') && S.guestVoice === 'couple'));
-  await pg.evaluate(() => { S.tipSeen = { keep: 1, nar: 1 }; });   /* [TIP_FLY 2026-10-07] 처음 누를 때 뜨는 안내는 tip-fly 검사가 본다 · 여기선 본 고객으로 */ await pg.click('[data-fk="lsc:guestVoice:nar"]'); await pg.waitForTimeout(400);
+  await pg.click('[data-fk="lsc:guestVoice:nar"]'); await pg.waitForTimeout(400);
   ok(W + ' 두 번째 칩도 창이 안 뜬다', await pg.evaluate(() => !document.getElementById('mkRecDlg') && S.guestVoice === 'nar'));
   /* ★[PLAY_ONE] 들을 줄이 하나뿐이면 «이 순간 들어 보기» 없음 · 여럿이면 있음 */
   await pg.evaluate(() => { RitualOpen.FEATURE.voiceClone = false; S.on.welcome = 1; mkGo('welcome'); }); await pg.waitForTimeout(500);

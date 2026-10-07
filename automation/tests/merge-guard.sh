@@ -14579,11 +14579,10 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
-# ★★[TIP_FLY 2026-10-07 사장님 «팝업 닫으면 확정 안내 보기 쪽으로 쏙 들어가는 모션 · 나레이션 자세히도 같이» → «추천대로»] 안내 목소리 칩을 처음 누를 때 한 번 · 창이 링크로 접혀 들어가고 링크가 빛난다
-chk 'TIP_FLY' order-preview.html 6
-chk 'function _tipFly(sel,done)' order-preview.html 1
-chk 'TIP_FLY' scripts/audit/tip-fly.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/tip-fly.mjs >/dev/null 2>&1; _tfy=$?; if [ "$_tfy" = 1 ]; then echo 'FAIL tip-fly: 처음 누를 때 안내 · 링크로 접혀 들어가기가 어긋났습니다 — node scripts/audit/tip-fly.mjs'; fail=1; else echo "ok tip-fly ($_tfy)"; fi; fi
+# ★[TIP_FLY_OFF 2026-10-07 사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»] 처음 누를 때 안내 창 · 링크로 접혀 들어가는 모션 · 빛남 — 되살리지 말 것
+chk 'TIP_FLY_OFF' order-preview.html 1
+nochk 'function _tipFly(' order-preview.html
+nochk '@keyframes tipGlow' order-preview.html
 nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
 chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
