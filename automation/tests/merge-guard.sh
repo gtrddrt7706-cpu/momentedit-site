@@ -14705,6 +14705,15 @@ chk 'REDO_LINK_ALIGN' order-preview.html 1
 chk 'VFLOW_ONE_LINE' order-preview.html 2
 chk 'VFLOW_ONE_LINE' scripts/audit/vuse-flow.mjs 1
 chk 'HEAD_FOCUS_NORING' order-preview.html 1
+# ★★[VC_STATUS_RETRY 2026-10-07 사장님 «목소리를 만들었는데도 새로고침이나 나갔다 들어오면 가끔 목소리 만들기 화면 · 다시 새로고침하면 나올 때도»] 상태 한 번 못 받으면 «아직 만들지 않았어요»로 그리던 것 —
+#   status 는 3초 · 8초 뒤 두 번 더 · 그래도 못 받으면 «불러오지 못했어요 · 다시 불러오기»(10초마다 · 화면 복귀 · 망 복귀) · 마지막으로 받은 상태는 지킨다. 되돌리지 말 것
+chk 'VC_STATUS_RETRY' order-preview.html 6
+chk "if(op==='status'&&again){" order-preview.html 1
+chk "function _vcStatus(then,force){" order-preview.html 1
+chk 'function _vcErrBox()' order-preview.html 1
+nochk "VC.st=d&&d.ok?d:{groom:{},bride:{}};" order-preview.html
+chk 'VC_STATUS_RETRY' scripts/audit/vc-status-retry.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-status-retry.mjs >/dev/null 2>&1; _vsr=$?; if [ "$_vsr" = 1 ]; then echo 'FAIL vc-status-retry: 목소리 상태를 못 받았을 때의 화면이 어긋났습니다 — node scripts/audit/vc-status-retry.mjs'; fail=1; elif [ "$_vsr" = 2 ]; then echo 'skip vc-status-retry: 브라우저 없음'; else echo 'ok vc-status-retry: 상태 다시 묻기 T1~T3'; fi; fi
 nochk "+'<p class=\"pk-tm mo\">'+ord+'</p>'" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/ex-old-cover.mjs >/dev/null 2>&1; _eoc=$?; if [ "$_eoc" = 1 ]; then echo 'FAIL ex-old-cover: 예시 글이 바뀌었는데 옛 글이 EX_OLD_1006 · PV_OLD 에 없습니다 — node scripts/audit/ex-old-cover.mjs'; fail=1; elif [ "$_eoc" = 2 ]; then echo 'skip ex-old-cover: origin/main 없음'; else echo 'ok ex-old-cover: 바뀐 예시 글은 옛 글 목록에 있다'; fi; fi
 chk 'function _exNOf(key)' order-preview.html 1
