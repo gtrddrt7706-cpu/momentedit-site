@@ -14827,3 +14827,11 @@ chk 'window.mkPvNarEx=function(n)' order-preview.html 1
 chk 'PV_EX_NAR' scripts/audit/open-course.mjs 2
 chk 'PV_EX_NAR' scripts/audit/pv-fill.mjs 2
 nochk "보시겠습니다» 한 줄을 나레이터가 읽어요');" order-preview.html
+# ★[EX_TEXT_1006 2026-10-07 코워크 지시 · 사장님 확인 10/6] AI 두 분 목소리 예시 글(하객 맞이 예시 2~4 여덟 줄 · 식전 영상 소개 넷) 새 글 · 옛 글로 만든 AI 소리는 옛 글을 두 분 글로 옮긴다
+#   스튜디오 나레이션 12줄(90 · 115~117 · 119 · 120 · 123 · 125 · 126 · 128~130)은 녹음이 오면 바꾼다 — 글만 먼저 바꾸지 않는다
+chk 'EX_TEXT_1006' order-preview.html 2
+chk 'function _exKeep1006()' order-preview.html 1
+chk '_exKeep1006();   /\* \[EX_TEXT_1006\]' order-preview.html 1
+chk 'EX_TEXT_1006' scripts/audit/ex-prebake.mjs 2
+nochk "'이 영상을 만들다가 저희가 처음으로 크게 다툴 뻔했습니다" order-preview.html
+#   (옛 하객 맞이 예시 글은 옮기기용 EX_OLD_1006 에 남아 있어 nochk 로 막지 않는다 · ex-prebake 가 새 글을 잰다)
