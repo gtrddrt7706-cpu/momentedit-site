@@ -15078,6 +15078,11 @@ nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);bor
 # ★[VFLOW_NOLINE 2026-10-07 사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자»] 나오는 곳 여섯 = 글 · › 만(점선 밑줄 없음)
 chk 'VFLOW_NOLINE' order-preview.html 2
 nochk 'white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep)' order-preview.html
+# ★[VFLOW_TAP · VFLOW_GAP 2026-10-07 사장님 «하객 맞이랑 준비됐어요 간격이 너무 멀다 · 누를 수 있는 글씨구나 인지할 수 있게»] 나오는 곳 = 가는 실선 밑줄(골드 · «자세히 보기»와 같은 표시) · 흐름 줄 아래 14 → 2
+chk 'VFLOW_TAP' order-preview.html 2
+chk 'white-space:nowrap;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--gold-deep);text-underline-offset:4px}' order-preview.html 1
+chk '.mk-vuse{margin:6px 0 2px}' order-preview.html 1
+nochk '.mk-vuse{margin:6px 0 14px}' order-preview.html
 # ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
 chk 'VCARD_CALM' order-preview.html 3
 chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
