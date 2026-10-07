@@ -750,7 +750,7 @@ var VOWBOTH=["이 약속, 꼭 지키겠습니다.","가까이서 오래 응원�
      검사를 속이지 말고, 왜 없는지를 데이터 옆에 적는다.
    ★새 키를 여기 넣기 전에 물을 것: 고객이 이 문장을 고르거나 미리 듣는가?
      그렇다면 콘솔 전용이 아니라 빌더에 사본이 있어야 한다. */
-var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow'];   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
+var NARR_CONSOLE_ONLY=['photoSplit','roundOpen','roundMid','onlineIn','finalWarn','finalCall','photoOut','closeBow','tableIn'];   /* [TABLE_GREET_1008] 131 도 엔진이 나른다(빌더 옛 화면에 사본 없음 · closeBow 와 같은 길) */   // [CLOSE_BOW 2026-09-26] 108 은 엔진이 나른다(빌더 옛 화면에 사본 없음)
 
 /* ★★[PHOTOCUE 2026-08-08] 호명·연출 안내 — **디렉터가 골라 트는 판**이다(큐 체인이 아니다).
    ★왜 체인이 아닌가: 촬영 시간은 순서가 정해지지 않는다. 어른이 먼저 가셔야 하면 순서를 바꾸고
