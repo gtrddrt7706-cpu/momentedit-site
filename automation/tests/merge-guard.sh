@@ -14916,6 +14916,9 @@ nochk '확정해 둔 줄은 그대로 남아요 <button' order-preview.html
 chk 'VFLOW_TEXT' order-preview.html 1
 chk '.mk-vfb{min-height:44px;padding:0;border:0;border-radius:0;background:none;color:var(--accent);font:inherit;font-size:14px;' order-preview.html 1
 nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);border-radius:999px' order-preview.html
+# ★[VFLOW_NOLINE 2026-10-07 사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자»] 나오는 곳 여섯 = 글 · › 만(점선 밑줄 없음)
+chk 'VFLOW_NOLINE' order-preview.html 2
+nochk 'white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep)' order-preview.html
 chk 'VSTAT_GUTTER' order-preview.html 1
 chk '.mk-vstat>span:first-child{padding-right:16px}' order-preview.html 1
 chk 'VREADY_ONE' order-preview.html 1
