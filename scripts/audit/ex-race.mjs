@@ -34,9 +34,11 @@ try {
   await wait(500);
   /* ★[EX_NO_AUTO 2026-10-07] 예시를 고르기만 해서는 새로 만들지 않는다 — 미리 만든 소리가 있으면 조용히 붙이고, 없으면 «목소리 만들기»를 눌러야 만든다 */
   await pg.evaluate(() => { window.__warm = window._vcWarmAll; window._vcWarmAll = () => {}; window.__mk.length = 0; });   // 미리 만들기를 잠깐 멈추고 «없을 때»를 본다
-  await pg.evaluate(() => mkGuestEx(2)); await wait(1200);
+  await pg.evaluate(() => mkGuestEx(2)); await wait(300);
   const z = await pg.evaluate(() => { const ks = ['g0', 'g1', 'g2', 'g3']; return { up: ks.map((k) => MK_UP[k] || ''), mode: ks.map((k) => _aiMode(k)), mk: window.__mk.filter((x) => !/^bg:/.test(x)) }; });
-  ok(`${w} ⓪ 미리 만든 소리가 없는 예시를 고르면 저절로 만들지 않는다 — «만드는 중» 없음 · 단추 «목소리 만들기» [EX_NO_AUTO]`, z.up.every((x) => !x) && z.mode.every((m) => m === 'need') && !z.mk.length, JSON.stringify(z));
+  /* ★[EX_FIRST 2026-10-07] «없으면 만들지 않는다» → «없으면 뒤에서 먼저 만든다(단추 «준비 중»)» — 앞에서 «만드는 중»(MK_UP make · fg 호출)은 여전히 없다 · ex-promise.mjs 가 시간 흐름을 잰다 */
+  ok(`${w} ⓪ 미리 만든 소리가 없는 예시를 고르면 앞에서 만들지 않는다 — «만드는 중» 없음 · fg 호출 0 · 단추 «준비 중»(뒤에서 먼저) [EX_NO_AUTO · EX_FIRST]`, z.up.every((x) => !x) && z.mode.every((m) => m === 'prep') && !z.mk.length, JSON.stringify(z));
+  await wait(1500);
   /* ① 직접 누른 일의 경합 — 3번에서 «목소리 만들기» → 4번 → 3번: 하던 일을 기억해 끝까지 */
   await pg.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => mkAiGo(k)); }); await wait(150);
   const mid = await pg.evaluate(() => ['g0', 'g1', 'g2', 'g3'].map((k) => MK_UP[k]).join(','));
@@ -55,7 +57,7 @@ try {
   const e = await pg.evaluate(async () => { window._vcWarmAll = () => {}; VC_ALT = {}; mkGuestEx(1); await new Promise((r) => setTimeout(r, 300)); const before = ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k));
     window._vcWarmAll = window.__warm; _vcWarmAll('groom'); _vcWarmAll('bride'); let q; do { q = VC_ALTQ; await q; } while (q !== VC_ALTQ); await new Promise((r) => setTimeout(r, 300));
     const ks = ['g0', 'g1', 'g2', 'g3']; return { before, after: ks.map((k) => _aiMode(k)), match: ks.map((k) => (S.up[k] || {}).tx === _txSig(_recNeed(k))) }; });
-  ok(`${w} ⑤ 고를 때 없던 소리는 미리 만들기가 끝나면 저절로 조용히 붙는다(목소리 만들기 → 확정하기) [EX_NO_AUTO]`, e.before.every((m) => m === 'need') && e.after.every((m) => m === 'keep') && e.match.every(Boolean), JSON.stringify(e));
+  ok(`${w} ⑤ 고를 때 없던 소리는 뒤에서 만들어지면 저절로 조용히 붙는다(준비 중 → 확정하기) [EX_NO_AUTO · EX_FIRST]`, e.before.every((m) => m === 'prep') && e.after.every((m) => m === 'keep') && e.match.every(Boolean), JSON.stringify(e));
   /* ④ 입장 인사 미리 만들기 */
   const c = await pg.evaluate(async () => { window.__mk.length = 0; S.entry = 'A'; S.up.entry = { src: 'ai', by: ['groom', 'bride'], name: 'x' }; const sn = _vcSnap('entry', {}); Object.assign(S.up.entry, { tx: _txSig(sn.t), tempo: sn.tempo, pause: sn.pause, wq: sn.wq, tq: sn.tq, pf: LINE_EVEN_V });
     _exWarmEntry(); { let q; do { q = VC_ALTQ; await q; } while (q !== VC_ALTQ); } const made = window.__mk.slice(); window.__mk.length = 0;
