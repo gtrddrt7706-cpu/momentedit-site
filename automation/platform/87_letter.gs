@@ -200,7 +200,7 @@ function ltGuestLetter(body) {
 
     // [LETTER_RATE] 한 예식으로 편지가 쏟아지는 것을 막는다 — 할당량과 두 분의 받은편지함을 함께 지킨다.
     var rl = _ltRateCheck(eventId);
-    if (!rl.ok) return { ok: false, error: rl.error };
+    if (!rl.ok) return { ok: false, ecode: rl.ecode, error: rl.error };   // [LT_RATE_ECODE 2026-10-08 점검] 몰림 코드(G1)를 그대로 넘긴다 — 종전엔 여기서 떨어져 G0(코드 없음)이 됐다
 
     // 금지어 검사 — ★본문만 보면 이름·관계 칸으로 그대로 새어 나간다(둘 다 메일에 그대로 찍힌다).
     var mod = _ltCheckBanned([guestName, relation, message].filter(Boolean).join(' \n '));

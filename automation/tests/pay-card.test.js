@@ -108,6 +108,8 @@ const code = [
   extractFunction(SRC_CARD, '_payMarkCard'),
   extractFunction(SRC_CARD, '_payLog'),
   extractFunction(SRC_CARD, 'handleCardConfirm'),
+  extractFunction(SRC_CARD, '_tossConfirmSafe'),   // [PAY_UNKNOWN] 승인 · 결과 모름이면 조회
+  extractFunction(SRC_CARD, '_tossFailOut'),
   extractFunction(SRC_CARD, 'handleCardPayConfig'),
   /* [DEPOSIT_CARD 2026-09-25] handleCardConfirm·handleCardPayConfig 가 milestone '예약금' 을 이 함수들로 넘긴다.
      안 실으면 퍼즈의 '예약금' 표본이 ReferenceError 로 던진다(게이트가 잡았다 · throws=45).
@@ -161,6 +163,7 @@ const sandbox = {
   _sessionMsg: function () { return '세션이 만료되었습니다.'; },
   // 토스 네트워크 스텁(실제 confirm 대체) — 호출 횟수 추적(청구 전 차단 검증용)
   _tossConfirm: function () { tossCalls++; return TOSS_RESULT; },
+  _tossLookup: function () { return { ok: false, code: 'NOT_FOUND_PAYMENT' }; },   // [PAY_UNKNOWN] 조회(네트워크) 스텁 — 결과 모름 길은 card-err ⑤ 가 따로 태운다
   // 관리자 경보 스텁(B-1)
   aiAlertAdmin: function (t) { adminAlerts.push(t); return { ok: true }; },
   // GAS 서비스 스텁

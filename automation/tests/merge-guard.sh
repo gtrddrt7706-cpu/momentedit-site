@@ -15441,3 +15441,6 @@ chk 'EXC_SHORT_WORD' automation/consultation/consultation-booking.gs 1
 nochk "var _userMsg = _intended ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';" automation/consultation/consultation-booking.gs
 chk 'WT_SKIP' scripts/check-source-drift.mjs 1
 chk 'WT_SKIP' scripts/audit/css-comment-nest.mjs 1
+chk 'LT_RATE_ECODE' automation/platform/87_letter.gs 1
+chk 'D6 편지 몰림 응답' scripts/audit/letter-sim.mjs 1
+chk "extractFunction(SRC_CARD, '_tossConfirmSafe')" automation/tests/pay-card.test.js 1
