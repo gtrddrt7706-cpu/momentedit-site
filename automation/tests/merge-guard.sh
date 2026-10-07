@@ -14253,7 +14253,7 @@ chk 'PHRASE_NO_DEAD' scripts/audit/phrase-reload.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; if [ "$_pr" = 1 ]; then echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; fi; fi
 # ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 마이페이지 식순 줄 아래 접힘을 잠시 끈다(사장님이 다시 켜라 하기 전까지)
 chk 'var PREP_FOLD_OFF=true;' mypage.html 1
-chk "html: PREP_FOLD_OFF?_ritPrepFold(rd, base, dd, true):_ritPrepFold(rd, base, dd)" mypage.html 1
+chk '준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다' mypage.html 1   # [PR_PREP_ONE 2026-10-07] 줄 아래 준비 목록 → 연습 화면(사장님 «연습 · 준비 하나로»)
 # ★[RELOAD_KEEP_AT 2026-10-05 사장님 «두 분 목소리에서 새로고침하면 이전 화면으로 간다»] orderFill(AI 스위치)을 받기 전에는 «두 분 목소리» 자리를 첫 쪽으로 덮어쓰지 않는다
 chk 'RELOAD_KEEP_AT' order-preview.html 3
 chk 'if(!_atWait){ m.at=k; m.seen\[k\]=1; }' order-preview.html 1
