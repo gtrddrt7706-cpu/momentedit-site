@@ -205,8 +205,8 @@ await safe('FB1', async () => {
   ok('피드백1-1 크게 보기 ⏮ ❚❚ ⏭ 는 순간이 바뀌어도 한자리(390×844) [BIG_CTL_FIXED]', ys.size === 1 && [...ys][0] > 700, [...ys].join(' · '));
   await pg.evaluate(() => lsCloseBig()); await pg.waitForTimeout(300);
   const c = await pg.evaluate(() => { opStepNav('pick'); return 1; }); await pg.waitForTimeout(500);
-  const seal = await pg.evaluate(() => { const st = document.querySelector('.op-star'), dot = document.querySelector('.pk-fg .flow-peak'), on = document.querySelector('.op-steps li.on'); return { star: st && getComputedStyle(st).color, dot: dot && dot.getAttribute('fill'), step: on && getComputedStyle(on).borderTopColor }; });
-  ok('피드백1-3 진사 — ★ 글자 · 벅찬 순간 점 · 지금 걸음 윗줄 [SEAL_POINTS]', seal.star === 'rgb(107, 42, 36)' && /6B2A24/i.test(seal.dot || '') && seal.step === 'rgb(107, 42, 36)', JSON.stringify(seal));
+  const seal = await pg.evaluate(() => { const st = document.querySelector('.op-pk'), dot = document.querySelector('.pk-fg .flow-peak'), on = document.querySelector('.op-steps li.on'); return { star: st && getComputedStyle(st).color, dot: dot && dot.getAttribute('fill'), step: on && getComputedStyle(on).borderTopColor }; });
+  ok('피드백1-3 진사 — 벅찬 순간 이름(★ 대신 · PEAK_COLOR) · 벅찬 순간 점 · 지금 걸음 윗줄 [SEAL_POINTS]', seal.star === 'rgb(107, 42, 36)' && /6B2A24/i.test(seal.dot || '') && seal.step === 'rgb(107, 42, 36)', JSON.stringify(seal));
   await pg.evaluate(() => opGoStep('done')); await pg.waitForTimeout(900);
   const nb = await pg.evaluate(() => { const n = document.getElementById('next'); return { seal: n.classList.contains('seal'), bg: getComputedStyle(n).backgroundColor, t: n.textContent }; });
   ok('피드백1-3 ④ «이대로 저장하기»만 진사 채움', nb.seal && nb.bg === 'rgb(107, 42, 36)' && /이대로 저장하기/.test(nb.t), JSON.stringify(nb));
