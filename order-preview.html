@@ -3157,8 +3157,19 @@ document.addEventListener('focusout',function(){ if(_IME){ _IME=0; if(_IME_PEND)
 /* ★[UP_AI_HEAL 2026-10-07 사장님 «목소리 만들기인데 '파일 올렸어요'가 언밸런스»] UP_RACE(10-06 고침) 전에 저장된 AI 줄 일부가 «파일»(src 기본값)로 적혀 남았다 —
    상태는 «✓ 파일 올렸어요 · 지우기», 단추는 «목소리 만들기»로 서로 다른 말을 했다. AI 로 만든 소리는 이름이 «… · AI.wav» 라 그것으로 바로잡는다(진짜 파일 · 녹음은 그대로) */
 function _upHeal(){ var u=S&&S.up; if(!u) return; Object.keys(u).forEach(function(k){ var v=u[k]; if(v&&typeof v==='object'&&v.src!=='ai'&&v.src!=='rec'&&/ · AI\.wav$/.test(String(v.n||''))) v.src='ai'; }); }
+/* ★★[KEEP_Y 2026-10-07 사장님 «스튜디오 나레이션 버튼을 누르면 화면이 자동으로 위로 올라가는데 그대로 있게 · 다른 곳들도 마찬가지»]
+   칩 · 단추를 눌러 아래 글이 짧아지면(AI 줄 편집기 → 나레이션 안내) 페이지 높이가 줄어 브라우저가 스크롤을 끌어당겼다(1280 입장 인사 133px · 식전 영상 44px 튐).
+   다시 그리기 전에 «지금 보이는 화면 아래 끝»까지는 높이를 받쳐 둔다(body min-height) — 누른 단추가 제자리에 있다.
+   받침은 위로 스크롤하면 그만큼 줄고(_kyScroll) · 글이 길면 아무 일도 안 한다. 모든 다시 그리기에 걸린다(한 곳이 아니라 화면 전체 · COURSE_WIDE) */
+var KY={min:0,at:null};
+function _kyHold(){ try{ var b=document.body; if(!b) return; var at=''; try{ at=idx+'|'+(_mkState().at||''); }catch(e){ at=String(idx); } var moved=KY.at!=null&&KY.at!==at; KY.at=at;   // 다른 쪽으로 넘어가면 받침을 푼다(새 쪽은 제 높이로)
+  var need=Math.ceil(window.scrollY+window.innerHeight); if(moved||window.scrollY<1){ if(KY.min){ KY.min=0; b.style.minHeight=''; } return; }
+  KY.min=need; b.style.minHeight='max(100dvh,'+need+'px)'; }catch(e){} }
+function _kyScroll(){ if(!KY.min) return; var need=Math.ceil(window.scrollY+window.innerHeight); if(need>=KY.min) return; KY.min=window.scrollY<1?0:need; document.body.style.minHeight=KY.min?'max(100dvh,'+KY.min+'px)':''; }
+window.addEventListener('scroll',_kyScroll,{passive:true});
 function render(){
   try{ _upHeal(); }catch(e){}
+  _kyHold();   // [KEEP_Y] 다시 그리는 동안 화면이 위로 끌려가지 않게
   if(_IME&&document.activeElement&&/^(TEXTAREA|INPUT)$/.test(document.activeElement.tagName)){ _IME_PEND=1; return; }
   var _ae0=document.activeElement;   // [ORD_KEY] 다시 그리기 전 포커스 위치 기억
   /* ★[TA_KEEP 2026-10-04 시뮬레이션] 글을 치는 중에 다른 줄을 만들다 다시 그리면 커서가 맨 앞으로 가 글이 섞이고(하객 맞이) · 영상 앞 소개는 포커스를 잃어 남은 글이 사라졌다 —
