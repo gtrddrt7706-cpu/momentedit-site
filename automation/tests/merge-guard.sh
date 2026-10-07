@@ -14631,10 +14631,16 @@ chk 'VC_NET_SEC' order-preview.html 1
 chk 'VC_NET_SEC' mypage.html 1
 chk 'VC_NET_AGAIN' scripts/audit/vc-net-again.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-net-again.mjs >/dev/null 2>&1; _vna=$?; if [ "$_vna" = 1 ]; then echo 'FAIL vc-net-again: 목소리 만들기 끊김 다시 묻기가 어긋났습니다 — node scripts/audit/vc-net-again.mjs'; fail=1; else echo "ok vc-net-again ($_vna)"; fi; fi
-# ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V8)을 가른다 — 끊긴 직후 상태 확인 한 번
+# ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V9 · ★[ERR_CODES] 종전 V8 — 8 은 사이트 전체에서 로그인 풀림)을 가른다 — 끊긴 직후 상태 확인 한 번
 chk 'VC_NET_SPLIT' mypage.html 1
 chk 'VC_NET_SPLIT' order-preview.html 1
-chk "if(d.net==='srv') return 8;" order-preview.html 1
+chk "if(d.net==='srv') return 9;" order-preview.html 1
+nochk "if(d.net==='srv') return 8;" order-preview.html
+nochk "서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V8)" mypage.html
+# ★[ERR_ONE_MEANING 2026-10-07 사장님 «오류 코드로 관리자가 어떤 문제인지 알 수 있게»] 숫자 하나는 어디서나 한 뜻 — 8 = 로그인 풀림(서버 도장 · 코드 표 · _ecLine). 목소리 서버 멈춤은 V9
+chk 'ERR_ONE_MEANING' CLAUDE.md 1
+chk "'로그인이 풀렸어요 · 마이페이지에서 다시 로그인해 주세요','서버에서 멈췄어요 · 다시 눌러 주세요'];" order-preview.html 1
+chk "(n===6||n===9)&&sec" order-preview.html 1
 chk 'VC_NET_SPLIT' scripts/audit/vc-down-kind.mjs 2
 # ★[THANKS_DEURIM 2026-10-07 사장님 «결혼식에 와 주셔서 (진심으로) 감사합니다 보단 감사드립니다 · 목소리 녹음 후 예시 글도»] 하객 맞이 담백하게 첫 줄 · 맞추기 예시 글 · 첫인사 예시
 chk 'THANKS_DEURIM' order-preview.html 1
@@ -15360,3 +15366,35 @@ nochk "q.resolve({ok:false, error:''})" mypage.html
 chk 'ERR_CODE_MYPAGE' scripts/audit/err-mypage.mjs 1
 chk "mode === 'notok' ? { ok:false, reason:'invalid'" scripts/audit/admin-inject.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-mypage.mjs >/dev/null 2>&1; _emp=$?; if [ "$_emp" = 1 ]; then echo 'FAIL err-mypage: 마이페이지 실패 문구(원인 한 줄 + 코드) · 로그아웃 조건(F1) · 저장 실패 판 · 빌더 중계가 어긋났습니다 — node scripts/audit/err-mypage.mjs'; fail=1; else echo "ok err-mypage ($_emp)"; fi; fi
+# ★★[ERR_CODE_BUILDER 2026-10-07 사장님 «다른 부분들도 스크린샷으로 혹은 고객이 오류코드 등을 알려 주면 관리자가 어떤 문제인지 알 수 있게 쓸 수 있을 만한 곳들 조사해서 전부 개선해 보자»]
+#   식순 화면 실패 글 = «무슨 일 · 할 일 (코드 X#)» — 글자 = 어디서(V 목소리 · U 올리기 · D 지우기 · S 저장 · L 불러오기 · M 기기) · 숫자 = 무슨 일(VC_DOWN_KIND 와 같은 표)
+#   마이페이지 · 서버 글에 코드가 이미 있으면 그대로(두 번 안 붙임) · 목소리 정보를 못 받으면 «목소리 만들기» 단추 대신 까닭 + «다시 불러오기» · 지우기 실패에 «불러오지 못했어요» 금지
+#   마이크 까닭 M1 ~ M5(1분 읽기엔 파일을 권하지 않는다) · 받은 소리를 못 풂 = M6 · 75초 = U5 · 16초 = S5 · ▶ · 이어 듣기 실패 = L6 연결 · L0 파일 없음 · M6 못 엶 · M7 막힘(_mediaCode · «녹음 전»과 가른다 · 뜻은 assets/err-codes.js 표)
+#   err-builder.mjs 가 실브라우저로 잰다 — 목소리 정보 실패 가림 · start 의 try 를 되돌리면 빨강(돌연변이 확인)
+chk 'ERR_CODE_BUILDER' order-preview.html 80
+chk 'function _ecLine(L,d)' order-preview.html 1
+chk 'function _micWhy(e,key)' order-preview.html 1
+chk 'function _openWhy(e,src,key)' order-preview.html 1
+chk 'function _vcStFail(fk)' order-preview.html 1
+chk 'function _rfDelDone(d)' order-preview.html 1
+chk 'if(VC.stErr&&!VC.st) return _vcStFail(' order-preview.html 1   # [VC_STATUS_RETRY] 마지막으로 받은 상태가 있으면 그것으로 그린다(T3) · 모를 때만 까닭
+chk "VC.stWhy=VC.stErr?_ecLine('V',d||{}):''; VC.st=d&&d.ok?d:(VC.stLast||null);" order-preview.html 1   # 받은 까닭(코드)을 VC_STATUS_RETRY 몸통에 함께
+chk "function _vcErrBox(){ var c=_ecCodeOf(VC.stWhy)||'V0'" order-preview.html 1   # «불러오지 못했어요» 칸에도 코드 · 로그인(V8)이면 그 말
+chk "if(!VC.st){ if(VC.stErr) return hd+_vcStFail('mkvcstre3');" order-preview.html 1
+chk "_upFail(key,_ecWord('U',5))" order-preview.html 1
+chk "_saveDone(false,_ecWord('S',5))" order-preview.html 1
+chk "_autoAck(false,_ecLine('S',ev.data))" order-preview.html 1
+chk "momentedit:ritualFileDelDone'){ _rfDelDone(ev.data)" order-preview.html 1
+chk 'try{ r.mr.start(250); }catch(e)' order-preview.html 1
+chk 'function _mediaCode(el)' order-preview.html 1
+chk "if(!AUDOK){ _fail(b,me,'소리를 불러오지 못했어요 (코드 '+" order-preview.html 1
+chk 'ERR_CODE_BUILDER' assets/rec-process.js 1
+chk 'meKind' assets/rec-process.js 2
+nochk "MK.toast='응답이 없어요 · 다시 눌러 주세요'" order-preview.html
+nochk "'만든 소리를 받지 못했어요 · 다시 눌러 주세요'" order-preview.html
+nochk '음성 메모로 녹음해 «파일»로 올려 주세요' order-preview.html
+nochk "'저장 확인이 오지 않았어요. 네트워크를 확인하고 다시 저장해 주세요.'" order-preview.html
+nochk "MK.toast=ev.data.error||'지우지 못했어요'" order-preview.html
+nochk "r.ph='rec'; r.t0=Date.now(); r.el=0; r.mr.start(250);" order-preview.html
+chk 'ERR_CODE_BUILDER' scripts/audit/err-builder.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-builder.mjs >/dev/null 2>&1; _ecb=$?; if [ "$_ecb" = 1 ]; then echo 'FAIL err-builder: 식순 화면 실패 문구(까닭 한 줄 + 코드 V · U · D · S · L · M)가 어긋났습니다 — node scripts/audit/err-builder.mjs'; fail=1; else echo "ok err-builder ($_ecb)"; fi; fi

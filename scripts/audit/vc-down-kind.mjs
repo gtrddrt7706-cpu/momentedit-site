@@ -15,7 +15,7 @@ let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}
 
 /* ⑤ 마이페이지 중계 — 브라우저 없이 */
 { const my = fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8'); const i = my.indexOf("d.type==='momentedit:voiceClone'"), seg = i < 0 ? '' : my.slice(i, i + 5000);
-  ok('⑤ 마이페이지 중계 실패 = 기다리다 멈춤 V5 · 서버 답이 깨짐 V7 · 연결 끊김 V6 · 서버에서 멈춤 V8(끊긴 직후 상태 확인으로 가른다 · VC_NET_SPLIT) · 옛 두 줄 없음', /\(코드 V5\)/.test(seg) && /\(코드 V6\)/.test(seg) && /\(코드 V7\)/.test(seg) && /\(코드 V8\)/.test(seg) && /op:'status'/.test(seg) && /SyntaxError/.test(seg) && !/그동안 이 줄은/.test(seg)); }
+  ok('⑤ 마이페이지 중계 실패 = 기다리다 멈춤 V5 · 서버 답이 깨짐 V7 · 연결 끊김 V6 · 서버에서 멈춤 V9(끊긴 직후 상태 확인으로 가른다 · VC_NET_SPLIT · ★[ERR_CODES] 종전 V8 — 8 은 로그인 풀림) · 옛 두 줄 없음', /\(코드 V5\)/.test(seg) && /\(코드 V6\)/.test(seg) && /\(코드 V7\)/.test(seg) && /\(코드 V9\)/.test(seg) && !/\(코드 V8\)/.test(seg) && /op:'status'/.test(seg) && /SyntaxError/.test(seg) && !/그동안 이 줄은/.test(seg)); }
 
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(fail ? 1 : 2); }
 const T = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.mp3': 'audio/mpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png' };
@@ -60,17 +60,17 @@ for (const w of [360, 390, 1280]) {
         relayNet: await map({ ok: false, down: true, timeout: false, error: OLD_RELAY }),
         net: await map({ ok: false, down: true, net: 1, error: '연결이 끊겼어요 · 다시 눌러 주세요 (코드 V6)' }),
         bad: await map({ ok: false, down: true, net: 'bad', error: '서버가 잠깐 멈췄어요 · 다시 눌러 주세요 (코드 V7)' }),
-        srv: await map({ ok: false, down: true, net: 'srv', error: '서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V8)' }),
+        srv: await map({ ok: false, down: true, net: 'srv', error: '서버에서 멈췄어요 · 다시 눌러 주세요 (코드 V9)' }),
         unread: await map({ ok: false, bad: true, error: '이 줄 글에 소리로 읽기 어려운 글자가 있어요. 글을 고치거나 직접 녹음해 주세요' }),
         sess: await map({ ok: false, reason: 'expired', error: '로그인이 만료되었어요. 다시 로그인해 주세요.' }),
         word: _vcErrWord(SERVER_DOWN) }; }, [SERVER_DOWN, OLD_RELAY]);
-    W8 = m.w8;
+    W8 = m.w8.filter((t, n) => n !== 8);   /* 8 = 로그인 — 이 길(_vcDownWord)로 나오지 않는다(로그인 답은 down 이 아니다 · _ecLine 이 «마이페이지에서 다시 로그인»까지 두 줄로 낸다) */
     const codes = m.w8.map((t) => (t.match(/\(코드 (V\d)\)$/) || [])[1]).join(',');
-    ok('① 코드 아홉(V0 ~ V8 · [VC_NET_SPLIT] V8 = 서버에서 멈춤) · 문구가 서로 다르다 · 장식 이모지 · 전각 줄표 없음', codes === 'V0,V1,V2,V3,V4,V5,V6,V7,V8' && new Set(m.w8.map((t) => t.replace(/ \(코드 V\d\)$/, ''))).size >= 8 && !m.w8.some((t) => /[—\u{1F300}-\u{1FAFF}]/u.test(t)), codes);
+    ok('① 코드 열(V0 ~ V9 · [VC_NET_SPLIT] V9 = 서버에서 멈춤 · V8 = 로그인 풀림(사이트 전체와 같은 뜻 · ERR_CODES)) · 문구가 서로 다르다 · 장식 이모지 · 전각 줄표 없음', codes === 'V0,V1,V2,V3,V4,V5,V6,V7,V8,V9' && /로그인/.test(m.w8[8]) && new Set(m.w8.map((t) => t.replace(/ \(코드 V\d\)$/, ''))).size === 10 && !m.w8.some((t) => /[—\u{1F300}-\u{1FAFF}]/u.test(t)), codes);
     ok('① 옛 서버(kind 없음) → V0 · 바꿔 읽기 표도 V0', /\(코드 V0\)$/.test(m.old) && /\(코드 V0\)$/.test(m.word), m.old + ' | ' + m.word);
     ok('① 서버 kind → 바쁨 V1 · 요금제 V2 · 막힘 V3 · 그 밖 V4', /V1\)$/.test(m.busy) && /V2\)$/.test(m.plan) && /V3\)$/.test(m.gate) && /V4\)$/.test(m.fail), [m.busy, m.plan, m.gate, m.fail].join(' | '));
     ok('① 옛 마이페이지 글 — 시간 초과면 V5 · 아니면 연결 V6', /V5\)$/.test(m.relayTo) && /V6\)$/.test(m.relayNet), m.relayTo + ' | ' + m.relayNet);
-    ok('① 새 마이페이지 — 연결 V6 · 서버 답이 깨짐 V7 · 서버에서 멈춤 V8 [VC_NET_SPLIT]', /V6\)$/.test(m.net) && /V7\)$/.test(m.bad) && /V8\)$/.test(m.srv), m.net + ' | ' + m.bad + ' | ' + m.srv);
+    ok('① 새 마이페이지 — 연결 V6 · 서버 답이 깨짐 V7 · 서버에서 멈춤 V9 [VC_NET_SPLIT]', /V6\)$/.test(m.net) && /V7\)$/.test(m.bad) && /V9\)$/.test(m.srv), m.net + ' | ' + m.bad + ' | ' + m.srv);
     ok('② 실패가 아닌 답은 종전 글 — 글자 문제(바꿔 읽기) · 로그인 만료(그대로) · 코드 없음', /글을 고쳐 다시 만들어 주세요/.test(m.unread) && m.sess === '로그인이 만료되었어요. 다시 로그인해 주세요.' && !/코드 V/.test(m.unread + m.sess), m.unread + ' | ' + m.sess);
     ok('①② 어느 답에도 «그동안 이 줄은» · «직접 녹음» 없음', !/그동안 이 줄은|직접 녹음/.test(JSON.stringify(m)), '');
   }

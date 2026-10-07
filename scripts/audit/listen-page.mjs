@@ -531,7 +531,8 @@ else {
   const v2 = await pg.evaluate(() => ({ st: document.querySelector('.mk-vr').textContent, up: S.up.g0, fAt: !!(S.fAt && S.fAt['up.g0']), todo: _mkTasks('guest').filter((x) => !x.done).length, btn: !!document.querySelector('.mk-vst [data-fk="mkupdel:g0"]') && !!document.querySelector('[data-fk="mkvpl:g0"]') && !document.querySelector('[data-fk="mkupplay:g0"]')   /* [UP_BTN_OFF] */ }));
   ok('RF 도착 → «파일 올렸어요 · 지우기»(상태 줄) · 머리 ▶ · 아래 단추 줄 없음 · 그 줄은 완료(남은 셋은 미완료) · 칸마다 시각(두 기기) [REC_UPLOAD]', /파일 올렸어요/.test(v2.st) && v2.up && v2.up.id === 'F1' && v2.fAt && v2.todo === 3 && v2.btn, JSON.stringify(v2));
   await pg.evaluate(() => _mkUpDone({ key: 'g1', ok: false, error: '한 개에 20MB 까지 올릴 수 있어요.' })); await pg.waitForTimeout(300);
-  ok('RF 실패는 사유를 한 줄로 · 그 줄은 미완료 그대로', await pg.evaluate(() => /20MB/.test((document.querySelector('.mk-toast') || {}).textContent || '') && !S.up.g1));
+  /* ★[ERR_CODE_BUILDER 2026-10-07] 줄의 올리기 실패는 그 줄 아래 빨간 글(+ U 코드) — 맨 위 알림(.mk-toast)은 화면 밖이었다(SIM_R1 과 같은 까닭) */
+  ok('RF 실패는 사유를 한 줄로(그 줄 아래 · 코드 U0) · 그 줄은 미완료 그대로', await pg.evaluate(() => [...document.querySelectorAll('.mk-exw[role="alert"]')].some((p) => /20MB/.test(p.textContent) && /\(코드\sU0\)/.test(p.textContent)) && !S.up.g1));
   await pg.evaluate(() => { document.querySelectorAll('.mk-valt').forEach((d) => { d.open = true; }); }); await pg.click('.mk-valt .upchk');   // [REC_UPLOAD] 접이가 둘(녹음 도움말 · 올리기가 어렵다면) await pg.waitForTimeout(300);
   ok('RF «카톡 · 메일로 보냈어요» → 올리지 않은 줄만 보냄 처리 · 올린 줄은 그대로', await pg.evaluate(() => S.up.g0.id === 'F1' && S.up.g1 === 'sent' && S.up.g3 === 'sent' && _mkTasks('guest').every((x) => x.done)));
   ok('RF pageerror 0', errs.length === 0, errs.join(' | '));
