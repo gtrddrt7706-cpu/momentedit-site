@@ -4909,8 +4909,9 @@ window.mkVsInfo=function(mom){ if(!_vsOk()) return; VS.open=true; VS.ph='info'; 
 function _vsInfoKey(m){ return m==='entry'?'entry':m==='prevideo'?'pv':'g0'; }
 function _vsInfoBody(){ var m=VS.mom||'guest', k=_vsInfoKey(m), u=(S.up||{})[k], aiOk=!!(u&&typeof u==='object'&&u.src==='ai'), nm={guest:'하객 맞이',prevideo:'식전 영상 소개',entry:'입장 인사'}[m];
   var col=function(id,ttl,rows,play){ return '<section class="mk-vsi-c" aria-labelledby="mkVsi_'+id+'"><h4 id="mkVsi_'+id+'">'+ttl+'</h4><dl>'+rows.map(function(r){ return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>'; }).join('')+'</dl>'+play+'</section>'; };
-  var aiPlay=aiOk?'<button type="button" class="mk-vgo" data-fk="mkvsi:ai" onclick="mkUpPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(nm)+' 들어 보기</span></button>':'<p class="mk-note mk-vsi-n">'+(_vcReadyFor(k)?'AI 두 분 목소리를 고르면 이 자리에 만들어져요':'두 분 목소리를 만들면 들어 볼 수 있어요')+'</p>';
-  var narPlay='<button type="button" class="mk-vgo" data-fk="mkvsi:nar" onclick="mkNarPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(nm)+' 들어 보기</span></button>';
+  var ln=k==='pv'?'영상 앞 소개':_mkUpLabKey(k);   /* [VS_INFO] 트는 것은 이 순간의 첫 줄 하나 — 이름도 그 줄로(하객 맞이 넷 중 «하객 입장 때») */
+  var aiPlay=aiOk?'<button type="button" class="mk-vgo" data-fk="mkvsi:ai" onclick="mkUpPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(ln)+' 들어 보기</span></button>':'<p class="mk-note mk-vsi-n">'+(_vcReadyFor(k)?'AI 두 분 목소리를 고르면 이 자리에 만들어져요':'두 분 목소리를 만들면 들어 볼 수 있어요')+'</p>';
+  var narPlay='<button type="button" class="mk-vgo" data-fk="mkvsi:nar" onclick="mkNarPlay(\''+k+'\')">'+ICO_PLAY+'<span>'+esc(ln)+' 들어 보기</span></button>';
   return '<div class="mk-vsi">'
     +col('ai','AI 두 분 목소리',[['누가 읽나요','두 분 목소리로 AI가 읽어요'],['두 분이 할 일','각자 1분 읽기 · 한 번이면 돼요'],['글','예시를 고르거나 두 분 말로 고쳐 써요'],['말투','실제 목소리와 조금 다를 수 있어요']],aiPlay)
     +col('nar','스튜디오 나레이션',[['누가 읽나요','스튜디오 나레이터가 읽어요'],['두 분이 할 일','없어요'],['글','고른 멘트 그대로 읽어요']],narPlay)
@@ -5793,7 +5794,7 @@ function _playNowText(key){ var t=_recNeed(key); if(!t) return; var edited=!!(_v
       function(){ MK.toast='지금은 들려 드리지 못했어요 · 잠시 뒤 다시 눌러 주세요'; render(); }); return; }
   if(nar){ play(nar); return; }
   MK.toast='두 분 목소리를 만들면 바뀐 글로 들려 드려요'; render(); }
-window.mkUpPlay=function(key){ if(MK_UP[key]) return;
+window.mkUpPlay=function(key){ if(MK_UP[key]){ if(MK_UPQ[key]) (UP_WAIT[key]=UP_WAIT[key]||[]).push(function(ok){ if(ok) mkUpPlay(key); }); return; }   /* [EX_NO_AUTO] 미리 만든 소리를 조용히 올리는 1~2초 사이 ▶ — 무시하지 않고 올라가면 바로 튼다 */
   if(MK.audKey===key&&MK.aud){ _stopMk(); render(); return; }   // [PLAY_TOGGLE] ■
   if(_staleNoVoice(key)){ _playNowText(key); return; }   // [STALE_NOVOICE] 옛 소리(바뀌기 전 글)를 틀지 않는다
   if(_vtNeed(key)){ _vcMake(key,{tempo:_tKey(key),pause:_pKey(key),retempo:!_upStale(key)})   /* [PLAY_FRESH] 빠르기까지 지금 값으로 만든 뒤 튼다(재생 속도 흉내 대신) */.then(function(){ setTimeout(function(){ mkUpPlay(key); },60); },function(){}); return; }
@@ -6150,7 +6151,7 @@ function _prPrepFold(){ var R=RitualOpen, wed=(CUST&&CUST.weddingDate)||'', pl=R
     hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL)})||[], np=pl.filter(function(q){ return !R.prepOpt(q); }).length,
     hpLi=function(a,b){ return '<li class="mk-hp"><span>'+esc(_ndd(a))+'</span>'+(b?'<span class="wr-due">'+esc(_ndd(b))+'</span>':'')+'</li>'; },   /* 네 묶음 모두 «이름 / 아래 한 줄» — 마감이 « · »로 홀로 떨어지지 않게(390 실렌더) */
     li=function(q){ return hpLi(q.what,(q.cat==='bring'&&q.due===0)?'당일 가져오기':R.dueWord(q,wed)); }, stu=_studioList(),
-    sum=['준비할 것 '+np+'가지',(hp.length?'도와주실 분 '+hp.length:'')].filter(Boolean).join(' · '), open=LS.prPrep!=null?LS.prPrep:!!PR_FROM_MP;
+    sum=[(np?'준비할 것 '+np+'가지':'준비할 것'),(hp.length?'도와주실 분 '+hp.length:'')].filter(Boolean).join(' · ')   /* [PR_PREP_FOLD] 두 분 · 부모님 몫이 없으면 «0가지»라 하지 않는다 */, open=LS.prPrep!=null?LS.prPrep:!!PR_FROM_MP;
   return '<details class="ls-off pr-prepf"'+(open?' open':'')+' ontoggle="LS.prPrep=this.open"><summary>'+esc(sum)+'</summary>'
     +(two.length?'<h5>두 분이 준비할 것</h5><ul class="mk-list">'+two.map(li).join('')+'</ul>':'')
     +(par.length?'<h5>부모님께 부탁드릴 것</h5><ul class="mk-list">'+par.map(li).join('')+'</ul>':'')
