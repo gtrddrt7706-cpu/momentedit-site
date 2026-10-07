@@ -390,7 +390,7 @@
   /* 준비 한 줄 [D5] — 0가지인 쪽은 뺀다 · «것 N가지»는 붙는 공백으로 */
   /* [R4-06] 선택 항목(부모님께 드릴 말 · «비워 두셔도 돼요» NOTE_TRIB)은 셈에서 뺀다 — ① · ④ 는 «두 분 8가지»인데 한눈에 보기 목록 · 미완료에는 7개였다.
      셈을 내는 곳(① prepLine · ④ · 마이페이지 «준비할 것 N가지»)이 모두 이 판정을 쓴다 */
-  function prepOpt(q) { return !!q && q.note === NOTE_TRIB; }
+  function prepOpt(q) { return !!q && (q.note === NOTE_TRIB || q.note === NOTE_TOAST); }   // [TOAST_SAY] 축배 한마디도 선택
   function prepCount(S) { var c = 0, pp = 0; prepList(S).forEach(function (q) { if (prepOpt(q)) return; if (q.who === 'parents') pp++; else c++; }); return { couple: c, parents: pp }; }
   /* ★★[VOICE_KIND 2026-09-27 코워크 지시 2장 · 사장님 «미리 녹음하거나 AI로 하는 부분과 직접 육성으로 얘기해야 하는 부분을 고객 입장에서 직관적으로 구분»]
      줄마다 누가 어떻게 소리 내는지 — 한 곳(여기)에서 정하고 ② · ③ · 콘솔이 같은 값을 읽는다.
@@ -486,7 +486,10 @@
      ★종전엔 글에 «3일 전»이 있으면 3, 없으면 7 이었다 — 반지 · 와인까지 «예식 7일 전까지»가 붙었다.
      ★고객 화면의 마감 말은 «예식 7일 전» · «예식 3일 전» · «당일» 셋뿐이다([P12] · dueWord 한 곳에서 만든다). */
   var NOTE_READ = '당일 직접 읽어요 · 보내지 않아도 돼요', NOTE_ASK = '미리 말씀드려 두세요';
-  var NOTE_TRIB = '적어 두시면 카드로 드려요 · 비워 두셔도 돼요';   // ★[TRIB_CARD_OPT 2026-09-25 사장님 «칸은 두되 선택»] ③ 에 선택 칸이 생겼다
+  var NOTE_TRIB = '적어 두시면 카드로 드려요 · 비워 두셔도 돼요';
+  /* ★[TOAST_SAY 2026-10-07 사장님 «다른 곳들과 다르게 텍스트박스가 아닌데 · 하나하나 확인해서 개선»] 축배도 첫인사처럼 «두 분이 할 말» 글칸 —
+     참고 예시를 누르면 신랑 · 신부 칸에 들어간다. 선택 칸이다(부모님께 인사 NOTE_TRIB 와 같은 꼴) — 비워 두면 종전대로 두 분이 «위하여»만 외친다(엔진 cue2 · 나레이션이 하객 답을 청한다) */
+  var NOTE_TOAST = '비워 두시면 당일 «위하여»만 외치셔도 돼요';   // ★[TRIB_CARD_OPT 2026-09-25 사장님 «칸은 두되 선택»] ③ 에 선택 칸이 생겼다
   function prepOf(k, S) {
     switch (k) {
       /* [REC_UPLOAD 2026-09-27 코워크 3-8] 준비 목록 이름 «두 분 목소리 준비» · 마감 D-7 · 스튜디오 나레이션을 고르면 빠진다(아래 조건 그대로) */
@@ -514,6 +517,7 @@
       case 'toast': {
         var w = chipOf('toast', S), out = [];   // [WINE_POUR_OFF] 와인은 저희가 준비 · 붓는 연출 없음
         if (w !== 'cake') out.push(['couple', '자리마다 축배 음료 알려 주기 · 마이페이지 «좌석' + NB + '·' + NB + '음료»에서', 'send', 7]);   // [P10 코워크 회신3] «정하기» → «알려 주기»(같은 갈래 «건넬지 알려 주기»와 같은 꼴)
+        if (w !== 'cake') out.push(['couple', '축배 한마디 · 한 분 한 문장쯤', 'write', null, NOTE_TOAST]);   // [TOAST_SAY] 글칸은 음료 줄 «뒤»에 — 음료 줄 번호(p:toast:0 · 두 분이 누른 «보냈어요»)가 그대로 남는다
         return out;   // [CAKE_TOAST_SPLIT] 케이크 준비는 케이크 순간으로
       }
     }
