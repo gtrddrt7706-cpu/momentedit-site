@@ -9989,7 +9989,7 @@ function prodConfirmHtml(p, inv){
        확정 기록(스냅샷)은 줄바꿈을 « · »로 이어 적는다(아래 wireProdConfirm). 옛 코스 요약(아래 else)은 그대로. */
     rv='담은 순간 '+escapeHtml(String(rd.summary.moments||0))+' · 본식 '+escapeHtml(String(rd.summary.min||''))+(rd.summary.photo?'<br>단체 사진 '+escapeHtml(String(rd.summary.photo)):'');
     var _mi=[]; if(rd.summary.from) _mi.push('‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작');
-    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('첫인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
+    if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('첫인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
     if(_mi.length) rv+='<br><span class="cc-mini">'+_mi.join('<br>')+'</span>'; }
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
     if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문'); if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('인사말'); if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }

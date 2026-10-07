@@ -999,7 +999,7 @@ function playSrc(url, estSec, cb){
 /* ★★[CUE_SIG 2026-10-04 사장님 «누군가는 끝나는 멘트에 맞춰 나레이션을 켜야 한다 · 적을 수 있게 · 현장이면 큐사인을 직접 적게»] 끝 신호 — 디렉터 화면에만.
    글을 적었으면 그 글의 마지막 문장, «현장에서 바로»면 두 분이 적은 신호(S.cueSig). 두 분 글은 엔진(미리 듣기 링크가 싣는 키)에 넣지 않고 여기서만 읽는다 */
 function cueEnd(c){ if (!c || !c.live || c.live.doing !== 'say') return '';
-  var M = { welcome: [['welcome.g','신랑'],['welcome.b','신부']], vow: [['vow.g','신랑'],['vow.b','신부']], letter: [['letter.g','신랑'],['letter.b','신부']], bless: [['p:bless:0','부모님','bless.p']] };
+  var M = { welcome: [['welcome.g','신랑'],['welcome.b','신부']], vow: [['vow.g','신랑'],['vow.b','신부']], letter: [['letter.g','신랑'],['letter.b','신부']], bless: [['p:bless:0','부모님','bless.p']], toast: [['toast.g','신랑'],['toast.b','신부']], free: [['p:free:0','축사하시는 분','free.p']] };   /* [SPEECH_SCRIPT 2026-10-07] 축사(말하는 판만 doing 'say') — 받은 원고 끝 문장 · «원고 없이»면 끝 신호 */   /* [TOAST_SAY 2026-10-07] 축배 한마디(선택) — 적었으면 마지막 분 끝 문장 · 비었으면 종전 큐(«위하여») */
   var it = M[c.k]; if (!it || (c.k === 'bless' && S.blessProxy)) return '';
   var tx = S.tx || {}, mk = S.mkc || {}, cs = S.cueSig || {}, out = [];
   var last = function(s){ var p = String(s || '').replace(/\s+/g, ' ').trim().match(/[^.!?。]+[.!?。]*/g) || []; var l = (p[p.length - 1] || '').trim(); return l.length > 40 ? '…' + l.slice(-40) : l; };
@@ -1009,7 +1009,7 @@ function cueEnd(c){ if (!c || !c.live || c.live.doing !== 'say') return '';
   /* ★[CUE_LAST 2026-10-06 사장님 «마지막 사람만 큐사인 알려 주면 되잖아»] 디렉터는 마지막 분이 끝났을 때만 알면 된다 —
      서약은 끝에 두 분이 함께 읽는 두 문장(live.both)이 끝 신호 · 첫인사 · 편지는 마지막 분(신부 · 없으면 남은 분) 하나 */
   if (c.k === 'vow' && c.live.both) { var _b = [].concat(c.live.both); return '두 분 함께 «' + last(_b[_b.length - 1]) + '»'; }
-  if (c.k === 'welcome' || c.k === 'letter') return out.length ? out[out.length - 1] : '';
+  if (c.k === 'welcome' || c.k === 'letter' || c.k === 'toast') return out.length ? out[out.length - 1] : '';   // [TOAST_SAY] 축배도 신랑 다음 신부 — 마지막 분 하나
   return out.join(' / '); }
 function fallbackCard(c, why, done){
   aNarr.removeAttribute('src'); try { aNarr.load(); } catch(e){}

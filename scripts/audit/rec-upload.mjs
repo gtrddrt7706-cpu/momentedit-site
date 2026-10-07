@@ -128,7 +128,7 @@ for (const w of [360, 1280]) {
         setTimeout(() => window.postMessage(Object.assign({ type: 'momentedit:voiceCloneDone', rid: q.rid }, r), location.origin), 50); }
       if (d.type === 'momentedit:ritualFile') setTimeout(() => window.postMessage({ type: 'momentedit:ritualFileDone', key: d.data.key, ok: true, name: d.data.name, id: 'AI' + d.data.key, at: 'x' }, location.origin), 50); });
     render(); }, MP3); await pg.waitForTimeout(600);
-  await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
+  await pg.evaluate(() => { S.tipSeen = { keep: 1, nar: 1 }; });   /* [TIP_FLY 2026-10-07] 처음 누를 때 뜨는 안내는 tip-fly 검사가 본다 · 여기선 본 고객으로 */ await pg.click('[data-fk="lsc:guestVoice:ai"]'); await pg.waitForTimeout(600);
   /* ★[VOICE_ONCE 2026-10-03 사장님] 사람 카드(목소리 만들기 시작)는 순간 쪽이 아니라 «두 분 목소리 만들기» 쪽에 — 그 쪽으로 가서 같은 동의 창을 연다 */
   ok('하객 맞이(AI · 목소리 없음) — 사람 카드 대신 한 줄 «두 분 목소리를 아직 만들지 않았어요 · 만들기» [VOICE_ONCE]', await pg.evaluate(() => !document.querySelector('[data-fk="mkvcok:groom"]') && !!document.querySelector('[data-fk="mkvnone"]')));
   await pg.click('[data-fk="mkvoicego"]'); await pg.waitForTimeout(500);

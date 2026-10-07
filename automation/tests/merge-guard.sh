@@ -8951,6 +8951,9 @@ chk 'LF_VID_KEEP' order-preview.html 2
 nochk 'window._lVidTap=function' order-preview.html   # ★[VID_AUTO_ONLY 2026-10-03 사장님 «정지/재생 뜨는데 그 기능도 삭제»] 장면 영상 누르기 금지
 chk 'SAMPLE_TOAST_LIVE' assets/ritual-open.js 1
 nochk "toast: { slug: 'toast-both-pour-b'" assets/ritual-open.js
+chk "cake: { slug: 'toast-both' }" assets/ritual-open.js 1   # [SAMPLE_CAKE 2026-10-07 사장님 «부분만 선택할 때 이것만 음성이 없었어»] 케이크 창 소리
+# [SAMPLE_CAKE] 고르기 칸(SECTIONS)에 그림이 있는 순간마다 미리 듣기 줄(SAMPLE)이 있어야 한다 — 칸을 누르면 그 창이 열린다(opPv) — 새 순간을 만들고 표를 안 고치면 그 창만 소리가 없다(케이크가 09-27 부터 그랬다)
+if command -v node >/dev/null 2>&1; then _sc=$(node -e "const R=require('./assets/ritual-open.js'); const m=[].concat.apply([],R.SECTIONS.map(function(s){ return s.ks; })).filter(function(k){ return !R.SAMPLE[k]; }); if(m.length){ console.log(m.join(',')); process.exit(1); }" 2>&1) && echo 'ok sample-cover: 고르기 칸 순간마다 미리 듣기 줄이 있다 [SAMPLE_CAKE]' || { echo "REVERT? sample-cover: 미리 듣기 줄(SAMPLE)이 없는 순간 — $_sc [SAMPLE_CAKE]"; fail=1; }; fi
 chk 'VID_PLAY_ALL' scripts/audit/listen-page.mjs 2
 # ★[LVID_ONCE 2026-10-03 사장님 «여기 영상도 1회 재생될 수 있게 해 줘»] ② 쪽이 보이면 그 순간 영상이 한 번(소리 없음 · 반복 없음 · 끝 장면에서 멈춤) ·
 #   움직임 줄이기 · 데이터 절약이면 저절로 안 돈다(누르면 돈다) · 크게 보기도 loop 없음. listen-page P-8 · P-9 · P-10 이 play 를 가로채 잰다.
@@ -12680,7 +12683,11 @@ chk 'VC_CALM' order-preview.html 4   # ★[VC_CALM 2026-10-04 사장님 «'지�
 chk 'PLAY_ONE_LOOK' order-preview.html 3   # ★[PLAY_ONE_LOOK 2026-10-04 사장님 «왼쪽 플레이 단추 · 모양도 안 바뀜 · 일괄 통일»] 줄 ▶ 한 모양 · 나레이션 줄도 ▶/■
 chk 'VS_ONE_LINE' order-preview.html 1   # 두 분 목소리 설명 한 줄(미니멀) · 두 곳 같은 글
 chk 'UI_ONE' order-preview.html 15   # ★[UI_ONE 2026-10-04 사장님 «설정 따라 어쩔 수 없는 것 말고는 연속성 있게 같은 인터페이스»] 주 단추 알약 · 고른 것 한 모양 · 이 순간 들어 보기 ▶/■ · 플레이어 같은 묶음 · 쪽 제목 22/600 · 나레이션 줄 머리
-chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 사장님 «플레이 단추가 위쪽 · B · 좀 더 내려»] 줄 ▶ 눈 맞춤 5px
+chk 'PLAY_OPTIC' order-preview.html 2   # ★[PLAY_OPTIC 2026-10-04 «좀 더 내려» → 2026-10-07 사장님 «조금 내려가 있다»] 줄 ▶ = 글자 잉크 가운데(실측 0 ~ -0.5px)
+chk '^\.mk-flow li\.n \.mk-pl{margin-top:-7px}' order-preview.html 1   # [PLAY_OPTIC] 흐름 줄 ▶ 원 = 글자 잉크 가운데(390 0.0 · 1280 -0.5px) · 흐름선 시작 · 끝도 15
+chk '^\.mk-flow li\.n \.mk-pl{width:44px;margin-left:-5px} \.mk-flow li\.n \.mk-pl::before{inset:5px}' order-preview.html 1   # [FLOW_NODE_ROUND] 흐름 ▶ = 선 위 마디 → 원 34 · 가로 가운데 17 = 흐름선 · 글 47(알약으로 넓히면 선이 비껴간다)
+chk 'li.n:last-child::before{height:15px}' order-preview.html 1   # [PLAY_OPTIC] 흐름선이 ▶ 원 가운데(15)에서 멈춘다
+nochk 'mk-vpl{position:relative;top:5px}' order-preview.html   # [PLAY_OPTIC] 줄 카드 ▶ 5px 내림 = 사장님이 «조금 내려가 있다»로 짚은 값(10-07) — 되살리지 않는다
 # ★[QA_0927 2026-10-04 사장님 «식순 섹션 버튼 하나씩 병렬 시뮬레이션 · 버그 · 지연 · 부자연스러운 것»] 네 갈래 점검에서 나온 것 — 연습 재생이 그리기마다 꺼짐 · 음악까지 미리듣기 · 빠르게 훑기 · 포커스 · 플레이어가 누른 곳을 덮음 외
 chk 'QA_PR_KEEP' order-preview.html 1
 chk 'QA_BIG_THEN' order-preview.html 2
@@ -14308,7 +14315,38 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/prep-link.mjs >/dev/
 # ★[CARD_POLISH 2026-10-05 사장님 «추천대로 · 디자인적으로 완성도 높게 · 다른 곳들도 같이»] ① ▶ 원 왼쪽 = 글 · 카드 왼쪽 선 ② «＋ 줄 더하기»는 카드 안 ③ 카드 안 [신랑|신부] 그림만 작게(누르는 칸 44)
 chk 'CARD_POLISH' order-preview.html 6
 chk '<div class="mk-slc"><ol class="mk-sl"' order-preview.html 1
-chk '^\.mk-pl{flex:0 0 auto;width:44px;height:44px;margin:-8px 0 -8px -5px;' order-preview.html 1
+chk '^\.mk-pl{position:relative;isolation:isolate;flex:0 0 auto;width:58px;height:44px;margin:-8px 0;' order-preview.html 1   # [PLAY_PILL] 줄 ▶ = 가로 알약 · 칸 = 알약 폭이라 왼쪽 밀기 없음([CARD_POLISH] ① 알약 왼쪽 끝 = 글 · 카드 왼쪽 선)
+# ★★[PLAY_PILL · WAIT_FILL · PLAY_WAIT_TAP 2026-10-07 사장님 «입장 인사 왼쪽 플레이 버튼 · 가로 타원으로 · 로딩을 직관적으로 · 점점 진해지면서» → 시안 셋 중 A «차오르는 알약»]
+#   줄 ▶ 는 원 → 흰 알약(확정하기 알약과 한 집안) · 기다림은 흐리게 꺼 두지 않고 «차오름»(어림 시간 · 90% · 다 되면 끝까지 · 회전 없음)
+#   일곱 곳 한 모양 — 줄 ▶ · 흐름 ▶(원 · FLOW_WAIT) · 이 순간 전체 듣기 · «이 목소리가 나오는 곳» 창 들어 보기 · «목소리 맞추기» 창(빠르기와 쉼) 들어 보기 · 작은 플레이어 ❚❚ · 크게 보기 ❚❚ ([COURSE_WIDE])
+#   (쉼 «이 자리 들어 보기»는 기다림이 생기지 않아 넣지 않았다 · MK.turnLoad 를 세우는 곳이 없다)
+#   ★[PLAY_WAIT_LOCK 2026-10-07 사장님 «이 상태에서는 누를 수 없게 · 로딩이 끝나면 누를 수 있게»] 차오르는 동안은 일곱 곳 모두 못 누른다(오전의 PLAY_WAIT_TAP «올리는 동안도 누름»은 걷었다)
+chk 'PLAY_PILL' order-preview.html 2
+chk 'WAIT_FILL' order-preview.html 16
+chk 'PLAY_WAIT_LOCK' order-preview.html 3
+nochk "(_wq?' aria-busy=\"true\"'" order-preview.html   # [PLAY_WAIT_LOCK] 올리는 동안 누를 수 있게(옛 PLAY_WAIT_TAP) 되돌리지 말 것
+chk "(/ ld/.test(w.c)?' disabled aria-busy=\"true\"':'')" order-preview.html 4   # [PLAY_WAIT_LOCK] 줄 카드 나레이션 ▶ · 흐름 ▶ · 작은 · 큰 플레이어 ❚❚
+chk "b.disabled=/ ld/.test(c);" order-preview.html 1   # [PLAY_WAIT_LOCK] 다시 그리지 않고 칠할 때(_wfPaint)도 못 누름
+nochk '^\.mk-vch \.mk-vpl svg{' order-preview.html   # [PLAY_PILL] 줄 카드 머리 아이콘에 따로 칠하면 알약 안에 네모가 겹친다(10-07 실렌더) — 모양은 .mk-pl::before 한 곳
+chk '^\.mk-pl:focus-visible{outline:none} \.mk-pl:focus-visible::before{outline:2px solid var(--seal);outline-offset:3px}' order-preview.html 1   # [PILL_FOCUS] 키보드 고리도 알약 모양 · 단추 칸(58×44)에 두르면 모서리 4px 네모가 알약을 감쌌다(10-07 390 실렌더 · 같은 줄 «목소리 만들기» 알약은 고리도 알약)
+chk 'function _wfx(id,on,d,at)' order-preview.html 1
+chk 'function _waitEst(t)' order-preview.html 1
+chk 'function _lpWait(st,id)' order-preview.html 1
+chk '@keyframes wfIn{' order-preview.html 1
+chk '.wfill.ld::after{animation:wfIn' order-preview.html 1
+chk 'prefers-reduced-motion:reduce){ .wfill.ld::after' order-preview.html 1
+chk "_wfx('mp:'+k" order-preview.html 1
+chk "_wfx('vu'," order-preview.html 1
+chk "_wfx('tune'," order-preview.html 1
+chk "_wfx(id||'lp'," order-preview.html 1
+chk "(_lpWait(st))" order-preview.html 2
+chk 'FLOW_WAIT' order-preview.html 4   # [FLOW_WAIT 2026-10-07 사장님 «원형에 로딩 시간 효과는 살린 거야?»] 흐름 ▶(원)도 차오름 — 헬퍼 · 칠하기 · 그리기 · CSS
+chk '^\.mk-vsd{position:relative;display:flex;justify-content:space-between;align-items:center;flex:1 1 auto;max-width:240px;' order-preview.html 1   # [VSTAT_WIDE 2026-10-07 사장님 «추천대로»] 카드 빠르기 · 쉼 점 줄 = 오른쪽 끝까지 · 최대 240(168 고정으로 되돌리지 말 것)
+chk "})(_mlWait(k+':'+i))" order-preview.html 1
+chk "_wfPaint(b,_mlWait(b.getAttribute('data-ml')))" order-preview.html 1
+chk '.mk-flow li.n .mk-pl.wfill::after{inset:5px}' order-preview.html 1
+chk "(st.busy?' disabled aria-busy=\"true\"':'')+' onclick=\"mkUpPlay(" order-preview.html 1   # [PLAY_WAIT_LOCK] 줄 카드 AI ▶ = 기다리는 동안 늘 못 누름
+nochk 'Math.min(14,3+' order-preview.html 1   # [WAIT_FILL] 어림 시간은 _waitEst 한 곳
 chk '.mk-slr .mk-slwg .mk-whob{position:relative;z-index:0;min-height:44px' order-preview.html 1
 # ★[CTL_FIVE] 위 · [PRACTICE_NO_CHOOSE 2026-10-05 사장님 «이 순간 바꾸기 · 영상 앞 소개 · 연습 공간에서 이 부분은 삭제»] 연습은 듣기만 — 모든 순간에서 걷었다
 chk 'PRACTICE_NO_CHOOSE' order-preview.html 1
@@ -14579,10 +14617,27 @@ chk 'window.mkVsInfo=function(mom)' order-preview.html 1
 chk 'VS_INFO_MIN' order-preview.html 3
 nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
-# ★[TIP_FLY_OFF 2026-10-07 사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»] 처음 누를 때 안내 창 · 링크로 접혀 들어가는 모션 · 빛남 — 되살리지 말 것
+# ★★[FLOW_FILL 2026-10-07 사장님 «전체 선택하면 문구가 나오면서 그래프 아래 빈 간격 · 확인 개선»] PC 흐름 판 그림 높이 = 오른쪽 칸 제 높이(상한 260)
+chk 'FLOW_FILL' order-preview.html 2
+chk 'function _pkFillH(el)' order-preview.html 1
+chk 'FLOW_FILL' scripts/audit/flow-fill.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/flow-fill.mjs >/dev/null 2>&1; _ffl=$?; if [ "$_ffl" = 1 ]; then echo 'FAIL flow-fill: 흐름 판 그림 아래가 비었습니다 — node scripts/audit/flow-fill.mjs'; fail=1; else echo "ok flow-fill ($_ffl)"; fi; fi
+# ★[STEPB_NOLINE 2026-10-07 사장님 «고르기 · 하나씩 만들기 밑에 줄 삭제 · 연습하기 · 완성도 마찬가지»] 머리 네 걸음의 지난 걸음 밑줄 없음(마우스 올림만)
+chk 'STEPB_NOLINE' order-preview.html 2
+nochk 'cursor:pointer;text-decoration:underline;text-underline-offset:3px;display:flex;align-items:flex-start;justify-content:center}' order-preview.html
+# ★★[KEEP_Y 2026-10-07 사장님 «스튜디오 나레이션 누르면 화면이 위로 올라가는데 그대로 있게 · 다른 곳들도 마찬가지»] 다시 그리기 전에 보이는 화면 아래 끝까지 높이를 받친다
+chk 'KEEP_Y' order-preview.html 3
+chk '  _kyHold();   // \[KEEP_Y\]' order-preview.html 1
+chk 'KEEP_Y' scripts/audit/keep-y.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/keep-y.mjs >/dev/null 2>&1; _kyy=$?; if [ "$_kyy" = 1 ]; then echo 'FAIL keep-y: 칩을 누르면 화면이 위로 끌려갑니다 — node scripts/audit/keep-y.mjs'; fail=1; else echo "ok keep-y ($_kyy)"; fi; fi
+# ★★[TIP_ONCE 2026-10-07 사장님 «모션그래픽 부분만 없애고 팝업은 AI 두 분 목소리 누르면 나오게»] AI 두 분 목소리 처음 누를 때 한 번 확정 안내 창 · 그냥 닫힘 · 첫 순간 네 줄 펼침 없음
+chk 'TIP_ONCE' order-preview.html 6
+chk 'TIP_ONCE' scripts/audit/tip-once.mjs 1
+# ★[TIP_FLY_OFF 2026-10-07 사장님 «직접 보니까 별로다 · 모션그래픽 전부 없애»] 링크로 접혀 들어가는 움직임 · 빛남 — 되살리지 말 것
 chk 'TIP_FLY_OFF' order-preview.html 1
 nochk 'function _tipFly(' order-preview.html
 nochk '@keyframes tipGlow' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/tip-once.mjs >/dev/null 2>&1; _tfy=$?; if [ "$_tfy" = 1 ]; then echo 'FAIL tip-once: AI 두 분 목소리 처음 누를 때 안내 창이 어긋났습니다 — node scripts/audit/tip-once.mjs'; fail=1; else echo "ok tip-once ($_tfy)"; fi; fi
 nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
 chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
@@ -14860,6 +14915,16 @@ nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
 chk 'FLOW_THREAD' scripts/audit/flow-thread.mjs 1
 chk 'FLOW_THREAD' scripts/audit/ghi-polish.mjs 1
 chk 'FLOW_THREAD' .claude/skills/momentedit-design/SKILL.md 1   # 디자인 규칙 문서에도 한 벌로 적었다 — 새 «멘트 → 행동» 화면은 이 모양
+# ★[FLOW_DOT_SEAL 2026-10-07 사장님 «말 없이 왼쪽 점 부분 진사 색상으로 · 다른 곳들도 마찬가지로»] ● 행동 점 = 진사 · 금빛으로 되돌리지 말 것
+chk 'FLOW_DOT_SEAL' order-preview.html 1
+chk '.mk-flow li.q::after{background:var(--seal)}' order-preview.html 1
+nochk '.mk-flow li.q::after{background:var(--gold-deeper)}' order-preview.html
+chk 'FLOW_DOT_SEAL' scripts/audit/flow-thread.mjs 1
+# ★[FLOW_PEOPLE_SEAL 2026-10-07 사장님 «구분 기준이 뭐야 · 최선이야?»] 진사 = 사람이 하는 순서(● · ○ 둘 다) · ▶ 안내 목소리는 옅은 금빛
+chk 'FLOW_PEOPLE_SEAL' order-preview.html 1
+chk '.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--seal)}' order-preview.html 1
+nochk '.mk-flow li.t::after{background:var(--bg);border:1.5px solid var(--gold-deeper)}' order-preview.html
+chk 'FLOW_PEOPLE_SEAL' scripts/audit/flow-thread.mjs 1
 # ★[FAST_FIRST 2026-10-07 사장님 «검사 같은 건 나중에 한 번에 · 요청한 것만 빠르게 반영»] 작업 방식 규칙이 CLAUDE.md 에 살아 있나(두 곳 — 절 · 화면 PR 점검 3단의 덧줄)
 chk 'FAST_FIRST' CLAUDE.md 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/flow-thread.mjs >/dev/null 2>&1; _flt=$?; [ "$_flt" = 1 ] && { echo 'FAIL flow-thread: 순간 흐름(흐름선 · 마디 · 행동 줄)이 어긋났습니다 — node scripts/audit/flow-thread.mjs'; fail=1; }; fi
@@ -14943,8 +15008,12 @@ nochk '.mk-vfb{min-height:44px;padding:0 10px;border:1px solid var(--border);bor
 # ★[VFLOW_NOLINE 2026-10-07 사장님 «하객 입장 때 … 입장 인사 밑에 점선 없애자»] 나오는 곳 여섯 = 글 · › 만(점선 밑줄 없음)
 chk 'VFLOW_NOLINE' order-preview.html 2
 nochk 'white-space:nowrap;text-decoration:underline dotted;text-decoration-color:var(--gold-deep)' order-preview.html
-chk 'VSTAT_GUTTER' order-preview.html 1
-chk '.mk-vstat>span:first-child{padding-right:16px}' order-preview.html 1
+# ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
+chk 'VCARD_CALM' order-preview.html 3
+chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
+nochk '.mk-vstat>span+span{padding-left:16px;border-left:1px solid var(--border)}' order-preview.html
+nochk '.mk-vstat{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;padding:12px 0;border-top' order-preview.html
+nochk '.mk-vpcs .mk-vhow{display:block;margin:14px 0 0;padding:12px 0 0;border-top:1px solid var(--border)' order-preview.html
 chk 'VREADY_ONE' order-preview.html 1
 chk "both?'두 분 목소리가 준비됐어요.':'각자 1분 읽으면" order-preview.html 1
 nochk "두 분 목소리가 준비됐어요. '+esc(_vsWhere(true))" order-preview.html
@@ -14963,3 +15032,39 @@ nochk '지금 마저 나눠 주세요' assets/ritual-open.js
 #   진희 한 층(합쇼체) 검사의 하객 맞이 예외는 걷었다 — 되살리지 말 것
 chk '걷음 2026-10-07 · NAR_1007' scripts/audit/voice-register.mjs 1
 nochk 'EX_GROUP' scripts/audit/voice-register.mjs
+# ★★[REF_FORM 2026-10-07 사장님 «여기 부분 다른 곳들과 다르게 텍스트박스가 아닌데 · 다른 곳들도 형태가 다른 것이 있는지 하나하나 확인해서 개선»]
+#   참고 예시 아래 모양 — 두 분이 말하는 순간(첫인사 · 서약 · 부모님께 인사 · 편지 · 축배)은 예시가 «두 분이 할 말» 칸을 채운다 [TOAST_SAY]
+#   · 예시 칩 이름이 겹치지 않는다 [REF_TITLE_WHO] · 한 분 몫 글자 수는 끝에 한 번 [REF_ONE_COUNT] · 축사 · 가족 낭독 흐름은 한 줄 [FLOW_ONE_TURN]
+#   · 한눈에 보기에 두 분이 부탁하는 줄도 [SUM_ASK_ALL] · 가족 낭독 예시 안내는 인쇄해 건네는 선언문 [DECL_REF_HEAD]
+#   깨 보고 믿음: main(축배 읽기만 · 칩 «한 분이 읽어요» 두 번 · 축사 «신부 오빠 차례» 네 줄)에 ref-form 을 돌리면 10건 빨강 · 종료 코드 1
+chk 'TOAST_SAY' assets/ritual-open.js 3
+chk "if (w !== 'cake') out.push(\['couple', '축배 한마디 · 한 분 한 문장쯤', 'write', null, NOTE_TOAST\]);" assets/ritual-open.js 1
+chk "toast:{nm:'축배 한마디',chk:'',lim:60}" order-preview.html 1
+chk 'TOAST_SAY' order-preview.html 6
+chk 'TOAST_SAY' console.html 2
+chk 'TOAST_SAY' mypage.html 1
+chk 'TOAST_SAY' admin.html 1
+chk 'REF_TITLE_WHO' order-preview.html 1
+chk 'REF_ONE_COUNT' order-preview.html 1
+chk 'FLOW_ONE_TURN' order-preview.html 3
+chk 'SUM_ASK_ALL' order-preview.html 1
+chk 'DECL_REF_HEAD' order-preview.html 1
+nochk "_mkItems(k).forEach(function(q){ if(q.cat==='ask'&&q.who==='parents'){ if(_mkChk()\[q.id\]!=='site') asks.push(q); }" order-preview.html
+chk 'REF_FORM' scripts/audit/ref-form.mjs 1
+# ★[GUARD_LAST_LINE 2026-10-07] 이 파일의 «마지막 줄»의 종료 코드가 곧 게이트의 종료 코드다(트랩이 exit 없이 끝난다).
+#   «[ … = 1 ] && { … }»로 끝나는 줄이 맨 끝이면 검사가 «통과»할 때 [ ] 가 1 을 남겨 — ALL MARKERS OK 를 찍고도 CI 가 빨갛다(#1088 실측).
+#   그래서 node 검사 줄은 «; :»로 닫는다 · 이 아래에 줄을 더해도 같은 꼴로 닫을 것
+if command -v node >/dev/null 2>&1; then node scripts/audit/ref-form.mjs >/dev/null 2>&1; _rff=$?; [ "$_rff" = 1 ] && { echo 'FAIL ref-form: 참고 예시 아래 모양(두 분 칸 · 칩 이름 · 글자 수 · 흐름 한 줄 · 한눈에 보기 부탁)이 어긋났습니다 — node scripts/audit/ref-form.mjs'; fail=1; }; :; fi
+# ★★[SPEECH_SCRIPT 2026-10-07 사장님 «하나하나 확인해서 개선»] 받은 원고 칸 — 덕담(부모님)에만 있고 축사(준비하신 분)에는 없었다.
+#   같은 칸 · 같은 «원고 없이 현장에서 바로» 체크 · 같은 끝 신호 · 대본 · 콘솔 · 관리자 · 준비 목록까지 한 벌(ref-form ⑨)
+chk 'SPEECH_SCRIPT' order-preview.html 7
+chk "free:{id:'free.p',nm:'받은 축사 원고',fk:'mkfsite',site:'원고 없이 현장에서 바로 하실 거예요',hd:'축사 원고'}" order-preview.html 1
+nochk "if(cat==='ask'&&k==='bless'){ var bv=(S.tx||{})\['bless.p'\]||'';" order-preview.html
+chk 'SPEECH_SCRIPT' assets/ritual-open.js 1
+chk 'SPEECH_SCRIPT' console.html 1
+chk "free: \[\['p:free:0','축사하시는 분','free.p'\]\]" console.html 1
+chk 'SPEECH_SCRIPT' admin.html 1
+chk 'SPEECH_SCRIPT' scripts/audit/ref-form.mjs 1
+# ★[GUIL_FLEX_SPACE 2026-10-07 점검] «…»를 명조로 바꿀 때 칩 · 단추(flex) 안에서는 한 덩이로 묶는다 — 끝 신호 예시 «마지막에감사합니다라고»(ref-form ⑩)
+chk 'GUIL_FLEX_SPACE' order-preview.html 1
+chk 'GUIL_FLEX_SPACE' scripts/audit/ref-form.mjs 1

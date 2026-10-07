@@ -1,6 +1,6 @@
 // ★[KEEP_ORDER 2026-10-06 사장님 «목소리 만들기부터 설명 시작 · 처음 하객 맞이 부분만 펼쳐 있고 그 이후는 접힌 상태» → «추천대로»] 확정 안내(390 · 1280)
-//   ①첫 AI 순간(하객 맞이) = 펼침 · 네 줄 · 첫 줄이 목소리 · 셋째 줄 안에 단추 모양 둘 ②다음 순간(입장 인사) = «확정 안내 보기» 한 줄로 접힘
-//   ③누르면 작은 창(KEEP_DLG · 종전 펼침 «확정 안내 접기»는 걷음) ④하객 맞이가 나레이션이면 입장 인사가 첫 순간 = 펼침
+//   ①[TIP_FLY 2026-10-07] 펼친 네 줄 없음 · 칩 줄 «확정 안내 보기» ②입장 인사도 칩 줄(나레이션 자세히 왼쪽)
+//   ③누르면 작은 창(KEEP_DLG) ④만든 줄이 없어도 AI 를 고르면 «확정 안내 보기»
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -24,9 +24,9 @@ try {
     await pg.evaluate(() => { courseStarted = true; S.on = S.on || {}; ['entry', 'prevideo'].forEach((k) => { S.on[k] = 1; }); S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'nar' }; RitualOpen.FEATURE.upLive = true; RitualOpen.FEATURE.voiceClone = true; VC.st = { groom: { ready: true }, bride: { ready: true } }; for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'listen') { idx = i; render(); } });
     await pg.evaluate(() => { S.vfill = { guest: 'ai', entry: 'ai', prevideo: 'ai' }; S.up = S.up || {}; ['g0', 'g1', 'g2', 'g3', 'entry', 'pv'].forEach((k) => { S.up[k] = { src: 'ai', by: 'groom', name: 'x.mp3' }; }); S.vkeep = {}; });
     await wait(300); await pg.evaluate(() => mkGo('guest')); await wait(600);
-    const a = await look(pg);
-    ok(`${w} ① 하객 맞이 = 펼침 · 네 줄 · 첫 줄 목소리 · 셋째 줄 단추 모양 둘 · 접기 단추 없음`, !a.shut && a.li.length === 4 && /^두 분 목소리를 만들면/.test(a.li[0]) && a.kp === 2 && !a.tg && /풀려면 확정됨을 한 번 더/.test(a.li[3]) && a.hx, JSON.stringify(a));
-    if (SHOT) { await pg.evaluate(() => document.querySelector('.mk-keepg').scrollIntoView({ block: 'center' })); await pg.screenshot({ path: `${SHOT}-g-${w}.png` }); }
+    const a = await pg.evaluate(() => ({ inline: !!document.querySelector('.mk-keepl'), link: !!document.querySelector('.mk-pick [data-fk="mkkeept:guest"]') }));
+    /* ★[TIP_FLY 2026-10-07] 첫 순간에 펼쳐 두던 네 줄은 걷었다 — 처음 칩을 누를 때 한 번 창으로 보여 주고 «확정 안내 보기»로 접혀 들어간다(tip-fly 검사) */
+    ok(`${w} ① 하객 맞이도 펼친 네 줄 없음 · 칩 줄에 «확정 안내 보기» [TIP_FLY]`, !a.inline && a.link, JSON.stringify(a));
     await pg.evaluate(() => mkGo('entry')); await wait(600);
     const b = await look(pg);
     /* ★[KEEP_IN_ROW 2026-10-06 사장님 «확정 안내 보기도 나레이션 자세히 좌측으로»] 접힌 단추는 칩 줄(나레이션 자세히 왼쪽) — 두 가로선 사이 따로 뜬 줄 없음 */
@@ -45,9 +45,9 @@ try {
     await pg.click('[data-fk="mkkeepok"]'); await wait(300);
     const c2 = await pg.evaluate(() => ({ dlg: !!document.getElementById('mkRecDlg'), f: (document.activeElement || {}).getAttribute && document.activeElement.getAttribute('data-fk'), y: document.querySelector('[data-fk="mkkeept:entry"]').getBoundingClientRect().top, open: !!document.querySelector('.mk-keepg .mk-keepl') }));
     ok(`${w} ③-2 알겠어요 → 창 닫힘 · 초점은 «확정 안내 보기» · 아래로 펼치지 않음(자리 그대로)`, !c2.dlg && c2.f === 'mkkeept:entry' && !c2.open && Math.abs(c2.y - y0) < 2, JSON.stringify({ c2, y0 }));
-    await pg.evaluate(() => { MK.keepT = {}; S.guestVoice = 'nar'; S.pvVoice = 'nar'; render(); }); await wait(300);
-    const d = await look(pg);
-    ok(`${w} ④ 하객 맞이 · 식전 영상이 나레이션이면 입장 인사가 첫 순간 = 펼침`, !d.shut && d.li.length === 4, JSON.stringify(d));
+    await pg.evaluate(() => { S.up = {}; render(); }); await wait(300);
+    const d = await pg.evaluate(() => !!document.querySelector('.mk-pick [data-fk="mkkeept:entry"]'));
+    ok(`${w} ④ 만든 줄이 아직 없어도 AI 를 고르면 «확정 안내 보기»가 있다(처음 창이 들어갈 자리) [TIP_FLY]`, d, String(d));
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
   }
