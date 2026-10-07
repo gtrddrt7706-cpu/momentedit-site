@@ -15437,3 +15437,5 @@ chk 'ERR_STATE_QUIET' automation/platform/95_notify.gs 1
 chk 'LT_RATE_G1' automation/platform/87_letter.gs 1
 chk 'ADMIN_UNKNOWN_FN' automation/admin/admin.gs 1
 chk 'ERR_FAILISH_4' automation/platform/95_notify.gs 1
+chk 'EXC_SHORT_WORD' automation/consultation/consultation-booking.gs 1
+nochk "var _userMsg = _intended ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';" automation/consultation/consultation-booking.gs

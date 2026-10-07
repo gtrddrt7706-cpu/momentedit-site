@@ -2321,7 +2321,9 @@ function doPost(e) {
     /* [ERR_CODE_GAS] 관리자용 설정 안내(«시트 없음: … setupCustomers()를 먼저 실행하세요.»)가 고객 화면에 새던 것도 막는다 — «()» · «실행하세요» · «시트 없음» */
     var _intended = !!(_em && _em.length <= 140 && /[가-힣]/.test(_em)
       && !/[<>{}]|https?:|Error:|Exception|undefined|null|cannot |TypeError|ReferenceError| at |\(\)|실행하세요|시트 없음/i.test(_em));
-    var _userMsg = _intended ? _em : '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.';
+    /* [EXC_SHORT_WORD 2026-10-08 점검] 예상 못 한 오류의 고객 글을 짧게 — 화면들이 옛 글 «요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.»를
+       이 말로 바꿔 보여 주고 있었는데 코드 앞 마침표를 걷자(ERR_NO_DOT) 그 대조가 빗나가 긴 글이 390px 에서 두 줄로 갈렸다. 원천에서 같은 말로 */
+    var _userMsg = _intended ? _em : '서버에서 오류가 났어요 · 다시 해 주세요';
     /* ★[ADMIN_EXC_WHY 2026-10-08 점검] 관리자 동작(adminCall · 인증 통과)의 예외는 원문 160자를 관리자 화면에 — 종전엔 «요청을 처리하지 못했어요»만 떠
        할당량 · 시간 초과 · 데이터 한 줄의 TypeError 를 GAS 실행 기록에서만 볼 수 있었다. 고객 화면 길은 그대로(원문 비노출) */
     if (!_intended && __ERR_ACT === 'adminCall' && typeof _CURRENT_ADMIN !== 'undefined' && _CURRENT_ADMIN) _userMsg = '서버에서 오류가 났어요 · ' + _em.replace(/\s+/g, ' ').slice(0, 160);
