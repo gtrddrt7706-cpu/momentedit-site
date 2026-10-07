@@ -428,6 +428,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 .login-wrap input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:13px;font-family:var(--sans);font-size:16px;color:var(--accent);background:#fff;outline:none;min-height:50px}
 .login-wrap input:focus{border-color:var(--gold)}
 .login-err{font-family:var(--serif-ko);font-size:12px;color:var(--seal);min-height:16px;margin:4px 0 10px}
+.login-keep{margin:14px 0 0;padding:10px 12px;border:1px solid var(--gold-line);border-radius:8px;background:var(--card);font-size:12px;line-height:1.7;color:var(--sub);word-break:keep-all}   /* [ADM_KEEP_LOGIN] 로그인을 기억 못 하는 창 안내 */
 .login-wrap .btn{margin-top:4px}
 /* ★[NO_CARET_ALL 2026-10-06 사장님 «홈페이지 전체 커서 안 생기게 해 줘»] 글 칸이 아닌 곳을 누르면 깜빡이는 커서가 생기던 것(포커스 받는 틀 · 크롬 «캐럿 브라우징» F7) ·
    페이지 전체 커서를 투명하게 · 글을 적는 칸만 되돌린다(caret-color 는 물려받는다). 글 고르기(복사)는 그대로 된다 */
@@ -460,6 +461,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       <div class="field"><label for="lgPw">비밀번호</label><input type="password" id="lgPw" autocomplete="current-password"></div>
       <div class="login-err" id="lgErr"></div>
       <button class="btn btn-seal" id="lgBtn">로그인</button>
+      <p class="login-keep" id="lgKeep" role="note" style="display:none"></p>
     </div>
   </section>
 
@@ -1847,7 +1849,19 @@ function goBack(){ if(_origin==='archive'){ openArchive(); } else if(_origin==='
 /* ── 로그인·세션 ── */
 function setWho(n){ var e=$('whoName'); if(e) e.textContent=n?(esc(n)+'님'):''; }
 function setTopbar(on){ ['btnBlocks','btnArchive','btnAiTeam','btnRefresh','btnLogout'].forEach(function(id){ var e=$(id); if(e) e.style.display=on?'':'none'; }); if(!on) setWho(''); }
-function showLogin(){ setTopbar(false); show('login'); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
+/* ★[ADM_KEEP_LOGIN 2026-10-07 사장님 «미쿠 핸드폰에서 관리자 페이지 열 때마다 로그아웃된다»]
+   서버는 로그인을 30일 지키고(TOKEN_VALID_DAYS) 한 계정에 기기 5대까지 받는다 · 화면은 진짜 인증 실패일 때만 로그아웃한다.
+   그런데도 «열 때마다» 풀리면 폰이 저장한 로그인(localStorage)이 그 창에 없는 것이다 — 카카오톡 · 네이버 · 인스타 같은 «앱 안 창»은
+   Safari · Chrome 과 저장소가 따로라(앱을 닫으면 지워지기도 한다) 거기서 로그인해도 다음에 링크로 열면 또 로그인 화면이다.
+   ★앱 안 창이 아니라도 «로그인 상태로 남을 수 없게 하는 브라우저»(저장 막힘 · 시크릿)면 한 줄로 알린다.
+   ★또 하나의 대가 — 앱 안 창에서 매번 로그인하면 토큰이 쌓여 6번째부터 다른 기기(PC)의 로그인이 밀려난다(adminLogin · 최근 5개). */
+function _admInApp(){ return /KAKAOTALK|Instagram|NAVER\(inapp|Line\/|FBAN|FBAV|DaumApps|everytimeApp|; wv\)/i.test(navigator.userAgent||''); }
+function _admCanKeep(){ try{ var k='me_admin_keep_t'; localStorage.setItem(k,'1'); var ok=localStorage.getItem(k)==='1'; localStorage.removeItem(k); return ok; }catch(e){ return false; } }
+function _admKeepNote(){ var el=$('lgKeep'); if(!el) return; var t='';
+  if(_admInApp()) t=/KAKAOTALK/i.test(navigator.userAgent||'')?'카카오톡 안의 창에서는 로그인이 유지되지 않을 수 있어요. ⋮ 메뉴 → «다른 브라우저로 열기»로 Safari · Chrome 에서 열어 주세요.':'앱 안의 창에서는 로그인이 유지되지 않을 수 있어요. 메뉴 → «브라우저로 열기»로 Safari · Chrome 에서 열어 주세요.';
+  else if(!_admCanKeep()) t='이 브라우저는 로그인을 저장하지 못해요(시크릿 창이거나 저장이 막혀 있어요). 일반 창에서 열면 30일 동안 로그인이 유지돼요.';
+  el.textContent=t; el.style.display=t?'block':'none'; }
+function showLogin(){ setTopbar(false); show('login'); _admKeepNote(); setTimeout(function(){ var x=$('lgId'); if(x) x.focus(); }, 80); }
 // [ADM_AA7] 세션이 끊기면 폴링 타이머도 정지(로그인 화면에서 무한 호출 방지)
 function authFail(msg){ _pollStop(); TOKEN=''; localStorage.removeItem('me_admin_token'); showLogin(); var le=$('lgErr'); if(le) le.textContent = msg || '세션이 만료되었어요. 다시 로그인해 주세요.'; }
 // 일시 오류(네트워크·GAS 콜드스타트·락)는 세션 만료가 아님 — 토큰을 지우지 않는다 (2026-06-12 '됐다가 안 됨' 원인 수정)
