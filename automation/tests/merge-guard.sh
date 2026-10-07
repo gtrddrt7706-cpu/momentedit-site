@@ -15832,3 +15832,5 @@ nochk "(코드 M'+(c||3)+')'" order-preview.html
 nochk "pp.catch(function(){}); MK.aud=au;" order-preview.html
 nochk "있어요. 잠시 뒤 다시 눌러 주세요. (코드 S5)" order-preview.html
 nochk "if (/요청을 처리하지 못했어요/.test(t)) return '서버 오류(드라이브일 수 있어요) (코드 L9)';" console.html
+chk 'VC_JOIN_M6' order-preview.html 1
+nochk "fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요')" order-preview.html

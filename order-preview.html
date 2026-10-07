@@ -5823,7 +5823,7 @@ window.mkVcEnroll=function(){ var R=VC.read; if(!R||!R.take[1]||!R.take[2]||R.ph
         if(d.wait&&d.jid) E.jid=String(d.jid);   // [VC_ENROLL_ONE] 다른 탭 · 기기에서 같은 분 만들기가 돈다 — 그 표의 끝을 본다
         C.after(d,ph&&!wait,again); },function(){ fail(_vcDownWord(4)); }); };
       send(); }; rd.onerror=function(){ fail('녹음을 열지 못했어요\n글 2 를 다시 읽어 주세요 (코드 M6)'); };   /* ★[ERR_CODE_BUILDER] 받는 쪽이 없어 «…목소리를 만드는 중이에요»에 영영 멈췄다 — 읽기 걸음으로 돌아간다 */ rd.readAsDataURL(j.wav); })
-    .catch(function(){ fail('녹음을 잇지 못했어요 · 글 2 를 다시 읽어 주세요'); }); };
+    .catch(function(){ fail('녹음을 잇지 못했어요\n글 2 를 다시 읽어 주세요 (코드 M6)'); }); };   /* [VC_JOIN_M6 2026-10-08 점검 triage-builder #13] 이 기기가 두 녹음을 한 파일로 못 이었다(Blob · 메모리) — 바로 위 «녹음을 열지 못했어요»와 같은 꼴 · 같은 코드 */
 /* ★★[ENROLL_SAFE 2026-10-07 VC_SIM(다른 세션 · #1120) → 2026-10-08 VC_ENROLL_SURE 와 합침 · 같은 사장님 요청(«오류 · 시뮬레이션 · 라운드별로 안정화»)을 두 세션이 함께 고쳤다]
    그쪽 생각(끊겨도 서버가 만들었으면 성공 · 정말 실패면 한 번 더 조용히)은 그대로 이어받았다 — 위 _vcEnrWait(상태 확인) · _vcEnrAgain(한 번 더) · mkVcEnroll 의 again.
    ★_vcEnrollSafe(90초만 보고 같은 녹음을 다시 보내기)를 되살리지 말 것 — 서버가 90초 넘게 만드는 중이면 업체 목소리가 하나 더 생겨 칸이 샜다(vc-enroll-sim retry-during).
