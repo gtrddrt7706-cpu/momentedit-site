@@ -15019,4 +15019,7 @@ chk 'SUM_ASK_ALL' order-preview.html 1
 chk 'DECL_REF_HEAD' order-preview.html 1
 nochk "_mkItems(k).forEach(function(q){ if(q.cat==='ask'&&q.who==='parents'){ if(_mkChk()\[q.id\]!=='site') asks.push(q); }" order-preview.html
 chk 'REF_FORM' scripts/audit/ref-form.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/ref-form.mjs >/dev/null 2>&1; _rff=$?; [ "$_rff" = 1 ] && { echo 'FAIL ref-form: 참고 예시 아래 모양(두 분 칸 · 칩 이름 · 글자 수 · 흐름 한 줄 · 한눈에 보기 부탁)이 어긋났습니다 — node scripts/audit/ref-form.mjs'; fail=1; }; fi
+# ★[GUARD_LAST_LINE 2026-10-07] 이 파일의 «마지막 줄»의 종료 코드가 곧 게이트의 종료 코드다(트랩이 exit 없이 끝난다).
+#   «[ … = 1 ] && { … }»로 끝나는 줄이 맨 끝이면 검사가 «통과»할 때 [ ] 가 1 을 남겨 — ALL MARKERS OK 를 찍고도 CI 가 빨갛다(#1088 실측).
+#   그래서 node 검사 줄은 «; :»로 닫는다 · 이 아래에 줄을 더해도 같은 꼴로 닫을 것
+if command -v node >/dev/null 2>&1; then node scripts/audit/ref-form.mjs >/dev/null 2>&1; _rff=$?; [ "$_rff" = 1 ] && { echo 'FAIL ref-form: 참고 예시 아래 모양(두 분 칸 · 칩 이름 · 글자 수 · 흐름 한 줄 · 한눈에 보기 부탁)이 어긋났습니다 — node scripts/audit/ref-form.mjs'; fail=1; }; :; fi
