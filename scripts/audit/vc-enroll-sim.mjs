@@ -188,6 +188,7 @@ async function run(sc) {
     window.setTimeout = function (f, d, ...a) { return st.call(window, f, (+d || 0) / S, ...a); };
     window.setInterval = function (f, d, ...a) { return si.call(window, f, Math.max(4, (+d || 0) / S), ...a); };
     Date.now = () => b0 + (rn() - b0) * S; HTMLMediaElement.prototype.play = function () { return Promise.resolve(); }; }, SCALE);
+  await ctx.route('**/favicon.ico*', (route) => (offline ? route.abort('internetdisconnected') : route.continue()).catch(() => {}));   // ★[VC_GAS_DOWN 2026-10-08] 기기가 끊기면 이 사이트도 안 닿는다 — 마이페이지 중계가 같은 출처에 한 번 더 물어 V6(연결) · V9(서버)를 가른다
   await ctx.route('**/__gas/exec', async (route) => {
     let body = {}; try { body = JSON.parse(route.request().postData() || '{}'); } catch {}
     if (offline) return route.abort('internetdisconnected').catch(() => {});
