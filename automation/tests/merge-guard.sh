@@ -16028,3 +16028,9 @@ chk 'ADMIN_BACKUP_RETIRE' automation/platform/99_deployCheck.gs 2   # 화면 파
 nochk 'Admin·ScreenA' automation/platform/99_deployCheck.gs
 nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
 if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi
+# ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 오류기록(고객 DB 와 같은 파일)에 밖의 글이 수식 · 개인정보로 들어가지 않게 — 동작 이름 안전 글자 · 모든 칸 수식 막기 · 가림 · 모르는 동작 시간당 20줄
+#   옛 판은 인증 없이 `{"action":"=IMAGE(…&다른탭!D2)"}` 로 고객 DB 파일에 바깥 주소를 부르는 수식을 박을 수 있었다(옛 판으로 돌리면 err-log-safe 가 빨강 · 실측)
+chk 'ERR_LOG_SAFE' automation/platform/95_notify.gs 3
+nochk "String(act || '(없음)').slice(0, 40)" automation/platform/95_notify.gs
+chk 'ERR_LOG_SAFE' scripts/audit/err-log-safe.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-log-safe.mjs >/dev/null 2>&1; _els=$?; if [ "$_els" = 1 ]; then echo 'FAIL err-log-safe: 오류기록에 밖의 글이 수식 · 개인정보로 들어간다(고객 DB 파일) — node scripts/audit/err-log-safe.mjs'; fail=1; else echo "ok err-log-safe ($_els)"; fi; fi

@@ -1316,13 +1316,29 @@ function _errWho() {   // 개인코드만 — 로그인 토큰 → 하객 안내
 }
 function _errRecord(act, ec, text, why, eid, extra) {   // [ERR_CODE_GAS] 오류기록 시트 한 줄 · 같은 실패(사람 · 동작 · 코드 · 글)는 10분에 한 줄 · 사고번호가 있으면 늘 남긴다
   try {
+    /* ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 이 시트는 고객 DB 와 같은 파일이다 — 밖에서 온 글이 «수식»으로 들어가면 안 된다.
+       종전엔 «동작» 칸만 `_deFormula` 를 안 거쳤고, doPost 는 모르는 동작 이름을 그대로 여기 적었다(X3 · 인증 없이 누구나).
+       그래서 `{"action":"=IMAGE(…&다른탭!D2)"}` 한 번이면 고객 DB 파일 안에 바깥 주소를 부르는 수식이 박혔다.
+       ①동작 이름은 안전한 글자만(영숫자 _ : . -) · 아니면 «(모름)»과 «?»로 바꾼 꼴 ②모든 칸을 수식 막기로 ③고객이 본 글 · 내부 까닭은
+       전화 · 메일 · 긴 숫자를 가린다(`_maskPII`) ④모르는 동작으로 시트를 채워 진짜 기록을 밀어내지 못하게 시간당 20줄까지만 */
+    var a = String(act == null || act === '' ? '(없음)' : act);
+    var junk = !/^[A-Za-z0-9_:.\-]{1,40}$/.test(a) && a !== '(없음)';
+    if (junk) a = '(모름) ' + a.replace(/[^A-Za-z0-9_:.\-]/g, '?').slice(0, 30);
+    var M = (typeof _maskPII === 'function') ? _maskPII : function (v) { return String(v == null ? '' : v); };
+    text = M(String(text == null ? '' : text)); why = M(String(why == null ? '' : why));
+    if (junk || /^알 수 없는 동작/.test(why)) {   // 모르는 동작(X3) — 진짜로 «새 화면 · 옛 GAS»일 수도 있어 남기되, 쏟아지면 숫자만
+      var _jc = CacheService.getScriptCache(), _jk = 'ERRJUNK_' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyyMMddHH'), _jn = +(_jc.get(_jk) || 0);
+      _jc.put(_jk, String(_jn + 1), 3700);
+      if (_jn >= 20) return;
+    }
+    act = a;
     var who = _errWho();
     var key = 'ERRD_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [who, act, ec, text].join('|'), Utilities.Charset.UTF_8)).slice(0, 22);
     var c = CacheService.getScriptCache(); if (!eid && c.get(key)) return; c.put(key, '1', 600);
     var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(ERR_LOG_SHEET);
     if (!sh) { sh = ss.insertSheet(ERR_LOG_SHEET); sh.appendRow(['시각', '사고번호', '코드', '동작', '개인코드', '고객이 본 글', '내부 까닭', '덧']); sh.setFrozenRows(1); }
-    var D = (typeof _deFormula === 'function') ? _deFormula : function (v) { return v; };
-    sh.appendRow([fmtKST(new Date()), eid || '', ec, String(act || '(없음)').slice(0, 40), D(who), D(String(text || '').slice(0, 200)), D(String(why || '').slice(0, 200)), D(String(extra || '').slice(0, 60))]);
+    var D = (typeof _deFormula === 'function') ? _deFormula : function (v) { return (typeof v === 'string' && /^[=\t\r]/.test(v)) ? ("'" + v) : v; };   // [ERR_LOG_SAFE] 모든 칸
+    sh.appendRow([fmtKST(new Date()), D(String(eid || '')), D(String(ec || '')), D(String(act).slice(0, 40)), D(who), D(String(text || '').slice(0, 200)), D(String(why || '').slice(0, 200)), D(String(extra || '').slice(0, 60))]);
     if (sh.getLastRow() > 5000) sh.deleteRows(2, 1000);
     var n = +String(ec).charAt(1);
     if (n === 9 || (n === 3 && ec !== 'V3') || (n === 4 && /^[PCBUGD]/.test(ec))) _errAlert(ec, act, text, why, eid);   // V3(목소리 스위치 · 시험 예식 목록)은 종전 결정대로 메일 없음 — VCERR_ 에만(VC_GATE_WHY)
@@ -1330,6 +1346,8 @@ function _errRecord(act, ec, text, why, eid, extra) {   // [ERR_CODE_GAS] 오류
 }
 function _errAlert(ec, act, text, why, eid) {   // [ERR_CODE_GAS] 관리자 메일 — 코드마다 하루 한 통(9 · 3 · 결제 · 계약 · 예약 · 올리기 · 하객 · 지우기의 4)
   try {
+    /* [ERR_LOG_SAFE 2026-10-08] 메일에도 가린 글만 — 관리자 메일은 폰 알림 미리보기 · 전달받는 메일함에도 남는다 */
+    if (typeof _maskPII === 'function') { text = _maskPII(String(text == null ? '' : text)); why = _maskPII(String(why == null ? '' : why)); }
     var p = PropertiesService.getScriptProperties(), d = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), k = 'ERRALERT_' + ec;
     if (p.getProperty(k) === d) return; p.setProperty(k, d);
     _nfAdminLineEmail('고객 화면 오류 ' + ec + (eid ? ' · 사고번호 ' + eid : '') + ' · 동작 ' + (act || '없음') + ' · 고객이 본 글 «' + String(text || '').slice(0, 80) + '»' + (why ? ' · 까닭 ' + String(why).slice(0, 140) : '') + ' · 같은 코드는 오늘 더 보내지 않아요(오류기록 시트에 다 남아요) / 오류 확인');
