@@ -79,7 +79,7 @@ function _aihNotifyNew(category, summary, customer, page) {
 }
 
 /** 🌙 야간 보류 인계 아침 발송 — aiDaily(9시)가 호출. 밤사이 들어온 새 인계 건수를 한 통으로. */
-function aiHandoffNightFlush() {
+function aiHandoffNightFlush() { _requireAdmin();
   try {
     var p = PropertiesService.getScriptProperties();
     var n = Number(p.getProperty('AI_HANDOFF_NIGHT_PENDING') || 0);
@@ -114,7 +114,7 @@ function aiHandoffNightTake() {
 }
 
 /** 🔴 미처리 인계 24h 리마인드 — (구) aiDaily 직접호출용. 현재는 aiMorningReport로 통합. 수동/하위호환 유지. */
-function aiHandoffReminder() {
+function aiHandoffReminder() { _requireAdmin();
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { ok: true, old: 0 };
   var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues();
@@ -147,7 +147,7 @@ function aiHandoffReminder() {
  *  한눈에 보고 답변 검토용. 각 건: 번호·접수일시·페이지/분류·고객·질문요약·AI 제안답변(앞부분). 발송·변경 없음.
  *  실행 후 로그(Ctrl+Enter) 복사 → 진짜 건은 답변 작성, 테스트면 clearAllPendingAiHandoff로 정리.
  */
-function dumpPendingAiHandoff() {
+function dumpPendingAiHandoff() { _requireAdmin();
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { ok: true, pending: 0, text: '대기 인계 없음' };
   var vals = sh.getRange(2, 1, sh.getLastRow() - 1, AIH_HEADERS.length).getValues();
@@ -168,7 +168,7 @@ function dumpPendingAiHandoff() {
  *  쌓인 테스트/오래된 대기 건을 한 번에 비울 때 사용(예: 80건). 처리일시 기록.
  *  ※ 실제 응대가 필요한 건은 관리자 페이지 📋에서 개별 '완료'를 권장(이 함수는 전부 일괄 처리).
  */
-function clearAllPendingAiHandoff() {
+function clearAllPendingAiHandoff() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 인계 일괄 정리 · 편집기 · 관리 화면만 */
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { ok: true, cleared: 0 };
   var n = sh.getLastRow() - 1;
@@ -220,7 +220,7 @@ function purgeAiHandoff() {
 }
 
 /** 관리자 — 대기 목록 (adminCall 경유 · 최신순 최대 30건) */
-function adminListAiHandoffs() {
+function adminListAiHandoffs() { _requireAdmin();
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);
   if (!sh || sh.getLastRow() < 2) return { ok: true, items: [], pending: 0 };
   var vals = sh.getRange(2, 1, sh.getLastRow() - 1, AIH_HEADERS.length).getValues();
@@ -237,7 +237,7 @@ function adminListAiHandoffs() {
 }
 
 /** 관리자 — 처리 완료 (adminCall 경유 · 멱등) */
-function adminResolveAiHandoff(id) {
+function adminResolveAiHandoff(id) { _requireAdmin();
   id = String(id || '').trim();
   if (!id) return { ok: false, error: 'ID가 없습니다.' };
   var sh = SpreadsheetApp.getActive().getSheetByName(AIH_SHEET);

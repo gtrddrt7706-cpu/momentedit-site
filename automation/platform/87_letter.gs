@@ -220,7 +220,7 @@ function ltGuestLetter(body) {
 
     // [LETTER_DELIVERED] 받을 주소가 하나도 없으면 메일은 못 나간다(편지는 시트에 남고 관리자에게 알림).
     //  ok:true 만 돌려주면 하객은 '전해졌습니다'를 보고 두 분은 못 받는 상태가 된다 — delivered 로 구분한다.
-    var sent = _ltSendToRecipients(couple, guestName, relation, message, recipient);
+    var sent = _ltSendToRecipients_(couple, guestName, relation, message, recipient);
     return { ok: true, delivered: sent > 0 };
   } catch (err) {
     /* ★[ERR_CODE_GAS 2026-10-07] 종전엔 실패할 때마다 하객 편지 원문(이름 · 관계 · 글)을 실은 관리자 메일을 보냈다(중복 억제 없음).
@@ -318,7 +318,7 @@ function _ltAppendModeration(d) {
   });
 }
 
-function _ltSendToRecipients(couple, guestName, relation, message, recipient) {
+function _ltSendToRecipients_(couple, guestName, relation, message, recipient) {
   var targets = [], seen = {};
   /* [LETTER_ONE_ADDR 2026-09-26 통합 점검 L4] «두 분께» 편지가 같은 주소로 같은 메일 두 통 가던 것을 한 통으로.
      청첩장 발행(85_invitation _invCouplesFields)이 groomEmail·brideEmail 을 둘 다 가입 이메일 하나로 채워,
@@ -568,7 +568,7 @@ function purgeCoupleData(dryRun) {
     return { ok: true, couples: cN, messages: mN, moderation: modN, dryRun: !!dryRun };
   } finally { if (_lock) { try { _lock.releaseLock(); } catch (e) {} } }
 }
-function previewCoupleData() { return purgeCoupleData(true); }
+function previewCoupleData() { _requireAdmin(); return purgeCoupleData(true); }
 
 // Messages·Moderation — eventId 가 만료셋이거나 자체 시각(1열)+N일 지났으면 지정 칸(0부터)만 비운다. 반환 = 행 수.
 function _ltPurgeGuestSheet(name, expired, cutoff, toYmd, idxCols) {
@@ -604,7 +604,7 @@ function _ltSnap(sh) {
 // 옛 Letter System 의 시트 4개(Couples·Messages·Moderation·Banned)를 본 스프레드시트로 복사하고,
 // 화면에 보이는 값이 원본과 한 칸도 다르지 않은지 확인한 뒤, 매일 07시 점검 트리거까지 건다(setupAllTriggers).
 // 이미 옮긴 시트는 건너뛴다. 옛 스프레드시트는 건드리지 않는다(백업으로 남는다).
-function letterMigrate() {
+function letterMigrate() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 편집기 도구 잠금 */
   // [LETTER_MIGRATE] 복사 → 원본 대조 → 어긋나면 사본 지우고 멈춤 → LETTER_MIGRATED=Y → 트리거
   var L = ['══ 청첩장·편지 시트 옮기기 ══'];
   var dst = SpreadsheetApp.getActive();

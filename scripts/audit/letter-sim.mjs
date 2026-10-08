@@ -94,6 +94,7 @@ function makeCtx({ active, byId }) {
   const ctx = {
     Date: FakeDate, console: { log: (...a) => log.logs.push(a.join(' ')), error: (...a) => log.logs.push(a.join(' ')), warn: (...a) => log.logs.push(a.join(' ')) },
     Logger: { log: (...a) => log.logs.push(a.join(' ')) },
+    _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     SpreadsheetApp: { getActive: () => active, openById: (id) => { const s = byId[id]; if (!s) throw new Error('openById 없음 ' + id); return s; } },
     CacheService: { getScriptCache: () => ({ get: (k) => (cache.has(k) ? cache.get(k) : null), put: (k, v) => { cache.set(k, String(v)); }, remove: (k) => cache.delete(k), removeAll: (ks) => ks.forEach((k) => cache.delete(k)) }) },
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => (props.has(k) ? props.get(k) : null), setProperty: (k, v) => { props.set(k, String(v)); } }) },
@@ -333,7 +334,7 @@ function oneAddrGuard() {
   const ctx = makeCtx({ active: A, byId: { [LETTER_ID]: B } });
   run(ctx, `function setupAllTriggers() { return ''; } function getCustomersSheet() { return null; } var STAGE_EXCEPTIONS = []; function _deFormula(v) { return v; } function _nfAdminEmail() {}`);
   load(ctx, 'automation/platform/85_invitation.gs'); load(ctx, 'automation/platform/87_letter.gs');
-  const send = (c, r) => { const m0 = ctx._log.mails.length; ctx.__c = c; ctx.__r = r; const n = run(ctx, '_ltSendToRecipients(__c, "하객", "", "축하해요", __r)'); return { n, to: ctx._log.mails.slice(m0).map((m) => m.to) }; };
+  const send = (c, r) => { const m0 = ctx._log.mails.length; ctx.__c = c; ctx.__r = r; const n = run(ctx, '_ltSendToRecipients_(__c, "하객", "", "축하해요", __r)'); return { n, to: ctx._log.mails.slice(m0).map((m) => m.to) }; };
   const C = (g, b) => ({ eventId: 'one-addr-0101', groomName: '가나', brideName: '다라', groomEmail: g, brideEmail: b });
   let r = send(C('Same@a.test', 'same@a.test'), 'both');
   ok(r.n === 1 && r.to.length === 1 && r.to[0] === 'Same@a.test', `D5 같은 주소 «두 분께»는 한 통이어야 한다: ${JSON.stringify(r)}`);

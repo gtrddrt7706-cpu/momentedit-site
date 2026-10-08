@@ -10,7 +10,7 @@ const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i 
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
 const code = [line(/var RF_ROOT_FOLDER[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_TEST_FOLDER[^\n]*/),
-  grab('_voiceStudio'), grab('_vcMode'), grab('_vcCfg'), grab('_vcFetch'), grab('_vcCharLog'), grab('_vcTts'), grab('_vcSlots'), grab('vcSelfTest')].join('\n');
+  grab('_voiceStudio'), grab('_vcMode'), grab('_vcCfg_'), grab('_vcFetch'), grab('_vcCharLog'), grab('_vcTts'), grab('_vcSlots'), grab('vcSelfTest')].join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 if (!/function vcSelfTest/.test(code) || !/function _vcSlots/.test(code) || !/RF_ROOT_FOLDER/.test(code)) { console.log('FAIL 원문 조각을 못 떼었다 — 이름이 바뀌었나?'); process.exit(1); }
 
@@ -31,6 +31,7 @@ function run(sc) {
     UrlFetchApp: { fetch: (url, o) => { const x = route(o.method, url); return x.r; } },
     DriveApp: { getFoldersByName: () => ({ hasNext: () => true, next: () => dir }), createFolder: () => dir },
     Utilities: { formatDate: () => '09281200', base64Encode: () => 'AAA', base64Decode: () => [1], newBlob: (b, m, n) => ({ name: n }) },
+    _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     Logger: { log() {} }, fmtKST: () => '', _kstYmd: () => '2026-09-28', JSON, Math, String, Date, encodeURIComponent,
   };
   vm.createContext(sb); vm.runInContext(code, sb);

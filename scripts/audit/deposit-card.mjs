@@ -27,7 +27,7 @@ const say = (c, m, d) => {
 let G, world;
 try { ({ G, world } = openWorld()); }
 catch (e) { console.log('━━ deposit-card — GAS 세계를 못 만들었습니다 · 재지 못했습니다: ' + e.message); process.exit(2); }
-for (const fn of ['handleCardPayConfig', 'handleCardConfirm', '_depositCardConfirm', '_depositCardConfig', 'actApprove', 'submitSchedule',
+for (const fn of ['handleCardPayConfig', 'handleCardConfirm', '_depositCardConfirm_', '_depositCardConfig', 'actApprove', 'submitSchedule',
   '_maybeRefundAcctReq', '_depositCardOf', 'handleEmailCancelInfo', 'buildConsultState', 'buildRefundBankState', 'adminHome', '_nfAdminText']) {
   if (typeof G[fn] !== 'function') { console.log(`━━ deposit-card — ${fn} 이 없습니다 · 재지 못했습니다`); process.exit(2); }
 }
@@ -49,7 +49,7 @@ function mk(cust, book) {
   G._slotTaken = () => (slotSeq ? slotSeq.shift() : false);
   G.syncCalendarEvent = () => { approveSide.push('cal'); };
   G._bustAvailCache = () => {};
-  G.sendConfirmEmail = () => { approveSide.push('confirmMail'); };
+  G.sendConfirmEmail_ = () => { approveSide.push('confirmMail'); };
   G.sendStudioBriefEmail = () => {};
   G._nfAdminLineEmail = (t) => { adminLines.push(String(t)); };
   G.notifyKakao = (k, code, x) => { notes.push({ k, x: x || {} }); };
@@ -200,7 +200,7 @@ console.log('━━ deposit-card — ⑬ 환불: 카드 예약금뿐이면 계�
 
   // 취소 화면(cancel.html) 이 받는 값
   w = mk({ 동의기록: CARDREC }, { 입금확인: '확인', 상태: '확정' });
-  G.verifySig = () => true; G.findRowByToken = () => ({ num: 2, get: (h) => (h in w.B ? w.B[h] : '') });
+  G.verifySig_ = () => true; G.findRowByToken = () => ({ num: 2, get: (h) => (h in w.B ? w.B[h] : '') });
   const info = call('handleEmailCancelInfo', { token: 'ctok', sig: 's' });
   say(info && info.ok && info.state === 'ok' && info.byCard === true, 'cancel.html 이 byCard 를 받는다(계좌 칸 대신 카드 취소 안내)', JSON.stringify(info));
   w = mk({ 동의기록: '' }, { 입금확인: '확인', 상태: '확정' });

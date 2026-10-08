@@ -21,7 +21,7 @@ function getCustomersSheet() {
 // ============================ 설치(최초 1회 + 언제든 재실행 가능) ============================
 // 통합 스프레드시트에 Customers 탭을 만들고 헤더·검증·서식을 코드로 재생성한다.
 // setupConsultation() 패턴과 동일한 멱등 구조 — 여러 번 실행해도 깨지지 않는다.
-function setupCustomers() {
+function setupCustomers() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 편집기 도구 잠금 */
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName(P.CUSTOMERS_SHEET) || ss.insertSheet(P.CUSTOMERS_SHEET, 0); // 첫 탭으로
 
@@ -94,7 +94,7 @@ function setupCustomers() {
 }
 
 // ============================ 시트 서식 (열폭·정렬·상태 색상·민감열 흐리게) ============================
-function formatCustomersSheet() {
+function formatCustomersSheet() { _requireAdmin();
   var sheet = getCustomersSheet();
   var colOf = buildHeaderIndex(sheet);
   var lastCol = sheet.getLastColumn();

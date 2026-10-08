@@ -1509,11 +1509,11 @@ function handleBalanceSignal(body) {
 }
 // 관리자 잔금 확인(통장 대조). 단계 전이 없음.
 /* [PAY_LOCK_REENTRANT] 락 래퍼 — 본문은 코어에 그대로 두고 감싸기만 한다(카드 경로에서 오면 nested 로 통과) */
-function adminConfirmBalance(code) {
+function adminConfirmBalance(code) { _requireAdmin();
   var _lk = _payLock(); if (!_lk) return { ok: false, error: _PAY_LOCK_BUSY };
   try { return _adminConfirmBalanceCore(code); } finally { _lk.releaseLock(); }
 }
-function _adminConfirmBalanceCore(code) {
+function _adminConfirmBalanceCore(code) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -1590,11 +1590,11 @@ function handleMidSignal(body) {
 }
 // 관리자 중도금 확인(통장 대조). 단계 전이 없음.
 /* [PAY_LOCK_REENTRANT] 락 래퍼 */
-function adminConfirmMid(code) {
+function adminConfirmMid(code) { _requireAdmin(); /* [B19_LOCK 2026-10-09] 입금 확인은 관리 화면 · 서명 확인한 메일 단추 · 토스 승인 확인한 카드 결제 안에서만 */
   var _lk = _payLock(); if (!_lk) return { ok: false, error: _PAY_LOCK_BUSY };
   try { return _adminConfirmMidCore(code); } finally { _lk.releaseLock(); }
 }
-function _adminConfirmMidCore(code) {
+function _adminConfirmMidCore(code) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -1612,11 +1612,11 @@ function _adminConfirmMidCore(code) {
 // 관리자 중도금·잔금 묶음 확인 — 임박 계약(D-9 이내)에서 고객이 한 번에 입금(withBalance)한 경우 1클릭 처리.
 //   같은 확인일시(now)로 기록 → 영수증 원장도 '중도금·잔금' 1건으로 합쳐짐(_cashReceiptLedger 콤보 판정 짝).
 /* [PAY_LOCK_REENTRANT] 락 래퍼 */
-function adminConfirmMidBalance(code) {
+function adminConfirmMidBalance(code) { _requireAdmin();
   var _lk = _payLock(); if (!_lk) return { ok: false, error: _PAY_LOCK_BUSY };
   try { return _adminConfirmMidBalanceCore(code); } finally { _lk.releaseLock(); }
 }
-function _adminConfirmMidBalanceCore(code) {
+function _adminConfirmMidBalanceCore(code) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -1924,7 +1924,7 @@ function weeklyBackup() {
     return { ok: false, error: String(e && e.message) };
   }
 }
-function setupAllTriggers() {
+function setupAllTriggers() { _requireAdmin();
   var plan = [
     { fn: 'expireUnsignedContracts', hour: 3,  label: '계약서 72h 만료 자동 파기' },
     { fn: 'flushHeldNotifies',       hour: 8,  label: '야간 보류 알림 아침 발송' },
@@ -1958,7 +1958,7 @@ function setupAllTriggers() {
 }
 // setupBalanceReminderTrigger 제거(2026-06-16): setupAllTriggers가 sendBalanceReminders를 동일 등록 → 중복 셋업 경로 정리. 트리거 등록은 setupAllTriggers 하나로 일원화.
 // [1회 실행] Customers에 잔금·예식일 컬럼 추가(멱등).
-function addBalanceColumns() {
+function addBalanceColumns() { _requireAdmin();
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
   var need = ['예식일', '잔금상태', '잔금입금자명', '잔금입금신호', '잔금확인일시', '잔금리마인드'], added = [];

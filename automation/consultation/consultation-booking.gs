@@ -270,12 +270,12 @@ function handleAction(p) {
 
   // 관리자(미쿠) 전용 액션은 서명 검증 — 고객 토큰만으로는 승인/변경 불가
   var adminActions = { approve: 1, change: 1, admincancelreq: 1, admindocancel: 1 };
-  if (adminActions[action] && !verifySig(token, action, sig)) {
+  if (adminActions[action] && !verifySig_(token, action, sig)) {
     return infoPage('권한이 없습니다', '관리자 전용 링크입니다. 알림 메일의 버튼으로 다시 시도해 주세요.', false);
   }
   // 고객 액션도 가볍게 서명 검증
   var custActions = { accept: 1, reselect: 1, cancelreq: 1, docancel: 1 };
-  if (custActions[action] && !verifySig(token, action, sig)) {
+  if (custActions[action] && !verifySig_(token, action, sig)) {
     return infoPage('링크가 올바르지 않습니다', '메일의 버튼으로 다시 시도해 주세요.', false);
   }
 
@@ -346,7 +346,7 @@ function setCustomerStage(code, transition) {
 }
 
 // 운영자 수동 '상담완료' 처리 호출구(④ 수동 우선). 편집기에서 개인코드 넣고 실행 / P6 UI가 호출. (자동배치는 P2)
-function markConsultDone(personalCode) {
+function markConsultDone(personalCode) { _requireAdmin();
   var ok = setCustomerStage(personalCode, 'complete');
   Logger.log(ok ? ('상담완료 전이 OK: ' + personalCode) : ('전이 실패(코드없음/예외상태): ' + personalCode));
   return ok;
@@ -388,7 +388,7 @@ function actApprove(sheet, colOf, row, enteredStatus) {
     _bustAvailCache();   // 슬롯 마감 → 가능일 캐시 무효화
 
     try {
-      sendConfirmEmail(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
+      sendConfirmEmail_(row.get('이메일'), coupleNames(row), dateKey, time, false, row.get('토큰'));
     } catch (mailErr) {
       notifyStudio('[상담] ⚠️오류 · 확정 메일 발송 실패',
         coupleNames(row) + ' 님 · ' + dateKey + ' ' + time + '\n수신: ' + row.get('이메일') + '\n오류: ' + mailErr.message + '\n승인은 처리됐으나 메일이 안 갔습니다 · 수동 안내가 필요합니다.');
@@ -443,7 +443,7 @@ function actAccept(sheet, colOf, row) {
   _bustAvailCache();   // 변경 확정 → 가능일 캐시 무효화
 
   try {
-    sendConfirmEmail(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'));
+    sendConfirmEmail_(row.get('이메일'), coupleNames(row), nd, nt, true, row.get('토큰'));
   } catch (mailErr) {
     notifyStudio('[상담] ⚠️오류 · 변경 확정 메일 발송 실패', coupleNames(row) + ' · ' + mailErr.message);
   }
@@ -537,7 +537,7 @@ function actCancel(sheet, colOf, r) {
   // 3) 고객 취소 안내 메일 (이메일 있을 때만)
   var to = r.get('이메일');
   if (to) {
-    try { sendCancelEmail(to, names, dateKey, time); }
+    try { sendCancelEmail_(to, names, dateKey, time); }
     catch (mailErr) { notifyStudio('[상담] ⚠️오류 · 취소 안내 메일 발송 실패', names + ' · ' + mailErr.message); }
   }
   setCustomerStage(String(r.get('개인코드') || '').trim(), 'cancel');  // ★③ Customers 현재단계 → 취소(예외)
@@ -570,7 +570,7 @@ function serveCancelD(token, row) {
   }
 
   // 기한 이내 → 취소 확인 + 환불 계좌 입력 화면
-  var docancelUrl = actionUrl('docancel', token);
+  var docancelUrl = actionUrl_('docancel', token);
   var depositTxt = (CONFIG.DEPOSIT ? (Number(CONFIG.DEPOSIT).toLocaleString() + '원') : '예약금');
   var html =
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
@@ -610,7 +610,7 @@ function serveCancelD(token, row) {
     '<script>' +
     '(function(){' +
     'var go=document.getElementById("go"),acct=document.getElementById("acct"),err=document.getElementById("err");' +
-    'var base=' + JSON.stringify(actionUrl('docancel', token)) + ';' +
+    'var base=' + JSON.stringify(actionUrl_('docancel', token)) + ';' +
     'go.addEventListener("click",function(){' +
     'var v=acct.value.trim();' +
     'if(v.length<5){err.textContent="환불 계좌를 입력해 주세요.";acct.focus();return;}' +
@@ -655,7 +655,7 @@ function doCustomerCancel(sheet, colOf, row, p) {
 
   // 3) 고객에게 취소 완료 메일
   var to = row.get('이메일');
-  if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
+  if (to) { try { sendCancelEmail_(to, names, dateKey, time); } catch (e2) {} }
 
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'cancel');  // ★③ 고객 셀프취소도 동일 전이
   return infoPage('예약이 취소되었습니다',
@@ -697,7 +697,7 @@ function _consultRefundQuote(code) {
 // [자사몰 취소] 이메일 '여기' → momentedit.kr/cancel 가 token·sig로 호출(GAS HTML/구글 Drive 오류 우회). 정보조회 + 취소 처리 2종.
 function handleEmailCancelInfo(body) {
   var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
-  if (!verifySig(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
+  if (!verifySig_(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
   if (!row) return { ok: false, error: '예약 정보를 찾을 수 없어요.' };
@@ -716,7 +716,7 @@ function handleEmailCancelInfo(body) {
 }
 function handleEmailCancel(body) {
   var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
-  if (!verifySig(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
+  if (!verifySig_(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
   if (!row) return { ok: false, error: '예약 정보를 찾을 수 없어요.' };
@@ -735,7 +735,7 @@ function handleEmailCancel(body) {
   // [DEPOSIT_CARD] 카드로 받은 예약금이면 관리자 알림도 «송금»이 아니라 «카드 결제 취소»로 — 상세 메일(sendRefundRequestEmail)과 같은 말을 한다
   var _cardDepE = (String(row.get('입금확인') || '').trim() === '확인') && !!_depositCardOf(String(row.get('개인코드') || '').trim());
   notifyKakao('admin.cancelRefund', String(row.get('개인코드') || '').trim(), { names: names, acct: acct, card: _cardDepE });
-  var to = row.get('이메일'); if (to) { try { sendCancelEmail(to, names, dateKey, time); } catch (e2) {} }
+  var to = row.get('이메일'); if (to) { try { sendCancelEmail_(to, names, dateKey, time); } catch (e2) {} }
   setCustomerStage(String(row.get('개인코드') || '').trim(), 'cancel');
   _releaseWeddingHoldOnCancel(String(row.get('개인코드') || '').trim());   // 이메일 취소도 가예약 해제(actCancel 미경유 경로)
   return { ok: true };
@@ -750,7 +750,7 @@ function serveAdminCancelD(token, row) {
   }
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
   var names = coupleNames(row);
-  var doUrl = actionUrl('admindocancel', token);
+  var doUrl = actionUrl_('admindocancel', token);
   var html =
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
     '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
@@ -867,7 +867,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
      결제 없이 확정된다. 그래서 알림·관리자 큐가 카드 대기를 알게 한다(동의기록.예약금결제='카드').
      카드결제가 꺼져 있으면(PAY_CARD_ENABLED) 무시한다 — 낼 수 없는 카드를 «대기»로 적지 않는다. */
   var _byCard = false;
-  try { _byCard = String(payBy || '') === 'card' && typeof _payCfg === 'function' && !!_payCfg().enabled; } catch (e) { _byCard = false; }
+  try { _byCard = String(payBy || '') === 'card' && typeof _payCfg_ === 'function' && !!_payCfg_().enabled; } catch (e) { _byCard = false; }
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -1009,7 +1009,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
 
 // 화면 C 제출(미쿠) → 상태=변경제안 + 고객에게 제안 메일④
 function submitProposal(token, sig, newDate, newTime, memo) {
-  if (!verifySig(token, 'change', sig)) throw new Error('권한이 없습니다.');
+  if (!verifySig_(token, 'change', sig)) throw new Error('권한이 없습니다.');
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -1037,7 +1037,7 @@ function submitProposal(token, sig, newDate, newTime, memo) {
 //   멱등: 이미 칼럼이 있으면 아무 일도 하지 않음 (재실행해도 안전).
 //   ※ 직접 setupConsultation()을 다시 돌리는 것보다 안전(다른 칼럼·서식·필터에 영향 X).
 // ─────────────────────────────────────────────────────────────────────────────
-function addProposalMemoColumn() {
+function addProposalMemoColumn() { _requireAdmin();
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   if (colOf['변경제안메모'] != null) {
@@ -1168,7 +1168,7 @@ function deleteCalendarEvent(sheet, colOf, rowNum, names) {
   }
 }
 // 메일① — 전용 URL (신청 즉시, 고객) · "신청 접수"(확정 아님)
-function sendUrlEmail(to, names, url, summary) {
+function sendUrlEmail(to, names, url, summary) { _requireAdmin();
   var summaryBlock = (summary && String(summary).trim())
     ? '<div style="margin:14px auto 0;max-width:380px;text-align:center;font-family:\'Noto Sans KR\',sans-serif;font-size:12px;color:#8A8475;line-height:1.7">신청 내용 · ' + esc(summary) + '</div>'
     : '';
@@ -1263,7 +1263,7 @@ function sectionLabel(txt) {
   return '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#B89A75;text-align:center;margin:26px 0 4px">' + esc(txt) + '</div>';
 }
 
-function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) {
+function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) { _requireAdmin();
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') {
     Logger.log('  (ADMIN_EMAIL 미설정 · 신규 신청 알림 건너뜀)'); return;
   }
@@ -1289,8 +1289,8 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard) {
     Logger.log('  (ADMIN_EMAIL 미설정 · 미쿠 알림 건너뜀)'); return;
   }
   var token = row.get('토큰');
-  var approveUrl = actionUrl('approve', token);
-  var changeUrl = actionUrl('change', token);
+  var approveUrl = actionUrl_('approve', token);
+  var changeUrl = actionUrl_('change', token);
   // 하객 초과 등 상단 플래그
   var guestRaw = String(row.get('하객') || '');
   var flag = /초과/.test(guestRaw)
@@ -1324,7 +1324,7 @@ function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard) {
 }
 
 // 메일③/⑤ — 예약 확정 (승인/수락, 고객) · ★완료 · 정확한 주소·준비안내
-function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
+function sendConfirmEmail_(to, names, dateKey, time, isChange, token) {
   if (!CONFIG.SEND_CONFIRM_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 확정 상태를 대체
   var head = isChange ? '예약이 변경·확정되었습니다' : '예약이 확정되었습니다';
   var inner =
@@ -1343,7 +1343,7 @@ function sendConfirmEmail(to, names, dateKey, time, isChange, token) {
 }
 
 // 취소 안내 (고객) — 예약 취소 시 발송. 차분한 안내 + 재예약/문의 경로.
-function sendCancelEmail(to, names, dateKey, time) {
+function sendCancelEmail_(to, names, dateKey, time) {
   if (!CONFIG.SEND_CANCEL_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 취소 상태를 대체
   var when = dateKey ? (prettyDate(dateKey) + (time ? ' · ' + esc(time) : '')) : '';
   var inner =
@@ -1392,7 +1392,7 @@ function sendStudioBriefEmail(row, dateKey, time) {
   var detailRows = applicantDetailRows(row);
   var token = row.get('토큰');
   var adminCancelBtn = token
-    ? emailBtnOutline(actionUrl('admincancelreq', token), '이 예약 취소하기')
+    ? emailBtnOutline(actionUrl_('admincancelreq', token), '이 예약 취소하기')
     : '';
   var inner =
     centerP('상담 예약이 확정되었습니다.<br>이 메일 하나로 준비를 마치실 수 있습니다.') +
@@ -1411,8 +1411,8 @@ function sendStudioBriefEmail(row, dateKey, time) {
 function sendProposalEmail(row, newDate, newTime, memo) {
   if (!CONFIG.SEND_CHANGE_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 변경제안을 대체
   var token = row.get('토큰');
-  var acceptUrl = actionUrl('accept', token);
-  var reselectUrl = actionUrl('reselect', token);
+  var acceptUrl = actionUrl_('accept', token);
+  var reselectUrl = actionUrl_('reselect', token);
   var inner =
     centerP(coupleNames(row) + ' 님,<br>선택하신 시간이 어려워 <b style="color:#B89A75;font-weight:600">다른 시간을 제안</b>드립니다.') +
     (function(){
@@ -1524,7 +1524,7 @@ function getCalendar() {
 
 // ── 메일 진단 (편집기에서 직접 실행) ───────────────────────────
 // 메일이 안 올 때 원인 파악용. ▶실행 후 실행 로그 확인.
-function diagnoseEmail() {
+function diagnoseEmail() { _requireAdmin();
   Logger.log('=== 메일 진단 ===');
   // 1) 남은 일일 할당량 (0이면 한도 초과 → 메일 안 감)
   var quota = '?';
@@ -1554,7 +1554,7 @@ function diagnoseEmail() {
 // 캘린더 일정 삭제 + 고객 취소 메일 + 상태=취소 기록.
 // 사용법: 아래 TARGET_ROW 를 취소할 시트 행 번호(예: 5)로 바꾸고 cancelByRow 실행.
 // ────────────────────────────────────────────────────────────
-function cancelByRow() {
+function cancelByRow() { _requireAdmin();
   var TARGET_ROW = 0; // ← 여기에 취소할 시트 행 번호를 입력 후 실행 (예: 5)
 
   if (!TARGET_ROW || TARGET_ROW < SYS.DATA_START_ROW) {
@@ -1589,7 +1589,7 @@ function cancelByRow() {
 // ============================================================
 
 // 핵심: start~end 사이, dayFilter(d)가 true인 날에 '상담가능' 종일 일정 생성.
-function seedAvailabilityRange(startDate, endDate, dayFilter) {
+function seedAvailabilityRange(startDate, endDate, dayFilter) { _requireAdmin();
   var cal = getCalendar();
   if (!cal) throw new Error('캘린더를 열 수 없습니다. CONFIG.CALENDAR_ID 확인 필요.');
   var ok = dayFilter || function () { return true; };
@@ -1627,27 +1627,27 @@ function isWeekdayDay(d) { var x = d.getDay(); return x >= 1 && x <= 5; }
 function isWeekendDay(d) { var x = d.getDay(); return x === 0 || x === 6; }
 
 // --- 오늘부터 N주치 (기본 8주) ---
-function seedWeekdaySlots(weeks) {
+function seedWeekdaySlots(weeks) { _requireAdmin();
   var start = new Date(); start.setHours(0, 0, 0, 0);
   var end = new Date(start); end.setDate(end.getDate() + (weeks || 8) * 7);
   return seedAvailabilityRange(start, end, isWeekdayDay);
 }
-function seedWeekendSlots(weeks) {
+function seedWeekendSlots(weeks) { _requireAdmin();
   var start = new Date(); start.setHours(0, 0, 0, 0);
   var end = new Date(start); end.setDate(end.getDate() + (weeks || 8) * 7);
   return seedAvailabilityRange(start, end, isWeekendDay);
 }
 
 // --- 오늘부터 2027-12-31 까지 ---
-function seedAllDaysUntil2027() {       // 평일+주말 전부 ★
+function seedAllDaysUntil2027() { _requireAdmin();       // 평일+주말 전부 ★
   var start = new Date(); start.setHours(0, 0, 0, 0);
   return seedAvailabilityRange(start, new Date(2027, 11, 31), null);
 }
-function seedWeekdaySlotsUntil2027() {  // 평일만
+function seedWeekdaySlotsUntil2027() { _requireAdmin();  // 평일만
   var start = new Date(); start.setHours(0, 0, 0, 0);
   return seedAvailabilityRange(start, new Date(2027, 11, 31), isWeekdayDay);
 }
-function seedWeekendSlotsUntil2027() {  // 주말만
+function seedWeekendSlotsUntil2027() { _requireAdmin();  // 주말만
   var start = new Date(); start.setHours(0, 0, 0, 0);
   return seedAvailabilityRange(start, new Date(2027, 11, 31), isWeekendDay);
 }
@@ -1746,27 +1746,27 @@ function withinCancelDeadline(dateKey, time) {
 function makeToken() { return Utilities.getUuid().replace(/-/g, ''); }
 
 // 관리자 버튼 서명 (고객 토큰만으로 승인 못 하게)
-function getSecret() {
+function getSecret_() { /* [B19_LOCK 2026-10-09] 서명 비밀값 · 서버 코드 안에서만(이름 끝 _) */
   var props = PropertiesService.getScriptProperties();
   var s = props.getProperty(SYS.PROP_SECRET);
   if (!s) { s = makeToken() + makeToken(); props.setProperty(SYS.PROP_SECRET, s); }
   return s;
 }
-function sign(token, action) {
-  var raw = Utilities.computeHmacSha256Signature(action + ':' + token, getSecret());
+function sign_(token, action) {
+  var raw = Utilities.computeHmacSha256Signature(action + ':' + token, getSecret_());
   return Utilities.base64EncodeWebSafe(raw).replace(/=+$/, '').slice(0, 20);
 }
-function verifySig(token, action, sig) { return !!sig && sig === sign(token, action); }
+function verifySig_(token, action, sig) { return !!sig && sig === sign_(token, action); }
 
 // URL 빌더
 function webAppUrl() { return CONFIG.EXEC_URL; }   // getUrl()이 비공개 /dev·구버전 URL을 반환 → Google Drive "현재 파일을 열 수 없습니다" 오류. 고정 /exec 사용.
 function scheduleUrl(token) { return webAppUrl() + '?page=schedule&token=' + encodeURIComponent(token); }
-function actionUrl(action, token) {
-  return webAppUrl() + '?action=' + action + '&token=' + encodeURIComponent(token) + '&sig=' + sign(token, action);
+function actionUrl_(action, token) {
+  return webAppUrl() + '?action=' + action + '&token=' + encodeURIComponent(token) + '&sig=' + sign_(token, action);
 }
 // 자사몰 취소 페이지 URL — 이메일 '여기' 링크용(GAS HTML 우회). cancel.html이 token·sig로 emailCancel* api 호출.
-function cancelPageUrl(token) {
-  return 'https://momentedit.kr/cancel?token=' + encodeURIComponent(token) + '&sig=' + sign(token, 'cancelreq');
+function cancelPageUrl_(token) {
+  return 'https://momentedit.kr/cancel?token=' + encodeURIComponent(token) + '&sig=' + sign_(token, 'cancelreq');
 }
 
 // 날짜/시간 유틸 — 화면 B의 key() 와 동일 포맷 'YYYY-M-D'
@@ -1872,20 +1872,23 @@ function servePayConfirm(p) {
   var m = String((p && p.m) || '').trim();   // deposit=계약금 / mid / bal / midbal(함께입금)
   var exp = String((p && p.exp) || '');
   var label = { deposit: '계약금', mid: '중도금', bal: '잔금', midbal: '중도금·잔금' }[m];
-  if (!code || !label || !verifySig(code, 'payconfirm:' + m + ':' + exp, String((p && p.sig) || ''))) {
+  if (!code || !label || !verifySig_(code, 'payconfirm:' + m + ':' + exp, String((p && p.sig) || ''))) {
     return infoPage('유효하지 않은 링크입니다', '링크가 올바르지 않아요. 관리자 페이지에서 처리해 주세요.', false);
   }
   if (!(Number(exp) > Date.now())) return infoPage('링크 유효기간이 지났습니다', '보안을 위해 링크는 14일간만 유효해요. 관리자 페이지에서 처리해 주세요.', false);
   // 동시 클릭(더블클릭·프리페치) 시 확인처리 이중 실행 방지 — 락으로 직렬화하면 두 번째는 already 경로로 수렴
   var _lock = LockService.getScriptLock();
   try { _lock.waitLock(10000); } catch (e) { return infoPage('잠시 후 다시 시도해 주세요', '다른 처리가 진행 중이에요. 잠시 후 링크를 다시 눌러 주세요.', false); }
-  var r;
+  var r, _authPrev = _AUTHED;
   try {
+    /* ★[PAYCONFIRM_AUTHED 2026-10-09 · B19] 확인 함수(_confirmDepositCore · adminConfirmMid/Balance/MidBalance)는 관리자 전용이다(_requireAdmin).
+       이 메일 단추 길은 위에서 서명 · 기한을 확인했으므로 이 처리 안에서만 관리자 권한을 켠다(finally 에서 되돌린다 · 기획 16-4 ②). */
+    _AUTHED = true;
     if (m === 'deposit') r = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: true }) : { ok: false, error: '처리 함수를 찾을 수 없어요.' };
     else if (m === 'mid') r = adminConfirmMid(code);
     else if (m === 'bal') r = adminConfirmBalance(code);
     else r = adminConfirmMidBalance(code);
-  } finally { try { _lock.releaseLock(); } catch (e) {} }
+  } finally { _AUTHED = _authPrev; try { _lock.releaseLock(); } catch (e) {} }
   if (r && r.ok && r.already) return infoPage('이미 확인 처리되어 있어요', code + ' · ' + label + ' — 추가로 할 일이 없어요.', true);
   if (r && r.ok) return infoPage('입금 확인 완료', code + ' · ' + label + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.', true);
   return infoPage('처리하지 못했어요', String((r && r.error) || '') + '<br>관리자 페이지에서 처리해 주세요.', false);
@@ -1908,7 +1911,7 @@ function infoPage(title, bodyHtml, ok) {
 }
 
 // ============================ STEP 2 · 설치(최초 1회 실행) ============================
-function setupConsultation() {
+function setupConsultation() { _requireAdmin();
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName(SYS.SHEET_NAME) || ss.insertSheet(SYS.SHEET_NAME);
   // 헤더
@@ -1922,7 +1925,7 @@ function setupConsultation() {
     if (c) sheet.getRange(SYS.DATA_START_ROW, c, sheet.getMaxRows() - SYS.HEADER_ROW, 1).setNumberFormat('@');
   });
   // 비밀키 생성
-  getSecret();
+  getSecret_();
   // onEdit 설치형 트리거 (미쿠가 시트에서 상태를 직접 바꾸는 보조 경로용 · 중복 방지)
   var trigs = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'onConsultEdit'; });
   for (var i = 1; i < trigs.length; i++) ScriptApp.deleteTrigger(trigs[i]);
@@ -2044,7 +2047,7 @@ function sendReminderStudio(row, dateKey, time, idx, total) {
 
 // ============================ 시트 서식 정리 (setup 후 1회 실행) ============================
 // setupConsultation() 으로 헤더를 만든 뒤 실행하면: 그룹 색상·열폭·틀고정·상태색상·드롭다운 적용
-function formatConsultationSheet() {
+function formatConsultationSheet() { _requireAdmin();
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var lastCol = sheet.getLastColumn();
@@ -2398,8 +2401,8 @@ function handleLeadCapture(body) {
     // 고객 접수 확인 문자(거래성 안내 · 전화 아님). ScriptProperty 'LEAD_CONFIRM_SMS'='N'이면 끔.
     try {
       var confOff = PropertiesService.getScriptProperties().getProperty('LEAD_CONFIRM_SMS') === 'N';
-      if (!confOff && channel === '문자' && typeof _nfProps === 'function' && typeof _solapiSend === 'function') {
-        var cfg2 = _nfProps();
+      if (!confOff && channel === '문자' && typeof _nfProps_ === 'function' && typeof _solapiSend === 'function') {
+        var cfg2 = _nfProps_();
         if (cfg2 && cfg2.key && cfg2.secret && cfg2.sender) {
           _solapiSend(cfg2, { to: contact.replace(/[^0-9]/g, ''), from: cfg2.sender, text: '[모먼트에디트] 상담 신청이 접수됐어요. 확인 후 카카오톡·문자로 답해드릴게요. 감사합니다.' });
         }
@@ -2409,7 +2412,7 @@ function handleLeadCapture(body) {
   } catch (e) { return { ok: false, error: (e && e.message) || String(e) }; }
 }
 // 관리자 — 리드 목록(adminCall · 최신순 최대 50 · pending=미처리 수)
-function adminListLeads() {
+function adminListLeads() { _requireAdmin();
   var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
   if (!sh || sh.getLastRow() < 2) return { ok: true, items: [], pending: 0 };
   var vals = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
@@ -2421,7 +2424,7 @@ function adminListLeads() {
   return { ok: true, items: items, pending: pending };
 }
 // 관리자 — 리드 처리완료(adminCall · 행번호)
-function adminResolveLead(row) {
+function adminResolveLead(row) { _requireAdmin();
   row = Number(row) || 0; var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
   if (!sh || row < 2 || row > sh.getLastRow()) return { ok: false, error: '대상을 찾을 수 없어요.' };
   sh.getRange(row, 8).setValue('완료'); sh.getRange(row, 9).setValue(fmtKST(new Date()));

@@ -267,7 +267,7 @@ function _journeyWaiting(r) {
 
 // [P1.5 작업3] 개인코드로 상담예약 행을 조인해 마이페이지 "상담/촬영" 카드용 상태 구성.
 // 상담행 없으면 null(원자성 실패 케이스 — 마이페이지는 에러 없이 렌더). 상담토큰·비번 등 민감필드는 내보내지 않음.
-function buildConsultState(code) {
+function buildConsultState(code) { /* [B19_LOCK 2026-10-09] 취소 링크는 cancelPageUrl_ (밑줄 이름) */
   code = String(code || '').trim();
   if (!code) return null;
   var cr = findRowByPersonalCode(code);     // consultation-booking 전역
@@ -302,7 +302,7 @@ function buildConsultState(code) {
     byCard: byCard,                                  // [DEPOSIT_CARD] 카드로 낸 예약금 — 환불은 카드 취소(계좌 불요)
     deposit: deposit,                                // [CONSULT_DEPOSIT] {amount, confirmed} — 상담 카드 예약금 한 줄
     scheduleUrl: consultToken ? (scheduleUrl(consultToken) + '&me=1') : '',  // ?page=schedule&token=&me=1 (마이페이지 진입 → 완료 후 마이페이지 복귀)
-    cancelUrl: (within && consultToken) ? cancelPageUrl(consultToken) : '',  // [③-1] 예약취소 → 자사몰 momentedit.kr/cancel(이메일 취소와 동일 경로 · GAS HtmlService Drive오류 우회). 확정+24h前에만.
+    cancelUrl: (within && consultToken) ? cancelPageUrl_(consultToken) : '',  // [③-1] 예약취소 → 자사몰 momentedit.kr/cancel(이메일 취소와 동일 경로 · GAS HtmlService Drive오류 우회). 확정+24h前에만.
     proposedDate: cr.get('변경제안날짜') ? prettyDate(cr.get('변경제안날짜')) : '',
     proposedTime: String(cr.get('변경제안시간') || '').trim(),
     proposedNote: String(cr.get('변경제안메모') || '').trim()

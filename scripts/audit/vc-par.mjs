@@ -24,6 +24,7 @@ function make() {
     Utilities: { base64Encode: (b) => Buffer.from(b).toString('base64'), base64EncodeWebSafe: (b) => Buffer.from(b).toString('base64url'),
       computeDigest: (_a, s) => Array.from(crypto.createHash('sha256').update(s, 'utf8').digest()), DigestAlgorithm: { SHA_256: 1 }, Charset: { UTF_8: 1 },
       newBlob: (bytes, mime, name) => ({ bytes, name }), sleep() {}, formatDate: () => '2026-10' },
+    _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     resolveSession: () => ({ ok: true, row: { get: () => 'TST1' } }), _sessionMsg: () => '', fmtKST: () => '2026-10-05 21:00', handleAiCostLog() {},
   };
   vm.createContext(ctx); vm.runInContext(src, ctx);
@@ -40,11 +41,11 @@ const body = (lines) => ({ token: 't', op: 'make', key: 'entry', text: lines.map
   ok('⑧ 돌려준 소리 순서 = 줄 순서 · 읽는 분도 줄대로', JSON.stringify(dec) === JSON.stringify(L3.map((l) => l[1])) && r.parts.map((p) => p.who).join() === 'groom,bride,groom', JSON.stringify(dec));
   // ② 요청 모양 = 종전 _vcTts
   let old = null; H.ctx.UrlFetchApp.fetch = (url, o) => { old = { url, o }; return { getResponseCode: () => 200, getBlob: () => ({ getBytes: () => [1] }) }; };
-  H.ctx._vcTts(H.ctx._vcCfg('TST1'), 'vg', L3[0][1], 1, 350);
+  H.ctx._vcTts(H.ctx._vcCfg_('TST1'), 'vg', L3[0][1], 1, 350);
   const nw = H.log.fetchAll[0][0];
   ok('② 요청 모양 = 종전 _vcTts(주소 · 머리 · 본문)', old && old.url === nw.url && old.o.payload === nw.payload && old.o.contentType === nw.contentType && old.o.headers['X-API-KEY'] === nw.headers['X-API-KEY'] && nw.muteHttpExceptions === true, JSON.stringify({ a: old && old.o.payload, b: nw.payload }));
   // ③ 저장 이름 = 종전 _vcCached
-  const nm0 = [...H.files.keys()][0]; const H2 = make(); H2.ctx._vcCached('TST1', 'AI 소리', 'vg', L3[0][1], 1, H2.ctx._vcCfg('TST1'), 350);
+  const nm0 = [...H.files.keys()][0]; const H2 = make(); H2.ctx._vcCached('TST1', 'AI 소리', 'vg', L3[0][1], 1, H2.ctx._vcCfg_('TST1'), 350);
   ok('③ 저장 이름 = 종전 _vcCached(이미 만든 소리가 그대로 맞는다)', H2.files.has(nm0), nm0 + ' / ' + [...H2.files.keys()][0]);
   // ④ 두 번째는 저장본
   const n0 = H.log.fetchAll.length; H.ctx.UrlFetchApp.fetchAll = (reqs) => { H.log.fetchAll.push(reqs); return []; };

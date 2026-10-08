@@ -11,7 +11,7 @@ var AW_STUDIO = { x: '126.8929', y: '37.6079' };   // 향동 스튜디오(사이
 
 /** [설정 우회] 스크립트 속성 화면 없이 키 저장 — 아래 key 값에 카카오 REST API 키를 붙여넣고 이 함수를 1회 실행.
  *  저장 후엔 key 값을 다시 '여기에...'로 되돌려도 됨(속성은 유지됨). */
-function aw_setKey() {
+function aw_setKey() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 카카오 열쇠 바꾸기 · 편집기만 */
   var key = '여기에_REST_API_키_붙여넣기';
   if (!key || key.indexOf('여기에') === 0) throw new Error('함수 안의 key 값에 카카오 REST API 키를 붙여넣은 뒤 다시 실행해 주세요.');
   PropertiesService.getScriptProperties().setProperty('KAKAO_REST_KEY', key.trim());
@@ -71,7 +71,7 @@ var AW_DB_NAMES = [
 ];
 
 /** ① 기존 리스트 전수 검증 — GAS 편집기에서 실행(약 1분) */
-function auditDineDb() {
+function auditDineDb() { _requireAdmin();
   /* ★[PAIRTEST_0830] 실기 테스트 — 같은 표식이 «두 파일»에 있을 때 한쪽만 붙여도 잡히는가.
      2026-08-30 COVER_PAIR 수정(게이트를 파일·표식 짝으로)이 실제 GAS 에서 무는지 확인용. 동작 없음. */
   var r = _awRunAudit_();
@@ -116,7 +116,7 @@ function awMonthlyAudit() {
 }
 
 /** 월간 검증 트리거 등록 — 1회만 실행(매월 1일 오전 9시). 이미 있으면 중복 생성 안 함. */
-function setupAwAudit() {
+function setupAwAudit() { _requireAdmin();
   var has = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'awMonthlyAudit'; });
   if (has) { Logger.log('awMonthlyAudit 트리거 이미 등록됨 — 건너뜀'); return; }
   ScriptApp.newTrigger('awMonthlyAudit').timeBased().onMonthDay(1).atHour(9).create();
@@ -133,7 +133,7 @@ function _awNotifyAdmin_(text) {
 
 /** ② 후보 풀 대량 수집 — 반경 7km 업종 스윕(약 2~3분) */
 var AW_SWEEP = ['한정식','한식','한우','갈비','곰탕','국밥','샤브샤브','칼국수','족발','보쌈','중식당','일식','초밥','파스타','해물탕','생선구이','뷔페','브런치','베이커리카페','카페','키즈카페','수제맥주','와인바','전통찻집'];
-function collectDinePool() {
+function collectDinePool() { _requireAdmin();
   var seen = {}, rows = [];
   var known = {}; AW_DB_NAMES.forEach(function (n) { known[_awNorm_(n)] = true; });
   for (var i = 0; i < AW_SWEEP.length; i++) {
@@ -162,7 +162,7 @@ function collectDinePool() {
  *  지역을 격자로 나눠 셀별로 쏘면 같은 키워드라도 훨씬 더 많은 실업체가 걸린다(보통 기본 수집의 2~3배).
  *  실행 약 3~5분. 6분 한도에 닿기 전 자동 종료(부분 결과라도 시트에 저장). */
 var AW_GRID = { cells: 3, span: 0.045, cellRadius: 3500, pages: 2 };   // 3×3 · ±0.045°(약 ±5km) · 셀당 3.5km · 페이지 2
-function collectDinePoolDeep() {
+function collectDinePoolDeep() { _requireAdmin();
   var t0 = Date.now(), LIMIT = 5 * 60 * 1000;   // 5분 안전 한도(GAS 6분 제한)
   var seen = {}, rows = [], stopped = false;
   var known = {}; AW_DB_NAMES.forEach(function (n) { known[_awNorm_(n)] = true; });

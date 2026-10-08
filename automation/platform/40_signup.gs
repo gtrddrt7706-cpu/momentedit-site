@@ -111,7 +111,7 @@ function handleSignup(body) {
 
   // 8) 접수 메일 — 실패해도 행/코드는 유지(메일은 재시도 가능). 관리자에 오류 알림.
   try {
-    sendSignupEmail(email, groom + ' · ' + bride, code, token, product, detail);
+    sendSignupEmail_(email, groom + ' · ' + bride, code, token, product, detail);
   } catch (mailErr) {
     notifyStudio('[플랫폼] ⚠️오류 · 신청 접수 메일 발송 실패',
       groom + ' · ' + bride + '\n수신: ' + email + '\n코드: ' + code + '\n오류: ' + (mailErr && mailErr.message));
@@ -135,7 +135,7 @@ function _shortHash(s) {
 }
 
 // ============================ T4 · 접수 메일 (코드 + 마이페이지 링크) ============================
-function sendSignupEmail(to, names, code, token, product, detail) {
+function sendSignupEmail_(to, names, code, token, product, detail) { /* [B19_LOCK 2026-10-09] 메일 보내기 · 서버 코드 안에서만(이름 끝 _) */
   var mypage = P.MYPAGE_URL + '?token=' + encodeURIComponent(token);
   var isSnap = (product === P.PRODUCT_SNAP);
 

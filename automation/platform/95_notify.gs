@@ -118,7 +118,7 @@ function notifyKakao(event, code, extra) {
         + ' · ' + (code || '-') + (extra ? (' · ' + _safeJson(extra)) : ''));
     }
     if (!_notifyEnabled()) return 'off';   // 발송 OFF(테스트 모드 등 의도된 미발송) — 실패로 치지 않게 'off' 반환 · 로그만 남기고 종료
-    var _sentRet = _kakaoSend(meta.to, event, code, extra);
+    var _sentRet = _kakaoSend_(meta.to, event, code, extra);
     try { _nfMaybeBalanceCheck(); } catch (e) {}   // 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고
     return _sentRet;
   } catch (e) {
@@ -129,7 +129,7 @@ function notifyKakao(event, code, extra) {
 
 // ============================ 발송부 (솔라피) ============================
 
-function _nfProps() {
+function _nfProps_() { /* [B19_LOCK 2026-10-09] 열쇠가 든 설정 · 서버 코드 안에서만(이름 끝 _) */
   var p = PropertiesService.getScriptProperties();
   var tpls = {};
   try { tpls = JSON.parse(p.getProperty('KAKAO_TEMPLATES') || '{}'); } catch (e) { tpls = {}; }
@@ -148,9 +148,9 @@ function _nfProps() {
  * notifyKakao의 try 안에서만 호출되므로 여기서 예외가 나도 본 흐름은 안전.
  * opts.skipHold=true 면 야간 보류를 건너뛰고 즉시 발송(아침 플러시·테스트용).
  */
-function _kakaoSend(to, event, code, extra, opts) {
+function _kakaoSend_(to, event, code, extra, opts) {
   // [NOTIFY_SENT_RET 2026-07-25] 반환: true(발송 시도 성공)·'held'(야간 보류)·false(미발송). 기존 호출부 반환 미사용(호환).
-  var cfg = _nfProps();
+  var cfg = _nfProps_();
   /* ★★[ADMIN_MAIL_UNCHAINED 2026-08-21 알림 전수점검에서 잡음] 솔라피 설정 검사를 **고객 분기로 내렸다.**
      종전엔 이 검사가 관리자 분기보다 «앞»에 있었다. 그런데 관리자 알림은 2026-06-29 에 **메일 전용**으로
      바뀌어 솔라피를 한 번도 쓰지 않는다 — 그런데도 SOLAPI_SENDER 에 오타 하나만 나면
@@ -163,7 +163,7 @@ function _kakaoSend(to, event, code, extra, opts) {
     // [메일 전용 전환 · 2026-06-29] 문자비 0 — 관리자 알림은 SMS 대신 메일로(운영자 개인메일 cc). 이 메일에 폰 알람을 걸면 즉시 확인.
     var meta = NOTIFY_EVENTS[event] || {};
     if (meta.need !== true && !_adminInfoOn()) { Logger.log('[notify] 관리자 안내성 알림 생략(need:false): ' + event); return false; }
-    if (typeof _nfAdminLineEmail === 'function') { _nfAdminLineEmail(_nfAdminText(event, code, extra), _nfPayConfirmAction(event, code, extra)); return true; }
+    if (typeof _nfAdminLineEmail === 'function') { _nfAdminLineEmail(_nfAdminText(event, code, extra), _nfPayConfirmAction_(event, code, extra)); return true; }
     return false;
   }
   /* ★★[KAKAO_FAIL_MAIL 2026-09-25 사장님 «알림톡이 어떤 이유로 불발나면 이메일로 가게 해놨는데 잘 되어 있는 거지?»] 되돌리지 말 것.
@@ -220,7 +220,7 @@ function _kakaoSend(to, event, code, extra, opts) {
     _elsewhere = emailedElsewhere;
     var custEmail = String(cust.get('이메일') || '').trim();
     if (custEmail && custEmail.indexOf('@') > 0 && !emailedElsewhere && !sentKakao) {
-      _mailed = (_nfCustomerEmailFallback(custEmail, name, event, m.text) === true);   // [KAKAO_FAIL_MAIL] 보냈다고 치지 말고 실제 결과로
+      _mailed = (_nfCustomerEmailFallback_(custEmail, name, event, m.text) === true);   // [KAKAO_FAIL_MAIL] 보냈다고 치지 말고 실제 결과로
     }
   } catch (e) {}
   /* ★★[TPL_SILENT 2026-09-25 사장님 「알림톡 나가지 않고 있어요 · 추적해서 문제점 찾아봐 · 직접 시뮬 돌려보고」]
@@ -402,7 +402,7 @@ function _nfHoldPush(event, code, extra) {
      ④사흘째 3회 실패로 버려지며 관리자에게 「큐에서 내렸습니다」 메일 1통
    취소한 고객에게 보낼 알림이 사흘 동안 살아 있었던 것이고, 관리자는 영문 모를 메일을 받았다.
    ★이제 되돌리기가 그 고객의 대기 알림을 함께 내린다. 비운 건수를 돌려줘 처리이력에 남긴다. */
-function _nfHoldDrop(code) {
+function _nfHoldDrop(code) { _requireAdmin();
   // [HOLD_DROP_ON_ROLLBACK] 되돌린 고객의 대기 알림만 큐에서 내린다 — 표식은 반드시 «함수 본문 안»에(FILE_COVER)
   var c = String(code || '').trim();
   if (!c) return 0;
@@ -446,7 +446,7 @@ function flushHeldNotifies() {
   var _save = function () { try { _props.setProperty('NOTIFY_HOLD', JSON.stringify(_left)); } catch (e) {} };
   for (var i = 0; i < arr.length; i++) {
     var it = arr[i], okSend = false;
-    try { okSend = (_kakaoSend('customer', it.e, it.c, it.x, { skipHold: true }) !== false); } catch (e) { okSend = false; }
+    try { okSend = (_kakaoSend_('customer', it.e, it.c, it.x, { skipHold: true }) !== false); } catch (e) { okSend = false; }
     _left = _left.filter(function (x) { return x !== it; });     // 성공이든 실패든 이번 회차 목록에서는 뺀다
     if (okSend) { _sent++; }
     else {
@@ -636,7 +636,7 @@ function _nfAdminText(event, code, x) {
 
 // 1) 설정 점검 — 발송 없이 현재 설정 상태만 로그로 출력 (실행 후 Ctrl+Enter 로그 확인)
 function notifySetupCheck() {
-  var cfg = _nfProps();
+  var cfg = _nfProps_();
   Logger.log('NOTIFY_ENABLED = ' + _notifyEnabled());
   Logger.log('SOLAPI_API_KEY = ' + (cfg.key ? '설정됨(' + cfg.key.slice(0, 4) + '…)' : '❌ 없음'));
   Logger.log('SOLAPI_API_SECRET = ' + (cfg.secret ? '설정됨' : '❌ 없음'));
@@ -663,23 +663,23 @@ function notifySetupCheck() {
 }
 
 // 2) 관리자 SMS 테스트 — ADMIN_PHONE으로 1건 실발송(요금 발생)
-function notifyTestAdminSms() {
-  var cfg = _nfProps();
+function notifyTestAdminSms() { _requireAdmin();
+  var cfg = _nfProps_();
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('SOLAPI 설정 누락 — notifySetupCheck() 먼저'); return; }
   if (!cfg.adminPhone) { Logger.log('ADMIN_PHONE 미설정'); return; }
   _solapiSend(cfg, { to: cfg.adminPhone, from: cfg.sender, text: '[모먼트에디트] 알림 연동 테스트입니다. 이 문자가 보이면 SMS 연동 성공!' });
 }
 
 // 3) 고객 발송 테스트 — 개인코드로 상담확정 문구 1건 실발송(본인 명의 테스트 고객 코드로 권장 · 야간 보류 무시하고 즉시)
-function notifyTestCustomerByCode(code) {
-  _kakaoSend('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' }, { skipHold: true });
+function notifyTestCustomerByCode(code) { _requireAdmin();
+  _kakaoSend_('customer', 'cust.consultConfirmed', String(code || ''), { date: '2026-06-17', time: '19:30' }, { skipHold: true });
 }
 
 // 3-1) 카톡(알림톡) 직접 테스트 — 지정 번호로 승인·매핑된 템플릿 1건 실발송(카톡만, SMS 대체 끔).
 //   사용: notifyTestKakao()  → ADMIN_PHONE으로 발송 · 다른 번호: notifyTestKakao('01012345678','cust.contractArrived')
 //   KAKAO_TEMPLATES에 그 이벤트 템플릿ID가 매핑돼 있어야 카톡으로 나감(없으면 로그로 알려줌).
-function notifyTestKakao(phone, event) {
-  var cfg = _nfProps();
+function notifyTestKakao(phone, event) { _requireAdmin();
+  var cfg = _nfProps_();
   phone = String(phone == null ? cfg.adminPhone : phone).replace(/[^0-9]/g, '');
   event = event || 'cust.consultConfirmed';
   if (!cfg.key || !cfg.secret || !cfg.sender) { Logger.log('SOLAPI 설정 누락 — notifySetupCheck() 먼저'); return; }
@@ -699,8 +699,8 @@ function notifyTestKakao(phone, event) {
 
 // 3-1b) 승인·매핑된 카톡 템플릿을 '전부' 지정 번호로 1건씩 테스트 발송(중복 템플릿ID는 1회만).
 //   사용: notifyTestKakaoAll()  → ADMIN_PHONE으로 발송 · 다른 번호: notifyTestKakaoAll('01012345678')
-function notifyTestKakaoAll(phone) {
-  var cfg = _nfProps();
+function notifyTestKakaoAll(phone) { _requireAdmin();
+  var cfg = _nfProps_();
   phone = String(phone == null ? cfg.adminPhone : phone).replace(/[^0-9]/g, '');
   if (!cfg.key || !cfg.secret || !cfg.sender || !cfg.pfId) { Logger.log('SOLAPI/pfId 설정 누락'); return; }
   if (!phone) { Logger.log('보낼 번호 없음(인자 또는 ADMIN_PHONE)'); return; }
@@ -722,7 +722,7 @@ function notifyTestKakaoAll(phone) {
 
 // 3-1c) 템플릿 1개만 안전 추가(기존 매핑 유지·merge) — 나중에 승인난 1건을 끼워넣을 때.
 //   사용: addKakaoTemplate('cust.consultDone', 'KA01TP...')  ·  값 ''면 해당 이벤트 제거
-function addKakaoTemplate(event, templateId) {
+function addKakaoTemplate(event, templateId) { _requireAdmin();
   var p = PropertiesService.getScriptProperties();
   var m = {}; try { m = JSON.parse(p.getProperty('KAKAO_TEMPLATES') || '{}'); } catch (e) { m = {}; }
   event = String(event || '').trim();
@@ -736,14 +736,14 @@ function addKakaoTemplate(event, templateId) {
 
 // 3-1d) [실행용 래퍼] GAS 실행(▷)은 인자를 못 넘김 → 인자 박은 함수를 만들어 바로 실행.
 //   T17(상담완료) 매핑 추가: addT17 실행  ·  T17 카톡 테스트: testKakaoT17 실행
-function addT17() { return addKakaoTemplate('cust.consultDone', 'KA01TP260612112333511yHo1QiOBlDb'); }
-function testKakaoT17() { return notifyTestKakao(null, 'cust.consultDone'); }   // ADMIN_PHONE으로 발송(하드코딩 개인번호 제거)
-function testKakaoAll() { return notifyTestKakaoAll(); }                        // ADMIN_PHONE으로 발송
+function addT17() { _requireAdmin(); return addKakaoTemplate('cust.consultDone', 'KA01TP260612112333511yHo1QiOBlDb'); }
+function testKakaoT17() { _requireAdmin(); return notifyTestKakao(null, 'cust.consultDone'); }   // ADMIN_PHONE으로 발송(하드코딩 개인번호 제거)
+function testKakaoAll() { _requireAdmin(); return notifyTestKakaoAll(); }                        // ADMIN_PHONE으로 발송
 
 // 3-2) 카톡 템플릿코드 일괄 등록 — 솔라피 콘솔 각 템플릿의 '템플릿 코드'를 아래 빈칸에 채우고 1회 실행하면 KAKAO_TEMPLATES에 더한다.
 //   ★빈칸은 건드리지 않는다(이미 매핑된 알림은 그대로 · TPL_KEEP). 보통은 이것 대신 importKakaoTemplates 가 편하다(이름 T## 으로 자동).
 //   midPre·midDue는 같은 코드, balancePre·balanceDue도 같은 코드.
-function setKakaoTemplates() {
+function setKakaoTemplates() { _requireAdmin();
   var map = {
     'cust.consultConfirmed':    '',   // T01 상담확정
     'cust.consultDayBefore':    '',   // T02 하루전
@@ -767,8 +767,8 @@ function setKakaoTemplates() {
   };
   var filled = Object.keys(map).filter(function (k) { return String(map[k] || '').trim(); });
   if (!filled.length) {   // [TPL_KEEP] 칸이 전부 빈 채로 실행돼도 기존 매핑을 지우지 않는다
-    Logger.log('채운 칸이 없어요 — 아무것도 바꾸지 않았습니다(기존 매핑 ' + Object.keys(_nfProps().templates).length + '건 그대로). 보통은 importKakaoTemplates 를 실행하세요.');
-    return _nfProps().templates;
+    Logger.log('채운 칸이 없어요 — 아무것도 바꾸지 않았습니다(기존 매핑 ' + Object.keys(_nfProps_().templates).length + '건 그대로). 보통은 importKakaoTemplates 를 실행하세요.');
+    return _nfProps_().templates;
   }
   return _nfTplMerge(map);
 }
@@ -781,7 +781,7 @@ function setKakaoTemplates() {
       기존 매핑은 소리 없이 빠졌다.
    지우는 일은 addKakaoTemplate(이벤트, '') 로만 한다(하나씩 · 의도가 분명할 때).
    저장 뒤에는 켜진 고객 알림 중 아직 템플릿이 없는 것을 이름으로 찍는다(notifySetupCheck 와 같은 목록). */
-function _nfTplMerge(add) {
+function _nfTplMerge(add) { _requireAdmin();
   var _tkMark = '[TPL_KEEP]';
   var p = PropertiesService.getScriptProperties();
   var raw = p.getProperty('KAKAO_TEMPLATES') || '{}', cur = {};
@@ -813,8 +813,8 @@ function _nfTplMissing(tpls) {
 //   템플릿 이름이 'T01 …' 'T05 …' 형식이어야 자동 인식 · 승인(APPROVED/승인)만 매핑 · 1회 실행이면 끝.
 //   기존 매핑은 지우지 않는다(TPL_KEEP) — 검수 중인 템플릿이 있어도 승인난 것부터 돌리고, 나중에 한 번 더 돌리면 된다.
 //   응답 형식이 예상과 다르면 원문을 로그로 남김(그걸 보여주면 맞춰줌).
-function importKakaoTemplates() {
-  var cfg = _nfProps();
+function importKakaoTemplates() { _requireAdmin();
+  var cfg = _nfProps_();
   if (!cfg.key || !cfg.secret) { Logger.log('SOLAPI 키 누락 — notifySetupCheck() 먼저'); return; }
   var T2E = {
     '1': ['cust.consultConfirmed'], '2': ['cust.consultDayBefore'], '3': ['cust.timeProposed'],
@@ -850,7 +850,7 @@ function importKakaoTemplates() {
 // 고객 메일 1통(best-effort) — 2026-09-25 부터 부르는 곳이 없다(KAKAO_FIRST · 카톡과 함께 보내던 메일을 없앴다). 다시 쓸 때를 위해 남겨 둔다.
 //   emailShell·centerP·emailBtn·smallP·esc·SYS·P 는 같은 GAS 프로젝트(consultation-booking·00_platform-config)의 것을 재사용.
 //   발송 실패는 본 흐름(상담완료·전달 처리)을 절대 막지 않는다 — 호출부도 try 안에서 부른다.
-function _notifyCustomerEmail(code, subject, headline, innerHtml) {
+function _notifyCustomerEmail(code, subject, headline, innerHtml) { _requireAdmin();
   // [NOTIFY_SENT_RET 2026-07-25] 발송 성공 true · 미발송 false 반환(기존 호출부 반환 미사용 — 호환).
   try {
     var cust = findCustomerByCode(String(code || '').trim());
@@ -947,13 +947,13 @@ function _nfAdminEmail(subject, bodyHtml, opts) {
 // 관리자 짧은 알림 1건을 '메일'로 — 문자 대체(메일 전용 운영). 제목은 한눈에·본문은 전체·관리자 페이지 버튼.
 //   text 예: '[모먼트에디트] 신규 신청 … / 일정 잡기'  ·  '📋 새 인계: …'  ·  '🛡️ 안전점검 …'
 // [메일 원클릭] 입금신호 3종 메일에 '입금 확인 처리' 버튼(doGet action=payconfirm · HMAC 서명 · 14일 유효 · 멱등)
-function _nfPayConfirmAction(event, code, extra) {
+function _nfPayConfirmAction_(event, code, extra) {
   try {
     if (['admin.depositSignal', 'admin.midSignal', 'admin.balanceSignal'].indexOf(event) === -1) return null;
-    if (typeof sign !== 'function' || typeof webAppUrl !== 'function') return null;
+    if (typeof sign_ !== 'function' || typeof webAppUrl !== 'function') return null;
     var m = (event === 'admin.depositSignal') ? 'deposit' : (event === 'admin.balanceSignal') ? 'bal' : ((extra && extra.withBalance) ? 'midbal' : 'mid');
     var exp = String(Date.now() + 14 * 86400000);
-    return { url: webAppUrl() + '?action=payconfirm&code=' + encodeURIComponent(String(code || '').trim().toUpperCase()) + '&m=' + m + '&exp=' + exp + '&sig=' + encodeURIComponent(sign(String(code || '').trim().toUpperCase(), 'payconfirm:' + m + ':' + exp)), label: '입금 확인 처리' };
+    return { url: webAppUrl() + '?action=payconfirm&code=' + encodeURIComponent(String(code || '').trim().toUpperCase()) + '&m=' + m + '&exp=' + exp + '&sig=' + encodeURIComponent(sign_(String(code || '').trim().toUpperCase(), 'payconfirm:' + m + ':' + exp)), label: '입금 확인 처리' };
   } catch (e) { return null; }
 }
 function _nfAdminLineEmail(text, action) {
@@ -1060,7 +1060,7 @@ function handleSolapiReport(raw) {
               var _sentMail = false;
               /* [MAIL_ONCE] 확정 메일이 이미 간 알림(상담 확정)은 대체 메일을 또 보내지 않는다 — 메일 주소가 있을 때만(없으면 확정 메일도 못 갔다) */
               var _viaOther = _nfEmailedElsewhere(event) && !!to && to.indexOf('@') > 0;
-              if (!_viaOther && to && to.indexOf('@') > 0 && text) { _sentMail = (_nfCustomerEmailFallback(to, name, event, text) === true); if (_sentMail) emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
+              if (!_viaOther && to && to.indexOf('@') > 0 && text) { _sentMail = (_nfCustomerEmailFallback_(to, name, event, text) === true); if (_sentMail) emailed++; Logger.log('[notify] 전달실패→고객 이메일: ' + code + ' · ' + event); }
               if (code && code !== 'TEST') {   // 시험 발송(testKakao…)은 고객이 아니다 — 흔적·경고를 남기지 않는다
                 if (typeof _recordHandler === 'function') _recordHandler(code, '[알림] ' + event + ' 카톡 전달 실패(' + (sc || '-') + ') · ' + (_viaOther ? '확정 메일로 이미 안내됨(대체 메일 안 보냄)' : (_sentMail ? '이메일로 대체' : '이메일도 없어 아무것도 못 받음')));
                 if (!_sentMail && !_viaOther && typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카톡 전달 실패 — ' + code + ' · ' + event + ' · 이메일로도 못 보내 고객이 아무것도 못 받았어요(직접 연락이 필요해요)');
@@ -1119,7 +1119,7 @@ var NF_EMAIL_TITLE = {
 // 고객 알림이 카톡으로 못 나갔을 때(템플릿없음·전송실패·전달실패) 같은 내용을 '고객 이메일'로 발송.
 //   SMS 문구(text)에서 태그([모먼트에디트])·끝 URL·시작 '이름님,'을 정리 → 깔끔한 본문 + 마이페이지 버튼 + 이벤트별 제목.
 //   GAS GmailApp이라 솔라피와 무관하게 발송. 이메일 없는 고객은 호출 측에서 건너뜀.
-function _nfCustomerEmailFallback(to, name, event, text) {
+function _nfCustomerEmailFallback_(to, name, event, text) {
   try {
     var safe = (typeof esc === 'function') ? esc : function (s) { return String(s == null ? '' : s); };
     var meta = NF_EMAIL_TITLE[event] || { subj: '안내드립니다', head: '모먼트에디트 안내' };
@@ -1179,7 +1179,7 @@ function purgeSmsLog() {
   } catch (e) { try { Logger.log('purgeSmsLog 실패: ' + (e && e.message)); } catch (_) {} }
 }
 // 관리자: 솔라피 잔액 + 이번달/24h 발송 건수·추정비용 (adminCall fn='solapiUsageSummary')
-function solapiUsageSummary() {
+function solapiUsageSummary() { _requireAdmin();
   var tz = 'Asia/Seoul';
   var price = { SMS: 20, LMS: 50, '알림톡': 15 };   // 추정 단가(원) — 실제는 솔라피 콘솔 기준
   try { var pj = JSON.parse(PropertiesService.getScriptProperties().getProperty('SOLAPI_PRICE') || '{}'); for (var k in pj) price[k] = Number(pj[k]) || price[k]; } catch (e) {}
@@ -1211,7 +1211,7 @@ function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return Str
    다른 테스트 함수는 전부 ADMIN_PHONE 으로 향하는데 이것만 실고객을 기본값으로 들고 있었다.
    ★되돌릴 수 없는 종류의 사고다(발송 취소가 없다). 기본값을 되살리지 말 것 —
      테스트할 코드는 **부를 때 손으로 적는다**: ZZ_kakaoTestAll('코드'). */
-function ZZ_kakaoTestAll(code) {
+function ZZ_kakaoTestAll(code) { _requireAdmin();
   var c = String(code || '').trim();
   if (!c) {
     Logger.log('[ZZ] 개인코드를 인자로 주세요 — ZZ_kakaoTestAll(\'ABC123\') · 실고객에게 6통이 나가는 함수라 기본값을 두지 않습니다.');
@@ -1227,7 +1227,7 @@ function ZZ_kakaoTestAll(code) {
   ];
   for (var i = 0; i < seq.length; i++) {
     try {
-      _kakaoSend('customer', seq[i][0], c, seq[i][1], { skipHold: true });
+      _kakaoSend_('customer', seq[i][0], c, seq[i][1], { skipHold: true });
       Logger.log('[ZZ] 발송 시도: ' + seq[i][0]);
     } catch (e) {
       Logger.log('[ZZ] 실패: ' + seq[i][0] + ' · ' + (e && e.message));
@@ -1353,7 +1353,7 @@ function _errAlert(ec, act, text, why, eid) {   // [ERR_CODE_GAS] 관리자 메�
     _nfAdminLineEmail('고객 화면 오류 ' + ec + (eid ? ' · 사고번호 ' + eid : '') + ' · 동작 ' + (act || '없음') + ' · 고객이 본 글 «' + String(text || '').slice(0, 80) + '»' + (why ? ' · 까닭 ' + String(why).slice(0, 140) : '') + ' · 같은 코드는 오늘 더 보내지 않아요(오류기록 시트에 다 남아요) / 오류 확인');
   } catch (e) {}
 }
-function adminErrLog(code, n, eid) {   // [ERR_CODE_GAS] 관리자 화면 — 오류기록 최근 n줄(개인코드 · 사고번호로 거른다) · 읽기 전용 · adminCall
+function adminErrLog(code, n, eid) { _requireAdmin();   // [ERR_CODE_GAS] 관리자 화면 — 오류기록 최근 n줄(개인코드 · 사고번호로 거른다) · 읽기 전용 · adminCall
   n = Math.max(1, Math.min(50, +n || 10)); code = String(code || '').trim().toUpperCase(); eid = String(eid || '').trim().toUpperCase();
   var sh = SpreadsheetApp.getActive().getSheetByName(ERR_LOG_SHEET); if (!sh || sh.getLastRow() < 2) return { ok: true, rows: [] };
   var last = sh.getLastRow(), from = eid ? 2 : Math.max(2, last - 2999), v = sh.getRange(from, 1, last - from + 1, 8).getDisplayValues(), out = [];   // [ERR_EID_ALL 2026-10-08] 사고번호는 시트 전체(5,000줄)에서 — 몇 주 지난 번호도 찾게

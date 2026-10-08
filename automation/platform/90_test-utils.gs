@@ -15,7 +15,7 @@
 var _LAST_TEST_CODE = null;
 
 // ── 순수 로직 셀프테스트 (시트·메일 불필요) ──────────────
-function platformSelfTest() {
+function platformSelfTest() { _requireAdmin();
   /* ★[PAIRTEST_0830] 실기 테스트 — 같은 표식이 «두 파일»에 있을 때 한쪽만 붙여도 잡히는가.
      2026-08-30 COVER_PAIR 수정(게이트를 파일·표식 짝으로)이 실제 GAS 에서 무는지 확인용. 동작 없음. */
   var log = [];
@@ -52,10 +52,10 @@ function platformSelfTest() {
   A('빈값 만료(안전)', tokenExpired('') === true);
 
   // reset 서명
-  var exp = Date.now() + 3600000, sig = makeResetSig('A7K2QX', exp);
-  A('reset 서명 통과', verifyResetSig('A7K2QX', exp, sig) === true);
-  A('reset 서명 변조 거부', verifyResetSig('A7K2QX', exp, 'x') === false);
-  A('reset 만료 거부', verifyResetSig('A7K2QX', Date.now() - 1, makeResetSig('A7K2QX', Date.now() - 1)) === false);
+  var exp = Date.now() + 3600000, sig = makeResetSig_('A7K2QX', exp);
+  A('reset 서명 통과', verifyResetSig_('A7K2QX', exp, sig) === true);
+  A('reset 서명 변조 거부', verifyResetSig_('A7K2QX', exp, 'x') === false);
+  A('reset 만료 거부', verifyResetSig_('A7K2QX', Date.now() - 1, makeResetSig_('A7K2QX', Date.now() - 1)) === false);
 
   // 진행바
   A('시그니처 9단계(시착 포함)', stageFlowFor('시그니처').length === 9);
@@ -71,14 +71,14 @@ function platformSelfTest() {
 }
 
 // ── 테스트 고객 생성 (시그니처) ──────────────────────────
-function testSignupSignature() {
+function testSignupSignature() { _requireAdmin();
   return _testSignup(P.PRODUCT_SIGNATURE);
 }
 // ── 테스트 고객 생성 (웨딩스냅) ──────────────────────────
-function testSignupSnap() {
+function testSignupSnap() { _requireAdmin();
   return _testSignup(P.PRODUCT_SNAP);
 }
-function _testSignup(product) {
+function _testSignup(product) { _requireAdmin();
   var to = (CONFIG.ADMIN_EMAIL && CONFIG.ADMIN_EMAIL.charAt(0) !== '[') ? CONFIG.ADMIN_EMAIL : 'test@example.com';
   var res = handleSignup({
     action: 'signup',
@@ -99,7 +99,7 @@ function _testSignup(product) {
 }
 
 // ── login → verify → getMyState 라운드트립 ──────────────
-function testLoginRoundTrip() {
+function testLoginRoundTrip() { _requireAdmin();
   if (!_LAST_TEST_CODE) {
     Logger.log('먼저 testSignupSignature() 또는 testSignupSnap() 을 실행하세요.');
     return '테스트 코드 없음';
@@ -119,7 +119,7 @@ function testLoginRoundTrip() {
 
 // ★★ [계정 점검] 모든 고객 계정 나열 — 개인코드·이메일·단계·생성시각·비번설정 여부 (중복/엉뚱한 연동 추적) ★★
 //   acctDump() 그냥 실행. 같은 이메일에 여러 코드가 있으면 재설정이 어느 걸 고르는지 보임.
-function acctDump() {
+function acctDump() { _requireAdmin();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet), last = sheet.getLastRow();
   if (last < P.DATA_START_ROW) { Logger.log('계정 없음'); return '계정 없음'; }
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
@@ -145,11 +145,11 @@ function acctDump() {
 // ★★ [재설정 추적] 재설정을 한 번 한 뒤 이 함수(resetDbgRun) 실행 → 폼이 보낸 비번이 입력값과 같은지 확정 ★★
 //   '테스트비번'을 재설정 때 입력한 값으로 바꾸고 실행. fp가 같으면 폼이 그 값을 보낸 것(저장/로그인 쪽 문제),
 //   다르면 폼이 다른 값을 보낸 것(자동완성 등 입력칸 오염 확정).
-function resetDbgRun() {
+function resetDbgRun() { _requireAdmin();
   var 테스트비번 = '960612';   // ← 방금 재설정 때 입력했다고 생각하는 값
   return resetDbg(테스트비번);
 }
-function resetDbg(testPw) {
+function resetDbg(testPw) { _requireAdmin();
   var v = PropertiesService.getScriptProperties().getProperty('DBG_RESET') || '(없음 — 새 코드 재배포 후 재설정을 한 번 해야 기록됨)';
   var fp = _stretch(String(testPw || ''), 'FPSALT2026', 2).slice(0, 16);
   var same = v.indexOf('fp=' + fp) >= 0;
@@ -160,12 +160,12 @@ function resetDbg(testPw) {
 
 // ★★ [복구] 두 값만 바꾸고 이 함수(pwFixRun)를 실행 → 그 비번으로 즉시 로그인 가능 ★★
 //   재설정이 꼬여 로그인 안 될 때 응급 복구. 비번해시를 직접 바르게 설정하고 검증까지 한다.
-function pwFixRun() {
+function pwFixRun() { _requireAdmin();
   var 개인코드 = 'X6W7PC';        // ← 본인 개인코드
   var 새비밀번호 = '960612';      // ← 앞으로 쓸 비밀번호
   return pwSet(개인코드, 새비밀번호);
 }
-function pwSet(code, newPw) {
+function pwSet(code, newPw) { _requireAdmin(); /* [B19_LOCK 2026-10-09] 고객 비밀번호 바꾸기 · 편집기만 */
   code = String(code || '').trim().toUpperCase();
   var r = findCustomerByCode(code);
   if (!r) { var m0 = '❌ 개인코드 못 찾음: ' + code; Logger.log(m0); return m0; }
@@ -177,7 +177,7 @@ function pwSet(code, newPw) {
 }
 
 // ★★ [진단] 두 값만 바꾸고 pwDiagRun 실행 → 로그 확인 ★★
-function pwDiagRun() {
+function pwDiagRun() { _requireAdmin();
   var 개인코드 = 'X6W7PC';            // ← 본인 개인코드
   var 새비밀번호 = '여기에_새비밀번호'; // ← 확인할 비밀번호
   return pwDiag(개인코드, 새비밀번호);
@@ -188,7 +188,7 @@ function pwDiagRun() {
 //   "저장된 해시가 그 비번을 통과하는가"를 시트 실제값으로 검증한다. (원문 비번은 로그에 안 남김)
 //   verifyOK=true  → 백엔드 정상. 로그인 실패는 프론트가 보낸 비번이 다른 것(자동완성 등) 또는 다른 행.
 //   verifyOK=false → 저장된 해시가 그 비번과 불일치(재설정이 다른 값/행에 저장됐거나 옛 해시 잔존).
-function pwDiag(code, testPw) {
+function pwDiag(code, testPw) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var L = ['[pwDiag] code=' + code];
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
@@ -221,7 +221,7 @@ function pwDiag(code, testPw) {
 }
 
 // ── [관리자] 등록 계정 확인 (편집기 실행) — 비번해시는 표시하지 않음 ──
-function adminSmokeTest() {
+function adminSmokeTest() { _requireAdmin();
   var sh = _adminSheet();
   if (!sh) { Logger.log('Admins 시트 없음 — setupAdmins() 먼저 실행'); return 'Admins 시트 없음'; }
   var last = sh.getLastRow(), colOf = buildHeaderIndex(sh), log = ['등록된 관리자 계정:'];
@@ -238,7 +238,7 @@ function adminSmokeTest() {
 }
 
 // ── 회귀: 관리자 메모(21열)가 고객 getMyState 응답에 새지 않는지 ──
-function testMemoNotLeaked() {
+function testMemoNotLeaked() { _requireAdmin();
   if (!_LAST_TEST_CODE) { Logger.log('먼저 testSignupSignature() 실행'); return; }
   // 해당 코드에 메모 심기
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
@@ -254,7 +254,7 @@ function testMemoNotLeaked() {
 
 // ── ⑧ 관리자 읽기 함수 점검 (묶음② 검증) — 편집기에서 ▶실행 → 보기>로그 ──
 //    adminHome(큐+현황)·adminDetail(첫 고객·product-aware)·adminArchive(끝난 고객) 한 번에 로그.
-function adminReadCheck() {
+function adminReadCheck() { _requireAdmin();
   var log = [];
   function L(s) { log.push(s); }
 
@@ -300,7 +300,7 @@ function adminReadCheck() {
 // ── ⑧ 관리자 액션 점검 (묶음③ 검증) — ★테스트 고객 1명 생성 후 액션 체인 실행 ──
 //    EX 멱등 함정·EX 우회·결과물 원본 필수 가드 등 까다로운 경로를 안전하게(실고객 X) 확인.
 //    ⚠️ 테스트 고객 1행 생성 + 접수메일 1통(관리자). 끝나면 그 행 삭제 권장.
-function adminActionCheck() {
+function adminActionCheck() { _requireAdmin();
   var log = [], code;
   function L(s) { log.push(s); }
   function J(o) { return JSON.stringify(o); }
