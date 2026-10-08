@@ -259,10 +259,7 @@ const adminHtml = fs.readFileSync(path.join(root, 'admin.html'), 'utf8');
 ok('admin.html이 선언 주체 라벨을 원천에서 읽음(_declWhoLabel · 하드코딩 맵 아님)',
   adminHtml.includes('<script src="/assets/ritual-data.js">') && adminHtml.includes('_declWhoLabel')
   && !/\{narr:'나레이션',chorus:/.test(adminHtml));
-const gasAdmin = fs.readFileSync(path.join(root, 'automation/admin/Admin.html'), 'utf8');
-const gasMiss = declKeys.filter((k) => !new RegExp("declareWho==='" + k + "'").test(gasAdmin) && k !== 'narr');
-ok('Admin.html(GAS)이 선언 주체 4종을 분기' + (gasMiss.length ? ' — 누락: ' + gasMiss.join(',') : ' (narr은 else 기본값)'),
-  gasMiss.length === 0);
+// [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html)은 은퇴했다 — 사본이 하나 줄었다 — 운영자 화면은 admin.html 한 곳(원천을 직접 읽는다 · 위 검사)
 
 // 택1 원칙: 선언 자리에서 '덧붙임'을 뜻하는 서술이 남아 있으면 안 된다.
 const addOn = [

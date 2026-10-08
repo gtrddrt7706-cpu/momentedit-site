@@ -247,7 +247,7 @@ listGs(path.join(ROOT, 'automation')).forEach(function (f) {
   try { new Function(fs.readFileSync(f, 'utf8')); check('GS  ' + path.relative(ROOT, f), true); }
   catch (e) { check('GS  ' + path.relative(ROOT, f), false, e.message); }
 });
-['mypage.html', 'admin.html', 'automation/admin/Admin.html'].forEach(function (rel) {
+['mypage.html', 'admin.html'].forEach(function (rel) {   // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴
   const html = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   let m, i = 0, re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
   while ((m = re.exec(html))) {

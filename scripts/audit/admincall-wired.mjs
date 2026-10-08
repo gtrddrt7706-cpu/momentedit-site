@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const GS = path.join(ROOT, 'automation/admin/admin.gs');
-const SCREENS = ['admin.html', 'automation/admin/Admin.html'];
+const SCREENS = ['admin.html'];   // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴 — 사본이 하나 줄었다
 
 const gs = fs.readFileSync(GS, 'utf8');
 /* FNS 블록만 떼어 낸다 — `var FNS = {` 부터 짝 맞는 `}` 까지. */

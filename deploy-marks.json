@@ -1644,6 +1644,18 @@
    "fn": "handleVoiceClone",
    "mark": "VC_MAKE_KEEP",
    "why": "여러 줄 만들기에서 한 줄만 실패해도 받은 줄은 저장하고 글자를 센 뒤 실패를 돌려준다"
+  },
+  {
+   "file": "admin",
+   "fn": "serveAdmin",
+   "mark": "ADMIN_BACKUP_RETIRE",
+   "why": "GAS 예비 관리 화면(Admin.html) 은퇴 — 옛 주소는 «관리 화면은 momentedit.kr/admin.html 에서» 안내 한 장"
+  },
+  {
+   "file": "99_deployCheck",
+   "fn": "deployCheck",
+   "mark": "ADMIN_BACKUP_RETIRE",
+   "why": "① 의 화면 파일 이름을 목록(html)에서 읽는 자리 — 옛 판은 은퇴한 Admin 을 손으로 박아 «지운 파일을 점검한다»고 적는다"
   }
  ],
  "fns": {
@@ -2637,17 +2649,6 @@
  ],
  "html": [
   {
-   "file": "Admin",
-   "marks": [
-    "CONTACT_FIX",
-    "BUSY_ONE",
-    "PHONE_AUTOFILL_82",
-    "ADMIN_NOFEE_LINE",
-    "PRICE_2026_08"
-   ],
-   "bytes": 101179
-  },
-  {
    "file": "ScreenA_apply",
    "marks": [
     "BUSY_ONE",
@@ -2675,7 +2676,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-08 12:14 · 2e8e2403",
+ "_생성": "2026-10-08 13:31 · e1df21a3",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3147,5 +3148,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "6f030cc8983f"
+ "_표식서명": "bbec2ac8d462"
 }

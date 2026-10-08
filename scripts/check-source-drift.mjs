@@ -354,7 +354,7 @@ function scan(needle) {
     const c = hhmm(toMin(a) + D.DAY.ready + D.DAY.snap);
     want[a] = c; want[hhmm(toMin(a) + 60)] = c;
   }
-  const FILES = ['mypage.html', 'admin.html', 'automation/admin/Admin.html', 'shared/hydrate.js', 'live.html', 'automation/platform/95_notify.gs'];
+  const FILES = ['mypage.html', 'admin.html', 'shared/hydrate.js', 'live.html', 'automation/platform/95_notify.gs'];   // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴 — 사본이 하나 줄었다
   let tables = 0;
   for (const f of FILES) {
     const src = fs.readFileSync(path.join(root, f), 'utf8');

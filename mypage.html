@@ -6881,7 +6881,7 @@ function fmtWedKo(ymd){
    옛 판은 ID 를 그대로 «본예식 시각»으로 찍었다 — 스냅이 40분이던 때만 맞았고, 45분이 된 8/9 부터 5분 어긋났다
    (하객 입장 13:05 인데 «오후 13:20» → 청첩장을 본 하객은 13:00 에 와서 대기 공간 없이 기다린다).
    본예식 = 도착 + 준비(ritual-data DAY.ready) + 단독 스냅(DAY.snap). 스냅이 바뀌면 check-source-drift (7)이 이 표를 잡는다.
-   같은 표가 admin.html · Admin.html · shared/hydrate.js · live.html · 95_notify.gs 에 있다(각자 따로 로드되는 화면이라). */
+   같은 표가 admin.html · shared/hydrate.js · live.html · 95_notify.gs 에 있다(각자 따로 로드되는 화면이라 · GAS 예비 관리 화면 Admin.html 은 2026-10-08 은퇴). */
 var SLOT_CLOCK={'09:00':'10:20','12:20':'13:40','15:40':'17:00','10:00':'10:20','13:20':'13:40','16:40':'17:00'};   // [DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20 · 13:30→13:40 · 16:50→17:00
 function slotClock(t){ t=String(t||'').slice(0,5); return SLOT_CLOCK[t]||t; }
 /* ★[WED_CLOCK12 2026-09-26 사장님 결정 ② · 점검 pre-12·pay-10·prod-12·inv-7] 예식 시각은 12시간제 «오후 1:40» 한 가지로 — 이 함수가 단일 원천이다.

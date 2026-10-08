@@ -129,9 +129,9 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
   sb.ScriptApp = Object.assign({}, sb.ScriptApp, {
     getProjectTriggers: () => wantTrig.map((fn) => ({ getHandlerFunction: () => fn })),
   });
-  /* GAS 안 HTML 4벌 — 진짜 파일을 그대로 읽어 준다. oldAdmin 이면 그 파일의 표식 하나만 지운다. */
+  /* GAS 안 화면 파일(HTML) — 진짜 파일을 그대로 읽어 준다. oldAdmin 이면 그 파일의 표식 하나만 지운다. */
   const HTML_AT = {
-    Admin: 'automation/admin/Admin.html',
+    // Admin — [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴
     ScreenA_apply: 'automation/consultation/ScreenA_apply.html',
     ScreenB_schedule: 'automation/consultation/ScreenB_schedule.html',
     ScreenC_change: 'automation/consultation/ScreenC_change.html',
@@ -359,7 +359,7 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
    ★[SIM_WORLD] 이 셋은 «코드를 붙이는 것»으로는 못 고치는 것들이다(시트 컬럼·예약 실행·화면 파일).
    그래서 종전 점검은 이 셋을 통째로 안 봤고, 안 본 것이 「누락 0건」에 섞여 들어갔다. */
 {
-  console.log('\n── 6-B) 시트 컬럼 · 예약 실행 · 화면 파일 4벌');
+  console.log('\n── 6-B) 시트 컬럼 · 예약 실행 · 화면 파일 ' + (JSON.parse(marksJson()).html || []).length + '벌');   // [ADMIN_BACKUP_RETIRE] 개수는 목록에서 센다
   const base = run().bad;
 
   const oneTrig = (JSON.parse(marksJson()).triggers || [])[0];

@@ -10,8 +10,8 @@
    ★모르는 모양은 숫자만 남긴 그대로 돌려준다 — 억지로 고치면 «남의 번호»가 된다(_phoneKR 과 같은 원칙).
 
    서버의 _phoneKR · _crKR(automation/platform/00_platform-config.gs)와 같은 규칙이다 — 한쪽만 고치지 말 것.
-   GAS 가 내보내는 화면(automation/admin/Admin.html · automation/consultation/ScreenA_apply.html)은
-   이 파일을 못 읽어서 같은 함수를 안에 한 벌씩 품고 있다. scripts/audit/tel-autofill.mjs 가 셋이 같은지 본다. */
+   GAS 가 내보내는 화면(automation/consultation/ScreenA_apply.html)은 이 파일을 못 읽어서 같은 함수를 안에 한 벌 품고 있다.
+   scripts/audit/tel-autofill.mjs 가 둘이 같은지 본다(GAS 예비 관리 화면 Admin.html 은 2026-10-08 은퇴 · ADMIN_BACKUP_RETIRE). */
 (function () {
   function meTelDigits(v) {
     var s = String(v == null ? '' : v);

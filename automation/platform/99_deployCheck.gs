@@ -7,7 +7,7 @@
  * 무엇을 보나
  *   ①파일이 다 있는가 — 파일마다 «그 파일에만 있는 함수» 하나로 존재를 확인
  *   ①-B 그 파일이 «끝까지» 붙었는가 — 최상위 함수 588개를 전수 대조(붙여넣다 잘린 뒷부분을 잡는다)
- *   ①-C 화면 파일 4벌(Admin·ScreenA·B·C)이 붙었는가 — 템플릿 본문을 읽어 표식으로 확인
+ *   ①-C 화면 파일(.html)이 붙었는가 — 목록(deploy-marks.json 의 html)에 있는 것 전부 · 템플릿 본문을 읽어 표식으로 확인
  *   ⑦설정값(스크립트 속성) — 스위치가 켜졌는데 키가 비어 있으면 «오류 없이» 그 기능만 안 돈다
  *   ②최근 변경이 실제로 올라갔는가 — 새 함수의 존재 + 함수 본문 안의 표식(toString)
  *   ★표식은 주석이라 «붙여넣다 잘렸는지»까지 잡는다. 이름만 맞고 내용이 옛것이면 여기서 걸린다.
@@ -108,7 +108,11 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
     chk('파일 ' + fileList[i][0] + '  (기준: ' + fileList[i][1] + ')', has(fileList[i][1]), '이 파일이 없거나 이름이 다릅니다');
   }
   L.push('  --   파일 86_dining_ai  (주석만 있는 빈 슬롯 · 실행으로 확인 불가 · 없어도 무방)');
-  L.push('  --   화면 파일(Admin·ScreenA·B·C)은 바로 아래 ①-C 에서 본문을 읽어 확인한다');
+  /* ★[ADMIN_BACKUP_RETIRE 2026-10-08] 화면 파일 이름을 손으로 적지 않는다 — 목록(html)에서 읽는다.
+     종전엔 네 이름(Admin 과 화면 셋)이 박혀 있어, Admin.html 이 은퇴한 뒤에도 지운 파일을 점검한다고 말했다. */
+  var _htmlNames = (REMOTE && REMOTE.html && REMOTE.html.length)
+    ? REMOTE.html.map(function (h) { return h.file; }).join('·') : '';
+  L.push('  --   화면 파일' + (_htmlNames ? '(' + _htmlNames + ')' : '(.html)') + '은 바로 아래 ①-C 에서 본문을 읽어 확인한다');
 
   L.push('');
   L.push('══ ①-B 파일 «안쪽»까지 다 붙었는가 (함수·표 전수 대조) ══');
@@ -223,6 +227,7 @@ var FILES = [   /* 18개 — 86_dining_ai 제외(빈 슬롯) */
   L.push('══ ①-C 화면 파일(HTML)이 붙었는가 ══');
   /* ★[ADMIN_HTML 2026-09-05] 종전엔 Admin.html 을 「화면 틀이라 코드로 확인 불가」로 비워 두었고,
      상담 화면 셋(ScreenA·B·C)은 언급조차 없었다 — 넷을 합쳐 361KB 가 통째로 점검 밖이었다.
+     (2026-10-08 Admin.html 은퇴 · 지금은 목록의 화면 셋만 본다 [ADMIN_BACKUP_RETIRE])
      사실은 볼 수 있다: 넷 다 HtmlService.createTemplateFromFile 로 읽히니 본문이 잡힌다.
      ★길이는 «판정»이 아니라 «참고»로 둔다 — 줄바꿈 처리 차이로도 달라질 수 있어, 그걸로 붉히면
        고칠 수 없는 빨강이 된다. 붙었는지·옛 판인지는 표식으로 가른다. */
@@ -462,10 +467,10 @@ function deployStampCheck() {
         L.push('      마지막 확인 ' + at.slice(0, 16).replace('T', ' ')
           + (gs ? (' · 지문 범위 전역 함수 ' + gs.split('#')[0] + '개') : ' · ★전역 서명이 비었습니다(핵심 5개만 봄)'));
         /* ★★[STAMP_FN_ONLY 2026-09-20] 이 줄이 없어서 내가 대표에게 잘못 안내했다.
-           지문은 _dsGlobalSig 가 «typeof === function» 인 것만 모아 만든다. HTML 파일(Admin·ScreenA·B·C)은
+           지문은 _dsGlobalSig 가 «typeof === function» 인 것만 모아 만든다. HTML 파일(.html)은
            함수가 아니라 지문에 아예 안 들어간다 — 붙여넣었든 안 넣었든 여기는 똑같이 OK 라고 답한다.
            실제로 ScreenB_schedule.html 을 고쳐 드리고 「이걸로 확인하세요」라고 했는데, 확인될 수가 없었다. */
-        L.push('      ★이 판정은 «함수»만 봅니다. 화면 파일(Admin·ScreenA·B·C .html)은 지문에 안 들어갑니다 —');
+        L.push('      ★이 판정은 «함수»만 봅니다. 화면 파일(.html)은 지문에 안 들어갑니다 —');
         L.push('        그쪽은 deployCheck 의 ①-C(본문 길이 대조)가 잡습니다. .html 을 붙여넣었으면 deployCheck 를 도세요.');
       } else {
         L.push('  ✗   배포본이 저장된 코드와 «다르다» — 아직 안 먹었습니다.');

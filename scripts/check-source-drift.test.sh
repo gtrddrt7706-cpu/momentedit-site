@@ -87,7 +87,7 @@ run assets/ritual-open.js 'body: [8, 25]' 'body: [10, 25]'                     #
 # [SLOT_CLOCK 2026-09-25] 슬롯 → 본예식 시각 표 여섯 벌 — 옛 ID 값(13:20)으로 되돌리면 잡혀야 한다
 run mypage.html "'12:20':'13:40'" "'12:20':'13:20'"   # [DAY_60] 13:30 → 13:40
 run admin.html "'13:20':'13:40'" "'13:20':'13:20'"
-run automation/admin/Admin.html "'16:40':'17:00'" "'16:40':'16:40'"
+# [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴 — 사본이 하나 줄었다
 run shared/hydrate.js "'13:20': '13:40'" "'13:20': '13:20'"
 run live.html "'10:00': '10:20'" "'10:00': '10:00'"
 run automation/platform/95_notify.gs "'12:20': '13:40'" "'12:20': '13:20'"
