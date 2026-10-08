@@ -1590,6 +1590,12 @@
    "fn": "doGet",
    "mark": "GETCOUPLE_CONTRACT",
    "why": "청첩장 조회 예외는 error INTERNAL_ERROR(하객 화면이 서버 사고와 없는 예식을 이 글로 가른다)"
+  },
+  {
+   "file": "admin",
+   "fn": "serveAdmin",
+   "mark": "ADMIN_BACKUP_RETIRE",
+   "why": "GAS 예비 관리 화면(Admin.html) 은퇴 — 옛 주소는 «관리 화면은 momentedit.kr/admin.html 에서» 안내 한 장"
   }
  ],
  "fns": {
@@ -2582,17 +2588,6 @@
  ],
  "html": [
   {
-   "file": "Admin",
-   "marks": [
-    "CONTACT_FIX",
-    "BUSY_ONE",
-    "PHONE_AUTOFILL_82",
-    "ADMIN_NOFEE_LINE",
-    "PRICE_2026_08"
-   ],
-   "bytes": 101179
-  },
-  {
    "file": "ScreenA_apply",
    "marks": [
     "BUSY_ONE",
@@ -2620,7 +2615,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-08 06:42 · 4cbd0269",
+ "_생성": "2026-10-08 12:33 · 7a3f9627",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3092,5 +3087,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "122e573f176c"
+ "_표식서명": "9ea7abd2069b"
 }

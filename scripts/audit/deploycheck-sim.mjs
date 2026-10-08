@@ -131,7 +131,7 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
   });
   /* GAS 안 HTML 4벌 — 진짜 파일을 그대로 읽어 준다. oldAdmin 이면 그 파일의 표식 하나만 지운다. */
   const HTML_AT = {
-    Admin: 'automation/admin/Admin.html',
+    // Admin — [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴
     ScreenA_apply: 'automation/consultation/ScreenA_apply.html',
     ScreenB_schedule: 'automation/consultation/ScreenB_schedule.html',
     ScreenC_change: 'automation/consultation/ScreenC_change.html',

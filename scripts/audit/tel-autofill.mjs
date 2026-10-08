@@ -76,7 +76,7 @@ ok(typed === '010-7349-7706', `국내표기 한 글자씩 → 「${typed}」 · 
 const body = (src) => { const m = src && src.match(/function meTelDigits\(v\) \{[\s\S]*?\n\s*return m \? '0' \+ m\[1\] : d;\n\s*\}/); return m ? m[0].replace(/\s+/g, ' ') : null; };
 const orig = body(telSrc);
 if (!orig) cant('tel-kr.js 에서 함수 본문을 꺼내지 못했습니다');
-for (const rel of ['automation/admin/Admin.html', 'automation/consultation/ScreenA_apply.html']) {
+for (const rel of ['automation/consultation/ScreenA_apply.html']) {   // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html)은 은퇴했다 — 사본이 하나 줄었다
   const b = body(read(rel));
   ok(b === orig, `${rel} 의 meTelDigits 사본이 원본(shared/tel-kr.js)과 다르다 — 한쪽만 고쳤다`);
 }

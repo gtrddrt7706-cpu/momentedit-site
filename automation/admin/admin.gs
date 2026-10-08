@@ -287,12 +287,13 @@ function adminSetFittingCount(code, n) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
-// ── 웹앱 진입 (doGet ?admin=1) — 셸만 서빙(로그인은 클라이언트 토큰). 접근=모든 사용자 배포. ──
+// ── 웹앱 진입 (doGet ?admin=1) — ★GAS 예비 관리 화면(Admin.html)은 은퇴했다. 안내 한 장만 보인다. ──
 function serveAdmin(e) {
-  var t = HtmlService.createTemplateFromFile('Admin');
-  return t.evaluate().setTitle('Moment Edit · 관리자')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  /* ★★[ADMIN_BACKUP_RETIRE 2026-10-08 사장님 «추천대로해»] GAS 예비 관리 화면(Admin.html · /exec?admin=1) 재추가 금지 — 2026-10-08 사용자 지시로 삭제.
+     같은 일을 momentedit.kr/admin.html 이 한다(실패 코드 · 코드 찾기 · 최근 실패까지). 예비 화면은 서버가 잠깐만 실패해도
+     «세션이 만료되었어요»로 로그아웃시켰고, 저장소가 막힌 창에선 멈췄다(실패 문구 점검 1라운드 · 관리자 분류표 #30).
+     두 벌을 같이 고쳐 가며 지키는 수고도 컸다. 옛 주소로 들어오면 새 주소를 알려 준다. 복원하지 말 것(제거 지시 보존 규칙). */
+  return infoPage('관리 화면이 옮겨졌어요', '관리 화면은 <a href="https://momentedit.kr/admin.html" target="_top" style="color:#6B2A24">momentedit.kr/admin.html</a> 에서 열어 주세요.', true);
 }
 
 // ============================ ⑧ 공통 — 명시적 KST 날짜 헬퍼 (프로젝트 TZ 무관·A3.1) ============================

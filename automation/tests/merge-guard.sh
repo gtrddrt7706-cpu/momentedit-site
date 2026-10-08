@@ -1822,7 +1822,6 @@ nochk "'narr','ask','chorus','family'" order-preview.html
 chk 'DECL_ADMIN_MIRROR' scripts/check-ritual-mirror.js 1   # 운영자 화면 2곳이 선언 주체 4종을 다루는지
 chk '_declWhoLabel' admin.html 2                            # 선언 주체 라벨은 원천(DECLWHO)에서 읽는다 · 하드코딩 맵 복귀 금지
 chk 'assets/ritual-data.js' admin.html 1                    # 위 함수가 참조할 원천 로드
-chk "declareWho==='ask'" automation/admin/Admin.html 1      # GAS 관리자도 응답형을 분기(틀린 값 표시 방지)
 chk '★AI고지_G1-4' assets/ritual-data.js 1                   # G1-4 앞 2문장 = 하객 사전 고지(발각 시나리오 차단) · 원천
 chk '미리 준비한 안내 음성으로 진행' order-preview.html 3   # 위 고지의 빌더 인라인 사본(NAR_MIRROR 대상)
 # ★★[AI고지_부부 2026-08-12] 빌더 완성 화면의 **고지 줄은 뺐다**(사용자 지시). 근거 주석은 그 자리에 남겼다.
@@ -2568,15 +2567,10 @@ nochk 'D.VEIL' api/_ritual-kb.js
 #   폐지 전 초안(기본값 'mother')에는 진행표에 실행 불가한 한 줄이 계속 섰다.
 #   ★admin.html 쪽 '읽던 말' 은 안 건다 — 그 파일의 폐지 근거 주석이 그 말을 그대로 인용하고 있어
 #     그 주석 자신을 문다(이번 세션에 다섯 번 밟은 함정). 그래서 코드 이름으로만 잠근다.
-chk 'VEIL_RETIRED' automation/admin/Admin.html 2         # 이름표·행 두 자리에 폐지 사유
-nochk "'veil'" automation/admin/Admin.html               # ①코드 이름
-nochk '베일 다운' automation/admin/Admin.html             # ②디렉터가 읽던 말
 nochk 's3d.veil' admin.html                              # ①코드 이름(화면 관리자 · 08-03에 이미 뺌)
 # ★반대쪽도 못박는다 — 같은 자로 훑다가 **남겨야 할 것**을 지우지 않게.
 #   축가 행은 남긴다(SONG_RETIRED 원문이 「없애는 것이 아니라 옮기는 것」 · 지금도 할 수 있는 순서다).
 #   기준은 「지금 고를 수 있나」가 아니라 「지금 할 수 있나」. 베일=삭제 · 축가·링워밍=유지.
-chk 'SONG_RETIRED' automation/admin/Admin.html 1          # 남긴 근거 — 없으면 다음 사람이 베일과 같은 것으로 보고 지운다
-chk "_ko('song'" automation/admin/Admin.html 1            # 그 행 자체
 
 # [ORD_FIXPOS] 하객 맞이·입장은 자리 고정 — 두 분이 식장에 없는데 진행되는 순서를 만들 수 없다
 chk 'ORD_FIXPOS' order-preview.html 3                   # 선언 + ordNow 정규화 + 화살표 렌더 · 하나만 빠져도 옛 초안이 밀린 채 열리거나 눌리지 않는 화살표가 남는다
@@ -2675,7 +2669,6 @@ nochk 'keyframes spin' schedule.html
 nochk 'keyframes spin' inquiry.html
 nochk 'keyframes spin' automation/consultation/ScreenA_apply.html
 nochk 'keyframes spin' automation/consultation/ScreenB_schedule.html
-nochk 'keyframes spin' automation/admin/Admin.html
 chk 'meBreath 1.7s' mypage.html 1                        # 리듬은 1.7s 한 벌 · 1.5s 로 갈리면 같은 흐름에서 두 박자가 보인다(실측 지적)
 chk 'meBreath 1.7s' order-preview.html 1
 chk 'meBreath 1.7s' admin.html 1
@@ -2745,7 +2738,6 @@ chk 'NAME_NODE' automation/consultation/ScreenB_schedule.html 1
 chk 'NAME_NODE' scripts/audit/consult-render.mjs 2
 chk 'createTextNode(dateStr' automation/consultation/ScreenB_schedule.html 1
 nochk "modalPick').innerHTML" automation/consultation/ScreenB_schedule.html
-chk 'meBreath 1.7s' automation/admin/Admin.html 1
 chk 'PREV_NO_CHROME' scripts/build-preview-annot.mjs 2   # 예시에서 고정·스티키 화면 장치 제거 · 빼면 '‹ 갤러리' 알약이 16장 한복판에 박힌다
 chk 'vertical' scripts/build-preview-annot.mjs 2         # 세로쓰기는 요소 상자로 · Range 잉크가 62px 짧게 잡혀 점선이 첫·끝 글자를 문다
 chk 'SAMPLE_TOPCUT' mypage.html 2                        # 샘플 모달 flex-start+margin:auto+dvh · center+100vh 로 되돌리면 제목·닫기가 화면 위로 잘린다
@@ -4008,7 +4000,6 @@ chk 'PREVIEW_LINK_BOOT' scripts/check-preview-link-boot.mjs 1
 chk 'PRICE_2026_08' automation/platform/70_journey.gs 3
 chk 'PRICE_2026_08' contract/v1-1.html 1
 chk 'PRICE_2026_08' admin.html 3
-chk 'PRICE_2026_08' automation/admin/Admin.html 1
 chk 'PRICE_SYNC' scripts/check-price-sync.mjs 1
 # ★★[PRICE_RUN] 위 chk 는 «파일 안에 글자가 있나»만 본다 — 검사를 «돌리지»는 않았다.
 #   2026-09-20 점검에서 드러났다: check-price-sync.mjs 는 만들어 놓고 게이트가 한 번도 실행한 적이 없다.
@@ -4816,9 +4807,6 @@ chk 'CHK_DASH_SAFE' automation/tests/merge-guard.sh 2
 chk 'grep -c -e "$1" --' automation/tests/merge-guard.sh 3
 # [PRICE_LABEL_VALUE 2026-08-16] 드롭다운은 value 와 라벨이 한 쌍이다 — 어긋나면 고른 사람이 본 금액과
 #   계약서 금액이 달라진다(실사고: value 2500000 인데 라벨 「240만」). 세대 라벨도 값과 같이 적는다.
-chk 'PRICE_LABEL_VALUE' automation/admin/Admin.html 1
-chk 'value="2500000">평일 — 250만' automation/admin/Admin.html 1
-chk 'value="2400000">평일 — 240만' automation/admin/Admin.html 1
 # [PRICE_OLD_TWO 2026-08-16] 구가가 둘이라 240 도 훑는다 — 안 훑으면 메타·AI 지식이 옛 금액으로 남는다.
 chk 'PRICE_OLD_TWO' scripts/check-price-sync.mjs 1
 chk '2800000, 2100000, 2400000' scripts/check-price-sync.mjs 1
@@ -5006,7 +4994,6 @@ nochk 'live-feat-ko">참석 회신' i/invitations/invitation-08-noir.html
 #   초과단가가 0 이라 실제로는 「추가 0원」이 박혔고, 운영자가 그 줄을 보고 없는 요금을 더할 수 있었다.
 #   95_notify·80_production·mypage 셋은 이미 fee>0 으로 갈랐는데 admin 쪽만 안 갈라져 있었다.
 chk 'ADMIN_NOFEE_LINE' admin.html 2
-chk 'ADMIN_NOFEE_LINE' automation/admin/Admin.html 1
 chk '전통 예우' scripts/audit/no-tradition.mjs 2
 
 # ★★[UNDERSCORE_ONE 2026-09-19] 배포 차단 패턴이 밑줄 «둘»이라 구멍이 있었다.
@@ -5105,8 +5092,6 @@ chk '하객에게는 안내 음성과 식순지' mypage.html 1
 #   **돈은 그대로 두고 단계만** 입금완료로 맞춘다(서버) + 그 버튼을 화면에 낸다(관리자).
 #   ★지우지 말 것 — 지우면 강제변경으로 되돌린 고객이 다시 앞으로 갈 문을 잃는다.
 chk 'PAID_STAGE_RESYNC' automation/admin/admin.gs 1
-chk 'PAID_STAGE_RESYNC' automation/admin/Admin.html 1
-chk '단계 맞추기 · 입금완료로' automation/admin/Admin.html 1
 # ── [SEAT_ONE_CARD · ALC_ONE 2026-08-16 사용자 지시] 좌석·음료 편집기 개편 ──
 #   ①"이름부분을 클릭하면 음료랑 이름적는게 동시에" → 한 창(이름칸+음료)으로 통합
 #   ②"논알콜스파클링은 고정이고 + 샴페인 혹은 레드와인" → 알콜은 행사 전체 한 종류
@@ -5635,9 +5620,7 @@ chk 'WORLD_RANGE' scripts/audit/_gasworld.mjs 1   # 행 전체 읽기 목 — �
 # ★★[PAID_STAGE_RESYNC] 단계 맞추기 버튼 — **두 관리자 화면 모두에** 있어야 한다.
 #   admin.html(momentedit.kr/admin · 실제로 쓰는 쪽)에만 없으면 사용자에겐 고쳐진 것이 아니다.
 chk 'PAID_STAGE_RESYNC' automation/admin/admin.gs 1
-chk 'PAID_STAGE_RESYNC' automation/admin/Admin.html 1
 chk 'PAID_STAGE_RESYNC' admin.html 1
-chk '단계 맞추기 · 입금완료로' automation/admin/Admin.html 1
 chk '단계 맞추기 · 입금완료로' admin.html 1
 # ★★[EVENT_BTN_WIDE 2026-08-17] 시그니처 예식완료 버튼은 입금완료에서도 뜬다.
 #   서버는 이미 둘 다 받는다(EVENT_GATE_WIDE) — 화면만 좁으면 제작을 한 번도 안 연 고객이 갇힌다.
@@ -5711,11 +5694,9 @@ chk 'STRANDED_QUEUE' scripts/audit/stranded-queue.mjs 1
 # ★★[RESYNC_SNAP_FLOW] 상품 흐름을 d.product 로 읽는다 — d.raw 에는 상품타입 키가 없다(admin.gs 1026).
 #   r['상품타입'] 로 읽으면 늘 시그니처로 폴백해, 스냅이 「촬영확정」에 갇히면 문이 안 그려진다.
 chk 'RESYNC_SNAP_FLOW' admin.html 1
-chk 'RESYNC_SNAP_FLOW' automation/admin/Admin.html 1
 # ★대괄호를 escape 한다 — chk/nochk 는 `grep -c -e` (기본정규식)라 `[` 가 문자클래스로 먹힌다.
 #   escape 없이 쓰면 엉뚱한 줄을 세어 **멀쩡한 코드가 붉게** 뜬다(실측: 4건이라며 REVERT).
 nochk "STAGE_FLOW\[String(r\['상품타입'\]" admin.html
-nochk "STAGE_FLOW\[String(r\['상품타입'\]" automation/admin/Admin.html
 # ★★[STALE_ROLLBACK_Q 2026-08-17 사용자 제보 "아무쪽에도 어떤푸시가없는데"] 교착 금지.
 #   되돌려진 고객(단계는 입금 전 · 입금상태 '확인')이 어떤 큐에도 안 잡혀,
 #   고객은 «디렉터가 확인하는 중»을 기다리고 관리자는 «처리할 일 없어요»를 봤다 —
@@ -7019,7 +7000,7 @@ grep -q 'deploy-marks' vercel.json \
   || { echo 'FAIL MARKS_REACH: deploy-marks.json 이 저장소 루트에 없다'; fail=1; }
 # ★GAS 가 읽는 화면 파일 4벌은 전부 표식을 하나씩 갖고 있어야 한다 — 없으면 «붙었는지» 볼 근거가 없다.
 #   ScreenC_change.html 은 표식이 0개라 361KB 중 그 몫이 점검 밖이었다(2026-09-05 에 넣었다).
-for _h in automation/admin/Admin.html automation/consultation/ScreenA_apply.html \
+for _h in automation/consultation/ScreenA_apply.html \
           automation/consultation/ScreenB_schedule.html automation/consultation/ScreenC_change.html; do
   grep -qE '\[[A-Z][A-Z0-9_]{3,}\]' "$_h" \
     || { echo "FAIL HTML_MARK: $_h 에 표식이 없다 — deployCheck 가 이 화면이 붙었는지 볼 수 없다"; fail=1; }
@@ -9485,7 +9466,6 @@ chk 'PHONE_AUTOFILL_82' inquiry.html 2
 chk 'PHONE_AUTOFILL_82' schedule.html 1
 chk 'PHONE_AUTOFILL_82' mypage.html 3
 chk 'PHONE_AUTOFILL_82' admin.html 3
-chk 'PHONE_AUTOFILL_82' automation/admin/Admin.html 3
 chk 'PHONE_AUTOFILL_82' automation/consultation/ScreenA_apply.html 1
 chk 'PHONE_AUTOFILL_82' automation/platform/00_platform-config.gs 2
 chk 'PHONE_AUTOFILL_82' automation/platform/70_journey.gs 5
@@ -9514,7 +9494,6 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/unpaid-kind.mjs >/de
 fi
 chk 'UNPAID_KIND' automation/admin/admin.gs 3
 chk 'UNPAID_KIND' admin.html 1
-chk 'UNPAID_KIND' automation/admin/Admin.html 1
 chk 'SERVED_OURS' scripts/audit/unpaid-kind.mjs 1
 
 # ★[HOLD_PREFILL_CHANGE 2026-09-25 사장님 「변경 가능하다는 멘트가 있으면 문의를 하나 줄일 수 있겠다」]
@@ -11347,10 +11326,6 @@ chk 'CONTACT_FIX' admin.html 3
 chk 'contact-bad' admin.html 2
 chk '_phoneOk' admin.html 3
 chk "h+='<button id=\"editContact\">연락처 정정</button>'" admin.html 1
-chk 'CONTACT_FIX' automation/admin/Admin.html 3
-chk 'contact-bad' automation/admin/Admin.html 2
-chk '_phoneOk' automation/admin/Admin.html 3
-chk "h+='<button id=\"editContact\">연락처 정정</button>'" automation/admin/Admin.html 1
 # 같은 자로 재야 한다 — 화면·저장·발송 셋이 갈리면 「저장은 됐는데 알림은 안 가는」 상태가 또 생긴다
 chk '01\[016789\]\[0-9\]{7,8}' admin.html 1
 chk '01\[016789\]\[0-9\]{7,8}' automation/admin/admin.gs 1
@@ -13927,8 +13902,6 @@ chk "else pill('vk', '나레이션'); }" console.html 1
 chk "' · 받아 둠'" console.html 1
 chk 'RF_ROWS_0928' admin.html 2
 chk 'function admRfAsk(k)' admin.html 1
-chk 'RF_ROWS_0928' automation/admin/Admin.html 1
-nochk '두 분 녹음(파일 수령 필요)' automation/admin/Admin.html
 # ★[VOICE_CLONE_0928 코워크 0928 8장 · 7-2] 서버 — 확인 문장 서버가 뽑음 · 새 목소리 먼저 → 된 뒤 앞 목소리 지우기 · 201 · 같은 글 다시 안 만들기 · 예식 다음 날 지우기 · 연습 2만 자
 #   흉내 시험 둘(GAS · 타입캐스트 없이 원문을 떼어 판정): vc-flow-sim(순서 · 한도 · 지우기) · vc-selftest-sim(가져온 시험 함수 · 칸)
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-flow-sim.mjs >/dev/null 2>&1 || { echo 'FAIL vc-flow: AI 목소리 순서 · 한도 · 지우기 판정이 어긋났습니다 — node scripts/audit/vc-flow-sim.mjs'; fail=1; }; fi
@@ -15990,3 +15963,8 @@ chk 'ADM_SHAPE_X7' scripts/audit/err-admin.mjs 1
 chk 'ADM_LOST_X8' admin.html 1
 chk 'ADM_LOST_X8' scripts/audit/err-admin.mjs 1
 chk 'SCHED_DBL_RESIDUE' scripts/audit/err-pages.mjs 3
+# ★★[ADMIN_BACKUP_RETIRE 2026-10-08 사장님 «추천대로해»] GAS 예비 관리 화면(Admin.html · /exec?admin=1) 은퇴 — 되살리지 말 것(제거 지시 보존 규칙)
+#   serveAdmin 은 안내 한 장(«관리 화면은 momentedit.kr/admin.html 에서»)만 보인다. 그 파일을 보던 검사 27줄은 같은 커밋에서 걷었다.
+chk 'ADMIN_BACKUP_RETIRE' automation/admin/admin.gs 1
+nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
+if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi

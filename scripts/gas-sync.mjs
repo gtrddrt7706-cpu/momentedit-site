@@ -43,7 +43,7 @@ const MAP = {
   'consultation/ScreenB_schedule.html': 'ScreenB_schedule',
   'consultation/ScreenC_change.html': 'ScreenC_change',
   'admin/admin.gs': 'admin',
-  'admin/Admin.html': 'Admin',
+  // 'admin/Admin.html' — [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴 — 사본이 하나 줄었다
   'platform/00_platform-config.gs': '00_platform-config',
   'platform/10_customers-setup.gs': '10_customers-setup',
   'platform/20_customers-data.gs': '20_customers-data',

@@ -95,8 +95,7 @@ for (const fn of ADDERS) {
    상담 화면 셋(ScreenA·B·C)은 아예 언급조차 없었다. 넷을 합쳐 361KB 가 통째로 점검 밖이었다.
    사실은 볼 수 있다 — 넷 다 HtmlService.createTemplateFromFile 로 읽히므로 getRawContent() 로 본문이 잡힌다.
    ★GAS 파일 이름(확장자 없음)으로 적는다 — createTemplateFromFile 이 그 이름을 쓴다. */
-const HTMLS = [
-  ['Admin', 'automation/admin/Admin.html'],
+const HTMLS = [   // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html) 은퇴 — 넷이 셋이 됐다(Admin 은 serveAdmin 이 안내 한 장만 보인다)
   ['ScreenA_apply', 'automation/consultation/ScreenA_apply.html'],
   ['ScreenB_schedule', 'automation/consultation/ScreenB_schedule.html'],
   ['ScreenC_change', 'automation/consultation/ScreenC_change.html'],

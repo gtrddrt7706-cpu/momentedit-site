@@ -81,7 +81,7 @@ const MUST = [
   ['assets/advisor-kb.js', [`주말·공휴일 ${man(WE)}만원, 평일결혼식 ${man(WD)}만원`,
     `주말 ${comma(deposit(WE))}원·평일 ${comma(deposit(WD))}원`]],
   ['admin.html', [`value="${WE}"`, `value="${WD}"`]],
-  ['automation/admin/Admin.html', [`value="${WE}"`, `value="${WD}"`]],
+  // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html)은 은퇴했다 — 사본이 하나 줄었다
 ];
 for (const [f, needles] of MUST) {
   let s; try { s = R(f); } catch { bad.push(`${f}: 파일을 못 읽었다`); continue; }

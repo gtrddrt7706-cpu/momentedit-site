@@ -65,7 +65,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-for (const rel of ['admin.html', 'automation/admin/Admin.html']) {
+for (const rel of ['admin.html']) {   // [ADMIN_BACKUP_RETIRE 2026-10-08] GAS 예비 관리 화면(Admin.html)은 은퇴했다 — 사본이 하나 줄었다
   const s = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   for (const [k, act] of [['중도금미납', 'confirmMid'], ['잔금미납', 'confirmBalance'], ['중도금잔금미납', 'confirmMidBal']]) {
     say(s.includes(`'${k}':'${act}'`) && s.includes(`'${k}':'입금 확인'`), `${rel} — ${k} → ${act} · 버튼 «입금 확인»`);

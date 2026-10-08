@@ -269,7 +269,8 @@
   ③ 취향 판단이 필요한 변경(타이포·색·레이아웃 대개편)은 시안으로 사용자 선택을 받은 뒤 푸시.
   되돌리기: 사용자가 "되돌려줘" 하면 revert 커밋을 즉시 main에 푸시.
 - `momentedit.kr`(`index.html`·`inquiry.html`·`admin.html`·`mypage.html` 등)은 `main` 푸시 시 Vercel 자동 배포.
-- GAS 백엔드(`.gs`·`Admin.html`)는 내가 배포할 수 없으므로, **GAS 반영 + `R3n9Mr` 재배포가 필요한 변경이면 ① '🙋 네가 할 일'에 명시하고 ② 재배포할 `.gs`(·`Admin.html`) 파일을 항상 응답에 첨부(업로드)**한다 — 사용자가 매번 요청하지 않아도.
+- GAS 백엔드(`.gs`·GAS 화면 파일 `ScreenA`·`ScreenB`·`ScreenC` `.html`)는 내가 배포할 수 없으므로, **GAS 반영 + `R3n9Mr` 재배포가 필요한 변경이면 ① '🙋 네가 할 일'에 명시하고 ② 재배포할 `.gs`(·화면 `.html`) 파일을 항상 응답에 첨부(업로드)**한다 — 사용자가 매번 요청하지 않아도.
+  - ★[ADMIN_BACKUP_RETIRE 2026-10-08 사장님 «추천대로해»] GAS 예비 관리 화면(`Admin.html` · `/exec?admin=1`)은 **은퇴했다.** 관리 화면은 momentedit.kr/admin.html 하나다. 옛 주소는 안내 한 장만 보인다(`admin.gs` `serveAdmin`). 되살리지 말 것 — merge-guard 가 막는다.
 - GAS 재배포는 코드 저장만으론 `/exec`에 안 먹는다 → **항상 "새 버전"으로 배포 관리에서 재배포**해야 함을 안내한다.
 
 ### ★병합은 내가 한다 — 사용자에게 넘기지 않는다 (2026-09-05 사용자 지시 *"병합을너가 자동으로해"*)
@@ -586,7 +587,7 @@ git push -u origin <브랜치>
 | 함수 | 파일 | 용도 |
 |---|---|---|
 | `deployCheck` | **99_deployCheck** | ★붙여넣기·배포 누락 점검 — 파일이 다 있는가(안쪽까지)·최근 변경이 올라갔는가·배포가 «먹었는가»(저장만으론 /exec 에 안 먹는다)·시트 컬럼·예약 실행·스크립트 속성. 목록은 사이트(momentedit.kr/deploy-marks.json)에서 가져온다 — **main 에 병합돼야 목록이 갱신된다** |
-| `deployStampCheck` | **99_deployCheck** | ★배포가 «먹었는가»만 찍는다(서너 줄). deployCheck 로그가 GAS 한도로 ③ 에서 잘려 ④ 를 몇 번을 돌려도 못 보던 자리 — 2026-09-20 대표 실행 두 번 모두 그랬다. **재배포할 때마다 이것만 돌리면 된다.** deployCheck 는 «붙여넣기» 점검이고 이건 «배포» 점검이다. ★기록이 없으면 «아직 모름»이다 — 재배포 뒤 관리자 페이지(momentedit.kr/admin.html)를 한 번 열어야 지문이 찍힌다(홈은 GAS 를 안 불러 안 찍힌다 · [STAMP_HIT_ADMIN]). ★★[STAMP_FN_ONLY] **이 판정은 «함수»만 본다** — `_dsGlobalSig` 가 `typeof === 'function'` 인 것만 모은다. 화면 파일(`Admin`·`ScreenA`·`ScreenB`·`ScreenC` `.html`)은 지문에 **안 들어가서**, 붙여넣었든 안 넣었든 똑같이 OK 가 나온다. **`.html` 을 붙여넣었으면 `deployCheck`(같은 `99_deployCheck` 파일)를 돌려 ①-C 본문 길이를 봐야 한다.** 2026-09-20 에 내가 `ScreenB_schedule.html` 을 고쳐 드리고 이걸로 확인하라고 안내했는데, 확인될 수가 없는 조합이었다 |
+| `deployStampCheck` | **99_deployCheck** | ★배포가 «먹었는가»만 찍는다(서너 줄). deployCheck 로그가 GAS 한도로 ③ 에서 잘려 ④ 를 몇 번을 돌려도 못 보던 자리 — 2026-09-20 대표 실행 두 번 모두 그랬다. **재배포할 때마다 이것만 돌리면 된다.** deployCheck 는 «붙여넣기» 점검이고 이건 «배포» 점검이다. ★기록이 없으면 «아직 모름»이다 — 재배포 뒤 관리자 페이지(momentedit.kr/admin.html)를 한 번 열어야 지문이 찍힌다(홈은 GAS 를 안 불러 안 찍힌다 · [STAMP_HIT_ADMIN]). ★★[STAMP_FN_ONLY] **이 판정은 «함수»만 본다** — `_dsGlobalSig` 가 `typeof === 'function'` 인 것만 모은다. 화면 파일(`ScreenA`·`ScreenB`·`ScreenC` `.html` · `Admin.html` 은 2026-10-08 은퇴)은 지문에 **안 들어가서**, 붙여넣었든 안 넣었든 똑같이 OK 가 나온다. **`.html` 을 붙여넣었으면 `deployCheck`(같은 `99_deployCheck` 파일)를 돌려 ①-C 본문 길이를 봐야 한다.** 2026-09-20 에 내가 `ScreenB_schedule.html` 을 고쳐 드리고 이걸로 확인하라고 안내했는데, 확인될 수가 없는 조합이었다 |
 | `contractCheck` | **99_contractCheck** | ★값 계약 점검 — deployCheck 와 **짝**이다. 그쪽은 «표식이 있는가», 이쪽은 «값이 맞는가». GAS 상수(FINAL_CONFIRM 등)를 실제로 평가하고, 배포된 사이트 문장까지 대조한다. 목록이 없으면 파일 안 폴백으로 GAS 값만 본다 |
 | `contractCheckHelp` | **99_contractCheck** | 위 점검의 사용법 출력(발송·변경 없음). 파일 끝을 지키는 함수이기도 하다 — 이 이름이 사라지면 붙여넣다 뒤가 잘린 것이다 |
 | `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) · ★켜진 고객 알림 중 **알림톡 템플릿이 빠진 것을 이름으로 나열**(TPL_COVER) — 「알림톡이 안 나간다」면 여기부터. 템플릿이 없으면 알림톡은 안 나가고 이메일로만 대체되며, 그 사실은 고객 상세 처리이력·관리자 메일(하루 한 통)로 드러난다(TPL_SILENT) |
