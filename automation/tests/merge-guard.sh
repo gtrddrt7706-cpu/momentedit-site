@@ -11974,7 +11974,8 @@ fi
 chk 'PICK_V2' order-preview.html 7
 chk 'PICK_V2' scripts/audit/pick-v2.mjs 1
 chk 'FLOW_LINE' assets/ritual-open.js 2
-chk 'fill="none" stroke="#7A5F37"' assets/ritual-open.js 1   # 선 하나 · 한 색(색 · 회색 밑줄 · 옅은 절정 칸 · 눈금 · 범례 없음)
+chk "var ink = '#7A5F37';" assets/ritual-open.js 1   # 선 하나 · 본식은 한 색(회색 밑줄 · 옅은 절정 칸 · 눈금 · 범례 없음) · ★[TABLE_APART 2026-10-08 사장님] 본식 뒤 꼬리만 옅은 금
+chk "var AFTER_INK = '#B89A75'" assets/ritual-open.js 1   # [TABLE_APART] 테이블 인사 꼬리 = 옅은 금(같은 곡선 · 색만)
 chk 'TILE_PICK' assets/ritual-open.js 1
 chk 'TILE_PICK' order-preview.html 2
 chk 'PREVIEW_SHEET' order-preview.html 5
@@ -11990,7 +11991,7 @@ chk 'POSTER_SMALL' assets/ritual-open.js 1
 nochk "var PK_CAP=" order-preview.html
 nochk "esc(prep)+'<br>'+esc(prepW)" order-preview.html
 chk 'FLOW_MIN' order-preview.html 5
-chk "본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'" order-preview.html 1
+chk "'본식과 단체'+NBS+'사진')+' · 늘 '+R.DAYMIN+'분</p>'" order-preview.html 1
 # ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선 없이 한 덩어리
 chk 'PV_SEND_ONE' order-preview.html 2
 chk ".mk-send1 .mk-vlist{border-top:0" order-preview.html 1
@@ -14686,6 +14687,23 @@ chk 'VC_GAS_DOWN' mypage.html 1   # [82] GAS 전체 멈춤은 V9
 chk 'VC_GAS_DOWN' scripts/audit/vc-enroll-sim.mjs 1
 chk 'VC_R1_SERVER' scripts/audit/vc-r1-server.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-server.mjs >/dev/null 2>&1 || { echo 'FAIL vc-r1-server: 목소리 서버 장면이 어긋났습니다 — node scripts/audit/vc-r1-server.mjs'; fail=1; }; fi
+# ── [TABLE_APART 2026-10-08 사장님 «테이블 인사는 본식 이후니까 사진과도 따로 본식과도 따로» · «그 순간 이후 그래프 색상»] 시간 셋 · 본식 뒤 묶음 · 곡선 꼬리 · 줄 설명
+chk 'TABLE_APART' assets/ritual-open.js 11
+chk 'function spanText(S)' assets/ritual-open.js 1
+chk 'spanText: spanText, tableSec: tableSec' assets/ritual-open.js 1
+chk "after: !!AFTER_CLOSE" assets/ritual-open.js 1
+chk "LEVEL3 = { candle: 1, welcome: 1, table: 1 }" assets/ritual-open.js 1
+chk "d: '케이크와 축배, 본식 뒤 테이블 인사까지'" assets/ritual-open.js 1
+nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets/ritual-open.js
+chk 'TABLE_APART' order-preview.html 18
+chk 'id="mkFgAfter">본식 뒤</p>' order-preview.html 1
+chk "'<b>본식 뒤</b>'" order-preview.html 1
+chk '.op-bar .t{background:var(--gold)}' order-preview.html 1
+chk '@media (max-width:389px){ .op-cta .cta-lg{display:none} }' order-preview.html 1
+chk 'FSUM_SEP' order-preview.html 2
+chk 'TABLE_APART' mypage.html 1
+chk 'TABLE_APART' assets/ritual-cue.js 1
+chk 'TABLE_APART' api/_ritual-kb.js 2
 # ── 목소리 1라운드 tune 묶음 (2026-10-08)
 # ★[VC_R1_TUNE 2026-10-08 목소리 1라운드 · 맞추기 창] 예시 글칸 잘림 · 예시만 낱자 검사 · 채우는 중 빠르기 · 다시 굽기 실패 줄 · 확정 = 들리는 소리 · 누른 글만 · 실패 글 걷기 · 빈 글칸 잠금
 #   vc-r1-tune.mjs 가 390 폭에서 단추를 실제로 눌러 잰다 — 고친 줄을 하나씩 되돌리면 그 장면이 빨강(돌연변이 14 확인 2026-10-08)
