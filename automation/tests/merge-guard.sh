@@ -14732,6 +14732,15 @@ chk 'CHIP_CHANGED' order-preview.html 5
 chk 'function _chgShow(b0,key,root)' order-preview.html 1
 chk 'var _cg0=_chgSnap();' order-preview.html 1
 chk '아래 안내 글이 바뀌었어요' order-preview.html 1
+# ── [STOP_ROUND · PLAY_PAIR 2026-10-08 사장님 «네모(정지 표시)가 미흡» → 안 A «추천대로» · «플레이 버튼은 괜찮아?»] 둥근 ■ · ▶ 와 한 무게(▶ 약 8 × 10 · ■ 약 9) · 줄 알약 · 흐름 원 · 이 순간 전체 듣기 · 맞추기 창 · 들어 보고 맞추기 · 사진 ▶ 원
+chk 'STOP_ROUND' order-preview.html 1
+chk '<rect x="5.6" y="5.6" width="12.8" height="12.8" rx="2.6"/>' order-preview.html 1
+nochk 'M5 5h14v14H5z' order-preview.html   # ★각진 ■ 금지 — 2026-10-08 사용자 지시로 삭제
+chk 'PLAY_PAIR' order-preview.html 5
+chk '.mk-pl svg{width:17px;height:17px;margin-left:0;' order-preview.html 1
+chk 'mk-hbtn.data-mp. svg{width:15px;height:15px;padding:7.5px;' order-preview.html 1
+chk 'mk-tune-pl svg{width:17px;height:17px;padding:8.5px;' order-preview.html 1
+nochk 'padding:10px 9px 10px 11px' order-preview.html   # 큰 ▶ 에서 고르지 않은 여백은 과하다 · 쏠림은 ICO_PLAY 그림 안
 # ── 목소리 1라운드 tune 묶음 (2026-10-08)
 # ★[VC_R1_TUNE 2026-10-08 목소리 1라운드 · 맞추기 창] 예시 글칸 잘림 · 예시만 낱자 검사 · 채우는 중 빠르기 · 다시 굽기 실패 줄 · 확정 = 들리는 소리 · 누른 글만 · 실패 글 걷기 · 빈 글칸 잠금
 #   vc-r1-tune.mjs 가 390 폭에서 단추를 실제로 눌러 잰다 — 고친 줄을 하나씩 되돌리면 그 장면이 빨강(돌연변이 14 확인 2026-10-08)
