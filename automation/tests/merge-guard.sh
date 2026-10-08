@@ -14576,6 +14576,18 @@ chk 'CHIP_W_FIX' order-preview.html 2
 chk 'PR_MODE_ONE_LINE' order-preview.html 1
 chk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html 1
 chk 'VP_ASK_FIRST' scripts/audit/vp-ask-first.mjs 1
+# ── [VP_MUST 2026-10-08 사장님 «고르지 않으면 스튜디오 나레이션으로 진행돼요 · 이 문구 수정 · 무조건 고르게» → «저 문구 삭제하고 · 다음으로 넘기려 하면 안내 문구(알림)»] 안내 목소리는 꼭 고른다 — ② «다음» · ② → ③ · ④ 저장 세 문에서 막고 아래 알림 한 번 · 칩 아래 상시 줄 없음
+chk 'VP_MUST' order-preview.html 8
+chk 'VP_MUST' scripts/audit/vp-ask-first.mjs 4
+chk 'function _vpMustFirst()' order-preview.html 1
+chk 'if(ask&&_vpMustAt(from)){ _vpMustShow(from); return; }' order-preview.html 1
+chk 'var _vm=_vpMustFirst(); if(_vm){ _vpMustShow(_vm); return; }' order-preview.html 1
+chk "var _vm2=isOpen()?_vpMustFirst():''; if(_vm2){ _vpMustShow(_vm2); return; } doSave();" order-preview.html 1
+chk "toast('어떻게 준비할지 먼저 골라 주세요',3000);" order-preview.html 1
+nochk '골라야 다음으로 넘어갈 수 있어요' order-preview.html   # ★칩 아래 상시 줄 금지 — 2026-10-08 사용자 지시로 삭제
+chk 'TOAST_ONE_LINE' order-preview.html 1
+chk '#_toast{width:max-content}' order-preview.html 1   # 아래 알림이 화면 반쪽 폭에 갇혀 두 줄로 꺾이지 않게
+nochk '고르지 않으면 스튜디오 나레이션으로 진행돼요</span>' order-preview.html   # ★2026-10-08 사용자 지시로 삭제
 chk 'STALE_BY_PILL' scripts/audit/pv-intro.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; if [ "$_vpa" = 1 ]; then echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; fi; fi
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생

@@ -27,12 +27,27 @@ for (const W of [390, 1280]) {
       note: [...document.querySelectorAll('.ls-gnote')].map((e) => e.textContent).join('|'), on: [...document.querySelectorAll('[data-fk^="lsc:' + vk + ':"]')].filter((e) => e.getAttribute('aria-checked') === 'true' || e.classList.contains('on')).length }), vk);
     const a = await look(vk);
     if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `vp-ask-${k}-${W}.png`), fullPage: true });
-    ok(`${W} ${k} 안 고름 — 칩 아래 한 줄(«아직 고르지 않았어요 · 안 고르면 스튜디오 나레이션») · 상자 없음 [VP_ASK_ONE] · 흐름 · 줄 카드 · «나레이터가 읽어요» 없음 · 칩 비어 있음`,
-      /아직 고르지 않았어요/.test(a.ask) && /스튜디오 나레이션으로 진행돼요/.test(a.ask) && !a.box /* [VP_ASK_ONE] 상자 없이 칩 아래 한 줄 */ && !a.flow && a.cards === 0 && !/나레이터가 읽어요/.test(a.note) && a.on === 0, JSON.stringify(a));
+    ok(`${W} ${k} 안 고름 — 칩 아래 한 줄 없음(VP_MUST · 사장님 «저 문구 삭제») · 상자 없음 [VP_ASK_ONE] · 흐름 · 줄 카드 · «나레이터가 읽어요» 없음 · 칩 비어 있음`,
+      !a.ask && !a.box /* [VP_ASK_ONE] 상자 없이 칩 아래 한 줄 */ && !a.flow && a.cards === 0 && !/나레이터가 읽어요/.test(a.note) && a.on === 0, JSON.stringify(a));
     await pg.click(`[data-fk="lsc:${vk}:nar"]`); await pg.waitForTimeout(400);
     const b = await look(vk);
     ok(`${W} ${k} 스튜디오 나레이션 고름 — 칸이 걷히고 흐름 · 덧말이 열린다`, !b.ask && b.flow && /나레이터가 읽어요/.test(b.note) && b.on === 1, JSON.stringify(b));
   }
+  /* ★★[VP_MUST 2026-10-08 사장님 «무조건 고르게»] 안 고른 채 «다음»을 누르면 그 쪽에 머물고 한 줄이 진사색(must) · 고르면 넘어간다 · ② → ③ 문도 안 고른 쪽으로 데려간다 */
+  { await pg.evaluate(() => { const t = Object.assign({}, S.touched); delete t.guestVoice; S.touched = t; mkGo('guest'); try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(400);
+    await pg.click('#next'); await pg.waitForTimeout(500);
+    const tst = () => pg.evaluate(() => { const t = document.getElementById('_toast'); return t ? { txt: t.textContent, op: t.style.opacity } : { txt: '', op: '' }; });
+    const m1 = Object.assign(await pg.evaluate(() => ({ at: _mkRO().at, line: !!document.querySelector('#stage .cg-vp .mk-vpask1'), focus: (document.activeElement && document.activeElement.dataset || {}).fk || '' })), await tst());
+    ok(`${W} [VP_MUST] 하객 맞이 안 고름 — «다음»을 눌러도 그 쪽에 머문다 · 아래 알림 «어떻게 준비할지 먼저 골라 주세요» · 칩 아래 줄 없음 · 첫 칩에 포커스`, m1.at === 'guest' && m1.txt === '어떻게 준비할지 먼저 골라 주세요' && m1.op === '1' && !m1.line && /^lsc:guestVoice:/.test(m1.focus), JSON.stringify(m1));
+    await pg.click('[data-fk="lsc:guestVoice:nar"]'); await pg.waitForTimeout(400); await pg.evaluate(() => { try { lsStop(); } catch (e) {} });
+    await pg.click('#next'); await pg.waitForTimeout(500);
+    const m2 = await pg.evaluate(() => _mkRO().at);
+    ok(`${W} [VP_MUST] 고르면 «다음»으로 넘어간다`, m2 !== 'guest', m2);
+    await pg.evaluate(() => { const t = Object.assign({}, S.touched); delete t.entryVoice; S.touched = t; const ps = _mkPages(); mkGo(ps[ps.length - 1]); try { lsStop(); } catch (e) {} }); await pg.waitForTimeout(400);
+    await pg.click('#next'); await pg.waitForTimeout(600);
+    const m3 = Object.assign(await pg.evaluate(() => ({ step: STEPS[idx] && STEPS[idx].k, at: _mkRO().at })), await tst());
+    ok(`${W} [VP_MUST] ② 마지막 쪽에서 «다음»(연습하기) — 안 고른 입장 쪽으로 데려가고 같은 알림`, m3.step === 'listen' && m3.at === 'entry' && m3.txt === '어떻게 준비할지 먼저 골라 주세요', JSON.stringify(m3));
+    await pg.click('[data-fk="lsc:entryVoice:nar"]'); await pg.waitForTimeout(300); await pg.evaluate(() => { try { lsStop(); } catch (e) {} }); }
   /* ★[CHIP_W_FIX 2026-10-06 사장님 «버튼 클릭하는 거에 따라 2줄이 되고 1줄이 되고 · 1줄로 고정»] 어느 칩을 눌러도 칩 폭 · 줄 수가 그대로 */
   await pg.evaluate(() => { mkGo('entry'); try { lsStop(); } catch (e) {} });
   await pg.waitForTimeout(300);
