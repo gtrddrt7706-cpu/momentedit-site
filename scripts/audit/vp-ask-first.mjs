@@ -36,9 +36,9 @@ for (const W of [390, 1280]) {
   /* ★★[VP_MUST 2026-10-08 사장님 «무조건 고르게»] 안 고른 채 «다음»을 누르면 그 쪽에 머물고 한 줄이 진사색(must) · 고르면 넘어간다 · ② → ③ 문도 안 고른 쪽으로 데려간다 */
   { await pg.evaluate(() => { const t = Object.assign({}, S.touched); delete t.guestVoice; S.touched = t; mkGo('guest'); try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(400);
     await pg.click('#next'); await pg.waitForTimeout(500);
-    const tst = () => pg.evaluate(() => { const t = document.getElementById('_toast'); return t ? { txt: t.textContent, op: t.style.opacity } : { txt: '', op: '' }; });
+    const tst = () => pg.evaluate(() => { const t = document.getElementById('lsToast'); return t ? { txt: t.textContent, op: t.hidden ? '0' : '1' } : { txt: '', op: '' }; });   // 칩 알림과 같은 떠 있는 안내(_lsToast · CHIP_TOAST)
     const m1 = Object.assign(await pg.evaluate(() => ({ at: _mkRO().at, line: !!document.querySelector('#stage .cg-vp .mk-vpask1'), focus: (document.activeElement && document.activeElement.dataset || {}).fk || '' })), await tst());
-    ok(`${W} [VP_MUST] 하객 맞이 안 고름 — «다음»을 눌러도 그 쪽에 머문다 · 아래 알림 «어떻게 준비할지 먼저 골라 주세요» · 칩 아래 줄 없음 · 첫 칩에 포커스`, m1.at === 'guest' && m1.txt === '어떻게 준비할지 먼저 골라 주세요' && m1.op === '1' && !m1.line && /^lsc:guestVoice:/.test(m1.focus), JSON.stringify(m1));
+    ok(`${W} [VP_MUST] 하객 맞이 안 고름 — «다음»을 눌러도 그 쪽에 머문다 · 떠 있는 안내(칩 알림과 같은 브라운 알약) «어떻게 준비할지 먼저 골라 주세요» · 칩 아래 줄 없음 · 첫 칩에 포커스`, m1.at === 'guest' && m1.txt === '어떻게 준비할지 먼저 골라 주세요' && m1.op === '1' && !m1.line && /^lsc:guestVoice:/.test(m1.focus), JSON.stringify(m1));
     await pg.click('[data-fk="lsc:guestVoice:nar"]'); await pg.waitForTimeout(400); await pg.evaluate(() => { try { lsStop(); } catch (e) {} });
     await pg.click('#next'); await pg.waitForTimeout(500);
     const m2 = await pg.evaluate(() => _mkRO().at);
