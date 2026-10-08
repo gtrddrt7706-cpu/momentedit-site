@@ -38,8 +38,8 @@ function grab(src, name, file) {
   for (const ln of lines) { out.push(ln); if (ln === '}') break; }
   return out[out.length - 1] === '}' ? out.join('\n') : null;
 }
-// [MAIL_ONCE 2026-09-25] _kakaoSend 가 대체 메일 기준을 _nfEmailedElsewhere 에 묻는다 — 같이 꺼내지 않으면 기준에서 멈춰 메일이 0통이 된다(실측 빨강 3건).
-const NEED = { _phoneKR: cfgSrc, _kakaoSend: nfSrc, _nfEmailedElsewhere: nfSrc, _nfHoldPush: nfSrc, _nfHoldDrop: nfSrc, flushHeldNotifies: nfSrc };
+// [MAIL_ONCE 2026-09-25] _kakaoSend_ 가 대체 메일 기준을 _nfEmailedElsewhere 에 묻는다 — 같이 꺼내지 않으면 기준에서 멈춰 메일이 0통이 된다(실측 빨강 3건).
+const NEED = { _phoneKR: cfgSrc, _kakaoSend_: nfSrc, _nfEmailedElsewhere: nfSrc, _nfHoldPush: nfSrc, _nfHoldDrop: nfSrc, flushHeldNotifies: nfSrc };
 const bodies = {};
 for (const [fn, src] of Object.entries(NEED)) {
   const b = grab(src, fn);
@@ -68,7 +68,7 @@ var PropertiesService = { getScriptProperties: function () { return {
 var LockService = { getScriptLock: function () { return { waitLock: function () {}, releaseLock: function () {} }; } };
 var Utilities = { formatDate: function () { return '20260925'; }, getUuid: function () { return 'u-u-u-u'; } };
 function fmtKST() { return '2026-09-25 21:00'; }
-function _nfProps() { return { key: 'K', secret: 'S', sender: '01000000000', pfId: 'PF', templates: { 'cust.fittingRequest': 'T1', 'cust.balanceDue': 'T2' } }; }
+function _nfProps_() { return { key: 'K', secret: 'S', sender: '01000000000', pfId: 'PF', templates: { 'cust.fittingRequest': 'T1', 'cust.balanceDue': 'T2' } }; }
 function _nfIsNight() { return !!__W.night; }
 function _notifyEnabled() { return true; }
 function _adminInfoOn() { return false; }
@@ -81,16 +81,17 @@ function findCustomerByCode(code) {
 function _nfCoupleName() { return '신랑·신부'; }
 function _nfCustomerMsg(event) { return { vars: {}, text: '문구:' + event }; }
 function _solapiSend(cfg, msg) { __W.sent.push({ to: msg.to, text: msg.text }); return true; }
-function _nfCustomerEmailFallback(to, n, e) { __W.custMails.push(String(to) + '|' + e); return true; }   // 진짜처럼 «보냈다»를 돌려준다
+function _nfCustomerEmailFallback_(to, n, e) { __W.custMails.push(String(to) + '|' + e); return true; }   // 진짜처럼 «보냈다»를 돌려준다
 function _nfAdminLineEmail(t) { __W.adminMails.push(String(t)); }
 function _nfAdminText(e) { return 'admin:' + e; }
-function _nfPayConfirmAction() { return null; }
+function _nfPayConfirmAction_() { return null; }
+function _requireAdmin() { return { ok: true }; }   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
 `;
 let F;
 try {
   F = new Function('__world', '__log',
     `${STUBS}\n${Object.values(bodies).join('\n')}\n` +
-    `return { _phoneKR: _phoneKR, _kakaoSend: _kakaoSend, _nfHoldPush: _nfHoldPush, _nfHoldDrop: _nfHoldDrop, flushHeldNotifies: flushHeldNotifies };`
+    `return { _phoneKR: _phoneKR, _kakaoSend_: _kakaoSend_, _nfHoldPush: _nfHoldPush, _nfHoldDrop: _nfHoldDrop, flushHeldNotifies: flushHeldNotifies };`
   )(world, log);
 } catch (e) {
   console.log('━━ contact-lifecycle-sim — 소스를 평가하지 못했습니다: ' + e.message);
@@ -116,7 +117,7 @@ console.log('【장면 1】 아이폰 자동완성 «+82 10-…»(가상 번호)
   ok(stored === '01073499770', `저장값이 「${stored}」 — 01073499770 이어야 한다`);
 
   world.night = true;
-  const r1 = F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  const r1 = F._kakaoSend_('customer', 'cust.fittingRequest', 'AB12CD', null);
   console.log(`  밤 22시 알림 → ${r1} · 큐 ${queue().length}건`);
   ok(r1 === 'held' && queue().length === 1, '밤에는 보류 큐로 들어가야 한다');
 
@@ -133,7 +134,7 @@ console.log('【장면 1】 아이폰 자동완성 «+82 10-…»(가상 번호)
 console.log('\n【장면 2】 시트에 이미 있는 «821 0734 9770»(끝자리가 잘린 값)');
 {
   reset('821 0734 9770');
-  const r = F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  const r = F._kakaoSend_('customer', 'cust.fittingRequest', 'AB12CD', null);
   console.log(`  발송 시도 → ${r} · 나간 알림 ${world.sent.length}건 · 관리자 메일 ${world.adminMails.length}통`);
   ok(r !== true && world.sent.length === 0, '★복원할 수 없는 번호로 «발송»되면 안 된다(오배송)');
   ok(r === 'mail' && world.custMails.length === 1, `★알림톡은 못 보내도 고객에겐 메일로 가야 한다(KAKAO_FAIL_MAIL) — 반환 ${r} · 메일 ${world.custMails.length}통`);
@@ -141,8 +142,8 @@ console.log('\n【장면 2】 시트에 이미 있는 «821 0734 9770»(끝자�
   ok(/연락처 형식 이상/.test(world.adminMails[0] || ''), `관리자 메일 문면이 다르다: ${world.adminMails[0]}`);
 
   const before = world.adminMails.length;
-  F._kakaoSend('customer', 'cust.balanceDue', 'AB12CD', null);
-  F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  F._kakaoSend_('customer', 'cust.balanceDue', 'AB12CD', null);
+  F._kakaoSend_('customer', 'cust.fittingRequest', 'AB12CD', null);
   console.log(`  같은 날 두 번 더 시도 → 관리자 메일 ${world.adminMails.length}통 (하루 1통이어야 한다)`);
   ok(world.adminMails.length === before, '★같은 날 메일이 쏟아지면 그것도 침묵과 같다(알림 피로)');
 }
@@ -152,7 +153,7 @@ console.log('\n【장면 3】 밤에 알림 5건이 쌓인 고객을 «취소»�
 {
   reset('01073499770');
   world.night = true;
-  for (let i = 0; i < 5; i++) F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  for (let i = 0; i < 5; i++) F._kakaoSend_('customer', 'cust.fittingRequest', 'AB12CD', null);
   F._nfHoldPush('cust.balanceDue', 'OTHER9', null);       // 남의 고객 1건 — 같이 지워지면 더 큰 사고다
   console.log(`  큐 ${queue().length}건 (내 고객 5 + 남 1)`);
   ok(queue().length === 6, '큐에 6건이어야 한다');
@@ -176,7 +177,7 @@ console.log('\n【장면 4】 되돌려 보기 — 취소가 큐를 안 내렸�
      «세 번 시도해도 실패» 메일은 이제 «아무것도 안 닿는» 고객에게만 생긴다 — 그 조건으로 재현한다. */
   reset('821 0734 9770', '');
   world.night = true;
-  for (let i = 0; i < 5; i++) F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  for (let i = 0; i < 5; i++) F._kakaoSend_('customer', 'cust.fittingRequest', 'AB12CD', null);
   world.night = false;
   for (let day = 1; day <= 3; day++) { world.props = { NOTIFY_HOLD: world.props.NOTIFY_HOLD }; F.flushHeldNotifies(); }
   const drop = world.adminMails.filter(m => /세 번 시도해도 실패/.test(m));
@@ -191,7 +192,7 @@ console.log('\n【장면 5】 밤에 쌓인 알림 · 번호가 틀렸고 메일
 {
   reset('821 0734 9770');
   world.night = true;
-  F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+  F._kakaoSend_('customer', 'cust.fittingRequest', 'AB12CD', null);
   world.night = false;
   for (let day = 1; day <= 3; day++) { world.props = { NOTIFY_HOLD: world.props.NOTIFY_HOLD }; F.flushHeldNotifies(); }
   console.log(`  사흘 치 아침 → 고객 메일 ${world.custMails.length}통 · 남은 큐 ${queue().length}건 · «세 번 실패» 메일 ${world.adminMails.filter(m => /세 번 시도해도 실패/.test(m)).length}통`);
@@ -214,7 +215,7 @@ console.log('\n【장면 6】 자동완성 «+82 10-7349-7706» 이 문의서 �
     new Function('e', 'window', 'meTelDigits', fmtSrc)({ target: field }, { meTelDigits: w.meTelDigits }, w.meTelDigits);
     const stored = F._phoneKR(field.value);               // 40_signup 이 저장 전에 부르는 그 함수
     reset(stored);
-    const r = F._kakaoSend('customer', 'cust.fittingRequest', 'AB12CD', null);
+    const r = F._kakaoSend_('customer', 'cust.fittingRequest', 'AB12CD', null);
     console.log(`  칸에 보이는 값 ${field.value} → 시트 ${stored} → 발송 ${r} (받는 번호 ${world.sent[0] && world.sent[0].to})`);
     ok(field.value === '010-7349-7706', `★문의서 칸이 「${field.value}」 — 끝자리를 자르면 안 된다(종전 821-0734-9770)`);
     ok(stored === '01073497706' && r === true && world.sent.length === 1 && world.sent[0].to === '01073497706', '그 번호로 알림톡이 실제로 나가야 한다');

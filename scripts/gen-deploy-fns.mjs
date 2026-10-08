@@ -59,7 +59,7 @@ for (const [name, rel] of Object.entries(SRC)) {
 /* ── 트리거 — 코드를 붙이고 재배포해도 «예약 실행»은 안 걸린다. setupAllTriggers 를 사람이 돌려야 한다.
    그 사실을 점검이 안 봐서, 새 일일 작업이 영영 안 도는데 「누락 0건」이 나올 수 있었다. */
 const jSrc = fs.readFileSync(path.join(ROOT, 'automation/platform/70_journey.gs'), 'utf8');
-const planM = jSrc.match(/function setupAllTriggers\s*\(\)\s*\{\s*var plan = \[([\s\S]*?)\];/);
+const planM = jSrc.match(/function setupAllTriggers\s*\(\)\s*\{\s*(?:_requireAdmin\(\);\s*)?var plan = \[([\s\S]*?)\];/);
 if (!planM) { console.error('★setupAllTriggers 의 plan 배열을 못 찾았습니다 — 파싱이 깨졌습니다'); process.exit(2); }
 const triggers = [...planM[1].matchAll(/fn:\s*'([^']+)'/g)].map((m) => m[1]);
 if (triggers.length < 10) { console.error('★트리거가 ' + triggers.length + '개 — 파싱이 깨졌습니다'); process.exit(2); }
@@ -73,6 +73,8 @@ if (gErr.length) { console.error('★GAS 로드 실패 — ' + gErr[0].file + ':
 const ADDERS = ['addBalanceColumns', 'addProdTrackColumns', 'addGuideTokenColumn',
   'addGuestPhotoColumns', 'addResultSelectionColumns'];
 const columns = [];
+// [B19_LOCK 2026-10-09] add*Columns 는 편집기(소유자) 도구라 이제 _requireAdmin 으로 잠겨 있다 — 흉내에서는 소유자로 들어간다
+G._AUTHED = true;
 for (const fn of ADDERS) {
   if (typeof G[fn] !== 'function') { console.error('★' + fn + ' 이 없습니다 — 이름이 바뀌었습니다'); process.exit(2); }
   const got = [];

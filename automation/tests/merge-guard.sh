@@ -1620,7 +1620,7 @@ chk 'DEPOSIT_CARD' mypage.html 3
 chk 'DEPOSIT_CARD' cancel.html 2
 chk 'PAY_METHOD' schedule.html 8
 chk '_depositCardConfirm' automation/platform/98_pay_card.gs 2
-chk "=== '예약금') return _depositCardConfirm(body, cfg)" automation/platform/98_pay_card.gs 1
+chk "=== '예약금') return _depositCardConfirm_(body, cfg)" automation/platform/98_pay_card.gs 1
 chk "=== '예약금') return _depositCardConfig(body, cfg)" automation/platform/98_pay_card.gs 1
 chk 'payBy' schedule.html 2
 chk 'me_pay_tok' schedule.html 3
@@ -1631,7 +1631,7 @@ chk 'DEPOSIT_CARD' scripts/audit/deposit-card-screen.mjs 1
 chk 'DEPOSIT_B1' automation/platform/98_pay_card.gs 1
 chk '⑪-2' scripts/audit/deposit-card.mjs 2
 # ★카드 단위 스위트(pay-card.test.js)는 함수를 이름으로 골라 싣는다 — 새 예약금 함수를 안 실으면 퍼즈 '예약금' 표본이 던진다(게이트가 잡음 · throws=45)
-chk "extractFunction(SRC_CARD, '_depositCardConfirm')" automation/tests/pay-card.test.js 1
+chk "extractFunction(SRC_CARD, '_depositCardConfirm_')" automation/tests/pay-card.test.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/deposit-card.mjs >/dev/null 2>&1; _dcs=$?
   case "$_dcs" in
     0) echo 'ok deposit-card: 예약금 카드 — 꺼짐 무영향 · 승인→기록→자동 확정 · 재호출 멱등 · 결제 전 마감 · 금액 · 스냅 제외 · 카드 대기 알림 · 카드 환불 경로' ;;
@@ -16186,6 +16186,18 @@ nochk "String(act || '(없음)').slice(0, 40)" automation/platform/95_notify.gs
 chk 'ERR_LOG_SAFE' scripts/audit/err-log-safe.mjs 1
 chk 'ERR_LOG_SAFE_BLIND' automation/tests/merge-guard.sh 2   # 이 줄 1 + 연결 줄 1 · 연결 줄이 «2 = 통과»로 되돌아가면 1 이 되어 빨강
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-log-safe.mjs >/dev/null 2>&1; _els=$?; if [ "$_els" != 0 ]; then echo "FAIL err-log-safe($_els): 오류기록에 밖의 글이 수식 · 개인정보로 들어간다(고객 DB 파일) · 2 = 재지 못함(브라우저가 필요 없는 검사라 2 는 눈먼 것) — node scripts/audit/err-log-safe.mjs"; fail=1; else echo "ok err-log-safe ($_els)"; fi; fi   # [ERR_LOG_SAFE_BLIND] 2 도 빨강
+# ★★[B19_LOCK 2026-10-09 사장님 «바로 막기»] 공개 입구(google.script.run) 잠금 — 이름이 _ 로 끝나지 않는 GAS 함수는 HTML 서비스 화면에서도
+#   부를 수 있다(구글 규칙). 그래서 서명 · 열쇠 · 받는 사람을 고르는 발송 함수 23개는 밑줄 이름으로 · 관리 · 편집기 도구 132개는 첫 줄 _requireAdmin() ·
+#   입금 확인은 서명(메일 단추) · 토스 승인(카드)을 확인한 뒤 그 처리 안에서만 _AUTHED(PAYCONFIRM_AUTHED · CARD_AUTHED).
+#   나머지 운영 도우미(_gsr_ · 예약 실행 표)는 1-s 둘째 조각. 되살리지 말 것 — gsr-guard 가 옛 이름 · 빠진 잠금 · 새 _AUTHED 를 막는다.
+chk 'B19_LOCK' automation/tests/merge-guard.sh 3   # 이 줄 1 + 주석 1 + 연결 줄 1
+chk 'PAYCONFIRM_AUTHED' automation/consultation/consultation-booking.gs 1
+chk 'CARD_AUTHED' automation/platform/98_pay_card.gs 1
+chk 'GSR_SPLIT' automation/platform/96_ai_cost.gs 2
+chk 'GSR_OWNER_HINT' automation/admin/admin.gs 1
+nochk '^function getSecret(' automation/consultation/consultation-booking.gs
+nochk '^function setAdminAccount([^)]*) {$' automation/admin/admin.gs
+if command -v node >/dev/null 2>&1; then node scripts/audit/gsr-guard.mjs >/dev/null 2>&1; _gsg=$?; if [ "$_gsg" != 0 ]; then echo "FAIL gsr-guard($_gsg): 공개 입구 잠금이 빠졌다 · 2 = 재지 못함(브라우저가 필요 없는 검사라 2 도 빨강) — node scripts/audit/gsr-guard.mjs"; fail=1; else echo "ok gsr-guard ($_gsg)"; fi; fi   # [B19_LOCK]
 # ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
 #   마이페이지 «최신 내용을 불러오지 못했어요 (코드 L5)» = 화면이 getMyState 를 12초 기다리다 멈춤. 원인은 서버 한 번 불러오기의 양 —
 #   서명 시트 전체(모든 고객의 서명 그림)를 매번 읽었고(SIG_FIND) · 같은 상담 행을 상태에 따라 2~3번 · 고객 행을 2번 따로 찾았다(GMS_MEMO).

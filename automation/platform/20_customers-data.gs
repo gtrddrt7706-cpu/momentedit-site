@@ -89,7 +89,7 @@ function _findCustomerBy(header, value, caseInsensitive) {
 
 function findCustomerByCode(code) { return _findCustomerBy('개인코드', code, true); }
 function findCustomerByToken(token) { return _findCustomerBy('로그인토큰', token, false); }
-function findCustomerByEmail(email) { return _findCustomerBy('이메일', email, true); }
+function findCustomerByEmail(email) { _requireAdmin(); /* [B19_LOCK 2026-10-09] 편집기 도구 잠금 */ return _findCustomerBy('이메일', email, true); }
 
 // 이메일로 '가장 최근 활성 행' 조회 — 같은 이메일 다중 신청 대응(코드 찾기·비번 재설정).
 //   취소·노쇼·미계약(STAGE_EXCEPTIONS) 제외한 활성 행 중 등록 시각(생성일시) 최신 1건.
@@ -253,7 +253,7 @@ function purgeStaleCustomers(dryRun) {
   return { ok: true, purged: purged, bookings: extra.bookings, signatures: extra.signatures, dryRun: !!dryRun, cutoffDays: days, samples: samples };
 }
 // 미리보기 — 실제 삭제 없이 '이번에 파기될 대상'만 로그로 확인(도입 첫 실행 전 점검용).
-function previewStaleCustomers() { return purgeStaleCustomers(true); }
+function previewStaleCustomers() { _requireAdmin(); return purgeStaleCustomers(true); }
 
 // 상담예약(Bookings) 시트에서 주어진 개인코드들의 PII 컬럼을 비운다(행 보존). 반환=처리 행수.
 //   Customers 익명화와 짝 — 같은 SS·개인코드 키. 성함·연락처·이메일·환불계좌·토큰·자유메모 등 식별/민감 컬럼만 비움.

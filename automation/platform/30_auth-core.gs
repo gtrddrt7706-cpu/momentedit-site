@@ -99,12 +99,12 @@ function resolveSession(token) {
 // ============================ 비번 재설정용 서명 링크 (resetPw) ============================
 // 메일로 보내는 재설정 링크를 HMAC 서명한다. 기존 sign()/getSecret() 재사용 + 만료 포함.
 // payload: 개인코드 + 만료 epoch. 링크 변조·무한 사용 방지.
-function makeResetSig(code, expEpoch) {
+function makeResetSig_(code, expEpoch) { /* [B19_LOCK 2026-10-09] 재설정 서명 · 서버 코드 안에서만(이름 끝 _) */
   // 기존 sign(token, action) 시그니처 형태에 맞춰 'reset' 액션으로 서명
-  return sign(code + '.' + expEpoch, 'resetpw');
+  return sign_(code + '.' + expEpoch, 'resetpw');
 }
-function verifyResetSig(code, expEpoch, sig) {
+function verifyResetSig_(code, expEpoch, sig) {
   if (!sig) return false;
   if (Date.now() > Number(expEpoch)) return false;        // 만료
-  return _constTimeEq(sig, makeResetSig(code, expEpoch));
+  return _constTimeEq(sig, makeResetSig_(code, expEpoch));
 }

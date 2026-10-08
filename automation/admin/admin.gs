@@ -28,7 +28,7 @@ var _CURRENT_ADMIN = '';      // _requireAdmin이 이름 저장 → _recordHandl
 // ============================ 인증 · Admins (아이디·비번 로그인) ============================
 // 구글 로그인 대신 자체 아이디·비번(마이페이지 패턴) — 어떤 기기·브라우저든 URL 로그인.
 // 비번은 평문 저장 X → setAdminAccount(아이디,비번,이름)로 해시 등록(편집기 실행).
-function setupAdmins() {
+function setupAdmins() { _requireAdmin();
   var ss = SpreadsheetApp.getActive();
   var sh = ss.getSheetByName(ADMIN_SHEET) || ss.insertSheet(ADMIN_SHEET);
   if (sh.getMaxColumns() < ADMIN_HEADERS.length) sh.insertColumnsAfter(sh.getMaxColumns(), ADMIN_HEADERS.length - sh.getMaxColumns());
@@ -58,7 +58,7 @@ function _findAdminRow(header, value, ci) {
 }
 
 // ★ 계정 등록·갱신 (편집기에서 실행) — 비번은 해시로만 저장. 예: setAdminAccount('nm012','비번6자↑','미쿠')
-function setAdminAccount(id, pw, name, role) {
+function setAdminAccount(id, pw, name, role) { _requireAdmin(); /* [B19_LOCK 2026-10-09] 관리 화면 · 편집기(소유자)만 */
   id = String(id || '').trim(); name = String(name || '').trim(); role = String(role || '대표').trim();
   if (!id || !name) return '사용법: setAdminAccount("아이디","비밀번호","이름")  (예: setAdminAccount("nm012","비번6자↑","미쿠"))';
   var pe = pwPolicyError(pw); if (pe) return pe;
@@ -161,7 +161,11 @@ function _requireAdmin(token) {
   if (a.ok) { _CURRENT_ADMIN = a.name || '관리자'; return a; }
   var email = ''; try { email = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) {}
   if (email && _ADMIN_OWNER_EMAILS.indexOf(email) !== -1) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }
-  throw new Error('로그인이 필요합니다. (관리자 전용)');
+  /* ★[GSR_OWNER_HINT 2026-10-09 · B19] 편집기 도구(setAdminAccount · notifyTest* · setup* …)도 이제 이 문 하나로 잠긴다.
+     편집기에서 막히면 «어느 계정이라 막혔나»가 보여야 한다 — 메일이 잡힐 때(편집기)만 가린 꼴로 덧붙인다.
+     공개 화면 · 관리 화면 요청은 메일이 빈 글이라 종전 문구 그대로다(관리 화면의 «로그인이 필요» 판정도 그대로). */
+  var _hint = email ? (' · 지금 계정(' + email.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')은 소유자 목록에 없어요') : '';
+  throw new Error('로그인이 필요합니다. (관리자 전용)' + _hint);
 }
 
 // ★ 단일 게이트웨이 — Admin.html의 모든 데이터·동작 호출이 여기로(토큰 1회 검증 → 위임).
@@ -214,7 +218,7 @@ function adminCall(token, fn, args) {
 }
 
 // [서류] 시착 동의서 문서 데이터 — 문서 뷰어(/contract/fitting.html) 채움용(이름·일시·서명·서명 당시 버전 전문).
-function adminFittingDoc(code) {
+function adminFittingDoc(code) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
@@ -395,7 +399,7 @@ function _briefMailOk() {
 }
 // [데이터] 아침 브리핑 소스 — 오늘 상담 일정 + 처리할 일 큐. 발송 안 함(읽기 전용).
 //   2026-06-29 통합: aiMorningReport가 이 데이터를 읽어 '아침 운영 보고' 메일 1통에 합쳐 보냄(개별 브리핑 메일 폐지).
-function morningBriefData() {
+function morningBriefData_() {
   var d;
   _AUTHED = true;                                  // 트리거 컨텍스트 — adminCall과 동일한 내부 인증 패턴
   try { d = adminHome(); } finally { _AUTHED = false; }
@@ -439,7 +443,7 @@ function adminNotifyText(code, event, kind) {
      · 추가 보정 = '완료'(입금 확인)된 건 · 확인 시각은 동의기록.영수증기준일.추가보정.
      · 상담 예약금(10만)은 Bookings에 '확인' 여부만 있고 확인 날짜가 없어 월 귀속을 할 수 없다 → 제외(라벨에 명시).
      계약 건수 = 이번 달 계약서명일시 · 전달 건수 = 이번 달 동의기록.결과물전달일. */
-function monthBusinessData() {
+function monthBusinessData_() {
   var mon = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM');
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return { month: mon, contracts: 0, revenue: 0, delivered: 0 };
@@ -1444,7 +1448,7 @@ function adminSetContact(code, phone, email, reason) {
   _requireAdmin();
   return _setContactCore(code, phone, email, reason, false);
 }
-function _setContactCore(code, phone, email, reason, dry) {
+function _setContactCore(code, phone, email, reason, dry) { _requireAdmin();
   var _cfMark = '[CONTACT_FIX]';   // 배포 점검 표식 — 99_deployCheck 가 이 줄로 «이 파일이 최신인가»를 본다. 지우지 말 것
   /* [CONTACT_FIX] 연락처·이메일 정정 본체 — 위 설명 블록 참고.
      ★이 줄을 지우지 말 것: FILE_COVER 규칙의 mark() 는 «함수 소스»를 읽는다.
@@ -1647,7 +1651,7 @@ function adminProposeTime(code, newDate, newTime, memo) {
   if (slotsForDate(newDate).indexOf(newTime) === -1) return { ok: false, error: '예약 가능한 시간이 아닙니다.' };
   if (_slotTaken(newDate, newTime, r.num)) return { ok: false, error: '그 시간은 이미 다른 예약으로 찼습니다. 다른 시간을 골라 주세요.' };  // F
   var consultToken = String(r.get('토큰') || '');
-  var sig = sign(consultToken, 'change');             // submitProposal이 요구하는 서명 — 관리자가 직접 생성
+  var sig = sign_(consultToken, 'change');             // submitProposal이 요구하는 서명 — 관리자가 직접 생성
   submitProposal(consultToken, sig, newDate, newTime, String(memo || ''));
   _recordHandler(code, '변경제안 ' + newDate + ' ' + newTime);
   notifyKakao('cust.timeProposed', code, { date: newDate, time: newTime });   // 고객: 시간 변경 제안 — 수락 필요(카톡)
@@ -1804,7 +1808,7 @@ function adminConfirmPayment(code) {
 //   opts.bundle : 임박(D-149/D-9) 시 중도금·잔금까지 함께 '확인' 할지. 관리자=통장 일괄수납이라 true.
 //                 카드는 계약금 금액만 실제 결제되므로 반드시 false(미결제 마일스톤이 확인되는 것 방지).
 //   opts.via    : 처리이력에 남길 경로 표기(예: '카드'). 관리자 경로는 생략.
-function _confirmDepositCore(code, opts) {
+function _confirmDepositCore(code, opts) { _requireAdmin();
   opts = opts || {};
   var viaTag = opts.via ? ('·' + opts.via) : '';
   code = String(code || '').trim().toUpperCase();
@@ -1886,7 +1890,7 @@ function adminIssueCashReceipt(code, kind, num) {
   if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
   try { return _adminIssueCashReceiptCore(code, kind, num); } finally { if (_lk) _lk.releaseLock(); }
 }
-function _adminIssueCashReceiptCore(code, kind, num) {
+function _adminIssueCashReceiptCore(code, kind, num) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
   num = String(num || '').replace(/[^0-9\-]/g, '').trim();   // 승인번호(숫자·하이픈)
@@ -1926,7 +1930,7 @@ function adminUndoCashReceipt(code, kind) {
   if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
   try { return _adminUndoCashReceiptCore(code, kind); } finally { if (_lk) _lk.releaseLock(); }
 }
-function _adminUndoCashReceiptCore(code, kind) {
+function _adminUndoCashReceiptCore(code, kind) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   kind = String(kind || '').trim();
   if (['예약금', '계약금', '중도금', '잔금', '추가보정', '중도금잔금'].indexOf(kind) === -1) return { ok: false, error: '발행 항목이 올바르지 않습니다.' };
@@ -1975,7 +1979,7 @@ function _undoSpec(milestone, isSnap) {
 }
 
 // 되돌리기 코어 — preview=true면 아무것도 쓰지 않고 '무엇이 어떻게 되돌아가는지'만 계획으로 돌려준다.
-function _undoConfirmCore(code, milestone, reason, preview) {
+function _undoConfirmCore(code, milestone, reason, preview) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   milestone = String(milestone || '').trim();
   reason = String(reason || '').trim();
@@ -2105,7 +2109,7 @@ function adminOpenFittingConsent(code) {
 // 공통: _requireAdmin · LockService(15s) · 최신 재읽기 · 자체 멱등 · 입력검증 · 처리이력 · {ok:false,error}.
 //   ★ EX 멱등 함정(이음새 4-A): setCustomerStage는 EX→정상 차단 + 가드가 멱등보다 먼저 →
 //      노쇼/미계약/강제는 현재단계를 직접 touchCustomer로 쓰고 멱등(현재===타겟)을 스스로 처리한다.
-function _adminLock() {
+function _adminLock() { _requireAdmin();
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); return lock; } catch (e) { try { lockBusySignal('관리자'); } catch (_e) {} return null; }
 }
@@ -2142,7 +2146,7 @@ function adminMarkConsultDone(code) {
 //     (본문 'ServiceLogin' 문자열 판정은 정상 공유 페이지의 로그인 버튼에도 걸려 오경고 위험 → 제거)
 //   ③최종 응답 400 이상 → 접근 불가 ④fetch 예외 → 확인 실패(단정하지 않는 문구).
 //   리다이렉트는 최대 4회만 수동 추적. 어떤 경우에도 밖으로 throw 하지 않는다.
-function _resultLinkCheck(label, url) {
+function _resultLinkCheck(label, url) { _requireAdmin();
   try {
     // [LINK_VERIFY_FIX 2026-07-25] 저장 검증(okUrl)은 http(s) 모두 허용 → 검증기도 http(s)로 맞춰 작동하는 http 링크에 거짓 형식경고를 내지 않게 함
     if (!/^https?:\/\//i.test(url)) return label + ' 링크: http(s):// 로 시작하는 주소가 아니에요. 주소를 확인해 주세요.';
@@ -2472,7 +2476,7 @@ function _rbPaidAny(c) {
   return paid(v('입금상태')) || paid(v('중도금상태')) || paid(v('잔금상태'));
 }
 
-function _clearForwardData(colOf, cust, product, targetStage, fromException, report) {
+function _clearForwardData(colOf, cust, product, targetStage, fromException, report) { _requireAdmin();
   var flow = stageFlowFor(product);
   var ti = flow.indexOf(targetStage);
   if (ti < 0) return {};
@@ -2560,7 +2564,7 @@ function _clearForwardData(colOf, cust, product, targetStage, fromException, rep
 }
 // 강제 되돌리기로 '신청접수'까지 내릴 때 — 상담 예약을 초기상태(신청접수)로 되돌리고 캘린더 슬롯 해제.
 //   상태→신청접수 + 선택날짜·시간·확정·변경제안·취소일시 비움 + 캘린더 이벤트 삭제(슬롯 해제). 이미 초기상태면 무해(false).
-function _resetConsultBooking(code) {
+function _resetConsultBooking(code) { _requireAdmin();
   try {
     var cr = findRowByPersonalCode(code);
     if (!cr) return false;
@@ -2626,7 +2630,7 @@ function _rbConfirmedSlot(cust) {
 /* 캘린더 제목만 바꾼다(지우지 않는다) — 사용자 선택 (나).
    지우면 되돌릴 수 없고, 사고 복구용 되돌림에서 예식이 달력에서 통째로 사라진다.
    ★[예식확정] · [가예약] · [보류] 어느 상태에서 와도 한 번에 갈아끼운다(접두사만 교체). */
-function _rbCalRetitle(eventId, prefix, note) {
+function _rbCalRetitle(eventId, prefix, note) { _requireAdmin();
   try {
     if (!eventId || typeof getCalendar !== 'function') return false;
     var cal = getCalendar(); if (!cal) return false;
@@ -2978,7 +2982,7 @@ function adminUndoRefunded(code, reason) {
   if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
   try { return _adminUndoRefundedCore(code, reason); } finally { if (_lk) _lk.releaseLock(); }
 }
-function _adminUndoRefundedCore(code, reason) {
+function _adminUndoRefundedCore(code, reason) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   reason = String(reason || '').trim();
   if (!reason) return { ok: false, error: '되돌리는 사유를 입력해 주세요. 금전 기록이라 처리이력에 남겨요.' };
@@ -3001,7 +3005,7 @@ function adminMarkRefunded(code) {
   if (typeof _payLock === 'function' && !_lk) return { ok: false, error: _PAY_LOCK_BUSY };
   try { return _adminMarkRefundedCore(code); } finally { if (_lk) _lk.releaseLock(); }
 }
-function _adminMarkRefundedCore(code) {
+function _adminMarkRefundedCore(code) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var cust = findCustomerByCode(code);
   if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };

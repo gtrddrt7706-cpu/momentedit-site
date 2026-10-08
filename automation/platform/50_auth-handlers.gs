@@ -69,10 +69,10 @@ function handleFindCode(body) {
     var names = customerNames(rowObj), code = String(rowObj.get('개인코드') || ''), phone = String(rowObj.get('연락처') || '').trim();
     try {
       // 알림톡(솔라피) 우선 — 미설정/실패면 sendFindCodeKakao가 false → 메일 폴백
-      var sent = (phone && typeof sendFindCodeKakao === 'function') ? sendFindCodeKakao(phone, names, code) : false;
-      if (!sent) sendFindCodeEmail(email, names, code);
+      var sent = (phone && typeof sendFindCodeKakao_ === 'function') ? sendFindCodeKakao_(phone, names, code) : false;
+      if (!sent) sendFindCodeEmail_(email, names, code);
     } catch (e) {
-      try { sendFindCodeEmail(email, names, code); }
+      try { sendFindCodeEmail_(email, names, code); }
       catch (e2) { notifyStudio('[플랫폼] ⚠️오류 · 코드찾기 발송 실패', email + '\n' + (e2 && e2.message)); }
     }
   }
@@ -88,20 +88,20 @@ function handleResetPw(body) {
   if (rowObj) {
     var code = String(rowObj.get('개인코드') || '');
     var exp = Date.now() + 60 * 60 * 1000;                 // 링크 1시간 유효
-    var sig = makeResetSig(code, exp);
+    var sig = makeResetSig_(code, exp);
     var link = P.MYPAGE_URL + '?mode=reset&code=' + encodeURIComponent(code) + '&exp=' + exp + '&sig=' + encodeURIComponent(sig);
-    try { sendResetPwEmail(email, customerNames(rowObj), link); }
+    try { sendResetPwEmail_(email, customerNames(rowObj), link); }
     catch (e) { notifyStudio('[플랫폼] ⚠️오류 · 재설정 메일 실패', email + '\n' + (e && e.message)); }
   }
   return { ok: true };
 }
 
 // ── doResetPw (새 비번 저장) ───────────────────────────
-function handleDoResetPw(body) {
+function handleDoResetPw(body) { /* [B19_LOCK 2026-10-09] 재설정 서명 확인은 verifyResetSig_ (밑줄 이름) */
   var code = String((body && body.code) || '').trim().toUpperCase();
   var exp = String((body && body.exp) || '');
   var sig = String((body && body.sig) || '');
-  if (!verifyResetSig(code, exp, sig)) throw new Error('재설정 링크가 유효하지 않거나 만료되었습니다. 다시 요청해 주세요.');
+  if (!verifyResetSig_(code, exp, sig)) throw new Error('재설정 링크가 유효하지 않거나 만료되었습니다. 다시 요청해 주세요.');
 
   var pw = String((body && body.pw) || '');
   var pw2 = String((body && body.pw2) || '');
@@ -128,7 +128,7 @@ function _sessionMsg(reason) {
 }
 
 // ============================ 인증 메일 ============================
-function sendFindCodeEmail(to, names, code) {
+function sendFindCodeEmail_(to, names, code) {
   var mypage = P.MYPAGE_URL;
   var codeCard =
     '<div style="background:#F7F5F1;padding:22px 20px;border:1px solid #E6E1D8;border-radius:8px;margin:22px 0;text-align:center">' +
@@ -147,7 +147,7 @@ function sendFindCodeEmail(to, names, code) {
 // 개인코드 알림톡(솔라피) — Script Properties 미설정 시 false(호출부가 메일 폴백). [Task3]
 //   필요: SOLAPI_KEY/SOLAPI_SECRET/SOLAPI_PFID (없으면 95_notify 의 SOLAPI_API_KEY/SOLAPI_API_SECRET/SOLAPI_PF_ID 로 폴백)
 //         + SOLAPI_TPL_FINDCODE (승인 템플릿 ID · 폴백 없음) + 선택 SOLAPI_SENDER. 템플릿 변수 #{이름}·#{코드}.
-function sendFindCodeKakao(phone, names, code) {
+function sendFindCodeKakao_(phone, names, code) {
   var P_ = PropertiesService.getScriptProperties();
   /* ★[SOLAPI_NAME_ALIAS 2026-09-06 관리자 입장 점검] 같은 솔라피 자격증명을 이 파일은 SOLAPI_KEY·SOLAPI_SECRET·SOLAPI_PFID 로,
      95_notify 는 SOLAPI_API_KEY·SOLAPI_API_SECRET·SOLAPI_PF_ID 로 읽고 있었다. 사장님이 95_notify 쪽만 채워 두면
@@ -180,7 +180,7 @@ function sendFindCodeKakao(phone, names, code) {
   return false;                                                    // 실패 → 메일 폴백
 }
 
-function sendResetPwEmail(to, names, link) {
+function sendResetPwEmail_(to, names, link) {
   var inner =
     centerP(esc(names) + ' 님,<br>비밀번호 <b style="color:#B89A75;font-weight:600">재설정</b> 링크를 보내드립니다.') +
     emailBtn(link, '비밀번호 재설정') +

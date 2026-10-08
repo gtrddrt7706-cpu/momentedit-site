@@ -167,7 +167,7 @@
   },
   {
    "file": "98_pay_card",
-   "fn": "_depositCardConfirm",
+   "fn": "_depositCardConfirm_",
    "why": "상담 예약금 카드 승인·자동 확정"
   },
   {
@@ -255,7 +255,7 @@
   },
   {
    "file": "95_notify",
-   "fn": "_kakaoSend",
+   "fn": "_kakaoSend_",
    "mark": "ADMIN_MAIL_UNCHAINED",
    "why": "관리자 알림 살리기"
   },
@@ -537,7 +537,7 @@
   },
   {
    "file": "50_auth-handlers",
-   "fn": "sendFindCodeKakao",
+   "fn": "sendFindCodeKakao_",
    "mark": "SOLAPI_NAME_ALIAS",
    "why": "솔라피 키 이름이 95_notify 와 갈려 코드찾기 알림톡이 시도조차 못 하던 것 — 옛것이면 메일 폴백에만 머문다"
   },
@@ -627,7 +627,7 @@
   },
   {
    "file": "95_notify",
-   "fn": "_kakaoSend",
+   "fn": "_kakaoSend_",
    "mark": "CONTACT_SILENT",
    "why": "연락처 형식이 틀려 알림을 못 보낼 때 관리자에게 메일로 알린다(하루 1통). 옛 판이면 Logger 한 줄만 남기고 조용히 끝나, 고객이 알림을 못 받는 것을 아무도 모른다. admin 의 CONTACT_FIX 와 짝 — 알아야 고친다"
   },
@@ -669,7 +669,7 @@
   },
   {
    "file": "95_notify",
-   "fn": "_kakaoSend",
+   "fn": "_kakaoSend_",
    "mark": "PHONE_KR_NORM",
    "why": "이미 저장된 82… 행도 발송 자 앞에서 같게 읽는다"
   },
@@ -771,7 +771,7 @@
   },
   {
    "file": "95_notify",
-   "fn": "_kakaoSend",
+   "fn": "_kakaoSend_",
    "mark": "TPL_SILENT",
    "why": "템플릿이 없어 알림톡을 못 보낸 알림을 알리는 자리. 이 파일이 옛것이면 알림톡이 안 나가도 관리자는 모른다(고객 이메일이 없으면 고객도 아무것도 못 받는다)"
   },
@@ -795,13 +795,13 @@
   },
   {
    "file": "95_notify",
-   "fn": "_nfCustomerEmailFallback",
+   "fn": "_nfCustomerEmailFallback_",
    "mark": "MAIL_FOCUS_URL",
    "why": "알림톡 대신 나가는 고객 메일에서 주소를 버튼으로 옮기는 자리. 이 파일이 옛것이면 메일 본문 끝에 momentedit.kr/mypage.html?focus=… 가 글자로 찍힌다"
   },
   {
    "file": "95_notify",
-   "fn": "_kakaoSend",
+   "fn": "_kakaoSend_",
    "mark": "KAKAO_FAIL_MAIL",
    "why": "알림톡을 못 보내면 까닭(설정 누락·연락처 이상·템플릿 없음·거절)과 상관없이 고객 메일로 대신 보내는 자리. 이 파일이 옛것이면 번호가 틀린 고객·설정이 빠진 날의 고객은 아무것도 못 받고, 밤에 보류된 알림은 같은 메일이 사흘 동안 또 나간다"
   },
@@ -843,7 +843,7 @@
   },
   {
    "file": "50_auth-handlers",
-   "fn": "sendFindCodeKakao",
+   "fn": "sendFindCodeKakao_",
    "mark": "PHONE_AUTOFILL_82",
    "why": "코드 찾기 알림톡을 보내기 전에 번호를 010 으로 바꾸고, 틀린 번호면 메일로 돌리는 자리. 이 파일이 옛것이면 «8210…» 로 알림톡이 반려되고 오류 메일만 남는다"
   },
@@ -915,7 +915,7 @@
   },
   {
    "file": "95_notify",
-   "fn": "_kakaoSend",
+   "fn": "_kakaoSend_",
    "mark": "KAKAO_FIRST",
    "why": "카톡이 가면 메일은 안 가고 못 가면 그때 메일(2026-09-25 사장님 지시). 이 파일이 옛것이면 상담 완료·결과물 전달이 카톡에 실패해도 대체 메일이 안 가고, 상담 확정은 카톡 실패 때 메일이 두 통 간다"
   },
@@ -933,7 +933,7 @@
   },
   {
    "file": "95_notify",
-   "fn": "_kakaoSend",
+   "fn": "_kakaoSend_",
    "mark": "MAIL_ONCE",
    "why": "같은 고객에게 메일이 두 통 가지 않게(2026-09-25 사장님 «메일 중복 도착·기존 시스템과 겹침 없게»). 보내는 순간의 대체 메일 기준을 _nfEmailedElsewhere 하나로 모았다"
   },
@@ -951,7 +951,7 @@
   },
   {
    "file": "98_pay_card",
-   "fn": "_depositCardConfirm",
+   "fn": "_depositCardConfirm_",
    "mark": "DEPOSIT_CARD",
    "why": "예약금 카드결제(2026-09-25 사장님 «추천대로») — 락 안에서 입금확인·결제수단·카드키 기록, 락 밖에서 자동 확정"
   },
@@ -1005,7 +1005,7 @@
   },
   {
    "file": "98_pay_card",
-   "fn": "_depositCardConfirm",
+   "fn": "_depositCardConfirm_",
    "mark": "DEPOSIT_B1",
    "why": "예약금 카드결제 B-1 안전망 — 이 파일이 옛것이면 토스 승인 뒤 시트 기록이 실패할 때 예외로 끝나 관리자가 «돈은 받았는데 기록 없음»을 모른다"
   },
@@ -1119,7 +1119,7 @@
   },
   {
    "file": "87_letter",
-   "fn": "_ltSendToRecipients",
+   "fn": "_ltSendToRecipients_",
    "mark": "LETTER_ONE_ADDR",
    "why": "«두 분께» 하객 편지가 같은 주소(가입 이메일)로 두 통 가던 것을 한 통으로 — 이 파일이 옛것이면 두 분 받은편지함에 같은 편지가 두 번 떨어진다"
   },
@@ -1245,7 +1245,7 @@
   },
   {
    "file": "80_production",
-   "fn": "_vcCfg",
+   "fn": "_vcCfg_",
    "mark": "VOICE_UP_FROM",
    "why": "AI 스위치 off · studio · on(VOICE_CLONE · PRACTICE_READ 스크립트 속성) — 옛것이면 studio 가 없어 시험 예식만 켤 수 없다"
   },
@@ -1686,6 +1686,108 @@
    "fn": "_errAlert",
    "mark": "ERR_LOG_SAFE",
    "why": "관리자 오류 메일에도 가린 글만 — 옛 판은 고객이 본 글 · 내부 까닭을 원문으로 보낸다"
+  },
+  {
+   "file": "admin",
+   "fn": "setAdminAccount",
+   "mark": "B19_LOCK",
+   "why": "관리 · 편집기 도구 잠금(_requireAdmin) · 아침 보고 안쪽을 밑줄 이름으로 — 붙이고 새 버전으로 배포해야 잠금이 먹는다"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "getSecret_",
+   "mark": "B19_LOCK",
+   "why": "서명 함수 · 확정 · 취소 메일 보내기를 서버 안쪽(밑줄 이름)으로 · 편집기 도구 잠금 · 메일 단추는 서명 확인 뒤에만 기록 — 30_auth-core · 60_mypage · 95_notify 와 짝"
+  },
+  {
+   "file": "10_customers-setup",
+   "fn": "setupCustomers",
+   "mark": "B19_LOCK",
+   "why": "편집기 도구 잠금(_requireAdmin)"
+  },
+  {
+   "file": "20_customers-data",
+   "fn": "findCustomerByEmail",
+   "mark": "B19_LOCK",
+   "why": "편집기 도구 잠금(_requireAdmin)"
+  },
+  {
+   "file": "30_auth-core",
+   "fn": "makeResetSig_",
+   "mark": "B19_LOCK",
+   "why": "재설정 서명 함수를 서버 안쪽(밑줄 이름)으로 — 50_auth-handlers · 90_test-utils 와 짝 · 한쪽만 붙이면 비밀번호 재설정이 멈춘다"
+  },
+  {
+   "file": "50_auth-handlers",
+   "fn": "handleDoResetPw",
+   "mark": "B19_LOCK",
+   "why": "재설정 확인 · 코드 찾기 · 재설정 메일 보내기를 밑줄 이름으로 — 30_auth-core 와 짝 · 한쪽만 붙이면 재설정 · 코드 찾기가 멈춘다"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "buildConsultState",
+   "mark": "B19_LOCK",
+   "why": "마이페이지 상담 취소 링크가 밑줄 이름(cancelPageUrl_)을 부른다 — consultation-booking 과 짝 · 한쪽만 붙이면 마이페이지 상담 칸이 멈춘다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "adminConfirmMid",
+   "mark": "B19_LOCK",
+   "why": "입금 확인 함수 잠금(_requireAdmin) — 관리 화면 · 서명 확인한 메일 단추 · 토스 승인 확인한 카드 결제 안에서만 기록"
+  },
+  {
+   "file": "80_production",
+   "fn": "_vcCfg_",
+   "mark": "B19_LOCK",
+   "why": "목소리 설정을 밑줄 이름으로 · 편집기 · 관리 도구 잠금"
+  },
+  {
+   "file": "87_letter",
+   "fn": "letterMigrate",
+   "mark": "B19_LOCK",
+   "why": "편집기 도구 잠금 · 편지 보내기를 밑줄 이름으로"
+  },
+  {
+   "file": "88_place_audit",
+   "fn": "aw_setKey",
+   "mark": "B19_LOCK",
+   "why": "편집기 도구 잠금(_requireAdmin)"
+  },
+  {
+   "file": "90_test-utils",
+   "fn": "pwSet",
+   "mark": "B19_LOCK",
+   "why": "시험 도구 잠금(_requireAdmin) · 재설정 서명은 밑줄 이름을 부른다"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfProps_",
+   "mark": "B19_LOCK",
+   "why": "알림 설정 · 입금 확인 링크 · 알림톡 보내기 · 대체 메일을 밑줄 이름으로 · 시험 발송 잠금"
+  },
+  {
+   "file": "96_ai_cost",
+   "fn": "aiQuestionLog",
+   "mark": "B19_LOCK",
+   "why": "AI 관리 함수 잠금 · 비용 · 질문 기록은 잠긴 껍데기와 밑줄 안쪽으로"
+  },
+  {
+   "file": "97_ai-handoff",
+   "fn": "clearAllPendingAiHandoff",
+   "mark": "B19_LOCK",
+   "why": "AI 인계 관리 잠금(_requireAdmin)"
+  },
+  {
+   "file": "98_pay_card",
+   "fn": "_payCfg_",
+   "mark": "B19_LOCK",
+   "why": "결제 설정 · 예약금 카드 확정을 밑줄 이름으로 · 카드 기록은 토스 승인 확인 뒤에만 관리자 권한"
+  },
+  {
+   "file": "40_signup",
+   "fn": "sendSignupEmail_",
+   "mark": "B19_LOCK",
+   "why": "가입 메일 보내기를 서버 안쪽(밑줄 이름)으로 — 붙이지 않으면 가입 접수가 멈춘다"
   }
  ],
  "fns": {
@@ -1737,13 +1839,13 @@
    "tokenExpired",
    "parseKSTString",
    "resolveSession",
-   "makeResetSig",
-   "verifyResetSig"
+   "makeResetSig_",
+   "verifyResetSig_"
   ],
   "40_signup": [
    "handleSignup",
    "_shortHash",
-   "sendSignupEmail",
+   "sendSignupEmail_",
    "_applySummaryFromDetail"
   ],
   "50_auth-handlers": [
@@ -1754,9 +1856,9 @@
    "handleResetPw",
    "handleDoResetPw",
    "_sessionMsg",
-   "sendFindCodeEmail",
-   "sendFindCodeKakao",
-   "sendResetPwEmail"
+   "sendFindCodeEmail_",
+   "sendFindCodeKakao_",
+   "sendResetPwEmail_"
   ],
   "60_mypage": [
    "handleGetMyState",
@@ -1912,7 +2014,7 @@
    "previewRitualFiles",
    "_vcSpent",
    "_vcMode",
-   "_vcCfg",
+   "_vcCfg_",
    "_vcSt",
    "_vcPut",
    "_vcM3",
@@ -2031,7 +2133,7 @@
    "_ltWithLock",
    "_ltAppendMessage",
    "_ltAppendModeration",
-   "_ltSendToRecipients",
+   "_ltSendToRecipients_",
    "_ltLetterHtml",
    "_ltEsc",
    "_ltBannedList",
@@ -2083,8 +2185,8 @@
    "_notifyEnabled",
    "_adminInfoOn",
    "notifyKakao",
-   "_nfProps",
-   "_kakaoSend",
+   "_nfProps_",
+   "_kakaoSend_",
    "_solapiSend",
    "_nfTplSilent",
    "_notifyFailMark",
@@ -2118,7 +2220,7 @@
    "notifyBalanceCheck",
    "_noEmoji",
    "_nfAdminEmail",
-   "_nfPayConfirmAction",
+   "_nfPayConfirmAction_",
    "_nfAdminLineEmail",
    "_nfMaybeBalanceCheck",
    "_nfTrackSheet",
@@ -2126,7 +2228,7 @@
    "_nfEmailedElsewhere",
    "handleSolapiReport",
    "purgeNfTrack",
-   "_nfCustomerEmailFallback",
+   "_nfCustomerEmailFallback_",
    "_solapiLogSend",
    "purgeSmsLog",
    "solapiUsageSummary",
@@ -2147,6 +2249,7 @@
    "_aiCostSheet_",
    "handleAiCostLog",
    "aiCostSummary24h",
+   "aiCostSummary24h_",
    "purgeAiCostLog",
    "_aiTestSheet_",
    "aiTestScenarios",
@@ -2162,6 +2265,7 @@
    "_resolvedMap_",
    "aiQuestionResolve",
    "aiQuestionLog",
+   "aiQuestionLog_",
    "aiQuestionReport",
    "_aiTestHistSheet_",
    "aiTestRunSave",
@@ -2217,7 +2321,7 @@
    "handleAiAvailability"
   ],
   "98_pay_card": [
-   "_payCfg",
+   "_payCfg_",
    "_payExpectedAmount",
    "_tossConfirm",
    "_tossLookup",
@@ -2231,7 +2335,7 @@
    "_depositCardKeep",
    "_depositCardTrace",
    "_depositCardConfig",
-   "_depositCardConfirm",
+   "_depositCardConfirm_",
    "handleCardConfirm",
    "handleCardPayConfig",
    "ZZ_tossPing"
@@ -2270,9 +2374,9 @@
    "_subStatusFor",
    "_resultSub",
    "_briefMailOk",
-   "morningBriefData",
+   "morningBriefData_",
    "adminNotifyText",
-   "monthBusinessData",
+   "monthBusinessData_",
    "sendMorningBrief",
    "_crDueBadge",
    "weeklyReceiptAudit",
@@ -2384,8 +2488,8 @@
    "sectionLabel",
    "sendNewInquiryEmail",
    "sendAdminNotifyEmail",
-   "sendConfirmEmail",
-   "sendCancelEmail",
+   "sendConfirmEmail_",
+   "sendCancelEmail_",
    "sendRefundRequestEmail",
    "sendStudioBriefEmail",
    "sendProposalEmail",
@@ -2423,13 +2527,13 @@
    "isExpired",
    "withinCancelDeadline",
    "makeToken",
-   "getSecret",
-   "sign",
-   "verifySig",
+   "getSecret_",
+   "sign_",
+   "verifySig_",
    "webAppUrl",
    "scheduleUrl",
-   "actionUrl",
-   "cancelPageUrl",
+   "actionUrl_",
+   "cancelPageUrl_",
    "dkey",
    "normalizeDateKey",
    "_dayNum",
@@ -2712,7 +2816,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 01:20 · 4fcc20c5",
+ "_생성": "2026-10-09 04:45 · 81e3442d",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3184,5 +3288,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "7c5d65433dbe"
+ "_표식서명": "2ebcf2192fe2"
 }

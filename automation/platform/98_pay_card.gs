@@ -15,7 +15,7 @@
  */
 var PAY_LOG_SHEET = '카드결제로그';
 
-function _payCfg() {
+function _payCfg_() { /* [B19_LOCK 2026-10-09] 열쇠가 든 설정 · 서버 코드 안에서만(이름 끝 _) */
   var p = PropertiesService.getScriptProperties();
   return {
     enabled: String(p.getProperty('PAY_CARD_ENABLED') || '').trim() === 'true',
@@ -182,7 +182,7 @@ function _depositCardConfig(body, cfg) {
   if (why) return { ok: true, enabled: false, reason: why };
   return { ok: true, enabled: true, clientKey: cfg.clientKey, amount: _payDepositAmount(), orderName: '모먼트에디트 상담 예약금' };
 }
-function _depositCardConfirm(body, cfg) {
+function _depositCardConfirm_(body, cfg) {
   var _mk = '[DEPOSIT_CARD]';
   var a = (typeof _sessionToConsult === 'function') ? _sessionToConsult(String((body && body.token) || '').trim()) : { ok: false, error: '예약 정보를 불러올 수 없습니다.' };
   if (!a.ok) return { ok: false, reason: a.reason, error: a.error };   // [ERR_CODE_PAY] 로그인 까닭을 넘긴다
@@ -266,10 +266,10 @@ function _depositCardConfirm(body, cfg) {
 
 /** 카드결제 승인 수신 (doPost action='cardConfirm') */
 function handleCardConfirm(body) {
-  var cfg = _payCfg();
+  var cfg = _payCfg_();
   if (!cfg.enabled) return { ok: false, error: '카드결제는 현재 사용하지 않습니다.' };   // 플래그 OFF — 안전 차단
   if (!cfg.secret)  return { ok: false, error: '결제 설정이 준비되지 않았습니다.' };
-  if (String((body && body.milestone) || '').trim() === '예약금') return _depositCardConfirm(body, cfg);   // [DEPOSIT_CARD] 상담 예약금 — 예약 시트 기준 · 락 밖에서 확정
+  if (String((body && body.milestone) || '').trim() === '예약금') return _depositCardConfirm_(body, cfg);   // [DEPOSIT_CARD] 상담 예약금 — 예약 시트 기준 · 락 밖에서 확정
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var milestone = String((body && body.milestone) || '').trim();
@@ -366,8 +366,11 @@ function handleCardConfirm(body) {
     // 성공 → 확인 기록(기록·단계전이·고객 안심알림 일관).
     //   ★ 계약금은 관리자 함수(adminConfirmPayment)를 직접 부르면 안 됨 — ① _requireAdmin() 가드로 즉시 throw
     //     ② 임박 시 중도금·잔금까지 자동 번들(카드는 계약금만 실결제라 미결제분이 확인됨). → 가드·번들 없는 코어를 bundle:false로 호출.
-    //   중도금·잔금 확인함수(adminConfirmMid/Balance)는 가드 없음·STAGE_EXCEPTIONS 차단·안심알림까지 카드에 그대로 맞음 → 재사용.
-    var rec;
+    //   중도금·잔금 확인함수(adminConfirmMid/Balance)는 STAGE_EXCEPTIONS 차단·안심알림까지 카드에 그대로 맞음 → 재사용.
+    /* ★[CARD_AUTHED 2026-10-09 · B19] 확인 함수는 관리자 전용이다(_requireAdmin).
+       이 길은 위에서 세션 · 서버 기대 금액 · 토스 승인을 서버가 직접 확인했으므로 기록하는 동안에만 관리자 권한을 켠다(finally 에서 되돌린다 · 기획 16-4 ③). */
+    var rec, _authPrev = _AUTHED;
+    _AUTHED = true;
     try {   /* ★[ERR_CODE_PAY 2026-10-07] 승인 뒤(돈은 이미 받았다) 기록 함수가 던지면 아래 B-1(관리자 즉시 메일 · 결제로그 «기록경고») 길로 — 종전엔 예외가 doPost 로 새 흔적이 Logger 뿐이었다 */
     if (milestone === '계약금') rec = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: false, via: '카드' }) : { ok: false };
     else if (milestone === '중도금') rec = (typeof adminConfirmMid === 'function') ? adminConfirmMid(code) : { ok: false };
@@ -385,8 +388,9 @@ function handleCardConfirm(body) {
         if (!(_rec2 && _rec2.ok)) rec = { ok: false, error: (_rec2 && _rec2.error) || '묶음 기록 실패(계약금은 확인됨)' };   // 부분 실패 → recorded:false → 관리자 수동보정 경보(B-1)
       }
     }
-    else rec = (typeof adminConfirmExtra === 'function') ? adminConfirmExtra(code) : { ok: false };   // 추가보정 — 가드 없음·'완료' 전이+안심알림, 카드에 그대로 맞음(80_production)
+    else rec = (typeof adminConfirmExtra === 'function') ? adminConfirmExtra(code) : { ok: false };   // 추가보정 — '완료' 전이+안심알림, 카드에 그대로 맞음(80_production · 가드는 [CARD_AUTHED] 창 안에서 통과)
     } catch (eRec) { rec = { ok: false, error: '기록 함수 예외 · ' + String(eRec && eRec.message || eRec).slice(0, 160) }; }   // [ERR_CODE_PAY] → 아래 B-1
+    finally { _AUTHED = _authPrev; }
     // [SYNC-3] 카드=매출전표 → 현금영수증 발급 큐에서 제외(_cashReceiptLedger가 결제수단 마커로 판정). ★원장에 항목이 있는 결제분만 마킹★
     //   · 중도금·잔금 → 동명 원장 키.
     //   · 계약금은 상품별로 다름:
@@ -419,7 +423,7 @@ function handleCardConfirm(body) {
 /** 프론트가 결제창 띄우기 전 설정 조회 (doPost action='cardPayConfig')
  *  플래그 OFF면 {enabled:false}만 반환 → 프론트는 계좌이체만 노출(현 동작 유지). */
 function handleCardPayConfig(body) {
-  var cfg = _payCfg();
+  var cfg = _payCfg_();
   if (!cfg.enabled || !cfg.clientKey) return { ok: true, enabled: false };
   if (String((body && body.milestone) || '').trim() === '예약금') return _depositCardConfig(body, cfg);   // [DEPOSIT_CARD] 상담 예약금 — 예약 화면(schedule.html)이 부른다
   var s = resolveSession(String((body && body.token) || '').trim());
@@ -434,8 +438,8 @@ function handleCardPayConfig(body) {
 
 /** [점검용] 토스 샌드박스 연결 확인 — 더미 paymentKey로 confirm 호출해 인증/연결만 본다(실결제 아님).
  *  인증 정상이면 결제 관련 에러(NOT_FOUND_PAYMENT 등) · 키 오류면 UNAUTHORIZED_KEY 가 로그에 뜬다. */
-function ZZ_tossPing() {
-  var cfg = _payCfg();
+function ZZ_tossPing() { _requireAdmin();
+  var cfg = _payCfg_();
   if (!cfg.secret) { Logger.log('TOSS_SECRET_KEY 미설정 — 먼저 스크립트 속성에 테스트 키 입력'); return; }
   var t = _tossConfirm(cfg, 'PING_NOT_A_REAL_KEY', 'ping_' + Utilities.getUuid().slice(0, 8), 1000);
   Logger.log('토스 응답: ' + JSON.stringify(t));

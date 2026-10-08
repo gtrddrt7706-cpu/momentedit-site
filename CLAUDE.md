@@ -626,13 +626,13 @@ git push -u origin <브랜치>
 | `aiFactSet`·`aiFactsList`·`aiFactHistory`·`aiFactRollback`·`aiFactDelete` | 96_ai_cost | 핵심정보 단일 진실원(가격·일정·정책) 편집·이력·롤백 — 관리자 핵심정보 탭(adminCall). API가 `handleAiFacts`(doPost action='aiFacts')로 라이브 주입 |
 | `aiRegAdd`·`aiRegList`·`aiRegSetActive`·`aiRegDelete` | 96_ai_cost | 회귀셋(고친 건 영구 점검) 관리 — 리포트 탭 고정 버튼으로 추가·개선 탭서 관리(adminCall). aiDailySafetyCheck가 매일 함께 점검 |
 | `aiDaily` | 96_ai_cost | 매일 9시 트리거 — `aiMorningReport()` 1개만 호출(setupAllTriggers가 등록) |
-| `aiMorningReport` | 96_ai_cost | ★아침 운영 보고 통합 — **오늘 상담·처리할 일**(admin `morningBriefData`)+안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 모아 **관리자에게 메일 1통(섹션 상세 · 제목에 핵심요약)**으로. aiDaily가 호출. (구 `sendMorningBrief` 별도 메일 폐지·통합) 솔라피 잔액 '긴급' 경고(0 전)는 _nfMaybeBalanceCheck가 별도 즉시 처리 |
+| `aiMorningReport` | 96_ai_cost | ★아침 운영 보고 통합 — **오늘 상담·처리할 일**(admin `morningBriefData_`)+안전점검·미처리인계·밤사이인계·24h요약·잔액·어제실패를 모아 **관리자에게 메일 1통(섹션 상세 · 제목에 핵심요약)**으로. aiDaily가 호출. (구 `sendMorningBrief` 별도 메일 폐지·통합) 솔라피 잔액 '긴급' 경고(0 전)는 _nfMaybeBalanceCheck가 별도 즉시 처리 |
 | `adminUndoConfirmPayment('코드','마일스톤','사유')` | admin | 입금 확인 취소(오처리 복구) — 마일스톤은 계약금·중도금·잔금·중도금잔금. 사유 필수·멱등·처리이력. 카드결제분·현금영수증 발행분·다음 단계 전진(계약금 한정)·종료 고객·확인 후 24시간 경과(`UNDO_WINDOW_HOURS`)·환불 정산 완료 건은 각각 다른 메시지로 차단. 관리자 상세 화면 버튼이 호출(adminCall) |
 | `adminUndoConfirmPreview('코드','마일스톤')` | admin | 위 취소의 미리보기(dry-run) — 아무것도 쓰지 않고 무엇이 어떻게 되돌아가는지만 반환. 모달이 실행 전에 보여줌 |
 | `adminUndoRefunded('코드','사유')` | admin | 환불 '완료 표시' 취소 — 송금 자체가 아니라 표시를 되돌려 환불 송금 큐에 다시 띄움. 사유 필수·멱등·처리이력(adminCall) |
 | `adminForceStagePreview('코드','단계')` | admin | 강제 단계 변경 미리보기 — 비워질 컬럼·동의기록 키·상담 예약 초기화 여부와 ROLLBACK_KEEP_PAID로 '유지됨'인 항목을 반환(실행과 같은 `_clearForwardData`) |
-| `monthBusinessData` | admin | (읽기 전용) 이번 달 계약 건수·실입금 매출·전달 건수. aiMorningReport가 읽어 아침 메일 한 줄로 실음. 매출=‘확인’된 입금의 합(계약총액 합계 아님·상담 예약금 제외) |
-| `morningBriefData` | admin | (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op). ★2026-09-06부터 오늘 상담은 **`adminHome`이 만든 `todayConsults`를 그대로 쓴다**(TODAY_CONSULT) — 예약 시트를 다시 훑지 않는다. 관리자 홈 화면과 아침 메일이 한 원천을 본다 |
+| `monthBusinessData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다) · (읽기 전용) 이번 달 계약 건수·실입금 매출·전달 건수. aiMorningReport가 읽어 아침 메일 한 줄로 실음. 매출=‘확인’된 입금의 합(계약총액 합계 아님·상담 예약금 제외) |
+| `morningBriefData_` | admin | ★[B19_LOCK] 밑줄 이름 — 편집기 목록에 안 보인다(아침 보고만 부른다 · 안에서 관리자 권한을 켜므로 공개 이름이면 고객 명단이 샌다) · (읽기 전용) 오늘 상담 일정+처리할 일 큐 데이터. aiMorningReport가 읽어 합쳐 발송. (구 `sendMorningBrief`는 통합 후 no-op). ★2026-09-06부터 오늘 상담은 **`adminHome`이 만든 `todayConsults`를 그대로 쓴다**(TODAY_CONSULT) — 예약 시트를 다시 훑지 않는다. 관리자 홈 화면과 아침 메일이 한 원천을 본다 |
 | `aiMorningPreview` | 96_ai_cost | 지금 아침보고 1통 즉시 발송(테스트·수동). aiMorningReport와 동일 |
 | `aiDailySafetyCheck` | 96_ai_cost | 레드라인 자동 안전점검(개인정보·임의할인·사람연결·인계). `aiDailySafetyCheck(true)`(silent)면 개별 문자 없이 결과만 반환(아침보고가 합쳐 발송). 수동 실행 시엔 위반/하락 시 SMS. 서버 fetch 막히면 점검불가 반환 |
 | `aiDailyDigest` | 96_ai_cost | 최근 24h 상담·인계·비용·테스트·안전 한 줄 요약. `aiDailyDigest(true)`면 관리자 SMS(aiMorningReport는 `false`로 텍스트만 가져감) |
@@ -676,11 +676,26 @@ git push -u origin <브랜치>
 | `vimeoGuardDaily` | **87_letter** | 3일 안 디지털 참석 예식 중 vimeoId 미등록 건 관리자 메일(하루 1통·수동 점검 가능) + 첫 줄에서 `purgeCoupleData`. ★관리자 페이지에서 미계약·취소·노쇼로 닫은 예식은 건너뛴다(Customers 조회 실패면 «모르면 보낸다») [VIMEO_GUARD_XPROJ]. 트리거는 `setupAllTriggers`(70_journey)가 매일 07시로 건다 — 옛 `setupVimeoGuard`(부부폼 프로젝트)는 가져오지 않았다 |
 | `purgeCoupleData`·`previewCoupleData` | **87_letter** | 예식 + 6개월(기본 183일 · `COUPLE_PURGE_DAYS`) 지난 예식의 청첩장·편지 개인정보 비우기(행 보존) · `COUPLE_PURGE_OFF='Y'` 면 정지. preview 는 아무것도 안 바꾸고 대상만 로그 |
 
+## ★★공개 입구 잠금 — GAS 새 함수를 만들 때 [B19_LOCK] (2026-10-09 사장님 «바로 막기»)
+
+**이름이 `_` 로 끝나지 않는 GAS 함수는 HTML 서비스 화면의 `google.script.run` 으로도 부를 수 있다(구글 규칙).**
+adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 함수를 만들 때 넷 중 하나로 정한다.
+
+1. **관리 화면 함수**(FNS) · **편집기 도구**(사장님이 GAS 편집기에서 돌리는 것) → 첫 줄 `_requireAdmin();` — 관리 화면(토큰) · 편집기(소유자 메일 둘)만 지난다.
+   편집기에서 막히면 오류 글에 «지금 계정(g…@gmail.com)은 소유자 목록에 없어요»가 붙는다(`_ADMIN_OWNER_EMAILS` · admin.gs).
+2. **비밀값 · 열쇠를 돌려주거나 서명을 만드는 함수 · 받는 사람(주소 · 번호)과 글을 인자로 받아 보내는 함수** → 이름 끝 `_`(예: `sign_` · `_payCfg_` · `_kakaoSend_`). 밑줄 함수도 다른 서버 코드에서는 그대로 부른다.
+3. **두 쓰임**(관리 화면에서도 · 예약 실행에서도) → 잠긴 껍데기 + 밑줄 안쪽(`aiQuestionLog` → `aiQuestionLog_` · `[GSR_SPLIT]`).
+4. **`_AUTHED = true`** 는 네 곳뿐 — adminCall(토큰 확인 뒤) · `morningBriefData_`(예약 실행) · 메일 단추 `servePayConfirm`(서명 · 기한 뒤 · `[PAYCONFIRM_AUTHED]`) · 카드 `handleCardConfirm`(토스 승인 뒤 · `[CARD_AUTHED]`) · 늘 finally 로 되돌린다.
+
+- 검사: `node scripts/audit/gsr-guard.mjs`(옛 이름 · 빠진 잠금 · FNS · 새 `_AUTHED` · 메일 단추 행동 · 돌연변이 6) — merge-guard 가 돌린다. 잠글 함수를 늘리면 그 파일의 `LOCKED` 도 같은 커밋에서.
+- 남은 것(1-s 둘째 조각 · 기획 §16-4): 운영 도우미 `_gsr_()` · 예약 실행 표(`_TRUST`) · 서버 요청 표(`_SRV`) · 메일 단추 확인 화면(B11). 그전까지 FNS 의 `aiAlertAdmin` 하나만 예외(`FNS_LATER`).
+- ★공개 저장소다 — 주석 · 커밋 · PR · deploy-marks 의 why 에는 **규칙만** 적는다. «무엇이 어떻게 열려 있었나»는 비공개 docs 저장소(기획 부록 B19 · 결정함)에만 둔다.
+
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)
 
 관리자(운영자)에게 가는 모든 알림은 **문자 대신 메일**로 보낸다(문자비 0). 실시간 업무신호·AI 인계·아침보고·잔액경고·월간검증 전부 메일.
 - 발송 경로: `95_notify`의 `_nfAdminLineEmail(text)`(짧은 1건) · `_nfAdminEmail(subject, html, opts)`(상세). 둘 다 `ADMIN_EMAIL`(contact@momentedit.kr) 수신 + `ADMIN_CC`(미쿠·희준 개인메일) cc.
-- `aiAlertAdmin`·`_kakaoSend`의 admin 분기·`_awNotifyAdmin_` 전부 위 메일 함수로 라우팅. SMS(`_solapiSend`+ADMIN_PHONE)는 고객 알림톡·`notifyTestAdminSms`(수동 테스트)만 사용.
+- `aiAlertAdmin`·`_kakaoSend_`의 admin 분기·`_awNotifyAdmin_` 전부 위 메일 함수로 라우팅. SMS(`_solapiSend`+ADMIN_PHONE)는 고객 알림톡·`notifyTestAdminSms`(수동 테스트)만 사용.
 - 사용자는 이 메일에 폰 푸시 알람을 걸어 즉시 확인(문자 대체). 고객 알림톡은 종전대로 솔라피 사용.
 - **이모지 없이**: 관리자 메일 제목·문구엔 이모지를 쓰지 않는다. `95_notify`의 `_noEmoji()`가 `_nfAdminEmail`·`_nfAdminLineEmail`·`notifyStudio` 진입점에서 그림문자·변형선택자를 자동 제거(→ · 화살표·중점·한글은 보존). 새 문구에 이모지가 섞여도 자동으로 걸러짐.
 

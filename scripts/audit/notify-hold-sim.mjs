@@ -24,7 +24,7 @@ const run=(items, failAt, throwAt)=>{
       getProperty:(k)=>store[k]||null, setProperty:(k,v)=>{store[k]=v;}, deleteProperty:(k)=>{delete store[k];} }) },
     _notifyEnabled:()=>true,
     _nfAdminLineEmail:(t)=>sent.push('ADMIN:'+t.slice(0,40)),
-    _kakaoSend:(to,e,c)=>{ n++; if(n===throwAt) throw new Error('6분 한도'); if(failAt&&failAt.includes(n)) return false; sent.push(c); return true; },
+    _kakaoSend_:(to,e,c)=>{ n++; if(n===throwAt) throw new Error('6분 한도'); if(failAt&&failAt.includes(n)) return false; sent.push(c); return true; },
   };
   const fn=new Function(...Object.keys(sandbox), code+'; return flushHeldNotifies;')(...Object.values(sandbox));
   let crashed=false;
