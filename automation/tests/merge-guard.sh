@@ -14593,6 +14593,18 @@ chk '#_toast{width:max-content}' order-preview.html 1   # 아래 알림이 화�
 nochk '고르지 않으면 스튜디오 나레이션으로 진행돼요</span>' order-preview.html   # ★2026-10-08 사용자 지시로 삭제
 chk 'STALE_BY_PILL' scripts/audit/pv-intro.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; if [ "$_vpa" = 1 ]; then echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; fi; fi
+# ★★[VP_ROW_A 2026-10-08 사장님 «추천두개» = 안 A · «PC 는 지금이 적절 · 바꾼다면 모바일만»] «어떻게 준비할까요» 줄(하객 맞이 · 입장 · 식전 영상 소개 · cg-vq) — 폰만:
+#   질문 14px 먹색 600 · 칩 반반(아래 칩 줄과 같은 모양) · 링크 12.5px(360 아래 11px) · 그래도 질문 글자에 붙으면 칩 아래 제 줄(cg-lkdn · _cgEven 이 잰다)
+#   PC 는 종전 그대로(96px 이름표 칸 · 11px) · vp-ask-first 가 280 · 320 · 390 · 1280 에서 잰다(되돌리면 빨강 · 돌연변이 확인)
+chk 'VP_ROW_A' order-preview.html 4
+chk 'VP_ROW_A' scripts/audit/vp-ask-first.mjs 9
+chk 'VP_ROW_A' scripts/audit/make-shell.mjs 1
+chk "_upLive())?' cg-vq':'')" order-preview.html 1
+chk '  .ls-cg.cg-vq .gl{font-size:14px;color:var(--accent);font-weight:600}' order-preview.html 1
+chk '  .ls-cg.cg-vq .cg-c{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}' order-preview.html 1
+chk "row.classList.add('cg-lkdn')" order-preview.html 1
+chk '@media (min-width:461px){.ls-cg{grid-template-columns:96px minmax(0,1fr)}}' order-preview.html 1   # PC 이름표 칸 그대로
+nochk '^\.ls-cg\.cg-vq \.gl{' order-preview.html   # ★PC 에도 걸리는 질문 글씨 금지 — 폰 미디어 안에만(사장님 «PC 는 지금이 적절»)
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
 chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
 chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1
