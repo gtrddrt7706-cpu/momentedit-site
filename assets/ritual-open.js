@@ -311,14 +311,10 @@
        / 5 = 선언 · 편지 · 인사(1분쯤씩). 5 는 종전과 같아 peakOf 는 안 바뀐다.
        ★준비한 순서는 3 → 4(D6) — 3 이면 곡선이 바닥까지 꺼져 «우리가 준비한 영상이 흐름을 깨나?» 하고 걱정하게 된다. */
   var LEVEL3 = { candle: 1, welcome: 1, table: 1 };   // [TABLE_APART] 테이블 인사 = 본식이 끝난 뒤의 여운(잔잔 3) — 곡선이 천천히 내려앉는다
-  /* ★★[PEAK_PICK 2026-10-08 사장님 «감동 포인트 고객마다 다를 수 있잖아» → «추천대로»(P1)] 가장 벅찬 순간은 두 분이 고를 수 있다(S.peak) —
-       고르면 그 순간이 꼭대기(5) · 저절로 꼭대기이던 선언 · 편지는 한 칸 아래(4.5)로 비켜 준다 · 안 고르면 종전 그대로(선언 · 편지).
-       고를 수 있는 순간 = 담은 본식 순간 중 마음이 실리는 자리(입장 · 첫인사 · 덕담 · 서약 · 반지 · 선언 · 인사 · 준비한 순서 · 편지) · 담지 않았으면 고른 값은 쉰다 */
-  var PEAK_CAN = { entry: 1, welcome: 1, bless: 1, vow: 1, ring: 1, declare: 1, tribute: 1, free: 1, letter: 1 };
-  function peakPick(S) { var k = S && S.peak; return (k && PEAK_CAN[k] && (k === 'entry' || onOf(S, k))) ? k : ''; }
-  function peakCands(S) { return bodySeq(S).filter(function (k) { return !!PEAK_CAN[k]; }); }
-  function level(k, S) { var pp = peakPick(S); if (pp) { if (k === pp) return 5; if (k === 'declare' || k === 'letter') return 4.5; }   // [PEAK_PICK]
-    if (k === 'declare' || k === 'letter') return 5; if (k === 'tribute') return 4;   /* [TRIB_ONE_SAY] 말로 인사 하나 — 종전 한마디씩과 같은 4(정점은 선언 · 편지) */ return LEVEL3[k] ? 3 : 4; }
+  /* ★두 분이 꼭대기를 고르는 길(고른 값 · 후보 목록 · level 의 고른 값 갈래) 금지 — 2026-10-08 사용자 지시로 삭제 [PEAK_PICK_OFF]
+       사장님 «그래프만 바뀌는 거면 의미가 없지 · 저 기능 빼 버려» — 순서 · 시간 · 나레이션 · 진행은 그대로였고 그림 꼭대기와 ★ 만 바뀌었다.
+       꼭대기는 종전대로 저절로(선언 · 편지) · 저장된 초안에 남은 고른 값은 읽지 않는다(없는 값처럼) */
+  function level(k, S) { if (k === 'declare' || k === 'letter') return 5; if (k === 'tribute') return 4;   /* [TRIB_ONE_SAY] 말로 인사 하나 — 종전 한마디씩과 같은 4(정점은 선언 · 편지) */ return LEVEL3[k] ? 3 : 4; }
   function peakOf(S) { var p = null; bodySeq(S).forEach(function (k) { if (level(k, S) === 5) p = k; }); return p; }
 
   /* ══ [FLOW_LINE 2026-09-26 코워크 회신 6 3-3 · 3-4 · 추가 전달 2 D3 · D5 · 3 F1] 감동 흐름 — 한 함수가 모든 자리를 그린다 ══
@@ -910,7 +906,7 @@
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
-    momentLabel: momentLabel, peakOf: peakOf, peakPick: peakPick, peakCands: peakCands, PEAK_CAN: PEAK_CAN, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
+    momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };
