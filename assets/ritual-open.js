@@ -311,7 +311,14 @@
        / 5 = 선언 · 편지 · 인사(1분쯤씩). 5 는 종전과 같아 peakOf 는 안 바뀐다.
        ★준비한 순서는 3 → 4(D6) — 3 이면 곡선이 바닥까지 꺼져 «우리가 준비한 영상이 흐름을 깨나?» 하고 걱정하게 된다. */
   var LEVEL3 = { candle: 1, welcome: 1, table: 1 };   // [TABLE_APART] 테이블 인사 = 본식이 끝난 뒤의 여운(잔잔 3) — 곡선이 천천히 내려앉는다
-  function level(k, S) { if (k === 'declare' || k === 'letter') return 5; if (k === 'tribute') return 4;   /* [TRIB_ONE_SAY] 말로 인사 하나 — 종전 한마디씩과 같은 4(정점은 선언 · 편지) */ return LEVEL3[k] ? 3 : 4; }
+  /* ★★[PEAK_PICK 2026-10-08 사장님 «감동 포인트 고객마다 다를 수 있잖아» → «추천대로»(P1)] 가장 벅찬 순간은 두 분이 고를 수 있다(S.peak) —
+       고르면 그 순간이 꼭대기(5) · 저절로 꼭대기이던 선언 · 편지는 한 칸 아래(4.5)로 비켜 준다 · 안 고르면 종전 그대로(선언 · 편지).
+       고를 수 있는 순간 = 담은 본식 순간 중 마음이 실리는 자리(입장 · 첫인사 · 덕담 · 서약 · 반지 · 선언 · 인사 · 준비한 순서 · 편지) · 담지 않았으면 고른 값은 쉰다 */
+  var PEAK_CAN = { entry: 1, welcome: 1, bless: 1, vow: 1, ring: 1, declare: 1, tribute: 1, free: 1, letter: 1 };
+  function peakPick(S) { var k = S && S.peak; return (k && PEAK_CAN[k] && (k === 'entry' || onOf(S, k))) ? k : ''; }
+  function peakCands(S) { return bodySeq(S).filter(function (k) { return !!PEAK_CAN[k]; }); }
+  function level(k, S) { var pp = peakPick(S); if (pp) { if (k === pp) return 5; if (k === 'declare' || k === 'letter') return 4.5; }   // [PEAK_PICK]
+    if (k === 'declare' || k === 'letter') return 5; if (k === 'tribute') return 4;   /* [TRIB_ONE_SAY] 말로 인사 하나 — 종전 한마디씩과 같은 4(정점은 선언 · 편지) */ return LEVEL3[k] ? 3 : 4; }
   function peakOf(S) { var p = null; bodySeq(S).forEach(function (k) { if (level(k, S) === 5) p = k; }); return p; }
 
   /* ══ [FLOW_LINE 2026-09-26 코워크 회신 6 3-3 · 3-4 · 추가 전달 2 D3 · D5 · 3 F1] 감동 흐름 — 한 함수가 모든 자리를 그린다 ══
@@ -361,7 +368,11 @@
   /* ★★[TABLE_APART 2026-10-08 사장님 «그 순간 이후 그래프 색상을 바꾼다던지 디자이너 시선으로 적절하게»] 본식이 끝난 뒤(테이블 인사)의 꼬리는 옅은 금색 —
        같은 곡선을 그대로 잇고(모양은 안 바꾼다) 색만 닫는 인사 끝에서 바뀐다(가로 그라디언트 · 같은 자리에 멈춤 둘).
        큰 곡선에만 꼬리 위 작은 이름 «테이블 인사»(이름 줄을 쓰는 띠 · 작은 곡선에는 없다) · 금색 #B89A75 는 선 전용(글은 #7A5F37) */
-  var AFTER_INK = '#B89A75', FLOW_GID = 0;
+  /* ★★[FLOW_MOOD 2026-10-08 사장님 «너무 수학적 그래프 말고 우리 무드에 맞게» → 시안 1 «추천대로 하는데 붓선은 빼자»]
+       한 굵기 선은 그대로 · 바닥 가로선(축)을 걷고 · 본식이 끝나면 점선 «여운»(옅은 금 둥근 점) · 입장 · 닫는 인사에 빈 진주 점(본식의 시작과 끝) ·
+       이름은 모두 명조(선언과 같은 12.5 · 600) · 이름표는 선 · 다른 이름과 안 겹치는 자리(위 → 더 위 → 아래 · 좌우로 비켜)를 찾고 없으면 점만.
+       ★붓선(굵기가 변하는 먹선)은 사장님이 뺐다 — 2026-10-08 «붓선은 빼자» · 되살리지 말 것 */
+  var AFTER_INK = '#B89A75', SERIF_SVG = "'Noto Serif KR','Nanum Myeongjo',serif";
   function flowSVG(sg, w, opt) {
     opt = opt || {}; var mini = !!opt.mini, names = !!opt.names, namesOn = names;
     var h = mini ? (opt.h || 40) : (opt.h || (names ? 152 : 112));
@@ -373,25 +384,37 @@
     var x = function (t) { return L + iw * t / total; };
     var o = ['<svg class="flow-svg" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + fesc((opt.label || '감동 흐름') + (mini ? '' : ' · ' + sg.map(function (x) { return CARDS[x.k].n; }).filter(function (n, i, A) { return n !== A[i - 1]; }).join(', ')) + (p ? ' · 가장 벅찬 순간 ' + CARDS[p.k].n : '')) + '">'];   // [FLOW_ONE_IMG] 순서는 이름표로
     if (!sg.length) { o.push('</svg>'); return o.join(''); }
-    if (!mini) o.push('<line x1="' + L + '" x2="' + (w - R) + '" y1="' + (h - B + 8) + '" y2="' + (h - B + 8) + '" stroke="#E6E1D9" stroke-width="1"/>');
+    /* ★바닥 가로선(축) 금지 — 2026-10-08 사용자 지시로 삭제 [FLOW_MOOD] «너무 수학적 그래프 말고» */
     var env = flowEnv(sg, total), stp = Math.max(1, Math.round(total / iw * 3)), pts = [];
     for (var tt = 0; tt < env.length; tt += stp) pts.push([x(tt), y(env[tt])]);
     if ((env.length - 1) % stp) pts.push([x(env.length - 1), y(env[env.length - 1])]);
-    var af = null; sg.forEach(function (s) { if (s.after && !af) af = s; });   // [TABLE_APART] 본식 뒤 첫 순간
-    var ink = '#7A5F37';
-    if (af) { var gid = 'flg' + (++FLOW_GID), off = Math.max(0, Math.min(1, x(af.st) / w)).toFixed(4);
-      o.push('<defs><linearGradient id="' + gid + '" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="' + w + '" y2="0"><stop offset="' + off + '" stop-color="#7A5F37"/><stop offset="' + off + '" stop-color="' + AFTER_INK + '"/></linearGradient></defs>');
-      ink = 'url(#' + gid + ')'; }
-    o.push('<path class="flow-line" d="' + flowCurve(pts) + '" fill="none" stroke="' + ink + '" stroke-width="' + (tiny ? 1.5 : (mini ? 1.8 : 2.25)) + '" stroke-linecap="round" stroke-linejoin="round"/>');
-    if (af && !mini && !namesOn) { var ax = x(af.st + af.d / 2), ai = Math.min(env.length - 1, Math.max(0, Math.round(af.st + af.d / 2))), ay = y(env[ai]) - 10, aa = ax > w - 40 ? 'end' : 'middle';
-      o.push('<text class="flow-after" x="' + (aa === 'end' ? (w - R) : ax).toFixed(1) + '" y="' + ay.toFixed(1) + '" font-size="11" text-anchor="' + aa + '" fill="#7A5F37">' + fesc(af.n) + '</text>'); }   // [TABLE_APART] 큰 곡선만 · 꼬리 가운데 위
+    var af = null, eg = null, cg = null; sg.forEach(function (s) { if (s.after && !af) af = s; if (s.k === 'entry') eg = s; if (s.k === '_close') cg = s; });   // [TABLE_APART] 본식 뒤 첫 순간 · [FLOW_MOOD] 본식의 시작 · 끝
+    var ink = '#7A5F37', sw = (tiny ? 1.5 : (mini ? 1.8 : 2.25));
+    if (af) { var tb = af.st, p1 = pts.filter(function (q) { return q[0] <= x(tb) + 0.01; }), p2 = pts.filter(function (q) { return q[0] >= x(tb) - 0.01; }), tbi = Math.min(env.length - 1, Math.round(tb)), bq = [x(tb), y(env[tbi])];
+      if (!p1.length || p1[p1.length - 1][0] < bq[0] - 0.01) p1.push(bq); if (!p2.length || p2[0][0] > bq[0] + 0.01) p2.unshift(bq);
+      if (p1.length > 1) o.push('<path class="flow-line" d="' + flowCurve(p1) + '" fill="none" stroke="' + ink + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round"/>');
+      if (p2.length > 1) o.push('<path class="flow-line flow-after-line" d="' + flowCurve(p2) + '" fill="none" stroke="' + AFTER_INK + '" stroke-width="' + (tiny ? 1.2 : (mini ? 1.4 : 1.7)) + '" stroke-linecap="round" stroke-dasharray="' + (mini ? '0.1 3.4' : '0.1 5.2') + '"/>');   // [FLOW_MOOD] 점선 여운
+    } else o.push('<path class="flow-line" d="' + flowCurve(pts) + '" fill="none" stroke="' + ink + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round"/>');
+    var boxes = [], lab = [];
+    var tw = function (t) { return t.replace(/[\s·]/g, '').length * 12.6 + (t.match(/[\s·]/g) || []).length * 4; };
+    var free = function (x0, x1, yt, yb) { if (x0 < 1 || x1 > w - 1 || yt < 1) return false; for (var i = 0; i < pts.length; i++) { var q = pts[i]; if (q[0] >= x0 - 1 && q[0] <= x1 + 1 && q[1] >= yt - 2 && q[1] <= yb + 2) return false; }
+      return boxes.every(function (b) { return x1 < b[0] - 6 || x0 > b[1] + 6 || yb < b[2] - 3 || yt > b[3] + 3; }); };
+    var place = function (px, py, t, fill) { var W2 = tw(t), ys = [py - 11, py - 17, py + 20, py + 26], sh = [0, -0.35, 0.35, -0.6, 0.6];
+      for (var a = 0; a < ys.length; a++) for (var b = 0; b < sh.length; b++) { var cx = Math.max(W2 / 2 + 2, Math.min(w - W2 / 2 - 2, px + sh[b] * W2)), x0 = cx - W2 / 2, x1 = cx + W2 / 2;
+        if (free(x0, x1, ys[a] - 12, ys[a] + 2)) { boxes.push([x0, x1, ys[a] - 12, ys[a] + 2]); lab.push('<text class="flow-name" x="' + cx.toFixed(1) + '" y="' + ys[a].toFixed(1) + '" font-family="' + fesc(SERIF_SVG) + '" font-size="12.5" font-weight="600" text-anchor="middle" fill="' + fill + '">' + fesc(t) + '</text>'); return; } } };   // 자리가 없으면 점만
+    if (!mini) [eg, cg].forEach(function (s) { if (!s) return; var t = Math.min(env.length - 1, Math.max(0, Math.round(s.st + s.d / 2))); s._mx = x(s.st + s.d / 2); s._my = y(env[t]);
+      o.push('<circle class="flow-mark" cx="' + s._mx.toFixed(1) + '" cy="' + s._my.toFixed(1) + '" r="3.6" fill="#FAFAF8" stroke="#7A5F37" stroke-width="1.4"/>'); });   // [FLOW_MOOD] 본식의 시작 · 끝 = 빈 진주
     if (p) {
       var bt = Math.floor(p.st), hiT = Math.min(env.length - 1, Math.ceil(p.st + p.d + 15));
       for (var k2 = bt; k2 <= hiT; k2++) { if (env[k2] > env[bt]) bt = k2; }
       var cx = x(bt), cy = y(env[bt]);
       o.push('<circle class="flow-peak" data-t="' + bt + '" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (tiny ? 2.4 : (mini ? 3 : 5)) + '" fill="' + PEAK_INK + '" stroke="#fff" stroke-width="' + (mini ? 1.5 : 2) + '"/>');
-      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'); o.push('<text x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-size="12.5" font-weight="600" text-anchor="' + an + '" fill="' + PEAK_INK + '">' + fesc(p.n) + '</text>'); }   /* [R7-08] 굵기 상한 600 */   /* ★[PEAK_COLOR 2026-10-07 사장님 «별은 유치 · 색으로만 · 고급스러운 무드»] 곡선 위 이름 앞 ★ 걷음 · 진사 글자만 */
+      if (!mini) { var an = cx < 44 ? 'start' : (cx > w - 44 ? 'end' : 'middle'), pw0 = tw(p.n), px0 = an === 'start' ? cx : an === 'end' ? cx - pw0 : cx - pw0 / 2; boxes.push([px0, px0 + pw0, cy - 24, cy - 10]);
+        lab.push('<text class="flow-name flow-peak-name" x="' + cx.toFixed(1) + '" y="' + (cy - 12).toFixed(1) + '" font-family="' + fesc(SERIF_SVG) + '" font-size="12.5" font-weight="600" text-anchor="' + an + '" fill="' + PEAK_INK + '">' + fesc(p.n) + '</text>'); }   // [FLOW_MOOD] 명조   /* [R7-08] 굵기 상한 600 */   /* ★[PEAK_COLOR 2026-10-07 사장님 «별은 유치 · 색으로만 · 고급스러운 무드»] 곡선 위 이름 앞 ★ 걷음 · 진사 글자만 */
     }
+    if (!mini && !namesOn) { [cg, eg].forEach(function (s) { if (s) place(s._mx, s._my, s.k === 'entry' ? CARDS.entry.sn : CARDS._close.sn, '#7A5F37'); });
+      if (af) { var at = Math.min(env.length - 1, Math.max(0, Math.round(af.st + af.d * 0.6))); place(x(af.st + af.d * 0.6), y(env[at]), af.n, '#7A5F37'); } }   // [FLOW_MOOD] 닫는 인사 · 입장 · 테이블 인사 순으로 자리를 잡는다 · [TABLE_APART] 테이블 인사 이름은 여운 꼬리 위(큰 곡선만)
+    o.push(lab.join(''));
     /* ★[FLOW_NAMES_ONE 2026-10-04 사장님 «왜 부모님 인사만 내려가 있어? 다른 곳들은 안 그래»] 이름표가 앞 이름(짧은 «선언»)에 닿으면 둘째 줄로 내렸다 —
        한 이름만 툭 떨어져 보였다. 이제 한 줄 안에서 먼저 옆으로 비켜 맞춘다(제 순간 가운데에서 이름 폭의 0.6 안쪽만) · 그래도 안 되면 종전 두 줄 */
     if (names) { var lay = function (G1, cw, lim) { var LB = sg.map(function (s) { var tw = s.n.replace(/[\s·]/g, '').length * cw + (s.n.match(/[\s·]/g) || []).length * cw * 0.32, c = x(s.st + s.d / 2); return { s: s, c: c, tw: tw, l: c - tw / 2 }; }), i1;
@@ -887,7 +910,7 @@
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
-    momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
+    momentLabel: momentLabel, peakOf: peakOf, peakPick: peakPick, peakCands: peakCands, PEAK_CAN: PEAK_CAN, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
   };

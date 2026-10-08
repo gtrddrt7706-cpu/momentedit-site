@@ -99,13 +99,18 @@ for (const w of [390, 360]) {
         const sg = R.flowSegs(S0), host = document.createElement('div'); host.innerHTML = R.flowSVG(sg, w, opt);
         const svg = host.querySelector('svg'), h = +svg.getAttribute('height'), bad = [];
         svg.querySelectorAll('path').forEach((p) => { const n = (p.getAttribute('d').match(/-?\d+(\.\d+)?/g) || []).map(Number); for (let i = 0; i < n.length; i += 2) { if (n[i] < -0.5 || n[i] > w + 0.5 || n[i + 1] < -0.5 || n[i + 1] > h + 0.5) { bad.push('선이 밖(' + n[i] + ',' + n[i + 1] + ')'); break; } }
-          /* ★[TABLE_APART 2026-10-08 사장님 «그 순간 이후 그래프 색상을 바꾼다던지»] 본식은 한 색 그대로 · 본식 뒤(테이블 인사)가 있을 때만 그 자리에서 옅은 금으로 바뀌는 가로 그라디언트(멈춤 둘 · 같은 자리) */
-          const st = p.getAttribute('stroke') || '', aft = sg.find((x) => x.after), g = /^url\(#(\w+)\)$/.exec(st);
-          if (g) { const stops = [...svg.querySelectorAll('#' + g[1] + ' stop')].map((x) => [x.getAttribute('offset'), (x.getAttribute('stop-color') || '').toUpperCase()]);
-            if (!aft || stops.length !== 2 || stops[0][1] !== '#7A5F37' || stops[1][1] !== '#B89A75' || stops[0][0] !== stops[1][0]) bad.push('선 색 ' + st + ' ' + JSON.stringify(stops)); }
-          else if (st.toUpperCase() !== '#7A5F37' || aft) bad.push('선 색 ' + st + (aft ? ' (본식 뒤가 있는데 한 색)' : ''));
+          /* ★[FLOW_MOOD 2026-10-08 사장님 «붓선은 빼자» · TABLE_APART] 본식은 한 굵기 한 색(#7A5F37) · 본식 뒤(테이블 인사)만 옅은 금 점선(flow-after-line) */
+          const st = (p.getAttribute('stroke') || '').toUpperCase(), aftP = /flow-after-line/.test(p.getAttribute('class') || '');
+          if (aftP) { if (st !== '#B89A75' || !p.getAttribute('stroke-dasharray')) bad.push('여운 선 ' + st); }
+          else if (st !== '#7A5F37' || p.getAttribute('stroke-dasharray')) bad.push('선 색 ' + st);
           if ((p.getAttribute('fill') || '') !== 'none') bad.push('선에 칠'); });
-        const filled = [...svg.querySelectorAll('circle,rect,polygon,ellipse')].filter((e) => { const f = e.getAttribute('fill'); return f && f !== 'none' && f !== 'transparent'; });
+        const aft = sg.some((x) => x.after), nAft = svg.querySelectorAll('path.flow-after-line').length;
+        if (nAft !== (aft ? 1 : 0)) bad.push('여운 선 ' + nAft + '개');
+        const marks = svg.querySelectorAll('circle.flow-mark').length, wantM = opt.mini ? 0 : sg.filter((x) => x.k === 'entry' || x.k === '_close').length;
+        if (marks !== wantM) bad.push('진주 ' + marks + '/' + wantM);   // [FLOW_MOOD] 입장 · 닫는 인사 = 빈 진주(큰 곡선만)
+        if (svg.querySelector('line')) bad.push('바닥선이 남음');   // [FLOW_MOOD] 축 없음
+        svg.querySelectorAll('text.flow-name').forEach((t) => { if (!/Noto Serif KR/.test(t.getAttribute('font-family') || '') || t.getAttribute('font-size') !== '12.5' || t.getAttribute('font-weight') !== '600') bad.push('이름 글꼴 ' + t.textContent); });   // [FLOW_MOOD] 이름은 모두 선언과 같은 명조
+        const filled = [...svg.querySelectorAll('circle,rect,polygon,ellipse')].filter((e) => { const f = e.getAttribute('fill'); return f && f !== 'none' && f !== 'transparent' && !e.classList.contains('flow-mark'); });
         const p = R.flowPeak(sg);
         if (filled.length !== (p ? 1 : 0)) bad.push('칠한 것 ' + filled.length);
         svg.querySelectorAll('line').forEach((l) => { if (l.getAttribute('stroke') !== '#E6E1D9' || l.getAttribute('stroke-width') !== '1') bad.push('바닥선 ' + l.getAttribute('stroke') + '/' + l.getAttribute('stroke-width')); });

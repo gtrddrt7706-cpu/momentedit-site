@@ -104,6 +104,7 @@ select,input[type=time],input[type=text]{
 .pill.k{background:var(--clock);color:#EBD9A8}
 .pill.l{background:var(--live);color:#DCF0E2}
 .pill.p{background:#3A2E4A;color:#DDD0EC}
+.pill.pk{background:#5A4527;color:#F3E2BF}   /* [PEAK_PICK] 가장 벅찬 순간 */
 .now .no{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
 .now h2{
   font-family:var(--serif-ko);font-size:clamp(24px,6.4vw,38px);font-weight:600;
@@ -301,6 +302,7 @@ body.guest .pill{
 body.guest .pill::before{content:'';width:5px;height:5px;border-radius:50%;flex:none;background:currentColor}
 body.guest .pill.p::before{background:#3A2E4A}      /* 고를 수 있는 자리 */
 body.guest .pill.l::before{background:var(--live)}  /* 사람이 말하는 자리 */
+body.guest .pill.pk{color:var(--seal,#6B2A24)} body.guest .pill.pk::before{display:none}   /* [PEAK_PICK] ★ 가 이미 점 */
 
 /* ③ 지금 카드 — 회색 박스가 회색 바탕에 겹쳐 흐릿했다. 흰 종이 한 장 + 실선 한 줄로 */
 
@@ -1334,6 +1336,7 @@ function render(){
 
   var tag = $('#nTag'); tag.innerHTML = '';
   function pill(cls, t){ var s = document.createElement('span'); s.className = 'pill ' + cls; s.textContent = t; tag.appendChild(s); }
+  var _pk = peakK();   // [PEAK_PICK] 두 분이 고른(없으면 저절로) 가장 벅찬 순간
   /* [VOICE_KIND] 큐마다 갈래 — 두 분 목소리 자리는 받아 둔 파일이 있으면 «두 분 녹음» · 없으면 «나레이션으로» · 뒤에 사람이 말하면 «당일 직접» */
   function vkPill(q){ if (GUEST || !q) return; var key = null; Object.keys(RF_SLUG).forEach(function(k){ if (RF_SLUG[k] === q.slug) key = k; }); if (q.slug === 'entry-' + (S.entry || 'A')) key = 'entry';
     if (key && rfKeys().indexOf(key) > -1) pill('vk', CLIPS[q.slug] ? rfKindLab(key) : '두 분 목소리 없음 · 나레이션으로');   // [RF_KIND_0928] 두 분 녹음 · AI 목소리
@@ -1384,6 +1387,7 @@ function render(){
        c.hint · c.note · c.live.t · c.live.fallback 은 전부 '디렉터가 읽는 말'이라
        여기서 참조하면 그 순간 "핸드마이크"·"막히면:"이 신부에게 그대로 보인다. */
     if (c.pick) pill('p', '여기는 고를 수 있어요 · ' + c.pick);          // §2-C 배지 ②
+    if (_pk && c.k === _pk) pill('pk', '★ 가장 벅찬 순간');   // [PEAK_PICK]
     var gb = gCastBadge(c);                                              // §2-C 배지 ① (§2-B 안전장치 1)
     if (gb) pill('l', gb);
 
@@ -1437,6 +1441,7 @@ function render(){
   vkPill(c);   // [VOICE_KIND]
   if (phase === 'live') pill('l', liveBadge(c.live));
   if (c.own) pill('l', '두 분 목소리');
+  if (_pk && c.k === _pk) pill('pk', '★ 가장 벅찬 순간' + (S.peak ? ' · 두 분이 고름' : ''));   // [PEAK_PICK] 디렉터 · 작가가 그 순간을 안다(표시만 · 약속 글 없음)
 
   $('#nName').textContent = (phase === 'live' && c.live) ? (c.live.tv || c.live.t) : c.name;   // [VOW_FIRST] tv = 보여 줄 글(신부부터 등) · t 는 장면 열쇠
   if (phase === 'live' && c.live) {
@@ -1475,7 +1480,10 @@ function clockAt(c){
   return ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
 }
 
+/* ★[PEAK_PICK 2026-10-08 사장님 «추천대로»] 가장 벅찬 순간 — 새 코스만 · RitualOpen.peakOf(S) 한 곳(두 분이 고르면 그 순간 · 아니면 저절로) */
+function peakK(){ try { return (window.RitualOpen && window.COURSES && S && COURSES[S.course] && COURSES[S.course].open) ? RitualOpen.peakOf(S) : null; } catch (e) { return null; } }
 function up(n1, n2){
+  var _pk = peakK();
   function set(id, c, lb){
     var el = $('#'+id);
     el.querySelector('.lb').textContent = lb;
@@ -1484,12 +1492,12 @@ function up(n1, n2){
     if (GUEST) {
       // ★디렉터 정보는 한 줄도 내지 않는다 — 발사 방식·클립 번호·'녹음 없음'·'문안 자동 교체'는
       //   전부 우리 사정이고, 고객이 읽으면 "준비가 덜 됐나" 하는 신호로만 남는다
-      el.querySelector('.nm').textContent = c.name;
+      el.querySelector('.nm').textContent = (_pk && c.k === _pk ? '★ ' : '') + c.name;   // [PEAK_PICK]
       el.querySelector('.es').textContent = fmt(c.est + (c.live ? (c.live.est || 0) : 0));
       return;
     }
     var when = (c.fire === 'clock' && startAt) ? ('시각에 · ' + clockAt(c)) : fireLabel(c.fire);
-    el.querySelector('.nm').innerHTML = esc(c.name) + '<small>' + when
+    el.querySelector('.nm').innerHTML = (_pk && c.k === _pk ? '★ ' : '') + esc(c.name) + '<small>' + when
       + (c.hint ? ' · ' + esc(c.hint) : '') + (c.no ? ' · ' + c.no + '번' : ' · 녹음 없음')
       + (c.alt ? ' · ' + Math.round(c.alt.overSec / 60) + '분 넘으면 문안 자동 교체' : '') + '</small>';
     el.querySelector('.es').textContent = fmt(c.est) + (c.live ? ' +' + fmt(c.live.est) : '');
