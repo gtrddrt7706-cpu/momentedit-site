@@ -137,6 +137,10 @@ try { G._requireAdmin(); } catch (e) { bad('행동: _AUTHED 인데 _requireAdmin
 G._AUTHED = false;
 
 // 메일 단추 — 주소를 열면 확인 화면만 · 단추(mailButtonGo)를 눌러야 확인 함수까지 가고 창이 닫힌다 [MAIL_BTN_CONFIRM]
+// ★[SIG_FLIP_SURE 2026-10-09] 틀린 서명은 첫 글자를 «반드시 다른 글자»로 바꿔 만든다.
+//   비밀값이 실행마다 새로 생겨 서명 첫 글자도 매번 다르다 — 'x' 로 덮으면 서명이 마침 x 로 시작할 때(약 64번에 한 번)
+//   «틀린 서명»이 맞는 서명과 같아져 검사가 까닭 없이 붉어진다(PR #1148 첫 CI 가 그랬다 · 로컬 · CI 흉내는 초록).
+const wrongSig = (s) => { const w = (s[0] === 'A' ? 'B' : 'A') + s.slice(1); if (w === s) throw new Error('wrongSig: 같은 서명'); return w; };
 {
   const hits = [];
   const keep = {}; for (const k of ['_adminConfirmMidCore', 'infoPage', 'actApprove', 'actAccept', 'findRowByToken', 'getSheet', 'buildHeaderIndex', 'coupleNames', 'prettyDate']) keep[k] = G[k];
@@ -151,7 +155,7 @@ G._AUTHED = false;
   if (!(hits.length === 1 && hits[0].c === 'ME0001' && hits[0].authed === true && r1 && r1.ok)) bad('메일 단추: 단추를 눌렀는데 확인 함수에 닿지 않는다(창이 안 열린다)');
   if (G._AUTHED !== false) bad('메일 단추: 처리 뒤 _AUTHED 가 닫히지 않는다');
   hits.length = 0;
-  G.mailButtonGo({ action: 'payconfirm', code: 'ME0001', m: 'mid', exp, sig: 'x' + sig.slice(1) });
+  G.mailButtonGo({ action: 'payconfirm', code: 'ME0001', m: 'mid', exp, sig: wrongSig(sig) });
   if (hits.length) bad('메일 단추: 틀린 서명으로 확인 함수에 닿는다');
   const old = String(Date.now() - 1000);
   G._SRV = true; const oldSig = G.sign_('ME0001', 'payconfirm:mid:' + old); G._SRV = false;
@@ -176,7 +180,7 @@ G._AUTHED = false;
   const r3 = G.mailButtonGo({ action: 'accept', token: tok, sig: cSig });
   if (acts.join(',') !== 'approve,accept' || !(r2 && r2.ok && r2.title === '승인 완료') || !(r3 && r3.ok)) bad('메일 단추: 승인 · 수락 단추를 눌렀는데 처리 · 결과가 맞지 않는다');
   acts = [];
-  G.mailButtonGo({ action: 'approve', token: tok, sig: 'x' + aSig.slice(1) });
+  G.mailButtonGo({ action: 'approve', token: tok, sig: wrongSig(aSig) });
   if (acts.length) bad('메일 단추: 틀린 서명으로 승인이 처리됐다');
   for (const k of Object.keys(keep)) G[k] = keep[k];
   G._SRV = false; G._AUTHED = false;
