@@ -39,7 +39,7 @@
   var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'welcome', 'bless', 'vow', 'ring', 'declare', 'tribute', 'free', 'letter', 'cake', 'toast', 'table'];
   var AFTER_CLOSE = { table: 1 };   // [TABLE_GREET_1008] 닫는 인사 뒤에 서는 순간
   var TABLE_SEC = 90;               // [TABLE_GREET_1008] 테이블당 1분 30초(사장님 결정 · 고정)
-  function tableN(S) { var n = +((S || {}).tableN); if (!(n >= 1)) n = 6; return Math.min(12, Math.max(1, Math.round(n))); }   // [TABLE_GREET_1008] 좌석 배치도 테이블 수 · 모르면 6(30명 ÷ 5 · SEAT_PER5)
+  function tableN(S) { var n = +((S || {}).tableN); if (!(n >= 1)) n = 6; return Math.min(6, Math.max(1, Math.round(n))); }   /* ★[TABLE_MAX6 2026-10-08] 상한 = 좌석 배치도 상한(mypage SEAT_ADD_CAP · 6테이블 × 5석) — 종전 12 는 좌석이 허락하지 않는 수였다 */   // [TABLE_GREET_1008] 좌석 배치도 테이블 수 · 모르면 6(30명 ÷ 5 · SEAT_PER5)
   var ALWAYS = { guest: 1, entry: 1 };   // [PREVIDEO_PICK] prevideo 는 뺐다
   var PRE = { guest: 1, prevideo: 1 };          // 본식 시간에 들지 않는다(하객이 앉는 동안)
   var PICKABLE = ORDER.filter(function (k) { return !ALWAYS[k]; });
@@ -283,8 +283,10 @@
   // 띠 한 줄에 필요한 모든 값
   function span(S) {
     var s = bodySec(S), a = Math.round(s[0] / 60), b = Math.round(s[1] / 60);
-    var pa = DAYMIN - b, pb = DAYMIN - a;   // ★[SPAN_SUM40 코워크 추가 점검 P2-2 2026-09-26] 반올림한 본식에서 뺀다 — 따로 반올림하면 «본식 17 + 단체 사진 24 = 41»이 보였다
-    return { sec: s, a: a, b: b, pa: pa, pb: pb, body: rng(a, b), photo: rng(pa, pb), midMin: (s[0] + s[1]) / 120 };
+    /* ★★[PHOTO_FLOOR0 2026-10-08 · TABLE_GREET_1008] 본식이 40분을 넘는 판(순간을 거의 다 담고 축사 10분 · 테이블 인사까지)에 «단체 사진 약 -8~2분»이 보였다 —
+       0 아래로 내리지 않고, 위 값까지 0이면 «시간이 모자라요»라고 말한다. 판은 막지 않는다(사장님 «그대로 두고 알림»). */
+    var pa = Math.max(0, DAYMIN - b), pb = Math.max(0, DAYMIN - a);   // ★[SPAN_SUM40 코워크 추가 점검 P2-2 2026-09-26] 반올림한 본식에서 뺀다 — 따로 반올림하면 «본식 17 + 단체 사진 24 = 41»이 보였다
+    return { sec: s, a: a, b: b, pa: pa, pb: pb, body: rng(a, b), photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요', midMin: (s[0] + s[1]) / 120 };   // [PHOTO_FLOOR0]
   }
   // 카드의 «약 n분»(이 순간을 담으면)
   function momentLabel(k, S) {
@@ -587,7 +589,8 @@
     /* [NOTICE_0925 코워크 4-1] 알림 ④ — 맨 뒤 차례. N 은 내림(«약 N분»은 그보다 줄지 않는다는 뜻) */
     /* ★[RANGE_40 2026-09-26] 테이블 인사가 없어졌다([NO_TABLE_ROUND]) — 줄이는 차례는 자유 사진 → 숨 고르기 → 뒤에 고른 구도 */
     /* ★[TABLE_GREET_1008] 테이블 인사가 본식 끝(사진 앞)에 돌아왔다 — 본식 합에 들어 단체 사진이 그만큼 준다. 사장님 «그대로 두고 알림» — 이 알림 ④가 그 일을 한다 */
-    short: function (n) { return '천천히 진행되면 단체 사진이 약 ' + n + '분으로 줄어요. 전체 사진은 그대로 두고, 가족 구도는 앞쪽부터 담아요. 순간을 하나 덜면 여유가 생겨요.'; }
+    short: function (n) { if (n <= 0) return '본식이 길어 단체 사진 시간이 모자라요. 순간을 하나 덜면 여유가 생겨요.';   /* [PHOTO_FLOOR0] «약 0분으로 줄어요» 대신 */
+      return '천천히 진행되면 단체 사진이 약 ' + n + '분으로 줄어요. 전체 사진은 그대로 두고, 가족 구도는 앞쪽부터 담아요. 순간을 하나 덜면 여유가 생겨요.'; }
   };
   var SHORT_MIN = 16;   // [RANGE_40] 단체 사진이 이보다 짧아질 수 있으면(늦어진 날) 알림 ④ — 전체 사진 8 + 가족 구도 둘 6 + 두 분 숨 고르기 2
   /* ★[PHOTO_THANKS 2026-09-26] 감사 인사 1분은 이 문턱에 아직 안 넣었다 — 넣으면(17) 예시 «가족»(늦어진 날 16분)에 알림 ④가 새로 뜬다.
@@ -809,7 +812,7 @@
     vow: '마주 선 두 분 · 카드를 든 손', ring: '반지를 끼워 주는 두 손', declare: '촛불 속 테이블의 하객들이 박수를 쳐요',
     tribute: '두 분이 부모님께 꽃을 건네고 안겨요', free: '앞 스크린의 영상을 보며 손을 맞잡는 부모님', letter: '편지를 펼쳐 든 손 · 듣는 사람의 어깨와 손',   /* [VIDEO_V8_0928] 장면 대본 v8 과 같게 — 첫인사 목례는 닫는 인사에만 · 준비한 순서는 부모님(사장님 결정) · 편지는 얼굴 없이 */
     cake: '두 손이 함께 나이프로 케이크를 잘라요', toast: '잔들이 함께 올라가요', _close: '두 분이 인사하고 · 하객들이 앞으로 모여요',
-    table: '두 분이 테이블 사이를 걸으며 하객과 인사를 나눠요'   // [TABLE_GREET_1008] 영상 없음(장면 글 한 줄)
+    table: '두 분이 테이블 사이를 걸어요 · 하객들이 자리에서 맞아요'   // [TABLE_GREET_1008] 영상 없음(장면 글 한 줄)
   };
   var VIDEO_DIR = '/assets/video/moments/';
   /* ★[VIDEO_IN_1003 2026-10-03 사장님 순간영상 v2 16편] 받은 mp4 그대로(H.264 High · 1280×720 · 30fps · 소리 없음 · faststart · 6~10초) +
