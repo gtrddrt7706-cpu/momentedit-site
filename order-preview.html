@@ -1077,7 +1077,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-vars{display:flex;flex-direction:column;gap:7px;margin:2px 0 10px}
 .ls-hint{font-weight:400;color:var(--light);font-size:11px}
 .ls-cg{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.ls-cg .gl{font-size:11px;color:var(--light);min-width:48px}
+.ls-cg .gl{font-size:14px;color:var(--accent);font-weight:600;min-width:48px}   /* ★★[CG_TITLE 2026-10-08 사장님 «안내 멘트 제목 부분도 똑같이 · 다른 이벤트 섹션도 동일하게 · 제목 폰트는 PC 도 전부»] 칩 줄 이름(서는 분 · 입장 멘트 · 읽는 방식 · 참고 예시 …) = «어떻게 준비할까요»(VP_ROW_A)와 같은 14px 먹색 600 · 종전 11px 회색 */
 .ls-wr{display:flex;gap:6px;align-items:flex-start;margin:2px 0 10px}
 .ls-wr svg{margin-top:4px;color:var(--light);flex:none}
 .ls-wr em{font-style:normal;color:var(--light)}
@@ -1114,7 +1114,8 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 @media (max-width:460px){.ls-cg{grid-template-columns:minmax(0,1fr);row-gap:6px}.ls-cg .gl{padding-top:0}}   /* ★★[CG_TOP_ALL 2026-10-07 사장님 «화촉 서는 분이 다른 곳들 형태랑 다르다 · 버튼이 지저분하게 2줄»] 폰은 «모든» 고르기 줄이 이름표 위 · 칩 아래(종전엔 목소리 · 예시 줄만 · 서는 분 · 입장 멘트 · 읽는 방식 · 먼저 읽는 분 · 누가 · 말투 · 인사 말 · 무엇을 · 받는 분은 왼쪽 64px 이름표 칸이 칩 자리를 먹어 들쭉날쭉 접혔다) · 이름표 왼쪽 칸으로 되돌리지 말 것 */
 .mk-vu-exs.cg-even{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}.mk-vu-exs.cg-even>.op-chip{width:100%;padding:0 8px;white-space:nowrap}   /* [VU_CHIP_EVEN] 창 칩 줄 — 넷 = 2 × 2 · 여섯 = 3 × 2(_cgEven 이 칸 수를 정한다 · 폭은 JS 가 재고 넣으니 미디어 조건 없음) */
 @media (max-width:460px){.ls-cg .cg-c.cg-even{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}.ls-cg .cg-c.cg-even>.op-chip{width:100%;padding:0 8px;white-space:nowrap}.ls-cg .cg-c.cg-even>:not(button){grid-column:1/-1}}   /* ★[CG_EVEN 2026-10-07] 한 줄에 안 들어가는 칩 줄은 3+1 처럼 들쭉날쭉 접지 않고 같은 폭 칸으로(넷 = 2 × 2 · 여섯 = 3 × 2 · 글이 안 들어가면 칸 수를 줄인다) · 한 줄에 들어가는 줄은 그대로 · _cgEven 이 잰다 */   /* [EX_ROW] 예시 줄도 같은 꼴(폰에서 이름표 위) — 한 묶음 안 칩 시작선이 한 줄 */   /* [R3-06] 좁은 폭에서만 라벨 위 · 칩 아래(VP_CHIP_ROW 원뜻) — 폭과 상관없이 두니 1280 에서 칩 시작선이 370 → 298 → 370 으로 들쭉날쭉했다 */
-@media (min-width:461px){.ls-cg{grid-template-columns:96px minmax(0,1fr)}}
+@media (min-width:461px){.ls-cg{grid-template-columns:120px minmax(0,1fr)}}   /* [CG_TITLE] 96 → 120 — 14px 제목(«어떻게 준비할까요» 106.6px 실측)이 한 줄에 서고 칩까지 21px · 칩 시작선은 모든 줄이 같다(R3-06) */
+@media (max-width:460px){.ls-vars>.ls-cg+.ls-cg,.lf-vars>.ls-cg+.ls-cg{margin-top:11px}}   /* [CG_TITLE] 폰은 제목이 칩 위에 선다 — 줄 사이 7 → 18px(제목 아래 6px 의 세 배) · 제목이 위 칩 줄이 아니라 제 칩과 한 묶음으로 읽힌다(TYPO_RHYTHM «라벨 위 여백은 아래의 2배 이상») */
 /* ★[VS_LINK_TOP 2026-10-07 사장님 «3번으로 하는데 우측으로 붙이고 글씨도 같은 사이즈로 하고 위아래 정렬잡고»] 폰(≤460 · 이름표가 칩 위에 서는 폭)에선
    «확정 안내 보기 · 나레이션 자세히»를 칩 아래 제 줄이 아니라 질문 줄(«어떻게 준비할까요») 오른쪽 끝에 — 이름표와 같은 11px · 같은 줄 높이(1.4) · 글자 아래 선을 맞춘다.
    질문 줄은 제 높이 그대로(영상 아래 15px · 칩까지 6px = «참고 예시»와 같다) — 링크를 누르는 칸 44 는 글자 아래 선에서 «위로» 늘린다(칩 쪽으로 겹치지 않게).
@@ -1122,24 +1123,21 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
    종전 칩 아래 제 줄(오른쪽 · [KEEP_IN_ROW])은 줄이 하나 더 들었다. PC · 태블릿(이름표 칸 + 칩 칸 두 열)은 종전대로 칩 줄 오른쪽 끝 */
 @media (max-width:460px){
   .ls-cg.cg-vp.cg-hl{position:relative}
-  .ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(11px * 1.4 - 44px);right:0;height:44px;margin:0;align-items:flex-end;gap:16px}
-  .ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:11px;line-height:1.4}
-}   /* [R3-06] 넓은 폭은 라벨 칸을 96px 로 — «어떻게 준비할까요»가 한 줄에 서고(R2-24 가 막으려던 두 줄 접힘) 칩 시작선이 한 줄로 맞는다 */
+  .ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(14px * 1.4 - 44px);right:0;height:44px;margin:0;align-items:flex-end;gap:16px}   /* [CG_TITLE] 제목 14px 줄 높이에 맞춘다(종전 11px) */
+  .ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:12.5px;line-height:1.4}   /* [CG_TITLE · VP_ROW_A] 링크는 제목(14px)보다 한 단 아래 12.5px · 종전 «이름표와 같은 11px»는 이름표가 11px 일 때의 맞춤 */
+}   /* [R3-06] 넓은 폭은 라벨 칸을 96px(CG_TITLE 10/08 부터 120px) 로 — «어떻게 준비할까요»가 한 줄에 서고(R2-24 가 막으려던 두 줄 접힘) 칩 시작선이 한 줄로 맞는다 */
 /* ★★[VP_ROW_A 2026-10-08 사장님 «추천두개» = 안 A] «어떻게 준비할까요»(두 분 목소리 문이 열린 판의 하객 맞이 · 입장 · 식전 영상 소개 · _lChipRow 한 곳 · cg-vq)는
-   이 쪽에서 꼭 정할 한 가지 — 쪽에서 가장 작고 흐린 글씨(11px 회색)였다 → 14px 먹색 600(질문).
+   이 쪽에서 꼭 정할 한 가지 — 쪽에서 가장 작고 흐린 글씨(11px 회색)였다 → 14px 먹색 600(질문 · 같은 날 CG_TITLE 로 모든 칩 줄 제목이 이 글씨 · PC 도).
    폰(≤460)은 칩 둘을 반반 두 칸으로 — 바로 아래 «참고 예시» · «입장 멘트» 칩 줄(CG_EVEN 같은 폭 칸)과 같은 모양 · 칩이 글자 폭만큼이라 오른쪽이 비던 것.
    «확정 안내 보기 · 나레이션 자세히»는 질문 줄 오른쪽 그대로(VS_LINK_TOP) · 글씨는 12.5px(질문보다 한 단 아래 · 종전 «이름표와 같은 11px»는 질문이 11px 일 때의 맞춤) · 글자 아래 선은 질문과 맞춘다.
-   ★PC(≥461)는 바꾸지 않는다(사장님 «PC 는 지금이 적절한 거 같은데 · 바꾼다면 모바일만») — PC 는 질문이 다른 이름표(소개 멘트 · 참고 예시)와 같은 96px 칸에 나란히 서고(VP_CHIP_ROW «한 줄로»)
-   아래 칩 줄도 글자 폭이라 이미 맞다. 두 문제(작고 흐린 질문 · 아래 줄과 다른 칩 모양)는 질문이 칩 위 제 줄로 서는 폰에서만 생긴다 */
+   ★PC(≥461) 칩은 글자 폭 그대로(사장님 «PC 는 지금이 적절한 거 같은데 · 바꾼다면 모바일만») — PC 는 아래 칩 줄도 글자 폭이다(CG_EVEN 은 폰만).
+   제목 글씨는 PC 도 같다(CG_TITLE · 사장님 «제목 폰트랑 하단 안내 멘트 팝업은 PC 도 적용 전부») — 그래서 PC 이름표 칸이 96 → 120px */
 @media (max-width:460px){
-  .ls-cg.cg-vq .gl{font-size:14px;color:var(--accent);font-weight:600}
   .ls-cg.cg-vq .cg-c{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}
   .ls-cg.cg-vq .cg-c>.op-chip{width:100%;padding:0 8px;white-space:nowrap}
   .ls-cg.cg-vq .cg-c>:not(button){grid-column:1/-1}
-  .ls-cg.cg-vq.cg-hl .cg-c .cg-links{top:calc(14px * 1.4 - 44px)}
-  .ls-cg.cg-vq.cg-hl .cg-links .pk-link{font-size:12.5px}
 }
-@media (max-width:359px){ .ls-cg.cg-vq.cg-hl .cg-c .cg-links{gap:12px} .ls-cg.cg-vq.cg-hl .cg-links .pk-link{font-size:11px} }   /* [VP_ROW_A] 320 폭 — 질문(14px · 107) + 링크 둘(12.5px · 184)이 284 칸에 안 들어가 «확정 안내 보기»가 질문 끝에 7px 겹쳤다(실렌더) · 360 아래 폰에서만 링크를 한 단 줄인다(질문은 14px 그대로) */
+@media (max-width:359px){ .ls-cg.cg-vp.cg-hl .cg-c .cg-links{gap:12px} .ls-cg.cg-vp.cg-hl .cg-links .pk-link{font-size:11px} }   /* [VP_ROW_A] 320 폭 — 질문(14px · 107) + 링크 둘(12.5px · 184)이 284 칸에 안 들어가 «확정 안내 보기»가 질문 끝에 7px 겹쳤다(실렌더) · 360 아래 폰에서만 링크를 한 단 줄인다(질문은 14px 그대로) */
 @media (max-width:460px){ .ls-cg.cg-hl.cg-lkdn .cg-c .cg-links{position:static;grid-column:1/-1;justify-self:end;margin-left:auto;height:44px;align-items:center} .ls-cg.cg-hl.cg-lkdn .cg-links .pk-link{align-items:center} }   /* [VP_ROW_A] 그래도 링크가 질문 글자에 12px 안으로 붙으면(폴드 바깥 화면 280 · 대체 글꼴 · 글자 키움) 칩 아래 제 줄 오른쪽으로 — 겹치지 않게(_cgEven 이 잰다) */
 /* [R2-24] 폭과 상관없이 라벨 위 · 칩 아래 — 461 이상에서 64px 칸에 «어떻게 / 준비할까요»가 두 줄로 접혔다 */   /* ★[VP_CHIP_ROW 2026-09-28 사장님 «한 줄로 · 안 들어오면 어떻게 준비할까요를 첫 줄에 놓고 버튼을 아래로»] 칩 둘이 라벨 옆에 안 들어가는 폭에서만 */
 /* [RIT_BIG_BTN] 작은 플레이어의 «크게 보기» 글 단추 — 좁으면 제목이 첫 줄, 단추가 둘째 줄 */
@@ -1586,7 +1584,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
   .pr-th{width:80px}
 }
 .lf-vars{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
-.lf-vars .gl{font-size:11px;color:var(--light);min-width:48px}
+.lf-vars .gl{font-size:14px;color:var(--accent);font-weight:600;min-width:48px}   /* [CG_TITLE] 크게 보기의 칩 줄도 같은 제목 */
 .lf-choose{align-self:flex-start;min-height:44px;padding:0 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:14px;cursor:pointer;text-align:left}   /* [PRACTICE_CHOOSE] */
 .lf-choose.done{margin:0 0 4px;background:var(--accent);border-color:var(--accent);color:#FAFAF8}
 .lf-ref{margin:0 0 8px;font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* [REF_EXAMPLE] */
@@ -4100,7 +4098,7 @@ function _lGroups(k){
   if(k==='vow'){ L('vowHow','읽는 방식',[['alt','한 줄씩 번갈아'],['each','각자 차례로']],_vowHow(),true); g[g.length-1].up=1;
     L('vowFirst','먼저 읽는 분',[['g','신랑부터'],['b','신부부터']],_vowFirst(),false); g[g.length-1].up=1; }   /* [VOW_FIRST] 둘 다 처음엔 안 눌린 모양(up) — 안 고르면 어떻게 되는지는 아래 한 줄(VOW_UNPICK) */   /* ★[VOW_HOW 2026-10-02 사장님 «서약 읽는 방식도 신랑 신부가 직접 정할 수 있게»] 기본 번갈아(VOW_CHORUS) · 소리는 같아 q(다시 틀지 않음) */
   if(k==='declare') L('declare','누가 · 말투',R.CHIPS.declare,R.chipOf('declare',S));
-  if(k==='tribute'){ L('tribute','인사 말',R.CHIPS.tribute,R.chipOf('tribute',S),false,'신랑분은 원하시면 큰절을 올리셔도 돼요');   /* ★«인사 방식»(꽃과 포옹 · 신랑 큰절) 칩 금지 — 2026-10-06 사용자 지시로 삭제 [GROOM_BOW_TIP] · 늘 꽃과 포옹 · 큰절은 팁 한 줄 · [TRIB_ONE_SAY] «말의 길이» → «인사 말»(말로 인사 · 말 없이) */ _lGoods('tribute',L); }
+  if(k==='tribute'){ L('tribute','인사 말',R.CHIPS.tribute,R.chipOf('tribute',S),false,''); g[g.length-1].tip='신랑분은 원하시면 큰절을 올리셔도 돼요';   /* [NOTE_TOAST] 팁은 누르기 전에 읽혀야 해서 칩 아래 그대로(tip) */   /* ★«인사 방식»(꽃과 포옹 · 신랑 큰절) 칩 금지 — 2026-10-06 사용자 지시로 삭제 [GROOM_BOW_TIP] · 늘 꽃과 포옹 · 큰절은 팁 한 줄 · [TRIB_ONE_SAY] «말의 길이» → «인사 말»(말로 인사 · 말 없이) */ _lGoods('tribute',L); }
   if(k==='free'){ L('free','무엇을',R.CHIPS.free,R.chipOf('free',S));
     /* ★[FREE_ETC 2026-10-06 사장님 «기타 칸 · 직접 적을 수 있게 · 길이도 직접»] 기타면 무엇을 칸에 적는다
        ★[FREE_LEN10 2026-10-06 사장님 «3분 이상 할 수 있는 건데» → 10분까지] 길이는 모든 판에서 분을 직접 적는다(1~10 · 길이 칩 3 · 2 · 1 대신) · 계약서 v1.12 ①-2 */
@@ -4655,7 +4653,7 @@ function _mkCopyTo(key,t,msg){ var done=function(ok){ MK.copied={k:key,ok:ok,msg
   try{ navigator.clipboard.writeText(t).then(function(){ done(true); },function(){ done(false); }); }catch(e){ done(false); } }
 window.mkAskCopyPage=function(k){ var qs=_mkItems(k).filter(function(q){ return q.cat==='ask'; }); if(qs.length) _mkCopyTo('ask:'+k,_mkAskText(qs),'복사됐어요 · 부모님께 카톡으로 붙여 보내세요'); };
 function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(); if(!items.length) return '';
-  var h='', gn=(R.onOf(S,k)?_lGroups(k):[]).map(function(g){ return g.note||''; }).join(' ');
+  var h='', gn=(R.onOf(S,k)?_lGroups(k):[]).map(function(g){ return (g.unote||'')+' '+(g.tip||''); }).join(' ');   /* [NOTE_TOAST] 덧말(note)은 칩 아래에 없다 — 보이는 줄만 겹침으로 친다 */
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
   ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
@@ -5013,7 +5011,7 @@ window.mkGuestEx=function(n){ var X=GUEST_EX[n]; if(!X) return;
   var go=function(){ var chg=chgOf(); if(n) S.gExC=n; else delete S.gExC; GUEST_KEYS.forEach(function(k,i){
       if(S.vlines) delete S.vlines[_slVk(k)]; if(S.vtext) delete S.vtext[_vtKey(k)]; if(k==='g0') delete S.g0Moved; if(S.exOld) delete S.exOld[_vtKey(k)];   // [EX_OLD_IS_EX]
       if(S.vkeep&&chg[i]) delete S.vkeep[k]; _aiPillSync(k); });   // [EX_ASK_ONE] 글이 그대로인 줄의 확정은 풀지 않는다
-    _fxNext='[data-fk="mkex:guest:'+n+'"]'; _persist(); render(); _exAudio(GUEST_KEYS); };
+    _fxNext='[data-fk="mkex:guest:'+n+'"]'; _persist(); render(); _exAudio(GUEST_KEYS); if(chg.some(Boolean)) _noteToast(NOTE_TOAST.aiex); };   /* [NOTE_TOAST] 종전 칩 줄 아래 «고르면 아래 글이 바뀌어요 · 고쳐 써도 돼요» */
   var c0=chgOf(), q=_exAsk('하객 맞이 글은',GUEST_KEYS.some(function(k){ return !_exIs(k); }),GUEST_KEYS.some(function(k,i){ return (S.vkeep||{})[k]&&c0[i]; }),true);   // 고쳐 둔 줄 · 글이 바뀌는 확정한 줄이 하나라도 있으면 묻는다
   if(q){ ordAsk(q).then(function(ok){ if(ok) go(); }); return; } go(); };
 /* ★[EX_ASK_ONE 2026-10-08 목소리 1라운드 37] 예시로 바꿀 때 묻는 말 한 곳 — 하객 맞이 · 입장 인사 · 식전 영상 소개가 같은 규칙(COURSE_WIDE).
@@ -5030,7 +5028,7 @@ function _exNOf(key){ var t=_exNorm(_recNeed(key)); if(!t) return -1;
   if(key==='pv'){ for(var m=0;m<PV_EX.length;m++){ if(t===_exNorm(PV_EX[m][1])) return m; } if(typeof PV_OLD!=='undefined'){ for(var q in PV_OLD){ if(PV_OLD[q].some(function(x){ return t===_exNorm(x); })) return +q; } } } return -1; }
 function _exIs(key){ return _exNOf(key)>=0; }
 var ENTRY_KEYS=['A','B','C','D','E','F'];   /* ★[EX_SAME_COUNT 2026-10-07 사장님 «AI 두 분 목소리랑 스튜디오 나레이션 아래 버튼 4개로만 제한했었는데 버튼 스타일이 달라졌으니 동일하게»] 카드(두 줄 상자)일 때는 한 줄에 넷이 한계였다 — 칩 줄이 되어 스튜디오 «입장 멘트»와 같은 여섯 · 같은 차례 · 같은 이름(EX_ROW) */   /* ★[REF_ROW4 2026-10-06 사장님 «예시 4개로 · 1줄로 · 베스트로»] AI 판 입장 인사 참고 예시 = 결이 겹치지 않는 넷(서사 · 짧고 강하게 · 감성 · 감사·가족). 격식과 따뜻함(C)은 서사 · 감사와, 이야기의 시작(F)은 서사와 겹친다 — 나레이션 판 여섯 멘트(녹음)는 그대로 · 고른 판이 C · F 면 카드는 아무것도 안 켜진다 */
-window.mkEntryEx=function(n){ var v=ENTRY_KEYS[n]; if(!v||!ENTRY[v]) return; var chg=!!(S.vlines||{})[_slVk('entry')]||_exNorm(_recNeed('entry'))!==_exNorm(ENTRY[v].self), go=function(){ if(S.vlines) delete S.vlines[_slVk('entry')]; if(S.vkeep&&chg) delete S.vkeep.entry; _lSet('entry',v);   /* [EX_ASK_ONE] */ buildSteps(); _fxNext='[data-fk="mkex:entry:'+n+'"]'; _persist(); render(); _exAudio(['entry']); };   /* [EX_PRESS_MAKE] 멘트를 고르면 글만 — 소리는 «목소리 만들기»로(종전 멘트마다 미리 섞기는 걷었다) */
+window.mkEntryEx=function(n){ var v=ENTRY_KEYS[n]; if(!v||!ENTRY[v]) return; var chg=!!(S.vlines||{})[_slVk('entry')]||_exNorm(_recNeed('entry'))!==_exNorm(ENTRY[v].self), go=function(){ if(S.vlines) delete S.vlines[_slVk('entry')]; if(S.vkeep&&chg) delete S.vkeep.entry; _lSet('entry',v);   /* [EX_ASK_ONE] */ buildSteps(); _fxNext='[data-fk="mkex:entry:'+n+'"]'; _persist(); render(); _exAudio(['entry']); if(chg) _noteToast(NOTE_TOAST.aiex); };   /* [NOTE_TOAST] */   /* [EX_PRESS_MAKE] 멘트를 고르면 글만 — 소리는 «목소리 만들기»로(종전 멘트마다 미리 섞기는 걷었다) */
   /* 고쳐 둔 줄이 있으면 예시를 눌러도 글이 안 바뀌었다(고친 줄이 이긴다) — 식전 영상 소개처럼 묻고 바꾼다 */
   var q=_exAsk('입장 인사는',!!(S.vlines&&S.vlines[_slVk('entry')])&&!_exIs('entry'),!!(S.vkeep||{}).entry&&chg,false); if(q){ ordAsk(q).then(function(ok){ if(ok) go(); }); return; } go(); };   /* [EX_ASK_ONE] 확정한 입장 인사도 묻는다(종전엔 말없이 풀었다) */
 function _pvEditor(){ var t=String(S.pvText||''), cur=PV_EX.findIndex(function(x){ return x[1]===t.trim(); });   /* [R2-12] 예시 칩은 .ex-chips(간격 6px · 줄바꿈)와 같은 규칙 · [R2-03] 줄 카드 안(머리 아래)에서 그린다 */
@@ -5041,7 +5039,7 @@ function _pvEditor(){ var t=String(S.pvText||''), cur=PV_EX.findIndex(function(x
     /* [SL_TIDY] 글자 수는 줄 편집기 아래 한 줄 오른쪽 */+(MK.lineErr&&MK.lineErr.pv?'<p class="mk-exw" role="alert">'+esc(MK.lineErr.pv)+'</p>'+_upRetryBtn('pv'):'')+'</div>';   /* ★[PV_ERR_SHOW 2026-10-04 사장님 «재생이 안 되고 멈추다가 목소리를 못 만들고 다시 목소리 만들기 단추로»] 만들지 못한 까닭이 이 줄엔 안 보였다(하객 맞이 줄만 보였다) */ }
 window.mkPvText=function(v){ S.pvText=String(v||'').slice(0,PV_MAX); if(S.vkeep&&S.vkeep.pv) delete S.vkeep.pv;   /* [KEEP_LINE] */ _persist(); _aiPillSync('pv');   /* [AI_PILL] */ var n=document.getElementById('mkPvN'); if(n) n.textContent=_pvCount(S.pvText); };
 /* ★[R8-13] 입력 중 카드 머리 «약 n초»를 맞추던 줄 금지 — 2026-10-03 사용자 지시로 삭제 [LINE_NO_SEC] · 머리 길이가 없어졌다(아래 «n / 200자» 세는 줄은 그대로 · SL_CAP) */
-window.mkPvEx=function(i){ var x=PV_EX[i]; if(!x) return; var t=String(S.pvText||'').trim(), chg=!!(S.vlines||{}).pv||_exNorm(t)!==_exNorm(x[1]), put=function(){ S.pvText=x[1]; if(S.vlines) delete S.vlines.pv; if(S.vkeep&&chg) delete S.vkeep.pv; _persist();   /* [EX_ASK_ONE] */ _fxNext='[data-fk="mkex:pv:'+i+'"]'; render(); _exAudio(['pv']); };   /* ★[EX_FOCUS_CARD 2026-10-06 사장님 «예시 클릭하면 텍스트박스 아래 골드색 가로선 · 애초에 안 나오게»] 초점은 누른 카드에 둔다(글칸으로 옮기면 입력 표시 선이 그어졌다) · [EX_PRESS_MAKE] 소리는 «목소리 만들기»로 */   /* [LINE_SPLIT] 예시는 한 줄 · 지금 읽는 분 */
+window.mkPvEx=function(i){ var x=PV_EX[i]; if(!x) return; var t=String(S.pvText||'').trim(), chg=!!(S.vlines||{}).pv||_exNorm(t)!==_exNorm(x[1]), put=function(){ S.pvText=x[1]; if(S.vlines) delete S.vlines.pv; if(S.vkeep&&chg) delete S.vkeep.pv; _persist();   /* [EX_ASK_ONE] */ _fxNext='[data-fk="mkex:pv:'+i+'"]'; render(); _exAudio(['pv']); if(chg) _noteToast(NOTE_TOAST.aiex); };   /* [NOTE_TOAST] */   /* ★[EX_FOCUS_CARD 2026-10-06 사장님 «예시 클릭하면 텍스트박스 아래 골드색 가로선 · 애초에 안 나오게»] 초점은 누른 카드에 둔다(글칸으로 옮기면 입력 표시 선이 그어졌다) · [EX_PRESS_MAKE] 소리는 «목소리 만들기»로 */   /* [LINE_SPLIT] 예시는 한 줄 · 지금 읽는 분 */
   var q=_exAsk('소개글은',!!t&&!_exIs('pv'),!!(S.vkeep||{}).pv&&chg,false); if(!q) return put();   /* [EX_OLD_IS_EX] 옛 예시 글도 두 분이 쓴 글이 아니다 — 묻지 않는다 · [EX_ASK_ONE] 확정한 소개는 묻는다(종전엔 말없이 풀었다) */
   ordAsk(q).then(function(ok){ if(ok) put(); }); };
 window.mkPvWho=function(v){ if(v!=='g'&&v!=='b') return; if(MK_UP.pv){ _whoPend('pv',null,v,function(){ mkPvWho(v); },'[data-fk="mkwho:pv:'+v+'"]'); return; }   /* [WHO_BUSY] */ if(S.pvWho===v||(!S.pvWho&&v==='g')){ if(_whoStale('pv')||VC.stErr) _vcWhoAudio('pv','prevideo'); return; }   /* [SIM_R3] */ if(_keepAsk('pv',function(){ mkPvWho(v); })) return; S.pvWho=v; if((S.vlines||{}).pv) S.vlines.pv.forEach(function(x){ x.w=v; });   /* [LINE_SPLIT] */
@@ -5073,7 +5071,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
        한 줄에 번호 · 이름 · 사람 · 길이 · 상태를 다 이어 붙여 무엇이 제목인지 안 보였다. → 왼쪽 ▶ · 제목(이름) 한 줄 + 그 아래 옅은 한 줄(약 n초 · 상태) · 오른쪽 [신랑 | 신부].
        번호(1 · 2 …)는 걷었다 — 이름이 곧 차례(하객 입장 때 → 10분 전 → 5분 전 → 1분 전)다 */
     var gi=/^g\d$/.test(q.up)?+q.up.slice(1):-1, rd=gi>-1?RitualOpen.guestReader(S,gi):'', pv=q.up==='pv', bl=ai&&_lineBlank(q.up), pvSt=_upStale(q.up)&&!bl, ed=ai&&!own(q.up)&&(gi>-1||q.up==='entry');   // [PV_INTRO] · [LINE_EDIT] ed = 이 줄 글을 두 분이 고칠 수 있다(AI 자리)
-    if(pv) rd=S.pvWho==='b'?'b':'g'; rd=_whoPendOn(q.up,null,rd);   /* [WHO_BUSY] */ if(pvSt) st=_exPrep(q.up)?{t:'소리 준비 중',busy:1,file:1}:{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up==='entry'&&!_vtEdit('entry')?'멘트를 바꿨어요':_txStale(q.up)&&_exIs(q.up)?'예시를 바꿨어요':'글을 고쳤어요')+'',file:1};   /* ★[WHO_LAB 2026-10-08 목소리 1라운드 #28] 읽는 차례만 바뀐 줄(글은 그대로)은 «읽는 분이 바뀌었어요»가 먼저 — 종전엔 입장 인사가 «멘트를 바꿨어요»(R8-03 이 LINE_SPLIT 의 읽는 차례보다 앞서 정해졌다) · 목소리가 새로 생긴 줄은 «○○ 목소리가 생겼어요»(WHO_MISS) */   /* ★★[EX_LABEL_HONEST 2026-10-07 사장님 «고치지 않고 첫 화면에서 버튼만 눌렀는데 글을 고쳤어요 · 버그야?»] 지금 글이 사이트 예시 글이면(_exIs) 두 분이 고친 것이 아니다 → «예시를 바꿨어요» · 뒤에서 먼저 만드는 중이면(EX_FIRST) «소리 준비 중»(busy · 단추가 «준비 중»을 말하니 옆글은 숨는다) · «글을 고쳤어요»는 정말 고친 줄(vlines · vtext 로 예시와 달라진 글)에만 */   /* [AI_PILL] «· ▶ 를 누르면 새로 만들어요» → 머리 [AI로 만들기] 단추가 말한다(▶ 도 그대로 만든다) */   /* [TEXT_PLAY_MAKE 2026-10-04] «다시 만들어 주세요» → ▶ 가 만든다 */   /* [R8-03] 입장은 칩(멘트)만 골라도 읽을 글이 바뀐다 — 고친 적 없는데 «글을 고쳤어요»였다 · [R8-10] «다시 / 만들어» 한가운데서 끊기지 않게 */   /* [R7-01] «글을 고쳤어요»는 사실이 아닐 때가 있다 */
+    if(pv) rd=S.pvWho==='b'?'b':'g'; rd=_whoPendOn(q.up,null,rd);   /* [WHO_BUSY] */ if(pvSt) st=_exPrep(q.up)?{t:'소리 준비 중',busy:1,file:1}:{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up==='entry'&&!_vtEdit('entry')?'멘트를 바꿨어요':_txStale(q.up)&&_exIs(q.up)?'예시를 바꿨어요':'글을 고쳤어요')+'',file:1}; if(/^(멘트|예시)를 바꿨어요$/.test(st.t)) st.pre=1;   /* ★★[PRESET_QUIET 2026-10-08 사장님 «예시를 바꿨어요 삭제하는 건 어때 · 어차피 목소리 만들기로 버튼이 바뀌잖아»] 고른 예시 · 멘트로 글이 바뀐 줄은 단추 옆 글 없이 «목소리 만들기» 단추만 — 누른 순간 아래 알림(NOTE_TOAST)이 한 번 말한다 · 까닭(st.t)은 안에서 그대로 쓴다(EX_LABEL_HONEST · STALE_NOVOICE) */   /* ★[WHO_LAB 2026-10-08 목소리 1라운드 #28] 읽는 차례만 바뀐 줄(글은 그대로)은 «읽는 분이 바뀌었어요»가 먼저 — 종전엔 입장 인사가 «멘트를 바꿨어요»(R8-03 이 LINE_SPLIT 의 읽는 차례보다 앞서 정해졌다) · 목소리가 새로 생긴 줄은 «○○ 목소리가 생겼어요»(WHO_MISS) */   /* ★★[EX_LABEL_HONEST 2026-10-07 사장님 «고치지 않고 첫 화면에서 버튼만 눌렀는데 글을 고쳤어요 · 버그야?»] 지금 글이 사이트 예시 글이면(_exIs) 두 분이 고친 것이 아니다 → «예시를 바꿨어요» · 뒤에서 먼저 만드는 중이면(EX_FIRST) «소리 준비 중»(busy · 단추가 «준비 중»을 말하니 옆글은 숨는다) · «글을 고쳤어요»는 정말 고친 줄(vlines · vtext 로 예시와 달라진 글)에만 */   /* [AI_PILL] «· ▶ 를 누르면 새로 만들어요» → 머리 [AI로 만들기] 단추가 말한다(▶ 도 그대로 만든다) */   /* [TEXT_PLAY_MAKE 2026-10-04] «다시 만들어 주세요» → ▶ 가 만든다 */   /* [R8-03] 입장은 칩(멘트)만 골라도 읽을 글이 바뀐다 — 고친 적 없는데 «글을 고쳤어요»였다 · [R8-10] «다시 / 만들어» 한가운데서 끊기지 않게 */   /* [R7-01] «글을 고쳤어요»는 사실이 아닐 때가 있다 */
     if(MK_UP[q.up]&&((S.up||{})[q.up]||{}).src==='ai') st={t:'만드는 중…',busy:1,file:1};   /* [TEXT_PLAY_MAKE] ▶ · 굽기 동안 */
     if((MK.nowPend||{})[q.up]) st=Object.assign({},st,{busy:1});   /* [NOW_PEND] 지금 글 듣기를 기다리는 동안 ▶ 차오름 · 잠김(옆 글 «글을 고쳤어요»는 그대로 — 자리가 흔들리지 않게) */
     var aiLn=ai&&!own(q.up)&&(_vcReadyFor(q.up)||!!MK_UP[q.up]);   /* [AI_PILL] 이 줄은 머리 단추가 진행을 말한다 — 상태 줄 «만드는 중… · 보내는 중…»을 띄우지 않는다 */
@@ -5093,7 +5091,7 @@ function _mkVoice(k,ups,wed){ if(!_upLive()) return _mkVoiceOld(k,ups);   // [VO
       /* ★줄 카드 머리의 «약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 [LINE_NO_SEC 2026-10-03 사장님] · 나머지 덧말은 그대로 · 덧말도 상태도 없으면 줄을 그리지 않는다(순간 길이 LEN_ONE 은 그대로) */
       +'<span class="mk-vhd"><span class="mk-vn">'+esc(lab)+'</span>'   /* ★«예시 글 · 고쳐 써도 돼요» 줄 카드 표 금지 — 2026-10-06 사용자 지시로 삭제 [EXTAG_OFF] · 맨 위 안내 줄이 한 번 말한다 */   /* [EX_ONE] */+((mLn||stT)?'<span class="mk-vs">'+esc(mLn):'')   /* [R2-18] 줄 카드 판에서도 «시작 1분 전»이 언제 흐르는지 · [R4-08] 머리 상태 줄 안으로(CSS 없는 덧말이 «✓ AI로 만들었어요» 아래 계단처럼 붙었다) */
       +(stT?'<span class="mk-vst"'+(st.busy?' role="status"':'')+'>'+(st.ok?'<span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>':'')+esc(stT)+(st.file&&!st.busy&&!aiF?'<span aria-hidden="true"> · </span><button type="button" class="pk-link mk-vdel2" data-fk="mkupdel:'+q.up+'" aria-label="'+esc(lab+' 지우기')+'" onclick="mkUpDel(\''+q.up+'\')">지우기</button>':'')+'</span>':'')   /* [AI_DONE_QUIET] AI 줄은 «지우기» 걷었다 · [UP_BTN_OFF] 녹음 · 파일 줄만 상태 줄 끝에 */+((mLn||stT)?'</span>':'')+'</span>'
-      +(stSide?'<span class="mk-vst mk-vst-side" role="status">'+esc(st.t)+'</span>':'')   /* [STALE_BY_PILL] */   /* [KEEP_IN_PILL] 제목 아래 «확정하기» 걷음 · 머리 단추 자리로 */
+      +(stSide&&!st.pre?'<span class="mk-vst mk-vst-side" role="status">'+esc(st.t)+'</span>':'')   /* [STALE_BY_PILL] · ★단추 옆 «예시를 바꿨어요 · 멘트를 바꿨어요» 금지 — 2026-10-08 사용자 지시로 삭제 [PRESET_QUIET] */   /* [KEEP_IN_PILL] 제목 아래 «확정하기» 걷음 · 머리 단추 자리로 */
       +(aiLn&&(!pv||t)?_aiPill(q.up,lab):'')   /* [AI_PILL] 신랑 | 신부 바로 왼쪽 */
       +(nv?'<button type="button" class="mk-aip on" data-fk="mkvgo:'+q.up+'" aria-label="'+esc(lab+' · 두 분 목소리 만들러 가기')+'" onclick="mkGo(\'_voice\')"><i class="mk-aif" aria-hidden="true"></i><span>목소리 만들기</span></button>':'')   /* [STALE_NOVOICE] */
       +((gi>-1&&!ed)?'<span class="mk-whog" role="radiogroup" aria-label="'+esc(lab+' · 누가 읽나요')+'">'+[['g','신랑'],['b','신부']].map(function(o){ var on=rd===o[0]; return '<button type="button" class="mk-whob'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+(on?0:-1)+'" data-fk="mkwho:'+(pv?'pv':gi)+':'+o[0]+'" onclick="'+(pv?'mkPvWho(\''+o[0]+'\')':'mkGuestWho('+gi+',\''+o[0]+'\')')+'">'+o[1]+'</button>'; }).join('')+'</span>':'')   // [GUEST_WHO] · [PV_INTRO]
@@ -6588,7 +6586,6 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   /* [REF_BEST4] 상황 예시 — 고른 넷 뒤 · 접어 둔다(고른 적이 있으면 연 채) */
   var sitI=[]; main.forEach(function(x,i){ if(_refSit(x)) sitI.push(i); }); var sitOpen=sitI.length&&(((LS.refSit||{})[k])||sitI.indexOf(cur)>-1);
   /* [MK_MIN] «당일엔 두 분이 직접 말해요»는 머리 아래 한 번 */
-  var _rh=_mkRefHead(k,sets[cur]);
   /* ★[EX_ROW_PLACE 2026-10-07 사장님 «추천대로»] 현장에서 말하는 순간(서약 · 편지 · 첫인사 · 덕담 …)의 «참고 예시» 줄은 이 자리(«두 분이 할 말» 바로 위)에 둔다 —
      맨 위 고르기 묶음으로 올리면 폰에서 누른 글이 흐름 줄 너머 화면 밖에서 바뀐다. 모양은 위쪽 칩 줄과 같다(EX_ROW). 위로 올리자는 제안을 다시 하지 않는다 */
   var h='<section class="mk-sec mk-ref" aria-label="참고 예시">';   /* [EX_ROW] 머리 h4 · 머리말 줄 대신 칩 줄 이름표(참고 예시) + 칩 아래 한 줄(_rh) */   /* [R1-21] 말하는 사람별 머리말 · [R3-09] 머리말이 비면(축배) 줄을 그리지 않는다 */
@@ -6610,7 +6607,7 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   var _link=function(set,n){ var on=n===cur, t=_refSit(set); return '<button type="button" class="pk-link mk-rlink'+(on?' on':'')+'" aria-pressed="'+(on?'true':'false')+'" data-fk="mkrsit:'+k+':'+n+'" onclick="mkRefPick(\''+k+'\','+n+',1)">'+esc((REF_SIT[t]||t)+' 예시')+'</button>'; };
   var _grp=function(lo,hi){ var c='', l='', f=-1; for(var n=lo;n<hi;n++){ if(_refSit(sets[n])) l+=_link(sets[n],n); else { if(f<0) f=n; c+=_card(sets[n],n,f); } } return { c:c, l:l }; };
   var gm=_grp(0,main.length);
-  h+=gm.c+(_rh?'<span class="ls-gnote">'+esc(_rh)+'</span>':'')+'</span></div>';
+  h+=gm.c+'</span></div>';   /* ★참고 예시 카드 줄 아래 머리말(«고르면 아래 칸에 들어가요 · 고쳐 써도 돼요 · 예시 속 이름은 가상 인물이에요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [NOTE_TOAST] · 카드를 누를 때 아래 알림(_refToast) */
   var more=gm.l+(par&&!parOpen?'<button type="button" class="pk-link mk-rlink" data-fk="mkrpar:'+k+'" aria-expanded="false" onclick="mkRefPar(\''+k+'\')">부모님이 하실 때 예시 ›</button>':'');
   if(more) h+='<div class="mk-rmore">'+more+'</div>';
   if(par&&parOpen){ var gp=_grp(main.length,sets.length); h+='<div class="ls-cg cg-vp mk-rcg" role="radiogroup" aria-label="부모님 예시"><span class="gl" aria-hidden="true">부모님 예시</span><span class="cg-c">'+gp.c+'</span></div>'+(gp.l?'<div class="mk-rmore">'+gp.l+'</div>':''); }
@@ -6633,7 +6630,7 @@ window.mkRefSit=function(k,n){ if(n!=null){ mkRefPick(k,n,1); return; } LS.refSi
 window.mkRefStart=function(k){ var sets=_lRefSets(k), cur=Math.min((LS.ref||{})[k]||0,sets.length-1), set=sets[cur], kind=_mkKinds(k)[0], n=0; if(!set||!kind) return;
   if(!S.tx) S.tx={}; TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], pt=set.filter(function(p){ return p.who===w[1]; })[0]; if(pt&&!String(S.tx[id]||'').trim()){ S.tx[id]=pt.txt; _fAt('tx.'+id); n++; } });
   _txLeg(kind); _persist(); MK.toast=n?'예시를 두 분 칸에 옮겼어요 · 이름과 이야기를 두 분 것으로 바꿔 주세요':''; _fxNext=_txFirstSel(kind); render(); };
-window.mkRefPick=function(k,n,re){ LS.ref=LS.ref||{}; LS.ref[k]=n; if(re&&_mkRefFillable(k,n)){ _mkRefFill(k,n); return; } if(re){ _fxNext='[data-fk="mkrc:'+k+':'+n+'"]'; render(); } };
+window.mkRefPick=function(k,n,re){ LS.ref=LS.ref||{}; var was=LS.ref[k]; LS.ref[k]=n; if(re&&_mkRefFillable(k,n)){ _mkRefFill(k,n); return; } if(re){ _fxNext='[data-fk="mkrc:'+k+':'+n+'"]'; render(); if(was!==n) _noteToast(_refToast(k,n)); } };   /* [NOTE_TOAST] 다른 카드를 누를 때만 */
 /* ★[CUE_FORM 2026-10-06] 두 분 칸이 있는 순간(첫인사 · 서약 · 편지 · 부모님께 인사)은 예시 카드를 누르면 글이 칸에 바로 들어간다 — AI 줄 편집기와 같은 길(EX_ONE).
    그 예시에 그 분 줄이 있을 때만 채운다(부모님 예시 · 한 분 예시는 있는 줄만). 두 분이 고쳐 쓴 글이 있으면 먼저 묻는다(예시 그대로인 글은 묻지 않고 바꾼다).
    ★«이 예시로 시작하기» 단추를 되살린 것이 아니다(REF_START_OFF) — 단추 없이 카드가 곧 채우기 */
@@ -6643,7 +6640,7 @@ function _mkRefFillable(k,n){ return _mkRefPairs(k,n).length>0; }
 function _txExIs(id,v){ v=String(v||'').trim(); if(!v) return false; var kind=id.split('.')[0], wn=id.split('.')[1]==='b'?'신부':'신랑';
   return _lRefSets(kind).some(function(set){ return set.some(function(p){ return p.who===wn&&String(p.txt).trim()===v; }); }); }
 function _mkRefFill(k,n){ var P=_mkRefPairs(k,n), dirty=P.some(function(p){ var v=String((S.tx||{})[p.id]||'').trim(); return v&&v!==p.txt&&!_txExIs(p.id,v); });
-  var put=function(){ if(!S.tx) S.tx={}; P.forEach(function(p){ S.tx[p.id]=p.txt; if(S.txLn) delete S.txLn[p.id]; _fAt('tx.'+p.id); });   /* [VOW_FORM] 예시는 문장으로 나뉘어 번갈아 들어간다 */ _txLeg(P[0].id.split('.')[0]); _persist(); _fxNext='[data-fk="mkrc:'+k+':'+n+'"]'; render(); };
+  var put=function(){ if(!S.tx) S.tx={}; var chg=P.some(function(p){ return String(S.tx[p.id]||'')!==p.txt; }); P.forEach(function(p){ S.tx[p.id]=p.txt; if(S.txLn) delete S.txLn[p.id]; _fAt('tx.'+p.id); });   /* [VOW_FORM] 예시는 문장으로 나뉘어 번갈아 들어간다 */ _txLeg(P[0].id.split('.')[0]); _persist(); _fxNext='[data-fk="mkrc:'+k+':'+n+'"]'; render(); if(chg) _noteToast(_refToast(k,n)); };   /* [NOTE_TOAST] 글이 바뀔 때만 «아래 칸에 넣었어요 · 고쳐 써도 돼요» */
   if(!dirty){ put(); return; }
   ordAsk({title:'예시로 바꿀까요?',body:'지금 적어 둔 글은 지워져요',yes:'예시로 바꾸기',no:'그대로 두기'}).then(function(ok){ if(ok) put(); else render(); }); }   // [CAST_TEXT_ONLY] 고른 예시 = 연습에서 그 차례에 보일 글(소리 없음)
 /* ★★[LINE_STEP 2026-09-28 사장님 «플레이 버튼 쪽에 다음으로 넘길 수 있는 버튼 · 하객 입장 때 · 시작 10분 전 · 시작 5분 전 셋을 넘어 다니게 · 이전은 다음을 누르면 자연스럽게 생기게»]
@@ -7019,7 +7016,7 @@ function _lChipRow(g,opt){
   return '<div class="ls-cg'+((/^(guest|entry|pv)Voice$/.test(g.key)||g.fn)?' cg-vp':'')+((/^(guest|entry|pv)Voice$/.test(g.key)&&_upLive())?' cg-vq':'')+(lk?' cg-hl':'')+'" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
     return '<button type="button" class="op-chip'+(g.fn?' mk-exc':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(g.picked===false&&ci===0))?'0':'-1')+'" data-fk="'+(g.fk?g.fk+c[0]:'lsc:'+g.key+':'+c[0])+'" onclick="'+(g.fn?g.fn+'('+c[0]+')':'lsChip(\''+g.key+'\',\''+c[0]+'\')')+'">'+_chipT(c[1])+'</button>'; }).join('')   /* [EX_ROW] 예시 줄은 제 함수(g.fn)와 data-fk(g.fk)로 */
     +lk   /* [VS_LINK_IN_ROW] 같은 창 · VS_CHIP_ONCE 그대로 · 위에서 만든 한 묶음 */
-    +((g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?''   /* ★안 고른 안내 목소리 칩 아래 한 줄(«아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션으로 진행돼요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [VP_MUST] · 알리는 일은 «다음»을 누를 때 아래 알림 한 번 */:g.unote?'<span class="ls-gnote mk-vpask1">'+esc(g.unote)+'</span>':g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 결과 설명 대신 한 줄 · [VP_ASK_ONE] 상자는 걷었다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
+    +((g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?''   /* ★안 고른 안내 목소리 칩 아래 한 줄(«아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션으로 진행돼요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [VP_MUST] · 알리는 일은 «다음»을 누를 때 아래 알림 한 번 */:g.unote?'<span class="ls-gnote mk-vpask1">'+esc(g.unote)+'</span>':g.tip?'<span class="ls-gnote">'+esc(g.tip)+'</span>':'')+'</span></div>';   /* ★칩 줄 아래 «누르면 생기는 일» 덧말(g.note · «두 분 목소리 대신 나레이터가 읽어요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [NOTE_TOAST] · 누른 그 순간 아래 알림 한 줄(_chipNote → _noteToast) · 누르기 전에 읽혀야 하는 줄(안 고른 줄 unote · 큰절 팁 tip)만 남는다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 결과 설명 대신 한 줄 · [VP_ASK_ONE] 상자는 걷었다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
 }
 window.lsOpen=function(k){ LS.open=(LS.open===k?null:k); render(); };
 /* ★★[CHIP_NO_REPLAY 2026-09-27 사장님 «버튼을 누를 때마다 음성이 재생된다 · 나레이션이 달라지지 않는 버튼을 눌러도 반복해서 나온다»]
@@ -7040,7 +7037,8 @@ window.lsChip=function(key,v){
   if((key==='guestVoice'||key==='entryVoice'||key==='pvVoice')&&v==='ai'&&_vcOn()){ if(VC.st) _vcFillEmpty(); else _vcStatus(_vcFillEmpty); }   // [FILL_EMPTY] 이미 있는 목소리로 빈 줄을 바로
   if(LP.big) _lFull();
   _lHush(k,hold);
-  if(!/^(guest|entry|pv)Voice$/.test(key)) _chgShow(_cg0,k,g0?((g0.list.filter(function(x){ return x[0]===v; })[0]||[])[1]||''):'');   // [CHIP_CHANGED] 목소리 고르기는 제 안내(VP_ASK) · 예시 칩은 제 옆글(«예시를 바꿨어요»)이 있다 · [CHIP_TOAST] 고른 칩 이름 · 크게 보기를 다시 그린 뒤(알림 자리를 그 화면에서 잰다)
+  var _nt=_chipNote(key,v); if(_nt) _noteToast(_nt);   // [NOTE_TOAST] 칩 아래 덧말 대신 누른 그 순간 아래 알림
+  else if(!/^(guest|entry|pv)Voice$/.test(key)) _chgShow(_cg0,k,g0?((g0.list.filter(function(x){ return x[0]===v; })[0]||[])[1]||''):'');   // [CHIP_CHANGED] 목소리 고르기는 제 안내(VP_ASK) · 예시 칩은 제 옆글(«예시를 바꿨어요»)이 있다 · [CHIP_TOAST] 고른 칩 이름 · 크게 보기를 다시 그린 뒤(알림 자리를 그 화면에서 잰다)
 };
 /* ★★[CHIP_NO_AUTOPLAY 2026-10-03 사장님 «칩을 눌렀을 때 음성이 재생되게 하지 말자 · 전부»] 칩 · 예시 번호는 고르기만 한다 — 어느 칩도 소리를 틀지 않는다.
    «칩 = 듣기»(고른 대로 그 순간을 다시 · CHIP_LISTEN · CHIP_STAY 재생) 금지 — 2026-10-03 사용자 지시로 삭제. 종전 [VP_CHIP_SILENT](목소리 준비 칩만)를 이 규칙 하나로 걷었다.
@@ -7075,6 +7073,16 @@ function _chgShow(b0,k,lb){ try{ if(!b0) return; var b1=_chgSnap(k); if(!b1||!_c
     lb=String(lb||'').trim(); _lsToast(lb&&lb.length<=12?'‹'+lb+'›'+(/로$/.test(lb)?'':_josaRo(lb))+' 바꿨어요':'안내 글을 바꿨어요'); }catch(e){} }   /* [TOAST_SHORT] «‹각자 차례로› 바꿨어요»(로로 겹침 없이) */
 /* [TOAST_SHORT] 으로/로 — 받침 없음 · ㄹ 받침 → 로 · 숫자는 읽는 소리로(0 영 · 3 삼 · 6 육 → 으로) */
 function _josaRo(w){ w=String(w); var c=w.charCodeAt(w.length-1); if(c>=0xAC00&&c<=0xD7A3){ var j=(c-0xAC00)%28; return (j===0||j===8)?'로':'으로'; } return /[036]$/.test(w)?'으로':'로'; }
+/* ★★[NOTE_TOAST 2026-10-08 사장님 «두 분 목소리 대신 나레이터가 읽어요 이런 멘트 요약해서 아래 안내 문구로 · 어떻게 준비할지 먼저 골라 주세요처럼 · 다른 이벤트 섹션도 동일하게 · PC 도 전부»]
+   칩 줄 · 참고 예시 카드 줄 아래 회색 덧말(누르면 생기는 일)은 걷고, 누른 그 순간 아래 떠 있는 안내(_lsToast · VP_MUST · CHIP_TOAST 와 같은 브라운 알약 · 3초) 한 줄로 요약해 알린다.
+   누르기 전에 읽혀야 하는 줄(«아직 고르지 않았어요 · 고르지 않으면 …» · 큰절 팁)은 칩 아래 그대로 — 누를 때 뜨는 알림은 안 누른 고객에게 닿지 않는다.
+   창이 열려 있으면(처음 AI 를 누를 때 «확정하면 이렇게 돼요» 등) 알림은 띄우지 않는다 — 창이 이미 말한다 */
+var NOTE_TOAST={ ai:'AI가 두 분 목소리로 읽어요', nar:'나레이터가 두 분 대신 읽어요', couple:'두 분이 한 줄씩 녹음해요', decl:'선언문은 인쇄해 당일 디렉터가 건네 드려요', fill:'아래 칸에 넣었어요 · 고쳐 써도 돼요', aiex:'아래 글을 바꿨어요 · 고쳐 써도 돼요', ent:'녹음하실 대본도 이 멘트로 맞춰 드려요' };
+function _noteToast(m){ if(m&&!_inDlg()) _lsToast(m); }
+function _chipNote(key,v){ if(/^(guest|entry|pv)Voice$/.test(key)) return _upLive()?(NOTE_TOAST[v]||''):'';   /* 두 분 목소리 문이 열린 판의 «어떻게 준비할까요» — 옛 판 «안내 목소리» 칩엔 덧말이 없었다 */
+  if(key==='declare'&&v==='family') return NOTE_TOAST.decl;   /* [DECL_REF_HEAD] 가족 낭독을 고르면 */
+  if(key==='entry'&&S.entryVoice==='couple'&&_vpCur('entry')!=='ai') return NOTE_TOAST.ent;   /* 옛 판 직접 녹음 · 종전 «두 분이 녹음하실 대본도 이 멘트에 맞춰 드려요.» */
+  return ''; }
 /* [CHIP_TOAST] 떠 있는 안내 — #pkUndo(① 예시 알림)와 같은 모양 · 따로 산다(#pkUndo 는 ① 밖에서 그릴 때마다 닫힌다) · 3초 · 아래 막대 바로 위 */
 var _lsToastT=null;
 function _lsToast(msg){ var u=document.getElementById('lsToast');
@@ -7166,12 +7174,14 @@ function _lRefSets(k){
   return sets; }
 /* [R1-21] 참고 예시 머리말 — 말하는 사람별로. 두 분 순간은 바로 위 흐름(«당일 직접 · 신랑 차례»)이 이미 말하니 «당일엔 …»을 빼고,
    덕담은 «부모님 이야기로», 가족 선언 · 준비하신 분은 «그분 이야기로». 두 분이 쓸 칸이 없는 쪽(축배)은 바꿔 쓰라는 말 없이 */
-function _mkRefHead(k,set){ var day=_lRefDay(k,set), nm=(_exNmOk(String((CUST&&CUST.groom)||'').replace(/\s/g,''))||_exNmOk(String((CUST&&CUST.bride)||'').replace(/\s/g,'')))?'예시에 두 분 이름을 넣어 두었어요':'예시 속 이름은 가상 인물이에요';   /* [EX_MINE] */
-  /* [R2-29] «당일엔 …» 앞머리는 모두 뺀다 — 몇 줄 위 차례 줄(«당일 직접 · 부모님 …»)이 이미 말한다 · 쓸 칸이 없는 쪽(축배)은 이름 안내만 */
-  if(k==='declare') return '선언문은 큰 글씨로 인쇄해 당일 디렉터가 건네 드려요';   /* ★[DECL_REF_HEAD 2026-10-07 점검] 가족 낭독 예시는 읽는 분만 다르고 글은 성혼 선언문 하나다(이름도 없다) — «그분 이야기로 바꿔도 돼요 · 예시 속 이름은 가상 인물»은 바꿀 칸도 이름도 없는 말이었다 · 근거: 엔진 live «디렉터가 마이크 · 인쇄물 전달» */
-  if(k==='tribute') return '고르면 아래 칸에 들어가요 · 두 분 이야기로 바꿔도 돼요 · '+nm;   /* [EX_ROW] AI 판 «고르면 아래 글이 바뀌어요 · 고쳐 써도 돼요»와 같은 말투 */   /* [CUE_FORM] */   /* [R5-05] 부모님께 인사 글칸은 선택 · «적어 주세요»라고 하지 않는다 */
-  if(day==='당일엔 두 분이 직접 말해요') return _mkKinds(k).length?'고르면 아래 칸에 들어가요 · 고쳐 써도 돼요 · '+nm:'';   /* [CUE_FORM] 카드가 곧 채우기 */   /* [R4-04] 예시를 고르면 그대로 쓰인다고 읽혔다(칸은 비어 미완료로 남는다) · 단추는 되살리지 않는다 */   /* [R3-09] 쓸 칸이 없는 쪽(축배)은 머리말 없음 — 축배 예시 12줄엔 이름이 하나도 없어 «가상 인물» 안내가 가리킬 것이 없었다 */
-  return '그대로 써도 좋고, '+(day==='당일엔 부모님이 직접 말씀하세요'?'부모님':'그분')+' 이야기로 바꿔도 돼요 · '+nm; }
+/* ★[NOTE_TOAST 2026-10-08] 참고 예시 카드를 누를 때 아래 알림 한 줄 — 종전 카드 줄 아래 머리말(_mkRefHead)을 요약했다(사장님 «요약해서»).
+   [EX_MINE] «예시 속 이름은 가상 인물이에요 · 예시에 두 분 이름을 넣어 두었어요»는 요약하며 뺐다 · [R2-29] «당일엔 …» 앞머리도 그대로 뺀다(몇 줄 위 차례 줄이 말한다)
+   [DECL_REF_HEAD] 가족 낭독 예시 = 인쇄해 건네 드리는 선언문(바꿀 칸도 이름도 없다 · 엔진 live «디렉터가 마이크 · 인쇄물 전달») · [R5-05] 부모님께 인사 글칸은 선택 — «적어 주세요»라고 하지 않는다
+   [R3-09] 쓸 칸도 바꿀 이야기도 없는 쪽은 말하지 않는다 */
+function _refToast(k,n){ var set=_lRefSets(k)[n], day=_lRefDay(k,set);
+  if(k==='declare') return NOTE_TOAST.decl;
+  if(_mkRefFillable(k,n)) return NOTE_TOAST.fill;   /* [CUE_FORM] 카드가 곧 채우기 */
+  return day==='당일엔 부모님이 직접 말씀하세요'?'부모님 이야기로 바꿔도 돼요':day==='당일엔 준비하신 분이 직접 말해요'?'그분 이야기로 바꿔도 돼요':''; }
 function _lRefDay(k,set){ if(set&&set[0]&&set[0].parent) return '당일엔 준비하신 분이 직접 말해요';
   return k==='bless'?'당일엔 부모님이 직접 말씀하세요':k==='free'?'당일엔 준비하신 분이 직접 말해요':k==='declare'?'당일엔 가족 한 분이 직접 읽어요':'당일엔 두 분이 직접 말해요'; }
 /* ★★[TALK_BRIDGE 2026-10-04 사장님 «이 순간 들어 보기 누르면 전체 자동 재생 · 신랑 신부 대사 나오는 부분은 "직접 읽어 주시는 시간입니다" 이런 식으로 상황을 나레이션으로 한 번 짚고 바로 정해진 나레이션으로»]

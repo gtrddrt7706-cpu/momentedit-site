@@ -31,19 +31,19 @@ for (const W of [390, 1280]) {
   for (const [k, vk] of [['guest', 'guestVoice'], ['entry', 'entryVoice'], ['prevideo', 'pvVoice']]) {
     await pg.evaluate((k) => { mkGo(k); try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }, k); await pg.waitForTimeout(400);
     const look = (vk) => pg.evaluate((vk) => ({ ask: ((([...document.querySelectorAll('.ls-cg')].find((g) => g.querySelector('[data-fk^="lsc:' + vk + ':"]')) || document).querySelector('.mk-vpask1')) || {}).textContent || '',   /* [EX_ROW 2026-10-07] 예시 칩 줄도 같은 줄(mk-vpask1 · «아직 고르지 않았어요 · 고르지 않으면 담백하게로») — 목소리 칩 줄 것만 */ box: !!document.querySelector('.mk-vpask'), flow: !!document.querySelector('.mk-flow'), cards: document.querySelectorAll('.mk-vc').length,
-      note: [...document.querySelectorAll('.ls-gnote')].map((e) => e.textContent).join('|'), on: [...document.querySelectorAll('[data-fk^="lsc:' + vk + ':"]')].filter((e) => e.getAttribute('aria-checked') === 'true' || e.classList.contains('on')).length }), vk);
+      note: [...document.querySelectorAll('.ls-gnote')].map((e) => e.textContent).join('|'), toast: ((u) => (u && !u.hidden ? u.textContent : ''))(document.getElementById('lsToast')) /* [NOTE_TOAST] 누른 그 순간 아래 알림 */, on: [...document.querySelectorAll('[data-fk^="lsc:' + vk + ':"]')].filter((e) => e.getAttribute('aria-checked') === 'true' || e.classList.contains('on')).length }), vk);
     const a = await look(vk);
     if (SHOTS) await pg.screenshot({ path: path.join(SHOTS, `vp-ask-${k}-${W}.png`), fullPage: true });
     ok(`${W} ${k} 안 고름 — 칩 아래 한 줄 없음(VP_MUST · 사장님 «저 문구 삭제») · 상자 없음 [VP_ASK_ONE] · 흐름 · 줄 카드 · «나레이터가 읽어요» 없음 · 칩 비어 있음`,
       !a.ask && !a.box /* [VP_ASK_ONE] 상자 없이 칩 아래 한 줄 */ && !a.flow && a.cards === 0 && !/나레이터가 읽어요/.test(a.note) && a.on === 0, JSON.stringify(a));
     /* ★★[VP_ROW_A 2026-10-08 사장님 «추천두개» = 안 A · «PC 는 지금이 적절 · 바꾼다면 모바일만»] 폰 = 질문 14px 먹색 600 한 줄 · 칩 반반(줄을 꽉 채운 같은 폭 두 칸) · 링크 12.5px 는 질문 줄 오른쪽 · 질문과 안 겹친다
-       PC = 종전 그대로(이름표 11px · 질문 옆에 칩 한 줄 · VP_CHIP_ROW) */
+       PC = 칩은 글자 폭 그대로 · 제목 글씨는 같다(CG_TITLE · 질문 옆에 칩 한 줄 · VP_CHIP_ROW) */
     const vr = await vpRow(pg, vk);
     if (W <= 460) ok(`${W} ${k} [VP_ROW_A] 폰 — «어떻게 준비할까요» 14px · 600 · 먹색 · 한 줄 · 칩 둘이 같은 폭으로 줄을 꽉 채운다 · 링크 12.5px 는 질문 줄 오른쪽(질문과 12px 넘게)`, vr && vr.vq && vr.fs === '14px' && vr.fw === '600' && vr.col === 'rgb(58, 45, 34)' && vr.lines === 1 && vr.eq && vr.fill && vr.lfs === '12.5px' && vr.gap >= 12 && vr.lup, JSON.stringify(vr));
-    else ok(`${W} ${k} [VP_ROW_A] PC — 종전 그대로(이름표 11px · 한 줄 · 질문 옆에 칩)`, vr && vr.fs === '11px' && vr.fw === '400' && vr.lines === 1 && vr.beside, JSON.stringify(vr));
+    else ok(`${W} ${k} [VP_ROW_A · CG_TITLE] PC — 제목 14px · 600 · 먹색 · 한 줄 · 질문 옆에 칩(사장님 «제목 폰트는 PC 도»)`, vr && vr.fs === '14px' && vr.fw === '600' && vr.col === 'rgb(58, 45, 34)' && vr.lines === 1 && vr.beside, JSON.stringify(vr));
     await pg.click(`[data-fk="lsc:${vk}:nar"]`); await pg.waitForTimeout(400);
     const b = await look(vk);
-    ok(`${W} ${k} 스튜디오 나레이션 고름 — 칸이 걷히고 흐름 · 덧말이 열린다`, !b.ask && b.flow && /나레이터가 읽어요/.test(b.note) && b.on === 1, JSON.stringify(b));
+    ok(`${W} ${k} 스튜디오 나레이션 고름 — 칸이 걷히고 흐름이 열린다 · «나레이터가 …»는 칩 아래가 아니라 아래 알림 «나레이터가 두 분 대신 읽어요» [NOTE_TOAST]`, !b.ask && b.flow && !/나레이터가/.test(b.note) && b.toast === '나레이터가 두 분 대신 읽어요' && b.on === 1, JSON.stringify(b));
   }
   /* ★★[VP_MUST 2026-10-08 사장님 «무조건 고르게»] 안 고른 채 «다음»을 누르면 그 쪽에 머물고 한 줄이 진사색(must) · 고르면 넘어간다 · ② → ③ 문도 안 고른 쪽으로 데려간다 */
   { await pg.evaluate(() => { const t = Object.assign({}, S.touched); delete t.guestVoice; S.touched = t; mkGo('guest'); try { lsStop(); } catch (e) {} window.scrollTo(0, 0); }); await pg.waitForTimeout(400);

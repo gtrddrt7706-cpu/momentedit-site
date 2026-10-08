@@ -14597,16 +14597,41 @@ chk 'STALE_BY_PILL' scripts/audit/pv-intro.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vp-ask-first.mjs >/dev/null 2>&1; _vpa=$?; if [ "$_vpa" = 1 ]; then echo 'FAIL vp-ask-first: 안내 목소리 «먼저 골라 주세요» · 칩 폭 고정이 어긋났습니다 — node scripts/audit/vp-ask-first.mjs'; fail=1; fi; fi
 # ★★[VP_ROW_A 2026-10-08 사장님 «추천두개» = 안 A · «PC 는 지금이 적절 · 바꾼다면 모바일만»] «어떻게 준비할까요» 줄(하객 맞이 · 입장 · 식전 영상 소개 · cg-vq) — 폰만:
 #   질문 14px 먹색 600 · 칩 반반(아래 칩 줄과 같은 모양) · 링크 12.5px(360 아래 11px) · 그래도 질문 글자에 붙으면 칩 아래 제 줄(cg-lkdn · _cgEven 이 잰다)
-#   PC 는 종전 그대로(96px 이름표 칸 · 11px) · vp-ask-first 가 280 · 320 · 390 · 1280 에서 잰다(되돌리면 빨강 · 돌연변이 확인)
+#   PC 칩은 글자 폭 그대로 · 제목 글씨는 같은 날 CG_TITLE 로 PC 도(사장님 «제목 폰트는 PC 도 전부») · vp-ask-first 가 280 · 320 · 390 · 1280 에서 잰다(되돌리면 빨강 · 돌연변이 확인)
 chk 'VP_ROW_A' order-preview.html 4
 chk 'VP_ROW_A' scripts/audit/vp-ask-first.mjs 9
 chk 'VP_ROW_A' scripts/audit/make-shell.mjs 1
 chk "_upLive())?' cg-vq':'')" order-preview.html 1
-chk '  .ls-cg.cg-vq .gl{font-size:14px;color:var(--accent);font-weight:600}' order-preview.html 1
 chk '  .ls-cg.cg-vq .cg-c{display:grid;grid-template-columns:repeat(var(--cgn,2),minmax(0,1fr));gap:6px}' order-preview.html 1
 chk "row.classList.add('cg-lkdn')" order-preview.html 1
-chk '@media (min-width:461px){.ls-cg{grid-template-columns:96px minmax(0,1fr)}}' order-preview.html 1   # PC 이름표 칸 그대로
-nochk '^\.ls-cg\.cg-vq \.gl{' order-preview.html   # ★PC 에도 걸리는 질문 글씨 금지 — 폰 미디어 안에만(사장님 «PC 는 지금이 적절»)
+chk '@media (min-width:461px){.ls-cg{grid-template-columns:120px minmax(0,1fr)}}' order-preview.html 1   # [CG_TITLE] PC 이름표 칸 96 → 120(14px 제목 한 줄)
+# ★★[NOTE_TOAST · CG_TITLE 2026-10-08 사장님 «두 분 목소리 대신 나레이터가 읽어요 이런 멘트 요약해서 아래 안내 문구로 · 어떻게 준비할지 먼저 골라 주세요처럼» · «안내 멘트 제목도 똑같이»
+#   · «다른 이벤트 섹션도 동일하게» · «제목 폰트랑 하단 안내 멘트 팝업은 PC 도 적용 전부»] 칩 줄 · 참고 예시 카드 줄 아래 «누르면 생기는 일» 덧말은 걷고 누를 때 아래 알림 한 줄
+#   (남는 줄 = 누르기 전에 읽혀야 하는 «아직 고르지 않았어요 · …» · 큰절 팁) · 모든 칩 줄 제목 = 14px 먹색 600(폰 + PC · PC 이름표 칸 120 · 폰 줄 사이 18)
+#   note-toast.mjs 가 390 · 1280 에서 모든 순간 쪽을 잰다(덧말 되살림 · 머리말 되살림 · 11px 제목 · 알림 끔 둘 · PC 96 · 폰 7px — 돌연변이 7종 모두 빨강 확인)
+chk 'NOTE_TOAST' order-preview.html 14
+chk 'CG_TITLE' order-preview.html 7
+chk 'NOTE_TOAST' scripts/audit/note-toast.mjs 2
+chk '.ls-cg .gl{font-size:14px;color:var(--accent);font-weight:600;min-width:48px}' order-preview.html 1
+chk '.lf-vars .gl{font-size:14px;color:var(--accent);font-weight:600;min-width:48px}' order-preview.html 1
+chk 'var _nt=_chipNote(key,v); if(_nt) _noteToast(_nt);' order-preview.html 1
+chk 'render(); if(chg) _noteToast(_refToast(k,n)); };' order-preview.html 1
+chk 'if(was!==n) _noteToast(_refToast(k,n));' order-preview.html 1
+chk "nar:'나레이터가 두 분 대신 읽어요'" order-preview.html 1
+chk '@media (max-width:460px){.ls-vars>.ls-cg+.ls-cg,.lf-vars>.ls-cg+.ls-cg{margin-top:11px}}' order-preview.html 1
+nochk ":g.note?'<span class=\"ls-gnote\">'" order-preview.html   # ★칩 줄 아래 «누르면 생기는 일» 덧말 금지 — 2026-10-08 사용자 지시로 삭제
+nochk 'h+=gm.c+(_rh?' order-preview.html   # ★참고 예시 카드 줄 아래 머리말 금지 — 2026-10-08 사용자 지시로 삭제
+nochk '.ls-cg .gl{font-size:11px;color:var(--light)' order-preview.html   # 종전 11px 회색 제목
+if command -v node >/dev/null 2>&1; then node scripts/audit/note-toast.mjs >/dev/null 2>&1; _ntt=$?; if [ "$_ntt" = 1 ]; then echo 'FAIL note-toast: 칩 줄 제목 · 칩 아래 덧말 → 아래 알림이 어긋났습니다 — node scripts/audit/note-toast.mjs'; fail=1; fi; fi
+# ★★[PRESET_QUIET 2026-10-08 사장님 «예시를 바꿨어요 삭제하는 건 어때 · 어차피 목소리 만들기로 버튼이 바뀌잖아»] 고른 예시 · 멘트로 글이 바뀐 AI 줄은 단추 옆 글 없이 «목소리 만들기»만
+#   (누른 순간 아래 알림 NOTE_TOAST 가 한 번 말한다) · 까닭(st.t)은 안에서 그대로(EX_LABEL_HONEST · STALE_NOVOICE) · «글을 고쳤어요 · 읽는 분이 바뀌었어요 · ○○ 목소리가 생겼어요»는 그대로(STALE_BY_PILL)
+#   ex-promise T1 · T2 · T6 · T7 · stale-novoice ① 이 잰다
+chk 'PRESET_QUIET' order-preview.html 2
+chk 'if(/^(멘트|예시)를 바꿨어요$/.test(st.t)) st.pre=1;' order-preview.html 1
+chk "stSide&&!st.pre?'<span class=\"mk-vst mk-vst-side\"" order-preview.html 1
+nochk "(stSide?'<span class=\"mk-vst mk-vst-side\"" order-preview.html   # ★단추 옆 «예시를 바꿨어요 · 멘트를 바꿨어요» 금지 — 2026-10-08 사용자 지시로 삭제
+chk 'PRESET_QUIET' scripts/audit/ex-promise.mjs 4
+chk 'PRESET_QUIET' scripts/audit/stale-novoice.mjs 2
 # ★[VOICE_ORDER · VU_VIDEO_PLAY 2026-10-06 사장님 «왜 식전 영상이 입장 이후에 있어?» · «영상 움직이게 · 멈춰 있어»] 두 분 목소리 쪽 이름 흐름 · 쓰이는 곳 문장 · 창 = 예식 차례(하객 맞이 → 식전 영상 → 입장) · 창 그림은 영상 재생
 chk "VS_MK=\['guest','prevideo','entry'\]" order-preview.html 1
 chk "\['pv','식전 영상 소개','prevideo'\],\['entry','입장 인사','entry'\]\]" order-preview.html 1
@@ -15615,8 +15640,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/voice-open.mjs >/dev
 #   PC · 태블릿은 칩 줄 오른쪽 끝 그대로 · 하객 맞이 · 식전 영상 · 입장 셋 다(_lChipRow 한 곳) · make-shell 이 390 · 1280 에서 잰다(폰 배치를 빼면 빨강 · 돌연변이 확인)
 chk 'VS_LINK_TOP' order-preview.html 2
 chk "return (a||b)?'<span class=\"cg-links\">'+a+b+'</span>':'';" order-preview.html 1
-chk '.ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(11px \* 1.4 - 44px);right:0;height:44px' order-preview.html 1
-chk '.ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:11px;line-height:1.4}' order-preview.html 1
+chk '.ls-cg.cg-vp.cg-hl .cg-c .cg-links{position:absolute;top:calc(14px \* 1.4 - 44px);right:0;height:44px' order-preview.html 1   # [CG_TITLE 10/08] 제목 14px 줄에 맞춤(종전 11px)
+chk '.ls-cg.cg-vp.cg-hl .cg-links .pk-link{min-height:0;height:44px;margin:0;padding:0;display:inline-flex;align-items:flex-end;font-size:12.5px;line-height:1.4}' order-preview.html 1   # [CG_TITLE · VP_ROW_A] 링크 = 제목(14px)보다 한 단 아래
 chk 'VS_LINK_TOP' scripts/audit/make-shell.mjs 3
 # ★[ERR_CODE_PAY 2026-10-07 사장님 «오류 코드로 관리자가 어떤 문제인지 알 수 있게 · 전부 개선»] 카드결제(꺼져 있음 · 켜기 전에 맞춤) — 토스 거절 P4 + 토스 코드 · 빈 복귀도 결제로그 ·
 #   승인 뒤 기록 함수가 던지면 B-1(관리자 알림 · «기록경고») · card-err.mjs 가 실제 .gs 로 태운다(try 를 걷으면 FAIL 4 · 돌연변이 확인)
