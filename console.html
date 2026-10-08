@@ -799,7 +799,9 @@ function rfPaint(){ var sec = $('#rfSec'), box = $('#rfChk'), ks = rfKeys(); if 
       : RF_SKIP === 'norf' ? '받지 않음 · 나레이션으로 나감 · 관리 화면 «당일 콘솔» 단추로 열어야 받아요'
       : RF_SKIP === 'notok' ? '받지 않음 · 나레이션으로 나감 · 이 기기에 관리자 로그인이 없어요 (코드 L8)'
       : '파일 없음 · 나레이션으로 나감';
-    return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + ecWrap(t) + '</span></div>'; }).join(''); }   // [CODE_NOWRAP] 코드는 한 덩어리
+    return '<div class="kv"><span class="k">' + RF_LAB[k] + '</span><span class="v' + (st === 'ok' ? '' : ' dim') + '">' + ecWrap(t) + '</span></div>'; }).join('')
+    + (ks.some(function(k){ return RF_ST[k] === 'fail'; }) ? '<div class="kv"><span class="k"></span><span class="v"><button type="button" id="rfAgain">다시 받기</button></span></div>' : '');   // [CODE_NOWRAP] 코드는 한 덩어리
+  var ag = document.getElementById('rfAgain'); if (ag) ag.onclick = function(){ Object.keys(RF_ST).forEach(function(k){ if (RF_ST[k] === 'fail') { delete RF_ST[k]; delete RF_WHY[k]; } }); rfPrefetch(); }; }   // [RF_CON_TIMEOUT] 못 받은 줄이 있으면 다시 받기
 /* ★[ERR_CODE_PAGES 2026-10-07] 받지 못한 까닭 — 직원이 읽는 짧은 말 + 코드(L = 불러오기 · 숫자 = 무슨 일 · assets/err-codes.js 와 같은 뜻).
    e = 요청 자체가 실패(시간 L5 · 연결 L6 · 서버 답이 깨짐 L7 · 미리보기 주소에서 막음 L3) · d = 서버(adminCall)가 거절한 답 */
 function rfWhy(d, e){
@@ -819,15 +821,20 @@ var RF_WHY = {}, RF_SKIP = '';   // [ERR_CODE_PAGES] 줄마다 받지 못한 까
 function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = localStorage.getItem('me_admin_token') || ''; } catch (e) {}
   var up = S.up || {}; RF_SKIP = !code ? 'norf' : !tok ? 'notok' : ''; rfPaint(); if (!code || !tok) return;
   /* [ERR_CODE_PAGES] 요청 단계의 실패에만 __rfNet 표시 — 받은 뒤 이 기기에서 파일을 열다 난 실패(M6)와 가른다 */
-  var call = function(fn, args){ return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: fn, args: args }) }).then(function(r){ return r.json(); }).then(function(d){ return (d && d.result) || d; }, function(e){ try { if (e && typeof e === 'object') e.__rfNet = 1; } catch (x) {} throw e; }); };
+  /* ★[RF_CON_TIMEOUT 2026-10-08 목소리 1라운드 84] 요청마다 60초 한도 — 종전엔 한도가 없어 «받는 중…»에 멈췄다(L5 갈래가 실제로는 안 쓰였다) */
+  var call = function(fn, args){ var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null, tm = ac ? setTimeout(function(){ try { ac.abort(); } catch (x) {} }, 60000) : null;
+    return fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'adminCall', token: tok, fn: fn, args: args }), signal: ac ? ac.signal : undefined }).then(function(r){ return r.json(); }).then(function(d){ if (tm) clearTimeout(tm); return (d && d.result) || d; }, function(e){ if (tm) clearTimeout(tm); try { if (e && typeof e === 'object') e.__rfNet = 1; } catch (x) {} throw e; }); };
   /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오가 대신 올린 파일은 두 분 초안(S.up)에 없다 — 관리 목록(adminRitualFiles · 최신이 위)에서
      자리마다 가장 새 파일을 찾아 채운다. 두 분이 올린 id 가 목록에 있으면 그것을 쓴다. 목록을 못 받으면 종전대로 S.up 만 */
   call('adminRitualFiles', [code]).then(function(L){ return { L: L }; }, function(e){ return { L: null, e: e }; }).then(function(x){ var L = x.L, newest = {}, have = {};
     /* [ERR_CODE_PAGES] 목록을 못 받았으면 «파일 없음»이라 말하지 않는다 — 있는지 모르는 것이다. 두 분 초안에 id 가 없는 줄은 목록 실패 까닭으로 «받지 못함» */
     var listWhy = (L && L.ok) ? '' : '목록을 못 받았어요 · ' + rfWhy(L, x.e);
-    /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 그 자리를 지웠으면(초안 0) 스튜디오가 대신 올린 파일만 — 두 분 파일 사본(다시 보내기로 생긴 것)이 남아 있어도 틀지 않는다 */
-    var studio = {}; ((L && L.ok && L.files) || []).forEach(function(f){ if (f.key && !newest[f.key]) newest[f.key] = f.id; if (f.key && !studio[f.key] && / · 스튜디오 · /.test(String(f.name || ''))) studio[f.key] = f.id; have[f.id] = 1; });
-    rfKeys().forEach(function(k){ var v = up[k], id = (v && typeof v === 'object' && v.id && !/^local:/.test(v.id) && (!L || !L.ok || have[v.id])) ? v.id : ((v === 0 ? studio[k] : newest[k]) || '');
+    /* ★[RF_CON_NOOLD 2026-10-08 목소리 1라운드 75 · 57] [RF_DEL_ALL] 빈 줄에 «그 자리의 가장 새 파일»을 채우던 길을 스튜디오가 대신 올린 파일로만 좁혔다 —
+       종전엔 두 분이 지운 줄(«나레이션으로 바뀌어요»)에도 옛 AI 테이크 · 다시 보내기 사본이 «두 분 녹음 · 받아 둠»으로 나갔다.
+       대체 파일 = 서버 기록(sup · RFSTUDIO) → 없으면(옛 서버) 이름에 « · 스튜디오 · »가 든 가장 새 파일. 그 밖의 옛 파일은 쓰지 않는다(나레이션) */
+    var sup = (L && L.ok && L.sup) || {};
+    ((L && L.ok && L.files) || []).forEach(function(f){ if (f.key && !newest[f.key] && / · 스튜디오 · /.test(f.name || '')) newest[f.key] = f.id; have[f.id] = 1; });
+    rfKeys().forEach(function(k){ var v = up[k], sk = sup[k] && sup[k].id && have[sup[k].id] ? sup[k].id : (newest[k] || ''), id = (v && typeof v === 'object' && v.id && !/^local:/.test(v.id) && (!L || !L.ok || have[v.id])) ? v.id : sk;
       if (!id) { if (listWhy) { RF_ST[k] = 'fail'; RF_WHY[k] = listWhy; rfPaint(); } return; }
       RF_ST[k] = 'busy'; rfPaint();
       call('adminRitualFileGet', [code, id]).then(function(d){ if (!d || !d.ok || !d.data) { RF_WHY[k] = rfWhy(d); throw 0; }
