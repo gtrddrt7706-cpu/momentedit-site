@@ -730,7 +730,9 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-band .t1{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--sub)}
 .op-band .t1 b{color:var(--accent);font-weight:600}
 .op-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;margin:7px 0 3px;background:var(--bg2)}
-.op-bar .c{background:var(--gold-deep)} .op-bar .p{background:#E6DCCB}
+.op-bar .c{background:var(--gold-deep)} .op-bar .p{background:#E6DCCB} .op-bar .t{background:var(--gold)}   /* [TABLE_APART] 테이블 인사 = 곡선 꼬리와 같은 옅은 금 */
+.mk-fsum{display:flex;flex-wrap:wrap;column-gap:1.1em;overflow:hidden} .mk-fsum>span{position:relative;white-space:nowrap} .mk-fsum .sep{position:absolute;right:100%;width:1.1em;text-align:center;font-style:normal}   /* [FSUM_SEP] */
+.op-leg.op-leg3{position:relative} .op-leg .lt{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
 .op-leg{display:flex;justify-content:space-between;font-size:11px;color:var(--light)}
 .op-mf{display:flex;align-items:center;gap:4px;overflow-x:auto;white-space:nowrap;margin-top:7px;font-size:12.5px;color:var(--ink2);scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .op-mf::-webkit-scrollbar{display:none}
@@ -928,7 +930,8 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .op-cta.flash b{animation:ctaflash .7s ease-out}
 @keyframes ctaflash{0%{color:var(--gold-deeper)}100%{color:var(--accent)}}   /* [D10] 금색도 AA(5.71:1) — 번쩍이는 순간에도 읽힌다 */
 .op-cta .cta-al{flex:0 0 auto;min-height:44px;display:inline-flex;align-items:center;border:0;background:none;padding:0 2px;font:inherit;font-size:12.5px;white-space:nowrap;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;cursor:pointer;word-break:keep-all}
-@media (max-width:359px){ .op-cta,.op-cta .cta-al{font-size:11px} }   /* [R1-15] «살펴볼 것» 누르는 칸 44px · [RIT_BAR_ONELINE] 320 에서도 시간 둘 + «살펴볼 것 N ›»가 한 줄 */
+@media (max-width:359px){ .op-cta,.op-cta .cta-al{font-size:11px} }
+@media (max-width:389px){ .op-cta .cta-lg{display:none} }   /* ★[TABLE_APART · RIT_BAR_ONELINE] 셋이 들면 389 아래에서 «테이블 9분»(고정값이라 «약» 없이) — 막대는 늘 한 줄(360 · 320 실측) */   /* [R1-15] «살펴볼 것» 누르는 칸 44px · [RIT_BAR_ONELINE] 320 에서도 시간 둘 + «살펴볼 것 N ›»가 한 줄 */
 /* 얇은 띠(PC) — 흐름 띠가 화면 위로 나가면 위에 붙는다 · 좁은 화면에서는 보이지 않는다 */
 .pk-slim{display:none}
 /* ▶ 미리 보기 창 [PREVIEW_SHEET] — 휴대폰은 아래에서 올라오는 창 · PC 는 가운데 창 */
@@ -3475,10 +3478,10 @@ function _paintCta(k){
   var show=isOpen()&&k==='pick'&&!editReturn;
   if(!show){ if(c) c.remove(); _ctaKey=''; return; }
   if(!c){ c=document.createElement('div'); c.id='opCta'; c.className='op-cta'; nav.insertBefore(c,nav.firstChild); }
-  var R=RitualOpen, n=R.picked(S).length, sp=R.span(S), nt=_noteFull(_noteShut), key=n?(sp.body+'|'+sp.photo):'';
+  var R=RitualOpen, n=R.picked(S).length, sp=R.span(S), nt=_noteFull(_noteShut), key=n?(sp.body+'|'+sp.table+'|'+sp.photo):'';
   /* [BAR_DOT_EVEN 2026-09-26 직접 보며 점검] 두 시간은 flex 칸이라 «·» 앞은 column-gap 6px · 뒤는 NBSP 3px 로 점이 한쪽으로 쏠려 보였다(390 실측) —
      뒤를 반각 공백(U+2002 · 12px 글에서 6px)으로 맞춘다. 줄은 nowrap 이라 갈리지 않는다 */
-  var h=n?('<span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span> <span class="nw">·\u2002단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b></span>')
+  var h=n?('<span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span>'+(sp.tm?' <span class="nw">·\u2002테이블<span class="cta-lg">'+NBS+'인사</span> <b><span class="cta-lg">약'+NBS+'</span>'+sp.tm+'분</b></span>':'')+' <span class="nw">·\u2002단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b></span>')   /* [TABLE_APART] 테이블 인사는 본식 · 단체 사진과 따로 */
          :'<span class="cta-e">입장 · 닫는 인사만으로도 다음으로 갈 수 있어요</span>';   /* [R1-33] 본문 빈 판 문장(«위 예시로 시작하거나…»)을 막대가 되풀이하지 않는다 */
   /* ★[RIT_BAR_ONELINE 2026-09-27 4부 3] 알림 글은 흐름 판에만 — 막대에는 «살펴볼 것 N ›» 한 마디(누르면 판의 알림으로).
      알림 첫 문장을 막대에 실으면 막대가 두세 줄(154px)로 커졌다. 막대 높이는 늘 한 줄. */
@@ -3870,7 +3873,7 @@ function opSync(){
 }
 /* ★[BAR_SUM · D10] 담기 · 빼기는 한 줄로 알린다 — «화촉을 담았어요 · 본식 약 13~18분 · 단체 사진 약 22~27분» */
 var _pkMsg='';
-function _pkSayOf(k,on){ var R=RitualOpen, nm=R.CARDS[k].n, sp=R.span(S); return nm+_josa(nm,'을','를')+(on?' 담았어요':' 뺐어요')+(R.picked(S).length?' · 본식 '+sp.body+' · 단체 사진 '+sp.photo:''); }
+function _pkSayOf(k,on){ var R=RitualOpen, nm=R.CARDS[k].n, sp=R.span(S); return nm+_josa(nm,'을','를')+(on?' 담았어요':' 뺐어요')+(R.picked(S).length?' · '+R.spanText(S):''); }   /* [TABLE_APART] */
 /* [R1-43] ① 에서 다시 담거나 빼거나 예시를 바꾸면 ② 의 «이 순간 빼기» 기록(S.mk.drop · dropMin)도 지운다 — 남으면 흐린 «뺀 순간» 쪽 · «다시 넣기» · 지난 «본식 약 n분 줄었어요»가 되살아났다 */
 function _mkForget(ks){ var m=S.mk; if(!m) return; (ks||Object.keys(m.drop||{})).forEach(function(k){ if(m.drop) delete m.drop[k]; if(m.dropMin) delete m.dropMin[k]; }); }
 window.opTgl=function(k){ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(!S.on) S.on={}; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pkSayOf(k,on); opSync(); if(PV.k===k) _pvActs(); };
@@ -3908,7 +3911,7 @@ window.opEx=function(k){
      종전엔 같은 예시를 다시 누르면 아무것도 안 했다 — 그래서 «빈 칸에서 직접 고를게요» 링크가 따로 있었다(그 링크는 뺐다 · 이 동작이 대신한다). */
   if(R.sameAsExample(S,k)){ _opPrev=_pkSnap(); S.on={}; delete S.pickFrom; _mkForget(); _pkMsg='‹'+ex.nm+'› 예시를 뺐어요'; _fxNext='[data-fk="opx:'+k+'"]'; opSync(); _pkUndo('‹'+ex.nm+'› 예시를 뺐어요'); return; }   /* [QA_FX_ORDER] 그리기 전에 — 뒤에 걸면 다음 ＋ 가 포커스를 이 카드로 끌어왔다 */
   _opPrev=_pkSnap();   // 빈 채에서 시작해도 되돌리기가 뜬다(빈 칸으로 돌아간다)
-  R.applyExample(S,k); _mkForget(); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · 본식 '+R.span(S).body+' · 단체 사진 '+R.span(S).photo;
+  R.applyExample(S,k); _mkForget(); _pkMsg='‹'+ex.nm+'› 예시로 바꿨어요 · '+R.spanText(S);   /* [TABLE_APART] */
   opSync(); _pkUndo('‹'+ex.nm+'› 예시로 바꿨어요');
 };
 window.opBlank=function(){
@@ -4405,8 +4408,8 @@ function _mkStrip(cur){ var ps=_mkPages(), m=_mkRO();
   /* [NAV_FOLD] 접힌 한 줄 — 순간 수는 담은 순간만(고른 순서 쪽 · 한눈에 보기 · 뺀 순간 제외) · 미완료 = 줄에서 진사로 칠해지는 «지나온 미완료» 순간 수(_mkStat 그대로 · 새 판정 없음) */
   var _mo=ps.filter(function(k){ return k!=='_intro'&&k!=='_sum'&&k!=='_voice'&&!_mkOff(k); }), _mi=_mo.indexOf(cur), _left=_mo.filter(function(k){ return _mkStat(k)==='todo'; }).length, _open=!!MK.navOpen;
   /* 번호는 쪽 제목(«6 · 반지 교환») · 아래 단추(«다음 · 7 성혼 선언»)와 같은 셈 — 본식은 bodySeq 차례(닫는 인사까지) · 식전은 식전끼리. 한 화면에 두 번호가 다르면 안 된다 */
-  var _no=_mkNo(cur), _pre=_mo.filter(function(k){ return _mkNo(k)==='식전'; }), _bN=RitualOpen.bodySeq(S).length;
-  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'식전 <b>'+(_pre.indexOf(cur)+1)+'</b> / '+_pre.length:'본식 <b>'+_no+'</b> / '+_bN;
+  var _no=_mkNo(cur), _pre=_mo.filter(function(k){ return _mkNo(k)==='식전'; }), _bN=RitualOpen.bodySeq(S).filter(function(k){ return !RitualOpen.AFTER_CLOSE[k]; }).length;   /* [TABLE_APART] 본식 n / N 의 N 에서 테이블 인사를 뺀다 */
+  var _pos=cur==='_sum'?'<b>한눈에 보기</b>':cur==='_voice'?'<b>두 분 목소리</b>':_mi<0?'<b>뺀 순간</b> · '+esc(_mkName(cur)):_no==='식전'?'식전 <b>'+(_pre.indexOf(cur)+1)+'</b> / '+_pre.length:RitualOpen.AFTER_CLOSE[cur]?'<b>본식 뒤</b>':'본식 <b>'+_no+'</b> / '+_bN;   /* [TABLE_APART] */
   var h='<nav class="mk-strip" id="mkStrip" aria-label="진행 순서">'
     +'<div class="mk-fold"><span class="mk-pos" data-fk="mkpos"><span class="mk-pstep">하나씩 만들기 · </span>'+_pos+(_left?'<span class="mk-left"> · 미완료 순간 '+_left+'</span>':'')+'</span>'
     +'<button type="button" class="mk-fbtn" data-fk="mkfold" aria-expanded="'+_open+'" aria-controls="mkScP" onclick="mkFold()">'+(_open?'접기':'모든 순간 보기')+'<i class="mk-chev" aria-hidden="true"></i></button></div>'
@@ -6615,7 +6618,7 @@ function renderMake(){
   if(k==='_voice') return h+_mkVoicePage()+'</div>';   /* [VOICE_ONCE] */
   var no=_mkNo(k), off=_mkOff(k), peak=R.peakOf(S), _fs=_flowSec(k), sec=Math.round((_fs.lo+_fs.hi)/2);   /* ★[LEN_ONE 2026-10-03] 순간 길이는 한 자 — 예식 흐름 줄과 같은 _flowSec 가운데 값(종전 대본 합 lo 만 써서 화촉 2분 ↔ 1분처럼 두 화면이 달랐다) */
   h+='<section class="mk-pg'+(off?' off':'')+'" aria-labelledby="mkHead">';
-  if(off){ var dm=(m.dropMin||{})[k]; h+='<div class="mk-offb" role="status"><span>이 순간을 뺐어요 · 적어 두신 글은 그대로 있어요'+(dm?' · 본식 약 '+dm+'분 줄었어요':'')+'</span><button type="button" class="rowbtn" data-fk="mkundrop" onclick="mkUndrop(\''+k+'\')">다시 넣기</button></div>'; }
+  if(off){ var dm=(m.dropMin||{})[k]; h+='<div class="mk-offb" role="status"><span>이 순간을 뺐어요 · 적어 두신 글은 그대로 있어요'+(dm?(RitualOpen.AFTER_CLOSE[k]?' · 단체 사진이 약 '+dm+'분 늘었어요':' · 본식 약 '+dm+'분 줄었어요'):'')   /* [TABLE_APART] 테이블 인사를 빼면 본식이 아니라 단체 사진이 는다 */+'</span><button type="button" class="rowbtn" data-fk="mkundrop" onclick="mkUndrop(\''+k+'\')">다시 넣기</button></div>'; }
   /* [R2-21] 식전 영상도 «이 순간 빼기»(PREVIDEO_PICK 부터 뺄 수 있는 순간) · [R2-22] «식전 · 식전 영상» 겹말을 막는다(SCRIPT_LAB P1-7 과 같은 규칙) */
   h+='<div class="mk-h"><h3 id="mkHead" tabindex="-1">'+((no&&!(no==='식전'&&/^식전/.test(_mkName(k))))?'<span class="mk-hn">'+esc(no)+'</span> · ':'')+_pkName(esc(_mkName(k)),k===peak&&!off)+'</h3>'
     +'</div>';   /* ★순간 쪽 «이 순간 빼기» 글 단추(.mk-drop) 금지 — 2026-10-03 사용자 지시로 삭제 [MK_NO_DROP_LINK 2026-10-03 사장님 «빼기는 예식 흐름의 ✓/＋에서만»] · 뺀 순간 쪽(«이 순간을 뺐어요 · 다시 넣기»)은 남긴다 — 옛 초안(S.mk.drop)이 그 쪽을 연다 */
@@ -6682,19 +6685,23 @@ window.mkFlowTgl=function(k){ var R=RitualOpen; if(R.ALWAYS[k]||k==='_close') re
   if(on&&!R.PRE[k]&&!R.AFTER_CLOSE[k]&&!R.bodySeq(S).some(function(x){ return x!==k&&x!=='_close'&&!R.AFTER_CLOSE[x]; })){   /* [TABLE_GREET_1008] 테이블 인사는 본식 순간 수에 안 센다(닫는 인사 뒤) */ ordTell({title:'본식 순간이 하나는 있어야 해요',body:'이 순간을 빼면 닫는 인사만 남아요. 다른 순간을 먼저 담은 뒤 빼 주세요.'}); return; }
   if(!MK.flowKeep) MK.flowKeep=_flowKeys();
   _fxNext='[data-fk="mkflow:'+k+'"]'; opTgl(k);
-  var sp=R.span(S), nm=_mkName(k); _lSay(nm+_josa(nm,'을','를')+(on?' 뺐어요':' 다시 담았어요')+(R.PRE[k]?'':' · 본식 '+sp.body+' · 단체 사진 '+sp.photo+' · 담은 순간 '+_opMoments())); };   /* [FLOW_TIMELINE] 단체 사진 시간도 함께 */   /* [PRE_SAY 2026-10-03] 식전은 본식 시간 · 담은 순간 수에 들지 않는다 — 그 말을 붙이면 «뺐는데 그대로»로 들렸다 */
+  var sp=R.span(S), nm=_mkName(k); _lSay(nm+_josa(nm,'을','를')+(on?' 뺐어요':' 다시 담았어요')+(R.PRE[k]?'':' · '+R.spanText(S)+' · 담은 순간 '+_opMoments())); };   /* [FLOW_TIMELINE] 단체 사진 시간도 함께 */   /* [PRE_SAY 2026-10-03] 식전은 본식 시간 · 담은 순간 수에 들지 않는다 — 그 말을 붙이면 «뺐는데 그대로»로 들렸다 */
 /* 흐름 쪽의 줄 — 엔진 차례(ORDER · 닫는 인사) 그대로 · 담긴 순간 + 이 방문에서 뺀 순간(flowKeep) · ①에서 안 담은 순간은 나오지 않는다 */
 function _flowKeys(){ var R=RitualOpen, keep=MK.flowKeep||[]; return R.ORDER.filter(function(k){ return R.onOf(S,k)||keep.indexOf(k)>-1; }); }
 function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
   MK.flowKeep=_flowKeys();   /* [FLOW_KEEP_SHOWN 2026-10-03] 보인 줄은 모두 자리를 지킨다 — 종전엔 들어올 때 한 번만 찍어, 그 뒤 다시 담은 순간을 여기서 빼면 줄째 사라졌다 */
-  var ks=_flowKeys(), pre=ks.filter(function(k){ return R.PRE[k]; }), body=ks.filter(function(k){ return !R.PRE[k]&&!R.AFTER_CLOSE[k]; }).concat(['_close']).concat(ks.filter(function(k){ return !!R.AFTER_CLOSE[k]; }));   /* [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 */
+  var ks=_flowKeys(), pre=ks.filter(function(k){ return R.PRE[k]; }), aft=ks.filter(function(k){ return !!R.AFTER_CLOSE[k]; }), body=ks.filter(function(k){ return !R.PRE[k]&&!R.AFTER_CLOSE[k]; }).concat(['_close']);   /* [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님] 본식과 따로 «본식 뒤» 묶음 */
   var h='<section class="mk-pg mk-intro" aria-labelledby="mkHead"><div class="mk-h"><h3 id="mkHead" tabindex="-1">예식 흐름</h3></div>';
-  h+='<p class="mk-one" data-fk="mkflowsum">본식 '+esc(_nb(sp.body))+' · 단체 사진 '+esc(_nb(sp.photo))+' · 담은 순간 '+_opMoments()+'</p>';
+  /* ★[TABLE_APART · FSUM_SEP] 넷이 한 줄에 안 들어가면(390) 낱말 사이(«단체 사진 / 약 15~20분»)가 아니라 덩이 사이에서만 갈린다 — «·»는 진짜 글자(읽기 · 검사 그대로)이고, 줄 머리에 온 «·»는 칸 밖으로 밀려 안 보인다(줄 끝 · 줄 머리 «·» 둘 다 없게 · CF_LINE_BREAK 와 같은 뜻) */
+  var _fs=['본식 '+sp.body].concat(sp.tm?['테이블 인사 '+sp.table]:[]).concat(['단체 사진 '+sp.photo,'담은 순간 '+_opMoments()]);
+  h+='<p class="mk-one mk-fsum" data-fk="mkflowsum">'+_fs.map(function(t,i){ return '<span>'+(i?'<i class="sep"> · </i>':'')+esc(t)+'</span>'; }).join('')+'</p>';
   /* [FLOW_TIMELINE] ① 의 [BAR_SUM] 맞바꿈을 그림으로 — 늘 DAYMIN 분 한 칸 = 본식(가운데 값) + 단체 사진 · 빼면 본식이 줄고 사진이 는다 */
-  var _bw=Math.max(0,Math.min(100,sp.midMin/R.DAYMIN*100));
-  h+='<div class="op-bar" data-fk="mkflowbar" role="img" aria-label="'+esc(R.DAYMIN+'분 가운데 본식 '+sp.body+' · 단체 사진 '+sp.photo)+'"><span class="c" style="width:'+_bw.toFixed(2)+'%"></span><span class="p" style="width:'+(100-_bw).toFixed(2)+'%"></span></div><div class="op-leg" aria-hidden="true"><span>본식</span><span>단체 사진</span></div>';   /* 단체 사진 = 본식 뒤 이어지는 실제 한 덩어리(DAYMIN 40 − 본식 · SPAN_SUM40) */
+  var _bw=Math.max(0,Math.min(100,sp.midMin/R.DAYMIN*100)), _tw=sp.tm?Math.max(0,Math.min(100-_bw,R.tableSec(S)/60/R.DAYMIN*100)):0;
+  /* ★[TABLE_APART] 테이블 인사를 담으면 막대가 세 칸 — 본식(진한 금) · 테이블 인사(옅은 금 · 곡선 꼬리와 같은 색) · 단체 사진 · 가운데 이름은 제 칸 가운데에 */
+  h+='<div class="op-bar" data-fk="mkflowbar" role="img" aria-label="'+esc(R.DAYMIN+'분 가운데 '+R.spanText(S))+'"><span class="c" style="width:'+_bw.toFixed(2)+'%"></span>'+(_tw?'<span class="t" style="width:'+_tw.toFixed(2)+'%"></span>':'')+'<span class="p" style="width:'+(100-_bw-_tw).toFixed(2)+'%"></span></div>'
+    +'<div class="op-leg'+(_tw?' op-leg3':'')+'" aria-hidden="true"><span>본식</span>'+(_tw?'<span class="lt" style="left:'+Math.max(22,Math.min(78,_bw+_tw/2)).toFixed(2)+'%">테이블 인사</span>':'')+'<span>단체 사진</span></div>';   /* 단체 사진 = 본식 뒤 이어지는 실제 한 덩어리(DAYMIN 40 − 본식 · SPAN_SUM40) */
   /* [FLOW_TIMELINE] 시작 시각 — 본식 처음부터, 담긴 본식 순간의 가운데 길이(_flowSec · LEN_ONE)를 차례로 더한다 */
-  var at={}, acc=0; body.forEach(function(k){ if(k==='_close'||R.onOf(S,k)){ at[k]=acc; var t0=_flowSec(k); acc+=(t0.lo+t0.hi)/2; } });
+  var at={}, acc=0; body.concat(aft).forEach(function(k){ if(k==='_close'||R.onOf(S,k)){ at[k]=acc; var t0=_flowSec(k); acc+=(t0.lo+t0.hi)/2; } });   // [TABLE_APART] 본식 뒤 줄도 같은 시계로 이어서
   function row(k){ var on=R.onOf(S,k)||k==='_close', fixed=!!R.ALWAYS[k]||k==='_close', t=_flowSec(k), nm=_mkName(k), mid=(t.lo+t.hi)/2;
     var tm=!on?'':(R.PRE[k]||k==='guest')?'예식 전':Math.round(at[k]/60)+'분';   /* 뺀 줄은 제 시작 시각이 없다 */
     return '<li class="cf-r'+(on?'':' off')+'" data-k="'+k+'"'+(k!=='guest'?' data-mid="'+mid+'"':'')+(on&&!R.PRE[k]?' data-lo="'+t.lo+'" data-hi="'+t.hi+'" data-at="'+(at[k]||0)+'"':'')+'>'
@@ -6707,6 +6714,7 @@ function _mkIntro(){ var R=RitualOpen, sp=R.span(S);
   h+='<p class="mk-note cf-how">덜어낼 순간만 ✓를 눌러 풀어 주세요</p>';   /* ★[FLOW_HOW_TRIM 2026-10-06 사장님 «뺄 보단 덜어낼 순간만 으로 수정»] ★[FLOW_HOW1 2026-10-06 사장님 «뺄 것만 체크 표시로 풀어 달라고 짧게 설명 한 줄»] 범례 대신 할 일 한 줄 */
   if(pre.length) h+='<p class="cf-g" id="mkFgPre">식전</p><ol class="cf-l" aria-labelledby="mkFgPre">'+pre.map(row).join('')+'</ol>';
   h+='<p class="cf-g" id="mkFgBody">본식</p><ol class="cf-l" aria-labelledby="mkFgBody">'+body.map(row).join('')+'</ol>';
+  if(aft.length) h+='<p class="cf-g" id="mkFgAfter">본식 뒤</p><ol class="cf-l cf-after" aria-labelledby="mkFgAfter">'+aft.map(row).join('')+'</ol>';   /* [TABLE_APART] 본식이 끝나고 단체 사진 앞 */
   /* ★«비워 둔 칸은 예식 7일 전까지 채우면 돼요.»([MK_MIN] 한 줄) 금지 — 2026-10-03 사용자 지시로 삭제 [COURSE_FLOW] · 같은 마감은 ④ «순서는 예식 14일 전까지, 글은 예식 7일 전까지»(EDIT_WINDOW) · 녹음 카드 마감(«예식 7일 전까지») · 넘김 창(«미완료로 둘게요»)이 말한다 */
   /* ★[MK_BACK1_OFF] «순간을 더하거나 빼려면 ① 고르기로» 링크 금지 — 2026-09-28 사용자 지시로 삭제(위 걸음 표시 «① 고르기» · 진행 줄 «+ 순간 더하기»가 같은 일을 한다). 되살리지 말 것 */
   return h+'</section>'; }
@@ -6717,7 +6725,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   var todo=_mkTodoAll();
   /* ★[MK_SUM_ONE 2026-09-27 사장님 «지저분한 중복 전부 제거 · 미니멀하게»] 종전엔 «미완료 14» 목록과 아래 «부탁 · 보낼 것» 목록이 같은 항목을 두 번 늘어놓았다(녹음 네 줄은 두 번씩 여덟 줄).
      이제 한 항목은 한 번만 — 미완료 수는 머리 한 줄에 · «두 분이 할 말»만 따로 모으고 · 부탁 · 보낼 것은 줄마다 ✓ 또는 «가기» · 녹음은 순간마다 한 줄(몇 개 중 몇 개). 되살리지 말 것 */
-  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(todo.length?' · <b class="mk-todo-n">미완료 '+_mkTodoN()+'가지</b>':'')+'</p>';   /* ★[QA_TODO_UNIT 2026-10-04 점검] 진행 줄은 «미완료 순간 2»(순간 수) · 여기는 할 일 수 — 단위 없이 «미완료 6»이라 둘이 어긋나 보였다 */
+  h+='<p class="mk-one">담은 순간 '+_opMoments()+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(sp.tm?' · 테이블 인사 '+esc(_nb(sp.table)):'')+(todo.length?' · <b class="mk-todo-n">미완료 '+_mkTodoN()+'가지</b>':'')+'</p>';   /* ★[QA_TODO_UNIT 2026-10-04 점검] 진행 줄은 «미완료 순간 2»(순간 수) · 여기는 할 일 수 — 단위 없이 «미완료 6»이라 둘이 어긋나 보였다 */
   var txTodo=todo.filter(function(x){ return x.t.kind==='tx'; }), txK=[], txW={};
   txTodo.forEach(function(x){ if(!txW[x.k]){ txW[x.k]=[]; txK.push(x.k); } txW[x.k].push(x.t.who); });   // 순간마다 한 줄(신랑 · 신부 두 줄로 나누지 않는다)
   if(txK.length){ h+='<section class="mk-sec"><h4>두 분이 할 말</h4><ul class="mk-vlist">';
@@ -6831,7 +6839,7 @@ function renderListen(){
      되살리지 말 것 · 고르기로 가는 길은 걸음 표시(_opSteps)와 «이전» 둘이다. */
   /* ★[G2 2026-09-26 코워크 최종판 5-1] 두 시간 사이에 작은 감동 흐름선(64×18) — 판을 바꾸면(예: 인사 «1분쯤씩» → «말 없이») 가장 벅찬 순간이 바뀌는 게 바로 보이게.
      좁은 화면(375 아래)에서 한 줄에 안 들어가면 흐름선을 뺀다(시간 둘이 먼저). 그림은 ① 과 같은 함수(RitualOpen.flowSVG). */
-  h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span>'+(R.picked(S).length?'<span class="lsg" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),64,{mini:true,h:18,label:'작은 흐름선'})+'</span>':'')+'<span class="nw">단체 사진 <b>'+esc(_nb(sp.photo))+'</b></span></div>'+_noteHtml()+'</div>';
+  h+='<div class="op-band ls-band" id="opBand"><div class="t1"><span class="nw">본식 <b>'+esc(_nb(sp.body))+'</b></span>'+(R.picked(S).length?'<span class="lsg" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),64,{mini:true,h:18,label:'작은 흐름선'})+'</span>':'')+(sp.tm?'<span class="nw">테이블 인사 <b>'+esc(_nb(sp.table))+'</b></span>':'')+'<span class="nw">단체 사진 <b>'+esc(_nb(sp.photo))+'</b></span></div>'+_noteHtml()+'</div>';
   // 맨 위 큰 단추 — 누르기 전에는 움직이지 않는다 · 들을 길이는 예식 길이가 아니다(DETAIL B12)
   var _allSt=ENG?_lSteps(ENG,_lRows()):[], len=ENG?_lLen(_allSt):0;
   /* [TEXT_AUDIO_MATCH 2-1] 말하는 줄이 전부 녹음 전이면 줄마다 꼬리표를 달지 않고 여기 한 줄로 말한다 · 일부만이면 줄마다 */
@@ -7501,7 +7509,7 @@ function _lFull(){
     var sp=R.span(S);
     if(_lAnyVid()) h+=_lVid('_close',{big:true});   // [NO_EMPTY_BOX]
     var _esec=LP.ended.range&&LP.ended.range.sec;   // [QA_SEC]
-    h+='<div class="lf-end">'+(_esec?('«'+esc(_esec)+'»'+_josa(_esec,'을','를')+' 끝까지 보셨어요'):LP.ended.all?('끝까지 보셨어요 · 본식 '+esc(sp.body)+' · 단체 사진 '+esc(sp.photo)):'이 순간을 다 보셨어요')
+    h+='<div class="lf-end">'+(_esec?('«'+esc(_esec)+'»'+_josa(_esec,'을','를')+' 끝까지 보셨어요'):LP.ended.all?('끝까지 보셨어요 · '+esc(R.spanText(S))):'이 순간을 다 보셨어요')
       +'<div class="lf-endb"><button type="button" class="rowbtn" data-fk="lfagain" onclick="lsAgain()">다시 보기</button>'
       +((LP.noChips&&window.RitualPreviewLink&&RitualPreviewLink.url(S,{digital:!!CUSTDIG,photoShare:!!CUSTPHOTO,meal:!!CUSTMEAL}))?'<button type="button" class="rowbtn" onclick="lsCloseBig(openRitualPreview)">음악까지 미리듣기</button>':'')
       /* [BIG_END 2026-09-25 코워크 추가전달 2-10] ② 의 끝 화면은 [다시 보기] [다음 · 준비하기] 둘 — «목록으로»는 위 ⌄ 와 같고 큰 ↻ 는 다시 보기와 같았다 */
@@ -7722,7 +7730,7 @@ var REC_PEND='녹음 전이라 글로 먼저 보여 드려요';
 function _pendT(x,short){ if(x&&x.pwhy) return short?String(x.pwhy).split(' · ')[0]:x.pwhy;   // [PLAY_FILE_WHY] 이 기기에 없는 녹음 — 상태 글(코드 없음)
   var c=(x&&x.pfail)||((LREC_ERR&&!(x&&x.own))?LREC_ERR:''); if(!c) return short?'아직 녹음 전':REC_PEND;
   return (/^L/.test(c)?(short?'소리를 못 불러왔어요':'소리를 불러오지 못해 글로 보여 드려요'):(short?'소리를 틀지 못했어요':'소리를 틀지 못해 글로 보여 드려요'))+' (코드 '+c+')'; }
-function _nb(t){ return String(t||'').replace(/약 /g,'약'+NBS).replace(/단체 사진/g,'단체'+NBS+'사진'); }   // [D5 · 3-9] «약 N~M분» · «단체 사진»이 두 줄로 갈리지 않게
+function _nb(t){ return String(t||'').replace(/약 /g,'약'+NBS).replace(/단체 사진/g,'단체'+NBS+'사진').replace(/테이블 인사/g,'테이블'+NBS+'인사'); }   /* [TABLE_APART] «테이블 / 인사»도 안 갈리게 */   // [D5 · 3-9] «약 N~M분» · «단체 사진»이 두 줄로 갈리지 않게
 function _nd(t){ return String(t||'').replace(/ · /g,' ·'+NBS); }
 function _n2(t){ return String(t||'').replace(/두 분/g,'두'+NBS+'분'); }   /* [R1-41] «두 / 분»으로 갈리지 않게 — 칸 · 미리 보기 창 · ② 쪽 설명 공통 */
 function _ndd(t){ return String(t||'').replace(/ · /g,NBS+'·'+NBS).replace(/알려 주기/g,'알려'+NBS+'주기'); }   /* [R2-31] «알려 / 주기» 한 동작이 두 줄로 갈리지 않게(화면에서만 · 원천 문구는 그대로) */   // [PREP_NO_DANGLE] 점이 줄 끝에도 줄 머리에도 안 서게 — 덩어리가 짧은 줄에만(칸 글처럼 좁은 곳엔 쓰지 않는다)   // [CHECKS_NO_DANGLE · 3-9] 가운뎃점은 뒤 말에 붙인다 — 줄 끝에 매달리지 않게
@@ -7793,10 +7801,10 @@ function _pkPanel(){
     +(flat?'<p class="pk-fp-flat">순간을 더 담으면 흐름이 그려져요</p>':'<div class="pk-fg-wrap"><div class="pk-fg" data-fg="panel"></div><div class="pk-tip" aria-hidden="true"></div></div>')
     +'</div>'   /* [FLOW_MIN] PC 준비 줄 걷음 */   /* [PC_SIDE_AIR] PC 준비 줄은 그림 아래 한 줄 — 오른쪽 칸은 시간 · 벅찬 순간 · 알림 · 단추만 */
     +'<div class="pk-side">'
-    +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+esc(photo)+'<br>본식과 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [D4] PC 두 줄 */
+    +'<p class="pk-big pco">본식<strong>'+esc(_nb(sp.body))+'</strong>'+(sp.tm?esc(_nb('테이블 인사 '+sp.table))+'<br>':'')+esc(photo)+'<br>'+(sp.tm?'셋을':'본식과')+' 합쳐 늘 '+R.DAYMIN+'분</p>'   /* [TABLE_APART] 테이블 인사는 따로 한 줄 · 셋을 더해 40 */   /* [D4] PC 두 줄 */
     +((!pl||flat)?'<p class="pk-peak">'+_pkPeakHtml()+'</p>':'')   /* [FLOW_MIN] 곡선 위 «★ 이름»과 흐름 줄의 ★이 이미 말한다 — 문장은 정점이 없거나(담아 보라는 안내) 곡선이 없을 때만 */
     /* ★순서 줄(«식전 영상 → 화촉 › 입장 › … › 닫는 인사») 금지 — 2026-10-07 사용자 지시로 삭제 [FLOW_NO_ORDER] «어차피 다음 페이지에서 알 수 있으니» · 순서는 ② 예식 흐름이 말한다 */
-    +'<p class="pk-tm mo">본식과 단체'+NBS+'사진 · 늘 '+R.DAYMIN+'분</p>'   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
+    +'<p class="pk-tm mo">'+(sp.tm?'본식 · 테이블'+NBS+'인사 · 단체'+NBS+'사진':'본식과 단체'+NBS+'사진')+' · 늘 '+R.DAYMIN+'분</p>'   /* [TABLE_APART] */   /* [FLOW_MIN] 한 줄 · 준비할 것 줄 걷음 */   /* [D4] 휴대폰 한 줄 · [R1-34] 단체 사진 숫자는 아래 막대가 말한다 */
     +'<button type="button" class="pk-go pco" data-fk="opgo" onclick="opToListen()">다음 · 하나씩 만들기</button>'
     +'</div>'+_noteHtml()+'</section>';   /* ★[NOTE_UNDER 2026-10-07 사장님 «추천대로»] 단추가 있는 알림은 판 맨 끝 — PC 는 왼쪽 그림 바로 아래(오른쪽만 길어져 그림 아래가 비던 것) · 폰은 판 맨 아래 */
 }
@@ -7856,7 +7864,7 @@ function _pkSlim(){
   if(!el){ el=document.createElement('div'); el.id='pkSlim'; el.className='pk-slim'; el.setAttribute('role','region'); el.setAttribute('aria-label','담은 순간 요약'); document.body.appendChild(el); }
   var n=R.picked(S).length, sp=R.span(S), pk=R.peakOf(S);
   var nt=_noteFull(_noteShut);   // [SHORT_TOAST]
-  el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b> ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+_pkName(esc(R.CARDS[pk].n),1):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
+  el.innerHTML=(n?('<span class="sv" aria-hidden="true">'+R.flowSVG(R.flowSegs(S),180,{mini:true,h:34,label:'작은 흐름선'})+'</span><span class="t">본식 <b>'+esc(_nb(sp.body))+'</b>'+(sp.tm?' ·'+NBS+'테이블'+NBS+'인사 <b>'+esc(_nb(sp.table))+'</b>':'')+' ·'+NBS+'단체'+NBS+'사진 <b>'+esc(_nb(sp.photo))+'</b>'+(pk?' ·'+NBS+_pkName(esc(R.CARDS[pk].n),1):'')   /* [SEAL_POINTS 코워크 회신8] 얇은 띠 ★ 도 진사 */
       +(nt?'<button type="button" class="al" onclick="opToNote()">'+esc(R.firstSentences(nt.msg,1))+' ›</button>':'')+'</span>')
     :'<span class="t">입장 · 닫는 인사만으로도 다음으로 갈 수 있어요</span>')+'<button type="button" class="go" onclick="opToListen()">다음 · 하나씩 만들기</button>';   /* [R1-33] */
   _pkSlimCheck();
@@ -8882,7 +8890,7 @@ function _opMoments(){ try{ var R=RitualOpen; return _lRows().filter(function(k)
 function headLine(bsLen){
   /* ★[I1_HEAD 2026-09-26 코워크 최종판 5-3] «담은 순간 N · 본식 약 a~b분 · 단체 사진 약 c~d분» — ① 아래 막대(본식 · 단체 사진)와 같은 두 시간 ·
      «고른»은 «담은»으로(① 의 말) · 마이페이지 식순 요약도 같은 말(summary.photo) */
-  if(isOpen()){ var _hs=RitualOpen.span(S); return '담은 순간 '+_opMoments()+' · 본식 '+_hs.body+' · 단체 사진 '+_hs.photo; }   // [DONE_UNIFY 3-1] · [RIT_DONE_TITLE] 셈 = ④ 요약 줄 수
+  if(isOpen()){ var _hs=RitualOpen.span(S); return '담은 순간 '+_opMoments()+' · '+RitualOpen.spanText(S); }   /* [TABLE_APART] */   // [DONE_UNIFY 3-1] · [RIT_DONE_TITLE] 셈 = ④ 요약 줄 수
   return COURSES[S.course].nm+' 코스 · '+bsLen+'개 순서 · '+estMin();
 }
 function estMin(){
@@ -9685,7 +9693,7 @@ function _ordPayload(fin){
   /* [OPEN_COURSE] 새 코스는 코스 이름이 없다 — 마이페이지가 «○○ 코스» 대신 «순간 n개 · 본식 약 a~b분»을 쓴다.
      예시에서 시작했으면 그 이름도 싣는다(«‹가족› 예시에서 시작»). 옛 코스 요약은 한 글자도 안 바뀐다. */
   if(isOpen()){ var _sp=RitualOpen.span(S), _ex=RitualOpen.exampleOf(S.pickFrom);
-    _sm.open=true; _sm.moments=_opMoments();   /* [RIT_DONE_TITLE] */ _sm.photo=_sp.photo; _sm.from=_ex?_ex.nm:'';
+    _sm.open=true; _sm.moments=_opMoments();   /* [RIT_DONE_TITLE] */ _sm.photo=_sp.photo; _sm.table=_sp.table; _sm.from=_ex?_ex.nm:'';   /* [TABLE_APART] 테이블 인사 약 n분(안 담으면 '') */
     _sm.sec=[Math.round(_sp.sec[0]),Math.round(_sp.sec[1])];
     /* ★[SCENE_FROM_SEQ 코워크 추가 점검 P1-4 2026-09-26] 마이페이지 «예식 순서에서 남는 사진»은 이 목록을 그대로 그린다 —
        본식 차례(bodySeq) · 카드 이름(CARDS.n) · 장면(shotOf · 준비한 순서는 무엇을에 따라). 마이페이지는 ritual-open.js 를 읽지 않아 여기서 싣는다.
