@@ -13200,7 +13200,7 @@ chk 'var VOWBOTH=."이 약속, 꼭 지키겠습니다.","가까이서 오래 응
 chk '그 순간 저도 모르게 젓가락을 멈췄습니다\.' docs/plans/식순연구/배역_예시_대사.txt 1
 chk 'FIXTURE_0926' scripts/audit/import-voice-lock.mjs 2   # 들이기 검사는 얼린 9/26 순서표로(살아 있는 다시받기는 비었다)
 chk 'REC_STATE_FREE' scripts/audit/listen-page.mjs 3   # 보고 듣기 검사는 녹음 상태와 상관없이(녹음 기록을 비워 «녹음 전»을 만든다)
-chk 'COUPLE_EX_VOICE' order-preview.html 3   # [2026-09-26 사장님 «두 분 목소리 여기는 안 들리는데?»] 두 분 목소리 줄(하객 맞이 넷 · 입장 여섯)은 배역 예시 녹음 글 = 화면 글일 때 소리로
+chk 'COUPLE_EX_VOICE' order-preview.html 3   # [2026-09-26 사장님 «두 분 목소리 여기는 안 들리는데?»] 두 분 목소리 줄(하객 맞이 넷 · 입장 여섯)은 배역 예시 녹음 글 = 화면 글일 때 소리로   ★2026-10-08 AI 판은 걷었다(AI_NO_CAST · 직접 녹음 판만)
 chk "_lCastSrc(CAST_GUEST\[gi\],gt)" order-preview.html 1   # [REC_UPLOAD] 두 분 파일이 없을 때만 예시 목소리(src:gu||…)
 chk "_lCastSrc(CAST_ENTRY\[S.entry\],et)" order-preview.html 1   # [REC_UPLOAD] 두 분 파일이 없을 때만 예시 목소리(src:eu||…)
 chk '사흘씩 두지 말고 서준이한테 먼저 말해라\.' docs/plans/식순연구/배역_예시_대사.txt 1
@@ -14825,6 +14825,33 @@ chk 'SIDE_TWO_LINE' order-preview.html 2
 chk 'mk-vst-side{flex:0 0 auto;width:min-content}' order-preview.html 1
 chk 'VC_R1_EX' scripts/audit/vc-r1-ex.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-ex.mjs >/dev/null 2>&1; _vr1=$?; if [ "$_vr1" = 1 ]; then echo 'FAIL vc-r1-ex: 참고 예시 칩(만드는 중 · 올리는 중 예시 · 같은 글 두 번 · 준비 중 탭 · 확정만 묻기 · 옛 예시 글 · 차오름 · 옆글 두 줄)이 어긋났습니다 — node scripts/audit/vc-r1-ex.mjs'; fail=1; elif [ "$_vr1" = 2 ]; then echo 'skip vc-r1-ex: 브라우저 없음'; else echo 'ok vc-r1-ex: 참고 예시 칩 1라운드 10장면'; fi; fi
+# ★★[AI_PLAY_READY · AI_NO_CAST · PLAY_NO_DUP · LS_MAKE_ALL 2026-10-08 사장님 «AI 두 분 목소리에서 목소리를 먼저 만들지 않으면 · 우측 버튼이 목소리 만들기면 좌측 플레이 버튼 비활성화 · 이 순간 전체 듣기도 · 누르면 밑에 어디서 만들지» · «담백하게만 나레이션 음성이 흐른다 · 다른 곳과 같게» · «만드는 중 누르면 플레이 버튼도 로딩 표시» · «이 순간 전체 듣기는 전체 자동으로 만드는 중 · 다 만들면 순차 재생»]
+#   AI 판 줄 ▶ = 그 줄의 두 분 AI 소리만 · 없으면 흐림(aria-disabled) · 누르면 그 줄 아래 한 줄(만들러 가기) · 만들지도 · 남의 목소리(나레이션 · 연습 AI 읽기 · 배역 예시)도 틀지 않는다
+#   차오름은 머리 알약 한 곳(▶ 는 흐리게 잠김) · 이 순간 전체 듣기 = 안 만든 줄을 한꺼번에 만들고 다 되면 처음부터 이어서 · 목소리가 없는 분의 줄이 있으면 흐림 + 한 줄
+chk 'AI_PLAY_READY' order-preview.html 12
+chk 'AI_PLAY_READY' scripts/audit/ai-play-ready.mjs 6
+chk 'function _playOff(key){' order-preview.html 1
+chk 'function _playOffAll(k){' order-preview.html 1
+chk "if(_playOff(key)){ mkPlayOff(key); return; }" order-preview.html 1   # [AI_PLAY_READY] 줄 ▶(mkUpPlay) 입구 — STALE_NOVOICE 의 «지금 글 듣기»보다 먼저
+chk "if(st.own&&st.up&&_playOff(st.up)){ mkPlayOff(st.up); return; }" order-preview.html 1   # [AI_PLAY_READY] 소리 파일이 아직 없는 줄 ▶(mkLine) 입구
+chk "window.lsPlay=function(k){ if(_playOffAll(k)){ mkPlayOff('mp:'+k); return; }" order-preview.html 1   # [AI_PLAY_READY] 이 순간 전체 듣기 입구
+chk "(_po&&!_plOn?' aria-disabled=\"true\"':'')" order-preview.html 1
+chk "(_po&&!on?' aria-disabled=\"true\"':'')" order-preview.html 1
+chk "+'</div>'+_playOffNote(q.up,_po)" order-preview.html 1   # [AI_PLAY_READY] 누른 ▶ 바로 아래 한 줄
+chk 'AI_NO_CAST' order-preview.html 1
+chk "src:gu||(_vpCur('guest')==='ai'?null:_lCastSrc(CAST_GUEST\[gi\],gt))" order-preview.html 1
+chk "src:eu||(_vpCur('entry')==='ai'?null:_lCastSrc(CAST_ENTRY\[S.entry\],et))" order-preview.html 1
+nochk "src:gu||_lCastSrc(CAST_GUEST" order-preview.html   # [AI_NO_CAST] AI 판에도 배역 예시 녹음을 싣던 옛 줄(담백하게 · 입장 멘트만 남의 목소리가 났다) 되살리지 말 것
+nochk "src:eu||_lCastSrc(CAST_ENTRY" order-preview.html
+chk 'PLAY_NO_DUP' order-preview.html 3
+chk "_wl=_wfx('up:'+q.up,!!(st.busy&&aiF)&&!(aiLn&&(!pv||t))," order-preview.html 1   # [PLAY_NO_DUP] 머리 알약이 기다림을 말하는 동안 ▶ 는 차오르지 않는다
+nochk "_wl=_wfx('up:'+q.up,!!(st.busy&&aiF)," order-preview.html   # [PLAY_NO_DUP] ▶ 와 알약이 함께 차오르던 옛 줄
+chk "(st.busy&&!/ ld/.test(w.c)?' disabled aria-busy=\"true\"':'')" order-preview.html 1   # [PLAY_NO_DUP · PLAY_WAIT_LOCK] 소리 파일이 아직 없는 줄도 만드는 동안 잠금
+chk ".mk-aip.make .mk-aif,.mk-aip.prep .mk-aif{animation:mkAipFill" order-preview.html 1   # [PLAY_NO_DUP] «준비 중»도 알약이 차오른다
+chk 'LS_MAKE_ALL' order-preview.html 4
+chk 'function _lsMakeAll(k,r){' order-preview.html 1
+chk "if(_mkRO().at===k&&!MK.aud&&!LP.q.length) lsPlay(k);" order-preview.html 1   # [LS_MAKE_ALL] 다 만들면 처음부터 이어서(그 쪽에 있고 다른 소리가 없을 때만)
+if command -v node >/dev/null 2>&1; then node scripts/audit/ai-play-ready.mjs >/dev/null 2>&1; _apr=$?; if [ "$_apr" = 1 ]; then echo 'FAIL ai-play-ready: AI 줄 ▶ · 이 순간 전체 듣기(목소리 없음 흐림 · 한 줄 · 배역 예시 없음 · ▶ 차오름 없음 · 한꺼번에 만들고 이어서)가 어긋났습니다 — node scripts/audit/ai-play-ready.mjs'; fail=1; elif [ "$_apr" = 2 ]; then echo 'skip ai-play-ready: 브라우저 없음'; else echo 'ok ai-play-ready: AI 줄 ▶ · 이 순간 전체 듣기 6장면'; fi; fi
 # ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V9 · ★[ERR_CODES] 종전 V8 — 8 은 사이트 전체에서 로그인 풀림)을 가른다 — 끊긴 직후 상태 확인 한 번
 chk 'VC_NET_SPLIT' mypage.html 1
 chk 'VC_NET_SPLIT' order-preview.html 1
@@ -15107,6 +15134,7 @@ chk 'DLG_KEEP_Y' order-preview.html 2
 nochk 'html.mk-dlg-lock,html.mk-dlg-lock body{overflow:hidden}' order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/keep-order.mjs >/dev/null 2>&1; _kor=$?; if [ "$_kor" = 1 ]; then echo 'FAIL keep-order: 확정 안내 순서 · 접힘이 어긋났습니다 — node scripts/audit/keep-order.mjs'; fail=1; else echo "ok keep-order ($_kor)"; fi; fi
 # ★[STALE_NOVOICE · EX_MINE 2026-10-06 사장님] 글이 바뀐 AI 줄 + 목소리 없음 → ▶ 는 지금 글 · 머리에 «목소리 만들기» / 참고 예시 이름을 두 분 이름으로(토씨까지)
+#   ★2026-10-08 [AI_PLAY_READY] ▶ 갈래는 바뀌었다 — 지금 글(나레이션 · 연습 AI 읽기)을 틀지 않고 흐림 · 누르면 한 줄(stale-novoice ② 가 잰다)
 chk 'STALE_NOVOICE' order-preview.html 4
 chk 'function _staleNoVoice(key)' order-preview.html 1
 chk 'EX_MINE' order-preview.html 2
@@ -16052,3 +16080,23 @@ chk 'ERR_LOG_SAFE' automation/platform/95_notify.gs 3
 nochk "String(act || '(없음)').slice(0, 40)" automation/platform/95_notify.gs
 chk 'ERR_LOG_SAFE' scripts/audit/err-log-safe.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/err-log-safe.mjs >/dev/null 2>&1; _els=$?; if [ "$_els" = 1 ]; then echo 'FAIL err-log-safe: 오류기록에 밖의 글이 수식 · 개인정보로 들어간다(고객 DB 파일) — node scripts/audit/err-log-safe.mjs'; fail=1; else echo "ok err-log-safe ($_els)"; fi; fi
+# ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
+#   마이페이지 «최신 내용을 불러오지 못했어요 (코드 L5)» = 화면이 getMyState 를 12초 기다리다 멈춤. 원인은 서버 한 번 불러오기의 양 —
+#   서명 시트 전체(모든 고객의 서명 그림)를 매번 읽었고(SIG_FIND) · 같은 상담 행을 상태에 따라 2~3번 · 고객 행을 2번 따로 찾았다(GMS_MEMO).
+#   화면은 20초까지 기다리고 늦음 · 끊김이면 한 번 더 묻는다 · 막대는 두 번 다 안 될 때만(STATE_PATIENT). 되돌리지 말 것
+chk 'SIG_FIND' automation/platform/70_journey.gs 2
+chk '.createTextFinder(c).matchEntireCell(true).matchCase(false).findAll()' automation/platform/70_journey.gs 1
+chk 'GMS_MEMO' automation/platform/60_mypage.gs 6
+chk 'function _gmsMemoOn()' automation/platform/60_mypage.gs 1
+chk 'if (!__GMS_ON) { var _gOff = _gmsMemoOn(); __GMS_ON = true; try { return handleGetMyState(body); } finally { __GMS_ON = false; _gOff(); } }' automation/platform/60_mypage.gs 1
+chk '_gmsSeedCustomer(r);' automation/platform/60_mypage.gs 1
+chk 'STATE_PATIENT' mypage.html 7
+chk 'function _stateGet(tok){' mypage.html 1
+chk 'var STATE_WAIT_MS=20000, STATE_SLOW_MS=12000;' mypage.html 1
+chk '_stateGet(_tok).then(function(d){' mypage.html 1
+nochk "  api({action:'getMyState', token:_tok}).then(function(d){" mypage.html
+chk 'GMS_MEMO' scripts/audit/gms-memo.mjs 1
+chk 'STATE_PATIENT' scripts/audit/state-patient.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/gms-memo.mjs >/dev/null 2>&1; _gmm=$?; if [ "$_gmm" != 0 ]; then echo 'FAIL gms-memo: getMyState 기억(같은 행 다시 찾지 않기) · 서명 찾기가 어긋났습니다 — node scripts/audit/gms-memo.mjs'; fail=1; else echo 'ok gms-memo: 결과 같음 · 상담 행 1번 · 고객 행 0번 · 서명 전체 읽기 0'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/state-patient.mjs >/dev/null 2>&1; _stp=$?; if [ "$_stp" = 1 ]; then echo 'FAIL state-patient: 마이페이지 상태 불러오기가 늦음 · 끊김에 곧장 막대를 띄운다 — node scripts/audit/state-patient.mjs'; fail=1; elif [ "$_stp" = 2 ]; then echo 'skip state-patient: 브라우저 없음'; else echo 'ok state-patient: 늦으면 한 번 더 · 막대는 두 번 다 안 될 때만'; fi; fi
+:

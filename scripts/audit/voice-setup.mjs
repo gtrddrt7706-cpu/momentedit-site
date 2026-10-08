@@ -80,8 +80,12 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   const rem2 = await pg.evaluate(() => ({ hidden: document.getElementById('mkG3Rem').hidden, need: _recNeed('g3') }));
   ok(W + ' «안내 음성»을 되살리면 권함 한 줄이 바로 사라진다(다시 그리지 않아도) [G3_OPEN]', rem2.hidden && /안내 음성/.test(rem2.need), JSON.stringify(rem2));
   await pg.fill('[data-fk="mksl:g3:0"]', '조금 뒤에 뵙겠습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(200);
-  await pg.click('[data-fk="mkvpl:g3"]'); await pg.waitForTimeout(1500);   /* [TEXT_PLAY_MAKE] ▶ = 그 줄을 먼저 만들고 튼다 */
-  ok(W + ' 고친 줄의 ▶ → 새 글로 만든 뒤 튼다(«글을 고치고 ▶») [TEXT_PLAY_MAKE]', await pg.evaluate(() => { const v = S.up.g3; return !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))) && !_aiNeed('g3'); }));   /* [AI_PILL] 만든 뒤엔 단추가 필요 없다(«✓ 완료» 뒤 사라짐) */
+  /* ★[AI_PLAY_READY 2026-10-08 사장님 «우측 버튼이 목소리 만들기면 좌측 플레이 버튼 비활성화 · 누르면 밑에 안내»] 종전 [TEXT_PLAY_MAKE](고친 줄의 ▶ = 먼저 만들고 튼다)는 걷었다 — ▶ 는 흐림 · 누르면 한 줄 · 만들기는 머리 알약 한 곳 */
+  await pg.click('[data-fk="mkvpl:g3"]', { force: true }); await pg.waitForTimeout(400);   // 손가락은 흐린(aria-disabled) 단추도 누른다
+  const pq = await pg.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'), v = S.up.g3; return { off: b.getAttribute('aria-disabled') === 'true', hint: (b.closest('li').querySelector('.mk-ploff') || {}).textContent || '', made: !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))), busy: !!MK_UP.g3 }; });
+  ok(W + ' 고친 줄의 ▶ = 흐림 · 누르면 그 줄 아래 «오른쪽 목소리 만들기를 누르면 들을 수 있어요» · 만들지 않는다 [AI_PLAY_READY]', pq.off && /목소리 만들기/.test(pq.hint) && !pq.made && !pq.busy, JSON.stringify(pq));
+  await pg.click('[data-fk="mkai:g3"]'); await pg.waitForTimeout(1500);   /* [AI_PILL] 만들기는 머리 «목소리 만들기» */
+  ok(W + ' 머리 «목소리 만들기» → 새 글로 만든다(만든 뒤 단추는 «확정하기») [AI_PILL]', await pg.evaluate(() => { const v = S.up.g3; return !!(v && v.src === 'ai' && v.tx === _txSig(_recNeed('g3'))) && !_aiNeed('g3'); }));   /* [AI_PILL] 만든 뒤엔 «목소리 만들기»가 필요 없다 */
   await pg.click('[data-fk="mkvtreset:g3"]'); await pg.waitForTimeout(300);
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «다시 만들어 주세요» 단추(mkai) → 상태 «▶ 를 누르면 새로 만들어요» · ▶ 가 만든다 */
   await pg.waitForTimeout(1500);

@@ -5,7 +5,7 @@
    #42 PT_GATE_STAY   연습 «처음부터» 누르고 ② 로 떠나면 준비가 끝나도 크게 보기가 저절로 열리지 않는다
    #43 VU_LATE_MUTE   나오는 곳 창 «준비 중»에 다음 › · 칩 — 누르지 않은 단추는 잠기지 않고 · 앞 글 소리 · 실패 글이 새 자리에 안 나온다
    #44 VU_LATE_MUTE   창을 닫은 뒤 늦게 온 소리는 나지 않는다(기억에만 · 다시 열면 바로)
-   #45 NOW_PEND       지금 글 듣기(목소리 없이 글을 고친 AI 줄 ▶) — 기다리는 동안 ▶ 차오름 · 잠김 · 같은 글 한 번 · 마지막에 누른 줄만 · 실패는 그 줄 아래
+   #45 NOW_PEND → ★2026-10-08 AI_PLAY_READY  목소리 없이 글을 고친 AI 줄 ▶ 는 «지금 글 듣기»(연습 AI 읽기)를 하지 않는다 — 흐림 · 누르면 그 줄 아래 한 줄 · 요청 · 소리 없음(_playNowText · NOW_PEND 는 err-builder ⑪ 이 직접 잰다)
    #46 VU_ST_UNKNOWN  상태를 불러오는 중 · 못 받음 — 창이 «만들면…»이라 하지 않는다 · 코드 + 다시 불러오기
    #47 PT_PREP_AGAIN  연습 준비가 실패로 끝난 뒤 서버가 돌아오면 «처음부터 시작하기»가 못 만든 차례를 다시 준비한다
    #48 PT_PREP_WORD   준비 결과 문구 — 전부 실패 · 예산 · 로그인 풀림 · 막대 · 차례 문구
@@ -198,21 +198,18 @@ const SC = [
     await f.evaluate(() => { mkGo('guest'); ['g2', 'g3'].forEach((k) => { mkSlText(k, 0, _slLines(k)[0][1] + ' 고맙습니다.'); }); render(); }); await adv(pg, 800);
     const st0 = await f.evaluate(() => ({ g2: _staleNoVoice('g2'), g3: _staleNoVoice('g3') }));
     if (!st0.g3 || !st0.g2) { ok('#45 상태 만들기 — g2 · g3 가 «목소리 없이 글을 고친 AI 줄»', false, JSON.stringify(st0)); return; }
-    await pg.evaluate(() => { __SV.faults.push({ op: 'practice', nth: '*', kind: 'busy', lat: 4000, once: 1 }); });
-    const n0 = (await prac(pg)).length;
+    /* ★[AI_PLAY_READY 2026-10-08 사장님 «목소리를 먼저 만들지 않으면 플레이 버튼 비활성화 · 누르면 밑에 어디서 만들지»] 종전 #45(NOW_PEND — ▶ 가 연습 AI 읽기로 지금 글을 읽어 줌)는 걷었다.
+       이제 ▶ 는 남의 목소리를 틀지 않고 흐리게 · 누르면 그 줄 아래 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기» · 요청 없음 */
+    const n0 = (await prac(pg)).length, p0 = await f.evaluate(() => window.__plays.length);
     await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); if (b) b.scrollIntoView({ block: 'center' }); });
-    await click(f, '[data-fk="mkvpl:g3"]'); await adv(pg, 500); await shot(pg, '45-기다림');
-    const b1 = await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); return { dis: b && b.disabled, busy: b && b.getAttribute('aria-busy'), fill: !!(b && /wfill/.test(b.className)), toast: MK.toast || '' }; });
-    await f.evaluate(() => mkUpPlay('g3')); await adv(pg, 300);   // 잠긴 ▶ 를 한 번 더(손가락은 잠긴 단추를 못 누른다 — 부르는 함수를 직접 불러 같은 글 두 번을 막는지 본다)
-    ok('#45 ▶ 를 누르면 그 줄 ▶ 가 차오르고 잠긴다 · 맨 위 «준비하고 있어요» 알림 없음 [NOW_PEND]', b1.dis && b1.busy === 'true' && b1.fill && !/준비하고 있어요/.test(b1.toast), JSON.stringify(b1));
-    await adv(pg, 5000); await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); if (b) b.scrollIntoView({ block: 'center' }); }); await shot(pg, '45-실패');
-    const b2 = await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'), li = b && b.closest('li'), e = li && li.querySelector('.mk-exw'); return { e: e ? e.textContent : '', dis: b && b.disabled, toast: MK.toast || '' }; });
-    ok('#45 같은 글은 한 번만 묻고 · 실패는 그 줄 아래 코드와 함께 · ▶ 는 다시 풀린다 [NOW_PEND]', (await prac(pg)).length === n0 + 1 && /\(코드 V1\)/.test(b2.e) && !b2.dis, JSON.stringify(b2));
-    /* 다른 줄로 — g2 ▶ 2초 뒤 g3 ▶ · 둘 다 오면 g3 만 튼다 */
-    const p0 = await f.evaluate(() => window.__plays.length);
-    await click(f, '[data-fk="mkvpl:g2"]'); await adv(pg, 2000); await click(f, '[data-fk="mkvpl:g3"]'); await adv(pg, 12000);
-    const b3 = await f.evaluate((p0) => ({ plays: window.__plays.slice(p0).length, key: MK.audKey }), p0);
-    ok('#45 g2 ▶ 뒤 g3 ▶ — 답이 오면 마지막에 누른 g3 만 튼다(g2 소리가 먼저 났다 끊기지 않는다) [NOW_PEND]', b3.plays === 1 && b3.key === 'g3', JSON.stringify(b3));
+    const b0 = await f.evaluate(() => { const b = document.querySelector('[data-fk="mkvpl:g3"]'); return { off: !!(b && b.classList.contains('off')), ad: b && b.getAttribute('aria-disabled'), dis: b && b.disabled, fill: !!(b && /wfill/.test(b.className)) }; });
+    await click(f, '[data-fk="mkvpl:g3"]'); await adv(pg, 500); await shot(pg, '45-한줄');
+    const HINT = (k) => f.evaluate((k) => { const li = document.querySelector('[data-fk="mkvpl:' + k + '"]').closest('li'); return [...li.querySelectorAll('.mk-ploff')].map((e) => e.textContent).join(''); }, k);
+    const h3 = await HINT('g3'); await f.evaluate(() => mkUpPlay('g3')); await adv(pg, 5000);
+    ok('#45 목소리 없이 고친 줄 ▶ = 흐림(aria-disabled · 차오름 없음) · 누르면 그 줄 아래 «… 목소리를 만들면 들을 수 있어요 · 만들러 가기» · 연습 읽기 요청 · 소리 없음 [AI_PLAY_READY]',
+      b0.off && b0.ad === 'true' && !b0.dis && !b0.fill && /목소리를 만들면 들을 수 있어요 · 만들러 가기$/.test(h3) && (await prac(pg)).length === n0 && (await f.evaluate(() => window.__plays.length)) === p0, JSON.stringify({ b0, h3 }));
+    await click(f, '[data-fk="mkvpl:g2"]'); await adv(pg, 500); const h2 = await HINT('g2'), h3b = await HINT('g3');
+    ok('#45 다른 줄 ▶ 를 누르면 한 줄은 그 줄로 옮긴다(앞 줄 글은 걷힘)', /목소리를 만들면 들을 수 있어요/.test(h2) && !h3b && (await prac(pg)).length === n0, JSON.stringify({ h2, h3b }));
   } },
   /* ── #46 ── */
   { no: 46, faults: [{ op: 'status', kind: 'crash', lat: 4000 }], async run({ pg, f }) {

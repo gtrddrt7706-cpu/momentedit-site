@@ -115,10 +115,15 @@ try {
   const a = await mst(); ok(a.login && !a.my && a.tok === '', '로그아웃 직후 로그인 화면·토큰 없음(전제)', JSON.stringify(a));
   await mp.page.waitForTimeout(2000); const b = await mst();
   ok(b.login && !b.my, '늦게 온 상태가 로그아웃 뒤 화면을 덮지 않는다', JSON.stringify(b));
-  console.log('\n[T6] 마이페이지 — 응답이 영영 안 오면 12초 뒤 «연결이 느려요 · 다시 시도»');
+  /* [STATE_PATIENT 2026-10-08] 상태 불러오기는 20초까지 기다리고 한 번 더 묻는다(12초엔 «조금 오래 걸리고 있어요»).
+     실시간 40초를 기다리지 않으려고 이 판만 시간을 줄여 같은 길을 잰다(값 20000 · 12000 은 merge-guard 가 따로 고정한다) */
+  console.log('\n[T6] 마이페이지 — 응답이 영영 안 오면 «조금 오래 걸리고 있어요» → 한 번 더 묻고도 안 오면 «다시 불러오기»');
   delete MD.getMyState; MHOLD.add('getMyState');
-  await mp.page.evaluate(() => { localStorage.setItem('me_token','TOK'); try { localStorage.removeItem('me_state'); } catch(e){} loadMyState(); }); await mp.page.waitForTimeout(13500);
-  const c = await mst(); ok(c.retry, '12초 뒤 다시 시도 버튼이 나온다', JSON.stringify(c));
+  await mp.page.evaluate(() => { STATE_SLOW_MS = 1500; STATE_WAIT_MS = 3000; localStorage.setItem('me_token','TOK'); try { localStorage.removeItem('me_state_v1'); } catch(e){} loadMyState(); }); await mp.page.waitForTimeout(2200);
+  const c0 = await mp.page.evaluate(() => ({ retry: !!document.getElementById('mp_retryLoad'), note: ((document.querySelector('#loading .busy-row span:last-child') || {}).textContent) || '' }));
+  ok(!c0.retry && /조금 오래 걸리고 있어요/.test(c0.note), '늦어지면 먼저 «조금 오래 걸리고 있어요…»(아직 다시 시도 버튼 없음)', JSON.stringify(c0));
+  await mp.page.waitForTimeout(5000);
+  const c = await mst(); ok(c.retry, '두 번 다 안 오면 다시 시도 버튼이 나온다', JSON.stringify(c));
   mheld.forEach(r => r()); mheld = []; MHOLD.clear();
 } catch (e) { fail++; console.log('마이페이지 실행 오류: ' + (e && e.stack || e).toString().slice(0,300)); }
 console.log(`\n[마이페이지] pageerror ${mp.errors.length}` + (mp.errors.length ? ' → ' + mp.errors.slice(0,3).join(' | ') : ''));

@@ -122,8 +122,8 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   ok(W + ' 사람별 빠르기 — 누를 때는 안 만들고 · [이 목소리로 쓰기]에 그 분 줄을 한 번(1.0) [VOICE_TUNE · TUNE_DOTS]', await pg.evaluate(([n0, n1]) => n1 === n0 && S.vset.groom.tempo === '1' && S.up.g0.tempo === '1' && __calls.filter((c) => c === 'make:g0').length === n0 + 1, [n0, n1]));
   await pg.evaluate(() => { const v = document.querySelector('[data-fk="mkvpl:g0"]'); v && v.scrollIntoView({ block: 'center' }); }); await full(pg, W, 's3-lines');
   /* ★[VC_LINE_ERR] 줄 만들기가 실패하면 «보내는 중»에 멈추지 않고 그 줄 아래에 까닭 */
-  /* [TEXT_PLAY_MAKE] 실패 길은 «고친 줄의 ▶»(그 줄을 먼저 만든다)로 연다 */
-  await pg.evaluate(() => { window.__makeFail = true; S.vtext = S.vtext || {}; S.vtext.g0 = _recNeed('g0') + ' 고침'; render(); }); await pg.click('[data-fk="mkvpl:g0"]'); await pg.waitForTimeout(800);
+  /* [TEXT_PLAY_MAKE] 실패 길은 «고친 줄»로 연다 — ★2026-10-08 [AI_PLAY_READY] 고친 줄의 ▶ 는 이제 만들지 않는다(흐림 · 한 줄) · 만들기는 머리 «목소리 만들기» */
+  await pg.evaluate(() => { window.__makeFail = true; S.vtext = S.vtext || {}; S.vtext.g0 = _recNeed('g0') + ' 고침'; render(); }); await pg.click('.mk-aip[data-key="g0"]'); await pg.waitForTimeout(800);
   const le = await pg.evaluate(() => { const li = document.querySelector('[data-fk="mkvpl:g0"]') && document.querySelector('[data-fk="mkvpl:g0"]').closest('li'); return { busy: !!MK_UP.g0, err: li ? ((li.querySelector('.mk-exw') || {}).textContent || '') : '' }; });
   await pg.evaluate(() => { window.__makeFail = false; });
   ok(W + ' 줄 만들기 실패 → «보내는 중»에 멈추지 않고 그 줄 아래 까닭 [VC_LINE_ERR]', !le.busy && /만들지 못했어요/.test(le.err), JSON.stringify(le));
