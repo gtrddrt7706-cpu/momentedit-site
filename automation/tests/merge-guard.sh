@@ -14761,12 +14761,12 @@ chk '#lsToast{z-index:2147482100}' order-preview.html 1
 chk 'TOAST_BROWN' order-preview.html 2
 chk 'TOAST_PILL' order-preview.html 2
 chk 'TOAST_SHORT' order-preview.html 3
-chk 'background:#4E3F31;color:#fff;font-size:13px;font-weight:500' order-preview.html 2
+chk 'background:#4E3F31;color:#fff;font-size:12.5px;font-weight:500' order-preview.html 2   # 글자 12.5 = 이 화면 작은 단계(RIT_TYPE5 · 13px 금지)
 chk '.btn-next{background:#4E3F31;color:#fff}' order-preview.html 1   # 알림 브라운의 짝(«다음» 단추) — 한쪽만 바꾸면 갈린다
 chk 'function _josaRo(w)' order-preview.html 1
 chk "String(x||'').replace(/\[«»\]/g,'')" order-preview.html 1   # [CHIP_TOAST] «»가 굵은 글씨로 바뀌는 틈(GUIL_OFF)을 «바뀜»으로 읽지 않게
-nochk 'border:1px solid var(--gold-deep);font-size:13px' order-preview.html   # ★알림 테두리 금지 — 2026-10-08 사용자 지시로 삭제(TOAST_PILL)
-nochk 'background:#F3ECDF;color:var(--accent);font-size:13px' order-preview.html   # ★옅은 베이지 알림 걷음 — 2026-10-08 사용자 지시(TOAST_BROWN)
+nochk 'background:#F3ECDF;color:var(--accent);border:1px solid var(--gold-deep);font-size' order-preview.html   # ★알림 테두리 금지 — 2026-10-08 사용자 지시로 삭제(TOAST_PILL)
+nochk 'background:#F3ECDF;color:var(--accent);font-size' order-preview.html   # ★옅은 베이지 알림 걷음 — 2026-10-08 사용자 지시(TOAST_BROWN)
 nochk "'›에 맞춰 안내 글을 바꿨어요'" order-preview.html   # ★긴 칩 알림 문구 — 2026-10-08 사용자 지시(TOAST_SHORT)
 chk 'CHIP_TOAST' scripts/audit/chip-toast.mjs 1
 chk 'TOAST_BROWN' scripts/audit/chip-toast.mjs 3
