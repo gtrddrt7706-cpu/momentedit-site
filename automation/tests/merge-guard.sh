@@ -16074,6 +16074,13 @@ chk 'ADMIN_BACKUP_RETIRE' automation/platform/99_deployCheck.gs 2   # 화면 파
 nochk 'Admin·ScreenA' automation/platform/99_deployCheck.gs
 nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
 if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi
+# ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 오류기록(고객 DB 와 같은 파일)에 밖의 글이 수식 · 개인정보로 들어가지 않게 — 동작 이름 안전 글자 · 모든 칸 수식 막기 · 가림 · 모르는 동작 시간당 20줄
+#   옛 판은 인증 없이 `{"action":"=IMAGE(…&다른탭!D2)"}` 로 고객 DB 파일에 바깥 주소를 부르는 수식을 박을 수 있었다(옛 판으로 돌리면 err-log-safe 가 빨강 · 실측)
+chk 'ERR_LOG_SAFE' automation/platform/95_notify.gs 3
+nochk "String(act || '(없음)').slice(0, 40)" automation/platform/95_notify.gs
+chk 'ERR_LOG_SAFE' scripts/audit/err-log-safe.mjs 1
+chk 'ERR_LOG_SAFE_BLIND' automation/tests/merge-guard.sh 2   # 이 줄 1 + 연결 줄 1 · 연결 줄이 «2 = 통과»로 되돌아가면 1 이 되어 빨강
+if command -v node >/dev/null 2>&1; then node scripts/audit/err-log-safe.mjs >/dev/null 2>&1; _els=$?; if [ "$_els" != 0 ]; then echo "FAIL err-log-safe($_els): 오류기록에 밖의 글이 수식 · 개인정보로 들어간다(고객 DB 파일) · 2 = 재지 못함(브라우저가 필요 없는 검사라 2 는 눈먼 것) — node scripts/audit/err-log-safe.mjs"; fail=1; else echo "ok err-log-safe ($_els)"; fi; fi   # [ERR_LOG_SAFE_BLIND] 2 도 빨강
 # ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
 #   마이페이지 «최신 내용을 불러오지 못했어요 (코드 L5)» = 화면이 getMyState 를 12초 기다리다 멈춤. 원인은 서버 한 번 불러오기의 양 —
 #   서명 시트 전체(모든 고객의 서명 그림)를 매번 읽었고(SIG_FIND) · 같은 상담 행을 상태에 따라 2~3번 · 고객 행을 2번 따로 찾았다(GMS_MEMO).
