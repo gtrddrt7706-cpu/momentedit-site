@@ -18,7 +18,7 @@ const run=(items, failAt, throwAt)=>{
   let store={ NOTIFY_HOLD: JSON.stringify(items) };
   const sent=[]; let n=0;
   const sandbox={
-    Logger:{log:()=>{}},
+    Logger:{log:()=>{}}, _gsr_:()=>{}, _trigIn_:()=>{},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     LockService:{ getScriptLock:()=>({ waitLock:()=>{}, releaseLock:()=>{} }) },
     PropertiesService:{ getScriptProperties:()=>({
       getProperty:(k)=>store[k]||null, setProperty:(k,v)=>{store[k]=v;}, deleteProperty:(k)=>{delete store[k];} }) },

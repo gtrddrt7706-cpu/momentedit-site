@@ -31,12 +31,12 @@ var NOTIFY = {
   LOG: true         // 훅 호출을 Logger에 기록(디버깅/검증용)
 };
 
-function _notifyEnabled() {
+function _notifyEnabled() { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   try { return PropertiesService.getScriptProperties().getProperty('NOTIFY_ENABLED') === 'true'; }
   catch (e) { return false; }
 }
 // [관리자 알림 최소화] 안내성(need:false) 관리자 알림도 폰으로 받을지 — 기본 false(행동 게이트만)
-function _adminInfoOn() {
+function _adminInfoOn() { _gsr_();
   try { return PropertiesService.getScriptProperties().getProperty('ADMIN_NOTIFY_INFO') === 'true'; }
   catch (e) { return false; }
 }
@@ -106,7 +106,7 @@ var NOTIFY_EVENTS = {
  * @param {string} code   고객 개인코드(고객 알림 시 수신번호 조회용 · 관리자 알림 시 참고)
  * @param {Object=} extra 부가정보(금액·D-day·이름 등) — 문구 변수용
  */
-function notifyKakao(event, code, extra) {
+function notifyKakao(event, code, extra) { _gsr_();
   // [NOTIFY_SENT_RET 2026-07-25] 발송 결과 반환 — true(발송)·'held'(야간 보류=아침 발송 예정)·'off'(전역 발송 OFF=의도된 미발송)·false(미발송).
   //   기존 호출부는 반환값을 안 쓰므로 호환 유지. admin.gs 결과물 전달의 '알림 이중 실패 감지'가 사용('held'·'off'는 실패로 안 침).
   try {
@@ -277,7 +277,7 @@ function _kakaoSend_(to, event, code, extra, opts) {
 // 솔라피 v4 단건 발송 — HMAC-SHA256 인증.
 //   실패는 고객 처리이력에 '[알림] … 발송 실패'로 남겨 상세에서 보이게(잔액 부족·번호 오류를 운영자가 알 수 있게).
 //   성공 이력 전체는 솔라피 콘솔 > 메시지 로그에서 조회.
-function _solapiSend(cfg, message, ctx) {
+function _solapiSend(cfg, message, ctx) { _gsr_();
   try {
     var date = new Date().toISOString();
     var salt = Utilities.getUuid().replace(/-/g, '');
@@ -311,7 +311,7 @@ function _solapiSend(cfg, message, ctx) {
    저쪽은 «보냈는데 거절됐다»이고 이쪽은 «보낼 수단이 없었다»라 고치는 곳이 다르다(솔라피 잔액 vs 템플릿 승인).
    ★메일은 하루 한 통으로 묶는다 — 템플릿이 여럿 빠져 있으면 하루에도 수십 번 걸린다. 쏟아지면 아무도 안 본다.
    ★단, 고객이 «아무것도» 못 받은 경우는 그 고객 기준으로 따로 알린다 — 그 두 분은 지금 소식이 끊긴 상태다. */
-function _nfTplSilent(event, code, reached, noPf, elsewhere) {
+function _nfTplSilent(event, code, reached, noPf, elsewhere) { _gsr_();
   try {
     var _tsMark = '[TPL_SILENT]';
     var why = noPf ? '카카오 채널(SOLAPI_PF_ID) 미설정' : '알림톡 템플릿 미등록';
@@ -328,7 +328,7 @@ function _nfTplSilent(event, code, reached, noPf, elsewhere) {
 }
 
 // 고객 알림 실패 → 처리이력 기록 + 일별 실패 카운터(아침 브리핑 집계용). 베스트에포트 · 본 흐름 절대 불간섭.
-function _notifyFailMark(ctx, why) {
+function _notifyFailMark(ctx, why) { _gsr_();
   try {
     if (ctx && ctx.code && typeof _recordHandler === 'function') {
       _recordHandler(ctx.code, '[알림] ' + (ctx.event || '') + ' 발송 실패 · ' + String(why || '').slice(0, 80));
@@ -352,7 +352,7 @@ function _notifyFailMark(ctx, why) {
 }
 
 // 어제 알림 실패 건수(아침 브리핑용) — 읽는 김에 7일 지난 카운터 키 정리
-function notifyFailYesterday() {
+function notifyFailYesterday() { _gsr_();
   try {
     var p = PropertiesService.getScriptProperties();
     var yd = _shiftYmd(_kstYmd(new Date()), -1);
@@ -373,11 +373,11 @@ function notifyFailYesterday() {
 
 // ============================ 야간 보류 ============================
 // 21:00~익일 07:59(KST) 사이의 고객 알림은 보류 큐(Script Property JSON)에 쌓고, 아침 8시 트리거가 발송.
-function _nfIsNight() {
+function _nfIsNight() { _gsr_();
   var h = Number(Utilities.formatDate(new Date(), 'Asia/Seoul', 'H'));
   return h >= 21 || h < 8;
 }
-function _nfHoldPush(event, code, extra) {
+function _nfHoldPush(event, code, extra) { _gsr_();
   var lock = null;
   try { lock = LockService.getScriptLock(); lock.waitLock(5000); } catch (e) { lock = null; }
   try {
@@ -420,7 +420,7 @@ function _nfHoldDrop(code) { _requireAdmin();
   return n;
 }
 // [트리거·매일 8시] 보류 알림 발송 — 큐를 비우고 순차 발송(개별 실패는 _notifyFailMark가 기록, 재적재 없음)
-function flushHeldNotifies() {
+function flushHeldNotifies() { _trigIn_(arguments[0]);
   // [버그수정 2026-06-28] OFF면 큐를 비우지 말고 그대로 유지 — 예전엔 큐를 먼저 지우고 OFF면 폐기라
   //   발송 OFF 상태로 아침이 오면 밤사이 보류된 고객 알림이 영구 소실됐다. 다시 켜지면 그때 발송.
   if (!_notifyEnabled()) { Logger.log('flushHeldNotifies: NOTIFY_ENABLED OFF — 보류 큐 유지(미발송)'); return; }
@@ -471,30 +471,30 @@ function flushHeldNotifies() {
 // 알림톡 변수(vars)는 automation/알림톡_템플릿_신청문안.md 의 #{변수명}과 1:1.
 // text는 알림톡을 못 보냈을 때 나가는 대체 메일 본문(자유 문구 · 끝 주소는 메일에서 버튼으로 옮겨진다). 고객 문자는 2026-06-29 부터 안 쓴다.
 
-function _nfCoupleName(cust) {
+function _nfCoupleName(cust) { _gsr_();
   var g = String(cust.get('신랑이름') || '').trim(), b = String(cust.get('신부이름') || '').trim();
   return (g && b) ? (g + '·' + b) : (g || b || '고객');
 }
-function _nfDate(ymd) {   // '2026-06-17' → '2026년 6월 17일'
+function _nfDate(ymd) { _gsr_();   // '2026-06-17' → '2026년 6월 17일'
   var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
   return m ? (m[1] + '년 ' + Number(m[2]) + '월 ' + Number(m[3]) + '일') : String(ymd || '');
 }
-function _nfWon(n) {
+function _nfWon(n) { _gsr_();
   var v = _wonNum(n);   // 숫자만 추출 · 시트 문자 금액('300,000원'·'₩3.5M')도 흡수(고객 문자 'NaN원' 방지). _wonNum: 70_journey
   if (!isFinite(v)) v = 0;
   return v.toLocaleString ? v.toLocaleString('ko-KR') : String(v);
 }
 // 디데이 표기 방어 — 정상 0 이상 정수만 'D-N', 그 외(음수=예식일 과거 오입력 · null · NaN)는 '예정'. (고객 문자 'D--3'·'D-NaN' 방지)
-function _nfDday(d) { return (typeof d === 'number' && isFinite(d) && d >= 0) ? ('D-' + d) : '예정'; }
+function _nfDday(d) { _gsr_(); return (typeof d === 'number' && isFinite(d) && d >= 0) ? ('D-' + d) : '예정'; }
 
 var NF_MYPAGE = 'momentedit.kr/mypage.html';
 // [MPD3_D2 2026-07-25] 알림 → 카드 딥링크 — 마이페이지 링크에 이벤트별 ?focus= 부여(프론트가 해당 카드로 스크롤+1회 강조 · 미지 값은 프론트가 무시).
 //   이벤트↔카드 매핑표: consult=상담/예약 카드(mp_consult) · fitting=시착 동의(mp_fitting) · contract=계약서/계약정보·예식일 변경(mp_contract)
 //   mid=중도금(mp_midpayment) · balance=잔금(mp_balance) · result=결과물(mp_result) · production=예식 준비(mp_production)
 //   hold=임시고정 배너(mp_hold) · refund=환불 계좌 카드(mp_refundBank). 새 이벤트 추가 시 여기 표와 프론트 _FOCUS_MAP을 함께 갱신.
-function _nfMy(focus) { return NF_MYPAGE + (focus ? ('?focus=' + focus) : ''); }
+function _nfMy(focus) { _gsr_(); return NF_MYPAGE + (focus ? ('?focus=' + focus) : ''); }
 
-function _nfCustomerMsg(event, name, x) {
+function _nfCustomerMsg(event, name, x) { _gsr_();
   x = x || {};
   var d;
   /* ★[SLOT_CLOCK 2026-09-25] 예식 슬롯은 «도착 시각»(12:20)으로 저장된다. 옛 판은 그 값을 그대로 #{일시}에 넣어
@@ -598,7 +598,7 @@ function _nfCustomerMsg(event, name, x) {
 }
 
 // 관리자 SMS — 짧고 행동 중심(템플릿 승인 불필요)
-function _nfAdminText(event, code, x) {
+function _nfAdminText(event, code, x) { _gsr_();
   x = x || {};
   var tag = '[모먼트에디트]';
   var c = code ? (' · ' + code) : '';
@@ -804,7 +804,7 @@ function _nfTplMerge(add) { _requireAdmin();
   return out;
 }
 // 켜진 고객 알림 중 템플릿이 비어 있는 것(notifySetupCheck·_nfTplMerge 공용)
-function _nfTplMissing(tpls) {
+function _nfTplMissing(tpls) { _gsr_();
   tpls = tpls || {};
   return Object.keys(NOTIFY_EVENTS).filter(function (ev) { var m = NOTIFY_EVENTS[ev]; return m.to === 'customer' && !m.off && !String(tpls[ev] || '').trim(); });
 }
@@ -871,7 +871,7 @@ function _notifyCustomerEmail(code, subject, headline, innerHtml) { _requireAdmi
 // 설정(스크립트 속성): SOLAPI_LOW_BALANCE(임계 원화·기본 5000) · ADMIN_ALERT_EMAIL(없으면 CONFIG.ADMIN_EMAIL→contact@momentedit.kr)
 
 // 솔라피 잔액(원) 조회 — 실패 시 null. _solapiSend와 같은 HMAC-SHA256 인증.
-function _solapiBalance() {
+function _solapiBalance() { _gsr_();
   try {
     var p = PropertiesService.getScriptProperties();
     var key = String(p.getProperty('SOLAPI_API_KEY') || '').trim();
@@ -897,7 +897,7 @@ function _solapiBalance() {
 }
 
 // 매일 1회(aiDaily가 호출) — 잔액이 임계 이하면 관리자 GAS 메일 1통(하루 1통 제한).
-function notifyBalanceCheck() {
+function notifyBalanceCheck() { _gsr_();
   try {
     var p = PropertiesService.getScriptProperties();
     var thr = Number(p.getProperty('SOLAPI_LOW_BALANCE')) || 3000;   // 자동충전 임계(5000)보다 낮게 → 자동충전 실패 시에만(헛경고X), 0 전에 버퍼 두고 경고
@@ -919,7 +919,7 @@ function notifyBalanceCheck() {
 
 // 관리자 메일 이모지 제거 — 그림문자·변형선택자만 제거(→ · 화살표·중점, 한글·영문·숫자는 보존).
 //   관리자 알림 규칙: 이모지 없이 깔끔하게(2026-06-29 사용자 지시). 제목·문구에 새 이모지가 섞여도 자동으로 걸러짐.
-function _noEmoji(s) {
+function _noEmoji(s) { _gsr_();
   return String(s == null ? '' : s)
     .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2300}-\u{23FF}\u{FE0F}\u{200D}\u{20E3}]/gu, '')
     .replace(/\s{2,}/g, ' ').trim();
@@ -927,7 +927,7 @@ function _noEmoji(s) {
 
 // 관리자 GAS 메일 1통(best-effort) — 솔라피 안 거침. 운영자 개인메일(ADMIN_CC)도 함께 받게 cc.
 //   [2026-06-29] 관리자 알림을 '메일 전용'으로 전환 — 문자비 0. 이 메일에 폰 알림(알람)을 걸어두면 즉시 확인 가능.
-function _nfAdminEmail(subject, bodyHtml, opts) {
+function _nfAdminEmail(subject, bodyHtml, opts) { _gsr_();
   try {
     subject = _noEmoji(subject);
     var p = PropertiesService.getScriptProperties();
@@ -956,7 +956,7 @@ function _nfPayConfirmAction_(event, code, extra) {
     return { url: webAppUrl() + '?action=payconfirm&code=' + encodeURIComponent(String(code || '').trim().toUpperCase()) + '&m=' + m + '&exp=' + exp + '&sig=' + encodeURIComponent(sign_(String(code || '').trim().toUpperCase(), 'payconfirm:' + m + ':' + exp)), label: '입금 확인 처리' };
   } catch (e) { return null; }
 }
-function _nfAdminLineEmail(text, action) {
+function _nfAdminLineEmail(text, action) { _gsr_();
   try {
     var raw = _noEmoji(String(text || '').trim());   // 이모지 제거(관리자 알림 규칙)
     if (!raw) return;
@@ -975,7 +975,7 @@ function _nfAdminLineEmail(text, action) {
 }
 
 // 발송 활동 시 시간당 1회 잔액 점검 → 0 되기 전 빠른 경고(일일 aiDaily 외 보조 · 하루 1통 가드는 notifyBalanceCheck가 함).
-function _nfMaybeBalanceCheck() {
+function _nfMaybeBalanceCheck() { _gsr_();
   try {
     var p = PropertiesService.getScriptProperties();
     var last = Number(p.getProperty('SOLAPI_BAL_CHK_AT') || 0);
@@ -993,14 +993,14 @@ function _nfMaybeBalanceCheck() {
 // 설정: 솔라피 «개발 → Webhooks → 새로운 웹훅 생성» · EVENT «메시지 리포트» · 수신 URL = https://momentedit.kr/api/solapi-report (베르셀 중계가 이 웹앱 /exec 로 넘긴다).
 //   ★/exec 에 바로 걸지 말 것 — GAS 는 처리 뒤 302 로 답해 솔라피가 실패로 세고 8회면 웹훅을 끈다(2026-09-25 실측 · api/solapi-report.js).
 var NF_TRACK_SHEET = '알림톡추적';
-function _nfTrackSheet() {
+function _nfTrackSheet() { _gsr_();
   var ss = SpreadsheetApp.getActive();
   var sh = ss.getSheetByName(NF_TRACK_SHEET);
   if (!sh) { sh = ss.insertSheet(NF_TRACK_SHEET); sh.appendRow(['messageId', '시각', 'code', 'event', 'text', '상태']); sh.setFrozenRows(1); }
   return sh;
 }
 // 발송 성공 시 messageId 기록(고객 알림톡만 · ctx.code 있을 때). 실패 시 그대로 보낼 text도 보관.
-function _nfTrackSend(resp, ctx, message) {
+function _nfTrackSend(resp, ctx, message) { _gsr_();
   var mid = '';
   try { var j = JSON.parse(resp.getContentText()); mid = String(j.messageId || (j.groupInfo && j.groupInfo.groupId) || j.groupId || '').trim(); } catch (e) {}
   if (!mid) return;
@@ -1011,7 +1011,7 @@ function _nfTrackSend(resp, ctx, message) {
 // 솔라피 전달결과 리포트 처리(doPost가 배열/리포트 형태 감지 시 호출). 명확한 실패만 고객 이메일.
 /* 이 알림은 카톡과 «따로» 고객 메일이 이미 나가는가 — 그렇다면 카톡이 못 가도 대체 메일을 또 보내지 않는다.
    지금은 상담 확정 하나다(확정 메일 sendConfirmEmail 이 켜져 있을 때 · KAKAO_FIRST). */
-function _nfEmailedElsewhere(event) {
+function _nfEmailedElsewhere(event) { _gsr_();
   /* ★[MAIL_ONCE 2026-09-25 사장님 「메일이 중복 도착한다든가 기존 시스템이랑 겹치는 상황은 없겠지」]
      보내는 순간 실패(_kakaoSend)는 이 기준으로 막았는데, «보내진 뒤 도착 실패»(솔라피 결과 · handleSolapiReport)는
      기준을 안 봤다 — 상담 확정 카톡이 카카오톡 미사용 등으로 도착하지 못하면 확정 메일에 대체 메일이 한 통 더 갔다.
@@ -1019,7 +1019,7 @@ function _nfEmailedElsewhere(event) {
   return event === 'cust.consultConfirmed' && typeof CONFIG !== 'undefined' && !!CONFIG && CONFIG.SEND_CONFIRM_MAIL === true;
 }
 
-function handleSolapiReport(raw) {
+function handleSolapiReport(raw) { _gsr_();
   try {
     Logger.log('[notify] 솔라피 리포트 수신: ' + String(JSON.stringify(raw)).slice(0, 700));
     var arr = Array.isArray(raw) ? raw : [raw];
@@ -1081,7 +1081,7 @@ function handleSolapiReport(raw) {
   } catch (e) { Logger.log('[notify] 리포트 처리 실패: ' + (e && e.message)); return { ok: false, error: (e && e.message) }; }
 }
 // [정리] 알림톡추적 7일 경과분 삭제 — purgeAdvisorLog(주간)가 함께 호출(별도 트리거 불필요).
-function purgeNfTrack() {
+function purgeNfTrack() { _gsr_();
   try {
     var sh = SpreadsheetApp.getActive().getSheetByName(NF_TRACK_SHEET);
     if (!sh || sh.getLastRow() < 2) return;
@@ -1158,7 +1158,7 @@ function _nfCustomerEmailFallback_(to, name, event, text) {
 // ============================ 문자/알림톡 사용량 (관리자 💰) ============================
 //  발송 1건당 종류만 적재(개인정보 없음) → 관리자 페이지에서 잔액 + 이번달 건수·추정비용 표시.
 //  시트 '문자발송로그' [시각, 종류]. 종류 = SMS / LMS / 알림톡. 추정단가는 SOLAPI_PRICE(스크립트 속성 JSON)로 조정.
-function _solapiLogSend(message) {
+function _solapiLogSend(message) { _gsr_();
   var kind = (message && message.kakaoOptions) ? '알림톡' : ((String(message.text || '').length > 45) ? 'LMS' : 'SMS');
   var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
   if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('문자발송로그'); sh.appendRow(['시각', '종류']); }
@@ -1167,7 +1167,7 @@ function _solapiLogSend(message) {
 }
 // [정리] 문자발송로그 180일 경과분 삭제 — purgeAdvisorLog(주간 트리거)가 함께 호출(별도 트리거 불필요).
 //   append-only(위→아래 오래된 것) 가정. 20000행 상한 도달로 적재가 멈추는 것 방지.
-function purgeSmsLog() {
+function purgeSmsLog() { _gsr_();
   try {
     var sh = SpreadsheetApp.getActive().getSheetByName('문자발송로그');
     if (!sh || sh.getLastRow() < 2) return;
@@ -1199,7 +1199,7 @@ function solapiUsageSummary() { _requireAdmin();
   return base;
 }
 
-function _safeJson(o) { try { return JSON.stringify(o); } catch (e) { return String(o); } }
+function _safeJson(o) { _gsr_(); try { return JSON.stringify(o); } catch (e) { return String(o); } }
 
 // [테스트 전용] 승인난 알림톡 6종을 한 번에 테스트 계정으로 발송 — 운영 트리거와 무관(수동 실행만).
 //   서로 다른 템플릿 6개(T04·T05·T08·T09·T10·T15)를 각 변수 채워 순차 발송. skipHold로 야간에도 즉시.
@@ -1242,7 +1242,7 @@ function ZZ_kakaoTestAll(code) { _requireAdmin();
 // 이 문구("잠시 후 다시 시도")는 지금은 이론상 존재한다 — 고객이 만나기 시작하는 순간이
 // 규모 대비를 시작할 신호인데, 고객은 불평하지 않고 떠나므로 기계가 세어 준다.
 // 누적 횟수는 ScriptProperty LOCK_BUSY_N. 메일은 하루 1통(폭주 방지).
-function lockBusySignal(where) {
+function lockBusySignal(where) { _gsr_();
   try {
     if (!where && typeof __ERR_ACT !== 'undefined' && __ERR_ACT) where = __ERR_ACT;   // [ERR_CODE_GAS] 어느 동작에서 막혔는지 — 종전엔 가입 · 입금 확인 · AI 인계 세 곳만 적혔다
     var p = PropertiesService.getScriptProperties();
@@ -1256,7 +1256,7 @@ function lockBusySignal(where) {
 }
 // 로그 시트 appendRow 를 잠금 아래에서 — 동시 기록 시 드물게 두 로그가 같은 행을 잡는 것을 막는다.
 // 3초 안에 못 잡으면 그냥 쓴다(로그가 고객 동작을 막으면 안 된다 · 충돌 확률 < 유실 비용).
-function _lockedAppend(sh, arr) {
+function _lockedAppend(sh, arr) { _gsr_();
   var lk = null;
   try { lk = LockService.getScriptLock(); if (!lk.tryLock(3000)) lk = null; } catch (e) { lk = null; }
   try { sh.appendRow(arr); } finally { if (lk) { try { lk.releaseLock(); } catch (e) {} } }
@@ -1283,14 +1283,14 @@ var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 a
   G: ['seatView', 'guideView', 'guestPhoto', 'guestLetter', 'getCouple'],
   R: ['submitResultSelection', 'requestExtraRetouch', 'confirmRetouch', 'requestRevision', 'submitSurvey']
 };
-function _errArea(a) {   // [ERR_CODE_GAS]
+function _errArea(a) { _gsr_();   // [ERR_CODE_GAS]
   a = String(a == null ? '' : a);
   for (var k in ERR_AREA) if (ERR_AREA[k].indexOf(a) > -1) return k;
   return 'X';
 }
-function _errId() { var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', t = ''; for (var i = 0; i < 4; i++) t += A.charAt(Math.floor(Math.random() * A.length)); return t; }   // [ERR_CODE_GAS] 사고번호 — 헷갈리는 0 · O · 1 · I 는 뺀다
+function _errId() { _gsr_(); var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', t = ''; for (var i = 0; i < 4; i++) t += A.charAt(Math.floor(Math.random() * A.length)); return t; }   // [ERR_CODE_GAS] 사고번호 — 헷갈리는 0 · O · 1 · I 는 뺀다
 var ERR_BUSY_RE = /^잠시 후 다시 시도해 주세요\.?( \(서버 혼잡\))?$/;   // 잠금 대기 초과 문구(70 · 80 · 85 핸들러 약 30곳)
-function _errStamp(out) {   // [ERR_CODE_GAS] jsonOut 이 ok:false 를 내보내기 직전에 한 번
+function _errStamp(out) { _gsr_();   // [ERR_CODE_GAS] jsonOut 이 ok:false 를 내보내기 직전에 한 번
   try {
     var act = (typeof __ERR_ACT !== 'undefined') ? __ERR_ACT : '';
     var why = String(out._why || ''); delete out._why;
@@ -1310,11 +1310,11 @@ function _errStamp(out) {   // [ERR_CODE_GAS] jsonOut 이 ok:false 를 내보내
   } catch (e) {}
   return out;
 }
-function _errWho() {   // 개인코드만 — 로그인 토큰 → 하객 안내 토큰 순
+function _errWho() { _gsr_();   // 개인코드만 — 로그인 토큰 → 하객 안내 토큰 순
   var t = (typeof __ERR_TOK !== 'undefined') ? __ERR_TOK : ''; if (!t) return '';
   try { var r = (typeof findCustomerByToken === 'function') ? findCustomerByToken(t) : null; if (!r && typeof _findCustomerBy === 'function') r = _findCustomerBy('안내공유토큰', t, false); return r ? String(r.get('개인코드') || '') : ''; } catch (e) { return ''; }
 }
-function _errRecord(act, ec, text, why, eid, extra) {   // [ERR_CODE_GAS] 오류기록 시트 한 줄 · 같은 실패(사람 · 동작 · 코드 · 글)는 10분에 한 줄 · 사고번호가 있으면 늘 남긴다
+function _errRecord(act, ec, text, why, eid, extra) { _gsr_();   // [ERR_CODE_GAS] 오류기록 시트 한 줄 · 같은 실패(사람 · 동작 · 코드 · 글)는 10분에 한 줄 · 사고번호가 있으면 늘 남긴다
   try {
     /* ★★[ERR_LOG_SAFE 2026-10-08 보안 검토] 이 시트는 고객 DB 와 같은 파일이다 — 밖에서 온 글이 «수식»으로 들어가면 안 된다.
        종전엔 «동작» 칸만 `_deFormula` 를 안 거쳤고, doPost 는 모르는 동작 이름을 그대로 여기 적었다(X3 · 인증 없이 누구나).
@@ -1344,7 +1344,7 @@ function _errRecord(act, ec, text, why, eid, extra) {   // [ERR_CODE_GAS] 오류
     if (n === 9 || (n === 3 && ec !== 'V3') || (n === 4 && /^[PCBUGD]/.test(ec))) _errAlert(ec, act, text, why, eid);   // V3(목소리 스위치 · 시험 예식 목록)은 종전 결정대로 메일 없음 — VCERR_ 에만(VC_GATE_WHY)
   } catch (e) { try { console.warn('[ERR_CODE_GAS] 기록 실패 ' + ec + ' ' + (e && e.message)); } catch (_) {} }
 }
-function _errAlert(ec, act, text, why, eid) {   // [ERR_CODE_GAS] 관리자 메일 — 코드마다 하루 한 통(9 · 3 · 결제 · 계약 · 예약 · 올리기 · 하객 · 지우기의 4)
+function _errAlert(ec, act, text, why, eid) { _gsr_();   // [ERR_CODE_GAS] 관리자 메일 — 코드마다 하루 한 통(9 · 3 · 결제 · 계약 · 예약 · 올리기 · 하객 · 지우기의 4)
   try {
     /* [ERR_LOG_SAFE 2026-10-08] 메일에도 가린 글만 — 관리자 메일은 폰 알림 미리보기 · 전달받는 메일함에도 남는다 */
     if (typeof _maskPII === 'function') { text = _maskPII(String(text == null ? '' : text)); why = _maskPII(String(why == null ? '' : why)); }

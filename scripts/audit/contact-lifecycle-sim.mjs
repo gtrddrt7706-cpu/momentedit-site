@@ -85,7 +85,9 @@ function _nfCustomerEmailFallback_(to, n, e) { __W.custMails.push(String(to) + '
 function _nfAdminLineEmail(t) { __W.adminMails.push(String(t)); }
 function _nfAdminText(e) { return 'admin:' + e; }
 function _nfPayConfirmAction_() { return null; }
-function _requireAdmin() { return { ok: true }; }   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
+function _requireAdmin() { return { ok: true }; }
+function _gsr_() {}   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
+function _trigIn_() {}   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
 `;
 let F;
 try {

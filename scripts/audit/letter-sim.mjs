@@ -94,6 +94,7 @@ function makeCtx({ active, byId }) {
   const ctx = {
     Date: FakeDate, console: { log: (...a) => log.logs.push(a.join(' ')), error: (...a) => log.logs.push(a.join(' ')), warn: (...a) => log.logs.push(a.join(' ')) },
     Logger: { log: (...a) => log.logs.push(a.join(' ')) },
+    _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     SpreadsheetApp: { getActive: () => active, openById: (id) => { const s = byId[id]; if (!s) throw new Error('openById 없음 ' + id); return s; } },
     CacheService: { getScriptCache: () => ({ get: (k) => (cache.has(k) ? cache.get(k) : null), put: (k, v) => { cache.set(k, String(v)); }, remove: (k) => cache.delete(k), removeAll: (ks) => ks.forEach((k) => cache.delete(k)) }) },

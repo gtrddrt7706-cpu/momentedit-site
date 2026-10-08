@@ -39,6 +39,7 @@ function world(o) {
       computeDigest: (a, s) => Array.from(Buffer.from(s)), base64EncodeWebSafe: (b) => Buffer.from(b).toString('base64url'), DigestAlgorithm: {}, Charset: {} },
     resolveSession: (t) => (t === 'T' ? { ok: true, row: { get: () => 'ME0001' } } : { ok: false, reason: 'x' }), _sessionMsg: () => '다시 로그인',
     fmtKST: () => today + ' 10:00', _rfFolderFor: () => folder('ME0001'), findCustomerByCode: () => ({ get: (h) => (h === '예식일' ? (o.wed || '2026-10-10') : (o.stage || '예식준비')) }),
+    _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     _ymdOf: (v) => v, _nfAdminLineEmail: (t) => mails.push(t), handleAiCostLog: () => {}, Logger: { log() {} }, JSON, Math, String, Date, Array, Buffer, encodeURIComponent, Object,
   };

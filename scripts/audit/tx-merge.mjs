@@ -1,3 +1,4 @@
+globalThis._gsr_ = globalThis._gsr_ || function () {}; globalThis._trigIn_ = globalThis._trigIn_ || function () {};   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안(떼어 낸 함수가 전역에서 찾는다)
 import fs from 'fs';
 const src=fs.readFileSync('automation/platform/80_production.gs','utf8');
 const a=src.indexOf('var TX_MERGE_LEG'), b=src.indexOf('// 확인 해제 판정용 비교 문자열');

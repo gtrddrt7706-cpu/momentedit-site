@@ -31,6 +31,7 @@ function run(sc) {
     UrlFetchApp: { fetch: (url, o) => { const x = route(o.method, url); return x.r; } },
     DriveApp: { getFoldersByName: () => ({ hasNext: () => true, next: () => dir }), createFolder: () => dir },
     Utilities: { formatDate: () => '09281200', base64Encode: () => 'AAA', base64Decode: () => [1], newBlob: (b, m, n) => ({ name: n }) },
+    _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
     _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     Logger: { log() {} }, fmtKST: () => '', _kstYmd: () => '2026-09-28', JSON, Math, String, Date, encodeURIComponent,
   };

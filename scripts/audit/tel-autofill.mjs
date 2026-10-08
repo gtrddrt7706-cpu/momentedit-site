@@ -15,6 +15,7 @@
 //
 //   ★[SERVED_OURS] 파일·함수를 못 찾으면 «틀렸다(1)»가 아니라 «못 쟀다(2)»로 빠진다. 브라우저가 없으면 ⑤만 건너뛴다.
 //   종료 코드: 0 통과 · 1 재서 틀렸다 · 2 재지 못했다(파일·함수 없음)
+globalThis._gsr_ = globalThis._gsr_ || function () {}; globalThis._trigIn_ = globalThis._trigIn_ || function () {};   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안(떼어 낸 함수가 전역에서 찾는다)
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';

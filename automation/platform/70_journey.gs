@@ -54,7 +54,7 @@ var FITTING_TERMS_BY_VERSION = {
 // [02-2] 드레스 시착 동의 서명(고객) → 시착동의일시 + 동의기록 + 시착동의상태=동의완료.
 //   가드: 시착 단계 + 관리자가 '동의요청'으로 게이트를 연 경우만. 멱등(이미 완료면 OK).
 //   Lock + 최신 재읽기 = 이중 클릭·동시성 보호.
-function handleSignFittingConsent(body) {
+function handleSignFittingConsent(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -110,7 +110,7 @@ function handleSignFittingConsent(body) {
 
 // [02-2] 마이페이지 드레스 시착 동의 카드용 상태. 동의기록(내부 JSON)은 내보내지 않고 파생값·약관 문구만.
 //   노출 조건: 서명함(완료·재열람 카드) 또는 시착 단계+관리자 게이트 열림(서명 카드). 그 외 null(카드 없음).
-function buildFittingState(r) {
+function buildFittingState(r) { _gsr_();
   if (!r) return null;
   var stage = String(r.get('현재단계') || '').trim();
   var status = String(r.get('시착동의상태') || '').trim() || '대기';
@@ -140,10 +140,10 @@ function buildFittingState(r) {
 }
 
 // 내부 유틸 ── JSON 안전 파싱(없으면 {}) · 약관 지문(동의한 정확한 문구 증명용 16자)
-function _parseJsonSafe(v) {
+function _parseJsonSafe(v) { _gsr_();
   try { var o = JSON.parse(String(v || '')); return (o && typeof o === 'object') ? o : {}; } catch (e) { return {}; }
 }
-function _termsHash(terms) {
+function _termsHash(terms) { _gsr_();
   var raw = (terms || []).join('\n');
   var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
   return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, '').slice(0, 16);
@@ -153,7 +153,7 @@ function _termsHash(terms) {
 // 시착·본계약 서명 이미지(base64 PNG)를 별도 시트에 누적 — Customers 시트는 가볍게(관리자 홈 성능 보존).
 //   ★ 1회 실행: setupSignatures()(시트 생성). 시착/계약 서명 핸들러가 _saveSignature 호출. 시착·본계약 공용.
 var SIGNATURES_SHEET = 'Signatures';
-function setupSignatures() {
+function setupSignatures() { _gsr_();
   var ss = SpreadsheetApp.getActive();
   var sh = ss.getSheetByName(SIGNATURES_SHEET) || ss.insertSheet(SIGNATURES_SHEET);
   sh.getRange(1, 1, 1, 5).setValues([['개인코드', '유형', '서명이미지', '서명일시', '버전']]).setFontWeight('bold');
@@ -162,7 +162,7 @@ function setupSignatures() {
   return 'Signatures 시트 준비 완료 · 시착·본계약 서명이 여기 누적 저장됩니다.';
 }
 // 서명 저장 — dataUrl 형식·크기 검증 후 append. 성공 true / 미서명·형식오류 false.
-function _saveSignature(code, type, dataUrl, signedAt, version) {
+function _saveSignature(code, type, dataUrl, signedAt, version) { _gsr_();
   dataUrl = String(dataUrl || '');
   // ★[SIG_STRICT 2026-09-20] 접두사만 보던 검사를 **전체 문자 집합**으로 바꾼다.
   //   종전 정규식은 앞부분만 확인해서 `data:image/png;base64,AAA" onerror="…` 가 그대로 저장됐다.
@@ -180,7 +180,7 @@ function _saveSignature(code, type, dataUrl, signedAt, version) {
   } catch (e) { Logger.log('서명 저장 실패: ' + (e && e.message)); return false; }
 }
 // 최신 서명 dataUrl 조회(관리자/재열람) — code+type 마지막 매칭 1건.
-function getSignatureDataUrl(code, type) {
+function getSignatureDataUrl(code, type) { _gsr_();
   /* ★★[SIG_FIND 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
      서명 시트 «전체»를 읽지 않는다 — 이 고객 줄만 찾아 그 줄의 종류 · 그림만 읽는다.
      종전엔 C열(손글씨 서명 그림 · 한 장에 수십 KB)까지 모든 고객 · 모든 서명을 통째로 받아 왔다.
@@ -206,7 +206,7 @@ function getSignatureDataUrl(code, type) {
   return found;
 }
 // [02] 마이페이지 완료 카드 펼침용 — 내 시착/계약 손글씨 서명 dataUrl 조회(세션 본인 것만).
-function handleGetSignature(body) {
+function handleGetSignature(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -230,7 +230,7 @@ var CONTRACT = {
 
 // [02-3] 계약서 서명(고객) → 계약서명일시 + 계약상태=서명완료 + 동의기록.계약 + 현재단계→계약완료.
 //   가드: 계약상태=발송 + 기한 내. 멱등(이미 서명완료). Lock + 최신 재읽기.
-function handleSignContract(body) {
+function handleSignContract(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -361,7 +361,7 @@ var WEDDING_SLOT = {
   DURATION: 140
 };
 // 한 행이 점유하는 (예식일, 슬롯) — ① 서명완료(확정 점유) ② 임시고정 승인(동의기록.가예약). 점유 없으면 null.
-function _weddingOccupancy(topWedYmd, contractStatus, stage, rcStr) {
+function _weddingOccupancy(topWedYmd, contractStatus, stage, rcStr) { _gsr_();
   if (stage === '취소' || stage === '노쇼' || stage === '미계약') return null;
   var rc = {}; try { rc = JSON.parse(rcStr || '{}'); } catch (e) {}
   if (String(contractStatus || '').trim() === '서명완료') {                       // 확정 점유 = 서명완료 + 예식일(톱레벨) + 슬롯
@@ -376,7 +376,7 @@ function _weddingOccupancy(topWedYmd, contractStatus, stage, rcStr) {
 }
 // [운영 블록 · 2026-06-12] 관리자가 막아둔 날짜·타임(휴무·개인 일정) — Script Properties 'WEDDING_BLOCKS'
 //   형식: { 'YYYY-MM-DD': ['09:00','12:20','15:40'] } (3타임 전부면 전일 휴무). 관리자 페이지 '날짜 막기'에서 편집.
-function _weddingBlocks() {
+function _weddingBlocks() { _gsr_();
   try {
     var raw = PropertiesService.getScriptProperties().getProperty('WEDDING_BLOCKS');
     var o = raw ? JSON.parse(raw) : {};
@@ -385,7 +385,7 @@ function _weddingBlocks() {
 }
 
 // 같은 (예식일·슬롯)을 다른 고객이 점유(서명완료 또는 임시고정 승인)했나 — 요청·서명 시 더블부킹 차단.
-function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) {
+function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) { _gsr_();
   if (!ymd || !slot) return false;
   var _blk = _weddingBlocks()[ymd];
   if (_blk && _blk.indexOf(slot) !== -1) return true;   // 운영 블록(휴무)도 점유로 — 요청·서명 가드 공통
@@ -401,7 +401,7 @@ function _weddingSlotTaken(sheet, colOf, ymd, slot, exceptCode) {
   return false;
 }
 // 예식 슬롯 실시간 가용 — 점유(서명완료·임시고정 승인)된 (예식일→슬롯목록). 계약요청 캘린더 차단 표시용.
-function handleWeddingAvailability(body) {
+function handleWeddingAvailability(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   try {
@@ -430,7 +430,7 @@ function handleWeddingAvailability(body) {
   }
 }
 // [임시고정 셀프 관리] 변경 — 새 날짜·슬롯으로 '요청' 재등록(승인됐던 것도 디렉터 재확인). 점유 검증은 요청 생성과 동일.
-function handleChangeWeddingHold(body) {
+function handleChangeWeddingHold(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -458,7 +458,7 @@ function handleChangeWeddingHold(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 // [임시고정 셀프 관리] 취소 — 가예약 제거(슬롯 반환) + 관리자 인지.
-function handleCancelWeddingHold(body) {
+function handleCancelWeddingHold(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -479,7 +479,7 @@ function handleCancelWeddingHold(body) {
     return { ok: true };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
-function handleRequestContract(body) {
+function handleRequestContract(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -534,7 +534,7 @@ function handleRequestContract(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 // [02-2.5] 상담완료 단계 — 계약 정보 입력/요청 카드 상태. 계약 발송 후엔 null(계약 카드가 대체).
-function buildContractInfoState(r) {
+function buildContractInfoState(r) { _gsr_();
   if (!r) return null;
   if (String(r.get('현재단계') || '').trim() !== '상담완료') return null;
   var _cs = String(r.get('계약상태') || '').trim();
@@ -566,7 +566,7 @@ function buildContractInfoState(r) {
 }
 
 // [02-3b] 계약서 재발송 요청(고객) — 서명 기한 만료 화면의 버튼. 발송 자체는 관리자(adminSendContract)가 수행, 여기선 요청 기록+알림만.
-function handleRequestContractResend(body) {
+function handleRequestContractResend(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -582,7 +582,7 @@ function handleRequestContractResend(body) {
 
 // [02-3] 마이페이지 계약서 카드용 상태. 동의기록(내부 JSON) 비노출, 파생값·기한만.
 //   노출: 발송(서명 카드+카운트다운) 또는 서명완료(완료+계약서 보기). 미발송 → null.
-function buildContractState(r) {
+function buildContractState(r) { _gsr_();
   if (!r) return null;
   var cStatus = String(r.get('계약상태') || '').trim();
   var signedAt = String(r.get('계약서명일시') || '').trim();
@@ -635,7 +635,7 @@ function buildContractState(r) {
 // [02-3] 시간 트리거 — 계약서 미서명 기한(발송+72h) 경과분 자동 파기(계약상태→미발송, 링크·발송일시 비움 + 이력).
 //   ※ '자동 취소'의 여정/환불(예약금) 처리는 취소·환불 흐름에서 결정 — 여기선 계약서 offer만 파기(재발송 가능),
 //      현재단계는 건드리지 않는다(상담완료 유지). 운영자: 시간 기반 트리거로 1일 1회 설치.
-function expireUnsignedContracts() {
+function expireUnsignedContracts() { _trigIn_(arguments[0]);
   var lock = LockService.getScriptLock();
   try { lock.waitLock(15000); } catch (e) { return 0; }   // 락: 고객 서명(handleSignContract)과 경쟁 방지 · 스냅샷 후 서명분이 '미발송'으로 덮이는 것 차단(다음 트리거에서 재시도)
   try {
@@ -672,7 +672,7 @@ function expireUnsignedContracts() {
 }
 
 // 'YYYY-MM-DD HH:mm'(fmtKST) → Date. appsscript.json timeZone=Asia/Seoul 전제(KST).
-function _parseKstStr(s) {
+function _parseKstStr(s) { _gsr_();
   var m = String(s || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/);
   if (!m) return null;
   return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], 0);
@@ -697,19 +697,19 @@ var HOLIDAYS_LUNAR = {
   '2026': ['2026-02-16', '2026-02-17', '2026-02-18', '2026-05-25', '2026-09-24', '2026-09-25', '2026-09-26'],
   '2027': ['2027-02-07', '2027-02-08', '2027-02-09', '2027-05-13', '2027-09-14', '2027-09-15', '2027-09-16']
 };
-function _isPublicHoliday(ymd) {
+function _isPublicHoliday(ymd) { _gsr_();
   var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m) return false;
   var md = m[2] + '-' + m[3];
   if (['01-01', '03-01', '05-05', '06-06', '08-15', '10-03', '10-09', '12-25'].indexOf(md) >= 0) return true;  // 양력 고정
   return (HOLIDAYS_LUNAR[m[1]] || []).indexOf(m[0]) >= 0;   // 음력·대체(연도별)
 }
-function _isPremiumDay(ymd) {   // 주말 단가 적용일 = 토·일 또는 공휴일
+function _isPremiumDay(ymd) { _gsr_();   // 주말 단가 적용일 = 토·일 또는 공휴일
   var m = String(ymd || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if (!m) return false;
   var dow = new Date(+m[1], +m[2] - 1, +m[3]).getDay();   // 0=일 6=토
   return (dow === 0 || dow === 6) || _isPublicHoliday(ymd);
 }
 // 예식일+상품 → 제안 총액. 예식일 미정이면 null(관리자 직접 선택). {total, premium, reason, weddingYmd}
-function suggestContractTotal(product, weddingYmd) {
+function suggestContractTotal(product, weddingYmd) { _gsr_();
   product = String(product || '').trim() || '시그니처';
   if (product === '웨딩스냅') return { total: PRICING['웨딩스냅'], premium: false, reason: '웨딩스냅 정가', weddingYmd: '' };
   var m = String(weddingYmd || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
@@ -745,7 +745,7 @@ var PAYMENT = {
    그래서 «이 실행이 이미 보유 중이면 다시 잡지 않고, 해제도 바깥에 맡기는» 재진입 안전 헬퍼를 쓴다.
    ★카드 경로(98_pay_card)도 같은 헬퍼를 쓰게 맞춰 두었다 — 카드를 켜기 전에 고쳐야 하는 자리였다. */
 var _PAY_LOCK_HELD = false;
-function _payLock() {
+function _payLock() { _gsr_();
   /* [PAY_LOCK_REENTRANT] ★표식은 반드시 «본문 안»에 둔다 — 99_deployCheck 가 String(함수)로 찾기 때문에
      닫는 중괄호 뒤 주석은 영영 MISS 가 된다(#607 MARK_INSIDE 와 같은 함정 · deploycheck-sim 이 잡아 줬다). */
   if (_PAY_LOCK_HELD) return { nested: true, releaseLock: function () {} };   // 바깥이 이미 보유 — 해제도 바깥이 한다
@@ -755,20 +755,20 @@ function _payLock() {
   return { nested: false, releaseLock: function () { _PAY_LOCK_HELD = false; try { lk.releaseLock(); } catch (e2) {} } };
 }
 var _PAY_LOCK_BUSY = '잠시 후 다시 시도해 주세요. (서버 혼잡)';
-function _balanceDueLabel() { return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
-function _balanceDaysFor(r) { return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? PAYMENT.잔금일수전_스냅 : PAYMENT.잔금일수전; }   // [SNAP_BALANCE_D7] 상품별 잔금 D-day 단일 판정
-function _midDueLabel() { return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
+function _balanceDueLabel() { _gsr_(); return '예식 ' + PAYMENT.잔금일수전 + '일 전'; }
+function _balanceDaysFor(r) { _gsr_(); return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? PAYMENT.잔금일수전_스냅 : PAYMENT.잔금일수전; }   // [SNAP_BALANCE_D7] 상품별 잔금 D-day 단일 판정
+function _midDueLabel() { _gsr_(); return '예식 ' + PAYMENT.중도금일수전 + '일 전'; }
 // 상품별 어휘 — 스냅은 '예식'이 아니라 '촬영'(잔금 기한 라벨·리마인드 문구가 스냅 고객에게 어색하던 문제)
-function _payWordFor(r) { return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? '촬영' : '예식'; }
-function _balanceDueLabelFor(r) { return _payWordFor(r) + ' ' + _balanceDaysFor(r) + '일 전'; }   // [SNAP_BALANCE_D7] 어휘와 함께 일수도 상품별
+function _payWordFor(r) { _gsr_(); return String(r.get('상품타입') || '').trim() === '웨딩스냅' ? '촬영' : '예식'; }
+function _balanceDueLabelFor(r) { _gsr_(); return _payWordFor(r) + ' ' + _balanceDaysFor(r) + '일 전'; }   // [SNAP_BALANCE_D7] 어휘와 함께 일수도 상품별
 // 결제 기준일 — 예식일 컬럼 우선 · 비어 있으면(스냅 등 계약정보 우회 경로) 동의기록.계약정보.weddingDate 폴백(dday=null로 카드 기한·리마인드가 통째 죽던 문제)
-function _payWeddingYmd(r) {
+function _payWeddingYmd(r) { _gsr_();
   var d = _ymdOf(r.get('예식일')); if (d) return d;
   try { return _ymdOf((_parseJsonSafe(r.get('동의기록')).계약정보 || {}).weddingDate) || ''; } catch (e) { return ''; }
 }
 // [임박 묶음 단일 판정] 계약금과 함께 받을 마일스톤 — '확인'은 물론 '완료신호'(이미 입금 신고·확인 대기)도 제외해 신고분 재청구 방지.
 //   buildPaymentState(청구 표시)·handlePaymentSignal(신고 시점 스냅샷)이 같은 함수를 쓴다(청구와 기록의 단일 기준).
-function _bundleKeysFor(r) {
+function _bundleKeysFor(r) { _gsr_();
   var out = [];
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return out;
   var amounts = _journeyAmounts(r.get('계약총액'), r.get('상품타입'));
@@ -781,7 +781,7 @@ function _bundleKeysFor(r) {
 }
 // 임박 계약(예식 149일 이내 성립) 대응 — '서명 시점에 이미 기한 경과'인 계약만 '계약 시 함께 납부'로 표기.
 //   계약 후 기한이 지난 단순 연체는 기한일·라벨을 유지(연체 사실이 화면에서 사라져 독촉 근거를 잃던 문제).
-function _midDuePast(r) {
+function _midDuePast(r) { _gsr_();
   var d = _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전);
   if (!d) return false;
   var signed = _ymdOf(r.get('계약서명일시'));
@@ -789,14 +789,14 @@ function _midDuePast(r) {
   var today = _ymdOf(fmtKST(new Date()));
   return today && d < today;   // 서명일 미기록(구데이터) 폴백 — 기존 동작 유지
 }
-function _midDueLabelFor(r) { return _midDuePast(r) ? '계약 시 함께 납부' : _midDueLabel(); }
-function _midDueDateFor(r) { return _midDuePast(r) ? '' : _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전); }
+function _midDueLabelFor(r) { _gsr_(); return _midDuePast(r) ? '계약 시 함께 납부' : _midDueLabel(); }
+function _midDueDateFor(r) { _gsr_(); return _midDuePast(r) ? '' : _shiftYmd(r.get('예식일'), -PAYMENT.중도금일수전); }
 
 // 금액 문자열 → 숫자(원). 시트에 '3,500,000'·'₩3,500,000'·'3,500,000원' 등 문자로 들어와도 숫자만 추출.
 //   숫자 외 문자를 전부 제거하므로 콤마·통화기호·'원'·공백·점 구분자를 모두 흡수(NaN→0 과소청구/0원표시 방지).
-function _wonNum(v) { var s = String(v == null ? '' : v).replace(/[^0-9]/g, ''); return s ? Number(s) : 0; }
+function _wonNum(v) { _gsr_(); var s = String(v == null ? '' : v).replace(/[^0-9]/g, ''); return s ? Number(s) : 0; }
 // 계약총액 → 단계별 금액. 상품 분기: 시그니처=3단계(10/40/50 · 계약금은 예약금 100,000원 차감 후 잔액 납부), 웨딩스냅=2단계(계약금20%·잔금80%).
-function _journeyAmounts(total, product) {
+function _journeyAmounts(total, product) { _gsr_();
   var t = _wonNum(total);   // 시트 문자 금액('3,500,000'·'₩3.5M' 등) 방어 · 숫자 외 문자는 제거, 없으면 0→null(표 비노출)
   if (t <= 0) return null;
   if (String(product || '').trim() === '웨딩스냅') {        // 스냅 계약서 §4 · 2단계
@@ -830,7 +830,7 @@ function _journeyAmounts(total, product) {
 //           이 구간에선 시착비를 추가 차감하지 않는다(9조⑤ 위약금에 흡수 · 중복 공제 금지 — fitDeduct는 표시용으로만 반환).
 //   반환: {paid, fitCount, fitDeduct, needCount, penalty, rate, rule, refund, dd, asOf}
 //        / {pending:true}(계약 후 총액·예식일 미정 — 견적 불가) / null(스냅·행 없음).
-function _refundQuote(r, asOfYmd) {
+function _refundQuote(r, asOfYmd) { _gsr_();
   if (!r) return null;
   var asOf = _ymdOf(asOfYmd) || _kstYmd(new Date());
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') {
@@ -965,7 +965,7 @@ function _refundQuote(r, asOfYmd) {
 // [02-8] 노출 게이트 — 마이페이지(getMyState.refund)·관리자 상세(adminDetail.refundQuote) 공용.
 //   돈이 들어온 뒤에만(계약 서명완료 또는 예약금 입금 확인). 취소·노쇼·미계약(종료) 단계는 null
 //   — 취소 건의 실제 환불은 관리자 환불송금 큐가 취소일시 기준 _refundQuote로 따로 계산.
-function buildRefundQuote(r) {
+function buildRefundQuote(r) { _gsr_();
   if (!r) return null;
   if (STAGE_EXCEPTIONS.indexOf(String(r.get('현재단계') || '').trim()) !== -1) return null;
   var q = _refundQuote(r, null);
@@ -981,7 +981,7 @@ function buildRefundQuote(r) {
 //             ③ D-60 이후 또는 2회째부터 = 총 계약금액의 10% 변경 수수료
 // 경조사 등 부득이한 사유 1회 면제(8조① 단서)는 증빙 검토가 필요해 셀프 플로우 밖(카카오톡) — 화면 안내만.
 // used = 동의기록.변경이력 길이(이미 '적용된' 변경 횟수). dd = 현 예식일까지 남은 일수(오늘 KST 기준).
-function _changeFeeQuote(r, toYmd) {
+function _changeFeeQuote(r, toYmd) { _gsr_();
   var dd = _dayDiff(_ymdOf(r.get('예식일')), _kstYmd(new Date()));
   var rec = _parseJsonSafe(r.get('동의기록'));
   var used = (rec.변경이력 && rec.변경이력.length) || 0;
@@ -991,7 +991,7 @@ function _changeFeeQuote(r, toYmd) {
   return { fee: fee, basis: '변경 수수료 10%', used: used, dd: dd };
 }
 // 공통 가드 — 서명완료 + 예식 전(dd>=1) + 시그니처 + 진행 중. 실패 {ok:false,error} / 통과 {ok:true,dd}.
-function _changeGuard(cust) {
+function _changeGuard(cust) { _gsr_();
   if (String(cust.get('상품타입') || '').trim() === '웨딩스냅') return { ok: false, error: '웨딩스냅 촬영일 변경은 카카오톡으로 문의해 주세요.' };
   if (STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return { ok: false, error: '진행이 종료된 계약이에요. 카카오톡으로 문의해 주세요.' };
   if (String(cust.get('계약상태') || '').trim() !== '서명완료') return { ok: false, error: '계약 후에 예식일을 변경할 수 있어요.' };
@@ -1002,7 +1002,7 @@ function _changeGuard(cust) {
 }
 // 입력 검증 — toDate(YYYY-MM-DD · 실재하는 날짜 · 오늘 이후)·toSlot(화이트리스트). 실패 {ok:false,error} / 통과 {ok:true,toDate,toSlot}.
 //   13월·99일 같은 형식만 맞는 값은 톱레벨 예식일(돈 계산 기준)에 들어가면 안 되므로 달력 실존까지 검증.
-function _changeInput(body) {
+function _changeInput(body) { _gsr_();
   var d = String((body && body.toDate) || '').trim(), t = String((body && body.toSlot) || '').trim();
   var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
   if (!m) return { ok: false, error: '변경할 예식 날짜를 선택해 주세요.' };
@@ -1015,7 +1015,7 @@ function _changeInput(body) {
   return { ok: true, toDate: d, toSlot: t };
 }
 // [02-9] 변경 견적(고객) — 날짜·슬롯 선택 시 수수료 미리 확인(쓰기 없음). 슬롯 점유 검증 포함(요청 전 차단).
-function handleQuoteWeddingChange(body) {
+function handleQuoteWeddingChange(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var cust = s.row;
@@ -1036,7 +1036,7 @@ function handleQuoteWeddingChange(body) {
 }
 // [02-9] 변경 요청(고객) — 동의기록.변경요청 기록(기존 요청 있으면 덮어쓰기=재요청) + 관리자 알림. 적용은 관리자 확인(adminConfirmWeddingChange).
 //   fee>0이면 payerName 필수(수수료 입금 대조용). 멱등: 같은 to로 미처리 요청이 이미 있으면 already.
-function handleRequestWeddingChange(body) {
+function handleRequestWeddingChange(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1072,7 +1072,7 @@ function handleRequestWeddingChange(body) {
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 // [02-9] 변경 요청 철회(고객) — 동의기록.변경요청 삭제(기존 예식일 유지). 멱등.
-function handleCancelWeddingChange(body) {
+function handleCancelWeddingChange(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1195,7 +1195,7 @@ function adminDeclineWeddingChange(code, reason) {
 }
 // [02-9] 마이페이지 변경 카드 상태 — 계약(서명완료)·시그니처·진행 중에만. request=대기 중 요청(없으면 null).
 //   used/history = 적용된 변경 횟수(변경이력 길이). eligible = 예식 전(전일까지)이라 셀프 변경 버튼 노출 가능.
-function buildChangeState(r) {
+function buildChangeState(r) { _gsr_();
   if (!r) return null;
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 시그니처 전용(스냅 분기 불변)
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
@@ -1215,7 +1215,7 @@ function buildChangeState(r) {
 
 // [02-4] 계약금 입금 신호(고객) → 입금자명 + 입금완료신호 + 입금상태=완료신호.
 //   가드: 계약 서명완료 이후. 자동 진행 X — 관리자 통장 대조 승인(adminConfirmPayment)이 트리거.
-function handlePaymentSignal(body) {
+function handlePaymentSignal(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1260,20 +1260,20 @@ function handlePaymentSignal(body) {
 // [02-4] 마이페이지 입금 카드용 상태. 계약 서명완료 + 현재단계(계약완료/입금완료)일 때 노출.
 //   금액은 계약총액에서 산출(없으면 amounts=null → "디렉터 확인 후 안내"). 내부값 비노출.
 // 현금영수증 번호(선택) — 동의기록 JSON에 저장(시트 컬럼 추가 불필요)·조회. 결제 카드 자동채움 + 관리자 발급용.
-function _saveCashReceipt(cust, sheet, colOf, raw) {
+function _saveCashReceipt(cust, sheet, colOf, raw) { _gsr_();
   var cr = _crNum(raw).slice(0, 40);   // 숫자만 — submitSchedule·saveCashReceipt 경로와 표기 통일 · [PHONE_AUTOFILL_82] «8210…» 은 010 으로
   if (!cr) return;
   try { var rec = _parseJsonSafe(cust.get('동의기록')); if (String(rec.현금영수증 || '') === cr) return; rec.현금영수증 = cr; touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) }); } catch (e) {}
 }
 /* [PHONE_AUTOFILL_82] 현금영수증 번호 정규화 — 본체 _crKR 은 00_platform-config 에 있다.
    그 파일을 아직 안 붙여넣은 상태에서도 결제 신고·계약 요청이 멈추지 않게 없으면 «숫자만 남기기»로 물러난다. */
-function _crNum(v) {
+function _crNum(v) { _gsr_();
   var _mk = '[PHONE_AUTOFILL_82]';
   return (typeof _crKR === 'function') ? _crKR(v) : String(v == null ? '' : v).replace(/[^0-9]/g, '');
 }
-function _cashReceiptOf(r) { try { /* [PHONE_AUTOFILL_82] 이미 «8210…» 으로 저장된 번호도 읽을 때 010 으로 — 관리자가 그 값을 홈택스에 넣는다 */ return _crNum(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
+function _cashReceiptOf(r) { _gsr_(); try { /* [PHONE_AUTOFILL_82] 이미 «8210…» 으로 저장된 번호도 읽을 때 010 으로 — 관리자가 그 값을 홈택스에 넣는다 */ return _crNum(_parseJsonSafe(r.get('동의기록')).현금영수증 || ''); } catch (e) { return ''; } }
 // [②] 현금영수증 발급 번호(소득공제용) 상시 등록/변경 — 결제 카드 밖(마이페이지 '내 내역')에서도 저장·수정. 빈값이면 등록 해제.
-function handleSaveCashReceipt(body) {
+function handleSaveCashReceipt(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1294,7 +1294,7 @@ function handleSaveCashReceipt(body) {
 }
 // 현금영수증 발행 원장 — 결제 마일스톤(예약금/계약금·중도금·잔금)별 {입금확인 여부·금액·발행기록}. 관리자 발행 큐·카드 + 마이페이지 '내 내역'이 공통으로 쓰는 단일 소스.
 //   의무발행업종 — 입금이 '확인'된 마일스톤은 현금영수증 발급 대상(미발급 20% 가산세). issued=발행완료 기록 / due=확인됐는데 미발행.
-function _cashReceiptLedger(r, opts) {
+function _cashReceiptLedger(r, opts) { _gsr_();
   if (!r) return [];
   opts = opts || {};
   var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
@@ -1370,7 +1370,7 @@ function _cashReceiptLedger(r, opts) {
   });
   return out;
 }
-function buildPaymentState(r) {
+function buildPaymentState(r) { _gsr_();
   if (!r) return null;
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;   // 계약 서명 전 → 카드 없음
   var stage = String(r.get('현재단계') || '').trim();
@@ -1409,7 +1409,7 @@ function buildPaymentState(r) {
 // ============================ 02-5 · 잔금 (결제 마일스톤 — 단계 아님) ============================
 // 잔금 = 총액(시그 50%·스냅 80%). 예식(촬영) D-잔금일수전(PAYMENT·현행 9일) 마감 · 미리 입금 가능. 상태: 대기→완료신호→확인(관리자 통장 대조).
 //   현재단계는 안 바꿈 → 제작 편집 계속 가능. 계좌는 계약금과 동일(CONFIG.ACCOUNT).
-function _balanceDDay(weddingDate) {
+function _balanceDDay(weddingDate) { _gsr_();
   var m = String(weddingDate || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (!m) return null;
   var w = new Date(+m[1], +m[2] - 1, +m[3]); w.setHours(0, 0, 0, 0);
@@ -1417,7 +1417,7 @@ function _balanceDDay(weddingDate) {
   return Math.round((w - today) / 86400000);   // 남은 일수(음수=지남)
 }
 // 예식일 ± N일 → YYYY-MM-DD (TZ 무관 · UTC 산술). 중도금/잔금 입금 마감일 산출. 예식일 미정이면 ''.
-function _shiftYmd(weddingYmd, deltaDays) {
+function _shiftYmd(weddingYmd, deltaDays) { _gsr_();
   var m = String(weddingYmd || '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (!m) return '';
   var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]) + (deltaDays * 86400000));
@@ -1427,7 +1427,7 @@ function _shiftYmd(weddingYmd, deltaDays) {
 // [잔금 합산] 최종확정(제작 트랙) 완료본의 스탠딩 초과 요금 — 잔금 단일 출처.
 //   buildBalanceState(화면)·_payExpectedAmount(카드 금액검증)·buildLedgerState(내 내역)가 전부 이 함수를 씀 → 어긋남 원천 차단.
 //   잔금 '확인' 후의 재확정 변경분은 합산하지 않음(차액은 디렉터 안내) — 호출부에서 상태 확인.
-function _balanceExtraInfo(r) {
+function _balanceExtraInfo(r) { _gsr_();
   var out = { finalDone: false, standing: 0, amount: 0 };
   try {
     if (!r || String(r.get('상품타입') || '').trim() === '웨딩스냅') return out;
@@ -1450,7 +1450,7 @@ function _balanceExtraInfo(r) {
   } catch (e) {}
   return out;
 }
-function buildBalanceState(r) {
+function buildBalanceState(r) { _gsr_();
   if (!r) return null;
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
   var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
@@ -1484,7 +1484,7 @@ function buildBalanceState(r) {
   };
 }
 // 잔금 입금 신호(고객). 단계 전이 없음·멱등.
-function handleBalanceSignal(body) {
+function handleBalanceSignal(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1536,7 +1536,7 @@ function _adminConfirmBalanceCore(code) { _requireAdmin();
 // ============================ 02-4b · 중도금 (결제 마일스톤 — 단계 아님) ============================
 // 중도금 = 총액 40%. 예식 D-149 마감(무료 취소 종료 시·미리 입금 가능). 상태: 대기→완료신호→확인(관리자 통장 대조).
 //   계약금(잔액)은 계약 시 별도 납부(02-4). 단계 전이 없음. 계좌는 동일(CONFIG.ACCOUNT).
-function buildMidState(r) {
+function buildMidState(r) { _gsr_();
   if (!r) return null;
   if (String(r.get('상품타입') || '').trim() === '웨딩스냅') return null;   // 스냅은 2단계(계약금·잔금) · 중도금 없음
   if (String(r.get('계약상태') || '').trim() !== '서명완료') return null;
@@ -1561,7 +1561,7 @@ function buildMidState(r) {
   };
 }
 // 중도금 입금 신호(고객). 단계 전이 없음·멱등.
-function handleMidSignal(body) {
+function handleMidSignal(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1646,7 +1646,7 @@ function _adminConfirmMidBalanceCore(code) { _requireAdmin();
 }
 
 // [트리거·일1회] 잔금 기한(PAYMENT.잔금일수전) 예고·기한 도래 + 미확인 + 미발송 → 잔금 리마인드 1회.
-function sendBalanceReminders() {
+function sendBalanceReminders() { _trigIn_(arguments[0]);
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   if (!colOf['잔금상태'] || !colOf['잔금리마인드'] || !colOf['예식일']) return;   // 마이그레이션 전이면 중단
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
@@ -1696,7 +1696,7 @@ function sendBalanceReminders() {
   }
 }
 // [트리거·일1회] 예식 D-30 이내 + 중도금 미확인 + 미발송 → 중도금 리마인드 1회(잔금과 동일 패턴·컬럼 '중도금리마인드').
-function sendMidReminders() {
+function sendMidReminders() { _trigIn_(arguments[0]);
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   if (!colOf['중도금상태'] || !colOf['중도금리마인드'] || !colOf['예식일']) return;
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
@@ -1741,7 +1741,7 @@ function sendMidReminders() {
 // [동시성] 트리거가 동의기록 1칸에 '플래그만' 찍을 때 — 메일 발송(루프 내 수십 초) 중 다른 핸들러가 같은 행의
 //   다른 키(계약정보·영수증발행·홀드 승인 등)를 써도 유실되지 않도록, 쓰기 직전에 그 셀을 '재읽기→병합→쓰기'(짧은 락).
 //   mutate(fresh)는 최신 동의기록 객체에 플래그만 추가한다(통째 교체 금지). 반환: 기록 성공 여부.
-function _stampConsentKey(sheet, colOf, rowNum, mutate) {
+function _stampConsentKey(sheet, colOf, rowNum, mutate) { _gsr_();
   var col = colOf['동의기록']; if (!col) return false;
   var lock = LockService.getScriptLock();
   try { lock.waitLock(10000); } catch (e) { return false; }
@@ -1757,7 +1757,7 @@ function _stampConsentKey(sheet, colOf, rowNum, mutate) {
 // [임시고정 캘린더] 승인된 가예약을 구글 캘린더 종일 이벤트로 — 미쿠가 캘린더만 봐도 점유가 보이게.
 //   생성: 승인 시(eventId를 hold에 저장 — 호출자가 rec 저장). 삭제: 해제·거절·만료·노쇼·미계약·일정변경 시(멱등).
 //   캘린더 실패는 흐름을 막지 않음(점유의 진실은 시트 _weddingSlotTaken — 캘린더는 가시화 전용).
-function _holdCalCreate(cust, hold) {
+function _holdCalCreate(cust, hold) { _gsr_();
   try {
     if (!hold || !hold.date || hold.eventId) return;
     var cal = (typeof getCalendar === 'function') ? getCalendar() : null; if (!cal) return;
@@ -1770,7 +1770,7 @@ function _holdCalCreate(cust, hold) {
     hold.eventId = ev.getId();
   } catch (e) { Logger.log('가예약 캘린더 생성 실패: ' + (e && e.message)); }
 }
-function _holdCalDelete(hold) {
+function _holdCalDelete(hold) { _gsr_();
   try {
     if (!hold || !hold.eventId) return;
     var cal = (typeof getCalendar === 'function') ? getCalendar() : null; if (!cal) return;
@@ -1781,7 +1781,7 @@ function _holdCalDelete(hold) {
 
 // [트리거·일1회] 임시고정 만료 D-3 — 고객에게 1회 안내(메일 직송+카톡 키). 가예약.expiryNoticed로 중복 방지.
 //   + 캘린더 정리/백필: 만료된 홀드의 이벤트 삭제, 승인됐는데 이벤트 없는 홀드(헬퍼 도입 전 승인분) 생성.
-function sendHoldExpiryNotices() {
+function sendHoldExpiryNotices() { _trigIn_(arguments[0]);
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
@@ -1820,7 +1820,7 @@ function sendHoldExpiryNotices() {
 
 // [트리거·일1회] 결과물 보관 만료 7일 전 — 삭제 예정 통지(계약서 12조③: 만료 7일 전까지 통지 후 삭제 가능).
 //   기산: 동의기록.결과물전달일(전달 완료 시 기록) + 6개월 = 만료일. 동의기록.보관만료통지로 1회 발송.
-function sendArchiveExpiryNotices() {
+function sendArchiveExpiryNotices() { _trigIn_(arguments[0]);
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   if (!colOf['결과물상태'] || !colOf['동의기록']) return;
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
@@ -1874,7 +1874,7 @@ function sendArchiveExpiryNotices() {
 // ★ 통합 트리거 설치기 — 1회 실행하면 자동화 전부 등록(멱등: 같은 핸들러 기존 트리거 정리 후 재생성).
 //   새 자동화가 추가되면 이 목록에 한 줄 넣고 다시 실행. 실행 결과로 설치 현황 문자열 반환.
 // [환불 안전망] 종료(취소·노쇼·미계약) 고객 환불 계좌 셀프 제출 — Bookings.환불계좌에 기록(관리자 환불송금 큐와 단일 소스) + 관리자 알림.
-function handleSaveRefundAccount(body) {
+function handleSaveRefundAccount(body) { _gsr_();
   var s = resolveSession(String((body && body.token) || '').trim());
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
@@ -1902,7 +1902,7 @@ function handleSaveRefundAccount(body) {
 
 // [주간 트리거] 전체 스프레드시트(모든 시트 탭)를 'ME_백업' 폴더에 날짜 사본으로 복사 · 최근 8주만 보관.
 //   첫 실행 시 Drive 권한 승인 필요. 구글 자체 백업 위의 추가 안전망(사람 손 안 감).
-function weeklyBackup() {
+function weeklyBackup() { _trigIn_(arguments[0]);
   try {
     var ss = SpreadsheetApp.getActive();
     var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
@@ -1923,6 +1923,38 @@ function weeklyBackup() {
     try { _nfAdminLineEmail('주간 백업 실패: ' + String((e && e.message) || e).slice(0, 150)); } catch (e2) {}
     return { ok: false, error: String(e && e.message) };
   }
+}
+/* ★[TRIG_IN 2026-10-09 · B19] 예약 실행 15개의 첫 줄 — 정말 예약 실행인지 본 뒤 _TRUST 를 켠다(기획 16-4).
+   ① 이미 믿는 실행 안(관리 화면 · 서버 길에서 불렀다) → 통과
+   ② 시트 편집 이벤트(진짜 범위 객체가 있다) → 통과
+   ③ 넘어온 triggerUid 가 이 프로젝트의 실제 트리거 아이디 → 통과 + «알아본 적 있음»을 적는다(TRIG_UID_OK)
+   ④ 편집기(소유자)에서 직접 돌림 → 통과
+   ⑤ 아직 ③을 한 번도 확인하지 못했다(배포 직후 · 또는 이 런타임이 아이디를 안 준다) → 막지 않고 모양만 적는다(TRIG_PROBE)
+      — 확인 전에 막으면 아침 보고 · 알림 · 백업이 멈출 수 있다. 확인된 뒤부터는 ③ · ④ 가 아니면 막는다.
+   deployStampCheck(99_deployCheck)가 TRIG_UID_OK · TRIG_PROBE 를 한 줄로 보여 준다. */
+function _trigIn_(e) {   // [TRIG_IN] 예약 실행 15개의 첫 줄 — 위 주석의 ①~⑤
+  if (_TRUST || _AUTHED || _SRV) { _TRUST = true; return; }
+  try { if (e && e.range && typeof e.range.getRow === 'function') { _TRUST = true; return; } } catch (x) {}
+  var uid = (e && e.triggerUid != null) ? String(e.triggerUid) : '';
+  if (uid && _trigUidIs_(uid)) { _TRUST = true; _trigMark_('TRIG_UID_OK', uid.slice(0, 6)); return; }
+  if (_isOwnerRun_()) { _TRUST = true; return; }
+  var learned = ''; try { learned = PropertiesService.getScriptProperties().getProperty('TRIG_UID_OK') || ''; } catch (x) {}
+  if (!learned) { _TRUST = true; _trigMark_('TRIG_PROBE', 'uid ' + (uid ? '있음' : '없음') + ' · ' + (e ? Object.keys(e).slice(0, 10).join(',') : '이벤트 없음')); return; }
+  throw new Error('허용되지 않은 요청입니다. (예약 실행 전용)');
+}
+function _trigUidIs_(uid) {
+  var c = null; try { c = CacheService.getScriptCache(); } catch (x) {}
+  var list = null; try { var raw = c && c.get('TRIG_UIDS'); if (raw) list = JSON.parse(raw); } catch (x) {}
+  if (list && list.indexOf(uid) !== -1) return true;
+  try {   // 캐시가 없거나 낡았다(트리거를 새로 걸었다) — 새로 읽는다
+    list = ScriptApp.getProjectTriggers().map(function (t) { return String(t.getUniqueId()); });
+    if (c) c.put('TRIG_UIDS', JSON.stringify(list), 600);
+    return list.indexOf(uid) !== -1;
+  } catch (x) { return false; }
+}
+function _trigMark_(key, val) {   // 같은 표는 6시간에 한 번만 적는다(매분 도는 warmAvailCache)
+  try { var c = CacheService.getScriptCache(); if (c.get('TM_' + key)) return; c.put('TM_' + key, '1', 21600); } catch (x) {}
+  try { PropertiesService.getScriptProperties().setProperty(key, Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm') + ' · ' + String(val).slice(0, 160)); } catch (x) {}
 }
 function setupAllTriggers() { _requireAdmin();
   var plan = [

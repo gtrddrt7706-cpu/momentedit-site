@@ -104,7 +104,7 @@ function _awRunAudit_() {
 
 /** ①-자동 · 월간 자동 검증 — 트리거가 매월 1회 호출. 미발견(폐업·상호변경 의심)이 생기면 관리자에게 SMS 알림.
  *  ※ '검증·알림'은 100% 자동이지만, 고객 노출 리스트(DINE_DB)의 실제 수정·배포는 사람이 확인 후 진행(오탐 1건이 좋은 식당을 지우는 사고 방지). */
-function awMonthlyAudit() {
+function awMonthlyAudit() { _trigIn_(arguments[0]); /* [GSR_GATE 2026-10-09] 예약 실행 첫 줄(_trigIn_) */
   var r;
   try { r = _awRunAudit_(); }
   catch (e) { try { _awNotifyAdmin_('[모먼트] 다이닝 월간검증 실패: ' + e); } catch (e2) {} return; }

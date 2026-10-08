@@ -63,7 +63,8 @@ function boot(startIso) {
     resolveSession: (t) => ({ ok: true, row: { get: (h) => (h === '개인코드' ? String(t) : '') } }), _sessionMsg: () => '로그인',
     fmtKST: (d) => Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd HH:mm'), _kstYmd: (d) => Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd'), _ymdOf: (v) => String(v || '').slice(0, 10),
     findCustomerByCode: (c) => (CUST[c] ? { get: (h) => (h === '예식일' ? CUST[c].wy : h === '현재단계' ? (CUST[c].stage || '') : '') } : null),
-    _nfAdminLineEmail: () => {}, _nfAdminEmail: () => {}, handleAiCostLog: () => {}, _requireAdmin: () => true, _CURRENT_ADMIN: 'admin' };
+    _nfAdminLineEmail: () => {}, _nfAdminEmail: () => {}, handleAiCostLog: () => {}, _requireAdmin: () => true, _CURRENT_ADMIN: 'admin',
+    _gsr_: () => {}, _trigIn_: () => {} };   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
   const RealDate = Date;
   ctx.Date = class extends RealDate { constructor(...a) { if (a.length) super(...a); else super(now); } static now() { return now; } };
   vm.createContext(ctx); vm.runInContext(SRC, ctx, { filename: '80_production.gs' });

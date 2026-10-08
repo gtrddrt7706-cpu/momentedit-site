@@ -153,13 +153,13 @@ var STAGE_FLOW = {
 var STAGE_EXCEPTIONS = ['미계약', '취소', '노쇼'];
 
 // 상품타입 → 진행바 단계 배열 (모르는 값이면 시그니처 기본)
-function stageFlowFor(product) {
+function stageFlowFor(product) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   return STAGE_FLOW[String(product || '').trim()] || STAGE_FLOW['시그니처'];
 }
 
 // "지금 할 일" — 현재단계별 다음 행동 한 문장(고객 6원칙: 상태 나열 X, 행동 1개).
 // Phase 1에서 실제 도달 단계는 주로 '신청접수'. 이후 단계는 후속 Phase에서 화면이 채워짐.
-function nextActionFor(product, stage) {
+function nextActionFor(product, stage) { _gsr_();
   var isSnap = String(product || '').trim() === P.PRODUCT_SNAP;
   var MAP = {
     // [NOW_ONELINE] 첫 문장 = 마이페이지 NOW 헤드라인이다(mypage.js가 '마침표+공백'에서 자른다).
@@ -210,7 +210,7 @@ function nextActionFor(product, stage) {
      발송 자를 통과시키고, 그러면 남의 번호로 알림이 갈 수 있다. 통과 못 하는 값은
      통과 못 한 채로 두고 CONTACT_SILENT 가 관리자에게 알리게 한다.
    ★국내 유선(02·031…)은 손대지 않는다 — 알림톡·문자 대상이 아니라 판정이 따로다. */
-function _phoneKR(v) {
+function _phoneKR(v) { _gsr_();
   var _mk = '[PHONE_KR_NORM]';   // 배포 점검 표식 — 함수 «본문 안»에 있어야 읽힌다(FILE_COVER)
   var d = String(v == null ? '' : v).replace(/[^0-9]/g, '');
   if (!d) return '';
@@ -244,7 +244,7 @@ function _phoneKR(v) {
    ★_phoneKR 을 그대로 쓰면 안 된다 — 이 칸엔 사업자번호(10자)·주민번호(13자)도 들어오는데, 82 로 시작하는
      주민번호(예: 820101-…)를 휴대폰으로 «만들어» 버린다. 여기서는 «82 + 휴대폰 꼴» 11~12자리만 바꾼다.
    ★화면 쪽 /shared/tel-kr.js 의 meTelDigits 와 같은 규칙이다(«+» 가 없는 경우). */
-function _crKR(v) {
+function _crKR(v) { _gsr_();
   var _mk = '[PHONE_AUTOFILL_82]';   // 배포 점검 표식 — 함수 «본문 안»에 있어야 읽힌다(FILE_COVER)
   var d = String(v == null ? '' : v).replace(/[^0-9]/g, '');
   var m = d.match(/^(?:00)?82(10[0-9]{8}|1[16789][0-9]{7,8})$/);
@@ -277,11 +277,11 @@ var DEPLOY_STAMP_FNS = ['doPost', 'handleSaveProductionTrack', 'adminSendContrac
    ★열거가 안 되는 런타임이면 빈 문자열을 돌려주고 종전과 똑같이 동작한다 — 새 실패를 만들지 않는다.
    ★반환 앞머리에 함수 개수를 붙인다(예: '590#1a2b3c'). deployCheck 가 그 수를 찍어,
      «서명이 실제로 작동하는지»를 사람이 눈으로 확인할 수 있게 하기 위해서다(0 이면 열거 실패). */
-function _dsGlobalScope() {
+function _dsGlobalScope() { _gsr_();
   try { if (typeof globalThis !== 'undefined' && globalThis) return globalThis; } catch (e) {}
   try { return (function () { return this; })() || null; } catch (e) { return null; }
 }
-function _dsGlobalSig() {
+function _dsGlobalSig() { _gsr_();
   var g = _dsGlobalScope();
   if (!g) return '';
   var names = [];
@@ -298,7 +298,7 @@ function _dsGlobalSig() {
   return names.length + '#' + _dsHash(parts.join('|'));
 }
 
-function deployFingerprint() {
+function deployFingerprint() { _gsr_();
   var parts = [];
   for (var i = 0; i < DEPLOY_STAMP_FNS.length; i++) {
     var src = '';
@@ -312,14 +312,14 @@ function deployFingerprint() {
 
 /* 짧고 빠른 해시 — 암호용이 아니다. «바뀌었는가»만 알면 되므로 32비트로 충분하다.
    Utilities.computeDigest 는 매 요청마다 돌기엔 무겁다. */
-function _dsHash(s) {
+function _dsHash(s) { _gsr_();
   var h = 5381;
   for (var i = 0; i < s.length; i++) { h = ((h << 5) + h + s.charCodeAt(i)) | 0; }
   return (h >>> 0).toString(36);
 }
 
 /* /exec 진입점에서 부른다. 지문이 그대로면 아무것도 쓰지 않는다. */
-function deployStamp() {
+function deployStamp() { _gsr_();
   try {
     var fp = deployFingerprint();
     var props = PropertiesService.getScriptProperties();

@@ -25,7 +25,7 @@ function _payCfg_() { /* [B19_LOCK 2026-10-09] 열쇠가 든 설정 · 서버 �
 }
 
 // 마일스톤별 서버측 기대 금액(위변조 방지) — 계좌이체 카드와 동일 출처(_journeyAmounts) 사용.
-function _payExpectedAmount(cust, milestone) {
+function _payExpectedAmount(cust, milestone) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   if (milestone === '추가보정') {   // 추가 보정(과세 매출) — 신청 시 확정된 추가보정금액(계약총액 산식과 무관·별도 항목이라 _journeyAmounts 불요)
     var _ex = Math.round(Number(cust.get('추가보정금액')) || 0);
     return _ex > 0 ? _ex : null;
@@ -53,7 +53,7 @@ function _payExpectedAmount(cust, milestone) {
 }
 
 // 토스 결제 승인(confirm) — Basic 인증(secret:). 2xx면 {ok:true,data}, 아니면 {ok:false,error,code}.
-function _tossConfirm(cfg, paymentKey, orderId, amount) {
+function _tossConfirm(cfg, paymentKey, orderId, amount) { _gsr_();
   try {
     var auth = Utilities.base64Encode(cfg.secret + ':');
     var resp = UrlFetchApp.fetch('https://api.tosspayments.com/v1/payments/confirm', {
@@ -74,7 +74,7 @@ function _tossConfirm(cfg, paymentKey, orderId, amount) {
    «이미 처리된 결제»면 토스는 이미 돈을 받았을 수 있다 — 종전엔 둘 다 «결제 승인에 실패했습니다 (코드 P4)»라 고객이 새 주문으로 다시 결제할 수 있었다.
    이제 토스에 그 결제를 한 번 조회해 «완료 · 같은 주문 · 같은 금액»이면 성공으로 이어 기록하고, 조회도 안 되면 «결과 모름(P5) · 다시 결제하지 마세요» + 관리자 즉시 메일.
    그 밖의 거절은 한국어 한 줄 + 토스 코드 꼬리(P4 · REJECT_CARD_COMPANY) — 토스 · GAS 영문 원문은 _why(오류기록)로만 */
-function _tossLookup(cfg, paymentKey) {
+function _tossLookup(cfg, paymentKey) { _gsr_();
   try {
     var auth = Utilities.base64Encode(cfg.secret + ':');
     var resp = UrlFetchApp.fetch('https://api.tosspayments.com/v1/payments/' + encodeURIComponent(paymentKey), { method: 'get', headers: { Authorization: 'Basic ' + auth }, muteHttpExceptions: true });
@@ -82,14 +82,14 @@ function _tossLookup(cfg, paymentKey) {
     return (code >= 200 && code < 300) ? { ok: true, data: data } : { ok: false, code: (data && data.code) || ('HTTP ' + code) };
   } catch (e) { return { ok: false, code: 'FETCH_EXCEPTION' }; }
 }
-function _tossConfirmSafe(cfg, paymentKey, orderId, amount) {   // [PAY_UNKNOWN] 승인 · 결과 모름이면 조회로 확인
+function _tossConfirmSafe(cfg, paymentKey, orderId, amount) { _gsr_();   // [PAY_UNKNOWN] 승인 · 결과 모름이면 조회로 확인
   var t = _tossConfirm(cfg, paymentKey, orderId, amount);
   if (t.ok || !/^(FETCH_EXCEPTION|ALREADY_PROCESSED_PAYMENT)$/.test(String(t.code || ''))) return t;
   var lk = _tossLookup(cfg, paymentKey), d = (lk && lk.data) || {};
   if (lk.ok && String(d.status || '') === 'DONE' && String(d.orderId || '') === String(orderId) && Math.round(Number(d.totalAmount || 0)) === Math.round(Number(amount))) return { ok: true, data: d, recovered: String(t.code) };
   return { ok: false, unknown: true, code: String(t.code || ''), error: String(t.error || ''), lookup: String((lk && lk.code) || (lk && lk.ok ? 'status ' + (d.status || '') : '')) };
 }
-function _tossFailOut(t, code, milestone, amount, orderId) {   // [PAY_UNKNOWN] 화면에 갈 실패 한 벌(두 결제 길 공통)
+function _tossFailOut(t, code, milestone, amount, orderId) { _gsr_();   // [PAY_UNKNOWN] 화면에 갈 실패 한 벌(두 결제 길 공통)
   var tc = String((t && t.code) || '').replace(/[^A-Z0-9_]/gi, '').slice(0, 40), why = 'toss ' + tc + ' ' + String((t && t.error) || '').slice(0, 140) + (t && t.lookup ? ' · 조회 ' + t.lookup : '');
   if (t && t.unknown) {
     try { if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail('카드결제 결과 모름·수동확인 | 코드 ' + code + ' | ' + milestone + ' ' + Number(amount || 0).toLocaleString() + '원 | 토스 주문 ' + orderId + ' | ' + why + ' | 토스 관리자에서 이 주문이 결제됐는지 확인해 주세요'); } catch (e) {}
@@ -101,7 +101,7 @@ function _tossFailOut(t, code, milestone, amount, orderId) {   // [PAY_UNKNOWN] 
 
 // 카드결제 마커 — 해당 원장 키를 '카드(매출전표)'로 표시해 현금영수증 발급 큐에서 제외.
 //   확인 직후(같은 락 안) 동의기록을 최신으로 다시 읽어 결제수단만 병합 → 코어가 쓴 영수증기준일 등 다른 키 보존.
-function _payMarkCard(code, ledgerKey) {
+function _payMarkCard(code, ledgerKey) { _gsr_();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
   if (!cust) return;
@@ -112,7 +112,7 @@ function _payMarkCard(code, ledgerKey) {
   touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
 }
 
-function _payLog(row) {
+function _payLog(row) { _gsr_();
   try {
     var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(PAY_LOG_SHEET);
     if (!sh) { sh = ss.insertSheet(PAY_LOG_SHEET); sh.appendRow(['시각', '개인코드', '단계', '금액', 'orderId', 'paymentKey', '결과', '메모']); sh.setFrozenRows(1); }
@@ -123,7 +123,7 @@ function _payLog(row) {
 
 // [B-2] 토스 청구 전 사전검증 — 기록 함수(_confirmDepositCore·adminConfirmMid/Balance)의 게이트를 부작용 없이 앞당겨 확인.
 //   계약금: 계약 서명완료 필수 / 중도금·잔금: 진행종료(취소·노쇼·미계약) 아님. 통과 시 ''(빈문자).
-function _payPreValidate(cust, milestone) {
+function _payPreValidate(cust, milestone) { _gsr_();
   // 종료(취소·노쇼·미계약) 고객은 모든 마일스톤 결제 차단 — 계약금도 예외 없음(_confirmDepositCore가 setCustomerStage로 되살리기 전에 캡처 자체를 막음)
   if (typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';
   if (milestone === '계약금' || milestone === '계약금묶음') {
@@ -145,10 +145,10 @@ function _payPreValidate(cust, milestone) {
       취소에 쓸 paymentKey·orderId 를 동의기록.카드결제.예약금 에 남긴다(토스 관리자 화면 검색 · 나중 API 취소 모두).
    ★스냅은 막는다 — 스냅의 원장 키 '예약금'은 이미 «계약금 카드분»이라(아래 _pmDepKey) 같은 키를 두 돈이 나눠 쓰게 된다.
    ★PAY_CARD_ENABLED 가 꺼져 있으면 아무 일도 안 한다(위 두 함수 첫 줄) — 켜기 전까지 라이브 영향 0. */
-function _payDepositAmount() {
+function _payDepositAmount() { _gsr_();
   return Number((typeof PAYMENT !== 'undefined' && PAYMENT && PAYMENT.예약금) || (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.DEPOSIT) || 100000) || 100000;
 }
-function _depositCardBlock(consult, cust) {   // 카드로 예약금을 받을 수 없는 까닭(없으면 '') — 설정 조회·승인이 같은 자로 본다
+function _depositCardBlock(consult, cust) { _gsr_();   // 카드로 예약금을 받을 수 없는 까닭(없으면 '') — 설정 조회·승인이 같은 자로 본다
   if (!consult) return '상담 신청 정보를 찾을 수 없어요.';
   if (cust && String(cust.get('상품타입') || '').trim() === '웨딩스냅') return '스냅은 예약금 카드결제를 쓰지 않아요.';
   if (cust && typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';
@@ -158,7 +158,7 @@ function _depositCardBlock(consult, cust) {   // 카드로 예약금을 받을 �
   if (pm.예약금 === '카드') return '이미 카드로 결제된 예약금이에요.';
   return '';
 }
-function _depositCardKeep(code, info) {   // 환불(카드 취소)에 쓸 키 — 동의기록을 최신으로 다시 읽어 이 키만 병합
+function _depositCardKeep(code, info) { _gsr_();   // 환불(카드 취소)에 쓸 키 — 동의기록을 최신으로 다시 읽어 이 키만 병합
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code); if (!cust) return;
   var rec = _parseJsonSafe(cust.get('동의기록'));
@@ -166,7 +166,7 @@ function _depositCardKeep(code, info) {   // 환불(카드 취소)에 쓸 키 �
   rec.카드결제.예약금 = info;
   touchCustomer(sheet, colOf, cust.num, { '동의기록': JSON.stringify(rec) });
 }
-function _depositCardTrace(code, text) {   // 처리이력 — _recordHandler 는 누른 사람을 «관리자»로 적어 고객 결제에 맞지 않는다
+function _depositCardTrace(code, text) { _gsr_();   // 처리이력 — _recordHandler 는 누른 사람을 «관리자»로 적어 고객 결제에 맞지 않는다
   try {
     var cust = findCustomerByCode(code); if (!cust) return;
     var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
@@ -174,7 +174,7 @@ function _depositCardTrace(code, text) {   // 처리이력 — _recordHandler �
     touchCustomer(sheet, colOf, cust.num, { '처리이력': prev ? (prev + '\n' + line) : line });
   } catch (e) {}
 }
-function _depositCardConfig(body, cfg) {
+function _depositCardConfig(body, cfg) { _gsr_();
   var _mk = '[DEPOSIT_CARD]';
   var a = (typeof _sessionToConsult === 'function') ? _sessionToConsult(String((body && body.token) || '').trim()) : { ok: false, error: '예약 정보를 불러올 수 없습니다.' };
   if (!a.ok) return { ok: false, reason: a.reason, error: a.error };   // [ERR_CODE_PAY] 로그인 까닭을 넘긴다
@@ -265,7 +265,7 @@ function _depositCardConfirm_(body, cfg) {
 }
 
 /** 카드결제 승인 수신 (doPost action='cardConfirm') */
-function handleCardConfirm(body) {
+function handleCardConfirm(body) { _gsr_();
   var cfg = _payCfg_();
   if (!cfg.enabled) return { ok: false, error: '카드결제는 현재 사용하지 않습니다.' };   // 플래그 OFF — 안전 차단
   if (!cfg.secret)  return { ok: false, error: '결제 설정이 준비되지 않았습니다.' };
@@ -422,7 +422,7 @@ function handleCardConfirm(body) {
 
 /** 프론트가 결제창 띄우기 전 설정 조회 (doPost action='cardPayConfig')
  *  플래그 OFF면 {enabled:false}만 반환 → 프론트는 계좌이체만 노출(현 동작 유지). */
-function handleCardPayConfig(body) {
+function handleCardPayConfig(body) { _gsr_();
   var cfg = _payCfg_();
   if (!cfg.enabled || !cfg.clientKey) return { ok: true, enabled: false };
   if (String((body && body.milestone) || '').trim() === '예약금') return _depositCardConfig(body, cfg);   // [DEPOSIT_CARD] 상담 예약금 — 예약 화면(schedule.html)이 부른다

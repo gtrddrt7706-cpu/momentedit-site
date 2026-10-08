@@ -603,7 +603,7 @@ git push -u origin <브랜치>
 | 함수 | 파일 | 용도 |
 |---|---|---|
 | `deployCheck` | **99_deployCheck** | ★붙여넣기·배포 누락 점검 — 파일이 다 있는가(안쪽까지)·최근 변경이 올라갔는가·배포가 «먹었는가»(저장만으론 /exec 에 안 먹는다)·시트 컬럼·예약 실행·스크립트 속성. 목록은 사이트(momentedit.kr/deploy-marks.json)에서 가져온다 — **main 에 병합돼야 목록이 갱신된다** |
-| `deployStampCheck` | **99_deployCheck** | ★배포가 «먹었는가»만 찍는다(서너 줄). deployCheck 로그가 GAS 한도로 ③ 에서 잘려 ④ 를 몇 번을 돌려도 못 보던 자리 — 2026-09-20 대표 실행 두 번 모두 그랬다. **재배포할 때마다 이것만 돌리면 된다.** deployCheck 는 «붙여넣기» 점검이고 이건 «배포» 점검이다. ★기록이 없으면 «아직 모름»이다 — 재배포 뒤 관리자 페이지(momentedit.kr/admin.html)를 한 번 열어야 지문이 찍힌다(홈은 GAS 를 안 불러 안 찍힌다 · [STAMP_HIT_ADMIN]). ★★[STAMP_FN_ONLY] **이 판정은 «함수»만 본다** — `_dsGlobalSig` 가 `typeof === 'function'` 인 것만 모은다. 화면 파일(`ScreenA`·`ScreenB`·`ScreenC` `.html` · `Admin.html` 은 2026-10-08 은퇴)은 지문에 **안 들어가서**, 붙여넣었든 안 넣었든 똑같이 OK 가 나온다. **`.html` 을 붙여넣었으면 `deployCheck`(같은 `99_deployCheck` 파일)를 돌려 ①-C 본문 길이를 봐야 한다.** 2026-09-20 에 내가 `ScreenB_schedule.html` 을 고쳐 드리고 이걸로 확인하라고 안내했는데, 확인될 수가 없는 조합이었다 |
+| `deployStampCheck` | **99_deployCheck** | ★배포가 «먹었는가»만 찍는다(서너 줄) · ★[TRIG_IN 2026-10-09] 끝에 «예약 실행 확인» 한 줄(진짜 트리거를 알아봤는가 · 아직이면 모양 기록). deployCheck 로그가 GAS 한도로 ③ 에서 잘려 ④ 를 몇 번을 돌려도 못 보던 자리 — 2026-09-20 대표 실행 두 번 모두 그랬다. **재배포할 때마다 이것만 돌리면 된다.** deployCheck 는 «붙여넣기» 점검이고 이건 «배포» 점검이다. ★기록이 없으면 «아직 모름»이다 — 재배포 뒤 관리자 페이지(momentedit.kr/admin.html)를 한 번 열어야 지문이 찍힌다(홈은 GAS 를 안 불러 안 찍힌다 · [STAMP_HIT_ADMIN]). ★★[STAMP_FN_ONLY] **이 판정은 «함수»만 본다** — `_dsGlobalSig` 가 `typeof === 'function'` 인 것만 모은다. 화면 파일(`ScreenA`·`ScreenB`·`ScreenC` `.html` · `Admin.html` 은 2026-10-08 은퇴)은 지문에 **안 들어가서**, 붙여넣었든 안 넣었든 똑같이 OK 가 나온다. **`.html` 을 붙여넣었으면 `deployCheck`(같은 `99_deployCheck` 파일)를 돌려 ①-C 본문 길이를 봐야 한다.** 2026-09-20 에 내가 `ScreenB_schedule.html` 을 고쳐 드리고 이걸로 확인하라고 안내했는데, 확인될 수가 없는 조합이었다 |
 | `contractCheck` | **99_contractCheck** | ★값 계약 점검 — deployCheck 와 **짝**이다. 그쪽은 «표식이 있는가», 이쪽은 «값이 맞는가». GAS 상수(FINAL_CONFIRM 등)를 실제로 평가하고, 배포된 사이트 문장까지 대조한다. 목록이 없으면 파일 안 폴백으로 GAS 값만 본다 |
 | `contractCheckHelp` | **99_contractCheck** | 위 점검의 사용법 출력(발송·변경 없음). 파일 끝을 지키는 함수이기도 하다 — 이 이름이 사라지면 붙여넣다 뒤가 잘린 것이다 |
 | `notifySetupCheck` | 95_notify | 알림 설정 점검(발송 없음·로그만) · ★켜진 고객 알림 중 **알림톡 템플릿이 빠진 것을 이름으로 나열**(TPL_COVER) — 「알림톡이 안 나간다」면 여기부터. 템플릿이 없으면 알림톡은 안 나가고 이메일로만 대체되며, 그 사실은 고객 상세 처리이력·관리자 메일(하루 한 통)로 드러난다(TPL_SILENT) |
@@ -686,10 +686,17 @@ adminCall 의 FNS 에 넣는 것만으로는 잠기지 않는다. 그래서 새 
    편집기에서 막히면 오류 글에 «지금 계정(g…@gmail.com)은 소유자 목록에 없어요»가 붙는다(`_ADMIN_OWNER_EMAILS` · admin.gs).
 2. **비밀값 · 열쇠를 돌려주거나 서명을 만드는 함수 · 받는 사람(주소 · 번호)과 글을 인자로 받아 보내는 함수** → 이름 끝 `_`(예: `sign_` · `_payCfg_` · `_kakaoSend_`). 밑줄 함수도 다른 서버 코드에서는 그대로 부른다.
 3. **두 쓰임**(관리 화면에서도 · 예약 실행에서도) → 잠긴 껍데기 + 밑줄 안쪽(`aiQuestionLog` → `aiQuestionLog_` · `[GSR_SPLIT]`).
-4. **`_AUTHED = true`** 는 네 곳뿐 — adminCall(토큰 확인 뒤) · `morningBriefData_`(예약 실행) · 메일 단추 `servePayConfirm`(서명 · 기한 뒤 · `[PAYCONFIRM_AUTHED]`) · 카드 `handleCardConfirm`(토스 승인 뒤 · `[CARD_AUTHED]`) · 늘 finally 로 되돌린다.
+4. **`_AUTHED = true`** 는 네 곳뿐 — adminCall(토큰 확인 뒤) · `morningBriefData_`(예약 실행) · 메일 단추 `_payConfirmRun_`(확인 화면의 단추를 누른 뒤 · 서명 · 기한 다시 확인 · `[PAYCONFIRM_AUTHED]`) · 카드 `handleCardConfirm`(토스 승인 뒤 · `[CARD_AUTHED]`) · 늘 finally 로 되돌린다.
+5. ★[GSR_GATE] **모든 공개 함수의 첫 줄은 넷 중 하나다** — 입구 `_SRV = true;`(doGet · doPost · submitApplication · submitSchedule · submitProposal · mailButtonGo 여섯뿐) · 예약 실행 `_trigIn_(arguments[0]);`(setupAllTriggers 의 plan + awMonthlyAudit · onConsultEdit) · 관리 `_requireAdmin();` · 그 밖 `_gsr_();`.
+   `_gsr_` 는 서버 길(`_SRV`) · 예약 실행(`_TRUST`) · 관리자(`_AUTHED`) · 소유자(편집기) 안에서만 지난다. 진단 몇 개(deployCheck 등 · gsr-guard 의 `OPEN`)만 예외다.
+   - `_SRV` 는 «정해진 서버 길 안»일 뿐 **관리자 권한이 아니다** — `_requireAdmin` 은 `_SRV` · `_TRUST` 로 지나지 않는다.
+   - adminCall 은 첫 줄에서 토큰을 스스로 본다(`_adminTokenCheck_` · `[ADMINCALL_TOKEN]`) — `_AUTHED` 지름길을 타지 않는다.
+   - ★[TRIG_IN] 예약 실행 확인은 «배우는» 문이다 — 넘어온 `triggerUid` 가 실제 트리거면 `TRIG_UID_OK` 를 적고, 그 뒤부터는 진짜 트리거 · 편집기(소유자) · 서버 길이 아니면 막는다. 아직 한 번도 못 알아봤으면 막지 않고 `TRIG_PROBE` 에 모양만 적는다(확인 전에 막으면 아침 보고 · 알림이 멈춘다). `99_deployCheck` 파일 → `deployStampCheck` 가 «예약 실행 확인» 한 줄로 보여 준다.
+   - 점검: `loadGas()` 는 기본으로 서버 길 안(`_SRV = true`)을 흉내 낸다 · 익명을 흉내 낼 점검은 `loadGas(sb, { srv: false })`. 함수를 떼어 시험하는 점검은 `_gsr_` · `_trigIn_` · `_requireAdmin` 받침을 함께 둔다.
 
-- 검사: `node scripts/audit/gsr-guard.mjs`(옛 이름 · 빠진 잠금 · FNS · 새 `_AUTHED` · 메일 단추 행동 · 돌연변이 6) — merge-guard 가 돌린다. 잠글 함수를 늘리면 그 파일의 `LOCKED` 도 같은 커밋에서.
-- 남은 것(1-s 둘째 조각 · 기획 §16-4): 운영 도우미 `_gsr_()` · 예약 실행 표(`_TRUST`) · 서버 요청 표(`_SRV`) · 메일 단추 확인 화면(B11). 그전까지 FNS 의 `aiAlertAdmin` 하나만 예외(`FNS_LATER`).
+- 검사: `node scripts/audit/gsr-guard.mjs`(옛 이름 · 빠진 잠금 · 모든 공개 함수의 첫 줄 · FNS · 새 `_AUTHED` · `_SRV` · `_TRUST` · 메일 단추 행동 · 예약 실행 확인 · 토큰 없는 adminCall · 돌연변이) — merge-guard 가 돌린다. 잠글 함수를 늘리면 그 파일의 `LOCKED` 도 같은 커밋에서.
+- ★[MAIL_BTN_CONFIRM] **메일 단추(입금 확인 · 승인 · 수락)는 열기만 해서는 아무것도 바꾸지 않는다** — 주소를 열면 확인 화면만 보이고, 화면의 단추(`mailButtonGo` · 입구)를 눌러야 처리된다. 메일 보안 검사기 · 링크 미리보기가 주소를 먼저 열어 보기 때문이다(B11). 단추 쪽이 서명 · 기한을 다시 본다.
+- FNS 의 `aiAlertAdmin` 은 두 쓰임이라 `_requireAdmin` 대신 `_gsr_`(`FNS_LATER`).
 - ★공개 저장소다 — 주석 · 커밋 · PR · deploy-marks 의 why 에는 **규칙만** 적는다. «무엇이 어떻게 열려 있었나»는 비공개 docs 저장소(기획 부록 B19 · 결정함)에만 둔다.
 
 ## 관리자 알림 = 메일 전용 (2026-06-29 사용자 지시)

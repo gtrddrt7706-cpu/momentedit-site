@@ -155,6 +155,7 @@ const sandbox = {
   notifyKakao: function (event, code, extra) { kakaoLog.push({ event: event, code: code, extra: extra || {} }); },
   // 가드 스텁 — 미인증이면 throw(실제 _requireAdmin 계약 재현 · [B19_LOCK] 카드 · 메일 단추 길이 켜는 _AUTHED 창도 실제처럼 통과)
   _AUTHED: false,
+  _gsr_: function () {}, _trigIn_: function () {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
   _requireAdmin: function () { if (!AUTHED && !sandbox._AUTHED) throw new Error('로그인이 필요합니다. (관리자 전용)'); return { ok: true }; },
   // 세션 스텁
   resolveSession: function (token) {

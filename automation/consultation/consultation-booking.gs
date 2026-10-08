@@ -56,7 +56,7 @@ const CONFIG = {
 };
 
 // 날짜키('YYYY-M-D' 또는 Date)의 요일에 맞는 슬롯 배열 반환 (주말=토·일)
-function slotsForDate(dateKeyOrDate) {
+function slotsForDate(dateKeyOrDate) { _gsr_();
   var d = (dateKeyOrDate instanceof Date) ? dateKeyOrDate : parseDateTime(normalizeDateKey(dateKeyOrDate), '00:00');
   if (!d) return CONFIG.SLOTS_WEEKDAY;
   var wd = d.getDay(); // 0=일, 6=토
@@ -65,7 +65,7 @@ function slotsForDate(dateKeyOrDate) {
 
 // 운영자 알림 CC 문자열 생성 — ADMIN_CC 중 유효한 주소만 콤마로 연결.
 // placeholder([…])·빈값·정본(ADMIN_EMAIL)과 중복되는 주소는 제외.
-function adminCc() {
+function adminCc() { _gsr_();
   var list = CONFIG.ADMIN_CC;
   if (!list || !list.length) return '';
   var primary = String(CONFIG.ADMIN_EMAIL || '').trim().toLowerCase();
@@ -133,7 +133,7 @@ var DETAIL_MAP = {
   '신청 제출 시각': '제출시각'
 };
 // detail 문자열을 라벨별로 파싱해 { 컬럼명: 값 } 반환
-function parseDetail(detail) {
+function parseDetail(detail) { _gsr_();
   var out = {};
   String(detail || '').split('\n').forEach(function (line) {
     var i = line.indexOf(': ');
@@ -153,7 +153,7 @@ const ST = {
 const LOCKED_STATES = [ST.APPROVED, ST.CONFIRMED];
 
 // ============================ 웹앱 라우팅 (doGet) ============================
-function doGet(e) {
+function doGet(e) { _SRV = true;
   try { if (typeof deployStamp === 'function') deployStamp(); } catch (_ds) {}   // [DEPLOY_STAMP]
   var p = (e && e.parameter) || {};
   try {
@@ -178,7 +178,7 @@ function doGet(e) {
 }
 
 // ───────────── 화면 A · 상담 신청 폼 (공개) ─────────────
-function serveApplyA() {
+function serveApplyA() { _gsr_();
   var t = HtmlService.createTemplateFromFile(SYS.HTML_A);
   t.kakao = safeAttr(CONFIG.KAKAO_URL);
   return t.evaluate()
@@ -188,7 +188,7 @@ function serveApplyA() {
 }
 
 // ───────────── 화면 B · 스케줄 선택 (비공개 / 토큰) ★핵심 ─────────────
-function serveScheduleB(token, fromMypage) {
+function serveScheduleB(token, fromMypage) { _gsr_();
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -240,7 +240,7 @@ function serveScheduleB(token, fromMypage) {
 }
 
 // ───────────── 화면 C · 미쿠 변경입력 (토큰 + 서명) ─────────────
-function serveChangeC(token, p) {
+function serveChangeC(token, p) { _gsr_();
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);
@@ -261,7 +261,7 @@ function serveChangeC(token, p) {
 }
 
 // ============================ 메일 버튼 액션 처리 ============================
-function handleAction(p) {
+function handleAction(p) { _gsr_();
   var token = p.token, action = p.action, sig = p.sig;
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
@@ -280,9 +280,9 @@ function handleAction(p) {
   }
 
   switch (action) {
-    case 'approve':  return actApprove(sheet, colOf, row);
+    case 'approve':  return _mailConfirmPage_('예약을 승인할까요?', esc(coupleNames(row)) + ' 님 · ' + esc(prettyDate(row.get('선택날짜'))) + ' · ' + esc(row.get('선택시간')), '승인하기', { action: 'approve', token: token, sig: sig });   // [MAIL_BTN_CONFIRM] 열기만 해서는 승인하지 않는다
     case 'change':   return serveChangeC(token, p);
-    case 'accept':   return actAccept(sheet, colOf, row);
+    case 'accept':   return _mailConfirmPage_('제안드린 시간으로 확정할까요?', esc(coupleNames(row)) + ' 님 · ' + esc(prettyDate(row.get('변경제안날짜'))) + ' · ' + esc(row.get('변경제안시간')), '이 시간으로 확정하기', { action: 'accept', token: token, sig: sig });   // [MAIL_BTN_CONFIRM] 제안 시간을 보여 준다(actAccept 가 쓰는 칸)
     case 'reselect': return serveScheduleB(token); // [다른 시간 보기] → 화면 B 재오픈
     case 'cancelreq': return serveCancelD(token, row);       // 고객 [예약 취소] → 취소 신청 화면 D
     case 'docancel':  return doCustomerCancel(sheet, colOf, row, p); // 취소 확정(계좌 제출)
@@ -298,7 +298,7 @@ function handleAction(p) {
 // [P1.5 ★③] 단일 전이 함수 — 상담행 상태 변화 → Customers 현재단계(10) 갱신을 이 함수 한 곳으로(산재 금지).
 // transition: 'confirm'(상담/촬영확정) · 'complete'(상담완료) · 'contract'(계약완료) · 'paid'(입금완료) · 'produce'(제작중) · 'cancel'(취소). 상품타입 보고 라벨 매핑.
 // 예외상태(취소·노쇼·미계약)는 정상 자동전이가 덮지 않음(가드). P1.5=수동/래퍼 호출, P2=자동배치가 같은 함수 호출.
-function setCustomerStage(code, transition) {
+function setCustomerStage(code, transition) { _gsr_();
   code = String(code || '').trim().toUpperCase();
   if (!code) return false;
   var rowObj = findCustomerByCode(code);    // platform/20 · Customers 행
@@ -352,7 +352,7 @@ function markConsultDone(personalCode) { _requireAdmin();
   return ok;
 }
 
-function actApprove(sheet, colOf, row, enteredStatus) {
+function actApprove(sheet, colOf, row, enteredStatus) { _gsr_();
   var dateKey = row.get('선택날짜'), time = row.get('선택시간');
   if (!dateKey || !time) return infoPage('선택된 시간이 없습니다', '고객이 아직 시간을 선택하지 않았습니다.', false);
 
@@ -403,7 +403,7 @@ function actApprove(sheet, colOf, row, enteredStatus) {
 }
 
 // [수락] (변경 제안에 대한 고객 수락) → 상태=확정 + 캘린더 갱신 + 변경 확정 메일⑤
-function actAccept(sheet, colOf, row) {
+function actAccept(sheet, colOf, row) { _gsr_();
   var curStatus = String(row.get('상태') || '').trim();
   // 이미 확정/취소된 건 재처리 안 함 (버튼 2번 클릭·새로고침 시 메일 중복 방지)
   if (curStatus === ST.CONFIRMED) {
@@ -474,7 +474,7 @@ function actAccept(sheet, colOf, row) {
 // 취소 처리 (공통) — 캘린더 일정 삭제 + 고객 취소 안내 메일 + 취소일시 기록.
 // onConsultEdit(상태를 '취소'로 변경)와 수동 함수(cancelByRow) 양쪽에서 호출.
 // [임시고정 연동] 상담 취소 공통 — 가예약(요청/승인) 자동 해제(슬롯 반환). 모든 취소 경로(셀프·관리자·이메일)가 actCancel 또는 handleEmailCancel에서 호출.
-function _releaseWeddingHoldOnCancel(code) {
+function _releaseWeddingHoldOnCancel(code) { _gsr_();
   try {
     code = String(code || '').trim().toUpperCase();
     if (!code) return;
@@ -496,7 +496,7 @@ function _releaseWeddingHoldOnCancel(code) {
 //   수령분 = 예약금(Bookings.입금확인=확인) 또는 계약금(Customers.입금상태=확인). try/catch로 취소 처리 본연을 막지 않음.
 // [DEPOSIT_CARD 2026-09-25] 상담 예약금을 카드로 받았나 — 환불은 계좌 송금이 아니라 «카드 결제 취소»로 간다.
 //   98_pay_card 가 동의기록.결제수단.예약금='카드' 와 카드결제.예약금({orderId·paymentKey·amount·at})을 남긴다. 없으면 null.
-function _depositCardOf(code) {
+function _depositCardOf(code) { _gsr_();
   var _mk = '[DEPOSIT_CARD]';
   try {
     var c = findCustomerByCode(String(code || '').trim()); if (!c) return null;
@@ -506,7 +506,7 @@ function _depositCardOf(code) {
     return (rec.카드결제 || {}).예약금 || { orderId: '' };
   } catch (e) { return null; }
 }
-function _maybeRefundAcctReq(sheet, colOf, r) {
+function _maybeRefundAcctReq(sheet, colOf, r) { _gsr_();
   try {
     var code = String(r.get('개인코드') || '').trim(); if (!code) return;
     var acct = '';
@@ -519,7 +519,7 @@ function _maybeRefundAcctReq(sheet, colOf, r) {
     notifyKakao('cust.refundAcctReq', code);
   } catch (e) {}
 }
-function actCancel(sheet, colOf, r) {
+function actCancel(sheet, colOf, r) { _gsr_();
   var names = coupleNames(r);
   var dateKey = r.get('선택날짜'), time = r.get('선택시간');
 
@@ -546,7 +546,7 @@ function actCancel(sheet, colOf, r) {
 
 // ── 고객 셀프 취소 ──────────────────────────────────────────
 // [예약 취소] 클릭 → 취소 신청 화면. 상담 24시간 전(기한) 이내만 취소 가능, 지나면 안내만.
-function serveCancelD(token, row) {
+function serveCancelD(token, row) { _gsr_();
   var status = String(row.get('상태') || '').trim();
   // 확정/승인 상태가 아니면 취소할 게 없음
   if (status === ST.CANCELLED) {
@@ -626,7 +626,7 @@ function serveCancelD(token, row) {
 }
 
 // 취소 확정 처리 (계좌 제출됨) → 기한 재확인 → 캘린더 삭제·상태=취소·운영자 송금요청 메일·고객 취소완료 메일
-function doCustomerCancel(sheet, colOf, row, p) {
+function doCustomerCancel(sheet, colOf, row, p) { _gsr_();
   var status = String(row.get('상태') || '').trim();
   if (status === ST.CANCELLED) {
     return infoPage('이미 취소되었습니다', '이 예약은 이미 취소 처리되었습니다.', true);
@@ -666,7 +666,7 @@ function doCustomerCancel(sheet, colOf, row, p) {
 //   Customers 행(개인코드 매칭)의 동의기록.시착.벌수 → fitDeduct=min(벌수×50,000, 100,000) · amount=예약금-공제.
 //   needCount = 시착 동의완료인데 벌수 미기록(공제 0으로 계산하되 화면은 '벌수 확인 후 안내'). 행 없거나 시착 전이면 공제 0(전액 환불).
 //   베스트에포트 — 산정 실패해도 취소 흐름은 절대 막지 않는다(호출부 try/catch 짝).
-function _consultRefundQuote(code) {
+function _consultRefundQuote(code) { _gsr_();
   var unit = (typeof FITTING_CONSENT !== 'undefined' && FITTING_CONSENT.추가벌비용) || 50000;     // 1벌당 시착비(70_journey 단일 출처)
   var dep = (typeof PAYMENT !== 'undefined' && PAYMENT.예약금) || Number(CONFIG.DEPOSIT) || 100000;
   var q = { amount: dep, fitCount: 0, fitDeduct: 0, needCount: false };
@@ -695,7 +695,7 @@ function _consultRefundQuote(code) {
 }
 
 // [자사몰 취소] 이메일 '여기' → momentedit.kr/cancel 가 token·sig로 호출(GAS HTML/구글 Drive 오류 우회). 정보조회 + 취소 처리 2종.
-function handleEmailCancelInfo(body) {
+function handleEmailCancelInfo(body) { _gsr_();
   var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
   if (!verifySig_(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
@@ -714,7 +714,7 @@ function handleEmailCancelInfo(body) {
   try { out.byCard = String(row.get('입금확인') || '').trim() === '확인' && !!_depositCardOf(String(row.get('개인코드') || '').trim()); } catch (e) {}
   return out;
 }
-function handleEmailCancel(body) {
+function handleEmailCancel(body) { _gsr_();
   var token = String((body && body.token) || '').trim(), sig = String((body && body.sig) || '').trim();
   if (!verifySig_(token, 'cancelreq', sig)) return { ok: false, error: '유효하지 않은 링크예요.' };
   var sheet = getSheet(), colOf = buildHeaderIndex(sheet);
@@ -743,7 +743,7 @@ function handleEmailCancel(body) {
 
 // ── 관리자 셀프 취소 (확정 메일의 [예약 취소] 버튼) ──────────────
 // 관리자는 기한 제약 없이 언제든 취소 가능. 확인 화면 거친 뒤 실행.
-function serveAdminCancelD(token, row) {
+function serveAdminCancelD(token, row) { _gsr_();
   var status = String(row.get('상태') || '').trim();
   if (status === ST.CANCELLED) {
     return infoPage('이미 취소된 예약입니다', coupleNames(row) + ' · 이미 취소 처리되었습니다.', true);
@@ -782,7 +782,7 @@ function serveAdminCancelD(token, row) {
 }
 
 // 관리자 취소 확정 — 캘린더 삭제 + 상태=취소 + 고객 취소 안내 메일 (계좌 입력 없음)
-function doAdminCancel(sheet, colOf, row) {
+function doAdminCancel(sheet, colOf, row) { _gsr_();
   var status = String(row.get('상태') || '').trim();
   if (status === ST.CANCELLED) {
     return infoPage('이미 취소되었습니다', '이 예약은 이미 취소 처리되었습니다.', true);
@@ -796,7 +796,7 @@ function doAdminCancel(sheet, colOf, row) {
 // 화면 A 제출 → 행 추가(상태=신청접수) + 토큰 + 메일①(전용 URL)
 // [P1.5] 인자 personalCode 추가 — handleSignup이 발급한 개인코드로 Customers·상담예약 두 행을 묶는다(★4 FK).
 // 고객 일정링크 메일(sendUrlEmail)은 제거 — 접수 고객메일은 handleSignup의 sendSignupEmail 1통으로 통일(★5-a).
-function submitApplication(form, personalCode) {
+function submitApplication(form, personalCode) { _SRV = true;
   var groom = String(form.groom || '').trim();
   var bride = String(form.bride || '').trim();
   var phone = String(form.phone || '').trim();
@@ -842,7 +842,7 @@ function submitApplication(form, personalCode) {
 
 // [P1.5 작업6] 슬롯 점유 재확인 — 같은 (선택날짜·선택시간)에 LOCKED(승인완료·확정)인 '다른' 행이 있나.
 //   점유 기준 = (가) 좁게: LOCKED 만 차단. PICKED 중복은 허용(운영자 승인 게이트가 거름).
-function _slotTaken(dateKey, time, exceptRowNum) {
+function _slotTaken(dateKey, time, exceptRowNum) { _gsr_();
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
@@ -861,7 +861,7 @@ function _slotTaken(dateKey, time, exceptRowNum) {
 }
 
 // 화면 B 제출 → 선택 기록(상태=시간선택완료) + 미쿠 알림 메일②
-function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer, payBy, viaSession) {
+function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, payer, payBy, viaSession) { _SRV = true;
   /* [DEPOSIT_CARD 2026-09-25] 카드로 낼 신청이면 관리자 알림이 «승인 필요»가 아니라 «카드 결제 대기 · 결제되면 자동 확정»이어야 한다.
      화면은 신청을 «먼저» 넣고 토스 결제창을 연다 — 그 사이 관리자가 승인을 누르면 actApprove 가 입금확인을 적어 버려
      결제 없이 확정된다. 그래서 알림·관리자 큐가 카드 대기를 알게 한다(동의기록.예약금결제='카드').
@@ -1008,7 +1008,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
 }
 
 // 화면 C 제출(미쿠) → 상태=변경제안 + 고객에게 제안 메일④
-function submitProposal(token, sig, newDate, newTime, memo) {
+function submitProposal(token, sig, newDate, newTime, memo) { _SRV = true;
   if (!verifySig_(token, 'change', sig)) throw new Error('권한이 없습니다.');
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
@@ -1058,7 +1058,7 @@ function addProposalMemoColumn() { _requireAdmin();
 
 // ============================ STEP 9 · 캘린더 연동 ============================
 // 가능일/마감 슬롯 계산 — 데모 isAvail()/FULL 대체
-function getAvailability() {
+function getAvailability() { _gsr_();
   var avail = {}, full = {}, blockers = [];
   var cal = getCalendar();
   var now = new Date(); now.setHours(0, 0, 0, 0);
@@ -1116,7 +1116,7 @@ function getAvailability() {
 // 가능일 조회는 캘린더 120일 쿼리(느림)이고 결과가 '전 사용자 공통'이라, 스크립트 캐시로 공유(짧은 TTL).
 //   예약 확정/취소 등 슬롯 변동 시 _bustAvailCache()로 즉시 무효화. 캘린더 직접 편집은 TTL(90초)로 반영.
 var AVAIL_CACHE_KEY = 'avail_v2';
-function _cachedAvailability() {
+function _cachedAvailability() { _gsr_();
   var c = null;
   try { c = CacheService.getScriptCache(); } catch (e) { c = null; }
   if (c) { try { var hit = c.get(AVAIL_CACHE_KEY); if (hit) return JSON.parse(hit); } catch (e) {} }
@@ -1124,13 +1124,13 @@ function _cachedAvailability() {
   if (c) { try { c.put(AVAIL_CACHE_KEY, JSON.stringify(data), 90); } catch (e) {} }
   return data;
 }
-function _bustAvailCache() { try { CacheService.getScriptCache().remove(AVAIL_CACHE_KEY); } catch (e) {} }
+function _bustAvailCache() { _gsr_(); try { CacheService.getScriptCache().remove(AVAIL_CACHE_KEY); } catch (e) {} }
 // 가능일 캐시 워밍 — 1분 트리거로 항상 데워두면 '첫 방문'도 즉시. 트리거 등록은 setupAllTriggers(warmAvailCache 포함)로 일원화.
-function warmAvailCache() { try { var d = getAvailability(); CacheService.getScriptCache().put(AVAIL_CACHE_KEY, JSON.stringify(d), 90); } catch (e) {} }
+function warmAvailCache() { _trigIn_(arguments[0]); try { var d = getAvailability(); CacheService.getScriptCache().put(AVAIL_CACHE_KEY, JSON.stringify(d), 90); } catch (e) {} }
 // setupAvailWarmTrigger 제거(2026-06-16): setupAllTriggers가 warmAvailCache를 동일 빈도(1분)로 등록 → 중복 셋업 경로 정리.
 
 // 확정 예약을 캘린더 일정으로 생성/갱신 (미쿠가 한눈에 봄)
-function syncCalendarEvent(sheet, colOf, rowNum, dateKey, time, names, phone) {
+function syncCalendarEvent(sheet, colOf, rowNum, dateKey, time, names, phone) { _gsr_();
   var cal = getCalendar();
   if (!cal) return;
   var start = parseDateTime(dateKey, time);
@@ -1152,7 +1152,7 @@ function syncCalendarEvent(sheet, colOf, rowNum, dateKey, time, names, phone) {
 }
 
 // 캘린더 일정 삭제 (취소 시) — 저장된 이벤트ID로 그 일정만 정확히 제거. 성공하면 시트의 ID도 비움.
-function deleteCalendarEvent(sheet, colOf, rowNum, names) {
+function deleteCalendarEvent(sheet, colOf, rowNum, names) { _gsr_();
   var existingId = row(sheet, colOf, rowNum).get('캘린더이벤트ID');
   if (!existingId) return false; // 지울 일정 없음
   var cal = getCalendar();
@@ -1202,26 +1202,26 @@ function sendUrlEmail(to, names, url, summary) { _requireAdmin();
 
 // ② 신규 신청 즉시 — 관리자(미쿠)에게 정리된 요약 메일 (한눈에)
 // 값 있을 때만 infoRow (빈 항목·'—' 자동 숨김)
-function infoRowIf(label, val) {
+function infoRowIf(label, val) { _gsr_();
   var v = (val == null) ? '' : String(val).trim();
   if (!v || v === '—') return '';
   return infoRow(label, esc(v));
 }
 // 연락처 → tel 링크 (모바일에서 탭하면 전화)
-function telLink(phone) {
+function telLink(phone) { _gsr_();
   var p = String(phone || '').trim();
   if (!p) return '—';
   var num = p.replace(/[^0-9+]/g, '');
   return '<a href="tel:' + num + '" style="color:#3A2D22;text-decoration:none;border-bottom:1px solid #DDD3C2">' + esc(p) + '</a>';
 }
 // 이메일 → mailto 링크
-function mailLink(email) {
+function mailLink(email) { _gsr_();
   var e = String(email || '').trim();
   if (!e) return '—';
   return '<a href="mailto:' + esc(e) + '" style="color:#3A2D22;text-decoration:none;border-bottom:1px solid #DDD3C2">' + esc(e) + '</a>';
 }
 // 하객 값 — '초과' 포함 시 빨간 강조
-function guestValue(v) {
+function guestValue(v) { _gsr_();
   var s = String(v || '').trim();
   if (!s || s === '—') return '';
   if (/초과/.test(s)) {
@@ -1231,14 +1231,14 @@ function guestValue(v) {
 }
 
 // 고객 노출용 — '(⚠ 권장 정원 초과)' 류 운영자 경고 꼬리표를 떼고 인원 숫자만 남김
-function stripGuestFlag(v) {
+function stripGuestFlag(v) { _gsr_();
   return String(v || '')
     .replace(/\s*\(?[⚠️!\s]*권장\s*정원\s*초과\)?/g, '')
     .trim();
 }
 
 // 운영자 메일용 — 시트 row에서 신청상세 전체를 읽어 정리 블록 생성 (상담 준비용)
-function applicantDetailRows(row) {
+function applicantDetailRows(row) { _gsr_();
   var out = '';
   out += infoRowIf('알게된 경로', row.get('경로'));
   out += infoRowIf('예식 일자', row.get('예식일자'));
@@ -1259,7 +1259,7 @@ function applicantDetailRows(row) {
   return out;
 }
 // 섹션 소제목 (운영자 메일 구획)
-function sectionLabel(txt) {
+function sectionLabel(txt) { _gsr_();
   return '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#B89A75;text-align:center;margin:26px 0 4px">' + esc(txt) + '</div>';
 }
 
@@ -1284,7 +1284,7 @@ function sendNewInquiryEmail(groom, bride, phone, email, memo, parsed) { _requir
 }
 
 // 메일② — 새 신청 알림 (시간선택완료, 미쿠) · [승인]/[변경제안] 버튼
-function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard) {
+function sendAdminNotifyEmail(row, dateKey, time, flex, etc, byCard) { _gsr_();
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') {
     Logger.log('  (ADMIN_EMAIL 미설정 · 미쿠 알림 건너뜀)'); return;
   }
@@ -1357,7 +1357,7 @@ function sendCancelEmail_(to, names, dateKey, time) {
 }
 
 // 운영자 송금 요청 (고객 셀프 취소 시) — 환불 계좌·금액 포함. contact@ + cc(미쿠·희준).
-function sendRefundRequestEmail(row, dateKey, time, acct) {
+function sendRefundRequestEmail(row, dateKey, time, acct) { _gsr_();
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
   var names = coupleNames(row);
   var depositTxt = (CONFIG.DEPOSIT ? (Number(CONFIG.DEPOSIT).toLocaleString() + '원') : '예약금');
@@ -1382,7 +1382,7 @@ function sendRefundRequestEmail(row, dateKey, time, acct) {
 }
 
 // 메일③(운영자) — 예약 확정 시 contact@ 로 "상담 준비 브리프" (이 메일 1장 = 상담 준비 끝)
-function sendStudioBriefEmail(row, dateKey, time) {
+function sendStudioBriefEmail(row, dateKey, time) { _gsr_();
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
   var scheduleRows =
     infoRow('성함', coupleNames(row)) +
@@ -1408,7 +1408,7 @@ function sendStudioBriefEmail(row, dateKey, time) {
 }
 
 // 메일④ — 시간 변경 제안 (변경제안, 고객) · [수락]/[다른 시간 보기]
-function sendProposalEmail(row, newDate, newTime, memo) {
+function sendProposalEmail(row, newDate, newTime, memo) { _gsr_();
   if (!CONFIG.SEND_CHANGE_MAIL) return;  // [P1.5] 기본 OFF · 마이페이지가 변경제안을 대체
   var token = row.get('토큰');
   var acceptUrl = actionUrl_('accept', token);
@@ -1432,7 +1432,7 @@ function sendProposalEmail(row, newDate, newTime, memo) {
 // ============================ 메일 HTML 헬퍼 (브랜드 톤 · 참고 .gs 재사용) ============================
 // [최초 라이트 디자인] 베이지 배경 + 흰 카드(로고·본문·푸터 포함) + 다크모드 방어(color-scheme:only light·prefers-dark 고정·data-ogs 복원).
 //   아이폰 기본 메일·Outlook은 라이트 고정. Gmail 등 강제 변환 앱은 발신자가 못 막는 영역 — 버튼은 변환에 강한 골드 톤 유지.
-function emailShell(headline, innerHtml) {
+function emailShell(headline, innerHtml) { _gsr_();
   return '' +
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet"><style>@import url(\'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap\');:root{color-scheme:only light;supported-color-schemes:only light}html,body{color-scheme:only light}body{margin:0;padding:0;background:#FAFAF8 !important}.me-card{padding:46px 38px}@media only screen and (max-width:600px){.me-card{padding:36px 22px !important}}@media (prefers-color-scheme:dark){body,.me-bg{background:#FAFAF8 !important}.me-card{background:#FFFFFF !important;color:#3A2D22 !important}}[data-ogsb] body,[data-ogsb] .me-bg{background:#FAFAF8 !important}[data-ogsb] .me-card{background:#FFFFFF !important}[data-ogsc] .me-card{color:#3A2D22 !important}</style></head>' +
     '<body bgcolor="#FAFAF8" style="margin:0;padding:0;background:#FAFAF8;color-scheme:only light;">' +
@@ -1452,21 +1452,21 @@ function emailShell(headline, innerHtml) {
     '<div style="height:28px;line-height:28px;font-size:1px;mso-line-height-rule:exactly">&nbsp;</div>' +
     '</td></tr></table></body></html>';
 }
-function emailBtn(url, label, color) {
+function emailBtn(url, label, color) { _gsr_();
   // 기본 다크 모카(#4E3F31) — 마이페이지·예약 페이지 버튼과 동일 톤(브랜드 버튼 색 통일). 다크모드 반전은 emailShell의 color-scheme:only light가 방어
   var bg = color || '#4E3F31';
   return '<div style="text-align:center;margin:16px 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:16px 34px;background:' + bg + ';color:#FFFFFF;font-family:\'Noto Serif KR\',serif;font-size:14px;font-weight:500;letter-spacing:.06em;text-decoration:none;border-radius:4px;box-shadow:0 3px 10px rgba(58,45,34,0.22);">' + esc(label) + '</a></div>';
 }
-function emailBtnOutline(url, label) {
+function emailBtnOutline(url, label) { _gsr_();
   return '<div style="text-align:center;margin:10px 0 0;"><a href="' + safeAttr(url) + '" style="display:inline-block;min-width:210px;padding:14px 34px;background:#FFFFFF;color:#4E3F31;font-family:\'Noto Serif KR\',serif;font-size:13.5px;font-weight:500;letter-spacing:.06em;text-decoration:none;border:1px solid #CFC8BD;border-radius:4px;">' + esc(label) + '</a></div>';
 }
-function centerP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#3A2D22;margin:18px 0 0;word-break:keep-all">' + html + '</p>'; }
-function noteP(html) { return '<p style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.8;color:#5A554C;text-align:center;margin:14px 0 0;word-break:keep-all">' + html + '</p>'; }
-function smallP(html) { return '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;line-height:1.8;color:#75705F;text-align:center;margin:20px 0 0;word-break:keep-all">' + html + '</p>'; }
-function infoRow(label, valHtml) {
+function centerP(html) { _gsr_(); return '<p style="font-family:\'Noto Serif KR\',serif;font-size:15px;line-height:1.9;font-weight:400;text-align:center;color:#3A2D22;margin:18px 0 0;word-break:keep-all">' + html + '</p>'; }
+function noteP(html) { _gsr_(); return '<p style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.8;color:#5A554C;text-align:center;margin:14px 0 0;word-break:keep-all">' + html + '</p>'; }
+function smallP(html) { _gsr_(); return '<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:12px;line-height:1.8;color:#75705F;text-align:center;margin:20px 0 0;word-break:keep-all">' + html + '</p>'; }
+function infoRow(label, valHtml) { _gsr_();
   return '<div style="display:block;padding:11px 0;border-bottom:1px solid #ECE8E1"><span style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.02em;color:#A39C8E">' + esc(label) + '</span><br><span style="font-family:\'Noto Serif KR\',serif;font-size:14px;color:#3A2D22;line-height:1.6">' + valHtml + '</span></div>';
 }
-function infoBlock(pairs) {
+function infoBlock(pairs) { _gsr_();
   var rows = pairs.map(function (p) {
     return '<div style="padding:12px 0;border-bottom:1px solid #ECE8E1"><div style="font-family:\'Noto Sans KR\',sans-serif;font-size:11px;letter-spacing:.04em;color:#B89A75;margin-bottom:3px">' + esc(p[0]) + '</div><div style="font-family:\'Noto Serif KR\',serif;font-size:13px;line-height:1.75;color:#5A554C">' + p[1] + '</div></div>';
   }).join('');
@@ -1474,7 +1474,7 @@ function infoBlock(pairs) {
 }
 
 // 날짜·시간 카드 (메일 주인공 정보 — 날짜 크게, 시간 pill)
-function dateCard(eyebrow, dateStr, timeStr) {
+function dateCard(eyebrow, dateStr, timeStr) { _gsr_();
   return '<div style="background:#F7F5F1;padding:24px 20px;border:1px solid #E6E1D8;border-radius:8px;margin:24px 0;text-align:center">' +
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:11px;letter-spacing:.22em;color:#B89A75;text-transform:uppercase;margin-bottom:12px">' + esc(eyebrow) + '</div>' +
     '<div style="font-family:\'Noto Serif KR\',serif;font-size:23px;font-weight:600;color:#3A2D22;line-height:1.3;letter-spacing:.01em">' + esc(dateStr) + '</div>' +
@@ -1483,7 +1483,7 @@ function dateCard(eyebrow, dateStr, timeStr) {
 }
 
 // 구글 캘린더 "일정 추가" 링크 (고객이 본인 캘린더에 추가)
-function gcalUrl(title, dateKey, time, durationMin) {
+function gcalUrl(title, dateKey, time, durationMin) { _gsr_();
   var st = parseDateTime(dateKey, time);
   if (!st) return '';
   var en = new Date(st.getTime() + (durationMin || 40) * 60000);
@@ -1499,7 +1499,7 @@ function gcalUrl(title, dateKey, time, durationMin) {
     + '&ctz=Asia/Seoul';
 }
 // 장소 표시값 — 주소 설정 전엔 안내형, 설정되면 주소 + 길찾기
-function placeValue() {
+function placeValue() { _gsr_();
   var addr = CONFIG.STUDIO_ADDRESS;
   if (!addr || String(addr).charAt(0) === '[') {
     return '확정 후 별도 안내드립니다. 방문 시 카카오톡으로 연락 주시면 바로 안내해 드려요.';
@@ -1509,12 +1509,12 @@ function placeValue() {
 }
 
 // ============================ 헬퍼 (참고 .gs 패턴) ============================
-function getSheet() {
+function getSheet() { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName(SYS.SHEET_NAME);
   if (!sh) throw new Error("시트 없음: '" + SYS.SHEET_NAME + "' · setupConsultation()을 먼저 실행하세요.");
   return sh;
 }
-function getCalendar() {
+function getCalendar() { _gsr_();
   if (!CONFIG.CALENDAR_ID || CONFIG.CALENDAR_ID.charAt(0) === '[') {
     Logger.log('  (CALENDAR_ID 미설정 · 캘린더 연동 생략)'); return null;
   }
@@ -1623,8 +1623,8 @@ function seedAvailabilityRange(startDate, endDate, dayFilter) { _requireAdmin();
 }
 
 // 요일 판별 헬퍼
-function isWeekdayDay(d) { var x = d.getDay(); return x >= 1 && x <= 5; }
-function isWeekendDay(d) { var x = d.getDay(); return x === 0 || x === 6; }
+function isWeekdayDay(d) { _gsr_(); var x = d.getDay(); return x >= 1 && x <= 5; }
+function isWeekendDay(d) { _gsr_(); var x = d.getDay(); return x === 0 || x === 6; }
 
 // --- 오늘부터 N주치 (기본 8주) ---
 function seedWeekdaySlots(weeks) { _requireAdmin();
@@ -1652,7 +1652,7 @@ function seedWeekendSlotsUntil2027() { _requireAdmin();  // 주말만
   return seedAvailabilityRange(start, new Date(2027, 11, 31), isWeekendDay);
 }
 
-function buildHeaderIndex(sheet) {
+function buildHeaderIndex(sheet) { _gsr_();
   var headers = sheet.getRange(SYS.HEADER_ROW, 1, 1, sheet.getLastColumn()).getValues()[0];
   var map = {};
   for (var i = 0; i < headers.length; i++) { var h = String(headers[i]).trim(); if (h) map[h] = i + 1; }
@@ -1662,16 +1662,16 @@ function buildHeaderIndex(sheet) {
 //   Google Sheets는 setValue 시 '='로 시작할 때만 수식으로 평가 → HYPERLINK/IMPORTXML 유출 벡터는 '=' 뿐.
 //   ('+','-','@' 선행은 Sheets에서 수식이 아님 → 프리픽스하지 않는다: '+82' 전화·'-'로 시작하는 메모 등 정상 데이터를
 //    텍스트('@') 서식 셀에서 오염시키던 것 방지. 숫자·날짜는 그대로 통과. 정상 이름/전화는 트리거 안 됨.)
-function _deFormula(value) {
+function _deFormula(value) { _gsr_();
   return (typeof value === 'string' && /^[=\t\r]/.test(value)) ? ("'" + value) : value;
 }
-function writeCell(sheet, colOf, rowNum, header, value) {
+function writeCell(sheet, colOf, rowNum, header, value) { _gsr_();
   var c = colOf[header];
   if (!c) { Logger.log('  (헤더 없음, 건너뜀: ' + header + ')'); return; }
   sheet.getRange(rowNum, c).setValue(_deFormula(value));
 }
 // 토큰으로 행을 찾아 접근자 객체로 반환
-function findRowByToken(sheet, colOf, token) {
+function findRowByToken(sheet, colOf, token) { _gsr_();
   token = String(token || '').trim();
   if (!token) return null;
   var tCol = colOf['토큰'];
@@ -1687,7 +1687,7 @@ function findRowByToken(sheet, colOf, token) {
 }
 // [P1.5 ★4] 개인코드(34열·FK)로 상담예약 행 조회 — 마이페이지(getMyState)·작업3/4 조인 기반.
 // findRowByToken 과 같은 패턴(buildHeaderIndex 안전). 1:N 대비 가장 최근(마지막) 행 반환.
-function findRowByPersonalCode(code) {
+function findRowByPersonalCode(code) { _gsr_();
   code = String(code || '').trim().toUpperCase();
   if (!code) return null;
   var sheet = getSheet();
@@ -1713,19 +1713,19 @@ function findRowByPersonalCode(code) {
   }
   return found;
 }
-function rowFromValues(colOf, arr, rowNum) {
+function rowFromValues(colOf, arr, rowNum) { _gsr_();
   return { num: rowNum, get: function (h) { var c = colOf[h]; return c ? arr[c - 1] : ''; } };
 }
-function row(sheet, colOf, rowNum) {
+function row(sheet, colOf, rowNum) { _gsr_();
   var arr = sheet.getRange(rowNum, 1, 1, sheet.getLastColumn()).getValues()[0];
   return rowFromValues(colOf, arr, rowNum);
 }
-function coupleNames(rowObj) {
+function coupleNames(rowObj) { _gsr_();
   var g = String(rowObj.get('성함(신랑)') || '').trim();
   var b = String(rowObj.get('성함(신부)') || '').trim();
   return (g && b) ? (g + ' · ' + b) : (g || b || '고객');
 }
-function isExpired(applied) {
+function isExpired(applied) { _gsr_();
   if (!applied) return false;
   var t = (applied instanceof Date) ? applied.getTime() : new Date(applied).getTime();
   if (isNaN(t)) return false;
@@ -1737,13 +1737,13 @@ function isExpired(applied) {
 // [P1.5 ⚠️ KST 전제] parseDateTime은 스크립트 타임존 기준 Date를 만든다 → appsscript.json "timeZone":"Asia/Seoul" 고정 필요.
 //   서울이면 이 "24h 전" 비교는 KST로 정확하고, 캘린더 일정 생성도 같은 전제로 맞는다.
 //   타임존이 서울이 아니면(UTC 등) 24h 판정과 캘린더 일정이 최대 9h 어긋남 → 반드시 Asia/Seoul로 둘 것.
-function withinCancelDeadline(dateKey, time) {
+function withinCancelDeadline(dateKey, time) { _gsr_();
   var start = parseDateTime(dateKey, time || '00:00');
   if (!start) return false;
   var msLeft = start.getTime() - Date.now();
   return msLeft >= CONFIG.CONFIRM_DEADLINE_HOURS * 3600 * 1000;
 }
-function makeToken() { return Utilities.getUuid().replace(/-/g, ''); }
+function makeToken() { _gsr_(); return Utilities.getUuid().replace(/-/g, ''); }
 
 // 관리자 버튼 서명 (고객 토큰만으로 승인 못 하게)
 function getSecret_() { /* [B19_LOCK 2026-10-09] 서명 비밀값 · 서버 코드 안에서만(이름 끝 _) */
@@ -1759,8 +1759,8 @@ function sign_(token, action) {
 function verifySig_(token, action, sig) { return !!sig && sig === sign_(token, action); }
 
 // URL 빌더
-function webAppUrl() { return CONFIG.EXEC_URL; }   // getUrl()이 비공개 /dev·구버전 URL을 반환 → Google Drive "현재 파일을 열 수 없습니다" 오류. 고정 /exec 사용.
-function scheduleUrl(token) { return webAppUrl() + '?page=schedule&token=' + encodeURIComponent(token); }
+function webAppUrl() { _gsr_(); return CONFIG.EXEC_URL; }   // getUrl()이 비공개 /dev·구버전 URL을 반환 → Google Drive "현재 파일을 열 수 없습니다" 오류. 고정 /exec 사용.
+function scheduleUrl(token) { _gsr_(); return webAppUrl() + '?page=schedule&token=' + encodeURIComponent(token); }
 function actionUrl_(action, token) {
   return webAppUrl() + '?action=' + action + '&token=' + encodeURIComponent(token) + '&sig=' + sign_(token, action);
 }
@@ -1770,8 +1770,8 @@ function cancelPageUrl_(token) {
 }
 
 // 날짜/시간 유틸 — 화면 B의 key() 와 동일 포맷 'YYYY-M-D'
-function dkey(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
-function normalizeDateKey(v) {
+function dkey(d) { _gsr_(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function normalizeDateKey(v) { _gsr_();
   if (v instanceof Date) return dkey(v);
   var s = String(v || '').trim();
   var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
@@ -1779,12 +1779,12 @@ function normalizeDateKey(v) {
 }
 // ⚠️ normalizeDateKey는 '2026-6-7'처럼 비패딩 반환 — 정규식(\d{2}) 매칭·문자열 비교에 그대로 쓰면 안 됨. 아래 헬퍼 사용.
 // 'Y-M-D'(패딩 무관) → 비교용 정수 yyyymmdd. 실패 시 null.
-function _dayNum(v) { var m = String(normalizeDateKey(v) || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); return m ? (+m[1]) * 10000 + (+m[2]) * 100 + (+m[3]) : null; }
+function _dayNum(v) { _gsr_(); var m = String(normalizeDateKey(v) || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); return m ? (+m[1]) * 10000 + (+m[2]) * 100 + (+m[3]) : null; }
 // 'Y-M-D'(패딩 무관) → 'YYYY-MM-DD'. 실패 시 ''.
-function _padYmd(v) { var m = String(normalizeDateKey(v) || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if (!m) return ''; function p(x) { return (String(x).length < 2 ? '0' : '') + x; } return m[1] + '-' + p(m[2]) + '-' + p(m[3]); }
+function _padYmd(v) { _gsr_(); var m = String(normalizeDateKey(v) || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if (!m) return ''; function p(x) { return (String(x).length < 2 ? '0' : '') + x; } return m[1] + '-' + p(m[2]) + '-' + p(m[3]); }
 // [P1.5 ⚠️] new Date(y,mo,da,hh,mi)는 스크립트 타임존(appsscript.json "timeZone") 기준.
 //   P1.5 전제 = "Asia/Seoul"(KST). 변경/취소 24h 판정·캘린더 일정이 이 전제에 의존.
-function parseDateTime(dateKey, time) {
+function parseDateTime(dateKey, time) { _gsr_();
   // 시트가 텍스트를 Date 로 자동 변환한 경우까지 방어
   var y, mo, da;
   if (dateKey instanceof Date) { y = dateKey.getFullYear(); mo = dateKey.getMonth() + 1; da = dateKey.getDate(); }
@@ -1798,15 +1798,15 @@ function parseDateTime(dateKey, time) {
   else { var tm = String(time || '').match(/(\d{1,2}):(\d{2})/); if (tm) { hh = parseInt(tm[1], 10); mi = parseInt(tm[2], 10); } }
   return new Date(y, mo - 1, da, hh, mi, 0);
 }
-function eachDate(start, end, allDay, cb) {
+function eachDate(start, end, allDay, cb) { _gsr_();
   var d = new Date(start); d.setHours(0, 0, 0, 0);
   var stop = new Date(end);
   if (allDay) stop = new Date(stop.getTime() - 1); // 종일 일정 end는 다음날 0시
   for (var guard = 0; d <= stop && guard < 400; guard++) { cb(new Date(d)); d.setDate(d.getDate() + 1); }
 }
-function addFull(full, dk, time) { (full[dk] = full[dk] || []).push(time); }
-function formatWon(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-function prettyDate(dateKey) {
+function addFull(full, dk, time) { _gsr_(); (full[dk] = full[dk] || []).push(time); }
+function formatWon(n) { _gsr_(); return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function prettyDate(dateKey) { _gsr_();
   var d = parseDateTime(dateKey, '00:00');
   if (!d) return esc(dateKey);
   var wd = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
@@ -1814,7 +1814,7 @@ function prettyDate(dateKey) {
 }
 
 // 제목용 짧은 날짜: '26/6/4(목)' — 메일 제목은 짧게, 연도는 2자리
-function shortDate(dateKey) {
+function shortDate(dateKey) { _gsr_();
   var d = parseDateTime(dateKey, '00:00');
   if (!d) return String(dateKey || '');
   var wd = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
@@ -1825,29 +1825,29 @@ function shortDate(dateKey) {
 // 운영자 메일 제목 조립 — 안 열어도 [단계·이름·일시]가 한눈에.
 //   예) '[상담] ②승인요청 · 정희준·카와나미쿠 · 6/4(목) 11:30'
 // stage: '①신규' '②승인요청' '③확정' '④내일' 등. dateKey/time 없으면 생략.
-function adminSubject(stage, rowOrNames, dateKey, time) {
+function adminSubject(stage, rowOrNames, dateKey, time) { _gsr_();
   var names = (typeof rowOrNames === 'string') ? rowOrNames : coupleNames(rowOrNames);
   names = names.replace(/\s*·\s*/g, '·');   // 제목에선 이름 사이 공백 줄여 간결하게
   var parts = ['[상담] ' + stage, names];
   if (dateKey) parts.push(shortDate(dateKey) + (time ? ' ' + time : ''));
   return parts.join(' · ');
 }
-function deadlineLabel() {
+function deadlineLabel() { _gsr_();
   var h = CONFIG.CONFIRM_DEADLINE_HOURS;
   return (h % 24 === 0) ? (h / 24) + '일' : h + '시간';
 }
-function esc(s) {
+function esc(s) { _gsr_();
   return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
   });
 }
-function safeAttr(url) {
+function safeAttr(url) { _gsr_();
   var s = String(url || '');
   return /^https?:|^mailto:/i.test(s) ? s.replace(/"/g, '%22') : '#';
 }
 
 // 관리자 알림 (참고 .gs notifyStudio · 24h dedup)
-function notifyStudio(subject, body, dedupKey) {
+function notifyStudio(subject, body, dedupKey) { _gsr_();
   try {
     /* ★[ERR_CODE_GAS 2026-10-07] «⚠️오류» 알림(확정 메일 · 캘린더 · 환불 요청 메일 실패 등)이 이 스위치에 막혀 아무에게도 안 갔다 —
        고객은 «보냈어요»를 보는데 메일은 안 가고 관리자도 모르는 자리였다. 스위치가 꺼져 있어도 오류만은 관리자 메일로(제목마다 하루 한 통) */
@@ -1867,33 +1867,96 @@ function notifyStudio(subject, body, dedupKey) {
 // 액션 결과/안내 페이지 (브랜드 톤 · 모바일)
 // [메일 원클릭] 입금 확인 — 관리자 신호 메일의 '입금 확인 처리' 버튼(95_notify가 서명 링크 생성).
 //   통장 대조 후 메일에서 한 탭으로 확인 처리. 서명(HMAC)+만료 14일+멱등(이미 확인이면 안내만).
-function servePayConfirm(p) {
+/* ★★[MAIL_BTN_CONFIRM 2026-10-09 · B11] 메일 단추는 «열기만» 해서는 아무것도 바꾸지 않는다(기획 §11 · B11).
+   메일 보안 검사기 · 링크 미리보기가 주소를 먼저 열어 보는 일이 있다 — 종전엔 그 순간 입금 확인 · 승인 · 수락이 처리됐다.
+   이제 주소를 열면 확인 화면만 보이고, 화면의 단추(google.script.run → mailButtonGo)를 눌러야 처리된다.
+   단추 쪽(mailButtonGo)이 서명 · 기한을 «다시» 본다 — 화면을 거치지 않고 바로 불러도 같은 문을 지난다. */
+function servePayConfirm(p) { _gsr_();
+  var v = _payConfirmCheck_(p);
+  if (!v.ok) return infoPage(v.title, v.body, false);
+  return _mailConfirmPage_('입금을 확인 처리할까요?', esc(v.code) + ' · ' + esc(v.label), '확인 처리',
+    { action: 'payconfirm', code: v.code, m: v.m, exp: v.exp, sig: String((p && p.sig) || '') });
+}
+function _payConfirmCheck_(p) {   // 서명 · 기한만 본다(아무것도 바꾸지 않는다)
   var code = String((p && p.code) || '').trim().toUpperCase();
   var m = String((p && p.m) || '').trim();   // deposit=계약금 / mid / bal / midbal(함께입금)
   var exp = String((p && p.exp) || '');
   var label = { deposit: '계약금', mid: '중도금', bal: '잔금', midbal: '중도금·잔금' }[m];
   if (!code || !label || !verifySig_(code, 'payconfirm:' + m + ':' + exp, String((p && p.sig) || ''))) {
-    return infoPage('유효하지 않은 링크입니다', '링크가 올바르지 않아요. 관리자 페이지에서 처리해 주세요.', false);
+    return { ok: false, title: '유효하지 않은 링크입니다', body: '링크가 올바르지 않아요. 관리자 페이지에서 처리해 주세요.' };
   }
-  if (!(Number(exp) > Date.now())) return infoPage('링크 유효기간이 지났습니다', '보안을 위해 링크는 14일간만 유효해요. 관리자 페이지에서 처리해 주세요.', false);
-  // 동시 클릭(더블클릭·프리페치) 시 확인처리 이중 실행 방지 — 락으로 직렬화하면 두 번째는 already 경로로 수렴
+  if (!(Number(exp) > Date.now())) return { ok: false, title: '링크 유효기간이 지났습니다', body: '보안을 위해 링크는 14일간만 유효해요. 관리자 페이지에서 처리해 주세요.' };
+  return { ok: true, code: code, m: m, exp: exp, label: label };
+}
+function _payConfirmRun_(p) {   // 확인 화면의 단추를 누른 뒤에만(mailButtonGo) — 서명 · 기한을 다시 본다
+  var v = _payConfirmCheck_(p);
+  if (!v.ok) return { ok: false, title: v.title, body: v.body };
+  // 동시 클릭(더블클릭) 시 확인처리 이중 실행 방지 — 락으로 직렬화하면 두 번째는 already 경로로 수렴
   var _lock = LockService.getScriptLock();
-  try { _lock.waitLock(10000); } catch (e) { return infoPage('잠시 후 다시 시도해 주세요', '다른 처리가 진행 중이에요. 잠시 후 링크를 다시 눌러 주세요.', false); }
+  try { _lock.waitLock(10000); } catch (e) { return { ok: false, title: '잠시 후 다시 시도해 주세요', body: '다른 처리가 진행 중이에요. 잠시 후 다시 눌러 주세요.' }; }
   var r, _authPrev = _AUTHED;
   try {
     /* ★[PAYCONFIRM_AUTHED 2026-10-09 · B19] 확인 함수(_confirmDepositCore · adminConfirmMid/Balance/MidBalance)는 관리자 전용이다(_requireAdmin).
        이 메일 단추 길은 위에서 서명 · 기한을 확인했으므로 이 처리 안에서만 관리자 권한을 켠다(finally 에서 되돌린다 · 기획 16-4 ②). */
     _AUTHED = true;
-    if (m === 'deposit') r = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(code, { bundle: true }) : { ok: false, error: '처리 함수를 찾을 수 없어요.' };
-    else if (m === 'mid') r = adminConfirmMid(code);
-    else if (m === 'bal') r = adminConfirmBalance(code);
-    else r = adminConfirmMidBalance(code);
+    if (v.m === 'deposit') r = (typeof _confirmDepositCore === 'function') ? _confirmDepositCore(v.code, { bundle: true }) : { ok: false, error: '처리 함수를 찾을 수 없어요.' };
+    else if (v.m === 'mid') r = adminConfirmMid(v.code);
+    else if (v.m === 'bal') r = adminConfirmBalance(v.code);
+    else r = adminConfirmMidBalance(v.code);
   } finally { _AUTHED = _authPrev; try { _lock.releaseLock(); } catch (e) {} }
-  if (r && r.ok && r.already) return infoPage('이미 확인 처리되어 있어요', code + ' · ' + label + ' — 추가로 할 일이 없어요.', true);
-  if (r && r.ok) return infoPage('입금 확인 완료', code + ' · ' + label + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.', true);
-  return infoPage('처리하지 못했어요', String((r && r.error) || '') + '<br>관리자 페이지에서 처리해 주세요.', false);
+  if (r && r.ok && r.already) return { ok: true, title: '이미 확인 처리되어 있어요', body: esc(v.code) + ' · ' + esc(v.label) + ' · 추가로 할 일이 없어요.' };
+  if (r && r.ok) return { ok: true, title: '입금 확인 완료', body: esc(v.code) + ' · ' + esc(v.label) + ' 확인 처리했어요.<br>고객에게 안내가 나갔고 마이페이지에 반영됐어요.' };
+  return { ok: false, title: '처리하지 못했어요', body: esc(String((r && r.error) || '')) + '<br>관리자 페이지에서 처리해 주세요.' };
 }
-function infoPage(title, bodyHtml, ok) {
+/* [MAIL_BTN_CONFIRM] 확인 화면의 단추가 부르는 하나뿐인 처리 — 공개 화면 함수(입구)라 서명 · 기한을 여기서 다시 본다 */
+function mailButtonGo(p) { _SRV = true;
+  p = p || {};
+  var a = String(p.action || '');
+  try {
+    if (a === 'payconfirm') return _payConfirmRun_(p);
+    if (a === 'approve' || a === 'accept') {
+      var token = String(p.token || ''), sig = String(p.sig || '');
+      if (!token || !verifySig_(token, a, sig)) return { ok: false, title: '링크가 올바르지 않습니다', body: '메일의 버튼으로 다시 시도해 주세요.' };
+      var sheet = getSheet(), colOf = buildHeaderIndex(sheet), row = findRowByToken(sheet, colOf, token);
+      if (!row) return { ok: false, title: '예약을 찾을 수 없습니다', body: '링크가 올바르지 않습니다.' };
+      _LAST_INFO = null;
+      if (a === 'approve') actApprove(sheet, colOf, row); else actAccept(sheet, colOf, row);
+      return _LAST_INFO || { ok: true, title: '처리했어요', body: '' };
+    }
+    return { ok: false, title: '알 수 없는 요청', body: '' };
+  } catch (e) {
+    return { ok: false, title: '처리하지 못했어요', body: esc(String((e && e.message) || e)) };
+  }
+}
+function _mailConfirmPage_(title, descHtml, btnLabel, payload) {   // [MAIL_BTN_CONFIRM] 열면 보이는 확인 화면 — 단추를 눌러야 처리된다
+  var data = JSON.stringify(payload || {}).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+  var html =
+    '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
+    '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">' +
+    '<style>body{margin:0;background:#FAFAF8;color:#1C1B19;font-family:"Noto Sans KR",sans-serif;font-weight:300;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;word-break:keep-all}' +
+    '.box{max-width:420px;text-align:center;background:#fff;border:1px solid #DDD8D1;border-radius:12px;padding:44px 32px;box-shadow:0 8px 30px rgba(28,27,25,.06)}' +
+    '.bar{width:40px;height:3px;background:#3A2D22;border-radius:3px;margin:0 auto 22px}' +
+    '.brand{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.34em;color:#3A2D22;text-transform:uppercase;margin-bottom:18px}' +
+    '.t{font-family:"Noto Serif KR",serif;font-size:21px;font-weight:500;color:#3A2D22;margin-bottom:14px}' +
+    '.d{font-size:14px;line-height:1.85;color:#5A554C}' +
+    '.go{margin-top:26px;min-height:48px;min-width:200px;padding:0 28px;border:0;border-radius:6px;background:#3A2D22;color:#FAFAF8;font-family:"Noto Sans KR",sans-serif;font-size:14px;letter-spacing:.04em;cursor:pointer}' +
+    '.go[disabled]{opacity:.6;cursor:default}</style></head>' +
+    '<body><div class="box"><div class="brand">Moment Edit</div><div class="bar" id="bar"></div>' +
+    '<div class="t" id="t">' + esc(title) + '</div><div class="d" id="d">' + descHtml + '</div>' +
+    '<button type="button" class="go" id="go">' + esc(btnLabel) + '</button></div>' +
+    '<script>var P=' + data + ';var b=document.getElementById("go");' +
+    'function txt(s){var e=document.createElement("div");e.textContent=String(s==null?"":s);return e.innerHTML;}' +
+    'function show(r){r=r||{};document.getElementById("t").textContent=r.title||"";document.getElementById("d").innerHTML=r.body||"";' +
+    'document.getElementById("bar").style.background=r.ok?"#2E6B43":"#6B2A24";b.style.display="none";}' +
+    'b.onclick=function(){b.disabled=true;b.textContent="처리 중";' +
+    'google.script.run.withSuccessHandler(show).withFailureHandler(function(e){show({ok:false,title:"처리하지 못했어요",body:txt((e&&e.message)||e)+"<br>관리자 페이지에서 처리해 주세요."});}).mailButtonGo(P);};' +
+    '</script></body></html>';
+  return HtmlService.createHtmlOutput(html).setTitle(title + ' · Moment Edit')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+var _LAST_INFO = null;   // [MAIL_BTN_CONFIRM] infoPage 가 마지막으로 그린 결과 — 단추 처리(mailButtonGo)가 화면에 그대로 돌려준다
+function infoPage(title, bodyHtml, ok) { _gsr_();
+  _LAST_INFO = { title: String(title || ''), body: String(bodyHtml || ''), ok: !!ok };   // [MAIL_BTN_CONFIRM]
   var color = ok ? '#2E6B43' : '#6B2A24';
   var html =
     '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">' +
@@ -1937,7 +2000,7 @@ function setupConsultation() { _requireAdmin();
 }
 
 // onEdit (보조) — 미쿠가 시트에서 상태=승인완료 로 직접 바꾸면 승인 흐름 실행
-function onConsultEdit(e) {
+function onConsultEdit(e) { _trigIn_(arguments[0]);
   try {
     if (!e || !e.range) return;
     var sheet = e.range.getSheet();
@@ -1959,7 +2022,7 @@ function onConsultEdit(e) {
 // ============================ 상담 1일 전 리마인더 (시간 트리거) ============================
 // 매일 1회 자동 실행. "내일" 상담(확정/승인완료) 건을 찾아 고객+운영자에게 리마인더 발송.
 // 중복 방지: 발송 기록을 Script Properties에 (토큰+날짜) 키로 저장.
-function sendDailyReminders() {
+function sendDailyReminders() { _trigIn_(arguments[0]);
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
@@ -2008,7 +2071,7 @@ function sendDailyReminders() {
 }
 
 // 고객용 리마인더
-function sendReminderCustomer(row, dateKey, time) {
+function sendReminderCustomer(row, dateKey, time) { _gsr_();
   notifyKakao('cust.consultDayBefore', String(row.get('개인코드') || '').trim(), { date: dateKey, time: time });   // 상담 D-1 · 카톡(메일 OFF여도 발송)
   if (!CONFIG.SEND_REMIND_MAIL) return;   // 메일은 토글 ON일 때만(기본 OFF)
   var to = row.get('이메일');
@@ -2026,7 +2089,7 @@ function sendReminderCustomer(row, dateKey, time) {
 }
 
 // 운영자용 리마인더 (내일 일정 브리핑)
-function sendReminderStudio(row, dateKey, time, idx, total) {
+function sendReminderStudio(row, dateKey, time, idx, total) { _gsr_();
   if (!CONFIG.ADMIN_EMAIL || CONFIG.ADMIN_EMAIL.charAt(0) === '[') return;
   var countTxt = (total && total > 1) ? ('내일 상담 ' + total + '건 중 ' + idx + '번째') : '내일 상담 일정입니다.';
   var scheduleRows =
@@ -2129,7 +2192,7 @@ function formatConsultationSheet() { _requireAdmin();
 // ============================ P1.5 · 마이페이지 일정 라우터 (세션→상담 어댑터) ============================
 // 마이페이지는 로그인 '세션토큰'(Customers 3열)을 보낸다. 상담 함수들은 '상담토큰'(상담예약 32열)을 기대한다.
 // 세션 → 개인코드 → 상담행 → 상담토큰 으로 잇는 어댑터(★4 두 축 공존의 실제 코드).
-function _sessionToConsult(token) {
+function _sessionToConsult(token) { _gsr_();
   var s = resolveSession(token);                 // platform/30 · Customers 세션 검증
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };   // [ERR_CODE_GAS] reason 을 넘긴다 — 종전엔 버려 화면이 만료 · 무효를 못 갈랐다
   var code = String(s.row.get('개인코드') || '').trim();
@@ -2138,7 +2201,7 @@ function _sessionToConsult(token) {
 }
 
 // getAvailability — 세션 확인 후 슬롯 가능/마감 반환(재사용)
-function handleGetAvailability(body) {
+function handleGetAvailability(body) { _gsr_();
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   // [취소 동기화] 관리자/고객이 취소한 예약(또는 예외 단계 고객) — 새로고침해도 선택 화면 대신 취소 상태로 전환되게 플래그
@@ -2161,7 +2224,7 @@ function handleGetAvailability(body) {
 }
 
 // submitSchedule — 세션→상담토큰 변환 후 기존 함수 호출(재사용)
-function handleSubmitSchedule(body) {
+function handleSubmitSchedule(body) { _gsr_();
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   if (!a.consult) return { ok: false, error: '상담 신청 정보를 찾을 수 없습니다.' };
@@ -2181,7 +2244,7 @@ function handleSubmitSchedule(body) {
    **다른 모든 고객의 저장이 줄을 선다** — 이 저장소가 _notifyQ 로 일부러 피해 온 반패턴이다.
    이중 취소는 status===취소 멱등 가드가 이미 받치고, 관리자와의 경합은 사람 속도라 실충돌이 없다.
    잠그려면 actCancel 의 I/O 를 큐로 빼는 리팩터가 먼저다 — 그 전엔 잠금이 개악이다. */
-function handleCancelReservation(body) {
+function handleCancelReservation(body) { _gsr_();
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   if (!a.consult) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
@@ -2206,7 +2269,7 @@ function handleCancelReservation(body) {
 }
 
 // acceptProposal — 변경제안 수락 → 확정(재사용). 반환 HTML(infoPage)은 버리고 JSON만 응답.
-function handleAcceptProposal(body) {
+function handleAcceptProposal(body) { _gsr_();
   var a = _sessionToConsult(body && body.token);
   if (!a.ok) return { ok: false, reason: a.reason, error: a.error };
   if (!a.consult) return { ok: false, error: '예약 정보를 찾을 수 없습니다.' };
@@ -2216,7 +2279,7 @@ function handleAcceptProposal(body) {
   return { ok: true };
 }
 
-function doPost(e) {
+function doPost(e) { _SRV = true; /* [GSR_GATE 2026-10-09] 입구 · 서버 길 표를 켠다(관리자 권한 아님) · 안쪽 운영 함수는 첫 줄 _gsr_() */
   /* [DEPLOY_STAMP] 배포된 코드가 «자기 지문»을 남긴다 — deployCheck 가 저장된 코드와 대조해
      «새 버전으로 재배포했는지»를 말해 준다. 실패해도 고객 요청은 그대로 간다(안이 전부 try). */
   try { if (typeof deployStamp === 'function') deployStamp(); } catch (_ds) {}
@@ -2342,7 +2405,7 @@ function doPost(e) {
    doPost 가 동작 이름을 쥐고(__ERR_ON) 실패 응답(ok:false)을 내보내기 직전 _errStamp(95_notify)가 코드를 붙이고 «오류기록» 시트에 남긴다.
    ★변수는 이 파일에 둔다 — 95_notify 를 아직 안 붙여넣은 판에서도 doGet 의 jsonOut 이 ReferenceError 로 죽지 않게(typeof 로 함수만 확인한다) */
 var __ERR_ON = false, __ERR_ACT = '', __ERR_TOK = '';
-function jsonOut(obj) {
+function jsonOut(obj) { _gsr_();
   if (__ERR_ON && obj && obj.ok === false && typeof _errStamp === 'function') { try { obj = _errStamp(obj) || obj; } catch (_es) {} }   // [ERR_CODE_GAS]
   if (obj && obj._why !== undefined) delete obj._why;   // 내부 까닭은 고객에게 안 나간다(95_notify 를 안 붙인 판에서도)
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
@@ -2351,7 +2414,7 @@ function jsonOut(obj) {
 // ============================ AI 상담사 질문 로그 ============================
 // 메인홈 위젯이 자유질문을 보낼 때마다 질문만 익명 적재(답변·IP 미저장) — 자주 묻는 것을 보고 KB·FAQ를 보강하는 근거.
 // 개인정보 방어: 전화·이메일·긴 숫자열 마스킹 후 저장, 300자 컷, 90일 후 자동 정리(purgeAdvisorLog · 주간 트리거).
-function _maskPII(s) {
+function _maskPII(s) { _gsr_();
   var _mk = '[PHONE_AUTOFILL_82]';   // «+82 10-7349-7706» · «82-10-…» 는 아래 01x 규칙에 안 걸려 그대로 저장됐다 — 국가번호 꼴을 먼저 가린다
   return String(s || '')
     .replace(/(?:\+\s*|00\s*)?82[\s.\-]*(?:\(0\)[\s.\-]*)?0?1[016789][\s.\-]?\d{3,4}[\s.\-]?\d{4}/g, '+82 1*-****-****')
@@ -2359,7 +2422,7 @@ function _maskPII(s) {
     .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, '***@***')
     .replace(/\d{6,}/g, function (m) { return m.slice(0, 2) + '****'; });
 }
-function handleAdvisorLog(body) {
+function handleAdvisorLog(body) { _gsr_();
   try {
     var q = String((body && body.q) || '').trim().slice(0, 300);
     if (!q) return { ok: true };
@@ -2377,7 +2440,7 @@ function handleAdvisorLog(body) {
 
 // [문의 리드 — 글로 답변] 챗봇에서 고객이 동의 후 남긴 이름·연락처(문자/이메일)를 적재 + 관리자 즉시 SMS. 전화 아님(선택 채널로 글 회신).
 //   시트 '문의리드' [시각, 이름, 연락처, 방법, 접점, 맥락(마스킹), 동의, 상태, 처리일시] · 1년 경과 자동 정리(purgeLeads).
-function handleLeadCapture(body) {
+function handleLeadCapture(body) { _gsr_();
   try {
     // 무단 호출 차단 — Vercel /api/lead 만이 아는 공유키 확인(aiHandoff와 동일 키 재사용).
     //   ScriptProperty 'AI_HANDOFF_SECRET' 가 설정돼 있으면 반드시 일치해야 접수(미설정 시 하위호환으로 통과).
@@ -2431,7 +2494,7 @@ function adminResolveLead(row) { _requireAdmin();
   return { ok: true };
 }
 // 카톡 상담 연결 집계(개인정보 없음) — 시트 '카톡연결' [시각, 접점]. 영업 전환 신호로만 사용.
-function handleLeadClick(body) {
+function handleLeadClick(body) { _gsr_();
   try {
     var surface = String((body && body.surface) || '메인').slice(0, 10);
     var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
@@ -2442,7 +2505,7 @@ function handleLeadClick(body) {
   return { ok: true };
 }
 // 90일 지난 카톡연결 로그 정리 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
-function purgeKakaoClicks() {
+function purgeKakaoClicks() { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName('카톡연결');
   if (!sh || sh.getLastRow() < 2) return;
   var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
@@ -2451,7 +2514,7 @@ function purgeKakaoClicks() {
   if (n > 0) sh.deleteRows(2, n);
 }
 // 1년 지난 리드 정리(개인정보 최소화) — purgeAdvisorLog(주간 트리거)에서 함께 호출.
-function purgeLeads() {
+function purgeLeads() { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName('문의리드');
   if (!sh || sh.getLastRow() < 2) return;
   var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 183);   // 처리방침 '문의 후 6개월'과 일치(구 365일 → 183일)
@@ -2461,7 +2524,7 @@ function purgeLeads() {
 }
 // [애프터웨딩 수요 로깅] 고객이 누른 니즈(프리셋·AI 카테고리)·인원·필터를 개인정보 없이 적재.
 //   저장: '애프터수요로그' 시트 [시각, 소스, 카테고리, 테마, 음식, 인원]. 이름·연락처·토큰 등 식별정보 미저장. 90일 자동정리(purgeAwDemandLog).
-function handleAwDemandLog(body) {
+function handleAwDemandLog(body) { _gsr_();
   try {
     var src = String((body && body.source) || '').slice(0, 16);
     if (!src) return { ok: true };
@@ -2474,7 +2537,7 @@ function handleAwDemandLog(body) {
   return { ok: true };
 }
 // [트리거·매주 월 4시] 90일 지난 질문 로그 삭제(보관기간 최소화)
-function purgeAdvisorLog() {
+function purgeAdvisorLog() { _trigIn_(arguments[0]);
   var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
   if (!sh || sh.getLastRow() < 2) return;
   var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
@@ -2497,7 +2560,7 @@ function purgeAdvisorLog() {
   try { if (typeof purgeRitualFiles === 'function') purgeRitualFiles(false); } catch (e) {}   // 80 · [REC_PURGE] 예식 30일 뒤 두 분 목소리 파일 지우기(휴지통) // 80 · [SNAP_PURGE] 예식 183일 뒤 스냅 기획의 올린 사진·링크·메모 파기(처리방침 약속)
 }
 // 90일 지난 애프터 수요 로그 삭제 — purgeAdvisorLog(주간 트리거)에서 함께 호출.
-function purgeAwDemandLog() {
+function purgeAwDemandLog() { _gsr_();
   var sh = SpreadsheetApp.getActive().getSheetByName('애프터수요로그');
   if (!sh || sh.getLastRow() < 2) return;
   var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);

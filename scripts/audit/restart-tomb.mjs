@@ -2,6 +2,7 @@
 // 1) 진짜 서버 합치기 _ritualTxMerge 를 80_production.gs 에서 그대로 꺼내 돌린다(읽기만 · tx-merge.mjs 와 같은 꺼내기).
 // 2) 진짜 화면 코드 opRestart 의 비우기 블록을 order-preview.html 에서 그대로 꺼내 돌린다.
 // 3) 깨 보기 — 종전 비우기(S=_S0 통째)로 같은 길을 돌리면 지운 서약이 되살아나야 한다(검사가 살아 있는지).
+globalThis._gsr_ = globalThis._gsr_ || function () {}; globalThis._trigIn_ = globalThis._trigIn_ || function () {};   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안(떼어 낸 함수가 전역에서 찾는다)
 import fs from 'fs';
 const gs = fs.readFileSync('automation/platform/80_production.gs', 'utf8');
 const a = gs.indexOf('var TX_MERGE_LEG'), b = gs.indexOf('// 확인 해제 판정용 비교 문자열');

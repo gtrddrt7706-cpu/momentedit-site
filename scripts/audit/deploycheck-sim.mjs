@@ -113,6 +113,7 @@ function run({ skip = [], old = {}, trunc = {}, noMarks = false, stamp = undefin
     catch (e) { /* 옛 버전이 지금 세계와 안 맞아 로드가 깨질 수 있다 — 그 파일만 빠진 셈이 된다 */
       lines.push(`  (로드실패 ${nm}: ${e.message})`); }
   }
+  sb._SRV = true;   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안(편집기에서 사장님이 deployCheck 를 돌리는 것)
   /* ★[SIM_WORLD 2026-09-05] ★파일 로드 «뒤»에 세운다 — 앞에 두면 진짜 getCustomersSheet 가 덮어써
      컬럼을 빼도 「시트 없음」만 나왔다(실측).
      [SIM_WORLD_ORDER] ⑤시트·⑥트리거·①-C Admin.html 을 «못 잰다»고 빼 두면
@@ -320,6 +321,7 @@ console.log(`.gs ${FILES.length}개 · GAS 편집기 파일명 ${FILES.map((f) =
   const fingerprint = () => {
     const sb = makeSandbox(); vm.createContext(sb);
     for (const fp of FILES) { try { vm.runInContext(fs.readFileSync(fp, 'utf8'), sb, { filename: rel(fp) }); } catch (e) {} }
+    sb._SRV = true;   // [GSR_GATE 2026-10-09] 지문은 doGet · doPost(입구)가 남긴다 — 서버 길 안을 흉내 낸다
     return sb.deployFingerprint();
   };
   const a = fingerprint();

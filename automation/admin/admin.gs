@@ -24,6 +24,8 @@ var ADMIN_HEADERS = ['아이디', '비번해시', '이름', '역할', '로그인
 var _ADMIN_OWNER_EMAILS = ['side.minds.1616@gmail.com', 'gtrddrt7706@gmail.com']; // 편집기(소유자) 실행 폴백
 var _AUTHED = false;          // adminCall 디스패처가 토큰 검증 후 true (1회 실행 한정)
 var _CURRENT_ADMIN = '';      // _requireAdmin이 이름 저장 → _recordHandler가 처리이력에 사용
+var _SRV = false;             // ★[GSR_FLAGS 2026-10-09 · B19] doGet · doPost · 공개 화면 함수(submit*) 첫 줄이 켠다 — «정해진 서버 길 안»일 뿐 관리자 권한이 아니다(기획 16-4)
+var _TRUST = false;           // ★[GSR_FLAGS] 예약 실행(트리거)이라고 확인한 뒤 _trigIn_(70_journey) 이 켠다
 
 // ============================ 인증 · Admins (아이디·비번 로그인) ============================
 // 구글 로그인 대신 자체 아이디·비번(마이페이지 패턴) — 어떤 기기·브라우저든 URL 로그인.
@@ -41,10 +43,10 @@ function setupAdmins() { _requireAdmin();
   return 'Admins 설치 완료 — setAdminAccount(아이디, 비번, 이름)으로 계정을 등록하세요.';
 }
 
-function _adminSheet() { return SpreadsheetApp.getActive().getSheetByName(ADMIN_SHEET); }
+function _adminSheet() { _gsr_(); return SpreadsheetApp.getActive().getSheetByName(ADMIN_SHEET); }
 
 // 한 컬럼 값으로 Admins 행 → {num, get} 또는 null
-function _findAdminRow(header, value, ci) {
+function _findAdminRow(header, value, ci) { _gsr_();
   var sh = _adminSheet(); if (!sh) return null;
   var colOf = buildHeaderIndex(sh), c = colOf[header], last = sh.getLastRow();
   if (!c || last < 2) return null;
@@ -86,18 +88,18 @@ function setAdminAccount(id, pw, name, role) { _requireAdmin(); /* [B19_LOCK 202
 // [다중 기기 토큰 · 2026-06-12] 로그인토큰 칸에 JSON 배열 [{t:토큰,e:만료}] 최근 5개 보관.
 //   기존(단일 토큰 덮어쓰기) 구조에서는 폰·다른 브라우저로 로그인하는 순간 기존 기기가
 //   '세션 만료'로 풀리던 문제("됐다가 안 됨")가 있었음. 레거시 단일 문자열도 그대로 인식.
-function _parseTokens(cell) {
+function _parseTokens(cell) { _gsr_();
   var s = String(cell || '').trim();
   if (!s) return [];
   if (s.charAt(0) === '[') { try { var a = JSON.parse(s); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
   return [{ t: s, e: '' }];   // 레거시 단일 토큰(만료는 토큰만료 칸 기준)
 }
-function _liveTokens(list, legacyExpiry) {
+function _liveTokens(list, legacyExpiry) { _gsr_();
   return (list || []).filter(function (it) { return it && it.t && !tokenExpired(it.e || legacyExpiry); });
 }
 
 // 로그인 — 아이디·비번 검증 → 토큰 발급(기기 5대까지 동시 유지). (인증 자체이므로 토큰 불필요 · 디스패처 밖에서 직접 호출)
-function adminLogin(id, pw) {
+function adminLogin(id, pw) { _gsr_();
   id = String(id || '').trim();
   if (!id || !pw) return { ok: false, error: '아이디와 비밀번호를 입력해 주세요.' };
   var r = _findAdminRow('아이디', id, true);
@@ -113,7 +115,7 @@ function adminLogin(id, pw) {
   return { ok: true, token: token, name: String(r.get('이름') || id) };
 }
 
-function adminLogout(token) {
+function adminLogout(token) { _gsr_();
   token = String(token || '').trim();
   if (!token) return { ok: true };
   var sh = _adminSheet(); if (!sh) return { ok: true };
@@ -134,7 +136,7 @@ function adminLogout(token) {
 }
 
 // 토큰 → 관리자 {ok, id, name, role} / {ok:false}
-function _resolveAdmin(token) {
+function _resolveAdmin_(token) {   // [GSR_GATE] 밑줄 안쪽 — _requireAdmin 이 토큰 없이 부를 때도 «관리자 전용»으로 떨어지게 문을 달지 않는다
   token = String(token || '').trim();
   if (!token) return { ok: false };
   var sh = _adminSheet(); if (!sh) return { ok: false };
@@ -157,7 +159,7 @@ function _resolveAdmin(token) {
 // 동작 가드 — 디스패처가 이미 검증(_AUTHED)했으면 통과 / 아니면 토큰 OR 편집기 소유자(폴백).
 function _requireAdmin(token) {
   if (_AUTHED) return { ok: true, name: _CURRENT_ADMIN };
-  var a = _resolveAdmin(token);
+  var a = _resolveAdmin_(token);
   if (a.ok) { _CURRENT_ADMIN = a.name || '관리자'; return a; }
   var email = ''; try { email = String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) {}
   if (email && _ADMIN_OWNER_EMAILS.indexOf(email) !== -1) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }
@@ -168,10 +170,30 @@ function _requireAdmin(token) {
   throw new Error('로그인이 필요합니다. (관리자 전용)' + _hint);
 }
 
+/* ★[GSR_GATE 2026-10-09 · B19] 운영 도우미의 문 — 이름이 _ 로 끝나지 않는 함수는 첫 줄에서 이것을 부른다(기획 16-4 둘째 갈래).
+   서버 길(_SRV) · 예약 실행(_TRUST) · 관리자(_AUTHED) · 소유자(편집기) 안에서만 지난다. 관리자 판단은 하지 않는다(관리 함수는 _requireAdmin).
+   새 함수를 만들면 첫 줄을 넷 중 하나로 — 입구 _SRV = true · 예약 실행 _trigIn_ · 관리 _requireAdmin · 그 밖 _gsr_ (gsr-guard 가 센다) */
+function _gsr_() {
+  if (_SRV || _TRUST || _AUTHED) return;
+  if (_isOwnerRun_()) return;
+  throw new Error('허용되지 않은 요청입니다. (서버 안쪽 전용)' + _ownerHint_());
+}
+function _activeEmail_() { try { return String(Session.getActiveUser().getEmail() || '').trim().toLowerCase(); } catch (e) { return ''; } }
+function _isOwnerRun_() { var e = _activeEmail_(); return !!e && _ADMIN_OWNER_EMAILS.indexOf(e) !== -1; }
+function _ownerHint_() { var e = _activeEmail_(); return e ? (' · 지금 계정(' + e.replace(/^(.)[^@]*(@.*)$/, '$1…$2') + ')은 소유자 목록에 없어요') : ''; }
+/* ★[ADMINCALL_TOKEN 2026-10-09 · B19] adminCall 은 토큰을 스스로 본다 — _AUTHED · _SRV 지름길을 타지 않는다(기획 16-4).
+   doPost(action=adminCall)를 꾸며 불러도 토큰 없이는 FNS 가 돌지 않는다. 편집기(소유자)는 종전처럼 지난다. */
+function _adminTokenCheck_(token) {
+  var a = _resolveAdmin_(token);
+  if (a.ok) { _CURRENT_ADMIN = a.name || '관리자'; return a; }
+  if (_isOwnerRun_()) { _CURRENT_ADMIN = '관리자'; return { ok: true, name: '관리자' }; }
+  throw new Error('로그인이 필요합니다. (관리자 전용)');
+}
+
 // ★ 단일 게이트웨이 — Admin.html의 모든 데이터·동작 호출이 여기로(토큰 1회 검증 → 위임).
 //   client: gas(fn,...args) → adminCall(TOKEN, fn, [args]). adminLogin/Logout만 직접 호출.
-function adminCall(token, fn, args) {
-  _requireAdmin(token);          // 토큰 검증(실패 시 throw) + _CURRENT_ADMIN 설정
+function adminCall(token, fn, args) { _gsr_();
+  _adminTokenCheck_(token);      // [ADMINCALL_TOKEN] 토큰 검증(실패 시 throw) + _CURRENT_ADMIN 설정 · _AUTHED 지름길을 타지 않는다
   _AUTHED = true;
   try {
     args = args || [];
@@ -292,7 +314,7 @@ function adminSetFittingCount(code, n) {
 }
 
 // ── 웹앱 진입 (doGet ?admin=1) — ★GAS 예비 관리 화면(Admin.html)은 은퇴했다. 안내 한 장만 보인다. ──
-function serveAdmin(e) {
+function serveAdmin(e) { _gsr_();
   /* ★★[ADMIN_BACKUP_RETIRE 2026-10-08 사장님 «추천대로해»] GAS 예비 관리 화면(Admin.html · /exec?admin=1) 재추가 금지 — 2026-10-08 사용자 지시로 삭제.
      같은 일을 momentedit.kr/admin.html 이 한다(실패 코드 · 코드 찾기 · 최근 실패까지). 예비 화면은 서버가 잠깐만 실패해도
      «세션이 만료되었어요»로 로그아웃시켰고, 저장소가 막힌 창에선 멈췄다(실패 문구 점검 1라운드 · 관리자 분류표 #30).
@@ -301,27 +323,27 @@ function serveAdmin(e) {
 }
 
 // ============================ ⑧ 공통 — 명시적 KST 날짜 헬퍼 (프로젝트 TZ 무관·A3.1) ============================
-function _kstYmd(d) { return Utilities.formatDate(d || new Date(), 'Asia/Seoul', 'yyyy-MM-dd'); }
-function _ymdOf(v) {
+function _kstYmd(d) { _gsr_(); return Utilities.formatDate(d || new Date(), 'Asia/Seoul', 'yyyy-MM-dd'); }
+function _ymdOf(v) { _gsr_();
   if (v instanceof Date) return _kstYmd(v);
   var m = String(v == null ? '' : v).match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
   return m ? (m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2)) : '';
 }
-function _ymdNum(ymd) { var m = String(ymd || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : null; }
+function _ymdNum(ymd) { _gsr_(); var m = String(ymd || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : null; }
 // a - b (정수 일수). 양수 = a가 b보다 미래. 못 읽으면 null.
-function _dayDiff(aYmd, bYmd) { var a = _ymdNum(aYmd), b = _ymdNum(bYmd); return (a == null || b == null) ? null : Math.round((a - b) / 86400000); }
+function _dayDiff(aYmd, bYmd) { _gsr_(); var a = _ymdNum(aYmd), b = _ymdNum(bYmd); return (a == null || b == null) ? null : Math.round((a - b) / 86400000); }
 // 대기 타이브레이크 — 오래된(작은 날짜) 먼저. 빈값은 맨 뒤.
-function _cmpWait(a, b) { a = a || '9999'; b = b || '9999'; return a < b ? -1 : (a > b ? 1 : 0); }
+function _cmpWait(a, b) { _gsr_(); a = a || '9999'; b = b || '9999'; return a < b ? -1 : (a > b ? 1 : 0); }
 
 // 자정(KST) 기준 남은 날 라벨 — 오늘/내일/내일모레/그 이후 D-n (+날짜). 지난·미정은 빈값.
-function _dueWhen(n, md) {
+function _dueWhen(n, md) { _gsr_();
   var tag = (n == null || n < 0) ? '' : (n === 0 ? '오늘' : (n === 1 ? '내일' : (n === 2 ? '내일모레' : 'D-' + n)));
   if (!tag) return md ? ' · ' + md : '';
   return ' · ' + tag + (md ? ' (' + md + ')' : '');
 }
 
 // 예식일 변경 표시용 — '11/27(토)'(+슬롯 라벨 '오후'). 변경확인 큐 카드의 from→to 짧은 표기.
-function _chgWhenLabel(ymd, slot) {
+function _chgWhenLabel(ymd, slot) { _gsr_();
   var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) return String(ymd || '');
   var w = ['일', '월', '화', '수', '목', '금', '토'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()];
@@ -330,7 +352,7 @@ function _chgWhenLabel(ymd, slot) {
 }
 
 // 임시고정 표시용 — '2026.6.11(목) 오후 12:20'
-function _holdWhenLabel(ymd, slot) {
+function _holdWhenLabel(ymd, slot) { _gsr_();
   slot = String(slot || '').trim();
   var lab = ({ '09:00': '오전', '12:20': '오후', '15:40': '늦은 오후' })[slot] || '';
   var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -341,7 +363,7 @@ function _holdWhenLabel(ymd, slot) {
 
 /* [DATE_ONE_STYLE 2026-08-18 점검] 'YYYY-MM-DD' → '2026.8.20(수)'. _holdWhenLabel 과 같은 표기를 쓴다.
    한 문장에 '2026.12.20(일)' 과 '2026-08-20' 이 같이 나오면 두 날짜가 다른 종류처럼 읽힌다. */
-function _ymdDot(ymd) {
+function _ymdDot(ymd) { _gsr_();
   var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) return String(ymd || '');
   var w = ['일', '월', '화', '수', '목', '금', '토'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()];
@@ -349,7 +371,7 @@ function _ymdDot(ymd) {
 }
 
 // 현황 줄 하위상태 1줄 (B2.2) — 단계+상품+보조상태
-function _subStatusFor(stage, isSnap, x) {
+function _subStatusFor(stage, isSnap, x) { _gsr_();
   switch (stage) {
     case '신청접수': return (x.booking === ST.PICKED) ? '승인 대기' : '시간 선택 대기';
     case '상담확정': return x.consultPast ? ('상담일 지남' + (x.consultDate ? ' · ' + x.consultDate : '')) : ('상담 예정' + _dueWhen(x.cdday, x.consultDate));
@@ -382,7 +404,7 @@ function _subStatusFor(stage, isSnap, x) {
   }
 }
 // 결과물 단계 서브상태 — 결과물상태 기준(원본전달=고객 선택 대기 / 선택완료=보정 대기 / 보정중=전달 대기)
-function _resultSub(x) {
+function _resultSub(x) { _gsr_();
   var r = (x.결과물 === '업로드') ? '원본전달' : (x.결과물 || '');
   if (r === '컨펌완료') return '고객 컨펌 완료 · 전달 가능';
   if (r === '컨펌대기') return '보정본 전달 · 고객 컨펌 대기';
@@ -394,7 +416,7 @@ function _resultSub(x) {
 
 // ============================ 자동 브리핑 (트리거 — setupAllTriggers) ============================
 // 브리핑 메일 직송 게이트 — SEND_ADMIN_MAIL(건별 알림 OFF)과 별개. CONFIG에 SEND_DAILY_BRIEF=false로 끌 수 있음.
-function _briefMailOk() {
+function _briefMailOk() { _gsr_();
   try { return CONFIG.SEND_DAILY_BRIEF !== false && CONFIG.ADMIN_EMAIL && String(CONFIG.ADMIN_EMAIL).charAt(0) !== '['; } catch (e) { return false; }
 }
 // [데이터] 아침 브리핑 소스 — 오늘 상담 일정 + 처리할 일 큐. 발송 안 함(읽기 전용).
@@ -471,7 +493,7 @@ function monthBusinessData_() {
 function sendMorningBrief() { return; }
 
 // 현금영수증 발급 기한 배지 — 받은 날(확인일)부터 5일(의무발행). 3일 경과부터 빨강, 5일 넘으면 '기한 경과'.
-function _crDueBadge(baseStr, todayYmd) {
+function _crDueBadge(baseStr, todayYmd) { _gsr_();
   var b = _ymdOf(baseStr); if (!b) return { level: 'yellow', text: '발행 대기' };
   var n = _dayDiff(todayYmd, b);
   if (n >= 5) return { level: 'red', text: '기한 경과 D+' + n };
@@ -480,7 +502,7 @@ function _crDueBadge(baseStr, todayYmd) {
 }
 
 // [트리거·매주 월 9시] 현금영수증 미발행 주간 점검 — 입금 확인됐는데 미발행(의무발급·가산세 방지) 전 고객 집계(아카이브 포함).
-function weeklyReceiptAudit() {
+function weeklyReceiptAudit() { _trigIn_(arguments[0]);
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow(); if (last < P.DATA_START_ROW) return;
   var vals = sheet.getRange(P.DATA_START_ROW, 1, last - P.DATA_START_ROW + 1, sheet.getLastColumn()).getValues();
@@ -1105,7 +1127,7 @@ function adminHome() {
   };
 }
 
-function _names(g, b) {
+function _names(g, b) { _gsr_();
   g = String(g || '').trim(); b = String(b || '').trim();
   return (g && b) ? (g + ' · ' + b) : (g || b || '고객');
 }
@@ -1282,7 +1304,7 @@ function adminDetail(code) {
 }
 
 // 상담 27필드 + 상태·일정·환불·이력
-function _consultDetail(cr) {
+function _consultDetail(cr) { _gsr_();
   var labels = ['경로', '예식일자', '요일', '시간대', '하객', '디지털참석', '의상',
     '분위기·스냅', '중요하게여김', '망설이는점', '준비상황', '참고링크', '자유메모',
     '그외가능시간대', '기타희망시간'];
@@ -1400,7 +1422,7 @@ function adminSaveMemo(code, memo) {
 
 // 처리 이력 append — 처리이력(32열)에 시간순 한 줄(Topic 3: 관리자메모[수동]와 분리).
 //   adminSaveMemo는 관리자메모만, 모든 액션 로그는 여기(처리이력). 표시 시 ④에서 M/D HH:mm로 단축.
-function _recordHandler(code, action) {
+function _recordHandler(code, action) { _gsr_();
   try {
     var who = _CURRENT_ADMIN || '관리자';
     var cust = findCustomerByCode(code);
@@ -1546,12 +1568,12 @@ function _setContactCore(code, phone, email, reason, dry) { _requireAdmin();
   return { ok: true, changes: lines, wasSilent: wasSilent, shadow: _shadow, shadowEmail: _shadowE };
 }
 // 처리이력에 번호를 통째로 남기지 않는다 — 이력은 관리자 여럿이 보는 칸이다(최소수집 원칙)
-function _maskPhone(v) {
+function _maskPhone(v) { _gsr_();
   var d = String(v || '').replace(/[^0-9]/g, '');
   if (!d) return '(없음)';
   return d.length <= 4 ? d : d.slice(0, 3) + '****' + d.slice(-4);
 }
-function _maskEmail(v) {
+function _maskEmail(v) { _gsr_();
   var t = String(v || '').trim();
   if (!t) return '(없음)';
   var i = t.indexOf('@');
@@ -1962,7 +1984,7 @@ function _adminUndoCashReceiptCore(code, kind) { _requireAdmin();
 var UNDO_WINDOW_HOURS = 24;
 
 // 'yyyy-MM-dd HH:mm'(KST) 문자열에서 지금까지 경과 시간(h). 값이 없거나 형식이 다르면 null(=시각 미상).
-function _undoHoursSince(kst) {
+function _undoHoursSince(kst) { _gsr_();
   var m = String(kst == null ? '' : kst).match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
   if (!m) return null;
   var t = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] - 9, +m[5]);   // KST(+09:00) → UTC
@@ -1971,7 +1993,7 @@ function _undoHoursSince(kst) {
 }
 
 // 마일스톤별 되돌리기 스펙 — 상태·신호·확인일시 컬럼, 카드 판정 키, 영수증 판정 키(콤보 포함).
-function _undoSpec(milestone, isSnap) {
+function _undoSpec(milestone, isSnap) { _gsr_();
   if (milestone === '계약금') return { label: '계약금', stateCol: '입금상태', signalCol: '입금완료신호', atCol: '', payKey: isSnap ? '예약금' : '계약금', receiptKeys: isSnap ? ['예약금'] : ['계약금'], stage: true };
   if (milestone === '중도금') return { label: '중도금', stateCol: '중도금상태', signalCol: '중도금입금신호', atCol: '중도금확인일시', payKey: '중도금', receiptKeys: ['중도금', '중도금잔금'], stage: false };
   if (milestone === '잔금') return { label: '잔금', stateCol: '잔금상태', signalCol: '잔금입금신호', atCol: '잔금확인일시', payKey: '잔금', receiptKeys: ['잔금', '중도금잔금'], stage: false };
@@ -2177,7 +2199,7 @@ function _resultLinkCheck(label, url) { _requireAdmin();
     return null;
   } catch (e3) { return null; }   // 검증 자체 실패는 저장·응답에 영향 주지 않음(best-effort)
 }
-function _resultLinkWarnings(items) {
+function _resultLinkWarnings(items) { _gsr_();
   var warns = [];
   try {
     for (var i = 0; i < items.length; i++) {
@@ -2470,7 +2492,7 @@ function adminSkipSurvey(code) {
 //   "미리보기와 실제 결과가 다른 안전장치"(= 함정)가 생기지 않도록. report를 안 넘기면 동작은 종전과 완전히 같다.
 /* [KEEP_MONEY_BASIS] 수납이 하나라도 살아 있는가 — «금액 근거를 남길 이유»가 있는지 판정.
    확인분은 물론 '완료신호'(고객이 이미 이체하고 신고한 것)도 센다(KEEP_SIGNAL 과 같은 기준). */
-function _rbPaidAny(c) {
+function _rbPaidAny(c) { _gsr_();
   var v = function (k) { return String(c.get(k) || '').trim(); };
   var paid = function (x) { return x === '확인' || x === '완료신호'; };
   return paid(v('입금상태')) || paid(v('중도금상태')) || paid(v('잔금상태'));
@@ -2590,7 +2612,7 @@ function _resetConsultBooking(code) { _requireAdmin();
      바뀔 게 하나도 없는 재적용(예: 신청접수 고객을 다시 신청접수로)도 '변경 있음'이 돼 noop 가드가 사문화된다
      (빈 컬럼 수십 개를 다시 쓰고 처리이력에 전부 나열). 결과물상태 강등(ROLLBACK_TRACK_DEMOTE)처럼
      ''가 아닌 값을 넣는 경우도 이 비교로 함께 잡힌다. Object.keys 비교로 되돌리지 말 것. */
-function _fsChangedCols(cust, upd) {
+function _fsChangedCols(cust, upd) { _gsr_();
   // [ADM_AC3NOOP · NOOP_ZERO 2026-07-26] `|| ''`를 쓰면 숫자 0·false가 빈 값으로 뭉개져 "이미 비어 있다"로 오판된다.
   //   → 0이 든 열은 초기화 대상에서 빠지고 그 값이 남는다. == null 로 '없음'만 빈 문자열로 바꾼다.
   //   현재 대상 숫자 열은 전부 쓰기 시점에 0을 막고 있어(선택수←!picks / 추가보정수량←!(qty>0) / 계약총액←amt>0)
@@ -2617,7 +2639,7 @@ function _fsChangedCols(cust, upd) {
    ── 여는 경우 (관리자가 고른다)
    강제변경 확인창의 체크 한 칸(기본 꺼짐)으로 «이 날짜를 다른 분께 엽니다»를 고를 수 있다.
    신청접수까지 내리거나 취소·노쇼·미계약으로 뺄 때는 자리를 놓아 준다 — 그건 되돌림이 아니라 종료다. */
-function _rbConfirmedSlot(cust) {
+function _rbConfirmedSlot(cust) { _gsr_();
   try {
     if (String(cust.get('계약상태') || '').trim() !== '서명완료') return null;
     var d = _ymdOf(cust.get('예식일'));
@@ -2648,7 +2670,7 @@ function _rbCalRetitle(eventId, prefix, note) { _requireAdmin();
      null    — 확정 점유가 없다(잠글 것도 열 것도 없다)
      'lock'  — 이 부부 것으로 임시고정해 둔다(기본)
      'release' — 다른 분께 연다(관리자가 골랐거나 · 신청접수까지 내리거나 · 종료로 뺄 때) */
-function _rbSlotPlan(slot, cur, targetStage, flow, bookingReset, releaseSlot) {
+function _rbSlotPlan(slot, cur, targetStage, flow, bookingReset, releaseSlot) { _gsr_();
   if (!slot) return null;
   var ci = flow.indexOf(cur), ti = flow.indexOf(targetStage);
   var isEx = (STAGE_EXCEPTIONS.indexOf(targetStage) !== -1);

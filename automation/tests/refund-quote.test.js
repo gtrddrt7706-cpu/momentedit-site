@@ -71,6 +71,7 @@ const code = [
 /* ── GAS 전역 스텁 샌드박스 ── */
 const ctx = vm.createContext({
   console,
+  _gsr_: () => {}, _trigIn_: () => {},   // [GSR_GATE 2026-10-09] 공개 함수 첫 줄 문 — 이 흉내는 서버 길 안
   Utilities: {
     formatDate(d, tz, fmt) {   // Asia/Seoul 고정 스텁
       const t = new Date(d.getTime() + 9 * 3600 * 1000);

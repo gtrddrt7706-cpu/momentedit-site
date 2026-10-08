@@ -8,7 +8,7 @@
 
 var __GMS_ON = false;   // [GMS_MEMO] getMyState 한 번 동안만 참
 
-function handleGetMyState(body) {
+function handleGetMyState(body) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   /* ★★[GMS_MEMO 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
      한 번 불러오기 안에서 같은 시트 · 같은 행을 다시 찾지 않는다. [GMS_MEMO] 종전엔 같은 상담 시트 행을 상태에 따라 2~3번
      (상담 카드 · 제작 하객 수 · 현금영수증 · 환불 예상 중 · 실측 제작중 2번 · 계약금 입금 전 3번) · 같은 고객 행을 2번(로그인 · 예약금 카드) 따로 찾았다 —
@@ -86,7 +86,7 @@ function handleGetMyState(body) {
    ★전역 함수를 바꿔 끼운다 — 이 런타임에서 전역 함수가 globalThis 의 속성인 것은 배포 지문(_dsGlobalSig)이 이미 날마다 세고 있다.
      바꿔 끼우기가 안 되는 런타임이면(쓰기가 막히면) 그 함수는 그대로 두고 종전과 똑같이 돈다 — 새 실패를 만들지 않는다. */
 var __GMS = null;
-function _gmsMemoOn() {
+function _gmsMemoOn() { _gsr_();
   /* [GMS_MEMO] */
   var G = null, saved = {}, M = { sh: {}, hdr: [], bk: {}, cu: {} };
   try { G = (typeof globalThis !== 'undefined' && globalThis) ? globalThis : (function () { return this; })(); } catch (e) { G = null; }
@@ -107,7 +107,7 @@ function _gmsMemoOn() {
   return function () { for (var n in saved) { try { G[n] = saved[n]; } catch (e) {} } __GMS = null; };
 }
 /* [GMS_MEMO] 로그인으로 찾은 고객 행을 «개인코드로 찾은 행»으로도 기억 — 같은 줄이다(개인코드는 고객마다 하나) */
-function _gmsSeedCustomer(r) {
+function _gmsSeedCustomer(r) { _gsr_();
   /* [GMS_MEMO] */
   try { if (!__GMS || !r) return; var c = String(r.get('개인코드') || '').trim().toUpperCase(); if (c && !Object.prototype.hasOwnProperty.call(__GMS.cu, c)) __GMS.cu[c] = r; } catch (e) {}
 }
@@ -129,7 +129,7 @@ function _aiWidgetToken_(code) {
 
 // [환불 안전망] 종료 고객 환불 계좌 제출 상태 — 수령분이 있고 환불 미완료면 노출.
 //   계좌는 Bookings.환불계좌에 저장(셀프 취소·관리자 환불송금 큐와 단일 소스).
-function buildRefundBankState(r) {
+function buildRefundBankState(r) { _gsr_();
   if (!r) return null;
   var stage = String(r.get('현재단계') || '').trim();
   if (STAGE_EXCEPTIONS.indexOf(stage) === -1) return null;
@@ -159,7 +159,7 @@ function buildRefundBankState(r) {
 }
 
 // [①] 예식일 임시 고정(가예약) — 고객에게 검토 중/승인 상태를 보여줌. 계약 서명 후엔 예식일이 계약에 확정되므로 숨김.
-function buildHoldState(r) {
+function buildHoldState(r) { _gsr_();
   if (!r) return null;
   if (STAGE_EXCEPTIONS.indexOf(String(r.get('현재단계') || '').trim()) !== -1) return null;   // 취소·노쇼·미계약 → 가예약 배너 숨김(셀프취소 경로가 가예약 키를 안 지워도 화면 정합)
   if (String(r.get('계약상태') || '').trim() === '서명완료') return null;
@@ -172,7 +172,7 @@ function buildHoldState(r) {
 }
 
 // [보상] 커피쿠폰 — 관리자가 발급한 바코드 이미지(base64)·기한을 마이페이지에 표시. 상태 '발급'일 때만 노출.
-function buildCouponState(r) {
+function buildCouponState(r) { _gsr_();
   if (!r) return null;
   if (String(r.get('쿠폰상태') || '').trim() !== '발급') return null;
   var data; try { data = JSON.parse(String(r.get('쿠폰데이터') || '') || '{}'); } catch (e) { data = {}; }
@@ -188,7 +188,7 @@ function buildCouponState(r) {
 }
 // [02-6] '내 내역' 패널 — 결제(예약금/계약금·중도금·잔금)·현금영수증(발행된 것)·서류(시착동의서·계약서)를 진행 단계와 무관하게 한곳에 모아 노출.
 //   시착 동의·계약 서명·입금 중 하나라도 있으면 노출(그 전엔 내역이 없어 null). 결제 금액은 계약총액 기반(_journeyAmounts), 영수증은 _cashReceiptLedger 공통.
-function buildLedgerState(r) {
+function buildLedgerState(r) { _gsr_();
   if (!r) return null;
   var isSnap = (String(r.get('상품타입') || '').trim() === '웨딩스냅');
   // 노출 시점 — 단계 게이트 없음. 예약금 입금 확인(=현금영수증 대상) 시점부터 내역이 생기므로,
@@ -257,7 +257,7 @@ function buildLedgerState(r) {
 
 // [02-1] 카드가 안 뜨는 "관리자 대기" 갭을 한 줄로(답답함 방지). 카드(상담·입금)가 이미 표시하는 구간은 빈값.
 //   현재 핵심 갭 = 시착 동의 완료 후 ~ 계약서 발송 전(상담완료 단계).
-function _journeyWaiting(r) {
+function _journeyWaiting(r) { _gsr_();
   var stage = String(r.get('현재단계') || '').trim();
   var fit = String(r.get('시착동의상태') || '').trim();
   var con = String(r.get('계약상태') || '').trim();
@@ -267,7 +267,7 @@ function _journeyWaiting(r) {
 
 // [P1.5 작업3] 개인코드로 상담예약 행을 조인해 마이페이지 "상담/촬영" 카드용 상태 구성.
 // 상담행 없으면 null(원자성 실패 케이스 — 마이페이지는 에러 없이 렌더). 상담토큰·비번 등 민감필드는 내보내지 않음.
-function buildConsultState(code) { /* [B19_LOCK 2026-10-09] 취소 링크는 cancelPageUrl_ (밑줄 이름) */
+function buildConsultState(code) { _gsr_(); /* [B19_LOCK 2026-10-09] 취소 링크는 cancelPageUrl_ (밑줄 이름) */
   code = String(code || '').trim();
   if (!code) return null;
   var cr = findRowByPersonalCode(code);     // consultation-booking 전역
@@ -320,7 +320,7 @@ function buildConsultState(code) { /* [B19_LOCK 2026-10-09] 취소 링크는 can
    ★예외 단계(취소·노쇼·미계약)는 흐름 밖이라 위치 비교가 성립하지 않는다. 그 화면은 이미
      제 사정을 따로 말하고 있으므로(환불 안내) 여기서 또 말하지 않는다.
    ★관리자 사유는 담지 않는다 — 내부 기록이다. 고객에게 필요한 것은 «무엇이 그대로고 무엇을 다시 하나»뿐. */
-function buildRollbackNotice(r) {
+function buildRollbackNotice(r) { _gsr_();
   var rec = _parseJsonSafe(r.get('동의기록'));
   var rb = rec && rec.단계되돌림;
   if (!rb || !rb.at) return null;

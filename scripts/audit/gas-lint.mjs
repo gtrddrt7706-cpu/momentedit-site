@@ -71,7 +71,7 @@ export function makeSandbox() {
    ★기준은 낮게(200자) 잡는다 — 진짜 작은 파일을 붉히려는 게 아니라 «통째로 날아간 것»만 잡는다. */
 const MIN_CHARS = 200;
 
-export function loadGas(sb = makeSandbox()) {
+export function loadGas(sb = makeSandbox(), opts = {}) {
   const errors = [];
   for (const fp of files) {
     let src = '';
@@ -84,6 +84,10 @@ export function loadGas(sb = makeSandbox()) {
     try { vm.runInContext(src, sb, { filename: rel(fp) }); }
     catch (e) { errors.push({ file: rel(fp), message: e.message }); }
   }
+  /* ★[GSR_FLAGS 2026-10-09 · B19] 운영 함수는 첫 줄 _gsr_() 로 «서버 길 안»(_SRV)에서만 돈다.
+     점검들은 대개 doPost 가 부른 뒤의 모양을 흉내 내므로 기본은 서버 길 안으로 둔다.
+     공개 화면(익명)을 흉내 낼 점검은 loadGas(sb, { srv: false }) 로 부른다(gsr-guard). */
+  if (opts.srv !== false) sb._SRV = true;
   return { sandbox: sb, errors, files: files.map(rel) };
 }
 

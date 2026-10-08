@@ -9,14 +9,14 @@
  */
 
 // ============================ 비밀번호 해시 ============================
-function hashPassword(pw) {
+function hashPassword(pw) { _gsr_(); /* [GSR_GATE 2026-10-09] 공개 함수의 첫 줄 문 · 서버 길 · 예약 실행 · 관리자 · 소유자 안에서만 */
   var salt = _randomSaltHex(16);
   var hash = _stretch(String(pw), salt, P.PW_HASH_ROUNDS);
   return 'sha256$' + P.PW_HASH_ROUNDS + '$' + salt + '$' + hash;
 }
 
 // 입력 비번이 저장 해시와 일치하는지 — 상수시간 비교.
-function verifyPassword(pw, stored) {
+function verifyPassword(pw, stored) { _gsr_();
   var parts = String(stored || '').split('$');
   if (parts.length !== 4 || parts[0] !== 'sha256') return false;
   var rounds = parseInt(parts[1], 10), salt = parts[2];
@@ -26,7 +26,7 @@ function verifyPassword(pw, stored) {
 }
 
 // salt+pw 를 rounds 번 SHA-256 스트레칭 → base64
-function _stretch(pw, salt, rounds) {
+function _stretch(pw, salt, rounds) { _gsr_();
   var h = salt + '|' + pw;
   for (var i = 0; i < rounds; i++) {
     var raw = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, h, Utilities.Charset.UTF_8);
@@ -35,14 +35,14 @@ function _stretch(pw, salt, rounds) {
   return h;
 }
 
-function _randomSaltHex(nBytes) {
+function _randomSaltHex(nBytes) { _gsr_();
   // UUID 두 개를 이어 충분한 엔트로피의 hex 솔트 생성
   var s = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
   return s.slice(0, nBytes * 2);
 }
 
 // 길이·내용 모두 상수시간에 가깝게 비교 (타이밍 누출 최소화)
-function _constTimeEq(a, b) {
+function _constTimeEq(a, b) { _gsr_();
   a = String(a); b = String(b);
   if (a.length !== b.length) return false;
   var diff = 0;
@@ -51,7 +51,7 @@ function _constTimeEq(a, b) {
 }
 
 // 비번 정책 검사 — 통과 시 '' , 실패 시 사유 문자열
-function pwPolicyError(pw) {
+function pwPolicyError(pw) { _gsr_();
   pw = String(pw == null ? '' : pw);
   if (pw.length < P.PW_MIN_LEN) return '비밀번호는 ' + P.PW_MIN_LEN + '자 이상이어야 합니다.';
   if (pw.length > 100) return '비밀번호가 너무 깁니다.';
@@ -61,7 +61,7 @@ function pwPolicyError(pw) {
 // ============================ 세션 토큰 ============================
 // 토큰 발급(=갱신). 기존 토큰이 있으면 새 토큰으로 덮어써 이전 토큰을 무효화한다.
 // 반환: { token, expiry } (expiry = KST 문자열)
-function issueToken(sheet, colOf, rowNum) {
+function issueToken(sheet, colOf, rowNum) { _gsr_();
   var token = makeToken(); // UUID 32자 재사용
   var expiry = fmtKST(new Date(Date.now() + P.TOKEN_VALID_DAYS * 86400 * 1000));
   touchCustomer(sheet, colOf, rowNum, { '로그인토큰': token, '토큰만료': expiry });
@@ -69,14 +69,14 @@ function issueToken(sheet, colOf, rowNum) {
 }
 
 // 토큰 문자열이 만료됐는지 (저장 만료 문자열 기준)
-function tokenExpired(expiryStr) {
+function tokenExpired(expiryStr) { _gsr_();
   var d = parseKSTString(expiryStr);
   if (!d) return true;            // 만료값이 없거나 깨졌으면 만료로 간주(안전)
   return Date.now() > d.getTime();
 }
 
 // 'YYYY-MM-DD HH:mm' (KST) → Date. 스크립트 타임존과 무관하게 정확히 파싱.
-function parseKSTString(str) {
+function parseKSTString(str) { _gsr_();
   var m = String(str || '').match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
   if (!m) return null;
   var ms = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) - 9 * 3600 * 1000; // KST=UTC+9
@@ -85,7 +85,7 @@ function parseKSTString(str) {
 
 // 토큰으로 고객 행을 찾고 유효성(존재+미만료)까지 확인.
 // 반환: { ok, row, sheet, colOf } 또는 { ok:false, reason }
-function resolveSession(token) {
+function resolveSession(token) { _gsr_();
   token = String(token || '').trim();
   if (!token) return { ok: false, reason: 'no_token' };
   var rowObj = findCustomerByToken(token);
