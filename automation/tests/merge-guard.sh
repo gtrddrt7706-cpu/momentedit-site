@@ -9154,9 +9154,17 @@ chk 'PLAY_FRESH' order-preview.html 2   # ★[PLAY_FRESH 2026-10-04 사장님 «
 chk 'VC_CARD_V2' order-preview.html 2   # ★[VC_CARD_V2 2026-10-04 사장님 «빠르기 +0.2 · 쉼 +1 · 들어 보고 맞추기 구조 개편 · 모바일도»] 사람 카드 한 장 · 말로 두 칸 · 주 단추 하나   # ▶ 누르면 1초 빈소리 뒤 재생(줄 ▶ · 나레이션 · 작은 플레이어 첫 줄)
 chk 'VC_CARD_A' order-preview.html 3   # ★[VC_CARD_A 2026-10-04 사장님 «디자인 별론데 최선이야?» → 시안 A] 회색 상자 대신 가는 선 · 아랫줄 ▶ 왼쪽 · 다시 녹음 · 지우기 오른쪽
 chk 'SOLO_ROW' order-preview.html 2   # ★[SOLO_ROW 2026-10-04 사장님 «목소리 만들기 단추를 들어 보고 맞추기와 같은 줄로»]
-chk 'ALT_READY' order-preview.html 5   # ★[ALT_READY 2026-10-04 사장님 «왜 만들지? 이미 만들어져 있어야»] 새로 고친 뒤 · 데우는 중에도 신랑 ↔ 신부 바꾸기에 새로 만들지 않는다
-chk 'ALT_READY' scripts/audit/alt-ready.mjs 1
-chk 'PV_ERR_SHOW' order-preview.html 3   # ★[PV_ERR_SHOW 2026-10-04] 영상 앞 소개 줄도 만들지 못한 까닭을 보인다 · 미리 데우기는 만드는 줄 뒤에
+# ★★[WHO_MAKE_NOW 2026-10-08 사장님 «추천대로»] 신랑 ↔ 신부를 바꾸면 늘 그 자리에서 만든다(«만드는 중» → «확정하기» · 누를 때마다 똑같이) — 종전 ALT_READY(10-04)의 «미리 데워 바로 붙이기 · 데우는 중이면 기다리기»는 걷었다(될 때도 안 될 때도 있어 섞였다)
+chk 'WHO_MAKE_NOW' order-preview.html 8
+chk "  _vcMake(key,{}).catch(function(){}); }   /\* ★★\[WHO_MAKE_NOW" order-preview.html 1
+nochk 'function _vcAltWarm(' order-preview.html
+nochk 'function _vcWarmBoth(' order-preview.html
+nochk 'function _vcAltIdle(' order-preview.html
+nochk 'setTimeout(_vcWarmBoth,' order-preview.html
+nochk "MK_UP\[key\]='swap';" order-preview.html
+chk 'WHO_MAKE_NOW' scripts/audit/alt-ready.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/alt-ready.mjs >/dev/null 2>&1; _alr=$?; if [ "$_alr" = 1 ]; then echo 'FAIL alt-ready: 신랑 ↔ 신부 바꾸기가 «늘 그 자리에서 만들기»가 아닙니다 — node scripts/audit/alt-ready.mjs'; fail=1; else echo "ok alt-ready ($_alr)"; fi; fi
+chk 'PV_ERR_SHOW' order-preview.html 2   # ★[PV_ERR_SHOW 2026-10-04] 영상 앞 소개 줄도 만들지 못한 까닭을 보인다 · (미리 데우기는 2026-10-08 걷었다 · WHO_MAKE_NOW)
 chk 'PLAY_TRUE' order-preview.html 7   # ★[PLAY_TRUE 2026-10-04 시뮬레이션] 저장이 끝나야 만들기 끝 · 같은 줄 두 번 안 만듦 · 틀기 직전 지금 파일 · 만드는 줄 건너뛰지 않음
 chk 'TA_KEEP' order-preview.html 3   # 글 치는 중 다시 그려도 커서 · 한글 조합 지킴
 chk 'SIM_R1' order-preview.html 10
@@ -14109,7 +14117,7 @@ chk "+_slEditor('pv','영상 앞 소개글','" order-preview.html 1
 nochk 'class="ta grow mk-vtta"' order-preview.html
 nochk 'id="mkPvTa"' order-preview.html
 chk "wq:_slKeyOk(key)?_slWhoSig(key):undefined" order-preview.html 1
-chk "tx:_txSig(a.t),wq:wq}" order-preview.html 2
+chk "tx:_txSig(a.t),wq:wq}" order-preview.html 1   # [WHO_MAKE_NOW 2026-10-08] _vcSwap 이 기억 소리를 붙이지 않아 한 곳(_exCached)만
 # ── 2026-10-02 사장님 결정 여섯(라운드 점검 1의 결정 대기분) — 이름 = 결정 · 같은 커밋에 검사 [DECISION_GUARD]
 chk 'VOW_HOW' order-preview.html 5                 # 서약 읽는 방식 칩(한 줄씩 번갈아 · 각자 차례로) · 안내는 글칸 위 · 흐름 한 줄
 chk 'VOW_HOW' assets/ritual-cue.js 1               # 엔진 live.t 가 S.vowHow 를 따른다
@@ -14296,7 +14304,7 @@ chk '^\.mk-pl{position:relative;isolation:isolate;flex:0 0 auto;width:58px;heigh
 #   (쉼 «이 자리 들어 보기»는 기다림이 생기지 않아 넣지 않았다 · MK.turnLoad 를 세우는 곳이 없다)
 #   ★[PLAY_WAIT_LOCK 2026-10-07 사장님 «이 상태에서는 누를 수 없게 · 로딩이 끝나면 누를 수 있게»] 차오르는 동안은 일곱 곳 모두 못 누른다(오전의 PLAY_WAIT_TAP «올리는 동안도 누름»은 걷었다)
 chk 'PLAY_PILL' order-preview.html 2
-chk 'WAIT_FILL' order-preview.html 16
+chk 'WAIT_FILL' order-preview.html 15   # [WHO_MAKE_NOW 2026-10-08] 데우던 일을 기다리던 «바꾸는 중» 차오름 한 곳을 걷었다
 chk 'PLAY_WAIT_LOCK' order-preview.html 3
 # ★[EX_UNPICKED 2026-10-07 사장님 «입장 파트 첫 화면에서 새 출발처럼 버튼 클릭되어 있는 거 수정»] 예시 코스가 정한 값도 «기본» — 두 분이 누르지 않았으면 안 눌린 모양
 chk 'EX_UNPICKED' order-preview.html 2
@@ -14714,15 +14722,22 @@ chk 'class="flow-name" x=' assets/ritual-open.js 1   # 이름표는 명조 · �
 chk 'flow-name flow-peak-name' assets/ritual-open.js 1
 nochk 'stroke="#E6E1D9"' assets/ritual-open.js   # ★바닥 가로선(축) 금지 — 2026-10-08 사용자 지시로 삭제
 nochk 'linearGradient' assets/ritual-open.js   # ★붓선 · 색 갈라 칠하기 금지 — 2026-10-08 «붓선은 빼자»
-# ── [PEAK_PICK 2026-10-08 사장님 «감동 포인트 고객마다 다를 수 있잖아» → «추천대로»(P1)] 가장 벅찬 순간은 두 분이 고른다 · 미리 눌린 칩 없음 · 콘솔 ★(약속 글 없음)
-chk 'PEAK_PICK' assets/ritual-open.js 2
-chk 'function peakPick(S)' assets/ritual-open.js 1
-chk 'peakPick: peakPick, peakCands: peakCands, PEAK_CAN: PEAK_CAN' assets/ritual-open.js 1
-chk 'PEAK_PICK' order-preview.html 5
-chk 'function _pkPeakRow()' order-preview.html 1
-chk 'window.opPeak=function(k)' order-preview.html 1
-chk 'PEAK_PICK' console.html 7
-chk 'function peakK()' console.html 1
+# ── [PEAK_PICK_OFF 2026-10-08 사장님 «그래프만 바뀌는 거면 의미가 없지 · 저 기능 빼 버려»] 가장 벅찬 순간 고르기(곡선 아래 줄 · 칩 · 고른 값) · 콘솔 ★ 걷음 — 되살리지 말 것
+chk 'PEAK_PICK_OFF' assets/ritual-open.js 1
+chk 'PEAK_PICK_OFF' order-preview.html 2
+chk 'PEAK_PICK_OFF' console.html 1
+chk 'PEAK_PICK_OFF' scripts/audit/open-course.mjs 1
+nochk 'function peakPick' assets/ritual-open.js
+nochk 'function peakCands' assets/ritual-open.js
+nochk 'S\.peak' assets/ritual-open.js
+nochk 'function _pkPeakRow' order-preview.html
+nochk 'opPeak' order-preview.html
+nochk 'class="pk-pp' order-preview.html
+nochk '가장 벅찬 순간은 두 분이' order-preview.html
+nochk 'S\.peak' order-preview.html
+nochk 'function peakK' console.html
+nochk '두 분이 고름' console.html
+nochk 'pill(.pk.' console.html
 # ── [DIV_ONE 2026-10-08 사장님 «AI 두 분 목소리 · 이 순간 전체 듣기 밑 가로선을 없애면»] AI 칸 윗선 걷기 — 나레이션 판(흐름 칸 MK_NO_HEADS)과 같은 틀
 chk 'DIV_ONE' order-preview.html 1
 chk '.mk-voice-ai{border-top:0;padding-top:0;margin-top:14px}' order-preview.html 1
@@ -14839,7 +14854,7 @@ chk '(v.wq!==_slWhoSig(key)||!!_whoMiss(key))' order-preview.html 1
 chk 'function _whoLab(key)' order-preview.html 1
 chk '{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up===' order-preview.html 1
 chk "eu=_upStale('entry')?null:_rfUrl('entry')" order-preview.html 1
-chk 'if(ai&&u.tx===_txSig(_recNeed(k))&&(u.wq==null||!_slKeyOk(k)||u.wq===_slWhoSig(k))){' order-preview.html 1   # [WHO_LAB] 합친 판(EX_BUSY_LINE 과 함께)
+nochk 'if(ai&&u.tx===_txSig(_recNeed(k))&&(u.wq==null||!_slKeyOk(k)||u.wq===_slWhoSig(k))){' order-preview.html   # [EX_PRESS_MAKE 2026-10-08] 예시를 누르면 글만 — 소리를 맞춰 붙이던 _exAudio 몸통은 걷었다
 chk 'function _lineBlank(key)' order-preview.html 1
 chk 'function _lineBlankDrop(ks)' order-preview.html 1
 chk 'if(q.up&&_lineBlank(q.up)) return true;' order-preview.html 1
@@ -14871,12 +14886,12 @@ chk 'EX_BUSY_LINE' order-preview.html 10
 chk 'function _exAgain(key,fill)' order-preview.html 1
 chk 'function _exPrepJob(key)' order-preview.html 1
 chk 'function _exUpOld(key)' order-preview.html 1
-chk 'EX_AGAIN\[key\]=1' order-preview.html 1
-chk 'VC_ALTF\[k\]&&VC_ALTF\[k\].fill' order-preview.html 1
+nochk 'EX_AGAIN\[key\]=1' order-preview.html   # [EX_PRESS_MAKE 2026-10-08] 올리기가 끝난 뒤 예시 줄을 다시 보고 붙이던 것 걷음
+nochk 'VC_ALTF\[k\]&&VC_ALTF\[k\].fill' order-preview.html
 nochk '(S.vself||{})\[key\]||MK_UP\[key\]) return false' order-preview.html 0
-chk 'EX_ONE_ASK' order-preview.html 5
+chk 'EX_ONE_ASK' order-preview.html 1   # [EX_PRESS_MAKE 2026-10-08] 데우기가 없어져 _exFirst 의 한 곳만
 nochk 'var pk=key+.|.+who;' order-preview.html 0
-chk 'mp.go=1' order-preview.html 1
+nochk 'mp.go=1' order-preview.html   # [EX_PRESS_MAKE 2026-10-08] 입장 인사 멘트 미리 섞기(_exWarmEntry) 걷음
 chk 'PREP_NO_TAP' order-preview.html 1
 chk '_aiMode(key)===.prep.) return;' order-preview.html 1
 chk 'EX_ASK_ONE' order-preview.html 6
@@ -14982,12 +14997,12 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/tip-once.mjs >/dev/n
 nochk 'data-fk="mkvsopen" onclick="mkVsOpen()"' order-preview.html
 chk 'VS_INFO' scripts/audit/voice-setup.mjs 1
 nochk 'if(u.tx===_txSig(_recNeed(k))) return; _vcSwap(k); }); }' order-preview.html
-chk 'EX_NO_AUTO' scripts/audit/ex-race.mjs 3
+chk 'EX_PRESS_MAKE' scripts/audit/ex-race.mjs 3
 # ★★[EX_FIRST · EX_LABEL_HONEST · EX_OLD_IS_EX · EX_WARM_ORDER 2026-10-07 사장님 «고치지 않고 첫 화면에서 버튼만 눌렀는데 글을 고쳤어요 · 처음 AI 목소리 입히면 다른 곳들도 동시에 입혀지게 한 약속이 자꾸 흔들린다 · 몇 번째냐»]
 #   원인: 미리 만든 소리는 탭 기억뿐 · 데우기는 한 줄 차례(26건)라 «다정하게» 네 줄이 1 · 4 · 18 · 21번째 · 그 사이 누르면 캐시 미스로 아무것도 안 함 · 문구는 지문만 보고 «글을 고쳤어요»
 #   고침: 캐시 미스면 맨 앞에서 따로 만든다(«준비 중» → «확정하기») · 지금 글이 예시면 «예시를 바꿨어요» · 옮겨 둔 옛 예시 글도 예시(칩 켜짐 · 묻지 않음) · 데우기는 고른 예시부터
 #   ★ex-promise.mjs 가 실제 데우기 차례 그대로 약속을 잰다(T1~T6) — _exFirst 를 비우면 빨강(돌연변이 확인 2026-10-07)
-chk 'EX_FIRST' order-preview.html 14
+chk 'EX_FIRST' order-preview.html 13   # [EX_PRESS_MAKE 2026-10-08] 남은 몫 = 배포로 예시 글이 바뀐 줄 맞추기(_exFirstStale)
 chk 'function _exFirst(key)' order-preview.html 1
 chk 'function _exFirstStale()' order-preview.html 1
 chk 'function _exPrep(key)' order-preview.html 1
@@ -15024,10 +15039,10 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-status-retry.mjs 
 nochk "+'<p class=\"pk-tm mo\">'+ord+'</p>'" order-preview.html
 if command -v node >/dev/null 2>&1; then node scripts/audit/ex-old-cover.mjs >/dev/null 2>&1; _eoc=$?; if [ "$_eoc" = 1 ]; then echo 'FAIL ex-old-cover: 예시 글이 바뀌었는데 옛 글이 EX_OLD_1006 · PV_OLD 에 없습니다 — node scripts/audit/ex-old-cover.mjs'; fail=1; elif [ "$_eoc" = 2 ]; then echo 'skip ex-old-cover: origin/main 없음'; else echo 'ok ex-old-cover: 바뀐 예시 글은 옛 글 목록에 있다'; fi; fi
 chk 'function _exNOf(key)' order-preview.html 1
-chk 'EX_WARM_ORDER' order-preview.html 1
+nochk 'function _exWarm(w)' order-preview.html   # [EX_PRESS_MAKE 2026-10-08] 예시 글 미리 만들기 걷음(EX_WARM_ORDER 도 함께)
 chk 'EX_FIRST' scripts/audit/ex-promise.mjs 1
-chk 'EX_FIRST' scripts/audit/ex-race.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/ex-promise.mjs >/dev/null 2>&1; _exp=$?; if [ "$_exp" = 1 ]; then echo 'FAIL ex-promise: 예시 소리 약속(누르면 준비 중 → 확정하기 · 글을 고쳤어요 없음)이 어긋났습니다 — node scripts/audit/ex-promise.mjs'; fail=1; elif [ "$_exp" = 2 ]; then echo 'skip ex-promise: 브라우저 없음'; else echo 'ok ex-promise: 예시 소리 약속 T1~T6'; fi; fi
+chk 'EX_PRESS_MAKE' scripts/audit/ex-promise.mjs 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-promise.mjs >/dev/null 2>&1; _exp=$?; if [ "$_exp" = 1 ]; then echo 'FAIL ex-promise: 예시 소리 약속(누르면 글만 · «목소리 만들기» · 업체에 묻지 않음 · 글을 고쳤어요 없음)이 어긋났습니다 — node scripts/audit/ex-promise.mjs'; fail=1; elif [ "$_exp" = 2 ]; then echo 'skip ex-promise: 브라우저 없음'; else echo 'ok ex-promise: 예시 소리 약속 T1~T6'; fi; fi
 # ★[UP_AI_HEAL · VST_RIGHT 2026-10-07 사장님] «… · AI.wav» 인데 «파일»로 적힌 옛 줄 바로잡기 · 줄 카드 상태는 제목 오른쪽
 chk 'UP_AI_HEAL' order-preview.html 1
 chk 'function _upHeal()' order-preview.html 1
@@ -15245,11 +15260,11 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/wait-box.mjs >/dev/n
 # ★★[EX_RACE · EX_PREBAKE_ENTRY · EX_MINE_OLD 2026-10-06 사장님] 예시를 만드는 중 다른 예시를 눌러도 각자 기억 · 지금 글만 붙는다 / 입장 인사 예시도 미리 / 전에 채운 예시 원문에도 두 분 이름
 chk 'EX_RACE' order-preview.html 4
 chk 'function _vcSnap(key,o)' order-preview.html 1
-chk 'function _exWarmEntry()' order-preview.html 1
+nochk 'function _exWarmEntry()' order-preview.html   # [EX_PRESS_MAKE 2026-10-08] 입장 인사 멘트 미리 섞기 걷음
 chk 'EX_MINE_OLD' order-preview.html 2
 chk 'EX_RACE' scripts/audit/ex-race.mjs 1
 chk 'EX_MINE_OLD' scripts/audit/stale-novoice.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/ex-race.mjs >/dev/null 2>&1; _exr=$?; if [ "$_exr" = 1 ]; then echo 'FAIL ex-race: 예시를 오가는 동안 만드는 일 · 미리 만들기가 어긋났습니다 — node scripts/audit/ex-race.mjs'; fail=1; else echo "ok ex-race ($_exr)"; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/ex-race.mjs >/dev/null 2>&1; _exr=$?; if [ "$_exr" = 1 ]; then echo 'FAIL ex-race: 예시를 오가는 동안 만드는 일(만들던 글로 돌아오면 잇기 · 미리 만들기 없음)이 어긋났습니다 — node scripts/audit/ex-race.mjs'; fail=1; else echo "ok ex-race ($_exr)"; fi; fi
 chk 'BOSS_WAY_1006' CLAUDE.md 1
 chk '기준은 늘 «고객이 처음 봤을 때»' CLAUDE.md 1
 # ★[VU_LAYOUT · VU_GUEST_EX 2026-10-06 사장님 «왜 여기는 예시가 없어 · 빈칸이 많아 비어 보인다» → «추천대로»] 나오는 곳 창 = 칩 → 들어 보기 → 글(글 길이만큼) · 하객 맞이도 예시 1~4
@@ -15257,7 +15272,18 @@ chk 'VU_LAYOUT' order-preview.html 1   # [VU_FLOW_FREE 2026-10-06] 차례가 칩
 chk 'VU_GUEST_EX' order-preview.html 1
 nochk 'm.remove(); if(hi) q.style.minHeight=hi' order-preview.html
 # ★[EX_PREBAKE · EX_BASE · EX_FOCUS_CARD · VP_UNPICKED_ALL 2026-10-06 사장님] 예시 소리는 미리 만들어 두고 고르면 바로 · «처음 글로»=고른 예시 · 예시를 눌러도 포커스는 카드(금색 줄 없음) · 목소리 쪽이 세 순간을 미리 고르지 않는다
-chk 'EX_PREBAKE' order-preview.html 7
+chk 'EX_PREBAKE' order-preview.html 5   # [EX_PRESS_MAKE 2026-10-08] «미리 만들어 두고 고르면 바로»는 걷었다 — 남은 것은 기록 주석
+# ★★★[EX_PRESS_MAKE · FILL_EX 2026-10-08 사장님 «예시 어떤 건 만들기로 · 어떤 건 바로 · 통일이 안 돼 · 그럴 바엔 안 하는 것으로 일치» → «추천대로»]
+#   예시를 누르면 글만 바뀐다 — 소리는 «목소리 만들기» · «이 순간 전체 듣기» · 쪽을 떠날 때 · 저장할 때. 만들던 그 글로 돌아오면 그 일을 잇는다(EX_RACE) · 처음 채우는 중이면 그 줄은 지금 글로 끝까지(FILL_EX)
+chk 'EX_PRESS_MAKE' order-preview.html 15
+chk 'FILL_EX' order-preview.html 2
+chk "function _exAudio(keys){ if(!_vcOn()) return; var any=false, FK=VC.fillK||{};" order-preview.html 1
+chk 'VC.fillK\[x\]=(VC.fillK\[x\]||0)+1' order-preview.html 1
+chk "if(up&&up!=='make'&&_exPrepJob(key)) return 'prep';" order-preview.html 1
+chk 'EX_PRESS_MAKE' scripts/audit/vc-r1-ex.mjs 8
+chk 'EX_PRESS_MAKE' scripts/audit/ex-prebake.mjs 3
+chk 'EX_PRESS_MAKE' scripts/audit/voice-setup.mjs 2
+chk 'EX_PRESS_MAKE' CLAUDE.md 1
 chk 'EX_BASE' order-preview.html 3
 chk 'EX_FOCUS_CARD' order-preview.html 1
 chk 'VP_UNPICKED_ALL' order-preview.html 3

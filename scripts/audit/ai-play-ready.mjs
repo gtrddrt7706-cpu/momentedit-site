@@ -161,7 +161,7 @@ const SC = [
     const ec = await f.evaluate(() => _lSteps(ENG, ['entry']).filter((x) => x.own).map((x) => x.src || ''));
     ok('1 AI 판 입장 인사 줄도 배역 예시 녹음 없음 [AI_NO_CAST]', ec.length >= 1 && ec.every((s) => !/\/cast\//.test(s)), JSON.stringify(ec));
   } },
-  /* ── 2 ── 한 분(신랑)만 목소리 — 신부 줄은 «신부 …» · 신랑 빈 줄은 저절로 채운다(FILL_EMPTY) · «만드는 중» · «준비 중»(예시를 바꿈) 동안 ▶ 는 차오르지 않고 알약이 차오른다 */
+  /* ── 2 ── 한 분(신랑)만 목소리 — 신부 줄은 «신부 …» · 신랑 빈 줄은 저절로 채운다(FILL_EMPTY) · «만드는 중» · «준비 중»(맞추기) 동안 ▶ 는 차오르지 않고 알약이 차오른다 · 예시를 바꾸면 글만(EX_PRESS_MAKE) */
   { no: 2, pre: { groom: true, bride: false }, lat: { make: 12000 }, async run({ pg, f }) {
     await toVoice(pg, f); await toGuest(pg, f); await adv(pg, 600);
     const g1 = await CARD(f, 'g1'), g0 = await CARD(f, 'g0');
@@ -178,8 +178,12 @@ const SC = [
     const g0c = await CARD(f, 'g0'); const p0 = await plays(f); await tap(f, '[data-fk="mkvpl:g0"]'); await adv(pg, 1200);
     ok('2 다 되면(«확정하기») ▶ 가 풀리고 누르면 소리 [AI_PLAY_READY]', !g0c.off && !g0c.dis && /확정하기/.test(g0c.pill) && (await plays(f)) === p0 + 1, JSON.stringify(g0c));
     await f.evaluate(() => _stopMk()); await adv(pg, 300);
-    /* 예시를 바꾸면 신랑 줄은 뒤에서 먼저 만든다(EX_FIRST «준비 중») — ▶ 는 차오르지 않고 «준비 중» 알약이 그 일의 시계로 차오른다 */
-    await tap(f, '[data-fk="mkex:guest:1"]'); const sp = []; for (let i = 0; i < 6; i++) { await adv(pg, 400); sp.push(await CARD(f, 'g0')); }
+    /* [EX_PRESS_MAKE 2026-10-08] 예시를 바꾸면 글만 — 신랑 줄은 «목소리 만들기» · ▶ 흐림(만들지 않는다) */
+    for (let i = 0; i < 120 && await f.evaluate(() => Object.keys(VC.fillK || {}).length > 0 || Object.keys(MK_UP).length > 0); i++) await adv(pg, 500);   // 처음 채우기가 다 끝난 뒤(채우는 중이면 FILL_EX — 그 줄은 지금 글로 끝까지 채운다)
+    await tap(f, '[data-fk="mkex:guest:1"]'); await adv(pg, 400); const ex = await CARD(f, 'g0');
+    ok('2 예시를 바꾸면 글만 — 신랑 줄 «목소리 만들기» · ▶ 흐림 · «준비 중» 아님 [EX_PRESS_MAKE]', /목소리 만들기/.test(ex.pill) && ex.off && !/\bprep\b/.test(ex.pillCls), JSON.stringify(ex));
+    /* «준비 중»은 이제 쪽에 들어올 때 · 상태를 받을 때 맞추기(_exFirstStale · 예시 글인데 소리는 다른 글)뿐 — 그때도 ▶ 는 차오르지 않고 «준비 중» 알약이 그 일의 시계로 차오른다 */
+    await f.evaluate(() => _exFirstStale()); const sp = []; for (let i = 0; i < 6; i++) { await adv(pg, 400); sp.push(await CARD(f, 'g0')); }
     await SHOT(pg, f, '2-준비중', '[data-fk="mkvpl:g0"]');
     const pr = sp.filter((x) => /준비 중/.test(x.pill));
     ok('2 «준비 중» 동안 ▶ 차오름 없음 · 알약 prep 이 차오른다(--d 시계) [PLAY_NO_DUP · PREP_FILL]', pr.length >= 2 && pr.every((x) => !x.fill && (x.dis || x.off) && /\bprep\b/.test(x.pillCls) && /--d:[\d.]+s;--dl:-[\d.]+s/.test(x.pillSty)), JSON.stringify(sp));

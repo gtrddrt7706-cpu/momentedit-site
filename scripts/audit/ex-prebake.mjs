@@ -1,5 +1,6 @@
-// ★[EX_PREBAKE · EX_BASE · EX_FOCUS_CARD · VP_UNPICKED_ALL 2026-10-06 사장님] 식순 만들기 — 예시와 목소리 고르기
-//   ①AI 목소리가 생기면 하객 맞이 · 식전 영상 소개의 예시 글을 미리 만들어 둔다 · 예시를 고르면 그 소리로 바로 바뀐다(«글을 고쳤어요» 아님)
+// ★[EX_PREBAKE → EX_PRESS_MAKE · EX_BASE · EX_FOCUS_CARD · VP_UNPICKED_ALL] 식순 만들기 — 예시와 목소리 고르기
+//   ①[EX_PRESS_MAKE 2026-10-08 사장님 «추천대로»] AI 목소리가 생겨도 예시 글을 미리 만들지 않는다 · 예시를 고르면 글만 바뀐다(소리를 붙이거나 만들지 않는다 · «글을 고쳤어요» 아님)
+//     (종전 EX_PREBAKE 2026-10-06 «미리 만들어 두고 고르면 바로»는 걷었다 — 탭 기억뿐 · 한 줄씩 차례 · 실패해도 다시 안 해서 «바로 · 준비 중 · 목소리 만들기»로 갈렸다)
 //   ②«처음 글로» = 지금 고른 예시의 글(예시 1 로 돌아가지 않는다)
 //   ③예시 카드를 눌러도 포커스는 카드에 남는다(글칸 아래 금색 줄이 안 생긴다)
 //   ④«목소리 만들기 시작» · «나중에 할게요»가 세 순간을 미리 고르지 않는다
@@ -39,14 +40,13 @@ try {
     /* ①②③ 예시 */
     { const { pg, errs } = await open(w);
       await pg.evaluate(() => { _lSet('guestVoice', 'ai'); _lSet('pvVoice', 'ai'); VC.st = { ok: true, groom: { ready: true }, bride: { ready: true } }; buildSteps(); render(); });
-      const warm = await pg.evaluate(() => { const got = []; const keep = window._vcAltWarm; window._vcAltWarm = (k, who, t) => got.push(k + ':' + who + ':' + t); try { _exWarm('groom'); _exWarm('bride'); } finally { window._vcAltWarm = keep; }
-        const want = []; GUEST_KEYS.forEach((k, i) => GUEST_EX.forEach((X) => { if (X[1][i] !== _recNeed(k) || _aiNeed(k)) want.push(k); })); PV_EX.forEach((e) => { if (e[1] !== _recNeed('pv') || _aiNeed('pv')) want.push('pv'); });   /* [EX_NO_AUTO 2026-10-07] 소리가 지금 글과 안 맞는 줄은 지금 글도 미리 만든다 */
-        return { n: got.length, want: want.length, keys: [...new Set(got.map((x) => x.split(':')[0]))].sort().join(',') }; });
-      ok(`${w} ① 목소리가 생기면 하객 맞이 넷 · 식전 영상 소개의 다른 예시 글을 전부 미리 만든다 [EX_PREBAKE]`, warm.n === warm.want && warm.n > 0 && warm.keys === 'g0,g1,g2,g3,pv', JSON.stringify(warm));
-      await pg.evaluate(() => mkGo('guest')); await wait(500);
-      const sw = await pg.evaluate(() => { GUEST_KEYS.forEach((k) => { S.up[k] = { src: 'ai', id: 'local:' + k, tx: _txSig(_recNeed(k)), by: _vcLineWho(k) }; }); const got = []; const keep = window._exQuiet; window._exQuiet = (k) => got.push(k);   /* [EX_NO_AUTO] 예시를 고르면 _exQuiet(미리 만든 것이면 조용히 · 없으면 만들지 않음) */
-        try { mkGuestEx(2); } finally { window._exQuiet = keep; } return { got: got.join(','), edited: GUEST_KEYS.some((k) => _vtEdit(k)), t: _recNeed('g1') === GUEST_EX[2][1][1] }; });
-      ok(`${w} ① 예시 3 을 고르면 넷 다 그 글 소리로 바로 바꾼다 · «글을 고쳤어요» 아님 [EX_PREBAKE]`, sw.got === 'g0,g1,g2,g3' && !sw.edited && sw.t, JSON.stringify(sw));
+      const warm = await pg.evaluate(() => new Promise((res) => { const got = []; const keep = window._vc; window._vc = (op, d) => { if (op === 'make') got.push(d.key); return keep(op, d); };
+        mkGo('guest'); setTimeout(() => { window._vc = keep; res({ n: got.length, fns: ['_exWarm', '_exWarmEntry', '_vcWarmAll', '_vcAltWarm', '_vcWarmBoth'].filter((f) => typeof window[f] === 'function') }); }, 2500); }));
+      ok(`${w} ① 목소리가 있어도 하객 맞이에 들어오면 예시 글을 미리 만들지 않는다(업체에 묻는 것 0 · 미리 만들기 함수 0) [EX_PRESS_MAKE]`, warm.n === 0 && !warm.fns.length, JSON.stringify(warm));
+      await wait(200);
+      const sw = await pg.evaluate(() => { GUEST_KEYS.forEach((k) => { S.up[k] = { src: 'ai', id: 'local:' + k, tx: _txSig(_recNeed(k)), by: _vcLineWho(k) }; }); const got = []; const k1 = window._exQuiet, k2 = window._exFirst, k3 = window._vc; window._exQuiet = (k) => got.push('quiet:' + k); window._exFirst = (k) => got.push('first:' + k); window._vc = (op, d) => { if (op === 'make') got.push('make:' + d.key); return k3(op, d); };
+        try { mkGuestEx(2); } finally { window._exQuiet = k1; window._exFirst = k2; window._vc = k3; } return { got: got.join(','), edited: GUEST_KEYS.some((k) => _vtEdit(k)), t: _recNeed('g1') === GUEST_EX[2][1][1], need: GUEST_KEYS.every((k) => _aiNeed(k)) }; });
+      ok(`${w} ① 예시 3 을 고르면 글만 바뀐다 — 소리를 붙이거나 만들지 않는다 · 넷 다 «목소리 만들기» · «글을 고쳤어요» 아님 [EX_PRESS_MAKE]`, sw.got === '' && !sw.edited && sw.t && sw.need, JSON.stringify(sw));
       await wait(300);
       const foc = await pg.evaluate(() => { const a = document.activeElement; return a ? (a.getAttribute('data-fk') || a.tagName) : ''; });
       ok(`${w} ③ 예시 카드를 누르면 포커스는 그 카드 [EX_FOCUS_CARD]`, foc === 'mkex:guest:2', foc);
