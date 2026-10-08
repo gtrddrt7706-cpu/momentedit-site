@@ -112,19 +112,20 @@ async function trace(pg, f, ks, ms, step = 500) { const seen = {}; ks.forEach((k
 const shot = async (pg, f, nm) => { if (!SHOTS) return; await f.evaluate(() => { const e = document.querySelector('.mk-vcards'); if (e) e.scrollIntoView({ block: 'start' }); }); await pg.clock.runFor(50); await pg.screenshot({ path: path.join(SHOTS, nm + '.png') }); };
 
 const SC = {
-  /* 34 — 올리는 중 다른 예시 · 올리기가 느리면(15초) 새 글 소리가 먼저 다 되어 «올리기가 끝난 자리»(_mkUpDone → _exAgain)에서 붙어야 한다 */
+  /* 34 — 올리는 중 다른 예시 · ★[EX_PRESS_MAKE 2026-10-08] 예시를 누르면 글만 — 두 분이 눌러 만든 소리를 올리는 중에 다른 예시를 눌러도 «준비 중»이 아니고 끝나도 붙이거나 새로 만들지 않는다(종전 EX_BUSY_LINE «올리기가 끝난 자리에서 붙인다»는 걷었다) */
   async upload() { await SC._upload({ ritualFile: 5000 }, ''); await SC._upload({ ritualFile: 15000 }, ' · 올리기 15초'); },
   async _upload(lat, tag) {   // 장면이 아니라 upload 의 몸통(밑줄 이름은 장면 목록에서 빠진다)
     const { ctx, pg, f, errs } = await open({ mode: 'ai', lat });
     await f.evaluate(() => mkGo('guest')); await adv(pg, 600);
-    await chip(f, '[data-fk="mkex:guest:1"]'); await adv(pg, 250);
-    const t0 = await until(pg, f, () => !!MK_UPQ.g1 && !!MK_UP.g1, 60000);   // 신부 줄(g1)이 «다정하게» 소리를 올리기 시작한 순간
+    await chip(f, '[data-fk="mkex:guest:1"]'); await adv(pg, 250); const a0 = await MODES(f, G);
+    await f.evaluate(() => mkAiGo('g1')); await adv(pg, 250);
+    const t0 = await until(pg, f, () => !!MK_UP.g1 && MK_UP.g1 !== 'make', 60000);   // 신부 줄(g1)이 «다정하게» 소리를 올리기 시작한 순간
+    const n0 = await pg.evaluate(() => __SV.mk.length);
     await chip(f, '[data-fk="mkex:guest:2"]'); await adv(pg, 300);
     const a = await MODES(f, G); await shot(pg, f, 'upload-1-누른직후');
-    const tr = await trace(pg, f, G, 90000); const b = await MODES(f, G), fr = await FRESH(f, G); await shot(pg, f, 'upload-2-끝' + tag.replace(/\W+/g, ''));
-    const need = G.filter((k) => tr[k].includes('need')), early = G.filter((k) => tr[k].indexOf('keep') > -1 && tr[k].indexOf('keep') !== tr[k].length - 1);   // early = 새 글 소리가 붙기 전에 «확정하기»(옛 소리)가 떴다 사라짐
-    ok('34 upload' + tag + ' — «다정하게» 소리를 올리는 중에 «유쾌하게» → 바로 «준비 중»(옛 소리 «확정하기»가 아니라) [EX_BUSY_LINE]', t0 >= 0 && a.every((m) => m === 'prep' || m === 'keep') && a.filter((m) => m === 'prep').length >= 3, JSON.stringify({ t0, a }));
-    ok('34 upload' + tag + ' — 90초 동안 «목소리 만들기» 0 · «확정하기»는 새 글 소리가 붙을 때 한 번 · 끝은 네 줄 «확정하기» · 소리 = 새 글 · 화면 오류 0', !need.length && !early.length && b.every((m) => m === 'keep') && fr && !errs.length, JSON.stringify({ need, early, tr, b, fr, errs: errs.slice(0, 2) }));
+    const tr = await trace(pg, f, G, 30000); const b = await MODES(f, G), n1 = await pg.evaluate(() => __SV.mk.length); await shot(pg, f, 'upload-2-끝' + tag.replace(/\W+/g, ''));
+    ok('34 upload' + tag + ' — 예시를 누르면 글만(네 줄 «목소리 만들기») · 신부 줄을 눌러 올리는 중에 다른 예시 → «준비 중» 없음 [EX_PRESS_MAKE]', a0.every((m) => m === 'need') && t0 >= 0 && !a.includes('prep'), JSON.stringify({ a0, t0, a }));
+    ok('34 upload' + tag + ' — 올리기가 끝나면 네 줄 «목소리 만들기» · 붙이거나 새로 만들지 않는다(업체에 더 묻는 것 0) · 화면 오류 0', b.every((m) => m === 'need') && n1 === n0 && !Object.values(tr).some((x) => x.includes('prep')) && !errs.length, JSON.stringify({ tr, b, n0, n1, errs: errs.slice(0, 2) }));
     await ctx.close(); },
   /* 34 — 빈 줄을 채우는 중에 예시 */
   async fill() { await SC._fill(false); await SC._fill(true); },   // back = «유쾌하게» 뒤 1초 만에 채우던 글(«담백하게»)로 되돌아온다(사장님이 칩을 빠르게 오가는 사례 · EX_RACE)
@@ -139,7 +140,7 @@ const SC = {
     const a = await MODES(f, ['g0', 'g1']); await shot(pg, f, 'fill-1-누른직후' + (back ? '-되돌아옴' : ''));
     const tr = await trace(pg, f, G, 120000); const b = await MODES(f, G), fr = await FRESH(f, G); await shot(pg, f, 'fill-2-끝' + (back ? '-되돌아옴' : ''));
     const need01 = ['g0', 'g1'].filter((k) => tr[k].includes('need'));
-    ok('34 fill' + tag + ' — 채우던 빈 줄(만드는 중)에서 예시를 누르면 «준비 중» · 채우던 글로 돌아오면 그 일을 잇는다(«만드는 중») [EX_BUSY_LINE]', t0 >= 0 && a[0] === (back ? 'make' : 'prep'), JSON.stringify({ t0, a }));
+    ok('34 fill' + tag + ' — 처음 채우는 중에 예시를 누르면 채우던 줄은 «만드는 중» 그대로(지금 글로 끝까지 채운다) [FILL_EX]', t0 >= 0 && a[0] === 'make', JSON.stringify({ t0, a }));
     ok('34 fill' + tag + ' — 채우던 줄에 «목소리 만들기» 0 · 2분 안에 네 줄 «확정하기» · 소리 = 새 글 · 화면 오류 0', !need01.length && b.every((m) => m === 'keep') && fr && !errs.length, JSON.stringify({ need01, tr, b, fr, errs: errs.slice(0, 2) }));
     await ctx.close(); },
   /* 34 — 입장 인사 · 식전 영상 소개를 채우는 중에 칩 */
@@ -152,37 +153,32 @@ const SC = {
     await f.evaluate(() => mkGo('prevideo')); await adv(pg, 300);
     await chip(f, '[data-fk="mkex:pv:2"]'); await adv(pg, 300); const a2 = await MODES(f, ['pv']);
     const tr = await trace(pg, f, ['entry', 'pv'], 120000); const b = await MODES(f, ['entry', 'pv']), fr = await FRESH(f, ['entry', 'pv']); await shot(pg, f, 'fillEP-끝');
-    ok('34 fillEP — 채우는 중 입장 멘트 · 소개 칩 → «준비 중» → 둘 다 «확정하기» · 소리 = 새 글 [EX_BUSY_LINE]', te >= 0 && tp >= 0 && a[0] === 'prep' && a2[0] === 'prep' && b.every((m) => m === 'keep') && fr && !tr.pv.slice(1).includes('need') && !errs.length, JSON.stringify({ te, tp, a, a2, tr, b, fr, errs: errs.slice(0, 2) }));
+    ok('34 fillEP — 처음 채우는 중 입장 멘트 · 소개 칩 → «만드는 중» 그대로 → 둘 다 «확정하기» · 소리 = 새 글 [FILL_EX]', te >= 0 && tp >= 0 && a[0] === 'make' && a2[0] === 'make' && b.every((m) => m === 'keep') && fr && !tr.pv.slice(1).includes('need') && !errs.length, JSON.stringify({ te, tp, a, a2, tr, b, fr, errs: errs.slice(0, 2) }));
     await ctx.close(); },
-  /* 34 대조 — 고객이 지운 빈 줄 */
+  /* 34 대조 — 고객이 지운 빈 줄 · [EX_PRESS_MAKE] 칩을 눌러도 아무 줄도 만들지 않는다 */
   async deleted() { const { ctx, pg, f, errs } = await open({ mode: 'ai' });
     await f.evaluate(() => { S.up.g1 = 0; _persist(); mkGo('guest'); });   // 지우기 단추와 같은 모양(_mkUpDrop · S.up[k]=0) await adv(pg, 600);
+    const n0 = await pg.evaluate(() => __SV.mk.length);
     await chip(f, '[data-fk="mkex:guest:2"]'); await adv(pg, 60000);
-    const r = await f.evaluate(() => ({ g1: (S.up || {}).g1 || null, m: ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k)) }));
-    const fr = await FRESH(f, ['g0', 'g2', 'g3']);
-    ok('34 deleted — 고객이 지운 빈 줄은 칩을 눌러도 빈 줄 그대로 · 나머지 셋은 «확정하기» [EX_PREBAKE]', !r.g1 && r.m[1] === 'need' && [0, 2, 3].every((i) => r.m[i] === 'keep') && fr && !errs.length, JSON.stringify({ r, fr }));
+    const r = await f.evaluate(() => ({ g1: (S.up || {}).g1 || null, m: ['g0', 'g1', 'g2', 'g3'].map((k) => _aiMode(k)) })), n1 = await pg.evaluate(() => __SV.mk.length);
+    ok('34 deleted — 고객이 지운 빈 줄은 칩을 눌러도 빈 줄 그대로 · 나머지 셋도 «목소리 만들기»(만들지 않는다) [EX_PRESS_MAKE]', !r.g1 && r.m.every((m) => m === 'need') && n1 === n0 && !errs.length, JSON.stringify({ r, n0, n1 }));
     await ctx.close(); },
-  /* 35 — 같은 글을 두 번 묻지 않는다 */
+  /* 35 — [EX_PRESS_MAKE 2026-10-08] 새 탭 · 쪽에 들어와도 · 예시를 눌러도 업체에 묻지 않는다(미리 만들기 · 먼저 만들기를 걷었다 — 종전 EX_ONE_ASK «데우기와 겹쳐 묻지 않기»는 데우기가 없어져 쓸 데가 없다) */
   async dup() { { const { ctx, pg, f, errs } = await open({ mode: 'ai', fresh: true });
-      await f.evaluate(() => mkGo('guest')); await adv(pg, 4000);
-      await chip(f, '[data-fk="mkex:guest:1"]'); await adv(pg, 300);
-      const t = await until(pg, f, () => ['g0', 'g1', 'g2', 'g3'].every((k) => _aiMode(k) === 'keep' && !MK_UP[k]), 120000);
-      await adv(pg, 240000, 1000); const d = await pg.evaluate(() => ({ dup: __SV.dup.slice(), n: __SV.mk.length }));
-      ok('35 dup — 새 탭 · 데우기가 묻는 중에 «다정하게» → 네 줄 «확정하기» · 같은 열쇠를 서버에 겹쳐 묻는 수 0 [EX_ONE_ASK]', t >= 0 && !d.dup.length && !errs.length, JSON.stringify({ t, d }));
+      await f.evaluate(() => mkGo('guest')); await adv(pg, 4000); const n0 = await pg.evaluate(() => __SV.mk.length);
+      await chip(f, '[data-fk="mkex:guest:1"]'); await adv(pg, 60000, 1000);
+      const d = await pg.evaluate(() => ({ dup: __SV.dup.slice(), n: __SV.mk.length })), m = await MODES(f, G);
+      ok('35 dup — 새 탭 · 하객 맞이에 들어와도 · «다정하게»를 눌러도 업체에 묻는 것 0 · 네 줄 «목소리 만들기» [EX_PRESS_MAKE]', n0 === 0 && d.n === 0 && !d.dup.length && m.every((x) => x === 'need') && !errs.length, JSON.stringify({ n0, d, m }));
       await ctx.close(); }
     { const { ctx, pg, f, errs } = await open({ mode: 'ai', fresh: true });
-      await f.evaluate(() => mkGo('entry')); let tx = null, n = -1;   // 데우기 차례가 «지금 멘트가 아닌» 멘트를 업체에 묻고 있는 순간을 찾는다
-      const nOf = (tx) => f.evaluate((tx) => { const e0 = S.entry; let hit = -1; ENTRY_KEYS.forEach((v, i) => { if (!ENTRY[v] || hit > -1 || v === e0) return; S.entry = v; const sn = _vcSnap('entry', {}); S.entry = e0; if (sn.lines && sn.lines.map((l) => String(l[1]).trim().slice(0, 10)).join('/') === tx) hit = i; }); return hit; }, tx);
-      for (let i = 0; i < 600 && n < 0; i++) { await pg.clock.runFor(500); await wait(3); tx = await pg.evaluate(() => { const m = __SV.mk.filter((x) => x.key === 'entry' && x.fresh > 0 && x.bg && !x.end).pop(); return m ? m.tx : null; }); if (tx) n = await nOf(tx); }
-      if (n >= 0) await chip(f, `[data-fk="mkex:entry:${n}"]`); await adv(pg, 300); const a = await MODES(f, ['entry']);
-      const t = await until(pg, f, () => _aiMode('entry') === 'keep' && !MK_UP.entry, 120000); await adv(pg, 120000, 1000);
-      const d = await pg.evaluate(() => __SV.dup.slice());
-      ok('35 dup — 입장 인사 · 데우는 중인 멘트 칩 → «준비 중» → «확정하기» · 겹쳐 묻는 수 0 [EX_ONE_ASK]', n >= 0 && a[0] === 'prep' && t >= 0 && !d.length && !errs.length, JSON.stringify({ tx, n, a, t, d }));
+      await f.evaluate(() => mkGo('entry')); await adv(pg, 4000); const n0 = await pg.evaluate(() => __SV.mk.length);
+      await chip(f, '[data-fk="mkex:entry:2"]'); await adv(pg, 60000, 1000); const a = await MODES(f, ['entry']);
+      const d = await pg.evaluate(() => ({ dup: __SV.dup.slice(), n: __SV.mk.length }));
+      ok('35 dup — 입장 인사 · 들어와도 · 멘트 칩을 눌러도 업체에 묻는 것 0 · «목소리 만들기» [EX_PRESS_MAKE]', n0 === 0 && d.n === 0 && a[0] === 'need' && !errs.length, JSON.stringify({ n0, a, d }));
       await ctx.close(); } },
   /* 36 — «준비 중» 알약 탭 */
   async tap() { const { ctx, pg, f, errs } = await open({ mode: 'ai', fresh: true });
-    await f.evaluate(() => mkGo('guest')); await adv(pg, 800);
-    await f.evaluate(() => mkGuestEx(1)); await adv(pg, 500);
+    await f.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => { S.up[k] = Object.assign({}, S.up[k], { tx: _txSig('옛날 글 ' + k) }); }); _persist(); mkGo('guest'); }); await adv(pg, 500);   // [EX_PRESS_MAKE] «준비 중»은 이제 배포로 예시 글이 바뀐 줄(소리는 옛 글)을 맞출 때만 — 그 모양으로 연다
     await f.evaluate(() => { const b = document.querySelector('.mk-aip[data-key="g0"]'); b.scrollIntoView({ block: 'center' }); }); await adv(pg, 200);
     const pre = await f.evaluate(() => ({ m: _aiMode('g0'), dis: (document.querySelector('.mk-aip[data-key="g0"]') || {}).getAttribute('aria-disabled') }));
     const n0 = await pg.evaluate(() => __SV.mk.filter((m) => m.key === 'g0' && !m.bg).length);
@@ -228,15 +224,15 @@ const SC = {
     await f.evaluate(() => mkGo('guest')); await adv(pg, 800);
     const RD = () => ['g0', 'g1', 'g2', 'g3'].map((k) => { const b = document.querySelector('[data-fk="mkvpl:' + k + '"]'), p = document.querySelector('.mk-aip[data-key="' + k + '"]'), s = (p && p.getAttribute('style')) || '', m = /--d:([\d.]+)s;--dl:(-[\d.]+)s/.exec(s), j = VC_ALTF[k];
       return { k, mode: _aiMode(k), d: m ? +m[1] : null, dl: m ? +m[2] : null, jd: j && j.d ? +j.d.toFixed(1) : null, aria: p ? p.getAttribute('aria-label') : '', bfill: !!(b && /wfill/.test(b.className)), block: !!(b && (b.disabled || b.getAttribute('aria-disabled') === 'true')), up: !!MK_UP[k] }; });
-    await f.evaluate(() => mkGuestEx(1)); await adv(pg, 250); const a = await f.evaluate(RD);
+    await f.evaluate(() => { ['g0', 'g1', 'g2', 'g3'].forEach((k) => { S.up[k] = Object.assign({}, S.up[k], { tx: _txSig('옛날 글 ' + k + Date.now()) }); }); _persist(); _exFirstStale(); }); await adv(pg, 250); const a = await f.evaluate(RD);   // [EX_PRESS_MAKE] «준비 중» = 배포로 예시 글이 바뀐 줄 맞추기(_exFirstStale)뿐
     const brk = []; let seenUp = 0;
     for (let i = 0; i < 160; i++) { await pg.clock.runFor(250); await wait(3); const c = await f.evaluate(RD); c.forEach((x) => { if (x.bfill && brk.length < 4) brk.push(x.k + ':' + x.mode); }); if (c.some((x) => x.mode === 'keep' && x.up && x.block && !x.bfill)) seenUp++; if (c.every((x) => x.mode === 'keep' && !x.up)) break; }
     const cont = !brk.length;
-    await adv(pg, 25000, 1000); await f.evaluate(() => mkGuestEx(2)); await adv(pg, 250); const b = await f.evaluate(RD);
+    await adv(pg, 25000, 1000); await f.evaluate(() => { for (const k in VC_ALT) delete VC_ALT[k]; ['g0', 'g1', 'g2', 'g3'].forEach((k) => { S.up[k] = Object.assign({}, S.up[k], { tx: _txSig('옛날 글 ' + k + Date.now()) }); }); _persist(); _exFirstStale(); }); await adv(pg, 250); const b = await f.evaluate(RD);   // 기억에 든 지금 글 소리는 비운다(있으면 맞추기가 조용히 붙여 «준비 중»이 없다 · 그것도 맞다)
     const pa = a.filter((x) => x.mode === 'prep'), pb = b.filter((x) => x.mode === 'prep');
     const own = (x) => x.d != null && Math.abs(x.d - x.jd) < 0.11 && x.d > 3.05 && x.dl > -3 && x.dl <= 0 && /준비 중/.test(x.aria) && !x.bfill && x.block;   // 알약 시계 = 그 일의 어림 · 누른 때부터(지난 올리기 20초 넘게 전 아님) · ▶ 는 잠기고 차오르지 않는다
     ok('40 fillbar — «준비 중» 알약 = 그 일의 시계(길이 = 어림 · 누른 때부터 · «올리기 3초» 아님) · 이름 «준비 중» · ▶ 는 흐리게 잠김(차오름 없음) [PREP_FILL · PLAY_NO_DUP]', pa.length >= 3 && pa.every(own), JSON.stringify(a));
-    ok('40 fillbar — 붙여 올리는 동안도 ▶ 는 차오르지 않고 잠김 · 같은 탭 두 번째 예시도 0 부터(지난 올리기 시각을 쓰지 않음)', cont && seenUp > 0 && pb.length >= 1 && pb.every(own) && !errs.length, JSON.stringify({ cont, brk, seenUp, b: pb }));
+    ok('40 fillbar — 붙여 올리는 동안도 ▶ 는 차오르지 않고 잠김 · 같은 탭 두 번째 맞추기도 0 부터(지난 올리기 시각을 쓰지 않음)', cont && seenUp > 0 && pb.length >= 1 && pb.every(own) && !errs.length, JSON.stringify({ cont, brk, seenUp, b: pb }));
     await ctx.close(); },
   /* 41 — 옆글 줄 수 · 겹침 */
   async side() { const MEAS = () => [...document.querySelectorAll('.mk-vcards > li')].map((li) => { const s = li.querySelector('.mk-vch > .mk-vst-side'); if (!s) return null;
