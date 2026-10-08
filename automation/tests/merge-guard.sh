@@ -14646,6 +14646,127 @@ chk 'VC_SESS_WORD' order-preview.html 1
 chk 'DEL_SAFE' order-preview.html 1
 chk 'VC_SIM' scripts/audit/vc-sim.mjs 1
 if command -v node >/dev/null 2>&1; then ONLY='만들기(1분 녹음)가 60초를 넘겨,줄 올리기 두 번 연달아,로그인 풀림,지우기가 60초' node scripts/audit/vc-sim.mjs >/dev/null 2>&1; _vsm=$?; if [ "$_vsm" = 1 ]; then echo 'FAIL vc-sim: 목소리 오류 장면(1분 녹음 끊김 · 올리기 끊김 · 로그인 풀림 · 지우기 끊김)이 어긋났습니다 — node scripts/audit/vc-sim.mjs'; fail=1; else echo "ok vc-sim ($_vsm)"; fi; fi
+# ── 목소리 1라운드 tune 묶음 (2026-10-08)
+# ★[VC_R1_TUNE 2026-10-08 목소리 1라운드 · 맞추기 창] 예시 글칸 잘림 · 예시만 낱자 검사 · 채우는 중 빠르기 · 다시 굽기 실패 줄 · 확정 = 들리는 소리 · 누른 글만 · 실패 글 걷기 · 빈 글칸 잠금
+#   vc-r1-tune.mjs 가 390 폭에서 단추를 실제로 눌러 잰다 — 고친 줄을 하나씩 되돌리면 그 장면이 빨강(돌연변이 14 확인 2026-10-08)
+chk 'DLG_TA_GROW' order-preview.html 1
+chk "querySelectorAll('.ta.grow'),_taGrow); }catch(e){}   /\* ★\[DLG_TA_GROW" order-preview.html 1
+chk 'UNREAD_OWN_TEXT' order-preview.html 2
+chk "_slKeyOk(data.key)&&String(data.text||'').trim()===String(_recNeed(data.key)||'').trim()" order-preview.html 1
+chk 'FILL_GOT' order-preview.html 2
+chk 'function _vcFillGot(k,b0)' order-preview.html 1
+chk 'if(!_vcFillGot(k,_b0)){ if(_tr<3) return go();' order-preview.html 1
+chk 'REBAKE_FAIL_NEED' order-preview.html 3
+chk "_vtNeed(key,true,true)||(!!(MK.lineErr||{})\[key\]&&_vtNeed(key))" order-preview.html 1
+chk 'KEEP_HEARD' order-preview.html 2
+chk 'function _keepBake(key)' order-preview.html 1
+chk 'if(!S.vkeep\[key\]&&_keepBake(key)) return;' order-preview.html 1
+chk 'TUNE_PRESS_ONLY' order-preview.html 1
+chk 'if(q&&VC.tune===T&&q.text===_tuneText()) _vcSamplePlay(true);' order-preview.html 1
+chk 'TUNE_ERR_STALE' order-preview.html 3
+chk "delete S.vtuneText; if(VC.tune) VC.tune.err='';" order-preview.html 1
+chk 'TUNE_EMPTY_ONE' order-preview.html 2
+chk 'function _tuneGoDis()' order-preview.html 1
+chk "(_tuneGoDis()?' disabled':'')" order-preview.html 1
+chk 'if(!T||T.loading||_tuneEmpty()) return;' order-preview.html 1
+chk 'VC_R1_TUNE' scripts/audit/vc-r1-tune.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-tune.mjs >/dev/null 2>&1; _vrt=$?; if [ "$_vrt" = 1 ]; then echo 'FAIL vc-r1-tune: 맞추기 창 1라운드(예시 글칸 · 낱자 검사 · 채우는 중 빠르기 · 다시 굽기 실패 · 확정 · 누른 글만 · 실패 글 · 빈 글칸)가 어긋났습니다 — node scripts/audit/vc-r1-tune.mjs'; fail=1; elif [ "$_vrt" = 2 ]; then echo 'skip vc-r1-tune: 브라우저 없음'; else echo 'ok vc-r1-tune: 맞추기 창 1라운드 8장면'; fi; fi
+# ── 목소리 1라운드 create 묶음 (2026-10-08)
+# ★★[VC_R1_CREATE 2026-10-08 목소리 1라운드 «만들기 · 다시 녹음» 묶음 — 사장님 «오류 · 모든 경우의 수 시뮬레이션 · 라운드별로 안정화»] 고친 것 열하나 — 되돌리면 vc-r1-create 장면이 빨강(돌연변이 확인)
+chk 'VC_EFAIL_KEEP' order-preview.html 4
+chk "if(VC.read!==R&&R.take\[1\]&&!R.limit" order-preview.html 1
+chk "VC.efail=VC.efail||{}; VC.efail\[w\]=R; }" order-preview.html 1   # [VC_EFAIL_KEEP] 닫은 뒤 실패 — 읽은 녹음을 남긴다
+chk 'VC_RENEW_KEEP' order-preview.html 3
+chk "S.vsetNeed\[w\]=d.renewed?'renew':1" order-preview.html 1   # [VC_RENEW_KEEP] «새 목소리»는 S 에
+chk "render(); if(need) _vcAutoFill(w,ren); if(!ren) _vcRebakeWho(w); };" order-preview.html 1   # [VC_RENEW_KEEP] 카드 · 새로 연 화면 길도 새 목소리로
+chk 'VC_TUNE_NO_COVER' order-preview.html 1
+chk "if(!other) _vcTuneOpen(w,'enroll');" order-preview.html 1   # [VC_TUNE_NO_COVER] 다른 창 · 녹음 위로 맞추기 창을 열지 않는다
+chk 'CONSENT_LIVE' order-preview.html 3
+chk "if(!live){ render(); return; } VC.panel=null; VC.agree=false; mkVcRead(w);" order-preview.html 1   # [CONSENT_LIVE] 닫은 동의 창을 다시 열지 않는다
+nochk "VC.agreeing=true" order-preview.html 0   # [CONSENT_LIVE] 분 구분 없는 «저장하는 중» 금지
+chk 'VC_JOB_MARK' order-preview.html 2
+chk "_vcJobMark(st); if(!st.jobs) return;" order-preview.html 1   # [VC_JOB_MARK] 새로 연 화면이 보낸 만들기를 잇는다
+chk "S.vjob\[w\]={jid:E.jid,t:E.t0,snap:E.snap}; _persist();" order-preview.html 1
+chk 'VC_RID_FRESH' order-preview.html 1
+nochk "open:false,rid:0,cb:{}" order-preview.html 0   # [VC_RID_FRESH] 요청 번호를 0 에서 세지 않는다
+chk 'MIC_GEN' order-preview.html 7
+chk "if(g!==MIC_GEN){ off(); var x=new Error('stale'); x.name='_stale'; throw x; }" order-preview.html 1   # [MIC_GEN] 닫은 뒤 늦게 온 마이크 흐름은 바로 닫는다
+chk "if(g!==PR.gen){ try{ st.getTracks()" order-preview.html 1   # [MIC_GEN] 연습 녹음도
+chk 'SHORT_WHICH' order-preview.html 3
+chk "R.short=R.take\[1\].dur<R.take\[2\].dur?1:2;" order-preview.html 1   # [SHORT_WHICH] 짧은 글을 가리킨다
+chk 'CONSENT_ONE_ASK' order-preview.html 1
+nochk "본인이 직접 눌러 주세요. 다른 분이" order-preview.html 0   # [CONSENT_ONE_ASK] «직접 눌러 주세요»를 두 번 말하지 않는다
+chk 'CHK_GAP' order-preview.html 2
+chk ".mk-dlg-c1 .mk-mk{display:inline-flex;vertical-align:-2px;margin-right:4px}" order-preview.html 1   # [CHK_GAP]
+chk 'TUNE_REQ_OWN' order-preview.html 5
+chk "if(r&&VC.tune===T) _vcSamplePlay(); }); }" order-preview.html 1   # [TUNE_REQ_OWN] 부탁한 창에서만 튼다
+chk "if(VC.sload\[lk\]) return VC.sload\[lk\];" order-preview.html 1   # [TUNE_REQ_OWN] 같은 글을 만드는 중이면 그 답을 기다린다
+chk "_sac=null; if(_g()!==g) return null; VC.sraw\[w\]=" order-preview.html 1   # [TUNE_REQ_OWN] 옛 목소리 답은 버린다
+chk 'VC_R1_CREATE' scripts/audit/vc-r1-create.mjs 1
+chk "\[SHORT_WHICH" scripts/audit/vc-screen.mjs 1
+chk "\[CONSENT_ONE_ASK" scripts/audit/vc-screen.mjs 1
+if command -v node >/dev/null 2>&1; then ONLY='1,5,8,9,17' node scripts/audit/vc-r1-create.mjs >/dev/null 2>&1; _vr1=$?; if [ "$_vr1" = 1 ]; then echo 'FAIL vc-r1-create: 목소리 만들기 · 다시 녹음(닫은 뒤 실패 · 동의 저장 중 닫기 · 짧은 글 · 동의 문구 · 늦은 예시 답)이 어긋났습니다 — node scripts/audit/vc-r1-create.mjs'; fail=1; else echo "ok vc-r1-create ($_vr1)"; fi; fi
+# ── 목소리 1라운드 mix 묶음 (2026-10-08)
+# ★[VC_R1_MIX 2026-10-08 목소리 1라운드 mix 묶음 #12 · #22 · #23 · #24 · #25 · #27 · #28 · #30 · #31 · #33] — 고친 줄 25개를 하나씩 되돌리면 각각 빨강(돌연변이 확인)
+chk 'VC_R1_MIX' scripts/audit/vc-r1-mix.mjs 1
+chk 'function _whoMiss(key)' order-preview.html 1
+chk '(v.wq!==_slWhoSig(key)||!!_whoMiss(key))' order-preview.html 1
+chk 'function _whoLab(key)' order-preview.html 1
+chk '{t:(_whoStale(q.up)&&!_txStale(q.up)?_whoLab(q.up):q.up===' order-preview.html 1
+chk "eu=_upStale('entry')?null:_rfUrl('entry')" order-preview.html 1
+chk 'if(ai&&u.tx===_txSig(_recNeed(k))&&(u.wq==null||!_slKeyOk(k)||u.wq===_slWhoSig(k))){' order-preview.html 1   # [WHO_LAB] 합친 판(EX_BUSY_LINE 과 함께)
+chk 'function _lineBlank(key)' order-preview.html 1
+chk 'function _lineBlankDrop(ks)' order-preview.html 1
+chk 'if(q.up&&_lineBlank(q.up)) return true;' order-preview.html 1
+chk 'try{ _lineBlankDrop(); }catch(e){}' order-preview.html 1
+chk 'if(_lineBlankDrop()) _persist();' order-preview.html 1
+chk "return Promise.resolve({ok:false,empty:true,error:''});" order-preview.html 1
+chk '(_vcToNar(_nk)||(_nk!==.pv.&&_lineBlank(_nk)))' order-preview.html 1
+chk '_vpCur(mom)===.ai.&&_recNeed(key)){' order-preview.html 1
+chk 'if(!_recNeed(k)) return false; if(!v||typeof v!==.object.) return true;' order-preview.html 1
+chk '비워 두면 이 줄은 스튜디오 나레이션으로 나와요' order-preview.html 1
+chk "if((S.vlines||{}).pv){ S.pvText=_recNeed('pv'); return; }" order-preview.html 1
+chk 'entry|pv)$/.test(key)&&(S.vlines' order-preview.html 1
+nochk 'S.pvText=txt.slice(0,PV_MAX)' order-preview.html
+chk 'function _slCapFit(key,L,i)' order-preview.html 1
+chk '_slCapFit(key,L,i); _slPut(key,L);' order-preview.html 1
+chk 'Math.min(300,_slRoom(key,L,i))' order-preview.html 1
+chk '(_whoStale(key)||VC.stErr||_whoWaitErr(key))' order-preview.html 1
+chk 'try{ _whoRetryRun(); }catch(e){}' order-preview.html 1
+chk 'function _whoPend(key,i,w,go,fx)' order-preview.html 1
+chk 'var on=_whoPendOn(key,i,x.w)===o\[0\]' order-preview.html 1
+chk 'rd=_whoPendOn(q.up,null,rd);' order-preview.html 1
+nochk 'window.mkSlWho=function(key,i,w){ if(MK_UP\[key\]) return;' order-preview.html
+chk 'render(); if(_exIs(key)) _exAudio(\[key\]); };' order-preview.html 1
+chk 'var rd=function(){ render(); if(key&&_exIs(key)) _exAudio(\[key\]); };' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-mix.mjs >/dev/null 2>&1; _vrm=$?; if [ "$_vrm" = 1 ]; then echo 'FAIL vc-r1-mix: 목소리 1라운드 mix(섞인 줄 다시 · 빈 줄 = 나레이션 · 소개글 200자 · 같은 분 다시 · 바쁜 동안 누른 분 · 예시 글 소리 바로)가 어긋났습니다 — node scripts/audit/vc-r1-mix.mjs'; fail=1; elif [ "$_vrm" = 2 ]; then echo 'skip vc-r1-mix: 브라우저 없음'; else echo 'ok vc-r1-mix: 장면 8 · 판정 25'; fi; fi
+# ── 목소리 1라운드 ex 묶음 (2026-10-08)
+# ★[목소리 1라운드 ex · 2026-10-08] 참고 예시 칩 — 만드는 중 · 올리는 중에도 «준비 중» · 같은 글 한 번만 · 준비 중 탭 막기 · 확정만 한 줄 묻기 · 옛 예시 글 · 차오름 시계 · 옆글 두 줄
+chk 'EX_BUSY_LINE' order-preview.html 10
+chk 'function _exAgain(key,fill)' order-preview.html 1
+chk 'function _exPrepJob(key)' order-preview.html 1
+chk 'function _exUpOld(key)' order-preview.html 1
+chk 'EX_AGAIN\[key\]=1' order-preview.html 1
+chk 'VC_ALTF\[k\]&&VC_ALTF\[k\].fill' order-preview.html 1
+nochk '(S.vself||{})\[key\]||MK_UP\[key\]) return false' order-preview.html 0
+chk 'EX_ONE_ASK' order-preview.html 5
+nochk 'var pk=key+.|.+who;' order-preview.html 0
+chk 'mp.go=1' order-preview.html 1
+chk 'PREP_NO_TAP' order-preview.html 1
+chk '_aiMode(key)===.prep.) return;' order-preview.html 1
+chk 'EX_ASK_ONE' order-preview.html 6
+chk 'function _exAsk(what,edited,kept,many)' order-preview.html 1
+nochk 'body:.지금 적어 둔 하객 맞이' order-preview.html 0
+chk 'VU_OLD_EX' order-preview.html 3
+nochk 'PV_EX.findIndex(function(x){ return x\[1\]===pt; })' order-preview.html 0
+chk 'if(mine&&pn<0)' order-preview.html 1
+chk 'if(me&&gn<0)' order-preview.html 1
+chk 'PREP_FILL' order-preview.html 3
+chk 'MK.upCont' order-preview.html 3
+chk 'SIDE_TWO_LINE' order-preview.html 2
+chk 'mk-vst-side{flex:0 0 auto;width:min-content}' order-preview.html 1
+chk 'VC_R1_EX' scripts/audit/vc-r1-ex.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-ex.mjs >/dev/null 2>&1; _vr1=$?; if [ "$_vr1" = 1 ]; then echo 'FAIL vc-r1-ex: 참고 예시 칩(만드는 중 · 올리는 중 예시 · 같은 글 두 번 · 준비 중 탭 · 확정만 묻기 · 옛 예시 글 · 차오름 · 옆글 두 줄)이 어긋났습니다 — node scripts/audit/vc-r1-ex.mjs'; fail=1; elif [ "$_vr1" = 2 ]; then echo 'skip vc-r1-ex: 브라우저 없음'; else echo 'ok vc-r1-ex: 참고 예시 칩 1라운드 10장면'; fi; fi
 # ★[VC_NET_SPLIT 2026-10-07 사장님 «왜 재생이 안 되지?»(맞추기 창 V6)] 연결 끊김(V6)과 «서버에서 멈춤»(V9 · ★[ERR_CODES] 종전 V8 — 8 은 사이트 전체에서 로그인 풀림)을 가른다 — 끊긴 직후 상태 확인 한 번
 chk 'VC_NET_SPLIT' mypage.html 1
 chk 'VC_NET_SPLIT' order-preview.html 1
@@ -14724,7 +14845,7 @@ chk "'예시를 바꿨어요':'글을 고쳤어요'" order-preview.html 1
 nochk "'읽는 분이 바뀌었어요':'글을 고쳤어요')" order-preview.html
 chk 'EX_OLD_IS_EX' order-preview.html 8
 chk 'var PV_OLD={' order-preview.html 1
-chk "if(!t||_exIs('pv')) return put();" order-preview.html 1
+chk "_exAsk('소개글은',!!t&&!_exIs('pv')" order-preview.html 1   # [EX_OLD_IS_EX → EX_ASK_ONE 2026-10-08] 옛 예시 글이면 묻지 않는다(묻기는 _exAsk 한 곳)
 # ★[EX_OLD_COVER 2026-10-07 사장님 «확실하게»] 예시 글을 바꾸면 옛 글을 EX_OLD_1006 · PV_OLD 에 남겨야 한다 — origin/main 과 대조(브라우저 없이 CI 에서 돈다)
 chk 'EX_OLD_COVER' scripts/audit/ex-old-cover.mjs 1
 chk 'EX_PROMISE' CLAUDE.md 1
