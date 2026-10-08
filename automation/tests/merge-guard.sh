@@ -11982,7 +11982,7 @@ fi
 chk 'PICK_V2' order-preview.html 7
 chk 'PICK_V2' scripts/audit/pick-v2.mjs 1
 chk 'FLOW_LINE' assets/ritual-open.js 2
-chk "var ink = '#7A5F37';" assets/ritual-open.js 1   # 선 하나 · 본식은 한 색(회색 밑줄 · 옅은 절정 칸 · 눈금 · 범례 없음) · ★[TABLE_APART 2026-10-08 사장님] 본식 뒤 꼬리만 옅은 금
+chk "var ink = '#7A5F37', sw = (tiny" assets/ritual-open.js 1   # 선 하나 · 본식은 한 색(회색 밑줄 · 옅은 절정 칸 · 눈금 · 범례 없음) · ★[TABLE_APART 2026-10-08 사장님] 본식 뒤 꼬리만 옅은 금 · [FLOW_MOOD] 한 굵기(sw)
 chk "var AFTER_INK = '#B89A75'" assets/ritual-open.js 1   # [TABLE_APART] 테이블 인사 꼬리 = 옅은 금(같은 곡선 · 색만)
 chk 'TILE_PICK' assets/ritual-open.js 1
 chk 'TILE_PICK' order-preview.html 2
@@ -14712,6 +14712,43 @@ chk 'FSUM_SEP' order-preview.html 2
 chk 'TABLE_APART' mypage.html 1
 chk 'TABLE_APART' assets/ritual-cue.js 1
 chk 'TABLE_APART' api/_ritual-kb.js 2
+# ── [FLOW_MOOD 2026-10-08 사장님 «너무 수학적 그래프 말고 우리 무드에 맞게» → «추천대로 하는데 붓선은 빼자»] 한 굵기 선 · 점선 여운 · 입장 · 닫는 인사 진주 · 명조 이름표 · 축 없음
+chk 'FLOW_MOOD' assets/ritual-open.js 7
+chk "SERIF_SVG = \"'Noto Serif KR','Nanum Myeongjo',serif\"" assets/ritual-open.js 1
+chk 'class="flow-line flow-after-line"' assets/ritual-open.js 1   # 본식 뒤 = 옅은 금 점선(여운)
+chk "stroke-dasharray=\"' + (mini ? '0.1 3.4' : '0.1 5.2')" assets/ritual-open.js 1
+chk '<circle class="flow-mark"' assets/ritual-open.js 1   # 입장 · 닫는 인사 = 빈 진주
+chk 'class="flow-name" x=' assets/ritual-open.js 1   # 이름표는 명조 · 안 겹치는 자리(place)
+chk 'flow-name flow-peak-name' assets/ritual-open.js 1
+nochk 'stroke="#E6E1D9"' assets/ritual-open.js   # ★바닥 가로선(축) 금지 — 2026-10-08 사용자 지시로 삭제
+nochk 'linearGradient' assets/ritual-open.js   # ★붓선 · 색 갈라 칠하기 금지 — 2026-10-08 «붓선은 빼자»
+# ── [PEAK_PICK 2026-10-08 사장님 «감동 포인트 고객마다 다를 수 있잖아» → «추천대로»(P1)] 가장 벅찬 순간은 두 분이 고른다 · 미리 눌린 칩 없음 · 콘솔 ★(약속 글 없음)
+chk 'PEAK_PICK' assets/ritual-open.js 2
+chk 'function peakPick(S)' assets/ritual-open.js 1
+chk 'peakPick: peakPick, peakCands: peakCands, PEAK_CAN: PEAK_CAN' assets/ritual-open.js 1
+chk 'PEAK_PICK' order-preview.html 5
+chk 'function _pkPeakRow()' order-preview.html 1
+chk 'window.opPeak=function(k)' order-preview.html 1
+chk 'PEAK_PICK' console.html 7
+chk 'function peakK()' console.html 1
+# ── [DIV_ONE 2026-10-08 사장님 «AI 두 분 목소리 · 이 순간 전체 듣기 밑 가로선을 없애면»] AI 칸 윗선 걷기 — 나레이션 판(흐름 칸 MK_NO_HEADS)과 같은 틀
+chk 'DIV_ONE' order-preview.html 1
+chk '.mk-voice-ai{border-top:0;padding-top:0;margin-top:14px}' order-preview.html 1
+chk 'mk-sec mk-voice mk-voice-ai' order-preview.html 1
+# ── [CHIP_CHANGED 2026-10-08 사장님 «단어 하나만 바뀌는 것들은 안내 문구로 바뀌었구나 알 수 있게 · 필요한 곳 조사해서»] 칩을 바꿔 흐름 줄이 조금(8자 이하) 바뀌면 한 줄 + 바뀐 줄 옅은 금
+chk 'CHIP_CHANGED' order-preview.html 5
+chk 'function _chgShow(b0,key,root)' order-preview.html 1
+chk 'var _cg0=_chgSnap();' order-preview.html 1
+chk '아래 안내 글이 바뀌었어요' order-preview.html 1
+# ── [STOP_ROUND · PLAY_PAIR 2026-10-08 사장님 «네모(정지 표시)가 미흡» → 안 A «추천대로» · «플레이 버튼은 괜찮아?»] 둥근 ■ · ▶ 와 한 무게(▶ 약 8 × 10 · ■ 약 9) · 줄 알약 · 흐름 원 · 이 순간 전체 듣기 · 맞추기 창 · 들어 보고 맞추기 · 사진 ▶ 원
+chk 'STOP_ROUND' order-preview.html 1
+chk '<rect x="5.6" y="5.6" width="12.8" height="12.8" rx="2.6"/>' order-preview.html 1
+nochk 'M5 5h14v14H5z' order-preview.html   # ★각진 ■ 금지 — 2026-10-08 사용자 지시로 삭제
+chk 'PLAY_PAIR' order-preview.html 5
+chk '.mk-pl svg{width:17px;height:17px;margin-left:0;' order-preview.html 1
+chk 'mk-hbtn.data-mp. svg{width:15px;height:15px;padding:7.5px;' order-preview.html 1
+chk 'mk-tune-pl svg{width:17px;height:17px;padding:8.5px;' order-preview.html 1
+nochk 'padding:10px 9px 10px 11px' order-preview.html   # 큰 ▶ 에서 고르지 않은 여백은 과하다 · 쏠림은 ICO_PLAY 그림 안
 # ── 목소리 1라운드 tune 묶음 (2026-10-08)
 # ★[VC_R1_TUNE 2026-10-08 목소리 1라운드 · 맞추기 창] 예시 글칸 잘림 · 예시만 낱자 검사 · 채우는 중 빠르기 · 다시 굽기 실패 줄 · 확정 = 들리는 소리 · 누른 글만 · 실패 글 걷기 · 빈 글칸 잠금
 #   vc-r1-tune.mjs 가 390 폭에서 단추를 실제로 눌러 잰다 — 고친 줄을 하나씩 되돌리면 그 장면이 빨강(돌연변이 14 확인 2026-10-08)
