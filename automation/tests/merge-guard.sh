@@ -14085,6 +14085,8 @@ chk 'PV_INTRO' admin.html 3
 nochk "'pvText'" assets/ritual-preview-link.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-intro.mjs >/dev/null 2>&1; _pv=$?; [ "$_pv" = 1 ] && { echo 'FAIL pv-intro: 식전 영상 소개글 흐름이 어긋났습니다 — node scripts/audit/pv-intro.mjs'; fail=1; }; fi
 chk 'PV_INTRO' scripts/audit/pv-intro.mjs 2
+chk 'PV_AUTO_MAKE' scripts/audit/pv-intro.mjs 3   # [PV_AUTO_MAKE 2026-10-09] AI 를 고르면 빈 줄을 바로 만든다(FILL_EMPTY · #1130) — 검사는 만들어진 결과를 본다
+nochk "await pg.click('\[data-fk=\"mkai:pv\"\]'); await pg.waitForTimeout(1500);" scripts/audit/pv-intro.mjs   # ★옛 «[AI로 만들기] 누르기» 단계 — #1130 뒤로 그 단추를 기다리다 30초 넘겨 죽었다(결과 줄 없이 빨강)
 # ★[PLAY_ROW · FLOW_LINE_TYPE 2026-10-02 사장님 «이 순간 들어 보기 디자인 개선 · 재생 버튼 메시지 글꼴을 하객 맞이 카드와 통일»]
 chk 'PLAY_ROW' order-preview.html 1
 chk 'FLOW_LINE_TYPE' order-preview.html 1
