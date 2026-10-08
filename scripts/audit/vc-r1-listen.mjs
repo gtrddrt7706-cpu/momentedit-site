@@ -219,7 +219,7 @@ const SC = [
     await until(pg, f, () => !!VC.stErr && !VC.loading, 120000); await adv(pg, 500);
     const b = await dlg(f), hd = await f.evaluate(() => ((document.querySelector('.mk-vredo') || {}).textContent || '').trim());
     await shot(pg, '46-못받음창');
-    ok('#46 못 받으면 — 창에 까닭 코드 + 다시 불러오기 · «만들면 …» 없음 [VU_ST_UNKNOWN]', !/만들면/.test(b.txt) && /\(코드 V\d/.test(b.err) && await f.evaluate(() => !!document.querySelector('#mkRecDlg [data-fk="mkvcstre4"]')), JSON.stringify({ err: b.err, note: b.note }));
+    ok('#46 못 받으면 — 창에 까닭 코드 + 다시 불러오기 · «만들면 …» 없음 [VU_ST_UNKNOWN]', !/만들면/.test(b.txt) && /\(코드\s+V\d/.test(b.err) && await f.evaluate(() => !!document.querySelector('#mkRecDlg [data-fk="mkvcstre4"]')), JSON.stringify({ err: b.err, note: b.note }));
     ok('#46 쪽 머리 줄이 상태를 모를 때 «각자 1분 읽기»(안 만든 분에게 하는 말)로 시작하지 않는다 [VU_ST_UNKNOWN]', !/^각자 1분 읽기/.test(hd) && /아쉬우면 다시 녹음해요/.test(hd), hd);
   } },
   /* ── #47 ── */
