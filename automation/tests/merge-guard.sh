@@ -16030,7 +16030,7 @@ nochk "createTemplateFromFile('Admin')" automation/admin/admin.gs
 if [ -f automation/admin/Admin.html ]; then echo 'FAIL ADMIN_BACKUP_RETIRE: 은퇴한 GAS 예비 관리 화면(automation/admin/Admin.html)이 다시 생겼다 — 2026-10-08 사장님 결정'; fail=1; fi
 # ★★[GMS_MEMO · SIG_FIND · STATE_PATIENT 2026-10-08 사장님 «모바일에서 새로고침하면 (코드 L5)» · «pc 에서도 자꾸» · «원인파악해서 확실하게»]
 #   마이페이지 «최신 내용을 불러오지 못했어요 (코드 L5)» = 화면이 getMyState 를 12초 기다리다 멈춤. 원인은 서버 한 번 불러오기의 양 —
-#   서명 시트 전체(모든 고객의 서명 그림)를 매번 읽었고(SIG_FIND) · 상담 행을 최대 4번 · 고객 행을 2번 따로 찾았다(GMS_MEMO).
+#   서명 시트 전체(모든 고객의 서명 그림)를 매번 읽었고(SIG_FIND) · 같은 상담 행을 상태에 따라 2~3번 · 고객 행을 2번 따로 찾았다(GMS_MEMO).
 #   화면은 20초까지 기다리고 늦음 · 끊김이면 한 번 더 묻는다 · 막대는 두 번 다 안 될 때만(STATE_PATIENT). 되돌리지 말 것
 chk 'SIG_FIND' automation/platform/70_journey.gs 2
 chk '.createTextFinder(c).matchEntireCell(true).matchCase(false).findAll()' automation/platform/70_journey.gs 1

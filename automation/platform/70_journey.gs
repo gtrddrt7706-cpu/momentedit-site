@@ -186,11 +186,11 @@ function getSignatureDataUrl(code, type) {
      종전엔 C열(손글씨 서명 그림 · 한 장에 수십 KB)까지 모든 고객 · 모든 서명을 통째로 받아 왔다.
      그런데 이 함수는 마이페이지 getMyState 가 시착을 마친 고객마다 «매번» 부른다(60_mypage buildLedgerState · 문서 보기 sig).
      서명이 쌓일수록 한 번 불러오기가 길어져, 화면이 12초에 멈추고 «최신 내용을 불러오지 못했어요 (코드 L5)»가 떴다.
-     결과는 종전과 같다 — 같은 코드(대소문자 무시) · 같은 종류 중 «마지막(최신)» 한 장. 찾기가 예외로 멈출 때만 종전 전체 읽기로 */
+     결과는 종전과 같다(코드가 빈 경우만 빼고 · 아래) — 같은 코드(대소문자 무시) · 같은 종류 중 «마지막(최신)» 한 장. 찾기가 예외로 멈출 때만 종전 전체 읽기로 */
   var sh = SpreadsheetApp.getActive().getSheetByName(SIGNATURES_SHEET);
   if (!sh || sh.getLastRow() < 2) return '';
   var found = '', c = String(code || '').trim().toUpperCase(), tp = String(type || '').trim(), last = sh.getLastRow();
-  if (!c) return '';
+  if (!c) return '';   // [SIG_FIND] 코드가 비면 빈 값 — 종전엔 코드 칸이 빈 줄의 그림을 집을 수 있었다(부르는 곳은 늘 코드를 넘긴다)
   try {
     var hits = sh.getRange(2, 1, last - 1, 1).createTextFinder(c).matchEntireCell(true).matchCase(false).findAll() || [];
     for (var h = hits.length - 1; h >= 0; h--) {   // 아래(나중에 쌓인) 줄부터 — 처음 맞는 종류가 곧 최신
