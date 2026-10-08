@@ -50,7 +50,7 @@
     { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'welcome'] },
     { n: '약속의 순간', d: '말과 반지로 부부가 되는 자리', ks: ['bless', 'vow', 'ring', 'declare'] },
     { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['tribute', 'free', 'letter'] },
-    { n: '축하 · 닫는 순간', d: '케이크를 자르고 잔을 들고, 인사와 사진으로', ks: ['cake', 'toast', '_close', 'table'] }   // [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤
+    { n: '축하 · 닫는 순간', d: '케이크와 축배, 본식 뒤 테이블 인사까지', ks: ['cake', 'toast', '_close', 'table'] }   // [CAKE_TOAST_SPLIT] · [TABLE_GREET_1008] 테이블 인사는 닫는 인사 뒤 · ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 줄은 그대로 · 설명이 «본식 뒤»(흐름 묶음 이름과 같은 말)를 말한다 · 옛 «케이크를 자르고 잔을 들고, 인사와 사진으로»
   ];
 
   /* ── 카드 문구(시안 2판 EV + 명세 4장 고침) ──
@@ -281,13 +281,20 @@
   var DAYMIN = 40;   // 본식 + 단체 사진 = DAY.total − ready − snap − farewell (ritual-data.js [DAY_PLAN] · [DAY_60]) · open-course.mjs 가 대조
   function rng(x, y) { return x === y ? ('약 ' + x + '분') : ('약 ' + x + '~' + y + '분'); }
   // 띠 한 줄에 필요한 모든 값
+  /* ★★[TABLE_APART 2026-10-08 사장님 «테이블 인사는 본식 이후니까 사진과도 따로 본식과도 따로»] 보여 주는 시간을 셋으로 — 본식 · 테이블 인사 · 단체 사진.
+       bodySec 은 그대로 둔다(진행표 · 콘솔 시각 · 단체 사진 몫이 «닫는 인사 + 테이블 인사까지»를 쓴다) · span 이 테이블 몫(tm)을 떼어 본식에서 뺀다.
+       ★셋을 더하면 늘 DAYMIN — 본식 = (전체를 반올림) − tm 이라 «11~16 + 9 + 15~20 = 40»이 어긋나지 않는다(SPAN_SUM40 과 같은 셈).
+       a · b · body · midMin = 본식만 · ta · tb = 테이블 인사까지 · tm = 테이블 인사 분(안 담으면 0 · table 은 '') */
+  function tableSec(S) { return onOf(S, 'table') ? lohi(partsOf('table', S, bodySeq(S)))[1] : 0; }
   function span(S) {
-    var s = bodySec(S), a = Math.round(s[0] / 60), b = Math.round(s[1] / 60);
+    var s = bodySec(S), ta = Math.round(s[0] / 60), tb = Math.round(s[1] / 60), ts = tableSec(S), tm = ts ? Math.max(1, Math.round(ts / 60)) : 0, a = Math.max(0, ta - tm), b = Math.max(0, tb - tm);   // [TABLE_APART]
     /* ★★[PHOTO_FLOOR0 2026-10-08 · TABLE_GREET_1008] 본식이 40분을 넘는 판(순간을 거의 다 담고 축사 10분 · 테이블 인사까지)에 «단체 사진 약 -8~2분»이 보였다 —
        0 아래로 내리지 않고, 위 값까지 0이면 «시간이 모자라요»라고 말한다. 판은 막지 않는다(사장님 «그대로 두고 알림»). */
-    var pa = Math.max(0, DAYMIN - b), pb = Math.max(0, DAYMIN - a);   // ★[SPAN_SUM40 코워크 추가 점검 P2-2 2026-09-26] 반올림한 본식에서 뺀다 — 따로 반올림하면 «본식 17 + 단체 사진 24 = 41»이 보였다
-    return { sec: s, a: a, b: b, pa: pa, pb: pb, body: rng(a, b), photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요', midMin: (s[0] + s[1]) / 120 };   // [PHOTO_FLOOR0]
+    var pa = Math.max(0, DAYMIN - tb), pb = Math.max(0, DAYMIN - ta);   // [TABLE_APART] 단체 사진 = 40 − (본식 + 테이블 인사) · ★[SPAN_SUM40 코워크 추가 점검 P2-2 2026-09-26] 반올림한 본식에서 뺀다 — 따로 반올림하면 «본식 17 + 단체 사진 24 = 41»이 보였다
+    return { sec: s, a: a, b: b, ta: ta, tb: tb, tm: tm, pa: pa, pb: pb, body: rng(a, b), table: tm ? ('약 ' + tm + '분') : '', photo: pb > 0 ? rng(pa, pb) : '시간이 모자라요', midMin: (s[0] + s[1]) / 120 - ts / 60 };   // [PHOTO_FLOOR0] · [TABLE_APART]
   }
+  /* [TABLE_APART] 한 줄 글 — «본식 약 a~b분 · 테이블 인사 약 n분 · 단체 사진 약 c~d분»(테이블 인사를 안 담으면 가운데가 없다) · 알림 · 콘솔 · AI 상담이 같은 말을 쓴다 */
+  function spanText(S) { var p = span(S); return '본식 ' + p.body + (p.tm ? ' · 테이블 인사 ' + p.table : '') + ' · 단체 사진 ' + p.photo; }
   // 카드의 «약 n분»(이 순간을 담으면)
   function momentLabel(k, S) {
     if (k === 'prevideo') return '영상 길이만큼 · 끝나면 입장';   // [CEREMONY_AT_VIDEO 2026-10-05] 예식 시작 시각에 흐른다 — 길면 입장이 그만큼 늦어진다
@@ -303,7 +310,7 @@
        3 = 화촉 · 첫인사 / 4 = 입장 · 덕담 · 서약 · 반지 · 인사(한마디씩 · 말 없이) · 준비한 순서 · 케이크 · 축배 · 닫는 인사
        / 5 = 선언 · 편지 · 인사(1분쯤씩). 5 는 종전과 같아 peakOf 는 안 바뀐다.
        ★준비한 순서는 3 → 4(D6) — 3 이면 곡선이 바닥까지 꺼져 «우리가 준비한 영상이 흐름을 깨나?» 하고 걱정하게 된다. */
-  var LEVEL3 = { candle: 1, welcome: 1 };
+  var LEVEL3 = { candle: 1, welcome: 1, table: 1 };   // [TABLE_APART] 테이블 인사 = 본식이 끝난 뒤의 여운(잔잔 3) — 곡선이 천천히 내려앉는다
   function level(k, S) { if (k === 'declare' || k === 'letter') return 5; if (k === 'tribute') return 4;   /* [TRIB_ONE_SAY] 말로 인사 하나 — 종전 한마디씩과 같은 4(정점은 선언 · 편지) */ return LEVEL3[k] ? 3 : 4; }
   function peakOf(S) { var p = null; bodySeq(S).forEach(function (k) { if (level(k, S) === 5) p = k; }); return p; }
 
@@ -318,7 +325,7 @@
     var seq = bodySeq(S), t = 0, out = [];
     seq.forEach(function (k) {
       var r = lohi(partsOf(k, S, seq)), d = (r[0] + r[1]) / 2;
-      out.push({ k: k, n: CARDS[k].sn, st: t, d: d, lo: r[0], hi: r[1], lv: level(k, S) });
+      out.push({ k: k, n: CARDS[k].sn, st: t, d: d, lo: r[0], hi: r[1], lv: level(k, S), after: !!AFTER_CLOSE[k] });   // [TABLE_APART] 본식 뒤 순간 — 곡선이 옅은 톤으로 그린다
       t += d;
     });
     return out;
@@ -351,8 +358,12 @@
   /* ★[SEAL_POINTS 2026-09-26 사장님 «진사 포인트 몇 군데» · 코워크 피드백 1-3] 가장 벅찬 순간의 점 · «★ 이름»은 진사(--seal).
      SVG 속성이라 CSS 변수 대신 값 하나로 둔다(선은 금갈색 그대로 · 넓은 면 · 경고에는 쓰지 않는다). */
   var PEAK_INK = '#6B2A24';
+  /* ★★[TABLE_APART 2026-10-08 사장님 «그 순간 이후 그래프 색상을 바꾼다던지 디자이너 시선으로 적절하게»] 본식이 끝난 뒤(테이블 인사)의 꼬리는 옅은 금색 —
+       같은 곡선을 그대로 잇고(모양은 안 바꾼다) 색만 닫는 인사 끝에서 바뀐다(가로 그라디언트 · 같은 자리에 멈춤 둘).
+       큰 곡선에만 꼬리 위 작은 이름 «테이블 인사»(이름 줄을 쓰는 띠 · 작은 곡선에는 없다) · 금색 #B89A75 는 선 전용(글은 #7A5F37) */
+  var AFTER_INK = '#B89A75', FLOW_GID = 0;
   function flowSVG(sg, w, opt) {
-    opt = opt || {}; var mini = !!opt.mini, names = !!opt.names;
+    opt = opt || {}; var mini = !!opt.mini, names = !!opt.names, namesOn = names;
     var h = mini ? (opt.h || 40) : (opt.h || (names ? 152 : 112));
     var tiny = mini && h < 24;
     var L = mini ? 4 : 12, R = mini ? 4 : 12, T = mini ? (tiny ? 4 : 8) : 30, B = mini ? (tiny ? 3 : 6) : (names ? 46 : 12);
@@ -366,7 +377,14 @@
     var env = flowEnv(sg, total), stp = Math.max(1, Math.round(total / iw * 3)), pts = [];
     for (var tt = 0; tt < env.length; tt += stp) pts.push([x(tt), y(env[tt])]);
     if ((env.length - 1) % stp) pts.push([x(env.length - 1), y(env[env.length - 1])]);
-    o.push('<path class="flow-line" d="' + flowCurve(pts) + '" fill="none" stroke="#7A5F37" stroke-width="' + (tiny ? 1.5 : (mini ? 1.8 : 2.25)) + '" stroke-linecap="round" stroke-linejoin="round"/>');
+    var af = null; sg.forEach(function (s) { if (s.after && !af) af = s; });   // [TABLE_APART] 본식 뒤 첫 순간
+    var ink = '#7A5F37';
+    if (af) { var gid = 'flg' + (++FLOW_GID), off = Math.max(0, Math.min(1, x(af.st) / w)).toFixed(4);
+      o.push('<defs><linearGradient id="' + gid + '" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="' + w + '" y2="0"><stop offset="' + off + '" stop-color="#7A5F37"/><stop offset="' + off + '" stop-color="' + AFTER_INK + '"/></linearGradient></defs>');
+      ink = 'url(#' + gid + ')'; }
+    o.push('<path class="flow-line" d="' + flowCurve(pts) + '" fill="none" stroke="' + ink + '" stroke-width="' + (tiny ? 1.5 : (mini ? 1.8 : 2.25)) + '" stroke-linecap="round" stroke-linejoin="round"/>');
+    if (af && !mini && !namesOn) { var ax = x(af.st + af.d / 2), ai = Math.min(env.length - 1, Math.max(0, Math.round(af.st + af.d / 2))), ay = y(env[ai]) - 10, aa = ax > w - 40 ? 'end' : 'middle';
+      o.push('<text class="flow-after" x="' + (aa === 'end' ? (w - R) : ax).toFixed(1) + '" y="' + ay.toFixed(1) + '" font-size="11" text-anchor="' + aa + '" fill="#7A5F37">' + fesc(af.n) + '</text>'); }   // [TABLE_APART] 큰 곡선만 · 꼬리 가운데 위
     if (p) {
       var bt = Math.floor(p.st), hiT = Math.min(env.length - 1, Math.ceil(p.st + p.d + 15));
       for (var k2 = bt; k2 <= hiT; k2++) { if (env[k2] > env[bt]) bt = k2; }
@@ -868,7 +886,7 @@
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, EXAMPLES: EXAMPLES, TIME: TIME, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, shotOf: shotOf, helpersOf: helpersOf,
     chipOf: chipOf, setChip: setChip, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
-    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, rng: rng,
+    onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
     flowSegs: flowSegs, flowPeak: flowPeak, flowEnv: flowEnv, flowSVG: flowSVG, peakLine: peakLine, PEAK_NONE: PEAK_NONE, orderParts: orderParts, prepCount: prepCount, prepOpt: prepOpt, PREP_WHERE: PREP_WHERE, prepLine: prepLine, VOICE_KIND: VOICE_KIND, guestReader: guestReader, voiceKind: voiceKind, voiceLab: voiceLab, FEATURE: FEATURE, voiceState: voiceState,
     TILE: TILE, tileOf: tileOf, SAMPLE: SAMPLE, sampleOf: sampleOf, firstSentences: firstSentences, sampleS: sampleS, CHOOSE_AT_LISTEN: CHOOSE_AT_LISTEN, NB: NB, josaOf: josaOf
