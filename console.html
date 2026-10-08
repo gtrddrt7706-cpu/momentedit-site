@@ -825,8 +825,9 @@ function rfPrefetch(){ var code = QS.get('rf') || '', tok = ''; try { tok = loca
   call('adminRitualFiles', [code]).then(function(L){ return { L: L }; }, function(e){ return { L: null, e: e }; }).then(function(x){ var L = x.L, newest = {}, have = {};
     /* [ERR_CODE_PAGES] 목록을 못 받았으면 «파일 없음»이라 말하지 않는다 — 있는지 모르는 것이다. 두 분 초안에 id 가 없는 줄은 목록 실패 까닭으로 «받지 못함» */
     var listWhy = (L && L.ok) ? '' : '목록을 못 받았어요 · ' + rfWhy(L, x.e);
-    ((L && L.ok && L.files) || []).forEach(function(f){ if (f.key && !newest[f.key]) newest[f.key] = f.id; have[f.id] = 1; });
-    rfKeys().forEach(function(k){ var v = up[k], id = (v && typeof v === 'object' && v.id && !/^local:/.test(v.id) && (!L || !L.ok || have[v.id])) ? v.id : (newest[k] || '');
+    /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 그 자리를 지웠으면(초안 0) 스튜디오가 대신 올린 파일만 — 두 분 파일 사본(다시 보내기로 생긴 것)이 남아 있어도 틀지 않는다 */
+    var studio = {}; ((L && L.ok && L.files) || []).forEach(function(f){ if (f.key && !newest[f.key]) newest[f.key] = f.id; if (f.key && !studio[f.key] && / · 스튜디오 · /.test(String(f.name || ''))) studio[f.key] = f.id; have[f.id] = 1; });
+    rfKeys().forEach(function(k){ var v = up[k], id = (v && typeof v === 'object' && v.id && !/^local:/.test(v.id) && (!L || !L.ok || have[v.id])) ? v.id : ((v === 0 ? studio[k] : newest[k]) || '');
       if (!id) { if (listWhy) { RF_ST[k] = 'fail'; RF_WHY[k] = listWhy; rfPaint(); } return; }
       RF_ST[k] = 'busy'; rfPaint();
       call('adminRitualFileGet', [code, id]).then(function(d){ if (!d || !d.ok || !d.data) { RF_WHY[k] = rfWhy(d); throw 0; }
