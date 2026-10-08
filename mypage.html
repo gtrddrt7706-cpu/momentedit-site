@@ -2439,14 +2439,19 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
              끊긴 직후 가벼운 상태 확인(status) 한 번 — 서버가 답하면 연결은 멀쩡하고 그 요청만 서버에서 멈춘 것(V9 · GAS 실행 기록에 남는다 · ★[ERR_CODES] 종전 V8 — 8 은 사이트 전체에서 «로그인 풀림»이라 9 로 옮겼다) · 답이 없으면 진짜 연결 끊김(V6) */
           var _pc=(typeof AbortController!=='undefined')?new AbortController():null, _pt=_pc?setTimeout(function(){ try{ _pc.abort(); }catch(x){} },12000):null;
           fetch(EXEC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'voiceClone',op:'status',token:getToken()}),signal:_pc?_pc.signal:undefined})
-            .then(function(r){ return r.json(); }).then(function(){ if(_pt) clearTimeout(_pt); _fin('srv'); }, function(){ if(_pt) clearTimeout(_pt); _fin(1); }); });   /* ★[VC_DOWN_KIND 2026-10-07] 셋을 가른다 — 기다리다 멈춤(V5) · 서버 답이 JSON 이 아님 = GAS 오류 쪽(V7) · 연결 끊김(V6). 종전엔 셋 다 «지금은 AI 목소리를 만들 수 없어요 …» 한 문장이라 서버 거절과도 구분이 안 됐다 */   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) · ★[VC_SLOW_AGAIN 2026-10-05] 90초 기다리다 멈춘 것은 timeout 표시 — 빌더가 8초 뒤 한 번 더 묻는다(서버는 그동안 만들어 저장한다) */
+            .then(function(r){ return r.json(); }).then(function(){ if(_pt) clearTimeout(_pt); _fin('srv'); }, function(){ if(_pt) clearTimeout(_pt);
+              /* ★[VC_GAS_DOWN 2026-10-08 목소리 1라운드 82] 상태 확인도 실패하면 GAS 전체가 멈춘 것일 수도 있다(인터넷은 멀쩡) — 종전엔 늘 V6(«고객 인터넷») 이었다.
+                 이 사이트(같은 출처)에 가볍게 한 번 — 받히면 서버 쪽(V9) · 안 받히거나 기기가 오프라인이면 진짜 연결 끊김(V6) */
+              var _off=false; try{ _off=navigator.onLine===false; }catch(x){} if(_off){ _fin(1); return; }
+              var _sc=(typeof AbortController!=='undefined')?new AbortController():null, _stm=_sc?setTimeout(function(){ try{ _sc.abort(); }catch(x){} },6000):null;
+              fetch('/favicon.ico?vc='+Date.now(),{cache:'no-store',credentials:'same-origin',signal:_sc?_sc.signal:undefined}).then(function(r){ if(_stm) clearTimeout(_stm); _fin(r&&r.ok?'srv':1); },function(){ if(_stm) clearTimeout(_stm); _fin(1); }); }); });   /* ★[VC_DOWN_KIND 2026-10-07] 셋을 가른다 — 기다리다 멈춤(V5) · 서버 답이 JSON 이 아님 = GAS 오류 쪽(V7) · 연결 끊김(V6). 종전엔 셋 다 «지금은 AI 목소리를 만들 수 없어요 …» 한 문장이라 서버 거절과도 구분이 안 됐다 */   /* [R2-08] 직접 녹음은 걷었다(VP_NO_DIRECT) · ★[VC_SLOW_AGAIN 2026-10-05] 90초 기다리다 멈춘 것은 timeout 표시 — 빌더가 8초 뒤 한 번 더 묻는다(서버는 그동안 만들어 저장한다) */
       return;
     }
     if((d.type==='momentedit:ritualFileGet'||d.type==='momentedit:ritualFileDel') && d.data && d.data.id){
       var _isDel=d.type==='momentedit:ritualFileDel', _gBack=function(o){ try{ fr.contentWindow.postMessage(Object.assign({type:_isDel?'momentedit:ritualFileDelDone':'momentedit:ritualFileData', key:d.data.key, id:d.data.id}, o), location.origin); }catch(e){} };
       /* ★[ERR_CODE_MYPAGE F7] 지우기와 받기가 같은 실패 글(«불러오지 못했어요…»)을 나눠 썼다 — 지우기는 D(지우기) · 받기는 L(불러오기)로 */
       var _gL=_isDel?'D':'L', _gBase=_isDel?'지우지 못했어요 · 다시 눌러 주세요':'파일을 불러오지 못했어요 · 다시 눌러 주세요';
-      _post({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id}, 60000)
+      _post({action:_isDel?'ritualFileDel':'ritualFileGet', token:getToken(), key:d.data.key, id:d.data.id, all:(_isDel&&d.data.all)?1:0}, 60000)   /* ★[RF_DEL_ALL 2026-10-08 목소리 1라운드 #57] 두 분이 누른 «지우기»는 그 자리 두 분 파일을 모두(서버가 읽는다 · 옛 서버는 무시하고 그 파일만) */
         .then(function(r){ _gBack(r&&r.ok?{ok:true,mime:r.mime,data:r.data}:_relayFail(r,_gL,_gBase)); }, function(e){ _gBack(_relayFail(e,_gL,_gBase)); });
       return;
     }

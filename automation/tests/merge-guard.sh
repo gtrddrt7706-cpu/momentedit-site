@@ -14003,7 +14003,7 @@ chk "'ai','AI 두 분 목소리'\]" order-preview.html 1   # [VP_NO_DIRECT] 고�
 chk 'var VC_TXT=' order-preview.html 1
 chk '제 목소리로 AI 목소리를 만드는 것에 동의해요' order-preview.html 1
 chk '언제 지우나요 · 읽은 녹음과 AI 목소리는 예식 다음 날' order-preview.html 1
-chk 'function _vcAutoFill(w,renew)' order-preview.html 1
+chk 'function _vcAutoFill(w,renew' order-preview.html 1
 chk 'function _vcLineTools(key,lab,part)' order-preview.html 1
 chk 'function _vcReadyFor(key)' order-preview.html 1
 nochk 'data-fk="mkaiself:' order-preview.html   # [VP_NO_DIRECT] AI 줄의 «이 줄은 직접 녹음할게요» 단추는 걷었다(2026-09-28 사장님 «지금 바로 모두 빼기»)
@@ -14667,6 +14667,52 @@ chk 'VU_WAIT_WHO' order-preview.html 1
 chk 'VU_LIMIT_INFO' order-preview.html 1
 chk 'VU_CHIP_EVEN' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-listen.mjs >/dev/null 2>&1; _vrl=$?; if [ "$_vrl" = 1 ]; then echo 'FAIL vc-r1-listen: 들어 보기 · 연습 AI 읽기 1라운드가 어긋났습니다 — node scripts/audit/vc-r1-listen.mjs'; fail=1; else echo "ok vc-r1-listen ($_vrl)"; fi; fi
+# ── 목소리 1라운드 upload 묶음 (2026-10-08 · 올리기 · 파일 · 로그인 문구)
+chk 'VC_R1_UPLOAD' scripts/audit/vc-r1-upload.mjs 1
+chk 'UP_AGAIN_GEN' order-preview.html 3
+chk 'UP_AGAIN_KEEP' order-preview.html 1
+chk 'RF_DEL_ALL' order-preview.html 2
+chk 'RF_DEL_ALL' mypage.html 1
+chk 'RF_DEL_ALL' console.html 1
+chk 'RF_DEL_ALL' automation/platform/80_production.gs 1
+chk 'UP_EXIT_WAIT' order-preview.html 3
+chk 'REC_ERR_WAY' order-preview.html 1
+chk 'EC_ONE_WORD' order-preview.html 1
+chk 'UP_UNKNOWN_ASK' order-preview.html 1
+chk 'MINI_OC_KEEP' order-preview.html 1
+chk 'UP_TOAST_OWN' order-preview.html 1
+chk 'UP_FAIL_KEEP' order-preview.html 3
+chk 'UP_PICK_LINE' order-preview.html 1
+chk 'REC_CLOSE_ASK' order-preview.html 1
+chk 'RF_GONE_REMAKE' order-preview.html 4
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-upload.mjs >/dev/null 2>&1; _vru=$?; if [ "$_vru" = 1 ]; then echo 'FAIL vc-r1-upload: 올리기 · 파일 · 로그인 문구 1라운드가 어긋났습니다 — node scripts/audit/vc-r1-upload.mjs'; fail=1; else echo "ok vc-r1-upload ($_vru)"; fi; fi
+# ── 목소리 1라운드 state 묶음 (2026-10-08 · 지우기 · 상태 · 다시 열기)
+chk 'VC_R1_STATE' scripts/audit/vc-r1-state.mjs 1
+chk 'FILL_SKIP_UP' order-preview.html 4
+chk 'FILL_RESUME_SKIP_DEL' order-preview.html 1
+chk 'DEL_AFTER_OK' order-preview.html 3
+chk 'VC_ST_MINE' order-preview.html 2
+chk 'function _vcFillEmpty' order-preview.html 1
+chk 'function _vcBusyNow' order-preview.html 1
+chk 'VC_REOPEN_RECHECK' order-preview.html 2
+chk 'VC_ERRBOX_TRUE' order-preview.html 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-state.mjs >/dev/null 2>&1; _vrs=$?; if [ "$_vrs" = 1 ]; then echo 'FAIL vc-r1-state: 목소리 상태 · 지우기 1라운드가 어긋났습니다 — node scripts/audit/vc-r1-state.mjs'; fail=1; else echo "ok vc-r1-state ($_vrs)"; fi; fi
+# ── 목소리 1라운드 server 묶음 (2026-10-08 · GAS · 콘솔 · 관리)
+chk 'RF_DEL_SLOT' automation/platform/80_production.gs 1   # [57 · 75] 줄 지우기 → 그 자리 옛 사본도 휴지통
+chk 'RF_PURGE_AI' automation/platform/80_production.gs 3   # [76] 30일 지우기 하위 폴더 AI 까지
+chk 'VC_SAVE_NOLOCK' automation/platform/80_production.gs 1   # [78] 잠금 실패에도 합쳐 쓰기
+chk 'VC_PURGE_MERGE' automation/platform/80_production.gs 2   # [79] 매일 지우기 합쳐 쓰기
+chk 'VC_LONG_SPLIT' automation/platform/80_production.gs 3   # [80] 600자 넘는 글 나눠 읽기
+chk 'VC_MAKE_KEEP' automation/platform/80_production.gs 1   # [83] 한 줄 실패에도 받은 줄 저장
+chk 'VC_DEL_NOKEY' automation/platform/80_production.gs 1   # [85] 키 없으면 retry
+chk 'VC_ON_CODE' automation/platform/80_production.gs 1   # [86] 관리 화면 스위치 예식 기준
+chk 'RF_CON_NOOLD' console.html 1   # [75] 빈 줄 대체는 스튜디오 파일뿐
+chk 'RF_CON_NOOLD' admin.html 2
+chk 'RF_CON_TIMEOUT' console.html 2   # [84] 미리 받기 60초 · 다시 받기
+chk 'VC_GAS_DOWN' mypage.html 1   # [82] GAS 전체 멈춤은 V9
+chk 'VC_GAS_DOWN' scripts/audit/vc-enroll-sim.mjs 1
+chk 'VC_R1_SERVER' scripts/audit/vc-r1-server.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-server.mjs >/dev/null 2>&1 || { echo 'FAIL vc-r1-server: 목소리 서버 장면이 어긋났습니다 — node scripts/audit/vc-r1-server.mjs'; fail=1; }; fi
 # ── 목소리 1라운드 tune 묶음 (2026-10-08)
 # ★[VC_R1_TUNE 2026-10-08 목소리 1라운드 · 맞추기 창] 예시 글칸 잘림 · 예시만 낱자 검사 · 채우는 중 빠르기 · 다시 굽기 실패 줄 · 확정 = 들리는 소리 · 누른 글만 · 실패 글 걷기 · 빈 글칸 잠금
 #   vc-r1-tune.mjs 가 390 폭에서 단추를 실제로 눌러 잰다 — 고친 줄을 하나씩 되돌리면 그 장면이 빨강(돌연변이 14 확인 2026-10-08)
