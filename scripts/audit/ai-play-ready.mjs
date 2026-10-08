@@ -5,7 +5,7 @@
    «차라리 이 순간 전체 듣기를 누르면 전체 자동으로 만드는 중 · 잠시만 기다려 주세요 · 전부 만들면 순차적으로 자동 재생»
    진짜 마이페이지(중계) + 진짜 식순 화면 + 가짜 서버(GAS 와 같은 답 꼴 · vc-r1-listen 하네스) + 가짜 시계 · 390 · 단추는 화면의 진짜 단추를 누른다(aria-disabled 도 손가락처럼 누른다).
    1 목소리 없음 — 줄 ▶ · 이 순간 전체 듣기 흐림 · 누르면 그 아래 한 줄(만들러 가기) · 소리 · 요청 없음 · AI 판에 배역 예시 녹음 없음(직접 녹음 판은 그대로) · 입장 인사 · 영상 앞 소개도
-   2 한 분만 목소리 — 빠진 분 이름 · 준비 중 · 만드는 중 ▶ 는 차오르지 않고 알약이 차오른다 · 다 되면 ▶ 풀림
+   2 한 분만 목소리 — 빠진 분 이름 · 빈 줄 저절로 채우기(FILL_EMPTY) · 준비 중 · 만드는 중 ▶ 는 잠기고 차오르지 않고 알약이 차오른다 · 다 되면 ▶ 풀림
    3 고친 줄 — ▶ 흐림 «오른쪽 목소리 만들기…» · 만들지 않는다 · 알약 «만드는 중»은 알약만 차오름
    4 이 순간 전체 듣기 — 고친 줄을 한꺼번에 만들고 다 되면 처음부터 이어서
    5 한꺼번에 만들다 실패 — 틀지 않고 한 줄 · 그 줄 아래 코드 · 다시 누르면 다시
@@ -161,18 +161,19 @@ const SC = [
     const ec = await f.evaluate(() => _lSteps(ENG, ['entry']).filter((x) => x.own).map((x) => x.src || ''));
     ok('1 AI 판 입장 인사 줄도 배역 예시 녹음 없음 [AI_NO_CAST]', ec.length >= 1 && ec.every((s) => !/\/cast\//.test(s)), JSON.stringify(ec));
   } },
-  /* ── 2 ── 한 분(신랑)만 목소리 — 신부 줄은 «신부 …» · 신랑 줄은 머리 알약으로 만든다 · «만드는 중» · «준비 중»(예시를 바꿈) 동안 ▶ 는 차오르지 않고 알약이 차오른다 */
+  /* ── 2 ── 한 분(신랑)만 목소리 — 신부 줄은 «신부 …» · 신랑 빈 줄은 저절로 채운다(FILL_EMPTY) · «만드는 중» · «준비 중»(예시를 바꿈) 동안 ▶ 는 차오르지 않고 알약이 차오른다 */
   { no: 2, pre: { groom: true, bride: false }, lat: { make: 12000 }, async run({ pg, f }) {
     await toVoice(pg, f); await toGuest(pg, f); await adv(pg, 600);
     const g1 = await CARD(f, 'g1'), g0 = await CARD(f, 'g0');
     await tap(f, '[data-fk="mkvpl:g1"]'); await adv(pg, 600); const g1b = await CARD(f, 'g1');
     ok('2 신부 목소리가 없는 줄 — 흐림 · 누르면 «신부 목소리를 만들면 들을 수 있어요 · 만들러 가기»', g1.off && g1b.hint === '신부 목소리를 만들면 들을 수 있어요 · 만들러 가기' && g1b.go, JSON.stringify({ g1, g1b }));
-    await tap(f, '[data-fk="mkvpl:g0"]'); await adv(pg, 600); const g0b = await CARD(f, 'g0');
-    ok('2 신랑 줄(아직 안 만듦 · 머리 «목소리 만들기») — 흐림 · 누르면 «오른쪽 목소리 만들기를 누르면 들을 수 있어요»(만들러 가기 없음)', g0.off && /목소리 만들기/.test(g0.pill) && /^오른쪽 .*를 누르면 들을 수 있어요$/.test(g0b.hint) && !g0b.go, JSON.stringify({ g0, g0b }));
-    await tap(f, '.mk-aip[data-key="g0"]'); const st = []; for (let i = 0; i < 6; i++) { await adv(pg, 500); st.push(await CARD(f, 'g0')); }
+    /* [FILL_EMPTY #1130] 목소리가 있는 분의 빈 줄은 저절로 채운다 — 신랑 줄은 곧 «만드는 중»(누르지 않아도) */
+    const st = []; for (let i = 0; i < 8; i++) { st.push(await CARD(f, 'g0')); await adv(pg, 500); }
     await SHOT(pg, f, '2-만드는중', '[data-fk="mkvpl:g0"]');
     const mk = st.filter((x) => /만드는 중/.test(x.pill));   // 아직 소리 파일이 없는 줄(흐름 ▶ 갈래)
-    ok('2 머리 알약 «만드는 중» 동안 ▶ 는 흐리게 잠기고 차오르지 않는다 · 차오름은 알약(--d 시계) · 한 줄 글은 걷힘 [PLAY_NO_DUP]', mk.length >= 3 && mk.every((x) => x.dis && !x.fill && !x.hint && /--d:[\d.]+s;--dl:-[\d.]+s/.test(x.pillSty)), JSON.stringify(st));
+    ok('2 신랑 줄 «만드는 중»(빈 줄 저절로 채우기) 동안 ▶ 는 흐리게 잠기고 차오르지 않는다 · 차오름은 알약(--d 시계) [PLAY_NO_DUP]', g0.has && mk.length >= 3 && mk.every((x) => x.dis && !x.fill && /--d:[\d.]+s;--dl:-[\d.]+s/.test(x.pillSty)), JSON.stringify({ g0, st }));
+    await tap(f, '[data-fk="mkvpl:g0"]'); await adv(pg, 300); const g0b = await CARD(f, 'g0');
+    ok('2 «만드는 중» ▶ 는 눌리지 않는다(PLAY_WAIT_LOCK) · 한 줄도 없다', g0b.dis && !g0b.hint, JSON.stringify(g0b));
     await until(pg, f, () => _aiMode('g0') === 'keep', 120000);
     const g0c = await CARD(f, 'g0'); const p0 = await plays(f); await tap(f, '[data-fk="mkvpl:g0"]'); await adv(pg, 1200);
     ok('2 다 되면(«확정하기») ▶ 가 풀리고 누르면 소리 [AI_PLAY_READY]', !g0c.off && !g0c.dis && /확정하기/.test(g0c.pill) && (await plays(f)) === p0 + 1, JSON.stringify(g0c));
