@@ -1656,6 +1656,24 @@
    "fn": "deployCheck",
    "mark": "ADMIN_BACKUP_RETIRE",
    "why": "① 의 화면 파일 이름을 목록(html)에서 읽는 자리 — 옛 판은 은퇴한 Admin 을 손으로 박아 «지운 파일을 점검한다»고 적는다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "getSignatureDataUrl",
+   "mark": "SIG_FIND",
+   "why": "서명 조회를 그 고객 줄만 — 옛 판은 마이페이지를 열 때마다 서명 시트 전체(모든 고객 서명 그림)를 읽어 «최신 내용을 불러오지 못했어요 (코드 L5)»가 났다"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "handleGetMyState",
+   "mark": "GMS_MEMO",
+   "why": "마이페이지 불러오기 한 번 안에서 같은 상담 행 · 고객 행을 다시 찾지 않는다 — 옛 판은 같은 행을 최대 4번 찾아 12초를 넘겼다(L5)"
+  },
+  {
+   "file": "60_mypage",
+   "fn": "_gmsMemoOn",
+   "mark": "GMS_MEMO",
+   "why": "위 기억을 켜고 끄는 함수 — 이 파일이 옛것이면 handleGetMyState 가 이 함수를 못 찾는다"
   }
  ],
  "fns": {
@@ -1730,6 +1748,8 @@
   ],
   "60_mypage": [
    "handleGetMyState",
+   "_gmsMemoOn",
+   "_gmsSeedCustomer",
    "_aiWidgetToken_",
    "buildRefundBankState",
    "buildHoldState",
@@ -2454,6 +2474,10 @@
   "20_customers-data": [
    "_CUST_PII_COLS"
   ],
+  "60_mypage": [
+   "__GMS_ON",
+   "__GMS"
+  ],
   "70_journey": [
    "FITTING_CONSENT",
    "FITTING_TERMS_BY_VERSION",
@@ -2676,7 +2700,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-08 13:31 · e1df21a3",
+ "_생성": "2026-10-08 14:35 · 24717bcb",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3148,5 +3172,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "bbec2ac8d462"
+ "_표식서명": "b7418cf5d8c2"
 }
