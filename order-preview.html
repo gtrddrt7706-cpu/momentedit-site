@@ -729,8 +729,8 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-band{position:sticky;top:0;z-index:55;background:var(--bg);padding:10px 0 8px;margin:10px 0 4px;border-bottom:1px solid var(--border)}
 .op-band .t1{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--sub)}
 .op-band .t1 b{color:var(--accent);font-weight:600}
-.op-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;margin:7px 0 3px;background:var(--bg2)}
-.op-bar .c{background:var(--gold-deep)} .op-bar .p{background:#E6DCCB} .op-bar .t{background:var(--gold)}   /* [TABLE_APART] 테이블 인사 = 곡선 꼬리와 같은 옅은 금 */
+.op-bar{display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;margin:7px 0 3px}
+.op-bar span{border-radius:2px} .op-bar .c{background:var(--gold-deeper)} .op-bar .t{background:var(--gold-btn)} .op-bar .p{background:#E6DCCB}   /* ★[BAR_STEPS 2026-10-09 사장님 «테이블 인사 위 가로 막대 · 색 구분이 어렵다» → 시안 A «추천대로»] 짙음(본식 · 흐름선과 같은 먹금) · 중간(테이블 인사) · 옅음(단체 사진) 세 단계 + 칸 사이 2px 틈 · 종전 본식(--gold-deep)과 테이블 인사(--gold)가 거의 같은 금이라 경계가 안 보였다 · [TABLE_APART] 칸은 그대로 셋 */
 .mk-fsum{display:flex;flex-wrap:wrap;column-gap:1.1em;overflow:hidden} .mk-fsum>span{position:relative;white-space:nowrap} .mk-fsum .sep{position:absolute;right:100%;width:1.1em;text-align:center;font-style:normal}   /* [FSUM_SEP] */
 .op-leg.op-leg3{position:relative} .op-leg .lt{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
 .op-leg{display:flex;justify-content:space-between;font-size:11px;color:var(--light)}
@@ -4076,7 +4076,7 @@ function _lGroups(k){
   if(k==='entry'){
     var cpl=S.entryVoice==='couple';
     if(_upLive()){ if(_vpChoice('entry').length>1) L('entryVoice','어떻게 준비할까요',_vpChoice('entry'),_vpCur('entry'),false,_vpNoteOf('entry')); } else if(cpl) L('entryVoice','입장 목소리',[['nar','나레이션'],['couple','두 분 목소리']],'couple',false,'');   // [VOICE_LATE] · [VP_CHOICE] · [VP_NO_DIRECT]   /* [EX_ROW] 어떻게 준비할까요가 먼저 · 멘트는 아래(AI · 스튜디오를 눌러도 누른 줄이 제자리) */
-    L('entry','입장 멘트',['A','B','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; }),S.entry,false,cpl?(_vpCur('entry')==='ai'?'':'두 분이 녹음하실 대본도 이 멘트에 맞춰 드려요.'):'');   /* ★AI 판 «멘트를 바꾸면 두 분 목소리 입장 인사도 아래에서 다시 만들어 주세요.» 금지 — 2026-10-03 사용자 지시로 삭제 [NOTE_OFF_1003] · 줄 카드가 바뀌면 «멘트를 바꿨어요 · 다시 만들어 주세요»(R8-03)를 이미 말한다 */   /* [R1-27] AI 판이면 따로 녹음하는 것처럼 읽히지 않게 · 멘트를 바꾸면 AI 줄은 _txStale 로 «다시 만들기»가 필요하니 «저절로 바뀐다»고 하지 않는다 */
+    L('entry','입장 멘트',['A','B','C','D','E','F'].map(function(v){ return [v,ENTRY[v].d]; }),S.entry,false,cpl?(_vpCur('entry')==='ai'?'':'두 분이 녹음하실 대본도 이 멘트에 맞춰 드려요.'):''); g[g.length-1].exOn=1;   // [EX_CHIP_ON] 아래 나레이션이 이 멘트라 눌린 모양(안내 · 소개 멘트와 같게)   /* ★AI 판 «멘트를 바꾸면 두 분 목소리 입장 인사도 아래에서 다시 만들어 주세요.» 금지 — 2026-10-03 사용자 지시로 삭제 [NOTE_OFF_1003] · 줄 카드가 바뀌면 «멘트를 바꿨어요 · 다시 만들어 주세요»(R8-03)를 이미 말한다 */   /* [R1-27] AI 판이면 따로 녹음하는 것처럼 읽히지 않게 · 멘트를 바꾸면 AI 줄은 _txStale 로 «다시 만들기»가 필요하니 «저절로 바뀐다»고 하지 않는다 */
     /* ★★[ENTRY_OUT_OFF 2026-10-02 사장님 지시 «두 사람이 나란히 있습니다 · 서로를 바라봐 주세요 · 이건 굳이 없어도 될 거 같아 · 맞절도 빼고»]
        새 코스 입장은 도착 멘트(맺는 말)와 첫 모습(바라보기 · 맞절)을 묻지 않는다 — 큐도 없다(ritual-cue entry). 되살리지 말 것.
        옛 코스(아래 옛 입장 절 · ENTRY_OUT_PICK)는 저장해 둔 소리가 그대로여야 해서 남긴다. */
@@ -4096,7 +4096,7 @@ function _lGroups(k){
      기본값을 눌린 모양으로 두면, 이미 고른 칩은 다시 틀지 않으므로([CHIP_NO_REPLAY]) 기본 소리를 칩으로 들을 길이 없었다.
      이제 두 분이 직접 누른 묶음(S.touched)이나 기본과 달라진 묶음(예시로 시작 · 옛 초안)만 눌린 모양 · 아직 안 고른 기본은 비어 보이고 누르면 들린다.
      소리와 무관한 묶음(q · 첫 모습 · 케이크/꽃 준비)은 종전대로 기본이 눌린 모양. 엔진 값은 그대로(안 골라도 기본대로 흐른다). 되돌리지 말 것 */
-  if(!_lInDef){ var d=_lDefCurs(k), t=S.touched||{}; g.forEach(function(x){ x.picked=(x.q&&!x.up)||!!t[x.key]||d[x.key]===undefined||x.cur!==d[x.key]; });   /* [VOW_FIRST] up = 소리와 무관해도(q) 처음엔 안 눌린 모양 */
+  if(!_lInDef){ var d=_lDefCurs(k), t=S.touched||{}; g.forEach(function(x){ x.picked=!!x.exOn||(x.q&&!x.up)||!!t[x.key]||d[x.key]===undefined||x.cur!==d[x.key]; });   /* [EX_CHIP_ON] exOn = 멘트 글이 곧 보이는 묶음 */   /* [VOW_FIRST] up = 소리와 무관해도(q) 처음엔 안 눌린 모양 */
     /* ★[VOW_UNPICK 2026-10-06 사장님 원칙 «미리 골라 둔 것처럼 보이지 않게 · 안 고르면 한 줄로 정직하게»] 서약 두 묶음 중 안 고른 것이 있으면 아래 묶음에 한 줄 */
     if(k==='vow'){ var _gh=g.filter(function(x){ return x.key==='vowHow'; })[0], _gf=g.filter(function(x){ return x.key==='vowFirst'; })[0];
       if(_gh&&_gf){ var _a=_gh.picked===false, _b=_gf.picked===false; if(_a||_b) _gf.unote='아직 고르지 않았어요 · 고르지 않으면 '+(_a&&_b?'한 줄씩 번갈아 · 신랑부터 진행돼요':_a?'한 줄씩 번갈아 읽어요':'신랑부터 시작해요'); } } }
@@ -4106,7 +4106,7 @@ var _lInDef=false;
 /* ★★[EX_UNPICKED 2026-10-07 사장님 «입장 파트 첫 화면에서 새 출발처럼 버튼 클릭되어 있는 거 수정 개선»] 예시 코스(기록 · 약속 · 가족 · 간결)가 정한 값도 «기본»이다.
    종전엔 미개봉 기본(_S0)과만 견줘서, 예시가 바꿔 둔 묶음(약속 = 입장 «새 출발처럼» · 선언 «나레이션 · 따뜻하게» · 인사 «말 없이» / 가족 = 입장 «고마움을 담아»)이
    두 분이 누르지 않았는데 눌린 모양으로 떴다([BOSS_WAY] «미리 골라 둔 것처럼 보이지 않게»). 이제 기본 = 미개봉 판 + 고른 예시. 직접 누른 묶음(S.touched)과 바꾼 묶음만 눌린 모양.
-   ★예시 값을 다시 «고른 것»으로 세지 말 것 */
+   ★예시 값을 다시 «고른 것»으로 세지 말 것 — ★단 멘트 글을 정하는 칩(입장 멘트 · 참고 예시 줄)은 2026-10-09 [EX_CHIP_ON] 으로 눌린 모양(아래 글이 그 멘트) · 선언 · 인사 같은 고를 것은 이 기준 그대로 */
 function _exS0(keep){ var s0=JSON.parse(_S0), R=RitualOpen; if(keep&&keep.pickFrom&&R.exampleOf&&R.exampleOf(keep.pickFrom)) R.applyExample(s0,keep.pickFrom); return s0; }
 function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
   try{ var s0=_exS0(keep); ['on','off','course','extra','tune'].forEach(function(q){ if(keep[q]!==undefined) s0[q]=keep[q]; }); S=s0; _lGroups(k).forEach(function(x){ o[x.key]=x.cur; }); }
@@ -4880,17 +4880,20 @@ function _exCards(id,items,cur,fn,note){ return '<section class="mk-sec mk-ref m
    «예시»라는 말은 줄 이름표 «참고 예시» 한 곳 · 고칠 수 없는 스튜디오 판은 «입장 멘트 · 안내 멘트»(예시가 아니다).
    자리 = 그 예시가 바꾸는 글 바로 위 — AI 판(하객 맞이 · 식전 영상 소개 · 입장)은 위쪽 고르기 묶음(어떻게 준비할까요 아래),
    현장에서 말하는 순간(서약 · 편지 · 덕담 …)은 «두 분이 할 말» 바로 위(위 묶음에 두면 누른 글이 흐름 줄 너머 화면 밖에서 바뀐다 · 390 실측).
-   처음엔 안 눌린 모양(CHIP_UNPICKED) — 기본 글이 들어 있으면 그 이름을 한 줄로 알린다. ★«참고 예시» 카드(.mk-rc 두 줄 상자) 금지 — 2026-10-06 사용자 지시로 칩 줄로 */
+   ★★[EX_CHIP_ON 2026-10-09 사장님 «AI 두 분 목소리 혹은 스튜디오 나레이션 누르면 자동으로 담백하게 셋팅이 되는데 담백하게 버튼이 안 눌러져 있다 · 둘 중 하나를» → 제안 «자동으로 눌린 채로» → «추천대로» · «다른 곳들도 점검해서 똑같이»]
+   아래 글(또는 나레이션 멘트)이 그 예시면 칩도 눌린 모양 — 글과 칩이 같은 것을 말한다. 고쳐 써서 어느 예시와도 다르면 아무것도 안 눌림.
+   여섯 자리 = 하객 맞이 · 입장 · 식전 영상 소개 × (AI 참고 예시 · 스튜디오 멘트). 스튜디오 «입장 멘트»는 _lGroups 의 exOn.
+   BOSS_WAY_1006 «기본값을 눌린 모양으로 두지 않는다»의 예외는 여기(글이 이미 들어간 예시 칩)뿐 — 안내 목소리 · 서약 읽는 방식 · 서는 분 같은 «고를 것»은 종전대로 안 눌린 모양(CHIP_UNPICKED · VP_MUST). 되돌리지 말 것. ★«참고 예시» 카드(.mk-rc 두 줄 상자) 금지 — 2026-10-06 사용자 지시로 칩 줄로 */
 function _exTouch(key){ S.touched=S.touched||{}; S.touched[key]=1; }
-function _exRowG(key,lab,names,cur,fn,fk,base,note){ var t=(S.touched||{})[key], picked=cur>=0&&(!!t||cur!==base);
-  var un=!picked&&cur>=0&&cur===base&&lab==='참고 예시'?'아직 고르지 않았어요 · 지금 글은 «'+names[cur]+'» 예시예요':'';   /* [EX_ROW] 스튜디오 멘트 줄(안내 · 소개)은 «입장 멘트»처럼 덧말 없음 — 방금 스튜디오를 고른 자리에 «아직 고르지 않았어요»가 또 뜨면 고른 것이 안 된 것처럼 읽혔다(vp-ask-first) */
-  return {key:key,l:lab,list:names.map(function(x,n){ return [n,x]; }),cur:cur,picked:picked,fn:'_exTouch(\''+key+'\');'+fn,fk:fk,unote:un,note:note||''}; }
+function _exRowG(key,lab,names,cur,fn,fk,note){ var picked=cur>=0;   /* [EX_CHIP_ON] 글이 그 예시면 그 칩이 눌린 모양 · 두 분이 고쳐 써서 어느 예시와도 다르면(cur -1) 아무것도 안 눌림 */
+  /* ★«아직 고르지 않았어요 · 지금 글은 «…» 예시예요» 덧줄 금지 — 2026-10-09 사용자 지시로 삭제 [EX_CHIP_ON] · 눌린 칩이 같은 말을 한다 · [EX_ROW] 스튜디오 멘트 줄(안내 · 소개)은 «입장 멘트»처럼 덧말 없음 */
+  return {key:key,l:lab,list:names.map(function(x,n){ return [n,x]; }),cur:cur,picked:picked,fn:'_exTouch(\''+key+'\');'+fn,fk:fk,note:note||''}; }
 function _exRows(k){ var out=[], R=RitualOpen, EXN='고르면 아래 글이 바뀌어요 · 고쳐 써도 돼요';
-  if(k==='guest'){ if(S.guestVoice==='couple'&&_vpCur('guest')==='ai') out.push(_exRowG('exGuest','참고 예시',GUEST_EX.map(function(x){ return x[0]; }),_guestExCur(),'mkGuestEx','mkex:guest:',0,EXN));
-    else if(S.guestVoice!=='couple') out.push(_exRowG('exGuestNar','안내 멘트',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','mkex:guestnar:',0,'')); }
-  if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') out.push(_exRowG('exEntry','참고 예시',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),_exIs('entry')?ENTRY_KEYS.indexOf(S.entry):-1,'mkEntryEx','mkex:entry:',Math.max(0,ENTRY_KEYS.indexOf(_exS0(S).entry)),EXN));   // [EX_UNPICKED] 기준 = 고른 예시의 입장
-  if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice!=='couple') out.push(_exRowG('exPvNar','소개 멘트',PV_EX.map(function(x){ return x[0]; }),+S.pvEx||0,'mkPvNarEx','mkex:pvnar:',0,''));   /* [EX_ROW · PV_EX_NAR] 스튜디오 판 식전 영상 소개 넷(녹음 128~130)도 위쪽 칩 줄 */
-  if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice==='couple'&&_vcOn()&&_vpCur('prevideo')==='ai'){ out.push(_exRowG('exPv','참고 예시',PV_EX.map(function(x){ return x[0]; }),_exNOf('pv'),'mkPvEx','mkex:pv:',-1,EXN)); }   /* ★[VU_OLD_EX 2026-10-08 목소리 1라운드 39] 고른 칩도 _exNOf 한 곳 — 옛 예시 글(PV_OLD)로 만든 고객은 칩이 다 꺼져 두 분이 쓴 글처럼 보였다(하객 맞이 _guestExCur 와 같은 길) */
+  if(k==='guest'){ if(S.guestVoice==='couple'&&_vpCur('guest')==='ai') out.push(_exRowG('exGuest','참고 예시',GUEST_EX.map(function(x){ return x[0]; }),_guestExCur(),'mkGuestEx','mkex:guest:',EXN));
+    else if(S.guestVoice!=='couple') out.push(_exRowG('exGuestNar','안내 멘트',GUEST_EX.map(function(x){ return x[0]; }),+S.guestEx||0,'mkGuestNarEx','mkex:guestnar:','')); }
+  if(k==='entry'&&_upLive()&&_vpCur('entry')==='ai') out.push(_exRowG('exEntry','참고 예시',ENTRY_KEYS.map(function(v){ return ENTRY[v].d; }),_exIs('entry')?ENTRY_KEYS.indexOf(S.entry):-1,'mkEntryEx','mkex:entry:',EXN));   // [EX_CHIP_ON] 글이 그 입장 예시면 눌린 모양(코스 예시가 정한 것이어도 · 10-07 [EX_UNPICKED] 의 이 줄 기준을 걷었다)
+  if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice!=='couple') out.push(_exRowG('exPvNar','소개 멘트',PV_EX.map(function(x){ return x[0]; }),+S.pvEx||0,'mkPvNarEx','mkex:pvnar:',''));   /* [EX_ROW · PV_EX_NAR] 스튜디오 판 식전 영상 소개 넷(녹음 128~130)도 위쪽 칩 줄 */
+  if(k==='prevideo'&&R.onOf(S,'prevideo')&&S.pvVoice==='couple'&&_vcOn()&&_vpCur('prevideo')==='ai'){ out.push(_exRowG('exPv','참고 예시',PV_EX.map(function(x){ return x[0]; }),_exNOf('pv'),'mkPvEx','mkex:pv:',EXN)); }   /* ★[VU_OLD_EX 2026-10-08 목소리 1라운드 39] 고른 칩도 _exNOf 한 곳 — 옛 예시 글(PV_OLD)로 만든 고객은 칩이 다 꺼져 두 분이 쓴 글처럼 보였다(하객 맞이 _guestExCur 와 같은 길) */
   return out; }
 function _exNorm(t){ return String(t||'').replace(/\s+/g,''); }
 /* ★★[GUEST_EX4 2026-10-06 사장님 «하객 맞이 예시도 4가지 종류로 · 다른 곳들처럼 예시 1~4 같은 폼으로»] 두 분 목소리(AI) 판 하객 맞이 네 줄 = «참고 예시» 카드 넷.
