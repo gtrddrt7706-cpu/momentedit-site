@@ -26,7 +26,7 @@ try {
     await wait(300); await pg.evaluate(() => mkGo('guest')); await wait(500);
     const a = await pg.evaluate(rows); const ex = a.find((r) => r.l === '참고 예시'), vi = a.findIndex((r) => r.l === '어떻게 준비할까요');
     const want = await pg.evaluate(() => GUEST_EX.map((x) => x[0]));
-    ok(`${w} ① 하객 맞이(AI) — «어떻게 준비할까요» 바로 아래 «참고 예시» 칩 줄 · 느낌 이름 넷 · 글이 «${want[0]}» 예시라 그 칩이 눌린 모양 · 덧줄 없이 «고르면 아래 글이 바뀌어요» · 옛 카드 없음 [EX_CHIP_ON]`, ex && a.indexOf(ex) === vi + 1 && ex.c.join('|') === want.join('|') && ex.on.join() === want[0] && !/아직 고르지 않았어요/.test(ex.n) && /^고르면 아래 글이 바뀌어요/.test(ex.n) && !(await pg.evaluate(() => !!document.querySelector('.mk-rc,.mk-exs'))), JSON.stringify(a));
+    ok(`${w} ① 하객 맞이(AI) — «어떻게 준비할까요» 바로 아래 «참고 예시» 칩 줄 · 느낌 이름 넷 · 글이 «${want[0]}» 예시라 그 칩이 눌린 모양 · 칩 줄 아래 덧줄 없음(«아직 고르지 않았어요» · «고르면 아래 글이 바뀌어요» 둘 다 · NOTE_TOAST 는 누를 때 아래 알림) · 옛 카드 없음 [EX_CHIP_ON · NOTE_TOAST]`, ex && a.indexOf(ex) === vi + 1 && ex.c.join('|') === want.join('|') && ex.on.join() === want[0] && ex.n === '' && !(await pg.evaluate(() => !!document.querySelector('.mk-rc,.mk-exs'))), JSON.stringify(a));
     const own = await pg.evaluate(() => { const keep = JSON.stringify(S.vtext || {}), kl = JSON.stringify(S.vlines || {}); S.vtext = S.vtext || {}; S.vtext.g0 = '오늘 와 주셔서 정말 고맙습니다. 저희가 직접 쓴 첫 줄이에요.'; if (S.vlines) delete S.vlines[_slVk('g0')]; render();
       const r = [...document.querySelectorAll('.mk-pick .ls-cg')].find((x) => x.getAttribute('aria-label') === '참고 예시'), o = { cur: _guestExCur(), on: r ? r.querySelectorAll('.op-chip[aria-checked="true"]').length : -1, tab: r ? r.querySelectorAll('.op-chip[tabindex="0"]').length : -1 };
       S.vtext = JSON.parse(keep); S.vlines = JSON.parse(kl); render(); return o; });
