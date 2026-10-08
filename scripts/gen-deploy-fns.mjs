@@ -178,7 +178,7 @@ const PROPS = {
   VOICE_STUDIO_CODES: ['option', '두 분 목소리 시험 예식의 개인코드(쉼표로) — 날짜 문과 상관없이 새 칸이 열리고 · AI 스위치 studio 가 여기서만 켜진다 [VOICE_UP_FROM]'],
   VOICE_CLONE: ['switch', 'AI 두 분 목소리 스위치 off · studio · on(비우면 옛 VOICE_CLONE_ENABLED 를 따른다) [VOICE_UP_FROM]'],
   PRACTICE_READ: ['switch', '연습 AI 읽기 스위치 off · studio · on(비우면 옛 PRACTICE_TTS_ENABLED 를 따른다) [VOICE_UP_FROM]'],
-  TYPECAST_API_KEY: ['needs', '타입캐스트 API 키(서버에만 · 브라우저에 두지 않는다) [VOICE_CLONE]'],
+  TYPECAST_API_KEY: ['needs', 'VOICE_CLONE', '타입캐스트 API 키 · AI 두 분 목소리(서버에만 · 브라우저에 두지 않는다)'],   /* ★[NEEDS_SWITCH 2026-10-09] 둘째 칸은 «켜는 스위치 이름»이다 — 종전엔 설명 글이 들어가 deployCheck ⑦ 이 스위치를 못 찾아 VOICE_CLONE=on 인데도 «꺼져 있어 지금은 필요 없음»이라 하고 키를 안 봤다 */
   VOICE_TARGET_LUFS: ['tuning', 'AI 목소리 소리 크기 목표(기본 -16 · 나레이션 실측)'],
   TYPECAST_VOICE_GROOM: ['option', '연습 읽기 스튜디오 기본 목소리 · 신랑 쪽(voice_id)'], TYPECAST_VOICE_BRIDE: ['option', '연습 읽기 스튜디오 기본 목소리 · 신부 쪽'], TYPECAST_VOICE_FAMILY: ['option', '연습 읽기 스튜디오 기본 목소리 · 가족'],
   TYPECAST_VOICE_M: ['option', '연습 읽기 기본 목소리 · 남(tc_ voice_id · 7-2) [VOICE_CLONE_0928]'], TYPECAST_VOICE_F: ['option', '연습 읽기 기본 목소리 · 여'], TYPECAST_VOICE_OM: ['option', '연습 읽기 기본 목소리 · 윗세대 남'], TYPECAST_VOICE_OF: ['option', '연습 읽기 기본 목소리 · 윗세대 여'],
