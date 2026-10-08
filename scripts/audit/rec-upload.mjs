@@ -184,7 +184,7 @@ for (const w of [360, 1280]) {
   await pg.route('**/*', (rt) => { const u = rt.request().url();
     if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
     if (/script\.google\.com/.test(u)) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {} calls.push(b.fn + ':' + (b.args || []).join(','));
-      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, files: [{ key: 'g2', id: 'F-st2' }, { key: 'g0', id: 'F-g0' }, { key: 'g1', id: 'F-g1' }] }) });   // [RF_STUDIO_UP] 스튜디오가 대신 올린 g2
+      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, files: [{ key: 'g2', id: 'F-st2', name: '시작 5분 전 · 스튜디오 · 카톡.wav' }, { key: 'g0', id: 'F-g0', name: '하객 입장 때 · 녹음.wav' }, { key: 'g1', id: 'F-g1', name: '시작 10분 전 · 녹음.wav' }] }) });   // [RF_STUDIO_UP] 스튜디오가 대신 올린 g2 · ★[RF_CON_NOOLD 2026-10-08] 빈 줄의 대체 파일은 스튜디오 파일(이름 « · 스튜디오 · » 또는 sup)뿐이라 이름을 함께 싣는다(진짜 adminRitualFiles 도 싣는다)
       const ok = b.fn === 'adminRitualFileGet' && b.args && (b.args[1] === 'F-g0' || b.args[1] === 'F-st2');
       return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(ok ? { ok: true, id: b.args[1], mime: 'audio/wav', data: wav } : { ok: false, error: '없음' }) }); }
     return rt.fulfill({ status: 200, body: '' }); });

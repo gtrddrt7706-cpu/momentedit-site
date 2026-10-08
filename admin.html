@@ -1127,11 +1127,17 @@ function admRfLoad(){ var el=document.getElementById('admRf'), code=curDetail&&c
     if(d.vc) setTimeout(admVcUsage,0);
     if(d.gone){ el.innerHTML=vh+'<div class="kv"><span class="k">지움</span><span class="v">'+esc(d.gone)+' (예식 30일 뒤)</span></div>'; return; }
     /* ★[RF_ROWS_0928 코워크 0928 6-7] 자리마다 한 줄 — 자리 · 갈래(두 분 녹음 · 올린 파일 · AI 목소리 · 비어 있음 → 나레이션) · 파일 [들어 보기] · 바뀐 때 · [확인 ✓] · 빈 줄엔 [연락하기].
-       자리는 두 분이 «두 분 목소리»를 고른 식순만(하객 맞이 넷 · 입장 인사 하나) · 지금 쓰는 파일은 그 자리의 가장 새 파일 · 옛 파일은 아래에 따로 */
+       자리는 두 분이 «두 분 목소리»를 고른 식순만(하객 맞이 넷 · 입장 인사 하나) · 지금 쓰는 파일은 아래 RF_CON_NOOLD · 옛 파일은 아래에 따로 */
     var S3=((((curDetail&&curDetail.mirror&&curDetail.mirror.production)||{}).ritualDraft||{}).S)||{}, up=S3.up||{}, ks=[], LAB={g0:'하객 맞이 1 · 하객 입장 때',g1:'하객 맞이 2 · 시작 10분 전',g2:'하객 맞이 3 · 시작 5분 전',g3:'하객 맞이 4 · 시작 1분 전',pv:'식전 영상 소개',entry:'입장 인사'};
     if(S3.guestVoice==='couple') ks=ks.concat(['g0','g1','g2','g3']); if(S3.entryVoice==='couple') ks.push('entry'); if(S3.pvVoice==='couple') ks.push('pv');   // [PV_INTRO]
     var curF={}, old=[], BT='class="btn-line" style="padding:2px 8px;font-size:12px"';
-    d.files.forEach(function(f){ if(f.key&&!curF[f.key]) curF[f.key]=f; else old.push(f); });
+    /* ★[RF_CON_NOOLD 2026-10-08 목소리 1라운드 75] «지금 파일» = 두 분 초안의 파일(up[k].id) → 스튜디오가 대신 올린 파일(sup · 이름 « · 스튜디오 · ») 순. 그 밖은 «옛 파일» —
+       종전엔 그 자리의 가장 새 파일이라 두 분이 지운 줄에도 옛 AI 테이크가 «지금 파일»로 보여 D-5 확인이 그것을 들었다(당일 콘솔과 같은 규칙) */
+    var byId={}, sup=d.sup||{}; d.files.forEach(function(f){ byId[f.id]=f; });
+    d.files.forEach(function(f){ var k=f.key; if(!k||curF[k]) return; var v=up[k], vid=v&&typeof v==='object'&&v.id&&byId[v.id]?v.id:'', sid=sup[k]&&sup[k].id&&byId[sup[k].id]?sup[k].id:'';
+      if(!vid&&!sid){ var st0=d.files.filter(function(x){ return x.key===k&&/ · 스튜디오 · /.test(x.name||''); })[0]; sid=st0?st0.id:''; }
+      if(vid||sid) curF[k]=byId[vid||sid]; });
+    d.files.forEach(function(f){ if(!(f.key&&curF[f.key]===f)) old.push(f); });
     Object.keys(curF).forEach(function(k){ if(ks.indexOf(k)<0) ks.push(k); });   // 고른 식순이 바뀌어도 올라온 파일은 보인다
     var nEmpty=0, h=ks.map(function(k){ var f=curF[k], v=up[k], ok=d.okMap&&d.okMap[k];
       var upB=' <button type="button" '+BT+' data-fk="admrfup:'+k+'" onclick="admRfUp(\''+k+'\',this)">파일 올리기</button>';   // [RF_STUDIO_UP] 카톡 · 메일로 받은 파일을 대신 올린다

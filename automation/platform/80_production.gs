@@ -1273,7 +1273,12 @@ function handleRitualFileDel(body) {
   var f = _rfFileIn(code, String(body.id || '').trim());
   if (!f) return { ok: true, gone: true };   // 이미 없음 = 지운 것과 같다(멱등)
   try { f.setTrashed(true); } catch (e) { return { ok: false, ecode: 'D4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '지우지 못했어요. 다시 눌러 주세요.' }; }   // [ERR_CODE_GAS]
-  return { ok: true, key: String(body.key || ''), id: String(body.id || '') };
+  /* ★[RF_DEL_SLOT 2026-10-08 목소리 1라운드 57 · 75] 두 분이 줄을 지우면 그 자리의 «더 옛» 파일도 함께 휴지통으로 — 다시 보내기(UP_AGAIN)가 남긴 사본 · 다시 만든 AI 테이크의 옛것.
+     종전엔 지금 id 하나만 지워 옛 사본이 남았고, 당일 콘솔이 «자리마다 가장 새 파일»로 그것을 틀었다(지웠다고 말한 목소리가 나감 · 개인정보 약속).
+     지운 파일보다 «뒤에» 만든 파일(그 사이 새로 올린 것)과 스튜디오가 대신 올린 파일(« · 스튜디오 · »)은 건드리지 않는다 */
+  var swept = 0; try { var k0 = _rfKeyOfName(f.getName()), t0 = f.getDateCreated().getTime(), fo = _rfFolderFor(code), it = fo.getFiles();
+    if (k0) while (it.hasNext()) { var g = it.next(); if (g.getId() === f.getId() || g.isTrashed() || _rfKeyOfName(g.getName()) !== k0 || / · 스튜디오 · /.test(g.getName()) || g.getDateCreated().getTime() > t0) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {}
+  return { ok: true, key: String(body.key || ''), id: String(body.id || ''), swept: swept };
 }
 
 /* ★★[REC_ADMIN 2026-09-27 코워크 «두 분 목소리» 3-6 · 3-7 · 3-8] 스튜디오 쪽 — 관리 화면 · 당일 콘솔이 같은 함수를 쓴다(adminCall 뒤 · 관리자 토큰).
@@ -1291,8 +1296,11 @@ function adminRitualFiles(code) {
   var out = []; if (fid) { try { var it = DriveApp.getFolderById(fid).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; var at = Utilities.formatDate(f.getDateCreated(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
     out.push({ key: _rfKeyOfName(f.getName()), label: RF_KEYS[_rfKeyOfName(f.getName())] || '', id: f.getId(), name: f.getName(), kb: Math.round(f.getSize() / 1024), at: at, late: !!(late && at.slice(0, 10) > late) }); } } catch (e) {} }
   out.sort(function (a, b) { return a.at < b.at ? 1 : -1; });   // 최신이 위 · 같은 자리에 여러 개면 맨 위가 지금 쓰는 것
-  var vc = null; try { vc = _vcSlots(); if (vc) { var vst = _vcSt(code); vc.me = { groom: _vcPub(vst.groom, code), bride: _vcPub(vst.bride, code) }; } } catch (e) { vc = null; }   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식의 AI 목소리(키가 없으면 null · 화면에 안 보인다)
-  return { ok: true, code: code, wedding: wy, lateAfter: late, files: out, okMap: okMap, gone: props.getProperty('RFGONE_' + code) || '', vc: vc };
+  var vc = null; try { vc = _vcSlots(); if (vc) { var vst = _vcSt(code); vc.me = { groom: _vcPub(vst.groom, code), bride: _vcPub(vst.bride, code) };
+    /* ★[VC_ON_CODE 2026-10-08 목소리 1라운드 86] 칸 정보는 모든 예식이 같이 쓰는 10분 캐시라 on 도 «예식 없이» 잰 값이었다 — 스위치 studio(시험 예식만)면 시험 예식에서도 «스위치 꺼짐».
+       on 은 이 예식 기준으로 다시 단다 */
+    vc.on = !!_vcCfg(code).clone; } } catch (e) { vc = null; }   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식의 AI 목소리(키가 없으면 null · 화면에 안 보인다)
+  return { ok: true, code: code, wedding: wy, lateAfter: late, files: out, okMap: okMap, gone: props.getProperty('RFGONE_' + code) || '', vc: vc, sup: _rfStudioUps(code) };   // [RF_CON_NOOLD] 스튜디오가 대신 올린 기록 — 콘솔 · 관리 화면이 빈 줄에 쓰는 유일한 대체 파일
 }
 /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오 대신 올리기 — 카톡 · 메일로 파일을 보낸 고객을 위해 관리 화면이 줄마다 올린다.
    다듬기(6-3)는 관리 화면이 올리기 전에 같은 모듈(assets/rec-process.js)로 거친다. 기록 RFSTUDIO_<코드> = {자리: {id,name,at}} —
@@ -1324,14 +1332,21 @@ function adminRitualFileOk(code, key, on) {
    purgeAdvisorLog(주간 트리거)가 함께 부른다 · dry=true 면 지울 대상만 로그(previewRitualFiles). ScriptProperty RITUAL_FILE_PURGE_DAYS 로 일수 조정 */
 function purgeRitualFiles(dry) {
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), days = +(all.RITUAL_FILE_PURGE_DAYS || 30) || 30, today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
+  /* ★[RF_PURGE_AI 2026-10-08 목소리 1라운드 76] 종전엔 예식 폴더 «바로 안» 파일만 지워 하위 폴더 «AI»(두 분 목소리로 만든 안내 소리 · 읽은 녹음 · 연습 소리)가 영영 남았다(처리방침 위반).
+     이제 하위 폴더 안까지 지운다. 이미 지운(RFGONE) 예식은 하위 폴더만 한 번 다시 훑는다 — 표 RFAIGONE_<코드> */
+  var trashIn = function (fo) { var n = 0, it = fo.getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; n++; if (!dry) f.setTrashed(true); }
+    var fs = fo.getFolders(); while (fs.hasNext()) { var sub = fs.next(); if (!sub.isTrashed()) n += trashIn(sub); } return n; };
   Object.keys(all).forEach(function (k) {
     if (k.indexOf('RF_') !== 0 || k.indexOf('RFOK_') === 0) return;   // [REC_PURGE]
-    var code = k.slice(3); if (all['RFGONE_' + code]) return;
+    var code = k.slice(3);
+    if (all['RFGONE_' + code]) { if (all['RFAIGONE_' + code]) return;   // [RF_PURGE_AI] 옛 판이 남긴 하위 폴더 — 한 번만
+      var m = 0; try { var fo0 = DriveApp.getFolderById(all[k]); if (!fo0.isTrashed()) { var ss = fo0.getFolders(); while (ss.hasNext()) { var s0 = ss.next(); if (!s0.isTrashed()) m += trashIn(s0); } } } catch (e) {}
+      if (!dry) props.setProperty('RFAIGONE_' + code, today); if (m) done.push(code + ' · 하위 폴더 다시 · 파일 ' + m + '개'); return; }
     var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null, wy = cust ? _ymdOf(cust.get('예식일')) : '';
     if (!wy) return; var d = new Date(wy + 'T00:00:00+09:00'); d.setDate(d.getDate() + days); var cut = Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd');
     if (today <= cut) return;
-    var n = 0; try { var it = DriveApp.getFolderById(all[k]).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; n++; if (!dry) f.setTrashed(true); } } catch (e) {}
-    if (!dry) { props.setProperty('RFGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {} try { _vcPurge(code); } catch (e) {} }   // [RF_STUDIO_UP] 대신 올린 기록도   // [VOICE_CLONE 5-5] 업체 쪽 목소리도
+    var n = 0; try { n = trashIn(DriveApp.getFolderById(all[k])); } catch (e) {}   // [RF_PURGE_AI] 하위 폴더(AI)까지
+    if (!dry) { props.setProperty('RFGONE_' + code, today); props.setProperty('RFAIGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {} try { _vcPurge(code); } catch (e) {} }   // [RF_STUDIO_UP] 대신 올린 기록도   // [VOICE_CLONE 5-5] 업체 쪽 목소리도
     done.push(code + ' · 예식 ' + wy + ' · 파일 ' + n + '개');
   });
   Logger.log('purgeRitualFiles' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
@@ -1378,7 +1393,8 @@ function _vcM3(f, b, m) {
   if (JSON.stringify(m) === JSON.stringify(b)) return f;
   return m; }
 function _vcSave(code, base, mine) {   // [VC_STATE_MERGE]
-  var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { _vcPut(code, mine); return; }
+  /* ★[VC_SAVE_NOLOCK 2026-10-08 목소리 1라운드 78] 잠금을 못 잡아도 통째로 덮지 않고 합쳐 쓴다 — 종전엔 처음 읽은 상태로 덮어 다른 분 확인 문장이 지워졌다(10/04 증상 그대로) */
+  var lock = LockService.getScriptLock(); try { lock.waitLock(10000); } catch (e) { _vcPut(code, _vcM3(_vcSt(code), base, mine)); return; }
   try { _vcPut(code, _vcM3(_vcSt(code), base, mine)); } finally { try { lock.releaseLock(); } catch (e) {} } }
 function _vcFetch(cfg, method, path, opt) { opt = opt || {}; var o = { method: method, headers: { 'X-API-KEY': cfg.key }, muteHttpExceptions: true };
   if (opt.json) { o.contentType = 'application/json'; o.payload = JSON.stringify(opt.json); } else if (opt.form) o.payload = opt.form;
@@ -1473,7 +1489,9 @@ function _vcNewPhrase() {   // [VOICE_CLONE_0928] 확인 문장 — 오늘 날�
   var c1 = R(VC_COLOR), c2 = R(VC_COLOR), t1 = R(VC_THING), t2 = R(VC_THING); while (c2 === c1) c2 = R(VC_COLOR); while (t2 === t1) t2 = R(VC_THING);
   var last = t1.charCodeAt(t1.length - 1) - 0xAC00, pt = (last >= 0 && last % 28) ? '과' : '와';
   return '오늘은 ' + (m === 6 ? '유' : m === 10 ? '시' : _vcKoNum(m)) + '월 ' + _vcKoNum(dd) + '일, ' + c1 + ' ' + t1 + pt + ' ' + c2 + ' ' + t2 + '.'; }
-function _vcDelVoice(cfg, st, vid) { if (!vid || !cfg.key) return; var ok = false;   // 업체 쪽 지우기 — 204 · 404(이미 없음)면 끝 · 아니면 retry 목록
+function _vcDelVoice(cfg, st, vid) { if (!vid) return; var ok = false;   // 업체 쪽 지우기 — 204 · 404(이미 없음)면 끝 · 아니면 retry 목록
+  /* ★[VC_DEL_NOKEY 2026-10-08 목소리 1라운드 85] 키가 비어 있으면 업체에 못 물으니 retry 에 남긴다 — 종전엔 그냥 돌아가 상태에서만 지워지고 업체 목소리를 잃었다(아무도 다시 안 지움) */
+  if (!cfg.key) { st.retry = (st.retry || []).filter(function (v) { return v !== vid; }); st.retry.push(vid); return; }
   try { var x = _vcFetch(cfg, 'delete', '/v1/custom-voices/' + encodeURIComponent(vid)); ok = x.code === 204 || x.code === 200 || x.code === 404; } catch (e) {}
   st.retry = (st.retry || []).filter(function (v) { return v !== vid; }); if (!ok) st.retry.push(vid); }
 /* ★★[VC_ENROLL_JOB 2026-10-08 사장님 «두 분 목소리 만들기에서 녹음 후에 목소리 만들기 오류가 자주 · 모든 경우의 수 시뮬레이션 · 개선이 없을 때까지»]
@@ -1557,12 +1575,15 @@ function handleVoiceClone(body) {
     var x = null, xe = null; try { x = _vcFetch(cfg, 'post', '/v1/custom-voices/instant-clone', { form: { name: (code + '-' + (who === 'groom' ? 'g' : 'b')).slice(0, 30), model: VC_MODEL, file: Utilities.newBlob(bytes, mime, mime === 'audio/mpeg' ? 'sample.mp3' : 'sample.wav') } }); } catch (e) { xe = e; }
     return _vcEnrollAfter({ code: code, cfg: cfg, who: who, st: st, pp: pp, save: save, jid: jid, js: js, bytes: bytes, mime: mime, WHO: WHO }, x, xe); }   // 업체가 답한 뒤 — 실패는 두 분의 횟수에 세지 않고 까닭(HTTP · 업체 글)을 남긴다 [VC_WHY] · 저장 · 앞 목소리 지우기 · 작업표 끝
   if (op === 'make') { var key = String(body.key || ''); if (!RF_KEYS[key]) return { ok: false, error: '어느 자리인지 알 수 없어요.' };
-    var text = String(body.text || '').trim().slice(0, 600); if (!text) return { ok: false, error: '읽을 글이 없어요.' };
+    var text = String(body.text || '').trim().slice(0, 3000); if (!text) return { ok: false, error: '읽을 글이 없어요.' };   // [VC_LONG_SPLIT] 600 에서 자르지 않는다 — 아래에서 문장 사이로 나눠 읽는다
     var tempo = _vcTempo(body.tempo), pause = _vcPause(body.pause), one = String(body.one || ''), who2 = one && WHO[one] ? [one] : ['groom', 'bride'];
     var lines = Array.isArray(body.lines) ? body.lines.slice(0, 12) : null;   // 입장 인사처럼 문장마다 읽는 사람이 다르면 [[who,text],…]
     st.make = st.make || { total: 0, per: {} };
     var retempo = body.retempo === true;   // 빠르기만 바꾼 것 — 줄마다 센 수(per · 기록용)에 넣지 않는다
-    var jobs = lines ? lines.map(function (l) { return { who: WHO[l && l[0]] ? l[0] : '', text: String((l && l[1]) || '').trim().slice(0, 600) }; }) : [{ who: who2.length === 1 ? who2[0] : '', text: text }];
+    /* ★[VC_LONG_SPLIT 2026-10-08 목소리 1라운드 80] 한 분이 이어 읽는 글이 600자를 넘으면 종전엔 말없이 잘라 끝이 소리에 없었다(화면은 «확정하기»까지).
+       이제 문장 사이에서 600자 안 조각으로 나눠 함께 읽는다(화면은 받은 조각을 이어 붙인다 · _vcProc). 입장 인사처럼 줄을 나눠 보내는 것(lines)은 줄 하나가 600자를 넘으면 알린다 */
+    if (lines && lines.some(function (l) { return String((l && l[1]) || '').trim().length > 600; })) return { ok: false, long: true, error: '한 줄 글이 길어요 · 600자 안으로 나눠 주세요' };
+    var jobs = lines ? lines.map(function (l) { return { who: WHO[l && l[0]] ? l[0] : '', text: String((l && l[1]) || '').trim() }; }) : _vcChunks(text, 600).slice(0, 12).map(function (c) { return { who: who2.length === 1 ? who2[0] : '', text: c }; });
     var need = jobs.reduce(function (a, j) { return a + j.text.length; }, 0);
     if (_vcSpent(st) + need > VC_LIM.budget) return { ok: false, limit: true, error: '이번 예식의 AI 만들기를 다 썼어요. 지금 것을 쓰시거나 직접 녹음해 주세요' };   // [VC_BUDGET] 예식당 글자 예산 하나(줄 5번 · 예식 50번은 걷었다)
     var parts = [], fresh = false, newChars = 0, t0 = Date.now(), todo = [];
@@ -1578,11 +1599,15 @@ function handleVoiceClone(body) {
     if (todo.length) {
       var reqs = todo.map(function (t) { return _vcTtsReq(cfg, t.v, t.text, tempo, pause); }), rs;
       try { rs = UrlFetchApp.fetchAll(reqs); } catch (e) { return _vcErr(code, 0, 'make', e.message); }
+      /* ★[VC_MAKE_KEEP 2026-10-08 목소리 1라운드 83] 한 줄만 바쁨(429)이어도 종전엔 첫 실패에서 바로 돌아가 이미 산 다른 줄을 버렸다(다시 누르면 또 사고 · 예산도 덜 셈).
+         이제 받은 줄은 모두 저장하고 글자를 센 뒤에 첫 실패를 돌려준다 — 다시 누르면 저장본에서 바로 나온다 */
+      var fail = null;
       for (var j = 0; j < todo.length; j++) { var x = { code: rs[j].getResponseCode(), r: rs[j] };
-        if (x.code === 429 || x.code === 503) { Utilities.sleep(1500); try { var r2 = UrlFetchApp.fetch(reqs[j].url, reqs[j]); x = { code: r2.getResponseCode(), r: r2 }; } catch (e) { return _vcErr(code, 0, 'make', e.message); } }
-        if (x.code !== 200) return _vcErr(code, x.code, 'make', _vcWhy(x));
+        if (x.code === 429 || x.code === 503) { Utilities.sleep(1500); try { var r2 = UrlFetchApp.fetch(reqs[j].url, reqs[j]); x = { code: r2.getResponseCode(), r: r2 }; } catch (e) { fail = fail || { c: 0, why: e.message }; continue; } }
+        if (x.code !== 200) { fail = fail || { c: x.code, why: _vcWhy(x) }; continue; }
         var by = x.r.getBlob().getBytes(); try { todo[j].fo.createFile(Utilities.newBlob(by, 'audio/mpeg', todo[j].nm)); } catch (e) {}
-        _vcCharLog(String(todo[j].text).length); todo[j].slot.data = Utilities.base64Encode(by); fresh = true; newChars += todo[j].text.length; } }
+        _vcCharLog(String(todo[j].text).length); todo[j].slot.data = Utilities.base64Encode(by); fresh = true; newChars += todo[j].text.length; }
+      if (fail) { if (fresh) { st.make.chars = (st.make.chars || 0) + newChars; save(); } return _vcErr(code, fail.c, 'make', fail.why); } }
     var sec = Math.round((Date.now() - t0) / 1000);
     if (sec > 60) { try { PropertiesService.getScriptProperties().setProperty('VCSLOW_' + code, JSON.stringify({ at: fmtKST(new Date()), sec: sec, lines: jobs.length, fresh: todo.length })); } catch (e) {} }   // [VC_PAR]
     if (!parts.length) return { ok: false, error: '아직 만든 AI 목소리가 없어요.' };
@@ -1591,16 +1616,21 @@ function handleVoiceClone(body) {
     return { ok: true, key: key, parts: parts, total: st.make.total }; }   // [VC_BUDGET] left(줄마다 남은 번)를 보내지 않는다 — [다시 만들기]에 «N번 남음»이 안 붙는다
   return { ok: false, error: '알 수 없는 요청이에요.' };
 }
+/* [VC_LONG_SPLIT] 글을 문장 사이에서 n 자 안 조각으로 — 문장 하나가 n 자를 넘으면 그 문장만 n 자씩 자른다(글자는 하나도 버리지 않는다) */
+function _vcChunks(t, n) { t = String(t || '').trim(); if (!t) return []; if (t.length <= n) return [t];
+  var out = [], cur = '', ps = t.match(/[^.!?。…\n]*[.!?。…]+\s*|[^.!?。…\n]+\s*|\n+/g) || [t];
+  ps.forEach(function (p) { if ((cur + p).length > n && cur.trim()) { out.push(cur.trim()); cur = ''; } while (p.length > n) { out.push(p.slice(0, n).trim()); p = p.slice(n); } cur += p; });
+  if (cur.trim()) out.push(cur.trim()); return out.filter(function (x) { return x; }); }
 function _vcPub(p, code) { p = p || {}; var sk = !!code && _voiceStudio(code);   // [VC_NO_COUNT] 시험 예식은 남은 수가 줄지 않는다
   return { consent: !!p.consent, ready: !!p.voiceId, tries: p.tries || 0, left: sk ? VC_LIM.enroll : Math.max(0, VC_LIM.enroll - (p.tries || 0)), made: p.made || '', deleted: p.deleted || '', job: _vcJobPub(p.job) }; }   // [VC_ENROLL_JOB]
 /* [VOICE_CLONE 5-5] 예식 뒤 30일 — purgeRitualFiles 가 코드마다 부른다(다음 날 지우기가 못 돈 것의 마지막 그물) */
 function _vcPurge(code) { return _vcPurgeNow(code); }
 /* ★[VOICE_CLONE_0928 8-6] 지금 지우기 — 업체 목소리(둘) · 읽은 녹음 · 연습 소리. 안내 소리(«AI 소리»)는 30일까지 둔다(예식 뒤 내려받기) */
-function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0;
+function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0, b0 = JSON.parse(JSON.stringify(st));   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다
   ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p) return; if (p.voiceId) { _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); n++; }
     if (p.read && p.read.id) { try { DriveApp.getFileById(p.read.id).setTrashed(true); } catch (e) {} p.read = { gone: fmtKST(new Date()) }; } });
   try { var it = _vcAiFolder(code).getFiles(); while (it.hasNext()) { var f = it.next(); if (/^연습 소리/.test(f.getName())) f.setTrashed(true); } } catch (e) {}
-  st.purged = fmtKST(new Date()); _vcPut(code, st); return n; }
+  st.purged = fmtKST(new Date()); _vcSave(code, b0, st); return n; }
 /* ★[VOICE_CLONE_0928 8-6] 매일(aiDaily · 96_ai_cost) — 예식 다음 날이 된 예식 · 취소 · 노쇼는 지운다 · 업체 지우기 실패분 다시 · 칸이 45 넘으면 관리자 메일.
    dry=true 면 대상만 로그(previewVoiceClones) */
 function purgeVoiceClones(dry) {
@@ -1608,9 +1638,9 @@ function purgeVoiceClones(dry) {
   if (!dry) { try { _rfMailFlush(); } catch (e) {} }   // [RF_MAIL_THROTTLE] 매일 — 30분 묶음에 남은 파일 알림
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
   Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var code = k.slice(3), st; try { st = JSON.parse(all[k] || '{}') || {}; } catch (e) { return; }
-    var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
     var cfg = _vcCfg(code);
-    if (st.retry && st.retry.length && !dry) { st.retry.slice().forEach(function (v) { _vcDelVoice(cfg, st, v); }); props.setProperty(k, JSON.stringify(st)); }
+    if (st.retry && st.retry.length && !dry) { var b0 = JSON.parse(JSON.stringify(st)); st.retry.slice().forEach(function (v) { _vcDelVoice(cfg, st, v); }); _vcSave(code, b0, st); st = _vcSt(code); }   // ★[VC_PURGE_MERGE 2026-10-08 목소리 1라운드 79] 시작 때 읽은 옛 상태로 덮지 않는다 — 그 사이 만든 목소리를 지웠다
+    var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
     if (!live) return;
     var cust = null; try { cust = findCustomerByCode(code); } catch (e) {}
     var wy = cust ? _ymdOf(cust.get('예식일')) : '', stage = cust ? String(cust.get('현재단계') || '') : '';
