@@ -10,7 +10,7 @@
      tap     36 [PREP_NO_TAP] «준비 중» 알약을 좌표로 탭 → «만드는 중»이 되지 않고 앞에서 따로 묻지 않는다
      ask     37 [EX_ASK_ONE] 확정만 한 줄 — 하객 맞이 · 식전 영상 · 입장 인사가 같은 말(«확정한 소리…»)로 묻는다 · «그대로 두기»면 확정 그대로 · 글이 그대로인 칩은 묻지 않고 확정도 안 푼다
      old     39 [VU_OLD_EX] 옛 예시 글(10/6) 고객 — 식전 영상 칩이 켜지고 · «나오는 곳» 창에 «두 분 글» 없음 · «예시 글이에요» 줄
-     fillbar 40 [PREP_FILL] «준비 중» ▶ 차오름 = 그 일의 시계(어림 · 누른 때) · 붙여 올릴 때 같은 시계 · 같은 탭 두 번째 예시도 0 부터 · 이름 «준비 중»
+     fillbar 40 [PREP_FILL · PLAY_NO_DUP] «준비 중» 차오름 = 그 일의 시계(어림 · 누른 때) · 같은 탭 두 번째 예시도 0 부터 · 이름 «준비 중» — ★2026-10-08 차오름은 머리 알약 한 곳(▶ 는 흐리게 잠김 · 붙여 올리는 동안도 차오르지 않는다)
      side    41 [SIDE_TWO_LINE] 옆글 — 폰(360 · 390)은 모든 카드 두 줄(낱말 단위) · 제목과 안 겹침 · 320 은 단추 아래 한 줄 · 1280 은 한 줄
    ONLY=<장면,…> · SHOTS=<폴더> 면 화면을 찍는다 · R1_OP=<order-preview.html 경로> 면 그 판을 잰다(돌연변이 검사)
    종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -223,20 +223,20 @@ const SC = {
     const good = (v) => v && !/두 분 글/.test(v.chips) && /다정하게\*/.test(v.chips) && v.note;
     ok('39 old — 옛 예시 글(10/6) 고객 · 식전 영상 칩 «다정하게» 켜짐 · «나오는 곳» 창에 «두 분 글» 없이 «다정하게» 골라짐 · «예시 글이에요» 줄 [VU_OLD_EX]', pv === 'false,true,false,false' && good(vu.g0) && good(vu.pv) && !errs.length, JSON.stringify({ pv, vu }));
     await ctx.close(); },
-  /* 40 — «준비 중» ▶ 차오름 시계 */
+  /* 40 — «준비 중» 차오름 시계 · ★[PLAY_NO_DUP 2026-10-08 사장님 «만드는 중 누르면 플레이 버튼도 같이 로딩 표시 · 개선»] 차오름은 머리 알약 한 곳 — ▶ 는 흐리게 잠기고 차오르지 않는다 */
   async fillbar() { const { ctx, pg, f, errs } = await open({ mode: 'ai', fresh: true, lat: { make: 8000, ritualFile: 1500 } });
     await f.evaluate(() => mkGo('guest')); await adv(pg, 800);
-    const RD = () => ['g0', 'g1', 'g2', 'g3'].map((k) => { const b = document.querySelector('[data-fk="mkvpl:' + k + '"]'), s = (b && b.getAttribute('style')) || '', m = /--d:([\d.]+)s;--dl:(-[\d.]+)s/.exec(s), j = VC_ALTF[k];
-      return { k, mode: _aiMode(k), d: m ? +m[1] : null, dl: m ? +m[2] : null, jd: j && j.d ? +j.d.toFixed(1) : null, at: (WF['up:' + k] || {}).at || null, jat: j ? j.at : null, aria: b ? b.getAttribute('aria-label') : '' }; });
+    const RD = () => ['g0', 'g1', 'g2', 'g3'].map((k) => { const b = document.querySelector('[data-fk="mkvpl:' + k + '"]'), p = document.querySelector('.mk-aip[data-key="' + k + '"]'), s = (p && p.getAttribute('style')) || '', m = /--d:([\d.]+)s;--dl:(-[\d.]+)s/.exec(s), j = VC_ALTF[k];
+      return { k, mode: _aiMode(k), d: m ? +m[1] : null, dl: m ? +m[2] : null, jd: j && j.d ? +j.d.toFixed(1) : null, aria: p ? p.getAttribute('aria-label') : '', bfill: !!(b && /wfill/.test(b.className)), block: !!(b && (b.disabled || b.getAttribute('aria-disabled') === 'true')), up: !!MK_UP[k] }; });
     await f.evaluate(() => mkGuestEx(1)); await adv(pg, 250); const a = await f.evaluate(RD);
-    const at0 = a.map((x) => x.at), brk = []; let seenUp = 0;
-    for (let i = 0; i < 160; i++) { await pg.clock.runFor(250); await wait(3); const c = await f.evaluate(RD); c.forEach((x, j) => { if ((x.mode === 'keep' || x.mode === 'prep') && x.at && at0[j] && x.at !== at0[j] && brk.length < 4) brk.push(x.k + ':' + x.mode + ':' + (x.at - at0[j])); }); if (c.some((x) => x.mode === 'keep' && x.d != null)) seenUp++; if (c.every((x) => x.mode === 'keep' && x.d == null)) break; }
+    const brk = []; let seenUp = 0;
+    for (let i = 0; i < 160; i++) { await pg.clock.runFor(250); await wait(3); const c = await f.evaluate(RD); c.forEach((x) => { if (x.bfill && brk.length < 4) brk.push(x.k + ':' + x.mode); }); if (c.some((x) => x.mode === 'keep' && x.up && x.block && !x.bfill)) seenUp++; if (c.every((x) => x.mode === 'keep' && !x.up)) break; }
     const cont = !brk.length;
     await adv(pg, 25000, 1000); await f.evaluate(() => mkGuestEx(2)); await adv(pg, 250); const b = await f.evaluate(RD);
     const pa = a.filter((x) => x.mode === 'prep'), pb = b.filter((x) => x.mode === 'prep');
-    const own = (x) => x.d != null && x.at === x.jat && Math.abs(x.d - x.jd) < 0.11 && x.d > 3.05 && x.dl > -3 && /준비 중/.test(x.aria);   // 데우기를 기다리는 줄은 그 일이 묻기 시작한 때부터(조금 앞) — 그래도 지난 올리기(20초 넘게 전)는 아니다
-    ok('40 fillbar — «준비 중» ▶ = 그 일의 시계(길이 = 어림 · 누른 때부터 · «올리기 3초» 아님) · 이름 «준비 중» [PREP_FILL]', pa.length >= 3 && pa.every(own), JSON.stringify(a));
-    ok('40 fillbar — 붙여 올릴 때 같은 시계(0 으로 떨어지지 않음) · 같은 탭 두 번째 예시도 0 부터(지난 올리기 시각을 쓰지 않음)', cont && seenUp > 0 && pb.length >= 1 && pb.every(own) && !errs.length, JSON.stringify({ cont, brk, seenUp, b: pb }));
+    const own = (x) => x.d != null && Math.abs(x.d - x.jd) < 0.11 && x.d > 3.05 && x.dl > -3 && x.dl <= 0 && /준비 중/.test(x.aria) && !x.bfill && x.block;   // 알약 시계 = 그 일의 어림 · 누른 때부터(지난 올리기 20초 넘게 전 아님) · ▶ 는 잠기고 차오르지 않는다
+    ok('40 fillbar — «준비 중» 알약 = 그 일의 시계(길이 = 어림 · 누른 때부터 · «올리기 3초» 아님) · 이름 «준비 중» · ▶ 는 흐리게 잠김(차오름 없음) [PREP_FILL · PLAY_NO_DUP]', pa.length >= 3 && pa.every(own), JSON.stringify(a));
+    ok('40 fillbar — 붙여 올리는 동안도 ▶ 는 차오르지 않고 잠김 · 같은 탭 두 번째 예시도 0 부터(지난 올리기 시각을 쓰지 않음)', cont && seenUp > 0 && pb.length >= 1 && pb.every(own) && !errs.length, JSON.stringify({ cont, brk, seenUp, b: pb }));
     await ctx.close(); },
   /* 41 — 옆글 줄 수 · 겹침 */
   async side() { const MEAS = () => [...document.querySelectorAll('.mk-vcards > li')].map((li) => { const s = li.querySelector('.mk-vch > .mk-vst-side'); if (!s) return null;
