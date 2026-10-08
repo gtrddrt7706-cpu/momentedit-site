@@ -14714,15 +14714,22 @@ chk 'class="flow-name" x=' assets/ritual-open.js 1   # 이름표는 명조 · �
 chk 'flow-name flow-peak-name' assets/ritual-open.js 1
 nochk 'stroke="#E6E1D9"' assets/ritual-open.js   # ★바닥 가로선(축) 금지 — 2026-10-08 사용자 지시로 삭제
 nochk 'linearGradient' assets/ritual-open.js   # ★붓선 · 색 갈라 칠하기 금지 — 2026-10-08 «붓선은 빼자»
-# ── [PEAK_PICK 2026-10-08 사장님 «감동 포인트 고객마다 다를 수 있잖아» → «추천대로»(P1)] 가장 벅찬 순간은 두 분이 고른다 · 미리 눌린 칩 없음 · 콘솔 ★(약속 글 없음)
-chk 'PEAK_PICK' assets/ritual-open.js 2
-chk 'function peakPick(S)' assets/ritual-open.js 1
-chk 'peakPick: peakPick, peakCands: peakCands, PEAK_CAN: PEAK_CAN' assets/ritual-open.js 1
-chk 'PEAK_PICK' order-preview.html 5
-chk 'function _pkPeakRow()' order-preview.html 1
-chk 'window.opPeak=function(k)' order-preview.html 1
-chk 'PEAK_PICK' console.html 7
-chk 'function peakK()' console.html 1
+# ── [PEAK_PICK_OFF 2026-10-08 사장님 «그래프만 바뀌는 거면 의미가 없지 · 저 기능 빼 버려»] 가장 벅찬 순간 고르기(곡선 아래 줄 · 칩 · 고른 값) · 콘솔 ★ 걷음 — 되살리지 말 것
+chk 'PEAK_PICK_OFF' assets/ritual-open.js 1
+chk 'PEAK_PICK_OFF' order-preview.html 2
+chk 'PEAK_PICK_OFF' console.html 1
+chk 'PEAK_PICK_OFF' scripts/audit/open-course.mjs 1
+nochk 'function peakPick' assets/ritual-open.js
+nochk 'function peakCands' assets/ritual-open.js
+nochk 'S\.peak' assets/ritual-open.js
+nochk 'function _pkPeakRow' order-preview.html
+nochk 'opPeak' order-preview.html
+nochk 'class="pk-pp' order-preview.html
+nochk '가장 벅찬 순간은 두 분이' order-preview.html
+nochk 'S\.peak' order-preview.html
+nochk 'function peakK' console.html
+nochk '두 분이 고름' console.html
+nochk 'pill(.pk.' console.html
 # ── [DIV_ONE 2026-10-08 사장님 «AI 두 분 목소리 · 이 순간 전체 듣기 밑 가로선을 없애면»] AI 칸 윗선 걷기 — 나레이션 판(흐름 칸 MK_NO_HEADS)과 같은 틀
 chk 'DIV_ONE' order-preview.html 1
 chk '.mk-voice-ai{border-top:0;padding-top:0;margin-top:14px}' order-preview.html 1
