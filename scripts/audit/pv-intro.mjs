@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상 · 두 분이 소개글을 적어서 AI 목소리로도 할 수 있고 · 적절한 예시도»] 화면 흐름 시험(가짜 서버 · 390 · 1280).
    보는 것: AI 가 꺼지면 고르는 칸 · 글칸 없음(스튜디오 한 줄) · 켜지면 [AI 두 분 목소리 | 스튜디오 나레이션]([R4-12]) → 글칸 · 예시 넷 · 빈 글이면 만들기 단추 없음 ·
-     예시 → [AI로 만들기] → make(pv · 읽는 분 · 그 글) → 그 자리 파일(src ai · 글 지문) · 글을 고치면 «새 글로 다시 만들기» · 읽는 분을 바꾸면 만든 소리를 버린다 ·
+     AI 를 고르면 빈 줄을 바로 만든다(PV_AUTO_MAKE) → make(pv · 읽는 분 · 그 글) → 그 자리 파일(src ai · 글 지문) · 글을 고치면 «새 글로 다시 만들기» · 읽는 분을 바꾸면 만든 소리를 버린다 ·
      적어 둔 글을 예시로 덮기 전에 묻는다 · 엔진: pvVoice=couple 이면 식전 영상 큐가 두 분 목소리 자리(own) · 콘솔 pv → narr-prevideo-in · 들어 보기 줄 [PLAY_ROW]
    종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함(브라우저 없음) */
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
@@ -58,12 +58,17 @@ for (const [W, touch] of [[390, true], [1280, false]]) {
   await pg.evaluate(() => { S.tipSeen = { keep: 1, nar: 1 }; });   /* [TIP_FLY 2026-10-07] 처음 누를 때 뜨는 안내는 tip-fly 검사가 본다 · 여기선 본 고객으로 */ await pg.click('[data-fk="lsc:pvVoice:ai"]'); await pg.waitForTimeout(400);
   const e0 = await pg.evaluate(() => ({ pv: S.pvVoice, vf: (S.vfill || {}).prevideo, ta: !!document.querySelector('[data-fk="mksl:pv:0"]'), ex: document.querySelectorAll('[data-fk^="mkex:pv:"]').length, ai: !!document.querySelector('[data-fk="mkai:pv"]'), note: S.pvText === PV_EX[0][1],   /* ★[PV_FILL 2026-10-06] 종전 «빈 글이면 한 줄 안내» → AI 를 고르면 예시 1 글이 들어 있다(빈 글 안내는 pv-fill.mjs 가 잰다) */ card: document.querySelectorAll('[data-fk="mkupplay:pv"],[data-fk^="mkslw:pv:"][aria-checked="true"]').length }));
   ok(W + ' AI 고름 — 글칸 · 예시 넷 · 글은 예시 1 [PV_FILL] · 읽는 분 [신랑] 한 줄(LINE_SPLIT · 눌러 바꾼다)', e0.pv === 'couple' && e0.vf === 'ai' && e0.ta && e0.ex === 4 && e0.note && e0.card === 1, JSON.stringify(e0));
+  /* ★[PV_AUTO_MAKE 2026-10-09] AI 를 고르면 있는 목소리로 빈 줄을 바로 만든다(FILL_EMPTY · #1130 「목소리 1라운드」) — 종전 «예시 → [AI로 만들기] 누르기»는
+     사람이 누를 일이 없어졌다. 그 단추를 기다리던 이 검사가 #1130 부터 30초를 넘겨 멈췄다(main 도 같았다 · 결과 줄을 못 찍고 죽어 merge-guard 가 빨강).
+     이제 만들어진 결과를 본다: make(pv · 신랑 · 그 글) → 그 자리 파일 → 머리 «확정하기» · 글과 같은 예시 칩이 눌린 모양([EX_CHIP_ON]) */
+  await pg.waitForFunction(() => S.up && S.up.pv && S.up.pv.src === 'ai' && _aiMode('pv') === 'keep', null, { timeout: 8000 }).catch(() => {});
+  const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.querySelector('[data-fk="mksl:pv:0"]').value, mode: _aiMode('pv'), keep: !!document.querySelector('[data-fk="mkkeep:pv"]'), on: (document.querySelector('[data-fk="mkex:pv:0"]') || {}).getAttribute('aria-checked') }));
+  ok(W + ' 글은 예시 «담백하게» · 그 칩이 눌린 모양 [EX_CHIP_ON] · 빈 줄을 바로 만들어 머리 «확정하기» [PV_AUTO_MAKE]', t0.t === await pg.evaluate(() => PV_EX[0][1]) /* [EX_TEXT_1006] 글은 원천(PV_EX)과 대조 — 문구를 박아 두지 않는다 */ && t0.ta === t0.t && t0.on === 'true' && t0.mode === 'keep' && t0.keep, JSON.stringify(t0));
+  const m = await pg.evaluate(() => ({ calls: __calls.join(','), text: (window.__last && window.__last.text) || '', up: S.up && S.up.pv, play: !!document.querySelector('[data-fk="mkvpl:pv"][onclick^="mkUpPlay"]') }));   /* [AI_CARD_TIDY] AI 파일은 머리 ▶ 가 튼다 */
+  ok(W + ' AI 고름 → make(pv · 신랑 · 그 글) 한 번 → 그 자리 파일(src ai · 글 지문) [PV_AUTO_MAKE]', /make:pv:groom/.test(m.calls) && (m.calls.match(/make:pv/g) || []).length === 1 && /upload:pv/.test(m.calls) && m.text === t0.t && m.up && m.up.src === 'ai' && !!m.up.tx && m.play, JSON.stringify(m).slice(0, 300));
   await pg.click('[data-fk="mkex:pv:0"]'); await pg.waitForTimeout(300);
-  const t0 = await pg.evaluate(() => ({ t: S.pvText, ta: document.querySelector('[data-fk="mksl:pv:0"]').value, ai: !!document.querySelector('[data-fk="mkai:pv"]'), on: (document.querySelector('[data-fk="mkex:pv:0"]') || {}).getAttribute('aria-checked') }));
-  ok(W + ' 예시 «담백하게» → 글칸에 들어가고 [AI로 만들기]가 생긴다', t0.t === await pg.evaluate(() => PV_EX[0][1]) /* [EX_TEXT_1006] 글은 원천(PV_EX)과 대조 — 문구를 박아 두지 않는다 */ && t0.ta === t0.t && t0.ai && t0.on === 'true', JSON.stringify(t0));
-  await pg.click('[data-fk="mkai:pv"]'); await pg.waitForTimeout(1500);
-  const m = await pg.evaluate(() => ({ calls: __calls.join(','), text: (__last && __last.text) || '', up: S.up && S.up.pv, play: !!document.querySelector('[data-fk="mkvpl:pv"][onclick^="mkUpPlay"]') }));   /* [AI_CARD_TIDY] AI 파일은 머리 ▶ 가 튼다 */
-  ok(W + ' [AI로 만들기] → make(pv · 신랑 · 그 글) → 그 자리 파일(src ai · 글 지문)', /make:pv:groom/.test(m.calls) && /upload:pv/.test(m.calls) && m.text === t0.t && m.up && m.up.src === 'ai' && !!m.up.tx && m.play, JSON.stringify(m).slice(0, 300));
+  const same = await pg.evaluate(() => ({ t: S.pvText, mode: _aiMode('pv'), ask: !!document.querySelector('.ord-ask'), mk: __calls.filter((c) => /make:pv/.test(c)).length }));
+  ok(W + ' 이미 눌린 예시를 또 누르면 그대로 — 글 · «확정하기» 그대로 · 묻지 않음 · 다시 만들지 않음', same.t === t0.t && same.mode === 'keep' && !same.ask && same.mk === 1, JSON.stringify(same));
   await pg.fill('[data-fk="mksl:pv:0"]', t0.t + ' 고맙습니다.'); await pg.evaluate(() => render()); await pg.waitForTimeout(300);
   const st = await pg.evaluate(() => ({ btn: (document.querySelector('[data-fk="mkai:pv"]') || {}).textContent || '', s: (document.querySelector('[data-fk^="mkslw:pv:0:"]').closest('.mk-vc') || {}).textContent || '' }));
   /* ★[TEXT_PLAY_MAKE 2026-10-04] 종전 «다시 만들어 주세요 · [새 글로 다시 만들기]» → «▶ 를 누르면 새로 만들어요» · 단추 없음(▶ 가 만든다) */
