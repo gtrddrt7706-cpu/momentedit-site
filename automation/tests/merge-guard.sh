@@ -14342,7 +14342,7 @@ chk '@keyframes wfIn{' order-preview.html 1
 chk '.wfill.ld::after{animation:wfIn' order-preview.html 1
 chk 'prefers-reduced-motion:reduce){ .wfill.ld::after' order-preview.html 1
 chk "_wfx('mp:'+k" order-preview.html 1
-chk "_wfx('vu'," order-preview.html 1
+chk "_wfx('vu:'+" order-preview.html 1   # [VU_ONE_WAIT 2026-10-08] 자리마다 시계(vu:<자리>)
 chk "_wfx('tune'," order-preview.html 1
 chk "_wfx(id||'lp'," order-preview.html 1
 chk "(_lpWait(st))" order-preview.html 2
@@ -14626,7 +14626,7 @@ nochk 'data-fk="mkvsi:' order-preview.html
 chk 'VS_INFO_MIN' scripts/audit/voice-setup.mjs 1
 # ★★[VC_NET_AGAIN · VC_NET_SEC 2026-10-08 사장님 «지금도 그러는데?» · «오류를 확실하게 잡아야지»] 아이폰은 60초 넘는 답을 끊는다(서버 실행 기록엔 오류 없음) — 만들기 · 연습 읽기는 연결로 끊기면 12초 · 20초 뒤 두 번 더(저장본) · 끊김 글에 «몇 초»
 chk 'VC_NET_AGAIN' order-preview.html 1
-chk "if((op==='make'||op==='practice')&&d&&d.down&&!d.ok&&d.net&&d.net!=='bad'&&nn<2)" order-preview.html 1
+chk "if((op==='make'||op==='practice')&&d&&d.down&&!d.ok&&d.net&&d.net!=='bad'&&nn<2&&" order-preview.html 1   # [PT_DEADLINE 2026-10-08] 연습 읽기는 50초 약속 안에서만 다시 묻는다
 chk 'VC_NET_SEC' order-preview.html 1
 chk 'VC_NET_SEC' mypage.html 1
 chk 'VC_NET_AGAIN' scripts/audit/vc-net-again.mjs 1
@@ -14646,6 +14646,27 @@ chk 'VC_SESS_WORD' order-preview.html 1
 chk 'DEL_SAFE' order-preview.html 1
 chk 'VC_SIM' scripts/audit/vc-sim.mjs 1
 if command -v node >/dev/null 2>&1; then ONLY='만들기(1분 녹음)가 60초를 넘겨,줄 올리기 두 번 연달아,로그인 풀림,지우기가 60초' node scripts/audit/vc-sim.mjs >/dev/null 2>&1; _vsm=$?; if [ "$_vsm" = 1 ]; then echo 'FAIL vc-sim: 목소리 오류 장면(1분 녹음 끊김 · 올리기 끊김 · 로그인 풀림 · 지우기 끊김)이 어긋났습니다 — node scripts/audit/vc-sim.mjs'; fail=1; else echo "ok vc-sim ($_vsm)"; fi; fi
+# ── 목소리 1라운드 listen 묶음 (2026-10-08 · 들어 보기 · 나오는 곳 창 · 연습 AI 읽기 15건)
+chk 'VC_R1_LISTEN' scripts/audit/vc-r1-listen.mjs 1
+chk 'NOW_PEND' scripts/audit/err-builder.mjs 1
+chk 'VU_WAIT_WHO' scripts/audit/vu-ex-listen.mjs 1
+chk 'PT_GATE_STAY' order-preview.html 1
+chk 'VU_LATE_MUTE' order-preview.html 1
+chk 'NOW_PEND' order-preview.html 1
+chk 'VU_ST_UNKNOWN' order-preview.html 1
+chk 'PT_PREP_AGAIN' order-preview.html 1
+chk 'PT_PREP_WORD' order-preview.html 1
+chk 'VU_KEY_TUNE' order-preview.html 1
+chk 'TTS_NEW_VOICE' order-preview.html 1
+chk 'PT_TURN_LOAD' order-preview.html 1
+chk 'VU_ONE_WAIT' order-preview.html 1
+chk 'PT_DEADLINE' order-preview.html 1
+chk 'VU_ENTRY_MIX' order-preview.html 1
+chk 'VU_STOP' order-preview.html 1
+chk 'VU_WAIT_WHO' order-preview.html 1
+chk 'VU_LIMIT_INFO' order-preview.html 1
+chk 'VU_CHIP_EVEN' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r1-listen.mjs >/dev/null 2>&1; _vrl=$?; if [ "$_vrl" = 1 ]; then echo 'FAIL vc-r1-listen: 들어 보기 · 연습 AI 읽기 1라운드가 어긋났습니다 — node scripts/audit/vc-r1-listen.mjs'; fail=1; else echo "ok vc-r1-listen ($_vrl)"; fi; fi
 # ── 목소리 1라운드 tune 묶음 (2026-10-08)
 # ★[VC_R1_TUNE 2026-10-08 목소리 1라운드 · 맞추기 창] 예시 글칸 잘림 · 예시만 낱자 검사 · 채우는 중 빠르기 · 다시 굽기 실패 줄 · 확정 = 들리는 소리 · 누른 글만 · 실패 글 걷기 · 빈 글칸 잠금
 #   vc-r1-tune.mjs 가 390 폭에서 단추를 실제로 눌러 잰다 — 고친 줄을 하나씩 되돌리면 그 장면이 빨강(돌연변이 14 확인 2026-10-08)
@@ -14965,7 +14986,7 @@ chk '덜어낼 순간만 ✓를 눌러 풀어 주세요' order-preview.html 1   
 nochk '뺄 순간만 ✓를' order-preview.html
 # ★[VOICE_REDO_NOTE 2026-10-06 사장님 «확정하기 누르고 말투가 마음에 안 들면 다시 녹음해도 된다고 여기도 한 번 더»] 두 분 목소리 만들기 쪽 한 줄
 chk 'VOICE_REDO_NOTE' order-preview.html 1
-chk "+(both?'준비됐어요':'각자 1분 읽기')+' · 아쉬우면 다시 녹음해요 <button type=\"button\" class=\"pk-link\" data-fk=\"mkredo\"" order-preview.html 1   # [VOICE_INTRO_LINE 2026-10-07 사장님 «한 줄로 · 미니멀하게»] 두 줄 → 한 줄
+chk "아쉬우면 다시 녹음해요 <button type=\"button\" class=\"pk-link\" data-fk=\"mkredo\"" order-preview.html 1   # [VU_ST_UNKNOWN 2026-10-08] 상태를 모를 땐 앞말 없이 · 단추는 그대로
 nochk '말투가 아쉬우면 다시 녹음하면 돼요. <button' order-preview.html   # [VOICE_INTRO_LINE] 옛 두 번째 줄
 chk 'VOICE_INTRO_LINE' order-preview.html 2
 # ★[VS_UNPICKED 2026-10-06 사장님 «나레이션 선택되어 있는데 미선택으로 첫 화면»] 안내 목소리 정하기 창 — 안 골랐으면 두 갈래 다 비어 있다

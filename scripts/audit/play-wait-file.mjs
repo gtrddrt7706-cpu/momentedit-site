@@ -91,7 +91,7 @@ try {
     await pg.evaluate(() => { window.AudioContext = window.__AC0; window.webkitAudioContext = window.__AC0; PT.prep = null; for (const k in PT.url) delete PT.url[k]; _vc0 = () => Promise.reject(new Error('시험 · 연결 끊김')); render(); });
     for (let t = 0; t < 40; t++) { await wait(250); if (await pg.evaluate(() => PT.prep && !PT.prep.run)) break; }
     const nf = await pg.evaluate(() => ({ run: (PT.prep || {}).run, fail: (PT.prep || {}).fail, n: (PT.prep || {}).n, txt: (document.getElementById('prPrep') || {}).textContent || '' }));
-    ok(`${w} C 업체 · 연결이 실패해도 멈추지 않는다 — 못 만든 차례로 넘기고 끝낸다 [PT_NO_STALL]`, nf.run === false && nf.n > 0 && nf.fail === nf.n && /만들지 못해/.test(nf.txt), JSON.stringify(nf));
+    ok(`${w} C 업체 · 연결이 실패해도 멈추지 않는다 — 못 만든 차례로 넘기고 끝낸다 [PT_NO_STALL]`, nf.run === false && nf.n > 0 && nf.fail === nf.n && /만들지 못/.test(nf.txt) /* [PT_PREP_WORD 2026-10-08] 전부 못 만들면 «AI 목소리를 만들지 못했어요 · …»(종전 «0개 준비됐어요 · n개는 만들지 못해 …») */, JSON.stringify(nf));
     await pg.evaluate(() => { lsStop(); RitualOpen.FEATURE.practiceTts = false; render(); }); await wait(300);
     ok(`${w} C 연습 읽기 스위치가 꺼지면 고르기 없음(직접뿐)`, await pg.evaluate(() => !document.querySelector('.pr-mode')));
     await pg.evaluate(() => { try { localStorage.removeItem('me_pr_mode'); } catch (e) {} PT.mode = 'self'; });
@@ -111,7 +111,7 @@ try {
       _vc0 = (op, d) => { const h = d.text; window.__n[h] = (window.__n[h] || 0) + 1; const bad = /하윤아|서준아/.test(h); return new Promise((ok) => setTimeout(() => ok(bad ? { ok: false, down: true, error: 'x' } : { ok: true, mime: 'audio/mpeg', data: btoa('MP3') }), 80)); }; render(); });
     for (let t = 0; t < 40; t++) { await wait(250); if (await pg.evaluate(() => PT.prep && !PT.prep.run)) break; }
     const rp = await pg.evaluate(() => ({ run: PT.prep.run, fail: PT.prep.fail, tries: Object.entries(window.__n).filter(([k]) => /하윤아|서준아/.test(k)).map(([, v]) => v), fh: Object.keys(PT.failH).length, txt: (document.getElementById('prPrep') || {}).textContent || '' }));
-    ok(`${w} 준비 중 실패한 차례는 한 번 더 · 그래도 못 만들면 수를 알린다 [PT_PREP_RETRY]`, !rp.run && rp.fail >= 1 && rp.tries.every((n) => n === 2) && rp.fh === rp.fail && /만들지 못해/.test(rp.txt), JSON.stringify(rp));
+    ok(`${w} 준비 중 실패한 차례는 한 번 더 · 그래도 못 만들면 수를 알린다 [PT_PREP_RETRY]`, !rp.run && rp.fail >= 1 && rp.tries.every((n) => n === 2) && rp.fh === rp.fail && /만들지 못/.test(rp.txt) /* [PT_PREP_WORD] */, JSON.stringify(rp));
     await pg.evaluate(() => { prFrom('vow', 1); }); await wait(400);
     const rp2 = await pg.evaluate(() => { const j = LP.q.findIndex((x) => x.talk2 && /하윤아|서준아/.test(x.txt)); if (j > -1) { LP.i = j; LP.paused = false; _lShow(); } return { load: LP.loadK, err: (document.querySelector('#lsFull .lf-state') || {}).textContent || '', found: j }; });
     ok(`${w} 못 만든 차례에 와도 «만드는 중»으로 기다리지 않는다 · 글을 보며 읽기 안내`, rp2.found > -1 && !rp2.load && /만들지 못했어요/.test(rp2.err), JSON.stringify(rp2));
