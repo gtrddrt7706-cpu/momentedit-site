@@ -14742,11 +14742,41 @@ nochk 'pill(.pk.' console.html
 chk 'DIV_ONE' order-preview.html 1
 chk '.mk-voice-ai{border-top:0;padding-top:0;margin-top:14px}' order-preview.html 1
 chk 'mk-sec mk-voice mk-voice-ai' order-preview.html 1
-# ── [CHIP_CHANGED 2026-10-08 사장님 «단어 하나만 바뀌는 것들은 안내 문구로 바뀌었구나 알 수 있게 · 필요한 곳 조사해서»] 칩을 바꿔 흐름 줄이 조금(8자 이하) 바뀌면 한 줄 + 바뀐 줄 옅은 금
+# ── [CHIP_CHANGED 2026-10-08 사장님 «단어 하나만 바뀌는 것들은 안내 문구로 바뀌었구나 알 수 있게 · 필요한 곳 조사해서»] 칩을 바꿔 흐름 줄이 조금 바뀌면 알린다 — 알림 모양 · 기준은 같은 날 아래 CHIP_TOAST · CHIP_FEW_WORDS 로 바뀌었다(칩 줄 아래 한 줄 · 바뀐 줄 옅은 금 바탕 걷음)
 chk 'CHIP_CHANGED' order-preview.html 5
-chk 'function _chgShow(b0,key,root)' order-preview.html 1
-chk 'var _cg0=_chgSnap();' order-preview.html 1
-chk '아래 안내 글이 바뀌었어요' order-preview.html 1
+chk 'function _chgShow(b0,k,lb)' order-preview.html 1
+chk 'var _cg0=_chgSnap(k);' order-preview.html 1
+# ── [CHIP_TOAST · CHIP_FEW_WORDS · TOAST_LIGHT 2026-10-08 사장님 «아래 안내 글 한 줄이랑 바탕 바뀌는 효과 전부 삭제 · 첫 번째 사진처럼 안내 문구 · 바탕색이 너무 진하니 디자이너 시선으로»
+#    «단어 몇 개만 바뀌면 고객이 헷갈릴 거 같아서 · 다른 이벤트들 써먹을 곳도»] 칩 알림 = 떠 있는 밝은 안내 하나(② · 크게 보기) · «작은 바뀜» = 줄마다 24자 안
+chk 'CHIP_TOAST' order-preview.html 8
+chk 'function _lsToast(msg)' order-preview.html 1
+chk 'function _chgSmall(b0,b1)' order-preview.html 1
+chk 'var CHG_LIM=24;' order-preview.html 1
+chk 'CHIP_FEW_WORDS' order-preview.html 3
+chk "if(LP.big&&k) return _lSteps(ENG,\[k\])" order-preview.html 1
+chk "#lsFull:not(\[hidden\]) .lf-ctl" order-preview.html 1
+chk '#lsToast{z-index:2147482100}' order-preview.html 1
+# ── [TOAST_BROWN · TOAST_PILL · TOAST_SHORT 같은 날 사장님 «테두리가 좀 무거운데 사진처럼 테두리 없이 라운드로 · 요약해서 짧게» · «색상 그 아래 브라운 저 색이랑 같이»]
+#    떠 있는 알림(칩 · ① 예시 · window.toast) = «다음» 단추 브라운(#4E3F31) · 흰 글 · 테두리 없음 · 알약 · 문구 «‹양가 아버님›으로 바꿨어요»
+chk 'TOAST_BROWN' order-preview.html 2
+chk 'TOAST_PILL' order-preview.html 2
+chk 'TOAST_SHORT' order-preview.html 3
+chk 'background:#4E3F31;color:#fff;font-size:12.5px;font-weight:500' order-preview.html 2   # 글자 12.5 = 이 화면 작은 단계(RIT_TYPE5 · 13px 금지)
+chk '.btn-next{background:#4E3F31;color:#fff}' order-preview.html 1   # 알림 브라운의 짝(«다음» 단추) — 한쪽만 바꾸면 갈린다
+chk 'function _josaRo(w)' order-preview.html 1
+chk "String(x||'').replace(/\[«»\]/g,'')" order-preview.html 1   # [CHIP_TOAST] «»가 굵은 글씨로 바뀌는 틈(GUIL_OFF)을 «바뀜»으로 읽지 않게
+nochk 'background:#F3ECDF;color:var(--accent);border:1px solid var(--gold-deep);font-size' order-preview.html   # ★알림 테두리 금지 — 2026-10-08 사용자 지시로 삭제(TOAST_PILL)
+nochk 'background:#F3ECDF;color:var(--accent);font-size' order-preview.html   # ★옅은 베이지 알림 걷음 — 2026-10-08 사용자 지시(TOAST_BROWN)
+nochk "'›에 맞춰 안내 글을 바꿨어요'" order-preview.html   # ★긴 칩 알림 문구 — 2026-10-08 사용자 지시(TOAST_SHORT)
+chk 'CHIP_TOAST' scripts/audit/chip-toast.mjs 1
+chk 'TOAST_BROWN' scripts/audit/chip-toast.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/chip-toast.mjs >/dev/null 2>&1; _ctt=$?; if [ "$_ctt" = 1 ]; then echo 'FAIL chip-toast: 칩 알림(작은 바뀜만 · 떠 있는 브라운 알약 · 짧은 문구 · 크게 보기 · 헛알림 없음)이 어긋났습니다 — node scripts/audit/chip-toast.mjs'; fail=1; elif [ "$_ctt" = 2 ]; then echo 'skip chip-toast: 브라우저 없음'; else echo 'ok chip-toast: 칩 알림 6장면'; fi; fi
+nochk "n.className='ls-chg'" order-preview.html   # ★칩 줄 아래 한 줄(«아래 안내 글이 …») 금지 — 2026-10-08 사용자 지시로 삭제
+nochk '.ls-chg{' order-preview.html
+nochk "classList.add('chg')" order-preview.html   # ★바뀐 줄 옅은 금 바탕(깜빡임) 금지 — 2026-10-08 사용자 지시로 삭제
+nochk '@keyframes chgfade' order-preview.html
+nochk 'background:var(--accent);color:#FAFAF8;font-size:12.5px;border-radius:22px' order-preview.html   # ★진한 알림 바탕 금지 — 2026-10-08 사용자 지시(TOAST_LIGHT) · 점 위 이름표(.pk-tip)는 알림이 아니라 그대로
+nochk 'background:var(--accent);color:#fff;font-size:12.5px;padding:10px 18px;border-radius:20px' order-preview.html
 # ── [STOP_ROUND · PLAY_PAIR 2026-10-08 사장님 «네모(정지 표시)가 미흡» → 안 A «추천대로» · «플레이 버튼은 괜찮아?»] 둥근 ■ · ▶ 와 한 무게(▶ 약 8 × 10 · ■ 약 9) · 줄 알약 · 흐름 원 · 이 순간 전체 듣기 · 맞추기 창 · 들어 보고 맞추기 · 사진 ▶ 원
 chk 'STOP_ROUND' order-preview.html 1
 chk '<rect x="5.6" y="5.6" width="12.8" height="12.8" rx="2.6"/>' order-preview.html 1
