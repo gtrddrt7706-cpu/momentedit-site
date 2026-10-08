@@ -1,8 +1,8 @@
 // ★★[EX_PRESS_MAKE 2026-10-08 사장님 «예시 어떤 건 만들기로 · 어떤 건 바로 들을 수 있고 · 통일이 안 돼 · 그럴 바엔 안 하는 것으로 일치» → «추천대로»]
 //   예시 소리 «약속»이 바뀌었다 — 예시를 누르면 글만 바뀐다. 미리 만들기 · 누르자마자 먼저 만들기(종전 EX_PREBAKE · EX_FIRST «준비 중» → «확정하기»)는 걷었다.
 //   (종전 약속은 미리 만든 소리가 탭 기억뿐 · 한 줄씩 차례 · 실패해도 다시 안 해서, 같은 예시가 «바로 확정하기 · 준비 중 · 목소리 만들기»로 갈렸다)
-//   T1 «다정하게»를 누르면 네 줄 «예시를 바꿨어요 · 목소리 만들기» · 3초 지켜봐도 업체에 묻는 것 0 · 한 줄을 누르면 그 줄만 «만드는 중» → «확정하기»
-//   T2 옛 예시 글(10/6)로 만든 소리 — 칩 켜짐 · «확정하기» 그대로 · 다른 예시를 누르면 묻지 않고 «예시를 바꿨어요 · 목소리 만들기» · 만들기 0
+//   T1 «다정하게»를 누르면 네 줄 «목소리 만들기»(단추 옆 «예시를 바꿨어요»는 없다 · PRESET_QUIET 10/08) · 3초 지켜봐도 업체에 묻는 것 0 · 한 줄을 누르면 그 줄만 «만드는 중» → «확정하기»
+//   T2 옛 예시 글(10/6)로 만든 소리 — 칩 켜짐 · «확정하기» 그대로 · 다른 예시를 누르면 묻지 않고 «목소리 만들기»(옆 글 없음) · 만들기 0
 //   T3 정말 글을 고친 줄은 «글을 고쳤어요 · 목소리 만들기» · 만들기 0 (EX_LABEL_HONEST)
 //   T4 그 줄 소리의 글로 돌아오면 다시 «확정하기» · 만들기 0
 //   T5 · T5b 배포로 예시 글이 바뀐 고객(소리는 옛 글 · 고객이 한 일이 아니다) — 들어오자마자 «준비 중» → 누르지 않아도 «확정하기»(이 길만 EX_FIRST 로 남겼다)
@@ -42,7 +42,7 @@ try {
   { const { pg, errs } = await open({ makeMs: 400 }); await aiUp(pg, 'cur'); await pg.evaluate(() => mkGo('guest')); await wait(150);
     const n0 = await pg.evaluate(() => window.__mk.length);
     await pg.evaluate(() => mkGuestEx(1)); await wait(150); const a = await look(pg);
-    ok('T1 «다정하게»를 누른 직후 — 네 줄 «예시를 바꿨어요 · 목소리 만들기» · «글을 고쳤어요» 0 · «준비 중» 0 [EX_PRESS_MAKE · EX_LABEL_HONEST]', a.mode === 'need,need,need,need' && a.ex >= 4 && a.edited === 0 && a.prep === 0 && a.chip === 1, JSON.stringify(a));
+    ok('T1 «다정하게»를 누른 직후 — 네 줄 «목소리 만들기» · 단추 옆 «예시를 바꿨어요» 0(PRESET_QUIET) · «글을 고쳤어요» 0 · «준비 중» 0 [EX_PRESS_MAKE · EX_LABEL_HONEST]', a.mode === 'need,need,need,need' && a.ex === 0 && a.need >= 4 && a.edited === 0 && a.prep === 0 && a.chip === 1, JSON.stringify(a));
     await wait(3000); const b = await look(pg);
     ok('T1 3초 지켜봐도 업체에 묻는 것 0(미리 만들기 · 먼저 만들기 없음) · 네 줄 그대로', b.mk === n0 && n0 === 0 && b.mode === 'need,need,need,need', JSON.stringify({ n0, b }));
     await pg.evaluate(() => mkAiGo('g0')); await wait(120); const c = await pg.evaluate(() => ({ m0: _aiMode('g0'), rest: ['g1', 'g2', 'g3'].map((k) => _aiMode(k)).join(',') }));
@@ -54,7 +54,7 @@ try {
     const vt = await pg.evaluate(() => ({ vtext: Object.keys(S.vtext || {}).length, exOld: JSON.stringify(S.exOld || {}), isEx: ['g0', 'g1', 'g2', 'g3'].every((k) => _exIs(k)) }));
     ok('T2 옛 예시 글(10/6)로 만든 소리 — 불러오면 칩 «다정하게» 켜짐 · 네 줄 «확정하기» · 손볼 것 없음 [EX_OLD_IS_EX]', a.chip === 1 && a.mode === 'keep,keep,keep,keep' && a.edited === 0 && a.need === 0 && vt.vtext === 4 && vt.isEx, JSON.stringify({ a, vt }));
     await pg.evaluate(() => mkGuestEx(2)); await wait(150); const b = await look(pg); await wait(1500); const c = await look(pg);
-    ok('T2 다른 예시를 눌러도 «예시로 바꿀까요?»를 묻지 않는다(두 분이 쓴 글이 아니다) · «예시를 바꿨어요 · 목소리 만들기» · 만들기 0', !b.ask && b.chip === 2 && b.mode === 'need,need,need,need' && b.ex >= 4 && b.edited === 0 && c.mk === 0, JSON.stringify({ b, c }));
+    ok('T2 다른 예시를 눌러도 «예시로 바꿀까요?»를 묻지 않는다(두 분이 쓴 글이 아니다) · «목소리 만들기»(옆 «예시를 바꿨어요» 없음) · 만들기 0', !b.ask && b.chip === 2 && b.mode === 'need,need,need,need' && b.ex === 0 && b.need >= 4 && b.edited === 0 && c.mk === 0, JSON.stringify({ b, c }));
     ok('T2 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* T3 */
   { const { pg, errs } = await open({ makeMs: 300 }); await aiUp(pg, 'cur'); await pg.evaluate(() => mkGo('guest')); await wait(1200);
@@ -84,14 +84,14 @@ try {
     await pg.evaluate(() => mkPvEx(1)); await wait(150);
     const a = await pg.evaluate(() => ({ mode: _aiMode('pv'), st: document.getElementById('stage').innerText })); await wait(1500);
     const b = await pg.evaluate(() => ({ mode: _aiMode('pv'), mk: window.__mk.length }));
-    ok('T6 식전 영상 소개 예시 — 글만 · «예시를 바꿨어요 · 목소리 만들기» · «글을 고쳤어요» 0 · 만들기 0', a.mode === 'need' && /예시를 바꿨어요/.test(a.st) && !/글을 고쳤어요/.test(a.st) && b.mode === 'need' && b.mk === 0, JSON.stringify({ a: a.mode, b }));
+    ok('T6 식전 영상 소개 예시 — 글만 · «목소리 만들기»(옆 «예시를 바꿨어요» 없음 · PRESET_QUIET) · «글을 고쳤어요» 0 · 만들기 0', a.mode === 'need' && !/예시를 바꿨어요/.test(a.st) && /목소리 만들기/.test(a.st) && !/글을 고쳤어요/.test(a.st) && b.mode === 'need' && b.mk === 0, JSON.stringify({ a: a.mode, b }));
     ok('T6 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
   /* T7 입장 인사(두 분이 나눠 읽는 줄) */
   { const { pg, errs } = await open({ makeMs: 300 }); await pg.evaluate(() => { S.up = S.up || {}; S.up.entry = { src: 'ai', by: _vcLineWho('entry'), name: 'x', tx: _txSig(_recNeed('entry')), tempo: _tKey('entry'), pause: _pKey('entry'), wq: _slWhoSig('entry') }; mkGo('entry'); }); await wait(150);
     await pg.evaluate(() => mkEntryEx(2)); await wait(150);
     const a = await pg.evaluate(() => ({ mode: _aiMode('entry'), st: document.getElementById('stage').innerText })); await wait(1500);
     const b = await pg.evaluate(() => ({ mode: _aiMode('entry'), mk: window.__mk.length }));
-    ok('T7 입장 인사 멘트 칩 — 글만 · «멘트를 바꿨어요 · 목소리 만들기» · 만들기 0', a.mode === 'need' && /멘트를 바꿨어요/.test(a.st) && !/글을 고쳤어요/.test(a.st) && b.mode === 'need' && b.mk === 0, JSON.stringify({ a: a.mode, b }));
+    ok('T7 입장 인사 멘트 칩 — 글만 · «목소리 만들기»(옆 «멘트를 바꿨어요» 없음 · PRESET_QUIET) · 만들기 0', a.mode === 'need' && !/멘트를 바꿨어요/.test(a.st) && /목소리 만들기/.test(a.st) && !/글을 고쳤어요/.test(a.st) && b.mode === 'need' && b.mk === 0, JSON.stringify({ a: a.mode, b }));
     ok('T7 pageerror 0', !errs.length, errs.slice(0, 2).join(' | ')); await pg.close(); }
 } catch (e) { console.log('FAIL 예외', e && e.message); fail++; }
 finally { await br.close(); srv.close(); }
