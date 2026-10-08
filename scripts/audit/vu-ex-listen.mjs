@@ -66,7 +66,9 @@ for (const w of [390, 1280]) {
   await pg.evaluate(() => mkUseOpen(_vcUseRows().findIndex((x) => x[0] === 'g1'))); await wait(400);   // 폰은 나오는 곳 줄이 한 줄로 접혀(#1102) 버튼이 안 보일 수 있다 — 창을 바로 연다
   for (const n of [0, 1, 2]) { await pg.click(`[data-fk="mkuseex:${n}"]`); await wait(250); }
   const d = await pg.evaluate(() => ({ wait: (document.querySelector('[data-fk="mkusewait"]') || {}).textContent || '', btn: !!document.querySelector('[data-fk="mkuseplay"]'), err: !!document.querySelector('.mk-vu-q ~ .mk-exw'), plays: window.__plays.length, calls: window.__calls.filter((x) => /^practice/.test(x)).length }));
-  ok(`${w} ⑤ 만들기 전 — 들어 보기 대신 한 줄 · 칩을 눌러도 소리 · 오류 문구 없음 [VU_OWN_VOICE]`, d.wait === '두 분 목소리를 만들면 여기서 들어 볼 수 있어요' && !d.btn && !d.err && d.plays === 0 && d.calls === 0, JSON.stringify(d));
+  /* ★[VU_WAIT_WHO 2026-10-08 목소리 1라운드 #55] 기다림 한 줄은 «이 자리를 읽는 분» 이름 — g1(시작 10분 전)은 신부가 읽는다 · 종전 «두 분 목소리를 만들면…»은 한 분만 만든 예식에서 만든 목소리가 사라진 것처럼 읽혔다 */
+  const who1 = await pg.evaluate(() => (_vcLineWho('g1') === 'bride' ? '신부' : '신랑'));
+  ok(`${w} ⑤ 만들기 전 — 들어 보기 대신 한 줄(읽는 분 이름) · 칩을 눌러도 소리 · 오류 문구 없음 [VU_OWN_VOICE · VU_WAIT_WHO]`, d.wait === who1 + ' 목소리를 만들면 여기서 들어 볼 수 있어요' && !d.btn && !d.err && d.plays === 0 && d.calls === 0, JSON.stringify(d));
   await pg.evaluate(() => { VC.st = { groom: { ready: true }, bride: { ready: true } }; render(); }); await wait(300);
   await pg.click('[data-fk="mkuseex:0"]'); await wait(250); await pg.click('[data-fk="mkuseplay"]'); await wait(500);
   const e = await pg.evaluate(() => ({ plays: window.__plays.slice(), calls: window.__calls.filter((x) => /^practice/.test(x)) }));
