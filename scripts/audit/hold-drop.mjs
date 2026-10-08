@@ -53,8 +53,8 @@ const PropertiesService = { getScriptProperties: () => ({
 }) };
 const LockService = { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) };
 const Logger = { log() {} };
-const _nfHoldDrop = new Function('PropertiesService', 'LockService', 'Logger',
-  m[0] + '\nreturn _nfHoldDrop;')(PropertiesService, LockService, Logger);
+const _nfHoldDrop = new Function('PropertiesService', 'LockService', 'Logger', '_requireAdmin',
+  m[0] + '\nreturn _nfHoldDrop;')(PropertiesService, LockService, Logger, () => ({ ok: true }));   // [B19_LOCK 2026-10-09] 관리 · 편집기 함수는 _requireAdmin 으로 잠겼다 — 이 흉내는 관리 화면에서 단계를 바꾸는 것
 
 const seed = () => { store.NOTIFY_HOLD = JSON.stringify([
   { c: 'TD7CGH', e: 'cust.fittingRequest' }, { c: 'TD7CGH', e: 'cust.fittingRequest' },
