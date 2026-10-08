@@ -3599,6 +3599,9 @@ chk '두 분이 직접</b> 해주세요' mypage.html 1
 # [STAMP_FORCE] --stamp 는 «내용이 그대로여도» 목록 날짜를 새로 찍는다 — 스쿼시 병합이 .gs
 #   커밋 날짜만 앞으로 옮겨 [LIST_AGE] 가 빨개지는, 처방이 듣지 않는 막다른 빨강을 푼다.
 chk 'STAMP_FORCE' scripts/gen-deploy-fns.mjs 1
+# ★[NEEDS_SWITCH 2026-10-09] deploy-marks.json 의 needs 둘째 칸(a)은 «켜는 스위치 이름» — 설명 글이 들어가면 deployCheck ⑦ 이 스위치를 못 찾아 «꺼져 있어 지금은 필요 없음»으로 그 키를 영영 안 본다(TYPECAST_API_KEY 실사고 · VOICE_CLONE=on 인데)
+chk 'NEEDS_SWITCH' scripts/gen-deploy-fns.mjs 1
+if command -v node >/dev/null 2>&1; then node -e "const d=require('./deploy-marks.json');const sw=new Set(d.props.filter(p=>p.kind==='switch').map(p=>p.key));const bad=d.props.filter(p=>p.kind==='needs'&&!sw.has(p.a));if(bad.length){console.log('FAIL NEEDS_SWITCH: needs 의 스위치 이름이 스위치 목록에 없다 — '+bad.map(p=>p.key+' → '+p.a).join(' · '));process.exit(1)}console.log('ok NEEDS_SWITCH')" || fail=1; fi
 chk "includes('--stamp')" scripts/gen-deploy-fns.mjs 1
 chk 'OK_FALSE_GUARD' automation/consultation/ScreenB_schedule.html 1
 chk 'OK_FALSE_GUARD' scripts/audit/okfalse-handled.mjs 1
