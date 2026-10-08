@@ -2816,7 +2816,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-10-09 04:45 · 81e3442d",
+ "_생성": "2026-10-09 04:45 · 770c3d2a",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -3145,8 +3145,8 @@
   {
    "key": "TYPECAST_API_KEY",
    "kind": "needs",
-   "a": "타입캐스트 API 키(서버에만 · 브라우저에 두지 않는다) [VOICE_CLONE]",
-   "b": ""
+   "a": "VOICE_CLONE",
+   "b": "타입캐스트 API 키 · AI 두 분 목소리(서버에만 · 브라우저에 두지 않는다)"
   },
   {
    "key": "TYPECAST_VOICE_BRIDE",
