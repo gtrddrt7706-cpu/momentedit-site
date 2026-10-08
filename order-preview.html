@@ -811,6 +811,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .ls-why{font-size:12.5px;color:var(--ink2);margin:0 0 10px}
 .ls-gnote{flex:0 0 100%;font-size:11px;color:var(--light);margin-top:-2px;margin-bottom:6px}
 /* ★[CHIP_CHANGED → CHIP_TOAST] 칩 줄 아래 한 줄(.ls-chg) · 바뀐 줄 옅은 금 바탕(.chg · 깜빡임) 금지 — 2026-10-08 사용자 지시로 삭제(«전부 삭제하고 첫 번째 사진처럼 안내 문구») · 알림은 떠 있는 안내 하나(_lsToast) */   /* [R3-06] 안내가 아래 묶음 머리말처럼 읽히지 않게 위 묶음에 붙인다 */
+#_toast{width:max-content}   /* ★[TOAST_ONE_LINE 2026-10-08] 아래 알림(window.toast · 복사 · 오류 등)이 화면 반쪽 폭에 갇혀(left:50% 의 shrink-to-fit · 390 에서 약 195px) 짧은 글도 두 줄로 꺾였다 — 글 폭만큼 · 넘치면 종전 max-width 88% 에서 꺾인다 */
 .ls-undo{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--gold-deep);background:var(--card);color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer;margin-left:6px}
 .ls-prep .wr-list{margin:4px 0 6px}
 .lf-skip{min-height:44px;padding:0 12px;border-radius:22px;border:1px solid var(--border);background:var(--card);color:var(--accent);font:inherit;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
@@ -4478,7 +4479,21 @@ function _mkLeaveMsg(k){ if(!k||k==='_sum'||k==='_voice'||_mkOff(k)) return '';
 /* ★[LEAVE_POP 2026-10-02 사장님 «부모님께 부탁드릴 것이 남아 있어요. 미완료로 둘게요 — 각각 나오는 이벤트 안내 메시지, 다음 페이지 넘길 때 팝업으로 깔끔하게»]
    다음 쪽 머리에 회색 상자로 남기던 한 줄을 넘기는 순간 작은 판(ordAsk)으로 — [다음으로] · [돌아가서 채우기]. 막지 않는다(INCOMPLETE_SOFT 그대로).
    같은 쪽의 같은 말은 한 번만 묻는다(MK.leaveSaid) — 앞뒤로 오갈 때마다 뜨면 귀찮다 */
-window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;   // ask = «다음»으로 넘길 때만(이전 · 진행 줄 이동엔 묻지 않는다)
+/* ★★[VP_MUST 2026-10-08 사장님 «고르지 않으면 스튜디오 나레이션으로 진행돼요 · 이 문구 수정 · 무조건 고르게 하는 걸로»]
+   안내 목소리(하객 맞이 · 입장 · 식전 영상 소개 — AI 두 분 목소리 / 스튜디오 나레이션)는 꼭 고른다. 안 고르면 넘어가지 않고 그 칩 줄로 데려가
+   떠 있는 안내 한 번(«어떻게 준비할지 먼저 골라 주세요» · 칩 알림 _lsToast 와 같은 브라운 알약 · 사장님 «좀 전에 다른 섹션에서 개선한 안내 문구 식으로 · 문구만 · 이걸로») · 첫 칩에 포커스.
+   ★칩 아래 상시 한 줄은 두지 않는다 — 2026-10-08 사용자 지시로 삭제(«저 문구 삭제하고»)
+   문은 셋 — ② 쪽의 «다음» · ② → ③(연습하기) · ④ «이대로 저장하기». 진행 줄 · 모든 순간 보기 이동은 막지 않는다(마지막 문에서 잡힌다).
+   고를 것이 하나뿐인 판(AI 목소리가 꺼진 판)은 칩 줄이 없어 묻지 않는다 */
+function _vpUnpicked(k){ try{ return _lGroups(k).some(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; }); }catch(e){ return false; } }
+function _vpMustAt(k){ return (k==='guest'||k==='entry'||k==='prevideo')&&!_mkOff(k)&&_vpUnpicked(k); }
+function _vpMustFirst(){ var ps=_mkPages(); for(var i=0;i<ps.length;i++){ if(_vpMustAt(ps[i])) return ps[i]; } return ''; }
+function _vpMustShow(k){ if(_mkRO().at!==k||!(STEPS[idx]&&STEPS[idx].k==='listen')) _mkGoNow(k); else render();
+  _lsToast('어떻게 준비할지 먼저 골라 주세요');   // [VP_MUST] 칩 알림(CHIP_TOAST «‹양가 아버님›으로 바꿨어요»)과 같은 떠 있는 브라운 알약 · 아래 막대 바로 위 · 3초 · 읽어 주기
+  setTimeout(function(){ var c=[].slice.call(document.querySelectorAll('#stage .ls-cg.cg-vp')).filter(function(x){ return x.querySelector('[data-fk^="lsc:guestVoice:"],[data-fk^="lsc:entryVoice:"],[data-fk^="lsc:pvVoice:"]'); })[0], b=c&&c.querySelector('[role="radio"]');
+    try{ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(c) c.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'}); if(b) b.focus({preventScroll:true}); }catch(e){} },80); }
+window.mkGo=function(k,ask){ var m=_mkState(), from=m.at; if(from===k) return;
+  if(ask&&_vpMustAt(from)){ _vpMustShow(from); return; }   // [VP_MUST] «다음»은 안내 목소리를 고른 뒤에   // ask = «다음»으로 넘길 때만(이전 · 진행 줄 이동엔 묻지 않는다)
   var msg=ask?_mkLeaveMsg(from):''; MK.leaveSaid=MK.leaveSaid||{};
   if(msg&&MK.leaveSaid[from]!==msg){ MK.leaveSaid[from]=msg; var p=msg.split(' · '), hd=p.shift(), body=p.join(' · ').replace(/\s*미완료로 둘게요\.?$/,'');
     /* [R2-17] «나중에 언제든»은 근거 없는 안심(마감이 있다) · AI 판은 «AI 두 분 목소리»(_mkLeaveMsg) */
@@ -5709,7 +5724,7 @@ function _mkVoicePage(){ var st=VC.st; if(!st) _vcStatus();
 window.mkVoiceGo=function(w,fn){   /* ★«목소리 만들기 시작»이 세 순간(하객 맞이 · 식전 영상 · 입장)을 AI 로 미리 고르던 것 금지 — 2026-10-06 사용자 지시로 삭제 [VP_UNPICKED_ALL] (사장님 «다른 이벤트들도 전부 선택 안 한 상태가 처음 셋팅값으로») · 순간마다 두 분이 고른다 */
   mkVcConsent(w); };   // [CONSENT_EVERY] 동의한 분도 동의부터(종전 fn==='read' 면 글 1 부터)
 /* [VOICE_ONCE] «나중에 할게요» — 지금은 스튜디오 나레이션으로 두고 다음 쪽(하객 맞이)으로. 나중에 이 쪽이나 «나레이션 자세히»에서 바꿀 수 있다 */
-window.mkVoiceLater=function(){   /* ★«나중에 할게요»가 세 순간을 스튜디오 나레이션으로 미리 고르던 것 금지 — 2026-10-06 사용자 지시로 삭제 [VP_UNPICKED_ALL] · 안 고른 채로 두면 순간 쪽이 «아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션»이라고 말한다 */
+window.mkVoiceLater=function(){   /* ★«나중에 할게요»가 세 순간을 스튜디오 나레이션으로 미리 고르던 것 금지 — 2026-10-06 사용자 지시로 삭제 [VP_UNPICKED_ALL] · 안 고른 채로 «다음»을 누르면 그 쪽에 머물고 아래 알림 «어떻게 준비할지 먼저 골라 주세요»([VP_MUST]) */
   var ps=_mkPages(), i=ps.indexOf('_voice'); mkGo(ps[i+1]||'guest'); };
 /* 8-4 동의 — 별도 동의 · 다른 동의와 묶지 않는다 · 거부해도 녹음 · 나레이션으로 진행 · [REC_DLG] 작은 창의 첫 걸음 */
 function _vcConsentPanel(w){ var nm=_vcName(w), kv=function(x){ var i=x.indexOf(' · '); return '<li><b>'+esc(x.slice(0,i))+'</b>'+esc(x.slice(i+3))+'</li>'; };
@@ -6695,7 +6710,7 @@ function renderMake(){
        종전 «고를 칩이 있으면 단추를 숨긴다»([MK_MIN] · [CHIP_LISTEN] · [CAKE_TOAST_SPLIT]) 금지 — 2026-10-03 사용자 지시로 삭제(칩이 듣기였던 때의 규칙이다) */
     /* ★★[VP_ASK_FIRST 2026-10-06 사장님 «첫 화면인데 어떻게 준비할까요 아무것도 클릭 안 했는데 밑에는 이미 스튜디오 나레이션으로 기본 셋팅되어 있어»]
        안내 목소리 고르기(하객 맞이 · 입장 · 식전 영상 소개)를 아직 안 눌렀으면 아래 흐름(나레이션 줄 · 이 순간 전체 듣기)을 그리지 않고 «먼저 골라 주세요» 한 칸만.
-       고르면 그 판의 흐름이 열린다. 칩이 비어 있는 것(CHIP_UNPICKED)은 그대로 · 안 고른 채 넘어가면 스튜디오 나레이션으로 흐른다는 것도 그 칸이 말한다 */
+       고르면 그 판의 흐름이 열린다. 칩이 비어 있는 것(CHIP_UNPICKED)은 그대로 · 안 고른 채로는 넘어가지 않는다 — «다음»을 누를 때 아래 알림이 말한다([VP_MUST] · 2026-10-08) */
     var _vpAsk=gs.filter(function(g){ return /^(guest|entry|pv)Voice$/.test(g.key)&&g.picked===false; })[0];
     /* ★[VP_ASK_ONE 2026-10-06 사장님 «나레이션 자세히와 '먼저 골라 주세요' 상자가 중복 · 통합해서 하나만 · 고객 입장에서»] 상자(두 갈래 설명 목록)를 걷었다 —
        두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
@@ -6986,7 +7001,7 @@ function _lChipRow(g,opt){
   return '<div class="ls-cg'+((/^(guest|entry|pv)Voice$/.test(g.key)||g.fn)?' cg-vp':'')+(lk?' cg-hl':'')+'" role="radiogroup" aria-label="'+esc(g.l)+'"><span class="gl" aria-hidden="true">'+esc(g.l)+'</span><span class="cg-c">'+g.list.map(function(c,ci){ var on=(c[0]===g.cur)&&g.picked!==false;   // [CHIP_UNPICKED]
     return '<button type="button" class="op-chip'+(g.fn?' mk-exc':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(g.picked===false&&ci===0))?'0':'-1')+'" data-fk="'+(g.fk?g.fk+c[0]:'lsc:'+g.key+':'+c[0])+'" onclick="'+(g.fn?g.fn+'('+c[0]+')':'lsChip(\''+g.key+'\',\''+c[0]+'\')')+'">'+_chipT(c[1])+'</button>'; }).join('')   /* [EX_ROW] 예시 줄은 제 함수(g.fn)와 data-fk(g.fk)로 */
     +lk   /* [VS_LINK_IN_ROW] 같은 창 · VS_CHIP_ONCE 그대로 · 위에서 만든 한 묶음 */
-    +((g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?'<span class="ls-gnote mk-vpask1">아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션으로 진행돼요</span>':g.unote?'<span class="ls-gnote mk-vpask1">'+esc(g.unote)+'</span>':g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 결과 설명 대신 한 줄 · [VP_ASK_ONE] 상자는 걷었다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
+    +((g.picked===false&&/^(guest|entry|pv)Voice$/.test(g.key))?''   /* ★안 고른 안내 목소리 칩 아래 한 줄(«아직 고르지 않았어요 · 고르지 않으면 스튜디오 나레이션으로 진행돼요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [VP_MUST] · 알리는 일은 «다음»을 누를 때 아래 알림 한 번 */:g.unote?'<span class="ls-gnote mk-vpask1">'+esc(g.unote)+'</span>':g.note?'<span class="ls-gnote">'+esc(g.note)+'</span>':'')+'</span></div>';   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 결과 설명 대신 한 줄 · [VP_ASK_ONE] 상자는 걷었다 */   /* [VP_ASK_FIRST] 안 고른 안내 목소리엔 «나레이터가 읽어요» 같은 결과 설명을 달지 않는다 */
 }
 window.lsOpen=function(k){ LS.open=(LS.open===k?null:k); render(); };
 /* ★★[CHIP_NO_REPLAY 2026-09-27 사장님 «버튼을 누를 때마다 음성이 재생된다 · 나레이션이 달라지지 않는 버튼을 눌러도 반복해서 나온다»]
@@ -9552,7 +9567,7 @@ document.getElementById('next').addEventListener('click',function(){ if(_saving)
   if(editReturn){editReturn=false;_editSnap=null;_doneSaved=false;goDone();return;}   // 수정 확정 시 '저장됨' 해제 → 다시 저장하도록(서버본과 어긋남 방지)
   var st0=STEPS[idx];
   if(st0&&st0.k==='listen'&&isOpen()&&_mkStep(1)) return;   // [FLOW_MAKE] ② 안에서는 다음 순간으로 · 마지막(한눈에 보기) 뒤에야 ③
-  if(st0&&st0.k==='listen'&&isOpen()){ MK.toast='';
+  if(st0&&st0.k==='listen'&&isOpen()){ MK.toast=''; var _vm=_vpMustFirst(); if(_vm){ _vpMustShow(_vm); return; }   // [VP_MUST] ② → ③ 도 안내 목소리를 다 고른 뒤에
     /* ★[MK_SAVE_NUDGE 2026-09-27 사장님 결정 «버튼 유지 + 알림»] ② → ③ 으로 넘어갈 때 서버에 안 보낸 것이 있으면 한 번 묻는다.
        저장 단추(ORD_SAVE_BTN)는 그대로 두고 자동 저장으로 되돌리지 않는다 · 닫기(Esc · 바깥)는 머무른다 · 어느 쪽이든 이 기기에는 이미 남아 있다 */
     if(EMBED&&courseStarted&&!_doneSaved&&_autoDirty&&!_autoWait){
@@ -9561,7 +9576,7 @@ document.getElementById('next').addEventListener('click',function(){ if(_saving)
       return; } }
   if(idx<STEPS.length-1){idx++;render();}
   else if(_doneSaved&&EMBED){ if(window._obExit) window._obExit(); }   // [ORD_SAVE_STATE] 이미 저장된 뒤엔 이 버튼이 곧 나가기다(아래 라벨과 짝)
-  else{ doSave(); } });
+  else{ var _vm2=isOpen()?_vpMustFirst():''; if(_vm2){ _vpMustShow(_vm2); return; } doSave(); } });   // [VP_MUST] ④ «이대로 저장하기»도
 /* [ORD_SAVE_STATE 2026-08-03] 저장 상태를 '낙관'이 아니라 '사실'로 표시한다.
    사용자 제보(2026-08-03 · 스크린샷): 네이티브 알림엔 "저장에 실패했어요"가 떠 있는데
    바로 뒤 버튼은 '저장됨 · D-14까지 언제든 고쳐요'였다. 두 문장이 정반대 말을 했다.
