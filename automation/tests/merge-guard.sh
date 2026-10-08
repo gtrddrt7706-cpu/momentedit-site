@@ -14085,6 +14085,8 @@ chk 'PV_INTRO' admin.html 3
 nochk "'pvText'" assets/ritual-preview-link.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-intro.mjs >/dev/null 2>&1; _pv=$?; [ "$_pv" = 1 ] && { echo 'FAIL pv-intro: 식전 영상 소개글 흐름이 어긋났습니다 — node scripts/audit/pv-intro.mjs'; fail=1; }; fi
 chk 'PV_INTRO' scripts/audit/pv-intro.mjs 2
+chk 'PV_AUTO_MAKE' scripts/audit/pv-intro.mjs 3   # [PV_AUTO_MAKE 2026-10-09] AI 를 고르면 빈 줄을 바로 만든다(FILL_EMPTY · #1130) — 검사는 만들어진 결과를 본다
+nochk "await pg.click('\[data-fk=\"mkai:pv\"\]'); await pg.waitForTimeout(1500);" scripts/audit/pv-intro.mjs   # ★옛 «[AI로 만들기] 누르기» 단계 — #1130 뒤로 그 단추를 기다리다 30초 넘겨 죽었다(결과 줄 없이 빨강)
 # ★[PLAY_ROW · FLOW_LINE_TYPE 2026-10-02 사장님 «이 순간 들어 보기 디자인 개선 · 재생 버튼 메시지 글꼴을 하객 맞이 카드와 통일»]
 chk 'PLAY_ROW' order-preview.html 1
 chk 'FLOW_LINE_TYPE' order-preview.html 1
@@ -14314,7 +14316,7 @@ chk 'EX_UNPICKED' order-preview.html 2
 chk 'function _exS0(keep){' order-preview.html 1
 chk 'try{ var s0=_exS0(keep);' order-preview.html 1   # [EX_UNPICKED] _lDefCurs 의 기본 = 미개봉 판 + 고른 예시
 nochk "try{ var s0=JSON.parse(_S0); \['on','off','course','extra','tune'\]" order-preview.html   # [EX_UNPICKED] 미개봉 판과만 견주던 옛 기준(예시 값이 눌린 모양으로 떴다)
-chk "'mkEntryEx','mkex:entry:',Math.max(0,ENTRY_KEYS.indexOf(_exS0(S).entry))" order-preview.html 1   # [EX_UNPICKED] AI 판 입장 참고 예시 기준도 예시 값
+nochk "Math.max(0,ENTRY_KEYS.indexOf(_exS0(S).entry))" order-preview.html   # [EX_UNPICKED → EX_CHIP_ON 2026-10-09] AI 판 입장 참고 예시는 이제 글이 그 예시면 눌린 모양 — 코스 예시 기준을 걷었다
 nochk "(_wq?' aria-busy=\"true\"'" order-preview.html   # [PLAY_WAIT_LOCK] 올리는 동안 누를 수 있게(옛 PLAY_WAIT_TAP) 되돌리지 말 것
 chk "(/ ld/.test(w.c)?' disabled aria-busy=\"true\"':'')" order-preview.html 4   # [PLAY_WAIT_LOCK] 줄 카드 나레이션 ▶ · 흐름 ▶ · 작은 · 큰 플레이어 ❚❚
 chk "b.disabled=/ ld/.test(c);" order-preview.html 1   # [PLAY_WAIT_LOCK] 다시 그리지 않고 칠할 때(_wfPaint)도 못 누름
@@ -14758,12 +14760,26 @@ nochk "d: '케이크를 자르고 잔을 들고, 인사와 사진으로'" assets
 chk 'TABLE_APART' order-preview.html 18
 chk 'id="mkFgAfter">본식 뒤</p>' order-preview.html 1
 chk "'<b>본식 뒤</b>'" order-preview.html 1
-chk '.op-bar .t{background:var(--gold)}' order-preview.html 1
+chk '.op-bar .t{background:var(--gold-btn)}' order-preview.html 1   # [BAR_STEPS 2026-10-09] 테이블 인사 = 중간 금(종전 --gold 는 본식과 거의 같은 금)
 chk '@media (max-width:389px){ .op-cta .cta-lg{display:none} }' order-preview.html 1
 chk 'FSUM_SEP' order-preview.html 2
 chk 'TABLE_APART' mypage.html 1
 chk 'TABLE_APART' assets/ritual-cue.js 1
 chk 'TABLE_APART' api/_ritual-kb.js 2
+# ── ★[BAR_STEPS 2026-10-09 사장님 «테이블 인사 위쪽 가로 막대 · 색 구분했지만 구분이 어렵다» → 시안 A «추천대로»] 짙음(본식) · 중간(테이블 인사) · 옅음(단체 사진) + 칸 사이 2px 틈
+chk 'BAR_STEPS' order-preview.html 1
+chk '.op-bar{display:flex;gap:2px;height:8px;' order-preview.html 1
+chk '.op-bar .c{background:var(--gold-deeper)}' order-preview.html 1
+nochk '.op-bar .c{background:var(--gold-deep)}' order-preview.html   # 종전 본식 색(테이블 인사와 1.49:1 · 경계가 안 보였다)
+# ── ★★[EX_CHIP_ON 2026-10-09 사장님 «AI 두 분 목소리 · 스튜디오 나레이션 누르면 담백하게로 셋팅되는데 버튼이 안 눌려 있다 · 둘 중 하나» → «자동으로 눌린 채로» «추천대로» · «다른 곳들도 점검해서 똑같이»]
+#   아래 글(멘트)이 그 예시면 그 칩이 눌린 모양 · 여섯 자리(하객 맞이 · 입장 · 식전 영상 소개 × AI 참고 예시 · 스튜디오 멘트) · 고를 것(안내 목소리 · 서약 · 서는 분)은 종전대로 안 눌림
+chk 'EX_CHIP_ON' order-preview.html 7
+chk 'function _exRowG(key,lab,names,cur,fn,fk,note){ var picked=cur>=0;' order-preview.html 1
+chk "g\[g.length-1\].exOn=1;" order-preview.html 1   # 스튜디오 입장 멘트(_lGroups)
+chk 'x.picked=!!x.exOn||(x.q&&!x.up)||' order-preview.html 1
+nochk "지금 글은 «'+names\[cur\]" order-preview.html   # ★«아직 고르지 않았어요 · 지금 글은 «…» 예시예요» 덧줄 금지 — 2026-10-09 사용자 지시로 삭제
+nochk "picked=cur>=0&&(!!t||cur!==base)" order-preview.html   # 옛 기준(직접 누르거나 기본과 다를 때만 눌린 모양)
+chk 'EX_CHIP_ON' scripts/audit/ex-row.mjs 2
 # ── [FLOW_MOOD 2026-10-08 사장님 «너무 수학적 그래프 말고 우리 무드에 맞게» → «추천대로 하는데 붓선은 빼자»] 한 굵기 선 · 점선 여운 · 입장 · 닫는 인사 진주 · 명조 이름표 · 축 없음
 chk 'FLOW_MOOD' assets/ritual-open.js 7
 chk "SERIF_SVG = \"'Noto Serif KR','Nanum Myeongjo',serif\"" assets/ritual-open.js 1
@@ -15391,7 +15407,7 @@ chk 'VU_BOTTOM_FIX' scripts/audit/vu-ex-listen.mjs 1
 # ★★[EX_ROW 2026-10-06 사장님 «스튜디오 나레이션 윗쪽 버튼 그대로 써서 예시 글 · 다른 곳도 전부 가로 타원 · 예시 표시는 버튼마다가 아니라 한 곳에»] 참고 예시 카드 → 칩 줄(이름표 «참고 예시» · 느낌 이름)
 chk 'EX_ROW' order-preview.html 8
 chk 'function _exRows(k)' order-preview.html 1
-chk 'function _exRowG(key,lab,names,cur,fn,fk,base,note)' order-preview.html 1
+chk 'function _exRowG(key,lab,names,cur,fn,fk,note)' order-preview.html 1   # [EX_CHIP_ON 2026-10-09] base(누르기 전 기준) 인자 걷음
 nochk "if(ai&&k==='guest') h+=_exCards('guest'" order-preview.html
 nochk "if(ai&&k==='entry') h+=_exCards('entry'" order-preview.html
 nochk "+_exCards('pv',PV_EX.map" order-preview.html
