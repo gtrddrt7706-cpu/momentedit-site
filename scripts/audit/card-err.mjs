@@ -8,7 +8,7 @@ import { openWorld } from './_gasworld.mjs';
 let rc = 0; const say = (m, c, d) => { console.log(`  ${c ? '✅' : '❌'} ${m}${c || d === undefined ? '' : ' → ' + String(d).slice(0, 240)}`); if (!c) rc = 1; };   // (문구, 조건, 자세히) — 순서를 바꾸면 늘 통과하는 죽은 검사가 된다(2026-10-07 실제로 그랬다)
 let G, world;
 try { ({ G, world } = openWorld()); } catch (e) { console.log('━━ card-err — GAS 세계를 못 만들었습니다 · 재지 못했습니다: ' + e.message); process.exit(2); }
-for (const fn of ['handleCardConfirm', '_depositCardConfirm']) if (typeof G[fn] !== 'function') { console.log(`━━ card-err — ${fn} 이 없습니다 · 재지 못했습니다`); process.exit(2); }
+for (const fn of ['handleCardConfirm', '_depositCardConfirm_']) if (typeof G[fn] !== 'function') { console.log(`━━ card-err — ${fn} 이 없습니다 · 재지 못했습니다`); process.exit(2); }
 const props = G.PropertiesService.getScriptProperties();
 props.setProperty('PAY_CARD_ENABLED', 'true'); props.setProperty('TOSS_SECRET_KEY', 'test_sk_x'); props.setProperty('TOSS_CLIENT_KEY', 'test_ck_x');
 let logs = [], alerts = [];

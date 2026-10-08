@@ -5,6 +5,7 @@ import { loadGas } from './gas-lint.mjs';
 
 const { sandbox: sb, errors } = loadGas();
 if (errors.length) { console.log('로드 실패', errors); process.exit(1); }
+sb._AUTHED = true;   // [B19_LOCK 2026-10-09] 관리 · 편집기 함수는 _requireAdmin 으로 잠겼다 — 이 흉내는 관리 화면(adminCall)에서 입금 확인을 누르는 것
 
 let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m + (d !== undefined ? ('  →  ' + JSON.stringify(d)) : '')); } };

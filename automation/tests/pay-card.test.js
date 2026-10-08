@@ -102,7 +102,7 @@ const code = [
   extractFunction(SRC_PROD, 'adminConfirmExtra'),
   extractFunction(SRC_ADMIN, '_confirmDepositCore'),
   extractFunction(SRC_ADMIN, 'adminConfirmPayment'),
-  extractFunction(SRC_CARD, '_payCfg'),
+  extractFunction(SRC_CARD, '_payCfg_'),
   extractFunction(SRC_CARD, '_payPreValidate'),
   extractFunction(SRC_CARD, '_payExpectedAmount'),
   extractFunction(SRC_CARD, '_payMarkCard'),
@@ -120,7 +120,7 @@ const code = [
   extractFunction(SRC_CARD, '_depositCardKeep'),
   extractFunction(SRC_CARD, '_depositCardTrace'),
   extractFunction(SRC_CARD, '_depositCardConfig'),
-  extractFunction(SRC_CARD, '_depositCardConfirm')
+  extractFunction(SRC_CARD, '_depositCardConfirm_')
 ].join('\n\n');
 
 /* ── 인메모리 Customers 시트 + GAS 전역 스텁 ── */
@@ -153,8 +153,9 @@ const sandbox = {
   // 기록/알림 스텁
   _recordHandler: function (code, action) { handlerLog.push({ code: code, action: action }); },
   notifyKakao: function (event, code, extra) { kakaoLog.push({ event: event, code: code, extra: extra || {} }); },
-  // 가드 스텁 — 미인증이면 throw(실제 _requireAdmin 계약 재현)
-  _requireAdmin: function () { if (!AUTHED) throw new Error('로그인이 필요합니다. (관리자 전용)'); return { ok: true }; },
+  // 가드 스텁 — 미인증이면 throw(실제 _requireAdmin 계약 재현 · [B19_LOCK] 카드 · 메일 단추 길이 켜는 _AUTHED 창도 실제처럼 통과)
+  _AUTHED: false,
+  _requireAdmin: function () { if (!AUTHED && !sandbox._AUTHED) throw new Error('로그인이 필요합니다. (관리자 전용)'); return { ok: true }; },
   // 세션 스텁
   resolveSession: function (token) {
     if (TOKMAP[token]) return { ok: true, row: { get: function (f) { return f === '개인코드' ? TOKMAP[token] : ''; } } };
@@ -246,9 +247,25 @@ console.log('B. 가드');
 reset(); newCust('B1');
 var threw = false; try { AUTHED = false; run('adminConfirmPayment("B1")'); } catch (e) { threw = true; }
 check('B1 adminConfirmPayment 미인증 → throw(관리자 가드 有)', threw && DB.B1.입금상태 === '대기');
+// ★[B19_LOCK 2026-10-09] 종전 B2 는 «_confirmDepositCore 는 가드가 없어 미인증에도 확인된다»를 지켰다 — 계약이 바뀌었다.
+//   이제 코어도 관리자 전용이고, 카드 길은 토스 승인을 확인한 뒤
+//   기록하는 동안에만 _AUTHED 를 켠다(CARD_AUTHED). B2 = 바로 부르면 막힘 · B3 = 카드 길은 미인증이어도 기록 + 창이 닫힘.
 reset(); newCust('B2'); AUTHED = false;
-var rb2 = run('_confirmDepositCore("B2", { bundle: false, via: "카드" })');
-check('B2 _confirmDepositCore 미인증에도 정상(가드 無 → 카드 경로 가능)', rb2.ok === true && DB.B2.입금상태 === '확인');
+var threw2 = false; try { run('_confirmDepositCore("B2", { bundle: false, via: "카드" })'); } catch (e) { threw2 = /관리자 전용/.test(String(e && e.message)); }
+check('B2 _confirmDepositCore 미인증 → throw(코어도 잠김 · B19)', threw2 && DB.B2.입금상태 === '대기');
+var threw2m = false; try { run('adminConfirmMid("B2")'); } catch (e) { threw2m = /관리자 전용/.test(String(e && e.message)); }
+check('B2 adminConfirmMid 미인증 → throw(B19)', threw2m && DB.B2.중도금상태 === '대기');
+reset(); newCust('B3'); TOKMAP.tokB3 = 'B3'; AUTHED = false;
+PROPS.PAY_CARD_ENABLED = 'true'; PROPS.TOSS_SECRET_KEY = 'test_sk_x'; PROPS.TOSS_CLIENT_KEY = 'test_ck_x';
+sandbox.__b = { token: 'tokB3', milestone: '계약금', paymentKey: 'pk_b3', orderId: 'MEB3', amount: 250000 };
+var rb3 = run('handleCardConfirm(__b)');
+check('B3 카드 길(토스 승인 뒤) 미인증이어도 기록 · recorded', rb3.ok === true && rb3.recorded === true && DB.B3.입금상태 === '확인');
+check('B3 기록 뒤 관리자 창이 닫힌다(_AUTHED=false)', sandbox._AUTHED === false);
+reset(); newCust('B4'); TOKMAP.tokB4 = 'B4'; AUTHED = false; TOSS_RESULT = { ok: false, code: 'REJECT_CARD_PAYMENT', error: '거절' };
+PROPS.PAY_CARD_ENABLED = 'true'; PROPS.TOSS_SECRET_KEY = 'test_sk_x'; PROPS.TOSS_CLIENT_KEY = 'test_ck_x';
+sandbox.__b = { token: 'tokB4', milestone: '중도금', paymentKey: 'pk_b4', orderId: 'MEB4', amount: 1400000 };
+var rb4 = run('handleCardConfirm(__b)');
+check('B4 토스 거절이면 창을 열지 않고 기록도 없다', rb4.ok === false && DB.B4.중도금상태 === '대기' && sandbox._AUTHED === false);
 AUTHED = true;
 
 /* ═══ C. 금액 위변조 (_payExpectedAmount · handleCardConfirm) ═══ */

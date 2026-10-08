@@ -52,8 +52,10 @@ function handleAiCostLog(body) {
   return { ok: true };
 }
 
-/** 관리자: 최근 24시간 + 이번 달 비용을 접점별로 집계해 원화로 반환 (adminCall fn='aiCostSummary24h') */
-function aiCostSummary24h() {
+/** 관리자: 최근 24시간 + 이번 달 비용을 접점별로 집계해 원화로 반환 (adminCall fn='aiCostSummary24h')
+ *  ★[GSR_SPLIT 2026-10-09 · B19] 관리 화면은 잠긴 껍데기(aiCostSummary24h)로 · 아침 보고(예약 실행)는 밑줄 안쪽(aiCostSummary24h_)으로 부른다(기획 16-4 셋째 갈래). */
+function aiCostSummary24h() { _requireAdmin(); return aiCostSummary24h_(); }
+function aiCostSummary24h_() {
   var rate = AI_COST_CFG.USD_KRW, tz = 'Asia/Seoul';
   var base = { ok: true, rate: rate, day: { total: 0, calls: 0, bySurface: [] }, month: { total: 0, calls: 0 }, updatedAt: fmtKST(new Date()) };
   var sh = SpreadsheetApp.getActive().getSheetByName('AI_비용로그');
@@ -117,12 +119,12 @@ function _aiTestSheet_() {
   if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_테스트시나리오'); sh.appendRow(['접점|질문  (접점=메인/마이/예약/애프터/핸드오프 · 한 줄에 하나)']); }
   return sh;
 }
-function aiTestScenarios() {   // adminCall — 저장된 커스텀 시나리오 텍스트 반환
+function aiTestScenarios() { _requireAdmin();   // adminCall — 저장된 커스텀 시나리오 텍스트 반환
   var sh = _aiTestSheet_(); var n = sh.getLastRow() - 1, lines = [];
   if (n > 0) { var v = sh.getRange(2, 1, n, 1).getValues(); for (var i = 0; i < v.length; i++) { var s = String(v[i][0] || '').trim(); if (s) lines.push(s); } }
   return { ok: true, text: lines.join('\n') };
 }
-function aiTestScenariosSave(text) {   // adminCall — 커스텀 시나리오 저장(최대 50줄 · "접점|질문" 형식만)
+function aiTestScenariosSave(text) { _requireAdmin();   // adminCall — 커스텀 시나리오 저장(최대 50줄 · "접점|질문" 형식만)
   var sh = _aiTestSheet_();
   if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1);
   var lines = String(text || '').split('\n').map(function (s) { return s.trim(); })
@@ -143,10 +145,10 @@ function _aiKbSheet_() {
 }
 // 6열로 읽음(메모=6열). 기존 5열 시트도 6열 조회 시 빈값으로 안전(시트 그리드는 26열 기본).
 function _aiKbRows_() { var sh = _aiKbSheet_(); var n = sh.getLastRow() - 1; return n > 0 ? sh.getRange(2, 1, n, 6).getValues() : []; }
-function aiKbNoteList() {   // adminCall — 보충지식 전체 목록(메모 포함)
+function aiKbNoteList() { _requireAdmin();   // adminCall — 보충지식 전체 목록(메모 포함)
   return { ok: true, notes: _aiKbRows_().map(function (r) { return { id: String(r[0]), at: String(r[1]), target: String(r[2] || '전체'), text: String(r[3] || ''), active: String(r[4]) === 'Y', memo: String(r[5] || '') }; }) };
 }
-function aiKbNoteAdd(target, text, force, memo) {   // adminCall — 추가(핵심수치 1차 차단·재확인 시 force 강제·메모 선택)
+function aiKbNoteAdd(target, text, force, memo) { _requireAdmin();   // adminCall — 추가(핵심수치 1차 차단·재확인 시 force 강제·메모 선택)
   text = String(text || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 300);
   target = String(target || '전체').trim() || '전체';
   memo = String(memo || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 120);
@@ -156,12 +158,12 @@ function aiKbNoteAdd(target, text, force, memo) {   // adminCall — 추가(핵�
   _aiKbSheet_().appendRow(['K' + (new Date()).getTime().toString(36), fmtKST(new Date()), target, text, 'Y', memo]);
   return { ok: true };
 }
-function aiKbNoteSetActive(id, on) {   // adminCall — 켜기/끄기(즉시 무효화)
+function aiKbNoteSetActive(id, on) { _requireAdmin();   // adminCall — 켜기/끄기(즉시 무효화)
   var sh = _aiKbSheet_(), rows = _aiKbRows_();
   for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.getRange(i + 2, 5).setValue(on ? 'Y' : ''); return { ok: true }; } }
   return { ok: false, error: '항목을 찾을 수 없어요.' };
 }
-function aiKbNoteDelete(id) {   // adminCall — 삭제
+function aiKbNoteDelete(id) { _requireAdmin();   // adminCall — 삭제
   var sh = _aiKbSheet_(), rows = _aiKbRows_();
   for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.deleteRows(i + 2, 1); return { ok: true }; } }
   return { ok: false, error: '항목을 찾을 수 없어요.' };
@@ -180,7 +182,7 @@ function handleAiKbNotes(body) {
 //   삭제가 아니라 '해결시각' 기록 → 같은 질문이 그 이후 다시 막히면(새 발생) 자동으로 목록에 다시 뜸(놓침 방지).
 function _aiQResolveSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('AI_질문해결'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_질문해결'); sh.appendRow(['키', '질문', '해결시각']); } return sh; }
 function _resolvedMap_() { var sh = _aiQResolveSheet_(); var n = sh.getLastRow() - 1, m = {}; if (n > 0) { var v = sh.getRange(2, 1, n, 3).getValues(); for (var i = 0; i < v.length; i++) { var d = new Date(v[i][2]); m[String(v[i][0])] = isNaN(d.getTime()) ? 0 : d.getTime(); } } return m; }
-function aiQuestionResolve(q) {   // adminCall — 이 질문을 '해결'로 표시(목록에서 치움)
+function aiQuestionResolve(q) { _requireAdmin();   // adminCall — 이 질문을 '해결'로 표시(목록에서 치움)
   q = String(q || '').trim(); if (!q) return { ok: false, error: '질문이 비었어요.' };
   var key = q.toLowerCase().replace(/\s+/g, ''), sh = _aiQResolveSheet_(), n = sh.getLastRow() - 1;
   if (n > 0) { var ids = sh.getRange(2, 1, n, 1).getValues(); for (var i = 0; i < ids.length; i++) { if (String(ids[i][0]) === key) { sh.getRange(i + 2, 3).setValue(fmtKST(new Date())); return { ok: true, updated: true }; } } }
@@ -189,7 +191,8 @@ function aiQuestionResolve(q) {   // adminCall — 이 질문을 '해결'로 표
 
 // ⑦ 교육 후보 — 실제 고객 질문 로그('상담사질문로그') 최신순. 상담연결(Y)=AI가 못 푼 것 → 우선 교육 대상.
 //   질문은 이미 개인정보 마스킹되어 적재됨(_maskPII). 관리자가 보고 한 탭으로 교육으로 잇는 용도.
-function aiQuestionLog() {   // adminCall
+function aiQuestionLog() { _requireAdmin(); /* [B19_LOCK 2026-10-09] 관리 화면 껍데기 · 예약 실행은 aiQuestionLog_ · [GSR_SPLIT] */ return aiQuestionLog_(); }   // adminCall · 고객이 쓴 질문 원문 · 관리자만
+function aiQuestionLog_() {   // 안쪽 · 안전점검(예약 실행)이 부른다
   try {
     var sh = SpreadsheetApp.getActive().getSheetByName('상담사질문로그');
     if (!sh || sh.getLastRow() < 2) return { ok: true, items: [] };
@@ -213,7 +216,7 @@ function aiQuestionLog() {   // adminCall
 }
 
 // 📊 고객질문 종합 리포트 — 최근 days일. 막힘(AI가 못 풀어 연결)·애매(답했지만 자신 없음)·정상을 집계 + 접점별 + 자주 막힌/애매한 질문 TOP.
-function aiQuestionReport(days) {   // adminCall
+function aiQuestionReport(days) { _requireAdmin();   // adminCall
   try {
     days = Math.min(Math.max(Number(days) || 7, 1), 90);
     var base = { ok: true, days: days, total: 0, stuck: 0, vague: 0, normal: 0, bySurface: [], topStuck: [], topVague: [], kakaoClicks: 0 };
@@ -252,7 +255,7 @@ function aiQuestionReport(days) {   // adminCall
 // ============================ AI 테스트 이력 + 관리자 알림 ============================
 // ③ 테스트 결과 이력 — 매 실행 요약 저장, 직전 대비 비교용. 시트 'AI_테스트이력' [시각, 통과, 전체]
 function _aiTestHistSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('AI_테스트이력'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_테스트이력'); sh.appendRow(['시각', '통과', '전체']); } return sh; }
-function aiTestRunSave(pass, total) {   // adminCall — 이번 결과 저장 + 직전 결과 반환
+function aiTestRunSave(pass, total) { _requireAdmin();   // adminCall — 이번 결과 저장 + 직전 결과 반환
   var sh = _aiTestHistSheet_(), prev = null;
   if (sh.getLastRow() > 1) { var last = sh.getRange(sh.getLastRow(), 1, 1, 3).getValues()[0]; prev = { at: String(last[0]), pass: Number(last[1]) || 0, total: Number(last[2]) || 0 }; }
   sh.appendRow([fmtKST(new Date()), Number(pass) || 0, Number(total) || 0]);
@@ -260,8 +263,8 @@ function aiTestRunSave(pass, total) {   // adminCall — 이번 결과 저장 + 
   return { ok: true, prev: prev };
 }
 // ⑥ 월 예산 한도(원) — 인건비 탭에서 설정. ScriptProperties 저장.
-function aiBudgetGet() { return { ok: true, krw: Number(PropertiesService.getScriptProperties().getProperty('AI_MONTH_BUDGET_KRW') || 0) }; }
-function aiBudgetSet(krw) { PropertiesService.getScriptProperties().setProperty('AI_MONTH_BUDGET_KRW', String(Math.max(0, Math.round(Number(krw) || 0)))); return { ok: true }; }
+function aiBudgetGet() { _requireAdmin(); return { ok: true, krw: Number(PropertiesService.getScriptProperties().getProperty('AI_MONTH_BUDGET_KRW') || 0) }; }
+function aiBudgetSet(krw) { _requireAdmin(); PropertiesService.getScriptProperties().setProperty('AI_MONTH_BUDGET_KRW', String(Math.max(0, Math.round(Number(krw) || 0)))); return { ok: true }; }
 
 // ④ 관리자 알림 — [메일 전용 전환 · 2026-06-29] 문자비 0. 95_notify의 _nfAdminLineEmail로 메일 발송(운영자 개인메일 cc).
 //   이 메일에 폰 알람을 걸어두면 문자처럼 즉시 확인 가능. (구: ADMIN_PHONE SMS)
@@ -337,7 +340,7 @@ function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + 
      ★비용 가드: 하루 최대 5문항 × 접점 4 = 20콜(회귀셋과 같은 규모). 미해결 최신순. */
   var disagree = [];
   try {
-    var _cands = (typeof aiQuestionLog === 'function') ? (aiQuestionLog() || {}) : {};
+    var _cands = (typeof aiQuestionLog_ === 'function') ? (aiQuestionLog_() || {}) : {};
     var _list = (_cands.items || []).filter(function (it) { return it && it.q && (it.flag === '막힘' || it.flag === '애매'); }).slice(0, 5);
     for (var q0 = 0; q0 < _list.length; q0++) {
       var _q = String(_list[q0].q || '').slice(0, 120);
@@ -372,8 +375,8 @@ function aiDailySafetyCheck(silent) {   // 트리거(aiMorningReport·silent) + 
   if (!silent && (fails.length > 0 || regress)) { try { aiAlertAdmin('안전점검 ' + pass + '/' + reachable + (fails.length ? (' · 실패: ' + fails.join(', ')) : '') + (regress ? ' · 점수 하락' : '') + '. 확인해 주세요.'); } catch (e) {} }
   return { ok: true, pass: pass, total: reachable, fails: fails, regress: regress, note: note, at: today, disagree: disagree };   // [AUTO_DISAGREE] 답이 갈린 실제 고객 질문 — 아침 보고가 실어 나른다
 }
-function aiSafetyNow() { return aiDailySafetyCheck(); }   // adminCall — 지금 안전점검(서버측 실행)
-function aiSafetyHistory() {   // adminCall — 최근 안전점검 이력(최대 10건, 최신순)
+function aiSafetyNow() { _requireAdmin(); return aiDailySafetyCheck(); }   // adminCall — 지금 안전점검(서버측 실행)
+function aiSafetyHistory() { _requireAdmin();   // adminCall — 최근 안전점검 이력(최대 10건, 최신순)
   var sh = SpreadsheetApp.getActive().getSheetByName('AI_안전점검');
   if (!sh || sh.getLastRow() < 2) return { ok: true, rows: [] };
   var n = Math.min(sh.getLastRow() - 1, 10);
@@ -387,7 +390,7 @@ function aiDailyDigest(send) {
   var since = new Date(new Date().getTime() - 24 * 3600 * 1000);
   var cnt24 = function (name) { var sh = SpreadsheetApp.getActive().getSheetByName(name); if (!sh || sh.getLastRow() < 2) return 0; var v = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues(); var n = 0; for (var i = v.length - 1; i >= 0; i--) { var d = new Date(v[i][0]); if (isNaN(d.getTime())) continue; if (d >= since) n++; else break; } return n; };
   var q24 = cnt24('상담사질문로그'), h24 = cnt24('AI상담인계');
-  var cost = {}; try { cost = aiCostSummary24h(); } catch (e) {}
+  var cost = {}; try { cost = aiCostSummary24h_(); } catch (e) {}
   var dayT = Math.round((cost && cost.day && cost.day.total) || 0), monT = Math.round((cost && cost.month && cost.month.total) || 0);
   var budget = Number(PropertiesService.getScriptProperties().getProperty('AI_MONTH_BUDGET_KRW') || 0);
   var bstr = budget > 0 ? (' ' + Math.round(monT / budget * 100) + '%') : '';
@@ -397,7 +400,7 @@ function aiDailyDigest(send) {
   if (send) { try { aiAlertAdmin(txt); } catch (e) {} }
   return { ok: true, text: txt };
 }
-function aiDigestPreview() { return aiDailyDigest(false); }   // adminCall — 요약 미리보기(발송 안 함)
+function aiDigestPreview() { _requireAdmin(); return aiDailyDigest(false); }   // adminCall — 요약 미리보기(발송 안 함)
 
 // 🔴 매일 1회(트리거) — 아침 운영 보고를 메일 1통 + 문자 1통으로 통합 발송. 70_journey setupAllTriggers가 등록.
 function aiDaily() { try { aiMorningReport(); } catch (e) {} try { if (typeof purgeVoiceClones === 'function') purgeVoiceClones(); } catch (e) {} /* [VOICE_CLONE_0928] 예식 다음 날 AI 목소리 · 읽은 녹음 · 연습 소리 지우기(80_production) */ }
@@ -432,7 +435,7 @@ function aiMorningReport(preview) {
   var balStr = (bal == null) ? '확인 불가' : (won(bal) + '원' + (balLow ? (' · 임계 ' + won(thr) + '원 아래') : ''));
 
   // 2-1) 아침 브리핑(오늘 상담·처리할 일) — admin.gs morningBriefData 통합(구 '오늘 브리핑' 메일 대체)
-  var brief = null; try { if (typeof morningBriefData === 'function') brief = morningBriefData(); } catch (e) {}
+  var brief = null; try { if (typeof morningBriefData_ === 'function') brief = morningBriefData_(); } catch (e) {}
 
   // 3) 이메일(섹션 레이아웃 · 경고 항목은 붉은 톤). 오늘 할 일이 위, 운영 상태가 아래.
   var rows = [];
@@ -444,8 +447,8 @@ function aiMorningReport(preview) {
   // [ADM_AC4] 이번 달 사업현황 한 줄 — 집계는 admin.gs monthBusinessData(읽기 전용)가 하고 여기선 싣기만 한다.
   //   매출은 '확인'된 입금의 합(실입금) · 상담 예약금은 확인 날짜 기록이 없어 빠져 있다.
   try {
-    if (typeof monthBusinessData === 'function') {
-      var mb = monthBusinessData();
+    if (typeof monthBusinessData_ === 'function') {
+      var mb = monthBusinessData_();
       if (mb) rows.push(['이번 달 사업현황', '계약 ' + mb.contracts + '건 · 실입금 ' + won(mb.revenue) + '원 · 전달 ' + mb.delivered + '건 (상담 예약금 제외)', false]);
     }
   } catch (e) {}
@@ -454,7 +457,7 @@ function aiMorningReport(preview) {
   if (digest) rows.push(['최근 24시간 요약', digest, false]);
   // 접점별 24h 비용 1줄 + 예산 경보(월 초과·일 1.5만원 이상징후 — 어뷰징은 월 예산만으론 4일 뒤에야 보임 · 기획 v3 §8)
   try {
-    var costS = aiCostSummary24h() || {};
+    var costS = aiCostSummary24h_() || {};
     var dayT2 = Math.round((costS.day && costS.day.total) || 0), monT2 = Math.round((costS.month && costS.month.total) || 0);
     var byS = ((costS.day && costS.day.bySurface) || []).map(function (s) { return s.surface + ' ₩' + s.krw + '(' + s.calls + '콜)'; }).join(' · ');
     if (byS) rows.push(['접점별 24h 비용', byS, false]);
@@ -491,7 +494,7 @@ function aiMorningReport(preview) {
 
   return { ok: true, summary: summary };
 }
-function aiMorningPreview() { return aiMorningReport(true); }   // adminCall/수동 — 지금 보고 1통 발송(테스트 · 밤사이 카운터 소비 안 함)
+function aiMorningPreview() { _requireAdmin(); return aiMorningReport(true); }   // adminCall/수동 — 지금 보고 1통 발송(테스트 · 밤사이 카운터 소비 안 함)
 
 // ============================ 🎯 핵심정보 단일 진실원 (관리자 편집·이력·롤백 · API 라이브 주입) ============================
 //  가격·일정·정책 등 자주 바뀌는 핵심 사실을 코드(_kb.js) 대신 여기 한 곳에서 관리. API가 라이브로 읽어 "최신·최우선" 사실로 주입.
@@ -499,10 +502,10 @@ function aiMorningPreview() { return aiMorningReport(true); }   // adminCall/수
 function _factsSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('핵심정보'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('핵심정보'); sh.appendRow(['키', '값', '설명', '수정일', '수정자']); } return sh; }
 function _factsHistSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('핵심정보이력'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('핵심정보이력'); sh.appendRow(['시각', '키', '이전값', '새값', '수정자']); } return sh; }
 function _factsRows_() { var sh = _factsSheet_(); var n = sh.getLastRow() - 1; return n > 0 ? sh.getRange(2, 1, n, 5).getValues() : []; }
-function aiFactsList() {   // adminCall
+function aiFactsList() { _requireAdmin();   // adminCall
   return { ok: true, facts: _factsRows_().map(function (r) { return { key: String(r[0]), value: String(r[1]), desc: String(r[2] || ''), at: String(r[3] || ''), who: String(r[4] || '') }; }) };
 }
-function aiFactSet(key, value, desc) {   // adminCall — 추가/수정(변경 시 이력 적재)
+function aiFactSet(key, value, desc) { _requireAdmin();   // adminCall — 추가/수정(변경 시 이력 적재)
   key = String(key || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 40);
   value = String(value == null ? '' : value).replace(/[\r\n\t]/g, ' ').trim().slice(0, 300);
   desc = String(desc || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 120);
@@ -523,18 +526,18 @@ function aiFactSet(key, value, desc) {   // adminCall — 추가/수정(변경 �
   sh.appendRow([key, value, desc, fmtKST(new Date()), who]);
   return { ok: true, created: true };
 }
-function aiFactDelete(key) {   // adminCall
+function aiFactDelete(key) { _requireAdmin();   // adminCall
   key = String(key || '').trim(); var sh = _factsSheet_(), rows = _factsRows_();
   for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === key) { _factsHistSheet_().appendRow([fmtKST(new Date()), key, String(rows[i][1]), '(삭제)', '관리자']); sh.deleteRows(i + 2, 1); return { ok: true }; } }
   return { ok: false, error: '항목을 찾을 수 없어요.' };
 }
-function aiFactHistory(key) {   // adminCall — 최근 이력(키 지정 시 해당 키만) 최대 20건 최신순
+function aiFactHistory(key) { _requireAdmin();   // adminCall — 최근 이력(키 지정 시 해당 키만) 최대 20건 최신순
   key = String(key || '').trim(); var sh = _factsHistSheet_(); if (sh.getLastRow() < 2) return { ok: true, history: [] };
   var v = sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues(), out = [];
   for (var i = v.length - 1; i >= 0; i--) { if (key && String(v[i][1]) !== key) continue; out.push({ at: String(v[i][0]), key: String(v[i][1]), prev: String(v[i][2]), next: String(v[i][3]), who: String(v[i][4]) }); if (out.length >= 20) break; }
   return { ok: true, history: out };
 }
-function aiFactRollback(key) {   // adminCall — 해당 키를 직전 값으로 되돌림
+function aiFactRollback(key) { _requireAdmin();   // adminCall — 해당 키를 직전 값으로 되돌림
   key = String(key || '').trim(); var hist = aiFactHistory(key).history || [];
   if (!hist.length) return { ok: false, error: '되돌릴 이력이 없어요.' };
   if (hist[0].prev === '') return { ok: false, error: '직전 값이 없어요(최초 생성 건).' };
@@ -553,8 +556,8 @@ function handleAiFacts(body) {   // doPost action='aiFacts' — 챗봇용 활성
 //  기대유형: 금지(답에 기대값 정규식이 있으면 실패) · 필수(없으면 실패) · escalate(escalate=true 아니면 실패) · ok(ok=true 아니면 실패)
 function _regSheet_() { var sh = SpreadsheetApp.getActive().getSheetByName('AI_회귀셋'); if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('AI_회귀셋'); sh.appendRow(['id', '접점', '질문', '기대유형', '기대값', '활성', '추가일']); } return sh; }
 function _regRows_() { var sh = _regSheet_(); var n = sh.getLastRow() - 1; return n > 0 ? sh.getRange(2, 1, n, 7).getValues() : []; }
-function aiRegList() { return { ok: true, cases: _regRows_().map(function (r) { return { id: String(r[0]), surface: String(r[1]), q: String(r[2]), type: String(r[3]), val: String(r[4] || ''), active: String(r[5]) === 'Y', at: String(r[6] || '') }; }) }; }
-function aiRegAdd(surface, q, type, val) {   // adminCall
+function aiRegList() { _requireAdmin(); return { ok: true, cases: _regRows_().map(function (r) { return { id: String(r[0]), surface: String(r[1]), q: String(r[2]), type: String(r[3]), val: String(r[4] || ''), active: String(r[5]) === 'Y', at: String(r[6] || '') }; }) }; }
+function aiRegAdd(surface, q, type, val) { _requireAdmin();   // adminCall
   surface = String(surface || '메인').trim(); q = String(q || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 200);
   type = String(type || '필수').trim(); val = String(val || '').replace(/[\r\n\t]/g, ' ').trim().slice(0, 120);
   if (!q) return { ok: false, error: '질문이 비었어요.' };
@@ -564,15 +567,15 @@ function aiRegAdd(surface, q, type, val) {   // adminCall
   _regSheet_().appendRow(['R' + (new Date()).getTime().toString(36), surface, q, type, val, 'Y', fmtKST(new Date())]);
   return { ok: true };
 }
-function aiRegSetActive(id, on) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.getRange(i + 2, 6).setValue(on ? 'Y' : ''); return { ok: true }; } } return { ok: false, error: '없음' }; }
-function aiRegDelete(id) { var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.deleteRows(i + 2, 1); return { ok: true }; } } return { ok: false, error: '없음' }; }
+function aiRegSetActive(id, on) { _requireAdmin(); var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.getRange(i + 2, 6).setValue(on ? 'Y' : ''); return { ok: true }; } } return { ok: false, error: '없음' }; }
+function aiRegDelete(id) { _requireAdmin(); var sh = _regSheet_(), rows = _regRows_(); for (var i = 0; i < rows.length; i++) { if (String(rows[i][0]) === String(id)) { sh.deleteRows(i + 2, 1); return { ok: true }; } } return { ok: false, error: '없음' }; }
 /* ★★[KB_DRAFT 2026-08-17 사용자 지시 "원클릭 버튼 누르면 … «이렇게 대답하면 맞을까요?»"]
    교육 초안 한 건 — 관리자 «가르치기» 탭의 원클릭이 부른다(adminCall).
    먼저 전 직원에게 같은 질문을 던져 «갈린 답»을 모으고, 그것과 함께 초안 생성기에 넘긴다.
    초안 생성기는 KB·핵심정보에 적힌 것만 근거로 쓰고, 없으면 grounded:false 로 돌려준다
    (api/kb-draft.js) — 사장 화면은 그때 초안을 아예 보여주지 않는다.
    ★반환을 «항상 초안이 있는» 모양으로 바꾸지 말 것. 근거 없음을 감추면 거짓이 교육으로 굳는다. */
-function aiDraftAnswer(question) {
+function aiDraftAnswer(question) { _requireAdmin();
   var q = String(question || '').trim().slice(0, 300);
   if (!q) return { ok: false, error: '질문이 비었습니다.' };
   var answers = [];

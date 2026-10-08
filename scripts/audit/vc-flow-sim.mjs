@@ -10,7 +10,7 @@ const src = fs.readFileSync(new URL('../../automation/platform/80_production.gs'
 const grab = (name) => { const i = src.indexOf('function ' + name + '('); if (i < 0) return '';
   let d = 0; for (let k = src.indexOf('{', i); k < src.length; k++) { if (src[k] === '{') d++; else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); } } return ''; };
 const line = (re) => (src.match(re) || [''])[0];
-const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
+const FN = ['_vcCacheGet', '_vcTtsReq', '_voiceStudio', '_vcSpent', '_vcMode', '_vcCfg_', '_vcSt', '_vcPut', '_vcM3', '_vcSave', '_vcFetch', '_vcErr', '_vcWhy', '_vcGate', 'vcLastErrors', '_vcAlert', '_vcCharLog', '_vcTts', '_vcAiFolder', '_vcHash', '_vcCached', '_vcTempo', '_vcPause', '_vcKoNum', '_vcNewPhrase', '_vcDelVoice', '_vcJobPub', '_vcJobStart', '_vcEnrollAfter', 'handleVoiceClone', '_vcChunks', '_vcPub', '_vcPurgeNow', 'purgeVoiceClones', '_vcSlots'];
 const code = [line(/var RF_KEYS[^\n]*/), line(/var VC_BASE[^\n]*/), line(/var VC_DOWN[^\n]*/), line(/var VC_COLOR[^\n]*/)].concat(FN.map(grab)).join('\n');
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const miss = FN.filter((f) => !grab(f)); if (miss.length) { console.log('FAIL 원문 조각을 못 떼었다 — ' + miss.join(', ')); process.exit(1); }
@@ -39,6 +39,7 @@ function world(o) {
       computeDigest: (a, s) => Array.from(Buffer.from(s)), base64EncodeWebSafe: (b) => Buffer.from(b).toString('base64url'), DigestAlgorithm: {}, Charset: {} },
     resolveSession: (t) => (t === 'T' ? { ok: true, row: { get: () => 'ME0001' } } : { ok: false, reason: 'x' }), _sessionMsg: () => '다시 로그인',
     fmtKST: () => today + ' 10:00', _rfFolderFor: () => folder('ME0001'), findCustomerByCode: () => ({ get: (h) => (h === '예식일' ? (o.wed || '2026-10-10') : (o.stage || '예식준비')) }),
+    _requireAdmin: () => ({ ok: true }),   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것
     _ymdOf: (v) => v, _nfAdminLineEmail: (t) => mails.push(t), handleAiCostLog: () => {}, Logger: { log() {} }, JSON, Math, String, Date, Array, Buffer, encodeURIComponent, Object,
   };
   vm.createContext(sb); vm.runInContext(code, sb);

@@ -30,7 +30,8 @@ sb.Logger = { log: (s) => { W.logs.push(String(s)); } };
 const { errors } = loadGas(sb);
 if (errors.length) { console.log('━━ notify-e2e — GAS 로드 실패 · 재지 못했습니다: ' + errors[0].file + ' ' + errors[0].message); process.exit(2); }
 const G = sb;
-for (const fn of ['notifyKakao', '_kakaoSend', '_nfTplSilent', 'notifySetupCheck', 'notifyFailYesterday', 'importKakaoTemplates', 'setKakaoTemplates', '_nfCustomerMsg']) {
+G._AUTHED = true;   // [B19_LOCK 2026-10-09] 편집기 도구는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 돌리는 것(importKakaoTemplates · setKakaoTemplates · notifyTest*)
+for (const fn of ['notifyKakao', '_kakaoSend_', '_nfTplSilent', 'notifySetupCheck', 'notifyFailYesterday', 'importKakaoTemplates', 'setKakaoTemplates', '_nfCustomerMsg']) {
   if (typeof G[fn] !== 'function') { console.log(`━━ notify-e2e — ${fn} 이 없습니다 · 재지 못했습니다`); process.exit(2); }
 }
 if (!G.NOTIFY_EVENTS) { console.log('━━ notify-e2e — NOTIFY_EVENTS 가 없습니다 · 재지 못했습니다'); process.exit(2); }

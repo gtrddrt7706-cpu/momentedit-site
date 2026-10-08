@@ -56,6 +56,7 @@ function runScenario(header) {
 
   const { errors } = loadGas(sb);
   if (errors.length) throw new Error('LOAD FAIL ' + errors[0].file + ' — ' + errors[0].message);
+  sb._AUTHED = true;   // [B19_LOCK 2026-10-09] 관리 · 편집기 함수는 _requireAdmin 으로 잠겼다 — 이 흉내는 소유자가 편집기에서 setupCustomers 를 돌리는 것
 
   // 진단이 말하는 결론
   const diag = sb.checkCustomerHeaderOrder();

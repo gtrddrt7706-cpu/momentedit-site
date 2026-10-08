@@ -272,7 +272,7 @@ function _prodSizeError(d, opts) { return _prodPack(d, opts).err; }
 // [진단 · 읽기 전용] 배포 전 점검 — 구셀 세대 행 중 '신 컬럼 캡을 넘길 트랙'이 있는지 미리 본다.
 //   이전(마이그레이션) 자체는 캡을 안 보므로 막히지 않지만, 이전 후 그 트랙을 '더 수정'하려 하면 거부된다.
 //   그 고객이 누구인지 배포 전에 알고 들어가려고 만든 목록(아무것도 쓰지 않음).
-function checkProdCapOverflow() {
+function checkProdCapOverflow() { _requireAdmin();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
   if (last < P.DATA_START_ROW) return '대상 행 없음';
@@ -308,7 +308,7 @@ function checkProdCapOverflow() {
 
 // [1회 실행 · 멱등] Customers에 제작 트랙 컬럼 8개 추가. addGuideTokenColumn과 같은 패턴 — ★반드시 끝에 append(열 인덱스 밀림 금지).
 //   PR-B 배포 후 1회 실행. 안 하면 신 컬럼이 없어 저장이 구셀에만 남는데(읽기·쓰기 모두 폴백 동작) 기능은 계속 정상 — 조용한 미완 상태.
-function addProdTrackColumns() {
+function addProdTrackColumns() { _requireAdmin();
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
   var added = [];
@@ -1069,7 +1069,7 @@ function handleGuideView(body) {
   };
 }
 // [1회 실행] Customers에 안내공유토큰 열 추가(멱등). setupCustomers 재실행 없이 안전하게 열만 append.
-function addGuideTokenColumn() {
+function addGuideTokenColumn() { _requireAdmin();
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
   if (headers.indexOf('안내공유토큰') !== -1) return '안내공유토큰 열 이미 있음';
@@ -1164,7 +1164,7 @@ function _voiceUpLive(code) {
 }
 function _voicePub(code) {
   // [VOICE_UP_FROM] 화면으로 · [RF_STUDIO_UP] sup = 스튜디오가 대신 올린 파일(자리 → {id,name,at}) · [VOICE_KEEP] gone = 파일을 지운 날 · aiGone = AI 목소리 · 읽은 녹음을 지운 날(AI 를 만든 예식만)
-  var c = _vcCfg(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key), sup: _rfStudioUps(code), gone: PropertiesService.getScriptProperties().getProperty('RFGONE_' + code) || '', aiGone: (function () { var v = _vcSt(code); return v.purged && ((v.groom && v.groom.made) || (v.bride && v.bride.made)) ? String(v.purged).slice(0, 10) : ''; })(), keepDays: +(PropertiesService.getScriptProperties().getProperty('RITUAL_FILE_PURGE_DAYS') || 30) || 30 };
+  var c = _vcCfg_(code); return { up: _voiceUpLive(code), studio: _voiceStudio(code), clone: !!(c.clone && c.key), read: !!(c.tts && c.key), sup: _rfStudioUps(code), gone: PropertiesService.getScriptProperties().getProperty('RFGONE_' + code) || '', aiGone: (function () { var v = _vcSt(code); return v.purged && ((v.groom && v.groom.made) || (v.bride && v.bride.made)) ? String(v.purged).slice(0, 10) : ''; })(), keepDays: +(PropertiesService.getScriptProperties().getProperty('RITUAL_FILE_PURGE_DAYS') || 30) || 30 };
 }
 var RF_ROOT_FOLDER = 'ME_예식준비파일';
 var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사', pv: '식전 영상 소개' };   // [PV_INTRO 2026-10-02] pv = 두 분이 쓴 식전 영상 소개글(AI 두 분 목소리)
@@ -1304,7 +1304,7 @@ function adminRitualFiles(code) {
   var vc = null; try { vc = _vcSlots(); if (vc) { var vst = _vcSt(code); vc.me = { groom: _vcPub(vst.groom, code), bride: _vcPub(vst.bride, code) };
     /* ★[VC_ON_CODE 2026-10-08 목소리 1라운드 86] 칸 정보는 모든 예식이 같이 쓰는 10분 캐시라 on 도 «예식 없이» 잰 값이었다 — 스위치 studio(시험 예식만)면 시험 예식에서도 «스위치 꺼짐».
        on 은 이 예식 기준으로 다시 단다 */
-    vc.on = !!_vcCfg(code).clone; } } catch (e) { vc = null; }   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식의 AI 목소리(키가 없으면 null · 화면에 안 보인다)
+    vc.on = !!_vcCfg_(code).clone; } } catch (e) { vc = null; }   // [VC_SLOTS] 쓰는 칸 / 전체 칸 · 이 예식의 AI 목소리(키가 없으면 null · 화면에 안 보인다)
   return { ok: true, code: code, wedding: wy, lateAfter: late, files: out, okMap: okMap, gone: props.getProperty('RFGONE_' + code) || '', vc: vc, sup: _rfStudioUps(code) };   // [RF_CON_NOOLD] 스튜디오가 대신 올린 기록 — 콘솔 · 관리 화면이 빈 줄에 쓰는 유일한 대체 파일
 }
 /* ★[RF_STUDIO_UP 2026-09-28 코워크 0928 6-7] 스튜디오 대신 올리기 — 카톡 · 메일로 파일을 보낸 고객을 위해 관리 화면이 줄마다 올린다.
@@ -1357,7 +1357,7 @@ function purgeRitualFiles(dry) {
   Logger.log('purgeRitualFiles' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
   return done;
 }
-function previewRitualFiles() { return purgeRitualFiles(true); }
+function previewRitualFiles() { _requireAdmin(); return purgeRitualFiles(true); }
 
 /* ★★[VOICE_CLONE 2026-09-27 코워크 «두 분 목소리» 5장 · 4-2 · 사장님 «3단계는 voiceClone 스위치를 꺼 둔 채 · 타입캐스트 답이 오면 보완»]
    한 통로(doPost action='voiceClone' · op) — consent(각자 동의) · enroll(그 자리 녹음으로 목소리 만들기) · make(그 목소리로 한 줄) · delete(지우기) · status · practice(연습 읽기 · 4-2)
@@ -1381,7 +1381,7 @@ function _vcSpent(st) { return (st.practice || 0) + ((st.make && st.make.chars) 
    · 예식 다음 날: 업체 목소리 · 읽은 녹음 · 연습 소리 지우기(purgeVoiceClones · aiDaily 가 매일 부른다) · 30일: 안내 소리 파일(purgeRitualFiles · 종전)
    · 글 · 소리는 로그 · 시트에 남기지 않는다 — 쓴 글자 수만 AI 비용 기록(접점 «목소리»)에 */
 function _vcMode(p, name, legacy) { var m = String(p.getProperty(name) || '').trim().toLowerCase(); if (m === 'on' || m === 'studio' || m === 'off') return m; return p.getProperty(legacy) === 'Y' ? 'on' : 'off'; }   // [VOICE_UP_FROM] off · studio · on (옛 'Y' 는 on)
-function _vcCfg(code) { /* [VOICE_UP_FROM] off · studio · on — studio 는 VOICE_STUDIO_CODES 의 시험 예식에서만 */ var p = PropertiesService.getScriptProperties(), st = _voiceStudio(code), cm = _vcMode(p, 'VOICE_CLONE', 'VOICE_CLONE_ENABLED'), tm = _vcMode(p, 'PRACTICE_READ', 'PRACTICE_TTS_ENABLED');
+function _vcCfg_(code) { /* [B19_LOCK 2026-10-09] 열쇠가 든 설정 · 서버 코드 안에서만(이름 끝 _) */ /* [VOICE_UP_FROM] off · studio · on — studio 는 VOICE_STUDIO_CODES 의 시험 예식에서만 */ var p = PropertiesService.getScriptProperties(), st = _voiceStudio(code), cm = _vcMode(p, 'VOICE_CLONE', 'VOICE_CLONE_ENABLED'), tm = _vcMode(p, 'PRACTICE_READ', 'PRACTICE_TTS_ENABLED');
   return { clone: cm === 'on' || (cm === 'studio' && st), tts: tm === 'on' || (tm === 'studio' && st), mode: { clone: cm, read: tm }, key: p.getProperty('TYPECAST_API_KEY') || '', lufs: +(p.getProperty('VOICE_TARGET_LUFS') || -16) || -16,
     def: { m: p.getProperty('TYPECAST_VOICE_M') || p.getProperty('TYPECAST_VOICE_GROOM') || '', f: p.getProperty('TYPECAST_VOICE_F') || p.getProperty('TYPECAST_VOICE_BRIDE') || '', om: p.getProperty('TYPECAST_VOICE_OM') || p.getProperty('TYPECAST_VOICE_FAMILY') || '', of: p.getProperty('TYPECAST_VOICE_OF') || p.getProperty('TYPECAST_VOICE_FAMILY') || '' } }; }   // [VOICE_CLONE_0928] 연습 기본 목소리 넷(남 · 여 · 윗세대 남 · 윗세대 여 · 7-2)
 function _vcSt(code) { var v = PropertiesService.getScriptProperties().getProperty('VC_' + code); try { return JSON.parse(v || '{}') || {}; } catch (e) { return {}; } }
@@ -1436,7 +1436,7 @@ function _vcWhy(x) {   // [VC_WHY] 업체 오류 글 — JSON 이면 detail · m
   var t = ''; try { t = String(x.r.getContentText() || ''); } catch (e) { return ''; }
   try { var j = JSON.parse(t), m = j.detail || j.message || j.error || j.msg || ''; if (m) return (typeof m === 'string' ? m : JSON.stringify(m)).slice(0, 200); } catch (e) {}
   return t.slice(0, 200); }
-function vcLastErrors() {   // [VC_WHY] GAS 편집기에서 80_production 파일을 열고 → vcLastErrors 실행 · 예식마다 마지막 실패 한 건을 로그로(발송 · 변경 없음)
+function vcLastErrors() { _requireAdmin();   // [VC_WHY] GAS 편집기에서 80_production 파일을 열고 → vcLastErrors 실행 · 예식마다 마지막 실패 한 건을 로그로(발송 · 변경 없음)
   var all = PropertiesService.getScriptProperties().getProperties(), out = [];
   Object.keys(all).forEach(function (k) { if (!/^VCERR_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(6) + ' · ' + (w.at || '') + ' · ' + (w.op || '') + ' · ' + (w.http ? 'HTTP ' + w.http : /^문 앞/.test(w.msg || '') ? '설정' : '연결 실패') + ' · ' + (w.msg || '(업체 글 없음)')); });   // [VC_GATE_WHY] 설정으로 막힌 것은 HTTP 가 없다
   Object.keys(all).forEach(function (k) { if (!/^VCSLOW_/.test(k)) return; var w = {}; try { w = JSON.parse(all[k]) || {}; } catch (e) {} out.push(k.slice(7) + ' · ' + (w.at || '') + ' · 느린 만들기 ' + (w.sec || '?') + '초 · ' + (w.lines || '?') + '줄(새로 ' + (w.fresh || 0) + ')'); });   // [VC_PAR] 화면이 먼저 포기했을 수 있는 것
@@ -1540,7 +1540,7 @@ function handleVoiceClone(body) {
   body = body || {};   // [VOICE_CLONE_0928]
   var s = resolveSession(String(body.token || '').trim()); if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim(); if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
-  var cfg = _vcCfg(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
+  var cfg = _vcCfg_(code), op = String(body.op || ''), who = String(body.who || ''), st = _vcSt(code), WHO = { groom: '신랑', bride: '신부' };
   var st0 = JSON.parse(JSON.stringify(st)), save = function () { _vcSave(code, st0, st); st0 = JSON.parse(JSON.stringify(st)); };   // [VC_STATE_MERGE] 바꾼 칸만 얹는다
   var down = { ok: false, down: true, kind: 'gate', ecode: 'V3', error: VC_DOWN };   // [ERR_CODE_GAS] 읽을 목소리 없음(스튜디오 기본 목소리 비어 있음) = 설정(3)
   if (op === 'status') return { ok: true, on: cfg.clone && !!cfg.key, tts: cfg.tts && !!cfg.key, jobs: 1, groom: _vcPub(st.groom, code), bride: _vcPub(st.bride, code), total: (st.make && st.make.total) || 0, left: Math.max(0, VC_LIM.budget - _vcSpent(st)) };   // [VC_ENROLL_JOB] jobs: 1 = 작업표를 싣는 서버(화면이 «끊긴 뒤 끝까지 기다릴지»를 이것으로 가른다)   // [VC_BUDGET] per(줄마다 남은 번)는 보내지 않는다 — 화면에 «N번 남음»이 안 뜬다
@@ -1631,7 +1631,7 @@ function _vcPub(p, code) { p = p || {}; var sk = !!code && _voiceStudio(code);  
 /* [VOICE_CLONE 5-5] 예식 뒤 30일 — purgeRitualFiles 가 코드마다 부른다(다음 날 지우기가 못 돈 것의 마지막 그물) */
 function _vcPurge(code) { return _vcPurgeNow(code); }
 /* ★[VOICE_CLONE_0928 8-6] 지금 지우기 — 업체 목소리(둘) · 읽은 녹음 · 연습 소리. 안내 소리(«AI 소리»)는 30일까지 둔다(예식 뒤 내려받기) */
-function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg(code), n = 0, b0 = JSON.parse(JSON.stringify(st));   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다
+function _vcPurgeNow(code) { var st = _vcSt(code), cfg = _vcCfg_(code), n = 0, b0 = JSON.parse(JSON.stringify(st));   // [VC_PURGE_MERGE] 업체 지우기 사이 다른 요청이 쓴 칸은 살린다
   ['groom', 'bride'].forEach(function (w) { var p = st[w]; if (!p) return; if (p.voiceId) { _vcDelVoice(cfg, st, p.voiceId); p.voiceId = ''; p.deleted = fmtKST(new Date()); n++; }
     if (p.read && p.read.id) { try { DriveApp.getFileById(p.read.id).setTrashed(true); } catch (e) {} p.read = { gone: fmtKST(new Date()) }; } });
   try { var it = _vcAiFolder(code).getFiles(); while (it.hasNext()) { var f = it.next(); if (/^연습 소리/.test(f.getName())) f.setTrashed(true); } } catch (e) {}
@@ -1643,7 +1643,7 @@ function purgeVoiceClones(dry) {
   if (!dry) { try { _rfMailFlush(); } catch (e) {} }   // [RF_MAIL_THROTTLE] 매일 — 30분 묶음에 남은 파일 알림
   var props = PropertiesService.getScriptProperties(), all = props.getProperties(), today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd'), done = [];
   Object.keys(all).forEach(function (k) { if (!/^VC_[A-Za-z0-9-]+$/.test(k)) return; var code = k.slice(3), st; try { st = JSON.parse(all[k] || '{}') || {}; } catch (e) { return; }
-    var cfg = _vcCfg(code);
+    var cfg = _vcCfg_(code);
     if (st.retry && st.retry.length && !dry) { var b0 = JSON.parse(JSON.stringify(st)); st.retry.slice().forEach(function (v) { _vcDelVoice(cfg, st, v); }); _vcSave(code, b0, st); st = _vcSt(code); }   // ★[VC_PURGE_MERGE 2026-10-08 목소리 1라운드 79] 시작 때 읽은 옛 상태로 덮지 않는다 — 그 사이 만든 목소리를 지웠다
     var live = ['groom', 'bride'].some(function (w) { return st[w] && (st[w].voiceId || (st[w].read && st[w].read.id)); });
     if (!live) return;
@@ -1655,13 +1655,13 @@ function purgeVoiceClones(dry) {
   if (!dry) { try { CacheService.getScriptCache().remove('VC_SLOTS'); var sl = _vcSlots(); if (sl && sl.used != null && sl.used > VC_LIM.slotWarn) _vcAlert('slots', 'AI 목소리 칸이 ' + sl.used + ' / ' + (sl.total == null ? 50 : sl.total) + ' 이에요 · 정리하거나 요금제를 확인해 주세요'); } catch (e) {} }   // [VC_SLOTS] 칸 45 넘으면 관리자 메일
   Logger.log('purgeVoiceClones' + (dry ? '(미리보기)' : '') + ': ' + (done.length ? done.join(' / ') : '대상 없음'));
   return done; }
-function previewVoiceClones() { return purgeVoiceClones(true); }
+function previewVoiceClones() { _requireAdmin(); return purgeVoiceClones(true); }
 /* ★VC_FOLD_0928 — 아래 둘(_vcSlots · vcSelfTest)은 다른 세션이 cowork-docs-auto-deploy-f41sfk 가지에 만들어 «설계 확인까지 보류»한 122ace20 을 0928 확정에 맞춰 들인 것 — 201 응답 · _vcTts 바이트 */
 /* ★[VC_SLOTS 2026-09-28 지시문 5-7 «관리 화면에 쓰는 칸 / 전체 칸»] 요금제의 목소리 칸 — 타입캐스트가 알려 주는 값을 그대로 쓴다.
    GET /v1/users/me/subscription(plan · credits · limits.custom_voice_slot) · GET /v1/custom-voices(만든 목소리 목록) — SDK(typecast-go client.go · models.go) 원본으로 확인.
    ★열 때마다 부르지 않게 10분 캐시 · 키가 없으면 null(관리 화면에 줄이 안 생긴다) · 실패는 err 에 HTTP 코드. */
 function _vcSlots() {
-  var cfg = _vcCfg(); if (!cfg.key) return null;   // [VC_SLOTS]
+  var cfg = _vcCfg_(); if (!cfg.key) return null;   // [VC_SLOTS]
   var c = CacheService.getScriptCache(), v = c.get('VC_SLOTS'); if (v) { try { return JSON.parse(v); } catch (e) {} }
   var o = { on: cfg.clone, plan: '', total: null, used: null, credits: null, err: '' };
   try { var s = _vcFetch(cfg, 'get', '/v1/users/me/subscription');
@@ -1679,8 +1679,8 @@ function _vcSlots() {
    ③ 인스턴트 복제  ④ 그 목소리로 한 문장 → 같은 폴더에 mp3 로 저장(귀로 들어 보기)  ⑤ 만든 목소리 바로 지우기  ⑥ 남은 칸
    ★[VC_OURS_ONLY] 고객 폴더(ME_예식준비파일) 안의 파일은 받지 않는다 — 시험에 고객 목소리를 쓰지 않는다. */
 var VC_TEST_FOLDER = 'ME_목소리시험', VC_TEST_LINE = '안녕하세요. 모먼트에딧 목소리 시험입니다. 오늘 와 주셔서 고맙습니다.';
-function vcSelfTest() {
-  var cfg = _vcCfg(), L = [], vid = '';   // [VC_SELFTEST]
+function vcSelfTest() { _requireAdmin();
+  var cfg = _vcCfg_(), L = [], vid = '';   // [VC_SELFTEST]
   function log(t) { L.push(t); Logger.log(t); }
   function body(x) { try { return String(x.r.getContentText() || '').slice(0, 300); } catch (e) { return ''; } }
   if (!cfg.key) { log('① 키 없음 — 프로젝트 설정(톱니) → 스크립트 속성 → TYPECAST_API_KEY 를 넣고 다시 실행해 주세요'); return L.join('\n'); }
@@ -1720,7 +1720,7 @@ function vcSelfTest() {
 function adminVoiceUsage(code) {
   _requireAdmin('');   // [VOICE_CLONE_0928]
   var p = PropertiesService.getScriptProperties(), m = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM'), sl = null; try { sl = _vcSlots(); } catch (e) {}
-  var out = { ok: true, chars: +p.getProperty('VCCHARS_' + m) || 0, charsCap: 200000, slots: sl ? sl.used : null, slotsCap: sl && sl.total != null ? sl.total : 50, plan: sl ? sl.plan : '', mode: _vcCfg(code || '').mode };
+  var out = { ok: true, chars: +p.getProperty('VCCHARS_' + m) || 0, charsCap: 200000, slots: sl ? sl.used : null, slotsCap: sl && sl.total != null ? sl.total : 50, plan: sl ? sl.plan : '', mode: _vcCfg_(code || '').mode };
   if (code) { var st = _vcSt(String(code)); out.who = {}; ['groom', 'bride'].forEach(function (w) { var q = st[w] || {}; out.who[w] = { consent: q.consent || null, ready: !!q.voiceId, made: q.made || '', tries: q.tries || 0, read: q.read && q.read.id ? { phrase: q.read.phrase || '', at: q.read.at || '' } : null, deleted: q.deleted || '' }; });
     out.make = st.make || { total: 0, per: {} }; out.practice = st.practice || 0; out.retry = (st.retry || []).length; out.purged = st.purged || '';
     try { out.lastErr = JSON.parse(p.getProperty('VCERR_' + String(code)) || 'null'); } catch (e) { out.lastErr = null; } }   // [VC_WHY] 마지막 실패 한 건
@@ -1794,7 +1794,7 @@ function handleGuestPhoto(body) {
 // [1회 실행] Customers 에 하객사진 열 4개 추가(멱등). ★'새 버전' 배포 _전에_ 실행할 것.
 //   ★폴더ID를 **마지막**에 넣는다 — handleGuestPhoto 가 그 열 하나로 '전부 있음'을 판정하므로,
 //     중간에 실패해도 '열은 반쪽인데 저장은 받는' 상태가 생기지 않는다(addProdTrackColumns 와 같은 규칙).
-function addGuestPhotoColumns() {
+function addGuestPhotoColumns() { _requireAdmin();
   var sheet = getCustomersSheet(), added = [];
   ['하객사진수', '하객사진MB', '하객사진최근', '하객사진폴더ID'].forEach(function (h) {
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (v) { return String(v).trim(); });
@@ -1808,7 +1808,7 @@ function addGuestPhotoColumns() {
 // [정리] 예식 후 GP_KEEP_DAYS(180일) 지난 하객사진 폴더를 휴지통으로 — 개인정보 보관 최소화.
 //   ★기본 드라이런(로그만) · 실제 삭제는 purgeGuestPhotos(false). 결과물 인도 6개월과 같은 기준이라
 //     부부가 받아 갈 시간을 충분히 준 뒤에만 지운다.
-function purgeGuestPhotos(dryRun) {
+function purgeGuestPhotos(dryRun) { _requireAdmin();
   if (dryRun !== false) dryRun = true;
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   if (!colOf['하객사진폴더ID']) return '하객사진 열 없음(할 일 없음)';
@@ -1830,7 +1830,7 @@ function purgeGuestPhotos(dryRun) {
   var msg = (dryRun ? '[드라이런] ' : '[실행] ') + '정리 대상 ' + done.length + '건' + (done.length ? ' - ' + done.join(', ') : '');
   Logger.log(msg); return msg;
 }
-function purgeGuestPhotosApply() { return purgeGuestPhotos(false); }   // GAS 편집기는 인자를 못 넘긴다 - 실행용 래퍼
+function purgeGuestPhotosApply() { _requireAdmin(); return purgeGuestPhotos(false); }   // GAS 편집기는 인자를 못 넘긴다 - 실행용 래퍼
 
 // ==============================================================================
 // ★★[SNAP_PICK_V2 2026-09-26 사장님 회의 · «고르는 스냅 기획»] 서버 — 저장 형식 · 사진 올리기 · 마감 · 디렉터 확인 · 촬영 브리프
@@ -2285,7 +2285,7 @@ function purgeSnapRefs(dryRun) {
   var msg = (dryRun ? '[드라이런] ' : '[실행] ') + '스냅 기획 파기 대상 ' + done.length + '건' + (done.length ? ' - ' + done.join(', ') : '');
   Logger.log(msg); return msg;
 }
-function previewSnapRefs() { return purgeSnapRefs(true); }   // 지우지 않고 대상만 로그(GAS 편집기 드롭다운용)
+function previewSnapRefs() { _requireAdmin(); return purgeSnapRefs(true); }   // 지우지 않고 대상만 로그(GAS 편집기 드롭다운용)
 
 // [03] 마이페이지 제작 화면 상태 — 입금완료/제작중일 때. 기초정보(없으면 Customers 프리필) + 3트랙 상태.
 //   내부 draft 원본은 노출하지 않고 표시에 필요한 base·tracks만.
@@ -2740,7 +2740,7 @@ function handleSubmitSurvey(body) {
 }
 
 // [관리자] 추가 보정 입금 확인(통장 대조). adminCall 경유(관리자 인증은 adminCall에서).
-function adminConfirmExtra(code) {
+function adminConfirmExtra(code) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -2759,7 +2759,7 @@ function adminConfirmExtra(code) {
 }
 
 // [관리자] 보정 착수 — 선택완료 → 보정중. 고객 화면에 "보정 중"을 표시(선택완료=보정 대기와 구분). 결과물상태 전이만.
-function adminStartRetouch(code) {
+function adminStartRetouch(code) { _requireAdmin();
   code = String(code || '').trim().toUpperCase();
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var cust = findCustomerByCode(code);
@@ -2775,7 +2775,7 @@ function adminStartRetouch(code) {
 }
 
 // [1회 실행] Customers에 결과물 셀렉트·추가 보정 컬럼 추가(멱등) + 레거시 결과물상태 '업로드'→'원본전달'.
-function addResultSelectionColumns() {
+function addResultSelectionColumns() { _requireAdmin();
   var sheet = getCustomersSheet();
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
   var need = ['선택사진', '선택수', '선택확정일시', '추가보정상태', '추가보정수량', '추가보정금액', '추가보정입금자명', '컨펌일시', '설문상태', '설문응답', '설문일시', '중도금상태', '중도금입금자명', '중도금입금신호', '중도금확인일시', '중도금리마인드', '원본폴더ID'], added = [];   // MPD3_GAL 원본폴더ID(B안 썸네일 갤러리)
@@ -2808,7 +2808,7 @@ function addResultSelectionColumns() {
 //   PR-B 이후 신규 고객은 구셀이 백지라 애초에 대상이 아니고(전이는 PRODUCE_ENTRY_FIX가 정상 처리),
 //   이전된 고객의 구셀은 동결된 이전 시점 스냅샷이라 시간이 갈수록 낡는다. → PR-B 배포 '전에' 1회 돌리고 끝낼 것.
 //   (신 컬럼을 보도록 고치는 대신 이대로 두는 이유: 목적이 '과거 고착 고객 정리'라 과거 데이터를 봐야 맞다)
-function backfillProduceStage(dry) {
+function backfillProduceStage(dry) { _requireAdmin();
   var dryRun = (dry !== false);   // 기본 드라이런
   var sheet = getCustomersSheet(), colOf = buildHeaderIndex(sheet);
   var last = sheet.getLastRow();
@@ -2843,4 +2843,4 @@ function backfillProduceStage(dry) {
 //   backfillProduceStage      = 드라이런(로그만 · 안전)
 //   backfillProduceStageApply = 실제 반영
 //   ★이 래퍼 삭제 금지 — 없으면 운영자가 매번 편집기에 임시 함수를 붙여야 하고, 파일 교체 때 그게 사라진다(2026-07-25 실제 겪음).
-function backfillProduceStageApply() { return backfillProduceStage(false); }
+function backfillProduceStageApply() { _requireAdmin(); return backfillProduceStage(false); }
