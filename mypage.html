@@ -8995,7 +8995,10 @@ function photoMinNote(sel){
 function photoCapNote(sel){
   var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig, photoWishN());
   if(!c) return '식순을 정하시면 알맞은 수를 알려 드려요 · 가족 구도는 보통 2~5컷이에요.';   // [PHOTO_UNIT_ONE] 무엇이 2~5인지 적는다
-  return '두 분 식순이면 본식 뒤 단체 사진 시간이 약&nbsp;'+(c.a===c.b?c.a:(c.a+'~'+c.b))+'분이에요. '+photoCapLine(c)+((sel||[]).length>c.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':'');
+  /* ★[PHOTO_FLOOR0 2026-10-08 · TABLE_GREET_1008] 본식이 40분을 넘는 판에 «약 -8~2분이에요»가 보였다 — 0 아래로 적지 않고, 위 값까지 0이면 모자란다고 말한다 */
+  var _pa=Math.max(0,c.a), _pb=Math.max(0,c.b);
+  if(_pb<=0) return '두 분 식순이면 본식이 길어 단체 사진 시간이 모자라요. 순간을 하나 덜면 여유가 생겨요.';   /* 책임질 수 없는 안심 금지 — 하나 덜어 모자람이 다 풀린다고 약속하지 않는다(빌더 알림과 같은 말) */
+  return '두 분 식순이면 본식 뒤 단체 사진 시간이 약&nbsp;'+(_pa===_pb?_pa:(_pa+'~'+_pb))+'분이에요. '+photoCapLine(c)+((sel||[]).length>c.k?' <span style="color:var(--gold-deeper)">늦어진 날엔 뒤에 고른 구도부터 줄어요.</span>':'');
 }
 /* ★[NO_ZERO_SHOT 2026-09-26 코워크 최종판 2-6] «구도 0개»라고 쓰지 않는다 — k = 0 이면 전체 하객 사진을 앞에 세운다 */
 function photoCapLine(c){
