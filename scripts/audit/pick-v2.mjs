@@ -99,7 +99,11 @@ for (const w of [390, 360]) {
         const sg = R.flowSegs(S0), host = document.createElement('div'); host.innerHTML = R.flowSVG(sg, w, opt);
         const svg = host.querySelector('svg'), h = +svg.getAttribute('height'), bad = [];
         svg.querySelectorAll('path').forEach((p) => { const n = (p.getAttribute('d').match(/-?\d+(\.\d+)?/g) || []).map(Number); for (let i = 0; i < n.length; i += 2) { if (n[i] < -0.5 || n[i] > w + 0.5 || n[i + 1] < -0.5 || n[i + 1] > h + 0.5) { bad.push('선이 밖(' + n[i] + ',' + n[i + 1] + ')'); break; } }
-          if ((p.getAttribute('stroke') || '').toUpperCase() !== '#7A5F37') bad.push('선 색 ' + p.getAttribute('stroke'));
+          /* ★[TABLE_APART 2026-10-08 사장님 «그 순간 이후 그래프 색상을 바꾼다던지»] 본식은 한 색 그대로 · 본식 뒤(테이블 인사)가 있을 때만 그 자리에서 옅은 금으로 바뀌는 가로 그라디언트(멈춤 둘 · 같은 자리) */
+          const st = p.getAttribute('stroke') || '', aft = sg.find((x) => x.after), g = /^url\(#(\w+)\)$/.exec(st);
+          if (g) { const stops = [...svg.querySelectorAll('#' + g[1] + ' stop')].map((x) => [x.getAttribute('offset'), (x.getAttribute('stop-color') || '').toUpperCase()]);
+            if (!aft || stops.length !== 2 || stops[0][1] !== '#7A5F37' || stops[1][1] !== '#B89A75' || stops[0][0] !== stops[1][0]) bad.push('선 색 ' + st + ' ' + JSON.stringify(stops)); }
+          else if (st.toUpperCase() !== '#7A5F37' || aft) bad.push('선 색 ' + st + (aft ? ' (본식 뒤가 있는데 한 색)' : ''));
           if ((p.getAttribute('fill') || '') !== 'none') bad.push('선에 칠'); });
         const filled = [...svg.querySelectorAll('circle,rect,polygon,ellipse')].filter((e) => { const f = e.getAttribute('fill'); return f && f !== 'none' && f !== 'transparent'; });
         const p = R.flowPeak(sg);

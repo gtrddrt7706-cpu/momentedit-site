@@ -10325,7 +10325,7 @@ function prodConfirmHtml(p, inv){
     /* ★[I1_HEAD 2026-09-26 코워크 최종판 5-3] 빌더 ④ 머리와 같은 말 · 옛 초안(photo 없음)은 두 칸
        [CF_LINE_BREAK 코워크 회신7 #872 권함 1] 요약 칸은 갈릴 자리에서 «·»를 빼고 줄을 바꾼다 — 줄 끝 «·»(종전) · 줄 머리 «·»(그 전) 둘 다 없게.
        확정 기록(스냅샷)은 줄바꿈을 « · »로 이어 적는다(아래 wireProdConfirm). 옛 코스 요약(아래 else)은 그대로. */
-    rv='담은 순간 '+escapeHtml(String(rd.summary.moments||0))+' · 본식 '+escapeHtml(String(rd.summary.min||''))+(rd.summary.photo?'<br>단체 사진 '+escapeHtml(String(rd.summary.photo)):'');
+    rv='담은 순간 '+escapeHtml(String(rd.summary.moments||0))+' · 본식 '+escapeHtml(String(rd.summary.min||''))+(rd.summary.table?'<br>테이블 인사 '+escapeHtml(String(rd.summary.table)):'')+(rd.summary.photo?'<br>단체 사진 '+escapeHtml(String(rd.summary.photo)):'');   /* [TABLE_APART 2026-10-08] 테이블 인사는 본식 · 단체 사진과 따로 한 줄 */
     var _mi=[]; if(rd.summary.from) _mi.push('‹'+escapeHtml(String(rd.summary.from))+'› 예시에서 시작');
     if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문'); if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('첫인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
     if(_mi.length) rv+='<br><span class="cc-mini">'+_mi.join('<br>')+'</span>'; }
